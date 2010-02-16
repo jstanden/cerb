@@ -1,9 +1,6 @@
 <?php
 $db = DevblocksPlatform::getDatabaseService();
-$datadict = NewDataDictionary($db); /* @var $datadict ADODB_DataDict */ // ,'mysql' 
-
-$tables = $datadict->MetaTables();
-$tables = array_flip($tables);
+$tables = $db->metaTables();
 
 // ===========================================================================
 // Convert the module format
@@ -11,9 +8,9 @@ $tables = array_flip($tables);
 $sql = "SELECT tool_code, property_value FROM community_tool_property WHERE property_key = 'common.enabled_modules'";
 $rs = $db->Execute($sql);
 
-while(!$rs->EOF) {
-	$tool_code = $rs->Fields('tool_code');
-	$property_value = $rs->Fields('property_value');
+while($row = mysql_fetch_assoc($rs)) {
+	$tool_code = $row['tool_code'];
+	$property_value = $row['property_value'];
 	
 	// Check the deprecated login bits
 	$login_contact = $db->GetOne(sprintf("SELECT property_value FROM community_tool_property WHERE property_key = 'contact.require_login' AND tool_code = %s AND property_value='1'",
@@ -64,8 +61,8 @@ while(!$rs->EOF) {
 	$db->Execute(sprintf("DELETE FROM community_tool_property WHERE tool_code = %s AND (property_key = 'contact.require_login' OR property_key = 'kb.require_login')",
 		$db->qstr($tool_code)
 	));
-	
-	$rs->MoveNext();
 }
+
+mysql_free_result($rs);
 
 return TRUE;

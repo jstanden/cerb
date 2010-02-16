@@ -1,25 +1,6 @@
 <?php
-/***********************************************************************
-| Cerberus Helpdesk(tm) developed by WebGroup Media, LLC.
-|-----------------------------------------------------------------------
-| All source code & content (c) Copyright 2009, WebGroup Media LLC
-|   unless specifically noted otherwise.
-|
-| This source code is released under the Cerberus Public License.
-| The latest version of this license can be found here:
-| http://www.cerberusweb.com/license.php
-|
-| By using this software, you acknowledge having read this license
-| and agree to be bound thereby.
-| ______________________________________________________________________
-|	http://www.cerberusweb.com	  http://www.webgroupmedia.com/
-***********************************************************************/
-
 $db = DevblocksPlatform::getDatabaseService();
-$datadict = NewDataDictionary($db,'mysql'); /* @var $datadict ADODB2_mysql */ // ,'mysql' 
-
-$tables = $datadict->MetaTables();
-$tables = array_flip($tables);
+$tables = $db->metaTables();
 
 // ===========================================================================
 // Clean up 'bayes_words'
@@ -38,10 +19,10 @@ if(isset($tables['bayes_words'])) {
 	// Flatten duplicates
 	$rs = $db->Execute("SELECT count(id) AS hits, SUM(spam) AS spam, SUM(nonspam) AS nonspam, LOWER(word) AS word FROM bayes_words GROUP BY LOWER(word) HAVING hits > 1");
 	
-	while(!$rs->EOF) {
-		$word = $rs->fields['word'];
-		$spam = intval($rs->fields['spam']);
-		$nonspam = intval($rs->fields['nonspam']);
+	while($row = mysql_fetch_assoc($rs)) {
+		$word = $row['word'];
+		$spam = intval($row['spam']);
+		$nonspam = intval($row['nonspam']);
 		
 		// Nuke all the dupes
 		$db->Execute(sprintf("DELETE FROM bayes_words WHERE word = %s", $db->qstr($word)));
@@ -56,10 +37,9 @@ if(isset($tables['bayes_words'])) {
 			$spam,
 			$nonspam
 		));
-		
-		$rs->MoveNext();
 	}
-
+	
+	mysql_free_result($rs);
 }
 
 // ===========================================================================

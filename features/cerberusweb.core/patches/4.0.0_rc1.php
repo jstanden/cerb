@@ -1,169 +1,108 @@
 <?php
-/***********************************************************************
-| Cerberus Helpdesk(tm) developed by WebGroup Media, LLC.
-|-----------------------------------------------------------------------
-| All source code & content (c) Copyright 2007, WebGroup Media LLC
-|   unless specifically noted otherwise.
-|
-| This source code is released under the Cerberus Public License.
-| The latest version of this license can be found here:
-| http://www.cerberusweb.com/license.php
-|
-| By using this software, you acknowledge having read this license
-| and agree to be bound thereby.
-| ______________________________________________________________________
-|	http://www.cerberusweb.com	  http://www.webgroupmedia.com/
-***********************************************************************/
-/*
- * IMPORTANT LICENSING NOTE from your friends on the Cerberus Helpdesk Team
- * 
- * Sure, it would be so easy to just cheat and edit this file to use the 
- * software without paying for it.  But we trust you anyway.  In fact, we're 
- * writing this software for you! 
- * 
- * Quality software backed by a dedicated team takes money to develop.  We 
- * don't want to be out of the office bagging groceries when you call up 
- * needing a helping hand.  We'd rather spend our free time coding your 
- * feature requests than mowing the neighbors' lawns for rent money. 
- * 
- * We've never believed in encoding our source code out of paranoia over not 
- * getting paid.  We want you to have the full source code and be able to 
- * make the tweaks your organization requires to get more done -- despite 
- * having less of everything than you might need (time, people, money, 
- * energy).  We shouldn't be your bottleneck.
- * 
- * We've been building our expertise with this project since January 2002.  We 
- * promise spending a couple bucks [Euro, Yuan, Rupees, Galactic Credits] to 
- * let us take over your shared e-mail headache is a worthwhile investment.  
- * It will give you a sense of control over your in-box that you probably 
- * haven't had since spammers found you in a game of "E-mail Address 
- * Battleship".  Miss. Miss. You sunk my in-box!
- * 
- * A legitimate license entitles you to support, access to the developer 
- * mailing list, the ability to participate in betas and the warm fuzzy 
- * feeling of feeding a couple obsessed developers who want to help you get 
- * more done than 'the other guy'.
- *
- * - Jeff Standen, Mike Fogg, Brenan Cavish, Darren Sugita, Dan Hildebrandt
- * 		and Joe Geck.
- *   WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
- */
 $db = DevblocksPlatform::getDatabaseService();
-$datadict = NewDataDictionary($db,'mysql'); /* @var $datadict ADODB2_mysql */ // ,'mysql' 
-
-$tables = $datadict->MetaTables();
-$tables = array_flip($tables);
+$tables = $db->metaTables();
 
 // `attachment` =============================
-$columns = $datadict->MetaColumns('attachment');
-$indexes = $datadict->MetaIndexes('attachment',false);
+list($columns, $indexes) = $db->metaTable('attachment');
 
 if(!isset($indexes['message_id'])) {
-	$sql = $datadict->CreateIndexSQL('message_id','attachment','message_id');
-	$datadict->ExecuteSQLArray($sql);
+	$db->Execute('ALTER TABLE attachment ADD INDEX message_id (message_id)');
 }
 
 // `kb_category` =============================
 if(!isset($tables['kb_category'])) {
-    $flds = "
-		id I4 DEFAULT 0 NOTNULL PRIMARY,
-		parent_id I4 DEFAULT 0 NOTNULL,
-		name C(64) DEFAULT '' NOTNULL
+	$sql = "
+		CREATE TABLE IF NOT EXISTS kb_category (
+			id INT UNSIGNED DEFAULT 0 NOT NULL,
+			parent_id INT UNSIGNED DEFAULT 0 NOT NULL,
+			name VARCHAR(64) DEFAULT '' NOT NULL,
+			PRIMARY KEY (id)
+		) ENGINE=MyISAM;
 	";
-    $sql = $datadict->CreateTableSQL('kb_category',$flds);
-    $datadict->ExecuteSQLArray($sql);
+	$db->Execute($sql);	
     
-	if(!isset($indexes['parent_id'])) {
-	    $sql = $datadict->CreateIndexSQL('parent_id','kb_category','parent_id');
-	    $datadict->ExecuteSQLArray($sql);
-	}
+}
+
+list($columns, $indexes) = $db->metaTable('kb_category');
+
+if(!isset($indexes['parent_id'])) {
+    $db->Execute('ALTER TABLE kb_category ADD INDEX parent_id (parent_id)');
 }
 
 // `kb_article_to_category` =============================
 if(!isset($tables['kb_article_to_category'])) {
-    $flds = "
-		kb_article_id I4 DEFAULT 0 NOTNULL PRIMARY,
-		kb_category_id I4 DEFAULT 0 NOTNULL PRIMARY,
-		kb_top_category_id I4 DEFAULT 0 NOTNULL
+	$sql = "
+		CREATE TABLE IF NOT EXISTS kb_article_to_category (
+			kb_article_id INT UNSIGNED DEFAULT 0 NOT NULL,
+			kb_category_id INT UNSIGNED DEFAULT 0 NOT NULL,
+			kb_top_category_id INT UNSIGNED DEFAULT 0 NOT NULL,
+			PRIMARY KEY (kb_article_id, kb_category_id)
+		) ENGINE=MyISAM;
 	";
-    $sql = $datadict->CreateTableSQL('kb_article_to_category',$flds);
-    $datadict->ExecuteSQLArray($sql);
-    
+	$db->Execute($sql);	
+	
 	if(!isset($indexes['kb_article_id'])) {
-	    $sql = $datadict->CreateIndexSQL('kb_article_id','kb_article_to_category','kb_article_id');
-	    $datadict->ExecuteSQLArray($sql);
+	    $db->Execute('ALTER TABLE kb_article_to_category ADD INDEX kb_article_id (kb_article_id)');
 	}
 	
 	if(!isset($indexes['kb_category_id'])) {
-	    $sql = $datadict->CreateIndexSQL('kb_category_id','kb_article_to_category','kb_category_id');
-	    $datadict->ExecuteSQLArray($sql);
+	    $db->Execute('ALTER TABLE kb_article_to_category ADD INDEX kb_category_id (kb_category_id)');
 	}
 	
 	if(!isset($indexes['kb_top_category_id'])) {
-	    $sql = $datadict->CreateIndexSQL('kb_top_category_id','kb_article_to_category','kb_top_category_id');
-	    $datadict->ExecuteSQLArray($sql);
+	    $db->Execute('ALTER TABLE kb_article_to_category ADD INDEX kb_top_category_id (kb_top_category_id)');
 	}
 }
 
 // `kb_article` ========================
 if(!isset($tables['kb_article'])) {
-	$flds ="
-		id I4 DEFAULT 0 NOTNULL PRIMARY,
-		title C(128) DEFAULT '' NOTNULL,
-		updated I4 DEFAULT 0 NOTNULL,
-		views I4 DEFAULT 0 NOTNULL,
-		content XL
+	$sql = "
+		CREATE TABLE IF NOT EXISTS kb_article (
+			id INT UNSIGNED DEFAULT 0 NOT NULL,
+			title VARCHAR(128) DEFAULT '' NOT NULL,
+			updated INT UNSIGNED DEFAULT 0 NOT NULL,
+			views INT UNSIGNED DEFAULT 0 NOT NULL,
+			content MEDIUMTEXT,
+			PRIMARY KEY (id)
+		) ENGINE=MyISAM;
 	";
-	$sql = $datadict->CreateTableSQL('kb_article', $flds);
-	$datadict->ExecuteSQLArray($sql);
+	$db->Execute($sql);	
 }
 
-$columns = $datadict->MetaColumns('kb_article');
-$indexes = $datadict->MetaIndexes('kb_article',false);
+list($columns, $indexes) = $db->metaTable('kb_article');
 
-if(!isset($columns['UPDATED'])) {
-	$sql = $datadict->AddColumnSQL('kb_article', "updated I4 DEFAULT 0 NOTNULL");
-	$datadict->ExecuteSQLArray($sql);
-	
-	$sql = array(sprintf("UPDATE kb_article SET updated = %d",time()));
-	$datadict->ExecuteSQLArray($sql);
+if(!isset($columns['updated'])) {
+	$db->Execute('ALTER TABLE kb_article ADD COLUMN updated INT UNSIGNED DEFAULT 0 NOT NULL');
+	$db->Execute("UPDATE kb_article SET updated = %d", time());
 }
 
-if(!isset($columns['VIEWS'])) {
-	$sql = $datadict->AddColumnSQL('kb_article', "views I4 DEFAULT 0 NOTNULL");
-	$datadict->ExecuteSQLArray($sql);
+if(!isset($columns['views'])) {
+	$db->Execute('ALTER TABLE kb_article ADD COLUMN views INT UNSIGNED DEFAULT 0 NOT NULL');
 }
 
 if(!isset($indexes['updated'])) {
-	$sql = $datadict->CreateIndexSQL('updated','kb_article','updated');
-	$datadict->ExecuteSQLArray($sql);
+	$db->Execute('ALTER TABLE kb_article ADD INDEX updated (updated)');
 }
 
-if(!isset($columns['FORMAT'])) {
-    $sql = $datadict->AddColumnSQL('kb_article', "format I1 DEFAULT 0 NOTNULL");
-    $datadict->ExecuteSQLArray($sql);
-    
+if(!isset($columns['format'])) {
+    $db->Execute('ALTER TABLE kb_article ADD COLUMN format TINYINT(1) UNSIGNED DEFAULT 0 NOT NULL');
     $db->Execute("UPDATE kb_article SET format=1");
 }
 
-if(!isset($columns['CONTENT_RAW'])) {
-    $sql = $datadict->AddColumnSQL('kb_article', "content_raw XL");
-    $datadict->ExecuteSQLArray($sql);
-    
+if(!isset($columns['content_raw'])) {
+    $db->Execute('ALTER TABLE kb_article ADD COLUMN content_raw MEDIUMTEXT');
     $db->Execute("UPDATE kb_article SET content_raw=content");
 }
 
 if(!isset($indexes['title'])) {
-	$sql = $datadict->CreateIndexSQL('title','kb_article','title',array('FULLTEXT'));
-	$datadict->ExecuteSQLArray($sql);
+	$db->Execute('ALTER TABLE kb_article ADD FULLTEXT title (title)');
 }
 
 if(!isset($indexes['content'])) {
-	$sql = $datadict->CreateIndexSQL('content','kb_article','content',array('FULLTEXT'));
-	$datadict->ExecuteSQLArray($sql);
+	$db->Execute('ALTER TABLE kb_article ADD FULLTEXT content (content)');
 }
 
-if(isset($columns['CODE'])) {
+if(isset($columns['code'])) {
     // [TODO] Look up the KB page_title
 
 	// First translate any existing codes to new KB topics
@@ -172,12 +111,11 @@ if(isset($columns['CODE'])) {
 	
 	$num = 1;
 	
-    while(!$rs->EOF) {
+    while($row = mysql_fetch_assoc($rs)) {
     	$cat_id = $db->GenID('generic_seq');
-    	$code = $rs->fields['code'];
+    	$code = $row['code'];
 
     	if(empty($cat_id) || empty($code)) {
-    		$rs->MoveNext();
     		continue;
     	}
     	
@@ -192,168 +130,145 @@ if(isset($columns['CODE'])) {
     		$db->qstr($code)
     	));
     	
-    	while(!$rs2->EOF) {
-    		$article_id = intval($rs2->fields['id']);
-    		$db->Replace(
-    			'kb_article_to_category',
-    			array('kb_article_id'=>$article_id,'kb_category_id'=>$cat_id,'kb_top_category_id'=>$cat_id),
-    			array('kb_article_id','kb_category_id'),
-    			false
+    	while($row2 = mysql_fetch_assoc($rs2)) {
+    		$article_id = intval($row2['id']);
+    		$db->Execute("REPLACE INTO kb_article_to_category (kb_article_id, kb_category_id, kb_top_category_id) ".
+    			"VALUES (%d, %d, %d)",
+    			$article_id,
+    			$cat_id,
+    			$cat_id
     		);
-    		$rs2->MoveNext();
     	}
     	
-    	$rs->MoveNext();
+    	mysql_free_result($rs2);
     }
     
+    mysql_free_result($rs);
+    
     unset($num);
-    unset($rs);
-    unset($rs2);
 	
-    $sql = $datadict->DropColumnSQL('kb_article', 'code');
-    $datadict->ExecuteSQLArray($sql);
+    $db->Execute("ALTER TABLE kb_article DROP COLUMN code");
 }
 
 // `message_content` ========================
-$columns = $datadict->MetaColumns('message_content');
-$indexes = $datadict->MetaIndexes('message_content',false);
+list($columns, $indexes) = $db->metaTable('message_content');
 
-if(isset($columns['CONTENT'])) {
-	if(0==strcasecmp('longblob',$columns['CONTENT']->type)) {
-		$sql = sprintf("ALTER TABLE message_content CHANGE COLUMN content content TEXT");
-		$db->Execute($sql);
+if(isset($columns['content'])) {
+	if(0 != strcasecmp('mediumtext',$columns['content']['type'])) {
+		$db->Execute("ALTER TABLE message_content CHANGE COLUMN content content MEDIUMTEXT");
 	}
 	
 	if(!isset($indexes['content'])) {
-		$sql = $datadict->CreateIndexSQL('content','message_content','content',array('FULLTEXT'));
-		$datadict->ExecuteSQLArray($sql);
+		$db->Execute('ALTER TABLE message_content ADD FULLTEXT content (content)');
 	}
 }
 
 // `message_header` ========================
-$columns = $datadict->MetaColumns('message_header');
-$indexes = $datadict->MetaIndexes('message_header',false);
+list($columns, $indexes) = $db->metaTable('message_header');
 
 // Drop compound primary key
-if(isset($columns['MESSAGE_ID']) && isset($columns['HEADER_NAME'])
-	&& $columns['MESSAGE_ID']->primary_key && $columns['MESSAGE_ID']->primary_key) {
-		$sql = array("ALTER TABLE message_header DROP PRIMARY KEY");
-		$datadict->ExecuteSQLArray($sql);
+if(isset($columns['message_id']) && isset($columns['header_name'])
+	&& 'PRI'==$columns['message_id']['key'] && 'PRI'==$columns['message_id']['key']) {
+		$db->Execute("ALTER TABLE message_header DROP PRIMARY KEY");
 }
 
 if(!isset($indexes['message_id'])) {
-	$sql = $datadict->CreateIndexSQL('message_id','message_header','message_id');
-	$datadict->ExecuteSQLArray($sql);
+	$db->Execute('ALTER TABLE message_header ADD INDEX message_id (message_id)');
 }
 
 if(!isset($indexes['header_value'])) {
-	$sql = $datadict->CreateIndexSQL('header_value','message_header','header_value(10)');
-	$datadict->ExecuteSQLArray($sql);
+	$db->Execute('ALTER TABLE message_header ADD INDEX header_value (header_value(10))');
 }
 
 // `message_note` ========================
-$columns = $datadict->MetaColumns('message_note');
-$indexes = $datadict->MetaIndexes('message_note',false);
+list($columns, $indexes) = $db->metaTable('message_note');
 
 if(!isset($indexes['message_id'])) {
-	$sql = $datadict->CreateIndexSQL('message_id','message_note','message_id');
-	$datadict->ExecuteSQLArray($sql);
+	$db->Execute('ALTER TABLE message_note ADD INDEX message_id (message_id)');
 }
 
 // `note` =============================
 if(!isset($tables['note'])) {
-    $flds = "
-		id I4 DEFAULT 0 NOTNULL PRIMARY,
-		source_extension_id C(128) DEFAULT '' NOTNULL,
-		source_id I4 DEFAULT 0 NOTNULL,
-		created I4 DEFAULT 0 NOTNULL,
-		worker_id I4 DEFAULT 0 NOTNULL,
-		content XL
+	$sql = "
+		CREATE TABLE IF NOT EXISTS note (
+			id INT UNSIGNED DEFAULT 0 NOT NULL,
+			source_extension_id VARCHAR(128) DEFAULT '' NOT NULL,
+			source_id INT UNSIGNED DEFAULT 0 NOT NULL,
+			created INT UNSIGNED DEFAULT 0 NOT NULL,
+			worker_id INT UNSIGNED DEFAULT 0 NOT NULL,
+			content TEXT,
+			PRIMARY KEY (id)
+		) ENGINE=MyISAM;
 	";
-    $sql = $datadict->CreateTableSQL('note',$flds);
-    $datadict->ExecuteSQLArray($sql);
+	$db->Execute($sql);	
 }
 
-$columns = $datadict->MetaColumns('note');
-$indexes = $datadict->MetaIndexes('note',false);
+list($columns, $indexes) = $db->metaTable('note');
 
 if(!isset($indexes['source_extension_id'])) {
-	$sql = $datadict->CreateIndexSQL('source_extension_id','note','source_extension_id');
-	$datadict->ExecuteSQLArray($sql);
+	$db->Execute('ALTER TABLE note ADD INDEX source_extension_id (source_extension_id)');
 }
 
 if(!isset($indexes['source_id'])) {
-	$sql = $datadict->CreateIndexSQL('source_id','note','source_id');
-	$datadict->ExecuteSQLArray($sql);
+	$db->Execute('ALTER TABLE note ADD INDEX source_id (source_id)');
 }
 
 if(!isset($indexes['created'])) {
-	$sql = $datadict->CreateIndexSQL('created','note','created');
-	$datadict->ExecuteSQLArray($sql);
+	$db->Execute('ALTER TABLE note ADD INDEX created (created)');
 }
 
 if(!isset($indexes['worker_id'])) {
-	$sql = $datadict->CreateIndexSQL('worker_id','note','worker_id');
-	$datadict->ExecuteSQLArray($sql);
+	$db->Execute('ALTER TABLE note ADD INDEX worker_id (worker_id)');
 }
 
 // `preparse_rule` =============================
 if(!isset($tables['preparse_rule'])) {
-    $flds = "
-		id I4 DEFAULT 0 NOTNULL PRIMARY,
-		name C(64) DEFAULT '' NOTNULL,
-		criteria_ser XL,
-		actions_ser XL,
-		pos I4 DEFAULT 0 NOTNULL
+	$sql = "
+		CREATE TABLE IF NOT EXISTS preparse_rule (
+			id INT UNSIGNED DEFAULT 0 NOT NULL,
+			name VARCHAR(64) DEFAULT '' NOT NULL,
+			criteria_ser MEDIUMTEXT,
+			actions_ser MEDIUMTEXT,
+			pos INT UNSIGNED DEFAULT 0 NOT NULL,
+			PRIMARY KEY (id),
+			INDEX pos (pos)
+		) ENGINE=MyISAM;
 	";
-    $sql = $datadict->CreateTableSQL('preparse_rule',$flds);
-    $datadict->ExecuteSQLArray($sql);
-    
-    $sql = $datadict->CreateIndexSQL('pos','preparse_rule','pos');
-    $datadict->ExecuteSQLArray($sql);
+	$db->Execute($sql);	
 }
 
 // `team_routing_rule` ========================
-$columns = $datadict->MetaColumns('team_routing_rule');
-$indexes = $datadict->MetaIndexes('team_routing_rule',false);
+list($columns, $indexes) = $db->metaTable('team_routing_rule');
 
-if(!isset($columns['NAME'])) {
-    $sql = $datadict->AddColumnSQL('team_routing_rule', "name C(64) DEFAULT '' NOTNULL");
-    $datadict->ExecuteSQLArray($sql);
-    
-    $sql = "UPDATE team_routing_rule SET name='Rule' WHERE name=''";
-    $db->Execute($sql);
+if(!isset($columns['name'])) {
+    $db->Execute("ALTER TABLE team_routing_rule ADD COLUMN name VARCHAR(64) DEFAULT '' NOT NULL");
+    $db->Execute("UPDATE team_routing_rule SET name='Rule' WHERE name=''");
 }
 
-if(!isset($columns['CRITERIA_SER'])) {
-    $sql = $datadict->AddColumnSQL('team_routing_rule', "criteria_ser XL");
-    $datadict->ExecuteSQLArray($sql);
+if(!isset($columns['criteria_ser'])) {
+    $db->Execute('ALTER TABLE team_routing_rule ADD COLUMN criteria_ser MEDIUMTEXT');
 }
 
-//if(!isset($columns['ACTIONS_SER'])) {
-//    $sql = $datadict->AddColumnSQL('team_routing_rule', "actions_ser XL");
-//    $datadict->ExecuteSQLArray($sql);
+//if(!isset($columns['actions_ser'])) {
+//    $db->Execute('ALTER TABLE team_routing_rule ADD COLUMN actions_ser MEDIUMTEXT');
 //}
 
 // Convert old header+patterns to criteria
-if(isset($columns['HEADER']) && isset($columns['PATTERN'])) {
+if(isset($columns['header']) && isset($columns['pattern'])) {
 	$sql = "SELECT id,header,pattern FROM team_routing_rule";
 	$rs = $db->Execute($sql);
 	
-	
-	while(!$rs->EOF) {
-		@$id = intval($rs->fields['id']);
-		@$header = strtolower($rs->fields['header']);
-		@$pattern = $rs->fields['pattern'];
+	while($row = mysql_fetch_assoc($rs)) {
+		@$id = intval($row['id']);
+		@$header = strtolower($row['header']);
+		@$pattern = $row['pattern'];
 		$criterion = array();
 		
 		if(empty($header) || empty($pattern)) {
-			$rs->MoveNext();
 			continue;
 		}
 		
 		if($header != 'from' && $header != 'subject') {
-			$rs->MoveNext();
 			continue;
 		}
 			
@@ -367,104 +282,84 @@ if(isset($columns['HEADER']) && isset($columns['PATTERN'])) {
 			$id
 		);
 		$db->Execute($sql);
-		
-		$rs->MoveNext();
 	}
+	
+	mysql_free_result($rs);
 
 	// Drop columns
-	$sql = $datadict->DropColumnSQL('team_routing_rule','header');
-	$datadict->ExecuteSQLArray($sql);
-	
-	$sql = $datadict->DropColumnSQL('team_routing_rule','pattern');
-	$datadict->ExecuteSQLArray($sql);
+	$db->Execute('ALTER TABLE team_routing_rule DROP COLUMN header');
+	$db->Execute('ALTER TABLE team_routing_rule DROP COLUMN pattern');
 }
 
 // `ticket` ========================
-$columns = $datadict->MetaColumns('ticket');
-$indexes = $datadict->MetaIndexes('ticket',false);
+list($columns, $indexes) = $db->metaTable('ticket');
 
-if(!isset($columns['UNLOCK_DATE'])) {
-	$sql = $datadict->AddColumnSQL('ticket','unlock_date I4 DEFAULT 0 NOTNULL');
-	$datadict->ExecuteSQLArray($sql);
+if(!isset($columns['unlock_date'])) {
+	$db->Execute('ALTER TABLE ticket ADD COLUMN unlock_date INT UNSIGNED DEFAULT 0 NOT NULL');
 }
 
 if(!isset($indexes['unlock_date'])) {
-	$sql = $datadict->CreateIndexSQL('unlock_date','ticket','unlock_date');
-	$datadict->ExecuteSQLArray($sql);
+	$db->Execute('ALTER TABLE ticket ADD INDEX unlock_date (unlock_date)');
 }
 
 if(!isset($indexes['due_date'])) {
-	$sql = $datadict->CreateIndexSQL('due_date','ticket','due_date');
-	$datadict->ExecuteSQLArray($sql);
+	$db->Execute('ALTER TABLE ticket ADD INDEX due_date (due_date)');
 }
 
 if(!isset($indexes['is_deleted'])) {
-	$sql = $datadict->CreateIndexSQL('is_deleted','ticket','is_deleted');
-	$datadict->ExecuteSQLArray($sql);
+	$db->Execute('ALTER TABLE ticket ADD INDEX is_deleted (is_deleted)');
 }
 
 if(!isset($indexes['last_action_code'])) {
-	$sql = $datadict->CreateIndexSQL('last_action_code','ticket','last_action_code');
-	$datadict->ExecuteSQLArray($sql);
+	$db->Execute('ALTER TABLE ticket ADD INDEX last_action_code (last_action_code)');
 }
 
 if(!isset($indexes['spam_score'])) {
-	$sql = $datadict->CreateIndexSQL('spam_score','ticket','spam_score');
-	$datadict->ExecuteSQLArray($sql);
+	$db->Execute('ALTER TABLE ticket ADD INDEX spam_score (spam_score)');
 }
-
 
 // `ticket_comment` ========================
-$columns = $datadict->MetaColumns('ticket_comment');
-$indexes = $datadict->MetaIndexes('ticket_comment',false);
+list($columns, $indexes) = $db->metaTable('ticket_comment');
 
 if(!isset($indexes['ticket_id'])) {
-	$sql = $datadict->CreateIndexSQL('ticket_id','ticket_comment','ticket_id');
-	$datadict->ExecuteSQLArray($sql);
+	$db->Execute('ALTER TABLE ticket_comment ADD INDEX ticket_id (ticket_id)');
 }
 
-if(!isset($columns['ADDRESS_ID'])) {
-    $sql = $datadict->AddColumnSQL('ticket_comment', "address_id I4 DEFAULT 0 NOTNULL");
-    $datadict->ExecuteSQLArray($sql);
-	
-	$sql = $datadict->CreateIndexSQL('address_id','ticket_comment','address_id');
-	$datadict->ExecuteSQLArray($sql);
+if(!isset($columns['address_id'])) {
+    $db->Execute('ALTER TABLE ticket_comment ADD COLUMN address_id INT UNSIGNED DEFAULT 0 NOT NULL');
+	$db->Execute('ALTER TABLE ticket_comment ADD INDEX address_id (address_id)');
 }
 
-if(isset($columns['WORKER_ID'])) {
+if(isset($columns['worker_id'])) {
 	// Convert worker_id to address_id
 	$sql = "SELECT w.id, a.id AS address_id FROM worker w INNER JOIN address a ON (w.email=a.email)";
 	$rs = $db->Execute($sql);
 	
-	while(!$rs->EOF) {
-		$worker_id = intval($rs->fields['id']);
-		$address_id = intval($rs->fields['address_id']);
+	while($row = mysql_fetch_assoc($rs)) {
+		$worker_id = intval($row['id']);
+		$address_id = intval($row['address_id']);
 		
 		$db->Execute(sprintf("UPDATE ticket_comment SET address_id = %d WHERE worker_id = %d AND address_id = 0",
 			$address_id,
 			$worker_id
 		));
-		
-		$rs->MoveNext();
 	}
 	
-	$sql = $datadict->DropColumnSQL('ticket_comment','worker_id');
-	$datadict->ExecuteSQLArray($sql);
+	mysql_free_result($rs);
+	
+	$db->Execute("ALTER TABLE ticket_comment DROP COLUMN worker_id");
 }
 
 // `ticket_field` ========================
 if(isset($tables['ticket_field'])) {
-	$columns = $datadict->MetaColumns('ticket_field');
-	$indexes = $datadict->MetaIndexes('ticket_field',false);
+	list($columns, $indexes) = $db->metaTable('ticket_field');	
 	
 	if(!isset($indexes['pos'])) {
-		$sql = $datadict->CreateIndexSQL('pos','ticket_field','pos');
-		$datadict->ExecuteSQLArray($sql);
+		$db->Execute('ALTER TABLE ticket_field ADD INDEX pos (pos)');
 	}
 	
-	if(32 == $columns['NAME']->max_length) {
-		$sql = "ALTER TABLE ticket_field CHANGE COLUMN name name varchar(128) DEFAULT '' NOT NULL";
-		$db->Execute($sql);
+	if('varchar(128)' != $columns['name']['type']) {
+		$db->Execute("ALTER TABLE ticket_field CHANGE COLUMN name name varchar(128) DEFAULT '' NOT NULL");
 	}
 }
 
@@ -472,74 +367,61 @@ if(isset($tables['ticket_field'])) {
 
 // `ticket_field` ========================
 if(!isset($tables['custom_field']) && isset($tables['ticket_field'])) {
-	$sql = "RENAME TABLE ticket_field TO custom_field";
-	$db->Execute($sql);
+	$db->Execute("RENAME TABLE ticket_field TO custom_field");
 }
 
 // `ticket_field_seq` ========================
 if(!isset($tables['custom_field_seq']) && isset($tables['ticket_field_seq'])) {
-	$sql = "RENAME TABLE ticket_field_seq TO custom_field_seq";
-	$db->Execute($sql);
+	$db->Execute("RENAME TABLE ticket_field_seq TO custom_field_seq");
 }
 
 // `ticket_field_value` ========================
 if(!isset($tables['custom_field_value']) && isset($tables['ticket_field_value'])) {
-	$sql = "RENAME TABLE ticket_field_value TO custom_field_value";
-	$db->Execute($sql);
+	$db->Execute("RENAME TABLE ticket_field_value TO custom_field_value");
 }
 
 // `custom_field` ========================
-$columns = $datadict->MetaColumns('custom_field');
-$indexes = $datadict->MetaIndexes('custom_field',false);
+list($columns, $indexes) = $db->metaTable('custom_field');
 
-if(!isset($columns['SOURCE_EXTENSION'])) {
-    $sql = $datadict->AddColumnSQL('custom_field', "source_extension C(255) DEFAULT '' NOTNULL");
-    $datadict->ExecuteSQLArray($sql);
+if(!isset($columns['source_extension'])) {
+    $db->Execute("ALTER TABLE custom_field ADD COLUMN source_extension VARCHAR(255) DEFAULT '' NOT NULL");
     
     $sql = "UPDATE custom_field SET source_extension = 'cerberusweb.fields.source.ticket' WHERE source_extension = ''";
     $db->Execute($sql);
 }
 
 if(!isset($indexes['source_extension'])) {
-	$sql = $datadict->CreateIndexSQL('source_extension','custom_field','source_extension');
-	$datadict->ExecuteSQLArray($sql);
+	$db->Execute('ALTER TABLE custom_field ADD INDEX source_extension (source_extension)');
 }
 
 // `custom_field_value` ========================
-$columns = $datadict->MetaColumns('custom_field_value');
-$indexes = $datadict->MetaIndexes('custom_field_value',false);
+list($columns, $indexes) = $db->metaTable('custom_field_value');
 
-if(!isset($columns['SOURCE_EXTENSION'])) {
-    $sql = $datadict->AddColumnSQL('custom_field_value', "source_extension C(255) DEFAULT '' NOTNULL");
-    $datadict->ExecuteSQLArray($sql);
+if(!isset($columns['source_extension'])) {
+    $db->Execute("ALTER TABLE custom_field_value ADD COLUMN source_extension VARCHAR(255) DEFAULT '' NOT NULL");
     
     $sql = "UPDATE custom_field_value SET source_extension = 'cerberusweb.fields.source.ticket' WHERE source_extension = ''";
     $db->Execute($sql);
 }
 
-if(!isset($columns['SOURCE_ID']) && isset($columns['TICKET_ID'])) {
+if(!isset($columns['source_id']) && isset($columns['ticket_id'])) {
 	if(isset($indexes['ticket_id'])) {
-		$sql = $datadict->DropIndexSQL('ticket_id', 'custom_field_value');
-		$datadict->ExecuteSQLArray($sql);
+		$db->Execute('ALTER TABLE custom_field_value DROP INDEX ticket_id');
 	}
 	
-	$sql = "ALTER TABLE custom_field_value CHANGE COLUMN ticket_id source_id int(11) DEFAULT '0' NOT NULL";
-    $db->Execute($sql);
+	$db->Execute("ALTER TABLE custom_field_value CHANGE COLUMN ticket_id source_id int(11) DEFAULT '0' NOT NULL");
 }
 
 if(!isset($indexes['field_id'])) {
-	$sql = $datadict->CreateIndexSQL('field_id','custom_field_value','field_id');
-	$datadict->ExecuteSQLArray($sql);
+	$db->Execute('ALTER TABLE custom_field_value ADD INDEX field_id (field_id)');
 }
 
 if(!isset($indexes['source_extension'])) {
-	$sql = $datadict->CreateIndexSQL('source_extension','custom_field_value','source_extension');
-	$datadict->ExecuteSQLArray($sql);
+	$db->Execute('ALTER TABLE custom_field_value ADD INDEX source_extension (source_extension)');
 }
 
 if(!isset($indexes['source_id'])) {
-	$sql = $datadict->CreateIndexSQL('source_id','custom_field_value','source_id');
-	$datadict->ExecuteSQLArray($sql);
+	$db->Execute('ALTER TABLE custom_field_value ADD INDEX source_id (source_id)');
 }
 
 // ===========================================================================
@@ -547,10 +429,9 @@ if(!isset($indexes['source_id'])) {
 // ===========================================================================
 
 	// `address` ======================
-	$columns = $datadict->MetaColumns('address');
-	$indexes = $datadict->MetaIndexes('address',false);
+	list($columns, $indexes) = $db->metaTable('address');
 	
-	if(isset($columns['PHONE'])) {
+	if(isset($columns['phone'])) {
 		$sql = "SELECT count(id) FROM address WHERE phone != ''";
 		$count = $db->GetOne($sql);
 		
@@ -574,15 +455,13 @@ if(!isset($indexes['source_id'])) {
 		}
 		
 		// Drop the account number hardcoded column
-		$sql = $datadict->DropColumnSQL('address','phone');
-		$datadict->ExecuteSQLArray($sql);
+		$db->Execute('ALTER TABLE address DROP COLUMN phone');
 	}
 	
 	// `contact_org` ======================
-	$columns = $datadict->MetaColumns('contact_org');
-	$indexes = $datadict->MetaIndexes('contact_org',false);
+	list($columns, $indexes) = $db->metaTable('contact_org');
 	
-	if(isset($columns['ACCOUNT_NUMBER'])) {
+	if(isset($columns['account_number'])) {
 		$sql = "SELECT count(id) FROM contact_org WHERE account_number != ''";
 		$count = $db->GetOne($sql);
 		
@@ -606,39 +485,32 @@ if(!isset($indexes['source_id'])) {
 		}
 		
 		// Drop the account number hardcoded column
-		$sql = $datadict->DropColumnSQL('contact_org','account_number');
-		$datadict->ExecuteSQLArray($sql);
+		$db->Execute('ALTER TABLE contact_org DROP COLUMN account_number');
 	}
 
 // `view_rss` ======================
 if(!isset($tables['view_rss']) && isset($tables['ticket_rss'])) {
-	$sql = "RENAME TABLE ticket_rss TO view_rss";
-	$db->Execute($sql);
+	$db->Execute("RENAME TABLE ticket_rss TO view_rss");
 }
 
-$columns = $datadict->MetaColumns('view_rss');
-$indexes = $datadict->MetaIndexes('view_rss',false);
+list($columns, $indexes) = $db->metaTable('view_rss');
 
-if(!isset($columns['SOURCE_EXTENSION'])) {
-    $sql = $datadict->AddColumnSQL('view_rss', "source_extension C(255) DEFAULT '' NOTNULL");
-    $datadict->ExecuteSQLArray($sql);
+if(!isset($columns['source_extension'])) {
+    $db->Execute("ALTER TABLE view_rss ADD COLUMN source_extension VARCHAR(255) DEFAULT '' NOT NULL");
     
     $sql = "UPDATE view_rss SET source_extension = 'core.rss.source.ticket' WHERE source_extension = ''";
     $db->Execute($sql);
 }
 
 // `worker` ========================
-$columns = $datadict->MetaColumns('worker');
-$indexes = $datadict->MetaIndexes('worker',false);
+list($columns, $indexes) = $db->metaTable('worker');
 
-if(!isset($columns['IS_DISABLED'])) {
-    $sql = $datadict->AddColumnSQL('worker', "is_disabled I1 DEFAULT 0 NOTNULL");
-    $datadict->ExecuteSQLArray($sql);
+if(!isset($columns['is_disabled'])) {
+    $db->Execute('ALTER TABLE worker ADD COLUMN is_disabled TINYINT(1) UNSIGNED DEFAULT 0 NOT NULL');
 }
 
-if(!isset($indexes['pos'])) {
-	$sql = $datadict->CreateIndexSQL('last_activity_date','worker','last_activity_date');
-	$datadict->ExecuteSQLArray($sql);
+if(!isset($indexes['last_activity_date'])) {
+	$db->Execute('ALTER TABLE worker ADD INDEX last_activity_date (last_activity_date)');
 }
 
 // Configure import cron
@@ -653,34 +525,22 @@ if(null != ($cron_mf = DevblocksPlatform::getExtension('cron.import'))) {
 
 // `worker_event` =============================
 if(!isset($tables['worker_event'])) {
-    $flds = "
-		id I4 DEFAULT 0 NOTNULL PRIMARY,
-		created_date I4 DEFAULT 0 NOTNULL,
-		worker_id I4 DEFAULT 0 NOTNULL,
-		title C(255) DEFAULT '' NOTNULL,
-		content XL,
-		is_read I1 DEFAULT 0 NOTNULL,
-		url C(255) DEFAULT '' NOTNULL
+	$sql = "
+		CREATE TABLE IF NOT EXISTS worker_event (
+			id INT UNSIGNED DEFAULT 0 NOT NULL,
+			created_date INT UNSIGNED DEFAULT 0 NOT NULL,
+			worker_id INT UNSIGNED DEFAULT 0 NOT NULL,
+			title VARCHAR(255) DEFAULT '' NOT NULL,
+			content TEXT,
+			is_read TINYINT(1) UNSIGNED DEFAULT 0 NOT NULL,
+			url VARCHAR(255) DEFAULT '' NOT NULL,
+			PRIMARY KEY (id),
+			INDEX created_date (created_date),
+			INDEX worker_id (worker_id),
+			INDEX is_read (is_read)
+		) ENGINE=MyISAM;
 	";
-    
-    $sql = $datadict->CreateTableSQL('worker_event',$flds);
-    $datadict->ExecuteSQLArray($sql);
-    
-	if(!isset($indexes['created_date'])) {
-	    $sql = $datadict->CreateIndexSQL('created_date','worker_event','created_date');
-	    $datadict->ExecuteSQLArray($sql);
-	}
-	
-	if(!isset($indexes['worker_id'])) {
-	    $sql = $datadict->CreateIndexSQL('worker_id','worker_event','worker_id');
-	    $datadict->ExecuteSQLArray($sql);
-	}
-	
-	if(!isset($indexes['is_read'])) {
-	    $sql = $datadict->CreateIndexSQL('is_read','worker_event','is_read');
-	    $datadict->ExecuteSQLArray($sql);
-	}
+	$db->Execute($sql);	
 }
 
 return TRUE;
-?>

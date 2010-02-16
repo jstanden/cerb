@@ -646,24 +646,24 @@ class DAO_KbArticle extends DevblocksORMHelper {
 	/**
 	 * Enter description here...
 	 *
-	 * @param ADORecordSet $rs
+	 * @param resource $rs
 	 */
-	static private function _createObjectsFromResultSet(ADORecordSet $rs=null) {
+	static private function _createObjectsFromResultSet($rs=null) {
 		$objects = array();
 		
-		if(is_a($rs,'ADORecordSet'))
-		while(!$rs->EOF) {
+		while($row = mysql_fetch_assoc($rs)) {
 			$object = new Model_KbArticle();
-			$object->id = intval($rs->fields['id']);
-			$object->title = $rs->fields['title'];
-			$object->updated = $rs->fields['updated'];
-			$object->views = $rs->fields['views'];
-			$object->format = $rs->fields['format'];
-			$object->content = $rs->fields['content'];
-			$object->content_raw = $rs->fields['content_raw'];
+			$object->id = intval($row['id']);
+			$object->title = $row['title'];
+			$object->updated = $row['updated'];
+			$object->views = $row['views'];
+			$object->format = $row['format'];
+			$object->content = $row['content'];
+			$object->content_raw = $row['content_raw'];
 			$objects[$object->id] = $object;
-			$rs->MoveNext();
 		}
+		
+		mysql_free_result($rs);
 		
 		return $objects;
 	}
@@ -683,15 +683,6 @@ class DAO_KbArticle extends DevblocksORMHelper {
 		
 		$id_string = implode(',', $ids);
 		
-//		// [TODO] Refactor out
-//		// CloudGlue removes tags from nuked articles
-//		$code_rs = $db->Execute(sprintf("SELECT DISTINCT code AS code FROM kb_article WHERE id IN (%s)", $id_string));
-//		while(!$code_rs->EOF) {
-//			$code = $code_rs->fields['code'];
-//			DAO_CloudGlue::deleteContentIds(UmKbApp::TAG_INDEX_PREFIX.$code, $ids);
-//			$code_rs->MoveNext();
-//		}
-
 		// Articles
 		$db->Execute(sprintf("DELETE QUICK FROM kb_article WHERE id IN (%s)", $id_string));
 		
@@ -713,12 +704,12 @@ class DAO_KbArticle extends DevblocksORMHelper {
 			$article_id
 		));
 		
-		if(is_a($rs,'ADORecordSet'))
-		while(!$rs->EOF) {
-			$cat_id = intval($rs->fields['kb_category_id']);
+		while($row = mysql_fetch_assoc($rs)) {
+			$cat_id = intval($row['kb_category_id']);
 			$categories[$cat_id] = $cat_id;
-			$rs->MoveNext();
 		}
+		
+		mysql_free_result($rs);
 		
 		return $categories;
 	}
@@ -755,12 +746,12 @@ class DAO_KbArticle extends DevblocksORMHelper {
 					
 					if(is_array($article_ids))
 					foreach($article_ids as $article_id) {
-						$db->Replace(
-							'kb_article_to_category',
-							array('kb_article_id'=>$article_id,'kb_category_id'=>$category_id,'kb_top_category_id'=>$top_category_id),
-							array('kb_article_id','kb_category_id'),
-							false
-						);
+						$db->Execute(sprintf("REPLACE INTO kb_article_to_category (kb_article_id, kb_category_id, kb_top_category_id) ".
+							"VALUES (%d, %d, %d)",
+							$article_id,
+							$category_id,
+							$top_category_id
+						));
 					}
 					
 				// Delete
@@ -830,27 +821,27 @@ class DAO_KbArticle extends DevblocksORMHelper {
 			'GROUP BY kb.id '.
 			$sort_sql;
 		
-		$rs = $db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$rs = $db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 		
 		$results = array();
 		
-		if(is_a($rs,'ADORecordSet'))
-		while(!$rs->EOF) {
+		while($row = mysql_fetch_assoc($rs)) {
 			$result = array();
-			foreach($rs->fields as $f => $v) {
+			foreach($row as $f => $v) {
 				$result[$f] = $v;
 			}
-			$id = intval($rs->fields[SearchFields_KbArticle::ID]);
+			$id = intval($row[SearchFields_KbArticle::ID]);
 			$results[$id] = $result;
-			$rs->MoveNext();
 		}
 
 		// [JAS]: Count all
 		$total = -1;
 		if($withCounts) {
 		    $rs = $db->Execute($sql);
-		    $total = $rs->RecordCount();
+		    $total = mysql_num_rows($rs);
 		}
+		
+		mysql_free_result($rs);
 		
 		return array($results,$total);
     }
@@ -875,15 +866,15 @@ class SearchFields_KbArticle implements IDevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = array(
-			self::ID => new DevblocksSearchField(self::ID, 'kb', 'id', null, $translate->_('kb_article.id')),
-			self::TITLE => new DevblocksSearchField(self::TITLE, 'kb', 'title', null, $translate->_('kb_article.title')),
-			self::UPDATED => new DevblocksSearchField(self::UPDATED, 'kb', 'updated', null, $translate->_('kb_article.updated')),
-			self::VIEWS => new DevblocksSearchField(self::VIEWS, 'kb', 'views', null, $translate->_('kb_article.views')),
-			self::FORMAT => new DevblocksSearchField(self::FORMAT, 'kb', 'format', null, $translate->_('kb_article.format')),
-			self::CONTENT => new DevblocksSearchField(self::CONTENT, 'kb', 'content', null, $translate->_('kb_article.content')),
+			self::ID => new DevblocksSearchField(self::ID, 'kb', 'id', $translate->_('kb_article.id')),
+			self::TITLE => new DevblocksSearchField(self::TITLE, 'kb', 'title', $translate->_('kb_article.title')),
+			self::UPDATED => new DevblocksSearchField(self::UPDATED, 'kb', 'updated', $translate->_('kb_article.updated')),
+			self::VIEWS => new DevblocksSearchField(self::VIEWS, 'kb', 'views', $translate->_('kb_article.views')),
+			self::FORMAT => new DevblocksSearchField(self::FORMAT, 'kb', 'format', $translate->_('kb_article.format')),
+			self::CONTENT => new DevblocksSearchField(self::CONTENT, 'kb', 'content', $translate->_('kb_article.content')),
 			
 			self::CATEGORY_ID => new DevblocksSearchField(self::CATEGORY_ID, 'katc', 'kb_category_id'),
-			self::TOP_CATEGORY_ID => new DevblocksSearchField(self::TOP_CATEGORY_ID, 'katc', 'kb_top_category_id', null, $translate->_('kb_article.topic')),
+			self::TOP_CATEGORY_ID => new DevblocksSearchField(self::TOP_CATEGORY_ID, 'katc', 'kb_top_category_id', $translate->_('kb_article.topic')),
 		);
 		
 		// Sort by label (translation-conscious)
@@ -938,10 +929,9 @@ class DAO_KbCategory extends DevblocksORMHelper {
 		$sql = "SELECT count(*) AS hits, kb_category_id FROM kb_article_to_category GROUP BY kb_category_id";
 		$rs = $db->Execute($sql);
 		
-		if(is_a($rs,'ADORecordSet'))
-		while(!$rs->EOF) {
-			$count_cat = intval($rs->fields['kb_category_id']);
-			$count_hits = intval($rs->fields['hits']);
+		while($row = mysql_fetch_assoc($rs)) {
+			$count_cat = intval($row['kb_category_id']);
+			$count_hits = intval($row['hits']);
 			
 			$pid = $count_cat;
 			while($pid) {
@@ -949,11 +939,11 @@ class DAO_KbCategory extends DevblocksORMHelper {
 				$tree[$parent_id][$pid] += $count_hits;
 				$pid = $parent_id;
 			}
-			
-			$rs->MoveNext();
 		}
 		
 		// [TODO] Filter out empty categories on public
+		
+		mysql_free_result($rs);
 		
 		return $tree;
 	}
@@ -1019,21 +1009,21 @@ class DAO_KbCategory extends DevblocksORMHelper {
 	}
 	
 	/**
-	 * @param ADORecordSet $rs
+	 * @param resource $rs
 	 * @return Model_KbCategory[]
 	 */
 	static private function _getObjectsFromResult($rs) {
 		$objects = array();
 		
-		if(is_a($rs,'ADORecordSet'))
-		while(!$rs->EOF) {
+		while($row = mysql_fetch_assoc($rs)) {
 			$object = new Model_KbCategory();
-			$object->id = $rs->fields['id'];
-			$object->parent_id = $rs->fields['parent_id'];
-			$object->name = $rs->fields['name'];
+			$object->id = $row['id'];
+			$object->parent_id = $row['parent_id'];
+			$object->name = $row['name'];
 			$objects[$object->id] = $object;
-			$rs->MoveNext();
 		}
+		
+		mysql_free_result($rs);
 		
 		return $objects;
 	}

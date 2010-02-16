@@ -1,9 +1,6 @@
 <?php
 $db = DevblocksPlatform::getDatabaseService();
-$datadict = NewDataDictionary($db); /* @var $datadict ADODB_DataDict */ // ,'mysql' 
-
-$tables = $datadict->MetaTables();
-$tables = array_flip($tables);
+$tables = $db->metaTables();
 
 // ===========================================================================
 // Add namespaces to community tool properties and clean up unused entries
@@ -35,13 +32,10 @@ if(isset($tables['community_tool_property'])) {
 // ===========================================================================
 // Add nicknames for community tool instances
 
-$columns = $datadict->MetaColumns('community_tool');
-$indexes = $datadict->MetaIndexes('community_tool',false);
+list($columns, $indexes) = $db->metaTable('community_tool');
 
-if(!isset($columns['NAME'])) {
-    $sql = $datadict->AddColumnSQL('community_tool', "name C(128) DEFAULT '' NOTNULL");
-    $datadict->ExecuteSQLArray($sql);
-	
+if(!isset($columns['name'])) {
+    $db->Execute("ALTER TABLE community_tool ADD COLUMN name VARCHAR(128) DEFAULT '' NOT NULL");
 	$db->Execute("UPDATE community_tool SET name = 'Support Center' WHERE name = '' AND extension_id = 'sc.tool'");
 }
 
@@ -53,24 +47,25 @@ if(isset($tables['community_tool'])) {
 	$sql = "SELECT id,code,extension_id FROM community_tool WHERE extension_id IN ('support.tool','kb.tool')";
 	$rs = $db->Execute($sql);
 	
-	while(!$rs->EOF) {
-		$code = $rs->fields['code'];
-		$tool_extension_id = $rs->fields['extension_id'];
+	while($row = mysql_fetch_assoc($rs)) {
+		$code = $row['code'];
+		$tool_extension_id = $row['extension_id'];
 		
 		// Look up the existing properties for this tool
 		$sql = sprintf("SELECT property_key, property_value FROM community_tool_property WHERE tool_code = '%s'",$code);
-		$rs_props = $db->Execute($sql);
+		$rs = $db->Execute($sql);
 		
 		$name = '';
 		$props = array();
 
 		// Create a hash of properties		
-		while(!$rs_props->EOF) {
-			$k = $rs_props->fields['property_key'];
-			$v = $rs_props->fields['property_value'];
+		while($row = mysql_fetch_assoc($rs)) {
+			$k = $row['property_key'];
+			$v = $row['property_value'];
 			$props[$k] = $v;
-			$rs_props->MoveNext();
 		}
+		
+		mysql_free_result($rs);
 		
 		// Drop existing properies to replace
 		$db->Execute(sprintf("DELETE FROM community_tool_property WHERE tool_code = '%s'",$code));
@@ -110,9 +105,9 @@ if(isset($tables['community_tool'])) {
 		));
 		
 		unset($props);
-		
-		$rs->MoveNext();
 	}
+	
+	mysql_free_result($rs);
 }
 
 // ===========================================================================
@@ -122,28 +117,28 @@ if(isset($tables['community_tool'])) {
 	$sql = "SELECT c.code, p.property_key FROM community_tool c LEFT JOIN community_tool_property p ON (c.code=p.tool_code AND p.property_key = 'common.enabled_modules') WHERE c.extension_id='sc.tool' AND p.property_key IS NULL";
 	$rs = $db->Execute($sql);
 	
-	while(!$rs->EOF) {
-		$code = $rs->fields['code'];
+	while($row = mysql_fetch_assoc($rs)) {
+		$code = $row['code'];
 		$db->Execute(sprintf("INSERT INTO community_tool_property (tool_code, property_key, property_value) ".
 			"VALUES (%s,%s,%s)",
 			$db->qstr($code),
 			$db->qstr('common.enabled_modules'),
 			$db->qstr('sc.controller.home,sc.controller.announcements,cerberusweb.kb.sc.controller,sc.controller.contact,sc.controller.history,sc.controller.register,sc.controller.account')
 		));
-		$rs->MoveNext();
 	}
+	
+	mysql_free_result($rs);
 }
 
 // ===========================================================================
 // Change 'community_tool_property' values to X (text) rather than B (blob)
 
 if(isset($tables['community_tool_property'])) {
-	$columns = $datadict->MetaColumns('community_tool_property');
+	list($columns, $indexes) = $db->metaTable('community_tool_property');
 	
-	if(isset($columns['PROPERTY_VALUE'])) {
-		if(0==strcasecmp('longblob',$columns['PROPERTY_VALUE']->type)) {
-			$sql = sprintf("ALTER TABLE community_tool_property CHANGE COLUMN `property_value` `property_value` TEXT");
-			$db->Execute($sql);
+	if(isset($columns['property_value'])) {
+		if(0 != strcasecmp('text',$columns['property_value']['type'])) {
+			$db->Execute("ALTER TABLE community_tool_property CHANGE COLUMN property_value property_value TEXT");
 		}
 	}
 }

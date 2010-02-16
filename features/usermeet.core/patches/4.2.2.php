@@ -1,9 +1,6 @@
 <?php
 $db = DevblocksPlatform::getDatabaseService();
-$datadict = NewDataDictionary($db); /* @var $datadict ADODB_DataDict */ // ,'mysql' 
-
-$tables = $datadict->MetaTables();
-$tables = array_flip($tables);
+$tables = $db->metaTables();
 
 // ===========================================================================
 // Remove the 'logo_url' property (where set) and replace it with 'header_html'
@@ -11,9 +8,9 @@ $tables = array_flip($tables);
 if(isset($tables['community_tool_property'])) {
 	$rs = $db->Execute("SELECT tool_code, property_value FROM community_tool_property WHERE property_key = 'common.logo_url'");
 	
-	while(!$rs->EOF) {
-		$tool_code = $rs->fields['tool_code'];
-		$logo_url = $rs->fields['property_value'];
+	while($row = mysql_fetch_assoc($rs)) {
+		$tool_code = $row['tool_code'];
+		$logo_url = $row['property_value'];
 		
 		// Do we have a header already?
 		$header_property = $db->GetOne(sprintf("SELECT tool_code FROM community_tool_property WHERE tool_code=%s AND property_key=%s",
@@ -39,11 +36,9 @@ if(isset($tables['community_tool_property'])) {
 		$db->Execute(sprintf("DELETE FROM community_tool_property WHERE property_key = 'common.logo_url' AND tool_code='%s'", 
 			$tool_code
 		));
-		
-		// Next
-		$rs->MoveNext();
 	}
 	
+	mysql_free_result($rs);
 }
 
 return TRUE;

@@ -1,25 +1,6 @@
 <?php
-/***********************************************************************
-| Cerberus Helpdesk(tm) developed by WebGroup Media, LLC.
-|-----------------------------------------------------------------------
-| All source code & content (c) Copyright 2009, WebGroup Media LLC
-|   unless specifically noted otherwise.
-|
-| This source code is released under the Cerberus Public License.
-| The latest version of this license can be found here:
-| http://www.cerberusweb.com/license.php
-|
-| By using this software, you acknowledge having read this license
-| and agree to be bound thereby.
-| ______________________________________________________________________
-|	http://www.cerberusweb.com	  http://www.webgroupmedia.com/
-***********************************************************************/
-
 $db = DevblocksPlatform::getDatabaseService();
-$datadict = NewDataDictionary($db,'mysql'); /* @var $datadict ADODB2_mysql */ // ,'mysql' 
-
-$tables = $datadict->MetaTables();
-$tables = array_flip($tables);
+$tables = $db->metaTables();
 
 // ===========================================================================
 // Fix ticket workspaces still using tm_id and tm_name (deprecated JOIN)
@@ -28,13 +9,13 @@ if(isset($tables['worker_workspace_list'])) {
 	$sql = "SELECT id, list_view FROM worker_workspace_list WHERE source_extension = 'core.workspace.source.ticket'";
 	$rs = $db->Execute($sql);
 	
-	while(!$rs->EOF) {
-		if(!empty($rs->fields['list_view'])) {
+	while($row = mysql_fetch_assoc($rs)) {
+		if(!empty($row['list_view'])) {
 			$updated_list_view = '';
 			
 			// Loop through view schemas (serialized) and replace tm_id||tm_name with t_team_id
-			if(!empty($rs->fields['list_view'])) {
-				$list_view = $rs->fields['list_view'];
+			if(!empty($row['list_view'])) {
+				$list_view = $row['list_view'];
 				$updated_list_view = str_replace(
 					array(
 						's:5:"tm_id"',
@@ -49,23 +30,23 @@ if(isset($tables['worker_workspace_list'])) {
 			if(!empty($updated_list_view) && 0 != strcmp(md5($updated_list_view), md5($list_view))) {
 				$sql = sprintf("UPDATE worker_workspace_list SET list_view = %s WHERE id = %d",
 					$db->qstr($updated_list_view),
-					$rs->fields['id']
+					$row['id']
 				);
 				$db->Execute($sql);
 			}
 		}
-		
-		$rs->MoveNext();
 	}
+	
+	mysql_free_result($rs);
 }
 
 // ===========================================================================
 // Expand ticket.mask max size from 16 to 32
 
 if(isset($tables['ticket'])) {
-	$columns = $datadict->MetaColumns('ticket');
+	list($columns, $indexes) = $db->metaTable('ticket');
 	
-	if(isset($columns['MASK'])) {
+	if(isset($columns['mask'])) {
 		$sql = sprintf("ALTER TABLE ticket CHANGE COLUMN mask mask varchar(32) DEFAULT '' NOT NULL");
 		$db->Execute($sql);
 	}

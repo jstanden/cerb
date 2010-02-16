@@ -153,7 +153,7 @@ class DAO_Bayes {
 		// Escaped set
 		if(is_array($words))
 		foreach($words as $word) {
-			$tmp[] = $db->escape($word);
+			$tmp[] = addslashes($word);
 		}
 		
 		if(empty($words))
@@ -162,24 +162,25 @@ class DAO_Bayes {
 		$sql = sprintf("SELECT id,word,spam,nonspam FROM bayes_words WHERE word IN ('%s')",
 			implode("','", $tmp)
 		);
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 		
 		// [JAS]: Keep a list of words we can check off as we index them with IDs
 		$tmp = array_flip($words); // words are now keys
 		
 		// Existing Words
-		if(is_a($rs,'ADORecordSet'))
-		while(!$rs->EOF) {
+		
+		while($row = mysql_fetch_assoc($rs)) {
 			$w = new CerberusBayesWord();
-			$w->id = intval($rs->fields['id']);
-			$w->word = mb_convert_case($rs->fields['word'], MB_CASE_LOWER);
-			$w->spam = intval($rs->fields['spam']);
-			$w->nonspam = intval($rs->fields['nonspam']);
+			$w->id = intval($row['id']);
+			$w->word = mb_convert_case($row['word'], MB_CASE_LOWER);
+			$w->spam = intval($row['spam']);
+			$w->nonspam = intval($row['nonspam']);
 			
 			$outwords[mb_convert_case($w->word, MB_CASE_LOWER)] = $w;
 			unset($tmp[$w->word]); // check off we've indexed this word
-			$rs->MoveNext();
 		}
+		
+		mysql_free_result($rs);
 		
 		// Insert new words
 		if(is_array($tmp))
@@ -189,7 +190,7 @@ class DAO_Bayes {
 				$new_id,
 				$db->qstr($new_word)
 			);
-			$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+			$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 			
 			$w = new CerberusBayesWord();
 			$w->id = $new_id;
@@ -208,11 +209,11 @@ class DAO_Bayes {
 		
 		// [JAS]: [TODO] Change this into a 'replace' index?
 		$sql = "SELECT spam, nonspam FROM bayes_stats";
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 		
-		if($rs->NumRows()) {
-			$spam = intval($rs->Fields('spam'));
-			$nonspam = intval($rs->Fields('nonspam'));
+		if($row = mysql_fetch_assoc($rs)) {
+			$spam = intval($row['spam']);
+			$nonspam = intval($row['nonspam']);
 		} else {
 			$spam = 0;
 			$nonspam = 0;
@@ -226,13 +227,13 @@ class DAO_Bayes {
 	static function addOneToSpamTotal() {
 		$db = DevblocksPlatform::getDatabaseService();
 		$sql = "UPDATE bayes_stats SET spam = spam + 1";
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 	}
 	
 	static function addOneToNonSpamTotal() {
 		$db = DevblocksPlatform::getDatabaseService();
 		$sql = "UPDATE bayes_stats SET nonspam = nonspam + 1";
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 	}
 	
 	static function addOneToSpamWord($word_ids=array()) {
@@ -240,7 +241,7 @@ class DAO_Bayes {
 	    if(empty($word_ids)) return;
 		$db = DevblocksPlatform::getDatabaseService();
 		$sql = sprintf("UPDATE bayes_words SET spam = spam + 1 WHERE id IN(%s)", implode(',',$word_ids));
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 	}
 	
 	static function addOneToNonSpamWord($word_ids=array()) {
@@ -248,7 +249,7 @@ class DAO_Bayes {
 	    if(empty($word_ids)) return;
 		$db = DevblocksPlatform::getDatabaseService();
 		$sql = sprintf("UPDATE bayes_words SET nonspam = nonspam + 1 WHERE id IN(%s)", implode(',',$word_ids));
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 	}
 	
 };
@@ -289,7 +290,7 @@ class DAO_Worker extends C4_ORMHelper {
 			$db->qstr($last_name),
 			$db->qstr($title)
 		);
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 
 		self::clearCache();
 		
@@ -361,27 +362,27 @@ class DAO_Worker extends C4_ORMHelper {
 			((!empty($ids) ? sprintf("WHERE a.id IN (%s) ",implode(',',$ids)) : " ").
 			"ORDER BY a.first_name, a.last_name "
 		);
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 		
-		if(is_a($rs,'ADORecordSet'))
-		while(!$rs->EOF) {
+		while($row = mysql_fetch_assoc($rs)) {
 			$worker = new CerberusWorker();
-			$worker->id = intval($rs->fields['id']);
-			$worker->first_name = $rs->fields['first_name'];
-			$worker->last_name = $rs->fields['last_name'];
-			$worker->email = $rs->fields['email'];
-			$worker->pass = $rs->fields['pass'];
-			$worker->title = $rs->fields['title'];
-			$worker->is_superuser = intval($rs->fields['is_superuser']);
-			$worker->is_disabled = intval($rs->fields['is_disabled']);
-			$worker->last_activity_date = intval($rs->fields['last_activity_date']);
+			$worker->id = intval($row['id']);
+			$worker->first_name = $row['first_name'];
+			$worker->last_name = $row['last_name'];
+			$worker->email = $row['email'];
+			$worker->pass = $row['pass'];
+			$worker->title = $row['title'];
+			$worker->is_superuser = intval($row['is_superuser']);
+			$worker->is_disabled = intval($row['is_disabled']);
+			$worker->last_activity_date = intval($row['last_activity_date']);
 			
-			if(!empty($rs->fields['last_activity']))
-			    $worker->last_activity = unserialize($rs->fields['last_activity']);
+			if(!empty($row['last_activity']))
+			    $worker->last_activity = unserialize($row['last_activity']);
 			
 			$workers[$worker->id] = $worker;
-			$rs->MoveNext();
 		}
+		
+		mysql_free_result($rs);
 		
 		return $workers;		
 	}
@@ -413,11 +414,9 @@ class DAO_Worker extends C4_ORMHelper {
 		$sql = sprintf("SELECT a.id FROM worker a WHERE a.email = %s",
 			$db->qstr($email)
 		);
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
-		if(is_a($rs,'ADORecordSet') && !$rs->EOF) {
-			return intval($rs->fields['id']);
-		}
+		if(null != ($id = $db->GetOne($sql)))
+			return $id;
 		
 		return null;		
 	}
@@ -442,7 +441,7 @@ class DAO_Worker extends C4_ORMHelper {
 			implode(', ', $sets),
 			implode(',', $ids)
 		);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 		
 		if($flush_cache) {
 			self::clearCache();
@@ -502,23 +501,23 @@ class DAO_Worker extends C4_ORMHelper {
 		$db = DevblocksPlatform::getDatabaseService();
 		
 		$sql = sprintf("DELETE QUICK FROM worker WHERE id = %d", $id);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 		
 		$sql = sprintf("DELETE QUICK FROM address_to_worker WHERE worker_id = %d", $id);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 		
 		$sql = sprintf("DELETE QUICK FROM worker_to_team WHERE agent_id = %d", $id);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 
 		$sql = sprintf("DELETE QUICK FROM view_rss WHERE worker_id = %d", $id);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 
 		$sql = sprintf("DELETE QUICK FROM worker_workspace_list WHERE worker_id = %d", $id);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 
 		// Clear assigned workers
 		$sql = sprintf("UPDATE ticket SET next_worker_id = 0 WHERE next_worker_id = %d", $id);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 
 		// Clear roles
 		$db->Execute(sprintf("DELETE FROM worker_to_role WHERE worker_id = %d", $id));
@@ -541,7 +540,7 @@ class DAO_Worker extends C4_ORMHelper {
 				$db->qstr($email),
 				$db->qstr($password)
 		);
-		$worker_id = $db->GetOne($sql); // or die(__CLASS__ . ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$worker_id = $db->GetOne($sql); // or die(__CLASS__ . ':' . $db->ErrorMsg()); 
 
 		if(!empty($worker_id)) {
 			return self::getAgent($worker_id);
@@ -558,7 +557,7 @@ class DAO_Worker extends C4_ORMHelper {
 		$sql = sprintf("DELETE QUICK FROM worker_to_team WHERE agent_id = %d",
 			$agent_id
 		);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 		
 		foreach($team_ids as $team_id) {
 			$sql = sprintf("INSERT INTO worker_to_team (agent_id, team_id) ".
@@ -566,7 +565,7 @@ class DAO_Worker extends C4_ORMHelper {
 				$agent_id,
 				$team_id
 			);
-			$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+			$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 		}
 		
 		// Invalidate caches
@@ -674,25 +673,23 @@ class DAO_Worker extends C4_ORMHelper {
 			
 		// [TODO] Could push the select logic down a level too
 		if($limit > 0) {
-    		$rs = $db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+    		$rs = $db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 		} else {
-		    $rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
-            $total = $rs->RecordCount();
+		    $rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+            $total = mysql_num_rows($rs);
 		}
 		
 		$results = array();
 		
-		if(is_a($rs,'ADORecordSet'))
-		while(!$rs->EOF) {
+		while($row = mysql_fetch_assoc($rs)) {
 			$result = array();
-			foreach($rs->fields as $f => $v) {
+			foreach($row as $f => $v) {
 				$result[$f] = $v;
 			}
-			$object_id = intval($rs->fields[SearchFields_Worker::ID]);
+			$object_id = intval($row[SearchFields_Worker::ID]);
 			$results[$object_id] = $result;
-			$rs->MoveNext();
 		}
-
+		
 		// [JAS]: Count all
 		if($withCounts) {
 			$count_sql = 
@@ -701,6 +698,8 @@ class DAO_Worker extends C4_ORMHelper {
 				$where_sql;
 			$total = $db->GetOne($count_sql);
 		}
+		
+		mysql_free_result($rs);
 		
 		return array($results,$total);
     }			
@@ -730,15 +729,15 @@ class SearchFields_Worker implements IDevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = array(
-			self::ID => new DevblocksSearchField(self::ID, 'w', 'id', null, $translate->_('common.id')),
-			self::FIRST_NAME => new DevblocksSearchField(self::FIRST_NAME, 'w', 'first_name', null, $translate->_('worker.first_name')),
-			self::LAST_NAME => new DevblocksSearchField(self::LAST_NAME, 'w', 'last_name', null, $translate->_('worker.last_name')),
-			self::TITLE => new DevblocksSearchField(self::TITLE, 'w', 'title', null, $translate->_('worker.title')),
-			self::EMAIL => new DevblocksSearchField(self::EMAIL, 'w', 'email', null, ucwords($translate->_('common.email'))),
-			self::IS_SUPERUSER => new DevblocksSearchField(self::IS_SUPERUSER, 'w', 'is_superuser', null, $translate->_('worker.is_superuser')),
-			self::LAST_ACTIVITY => new DevblocksSearchField(self::LAST_ACTIVITY, 'w', 'last_activity', null, $translate->_('worker.last_activity')),
-			self::LAST_ACTIVITY_DATE => new DevblocksSearchField(self::LAST_ACTIVITY_DATE, 'w', 'last_activity_date', null, $translate->_('worker.last_activity_date')),
-			self::IS_DISABLED => new DevblocksSearchField(self::IS_DISABLED, 'w', 'is_disabled', null, ucwords($translate->_('common.disabled'))),
+			self::ID => new DevblocksSearchField(self::ID, 'w', 'id', $translate->_('common.id')),
+			self::FIRST_NAME => new DevblocksSearchField(self::FIRST_NAME, 'w', 'first_name', $translate->_('worker.first_name')),
+			self::LAST_NAME => new DevblocksSearchField(self::LAST_NAME, 'w', 'last_name', $translate->_('worker.last_name')),
+			self::TITLE => new DevblocksSearchField(self::TITLE, 'w', 'title', $translate->_('worker.title')),
+			self::EMAIL => new DevblocksSearchField(self::EMAIL, 'w', 'email', ucwords($translate->_('common.email'))),
+			self::IS_SUPERUSER => new DevblocksSearchField(self::IS_SUPERUSER, 'w', 'is_superuser', $translate->_('worker.is_superuser')),
+			self::LAST_ACTIVITY => new DevblocksSearchField(self::LAST_ACTIVITY, 'w', 'last_activity', $translate->_('worker.last_activity')),
+			self::LAST_ACTIVITY_DATE => new DevblocksSearchField(self::LAST_ACTIVITY_DATE, 'w', 'last_activity_date', $translate->_('worker.last_activity_date')),
+			self::IS_DISABLED => new DevblocksSearchField(self::IS_DISABLED, 'w', 'is_disabled', ucwords($translate->_('common.disabled'))),
 		);
 		
 		// Custom Fields
@@ -747,7 +746,7 @@ class SearchFields_Worker implements IDevblocksSearchFields {
 		if(is_array($fields))
 		foreach($fields as $field_id => $field) {
 			$key = 'cf_'.$field_id;
-			$columns[$key] = new DevblocksSearchField($key,$key,'field_value',null,$field->name);
+			$columns[$key] = new DevblocksSearchField($key,$key,'field_value',$field->name);
 		}
 		
 		// Sort by label (translation-conscious)
@@ -800,29 +799,29 @@ class DAO_WorkerRole extends DevblocksORMHelper {
 	    	// All privileges by role
 	    	$all_privs = array();
 	    	$rs = $db->Execute("SELECT role_id, priv_id FROM worker_role_acl WHERE has_priv = 1 ORDER BY role_id, priv_id");
-	    	while(!$rs->EOF) {
-	    		$role_id = intval($rs->fields['role_id']);
-	    		$priv_id = $rs->fields['priv_id'];
+	    	while($row = mysql_fetch_assoc($rs)) {
+	    		$role_id = intval($row['role_id']);
+	    		$priv_id = $row['priv_id'];
 	    		if(!isset($all_privs[$role_id]))
 	    			$all_privs[$role_id] = array();
 	    		
 	    		$all_privs[$role_id][$priv_id] = $priv_id;
-	    		$rs->MoveNext();
 	    	}
+	    	mysql_free_result($rs);
 	    	
 	    	// All workers by role
 	    	$all_rosters = array();
 	    	$rs = $db->Execute("SELECT role_id, worker_id FROM worker_to_role");
-	    	while(!$rs->EOF) {
-	    		$role_id = intval($rs->fields['role_id']);
-	    		$worker_id = intval($rs->fields['worker_id']);
+	    	while($row = mysql_fetch_assoc($rs)) {
+	    		$role_id = intval($row['role_id']);
+	    		$worker_id = intval($row['worker_id']);
 	    		if(!isset($all_rosters[$role_id]))
 	    			$all_rosters[$role_id] = array();
 
 	    		$all_rosters[$role_id][$worker_id] = $worker_id;
 	    		$all_worker_ids[$worker_id] = $worker_id;
-	    		$rs->MoveNext();
 	    	}
+	    	mysql_free_result($rs);
 	    	
 	    	// Aggregate privs by workers' roles (if set anywhere, keep)
 	    	$privs_by_worker = array();
@@ -886,19 +885,19 @@ class DAO_WorkerRole extends DevblocksORMHelper {
 	}
 	
 	/**
-	 * @param ADORecordSet $rs
+	 * @param resource $rs
 	 * @return Model_WorkerRole[]
 	 */
 	static private function _getObjectsFromResult($rs) {
 		$objects = array();
 		
-		while(!$rs->EOF) {
+		while($row = mysql_fetch_assoc($rs)) {
 			$object = new Model_WorkerRole();
-			$object->id = $rs->fields['id'];
-			$object->name = $rs->fields['name'];
+			$object->id = $row['id'];
+			$object->name = $row['name'];
 			$objects[$object->id] = $object;
-			$rs->MoveNext();
 		}
+		mysql_free_result($rs);
 		
 		return $objects;
 	}
@@ -1097,24 +1096,25 @@ class DAO_WorkerEvent extends DevblocksORMHelper {
 	}
 	
 	/**
-	 * @param ADORecordSet $rs
+	 * @param resource $rs
 	 * @return Model_WorkerEvent[]
 	 */
 	static private function _getObjectsFromResult($rs) {
 		$objects = array();
 		
-		while(!$rs->EOF) {
+		while($row = mysql_fetch_assoc($rs)) {
 			$object = new Model_WorkerEvent();
-			$object->id = $rs->fields['id'];
-			$object->created_date = $rs->fields['created_date'];
-			$object->worker_id = $rs->fields['worker_id'];
-			$object->title = $rs->fields['title'];
-			$object->url = $rs->fields['url'];
-			$object->content = $rs->fields['content'];
-			$object->is_read = $rs->fields['is_read'];
+			$object->id = $row['id'];
+			$object->created_date = $row['created_date'];
+			$object->worker_id = $row['worker_id'];
+			$object->title = $row['title'];
+			$object->url = $row['url'];
+			$object->content = $row['content'];
+			$object->is_read = $row['is_read'];
 			$objects[$object->id] = $object;
-			$rs->MoveNext();
 		}
+		
+		mysql_free_result($rs);
 		
 		return $objects;
 	}
@@ -1188,30 +1188,30 @@ class DAO_WorkerEvent extends DevblocksORMHelper {
 		;
 		// [TODO] Could push the select logic down a level too
 		if($limit > 0) {
-    		$rs = $db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+    		$rs = $db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 		} else {
-		    $rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
-            $total = $rs->RecordCount();
+		    $rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+            $total = mysql_num_rows($rs);
 		}
 		
 		$results = array();
 		
-		if(is_a($rs,'ADORecordSet'))
-		while(!$rs->EOF) {
+		while($row = mysql_fetch_assoc($rs)) {
 			$result = array();
-			foreach($rs->fields as $f => $v) {
+			foreach($row as $f => $v) {
 				$result[$f] = $v;
 			}
-			$ticket_id = intval($rs->fields[SearchFields_WorkerEvent::ID]);
+			$ticket_id = intval($row[SearchFields_WorkerEvent::ID]);
 			$results[$ticket_id] = $result;
-			$rs->MoveNext();
 		}
 
 		// [JAS]: Count all
 		if($withCounts) {
 		    $rs = $db->Execute($sql);
-		    $total = $rs->RecordCount();
+		    $total = mysql_num_rows($rs);
 		}
+		
+		mysql_free_result($rs);
 		
 		return array($results,$total);
     }
@@ -1235,13 +1235,13 @@ class SearchFields_WorkerEvent implements IDevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = array(
-			self::ID => new DevblocksSearchField(self::ID, 'we', 'id', null, $translate->_('worker_event.id')),
-			self::CREATED_DATE => new DevblocksSearchField(self::CREATED_DATE, 'we', 'created_date', null, $translate->_('worker_event.created_date')),
-			self::WORKER_ID => new DevblocksSearchField(self::WORKER_ID, 'we', 'worker_id', null, $translate->_('worker_event.worker_id')),
-			self::TITLE => new DevblocksSearchField(self::TITLE, 'we', 'title', null, $translate->_('worker_event.title')),
-			self::CONTENT => new DevblocksSearchField(self::CONTENT, 'we', 'content', null, $translate->_('worker_event.content')),
-			self::IS_READ => new DevblocksSearchField(self::IS_READ, 'we', 'is_read', null, $translate->_('worker_event.is_read')),
-			self::URL => new DevblocksSearchField(self::URL, 'we', 'url', null, $translate->_('common.url')),
+			self::ID => new DevblocksSearchField(self::ID, 'we', 'id', $translate->_('worker_event.id')),
+			self::CREATED_DATE => new DevblocksSearchField(self::CREATED_DATE, 'we', 'created_date', $translate->_('worker_event.created_date')),
+			self::WORKER_ID => new DevblocksSearchField(self::WORKER_ID, 'we', 'worker_id', $translate->_('worker_event.worker_id')),
+			self::TITLE => new DevblocksSearchField(self::TITLE, 'we', 'title', $translate->_('worker_event.title')),
+			self::CONTENT => new DevblocksSearchField(self::CONTENT, 'we', 'content', $translate->_('worker_event.content')),
+			self::IS_READ => new DevblocksSearchField(self::IS_READ, 'we', 'is_read', $translate->_('worker_event.is_read')),
+			self::URL => new DevblocksSearchField(self::URL, 'we', 'url', $translate->_('common.url')),
 		);
 		
 		// Sort by label (translation-conscious)
@@ -1296,7 +1296,7 @@ class DAO_ContactOrg extends C4_ORMHelper {
 			$id,
 			time()
 		);
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 		
 		self::update($id, $fields);
 		return $id;
@@ -1330,13 +1330,13 @@ class DAO_ContactOrg extends C4_ORMHelper {
 		$sql = sprintf("DELETE QUICK FROM contact_org WHERE id IN (%s)",
 			$id_list
 		);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 
 		// Clear any associated addresses
 		$sql = sprintf("UPDATE address SET contact_org_id = 0 WHERE contact_org_id IN (%s)",
 			$id_list
 		);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 		
 		// Tasks
         DAO_Task::deleteBySourceIds('cerberusweb.tasks.org', $ids);
@@ -1359,7 +1359,7 @@ class DAO_ContactOrg extends C4_ORMHelper {
 			"FROM contact_org ".
 			(!empty($where) ? sprintf("WHERE %s ", $where) : " ")
 		;
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 
 		return self::_getObjectsFromResultSet($rs);
 	}
@@ -1367,22 +1367,22 @@ class DAO_ContactOrg extends C4_ORMHelper {
 	static private function _getObjectsFromResultSet($rs) {
 		$objects = array();
 		
-		if(is_a($rs,'ADORecordSet'))
-		while(!$rs->EOF) {
+		while($row = mysql_fetch_assoc($rs)) {
 			$object = new Model_ContactOrg();
-			$object->id = intval($rs->fields['id']);
-			$object->name = $rs->fields['name'];
-			$object->street = $rs->fields['street'];
-			$object->city = $rs->fields['city'];
-			$object->province = $rs->fields['province'];
-			$object->postal = $rs->fields['postal'];
-			$object->country = $rs->fields['country'];
-			$object->phone = $rs->fields['phone'];
-			$object->website = $rs->fields['website'];
-			$object->created = intval($rs->fields['created']);
+			$object->id = intval($row['id']);
+			$object->name = $row['name'];
+			$object->street = $row['street'];
+			$object->city = $row['city'];
+			$object->province = $row['province'];
+			$object->postal = $row['postal'];
+			$object->country = $row['country'];
+			$object->phone = $row['phone'];
+			$object->website = $row['website'];
+			$object->created = intval($row['created']);
 			$objects[$object->id] = $object;
-			$rs->MoveNext();
 		}
+		
+		mysql_free_result($rs);
 		
 		return $objects;
 	}
@@ -1504,23 +1504,21 @@ class DAO_ContactOrg extends C4_ORMHelper {
 			
 		// [TODO] Could push the select logic down a level too
 		if($limit > 0) {
-    		$rs = $db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+    		$rs = $db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 		} else {
-		    $rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
-            $total = $rs->RecordCount();
+		    $rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+            $total = mysql_num_rows($rs);
 		}
 		
 		$results = array();
 		
-		if(is_a($rs,'ADORecordSet'))
-		while(!$rs->EOF) {
+		while($row = mysql_fetch_assoc($rs)) {
 			$result = array();
-			foreach($rs->fields as $f => $v) {
+			foreach($row as $f => $v) {
 				$result[$f] = $v;
 			}
-			$ticket_id = intval($rs->fields[SearchFields_ContactOrg::ID]);
+			$ticket_id = intval($row[SearchFields_ContactOrg::ID]);
 			$results[$ticket_id] = $result;
-			$rs->MoveNext();
 		}
 
 		// [JAS]: Count all
@@ -1531,6 +1529,8 @@ class DAO_ContactOrg extends C4_ORMHelper {
 				$where_sql;
 			$total = $db->GetOne($count_sql);
 		}
+		
+		mysql_free_result($rs);
 		
 		return array($results,$total);
     }	
@@ -1555,16 +1555,16 @@ class SearchFields_ContactOrg {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = array(
-			self::ID => new DevblocksSearchField(self::ID, 'c', 'id', null, $translate->_('contact_org.id')),
-			self::NAME => new DevblocksSearchField(self::NAME, 'c', 'name', null, $translate->_('contact_org.name')),
-			self::STREET => new DevblocksSearchField(self::STREET, 'c', 'street', null, $translate->_('contact_org.street')),
-			self::CITY => new DevblocksSearchField(self::CITY, 'c', 'city', null, $translate->_('contact_org.city')),
-			self::PROVINCE => new DevblocksSearchField(self::PROVINCE, 'c', 'province', null, $translate->_('contact_org.province')),
-			self::POSTAL => new DevblocksSearchField(self::POSTAL, 'c', 'postal', null, $translate->_('contact_org.postal')),
-			self::COUNTRY => new DevblocksSearchField(self::COUNTRY, 'c', 'country', null, $translate->_('contact_org.country')),
-			self::PHONE => new DevblocksSearchField(self::PHONE, 'c', 'phone', null, $translate->_('contact_org.phone')),
-			self::WEBSITE => new DevblocksSearchField(self::WEBSITE, 'c', 'website', null, $translate->_('contact_org.website')),
-			self::CREATED => new DevblocksSearchField(self::CREATED, 'c', 'created', null, $translate->_('contact_org.created')),
+			self::ID => new DevblocksSearchField(self::ID, 'c', 'id', $translate->_('contact_org.id')),
+			self::NAME => new DevblocksSearchField(self::NAME, 'c', 'name', $translate->_('contact_org.name')),
+			self::STREET => new DevblocksSearchField(self::STREET, 'c', 'street', $translate->_('contact_org.street')),
+			self::CITY => new DevblocksSearchField(self::CITY, 'c', 'city', $translate->_('contact_org.city')),
+			self::PROVINCE => new DevblocksSearchField(self::PROVINCE, 'c', 'province', $translate->_('contact_org.province')),
+			self::POSTAL => new DevblocksSearchField(self::POSTAL, 'c', 'postal', $translate->_('contact_org.postal')),
+			self::COUNTRY => new DevblocksSearchField(self::COUNTRY, 'c', 'country', $translate->_('contact_org.country')),
+			self::PHONE => new DevblocksSearchField(self::PHONE, 'c', 'phone', $translate->_('contact_org.phone')),
+			self::WEBSITE => new DevblocksSearchField(self::WEBSITE, 'c', 'website', $translate->_('contact_org.website')),
+			self::CREATED => new DevblocksSearchField(self::CREATED, 'c', 'created', $translate->_('contact_org.created')),
 		);
 		
 		// Custom Fields
@@ -1573,7 +1573,7 @@ class SearchFields_ContactOrg {
 		if(is_array($fields))
 		foreach($fields as $field_id => $field) {
 			$key = 'cf_'.$field_id;
-			$columns[$key] = new DevblocksSearchField($key,$key,'field_value',null,$field->name);
+			$columns[$key] = new DevblocksSearchField($key,$key,'field_value',$field->name);
 		}
 		
 		// Sort by label (translation-conscious)
@@ -1657,7 +1657,7 @@ class DAO_Address extends C4_ORMHelper {
 				$id,
 				$db->qstr($full_address)
 			);
-			$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+			$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 
 		} else { // update
 			$id = $check->id;
@@ -1700,7 +1700,7 @@ class DAO_Address extends C4_ORMHelper {
         
         // Addresses
         $sql = sprintf("DELETE QUICK FROM address WHERE id IN (%s)", $address_ids);
-        $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+        $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
        
         // Custom fields
         DAO_CustomFieldValue::deleteBySourceIds(ChCustomFieldSource_Address::ID, $ids);
@@ -1717,25 +1717,25 @@ class DAO_Address extends C4_ORMHelper {
 			"ORDER BY a.email ",
 			$where
 		);
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 		
-		if(is_a($rs,'ADORecordSet'))
-		while(!$rs->EOF) {
+		while($row = mysql_fetch_assoc($rs)) {
 			$address = new Model_Address();
-			$address->id = intval($rs->fields['id']);
-			$address->email = $rs->fields['email'];
-			$address->first_name = $rs->fields['first_name'];
-			$address->last_name = $rs->fields['last_name'];
-			$address->contact_org_id = intval($rs->fields['contact_org_id']);
-			$address->num_spam = intval($rs->fields['num_spam']);
-			$address->num_nonspam = intval($rs->fields['num_nonspam']);
-			$address->is_banned = intval($rs->fields['is_banned']);
-			$address->is_registered = intval($rs->fields['is_registered']);
-			$address->pass = $rs->fields['pass'];
-			$address->last_autoreply = intval($rs->fields['last_autoreply']);
+			$address->id = intval($row['id']);
+			$address->email = $row['email'];
+			$address->first_name = $row['first_name'];
+			$address->last_name = $row['last_name'];
+			$address->contact_org_id = intval($row['contact_org_id']);
+			$address->num_spam = intval($row['num_spam']);
+			$address->num_nonspam = intval($row['num_nonspam']);
+			$address->is_banned = intval($row['is_banned']);
+			$address->is_registered = intval($row['is_registered']);
+			$address->pass = $row['pass'];
+			$address->last_autoreply = intval($row['last_autoreply']);
 			$addresses[$address->id] = $address;
-			$rs->MoveNext();
 		}
+		
+		mysql_free_result($rs);
 		
 		return $addresses;
 	}
@@ -1821,13 +1821,13 @@ class DAO_Address extends C4_ORMHelper {
 	static function addOneToSpamTotal($address_id) {
 		$db = DevblocksPlatform::getDatabaseService();
 		$sql = sprintf("UPDATE address SET num_spam = num_spam + 1 WHERE id = %d",$address_id);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 	}
 	
 	static function addOneToNonSpamTotal($address_id) {
 		$db = DevblocksPlatform::getDatabaseService();
 		$sql = sprintf("UPDATE address SET num_nonspam = num_nonspam + 1 WHERE id = %d",$address_id);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 	}
 	
     /**
@@ -1906,19 +1906,17 @@ class DAO_Address extends C4_ORMHelper {
 			($has_multiple_values ? 'GROUP BY a.id ' : '').
 			$sort_sql;
 			
-		$rs = $db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$rs = $db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 		
 		$results = array();
 		
-		if(is_a($rs,'ADORecordSet'))
-		while(!$rs->EOF) {
+		while($row = mysql_fetch_assoc($rs)) {
 			$result = array();
-			foreach($rs->fields as $f => $v) {
+			foreach($row as $f => $v) {
 				$result[$f] = $v;
 			}
-			$id = intval($rs->fields[SearchFields_Address::ID]);
+			$id = intval($row[SearchFields_Address::ID]);
 			$results[$id] = $result;
-			$rs->MoveNext();
 		}
 
 		// [JAS]: Count all
@@ -1930,6 +1928,8 @@ class DAO_Address extends C4_ORMHelper {
 				$where_sql;
 			$total = $db->GetOne($count_sql);
 		}
+		
+		mysql_free_result($rs);
 		
 		return array($results,$total);
     }
@@ -1957,18 +1957,18 @@ class SearchFields_Address implements IDevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = array(
-			self::ID => new DevblocksSearchField(self::ID, 'a', 'id', null, $translate->_('address.id')),
-			self::EMAIL => new DevblocksSearchField(self::EMAIL, 'a', 'email', null, $translate->_('address.email')),
-			self::FIRST_NAME => new DevblocksSearchField(self::FIRST_NAME, 'a', 'first_name', null, $translate->_('address.first_name')),
-			self::LAST_NAME => new DevblocksSearchField(self::LAST_NAME, 'a', 'last_name', null, $translate->_('address.last_name')),
-			self::NUM_SPAM => new DevblocksSearchField(self::NUM_SPAM, 'a', 'num_spam', null, $translate->_('address.num_spam')),
-			self::NUM_NONSPAM => new DevblocksSearchField(self::NUM_NONSPAM, 'a', 'num_nonspam', null, $translate->_('address.num_nonspam')),
-			self::IS_BANNED => new DevblocksSearchField(self::IS_BANNED, 'a', 'is_banned', null, $translate->_('address.is_banned')),
-			self::IS_REGISTERED => new DevblocksSearchField(self::IS_REGISTERED, 'a', 'is_registered', null, $translate->_('address.is_registered')),
-			self::PASS => new DevblocksSearchField(self::PASS, 'a', 'pass', null, ucwords($translate->_('common.password'))),
+			self::ID => new DevblocksSearchField(self::ID, 'a', 'id', $translate->_('address.id')),
+			self::EMAIL => new DevblocksSearchField(self::EMAIL, 'a', 'email', $translate->_('address.email')),
+			self::FIRST_NAME => new DevblocksSearchField(self::FIRST_NAME, 'a', 'first_name', $translate->_('address.first_name')),
+			self::LAST_NAME => new DevblocksSearchField(self::LAST_NAME, 'a', 'last_name', $translate->_('address.last_name')),
+			self::NUM_SPAM => new DevblocksSearchField(self::NUM_SPAM, 'a', 'num_spam', $translate->_('address.num_spam')),
+			self::NUM_NONSPAM => new DevblocksSearchField(self::NUM_NONSPAM, 'a', 'num_nonspam', $translate->_('address.num_nonspam')),
+			self::IS_BANNED => new DevblocksSearchField(self::IS_BANNED, 'a', 'is_banned', $translate->_('address.is_banned')),
+			self::IS_REGISTERED => new DevblocksSearchField(self::IS_REGISTERED, 'a', 'is_registered', $translate->_('address.is_registered')),
+			self::PASS => new DevblocksSearchField(self::PASS, 'a', 'pass', ucwords($translate->_('common.password'))),
 			
-			self::CONTACT_ORG_ID => new DevblocksSearchField(self::CONTACT_ORG_ID, 'a', 'contact_org_id', null, $translate->_('address.contact_org_id')),
-			self::ORG_NAME => new DevblocksSearchField(self::ORG_NAME, 'o', 'name', null, $translate->_('contact_org.name')),
+			self::CONTACT_ORG_ID => new DevblocksSearchField(self::CONTACT_ORG_ID, 'a', 'contact_org_id', $translate->_('address.contact_org_id')),
+			self::ORG_NAME => new DevblocksSearchField(self::ORG_NAME, 'o', 'name', $translate->_('contact_org.name')),
 		);
 		
 		// Custom Fields
@@ -1976,7 +1976,7 @@ class SearchFields_Address implements IDevblocksSearchFields {
 		if(is_array($fields))
 		foreach($fields as $field_id => $field) {
 			$key = 'cf_'.$field_id;
-			$columns[$key] = new DevblocksSearchField($key,$key,'field_value',null,$field->name);
+			$columns[$key] = new DevblocksSearchField($key,$key,'field_value',$field->name);
 		}
 		
 		// Sort by label (translation-conscious)
@@ -2062,7 +2062,7 @@ class DAO_AddressToWorker { // extends DevblocksORMHelper
 			self::ADDRESS,
 			implode("','", $addresses)
 		);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 	}
 	
 	/**
@@ -2112,7 +2112,7 @@ class DAO_AddressToWorker { // extends DevblocksORMHelper
 			"FROM address_to_worker ".
 			(!empty($where) ? sprintf("WHERE %s ", $where) : " ").
 			"ORDER BY address";
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */ 
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());  
 
 		return self::_getObjectsFromResult($rs);
 	}
@@ -2120,23 +2120,23 @@ class DAO_AddressToWorker { // extends DevblocksORMHelper
 	/**
 	 * Enter description here...
 	 *
-	 * @param ADORecordSet $rs
+	 * @param resource $rs
 	 * @return Model_AddressToWorker[]
 	 */
 	private static function _getObjectsFromResult($rs) {
 		$objects = array();
 		
-		if(is_a($rs,'ADORecordSet'))
-		while(!$rs->EOF) {
+		while($row = mysql_fetch_assoc($rs)) {
 			$object = new Model_AddressToWorker();
-			$object->worker_id = intval($rs->fields['worker_id']);
-			$object->address = strtolower($rs->fields['address']);
-			$object->is_confirmed = intval($rs->fields['is_confirmed']);
-			$object->code = $rs->fields['code'];
-			$object->code_expire = intval($rs->fields['code_expire']);
+			$object->worker_id = intval($row['worker_id']);
+			$object->address = strtolower($row['address']);
+			$object->is_confirmed = intval($row['is_confirmed']);
+			$object->code = $row['code'];
+			$object->code_expire = intval($row['code_expire']);
 			$objects[$object->address] = $object;
-			$rs->MoveNext();
 		}
+		
+		mysql_free_result($rs);
 		
 		return $objects;
 	}
@@ -2158,7 +2158,7 @@ class DAO_Message extends DevblocksORMHelper {
 			"VALUES (%d,0,0,0,0,0)",
 			$newId
 		);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 
 		self::update($newId, $fields);
 		
@@ -2234,27 +2234,27 @@ class DAO_Message extends DevblocksORMHelper {
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "").
 			(!empty($sortBy) ? sprintf("ORDER BY %s %s",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : "")
 		;
-		$rs = $db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$rs = $db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 		
 		$results = array();
 		
-		if(is_a($rs,'ADORecordSet'))
-		while(!$rs->EOF) {
+		while($row = mysql_fetch_assoc($rs)) {
 			$result = array();
-			foreach($rs->fields as $f => $v) {
+			foreach($row as $f => $v) {
 				$result[$f] = $v;
 			}
-			$ticket_id = intval($rs->fields[SearchFields_Message::ID]);
+			$ticket_id = intval($row[SearchFields_Message::ID]);
 			$results[$ticket_id] = $result;
-			$rs->MoveNext();
 		}
 
 		// [JAS]: Count all
 		$total = -1;
 		if($withCounts) {
 		    $rs = $db->Execute($sql);
-		    $total = $rs->RecordCount();
+		    $total = mysql_num_rows($rs);
 		}
+
+		mysql_free_result($rs);
 		
 		return array($results,$total);
     }
@@ -2281,9 +2281,9 @@ class SearchFields_Message implements IDevblocksSearchFields {
 			SearchFields_Message::TICKET_ID => new DevblocksSearchField(SearchFields_Message::TICKET_ID, 'm', 'ticket_id'),
 			
 			SearchFields_Message::MESSAGE_HEADER_NAME => new DevblocksSearchField(SearchFields_Message::MESSAGE_HEADER_NAME, 'mh', 'header_name'),
-			SearchFields_Message::MESSAGE_HEADER_VALUE => new DevblocksSearchField(SearchFields_Message::MESSAGE_HEADER_VALUE, 'mh', 'header_value', 'B'),
+			SearchFields_Message::MESSAGE_HEADER_VALUE => new DevblocksSearchField(SearchFields_Message::MESSAGE_HEADER_VALUE, 'mh', 'header_value'),
 
-			SearchFields_Message::MESSAGE_CONTENT => new DevblocksSearchField(SearchFields_Message::MESSAGE_CONTENT, 'mc', 'content', 'B'),
+			SearchFields_Message::MESSAGE_CONTENT => new DevblocksSearchField(SearchFields_Message::MESSAGE_CONTENT, 'mc', 'content'),
 		);
 		
 		// Sort by label (translation-conscious)
@@ -2311,7 +2311,7 @@ class DAO_MessageNote extends DevblocksORMHelper {
     		$id,
     		time()
     	);
-    	$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+    	$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 
     	self::update($id, $fields);
     }
@@ -2325,7 +2325,7 @@ class DAO_MessageNote extends DevblocksORMHelper {
     		"ORDER BY id ASC",
     		$message_id
     	);
-    	$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+    	$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 
     	return self::_getObjectsFromResultSet($rs);
     }
@@ -2340,7 +2340,7 @@ class DAO_MessageNote extends DevblocksORMHelper {
     		"ORDER BY n.id ASC",
     		$ticket_id
     	);
-    	$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+    	$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 
     	return self::_getObjectsFromResultSet($rs);
     }
@@ -2355,7 +2355,7 @@ class DAO_MessageNote extends DevblocksORMHelper {
     		"ORDER BY n.id ASC",
     		implode(',', $ids)
     	);
-    	$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+    	$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 
     	return self::_getObjectsFromResultSet($rs);
     }
@@ -2368,18 +2368,18 @@ class DAO_MessageNote extends DevblocksORMHelper {
     static private function _getObjectsFromResultSet($rs) {
     	$objects = array();
     	
-    	if(is_a($rs,'ADORecordSet'))
-    	while(!$rs->EOF) {
+    	while($row = mysql_fetch_assoc($rs)) {
     		$object = new Model_MessageNote();
-    		$object->id = intval($rs->fields['id']);
-    		$object->type = intval($rs->fields['type']);
-    		$object->message_id = intval($rs->fields['message_id']);
-    		$object->created = intval($rs->fields['created']);
-    		$object->worker_id = intval($rs->fields['worker_id']);
-    		$object->content = $rs->fields['content'];
+    		$object->id = intval($row['id']);
+    		$object->type = intval($row['type']);
+    		$object->message_id = intval($row['message_id']);
+    		$object->created = intval($row['created']);
+    		$object->worker_id = intval($row['worker_id']);
+    		$object->content = $row['content'];
     		$objects[$object->id] = $object;
-    		$rs->MoveNext();
     	}
+    	
+    	mysql_free_result($rs);
     	
     	return $objects;
     }
@@ -2407,7 +2407,7 @@ class DAO_MessageNote extends DevblocksORMHelper {
         
         $message_ids = implode(',', $ids);
         $sql = sprintf("DELETE QUICK FROM message_note WHERE id IN (%s)", $message_ids);
-        $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+        $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
     }
 };
 
@@ -2427,31 +2427,24 @@ class DAO_MessageContent {
     static function update($message_id, $content) {
         $db = DevblocksPlatform::getDatabaseService();
         
-        $db->Replace(
-            'message_content',
-            array(
-                self::MESSAGE_ID => $message_id,
-                self::CONTENT => $db->qstr($content),
-            ),
-            array('message_id'),
-            false
-        );
+        $db->Execute(sprintf("REPLACE INTO message_content (message_id, content) ".
+        	"VALUES (%d, %s)",
+        	$message_id,
+        	$db->qstr($content)
+        ));
     }
     
 	static function get($message_id) {
 		$db = DevblocksPlatform::getDatabaseService();
-		$content = '';
 		
 		$sql = sprintf("SELECT m.content ".
 			"FROM message_content m ".
 			"WHERE m.message_id = %d ",
 			$message_id
 		);
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		
-		if(is_a($rs,'ADORecordSet') && !$rs->EOF) {
-			return $rs->fields['content'];
-		}
+		if(null != ($content = $db->GetOne($sql))) 
+			return $content;
 		
 		return '';
 	}
@@ -2486,19 +2479,21 @@ class DAO_MessageHeader {
     static function getAll($message_id) {
         $db = DevblocksPlatform::getDatabaseService();
         
-        $sql = "SELECT header_name, header_value ".
+        $sql = sprintf("SELECT header_name, header_value ".
             "FROM message_header ".
-            "WHERE message_id = ?";
+            "WHERE message_id = %d",
+        	$message_id
+        );
             
-        $rs = $db->Execute($sql, array($message_id))
-            or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+        $rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 
         $headers = array();
             
-        while(!$rs->EOF) {
-            $headers[$rs->fields['header_name']] = $rs->fields['header_value'];
-            $rs->MoveNext();
+        while($row = mysql_fetch_assoc($rs)) {
+            $headers[$row['header_name']] = $row['header_value'];
         }
+        
+        mysql_free_result($rs);
         
         return $headers;
     }
@@ -2508,13 +2503,13 @@ class DAO_MessageHeader {
         $headers = array();
         
         $sql = "SELECT header_name FROM message_header GROUP BY header_name";
-        $rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
-
-        if(is_a($rs,'ADORecordSet'))
-        while(!$rs->EOF) {
-            $headers[] = $rs->fields['header_name'];
-            $rs->MoveNext();
+        $rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+        
+        while($row = mysql_fetch_assoc($rs)) {
+            $headers[] = $row['header_name'];
         }
+        
+        mysql_free_result($rs);
         
         sort($headers);
         
@@ -2538,7 +2533,7 @@ class DAO_Attachment extends DevblocksORMHelper {
 		    "VALUES (%d,0,'','',0,'')",
 		    $id
 		);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 		
 		self::update($id, $fields);
 		
@@ -2579,22 +2574,22 @@ class DAO_Attachment extends DevblocksORMHelper {
 		    (!empty($ids) ? sprintf("WHERE id IN (%s) ", implode(',', $ids)) : " ").
 		    ""
 		;
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 		
 		$objects = array();
 		
-		if(is_a($rs,'ADORecordSet'))
-		while(!$rs->EOF) {
+		while($row = mysql_fetch_assoc($rs)) {
 		    $object = new Model_Attachment();
-		    $object->id = intval($rs->fields['id']);
-		    $object->message_id = intval($rs->fields['message_id']);
-		    $object->display_name = $rs->fields['display_name'];
-		    $object->filepath = $rs->fields['filepath'];
-		    $object->mime_type = $rs->fields['mime_type'];
-		    $object->file_size = intval($rs->fields['file_size']);
+		    $object->id = intval($row['id']);
+		    $object->message_id = intval($row['message_id']);
+		    $object->display_name = $row['display_name'];
+		    $object->filepath = $row['filepath'];
+		    $object->mime_type = $row['mime_type'];
+		    $object->file_size = intval($row['file_size']);
 		    $objects[$object->id] = $object;
-		    $rs->MoveNext();
 		}
+		
+		mysql_free_result($rs);
 		
 		return $objects;
 	}
@@ -2614,22 +2609,22 @@ class DAO_Attachment extends DevblocksORMHelper {
 			"WHERE a.message_id = %d",
 			$id
 		);
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 		
 		$attachments = array();
 		
-		if(is_a($rs,'ADORecordSet'))
-		while(!$rs->EOF) {
+		while($row = mysql_fetch_assoc($rs)) {
 			$attachment = new Model_Attachment();
-			$attachment->id = intval($rs->fields['id']);
-			$attachment->message_id = intval($rs->fields['message_id']);
-			$attachment->display_name = $rs->fields['display_name'];
-			$attachment->filepath = $rs->fields['filepath'];
-			$attachment->file_size = intval($rs->fields['file_size']);
-			$attachment->mime_type = $rs->fields['mime_type'];
+			$attachment->id = intval($row['id']);
+			$attachment->message_id = intval($row['message_id']);
+			$attachment->display_name = $row['display_name'];
+			$attachment->filepath = $row['filepath'];
+			$attachment->file_size = intval($row['file_size']);
+			$attachment->mime_type = $row['mime_type'];
 			$attachments[$attachment->id] = $attachment;
-			$rs->MoveNext();
 		}
+		
+		mysql_free_result($rs);
 
 		return $attachments;
 	}
@@ -2639,16 +2634,17 @@ class DAO_Attachment extends DevblocksORMHelper {
 		$logger = DevblocksPlatform::getConsoleLog();
 		
 		$sql = "SELECT filepath FROM attachment LEFT JOIN message ON attachment.message_id = message.id WHERE message.id IS NULL";
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 		
 		$attachment_path = APP_STORAGE_PATH . '/attachments/';
 		
 		// Delete the physical files
-		if(is_a($rs,'ADORecordSet'))
-		while(!$rs->EOF) {
-			@unlink($attachment_path . $rs->fields['filepath']);
-			$rs->MoveNext();
+		
+		while($row = mysql_fetch_assoc($rs)) {
+			@unlink($attachment_path . $row['filepath']);
 		}
+		
+		mysql_free_result($rs);
 		
 		$sql = "DELETE attachment FROM attachment LEFT JOIN message ON attachment.message_id = message.id WHERE message.id IS NULL";
 		$db->Execute($sql);
@@ -2665,16 +2661,17 @@ class DAO_Attachment extends DevblocksORMHelper {
 		$db = DevblocksPlatform::getDatabaseService();
 
 		$sql = sprintf("SELECT filepath FROM attachment WHERE id IN (%s)", implode(',',$ids));
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 		
 		$attachment_path = APP_STORAGE_PATH . '/attachments/';
 		
 		// Delete the physical files
-		if(is_a($rs,'ADORecordSet'))
-		while(!$rs->EOF) {
-			@unlink($attachment_path . $rs->fields['filepath']);
-			$rs->MoveNext();
+		
+		while($row = mysql_fetch_assoc($rs)) {
+			@unlink($attachment_path . $row['filepath']);
 		}
+		
+		mysql_free_result($rs);
 		
 		// Delete DB manifests
 		$sql = sprintf("DELETE attachment FROM attachment WHERE id IN (%s)", implode(',', $ids));
@@ -2753,30 +2750,30 @@ class DAO_Attachment extends DevblocksORMHelper {
 		;
 		// [TODO] Could push the select logic down a level too
 		if($limit > 0) {
-    		$rs = $db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+    		$rs = $db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 		} else {
-		    $rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
-            $total = $rs->RecordCount();
+		    $rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+            $total = mysql_num_rows($rs);
 		}
 		
 		$results = array();
 		
-		if(is_a($rs,'ADORecordSet'))
-		while(!$rs->EOF) {
+		while($row = mysql_fetch_assoc($rs)) {
 			$result = array();
-			foreach($rs->fields as $f => $v) {
+			foreach($row as $f => $v) {
 				$result[$f] = $v;
 			}
-			$ticket_id = intval($rs->fields[SearchFields_Attachment::ID]);
+			$ticket_id = intval($row[SearchFields_Attachment::ID]);
 			$results[$ticket_id] = $result;
-			$rs->MoveNext();
 		}
 
 		// [JAS]: Count all
 		if($withCounts) {
 		    $rs = $db->Execute($sql);
-		    $total = $rs->RecordCount();
+		    $total = mysql_num_rows($rs);
 		}
+		
+		mysql_free_result($rs);
 		
 		return array($results,$total);
     }
@@ -2808,22 +2805,22 @@ class SearchFields_Attachment implements IDevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = array(
-			self::ID => new DevblocksSearchField(self::ID, 'a', 'id', null, $translate->_('attachment.id')),
-			self::MESSAGE_ID => new DevblocksSearchField(self::MESSAGE_ID, 'a', 'message_id', null, $translate->_('attachment.message_id')),
-			self::DISPLAY_NAME => new DevblocksSearchField(self::DISPLAY_NAME, 'a', 'display_name', null, $translate->_('attachment.display_name')),
-			self::MIME_TYPE => new DevblocksSearchField(self::MIME_TYPE, 'a', 'mime_type', null, $translate->_('attachment.mime_type')),
-			self::FILE_SIZE => new DevblocksSearchField(self::FILE_SIZE, 'a', 'file_size', null, $translate->_('attachment.file_size')),
-			self::FILEPATH => new DevblocksSearchField(self::FILEPATH, 'a', 'filepath', null, $translate->_('attachment.filepath')),
+			self::ID => new DevblocksSearchField(self::ID, 'a', 'id', $translate->_('attachment.id')),
+			self::MESSAGE_ID => new DevblocksSearchField(self::MESSAGE_ID, 'a', 'message_id', $translate->_('attachment.message_id')),
+			self::DISPLAY_NAME => new DevblocksSearchField(self::DISPLAY_NAME, 'a', 'display_name', $translate->_('attachment.display_name')),
+			self::MIME_TYPE => new DevblocksSearchField(self::MIME_TYPE, 'a', 'mime_type', $translate->_('attachment.mime_type')),
+			self::FILE_SIZE => new DevblocksSearchField(self::FILE_SIZE, 'a', 'file_size', $translate->_('attachment.file_size')),
+			self::FILEPATH => new DevblocksSearchField(self::FILEPATH, 'a', 'filepath', $translate->_('attachment.filepath')),
 			
-			self::MESSAGE_ADDRESS_ID => new DevblocksSearchField(self::MESSAGE_ADDRESS_ID, 'm', 'address_id', null),
-			self::MESSAGE_CREATED_DATE => new DevblocksSearchField(self::MESSAGE_CREATED_DATE, 'm', 'created_date', null, $translate->_('message.created_date')),
-			self::MESSAGE_IS_OUTGOING => new DevblocksSearchField(self::MESSAGE_IS_OUTGOING, 'm', 'is_outgoing', null, $translate->_('mail.outbound')),
+			self::MESSAGE_ADDRESS_ID => new DevblocksSearchField(self::MESSAGE_ADDRESS_ID, 'm', 'address_id'),
+			self::MESSAGE_CREATED_DATE => new DevblocksSearchField(self::MESSAGE_CREATED_DATE, 'm', 'created_date', $translate->_('message.created_date')),
+			self::MESSAGE_IS_OUTGOING => new DevblocksSearchField(self::MESSAGE_IS_OUTGOING, 'm', 'is_outgoing', $translate->_('mail.outbound')),
 			
-			self::TICKET_ID => new DevblocksSearchField(self::TICKET_ID, 't', 'id', null, $translate->_('ticket.id')),
-			self::TICKET_MASK => new DevblocksSearchField(self::TICKET_MASK, 't', 'mask', null, $translate->_('ticket.mask')),
-			self::TICKET_SUBJECT => new DevblocksSearchField(self::TICKET_SUBJECT, 't', 'subject', null, $translate->_('ticket.subject')),
+			self::TICKET_ID => new DevblocksSearchField(self::TICKET_ID, 't', 'id', $translate->_('ticket.id')),
+			self::TICKET_MASK => new DevblocksSearchField(self::TICKET_MASK, 't', 'mask', $translate->_('ticket.mask')),
+			self::TICKET_SUBJECT => new DevblocksSearchField(self::TICKET_SUBJECT, 't', 'subject', $translate->_('ticket.subject')),
 			
-			self::ADDRESS_EMAIL => new DevblocksSearchField(self::ADDRESS_EMAIL, 'ad', 'email', null, $translate->_('message.header.from')),
+			self::ADDRESS_EMAIL => new DevblocksSearchField(self::ADDRESS_EMAIL, 'ad', 'email', $translate->_('message.header.from')),
 		);
 		
 		// Sort by label (translation-conscious)
@@ -2895,7 +2892,7 @@ class DAO_Ticket extends C4_ORMHelper {
 		$sql = sprintf("SELECT t.id FROM ticket t WHERE t.mask = %s",
 			$db->qstr($mask)
 		);
-		$ticket_id = $db->GetOne($sql); /* @var $rs ADORecordSet */
+		$ticket_id = $db->GetOne($sql); 
 
 		// If we found a hit on a ticket record, return the ID
 		if(!empty($ticket_id)) {
@@ -2940,12 +2937,17 @@ class DAO_Ticket extends C4_ORMHelper {
 			"WHERE mh.header_name = 'message-id' AND mh.header_value = %s",
 			$db->qstr($message_id)
 		);
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 		
-		if(!$rs->EOF) {
+		if($row = mysql_fetch_assoc($rs)) {
+			$ticket_id = intval($row['ticket_id']);
+			$message_id = intval($row['message_id']);
+			
+			mysql_free_result($rs);
+			
 			return array(
-				'ticket_id' => intval($rs->fields['ticket_id']),
-				'message_id' => intval($rs->fields['message_id'])
+				'ticket_id' => $ticket_id,
+				'message_id' => $message_id
 			);
 		}
 		
@@ -2970,7 +2972,7 @@ class DAO_Ticket extends C4_ORMHelper {
 			time(),
 			time()
 		);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 		
 		self::updateTicket($newId, $fields);
 		
@@ -3176,34 +3178,34 @@ class DAO_Ticket extends C4_ORMHelper {
 			(!empty($ids) ? sprintf("WHERE t.id IN (%s) ",implode(',',$ids)) : " ").
 			"ORDER BY t.updated_date DESC"
 		;
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 		
-		if(is_a($rs,'ADORecordSet'))
-		while(!$rs->EOF) {
+		while($row = mysql_fetch_assoc($rs)) {
 			$ticket = new CerberusTicket();
-			$ticket->id = intval($rs->fields['id']);
-			$ticket->mask = $rs->fields['mask'];
-			$ticket->subject = $rs->fields['subject'];
-			$ticket->first_message_id = intval($rs->fields['first_message_id']);
-			$ticket->team_id = intval($rs->fields['team_id']);
-			$ticket->category_id = intval($rs->fields['category_id']);
-			$ticket->is_waiting = intval($rs->fields['is_waiting']);
-			$ticket->is_closed = intval($rs->fields['is_closed']);
-			$ticket->is_deleted = intval($rs->fields['is_deleted']);
-			$ticket->last_wrote_address_id = intval($rs->fields['last_wrote_address_id']);
-			$ticket->first_wrote_address_id = intval($rs->fields['first_wrote_address_id']);
-			$ticket->created_date = intval($rs->fields['created_date']);
-			$ticket->updated_date = intval($rs->fields['updated_date']);
-			$ticket->due_date = intval($rs->fields['due_date']);
-			$ticket->unlock_date = intval($rs->fields['unlock_date']);
-			$ticket->spam_score = floatval($rs->fields['spam_score']);
-			$ticket->spam_training = $rs->fields['spam_training'];
-			$ticket->interesting_words = $rs->fields['interesting_words'];
-			$ticket->last_worker_id = intval($rs->fields['last_worker_id']);
-			$ticket->next_worker_id = intval($rs->fields['next_worker_id']);
+			$ticket->id = intval($row['id']);
+			$ticket->mask = $row['mask'];
+			$ticket->subject = $row['subject'];
+			$ticket->first_message_id = intval($row['first_message_id']);
+			$ticket->team_id = intval($row['team_id']);
+			$ticket->category_id = intval($row['category_id']);
+			$ticket->is_waiting = intval($row['is_waiting']);
+			$ticket->is_closed = intval($row['is_closed']);
+			$ticket->is_deleted = intval($row['is_deleted']);
+			$ticket->last_wrote_address_id = intval($row['last_wrote_address_id']);
+			$ticket->first_wrote_address_id = intval($row['first_wrote_address_id']);
+			$ticket->created_date = intval($row['created_date']);
+			$ticket->updated_date = intval($row['updated_date']);
+			$ticket->due_date = intval($row['due_date']);
+			$ticket->unlock_date = intval($row['unlock_date']);
+			$ticket->spam_score = floatval($row['spam_score']);
+			$ticket->spam_training = $row['spam_training'];
+			$ticket->interesting_words = $row['interesting_words'];
+			$ticket->last_worker_id = intval($row['last_worker_id']);
+			$ticket->next_worker_id = intval($row['next_worker_id']);
 			$tickets[$ticket->id] = $ticket;
-			$rs->MoveNext();
 		}
+		
+		mysql_free_result($rs);
 		
 		return $tickets;
 	}
@@ -3259,21 +3261,21 @@ class DAO_Ticket extends C4_ORMHelper {
 			"ORDER BY m.created_date ASC ",
 			$ticket_id
 		);
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 		
-		if(is_a($rs,'ADORecordSet'))
-		while(!$rs->EOF) {
+		while($row = mysql_fetch_assoc($rs)) {
 			$message = new CerberusMessage();
-			$message->id = intval($rs->fields['id']);
-			$message->ticket_id = intval($rs->fields['ticket_id']);
-			$message->created_date = intval($rs->fields['created_date']);
-			$message->address_id = intval($rs->fields['address_id']);
-			$message->is_outgoing = intval($rs->fields['is_outgoing']);
-			$message->worker_id = intval($rs->fields['worker_id']);
+			$message->id = intval($row['id']);
+			$message->ticket_id = intval($row['ticket_id']);
+			$message->created_date = intval($row['created_date']);
+			$message->address_id = intval($row['address_id']);
+			$message->is_outgoing = intval($row['is_outgoing']);
+			$message->worker_id = intval($row['worker_id']);
 			
 			$messages[$message->id] = $message;
-			$rs->MoveNext();
 		}
+		
+		mysql_free_result($rs);
 
 		return $messages;
 	}
@@ -3294,17 +3296,19 @@ class DAO_Ticket extends C4_ORMHelper {
 			"ORDER BY m.created_date ASC ",
 			$id
 		);
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 		
-		if(is_a($rs,'ADORecordSet') && !$rs->EOF) {
+		if($row = mysql_fetch_assoc($rs)) {
 			$message = new CerberusMessage();
-			$message->id = intval($rs->fields['id']);
-			$message->ticket_id = intval($rs->fields['ticket_id']);
-			$message->created_date = intval($rs->fields['created_date']);
-			$message->address_id = intval($rs->fields['address_id']);
-			$message->is_outgoing = intval($rs->fields['is_outgoing']);
-			$message->worker_id = intval($rs->fields['worker_id']);
+			$message->id = intval($row['id']);
+			$message->ticket_id = intval($row['ticket_id']);
+			$message->created_date = intval($row['created_date']);
+			$message->address_id = intval($row['address_id']);
+			$message->is_outgoing = intval($row['is_outgoing']);
+			$message->worker_id = intval($row['worker_id']);
 		}
+		
+		mysql_free_result($rs);
 
 		return $message;
 	}
@@ -3319,14 +3323,16 @@ class DAO_Ticket extends C4_ORMHelper {
 			"ORDER BY a.email ASC ",
 			$ticket_id
 		);
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
-		while(!$rs->EOF) {
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		 
+		while($row = mysql_fetch_assoc($rs)) {
 			$address = new Model_Address();
-			$address->id = intval($rs->fields['id']);
-			$address->email = $rs->fields['email'];
+			$address->id = intval($row['id']);
+			$address->email = $row['email'];
 			$addresses[$address->id] = $address;
-			$rs->MoveNext();
 		}
+		
+		mysql_free_result($rs);
 
 		return $addresses;
 	}
@@ -3348,11 +3354,11 @@ class DAO_Ticket extends C4_ORMHelper {
 	
 	static function createRequester($address_id,$ticket_id) {
 		$db = DevblocksPlatform::getDatabaseService();
-		$db->Replace(
-		    'requester',
-		    array("address_id"=>$address_id,"ticket_id"=>$ticket_id),
-		    array('address_id','ticket_id')
-		);
+		$db->Execute(sprintf("REPLACE INTO requester (address_id, ticket_id) ".
+			"VALUES (%d, %d)",
+			$address_id,
+			$ticket_id
+		));
 		return true;
 	}
 	
@@ -3366,7 +3372,7 @@ class DAO_Ticket extends C4_ORMHelper {
             $id,
             $address_id
         );
-        $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+        $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 	}
 	
 	static function analyze($params, $limit=15, $mode="senders", $mode_param=null) { // or "subjects"
@@ -3397,15 +3403,16 @@ class DAO_Ticket extends C4_ORMHelper {
 		        "GROUP BY domain HAVING count(*) > 1 ".
 		        "ORDER BY hits DESC ";
 			
-		    $rs_domains = $db->SelectLimit($sql, $limit, 0) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs_domains ADORecordSet */
+		    $rs = $db->SelectLimit($sql, $limit, 0) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		    
 			$domains = array(); // [TODO] Temporary
-		    while(!$rs_domains->EOF) {
-		        $hash = md5('domain'.$rs_domains->fields['domain']);
-		        $domains[] = $rs_domains->fields['domain']; // [TODO] Temporary
-		        $tops[$hash] = array('domain',$rs_domains->fields['domain'],$rs_domains->fields['hits']);
-		        $rs_domains->MoveNext();
+			while($row = mysql_fetch_assoc($rs)) {
+		        $hash = md5('domain'.$row['domain']);
+		        $domains[] = $row['domain']; // [TODO] Temporary
+		        $tops[$hash] = array('domain',$row['domain'],$row['hits']);
 		    }
+		    
+		    mysql_free_result($rs);
 		    
 		    // [TODO] Temporary
 		    $sender_wheres = $wheres;
@@ -3432,13 +3439,14 @@ class DAO_Ticket extends C4_ORMHelper {
 		        "GROUP BY a1.email HAVING count(*) > 1 ".
 		        "ORDER BY hits DESC ";
 	
-		    $rs_senders = $db->SelectLimit($sql, $limit*2, 0) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs_senders ADORecordSet */
+		    $rs = $db->SelectLimit($sql, $limit*2, 0) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		    
-		    while(!$rs_senders->EOF) {
-		        $hash = md5('sender'.$rs_senders->fields['email']);
-		        $senders[$hash] = array('sender',$rs_senders->fields['email'],$rs_senders->fields['hits']);
-		        $rs_senders->MoveNext();
+		    while($row = mysql_fetch_assoc($rs)) {
+		        $hash = md5('sender'.$row['email']);
+		        $senders[$hash] = array('sender',$row['email'],$row['hits']);
 		    }
+		    
+		    mysql_free_result($rs);
 		    
 		    uasort($senders, array('DAO_Ticket','sortByCount'));
 	        
@@ -3474,14 +3482,15 @@ class DAO_Ticket extends C4_ORMHelper {
 		        "GROUP BY substring(t.subject from 1 for 8) ".
 		        "ORDER BY hits DESC ";
 			
-		    $rs_subjects = $db->SelectLimit($sql, $limit, 0) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs_domains ADORecordSet */
+		    $rs = $db->SelectLimit($sql, $limit, 0) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		    
 			$prefixes = array(); // [TODO] Temporary
 
-		    while(!$rs_subjects->EOF) {
-		        $prefixes[] = $rs_subjects->fields['prefix'];
-		        $rs_subjects->MoveNext();
+			while($row = mysql_fetch_assoc($rs)) {
+		        $prefixes[] = $row['prefix'];
 		    }
+		    
+		    mysql_free_result($rs);
 
 		    foreach($prefixes as $prefix_idx => $prefix) {
 			    $prefix_wheres = $wheres;
@@ -3508,24 +3517,25 @@ class DAO_Ticket extends C4_ORMHelper {
 			        "GROUP BY t.id, t.subject ";
 		
 				// [TODO] $limit here is completely arbitrary
-			    $rs_full_subjects = $db->SelectLimit($sql, 2500, 0) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs_senders ADORecordSet */
+			    $rs = $db->SelectLimit($sql, 2500, 0) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 			    
 			    $lines = array();
 			    $subjects = array();
 			    $patterns = array();
 			    $subpatterns = array();
 			    
-			    while(!$rs_full_subjects->EOF) {
-			    	$lines[] = $rs_full_subjects->fields['subject'];
-			        $rs_full_subjects->MoveNext();
+			    while($row = mysql_fetch_assoc($rs)) {
+			    	$lines[] = $row['subject'];
 			    }
 			    
 			    $patterns = self::findPatterns($lines, 8);
+			    $num_rows = mysql_num_rows($rs);
+				mysql_free_result($rs);
 			    
 			    if(!empty($patterns)) {
 			    	@$pattern = array_shift($patterns);
 			        $tophash = md5('subject'.$pattern.'*');
-			        $tops[$tophash] = array('subject',$pattern.'*',$rs_full_subjects->RecordCount());
+			        $tops[$tophash] = array('subject',$pattern.'*',$num_rows);
 
 			        if(!empty($patterns)) // thread subpatterns
 			    	foreach($patterns as $hits => $pattern) {
@@ -3534,7 +3544,6 @@ class DAO_Ticket extends C4_ORMHelper {
 				    }
 			    }
 			    
-			    @$rs_full_subjects->free();
 			    unset($lines);
 		    }
 
@@ -3559,14 +3568,14 @@ class DAO_Ticket extends C4_ORMHelper {
 				(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "").
 		        "GROUP BY mh.header_value HAVING mh.header_value <> '' ".
 		        "ORDER BY hits DESC ";
-		    $rs_imports = $db->SelectLimit($sql, 25, 0) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs_subjects ADORecordSet */
+		    $rs = $db->SelectLimit($sql, 25, 0) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		    
-		    while(!$rs_imports->EOF) {
-		        $hash = md5('header'.$rs_imports->fields['header_value']);
-		        $tops[$hash] = array('header',$rs_imports->fields['header_value'],$rs_imports->fields['hits'],array(),$mode_param);
-		        $rs_imports->MoveNext();
+		    while($row = mysql_fetch_assoc($rs)) {
+		        $hash = md5('header'.$row['header_value']);
+		        $tops[$hash] = array('header',$row['header_value'],$row['hits'],array(),$mode_param);
 		    }
 		    
+		    mysql_free_result($rs);
 	    }
 
 	    uasort($tops, array('DAO_Ticket','sortByCount'));
@@ -3750,19 +3759,17 @@ class DAO_Ticket extends C4_ORMHelper {
 			($has_multiple_values ? 'GROUP BY t.id ' : '').
 			$sort_sql;
 
-		$rs = $db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$rs = $db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 		
 		$results = array();
 		
-		if(is_a($rs,'ADORecordSet'))
-		while(!$rs->EOF) {
+		while($row = mysql_fetch_assoc($rs)) {
 			$result = array();
-			foreach($rs->fields as $f => $v) {
+			foreach($row as $f => $v) {
 				$result[$f] = $v;
 			}
-			$ticket_id = intval($rs->fields[SearchFields_Ticket::TICKET_ID]);
+			$ticket_id = intval($row[SearchFields_Ticket::TICKET_ID]);
 			$results[$ticket_id] = $result;
-			$rs->MoveNext();
 		}
 
 		// [JAS]: Count all
@@ -3773,6 +3780,8 @@ class DAO_Ticket extends C4_ORMHelper {
 				$where_sql;
 			$total = $db->GetOne($count_sql);
 		}
+		
+		mysql_free_result($rs);
 		
 		return array($results,$total);
     }	
@@ -3833,40 +3842,40 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = array(
-			self::TICKET_ID => new DevblocksSearchField(self::TICKET_ID, 't', 'id', null, $translate->_('ticket.id')),
-			self::TICKET_MASK => new DevblocksSearchField(self::TICKET_MASK, 't', 'mask', null, $translate->_('ticket.mask')),
-			self::TICKET_SUBJECT => new DevblocksSearchField(self::TICKET_SUBJECT, 't', 'subject',null,$translate->_('ticket.subject')),
+			self::TICKET_ID => new DevblocksSearchField(self::TICKET_ID, 't', 'id', $translate->_('ticket.id')),
+			self::TICKET_MASK => new DevblocksSearchField(self::TICKET_MASK, 't', 'mask', $translate->_('ticket.mask')),
+			self::TICKET_SUBJECT => new DevblocksSearchField(self::TICKET_SUBJECT, 't', 'subject', $translate->_('ticket.subject')),
 			
 			self::TICKET_FIRST_MESSAGE_ID => new DevblocksSearchField(self::TICKET_FIRST_MESSAGE_ID, 't', 'first_message_id'),
 			
 			self::TICKET_FIRST_WROTE_ID => new DevblocksSearchField(self::TICKET_FIRST_WROTE_ID, 't', 'first_wrote_address_id'),
-			self::TICKET_FIRST_WROTE => new DevblocksSearchField(self::TICKET_FIRST_WROTE, 'a1', 'email',null,$translate->_('ticket.first_wrote')),
+			self::TICKET_FIRST_WROTE => new DevblocksSearchField(self::TICKET_FIRST_WROTE, 'a1', 'email',$translate->_('ticket.first_wrote')),
 			self::TICKET_LAST_WROTE_ID => new DevblocksSearchField(self::TICKET_LAST_WROTE_ID, 't', 'last_wrote_address_id'),
-			self::TICKET_LAST_WROTE => new DevblocksSearchField(self::TICKET_LAST_WROTE, 'a2', 'email',null,$translate->_('ticket.last_wrote')),
+			self::TICKET_LAST_WROTE => new DevblocksSearchField(self::TICKET_LAST_WROTE, 'a2', 'email',$translate->_('ticket.last_wrote')),
 
-			self::ORG_NAME => new DevblocksSearchField(self::ORG_NAME, 'o', 'name', null, $translate->_('contact_org.name')),
-			self::REQUESTER_ADDRESS => new DevblocksSearchField(self::REQUESTER_ADDRESS, 'ra', 'email',null,$translate->_('ticket.requester')),
+			self::ORG_NAME => new DevblocksSearchField(self::ORG_NAME, 'o', 'name', $translate->_('contact_org.name')),
+			self::REQUESTER_ADDRESS => new DevblocksSearchField(self::REQUESTER_ADDRESS, 'ra', 'email',$translate->_('ticket.requester')),
 			
-			self::TICKET_MESSAGE_CONTENT => new DevblocksSearchField(self::TICKET_MESSAGE_CONTENT, 'mc', 'content', 'B', $translate->_('message.content')),
+			self::TICKET_MESSAGE_CONTENT => new DevblocksSearchField(self::TICKET_MESSAGE_CONTENT, 'mc', 'content', $translate->_('message.content')),
 			
-			self::TICKET_TEAM_ID => new DevblocksSearchField(self::TICKET_TEAM_ID,'t','team_id',null,$translate->_('common.group')),
-			self::TICKET_CATEGORY_ID => new DevblocksSearchField(self::TICKET_CATEGORY_ID, 't', 'category_id',null,$translate->_('common.bucket')),
-			self::TICKET_CREATED_DATE => new DevblocksSearchField(self::TICKET_CREATED_DATE, 't', 'created_date',null,$translate->_('ticket.created')),
-			self::TICKET_UPDATED_DATE => new DevblocksSearchField(self::TICKET_UPDATED_DATE, 't', 'updated_date',null,$translate->_('ticket.updated')),
-			self::TICKET_WAITING => new DevblocksSearchField(self::TICKET_WAITING, 't', 'is_waiting',null,$translate->_('status.waiting')),
-			self::TICKET_CLOSED => new DevblocksSearchField(self::TICKET_CLOSED, 't', 'is_closed',null,$translate->_('status.closed')),
-			self::TICKET_DELETED => new DevblocksSearchField(self::TICKET_DELETED, 't', 'is_deleted',null,$translate->_('status.deleted')),
+			self::TICKET_TEAM_ID => new DevblocksSearchField(self::TICKET_TEAM_ID,'t','team_id',$translate->_('common.group')),
+			self::TICKET_CATEGORY_ID => new DevblocksSearchField(self::TICKET_CATEGORY_ID, 't', 'category_id',$translate->_('common.bucket')),
+			self::TICKET_CREATED_DATE => new DevblocksSearchField(self::TICKET_CREATED_DATE, 't', 'created_date',$translate->_('ticket.created')),
+			self::TICKET_UPDATED_DATE => new DevblocksSearchField(self::TICKET_UPDATED_DATE, 't', 'updated_date',$translate->_('ticket.updated')),
+			self::TICKET_WAITING => new DevblocksSearchField(self::TICKET_WAITING, 't', 'is_waiting',$translate->_('status.waiting')),
+			self::TICKET_CLOSED => new DevblocksSearchField(self::TICKET_CLOSED, 't', 'is_closed',$translate->_('status.closed')),
+			self::TICKET_DELETED => new DevblocksSearchField(self::TICKET_DELETED, 't', 'is_deleted',$translate->_('status.deleted')),
 
-			self::TICKET_LAST_ACTION_CODE => new DevblocksSearchField(self::TICKET_LAST_ACTION_CODE, 't', 'last_action_code',null,$translate->_('ticket.last_action')),
-			self::TICKET_LAST_WORKER_ID => new DevblocksSearchField(self::TICKET_LAST_WORKER_ID, 't', 'last_worker_id',null,$translate->_('ticket.last_worker')),
-			self::TICKET_NEXT_WORKER_ID => new DevblocksSearchField(self::TICKET_NEXT_WORKER_ID, 't', 'next_worker_id',null,$translate->_('ticket.next_worker')),
-			self::TICKET_SPAM_TRAINING => new DevblocksSearchField(self::TICKET_SPAM_TRAINING, 't', 'spam_training',null,$translate->_('ticket.spam_training')),
-			self::TICKET_SPAM_SCORE => new DevblocksSearchField(self::TICKET_SPAM_SCORE, 't', 'spam_score',null,$translate->_('ticket.spam_score')),
-			self::TICKET_FIRST_WROTE_SPAM => new DevblocksSearchField(self::TICKET_FIRST_WROTE_SPAM, 'a1', 'num_spam',null,$translate->_('address.num_spam')),
-			self::TICKET_FIRST_WROTE_NONSPAM => new DevblocksSearchField(self::TICKET_FIRST_WROTE_NONSPAM, 'a1', 'num_nonspam',null,$translate->_('address.num_nonspam')),
-			self::TICKET_INTERESTING_WORDS => new DevblocksSearchField(self::TICKET_INTERESTING_WORDS, 't', 'interesting_words',null,$translate->_('ticket.interesting_words')),
-			self::TICKET_DUE_DATE => new DevblocksSearchField(self::TICKET_DUE_DATE, 't', 'due_date',null,$translate->_('ticket.due')),
-			self::TICKET_UNLOCK_DATE => new DevblocksSearchField(self::TICKET_UNLOCK_DATE, 't', 'unlock_date', null, $translate->_('ticket.unlock_date')),
+			self::TICKET_LAST_ACTION_CODE => new DevblocksSearchField(self::TICKET_LAST_ACTION_CODE, 't', 'last_action_code',$translate->_('ticket.last_action')),
+			self::TICKET_LAST_WORKER_ID => new DevblocksSearchField(self::TICKET_LAST_WORKER_ID, 't', 'last_worker_id',$translate->_('ticket.last_worker')),
+			self::TICKET_NEXT_WORKER_ID => new DevblocksSearchField(self::TICKET_NEXT_WORKER_ID, 't', 'next_worker_id',$translate->_('ticket.next_worker')),
+			self::TICKET_SPAM_TRAINING => new DevblocksSearchField(self::TICKET_SPAM_TRAINING, 't', 'spam_training',$translate->_('ticket.spam_training')),
+			self::TICKET_SPAM_SCORE => new DevblocksSearchField(self::TICKET_SPAM_SCORE, 't', 'spam_score',$translate->_('ticket.spam_score')),
+			self::TICKET_FIRST_WROTE_SPAM => new DevblocksSearchField(self::TICKET_FIRST_WROTE_SPAM, 'a1', 'num_spam',$translate->_('address.num_spam')),
+			self::TICKET_FIRST_WROTE_NONSPAM => new DevblocksSearchField(self::TICKET_FIRST_WROTE_NONSPAM, 'a1', 'num_nonspam',$translate->_('address.num_nonspam')),
+			self::TICKET_INTERESTING_WORDS => new DevblocksSearchField(self::TICKET_INTERESTING_WORDS, 't', 'interesting_words',$translate->_('ticket.interesting_words')),
+			self::TICKET_DUE_DATE => new DevblocksSearchField(self::TICKET_DUE_DATE, 't', 'due_date',$translate->_('ticket.due')),
+			self::TICKET_UNLOCK_DATE => new DevblocksSearchField(self::TICKET_UNLOCK_DATE, 't', 'unlock_date', $translate->_('ticket.unlock_date')),
 			self::TICKET_FIRST_CONTACT_ORG_ID => new DevblocksSearchField(self::TICKET_FIRST_CONTACT_ORG_ID, 'a1', 'contact_org_id'),
 			
 			self::REQUESTER_ID => new DevblocksSearchField(self::REQUESTER_ID, 'ra', 'id'),
@@ -3874,7 +3883,7 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 			self::SENDER_ADDRESS => new DevblocksSearchField(self::SENDER_ADDRESS, 'a1', 'email'),
 			
 			self::TICKET_MESSAGE_HEADER => new DevblocksSearchField(self::TICKET_MESSAGE_HEADER, 'mh', 'header_name'),
-			self::TICKET_MESSAGE_HEADER_VALUE => new DevblocksSearchField(self::TICKET_MESSAGE_HEADER_VALUE, 'mh', 'header_value', 'B'),
+			self::TICKET_MESSAGE_HEADER_VALUE => new DevblocksSearchField(self::TICKET_MESSAGE_HEADER_VALUE, 'mh', 'header_value'),
 			
 		);
 		
@@ -3884,7 +3893,7 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 		if(is_array($fields))
 		foreach($fields as $field_id => $field) {
 			$key = 'cf_'.$field_id;
-			$columns[$key] = new DevblocksSearchField($key,$key,'field_value',null,$field->name);
+			$columns[$key] = new DevblocksSearchField($key,$key,'field_value',$field->name);
 		}
 		
 		// Sort by label (translation-conscious)
@@ -3911,7 +3920,7 @@ class DAO_ViewRss extends DevblocksORMHelper {
 			"VALUES (%d,'','',0,0,'','')",
 			$newId
 		);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 		
 		self::update($newId, $fields);
 	}
@@ -3931,7 +3940,7 @@ class DAO_ViewRss extends DevblocksORMHelper {
 			"FROM view_rss ".
 			(!empty($ids) ? sprintf("WHERE id IN (%s)",implode(',',$ids)) : " ").
 		"";
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 		
 		return self::_getObjectsFromResults($rs);
 	}
@@ -3951,7 +3960,7 @@ class DAO_ViewRss extends DevblocksORMHelper {
 			"WHERE hash = %s",
 				$db->qstr($hash)
 		);
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 		
 		$objects = self::_getObjectsFromResults($rs);
 		
@@ -3976,7 +3985,7 @@ class DAO_ViewRss extends DevblocksORMHelper {
 			"WHERE worker_id = %d",
 				$worker_id
 		);
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 		
 		$objects = self::_getObjectsFromResults($rs);
 		
@@ -3986,30 +3995,30 @@ class DAO_ViewRss extends DevblocksORMHelper {
 	/**
 	 * Enter description here...
 	 *
-	 * @param ADORecordSet $rs
+	 * @param resource $rs
 	 * @return Model_ViewRss[]
 	 */
-	private static function _getObjectsFromResults($rs) { /* @var $rs ADORecordSet */
+	private static function _getObjectsFromResults($rs) { 
 		$objects = array();
 		
-		if(is_a($rs,'ADORecordSet'))
-		while(!$rs->EOF) {
+		while($row = mysql_fetch_assoc($rs)) {
 			$object = new Model_ViewRss();
-			$object->id = intval($rs->fields['id']);
-			$object->title = $rs->fields['title'];
-			$object->hash = $rs->fields['hash'];
-			$object->worker_id = intval($rs->fields['worker_id']);
-			$object->created = intval($rs->fields['created']);
-			$object->source_extension = $rs->fields['source_extension'];
+			$object->id = intval($row['id']);
+			$object->title = $row['title'];
+			$object->hash = $row['hash'];
+			$object->worker_id = intval($row['worker_id']);
+			$object->created = intval($row['created']);
+			$object->source_extension = $row['source_extension'];
 			
-			$params = $rs->fields['params'];
+			$params = $row['params'];
 			
 			if(!empty($params))
 				@$object->params = unserialize($params);
 			
 			$objects[$object->id] = $object;
-			$rs->MoveNext();
 		}
+		
+		mysql_free_result($rs);
 		
 		return $objects;
 	}
@@ -4057,7 +4066,7 @@ class DAO_ViewRss extends DevblocksORMHelper {
 		$sql = sprintf("DELETE QUICK FROM view_rss WHERE id = %d",
 			$id
 		);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 	}
 };
 
@@ -4109,18 +4118,18 @@ class DAO_Group {
 			((is_array($ids) && !empty($ids)) ? sprintf("WHERE t.id IN (%s) ",implode(',',$ids)) : " ").
 			"ORDER BY t.name ASC"
 		);
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 		
-		if(is_a($rs,'ADORecordSet'))
-		while(!$rs->EOF) {
+		while($row = mysql_fetch_assoc($rs)) {
 			$team = new CerberusTeam();
-			$team->id = intval($rs->fields['id']);
-			$team->name = $rs->fields['name'];
-			$team->signature = $rs->fields['signature'];
-			$team->is_default = intval($rs->fields['is_default']);
+			$team->id = intval($row['id']);
+			$team->name = $row['name'];
+			$team->signature = $row['signature'];
+			$team->is_default = intval($row['is_default']);
 			$teams[$team->id] = $team;
-			$rs->MoveNext();
 		}
+		
+		mysql_free_result($rs);
 		
 		return $teams;
 	}
@@ -4180,12 +4189,11 @@ class DAO_Group {
 			    (!empty($ids) ? sprintf("AND t.team_id IN (%s) ", implode(',', $ids)) : " ").
 			    "GROUP BY t.team_id "
 			;
-			$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+			$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 			
-			if(is_a($rs,'ADORecordSet'))
-			while(!$rs->EOF) {
-			    $team_id = intval($rs->fields['team_id']);
-			    $hits = intval($rs->fields['hits']);
+			while($row = mysql_fetch_assoc($rs)) {
+			    $team_id = intval($row['team_id']);
+			    $hits = intval($row['hits']);
 			    
 			    if(!isset($team_totals[$team_id])) {
 	                $team_totals[$team_id] = array('tickets'=>0);
@@ -4193,9 +4201,9 @@ class DAO_Group {
 			    
 			    $team_totals[$team_id]['tickets'] = $hits;
 			    $team_totals[0]['tickets'] += $hits;
-			        
-			    $rs->MoveNext();
 			}
+			
+			mysql_free_result($rs);
 		}
 		
 		return $team_totals;
@@ -4215,7 +4223,7 @@ class DAO_Group {
 			"VALUES (%d,'','',0)",
 			$newId
 		);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 		
 		self::updateTeam($newId, $fields);
 
@@ -4248,7 +4256,7 @@ class DAO_Group {
 			implode(', ', $sets),
 			$id
 		);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 
 		self::clearCache();
 	}
@@ -4276,20 +4284,20 @@ class DAO_Group {
 	    );
 		
 		$sql = sprintf("DELETE QUICK FROM team WHERE id = %d", $id);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 
 		$sql = sprintf("DELETE QUICK FROM category WHERE team_id = %d", $id);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 		
 		// [TODO] DAO_GroupSettings::deleteById();
 		$sql = sprintf("DELETE QUICK FROM group_setting WHERE group_id = %d", $id);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 		
 		$sql = sprintf("DELETE QUICK FROM worker_to_team WHERE team_id = %d",	$id);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 
 		$sql = sprintf("DELETE QUICK FROM group_inbox_filter WHERE group_id = %d", $id);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 
 //        DAO_GroupInboxFilter::deleteByMoveCodes(array('t'.$id));
 
@@ -4323,12 +4331,13 @@ class DAO_Group {
 		
         $db = DevblocksPlatform::getDatabaseService();
         
-        $db->Replace(
-            'worker_to_team',
-            array('agent_id' => $worker_id, 'team_id' => $team_id, 'is_manager' => ($is_manager?1:0)),
-            array('agent_id','team_id')
-        );
-
+        $db->Execute(sprintf("REPLACE INTO worker_to_team (agent_id, team_id, is_manager) ".
+        	"VALUES (%d, %d, %d)",
+        	$worker_id,
+        	$team_id,
+        	($is_manager?1:0)
+       	));
+        
         self::clearCache();
 	}
 	
@@ -4358,15 +4367,14 @@ class DAO_Group {
 				"INNER JOIN worker w ON (w.id=wt.agent_id) ".
 				"ORDER BY t.name ASC, w.first_name ASC "
 			);
-			$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+			$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 			
 			$objects = array();
 			
-			if(is_a($rs,'ADORecordSet'))
-			while(!$rs->EOF) {
-				$agent_id = intval($rs->fields['agent_id']); 
-				$team_id = intval($rs->fields['team_id']); 
-				$is_manager = intval($rs->fields['is_manager']);
+			while($row = mysql_fetch_assoc($rs)) {
+				$agent_id = intval($row['agent_id']); 
+				$team_id = intval($row['team_id']); 
+				$is_manager = intval($row['is_manager']);
 				
 				if(!isset($objects[$team_id]))
 					$objects[$team_id] = array();
@@ -4376,9 +4384,9 @@ class DAO_Group {
 				$member->team_id = $team_id;
 				$member->is_manager = $is_manager;
 				$objects[$team_id][$agent_id] = $member;
-				
-				$rs->MoveNext();
 			}
+			
+			mysql_free_result($rs);
 			
 			$cache->save($objects, self::CACHE_ROSTERS);
 		}
@@ -4422,17 +4430,14 @@ class DAO_GroupSettings {
     
 	static function set($group_id, $key, $value) {
 		$db = DevblocksPlatform::getDatabaseService();
-		$result = $db->Replace(
-		    'group_setting',
-		    array(
-		        'group_id'=>$group_id,
-		        'setting'=>$db->qstr($key),
-		        'value'=>$db->qstr($value) // BlobEncode/UpdateBlob?
-		    ),
-		    array('group_id','setting'),
-		    false
-		);
-
+		
+		$db->Execute(sprintf("REPLACE INTO group_setting (group_id, setting, value) ".
+			"VALUES (%d, %s, %s)",
+			$group_id,
+			$db->qstr($key),
+			$db->qstr($value)
+		));
+		
 		$cache = DevblocksPlatform::getCacheService();
 		$cache->remove(self::CACHE_ALL);
 		
@@ -4464,18 +4469,18 @@ class DAO_GroupSettings {
 			$groups = array();
 			
 			$sql = "SELECT group_id, setting, value FROM group_setting";
-			$rs = $db->Execute($sql) or die(__CLASS__ . ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+			$rs = $db->Execute($sql) or die(__CLASS__ . ':' . $db->ErrorMsg()); 
 			
-			if(is_a($rs,'ADORecordSet'))
-			while(!$rs->EOF) {
-			    $gid = intval($rs->fields['group_id']);
+			while($row = mysql_fetch_assoc($rs)) {
+			    $gid = intval($row['group_id']);
 			    
 			    if(!isset($groups[$gid]))
 			        $groups[$gid] = array();
 			    
-			    $groups[$gid][$rs->Fields('setting')] = $rs->Fields('value');
-				$rs->MoveNext();
+			    $groups[$gid][$row['setting']] = $row['value'];
 			}
+			
+			mysql_free_result($rs);
 			
 			$cache->save($groups, self::CACHE_ALL);
 	    }
@@ -4566,21 +4571,21 @@ class DAO_Bucket extends DevblocksORMHelper {
 			(!empty($ids) ? sprintf("WHERE tc.id IN (%s) ", implode(',', $ids)) : "").
 			"ORDER BY t.name ASC, tc.pos ASC "
 		;
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 		
 		$categories = array();
 		
-		if(is_a($rs,'ADORecordSet'))
-		while(!$rs->EOF) {
+		while($row = mysql_fetch_assoc($rs)) {
 			$category = new CerberusCategory();
-			$category->id = intval($rs->Fields('id'));
-			$category->pos = intval($rs->Fields('pos'));
-			$category->name = $rs->Fields('name');
-			$category->team_id = intval($rs->Fields('team_id'));
-			$category->is_assignable = intval($rs->Fields('is_assignable'));
+			$category->id = intval($row['id']);
+			$category->pos = intval($row['pos']);
+			$category->name = $row['name'];
+			$category->team_id = intval($row['team_id']);
+			$category->is_assignable = intval($row['is_assignable']);
 			$categories[$category->id] = $category;
-			$rs->MoveNext();
 		}
+		
+		mysql_free_result($rs);
 		
 		return $categories;
 	}
@@ -4640,7 +4645,7 @@ class DAO_Bucket extends DevblocksORMHelper {
 			$team_id
 		);
 
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 
 		self::clearCache();
 		
@@ -4674,11 +4679,11 @@ class DAO_Bucket extends DevblocksORMHelper {
 	    );
 		
 		$sql = sprintf("DELETE QUICK FROM category WHERE id IN (%s)", implode(',',$ids));
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 		
 		// Reset any tickets using this category
 		$sql = sprintf("UPDATE ticket SET category_id = 0 WHERE category_id IN (%s)", implode(',',$ids));
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 
 		self::clearCache();
 	}
@@ -4702,7 +4707,7 @@ class DAO_Mail {
 			"VALUES (%d,0,'','','','')",
 			$newId
 		);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 		
 		self::updatePop3Account($newId, $fields);
 		
@@ -4719,22 +4724,22 @@ class DAO_Mail {
 			((!empty($ids) ? sprintf("WHERE id IN (%s)", implode(',', $ids)) : " ").
 			"ORDER BY nickname "
 		);
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 		
-		if(is_a($rs,'ADORecordSet'))
-		while(!$rs->EOF) {
+		while($row = mysql_fetch_assoc($rs)) {
 			$pop3 = new CerberusPop3Account();
-			$pop3->id = intval($rs->fields['id']);
-			$pop3->enabled = intval($rs->fields['enabled']);
-			$pop3->nickname = $rs->fields['nickname'];
-			$pop3->protocol = $rs->fields['protocol'];
-			$pop3->host = $rs->fields['host'];
-			$pop3->username = $rs->fields['username'];
-			$pop3->password = $rs->fields['password'];
-			$pop3->port = intval($rs->fields['port']);
+			$pop3->id = intval($row['id']);
+			$pop3->enabled = intval($row['enabled']);
+			$pop3->nickname = $row['nickname'];
+			$pop3->protocol = $row['protocol'];
+			$pop3->host = $row['host'];
+			$pop3->username = $row['username'];
+			$pop3->password = $row['password'];
+			$pop3->port = intval($row['port']);
 			$pop3accounts[$pop3->id] = $pop3;
-			$rs->MoveNext();
 		}
+		
+		mysql_free_result($rs);
 		
 		return $pop3accounts;		
 	}
@@ -4772,7 +4777,7 @@ class DAO_Mail {
 			implode(', ', $sets),
 			$id
 		);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 	}
 	
 	static function deletePop3Account($id) {
@@ -4785,7 +4790,7 @@ class DAO_Mail {
 			$id			
 		);
 		
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 	}
 };
 
@@ -4852,30 +4857,30 @@ class DAO_MailToGroupRule extends DevblocksORMHelper {
 	}
 	
 	/**
-	 * @param ADORecordSet $rs
+	 * @param resource $rs
 	 * @return Model_MailToGroupRule[]
 	 */
 	static private function _getObjectsFromResult($rs) {
 		$objects = array();
 		
-		while(!$rs->EOF) {
+		while($row = mysql_fetch_assoc($rs)) {
 			$object = new Model_MailToGroupRule();
-			$object->id = $rs->fields['id'];
-			$object->pos = $rs->fields['pos'];
-			$object->created = $rs->fields['created'];
-			$object->name = $rs->fields['name'];
-			$criteria_ser = $rs->fields['criteria_ser'];
-			$actions_ser = $rs->fields['actions_ser'];
-			$object->is_sticky = $rs->fields['is_sticky'];
-			$object->sticky_order = $rs->fields['sticky_order'];
+			$object->id = $row['id'];
+			$object->pos = $row['pos'];
+			$object->created = $row['created'];
+			$object->name = $row['name'];
+			$criteria_ser = $row['criteria_ser'];
+			$actions_ser = $row['actions_ser'];
+			$object->is_sticky = $row['is_sticky'];
+			$object->sticky_order = $row['sticky_order'];
 
 			$object->criteria = (!empty($criteria_ser)) ? @unserialize($criteria_ser) : array();
 			$object->actions = (!empty($actions_ser)) ? @unserialize($actions_ser) : array();
 
 			$objects[$object->id] = $object;
-			
-			$rs->MoveNext();
 		}
+		
+		mysql_free_result($rs);
 		
 		return $objects;
 	}
@@ -4967,27 +4972,27 @@ class DAO_WorkerWorkspaceList extends DevblocksORMHelper {
 			"FROM worker_workspace_list ".
 			(!empty($where) ? sprintf("WHERE %s ",$where) : " ").
 			"ORDER BY list_pos ASC";
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 
 		$objects = array();
 		
-		if(is_a($rs,'ADORecordSet'))
-		while(!$rs->EOF) {
+		while($row = mysql_fetch_assoc($rs)) {
 			$object = new Model_WorkerWorkspaceList();
-			$object->id = intval($rs->fields['id']);
-			$object->worker_id = intval($rs->fields['worker_id']);
-			$object->workspace = $rs->fields['workspace'];
-			$object->source_extension = $rs->fields['source_extension'];
-			$object->list_pos = intval($rs->fields['list_pos']);
+			$object->id = intval($row['id']);
+			$object->worker_id = intval($row['worker_id']);
+			$object->workspace = $row['workspace'];
+			$object->source_extension = $row['source_extension'];
+			$object->list_pos = intval($row['list_pos']);
 			
-			$list_view = $rs->fields['list_view'];
+			$list_view = $row['list_view'];
 			if(!empty($list_view)) {
 				@$object->list_view = unserialize($list_view);
 			}
 			
 			$objects[$object->id] = $object;
-			$rs->MoveNext();
 		}
+		
+		mysql_free_result($rs);
 		
 		return $objects;
 	}
@@ -5000,13 +5005,14 @@ class DAO_WorkerWorkspaceList extends DevblocksORMHelper {
 			"FROM worker_workspace_list ".
 			(!empty($worker_id) ? sprintf("WHERE worker_id = %d ",$worker_id) : " ").
 			"ORDER BY workspace";
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 
-		if(is_a($rs,'ADORecordSet'))
-		while(!$rs->EOF) {
-			$workspaces[] = $rs->fields['workspace'];
-			$rs->MoveNext();
+		
+		while($row = mysql_fetch_assoc($rs)) {
+			$workspaces[] = $row['workspace'];
 		}
+		
+		mysql_free_result($rs);
 		
 		return $workspaces;
 	}
@@ -5038,16 +5044,13 @@ class DAO_WorkerPref extends DevblocksORMHelper {
 	static function set($worker_id, $key, $value) {
 		// Persist long-term
 		$db = DevblocksPlatform::getDatabaseService();
-		$result = $db->Replace(
-		    'worker_pref',
-		    array(
-		        'worker_id'=>$worker_id,
-		        'setting'=>$db->qstr($key),
-		        'value'=>$db->qstr($value) // BlobEncode/UpdateBlob?
-		    ),
-		    array('worker_id','setting'),
-		    false
-		);
+		
+		$db->Execute(sprintf("REPLACE INTO worker_pref (worker_id, setting, value) ".
+			"VALUES (%d, %s, %s)",
+			$worker_id,
+			$db->qstr($key),
+			$db->qstr($value)
+		));
 		
 		// Invalidate cache
 		$cache = DevblocksPlatform::getCacheService();
@@ -5076,15 +5079,16 @@ class DAO_WorkerPref extends DevblocksORMHelper {
 		if(null === ($objects = $cache->load(self::CACHE_PREFIX.$worker_id))) {
 			$db = DevblocksPlatform::getDatabaseService();
 			$sql = sprintf("SELECT setting, value FROM worker_pref WHERE worker_id = %d", $worker_id);
-			$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+			$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 			
 			$objects = array();
 			
-			if(is_a($rs,'ADORecordSet'))
-			while(!$rs->EOF) {
-			    $objects[$rs->fields['setting']] = $rs->fields['value'];
-			    $rs->MoveNext();
+			
+			while($row = mysql_fetch_assoc($rs)) {
+			    $objects[$row['setting']] = $row['value'];
 			}
+			
+			mysql_free_result($rs);
 			
 			$cache->save($objects, self::CACHE_PREFIX.$worker_id);
 		}
@@ -5153,23 +5157,24 @@ class DAO_Note extends DevblocksORMHelper {
 	}
 	
 	/**
-	 * @param ADORecordSet $rs
+	 * @param resource $rs
 	 * @return Model_Note[]
 	 */
 	static private function _getObjectsFromResult($rs) {
 		$objects = array();
 		
-		while(!$rs->EOF) {
+		while($row = mysql_fetch_assoc($rs)) {
 			$object = new Model_Note();
-			$object->id = $rs->fields['id'];
-			$object->source_extension_id = $rs->fields['source_extension_id'];
-			$object->source_id = $rs->fields['source_id'];
-			$object->created = $rs->fields['created'];
-			$object->worker_id = $rs->fields['worker_id'];
-			$object->content = $rs->fields['content'];
+			$object->id = $row['id'];
+			$object->source_extension_id = $row['source_extension_id'];
+			$object->source_id = $row['source_id'];
+			$object->created = $row['created'];
+			$object->worker_id = $row['worker_id'];
+			$object->content = $row['content'];
 			$objects[$object->id] = $object;
-			$rs->MoveNext();
 		}
+		
+		mysql_free_result($rs);
 		
 		return $objects;
 	}
@@ -5225,19 +5230,18 @@ class DAO_Note extends DevblocksORMHelper {
 		$sql = $select_sql . $join_sql . $where_sql .  
 			(!empty($sortBy) ? sprintf("ORDER BY %s %s",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : "");
 		
-		$rs = $db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$rs = $db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 		
 		$results = array();
 		
-		if(is_a($rs,'ADORecordSet'))
-		while(!$rs->EOF) {
+		
+		while($row = mysql_fetch_assoc($rs)) {
 			$result = array();
-			foreach($rs->fields as $f => $v) {
+			foreach($row as $f => $v) {
 				$result[$f] = $v;
 			}
-			$id = intval($rs->fields[SearchFields_Note::ID]);
+			$id = intval($row[SearchFields_Note::ID]);
 			$results[$id] = $result;
-			$rs->MoveNext();
 		}
 
 		// [JAS]: Count all
@@ -5246,6 +5250,8 @@ class DAO_Note extends DevblocksORMHelper {
 			$count_sql = "SELECT count(*) " . $join_sql . $where_sql;
 			$total = $db->GetOne($count_sql);
 		}
+		
+		mysql_free_result($rs);
 		
 		return array($results,$total);
     }	
@@ -5394,26 +5400,27 @@ class DAO_PreParseRule extends DevblocksORMHelper {
 	}
 	
 	/**
-	 * @param ADORecordSet $rs
+	 * @param resource $rs
 	 * @return Model_PreParseRule[]
 	 */
 	static private function _getObjectsFromResult($rs) {
 		$objects = array();
 		
-		if(is_a($rs,'ADORecordSet'))
-		while(!$rs->EOF) {
+		
+		while($row = mysql_fetch_assoc($rs)) {
 			$object = new Model_PreParseRule();
-			$object->created = $rs->fields['created'];
-			$object->id = $rs->fields['id'];
-			$object->name = $rs->fields['name'];
-			$object->criteria = !empty($rs->fields['criteria_ser']) ? @unserialize($rs->fields['criteria_ser']) : array();
-			$object->actions = !empty($rs->fields['actions_ser']) ? @unserialize($rs->fields['actions_ser']) : array();
-			$object->pos = $rs->fields['pos'];
-			$object->is_sticky = $rs->fields['is_sticky'];
-			$object->sticky_order = $rs->fields['sticky_order'];
+			$object->created = $row['created'];
+			$object->id = $row['id'];
+			$object->name = $row['name'];
+			$object->criteria = !empty($row['criteria_ser']) ? @unserialize($row['criteria_ser']) : array();
+			$object->actions = !empty($row['actions_ser']) ? @unserialize($row['actions_ser']) : array();
+			$object->pos = $row['pos'];
+			$object->is_sticky = $row['is_sticky'];
+			$object->sticky_order = $row['sticky_order'];
 			$objects[$object->id] = $object;
-			$rs->MoveNext();
 		}
+		
+		mysql_free_result($rs);
 		
 		return $objects;
 	}
@@ -5461,7 +5468,7 @@ class DAO_GroupInboxFilter extends DevblocksORMHelper {
 		    $id,
 		    time()
 		);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 		
 		self::update($id, $fields);
 		
@@ -5511,7 +5518,7 @@ class DAO_GroupInboxFilter extends DevblocksORMHelper {
 		    "ORDER BY is_sticky DESC, sticky_order ASC, pos DESC",
 		    $group_id
 		);
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 		
 		return self::_getResultsAsModel($rs);
 	}
@@ -5528,46 +5535,47 @@ class DAO_GroupInboxFilter extends DevblocksORMHelper {
 		    (!empty($ids) ? sprintf("WHERE id IN (%s) ", implode(',', $ids)) : " ").
 		    "ORDER BY is_sticky DESC, sticky_order ASC, pos DESC"
 		;
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 		
 		return self::_getResultsAsModel($rs);
 	}
 	
 	/**
-	 * @param ADORecordSet $rs
+	 * @param resource $rs
 	 * @return Model_GroupInboxFilter[]
 	 */
 	private static function _getResultsAsModel($rs) {
 		$objects = array();
 		
-		if(is_a($rs,'ADORecordSet'))
-		while(!$rs->EOF) {
+		
+		while($row = mysql_fetch_assoc($rs)) {
 		    $object = new Model_GroupInboxFilter();
-		    $object->id = intval($rs->fields['id']);
-		    $object->name = $rs->fields['name'];
-		    $object->group_id = intval($rs->fields['group_id']);
-		    $object->pos = intval($rs->fields['pos']);
-		    $object->is_sticky = intval($rs->fields['is_sticky']);
-		    $object->sticky_order = intval($rs->fields['sticky_order']);
-		    $object->is_stackable = intval($rs->fields['is_stackable']);
+		    $object->id = intval($row['id']);
+		    $object->name = $row['name'];
+		    $object->group_id = intval($row['group_id']);
+		    $object->pos = intval($row['pos']);
+		    $object->is_sticky = intval($row['is_sticky']);
+		    $object->sticky_order = intval($row['sticky_order']);
+		    $object->is_stackable = intval($row['is_stackable']);
 
             // Criteria
-		    $criteria_ser = $rs->fields['criteria_ser'];
+		    $criteria_ser = $row['criteria_ser'];
 		    if(!empty($criteria_ser))
 		    	@$criteria = unserialize($criteria_ser);
 		    if(is_array($criteria))
 		    	$object->criteria = $criteria;
             
             // Actions
-		    $actions_ser = $rs->fields['actions_ser'];
+		    $actions_ser = $row['actions_ser'];
 		    if(!empty($actions_ser))
 		    	@$actions = unserialize($actions_ser);
 		    if(is_array($actions))
 		    	$object->actions = $actions;
             
 		    $objects[$object->id] = $object;
-		    $rs->MoveNext();
 		}
+		
+		mysql_free_result($rs);
 		
 		return $objects;
 	}
@@ -5582,7 +5590,7 @@ class DAO_GroupInboxFilter extends DevblocksORMHelper {
 	    $id_list = implode(',', $ids);
 	    
 	    $sql = sprintf("DELETE QUICK FROM group_inbox_filter WHERE id IN (%s)", $id_list);
-	    $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+	    $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 	}
 
     /**
@@ -5630,27 +5638,28 @@ class DAO_GroupInboxFilter extends DevblocksORMHelper {
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "").
 			(!empty($sortBy) ? sprintf("ORDER BY %s %s",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : "")
 		;
-		$rs = $db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$rs = $db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 		
 		$results = array();
 		
-		if(is_a($rs,'ADORecordSet'))
-		while(!$rs->EOF) {
+		
+		while($row = mysql_fetch_assoc($rs)) {
 			$result = array();
-			foreach($rs->fields as $f => $v) {
+			foreach($row as $f => $v) {
 				$result[$f] = $v;
 			}
-			$row_id = intval($rs->fields[SearchFields_GroupInboxFilter::ID]);
+			$row_id = intval($row[SearchFields_GroupInboxFilter::ID]);
 			$results[$row_id] = $result;
-			$rs->MoveNext();
 		}
 
 		// [JAS]: Count all
 		$total = -1;
 		if($withCounts) {
 		    $rs = $db->Execute($sql);
-		    $total = $rs->RecordCount();
+		    $total = mysql_num_rows($rs);
 		}
+		
+		mysql_free_result($rs);
 		
 		return array($results,$total);
     }
@@ -5705,7 +5714,7 @@ class DAO_MailTemplate extends DevblocksORMHelper {
 			self::_TABLE,
 			$id
 		);
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 
 		self::update($id, $fields);
 		
@@ -5726,13 +5735,14 @@ class DAO_MailTemplate extends DevblocksORMHelper {
 			self::_TABLE,
 			(!empty($type) ? sprintf("WHERE %s = %d ",self::TEMPLATE_TYPE,$type) : " ")
 		);
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 
-		if(is_a($rs,'ADORecordSet'))
-		while(!$rs->EOF) {
-			$folders[] = $rs->fields['folder'];
-			$rs->MoveNext();
+		
+		while($row = mysql_fetch_assoc($rs)) {
+			$folders[] = $row['folder'];
 		}
+		
+		mysql_free_result($rs);
 		
 		return $folders;
 	}
@@ -5753,7 +5763,7 @@ class DAO_MailTemplate extends DevblocksORMHelper {
 			self::_TABLE,
 			implode(',', $ids)
 		);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 	}
 	
 	public function getByType($type) {
@@ -5778,7 +5788,7 @@ class DAO_MailTemplate extends DevblocksORMHelper {
 			" ORDER BY folder, title ",
 			self::_TABLE
 		);
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 
 		return self::_createObjectsFromResultSet($rs);
 	}
@@ -5798,22 +5808,22 @@ class DAO_MailTemplate extends DevblocksORMHelper {
 		return null;
 	}
 	
-	public static function _createObjectsFromResultSet(ADORecordSet $rs) {
+	public static function _createObjectsFromResultSet($rs) {
 		$objects = array();
 		
-		if(is_a($rs,'ADORecordSet'))
-		while(!$rs->EOF) {
+		while($row = mysql_fetch_assoc($rs)) {
 			$object = new Model_MailTemplate();
-			$object->id = intval($rs->fields['id']);
-			$object->title = $rs->fields['title'];
-			$object->description = $rs->fields['description'];
-			$object->folder = $rs->fields['folder'];
-			$object->template_type = intval($rs->fields['template_type']);
-			$object->owner_id = intval($rs->fields['owner_id']);
-			$object->content = $rs->fields['content'];
+			$object->id = intval($row['id']);
+			$object->title = $row['title'];
+			$object->description = $row['description'];
+			$object->folder = $row['folder'];
+			$object->template_type = intval($row['template_type']);
+			$object->owner_id = intval($row['owner_id']);
+			$object->content = $row['content'];
 			$objects[$object->id] = $object;
-			$rs->MoveNext();
 		}
+		
+		mysql_free_result($rs);
 		
 		return $objects;
 	}
@@ -5912,23 +5922,23 @@ class DAO_TicketComment extends DevblocksORMHelper {
 	}
 	
 	/**
-	 * @param ADORecordSet $rs
+	 * @param resource $rs
 	 * @return Model_TicketComment[]
 	 */
 	static private function _getObjectsFromResult($rs) {
 		$objects = array();
 		
-		if(is_a($rs,'ADORecordSet'))
-		while(!$rs->EOF) {
+		while($row = mysql_fetch_assoc($rs)) {
 			$object = new Model_TicketComment();
-			$object->id = $rs->fields['id'];
-			$object->ticket_id = $rs->fields['ticket_id'];
-			$object->address_id = $rs->fields['address_id'];
-			$object->created = $rs->fields['created'];
-			$object->comment = $rs->fields['comment'];
+			$object->id = $row['id'];
+			$object->ticket_id = $row['ticket_id'];
+			$object->address_id = $row['address_id'];
+			$object->created = $row['created'];
+			$object->comment = $row['comment'];
 			$objects[$object->id] = $object;
-			$rs->MoveNext();
 		}
+		
+		mysql_free_result($rs);
 		
 		return $objects;
 	}
@@ -5968,7 +5978,7 @@ class DAO_CustomField extends DevblocksORMHelper {
 			"VALUES (%d,'','','',0,0,'')",
 			$id
 		);
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 
 		self::update($id, $fields);
 		
@@ -6030,7 +6040,7 @@ class DAO_CustomField extends DevblocksORMHelper {
 				"FROM custom_field ".
 				"ORDER BY group_id ASC, pos ASC "
 			;
-			$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+			$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 			
 			$objects = self::_createObjectsFromResultSet($rs);
 			
@@ -6040,24 +6050,24 @@ class DAO_CustomField extends DevblocksORMHelper {
 		return $objects;
 	}
 	
-	private static function _createObjectsFromResultSet(ADORecordSet $rs) {
+	private static function _createObjectsFromResultSet($rs) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
 		$objects = array();
 		
-		if($rs instanceof ADORecordSet)
-		while(!$rs->EOF) {
+		while($row = mysql_fetch_assoc($rs)) {
 			$object = new Model_CustomField();
-			$object->id = intval($rs->fields['id']);
-			$object->name = $rs->fields['name'];
-			$object->type = $rs->fields['type'];
-			$object->source_extension = $rs->fields['source_extension'];
-			$object->group_id = intval($rs->fields['group_id']);
-			$object->pos = intval($rs->fields['pos']);
-			$object->options = DevblocksPlatform::parseCrlfString($rs->fields['options']);
+			$object->id = intval($row['id']);
+			$object->name = $row['name'];
+			$object->type = $row['type'];
+			$object->source_extension = $row['source_extension'];
+			$object->group_id = intval($row['group_id']);
+			$object->pos = intval($row['pos']);
+			$object->options = DevblocksPlatform::parseCrlfString($row['options']);
 			$objects[$object->id] = $object;
-			$rs->MoveNext();
 		}
+		
+		mysql_free_result($rs);
 		
 		return $objects;
 	}
@@ -6073,7 +6083,7 @@ class DAO_CustomField extends DevblocksORMHelper {
 		$id_string = implode(',', $ids);
 		
 		$sql = sprintf("DELETE QUICK FROM custom_field WHERE id IN (%s)",$id_string);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 
 		if(is_array($ids))
 		foreach($ids as $id) {
@@ -6431,13 +6441,12 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 			$source_ext_id,
 			implode(',', $source_ids)
 		);
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
-
-		if(is_a($rs,'ADORecordSet'))
-		while(!$rs->EOF) {
-			$source_id = intval($rs->fields['source_id']);
-			$field_id = intval($rs->fields['field_id']);
-			$field_value = $rs->fields['field_value'];
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+		
+		while($row = mysql_fetch_assoc($rs)) {
+			$source_id = intval($row['source_id']);
+			$field_id = intval($row['field_id']);
+			$field_value = $row['field_value'];
 			
 			if(!isset($results[$source_id]))
 				$results[$source_id] = array();
@@ -6455,9 +6464,9 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 				$source[$field_id] = $field_value;
 				
 			}
-			
-			$rs->MoveNext();
 		}
+		
+		mysql_free_result($rs);
 		
 		// CLOBS
 		$sql = sprintf("SELECT source_id, field_id, field_value ".
@@ -6466,22 +6475,22 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 			$source_ext_id,
 			implode(',', $source_ids)
 		);
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 
-		if(is_a($rs,'ADORecordSet'))
-		while(!$rs->EOF) {
-			$source_id = intval($rs->fields['source_id']);
-			$field_id = intval($rs->fields['field_id']);
-			$field_value = $rs->fields['field_value'];
+		while($row = mysql_fetch_assoc($rs)) {
+			$source_id = intval($row['source_id']);
+			$field_id = intval($row['field_id']);
+			$field_value = $row['field_value'];
 			
 			if(!isset($results[$source_id]))
 				$results[$source_id] = array();
 				
 			$source =& $results[$source_id];
 			$source[$field_id] = $field_value;
-			
-			$rs->MoveNext();
 		}
+		
+		mysql_free_result($rs);
 
 		// NUMBERS
 		$sql = sprintf("SELECT source_id, field_id, field_value ".
@@ -6490,22 +6499,21 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 			$source_ext_id,
 			implode(',', $source_ids)
 		);
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 
-		if(is_a($rs,'ADORecordSet'))
-		while(!$rs->EOF) {
-			$source_id = intval($rs->fields['source_id']);
-			$field_id = intval($rs->fields['field_id']);
-			$field_value = $rs->fields['field_value'];
+		while($row = mysql_fetch_assoc($rs)) {
+			$source_id = intval($row['source_id']);
+			$field_id = intval($row['field_id']);
+			$field_value = $row['field_value'];
 			
 			if(!isset($results[$source_id]))
 				$results[$source_id] = array();
 				
 			$source =& $results[$source_id];
 			$source[$field_id] = $field_value;
-			
-			$rs->MoveNext();
 		}
+		
+		mysql_free_result($rs);
 		
 		return $results;
 	}
@@ -6622,12 +6630,12 @@ class DAO_Task extends C4_ORMHelper {
 			"GROUP BY source_extension ";
 		$rs = $db->Execute($sql);
 		
-		if(is_a($rs,'ADORecordSet'))
-		while(!$rs->EOF) {
-			$key = !empty($rs->fields['source_extension']) ? $rs->fields['source_extension'] : 'none';
-			$totals[$key] = intval($rs->fields['hits']);
-			$rs->MoveNext();
+		while($row = mysql_fetch_assoc($rs)) {
+			$key = !empty($row['source_extension']) ? $row['source_extension'] : 'none';
+			$totals[$key] = intval($row['hits']);
 		}
+		
+		mysql_free_result($rs);
 		
 		return $totals;
 	}
@@ -6644,37 +6652,37 @@ class DAO_Task extends C4_ORMHelper {
 			"GROUP BY worker_id ";
 		$rs = $db->Execute($sql);
 		
-		if(is_a($rs,'ADORecordSet'))
-		while(!$rs->EOF) {
-			$totals[$rs->fields['worker_id']] = intval($rs->fields['hits']);
-			$rs->MoveNext();
+		while($row = mysql_fetch_assoc($rs)) {
+			$totals[$row['worker_id']] = intval($row['hits']);
 		}
+		
+		mysql_free_result($rs);
 		
 		return $totals;
 	}
 	
 	/**
-	 * @param ADORecordSet $rs
+	 * @param resource $rs
 	 * @return Model_Task[]
 	 */
 	static private function _getObjectsFromResult($rs) {
 		$objects = array();
 		
-		if(is_a($rs,'ADORecordSet'))
-		while(!$rs->EOF) {
+		while($row = mysql_fetch_assoc($rs)) {
 			$object = new Model_Task();
-			$object->id = $rs->fields['id'];
-			$object->title = $rs->fields['title'];
-			$object->worker_id = $rs->fields['worker_id'];
-			$object->updated_date = $rs->fields['updated_date'];
-			$object->due_date = $rs->fields['due_date'];
-			$object->is_completed = $rs->fields['is_completed'];
-			$object->completed_date = $rs->fields['completed_date'];
-			$object->source_extension = $rs->fields['source_extension'];
-			$object->source_id = $rs->fields['source_id'];
+			$object->id = $row['id'];
+			$object->title = $row['title'];
+			$object->worker_id = $row['worker_id'];
+			$object->updated_date = $row['updated_date'];
+			$object->due_date = $row['due_date'];
+			$object->is_completed = $row['is_completed'];
+			$object->completed_date = $row['completed_date'];
+			$object->source_extension = $row['source_extension'];
+			$object->source_id = $row['source_id'];
 			$objects[$object->id] = $object;
-			$rs->MoveNext();
 		}
+		
+		mysql_free_result($rs);
 		
 		return $objects;
 	}
@@ -6815,19 +6823,17 @@ class DAO_Task extends C4_ORMHelper {
 			($has_multiple_values ? 'GROUP BY t.id ' : '').
 			$sort_sql;
 		
-		$rs = $db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$rs = $db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 		
 		$results = array();
 		
-		if(is_a($rs,'ADORecordSet'))
-		while(!$rs->EOF) {
+		while($row = mysql_fetch_assoc($rs)) {
 			$result = array();
-			foreach($rs->fields as $f => $v) {
+			foreach($row as $f => $v) {
 				$result[$f] = $v;
 			}
-			$id = intval($rs->fields[SearchFields_Task::ID]);
+			$id = intval($row[SearchFields_Task::ID]);
 			$results[$id] = $result;
-			$rs->MoveNext();
 		}
 
 		// [JAS]: Count all
@@ -6839,6 +6845,8 @@ class DAO_Task extends C4_ORMHelper {
 				$where_sql;
 			$total = $db->GetOne($count_sql);
 		}
+		
+		mysql_free_result($rs);
 		
 		return array($results,$total);
     }	
@@ -6864,15 +6872,15 @@ class SearchFields_Task implements IDevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = array(
-			self::ID => new DevblocksSearchField(self::ID, 't', 'id', null, $translate->_('task.id')),
-			self::UPDATED_DATE => new DevblocksSearchField(self::UPDATED_DATE, 't', 'updated_date', null, $translate->_('task.updated_date')),
-			self::TITLE => new DevblocksSearchField(self::TITLE, 't', 'title', null, $translate->_('task.title')),
-			self::IS_COMPLETED => new DevblocksSearchField(self::IS_COMPLETED, 't', 'is_completed', null, $translate->_('task.is_completed')),
-			self::DUE_DATE => new DevblocksSearchField(self::DUE_DATE, 't', 'due_date', null, $translate->_('task.due_date')),
-			self::COMPLETED_DATE => new DevblocksSearchField(self::COMPLETED_DATE, 't', 'completed_date', null, $translate->_('task.completed_date')),
-			self::WORKER_ID => new DevblocksSearchField(self::WORKER_ID, 't', 'worker_id', null, $translate->_('task.worker_id')),
-			self::SOURCE_EXTENSION => new DevblocksSearchField(self::SOURCE_EXTENSION, 't', 'source_extension', null, $translate->_('task.source_extension')),
-			self::SOURCE_ID => new DevblocksSearchField(self::SOURCE_ID, 't', 'source_id', null, $translate->_('task.source_id')),
+			self::ID => new DevblocksSearchField(self::ID, 't', 'id', $translate->_('task.id')),
+			self::UPDATED_DATE => new DevblocksSearchField(self::UPDATED_DATE, 't', 'updated_date', $translate->_('task.updated_date')),
+			self::TITLE => new DevblocksSearchField(self::TITLE, 't', 'title', $translate->_('task.title')),
+			self::IS_COMPLETED => new DevblocksSearchField(self::IS_COMPLETED, 't', 'is_completed', $translate->_('task.is_completed')),
+			self::DUE_DATE => new DevblocksSearchField(self::DUE_DATE, 't', 'due_date', $translate->_('task.due_date')),
+			self::COMPLETED_DATE => new DevblocksSearchField(self::COMPLETED_DATE, 't', 'completed_date', $translate->_('task.completed_date')),
+			self::WORKER_ID => new DevblocksSearchField(self::WORKER_ID, 't', 'worker_id', $translate->_('task.worker_id')),
+			self::SOURCE_EXTENSION => new DevblocksSearchField(self::SOURCE_EXTENSION, 't', 'source_extension', $translate->_('task.source_extension')),
+			self::SOURCE_ID => new DevblocksSearchField(self::SOURCE_ID, 't', 'source_id', $translate->_('task.source_id')),
 		);
 		
 		// Custom Fields
@@ -6880,7 +6888,7 @@ class SearchFields_Task implements IDevblocksSearchFields {
 		if(is_array($fields))
 		foreach($fields as $field_id => $field) {
 			$key = 'cf_'.$field_id;
-			$columns[$key] = new DevblocksSearchField($key,$key,'field_value',null,$field->name);
+			$columns[$key] = new DevblocksSearchField($key,$key,'field_value',$field->name);
 		}
 		
 		// Sort by label (translation-conscious)
@@ -6909,13 +6917,13 @@ class DAO_Overview {
 		"WHERE is_waiting = 0 AND is_closed = 0 AND is_deleted = 0 ".
 		"GROUP BY team_id, category_id "
 		);
-		$rs_buckets = $db->Execute($sql);
+		$rs = $db->Execute($sql);
 
 		$group_counts = array();
-		while(!$rs_buckets->EOF) {
-			$team_id = intval($rs_buckets->fields['team_id']);
-			$category_id = intval($rs_buckets->fields['category_id']);
-			$hits = intval($rs_buckets->fields['hits']);
+		while($row = mysql_fetch_assoc($rs)) {
+			$team_id = intval($row['team_id']);
+			$category_id = intval($row['category_id']);
+			$hits = intval($row['hits']);
 				
 			if(isset($memberships[$team_id])) {
 				// If the active worker is filtering out these buckets, don't total.
@@ -6925,9 +6933,9 @@ class DAO_Overview {
 				$group_counts[$team_id][$category_id] = $hits;
 				@$group_counts[$team_id]['total'] = intval($group_counts[$team_id]['total']) + $hits;
 			}
-				
-			$rs_buckets->MoveNext();
 		}
+		
+		mysql_free_result($rs);
 
 		return $group_counts;
 	}
@@ -6947,13 +6955,13 @@ class DAO_Overview {
 		"WHERE is_waiting = 1 AND is_closed = 0 AND is_deleted = 0 ".
 		"GROUP BY team_id, category_id "
 		);
-		$rs_buckets = $db->Execute($sql);
+		$rs = $db->Execute($sql);
 
 		$waiting_counts = array();
-		while(!$rs_buckets->EOF) {
-			$team_id = intval($rs_buckets->fields['team_id']);
-			$category_id = intval($rs_buckets->fields['category_id']);
-			$hits = intval($rs_buckets->fields['hits']);
+		while($row = mysql_fetch_assoc($rs)) {
+			$team_id = intval($row['team_id']);
+			$category_id = intval($row['category_id']);
+			$hits = intval($row['hits']);
 				
 			if(isset($memberships[$team_id])) {
 				if(!isset($waiting_counts[$team_id]))
@@ -6962,9 +6970,9 @@ class DAO_Overview {
 				$waiting_counts[$team_id][$category_id] = $hits;
 				@$waiting_counts[$team_id]['total'] = intval($waiting_counts[$team_id]['total']) + $hits;
 			}
-				
-			$rs_buckets->MoveNext();
 		}
+		
+		mysql_free_result($rs);
 
 		return $waiting_counts;
 	}
@@ -6987,21 +6995,22 @@ class DAO_Overview {
 			"GROUP BY t.team_id, t.next_worker_id ",
 			implode(',', array_keys($memberships))
 		);
-		$rs_workers = $db->Execute($sql);
+		$rs = $db->Execute($sql);
 
 		$worker_counts = array();
-		while(!$rs_workers->EOF) {
-			$hits = intval($rs_workers->fields['hits']);
-			$team_id = intval($rs_workers->fields['team_id']);
-			$worker_id = intval($rs_workers->fields['next_worker_id']);
+		while($row = mysql_fetch_assoc($rs)) {
+			$hits = intval($row['hits']);
+			$team_id = intval($row['team_id']);
+			$worker_id = intval($row['next_worker_id']);
 				
 			if(!isset($worker_counts[$worker_id]))
 			$worker_counts[$worker_id] = array();
 				
 			$worker_counts[$worker_id][$team_id] = $hits;
 			@$worker_counts[$worker_id]['total'] = intval($worker_counts[$worker_id]['total']) + $hits;
-			$rs_workers->MoveNext();
 		}
+		
+		mysql_free_result($rs);
 
 		return $worker_counts;
 	}
@@ -7026,13 +7035,13 @@ class DAO_WorkflowView {
 			"AND (c.id IS NULL OR c.is_assignable = 1) ".
 			"GROUP BY t.team_id, c.pos "
 		);
-		$rs_buckets = $db->Execute($sql);
+		$rs = $db->Execute($sql);
 
 		$group_counts = array();
-		while(!$rs_buckets->EOF) {
-			$team_id = intval($rs_buckets->fields['team_id']);
-			$category_id = intval($rs_buckets->fields['category_id']);
-			$hits = intval($rs_buckets->fields['hits']);
+		while($row = mysql_fetch_assoc($rs)) {
+			$team_id = intval($row['team_id']);
+			$category_id = intval($row['category_id']);
+			$hits = intval($row['hits']);
 				
 			if(isset($memberships[$team_id])) {
 				// If the group manager doesn't want this group inbox assignable (default to YES)
@@ -7046,9 +7055,9 @@ class DAO_WorkflowView {
 					@$group_counts[$team_id]['total'] = intval($group_counts[$team_id]['total']) + $hits;
 				}
 			}
-				
-			$rs_buckets->MoveNext();
 		}
+		
+		mysql_free_result($rs);
 
 		return $group_counts;
 	}

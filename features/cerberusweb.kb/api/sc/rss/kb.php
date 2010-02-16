@@ -64,8 +64,6 @@ XML;
 			false
 		);
 
-        // [TODO] We should probably be building this feed with Zend Framework for compliance
-        
         foreach($results as $article) {
         	$created = intval($article[SearchFields_KbArticle::UPDATED]);
             if(empty($created)) $created = time();
@@ -129,8 +127,6 @@ XML;
 			false
 		);
 
-        // [TODO] We should probably be building this feed with Zend Framework for compliance
-        
         foreach($results as $article) {
         	$created = intval($article[SearchFields_KbArticle::UPDATED]);
             if(empty($created)) $created = time();

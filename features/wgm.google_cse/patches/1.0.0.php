@@ -1,20 +1,19 @@
 <?php
 $db = DevblocksPlatform::getDatabaseService();
-$datadict = NewDataDictionary($db); /* @var $datadict ADODB_DataDict */ // ,'mysql' 
-
-$tables = $datadict->MetaTables();
-$tables = array_flip($tables);
+$tables = $db->metaTables();
 
 // `wgm_google_cse` ========================
 if(!isset($tables['wgm_google_cse'])) {
-	$flds ="
-		id I4 DEFAULT 0 NOTNULL PRIMARY,
-		name C(255) DEFAULT '' NOTNULL,
-		url C(255) DEFAULT '' NOTNULL,
-		token C(255) DEFAULT '' NOTNULL
+	$sql = "
+		CREATE TABLE IF NOT EXISTS wgm_google_cse (
+			id INT UNSIGNED DEFAULT 0 NOT NULL,
+			name VARCHAR(255) DEFAULT '' NOT NULL,
+			url VARCHAR(255) DEFAULT '' NOT NULL,
+			token VARCHAR(255) DEFAULT '' NOT NULL,
+			PRIMARY KEY (id)
+		) ENGINE=MyISAM;
 	";
-	$sql = $datadict->CreateTableSQL('wgm_google_cse', $flds);
-	$datadict->ExecuteSQLArray($sql);
+	$db->Execute($sql);	
 }
 
 return TRUE;

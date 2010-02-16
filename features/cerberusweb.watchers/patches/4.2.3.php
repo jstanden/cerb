@@ -1,24 +1,18 @@
 <?php
 $db = DevblocksPlatform::getDatabaseService();
-$datadict = NewDataDictionary($db); /* @var $datadict ADODB_DataDict */ // ,'mysql' 
-
-$tables = $datadict->MetaTables();
-$tables = array_flip($tables);
+$tables = $db->metaTables();
 
 // ===========================================================================
 // Add an IS_DISABLED bit to filters
 
-$columns = $datadict->MetaColumns('watcher_mail_filter');
-$indexes = $datadict->MetaIndexes('watcher_mail_filter',false);
+list($columns, $indexes) = $db->metaTable('watcher_mail_filter');
 
-if(!isset($columns['IS_DISABLED'])) {
-    $sql = $datadict->AddColumnSQL('watcher_mail_filter', 'is_disabled I1 DEFAULT 0 NOTNULL');
-    $datadict->ExecuteSQLArray($sql);
+if(!isset($columns['is_disabled'])) {
+    $db->Execute('ALTER TABLE watcher_mail_filter ADD COLUMN is_disabled TINYINT(1) UNSIGNED DEFAULT 0 NOT NULL');
 }
 
 if(!isset($indexes['is_disabled'])) {
-	$sql = $datadict->CreateIndexSQL('is_disabled','watcher_mail_filter','is_disabled');
-	$datadict->ExecuteSQLArray($sql);
+	$db->Execute('ALTER TABLE watcher_mail_filter ADD INDEX is_disabled (is_disabled)');
 }
 
 // ===========================================================================
@@ -27,13 +21,13 @@ if(!isset($indexes['is_disabled'])) {
 $sql = "SELECT id FROM worker WHERE is_disabled = 1";
 $rs = $db->Execute($sql);
 
-while(!$rs->EOF) {
-	$worker_id = intval($rs->fields['id']);
+while($row = mysql_fetch_assoc($rs)) {
+	$worker_id = intval($row['id']);
 	
 	$sql = sprintf("UPDATE watcher_mail_filter SET is_disabled = 1 WHERE worker_id = %d", $worker_id);
 	$db->Execute($sql);
-	
-	$rs->MoveNext();
 }
+
+mysql_free_result($rs);
 
 return TRUE;

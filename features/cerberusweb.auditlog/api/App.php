@@ -174,18 +174,18 @@ class DAO_TicketAuditLog extends DevblocksORMHelper {
 	static private function _createObjectsFromResultSet($rs) {
 		$objects = array();
 		
-		if(is_a($rs,'ADORecordSet'))
-		while(!$rs->EOF) {
+		while($row = mysql_fetch_assoc($rs)) {
 		    $object = new Model_TicketAuditLog();
-		    $object->id = intval($rs->fields['id']);
-		    $object->ticket_id = intval($rs->fields['ticket_id']);
-		    $object->worker_id = intval($rs->fields['worker_id']);
-		    $object->change_date = intval($rs->fields['change_date']);
-		    $object->change_field = $rs->fields['change_field'];
-		    $object->change_value = $rs->fields['change_value'];
+		    $object->id = intval($row['id']);
+		    $object->ticket_id = intval($row['ticket_id']);
+		    $object->worker_id = intval($row['worker_id']);
+		    $object->change_date = intval($row['change_date']);
+		    $object->change_field = $row['change_field'];
+		    $object->change_value = $row['change_value'];
 		    $objects[$object->id] = $object;
-		    $rs->MoveNext();
 		}
+		
+		mysql_free_result($rs);
 		
 		return $objects;
 	}
@@ -271,30 +271,30 @@ class DAO_TicketAuditLog extends DevblocksORMHelper {
 		;
 		// [TODO] Could push the select logic down a level too
 		if($limit > 0) {
-    		$rs = $db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+    		$rs = $db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 		} else {
-		    $rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
-            $total = $rs->RecordCount();
+		    $rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+            $total = mysql_num_rows($rs);
 		}
 		
 		$results = array();
 		
-		if(is_a($rs,'ADORecordSet'))
-		while(!$rs->EOF) {
+		while($row = mysql_fetch_assoc($rs)) {
 			$result = array();
-			foreach($rs->fields as $f => $v) {
+			foreach($row as $f => $v) {
 				$result[$f] = $v;
 			}
-			$id = intval($rs->fields[SearchFields_TicketAuditLog::ID]);
+			$id = intval($row[SearchFields_TicketAuditLog::ID]);
 			$results[$id] = $result;
-			$rs->MoveNext();
 		}
 
 		// [JAS]: Count all
 		if($withCounts) {
 		    $rs = $db->Execute($sql);
-		    $total = $rs->RecordCount();
+		    $total = mysql_num_rows($rs);
 		}
+		
+		mysql_free_result($rs);
 		
 		return array($results,$total);
     }
@@ -318,11 +318,11 @@ class SearchFields_TicketAuditLog implements IDevblocksSearchFields {
 		
 		$columns = array(
 			self::ID => new DevblocksSearchField(self::ID, 'l', 'id'),
-			self::WORKER_ID => new DevblocksSearchField(self::WORKER_ID, 'l', 'worker_id',null,$translate->_('auditlog_entry.worker_id')),
-			self::TICKET_ID => new DevblocksSearchField(self::TICKET_ID, 'l', 'ticket_id',null,$translate->_('auditlog_entry.ticket_id')),
-			self::CHANGE_DATE => new DevblocksSearchField(self::CHANGE_DATE, 'l', 'change_date',null,$translate->_('auditlog_entry.change_date')),
-			self::CHANGE_FIELD => new DevblocksSearchField(self::CHANGE_FIELD, 'l', 'change_field',null,$translate->_('auditlog_entry.change_field')),
-			self::CHANGE_VALUE => new DevblocksSearchField(self::CHANGE_VALUE, 'l', 'change_value',null,$translate->_('auditlog_entry.change_value')),
+			self::WORKER_ID => new DevblocksSearchField(self::WORKER_ID, 'l', 'worker_id',$translate->_('auditlog_entry.worker_id')),
+			self::TICKET_ID => new DevblocksSearchField(self::TICKET_ID, 'l', 'ticket_id',$translate->_('auditlog_entry.ticket_id')),
+			self::CHANGE_DATE => new DevblocksSearchField(self::CHANGE_DATE, 'l', 'change_date',$translate->_('auditlog_entry.change_date')),
+			self::CHANGE_FIELD => new DevblocksSearchField(self::CHANGE_FIELD, 'l', 'change_field',$translate->_('auditlog_entry.change_field')),
+			self::CHANGE_VALUE => new DevblocksSearchField(self::CHANGE_VALUE, 'l', 'change_value',$translate->_('auditlog_entry.change_value')),
 		);
 		
 		// Sort by label (translation-conscious)

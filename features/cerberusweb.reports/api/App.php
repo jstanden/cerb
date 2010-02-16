@@ -122,17 +122,18 @@ class ChReportCustomFieldUsage extends Extension_Report {
 			$db->qstr($field->source_extension),
 			$field->id
 		);
-		$rs_values = $db->Execute($sql);
+		$rs = $db->Execute($sql);
 	
 		$value_counts = array();
 		
-		while(!$rs_values->EOF) {
-			$value = $rs_values->fields['field_value'];
-			$hits = intval($rs_values->fields['hits']);
+		while($row = mysql_fetch_assoc($rs)) {
+			$value = $row['field_value'];
+			$hits = intval($row['hits']);
 
 			$value_counts[$value] = intval($hits);
-			$rs_values->MoveNext();
 		}
+		
+		mysql_free_result($rs);
 		
 		arsort($value_counts);
 		return $value_counts;
@@ -191,14 +192,14 @@ class ChReportNewTickets extends Extension_Report {
 		// Year shortcuts
 		$years = array();
 		$sql = "SELECT date_format(from_unixtime(created_date),'%Y') as year FROM ticket WHERE created_date > 0 GROUP BY year having year <= date_format(now(),'%Y') ORDER BY year desc limit 0,10";
-		$rs = $db->query($sql);
+		$rs = $db->Execute($sql);
 		
-		if(is_a($rs,'ADORecordSet'))
-		while(!$rs->EOF) {
-			$years[] = intval($rs->fields['year']);
-			$rs->MoveNext();
+		while($row = mysql_fetch_assoc($rs)) {
+			$years[] = intval($row['year']);
 		}
 		$tpl->assign('years', $years);
+		
+		mysql_free_result($rs);
 		
 		// DAO
 		$groups = DAO_Group::getAll();
@@ -223,11 +224,12 @@ class ChReportNewTickets extends Extension_Report {
 		
 		$data = array();
 		$iter = 0;
-		while(!$rs->EOF) {
-			$data[$iter++] = array('group_id'=>$rs->Fields('group_id'),'hits'=>$rs->Fields('hits'));
-			$rs->MoveNext();
+		while($row = mysql_fetch_assoc($rs)) {
+			$data[$iter++] = array('group_id'=>$row['group_id'],'hits'=>$row['hits']);
 		}
 		$tpl->assign('data', $data);
+		
+		mysql_free_result($rs);
 
 		// Table
 		$sql = sprintf("SELECT count(*) AS hits, team_id, category_id ".
@@ -240,23 +242,23 @@ class ChReportNewTickets extends Extension_Report {
 			$start_time,
 			$end_time
 		);
-		$rs_buckets = $db->Execute($sql);
+		$rs = $db->Execute($sql);
 	
 		$group_counts = array();
-		while(!$rs_buckets->EOF) {
-			$team_id = intval($rs_buckets->fields['team_id']);
-			$category_id = intval($rs_buckets->fields['category_id']);
-			$hits = intval($rs_buckets->fields['hits']);
+		while($row = mysql_fetch_assoc($rs)) {
+			$team_id = intval($row['team_id']);
+			$category_id = intval($row['category_id']);
+			$hits = intval($row['hits']);
 			
 			if(!isset($group_counts[$team_id]))
 				$group_counts[$team_id] = array();
 				
 			$group_counts[$team_id][$category_id] = $hits;
 			@$group_counts[$team_id]['total'] = intval($group_counts[$team_id]['total']) + $hits;
-			
-			$rs_buckets->MoveNext();
 		}
 		$tpl->assign('group_counts', $group_counts);
+		
+		mysql_free_result($rs);
 		
 		$tpl->display('file:' . $this->tpl_path . '/reports/ticket/new_tickets/index.tpl');
 	}
@@ -285,14 +287,14 @@ class ChReportWorkerReplies extends Extension_Report {
 		// Years
 		$years = array();
 		$sql = "SELECT date_format(from_unixtime(created_date),'%Y') as year FROM message WHERE created_date > 0 AND is_outgoing = 1 GROUP BY year having year <= date_format(now(),'%Y') ORDER BY year desc limit 0,10";
-		$rs = $db->query($sql);
+		$rs = $db->Execute($sql);
 		
-		if(is_a($rs,'ADORecordSet'))
-		while(!$rs->EOF) {
-			$years[] = intval($rs->fields['year']);
-			$rs->MoveNext();
+		while($row = mysql_fetch_assoc($rs)) {
+			$years[] = intval($row['year']);
 		}
 		$tpl->assign('years', $years);
+		
+		mysql_free_result($rs);
 		
 		// Dates
 		
@@ -341,22 +343,23 @@ class ChReportWorkerReplies extends Extension_Report {
 			$start_time,
 			$end_time
 		);
-		$rs_workers = $db->Execute($sql);
+		$rs = $db->Execute($sql);
 		
 		$worker_counts = array();
-		while(!$rs_workers->EOF) {
-			$hits = intval($rs_workers->fields['hits']);
-			$team_id = intval($rs_workers->fields['team_id']);
-			$worker_id = intval($rs_workers->fields['worker_id']);
+		while($row = mysql_fetch_assoc($rs)) {
+			$hits = intval($row['hits']);
+			$team_id = intval($row['team_id']);
+			$worker_id = intval($row['worker_id']);
 			
 			if(!isset($worker_counts[$worker_id]))
 				$worker_counts[$worker_id] = array();
 			
 			$worker_counts[$worker_id][$team_id] = $hits;
 			@$worker_counts[$worker_id]['total'] = intval($worker_counts[$worker_id]['total']) + $hits;
-			$rs_workers->MoveNext();
 		}
 		$tpl->assign('worker_counts', $worker_counts);
+		
+		mysql_free_result($rs);
 		
 		// Chart
 		
@@ -372,24 +375,24 @@ class ChReportWorkerReplies extends Extension_Report {
 			$end_time
 		);
 
-		$rs_workers = $db->Execute($sql); /* @var $rs_workers ADORecordSet */
+		$rs = $db->Execute($sql);
 		
 		$worker_counts = array();
 		
 		$iter = 0;
 		$data = array();
 		
-		while(!$rs_workers->EOF) {
-			$hits = intval($rs_workers->fields['hits']);
-			$worker_id = intval($rs_workers->fields['worker_id']);
+		while($row = mysql_fetch_assoc($rs)) {
+			$hits = intval($row['hits']);
+			$worker_id = intval($row['worker_id']);
 			
 			if(isset($workers[$worker_id]))
 				$data[$iter++] = array('value'=>$workers[$worker_id]->getName(),'hits'=>$hits);
-			
-			$rs_workers->MoveNext();
 		}
 		$tpl->assign('data', $data);
-				
+
+		mysql_free_result($rs);
+		
 		// Template
 		
 		$tpl->display('file:' . $this->tpl_path . '/reports/worker/worker_replies/index.tpl');
@@ -424,12 +427,12 @@ class ChReportOrgSharedEmailDomains extends Extension_Report {
 		
 		$top_domains = array();
 		
-		if(is_a($rs,'ADORecordSet'))
-		while(!$rs->EOF) {
-			$top_domains[$rs->fields['domain']] = intval($rs->fields['num_orgs']);
-			$rs->MoveNext();
+		while($row = mysql_fetch_assoc($rs)) {
+			$top_domains[$row['domain']] = intval($row['num_orgs']);
 		}
 		$tpl->assign('top_domains', $top_domains);
+		
+		mysql_free_result($rs);
 		
 		$tpl->display('file:' . $this->tpl_path . '/reports/org/shared_email_domains/index.tpl');
 	}
@@ -462,22 +465,24 @@ class ChReportSpamWords extends Extension_Report {
 		$top_nonspam_words = array();
 		
 		$sql = "SELECT word,spam,nonspam FROM bayes_words ORDER BY spam desc LIMIT 0,100";
-		$rs_spam = $db->Execute($sql);
+		$rs = $db->Execute($sql);
 		
-		while(!$rs_spam->EOF) {
-			$top_spam_words[$rs_spam->fields['word']] = array($rs_spam->fields['spam'], $rs_spam->fields['nonspam']);
-			$rs_spam->MoveNext();
+		while($row = mysql_fetch_assoc($rs)) {
+			$top_spam_words[$row['word']] = array($row['spam'], $row['nonspam']);
 		}
 		$tpl->assign('top_spam_words', $top_spam_words);
 		
-		$sql = "SELECT word,spam,nonspam FROM bayes_words ORDER BY nonspam desc LIMIT 0,100";
-		$rs_nonspam = $db->Execute($sql);
+		mysql_free_result($rs);
 		
-		while(!$rs_nonspam->EOF) {
-			$top_nonspam_words[$rs_nonspam->fields['word']] = array($rs_nonspam->fields['spam'], $rs_nonspam->fields['nonspam']);
-			$rs_nonspam->MoveNext();
+		$sql = "SELECT word,spam,nonspam FROM bayes_words ORDER BY nonspam desc LIMIT 0,100";
+		$rs = $db->Execute($sql);
+		
+		while($row = mysql_fetch_assoc($rs)) {
+			$top_nonspam_words[$row['word']] = array($row['spam'], $row['nonspam']);
 		}
 		$tpl->assign('top_nonspam_words', $top_nonspam_words);
+		
+		mysql_free_result($rs);
 		
 		$tpl->display('file:' . $this->tpl_path . '/reports/spam/spam_words/index.tpl');
 	}
@@ -501,22 +506,24 @@ class ChReportSpamAddys extends Extension_Report {
 		$top_nonspam_addys = array();
 		
 		$sql = "SELECT email,num_spam,num_nonspam,is_banned FROM address WHERE num_spam+num_nonspam > 0 ORDER BY num_spam desc LIMIT 0,100";
-		$rs_spam = $db->Execute($sql);
+		$rs = $db->Execute($sql);
 		
-		while(!$rs_spam->EOF) {
-			$top_spam_addys[$rs_spam->fields['email']] = array($rs_spam->fields['num_spam'], $rs_spam->fields['num_nonspam'], $rs_spam->fields['is_banned']);
-			$rs_spam->MoveNext();
+		while($row = mysql_fetch_assoc($rs)) {
+			$top_spam_addys[$row['email']] = array($row['num_spam'], $row['num_nonspam'], $row['is_banned']);
 		}
 		$tpl->assign('top_spam_addys', $top_spam_addys);
 		
-		$sql = "SELECT email,num_spam,num_nonspam,is_banned FROM address WHERE num_spam+num_nonspam > 0 ORDER BY num_nonspam desc LIMIT 0,100";
-		$rs_nonspam = $db->Execute($sql);
+		mysql_free_result($rs);
 		
-		while(!$rs_nonspam->EOF) {
-			$top_nonspam_addys[$rs_nonspam->fields['email']] = array($rs_nonspam->fields['num_spam'], $rs_nonspam->fields['num_nonspam'], $rs_spam->fields['is_banned']);
-			$rs_nonspam->MoveNext();
+		$sql = "SELECT email,num_spam,num_nonspam,is_banned FROM address WHERE num_spam+num_nonspam > 0 ORDER BY num_nonspam desc LIMIT 0,100";
+		$rs = $db->Execute($sql);
+		
+		while($row = mysql_fetch_assoc($rs)) {
+			$top_nonspam_addys[$row['email']] = array($row['num_spam'], $row['num_nonspam'], $row['is_banned']);
 		}
 		$tpl->assign('top_nonspam_addys', $top_nonspam_addys);
+		
+		mysql_free_result($rs);
 		
 		$tpl->display('file:' . $this->tpl_path . '/reports/spam/spam_addys/index.tpl');
 	}
@@ -540,22 +547,24 @@ class ChReportSpamDomains extends Extension_Report {
 		$top_nonspam_domains = array();
 		
 		$sql = "select count(*) as hits, substring(email,locate('@',email)+1) as domain, sum(num_spam) as num_spam, sum(num_nonspam) as num_nonspam from address where num_spam+num_nonspam > 0 group by domain order by num_spam desc limit 0,100";
-		$rs_spam = $db->Execute($sql);
+		$rs = $db->Execute($sql);
 		
-		while(!$rs_spam->EOF) {
-			$top_spam_domains[$rs_spam->fields['domain']] = array($rs_spam->fields['num_spam'], $rs_spam->fields['num_nonspam'], $rs_spam->fields['is_banned']);
-			$rs_spam->MoveNext();
+		while($row = mysql_fetch_assoc($rs)) {
+			$top_spam_domains[$row['domain']] = array($row['num_spam'], $row['num_nonspam'], $row['is_banned']);
 		}
 		$tpl->assign('top_spam_domains', $top_spam_domains);
+
+		mysql_free_result($rs);
 		
 		$sql = "select count(*) as hits, substring(email,locate('@',email)+1) as domain, sum(num_spam) as num_spam, sum(num_nonspam) as num_nonspam from address where num_spam+num_nonspam > 0 group by domain order by num_nonspam desc limit 0,100";
-		$rs_nonspam = $db->Execute($sql);
+		$rs = $db->Execute($sql);
 		
-		while(!$rs_nonspam->EOF) {
-			$top_nonspam_domains[$rs_nonspam->fields['domain']] = array($rs_nonspam->fields['num_spam'], $rs_nonspam->fields['num_nonspam'], $rs_spam->fields['is_banned']);
-			$rs_nonspam->MoveNext();
+		while($row = mysql_fetch_assoc($rs)) {
+			$top_nonspam_domains[$row['domain']] = array($row['num_spam'], $row['num_nonspam'], $row['is_banned']);
 		}
 		$tpl->assign('top_nonspam_domains', $top_nonspam_domains);
+		
+		mysql_free_result($rs);
 		
 		$tpl->display('file:' . $this->tpl_path . '/reports/spam/spam_domains/index.tpl');
 	}
@@ -622,21 +631,21 @@ class ChReportAverageResponseTime extends Extension_Report {
 			$start_time,
 			$end_time
 		);
-		$rs_responses = $db->Execute($sql);
+		$rs = $db->Execute($sql);
 		
 		// process and count results
 	   	$group_responses = array();
 	   	$worker_responses = array();
 	   	$prev = array();
-		while(!$rs_responses->EOF) {
+		while($row = mysql_fetch_assoc($rs)) {
 			// load current data
-			$id = intval($rs_responses->fields['id']);
-			$ticket_id = intval($rs_responses->fields['ticket_id']);
-			$created_date = intval($rs_responses->fields['created_date']);
-			$worker_id = intval($rs_responses->fields['worker_id']);
-			$is_outgoing = intval($rs_responses->fields['is_outgoing']);
-			$team_id = intval($rs_responses->fields['team_id']);
-			$category_id = intval($rs_responses->fields['category_id']);
+			$id = intval($row['id']);
+			$ticket_id = intval($row['ticket_id']);
+			$created_date = intval($row['created_date']);
+			$worker_id = intval($row['worker_id']);
+			$is_outgoing = intval($row['is_outgoing']);
+			$team_id = intval($row['team_id']);
+			$category_id = intval($row['category_id']);
 			
 			// we only add data if it's a worker reply to the same ticket as $prev
 			if ($is_outgoing==1 && !empty($prev) && $ticket_id==$prev['ticket_id']) {
@@ -661,10 +670,11 @@ class ChReportAverageResponseTime extends Extension_Report {
 				'team_id'=>$team_id,
 				'category_id'=>$category_id,
 				);
-			$rs_responses->MoveNext();
 		}
 		$tpl->assign('group_responses', $group_responses);
 		$tpl->assign('worker_responses', $worker_responses);		
+
+		mysql_free_result($rs);
 		
 		$tpl->display('file:' . $this->tpl_path . '/reports/worker/average_response_time/index.tpl');
 	}
@@ -693,14 +703,14 @@ class ChReportGroupReplies extends Extension_Report {
 		// Years
 		$years = array();
 		$sql = "SELECT date_format(from_unixtime(created_date),'%Y') as year FROM message WHERE created_date > 0 AND is_outgoing = 1 GROUP BY year having year <= date_format(now(),'%Y') ORDER BY year desc limit 0,10";
-		$rs = $db->query($sql);
+		$rs = $db->Execute($sql);
 		
-		if(is_a($rs,'ADORecordSet'))
-		while(!$rs->EOF) {
-			$years[] = intval($rs->fields['year']);
-			$rs->MoveNext();
+		while($row = mysql_fetch_assoc($rs)) {
+			$years[] = intval($row['year']);
 		}
 		$tpl->assign('years', $years);
+		
+		mysql_free_result($rs);
 
 		// Times
 		
@@ -753,20 +763,20 @@ class ChReportGroupReplies extends Extension_Report {
 		$rs = $db->Execute($sql);
 		$group_counts = array();
 		
-		if(is_a($rs,'ADORecordSet'))
-		while(!$rs->EOF) {
-			$team_id = intval($rs->fields['team_id']);
-			$category_id = intval($rs ->fields['category_id']);
-			$hits = intval($rs->fields['hits']);
+		while($row = mysql_fetch_assoc($rs)) {
+			$team_id = intval($row['team_id']);
+			$category_id = intval($row['category_id']);
+			$hits = intval($row['hits']);
 			
 			if(!isset($group_counts[$team_id]))
 				$group_counts[$team_id] = array();
 			
 			$group_counts[$team_id][$category_id] = $hits;
 			@$group_counts[$team_id]['total'] = intval($group_counts[$team_id]['total']) + $hits;
-			$rs->MoveNext();
 		}
-		$tpl->assign('group_counts', $group_counts);		
+		$tpl->assign('group_counts', $group_counts);
+
+		mysql_free_result($rs);
 		
 		// Chart
 		
@@ -783,25 +793,25 @@ class ChReportGroupReplies extends Extension_Report {
 			$end_time
 		);
 
-		$rs_groups = $db->Execute($sql); /* @var $rs_groups ADORecordSet */
+		$rs = $db->Execute($sql);
 		
 		$worker_counts = array();
 		
 		$iter = 0;
 		$data = array();
 		
-		while(!$rs_groups ->EOF) {
-			$hits = intval($rs_groups ->fields['hits']);
-			$group_id = intval($rs_groups ->fields['group_id']);
+		while($row = mysql_fetch_assoc($rs)) {
+			$hits = intval($row['hits']);
+			$group_id = intval($row['group_id']);
 			
 			if(!isset($groups[$group_id]))
 				continue;
 
 			$data[$iter++] = array('value'=>$groups[$group_id]->name, 'hits'=>$hits);
-				
-			$rs_groups ->MoveNext();
 		}
-		$tpl->assign('data', $data);		
+		$tpl->assign('data', $data);
+
+		mysql_free_result($rs);
 		
 		$tpl->display('file:' . $this->tpl_path . '/reports/group/group_replies/index.tpl');
 	}
@@ -835,14 +845,14 @@ class ChReportOpenTickets extends Extension_Report {
 		// Year shortcuts
 		$years = array();
 		$sql = "SELECT date_format(from_unixtime(created_date),'%Y') as year FROM ticket WHERE created_date > 0 GROUP BY year having year <= date_format(now(),'%Y') ORDER BY year desc limit 0,10";
-		$rs = $db->query($sql);
+		$rs = $db->Execute($sql);
 		
-		if(is_a($rs,'ADORecordSet'))
-		while(!$rs->EOF) {
-			$years[] = intval($rs->fields['year']);
-			$rs->MoveNext();
+		while($row = mysql_fetch_assoc($rs)) {
+			$years[] = intval($row['year']);
 		}
 		$tpl->assign('years', $years);
+		
+		mysql_free_result($rs);
 		
 		// DAO
 		$groups = DAO_Group::getAll();
@@ -868,11 +878,12 @@ class ChReportOpenTickets extends Extension_Report {
 		
 		$data = array();
 		$iter = 0;
-		while(!$rs->EOF) {
-			$data[$iter++] = array('group_id'=>$rs->Fields('group_id'),'hits'=>$rs->Fields('hits'));
-			$rs->MoveNext();
+		while($row = mysql_fetch_assoc($rs)) {
+			$data[$iter++] = array('group_id'=>$row['group_id'],'hits'=>$row['hits']);
 		}
 		$tpl->assign('data', $data);
+		
+		mysql_free_result($rs);
 		
 		// Table
 		
@@ -887,23 +898,23 @@ class ChReportOpenTickets extends Extension_Report {
 			"GROUP BY team_id, category_id ",
 			$start_time,
 			$end_time);
-		$rs_buckets = $db->Execute($sql);
+		$rs = $db->Execute($sql);
 	
 		$group_counts = array();
-		while(!$rs_buckets->EOF) {
-			$team_id = intval($rs_buckets->fields['team_id']);
-			$category_id = intval($rs_buckets->fields['category_id']);
-			$hits = intval($rs_buckets->fields['hits']);
+		while($row = mysql_fetch_assoc($rs)) {
+			$team_id = intval($row['team_id']);
+			$category_id = intval($row['category_id']);
+			$hits = intval($row['hits']);
 			
 			if(!isset($group_counts[$team_id]))
 				$group_counts[$team_id] = array();
 				
 			$group_counts[$team_id][$category_id] = $hits;
 			@$group_counts[$team_id]['total'] = intval($group_counts[$team_id]['total']) + $hits;
-			
-			$rs_buckets->MoveNext();
 		}
-		$tpl->assign('group_counts', $group_counts);		
+		$tpl->assign('group_counts', $group_counts);
+
+		mysql_free_result($rs);
 		
 		$tpl->display('file:' . $this->tpl_path . '/reports/ticket/open_tickets/index.tpl');
 	}
@@ -926,14 +937,15 @@ class ChReportOldestOpenTickets extends Extension_Report {
 		// Year shortcuts
 		$years = array();
 		$sql = "SELECT date_format(from_unixtime(created_date),'%Y') as year FROM ticket WHERE created_date > 0 GROUP BY year having year <= date_format(now(),'%Y') ORDER BY year desc limit 0,10";
-		$rs = $db->query($sql);
+		$rs = $db->Execute($sql);
 		
-		if(is_a($rs,'ADORecordSet'))
-		while(!$rs->EOF) {
-			$years[] = intval($rs->fields['year']);
-			$rs->MoveNext();
+		
+		while($row = mysql_fetch_assoc($rs)) {
+			$years[] = intval($row['year']);
 		}
 		$tpl->assign('years', $years);
+		
+		mysql_free_result($rs);
 		
 		// Dates
 		@$age = DevblocksPlatform::importGPC($_REQUEST['age'],'string','30d');
@@ -983,11 +995,10 @@ class ChReportOldestOpenTickets extends Extension_Report {
 				$group_id);
 			$rs = $db->Execute($sql);
 		
-			if(is_a($rs,'ADORecordSet'))
-			while(!$rs->EOF) {
-				$mask = $rs->fields['mask'];
-				$subject = $rs->fields['subject'];
-				$created_date = intval($rs->fields['created_date']);
+			while($row = mysql_fetch_assoc($rs)) {
+				$mask = $row['mask'];
+				$subject = $row['subject'];
+				$created_date = intval($row['created_date']);
 				
 				if(!isset($oldest_tickets[$group_id]))
 					$oldest_tickets[$group_id] = array();
@@ -998,11 +1009,9 @@ class ChReportOldestOpenTickets extends Extension_Report {
 				$ticket_entry->created_date = $created_date;
 				
 				$oldest_tickets[$group_id][]=$ticket_entry;
-				
-				$rs->MoveNext();
 			}
-			unset($rs);
 			
+			mysql_free_result($rs);
 		}
 		$tpl->assign('oldest_tickets', $oldest_tickets);
 				
@@ -1035,14 +1044,15 @@ class ChReportWaitingTickets extends Extension_Report {
 		// Year shortcuts
 		$years = array();
 		$sql = "SELECT date_format(from_unixtime(created_date),'%Y') as year FROM ticket WHERE created_date > 0 GROUP BY year having year <= date_format(now(),'%Y') ORDER BY year desc limit 0,10";
-		$rs = $db->query($sql);
+		$rs = $db->Execute($sql);
 		
-		if(is_a($rs,'ADORecordSet'))
-		while(!$rs->EOF) {
-			$years[] = intval($rs->fields['year']);
-			$rs->MoveNext();
+		
+		while($row = mysql_fetch_assoc($rs)) {
+			$years[] = intval($row['year']);
 		}
 		$tpl->assign('years', $years);
+		
+		mysql_free_result($rs);
 		
 		// Date
 		
@@ -1061,23 +1071,23 @@ class ChReportWaitingTickets extends Extension_Report {
 			"AND spam_training != 'S' ".
 			"AND is_waiting = 1 " .
 			"GROUP BY team_id, category_id ";
-		$rs_buckets = $db->Execute($sql);
+		$rs = $db->Execute($sql);
 	
 		$group_counts = array();
-		while(!$rs_buckets->EOF) {
-			$team_id = intval($rs_buckets->fields['team_id']);
-			$category_id = intval($rs_buckets->fields['category_id']);
-			$hits = intval($rs_buckets->fields['hits']);
+		while($row = mysql_fetch_assoc($rs)) {
+			$team_id = intval($row['team_id']);
+			$category_id = intval($row['category_id']);
+			$hits = intval($row['hits']);
 			
 			if(!isset($group_counts[$team_id]))
 				$group_counts[$team_id] = array();
 				
 			$group_counts[$team_id][$category_id] = $hits;
 			@$group_counts[$team_id]['total'] = intval($group_counts[$team_id]['total']) + $hits;
-			
-			$rs_buckets->MoveNext();
 		}
 		$tpl->assign('group_counts', $group_counts);
+		
+		mysql_free_result($rs);
 		
 		// Chart
 		
@@ -1095,20 +1105,19 @@ class ChReportWaitingTickets extends Extension_Report {
 
 		$iter = 0;
 		$data = array();
-		
-	    if(is_a($rs,'ADORecordSet'))
-	    while(!$rs->EOF) {
-	    	$hits = intval($rs->fields['hits']);
-			$group_id = $rs->fields['group_id'];
+	    
+	    while($row = mysql_fetch_assoc($rs)) {
+	    	$hits = intval($row['hits']);
+			$group_id = $row['group_id'];
 			
 			if(!isset($groups[$group_id]))
 				continue;
 			
 			$data[$iter++] = array('value'=>$groups[$group_id]->name, 'hits'=> $hits);
-			
-		    $rs->MoveNext();
 	    }
 	    $tpl->assign('data', $data);
+	    
+	    mysql_free_result($rs);
 		
 		// Template
 		
@@ -1141,14 +1150,15 @@ class ChReportClosedTickets extends Extension_Report {
 		// Year shortcuts
 		$years = array();
 		$sql = "SELECT date_format(from_unixtime(created_date),'%Y') as year FROM ticket WHERE created_date > 0 AND is_deleted = 0 AND is_closed = 1 GROUP BY year having year <= date_format(now(),'%Y') ORDER BY year desc limit 0,10";
-		$rs = $db->query($sql);
+		$rs = $db->Execute($sql);
 		
-		if(is_a($rs,'ADORecordSet'))
-		while(!$rs->EOF) {
-			$years[] = intval($rs->fields['year']);
-			$rs->MoveNext();
+		
+		while($row = mysql_fetch_assoc($rs)) {
+			$years[] = intval($row['year']);
 		}
 		$tpl->assign('years', $years);
+		
+		mysql_free_result($rs);
 		
 		// Dates
 		
@@ -1186,23 +1196,23 @@ class ChReportClosedTickets extends Extension_Report {
 			$start_time,
 			$end_time);
 			
-		$rs_buckets = $db->Execute($sql);
+		$rs = $db->Execute($sql);
 	
 		$group_counts = array();
-		while(!$rs_buckets->EOF) {
-			$team_id = intval($rs_buckets->fields['team_id']);
-			$category_id = intval($rs_buckets->fields['category_id']);
-			$hits = intval($rs_buckets->fields['hits']);
+		while($row = mysql_fetch_assoc($rs)) {
+			$team_id = intval($row['team_id']);
+			$category_id = intval($row['category_id']);
+			$hits = intval($row['hits']);
 			
 			if(!isset($group_counts[$team_id]))
 				$group_counts[$team_id] = array();
 				
 			$group_counts[$team_id][$category_id] = $hits;
 			@$group_counts[$team_id]['total'] = intval($group_counts[$team_id]['total']) + $hits;
-			
-			$rs_buckets->MoveNext();
 		}
 		$tpl->assign('group_counts', $group_counts);
+		
+		mysql_free_result($rs);
 				
 		// Chart
 		
@@ -1222,19 +1232,19 @@ class ChReportClosedTickets extends Extension_Report {
 
 		$iter = 0;
 		$data = array();
-		if(is_a($rs,'ADORecordSet'))
-	    while(!$rs->EOF) {
-	    	$hits = intval($rs->fields['hits']);
-			$group_id = $rs->fields['group_id'];
+		
+	    while($row = mysql_fetch_assoc($rs)) {
+	    	$hits = intval($row['hits']);
+			$group_id = $row['group_id'];
 			
 			if(!isset($groups[$group_id]))
 				continue;
 			
 			$data[$iter++] = array('value'=>$groups[$group_id]->name, 'hits'=>$hits);
-			
-		    $rs->MoveNext();
 	    }		
 	    $tpl->assign('data', $data);
+	    
+	    mysql_free_result($rs);
 		
 		// Template
 		
@@ -1269,14 +1279,14 @@ class ChReportTicketAssignment extends Extension_Report {
 				"AND t.spam_training != 'S' ". 
 				"AND is_waiting != 1 ".		
 				"ORDER by w.last_name");
-		$rs_buckets = $db->Execute($sql);
+		$rs = $db->Execute($sql);
 	
 		$ticket_assignments = array();
-		while(!$rs_buckets->EOF) {
-			$worker_id = intval($rs_buckets->fields['worker_id']);
-			$mask = $rs_buckets->fields['mask'];
-			$subject = $rs_buckets->fields['subject'];
-			$created_date = intval($rs_buckets->fields['created_date']);
+		while($row = mysql_fetch_assoc($rs)) {
+			$worker_id = intval($row['worker_id']);
+			$mask = $row['mask'];
+			$subject = $row['subject'];
+			$created_date = intval($row['created_date']);
 			
 			if(!isset($ticket_assignments[$worker_id]))
 				$ticket_assignments[$worker_id] = array();
@@ -1287,11 +1297,11 @@ class ChReportTicketAssignment extends Extension_Report {
 			$assignment->created_date = $created_date; 
 				
 			$ticket_assignments[$worker_id][] = $assignment;
-			
-			$rs_buckets->MoveNext();
 		}
 		
-		$tpl->assign('ticket_assignments', $ticket_assignments);		
+		$tpl->assign('ticket_assignments', $ticket_assignments);
+
+		mysql_free_result($rs);
 		
 		// Chart
 		
@@ -1309,19 +1319,18 @@ class ChReportTicketAssignment extends Extension_Report {
 		$iter = 0;
 		$data = array();
 		
-		if(is_a($rs,'ADORecordSet'))
-		while(!$rs->EOF) {
-	    	$hits = intval($rs->fields['hits']);
-			$worker_id = $rs->fields['worker_id'];
+		while($row = mysql_fetch_assoc($rs)) {
+	    	$hits = intval($row['hits']);
+			$worker_id = $row['worker_id'];
 			
 			if(!isset($workers[$worker_id]))
 				continue;
 				
 			$data[$iter++] = array('value'=>$workers[$worker_id]->getName(),'hits'=>$hits);
-			
-		    $rs->MoveNext();
 	    }
 	    $tpl->assign('data', $data);
+	    
+	    mysql_free_result($rs);
 		
 		// Template
 		
@@ -1346,14 +1355,14 @@ class ChReportTopTicketsByContact extends Extension_Report {
 		// Year shortcuts
 		$years = array();
 		$sql = "SELECT date_format(from_unixtime(created_date),'%Y') as year FROM ticket WHERE created_date > 0 GROUP BY year having year <= date_format(now(),'%Y') ORDER BY year desc limit 0,10";
-		$rs = $db->query($sql);
+		$rs = $db->Execute($sql);
 		
-		if(is_a($rs,'ADORecordSet'))
-		while(!$rs->EOF) {
-			$years[] = intval($rs->fields['year']);
-			$rs->MoveNext();
+		while($row = mysql_fetch_assoc($rs)) {
+			$years[] = intval($row['year']);
 		}
 		$tpl->assign('years', $years);
+		
+		mysql_free_result($rs);
 
 		// Dates
 		
@@ -1422,18 +1431,18 @@ class ChReportTopTicketsByContact extends Extension_Report {
 					$end_time);
 		}
 				
-		$rs_buckets = $db->Execute($sql);
+		$rs = $db->Execute($sql);
 	
 		$group_counts = array();
 		$max_orgs = 100;
 		$current_orgs = 0;
 		
-		while(!$rs_buckets->EOF && $current_orgs <= $max_orgs) {
-			$org_id = intval($rs_buckets->fields['contact_id']);
-			$org_name = $rs_buckets->fields['contact_name'];
-			$team_id = intval($rs_buckets->fields['team_id']);
-			$category_id = intval($rs_buckets->fields['category_id']);
-			$hits = intval($rs_buckets->fields['hits']);
+		while($row = mysql_fetch_assoc($rs) && $current_orgs <= $max_orgs) {
+			$org_id = intval($row['contact_id']);
+			$org_name = $row['contact_name'];
+			$team_id = intval($row['team_id']);
+			$category_id = intval($row['category_id']);
+			$hits = intval($row['hits']);
 			
 			if(!isset($group_counts[$org_id])) {
 				$group_counts[$org_id] = array();
@@ -1454,9 +1463,9 @@ class ChReportTopTicketsByContact extends Extension_Report {
 			$group_counts[$org_id]['teams'][$team_id]['buckets'][$category_id] = $hits;
 			@$group_counts[$org_id]['teams'][$team_id]['total'] = intval($group_counts[$org_id]['teams'][$team_id]['total']) + $hits;
 			@$group_counts[$org_id]['total'] = intval($group_counts[$org_id]['total']) + $hits;
-			
-			$rs_buckets->MoveNext();
 		}
+		
+		mysql_free_result($rs);
 		
 		uasort($group_counts, array("ChReportTopTicketsByContact", "sortCountsArrayByHits"));
 		
@@ -1499,17 +1508,17 @@ class ChReportTopTicketsByContact extends Extension_Report {
 		$sorted_result = array();
 		$i=0;
 	    
-		if(is_a($rs,'ADORecordSet'))
-		while(!$rs->EOF) {
-			$hits = intval($rs->fields['hits']);
-			$name = $rs->fields['name'];
+		while($row = mysql_fetch_assoc($rs)) {
+			$hits = intval($row['hits']);
+			$name = $row['name'];
 			
 			$sorted_result[$i]['name'] = $name;
 			$sorted_result[$i]['hits'] = $hits;
 			
 			$i++;
-			$rs->MoveNext();
 		}
+		
+		mysql_free_result($rs);
 
 		//reverse the descending result because yui charts draws from the bottom up on the y-axis
 		$iter = 0;
@@ -1553,14 +1562,14 @@ class ChReportWorkerHistory extends Extension_Report {
 		// Year shortcuts
 		$years = array();
 		$sql = "SELECT date_format(from_unixtime(created_date),'%Y') as year FROM ticket WHERE created_date > 0 GROUP BY year having year <= date_format(now(),'%Y') ORDER BY year desc limit 0,10";
-		$rs = $db->query($sql);
+		$rs = $db->Execute($sql);
 		
-		if(is_a($rs,'ADORecordSet'))
-		while(!$rs->EOF) {
-			$years[] = intval($rs->fields['year']);
-			$rs->MoveNext();
+		while($row = mysql_fetch_assoc($rs)) {
+			$years[] = intval($row['year']);
 		}
 		$tpl->assign('years', $years);
+		
+		mysql_free_result($rs);
 		
 		// Dates
 		
@@ -1615,20 +1624,19 @@ class ChReportWorkerHistory extends Extension_Report {
 
 		$tickets_replied = array();
 		
-		if(is_a($rs,'ADORecordSet'))
-		while(!$rs->EOF) {
-			$created_day = $rs->fields['day'];
+		while($row = mysql_fetch_assoc($rs)) {
+			$created_day = $row['day'];
 			
 			unset($reply_date_ticket);
-			$reply_date_ticket->mask = $rs->fields['mask'];
-			$reply_date_ticket->email = $rs->fields['email'];
-			$reply_date_ticket->subject = $rs->fields['subject'];
-			$reply_date_ticket->id = intval($rs->fields['id']);
+			$reply_date_ticket->mask = $row['mask'];
+			$reply_date_ticket->email = $row['email'];
+			$reply_date_ticket->subject = $row['subject'];
+			$reply_date_ticket->id = intval($row['id']);
 
 			$tickets_replied[$created_day][] = $reply_date_ticket;
-			
-			$rs->MoveNext();
 		}
+		
+		mysql_free_result($rs);
 
 		$tpl->assign('tickets_replied', $tickets_replied);		
 		
@@ -1646,23 +1654,24 @@ class ChReportWorkerHistory extends Extension_Report {
 			$end_time
 		);
 
-		$rs_workers = $db->Execute($sql); /* @var $rs_workers ADORecordSet */
+		$rs = $db->Execute($sql);
 		
 		$worker_counts = array();
 		$data = array();
 		$iter = 0;
 		
-		while(!$rs_workers->EOF) {
-			$hits = intval($rs_workers->fields['hits']);
-			$worker_id = intval($rs_workers->fields['worker_id']);
+		while($row = mysql_fetch_assoc($rs)) {
+			$hits = intval($row['hits']);
+			$worker_id = intval($row['worker_id']);
 			
 			if(!isset($workers[$worker_id]))
 				continue;
 
 			$data[$iter++] = array('value'=>$workers[$worker_id]->getName(),'hits'=>$hits);
-			$rs_workers->MoveNext();
 		}
 		$tpl->assign('data', $data);
+		
+		mysql_free_result($rs);
 		
 		// Template
 		

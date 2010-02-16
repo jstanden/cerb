@@ -229,21 +229,22 @@ class DAO_WgmGoogleCse extends DevblocksORMHelper {
 	}
 	
 	/**
-	 * @param ADORecordSet $rs
+	 * @param resource $rs
 	 * @return Model_WgmGoogleCse[]
 	 */
 	static private function _getObjectsFromResult($rs) {
 		$objects = array();
 		
-		while(!$rs->EOF) {
+		while($row = mysql_fetch_assoc($rs)) {
 			$object = new Model_WgmGoogleCse();
-			$object->id = $rs->fields['id'];
-			$object->name = $rs->fields['name'];
-			$object->url = $rs->fields['url'];
-			$object->token = $rs->fields['token'];
+			$object->id = $row['id'];
+			$object->name = $row['name'];
+			$object->url = $row['url'];
+			$object->token = $row['token'];
 			$objects[$object->id] = $object;
-			$rs->MoveNext();
 		}
+		
+		mysql_free_result($rs);
 		
 		return $objects;
 	}

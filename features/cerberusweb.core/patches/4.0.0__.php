@@ -1,266 +1,313 @@
 <?php
-/***********************************************************************
-| Cerberus Helpdesk(tm) developed by WebGroup Media, LLC.
-|-----------------------------------------------------------------------
-| All source code & content (c) Copyright 2007, WebGroup Media LLC
-|   unless specifically noted otherwise.
-|
-| This source code is released under the Cerberus Public License.
-| The latest version of this license can be found here:
-| http://www.cerberusweb.com/license.php
-|
-| By using this software, you acknowledge having read this license
-| and agree to be bound thereby.
-| ______________________________________________________________________
-|	http://www.cerberusweb.com	  http://www.webgroupmedia.com/
-***********************************************************************/
-/*
- * IMPORTANT LICENSING NOTE from your friends on the Cerberus Helpdesk Team
- * 
- * Sure, it would be so easy to just cheat and edit this file to use the 
- * software without paying for it.  But we trust you anyway.  In fact, we're 
- * writing this software for you! 
- * 
- * Quality software backed by a dedicated team takes money to develop.  We 
- * don't want to be out of the office bagging groceries when you call up 
- * needing a helping hand.  We'd rather spend our free time coding your 
- * feature requests than mowing the neighbors' lawns for rent money. 
- * 
- * We've never believed in encoding our source code out of paranoia over not 
- * getting paid.  We want you to have the full source code and be able to 
- * make the tweaks your organization requires to get more done -- despite 
- * having less of everything than you might need (time, people, money, 
- * energy).  We shouldn't be your bottleneck.
- * 
- * We've been building our expertise with this project since January 2002.  We 
- * promise spending a couple bucks [Euro, Yuan, Rupees, Galactic Credits] to 
- * let us take over your shared e-mail headache is a worthwhile investment.  
- * It will give you a sense of control over your in-box that you probably 
- * haven't had since spammers found you in a game of "E-mail Address 
- * Battleship".  Miss. Miss. You sunk my in-box!
- * 
- * A legitimate license entitles you to support, access to the developer 
- * mailing list, the ability to participate in betas and the warm fuzzy 
- * feeling of feeding a couple obsessed developers who want to help you get 
- * more done than 'the other guy'.
- *
- * - Jeff Standen, Mike Fogg, Brenan Cavish, Darren Sugita, Dan Hildebrandt
- * 		and Joe Geck.
- *   WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
- */
 $db = DevblocksPlatform::getDatabaseService();
-$datadict = NewDataDictionary($db); /* @var $datadict ADODB_DataDict */ // ,'mysql' 
+$tables = $db->metaTables();
 
-$tables = array();
-$indexes = array();
+// `ticket` =============================
+if(!isset($tables['ticket'])) {
+	$sql = "
+		CREATE TABLE IF NOT EXISTS ticket (
+			id INT UNSIGNED DEFAULT 0 NOT NULL,
+			mask VARCHAR(16) DEFAULT '' NOT NULL, 
+			subject VARCHAR(255)  DEFAULT '' NOT NULL,
+			is_closed TINYINT(1) UNSIGNED DEFAULT 0 NOT NULL,
+			is_deleted TINYINT(1) UNSIGNED DEFAULT 0 NOT NULL,
+			team_id INT UNSIGNED DEFAULT 0 NOT NULL,
+			category_id INT UNSIGNED DEFAULT 0 NOT NULL,
+			first_message_id INT UNSIGNED DEFAULT 0 NOT NULL,
+			created_date INT UNSIGNED,
+			updated_date INT UNSIGNED,
+			due_date INT UNSIGNED,
+			first_wrote_address_id INT UNSIGNED NOT NULL DEFAULT 0,
+			last_wrote_address_id INT UNSIGNED NOT NULL DEFAULT 0,
+			spam_score DECIMAL(4,4) NOT NULL DEFAULT 0,
+			spam_training VARCHAR(1) NOT NULL DEFAULT '',
+			interesting_words VARCHAR(255) NOT NULL DEFAULT '',
+			next_action VARCHAR(255) NOT NULL DEFAULT '',
+			PRIMARY KEY (id)
+		) ENGINE=MyISAM;
+	";
+	$db->Execute($sql);	
+}
 
-// ***** Application
+// `message` =============================
+if(!isset($tables['message'])) {
+	$sql = "
+		CREATE TABLE IF NOT EXISTS message (
+			id INT UNSIGNED DEFAULT 0 NOT NULL,
+			ticket_id INT UNSIGNED DEFAULT 0 NOT NULL,
+			is_admin TINYINT(1) UNSIGNED DEFAULT 0 NOT NULL,
+			message_type VARCHAR(1),
+			created_date INT UNSIGNED,
+			address_id INT UNSIGNED,
+			headers MEDIUMBLOB,
+			content MEDIUMBLOB,
+			PRIMARY KEY (id)
+		) ENGINE=MyISAM;
+	";
+	$db->Execute($sql);	
+}
 
-$tables['ticket'] = "
-	id I4 DEFAULT 0 NOTNULL PRIMARY,
-	mask C(16) DEFAULT '' NOTNULL, 
-	subject C(255)  DEFAULT '' NOTNULL,
-	is_closed I1 DEFAULT 0 NOTNULL,
-	is_deleted I1 DEFAULT 0 NOTNULL,
-	team_id I4 DEFAULT 0 NOTNULL,
-	category_id I4 DEFAULT 0 NOTNULL,
-	first_message_id I4 DEFAULT 0 NOTNULL,
-	created_date I4,
-	updated_date I4,
-	due_date I4,
-	first_wrote_address_id I4 NOTNULL DEFAULT 0,
-	last_wrote_address_id I4 NOTNULL DEFAULT 0,
-	spam_score F NOTNULL DEFAULT 0,
-	spam_training C(1) NOTNULL DEFAULT '',
-	interesting_words C(255) NOTNULL DEFAULT '',
-	next_action C(255) NOTNULL DEFAULT ''
-";
+// `attachment` =============================
+if(!isset($tables['attachment'])) {
+	$sql = "
+		CREATE TABLE IF NOT EXISTS attachment (
+			id INT UNSIGNED DEFAULT 0 NOT NULL,
+			message_id INT UNSIGNED DEFAULT 0 NOT NULL,
+			display_name VARCHAR(128) DEFAULT '' NOT NULL,
+			mime_type VARCHAR(255) DEFAULT '' NOT NULL,
+			file_size INT UNSIGNED DEFAULT 0 NOT NULL,
+			filepath VARCHAR(255) DEFAULT '' NOT NULL,
+			PRIMARY KEY (id)
+		) ENGINE=MyISAM;
+	";
+	$db->Execute($sql);	
+}
 
-$tables['message'] = "
-	id I4 DEFAULT 0 NOTNULL PRIMARY,
-	ticket_id I4 DEFAULT 0 NOTNULL,
-	is_admin I1 DEFAULT 0 NOTNULL,
-	message_type C(1),
-	created_date I4,
-	address_id I4,
-	headers B,
-	content B
-";
-// Spin headers + content blobs into their own table
+// `team` =============================
+if(!isset($tables['team'])) {
+	$sql = "
+		CREATE TABLE IF NOT EXISTS team (
+			id INT UNSIGNED DEFAULT 0 NOT NULL,
+			name VARCHAR(32) DEFAULT '' NOT NULL,
+			signature BLOB,
+			PRIMARY KEY (id)
+		) ENGINE=MyISAM;
+	";
+	$db->Execute($sql);	
+}
 
-$tables['attachment'] = "
-	id I4 DEFAULT 0 NOTNULL PRIMARY,
-	message_id I4 DEFAULT 0 NOTNULL,
-	display_name C(128) DEFAULT '' NOTNULL,
-	mime_type C(255) DEFAULT '' NOTNULL,
-	file_size I4 DEFAULT 0 NOTNULL,
-	filepath C(255) DEFAULT '' NOTNULL
-";
+// `category` =============================
+if(!isset($tables['category'])) {
+	$sql = "
+		CREATE TABLE IF NOT EXISTS category (
+			id INT UNSIGNED DEFAULT 0 NOT NULL,
+			team_id INT UNSIGNED DEFAULT 0 NOT NULL,
+			name VARCHAR(32) DEFAULT '' NOT NULL,
+			PRIMARY KEY (id)
+		) ENGINE=MyISAM;
+	";
+	$db->Execute($sql);	
+}
 
-$tables['team'] = "
-	id I4 DEFAULT 0 NOTNULL PRIMARY,
-	name C(32) DEFAULT '' NOTNULL,
-	signature B
-";
+// `dashboard` =============================
+if(!isset($tables['dashboard'])) {
+	$sql = "
+		CREATE TABLE IF NOT EXISTS dashboard (
+			id INT UNSIGNED DEFAULT 0 NOT NULL,
+			name VARCHAR(32) DEFAULT '' NOT NULL,
+			agent_id INT UNSIGNED NOT NULL,
+			PRIMARY KEY (id)
+		) ENGINE=MyISAM;
+	";
+	$db->Execute($sql);	
+}
 
-$tables['category'] = "
-	id I4 DEFAULT 0 NOTNULL PRIMARY,
-	team_id I4 DEFAULT 0 NOTNULL,
-	name C(32) DEFAULT '' NOTNULL
-";
+// `dashboard_view` =============================
+if(!isset($tables['dashboard_view'])) {
+	$sql = "
+		CREATE TABLE IF NOT EXISTS dashboard_view (
+			id INT UNSIGNED DEFAULT 0 NOT NULL,
+			dashboard_id INT UNSIGNED DEFAULT 0 NOT NULL,
+			type VARCHAR(1) DEFAULT 'D',
+			name VARCHAR(32) DEFAULT '' NOT NULL,
+			view_columns BLOB,
+			sort_by VARCHAR(32) DEFAULT '' NOT NULL,
+			sort_asc TINYINT(1) UNSIGNED DEFAULT 1 NOT NULL,
+			num_rows SMALLINT UNSIGNED DEFAULT 10 NOT NULL,
+			page SMALLINT UNSIGNED DEFAULT 0 NOT NULL,
+			params BLOB,
+			PRIMARY KEY (id)
+		) ENGINE=MyISAM;
+	";
+	$db->Execute($sql);	
+}
 
-$tables['dashboard'] = "
-	id I4 DEFAULT 0 NOTNULL PRIMARY,
-	name C(32) DEFAULT '' NOTNULL,
-	agent_id I4 NOTNULL
-";
+// `dashboard_view_action` =============================
+if(!isset($tables['dashboard_view_action'])) {
+	$sql = "
+		CREATE TABLE IF NOT EXISTS dashboard_view_action (
+			id INT UNSIGNED DEFAULT 0 NOT NULL,
+			dashboard_view_id INT UNSIGNED DEFAULT 0 NOT NULL,
+			name VARCHAR(64) DEFAULT '' NOT NULL,
+			worker_id INT UNSIGNED NOT NULL,
+			params BLOB,
+			PRIMARY KEY (id)
+		) ENGINE=MyISAM;
+	";
+	$db->Execute($sql);	
+}
 
-$tables['dashboard_view'] = "
-	id I4 DEFAULT 0 NOTNULL PRIMARY,
-	dashboard_id I4 DEFAULT 0 NOTNULL,
-	type C(1) DEFAULT 'D',
-	name C(32) DEFAULT '' NOTNULL,
-	view_columns B,
-	sort_by C(32) DEFAULT '' NOTNULL,
-	sort_asc I1 DEFAULT 1 NOTNULL,
-	num_rows I2 DEFAULT 10 NOTNULL,
-	page I2 DEFAULT 0 NOTNULL,
-	params B
-";
+// `address` =============================
+if(!isset($tables['address'])) {
+	$sql = "
+		CREATE TABLE IF NOT EXISTS address (
+			id INT UNSIGNED DEFAULT 0 NOT NULL,
+			email VARCHAR(255) DEFAULT '' NOT NULL,
+			personal VARCHAR(255) DEFAULT '',
+			PRIMARY KEY (id)
+		) ENGINE=MyISAM;
+	";
+	$db->Execute($sql);	
+}
 
-// [TODO] Nuke?
-$tables['dashboard_view_action'] = "
-	id I4 DEFAULT 0 NOTNULL PRIMARY,
-	dashboard_view_id I4 DEFAULT 0 NOTNULL,
-	name C(64) DEFAULT '' NOTNULL,
-	worker_id I4 NOTNULL,
-	params B
-";
+// `mail_routing` =============================
+if(!isset($tables['mail_routing'])) {
+	$sql = "
+		CREATE TABLE IF NOT EXISTS mail_routing (
+			id INT UNSIGNED DEFAULT 0 NOT NULL,
+			pattern VARCHAR(255) DEFAULT '' NOT NULL,
+			team_id INT UNSIGNED DEFAULT 0 NOT NULL,
+			pos INT UNSIGNED DEFAULT 0 NOT NULL,
+			PRIMARY KEY (id)
+		) ENGINE=MyISAM;
+	";
+	$db->Execute($sql);	
+}
 
-$tables['address'] = "
-	id I4 DEFAULT 0 NOTNULL PRIMARY,
-	email C(255) DEFAULT '' NOTNULL,
-	personal C(255) DEFAULT ''
-";
+// `requester` =============================
+if(!isset($tables['requester'])) {
+	$sql = "
+		CREATE TABLE IF NOT EXISTS requester (
+			address_id INT UNSIGNED DEFAULT 0 NOT NULL,
+			ticket_id INT UNSIGNED DEFAULT 0 NOT NULL,
+			PRIMARY KEY (address_id, ticket_id)
+		) ENGINE=MyISAM;
+	";
+	$db->Execute($sql);	
+}
 
-$tables['mail_routing'] = "
-	id I4 DEFAULT 0 NOTNULL PRIMARY,
-	pattern C(255) DEFAULT '' NOTNULL,
-	team_id I4 DEFAULT 0 NOTNULL,
-	pos I4 DEFAULT 0 NOT NULL
-";
+// `worker_to_team` =============================
+if(!isset($tables['worker_to_team'])) {
+	$sql = "
+		CREATE TABLE IF NOT EXISTS worker_to_team (
+			agent_id INT UNSIGNED DEFAULT 0 NOT NULL,
+			team_id INT UNSIGNED DEFAULT 0 NOT NULL,
+			is_manager TINYINT(1) UNSIGNED DEFAULT 0 NOT NULL,
+			PRIMARY KEY (agent_id, team_id)
+		) ENGINE=MyISAM;
+	";
+	$db->Execute($sql);	
+}
 
-$tables['requester'] = "
-	address_id I4 DEFAULT 0 NOTNULL PRIMARY,
-	ticket_id I4 DEFAULT 0 NOTNULL PRIMARY
-";
+// `pop3_account` =============================
+if(!isset($tables['pop3_account'])) {
+	$sql = "
+		CREATE TABLE IF NOT EXISTS pop3_account (
+			id INT UNSIGNED DEFAULT 0 NOT NULL,
+			enabled TINYINT(1) UNSIGNED DEFAULT 1 NOT NULL,
+			nickname VARCHAR(128) DEFAULT '' NOT NULL,
+			protocol VARCHAR(32) DEFAULT 'pop3' NOT NULL,
+			host VARCHAR(128) DEFAULT '' NOT NULL,
+			username VARCHAR(128) DEFAULT '' NOT NULL,
+			password VARCHAR(128) DEFAULT '' NOT NULL,
+			port SMALLINT UNSIGNED DEFAULT 110 NOT NULL,
+			PRIMARY KEY (id)
+		) ENGINE=MyISAM;
+	";
+	$db->Execute($sql);	
+}
 
-$tables['worker_to_team'] = "
-	agent_id I4 DEFAULT 0 NOTNULL PRIMARY,
-	team_id I4 DEFAULT 0 NOTNULL PRIMARY,
-	is_manager I1 DEFAULT 0 NOTNULL
-";
+// `worker` =============================
+if(!isset($tables['worker'])) {
+	$sql = "
+		CREATE TABLE IF NOT EXISTS worker (
+			id INT UNSIGNED DEFAULT 0 NOT NULL,
+			first_name VARCHAR(32) DEFAULT '',
+			last_name VARCHAR(64) DEFAULT '',
+			title VARCHAR(64) DEFAULT '',
+			email VARCHAR(128) DEFAULT '',
+			pass VARCHAR(32) DEFAULT '',
+			is_superuser TINYINT(1) UNSIGNED DEFAULT 0 NOT NULL,
+			can_delete TINYINT(1) UNSIGNED DEFAULT 0 NOT NULL,
+			last_activity_date INT UNSIGNED,
+			last_activity BLOB,
+			PRIMARY KEY (id)
+		) ENGINE=MyISAM;
+	";
+	$db->Execute($sql);	
+}
 
-$tables['pop3_account'] = "
-	id I4 DEFAULT 0 NOTNULL PRIMARY,
-	enabled I1 DEFAULT 1 NOTNULL,
-	nickname C(128) DEFAULT '' NOTNULL,
-	protocol C(32) DEFAULT 'pop3' NOTNULL,
-	host C(128) DEFAULT '' NOTNULL,
-	username C(128) DEFAULT '' NOTNULL,
-	password C(128) DEFAULT '' NOTNULL,
-	port I2 DEFAULT 110 NOTNULL
-";
+// `bayes_words` =============================
+if(!isset($tables['bayes_words'])) {
+	$sql = "
+		CREATE TABLE IF NOT EXISTS bayes_words (
+			id INT UNSIGNED DEFAULT 0 NOT NULL,
+			word VARCHAR(64) DEFAULT '' NOT NULL,
+			spam INT UNSIGNED DEFAULT 0,
+			nonspam INT UNSIGNED DEFAULT 0,
+			PRIMARY KEY (id),
+			INDEX word (word)
+		) ENGINE=MyISAM;
+	";
+	$db->Execute($sql);	
+}
 
-$tables['worker'] ="
-	id I4 DEFAULT 0 NOTNULL PRIMARY,
-	first_name C(32) DEFAULT '',
-	last_name C(64) DEFAULT '',
-	title C(64) DEFAULT '',
-	email C(128) DEFAULT '',
-	pass C(32) DEFAULT '',
-	is_superuser I1 DEFAULT 0 NOTNULL,
-	can_delete I1 DEFAULT 0 NOTNULL,
-	last_activity_date I4,
-	last_activity B
-";
+// `bayes_stats` =============================
+if(!isset($tables['bayes_stats'])) {
+	$sql = "
+		CREATE TABLE IF NOT EXISTS bayes_stats (
+			spam INT UNSIGNED DEFAULT 0,
+			nonspam INT UNSIGNED DEFAULT 0
+		) ENGINE=MyISAM;
+	";
+	$db->Execute($sql);	
+}
 
-$tables['bayes_words'] = "
-	id I4 DEFAULT 0 NOTNULL PRIMARY,
-	word C(64) DEFAULT '' NOTNULL,
-	spam I4 DEFAULT 0,
-	nonspam I4 DEFAULT 0
-";
+// `community` =============================
+if(!isset($tables['community'])) {
+	$sql = "
+		CREATE TABLE IF NOT EXISTS community (
+			id INT UNSIGNED DEFAULT 0 NOT NULL,
+			name VARCHAR(64) DEFAULT '',
+			url VARCHAR(128) DEFAULT '',
+			PRIMARY KEY (id)
+		) ENGINE=MyISAM;
+	";
+	$db->Execute($sql);	
+}
 
-$indexes['bayes_words'] = array(
-    'word' => 'word',
-);
+// `worker_pref` =============================
+if(!isset($tables['worker_pref'])) {
+	$sql = "
+		CREATE TABLE IF NOT EXISTS worker_pref (
+			worker_id INT UNSIGNED DEFAULT 0 NOT NULL,
+			setting VARCHAR(32) DEFAULT '' NOT NULL,
+			value BLOB,
+			PRIMARY KEY (worker_id, setting)
+		) ENGINE=MyISAM;
+	";
+	$db->Execute($sql);	
+}
 
-$tables['bayes_stats'] = "
-	spam I4 DEFAULT 0,
-	nonspam I4 DEFAULT 0
-";
+// `team_routing_rule` =============================
+if(!isset($tables['team_routing_rule'])) {
+	$sql = "
+		CREATE TABLE IF NOT EXISTS team_routing_rule (
+			id INT UNSIGNED DEFAULT 0 NOT NULL,
+			team_id INT UNSIGNED DEFAULT 0 NOT NULL,
+			header VARCHAR(64) DEFAULT 'from',
+			pattern VARCHAR(255) DEFAULT '' NOT NULL,
+			pos SMALLINT UNSIGNED DEFAULT 0 NOT NULL,
+			created INT UNSIGNED DEFAULT 0 NOT NULL,
+			do_spam VARCHAR(1) DEFAULT '',
+			do_status VARCHAR(1) DEFAULT '',
+			do_move VARCHAR(16) DEFAULT '',
+			PRIMARY KEY (id)
+		) ENGINE=MyISAM;
+	";
+	$db->Execute($sql);	
+}
 
-// Communities
-$tables['community'] = "
-	id I4 DEFAULT 0 NOTNULL PRIMARY,
-	name C(64) DEFAULT '',
-	url C(128) DEFAULT ''
-";
-
-// Worker Preferences
-$tables['worker_pref'] = "
-	worker_id I4 DEFAULT 0 NOTNULL PRIMARY,
-	setting C(32) DEFAULT '' NOTNULL PRIMARY,
-	value B
-";
-
-// Team Routing
-$tables['team_routing_rule'] = "
-	id I4 DEFAULT 0 NOTNULL PRIMARY,
-	team_id I4 DEFAULT 0 NOTNULL,
-	header C(64) DEFAULT 'from',
-	pattern C(255) DEFAULT '' NOTNULL,
-	pos I2 DEFAULT 0 NOT NULL,
-	created I4 DEFAULT 0 NOT NULL,
-	do_spam C(1) DEFAULT '',
-	do_status C(1) DEFAULT '',
-	do_move C(16) DEFAULT ''
-";
-
-$tables['setting'] = "
-	setting C(32) DEFAULT '' NOTNULL PRIMARY,
-	value C(255) DEFAULT '' NOTNULL
-";
-
-// [TODO] This could be part of the patcher
-$currentTables = $db->MetaTables('TABLE', false);
-
-if(is_array($tables))
-foreach($tables as $table => $flds) {
-	if(false === array_search($table,$currentTables)) {
-		$sql = $datadict->CreateTableSQL($table,$flds);
-		// [TODO] Need verify step
-		// [TODO] Buffer up success and fail messages?  Patcher!
-		if(!$datadict->ExecuteSQLArray($sql,false)) {
-			echo '[' . $table . '] ' . $db->ErrorMsg();
-			exit;
-			return FALSE;
-		}
-
-		// Add indexes for this table if we have them
-		if(is_array($indexes) && isset($indexes[$table]))
-		foreach($indexes[$table] as $idxname => $idxflds) {
-			$sqlarray = $datadict->CreateIndexSQL($idxname, $table, $idxflds);
-			if(!$datadict->ExecuteSQLArray($sqlarray,false)) {
-				echo '[' . $table . '] ' . $db->ErrorMsg();
-				exit;
-				return FALSE;
-			}
-		}
-		
-	}
+// `setting` =============================
+if(!isset($tables['setting'])) {
+	$sql = "
+		CREATE TABLE IF NOT EXISTS setting (
+			setting VARCHAR(32) DEFAULT '' NOT NULL,
+			value VARCHAR(255) DEFAULT '' NOT NULL,
+			PRIMARY KEY (setting)
+		) ENGINE=MyISAM;
+	";
+	$db->Execute($sql);	
 }
 
 return TRUE;
-?>

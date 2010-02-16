@@ -16,7 +16,6 @@ class ChUpdateController extends DevblocksControllerExtension {
 	    array_shift($stack); // update
 
 	    $cache = DevblocksPlatform::getCacheService(); /* @var $cache _DevblocksCacheManager */
-		$settings = DevblocksPlatform::getPluginSettingsService();
 	    
 	    switch(array_shift($stack)) {
 	    	case 'locked':
@@ -39,6 +38,8 @@ class ChUpdateController extends DevblocksControllerExtension {
 	    	default:
 			    $path = APP_TEMP_PATH . DIRECTORY_SEPARATOR;
 				$file = $path . 'c4update_lock';	    		
+				
+				$settings = DevblocksPlatform::getPluginSettingsService();
 				
 			    $authorized_ips_str = $settings->get('cerberusweb.core',CerberusSettings::AUTHORIZED_IPS);
 			    $authorized_ips = DevblocksPlatform::parseCrlfString($authorized_ips_str);

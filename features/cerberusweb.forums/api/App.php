@@ -573,27 +573,28 @@ class DAO_ForumsThread extends DevblocksORMHelper {
 	}
 	
 	/**
-	 * @param ADORecordSet $rs
+	 * @param resource $rs
 	 * @return Model_ForumsThread[]
 	 */
 	static private function _getObjectsFromResult($rs) {
 		$objects = array();
 		
-		if(is_a($rs,'ADORecordSet'))
-		while(!$rs->EOF) {
+		
+		while($row = mysql_fetch_assoc($rs)) {
 			$object = new Model_ForumsThread();
-			$object->id = $rs->fields['id'];
-			$object->forum_id = $rs->fields['forum_id'];
-			$object->thread_id = $rs->fields['thread_id'];
-			$object->title = $rs->fields['title'];
-			$object->last_updated = $rs->fields['last_updated'];
-			$object->last_poster = $rs->fields['last_poster'];
-			$object->link = $rs->fields['link'];
-			$object->worker_id = $rs->fields['worker_id'];
-			$object->is_closed = $rs->fields['is_closed'];
+			$object->id = $row['id'];
+			$object->forum_id = $row['forum_id'];
+			$object->thread_id = $row['thread_id'];
+			$object->title = $row['title'];
+			$object->last_updated = $row['last_updated'];
+			$object->last_poster = $row['last_poster'];
+			$object->link = $row['link'];
+			$object->worker_id = $row['worker_id'];
+			$object->is_closed = $row['is_closed'];
 			$objects[$object->id] = $object;
-			$rs->MoveNext();
 		}
+		
+		mysql_free_result($rs);
 		
 		return $objects;
 	}
@@ -611,11 +612,11 @@ class DAO_ForumsThread extends DevblocksORMHelper {
 		
 		$totals = array();
 		
-		if(is_a($rs,'ADORecordSet'))
-		while(!$rs->EOF) {
-			$totals[$rs->fields['forum_id']] = intval($rs->fields['hits']);
-			$rs->MoveNext();
+		while($row = mysql_fetch_assoc($rs)) {
+			$totals[$row['forum_id']] = intval($row['hits']);
 		}
+		
+		mysql_free_result($rs);
 		
 		return $totals;
 	}
@@ -633,11 +634,11 @@ class DAO_ForumsThread extends DevblocksORMHelper {
 		
 		$totals = array();
 		
-		if(is_a($rs,'ADORecordSet'))
-		while(!$rs->EOF) {
-			$totals[$rs->fields['worker_id']] = intval($rs->fields['hits']);
-			$rs->MoveNext();
+		while($row = mysql_fetch_assoc($rs)) {
+			$totals[$row['worker_id']] = intval($row['hits']);
 		}
+		
+		mysql_free_result($rs);
 		
 		return $totals;
 	}
@@ -709,19 +710,17 @@ class DAO_ForumsThread extends DevblocksORMHelper {
 		$sql = $select_sql . $join_sql . $where_sql .  
 			(!empty($sortBy) ? sprintf("ORDER BY %s %s",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : "");
 		
-		$rs = $db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$rs = $db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 		
 		$results = array();
 		
-		if(is_a($rs,'ADORecordSet'))
-		while(!$rs->EOF) {
+		while($row = mysql_fetch_assoc($rs)) {
 			$result = array();
-			foreach($rs->fields as $f => $v) {
+			foreach($row as $f => $v) {
 				$result[$f] = $v;
 			}
-			$id = intval($rs->fields[SearchFields_ForumsThread::ID]);
+			$id = intval($row[SearchFields_ForumsThread::ID]);
 			$results[$id] = $result;
-			$rs->MoveNext();
 		}
 
 		// [JAS]: Count all
@@ -730,6 +729,8 @@ class DAO_ForumsThread extends DevblocksORMHelper {
 			$count_sql = "SELECT count(*) " . $join_sql . $where_sql;
 			$total = $db->GetOne($count_sql);
 		}
+		
+		mysql_free_result($rs);
 		
 		return array($results,$total);
     }
@@ -754,15 +755,15 @@ class SearchFields_ForumsThread implements IDevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = array(
-			self::ID => new DevblocksSearchField(self::ID, 't', 'id', null, $translate->_('forumsthread.id')),
-			self::THREAD_ID => new DevblocksSearchField(self::THREAD_ID, 't', 'thread_id', null, $translate->_('forumsthread.thread_id')),
-			self::FORUM_ID => new DevblocksSearchField(self::FORUM_ID, 't', 'forum_id', null, $translate->_('forumsthread.forum_id')),
-			self::TITLE => new DevblocksSearchField(self::TITLE, 't', 'title', null, $translate->_('forumsthread.title')),
-			self::LAST_UPDATED => new DevblocksSearchField(self::LAST_UPDATED, 't', 'last_updated', null, $translate->_('forumsthread.last_updated')),
-			self::LAST_POSTER => new DevblocksSearchField(self::LAST_POSTER, 't', 'last_poster', null, $translate->_('forumsthread.last_poster')),
-			self::LINK => new DevblocksSearchField(self::LINK, 't', 'link', null, $translate->_('forumsthread.link')),
-			self::IS_CLOSED => new DevblocksSearchField(self::IS_CLOSED, 't', 'is_closed', null, $translate->_('forumsthread.is_closed')),
-			self::WORKER_ID => new DevblocksSearchField(self::WORKER_ID, 't', 'worker_id', null, $translate->_('forumsthread.worker_id')),
+			self::ID => new DevblocksSearchField(self::ID, 't', 'id', $translate->_('forumsthread.id')),
+			self::THREAD_ID => new DevblocksSearchField(self::THREAD_ID, 't', 'thread_id', $translate->_('forumsthread.thread_id')),
+			self::FORUM_ID => new DevblocksSearchField(self::FORUM_ID, 't', 'forum_id', $translate->_('forumsthread.forum_id')),
+			self::TITLE => new DevblocksSearchField(self::TITLE, 't', 'title', $translate->_('forumsthread.title')),
+			self::LAST_UPDATED => new DevblocksSearchField(self::LAST_UPDATED, 't', 'last_updated', $translate->_('forumsthread.last_updated')),
+			self::LAST_POSTER => new DevblocksSearchField(self::LAST_POSTER, 't', 'last_poster', $translate->_('forumsthread.last_poster')),
+			self::LINK => new DevblocksSearchField(self::LINK, 't', 'link', $translate->_('forumsthread.link')),
+			self::IS_CLOSED => new DevblocksSearchField(self::IS_CLOSED, 't', 'is_closed', $translate->_('forumsthread.is_closed')),
+			self::WORKER_ID => new DevblocksSearchField(self::WORKER_ID, 't', 'worker_id', $translate->_('forumsthread.worker_id')),
 		);
 		
 		// Sort by label (translation-conscious)
@@ -841,23 +842,23 @@ class DAO_ForumsSource extends DevblocksORMHelper {
 	}
 	
 	/**
-	 * @param ADORecordSet $rs
+	 * @param resource $rs
 	 * @return Model_ForumsSource[]
 	 */
 	static private function _getObjectsFromResult($rs) {
 		$objects = array();
 		
-		if(is_a($rs,'ADORecordSet'))
-		while(!$rs->EOF) {
+		while($row = mysql_fetch_assoc($rs)) {
 			$object = new Model_ForumsSource();
-			$object->id = $rs->fields['id'];
-			$object->name = $rs->fields['name'];
-			$object->url = $rs->fields['url'];
-			$object->secret_key = $rs->fields['secret_key'];
-			$object->last_postid = intval($rs->fields['last_postid']);
+			$object->id = $row['id'];
+			$object->name = $row['name'];
+			$object->url = $row['url'];
+			$object->secret_key = $row['secret_key'];
+			$object->last_postid = intval($row['last_postid']);
 			$objects[$object->id] = $object;
-			$rs->MoveNext();
 		}
+		
+		mysql_free_result($rs);
 		
 		return $objects;
 	}

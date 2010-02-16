@@ -65,7 +65,7 @@ class DAO_CommunityTool extends C4_ORMHelper {
 		    "VALUES (%d,'','','')",
 		    $id
 		);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 		
 		self::update($id, $fields);
 		
@@ -142,7 +142,7 @@ class DAO_CommunityTool extends C4_ORMHelper {
 		    (!empty($ids) ? sprintf("WHERE id IN (%s) ", implode(',', $ids)) : " ").
 		    "ORDER BY name"
 		;
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 
 		return self::_createObjectsFromResultSet($rs);
 	}
@@ -163,16 +163,16 @@ class DAO_CommunityTool extends C4_ORMHelper {
 	static private function _createObjectsFromResultSet($rs) {
 		$objects = array();
 		
-		if(is_a($rs,'ADORecordSet'))
-		while(!$rs->EOF) {
+		while($row = mysql_fetch_assoc($rs)) {
 		    $object = new Model_CommunityTool();
-		    $object->id = intval($rs->fields['id']);
-		    $object->name = $rs->fields['name'];
-		    $object->code = $rs->fields['code'];
-		    $object->extension_id = $rs->fields['extension_id'];
+		    $object->id = intval($row['id']);
+		    $object->name = $row['name'];
+		    $object->code = $row['code'];
+		    $object->extension_id = $row['extension_id'];
 		    $objects[$object->id] = $object;
-		    $rs->MoveNext();
 		}
+		
+		mysql_free_result($rs);
 		
 		return $objects;
 	}
@@ -196,10 +196,10 @@ class DAO_CommunityTool extends C4_ORMHelper {
 		     */
 			
 		    $sql = sprintf("DELETE QUICK FROM community_tool WHERE id = %d", $id);
-		    $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		    $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 			
 		    $sql = sprintf("DELETE QUICK FROM community_tool_property WHERE tool_code = '%s'", $tool->code);
-		    $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		    $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 		}
 	}
 
@@ -263,23 +263,22 @@ class DAO_CommunityTool extends C4_ORMHelper {
 			
 		// [TODO] Could push the select logic down a level too
 		if($limit > 0) {
-    		$rs = $db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+    		$rs = $db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 		} else {
-		    $rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
-            $total = $rs->RecordCount();
+		    $rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+            $total = mysql_num_rows($rs);
 		}
 		
 		$results = array();
 				
-		if(is_a($rs,'ADORecordSet'))
-		while(!$rs->EOF) {
+		
+		while($row = mysql_fetch_assoc($rs)) {
 			$result = array();
-			foreach($rs->fields as $f => $v) {
+			foreach($row as $f => $v) {
 				$result[$f] = $v;
 			}
-			$object_id = intval($rs->fields[SearchFields_CommunityTool::ID]);
+			$object_id = intval($row[SearchFields_CommunityTool::ID]);
 			$results[$object_id] = $result;
-			$rs->MoveNext();
 		}
 
 		// [JAS]: Count all
@@ -290,6 +289,8 @@ class DAO_CommunityTool extends C4_ORMHelper {
 				$where_sql;
 			$total = $db->GetOne($count_sql);
 		}
+		
+		mysql_free_result($rs);
 		
 		return array($results,$total);
 	}
@@ -309,10 +310,10 @@ class SearchFields_CommunityTool implements IDevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = array(
-			SearchFields_CommunityTool::ID => new DevblocksSearchField(SearchFields_CommunityTool::ID, 'ct', 'id', null, $translate->_('common.id')),
-			SearchFields_CommunityTool::NAME => new DevblocksSearchField(SearchFields_CommunityTool::NAME, 'ct', 'name', null, $translate->_('community_portal.name')),
-			SearchFields_CommunityTool::CODE => new DevblocksSearchField(SearchFields_CommunityTool::CODE, 'ct', 'code', null, $translate->_('community_portal.code')),
-			SearchFields_CommunityTool::EXTENSION_ID => new DevblocksSearchField(SearchFields_CommunityTool::EXTENSION_ID, 'ct', 'extension_id', null, $translate->_('community_portal.extension_id')),
+			SearchFields_CommunityTool::ID => new DevblocksSearchField(SearchFields_CommunityTool::ID, 'ct', 'id', $translate->_('common.id')),
+			SearchFields_CommunityTool::NAME => new DevblocksSearchField(SearchFields_CommunityTool::NAME, 'ct', 'name', $translate->_('community_portal.name')),
+			SearchFields_CommunityTool::CODE => new DevblocksSearchField(SearchFields_CommunityTool::CODE, 'ct', 'code', $translate->_('community_portal.code')),
+			SearchFields_CommunityTool::EXTENSION_ID => new DevblocksSearchField(SearchFields_CommunityTool::EXTENSION_ID, 'ct', 'extension_id', $translate->_('community_portal.extension_id')),
 		);
 		
 		// Custom Fields
@@ -321,7 +322,7 @@ class SearchFields_CommunityTool implements IDevblocksSearchFields {
 		if(is_array($fields))
 		foreach($fields as $field_id => $field) {
 			$key = 'cf_'.$field_id;
-			$columns[$key] = new DevblocksSearchField($key,$key,'field_value',null,$field->name);
+			$columns[$key] = new DevblocksSearchField($key,$key,'field_value',$field->name);
 		}
 		
 		// Sort by label (translation-conscious)
@@ -355,12 +356,13 @@ class DAO_CommunityToolProperty {
 			
 			$props = array();
 			
-			while(!$rs->EOF) {
-				$k = $rs->fields['property_key'];
-				$v = $rs->fields['property_value'];
+			while($row = mysql_fetch_assoc($rs)) {
+				$k = $row['property_key'];
+				$v = $row['property_value'];
 				$props[$k] = $v;
-				$rs->MoveNext();
 			}
+			
+			mysql_free_result($rs);
 			
 			$cache->save($props, self::_CACHE_PREFIX.$tool_code);
 		}		
@@ -378,16 +380,12 @@ class DAO_CommunityToolProperty {
 	static function set($tool_code, $key, $value) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$db->Replace(
-			'community_tool_property',
-			array(
-				self::TOOL_CODE => $db->qstr($tool_code),
-				self::PROPERTY_KEY => $db->qstr($key),
-				self::PROPERTY_VALUE => $db->qstr($value),
-			),
-			array(self::TOOL_CODE, self::PROPERTY_KEY),
-			false
-		);
+		$db->Execute(sprintf("REPLACE INTO community_tool_property (tool_code, property_key, property_value) ".
+			"VALUES (%s, %s, %s)",
+			$db->qstr($tool_code),
+			$db->qstr($key),
+			$db->qsr($value)
+		));
 		
 		// Invalidate cache
 		$cache = DevblocksPlatform::getCacheService();

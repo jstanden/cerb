@@ -1236,11 +1236,10 @@ class ChContactsPage extends CerberusPageExtension {
 		);
 		$rs = $db->Execute($sql);
 		
-		if(is_a($rs,'ADORecordSet'))
-		while(!$rs->EOF) {
-			$first = $rs->fields['first_name'];
-			$last = $rs->fields['last_name'];
-			$email = $rs->fields['email'];
+		while($row = mysql_fetch_assoc($rs)) {
+			$first = $row['first_name'];
+			$last = $row['last_name'];
+			$email = $row['email'];
 			
 			$personal = sprintf("%s%s%s",
 				(!empty($first)) ? $first : '',
@@ -1253,9 +1252,9 @@ class ChContactsPage extends CerberusPageExtension {
 				!empty($personal) ? ('"'.$personal.'" ') : '',
 				!empty($personal) ? ("<".$email.">") : $email
 			);
-			
-			$rs->MoveNext();
 		}
+		
+		mysql_free_result($rs);
 		
 		exit;
 	}
@@ -1271,12 +1270,13 @@ class ChContactsPage extends CerberusPageExtension {
 		);
 		$rs = $db->Execute($sql);
 		
-		if(is_a($rs,'ADORecordSet'))
-		while(!$rs->EOF) {
-			echo $rs->fields['country'];
+		while($row = mysql_fetch_assoc($rs)) {
+			echo $row['country'];
 			echo "\n";
-			$rs->MoveNext();
 		}
+		
+		mysql_free_result($rs);
+		
 		exit;
 	}
 };

@@ -314,23 +314,23 @@ class DAO_FnrQuery extends DevblocksORMHelper {
 	}
 	
 	/**
-	 * @param ADORecordSet $rs
+	 * @param resource $rs
 	 * @return Model_FnrQuery[]
 	 */
 	static private function _getObjectsFromResult($rs) {
 		$objects = array();
 		
-		if(is_a($rs,'ADORecordSet'))
-		while(!$rs->EOF) {
+		while($row = mysql_fetch_assoc($rs)) {
 			$object = new Model_FnrQuery();
-			$object->id = $rs->fields['id'];
-			$object->query = $rs->fields['query'];
-			$object->created = $rs->fields['created'];
-			$object->source = $rs->fields['source'];
-			$object->no_match = $rs->fields['no_match'];
+			$object->id = $row['id'];
+			$object->query = $row['query'];
+			$object->created = $row['created'];
+			$object->source = $row['source'];
+			$object->no_match = $row['no_match'];
 			$objects[$object->id] = $object;
-			$rs->MoveNext();
 		}
+		
+		mysql_free_result($rs);
 		
 		return $objects;
 	}
@@ -359,7 +359,7 @@ class DAO_FnrTopic extends DevblocksORMHelper {
 			self::_TABLE,
 			$id
 		);
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 
 		self::update($id, $fields);
 		
@@ -392,7 +392,7 @@ class DAO_FnrTopic extends DevblocksORMHelper {
 			" ORDER BY name ",
 			self::_TABLE
 		);
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 
 		return self::_createObjectsFromResultSet($rs);
 	}
@@ -406,17 +406,17 @@ class DAO_FnrTopic extends DevblocksORMHelper {
 		return null;
 	}
 	
-	public static function _createObjectsFromResultSet(ADORecordSet $rs) {
+	public static function _createObjectsFromResultSet($rs) {
 		$objects = array();
 		
-		if(is_a($rs,'ADORecordSet'))
-		while(!$rs->EOF) {
+		while($row = mysql_fetch_assoc($rs)) {
 			$object = new Model_FnrTopic();
-			$object->id = intval($rs->fields['id']);
-			$object->name = $rs->fields['name'];
+			$object->id = intval($row['id']);
+			$object->name = $row['name'];
 			$objects[$object->id] = $object;
-			$rs->MoveNext();
 		}
+		
+		mysql_free_result($rs);
 		
 		return $objects;
 	}
@@ -439,7 +439,7 @@ class DAO_FnrExternalResource extends DevblocksORMHelper {
 			self::_TABLE,
 			$id
 		);
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 
 		self::update($id, $fields);
 		
@@ -458,7 +458,7 @@ class DAO_FnrExternalResource extends DevblocksORMHelper {
 			self::_TABLE,
 			implode(',', $ids)
 		);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 	}
 	
 	public function getWhere($where=null) {
@@ -470,7 +470,7 @@ class DAO_FnrExternalResource extends DevblocksORMHelper {
 			" ORDER BY name ",
 			self::_TABLE
 		);
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 
 		return self::_createObjectsFromResultSet($rs);
 	}
@@ -484,19 +484,19 @@ class DAO_FnrExternalResource extends DevblocksORMHelper {
 		return null;
 	}
 	
-	public static function _createObjectsFromResultSet(ADORecordSet $rs) {
+	public static function _createObjectsFromResultSet($rs) {
 		$objects = array();
 		
-		if(is_a($rs,'ADORecordSet'))
-		while(!$rs->EOF) {
+		while($row = mysql_fetch_assoc($rs)) {
 			$object = new Model_FnrTopic();
-			$object->id = intval($rs->fields['id']);
-			$object->name = $rs->fields['name'];
-			$object->topic_id = intval($rs->fields['topic_id']);
-			$object->url = $rs->fields['url'];
+			$object->id = intval($row['id']);
+			$object->name = $row['name'];
+			$object->topic_id = intval($row['topic_id']);
+			$object->url = $row['url'];
 			$objects[$object->id] = $object;
-			$rs->MoveNext();
 		}
+		
+		mysql_free_result($rs);
 		
 		return $objects;
 	}

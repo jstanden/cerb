@@ -110,25 +110,25 @@ class DAO_FeedbackEntry extends C4_ORMHelper {
 	}
 	
 	/**
-	 * @param ADORecordSet $rs
+	 * @param resource $rs
 	 * @return Model_FeedbackEntry[]
 	 */
 	static private function _getObjectsFromResult($rs) {
 		$objects = array();
 		
-		if(is_a($rs,'ADORecordSet'))
-		while(!$rs->EOF) {
+		while($row = mysql_fetch_assoc($rs)) {
 			$object = new Model_FeedbackEntry();
-			$object->id = $rs->fields['id'];
-			$object->log_date = $rs->fields['log_date'];
-			$object->worker_id = $rs->fields['worker_id'];
-			$object->quote_text = $rs->fields['quote_text'];
-			$object->quote_mood = $rs->fields['quote_mood'];
-			$object->quote_address_id = $rs->fields['quote_address_id'];
-			$object->source_url = $rs->fields['source_url'];
+			$object->id = $row['id'];
+			$object->log_date = $row['log_date'];
+			$object->worker_id = $row['worker_id'];
+			$object->quote_text = $row['quote_text'];
+			$object->quote_mood = $row['quote_mood'];
+			$object->quote_address_id = $row['quote_address_id'];
+			$object->source_url = $row['source_url'];
 			$objects[$object->id] = $object;
-			$rs->MoveNext();
 		}
+		
+		mysql_free_result($rs);
 		
 		return $objects;
 	}
@@ -223,19 +223,17 @@ class DAO_FeedbackEntry extends C4_ORMHelper {
 			($has_multiple_values ? 'GROUP BY f.id ' : '').
 			$sort_sql;
 		
-		$rs = $db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$rs = $db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 		
 		$results = array();
 		
-		if(is_a($rs,'ADORecordSet'))
-		while(!$rs->EOF) {
+		while($row = mysql_fetch_assoc($rs)) {
 			$result = array();
-			foreach($rs->fields as $f => $v) {
+			foreach($row as $f => $v) {
 				$result[$f] = $v;
 			}
-			$id = intval($rs->fields[SearchFields_FeedbackEntry::ID]);
+			$id = intval($row[SearchFields_FeedbackEntry::ID]);
 			$results[$id] = $result;
-			$rs->MoveNext();
 		}
 
 		// [JAS]: Count all
@@ -247,6 +245,8 @@ class DAO_FeedbackEntry extends C4_ORMHelper {
 				$where_sql;
 			$total = $db->GetOne($count_sql);
 		}
+		
+		mysql_free_result($rs);
 		
 		return array($results,$total);
     }
@@ -285,15 +285,15 @@ class SearchFields_FeedbackEntry {
 	static function getFields() {
 		$translate = DevblocksPlatform::getTranslationService();
 		$columns = array(
-			self::ID => new DevblocksSearchField(self::ID, 'f', 'id', null, $translate->_('feedback_entry.id')),
-			self::LOG_DATE => new DevblocksSearchField(self::LOG_DATE, 'f', 'log_date', null, $translate->_('feedback_entry.log_date')),
-			self::WORKER_ID => new DevblocksSearchField(self::WORKER_ID, 'f', 'worker_id', null, $translate->_('feedback_entry.worker_id')),
-			self::QUOTE_TEXT => new DevblocksSearchField(self::QUOTE_TEXT, 'f', 'quote_text', null, $translate->_('feedback_entry.quote_text')),
-			self::QUOTE_MOOD => new DevblocksSearchField(self::QUOTE_MOOD, 'f', 'quote_mood', null, $translate->_('feedback_entry.quote_mood')),
-			self::QUOTE_ADDRESS_ID => new DevblocksSearchField(self::QUOTE_ADDRESS_ID, 'f', 'quote_address_id', null, null),
-			self::SOURCE_URL => new DevblocksSearchField(self::SOURCE_URL, 'f', 'source_url', null, $translate->_('feedback_entry.source_url')),
+			self::ID => new DevblocksSearchField(self::ID, 'f', 'id', $translate->_('feedback_entry.id')),
+			self::LOG_DATE => new DevblocksSearchField(self::LOG_DATE, 'f', 'log_date', $translate->_('feedback_entry.log_date')),
+			self::WORKER_ID => new DevblocksSearchField(self::WORKER_ID, 'f', 'worker_id', $translate->_('feedback_entry.worker_id')),
+			self::QUOTE_TEXT => new DevblocksSearchField(self::QUOTE_TEXT, 'f', 'quote_text', $translate->_('feedback_entry.quote_text')),
+			self::QUOTE_MOOD => new DevblocksSearchField(self::QUOTE_MOOD, 'f', 'quote_mood', $translate->_('feedback_entry.quote_mood')),
+			self::QUOTE_ADDRESS_ID => new DevblocksSearchField(self::QUOTE_ADDRESS_ID, 'f', 'quote_address_id'),
+			self::SOURCE_URL => new DevblocksSearchField(self::SOURCE_URL, 'f', 'source_url', $translate->_('feedback_entry.source_url')),
 			
-			self::ADDRESS_EMAIL => new DevblocksSearchField(self::ADDRESS_EMAIL, 'a', 'email', null, $translate->_('feedback_entry.quote_address')),
+			self::ADDRESS_EMAIL => new DevblocksSearchField(self::ADDRESS_EMAIL, 'a', 'email', $translate->_('feedback_entry.quote_address')),
 		);
 		
 		// Custom Fields
@@ -301,7 +301,7 @@ class SearchFields_FeedbackEntry {
 		if(is_array($fields))
 		foreach($fields as $field_id => $field) {
 			$key = 'cf_'.$field_id;
-			$columns[$key] = new DevblocksSearchField($key,$key,'field_value',null,$field->name);
+			$columns[$key] = new DevblocksSearchField($key,$key,'field_value',$field->name);
 		}
 		
 		// Sort by label (translation-conscious)

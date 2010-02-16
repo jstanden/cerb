@@ -1,9 +1,6 @@
 <?php
 $db = DevblocksPlatform::getDatabaseService();
-$datadict = NewDataDictionary($db); /* @var $datadict ADODB_DataDict */ // ,'mysql' 
-
-$tables = $datadict->MetaTables();
-$tables = array_flip($tables);
+$tables = $db->metaTables();
 
 // ===========================================================================
 // Migrate 'community' to a custom field on portals
@@ -14,10 +11,11 @@ if(isset($tables['community'])) {
 	$rs = $db->Execute($sql);
 	
 	// all communities
-	while(!$rs->EOF) {
-		$communities[$rs->Fields('id')] = $rs->Fields('name');
-		$rs->MoveNext();
+	while($row = mysql_fetch_assoc($rs)) {
+		$communities[$row['id']] = $row['name'];
 	}
+	
+	mysql_free_result($rs);
 
 	// alphabetize community list
 	asort($communities);
@@ -38,9 +36,9 @@ if(isset($tables['community'])) {
 		$sql = "SELECT id, community_id FROM community_tool";
 		$rs = $db->Execute($sql);
 		
-		while(!$rs->EOF) {
-			$id = $rs->Fields('id');
-			$community_id = $rs->Fields('community_id');
+		while($row = mysql_fetch_assoc($rs)) {
+			$id = $row['id'];
+			$community_id = $row['community_id'];
 			
 			if(isset($communities[$community_id])) {
 				// Populate the custom field from org records
@@ -53,25 +51,22 @@ if(isset($tables['community'])) {
 				);
 				$db->Execute($sql);
 			}
-			
-			$rs->MoveNext();
 		}
+		
+		mysql_free_result($rs);
 	}
 	
 	// Drop 'community' table
-	$sql = $datadict->DropTableSQL('community');
-	$datadict->ExecuteSQLArray($sql);
+	$db->Execute('DROP TABLE community');
 }
 
 // ===========================================================================
 // Drop 'community_id' on portals (migrated to a custom field above)
 
-$columns = $datadict->MetaColumns('community_tool');
-$indexes = $datadict->MetaIndexes('community_tool',false);
+list($columns, $indexes) = $db->metaTable('community_tool');
 
-if(isset($columns['COMMUNITY_ID'])) {
-	$sql = $datadict->DropColumnSQL('community_tool', 'community_id');
-	$datadict->ExecuteSQLArray($sql);
+if(isset($columns['community_id'])) {
+	$db->Execute('ALTER TABLE community_tool DROP COLUMN community_id');
 }
 
 // ===========================================================================
@@ -82,10 +77,10 @@ $rs = $db->Execute($sql);
 
 $portals = array();
 
-while(!$rs->EOF) {
-	$code = $rs->Fields('tool_code');
-	$key = $rs->Fields('property_key');
-	$value = $rs->Fields('property_value');
+while($row = mysql_fetch_assoc($rs)) {
+	$code = $row['tool_code'];
+	$key = $row['property_key'];
+	$value = $row['property_value'];
 	
 	if(!isset($portals[$code]))
 		$portals[$code] = array();
@@ -100,9 +95,9 @@ while(!$rs->EOF) {
 		default:
 			break;
 	}
-	
-	$rs->MoveNext();
 }
+
+mysql_free_result($rs);
 
 if(!empty($portals))
 foreach($portals as $portal_code => $props) {

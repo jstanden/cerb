@@ -162,12 +162,6 @@ if(!is_writeable(APP_STORAGE_PATH . "/mail/fail/")) {
 	die(APP_STORAGE_PATH . "/mail/fail/ is not writeable by the webserver.  Please adjust permissions and reload this page.");
 }
 
-//require_once(DEVBLOCKS_PATH . 'libs/Zend.php');
-//require_once(DEVBLOCKS_PATH . 'libs/Zend/Config.php');
-
-// [JAS]: Email Validator
-//require_once 'Zend/Validate/EmailAddress.php';
-
 // [TODO] Move this to the framework init (installer blocks this at the moment)
 DevblocksPlatform::setLocale('en_US');
 
@@ -344,7 +338,7 @@ switch($step) {
 		@$db_pass = DevblocksPlatform::importGPC($_POST['db_pass'],'string');
 
 		@$db = DevblocksPlatform::getDatabaseService();
-		if(!is_null($db) && @$db->IsConnected()) {
+		if(!is_null($db) && @$db->isConnected()) {
 			// If we've been to this step, skip past framework.config.php
 			$tpl->assign('step', STEP_INIT_DB);
 			$tpl->display('steps/redirect.tpl');
@@ -364,11 +358,8 @@ switch($step) {
 		
 		if(!empty($db_driver) && !empty($db_server) && !empty($db_name) && !empty($db_user)) {
 			// Test the given settings, bypass platform initially
-			include_once(DEVBLOCKS_PATH . "libs/adodb5/adodb.inc.php");
-			$ADODB_CACHE_DIR = APP_TEMP_PATH . "/cache";
-			@$db =& ADONewConnection($db_driver);
-			@$db->Connect($db_server, $db_user, $db_pass, $db_name);
-
+			$db_passed = $db->Connect($db_server, $db_user, $db_pass, $db_name, $persistent);
+			
 			$tpl->assign('db_driver', $db_driver);
 			$tpl->assign('db_server', $db_server);
 			$tpl->assign('db_name', $db_name);
@@ -376,7 +367,7 @@ switch($step) {
 			$tpl->assign('db_pass', $db_pass);
 			
 			// If passed, write config file and continue
-			if(!is_null($db) && $db->IsConnected()) {
+			if($db_passed) {
 				$info = $db->GetRow("SHOW VARIABLES LIKE 'character_set_database'");
 				
 				$encoding = (0==strcasecmp($info[1],'utf8')) ? 'utf8' : 'latin1';

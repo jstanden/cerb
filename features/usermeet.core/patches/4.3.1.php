@@ -1,9 +1,6 @@
 <?php
 $db = DevblocksPlatform::getDatabaseService();
-$datadict = NewDataDictionary($db); /* @var $datadict ADODB_DataDict */ // ,'mysql' 
-
-$tables = $datadict->MetaTables();
-$tables = array_flip($tables);
+$tables = $db->metaTables();
 
 // ===========================================================================
 // Convert the SC login handler format
@@ -11,9 +8,9 @@ $tables = array_flip($tables);
 $sql = "SELECT tool_code, property_value FROM community_tool_property WHERE property_key = 'common.allow_logins'";
 $rs = $db->Execute($sql);
 
-while(!$rs->EOF) {
-	$tool_code = $rs->Fields('tool_code');
-	$property_value = $rs->Fields('property_value');
+while($row = mysql_fetch_assoc($rs)) {
+	$tool_code = $row['tool_code'];
+	$property_value = $row['property_value'];
 	
 	$login_handler = (0 == @intval($property_value)) ? '' : 'sc.login.auth.default';
 	
@@ -31,8 +28,8 @@ while(!$rs->EOF) {
 		$db->qstr($tool_code),
 		$db->qstr('common.allow_logins')
 	));
-	
-	$rs->MoveNext();
 }
+
+mysql_free_result($rs);
 
 return TRUE;

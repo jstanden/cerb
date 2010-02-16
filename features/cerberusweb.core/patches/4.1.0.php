@@ -1,101 +1,40 @@
 <?php
-/***********************************************************************
-| Cerberus Helpdesk(tm) developed by WebGroup Media, LLC.
-|-----------------------------------------------------------------------
-| All source code & content (c) Copyright 2007, WebGroup Media LLC
-|   unless specifically noted otherwise.
-|
-| This source code is released under the Cerberus Public License.
-| The latest version of this license can be found here:
-| http://www.cerberusweb.com/license.php
-|
-| By using this software, you acknowledge having read this license
-| and agree to be bound thereby.
-| ______________________________________________________________________
-|	http://www.cerberusweb.com	  http://www.webgroupmedia.com/
-***********************************************************************/
-/*
- * IMPORTANT LICENSING NOTE from your friends on the Cerberus Helpdesk Team
- * 
- * Sure, it would be so easy to just cheat and edit this file to use the 
- * software without paying for it.  But we trust you anyway.  In fact, we're 
- * writing this software for you! 
- * 
- * Quality software backed by a dedicated team takes money to develop.  We 
- * don't want to be out of the office bagging groceries when you call up 
- * needing a helping hand.  We'd rather spend our free time coding your 
- * feature requests than mowing the neighbors' lawns for rent money. 
- * 
- * We've never believed in encoding our source code out of paranoia over not 
- * getting paid.  We want you to have the full source code and be able to 
- * make the tweaks your organization requires to get more done -- despite 
- * having less of everything than you might need (time, people, money, 
- * energy).  We shouldn't be your bottleneck.
- * 
- * We've been building our expertise with this project since January 2002.  We 
- * promise spending a couple bucks [Euro, Yuan, Rupees, Galactic Credits] to 
- * let us take over your shared e-mail headache is a worthwhile investment.  
- * It will give you a sense of control over your in-box that you probably 
- * haven't had since spammers found you in a game of "E-mail Address 
- * Battleship".  Miss. Miss. You sunk my in-box!
- * 
- * A legitimate license entitles you to support, access to the developer 
- * mailing list, the ability to participate in betas and the warm fuzzy 
- * feeling of feeding a couple obsessed developers who want to help you get 
- * more done than 'the other guy'.
- *
- * - Jeff Standen, Mike Fogg, Brenan Cavish, Darren Sugita, Dan Hildebrandt
- * 		and Joe Geck.
- *   WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
- */
 $db = DevblocksPlatform::getDatabaseService();
-$datadict = NewDataDictionary($db,'mysql'); /* @var $datadict ADODB2_mysql */ // ,'mysql' 
-
-$tables = $datadict->MetaTables();
-$tables = array_flip($tables);
+$tables = $db->metaTables();
 
 // Drop the Service Level fields on address
-$columns = $datadict->MetaColumns('address');
-$indexes = $datadict->MetaIndexes('address',false);
+list($columns, $indexes) = $db->metaTable('address');
 
-if(isset($columns['SLA_ID'])) {
-	$sql = $datadict->DropColumnSQL('address','sla_id');
-	$datadict->ExecuteSQLArray($sql);
+if(isset($columns['sla_id'])) {
+	$db->Execute("ALTER TABLE address DROP COLUMN sla_id");
 }
 
-if(isset($columns['SLA_EXPIRES'])) {
-	$sql = $datadict->DropColumnSQL('address','sla_expires');
-	$datadict->ExecuteSQLArray($sql);
+if(isset($columns['sla_expires'])) {
+	$db->Execute("ALTER TABLE address DROP COLUMN sla_expires");
 }
 
 // Drop the Service Level expires field on contact_org (later sla_id is migrated and dropped)
-$columns = $datadict->MetaColumns('contact_org');
-$indexes = $datadict->MetaIndexes('contact_org',false);
+list($columns, $indexes) = $db->metaTable('contact_org');
 
-if(isset($columns['SLA_EXPIRES'])) {
-	$sql = $datadict->DropColumnSQL('contact_org','sla_expires');
-	$datadict->ExecuteSQLArray($sql);
+if(isset($columns['sla_expires'])) {
+	$db->Execute("ALTER TABLE contact_org DROP COLUMN sla_expires");
 }
 
 // Drop the Service Level fields on tickets
-$columns = $datadict->MetaColumns('ticket');
-$indexes = $datadict->MetaIndexes('ticket',false);
+list($columns, $indexes) = $db->metaTable('ticket');
 
-if(isset($columns['SLA_ID'])) {
-	$sql = $datadict->DropColumnSQL('ticket','sla_id');
-	$datadict->ExecuteSQLArray($sql);
+if(isset($columns['sla_id'])) {
+	$db->Execute("ALTER TABLE ticket DROP COLUMN sla_id");
 }
 
-if(isset($columns['SLA_PRIORITY'])) {
-	$sql = $datadict->DropColumnSQL('ticket','sla_priority');
-	$datadict->ExecuteSQLArray($sql);
+if(isset($columns['sla_priority'])) {
+	$db->Execute("ALTER TABLE ticket DROP COLUMN sla_priority");
 }
 
 // Migrate contact_org.sla_id to a custom field dropdown
-$columns = $datadict->MetaColumns('contact_org');
-$indexes = $datadict->MetaIndexes('contact_org',false);
+list($columns, $indexes) = $db->metaTable('contact_org');
 
-if(isset($columns['SLA_ID'])) {
+if(isset($columns['sla_id'])) {
 	$sql = "SELECT count(id) FROM contact_org WHERE sla_id != ''";
 	$count = $db->GetOne($sql);
 	
@@ -105,10 +44,11 @@ if(isset($columns['SLA_ID'])) {
 		$sql = "SELECT id, name FROM sla ORDER BY name";
 		$rs = $db->Execute($sql);
 		
-		while(!$rs->EOF) {
-			$slas[$rs->fields['id']] = $rs->fields['name'];
-			$rs->MoveNext();
+		while($row = mysql_fetch_assoc($rs)) {
+			$slas[$row['id']] = $row['name'];
 		}
+		
+		mysql_free_result($rs);
 	}
 	
 	if(!empty($count) && !empty($slas)) { // Move to a custom field before dropping
@@ -132,14 +72,12 @@ if(isset($columns['SLA_ID'])) {
 	}
 	
 	// Drop the account number hardcoded column
-	$sql = $datadict->DropColumnSQL('contact_org','sla_id');
-	$datadict->ExecuteSQLArray($sql);
+	$db->Execute("ALTER TABLE contact_org DROP COLUMN sla_id");
 }
 
 // Drop the SLA table
 if(isset($tables['sla'])) {
-	$sql = $datadict->DropTableSQL('sla');
-	$datadict->ExecuteSQLArray($sql);
+	$db->Execute('DROP TABLE sla');
 }
 
 // Migrate custom field values to data-type dependent tables
@@ -147,14 +85,16 @@ if(isset($tables['custom_field_value'])) {
 	
 	// Custom field number values: (C) Checkbox, (E) Date
 	if(!isset($tables['custom_field_numbervalue'])) {
-	    $flds = "
-			field_id I4 DEFAULT 0 NOTNULL PRIMARY,
-			source_id I4 DEFAULT 0 NOTNULL PRIMARY,
-			field_value I4 DEFAULT 0 NOTNULL,
-			source_extension C(255) DEFAULT '' NOTNULL
+		$sql = "
+			CREATE TABLE IF NOT EXISTS custom_field_numbervalue (
+				field_id INT UNSIGNED DEFAULT 0 NOT NULL,
+				source_id INT UNSIGNED DEFAULT 0 NOT NULL,
+				field_value INT UNSIGNED DEFAULT 0 NOT NULL,
+				source_extension VARCHAR(255) DEFAULT '' NOT NULL,
+				PRIMARY KEY (field_id, source_id)
+			) ENGINE=MyISAM;
 		";
-	    $sql = $datadict->CreateTableSQL('custom_field_numbervalue',$flds);
-	    $res = $datadict->ExecuteSQLArray($sql);
+		$res = $db->Execute($sql);	
 		
 	    if($res) {
 	    	$tables['custom_field_numbervalue'] = true;
@@ -173,14 +113,16 @@ if(isset($tables['custom_field_value'])) {
 
 	// Custom field string values: (S) Single, (D) Dropdown
 	if(!isset($tables['custom_field_stringvalue'])) {
-	    $flds = "
-			field_id I4 DEFAULT 0 NOTNULL PRIMARY,
-			source_id I4 DEFAULT 0 NOTNULL PRIMARY,
-			field_value C(255) DEFAULT '' NOTNULL,
-			source_extension C(255) DEFAULT '' NOTNULL
+		$sql = "
+			CREATE TABLE IF NOT EXISTS custom_field_stringvalue (
+				field_id INT UNSIGNED DEFAULT 0 NOT NULL,
+				source_id INT UNSIGNED DEFAULT 0 NOT NULL,
+				field_value VARCHAR(255) DEFAULT '' NOT NULL,
+				source_extension VARCHAR(255) DEFAULT '' NOT NULL,
+				PRIMARY KEY (field_id, source_id)
+			) ENGINE=MyISAM;
 		";
-	    $sql = $datadict->CreateTableSQL('custom_field_stringvalue',$flds);
-	    $res = $datadict->ExecuteSQLArray($sql);
+		$res = $db->Execute($sql);	
 		
 	    if($res) {
 	    	$tables['custom_field_stringvalue'] = true;
@@ -199,14 +141,16 @@ if(isset($tables['custom_field_value'])) {
 
 	// Custom field text/clob values: (T) Multi-line
 	if(!isset($tables['custom_field_clobvalue'])) {
-	    $flds = "
-			field_id I4 DEFAULT 0 NOTNULL PRIMARY,
-			source_id I4 DEFAULT 0 NOTNULL PRIMARY,
-			field_value XL,
-			source_extension C(255) DEFAULT '' NOTNULL
+		$sql = "
+			CREATE TABLE IF NOT EXISTS custom_field_clobvalue (
+				field_id INT UNSIGNED DEFAULT 0 NOT NULL,
+				source_id INT UNSIGNED DEFAULT 0 NOT NULL,
+				field_value MEDIUMTEXT,
+				source_extension VARCHAR(255) DEFAULT '' NOT NULL,
+				PRIMARY KEY (field_id, source_id)
+			) ENGINE=MyISAM;
 		";
-	    $sql = $datadict->CreateTableSQL('custom_field_clobvalue',$flds);
-	    $res = $datadict->ExecuteSQLArray($sql);
+		$res = $db->Execute($sql);	
 		
 	    if($res) {
 	    	$tables['custom_field_clobvalue'] = true;
@@ -225,125 +169,100 @@ if(isset($tables['custom_field_value'])) {
 	
 	// If we passed all that, delete the original custom_field_value table
 	if(isset($tables['custom_field_value'])) {
-		$sql = $datadict->DropTableSQL('custom_field_value');
-		$datadict->ExecuteSQLArray($sql);
+		$db->Execute('DROP TABLE custom_field_value');
 	}
 }
 
 // Add a merge table to track when older ticket masks should point to a new ticket
 if(!isset($tables['ticket_mask_forward'])) {
-	$flds ="
-		old_mask C(32) DEFAULT '' NOTNULL PRIMARY,
-		new_mask C(32) DEFAULT '' NOTNULL,
-		new_ticket_id I4 DEFAULT 0 NOTNULL
+	$sql = "
+		CREATE TABLE IF NOT EXISTS ticket_mask_forward (
+			old_mask VARCHAR(32) DEFAULT '' NOT NULL,
+			new_mask VARCHAR(32) DEFAULT '' NOT NULL,
+			new_ticket_id INT UNSIGNED DEFAULT 0 NOT NULL,
+			PRIMARY KEY (old_mask)
+		) ENGINE=MyISAM;
 	";
-	$sql = $datadict->CreateTableSQL('ticket_mask_forward', $flds);
-	$datadict->ExecuteSQLArray($sql);
+	$db->Execute($sql);	
 }
 
-$columns = $datadict->MetaColumns('ticket_mask_forward');
-$indexes = $datadict->MetaIndexes('ticket_mask_forward',false);
+list($columns, $indexes) = $db->metaTable('ticket_mask_forward');
 
 if(!isset($indexes['new_ticket_id'])) {
-	$sql = $datadict->CreateIndexSQL('new_ticket_id','ticket_mask_forward','new_ticket_id');
-	$datadict->ExecuteSQLArray($sql);
+	$db->Execute('ALTER TABLE ticket_mask_forward ADD INDEX new_ticket_id (new_ticket_id)');
 }
 
 // Drop primary compound key on custom_field_stringvalue so we can have multi-select dropdowns
 
-$columns = $datadict->MetaColumns('custom_field_stringvalue');
-$indexes = $datadict->MetaIndexes('custom_field_stringvalue',false);
+list($columns, $indexes) = $db->metaTable('custom_field_stringvalue');
 
 // Drop compound primary key
-if(isset($columns['FIELD_ID']) && isset($columns['SOURCE_ID'])
-	&& $columns['FIELD_ID']->primary_key && $columns['SOURCE_ID']->primary_key) {
-		$sql = array("ALTER TABLE custom_field_stringvalue DROP PRIMARY KEY");
-		$datadict->ExecuteSQLArray($sql);
+if(isset($columns['field_id']) && isset($columns['source_id'])
+	&& 'PRI'==$columns['field_id']['key'] && 'PRI'==$columns['source_id']['key']) {
+		$db->Execute("ALTER TABLE custom_field_stringvalue DROP PRIMARY KEY");
 }
 
 if(!isset($indexes['field_id'])) {
-	$sql = $datadict->CreateIndexSQL('field_id','custom_field_stringvalue','field_id');
-	$datadict->ExecuteSQLArray($sql);
+	$db->Execute('ALTER TABLE custom_field_stringvalue ADD INDEX field_id (field_id)');
 }
 
 if(!isset($indexes['source_id'])) {
-	$sql = $datadict->CreateIndexSQL('source_id','custom_field_stringvalue','source_id');
-	$datadict->ExecuteSQLArray($sql);
+	$db->Execute('ALTER TABLE custom_field_stringvalue ADD INDEX source_id (source_id)');
 }
 
 // Drop primary compound key on custom_field_numbervalue so we can have multi-select checkboxes
 
-$columns = $datadict->MetaColumns('custom_field_numbervalue');
-$indexes = $datadict->MetaIndexes('custom_field_numbervalue',false);
+list($columns, $indexes) = $db->metaTable('custom_field_numbervalue');
 
 // Drop compound primary key
-if(isset($columns['FIELD_ID']) && isset($columns['SOURCE_ID'])
-	&& $columns['FIELD_ID']->primary_key && $columns['SOURCE_ID']->primary_key) {
-		$sql = array("ALTER TABLE custom_field_numbervalue DROP PRIMARY KEY");
-		$datadict->ExecuteSQLArray($sql);
+if(isset($columns['field_id']) && isset($columns['source_id'])
+	&& 'PRI'==$columns['field_id']['key'] && 'PRI'==$columns['source_id']['key']) {
+		$db->Execute("ALTER TABLE custom_field_numbervalue DROP PRIMARY KEY");
 }
 
 if(!isset($indexes['field_id'])) {
-	$sql = $datadict->CreateIndexSQL('field_id','custom_field_numbervalue','field_id');
-	$datadict->ExecuteSQLArray($sql);
+	$db->Execute('ALTER TABLE custom_field_numbervalue ADD INDEX field_id (field_id)');
 }
 
 if(!isset($indexes['source_id'])) {
-	$sql = $datadict->CreateIndexSQL('source_id','custom_field_numbervalue','source_id');
-	$datadict->ExecuteSQLArray($sql);
+	$db->Execute('ALTER TABLE custom_field_numbervalue ADD INDEX source_id (source_id)');
 }
 
 // Drop primary compound key on custom_field_clobvalue
 
-$columns = $datadict->MetaColumns('custom_field_clobvalue');
-$indexes = $datadict->MetaIndexes('custom_field_clobvalue',false);
+list($columns, $indexes) = $db->metaTable('custom_field_clobvalue');
 
 // Drop compound primary key
-if(isset($columns['FIELD_ID']) && isset($columns['SOURCE_ID'])
-	&& $columns['FIELD_ID']->primary_key && $columns['SOURCE_ID']->primary_key) {
-		$sql = array("ALTER TABLE custom_field_clobvalue DROP PRIMARY KEY");
-		$datadict->ExecuteSQLArray($sql);
+if(isset($columns['field_id']) && isset($columns['source_id'])
+	&& 'PRI'==$columns['field_id']['key'] && 'PRI'==$columns['source_id']['key']) {
+		$db->Execute("ALTER TABLE custom_field_clobvalue DROP PRIMARY KEY");
 }
 
 if(!isset($indexes['field_id'])) {
-	$sql = $datadict->CreateIndexSQL('field_id','custom_field_clobvalue','field_id');
-	$datadict->ExecuteSQLArray($sql);
+	$db->Execute('ALTER TABLE custom_field_clobvalue ADD INDEX field_id (field_id)');
 }
 
 if(!isset($indexes['source_id'])) {
-	$sql = $datadict->CreateIndexSQL('source_id','custom_field_clobvalue','source_id');
-	$datadict->ExecuteSQLArray($sql);
+	$db->Execute('ALTER TABLE custom_field_clobvalue ADD INDEX source_id (source_id)');
 }
 
 // Phase out bucket 'response_hrs'
-$columns = $datadict->MetaColumns('category');
-$indexes = $datadict->MetaIndexes('category',false);
+list($columns, $indexes) = $db->metaTable('category');
 
-if(isset($columns['RESPONSE_HRS'])) {
-	$sql = $datadict->DropColumnSQL('category','response_hrs');
-    $datadict->ExecuteSQLArray($sql);
+if(isset($columns['response_hrs'])) {
+	$db->Execute("ALTER TABLE category DROP COLUMN response_hrs");
 }
 
-// Add bucket 'is_assignable' for new group workflow
-$columns = $datadict->MetaColumns('category');
-$indexes = $datadict->MetaIndexes('category',false);
-
-if(!isset($columns['IS_ASSIGNABLE'])) {
-	$sql = $datadict->AddColumnSQL('category','is_assignable I1 DEFAULT 0 NOTNULL');
-    $datadict->ExecuteSQLArray($sql);
+if(!isset($columns['is_assignable'])) {
+	$db->Execute('ALTER TABLE category ADD COLUMN is_assignable TINYINT(1) UNSIGNED DEFAULT 0 NOT NULL');
     
     // Set default to make everything assignable (like pre 4.1).  Managers can tweak.
     $sql = "UPDATE category SET is_assignable=1";
     $db->Execute($sql);
 }
 
-// Add bucket 'pos' for ordering buckets by importance
-$columns = $datadict->MetaColumns('category');
-$indexes = $datadict->MetaIndexes('category',false);
-
-if(!isset($columns['POS'])) {
-	$sql = $datadict->AddColumnSQL('category','pos I1 DEFAULT 0 NOTNULL');
-    $datadict->ExecuteSQLArray($sql);
+if(!isset($columns['pos'])) {
+	$db->Execute('ALTER TABLE category ADD COLUMN pos TINYINT(1) UNSIGNED DEFAULT 0 NOT NULL');
 }
 
 // Drop some deprecated worker_pref keys
@@ -393,45 +312,43 @@ if(isset($tables['team_routing_rule']) && !isset($tables['group_inbox_filter']))
 	$tables['group_inbox_filter'] = true;
 }
 
-$columns = $datadict->MetaColumns('group_inbox_filter');
+list($columns, $indexes) = $db->metaTable('group_inbox_filter');
 
-if(isset($columns['TEAM_ID']) && !isset($columns['GROUP_ID'])) {
-	$datadict->ExecuteSQLArray($datadict->RenameColumnSQL('group_inbox_filter', 'team_id', 'group_id',"group_id I4 DEFAULT 0 NOTNULL"));
+if(isset($columns['team_id']) && !isset($columns['group_id'])) {
+	$db->Execute('ALTER TABLE group_inbox_filter CHANGE COLUMN team_id group_id INT UNSIGNED DEFAULT 0 NOT NULL');
 }
 
-$columns = $datadict->MetaColumns('group_inbox_filter');
-
 // Add a field for serializing action values, so we can include custom fields
-if(!isset($columns['ACTIONS_SER'])) {
-	$sql = $datadict->AddColumnSQL('group_inbox_filter','actions_ser XL');
-    $datadict->ExecuteSQLArray($sql);
+if(!isset($columns['actions_ser'])) {
+	$db->Execute('ALTER TABLE group_inbox_filter ADD COLUMN actions_ser MEDIUMTEXT');
     
     // Move the hardcoded fields into the new format
-    if(isset($columns['DO_ASSIGN'])) {
+    if(isset($columns['do_assign'])) {
     	// Hash buckets
     	$buckets = array();
     	$sql = sprintf("SELECT id,name,team_id FROM category");
     	$rs = $db->Execute($sql);
-    	while(!$rs->EOF) {
-    		$buckets[intval($rs->fields['id'])] = array(
-    			'name' => $rs->fields['name'],
-    			'group_id' => intval($rs->fields['team_id'])
+    	while($row = mysql_fetch_assoc($rs)) {
+    		$buckets[intval($row['id'])] = array(
+    			'name' => $row['name'],
+    			'group_id' => intval($row['team_id'])
     		);
-    		$rs->MoveNext();
     	}
+    	
+    	mysql_free_result($rs);
     	
     	// Loop through the old style values
     	$sql = "SELECT id, do_assign, do_move, do_spam, do_status FROM group_inbox_filter";
     	$rs = $db->Execute($sql);
     	
-    	while(!$rs->EOF) {
+    	while($row = mysql_fetch_assoc($rs)) {
     		$actions = array();
     		
-    		$rule_id = intval($rs->fields['id']);
-    		$do_assign = intval($rs->fields['do_assign']);
-    		$do_move = $rs->fields['do_move'];
-    		$do_spam = $rs->fields['do_spam'];
-    		$do_status = intval($rs->fields['do_status']);
+    		$rule_id = intval($row['id']);
+    		$do_assign = intval($row['do_assign']);
+    		$do_move = $row['do_move'];
+    		$do_spam = $row['do_spam'];
+    		$do_status = intval($row['do_status']);
     		
     		if(!empty($do_assign)) // counts 0 or ''
     			$actions['assign'] = array('worker_id' => $do_assign);
@@ -458,93 +375,78 @@ if(!isset($columns['ACTIONS_SER'])) {
     			$rule_id
     		);
     		$db->Execute($sql);
-    			
-    		$rs->MoveNext();
     	}
+    	
+    	mysql_free_result($rs);
     	
     	unset($buckets);
     }
 }
 
-if(isset($columns['DO_ASSIGN'])) {
-	$sql = $datadict->DropColumnSQL('group_inbox_filter','do_assign');
-    $datadict->ExecuteSQLArray($sql);
+if(isset($columns['do_assign'])) {
+	$db->Execute("ALTER TABLE group_inbox_filter DROP COLUMN do_assign");
 }
 
-if(isset($columns['DO_MOVE'])) {
-	$sql = $datadict->DropColumnSQL('group_inbox_filter','do_move');
-    $datadict->ExecuteSQLArray($sql);
+if(isset($columns['do_move'])) {
+	$db->Execute("ALTER TABLE group_inbox_filter DROP COLUMN do_move");
 }
 
-if(isset($columns['DO_SPAM'])) {
-	$sql = $datadict->DropColumnSQL('group_inbox_filter','do_spam');
-    $datadict->ExecuteSQLArray($sql);
+if(isset($columns['do_spam'])) {
+	$db->Execute("ALTER TABLE group_inbox_filter DROP COLUMN do_spam");
 }
 
-if(isset($columns['DO_STATUS'])) {
-	$sql = $datadict->DropColumnSQL('group_inbox_filter','do_status');
-    $datadict->ExecuteSQLArray($sql);
+if(isset($columns['do_status'])) {
+	$db->Execute("ALTER TABLE group_inbox_filter DROP COLUMN do_status");
 }
 
 // ===========================================================================
 // Drop the unused dashboard, dashboard_view, and dashboard_view_action tables 
 
 if(isset($tables['dashboard'])) {
-	$sql = $datadict->DropTableSQL('dashboard');
-	$datadict->ExecuteSQLArray($sql);
+	$db->Execute('DROP TABLE dashboard');
 }
 
 if(isset($tables['dashboard_view'])) {
-	$sql = $datadict->DropTableSQL('dashboard_view');
-	$datadict->ExecuteSQLArray($sql);
+	$db->Execute('DROP TABLE dashboard_view');
 }
 
 if(isset($tables['dashboard_view_action'])) {
-	$sql = $datadict->DropTableSQL('dashboard_view_action');
-	$datadict->ExecuteSQLArray($sql);
+	$db->Execute('DROP TABLE dashboard_view_action');
 }
 
 // ===========================================================================
 // Add sticky bit to group inbox filters 
 
-$columns = $datadict->MetaColumns('group_inbox_filter');
-$indexes = $datadict->MetaIndexes('group_inbox_filter',false);
+list($columns, $indexes) = $db->metaTable('group_inbox_filter');
 
-if(!isset($columns['IS_STICKY'])) {
-    $sql = $datadict->AddColumnSQL('group_inbox_filter', 'is_sticky I1 DEFAULT 0 NOTNULL');
-    $datadict->ExecuteSQLArray($sql);
+if(!isset($columns['is_sticky'])) {
+    $db->Execute('ALTER TABLE group_inbox_filter ADD COLUMN is_sticky TINYINT(1) UNSIGNED DEFAULT 0 NOT NULL');
 }
 
-if(!isset($columns['STICKY_ORDER'])) {
-    $sql = $datadict->AddColumnSQL('group_inbox_filter', 'sticky_order I1 DEFAULT 0 NOTNULL');
-    $datadict->ExecuteSQLArray($sql);
+if(!isset($columns['sticky_order'])) {
+    $db->Execute('ALTER TABLE group_inbox_filter ADD COLUMN sticky_order TINYINT(1) UNSIGNED DEFAULT 0 NOT NULL');
 }
 
-if(!isset($columns['IS_STACKABLE'])) {
-    $sql = $datadict->AddColumnSQL('group_inbox_filter', 'is_stackable I1 DEFAULT 0 NOTNULL');
-    $datadict->ExecuteSQLArray($sql);
+if(!isset($columns['is_stackable'])) {
+    $db->Execute('ALTER TABLE group_inbox_filter ADD COLUMN is_stackable TINYINT(1) UNSIGNED DEFAULT 0 NOT NULL');
 }
 
 // ===========================================================================
 // Add extensions to workspaces so workers can combine worklist types 
 
-$columns = $datadict->MetaColumns('worker_workspace_list');
-$indexes = $datadict->MetaIndexes('worker_workspace_list',false);
+list($columns, $indexes) = $db->metaTable('worker_workspace_list');
 
-if(!isset($columns['SOURCE_EXTENSION'])) {
-    $sql = $datadict->AddColumnSQL('worker_workspace_list', "source_extension C(255) DEFAULT '' NOTNULL");
-    $datadict->ExecuteSQLArray($sql);
-    
+if(!isset($columns['source_extension'])) {
+    $db->Execute("ALTER TABLE worker_workspace_list ADD COLUMN source_extension VARCHAR(255) DEFAULT '' NOT NULL");
     $db->Execute("UPDATE worker_workspace_list SET source_extension='core.workspace.source.ticket' WHERE source_extension = ''");
 }
 
 // ===========================================================================
 // Migrate contact_org.fax to a custom field (optional field)
 if(isset($tables['contact_org'])) {
-	$columns = $datadict->MetaColumns('contact_org');
-	$indexes = $datadict->MetaIndexes('contact_org',false);
+	list($columns, $indexes) = $db->metaTable('contact_org');
 
-	if(isset($columns['FAX'])) {
+	if(isset($columns['fax'])) {
 		$sql = "SELECT count(id) FROM contact_org WHERE fax != ''";
 		$count = $db->GetOne($sql);
 	
@@ -567,18 +469,16 @@ if(isset($tables['contact_org'])) {
 			$db->Execute($sql);
 		}
 		
-		$sql = $datadict->DropColumnSQL('contact_org','fax');
-	    $datadict->ExecuteSQLArray($sql);
+		$db->Execute("ALTER TABLE contact_org DROP COLUMN fax");
 	}
 }
 
 // ===========================================================================
 // Migrate ticket.next_action to a custom field (optional field)
 if(isset($tables['ticket'])) {
-	$columns = $datadict->MetaColumns('ticket');
-	$indexes = $datadict->MetaIndexes('ticket',false);
+	list($columns, $indexes) = $db->metaTable('ticket');
 
-	if(isset($columns['NEXT_ACTION'])) {
+	if(isset($columns['next_action'])) {
 		$sql = "SELECT count(id) FROM ticket WHERE next_action != ''";
 		$count = $db->GetOne($sql);
 	
@@ -601,18 +501,16 @@ if(isset($tables['ticket'])) {
 			$db->Execute($sql);
 		}
 		
-		$sql = $datadict->DropColumnSQL('ticket','next_action');
-	    $datadict->ExecuteSQLArray($sql);
+		$db->Execute("ALTER TABLE ticket DROP COLUMN next_action");
 	}
 }
 
 // ===========================================================================
 // Migrate task.priority to a custom field (optional field)
 if(isset($tables['task'])) {
-	$columns = $datadict->MetaColumns('task');
-	$indexes = $datadict->MetaIndexes('task',false);
+	list($columns, $indexes) = $db->metaTable('task');
 
-	if(isset($columns['PRIORITY'])) {
+	if(isset($columns['priority'])) {
 		$priority_hash = array(
 			'1' => 'High', 
 			'2' => 'Normal', 
@@ -642,8 +540,7 @@ if(isset($tables['task'])) {
 			$db->Execute($sql);
 		}
 		
-		$sql = $datadict->DropColumnSQL('task','priority');
-	    $datadict->ExecuteSQLArray($sql);
+		$db->Execute("ALTER TABLE task DROP COLUMN priority");
 	}
 }
 
@@ -651,12 +548,11 @@ if(isset($tables['task'])) {
 // Change 'setting' values to X (text) rather than B (blob)
 
 if(isset($tables['setting'])) {
-	$columns = $datadict->MetaColumns('setting');
+	list($columns, $indexes) = $db->metaTable('setting');
 	
-	if(isset($columns['VALUE'])) {
-		if(0==strcasecmp('longblob',$columns['VALUE']->type)) {
-			$sql = sprintf("ALTER TABLE setting CHANGE COLUMN `value` `value` TEXT");
-			$db->Execute($sql);
+	if(isset($columns['value'])) {
+		if(0 != strcasecmp('mediumtext',$columns['value']['type'])) {
+			$db->Execute("ALTER TABLE setting CHANGE COLUMN `value` `value` MEDIUMTEXT");
 		}
 	}
 }
@@ -666,19 +562,17 @@ if(isset($tables['setting'])) {
 // it's much harder for us to use an invalid value while parsing, etc.
 
 if(isset($tables['team'])) {
-	$columns = $datadict->MetaColumns('team');
+	list($columns, $indexes) = $db->metaTable('team');
 	
-	if(!isset($columns['IS_DEFAULT'])) {
-		$sql = $datadict->AddColumnSQL('team', "is_default I1 DEFAULT 0 NOTNULL");
-    	$datadict->ExecuteSQLArray($sql);
+	if(!isset($columns['is_default'])) {
+		$db->Execute('ALTER TABLE team ADD COLUMN is_default TINYINT(1) UNSIGNED DEFAULT 0 NOT NULL');
     	
     	// Set the default group based on the old setting
 		$sql = "SELECT value FROM setting WHERE setting = 'default_team_id'";
 		$default_team_id = $db->GetOne($sql);
 		
 		if(!empty($default_team_id)) {
-			$sql = sprintf("UPDATE team SET is_default=1 WHERE id = %d", $default_team_id);
-			$db->Execute($sql);
+			$db->Execute(sprintf("UPDATE team SET is_default=1 WHERE id = %d", $default_team_id));
 		}
 		
 		$db->Execute("DELETE FROM setting WHERE setting = 'default_team_id'");
@@ -690,59 +584,57 @@ if(isset($tables['team'])) {
 
 // Roles
 if(!isset($tables['worker_role'])) {
-	$flds ="
-		id I4 DEFAULT 0 NOTNULL PRIMARY,
-		name C(128) DEFAULT '' NOTNULL
+	$sql = "
+		CREATE TABLE IF NOT EXISTS worker_role (
+			id INT UNSIGNED DEFAULT 0 NOT NULL,
+			name VARCHAR(128) DEFAULT '' NOT NULL,
+			PRIMARY KEY (id)
+		) ENGINE=MyISAM;
 	";
-	$sql = $datadict->CreateTableSQL('worker_role', $flds);
-	$datadict->ExecuteSQLArray($sql);
+	$db->Execute($sql);	
 }
 
 // n:m table for linking workers to roles
 if(!isset($tables['worker_to_role'])) {
-	$flds ="
-		worker_id I4 DEFAULT 0 NOTNULL,
-		role_id I4 DEFAULT 0 NOTNULL
+	$sql = "
+		CREATE TABLE IF NOT EXISTS worker_to_role (
+			worker_id INT UNSIGNED DEFAULT 0 NOT NULL,
+			role_id INT UNSIGNED DEFAULT 0 NOT NULL
+		) ENGINE=MyISAM;
 	";
-	$sql = $datadict->CreateTableSQL('worker_to_role', $flds);
-	$datadict->ExecuteSQLArray($sql);
+	$db->Execute($sql);	
 }
 
-$columns = $datadict->MetaColumns('worker_to_role');
-$indexes = $datadict->MetaIndexes('worker_to_role',false);
+list($columns, $indexes) = $db->metaTable('worker_to_role');
 
 if(!isset($indexes['worker_id'])) {
-	$sql = $datadict->CreateIndexSQL('worker_id','worker_to_role','worker_id');
-	$datadict->ExecuteSQLArray($sql);
+	$db->Execute('ALTER TABLE worker_to_role ADD INDEX worker_id (worker_id)');
 }
 
 if(!isset($indexes['role_id'])) {
-	$sql = $datadict->CreateIndexSQL('role_id','worker_to_role','role_id');
-	$datadict->ExecuteSQLArray($sql);
+	$db->Execute('ALTER TABLE worker_to_role ADD INDEX role_id (role_id)');
 }
 
 // n:m table for linking roles to ACL
 if(!isset($tables['worker_role_acl'])) {
-	$flds ="
-		role_id I4 DEFAULT 0 NOTNULL,
-		priv_id C(255) DEFAULT '' NOTNULL,
-		has_priv I4 DEFAULT 0 NOTNULL
+	$sql = "
+		CREATE TABLE IF NOT EXISTS worker_role_acl (
+			role_id INT UNSIGNED DEFAULT 0 NOT NULL,
+			priv_id VARCHAR(255) DEFAULT '' NOT NULL,
+			has_priv INT UNSIGNED DEFAULT 0 NOT NULL
+		) ENGINE=MyISAM;
 	";
-	$sql = $datadict->CreateTableSQL('worker_role_acl', $flds);
-	$datadict->ExecuteSQLArray($sql);
+	$db->Execute($sql);	
 }
 
-$columns = $datadict->MetaColumns('worker_role_acl');
-$indexes = $datadict->MetaIndexes('worker_role_acl',false);
+list($columns, $indexes) = $db->metaTable('worker_role_acl');
 
 if(!isset($indexes['role_id'])) {
-	$sql = $datadict->CreateIndexSQL('role_id','worker_role_acl','role_id');
-	$datadict->ExecuteSQLArray($sql);
+	$db->Execute('ALTER TABLE worker_role_acl ADD INDEX role_id (role_id)');
 }
 
 if(!isset($indexes['has_priv'])) {
-	$sql = $datadict->CreateIndexSQL('has_priv','worker_role_acl','has_priv');
-	$datadict->ExecuteSQLArray($sql);
+	$db->Execute('ALTER TABLE worker_role_acl ADD INDEX has_priv (has_priv)');
 }
 
 // ===========================================================================
@@ -759,18 +651,14 @@ $db->Execute("DELETE FROM setting WHERE setting='patch'");
 
 // ===========================================================================
 // Drop worker.can_delete and worker.can_export privilege (real ACL now)
-$columns = $datadict->MetaColumns('worker');
-$indexes = $datadict->MetaIndexes('worker',false);
+list($columns, $indexes) = $db->metaTable('worker');
 
-if(isset($columns['CAN_EXPORT'])) {
-    $sql = $datadict->DropColumnSQL('worker', 'can_export');
-    $datadict->ExecuteSQLArray($sql);
+if(isset($columns['can_export'])) {
+    $db->Execute("ALTER TABLE worker DROP COLUMN can_export");
 }
 
-if(isset($columns['CAN_DELETE'])) {
-    $sql = $datadict->DropColumnSQL('worker', 'can_delete');
-    $datadict->ExecuteSQLArray($sql);
+if(isset($columns['can_delete'])) {
+    $db->Execute("ALTER TABLE worker DROP COLUMN can_delete");
 }
 
 return TRUE;
-?>

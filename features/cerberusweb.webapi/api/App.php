@@ -193,28 +193,29 @@ class DAO_WebapiKey extends DevblocksORMHelper {
 	}
 	
 	/**
-	 * @param ADORecordSet $rs
+	 * @param resource $rs
 	 * @return Model_WebapiKey[]
 	 */
 	static private function _getObjectsFromResult($rs) {
 		$objects = array();
 		
-		if(is_a($rs,'ADORecordSet'))
-		while(!$rs->EOF) {
+		
+		while($row = mysql_fetch_assoc($rs)) {
 			$object = new Model_WebapiKey();
-			$object->id = intval($rs->fields['id']);
-			$object->nickname = $rs->fields['nickname'];
-			$object->access_key = $rs->fields['access_key'];
-			$object->secret_key = $rs->fields['secret_key'];
-			$rights = $rs->fields['rights'];
+			$object->id = intval($row['id']);
+			$object->nickname = $row['nickname'];
+			$object->access_key = $row['access_key'];
+			$object->secret_key = $row['secret_key'];
+			$rights = $row['rights'];
 			
 			if(!empty($rights)) {
 				@$object->rights = unserialize($rights);
 			}
 			
 			$objects[$object->id] = $object;
-			$rs->MoveNext();
 		}
+		
+		mysql_free_result($rs);
 		
 		return $objects;
 	}

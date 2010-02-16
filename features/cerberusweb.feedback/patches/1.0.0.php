@@ -1,66 +1,63 @@
 <?php
 $db = DevblocksPlatform::getDatabaseService();
-$datadict = NewDataDictionary($db); /* @var $datadict ADODB_DataDict */ // ,'mysql' 
-
-$tables = $datadict->MetaTables();
-$tables = array_flip($tables);
+$tables = $db->metaTables();
 
 // `feedback_entry` ========================
 if(!isset($tables['feedback_entry'])) {
-	$flds ="
-		id I4 DEFAULT 0 NOTNULL PRIMARY,
-		log_date I4 DEFAULT 0 NOTNULL,
-		list_id I4 DEFAULT 0 NOTNULL, 
-		worker_id I4 DEFAULT 0 NOTNULL, 
-		quote_text XL,
-		quote_mood I1 DEFAULT 0 NOTNULL, 
-		quote_address_id I4 DEFAULT 0 NOTNULL 
+	$sql = "
+		CREATE TABLE IF NOT EXISTS feedback_entry (
+			id INT UNSIGNED DEFAULT 0 NOT NULL,
+			log_date INT UNSIGNED DEFAULT 0 NOT NULL,
+			list_id INT UNSIGNED DEFAULT 0 NOT NULL, 
+			worker_id INT UNSIGNED DEFAULT 0 NOT NULL, 
+			quote_text TEXT,
+			quote_mood TINYINT(1) UNSIGNED DEFAULT 0 NOT NULL, 
+			quote_address_id INT UNSIGNED DEFAULT 0 NOT NULL, 
+			PRIMARY KEY (id)
+		) ENGINE=MyISAM;
 	";
+	$db->Execute($sql);
 	
-	$sql = $datadict->CreateTableSQL('feedback_entry', $flds);
-	$datadict->ExecuteSQLArray($sql);
+	$tables['feedback_entry'] = 'feedback_entry';
 }
 
-$columns = $datadict->MetaColumns('feedback_entry');
-$indexes = $datadict->MetaIndexes('feedback_entry',false);
+list($columns, $indexes) = $db->metaTable('feedback_entry');
 
-if(!isset($columns['SOURCE_URL'])) {
-	$sql = $datadict->AddColumnSQL('feedback_entry', "source_url C(255) DEFAULT '' NOTNULL");
-	$datadict->ExecuteSQLArray($sql);
+if(!isset($columns['source_url'])) {
+	$db->Execute("ALTER TABLE feedback_entry ADD COLUMN source_url VARCHAR(255) DEFAULT '' NOT NULL");
 }
 
 if(!isset($indexes['log_date'])) {
-	$sql = $datadict->CreateIndexSQL('log_date','feedback_entry','log_date');
-	$datadict->ExecuteSQLArray($sql);
+	$db->Execute('ALTER TABLE feedback_entry ADD INDEX log_date (log_date)');
 }
 if(!isset($indexes['list_id'])) {
-	$sql = $datadict->CreateIndexSQL('list_id','feedback_entry','list_id');
-	$datadict->ExecuteSQLArray($sql);
+	$db->Execute('ALTER TABLE feedback_entry ADD INDEX list_id (list_id)');
 }
 
 if(!isset($indexes['worker_id'])) {
-	$sql = $datadict->CreateIndexSQL('worker_id','feedback_entry','worker_id');
-	$datadict->ExecuteSQLArray($sql);
+	$db->Execute('ALTER TABLE feedback_entry ADD INDEX worker_id (worker_id)');
 }
 
 if(!isset($indexes['quote_address_id'])) {
-	$sql = $datadict->CreateIndexSQL('quote_address_id','feedback_entry','quote_address_id');
-	$datadict->ExecuteSQLArray($sql);
+	$db->Execute('ALTER TABLE feedback_entry ADD INDEX quote_address_id (quote_address_id)');
 }
 
 if(!isset($indexes['quote_mood'])) {
-	$sql = $datadict->CreateIndexSQL('quote_mood','feedback_entry','quote_mood');
-	$datadict->ExecuteSQLArray($sql);
+	$db->Execute('ALTER TABLE feedback_entry ADD INDEX quote_mood (quote_mood)');
 }
 
 // `feedback_list` ========================
 if(!isset($tables['feedback_list'])) {
-	$flds ="
-		id I4 DEFAULT 0 NOTNULL PRIMARY,
-		name C(255) DEFAULT '' NOTNULL
+	$sql = "
+		CREATE TABLE IF NOT EXISTS feedback_list (
+			id INT UNSIGNED DEFAULT 0 NOT NULL,
+			name VARCHAR(255) DEFAULT '' NOT NULL,
+			PRIMARY KEY (id)
+		) ENGINE=MyISAM;
 	";
-	$sql = $datadict->CreateTableSQL('feedback_list', $flds);
-	$datadict->ExecuteSQLArray($sql);
+	$db->Execute($sql);
+	
+	$tables['feedback_list'] = 'feedback_list';
 }
 
 // ===========================================================================
@@ -72,18 +69,18 @@ $db->Execute("DELETE QUICK custom_field_clobvalue FROM custom_field_clobvalue LE
 // ===========================================================================
 // Migrate the Feedback.List to a custom field
 if(isset($tables['feedback_entry'])) {
-	$columns = $datadict->MetaColumns('feedback_entry');
-	$indexes = $datadict->MetaIndexes('feedback_entry',false);
+	list($columns, $indexes) = $db->metaTable('feedback_entry');
 
-	if(isset($tables['feedback_list']) && isset($columns['LIST_ID'])) {
+	if(isset($tables['feedback_list']) && isset($columns['list_id'])) {
 		// Load the campaign hash
 		$lists = array();
 		$sql = "SELECT id, name FROM feedback_list ORDER BY name";
 		$rs = $db->Execute($sql);
-		while(!$rs->EOF) {
-			$lists[$rs->fields['id']] = $rs->fields['name'];
-			$rs->MoveNext();
+		while($row = mysql_fetch_assoc($rs)) {
+			$lists[$row['id']] = $row['name'];
 		}
+		
+		mysql_free_result($rs);
 	
 		if(!empty($lists)) { // Move to a custom field before dropping
 			// Create the new custom field
@@ -105,16 +102,13 @@ if(isset($tables['feedback_entry'])) {
 			$db->Execute($sql);
 		}
 		
-		$sql = $datadict->DropColumnSQL('feedback_entry','list_id');
-	    $datadict->ExecuteSQLArray($sql);
+		$db->Execute('ALTER TABLE feedback_entry DROP COLUMN list_id');
 	}
 }
 
 // Drop the feedback_list table
 if(isset($tables['feedback_list'])) {
-	$sql = $datadict->DropTableSQL('feedback_list');
-	$datadict->ExecuteSQLArray($sql);
+	$db->Execute('DROP TABLE feedback_list');
 }
 
 return TRUE;
-?>

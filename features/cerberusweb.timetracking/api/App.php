@@ -195,27 +195,27 @@ class DAO_TimeTrackingEntry extends C4_ORMHelper {
 	}
 	
 	/**
-	 * @param ADORecordSet $rs
+	 * @param resource $rs
 	 * @return Model_TimeTrackingEntry[]
 	 */
 	static private function _getObjectsFromResult($rs) {
 		$objects = array();
 		
-		if(is_a($rs,'ADORecordSet'))
-		while(!$rs->EOF) {
+		while($row = mysql_fetch_assoc($rs)) {
 			$object = new Model_TimeTrackingEntry();
-			$object->id = $rs->fields['id'];
-			$object->time_actual_mins = $rs->fields['time_actual_mins'];
-			$object->log_date = $rs->fields['log_date'];
-			$object->worker_id = $rs->fields['worker_id'];
-			$object->activity_id = $rs->fields['activity_id'];
-			$object->debit_org_id = $rs->fields['debit_org_id'];
-			$object->notes = $rs->fields['notes'];
-			$object->source_extension_id = $rs->fields['source_extension_id'];
-			$object->source_id = $rs->fields['source_id'];
+			$object->id = $row['id'];
+			$object->time_actual_mins = $row['time_actual_mins'];
+			$object->log_date = $row['log_date'];
+			$object->worker_id = $row['worker_id'];
+			$object->activity_id = $row['activity_id'];
+			$object->debit_org_id = $row['debit_org_id'];
+			$object->notes = $row['notes'];
+			$object->source_extension_id = $row['source_extension_id'];
+			$object->source_id = $row['source_id'];
 			$objects[$object->id] = $object;
-			$rs->MoveNext();
 		}
+		
+		mysql_free_result($rs);
 		
 		return $objects;
 	}
@@ -317,19 +317,17 @@ class DAO_TimeTrackingEntry extends C4_ORMHelper {
 			($has_multiple_values ? 'GROUP BY tt.id ' : '').
 			$sort_sql;
 		
-		$rs = $db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$rs = $db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 		
 		$results = array();
 		
-		if(is_a($rs,'ADORecordSet'))
-		while(!$rs->EOF) {
+		while($row = mysql_fetch_assoc($rs)) {
 			$result = array();
-			foreach($rs->fields as $f => $v) {
+			foreach($row as $f => $v) {
 				$result[$f] = $v;
 			}
-			$id = intval($rs->fields[SearchFields_TimeTrackingEntry::ID]);
+			$id = intval($row[SearchFields_TimeTrackingEntry::ID]);
 			$results[$id] = $result;
-			$rs->MoveNext();
 		}
 
 		// [JAS]: Count all
@@ -341,6 +339,8 @@ class DAO_TimeTrackingEntry extends C4_ORMHelper {
 				$where_sql;
 			$total = $db->GetOne($count_sql);
 		}
+		
+		mysql_free_result($rs);
 		
 		return array($results,$total);
     }
@@ -384,17 +384,17 @@ class SearchFields_TimeTrackingEntry {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = array(
-			self::ID => new DevblocksSearchField(self::ID, 'tt', 'id', null, $translate->_('timetracking_entry.id')),
-			self::TIME_ACTUAL_MINS => new DevblocksSearchField(self::TIME_ACTUAL_MINS, 'tt', 'time_actual_mins', null, $translate->_('timetracking_entry.time_actual_mins')),
-			self::LOG_DATE => new DevblocksSearchField(self::LOG_DATE, 'tt', 'log_date', null, $translate->_('timetracking_entry.log_date')),
-			self::WORKER_ID => new DevblocksSearchField(self::WORKER_ID, 'tt', 'worker_id', null, $translate->_('timetracking_entry.worker_id')),
-			self::ACTIVITY_ID => new DevblocksSearchField(self::ACTIVITY_ID, 'tt', 'activity_id', null, $translate->_('timetracking_entry.activity_id')),
-			self::DEBIT_ORG_ID => new DevblocksSearchField(self::DEBIT_ORG_ID, 'tt', 'debit_org_id', null, $translate->_('timetracking_entry.debit_org_id')),
-			self::NOTES => new DevblocksSearchField(self::NOTES, 'tt', 'notes', null, $translate->_('timetracking_entry.notes')),
-			self::SOURCE_EXTENSION_ID => new DevblocksSearchField(self::SOURCE_EXTENSION_ID, 'tt', 'source_extension_id', null, $translate->_('timetracking_entry.source_extension_id')),
-			self::SOURCE_ID => new DevblocksSearchField(self::SOURCE_ID, 'tt', 'source_id', null, $translate->_('timetracking_entry.source_id')),
+			self::ID => new DevblocksSearchField(self::ID, 'tt', 'id', $translate->_('timetracking_entry.id')),
+			self::TIME_ACTUAL_MINS => new DevblocksSearchField(self::TIME_ACTUAL_MINS, 'tt', 'time_actual_mins', $translate->_('timetracking_entry.time_actual_mins')),
+			self::LOG_DATE => new DevblocksSearchField(self::LOG_DATE, 'tt', 'log_date', $translate->_('timetracking_entry.log_date')),
+			self::WORKER_ID => new DevblocksSearchField(self::WORKER_ID, 'tt', 'worker_id', $translate->_('timetracking_entry.worker_id')),
+			self::ACTIVITY_ID => new DevblocksSearchField(self::ACTIVITY_ID, 'tt', 'activity_id', $translate->_('timetracking_entry.activity_id')),
+			self::DEBIT_ORG_ID => new DevblocksSearchField(self::DEBIT_ORG_ID, 'tt', 'debit_org_id', $translate->_('timetracking_entry.debit_org_id')),
+			self::NOTES => new DevblocksSearchField(self::NOTES, 'tt', 'notes', $translate->_('timetracking_entry.notes')),
+			self::SOURCE_EXTENSION_ID => new DevblocksSearchField(self::SOURCE_EXTENSION_ID, 'tt', 'source_extension_id', $translate->_('timetracking_entry.source_extension_id')),
+			self::SOURCE_ID => new DevblocksSearchField(self::SOURCE_ID, 'tt', 'source_id', $translate->_('timetracking_entry.source_id')),
 			
-			self::ORG_NAME => new DevblocksSearchField(self::ORG_NAME, 'o', 'name', null, $translate->_('contact_org.name')),
+			self::ORG_NAME => new DevblocksSearchField(self::ORG_NAME, 'o', 'name', $translate->_('contact_org.name')),
 		);
 		
 		// Custom Fields
@@ -402,7 +402,7 @@ class SearchFields_TimeTrackingEntry {
 		if(is_array($fields))
 		foreach($fields as $field_id => $field) {
 			$key = 'cf_'.$field_id;
-			$columns[$key] = new DevblocksSearchField($key,$key,'field_value',null,$field->name);
+			$columns[$key] = new DevblocksSearchField($key,$key,'field_value',$field->name);
 		}
 		
 		// Sort by label (translation-conscious)
@@ -778,21 +778,21 @@ class DAO_TimeTrackingActivity extends DevblocksORMHelper {
 	}
 	
 	/**
-	 * @param ADORecordSet $rs
+	 * @param resource $rs
 	 * @return Model_TimeTrackingActivity[]
 	 */
 	static private function _getObjectsFromResult($rs) {
 		$objects = array();
 		
-		if(is_a($rs,'ADORecordSet'))
-		while(!$rs->EOF) {
+		while($row = mysql_fetch_assoc($rs)) {
 			$object = new Model_TimeTrackingActivity();
-			$object->id = $rs->fields['id'];
-			$object->name = $rs->fields['name'];
-			$object->rate = $rs->fields['rate'];
+			$object->id = $row['id'];
+			$object->name = $row['name'];
+			$object->rate = $row['rate'];
 			$objects[$object->id] = $object;
-			$rs->MoveNext();
 		}
+		
+		mysql_free_result($rs);
 		
 		return $objects;
 	}
@@ -1423,15 +1423,15 @@ class ChReportTimeSpentWorker extends Extension_Report {
 	
 		$time_entries = array();
 		
-		if(is_a($rs,'ADORecordSet'))
-		while(!$rs->EOF) {
-			$mins = intval($rs->fields['time_actual_mins']);
-			$worker_id = intval($rs->fields['worker_id']);
-			$org_id = intval($rs->fields['org_id']);
-			$activity = $rs->fields['activity_name'];
-			$org_name = $rs->fields['org_name'];
-			$log_date = intval($rs->fields['log_date']);
-			$notes = $rs->fields['notes'];
+		
+		while($row = mysql_fetch_assoc($rs)) {
+			$mins = intval($row['time_actual_mins']);
+			$worker_id = intval($row['worker_id']);
+			$org_id = intval($row['org_id']);
+			$activity = $row['activity_name'];
+			$org_name = $row['org_name'];
+			$log_date = intval($row['log_date']);
+			$notes = $row['notes'];
 			
 			if(!isset($time_entries[$worker_id]))
 				$time_entries[$worker_id] = array();
@@ -1442,15 +1442,15 @@ class ChReportTimeSpentWorker extends Extension_Report {
 			$time_entry['mins'] = $mins;
 			$time_entry['log_date'] = $log_date;
 			$time_entry['notes'] = $notes;
-			$time_entry['source_extension_id'] = $rs->fields['source_extension_id'];
-			$time_entry['source_id'] = intval($rs->fields['source_id']);
+			$time_entry['source_extension_id'] = $row['source_extension_id'];
+			$time_entry['source_id'] = intval($row['source_id']);
 			
 			$time_entries[$worker_id]['entries'][] = $time_entry;
 			@$time_entries[$worker_id]['total_mins'] = intval($time_entries[$worker_id]['total_mins']) + $mins;
-			
-			$rs->MoveNext();
 		}
 		$tpl->assign('time_entries', $time_entries);		
+		
+		mysql_free_result($rs);
 		
 		// Chart
 		
@@ -1467,17 +1467,16 @@ class ChReportTimeSpentWorker extends Extension_Report {
 
 		$data = array();
 		$iter = 0;
-		
-	    if(is_a($rs,'ADORecordSet'))
-	    while(!$rs->EOF) {
-	    	$mins = intval($rs->fields['mins']);
-			$worker_name = $rs->fields['first_name'] . ' ' . $rs->fields['last_name'];
+	    
+	    while($row = mysql_fetch_assoc($rs)) {
+	    	$mins = intval($row['mins']);
+			$worker_name = $row['first_name'] . ' ' . $row['last_name'];
 
 			$data[$iter++] = array('value'=>$worker_name,'mins'=>$mins);
-			
-		    $rs->MoveNext();
 	    }
 	    $tpl->assign('data', $data);
+	    
+	    mysql_free_result($rs);
 		
 		// Template
 		
@@ -1558,15 +1557,15 @@ class ChReportTimeSpentOrg extends Extension_Report {
 	
 		$time_entries = array();
 		
-		if(is_a($rs,'ADORecordSet'))
-		while(!$rs->EOF) {
-			$mins = intval($rs->fields['time_actual_mins']);
-			$org_id = intval($rs->fields['org_id']);
-			$activity = $rs->fields['activity_name'];
-			$org_name = $rs->fields['org_name'];
-			$log_date = intval($rs->fields['log_date']);
-			$notes = $rs->fields['notes'];
-			$worker_id = intval($rs->fields['worker_id']);
+		
+		while($row = mysql_fetch_assoc($rs)) {
+			$mins = intval($row['time_actual_mins']);
+			$org_id = intval($row['org_id']);
+			$activity = $row['activity_name'];
+			$org_name = $row['org_name'];
+			$log_date = intval($row['log_date']);
+			$notes = $row['notes'];
+			$worker_id = intval($row['worker_id']);
 			
 			if(!isset($time_entries[$org_id]))
 				$time_entries[$org_id] = array();
@@ -1580,16 +1579,16 @@ class ChReportTimeSpentOrg extends Extension_Report {
 			$time_entry['log_date'] = $log_date;
 			$time_entry['notes'] = $notes;
 			$time_entry['worker_id'] = $worker_id;
-			$time_entry['source_extension_id'] = $rs->fields['source_extension_id'];
-			$time_entry['source_id'] = intval($rs->fields['source_id']);
+			$time_entry['source_extension_id'] = $row['source_extension_id'];
+			$time_entry['source_id'] = intval($row['source_id']);
 
 			$time_entries[$org_id]['entries'][] = $time_entry;
 			@$time_entries[$org_id]['total_mins'] = intval($time_entries[$org_id]['total_mins']) + $mins;
 			@$time_entries[$org_id]['org_name'] = $org_name;
-			
-			$rs->MoveNext();
 		}
 		$tpl->assign('time_entries', $time_entries);		
+		
+		mysql_free_result($rs);
 		
 		// Chart
 		
@@ -1606,18 +1605,17 @@ class ChReportTimeSpentOrg extends Extension_Report {
 		
 		$data = array();
 		$iter = 0;
-		
-	    if(is_a($rs,'ADORecordSet'))
-	    while(!$rs->EOF) {
-	    	$mins = intval($rs->fields['mins']);
-			$org_name = $rs->fields['org_name'];
+	    
+	    while($row = mysql_fetch_assoc($rs)) {
+	    	$mins = intval($row['mins']);
+			$org_name = $row['org_name'];
 			if(empty($org_name)) $org_name = '(no org)';
 			
 			$data[$iter++] = array('value'=>$org_name,'mins'=>$mins);
-			
-		    $rs->MoveNext();
 	    }
 	    $tpl->assign('data', $data);
+	    
+	    mysql_free_result($rs);
 		
 		// Template
 		
@@ -1698,15 +1696,15 @@ class ChReportTimeSpentActivity extends Extension_Report {
 	
 		$time_entries = array();
 		
-		if(is_a($rs,'ADORecordSet'))
-		while(!$rs->EOF) {
-			$mins = intval($rs->fields['time_actual_mins']);
-			$activity = $rs->fields['activity_name'];
-			$log_date = intval($rs->fields['log_date']);
-			$activity_id = intval($rs->fields['activity_id']);
-			$notes = $rs->fields['notes'];
-			$worker_id = intval($rs->fields['worker_id']);
-			$org_name = $rs->fields['org_name'];
+		
+		while($row = mysql_fetch_assoc($rs)) {
+			$mins = intval($row['time_actual_mins']);
+			$activity = $row['activity_name'];
+			$log_date = intval($row['log_date']);
+			$activity_id = intval($row['activity_id']);
+			$notes = $row['notes'];
+			$worker_id = intval($row['worker_id']);
+			$org_name = $row['org_name'];
 			
 			if(!isset($time_entries[$activity_id]))
 				$time_entries[$activity_id] = array();
@@ -1719,16 +1717,16 @@ class ChReportTimeSpentActivity extends Extension_Report {
 			$time_entry['notes'] = $notes;
 			$time_entry['worker_name'] = $workers[$worker_id]->getName();
 			$time_entry['org_name'] = $org_name;
-			$time_entry['source_extension_id'] = $rs->fields['source_extension_id'];
-			$time_entry['source_id'] = intval($rs->fields['source_id']);
+			$time_entry['source_extension_id'] = $row['source_extension_id'];
+			$time_entry['source_id'] = intval($row['source_id']);
 			
 			$time_entries[$activity_id]['entries'][] = $time_entry;
 			@$time_entries[$activity_id]['total_mins'] = intval($time_entries[$activity_id]['total_mins']) + $mins;
 			@$time_entries[$activity_id]['activity_name'] = $activity;
-			
-			$rs->MoveNext();
 		}
-		$tpl->assign('time_entries', $time_entries);		
+		$tpl->assign('time_entries', $time_entries);
+
+		mysql_free_result($rs);
 		
 		// Chart
 		
@@ -1745,18 +1743,17 @@ class ChReportTimeSpentActivity extends Extension_Report {
 
 		$data = array();
 		$iter = 0;
-		
-	    if(is_a($rs,'ADORecordSet'))
-	    while(!$rs->EOF) {
-	    	$mins = intval($rs->fields['mins']);
-			$activity = $rs->fields['activity_name'];
+	    
+	    while($row = mysql_fetch_assoc($rs)) {
+	    	$mins = intval($row['mins']);
+			$activity = $row['activity_name'];
 			if(empty($activity)) $activity = '(no activity)';
 			
 			$data[$iter++] = array('value'=>$activity, 'mins'=>$mins);
-			
-		    $rs->MoveNext();
 	    }
-	    $tpl->assign('data', $data);		
+	    $tpl->assign('data', $data);
+
+	    mysql_free_result($rs);
 		
 		// Template
 		

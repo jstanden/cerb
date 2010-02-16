@@ -1219,32 +1219,33 @@ class DAO_WatcherMailFilter extends DevblocksORMHelper {
 	}
 	
 	/**
-	 * @param ADORecordSet $rs
+	 * @param resource $rs
 	 * @return Model_WatcherMailFilter[]
 	 */
 	static private function _getObjectsFromResult($rs) {
 		$objects = array();
 		
-		while(!$rs->EOF) {
+		while($row = mysql_fetch_assoc($rs)) {
 			$object = new Model_WatcherMailFilter();
-			$object->id = $rs->fields['id'];
-			$object->pos = $rs->fields['pos'];
-			$object->name = $rs->fields['name'];
-			$object->created = $rs->fields['created'];
-			$object->is_disabled = intval($rs->fields['is_disabled']);
-			$object->worker_id = intval($rs->fields['worker_id']);
+			$object->id = $row['id'];
+			$object->pos = $row['pos'];
+			$object->name = $row['name'];
+			$object->created = $row['created'];
+			$object->is_disabled = intval($row['is_disabled']);
+			$object->worker_id = intval($row['worker_id']);
 			
-			if(null != (@$criteria_ser = $rs->fields['criteria_ser']))
+			if(null != (@$criteria_ser = $row['criteria_ser']))
 				if(false === (@$object->criteria = unserialize($criteria_ser)))
 					$object->criteria = array();
 
-			if(null != (@$actions_ser = $rs->fields['actions_ser']))
+			if(null != (@$actions_ser = $row['actions_ser']))
 				if(false === ($object->actions = unserialize($actions_ser)))
 					$object->actions = array();
 			
 			$objects[$object->id] = $object;
-			$rs->MoveNext();
 		}
+		
+		mysql_free_result($rs);
 		
 		return $objects;
 	}
@@ -1416,18 +1417,17 @@ class DAO_WatcherMailFilter extends DevblocksORMHelper {
 			//($has_multiple_values ? 'GROUP BY wmf.id ' : '').
 			$sort_sql;
 
-		$rs = $db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
+		$rs = $db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 		
 		$results = array();
 		
-		if(is_a($rs,'ADORecordSet'))
-		while(!$rs->EOF) {
-			foreach($rs->fields as $f => $v) {
+		
+		while($row = mysql_fetch_assoc($rs)) {
+			foreach($row as $f => $v) {
 				$result[$f] = $v;
 			}
-			$id = intval($rs->fields[SearchFields_WatcherMailFilter::ID]);
+			$id = intval($row[SearchFields_WatcherMailFilter::ID]);
 			$results[$id] = $result;
-			$rs->MoveNext();
 		}
 
 		// [JAS]: Count all
@@ -1439,6 +1439,8 @@ class DAO_WatcherMailFilter extends DevblocksORMHelper {
 				$where_sql;
 			$total = $db->GetOne($count_sql);
 		}
+		
+		mysql_free_result($rs);
 		
 		return array($results,$total);
     }	
@@ -1461,12 +1463,12 @@ class SearchFields_WatcherMailFilter {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = array(
-			self::ID => new DevblocksSearchField(self::ID, 'wmf', 'id', null, ucwords($translate->_('common.id'))),
-			self::POS => new DevblocksSearchField(self::POS, 'wmf', 'pos', null, ucwords($translate->_('watcher.filter.model.hits'))),
-			self::NAME => new DevblocksSearchField(self::NAME, 'wmf', 'name', null, ucwords($translate->_('common.name'))),
-			self::CREATED => new DevblocksSearchField(self::CREATED, 'wmf', 'created', null, ucwords($translate->_('common.created'))),
-			self::WORKER_ID => new DevblocksSearchField(self::WORKER_ID, 'wmf', 'worker_id', null, ucwords($translate->_('common.worker'))),
-			self::IS_DISABLED => new DevblocksSearchField(self::IS_DISABLED, 'wmf', 'is_disabled', null, ucwords($translate->_('common.disabled'))),
+			self::ID => new DevblocksSearchField(self::ID, 'wmf', 'id', ucwords($translate->_('common.id'))),
+			self::POS => new DevblocksSearchField(self::POS, 'wmf', 'pos', ucwords($translate->_('watcher.filter.model.hits'))),
+			self::NAME => new DevblocksSearchField(self::NAME, 'wmf', 'name', ucwords($translate->_('common.name'))),
+			self::CREATED => new DevblocksSearchField(self::CREATED, 'wmf', 'created', ucwords($translate->_('common.created'))),
+			self::WORKER_ID => new DevblocksSearchField(self::WORKER_ID, 'wmf', 'worker_id', ucwords($translate->_('common.worker'))),
+			self::IS_DISABLED => new DevblocksSearchField(self::IS_DISABLED, 'wmf', 'is_disabled', ucwords($translate->_('common.disabled'))),
 		);
 		
 		// Custom Fields
@@ -1474,7 +1476,7 @@ class SearchFields_WatcherMailFilter {
 //		if(is_array($fields))
 //		foreach($fields as $field_id => $field) {
 //			$key = 'cf_'.$field_id;
-//			$columns[$key] = new DevblocksSearchField($key,$key,'field_value',null,$field->name);
+//			$columns[$key] = new DevblocksSearchField($key,$key,'field_value',$field->name);
 //		}
 		
 		// Sort by label (translation-conscious)
