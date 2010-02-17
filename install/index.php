@@ -2,7 +2,7 @@
 /***********************************************************************
 | Cerberus Helpdesk(tm) developed by WebGroup Media, LLC.
 |-----------------------------------------------------------------------
-| All source code & content (c) Copyright 2007, WebGroup Media LLC
+| All source code & content (c) Copyright 2010, WebGroup Media LLC
 |   unless specifically noted otherwise.
 |
 | This source code is released under the Cerberus Public License.
@@ -14,43 +14,6 @@
 | ______________________________________________________________________
 |	http://www.cerberusweb.com	  http://www.webgroupmedia.com/
 ***********************************************************************/
-/*
- * IMPORTANT LICENSING NOTE from your friends on the Cerberus Helpdesk Team
- * 
- * Sure, it would be so easy to just cheat and edit this file to use the 
- * software without paying for it.  But we trust you anyway.  In fact, we're 
- * writing this software for you! 
- * 
- * Quality software backed by a dedicated team takes money to develop.  We 
- * don't want to be out of the office bagging groceries when you call up 
- * needing a helping hand.  We'd rather spend our free time coding your 
- * feature requests than mowing the neighbors' lawns for rent money. 
- * 
- * We've never believed in encoding our source code out of paranoia over not 
- * getting paid.  We want you to have the full source code and be able to 
- * make the tweaks your organization requires to get more done -- despite 
- * having less of everything than you might need (time, people, money, 
- * energy).  We shouldn't be your bottleneck.
- * 
- * We've been building our expertise with this project since January 2002.  We 
- * promise spending a couple bucks [Euro, Yuan, Rupees, Galactic Credits] to 
- * let us take over your shared e-mail headache is a worthwhile investment.  
- * It will give you a sense of control over your in-box that you probably 
- * haven't had since spammers found you in a game of "E-mail Address 
- * Battleship".  Miss. Miss. You sunk my in-box!
- * 
- * A legitimate license entitles you to support, access to the developer 
- * mailing list, the ability to participate in betas and the warm fuzzy 
- * feeling of feeding a couple obsessed developers who want to help you get 
- * more done than 'the other guy'.
- *
- * - Jeff Standen, Mike Fogg, Brenan Cavish, Darren Sugita, Dan Hildebrandt
- * 		and Joe Geck.
- *   WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
- */
-/**
- * @author Jeff Standen <jeff@webgroupmedia.com> [JAS]
- */
 
 if(version_compare(PHP_VERSION, "5.2", "<"))
 	die("Cerberus Helpdesk 5.x requires PHP 5.2 or later.");
@@ -73,18 +36,6 @@ if(!defined('DEVBLOCKS_WEBPATH')) {
 	@define('DEVBLOCKS_APP_WEBPATH',$php_self);
 }
 
-//if('' == APP_DB_DRIVER 
-//	|| '' == APP_DB_HOST 
-//	|| '' == APP_DB_DATABASE 
-//	|| null == ($db = DevblocksPlatform::getDatabaseService())
-//	)
-//	throw new Exception("Database details not set.");
-//	
-//	$tables = $db->MetaTables('table',false);
-//	if(empty($tables))
-//		throw new Exception("Database empty.");
-
-
 define('STEP_ENVIRONMENT', 1);
 define('STEP_LICENSE', 2);
 define('STEP_DATABASE', 3);
@@ -93,10 +44,6 @@ define('STEP_INIT_DB', 5);
 define('STEP_CONTACT', 6);
 define('STEP_OUTGOING_MAIL', 7);
 define('STEP_DEFAULTS', 8);
-//define('STEP_INCOMING_MAIL', 7);
-//define('STEP_WORKFLOW', 8);
-//define('STEP_CATCHALL', 9);
-//define('STEP_ANTISPAM', x);
 define('STEP_REGISTER', 9);
 define('STEP_UPGRADE', 10);
 define('STEP_FINISHED', 11);
@@ -331,7 +278,6 @@ switch($step) {
 	case STEP_DATABASE:
 		// Import scope (if post)
 		@$db_driver = DevblocksPlatform::importGPC($_POST['db_driver'],'string');
-		@$db_encoding = DevblocksPlatform::importGPC($_POST['db_encoding'],'string');
 		@$db_server = DevblocksPlatform::importGPC($_POST['db_server'],'string');
 		@$db_name = DevblocksPlatform::importGPC($_POST['db_name'],'string');
 		@$db_user = DevblocksPlatform::importGPC($_POST['db_user'],'string');
@@ -357,8 +303,13 @@ switch($step) {
 		$tpl->assign('drivers', $drivers);
 		
 		if(!empty($db_driver) && !empty($db_server) && !empty($db_name) && !empty($db_user)) {
-			// Test the given settings, bypass platform initially
-			$db_passed = $db->Connect($db_server, $db_user, $db_pass, $db_name, $persistent);
+			$db_passed = false;
+			
+			if(false != ($_db = mysql_connect($db_server, $db_user, $db_pass))) {
+				if(false !== mysql_select_db($db_name, $_db)) {
+					$db_passed = true;
+				}
+			}
 			
 			$tpl->assign('db_driver', $db_driver);
 			$tpl->assign('db_server', $db_server);
@@ -368,9 +319,8 @@ switch($step) {
 			
 			// If passed, write config file and continue
 			if($db_passed) {
-				$info = $db->GetRow("SHOW VARIABLES LIKE 'character_set_database'");
-				
-				$encoding = (0==strcasecmp($info[1],'utf8')) ? 'utf8' : 'latin1';
+				@$row = mysql_fetch_row(mysql_query("SHOW VARIABLES LIKE 'character_set_database'"));
+				$encoding = (is_array($row) && 0==strcasecmp($row[1],'utf8')) ? 'utf8' : 'latin1';
 				
 				// Write database settings to framework.config.php
 				$result = CerberusInstaller::saveFrameworkConfig($db_driver, $encoding, $db_server, $db_name, $db_user, $db_pass);
