@@ -199,10 +199,10 @@ class DAO_Worker extends C4_ORMHelper {
 
 		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' view_rss records.');
 		
-		$sql = "DELETE QUICK worker_mail_forward FROM worker_mail_forward LEFT JOIN worker ON worker_mail_forward.worker_id = worker.id WHERE worker.id IS NULL";
+		$sql = "DELETE QUICK watcher_mail_filter FROM watcher_mail_filter LEFT JOIN worker ON watcher_mail_filter.worker_id = worker.id WHERE worker.id IS NULL";
 		$db->Execute($sql);
 		
-		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' worker_mail_forward records.');
+		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' watcher_mail_filter records.');
 		
 		$sql = "DELETE QUICK worker_pref FROM worker_pref LEFT JOIN worker ON worker_pref.worker_id = worker.id WHERE worker.id IS NULL";
 		$db->Execute($sql);
