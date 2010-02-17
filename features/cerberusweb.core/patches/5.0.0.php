@@ -68,7 +68,6 @@ if(isset($columns['value'])
 		$db->Execute('ALTER TABLE worker_pref MODIFY COLUMN value MEDIUMTEXT');
 }
 
-
 // ===========================================================================
 // Fix View_* class name refactor
 
@@ -80,5 +79,24 @@ $db->Execute("UPDATE worker_pref SET value=REPLACE(value, 's:13:\"C4_TicketView\
 $db->Execute("UPDATE worker_pref SET value=REPLACE(value, 's:18:\"C4_TranslationView\"', 's:16:\"View_Translation\"') WHERE setting LIKE 'view%'");
 $db->Execute("UPDATE worker_pref SET value=REPLACE(value, 's:18:\"C4_WorkerEventView\"', 's:16:\"View_WorkerEvent\"') WHERE setting LIKE 'view%'");
 $db->Execute("UPDATE worker_pref SET value=REPLACE(value, 's:13:\"C4_WorkerView\"', 's:11:\"View_Worker\"') WHERE setting LIKE 'view%'");
+
+// ===========================================================================
+// Remove deprecated CloudGlue
+
+if(isset($tables['tag'])) {
+	$db->Execute('DROP TABLE tag');
+}
+
+if(isset($tables['tag_seq'])) {
+	$db->Execute('DROP TABLE tag_seq');
+}
+
+if(isset($tables['tag_index'])) {
+	$db->Execute('DROP TABLE tag_index');
+}
+
+if(isset($tables['tag_to_content'])) {
+	$db->Execute('DROP TABLE tag_to_content');
+}
 
 return TRUE;

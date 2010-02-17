@@ -20,7 +20,7 @@
 		{if $enabled}
 			<span class="cerb-sprite sprite-check" title="Enabled"></span>
 		{else}
-			<span class="cerb-sprite sprite-delete" title="Disabed"></span>
+			<span class="cerb-sprite sprite-delete" title="Disabled"></span>
 		{/if}
 	{/if}
 	{*<a href="{devblocks_url}c=config&a=jobs&b=manage&id={$job_id}{/devblocks_url}">{$job->manifest->name}</a>*}
