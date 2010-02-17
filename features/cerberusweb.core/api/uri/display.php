@@ -559,7 +559,7 @@ class ChDisplayPage extends CerberusPageExtension {
 
 		@$ticket_team = $teams[$ticket->team_id];
 		
-		if(null != ($worker = CerberusApplication::getActiveWorker())) { /* @var $worker CerberusWorker */
+		if(null != ($worker = CerberusApplication::getActiveWorker())) { /* @var $worker Model_Worker */
 			/* [JAS]:
 			 * If the worker is replying to an unassigned ticket, assign it to them to warn
 			 * other workers.  By default the 'next worker' followup propery will revert back 
@@ -1092,7 +1092,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		
 		// Defaults
 		$defaults = new C4_AbstractViewModel();
-		$defaults->class_name = 'C4_TicketView';
+		$defaults->class_name = 'View_Ticket';
 		$defaults->id = 'contact_history';
 		$defaults->name = $translate->_('addy_book.history.view.title');
 		$defaults->view_columns = array(
@@ -1186,7 +1186,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		$tpl->assign('ticket', $ticket);
 		
 		$defaults = new C4_AbstractViewModel();
-		$defaults->class_name = 'C4_TaskView';
+		$defaults->class_name = 'View_Task';
 		$defaults->id = 'ticket_tasks';
 		$defaults->name = $translate->_('tasks.ticket.tab.view');
 		$defaults->view_columns = array(

@@ -167,4 +167,14 @@ $db->Execute("DELETE FROM community_tool_property WHERE property_key = 'common.f
 $db->Execute("DELETE FROM community_tool_property WHERE property_key = 'common.style_css'");
 $db->Execute("DELETE FROM community_tool_property WHERE property_key = 'home.html'");
 
+// ===========================================================================
+// Fix BLOBS
+
+list($columns, $indexes) = $db->metaTable('community_session');
+
+if(isset($columns['properties'])
+	&& 0 != strcasecmp('mediumtext',$columns['properties']['type'])) {
+		$db->Execute('ALTER TABLE community_session MODIFY COLUMN properties MEDIUMTEXT');
+}
+
 return TRUE;

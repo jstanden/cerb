@@ -78,7 +78,7 @@ class ChHomePage extends CerberusPageExtension {
 		$title = vsprintf($translate->_('home.my_notifications.view.title'), $active_worker->getName());
 		
 		if(null == $myEventsView) {
-			$myEventsView = new C4_WorkerEventView();
+			$myEventsView = new View_WorkerEvent();
 			$myEventsView->id = self::VIEW_MY_EVENTS;
 			$myEventsView->name = $title;
 			$myEventsView->renderLimit = 25;

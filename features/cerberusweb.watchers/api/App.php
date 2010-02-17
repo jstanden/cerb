@@ -16,16 +16,16 @@ class ChWatchersConfigTab extends Extension_ConfigTab {
 		$tpl->assign('response_uri', 'config/watchers');
 		
 		$defaults = new C4_AbstractViewModel();
-		$defaults->class_name = 'C4_WatcherView';
-		$defaults->id = C4_WatcherView::DEFAULT_ID;
+		$defaults->class_name = 'View_WorkerMailFilter';
+		$defaults->id = View_WorkerMailFilter::DEFAULT_ID;
 		$defaults->renderSortBy = SearchFields_WatcherMailFilter::POS;
 		$defaults->renderSortAsc = 0;
 		
-		$view = C4_AbstractViewLoader::getView(C4_WatcherView::DEFAULT_ID, $defaults);
+		$view = C4_AbstractViewLoader::getView(View_WorkerMailFilter::DEFAULT_ID, $defaults);
 		
 		$tpl->assign('view', $view);
-		$tpl->assign('view_fields', C4_WatcherView::getFields());
-		$tpl->assign('view_searchable_fields', C4_WatcherView::getSearchFields());
+		$tpl->assign('view_fields', View_WorkerMailFilter::getFields());
+		$tpl->assign('view_searchable_fields', View_WorkerMailFilter::getSearchFields());
 		
 		$tpl->display('file:' . $tpl_path . 'config/watchers/index.tpl');
 	}
@@ -286,7 +286,7 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
 
 		// Loop through all assigned tickets
 		$tickets = DAO_Ticket::getTickets($ticket_ids);
-		foreach($tickets as $ticket) { /* @var $ticket CerberusTicket */
+		foreach($tickets as $ticket) { /* @var $ticket Model_Ticket */
 			// If the next worker value didn't change, skip
 			if($ticket->next_worker_id == $next_worker_id)
 				continue;
@@ -559,7 +559,7 @@ class ChWatchersPreferences extends Extension_PreferenceTab {
 		$tpl->assign('response_uri', 'preferences/watchers');
 		
 		if(null == ($view = C4_AbstractViewLoader::getView('prefs_watchers'))) {
-			$view = new C4_WatcherView();
+			$view = new View_WorkerMailFilter();
 			$view->id = 'prefs_watchers';
 			$view->name = "My Watcher Filters";
 			$view->renderSortBy = SearchFields_WatcherMailFilter::POS;
@@ -572,8 +572,8 @@ class ChWatchersPreferences extends Extension_PreferenceTab {
 		}
 		
 		$tpl->assign('view', $view);
-		$tpl->assign('view_fields', C4_WatcherView::getFields());
-		$tpl->assign('view_searchable_fields', C4_WatcherView::getSearchFields());
+		$tpl->assign('view_fields', View_WorkerMailFilter::getFields());
+		$tpl->assign('view_searchable_fields', View_WorkerMailFilter::getSearchFields());
 		
 		$tpl->display('file:' . $this->_TPL_PATH . 'preferences/watchers.tpl');
 	}
@@ -914,7 +914,7 @@ class ChWatchersPreferences extends Extension_PreferenceTab {
 	
 };
 
-class C4_WatcherView extends C4_AbstractView {
+class View_WorkerMailFilter extends C4_AbstractView {
 	const DEFAULT_ID = 'watchers';
 
 	function __construct() {
@@ -1499,7 +1499,7 @@ class Model_WatcherMailFilter {
 	/**
 	 * @return Model_WatcherMailFilter[]|false
 	 */
-	static function getMatches(CerberusTicket $ticket, $event, $only_worker_id=null) {
+	static function getMatches(Model_Ticket $ticket, $event, $only_worker_id=null) {
 		$matches = array();
 		
 		if(!empty($only_worker_id)) {

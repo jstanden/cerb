@@ -101,7 +101,7 @@ class CerberusApplication extends DevblocksApplication {
 	}
 	
 	/**
-	 * @return CerberusWorker
+	 * @return Model_Worker
 	 */
 	static function getActiveWorker() {
 		$visit = self::getVisit();

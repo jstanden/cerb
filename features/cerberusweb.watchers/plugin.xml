@@ -12,7 +12,7 @@
 			<class name="DAO_WorkerMailFilter" />
 			<class name="Model_WorkerMailFilter" />
 			<class name="SearchFields_WorkerMailFilter" />
-			<class name="C4_WatcherView" />
+			<class name="View_WorkerMailFilter" />
 		</file>
 		<file path="api/Plugin.php">
 			<class name="ChWatchersPlugin" />

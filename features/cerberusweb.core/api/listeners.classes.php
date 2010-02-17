@@ -363,7 +363,7 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 		// Write a notification (if not assigned to ourselves)
 		$url_writer = DevblocksPlatform::getUrlService();
 		foreach($ticket_ids as $ticket_id) {
-			if(null == ($ticket = $tickets[$ticket_id])) /* @var $ticket CerberusTicket */
+			if(null == ($ticket = $tickets[$ticket_id])) /* @var $ticket Model_Ticket */
 				continue;
 				
 			$fields = array(
@@ -497,7 +497,7 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 		if(!empty($ticket_ids)) {
 			$tickets = DAO_Ticket::getTickets($ticket_ids);
 			
-			foreach($tickets as $ticket) { /* @var $ticket CerberusTicket */
+			foreach($tickets as $ticket) { /* @var $ticket Model_Ticket */
 				if(!isset($group_settings[$ticket->team_id][DAO_GroupSettings::SETTING_CLOSE_REPLY_ENABLED]))
 					continue;
 				if(1 == $ticket->is_deleted)

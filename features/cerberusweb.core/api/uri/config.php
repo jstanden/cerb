@@ -147,13 +147,13 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		$tpl->assign('response_uri', 'config/attachments');
 
 		$defaults = new C4_AbstractViewModel();
-		$defaults->class_name = 'C4_AttachmentView';
-		$defaults->id = C4_AttachmentView::DEFAULT_ID;
+		$defaults->class_name = 'View_Attachment';
+		$defaults->id = View_Attachment::DEFAULT_ID;
 
-		$view = C4_AbstractViewLoader::getView(C4_AttachmentView::DEFAULT_ID, $defaults);
+		$view = C4_AbstractViewLoader::getView(View_Attachment::DEFAULT_ID, $defaults);
 		$tpl->assign('view', $view);
-		$tpl->assign('view_fields', C4_AttachmentView::getFields());
-		$tpl->assign('view_searchable_fields', C4_AttachmentView::getSearchFields());
+		$tpl->assign('view_fields', View_Attachment::getFields());
+		$tpl->assign('view_searchable_fields', View_Attachment::getSearchFields());
 		
 		$tpl->display('file:' . $this->_TPL_PATH . 'configuration/tabs/attachments/index.tpl');
 	}
@@ -315,12 +315,12 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		
 		$defaults = new C4_AbstractViewModel();
 		$defaults->id = 'workers_cfg';
-		$defaults->class_name = 'C4_WorkerView';
+		$defaults->class_name = 'View_Worker';
 		
 		$view = C4_AbstractViewLoader::getView($defaults->id, $defaults);
 		$tpl->assign('view', $view);
-		$tpl->assign('view_fields', C4_WorkerView::getFields());
-		$tpl->assign('view_searchable_fields', C4_WorkerView::getSearchFields());
+		$tpl->assign('view_fields', View_Worker::getFields());
+		$tpl->assign('view_searchable_fields', View_Worker::getSearchFields());
 		
 		$tpl->assign('license',CerberusLicense::getInstance());
 		

@@ -52,6 +52,66 @@
 			<class name="ChWorkspaceSource_Ticket" />
 			<class name="ChWorkspaceSource_Worker" />
 		</file>
+		
+		<file path="api/dao/address.php">
+			<class name="DAO_Address" />
+			<class name="Model_Address" />
+			<class name="SearchFields_Address" />
+			<class name="View_Address" />
+		</file>
+		
+		<file path="api/dao/attachment.php">
+			<class name="DAO_Attachment" />
+			<class name="Model_Attachment" />
+			<class name="SearchFields_Attachment" />
+			<class name="View_Attachment" />
+		</file>
+		
+		<file path="api/dao/bucket.php">
+			<class name="DAO_Bucket" />
+			<class name="Model_Bucket" />
+		</file>
+		
+		<file path="api/dao/contact_org.php">
+			<class name="DAO_ContactOrg" />
+			<class name="Model_ContactOrg" />
+			<class name="SearchFields_ContactOrg" />
+			<class name="View_ContactOrg" />
+		</file>
+		
+		<file path="api/dao/group.php">
+			<class name="DAO_Group" />
+			<class name="Model_Group" />
+		</file>
+		
+		<file path="api/dao/task.php">
+			<class name="DAO_Task" />
+			<class name="Model_Task" />
+			<class name="SearchFields_Task" />
+			<class name="View_Task" />
+		</file>
+		
+		<file path="api/dao/ticket.php">
+			<class name="DAO_Ticket" />
+			<class name="Model_Ticket" />
+			<class name="SearchFields_Ticket" />
+			<class name="View_Ticket" />
+		</file>
+		
+		<file path="api/dao/worker.php">
+			<class name="DAO_Worker" />
+			<class name="Model_Worker" />
+			<class name="SearchFields_Worker" />
+			<class name="View_Worker" />
+		</file>
+		
+		<file path="api/dao/worker_event.php">
+			<class name="DAO_WorkerEvent" />
+			<class name="Model_WorkerEvent" />
+			<class name="SearchFields_WorkerEvent" />
+			<class name="View_WorkerEvent" />
+		</file>
+		
 	</class_loader>
 	
 	<!-- Event Points -->
@@ -668,7 +728,7 @@
 				<name>ChWorkspaceSource_Address</name>
 			</class>
 			<params>
-				<param key="view_class" value="C4_AddressView" />
+				<param key="view_class" value="View_Address" />
 			</params>
 		</extension>
 
@@ -680,7 +740,7 @@
 				<name>ChWorkspaceSource_Notification</name>
 			</class>
 			<params>
-				<param key="view_class" value="C4_WorkerEventView" />
+				<param key="view_class" value="View_WorkerEvent" />
 			</params>
 		</extension>
 		
@@ -692,7 +752,7 @@
 				<name>ChWorkspaceSource_Org</name>
 			</class>
 			<params>
-				<param key="view_class" value="C4_ContactOrgView" />
+				<param key="view_class" value="View_ContactOrg" />
 			</params>
 		</extension>
 		
@@ -704,7 +764,7 @@
 				<name>ChWorkspaceSource_Task</name>
 			</class>
 			<params>
-				<param key="view_class" value="C4_TaskView" />
+				<param key="view_class" value="View_Task" />
 			</params>
 		</extension>
 		
@@ -716,7 +776,7 @@
 				<name>ChWorkspaceSource_Ticket</name>
 			</class>
 			<params>
-				<param key="view_class" value="C4_TicketView" />
+				<param key="view_class" value="View_Ticket" />
 			</params>
 		</extension>
 		
@@ -728,7 +788,7 @@
 				<name>ChWorkspaceSource_Worker</name>
 			</class>
 			<params>
-				<param key="view_class" value="C4_WorkerView" />
+				<param key="view_class" value="View_Worker" />
 			</params>
 		</extension>
 		

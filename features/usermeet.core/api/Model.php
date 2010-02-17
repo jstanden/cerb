@@ -83,7 +83,7 @@ class Model_CommunitySession {
 	}
 };
 
-class C4_CommunityPortalView extends C4_AbstractView {
+class View_CommunityPortal extends C4_AbstractView {
 	const DEFAULT_ID = 'community_portals';
 	const DEFAULT_TITLE = 'Community Portals';
 

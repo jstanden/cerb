@@ -329,7 +329,7 @@ XML;
         $channel->addChild('description', '');
         
         // View
-        $view = new C4_WorkerEventView();
+        $view = new View_WorkerEvent();
         $view->name = $feed->title;
         $view->params = $feed->params['params'];
         $view->renderLimit = 100;
@@ -429,7 +429,7 @@ XML;
         $channel->addChild('description', '');
         
         // View
-        $view = new C4_TicketView();
+        $view = new View_Ticket();
         $view->name = $feed->title;
         $view->params = $feed->params['params'];
         $view->renderLimit = 100;
@@ -522,7 +522,7 @@ XML;
         $channel->addChild('description', '');
         
         // View
-        $view = new C4_TaskView();
+        $view = new View_Task();
         $view->name = $feed->title;
         $view->params = $feed->params['params'];
         $view->renderLimit = 100;

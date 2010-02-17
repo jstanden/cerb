@@ -106,15 +106,15 @@ class ChFnrResearchTab extends Extension_ResearchTab {
 		switch($action) {
 			default:
 //				if(null == ($view = C4_AbstractViewLoader::getView(self::VIEW_RESEARCH_FNR_SEARCH))) {
-//					$view = new C4_KbArticleView();
+//					$view = new View_KbArticle();
 //					$view->id = self::VIEW_RESEARCH_FNR_SEARCH;
 //					$view->name = $translate->_('common.search_results');
 //					C4_AbstractViewLoader::setView($view->id, $view);
 //				}
 //				
 //				$tpl->assign('view', $view);
-//				$tpl->assign('view_fields', C4_KbArticleView::getFields());
-//				$tpl->assign('view_searchable_fields', C4_KbArticleView::getSearchFields());
+//				$tpl->assign('view_fields', View_KbArticle::getFields());
+//				$tpl->assign('view_searchable_fields', View_KbArticle::getSearchFields());
 				
 //				$tpl->assign('response_uri', 'research/fnr/search');
 

@@ -11,8 +11,8 @@
 	
 	<class_loader>
 		<file path="api/App.php">
-			<class name="C4_CrmOpportunityView" />
 			<class name="DAO_CrmOpportunity" />
+			<class name="View_CrmOpportunity" />
 		</file>
 	</class_loader>
 	
@@ -123,7 +123,7 @@
 				<name>CrmWorkspaceSource_Opportunity</name>
 			</class>
 			<params>
-				<param key="view_class" value="C4_CrmOpportunityView" />
+				<param key="view_class" value="View_CrmOpportunity" />
 			</params>
 		</extension>
 

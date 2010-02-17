@@ -121,7 +121,7 @@ class ChTicketsPage extends CerberusPageExtension {
 				
 			default:
 				// Clear all undo actions on reload
-			    C4_TicketView::clearLastActions();
+			    View_Ticket::clearLastActions();
 			    				
 				$quick_search_type = $visit->get('quick_search_type');
 				$tpl->assign('quick_search_type', $quick_search_type);
@@ -179,7 +179,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		$title = $translate->_('mail.overview.all_groups');
 
 		$defaults = new C4_AbstractViewModel();
-		$defaults->class_name = 'C4_TicketView';
+		$defaults->class_name = 'View_Ticket';
 		$defaults->id = CerberusApplication::VIEW_MAIL_WORKFLOW;
 		$defaults->name = $title;
 		$defaults->view_columns = array(
@@ -361,7 +361,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		
 		// All Open
 		$defaults = new C4_AbstractViewModel();
-		$defaults->class_name = 'C4_TicketView';
+		$defaults->class_name = 'View_Ticket';
 		$defaults->id = CerberusApplication::VIEW_OVERVIEW_ALL;
 		$defaults->name = $translate->_('mail.overview.all_groups');
 		$defaults->view_columns = array(
@@ -520,7 +520,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		$view = C4_AbstractViewLoader::getView(CerberusApplication::VIEW_SEARCH);
 		
 		if(null == $view) {
-			$view = C4_TicketView::createSearchView();
+			$view = View_Ticket::createSearchView();
 			C4_AbstractViewLoader::setView($view->id,$view);
 		}
 		
@@ -536,8 +536,8 @@ class ChTicketsPage extends CerberusPageExtension {
 		$team_categories = DAO_Bucket::getTeams();
 		$tpl->assign('team_categories', $team_categories);
 		
-		$tpl->assign('view_fields', C4_TicketView::getFields());
-		$tpl->assign('view_searchable_fields', C4_TicketView::getSearchFields());
+		$tpl->assign('view_fields', View_Ticket::getFields());
+		$tpl->assign('view_searchable_fields', View_Ticket::getSearchFields());
 		
 		$tpl->display('file:' . $this->_TPL_PATH . 'tickets/search/index.tpl');
 	}
@@ -618,7 +618,7 @@ class ChTicketsPage extends CerberusPageExtension {
 
         $last_action->action_params = $fields;
         
-        C4_TicketView::setLastAction($view_id,$last_action);
+        View_Ticket::setLastAction($view_id,$last_action);
         //====================================	    
 	    
 	    CerberusBayes::markTicketAsSpam($id);
@@ -657,7 +657,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		$searchView = C4_AbstractViewLoader::getView(CerberusApplication::VIEW_SEARCH);
 		
 		if(null == $searchView)
-			$searchView = C4_TicketView::createSearchView();
+			$searchView = View_Ticket::createSearchView();
 
         $visit->set('quick_search_type', $type);
         
@@ -782,7 +782,7 @@ class ChTicketsPage extends CerberusPageExtension {
 
 		if(!empty($view_id)) {
 			$defaults = new C4_AbstractViewModel();
-			$defaults->class_name = 'C4_TicketView';
+			$defaults->class_name = 'View_Ticket';
 			$defaults->id = $view_id;
 			
 			$view = C4_AbstractViewLoader::getView($view_id, $defaults);
@@ -830,7 +830,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		$tpl->assign('view_id', $view_id);
 		
 		if(null != ($ticket = DAO_Ticket::getTicket($tid))) {
-			/* @var $ticket CerberusTicket */
+			/* @var $ticket Model_Ticket */
 		    $tpl->assign('ticket', $ticket);
 		}
 		
@@ -933,7 +933,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		DAO_CustomFieldValue::handleFormPost(ChCustomFieldSource_Ticket::ID, $id, $field_ids);
 		
 		$defaults = new C4_AbstractViewModel();
-		$defaults->class_name = 'C4_TicketView';
+		$defaults->class_name = 'View_Ticket';
 		$defaults->id = $view_id;
 		
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
@@ -1351,7 +1351,7 @@ class ChTicketsPage extends CerberusPageExtension {
         $last_action->action_params = $fields;
 
         if(is_array($orig_tickets))
-        foreach($orig_tickets as $orig_ticket_idx => $orig_ticket) { /* @var $orig_ticket CerberusTicket */
+        foreach($orig_tickets as $orig_ticket_idx => $orig_ticket) { /* @var $orig_ticket Model_Ticket */
             $last_action->ticket_ids[$orig_ticket_idx] = array(
                 DAO_Ticket::TEAM_ID => $orig_ticket->team_id,
                 DAO_Ticket::CATEGORY_ID => $orig_ticket->category_id
@@ -1361,7 +1361,7 @@ class ChTicketsPage extends CerberusPageExtension {
             $orig_tickets[$orig_ticket_idx] = $orig_ticket;
         }
         
-        C4_TicketView::setLastAction($view_id,$last_action);
+        View_Ticket::setLastAction($view_id,$last_action);
 	    
 	    // Make our changes to the entire list of tickets
 	    if(!empty($ticket_ids) && !empty($team_id)) {
@@ -1389,7 +1389,7 @@ class ChTicketsPage extends CerberusPageExtension {
         $last_action->action = Model_TicketViewLastAction::ACTION_TAKE;
 
         if(is_array($ticket_ids)) {
-			@$orig_tickets = DAO_Ticket::getTickets($ticket_ids); /* @var CerberusTicket[] $orig_tickets */
+			@$orig_tickets = DAO_Ticket::getTickets($ticket_ids); /* @var Model_Ticket[] $orig_tickets */
 
 	        foreach($ticket_ids as $ticket_id) {
 	            $last_action->ticket_ids[$ticket_id] = array(
@@ -1400,7 +1400,7 @@ class ChTicketsPage extends CerberusPageExtension {
 
         $last_action->action_params = $fields;
         
-        C4_TicketView::setLastAction($view_id,$last_action);
+        View_Ticket::setLastAction($view_id,$last_action);
         //====================================
 	    
         DAO_Ticket::updateTicket($ticket_ids, $fields);
@@ -1427,7 +1427,7 @@ class ChTicketsPage extends CerberusPageExtension {
         $last_action->action = Model_TicketViewLastAction::ACTION_SURRENDER;
 
         if(is_array($ticket_ids)) {
-			@$orig_tickets = DAO_Ticket::getTickets($ticket_ids); /* @var CerberusTicket[] $orig_tickets */
+			@$orig_tickets = DAO_Ticket::getTickets($ticket_ids); /* @var Model_Ticket[] $orig_tickets */
 
 	        foreach($ticket_ids as $ticket_id) {
 	        	// Only surrender what we own
@@ -1444,7 +1444,7 @@ class ChTicketsPage extends CerberusPageExtension {
 
         $last_action->action_params = $fields;
         
-        C4_TicketView::setLastAction($view_id,$last_action);
+        View_Ticket::setLastAction($view_id,$last_action);
         //====================================
 	    
         DAO_Ticket::updateTicket($ticket_ids, $fields);
@@ -1458,7 +1458,7 @@ class ChTicketsPage extends CerberusPageExtension {
 	    @$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
 	    @$ticket_ids = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'array');
 
-        C4_TicketView::setLastAction($view_id,null);
+        View_Ticket::setLastAction($view_id,null);
         //====================================
 
 	    if(!empty($ticket_ids)) {
@@ -1492,7 +1492,7 @@ class ChTicketsPage extends CerberusPageExtension {
 
         $last_action->action_params = $fields;
         
-        C4_TicketView::setLastAction($view_id,$last_action);
+        View_Ticket::setLastAction($view_id,$last_action);
         //====================================
 	    
         DAO_Ticket::updateTicket($ticket_ids, $fields);
@@ -1524,7 +1524,7 @@ class ChTicketsPage extends CerberusPageExtension {
 
         $last_action->action_params = $fields;
         
-        C4_TicketView::setLastAction($view_id,$last_action);
+        View_Ticket::setLastAction($view_id,$last_action);
         //====================================
 
         DAO_Ticket::updateTicket($ticket_ids, $fields);
@@ -1556,7 +1556,7 @@ class ChTicketsPage extends CerberusPageExtension {
 
         $last_action->action_params = $fields;
         
-        C4_TicketView::setLastAction($view_id,$last_action);
+        View_Ticket::setLastAction($view_id,$last_action);
         //====================================
 
         DAO_Ticket::updateTicket($ticket_ids, $fields);
@@ -1594,7 +1594,7 @@ class ChTicketsPage extends CerberusPageExtension {
 
         $last_action->action_params = $fields;
         
-        C4_TicketView::setLastAction($view_id,$last_action);
+        View_Ticket::setLastAction($view_id,$last_action);
         //====================================
 
         // [TODO] Bayes should really be smart enough to allow training of batches of IDs
@@ -1638,7 +1638,7 @@ class ChTicketsPage extends CerberusPageExtension {
 
         $last_action->action_params = $fields;
         
-        C4_TicketView::setLastAction($view_id,$last_action);
+        View_Ticket::setLastAction($view_id,$last_action);
         //====================================
 	    
         // {TODO] Batch
@@ -1678,7 +1678,7 @@ class ChTicketsPage extends CerberusPageExtension {
 
         $last_action->action_params = $fields;
         
-        C4_TicketView::setLastAction($view_id,$last_action);
+        View_Ticket::setLastAction($view_id,$last_action);
         //====================================
 	    
         DAO_Ticket::updateTicket($ticket_ids, $fields);
@@ -1691,10 +1691,10 @@ class ChTicketsPage extends CerberusPageExtension {
 	function viewUndoAction() {
 	    @$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
 	    @$clear = DevblocksPlatform::importGPC($_REQUEST['clear'],'integer',0);
-	    $last_action = C4_TicketView::getLastAction($view_id);
+	    $last_action = View_Ticket::getLastAction($view_id);
 	    
 	    if($clear || empty($last_action)) {
-            C4_TicketView::setLastAction($view_id,null);
+            View_Ticket::setLastAction($view_id,null);
 		    $view = C4_AbstractViewLoader::getView($view_id);
 		    $view->render();
 	        return;
@@ -1736,7 +1736,7 @@ class ChTicketsPage extends CerberusPageExtension {
 	        
 	        $tickets = DAO_Ticket::getTickets($ticket_ids);
 	        if(is_array($tickets))
-		    foreach($tickets as $ticket) { /* @var $ticket CerberusTicket */
+		    foreach($tickets as $ticket) { /* @var $ticket Model_Ticket */
 	            $ptr =& $unique_sender_ids[$ticket->first_wrote_address_id]; 
 		        $ptr = intval($ptr) + 1;
 		        $ptr =& $unique_subjects[$ticket->subject];
@@ -1940,7 +1940,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		}
 		
 		if(null == ($search_view = C4_AbstractViewLoader::getView(CerberusApplication::VIEW_SEARCH))) {
-			$search_view = C4_TicketView::createSearchView();
+			$search_view = View_Ticket::createSearchView();
 		}
 		$search_view->params = $params;
 		$search_view->renderPage = 0;

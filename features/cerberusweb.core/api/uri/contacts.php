@@ -179,10 +179,10 @@ class ChContactsPage extends CerberusPageExtension {
 		return;
 		
 //			case 'people':
-//				$view = C4_AbstractViewLoader::getView('addybook_people'); // C4_AddressView::DEFAULT_ID
+//				$view = C4_AbstractViewLoader::getView('addybook_people'); // View_Address::DEFAULT_ID
 //				
 //				if(null == $view) {
-//					$view = new C4_AddressView();
+//					$view = new View_Address();
 //					$view->id = 'addybook_people';
 //					$view->name = 'People';
 //					$view->params = array(
@@ -194,8 +194,8 @@ class ChContactsPage extends CerberusPageExtension {
 //				
 //				$tpl->assign('view', $view);
 //				$tpl->assign('contacts_page', 'people');
-//				$tpl->assign('view_fields', C4_AddressView::getFields());
-//				$tpl->assign('view_searchable_fields', C4_AddressView::getSearchFields());
+//				$tpl->assign('view_fields', View_Address::getFields());
+//				$tpl->assign('view_searchable_fields', View_Address::getSearchFields());
 //				$tpl->display('file:' . $this->_TPL_PATH . 'contacts/people/index.tpl');
 //				break;
 	}
@@ -205,15 +205,15 @@ class ChContactsPage extends CerberusPageExtension {
 		$tpl->assign('path', $this->_TPL_PATH);
 		
 		$defaults = new C4_AbstractViewModel();
-		$defaults->class_name = 'C4_ContactOrgView';
-		$defaults->id = C4_ContactOrgView::DEFAULT_ID;
+		$defaults->class_name = 'View_ContactOrg';
+		$defaults->id = View_ContactOrg::DEFAULT_ID;
 		
-		$view = C4_AbstractViewLoader::getView(C4_ContactOrgView::DEFAULT_ID, $defaults);
+		$view = C4_AbstractViewLoader::getView(View_ContactOrg::DEFAULT_ID, $defaults);
 		$tpl->assign('view', $view);
 		$tpl->assign('contacts_page', 'orgs');
 		$tpl->assign('response_uri', 'contacts/orgs');
-		$tpl->assign('view_fields', C4_ContactOrgView::getFields());
-		$tpl->assign('view_searchable_fields', C4_ContactOrgView::getSearchFields());
+		$tpl->assign('view_fields', View_ContactOrg::getFields());
+		$tpl->assign('view_searchable_fields', View_ContactOrg::getSearchFields());
 		$tpl->display('file:' . $this->_TPL_PATH . 'contacts/orgs/index.tpl');
 	}
 	
@@ -222,15 +222,15 @@ class ChContactsPage extends CerberusPageExtension {
 		$tpl->assign('path', $this->_TPL_PATH);
 		
 		$defaults = new C4_AbstractViewModel();
-		$defaults->class_name = 'C4_AddressView';
-		$defaults->id = C4_AddressView::DEFAULT_ID;
+		$defaults->class_name = 'View_Address';
+		$defaults->id = View_Address::DEFAULT_ID;
 		
-		$view = C4_AbstractViewLoader::getView(C4_AddressView::DEFAULT_ID, $defaults);
+		$view = C4_AbstractViewLoader::getView(View_Address::DEFAULT_ID, $defaults);
 		$tpl->assign('view', $view);
 		$tpl->assign('contacts_page', 'addresses');
 		$tpl->assign('response_uri', 'contacts/addresses');
-		$tpl->assign('view_fields', C4_AddressView::getFields());
-		$tpl->assign('view_searchable_fields', C4_AddressView::getSearchFields());
+		$tpl->assign('view_fields', View_Address::getFields());
+		$tpl->assign('view_searchable_fields', View_Address::getSearchFields());
 		
 		$tpl->display('file:' . $this->_TPL_PATH . 'contacts/addresses/index.tpl');
 	}
@@ -503,7 +503,7 @@ class ChContactsPage extends CerberusPageExtension {
 		$tpl->assign('contact', $contact);
 		
 		$defaults = new C4_AbstractViewModel();
-		$defaults->class_name = 'C4_AddressView';
+		$defaults->class_name = 'View_Address';
 		$defaults->id = 'org_contacts';
 		$defaults->view_columns = array(
 			SearchFields_Address::FIRST_NAME,
@@ -538,7 +538,7 @@ class ChContactsPage extends CerberusPageExtension {
 		$tpl->assign('contact', $contact);
 		
 		$defaults = new C4_AbstractViewModel();
-		$defaults->class_name = 'C4_TaskView';
+		$defaults->class_name = 'View_Task';
 		$defaults->id = 'org_tasks';
 		$defaults->view_columns = array(
 			SearchFields_Task::SOURCE_EXTENSION,
@@ -618,7 +618,7 @@ class ChContactsPage extends CerberusPageExtension {
 		));
 		
 		if(null == $tickets_view) {
-			$tickets_view = new C4_TicketView();
+			$tickets_view = new View_Ticket();
 			$tickets_view->id = 'contact_history';
 			$tickets_view->name = $translate->_('addy_book.history.view_title');
 			$tickets_view->view_columns = array(
@@ -747,7 +747,7 @@ class ChContactsPage extends CerberusPageExtension {
 			return;
 		
 		if(null == ($search_view = C4_AbstractViewLoader::getView(CerberusApplication::VIEW_SEARCH))) {
-			$search_view = C4_TicketView::createSearchView();
+			$search_view = View_Ticket::createSearchView();
 		}
 		
 		$search_view->params = array(
@@ -1128,10 +1128,10 @@ class ChContactsPage extends CerberusPageExtension {
         $query = trim($query);
         
 		$defaults = new C4_AbstractViewModel();
-		$defaults->class_name = 'C4_AddressView';
-		$defaults->id = C4_AddressView::DEFAULT_ID;
+		$defaults->class_name = 'View_Address';
+		$defaults->id = View_Address::DEFAULT_ID;
 		
-		$view = C4_AbstractViewLoader::getView(C4_AddressView::DEFAULT_ID, $defaults);
+		$view = C4_AbstractViewLoader::getView(View_Address::DEFAULT_ID, $defaults);
 
         $params = array();
         
@@ -1151,7 +1151,7 @@ class ChContactsPage extends CerberusPageExtension {
         $view->renderPage = 0;
         $view->renderSortBy = null;
         
-        C4_AbstractViewLoader::setView(C4_AddressView::DEFAULT_ID,$view);
+        C4_AbstractViewLoader::setView(View_Address::DEFAULT_ID,$view);
         
         DevblocksPlatform::redirect(new DevblocksHttpResponse(array('contacts','addresses')));
 	}
@@ -1163,10 +1163,10 @@ class ChContactsPage extends CerberusPageExtension {
         $query = trim($query);
         
 		$defaults = new C4_AbstractViewModel();
-		$defaults->class_name = 'C4_ContactOrgView';
-		$defaults->id = C4_ContactOrgView::DEFAULT_ID;
+		$defaults->class_name = 'View_ContactOrg';
+		$defaults->id = View_ContactOrg::DEFAULT_ID;
 		
-		$view = C4_AbstractViewLoader::getView(C4_ContactOrgView::DEFAULT_ID, $defaults);
+		$view = C4_AbstractViewLoader::getView(View_ContactOrg::DEFAULT_ID, $defaults);
 
         $params = array();
         
@@ -1186,7 +1186,7 @@ class ChContactsPage extends CerberusPageExtension {
         $view->renderPage = 0;
         $view->renderSortBy = null;
         
-        C4_AbstractViewLoader::setView(C4_ContactOrgView::DEFAULT_ID,$view);
+        C4_AbstractViewLoader::setView(View_ContactOrg::DEFAULT_ID,$view);
         
         DevblocksPlatform::redirect(new DevblocksHttpResponse(array('contacts','orgs')));
 	}

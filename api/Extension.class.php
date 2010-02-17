@@ -156,7 +156,7 @@ abstract class Extension_TicketToolbarItem extends DevblocksExtension {
 		$this->DevblocksExtension($manifest);
 	}
 	
-	function render(CerberusTicket $ticket) { }
+	function render(Model_Ticket $ticket) { }
 };
 
 abstract class Extension_MessageToolbarItem extends DevblocksExtension {

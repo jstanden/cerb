@@ -86,7 +86,7 @@ class CrmOppsActivityTab extends Extension_ActivityTab {
 			
 		// Index
 		$defaults = new C4_AbstractViewModel();
-		$defaults->class_name = 'C4_CrmOpportunityView';
+		$defaults->class_name = 'View_CrmOpportunity';
 		$defaults->id = self::VIEW_ACTIVITY_OPPS;
 		$defaults->name = $translate->_('crm.tab.title');
 		$defaults->renderSortBy = SearchFields_CrmOpportunity::UPDATED_DATE;
@@ -100,8 +100,8 @@ class CrmOppsActivityTab extends Extension_ActivityTab {
 		$tpl->assign('quick_search_type', $quick_search_type);
 		
 		$tpl->assign('view', $view);
-		$tpl->assign('view_fields', C4_CrmOpportunityView::getFields());
-		$tpl->assign('view_searchable_fields', C4_CrmOpportunityView::getSearchFields());
+		$tpl->assign('view_fields', View_CrmOpportunity::getFields());
+		$tpl->assign('view_searchable_fields', View_CrmOpportunity::getSearchFields());
 		
 		$tpl->display($tpl_path . 'crm/opps/activity_tab/index.tpl');		
 	}
@@ -442,7 +442,7 @@ class CrmPage extends CerberusPageExtension {
 		$tpl->assign('opp', $opp);
 		
 		$defaults = new C4_AbstractViewModel();
-		$defaults->class_name = 'C4_TaskView';
+		$defaults->class_name = 'View_Task';
 		$defaults->id = 'opp_tasks';
 		$defaults->view_columns = array(
 			SearchFields_Task::SOURCE_EXTENSION,
@@ -504,7 +504,7 @@ class CrmPage extends CerberusPageExtension {
 		
 		// View
 		$defaults = new C4_AbstractViewModel();
-		$defaults->class_name = 'C4_TicketView';
+		$defaults->class_name = 'View_Ticket';
 		$defaults->id = 'opp_tickets';
 		$defaults->name = '';
 		$defaults->renderPage = 0;
@@ -818,7 +818,7 @@ class CrmPage extends CerberusPageExtension {
         $translate = DevblocksPlatform::getTranslationService();
 		
         if(null == ($searchView = C4_AbstractViewLoader::getView(CrmOppsActivityTab::VIEW_ACTIVITY_OPPS))) {
-        	$searchView = new C4_CrmOpportunityView();
+        	$searchView = new View_CrmOpportunity();
         	$searchView->id = CrmOppsActivityTab::VIEW_ACTIVITY_OPPS;
         	$searchView->name = $translate->_('common.search_results');
         	C4_AbstractViewLoader::setView($searchView->id, $searchView);
@@ -1420,7 +1420,7 @@ class Model_CrmOpportunity {
 	public $worker_id;
 };
 
-class C4_CrmOpportunityView extends C4_AbstractView {
+class View_CrmOpportunity extends C4_AbstractView {
 	const DEFAULT_ID = 'crm_opportunities';
 
 	function __construct() {
@@ -1758,7 +1758,7 @@ class CrmOrgOppTab extends Extension_OrgTab {
 		$tpl->assign('org_id', $org_id);
 		
 		$defaults = new C4_AbstractViewModel();
-		$defaults->class_name = 'C4_CrmOpportunityView';
+		$defaults->class_name = 'View_CrmOpportunity';
 		$defaults->id = 'org_opps';
 		$defaults->view_columns = array(
 			SearchFields_CrmOpportunity::EMAIL_ADDRESS,
@@ -1801,7 +1801,7 @@ class CrmTicketOppTab extends Extension_TicketTab {
 		$tpl->assign('address', $address);
 		
 		if(null == ($view = C4_AbstractViewLoader::getView('ticket_opps'))) {
-			$view = new C4_CrmOpportunityView();
+			$view = new View_CrmOpportunity();
 			$view->id = 'ticket_opps';
 		}
 

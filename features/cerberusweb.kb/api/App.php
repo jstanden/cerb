@@ -29,15 +29,15 @@ class ChKbResearchTab extends Extension_ResearchTab {
 		switch($action) {
 			case 'search':
 				if(null == ($view = C4_AbstractViewLoader::getView(self::VIEW_RESEARCH_KB_SEARCH))) {
-					$view = new C4_KbArticleView();
+					$view = new View_KbArticle();
 					$view->id = self::VIEW_RESEARCH_KB_SEARCH;
 					$view->name = $translate->_('common.search_results');
 					C4_AbstractViewLoader::setView($view->id, $view);
 				}
 				
 				$tpl->assign('view', $view);
-				$tpl->assign('view_fields', C4_KbArticleView::getFields());
-				$tpl->assign('view_searchable_fields', C4_KbArticleView::getSearchFields());
+				$tpl->assign('view_fields', View_KbArticle::getFields());
+				$tpl->assign('view_searchable_fields', View_KbArticle::getSearchFields());
 				
 				$tpl->assign('response_uri', 'research/kb/search');
 
@@ -66,7 +66,7 @@ class ChKbResearchTab extends Extension_ResearchTab {
 				$tpl->assign('mid', @intval(ceil(count($tree[$root_id])/2)));
 				
 				if(null == ($view = C4_AbstractViewLoader::getView(self::VIEW_RESEARCH_KB_BROWSE))) {
-					$view = new C4_KbArticleView();
+					$view = new View_KbArticle();
 					$view->id = self::VIEW_RESEARCH_KB_BROWSE;
 				}
 				
@@ -366,7 +366,7 @@ class ChKbAjaxController extends DevblocksControllerExtension {
         $translate = DevblocksPlatform::getTranslationService();
 		
         if(null == ($searchView = C4_AbstractViewLoader::getView(ChKbResearchTab::VIEW_RESEARCH_KB_SEARCH))) {
-        	$searchView = new C4_KbArticleView();
+        	$searchView = new View_KbArticle();
         	$searchView->id = ChKbResearchTab::VIEW_RESEARCH_KB_SEARCH;
         	$searchView->name = $translate->_('common.search_results');
         	C4_AbstractViewLoader::setView($searchView->id, $searchView);
@@ -1045,7 +1045,7 @@ class DAO_KbCategory extends DevblocksORMHelper {
 	}
 };
 
-class C4_KbArticleView extends C4_AbstractView {
+class View_KbArticle extends C4_AbstractView {
 	const DEFAULT_ID = 'kb_overview';
 	
 	private $_CORE_TPL_PATH = '';

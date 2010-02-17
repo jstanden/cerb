@@ -298,7 +298,7 @@ class ChRestFrontController extends DevblocksControllerExtension {
 abstract class Ch_RestController implements DevblocksHttpRequestHandler {
 	protected $_format = 'xml';
 	protected $_payload = '';
-	protected $_activeWorker = null; /* @var $_activeWorker CerberusWorker */ 
+	protected $_activeWorker = null; /* @var $_activeWorker Model_Worker */ 
 	
 	protected function getActiveWorker() {
 		return($this->_activeWorker);
@@ -330,7 +330,7 @@ abstract class Ch_RestController implements DevblocksHttpRequestHandler {
 		
 		if(strpos($auth_access_key,'@')) { // WORKER-LEVEL AUTH
 			$workers = DAO_Worker::getAll();
-			foreach($workers as $worker) { /* @var $worker CerberusWorker */
+			foreach($workers as $worker) { /* @var $worker Model_Worker */
 				if($worker->email == $auth_access_key) {
 					$this->setActiveWorker($worker);
 					break;
@@ -1160,7 +1160,7 @@ class Rest_TicketsController extends Ch_RestController {
 	}
 
 	protected function getWorkerAction($path) {
-		$worker = parent::getActiveWorker(); /* @var $worker CerberusWorker */
+		$worker = parent::getActiveWorker(); /* @var $worker Model_Worker */
 		$memberships = $worker->getMemberships();
 		
 		// Single GET
@@ -1195,7 +1195,7 @@ class Rest_TicketsController extends Ch_RestController {
 	}
 	
 	protected function putWorkerAction($path) {
-		$worker = parent::getActiveWorker(); /* @var $worker CerberusWorker */
+		$worker = parent::getActiveWorker(); /* @var $worker Model_Worker */
 		$memberships = $worker->getMemberships();
 		
 		// Single PUT
@@ -1216,7 +1216,7 @@ class Rest_TicketsController extends Ch_RestController {
 	}
 	
 	protected function postWorkerAction($path) {
-		$worker = parent::getActiveWorker(); /* @var $worker CerberusWorker */
+		$worker = parent::getActiveWorker(); /* @var $worker Model_Worker */
 		$memberships = $worker->getMemberships();
 		
 		// Actions
@@ -1241,7 +1241,7 @@ class Rest_TicketsController extends Ch_RestController {
 	}
 	
 	protected function deleteWorkerAction($path) {
-		$worker = parent::getActiveWorker(); /* @var $worker CerberusWorker */
+		$worker = parent::getActiveWorker(); /* @var $worker Model_Worker */
 		$memberships = $worker->getMemberships();
 				
 		// Single DELETE

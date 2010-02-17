@@ -605,12 +605,12 @@ class UmConfigCommunitiesTab extends Extension_ConfigTab {
 		
 		$defaults = new C4_AbstractViewModel();
 		$defaults->id = 'portals_cfg';
-		$defaults->class_name = 'C4_CommunityPortalView';
+		$defaults->class_name = 'View_CommunityPortal';
 		
 		$view = C4_AbstractViewLoader::getView($defaults->id, $defaults);
 		$tpl->assign('view', $view);
-		$tpl->assign('view_fields', C4_CommunityPortalView::getFields());
-		$tpl->assign('view_searchable_fields', C4_CommunityPortalView::getSearchFields());
+		$tpl->assign('view_fields', View_CommunityPortal::getFields());
+		$tpl->assign('view_searchable_fields', View_CommunityPortal::getSearchFields());
 	    
 		$tpl->display('file:' . $tpl_path . 'community/config/tab/index.tpl');
 	}

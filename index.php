@@ -74,9 +74,11 @@ DevblocksPlatform::setExtensionDelegate('C4_DevblocksExtensionDelegate');
 $request = DevblocksPlatform::readRequest();
 
 // Patches (if not on the patch page)
-if(@0 != strcasecmp(@$request->path[0],"update")
-	&& !DevblocksPlatform::versionConsistencyCheck())
-	DevblocksPlatform::redirect(new DevblocksHttpResponse(array('update','locked')));
+if(0 != strcasecmp(@$request->path[0],"update") 
+	&& !DevblocksPlatform::versionConsistencyCheck()) {
+		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('update','locked')));
+		exit;
+}
 
 //DevblocksPlatform::readPlugins();
 $session = DevblocksPlatform::getSessionService();

@@ -68,12 +68,12 @@ endif;
 
 if (class_exists('Extension_TicketToolbarItem',true)):
 	class ChTimeTrackingTicketToolbarTimer extends Extension_TicketToolbarItem {
-		function render(CerberusTicket $ticket) {
+		function render(Model_Ticket $ticket) {
 			$tpl = DevblocksPlatform::getTemplateService();
 			$tpl_path = dirname(dirname(__FILE__)).'/templates/';
 			$tpl->assign('path', $tpl_path);
 			
-			$tpl->assign('ticket', $ticket); /* @var $ticket CerberusTicket */
+			$tpl->assign('ticket', $ticket); /* @var $ticket Model_Ticket */
 			
 //			if(null != ($first_wrote_address_id = $ticket->first_wrote_address_id)
 //				&& null != ($first_wrote_address = DAO_Address::get($first_wrote_address_id))) {

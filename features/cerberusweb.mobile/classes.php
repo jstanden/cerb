@@ -203,7 +203,7 @@ class MobileController extends DevblocksControllerExtension {
 	}
 };
 
-class C4_MobileTicketView extends C4_TicketView {
+class C4_MobileTicketView extends View_Ticket {
 	
 	function render() {
 		$tpl = DevblocksPlatform::getTemplateService();
@@ -237,7 +237,7 @@ class C4_MobileTicketView extends C4_TicketView {
 		
 		// Undo?
 		// [TODO] Is this even used here or did mfogg copy it blindly?
-		$last_action = C4_TicketView::getLastAction($this->id);
+		$last_action = View_Ticket::getLastAction($this->id);
 		$tpl->assign('last_action', $last_action);
 		if(!empty($last_action) && !is_null($last_action->ticket_ids)) {
 			$tpl->assign('last_action_count', count($last_action->ticket_ids));
@@ -615,7 +615,7 @@ class ChMobileTicketsPage extends CerberusMobilePageExtension  {
 		$mobileView = C4_AbstractViewLoader::getView("VIEW_MOBILE");
 		//print_r($mobileView);		
 		if($mobileView == NULL) {
-			$mobileView = new C4_MobileTicketView();//C4_TicketView();
+			$mobileView = new C4_MobileTicketView();//View_Ticket();
 		}
 		$mobileView->id = "VIEW_MOBILE";
 		$mobileView->name = $title;

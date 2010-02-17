@@ -18,7 +18,7 @@ class ChTasksActivityTab extends Extension_ActivityTab {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		if(null == ($view = C4_AbstractViewLoader::getView(self::VIEW_ACTIVITY_TASKS))) {
-			$view = new C4_TaskView();
+			$view = new View_Task();
 			$view->id = self::VIEW_ACTIVITY_TASKS;
 			$view->renderSortBy = SearchFields_Task::DUE_DATE;
 			$view->renderSortAsc = 1;
@@ -31,8 +31,8 @@ class ChTasksActivityTab extends Extension_ActivityTab {
 		$tpl->assign('response_uri', 'activity/tasks');
 		
 		$tpl->assign('view', $view);
-		$tpl->assign('view_fields', C4_TaskView::getFields());
-		$tpl->assign('view_searchable_fields', C4_TaskView::getSearchFields());
+		$tpl->assign('view_fields', View_Task::getFields());
+		$tpl->assign('view_searchable_fields', View_Task::getSearchFields());
 		
 		$tpl->display($tpl_path . 'tasks/activity_tab/index.tpl');		
 	}

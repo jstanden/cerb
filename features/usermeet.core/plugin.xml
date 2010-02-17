@@ -19,8 +19,8 @@
 			<class name="Extension_UsermeetTool" />
 		</file>
 		<file path="api/Model.php">
-			<class name="C4_CommunityPortalView" />
 			<class name="Model_CommunityTool" />
+			<class name="View_CommunityPortal" />
 		</file>
 		<file path="classes.php">
 			<class name="CustomFieldSource_CommunityPortal" />
