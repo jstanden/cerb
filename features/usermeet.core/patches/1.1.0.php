@@ -53,19 +53,19 @@ if(isset($tables['community_tool'])) {
 		
 		// Look up the existing properties for this tool
 		$sql = sprintf("SELECT property_key, property_value FROM community_tool_property WHERE tool_code = '%s'",$code);
-		$rs = $db->Execute($sql);
+		$rs2 = $db->Execute($sql);
 		
 		$name = '';
 		$props = array();
 
 		// Create a hash of properties		
-		while($row = mysql_fetch_assoc($rs)) {
-			$k = $row['property_key'];
-			$v = $row['property_value'];
+		while($row2 = mysql_fetch_assoc($rs2)) {
+			$k = $row2['property_key'];
+			$v = $row2['property_value'];
 			$props[$k] = $v;
 		}
 		
-		mysql_free_result($rs);
+		mysql_free_result($rs2);
 		
 		// Drop existing properies to replace
 		$db->Execute(sprintf("DELETE FROM community_tool_property WHERE tool_code = '%s'",$code));
