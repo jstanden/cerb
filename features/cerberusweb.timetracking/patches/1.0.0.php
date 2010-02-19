@@ -28,7 +28,7 @@ if(isset($columns['is_closed'])) {
 }
 
 if(!isset($indexes['activity_id'])) {
-	$db->Execute('ALTER TABLE timetracking_entry DROP COLUMN activity_id');
+	$db->Execute('ALTER TABLE timetracking_entry ADD INDEX activity_id (activity_id)');
 }
 
 if(!isset($indexes['source_extension_id'])) {
