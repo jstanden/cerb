@@ -244,7 +244,7 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 			);
 			$id = DAO_KbCategory::create($fields);
 			
-			$return = "research/kb/" . sprintf("%04d", $id);
+			$return = "research/kb/";
 			
 		} else { // update
 			$fields = array(

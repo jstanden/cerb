@@ -62,6 +62,7 @@ class ChWatchersPatchContainer extends DevblocksPatchContainerExtension {
 		
 		$this->registerPatch(new DevblocksPatch('cerberusweb.watchers',4,$file_prefix.'/1.0.0.php',''));
 		$this->registerPatch(new DevblocksPatch('cerberusweb.watchers',5,$file_prefix.'/4.2.3.php',''));
+		$this->registerPatch(new DevblocksPatch('cerberusweb.watchers',6,$file_prefix.'/5.0.0.php',''));
 	}
 };
 

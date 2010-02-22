@@ -16,16 +16,16 @@ class ChWatchersConfigTab extends Extension_ConfigTab {
 		$tpl->assign('response_uri', 'config/watchers');
 		
 		$defaults = new C4_AbstractViewModel();
-		$defaults->class_name = 'View_WorkerMailFilter';
-		$defaults->id = View_WorkerMailFilter::DEFAULT_ID;
+		$defaults->class_name = 'View_WatcherMailFilter';
+		$defaults->id = View_WatcherMailFilter::DEFAULT_ID;
 		$defaults->renderSortBy = SearchFields_WatcherMailFilter::POS;
 		$defaults->renderSortAsc = 0;
 		
-		$view = C4_AbstractViewLoader::getView(View_WorkerMailFilter::DEFAULT_ID, $defaults);
+		$view = C4_AbstractViewLoader::getView(View_WatcherMailFilter::DEFAULT_ID, $defaults);
 		
 		$tpl->assign('view', $view);
-		$tpl->assign('view_fields', View_WorkerMailFilter::getFields());
-		$tpl->assign('view_searchable_fields', View_WorkerMailFilter::getSearchFields());
+		$tpl->assign('view_fields', View_WatcherMailFilter::getFields());
+		$tpl->assign('view_searchable_fields', View_WatcherMailFilter::getSearchFields());
 		
 		$tpl->display('file:' . $tpl_path . 'config/watchers/index.tpl');
 	}
@@ -559,7 +559,7 @@ class ChWatchersPreferences extends Extension_PreferenceTab {
 		$tpl->assign('response_uri', 'preferences/watchers');
 		
 		if(null == ($view = C4_AbstractViewLoader::getView('prefs_watchers'))) {
-			$view = new View_WorkerMailFilter();
+			$view = new View_WatcherMailFilter();
 			$view->id = 'prefs_watchers';
 			$view->name = "My Watcher Filters";
 			$view->renderSortBy = SearchFields_WatcherMailFilter::POS;
@@ -572,8 +572,8 @@ class ChWatchersPreferences extends Extension_PreferenceTab {
 		}
 		
 		$tpl->assign('view', $view);
-		$tpl->assign('view_fields', View_WorkerMailFilter::getFields());
-		$tpl->assign('view_searchable_fields', View_WorkerMailFilter::getSearchFields());
+		$tpl->assign('view_fields', View_WatcherMailFilter::getFields());
+		$tpl->assign('view_searchable_fields', View_WatcherMailFilter::getSearchFields());
 		
 		$tpl->display('file:' . $this->_TPL_PATH . 'preferences/watchers.tpl');
 	}
@@ -914,7 +914,7 @@ class ChWatchersPreferences extends Extension_PreferenceTab {
 	
 };
 
-class View_WorkerMailFilter extends C4_AbstractView {
+class View_WatcherMailFilter extends C4_AbstractView {
 	const DEFAULT_ID = 'watchers';
 
 	function __construct() {
