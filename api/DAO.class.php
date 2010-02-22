@@ -523,17 +523,6 @@ class DAO_ViewRss extends DevblocksORMHelper {
 	static function update($ids, $fields) {
 		if(!is_array($ids)) $ids = array($ids);
 		$db = DevblocksPlatform::getDatabaseService();
-
-		// [JAS]: Handle our blobs specially
-		if(isset($fields[self::PARAMS])) {
-			$db->UpdateBlob(
-				'view_rss',
-				self::PARAMS,
-				$fields[self::PARAMS],
-				sprintf('id IN (%s)',implode(',',$ids))
-			);
-			unset($fields[self::PARAMS]);
-		}
 		
 		parent::_update($ids, 'view_rss', $fields);
 	}

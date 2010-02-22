@@ -94,12 +94,6 @@ class DAO_MessageNote extends DevblocksORMHelper {
     	if(!is_array($ids)) $ids = array($ids);
     	$db = DevblocksPlatform::getDatabaseService();
 
-    	// Update our blob manually
-    	if($fields[self::CONTENT]) {
-    		$db->UpdateBlob('message_note', self::CONTENT, $fields[self::CONTENT], 'id IN('.implode(',',$ids).')');
-    		unset($fields[self::CONTENT]);
-    	}
-    	
     	parent::_update($ids, 'message_note', $fields);
     }
     

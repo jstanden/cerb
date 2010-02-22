@@ -402,18 +402,12 @@ class DAO_CommunitySession {
 	static public function save(Model_CommunitySession $session) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = sprintf("UPDATE community_session SET updated = %d WHERE session_id = %s",
+		$sql = sprintf("UPDATE community_session SET updated = %d, properties = %s WHERE session_id = %s",
 			time(),
+			$db->qstr(serialize($session->getProperties())),
 			$db->qstr($session->session_id)
 		);
 		$db->Execute($sql);
-		
-		$db->UpdateBlob(
-			'community_session', 
-			self::PROPERTIES, 
-			serialize($session->getProperties()), 
-			"session_id=".$db->qstr($session->session_id)
-		);
 	}
 	
 	/**
