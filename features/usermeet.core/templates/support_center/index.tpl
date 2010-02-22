@@ -38,6 +38,11 @@
 			<br>
 			{/if}
 			
+			<!-- Sidebar -->
+			{if !empty($module) && method_exists($module,'renderSidebar')}
+			{$module->renderSidebar($module_response)}
+			{/if}						
+			
 			<!-- Login Form -->
 			{if !empty($login_extension)}
 			{if !empty($active_user)}

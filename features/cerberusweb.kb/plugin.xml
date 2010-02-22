@@ -26,6 +26,7 @@
 		<template path="support_center/kb/article.tpl" />
 		<template path="support_center/kb/index.tpl" />
 		<template path="support_center/kb/search_results.tpl" />
+		<template path="support_center/kb/sidebar.tpl" />
 		<template path="support_center/kb/view.tpl" />
 	</templates>
 

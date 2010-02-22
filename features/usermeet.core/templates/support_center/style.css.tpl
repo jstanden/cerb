@@ -76,7 +76,7 @@ TABLE.sidebar TH {
 }
 
 TABLE.sidebar TD {
-	background-color: rgb(238,238,238);
+	background-color: rgb(240,240,240);
 	padding: 3px;
 }
 
@@ -84,15 +84,9 @@ TABLE.sidebar TD A {
 	color: rgb(7,39,115);
 }
 
-TABLE.sidebar BUTTON {
-	width:98%;
-	text-align:center;
-	background-color:rgb(255,255,255);
-	border-top:1px solid rgb(204,204,204);	
-	border-left:1px solid rgb(204,204,204);
-	border-right:1px solid rgb(102,102,102);
-	border-bottom:1px solid rgb(102,102,102);
-	cursor: hand;
+TABLE.sidebar TD INPUT {
+	border:1px solid rgb(200,200,200);
+	margin-bottom:1px;
 }
 
 #footer {
@@ -184,17 +178,6 @@ TABLE.sidebar BUTTON {
 }
 
 #kb {
-}
-
-#kb DIV.search {
-	margin-bottom:5px;
-}
-
-#kb DIV.search INPUT.query {
-	width:200px;
-	background-color:rgb(232,242,254);
-	border:1px solid rgb(200,200,200);
-	padding:2px;
 }
 
 #kb DIV.browse {

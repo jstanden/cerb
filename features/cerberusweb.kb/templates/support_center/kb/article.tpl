@@ -1,28 +1,15 @@
 <div id="kb">
 	
-<div class="header"><h1>{$translate->_('common.knowledgebase')|capitalize}</h1></div>
+<div class="header"><h1>{$article->title|escape}</h1></div>
+<b>Article ID:</b> {$article->id|string_format:"%06d"}
 
-<h2>{$article->title}</h2>
-
-<div style="padding-bottom:5px;font-size:90%;">
-{if !empty($breadcrumbs)}
-	{foreach from=$breadcrumbs item=bread_stack}
-		<a href="{devblocks_url}c=kb&a=browse{/devblocks_url}">{$translate->_('portal.kb.public.top')}</a> ::
-		{foreach from=$bread_stack item=bread_id}
-			<a href="{devblocks_url}c=kb&a=browse&id={$bread_id|string_format:"%06d"}{/devblocks_url}">{$categories.$bread_id->name}</a> :
-		{/foreach}
-		<br> 
-	{/foreach} 
-{/if}
+<div style="padding:10px;">
+	{if !empty($article->content)}
+		{if !$article->format}{$article->content|escape|nl2br}{else}{$article->content}{/if}<br>
+	{else}
+		<i>[[ {$translate->_('portal.kb.public.no_content')} ]]</i><br>
+	{/if}
+	<br>
 </div>
-
-<br>
-
-{if !empty($article->content)}
-	{if !$article->format}{$article->content|escape|nl2br}{else}{$article->content}{/if}<br>
-{else}
-	<i>[[ {$translate->_('portal.kb.public.no_content')} ]]</i><br>
-{/if}
-<br>
 
 </div>

@@ -10,9 +10,17 @@ class UmScKbController extends Extension_UmScController {
         return !empty($kb_roots);
 	}
 	
+	function renderSidebar(DevblocksHttpResponse $response) {
+		$tpl = DevblocksPlatform::getTemplateService();
+		
+		@$q = DevblocksPlatform::importGPC($_POST['q'],'string','');
+		$tpl->assign('q', $q);
+		
+		$tpl->display("devblocks:cerberusweb.kb:support_center/kb/sidebar.tpl:portal_".UmPortalHelper::getCode());
+	}
+	
 	function writeResponse(DevblocksHttpResponse $response) {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl_path = dirname(dirname(dirname(__FILE__))) . '/templates/';
 		
 		$umsession = UmPortalHelper::getSession();
 		$active_user = $umsession->getProperty('sc_login', null);

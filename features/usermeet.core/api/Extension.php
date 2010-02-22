@@ -162,6 +162,11 @@ abstract class Extension_UmScController extends DevblocksExtension implements De
 		/* Expect Overload */
 	}
 	
+	public function renderSidebar(DevblocksHttpResponse $response) {
+		/* Expect Overload */
+		return;
+	}
+	
 	public function isVisible() {
 		/* Expect Overload */
 		return true;

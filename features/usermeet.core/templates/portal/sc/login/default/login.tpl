@@ -4,11 +4,11 @@
 	</tr>
 	<tr>
 		<td width="0%">{$translate->_('common.email')|lower}:</td>
-		<td width="100%"><input type="text" name="email" style="width:98%;border:1px solid rgb(153,153,153);"></td>
+		<td width="100%"><input type="text" name="email" style="width:98%;"></td>
 	</tr>
 	<tr>
 		<td width="0%">{$translate->_('common.password')|lower}:</td>
-		<td width="100%"><input type="password" name="pass" style="width:98%;border:1px solid rgb(153,153,153);"></td>
+		<td width="100%"><input type="password" name="pass" style="width:98%;"></td>
 	</tr>
 	<tr>
 		<td width="100%" colspan="2"><button type="submit">{$translate->_('portal.sc.public.themes.click_to_log_in')}</button></td>
