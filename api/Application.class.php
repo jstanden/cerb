@@ -316,62 +316,6 @@ class CerberusApplication extends DevblocksApplication {
 	    
 	    return $callouts;
 	}
-	
-	static function stripHTML($str) {
-		// Strip all CRLF and tabs, spacify </TD>
-		$str = str_ireplace(
-			array("\r","\n","\t","</TD>"),
-			array('','',' ',' '),
-			trim($str)
-		);
-		
-		// Turn block tags into a linefeed
-		$str = str_ireplace(
-			array('<BR>','<P>','</P>','<HR>','</TR>','</H1>','</H2>','</H3>','</H4>','</H5>','</H6>','</DIV>'),
-			"\n",
-			$str
-		);		
-		
-		// Strip tags
-		$search = array(
-			'@<script[^>]*?>.*?</script>@si',
-		    '@<style[^>]*?>.*?</style>@siU',
-		    '@<[\/\!]*?[^<>]*?>@si',
-		    '@<![\s\S]*?--[ \t\n\r]*>@',
-		);
-		$str = preg_replace($search, '', $str);
-		
-		// Flatten multiple spaces into a single
-		$str = preg_replace('# +#', ' ', $str);
-
-		// Translate HTML entities into text
-		$str = html_entity_decode($str, ENT_COMPAT, LANG_CHARSET_CODE);
-
-		// Loop through each line, ltrim, and concat if not empty
-		$lines = explode("\n", $str);
-		if(is_array($lines)) {
-			$str = '';
-			$blanks = 0;
-			foreach($lines as $idx => $line) {
-				$lines[$idx] = ltrim($line);
-				
-				if(empty($lines[$idx])) {
-					if(++$blanks >= 2)
-						unset($lines[$idx]);
-						//continue; // skip more than 2 blank lines in a row
-				} else {
-					$blanks = 0;
-				}
-			}
-			$str = implode("\n", $lines);
-		}
-		unset($lines);
-		
-		// Clean up bytes (needed after HTML entities)
-		$str = mb_convert_encoding($str, LANG_CHARSET_CODE, LANG_CHARSET_CODE);
-		
-		return $str;
-	}
 	    
 	/**
 	 * Enter description here...

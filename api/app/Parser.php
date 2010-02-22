@@ -229,7 +229,7 @@ class CerberusParser {
 		
 		// generate the plaintext part (if necessary)
 		if(empty($message->body) && !empty($message->htmlbody)) {
-			$message->body = CerberusApplication::stripHTML($message->htmlbody);
+			$message->body = DevblocksPlatform::stripHTML($message->htmlbody);
 		}
 		
 		return $message;

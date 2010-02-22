@@ -763,7 +763,7 @@ class ImportCron extends CerberusCronPageExtension {
 			if(isset($eMessage->content['content-type'])) { // do we have a content-type?
 				if(strtolower($eMessage->content['content-type']) == 'html') { // html?
 					// Force to plaintext part
-					$sMessageContent = CerberusApplication::stripHTML($sMessageContent);
+					$sMessageContent = DevblocksPlatform::stripHTML($sMessageContent);
 				}
 			}				
 			unset($sMessageContentB64);
