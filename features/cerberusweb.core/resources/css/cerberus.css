@@ -313,6 +313,7 @@ button span.cerb-sprite { display:inline-block; }
 .ui-tabs .ui-tabs-panel { background: #ffffff none; }
 .ui-tabs .ui-tabs-nav { background: #ffffff none; border: none; border-bottom: 1px solid rgb(197,219,236); }
 .ui-tabs .ui-tabs-nav li { margin: 0 0.2em 0 0; background: rgb(255,255,255) none; }
+.ui-tabs .ui-tabs-nav li.ui-state-default a { color: rgb(120,120,120); }
 .ui-tabs .ui-tabs-nav li.ui-tabs-selected { padding-bottom: 0px; background: rgb(232,242,254) none; }
 .ui-tabs .ui-tabs-nav li.ui-tabs-selected a { color: rgb(74,110,158); font-weight:bold; }
 
