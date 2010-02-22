@@ -2,7 +2,7 @@
 /***********************************************************************
 | Cerberus Helpdesk(tm) developed by WebGroup Media, LLC.
 |-----------------------------------------------------------------------
-| All source code & content (c) Copyright 2009, WebGroup Media LLC
+| All source code & content (c) Copyright 2010, WebGroup Media LLC
 |   unless specifically noted otherwise.
 |
 | This source code is released under the Cerberus Public License.
@@ -37,6 +37,6 @@ class ChCorePatchContainer extends DevblocksPatchContainerExtension {
 		$this->registerPatch(new DevblocksPatch('cerberusweb.core',834,$file_prefix.'4.2.3.php',''));
 		$this->registerPatch(new DevblocksPatch('cerberusweb.core',836,$file_prefix.'4.3.0.php',''));
 		$this->registerPatch(new DevblocksPatch('cerberusweb.core',837,$file_prefix.'4.3.1.php',''));
-		$this->registerPatch(new DevblocksPatch('cerberusweb.core',841,$file_prefix.'5.0.0.php',''));
+		$this->registerPatch(new DevblocksPatch('cerberusweb.core',842,$file_prefix.'5.0.0.php',''));
 	}
 };

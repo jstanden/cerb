@@ -99,4 +99,15 @@ if(isset($tables['tag_to_content'])) {
 	$db->Execute('DROP TABLE tag_to_content');
 }
 
+// ===========================================================================
+// Remove deprecated F&R
+
+if(isset($tables['fnr_query'])) {
+	$db->Execute('DROP TABLE fnr_query');
+}
+
+if(isset($tables['fnr_query_seq'])) {
+	$db->Execute('DROP TABLE fnr_query_seq');
+}
+
 return TRUE;
