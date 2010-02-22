@@ -51,7 +51,7 @@ class ChPrintController extends DevblocksControllerExtension {
 
 				$convo_timeline = array();
 				$messages = $ticket->getMessages();		
-				foreach($messages as $message_id => $message) { /* @var $message CerberusMessage */
+				foreach($messages as $message_id => $message) { /* @var $message Model_Message */
 					$key = $message->created_date . '_m' . $message_id;
 					// build a chrono index of messages
 					$convo_timeline[$key] = array('m',$message_id);

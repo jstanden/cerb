@@ -1,53 +1,130 @@
 <?php
-/***********************************************************************
-| Cerberus Helpdesk(tm) developed by WebGroup Media, LLC.
-|-----------------------------------------------------------------------
-| All source code & content (c) Copyright 2007, WebGroup Media LLC
-|   unless specifically noted otherwise.
-|
-| This source code is released under the Cerberus Public License.
-| The latest version of this license can be found here:
-| http://www.cerberusweb.com/license.php
-|
-| By using this software, you acknowledge having read this license
-| and agree to be bound thereby.
-| ______________________________________________________________________
-|	http://www.cerberusweb.com	  http://www.webgroupmedia.com/
-***********************************************************************/
-/*
- * IMPORTANT LICENSING NOTE from your friends on the Cerberus Helpdesk Team
- * 
- * Sure, it would be so easy to just cheat and edit this file to use the 
- * software without paying for it.  But we trust you anyway.  In fact, we're 
- * writing this software for you! 
- * 
- * Quality software backed by a dedicated team takes money to develop.  We 
- * don't want to be out of the office bagging groceries when you call up 
- * needing a helping hand.  We'd rather spend our free time coding your 
- * feature requests than mowing the neighbors' lawns for rent money. 
- * 
- * We've never believed in encoding our source code out of paranoia over not 
- * getting paid.  We want you to have the full source code and be able to 
- * make the tweaks your organization requires to get more done -- despite 
- * having less of everything than you might need (time, people, money, 
- * energy).  We shouldn't be your bottleneck.
- * 
- * We've been building our expertise with this project since January 2002.  We 
- * promise spending a couple bucks [Euro, Yuan, Rupees, Galactic Credits] to 
- * let us take over your shared e-mail headache is a worthwhile investment.  
- * It will give you a sense of control over your in-box that you probably 
- * haven't had since spammers found you in a game of "E-mail Address 
- * Battleship".  Miss. Miss. You sunk my in-box!
- * 
- * A legitimate license entitles you to support, access to the developer 
- * mailing list, the ability to participate in betas and the warm fuzzy 
- * feeling of feeding a couple obsessed developers who want to help you get 
- * more done than 'the other guy'.
- *
- * - Jeff Standen, Mike Fogg, Brenan Cavish, Darren Sugita, Dan Hildebrandt
- * 		and Joe Geck.
- *   WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
+/**
+ * Bayesian Anti-Spam DAO
  */
+class DAO_Bayes {
+	private function DAO_Bayes() {}
+	
+	/**
+	 * @return CerberusWord[]
+	 */
+	static function lookupWordIds($words) {
+		$db = DevblocksPlatform::getDatabaseService();
+		$tmp = array();
+		$outwords = array(); // CerberusWord
+		
+		// Escaped set
+		if(is_array($words))
+		foreach($words as $word) {
+			$tmp[] = addslashes($word);
+		}
+		
+		if(empty($words))
+		    return array();
+		
+		$sql = sprintf("SELECT id,word,spam,nonspam FROM bayes_words WHERE word IN ('%s')",
+			implode("','", $tmp)
+		);
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+		
+		// [JAS]: Keep a list of words we can check off as we index them with IDs
+		$tmp = array_flip($words); // words are now keys
+		
+		// Existing Words
+		
+		while($row = mysql_fetch_assoc($rs)) {
+			$w = new Model_BayesWord();
+			$w->id = intval($row['id']);
+			$w->word = mb_convert_case($row['word'], MB_CASE_LOWER);
+			$w->spam = intval($row['spam']);
+			$w->nonspam = intval($row['nonspam']);
+			
+			$outwords[mb_convert_case($w->word, MB_CASE_LOWER)] = $w;
+			unset($tmp[$w->word]); // check off we've indexed this word
+		}
+		
+		mysql_free_result($rs);
+		
+		// Insert new words
+		if(is_array($tmp))
+		foreach($tmp as $new_word => $v) {
+			$new_id = $db->GenID('bayes_words_seq');
+			$sql = sprintf("INSERT INTO bayes_words (id,word) VALUES (%d,%s)",
+				$new_id,
+				$db->qstr($new_word)
+			);
+			$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+			
+			$w = new Model_BayesWord();
+			$w->id = $new_id;
+			$w->word = $new_word;
+			$outwords[$w->word] = $w;
+		}
+		
+		return $outwords;
+	}
+	
+	/**
+	 * @return array Two element array (keys: spam,nonspam)
+	 */
+	static function getStatistics() {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		// [JAS]: [TODO] Change this into a 'replace' index?
+		$sql = "SELECT spam, nonspam FROM bayes_stats";
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+		
+		if($row = mysql_fetch_assoc($rs)) {
+			$spam = intval($row['spam']);
+			$nonspam = intval($row['nonspam']);
+		} else {
+			$spam = 0;
+			$nonspam = 0;
+			$sql = "INSERT INTO bayes_stats (spam, nonspam) VALUES (0,0)";
+			$db->Execute($sql);
+		}
+		
+		return array('spam' => $spam,'nonspam' => $nonspam);
+	}
+	
+	static function addOneToSpamTotal() {
+		$db = DevblocksPlatform::getDatabaseService();
+		$sql = "UPDATE bayes_stats SET spam = spam + 1";
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+	}
+	
+	static function addOneToNonSpamTotal() {
+		$db = DevblocksPlatform::getDatabaseService();
+		$sql = "UPDATE bayes_stats SET nonspam = nonspam + 1";
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+	}
+	
+	static function addOneToSpamWord($word_ids=array()) {
+	    if(!is_array($word_ids)) $word_ids = array($word_ids);
+	    if(empty($word_ids)) return;
+		$db = DevblocksPlatform::getDatabaseService();
+		$sql = sprintf("UPDATE bayes_words SET spam = spam + 1 WHERE id IN(%s)", implode(',',$word_ids));
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+	}
+	
+	static function addOneToNonSpamWord($word_ids=array()) {
+	    if(!is_array($word_ids)) $word_ids = array($word_ids);
+	    if(empty($word_ids)) return;
+		$db = DevblocksPlatform::getDatabaseService();
+		$sql = sprintf("UPDATE bayes_words SET nonspam = nonspam + 1 WHERE id IN(%s)", implode(',',$word_ids));
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+	}
+};
+
+class Model_BayesWord {
+	public $id = -1;
+	public $word = '';
+	public $spam = 0;
+	public $nonspam = 0;
+	public $probability = CerberusBayes::PROBABILITY_UNKNOWN;
+	public $interest_rating = 0.0;
+};
+
 class CerberusBayes {
 	const PROBABILITY_CEILING = 0.9999;
 	const PROBABILITY_FLOOR = 0.0001;
@@ -261,7 +338,7 @@ class CerberusBayes {
 	}
 
 	/**
-	 * @param CerberusBayesWord[] $words
+	 * @param Model_BayesWord[] $words
 	 * @param boolean $spam
 	 */
 	static private function _trainWords($words, $spam=true) {
@@ -269,7 +346,7 @@ class CerberusBayes {
 		    return;
 	
 		$ids = array();
-		foreach($words as $word) { /* @var $word CerberusBayesWord */
+		foreach($words as $word) { /* @var $word Model_BayesWord */
 		    $ids[] = $word->id;
 		}
 		    
@@ -351,10 +428,10 @@ class CerberusBayes {
 	}
 	
 	/**
-	 * @param CerberusBayesWord $word
+	 * @param Model_BayesWord $word
 	 * @return float The probability of the word being spammy.
 	 */
-	static public function calculateWordProbability(CerberusBayesWord $word) {
+	static public function calculateWordProbability(Model_BayesWord $word) {
 		static $stats = null; // [JAS]: [TODO] Keep an eye on this.
 		if(is_null($stats)) $stats = DAO_Bayes::getStatistics();
 		
@@ -384,8 +461,8 @@ class CerberusBayes {
 	}
 	
 	/**
-	 * @param CerberusBayesWord $a
-	 * @param CerberusBayesWord $b
+	 * @param Model_BayesWord $a
+	 * @param Model_BayesWord $b
 	 */
 	static private function _sortByInterest($a, $b) {
 	   if ($a->interest_rating == $b->interest_rating) {
@@ -395,7 +472,7 @@ class CerberusBayes {
 	}
 	
 	/**
-	 * @param CerberusBayesWord[] $words
+	 * @param Model_BayesWord[] $words
 	 * @return array 'probability' = Overall Spam Probability, 'words' = interesting words
 	 */
 	static private function _calculateSpamProbability($words) {
@@ -407,7 +484,7 @@ class CerberusBayes {
 		$interesting_words = array_slice($interesting_words,-1 * self::MAX_INTERESTING_WORDS);
 
 		// Combine word probabilities into an overall probability
-		foreach($interesting_words as $word) { /* @var $word CerberusBayesWord */
+		foreach($interesting_words as $word) { /* @var $word Model_BayesWord */
 			$probabilities[] = $word->probability;
 		}
 		$combined = self::_combineP($probabilities);
@@ -421,7 +498,7 @@ class CerberusBayes {
 	    $first_message = array_shift($messages);
 	    $ticket = DAO_Ticket::getTicket($ticket_id);
 	    
-		if(empty($ticket) || empty($first_message) || !($first_message instanceOf CerberusMessage)) 
+		if(empty($ticket) || empty($first_message) || !($first_message instanceOf Model_Message)) 
 		    return FALSE;
 		
 		// Pass text to analyze() to get back interesting words
@@ -444,7 +521,7 @@ class CerberusBayes {
 
 		// Make a word list
 	    $rawwords = array();
-	    foreach($out['words'] as $k=>$v) { /* @var $v CerberusBayesWord */
+	    foreach($out['words'] as $k=>$v) { /* @var $v Model_BayesWord */
 	        $rawwords[] = $v->word;
 	    }
 		
@@ -459,6 +536,4 @@ class CerberusBayes {
 		
 		return $out;
 	}
-	
 };
-?>

@@ -99,7 +99,7 @@ endif;
 
 if (class_exists('Extension_ReplyToolbarItem',true)):
 	class ChKbReplyToolbarButton extends Extension_ReplyToolbarItem {
-		function render(CerberusMessage $message) { 
+		function render(Model_Message $message) { 
 			$tpl = DevblocksPlatform::getTemplateService();
 			$tpl_path = dirname(dirname(__FILE__)).'/templates/';
 			$tpl->assign('path', $tpl_path);

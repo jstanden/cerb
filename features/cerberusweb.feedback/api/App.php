@@ -838,11 +838,11 @@ class ChFeedbackController extends DevblocksControllerExtension {
 
 if (class_exists('Extension_MessageToolbarItem',true)):
 	class ChFeedbackMessageToolbarFeedback extends Extension_MessageToolbarItem {
-		function render(CerberusMessage $message) { 
+		function render(Model_Message $message) { 
 			$tpl = DevblocksPlatform::getTemplateService();
 			$tpl_path = dirname(dirname(__FILE__)).'/templates/';
 			
-			$tpl->assign('message', $message); /* @var $message CerberusMessage */
+			$tpl->assign('message', $message); /* @var $message Model_Message */
 			
 			$tpl->display('file:' . $tpl_path . 'feedback/renderers/message_toolbar_feedback.tpl');
 		}

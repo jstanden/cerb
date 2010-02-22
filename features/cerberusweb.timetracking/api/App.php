@@ -87,12 +87,12 @@ endif;
 
 if (class_exists('Extension_ReplyToolbarItem',true)):
 	class ChTimeTrackingReplyToolbarTimer extends Extension_ReplyToolbarItem {
-		function render(CerberusMessage $message) { 
+		function render(Model_Message $message) { 
 			$tpl = DevblocksPlatform::getTemplateService();
 			$tpl_path = dirname(dirname(__FILE__)).'/templates/';
 			$tpl->assign('path', $tpl_path);
 			
-			$tpl->assign('message', $message); /* @var $message CerberusMessage */
+			$tpl->assign('message', $message); /* @var $message Model_Message */
 			
 //			if(null != ($first_wrote_address_id = $ticket->first_wrote_address_id)
 //				&& null != ($first_wrote_address = DAO_Address::get($first_wrote_address_id))) {

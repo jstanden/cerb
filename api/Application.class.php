@@ -58,10 +58,6 @@ require_once(APP_PATH . "/api/Extension.class.php");
 // App Scope ClassLoading
 $path = APP_PATH . '/api/app/';
 
-DevblocksPlatform::registerClasses($path . 'Bayes.php', array(
-	'CerberusBayes',
-));
-
 DevblocksPlatform::registerClasses($path . 'Mail.php', array(
 	'CerberusMail',
 ));

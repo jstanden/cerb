@@ -53,6 +53,11 @@
 			<class name="ChWorkspaceSource_Worker" />
 		</file>
 		
+		<file path="api/dao/address_to_worker.php">
+			<class name="DAO_AddressToWorker" />
+			<class name="Model_AddressToWorker" />
+		</file>
+		
 		<file path="api/dao/address.php">
 			<class name="DAO_Address" />
 			<class name="Model_Address" />
@@ -65,6 +70,12 @@
 			<class name="Model_Attachment" />
 			<class name="SearchFields_Attachment" />
 			<class name="View_Attachment" />
+		</file>
+		
+		<file path="api/dao/bayes.php">
+			<class name="CerberusBayes" />
+			<class name="DAO_Bayes" />
+			<class name="Model_BayesWord" />
 		</file>
 		
 		<file path="api/dao/bucket.php">
@@ -81,7 +92,38 @@
 		
 		<file path="api/dao/group.php">
 			<class name="DAO_Group" />
+			<class name="DAO_GroupSettings" />
 			<class name="Model_Group" />
+		</file>
+		
+		<file path="api/dao/group_inbox_filter.php">
+			<class name="DAO_GroupInboxFilter" />
+			<class name="Model_GroupInboxFilter" />
+			<class name="SearchFields_GroupInboxFilter" />
+		</file>
+		
+		<file path="api/dao/message.php">
+			<class name="DAO_Message" />
+			<class name="DAO_MessageContent" />
+			<class name="DAO_MessageHeader" />
+			<class name="Model_Message" />
+			<class name="SearchFields_Message" />
+		</file>
+		
+		<file path="api/dao/message_note.php">
+			<class name="DAO_MessageNote" />
+			<class name="Model_MessageNote" />
+		</file>
+		
+		<file path="api/dao/note.php">
+			<class name="DAO_Note" />
+			<class name="Model_Note" />
+			<class name="SearchFields_Note" />
+		</file>
+		
+		<file path="api/dao/preparse_rule.php">
+			<class name="DAO_PreParseRule" />
+			<class name="Model_PreParseRule" />
 		</file>
 		
 		<file path="api/dao/task.php">
@@ -100,6 +142,7 @@
 		
 		<file path="api/dao/worker.php">
 			<class name="DAO_Worker" />
+			<class name="DAO_WorkerPref" />
 			<class name="Model_Worker" />
 			<class name="SearchFields_Worker" />
 			<class name="View_Worker" />

@@ -213,7 +213,7 @@ class UmScHistoryController extends Extension_UmScController {
 		$ticket = array_shift($tickets);
 		
 		$messages = DAO_Ticket::getMessagesByTicket($ticket[SearchFields_Ticket::TICKET_ID]);
-		$last_message = array_pop($messages); /* @var $last_message CerberusMessage */
+		$last_message = array_pop($messages); /* @var $last_message Model_Message */
 		$last_message_headers = $last_message->getHeaders();
 		unset($messages);
 

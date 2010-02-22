@@ -341,3 +341,95 @@ class Model_Group {
 	public $count;
 	public $is_default = 0;
 };
+
+class DAO_GroupSettings {
+	const CACHE_ALL = 'ch_group_settings';
+	
+    const SETTING_REPLY_FROM = 'reply_from';
+    const SETTING_REPLY_PERSONAL = 'reply_personal';
+    const SETTING_REPLY_PERSONAL_WITH_WORKER = 'reply_personal_with_worker';
+    const SETTING_SUBJECT_HAS_MASK = 'subject_has_mask';
+    const SETTING_SUBJECT_PREFIX = 'subject_prefix';
+    const SETTING_SPAM_THRESHOLD = 'group_spam_threshold';
+    const SETTING_SPAM_ACTION = 'group_spam_action';
+    const SETTING_SPAM_ACTION_PARAM = 'group_spam_action_param';
+    const SETTING_AUTO_REPLY = 'auto_reply';
+    const SETTING_AUTO_REPLY_ENABLED = 'auto_reply_enabled';
+    const SETTING_CLOSE_REPLY = 'close_reply';
+    const SETTING_CLOSE_REPLY_ENABLED = 'close_reply_enabled';
+    const SETTING_INBOX_IS_ASSIGNABLE = 'inbox_is_assignable';
+    
+	static function set($group_id, $key, $value) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$db->Execute(sprintf("REPLACE INTO group_setting (group_id, setting, value) ".
+			"VALUES (%d, %s, %s)",
+			$group_id,
+			$db->qstr($key),
+			$db->qstr($value)
+		));
+		
+		$cache = DevblocksPlatform::getCacheService();
+		$cache->remove(self::CACHE_ALL);
+		
+		// Nuke our sender cache
+		if($key==self::SETTING_REPLY_FROM) {
+			$cache->remove(CerberusApplication::CACHE_HELPDESK_FROMS);
+		}
+	}
+	
+	static function get($group_id, $key, $default=null) {
+		$value = null;
+		
+		if(null !== ($group = self::getSettings($group_id)) && isset($group[$key])) {
+			$value = $group[$key];
+		}
+		
+		if(null == $value && !is_null($default)) {
+		    return $default;
+		}
+		
+		return $value;
+	}
+	
+	static function getSettings($group_id=0) {
+	    $cache = DevblocksPlatform::getCacheService();
+	    if(null === ($groups = $cache->load(self::CACHE_ALL))) {
+			$db = DevblocksPlatform::getDatabaseService();
+	
+			$groups = array();
+			
+			$sql = "SELECT group_id, setting, value FROM group_setting";
+			$rs = $db->Execute($sql) or die(__CLASS__ . ':' . $db->ErrorMsg()); 
+			
+			while($row = mysql_fetch_assoc($rs)) {
+			    $gid = intval($row['group_id']);
+			    
+			    if(!isset($groups[$gid]))
+			        $groups[$gid] = array();
+			    
+			    $groups[$gid][$row['setting']] = $row['value'];
+			}
+			
+			mysql_free_result($rs);
+			
+			$cache->save($groups, self::CACHE_ALL);
+	    }
+
+	    // Empty
+	    if(empty($groups))
+	    	return null;
+	    
+	    // Specific group
+	    if(!empty($group_id)) {
+		    // Requested group id exists
+	    	if(isset($groups[$group_id]))
+	    		return $groups[$group_id];
+	    	else // doesn't
+	    		return null;
+	    }
+	    
+	    // All groups
+		return $groups;
+	}
+};

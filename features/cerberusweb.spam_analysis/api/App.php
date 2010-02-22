@@ -16,7 +16,7 @@ class ChSpamAnalysisTicketTab extends Extension_TicketTab {
 		$words = DAO_Bayes::lookupWordIds($words);
 
 		// Calculate word probabilities
-		foreach($words as $idx => $word) { /* @var $word CerberusBayesWord */
+		foreach($words as $idx => $word) { /* @var $word Model_BayesWord */
 			$word->probability = CerberusBayes::calculateWordProbability($word);
 		}
 		$tpl->assign('words', $words);

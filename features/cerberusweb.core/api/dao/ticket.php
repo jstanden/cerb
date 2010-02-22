@@ -413,7 +413,7 @@ class DAO_Ticket extends C4_ORMHelper {
 	}
 	
 	/**
-	 * @return CerberusMessage[]
+	 * @return Model_Message[]
 	 */
 	static function getMessagesByTicket($ticket_id) {
 		$db = DevblocksPlatform::getDatabaseService();
@@ -428,7 +428,7 @@ class DAO_Ticket extends C4_ORMHelper {
 		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 		
 		while($row = mysql_fetch_assoc($rs)) {
-			$message = new CerberusMessage();
+			$message = new Model_Message();
 			$message->id = intval($row['id']);
 			$message->ticket_id = intval($row['ticket_id']);
 			$message->created_date = intval($row['created_date']);
@@ -448,7 +448,7 @@ class DAO_Ticket extends C4_ORMHelper {
 	 * Enter description here...
 	 *
 	 * @param integer $id message id
-	 * @return CerberusMessage
+	 * @return Model_Message
 	 */
 	static function getMessage($id) {
 		$db = DevblocksPlatform::getDatabaseService();
@@ -463,7 +463,7 @@ class DAO_Ticket extends C4_ORMHelper {
 		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 		
 		if($row = mysql_fetch_assoc($rs)) {
-			$message = new CerberusMessage();
+			$message = new Model_Message();
 			$message->id = intval($row['id']);
 			$message->ticket_id = intval($row['ticket_id']);
 			$message->created_date = intval($row['created_date']);

@@ -817,5 +817,75 @@ class View_Worker extends C4_AbstractView {
 
 		unset($ids);
 	}
+};
 
+class DAO_WorkerPref extends DevblocksORMHelper {
+    const CACHE_PREFIX = 'ch_workerpref_';
+    
+    static function delete($worker_id, $key) {
+    	$db = DevblocksPlatform::getDatabaseService();
+    	$db->Execute(sprintf("DELETE FROM worker_pref WHERE worker_id = %d AND setting = %s",
+    		$worker_id,
+    		$db->qstr($key)
+    	));
+    	
+		// Invalidate cache
+		$cache = DevblocksPlatform::getCacheService();
+		$cache->remove(self::CACHE_PREFIX.$worker_id);
+    }
+    
+	static function set($worker_id, $key, $value) {
+		// Persist long-term
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$db->Execute(sprintf("REPLACE INTO worker_pref (worker_id, setting, value) ".
+			"VALUES (%d, %s, %s)",
+			$worker_id,
+			$db->qstr($key),
+			$db->qstr($value)
+		));
+		
+		// Invalidate cache
+		$cache = DevblocksPlatform::getCacheService();
+		$cache->remove(self::CACHE_PREFIX.$worker_id);
+	}
+	
+	static function get($worker_id, $key, $default=null) {
+		$value = null;
+		
+		if(null !== ($worker_prefs = self::getByWorker($worker_id))) {
+			if(isset($worker_prefs[$key])) {
+				$value = $worker_prefs[$key];
+			}
+		}
+		
+		if(null === $value && !is_null($default)) {
+		    return $default;
+		}
+		
+		return $value;
+	}
+
+	static function getByWorker($worker_id) {
+		$cache = DevblocksPlatform::getCacheService();
+		
+		if(null === ($objects = $cache->load(self::CACHE_PREFIX.$worker_id))) {
+			$db = DevblocksPlatform::getDatabaseService();
+			$sql = sprintf("SELECT setting, value FROM worker_pref WHERE worker_id = %d", $worker_id);
+			$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+			
+			$objects = array();
+			
+			
+			while($row = mysql_fetch_assoc($rs)) {
+			    $objects[$row['setting']] = $row['value'];
+			}
+			
+			mysql_free_result($rs);
+			
+			$cache->save($objects, self::CACHE_PREFIX.$worker_id);
+		}
+		
+		return $objects;
+	}
 };

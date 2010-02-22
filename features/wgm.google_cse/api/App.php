@@ -24,12 +24,12 @@ endif;
 
 if (class_exists('Extension_ReplyToolbarItem',true)):
 	class WgmGoogleCSEReplyToolbarButton extends Extension_ReplyToolbarItem {
-		function render(CerberusMessage $message) { 
+		function render(Model_Message $message) { 
 			$tpl = DevblocksPlatform::getTemplateService();
 			$tpl_path = dirname(dirname(__FILE__)).'/templates/';
 			$tpl->assign('path', $tpl_path);
 			
-			$tpl->assign('message', $message); /* @var $message CerberusMessage */
+			$tpl->assign('message', $message); /* @var $message Model_Message */
 			
 			$tpl->display('file:' . $tpl_path . 'renderers/reply_button.tpl');
 		}

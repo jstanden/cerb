@@ -164,7 +164,7 @@ abstract class Extension_MessageToolbarItem extends DevblocksExtension {
 		$this->DevblocksExtension($manifest);
 	}
 	
-	function render(CerberusMessage $message) { }
+	function render(Model_Message $message) { }
 };
 
 abstract class Extension_ReplyToolbarItem extends DevblocksExtension {
@@ -172,7 +172,7 @@ abstract class Extension_ReplyToolbarItem extends DevblocksExtension {
 		$this->DevblocksExtension($manifest);
 	}
 	
-	function render(CerberusMessage $message) { }
+	function render(Model_Message $message) { }
 };
 
 abstract class Extension_OrgTab extends DevblocksExtension {

@@ -660,7 +660,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		$message_sender_orgs = array();
 
 		// Loop messages
-		foreach($messages as $message_id => $message) { /* @var $message CerberusMessage */
+		foreach($messages as $message_id => $message) { /* @var $message Model_Message */
 			$key = $message->created_date . '_m' . $message_id;
 			// build a chrono index of messages
 			$convo_timeline[$key] = array('m',$message_id);
@@ -1030,7 +1030,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		));
 		
 		// Reindex the original ticket (last wrote, etc.)
-		$last_message = end($messages); /* @var CerberusMessage $last_message */
+		$last_message = end($messages); /* @var Model_Message $last_message */
 		
 		DAO_Ticket::updateTicket($orig_ticket->id, array(
 			DAO_Ticket::LAST_WROTE_ID => $last_message->address_id

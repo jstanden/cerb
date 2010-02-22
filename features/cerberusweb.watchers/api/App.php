@@ -189,7 +189,7 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
 		if(empty($notify_emails))
 			return;
 			
-		if(null == (@$last_message = end($ticket->getMessages()))) { /* @var $last_message CerberusMessage */
+		if(null == (@$last_message = end($ticket->getMessages()))) { /* @var $last_message Model_Message */
 			continue;
 		}
 		
@@ -315,7 +315,7 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
 			if(empty($notify_emails))
 				return;
 				
-			if(null == (@$last_message = end($ticket->getMessages()))) { /* @var $last_message CerberusMessage */
+			if(null == (@$last_message = end($ticket->getMessages()))) { /* @var $last_message Model_Message */
 				continue;
 			}
 			
@@ -1531,7 +1531,7 @@ class Model_WatcherMailFilter {
 		if(empty($messages))
 			return false;
 		
-		if(null != (@$message_last = array_pop($messages))) { /* @var $message_last CerberusMessage */
+		if(null != (@$message_last = array_pop($messages))) { /* @var $message_last Model_Message */
 			$message_headers = $message_last->getHeaders();
 		}
 

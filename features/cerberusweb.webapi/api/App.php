@@ -1534,7 +1534,7 @@ class Rest_MessagesController extends Ch_RestController {
 	}
 	
 	private function _getMessageXML($id) {
-		$message = DAO_Ticket::getMessage($id); /* @var $message CerberusMessage */
+		$message = DAO_Ticket::getMessage($id); /* @var $message Model_Message */
 		if(is_null($message))
 			$this->_error("ID $id not valid.");
 		$message_content = DAO_MessageContent::get($id);

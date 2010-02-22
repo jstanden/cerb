@@ -177,7 +177,7 @@ class ChGroupsPage extends CerberusPageExtension  {
 			$tpl->assign('ticket', $ticket);
 	
 			$messages = $ticket->getMessages();
-			$message = array_shift($messages); /* @var $message CerberusMessage */
+			$message = array_shift($messages); /* @var $message Model_Message */
 			$message_headers = $message->getHeaders();
 			$tpl->assign('message', $message);
 			$tpl->assign('message_headers', $message_headers);
