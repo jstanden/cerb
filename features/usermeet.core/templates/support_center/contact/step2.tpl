@@ -110,7 +110,7 @@
 		{if $captcha_enabled}
 			<div class="header"><h1>{$translate->_('portal.public.captcha_instructions')}</h1></div>
 			{$translate->_('portal.sc.public.contact.text')} <input id="captcha" name="captcha" class="question" value="" size="10" autocomplete="off"><br>
-			<div style="padding-top:10px;padding-left:10px;"><img src="{devblocks_url}c=captcha{/devblocks_url}"></div>
+			<div style="padding-top:10px;padding-left:10px;"><img src="{devblocks_url}c=captcha{/devblocks_url}?color=0,0,0&bgcolor=235,235,235"></div>
 		{/if}
 		
 		<br>
