@@ -371,14 +371,14 @@ if(!isset($columns['is_outgoing'])) {
 			$froms[$default_from] = 1;
 		}
 		
-		if(null != ($group_settings = DAO_GroupSettings::getSettings()) && is_array($group_settings)) {
-			foreach($group_settings as $group_id => $gs) {
-				if(is_array($gs) && isset($gs[DAO_GroupSettings::SETTING_REPLY_FROM])) {
-					$group_from = $gs[DAO_GroupSettings::SETTING_REPLY_FROM];
-					if(!empty($group_from))
-						$froms[$group_from] = 1;
-				}
-			}
+		$rs = $db->Execute("SELECT group_id, setting, value FROM group_setting ORDER BY group_id, setting");
+		
+		while($row = mysql_fetch_assoc($rs)) {
+			if('reply_from' != $row['setting'])
+				continue;
+			if(empty($row['value']))
+				continue;
+			$froms[$row['value']] = 1;
 		}
 		
 		if(is_array($froms) && !empty($froms)) {
