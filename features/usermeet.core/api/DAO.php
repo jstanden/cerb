@@ -384,7 +384,7 @@ class DAO_CommunityToolProperty {
 			"VALUES (%s, %s, %s)",
 			$db->qstr($tool_code),
 			$db->qstr($key),
-			$db->qsr($value)
+			$db->qstr($value)
 		));
 		
 		// Invalidate cache
