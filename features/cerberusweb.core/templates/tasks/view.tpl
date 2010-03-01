@@ -55,7 +55,7 @@
 			<td align="center" rowspan="2"><input type="checkbox" name="row_id[]" value="{$result.t_id}"></td>
 			<td colspan="{math equation="x" x=$smarty.foreach.headers.total}">
 				{if $result.t_is_completed}
-					<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check_gray.gif{/devblocks_url}" align="top" title="{$result.t_completed_date|devblocks_date}">
+					<span class="cerb-sprite sprite-check_gray" title="{$result.t_completed_date|devblocks_date}"></span>
 				{/if}
 				<a href="{devblocks_url}c=tasks&d=browse&id={$result.t_id}&view_id={$view->id|escape}{/devblocks_url}" class="subject">{if !empty($result.t_title)}{$result.t_title|escape}{else}New Task{/if}</a> <a href="javascript:;" onclick="genericAjaxPanel('c=tasks&a=showTaskPeek&id={$result.t_id}&view_id={$view->id}',null,false,'550');"><span class="ui-icon ui-icon-newwin" style="display:inline-block;vertical-align:middle;" title="{$translate->_('views.peek')}"></span></a>
 			</td>

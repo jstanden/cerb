@@ -71,7 +71,7 @@
 	<tr class="{$tableRowClass}" id="{$rowIdPrefix}_s" onmouseover="$(this).addClass('hover');$('#{$rowIdPrefix}').addClass('hover');" onmouseout="$(this).removeClass('hover');$('#{$rowIdPrefix}').removeClass('hover');" onclick="if(getEventTarget(event)=='TD') checkAll('{$rowIdPrefix}_s');">
 		<td align="center" rowspan="2"><input type="checkbox" name="ticket_id[]" value="{$result.t_id}"></td>
 		<td colspan="{math equation="x" x=$smarty.foreach.headers.total}">
-			<a href="{devblocks_url}c=display&a=browse&id={$result.t_mask}&view={$view->id}{/devblocks_url}" class="subject">{if $result.t_is_deleted}<span class="cerb-sprite sprite-delete2_gray"></span> {elseif $result.t_is_closed}<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check_gray.gif{/devblocks_url}" width="16" height="16" align="top" border="0" title="{$translate->_('status.closed')}"> {elseif $result.t_is_waiting}<span class="cerb-sprite sprite-clock"></span> {/if}{$result.t_subject|escape}</a> 
+			<a href="{devblocks_url}c=display&a=browse&id={$result.t_mask}&view={$view->id}{/devblocks_url}" class="subject">{if $result.t_is_deleted}<span class="cerb-sprite sprite-delete2_gray"></span> {elseif $result.t_is_closed}<span class="cerb-sprite sprite-check_gray" title="{$translate->_('status.closed')}"></span> {elseif $result.t_is_waiting}<span class="cerb-sprite sprite-clock"></span> {/if}{$result.t_subject|escape}</a> 
 			<a href="javascript:;" onclick="genericAjaxPanel('c=tickets&a=showPreview&view_id={$view->id}&tid={$result.t_id}', null, false, '500');"><span class="ui-icon ui-icon-newwin" style="display:inline-block;vertical-align:middle;" title="{$translate->_('views.peek')}"></span></a>
 		</td>
 	</tr>
@@ -88,7 +88,7 @@
 		{elseif $column=="t_is_waiting"}
 		<td>{if $result.t_is_waiting}<span class="cerb-sprite sprite-clock"></span>{else}{/if}</td>
 		{elseif $column=="t_is_closed"}
-		<td>{if $result.t_is_closed}<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/check_gray.gif{/devblocks_url}" width="16" height="16" border="0" title="{$translate->_('status.closed')}">{else}{/if}</td>
+		<td>{if $result.t_is_closed}<span class="cerb-sprite sprite-check_gray" title="{$translate->_('status.closed')}"></span>{else}{/if}</td>
 		{elseif $column=="t_is_deleted"}
 		<td>{if $result.t_is_deleted}<span class="cerb-sprite sprite-delete2_gray"></span>{else}{/if}</td>
 		{elseif $column=="t_last_wrote"}
