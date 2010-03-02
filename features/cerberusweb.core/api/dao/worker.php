@@ -523,7 +523,7 @@ class Model_Worker {
 			return true;
 		
 		$settings = DevblocksPlatform::getPluginSettingsService();
-		$acl_enabled = $settings->get('cerberusweb.core',CerberusSettings::ACL_ENABLED);
+		$acl_enabled = $settings->get('cerberusweb.core',CerberusSettings::ACL_ENABLED,CerberusSettingsDefaults::ACL_ENABLED);
 			
 		// ACL is a paid feature (please respect the licensing and support the project!)
 		$license = CerberusLicense::getInstance();

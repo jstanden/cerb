@@ -19,7 +19,7 @@ class ChCronController extends DevblocksControllerExtension {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 	    $settings = DevblocksPlatform::getPluginSettingsService();
-	    $authorized_ips_str = $settings->get('cerberusweb.core',CerberusSettings::AUTHORIZED_IPS);
+	    $authorized_ips_str = $settings->get('cerberusweb.core',CerberusSettings::AUTHORIZED_IPS,CerberusSettingsDefaults::AUTHORIZED_IPS);
 	    $authorized_ips = DevblocksPlatform::parseCrlfString($authorized_ips_str);
 	    
 	    $authorized_ip_defaults = DevblocksPlatform::parseCsvString(AUTHORIZED_IPS_DEFAULTS);

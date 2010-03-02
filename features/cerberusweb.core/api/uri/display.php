@@ -578,7 +578,7 @@ class ChDisplayPage extends CerberusPageExtension {
 	            $signature = $ticket_team->signature;
 			} else {
 			    // [TODO] Default signature
-		        $signature = $settings->get('cerberusweb.core',CerberusSettings::DEFAULT_SIGNATURE);
+		        $signature = $settings->get('cerberusweb.core',CerberusSettings::DEFAULT_SIGNATURE,CerberusSettingsDefaults::DEFAULT_SIGNATURE);
 			}
 
 			$tpl->assign('signature', str_replace(
@@ -587,7 +587,7 @@ class ChDisplayPage extends CerberusPageExtension {
 			        $signature
 			));
 			
-		    $signature_pos = $settings->get('cerberusweb.core',CerberusSettings::DEFAULT_SIGNATURE_POS,0);
+		    $signature_pos = $settings->get('cerberusweb.core',CerberusSettings::DEFAULT_SIGNATURE_POS,CerberusSettingsDefaults::DEFAULT_SIGNATURE_POS);
 			$tpl->assign('signature_pos', $signature_pos);
 		}
 		

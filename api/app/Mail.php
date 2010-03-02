@@ -55,13 +55,13 @@ class CerberusMail {
 		$settings = DevblocksPlatform::getPluginSettingsService();
 
 		return array(
-			'host' => $settings->get('cerberusweb.core',CerberusSettings::SMTP_HOST,'localhost'),
-			'port' => $settings->get('cerberusweb.core',CerberusSettings::SMTP_PORT,'25'),
+			'host' => $settings->get('cerberusweb.core',CerberusSettings::SMTP_HOST,CerberusSettingsDefaults::SMTP_HOST),
+			'port' => $settings->get('cerberusweb.core',CerberusSettings::SMTP_PORT,CerberusSettingsDefaults::SMTP_PORT),
 			'auth_user' => $settings->get('cerberusweb.core',CerberusSettings::SMTP_AUTH_USER,null),
 			'auth_pass' => $settings->get('cerberusweb.core',CerberusSettings::SMTP_AUTH_PASS,null),
-			'enc' => $settings->get('cerberusweb.core',CerberusSettings::SMTP_ENCRYPTION_TYPE,'None'),
-			'max_sends' => $settings->get('cerberusweb.core',CerberusSettings::SMTP_MAX_SENDS,20),
-			'timeout' => $settings->get('cerberusweb.core',CerberusSettings::SMTP_TIMEOUT,30),
+			'enc' => $settings->get('cerberusweb.core',CerberusSettings::SMTP_ENCRYPTION_TYPE,CerberusSettingsDefaults::SMTP_ENCRYPTION_TYPE),
+			'max_sends' => $settings->get('cerberusweb.core',CerberusSettings::SMTP_MAX_SENDS,CerberusSettingsDefaults::SMTP_MAX_SENDS),
+			'timeout' => $settings->get('cerberusweb.core',CerberusSettings::SMTP_TIMEOUT,CerberusSettingsDefaults::SMTP_TIMEOUT),
 		);
 	}
 	
@@ -74,10 +74,10 @@ class CerberusMail {
 		    $settings = DevblocksPlatform::getPluginSettingsService();
 		    
 		    if(empty($from_addy))
-				@$from_addy = $settings->get('cerberusweb.core',CerberusSettings::DEFAULT_REPLY_FROM, $_SERVER['SERVER_ADMIN']);
+				@$from_addy = $settings->get('cerberusweb.core',CerberusSettings::DEFAULT_REPLY_FROM, CerberusSettingsDefaults::DEFAULT_REPLY_FROM);
 		    
 		    if(empty($from_personal))
-				@$from_personal = $settings->get('cerberusweb.core',CerberusSettings::DEFAULT_REPLY_PERSONAL,'');
+				@$from_personal = $settings->get('cerberusweb.core',CerberusSettings::DEFAULT_REPLY_PERSONAL,CerberusSettingsDefaults::DEFAULT_REPLY_PERSONAL);
 			
 			$mail->setTo(array($to));
 			$mail->setFrom(array($from_addy => $from_personal));
@@ -122,8 +122,8 @@ class CerberusMail {
 		$worker = CerberusApplication::getActiveWorker();
 		
 		$settings = DevblocksPlatform::getPluginSettingsService();
-		$default_from = $settings->get('cerberusweb.core',CerberusSettings::DEFAULT_REPLY_FROM);
-		$default_personal = $settings->get('cerberusweb.core',CerberusSettings::DEFAULT_REPLY_PERSONAL);
+		$default_from = $settings->get('cerberusweb.core',CerberusSettings::DEFAULT_REPLY_FROM,CerberusSettingsDefaults::DEFAULT_REPLY_FROM);
+		$default_personal = $settings->get('cerberusweb.core',CerberusSettings::DEFAULT_REPLY_PERSONAL,CerberusSettingsDefaults::DEFAULT_REPLY_PERSONAL);
 		
 		$team_from = DAO_GroupSettings::get($team_id,DAO_GroupSettings::SETTING_REPLY_FROM,'');
 		$team_personal = DAO_GroupSettings::get($team_id,DAO_GroupSettings::SETTING_REPLY_PERSONAL,'');
@@ -384,8 +384,8 @@ class CerberusMail {
 	    $settings = DevblocksPlatform::getPluginSettingsService();
 	    $helpdesk_senders = CerberusApplication::getHelpdeskSenders();
 	    
-		@$from_addy = $settings->get('cerberusweb.core',CerberusSettings::DEFAULT_REPLY_FROM, $_SERVER['SERVER_ADMIN']);
-		@$from_personal = $settings->get('cerberusweb.core',CerberusSettings::DEFAULT_REPLY_PERSONAL,'');
+		@$from_addy = $settings->get('cerberusweb.core',CerberusSettings::DEFAULT_REPLY_FROM, CerberusSettingsDefaults::DEFAULT_REPLY_FROM);
+		@$from_personal = $settings->get('cerberusweb.core',CerberusSettings::DEFAULT_REPLY_PERSONAL,CerberusSettingsDefaults::DEFAULT_REPLY_PERSONAL);
 	    // [TODO] If we still don't have a $from_addy we need a graceful failure. 
 		
 		/*
@@ -788,8 +788,8 @@ class CerberusMail {
 			$mail = $mail_service->createMessage();
 	
 		    $settings = DevblocksPlatform::getPluginSettingsService();
-			@$from_addy = $settings->get('cerberusweb.core',CerberusSettings::DEFAULT_REPLY_FROM, $_SERVER['SERVER_ADMIN']);
-			@$from_personal = $settings->get('cerberusweb.core',CerberusSettings::DEFAULT_REPLY_PERSONAL,'');
+			@$from_addy = $settings->get('cerberusweb.core',CerberusSettings::DEFAULT_REPLY_FROM, CerberusSettingsDefaults::DEFAULT_REPLY_FROM);
+			@$from_personal = $settings->get('cerberusweb.core',CerberusSettings::DEFAULT_REPLY_PERSONAL,CerberusSettingsDefaults::DEFAULT_REPLY_PERSONAL);
 			
 			$mail->setTo(array($to));
 

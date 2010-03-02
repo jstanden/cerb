@@ -534,7 +534,7 @@ class CerberusApplication extends DevblocksApplication {
 			$group_settings = DAO_GroupSettings::getSettings();
 			
 			// Global sender
-			$from = strtolower($settings->get('cerberusweb.core',CerberusSettings::DEFAULT_REPLY_FROM));
+			$from = strtolower($settings->get('cerberusweb.core',CerberusSettings::DEFAULT_REPLY_FROM,CerberusSettingsDefaults::DEFAULT_REPLY_FROM));
 			@$froms[$from] = $from;
 			
 			// Group senders
@@ -621,6 +621,25 @@ class CerberusSettings {
 };
 
 class CerberusSettingsDefaults {
+	const DEFAULT_REPLY_FROM = 'do-not-reply@localhost'; //$_SERVER['SERVER_ADMIN'] 
+	const DEFAULT_REPLY_PERSONAL = ''; 
+	const DEFAULT_SIGNATURE = ''; 
+	const DEFAULT_SIGNATURE_POS = 0; 
+	const HELPDESK_TITLE = 'Cerberus Helpdesk :: Team-based E-mail Management'; 
+	const SMTP_HOST = 'localhost'; 
+	const SMTP_AUTH_ENABLED = 0; 
+	const SMTP_AUTH_USER = ''; 
+	const SMTP_AUTH_PASS = ''; 
+	const SMTP_PORT = 25; 
+	const SMTP_ENCRYPTION_TYPE = 'None';
+	const SMTP_MAX_SENDS = 20;
+	const SMTP_TIMEOUT = 30;
+	const ATTACHMENTS_ENABLED = 1; 
+	const ATTACHMENTS_MAX_SIZE = 10; 
+	const PARSER_AUTO_REQ = 0; 
+	const PARSER_AUTO_REQ_EXCLUDE = ''; 
+	const AUTHORIZED_IPS = '';
+	const ACL_ENABLED = 0;
 	const STORAGE_ENGINE_ATTACHMENTS = 'devblocks.storage.engine.disk';
 }
 

@@ -473,9 +473,9 @@ switch($step) {
 	case STEP_CONTACT:
 		$settings = DevblocksPlatform::getPluginSettingsService();
 		
-		@$default_reply_from = DevblocksPlatform::importGPC($_POST['default_reply_from'],'string',$settings->get('cerberusweb.core',CerberusSettings::DEFAULT_REPLY_FROM));
-		@$default_reply_personal = DevblocksPlatform::importGPC($_POST['default_reply_personal'],'string',$settings->get('cerberusweb.core',CerberusSettings::DEFAULT_REPLY_PERSONAL));
-		@$helpdesk_title = DevblocksPlatform::importGPC($_POST['helpdesk_title'],'string',$settings->get('cerberusweb.core',CerberusSettings::HELPDESK_TITLE,'Cerberus Helpdesk :: Team-based E-mail Management'));
+		@$default_reply_from = DevblocksPlatform::importGPC($_POST['default_reply_from'],'string',$settings->get('cerberusweb.core',CerberusSettings::DEFAULT_REPLY_FROM,CerberusSettingsDefaults::DEFAULT_REPLY_FROM));
+		@$default_reply_personal = DevblocksPlatform::importGPC($_POST['default_reply_personal'],'string',$settings->get('cerberusweb.core',CerberusSettings::DEFAULT_REPLY_PERSONAL,CerberusSettingsDefaults::DEFAULT_REPLY_PERSONAL));
+		@$helpdesk_title = DevblocksPlatform::importGPC($_POST['helpdesk_title'],'string',$settings->get('cerberusweb.core',CerberusSettings::HELPDESK_TITLE,CerberusSettingsDefaults::HELPDESK_TITLE));
 		@$form_submit = DevblocksPlatform::importGPC($_POST['form_submit'],'integer');
 		
 		if(!empty($form_submit) && !empty($default_reply_from)) {
@@ -515,9 +515,9 @@ switch($step) {
 	case STEP_OUTGOING_MAIL:
 		$settings = DevblocksPlatform::getPluginSettingsService();
 		
-		@$smtp_host = DevblocksPlatform::importGPC($_POST['smtp_host'],'string',$settings->get('cerberusweb.core',CerberusSettings::SMTP_HOST,'localhost'));
-		@$smtp_port = DevblocksPlatform::importGPC($_POST['smtp_port'],'integer',$settings->get('cerberusweb.core',CerberusSettings::SMTP_PORT,25));
-		@$smtp_enc = DevblocksPlatform::importGPC($_POST['smtp_enc'],'string',$settings->get('cerberusweb.core',CerberusSettings::SMTP_ENCRYPTION_TYPE,'None'));
+		@$smtp_host = DevblocksPlatform::importGPC($_POST['smtp_host'],'string',$settings->get('cerberusweb.core',CerberusSettings::SMTP_HOST,CerberusSettingsDefaults::SMTP_HOST));
+		@$smtp_port = DevblocksPlatform::importGPC($_POST['smtp_port'],'integer',$settings->get('cerberusweb.core',CerberusSettings::SMTP_PORT,CerberusSettingsDefaults::SMTP_PORT));
+		@$smtp_enc = DevblocksPlatform::importGPC($_POST['smtp_enc'],'string',$settings->get('cerberusweb.core',CerberusSettings::SMTP_ENCRYPTION_TYPE,CerberusSettingsDefaults::SMTP_ENCRYPTION_TYPE));
 		@$smtp_auth_user = DevblocksPlatform::importGPC($_POST['smtp_auth_user'],'string');
 		@$smtp_auth_pass = DevblocksPlatform::importGPC($_POST['smtp_auth_pass'],'string');
 		@$form_submit = DevblocksPlatform::importGPC($_POST['form_submit'],'integer');
@@ -675,7 +675,7 @@ switch($step) {
 				}
 				
 				// Send a first ticket which allows people to reply for support
-				if(null !== ($default_from = $settings->get('cerberusweb.core',CerberusSettings::DEFAULT_REPLY_FROM,''))) {
+				if(null !== ($default_from = $settings->get('cerberusweb.core',CerberusSettings::DEFAULT_REPLY_FROM,CerberusSettingsDefaults::DEFAULT_REPLY_FROM))) {
 					$message = new CerberusParserMessage();
 						$message->headers['from'] = '"WebGroup Media, LLC." <support@webgroupmedia.com>';
 						$message->headers['to'] = $default_from;
@@ -739,7 +739,7 @@ EOF;
 			
 			if(empty($skip) && !empty($contact_name)) {
 				$settings = DevblocksPlatform::getPluginSettingsService();
-				@$default_from = $settings->get('cerberusweb.core',CerberusSettings::DEFAULT_REPLY_FROM,'');
+				@$default_from = $settings->get('cerberusweb.core',CerberusSettings::DEFAULT_REPLY_FROM,CerberusSettingsDefaults::DEFAULT_REPLY_FROM);
 				
 				@$contact_phone = stripslashes($_REQUEST['contact_phone']);
 				@$contact_refer = stripslashes($_REQUEST['contact_refer']);

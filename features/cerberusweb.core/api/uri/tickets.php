@@ -799,7 +799,7 @@ class ChTicketsPage extends CerberusPageExtension {
 
 		$active_worker = CerberusApplication::getActiveWorker();
 		$worker = DAO_Worker::getAgent($active_worker->id); // Use the most recent info (not session)
-		$sig = $settings->get('cerberusweb.core',CerberusSettings::DEFAULT_SIGNATURE,'');
+		$sig = $settings->get('cerberusweb.core',CerberusSettings::DEFAULT_SIGNATURE,CerberusSettingsDefaults::DEFAULT_SIGNATURE);
 
 		if(!empty($group->signature)) {
 			$sig = $group->signature;

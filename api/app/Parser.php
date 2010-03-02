@@ -120,8 +120,8 @@ class CerberusParser {
 		}
 		
 		$settings = DevblocksPlatform::getPluginSettingsService();
-		$is_attachments_enabled = $settings->get('cerberusweb.core',CerberusSettings::ATTACHMENTS_ENABLED,1);
-		$attachments_max_size = $settings->get('cerberusweb.core',CerberusSettings::ATTACHMENTS_MAX_SIZE,10);
+		$is_attachments_enabled = $settings->get('cerberusweb.core',CerberusSettings::ATTACHMENTS_ENABLED,CerberusSettingsDefaults::ATTACHMENTS_ENABLED);
+		$attachments_max_size = $settings->get('cerberusweb.core',CerberusSettings::ATTACHMENTS_MAX_SIZE,CerberusSettingsDefaults::ATTACHMENTS_MAX_SIZE);
 		
 		foreach($struct as $st) {
 //		    echo "PART $st...<br>\r\n";
@@ -591,8 +591,8 @@ class CerberusParser {
 	    
 		// Add the other TO/CC addresses to the ticket
 		// [TODO] This should be cleaned up and optimized
-		if($settings->get('cerberusweb.core',CerberusSettings::PARSER_AUTO_REQ,0)) {
-			@$autoreq_exclude_list = $settings->get('cerberusweb.core',CerberusSettings::PARSER_AUTO_REQ_EXCLUDE,'');
+		if($settings->get('cerberusweb.core',CerberusSettings::PARSER_AUTO_REQ,CerberusSettingsDefaults::PARSER_AUTO_REQ)) {
+			@$autoreq_exclude_list = $settings->get('cerberusweb.core',CerberusSettings::PARSER_AUTO_REQ_EXCLUDE,CerberusSettingsDefaults::PARSER_AUTO_REQ_EXCLUDE);
 			$destinations = self::getDestinations($headers);
 			
 			if(is_array($destinations) && !empty($destinations)) {

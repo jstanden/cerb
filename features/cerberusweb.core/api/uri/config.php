@@ -304,8 +304,8 @@ class ChConfigurationPage extends CerberusPageExtension  {
 					// Creating new worker.  If password is empty, email it to them
 				    if(empty($password)) {
 				    	$settings = DevblocksPlatform::getPluginSettingsService();
-						$replyFrom = $settings->get('cerberusweb.core',CerberusSettings::DEFAULT_REPLY_FROM);
-						$replyPersonal = $settings->get('cerberusweb.core',CerberusSettings::DEFAULT_REPLY_PERSONAL, '');
+						$replyFrom = $settings->get('cerberusweb.core',CerberusSettings::DEFAULT_REPLY_FROM,CerberusSettingsDefaults::DEFAULT_REPLY_FROM);
+						$replyPersonal = $settings->get('cerberusweb.core',CerberusSettings::DEFAULT_REPLY_PERSONAL,CerberusSettingsDefaults::DEFAULT_REPLY_PERSONAL);
 						$url = DevblocksPlatform::getUrlService();
 				    	
 						$password = CerberusApplication::generatePassword(8);
@@ -484,18 +484,18 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		$settings = DevblocksPlatform::getPluginSettingsService();
 		$mail_service = DevblocksPlatform::getMailService();
 		
-		$smtp_host = $settings->get('cerberusweb.core',CerberusSettings::SMTP_HOST,'');
-		$smtp_port = $settings->get('cerberusweb.core',CerberusSettings::SMTP_PORT,25);
-		$smtp_auth_enabled = $settings->get('cerberusweb.core',CerberusSettings::SMTP_AUTH_ENABLED,false);
+		$smtp_host = $settings->get('cerberusweb.core',CerberusSettings::SMTP_HOST,CerberusSettingsDefaults::SMTP_HOST);
+		$smtp_port = $settings->get('cerberusweb.core',CerberusSettings::SMTP_PORT,CerberusSettingsDefaults::SMTP_PORT);
+		$smtp_auth_enabled = $settings->get('cerberusweb.core',CerberusSettings::SMTP_AUTH_ENABLED,CerberusSettingsDefaults::SMTP_AUTH_ENABLED);
 		if ($smtp_auth_enabled) {
-			$smtp_auth_user = $settings->get('cerberusweb.core',CerberusSettings::SMTP_AUTH_USER,'');
-			$smtp_auth_pass = $settings->get('cerberusweb.core',CerberusSettings::SMTP_AUTH_PASS,''); 
+			$smtp_auth_user = $settings->get('cerberusweb.core',CerberusSettings::SMTP_AUTH_USER,CerberusSettingsDefaults::SMTP_AUTH_USER);
+			$smtp_auth_pass = $settings->get('cerberusweb.core',CerberusSettings::SMTP_AUTH_PASS,CerberusSettingsDefaults::SMTP_AUTH_PASS); 
 		} else {
 			$smtp_auth_user = '';
 			$smtp_auth_pass = ''; 
 		}
-		$smtp_enc = $settings->get('cerberusweb.core',CerberusSettings::SMTP_ENCRYPTION_TYPE,'None');
-		$smtp_max_sends = $settings->get('cerberusweb.core',CerberusSettings::SMTP_MAX_SENDS,'20');
+		$smtp_enc = $settings->get('cerberusweb.core',CerberusSettings::SMTP_ENCRYPTION_TYPE,CerberusSettingsDefaults::SMTP_ENCRYPTION_TYPE);
+		$smtp_max_sends = $settings->get('cerberusweb.core',CerberusSettings::SMTP_MAX_SENDS,CerberusSettingsDefaults::SMTP_MAX_SENDS);
 		
 		$pop3_accounts = DAO_Mail::getPop3Accounts();
 		$tpl->assign('pop3_accounts', $pop3_accounts);
@@ -1060,7 +1060,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		$tpl->assign('workers', $workers);
 		
 		// Permissions enabled
-		$acl_enabled = $settings->get('cerberusweb.core',CerberusSettings::ACL_ENABLED);
+		$acl_enabled = $settings->get('cerberusweb.core',CerberusSettings::ACL_ENABLED,CerberusSettingsDefaults::ACL_ENABLED);
 		$tpl->assign('acl_enabled', $acl_enabled);
 		
 		if(empty($license) || (!empty($license)&&isset($license['a'])))

@@ -278,7 +278,7 @@ class ChPreferencesPage extends CerberusPageExtension {
 		CerberusMail::quickSend(
 			$to, 
 			vsprintf($translate->_('prefs.address.confirm.mail.subject'), 
-				$settings->get('cerberusweb.core',CerberusSettings::HELPDESK_TITLE)
+				$settings->get('cerberusweb.core',CerberusSettings::HELPDESK_TITLE,CerberusSettingsDefaults::HELPDESK_TITLE)
 			),
 			vsprintf($translate->_('prefs.address.confirm.mail.body'),
 				array(

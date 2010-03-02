@@ -782,8 +782,8 @@ class Rest_AddressesController extends Ch_RestController {
 	
 	private function _sendConfirmation($email,$link) {
 		$settings = DevblocksPlatform::getPluginSettingsService();
-		$from = $settings->get('cerberusweb.core',CerberusSettings::DEFAULT_REPLY_FROM);
-		$from_personal = $settings->get('cerberusweb.core',CerberusSettings::DEFAULT_REPLY_PERSONAL);
+		$from = $settings->get('cerberusweb.core',CerberusSettings::DEFAULT_REPLY_FROM,CerberusSettingsDefaults::DEFAULT_REPLY_FROM);
+		$from_personal = $settings->get('cerberusweb.core',CerberusSettings::DEFAULT_REPLY_PERSONAL,CerberusSettingsDefaults::DEFAULT_REPLY_PERSONAL);
 		
 		$url = DevblocksPlatform::getUrlService();
 		try {
