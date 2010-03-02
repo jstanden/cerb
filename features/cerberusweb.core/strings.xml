@@ -636,9 +636,6 @@
 		<tu tuid='attachment.display_name'>
 			<tuv xml:lang="en_US"><seg>File Name</seg></tuv>
 		</tu>
-		<tu tuid='attachment.filepath'>
-			<tuv xml:lang="en_US"><seg>File Path</seg></tuv>
-		</tu>
 		<tu tuid='attachment.file_size'>
 			<tuv xml:lang="en_US"><seg>Size (bytes)</seg></tuv>
 		</tu>
@@ -647,6 +644,12 @@
 		</tu>
 		<tu tuid='attachment.mime_type'>
 			<tuv xml:lang="en_US"><seg>MIME Type</seg></tuv>
+		</tu>
+		<tu tuid='attachment.storage_extension'>
+			<tuv xml:lang="en_US"><seg>Storage Extension</seg></tuv>
+		</tu>
+		<tu tuid='attachment.storage_key'>
+			<tuv xml:lang="en_US"><seg>Storage Key</seg></tuv>
 		</tu>
 
 		<!-- Configuration -->

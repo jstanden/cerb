@@ -736,22 +736,26 @@ class ImportCron extends CerberusCronPageExtension {
 				$sFileContent = base64_decode($sFileContentB64);
 				unset($sFileContentB64);
 				
+				$storage_extension = $settings->get('cerberusweb.core', CerberusSettings::STORAGE_ENGINE_ATTACHMENTS, CerberusSettingsDefaults::STORAGE_ENGINE_ATTACHMENTS);
+				
 				$fields = array(
 					DAO_Attachment::MESSAGE_ID => $email_id,
 					DAO_Attachment::DISPLAY_NAME => $sFileName,
 					DAO_Attachment::FILE_SIZE => intval($sFileSize),
-					DAO_Attachment::FILEPATH => '',
+					DAO_Attachment::STORAGE_EXTENSION => $storage_extension,
+					DAO_Attachment::STORAGE_KEY => '',
 					DAO_Attachment::MIME_TYPE => $sMimeType,
 				);
 				$file_id = DAO_Attachment::create($fields);
 				
-				// Write file to disk using ID (Model)
-				$file_path = Model_Attachment::saveToFile($file_id, $sFileContent);
+				// Write file to storage
+				$storage = DevblocksPlatform::getStorageService($storage_extension);
+				$storage_key = $storage->put('attachments', $file_id, $sFileContent); 
 				unset($sFileContent);
 				
 				// Update attachment table
 				DAO_Attachment::update($file_id, array(
-					DAO_Attachment::FILEPATH => $file_path
+					DAO_Attachment::STORAGE_KEY => $storage_key
 				));
 			}
 			

@@ -660,6 +660,8 @@ class UmScAjaxController extends Extension_UmScController {
 		if(!isset($requesters[$active_user->id]))
 			return;
 		
+		$contents = $attachment->getFileContents();
+			
 		// Set headers
 		header("Expires: Mon, 26 Nov 1962 00:00:00 GMT\n");
 		header("Last-Modified: " . gmdate("D,d M YH:i:s") . " GMT\n");
@@ -667,10 +669,11 @@ class UmScAjaxController extends Extension_UmScController {
 		header("Pragma: no-cache\n");
 		header("Content-Type: " . $attachment->mime_type . "\n");
 		header("Content-transfer-encoding: binary\n"); 
-		header("Content-Length: " . $attachment->getFileSize() . "\n");
+		header("Content-Length: " . strlen($contents) . "\n");
 		
 		// Dump contents
-		echo $attachment->getFileContents();
+		echo $contents;
+		unset($contents);
 		exit;
 	}
 

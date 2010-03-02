@@ -5,14 +5,15 @@ class DAO_Attachment extends DevblocksORMHelper {
     const DISPLAY_NAME = 'display_name';
     const MIME_TYPE = 'mime_type';
     const FILE_SIZE = 'file_size';
-    const FILEPATH = 'filepath';
+    const STORAGE_EXTENSION = 'storage_extension';
+    const STORAGE_KEY = 'storage_key';
     
 	public static function create($fields) {
 	    $db = DevblocksPlatform::getDatabaseService();
 		$id = $db->GenID('attachment_seq');
 		
-		$sql = sprintf("INSERT INTO attachment (id,message_id,display_name,mime_type,file_size,filepath) ".
-		    "VALUES (%d,0,'','',0,'')",
+		$sql = sprintf("INSERT INTO attachment (id,message_id,display_name,mime_type,file_size,storage_extension,storage_key) ".
+		    "VALUES (%d,0,'','',0,'','')",
 		    $id
 		);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
@@ -51,7 +52,7 @@ class DAO_Attachment extends DevblocksORMHelper {
 	    if(!is_array($ids)) $ids = array($ids);
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = "SELECT id,message_id,display_name,mime_type,file_size,filepath ".
+		$sql = "SELECT id,message_id,display_name,mime_type,file_size,storage_extension,storage_key ".
 		    "FROM attachment ".
 		    (!empty($ids) ? sprintf("WHERE id IN (%s) ", implode(',', $ids)) : " ").
 		    ""
@@ -65,9 +66,10 @@ class DAO_Attachment extends DevblocksORMHelper {
 		    $object->id = intval($row['id']);
 		    $object->message_id = intval($row['message_id']);
 		    $object->display_name = $row['display_name'];
-		    $object->filepath = $row['filepath'];
 		    $object->mime_type = $row['mime_type'];
 		    $object->file_size = intval($row['file_size']);
+		    $object->storage_extension = $row['storage_extension'];
+		    $object->storage_key = $row['storage_key'];
 		    $objects[$object->id] = $object;
 		}
 		
@@ -86,7 +88,7 @@ class DAO_Attachment extends DevblocksORMHelper {
 	static function getByMessageId($id) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = sprintf("SELECT a.id, a.message_id, a.display_name, a.filepath, a.file_size, a.mime_type ".
+		$sql = sprintf("SELECT a.id, a.message_id, a.display_name, a.storage_extension, a.storage_key, a.file_size, a.mime_type ".
 			"FROM attachment a ".
 			"WHERE a.message_id = %d",
 			$id
@@ -100,7 +102,8 @@ class DAO_Attachment extends DevblocksORMHelper {
 			$attachment->id = intval($row['id']);
 			$attachment->message_id = intval($row['message_id']);
 			$attachment->display_name = $row['display_name'];
-			$attachment->filepath = $row['filepath'];
+			$attachment->storage_extension = $row['storage_extension'];
+			$attachment->storage_key = $row['storage_key'];
 			$attachment->file_size = intval($row['file_size']);
 			$attachment->mime_type = $row['mime_type'];
 			$attachments[$attachment->id] = $attachment;
@@ -115,15 +118,15 @@ class DAO_Attachment extends DevblocksORMHelper {
 		$db = DevblocksPlatform::getDatabaseService();
 		$logger = DevblocksPlatform::getConsoleLog();
 		
-		$sql = "SELECT filepath FROM attachment LEFT JOIN message ON attachment.message_id = message.id WHERE message.id IS NULL";
+		$sql = "SELECT storage_extension, storage_key FROM attachment LEFT JOIN message ON attachment.message_id = message.id WHERE message.id IS NULL";
 		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 		
-		$attachment_path = APP_STORAGE_PATH . '/attachments/';
-		
 		// Delete the physical files
+		// [TODO] Cache the storage extension if the props are the same
 		
 		while($row = mysql_fetch_assoc($rs)) {
-			@unlink($attachment_path . $row['filepath']);
+			$storage = DevblocksPlatform::getStorageService($row['storage_extension']);
+			$storage->delete('attachments',$row['storage_key']);
 		}
 		
 		mysql_free_result($rs);
@@ -142,15 +145,14 @@ class DAO_Attachment extends DevblocksORMHelper {
 		
 		$db = DevblocksPlatform::getDatabaseService();
 
-		$sql = sprintf("SELECT filepath FROM attachment WHERE id IN (%s)", implode(',',$ids));
+		$sql = sprintf("SELECT storage_extension, storage_key FROM attachment WHERE id IN (%s)", implode(',',$ids));
 		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
-		
-		$attachment_path = APP_STORAGE_PATH . '/attachments/';
 		
 		// Delete the physical files
 		
 		while($row = mysql_fetch_assoc($rs)) {
-			@unlink($attachment_path . $row['filepath']);
+			$storage = DevblocksPlatform::getStorageService($row['storage_extension']);
+			$storage->delete('attachments',$row['storage_key']);
 		}
 		
 		mysql_free_result($rs);
@@ -189,7 +191,8 @@ class DAO_Attachment extends DevblocksORMHelper {
 			"a.display_name as %s, ".
 			"a.mime_type as %s, ".
 			"a.file_size as %s, ".
-			"a.filepath as %s, ".
+			"a.storage_extension as %s, ".
+			"a.storage_key as %s, ".
 		
 			"m.address_id as %s, ".
 			"m.created_date as %s, ".
@@ -211,7 +214,8 @@ class DAO_Attachment extends DevblocksORMHelper {
 			    SearchFields_Attachment::DISPLAY_NAME,
 			    SearchFields_Attachment::MIME_TYPE,
 			    SearchFields_Attachment::FILE_SIZE,
-			    SearchFields_Attachment::FILEPATH,
+			    SearchFields_Attachment::STORAGE_EXTENSION,
+			    SearchFields_Attachment::STORAGE_KEY,
 			    
 			    SearchFields_Attachment::MESSAGE_ADDRESS_ID,
 			    SearchFields_Attachment::MESSAGE_CREATED_DATE,
@@ -268,7 +272,8 @@ class SearchFields_Attachment implements IDevblocksSearchFields {
     const DISPLAY_NAME = 'a_display_name';
     const MIME_TYPE = 'a_mime_type';
     const FILE_SIZE = 'a_file_size';
-    const FILEPATH = 'a_filepath';
+    const STORAGE_EXTENSION = 'a_storage_extension';
+    const STORAGE_KEY = 'a_storage_key';
 	
     const MESSAGE_ADDRESS_ID = 'm_address_id';
     const MESSAGE_CREATED_DATE = 'm_created_date';
@@ -292,7 +297,8 @@ class SearchFields_Attachment implements IDevblocksSearchFields {
 			self::DISPLAY_NAME => new DevblocksSearchField(self::DISPLAY_NAME, 'a', 'display_name', $translate->_('attachment.display_name')),
 			self::MIME_TYPE => new DevblocksSearchField(self::MIME_TYPE, 'a', 'mime_type', $translate->_('attachment.mime_type')),
 			self::FILE_SIZE => new DevblocksSearchField(self::FILE_SIZE, 'a', 'file_size', $translate->_('attachment.file_size')),
-			self::FILEPATH => new DevblocksSearchField(self::FILEPATH, 'a', 'filepath', $translate->_('attachment.filepath')),
+			self::STORAGE_EXTENSION => new DevblocksSearchField(self::STORAGE_EXTENSION, 'a', 'storage_extension', $translate->_('attachment.storage_extension')),
+			self::STORAGE_KEY => new DevblocksSearchField(self::STORAGE_KEY, 'a', 'storage_key', $translate->_('attachment.storage_key')),
 			
 			self::MESSAGE_ADDRESS_ID => new DevblocksSearchField(self::MESSAGE_ADDRESS_ID, 'm', 'address_id'),
 			self::MESSAGE_CREATED_DATE => new DevblocksSearchField(self::MESSAGE_CREATED_DATE, 'm', 'created_date', $translate->_('message.created_date')),
@@ -316,39 +322,14 @@ class Model_Attachment {
 	public $id;
 	public $message_id;
 	public $display_name;
-	public $filepath;
 	public $file_size = 0;
 	public $mime_type = '';
+	public $storage_extension;
+	public $storage_key;
 
 	public function getFileContents() {
-		$file_path = APP_STORAGE_PATH . '/attachments/';
-		if (!empty($this->filepath))
-		return file_get_contents($file_path.$this->filepath,false);
-	}
-	
-	public function getFileSize() {
-		$file_path = APP_STORAGE_PATH . '/attachments/';
-		if (!empty($this->filepath))
-		return filesize($file_path.$this->filepath);
-	}
-	
-	public static function saveToFile($file_id, $contents) {
-		$attachment_path = APP_STORAGE_PATH . '/attachments/';
-		
-	    // Make file attachments use buckets so we have a max per directory
-		$attachment_bucket = sprintf("%03d/",
-			mt_rand(1,100)
-		);
-		$attachment_file = $file_id;
-		
-		if(!file_exists($attachment_path.$attachment_bucket)) {
-			@mkdir($attachment_path.$attachment_bucket, 0770, true);
-			// [TODO] Needs error checking
-		}
-		
-		file_put_contents($attachment_path.$attachment_bucket.$attachment_file, $contents);
-		
-		return $attachment_bucket.$attachment_file;
+		$storage = DevblocksPlatform::getStorageService($this->storage_extension);
+		return $storage->get('attachments',$this->storage_key);
 	}
 };
 
@@ -403,7 +384,8 @@ class View_Attachment extends C4_AbstractView {
 
 		switch($field) {
 			case SearchFields_Attachment::DISPLAY_NAME:
-			case SearchFields_Attachment::FILEPATH:
+			case SearchFields_Attachment::STORAGE_EXTENSION:
+			case SearchFields_Attachment::STORAGE_KEY:
 			case SearchFields_Attachment::MIME_TYPE:
 			case SearchFields_Attachment::TICKET_MASK:
 			case SearchFields_Attachment::TICKET_SUBJECT:
@@ -469,7 +451,8 @@ class View_Attachment extends C4_AbstractView {
 		switch($field) {
 			case SearchFields_Attachment::DISPLAY_NAME:
 			case SearchFields_Attachment::MIME_TYPE:
-			case SearchFields_Attachment::FILEPATH:
+			case SearchFields_Attachment::STORAGE_EXTENSION:
+			case SearchFields_Attachment::STORAGE_KEY:
 			case SearchFields_Attachment::TICKET_MASK:
 			case SearchFields_Attachment::TICKET_SUBJECT:
 			case SearchFields_Attachment::ADDRESS_EMAIL:

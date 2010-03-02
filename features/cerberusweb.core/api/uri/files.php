@@ -44,6 +44,8 @@ class ChFilesController extends DevblocksControllerExtension {
 		if(null == ($active_worker_memberships[$ticket->team_id]))
 			die($translate->_('common.access_denied'));
 			
+		$contents = $file->getFileContents();
+			
 		// Set headers
 		header("Expires: Mon, 26 Nov 1962 00:00:00 GMT\n");
 		header("Last-Modified: " . gmdate("D,d M YH:i:s") . " GMT\n");
@@ -51,9 +53,10 @@ class ChFilesController extends DevblocksControllerExtension {
 		header("Pragma: no-cache\n");
 		header("Content-Type: " . $file->mime_type . "\n");
 		header("Content-transfer-encoding: binary\n"); 
-		header("Content-Length: " . $file->getFileSize() . "\n");
+		header("Content-Length: " . strlen($contents) . "\n");
 		
-		echo($file->getFileContents());
+		echo $contents;
+		unset($contents);
 		
 		exit;
 	}

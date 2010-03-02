@@ -467,13 +467,13 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
 				if(0 == strcasecmp($attachment->display_name,'original_message.html'))
 					continue;
 					
-				$attachment_path = APP_STORAGE_PATH . '/attachments/'; // [TODO] This is highly redundant in the codebase
-				if(!file_exists($attachment_path . $attachment->filepath))
-					continue;
+				$storage = DevblocksPlatform::getStorageService($attachment->storage_extension);
+				$contents = $storage->get('attachments',$attachment->storage_key);
 				
-				$attach = Swift_Attachment::fromPath($attachment_path . $attachment->filepath);
-				if(!empty($attachment->display_name))
-					$attach->setFilename($attachment->display_name);
+				if(empty($contents))
+					continue;
+
+				$attach = Swift_Attachment::newInstance($contents, $attachment->display_name, $attachment->mime_type);
 				$mime_attachments[] = $attach;
 			}
 	    	

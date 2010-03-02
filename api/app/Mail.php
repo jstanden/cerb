@@ -310,10 +310,9 @@ class CerberusMail {
 		}
 		
 		// add files to ticket
-		// [TODO] redundant with parser (like most of the rest of this function)
-		if (is_array($files) && !empty($files)) {
-			$attachment_path = APP_STORAGE_PATH . '/attachments/';
+		$storage_extension = $settings->get('cerberusweb.core', CerberusSettings::STORAGE_ENGINE_ATTACHMENTS, CerberusSettingsDefaults::STORAGE_ENGINE_ATTACHMENTS);
 		
+		if (is_array($files) && !empty($files)) {
 			reset($files);
 			foreach ($files['tmp_name'] as $idx => $file) {
 				if(empty($file) || empty($files['name'][$idx]) || !file_exists($file))
@@ -323,28 +322,16 @@ class CerberusMail {
 					DAO_Attachment::MESSAGE_ID => $message_id,
 					DAO_Attachment::DISPLAY_NAME => $files['name'][$idx],
 					DAO_Attachment::MIME_TYPE => $files['type'][$idx],
-					DAO_Attachment::FILE_SIZE => filesize($file)
+					DAO_Attachment::FILE_SIZE => filesize($file),
+					DAO_Attachment::STORAGE_EXTENSION => $storage_extension,
 				);
 				$file_id = DAO_Attachment::create($fields);
-				
-	            $attachment_bucket = sprintf("%03d/",
-	                mt_rand(1,100)
-	            );
-	            $attachment_file = $file_id;
-	            
-	            if(!file_exists($attachment_path.$attachment_bucket)) {
-	                mkdir($attachment_path.$attachment_bucket, 0775, true);
-	            }
 
-	            if(!is_writeable($attachment_path.$attachment_bucket)) {
-	            	echo "Can't write to " . $attachment_path.$attachment_bucket . "<BR>";
-	            }
-	            
-	            copy($file, $attachment_path.$attachment_bucket.$attachment_file);
+				$storage_key = $storage->put('attachments', $file_id, file_get_contents($file));
 	            @unlink($file);
 			    
 			    DAO_Attachment::update($file_id, array(
-			        DAO_Attachment::FILEPATH => $attachment_bucket.$attachment_file
+			        DAO_Attachment::STORAGE_KEY => $storage_key,
 			    ));
 			}
 		}
@@ -611,13 +598,13 @@ class CerberusMail {
 	
 			// Forward Attachments
 			if(!empty($forward_files) && is_array($forward_files)) {
-				$attachments_path = APP_STORAGE_PATH . '/attachments/';
-				
 				foreach($forward_files as $file_id) {
 					$attachment = DAO_Attachment::get($file_id);
-					$attachment_path = $attachments_path . $attachment->filepath;
+
+					$storage = DevblocksPlatform::getStorageService($attachment->storage_extension);
+					$contents = $storage->get('attachments', $attachment->storage_key);
 					
-					$mail->attach(Swift_Attachment::fromPath($attachment_path)->setFilename($attachment->display_name));
+					$mail->attach(Swift_Attachment::newInstance($contents, $attachment->display_name, $attachment->mime_type));
 				}
 			}
 			
@@ -679,40 +666,32 @@ class CerberusMail {
 			}
 		    
 			// Attachments
-			if (is_array($files) && !empty($files)) {
-				$attachment_path = APP_STORAGE_PATH . '/attachments/';
+			$storage_extension = $settings->get('cerberusweb.core', CerberusSettings::STORAGE_ENGINE_ATTACHMENTS, CerberusSettingsDefaults::STORAGE_ENGINE_ATTACHMENTS);
 			
+			if (is_array($files) && !empty($files)) {
 				reset($files);
 				foreach ($files['tmp_name'] as $idx => $file) {
 					if(empty($file) || empty($files['name'][$idx]) || !file_exists($file))
 						continue;
-						
+
+					// Create record
 					$fields = array(
 						DAO_Attachment::MESSAGE_ID => $message_id,
 						DAO_Attachment::DISPLAY_NAME => $files['name'][$idx],
 						DAO_Attachment::MIME_TYPE => $files['type'][$idx],
-						DAO_Attachment::FILE_SIZE => filesize($file)
+						DAO_Attachment::FILE_SIZE => filesize($file),
+						DAO_Attachment::STORAGE_EXTENSION => $storage_extension,
 					);
 					$file_id = DAO_Attachment::create($fields);
-					
-		            $attachment_bucket = sprintf("%03d/",
-		                mt_rand(1,100)
-		            );
-		            $attachment_file = $file_id;
-		            
-		            if(!file_exists($attachment_path.$attachment_bucket)) {
-		                mkdir($attachment_path.$attachment_bucket, 0775, true);
-		            }
-	
-		            if(!is_writeable($attachment_path.$attachment_bucket)) {
-		            	echo "Can't write to bucket " . $attachment_path.$attachment_bucket . "<BR>";
-		            }
-		            
-		            copy($file, $attachment_path.$attachment_bucket.$attachment_file);
+
+					// Save to storage
+					$storage = DevblocksPlatform::getStorageService($storage_extension);
+					$storage_key = $storage->put('attachments', $file_id, file_get_contents($file));
 		            @unlink($file);
 				    
+		            // Update storage key
 				    DAO_Attachment::update($file_id, array(
-				        DAO_Attachment::FILEPATH => $attachment_bucket.$attachment_file
+				        DAO_Attachment::STORAGE_KEY => $storage_key
 				    ));
 				}
 			}

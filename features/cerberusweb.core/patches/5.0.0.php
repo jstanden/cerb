@@ -110,4 +110,18 @@ if(isset($tables['fnr_query_seq'])) {
 	$db->Execute('DROP TABLE fnr_query_seq');
 }
 
+// ===========================================================================
+// Migrate to attachment storage service
+
+list($columns, $indexes) = $db->metaTable('attachment');
+
+if(isset($columns['filepath'])) {
+	$db->Execute("ALTER TABLE attachment CHANGE COLUMN filepath storage_key VARCHAR(255) DEFAULT '' NOT NULL");
+}
+
+if(!isset($columns['storage_extension'])) {
+	$db->Execute("ALTER TABLE attachment ADD COLUMN storage_extension VARCHAR(255) DEFAULT '' NOT NULL");
+	$db->Execute("UPDATE attachment SET storage_extension='devblocks.storage.engine.disk' WHERE storage_extension=''");
+}
+
 return TRUE;

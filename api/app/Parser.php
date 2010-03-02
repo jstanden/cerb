@@ -626,8 +626,6 @@ class CerberusParser {
 			}
 		}
 		
-		$attachment_path = APP_STORAGE_PATH . '/attachments/'; // [TODO] This should allow external attachments (S3)
-		
         $fields = array(
             DAO_Message::TICKET_ID => $id,
             DAO_Message::CREATED_DATE => $iDate,
@@ -664,22 +662,18 @@ class CerberusParser {
 				    continue;
 				}
 				
-			    // Make file attachments use buckets so we have a max per directory
-	            $attachment_bucket = sprintf("%03d/",
-	                mt_rand(1,100)
-	            );
-	            $attachment_file = $file_id;
-	            
-	            if(!file_exists($attachment_path.$attachment_bucket)) {
-	                @mkdir($attachment_path.$attachment_bucket, 0770, true);
-	                // [TODO] Needs error checking
-	            }
-
-	            rename($file->getTempFile(), $attachment_path.$attachment_bucket.$attachment_file);
-			    
-			    // [TODO] Split off attachments into its own DAO
+				$storage_extension = $settings->get('cerberusweb.core', CerberusSettings::STORAGE_ENGINE_ATTACHMENTS, CerberusSettingsDefaults::STORAGE_ENGINE_ATTACHMENTS);
+				
+				// Save the file
+				$storage = DevblocksPlatform::getStorageService($storage_extension);
+				$storage_key = $storage->put('attachments', $file_id, file_get_contents($file->getTempFile()));
+				
+				// Remove the temp file
+				@unlink($file->getTempFile());
+				
 			    DAO_Attachment::update($file_id, array(
-			        DAO_Attachment::FILEPATH => $attachment_bucket.$attachment_file
+			        DAO_Attachment::STORAGE_EXTENSION => $storage_extension, 
+			        DAO_Attachment::STORAGE_KEY => $storage_key, 
 			    ));
 			}
 		}
