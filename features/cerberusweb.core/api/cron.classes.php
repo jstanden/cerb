@@ -2,7 +2,7 @@
 /***********************************************************************
  | Cerberus Helpdesk(tm) developed by WebGroup Media, LLC.
  |-----------------------------------------------------------------------
- | All source code & content (c) Copyright 2007, WebGroup Media LLC
+ | All source code & content (c) Copyright 2010, WebGroup Media LLC
  |   unless specifically noted otherwise.
  |
  | This source code is released under the Cerberus Public License.
@@ -104,7 +104,7 @@ class ParseCron extends CerberusCronPageExtension {
 		unset($files);
 		unset($subdirs);
 	  
-		$logger->info("[Parser] Total Runtime: ".((microtime(true)-$runtime)*1000)." ms");
+		$logger->info("[Parser] Total Runtime: ".number_format((microtime(true)-$runtime)*1000,2)." ms");
 	}
 
 	function _parseFile($full_filename) {
@@ -362,7 +362,7 @@ class ImportCron extends CerberusCronPageExtension {
 		unset($files);
 		unset($subdirs);
 
-		$logger->info("[Importer] Total Runtime: ".((microtime(true)-$runtime)*1000)." ms");
+		$logger->info("[Importer] Total Runtime: ".number_format((microtime(true)-$runtime)*1000,2)." ms");
 		
 		@imap_errors();
 	}
@@ -1086,7 +1086,7 @@ class Pop3Cron extends CerberusCronPageExtension {
 			// [TODO] Make this an account setting?
 			$total = min($max_downloads,$check->Nmsgs);
 			 
-			$logger->info('[POP3] Init time: '.((microtime(true)-$runtime)*1000)," ms");
+			$logger->info('[POP3] Init time: '.number_format((microtime(true)-$runtime)*1000,2)," ms");
 
 			$runtime = microtime(true);
 
@@ -1142,7 +1142,7 @@ class Pop3Cron extends CerberusCronPageExtension {
 			imap_close($mailbox);
 			imap_errors();
 			 
-			$logger->info("[POP3] Total Runtime: ".((microtime(true)-$runtime)*1000)." ms");
+			$logger->info("[POP3] Total Runtime: ".number_format((microtime(true)-$runtime)*1000,2)." ms");
 		}
 	}
 
