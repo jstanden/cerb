@@ -467,10 +467,6 @@ class ChMobileTicketsPage extends CerberusMobilePageExtension  {
 			            case "subject":
 			                $params[SearchFields_Ticket::TICKET_SUBJECT] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_SUBJECT,DevblocksSearchCriteria::OPER_LIKE,$query);               
 			                break;
-			                
-			            case "content":
-			                $params[SearchFields_Ticket::TICKET_MESSAGE_CONTENT] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_MESSAGE_CONTENT,DevblocksSearchCriteria::OPER_LIKE,$query);               
-			                break;
 					}
 				}
 				else {

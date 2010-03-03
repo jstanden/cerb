@@ -916,14 +916,9 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 	const TICKET_TEAM_ID = 't_team_id';
 	const TICKET_CATEGORY_ID = 't_category_id';
 	
-	// Message
-//	const MESSAGE_CONTENT = 'msg_content';
-	
 	const TICKET_MESSAGE_HEADER = 'mh_header_name';
     const TICKET_MESSAGE_HEADER_VALUE = 'mh_header_value';	
 
-	const TICKET_MESSAGE_CONTENT = 'mc_content';
-    
 	// Sender
 	const SENDER_ADDRESS = 'a1_address';
 	
@@ -954,8 +949,6 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 
 			self::ORG_NAME => new DevblocksSearchField(self::ORG_NAME, 'o', 'name', $translate->_('contact_org.name')),
 			self::REQUESTER_ADDRESS => new DevblocksSearchField(self::REQUESTER_ADDRESS, 'ra', 'email',$translate->_('ticket.requester')),
-			
-			self::TICKET_MESSAGE_CONTENT => new DevblocksSearchField(self::TICKET_MESSAGE_CONTENT, 'mc', 'content', $translate->_('message.content')),
 			
 			self::TICKET_TEAM_ID => new DevblocksSearchField(self::TICKET_TEAM_ID,'t','team_id',$translate->_('common.group')),
 			self::TICKET_CATEGORY_ID => new DevblocksSearchField(self::TICKET_CATEGORY_ID, 't', 'category_id',$translate->_('common.bucket')),
@@ -1142,10 +1135,6 @@ class View_Ticket extends C4_AbstractView {
 				$tpl->display('file:' . $tpl_path . 'internal/views/criteria/__string.tpl');
 				break;
 
-			case SearchFields_Ticket::TICKET_MESSAGE_CONTENT:
-				$tpl->display('file:' . $tpl_path . 'internal/views/criteria/__fulltext.tpl');
-				break;
-				
 			case SearchFields_Ticket::TICKET_FIRST_WROTE_SPAM:
 			case SearchFields_Ticket::TICKET_FIRST_WROTE_NONSPAM:
 				$tpl->display('file:' . $tpl_path . 'internal/views/criteria/__number.tpl');
@@ -1310,7 +1299,6 @@ class View_Ticket extends C4_AbstractView {
 
 	static function getColumns() {
 		$fields = self::getFields();
-		unset($fields[SearchFields_Ticket::TICKET_MESSAGE_CONTENT]);
 		unset($fields[SearchFields_Ticket::REQUESTER_ID]);
 		unset($fields[SearchFields_Ticket::REQUESTER_ADDRESS]);
 		unset($fields[SearchFields_Ticket::TICKET_UNLOCK_DATE]);
@@ -1338,10 +1326,6 @@ class View_Ticket extends C4_AbstractView {
 				$criteria = new DevblocksSearchCriteria($field, $oper, $value);
 				break;
 
-			case SearchFields_Ticket::TICKET_MESSAGE_CONTENT:
-				$criteria = new DevblocksSearchCriteria($field, $oper, $value);
-				break;
-				
 			case SearchFields_Ticket::TICKET_WAITING:
 			case SearchFields_Ticket::TICKET_DELETED:
 			case SearchFields_Ticket::TICKET_CLOSED:
