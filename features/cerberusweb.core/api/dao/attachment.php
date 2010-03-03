@@ -118,12 +118,10 @@ class DAO_Attachment extends DevblocksORMHelper {
 		$db = DevblocksPlatform::getDatabaseService();
 		$logger = DevblocksPlatform::getConsoleLog();
 		
-		$sql = "SELECT storage_extension, storage_key FROM attachment LEFT JOIN message ON attachment.message_id = message.id WHERE message.id IS NULL";
+		$sql = "SELECT attachment.storage_extension, attachment.storage_key FROM attachment LEFT JOIN message ON attachment.message_id = message.id WHERE message.id IS NULL";
 		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 		
 		// Delete the physical files
-		// [TODO] Cache the storage extension if the props are the same
-		
 		while($row = mysql_fetch_assoc($rs)) {
 			$storage = DevblocksPlatform::getStorageService($row['storage_extension']);
 			$storage->delete('attachments',$row['storage_key']);
