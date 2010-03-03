@@ -494,7 +494,6 @@ class DAO_Ticket extends C4_ORMHelper {
 				
 				(isset($tables['msg']) || isset($tables['mc']) ? "INNER JOIN message msg ON (msg.ticket_id=t.id) " : " ").
 				(isset($tables['mh']) ? "INNER JOIN message_header mh ON (mh.message_id=t.first_message_id) " : " "). // [TODO] Choose between first message and all?
-				(isset($tables['mc']) ? "INNER JOIN message_content mc ON (mc.message_id=msg.id) " : " ").
 				(isset($tables['ra']) ? "INNER JOIN requester r ON (r.ticket_id=t.id)" : " ").
 				(isset($tables['ra']) ? "INNER JOIN address ra ON (ra.id=r.address_id) " : " ").
 				
@@ -530,7 +529,6 @@ class DAO_Ticket extends C4_ORMHelper {
 				
 				(isset($tables['msg']) || isset($tables['mc']) ? "INNER JOIN message msg ON (msg.ticket_id=t.id) " : " ").
 				(isset($tables['mh']) ? "INNER JOIN message_header mh ON (mh.message_id=t.first_message_id) " : " "). // [TODO] Choose between first message and all?
-				(isset($tables['mc']) ? "INNER JOIN message_content mc ON (mc.message_id=msg.id) " : " ").
 				(isset($tables['ra']) ? "INNER JOIN requester r ON (r.ticket_id=t.id)" : " ").
 				(isset($tables['ra']) ? "INNER JOIN address ra ON (ra.id=r.address_id) " : " ").
 				
@@ -573,7 +571,6 @@ class DAO_Ticket extends C4_ORMHelper {
 				
 				(isset($tables['msg']) || isset($tables['mc']) ? "INNER JOIN message msg ON (msg.ticket_id=t.id) " : " ").
 				(isset($tables['mh']) ? "INNER JOIN message_header mh ON (mh.message_id=t.first_message_id) " : " "). // [TODO] Choose between first message and all?
-				(isset($tables['mc']) ? "INNER JOIN message_content mc ON (mc.message_id=msg.id) " : " ").
 				(isset($tables['ra']) ? "INNER JOIN requester r ON (r.ticket_id=t.id)" : " ").
 				(isset($tables['ra']) ? "INNER JOIN address ra ON (ra.id=r.address_id) " : " ").
 				
@@ -608,7 +605,6 @@ class DAO_Ticket extends C4_ORMHelper {
 					
 					(isset($tables['msg']) || isset($tables['mc']) ? "INNER JOIN message msg ON (msg.ticket_id=t.id) " : " ").
 					(isset($tables['mh']) ? "INNER JOIN message_header mh ON (mh.message_id=t.first_message_id) " : " "). // [TODO] Choose between first message and all?
-					(isset($tables['mc']) ? "INNER JOIN message_content mc ON (mc.message_id=msg.id) " : " ").
 					(isset($tables['ra']) ? "INNER JOIN requester r ON (r.ticket_id=t.id)" : " ").
 					(isset($tables['ra']) ? "INNER JOIN address ra ON (ra.id=r.address_id) " : " ").
 					
@@ -660,7 +656,6 @@ class DAO_Ticket extends C4_ORMHelper {
 				
 				(isset($tables['msg']) || isset($tables['mc']) ? "INNER JOIN message msg ON (msg.ticket_id=t.id) " : " ").
 				(isset($tables['mh']) ? "INNER JOIN message_header mh ON (mh.message_id=t.first_message_id) " : " "). // [TODO] Choose between first message and all?
-				(isset($tables['mc']) ? "INNER JOIN message_content mc ON (mc.message_id=msg.id) " : " ").
 				(isset($tables['ra']) ? "INNER JOIN requester r ON (r.ticket_id=t.id)" : " ").
 				(isset($tables['ra']) ? "INNER JOIN address ra ON (ra.id=r.address_id) " : " ").
 				
@@ -827,8 +822,7 @@ class DAO_Ticket extends C4_ORMHelper {
 			(isset($tables['ra']) ? "INNER JOIN requester r ON (r.ticket_id=t.id) " : " ").
 			(isset($tables['ra']) ? "INNER JOIN address ra ON (ra.id=r.address_id) " : " ").
 			(isset($tables['msg']) || isset($tables['mc']) ? "INNER JOIN message msg ON (msg.ticket_id=t.id) " : " ").
-			(isset($tables['mh']) ? "INNER JOIN message_header mh ON (mh.message_id=t.first_message_id) " : " "). // [TODO] Choose between first message and all?
-			(isset($tables['mc']) ? "INNER JOIN message_content mc ON (mc.message_id=msg.id) " : " ")
+			(isset($tables['mh']) ? "INNER JOIN message_header mh ON (mh.message_id=t.first_message_id) " : " ") // [TODO] Choose between first message and all?
 			;
 			
 		// Org joins

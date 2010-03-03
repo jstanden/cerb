@@ -163,7 +163,6 @@ class DAO_Message extends DevblocksORMHelper {
 			
 			// [JAS]: Dynamic table joins
 			(isset($tables['mh']) ? "INNER JOIN message_header mh ON (mh.message_id=m.id)" : " ").
-			(isset($tables['mc']) ? "INNER JOIN message_content mc ON (mc.message_id=m.id)" : " ").
 			
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "").
 			(!empty($sortBy) ? sprintf("ORDER BY %s %s",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : "")
@@ -203,9 +202,6 @@ class SearchFields_Message implements IDevblocksSearchFields {
 	const MESSAGE_HEADER_NAME = 'mh_header_name';
 	const MESSAGE_HEADER_VALUE = 'mh_header_value';
 
-    // Content
-	const MESSAGE_CONTENT = 'mc_content';
-	
 	/**
 	 * @return DevblocksSearchField[]
 	 */
@@ -216,8 +212,6 @@ class SearchFields_Message implements IDevblocksSearchFields {
 			
 			SearchFields_Message::MESSAGE_HEADER_NAME => new DevblocksSearchField(SearchFields_Message::MESSAGE_HEADER_NAME, 'mh', 'header_name'),
 			SearchFields_Message::MESSAGE_HEADER_VALUE => new DevblocksSearchField(SearchFields_Message::MESSAGE_HEADER_VALUE, 'mh', 'header_value'),
-
-			SearchFields_Message::MESSAGE_CONTENT => new DevblocksSearchField(SearchFields_Message::MESSAGE_CONTENT, 'mc', 'content'),
 		);
 		
 		// Sort by label (translation-conscious)
