@@ -703,12 +703,16 @@ class ImportCron extends CerberusCronPageExtension {
 			@$msgWorkerId = intval($email_to_worker_id[strtolower($msgFromInst->email)]);
 //			$logger->info('Checking if '.$msgFromInst->email.' is a worker');
 			
+			$storage_ext_attachment = DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::STORAGE_ENGINE_ATTACHMENT, CerberusSettingsDefaults::STORAGE_ENGINE_ATTACHMENT);
+			$storage_ext_message_content = DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::STORAGE_ENGINE_MESSAGE_CONTENT, CerberusSettingsDefaults::STORAGE_ENGINE_MESSAGE_CONTENT);
+			
 	        $fields = array(
 	            DAO_Message::TICKET_ID => $ticket_id,
 	            DAO_Message::CREATED_DATE => strtotime($sMsgDate),
 	            DAO_Message::ADDRESS_ID => $msgFromInst->id,
 	            DAO_Message::IS_OUTGOING => !empty($msgWorkerId) ? 1 : 0,
 	            DAO_Message::WORKER_ID => !empty($msgWorkerId) ? $msgWorkerId : 0,
+	            DAO_Message::STORAGE_EXTENSION => $storage_ext_message_content,
 	        );
 			$email_id = DAO_Message::create($fields);
 			
@@ -736,20 +740,18 @@ class ImportCron extends CerberusCronPageExtension {
 				$sFileContent = base64_decode($sFileContentB64);
 				unset($sFileContentB64);
 				
-				$storage_extension = $settings->get('cerberusweb.core', CerberusSettings::STORAGE_ENGINE_ATTACHMENTS, CerberusSettingsDefaults::STORAGE_ENGINE_ATTACHMENTS);
-				
 				$fields = array(
 					DAO_Attachment::MESSAGE_ID => $email_id,
 					DAO_Attachment::DISPLAY_NAME => $sFileName,
 					DAO_Attachment::FILE_SIZE => intval($sFileSize),
-					DAO_Attachment::STORAGE_EXTENSION => $storage_extension,
+					DAO_Attachment::STORAGE_EXTENSION => $storage_ext_attachment,
 					DAO_Attachment::STORAGE_KEY => '',
 					DAO_Attachment::MIME_TYPE => $sMimeType,
 				);
 				$file_id = DAO_Attachment::create($fields);
 				
 				// Write file to storage
-				$storage = DevblocksPlatform::getStorageService($storage_extension);
+				$storage = DevblocksPlatform::getStorageService($storage_ext_attachment);
 				$storage_key = $storage->put('attachments', $file_id, $sFileContent); 
 				unset($sFileContent);
 				
@@ -772,7 +774,7 @@ class ImportCron extends CerberusCronPageExtension {
 			}				
 			unset($sMessageContentB64);
 			
-			DAO_MessageContent::create($email_id, $sMessageContent);
+			DAO_MessageContent::set($storage_ext_message_content, $email_id, $sMessageContent);
 			unset($sMessageContent);
 
 			// Headers

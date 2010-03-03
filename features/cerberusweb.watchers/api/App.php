@@ -422,7 +422,7 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
 			return;
 		
 		// [TODO] This could be more efficient
-		$messages = DAO_Ticket::getMessagesByTicket($ticket_id);
+		$messages = DAO_Message::getMessagesByTicket($ticket_id);
 		$message = end($messages); // last message
 		unset($messages);
 		$headers = $message->getHeaders();
@@ -1525,7 +1525,7 @@ class Model_WatcherMailFilter {
 		$ticket_group_id = $ticket->team_id;
 		
 		// [TODO] These expensive checks should only populate when needed
-		$messages = DAO_Ticket::getMessagesByTicket($ticket->id);
+		$messages = DAO_Message::getMessagesByTicket($ticket->id);
 		$message_headers = array();
 
 		if(empty($messages))

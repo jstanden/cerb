@@ -626,15 +626,22 @@ class CerberusParser {
 			}
 		}
 		
+		$storage_service = DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::STORAGE_ENGINE_MESSAGE_CONTENT, CerberusSettingsDefaults::STORAGE_ENGINE_MESSAGE_CONTENT);
+		
         $fields = array(
             DAO_Message::TICKET_ID => $id,
             DAO_Message::CREATED_DATE => $iDate,
-            DAO_Message::ADDRESS_ID => $fromAddressInst->id
+            DAO_Message::ADDRESS_ID => $fromAddressInst->id,
+            DAO_Message::STORAGE_EXTENSION => $storage_service, 
         );
 		$email_id = DAO_Message::create($fields);
 		
 		// Content
-		DAO_MessageContent::create($email_id, $message->body);
+		$storage_key = DAO_MessageContent::set($storage_service, $email_id, $message->body);
+		
+		DAO_Message::update($email_id, array(
+			DAO_Message::STORAGE_KEY => $storage_key,
+		));
 		
 		// Headers
 		foreach($headers as $hk => $hv) {
@@ -662,7 +669,7 @@ class CerberusParser {
 				    continue;
 				}
 				
-				$storage_extension = $settings->get('cerberusweb.core', CerberusSettings::STORAGE_ENGINE_ATTACHMENTS, CerberusSettingsDefaults::STORAGE_ENGINE_ATTACHMENTS);
+				$storage_extension = DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::STORAGE_ENGINE_ATTACHMENT, CerberusSettingsDefaults::STORAGE_ENGINE_ATTACHMENT);
 				
 				// Save the file
 				$storage = DevblocksPlatform::getStorageService($storage_extension);

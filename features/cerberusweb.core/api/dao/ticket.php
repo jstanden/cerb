@@ -412,71 +412,6 @@ class DAO_Ticket extends C4_ORMHelper {
 	    );
 	}
 	
-	/**
-	 * @return Model_Message[]
-	 */
-	static function getMessagesByTicket($ticket_id) {
-		$db = DevblocksPlatform::getDatabaseService();
-		$messages = array();
-		
-		$sql = sprintf("SELECT m.id , m.ticket_id, m.created_date, m.address_id, m.is_outgoing, m.worker_id ".
-			"FROM message m ".
-			"WHERE m.ticket_id = %d ".
-			"ORDER BY m.created_date ASC ",
-			$ticket_id
-		);
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
-		
-		while($row = mysql_fetch_assoc($rs)) {
-			$message = new Model_Message();
-			$message->id = intval($row['id']);
-			$message->ticket_id = intval($row['ticket_id']);
-			$message->created_date = intval($row['created_date']);
-			$message->address_id = intval($row['address_id']);
-			$message->is_outgoing = intval($row['is_outgoing']);
-			$message->worker_id = intval($row['worker_id']);
-			
-			$messages[$message->id] = $message;
-		}
-		
-		mysql_free_result($rs);
-
-		return $messages;
-	}
-	
-	/**
-	 * Enter description here...
-	 *
-	 * @param integer $id message id
-	 * @return Model_Message
-	 */
-	static function getMessage($id) {
-		$db = DevblocksPlatform::getDatabaseService();
-		$message = null;
-		
-		$sql = sprintf("SELECT m.id , m.ticket_id, m.created_date, m.address_id, m.is_outgoing, m.worker_id ".
-			"FROM message m ".
-			"WHERE m.id = %d ".
-			"ORDER BY m.created_date ASC ",
-			$id
-		);
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
-		
-		if($row = mysql_fetch_assoc($rs)) {
-			$message = new Model_Message();
-			$message->id = intval($row['id']);
-			$message->ticket_id = intval($row['ticket_id']);
-			$message->created_date = intval($row['created_date']);
-			$message->address_id = intval($row['address_id']);
-			$message->is_outgoing = intval($row['is_outgoing']);
-			$message->worker_id = intval($row['worker_id']);
-		}
-		
-		mysql_free_result($rs);
-
-		return $message;
-	}
-	
 	static function getRequestersByTicket($ticket_id) {
 		$db = DevblocksPlatform::getDatabaseService();
 		$addresses = array();
@@ -1093,7 +1028,7 @@ class Model_Ticket {
 	function Model_Ticket() {}
 
 	function getMessages() {
-		$messages = DAO_Ticket::getMessagesByTicket($this->id);
+		$messages = DAO_Message::getMessagesByTicket($this->id);
 		return $messages;
 	}
 

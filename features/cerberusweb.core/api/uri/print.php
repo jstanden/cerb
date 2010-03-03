@@ -111,7 +111,7 @@ class ChPrintController extends DevblocksControllerExtension {
 				
 			case 'message':
 				@$id = array_shift($stack);
-				@$message = DAO_Ticket::getMessage($id);
+				@$message = DAO_Message::get($id);
 				@$ticket = DAO_Ticket::getTicket($message->ticket_id);
 				
 				// Make sure we're allowed to view this ticket or message

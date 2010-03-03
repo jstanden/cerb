@@ -650,7 +650,7 @@ class ChFeedbackController extends DevblocksControllerExtension {
 			$model = new Model_FeedbackEntry();
 			
 			if(!empty($msg_id)) {
-				if(null != ($message = DAO_Ticket::getMessage($msg_id))) {
+				if(null != ($message = DAO_Message::get($msg_id))) {
 					$model->id = 0;
 					$model->log_date = time();
 					$model->quote_address_id = $message->address_id;

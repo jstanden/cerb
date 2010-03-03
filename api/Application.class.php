@@ -48,7 +48,7 @@
  * 		and Joe Geck.
  *   WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
-define("APP_BUILD", 2010030201);
+define("APP_BUILD", 2010030202);
 define("APP_MAIL_PATH", APP_STORAGE_PATH . '/mail/');
 
 require_once(APP_PATH . "/api/DAO.class.php");
@@ -617,7 +617,8 @@ class CerberusSettings {
 	const AUTHORIZED_IPS = 'authorized_ips';
 	const LICENSE = 'license';
 	const ACL_ENABLED = 'acl_enabled';
-	const STORAGE_ENGINE_ATTACHMENTS = 'storage_attachments';
+	const STORAGE_ENGINE_ATTACHMENT = 'storage_attachment';
+	const STORAGE_ENGINE_MESSAGE_CONTENT = 'storage_message_content';
 };
 
 class CerberusSettingsDefaults {
@@ -640,7 +641,8 @@ class CerberusSettingsDefaults {
 	const PARSER_AUTO_REQ_EXCLUDE = ''; 
 	const AUTHORIZED_IPS = '';
 	const ACL_ENABLED = 0;
-	const STORAGE_ENGINE_ATTACHMENTS = 'devblocks.storage.engine.disk';
+	const STORAGE_ENGINE_ATTACHMENT = 'devblocks.storage.engine.disk';
+	const STORAGE_ENGINE_MESSAGE_CONTENT = 'devblocks.storage.engine.database';
 }
 
 // [TODO] This gets called a lot when it happens after the registry cache

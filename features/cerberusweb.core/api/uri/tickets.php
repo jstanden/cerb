@@ -834,10 +834,10 @@ class ChTicketsPage extends CerberusPageExtension {
 		    $tpl->assign('ticket', $ticket);
 		}
 		
-		if(null != ($messages = DAO_Ticket::getMessagesByTicket($tid))) {
+		if(null != ($messages = DAO_Message::getMessagesByTicket($tid))) {
 	        if(!empty($messages)) {	    
 		        @$last = array_pop($messages);
-		        @$content = DAO_MessageContent::get($last->id);
+		        @$content = DAO_MessageContent::get($last->storage_extension, $last->storage_key);
 				
 			    $tpl->assign('message', $last);
 			    $tpl->assign('content', $content);

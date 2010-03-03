@@ -505,7 +505,7 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 				
 				if($group_settings[$ticket->team_id][DAO_GroupSettings::SETTING_CLOSE_REPLY_ENABLED]
 				&& !empty($group_settings[$ticket->team_id][DAO_GroupSettings::SETTING_CLOSE_REPLY])) {
-					if(null != ($msg_first = DAO_Ticket::getMessage($ticket->first_message_id))) {
+					if(null != ($msg_first = DAO_Message::get($ticket->first_message_id))) {
 						// First sender
 						$ticket_sender = '';
 						$ticket_sender_first = '';

@@ -278,13 +278,15 @@ class CerberusMail {
 		// End "Next:"
 		
 		$ticket_id = DAO_Ticket::createTicket($fields);
+		$storage_service = DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::STORAGE_ENGINE_MESSAGE_CONTENT, CerberusSettingsDefaults::STORAGE_ENGINE_MESSAGE_CONTENT);
 		
 	    $fields = array(
 	        DAO_Message::TICKET_ID => $ticket_id,
 	        DAO_Message::CREATED_DATE => time(),
 	        DAO_Message::ADDRESS_ID => $fromAddressId,
 	        DAO_Message::IS_OUTGOING => 1,
-	        DAO_Message::WORKER_ID => (!empty($worker->id) ? $worker->id : 0)
+	        DAO_Message::WORKER_ID => (!empty($worker->id) ? $worker->id : 0),
+	        DAO_Message::STORAGE_EXTENSION => $storage_service,
 	    );
 		$message_id = DAO_Message::create($fields);
 	    
@@ -294,7 +296,10 @@ class CerberusMail {
 		));
 		
 		// Content
-	    DAO_MessageContent::create($message_id, $content);
+	    $storage_key = DAO_MessageContent::set($storage_service, $message_id, $content);
+	    DAO_Message::update($message_id, array(
+	    	DAO_Message::STORAGE_KEY => $storage_key,
+	    ));
 
 		// Set recipients to requesters
 		foreach($toList as $to) {
@@ -310,7 +315,7 @@ class CerberusMail {
 		}
 		
 		// add files to ticket
-		$storage_extension = $settings->get('cerberusweb.core', CerberusSettings::STORAGE_ENGINE_ATTACHMENTS, CerberusSettingsDefaults::STORAGE_ENGINE_ATTACHMENTS);
+		$storage_extension = DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::STORAGE_ENGINE_ATTACHMENT, CerberusSettingsDefaults::STORAGE_ENGINE_ATTACHMENT);
 		
 		if (is_array($files) && !empty($files)) {
 			reset($files);
@@ -423,7 +428,7 @@ class CerberusMail {
 		    @$worker_id = $properties['agent_id'];
 		    @$subject = $properties['subject'];
 		    
-			$message = DAO_Ticket::getMessage($reply_message_id);
+			$message = DAO_Message::get($reply_message_id);
 	        $message_headers = DAO_MessageHeader::getAll($reply_message_id);		
 			$ticket_id = $message->ticket_id;
 			$ticket = DAO_Ticket::getTicket($ticket_id);
@@ -643,17 +648,24 @@ class CerberusMail {
 		    	$change_fields[DAO_Ticket::SUBJECT] = $subject;
 		    }
 			
+			$storage_service = DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::STORAGE_ENGINE_MESSAGE_CONTENT, CerberusSettingsDefaults::STORAGE_ENGINE_MESSAGE_CONTENT);
+			
 		    $fields = array(
 		        DAO_Message::TICKET_ID => $ticket_id,
 		        DAO_Message::CREATED_DATE => time(),
 		        DAO_Message::ADDRESS_ID => $fromAddressId,
 		        DAO_Message::IS_OUTGOING => 1,
 		        DAO_Message::WORKER_ID => (!empty($worker_id) ? $worker_id : 0),
+		        DAO_Message::STORAGE_EXTENSION => $storage_service,
 		    );
 			$message_id = DAO_Message::create($fields);
 		    
 			// Content
-		    DAO_MessageContent::create($message_id, $content);
+		    $storage_key = DAO_MessageContent::set($storage_service, $message_id, $content);
+		    
+			DAO_Message::update($message_id, array(
+				DAO_Message::STORAGE_KEY => $storage_key,
+			));
 		    
 			$headers = $mail->getHeaders();
 			
@@ -666,7 +678,7 @@ class CerberusMail {
 			}
 		    
 			// Attachments
-			$storage_extension = $settings->get('cerberusweb.core', CerberusSettings::STORAGE_ENGINE_ATTACHMENTS, CerberusSettingsDefaults::STORAGE_ENGINE_ATTACHMENTS);
+			$storage_extension = DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::STORAGE_ENGINE_ATTACHMENT, CerberusSettingsDefaults::STORAGE_ENGINE_ATTACHMENT);
 			
 			if (is_array($files) && !empty($files)) {
 				reset($files);

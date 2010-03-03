@@ -288,7 +288,7 @@ class CerberusBayes {
 			
 		// pull up text of first ticket message
 		// [TODO] This is a performance killer
-		$first_message = DAO_Ticket::getMessage($ticket->first_message_id);
+		$first_message = DAO_Message::get($ticket->first_message_id);
 
 		if(empty($first_message)) 
 		    return FALSE;
@@ -494,7 +494,7 @@ class CerberusBayes {
 	
 	static function calculateTicketSpamProbability($ticket_id, $readonly=false) {
 		// pull up text of first ticket message
-	    $messages = DAO_Ticket::getMessagesByTicket($ticket_id);
+	    $messages = DAO_Message::getMessagesByTicket($ticket_id);
 	    $first_message = array_shift($messages);
 	    $ticket = DAO_Ticket::getTicket($ticket_id);
 	    

@@ -6,13 +6,15 @@ class DAO_Message extends DevblocksORMHelper {
     const ADDRESS_ID = 'address_id';
     const IS_OUTGOING = 'is_outgoing';
     const WORKER_ID = 'worker_id';
+    const STORAGE_EXTENSION = 'storage_extension';
+    const STORAGE_KEY = 'storage_key';
 
 	static function create($fields) {
 		$db = DevblocksPlatform::getDatabaseService();
 		$newId = $db->GenID('message_seq');
 		
-		$sql = sprintf("INSERT INTO message (id,ticket_id,created_date,is_outgoing,worker_id,address_id) ".
-			"VALUES (%d,0,0,0,0,0)",
+		$sql = sprintf("INSERT INTO message (id,ticket_id,created_date,is_outgoing,worker_id,address_id,storage_extension,storage_key) ".
+			"VALUES (%d,0,0,0,0,0,'','')",
 			$newId
 		);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
@@ -21,35 +23,110 @@ class DAO_Message extends DevblocksORMHelper {
 		
 		return $newId;
 	}
-    
+
     static function update($id, $fields) {
         parent::_update($id, 'message', $fields);
     }
+
+	/**
+	 * @param string $where
+	 * @return Model_Note[]
+	 */
+	static function getWhere($where=null) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$sql = "SELECT id, ticket_id, created_date, is_outgoing, worker_id, address_id, storage_extension, storage_key ".
+			"FROM message ".
+			(!empty($where) ? sprintf("WHERE %s ",$where) : "").
+			"ORDER BY created_date asc";
+		$rs = $db->Execute($sql);
+		
+		return self::_getObjectsFromResult($rs);
+	}
+
+	/**
+	 * @param integer $id
+	 * @return Model_Note	 */
+	static function get($id) {
+		$objects = self::getWhere(sprintf("%s = %d",
+			self::ID,
+			$id
+		));
+		
+		if(isset($objects[$id]))
+			return $objects[$id];
+		
+		return null;
+	}
+	
+	/**
+	 * @param resource $rs
+	 * @return Model_Note[]
+	 */
+	static private function _getObjectsFromResult($rs) {
+		$objects = array();
+		
+		while($row = mysql_fetch_assoc($rs)) {
+			$object = new Model_Message();
+			$object->id = $row['id'];
+			$object->ticket_id = $row['ticket_id'];
+			$object->created_date = $row['created_date'];
+			$object->is_outgoing = $row['is_outgoing'];
+			$object->worker_id = $row['worker_id'];
+			$object->address_id = $row['address_id'];
+			$object->storage_extension = $row['storage_extension'];
+			$object->storage_key = $row['storage_key'];
+			$objects[$object->id] = $object;
+		}
+		
+		mysql_free_result($rs);
+		
+		return $objects;
+	}
+    
+	/**
+	 * @return Model_Message[]
+	 */
+	static function getMessagesByTicket($ticket_id) {
+		return self::getWhere(sprintf("%s = %d",
+			self::TICKET_ID,
+			$ticket_id
+		));
+	}
 
     static function maint() {
     	$db = DevblocksPlatform::getDatabaseService();
     	$logger = DevblocksPlatform::getConsoleLog();
     	
+		// Purge message content (storage) 
+		$sql = "SELECT storage_extension, storage_key FROM message LEFT JOIN ticket ON message.ticket_id = ticket.id WHERE ticket.id IS NULL";
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+
+		while($row = mysql_fetch_assoc($rs)) {
+			$storage = DevblocksPlatform::getStorageService($row['storage_extension']);
+			$storage->delete('message_content',$row['storage_key']);
+		}	
+		mysql_free_result($rs);	
+
+		// Purge messages without linked tickets  
 		$sql = "DELETE QUICK message FROM message LEFT JOIN ticket ON message.ticket_id = ticket.id WHERE ticket.id IS NULL";
 		$db->Execute($sql);
 		
 		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' message records.');
 		
+		// Headers
 		$sql = "DELETE QUICK message_header FROM message_header LEFT JOIN message ON message_header.message_id = message.id WHERE message.id IS NULL";
 		$db->Execute($sql);
 
 		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' message_header records.');
 		
-		$sql = "DELETE QUICK message_content FROM message_content LEFT JOIN message ON message_content.message_id = message.id WHERE message.id IS NULL";
-		$db->Execute($sql);
-
-		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' message_content records.');
-		
+		// Notes
 		$sql = "DELETE QUICK message_note FROM message_note LEFT JOIN message ON message_note.message_id = message.id WHERE message.id IS NULL";
 		$db->Execute($sql);
 		
 		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' message_note records.');
 		
+		// Attachments
 		DAO_Attachment::maint();
     }
     
@@ -157,11 +234,16 @@ class Model_Message {
 	public $address_id;
 	public $is_outgoing;
 	public $worker_id;
+	public $storage_extension;
+	public $storage_key;
 
 	function Model_Message() {}
 
 	function getContent() {
-		return DAO_MessageContent::get($this->id);
+		if(empty($this->storage_extension) || empty($this->storage_key))
+			return '';
+			
+		return DAO_MessageContent::get($this->storage_extension, $this->storage_key);
 	}
 
 	function getHeaders() {
@@ -180,41 +262,21 @@ class Model_Message {
 };
 
 class DAO_MessageContent {
-    const MESSAGE_ID = 'message_id';
-    const CONTENT = 'content';
-    
-    static function create($message_id, $content) {
-    	$db = DevblocksPlatform::getDatabaseService();
-    	
-    	$db->Execute(sprintf("INSERT INTO message_content (message_id, content) VALUES (%d, %s)",
-    		$message_id,
-    		$db->qstr($content)
-    	));
+	/**
+	 * 
+	 * @param string $storage_extension
+	 * @param integer $id
+	 * @param string $content
+	 * @return string storage key
+	 */
+    static function set($storage_extension, $id, $content) {
+    	$storage = DevblocksPlatform::getStorageService($storage_extension);
+    	return $storage->put('message_content', $id, $content);
     }
     
-    static function update($message_id, $content) {
-        $db = DevblocksPlatform::getDatabaseService();
-        
-        $db->Execute(sprintf("REPLACE INTO message_content (message_id, content) ".
-        	"VALUES (%d, %s)",
-        	$message_id,
-        	$db->qstr($content)
-        ));
-    }
-    
-	static function get($message_id) {
-		$db = DevblocksPlatform::getDatabaseService();
-		
-		$sql = sprintf("SELECT m.content ".
-			"FROM message_content m ".
-			"WHERE m.message_id = %d ",
-			$message_id
-		);
-		
-		if(null != ($content = $db->GetOne($sql))) 
-			return $content;
-		
-		return '';
+	static function get($storage_extension, $storage_key) {
+    	$storage = DevblocksPlatform::getStorageService($storage_extension);
+    	return $storage->get('message_content', $storage_key);
 	}
 };
 

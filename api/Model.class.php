@@ -1311,7 +1311,7 @@ class Model_MailTemplate {
 		$with[] = date('r');
 		
 		if(!empty($message_id)) {
-			$message = DAO_Ticket::getMessage($message_id);
+			$message = DAO_Message::get($message_id);
 			$ticket = DAO_Ticket::getTicket($message->ticket_id);
 			$sender = DAO_Address::get($message->address_id);
 			$sender_org = DAO_ContactOrg::get($sender->contact_org_id);

@@ -115,7 +115,7 @@ class UmScHistoryController extends Extension_UmScController {
 			
 			// Security check (mask compare)
 			if(0 == strcasecmp($ticket[SearchFields_Ticket::TICKET_MASK],$mask)) {
-				$messages = DAO_Ticket::getMessagesByTicket($ticket[SearchFields_Ticket::TICKET_ID]);
+				$messages = DAO_Message::getMessagesByTicket($ticket[SearchFields_Ticket::TICKET_ID]);
 				$messages = array_reverse($messages, true);
 				$attachments = array();						
 				
@@ -212,7 +212,7 @@ class UmScHistoryController extends Extension_UmScController {
 		);
 		$ticket = array_shift($tickets);
 		
-		$messages = DAO_Ticket::getMessagesByTicket($ticket[SearchFields_Ticket::TICKET_ID]);
+		$messages = DAO_Message::getMessagesByTicket($ticket[SearchFields_Ticket::TICKET_ID]);
 		$last_message = array_pop($messages); /* @var $last_message Model_Message */
 		$last_message_headers = $last_message->getHeaders();
 		unset($messages);
