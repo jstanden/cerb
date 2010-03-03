@@ -362,6 +362,10 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 
         $query = trim($query);
         
+		if(false === strpos($query,'*')) {
+			$query = '*'.$query.'*';
+		}
+        
         $visit = CerberusApplication::getVisit(); /* @var $visit CerberusVisit */
         $translate = DevblocksPlatform::getTranslationService();
 		
@@ -376,7 +380,11 @@ class ChKbAjaxController extends DevblocksControllerExtension {
         
         switch($type) {
             case "content":
-            	$params[SearchFields_KbArticle::CONTENT] = new DevblocksSearchCriteria(SearchFields_KbArticle::CONTENT,DevblocksSearchCriteria::OPER_FULLTEXT,$query);               
+				$params[SearchFields_KbArticle::CONTENT] = array(
+					DevblocksSearchCriteria::GROUP_OR,
+					new DevblocksSearchCriteria(SearchFields_KbArticle::TITLE,DevblocksSearchCriteria::OPER_LIKE,$query),
+					new DevblocksSearchCriteria(SearchFields_KbArticle::CONTENT,DevblocksSearchCriteria::OPER_LIKE,$query),
+				);
                 break;
         }
         
@@ -499,11 +507,15 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 				new DevblocksSearchCriteria(SearchFields_KbArticle::CATEGORY_ID, '=', $topic_id);
 
 		if(!empty($q))
+			if(false === strpos($q,'*')) {
+				$q = '*'.$q.'*';
+			}
+		
 			$params[SearchFields_KbArticle::CATEGORY_ID] = 
 				array(
 					DevblocksSearchCriteria::GROUP_OR,
-					new DevblocksSearchCriteria(SearchFields_KbArticle::TITLE, DevblocksSearchCriteria::OPER_FULLTEXT, $q),
-					new DevblocksSearchCriteria(SearchFields_KbArticle::CONTENT, DevblocksSearchCriteria::OPER_FULLTEXT, $q),
+					new DevblocksSearchCriteria(SearchFields_KbArticle::TITLE, DevblocksSearchCriteria::OPER_LIKE, $q),
+					new DevblocksSearchCriteria(SearchFields_KbArticle::CONTENT, DevblocksSearchCriteria::OPER_LIKE, $q),
 				);
 
 		list($results, $null) = DAO_KbArticle::search(
@@ -1098,6 +1110,7 @@ class View_KbArticle extends C4_AbstractView {
 
 		switch($field) {
 			case SearchFields_KbArticle::TITLE:
+			case SearchFields_KbArticle::CONTENT:
 				$tpl->display('file:' . $this->_CORE_TPL_PATH . 'internal/views/criteria/__string.tpl');
 				break;
 			case SearchFields_KbArticle::UPDATED:
@@ -1105,9 +1118,6 @@ class View_KbArticle extends C4_AbstractView {
 				break;
 			case SearchFields_KbArticle::VIEWS:
 				$tpl->display('file:' . $this->_CORE_TPL_PATH . 'internal/views/criteria/__number.tpl');
-				break;
-			case SearchFields_KbArticle::CONTENT:
-				$tpl->display('file:' . $this->_CORE_TPL_PATH . 'internal/views/criteria/__fulltext.tpl');
 				break;
 			case SearchFields_KbArticle::TOP_CATEGORY_ID:
 				$topics = DAO_KbCategory::getWhere(sprintf("%s = %d",
@@ -1174,6 +1184,7 @@ class View_KbArticle extends C4_AbstractView {
 
 		switch($field) {
 			case SearchFields_KbArticle::TITLE:
+			case SearchFields_KbArticle::CONTENT:
 				// force wildcards if none used on a LIKE
 				if(($oper == DevblocksSearchCriteria::OPER_LIKE || $oper == DevblocksSearchCriteria::OPER_NOT_LIKE)
 				&& false === (strpos($value,'*'))) {
@@ -1194,10 +1205,6 @@ class View_KbArticle extends C4_AbstractView {
 				
 			case SearchFields_KbArticle::VIEWS:
 				$criteria = new DevblocksSearchCriteria($field, $oper, $value);
-				break;
-				
-			case SearchFields_KbArticle::CONTENT:
-				$criteria = new DevblocksSearchCriteria($field, DevblocksSearchCriteria::OPER_FULLTEXT, $value);
 				break;
 				
 			case SearchFields_KbArticle::TOP_CATEGORY_ID:

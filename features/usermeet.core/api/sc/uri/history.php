@@ -85,7 +85,7 @@ class UmScHistoryController extends Extension_UmScController {
 			$view->params = array(
 //				array(
 //					DevblocksSearchCriteria::GROUP_OR,
-//					new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_MESSAGE_CONTENT,DevblocksSearchCriteria::OPER_FULLTEXT,$q),
+//					new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_MESSAGE_CONTENT,DevblocksSearchCriteria::OPER_LIKE,$q),
 //					new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_MASK,DevblocksSearchCriteria::OPER_LIKE,$q.'%'),
 //				),
 				array(

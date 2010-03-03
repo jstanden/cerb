@@ -49,8 +49,8 @@ class UmScKbController extends Extension_UmScController {
 				$view->params = array(
 					array(
 						DevblocksSearchCriteria::GROUP_OR,
-						new DevblocksSearchCriteria(SearchFields_KbArticle::TITLE,DevblocksSearchCriteria::OPER_FULLTEXT,$q),
-						new DevblocksSearchCriteria(SearchFields_KbArticle::CONTENT,DevblocksSearchCriteria::OPER_FULLTEXT,$q),
+						new DevblocksSearchCriteria(SearchFields_KbArticle::TITLE,DevblocksSearchCriteria::OPER_LIKE,$q),
+						new DevblocksSearchCriteria(SearchFields_KbArticle::CONTENT,DevblocksSearchCriteria::OPER_LIKE,$q),
 					),
 					new DevblocksSearchCriteria(SearchFields_KbArticle::TOP_CATEGORY_ID,'in',array_keys($kb_roots))
 				);
