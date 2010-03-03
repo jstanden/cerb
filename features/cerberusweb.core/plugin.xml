@@ -680,6 +680,17 @@
 			</params>
 		</extension>
 		
+		<extension point="cerberusweb.cron">
+			<id>cron.storage</id>
+			<name>Storage Manager</name>
+			<class>
+				<file>api/cron.classes.php</file>
+				<name>StorageCron</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+		
 		<!-- Custom Field Sources -->
 		
 		<extension point="cerberusweb.fields.source">

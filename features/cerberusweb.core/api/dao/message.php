@@ -154,11 +154,15 @@ class DAO_Message extends DevblocksORMHelper {
 		
 		$sql = sprintf("SELECT ".
 			"m.id as %s, ".
-			"m.ticket_id as %s ".
+			"m.ticket_id as %s, ".
+			"m.storage_extension as %s, ".
+			"m.storage_key as %s ".
 			"FROM message m ",
 //			"INNER JOIN team tm ON (tm.id = t.team_id) ".
 			    SearchFields_Message::ID,
-			    SearchFields_Message::TICKET_ID
+			    SearchFields_Message::TICKET_ID,
+			    SearchFields_Message::STORAGE_EXTENSION,
+			    SearchFields_Message::STORAGE_KEY
 			).
 			
 			// [JAS]: Dynamic table joins
@@ -197,6 +201,8 @@ class SearchFields_Message implements IDevblocksSearchFields {
 	// Message
 	const ID = 'm_id';
 	const TICKET_ID = 'm_ticket_id';
+	const STORAGE_EXTENSION = 'm_storage_extension';
+	const STORAGE_KEY = 'm_storage_key';
 	
 	// Headers
 	const MESSAGE_HEADER_NAME = 'mh_header_name';
@@ -209,6 +215,8 @@ class SearchFields_Message implements IDevblocksSearchFields {
 		$columns = array(
 			SearchFields_Message::ID => new DevblocksSearchField(SearchFields_Message::ID, 'm', 'id'),
 			SearchFields_Message::TICKET_ID => new DevblocksSearchField(SearchFields_Message::TICKET_ID, 'm', 'ticket_id'),
+			SearchFields_Message::STORAGE_EXTENSION => new DevblocksSearchField(SearchFields_Message::STORAGE_EXTENSION, 'm', 'storage_extension'),
+			SearchFields_Message::STORAGE_KEY => new DevblocksSearchField(SearchFields_Message::STORAGE_KEY, 'm', 'storage_key'),
 			
 			SearchFields_Message::MESSAGE_HEADER_NAME => new DevblocksSearchField(SearchFields_Message::MESSAGE_HEADER_NAME, 'mh', 'header_name'),
 			SearchFields_Message::MESSAGE_HEADER_VALUE => new DevblocksSearchField(SearchFields_Message::MESSAGE_HEADER_VALUE, 'mh', 'header_value'),

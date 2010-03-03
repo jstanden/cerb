@@ -173,4 +173,14 @@ if(!isset($columns['storage_key'])) {
 }
 $db->Execute("UPDATE message SET storage_key=id WHERE storage_key = '' AND storage_extension='devblocks.storage.engine.database'");
 
+// ===========================================================================
+// Enable storage manager scheduled task and give defaults
+
+if(null != ($cron = DevblocksPlatform::getExtension('cron.storage', true, true))) {
+	$cron->setParam(CerberusCronPageExtension::PARAM_ENABLED, true);
+	$cron->setParam(CerberusCronPageExtension::PARAM_DURATION, '5');
+	$cron->setParam(CerberusCronPageExtension::PARAM_TERM, 'm');
+	$cron->setParam(CerberusCronPageExtension::PARAM_LASTRUN, strtotime('Yesterday'));
+}
+
 return TRUE;
