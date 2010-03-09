@@ -1025,6 +1025,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
         DevblocksPlatform::readPlugins();
 		
 		$plugins = DevblocksPlatform::getPluginRegistry();
+		unset($plugins['devblocks.core']);
 		unset($plugins['cerberusweb.core']);
 		$tpl->assign('plugins', $plugins);
 		
