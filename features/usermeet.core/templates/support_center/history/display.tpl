@@ -52,19 +52,10 @@
 		{foreach from=$attachments.$message_id item=attachment key=attachment_id}
 			<li>
 				<a href="{devblocks_url}c=ajax&a=downloadFile&mask={$ticket.t_mask}&md5={$attachment_id|cat:$message->id|cat:$attachment.a_display_name|md5}&name={$attachment.a_display_name|escape}{/devblocks_url}" target="_blank">{$attachment.a_display_name|escape}</a>
-				{assign var=bytes value=$attachment.a_file_size}
 				( 
-				{if !empty($bytes)} 
-					{if $bytes > 1024000}
-						{math equation="round(x/1024000)" x=$bytes} MB
-					{elseif $bytes > 1048}
-						{math equation="round(x/1048)" x=$bytes} KB
-					{else}
-						{$bytes} bytes
-					{/if}
+					{$attachment.a_storage_size|devblocks_prettybytes}
 					- 
-				{/if}
-				{if !empty($attachment.a_mime_type)}{$attachment.a_mime_type}{else}{$translate->_('display.convo.unknown_format')|capitalize}{/if}
+					{if !empty($attachment.a_mime_type)}{$attachment.a_mime_type}{else}{$translate->_('display.convo.unknown_format')|capitalize}{/if}
 				 )
 			</li>
 		{/foreach}

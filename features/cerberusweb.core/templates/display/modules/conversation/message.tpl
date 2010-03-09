@@ -115,18 +115,9 @@
 	      		{foreach from=$attachments item=attachment name=attachments}
 					<li>
 						<a href="{devblocks_url}c=files&p={$attachment->id}&name={$attachment->display_name|escape:'url'}{/devblocks_url}" target="_blank" style="font-weight:bold;color:rgb(50,120,50);">{$attachment->display_name}</a>
-						{assign var=bytes value=$attachment->file_size}
-						( 
-						{if !empty($attachment->file_size)} 
-							{if $bytes > 1024000}
-								{math equation="round(x/1024000)" x=$attachment->file_size} MB
-							{elseif $bytes > 1048}
-								{math equation="round(x/1048)" x=$attachment->file_size} KB
-							{else}
-								{$attachment->file_size} bytes
-							{/if}
-							- 
-						{/if}
+						(  
+						{$attachment->storage_size|devblocks_prettybytes} 
+						- 
 						{if !empty($attachment->mime_type)}{$attachment->mime_type}{else}{$translate->_('display.convo.unknown_format')|capitalize}{/if}
 						 )
 					</li>

@@ -60,17 +60,8 @@
 		{foreach from=$view->view_columns item=column name=columns}
 			{if $column=="a_id"}
 			<td>{$result.a_id}&nbsp;</td>
-			{elseif $column=="a_file_size"}
-			<td>
-				{if $result.a_file_size > 1024000}
-					{math equation="round(x/1024000)" x=$result.a_file_size} MB
-				{elseif $result.a_file_size > 1048}
-					{math equation="round(x/1048)" x=$result.a_file_size} KB
-				{else}
-					{$result.a_file_size} bytes
-				{/if}
-				&nbsp;
-			</td>
+			{elseif $column=="a_storage_size"}
+			<td>{$result.a_storage_size|devblocks_prettybytes}&nbsp;</td>
 			{elseif $column=="m_created_date"}
 			<td title="{$result.m_created_date|devblocks_date}">{$result.m_created_date|devblocks_prettytime}&nbsp;</td>
 			{elseif $column=="m_is_outgoing"}
