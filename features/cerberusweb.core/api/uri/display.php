@@ -314,7 +314,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		$tpl->assign('requesters', $ticket->getRequesters());
 		
 		if(empty($hide)) {
-			$content = DAO_MessageContent::get($message->storage_extension, $message->storage_key);
+			$content = $message->getContent();
 			$tpl->assign('content', $content);
 			
 			$notes = DAO_MessageNote::getByTicketId($message->ticket_id);

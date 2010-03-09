@@ -119,6 +119,10 @@ if(isset($columns['filepath'])) {
 	$db->Execute("ALTER TABLE attachment CHANGE COLUMN filepath storage_key VARCHAR(255) DEFAULT '' NOT NULL");
 }
 
+if(isset($columns['file_size'])) {
+	$db->Execute("ALTER TABLE attachment CHANGE COLUMN file_size storage_size INT UNSIGNED DEFAULT 0 NOT NULL");
+}
+
 if(!isset($columns['storage_extension'])) {
 	$db->Execute("ALTER TABLE attachment ADD COLUMN storage_extension VARCHAR(255) DEFAULT '' NOT NULL");
 	$db->Execute("UPDATE attachment SET storage_extension='devblocks.storage.engine.disk' WHERE storage_extension=''");
@@ -128,39 +132,18 @@ if(!isset($columns['storage_extension'])) {
 // Migrate message content to storage service
 
 if(isset($tables['message_content'])) {
-	$storage = DevblocksPlatform::getStorageService('devblocks.storage.engine.database');
-	$ns = 'message_content';
-	
-	$count = $db->GetOne('SELECT COUNT(message_id) FROM message_content');
-	
-	if(!empty($count)) {
-		// Make sure the table exists in namespace by put+delete
-		$key = $storage->put($ns, 0, '');
-		$storage->delete($ns, $key);
-		
-		// Mass move messages
-		$db->Execute("INSERT IGNORE INTO storage_message_content (id, data) SELECT message_id, content FROM message_content");
-	}
-	
-	// [TODO] Delete from message_content WHERE (message_content.message_id INNER JOIN storage_message_content.id)
-	
-	// Drop 'message_content' table
-	$count = $db->GetOne('SELECT COUNT(message_id) FROM message_content');
-	$storage_count = $db->GetOne('SELECT COUNT(id) FROM storage_message_content');
-	
-	if($count == $storage_count) {
-		// Drop table
-		$db->Execute('DROP TABLE message_content');
-	} else {
-		die(sprintf("[cerberusweb.core:5.0.0] ERROR: Can't match counts from 'message_content' (%d) to 'storage_message_content' (%d).",
-			$count,
-			$storage_count
-		));
-	}
+	$db->Execute("RENAME TABLE message_content TO storage_message_content");
+	$db->Execute("ALTER TABLE storage_message_content DROP INDEX content");
+	$db->Execute("ALTER TABLE storage_message_content CHANGE COLUMN message_id id int unsigned default '0' not null");
+	$db->Execute("ALTER TABLE storage_message_content CHANGE COLUMN content data longblob");
+
+	unset($tables['message_content']);
+	$tables['storage_message_content'] = 'storage_message_content'; 
 }
 
 // Add storage columns to 'message'
 list($columns, $indexes) = $db->metaTable('message');
+
 
 if(!isset($columns['storage_extension'])) {
 	$db->Execute("ALTER TABLE message ADD COLUMN storage_extension VARCHAR(255) DEFAULT '' NOT NULL");
@@ -171,6 +154,12 @@ $db->Execute("UPDATE message SET storage_extension='devblocks.storage.engine.dat
 if(!isset($columns['storage_key'])) {
 	$db->Execute("ALTER TABLE message ADD COLUMN storage_key VARCHAR(255) DEFAULT '' NOT NULL");
 }
+
+if(!isset($columns['storage_size'])) {
+	$db->Execute("ALTER TABLE message ADD COLUMN storage_size INT UNSIGNED DEFAULT 0 NOT NULL");
+	$db->Execute("UPDATE message, storage_message_content SET message.storage_size = LENGTH(storage_message_content.data) WHERE message.id=storage_message_content.id");
+}
+
 $db->Execute("UPDATE message SET storage_key=id WHERE storage_key = '' AND storage_extension='devblocks.storage.engine.database'");
 
 // ===========================================================================
@@ -178,9 +167,28 @@ $db->Execute("UPDATE message SET storage_key=id WHERE storage_key = '' AND stora
 
 if(null != ($cron = DevblocksPlatform::getExtension('cron.storage', true, true))) {
 	$cron->setParam(CerberusCronPageExtension::PARAM_ENABLED, true);
-	$cron->setParam(CerberusCronPageExtension::PARAM_DURATION, '5');
-	$cron->setParam(CerberusCronPageExtension::PARAM_TERM, 'm');
-	$cron->setParam(CerberusCronPageExtension::PARAM_LASTRUN, strtotime('Yesterday'));
+	$cron->setParam(CerberusCronPageExtension::PARAM_DURATION, '1');
+	$cron->setParam(CerberusCronPageExtension::PARAM_TERM, 'h');
+	$cron->setParam(CerberusCronPageExtension::PARAM_LASTRUN, strtotime('Yesterday 22:15'));
+}
+
+// ===========================================================================
+// Migrate storage_extension fields to storage_profile_id
+
+// Attachments
+list($columns, $indexes) = $db->metaTable('attachment');
+
+if(!isset($columns['storage_profile_id'])) {
+	$db->Execute("ALTER TABLE attachment ADD COLUMN storage_profile_id INT UNSIGNED DEFAULT 0 NOT NULL");
+	$db->Execute("ALTER TABLE attachment ADD INDEX storage_profile_id (storage_profile_id)");
+}
+
+// Message Content
+list($columns, $indexes) = $db->metaTable('message');
+
+if(!isset($columns['storage_profile_id'])) {
+	$db->Execute("ALTER TABLE message ADD COLUMN storage_profile_id INT UNSIGNED DEFAULT 0 NOT NULL");
+	$db->Execute("ALTER TABLE message ADD INDEX storage_profile_id (storage_profile_id)");
 }
 
 return TRUE;

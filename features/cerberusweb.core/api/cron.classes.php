@@ -703,16 +703,12 @@ class ImportCron extends CerberusCronPageExtension {
 			@$msgWorkerId = intval($email_to_worker_id[strtolower($msgFromInst->email)]);
 //			$logger->info('Checking if '.$msgFromInst->email.' is a worker');
 			
-			$storage_ext_attachment = DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::STORAGE_ENGINE_ATTACHMENT, CerberusSettingsDefaults::STORAGE_ENGINE_ATTACHMENT);
-			$storage_ext_message_content = DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::STORAGE_ENGINE_MESSAGE_CONTENT, CerberusSettingsDefaults::STORAGE_ENGINE_MESSAGE_CONTENT);
-			
 	        $fields = array(
 	            DAO_Message::TICKET_ID => $ticket_id,
 	            DAO_Message::CREATED_DATE => strtotime($sMsgDate),
 	            DAO_Message::ADDRESS_ID => $msgFromInst->id,
 	            DAO_Message::IS_OUTGOING => !empty($msgWorkerId) ? 1 : 0,
 	            DAO_Message::WORKER_ID => !empty($msgWorkerId) ? $msgWorkerId : 0,
-	            DAO_Message::STORAGE_EXTENSION => $storage_ext_message_content,
 	        );
 			$email_id = DAO_Message::create($fields);
 			
@@ -743,22 +739,13 @@ class ImportCron extends CerberusCronPageExtension {
 				$fields = array(
 					DAO_Attachment::MESSAGE_ID => $email_id,
 					DAO_Attachment::DISPLAY_NAME => $sFileName,
-					DAO_Attachment::FILE_SIZE => intval($sFileSize),
-					DAO_Attachment::STORAGE_EXTENSION => $storage_ext_attachment,
-					DAO_Attachment::STORAGE_KEY => '',
 					DAO_Attachment::MIME_TYPE => $sMimeType,
 				);
 				$file_id = DAO_Attachment::create($fields);
 				
 				// Write file to storage
-				$storage = DevblocksPlatform::getStorageService($storage_ext_attachment);
-				$storage_key = $storage->put('attachments', $file_id, $sFileContent); 
+				Storage_Attachments::put($file_id, $sFileContent);
 				unset($sFileContent);
-				
-				// Update attachment table
-				DAO_Attachment::update($file_id, array(
-					DAO_Attachment::STORAGE_KEY => $storage_key
-				));
 			}
 			
 			// Create message content
@@ -774,7 +761,7 @@ class ImportCron extends CerberusCronPageExtension {
 			}				
 			unset($sMessageContentB64);
 			
-			DAO_MessageContent::set($storage_ext_message_content, $email_id, $sMessageContent);
+			Storage_MessageContent::put($email_id, $sMessageContent);
 			unset($sMessageContent);
 
 			// Headers
@@ -1196,152 +1183,20 @@ class ParseCronFileBuffer extends ParserFile {
 class StorageCron extends CerberusCronPageExtension {
 	function run() {
 		$logger = DevblocksPlatform::getConsoleLog();
-		$db = DevblocksPlatform::getDatabaseService();
 		$runtime = microtime(true);
 		
 		$logger->info("[Storage] Starting...");
+
+		$max_runtime = time() + 120; // 2 mins into the future
 		
-		// [TODO] We need extensions to inform us about storage objects
-		// [TODO] We need storage rules
-		
-		$dst_engine_id = DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::STORAGE_ENGINE_ATTACHMENT, CerberusSettingsDefaults::STORAGE_ENGINE_ATTACHMENT);
-		$dst_engine = DevblocksPlatform::getStorageService($dst_engine_id);
-		
-		// Attachments not in the current storage engine
-		list($results, $null) = DAO_Attachment::search(
-			array(
-				new DevblocksSearchCriteria(SearchFields_Attachment::STORAGE_EXTENSION,DevblocksSearchCriteria::OPER_NEQ,$dst_engine_id),
-			),
-			25,
-			0,
-			SearchFields_Attachment::ID,
-			true,
-			false
-		);
-		
-		$ns = 'attachments';
-		
-		foreach($results as $a_attachment) {
-			$src_engine_id = $a_attachment[SearchFields_Attachment::STORAGE_EXTENSION];
-			$src_key = $a_attachment[SearchFields_Attachment::STORAGE_KEY];
-			$src_id = $a_attachment[SearchFields_Attachment::ID]; 
-			
-			if(empty($src_engine_id) || empty($src_key) | empty($src_id))
-				continue;
-			
-			$src_engine = DevblocksPlatform::getStorageService($src_engine_id);
-			$logger->info(sprintf("[Storage] Moving attachment %d from (%s) to (%s)...",
-				$src_id,
-				$src_engine_id,
-				$dst_engine_id
-			));
-			
-			$data = $src_engine->get($ns, $src_key);
-			$logger->info(sprintf("[Storage] Loaded %d bytes of data from (%s)...",
-				strlen($data),
-				$src_engine_id
-			));
-			
-			$dst_key = $dst_engine->put($ns, $src_id, $data);
-			$logger->info(sprintf("[Storage] Saved attachment %d to destination (%s) as key (%s)...",
-				$src_id,
-				$dst_engine_id,
-				$dst_key
-			));
-			
-			// Free mem
-			unset($data);
-			
-			if(empty($dst_key))
-				continue;
-			
-			DAO_Attachment::update($src_id, array(
-				DAO_Attachment::STORAGE_EXTENSION => $dst_engine_id,
-				DAO_Attachment::STORAGE_KEY => $dst_key,
-			));
-			$logger->info(sprintf("[Storage] Updated attachment %d meta...",
-				$src_id
-			));
-			
-			$src_engine->delete($ns, $src_key);
-			$logger->info(sprintf("[Storage] Deleted attachment %d from source (%s)...",
-				$src_id,
-				$src_engine_id
-			));
-			
-			$logger->info(''); // blank
+		// Synchronize storage schemas (active+archive)
+		$storage_schemas = DevblocksPlatform::getExtensions('devblocks.storage.schema', true);
+		foreach($storage_schemas as $schema) { /* @var $schema Extension_DevblocksStorageSchema */
+			if($max_runtime > time())
+				$schema->unarchive($max_runtime);
+			if($max_runtime > time())
+				$schema->archive($max_runtime);
 		}
-		
-		$dst_engine_id = DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::STORAGE_ENGINE_MESSAGE_CONTENT, CerberusSettingsDefaults::STORAGE_ENGINE_MESSAGE_CONTENT);
-		$dst_engine = DevblocksPlatform::getStorageService($dst_engine_id);
-		
-		// Attachments not in the current storage engine
-		list($results, $null) = DAO_Message::search(
-			array(
-				new DevblocksSearchCriteria(SearchFields_Message::STORAGE_EXTENSION,DevblocksSearchCriteria::OPER_NEQ,$dst_engine_id),
-			),
-			25,
-			0,
-			SearchFields_Message::ID,
-			true,
-			false
-		);
-		
-		$ns = 'message_content';
-		
-		foreach($results as $a_msg_content) {
-			$src_engine_id = $a_msg_content[SearchFields_Message::STORAGE_EXTENSION];
-			$src_key = $a_msg_content[SearchFields_Message::STORAGE_KEY];
-			$src_id = $a_msg_content[SearchFields_Message::ID]; 
-			
-			if(empty($src_engine_id) || empty($src_key) | empty($src_id))
-				continue;
-			
-			$src_engine = DevblocksPlatform::getStorageService($src_engine_id);
-			$logger->info(sprintf("[Storage] Moving message_content %d from (%s) to (%s)...",
-				$src_id,
-				$src_engine_id,
-				$dst_engine_id
-			));
-			
-			$data = $src_engine->get($ns, $src_key);
-			$logger->info(sprintf("[Storage] Loaded %d bytes of data from (%s)...",
-				strlen($data),
-				$src_engine_id
-			));
-			
-			$dst_key = $dst_engine->put($ns, $src_id, $data);
-			$logger->info(sprintf("[Storage] Saved message_content %d to destination (%s) as key (%s)...",
-				$src_id,
-				$dst_engine_id,
-				$dst_key
-			));
-			
-			// Free mem
-			unset($data);
-			
-			if(empty($dst_key))
-				continue;
-			
-			DAO_Message::update($src_id, array(
-				DAO_Message::STORAGE_EXTENSION => $dst_engine_id,
-				DAO_Message::STORAGE_KEY => $dst_key,
-			));
-			$logger->info(sprintf("[Storage] Updated message_content %d meta...",
-				$src_id
-			));
-			
-			$src_engine->delete($ns, $src_key);
-			$logger->info(sprintf("[Storage] Deleted message_content %d from source (%s)...",
-				$src_id,
-				$src_engine_id
-			));
-			
-			$logger->info(''); // blank
-		}
-		
-//		$engines = $db->GetArray("SELECT DISTINCT storage_extension FROM attachment");
-//		print_r($engines);
 		
 		$logger->info("[Storage] Total Runtime: ".number_format((microtime(true)-$runtime)*1000,2)." ms");
 	}

@@ -617,8 +617,6 @@ class CerberusSettings {
 	const AUTHORIZED_IPS = 'authorized_ips';
 	const LICENSE = 'license';
 	const ACL_ENABLED = 'acl_enabled';
-	const STORAGE_ENGINE_ATTACHMENT = 'storage_attachment';
-	const STORAGE_ENGINE_MESSAGE_CONTENT = 'storage_message_content';
 };
 
 class CerberusSettingsDefaults {
@@ -641,9 +639,7 @@ class CerberusSettingsDefaults {
 	const PARSER_AUTO_REQ_EXCLUDE = ''; 
 	const AUTHORIZED_IPS = '';
 	const ACL_ENABLED = 0;
-	const STORAGE_ENGINE_ATTACHMENT = 'devblocks.storage.engine.disk';
-	const STORAGE_ENGINE_MESSAGE_CONTENT = 'devblocks.storage.engine.database';
-}
+};
 
 // [TODO] This gets called a lot when it happens after the registry cache
 class C4_DevblocksExtensionDelegate implements DevblocksExtensionDelegate {

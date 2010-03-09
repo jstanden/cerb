@@ -1537,7 +1537,7 @@ class Rest_MessagesController extends Ch_RestController {
 		$message = DAO_Message::get($id); /* @var $message Model_Message */
 		if(is_null($message))
 			$this->_error("ID $id not valid.");
-		$message_content = DAO_MessageContent::get($message->storage_extension, $message->storage_key);
+		$message_content = $message->getContent(); 
 		$message_headers = DAO_MessageHeader::getAll($id);
 		$message_notes = DAO_MessageNote::getByMessageId($id);
 		

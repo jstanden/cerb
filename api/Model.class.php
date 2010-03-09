@@ -774,6 +774,204 @@ class View_DevblocksTemplate extends C4_AbstractView {
 
 };
 
+class View_DevblocksStorageProfile extends C4_AbstractView {
+	const DEFAULT_ID = 'devblocksstorageprofile';
+
+	function __construct() {
+		$this->id = self::DEFAULT_ID;
+		$this->name = 'Storage Profiles';
+		$this->renderLimit = 25;
+		$this->renderSortBy = SearchFields_DevblocksStorageProfile::ID;
+		$this->renderSortAsc = true;
+
+		$this->view_columns = array(
+			SearchFields_DevblocksStorageProfile::NAME,
+			SearchFields_DevblocksStorageProfile::EXTENSION_ID,
+		);
+		
+		$this->doResetCriteria();
+	}
+
+	function getData() {
+		$objects = DAO_DevblocksStorageProfile::search(
+			$this->params,
+			$this->renderLimit,
+			$this->renderPage,
+			$this->renderSortBy,
+			$this->renderSortAsc
+		);
+		return $objects;
+	}
+
+	function render() {
+		$this->_sanitize();
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('id', $this->id);
+		$tpl->assign('view', $this);
+
+		$tpl->assign('view_fields', $this->getColumns());
+		
+		$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/configuration/tabs/storage/profiles/view.tpl');
+	}
+
+	function renderCriteria($field) {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('id', $this->id);
+
+		switch($field) {
+			case SearchFields_DevblocksStorageProfile::NAME:
+			case SearchFields_DevblocksStorageProfile::EXTENSION_ID:
+				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__string.tpl');
+				break;
+			case SearchFields_DevblocksStorageProfile::ID:
+				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__number.tpl');
+				break;
+			case 'placeholder_bool':
+				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__bool.tpl');
+				break;
+			case 'placeholder_date':
+				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__date.tpl');
+				break;
+			default:
+				echo '';
+				break;
+		}
+	}
+
+	function renderCriteriaParam($param) {
+		$field = $param->field;
+		$values = !is_array($param->value) ? array($param->value) : $param->value;
+
+		switch($field) {
+			default:
+				parent::renderCriteriaParam($param);
+				break;
+		}
+	}
+
+	static function getFields() {
+		return SearchFields_DevblocksStorageProfile::getFields();
+	}
+
+	static function getSearchFields() {
+		$fields = self::getFields();
+		unset($fields[SearchFields_DevblocksStorageProfile::ID]);
+		unset($fields[SearchFields_DevblocksStorageProfile::PARAMS_JSON]);
+		return $fields;
+	}
+
+	static function getColumns() {
+		$fields = self::getFields();
+		unset($fields[SearchFields_DevblocksStorageProfile::PARAMS_JSON]);
+		return $fields;
+	}
+
+	function doResetCriteria() {
+		parent::doResetCriteria();
+		
+		$this->params = array(
+			//SearchFields_DevblocksStorageProfile::ID => new DevblocksSearchCriteria(SearchFields_DevblocksStorageProfile::ID,'!=',0),
+		);
+	}
+	
+	function doSetCriteria($field, $oper, $value) {
+		$criteria = null;
+
+		switch($field) {
+			case SearchFields_DevblocksStorageProfile::NAME:
+			case SearchFields_DevblocksStorageProfile::EXTENSION_ID:
+				// force wildcards if none used on a LIKE
+				if(($oper == DevblocksSearchCriteria::OPER_LIKE || $oper == DevblocksSearchCriteria::OPER_NOT_LIKE)
+				&& false === (strpos($value,'*'))) {
+					$value = '*'.$value.'*';
+				}
+				$criteria = new DevblocksSearchCriteria($field, $oper, $value);
+				break;
+			case SearchFields_DevblocksStorageProfile::ID:
+				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
+				break;
+				
+			case 'placeholder_date':
+				@$from = DevblocksPlatform::importGPC($_REQUEST['from'],'string','');
+				@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string','');
+
+				if(empty($from)) $from = 0;
+				if(empty($to)) $to = 'today';
+
+				$criteria = new DevblocksSearchCriteria($field,$oper,array($from,$to));
+				break;
+				
+			case 'placeholder_bool':
+				@$bool = DevblocksPlatform::importGPC($_REQUEST['bool'],'integer',1);
+				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
+				break;
+		}
+
+		if(!empty($criteria)) {
+			$this->params[$field] = $criteria;
+			$this->renderPage = 0;
+		}
+	}
+		
+	function doBulkUpdate($filter, $do, $ids=array()) {
+		@set_time_limit(0);
+	  
+		$change_fields = array();
+		$custom_fields = array();
+
+		// Make sure we have actions
+		if(empty($do))
+			return;
+
+		// Make sure we have checked items if we want a checked list
+		if(0 == strcasecmp($filter,"checks") && empty($ids))
+			return;
+			
+		if(is_array($do))
+		foreach($do as $k => $v) {
+			switch($k) {
+				// [TODO] Implement actions
+				case 'example':
+					//$change_fields[DAO_DevblocksStorageProfile::EXAMPLE] = 'some value';
+					break;
+				default:
+					break;
+			}
+		}
+
+		$pg = 0;
+
+		if(empty($ids))
+		do {
+			list($objects,$null) = DAO_DevblocksStorageProfile::search(
+				$this->params,
+				100,
+				$pg++,
+				SearchFields_DevblocksStorageProfile::ID,
+				true,
+				false
+			);
+			$ids = array_merge($ids, array_keys($objects));
+			 
+		} while(!empty($objects));
+
+		$batch_total = count($ids);
+		for($x=0;$x<=$batch_total;$x+=100) {
+			$batch_ids = array_slice($ids,$x,100);
+			
+			DAO_DevblocksStorageProfile::update($batch_ids, $change_fields);
+
+			// Custom Fields
+			//self::_doBulkSetCustomFields(ChCustomFieldSource_DevblocksStorageProfile::ID, $custom_fields, $batch_ids);
+			
+			unset($batch_ids);
+		}
+
+		unset($ids);
+	}			
+};
+
 class Model_WorkerWorkspaceList {
 	public $id = 0;
 	public $worker_id = 0;
@@ -1397,3 +1595,4 @@ class Model_CustomField {
 		);
 	}
 };
+

@@ -636,9 +636,6 @@
 		<tu tuid='attachment.display_name'>
 			<tuv xml:lang="en_US"><seg>File Name</seg></tuv>
 		</tu>
-		<tu tuid='attachment.file_size'>
-			<tuv xml:lang="en_US"><seg>Size (bytes)</seg></tuv>
-		</tu>
 		<tu tuid='attachment.message_id'>
 			<tuv xml:lang="en_US"><seg>Message ID</seg></tuv>
 		</tu>
@@ -650,6 +647,9 @@
 		</tu>
 		<tu tuid='attachment.storage_key'>
 			<tuv xml:lang="en_US"><seg>Storage Key</seg></tuv>
+		</tu>
+		<tu tuid='attachment.storage_size'>
+			<tuv xml:lang="en_US"><seg>Size (bytes)</seg></tuv>
 		</tu>
 
 		<!-- Configuration -->

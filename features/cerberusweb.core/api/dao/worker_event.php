@@ -312,7 +312,6 @@ class View_WorkerEvent extends C4_AbstractView {
 //			case SearchFields_WorkerEvent::ID:
 //			case SearchFields_WorkerEvent::MESSAGE_ID:
 //			case SearchFields_WorkerEvent::TICKET_ID:
-//			case SearchFields_WorkerEvent::FILE_SIZE:
 //				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__number.tpl');
 //				break;
 			case SearchFields_WorkerEvent::IS_READ:

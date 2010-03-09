@@ -832,8 +832,8 @@ class ChTicketsPage extends CerberusPageExtension {
 		
 		if(null != ($messages = DAO_Message::getMessagesByTicket($tid))) {
 	        if(!empty($messages)) {	    
-		        @$last = array_pop($messages);
-		        @$content = DAO_MessageContent::get($last->storage_extension, $last->storage_key);
+		        @$last = array_pop($messages); /* @var $last Model_Message */
+		        $content = $last->getContent();
 				
 			    $tpl->assign('message', $last);
 			    $tpl->assign('content', $content);

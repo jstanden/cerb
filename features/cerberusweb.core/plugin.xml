@@ -69,6 +69,7 @@
 			<class name="DAO_Attachment" />
 			<class name="Model_Attachment" />
 			<class name="SearchFields_Attachment" />
+			<class name="Storage_Attachments" />
 			<class name="View_Attachment" />
 		</file>
 		
@@ -104,10 +105,10 @@
 		
 		<file path="api/dao/message.php">
 			<class name="DAO_Message" />
-			<class name="DAO_MessageContent" />
 			<class name="DAO_MessageHeader" />
 			<class name="Model_Message" />
 			<class name="SearchFields_Message" />
+			<class name="Storage_MessageContent" />
 		</file>
 		
 		<file path="api/dao/message_note.php">
@@ -422,6 +423,36 @@
 				<name>ChCoreTour</name>
 			</class>
 			<params>
+			</params>
+		</extension>
+	
+		<!-- Storage Schemas -->
+		
+		<extension point="devblocks.storage.schema">
+			<id>cerberusweb.storage.schema.attachments</id>
+			<name>Attachments</name>
+			<class>
+				<file>api/dao/attachment.php</file>
+				<name>Storage_Attachments</name>
+			</class>
+			<params>
+				<param key="active_storage_profile" value="devblocks.storage.engine.disk" />
+				<param key="archive_storage_profile" value="devblocks.storage.engine.disk" />
+				<param key="archive_after_days" value="3" />
+			</params>
+		</extension>
+	
+		<extension point="devblocks.storage.schema">
+			<id>cerberusweb.storage.schema.message_content</id>
+			<name>Message Content</name>
+			<class>
+				<file>api/dao/message.php</file>
+				<name>Storage_MessageContent</name>
+			</class>
+			<params>
+				<param key="active_storage_profile" value="devblocks.storage.engine.database" />
+				<param key="archive_storage_profile" value="devblocks.storage.engine.database" />
+				<param key="archive_after_days" value="3" />
 			</params>
 		</extension>
 	

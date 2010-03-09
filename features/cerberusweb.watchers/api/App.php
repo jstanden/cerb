@@ -463,17 +463,17 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
 			$attachments = $message->getAttachments();
 			$mime_attachments = array();
 			if(is_array($attachments))
-			foreach($attachments as $attachment) {
+			foreach($attachments as $attachment) { /* @var $attachment Model_Attachment */
 				if(0 == strcasecmp($attachment->display_name,'original_message.html'))
 					continue;
 					
-				$storage = DevblocksPlatform::getStorageService($attachment->storage_extension);
-				$contents = $storage->get('attachments',$attachment->storage_key);
+				$contents = $attachment->getFileContents();
 				
 				if(empty($contents))
 					continue;
 
 				$attach = Swift_Attachment::newInstance($contents, $attachment->display_name, $attachment->mime_type);
+				//unset($contents); // [TODO] ?
 				$mime_attachments[] = $attach;
 			}
 	    	

@@ -102,6 +102,26 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		$license = CerberusLicense::getInstance();
 		$tpl->assign('license', $license);
 		
+		$tpl->display('file:' . $this->_TPL_PATH . 'configuration/tabs/settings/index.tpl');
+	}
+	
+	function showTabStorageAction() {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('path', $this->_TPL_PATH);
+		
+		// Scope
+		
+		$storage_engines = DevblocksPlatform::getExtensions('devblocks.storage.engine', false, true);
+		$tpl->assign('storage_engines', $storage_engines);
+
+		$storage_profiles = DAO_DevblocksStorageProfile::getAll();
+		$tpl->assign('storage_profiles', $storage_profiles);
+
+		$storage_schemas = DevblocksPlatform::getExtensions('devblocks.storage.schema', true, true);
+		$tpl->assign('storage_schemas', $storage_schemas);
+		
+		// Totals
+		
 		$db = DevblocksPlatform::getDatabaseService();
 		$rs = $db->Execute("SHOW TABLE STATUS");
 
@@ -109,7 +129,6 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		$total_db_data = 0;
 		$total_db_indexes = 0;
 		$total_db_slack = 0;
-		$total_file_size = 0;
 		
 		// [TODO] This would likely be helpful to the /debug controller
 		
@@ -127,16 +146,188 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		
 		mysql_free_result($rs);
 		
-		$sql = "SELECT SUM(file_size) FROM attachment";
-		$total_file_size = intval($db->GetOne($sql));
-
-		$tpl->assign('total_db_size', number_format($total_db_size/1048576,2));
-		$tpl->assign('total_db_data', number_format($total_db_data/1048576,2));
-		$tpl->assign('total_db_indexes', number_format($total_db_indexes/1048576,2));
-		$tpl->assign('total_db_slack', number_format($total_db_slack/1048576,2));
-		$tpl->assign('total_file_size', number_format($total_file_size/1048576,2));
+		$tpl->assign('total_db_size', $total_db_size);
+		$tpl->assign('total_db_data', $total_db_data);
+		$tpl->assign('total_db_indexes', $total_db_indexes);
+		$tpl->assign('total_db_slack', $total_db_slack);
 		
-		$tpl->display('file:' . $this->_TPL_PATH . 'configuration/tabs/settings/index.tpl');
+		// View
+		
+		$tpl->assign('response_uri', 'config/storage');
+
+		$defaults = new C4_AbstractViewModel();
+		$defaults->class_name = 'View_DevblocksStorageProfile';
+		$defaults->id = View_DevblocksStorageProfile::DEFAULT_ID;
+
+		$view = C4_AbstractViewLoader::getView(View_DevblocksStorageProfile::DEFAULT_ID, $defaults);
+		$tpl->assign('view', $view);
+		$tpl->assign('view_fields', View_DevblocksStorageProfile::getFields());
+		$tpl->assign('view_searchable_fields', View_DevblocksStorageProfile::getSearchFields());
+		
+		$tpl->display('file:' . $this->_TPL_PATH . 'configuration/tabs/storage/index.tpl');		
+	}
+	
+	function showStorageProfilePeekAction() {
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('path', $this->_TPL_PATH);
+		$tpl->assign('view_id', $view_id);
+		
+		// Storage engines
+		
+		$engines = DevblocksPlatform::getExtensions('devblocks.storage.engine', false);
+		$tpl->assign('engines', $engines);
+		
+		// Profile
+		
+		if(null == ($profile = DAO_DevblocksStorageProfile::get($id)))
+			$profile = new Model_DevblocksStorageProfile();
+			
+		$tpl->assign('profile', $profile);
+		
+		if(!empty($profile->id)) {
+			$storage_ext_id = $profile->extension_id;
+		} else {
+			$storage_ext_id = 'devblocks.storage.engine.disk';
+		}
+		
+		if(false !== ($storage_ext = DevblocksPlatform::getExtension($storage_ext_id, true))) {
+			$tpl->assign('storage_engine', $storage_ext);
+		}
+		
+		$tpl->display('file:' . $this->_TPL_PATH . 'configuration/tabs/storage/profiles/peek.tpl');
+	}
+	
+	function showStorageProfileConfigAction() {
+		@$ext_id = DevblocksPlatform::importGPC($_REQUEST['ext_id'],'string','');
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
+		
+		if(null == ($profile = DAO_DevblocksStorageProfile::get($id)))
+			$profile = new Model_DevblocksStorageProfile();
+		
+		if(!empty($ext_id)) {
+			if(null != ($ext = DevblocksPlatform::getExtension($ext_id, true))) {
+				if($ext instanceof Extension_DevblocksStorageEngine) {
+					$ext->renderConfig($profile);
+				}
+			}
+		}
+	}
+	
+	function testStorageProfilePeekAction() {
+		@$extension_id = DevblocksPlatform::importGPC($_POST['extension_id'],'string','');
+
+		if(empty($extension_id) 
+			|| null == ($ext = $ext = DevblocksPlatform::getExtension($extension_id, true)))
+			return false;
+			
+		/* @var $ext Extension_DevblocksStorageEngine */
+			
+		if($ext->testConfig()) {
+			echo "PASS!!";
+		} else {
+			echo "FAIL!!!";
+		}
+	}
+	
+	function saveStorageProfilePeekAction() {
+		$translate = DevblocksPlatform::getTranslationService();
+		//$active_worker = PortSensorApplication::getActiveWorker();
+		
+		// [TODO] ACL
+		// return;
+		
+		@$id = DevblocksPlatform::importGPC($_POST['id'],'integer');
+		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
+		@$name = DevblocksPlatform::importGPC($_POST['name'],'string');
+		@$extension_id = DevblocksPlatform::importGPC($_POST['extension_id'],'string');
+//		@$delete = DevblocksPlatform::importGPC($_POST['do_delete'],'integer',0);
+
+		// [TODO] The superuser set bit here needs to be protected by ACL
+		
+		if(empty($name)) $name = "New Storage Profile";
+		
+		if(!empty($id) && !empty($delete)) {
+//			DAO_DevblocksStorageProfile::delete($id);
+			
+		} else {
+		    $fields = array(
+		    	DAO_DevblocksStorageProfile::NAME => $name,
+		    );
+
+			if(empty($id)) {
+				$fields[DAO_DevblocksStorageProfile::EXTENSION_ID] = $extension_id;
+				
+				$id = DAO_DevblocksStorageProfile::create($fields);
+				
+			} else {
+				DAO_DevblocksStorageProfile::update($id, $fields);
+			}
+			
+			// Save sensor extension config
+			if(!empty($extension_id)) {
+				if(null != ($ext = DevblocksPlatform::getExtension($extension_id, true))) {
+					if(null != ($profile = DAO_DevblocksStorageProfile::get($id))
+					 && $ext instanceof Extension_DevblocksStorageEngine) {
+						$ext->saveConfig($profile);
+					}
+				}
+			}
+				
+			// Custom field saves
+			//@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', array());
+			//DAO_CustomFieldValue::handleFormPost(PsCustomFieldSource_Sensor::ID, $id, $field_ids);
+		}
+		
+		if(!empty($view_id)) {
+			$view = Ps_AbstractViewLoader::getView($view_id);
+			$view->render();
+		}		
+	}
+	
+	function showStorageSchemaAction() {
+		@$ext_id = DevblocksPlatform::importGPC($_REQUEST['ext_id'],'string','');
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('path', $this->_TPL_PATH);
+		
+		$storage_engines = DevblocksPlatform::getExtensions('devblocks.storage.engine', false, true);
+		$tpl->assign('storage_engines', $storage_engines);
+		
+		$storage_profiles = DAO_DevblocksStorageProfile::getAll();
+		$tpl->assign('storage_profiles', $storage_profiles);
+		
+		$extension = DevblocksPlatform::getExtension($ext_id, true, true);
+		$tpl->assign('schema', $extension);
+		
+		$tpl->display('file:' . $this->_TPL_PATH . 'configuration/tabs/storage/schemas/display.tpl');
+	}
+	
+	function showStorageSchemaPeekAction() {
+		@$ext_id = DevblocksPlatform::importGPC($_REQUEST['ext_id'],'string','');
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('path', $this->_TPL_PATH);
+		
+		$extension = DevblocksPlatform::getExtension($ext_id, true, true);
+		$tpl->assign('schema', $extension);
+		
+		$storage_profiles = DAO_DevblocksStorageProfile::getAll();
+		$tpl->assign('storage_profiles', $storage_profiles);
+		
+		$tpl->display('file:' . $this->_TPL_PATH . 'configuration/tabs/storage/schemas/peek.tpl');
+	}
+	
+	function saveStorageSchemaPeekAction() {
+		@$ext_id = DevblocksPlatform::importGPC($_REQUEST['ext_id'],'string','');
+		
+		$extension = DevblocksPlatform::getExtension($ext_id, true, true);
+		/* @var $extension Extension_DevblocksStorageSchema */
+		$extension->saveConfig();
+		
+		$this->showStorageSchemaAction();
 	}
 	
 	// Ajax

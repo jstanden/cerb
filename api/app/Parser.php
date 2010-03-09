@@ -626,22 +626,14 @@ class CerberusParser {
 			}
 		}
 		
-		$storage_service = DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::STORAGE_ENGINE_MESSAGE_CONTENT, CerberusSettingsDefaults::STORAGE_ENGINE_MESSAGE_CONTENT);
-		
         $fields = array(
             DAO_Message::TICKET_ID => $id,
             DAO_Message::CREATED_DATE => $iDate,
             DAO_Message::ADDRESS_ID => $fromAddressInst->id,
-            DAO_Message::STORAGE_EXTENSION => $storage_service, 
         );
 		$email_id = DAO_Message::create($fields);
 		
-		// Content
-		$storage_key = DAO_MessageContent::set($storage_service, $email_id, $message->body);
-		
-		DAO_Message::update($email_id, array(
-			DAO_Message::STORAGE_KEY => $storage_key,
-		));
+		Storage_MessageContent::put($email_id, $message->body);
 		
 		// Headers
 		foreach($headers as $hk => $hv) {
@@ -660,7 +652,6 @@ class CerberusParser {
 			        DAO_Attachment::MESSAGE_ID => $email_id,
 			        DAO_Attachment::DISPLAY_NAME => $filename,
 			        DAO_Attachment::MIME_TYPE => $file->mime_type,
-			        DAO_Attachment::FILE_SIZE => intval($file->file_size),
 			    );
 			    $file_id = DAO_Attachment::create($fields);
 				
@@ -668,20 +659,11 @@ class CerberusParser {
 			        @unlink($file->tmpname); // remove our temp file
 				    continue;
 				}
-				
-				$storage_extension = DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::STORAGE_ENGINE_ATTACHMENT, CerberusSettingsDefaults::STORAGE_ENGINE_ATTACHMENT);
-				
-				// Save the file
-				$storage = DevblocksPlatform::getStorageService($storage_extension);
-				$storage_key = $storage->put('attachments', $file_id, file_get_contents($file->getTempFile()));
-				
-				// Remove the temp file
+
+				$contents = file_get_contents($file->getTempFile());
 				@unlink($file->getTempFile());
 				
-			    DAO_Attachment::update($file_id, array(
-			        DAO_Attachment::STORAGE_EXTENSION => $storage_extension, 
-			        DAO_Attachment::STORAGE_KEY => $storage_key, 
-			    ));
+				Storage_Attachments::put($file_id, $contents);
 			}
 		}
 		

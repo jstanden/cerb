@@ -18,6 +18,7 @@
 <div id="configTabs">
 	<ul>
 		<li><a href="{devblocks_url}ajax.php?c=config&a=showTabSettings{/devblocks_url}">System</a></li>
+		<li><a href="{devblocks_url}ajax.php?c=config&a=showTabStorage{/devblocks_url}">Storage</a></li>
 		<li><a href="{devblocks_url}ajax.php?c=config&a=showTabPlugins{/devblocks_url}">Plugins &amp; Features</a></li>
 		<li><a href="{devblocks_url}ajax.php?c=config&a=showTabMail{/devblocks_url}">Mail Setup</a></li>
 		<li><a href="{devblocks_url}ajax.php?c=config&a=showTabPreParser{/devblocks_url}">Mail Filtering</a></li>
@@ -29,7 +30,7 @@
 		<li><a href="{devblocks_url}ajax.php?c=config&a=showTabPermissions{/devblocks_url}">Permissions</a></li>
 		<li><a href="{devblocks_url}ajax.php?c=config&a=showTabFields{/devblocks_url}">Custom Fields</a></li>
 
-		{$tabs = [settings,plugins,mail,preparser,parser,attachments,scheduler,groups,workers,acl,fields]}
+		{$tabs = [settings,storage,plugins,mail,preparser,parser,attachments,scheduler,groups,workers,acl,fields]}
 
 		{foreach from=$tab_manifests item=tab_manifest}
 			{$tabs[] = $tab_manifest->params.uri}
