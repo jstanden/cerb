@@ -498,7 +498,15 @@ class Storage_Attachments extends Extension_DevblocksStorageSchema {
 				$dst_profile->extension_id
 			));
 			
-			$data = $src_engine->get($ns, $src_key);
+			if(false === ($data = $src_engine->get($ns, $src_key))) {
+				$logger->error(sprintf("[Storage] Error reading %s key (%s) from (%s)",
+					$ns,
+					$src_key,
+					$src_profile->extension_id
+				));
+				continue;
+			}
+		
 			$logger->info(sprintf("[Storage] Loaded %d bytes of data from (%s)...",
 				strlen($data),
 				$src_profile->extension_id
@@ -592,7 +600,15 @@ class Storage_Attachments extends Extension_DevblocksStorageSchema {
 				$dst_profile->extension_id
 			));
 			
-			$data = $src_engine->get($ns, $src_key);
+			if(false === ($data = $src_engine->get($ns, $src_key))) {
+				$logger->error(sprintf("[Storage] Error reading %s key (%s) from (%s)",
+					$ns,
+					$src_key,
+					$src_profile->extension_id
+				));
+				continue;
+			}
+			
 			$logger->info(sprintf("[Storage] Loaded %d bytes of data from (%s)...",
 				strlen($data),
 				$src_profile->extension_id
