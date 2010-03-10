@@ -438,7 +438,7 @@
 			<params>
 				<param key="active_storage_profile" value="devblocks.storage.engine.disk" />
 				<param key="archive_storage_profile" value="devblocks.storage.engine.disk" />
-				<param key="archive_after_days" value="3" />
+				<param key="archive_after_days" value="7" />
 			</params>
 		</extension>
 	
@@ -452,7 +452,7 @@
 			<params>
 				<param key="active_storage_profile" value="devblocks.storage.engine.database" />
 				<param key="archive_storage_profile" value="devblocks.storage.engine.database" />
-				<param key="archive_after_days" value="3" />
+				<param key="archive_after_days" value="7" />
 			</params>
 		</extension>
 	
