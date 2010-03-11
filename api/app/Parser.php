@@ -660,10 +660,11 @@ class CerberusParser {
 				    continue;
 				}
 
-				$contents = file_get_contents($file->getTempFile());
-				@unlink($file->getTempFile());
-				
-				Storage_Attachments::put($file_id, $contents);
+				if(null !== ($fp = fopen($file->getTempFile(), 'rb'))) {
+					Storage_Attachments::put($file_id, $fp);
+					fclose($fp);
+					unlink($file->getTempFile());
+				}				
 			}
 		}
 		

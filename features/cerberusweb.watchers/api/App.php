@@ -467,14 +467,14 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
 				if(0 == strcasecmp($attachment->display_name,'original_message.html'))
 					continue;
 					
-				$contents = $attachment->getFileContents();
-				
-				if(empty($contents))
-					continue;
-
-				$attach = Swift_Attachment::newInstance($contents, $attachment->display_name, $attachment->mime_type);
-				//unset($contents); // [TODO] ?
-				$mime_attachments[] = $attach;
+				if(false !== ($fp = DevblocksPlatform::getTempFile())) {
+					if(false !== $attachment->getFileContents($fp)) {
+						$attach = Swift_Attachment::fromPath(DevblocksPlatform::getTempFileInfo($fp), $attachment->mime_type);
+						$attach->setFilename($attachment->display_name);
+						$mime_attachments[] = $attach;
+						fclose($fp);
+					}
+				}
 			}
 	    	
 	    	// Send copies
@@ -484,7 +484,6 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
 				
 				foreach($notify_emails as $to) {
 					// Proxy the message
-					
 					$mail = $mail_service->createMessage(); /* @var $mail Swift_Message */
 					$mail->setTo(array($to));
 					$mail->setFrom(array($sender->email));

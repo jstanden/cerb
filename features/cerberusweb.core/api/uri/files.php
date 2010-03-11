@@ -43,9 +43,14 @@ class ChFilesController extends DevblocksControllerExtension {
 		$active_worker_memberships = $active_worker->getMemberships();
 		if(null == ($active_worker_memberships[$ticket->team_id]))
 			die($translate->_('common.access_denied'));
+		
+		if(false === ($fp = DevblocksPlatform::getTempFile()))
+			die("Could not open a temporary file.");
+		if(false === $file->getFileContents($fp))
+			die("Error reading resource.");
 			
-		$contents = $file->getFileContents();
-			
+		$file_stats = fstat($fp);
+
 		// Set headers
 		header("Expires: Mon, 26 Nov 1962 00:00:00 GMT\n");
 		header("Last-Modified: " . gmdate("D,d M YH:i:s") . " GMT\n");
@@ -53,10 +58,10 @@ class ChFilesController extends DevblocksControllerExtension {
 		header("Pragma: no-cache\n");
 		header("Content-Type: " . $file->mime_type . "\n");
 		header("Content-transfer-encoding: binary\n"); 
-		header("Content-Length: " . strlen($contents) . "\n");
+		header("Content-Length: " . $file_stats['size'] . "\n");
 		
-		echo $contents;
-		unset($contents);
+		fpassthru($fp);
+		fclose($fp);
 		
 		exit;
 	}

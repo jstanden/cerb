@@ -323,12 +323,11 @@ class CerberusMail {
 				);
 				$file_id = DAO_Attachment::create($fields);
 
-				$storage_key = $storage->put('attachments', $file_id, file_get_contents($file));
-	            @unlink($file);
-			    
-			    DAO_Attachment::update($file_id, array(
-			        DAO_Attachment::STORAGE_KEY => $storage_key,
-			    ));
+				if(null !== ($fp = fopen($file, 'rb'))) {
+					Storage_Attachments::put($file_id, $fp);
+					fclose($fp);
+	            	unlink($file);
+				}
 			}
 		}
 		
@@ -596,9 +595,14 @@ class CerberusMail {
 			if(!empty($forward_files) && is_array($forward_files)) {
 				foreach($forward_files as $file_id) {
 					$attachment = DAO_Attachment::get($file_id);
-					$contents = $attachment->getFileContents();
-					$mail->attach(Swift_Attachment::newInstance($contents, $attachment->display_name, $attachment->mime_type));
-					//unset($contents); // [TODO] ?
+					if(false !== ($fp = DevblocksPlatform::getTempFile())) {
+						if(false !== $attachment->getFileContents($fp)) {
+							$attach = Swift_Attachment::fromPath(DevblocksPlatform::getTempFileInfo($fp), $attachment->mime_type);
+							$attach->setFilename($attachment->display_name);
+							$mail->attach($attach);
+							fclose($fp);
+						}
+					}
 				}
 			}
 			
@@ -674,10 +678,11 @@ class CerberusMail {
 					);
 					$file_id = DAO_Attachment::create($fields);
 
-					$contents = file_get_contents($file);
-		            @unlink($file);
-		            
-		            Storage_Attachments::put($file_id, $contents);
+					if(null !== ($fp = fopen($file, 'rb'))) {
+		            	Storage_Attachments::put($file_id, $fp);
+						fclose($fp);
+			            unlink($file);
+					}
 				}
 			}
 			

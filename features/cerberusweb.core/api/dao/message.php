@@ -272,11 +272,11 @@ class Model_Message {
 
 	function Model_Message() {}
 
-	function getContent() {
+	function getContent(&$fp=null) {
 		if(empty($this->storage_extension) || empty($this->storage_key))
 			return '';
 
-		return Storage_MessageContent::get($this);
+		return Storage_MessageContent::get($this, $fp);
 	}
 
 	function getHeaders() {
@@ -347,7 +347,7 @@ class Storage_MessageContent extends Extension_DevblocksStorageSchema {
 	 * @param Model_Message | $message_id
 	 * @return unknown_type
 	 */
-	public static function get($object) {
+	public static function get($object, &$fp=null) {
 		if($object instanceof Model_Message) {
 			// Do nothing
 		} elseif(is_numeric($object)) {
@@ -363,7 +363,7 @@ class Storage_MessageContent extends Extension_DevblocksStorageSchema {
 		$profile = !empty($object->storage_profile_id) ? $object->storage_profile_id : $object->storage_extension;
 		
 		$storage = DevblocksPlatform::getStorageService($profile);
-		return $storage->get('message_content', $key);
+		return $storage->get('message_content', $key, $fp);
 	}
 	
 	public static function put($id, $contents, $profile=null) {
@@ -385,15 +385,21 @@ class Storage_MessageContent extends Extension_DevblocksStorageSchema {
 		if(false === ($storage_key = $storage->put('message_content', $id, $contents)))
 			return false;
 	    
+		if(is_resource($contents)) {
+			$stats = fstat($contents);
+			$storage_size = $stats['size'];
+		} else {
+			$storage_size = strlen($contents);
+			unset($contents);
+		}
+			
 		// Update storage key
 	    DAO_Message::update($id, array(
 	        DAO_Message::STORAGE_EXTENSION => $storage->manifest->id,
 	        DAO_Message::STORAGE_KEY => $storage_key,
 	        DAO_Message::STORAGE_PROFILE_ID => $profile_id,
-	        DAO_Message::STORAGE_SIZE => strlen($contents),
+	        DAO_Message::STORAGE_SIZE => $storage_size,
 	    ));
-	    
-	    unset($contents);
 	    
 	    return $storage_key;
 	}

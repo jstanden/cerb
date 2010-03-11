@@ -315,8 +315,8 @@ class Model_Attachment {
 	public $storage_size = 0;
 	public $storage_profile_id;
 
-	public function getFileContents() {
-		return Storage_Attachments::get($this);
+	public function getFileContents(&$fp=null) {
+		return Storage_Attachments::get($this, $fp);
 	}
 };
 
@@ -373,7 +373,7 @@ class Storage_Attachments extends Extension_DevblocksStorageSchema {
 	 * @param Model_Attachment | $attachment_id
 	 * @return unknown_type
 	 */
-	public static function get($object) {
+	public static function get($object, &$fp=null) {
 		if($object instanceof Model_Attachment) {
 			// Do nothing
 		} elseif(is_numeric($object)) {
@@ -389,7 +389,7 @@ class Storage_Attachments extends Extension_DevblocksStorageSchema {
 		$profile = !empty($object->storage_profile_id) ? $object->storage_profile_id : $object->storage_extension;
 		
 		$storage = DevblocksPlatform::getStorageService($profile);
-		return $storage->get('attachments', $key);
+		return $storage->get('attachments', $key, $fp);
 	}
 	
 	public static function put($id, $contents, $profile=null) {
@@ -410,13 +410,21 @@ class Storage_Attachments extends Extension_DevblocksStorageSchema {
 		// Save to storage
 		if(false === ($storage_key = $storage->put('attachments', $id, $contents)))
 			return false;
+			
+		if(is_resource($contents)) {
+			$stats = fstat($contents);
+			$storage_size = $stats['size'];
+		} else {
+			$storage_size = strlen($contents);
+			unset($contents);
+		}
 	    
 		// Update storage key
 	    DAO_Attachment::update($id, array(
 	        DAO_Attachment::STORAGE_EXTENSION => $storage->manifest->id,
 	        DAO_Attachment::STORAGE_PROFILE_ID => $profile_id,
 	        DAO_Attachment::STORAGE_KEY => $storage_key,
-        	DAO_Attachment::STORAGE_SIZE => strlen($contents),
+        	DAO_Attachment::STORAGE_SIZE => $storage_size,
 	    ));
 	    
 	    return $storage_key;
