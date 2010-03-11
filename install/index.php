@@ -414,6 +414,7 @@ switch($step) {
 				if(is_array($plugins))
 				foreach($plugins as $plugin_manifest) { /* @var $plugin_manifest DevblocksPluginManifest */
 					switch ($plugin_manifest->id) {
+						case "devblocks.core":
 						case "cerberusweb.core":
 						case "cerberusweb.simulator":
 						case "cerberusweb.watchers":
