@@ -133,9 +133,9 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		// [TODO] This would likely be helpful to the /debug controller
 		
 		while($row = mysql_fetch_assoc($rs)) {
-			$table_size_data = intval($row['Data_length']);
-			$table_size_indexes = intval($row['Index_length']);
-			$table_size_slack = intval($row['Data_free']);
+			$table_size_data = floatval($row['Data_length']);
+			$table_size_indexes = floatval($row['Index_length']);
+			$table_size_slack = floatval($row['Data_free']);
 			
 			$total_db_size += $table_size_data + $table_size_indexes;
 			$total_db_data += $table_size_data;
