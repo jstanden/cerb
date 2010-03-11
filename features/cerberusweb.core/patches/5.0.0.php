@@ -135,15 +135,59 @@ if(isset($tables['message_content'])) {
 	$db->Execute("RENAME TABLE message_content TO storage_message_content");
 	$db->Execute("ALTER TABLE storage_message_content DROP INDEX content");
 	$db->Execute("ALTER TABLE storage_message_content CHANGE COLUMN message_id id int unsigned default '0' not null");
-	$db->Execute("ALTER TABLE storage_message_content CHANGE COLUMN content data longblob");
+	$db->Execute("ALTER TABLE storage_message_content CHANGE COLUMN content data blob");
 
 	unset($tables['message_content']);
 	$tables['storage_message_content'] = 'storage_message_content'; 
 }
 
-// Add storage columns to 'message'
-list($columns, $indexes) = $db->metaTable('message');
+// storage_attachments to 64KB blob
 
+list($columns, $indexes) = $db->metaTable('storage_attachments');
+
+if(isset($columns['data'])
+	&& 0 != strcasecmp('blob',$columns['data']['type'])) {
+		$db->Execute('ALTER TABLE storage_attachments MODIFY COLUMN data BLOB');
+}
+
+if(!isset($columns['chunk'])) {
+	$db->Execute("ALTER TABLE storage_attachments ADD COLUMN chunk smallint unsigned default 1");
+	$db->Execute("ALTER TABLE storage_attachments ADD INDEX chunk (chunk)");
+}
+
+if(isset($indexes['PRIMARY'])) {
+	$db->Execute("ALTER TABLE storage_attachments DROP PRIMARY KEY");
+}
+
+if(!isset($indexes['id'])) {
+	$db->Execute("ALTER TABLE storage_attachments ADD INDEX id (id)");
+}
+
+// storage_message_content to 64KB blob
+
+list($columns, $indexes) = $db->metaTable('storage_message_content');
+
+if(isset($columns['data'])
+	&& 0 != strcasecmp('blob',$columns['data']['type'])) {
+		$db->Execute('ALTER TABLE storage_message_content MODIFY COLUMN data BLOB');
+}
+
+if(!isset($columns['chunk'])) {
+	$db->Execute("ALTER TABLE storage_message_content ADD COLUMN chunk smallint unsigned default 1");
+	$db->Execute("ALTER TABLE storage_message_content ADD INDEX chunk (chunk)");
+}
+
+if(isset($indexes['PRIMARY'])) {
+	$db->Execute("ALTER TABLE storage_message_content DROP PRIMARY KEY");
+}
+
+if(!isset($indexes['id'])) {
+	$db->Execute("ALTER TABLE storage_message_content ADD INDEX id (id)");
+}
+
+// Add storage columns to 'message'
+
+list($columns, $indexes) = $db->metaTable('message');
 
 if(!isset($columns['storage_extension'])) {
 	$db->Execute("ALTER TABLE message ADD COLUMN storage_extension VARCHAR(255) DEFAULT '' NOT NULL");
