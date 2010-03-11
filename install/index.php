@@ -81,7 +81,6 @@ if(!is_writeable(APP_TEMP_PATH . "/cache/")) {
 }
 
 @chmod(APP_STORAGE_PATH, 0774);
-@chmod(APP_STORAGE_PATH . '/attachments/', 0774);
 @chmod(APP_STORAGE_PATH . '/mail/new/', 0774);
 @chmod(APP_STORAGE_PATH . '/mail/fail/', 0774);
 
@@ -95,10 +94,6 @@ if(!is_writeable(APP_STORAGE_PATH . "/import/fail/")) {
 
 if(!is_writeable(APP_STORAGE_PATH . "/import/new/")) {
 	die(APP_STORAGE_PATH . "/import/new/ is not writeable by the webserver.  Please adjust permissions and reload this page.");
-}
-
-if(!is_writeable(APP_STORAGE_PATH . "/attachments/")) {
-	die(APP_STORAGE_PATH . "/attachments/ is not writeable by the webserver.  Please adjust permissions and reload this page.");
 }
 
 if(!is_writeable(APP_STORAGE_PATH . "/mail/new/")) {
