@@ -562,7 +562,7 @@ class Storage_Attachments extends Extension_DevblocksStorageSchema {
 					$src_key,
 					$src_profile->extension_id
 				));
-				continue;
+				return;
 			}
 		} else {
 			$fp_in = DevblocksPlatform::getTempFile();
@@ -572,7 +572,7 @@ class Storage_Attachments extends Extension_DevblocksStorageSchema {
 					$src_key,
 					$src_profile->extension_id
 				));
-				continue;
+				return;
 			}
 		}
 
@@ -596,7 +596,7 @@ class Storage_Attachments extends Extension_DevblocksStorageSchema {
 					$dst_profile->extension_id
 				));
 				unset($data);
-				continue;
+				return;
 			}
 		} else {
 			if(false === ($dst_key = self::put($src_id, $fp_in, $dst_profile))) {
@@ -606,7 +606,7 @@ class Storage_Attachments extends Extension_DevblocksStorageSchema {
 					$dst_profile->extension_id
 				));
 				fclose($fp_in);
-				continue;
+				return;
 			}
 		}
 		
