@@ -79,7 +79,7 @@
 <script language="JavaScript1.2" type="text/javascript">
 	genericPanel.one('dialogopen',function(event,ui) {
 		genericPanel.dialog('option','title','Compose');
-		ajax.emailAutoComplete('#emailinput', { multiple:true } );
+		ajax.emailAutoComplete('#emailinput');
 		$('#formComposePeek :input:text:first').focus().select();
 	} );
 </script>

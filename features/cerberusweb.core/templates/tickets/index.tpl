@@ -60,7 +60,7 @@
 		var tabs = $("#mailTabs").tabs( { 
 			selected: {$tab_selected_idx},
 			show: function(event, ui) {
-				idx = tabs.tabs('option', 'selected');
+				idx = $("#mailTabs").tabs('option', 'selected');
 
 				{if $pref_keyboard_shortcuts}
 					{$case = 0}

@@ -30,7 +30,7 @@ Format:
 <br>
 <br>
 
-{if $active_worker->hasPriv('core.kb.articles.modify')}<button type="button" id="btnKbArticleEditSave" onclick="arr['content_raw'].disable_design_mode(true);genericAjaxPanelPostCloseReloadView('frmKbEditPanel','{$view_id}');"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')|capitalize}</button>{/if} 
+{if $active_worker->hasPriv('core.kb.articles.modify')}<button type="button" id="btnKbArticleEditSave" onclick="genericAjaxPanelPostCloseReloadView('frmKbEditPanel','{$view_id}');"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')|capitalize}</button>{/if} 
 {if $active_worker->hasPriv('core.kb.articles.modify')}<button type="button" onclick="if(confirm('Are you sure you want to permanently delete this article?')) { this.form.do_delete.value='1';$('#btnKbArticleEditSave').click(); } "><span class="cerb-sprite sprite-delete2"></span> {$translate->_('common.delete')|capitalize}</button>{/if}
 </form>
 
@@ -39,48 +39,4 @@ Format:
 		genericPanel.dialog('option','title','Knowledgebase Article');
 		$('#frmKbEditPanel :input:text:first').focus().select();
 	} );
-	
-	/* WYSIWYG Editor */
-    var arr = $('#content_raw').rte( {
-		controls_rte: {
-			sep1: { separator: true }, 
-			h1: { command: 'heading', args:'<h1>' }, 
-			h2: { command: 'heading', args:'<h2>' }, 
-			h3: { command: 'heading', args:'<h3>' }, 
-			bold: { command: 'bold' }, 
-			italic: { command: 'italic' }, 
-			underline: { command: 'underline' }, 
-			superscript: { command: 'superscript' }, 
-			subscript: { command: 'subscript' },
-			removeFormat: { command: 'removeFormat' },
-			sep2: { separator: true }, 
-			link: { 
-				exec: function() {
-					var url = prompt("Link URL:","http://");
-					this.editor_cmd('createLink', url);
-				} 
-			}, 
-			unlink: { command: 'unlink' },
-			image: { 
-				exec: function() {
-					var url = prompt("Image URL:","http://");
-					this.editor_cmd('insertimage', url);
-				} 
-			}, 
-			sep3: { separator: true }, 
-			indent: { command: 'indent' },
-			outdent: { command: 'outdent' },
-			justifyLeft: { command: 'justifyLeft' },
-			justifyCenter: { command: 'justifyCenter' },
-			justifyRight: { command: 'justifyRight' },
-			justifyFull: { command: 'justifyFull' },
-			sep4: { separator: true }, 
-			unorderedList: { command: 'insertunorderedlist' },
-			orderedList: { command: 'insertorderedlist' },
-			sep5: { separator: true }, 
-		} ,
-		controls_html: { }
-	} );
-	
-	arr['content_raw'].disable_design_mode(false);
 </script>

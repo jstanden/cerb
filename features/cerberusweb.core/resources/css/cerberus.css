@@ -309,12 +309,11 @@ button span.cerb-sprite { display:inline-block; }
 .ui-state-error, .ui-widget-content .ui-state-error { background: #fef1ec none; } 
 
 .ui-tabs { border: 0px; padding: 0px; }
-.ui-tabs .ui-tabs-panel { padding: 1em; }
 .ui-tabs .ui-tabs-panel { background: #ffffff none; }
 .ui-tabs .ui-tabs-nav { background: #ffffff none; border: none; border-bottom: 1px solid rgb(197,219,236); }
-.ui-tabs .ui-tabs-nav li { margin: 0 0.2em 0 0; background: rgb(255,255,255) none; }
-.ui-tabs .ui-tabs-nav li.ui-state-default a { color: rgb(120,120,120); }
-.ui-tabs .ui-tabs-nav li.ui-tabs-selected { padding-bottom: 0px; background: rgb(232,242,254) none; }
+.ui-tabs .ui-tabs-nav li { margin: 0 0.2em 0 0; background: rgb(232,242,254) none; }
+.ui-tabs .ui-tabs-nav li.ui-state-default a { color: rgb(74,110,158); }
+.ui-tabs .ui-tabs-nav li.ui-tabs-selected { padding-bottom: 0px; background: rgb(255,255,255) none; }
 .ui-tabs .ui-tabs-nav li.ui-tabs-selected a { color: rgb(74,110,158); font-weight:bold; }
 
 .ui-dialog .ui-dialog-titlebar { background: rgb(119,153,224) url(bg_ltblue.jpg) repeat-x; border: 0px; font-size: 14px; }
@@ -322,12 +321,3 @@ button span.cerb-sprite { display:inline-block; }
 /* jQuery Validation */
 
 label.error { color: rgb(255,0,0); padding-left: .5em; vertical-align: top; }
-
-/* jQuery Autocomplete */
-
-.ac_results { padding: 0px;	border: 1px solid black; background-color: white; overflow: hidden; z-index: 99999; }
-.ac_results ul { width: 100%; list-style-position: outside; list-style: none; padding: 0; margin: 0; }
-.ac_results li { margin: 0px; padding: 2px 5px; cursor: default; display: block; font: menu; font-size: 12px; line-height: 16px; overflow: hidden; }
-.ac_loading { background: white url('indicator.gif') right center no-repeat; }
-.ac_odd { background-color: rgb(240, 240, 240); }
-.ac_over { background-color: rgb(112, 168, 210); color: rgb(255, 255, 255); }

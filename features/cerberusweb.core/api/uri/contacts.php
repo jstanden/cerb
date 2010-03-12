@@ -1192,90 +1192,107 @@ class ChContactsPage extends CerberusPageExtension {
 	}
 	
 	function getOrgsAutoCompletionsAction() {
-		@$starts_with = DevblocksPlatform::importGPC($_REQUEST['q'],'string','');
-		
-		$params = array(
-			DAO_ContactOrg::NAME => $starts_with
-		);
+		@$starts_with = DevblocksPlatform::importGPC($_REQUEST['term'],'string','');
 		
 		list($orgs,$null) = DAO_ContactOrg::search(
 			array(),
 			array(
 				new DevblocksSearchCriteria(SearchFields_ContactOrg::NAME,DevblocksSearchCriteria::OPER_LIKE, $starts_with. '*'), 
 			),
-			-1,
+			25,
 		    0,
 		    SearchFields_ContactOrg::NAME,
 		    true,
 		    false
 		);
 		
+		$list = array();
+		
 		foreach($orgs AS $val){
-			echo $val[SearchFields_ContactOrg::NAME] . "|";
-			echo $val[SearchFields_ContactOrg::ID] . "\n";
+			$list[] = $val[SearchFields_ContactOrg::NAME];
 		}
+		
+		echo json_encode($list);
 		exit;
 	}
 	
 	function getEmailAutoCompletionsAction() {
 		$db = DevblocksPlatform::getDatabaseService();
-		@$query = DevblocksPlatform::importGPC($_REQUEST['q'],'string','');
+		@$query = DevblocksPlatform::importGPC($_REQUEST['term'],'string','');
 		
 		$starts_with = strtolower($query) . '%';
 		
-		$sql = sprintf("SELECT first_name,last_name,email ".
+		$sql = sprintf("SELECT first_name, last_name, email, num_nonspam ".
 			"FROM address ".
-			"WHERE lower(email) LIKE %s ".
+			"WHERE is_banned = 0 ".
+			"AND (lower(email) LIKE %s ".
 			"OR lower(concat(first_name,' ',last_name)) LIKE %s ".
-			"OR lower(last_name) LIKE %s ".
-			"ORDER BY first_name, last_name, email",
+			"OR lower(last_name) LIKE %s) ".
+			"ORDER BY num_nonspam DESC ".
+			"LIMIT 0,25",
 			$db->qstr($starts_with),
 			$db->qstr($starts_with),
 			$db->qstr($starts_with)
 		);
 		$rs = $db->Execute($sql);
 		
+		$list = array();
+		
 		while($row = mysql_fetch_assoc($rs)) {
 			$first = $row['first_name'];
 			$last = $row['last_name'];
 			$email = $row['email'];
+			$num_nonspam = $row['num_nonspam'];
 			
 			$personal = sprintf("%s%s%s",
 				(!empty($first)) ? $first : '',
 				(!empty($first) && !empty($last)) ? ' ' : '',
 				(!empty($last)) ? $last : ''
 			);
-			
-			echo sprintf("%s|%s%s\n",
-				$email,
-				!empty($personal) ? ('"'.$personal.'" ') : '',
-				!empty($personal) ? ("<".$email.">") : $email
+
+			$label = sprintf("%s%s (%d messages)",
+				!empty($personal) ? $personal : '',
+				!empty($personal) ? (" &lt;".$email."&gt;") : $email,
+				$num_nonspam
 			);
+
+			$entry = new stdClass();
+			$entry->label = $label;
+			$entry->value = $email; 
+			
+			$list[] = $entry;
 		}
 		
 		mysql_free_result($rs);
-		
+
+		echo json_encode($list);
 		exit;
 	}
 	
 	function getCountryAutoCompletionsAction() {
-		@$starts_with = DevblocksPlatform::importGPC($_REQUEST['q'],'string','');
+		@$starts_with = DevblocksPlatform::importGPC($_REQUEST['term'],'string','');
 		
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		// [TODO] Possibly internalize this exposed query.
-		$sql = sprintf("SELECT DISTINCT country FROM contact_org WHERE country LIKE '%s%%' ORDER BY country",
-			$starts_with
+		$sql = sprintf("SELECT DISTINCT country AS country ".
+			"FROM contact_org ".
+			"WHERE country != '' ".
+			"AND country LIKE %s ".
+			"ORDER BY country ASC ".
+			"LIMIT 0,25",
+			$db->qstr($starts_with.'%')
 		);
 		$rs = $db->Execute($sql);
 		
+		$list = array();
+		
 		while($row = mysql_fetch_assoc($rs)) {
-			echo $row['country'];
-			echo "\n";
+			$list[] = $row['country'];
 		}
 		
 		mysql_free_result($rs);
 		
+		echo json_encode($list);
 		exit;
 	}
 };

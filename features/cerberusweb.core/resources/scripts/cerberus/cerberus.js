@@ -363,23 +363,35 @@ var cAjaxCalls = function() {
 
 	this.emailAutoComplete = function(sel, options) {
 		if(null == options) options = { };
+
+		options.source = DevblocksAppPath+'ajax.php?c=contacts&a=getEmailAutoCompletions';
 		
-		url = DevblocksAppPath+'ajax.php?c=contacts&a=getEmailAutoCompletions';
-		$(sel).autocomplete(url, options);
+		if(null == options.minLength)
+			options.minLength = 2;
+		
+		$(sel).autocomplete(options);
 	}
 
 	this.orgAutoComplete = function(sel, options) {
 		if(null == options) options = { };
 		
-		url = DevblocksAppPath+'ajax.php?c=contacts&a=getOrgsAutoCompletions';
-		$(sel).autocomplete(url, options);
+		options.source = DevblocksAppPath+'ajax.php?c=contacts&a=getOrgsAutoCompletions';
+		
+		if(null == options.minLength)
+			options.minLength = 1;
+
+		$(sel).autocomplete(options);
 	}
 
 	this.countryAutoComplete = function(sel, options) {
 		if(null == options) options = { };
 		
-		url = DevblocksAppPath+'ajax.php?c=contacts&a=getCountryAutoCompletions';
-		$(sel).autocomplete(url, options);
+		options.source = DevblocksAppPath+'ajax.php?c=contacts&a=getCountryAutoCompletions';
+		
+		if(null == options.minLength)
+			options.minLength = 1;
+
+		$(sel).autocomplete(options);
 	}
 }
 

@@ -185,6 +185,6 @@
 
 <script language="JavaScript1.2" type="text/javascript">
 	$(function() {
-		ajax.emailAutoComplete('#emailinput', { multiple: true } );
+		ajax.emailAutoComplete('#emailinput');
 	} );
 </script>
