@@ -316,7 +316,7 @@ button span.cerb-sprite { display:inline-block; }
 .ui-tabs .ui-tabs-nav li.ui-tabs-selected { padding-bottom: 0px; background: rgb(255,255,255) none; }
 .ui-tabs .ui-tabs-nav li.ui-tabs-selected a { color: rgb(74,110,158); font-weight:bold; }
 
-.ui-dialog .ui-dialog-titlebar { background: rgb(119,153,224) url(bg_ltblue.jpg) repeat-x; border: 0px; font-size: 14px; }
+.ui-dialog .ui-dialog-titlebar { background: rgb(162,198,234) url(bg_ltblue.jpg) repeat-x; border: 0px; font-size: 14px; }
 
 /* jQuery Validation */
 
