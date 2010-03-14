@@ -362,12 +362,53 @@ var cAjaxCalls = function() {
 	}
 
 	this.emailAutoComplete = function(sel, options) {
+		var url = DevblocksAppPath+'ajax.php?c=contacts&a=getEmailAutoCompletions';
 		if(null == options) options = { };
 
-		options.source = DevblocksAppPath+'ajax.php?c=contacts&a=getEmailAutoCompletions';
-		
 		if(null == options.minLength)
 			options.minLength = 2;
+		
+		if(null != options.multiple && options.multiple) {
+			options.source = function (request, response) {
+				// From the last comma (if exists)
+				var pos = request.term.lastIndexOf(',');
+				if(-1 != pos) {
+					// Split at the comma and trim
+					request.term = request.term.substring(pos+1).replace(/^\s+|\s+$/g,"");
+				}
+				
+				if(0==request.term.length)
+					return;
+				
+				$.ajax({
+					url: url,
+					dataType: "json",
+					data: request,
+					success: function(data) {
+						response(data);
+					}
+				});
+			}
+			
+			options.select = function(event, ui) {
+				var value = $(this).val();
+				var pos = value.lastIndexOf(',');
+				if(-1 != pos) {
+					$(this).val(value.substring(0,pos)+', '+$(ui.item).val()+', ');
+				} else {
+					$(this).val($(ui.item).val()+', ');
+				}
+				return false;
+			}
+			
+			options.focus = function(event, ui) {
+				// Don't replace the textbox value
+				return false;
+			}
+			
+		} else {
+			options.source = url;
+		}
 		
 		$(sel).autocomplete(options);
 	}
