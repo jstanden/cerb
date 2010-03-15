@@ -388,7 +388,9 @@ class Storage_Attachments extends Extension_DevblocksStorageSchema {
 		$key = $object->storage_key;
 		$profile = !empty($object->storage_profile_id) ? $object->storage_profile_id : $object->storage_extension;
 		
-		$storage = DevblocksPlatform::getStorageService($profile);
+		if(false === ($storage = DevblocksPlatform::getStorageService($profile)))
+			return false;
+			
 		return $storage->get('attachments', $key, $fp);
 	}
 	

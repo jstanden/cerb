@@ -374,7 +374,7 @@ var cAjaxCalls = function() {
 				var pos = request.term.lastIndexOf(',');
 				if(-1 != pos) {
 					// Split at the comma and trim
-					request.term = request.term.substring(pos+1).replace(/^\s+|\s+$/g,"");
+					request.term = $.trim(request.term.substring(pos+1));
 				}
 				
 				if(0==request.term.length)

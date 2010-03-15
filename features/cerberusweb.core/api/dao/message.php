@@ -362,7 +362,9 @@ class Storage_MessageContent extends Extension_DevblocksStorageSchema {
 		$key = $object->storage_key;
 		$profile = !empty($object->storage_profile_id) ? $object->storage_profile_id : $object->storage_extension;
 		
-		$storage = DevblocksPlatform::getStorageService($profile);
+		if(false === ($storage = DevblocksPlatform::getStorageService($profile)))
+			return false;
+			
 		return $storage->get('message_content', $key, $fp);
 	}
 	
