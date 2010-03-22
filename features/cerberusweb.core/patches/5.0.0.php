@@ -235,4 +235,14 @@ if(!isset($columns['storage_profile_id'])) {
 	$db->Execute("ALTER TABLE message ADD INDEX storage_profile_id (storage_profile_id)");
 }
 
+// ===========================================================================
+// Enable search indexer scheduled task and give defaults
+
+if(null != ($cron = DevblocksPlatform::getExtension('cron.search', true, true))) {
+	$cron->setParam(CerberusCronPageExtension::PARAM_ENABLED, true);
+	$cron->setParam(CerberusCronPageExtension::PARAM_DURATION, '10');
+	$cron->setParam(CerberusCronPageExtension::PARAM_TERM, 'm');
+	$cron->setParam(CerberusCronPageExtension::PARAM_LASTRUN, strtotime('Yesterday 22:15'));
+}
+
 return TRUE;

@@ -107,6 +107,7 @@
 			<class name="DAO_Message" />
 			<class name="DAO_MessageHeader" />
 			<class name="Model_Message" />
+			<class name="Search_MessageContent" />
 			<class name="SearchFields_Message" />
 			<class name="Storage_MessageContent" />
 		</file>
@@ -455,6 +456,19 @@
 				<param key="archive_after_days" value="7" />
 			</params>
 		</extension>
+		
+		<!-- Search Schemas -->
+		
+		<extension point="devblocks.search.schema">
+			<id>cerberusweb.search.schema.message_content</id>
+			<name>Message Content</name>
+			<class>
+				<file>api/dao/message.php</file>
+				<name>Search_MessageContent</name>
+			</class>
+			<params>
+			</params>
+		</extension>
 	
 		<!-- Pages -->
 
@@ -717,6 +731,17 @@
 			<class>
 				<file>api/cron.classes.php</file>
 				<name>StorageCron</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+		
+		<extension point="cerberusweb.cron">
+			<id>cron.search</id>
+			<name>Search Indexer</name>
+			<class>
+				<file>api/cron.classes.php</file>
+				<name>SearchCron</name>
 			</class>
 			<params>
 			</params>

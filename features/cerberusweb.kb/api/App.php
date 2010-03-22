@@ -703,6 +703,9 @@ class DAO_KbArticle extends DevblocksORMHelper {
 		
 		// Categories
 		$db->Execute(sprintf("DELETE QUICK FROM kb_article_to_category WHERE kb_article_id IN (%s)", $id_string));
+		
+		// Search indexes
+		$db->Execute(sprintf("DELETE QUICK FROM fulltext_kb_article WHERE id IN (%s)", $id_string));
 	}
 
 	static function getCategoriesByArticleId($article_id) {
@@ -1057,6 +1060,68 @@ class DAO_KbCategory extends DevblocksORMHelper {
 		$db->Execute(sprintf("DELETE QUICK FROM kb_article_to_category WHERE kb_category_id IN (%s)", $ids_list));
 		
 		return true;
+	}
+};
+
+class Search_KbArticle {
+	const ID = 'cerberusweb.search.schema.kb_article';
+	
+	public static function index($stop_time=null) {
+		$logger = DevblocksPlatform::getConsoleLog();
+		
+		if(false == ($search = DevblocksPlatform::getSearchService())) {
+			$logger->error("[Search] The search engine is misconfigured.");
+			return;
+		}
+		
+		$ns = 'kb_article';
+		$id = DAO_DevblocksExtensionPropertyStore::get(self::ID, 'last_indexed_id', 0);
+		$ptr_time = DAO_DevblocksExtensionPropertyStore::get(self::ID, 'last_indexed_time', 0);
+		$ptr_id = $id;
+		$done = false;
+
+		while(!$done && time() < $stop_time) {
+			$where = sprintf("%s >= %d AND %s > %d", 
+				DAO_KbArticle::UPDATED,
+				$ptr_time,
+				DAO_KbArticle::ID,
+				$id
+			);
+			$articles = DAO_KbArticle::getWhere($where, array(DAO_KbArticle::UPDATED, DAO_KbArticle::ID), array(true, true), 100);
+
+			if(empty($articles)) {
+				$done = true;
+				continue;
+			}
+			
+			$last_time = $ptr_time;
+			
+			foreach($articles as $article) { /* @var $article Model_KbArticle */
+				$id = $article->id;
+				$ptr_time = $article->updated;
+
+				// If we're not inside a block of the same timestamp, reset the seek pointer
+				$ptr_id = ($last_time == $ptr_time) ? $id : 0;
+
+				$logger->info(sprintf("[Search] Indexing %s %d...", 
+					$ns,
+					$id
+				));
+				
+				$search->index($ns, $id, strip_tags($article->content));
+				
+				flush();
+			}
+		}
+		
+		// If we ran out of articles, always reset the ID and use the current time
+		if($done) {
+			$ptr_id = 0;
+			$ptr_time = time();
+		}
+		
+		DAO_DevblocksExtensionPropertyStore::put(self::ID, 'last_indexed_id', $ptr_id);
+		DAO_DevblocksExtensionPropertyStore::put(self::ID, 'last_indexed_time', $ptr_time);
 	}
 };
 

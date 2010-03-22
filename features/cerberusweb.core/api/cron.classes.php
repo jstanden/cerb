@@ -1187,7 +1187,7 @@ class StorageCron extends CerberusCronPageExtension {
 		
 		$logger->info("[Storage] Starting...");
 
-		$max_runtime = time() + 120; // 2 mins into the future
+		$max_runtime = time() + 30; // [TODO] Make configurable
 		
 		// Synchronize storage schemas (active+archive)
 		$storage_schemas = DevblocksPlatform::getExtensions('devblocks.storage.schema', true);
@@ -1213,10 +1213,49 @@ class StorageCron extends CerberusCronPageExtension {
 	}
 
 	function saveConfigurationAction() {
-
 //		@$max_messages = DevblocksPlatform::importGPC($_POST['max_messages'],'integer');
 //		$this->setParam('max_messages', $max_messages);
 
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','jobs')));
 	}	
-}
+};
+
+class SearchCron extends CerberusCronPageExtension {
+	function run() {
+		$logger = DevblocksPlatform::getConsoleLog();
+		$runtime = microtime(true);
+		
+		$logger->info("[Search] Starting...");
+		
+		// Loop through search schemas and batch index by ID or timestamp
+		
+		$schemas = DevblocksPlatform::getExtensions('devblocks.search.schema', true, true);
+
+		$stop_time = time() + 30; // [TODO] Make configurable
+		
+		foreach($schemas as $schema) {
+			if($stop_time > time())
+				$schema->index($stop_time);
+		}
+		
+		$logger->info("[Search] Total Runtime: ".number_format((microtime(true)-$runtime)*1000,2)." ms");
+	}
+	
+	function configure($instance) {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl_path = dirname(dirname(__FILE__)) . '/templates/';
+		$tpl->assign('path', $tpl_path);
+		
+//		$timeout = ini_get('max_execution_time');
+//		$tpl->assign('max_messages', $this->getParam('max_messages', (($timeout) ? 20 : 50)));
+
+		//$tpl->display($tpl_path . 'cron/storage/config.tpl');
+	}
+	
+	function saveConfigurationAction() {
+//		@$max_messages = DevblocksPlatform::importGPC($_POST['max_messages'],'integer');
+//		$this->setParam('max_messages', $max_messages);
+		
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','jobs')));
+	}
+};

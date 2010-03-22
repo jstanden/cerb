@@ -155,6 +155,13 @@ class DAO_Message extends DevblocksORMHelper {
 		
 		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' message_note records.');
 		
+		// Search indexes
+
+		$sql = "DELETE QUICK fulltext_message_content FROM fulltext_message_content LEFT JOIN message ON fulltext_message_content.id = message.id WHERE message.id IS NULL";
+		$db->Execute($sql);
+		
+		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' fulltext_message_content records.');
+		
 		// Attachments
 		DAO_Attachment::maint();
     }
@@ -299,6 +306,50 @@ class Model_Message {
 	function getAttachments() {
 		$attachments = DAO_Attachment::getByMessageId($this->id);
 		return $attachments;
+	}
+};
+
+class Search_MessageContent {
+	const ID = 'cerberusweb.search.schema.message_content';
+	
+	public static function index($stop_time=null) {
+		$logger = DevblocksPlatform::getConsoleLog();
+		
+		if(false == ($search = DevblocksPlatform::getSearchService())) {
+			$logger->error("[Search] The search engine is misconfigured.");
+			return;
+		}
+		
+		$ns = 'message_content';
+		$id = DAO_DevblocksExtensionPropertyStore::get(self::ID, 'last_indexed_id', 0);
+		$done = false;
+		
+		while(!$done && time() < $stop_time) {
+			$where = sprintf("%s > %d", DAO_Message::ID, $id);
+			$messages = DAO_Message::getWhere($where, 'id', true, 100);
+	
+			if(empty($messages)) {
+				$done = true;
+				continue;
+			}
+			
+			foreach($messages as $message) { /* @var $message Model_Message */
+				$id = $message->id;
+				$logger->info(sprintf("[Search] Indexing %s %d...", 
+					$ns,
+					$id
+				));
+				
+				if(false !== ($content = Storage_MessageContent::get($message))) {
+					$search->index($ns, $id, $content);
+				}
+				
+				flush();
+			}
+		}
+		
+		if(!empty($id))
+			DAO_DevblocksExtensionPropertyStore::put(self::ID, 'last_indexed_id', $id);
 	}
 };
 

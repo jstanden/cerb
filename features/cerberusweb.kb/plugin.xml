@@ -15,6 +15,7 @@
 			<class name="DAO_KbCategory" />
 			<class name="Model_KbArticle" />
 			<class name="Model_KbCategory" />
+			<class name="Search_KbArticle" />
 			<class name="SearchFields_KbArticle" />
 			<class name="View_KbArticle" />
 		</file>
@@ -179,6 +180,19 @@
 			</class>
 			<params>
 				<param key="uri" value="kb" />
+			</params>
+		</extension>
+		
+		<!-- Search Schemas -->
+		
+		<extension point="devblocks.search.schema">
+			<id>cerberusweb.search.schema.kb_article</id>
+			<name>Knowledgebase Articles</name>
+			<class>
+				<file>api/App.php</file>
+				<name>Search_KbArticle</name>
+			</class>
+			<params>
 			</params>
 		</extension>
 		
