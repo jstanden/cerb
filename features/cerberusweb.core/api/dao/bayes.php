@@ -180,6 +180,7 @@ class CerberusBayes {
 	    unset($words['']);
 	    unset($words['a']);
 	    unset($words['about']);
+	    unset($words['all']);
 	    unset($words['am']);
 	    unset($words['an']);
 	    unset($words['and']);
@@ -190,9 +191,9 @@ class CerberusBayes {
 	    unset($words['be']);
 	    unset($words['been']);
 	    unset($words['but']);
+	    unset($words['by']);
 	    unset($words['can']);
 	    unset($words['could']);
-//	    unset($words['com']);
 	    unset($words['did']);
 	    unset($words['do']);
 	    unset($words['doesn\'t']);
@@ -203,8 +204,9 @@ class CerberusBayes {
 	    unset($words['had']);
 	    unset($words['has']);
 	    unset($words['have']);
+	    unset($words['hello']);
+	    unset($words['hi']);
 	    unset($words['how']);
-//	    unset($words['http']);
 	    unset($words['i']);
 	    unset($words['i\'m']);
 	    unset($words['if']);
@@ -213,12 +215,20 @@ class CerberusBayes {
 	    unset($words['is']);
 	    unset($words['it']);
 	    unset($words['it\'s']);
+	    unset($words['its']);
+	    unset($words['may']);
 	    unset($words['me']);
 	    unset($words['my']);
 	    unset($words['not']);
 	    unset($words['of']);
 	    unset($words['on']);
+	    unset($words['or']);
+	    unset($words['our']);
+	    unset($words['out']);
+	    unset($words['please']);
 	    unset($words['than']);
+	    unset($words['thank']);
+	    unset($words['thanks']);
 	    unset($words['that']);
 	    unset($words['the']);
 	    unset($words['their']);
@@ -228,7 +238,10 @@ class CerberusBayes {
 	    unset($words['these']);
 	    unset($words['they']);
 	    unset($words['this']);
+	    unset($words['those']);
 	    unset($words['to']);
+	    unset($words['us']);
+	    unset($words['want']);
 	    unset($words['was']);
 	    unset($words['we']);
 	    unset($words['were']);
@@ -240,9 +253,9 @@ class CerberusBayes {
 	    unset($words['will']);
 	    unset($words['with']);
 	    unset($words['would']);
-//	    unset($words['www']);
 	    unset($words['you']);
 	    unset($words['your']);
+	    unset($words['you\'re']);
 	    
 	    return $words;
 	}
