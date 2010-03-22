@@ -642,13 +642,16 @@ class DAO_KbArticle extends DevblocksORMHelper {
 		return null;
 	}
 
-	static function getWhere($where=null) {
+	static function getWhere($where=null, $sortBy='updated', $sortAsc=false, $limit=null) {
 		$db = DevblocksPlatform::getDatabaseService();
+		
+		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		$sql = "SELECT id, title, views, updated, format, content, content_raw ".
 			"FROM kb_article ".
-			(!empty($where)?sprintf("WHERE %s ",$where):" ").
-			"ORDER BY updated DESC "
+			$where_sql.
+			$sort_sql.
+			$limit_sql
 			;
 		$rs = $db->Execute($sql);
 		
