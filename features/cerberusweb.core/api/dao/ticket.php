@@ -780,7 +780,6 @@ class DAO_Ticket extends C4_ORMHelper {
 			"t.due_date as %s, ".
 			"t.spam_training as %s, ".
 			"t.spam_score as %s, ".
-//			"t.interesting_words as %s, ".
 			"t.last_action_code as %s, ".
 			"t.last_worker_id as %s, ".
 			"t.next_worker_id as %s, ".
@@ -805,7 +804,6 @@ class DAO_Ticket extends C4_ORMHelper {
 			    SearchFields_Ticket::TICKET_DUE_DATE,
 			    SearchFields_Ticket::TICKET_SPAM_TRAINING,
 			    SearchFields_Ticket::TICKET_SPAM_SCORE,
-//			    SearchFields_Ticket::TICKET_INTERESTING_WORDS,
 			    SearchFields_Ticket::TICKET_LAST_ACTION_CODE,
 			    SearchFields_Ticket::TICKET_LAST_WORKER_ID,
 			    SearchFields_Ticket::TICKET_NEXT_WORKER_ID,
@@ -821,7 +819,8 @@ class DAO_Ticket extends C4_ORMHelper {
 			// [JAS]: Dynamic table joins
 			(isset($tables['ra']) ? "INNER JOIN requester r ON (r.ticket_id=t.id) " : " ").
 			(isset($tables['ra']) ? "INNER JOIN address ra ON (ra.id=r.address_id) " : " ").
-			(isset($tables['msg']) || isset($tables['mc']) ? "INNER JOIN message msg ON (msg.ticket_id=t.id) " : " ").
+			(isset($tables['msg']) || isset($tables['ftmc']) ? "INNER JOIN message msg ON (msg.ticket_id=t.id) " : " ").
+			(isset($tables['ftmc']) ? "INNER JOIN fulltext_message_content ftmc ON (ftmc.id=msg.id) " : " ").
 			(isset($tables['mh']) ? "INNER JOIN message_header mh ON (mh.message_id=t.first_message_id) " : " ") // [TODO] Choose between first message and all?
 			;
 			
@@ -922,6 +921,9 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 	
 	// Sender Org
 	const ORG_NAME = 'o_name';
+
+	// Message Content
+	const FULLTEXT_MESSAGE_CONTENT = 'ftmc_content';
 	
 	/**
 	 * @return DevblocksSearchField[]
@@ -970,6 +972,8 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 			
 			self::TICKET_MESSAGE_HEADER => new DevblocksSearchField(self::TICKET_MESSAGE_HEADER, 'mh', 'header_name'),
 			self::TICKET_MESSAGE_HEADER_VALUE => new DevblocksSearchField(self::TICKET_MESSAGE_HEADER_VALUE, 'mh', 'header_value'),
+			
+			self::FULLTEXT_MESSAGE_CONTENT => new DevblocksSearchField(self::FULLTEXT_MESSAGE_CONTENT, 'ftmc', 'content',$translate->_('message.content')),
 			
 		);
 		
@@ -1175,6 +1179,10 @@ class View_Ticket extends C4_AbstractView {
 				$tpl->display('file:' . $tpl_path . 'tickets/search/criteria/ticket_team.tpl');
 				break;
 
+			case SearchFields_Ticket::FULLTEXT_MESSAGE_CONTENT:
+				$tpl->display('file:' . $tpl_path . 'internal/views/criteria/__fulltext.tpl');
+				break;
+				
 			default:
 				// Custom Fields
 				if('cf_' == substr($field,0,3)) {
@@ -1368,6 +1376,7 @@ class View_Ticket extends C4_AbstractView {
 				@$worker_id = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',array());
 				$criteria = new DevblocksSearchCriteria($field,$oper,$worker_id);
 				break;
+				
 
 			case SearchFields_Ticket::TICKET_TEAM_ID:
 				@$team_ids = DevblocksPlatform::importGPC($_REQUEST['team_id'],'array');
@@ -1378,6 +1387,11 @@ class View_Ticket extends C4_AbstractView {
 				if(!empty($bucket_ids))
 				$this->params[SearchFields_Ticket::TICKET_CATEGORY_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CATEGORY_ID,$oper,$bucket_ids);
 
+				break;
+				
+			case SearchFields_Ticket::FULLTEXT_MESSAGE_CONTENT:
+				@$scope = DevblocksPlatform::importGPC($_REQUEST['scope'],'string','expert');
+				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_FULLTEXT,array($value,$scope));
 				break;
 				
 			default:
