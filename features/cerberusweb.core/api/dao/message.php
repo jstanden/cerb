@@ -34,13 +34,18 @@ class DAO_Message extends DevblocksORMHelper {
 	 * @param string $where
 	 * @return Model_Note[]
 	 */
-	static function getWhere($where=null) {
+	static function getWhere($where=null, $sortBy='created_date', $sortAsc=true, $limit=null) {
 		$db = DevblocksPlatform::getDatabaseService();
+
+		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
+		// SQL
 		$sql = "SELECT id, ticket_id, created_date, is_outgoing, worker_id, address_id, storage_extension, storage_key, storage_profile_id, storage_size ".
 			"FROM message ".
-			(!empty($where) ? sprintf("WHERE %s ",$where) : "").
-			"ORDER BY created_date asc";
+			$where_sql.
+			$sort_sql.
+			$limit_sql
+		;
 		$rs = $db->Execute($sql);
 		
 		return self::_getObjectsFromResult($rs);
@@ -68,6 +73,9 @@ class DAO_Message extends DevblocksORMHelper {
 	 */
 	static private function _getObjectsFromResult($rs) {
 		$objects = array();
+		
+		if(empty($rs))
+			return $objects;
 		
 		while($row = mysql_fetch_assoc($rs)) {
 			$object = new Model_Message();
