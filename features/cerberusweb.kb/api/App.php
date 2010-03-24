@@ -489,7 +489,7 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 
 		@$topic_id = DevblocksPlatform::importGPC($_REQUEST['topic_id'],'integer',0);
 		$tpl->assign('topic_id', $topic_id);
-
+		
 		@$div = DevblocksPlatform::importGPC($_REQUEST['div'],'string','');
 		$tpl->assign('div', $div);
 
@@ -499,18 +499,23 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 			$params[SearchFields_KbArticle::CATEGORY_ID] = 
 				new DevblocksSearchCriteria(SearchFields_KbArticle::CATEGORY_ID, '=', $topic_id);
 
-		if(!empty($q))
-			if(false === strpos($q,'*')) {
-				$q = '*'.$q.'*';
-			}
+		@$scope = DevblocksPlatform::importGPC($_REQUEST['scope'],'string','expert');
+		switch($scope) {
+			case 'all':
+				$params[SearchFields_KbArticle::FULLTEXT_ARTICLE_CONTENT] = new DevblocksSearchCriteria(SearchFields_KbArticle::FULLTEXT_ARTICLE_CONTENT, DevblocksSearchCriteria::OPER_FULLTEXT, array($q,'all'));
+				break;
+			case 'any':
+				$params[SearchFields_KbArticle::FULLTEXT_ARTICLE_CONTENT] = new DevblocksSearchCriteria(SearchFields_KbArticle::FULLTEXT_ARTICLE_CONTENT, DevblocksSearchCriteria::OPER_FULLTEXT, array($q,'any'));
+				break;
+			case 'phrase':
+				$params[SearchFields_KbArticle::FULLTEXT_ARTICLE_CONTENT] = new DevblocksSearchCriteria(SearchFields_KbArticle::FULLTEXT_ARTICLE_CONTENT, DevblocksSearchCriteria::OPER_FULLTEXT, array($q,'phrase'));
+				break;
+			default:
+			case 'expert':
+				$params[SearchFields_KbArticle::FULLTEXT_ARTICLE_CONTENT] = new DevblocksSearchCriteria(SearchFields_KbArticle::FULLTEXT_ARTICLE_CONTENT, DevblocksSearchCriteria::OPER_FULLTEXT, array($q,'expert'));
+				break;
+		}
 		
-			$params[SearchFields_KbArticle::CATEGORY_ID] = 
-				array(
-					DevblocksSearchCriteria::GROUP_OR,
-					new DevblocksSearchCriteria(SearchFields_KbArticle::TITLE, DevblocksSearchCriteria::OPER_LIKE, $q),
-					new DevblocksSearchCriteria(SearchFields_KbArticle::CONTENT, DevblocksSearchCriteria::OPER_LIKE, $q),
-				);
-
 		list($results, $null) = DAO_KbArticle::search(
 			$params,
 			25,
