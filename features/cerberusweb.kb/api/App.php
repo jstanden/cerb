@@ -1109,7 +1109,7 @@ class Search_KbArticle {
 					$id
 				));
 				
-				$search->index($ns, $id, strip_tags($article->content));
+				$search->index($ns, $id, $article->title . ' ' . strip_tags($article->content));
 				
 				flush();
 			}
