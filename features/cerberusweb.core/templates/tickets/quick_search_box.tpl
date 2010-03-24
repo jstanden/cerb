@@ -8,6 +8,8 @@
 	<option value="mask"{if $quick_search_type eq 'mask'}selected{/if}>{$translate->_('ticket.id')}</option>
 	<option value="org"{if $quick_search_type eq 'org'}selected{/if}>{$translate->_('contact_org.name')|capitalize}</option>
 	<option value="subject"{if $quick_search_type eq 'subject'}selected{/if}>{$translate->_('ticket.subject')|capitalize}</option>
+	<option value="messages_all"{if $quick_search_type eq 'messages_all'}selected{/if}>{$translate->_('mail.quick_search.messages_all')}</option>
+	<option value="messages_phrase"{if $quick_search_type eq 'messages_phrase'}selected{/if}>{$translate->_('mail.quick_search.messages_phrase')}</option>
 </select><input type="text" name="query" size="16"><button type="submit">{$translate->_('common.search_go')|lower}</button>
 </form>
 {/if}

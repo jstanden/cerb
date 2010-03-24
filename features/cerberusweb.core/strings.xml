@@ -1118,6 +1118,12 @@
 		<tu tuid='mail.piles'>
 			<tuv xml:lang="en_US"><seg>Piles</seg></tuv>
 		</tu>
+		<tu tuid='mail.quick_search.messages_all'>
+			<tuv xml:lang="en_US"><seg>Messages (all words)</seg></tuv>
+		</tu>
+		<tu tuid='mail.quick_search.messages_phrase'>
+			<tuv xml:lang="en_US"><seg>Messages (phrase)</seg></tuv>
+		</tu>
 		<tu tuid='mail.send_mail'>
 			<tuv xml:lang="en_US"><seg>Send Mail</seg></tuv>
 		</tu>
