@@ -972,10 +972,12 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 			
 			self::TICKET_MESSAGE_HEADER => new DevblocksSearchField(self::TICKET_MESSAGE_HEADER, 'mh', 'header_name'),
 			self::TICKET_MESSAGE_HEADER_VALUE => new DevblocksSearchField(self::TICKET_MESSAGE_HEADER_VALUE, 'mh', 'header_value'),
-			
-			self::FULLTEXT_MESSAGE_CONTENT => new DevblocksSearchField(self::FULLTEXT_MESSAGE_CONTENT, 'ftmc', 'content',$translate->_('message.content')),
-			
 		);
+
+		$tables = DevblocksPlatform::getDatabaseTables();
+		if(isset($tables['fulltext_message_content'])) {
+			$columns[self::FULLTEXT_MESSAGE_CONTENT] = new DevblocksSearchField(self::FULLTEXT_MESSAGE_CONTENT, 'ftmc', 'content', $translate->_('message.content'));
+		}
 		
 		// Custom Fields
 		$fields = DAO_CustomField::getBySource(ChCustomFieldSource_Ticket::ID);

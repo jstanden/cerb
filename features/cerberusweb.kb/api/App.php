@@ -796,7 +796,7 @@ class DAO_KbArticle extends DevblocksORMHelper {
 		if(!isset($fields[$sortBy]))
 			$sortBy=null;
 
-        list($tables,$wheres) = parent::_parseSearchParams($params, array(), $fields,$sortBy);
+        list($tables,$wheres) = parent::_parseSearchParams($params, array(), $fields, $sortBy);
 		$start = ($page * $limit); // [JAS]: 1-based [TODO] clean up + document
 		
 		$select_sql = sprintf("SELECT ".
@@ -897,9 +897,13 @@ class SearchFields_KbArticle implements IDevblocksSearchFields {
 			
 			self::CATEGORY_ID => new DevblocksSearchField(self::CATEGORY_ID, 'katc', 'kb_category_id'),
 			self::TOP_CATEGORY_ID => new DevblocksSearchField(self::TOP_CATEGORY_ID, 'katc', 'kb_top_category_id', $translate->_('kb_article.topic')),
-			
-			self::FULLTEXT_ARTICLE_CONTENT => new DevblocksSearchField(self::FULLTEXT_ARTICLE_CONTENT, 'ftkb', 'content', $translate->_('kb_article.content')),
 		);
+
+		// Fulltext
+		$tables = DevblocksPlatform::getDatabaseTables();
+		if(isset($tables['fulltext_kb_article'])) {
+			$columns[self::FULLTEXT_ARTICLE_CONTENT] = new DevblocksSearchField(self::FULLTEXT_ARTICLE_CONTENT, 'ftkb', 'content', $translate->_('kb_article.content'));
+		}
 		
 		// Sort by label (translation-conscious)
 		uasort($columns, create_function('$a, $b', "return strcasecmp(\$a->db_label,\$b->db_label);\n"));
