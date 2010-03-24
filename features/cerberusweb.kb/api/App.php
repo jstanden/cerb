@@ -360,12 +360,6 @@ class ChKbAjaxController extends DevblocksControllerExtension {
         @$type = DevblocksPlatform::importGPC($_POST['type'],'string'); 
         @$query = DevblocksPlatform::importGPC($_POST['query'],'string');
 
-        $query = trim($query);
-        
-		if(false === strpos($query,'*')) {
-			$query = '*'.$query.'*';
-		}
-        
         $visit = CerberusApplication::getVisit(); /* @var $visit CerberusVisit */
         $translate = DevblocksPlatform::getTranslationService();
 		
@@ -379,12 +373,11 @@ class ChKbAjaxController extends DevblocksControllerExtension {
         $params = array();
         
         switch($type) {
-            case "content":
-				$params[SearchFields_KbArticle::CONTENT] = array(
-					DevblocksSearchCriteria::GROUP_OR,
-					new DevblocksSearchCriteria(SearchFields_KbArticle::TITLE,DevblocksSearchCriteria::OPER_LIKE,$query),
-					new DevblocksSearchCriteria(SearchFields_KbArticle::CONTENT,DevblocksSearchCriteria::OPER_LIKE,$query),
-				);
+            case "articles_all":
+				$params[SearchFields_KbArticle::FULLTEXT_ARTICLE_CONTENT] = new DevblocksSearchCriteria(SearchFields_KbArticle::FULLTEXT_ARTICLE_CONTENT,DevblocksSearchCriteria::OPER_FULLTEXT,array($query,'all'));
+                break;
+            case "articles_phrase":
+				$params[SearchFields_KbArticle::FULLTEXT_ARTICLE_CONTENT] = new DevblocksSearchCriteria(SearchFields_KbArticle::FULLTEXT_ARTICLE_CONTENT,DevblocksSearchCriteria::OPER_FULLTEXT,array($query,'phrase'));
                 break;
         }
         
@@ -826,6 +819,10 @@ class DAO_KbArticle extends DevblocksORMHelper {
 			$join_sql .= "LEFT JOIN kb_article_to_category katc ON (kb.id=katc.kb_article_id) ";
 		}
 		
+		if(isset($tables['ftkb'])) {
+			$join_sql .= 'LEFT JOIN fulltext_kb_article ftkb ON (ftkb.id=kb.id) ';
+		}
+		
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "");
 			
@@ -877,6 +874,8 @@ class SearchFields_KbArticle implements IDevblocksSearchFields {
 	const CATEGORY_ID = 'katc_category_id';
 	const TOP_CATEGORY_ID = 'katc_top_category_id';
 	
+	const FULLTEXT_ARTICLE_CONTENT = 'ftkb_content';
+	
 	/**
 	 * @return DevblocksSearchField[]
 	 */
@@ -893,6 +892,8 @@ class SearchFields_KbArticle implements IDevblocksSearchFields {
 			
 			self::CATEGORY_ID => new DevblocksSearchField(self::CATEGORY_ID, 'katc', 'kb_category_id'),
 			self::TOP_CATEGORY_ID => new DevblocksSearchField(self::TOP_CATEGORY_ID, 'katc', 'kb_top_category_id', $translate->_('kb_article.topic')),
+			
+			self::FULLTEXT_ARTICLE_CONTENT => new DevblocksSearchField(self::FULLTEXT_ARTICLE_CONTENT, 'ftkb', 'content', $translate->_('kb_article.content')),
 		);
 		
 		// Sort by label (translation-conscious)
