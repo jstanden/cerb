@@ -39,22 +39,35 @@ class UmScKbController extends Extension_UmScController {
 		switch(array_shift($stack)) {
 			case 'search':
 				@$q = DevblocksPlatform::importGPC($_REQUEST['q'],'string','');
+				@$scope = DevblocksPlatform::importGPC($_REQUEST['scope'],'string','all');
+
 				$tpl->assign('q', $q);
+				$tpl->assign('scope', $scope);
 
 				if(null == ($view = UmScAbstractViewLoader::getView('', UmSc_KbArticleView::DEFAULT_ID))) {
 					$view = new UmSc_KbArticleView();
 				}
 				
 				$view->name = "";
-				$view->params = array(
-					array(
-						DevblocksSearchCriteria::GROUP_OR,
-						new DevblocksSearchCriteria(SearchFields_KbArticle::TITLE,DevblocksSearchCriteria::OPER_LIKE,$q),
-						new DevblocksSearchCriteria(SearchFields_KbArticle::CONTENT,DevblocksSearchCriteria::OPER_LIKE,$q),
-					),
-					new DevblocksSearchCriteria(SearchFields_KbArticle::TOP_CATEGORY_ID,'in',array_keys($kb_roots))
-				);
+				$params = array();
 				
+		        switch($scope) {
+		        	default:
+		            case "all":
+						$params[SearchFields_KbArticle::FULLTEXT_ARTICLE_CONTENT] = new DevblocksSearchCriteria(SearchFields_KbArticle::FULLTEXT_ARTICLE_CONTENT,DevblocksSearchCriteria::OPER_FULLTEXT,array($q,'all'));
+		                break;
+		            case "any":
+						$params[SearchFields_KbArticle::FULLTEXT_ARTICLE_CONTENT] = new DevblocksSearchCriteria(SearchFields_KbArticle::FULLTEXT_ARTICLE_CONTENT,DevblocksSearchCriteria::OPER_FULLTEXT,array($q,'any'));
+		                break;
+		            case "phrase":
+						$params[SearchFields_KbArticle::FULLTEXT_ARTICLE_CONTENT] = new DevblocksSearchCriteria(SearchFields_KbArticle::FULLTEXT_ARTICLE_CONTENT,DevblocksSearchCriteria::OPER_FULLTEXT,array($q,'phrase'));
+		                break;
+		        }
+
+		        $params[SearchFields_KbArticle::TOP_CATEGORY_ID] = new DevblocksSearchCriteria(SearchFields_KbArticle::TOP_CATEGORY_ID,'in',array_keys($kb_roots));
+		        
+		        $view->params = $params;
+		        
 				UmScAbstractViewLoader::setView($view->id, $view);
 				$tpl->assign('view', $view);
 				
