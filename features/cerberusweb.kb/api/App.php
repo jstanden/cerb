@@ -1179,7 +1179,6 @@ class View_KbArticle extends C4_AbstractView {
 
 		switch($field) {
 			case SearchFields_KbArticle::TITLE:
-			case SearchFields_KbArticle::CONTENT:
 				$tpl->display('file:' . $this->_CORE_TPL_PATH . 'internal/views/criteria/__string.tpl');
 				break;
 			case SearchFields_KbArticle::UPDATED:
@@ -1196,6 +1195,9 @@ class View_KbArticle extends C4_AbstractView {
 				$tpl->assign('topics', $topics);
 
 				$tpl->display('file:' . $this->_TPL_PATH . 'search/criteria/kb_topic.tpl');
+				break;
+			case SearchFields_KbArticle::FULLTEXT_ARTICLE_CONTENT:
+				$tpl->display('file:' . $this->_CORE_TPL_PATH . 'internal/views/criteria/__fulltext.tpl');
 				break;
 			default:
 				echo '';
@@ -1241,11 +1243,15 @@ class View_KbArticle extends C4_AbstractView {
 		$fields = self::getFields();
 		unset($fields[SearchFields_KbArticle::ID]);
 		unset($fields[SearchFields_KbArticle::FORMAT]);
+		unset($fields[SearchFields_KbArticle::CONTENT]);
 		return $fields;
 	}
 
 	static function getColumns() {
-		return self::getFields();
+		$fields = self::getFields();
+		unset($fields[SearchFields_KbArticle::CONTENT]);
+		unset($fields[SearchFields_KbArticle::FULLTEXT_ARTICLE_CONTENT]);
+		return $fields;
 	}
 
 	function doSetCriteria($field, $oper, $value) {
@@ -1253,7 +1259,6 @@ class View_KbArticle extends C4_AbstractView {
 
 		switch($field) {
 			case SearchFields_KbArticle::TITLE:
-			case SearchFields_KbArticle::CONTENT:
 				// force wildcards if none used on a LIKE
 				if(($oper == DevblocksSearchCriteria::OPER_LIKE || $oper == DevblocksSearchCriteria::OPER_NOT_LIKE)
 				&& false === (strpos($value,'*'))) {
@@ -1279,6 +1284,11 @@ class View_KbArticle extends C4_AbstractView {
 			case SearchFields_KbArticle::TOP_CATEGORY_ID:
 				@$topic_ids = DevblocksPlatform::importGPC($_REQUEST['topic_id'], 'array', array());
 				$criteria = new DevblocksSearchCriteria($field, $oper, $topic_ids);
+				break;
+				
+			case SearchFields_KbArticle::FULLTEXT_ARTICLE_CONTENT:
+				@$scope = DevblocksPlatform::importGPC($_REQUEST['scope'],'string','expert');
+				$criteria = new DevblocksSearchCriteria($field, $oper, array($value,$scope));
 				break;
 		}
 
