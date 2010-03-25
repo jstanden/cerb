@@ -1,4 +1,4 @@
-<form action="{devblocks_url}{/devblocks_url}" method="POST" id="formAddressPeek" name="formAddressPeek">
+<form action="{devblocks_url}{/devblocks_url}" method="POST" id="formAddressPeek" name="formAddressPeek" onsubmit="return false;">
 <input type="hidden" name="c" value="contacts">
 <input type="hidden" name="a" value="saveContact">
 <input type="hidden" name="id" value="{$address.a_id}">
