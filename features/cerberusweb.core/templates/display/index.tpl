@@ -6,7 +6,7 @@
 		<table cellpadding="0" cellspacing="0" width="100%">
 			<tr>
 				<td>
-					<h1>{$ticket->subject}</h1>
+					<h1>{$ticket->subject|escape}</h1>
 					{assign var=ticket_team_id value=$ticket->team_id}
 					{assign var=ticket_team value=$teams.$ticket_team_id}
 					{assign var=ticket_category_id value=$ticket->category_id}
