@@ -2058,21 +2058,26 @@ class ChConfigurationPage extends CerberusPageExtension  {
 			return;
 		}
 		
-		@$plugins_enabled = DevblocksPlatform::importGPC($_REQUEST['plugins_enabled'],'array');
 		$pluginStack = DevblocksPlatform::getPluginRegistry();
-
-		if(is_array($plugins_enabled))
-		foreach($plugins_enabled as $plugin_id) {
-			$plugin = $pluginStack[$plugin_id];
-			$plugin->setEnabled(true);
-			unset($pluginStack[$plugin_id]);
-		}
-
-		// [JAS]: Clear unchecked plugins
+		@$plugins_enabled = DevblocksPlatform::importGPC($_REQUEST['plugins_enabled'],'array');
+		
+		if(is_array($pluginStack))
 		foreach($pluginStack as $plugin) {
-			// [JAS]: We can't force disable core here [TODO] Improve
-			if($plugin->id=='cerberusweb.core') continue;
-			$plugin->setEnabled(false);
+			$enabled = false;
+			
+			switch($plugin->id) {
+				case 'devblocks.core':
+				case 'cerberusweb.core':
+					$enabled = true;
+					break;
+				default:
+					if(array_search($plugin->id, $plugins_enabled)) {
+						$enabled = true;
+					}
+					break;
+			}
+			
+			$plugin->setEnabled($enabled);
 		}
 
 		DevblocksPlatform::clearCache();
