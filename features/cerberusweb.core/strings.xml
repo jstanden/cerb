@@ -917,6 +917,9 @@
 		<tu tuid='display.convo.attachments_label'>
 			<tuv xml:lang="en_US"><seg>Attachments:</seg></tuv>
 		</tu>
+		<tu tuid='display.convo.brief_headers'>
+			<tuv xml:lang="en_US"><seg>brief headers</seg></tuv>
+		</tu>
 		<tu tuid='display.convo.full_headers'>
 			<tuv xml:lang="en_US"><seg>full headers</seg></tuv>
 		</tu>
