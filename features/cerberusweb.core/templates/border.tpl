@@ -21,7 +21,7 @@
 		<td align="right" valign="bottom" style="line-height:150%;">
 		{if empty($visit)}
 			{$translate->_('header.not_signed_in')} <a href="{devblocks_url}c=login{/devblocks_url}">{$translate->_('header.signon')|lower}</a>
-		{else}
+		{elseif !empty($active_worker)}
 			{assign var=worker_name value=''|cat:'<b>'|cat:$active_worker->getName()|cat:'</b>'}
 			{'header.signed_in'|devblocks_translate:$worker_name}
 	

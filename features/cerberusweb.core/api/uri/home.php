@@ -376,7 +376,6 @@ class ChHomePage extends CerberusPageExtension {
 		
 		// Log activity
 		DAO_Worker::logActivity(
-			$active_worker->id,
 			new Model_Activity(
 				'activity.mail.workspaces',
 				array(

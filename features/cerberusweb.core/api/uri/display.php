@@ -146,7 +146,6 @@ class ChDisplayPage extends CerberusPageExtension {
 		
 		// Log Activity
 		DAO_Worker::logActivity(
-			$active_worker->id,
 			new Model_Activity('activity.display_ticket',array(
 				sprintf("<a href='%s' title='[%s] %s'>#%s</a>",
 		    		$url->write("c=display&id=".$ticket->mask),

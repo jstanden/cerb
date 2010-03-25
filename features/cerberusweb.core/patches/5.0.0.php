@@ -245,4 +245,13 @@ if(null != ($cron = DevblocksPlatform::getExtension('cron.search', true, true)))
 	$cron->setParam(CerberusCronPageExtension::PARAM_LASTRUN, strtotime('Yesterday 22:15'));
 }
 
+// ===========================================================================
+// Worker last activity IP
+
+list($columns, $indexes) = $db->metaTable('worker');
+
+if(!isset($columns['last_activity_ip'])) {
+	$db->Execute("ALTER TABLE worker ADD COLUMN last_activity_ip BIGINT UNSIGNED DEFAULT 0 NOT NULL");
+}
+
 return TRUE;

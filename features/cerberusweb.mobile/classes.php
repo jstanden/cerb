@@ -155,7 +155,7 @@ class MobileController extends DevblocksControllerExtension {
 	    
 		// [TODO] Reimplement
 		if(!empty($visit) && !is_null($visit->getWorker())) {
-		    DAO_Worker::logActivity($visit->getWorker()->id, $page->getActivity());
+		    DAO_Worker::logActivity($page->getActivity());
 		}
 		
 		// [JAS]: Listeners (Step-by-step guided tour, etc.)

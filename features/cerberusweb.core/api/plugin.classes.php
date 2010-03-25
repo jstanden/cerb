@@ -206,7 +206,7 @@ class ChPageController extends DevblocksControllerExtension {
 			$unread_notifications = DAO_WorkerEvent::getUnreadCountByWorker($active_worker->id);
 			$tpl->assign('active_worker_notify_count', $unread_notifications);
 			
-			DAO_Worker::logActivity($active_worker->id, $page->getActivity());
+			DAO_Worker::logActivity($page->getActivity());
 		}
 		$tpl->assign('tour_enabled', $tour_enabled);
 		

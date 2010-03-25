@@ -12,8 +12,9 @@ class DAO_Worker extends C4_ORMHelper {
 	const PASSWORD = 'pass';
 	const IS_SUPERUSER = 'is_superuser';
 	const IS_DISABLED = 'is_disabled';
-	const LAST_ACTIVITY_DATE = 'last_activity_date';
 	const LAST_ACTIVITY = 'last_activity';
+	const LAST_ACTIVITY_DATE = 'last_activity_date';
+	const LAST_ACTIVITY_IP = 'last_activity_ip';
 	
 	// [TODO] Convert to ::create($id, $fields)
 	static function create($email, $password, $first_name, $last_name, $title) {
@@ -99,7 +100,7 @@ class DAO_Worker extends C4_ORMHelper {
 		$db = DevblocksPlatform::getDatabaseService();
 		$workers = array();
 		
-		$sql = "SELECT a.id, a.first_name, a.last_name, a.email, a.pass, a.title, a.is_superuser, a.is_disabled, a.last_activity_date, a.last_activity ".
+		$sql = "SELECT a.id, a.first_name, a.last_name, a.email, a.pass, a.title, a.is_superuser, a.is_disabled, a.last_activity_date, a.last_activity, a.last_activity_ip ".
 			"FROM worker a ".
 			((!empty($ids) ? sprintf("WHERE a.id IN (%s) ",implode(',',$ids)) : " ").
 			"ORDER BY a.first_name, a.last_name "
@@ -121,6 +122,9 @@ class DAO_Worker extends C4_ORMHelper {
 			if(!empty($row['last_activity']))
 			    $worker->last_activity = unserialize($row['last_activity']);
 			
+			if(!empty($row['last_activity_ip']))
+				$worker->last_activity_ip = long2ip($row['last_activity_ip']);
+			    
 			$workers[$worker->id] = $worker;
 		}
 		
@@ -341,11 +345,22 @@ class DAO_Worker extends C4_ORMHelper {
 	 * @param integer $worker_id
 	 * @param Model_Activity $activity
 	 */
-	static function logActivity($worker_id, Model_Activity $activity) {
-	    DAO_Worker::updateAgent($worker_id,array(
-	        DAO_Worker::LAST_ACTIVITY_DATE => time(),
-	        DAO_Worker::LAST_ACTIVITY => serialize($activity)
-	    ),false);
+	static function logActivity(Model_Activity $activity) {
+		if(null === ($worker = CerberusApplication::getActiveWorker()))
+			return;
+			
+		$ip = $_SERVER['REMOTE_ADDR'];
+		if('::1' == $ip)
+			$ip = '127.0.0.1';
+
+		// Update activity once per 30 seconds
+		if($worker->last_activity_date < (time()-30)) {
+		    DAO_Worker::updateAgent($worker->id,array(
+		        DAO_Worker::LAST_ACTIVITY_DATE => time(),
+		        DAO_Worker::LAST_ACTIVITY => serialize($activity),
+		        DAO_Worker::LAST_ACTIVITY_IP => ip2long($ip),
+		    ));
+		}
 	}
 
     /**
@@ -509,6 +524,7 @@ class Model_Worker {
 	public $is_disabled=0;
 	public $last_activity;
 	public $last_activity_date;
+	public $last_activity_ip;
 
 	/**
 	 * @return Model_TeamMember[]
