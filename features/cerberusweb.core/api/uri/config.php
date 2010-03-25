@@ -2071,7 +2071,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 					$enabled = true;
 					break;
 				default:
-					if(array_search($plugin->id, $plugins_enabled)) {
+					if(false !== array_search($plugin->id, $plugins_enabled)) {
 						$enabled = true;
 					}
 					break;
