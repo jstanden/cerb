@@ -1394,7 +1394,7 @@ class Model_MailToGroupRule {
 };
 
 class CerberusVisit extends DevblocksVisit {
-	private $worker;
+	private $worker_id;
 
 	const KEY_VIEW_LAST_ACTION = 'view_last_action';
 	const KEY_MY_WORKSPACE = 'view_my_workspace';
@@ -1404,18 +1404,21 @@ class CerberusVisit extends DevblocksVisit {
 	const KEY_WORKFLOW_FILTER = 'workflow_filter';
 
 	public function __construct() {
-		$this->worker = null;
+		$this->worker_id = null;
 	}
 
 	/**
 	 * @return Model_Worker
 	 */
 	public function getWorker() {
-		return $this->worker;
+		if(empty($this->worker_id))
+			return null;
+			
+		return DAO_Worker::getAgent($this->worker_id);
 	}
 	
 	public function setWorker(Model_Worker $worker=null) {
-		$this->worker = $worker;
+		$this->worker_id = $worker->id;
 	}
 };
 
