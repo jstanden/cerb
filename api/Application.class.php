@@ -550,6 +550,10 @@ class CerberusApplication extends DevblocksApplication {
 	}
 };
 
+interface ITemplateToken_Signature {
+	static function getSignatureTokenValue(Model_Worker $worker);
+};
+
 class CerberusTemplates {
 	/**
 	 * 
@@ -616,9 +620,30 @@ class CerberusTemplates {
 				}
 			}
 		}
-		
+
 		// Plugin-provided tokens
-		// [TODO]
+		$token_extension_mfts = DevblocksPlatform::getExtensions('cerberusweb.template.token', false);
+		foreach($token_extension_mfts as $mft) { /* @var $mft DevblocksExtensionManifest */
+			@$token = $mft->params['token'];
+			@$label = $mft->params['label'];
+			@$bind = $mft->params['bind'][0];
+			
+			if(empty($token) || empty($label) || !is_array($bind))
+				continue;
+
+			if(!isset($bind['signature']))
+				continue;
+				
+			if(null != ($ext = $mft->createInstance()) && $ext instanceof ITemplateToken_Signature) {
+				/* @var $ext ITemplateToken_Signature */
+				$value = $ext->getSignatureTokenValue($worker);
+				
+				if(!empty($value)) {
+					$token_labels[$token] = $label;
+					$token_values[$token] = $value;
+				}
+			}
+		}
 		
 		asort($token_labels);
 		
