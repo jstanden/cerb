@@ -577,11 +577,9 @@ class ChDisplayPage extends CerberusPageExtension {
 		        $signature = $settings->get('cerberusweb.core',CerberusSettings::DEFAULT_SIGNATURE,CerberusSettingsDefaults::DEFAULT_SIGNATURE);
 			}
 
-			$tpl->assign('signature', str_replace(
-			        array('#first_name#','#last_name#','#title#'),
-			        array($worker->first_name,$worker->last_name,$worker->title),
-			        $signature
-			));
+			$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+			$tpl_vars = CerberusTemplates::getWorkerSignatureTokens($worker, $token_labels, $token_values);
+			$tpl->assign('signature', $tpl_builder->build($signature, $token_values));
 			
 		    $signature_pos = $settings->get('cerberusweb.core',CerberusSettings::DEFAULT_SIGNATURE_POS,CerberusSettingsDefaults::DEFAULT_SIGNATURE_POS);
 			$tpl->assign('signature_pos', $signature_pos);

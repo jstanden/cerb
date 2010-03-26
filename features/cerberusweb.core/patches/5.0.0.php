@@ -254,4 +254,18 @@ if(!isset($columns['last_activity_ip'])) {
 	$db->Execute("ALTER TABLE worker ADD COLUMN last_activity_ip BIGINT UNSIGNED DEFAULT 0 NOT NULL");
 }
 
+// ===========================================================================
+// Migrate user template tokens from Smarty to Twig
+
+// Default signature
+$db->Execute("UPDATE devblocks_setting SET value=REPLACE(value,'#first_name#','{{worker_first_name}}') WHERE setting='default_signature'");
+$db->Execute("UPDATE devblocks_setting SET value=REPLACE(value,'#last_name#','{{worker_last_name}}') WHERE setting='default_signature'");
+$db->Execute("UPDATE devblocks_setting SET value=REPLACE(value,'#title#','{{worker_title}}') WHERE setting='default_signature'");
+
+// Group signatures
+$db->Execute("UPDATE team SET signature=REPLACE(signature,'#first_name#','{{worker_first_name}}')");
+$db->Execute("UPDATE team SET signature=REPLACE(signature,'#last_name#','{{worker_last_name}}')");
+$db->Execute("UPDATE team SET signature=REPLACE(signature,'#title#','{{worker_title}}')");
+
+
 return TRUE;

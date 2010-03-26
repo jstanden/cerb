@@ -1,5 +1,5 @@
 <div class="block" id="configMailboxOutgoing">
-<table cellpadding="2" cellspacing="0" border="0">
+<table cellpadding="2" cellspacing="0" border="0" width="100%">
 	<tr>
 		<td><h2>Outgoing Mail Preferences</h2></td>
 	</tr>
@@ -72,16 +72,14 @@
 				<br>
 				
 				<b>Default E-mail Signature:</b><br>
-				<textarea name="default_signature" rows="4" cols="76">{$settings->get('cerberusweb.core','default_signature')|escape:"html"}</textarea><br>
+				<textarea name="default_signature" rows="10" cols="76" style="width:100%;" wrap="off">{$settings->get('cerberusweb.core','default_signature')|escape:"html"}</textarea><br>
 				<div style="padding-left:10px;">
 					E-mail Signature Variables: 
 					<select name="sig_vars" onchange="insertAtCursor(this.form.default_signature,this.options[this.selectedIndex].value);this.selectedIndex=0;this.form.default_signature.focus();">
 						<option value="">-- choose --</option>
-						<optgroup label="Worker">
-							<option value="#first_name#">#first_name#</option>
-							<option value="#last_name#">#last_name#</option>
-							<option value="#title#">#title#</option>
-						</optgroup>
+						{foreach from=$token_labels key=k item=v}
+						<option value="{literal}{{{/literal}{$k}{literal}}}{/literal}">{$v|escape}</option>
+						{/foreach}
 					</select>
 					<br>
 					<br>

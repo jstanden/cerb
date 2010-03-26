@@ -56,15 +56,13 @@
 		{assign var=default_signature value=$settings->get('cerberusweb.core','default_signature')}
 		<textarea name="default_signature">{$default_signature}</textarea>	
 	</div>
-	<textarea name="signature" rows="4" cols="76">{$team->signature}</textarea><br>
+	<textarea name="signature" rows="10" cols="76" style="width:100%;" wrap="off">{$team->signature}</textarea><br>
 		E-mail Tokens: 
 		<select name="sig_token" onchange="insertAtCursor(this.form.signature,this.options[this.selectedIndex].value);this.selectedIndex=0;this.form.signature.focus();">
 			<option value="">-- choose --</option>
-			<optgroup label="Worker">
-				<option value="#first_name#">First Name</option>
-				<option value="#last_name#">Last Name</option>
-				<option value="#title#">Title</option>
-			</optgroup>
+			{foreach from=$token_labels key=k item=v}
+			<option value="{literal}{{{/literal}{$k}{literal}}}{/literal}">{$v|escape}</option>
+			{/foreach}
 		</select>
 		
 		{if !empty($default_signature)}

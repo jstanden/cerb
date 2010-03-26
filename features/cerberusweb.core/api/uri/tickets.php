@@ -799,24 +799,15 @@ class ChTicketsPage extends CerberusPageExtension {
 		$group = DAO_Group::getTeam($group_id);
 
 		$active_worker = CerberusApplication::getActiveWorker();
-		$worker = DAO_Worker::getAgent($active_worker->id); // Use the most recent info (not session)
 		$sig = $settings->get('cerberusweb.core',CerberusSettings::DEFAULT_SIGNATURE,CerberusSettingsDefaults::DEFAULT_SIGNATURE);
 
 		if(!empty($group->signature)) {
 			$sig = $group->signature;
 		}
 
-		/*
-		 * [TODO] This is the 3rd place this replace happens, we really need 
-		 * to move the signature translation into something like CerberusApplication
-		 */
-		echo sprintf("\r\n%s\r\n",
-			str_replace(
-		        array('#first_name#','#last_name#','#title#'),
-		        array($worker->first_name,$worker->last_name,$worker->title),
-		        $sig
-			)
-		);
+		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+		$tpl_vars = CerberusTemplates::getWorkerSignatureTokens($active_worker, $token_labels, $token_values);
+		echo "\r\n", $tpl_builder->build($sig, $token_values), "\r\n";
 	}
 	
 	// Ajax

@@ -48,7 +48,7 @@
  * 		and Joe Geck.
  *   WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
-define("APP_BUILD", 2010032402);
+define("APP_BUILD", 2010032501);
 define("APP_MAIL_PATH", APP_STORAGE_PATH . '/mail/');
 
 require_once(APP_PATH . "/api/DAO.class.php");
@@ -548,6 +548,82 @@ class CerberusApplication extends DevblocksApplication {
 		
 		return $froms;
 	}
+};
+
+class CerberusTemplates {
+	/**
+	 * 
+	 * @param mixed $worker
+	 * @param array $token_labels
+	 * @param array $token_values
+	 */
+	public static function getWorkerSignatureTokens($worker, &$token_labels, &$token_values) {
+		$translate = DevblocksPlatform::getTranslationService();
+		$fields = DAO_CustomField::getBySource(ChCustomFieldSource_Worker::ID);
+		
+		// Polymorph
+		if(is_numeric($worker)) {
+			$worker = DAO_Worker::getAgent($worker);
+		} elseif($worker instanceof Model_Worker) {
+			// It's what we want already.
+		} else {
+			$worker = null;
+		}
+			
+		// Token labels
+		$token_prefix = '(Worker) ';
+		$token_labels = array(
+			'worker_first_name' => $token_prefix.$translate->_('worker.first_name'),
+			'worker_last_name' => $token_prefix.$translate->_('worker.last_name'),
+			'worker_title' => $token_prefix.$translate->_('worker.title'),
+			'global_timestamp' => '(Global) '.$translate->_('Timestamp'),
+		);
+		
+		if(is_array($fields))
+		foreach($fields as $cf_id => $field) {
+			$token_labels['worker_custom_'.$cf_id] = $token_prefix.$field->name;
+		}
+
+		// Token values
+		$token_values = array();
+		
+		// Worker token values
+		if(null != $worker) {
+			$token_values['worker_first_name'] = $worker->first_name;
+			$token_values['worker_last_name'] = $worker->last_name;
+			$token_values['worker_title'] = $worker->title;
+			$token_values['global_timestamp'] = time();
+			$token_values['worker_custom'] = array();
+			
+			@$field_values = array_shift(DAO_CustomFieldValue::getValuesBySourceIds(ChCustomFieldSource_Worker::ID, $worker->id));
+			if(is_array($field_values) && !empty($field_values)) {
+				foreach($field_values as $cf_id => $cf_val) {
+					if(!isset($fields[$cf_id]))
+						continue;
+					
+					// The literal value
+					if(null != $worker)
+						$token_values['worker_custom'][$cf_id] = $cf_val;
+					
+					// Stringify
+					if(is_array($cf_val))
+						$cf_val = implode(', ', $cf_val);
+						
+					if(is_string($cf_val)) {
+						if(null != $worker)
+							$token_values['worker_custom_'.$cf_id] = $cf_val;
+					}
+				}
+			}
+		}
+		
+		// Plugin-provided tokens
+		// [TODO]
+		
+		asort($token_labels);
+		
+		return true;
+	}	
 };
 
 class CerberusLicense {

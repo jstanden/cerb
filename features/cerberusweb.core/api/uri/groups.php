@@ -80,6 +80,13 @@ class ChGroupsPage extends CerberusPageExtension  {
 		@$tpl->assign('group_spam_action', $group_settings[DAO_GroupSettings::SETTING_SPAM_ACTION]);
 		@$tpl->assign('group_spam_action_param', $group_settings[DAO_GroupSettings::SETTING_SPAM_ACTION_PARAM]);
 		
+		// Signature
+		
+		CerberusTemplates::getWorkerSignatureTokens($active_worker, $token_labels, $token_values);
+		$tpl->assign('token_labels', $token_labels);
+		
+		// Template
+		
 		$tpl->display('file:' . $tpl_path . 'groups/manage/index.tpl');
 	}
 	

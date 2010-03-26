@@ -687,8 +687,15 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		$smtp_enc = $settings->get('cerberusweb.core',CerberusSettings::SMTP_ENCRYPTION_TYPE,CerberusSettingsDefaults::SMTP_ENCRYPTION_TYPE);
 		$smtp_max_sends = $settings->get('cerberusweb.core',CerberusSettings::SMTP_MAX_SENDS,CerberusSettingsDefaults::SMTP_MAX_SENDS);
 		
+		// POP3
+		
 		$pop3_accounts = DAO_Mail::getPop3Accounts();
 		$tpl->assign('pop3_accounts', $pop3_accounts);
+		
+		// Signature
+		
+		CerberusTemplates::getWorkerSignatureTokens(null, $token_labels, $token_values);
+		$tpl->assign('token_labels', $token_labels);
 		
 		$tpl->display('file:' . $this->_TPL_PATH . 'configuration/tabs/mail/index.tpl');
 	}
