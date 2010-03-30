@@ -824,8 +824,6 @@ class ChDisplayPage extends CerberusPageExtension {
 		
 		if(!empty($active_worker) && ($active_worker->is_superuser || $comment->getAddress()->email==$active_worker->email))
 			DAO_TicketComment::delete($comment_id);
-		
-		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('display',$ticket_id,'comments')));
 	}
 	
 	function showPropertiesAction() {
