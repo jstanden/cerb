@@ -769,6 +769,8 @@ class CerberusMail {
 	            )
 		    );
 		}
+		
+		return $mail_succeeded;
 	}
 	
 	static function reflect(CerberusParserMessage $message, $to) {
