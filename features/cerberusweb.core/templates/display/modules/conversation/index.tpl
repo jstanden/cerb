@@ -1,3 +1,16 @@
+{if is_array($drafts)}
+<div class="ui-widget">
+	<div class="ui-state-highlight ui-corner-all" style="padding: 0 .7em; margin: 0.2em; "> 
+		<p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span> 
+		This ticket has <strong>{$drafts|count}</strong> pending draft(s): 
+		{foreach from=$drafts item=draft name=drafts}
+			<a href="#draft{$draft->id}">{$draft->updated|devblocks_prettytime}</a>{if !$smarty.foreach.drafts.last}, {/if} 
+		{/foreach}
+		</p>
+	</div>
+</div>
+{/if}
+
 <div id="tourDisplayConversation"></div>
 {if $expand_all}
 	<b>{$translate->_('display.convo.order_oldest')}</b>
@@ -24,6 +37,13 @@
 				<div id="comment{$comment->id}" style="background-color:rgb(255,255,255);">
 					{include file="$core_tpl/display/modules/conversation/comment.tpl"}
 				</div>
+				
+			{elseif $convo_set.0=='d'}
+				{assign var=draft_id value=$convo_set.1}
+				{assign var=draft value=$drafts.$draft_id}
+				<div id="draft{$draft->id}" style="background-color:rgb(255,255,255);">
+					{include file="$core_tpl/display/modules/conversation/draft.tpl"}
+				</div>
 			{/if}
 			
 		{/foreach}
@@ -36,12 +56,14 @@
 </div>
 
 <script type="text/javascript" language="JavaScript1.2">
-	function displayReply(msgid, is_forward) {
+	function displayReply(msgid, is_forward, draft_id) {
+		msgid = parseInt(msgid);
 		var div = document.getElementById('reply' + msgid);
 		if(null == div) return;
 		is_forward = (null == is_forward || 0 == is_forward) ? 0 : 1;
+		draft_id = (null == draft_id) ? 0 : parseInt(draft_id);
 		
-		genericAjaxGet('', 'c=display&a=reply&forward='+is_forward+'&id=' + msgid,
+		genericAjaxGet('', 'c=display&a=reply&forward='+is_forward+'&draft_id='+draft_id+'&id=' + msgid,
 			function(html) {
 				var div = document.getElementById('reply' + msgid);
 				if(null == div) return;

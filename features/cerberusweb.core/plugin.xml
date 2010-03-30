@@ -103,6 +103,13 @@
 			<class name="SearchFields_GroupInboxFilter" />
 		</file>
 		
+		<file path="api/dao/mail_draft.php">
+			<class name="DAO_MailDraft" />
+			<class name="Model_MailDraft" />
+			<class name="SearchFields_MailDraft" />
+			<class name="View_MailDraft" />
+		</file>
+		
 		<file path="api/dao/message.php">
 			<class name="DAO_Message" />
 			<class name="DAO_MessageHeader" />

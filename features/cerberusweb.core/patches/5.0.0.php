@@ -267,5 +267,31 @@ $db->Execute("UPDATE team SET signature=REPLACE(signature,'#first_name#','{{work
 $db->Execute("UPDATE team SET signature=REPLACE(signature,'#last_name#','{{worker_last_name}}')");
 $db->Execute("UPDATE team SET signature=REPLACE(signature,'#title#','{{worker_title}}')");
 
+// ===========================================================================
+// Add the 'mail_draft' table
+
+if(!isset($tables['mail_draft'])) {
+	$sql = "
+		CREATE TABLE IF NOT EXISTS mail_draft (
+			id INT UNSIGNED NOT NULL DEFAULT 0,
+			worker_id INT UNSIGNED NOT NULL DEFAULT 0,
+			updated INT UNSIGNED NOT NULL DEFAULT 0,
+			type VARCHAR(255) NOT NULL DEFAULT '',
+			ticket_id INT UNSIGNED NOT NULL DEFAULT 0,
+			in_reply_message_id INT UNSIGNED NOT NULL DEFAULT 0,
+			hint_to TEXT,
+			subject VARCHAR(255) NOT NULL DEFAULT '',
+			body LONGTEXT,
+			params_json LONGTEXT,
+			PRIMARY KEY (id),
+			INDEX worker_id (worker_id),
+			INDEX ticket_id (ticket_id),
+			INDEX updated (updated)
+		) ENGINE=MyISAM;
+	";
+	$db->Execute($sql);
+
+	$tables['mail_draft'] = 'mail_draft';
+}
 
 return TRUE;

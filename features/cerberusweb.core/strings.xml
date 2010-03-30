@@ -1044,11 +1044,11 @@
 			<tuv xml:lang="en_US"><seg>Assign this ticket to yourself (T)</seg></tuv>
 		</tu>
 
+		<tu tuid='display.ui.continue_later'>
+			<tuv xml:lang="en_US"><seg>Continue Later</seg></tuv>
+		</tu>
 		<tu tuid='display.ui.discard'>
 			<tuv xml:lang="en_US"><seg>Discard</seg></tuv>
-		</tu>
-		<tu tuid='display.ui.discard_surrender'>
-			<tuv xml:lang="en_US"><seg>Discard &amp; Surrender</seg></tuv>
 		</tu>
 		<tu tuid='display.ui.forward'>
 			<tuv xml:lang="en_US"><seg>Forward</seg></tuv>
@@ -1064,6 +1064,10 @@
 		</tu>
 		
 		<!-- Mail -->
+		
+		<tu tuid='mail.drafts'>
+			<tuv xml:lang="en_US"><seg>Drafts</seg></tuv>
+		</tu>
 		
 		<tu tuid='mail.inbound'>
 			<tuv xml:lang="en_US"><seg>Inbound</seg></tuv>

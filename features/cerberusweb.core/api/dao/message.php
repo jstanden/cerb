@@ -32,7 +32,7 @@ class DAO_Message extends DevblocksORMHelper {
 
 	/**
 	 * @param string $where
-	 * @return Model_Note[]
+	 * @return Model_Message[]
 	 */
 	static function getWhere($where=null, $sortBy='created_date', $sortAsc=true, $limit=null) {
 		$db = DevblocksPlatform::getDatabaseService();

@@ -71,6 +71,22 @@ class ChTicketsPage extends CerberusPageExtension {
 				// Attachments				
 				$tpl->assign('upload_max_filesize', ini_get('upload_max_filesize'));
 
+				// Continue a draft?
+				// [TODO] We could also display "you have xxx unsent drafts, would you like to continue one?"
+				if(null != ($draft_id = @$response->path[2])) {
+					$drafts = DAO_MailDraft::getWhere(sprintf("%s = %d AND %s = %d AND %s = %s",
+						DAO_MailDraft::ID,
+						$draft_id,
+						DAO_MailDraft::WORKER_ID,
+						$active_worker->id,
+						DAO_MailDraft::TYPE,
+						C4_ORMHelper::qstr(Model_MailDraft::TYPE_COMPOSE)
+					));
+					
+					if(isset($drafts[$draft_id]))
+						$tpl->assign('draft', $drafts[$draft_id]);
+				}
+				
 				// Link to last created ticket
 				if($visit->exists('compose.last_ticket')) {
 					$ticket_mask = $visit->get('compose.last_ticket');
@@ -539,6 +555,100 @@ class ChTicketsPage extends CerberusPageExtension {
 		$tpl->display('file:' . $this->_TPL_PATH . 'tickets/search/index.tpl');
 	}
 	
+	function showDraftsTabAction() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('path', $this->_TPL_PATH);
+
+		$view = C4_AbstractViewLoader::getView('mail_drafts');
+		
+		if(null == $view) {
+			$view = new View_MailDraft();
+		}
+		
+		$view->params = array(
+			SearchFields_MailDraft::WORKER_ID => new DevblocksSearchCriteria(SearchFields_MailDraft::WORKER_ID, DevblocksSearchCriteria::OPER_EQ, $active_worker->id),
+		);
+		
+		C4_AbstractViewLoader::setView($view->id,$view);
+		$tpl->assign('view', $view);
+		
+		$tpl->display('file:' . $this->_TPL_PATH . 'tickets/drafts/index.tpl');
+	}
+	
+	function saveDraftComposeAction() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		@$draft_id = DevblocksPlatform::importGPC($_REQUEST['draft_id'],'integer',0); 
+		@$group_id = DevblocksPlatform::importGPC($_REQUEST['team_id'],'integer',0); 
+		@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string',''); 
+		@$cc = DevblocksPlatform::importGPC($_REQUEST['cc'],'string',''); 
+		@$bcc = DevblocksPlatform::importGPC($_REQUEST['bcc'],'string',''); 
+		@$subject = DevblocksPlatform::importGPC($_REQUEST['subject'],'string',''); 
+		@$content = DevblocksPlatform::importGPC($_REQUEST['content'],'string',''); 
+		
+		//print_r($_POST);
+		
+		$params = array();
+		
+		if(!empty($to))
+			$params['to'] = $to;
+		if(!empty($cc))
+			$params['cc'] = $cc;
+		if(!empty($bcc))
+			$params['bcc'] = $bcc;
+		if(!empty($group_id))
+			$params['group_id'] = $group_id;
+		
+		$fields = array(
+			DAO_MailDraft::TYPE => 'mail.compose',
+			DAO_MailDraft::TICKET_ID => 0,
+			DAO_MailDraft::WORKER_ID => $active_worker->id,
+			DAO_MailDraft::UPDATED => time(),
+			DAO_MailDraft::HINT_TO => $to,
+			DAO_MailDraft::SUBJECT => $subject,
+			DAO_MailDraft::BODY => $content,
+			DAO_MailDraft::PARAMS_JSON => json_encode($params),
+		);
+		
+		// Make sure the current worker is the draft author
+		if(!empty($draft_id)) {
+			$draft = DAO_MailDraft::getWhere(sprintf("%s = %d AND %s = %d",
+				DAO_MailDraft::ID,
+				$draft_id,
+				DAO_MailDraft::WORKER_ID,
+				$active_worker->id
+			));
+			
+			if(!isset($draft[$draft_id]))
+				$draft_id = null;
+		}
+		
+		if(empty($draft_id)) {
+			$draft_id = DAO_MailDraft::create($fields);
+		} else {
+			DAO_MailDraft::update($draft_id, $fields);
+		}
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('timestamp', time());
+		$html = $tpl->fetch('file:' . $this->_TPL_PATH . 'tickets/drafts/saved.tpl');
+		
+		echo json_encode(array('draft_id'=>$draft_id, 'html'=>$html));
+	}
+	
+	function deleteDraftAction() {
+		@$draft_id = DevblocksPlatform::importGPC($_REQUEST['draft_id'],'integer');
+		
+		@$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!empty($draft_id)
+			&& ($active_worker->id == $draft->worker_id || $active_worker->is_superuser)) {
+			
+			DAO_MailDraft::delete($draft_id);
+		}
+	}
+	
 	// Ajax
 	function refreshSidebarAction() {
 		$db = DevblocksPlatform::getDatabaseService();
@@ -939,6 +1049,8 @@ class ChTicketsPage extends CerberusPageExtension {
 		if(!$active_worker->hasPriv('core.mail.send'))
 			return;
 		
+		@$draft_id = DevblocksPlatform::importGPC($_POST['draft_id'],'integer');
+		 
 		@$team_id = DevblocksPlatform::importGPC($_POST['team_id'],'integer'); 
 		@$to = DevblocksPlatform::importGPC($_POST['to'],'string');
 		@$cc = DevblocksPlatform::importGPC($_POST['cc'],'string','');
@@ -975,11 +1087,16 @@ class ChTicketsPage extends CerberusPageExtension {
 		
 		$ticket_id = CerberusMail::compose($properties);
 		
-		$ticket = DAO_Ticket::getTicket($ticket_id);
-		
-		$visit = CerberusApplication::getVisit(); /* @var CerberusVisit $visit */
-		$visit->set('compose.last_ticket', $ticket->mask);
-		
+		if(!empty($ticket_id)) {
+			if(!empty($draft_id))
+				DAO_MailDraft::delete($draft_id);
+				
+			$ticket = DAO_Ticket::getTicket($ticket_id);
+			
+			$visit = CerberusApplication::getVisit(); /* @var CerberusVisit $visit */
+			$visit->set('compose.last_ticket', $ticket->mask);
+		}
+
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('tickets','compose')));
 	}
 	
