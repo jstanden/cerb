@@ -268,6 +268,8 @@
 	$(function() {
 		// Autocompletes
 		ajax.emailAutoComplete('#reply{$message->id}_part1 input[name=to]', { multiple: true } );
+		ajax.emailAutoComplete('#reply{$message->id}_part1 input[name=cc]', { multiple: true } );
+		ajax.emailAutoComplete('#reply{$message->id}_part1 input[name=bcc]', { multiple: true } );
 		
 		$('#reply{$message->id}_part1').validate();
 		$('#reply{$message->id}_part2').validate();

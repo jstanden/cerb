@@ -207,6 +207,8 @@
 <script language="JavaScript1.2" type="text/javascript">
 	$(function() {
 		ajax.emailAutoComplete('#frmCompose input[name=to]', { multiple: true } );
+		ajax.emailAutoComplete('#frmCompose input[name=cc]', { multiple: true } );
+		ajax.emailAutoComplete('#frmCompose input[name=bcc]', { multiple: true } );
 		
 		setInterval("$('#btnSaveDraft').click();", 30000);
 	} );
