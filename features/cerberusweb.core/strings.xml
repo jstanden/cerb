@@ -489,6 +489,9 @@
 		<tu tuid='acl.core.ticket.actions.spam'>
 			<tuv xml:lang="en_US"><seg>[Tickets] Can report tickets as spam</seg></tuv>
 		</tu>
+		<tu tuid='acl.core.ticket.view.actions.broadcast_reply'>
+			<tuv xml:lang="en_US"><seg>[Tickets] Can broadcast reply to ticket lists</seg></tuv>
+		</tu>
 		<tu tuid='acl.core.ticket.view.actions.bulk_update'>
 			<tuv xml:lang="en_US"><seg>[Tickets] Can bulk update tickets in lists</seg></tuv>
 		</tu>

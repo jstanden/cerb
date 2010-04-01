@@ -1954,7 +1954,9 @@ class ChTicketsPage extends CerberusPageExtension {
 	
 	// Ajax
 	function doBatchUpdateAction() {
-	    @$ticket_id_str = DevblocksPlatform::importGPC($_REQUEST['ticket_ids'],'string');
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		@$ticket_id_str = DevblocksPlatform::importGPC($_REQUEST['ticket_ids'],'string');
 	    @$shortcut_name = DevblocksPlatform::importGPC($_REQUEST['shortcut_name'],'string','');
 
 	    @$filter = DevblocksPlatform::importGPC($_REQUEST['filter'],'string','');
@@ -2007,6 +2009,20 @@ class ChTicketsPage extends CerberusPageExtension {
 			);
 		}
 		
+		// Broadcast: Mass Reply
+		if($active_worker->hasPriv('core.ticket.view.actions.broadcast_reply')) {
+			@$do_broadcast = DevblocksPlatform::importGPC($_REQUEST['do_broadcast'],'string',null);
+			@$broadcast_message = DevblocksPlatform::importGPC($_REQUEST['broadcast_message'],'string',null);
+			@$broadcast_is_queued = DevblocksPlatform::importGPC($_REQUEST['broadcast_is_queued'],'integer',0);
+			if(0 != strlen($do_broadcast) && !empty($broadcast_message)) {
+				$do['broadcast'] = array(
+					'message' => $broadcast_message,
+					'is_queued' => $broadcast_is_queued,
+					'worker_id' => $active_worker->id,
+				);
+			}
+		}
+		
 	    $data = array();
 	    $ticket_ids = array();
 	    
@@ -2020,7 +2036,6 @@ class ChTicketsPage extends CerberusPageExtension {
 	    }
 		
 	    // Restrict to current worker groups
-		$active_worker = CerberusApplication::getActiveWorker();
 		$memberships = $active_worker->getMemberships();
 		$view->params['tmp'] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_TEAM_ID, 'in', array_keys($memberships)); 
 	    

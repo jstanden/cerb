@@ -105,7 +105,27 @@
 		</td>
 	</tr>
 	{/if}
+	
+	{if $active_worker->hasPriv('core.ticket.view.actions.broadcast_reply')}
+	<tr>
+		<td width="0%" nowrap="nowrap"><label for="chkMassReply">Broadcast Reply:</label></td>
+		<td width="100%">
+			<input type="checkbox" name="do_broadcast" id="chkMassReply" onclick="$('#bulkTicketBroadcast').toggle();">
+		</td>
+	</tr>
+	{/if}
 </table>
+
+{if $active_worker->hasPriv('core.ticket.view.actions.broadcast_reply')}
+<blockquote id="bulkTicketBroadcast" style="display:none;margin:10px;">
+	<b>Reply:</b><br>
+	<textarea name="broadcast_message" style="width:100%;height:200px;border:1px solid rgb(180,180,180);padding:2px;"></textarea>
+	<br>
+	<label><input type="radio" name="broadcast_is_queued" value="0" checked="checked"> Save as draft</label>
+	<label><input type="radio" name="broadcast_is_queued" value="1"> Send now</label>
+</blockquote>
+{/if}
+
 
 {include file="file:$core_tpl/internal/custom_fields/bulk/form.tpl" bulk=true}
 

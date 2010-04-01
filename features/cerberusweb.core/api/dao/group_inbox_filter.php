@@ -630,6 +630,50 @@ class Model_GroupInboxFilter {
 						}
 					}
 					break;
+					
+				case 'broadcast':
+					if(
+						!isset($params['worker_id']) || empty($params['worker_id'])
+						|| !isset($params['message']) || empty($params['message'])
+						)
+						break;
+					
+					// [TODO] Any chance we could pass this to run?
+					list($tickets, $null) = DAO_Ticket::search(
+						array(),
+						array(
+							SearchFields_Ticket::TICKET_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_ID,DevblocksSearchCriteria::OPER_IN,$ticket_ids),
+						),
+						-1,
+						0,
+						null,
+						true,
+						false
+					);
+					$is_queued = (isset($params['is_queued']) && $params['is_queued']) ? true : false; 
+					
+					if(is_array($tickets))
+					foreach($tickets as $ticket_id => $row) { 
+						$fields = array(
+							DAO_MailQueue::TYPE => 'ticket.reply',
+							DAO_MailQueue::TICKET_ID => $ticket_id,
+							DAO_MailQueue::WORKER_ID => $params['worker_id'],
+							DAO_MailQueue::UPDATED => time(),
+							DAO_MailQueue::HINT_TO => $row[SearchFields_Ticket::TICKET_FIRST_WROTE],
+							DAO_MailQueue::SUBJECT => $row[SearchFields_Ticket::TICKET_SUBJECT],
+							DAO_MailQueue::BODY => $params['message'],
+							DAO_MailQueue::PARAMS_JSON => json_encode(array(
+								'in_reply_message_id' => $row[SearchFields_Ticket::TICKET_FIRST_MESSAGE_ID],
+							)),
+						);
+						
+						if($is_queued) {
+							$fields[DAO_MailQueue::IS_QUEUED] = 1;
+						}
+						
+						$draft_id = DAO_MailQueue::create($fields);
+					}
+					break;
 
 				default:
 					// Custom fields

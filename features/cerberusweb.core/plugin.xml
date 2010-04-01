@@ -270,6 +270,7 @@
 		<priv id="core.ticket.actions.delete" label="acl.core.ticket.actions.delete" />
 		<priv id="core.ticket.actions.move" label="acl.core.ticket.actions.move" />
 		<priv id="core.ticket.actions.spam" label="acl.core.ticket.actions.spam" />
+		<priv id="core.ticket.view.actions.broadcast_reply" label="acl.core.ticket.view.actions.broadcast_reply" />
 		<priv id="core.ticket.view.actions.bulk_update" label="acl.core.ticket.view.actions.bulk_update" />
 		<priv id="core.ticket.view.actions.export" label="acl.core.ticket.view.actions.export" />
 		<priv id="core.ticket.view.actions.merge" label="acl.core.ticket.view.actions.merge" />
