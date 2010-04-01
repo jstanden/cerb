@@ -143,6 +143,49 @@ class CerberusBayes {
 		$chars = array('\'');
 		$tokens = array('__apos__');
 		
+// ** REFACTOR BEGIN
+		// Encode apostrophes/etc
+//		$tokens = array(
+//			'__apos__' => '\''
+//		);
+
+		// [TODO] Implement this back in Bayes
+		
+		// URLs
+		// Reference: http://daringfireball.net/2009/11/liberal_regex_for_matching_urls
+//		$matches = array();
+//		$count = 0;
+//		if(preg_match_all("#\b(([\w-]+://?|www[.])[^\s()<>]+(?:\([\w\d]+\)|([^[:punct:]\s]|/)))#", $text, $matches)) {
+//			foreach($matches[0] as $match) {
+//				$token = '__url'.$count++.'__';
+//				$tokens[$token] = $match;
+//			}
+//		}
+		
+		// IPs
+//		$matches = array();
+//		$count = 0;
+//		if(preg_match_all("#(\d{1,3}\.){3}\d{1,3}#", $text, $matches)) {
+//			foreach($matches[0] as $match) {
+//				$token = '__ip'.$count++.'__';
+//				$tokens[$token] = $match;
+//			}
+//		}
+		
+		// Email addresses
+//		$matches = array();
+//		$count = 0;
+//		if(preg_match_all("#\w+\@\w+\.\w+#", $text, $matches)) {
+//			foreach($matches[0] as $match) {
+//				$token = '__email'.$count++.'__';
+//				$tokens[$token] = $match;
+//			}
+//		}
+		
+//		$text = str_replace(array_values($tokens), array_keys($tokens), $text);
+		
+// ** REFACTOR END		
+		
 		// Encode apostrophes/etc
 		$text = str_replace($chars,$tokens,$text);
 		
