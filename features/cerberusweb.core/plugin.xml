@@ -103,11 +103,11 @@
 			<class name="SearchFields_GroupInboxFilter" />
 		</file>
 		
-		<file path="api/dao/mail_draft.php">
-			<class name="DAO_MailDraft" />
-			<class name="Model_MailDraft" />
-			<class name="SearchFields_MailDraft" />
-			<class name="View_MailDraft" />
+		<file path="api/dao/mail_queue.php">
+			<class name="DAO_MailQueue" />
+			<class name="Model_MailQueue" />
+			<class name="SearchFields_MailQueue" />
+			<class name="View_MailQueue" />
 		</file>
 		
 		<file path="api/dao/message.php">
@@ -749,6 +749,17 @@
 			<class>
 				<file>api/cron.classes.php</file>
 				<name>SearchCron</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+		
+		<extension point="cerberusweb.cron">
+			<id>cron.mail_queue</id>
+			<name>Mail Queue</name>
+			<class>
+				<file>api/cron.classes.php</file>
+				<name>MailQueueCron</name>
 			</class>
 			<params>
 			</params>

@@ -521,14 +521,14 @@ class ChDisplayPage extends CerberusPageExtension {
 		@$draft_id = DevblocksPlatform::importGPC($_REQUEST['draft_id'],'integer',0);
 		if(!empty($draft_id)) {
 			// Drafts
-			$drafts = DAO_MailDraft::getWhere(sprintf("%s = %d AND %s = %d AND %s = %s AND %s = %d",
-				DAO_MailDraft::TICKET_ID,
+			$drafts = DAO_MailQueue::getWhere(sprintf("%s = %d AND %s = %d AND %s = %s AND %s = %d",
+				DAO_MailQueue::TICKET_ID,
 				$message->ticket_id,
-				DAO_MailDraft::WORKER_ID,
+				DAO_MailQueue::WORKER_ID,
 				$active_worker->id,
-				DAO_MailDraft::TYPE,
-				C4_ORMHelper::qstr(Model_MailDraft::TYPE_TICKET_REPLY),
-				DAO_MailDraft::ID,
+				DAO_MailQueue::TYPE,
+				C4_ORMHelper::qstr(Model_MailQueue::TYPE_TICKET_REPLY),
+				DAO_MailQueue::ID,
 				$draft_id
 			));
 			
@@ -613,7 +613,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		
 		if(CerberusMail::sendTicketMessage($properties)) {
 			if(!empty($draft_id))
-				DAO_MailDraft::delete($draft_id);
+				DAO_MailQueue::delete($draft_id);
 		}
 
         DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('display',$ticket_id)));
@@ -670,22 +670,24 @@ class ChDisplayPage extends CerberusPageExtension {
 			
 		// Fields
 		$fields = array(
-			DAO_MailDraft::TYPE => 'ticket.reply',
-			DAO_MailDraft::TICKET_ID => $ticket_id,
-			DAO_MailDraft::WORKER_ID => $active_worker->id,
-			DAO_MailDraft::UPDATED => time(),
-			DAO_MailDraft::HINT_TO => $hint_to,
-			DAO_MailDraft::SUBJECT => $subject,
-			DAO_MailDraft::BODY => $content,
-			DAO_MailDraft::PARAMS_JSON => json_encode($params),
+			DAO_MailQueue::TYPE => 'ticket.reply',
+			DAO_MailQueue::TICKET_ID => $ticket_id,
+			DAO_MailQueue::WORKER_ID => $active_worker->id,
+			DAO_MailQueue::UPDATED => time(),
+			DAO_MailQueue::HINT_TO => $hint_to,
+			DAO_MailQueue::SUBJECT => $subject,
+			DAO_MailQueue::BODY => $content,
+			DAO_MailQueue::PARAMS_JSON => json_encode($params),
+			DAO_MailQueue::IS_QUEUED => 0,
+			DAO_MailQueue::PRIORITY => 0,
 		);
 		
 		// Make sure the current worker is the draft author
 		if(!empty($draft_id)) {
-			$draft = DAO_MailDraft::getWhere(sprintf("%s = %d AND %s = %d",
-				DAO_MailDraft::ID,
+			$draft = DAO_MailQueue::getWhere(sprintf("%s = %d AND %s = %d",
+				DAO_MailQueue::ID,
 				$draft_id,
-				DAO_MailDraft::WORKER_ID,
+				DAO_MailQueue::WORKER_ID,
 				$active_worker->id
 			));
 			
@@ -695,9 +697,9 @@ class ChDisplayPage extends CerberusPageExtension {
 		
 		// Save
 		if(empty($draft_id)) {
-			$draft_id = DAO_MailDraft::create($fields);
+			$draft_id = DAO_MailQueue::create($fields);
 		} else {
-			DAO_MailDraft::update($draft_id, $fields);
+			DAO_MailQueue::update($draft_id, $fields);
 		}
 		
 		if($is_ajax) {
@@ -729,17 +731,29 @@ class ChDisplayPage extends CerberusPageExtension {
 		$tpl->assign('requesters', $ticket->getRequesters());
 
 		// Drafts
-		$drafts = DAO_MailDraft::getWhere(sprintf("%s = %d AND %s = %d AND %s = %s",
-			DAO_MailDraft::TICKET_ID,
+		$drafts = DAO_MailQueue::getWhere(sprintf("%s = %d AND %s = %d AND %s = %s",
+			DAO_MailQueue::TICKET_ID,
 			$id,
-			DAO_MailDraft::WORKER_ID,
+			DAO_MailQueue::WORKER_ID,
 			$active_worker->id,
-			DAO_MailDraft::TYPE,
-			C4_ORMHelper::qstr(Model_MailDraft::TYPE_TICKET_REPLY)
+			DAO_MailQueue::TYPE,
+			C4_ORMHelper::qstr(Model_MailQueue::TYPE_TICKET_REPLY)
 		));
 		
 		if(!empty($drafts))
 			$tpl->assign('drafts', $drafts);
+		
+		// Only unqueued drafts
+		$pending_drafts = array();
+		
+		if(!empty($drafts) && is_array($drafts))
+		foreach($drafts as $draft_id => $draft) {
+			if(!$draft->is_queued)
+				$pending_drafts[$draft_id] = $draft;
+		}
+		
+		if(!empty($pending_drafts))
+			$tpl->assign('pending_drafts', $pending_drafts);
 		
 		// Messages
 		$messages = $ticket->getMessages();
@@ -796,7 +810,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		
 		// Thread drafts into conversation
 		if(!empty($drafts)) {
-			foreach($drafts as $draft_id => $draft) { /* @var $draft Model_MailDraft */
+			foreach($drafts as $draft_id => $draft) { /* @var $draft Model_MailQueue */
 				$key = $draft->updated . '_d' . $draft_id;
 				$convo_timeline[$key] = array('d', $draft_id);
 			}

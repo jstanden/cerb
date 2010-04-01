@@ -74,13 +74,13 @@ class ChTicketsPage extends CerberusPageExtension {
 				// Continue a draft?
 				// [TODO] We could also display "you have xxx unsent drafts, would you like to continue one?"
 				if(null != ($draft_id = @$response->path[2])) {
-					$drafts = DAO_MailDraft::getWhere(sprintf("%s = %d AND %s = %d AND %s = %s",
-						DAO_MailDraft::ID,
+					$drafts = DAO_MailQueue::getWhere(sprintf("%s = %d AND %s = %d AND %s = %s",
+						DAO_MailQueue::ID,
 						$draft_id,
-						DAO_MailDraft::WORKER_ID,
+						DAO_MailQueue::WORKER_ID,
 						$active_worker->id,
-						DAO_MailDraft::TYPE,
-						C4_ORMHelper::qstr(Model_MailDraft::TYPE_COMPOSE)
+						DAO_MailQueue::TYPE,
+						C4_ORMHelper::qstr(Model_MailQueue::TYPE_COMPOSE)
 					));
 					
 					if(isset($drafts[$draft_id]))
@@ -564,17 +564,20 @@ class ChTicketsPage extends CerberusPageExtension {
 		$view = C4_AbstractViewLoader::getView('mail_drafts');
 		
 		if(null == $view) {
-			$view = new View_MailDraft();
+			$view = new View_MailQueue();
+			$view->id = 'mail_drafts';
+			$view->name = 'Drafts';
 		}
 		
 		$view->params = array(
-			SearchFields_MailDraft::WORKER_ID => new DevblocksSearchCriteria(SearchFields_MailDraft::WORKER_ID, DevblocksSearchCriteria::OPER_EQ, $active_worker->id),
+			SearchFields_MailQueue::WORKER_ID => new DevblocksSearchCriteria(SearchFields_MailQueue::WORKER_ID, DevblocksSearchCriteria::OPER_EQ, $active_worker->id),
+			SearchFields_MailQueue::IS_QUEUED => new DevblocksSearchCriteria(SearchFields_MailQueue::IS_QUEUED, DevblocksSearchCriteria::OPER_EQ, 0),
 		);
 		
 		C4_AbstractViewLoader::setView($view->id,$view);
 		$tpl->assign('view', $view);
 		
-		$tpl->display('file:' . $this->_TPL_PATH . 'tickets/drafts/index.tpl');
+		$tpl->display('file:' . $this->_TPL_PATH . 'mail/queue/index.tpl');
 	}
 	
 	function saveDraftComposeAction() {
@@ -601,22 +604,24 @@ class ChTicketsPage extends CerberusPageExtension {
 			$params['group_id'] = $group_id;
 		
 		$fields = array(
-			DAO_MailDraft::TYPE => 'mail.compose',
-			DAO_MailDraft::TICKET_ID => 0,
-			DAO_MailDraft::WORKER_ID => $active_worker->id,
-			DAO_MailDraft::UPDATED => time(),
-			DAO_MailDraft::HINT_TO => $to,
-			DAO_MailDraft::SUBJECT => $subject,
-			DAO_MailDraft::BODY => $content,
-			DAO_MailDraft::PARAMS_JSON => json_encode($params),
+			DAO_MailQueue::TYPE => 'mail.compose',
+			DAO_MailQueue::TICKET_ID => 0,
+			DAO_MailQueue::WORKER_ID => $active_worker->id,
+			DAO_MailQueue::UPDATED => time(),
+			DAO_MailQueue::HINT_TO => $to,
+			DAO_MailQueue::SUBJECT => $subject,
+			DAO_MailQueue::BODY => $content,
+			DAO_MailQueue::PARAMS_JSON => json_encode($params),
+			DAO_MailQueue::IS_QUEUED => 0,
+			DAO_MailQueue::PRIORITY => 0,
 		);
 		
 		// Make sure the current worker is the draft author
 		if(!empty($draft_id)) {
-			$draft = DAO_MailDraft::getWhere(sprintf("%s = %d AND %s = %d",
-				DAO_MailDraft::ID,
+			$draft = DAO_MailQueue::getWhere(sprintf("%s = %d AND %s = %d",
+				DAO_MailQueue::ID,
 				$draft_id,
-				DAO_MailDraft::WORKER_ID,
+				DAO_MailQueue::WORKER_ID,
 				$active_worker->id
 			));
 			
@@ -625,14 +630,14 @@ class ChTicketsPage extends CerberusPageExtension {
 		}
 		
 		if(empty($draft_id)) {
-			$draft_id = DAO_MailDraft::create($fields);
+			$draft_id = DAO_MailQueue::create($fields);
 		} else {
-			DAO_MailDraft::update($draft_id, $fields);
+			DAO_MailQueue::update($draft_id, $fields);
 		}
 		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('timestamp', time());
-		$html = $tpl->fetch('file:' . $this->_TPL_PATH . 'tickets/drafts/saved.tpl');
+		$html = $tpl->fetch('file:' . $this->_TPL_PATH . 'mail/queue/saved.tpl');
 		
 		echo json_encode(array('draft_id'=>$draft_id, 'html'=>$html));
 	}
@@ -645,10 +650,64 @@ class ChTicketsPage extends CerberusPageExtension {
 		if(!empty($draft_id)
 			&& ($active_worker->id == $draft->worker_id || $active_worker->is_superuser)) {
 			
-			DAO_MailDraft::delete($draft_id);
+			DAO_MailQueue::delete($draft_id);
 		}
 	}
 	
+	function showDraftsBulkPanelAction() {
+		@$id_csv = DevblocksPlatform::importGPC($_REQUEST['ids']);
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id']);
+
+		$tpl = DevblocksPlatform::getTemplateService();
+		$path = $this->_TPL_PATH;
+		$tpl->assign('path', $path);
+		$tpl->assign('view_id', $view_id);
+
+	    if(!empty($id_csv)) {
+	        $ids = DevblocksPlatform::parseCsvString($id_csv);
+	        $tpl->assign('ids', implode(',', $ids));
+	    }
+		
+	    // Lists
+//	    $lists = DAO_FeedbackList::getWhere();
+//	    $tpl->assign('lists', $lists);
+	    
+		// Custom Fields
+//		$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_FeedbackEntry::ID);
+//		$tpl->assign('custom_fields', $custom_fields);
+		
+		$tpl->display('file:' . $path . 'mail/queue/bulk.tpl');		
+	}
+	
+	function doDraftsBulkUpdateAction() {
+		// Checked rows
+	    @$ids_str = DevblocksPlatform::importGPC($_REQUEST['ids'],'string');
+		$ids = DevblocksPlatform::parseCsvString($ids_str);
+
+		// Filter: whole list or check
+	    @$filter = DevblocksPlatform::importGPC($_REQUEST['filter'],'string','');
+	    
+	    // View
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
+		$view = C4_AbstractViewLoader::getView($view_id);
+		
+		// Draft fields
+		@$status = trim(DevblocksPlatform::importGPC($_POST['status'],'string'));
+
+		$do = array();
+		
+		// Do: Status
+		if(0 != strlen($status))
+			$do['status'] = $status;
+			
+		// Do: Custom fields
+//		$do = DAO_CustomFieldValue::handleBulkPost($do);
+			
+		$view->doBulkUpdate($filter, $do, $ids);
+		
+		$view->render();
+		return;		
+	}
 	// Ajax
 	function refreshSidebarAction() {
 		$db = DevblocksPlatform::getDatabaseService();
@@ -1089,7 +1148,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		
 		if(!empty($ticket_id)) {
 			if(!empty($draft_id))
-				DAO_MailDraft::delete($draft_id);
+				DAO_MailQueue::delete($draft_id);
 				
 			$ticket = DAO_Ticket::getTicket($ticket_id);
 			

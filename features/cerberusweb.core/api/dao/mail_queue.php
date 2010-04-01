@@ -1,5 +1,5 @@
 <?php
-class DAO_MailDraft extends DevblocksORMHelper {
+class DAO_MailQueue extends DevblocksORMHelper {
 	const ID = 'id';
 	const WORKER_ID = 'worker_id';
 	const UPDATED = 'updated';
@@ -9,13 +9,15 @@ class DAO_MailDraft extends DevblocksORMHelper {
 	const SUBJECT = 'subject';
 	const BODY = 'body';
 	const PARAMS_JSON = 'params_json';
+	const IS_QUEUED = 'is_queued';
+	const PRIORITY = 'priority';
 
 	static function create($fields) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$id = $db->GenID('mail_draft_seq');
+		$id = $db->GenID('mail_queue_seq');
 		
-		$sql = sprintf("INSERT INTO mail_draft (id) ".
+		$sql = sprintf("INSERT INTO mail_queue (id) ".
 			"VALUES (%d)",
 			$id
 		);
@@ -27,11 +29,11 @@ class DAO_MailDraft extends DevblocksORMHelper {
 	}
 	
 	static function update($ids, $fields) {
-		parent::_update($ids, 'mail_draft', $fields);
+		parent::_update($ids, 'mail_queue', $fields);
 	}
 	
 	static function updateWhere($fields, $where) {
-		parent::_updateWhere('mail_draft', $fields, $where);
+		parent::_updateWhere('mail_queue', $fields, $where);
 	}
 	
 	/**
@@ -39,7 +41,7 @@ class DAO_MailDraft extends DevblocksORMHelper {
 	 * @param mixed $sortBy
 	 * @param mixed $sortAsc
 	 * @param integer $limit
-	 * @return Model_MailDraft[]
+	 * @return Model_MailQueue[]
 	 */
 	static function getWhere($where=null, $sortBy=null, $sortAsc=true, $limit=null) {
 		$db = DevblocksPlatform::getDatabaseService();
@@ -47,8 +49,8 @@ class DAO_MailDraft extends DevblocksORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, worker_id, updated, type, ticket_id, hint_to, subject, body, params_json ".
-			"FROM mail_draft ".
+		$sql = "SELECT id, worker_id, updated, type, ticket_id, hint_to, subject, body, params_json, is_queued, priority ".
+			"FROM mail_queue ".
 			$where_sql.
 			$sort_sql.
 			$limit_sql
@@ -60,7 +62,7 @@ class DAO_MailDraft extends DevblocksORMHelper {
 
 	/**
 	 * @param integer $id
-	 * @return Model_MailDraft	 */
+	 * @return Model_MailQueue	 */
 	static function get($id) {
 		$objects = self::getWhere(sprintf("%s = %d",
 			self::ID,
@@ -75,13 +77,13 @@ class DAO_MailDraft extends DevblocksORMHelper {
 	
 	/**
 	 * @param resource $rs
-	 * @return Model_MailDraft[]
+	 * @return Model_MailQueue[]
 	 */
 	static private function _getObjectsFromResult($rs) {
 		$objects = array();
 		
 		while($row = mysql_fetch_assoc($rs)) {
-			$object = new Model_MailDraft();
+			$object = new Model_MailQueue();
 			$object->id = $row['id'];
 			$object->worker_id = $row['worker_id'];
 			$object->updated = $row['updated'];
@@ -90,6 +92,8 @@ class DAO_MailDraft extends DevblocksORMHelper {
 			$object->hint_to = $row['hint_to'];
 			$object->subject = $row['subject'];
 			$object->body = $row['body'];
+			$object->is_queued = $row['is_queued'];
+			$object->priority = $row['priority'];
 			
 			// Unserialize params
 			$params_json = $row['params_json'];
@@ -113,7 +117,7 @@ class DAO_MailDraft extends DevblocksORMHelper {
 		
 		$ids_list = implode(',', $ids);
 		
-		$db->Execute(sprintf("DELETE FROM mail_draft WHERE id IN (%s)", $ids_list));
+		$db->Execute(sprintf("DELETE FROM mail_queue WHERE id IN (%s)", $ids_list));
 		
 		return true;
 	}
@@ -132,7 +136,7 @@ class DAO_MailDraft extends DevblocksORMHelper {
      */
     static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
 		$db = DevblocksPlatform::getDatabaseService();
-		$fields = SearchFields_MailDraft::getFields();
+		$fields = SearchFields_MailQueue::getFields();
 		
 		// Sanitize
 		if(!isset($fields[$sortBy]))
@@ -143,33 +147,38 @@ class DAO_MailDraft extends DevblocksORMHelper {
 		$total = -1;
 		
 		$select_sql = sprintf("SELECT ".
-			"mail_draft.id as %s, ".
-			"mail_draft.worker_id as %s, ".
-			"mail_draft.updated as %s, ".
-			"mail_draft.type as %s, ".
-			"mail_draft.ticket_id as %s, ".
-			"mail_draft.hint_to as %s, ".
-			"mail_draft.subject as %s ",
-//			"mail_draft.body as %s, ".
-//			"mail_draft.params_json as %s ",
-				SearchFields_MailDraft::ID,
-				SearchFields_MailDraft::WORKER_ID,
-				SearchFields_MailDraft::UPDATED,
-				SearchFields_MailDraft::TYPE,
-				SearchFields_MailDraft::TICKET_ID,
-				SearchFields_MailDraft::HINT_TO,
-				SearchFields_MailDraft::SUBJECT
-//				SearchFields_MailDraft::BODY,
-//				SearchFields_MailDraft::PARAMS_JSON
+			"mail_queue.id as %s, ".
+			"mail_queue.worker_id as %s, ".
+			"mail_queue.updated as %s, ".
+			"mail_queue.type as %s, ".
+			"mail_queue.ticket_id as %s, ".
+			"mail_queue.hint_to as %s, ".
+			"mail_queue.subject as %s, ".
+			"mail_queue.is_queued as %s, ".
+			"mail_queue.priority as %s ",
+//			"mail_queue.body as %s, ".
+//			"mail_queue.params_json as %s ",
+				SearchFields_MailQueue::ID,
+				SearchFields_MailQueue::WORKER_ID,
+				SearchFields_MailQueue::UPDATED,
+				SearchFields_MailQueue::TYPE,
+				SearchFields_MailQueue::TICKET_ID,
+				SearchFields_MailQueue::HINT_TO,
+				SearchFields_MailQueue::SUBJECT,
+				SearchFields_MailQueue::IS_QUEUED,
+				SearchFields_MailQueue::PRIORITY
+//				SearchFields_MailQueue::BODY,
+//				SearchFields_MailQueue::PARAMS_JSON
 			);
 			
-		$join_sql = "FROM mail_draft ";
+		$join_sql = "FROM mail_queue ";
 		
 		// Custom field joins
+		$has_multiple_values = false;
 		//list($select_sql, $join_sql, $has_multiple_values) = self::_appendSelectJoinSqlForCustomFieldTables(
 		//	$tables,
 		//	$params,
-		//	'mail_draft.id',
+		//	'mail_queue.id',
 		//	$select_sql,
 		//	$join_sql
 		//);
@@ -183,7 +192,7 @@ class DAO_MailDraft extends DevblocksORMHelper {
 			$select_sql.
 			$join_sql.
 			$where_sql.
-			($has_multiple_values ? 'GROUP BY mail_draft.id ' : '').
+			($has_multiple_values ? 'GROUP BY mail_queue.id ' : '').
 			$sort_sql;
 			
 		// [TODO] Could push the select logic down a level too
@@ -201,14 +210,14 @@ class DAO_MailDraft extends DevblocksORMHelper {
 			foreach($row as $f => $v) {
 				$result[$f] = $v;
 			}
-			$object_id = intval($row[SearchFields_MailDraft::ID]);
+			$object_id = intval($row[SearchFields_MailQueue::ID]);
 			$results[$object_id] = $result;
 		}
 
 		// [JAS]: Count all
 		if($withCounts) {
 			$count_sql = 
-				($has_multiple_values ? "SELECT COUNT(DISTINCT mail_draft.id) " : "SELECT COUNT(mail_draft.id) ").
+				($has_multiple_values ? "SELECT COUNT(DISTINCT mail_queue.id) " : "SELECT COUNT(mail_queue.id) ").
 				$join_sql.
 				$where_sql;
 			$total = $db->GetOne($count_sql);
@@ -220,7 +229,7 @@ class DAO_MailDraft extends DevblocksORMHelper {
 	}
 };
 
-class SearchFields_MailDraft implements IDevblocksSearchFields {
+class SearchFields_MailQueue implements IDevblocksSearchFields {
 	const ID = 'm_id';
 	const WORKER_ID = 'm_worker_id';
 	const UPDATED = 'm_updated';
@@ -228,6 +237,8 @@ class SearchFields_MailDraft implements IDevblocksSearchFields {
 	const TICKET_ID = 'm_ticket_id';
 	const HINT_TO = 'm_hint_to';
 	const SUBJECT = 'm_subject';
+	const IS_QUEUED = 'm_is_queued';
+	const PRIORITY = 'm_priority';
 //	const BODY = 'm_body';
 //	const PARAMS_JSON = 'm_params_json';
 	
@@ -238,15 +249,17 @@ class SearchFields_MailDraft implements IDevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = array(
-			self::ID => new DevblocksSearchField(self::ID, 'mail_draft', 'id', $translate->_('id')),
-			self::WORKER_ID => new DevblocksSearchField(self::WORKER_ID, 'mail_draft', 'worker_id', $translate->_('worker_id')),
-			self::UPDATED => new DevblocksSearchField(self::UPDATED, 'mail_draft', 'updated', $translate->_('updated')),
-			self::TYPE => new DevblocksSearchField(self::TYPE, 'mail_draft', 'type', $translate->_('type')),
-			self::TICKET_ID => new DevblocksSearchField(self::TICKET_ID, 'mail_draft', 'ticket_id', $translate->_('ticket_id')),
-			self::HINT_TO => new DevblocksSearchField(self::HINT_TO, 'mail_draft', 'hint_to', $translate->_('hint_to')),
-			self::SUBJECT => new DevblocksSearchField(self::SUBJECT, 'mail_draft', 'subject', $translate->_('subject')),
-//			self::BODY => new DevblocksSearchField(self::BODY, 'mail_draft', 'body', $translate->_('body')),
-//			self::PARAMS_JSON => new DevblocksSearchField(self::PARAMS_JSON, 'mail_draft', 'params_json', $translate->_('params_json')),
+			self::ID => new DevblocksSearchField(self::ID, 'mail_queue', 'id', $translate->_('id')),
+			self::WORKER_ID => new DevblocksSearchField(self::WORKER_ID, 'mail_queue', 'worker_id', $translate->_('worker_id')),
+			self::UPDATED => new DevblocksSearchField(self::UPDATED, 'mail_queue', 'updated', $translate->_('updated')),
+			self::TYPE => new DevblocksSearchField(self::TYPE, 'mail_queue', 'type', $translate->_('type')),
+			self::TICKET_ID => new DevblocksSearchField(self::TICKET_ID, 'mail_queue', 'ticket_id', $translate->_('ticket_id')),
+			self::HINT_TO => new DevblocksSearchField(self::HINT_TO, 'mail_queue', 'hint_to', $translate->_('hint_to')),
+			self::SUBJECT => new DevblocksSearchField(self::SUBJECT, 'mail_queue', 'subject', $translate->_('subject')),
+			self::IS_QUEUED => new DevblocksSearchField(self::IS_QUEUED, 'mail_queue', 'is_queued', $translate->_('is_queued')),
+			self::PRIORITY => new DevblocksSearchField(self::PRIORITY, 'mail_queue', 'priority', $translate->_('priority')),
+//			self::BODY => new DevblocksSearchField(self::BODY, 'mail_queue', 'body', $translate->_('body')),
+//			self::PARAMS_JSON => new DevblocksSearchField(self::PARAMS_JSON, 'mail_queue', 'params_json', $translate->_('params_json')),
 		);
 		
 		// Custom Fields
@@ -265,7 +278,7 @@ class SearchFields_MailDraft implements IDevblocksSearchFields {
 	}
 };
 
-class Model_MailDraft {
+class Model_MailQueue {
 	const TYPE_COMPOSE = 'mail.compose';
 	const TYPE_TICKET_REPLY = 'ticket.reply';
 	
@@ -278,6 +291,8 @@ class Model_MailDraft {
 	public $subject;
 	public $body;
 	public $params;
+	public $is_queued;
+	public $priority;
 	
 	/**
 	 * @return boolean
@@ -287,18 +302,21 @@ class Model_MailDraft {
 		
 		// Determine the type of message
 		switch($this->type) {
-			case Model_MailDraft::TYPE_COMPOSE:
+			case Model_MailQueue::TYPE_COMPOSE:
 				$success = $this->_sendCompose();
 				break;
 				
-			case Model_MailDraft::TYPE_TICKET_REPLY:
+			case Model_MailQueue::TYPE_TICKET_REPLY:
 				$success = $this->_sendTicketReply();
 				break;
 		}
 		
 		if($success) {
-			// [TODO] Delete the draft
+			// Delete the draft on success
+			DAO_MailQueue::delete($this->id);
 		}
+		
+		return $success;
 	}
 	
 	private function _sendCompose() {
@@ -395,36 +413,37 @@ class Model_MailDraft {
 	}
 };
 
-class View_MailDraft extends C4_AbstractView {
-	const DEFAULT_ID = 'mail_drafts';
+class View_MailQueue extends C4_AbstractView {
+	const DEFAULT_ID = 'mail_queue';
 
 	function __construct() {
 		$translate = DevblocksPlatform::getTranslationService();
 	
 		$this->id = self::DEFAULT_ID;
 		// [TODO] (translations)
-		$this->name = $translate->_('Drafts');
+		$this->name = $translate->_('Mail Queue');
 		$this->renderLimit = 25;
-		$this->renderSortBy = SearchFields_MailDraft::UPDATED;
+		$this->renderSortBy = SearchFields_MailQueue::UPDATED;
 		$this->renderSortAsc = false;
 
 		$this->view_columns = array(
-			SearchFields_MailDraft::SUBJECT,
-			SearchFields_MailDraft::HINT_TO,
-			SearchFields_MailDraft::UPDATED,
+			SearchFields_MailQueue::SUBJECT,
+			SearchFields_MailQueue::HINT_TO,
+			SearchFields_MailQueue::UPDATED,
 		);
 		
 		$this->doResetCriteria();
 	}
 
 	function getData() {
-		$objects = DAO_MailDraft::search(
+		$objects = DAO_MailQueue::search(
 			array(),
 			$this->params,
 			$this->renderLimit,
 			$this->renderPage,
 			$this->renderSortBy,
-			$this->renderSortAsc
+			$this->renderSortAsc,
+			$this->renderTotal
 		);
 		return $objects;
 	}
@@ -441,7 +460,7 @@ class View_MailDraft extends C4_AbstractView {
 		$tpl->assign('view_fields', $this->getColumns());
 		
 		// [TODO] Set your template path
-		$tpl->display('file:'.$path.'tickets/drafts/view.tpl');
+		$tpl->display('file:'.$path.'mail/queue/view.tpl');
 	}
 
 	function renderCriteria($field) {
@@ -449,22 +468,23 @@ class View_MailDraft extends C4_AbstractView {
 		$tpl->assign('id', $this->id);
 
 		switch($field) {
-			case SearchFields_MailDraft::HINT_TO:
-			case SearchFields_MailDraft::SUBJECT:
-			case SearchFields_MailDraft::TYPE:
+			case SearchFields_MailQueue::HINT_TO:
+			case SearchFields_MailQueue::SUBJECT:
+			case SearchFields_MailQueue::TYPE:
 				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__string.tpl');
 				break;
-			case SearchFields_MailDraft::ID:
-			case SearchFields_MailDraft::TICKET_ID:
+			case SearchFields_MailQueue::ID:
+			case SearchFields_MailQueue::TICKET_ID:
+			case SearchFields_MailQueue::PRIORITY:
 				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__number.tpl');
 				break;
-//			case 'placeholder_bool':
-//				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__bool.tpl');
-//				break;
-			case SearchFields_MailDraft::UPDATED:
+			case SearchFields_MailQueue::IS_QUEUED:
+				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__bool.tpl');
+				break;
+			case SearchFields_MailQueue::UPDATED:
 				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__date.tpl');
 				break;
-			case SearchFields_MailDraft::WORKER_ID:
+			case SearchFields_MailQueue::WORKER_ID:
 				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__worker.tpl');
 				break;
 			default:
@@ -478,7 +498,7 @@ class View_MailDraft extends C4_AbstractView {
 		$values = !is_array($param->value) ? array($param->value) : $param->value;
 
 		switch($field) {
-			case SearchFields_MailDraft::WORKER_ID:
+			case SearchFields_MailQueue::WORKER_ID:
 				$workers = DAO_Worker::getAll();
 				$strings = array();
 
@@ -500,19 +520,19 @@ class View_MailDraft extends C4_AbstractView {
 	}
 
 	static function getFields() {
-		return SearchFields_MailDraft::getFields();
+		return SearchFields_MailQueue::getFields();
 	}
 
 	static function getSearchFields() {
 		$fields = self::getFields();
-		unset($fields[SearchFields_MailDraft::ID]);
-		unset($fields[SearchFields_MailDraft::TICKET_ID]);
+		unset($fields[SearchFields_MailQueue::ID]);
+		unset($fields[SearchFields_MailQueue::TICKET_ID]);
 		return $fields;
 	}
 
 	static function getColumns() {
 		$fields = self::getFields();
-		unset($fields[SearchFields_MailDraft::TICKET_ID]);
+		unset($fields[SearchFields_MailQueue::TICKET_ID]);
 		return $fields;
 	}
 
@@ -520,7 +540,7 @@ class View_MailDraft extends C4_AbstractView {
 		parent::doResetCriteria();
 		
 		$this->params = array(
-			//SearchFields_MailDraft::ID => new DevblocksSearchCriteria(SearchFields_MailDraft::ID,'!=',0),
+			//SearchFields_MailQueue::ID => new DevblocksSearchCriteria(SearchFields_MailQueue::ID,'!=',0),
 		);
 	}
 	
@@ -528,9 +548,9 @@ class View_MailDraft extends C4_AbstractView {
 		$criteria = null;
 
 		switch($field) {
-			case SearchFields_MailDraft::TYPE:
-			case SearchFields_MailDraft::HINT_TO:
-			case SearchFields_MailDraft::SUBJECT:
+			case SearchFields_MailQueue::TYPE:
+			case SearchFields_MailQueue::HINT_TO:
+			case SearchFields_MailQueue::SUBJECT:
 				// force wildcards if none used on a LIKE
 				if(($oper == DevblocksSearchCriteria::OPER_LIKE || $oper == DevblocksSearchCriteria::OPER_NOT_LIKE)
 				&& false === (strpos($value,'*'))) {
@@ -538,12 +558,13 @@ class View_MailDraft extends C4_AbstractView {
 				}
 				$criteria = new DevblocksSearchCriteria($field, $oper, $value);
 				break;
-			case SearchFields_MailDraft::ID:
-			case SearchFields_MailDraft::TICKET_ID:
+			case SearchFields_MailQueue::ID:
+			case SearchFields_MailQueue::TICKET_ID:
+			case SearchFields_MailQueue::PRIORITY:
 				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
 				break;
 				
-			case SearchFields_MailDraft::UPDATED:
+			case SearchFields_MailQueue::UPDATED:
 				@$from = DevblocksPlatform::importGPC($_REQUEST['from'],'string','');
 				@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string','');
 
@@ -553,12 +574,12 @@ class View_MailDraft extends C4_AbstractView {
 				$criteria = new DevblocksSearchCriteria($field,$oper,array($from,$to));
 				break;
 				
-//			case 'placeholder_bool':
-//				@$bool = DevblocksPlatform::importGPC($_REQUEST['bool'],'integer',1);
-//				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
-//				break;
+			case SearchFields_MailQueue::IS_QUEUED:
+				@$bool = DevblocksPlatform::importGPC($_REQUEST['bool'],'integer',1);
+				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
+				break;
 				
-			case SearchFields_MailDraft::WORKER_ID:
+			case SearchFields_MailQueue::WORKER_ID:
 				@$worker_id = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',array());
 				$criteria = new DevblocksSearchCriteria($field,$oper,$worker_id);
 				break;
@@ -575,6 +596,7 @@ class View_MailDraft extends C4_AbstractView {
 	  
 		$change_fields = array();
 		$custom_fields = array();
+		$deleted = false;
 
 		// Make sure we have actions
 		if(empty($do))
@@ -587,9 +609,18 @@ class View_MailDraft extends C4_AbstractView {
 		if(is_array($do))
 		foreach($do as $k => $v) {
 			switch($k) {
-				// [TODO] Implement actions
-				case 'example':
-					//$change_fields[DAO_MailDraft::EXAMPLE] = 'some value';
+				case 'status':
+					switch($v) {
+						case 'queue':
+							$change_fields[DAO_MailQueue::IS_QUEUED] = 1;
+							break;
+						case 'draft':
+							$change_fields[DAO_MailQueue::IS_QUEUED] = 0;
+							break;
+						case 'delete':
+							$deleted = true;
+							break;
+					}
 					break;
 				default:
 					break;
@@ -600,11 +631,11 @@ class View_MailDraft extends C4_AbstractView {
 
 		if(empty($ids))
 		do {
-			list($objects,$null) = DAO_MailDraft::search(
+			list($objects,$null) = DAO_MailQueue::search(
 				$this->params,
 				100,
 				$pg++,
-				SearchFields_MailDraft::ID,
+				SearchFields_MailQueue::ID,
 				true,
 				false
 			);
@@ -616,10 +647,14 @@ class View_MailDraft extends C4_AbstractView {
 		for($x=0;$x<=$batch_total;$x+=100) {
 			$batch_ids = array_slice($ids,$x,100);
 			
-			DAO_MailDraft::update($batch_ids, $change_fields);
-
-			// Custom Fields
-			//self::_doBulkSetCustomFields(ChCustomFieldSource_MailDraft::ID, $custom_fields, $batch_ids);
+			if(!$deleted) { 
+				DAO_MailQueue::update($batch_ids, $change_fields);
+				
+				// Custom Fields
+				//self::_doBulkSetCustomFields(ChCustomFieldSource_MailDraft::ID, $custom_fields, $batch_ids);
+			} else {
+				DAO_MailQueue::delete($batch_ids);
+			}
 			
 			unset($batch_ids);
 		}

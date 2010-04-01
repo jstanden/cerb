@@ -268,17 +268,35 @@ $db->Execute("UPDATE team SET signature=REPLACE(signature,'#last_name#','{{worke
 $db->Execute("UPDATE team SET signature=REPLACE(signature,'#title#','{{worker_title}}')");
 
 // ===========================================================================
-// Add the 'mail_draft' table
+// Rename 'mail_draft' to 'mail_queue'
 
-if(!isset($tables['mail_draft'])) {
+if(isset($tables['mail_draft'])) {
+	if($db->Execute("RENAME TABLE mail_draft TO mail_queue")) {
+		$tables['mail_queue'] = 'mail_queue';
+		unset($tables['mail_draft']);
+	}
+	
+	$db->Execute("DELETE FROM worker_pref WHERE setting='viewmail_drafts'");
+}
+
+if(isset($tables['mail_draft_seq'])) {
+	if($db->Execute("RENAME TABLE mail_draft_seq TO mail_queue_seq")) {
+		$tables['mail_queue_seq'] = 'mail_queue_seq';
+		unset($tables['mail_draft_seq']);
+	}
+}
+
+// ===========================================================================
+// Add the 'mail_queue' table
+
+if(!isset($tables['mail_queue'])) {
 	$sql = "
-		CREATE TABLE IF NOT EXISTS mail_draft (
+		CREATE TABLE IF NOT EXISTS mail_queue (
 			id INT UNSIGNED NOT NULL DEFAULT 0,
 			worker_id INT UNSIGNED NOT NULL DEFAULT 0,
 			updated INT UNSIGNED NOT NULL DEFAULT 0,
 			type VARCHAR(255) NOT NULL DEFAULT '',
 			ticket_id INT UNSIGNED NOT NULL DEFAULT 0,
-			in_reply_message_id INT UNSIGNED NOT NULL DEFAULT 0,
 			hint_to TEXT,
 			subject VARCHAR(255) NOT NULL DEFAULT '',
 			body LONGTEXT,
@@ -291,7 +309,32 @@ if(!isset($tables['mail_draft'])) {
 	";
 	$db->Execute($sql);
 
-	$tables['mail_draft'] = 'mail_draft';
+	$tables['mail_queue'] = 'mail_queue';
+}
+
+// ===========================================================================
+// Enable mail queue manager scheduled task and give defaults
+
+if(null != ($cron = DevblocksPlatform::getExtension('cron.mail_queue', true, true))) {
+	$cron->setParam(CerberusCronPageExtension::PARAM_ENABLED, true);
+	$cron->setParam(CerberusCronPageExtension::PARAM_DURATION, '1');
+	$cron->setParam(CerberusCronPageExtension::PARAM_TERM, 'm');
+	$cron->setParam(CerberusCronPageExtension::PARAM_LASTRUN, strtotime('Yesterday 22:15'));
+}
+
+// ===========================================================================
+// Tweaked 'mail_queue' to support sending messages
+
+list($columns, $indexes) = $db->metaTable('mail_queue');
+
+if(!isset($columns['is_queued'])) {
+	$db->Execute("ALTER TABLE mail_queue ADD COLUMN is_queued TINYINT UNSIGNED DEFAULT 0 NOT NULL");
+	$db->Execute("ALTER TABLE mail_queue ADD INDEX is_queued (is_queued)");
+}
+
+if(!isset($columns['priority'])) {
+	$db->Execute("ALTER TABLE mail_queue ADD COLUMN priority TINYINT UNSIGNED DEFAULT 0 NOT NULL");
+	$db->Execute("ALTER TABLE mail_queue ADD INDEX priority (priority)");
 }
 
 return TRUE;

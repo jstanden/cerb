@@ -1220,6 +1220,51 @@ class StorageCron extends CerberusCronPageExtension {
 	}	
 };
 
+class MailQueueCron extends CerberusCronPageExtension {
+	function run() {
+		$logger = DevblocksPlatform::getConsoleLog();
+		$runtime = microtime(true);
+
+		$stop_time = time() + 30; // [TODO] Make configurable		
+		
+		$logger->info("[Mail Queue] Starting...");
+		
+		// Drafts->SMTP
+		
+		do {
+			$messages = DAO_MailQueue::getWhere(
+				sprintf("%s = %d",
+					DAO_MailQueue::IS_QUEUED,
+					1
+				),
+				array(DAO_MailQueue::PRIORITY, DAO_MailQueue::UPDATED),
+				array(false, true),
+				25
+			);
+	
+			if(!empty($messages)) {
+				foreach($messages as $message) { /* @var $message Model_MailQueue */
+					if(!$message->send()) {
+						$logger->error(sprintf("[Mail Queue] Failed sending message %d", $message->id));
+					} else {
+						$logger->info(sprintf("[Mail Queue] Sent message %d", $message->id));
+					}
+				}
+			}
+		} while(!empty($messages) && $stop_time > time());
+		
+		$logger->info("[Mail Queue] Total Runtime: ".number_format((microtime(true)-$runtime)*1000,2)." ms");
+	}
+
+	function configure($instance) {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl_path = dirname(dirname(__FILE__)) . '/templates/';
+		$tpl->assign('path', $tpl_path);
+
+		$tpl->display($tpl_path . 'cron/mail_queue/config.tpl');
+	}
+};
+
 class SearchCron extends CerberusCronPageExtension {
 	function run() {
 		$logger = DevblocksPlatform::getConsoleLog();
