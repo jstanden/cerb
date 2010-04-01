@@ -1450,7 +1450,8 @@ class View_CrmOpportunity extends C4_AbstractView {
 			$this->renderLimit,
 			$this->renderPage,
 			$this->renderSortBy,
-			$this->renderSortAsc
+			$this->renderSortAsc,
+			$this->renderTotal
 		);
 		return $objects;
 	}

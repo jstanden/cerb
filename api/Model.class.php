@@ -61,6 +61,7 @@ abstract class C4_AbstractView {
 
 	public $renderPage = 0;
 	public $renderLimit = 10;
+	public $renderTotal = true;
 	public $renderSortBy = '';
 	public $renderSortAsc = 1;
 
@@ -570,7 +571,8 @@ class View_DevblocksTemplate extends C4_AbstractView {
 			$this->renderLimit,
 			$this->renderPage,
 			$this->renderSortBy,
-			$this->renderSortAsc
+			$this->renderSortAsc,
+			$this->renderTotal
 		);
 	}
 
@@ -798,7 +800,8 @@ class View_DevblocksStorageProfile extends C4_AbstractView {
 			$this->renderLimit,
 			$this->renderPage,
 			$this->renderSortBy,
-			$this->renderSortAsc
+			$this->renderSortAsc,
+			$this->renderTotal
 		);
 		return $objects;
 	}
