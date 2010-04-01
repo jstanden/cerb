@@ -65,7 +65,7 @@
 			{elseif $column=="m_created_date"}
 			<td title="{$result.m_created_date|devblocks_date}">{$result.m_created_date|devblocks_prettytime}&nbsp;</td>
 			{elseif $column=="m_is_outgoing"}
-			<td>{if $result.m_is_outgoing}{$translate->_('mail.outbound')}{else}{$translate->_('mail.inbound')}{/if}&nbsp;</td>
+			<td>{if $result.m_is_outgoing}{$translate->_('mail.sent')}{else}{$translate->_('mail.received')}{/if}&nbsp;</td>
 			{elseif $column=="t_mask"}
 				<td><a href="{devblocks_url}c=display&id={$result.t_mask}{/devblocks_url}" title="{$result.t_subject|escape}">{$result.t_mask}</a></td>
 			{elseif $column=="t_id"}

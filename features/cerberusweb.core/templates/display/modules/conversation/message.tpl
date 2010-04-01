@@ -14,7 +14,7 @@
       				{assign var=sender_org value=$message_sender_orgs.$sender_org_id}
       				{assign var=is_outgoing value=$message->worker_id}
       				{if $expanded}
-						<h3 style="display:inline;"><span style="{if !$is_outgoing}color:rgb(255,50,50);background-color:rgb(255,213,213);{else}color:rgb(50,120,50);background-color:rgb(219,255,190);{/if}">{if $is_outgoing}{$translate->_('mail.outbound')|lower}{else}{$translate->_('mail.inbound')|lower}{/if}</span>
+						<h3 style="display:inline;"><span style="{if !$is_outgoing}color:rgb(255,50,50);background-color:rgb(255,213,213);{else}color:rgb(50,120,50);background-color:rgb(219,255,190);{/if}">{if $is_outgoing}{$translate->_('mail.sent')|lower}{else}{$translate->_('mail.received')|lower}{/if}</span>
 						{if $message->worker_id && isset($workers.{$message->worker_id})}
 							{$msg_worker = $workers.{$message->worker_id}}
 	      					<a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showAddressPeek&email={$msg_worker->email|escape:'url'}', null, false, '500', function() { C4_ReloadMessageOnSave('{$message->id}', {if $expanded}true{else}false{/if}); } );" title="{$sender->email}">{if 0 != strlen($msg_worker->getName())}{$msg_worker->getName()}{else}&lt;{$msg_worker->email}&gt;{/if}</a>
@@ -23,7 +23,7 @@
 						{/if}
 						</h3>
       				{else}
-						<b><span style="{if !$is_outgoing}color:rgb(255,50,50);background-color:rgb(255,213,213);{else}color:rgb(50,120,50);background-color:rgb(219,255,190);{/if}">{if $is_outgoing}{$translate->_('mail.outbound')|lower}{else}{$translate->_('mail.inbound')|lower}{/if}</span>
+						<b><span style="{if !$is_outgoing}color:rgb(255,50,50);background-color:rgb(255,213,213);{else}color:rgb(50,120,50);background-color:rgb(219,255,190);{/if}">{if $is_outgoing}{$translate->_('mail.sent')|lower}{else}{$translate->_('mail.received')|lower}{/if}</span>
 						{if $message->worker_id && isset($workers.{$message->worker_id})}
 							{$msg_worker = $workers.{$message->worker_id}}
       						<a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showAddressPeek&email={$msg_worker->email|escape:'url'}', null, false, '500', function() { C4_ReloadMessageOnSave('{$message->id}', {if $expanded}true{else}false{/if}); } );">{if 0 != strlen($msg_worker->getName())}{$msg_worker->getName()}{else}&lt;{$msg_worker->email}&gt;{/if}</a></b>
