@@ -476,7 +476,7 @@ class DAO_Ticket extends C4_ORMHelper {
 	
 	static function analyze($params, $limit=15, $mode="senders", $mode_param=null) { // or "subjects"
 		$db = DevblocksPlatform::getDatabaseService();
-		list($tables,$wheres) = parent::_parseSearchParams($params, array(),SearchFields_Ticket::getFields());
+		list($tables,$wheres) = parent::_parseSearchParams($params, array(), SearchFields_Ticket::getFields());
 
 		$tops = array();
 		
@@ -494,6 +494,7 @@ class DAO_Ticket extends C4_ORMHelper {
 				
 				(isset($tables['msg']) || isset($tables['mc']) ? "INNER JOIN message msg ON (msg.ticket_id=t.id) " : " ").
 				(isset($tables['mh']) ? "INNER JOIN message_header mh ON (mh.message_id=t.first_message_id) " : " "). // [TODO] Choose between first message and all?
+				(isset($tables['ftmc']) ? "INNER JOIN fulltext_message_content ftmc ON (ftmc.id=msg.id) " : " ").
 				(isset($tables['ra']) ? "INNER JOIN requester r ON (r.ticket_id=t.id)" : " ").
 				(isset($tables['ra']) ? "INNER JOIN address ra ON (ra.id=r.address_id) " : " ").
 				
@@ -529,6 +530,7 @@ class DAO_Ticket extends C4_ORMHelper {
 				
 				(isset($tables['msg']) || isset($tables['mc']) ? "INNER JOIN message msg ON (msg.ticket_id=t.id) " : " ").
 				(isset($tables['mh']) ? "INNER JOIN message_header mh ON (mh.message_id=t.first_message_id) " : " "). // [TODO] Choose between first message and all?
+				(isset($tables['ftmc']) ? "INNER JOIN fulltext_message_content ftmc ON (ftmc.id=msg.id) " : " ").
 				(isset($tables['ra']) ? "INNER JOIN requester r ON (r.ticket_id=t.id)" : " ").
 				(isset($tables['ra']) ? "INNER JOIN address ra ON (ra.id=r.address_id) " : " ").
 				
@@ -605,6 +607,7 @@ class DAO_Ticket extends C4_ORMHelper {
 					
 					(isset($tables['msg']) || isset($tables['mc']) ? "INNER JOIN message msg ON (msg.ticket_id=t.id) " : " ").
 					(isset($tables['mh']) ? "INNER JOIN message_header mh ON (mh.message_id=t.first_message_id) " : " "). // [TODO] Choose between first message and all?
+					(isset($tables['ftmc']) ? "INNER JOIN fulltext_message_content ftmc ON (ftmc.id=msg.id) " : " ").
 					(isset($tables['ra']) ? "INNER JOIN requester r ON (r.ticket_id=t.id)" : " ").
 					(isset($tables['ra']) ? "INNER JOIN address ra ON (ra.id=r.address_id) " : " ").
 					
@@ -656,6 +659,7 @@ class DAO_Ticket extends C4_ORMHelper {
 				
 				(isset($tables['msg']) || isset($tables['mc']) ? "INNER JOIN message msg ON (msg.ticket_id=t.id) " : " ").
 				(isset($tables['mh']) ? "INNER JOIN message_header mh ON (mh.message_id=t.first_message_id) " : " "). // [TODO] Choose between first message and all?
+				(isset($tables['ftmc']) ? "INNER JOIN fulltext_message_content ftmc ON (ftmc.id=msg.id) " : " ").
 				(isset($tables['ra']) ? "INNER JOIN requester r ON (r.ticket_id=t.id)" : " ").
 				(isset($tables['ra']) ? "INNER JOIN address ra ON (ra.id=r.address_id) " : " ").
 				
@@ -813,7 +817,6 @@ class DAO_Ticket extends C4_ORMHelper {
 
 		$join_sql = 
 			"FROM ticket t ".
-//			"INNER JOIN team tm ON (tm.id = t.team_id) ".
 			"INNER JOIN address a1 ON (t.first_wrote_address_id=a1.id) ".
 			"INNER JOIN address a2 ON (t.last_wrote_address_id=a2.id) ".
 			// [JAS]: Dynamic table joins
