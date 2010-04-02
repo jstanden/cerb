@@ -2,7 +2,7 @@
 
 <table cellpadding="0" cellspacing="0" width="100%" border="0">
 <tr>
-	<td colspan="2" valign="top">
+	<td valign="top">
 		<table cellpadding="0" cellspacing="0" width="100%">
 			<tr>
 				<td>
@@ -114,8 +114,6 @@
 			{if empty($ticket->next_worker_id)}(<b>t</b>) {$translate->_('mail.take')|lower} {/if}
 			{if $ticket->next_worker_id == $active_worker->id}(<b>u</b>) {$translate->_('mail.surrender')|lower} {/if}
 			{if !$expand_all}(<b>a</b>) {$translate->_('display.button.read_all')|lower} {/if} 
-			{if !empty($series_stats.prev)}( <b>[</b> ) {$translate->_('common.previous')|lower} {/if} 
-			{if !empty($series_stats.next)}( <b>]</b> ) {$translate->_('common.next')|lower} {/if} 
 			{if $active_worker->hasPriv('core.display.actions.reply')}(<b>r</b>) {$translate->_('display.ui.reply')|lower} {/if}  
 			(<b>p</b>) {$translate->_('common.print')|lower} 
 			<br>
@@ -123,22 +121,6 @@
 			 
 		</form>
 		<form action="{devblocks_url}{/devblocks_url}" method="post" name="frmPrint" id="frmPrint" target="_blank" style="display:none;"></form>
-	</td>
-	<td valign="top" nowrap="nowrap" align="right" id="tourDisplayPaging">
-		{if !empty($series_stats.next) || !empty($series_stats.prev)}
-		<table cellpadding="0" cellspacing="0" border="0" style="margin:0px;">
-			<tr>
-				<td>	
-				<div style="padding:10px;margin-top:0px;border:1px solid rgb(180,180,255);background-color:rgb(245,245,255);text-align:center;">
-					{$translate->_('display.listnav.active_list')} <b>{$series_stats.title}</b><br>
-					{if !empty($series_stats.prev)}<button style="display:none;visibility:hidden;" id="btnPagePrev" onclick="document.location='{devblocks_url}c=display&id={$series_stats.prev}{/devblocks_url}';">&laquo;{$translate->_('common.previous_short')|capitalize}</button><a href="{devblocks_url}c=display&id={$series_stats.prev}{/devblocks_url}">&laquo;{$translate->_('common.previous_short')|capitalize}</a>{/if}
-					{'display.listnav.showing_of_total'|devblocks_translate:$series_stats.cur:$series_stats.count} 
-					{if !empty($series_stats.next)}<button style="display:none;visibility:hidden;" id="btnPageNext" onclick="document.location='{devblocks_url}c=display&id={$series_stats.next}{/devblocks_url}';">{$translate->_('common.next')|capitalize}&raquo;</button><a href="{devblocks_url}c=display&id={$series_stats.next}{/devblocks_url}">{$translate->_('common.next')|capitalize}&raquo;</a>{/if}
-				</div>
-				</td>
-			</tr>
-		</table>
-		{/if}
 	</td>
 </tr>
 </table>
@@ -176,7 +158,6 @@
 {if $pref_keyboard_shortcuts}
 {literal}
 CreateKeyHandler(function doShortcuts(e) {
-
 	var mycode = getKeyboardKey(e,true);
 	
 	switch(mycode) {
@@ -219,16 +200,6 @@ CreateKeyHandler(function doShortcuts(e) {
 			try {
 				document.getElementById('btnDelete').click();
 			} catch(ex){}
-			break;
-		case 219:  // [ - prev page
-			try {
-				document.getElementById('btnPagePrev').click();
-			} catch(e){}
-			break;
-		case 221:  // ] - next page
-			try {
-				document.getElementById('btnPageNext').click();
-			} catch(e){}
 			break;
 		default:
 			// We didn't find any obvious keys, try other codes

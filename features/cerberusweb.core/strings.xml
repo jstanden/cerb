@@ -952,14 +952,6 @@
 			<tuv xml:lang="en_US"><seg>Split Ticket</seg></tuv>
 		</tu>
 		
-		
-		<tu tuid='display.listnav.active_list'>
-			<tuv xml:lang="en_US"><seg>Active list:</seg></tuv>
-		</tu>
-		<tu tuid='display.listnav.showing_of_total'>
-			<tuv xml:lang="en_US"><seg>(%s of %s)</seg></tuv>
-		</tu>
-		
 		<tu tuid='display.reply.attachments_add'>
 			<tuv xml:lang="en_US"><seg>Add attachments:</seg></tuv>
 		</tu>
