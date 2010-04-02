@@ -15,7 +15,7 @@
 			{/if}
 			<a href="javascript:;" onclick="genericAjaxGet('{$message_id}notes','c=display&a=deleteNote&id={$note_id}');">{$translate->_('common.delete')|lower}</a><br>
 			<b>{$translate->_('message.header.date')|capitalize}:</b> {$note->created|devblocks_date}<br>
-			{if !empty($note->content)}<pre>{$note->content|escape|makehrefs}</pre>{/if}
+			{if !empty($note->content)}<pre>{$note->content|escape|devblocks_hyperlinks}</pre>{/if}
 		</div>
 	{/foreach}
 {/if}

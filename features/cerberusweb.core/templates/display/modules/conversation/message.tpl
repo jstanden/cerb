@@ -83,7 +83,7 @@
       
       <div style="display:block;">
       	{if $expanded}
-    	  	<pre>{$message->getContent()|trim|escape|makehrefs}</pre>
+    	  	<pre>{$message->getContent()|trim|escape|devblocks_hyperlinks}</pre>
     	  	<br>
 	      	<table width="100%" cellpadding="0" cellspacing="0" border="0">
 	      		<tr>

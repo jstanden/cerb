@@ -19,7 +19,7 @@
 		{if isset($draft->hint_to)}<b>{$translate->_('message.header.to')|capitalize}:</b> {$draft->hint_to|escape}<br>{/if}
 		{if isset($draft->subject)}<b>{$translate->_('message.header.subject')|capitalize}:</b> {$draft->subject|escape}<br>{/if}
 		{if isset($draft->updated)}<b>{$translate->_('message.header.date')|capitalize}:</b> {$draft->updated|devblocks_date}<br>{/if}
-		<pre>{$draft->body|trim|escape|makehrefs}</pre>
+		<pre>{$draft->body|trim|escape|devblocks_hyperlinks}</pre>
 	</div>
 	<br>
 </div>

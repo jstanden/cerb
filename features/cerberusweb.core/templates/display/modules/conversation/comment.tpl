@@ -8,7 +8,7 @@
 		
 		<br>
 		{if isset($comment->created)}<b>{$translate->_('message.header.date')|capitalize}:</b> {$comment->created|devblocks_date}<br>{/if}
-		<pre>{$comment->comment|trim|escape|makehrefs}</pre>
+		<pre>{$comment->comment|trim|escape|devblocks_hyperlinks}</pre>
 	</div>
 	<br>
 </div>

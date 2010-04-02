@@ -68,16 +68,4 @@ class CerberusUtils {
 		return $addys;
 	}
 	
-	function smarty_modifier_makehrefs($string, $sanitize = false, $style="") {
-		$from = array("&gt;");
-		$to = array(">");
-		
-		$string = str_replace($from,$to,$string);
-		
-		if($sanitize !== false)
-			return preg_replace("/((http|https):\/\/(.*?))(\s|\>|&lt;|&quot;|\)|$)/ie","'<a href=\"goto.php?url='.'\\1'.'\" target=\"_blank\">\\1</a>\\4'",$string);
-		else
-			return preg_replace("/((http|https):\/\/(.*?))(\s|\>|&lt;|&quot;|\)|$)/ie","'<a href=\"'.'\\1'.'\" target=\"_blank\">\\1</a>\\4'",$string);
-	}
 }
-?>
