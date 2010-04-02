@@ -995,6 +995,19 @@
 			</class>
 			<params>
 			</params>
+		</extension>
+		
+		<!-- Explorer Toolbars -->
+		
+		<extension point="cerberusweb.explorer.toolbar">
+			<id>cerberusweb.explorer.toolbar.worker_events</id>
+			<name>Worker Events</name>
+			<class>
+				<file>api/uri/home.php</file>
+				<name>ChExplorerToolbarWorkerEvents</name>
+			</class>
+			<params>
+			</params>
 		</extension>		
 		
 	</extensions>

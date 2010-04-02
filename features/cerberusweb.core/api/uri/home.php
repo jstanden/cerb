@@ -104,6 +104,65 @@ class ChHomePage extends CerberusPageExtension {
 		$tpl->display('file:' . $this->_TPL_PATH . 'home/tabs/my_events/index.tpl');
 	}
 	
+	function viewEventsExploreAction() {
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
+		
+		$active_worker = CerberusApplication::getActiveWorker();
+		$url_writer = DevblocksPlatform::getUrlService();
+		
+		// Generate hash
+		$hash = md5($view_id.$active_worker->id.time()); 
+		
+		// Loop through view and get IDs
+		$view = C4_AbstractViewLoader::getView($view_id);
+
+		$view->renderPage = 0;
+		$view->renderLimit = 25;
+		$pos = 0;
+		
+		do {
+			$models = array();
+			list($results, $total) = $view->getData();
+
+			// Summary row
+			if(0==$view->renderPage) {
+				$model = new Model_ExplorerSet();
+				$model->hash = $hash;
+				$model->pos = $pos++;
+				$model->params = array(
+					'title' => $view->name,
+					'created' => time(),
+					'worker_id' => $active_worker->id,
+					'total' => $total,
+					'return_url' => $url_writer->write('c=home&tab=events', true),
+					'toolbar_extension_id' => 'cerberusweb.explorer.toolbar.worker_events',
+				);
+				$models[] = $model; 
+				
+				$view->renderTotal = false; // speed up subsequent pages
+			}
+			
+			if(is_array($results))
+			foreach($results as $ticket_id => $row) {
+				$model = new Model_ExplorerSet();
+				$model->hash = $hash;
+				$model->pos = $pos++;
+				$model->params = array(
+					'id' => $row[SearchFields_WorkerEvent::ID],
+					'url' => $row[SearchFields_WorkerEvent::URL],
+				);
+				$models[] = $model; 
+			}
+			
+			DAO_ExplorerSet::createFromModels($models);
+			
+			$view->renderPage++;
+			
+		} while(!empty($results));
+		
+		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('explore',$hash,'1')));
+	}	
+	
 	function showWorkspacesIntroTabAction() {
 		$translate = DevblocksPlatform::getTranslationService();
 		$active_worker = CerberusApplication::getActiveWorker();
@@ -301,6 +360,29 @@ class ChHomePage extends CerberusPageExtension {
 		$myEventsView->render();
 	}
 	
+	function explorerEventMarkReadAction() {
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'integer', 0);
+
+		$worker = CerberusApplication::getActiveWorker();
+		
+		if(!empty($id)) {
+			DAO_WorkerEvent::updateWhere(
+				array(
+					DAO_WorkerEvent::IS_READ => 1,
+				), 
+				sprintf("%s = %d AND %s = %d",
+					DAO_WorkerEvent::WORKER_ID,
+					$worker->id,
+					DAO_WorkerEvent::ID,
+					$id
+				)
+			);
+			
+			DAO_WorkerEvent::clearCountCache($worker->id);
+		}
+		
+	}
+	
 	function showWorkspaceTabAction() {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('path', $this->_TPL_PATH);
@@ -495,5 +577,20 @@ class ChHomePage extends CerberusPageExtension {
 		DAO_WorkerWorkspaceList::delete(array_keys($lists));
 		
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('home')));	
+	}
+};
+
+class ChExplorerToolbarWorkerEvents extends Extension_ExplorerToolbar {
+	function __construct($manifest) {
+		$this->DevblocksExtension($manifest);
+	}
+	
+	function render(Model_ExplorerSet $item) {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl_path = dirname(dirname(dirname(__FILE__))) . '/templates/';
+		
+		$tpl->assign('item', $item);
+		
+		$tpl->display('file:'.$tpl_path.'home/renderer/explorer_toolbar.tpl');
 	}
 };
