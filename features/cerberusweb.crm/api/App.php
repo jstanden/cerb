@@ -156,102 +156,9 @@ class CrmPage extends CerberusPageExtension {
 				$task_count = DAO_Task::getCountBySourceObjectId('cerberusweb.tasks.opp', $opp_id);
 				$tpl->assign('tasks_total', $task_count);
 				
-				$visit = CerberusApplication::getVisit();
-				
-				// Does a series exist?
-				if(null != ($series_info = $visit->get('ch_opp_series', null))) {
-					@$series = $series_info['series'];
-					// Is this ID part of the series?  If not, invalidate
-					if(!isset($series[$opp_id])) {
-						$visit->set('ch_opp_series', null);
-					} else {
-						$series_stats = array(
-							'title' => $series_info['title'],
-							'total' => $series_info['total'],
-							'count' => count($series)
-						);
-						reset($series);
-						$cur = 1;
-						while(current($series)) {
-							$pos = key($series);
-							if(intval($pos)==intval($opp_id)) {
-								$series_stats['cur'] = $cur;
-								if(false !== prev($series)) {
-									@$series_stats['prev'] = $series[key($series)][SearchFields_CrmOpportunity::ID];
-									next($series); // skip to current
-								} else {
-									reset($series);
-								}
-								next($series); // next
-								@$series_stats['next'] = $series[key($series)][SearchFields_CrmOpportunity::ID];
-								break;
-							}
-							next($series);
-							$cur++;
-						}
-						
-						$tpl->assign('series_stats', $series_stats);
-					}
-				}
-				
-				
-				
 				$tpl->display($tpl_path . 'crm/opps/display/index.tpl');
 				break;
 		}
-	}
-	
-	function browseOppsAction() {
-		$visit = CerberusApplication::getVisit(); /* @var $visit CerberusVisit */
-		$request = DevblocksPlatform::getHttpRequest();
-		$stack = $request->path;
-		
-		array_shift($stack); // crm
-		array_shift($stack); // browseOpps
-		
-		@$id = array_shift($stack);
-		
-		$opp = DAO_CrmOpportunity::get($id);
-	
-		if(empty($opp)) {
-			echo "<H1>Invalid Opportunity ID.</H1>";
-			return;
-		}
-		
-		// Display series support (inherited paging from Display)
-		@$view_id = array_shift($stack);
-		if(!empty($view_id)) {
-			$view = C4_AbstractViewLoader::getView($view_id);
-
-			// Restrict to the active worker's groups
-			$active_worker = CerberusApplication::getActiveWorker();
-//			$memberships = $active_worker->getMemberships();
-//			$view->params['tmp'] = new DevblocksSearchCriteria(SearchFields_CrmOpportunity::TEAM_ID, 'in', array_keys($memberships)); 
-			
-			$range = 100;
-			$pos = $view->renderLimit * $view->renderPage;
-			$page = floor($pos / $range);
-			
-			list($series, $series_count) = DAO_CrmOpportunity::search(
-				$view->view_columns,
-				$view->params,
-				$range,
-				$page,
-				$view->renderSortBy,
-				$view->renderSortAsc,
-				false
-			);
-			
-			$series_info = array(
-				'title' => $view->name,
-				'total' => count($series),
-				'series' => $series
-			);
-			
-			$visit->set('ch_opp_series', $series_info);
-		}
-		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('crm','opps',$opp->id)));
-		exit;
 	}
 	
 	function showOppPanelAction() {
@@ -1113,7 +1020,65 @@ class CrmPage extends CerberusPageExtension {
 		
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('activity','opps')));
 	}
+	
+	function viewOppsExploreAction() {
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
 		
+		$active_worker = CerberusApplication::getActiveWorker();
+		$url_writer = DevblocksPlatform::getUrlService();
+		
+		// Generate hash
+		$hash = md5($view_id.$active_worker->id.time()); 
+		
+		// Loop through view and get IDs
+		$view = C4_AbstractViewLoader::getView($view_id);
+
+		$view->renderPage = 0;
+		$view->renderLimit = 25;
+		$pos = 0;
+		
+		do {
+			$models = array();
+			list($results, $total) = $view->getData();
+
+			// Summary row
+			if(0==$view->renderPage) {
+				$model = new Model_ExplorerSet();
+				$model->hash = $hash;
+				$model->pos = $pos++;
+				$model->params = array(
+					'title' => $view->name,
+					'created' => time(),
+					'worker_id' => $active_worker->id,
+					'total' => $total,
+					'return_url' => $url_writer->write('c=activity&tab=opps', true),
+//					'toolbar_extension_id' => 'cerberusweb.explorer.toolbar.',
+				);
+				$models[] = $model; 
+				
+				$view->renderTotal = false; // speed up subsequent pages
+			}
+			
+			if(is_array($results))
+			foreach($results as $ticket_id => $row) {
+				$model = new Model_ExplorerSet();
+				$model->hash = $hash;
+				$model->pos = $pos++;
+				$model->params = array(
+					'id' => $row[SearchFields_CrmOpportunity::ID],
+					'url' => $url_writer->write(sprintf("c=crm&tab=opps&id=%d", $row[SearchFields_CrmOpportunity::ID]), true),
+				);
+				$models[] = $model; 
+			}
+			
+			DAO_ExplorerSet::createFromModels($models);
+			
+			$view->renderPage++;
+			
+		} while(!empty($results));
+		
+		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('explore',$hash,'1')));
+	}
 };
 
 class DAO_CrmOpportunity extends C4_ORMHelper {

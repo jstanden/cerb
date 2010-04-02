@@ -17,22 +17,6 @@
 		</form>
 		<br>
 	</td>
-	<td align="right" valign="top">
-		{if !empty($series_stats.next) || !empty($series_stats.prev)}
-		<table cellpadding="0" cellspacing="0" border="0" style="margin:0px;">
-			<tr>
-				<td>	
-				<div style="padding:10px;margin-top:0px;border:1px solid rgb(180,180,255);background-color:rgb(245,245,255);text-align:center;">
-					{'display.listnav.active_list'|devblocks_translate} <b>{$series_stats.title}</b><br>
-					{if !empty($series_stats.prev)}<button style="display:none;visibility:hidden;" id="btnPagePrev" onclick="document.location='{devblocks_url}c=crm&a=opps&id={$series_stats.prev}{/devblocks_url}';">&laquo;Prev</button><a href="{devblocks_url}c=crm&a=opps&id={$series_stats.prev}{/devblocks_url}">&laquo;{'common.previous_short'|devblocks_translate|capitalize}</a>{/if} 
-					 {'display.listnav.showing_of_total'|devblocks_translate:$series_stats.cur:$series_stats.total} 
-					{if !empty($series_stats.next)}<button style="display:none;visibility:hidden;" id="btnPageNext" onclick="document.location='{devblocks_url}c=crm&a=opps&id={$series_stats.next}{/devblocks_url}';">Next&raquo;</button><a href="{devblocks_url}c=crm&a=opps&id={$series_stats.next}{/devblocks_url}">{'common.next'|devblocks_translate|capitalize}&raquo;</a>{/if}
-				</div>
-				</td>
-			</tr>
-		</table>
-		{/if}
-	</td>
 </tr>
 </table>
 
