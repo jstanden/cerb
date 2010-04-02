@@ -22,54 +22,6 @@ class ChContactsPage extends CerberusPageExtension {
 		}
 	}
 	
-	function browseOrgsAction() {
-		$visit = CerberusApplication::getVisit(); /* @var $visit CerberusVisit */
-		$request = DevblocksPlatform::getHttpRequest();
-		$stack = $request->path;
-		
-		array_shift($stack); // contacts
-		array_shift($stack); // browseOrgs
-		
-		@$id = array_shift($stack);
-		
-		$org = DAO_ContactOrg::get($id);
-	
-		if(empty($org)) {
-			echo "<H1>Invalid Organization ID.</H1>";
-			return;
-		}
-		
-		// Display series support (inherited paging from Display)
-		@$view_id = array_shift($stack);
-		if(!empty($view_id)) {
-			$view = C4_AbstractViewLoader::getView($view_id);
-
-			$range = 250;
-			$block_size = 250;
-			$page = floor(($view->renderLimit * $view->renderPage)/$block_size);
-			
-			list($series, $series_count) = DAO_ContactOrg::search(
-				$view->view_columns,
-				$view->params,
-				$block_size,
-				$page,
-				$view->renderSortBy,
-				$view->renderSortAsc,
-				false
-			);
-			
-			$series_info = array(
-				'title' => $view->name,
-				'total' => count($series),
-				'series' => array_flip(array_keys($series))
-			);
-			
-			$visit->set('ch_org_series', $series_info);
-		}
-		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('contacts','orgs','display',$org->id)));
-		exit;
-	}
-	
 	function render() {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('path', $this->_TPL_PATH);
@@ -129,42 +81,6 @@ class ChContactsPage extends CerberusPageExtension {
 						
 						$people_count = DAO_Address::getCountByOrgId($contact->id);
 						$tpl->assign('people_total', $people_count);
-						
-						// Does a series exist?
-						// [TODO] This is highly redundant
-						if(null != ($series_info = $visit->get('ch_org_series', null))) {
-							@$series = $series_info['series'];
-							// Is this ID part of the series?  If not, invalidate
-							if(!isset($series[$contact->id])) {
-								$visit->set('ch_org_series', null);
-							} else {
-								$series_stats = array(
-									'title' => $series_info['title'],
-									'total' => $series_info['total'],
-									'count' => count($series)
-								);
-								reset($series);
-								$cur = 1;
-								while($pos = key($series)) {
-									if(intval($pos)==intval($contact->id)) {
-										$series_stats['cur'] = $cur;
-										if(false !== prev($series)) {
-											@$series_stats['prev'] = key($series);
-											next($series); // skip to current
-										} else {
-											reset($series);
-										}
-										next($series); // next
-										@$series_stats['next'] = key($series);
-										break;
-									}
-									next($series);
-									$cur++;
-								}
-								
-								$tpl->assign('series_stats', $series_stats);
-							}
-						}
 						
 						$tpl->display('file:' . $this->_TPL_PATH . 'contacts/orgs/display.tpl');
 						return;
@@ -246,6 +162,65 @@ class ChContactsPage extends CerberusPageExtension {
 
 		$tpl->display('file:' . $this->_TPL_PATH . 'contacts/import/index.tpl');
 	}
+	
+	function viewOrgsExploreAction() {
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
+		
+		$active_worker = CerberusApplication::getActiveWorker();
+		$url_writer = DevblocksPlatform::getUrlService();
+		
+		// Generate hash
+		$hash = md5($view_id.$active_worker->id.time()); 
+		
+		// Loop through view and get IDs
+		$view = C4_AbstractViewLoader::getView($view_id);
+
+		$view->renderPage = 0;
+		$view->renderLimit = 25;
+		$pos = 0;
+		
+		do {
+			$models = array();
+			list($results, $total) = $view->getData();
+
+			// Summary row
+			if(0==$view->renderPage) {
+				$model = new Model_ExplorerSet();
+				$model->hash = $hash;
+				$model->pos = $pos++;
+				$model->params = array(
+					'title' => $view->name,
+					'created' => time(),
+					'worker_id' => $active_worker->id,
+					'total' => $total,
+					'return_url' => $url_writer->write('c=contacts&tab=orgs', true),
+//					'toolbar_extension_id' => '',
+				);
+				$models[] = $model; 
+				
+				$view->renderTotal = false; // speed up subsequent pages
+			}
+			
+			if(is_array($results))
+			foreach($results as $ticket_id => $row) {
+				$model = new Model_ExplorerSet();
+				$model->hash = $hash;
+				$model->pos = $pos++;
+				$model->params = array(
+					'id' => $row[SearchFields_ContactOrg::ID],
+					'url' => $url_writer->write(sprintf("c=contacts&tab=orgs&mode=display&id=%d", $row[SearchFields_ContactOrg::ID]), true),
+				);
+				$models[] = $model; 
+			}
+			
+			DAO_ExplorerSet::createFromModels($models);
+			
+			$view->renderPage++;
+			
+		} while(!empty($results));
+		
+		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('explore',$hash,'1')));
+	}	
 	
 	// Post
 	function parseUploadAction() {
