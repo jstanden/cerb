@@ -706,7 +706,7 @@ class ChDisplayPage extends CerberusPageExtension {
 			// Template
 			$tpl = DevblocksPlatform::getTemplateService();
 			$tpl->assign('timestamp', time());
-			$html = $tpl->fetch('file:' . $this->_TPL_PATH . 'tickets/drafts/saved.tpl');
+			$html = $tpl->fetch('file:' . $this->_TPL_PATH . 'mail/queue/saved.tpl');
 			
 			// Response
 			echo json_encode(array('draft_id'=>$draft_id, 'html'=>$html));
