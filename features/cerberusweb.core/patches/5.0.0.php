@@ -337,4 +337,22 @@ if(!isset($columns['priority'])) {
 	$db->Execute("ALTER TABLE mail_queue ADD INDEX priority (priority)");
 }
 
+// ===========================================================================
+// Add the 'explorer_set' table
+
+if(!isset($tables['explorer_set'])) {
+	$sql = "
+		CREATE TABLE IF NOT EXISTS explorer_set (
+			hash VARCHAR(32) NOT NULL DEFAULT '',
+			pos INT UNSIGNED NOT NULL DEFAULT 0,
+			params_json LONGTEXT,
+			INDEX hash (hash(4)),
+			INDEX pos (pos)
+		) ENGINE=MyISAM;
+	";
+	$db->Execute($sql);
+
+	$tables['explorer_set'] = 'explorer_set';
+}
+
 return TRUE;

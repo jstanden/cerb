@@ -175,6 +175,14 @@ abstract class Extension_ReplyToolbarItem extends DevblocksExtension {
 	function render(Model_Message $message) { }
 };
 
+abstract class Extension_ExplorerToolbar extends DevblocksExtension {
+	function __construct($manifest) {
+		$this->DevblocksExtension($manifest);
+	}
+	
+	function render(Model_ExplorerSet $item) { }
+};
+
 abstract class Extension_OrgTab extends DevblocksExtension {
 	function __construct($manifest) {
 		$this->DevblocksExtension($manifest);

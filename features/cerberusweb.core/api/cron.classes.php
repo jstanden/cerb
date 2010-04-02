@@ -227,8 +227,12 @@ class MaintCron extends CerberusCronPageExtension {
 				}
 			}
 		}
-		
 		$logger->info('[Maint] Cleaned up import directories.');
+		
+		// Clean up explorer sets
+		DAO_ExplorerSet::maint();
+		$logger->info('[Maint] Cleaned up explorer items.');
+		
 	}
 
 	function configure($instance) {
