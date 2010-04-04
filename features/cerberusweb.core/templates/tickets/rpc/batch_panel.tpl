@@ -120,6 +120,12 @@
 <blockquote id="bulkTicketBroadcast" style="display:none;margin:10px;">
 	<b>Reply:</b><br>
 	<textarea name="broadcast_message" style="width:100%;height:200px;border:1px solid rgb(180,180,180);padding:2px;"></textarea>
+	<select onchange="insertAtCursor(this.form.broadcast_message,this.options[this.selectedIndex].value);this.selectedIndex=0;this.form.broadcast_message.focus();">
+		<option value="">-- insert --</option>
+		{foreach from=$token_labels key=k item=v}
+		<option value="{literal}{{{/literal}{$k}{literal}}}{/literal}">{$v|escape}</option>
+		{/foreach}
+	</select>
 	<br>
 	<label><input type="radio" name="broadcast_is_queued" value="0" checked="checked"> Save as draft</label>
 	<label><input type="radio" name="broadcast_is_queued" value="1"> Send now</label>

@@ -637,7 +637,7 @@ class Model_GroupInboxFilter {
 						|| !isset($params['message']) || empty($params['message'])
 						)
 						break;
-					
+						
 					// [TODO] Any chance we could pass this to run?
 					list($tickets, $null) = DAO_Ticket::search(
 						array(),
@@ -652,8 +652,13 @@ class Model_GroupInboxFilter {
 					);
 					$is_queued = (isset($params['is_queued']) && $params['is_queued']) ? true : false; 
 					
+					$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+					
 					if(is_array($tickets))
-					foreach($tickets as $ticket_id => $row) { 
+					foreach($tickets as $ticket_id => $row) {
+						CerberusTemplates::getTicketSearchTokens($row, $tpl_labels, $tpl_tokens);
+						$body = $tpl_builder->build($params['message'], $tpl_tokens);
+						
 						$fields = array(
 							DAO_MailQueue::TYPE => 'ticket.reply',
 							DAO_MailQueue::TICKET_ID => $ticket_id,
@@ -661,7 +666,7 @@ class Model_GroupInboxFilter {
 							DAO_MailQueue::UPDATED => time(),
 							DAO_MailQueue::HINT_TO => $row[SearchFields_Ticket::TICKET_FIRST_WROTE],
 							DAO_MailQueue::SUBJECT => $row[SearchFields_Ticket::TICKET_SUBJECT],
-							DAO_MailQueue::BODY => $params['message'],
+							DAO_MailQueue::BODY => $body,
 							DAO_MailQueue::PARAMS_JSON => json_encode(array(
 								'in_reply_message_id' => $row[SearchFields_Ticket::TICKET_FIRST_MESSAGE_ID],
 							)),

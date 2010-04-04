@@ -2074,6 +2074,10 @@ class ChTicketsPage extends CerberusPageExtension {
 		$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Ticket::ID);
 		$tpl->assign('custom_fields', $custom_fields);
 		
+		// Broadcast
+		CerberusTemplates::getTicketSearchTokens(null, $token_labels, $token_values);
+		$tpl->assign('token_labels', $token_labels);
+		
 		$tpl->display('file:' . $this->_TPL_PATH . 'tickets/rpc/batch_panel.tpl');
 	}
 	

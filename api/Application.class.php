@@ -580,7 +580,7 @@ class CerberusTemplates {
 			'worker_first_name' => $token_prefix.$translate->_('worker.first_name'),
 			'worker_last_name' => $token_prefix.$translate->_('worker.last_name'),
 			'worker_title' => $token_prefix.$translate->_('worker.title'),
-			'global_timestamp' => '(Global) '.$translate->_('Timestamp'),
+			'global_timestamp|date' => '(Global) '.$translate->_('Current Date+Time'),
 		);
 		
 		if(is_array($fields))
@@ -637,6 +637,133 @@ class CerberusTemplates {
 			if(null != ($ext = $mft->createInstance()) && $ext instanceof ITemplateToken_Signature) {
 				/* @var $ext ITemplateToken_Signature */
 				$value = $ext->getSignatureTokenValue($worker);
+				
+				if(!empty($value)) {
+					$token_labels[$token] = $label;
+					$token_values[$token] = $value;
+				}
+			}
+		}
+		
+		asort($token_labels);
+		
+		return true;
+	}
+	
+	/**
+	 * 
+	 * @param mixed $ticket
+	 * @param array $token_labels
+	 * @param array $token_values
+	 */
+	public static function getTicketSearchTokens($ticket, &$token_labels, &$token_values) {
+		$translate = DevblocksPlatform::getTranslationService();
+		$workers = DAO_Worker::getAll();
+//		$fields = DAO_CustomField::getBySource(ChCustomFieldSource_Worker::ID);
+		
+		// Polymorph
+//		if(is_numeric($ticket)) {
+//			$worker = DAO_Worker::getAgent($worker);
+//		} elseif($worker instanceof Model_Worker) {
+//			// It's what we want already.
+//		} else {
+//			$worker = null;
+//		}
+			
+		// Token labels
+		$global_prefix = '(Global) ';
+		$sender_prefix = '(Sender) ';
+		$ticket_prefix = '(Ticket) ';
+		$token_labels = array(
+			'sender_first_name' => $sender_prefix.$translate->_('address.first_name'),
+			'sender_last_name' => $sender_prefix.$translate->_('address.last_name'),
+			'sender_num_nonspam' => $sender_prefix.$translate->_('address.num_nonspam'),
+			'sender_num_spam' => $sender_prefix.$translate->_('address.num_spam'),
+		
+			'ticket_id' => $ticket_prefix.$translate->_('ticket.id'),
+			'ticket_mask' => $ticket_prefix.$translate->_('ticket.mask'),
+			'ticket_subject' => $ticket_prefix.$translate->_('ticket.subject'),
+			'ticket_last_worker' => $ticket_prefix.$translate->_('ticket.last_worker'),
+			'ticket_next_worker' => $ticket_prefix.$translate->_('ticket.next_worker'),
+			'ticket_first_wrote' => $ticket_prefix.$translate->_('ticket.first_wrote'),
+			'ticket_last_wrote' => $ticket_prefix.$translate->_('ticket.last_wrote'),
+			'ticket_created|date' => $ticket_prefix.$translate->_('ticket.created'),
+			'ticket_updated|date' => $ticket_prefix.$translate->_('ticket.updated'),
+		
+			'global_timestamp|date' => $global_prefix.$translate->_('Current Date+Time'),
+		);
+		
+//		if(is_array($fields))
+//		foreach($fields as $cf_id => $field) {
+//			$token_labels['worker_custom_'.$cf_id] = $token_prefix.$field->name;
+//		}
+
+		// Token values
+		$token_values = array();
+		
+		// Worker token values
+		if(null != $ticket) {
+			@$last_worker_id = $ticket[SearchFields_Ticket::TICKET_LAST_WORKER_ID];
+			@$next_worker_id = $ticket[SearchFields_Ticket::TICKET_NEXT_WORKER_ID];
+			@$first_wrote_address = DAO_Address::get($ticket[SearchFields_Ticket::TICKET_FIRST_WROTE_ID]);
+
+			$token_values['sender_first_name'] = (!empty($first_wrote_address)) ? $first_wrote_address->first_name : '';
+			$token_values['sender_last_name'] = (!empty($first_wrote_address)) ? $first_wrote_address->last_name : '';
+			$token_values['sender_num_nonspam'] = (!empty($first_wrote_address)) ? $first_wrote_address->num_nonspam : '';
+			$token_values['sender_num_spam'] = (!empty($first_wrote_address)) ? $first_wrote_address->num_spam : '';
+			
+			$token_values['ticket_id'] = $ticket[SearchFields_Ticket::TICKET_ID];
+			$token_values['ticket_mask'] = $ticket[SearchFields_Ticket::TICKET_MASK];
+			$token_values['ticket_subject'] = $ticket[SearchFields_Ticket::TICKET_SUBJECT];
+			$token_values['ticket_last_worker'] = (!empty($last_worker_id) && isset($workers[$last_worker_id])) ? $workers[$last_worker_id]->getName() : '';
+			$token_values['ticket_next_worker'] = (!empty($next_worker_id) && isset($workers[$next_worker_id])) ? $workers[$next_worker_id]->getName() : '';
+			$token_values['ticket_first_wrote'] = $ticket[SearchFields_Ticket::TICKET_FIRST_WROTE];
+			$token_values['ticket_last_wrote'] = $ticket[SearchFields_Ticket::TICKET_LAST_WROTE];
+			$token_values['ticket_created'] = $ticket[SearchFields_Ticket::TICKET_CREATED_DATE];
+			$token_values['ticket_updated'] = $ticket[SearchFields_Ticket::TICKET_UPDATED_DATE];
+			
+			$token_values['global_timestamp'] = time();
+			
+//			$token_values['worker_custom'] = array();
+			
+//			@$field_values = array_shift(DAO_CustomFieldValue::getValuesBySourceIds(ChCustomFieldSource_Worker::ID, $worker->id));
+//			if(is_array($field_values) && !empty($field_values)) {
+//				foreach($field_values as $cf_id => $cf_val) {
+//					if(!isset($fields[$cf_id]))
+//						continue;
+//					
+//					// The literal value
+//					if(null != $worker)
+//						$token_values['worker_custom'][$cf_id] = $cf_val;
+//					
+//					// Stringify
+//					if(is_array($cf_val))
+//						$cf_val = implode(', ', $cf_val);
+//						
+//					if(is_string($cf_val)) {
+//						if(null != $worker)
+//							$token_values['worker_custom_'.$cf_id] = $cf_val;
+//					}
+//				}
+//			}
+		}
+
+		// Plugin-provided tokens
+		$token_extension_mfts = DevblocksPlatform::getExtensions('cerberusweb.template.token', false);
+		foreach($token_extension_mfts as $mft) { /* @var $mft DevblocksExtensionManifest */
+			@$token = $mft->params['token'];
+			@$label = $mft->params['label'];
+			@$bind = $mft->params['bind'][0];
+			
+			if(empty($token) || empty($label) || !is_array($bind))
+				continue;
+
+			if(!isset($bind['ticket']))
+				continue;
+				
+			if(null != ($ext = $mft->createInstance()) && $ext instanceof ITemplateToken_Ticket) {
+				/* @var $ext ITemplateToken_Signature */
+				$value = $ext->getTicketTokenValue($worker);
 				
 				if(!empty($value)) {
 					$token_labels[$token] = $label;
