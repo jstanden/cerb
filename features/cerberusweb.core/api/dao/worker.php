@@ -543,7 +543,7 @@ class Model_Worker {
 			
 		// ACL is a paid feature (please respect the licensing and support the project!)
 		$license = CerberusLicense::getInstance();
-		if(!$acl_enabled || !isset($license['serial']) || isset($license['a']))
+		if(!$acl_enabled || !isset($license['key']) || empty($license['workers']))
 			return ("core.config"==substr($priv_id,0,11)) ? false : true;
 			
 		// Check the aggregated worker privs from roles

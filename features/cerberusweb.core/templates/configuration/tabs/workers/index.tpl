@@ -1,10 +1,15 @@
 <form>
 	{* [WGM]: Please respect our licensing and support the project! *}
-	{if ((empty($license) || empty($license.serial)) && count($workers) >= 3) || (!empty($license.serial)&&!empty($license.users)&&count($workers)>=$license.users)}
-	<div class="error">
-		You have reached the number of workers permitted by your license.
-		<a href="{devblocks_url}c=config&a=settings{/devblocks_url}">[Enter License]</a>
-		<a href="http://www.cerberusweb.com/buy" target="_blank">[Purchase License]</a>
+	{if ((empty($license) || empty($license.key)) && count($workers) >= 3) || (!empty($license.key)&&empty($license.workers)&&count($workers)>=3)}
+	<div class="ui-widget">
+		<div class="ui-state-error ui-corner-all" style="padding: 0.7em; margin: 0.2em; "> 
+			<p>
+				<span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>
+				<strong>You have reached the limit of {if !empty($license.workers)}({$license.workers}){else}(3){/if} workers permitted by your license.</strong><br>
+				{if (!empty($license) && !empty($license.workers) && count($workers) > $license.workers) || (empty($license.workers)&&count($workers)>3)}<strong>You are licensed for {if !empty($license.workers)}({$license.workers}){else}(3){/if} workers but have ({count($workers)}). Please be honest.</strong><br>{/if}
+				<a href="{devblocks_url}c=config&a=settings{/devblocks_url}">(upgrade license)</a>
+			</p>
+		</div>
 	</div>
 	{else}
 	<button type="button" onclick="genericAjaxPanel('c=config&a=showWorkerPeek&id=0&view_id={$view->id|escape:'url'}',null,false,'500');"><span class="cerb-sprite sprite-add"></span> Add Worker</button>

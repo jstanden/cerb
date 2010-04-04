@@ -9,10 +9,10 @@
 		<span style="color:rgb(180,180,180);font-size:90%;">
 		page generated in: {math equation="x*1000" x=$render_time format="%d"} ms; {if !empty($render_peak_memory)} peak memory used: {$render_peak_memory|devblocks_prettybytes:2}{/if} 
 		 -  
-      	{if empty($license) || empty($license.serial)}
+      	{if empty($license) || empty($license.key)}
       	No License (Free Mode)
-      	{elseif !empty($license.name)}
-      	Licensed to {$license.name}
+      	{elseif !empty($license.company)}
+      	Licensed to {$license.company}
       	{/if}
       	<br>
       	{/if}

@@ -176,7 +176,6 @@ class MobileController extends DevblocksControllerExtension {
 		$tpl->assign('session', $_SESSION);
 		$tpl->assign('translate', $translate);
 		$tpl->assign('visit', $visit);
-		$tpl->assign('license',CerberusLicense::getInstance());
 		
 	    $active_worker = CerberusApplication::getActiveWorker();
 	    $tpl->assign('active_worker', $active_worker);

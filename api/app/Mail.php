@@ -571,11 +571,8 @@ class CerberusMail {
 			 * http://www.cerberusweb.com/
 			 */
 			$license = CerberusLicense::getInstance();
-			if(empty($license) || @empty($license['serial'])) {
-				$content .= base64_decode("DQoNCi0tLQ0KQ29tYmF0IHNwYW0gYW5kIGltcHJvdmUgcmVzc".
-					"G9uc2UgdGltZXMgd2l0aCBDZXJiZXJ1cyBIZWxwZGVzayA0LjAhDQpodHRwOi8vd3d3LmNlc".
-					"mJlcnVzd2ViLmNvbS8NCg"
-				);
+			if(empty($license) || @empty($license['key'])) {
+				$content .= base64_decode("CgotLS0KUmVtZW1iZXIgYW55dGhpbmcgYWJvdXQgYW55Ym9keSwgZGVmdGx5IHJlcGx5IHRvIGFuIGUtbWFpbCBmbG9vZCwgcXVhcmFudGluZSBzcGFtLCBjYXB0dXJlIG9yZ2FuaWMgZmVlZGJhY2ssIHRyYWNrIHRpbWUsIGZsYWcgb3Bwb3J0dW5pdGllcywgc2hhcmUgdGFza3MsIGFuZCBvdGhlcndpc2UgY29sbGFib3JhdGUgZWZmaWNpZW50bHkgd2l0aCBDZXJiZXJ1cyBIZWxwZGVzayA1LjAuCmh0dHA6Ly93d3cuY2VyYmVydXN3ZWIuY29tLwo=");
 			}
 			
 			// Body

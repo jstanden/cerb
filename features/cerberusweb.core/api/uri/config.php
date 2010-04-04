@@ -490,7 +490,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 			if(empty($id) && null == DAO_Worker::lookupAgentEmail($email)) {
 				$workers = DAO_Worker::getAll();
 				$license = CerberusLicense::getInstance();
-				if ((!empty($license) && !empty($license['serial'])) || count($workers) < 3) {
+				if ((!empty($license) && !empty($license['workers'])) || count($workers) < 3) {
 					// Creating new worker.  If password is empty, email it to them
 				    if(empty($password)) {
 				    	$settings = DevblocksPlatform::getPluginSettingsService();
@@ -1261,7 +1261,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		$acl_enabled = $settings->get('cerberusweb.core',CerberusSettings::ACL_ENABLED,CerberusSettingsDefaults::ACL_ENABLED);
 		$tpl->assign('acl_enabled', $acl_enabled);
 		
-		if(empty($license) || (!empty($license)&&isset($license['a'])))
+		if(empty($license) || empty($license['workers']))
 			$tpl->display('file:' . $this->_TPL_PATH . 'configuration/tabs/acl/trial.tpl');
 		else
 			$tpl->display('file:' . $this->_TPL_PATH . 'configuration/tabs/acl/index.tpl');
@@ -1511,7 +1511,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	}
 	
 	// Post
-	function saveLicensesAction() {
+	function saveLicenseAction() {
 		$translate = DevblocksPlatform::getTranslationService();
 		$settings = DevblocksPlatform::getPluginSettingsService();
 		$worker = CerberusApplication::getActiveWorker();
@@ -1521,23 +1521,32 @@ class ChConfigurationPage extends CerberusPageExtension  {
 			return;
 		}
 		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('path', $this->_TPL_PATH);
+		
+		
 		@$key = DevblocksPlatform::importGPC($_POST['key'],'string','');
+		@$company = DevblocksPlatform::importGPC($_POST['company'],'string','');
 		@$email = DevblocksPlatform::importGPC($_POST['email'],'string','');
 		@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'],'integer',0);
 
 		if(!empty($do_delete)) {
 			$settings->set('cerberusweb.core',CerberusSettings::LICENSE, '');
-			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','settings')));
+			$tpl->assign('license', '');
+			$tpl->assign('success', "Your license has been deleted.");
+			$tpl->display('file:'.$this->_TPL_PATH.'configuration/tabs/settings/license.tpl');
 			return;
 		}
 		
-		if(empty($key) || empty($email)) {
-			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','settings','empty')));
+		if(empty($key) || empty($company) || empty($email)) {
+			$tpl->assign('error', "You provided an empty license.");
+			$tpl->display('file:'.$this->_TPL_PATH.'configuration/tabs/settings/license.tpl');
 			return;
 		}
 		
-		if(null==($valid = CerberusLicense::validate($key,$email)) || 5!=count($valid)) {
-			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','settings','invalid')));
+		if(null==($valid = CerberusLicense::validate($key,$company,$email)) || empty($valid)) {
+			$tpl->assign('error', "Your license could not be verified.  Please double-check the company name and e-mail address and make sure they exactly match your order.");
+			$tpl->display('file:'.$this->_TPL_PATH.'configuration/tabs/settings/license.tpl');
 			return;
 		}
 		
@@ -1547,11 +1556,14 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		 * our licensing.  Buy a legitimate copy to help support the project!
 		 * http://www.cerberusweb.com/
 		 */
-		$license = $valid;
+
+		$settings->set('cerberusweb.core', CerberusSettings::LICENSE, json_encode($valid));
 		
-		$settings->set('cerberusweb.core',CerberusSettings::LICENSE, serialize($license));
+		$tpl->assign('license', $valid);
 		
-		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','settings')));
+		$tpl->assign('success', "Your license has been updated!");
+		$tpl->display('file:'.$this->_TPL_PATH.'configuration/tabs/settings/license.tpl');
+		return;
 	}
 	
 	// Ajax

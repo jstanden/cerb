@@ -1,7 +1,14 @@
-<div class="block">
-<h3>This professional feature is disabled in the free version.  The following worker permissions are configurable with a <a href="http://www.cerberusweb.com/buy" target="_blank">purchased license</a>:</h3>
-<br>
+<div class="ui-widget">
+	<div class="ui-state-error ui-corner-all" style="padding: 0.7em; margin: 0.2em; "> 
+		<p>
+			<span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>
+			<strong>This professional feature is disabled in the free version.</strong><br>
+			<a href="{devblocks_url}c=config&a=settings{/devblocks_url}">(upgrade license)</a>
+		</p>
+	</div>
+</div>
 
+<div class="block">
 {foreach from=$plugins item=plugin key=plugin_id}
 	{if $plugin->enabled}
 		{assign var=show_plugin value=0}

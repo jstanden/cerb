@@ -355,4 +355,9 @@ if(!isset($tables['explorer_set'])) {
 	$tables['explorer_set'] = 'explorer_set';
 }
 
+// ===========================================================================
+// Nuke Cerb4 licenses
+
+$db->Execute("DELETE FROM devblocks_setting WHERE plugin_id='cerberusweb.core' AND setting='license'");
+
 return TRUE;

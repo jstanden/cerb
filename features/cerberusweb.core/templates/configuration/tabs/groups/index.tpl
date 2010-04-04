@@ -1,8 +1,19 @@
+{if (empty($license) || empty($license.workers)) && count($teams) >= 3}
+<div class="ui-widget">
+	<div class="ui-state-error ui-corner-all" style="padding: 0.7em; margin: 0.2em; "> 
+		<p>
+			<span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>
+			<strong>You have reached the free version limit of (3) groups.</strong><br>
+			{if empty($license.workers) && count($teams) > 3}<strong>Your database contains ({count($teams)}) groups, but free mode only permits (3).  Please be honest.</strong><br>{/if}
+			<a href="{devblocks_url}c=config&a=settings{/devblocks_url}">(upgrade license)</a>
+		</p>
+	</div>
+</div>
+{/if}
+
 <table cellpadding="0" cellspacing="5" border="0" width="100%">
 	<tr>
-		
 		<td width="0%" nowrap="nowrap" valign="top">
-		
 			<div class="block">
 			<table cellpadding="2" cellspacing="0" border="0">
 				<tr>
@@ -11,10 +22,7 @@
 				<tr>
 					<td nowrap="nowrap">
 						{* [WGM]: Please respect our licensing and support the project! *}
-						{if (empty($license) || empty($license.serial)) && count($teams) >= 3}
-						You have reached your Cerberus Helpdesk free version limit of 3 groups.<br>
-						[ <a href="{devblocks_url}c=config&a=settings{/devblocks_url}" style="color:rgb(0,160,0);">Enter License</a> ]
-						[ <a href="http://www.cerberusweb.com/buy" target="_blank" style="color:rgb(0,160,0);">Buy License</a> ]
+						{if (empty($license) || empty($license.workers)) && count($teams) >= 3}
 						{else}
 						[ <a href="javascript:;" onclick="genericAjaxGet('configTeam','c=config&a=getTeam&id=0');">add new group</a> ]
 						{/if}

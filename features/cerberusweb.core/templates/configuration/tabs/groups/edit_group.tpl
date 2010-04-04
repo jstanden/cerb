@@ -14,7 +14,7 @@
 	</tr>
 	<tr>
 		<td width="0%" nowrap="nowrap" valign="top"><b>Name:</b></td>
-		<td width="100%"><input type="text" name="name" value="{$team->name|escape}" size="45" {if (empty($license) || empty($license.serial)) && count($teams) >= 3 && empty($team->id)}disabled="disabled"{/if}></td>
+		<td width="100%"><input type="text" name="name" value="{$team->name|escape}" size="45"></td>
 	</tr>
 	
 	<tr>
@@ -27,7 +27,7 @@
 					<tr>
 						<td>
 							<input type="hidden" name="worker_ids[]" value="{$worker_id}">
-							<select name="worker_levels[]" {if (empty($license) || empty($license.serial)) && count($teams) >= 3 && empty($team->id)}disabled="disabled"{/if}>
+							<select name="worker_levels[]">
 								<option value="">&nbsp;</option>
 								<option value="1" {if $member && !$member->is_manager}selected{/if}>Member</option>
 								<option value="2" {if $member && $member->is_manager}selected{/if}>Manager</option>
@@ -42,19 +42,6 @@
 		</td>
 	</tr>
 	
-	<!-- 	
-	<tr>
-		<td width="0%" nowrap="nowrap" valign="top">
-			<b>Permissions:</b><br>
-			<a href="javascript:;" onclick="checkAll('configTeamAcl',true);">check all</a><br>
-			<a href="javascript:;" onclick="checkAll('configTeamAcl',false);">check none</a>
-		</td>
-		<td width="100%" id="configTeamAcl" valign="top">
-			<label><input type="checkbox" name="acl[]" value="">Can ...</label><br>
-		</td>
-	</tr>
-	 -->
-
 	{if !empty($team->id)}
 	<tr>
 		<td width="100%" valign="top" colspan="2">
@@ -81,7 +68,7 @@
 				</div>
 				<br>
 			</div>
-			{if (empty($license) || empty($license.serial)) && count($teams) >= 3 && empty($team->id)}{else}<button type="submit"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')|capitalize}</button>{/if}
+			{if ((empty($license.workers) && count($teams) >= 3) || (!empty($license.workers)&&count($teams)>$license.workers)) || empty($team->id)}{else}<button type="submit"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')|capitalize}</button>{/if}
 			{if !empty($team->id)}<button type="button" onclick="toggleDiv('deleteGroup','block');"><span class="cerb-sprite sprite-delete"></span> {$translate->_('common.remove')|capitalize}</button>{/if}
 		</td>
 	</tr>

@@ -170,19 +170,6 @@ class CrmPage extends CerberusPageExtension {
 		$tpl_path = dirname(dirname(__FILE__)) . '/templates/';
 		$tpl->assign('path', $tpl_path);
 		
-		/*
-		 * [IMPORTANT -- Yes, this is simply a line in the sand.]
-		 * You're welcome to modify the code to meet your needs, but please respect 
-		 * our licensing.  Buy a legitimate copy to help support the project!
-		 * http://www.cerberusweb.com/
-		 */
-		$license = CerberusLicense::getInstance();
-		if(empty($id) && (empty($license['serial']) || (!empty($license['serial']) && isset($license['a'])))
-			&& 10 <= DAO_CrmOpportunity::getItemCount()) {
-			$tpl->display('file:' . $tpl_path . 'crm/opps/rpc/trial.tpl');
-			return;
-		}
-		
 		$tpl->assign('view_id', $view_id);
 		$tpl->assign('email', $email);
 		

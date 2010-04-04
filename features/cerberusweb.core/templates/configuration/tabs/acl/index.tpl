@@ -6,7 +6,7 @@
 
 <table cellpadding="0" cellspacing="5" border="0" width="100%" id="configACL" style="display:{if !$acl_enabled}none{else}block{/if};">
 	<tr>
-		{if isset($license.serial) && !isset($license.a)}
+		{if !empty($license.workers)}
 		<td width="0%" nowrap="nowrap" valign="top">
 			<div class="block">
 			<table cellpadding="2" cellspacing="0" border="0">
