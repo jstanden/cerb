@@ -127,7 +127,9 @@
 		{/foreach}
 	</select>
 	<br>
-	<label><input type="radio" name="broadcast_is_queued" value="0" checked="checked"> Save as draft</label>
+	<button type="button" onclick="genericAjaxPost('formBatchUpdate','bulkTicketBroadcastTest','c=tickets&a=doBatchUpdateBroadcastTest');"><span class="cerb-sprite sprite-gear"></span> Test</button>
+	<div id="bulkTicketBroadcastTest"></div>
+	<label><input type="radio" name="broadcast_is_queued" value="0" checked="checked"> Save as drafts</label>
 	<label><input type="radio" name="broadcast_is_queued" value="1"> Send now</label>
 </blockquote>
 {/if}

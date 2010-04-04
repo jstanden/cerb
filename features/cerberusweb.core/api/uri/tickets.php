@@ -2180,6 +2180,56 @@ class ChTicketsPage extends CerberusPageExtension {
 		return;
 	}
 
+	function doBatchUpdateBroadcastTestAction() {
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
+		
+		$active_worker = CerberusApplication::getActiveWorker();
+		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+		$view = C4_AbstractViewLoader::getView($view_id);
+
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('path', $this->_TPL_PATH);
+		
+		if($active_worker->hasPriv('core.ticket.view.actions.broadcast_reply')) {
+			@$broadcast_message = DevblocksPlatform::importGPC($_REQUEST['broadcast_message'],'string',null);
+
+			// Get total
+			$view->renderPage = 0;
+			$view->renderLimit = 1;
+			$view->renderTotal = true;
+			list($null, $total) = $view->getData();
+			
+			// Get the first row from the view
+			$view->renderPage = mt_rand(0, $total-1);
+			$view->renderLimit = 1;
+			$view->renderTotal = false;
+			list($result, $null) = $view->getData();
+			
+			if(empty($result)) {
+				$success = false;
+				$output = "There aren't any rows in this view!";
+				
+			} else {
+				// Try to build the template
+				CerberusTemplates::getTicketSearchTokens(array_shift($result), $token_labels, $token_values);
+				if(false === ($out = $tpl_builder->build($broadcast_message, $token_values))) {
+					// If we failed, show the compile errors
+					$errors = $tpl_builder->getErrors();
+					$success= false;
+					$output = @array_shift($errors);
+				} else {
+					// If successful, return the parsed template
+					$success = true;
+					$output = $out;
+				}
+
+				$tpl->assign('success', $success);
+				$tpl->assign('output', htmlentities($output, null, LANG_CHARSET_CODE));
+				$tpl->display('file:'.$this->_TPL_PATH.'internal/renderers/test_results.tpl');
+			}
+		}
+	}
+	
 	// ajax
 	function showViewRssAction() {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
