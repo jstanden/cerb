@@ -1,12 +1,12 @@
 <form>
 	{* [WGM]: Please respect our licensing and support the project! *}
-	{if ((empty($license) || empty($license.key)) && count($workers) >= 3) || (!empty($license.key)&&empty($license.workers)&&count($workers)>=3)}
+	{if (empty($license.workers)&&count($workers)>=3)||(!empty($license.workers)&&$license.workers<50&&count($workers)>=$license.workers)}
 	<div class="ui-widget">
 		<div class="ui-state-error ui-corner-all" style="padding: 0.7em; margin: 0.2em; "> 
 			<p>
 				<span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>
 				<strong>You have reached the limit of {if !empty($license.workers)}({$license.workers}){else}(3){/if} workers permitted by your license.</strong><br>
-				{if (!empty($license) && !empty($license.workers) && count($workers) > $license.workers) || (empty($license.workers)&&count($workers)>3)}<strong>You are licensed for {if !empty($license.workers)}({$license.workers}){else}(3){/if} workers but have ({count($workers)}). Please be honest.</strong><br>{/if}
+				{if (!empty($license.workers)&&count($workers)>$license.workers) || (empty($license.workers)&&count($workers)>3)}<strong>You are licensed for {if !empty($license.workers)}({$license.workers}){else}(3){/if} workers but have ({count($workers)}). Please be honest.</strong><br>{/if}
 				<a href="{devblocks_url}c=config&a=settings{/devblocks_url}">(upgrade license)</a>
 			</p>
 		</div>

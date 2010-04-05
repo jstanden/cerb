@@ -490,7 +490,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 			if(empty($id) && null == DAO_Worker::lookupAgentEmail($email)) {
 				$workers = DAO_Worker::getAll();
 				$license = CerberusLicense::getInstance();
-				if ((!empty($license) && !empty($license['workers'])) || count($workers) < 3) {
+				if ((!@empty($license['workers'])&&(@$license['workers']>=50||count($workers)<@$license['workers']))||(@empty($license['workers'])&&count($workers)<3)) {
 					// Creating new worker.  If password is empty, email it to them
 				    if(empty($password)) {
 				    	$settings = DevblocksPlatform::getPluginSettingsService();
@@ -660,8 +660,6 @@ class ChConfigurationPage extends CerberusPageExtension  {
 
 		$teams = DAO_Group::getAll();
 		$tpl->assign('teams', $teams);
-		
-		$tpl->assign('license',CerberusLicense::getInstance());
 		
 		$tpl->display('file:' . $this->_TPL_PATH . 'configuration/tabs/groups/index.tpl');
 	}
