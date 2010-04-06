@@ -5,11 +5,11 @@ RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule . index.php [L]
 
 RewriteRule ^(.*/)?\.svn(/|$) - [F,L]
+RewriteRule ^(.*/)?\.git(/|$) - [F,L]
 RewriteRule ^(.*/)?api(/|$) - [F,L]
+RewriteRule ^(.*/)?features(/|$) - [F,L]
 RewriteRule ^(.*/)?libs(/|$) - [F,L]
-RewriteRule ^(.*/)?plugins(/|$) - [F,L]
 RewriteRule ^(.*/)?storage(/|$) - [F,L]
-RewriteRule ^(.*/)?templates(/|$) - [F,L]
 </IfModule>
 
 Options -Indexes
