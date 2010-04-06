@@ -33,6 +33,12 @@ class DAO_ExplorerSet {
 		));
 	}
 	
+	/**
+	 * 
+	 * @param string $hash
+	 * @param integer $pos
+	 * @return Model_ExplorerSet
+	 */
 	static function get($hash, $pos) {
 		if(!is_array($pos))
 			$pos = array($pos);
@@ -48,6 +54,16 @@ class DAO_ExplorerSet {
 		));
 		
 		return self::_createObjectsFromResultSet($rs);
+	}
+	
+	static function set($hash, $params, $pos) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$db->Execute(sprintf("UPDATE explorer_set SET params_json = %s WHERE hash = %s AND pos = %d",
+			$db->qstr(json_encode($params)),
+			$db->qstr($hash),
+			$pos
+		));
 	}
 	
 	private static function _createObjectsFromResultSet($rs) {
