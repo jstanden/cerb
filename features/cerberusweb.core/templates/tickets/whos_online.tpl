@@ -5,6 +5,7 @@
 	{if $who->last_activity->translation_code}
 		{$who->last_activity->toString($who)} 
 		({$who->last_activity_date|devblocks_prettytime}{if !empty($who->last_activity_ip)}, {$who->last_activity_ip}{/if})
+		<br>
 	{/if}
 {/foreach}
 {/if}

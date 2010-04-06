@@ -14,8 +14,8 @@
 			{assign var=headers value=$message->getHeaders()}
 			<b>To:</b> {$headers.to|escape}<br>
 			<b>From:</b> {$headers.from|escape}<br>
-			<div style="width:98%;height:250px;overflow:auto;border:1px solid rgb(180,180,180);margin:2px;padding:3px;background-color:rgb(255,255,255);" ondblclick="if(null != genericPanel) genericPanel.dialog('close');">
-			<pre>{$content|trim|escape|devblocks_hyperlinks}</pre>
+			<div id="ticketPeekContent" style="width:400;height:250px;overflow:auto;border:1px solid rgb(180,180,180);margin:2px;padding:3px;background-color:rgb(255,255,255);" ondblclick="if(null != genericPanel) genericPanel.dialog('close');">
+				<pre>{$content|trim|escape|devblocks_hyperlinks}</pre>
 			</div>
 			
 			<b>URL:</b> <a href="{devblocks_url}c=display&id={$ticket->mask}{/devblocks_url}">{devblocks_url full=true}c=display&id={$ticket->mask}{/devblocks_url}</a>
@@ -174,6 +174,7 @@
 	genericPanel.one('dialogopen',function(event,ui) {
 		genericPanel.dialog('option','title',"{$ticket->subject|escape:'quotes'}");
 		$("#peekTabs").tabs();
+		$("#ticketPeekContent").css('width','100%');
 		$("#ticketPeekTab2").show();
 		genericPanel.focus();
 	} );
