@@ -116,6 +116,14 @@ class ChHomePage extends CerberusPageExtension {
 		// Loop through view and get IDs
 		$view = C4_AbstractViewLoader::getView($view_id);
 
+		// Page start
+		@$explore_from = DevblocksPlatform::importGPC($_REQUEST['explore_from'],'integer',0);
+		if(empty($explore_from)) {
+			$orig_pos = 1+($view->renderPage * $view->renderLimit);
+		} else {
+			$orig_pos = 1;
+		}
+		
 		$view->renderPage = 0;
 		$view->renderLimit = 25;
 		$pos = 0;
@@ -143,7 +151,10 @@ class ChHomePage extends CerberusPageExtension {
 			}
 			
 			if(is_array($results))
-			foreach($results as $ticket_id => $row) {
+			foreach($results as $event_id => $row) {
+				if($event_id==$explore_from)
+					$orig_pos = $pos;
+				
 				$model = new Model_ExplorerSet();
 				$model->hash = $hash;
 				$model->pos = $pos++;
@@ -160,7 +171,7 @@ class ChHomePage extends CerberusPageExtension {
 			
 		} while(!empty($results));
 		
-		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('explore',$hash,'1')));
+		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('explore',$hash,$orig_pos)));
 	}	
 	
 	function showWorkspacesIntroTabAction() {
