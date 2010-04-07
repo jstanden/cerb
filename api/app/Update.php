@@ -77,7 +77,7 @@ class ChUpdateController extends DevblocksControllerExtension {
 					touch($file);
 
 				    //echo "Running plugin patches...<br>";
-				    if(DevblocksPlatform::runPluginPatches('core.patches')) {
+				    if(DevblocksPlatform::runPluginPatches()) {
 						@unlink($file);
 
 						// [JAS]: Clear all caches
