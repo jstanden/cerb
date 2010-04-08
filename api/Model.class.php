@@ -1037,9 +1037,6 @@ class Model_MailToGroupRule {
 	public $sticky_order = 0;
 	
 	static function getMatches(Model_Address $fromAddress, CerberusParserMessage $message) {
-//		print_r($fromAddress);
-//		print_r($message);
-		
 		$matches = array();
 		$rules = DAO_MailToGroupRule::getWhere();
 		$message_headers = $message->headers;

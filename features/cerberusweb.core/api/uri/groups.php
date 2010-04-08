@@ -537,20 +537,10 @@ class ChGroupsPage extends CerberusPageExtension  {
 	    @$spam_action = DevblocksPlatform::importGPC($_REQUEST['spam_action'],'integer',0);
 	    @$spam_moveto = DevblocksPlatform::importGPC($_REQUEST['spam_action_moveto'],'integer',0);
 
-	    // Validate sender address
-		// [TODO] This could move into a Devblocks validation class later.
-	    //if(!$validator_email->isValid($sender_address)) {
-	    //	$sender_address = '';
-	    //}
-	    
 	    // [TODO] Move this into DAO_GroupSettings
 	    DAO_Group::updateTeam($team_id, array(
 	        DAO_Group::TEAM_SIGNATURE => $signature
 	    ));
-	    
-	    // [TODO] Verify the sender address has been used in a 'To' header in the past
-		// select count(header_value) from message_header where header_name = 'to' AND (header_value = 'sales@webgroupmedia.com' OR header_value = '<sales@webgroupmedia.com>');
-		// DAO_MessageHeader::
 	    
 	    DAO_GroupSettings::set($team_id, DAO_GroupSettings::SETTING_REPLY_FROM, $sender_address);
 	    DAO_GroupSettings::set($team_id, DAO_GroupSettings::SETTING_REPLY_PERSONAL, $sender_personal);

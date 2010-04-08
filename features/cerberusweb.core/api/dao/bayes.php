@@ -349,9 +349,6 @@ class CerberusBayes {
 		if(empty($first_message)) 
 		    return FALSE;
 		
-		// [TODO] This is a performance killer
-		$headers = DAO_MessageHeader::getAll($first_message->id);
-		    
 		// Pass text to analyze() to get back interesting words
 		$content = '';
 		if(!empty($ticket->subject)) {
