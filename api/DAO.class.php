@@ -1610,13 +1610,17 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 	}
 	
 	public static function getValuesBySourceIds($source_ext_id, $source_ids) {
-		if(!is_array($source_ids)) $source_ids = array($source_ids);
+		if(is_null($source_ids))
+			return array();
+		elseif(!is_array($source_ids))
+			$source_ids = array($source_ids);
+
+		if(empty($source_ids))
+			return array();
+			
 		$db = DevblocksPlatform::getDatabaseService();
 		
 		$results = array();
-		
-		if(empty($source_ids))
-			return array();
 		
 		$fields = DAO_CustomField::getAll();
 			
