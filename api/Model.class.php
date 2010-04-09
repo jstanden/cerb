@@ -64,6 +64,8 @@ abstract class C4_AbstractView {
 	public $renderTotal = true;
 	public $renderSortBy = '';
 	public $renderSortAsc = 1;
+	
+	public $renderTemplate = null;
 
 	function getData() {
 	}
@@ -394,8 +396,11 @@ class C4_AbstractViewModel {
 
 	public $renderPage = 0;
 	public $renderLimit = 10;
+	public $renderTotal = true;
 	public $renderSortBy = '';
 	public $renderSortAsc = 1;
+	
+	public $renderTemplate = null;
 };
 
 /**
@@ -516,9 +521,12 @@ class C4_AbstractViewLoader {
 
 		$model->renderPage = $view->renderPage;
 		$model->renderLimit = $view->renderLimit;
+		$model->renderTotal = $view->renderTotal;
 		$model->renderSortBy = $view->renderSortBy;
 		$model->renderSortAsc = $view->renderSortAsc;
 
+		$model->renderTemplate = $view->renderTemplate;
+		
 		return $model;
 	}
 
@@ -538,9 +546,12 @@ class C4_AbstractViewLoader {
 
 		$inst->renderPage = $model->renderPage;
 		$inst->renderLimit = $model->renderLimit;
+		$inst->renderTotal = $model->renderTotal;
 		$inst->renderSortBy = $model->renderSortBy;
 		$inst->renderSortAsc = $model->renderSortAsc;
 
+		$inst->renderTemplate = $model->renderTemplate;
+		
 		return $inst;
 	}
 };
