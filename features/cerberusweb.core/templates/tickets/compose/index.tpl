@@ -65,7 +65,7 @@
 		<td>
 			<button id="btnSaveDraft" type="button" onclick="genericAjaxPost('frmCompose',null,'c=tickets&a=saveDraftCompose',function(json) { var obj = $.parseJSON(json); $('#divDraftStatus').html(obj.html); $('#frmCompose input[name=draft_id]').val(obj.draft_id); } );"><span class="cerb-sprite sprite-check"></span> Save Draft</button>
 			<button type="button" onclick="genericAjaxGet('','c=tickets&a=getComposeSignature&group_id='+selectValue(this.form.team_id),function(text) { insertAtCursor(document.getElementById('content'),text); } );"><span class="cerb-sprite sprite-document_edit"></span> Insert Signature</button>
-			<button type="button" onclick="genericAjaxPanel('c=display&a=showTemplatesPanel&type=1&reply_id=0&txt_name=content',null,false,'550');"><span class="cerb-sprite sprite-text_rich"></span> E-mail Templates</button>
+			<button type="button" onclick="genericAjaxPanel('c=display&a=showSnippets&text=content&contexts=cerberusweb.snippets.worker',null,false,'550');"><span class="cerb-sprite sprite-text_rich"></span> {$translate->_('common.snippets')|capitalize}</button>
 			{* Plugin Toolbar *}
 			{if !empty($sendmail_toolbaritems)}
 				{foreach from=$sendmail_toolbaritems item=renderer}

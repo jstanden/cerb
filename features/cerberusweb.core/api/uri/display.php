@@ -1187,139 +1187,80 @@ class ChDisplayPage extends CerberusPageExtension {
 		$tpl->display('file:' . $this->_TPL_PATH . 'display/modules/tasks/index.tpl');
 	}
 
-	// Ajax
-	function showTemplatesPanelAction() {
-		@$txt_name = DevblocksPlatform::importGPC($_REQUEST['txt_name'],'string','');
-		@$reply_id = DevblocksPlatform::importGPC($_REQUEST['reply_id'],'integer');
-		@$type = DevblocksPlatform::importGPC($_REQUEST['type'],'integer',0);
-		
-		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('path', $this->_TPL_PATH);
-		
-		$tpl->assign('reply_id', $reply_id);
-		$tpl->assign('txt_name', $txt_name);
-		$tpl->assign('type', $type);
-		
-		$folders = DAO_MailTemplate::getFolders($type);
-		$tpl->assign('folders', $folders);
-
-		$where = null;
-		if(empty($folder)) {
-			$where = sprintf("%s = %d",
-				DAO_MailTemplate::TEMPLATE_TYPE,
-				$type
-			);
-		} 
-		
-		$templates = DAO_MailTemplate::getWhere($where);
-		$tpl->assign('templates', $templates);
-		
-		$tpl->display('file:' . $this->_TPL_PATH . 'display/rpc/email_templates/templates_panel.tpl');
-	}
-	
-	// Ajax
-	function showTemplateEditPanelAction() {
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer');
-//		@$txt_name = DevblocksPlatform::importGPC($_REQUEST['txt_name'],'string','');		
-		@$reply_id = DevblocksPlatform::importGPC($_REQUEST['reply_id'],'integer');
-		@$type = DevblocksPlatform::importGPC($_REQUEST['type'],'integer',0);
-		
-		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('path', $this->_TPL_PATH);
-		
-		$tpl->assign('reply_id', $reply_id);
-//		$tpl->assign('txt_name', $txt_name);
-		$tpl->assign('type', $type);
-		
-		$folders = DAO_MailTemplate::getFolders($type);
-		$tpl->assign('folders', $folders);
-		
-		$template = DAO_MailTemplate::get($id);
-		$tpl->assign('template', $template);
-		
-		$tpl->display('file:' . $this->_TPL_PATH . 'display/rpc/email_templates/template_edit_panel.tpl');
-	}
-	
-	// Ajax
-	function saveReplyTemplateAction() {
+	function showSnippetsAction() {
+		@$text = DevblocksPlatform::importGPC($_REQUEST['text'],'string','');
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
-		@$title = DevblocksPlatform::importGPC($_REQUEST['title'],'string','');
-		@$description = DevblocksPlatform::importGPC($_REQUEST['description'],'string','');
-		@$folder = DevblocksPlatform::importGPC($_REQUEST['folder'],'string','');
-		@$folder_new = DevblocksPlatform::importGPC($_REQUEST['folder_new'],'string','');
-		@$content = DevblocksPlatform::importGPC($_REQUEST['template'],'string','');
-		@$type = DevblocksPlatform::importGPC($_REQUEST['type'],'integer',0);
-		@$delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'],'integer',0);
 		
-		$worker = CerberusApplication::getActiveWorker();
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('path', $this->_TPL_PATH);
 		
-		if(empty($delete)) {
-			$fields = array(
-				DAO_MailTemplate::TITLE => $title,
-				DAO_MailTemplate::FOLDER => (!empty($folder)?$folder:$folder_new),
-				DAO_MailTemplate::DESCRIPTION => $description,
-				DAO_MailTemplate::CONTENT => $content,
-				DAO_MailTemplate::TEMPLATE_TYPE => $type,
-				DAO_MailTemplate::OWNER_ID => $worker->id,
-			);
-			
-			if(empty($id)) { // new
-				$id = DAO_MailTemplate::create($fields);
-				
-			} else { // edit
-				DAO_MailTemplate::update($id, $fields);			
-				
-			}
-			
-		} else { // delete
-			DAO_MailTemplate::delete($id);
+		$tpl->assign('text_element', $text);
+		$tpl->assign('context_id', $id);
+		
+		// [TODO] Most frequently used (by this worker)
+		// [TODO] Most frequently used (by all workers)
+		// [TODO] Most recently used (by this worker)
+		// [TODO] Favorites
+		// [TODO] Content search
+		
+		$view = C4_AbstractViewLoader::getView('snippets_chooser');
+		
+		if(null == $view) {
+			$view = new View_Snippet();
+			$view->id = 'snippets_chooser';
 		}
 		
+		$contexts = DevblocksPlatform::parseCsvString(DevblocksPlatform::importGPC($_REQUEST['contexts'],'string',''));
+		// Always plaintext too
+		if(false === array_search('cerberusweb.snippet.plaintext', $contexts))
+			$contexts[] = 'cerberusweb.snippets.plaintext';
+					
+		$view->name = 'Favorite Snippets';
+		$view->renderTemplate = 'chooser';
+		$view->view_columns = array(
+			SearchFields_Snippet::TITLE,
+			SearchFields_Snippet::LAST_UPDATED,
+			SearchFields_Snippet::LAST_UPDATED_BY,
+		);
+		$view->renderLimit = 10;
+		$view->params = array(
+			SearchFields_Snippet::CONTEXT => new DevblocksSearchCriteria(SearchFields_Snippet::CONTEXT, DevblocksSearchCriteria::OPER_IN, $contexts),
+		);
+		
+		C4_AbstractViewLoader::setView($view->id,$view);
+		$tpl->assign('view', $view);
+		
+		$tpl->display('file:' . $this->_TPL_PATH . 'mail/snippets/chooser.tpl');
 	}
 	
-	// Ajax
-	function getTemplateAction() {
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer');
-		@$reply_id = DevblocksPlatform::importGPC($_REQUEST['reply_id'],'integer');
+	function getSnippetAction() {
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
+		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer',0);
 
-		$template = DAO_MailTemplate::get($id);
-		echo $template->getRenderedContent($reply_id);
+		// [TODO] Make sure the worker is allowed to view this context+ID
+		
+		$active_worker = CerberusApplication::getActiveWorker();
+		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+		
+		if(null != ($snippet = DAO_Snippet::get($id))) {
+			switch($snippet->context) {
+				case 'cerberusweb.snippets.plaintext':
+					$token_values= array();
+					break;
+				case 'cerberusweb.snippets.ticket':
+					CerberusTemplates::getTicketSearchTokens($context_id, $token_labels, $token_values);
+					break;
+				case 'cerberusweb.snippets.worker':
+					CerberusTemplates::getWorkerSignatureTokens($active_worker, $token_labels, $token_values);
+					break;
+			}
+		}
+		
+		$output = $tpl_builder->build($snippet->content, $token_values);
+		
+		if(!empty($output))
+			echo rtrim($output,"\r\n"),"\n";
 	}
-
-	// Ajax
-	function getTemplatesAction() {
-		@$txt_name = DevblocksPlatform::importGPC($_REQUEST['txt_name'],'string','');
-		@$reply_id = DevblocksPlatform::importGPC($_REQUEST['reply_id'],'integer');
-		@$folder = DevblocksPlatform::importGPC($_REQUEST['folder'],'string','');
-		@$type = DevblocksPlatform::importGPC($_REQUEST['type'],'integer',0);
-		
-		$db = DevblocksPlatform::getDatabaseService();
-		
-		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('path', $this->_TPL_PATH);
-		
-		$tpl->assign('reply_id', $reply_id);
-		$tpl->assign('txt_name', $txt_name);
-		
-		if(empty($folder)) {
-			$where = sprintf("%s = %d",
-				DAO_MailTemplate::TEMPLATE_TYPE,
-				$type
-			);
-		} else {
-			$where = sprintf("%s = %s AND %s = %d ",
-				DAO_MailTemplate::FOLDER,
-				$db->qstr($folder),
-				DAO_MailTemplate::TEMPLATE_TYPE,
-				$type
-			);
-		} 
-		
-		$templates = DAO_MailTemplate::getWhere($where);
-		$tpl->assign('templates', $templates);
-		
-		$tpl->display('file:' . $this->_TPL_PATH . 'display/rpc/email_templates/template_results.tpl');
-	} 
 	
 	function showRequestersPanelAction() {
 		$tpl = DevblocksPlatform::getTemplateService();

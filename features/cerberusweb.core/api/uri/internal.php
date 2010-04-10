@@ -60,6 +60,83 @@ class ChInternalController extends DevblocksControllerExtension {
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('home')));
 	}
 	
+	// Snippets
+	
+	function snippetPasteAction() {
+		@$snippet_id = DevblocksPlatform::importGPC($_REQUEST['snippet_id'],'integer',0);
+		
+		if(null != ($snippet = DAO_Snippet::get($snippet_id))) {
+			echo $snippet->content;
+		}
+	}
+	
+	function snippetTestAction() {
+		@$snippet_context = DevblocksPlatform::importGPC($_REQUEST['snippet_context'],'string','');
+		//@$snippet_context_id = DevblocksPlatform::importGPC($_REQUEST['snippet_context_id'],'integer',0);
+		@$snippet_field = DevblocksPlatform::importGPC($_REQUEST['snippet_field'],'string','');
+
+		$content = '';
+		if(isset($_REQUEST[$snippet_field]))
+			$content = $_REQUEST[$snippet_field];
+		
+		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('path', $this->_TPL_PATH);
+
+		$token_labels = array();
+		$token_value = array();
+		
+		switch($snippet_context) {
+			case 'cerberusweb.snippets.plaintext':
+				break;
+				
+			case 'cerberusweb.snippets.ticket':
+				// [TODO] Randomize
+				list($result, $count) = DAO_Ticket::search(
+					array(),
+					array(
+					),
+					10,
+					0,
+					SearchFields_Ticket::TICKET_UPDATED_DATE,
+					false,
+					false
+				);
+				
+				shuffle($result);
+				
+				CerberusTemplates::getTicketSearchTokens(array_shift($result), $token_labels, $token_values);
+				break;
+				
+			case 'cerberusweb.snippets.worker':
+				$active_worker = CerberusApplication::getActiveWorker();
+				CerberusTemplates::getWorkerSignatureTokens($active_worker, $token_labels, $token_values);
+				break;
+		}
+
+		$success = false;
+		$output = '';
+		
+		if(!empty($token_values)) {
+			// Try to build the template
+			if(false === ($out = $tpl_builder->build($content, $token_values))) {
+				// If we failed, show the compile errors
+				$errors = $tpl_builder->getErrors();
+				$success= false;
+				$output = @array_shift($errors);
+			} else {
+				// If successful, return the parsed template
+				$success = true;
+				$output = $out;
+			}
+		}
+		
+		$tpl->assign('success', $success);
+		$tpl->assign('output', htmlentities($output, null, LANG_CHARSET_CODE));
+		$tpl->display('file:'.$this->_TPL_PATH.'internal/renderers/test_results.tpl');
+	}
+	
 	// Ajax
 	function viewRefreshAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);

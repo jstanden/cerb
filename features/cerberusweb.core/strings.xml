@@ -108,6 +108,9 @@
 		<tu tuid='common.comment'>
 			<tuv xml:lang="en_US"><seg>comment</seg></tuv>
 		</tu>
+		<tu tuid='common.content'>
+			<tuv xml:lang="en_US"><seg>Content</seg></tuv>
+		</tu>
 		<tu tuid='common.copy'>
 			<tuv xml:lang="en_US"><seg>copy</seg></tuv>
 		</tu>
@@ -306,6 +309,9 @@
 		<tu tuid='common.settings'>
 			<tuv xml:lang="en_US"><seg>settings</seg></tuv>
 		</tu>
+		<tu tuid='common.snippets'>
+			<tuv xml:lang="en_US"><seg>snippets</seg></tuv>
+		</tu>
 		<tu tuid='common.spam'>
 			<tuv xml:lang="en_US"><seg>Spam</seg></tuv>
 		</tu>
@@ -371,6 +377,29 @@
 		</tu>
 		<tu tuid='common.yes'>
 			<tuv xml:lang="en_US"><seg>yes</seg></tuv>
+		</tu>
+
+		<!-- DAO -->
+		
+			<!-- Snippets -->
+
+		<tu tuid='dao.snippet.context'>
+			<tuv xml:lang="en_US"><seg>Context</seg></tuv>
+		</tu>
+		<tu tuid='dao.snippet.created_by'>
+			<tuv xml:lang="en_US"><seg>Created By</seg></tuv>
+		</tu>
+		<tu tuid='dao.snippet.is_private'>
+			<tuv xml:lang="en_US"><seg>Is Private</seg></tuv>
+		</tu>
+		<tu tuid='dao.snippet.last_updated'>
+			<tuv xml:lang="en_US"><seg>Updated</seg></tuv>
+		</tu>
+		<tu tuid='dao.snippet.last_updated_by'>
+			<tuv xml:lang="en_US"><seg>Updated By</seg></tuv>
+		</tu>
+		<tu tuid='dao.snippet.title'>
+			<tuv xml:lang="en_US"><seg>Title</seg></tuv>
 		</tu>
 
 		<!-- Errors -->

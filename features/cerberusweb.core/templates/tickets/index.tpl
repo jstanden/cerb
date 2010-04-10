@@ -44,6 +44,9 @@
 
 		{$tabs[] = drafts}
 		<li><a href="{devblocks_url}ajax.php?c=tickets&a=showDraftsTab&request={$request_path|escape:'url'}{/devblocks_url}">{$translate->_('mail.drafts')|capitalize|escape:'quotes'}</a></li>
+
+		{$tabs[] = snippets}
+		<li><a href="{devblocks_url}ajax.php?c=tickets&a=showSnippetsTab&request={$request_path|escape:'url'}{/devblocks_url}">{$translate->_('common.snippets')|capitalize|escape:'quotes'}</a></li>
 		
 		{foreach from=$tab_manifests item=tab_manifest}
 			{$tabs[] = $tab_manifest->params.uri}

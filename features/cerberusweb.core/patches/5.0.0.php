@@ -258,14 +258,22 @@ if(!isset($columns['last_activity_ip'])) {
 // Migrate user template tokens from Smarty to Twig
 
 // Default signature
-$db->Execute("UPDATE devblocks_setting SET value=REPLACE(value,'#first_name#','{{worker_first_name}}') WHERE setting='default_signature'");
-$db->Execute("UPDATE devblocks_setting SET value=REPLACE(value,'#last_name#','{{worker_last_name}}') WHERE setting='default_signature'");
-$db->Execute("UPDATE devblocks_setting SET value=REPLACE(value,'#title#','{{worker_title}}') WHERE setting='default_signature'");
+$db->Execute("UPDATE devblocks_setting SET value=REPLACE(value,'#first_name#','{{first_name}}') WHERE setting='default_signature'");
+$db->Execute("UPDATE devblocks_setting SET value=REPLACE(value,'#last_name#','{{last_name}}') WHERE setting='default_signature'");
+$db->Execute("UPDATE devblocks_setting SET value=REPLACE(value,'#title#','{{title}}') WHERE setting='default_signature'");
+
+$db->Execute("UPDATE devblocks_setting SET value=REPLACE(value,'{{worker_first_name}}','{{first_name}}') WHERE setting='default_signature'");
+$db->Execute("UPDATE devblocks_setting SET value=REPLACE(value,'{{worker_last_name}}','{{last_name}}') WHERE setting='default_signature'");
+$db->Execute("UPDATE devblocks_setting SET value=REPLACE(value,'{{worker_title}}','{{title}}') WHERE setting='default_signature'");
 
 // Group signatures
-$db->Execute("UPDATE team SET signature=REPLACE(signature,'#first_name#','{{worker_first_name}}')");
-$db->Execute("UPDATE team SET signature=REPLACE(signature,'#last_name#','{{worker_last_name}}')");
-$db->Execute("UPDATE team SET signature=REPLACE(signature,'#title#','{{worker_title}}')");
+$db->Execute("UPDATE team SET signature=REPLACE(signature,'#first_name#','{{first_name}}')");
+$db->Execute("UPDATE team SET signature=REPLACE(signature,'#last_name#','{{last_name}}')");
+$db->Execute("UPDATE team SET signature=REPLACE(signature,'#title#','{{title}}')");
+
+$db->Execute("UPDATE team SET signature=REPLACE(signature,'{{worker_first_name}}','{{first_name}}')");
+$db->Execute("UPDATE team SET signature=REPLACE(signature,'{{worker_last_name}}','{{last_name}}')");
+$db->Execute("UPDATE team SET signature=REPLACE(signature,'{{worker_title}}','{{title}}')");
 
 // ===========================================================================
 // Rename 'mail_draft' to 'mail_queue'
@@ -359,5 +367,93 @@ if(!isset($tables['explorer_set'])) {
 // Nuke Cerb4 licenses
 
 $db->Execute("DELETE FROM devblocks_setting WHERE plugin_id='cerberusweb.core' AND setting='license'");
+
+// ===========================================================================
+// Add the 'snippet' table
+
+if(!isset($tables['snippet'])) {
+	$sql = "
+		CREATE TABLE IF NOT EXISTS snippet (
+			id INT UNSIGNED NOT NULL DEFAULT 0,
+			title VARCHAR(255) NOT NULL DEFAULT '',
+			context VARCHAR(255) NOT NULL DEFAULT '',
+			created_by INT UNSIGNED NOT NULL DEFAULT 0,
+			last_updated INT UNSIGNED NOT NULL DEFAULT 0,
+			last_updated_by INT UNSIGNED NOT NULL DEFAULT 0,
+			is_private TINYINT UNSIGNED NOT NULL DEFAULT 0,
+			content LONGTEXT,
+			PRIMARY KEY (id),
+			INDEX is_private (is_private)
+		) ENGINE=MyISAM;
+	";
+	$db->Execute($sql);
+
+	$tables['snippet'] = 'snippet';
+}
+
+// ===========================================================================
+// Migrate e-mail templates to snippets
+
+if(isset($tables['mail_template'])) {
+	$sql = "SELECT title, description, folder, template_type, owner_id, content FROM mail_template";
+	$result = $db->GetArray($sql);
+	
+	$ticket_replaces = array(
+		'#timestamp#' => '{{global_timestamp|date}}',
+		'#sender_first_name#' => '{{initial_sender_first_name}}',
+		'#sender_last_name#' => '{{initial_sender_last_name}}',
+		'#sender_org#' => '{{initial_sender_org_name}}',
+		'#ticket_id#' => '{{id}}',
+		'#ticket_mask#' => '{{mask}}',
+		'#ticket_subject#' => '{{subject}}',
+		'#worker_first_name#' => '{{worker_first_name}}',
+		'#worker_last_name#' => '{{worker_last_name}}',
+		'#worker_title#' => '{{worker_title}}',
+	);
+	
+	$worker_replaces = array(
+		'#timestamp#' => '{{global_timestamp|date}}',
+		'#worker_first_name#' => '{{first_name}}',
+		'#worker_last_name#' => '{{last_name}}',
+		'#worker_title#' => '{{title}}',
+	);
+	
+	if(is_array($result))
+	foreach($result as $row) {
+		$context = (2==intval($row['template_type'])) ? 'cerberusweb.snippets.ticket' : 'cerberusweb.snippets.worker';
+		$replaces = (2==intval($row['template_type'])) ? $ticket_replaces : $worker_replaces;
+		$replace_count = 0;
+		$content = str_replace(
+			array_keys($replaces),
+			array_values($replaces),
+			$row['content'],
+			$replace_count
+		);
+		$context = (0==$replace_count) ? 'cerberusweb.snippets.plaintext' : $context;
+		$title = sprintf("%s%s%s",
+			!empty($row['folder']) ? ('('.$row['folder'].') ') : '',
+			$row['title'],
+			!empty($row['description']) ? (' - '.$row['description']) : ''
+		); 
+		
+		$id = $db->GenID('snippet_seq');
+		
+		$sql = sprintf("INSERT INTO snippet (id,title,context,created_by,last_updated,last_updated_by,is_private,content) ".
+			"VALUES (%d,%s,%s,%d,%d,%d,%d,%s)",
+			$id,
+			$db->qstr($title),
+			$db->qstr($context),
+			$row['owner_id'],
+			time(),
+			$row['owner_id'],
+			0,
+			$db->qstr($content)
+		);
+		$db->Execute($sql);
+	}
+	
+	// Drop 'mail_template'
+	$db->Execute("DROP TABLE mail_template");
+}
 
 return TRUE;

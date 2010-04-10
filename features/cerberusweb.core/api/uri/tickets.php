@@ -709,6 +709,111 @@ class ChTicketsPage extends CerberusPageExtension {
 		return;		
 	}
 	
+	function showSnippetsTabAction() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('path', $this->_TPL_PATH);
+
+		$view = C4_AbstractViewLoader::getView('mail_snippets');
+		
+		if(null == $view) {
+			$view = new View_Snippet();
+			$view->id = 'mail_snippets';
+			$view->name = 'Mail Snippets';
+		}
+		
+		$view->params = array(
+			SearchFields_Snippet::CONTEXT => new DevblocksSearchCriteria(SearchFields_Snippet::CONTEXT, DevblocksSearchCriteria::OPER_IN, array('cerberusweb.snippets.plaintext','cerberusweb.snippets.ticket','cerberusweb.snippets.worker')),
+//			SearchFields_MailQueue::WORKER_ID => new DevblocksSearchCriteria(SearchFields_MailQueue::WORKER_ID, DevblocksSearchCriteria::OPER_EQ, $active_worker->id),
+//			SearchFields_MailQueue::IS_QUEUED => new DevblocksSearchCriteria(SearchFields_MailQueue::IS_QUEUED, DevblocksSearchCriteria::OPER_EQ, 0),
+		);
+		
+		C4_AbstractViewLoader::setView($view->id,$view);
+		$tpl->assign('view', $view);
+		
+		$tpl->display('file:' . $this->_TPL_PATH . 'mail/snippets/index.tpl');
+	}	
+	
+	function showSnippetsPeekAction() {
+		@$snippet_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
+		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('path', $this->_TPL_PATH);
+		
+		$tpl->assign('view_id', $view_id);
+		
+		if(null == ($snippet = DAO_Snippet::get($snippet_id))) {
+			$snippet = new Model_Snippet();
+			$snippet->id = 0;
+			$snippet->context = !empty($context) ? $context : 'cerberusweb.snippets.plaintext';
+		}
+		$tpl->assign('snippet', $snippet);
+		
+		switch($snippet->context) {
+			case 'cerberusweb.snippets.plaintext':
+				break;
+			case 'cerberusweb.snippets.ticket':
+				CerberusTemplates::getTicketSearchTokens(null, $token_labels, $token_values);
+				$tpl->assign('token_labels', $token_labels);
+				break;
+			case 'cerberusweb.snippets.worker':
+				CerberusTemplates::getWorkerSignatureTokens(null, $token_labels, $token_values);
+				$tpl->assign('token_labels', $token_labels);
+				break;
+		}
+			
+		$tpl->display('file:' . $this->_TPL_PATH . 'mail/snippets/peek.tpl');
+	}
+	
+	function saveSnippetsPeekAction() {
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
+		
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
+		@$title = DevblocksPlatform::importGPC($_REQUEST['title'],'string','');
+		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
+		@$content = DevblocksPlatform::importGPC($_REQUEST['content'],'string','');
+		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'],'integer',0);
+
+		$active_worker = CerberusApplication::getActiveWorker();
+
+		$fields = array(
+			DAO_Snippet::TITLE => $title,
+			DAO_Snippet::CONTENT => $content,
+			DAO_Snippet::LAST_UPDATED => time(),
+			DAO_Snippet::LAST_UPDATED_BY => $active_worker->id,
+		);
+
+		if(empty($id)) {
+			$fields[DAO_Snippet::CREATED_BY] = $active_worker->id;
+			$fields[DAO_Snippet::CONTEXT] = $context;
+			$fields[DAO_Snippet::IS_PRIVATE] = 0;
+			
+			$id = DAO_Snippet::create($fields);
+			
+		} else {
+			// Make sure we have permission
+			if($active_worker->is_superuser || null != DAO_Snippet::getWhere(sprintf("%s = %d AND %s = %d",
+				DAO_Snippet::ID,
+				DAO_Snippet::$id,
+				DAO_Snippet::CREATED_BY,
+				$active_worker->id
+			))) {
+				if($do_delete) {
+					DAO_Snippet::delete($id);
+				} else {
+					DAO_Snippet::update($id, $fields);
+				}
+			}
+		}
+		
+		if(null !== ($view = C4_AbstractViewLoader::getView($view_id))) {
+			$view->render();
+		}
+	}
+
 	function viewDraftsExploreAction() {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
 		
@@ -853,7 +958,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		} while(!empty($results));
 		
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('explore',$hash,$orig_pos)));
-	}	
+	}
 	
 	// Ajax
 	function refreshSidebarAction() {
@@ -2244,11 +2349,11 @@ class ChTicketsPage extends CerberusPageExtension {
 					$success = true;
 					$output = $out;
 				}
-
-				$tpl->assign('success', $success);
-				$tpl->assign('output', htmlentities($output, null, LANG_CHARSET_CODE));
-				$tpl->display('file:'.$this->_TPL_PATH.'internal/renderers/test_results.tpl');
 			}
+			
+			$tpl->assign('success', $success);
+			$tpl->assign('output', htmlentities($output, null, LANG_CHARSET_CODE));
+			$tpl->display('file:'.$this->_TPL_PATH.'internal/renderers/test_results.tpl');
 		}
 	}
 	

@@ -43,7 +43,7 @@
 	<tr>
 		<td>
 		<button type="button" onclick="genericAjaxGet('','c=tickets&a=getComposeSignature&group_id='+selectValue(this.form.to),function(text) { insertAtCursor(document.getElementById('content'), text); } );"><span class="cerb-sprite sprite-document_edit"></span> Insert Signature</button>
-		<button type="button" onclick="genericAjaxPanel('c=display&a=showTemplatesPanel&type=3&txt_name=content',null,false,'550');"><span class="cerb-sprite sprite-text_rich"></span> E-mail Templates</button>
+		<button type="button" onclick="genericAjaxPanel('c=display&a=showSnippets&text=content&contexts=cerberusweb.snippets.worker',null,false,'550');"><span class="cerb-sprite sprite-text_rich"></span> {$translate->_('common.snippets')|capitalize}</button>
 		{* Plugin Toolbar *}
 		{if !empty($logmail_toolbaritems)}
 			{foreach from=$logmail_toolbaritems item=renderer}

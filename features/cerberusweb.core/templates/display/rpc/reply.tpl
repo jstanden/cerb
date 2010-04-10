@@ -63,10 +63,11 @@
 				</tr>
 			</table>
 
+			<div id="divDraftStatus{$message->id}"></div>
 			{assign var=ticket_team_id value=$ticket->team_id}
 			{assign var=headers value=$message->getHeaders()}
 			<button name="saveDraft" type="button" onclick="genericAjaxPost('reply{$message->id}_part2',null,'c=display&a=saveDraftReply&is_ajax=1',function(json) { var obj = $.parseJSON(json); $('#divDraftStatus{$message->id}').html(obj.html); $('#reply{$message->id}_part2 input[name=draft_id]').val(obj.draft_id); } );"><span class="cerb-sprite sprite-check"></span> Save Draft</button>
-			<button type="button" onclick="genericAjaxPanel('c=display&a=showTemplatesPanel&type=2&reply_id={$message->id}&txt_name=reply_{$message->id}',null,false,'550');"><span class="cerb-sprite sprite-text_rich"></span> {$translate->_('display.reply.email_templates')|capitalize}</button>
+			<button type="button" onclick="genericAjaxPanel('c=display&a=showSnippets&text=reply_{$message->id}&contexts=cerberusweb.snippets.ticket,cerberusweb.snippets.worker&id={$message->ticket_id}',null,false,'550');"><span class="cerb-sprite sprite-text_rich"></span> {$translate->_('common.snippets')|capitalize}</button>
 			<button type="button" onclick="genericAjaxGet('','c=tickets&a=getComposeSignature&group_id={$ticket->team_id}',function(text) { insertAtCursor(document.getElementById('reply_{$message->id}'),text);document.getElementById('reply_{$message->id}').focus(); } );"><span class="cerb-sprite sprite-document_edit"></span> {$translate->_('display.reply.insert_sig')|capitalize}</button>
 			{* Plugin Toolbar *}
 			{if !empty($reply_toolbaritems)}
@@ -74,7 +75,6 @@
 					{if !empty($renderer)}{$renderer->render($message)}{/if}
 				{/foreach}
 			{/if}
-			<div id="divDraftStatus{$message->id}"></div>
 		</td>
 	</tr>
 </table>

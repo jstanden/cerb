@@ -140,6 +140,13 @@
 			<class name="Model_PreParseRule" />
 		</file>
 		
+		<file path="api/dao/snippet.php">
+			<class name="DAO_Snippet" />
+			<class name="Model_Snippet" />
+			<class name="SearchField_Snippet" />
+			<class name="View_Snippet" />
+		</file>
+		
 		<file path="api/dao/task.php">
 			<class name="DAO_Task" />
 			<class name="Model_Task" />
