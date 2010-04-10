@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE tmx SYSTEM "tmx14.dtd">
+<tmx version="1.4">
+ <header datatype="winres" segtype="sentence" adminlang="en-us" srclang="en-us" o-tmf="abc" >
+ </header>
+ <body>
+  <!-- 
+  <tu tuid='common.today'>
+   <tuv xml:lang="en_US"><seg>Today is %1$s</seg></tuv>
+   <tuv xml:lang="de_DE"><seg>Heute ist %1$s</seg></tuv>
+  </tu>
+   -->
+  </body>
+</tmx>

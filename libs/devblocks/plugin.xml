@@ -1,0 +1,50 @@
+<!DOCTYPE plugin SYSTEM "plugin.dtd">
+<plugin>
+	<id>devblocks.core</id>
+	<name>[Devblocks] Core</name>
+	<description>Devblocks: PHP5 Application Framework</description>
+	<author>WebGroup Media, LLC.</author>
+	<revision>0</revision>
+	<link>http://wiki.devblocks.com/</link>
+	
+	<!-- Extensions -->
+	
+	<extensions>
+	
+		<!-- Storage Engines -->
+
+		<extension point="devblocks.storage.engine">
+			<id>devblocks.storage.engine.disk</id>
+			<name>Disk</name>
+			<class>
+				<file>api/Plugin.php</file>
+				<name>DevblocksStorageEngineDisk</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+
+		<extension point="devblocks.storage.engine">
+			<id>devblocks.storage.engine.database</id>
+			<name>Database</name>
+			<class>
+				<file>api/Plugin.php</file>
+				<name>DevblocksStorageEngineDatabase</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+
+		<extension point="devblocks.storage.engine">
+			<id>devblocks.storage.engine.s3</id>
+			<name>Amazon S3</name>
+			<class>
+				<file>api/Plugin.php</file>
+				<name>DevblocksStorageEngineS3</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+
+	</extensions>
+</plugin>
