@@ -5,7 +5,7 @@
 	</tr>
 	<tr>
 		<td>
-			<form action="{devblocks_url}{/devblocks_url}" method="post">
+			<form action="{devblocks_url}{/devblocks_url}" method="post" id="frmConfigMailOutgoing">
 			<input type="hidden" name="c" value="config">
 			<input type="hidden" name="a" value="saveOutgoingMailSettings">
 
@@ -74,14 +74,15 @@
 				<b>Default E-mail Signature:</b><br>
 				<textarea name="default_signature" rows="10" cols="76" style="width:100%;" wrap="off">{$settings->get('cerberusweb.core','default_signature')|escape:"html"}</textarea><br>
 				<div style="padding-left:10px;">
-					E-mail Signature Variables: 
+					<button type="button" onclick="genericAjaxPost('frmConfigMailOutgoing','divTemplateTester','c=internal&a=snippetTest&snippet_context=cerberusweb.snippets.worker&snippet_field=default_signature');"><span class="cerb-sprite sprite-gear"></span> Test</button>
 					<select name="sig_vars" onchange="insertAtCursor(this.form.default_signature,this.options[this.selectedIndex].value);this.selectedIndex=0;this.form.default_signature.focus();">
-						<option value="">-- choose --</option>
+						<option value="">-- insert at cursor --</option>
 						{foreach from=$token_labels key=k item=v}
 						<option value="{literal}{{{/literal}{$k}{literal}}}{/literal}">{$v|escape}</option>
 						{/foreach}
 					</select>
 					<br>
+					<div id="divTemplateTester"></div>
 					<br>
 					
 					<b>Insert E-mail Signatures:</b><br> 

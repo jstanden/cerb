@@ -57,9 +57,9 @@
 		<textarea name="default_signature">{$default_signature}</textarea>	
 	</div>
 	<textarea name="signature" rows="10" cols="76" style="width:100%;" wrap="off">{$team->signature}</textarea><br>
-		E-mail Tokens: 
+		<button type="button" onclick="genericAjaxPost('frmGroupEdit','divTemplateTester','c=internal&a=snippetTest&snippet_context=cerberusweb.snippets.worker&snippet_field=signature');"><span class="cerb-sprite sprite-gear"></span> Test</button>
 		<select name="sig_token" onchange="insertAtCursor(this.form.signature,this.options[this.selectedIndex].value);this.selectedIndex=0;this.form.signature.focus();">
-			<option value="">-- choose --</option>
+			<option value="">-- insert at cursor --</option>
 			{foreach from=$token_labels key=k item=v}
 			<option value="{literal}{{{/literal}{$k}{literal}}}{/literal}">{$v|escape}</option>
 			{/foreach}
@@ -68,7 +68,8 @@
 		{if !empty($default_signature)}
 		<button type="button" onclick="this.form.signature.value=this.form.default_signature.value;">set to default</button>
 		{/if}
-	<br> 
+		<br>
+		<div id="divTemplateTester"></div> 
 	</div>
 	<br>
 	
