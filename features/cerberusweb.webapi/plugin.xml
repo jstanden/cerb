@@ -10,7 +10,7 @@
 	<!-- Exported Classes -->
 	
 	<class_loader>
-		<file path="api/Plugin.php">
+		<file path="api/App.php">
 			<class name="ChRestPlugin" />
 		</file>
 	</class_loader>
@@ -18,18 +18,6 @@
 	<!-- Extensions -->
 	
 	<extensions>
-		<!-- Translations -->
-		
-		<extension point="devblocks.i18n.strings">
-			<id>webapi.translations</id>
-			<name>Web API Strings</name>
-			<class>
-				<file>api/Plugin.php</file>
-				<name>ChWebApiTranslations</name>
-			</class>
-			<params>
-			</params>
-		</extension>
 
 		<!-- Patch Containers -->
 		

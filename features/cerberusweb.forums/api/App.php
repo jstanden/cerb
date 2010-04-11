@@ -1,4 +1,9 @@
 <?php
+class ChForumsPlugin {
+	const ID = 'cerberusweb.forums';
+	const SETTING_POSTER_WORKERS = 'forums.forum_workers';
+};
+
 // Workspace Sources
 
 class ChWorkspaceSource_ForumThread extends Extension_WorkspaceSource {

@@ -23,19 +23,6 @@
 	
 	<extensions>
 	
-		<!-- Translations -->
-		
-		<extension point="devblocks.i18n.strings">
-			<id>wgm.google_cse.translations</id>
-			<name>Google CSE Strings</name>
-			<class>
-				<file>api/Plugin.php</file>
-				<name>WgmGoogleCSETranslations</name>
-			</class>
-			<params>
-			</params>
-		</extension>
-		
 		<!-- Patch Containers -->
 		
 		<extension point="devblocks.patch.container">

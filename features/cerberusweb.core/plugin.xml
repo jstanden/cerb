@@ -420,19 +420,6 @@
 			</params>
 		</extension>
 
-		<!-- Translations -->
-		
-		<extension point="devblocks.i18n.strings">
-			<id>core.translations</id>
-			<name>Cerberus Helpdesk Strings</name>
-			<class>
-				<file>api/plugin.classes.php</file>
-				<name>ChTranslations</name>
-			</class>
-			<params>
-			</params>
-		</extension>
-
 		<!-- Patch Containers -->
 		
 		<extension point="devblocks.patch.container">

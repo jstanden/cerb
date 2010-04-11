@@ -37,19 +37,6 @@
 			</params>
 		</extension>
 	
-		<!-- Translations -->
-		
-		<extension point="devblocks.i18n.strings">
-			<id>timetracking.translations</id>
-			<name>Time Tracking Strings</name>
-			<class>
-				<file>api/Plugin.php</file>
-				<name>ChTimeTrackingTranslations</name>
-			</class>
-			<params>
-			</params>
-		</extension>
-	
 		<!-- Http Listeners -->
 		
 		<!-- 

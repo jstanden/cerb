@@ -12,8 +12,6 @@
 	<class_loader>
 		<file path="api/App.php">
 			<class name="C4_ForumsThreadView" />
-		</file>
-		<file path="api/Plugin.php">
 			<class name="ChForumsPlugin" />
 		</file>
 	</class_loader>
@@ -28,19 +26,6 @@
 			<class>
 				<file>api/Patch.php</file>
 				<name>ChForumsPatchContainer</name>
-			</class>
-			<params>
-			</params>
-		</extension>
-
-		<!-- Translations -->
-		
-		<extension point="devblocks.i18n.strings">
-			<id>forums.translations</id>
-			<name>Forums Strings</name>
-			<class>
-				<file>api/Plugin.php</file>
-				<name>ChForumsTranslations</name>
 			</class>
 			<params>
 			</params>

@@ -9,20 +9,6 @@
 	
 	<extensions>
 
-		<!-- Translations -->
-		
-		<extension point="devblocks.i18n.strings">
-			<id>simulator.translations</id>
-			<name>Simulator Strings</name>
-			<class>
-				<file>api/Plugin.php</file>
-				<name>ChSimulatorTranslations</name>
-			</class>
-			<params>
-			</params>
-		</extension>
-
-	
 		<!-- Http Listeners -->
 		
 		<extension point="devblocks.listener.http">

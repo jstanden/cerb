@@ -57,19 +57,6 @@
 			</params>
 		</extension>
 
-		<!-- Translations -->
-		
-		<extension point="devblocks.i18n.strings">
-			<id>crm.translations</id>
-			<name>CRM Strings</name>
-			<class>
-				<file>api/Plugin.php</file>
-				<name>CrmTranslations</name>
-			</class>
-			<params>
-			</params>
-		</extension>
-		
 		<!-- Activity Tabs -->
 		
 		<extension point="cerberusweb.activity.tab">

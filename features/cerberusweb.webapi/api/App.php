@@ -49,6 +49,10 @@
  *   WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
 
+class ChRestPlugin {
+	const PLUGIN_ID = 'cerberusweb.controller.rest';
+};
+
 class ChWebApiConfigTab extends Extension_ConfigTab {
 	const ID = 'webapi.config.tab';
 	

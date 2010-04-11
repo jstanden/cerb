@@ -37,19 +37,6 @@
 			</params>
 		</extension>
 	
-		<!-- Translations -->
-		
-		<extension point="devblocks.i18n.strings">
-			<id>feedback.translations</id>
-			<name>Feedback Strings</name>
-			<class>
-				<file>api/Plugin.php</file>
-				<name>ChFeedbackTranslations</name>
-			</class>
-			<params>
-			</params>
-		</extension>
-	
 		<!-- Activity Tabs -->
 		
 		<extension point="cerberusweb.activity.tab">

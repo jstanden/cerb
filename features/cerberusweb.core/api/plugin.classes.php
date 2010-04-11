@@ -49,16 +49,6 @@
  *   WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
 
-class ChTranslations extends DevblocksTranslationsExtension {
-	function __construct($manifest) {
-		parent::__construct($manifest);	
-	}
-	
-	function getTmxFile() {
-		return dirname(dirname(__FILE__)) . '/strings.xml';
-	}
-};
-
 class ChPageController extends DevblocksControllerExtension {
     const ID = 'core.controller.page';
     

@@ -56,19 +56,6 @@
 			</params>
 		</extension>
 
-		<!-- Translations -->
-		
-		<extension point="devblocks.i18n.strings">
-			<id>cerberusweb.kb.translations</id>
-			<name>Knowledgebase Strings</name>
-			<class>
-				<file>api/Plugin.php</file>
-				<name>ChKbTranslations</name>
-			</class>
-			<params>
-			</params>
-		</extension>
-		
 		<!--
 		<extension point="cerberusweb.page">
 			<id>core.page.kb</id>

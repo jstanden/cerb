@@ -30,19 +30,6 @@
 			</params>
 		</extension>
 
-		<!-- Translations -->
-		
-		<extension point="devblocks.i18n.strings">
-			<id>auditlog.translations</id>
-			<name>Audit Log Strings</name>
-			<class>
-				<file>api/Plugin.php</file>
-				<name>ChAuditLogTranslations</name>
-			</class>
-			<params>
-			</params>
-		</extension>
-
 		<!-- Event Listeners -->
 		
 		<extension point="devblocks.listener.event">
