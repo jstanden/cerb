@@ -49,16 +49,6 @@ abstract class DevblocksHttpResponseListenerExtension extends DevblocksExtension
 	}
 }
 
-abstract class DevblocksTranslationsExtension extends DevblocksExtension {
-	function __construct($manifest) {
-		$this->DevblocksExtension($manifest);
-	}
-	
-	function getTmxFile() {
-		return NULL;
-	}
-}
-
 abstract class Extension_DevblocksStorageEngine extends DevblocksExtension {
 	protected $_options = array();
 

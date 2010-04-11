@@ -892,13 +892,15 @@ class DAO_Translation extends DevblocksORMHelper {
 	}
 	
 	static function reloadPluginStrings() {
-		$translations = DevblocksPlatform::getExtensions("devblocks.i18n.strings", false, true);
-
-		if(is_array($translations))
-		foreach($translations as $translationManifest) { /* @var $translationManifest DevblocksExtensionManifest */
-			if(null != ($translation = $translationManifest->createInstance())) { /* @var $translation DevblocksTranslationsExtension */
-				$filename = $translation->getTmxFile();
-				self::importTmxFile($filename);
+		$plugins = DevblocksPlatform::getPluginRegistry();
+		
+		if(is_array($plugins))
+		foreach($plugins as $plugin_id => $plugin) { /* @var $plugin DevblocksPluginManifest */
+			if($plugin->enabled) {
+				$strings_xml = APP_PATH . '/' . $plugin->dir . '/strings.xml';
+				if(file_exists($strings_xml)) {
+					self::importTmxFile($strings_xml);
+				}
 			}
 		}
 	}
