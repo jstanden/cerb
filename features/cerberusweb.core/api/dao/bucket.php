@@ -52,6 +52,15 @@ class DAO_Bucket extends DevblocksORMHelper {
 	    return $buckets;
 	}
 	
+	static function get($id) {
+		$buckets = self::getAll();
+	
+		if(isset($buckets[$id]))
+			return $buckets[$id];
+			
+		return null;
+	}
+	
 	static function getNextPos($group_id) {
 		if(empty($group_id))
 			return 0;
