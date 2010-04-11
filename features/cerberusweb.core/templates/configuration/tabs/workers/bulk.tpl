@@ -1,10 +1,3 @@
-<table cellpadding="0" cellspacing="0" border="0" width="98%">
-	<tr>
-		<td align="left" width="1%" nowrap="nowrap" style="padding-right:5px;"><span class="cerb-sprite sprite-gear"></span></td>
-		<td align="left" width="100%"><h1>{$translate->_('common.bulk_update')|capitalize}</h1></td>
-	</tr>
-</table>
-
 <form action="{devblocks_url}{/devblocks_url}" method="POST" id="formBatchUpdate" name="formBatchUpdate">
 <input type="hidden" name="c" value="config">
 <input type="hidden" name="a" value="doWorkersBulkUpdate">
@@ -41,3 +34,9 @@
 <button type="button" onclick="genericPanel.dialog('close');genericAjaxPost('formBatchUpdate','view{$view_id}');"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')|capitalize}</button>
 <br>
 </form>
+
+<script type="text/javascript" language="JavaScript1.2">
+	genericPanel.one('dialogopen', function(event,ui) {
+		genericPanel.dialog('option','title',"{$translate->_('common.bulk_update')|capitalize|escape:'quotes'}");
+	} );
+</script>
