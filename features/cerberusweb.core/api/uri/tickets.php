@@ -756,11 +756,11 @@ class ChTicketsPage extends CerberusPageExtension {
 			case 'cerberusweb.snippets.plaintext':
 				break;
 			case 'cerberusweb.snippets.ticket':
-				CerberusTemplates::getTicketSearchTokens(null, $token_labels, $token_values);
+				CerberusSnippetContexts::getContext(CerberusSnippetContexts::CONTEXT_TICKET, null, $token_labels, $token_values);
 				$tpl->assign('token_labels', $token_labels);
 				break;
 			case 'cerberusweb.snippets.worker':
-				CerberusTemplates::getWorkerSignatureTokens(null, $token_labels, $token_values);
+				CerberusSnippetContexts::getContext(CerberusSnippetContexts::CONTEXT_WORKER, null, $token_labels, $token_values);
 				$tpl->assign('token_labels', $token_labels);
 				break;
 		}
@@ -1227,7 +1227,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		}
 
 		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
-		$tpl_vars = CerberusTemplates::getWorkerSignatureTokens($active_worker, $token_labels, $token_values);
+		CerberusSnippetContexts::getContext(CerberusSnippetContexts::CONTEXT_WORKER, $active_worker, $token_labels, $token_values);
 		echo "\r\n", $tpl_builder->build($sig, $token_values), "\r\n";
 	}
 	
@@ -2202,7 +2202,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		$tpl->assign('custom_fields', $custom_fields);
 		
 		// Broadcast
-		CerberusTemplates::getTicketSearchTokens(null, $token_labels, $token_values);
+		CerberusSnippetContexts::getContext(CerberusSnippetContexts::CONTEXT_TICKET, null, $token_labels, $token_values);
 		$tpl->assign('token_labels', $token_labels);
 		
 		$tpl->display('file:' . $this->_TPL_PATH . 'tickets/rpc/batch_panel.tpl');
@@ -2338,7 +2338,7 @@ class ChTicketsPage extends CerberusPageExtension {
 				
 			} else {
 				// Try to build the template
-				CerberusTemplates::getTicketSearchTokens(array_shift($result), $token_labels, $token_values);
+				CerberusSnippetContexts::getContext(CerberusSnippetContexts::CONTEXT_TICKET, array_shift($result), $token_labels, $token_values);
 				if(false === ($out = $tpl_builder->build($broadcast_message, $token_values))) {
 					// If we failed, show the compile errors
 					$errors = $tpl_builder->getErrors();

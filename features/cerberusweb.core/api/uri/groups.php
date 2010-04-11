@@ -82,7 +82,7 @@ class ChGroupsPage extends CerberusPageExtension  {
 		
 		// Signature
 		
-		CerberusTemplates::getWorkerSignatureTokens($active_worker, $token_labels, $token_values);
+		CerberusSnippetContexts::getContext(CerberusSnippetContexts::CONTEXT_WORKER, $active_worker, $token_labels, $token_values);
 		$tpl->assign('token_labels', $token_labels);
 		
 		// Template

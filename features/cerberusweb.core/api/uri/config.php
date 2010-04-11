@@ -692,7 +692,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		
 		// Signature
 		
-		CerberusTemplates::getWorkerSignatureTokens(null, $token_labels, $token_values);
+		CerberusSnippetContexts::getContext(CerberusSnippetContexts::CONTEXT_WORKER, null, $token_labels, $token_values);
 		$tpl->assign('token_labels', $token_labels);
 		
 		$tpl->display('file:' . $this->_TPL_PATH . 'configuration/tabs/mail/index.tpl');

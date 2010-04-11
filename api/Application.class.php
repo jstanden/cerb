@@ -48,7 +48,7 @@
  * 		and Joe Geck.
  *   WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
-define("APP_BUILD", 2010040901);
+define("APP_BUILD", 2010041001);
 define("APP_MAIL_PATH", APP_STORAGE_PATH . '/mail/');
 
 require_once(APP_PATH . "/api/DAO.class.php");
@@ -550,11 +550,79 @@ class CerberusApplication extends DevblocksApplication {
 	}
 };
 
-interface ITemplateToken_Signature {
-	static function getSignatureTokenValue(Model_Worker $worker);
+interface ISnippetContextToken {
+	static function getValue($context, $context_values);
 };
 
-class CerberusTemplates {
+class CerberusSnippetContexts {
+	const CONTEXT_ADDRESS = 'cerberusweb.snippets.address';
+	const CONTEXT_ORG = 'cerberusweb.snippets.org';
+	const CONTEXT_TICKET = 'cerberusweb.snippets.ticket';
+	const CONTEXT_WORKER = 'cerberusweb.snippets.worker';
+	
+	public static function getContext($context, $context_object, &$labels, &$values, $prefix=null, $nested=false) {
+		switch($context) {
+			case 'cerberusweb.snippets.address':
+				self::_getAddressContext($context_object, $labels, $values, $prefix);
+				break;
+			case 'cerberusweb.snippets.org':
+				self::_getOrganizationContext($context_object, $labels, $values, $prefix);
+				break;
+			case 'cerberusweb.snippets.ticket':
+				self::_getTicketContext($context_object, $labels, $values, $prefix);
+				break;
+			case 'cerberusweb.snippets.worker':
+				self::_getWorkerContext($context_object, $labels, $values, $prefix);
+				break;
+			default:
+				break;
+		}
+
+		if(!$nested) {
+			// Globals
+			self::_merge(
+				'global_',
+				'(Global) ',
+				array(
+					'timestamp|date' => 'Current Date+Time',
+				),
+				array(
+					'timestamp' => time(),
+				),
+				$labels,
+				$values
+			);
+			
+			// Plugin-provided tokens
+			$token_extension_mfts = DevblocksPlatform::getExtensions('cerberusweb.snippet.token', false);
+			foreach($token_extension_mfts as $mft) { /* @var $mft DevblocksExtensionManifest */
+				@$token = $mft->params['token'];
+				@$label = $mft->params['label'];
+				@$contexts = $mft->params['contexts'][0];
+				
+				if(empty($token) || empty($label) || !is_array($contexts))
+					continue;
+	
+				if(!isset($contexts[$context]))
+					continue;
+					
+				if(null != ($ext = $mft->createInstance()) && $ext instanceof ISnippetContextToken) {
+					/* @var $ext ISnippetContextToken */
+					$value = $ext->getValue($context, $values);
+					
+					if(!empty($value)) {
+						$labels['plugin_'.$token] = '(Plugin) '.$label;
+						$values['plugin_'.$token] = $value;
+					}
+				}
+			}
+		}
+		
+		asort($labels);
+		
+		return null;
+	}
+	
 	/**
 	 * 
 	 * @param string $token_prefix
@@ -565,7 +633,7 @@ class CerberusTemplates {
 	 * @param array $dst_values
 	 * @return void
 	 */
-	public static function merge($token_prefix, $label_prefix, $src_labels, $src_values, &$dst_labels, &$dst_values) {
+	private static function _merge($token_prefix, $label_prefix, $src_labels, $src_values, &$dst_labels, &$dst_values) {
 		foreach($src_labels as $token => $label) {
 			$dst_labels[$token_prefix.$token] = $label_prefix.$label; 
 		}
@@ -583,7 +651,10 @@ class CerberusTemplates {
 	 * @param array $token_labels
 	 * @param array $token_values
 	 */
-	public static function getAddressTokens($address, &$token_labels, &$token_values, $prefix='Email:') {
+	private static function _getAddressContext($address, &$token_labels, &$token_values, $prefix=null) {
+		if(is_null($prefix))
+			$prefix = 'Email:';
+		
 		$translate = DevblocksPlatform::getTranslationService();
 		$fields = DAO_CustomField::getBySource(ChCustomFieldSource_Address::ID);
 		
@@ -657,9 +728,9 @@ class CerberusTemplates {
 		$org_id = (null != $address && !empty($address->contact_org_id)) ? $address->contact_org_id : null;
 		$merge_token_labels = array();
 		$merge_token_values = array();
-		CerberusTemplates::getOrganizationTokens($org_id, $merge_token_labels, $merge_token_values);
+		self::getContext(self::CONTEXT_ORG, $org_id, $merge_token_labels, $merge_token_values, null, true);
 
-		CerberusTemplates::merge(
+		self::_merge(
 			'org_',
 			'',
 			$merge_token_labels,
@@ -667,8 +738,6 @@ class CerberusTemplates {
 			$token_labels,
 			$token_values
 		);		
-		
-		asort($token_labels);
 		
 		return true;
 	}
@@ -679,7 +748,10 @@ class CerberusTemplates {
 	 * @param array $token_labels
 	 * @param array $token_values
 	 */
-	public static function getWorkerSignatureTokens($worker, &$token_labels, &$token_values, $prefix='Worker:') {
+	private static function _getWorkerContext($worker, &$token_labels, &$token_values, $prefix=null) {
+		if(is_null($prefix))
+			$prefix = 'Worker:';
+			
 		$translate = DevblocksPlatform::getTranslationService();
 		$fields = DAO_CustomField::getBySource(ChCustomFieldSource_Worker::ID);
 		
@@ -697,7 +769,6 @@ class CerberusTemplates {
 			'first_name' => $prefix.$translate->_('worker.first_name'),
 			'last_name' => $prefix.$translate->_('worker.last_name'),
 			'title' => $prefix.$translate->_('worker.title'),
-			'global_timestamp|date' => '(Global) '.$translate->_('Current Date+Time'),
 		);
 		
 		if(is_array($fields))
@@ -716,7 +787,6 @@ class CerberusTemplates {
 				$token_values['last_name'] = $worker->last_name;
 			if(!empty($worker->title))
 				$token_values['title'] = $worker->title;
-			$token_values['global_timestamp'] = time();
 			$token_values['custom'] = array();
 			
 			$field_values = array_shift(DAO_CustomFieldValue::getValuesBySourceIds(ChCustomFieldSource_Worker::ID, $worker->id));
@@ -745,9 +815,9 @@ class CerberusTemplates {
 		@$worker_email = !is_null($worker) ? $worker->email : null;
 		$merge_token_labels = array();
 		$merge_token_values = array();
-		CerberusTemplates::getAddressTokens($worker_email, $merge_token_labels, $merge_token_values);
+		self::getContext(self::CONTEXT_ADDRESS, $worker_email, $merge_token_labels, $merge_token_values, null, true);
 
-		CerberusTemplates::merge(
+		self::_merge(
 			'address_',
 			'',
 			$merge_token_labels,
@@ -755,32 +825,6 @@ class CerberusTemplates {
 			$token_labels,
 			$token_values
 		);		
-
-		// Plugin-provided tokens
-		$token_extension_mfts = DevblocksPlatform::getExtensions('cerberusweb.template.token', false);
-		foreach($token_extension_mfts as $mft) { /* @var $mft DevblocksExtensionManifest */
-			@$token = $mft->params['token'];
-			@$label = $mft->params['label'];
-			@$bind = $mft->params['bind'][0];
-			
-			if(empty($token) || empty($label) || !is_array($bind))
-				continue;
-
-			if(!isset($bind['signature']))
-				continue;
-				
-			if(null != ($ext = $mft->createInstance()) && $ext instanceof ITemplateToken_Signature) {
-				/* @var $ext ITemplateToken_Signature */
-				$value = $ext->getSignatureTokenValue($worker);
-				
-				if(!empty($value)) {
-					$token_labels[$token] = $label;
-					$token_values[$token] = $value;
-				}
-			}
-		}
-		
-		asort($token_labels);
 		
 		return true;
 	}
@@ -791,7 +835,10 @@ class CerberusTemplates {
 	 * @param array $token_labels
 	 * @param array $token_values
 	 */
-	public static function getTicketSearchTokens($ticket, &$token_labels, &$token_values, $prefix='Ticket:') {
+	private static function _getTicketContext($ticket, &$token_labels, &$token_values, $prefix=null) {
+		if(is_null($prefix))
+			$prefix = 'Ticket:';
+		
 		$translate = DevblocksPlatform::getTranslationService();
 		$workers = DAO_Worker::getAll();
 		$fields = DAO_CustomField::getBySource(ChCustomFieldSource_Ticket::ID);
@@ -823,7 +870,6 @@ class CerberusTemplates {
 		}
 			
 		// Token labels
-		$global_prefix = '(Global) ';
 		$token_labels = array(
 			'id' => $prefix.$translate->_('ticket.id'),
 			'mask' => $prefix.$translate->_('ticket.mask'),
@@ -833,8 +879,6 @@ class CerberusTemplates {
 			'last_wrote' => $prefix.$translate->_('ticket.last_wrote'),
 			'created|date' => $prefix.$translate->_('ticket.created'),
 			'updated|date' => $prefix.$translate->_('ticket.updated'),
-		
-			'global_timestamp|date' => $global_prefix.$translate->_('Current Date+Time'),
 		);
 		
 		if(is_array($fields))
@@ -855,9 +899,6 @@ class CerberusTemplates {
 			$token_values['last_wrote'] = $ticket[SearchFields_Ticket::TICKET_LAST_WROTE];
 			$token_values['created'] = $ticket[SearchFields_Ticket::TICKET_CREATED_DATE];
 			$token_values['updated'] = $ticket[SearchFields_Ticket::TICKET_UPDATED_DATE];
-			
-			$token_values['global_timestamp'] = time();
-			
 			$token_values['custom'] = array();
 			
 			// Custom fields
@@ -887,9 +928,9 @@ class CerberusTemplates {
 		$active_worker = CerberusApplication::getActiveWorker();
 		$merge_token_labels = array();
 		$merge_token_values = array();
-		CerberusTemplates::getWorkerSignatureTokens($active_worker, $merge_token_labels, $merge_token_values, '');
+		self::getContext(self::CONTEXT_WORKER, $active_worker, $merge_token_labels, $merge_token_values, '', true);
 
-		CerberusTemplates::merge(
+		self::_merge(
 			'worker_',
 			'Current:Worker:',
 			$merge_token_labels,
@@ -902,9 +943,9 @@ class CerberusTemplates {
 		$next_worker_id = $ticket[SearchFields_Ticket::TICKET_NEXT_WORKER_ID];
 		$merge_token_labels = array();
 		$merge_token_values = array();
-		CerberusTemplates::getWorkerSignatureTokens($next_worker_id, $merge_token_labels, $merge_token_values, '');
+		self::getContext(self::CONTEXT_WORKER, $next_worker_id, $merge_token_labels, $merge_token_values, '', true);
 
-		CerberusTemplates::merge(
+		self::_merge(
 			'assignee_',
 			'Assignee:',
 			$merge_token_labels,
@@ -917,9 +958,9 @@ class CerberusTemplates {
 		$first_wrote_id = $ticket[SearchFields_Ticket::TICKET_FIRST_WROTE_ID];
 		$merge_token_labels = array();
 		$merge_token_values = array();
-		CerberusTemplates::getAddressTokens($first_wrote_id, $merge_token_labels, $merge_token_values, 'Sender:');
+		self::getContext(self::CONTEXT_ADDRESS, $first_wrote_id, $merge_token_labels, $merge_token_values, 'Sender:', true);
 		
-		CerberusTemplates::merge(
+		self::_merge(
 			'initial_sender_',
 			'Initial:',
 			$merge_token_labels,
@@ -933,9 +974,9 @@ class CerberusTemplates {
 		@$last_wrote_id = $ticket[SearchFields_Ticket::TICKET_LAST_WROTE_ID];
 		$merge_token_labels = array();
 		$merge_token_values = array();
-		CerberusTemplates::getAddressTokens($last_wrote_id, $merge_token_labels, $merge_token_values, 'Sender:');
+		self::getContext(self::CONTEXT_ADDRESS, $last_wrote_id, $merge_token_labels, $merge_token_values, 'Sender:', true);
 
-		CerberusTemplates::merge(
+		self::_merge(
 			'latest_sender_',
 			'Latest:',
 			$merge_token_labels,
@@ -968,8 +1009,6 @@ class CerberusTemplates {
 			}
 		}
 		
-		asort($token_labels);
-		
 		return true;
 	}
 	
@@ -979,7 +1018,10 @@ class CerberusTemplates {
 	 * @param array $token_labels
 	 * @param array $token_values
 	 */
-	public static function getOrganizationTokens($org, &$token_labels, &$token_values, $prefix='Org:') {
+	private static function _getOrganizationContext($org, &$token_labels, &$token_values, $prefix=null) {
+		if(is_null($prefix))
+			$prefix = 'Org:';
+		
 		$translate = DevblocksPlatform::getTranslationService();
 		$fields = DAO_CustomField::getBySource(ChCustomFieldSource_Org::ID);
 
@@ -1055,8 +1097,6 @@ class CerberusTemplates {
 			}
 		}
 
-		asort($token_labels);
-		
 		return true;
 	}
 		

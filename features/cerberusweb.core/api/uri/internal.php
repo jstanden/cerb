@@ -106,12 +106,12 @@ class ChInternalController extends DevblocksControllerExtension {
 				
 				shuffle($result);
 				
-				CerberusTemplates::getTicketSearchTokens(array_shift($result), $token_labels, $token_values);
+				CerberusSnippetContexts::getContext(CerberusSnippetContexts::CONTEXT_TICKET, array_shift($result), $token_labels, $token_values);
 				break;
 				
 			case 'cerberusweb.snippets.worker':
 				$active_worker = CerberusApplication::getActiveWorker();
-				CerberusTemplates::getWorkerSignatureTokens($active_worker, $token_labels, $token_values);
+				CerberusSnippetContexts::getContext(CerberusSnippetContexts::CONTEXT_WORKER, $active_worker, $token_labels, $token_values);
 				break;
 		}
 

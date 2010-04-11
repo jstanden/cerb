@@ -438,7 +438,7 @@ class ChDisplayPage extends CerberusPageExtension {
 			}
 
 			$tpl_builder = DevblocksPlatform::getTemplateBuilder();
-			$tpl_vars = CerberusTemplates::getWorkerSignatureTokens($active_worker, $token_labels, $token_values);
+			CerberusSnippetContexts::getContext(CerberusSnippetContexts::CONTEXT_WORKER, $active_worker, $token_labels, $token_values);
 			$tpl->assign('signature', $tpl_builder->build($signature, $token_values));
 			
 		    $signature_pos = $settings->get('cerberusweb.core',CerberusSettings::DEFAULT_SIGNATURE_POS,CerberusSettingsDefaults::DEFAULT_SIGNATURE_POS);
@@ -1248,10 +1248,10 @@ class ChDisplayPage extends CerberusPageExtension {
 					$token_values= array();
 					break;
 				case 'cerberusweb.snippets.ticket':
-					CerberusTemplates::getTicketSearchTokens($context_id, $token_labels, $token_values);
+					CerberusSnippetContexts::getContext(CerberusSnippetContexts::CONTEXT_TICKET, $context_id, $token_labels, $token_values);
 					break;
 				case 'cerberusweb.snippets.worker':
-					CerberusTemplates::getWorkerSignatureTokens($active_worker, $token_labels, $token_values);
+					CerberusSnippetContexts::getContext(CerberusSnippetContexts::CONTEXT_WORKER, $active_worker, $token_labels, $token_values);
 					break;
 			}
 		}
