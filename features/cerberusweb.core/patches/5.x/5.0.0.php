@@ -1,5 +1,6 @@
 <?php
 $db = DevblocksPlatform::getDatabaseService();
+$logger = DevblocksPlatform::getConsoleLog();
 $tables = $db->metaTables();
 
 // ===========================================================================
@@ -28,6 +29,10 @@ if(isset($columns['value'])
 
 list($columns, $indexes) = $db->metaTable('message_header');
 
+
+/*
+ * [TODO] Slow: (1m 55.05s)
+ */
 if(isset($columns['header_value'])
 	&& 0 != strcasecmp('text',$columns['header_value']['type'])) {
 		$db->Execute('ALTER TABLE message_header MODIFY COLUMN header_value TEXT');
@@ -135,6 +140,9 @@ if(isset($tables['message_content'])) {
 	$db->Execute("RENAME TABLE message_content TO storage_message_content");
 	$db->Execute("ALTER TABLE storage_message_content DROP INDEX content");
 	$db->Execute("ALTER TABLE storage_message_content CHANGE COLUMN message_id id int unsigned default '0' not null");
+	/**
+	 * [TODO] Slow (27.31s)
+	 */
 	$db->Execute("ALTER TABLE storage_message_content CHANGE COLUMN content data blob");
 
 	unset($tables['message_content']);
@@ -191,9 +199,13 @@ list($columns, $indexes) = $db->metaTable('message');
 
 if(!isset($columns['storage_extension'])) {
 	$db->Execute("ALTER TABLE message ADD COLUMN storage_extension VARCHAR(255) DEFAULT '' NOT NULL");
+}
+
+$db->Execute("UPDATE message SET storage_extension='devblocks.storage.engine.database' WHERE storage_extension=''");
+
+if(!isset($indexes['storage_extension'])) {
 	$db->Execute("ALTER TABLE message ADD INDEX storage_extension (storage_extension)");
 }
-$db->Execute("UPDATE message SET storage_extension='devblocks.storage.engine.database' WHERE storage_extension=''");
 
 if(!isset($columns['storage_key'])) {
 	$db->Execute("ALTER TABLE message ADD COLUMN storage_key VARCHAR(255) DEFAULT '' NOT NULL");
@@ -201,6 +213,9 @@ if(!isset($columns['storage_key'])) {
 
 if(!isset($columns['storage_size'])) {
 	$db->Execute("ALTER TABLE message ADD COLUMN storage_size INT UNSIGNED DEFAULT 0 NOT NULL");
+	/*
+	 * [SLOW] (41.27s)
+	 */
 	$db->Execute("UPDATE message, storage_message_content SET message.storage_size = LENGTH(storage_message_content.data) WHERE message.id=storage_message_content.id");
 }
 

@@ -27,16 +27,17 @@ class ChCorePatchContainer extends DevblocksPatchContainerExtension {
 
 		$file_prefix = dirname(dirname(__FILE__)) . '/patches/';
 		
-		$this->registerPatch(new DevblocksPatch('cerberusweb.core',180,$file_prefix.'4.0.0__.php',''));
-		$this->registerPatch(new DevblocksPatch('cerberusweb.core',555,$file_prefix.'4.0.0_beta.php',''));
-		$this->registerPatch(new DevblocksPatch('cerberusweb.core',809,$file_prefix.'4.0.0_rc1.php',''));
-		$this->registerPatch(new DevblocksPatch('cerberusweb.core',826,$file_prefix.'4.1.0.php',''));
-		$this->registerPatch(new DevblocksPatch('cerberusweb.core',827,$file_prefix.'4.1.1.php',''));
-		$this->registerPatch(new DevblocksPatch('cerberusweb.core',830,$file_prefix.'4.2.0.php',''));
-		$this->registerPatch(new DevblocksPatch('cerberusweb.core',832,$file_prefix.'4.2.1.php',''));
-		$this->registerPatch(new DevblocksPatch('cerberusweb.core',834,$file_prefix.'4.2.3.php',''));
-		$this->registerPatch(new DevblocksPatch('cerberusweb.core',836,$file_prefix.'4.3.0.php',''));
-		$this->registerPatch(new DevblocksPatch('cerberusweb.core',837,$file_prefix.'4.3.1.php',''));
-		$this->registerPatch(new DevblocksPatch('cerberusweb.core',855,$file_prefix.'5.0.0.php',''));
+		$this->registerPatch(new DevblocksPatch('cerberusweb.core',180,$file_prefix.'4.x/4.0.0__.php'));
+		$this->registerPatch(new DevblocksPatch('cerberusweb.core',555,$file_prefix.'4.x/4.0.0_beta.php'));
+		$this->registerPatch(new DevblocksPatch('cerberusweb.core',809,$file_prefix.'4.x/4.0.0_rc1.php'));
+		$this->registerPatch(new DevblocksPatch('cerberusweb.core',826,$file_prefix.'4.x/4.1.0.php'));
+		$this->registerPatch(new DevblocksPatch('cerberusweb.core',827,$file_prefix.'4.x/4.1.1.php'));
+		$this->registerPatch(new DevblocksPatch('cerberusweb.core',830,$file_prefix.'4.x/4.2.0.php'));
+		$this->registerPatch(new DevblocksPatch('cerberusweb.core',832,$file_prefix.'4.x/4.2.1.php'));
+		$this->registerPatch(new DevblocksPatch('cerberusweb.core',834,$file_prefix.'4.x/4.2.3.php'));
+		$this->registerPatch(new DevblocksPatch('cerberusweb.core',836,$file_prefix.'4.x/4.3.0.php'));
+		$this->registerPatch(new DevblocksPatch('cerberusweb.core',837,$file_prefix.'4.x/4.3.1.php'));
+		
+		$this->registerPatch(new DevblocksPatch('cerberusweb.core',855,$file_prefix.'5.x/5.0.0.php'));
 	}
 };

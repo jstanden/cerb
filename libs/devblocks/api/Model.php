@@ -322,13 +322,6 @@ class DevblocksPluginManifest {
 		DAO_Platform::updatePlugin($this->id, $fields);
 	}
 	
-	/**
-	 * @return DevblocksPatchContainer
-	 */
-	function getPatchContainer() {
-		return null;
-	}
-	
 	function purge() {
 		$db = DevblocksPlatform::getDatabaseService();
 		$prefix = (APP_DB_PREFIX != '') ? APP_DB_PREFIX.'_' : ''; // [TODO] Cleanup
@@ -391,6 +384,9 @@ class DevblocksExtensionManifest {
 		return $instance;
 	}
 	
+	/**
+	 * @return DevblocksPluginManifest
+	 */
 	function getPlugin() {
 		$plugin = DevblocksPlatform::getPlugin($this->plugin_id);
 		return $plugin;
@@ -444,32 +440,22 @@ class DevblocksPatch {
 	private $plugin_id = ''; // cerberusweb.core
 	private $revision = 0; // 100
 	private $filename = ''; // 4.0.0.php
-	private $class = ''; // ChPatch400
 	
-	public function __construct($plugin_id, $revision, $filename, $class) { // $one_run=false
+	public function __construct($plugin_id, $revision, $filename) {
 		$this->plugin_id = $plugin_id;
 		$this->revision = intval($revision);
 		$this->filename = $filename;
-		$this->class = $class;
 	}
 	
 	public function run() {
 	    if($this->hasRun())
 	        return TRUE;
 
-		if(empty($this->filename)) { //  || empty($this->class)
-			return FALSE;
-		}
-		
-	    if(!file_exists($this->filename)) {
-			// [TODO] needs some file error handling
-	        return FALSE;   
-	    }
+	    if(empty($this->filename) || !file_exists($this->filename))
+	        return FALSE;
 
-		require_once($this->filename);
-		// [TODO] Check that the class we want exists
-//		$object = new $$this->class;
-	    // [TODO] Need to catch failures here (when we wrap in classes)
+		if(false === ($result = require_once($this->filename)))
+			return FALSE;
 		
 		DAO_Platform::setPatchRan($this->plugin_id,$this->revision);
 		
@@ -486,6 +472,10 @@ class DevblocksPatch {
 	
 	public function getPluginId() {
 		return $this->plugin_id;
+	}
+	
+	public function getFilename() {
+		return $this->filename;
 	}
 	
 	public function getRevision() {

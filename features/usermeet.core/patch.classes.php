@@ -61,13 +61,13 @@ class UmPatchContainer extends DevblocksPatchContainerExtension {
 		
 		$file_prefix = dirname(__FILE__) . '/patches/';
 		
-		$this->registerPatch(new DevblocksPatch('usermeet.core',0,$file_prefix.'1.0.0.php',''));
-		$this->registerPatch(new DevblocksPatch('usermeet.core',11,$file_prefix.'1.0.0_beta.php',''));
-		$this->registerPatch(new DevblocksPatch('usermeet.core',13,$file_prefix.'1.1.0.php',''));
-		$this->registerPatch(new DevblocksPatch('usermeet.core',14,$file_prefix.'4.2.2.php',''));
-		$this->registerPatch(new DevblocksPatch('usermeet.core',15,$file_prefix.'4.3.0.php',''));
-		$this->registerPatch(new DevblocksPatch('usermeet.core',16,$file_prefix.'4.3.1.php',''));
-		$this->registerPatch(new DevblocksPatch('usermeet.core',19,$file_prefix.'5.0.0.php',''));
+		$this->registerPatch(new DevblocksPatch('usermeet.core',0,$file_prefix.'1.0.0.php'));
+		$this->registerPatch(new DevblocksPatch('usermeet.core',11,$file_prefix.'1.0.0_beta.php'));
+		$this->registerPatch(new DevblocksPatch('usermeet.core',13,$file_prefix.'1.1.0.php'));
+		$this->registerPatch(new DevblocksPatch('usermeet.core',14,$file_prefix.'4.2.2.php'));
+		$this->registerPatch(new DevblocksPatch('usermeet.core',15,$file_prefix.'4.3.0.php'));
+		$this->registerPatch(new DevblocksPatch('usermeet.core',16,$file_prefix.'4.3.1.php'));
+		$this->registerPatch(new DevblocksPatch('usermeet.core',19,$file_prefix.'5.0.0.php'));
 	}
 
 };

@@ -498,7 +498,7 @@ class DevblocksPlatform extends DevblocksEngine {
 		 $containers = DevblocksPlatform::getExtensions("devblocks.patch.container", true, true);
 
 		 // [JAS]: Devblocks
-		 array_unshift($containers, new PlatformPatchContainer());
+		 array_unshift($containers, new DevblocksPatchContainer());
 		 
 		 foreach($containers as $container) { /* @var $container DevblocksPatchContainerExtension */
 			foreach($container->getPatches() as $patch) { /* @var $patch DevblocksPatch */
@@ -526,11 +526,11 @@ class DevblocksPlatform extends DevblocksEngine {
 		$patchMgr = DevblocksPlatform::getPatchService();
 		
 		// [JAS]: Run our overloaded container for the platform
-		$patchMgr->registerPatchContainer(new PlatformPatchContainer());
+		$patchMgr->registerPatchContainer(new DevblocksPatchContainer());
 		
 		// Clean script
 		if(!$patchMgr->run()) {
-			return false;
+			return FALSE;
 		    
 		} else { // success
 			// Read in plugin information from the filesystem to the database
@@ -554,7 +554,7 @@ class DevblocksPlatform extends DevblocksEngine {
 //			echo "Patching plugins... ";
 			
 			if(!$patchMgr->run()) { // fail
-				return false;
+				return FALSE;
 			}
 			
 //			echo "done!<br>";
@@ -562,7 +562,7 @@ class DevblocksPlatform extends DevblocksEngine {
 			$cache = self::getCacheService();
 			$cache->save(APP_BUILD, "devblocks_app_build");
 
-			return true;
+			return TRUE;
 		}
 	}
 	
@@ -1271,8 +1271,7 @@ class DevblocksPlatform extends DevblocksEngine {
 	}
 };
 
-// [TODO] This doesn't belong! (ENGINE)
-class PlatformPatchContainer extends DevblocksPatchContainerExtension {
+class DevblocksPatchContainer extends DevblocksPatchContainerExtension {
 	
 	function __construct() {
 		parent::__construct(null);
@@ -1285,10 +1284,10 @@ class PlatformPatchContainer extends DevblocksPatchContainerExtension {
 
 		$file_prefix = dirname(__FILE__) . '/patches/';
 
-		$this->registerPatch(new DevblocksPatch('devblocks.core',1,$file_prefix.'1.0.0.php',''));
-		$this->registerPatch(new DevblocksPatch('devblocks.core',253,$file_prefix.'1.0.0_beta.php',''));
-		$this->registerPatch(new DevblocksPatch('devblocks.core',290,$file_prefix.'1.1.0.php',''));
-		$this->registerPatch(new DevblocksPatch('devblocks.core',304,$file_prefix.'2.0.0.php',''));
+		$this->registerPatch(new DevblocksPatch('devblocks.core',1,$file_prefix.'1.0.0.php'));
+		$this->registerPatch(new DevblocksPatch('devblocks.core',253,$file_prefix.'1.0.0_beta.php'));
+		$this->registerPatch(new DevblocksPatch('devblocks.core',290,$file_prefix.'1.1.0.php'));
+		$this->registerPatch(new DevblocksPatch('devblocks.core',304,$file_prefix.'2.0.0.php'));
 	}
 };
 
@@ -4220,7 +4219,6 @@ class _DevblocksDatabaseManager {
 class _DevblocksPatchManager {
 	private static $instance = null; 
 	private $containers = array(); // DevblocksPatchContainerExtension[]
-	private $errors = array();
 
 	private function __construct() {}
 	
@@ -4250,8 +4248,10 @@ class _DevblocksPatchManager {
 			}
 			
 			foreach($this->containers as $container) { /* @var $container DevblocksPatchContainerExtension */
-				$result = $container->run();
-				if(!$result) die("FAILED on " . $container->id);
+				if(false === ($result = $container->run())) {
+					die("FAILED on " . $container->id);
+					return FALSE;
+				}
 			}
 		}
 		
@@ -4260,16 +4260,9 @@ class _DevblocksPatchManager {
 		return TRUE;
 	}
 	
-	// [TODO] Populate
-	public function getErrors() {
-		return $this->errors;
-	}
-	
 	public function clear() {
-		// [TODO] We probably need a mechanism to clear errors also.
 		$this->containers = array();
 	}
-
 };
 
 class _DevblocksClassLoadManager {

@@ -387,7 +387,7 @@ switch($step) {
 			$patchMgr = DevblocksPlatform::getPatchService();
 			
 			// [JAS]: Run our overloaded container for the platform
-			$patchMgr->registerPatchContainer(new PlatformPatchContainer());
+			$patchMgr->registerPatchContainer(new DevblocksPatchContainer());
 			
 			// Clean script
 			if(!$patchMgr->run()) {

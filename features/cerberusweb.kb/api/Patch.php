@@ -11,6 +11,6 @@ class ChKbPatchContainer extends DevblocksPatchContainerExtension {
 
 		$file_prefix = dirname(dirname(__FILE__)) . '/patches';
 		
-		$this->registerPatch(new DevblocksPatch('cerberusweb.kb',3,$file_prefix.'/5.0.0.php',''));
+		$this->registerPatch(new DevblocksPatch('cerberusweb.kb',3,$file_prefix.'/5.0.0.php'));
 	}
 };
