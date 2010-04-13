@@ -10,13 +10,13 @@
 Each new Cerberus Helpdesk installation defaults to a "Unlicensed Free Version",
 allowing nearly full functionality with no expiration. In this mode, a small tagline 
 about Cerberus Helpdesk will be appended to all outgoing e-mail, and you are limited to 3
-workers and 3 groups. Companies with light requirements may find the unlicensed free version
+workers. Companies with light requirements may find the unlicensed free version
 does everything they need. Go ahead, enjoy!<br>
 <br>
 
 <b>If you answer a few questions below to introduce yourself, we'll send you a free 
-registered license</b> for 3 workers.  A registered license will allow you to set up 
-unlimited groups, and it will remove the Cerberus Helpdesk tagline from your outgoing e-mail.<br>
+registered license</b> for 3 workers.  A registered license will remove the Cerberus Helpdesk 
+tagline from your outgoing e-mail.<br>
 <br>
 
 For organizations with more than 3 workers, <a href="http://www.cerberusweb.com/buy/" target="_blank">we offer affordable and flexible licensing
