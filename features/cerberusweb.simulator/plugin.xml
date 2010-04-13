@@ -7,6 +7,14 @@
 	<revision>0</revision>
 	<link>http://wiki.cerb4.com/wiki/New_Changes#Simulator</link>
 	
+	<!-- Plugin Dependencies -->
+	
+	<dependencies>
+		<require plugin_id="cerberusweb.core" version="5.0.0-beta" />
+	</dependencies>
+
+	<!-- Extensions -->
+	
 	<extensions>
 
 		<!-- Http Listeners -->

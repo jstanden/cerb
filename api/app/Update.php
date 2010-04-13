@@ -72,15 +72,26 @@ class ChUpdateController extends DevblocksControllerExtension {
 			    	exit;
 			    }
 			    
-			    // If authorized, lock and attempt update
-				if(!file_exists($file) || @filectime($file)+600 < time()) { // 10 min lock
-					touch($file);
+			    try {
+				    // If authorized, lock and attempt update
+					if(!file_exists($file) || @filectime($file)+600 < time()) { // 10 min lock
+						// Log everybody out since we're touching the database
+						$session = DevblocksPlatform::getSessionService();
+						$session->clearAll();
 
-				    //echo "Running plugin patches...<br>";
-				    if(DevblocksPlatform::runPluginPatches()) {
+						// Lock file
+						touch($file);
+						
+						// Recursive patch
+						CerberusApplication::update();
+						
+						// Clean up
 						@unlink($file);
 
-						// [JAS]: Clear all caches
+						$cache = DevblocksPlatform::getCacheService();
+						$cache->save(APP_BUILD, "devblocks_app_build");
+
+						// Clear all caches
 						$cache->clean();
 						DevblocksPlatform::getClassLoaderService()->destroy();
 						
@@ -90,17 +101,18 @@ class ChUpdateController extends DevblocksControllerExtension {
 
 						// Reload plugin translations
 						DAO_Translation::reloadPluginStrings();
-						
+
+						// Redirect
 				    	DevblocksPlatform::redirect(new DevblocksHttpResponse(array('login')));
-				    } else {
-						@unlink($file);
-				    	echo "Failure!"; // [TODO] Needs elaboration
-				    } 
-				    break;
-				}
-				else {
-					echo $translate->_('update.locked_another');
-				}
+	
+					} else {
+						echo $translate->_('update.locked_another');
+					}
+					
+	    	} catch(Exception $e) {
+	    		unlink($file);
+	    		die($e->getMessage());
+	    	}
 	    }
 	    
 		exit;

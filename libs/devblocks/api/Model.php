@@ -304,22 +304,38 @@ class DevblocksPluginManifest {
 	var $revision = 0;
 	var $link = '';
 	var $dir = '';
+	var $manifest_cache = array();
+	
 	var $extension_points = array();
-	var $extensions = array();
 	var $event_points = array();
 	var $acl_privs = array();
 	var $class_loader = array();
 	var $uri_routing = array();
-	var $templates = array();
+	var $extensions = array();
 	
 	function setEnabled($bool) {
 		$this->enabled = ($bool) ? 1 : 0;
 		
-		// [JAS]: Persist to DB
+		// Persist to DB
 		$fields = array(
 			'enabled' => $this->enabled
 		);
 		DAO_Platform::updatePlugin($this->id, $fields);
+	}
+	
+	/**
+	 * return DevblocksPatch[]
+	 */
+	function getPatches() {
+		$patches = array();
+		
+		if(isset($this->manifest_cache['patches']))
+		foreach($this->manifest_cache['patches'] as $patch) {
+			$path = APP_PATH . '/' . $this->dir . '/' . $patch['file'];
+			$patches[] = new DevblocksPatch($this->id, $patch['version'], $patch['revision'], $path);
+		}
+		
+		return $patches;
 	}
 	
 	function purge() {
@@ -438,11 +454,13 @@ abstract class DevblocksVisit {
  */
 class DevblocksPatch {
 	private $plugin_id = ''; // cerberusweb.core
+	private $version = '';
 	private $revision = 0; // 100
 	private $filename = ''; // 4.0.0.php
 	
-	public function __construct($plugin_id, $revision, $filename) {
+	public function __construct($plugin_id, $version, $revision, $filename) {
 		$this->plugin_id = $plugin_id;
+		$this->version = $version;
 		$this->revision = intval($revision);
 		$this->filename = $filename;
 	}
@@ -457,7 +475,7 @@ class DevblocksPatch {
 		if(false === ($result = require_once($this->filename)))
 			return FALSE;
 		
-		DAO_Platform::setPatchRan($this->plugin_id,$this->revision);
+		DAO_Platform::setPatchRan($this->plugin_id, $this->revision);
 		
 		return TRUE;
 	}
@@ -476,6 +494,10 @@ class DevblocksPatch {
 	
 	public function getFilename() {
 		return $this->filename;
+	}
+	
+	public function getVersion() {
+		return $this->version;
 	}
 	
 	public function getRevision() {

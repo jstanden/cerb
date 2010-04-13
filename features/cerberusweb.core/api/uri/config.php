@@ -490,7 +490,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 			if(empty($id) && null == DAO_Worker::lookupAgentEmail($email)) {
 				$workers = DAO_Worker::getAll();
 				$license = CerberusLicense::getInstance();
-				if ((!@empty($license['workers'])&&(@$license['workers']>=50||count($workers)<@$license['workers']))||(@empty($license['workers'])&&count($workers)<3)) {
+				if ((!@empty($license['workers'])&&(@$license['workers']>=100||count($workers)<@$license['workers']))||(@empty($license['workers'])&&count($workers)<3)) {
 					// Creating new worker.  If password is empty, email it to them
 				    if(empty($password)) {
 				    	$settings = DevblocksPlatform::getPluginSettingsService();
@@ -2079,40 +2079,30 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		@$plugins_enabled = DevblocksPlatform::importGPC($_REQUEST['plugins_enabled']);
 		
 		if(null !== $plugins_enabled && is_array($pluginStack))
-		foreach($pluginStack as $plugin) {
-			$enabled = false;
-			
+		foreach($pluginStack as $plugin) { /* @var $plugin DevblocksPluginManifest */
 			switch($plugin->id) {
 				case 'devblocks.core':
 				case 'cerberusweb.core':
-					$enabled = true;
+					$plugin->setEnabled(true);
 					break;
+					
 				default:
 					if(false !== array_search($plugin->id, $plugins_enabled)) {
-						$enabled = true;
+						$plugin->setEnabled(true);
+					} else {
+						$plugin->setEnabled(false);
 					}
 					break;
 			}
-			
-			$plugin->setEnabled($enabled);
+		}
+		
+		try {
+			CerberusApplication::update();	
+		} catch (Exception $e) {
+			// [TODO] ...
 		}
 
 		DevblocksPlatform::clearCache();
-		
-		// Run any enabled plugin patches
-		// [TODO] Should the platform do this automatically on enable in order?
-		$patchMgr = DevblocksPlatform::getPatchService();
-		$patches = DevblocksPlatform::getExtensions("devblocks.patch.container",false,true);
-		
-		if(is_array($patches))
-		foreach($patches as $patch_manifest) { /* @var $patch_manifest DevblocksExtensionManifest */ 
-			 $container = $patch_manifest->createInstance(); /* @var $container DevblocksPatchContainerExtension */
-			 $patchMgr->registerPatchContainer($container);
-		}
-		
-		if(!$patchMgr->run()) { // fail
-			die("Failed updating plugins."); // [TODO] Make this more graceful
-		}
 		
         // Reload plugin translations
 		DAO_Translation::reloadPluginStrings();

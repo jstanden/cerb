@@ -7,6 +7,18 @@
 	<revision>0</revision>
 	<link>http://wiki.cerb4.com/wiki/</link>
 	
+	<!-- Plugin Dependencies -->
+	
+	<dependencies>
+		<require plugin_id="cerberusweb.core" version="5.0.0-beta" />
+	</dependencies>
+	
+	<!-- Patches -->
+	
+	<patches>
+		<patch version="4.1.0" revision="4" file="patches/4.1.0.php" />
+	</patches>
+	
 	<!-- Exported Classes -->
 	
 	<class_loader>
@@ -23,19 +35,6 @@
 	</acl>
 	
 	<extensions>
-	
-		<!-- Patch Containers -->
-		
-		<extension point="devblocks.patch.container">
-			<id>timetracking.patches</id>
-			<name>Time Tracking Patches</name>
-			<class>
-				<file>api/Patch.php</file>
-				<name>ChTimeTrackingPatchContainer</name>
-			</class>
-			<params>
-			</params>
-		</extension>
 	
 		<!-- Http Listeners -->
 		

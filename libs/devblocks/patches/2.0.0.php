@@ -170,4 +170,17 @@ if(isset($columns['value'])
 		$db->Execute("ALTER TABLE devblocks_setting MODIFY COLUMN value TEXT");
 }
 
+// ===========================================================================
+// Drop templates_json and move to manifest_cache_json
+
+list($columns, $indexes) = $db->metaTable($prefix.'plugin');
+
+if(isset($columns['templates_json'])) {
+	$db->Execute("ALTER TABLE ${prefix}plugin DROP COLUMN templates_json");
+}
+
+if(!isset($columns['manifest_cache_json'])) {
+	$db->Execute("ALTER TABLE ${prefix}plugin ADD COLUMN manifest_cache_json MEDIUMTEXT");
+}
+
 return TRUE;

@@ -7,6 +7,22 @@
 	<revision>0</revision>
 	<link>http://wiki.cerb4.com/wiki/New_Changes#Watchers_.28E-mail_Notifications.29</link>
 
+	<!-- Plugin Dependencies -->
+	
+	<dependencies>
+		<require plugin_id="cerberusweb.core" version="5.0.0-beta" />
+	</dependencies>
+
+	<!-- Patches -->
+	
+	<patches>
+		<patch version="4.0.0-beta" revision="4" file="patches/4.0.0_beta.php" />
+		<patch version="4.2.3" revision="5" file="patches/4.2.3.php" />
+		<patch version="5.0.0-beta" revision="6" file="patches/5.0.0_beta.php" />
+	</patches>
+
+	<!-- Exported Classes -->
+
 	<class_loader>
 		<file path="api/App.php">
 			<class name="DAO_WatcherMailFilter" />
@@ -17,19 +33,6 @@
 	</class_loader>
 	
 	<extensions>
-
-		<!-- Patch Containers -->
-		
-		<extension point="devblocks.patch.container">
-			<id>watchers.patches</id>
-			<name>Watchers Patches</name>
-			<class>
-				<file>api/Patch.php</file>
-				<name>ChWatchersPatchContainer</name>
-			</class>
-			<params>
-			</params>
-		</extension>
 
 		<!-- Event Listeners -->
 		

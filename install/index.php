@@ -268,7 +268,6 @@ switch($step) {
 	    break;	
 	
 	// Configure and test the database connection
-	// [TODO] This should also patch in app_id + revision order
 	// [TODO] This should remind the user to make a backup (and refer to a wiki article how)
 	case STEP_DATABASE:
 		// Import scope (if post)
@@ -384,72 +383,55 @@ switch($step) {
 		// [TODO] Add current user to patcher/upgrade authorized IPs
 		
 		if(DevblocksPlatform::isDatabaseEmpty()) { // install
-			$patchMgr = DevblocksPlatform::getPatchService();
-			
-			// [JAS]: Run our overloaded container for the platform
-			$patchMgr->registerPatchContainer(new DevblocksPatchContainer());
-			
-			// Clean script
-			if(!$patchMgr->run()) {
-				// [TODO] Show more info on the error
+			try {
+				DevblocksPlatform::update();
+			} catch(Exception $e) {
+				$tpl->assign('error', $e->getMessage());
 				$tpl->assign('template', 'steps/step_init_db.tpl');
-				
-			} else { // success
-				// Read in plugin information from the filesystem to the database
-				DevblocksPlatform::readPlugins();
-				
-				/*
-				 * [TODO] This possibly needs to only start with core, because as soon 
-				 * as we add back another feature with licensing we'll have installer 
-				 * errors trying to license plugins before core runs its DB install.
-				 */
-				$plugins = DevblocksPlatform::getPluginRegistry();
-				
-				// Tailor which plugins are enabled by default
-				if(is_array($plugins))
-				foreach($plugins as $plugin_manifest) { /* @var $plugin_manifest DevblocksPluginManifest */
-					switch ($plugin_manifest->id) {
-						case "devblocks.core":
-						case "cerberusweb.core":
-						case "cerberusweb.simulator":
-						case "cerberusweb.watchers":
-						case "usermeet.core":
-							$plugin_manifest->setEnabled(true);
-							break;
-						
-						default:
-							$plugin_manifest->setEnabled(false);
-							break;
-					}
-				}
-				
-				DevblocksPlatform::clearCache();
-				
-				// Run enabled plugin patches
-				$patches = DevblocksPlatform::getExtensions("devblocks.patch.container",false,true);
-				
-				if(is_array($patches))
-				foreach($patches as $patch_manifest) { /* @var $patch_manifest DevblocksExtensionManifest */ 
-					 $container = $patch_manifest->createInstance(); /* @var $container DevblocksPatchContainerExtension */
-					 $patchMgr->registerPatchContainer($container);
-				}
-				
-				if(!$patchMgr->run()) { // fail
-					$tpl->assign('template', 'steps/step_init_db.tpl');
-					
-				} else {
-					// Reload plugin translations
-					DAO_Translation::reloadPluginStrings();
-					
-					// success
-					$tpl->assign('step', STEP_CONTACT);
-					$tpl->display('steps/redirect.tpl');
-					exit;
-				}
-			
-				// [TODO] Verify the database
 			}
 			
+			// Read in plugin information from the filesystem to the database
+			DevblocksPlatform::readPlugins();
+			
+			$plugins = DevblocksPlatform::getPluginRegistry();
+			
+			// Tailor which plugins are enabled by default
+			if(is_array($plugins))
+			foreach($plugins as $plugin) { /* @var $plugin DevblocksPluginManifest */
+				switch ($plugin->id) {
+					case 'devblocks.core':
+					case 'cerberusweb.core':
+					case 'cerberusweb.simulator':
+					case 'cerberusweb.watchers':
+					case 'usermeet.core':
+						$plugin->setEnabled(true);
+						break;
+					
+					default:
+						$plugin->setEnabled(false);
+						break;
+				}
+			}
+			
+			// Platform + App
+			try {
+				CerberusApplication::update();
+				
+				// Reload plugin translations
+				DAO_Translation::reloadPluginStrings();
+				
+				// Success
+				$tpl->assign('step', STEP_CONTACT);
+				$tpl->display('steps/redirect.tpl');
+				exit;
+				
+				// [TODO] Verify the database
+				
+			} catch(Exception $e) {
+				$tpl->assign('error', $e->getMessage());
+				$tpl->assign('template', 'steps/step_init_db.tpl');
+				exit;
+			}
 			
 		} else { // upgrade / patch
 			/*

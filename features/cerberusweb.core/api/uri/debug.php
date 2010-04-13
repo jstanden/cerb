@@ -86,6 +86,7 @@ class ChDebugController extends DevblocksControllerExtension  {
 	    		@$tables = $db->MetaTables('TABLE',false);
 	    		
 				$report_output = sprintf(
+					"[Cerberus Helpdesk] App Version: %s\n".
 					"[Cerberus Helpdesk] App Build: %s\n".
 					"[Cerberus Helpdesk] Devblocks Build: %s\n".
 					"[Cerberus Helpdesk] URL-Rewrite: %s\n".
@@ -122,6 +123,7 @@ class ChDebugController extends DevblocksControllerExtension  {
 					"[PHP:Extension] SPL: %s\n".
 					"\n".
 					'%s',
+					APP_VERSION,
 					APP_BUILD,
 					PLATFORM_BUILD,
 					(file_exists(APP_PATH . '/.htaccess') ? 'YES' : 'NO'),

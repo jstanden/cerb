@@ -495,75 +495,17 @@ class DevblocksPlatform extends DevblocksEngine {
 	 */
 	static private function _needsToPatch() {
 		 $plugins = DevblocksPlatform::getPluginRegistry();
-		 $containers = DevblocksPlatform::getExtensions("devblocks.patch.container", true, true);
 
-		 // [JAS]: Devblocks
-		 array_unshift($containers, new DevblocksPatchContainer());
-		 
-		 foreach($containers as $container) { /* @var $container DevblocksPatchContainerExtension */
-			foreach($container->getPatches() as $patch) { /* @var $patch DevblocksPatch */
-				if(!$patch->hasRun()) {
-//					echo "Need to run a patch: ",$patch->getPluginId(),$patch->getRevision();
-					return true;
-				}
-			}
+		 foreach($plugins as $plugin) { /* @var $plugin DevblocksPluginManifest */
+		 	if($plugin->enabled) {
+		 		foreach($plugin->getPatches() as $patch) { /* @var $patch DevblocksPatch */
+		 			if(!$patch->hasRun())
+		 				return true;
+		 		}
+		 	}
 		 }
 		 
-//		 echo "Don't need to run any patches.";
 		 return false;
-	}
-	
-	/**
-	 * Runs patches for all active plugins
-	 *
-	 * @return boolean
-	 */
-	static function runPluginPatches() {
-	    // Log out all sessions before patching
-	    $session = DevblocksPlatform::getSessionService();
-	    $session->clearAll();
-		
-		$patchMgr = DevblocksPlatform::getPatchService();
-		
-		// [JAS]: Run our overloaded container for the platform
-		$patchMgr->registerPatchContainer(new DevblocksPatchContainer());
-		
-		// Clean script
-		if(!$patchMgr->run()) {
-			return FALSE;
-		    
-		} else { // success
-			// Read in plugin information from the filesystem to the database
-			DevblocksPlatform::readPlugins();
-			
-			// Clean up missing plugins
-			DAO_Platform::cleanupPluginTables();
-			
-			// Run enabled plugin patches
-			$patches = DevblocksPlatform::getExtensions("devblocks.patch.container",false,true);
-			
-			if(is_array($patches))
-			foreach($patches as $patch_manifest) { /* @var $patch_manifest DevblocksExtensionManifest */ 
-				if(null != ($container = $patch_manifest->createInstance())) { /* @var $container DevblocksPatchContainerExtension */
-					if(!is_null($container)) {
-						$patchMgr->registerPatchContainer($container);
-					}
-				}
-			}
-			
-//			echo "Patching plugins... ";
-			
-			if(!$patchMgr->run()) { // fail
-				return FALSE;
-			}
-			
-//			echo "done!<br>";
-
-			$cache = self::getCacheService();
-			$cache->save(APP_BUILD, "devblocks_app_build");
-
-			return TRUE;
-		}
 	}
 	
 	/**
@@ -802,10 +744,14 @@ class DevblocksPlatform extends DevblocksEngine {
     	    return $plugins;
 
 	    $db = DevblocksPlatform::getDatabaseService();
-	    if(is_null($db)) return;
+	    if(is_null($db))
+	    	return;
+
+		$plugins = array();
+	    	
 	    $prefix = (APP_DB_PREFIX != '') ? APP_DB_PREFIX.'_' : ''; // [TODO] Cleanup
 
-	    $sql = sprintf("SELECT p.id, p.enabled, p.name, p.description, p.author, p.revision, p.link, p.dir, p.templates_json ".
+	    $sql = sprintf("SELECT p.* ".
 			"FROM %splugin p ".
 			"ORDER BY p.enabled DESC, p.name ASC ",
 			$prefix
@@ -823,9 +769,9 @@ class DevblocksPlatform extends DevblocksEngine {
 		    @$plugin->link = $row['link'];
 		    @$plugin->dir = $row['dir'];
 
-		    // JSON decode templates
-		    if(null != ($templates_json = $row['templates_json'])) {
-		    	$plugin->templates = json_decode($templates_json, true);
+		    // JSON decode
+		    if(null != ($manifest_cache_json = $row['manifest_cache_json'])) {
+		    	$plugin->manifest_cache = json_decode($manifest_cache_json, true);
 		    }
 		    
 		    if(file_exists(APP_PATH . DIRECTORY_SEPARATOR . $plugin->dir . DIRECTORY_SEPARATOR . 'plugin.xml')) {
@@ -852,11 +798,54 @@ class DevblocksPlatform extends DevblocksEngine {
 		    	$plugins[$point->plugin_id]->event_points[$point->id] = $point;
 		    }
 		}
-			
+		
+		self::_sortPluginsByDependency($plugins);
+		
 		$cache->save($plugins, self::CACHE_PLUGINS);
 		return $plugins;
 	}
+	
+	static private function _sortPluginsByDependency(&$plugins) {
+		$dependencies = array();
+		$seen = array();
+		$order = array();
+		
+        // Dependencies
+		foreach($plugins as $plugin) {
+			@$deps = $plugin->manifest_cache['dependencies'];
+			$dependencies[$plugin->id] = is_array($deps) ? $deps : array();
+		}
+		
+		foreach($plugins as $plugin)
+			self::_recursiveDependency($plugin->id, $dependencies, $seen, $order);
 
+		$original = $plugins;
+		$plugins = array();
+			
+		foreach($order as $order_id) {
+			$plugins[$order_id] = $original[$order_id];
+		}
+	}
+
+	static private function _recursiveDependency($id, $deps, &$seen, &$order, $level=0) {
+		if(isset($seen[$id]))
+			return true;
+	
+		if(isset($deps[$id]) && !empty($deps[$id])) {
+			foreach($deps[$id] as $dep) {
+				if(!self::_recursiveDependency($dep, $deps, $seen, $order, ++$level))
+					return false;
+			}
+		}
+		
+		if(!isset($seen[$id])) {
+			$order[] = $id;
+			$seen[$id] = true;
+		}
+		
+		return true;
+	}	
+	
 	/**
 	 * Enter description here...
 	 *
@@ -916,7 +905,7 @@ class DevblocksPlatform extends DevblocksEngine {
 		    }
 	    }
 	    
-		// [TODO] Instance the plugins in dependency order
+	    DevblocksPlatform::clearCache(DevblocksPlatform::CACHE_PLUGINS);
 	    
 	    return $plugins;
 	}
@@ -959,13 +948,6 @@ class DevblocksPlatform extends DevblocksEngine {
 	 */
 	static function getDatabaseService() {
 	    return _DevblocksDatabaseManager::getInstance();
-	}
-
-	/**
-	 * @return _DevblocksPatchManager
-	 */
-	static function getPatchService() {
-	    return _DevblocksPatchManager::getInstance();
 	}
 
 	/**
@@ -1271,26 +1253,6 @@ class DevblocksPlatform extends DevblocksEngine {
 	}
 };
 
-class DevblocksPatchContainer extends DevblocksPatchContainerExtension {
-	
-	function __construct() {
-		parent::__construct(null);
-		
-		/*
-		 * [JAS]: Just add a build number here (from your commit revision) and write a
-		 * case in runBuild().  You should comment the milestone next to your build 
-		 * number.
-		 */
-
-		$file_prefix = dirname(__FILE__) . '/patches/';
-
-		$this->registerPatch(new DevblocksPatch('devblocks.core',1,$file_prefix.'1.0.0.php'));
-		$this->registerPatch(new DevblocksPatch('devblocks.core',253,$file_prefix.'1.0.0_beta.php'));
-		$this->registerPatch(new DevblocksPatch('devblocks.core',290,$file_prefix.'1.1.0.php'));
-		$this->registerPatch(new DevblocksPatch('devblocks.core',304,$file_prefix.'2.0.0.php'));
-	}
-};
-
 abstract class DevblocksEngine {
 	protected static $request = null;
 	protected static $response = null;
@@ -1303,7 +1265,7 @@ abstract class DevblocksEngine {
 	 * @param string $dir
 	 * @return DevblocksPluginManifest
 	 */
-	static protected function _readPluginManifest($rel_dir) {
+	static protected function _readPluginManifest($rel_dir, $persist=true) {
 		$manifest_file = APP_PATH . '/' . $rel_dir . '/plugin.xml'; 
 		
 		if(!file_exists($manifest_file))
@@ -1320,12 +1282,30 @@ abstract class DevblocksEngine {
 		$manifest->revision = (integer) $plugin->revision;
 		$manifest->link = (string) $plugin->link;
 		$manifest->name = (string) $plugin->name;
-
-		// [TODO] Clear out any removed plugins/classes/exts?
-        
-		$db = DevblocksPlatform::getDatabaseService();
-		if(is_null($db)) 
-			return;
+		
+		// Dependencies
+		if(isset($plugin->dependencies)) {
+			if(isset($plugin->dependencies->require))
+			foreach($plugin->dependencies->require as $eDependency) {
+				$depends_on = (string) $eDependency['plugin_id'];
+				$manifest->manifest_cache['dependencies'][] = $depends_on;
+			}
+		}
+		
+		// Patches
+		if(isset($plugin->patches)) {
+			if(isset($plugin->patches->patch))
+			foreach($plugin->patches->patch as $ePatch) {
+				$patch_version = (string) $ePatch['version'];
+				$patch_revision = (string) $ePatch['revision'];
+				$patch_file = (string) $ePatch['file'];
+				$manifest->manifest_cache['patches'][] = array(
+					'version' => $patch_version,
+					'revision' => $patch_revision,
+					'file' => $patch_file,
+				);
+			}
+		}
 		
 		// Templates
 		if(isset($plugin->templates)) {
@@ -1334,7 +1314,7 @@ abstract class DevblocksEngine {
 				
 				if(isset($eTemplates->template))
 				foreach($eTemplates->template as $eTemplate) {
-					$manifest->templates[] = array(
+					$manifest->manifest_cache['templates'][] = array(
 						'plugin_id' => $manifest->id,
 						'set' => $template_set,
 						'path' => (string) $eTemplate['path'],
@@ -1343,11 +1323,18 @@ abstract class DevblocksEngine {
 			}
 		}
 			
-		// Manifest
+		if(!$persist)
+			return $manifest;
+		
+		$db = DevblocksPlatform::getDatabaseService();
+		if(is_null($db)) 
+			return;
+			
+		// Persist manifest
 		if($db->GetOne(sprintf("SELECT id FROM ${prefix}plugin WHERE id = %s", $db->qstr($manifest->id)))) { // update
 			$db->Execute(sprintf(
 				"UPDATE ${prefix}plugin ".
-				"SET name=%s,description=%s,author=%s,revision=%s,link=%s,dir=%s,templates_json=%s ".
+				"SET name=%s,description=%s,author=%s,revision=%s,link=%s,dir=%s,manifest_cache_json=%s ".
 				"WHERE id=%s",
 				$db->qstr($manifest->name),
 				$db->qstr($manifest->description),
@@ -1355,14 +1342,14 @@ abstract class DevblocksEngine {
 				$db->qstr($manifest->revision),
 				$db->qstr($manifest->link),
 				$db->qstr($manifest->dir),
-				$db->qstr(json_encode($manifest->templates)),
+				$db->qstr(json_encode($manifest->manifest_cache)),
 				$db->qstr($manifest->id)
 			));
 			
 		} else { // insert
 			$enabled = ('devblocks.core'==$manifest->id) ? 1 : 0;
 			$db->Execute(sprintf(
-				"INSERT INTO ${prefix}plugin (id,enabled,name,description,author,revision,link,dir,templates_json) ".
+				"INSERT INTO ${prefix}plugin (id,enabled,name,description,author,revision,link,dir,manifest_cache_json) ".
 				"VALUES (%s,%d,%s,%s,%s,%s,%s,%s,%s)",
 				$db->qstr($manifest->id),
 				$enabled,
@@ -1372,7 +1359,7 @@ abstract class DevblocksEngine {
 				$db->qstr($manifest->revision),
 				$db->qstr($manifest->link),
 				$db->qstr($manifest->dir),
-				$db->qstr(json_encode($manifest->templates))
+				$db->qstr(json_encode($manifest->manifest_cache))
 			));
 		}
 		
@@ -1537,8 +1524,6 @@ abstract class DevblocksEngine {
 				DAO_Platform::deleteExtension($plugin_ext_id);
 		}
 		
-        // [JAS]: [TODO] Extension point caching
-
 		// Class loader cache
 		$db->Execute(sprintf("DELETE FROM %sclass_loader WHERE plugin_id = %s",$prefix,$db->qstr($plugin->id)));
 		if(is_array($manifest->class_loader))
@@ -1791,6 +1776,28 @@ abstract class DevblocksEngine {
 		
 		return;
 	}
+	
+	static function update() {
+		if(null == ($manifest = self::_readPluginManifest('libs/devblocks', false)))
+			return FALSE;
+
+		if(!isset($manifest->manifest_cache['patches']))
+			return TRUE;
+		
+		foreach($manifest->manifest_cache['patches'] as $mft_patch) {
+			$path = APP_PATH . '/' . $manifest->dir . '/' . $mft_patch['file'];
+			
+			if(!file_exists($path))
+				return FALSE;
+			
+			$patch = new DevblocksPatch($manifest->id, $mft_patch['version'], $mft_patch['revision'], $path);
+			if(!$patch->run())
+				return FALSE;
+		}
+		
+		return TRUE;
+	}
+	
 };
 
 class _DevblocksPluginSettingsManager {
@@ -4213,55 +4220,6 @@ class _DevblocksDatabaseManager {
 	
 	function ErrorMsg() {
 		return mysql_error($this->_db);
-	}
-};
-
-class _DevblocksPatchManager {
-	private static $instance = null; 
-	private $containers = array(); // DevblocksPatchContainerExtension[]
-
-	private function __construct() {}
-	
-	public static function getInstance() {
-		if(null == self::$instance) {
-			self::$instance = new _DevblocksPatchManager();
-		}
-		return self::$instance;
-	}
-	
-	public function registerPatchContainer(DevblocksPatchContainerExtension $container) {
-		$this->containers[] = $container;
-	}
-	
-	public function run() {
-		$result = TRUE;
-
-		// If this is the core container, make sure it runs first
-		// [TODO] plugin dependency order (core on top)
-		if(is_array($this->containers)) {
-			// Order by dependency
-			foreach($this->containers as $idx => $container) { /* @var $container DevblocksPatchContainerExtension */
-				if(isset($container->manifest) && 0 == strcasecmp('core.patches', $container->manifest->id)) { // [TODO] Don't hardcode
-					unset($this->containers[$idx]);
-					array_unshift($this->containers, $container);
-				}
-			}
-			
-			foreach($this->containers as $container) { /* @var $container DevblocksPatchContainerExtension */
-				if(false === ($result = $container->run())) {
-					die("FAILED on " . $container->id);
-					return FALSE;
-				}
-			}
-		}
-		
-		$this->clear();
-		
-		return TRUE;
-	}
-	
-	public function clear() {
-		$this->containers = array();
 	}
 };
 

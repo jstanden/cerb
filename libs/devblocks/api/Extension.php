@@ -112,41 +112,6 @@ abstract class Extension_DevblocksStorageSchema extends DevblocksExtension {
 	
 };
 
-/**
- * 
- */
-abstract class DevblocksPatchContainerExtension extends DevblocksExtension {
-	private $patches = array();
-
-	function __construct($manifest) {
-		$this->DevblocksExtension($manifest);
-	}
-		
-	public function registerPatch(DevblocksPatch $patch) {
-		// index by revision
-		$rev = $patch->getRevision();
-		$this->patches[$rev] = $patch;
-		ksort($this->patches);
-	}
-	
-	public function run() {
-		if(is_array($this->patches))
-		foreach($this->patches as $rev => $patch) { /* @var $patch DevblocksPatch */
-			if(!$patch->run())
-				return FALSE;
-		}
-		
-		return TRUE;
-	}
-	
-	/**
-	 * @return DevblocksPatch[]
-	 */
-	public function getPatches() {
-		return $this->patches;
-	}
-};
-
 abstract class DevblocksControllerExtension extends DevblocksExtension implements DevblocksHttpRequestHandler {
     function __construct($manifest) {
         self::DevblocksExtension($manifest);

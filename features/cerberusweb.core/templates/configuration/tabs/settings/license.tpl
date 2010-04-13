@@ -19,7 +19,7 @@
 	Created: {$license.created|devblocks_date:'Y-m-d':true}<br>
 	Updated: {$license.updated|devblocks_date:'Y-m-d':true}<br>
 	Expires: {$license.expires|devblocks_date:'Y-m-d':true}<br>
-	Workers: {if 50==$license.workers}50+{else}{$license.workers}{/if}<br>
+	Workers: {if 100==$license.workers}100+{else}{$license.workers}{/if}<br>
 	## END<br>
 	<br>
 	<a href="javascript:;" onclick="$(this).fadeOut();$('#frmLicense').fadeIn();">add new license</a>

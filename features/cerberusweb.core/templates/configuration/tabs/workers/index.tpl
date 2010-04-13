@@ -1,6 +1,6 @@
 <form>
 	{* [WGM]: Please respect our licensing and support the project! *}
-	{if (empty($license.workers)&&count($workers)>=3)||(!empty($license.workers)&&$license.workers<50&&count($workers)>=$license.workers)}
+	{if (empty($license.workers)&&count($workers)>=3)||(!empty($license.workers)&&$license.workers<100&&count($workers)>=$license.workers)}
 	<div class="ui-widget">
 		<div class="ui-state-error ui-corner-all" style="padding: 0.7em; margin: 0.2em; "> 
 			<p>
