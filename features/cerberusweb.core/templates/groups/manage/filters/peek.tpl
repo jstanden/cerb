@@ -5,8 +5,6 @@
 <input type="hidden" name="id" value="{$filter->id}">
 {if !empty($view_id)}<input type="hidden" name="view_id" value="{$view_id}">{/if}
 
-<h2>Add Inbox Routing Rule</h2>
-
 {if !empty($message_headers)}
 <div id="" style="height:50px;padding:5px;overflow:auto;border:1px solid rgb(180,180,180);background-color:rgb(255,255,255);">
 	{foreach from=$message_headers item=v key=k}
@@ -259,3 +257,9 @@
 {/if}
 </form>
 <br>
+
+<script type="text/javascript" language="JavaScript1.2">
+	genericPanel.one('dialogopen', function(event,ui) {
+		genericPanel.dialog('option','title',"Add Inbox Routing Rule");
+	} );
+</script>

@@ -5,8 +5,6 @@
 <input type="hidden" name="action" value="saveWatcherPanel">
 <input type="hidden" name="id" value="{$filter->id}">
 
-<h2>Add Watcher Filter</h2>
-
 <b>Filter Name:</b> (e.g. Emergency Support to SMS)<br>
 <input type="text" name="name" value="{$filter->name|escape}" size="45" style="width:95%;"><br>
 
@@ -245,3 +243,9 @@
 <button type="button" onclick="genericAjaxPanelPostCloseReloadView('frmWatcherFilter', '{$view_id}');"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')}</button>
 </form>
 <br>
+
+<script type="text/javascript" language="JavaScript1.2">
+	genericPanel.one('dialogopen', function(event,ui) {
+		genericPanel.dialog('option','title',"Add Watcher Filter");
+	} );
+</script>
