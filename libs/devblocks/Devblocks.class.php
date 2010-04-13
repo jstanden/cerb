@@ -1048,8 +1048,8 @@ class DevblocksPlatform extends DevblocksEngine {
 		
 		if(is_array($plugins))
 		foreach($plugins as $plugin) {
-			if(is_array($plugin->templates))
-			foreach($plugin->templates as $tpl) {
+			if(isset($plugin->manifest_cache['templates']) && is_array($plugin->manifest_cache['templates']))
+			foreach($plugin->manifest_cache['templates'] as $tpl) {
 				if(null === $set || 0 == strcasecmp($set, $tpl['set'])) {
 					$template = new DevblocksTemplate();
 					$template->plugin_id = $tpl['plugin_id'];
