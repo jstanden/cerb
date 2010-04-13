@@ -3832,8 +3832,8 @@ class _DevblocksTemplateManager {
 	}
 	
 	function modifier_devblocks_hide_email_quotes($string, $length=3) {
+		$string = str_replace("\r\n","\n",$string);
 		$string = str_replace("\r","\n",$string);
-		$string = str_replace("\n\n","\n",$string);
 		$string = preg_replace("/\n{3,99}/", "\n\n", $string);
 		$lines = explode("\n", $string);
 		
