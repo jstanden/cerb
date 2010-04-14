@@ -1,6 +1,11 @@
-<form action="{devblocks_url}{/devblocks_url}" method="post">
+<form id="frmConfigPlugins" action="{devblocks_url}{/devblocks_url}" method="post">
 <input type="hidden" name="c" value="config">
 <input type="hidden" name="a" value="savePlugins">
+
+<a href="javascript:;" onclick="checkAll('frmConfigPlugins', true);">select all</a>
+ | 
+<a href="javascript:;" onclick="checkAll('frmConfigPlugins', false)">select none</a>
+ 
 
 <ul style="list-style:none;margin-left:0;padding-left:0;text-indent:0;">
 {foreach from=$plugins item=plugin}
