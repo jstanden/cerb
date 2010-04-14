@@ -600,11 +600,9 @@ class ChDisplayPage extends CerberusPageExtension {
 		$tpl->assign('requesters', $ticket->getRequesters());
 
 		// Drafts
-		$drafts = DAO_MailQueue::getWhere(sprintf("%s = %d AND %s = %d AND %s = %s",
+		$drafts = DAO_MailQueue::getWhere(sprintf("%s = %d AND %s = %s",
 			DAO_MailQueue::TICKET_ID,
 			$id,
-			DAO_MailQueue::WORKER_ID,
-			$active_worker->id,
 			DAO_MailQueue::TYPE,
 			C4_ORMHelper::qstr(Model_MailQueue::TYPE_TICKET_REPLY)
 		));
