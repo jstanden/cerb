@@ -1577,17 +1577,16 @@ class ChReportWorkerHistory extends Extension_Report {
 		@$start = DevblocksPlatform::importGPC($_REQUEST['start'],'string','');
 		@$end = DevblocksPlatform::importGPC($_REQUEST['end'],'string','');
 
-		@$worker_id = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'integer',0);
-		$tpl->assign('worker_id', $worker_id);
-		
 		// use date range if specified, else use duration prior to now
 		$start_time = 0;
 		$end_time = 0;
 
+		@$worker_id = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'integer',0);
 		if(!$worker_id) {
 			$worker = CerberusApplication::getActiveWorker();
 			$worker_id = $worker->id;
 		}
+		$tpl->assign('worker_id', $worker_id);
 		
 		if (empty($start) && empty($end)) {
 			$start = "-30 days";
