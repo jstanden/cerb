@@ -1218,6 +1218,9 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		
 		// Auto synchronize when viewing Config->Extensions
         DevblocksPlatform::readPlugins();
+
+        if(DEVELOPMENT_MODE)
+        	DAO_Platform::cleanupPluginTables();
 		
 		$plugins = DevblocksPlatform::getPluginRegistry();
 		unset($plugins['devblocks.core']);
@@ -2097,7 +2100,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		}
 		
 		try {
-			CerberusApplication::update();	
+			CerberusApplication::update();
 		} catch (Exception $e) {
 			// [TODO] ...
 		}
