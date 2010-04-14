@@ -2078,7 +2078,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		$pluginStack = DevblocksPlatform::getPluginRegistry();
 		@$plugins_enabled = DevblocksPlatform::importGPC($_REQUEST['plugins_enabled']);
 		
-		if(null !== $plugins_enabled && is_array($pluginStack))
+		if(is_array($pluginStack))
 		foreach($pluginStack as $plugin) { /* @var $plugin DevblocksPluginManifest */
 			switch($plugin->id) {
 				case 'devblocks.core':
@@ -2087,7 +2087,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 					break;
 					
 				default:
-					if(false !== array_search($plugin->id, $plugins_enabled)) {
+					if(null !== $plugins_enabled && false !== array_search($plugin->id, $plugins_enabled)) {
 						$plugin->setEnabled(true);
 					} else {
 						$plugin->setEnabled(false);
