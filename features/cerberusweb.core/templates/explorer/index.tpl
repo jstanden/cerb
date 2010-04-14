@@ -48,19 +48,16 @@
 								{/if}
 							</td>
 							<td width="1%" nowrap="nowrap" align="right" valign="top" style="padding-right:10px;padding-top:10px;">
-								{*
-								{if !empty($series_stats.prev)}( <b>[</b> ) {$translate->_('common.previous')|lower} {/if} 
-								{if !empty($series_stats.next)}( <b>]</b> ) {$translate->_('common.next')|lower} {/if}
-								*} 
-								
+								{if !empty($count)}
 								<form action="#" method="get">
 								{if $prev}<button id="btnExplorerPrev" type="button" onclick="this.form.action='{devblocks_url}c=explore&hash={$hashset}&p={$prev}{/devblocks_url}';this.form.submit();">&laquo;</button>{/if}
 								<b>{$p}</b> of <b>{$count}</b> 
 								{if $next}<button id="btnExplorerNext" type="button" onclick="this.form.action='{devblocks_url}c=explore&hash={$hashset}&p={$next}{/devblocks_url}';this.form.submit();">&raquo;</button>{/if}
 								</form>
+								{/if}
 							</td>
 							<td style="padding-right:10px;padding-top:10px;" valign="top">
-								<form action="{$url|escape}" method="get">
+								<form action="{if !empty($url)}{$url|escape}{else}{$return_url}{/if}" method="get">
 								<button type="button" onclick="this.form.submit();"> X </button>
 								</form>
 							</td>
