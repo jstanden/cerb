@@ -1229,7 +1229,8 @@ class MailQueueCron extends CerberusCronPageExtension {
 		$logger = DevblocksPlatform::getConsoleLog();
 		$runtime = microtime(true);
 
-		$stop_time = time() + 30; // [TODO] Make configurable		
+		$stop_time = time() + 30; // [TODO] Make configurable	
+		$last_id = 0;	
 		
 		$logger->info("[Mail Queue] Starting...");
 		
@@ -1237,9 +1238,11 @@ class MailQueueCron extends CerberusCronPageExtension {
 		
 		do {
 			$messages = DAO_MailQueue::getWhere(
-				sprintf("%s = %d",
+				sprintf("%s = %d AND %s > %d",
 					DAO_MailQueue::IS_QUEUED,
-					1
+					1,
+					DAO_MailQueue::ID,
+					$last_id
 				),
 				array(DAO_MailQueue::PRIORITY, DAO_MailQueue::UPDATED),
 				array(false, true),
@@ -1248,6 +1251,8 @@ class MailQueueCron extends CerberusCronPageExtension {
 	
 			if(!empty($messages)) {
 				foreach($messages as $message) { /* @var $message Model_MailQueue */
+					$last_id = $message->id;
+					
 					if(!$message->send()) {
 						$logger->error(sprintf("[Mail Queue] Failed sending message %d", $message->id));
 					} else {
