@@ -125,6 +125,22 @@ class ChTicketsPage extends CerberusPageExtension {
 				// Attachments
 				$tpl->assign('upload_max_filesize', ini_get('upload_max_filesize'));
 
+				// Continue a draft?
+				// [TODO] We could also display "you have xxx unsent drafts, would you like to continue one?"
+				if(null != ($draft_id = @$response->path[2])) {
+					$drafts = DAO_MailQueue::getWhere(sprintf("%s = %d AND %s = %d AND %s = %s",
+						DAO_MailQueue::ID,
+						$draft_id,
+						DAO_MailQueue::WORKER_ID,
+						$active_worker->id,
+						DAO_MailQueue::TYPE,
+						C4_ORMHelper::qstr(Model_MailQueue::TYPE_OPEN_TICKET)
+					));
+					
+					if(isset($drafts[$draft_id]))
+						$tpl->assign('draft', $drafts[$draft_id]);
+				}
+				
 				// Link to last created ticket
 				if($visit->exists('compose.last_ticket')) {
 					$ticket_mask = $visit->get('compose.last_ticket');
@@ -580,35 +596,70 @@ class ChTicketsPage extends CerberusPageExtension {
 		$tpl->display('file:' . $this->_TPL_PATH . 'mail/queue/index.tpl');
 	}
 	
-	function saveDraftComposeAction() {
+	function saveDraftAction() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		@$draft_id = DevblocksPlatform::importGPC($_REQUEST['draft_id'],'integer',0); 
-		@$group_id = DevblocksPlatform::importGPC($_REQUEST['team_id'],'integer',0); 
+
+		// Common
 		@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string',''); 
+		@$subject = DevblocksPlatform::importGPC($_REQUEST['subject'],'string',''); 
+		@$content = DevblocksPlatform::importGPC($_REQUEST['content'],'string','');
+
+		// Compose
+		@$group_id = DevblocksPlatform::importGPC($_REQUEST['team_id'],'integer',0); 
 		@$cc = DevblocksPlatform::importGPC($_REQUEST['cc'],'string',''); 
 		@$bcc = DevblocksPlatform::importGPC($_REQUEST['bcc'],'string',''); 
-		@$subject = DevblocksPlatform::importGPC($_REQUEST['subject'],'string',''); 
-		@$content = DevblocksPlatform::importGPC($_REQUEST['content'],'string',''); 
 		
-		//print_r($_POST);
+		// Open Ticket
+		@$requesters = DevblocksPlatform::importGPC($_REQUEST['reqs'],'string',''); 
+		@$send_to_reqs = DevblocksPlatform::importGPC($_REQUEST['send_to_requesters'],'integer',0); 
 		
 		$params = array();
 		
+		$hint_to = null;
+		$type = null;
+		
 		if(!empty($to))
 			$params['to'] = $to;
-		if(!empty($cc))
-			$params['cc'] = $cc;
-		if(!empty($bcc))
-			$params['bcc'] = $bcc;
-		if(!empty($group_id))
-			$params['group_id'] = $group_id;
+			
+		@$type = DevblocksPlatform::importGPC($_REQUEST['type'],'string','');
 		
+		switch($type) {
+			case 'compose':
+				if(!empty($cc))
+					$params['cc'] = $cc;
+				if(!empty($bcc))
+					$params['bcc'] = $bcc;
+				if(!empty($group_id))
+					$params['group_id'] = $group_id;
+					
+				$type = 'mail.compose';
+				$hint_to = $to;
+				break;
+				
+			case 'create':
+				if(!empty($requesters))
+					$params['requesters'] = $requesters;
+				if(!empty($send_to_reqs))
+					$params['send_to_reqs'] = $send_to_reqs;
+					
+				$type = 'mail.open_ticket';
+				$hint_to = $requesters;
+				break;
+				
+			default:
+				// Bail out
+				echo json_encode(array());
+				return;
+				break;
+		}
+			
 		$fields = array(
-			DAO_MailQueue::TYPE => 'mail.compose',
+			DAO_MailQueue::TYPE => $type,
 			DAO_MailQueue::TICKET_ID => 0,
 			DAO_MailQueue::WORKER_ID => $active_worker->id,
 			DAO_MailQueue::UPDATED => time(),
-			DAO_MailQueue::HINT_TO => $to,
+			DAO_MailQueue::HINT_TO => $hint_to,
 			DAO_MailQueue::SUBJECT => $subject,
 			DAO_MailQueue::BODY => $content,
 			DAO_MailQueue::PARAMS_JSON => json_encode($params),
@@ -1422,6 +1473,8 @@ class ChTicketsPage extends CerberusPageExtension {
 		@$subject = DevblocksPlatform::importGPC($_POST['subject'],'string');
 		@$content = DevblocksPlatform::importGPC($_POST['content'],'string');
 		
+		@$draft_id = DevblocksPlatform::importGPC($_POST['draft_id'],'integer');		
+		
 		@$send_to_requesters = DevblocksPlatform::importGPC($_POST['send_to_requesters'],'integer',0);
 		@$closed = DevblocksPlatform::importGPC($_POST['closed'],'integer',0);
 		@$move_bucket = DevblocksPlatform::importGPC($_POST['bucket_id'],'string','');
@@ -1537,15 +1590,13 @@ class ChTicketsPage extends CerberusPageExtension {
 			'dont_send' => (false==$send_to_requesters),
 		);
 		
-		CerberusMail::sendTicketMessage($properties);
+		if(CerberusMail::sendTicketMessage($properties)) {
+			if(!empty($draft_id))
+				DAO_MailQueue::delete($draft_id);
+		}
 		
 		// ********
 
-//		if(empty($to) || empty($team_id)) {
-//			DevblocksPlatform::redirect(new DevblocksHttpResponse(array('tickets','create')));
-//			return;
-//		}
-		
 		$visit = CerberusApplication::getVisit(); /* @var CerberusVisit $visit */
 		$visit->set('compose.last_ticket', $ticket->mask);
 		

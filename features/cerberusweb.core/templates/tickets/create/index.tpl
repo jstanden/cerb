@@ -6,9 +6,10 @@
 
 <div class="block">
 <h2>{$translate->_('mail.log_message')|capitalize}</h2>
-<form name="compose" enctype="multipart/form-data" method="post" action="{devblocks_url}{/devblocks_url}" onsubmit="return ('1' == this.do_submit.value);">
+<form id="frmLogTicket" name="frmLogTicket" enctype="multipart/form-data" method="post" action="{devblocks_url}{/devblocks_url}" onsubmit="return ('1' == this.do_submit.value);">
 <input type="hidden" name="c" value="tickets">
 <input type="hidden" name="a" value="logTicket">
+<input type="hidden" name="draft_id" value="{$draft->id}">
 <input type="hidden" name="do_submit" value="0">
 
 <table cellpadding="2" cellspacing="0" border="0" width="100%">
@@ -21,7 +22,7 @@
 					<td width="100%">
 						<select name="to" id="to" style="border:1px solid rgb(180,180,180);padding:2px;">
 							{foreach from=$destinations item=destination}
-							<option value="{$destination}" {if 0==strcasecmp($destination,$to)}selected{/if}>{$destination}</option>
+							<option value="{$destination}" {if 0==strcasecmp($destination,$draft->params.to)}selected="selected"{/if}>{$destination}</option>
 							{/foreach}
 						</select>
 					</td>
@@ -29,12 +30,12 @@
 				<tr>
 					<td width="0%" nowrap="nowrap" valign="middle" align="right"><b>{'mail.log_message.requesters'|devblocks_translate}:</b>&nbsp;</td>
 					<td width="100%">
-						<input type="text" name="reqs" id="emailinput" value="{$reqs}" style="border:1px solid rgb(180,180,180);padding:2px;width:98%;">
+						<input type="text" name="reqs" value="{$draft->params.requesters|escape}" style="border:1px solid rgb(180,180,180);padding:2px;width:98%;">
 					</td>
 				</tr>
 				<tr>
 					<td width="0%" nowrap="nowrap" valign="middle" align="right"><b>{'message.header.subject'|devblocks_translate}:</b>&nbsp;</td>
-					<td width="100%"><input type="text" size="100" name="subject" style="width:98%;border:1px solid rgb(180,180,180);padding:2px;"></td>
+					<td width="100%"><input type="text" size="100" name="subject" value="{$draft->subject|escape}" style="width:98%;border:1px solid rgb(180,180,180);padding:2px;"></td>
 				</tr>
 			</table>
 		</td>
@@ -42,6 +43,7 @@
 	
 	<tr>
 		<td>
+		<button id="btnSaveDraft" type="button" onclick="genericAjaxPost('frmLogTicket',null,'c=tickets&a=saveDraft&type=create',function(json) { var obj = $.parseJSON(json); if(!obj || !obj.html || !obj.draft_id) return; $('#divDraftStatus').html(obj.html); $('#frmLogTicket input[name=draft_id]').val(obj.draft_id); } );"><span class="cerb-sprite sprite-check"></span> Save Draft</button>
 		<button type="button" onclick="genericAjaxGet('','c=tickets&a=getComposeSignature&group_id='+selectValue(this.form.to),function(text) { insertAtCursor(document.getElementById('content'), text); } );"><span class="cerb-sprite sprite-document_edit"></span> Insert Signature</button>
 		<button type="button" onclick="genericAjaxPanel('c=display&a=showSnippets&text=content&contexts=cerberusweb.snippets.worker',null,false,'550');"><span class="cerb-sprite sprite-text_rich"></span> {$translate->_('common.snippets')|capitalize}</button>
 		{* Plugin Toolbar *}
@@ -53,9 +55,10 @@
 		<br>
 		
 		<div id="logTicketToolbarOptions"></div>
+		<div id="divDraftStatus"></div>
 		
-		<textarea name="content" id="content" rows="15" cols="80" class="reply" style="width:98%;border:1px solid rgb(180,180,180);padding:2px;"></textarea><br>
-		<label><input type="checkbox" name="send_to_requesters" value="1"> {'mail.log_message.send_to_requesters'|devblocks_translate}</label>
+		<textarea name="content" id="content" rows="15" cols="80" class="reply" style="width:98%;border:1px solid rgb(180,180,180);padding:2px;">{$draft->body}</textarea><br>
+		<label><input type="checkbox" name="send_to_requesters" value="1" {if $draft->params.send_to_reqs}checked="checked"{/if}> {'mail.log_message.send_to_requesters'|devblocks_translate}</label>
 		</td>
 	</tr>
 				
@@ -175,7 +178,8 @@
 		<td>
 			<br>
 			<button type="button" onclick="this.form.do_submit.value='1';this.form.submit();"><span class="cerb-sprite sprite-check"></span> Send Message</button>
-			<button type="button" onclick="document.location='{devblocks_url}c=tickets{/devblocks_url}';"><span class="cerb-sprite sprite-delete"></span> Discard</button>
+			<button type="button" onclick="$('#btnSaveDraft').click();document.location='{devblocks_url}c=tickets{/devblocks_url}';"><span class="cerb-sprite sprite-media_pause"></span> {$translate->_('display.ui.continue_later')|capitalize}</button>
+			<button type="button" onclick="if(confirm('Are you sure you want to discard this message?')) { if(0!==this.form.draft_id.value.length) { genericAjaxGet('', 'c=tickets&a=deleteDraft&draft_id='+escape(this.form.draft_id.value)); } document.location='{devblocks_url}c=tickets{/devblocks_url}'; } "><span class="cerb-sprite sprite-delete"></span> {$translate->_('display.ui.discard')|capitalize}</button>
 		</td>
 	</tr>
   </tbody>
@@ -185,6 +189,8 @@
 
 <script language="JavaScript1.2" type="text/javascript">
 	$(function() {
-		ajax.emailAutoComplete('#emailinput', { multiple:true } );
+		ajax.emailAutoComplete('#frmLogTicket input[name=reqs]', { multiple: true } );
+		
+		setInterval("$('#btnSaveDraft').click();", 30000);
 	} );
 </script>

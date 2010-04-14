@@ -280,6 +280,7 @@ class SearchFields_MailQueue implements IDevblocksSearchFields {
 
 class Model_MailQueue {
 	const TYPE_COMPOSE = 'mail.compose';
+	const TYPE_OPEN_TICKET = 'mail.open_ticket';
 	const TYPE_TICKET_REPLY = 'ticket.reply';
 	
 	public $id;
@@ -304,6 +305,10 @@ class Model_MailQueue {
 		switch($this->type) {
 			case Model_MailQueue::TYPE_COMPOSE:
 				$success = $this->_sendCompose();
+				break;
+				
+			case Model_MailQueue::TYPE_OPEN_TICKET:
+				$success = $this->_sendOpenTicket();
 				break;
 				
 			case Model_MailQueue::TYPE_TICKET_REPLY:
@@ -357,9 +362,94 @@ class Model_MailQueue {
 		if(false == ($ticket_id = CerberusMail::compose($properties)))
 			return false;
 			
-		echo $ticket_id;
-		
 		return true;
+	}
+	
+	private function _sendOpenTicket() {
+		$properties = array();
+		
+		// [TODO] This shouldn't be redundant with open ticket functionality
+
+		// Worker
+		if(null == ($worker = DAO_worker::getAgent($this->worker_id)))
+			return false;
+		
+		// To
+		if(!isset($this->params['to']))
+			return false;
+		$to = $this->params['to'];
+
+		// Requesters
+		if(!isset($this->params['requesters']))
+			return false;
+		$reqs = $this->params['requesters'];
+		
+		// Send to requesters
+		$send_to_reqs = false;
+		if(isset($this->params['send_to_reqs']))
+			$send_to_reqs = true;
+			
+		// Subject
+		if(empty($this->subject))
+			return false;
+
+		// Message body
+		if(empty($this->body))
+			return false;
+		
+		$message = new CerberusParserMessage();
+		$message->headers['date'] = date('r'); 
+		$message->headers['to'] = $to;
+		$message->headers['subject'] = $this->subject;
+		$message->headers['message-id'] = CerberusApplication::generateMessageId();
+		
+		// Sender
+		$fromList = imap_rfc822_parse_adrlist(rtrim($reqs,', '),'');
+		
+		if(empty($fromList) || !is_array($fromList)) {
+			return false; // abort with message
+		}
+		$from = array_shift($fromList);
+		$from_address = $from->mailbox . '@' . $from->host;
+		$message->headers['from'] = $from_address;
+
+		$message->body = sprintf(
+			"(... This message was manually created by %s on behalf of the requesters ...)\r\n",
+			$worker->getName()
+		);
+
+		// Parse
+		$ticket_id = CerberusParser::parseMessage($message);
+		
+		$ticket = DAO_Ticket::getTicket($ticket_id);
+		
+		// Add additional requesters to ticket
+		if(is_array($fromList) && !empty($fromList))
+		foreach($fromList as $requester) {
+			if(empty($requester))
+				continue;
+			$host = empty($requester->host) ? 'localhost' : $requester->host;
+			$requester_addy = DAO_Address::lookupAddress($requester->mailbox . '@' . $host, true);
+			DAO_Ticket::createRequester($requester_addy->id, $ticket_id);
+		}
+		
+		// Worker reply
+		$properties = array(
+		    'message_id' => $ticket->first_message_id,
+		    'ticket_id' => $ticket_id,
+		    'subject' => $this->subject,
+		    'content' => $this->body,
+//		    'files' => @$_FILES['attachment'],
+//		    'next_worker_id' => $next_worker_id,
+//		    'closed' => $closed,
+//		    'bucket_id' => $move_bucket,
+//		    'ticket_reopen' => $ticket_reopen,
+//		    'unlock_date' => $unlock_date,
+		    'agent_id' => $worker->id,
+			'dont_send' => (false==$send_to_reqs),
+		);
+		
+		return CerberusMail::sendTicketMessage($properties);
 	}
 	
 	private function _sendTicketReply() {
