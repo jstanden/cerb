@@ -37,7 +37,7 @@
 		{assign var=tableRowClass value="odd"}
 	{/if}
 	
-		<tr class="{$tableRowClass}" id="{$rowIdPrefix}_s" onmouseover="$(this).addClass('hover');$('#{$rowIdPrefix}_s').addClass('hover');" onmouseout="$(this).removeClass('hover');$('#{$rowIdPrefix}_s').removeClass('hover');" onclick="if(getEventTarget(event)=='TD') { checkAll('{$rowIdPrefix}_s'); $(this).closest('form').find('input[name=explore_from]').first().val('{$result.s_id}'); }">
+		<tr class="{$tableRowClass}" id="{$rowIdPrefix}_s" onmouseover="$(this).addClass('hover');$('#{$rowIdPrefix}_s').addClass('hover');" onmouseout="$(this).removeClass('hover');$('#{$rowIdPrefix}_s').removeClass('hover');" onclick="if(getEventTarget(event)=='TD') { checkAll('{$rowIdPrefix}_s'); }">
 		{*<td align="center"><input type="checkbox" name="row_id[]" value="{$result.s_id}"></td>*}
 		{foreach from=$view->view_columns item=column name=columns}
 			{if substr($column,0,3)=="cf_"}

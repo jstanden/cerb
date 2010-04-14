@@ -53,11 +53,11 @@
 		{assign var=tableRowClass value="odd"}
 	{/if}
 	
-		<tr class="{$tableRowClass}" id="{$rowIdPrefix}_s" onmouseover="$(this).addClass('hover');$('#{$rowIdPrefix}').addClass('hover');" onmouseout="$(this).removeClass('hover');$('#{$rowIdPrefix}').removeClass('hover');" onclick="if(getEventTarget(event)=='TD') { checkAll('{$rowIdPrefix}_s'); $(this).closest('form').find('input[name=explore_from]').first().val('{$result.t_id}'); }">
-			<td align="center" rowspan="2"><input type="checkbox" name="row_id[]" value="{$result.t_id}"></td>
+		<tr class="{$tableRowClass}" id="{$rowIdPrefix}_s" onmouseover="$(this).addClass('hover');$('#{$rowIdPrefix}').addClass('hover');" onmouseout="$(this).removeClass('hover');$('#{$rowIdPrefix}').removeClass('hover');" onclick="if(getEventTarget(event)=='TD') { $('#{$rowIdPrefix}_s').find('input[type=checkbox]').first().click(); }">
+			<td align="center" rowspan="2"><input type="checkbox" name="row_id[]" value="{$result.t_id}" onclick="$(this).closest('form').find('input[name=explore_from]').first().val('{$result.t_id}');"></td>
 			<td colspan="{math equation="x" x=$smarty.foreach.headers.total}">{if $result.t_is_closed}<img src="{devblocks_url}c=resource&p=cerberusweb.forums&f=images/check_gray.gif{/devblocks_url}" align="top"> {/if}<a href="{$result.t_link|escape}" target="_blank" class="subject">{$result.t_title}</a></td>
 		</tr>
-		<tr class="{$tableRowClass}" id="{$rowIdPrefix}" onmouseover="$(this).addClass('hover');$('#{$rowIdPrefix}_s').addClass('hover');" onmouseout="$(this).removeClass('hover');$('#{$rowIdPrefix}_s').removeClass('hover');" onclick="if(getEventTarget(event)=='TD') { checkAll('{$rowIdPrefix}_s'); $(this).closest('form').find('input[name=explore_from]').first().val('{$result.t_id}'); }">
+		<tr class="{$tableRowClass}" id="{$rowIdPrefix}" onmouseover="$(this).addClass('hover');$('#{$rowIdPrefix}_s').addClass('hover');" onmouseout="$(this).removeClass('hover');$('#{$rowIdPrefix}_s').removeClass('hover');" onclick="if(getEventTarget(event)=='TD') { $('#{$rowIdPrefix}_s').find('input[type=checkbox]').first().click(); }">
 		{foreach from=$view->view_columns item=column name=columns}
 			{if $column=="t_id"}
 				<td>{$result.t_id}&nbsp;</td>
