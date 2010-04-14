@@ -96,7 +96,7 @@
 	{if $total}
 	<tr>
 		<td colspan="2">
-			{if 1}<button type="button" id="btn{$view->id}MarkRead" onclick="this.form.a.value='doNotificationsMarkRead';genericAjaxPost('viewForm{$view->id}','view{$view->id}','c=config');document.location.href='#top';"><span class="cerb-sprite sprite-check"></span> {$translate->_('home.my_notifications.button.mark_read')}</button>{/if}
+			{if 1}<button type="button" id="btn{$view->id}MarkRead" onclick="genericAjaxPost('viewForm{$view->id}','view{$view->id}','c=home&a=doNotificationsMarkRead');"><span class="cerb-sprite sprite-check"></span> {$translate->_('home.my_notifications.button.mark_read')}</button>{/if}
 		</td>
 	</tr>
 	{/if}
