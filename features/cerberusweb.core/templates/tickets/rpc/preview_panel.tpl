@@ -172,7 +172,7 @@
 
 <script language="JavaScript1.2" type="text/javascript">
 	genericPanel.one('dialogopen',function(event,ui) {
-		genericPanel.dialog('option','title',"{$ticket->subject|escape:'quotes'}");
+		genericPanel.dialog('option','title',"{$ticket->subject|escape}");
 		$("#peekTabs").tabs();
 		$("#ticketPeekContent").css('width','100%');
 		$("#ticketPeekTab2").show();
