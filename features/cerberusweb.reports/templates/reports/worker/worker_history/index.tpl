@@ -91,8 +91,8 @@
 
 	{foreach from=$replied_tickets item=ticket}
 	<tr>
-		<!--  <td style="padding-right:20px;"><a href="{devblocks_url}c=display&a=browse&id={$ticket->mask}{/devblocks_url}">{$ticket->mask}</a></td> -->
-		<td align="left"><a href="{devblocks_url}c=display&a=browse&id={$ticket->mask}{/devblocks_url}">{$ticket->subject}</a></td>
+		<!--  <td style="padding-right:20px;"><a href="{devblocks_url}c=display&id={$ticket->mask}{/devblocks_url}">{$ticket->mask}</a></td> -->
+		<td align="left"><a href="{devblocks_url}c=display&id={$ticket->mask}{/devblocks_url}">{$ticket->subject}</a></td>
 		<td style="padding-right:20px;"><a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showAddressPeek&email={$ticket->email|escape:'url'}&view_id=0',null,false,'500');">{$ticket->email}</a></td>
 		<!-- <td>{$ticket->created_date|devblocks_date}</td>-->
 	</tr>
