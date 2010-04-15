@@ -495,6 +495,7 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 		$group_settings = DAO_GroupSettings::getSettings();
 			
 		if(!empty($ticket_ids)) {
+			$tpl_builder = DevblocksPlatform::getTemplateBuilder();
 			$tickets = DAO_Ticket::getTickets($ticket_ids);
 			
 			foreach($tickets as $ticket) { /* @var $ticket Model_Ticket */
@@ -518,17 +519,25 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 						$ticket_body = $msg_first->getContent();
 					}
 					
-					$result = CerberusMail::sendTicketMessage(array(
-						'ticket_id' => $ticket->id,
-						'message_id' => $ticket->first_message_id,
-						'content' => str_replace(
-							array('#ticket_id#', '#mask#','#subject#','#timestamp#','#sender#','#sender_first#','#orig_body#'),
-							array($ticket->id, $ticket->mask, $ticket->subject, date('r'), $ticket_sender, $ticket_sender_first, ltrim($ticket_body)),
-							$group_settings[$ticket->team_id][DAO_GroupSettings::SETTING_CLOSE_REPLY]
-						),
-						'is_autoreply' => false,
-						'dont_keep_copy' => true
-					));
+					try {
+						$token_labels = array();
+						$token_values = array();
+						CerberusSnippetContexts::getContext(CerberusSnippetContexts::CONTEXT_TICKET, $ticket->id, $token_labels, $token_values);
+						
+						if(false === ($closereply_content = $tpl_builder->build($group_settings[$ticket->team_id][DAO_GroupSettings::SETTING_CLOSE_REPLY], $token_values)))
+							throw new Exception('Failed parsing close auto-reply snippet.');
+						
+						$result = CerberusMail::sendTicketMessage(array(
+							'ticket_id' => $ticket->id,
+							'message_id' => $ticket->first_message_id,
+							'content' => $closereply_content,
+							'is_autoreply' => false,
+							'dont_keep_copy' => true
+						));
+						
+					} catch (Exception $e) {
+						// [TODO] Error report
+					}
 				}
 			}
 		}

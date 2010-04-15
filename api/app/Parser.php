@@ -756,17 +756,26 @@ class CerberusParser {
 				&& !empty($autoreply) 
 				&& $enumSpamTraining != CerberusTicketSpamTraining::SPAM
 				) {
-					$result = CerberusMail::sendTicketMessage(array(
-						'ticket_id' => $id,
-						'message_id' => $email_id,
-						'content' => str_replace(
-				        	array('#ticket_id#','#mask#','#subject#','#timestamp#', '#sender#','#sender_first#','#orig_body#'),
-				        	array($id, $sMask, $sSubject, date('r'), $fromAddressInst->email, $fromAddressInst->first_name, ltrim($message->body)),
-				        	$autoreply
-						),
-						'is_autoreply' => true,
-						'dont_keep_copy' => true
-					));
+					try {
+						$token_labels = array();
+						$token_values = array();
+						CerberusSnippetContexts::getContext(CerberusSnippetContexts::CONTEXT_TICKET, $id, $token_labels, $token_values);
+						
+						$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+						if(false === ($autoreply_content = $tpl_builder->build($autoreply, $token_values)))
+							throw new Exception('Failed parsing auto-reply snippet.');
+						
+						$result = CerberusMail::sendTicketMessage(array(
+							'ticket_id' => $id,
+							'message_id' => $email_id,
+							'content' => $autoreply_content,
+							'is_autoreply' => true,
+							'dont_keep_copy' => true
+						));
+						
+					} catch (Exception $e) {
+						// [TODO] Error handling
+					}
 			}
 			
 		} // end bIsNew

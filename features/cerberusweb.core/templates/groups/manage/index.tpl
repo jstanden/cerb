@@ -57,10 +57,10 @@
 		<textarea name="default_signature">{$default_signature}</textarea>	
 	</div>
 	<textarea name="signature" rows="10" cols="76" style="width:100%;" wrap="off">{$team->signature}</textarea><br>
-		<button type="button" onclick="genericAjaxPost('frmGroupEdit','divTemplateTester','c=internal&a=snippetTest&snippet_context=cerberusweb.snippets.worker&snippet_field=signature');"><span class="cerb-sprite sprite-gear"></span> Test</button>
+		<button type="button" onclick="genericAjaxPost('frmGroupEdit','divSnippetGroupSigTester','c=internal&a=snippetTest&snippet_context=cerberusweb.snippets.worker&snippet_field=signature');"><span class="cerb-sprite sprite-gear"></span> Test</button>
 		<select name="sig_token" onchange="insertAtCursor(this.form.signature,this.options[this.selectedIndex].value);this.selectedIndex=0;this.form.signature.focus();">
 			<option value="">-- insert at cursor --</option>
-			{foreach from=$token_labels key=k item=v}
+			{foreach from=$worker_token_labels key=k item=v}
 			<option value="{literal}{{{/literal}{$k}{literal}}}{/literal}">{$v|escape}</option>
 			{/foreach}
 		</select>
@@ -69,7 +69,7 @@
 		<button type="button" onclick="this.form.signature.value=this.form.default_signature.value;">set to default</button>
 		{/if}
 		<br>
-		<div id="divTemplateTester"></div> 
+		<div id="divSnippetGroupSigTester"></div>
 	</div>
 	<br>
 	
@@ -79,31 +79,15 @@
 	<div style="margin-top:10px;margin-left:20px;display:{if $group_settings.auto_reply_enabled}block{else}none{/if};" id="divGroupCfgAutoReply">
 		<b>Send the following message:</b><br>
 		<textarea name="auto_reply" rows="10" cols="76">{$group_settings.auto_reply}</textarea><br>
-			<b>E-mail Tokens:</b>
-			
+			<button type="button" onclick="genericAjaxPost('frmGroupEdit','divSnippetAutoReplyTester','c=internal&a=snippetTest&snippet_context=cerberusweb.snippets.ticket&snippet_field=auto_reply');"><span class="cerb-sprite sprite-gear"></span> Test</button>
 			<select name="autoreply_token" onchange="insertAtCursor(this.form.auto_reply,this.options[this.selectedIndex].value);this.selectedIndex=0;this.form.auto_reply.focus();">
-				<option value="">-- choose --</option>
-				<optgroup label="General">
-					<option value="#timestamp#">Current Time</option>
-				</optgroup>
-				<optgroup label="First Requester">
-					<option value="#sender#">E-mail</option>
-					<option value="#sender_first#">First Name</option>
-				</optgroup>
-				<optgroup label="First Message">
-					<option value="#orig_body#">Message Body</option>
-				</optgroup>
-				<optgroup label="Ticket">
-					<option value="#mask#">Reference ID</option>
-					<option value="#ticket_id#">Internal ID</option>
-					<option value="#subject#">Subject</option>
-					<!-- 
-					<option value="#group#">Group Name</option>
-					<option value="#bucket#">Bucket Name</option>
-					 -->
-				</optgroup>
+				<option value="">-- insert at cursor --</option>
+				{foreach from=$ticket_token_labels key=k item=v}
+				<option value="{literal}{{{/literal}{$k}{literal}}}{/literal}">{$v|escape}</option>
+				{/foreach}
 			</select>
 		<br>
+		<div id="divSnippetAutoReplyTester"></div>
 	</div> 
 	<br>
 	
@@ -113,26 +97,15 @@
 	<div style="margin-top:10px;margin-left:20px;display:{if $group_settings.close_reply_enabled}block{else}none{/if};" id="divGroupCfgCloseReply">
 		<b>Send the following message:</b><br>
 		<textarea name="close_reply" rows="10" cols="76">{$group_settings.close_reply}</textarea><br>
-			E-mail Tokens: 
+			<button type="button" onclick="genericAjaxPost('frmGroupEdit','divSnippetCloseReplyTester','c=internal&a=snippetTest&snippet_context=cerberusweb.snippets.ticket&snippet_field=close_reply');"><span class="cerb-sprite sprite-gear"></span> Test</button>
 			<select name="closereply_token" onchange="insertAtCursor(this.form.close_reply,this.options[this.selectedIndex].value);this.selectedIndex=0;this.form.close_reply.focus();">
-				<option value="">-- choose --</option>
-				<optgroup label="General">
-					<option value="#timestamp#">Current Time</option>
-				</optgroup>
-				<optgroup label="First Requester">
-					<option value="#sender#">E-mail</option>
-					<option value="#sender_first#">First Name</option>
-				</optgroup>
-				<optgroup label="First Message">
-					<option value="#orig_body#">Message Body</option>
-				</optgroup>
-				<optgroup label="Ticket">
-					<option value="#mask#">Reference ID</option>
-					<option value="#ticket_id#">Internal ID</option>
-					<option value="#subject#">Subject</option>
-				</optgroup>
+				<option value="">-- insert at cursor --</option>
+				{foreach from=$ticket_token_labels key=k item=v}
+				<option value="{literal}{{{/literal}{$k}{literal}}}{/literal}">{$v|escape}</option>
+				{/foreach}
 			</select>
 		<br>
+		<div id="divSnippetCloseReplyTester"></div>
 	</div> 
 	<br>
 	
