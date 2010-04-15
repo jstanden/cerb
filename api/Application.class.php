@@ -634,6 +634,7 @@ class CerberusSnippetContexts {
 	const CONTEXT_ADDRESS = 'cerberusweb.snippets.address';
 	const CONTEXT_BUCKET = 'cerberusweb.snippets.bucket';
 	const CONTEXT_GROUP = 'cerberusweb.snippets.group';
+	const CONTEXT_MESSAGE = 'cerberusweb.snippets.message';
 	const CONTEXT_ORG = 'cerberusweb.snippets.org';
 	const CONTEXT_TICKET = 'cerberusweb.snippets.ticket';
 	const CONTEXT_WORKER = 'cerberusweb.snippets.worker';
@@ -648,6 +649,9 @@ class CerberusSnippetContexts {
 				break;
 			case 'cerberusweb.snippets.group':
 				self::_getGroupContext($context_object, $labels, $values, $prefix);
+				break;
+			case 'cerberusweb.snippets.message':
+				self::_getMessageContext($context_object, $labels, $values, $prefix);
 				break;
 			case 'cerberusweb.snippets.org':
 				self::_getOrganizationContext($context_object, $labels, $values, $prefix);
@@ -1065,15 +1069,15 @@ class CerberusSnippetContexts {
 			$token_labels,
 			$token_values
 		);
-		
-		// First wrote
-		$first_wrote_id = $ticket[SearchFields_Ticket::TICKET_FIRST_WROTE_ID];
+
+		// First message
+		$first_message_id = $ticket[SearchFields_Ticket::TICKET_FIRST_MESSAGE_ID];
 		$merge_token_labels = array();
 		$merge_token_values = array();
-		self::getContext(self::CONTEXT_ADDRESS, $first_wrote_id, $merge_token_labels, $merge_token_values, 'Sender:', true);
+		self::getContext(self::CONTEXT_MESSAGE, $first_message_id, $merge_token_labels, $merge_token_values, 'Message:', true);
 		
 		self::_merge(
-			'initial_sender_',
+			'initial_message_',
 			'Initial:',
 			$merge_token_labels,
 			$merge_token_values,
@@ -1081,15 +1085,15 @@ class CerberusSnippetContexts {
 			$token_values
 		
 		);
-
-		// Last wrote
-		@$last_wrote_id = $ticket[SearchFields_Ticket::TICKET_LAST_WROTE_ID];
+		
+		// Last message
+		$last_message_id = $ticket[SearchFields_Ticket::TICKET_LAST_MESSAGE_ID];
 		$merge_token_labels = array();
 		$merge_token_values = array();
-		self::getContext(self::CONTEXT_ADDRESS, $last_wrote_id, $merge_token_labels, $merge_token_values, 'Sender:', true);
-
+		self::getContext(self::CONTEXT_MESSAGE, $last_message_id, $merge_token_labels, $merge_token_values, 'Message:', true);
+		
 		self::_merge(
-			'latest_sender_',
+			'latest_message_',
 			'Latest:',
 			$merge_token_labels,
 			$merge_token_values,
@@ -1123,6 +1127,59 @@ class CerberusSnippetContexts {
 		
 		return true;
 	}
+	
+	/**
+	 * 
+	 * @param mixed $message
+	 * @param array $token_labels
+	 * @param array $token_values
+	 */
+	private static function _getMessageContext($message, &$token_labels, &$token_values, $prefix=null) {
+		if(is_null($prefix))
+			$prefix = 'Message:';
+		
+		$translate = DevblocksPlatform::getTranslationService();
+
+		// Polymorph
+		if(is_numeric($message)) {
+			$message = DAO_Message::get($message); 
+		} elseif($message instanceof Model_Message) {
+			// It's what we want already.
+		} else {
+			$message = null;
+		}
+		/* @var $message Model_Message */
+		
+		// Token labels
+		$token_labels = array(
+			'content' => $prefix.$translate->_('common.content'),
+		);
+		
+		// Token values
+		$token_values = array();
+		
+		// Message token values
+		if($message) {
+			$token_values['content'] = $message->getContent();
+		}
+
+		// Sender
+		@$address_id = $message->address_id;
+		$merge_token_labels = array();
+		$merge_token_values = array();
+		self::getContext(self::CONTEXT_ADDRESS, $address_id, $merge_token_labels, $merge_token_values, '', true);
+
+		self::_merge(
+			'sender_',
+			'Message:Sender:',
+			$merge_token_labels,
+			$merge_token_values,
+			$token_labels,
+			$token_values
+		);
+		
+		return true;
+	}	
 	
 	/**
 	 * 
