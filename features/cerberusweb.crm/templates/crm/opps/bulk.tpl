@@ -51,8 +51,47 @@
 			<div id="dateOppBulkClosed"></div>
       	</td>
 	</tr>
-</table>
 	
+	{if $active_worker->hasPriv('crm.opp.view.actions.broadcast')}
+	<tr>
+		<td width="0%" nowrap="nowrap" align="right"><label for="chkMassReply">Broadcast:</label></td>
+		<td width="100%">
+			<input type="checkbox" name="do_broadcast" id="chkMassReply" onclick="$('#bulkOppBroadcast').toggle();">
+		</td>
+	</tr>
+	{/if}
+</table>
+
+{if $active_worker->hasPriv('crm.opp.view.actions.broadcast')}
+<blockquote id="bulkOppBroadcast" style="display:none;margin:10px;">
+	<b>From:</b> <br>
+	<select name="broadcast_group_id">
+		{foreach from=$groups item=group key=group_id}
+		{if $active_worker_memberships.$group_id}
+		<option value="{$group->id}|escape">{$group->name}</option>
+		{/if}
+		{/foreach}
+	</select>
+	<br>
+	<b>Subject:</b> <br>
+	<input type="text" name="broadcast_subject" value="" style="width:100%;border:1px solid rgb(180,180,180);padding:2px;"><br>
+	<b>Compose:</b> {*[<a href="#">syntax</a>]*}<br>
+	<textarea name="broadcast_message" style="width:100%;height:200px;border:1px solid rgb(180,180,180);padding:2px;"></textarea>
+	<br>
+	<button type="button" onclick="genericAjaxPost('formBatchUpdate','bulkOppBroadcastTest','c=crm&a=doOppBulkUpdateBroadcastTest');"><span class="cerb-sprite sprite-gear"></span> Test</button><!--
+	--><select onchange="insertAtCursor(this.form.broadcast_message,this.options[this.selectedIndex].value);this.selectedIndex=0;this.form.broadcast_message.focus();">
+		<option value="">-- insert at cursor --</option>
+		{foreach from=$token_labels key=k item=v}
+		<option value="{literal}{{{/literal}{$k}{literal}}}{/literal}">{$v|escape}</option>
+		{/foreach}
+	</select>
+	<br>
+	<div id="bulkOppBroadcastTest"></div>
+	<label><input type="radio" name="broadcast_is_queued" value="0" checked="checked"> Save as drafts</label>
+	<label><input type="radio" name="broadcast_is_queued" value="1"> Send now</label>
+</blockquote>
+{/if}
+
 {include file="file:$core_tpl/internal/custom_fields/bulk/form.tpl" bulk=true}
 
 <br>

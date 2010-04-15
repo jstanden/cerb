@@ -661,10 +661,20 @@ class CrmPage extends CerberusPageExtension {
 		$custom_fields = DAO_CustomField::getBySource(CrmCustomFieldSource_Opportunity::ID);
 		$tpl->assign('custom_fields', $custom_fields);
 		
+		// Groups
+		$groups = DAO_Group::getAll();
+		$tpl->assign('groups', $groups);
+		
+		// Broadcast
+		CerberusSnippetContexts::getContext(CerberusSnippetContexts::CONTEXT_OPPORTUNITY, null, $token_labels, $token_values);
+		$tpl->assign('token_labels', $token_labels);
+		
 		$tpl->display('file:' . dirname(dirname(__FILE__)) . '/templates/crm/opps/bulk.tpl');
 	}
 	
 	function doOppBulkUpdateAction() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
 		// Checked rows
 	    @$opp_ids_str = DevblocksPlatform::importGPC($_REQUEST['opp_ids'],'string');
 		$opp_ids = DevblocksPlatform::parseCsvString($opp_ids_str);
@@ -693,6 +703,24 @@ class CrmPage extends CerberusPageExtension {
 		if(0 != strlen($worker_id))
 			$do['worker_id'] = $worker_id;
 			
+		// Broadcast: Mass Reply
+		if($active_worker->hasPriv('crm.opp.view.actions.broadcast')) {
+			@$do_broadcast = DevblocksPlatform::importGPC($_REQUEST['do_broadcast'],'string',null);
+			@$broadcast_group_id = DevblocksPlatform::importGPC($_REQUEST['broadcast_group_id'],'integer',0);
+			@$broadcast_subject = DevblocksPlatform::importGPC($_REQUEST['broadcast_subject'],'string',null);
+			@$broadcast_message = DevblocksPlatform::importGPC($_REQUEST['broadcast_message'],'string',null);
+			@$broadcast_is_queued = DevblocksPlatform::importGPC($_REQUEST['broadcast_is_queued'],'integer',0);
+			if(0 != strlen($do_broadcast) && !empty($broadcast_subject) && !empty($broadcast_message)) {
+				$do['broadcast'] = array(
+					'subject' => $broadcast_subject,
+					'message' => $broadcast_message,
+					'is_queued' => $broadcast_is_queued,
+					'group_id' => $broadcast_group_id,
+					'worker_id' => $active_worker->id,
+				);
+			}
+		}
+			
 		// Do: Custom fields
 		$do = DAO_CustomFieldValue::handleBulkPost($do);
 		
@@ -701,6 +729,70 @@ class CrmPage extends CerberusPageExtension {
 		$view->render();
 		return;
 	}
+	
+	function doOppBulkUpdateBroadcastTestAction() {
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
+		
+		$active_worker = CerberusApplication::getActiveWorker();
+		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+		$view = C4_AbstractViewLoader::getView($view_id);
+
+		$tpl = DevblocksPlatform::getTemplateService();
+		
+		if($active_worker->hasPriv('crm.opp.view.actions.broadcast')) {
+			@$broadcast_subject = DevblocksPlatform::importGPC($_REQUEST['broadcast_subject'],'string',null);
+			@$broadcast_message = DevblocksPlatform::importGPC($_REQUEST['broadcast_message'],'string',null);
+
+			// Get total
+			$view->renderPage = 0;
+			$view->renderLimit = 1;
+			$view->renderTotal = true;
+			list($null, $total) = $view->getData();
+			
+			// Get the first row from the view
+			$view->renderPage = mt_rand(0, $total-1);
+			$view->renderLimit = 1;
+			$view->renderTotal = false;
+			list($results, $null) = $view->getData();
+			
+			if(empty($results)) {
+				$success = false;
+				$output = "There aren't any rows in this view!";
+				
+			} else {
+				@$opp = DAO_CrmOpportunity::get(key($results));
+				
+				// Try to build the template
+				CerberusSnippetContexts::getContext(CerberusSnippetContexts::CONTEXT_OPPORTUNITY, $opp, $token_labels, $token_values);
+
+				if(empty($broadcast_subject)) {
+					$success = false;
+					$output = "Subject is blank.";
+				
+				} else {
+					$template = "Subject: $broadcast_subject\n\n$broadcast_message";
+					
+					if(false === ($out = $tpl_builder->build($template, $token_values))) {
+						// If we failed, show the compile errors
+						$errors = $tpl_builder->getErrors();
+						$success= false;
+						$output = @array_shift($errors);
+					} else {
+						// If successful, return the parsed template
+						$success = true;
+						$output = $out;
+					}
+				}
+			}
+			
+			$tpl->assign('success', $success);
+			$tpl->assign('output', htmlentities($output, null, LANG_CHARSET_CODE));
+			
+			$core_tpl_path = APP_PATH . '/features/cerberusweb.core/templates/';
+			
+			$tpl->display('file:'.$core_tpl_path.'internal/renderers/test_results.tpl');
+		}
+	}	
 	
 	function doQuickSearchAction() {
         @$type = DevblocksPlatform::importGPC($_POST['type'],'string'); 
@@ -1647,7 +1739,7 @@ class View_CrmOpportunity extends C4_AbstractView {
 
 		if(empty($ids))
 		do {
-			list($objects,$null) = DAO_CrmOpportunity::search(
+			list($objects, $null) = DAO_CrmOpportunity::search(
 				array(),
 				$this->params,
 				100,
@@ -1656,11 +1748,60 @@ class View_CrmOpportunity extends C4_AbstractView {
 				true,
 				false
 			);
-			 
 			$ids = array_merge($ids, array_keys($objects));
-			 
+			
 		} while(!empty($objects));
 
+		// Broadcast?
+		if(isset($do['broadcast'])) {
+			$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+			
+			$params = $do['broadcast'];
+			if(
+				!isset($params['worker_id']) 
+				|| empty($params['worker_id'])
+				|| !isset($params['subject']) 
+				|| empty($params['subject'])
+				|| !isset($params['message']) 
+				|| empty($params['message'])
+				)
+				break;
+
+			$is_queued = (isset($params['is_queued']) && $params['is_queued']) ? true : false; 
+			
+			if(is_array($ids))
+			foreach($ids as $opp_id) {
+				try {
+					CerberusSnippetContexts::getContext(CerberusSnippetContexts::CONTEXT_OPPORTUNITY, $opp_id, $tpl_labels, $tpl_tokens);
+					$subject = $tpl_builder->build($params['subject'], $tpl_tokens);
+					$body = $tpl_builder->build($params['message'], $tpl_tokens);
+					
+					$fields = array(
+						DAO_MailQueue::TYPE => Model_MailQueue::TYPE_COMPOSE,
+						DAO_MailQueue::TICKET_ID => 0,
+						DAO_MailQueue::WORKER_ID => $params['worker_id'],
+						DAO_MailQueue::UPDATED => time(),
+						DAO_MailQueue::HINT_TO => $tpl_tokens['email_address'],
+						DAO_MailQueue::SUBJECT => $subject,
+						DAO_MailQueue::BODY => $body,
+						DAO_MailQueue::PARAMS_JSON => json_encode(array(
+							'to' => $tpl_tokens['email_address'],
+							'group_id' => $params['group_id'],
+						)),
+					);
+					
+					if($is_queued) {
+						$fields[DAO_MailQueue::IS_QUEUED] = 1;
+					}
+					
+					$draft_id = DAO_MailQueue::create($fields);
+					
+				} catch (Exception $e) {
+					// [TODO] ...
+				}
+			}
+		}		
+		
 		$batch_total = count($ids);
 		for($x=0;$x<=$batch_total;$x+=100) {
 			$batch_ids = array_slice($ids,$x,100);
