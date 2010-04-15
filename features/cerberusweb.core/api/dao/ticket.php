@@ -9,6 +9,7 @@ class DAO_Ticket extends C4_ORMHelper {
 	const TEAM_ID = 'team_id';
 	const CATEGORY_ID = 'category_id';
 	const FIRST_MESSAGE_ID = 'first_message_id';
+	const LAST_MESSAGE_ID = 'last_message_id';
 	const LAST_WROTE_ID = 'last_wrote_address_id';
 	const FIRST_WROTE_ID = 'first_wrote_address_id';
 	const CREATED_DATE = 'created_date';
@@ -130,8 +131,8 @@ class DAO_Ticket extends C4_ORMHelper {
 		$db = DevblocksPlatform::getDatabaseService();
 		$newId = $db->GenID('ticket_seq');
 		
-		$sql = sprintf("INSERT INTO ticket (id, mask, subject, first_message_id, last_wrote_address_id, first_wrote_address_id, created_date, updated_date, due_date, unlock_date, team_id, category_id) ".
-			"VALUES (%d,'','',0,0,0,%d,%d,0,0,0,0)",
+		$sql = sprintf("INSERT INTO ticket (id, mask, subject, first_message_id, last_message_id, last_wrote_address_id, first_wrote_address_id, created_date, updated_date, due_date, unlock_date, team_id, category_id) ".
+			"VALUES (%d,'','',0,0,0,0,%d,%d,0,0,0,0)",
 			$newId,
 			time(),
 			time()
@@ -261,6 +262,7 @@ class DAO_Ticket extends C4_ORMHelper {
 			// Set our destination ticket to the latest touched details
 			DAO_Ticket::updateTicket($oldest_id,array(
 				DAO_Ticket::LAST_ACTION_CODE => $most_recent_updated_ticket[SearchFields_Ticket::TICKET_LAST_ACTION_CODE], 
+				DAO_Ticket::LAST_MESSAGE_ID => $most_recent_updated_ticket[SearchFields_Ticket::TICKET_LAST_MESSAGE_ID], 
 				DAO_Ticket::LAST_WROTE_ID => $most_recent_updated_ticket[SearchFields_Ticket::TICKET_LAST_WROTE_ID], 
 				DAO_Ticket::LAST_WORKER_ID => $most_recent_updated_ticket[SearchFields_Ticket::TICKET_LAST_WORKER_ID], 
 				DAO_Ticket::UPDATED_DATE => $most_recent_updated_ticket[SearchFields_Ticket::TICKET_UPDATED_DATE]
@@ -335,7 +337,7 @@ class DAO_Ticket extends C4_ORMHelper {
 		$tickets = array();
 		if(empty($ids)) return array();
 		
-		$sql = "SELECT t.id , t.mask, t.subject, t.is_waiting, t.is_closed, t.is_deleted, t.team_id, t.category_id, t.first_message_id, ".
+		$sql = "SELECT t.id , t.mask, t.subject, t.is_waiting, t.is_closed, t.is_deleted, t.team_id, t.category_id, t.first_message_id, t.last_message_id, ".
 			"t.first_wrote_address_id, t.last_wrote_address_id, t.created_date, t.updated_date, t.due_date, t.unlock_date, t.spam_training, ". 
 			"t.spam_score, t.interesting_words, t.last_worker_id, t.next_worker_id ".
 			"FROM ticket t ".
@@ -350,6 +352,7 @@ class DAO_Ticket extends C4_ORMHelper {
 			$ticket->mask = $row['mask'];
 			$ticket->subject = $row['subject'];
 			$ticket->first_message_id = intval($row['first_message_id']);
+			$ticket->last_message_id = intval($row['last_message_id']);
 			$ticket->team_id = intval($row['team_id']);
 			$ticket->category_id = intval($row['category_id']);
 			$ticket->is_waiting = intval($row['is_waiting']);
@@ -774,6 +777,7 @@ class DAO_Ticket extends C4_ORMHelper {
 			"t.first_wrote_address_id as %s, ".
 			"t.last_wrote_address_id as %s, ".
 			"t.first_message_id as %s, ".
+			"t.last_message_id as %s, ".
 			"a1.email as %s, ".
 			"a1.num_spam as %s, ".
 			"a1.num_nonspam as %s, ".
@@ -798,6 +802,7 @@ class DAO_Ticket extends C4_ORMHelper {
 			    SearchFields_Ticket::TICKET_FIRST_WROTE_ID,
 			    SearchFields_Ticket::TICKET_LAST_WROTE_ID,
 			    SearchFields_Ticket::TICKET_FIRST_MESSAGE_ID,
+			    SearchFields_Ticket::TICKET_LAST_MESSAGE_ID,
 			    SearchFields_Ticket::TICKET_FIRST_WROTE,
 			    SearchFields_Ticket::TICKET_FIRST_WROTE_SPAM,
 			    SearchFields_Ticket::TICKET_FIRST_WROTE_NONSPAM,
@@ -892,6 +897,7 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 	const TICKET_DELETED = 't_is_deleted';
 	const TICKET_SUBJECT = 't_subject';
 	const TICKET_FIRST_MESSAGE_ID = 't_first_message_id';
+	const TICKET_LAST_MESSAGE_ID = 't_last_message_id';
 	const TICKET_FIRST_WROTE_ID = 't_first_wrote_address_id';
 	const TICKET_FIRST_WROTE = 't_first_wrote';
 	const TICKET_FIRST_WROTE_SPAM = 't_first_wrote_spam';
@@ -940,6 +946,7 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 			self::TICKET_SUBJECT => new DevblocksSearchField(self::TICKET_SUBJECT, 't', 'subject', $translate->_('ticket.subject')),
 			
 			self::TICKET_FIRST_MESSAGE_ID => new DevblocksSearchField(self::TICKET_FIRST_MESSAGE_ID, 't', 'first_message_id'),
+			self::TICKET_LAST_MESSAGE_ID => new DevblocksSearchField(self::TICKET_LAST_MESSAGE_ID, 't', 'last_message_id'),
 			
 			self::TICKET_FIRST_WROTE_ID => new DevblocksSearchField(self::TICKET_FIRST_WROTE_ID, 't', 'first_wrote_address_id'),
 			self::TICKET_FIRST_WROTE => new DevblocksSearchField(self::TICKET_FIRST_WROTE, 'a1', 'email',$translate->_('ticket.first_wrote')),
@@ -1008,6 +1015,7 @@ class Model_Ticket {
 	public $team_id;
 	public $category_id;
 	public $first_message_id;
+	public $last_message_id;
 	public $first_wrote_address_id;
 	public $last_wrote_address_id;
 	public $created_date;
@@ -1026,6 +1034,14 @@ class Model_Ticket {
 	function getMessages() {
 		$messages = DAO_Message::getMessagesByTicket($this->id);
 		return $messages;
+	}
+	
+	function getFirstMessage() {
+		return DAO_Message::get($this->first_message_id);
+	}
+	
+	function getLastMessage() {
+		return DAO_Message::get($this->last_message_id);
 	}
 
 	function getRequesters() {

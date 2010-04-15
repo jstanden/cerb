@@ -684,93 +684,102 @@ class ImportCron extends CerberusCronPageExtension {
 		}
 		
 		// Create messages
-		$is_first = true;
-		if(!is_null($xml->messages))
-		foreach($xml->messages->message as $eMessage) { /* @var $eMessage SimpleXMLElement */
-			$eHeaders =& $eMessage->headers; /* @var $eHeaders SimpleXMLElement */
-
-			$sMsgFrom = (string) $eHeaders->from;
-			$sMsgDate = (string) $eHeaders->date;
-			
-			$sMsgFrom = self::_parseRfcAddressList($sMsgFrom, true);
-			
-			if(NULL == $sMsgFrom) {
-				$logger->warning('[Importer] Ticket ' . $sMask . ' - Invalid message sender: ' . $sMsgFrom . ' (skipping)');
-				continue;
-			}
-			
-			if(null == ($msgFromInst = CerberusApplication::hashLookupAddress($sMsgFrom, true))) {
-				$logger->warning('[Importer] Ticket ' . $sMask . ' - Invalid message sender: ' . $sMsgFrom . ' (skipping)');
-				continue;
-			}
-
-			@$msgWorkerId = intval($email_to_worker_id[strtolower($msgFromInst->email)]);
-//			$logger->info('Checking if '.$msgFromInst->email.' is a worker');
-			
-	        $fields = array(
-	            DAO_Message::TICKET_ID => $ticket_id,
-	            DAO_Message::CREATED_DATE => strtotime($sMsgDate),
-	            DAO_Message::ADDRESS_ID => $msgFromInst->id,
-	            DAO_Message::IS_OUTGOING => !empty($msgWorkerId) ? 1 : 0,
-	            DAO_Message::WORKER_ID => !empty($msgWorkerId) ? $msgWorkerId : 0,
-	        );
-			$email_id = DAO_Message::create($fields);
-			
-			// First thread
-			if($is_first) {
-				DAO_Ticket::updateTicket($ticket_id,array(
-					DAO_Ticket::FIRST_MESSAGE_ID => $email_id
-				));
+		if(!is_null($xml->messages)) {
+			$count_messages = count($xml->messages->message);
+			$seek_messages = 1;
+			foreach($xml->messages->message as $eMessage) { /* @var $eMessage SimpleXMLElement */
+				$eHeaders =& $eMessage->headers; /* @var $eHeaders SimpleXMLElement */
+	
+				$sMsgFrom = (string) $eHeaders->from;
+				$sMsgDate = (string) $eHeaders->date;
 				
-				$is_first = false;
-			}
-
-			// Create attachments
-			if(!is_null($eMessage->attachments))
-			foreach($eMessage->attachments->attachment as $eAttachment) { /* @var $eAttachment SimpleXMLElement */
-				$sFileName = (string) $eAttachment->name;
-				$sMimeType = (string) $eAttachment->mimetype;
-				$sFileSize = (integer) $eAttachment->size;
-				$sFileContentB64 = (string) $eAttachment->content;
+				$sMsgFrom = self::_parseRfcAddressList($sMsgFrom, true);
 				
-				// [TODO] This could be a little smarter about detecting extensions
-				if(empty($sMimeType))
-					$sMimeType = "application/octet-stream";
-				
-				$sFileContent = base64_decode($sFileContentB64);
-				unset($sFileContentB64);
-				
-				$fields = array(
-					DAO_Attachment::MESSAGE_ID => $email_id,
-					DAO_Attachment::DISPLAY_NAME => $sFileName,
-					DAO_Attachment::MIME_TYPE => $sMimeType,
-				);
-				$file_id = DAO_Attachment::create($fields);
-				
-				// Write file to storage
-				Storage_Attachments::put($file_id, $sFileContent);
-				unset($sFileContent);
-			}
-			
-			// Create message content
-			$sMessageContentB64 = (string) $eMessage->content;
-			$sMessageContent = base64_decode($sMessageContentB64);
-			
-			// Content-type specific handling
-			if(isset($eMessage->content['content-type'])) { // do we have a content-type?
-				if(strtolower($eMessage->content['content-type']) == 'html') { // html?
-					// Force to plaintext part
-					$sMessageContent = DevblocksPlatform::stripHTML($sMessageContent);
+				if(NULL == $sMsgFrom) {
+					$logger->warning('[Importer] Ticket ' . $sMask . ' - Invalid message sender: ' . $sMsgFrom . ' (skipping)');
+					continue;
 				}
-			}				
-			unset($sMessageContentB64);
-			
-			Storage_MessageContent::put($email_id, $sMessageContent);
-			unset($sMessageContent);
-
-			// Headers
-			foreach($eHeaders->children() as $eHeader) { /* @var $eHeader SimpleXMLElement */
-			    DAO_MessageHeader::create($email_id, $eHeader->getName(), (string) $eHeader);
+				
+				if(null == ($msgFromInst = CerberusApplication::hashLookupAddress($sMsgFrom, true))) {
+					$logger->warning('[Importer] Ticket ' . $sMask . ' - Invalid message sender: ' . $sMsgFrom . ' (skipping)');
+					continue;
+				}
+	
+				@$msgWorkerId = intval($email_to_worker_id[strtolower($msgFromInst->email)]);
+	//			$logger->info('Checking if '.$msgFromInst->email.' is a worker');
+				
+		        $fields = array(
+		            DAO_Message::TICKET_ID => $ticket_id,
+		            DAO_Message::CREATED_DATE => strtotime($sMsgDate),
+		            DAO_Message::ADDRESS_ID => $msgFromInst->id,
+		            DAO_Message::IS_OUTGOING => !empty($msgWorkerId) ? 1 : 0,
+		            DAO_Message::WORKER_ID => !empty($msgWorkerId) ? $msgWorkerId : 0,
+		        );
+				$email_id = DAO_Message::create($fields);
+				
+				// First thread
+				if(1==$seek_messages) {
+					DAO_Ticket::updateTicket($ticket_id,array(
+						DAO_Ticket::FIRST_MESSAGE_ID => $email_id
+					));
+				}
+				
+				// Last thread
+				if($count_messages==$seek_messages) {
+					DAO_Ticket::updateTicket($ticket_id,array(
+						DAO_Ticket::LAST_MESSAGE_ID => $email_id
+					));
+				}
+	
+				// Create attachments
+				if(!is_null($eMessage->attachments))
+				foreach($eMessage->attachments->attachment as $eAttachment) { /* @var $eAttachment SimpleXMLElement */
+					$sFileName = (string) $eAttachment->name;
+					$sMimeType = (string) $eAttachment->mimetype;
+					$sFileSize = (integer) $eAttachment->size;
+					$sFileContentB64 = (string) $eAttachment->content;
+					
+					// [TODO] This could be a little smarter about detecting extensions
+					if(empty($sMimeType))
+						$sMimeType = "application/octet-stream";
+					
+					$sFileContent = base64_decode($sFileContentB64);
+					unset($sFileContentB64);
+					
+					$fields = array(
+						DAO_Attachment::MESSAGE_ID => $email_id,
+						DAO_Attachment::DISPLAY_NAME => $sFileName,
+						DAO_Attachment::MIME_TYPE => $sMimeType,
+					);
+					$file_id = DAO_Attachment::create($fields);
+					
+					// Write file to storage
+					Storage_Attachments::put($file_id, $sFileContent);
+					unset($sFileContent);
+				}
+				
+				// Create message content
+				$sMessageContentB64 = (string) $eMessage->content;
+				$sMessageContent = base64_decode($sMessageContentB64);
+				
+				// Content-type specific handling
+				if(isset($eMessage->content['content-type'])) { // do we have a content-type?
+					if(strtolower($eMessage->content['content-type']) == 'html') { // html?
+						// Force to plaintext part
+						$sMessageContent = DevblocksPlatform::stripHTML($sMessageContent);
+					}
+				}				
+				unset($sMessageContentB64);
+				
+				Storage_MessageContent::put($email_id, $sMessageContent);
+				unset($sMessageContent);
+	
+				// Headers
+				foreach($eHeaders->children() as $eHeader) { /* @var $eHeader SimpleXMLElement */
+				    DAO_MessageHeader::create($email_id, $eHeader->getName(), (string) $eHeader);
+				}
+				
+				$seek_messages++;
 			}
 		}
 		

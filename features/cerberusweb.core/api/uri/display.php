@@ -983,6 +983,7 @@ class ChDisplayPage extends CerberusPageExtension {
 			DAO_Ticket::UPDATED_DATE => $orig_message->created_date,
 			DAO_Ticket::CATEGORY_ID => $orig_ticket->category_id,
 			DAO_Ticket::FIRST_MESSAGE_ID => $orig_message->id,
+			DAO_Ticket::LAST_MESSAGE_ID => $orig_message->id,
 			DAO_Ticket::FIRST_WROTE_ID => $orig_message->address_id,
 			DAO_Ticket::LAST_WROTE_ID => $orig_message->address_id,
 			DAO_Ticket::LAST_ACTION_CODE => CerberusTicketActionCode::TICKET_OPENED,
@@ -1012,6 +1013,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		$last_message = end($messages); /* @var Model_Message $last_message */
 		
 		DAO_Ticket::updateTicket($orig_ticket->id, array(
+			DAO_Ticket::LAST_MESSAGE_ID => $last_message->id,
 			DAO_Ticket::LAST_WROTE_ID => $last_message->address_id
 		));
 		

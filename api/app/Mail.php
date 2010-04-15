@@ -699,6 +699,7 @@ class CerberusMail {
 		
 		if((!isset($properties['dont_keep_copy']) || !$properties['dont_keep_copy'])
 			&& (!isset($properties['is_autoreply']) || !$properties['is_autoreply'])) {
+			$change_fields[DAO_Ticket::LAST_MESSAGE_ID] = $fromAddressId;
 			$change_fields[DAO_Ticket::LAST_WROTE_ID] = $fromAddressId;
 			$change_fields[DAO_Ticket::UPDATED_DATE] = time();
 			
@@ -711,7 +712,7 @@ class CerberusMail {
 		    if(!empty($subject) && empty($properties['to'])) {
 		    	$change_fields[DAO_Ticket::SUBJECT] = $subject;
 		    }
-			
+		    
 		    $fields = array(
 		        DAO_Message::TICKET_ID => $ticket_id,
 		        DAO_Message::CREATED_DATE => time(),
@@ -721,6 +722,9 @@ class CerberusMail {
 		    );
 			$message_id = DAO_Message::create($fields);
 		    
+			// Store ticket.last_message_id
+			$change_fields[DAO_Ticket::LAST_MESSAGE_ID] = $message_id;
+			
 			// Content
 			Storage_MessageContent::put($message_id, $content);
 		    

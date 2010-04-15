@@ -680,7 +680,8 @@ class CerberusParser {
 		if($bIsNew && !empty($id) && !empty($email_id)) {
 			// First thread (needed for anti-spam)
 			DAO_Ticket::updateTicket($id, array(
-				 DAO_Ticket::FIRST_MESSAGE_ID => $email_id
+				 DAO_Ticket::FIRST_MESSAGE_ID => $email_id,
+				 DAO_Ticket::LAST_MESSAGE_ID => $email_id,
 			));
 			
 			// Prime the change fields (which a few things like anti-spam might change before we commit)
@@ -779,6 +780,7 @@ class CerberusParser {
 			    DAO_Ticket::IS_WAITING => 0,
 			    DAO_Ticket::IS_CLOSED => 0,
 			    DAO_Ticket::IS_DELETED => 0,
+			    DAO_Ticket::LAST_MESSAGE_ID => $email_id,
 			    DAO_Ticket::LAST_WROTE_ID => $fromAddressInst->id,
 			    DAO_Ticket::LAST_ACTION_CODE => CerberusTicketActionCode::TICKET_CUSTOMER_REPLY,
 			));

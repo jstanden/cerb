@@ -41,6 +41,7 @@ class ChAuditLogEventListener extends DevblocksEventListenerExtension {
 				unset($changed_fields[DAO_Ticket::UPDATED_DATE]);
 				unset($changed_fields[DAO_Ticket::MASK]);
 				unset($changed_fields[DAO_Ticket::FIRST_MESSAGE_ID]);
+				unset($changed_fields[DAO_Ticket::LAST_MESSAGE_ID]);
 				unset($changed_fields[DAO_Ticket::FIRST_WROTE_ID]);
 				unset($changed_fields[DAO_Ticket::LAST_WROTE_ID]);
 				unset($changed_fields[DAO_Ticket::INTERESTING_WORDS]);
