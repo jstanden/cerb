@@ -1,7 +1,14 @@
 {include file="file:$core_tpl/tickets/submenu.tpl"}
 
 {if !empty($last_ticket_mask)}
-<div class="success">Message created! &nbsp; &nbsp; <a href="{devblocks_url}c=display&mask={$last_ticket_mask}{/devblocks_url}" style="font-weight:normal;color:rgb(80,80,80);">View the message</a></div>
+<div class="ui-widget">
+	<div class="ui-state-highlight ui-corner-all" style="padding: 0 .7em; margin: 0.2em; "> 
+		<p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span> 
+		<strong>Message created!</strong> 
+		(<a href="{devblocks_url}c=display&mask={$last_ticket_mask}{/devblocks_url}">view</a>)
+		</p>
+	</div>
+</div>
 {/if}
 
 <div class="block">
