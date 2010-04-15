@@ -518,7 +518,7 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 						$ticket_body = $msg_first->getContent();
 					}
 					
-					CerberusMail::sendTicketMessage(array(
+					$result = CerberusMail::sendTicketMessage(array(
 						'ticket_id' => $ticket->id,
 						'message_id' => $ticket->first_message_id,
 						'content' => str_replace(

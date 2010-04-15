@@ -159,7 +159,6 @@ class CerberusMail {
 		$mail_headers = array();
 		$mail_headers['X-CerberusCompose'] = '1';
 		
-		$mail_succeeded = true;
 		if(!empty($no_mail)) { // allow compose without sending mail
 			// Headers needed for the ticket message
 			$log_headers = new Swift_Message_Headers();
@@ -216,14 +215,53 @@ class CerberusMail {
 				
 				// [TODO] Allow separated addresses (parseRfcAddress)
 		//		$mailer->log->enable();
-				if(!$mailer->send($email)) {
-					$mail_succeeded = false;
+				if(!@$mailer->send($email)) {
 					throw new Exception('Mail failed to send: unknown reason');
 				}
 		//		$mailer->log->dump();
+		
 			} catch (Exception $e) {
-				// tag mail as failed, add note to message after message gets created			
-				$mail_succeeded = false;
+				@$draft_id = $properties['draft_id'];
+				
+				if(empty($draft_id)) {
+					$params = array(
+						'to' => $toStr,
+					);
+					
+					if(!empty($cc))
+						$params['cc'] = $cc;
+						
+					if(!empty($bcc))
+						$params['bcc'] = $bcc;
+					
+					$fields = array(
+						DAO_MailQueue::TYPE => Model_MailQueue::TYPE_COMPOSE,
+						DAO_MailQueue::TICKET_ID => 0,
+						DAO_MailQueue::WORKER_ID => !empty($worker) ? $worker->id : 0,
+						DAO_MailQueue::UPDATED => time()+5, // small offset
+						DAO_MailQueue::HINT_TO => $toStr,
+						DAO_MailQueue::SUBJECT => $subject,
+						DAO_MailQueue::BODY => $content,
+						DAO_MailQueue::PARAMS_JSON => json_encode($params),
+						DAO_MailQueue::IS_QUEUED => !empty($worker) ? 0 : 1,
+						DAO_MailQueue::PRIORITY => 0,
+					);
+					DAO_MailQueue::create($fields);
+					
+//					// if email sending failed, add an error note to the message
+//					if ($mail_succeeded === false) {
+//						$fields = array(
+//							DAO_MessageNote::MESSAGE_ID => $message_id,
+//							DAO_MessageNote::CREATED => time(),
+//							DAO_MessageNote::WORKER_ID => 0,
+//							DAO_MessageNote::CONTENT => 'Exception thrown while sending email: ' . $e->getMessage(),
+//							DAO_MessageNote::TYPE => Model_MessageNote::TYPE_ERROR,
+//						);
+//						DAO_MessageNote::create($fields);
+//					}
+				}
+				
+				return false;
 			}
 
 		    // Headers
@@ -360,18 +398,6 @@ class CerberusMail {
 		    );
 	    }
 		
-		// if email sending failed, add an error note to the message
-		if ($mail_succeeded === false) {
-			$fields = array(
-				DAO_MessageNote::MESSAGE_ID => $message_id,
-				DAO_MessageNote::CREATED => time(),
-				DAO_MessageNote::WORKER_ID => 0,
-				DAO_MessageNote::CONTENT => 'Exception thrown while sending email: ' . $e->getMessage(),
-				DAO_MessageNote::TYPE => Model_MessageNote::TYPE_ERROR,
-			);
-			DAO_MessageNote::create($fields);
-		}
-		
 		return $ticket_id;
 	}
 	
@@ -385,6 +411,7 @@ class CerberusMail {
 		
 		/*
 	     * [TODO] Move these into constants?
+	    'draft_id'
 	    'message_id'
 	    -----'ticket_id'
 		'subject'
@@ -403,7 +430,6 @@ class CerberusMail {
 		'dont_save_copy'
 		*/
 
-		$mail_succeeded = true;
 		try {
 			// objects
 		    $mail_service = DevblocksPlatform::getMailService();
@@ -607,17 +633,65 @@ class CerberusMail {
 			if(isset($properties['dont_send']) && $properties['dont_send']) {
 				// ...do nothing
 			} else { // otherwise send
-				if(!$mailer->send($mail)) {
-					$mail_succeeded = false;
+				if(!@$mailer->send($mail)) {
 					throw new Exception('Mail not sent.');
 				}
 			}
+			
 		} catch (Exception $e) {
-			// tag failure, so we can add a note to the message later
-			$mail_succeeded = false;
-		}
+			@$draft_id = $properties['draft_id'];
 
-		// Handle post-mail actions
+			// Only if we weren't trying to send a draft already...
+			if(empty($draft_id)) {
+				$params = array(
+					'in_reply_message_id' => $properties['message_id'],
+				);
+				
+				if(isset($properties['cc']))
+					$params['cc'] = $properties['cc'];
+					
+				if(isset($properties['bcc']))
+					$params['bcc'] = $properties['bcc'];
+				
+				$hint_to = '(requesters)';
+				
+				if(isset($properties['to'])) {
+					// .. forward
+				} else { // reply
+					$hint_to = implode(', ', array_keys($mail->getTo()));					
+				}
+				
+				$fields = array(
+					DAO_MailQueue::TYPE => Model_MailQueue::TYPE_TICKET_REPLY,
+					DAO_MailQueue::TICKET_ID => $properties['ticket_id'],
+					DAO_MailQueue::WORKER_ID => intval($worker_id),
+					DAO_MailQueue::UPDATED => time()+5, // small offset
+					DAO_MailQueue::HINT_TO => $hint_to,
+					DAO_MailQueue::SUBJECT => $subject,
+					DAO_MailQueue::BODY => $properties['content'],
+					DAO_MailQueue::PARAMS_JSON => json_encode($params),
+					DAO_MailQueue::IS_QUEUED => empty($worker_id) ? 1 : 0,
+					DAO_MailQueue::PRIORITY => 0,
+				);
+				DAO_MailQueue::create($fields);
+			}
+			
+			// [TODO] Add note to the draft
+			// add note to message if email failed
+//			if ($mail_succeeded === false) {
+//				$fields = array(
+//					DAO_MessageNote::MESSAGE_ID => $message_id,
+//					DAO_MessageNote::CREATED => time(),
+//					DAO_MessageNote::WORKER_ID => 0,
+//					DAO_MessageNote::CONTENT => 'Exception thrown while sending email: ' . $e->getMessage(),
+//					DAO_MessageNote::TYPE => Model_MessageNote::TYPE_ERROR,
+//				);
+//				DAO_MessageNote::create($fields);
+//			}
+			
+			return false;
+		}
+		
 		$change_fields = array();
 		
 		$fromAddressInst = CerberusApplication::hashLookupAddress($from_addy, true);
@@ -681,18 +755,6 @@ class CerberusMail {
 			            unlink($file);
 					}
 				}
-			}
-			
-			// add note to message if email failed
-			if ($mail_succeeded === false) {
-				$fields = array(
-					DAO_MessageNote::MESSAGE_ID => $message_id,
-					DAO_MessageNote::CREATED => time(),
-					DAO_MessageNote::WORKER_ID => 0,
-					DAO_MessageNote::CONTENT => 'Exception thrown while sending email: ' . $e->getMessage(),
-					DAO_MessageNote::TYPE => Model_MessageNote::TYPE_ERROR,
-				);
-				DAO_MessageNote::create($fields);
 			}
 		}
 		
@@ -767,7 +829,7 @@ class CerberusMail {
 		    );
 		}
 		
-		return $mail_succeeded;
+		return true;
 	}
 	
 	static function reflect(CerberusParserMessage $message, $to) {

@@ -325,7 +325,9 @@ class Model_MailQueue {
 	}
 	
 	private function _sendCompose() {
-		$properties = array();
+		$properties = array(
+			'draft_id' => $this->id,
+		);
 
 		// From
 		if(!isset($this->params['group_id']))
@@ -366,8 +368,6 @@ class Model_MailQueue {
 	}
 	
 	private function _sendOpenTicket() {
-		$properties = array();
-		
 		// [TODO] This shouldn't be redundant with open ticket functionality
 
 		// Worker
@@ -435,6 +435,7 @@ class Model_MailQueue {
 		
 		// Worker reply
 		$properties = array(
+			'draft_id' => $this->id,
 		    'message_id' => $ticket->first_message_id,
 		    'ticket_id' => $ticket_id,
 		    'subject' => $this->subject,
@@ -453,7 +454,9 @@ class Model_MailQueue {
 	}
 	
 	private function _sendTicketReply() {
-		$properties = array();
+		$properties = array(
+			'draft_id' => $this->id,
+		);
 		
 		// In reply to message-id
 		if(!isset($this->params['in_reply_message_id']))

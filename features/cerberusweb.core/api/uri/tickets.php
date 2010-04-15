@@ -1433,6 +1433,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		}
 
 		$properties = array(
+			'draft_id' => $draft_id,
 			'team_id' => $team_id,
 			'to' => $to,
 			'cc' => $cc,
@@ -1576,6 +1577,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		
 		// Worker reply
 		$properties = array(
+		    'draft_id' => $draft_id,
 		    'message_id' => $ticket->first_message_id,
 		    'ticket_id' => $ticket_id,
 		    'subject' => $subject,

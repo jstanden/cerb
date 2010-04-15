@@ -463,6 +463,7 @@ class ChDisplayPage extends CerberusPageExtension {
 	    $worker = CerberusApplication::getActiveWorker();
 	    
 		$properties = array(
+		    'draft_id' => $draft_id,
 		    'message_id' => DevblocksPlatform::importGPC(@$_REQUEST['id']),
 		    'ticket_id' => $ticket_id,
 		    'to' => DevblocksPlatform::importGPC(@$_REQUEST['to']),

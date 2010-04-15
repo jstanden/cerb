@@ -337,7 +337,7 @@ class ChMobileDisplayPage  extends CerberusMobilePageExtension  {
 				'agent_id' => @$worker->id,
 				'to' => $to
 		    );
-			CerberusMail::sendTicketMessage($properties);
+			$result = CerberusMail::sendTicketMessage($properties);
 		}
 		
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('mobile','display', $ticket_id)));
