@@ -66,7 +66,7 @@
 				{elseif $result.m_type=="ticket.reply"}
 					<a href="{devblocks_url}c=display&id={$result.m_ticket_id|escape:'url'}{/devblocks_url}#draft{$result.m_id|escape:'url'}" class="subject">{if empty($result.$column)}(no subject){else}{$result.$column}{/if}</a>
 				{/if}
-				<a href="javascript:;" onclick="genericAjaxPanel('c=tickets&a=showDraftPeek&view_id={$view->id}&id={$result.m_id}', null, false, '500');"><span class="ui-icon ui-icon-newwin" style="display:inline-block;vertical-align:middle;" title="{$translate->_('views.peek')}"></span></a>
+				{*<a href="javascript:;" onclick="genericAjaxPanel('c=tickets&a=showDraftPeek&view_id={$view->id}&id={$result.m_id}', null, false, '500');"><span class="ui-icon ui-icon-newwin" style="display:inline-block;vertical-align:middle;" title="{$translate->_('views.peek')}"></span></a>*}
 			</td>
 			{elseif $column=="m_updated"}
 			<td>
