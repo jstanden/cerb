@@ -234,7 +234,7 @@
 <label><input type="checkbox" name="do[]" value="email" {if !is_null($filter->actions.email)}checked="checked"{/if}> <b>Forward e-mail to:</b></label><br>
 <blockquote style="margin-top:0px;" id="div_do_email">
 	{foreach from=$addresses item=address}
-	<label><input type="checkbox" name="do_email[]" value="{$address->address|escape}" {if is_array($act_email.to) && in_array($address->address,$act_email.to)}checked="checked"{/if}> {$address->address}</label><br>
+	<label><input type="checkbox" name="do_email[]" value="{$address->address|escape}" {if is_array($act_email.to) && in_array($address->address,$act_email.to)}checked="checked"{/if} onclick="if(this.checked) $('#frmWatcherFilter input[name=do\[\]][value=email]').attr('checked','checked');"> {$address->address}</label><br>
 	{/foreach}
 </blockquote>
 
