@@ -9,13 +9,13 @@
 	<tr>
 		<td width="0%" nowrap="nowrap" align="right" valign="top">{$translate->_('crm.opportunity.email_address')|capitalize}: </td>
 		<td width="100%">
-			<input type="text" name="email" id="emailinput" value="{$address->email|escape}" style="border:1px solid rgb(180,180,180);padding:2px;width:98%;">
+			<input type="text" name="email" id="emailinput" value="{$address->email|escape}" class="required" style="border:1px solid rgb(180,180,180);padding:2px;width:98%;">
 		</td>
 	</tr>
 	<tr>
 		<td width="0%" nowrap="nowrap" align="right" valign="top">{$translate->_('crm.opportunity.name')|capitalize}: </td>
 		<td width="100%">
-			<input type="text" name="name" style="width:98%;border:1px solid rgb(180,180,180);padding:2px;" value="{$opp->name|escape}" autocomplete="off">
+			<input type="text" name="name" style="width:98%;border:1px solid rgb(180,180,180);padding:2px;" value="{$opp->name|escape}" class="required" autocomplete="off">
 		</td>
 	</tr>
 	<tr>
@@ -80,7 +80,7 @@
 {if ($active_worker->hasPriv('crm.opp.actions.create') && (empty($opp) || $active_worker->id==$opp->worker_id))
 	|| ($active_worker->hasPriv('crm.opp.actions.update_nobody') && empty($opp->worker_id)) 
 	|| $active_worker->hasPriv('crm.opp.actions.update_all')} 
-	<button type="button" onclick="genericPanel.dialog('close');genericAjaxPost('formOppPeek', 'view{$view_id}')"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')}</button>
+	<button type="button" onclick="if($('#formOppPeek').validate().form()) { genericPanel.dialog('close'); genericAjaxPost('formOppPeek', 'view{$view_id}'); } "><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')}</button>
 	{if !empty($opp)}<button type="button" onclick="if(confirm('Are you sure you want to permanently delete this opportunity?')) { this.form.do_delete.value='1';genericPanel.dialog('close');genericAjaxPost('formOppPeek', 'view{$view_id}'); } "><span class="cerb-sprite sprite-delete2"></span> {$translate->_('common.delete')|capitalize}</button>{/if}
 {else}
 	<div class="error">You do not have permission to modify this record.</div>
@@ -92,5 +92,7 @@
 	genericPanel.one('dialogopen',function(event,ui) {
 		genericPanel.dialog('option','title', '{'Opportunity'|devblocks_translate|escape:'quotes'}');
 		ajax.emailAutoComplete('#emailinput');
+		$("#formOppPeek").validate();
+		$('#formOppPeek :input:text:first').focus();
 	} );
 </script>
