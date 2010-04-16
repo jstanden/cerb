@@ -156,7 +156,6 @@
 
 <script type="text/javascript">
 {if $pref_keyboard_shortcuts}
-{literal}
 CreateKeyHandler(function doShortcuts(e) {
 	var mycode = getKeyboardKey(e,true);
 	
@@ -164,48 +163,47 @@ CreateKeyHandler(function doShortcuts(e) {
 		case 65:  // (A) read all
 			try {
 				document.getElementById('btnReadAll').click();
-			} catch(ex){}
+			} catch(ex) { } 
 			break;
 		case 67:  // (C) close
 			try {
 				document.getElementById('btnClose').click();
-			} catch(ex){}
+			} catch(ex) { } 
 			break;
 		case 80:  // (P) print
 			try {
 				document.getElementById('btnPrint').click();
-			} catch(ex){}
+			} catch(ex) { } 
 			break;
 		case 82:  // (R) reply to first message
 			try {
-				document.getElementById('btnReplyFirst').click();
-			} catch(ex){}
+				{if $expand_all}$('BUTTON.reply').last().click();{else}$('BUTTON.reply').first().click();{/if}
+			} catch(ex) { } 
 			break;
 		case 83:  // (S) spam
 			try {
 				document.getElementById('btnSpam').click();
-			} catch(ex){}
+			} catch(ex) { } 
 			break;
 		case 84:  // (T) take/assign
 			try {
 				document.getElementById('btnTake').click();
-			} catch(ex){}
+			} catch(ex) { } 
 			break;
 		case 85:  // (U) surrender/unassign
 			try {
 				document.getElementById('btnSurrender').click();
-			} catch(ex){}
+			} catch(ex) { } 
 			break;
 		case 88:  // (X) delete
 			try {
 				document.getElementById('btnDelete').click();
-			} catch(ex){}
+			} catch(ex) { } 
 			break;
 		default:
 			// We didn't find any obvious keys, try other codes
 			break;
 	}
-});
-{/literal}
+} );
 {/if}
 </script>
