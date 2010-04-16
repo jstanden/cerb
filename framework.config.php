@@ -15,6 +15,8 @@ define('DB_CHARSET_CODE','latin1'); // latin1, utf8
 //define('DEVBLOCKS_CACHE_PREFIX',''); // ONLY A-Z, a-z, 0-9 and underscore
 //define('DEVBLOCKS_MEMCACHED_SERVERS','127.0.0.1:11211');
 
+//@ini_set('memory_limit', '64M');
+
 /****************************************************************************
  * [JAS]: Don't change the following unless you know what you're doing!
  ***************************************************************************/

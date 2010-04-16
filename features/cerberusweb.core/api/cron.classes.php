@@ -67,7 +67,6 @@ class ParseCron extends CerberusCronPageExtension {
 		$logger->info("[Parser] Starting Parser Task");
 		
 		if (!extension_loaded("imap")) die("IMAP Extension not loaded!");
-		@ini_set('memory_limit','64M');
 
 		$timeout = ini_get('max_execution_time');
 		$runtime = microtime(true);
@@ -169,8 +168,6 @@ class MaintCron extends CerberusCronPageExtension {
 		
 		$logger->info("[Maint] Starting Maintenance Task");
 		
-		@ini_set('memory_limit','64M');
-
 		$db = DevblocksPlatform::getDatabaseService();
 
 		// Purge Deleted Content
@@ -285,11 +282,7 @@ class ImportCron extends CerberusCronPageExtension {
 		$logger->info("[Importer] Starting Import Task");
 		
 		@set_time_limit(0); // Unlimited (if possible)
-		@ini_set('memory_limit','128M');
 		 
-		$logger->info("[Importer] Overloaded memory_limit to: " . ini_get('memory_limit'));
-		$logger->info("[Importer] Overloaded max_execution_time to: " . ini_get('max_execution_time'));
-		
 		$importNewDir = APP_STORAGE_PATH . '/import/new/';
 		$importFailDir = APP_STORAGE_PATH . '/import/fail/';
 
@@ -1017,7 +1010,6 @@ class Pop3Cron extends CerberusCronPageExtension {
 		
 		if (!extension_loaded("imap")) die("IMAP Extension not loaded!");
 		@set_time_limit(0); // Unlimited (if possible)
-		@ini_set('memory_limit','64M');
 
 		$accounts = DAO_Mail::getPop3Accounts(); /* @var $accounts Model_Pop3Account[] */
 
