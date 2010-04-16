@@ -7,31 +7,31 @@
 
 <table cellpadding="0" cellspacing="2" border="0" width="98%">
 	<tr>
-		<td width="0%" nowrap="nowrap" align="right"><b>{$translate->_('worker.first_name')|capitalize}:</b> </td>
-		<td width="100%"><input type="text" name="first_name" value="{$worker->first_name|escape}" style="width:98%;"></td>
+		<td width="0%" nowrap="nowrap" align="right" valign="top"><b>{$translate->_('worker.first_name')|capitalize}:</b> </td>
+		<td width="100%"><input type="text" name="first_name" value="{$worker->first_name|escape}" class="required" style="width:98%;"></td>
 	</tr>
 	<tr>
-		<td width="0%" nowrap="nowrap" align="right">{$translate->_('worker.last_name')|capitalize}: </td>
+		<td width="0%" nowrap="nowrap" align="right" valign="top">{$translate->_('worker.last_name')|capitalize}: </td>
 		<td width="100%"><input type="text" name="last_name" value="{$worker->last_name|escape}" style="width:98%;"></td>
 	</tr>
 	<tr>
-		<td width="0%" nowrap="nowrap" align="right">{$translate->_('worker.title')|capitalize}: </td>
+		<td width="0%" nowrap="nowrap" align="right" valign="top">{$translate->_('worker.title')|capitalize}: </td>
 		<td width="100%"><input type="text" name="title" value="{$worker->title|escape}" style="width:98%;"></td>
 	</tr>
 	<tr>
-		<td width="0%" nowrap="nowrap" align="right"><b>{$translate->_('common.email')}</b>: </td>
-		<td width="100%"><input type="text" name="email" value="{$worker->email|escape}" style="width:98%;"></td>
+		<td width="0%" nowrap="nowrap" align="right" valign="top"><b>{$translate->_('common.email')}</b>: </td>
+		<td width="100%"><input type="text" name="email" value="{$worker->email|escape}" class="required" style="width:98%;"></td>
 	</tr>
 	<tr>
 		<td width="0%" nowrap="nowrap" align="right" valign="top"><b>{$translate->_('common.password')|capitalize}</b>: </td>
 		<td width="100%">
-			<input type="password" name="password" value="" style="width:98%;"><br>
+			<input id="password" type="password" name="password" value="" style="width:98%;"><br>
 			{if empty($worker->id)}&nbsp;(Leave blank to e-mail a randomly-generated password.){/if}
 		</td>
 	</tr>
 	<tr>
-		<td width="0%" nowrap="nowrap" align="right">{$translate->_('Password (again)')}: </td>
-		<td width="100%"><input type="password" name="password2" value="" style="width:98%;"></td>
+		<td width="0%" nowrap="nowrap" align="right" valign="top">{$translate->_('Password (again)')}: </td>
+		<td width="100%"><input id="password2" type="password" name="password2" value="" style="width:98%;"></td>
 	</tr>
 	<tr>
 		<td width="0%" nowrap="nowrap" align="right">{$translate->_('worker.is_superuser')|capitalize}: </td>
@@ -87,9 +87,9 @@
 <br>
 
 {if $active_worker->is_superuser}
-	<button type="button" onclick="genericAjaxPanelPostCloseReloadView('formWorkerPeek', '{$view_id}');"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')}</button>
+	<button type="button" onclick="if($('#formWorkerPeek').validate().form()) { genericAjaxPanelPostCloseReloadView('formWorkerPeek', '{$view_id}'); } "><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')}</button>
 	{if !$disabled}
-		{if $active_worker->is_superuser && $active_worker->id != $worker->id}<button type="button" onclick="if(confirm('Are you sure you want to delete this worker and their history?')) { this.form.do_delete.value='1';genericAjaxPanelPostCloseReloadView('formWorkerPeek', '{$view_id}'); } "><span class="cerb-sprite sprite-delete2"></span> {$translate->_('common.delete')|capitalize}</button>{/if}
+		{if !empty($worker)}{if $active_worker->is_superuser && $active_worker->id != $worker->id}<button type="button" onclick="if(confirm('Are you sure you want to delete this worker and their history?')) { this.form.do_delete.value='1';genericAjaxPanelPostCloseReloadView('formWorkerPeek', '{$view_id}'); } "><span class="cerb-sprite sprite-delete2"></span> {$translate->_('common.delete')|capitalize}</button>{/if}{/if}
 	{/if}
 {else}
 	<div class="error">{$translate->_('error.core.no_acl.edit')}</div>	
@@ -101,6 +101,18 @@
 <script type="text/javascript" language="JavaScript1.2">
 	genericPanel.one('dialogopen', function(event,ui) {
 		genericPanel.dialog('option','title',"Worker");
+		$("#formWorkerPeek").validate( {
+			rules: {
+				password2: {
+					equalTo: "#password"
+				}
+			},
+			messages: {
+				password2: {
+					equalTo: "The passwords don't match."
+				}
+			}		
+		} );
 	} );
 </script>
 
