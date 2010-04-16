@@ -77,7 +77,7 @@ class ChInternalController extends DevblocksControllerExtension {
 
 		$content = '';
 		if(isset($_REQUEST[$snippet_field]))
-			$content = $_REQUEST[$snippet_field];
+			$content = DevblocksPlatform::importGPC($_REQUEST[$snippet_field]);
 		
 		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
 
