@@ -420,6 +420,9 @@
 		<tu tuid='acl.core.addybook.addy.actions.update'>
 			<tuv xml:lang="en_US"><seg>[Address Book] Can modify e-mail address contacts</seg></tuv>
 		</tu>
+		<tu tuid='acl.core.addybook.addy.view.actions.broadcast'>
+			<tuv xml:lang="en_US"><seg>[Address Book] Can broadcast compose e-mail to address lists</seg></tuv>
+		</tu>
 		<tu tuid='acl.core.addybook.addy.view.actions.export'>
 			<tuv xml:lang="en_US"><seg>[Address Book] Can export e-mail address lists to CSV/XML</seg></tuv>
 		</tu>

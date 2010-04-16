@@ -636,6 +636,56 @@ class View_Address extends C4_AbstractView {
 			 
 		} while(!empty($objects));
 
+		// Broadcast?
+		if(isset($do['broadcast'])) {
+			$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+			
+			$params = $do['broadcast'];
+			if(
+				!isset($params['worker_id']) 
+				|| empty($params['worker_id'])
+				|| !isset($params['subject']) 
+				|| empty($params['subject'])
+				|| !isset($params['message']) 
+				|| empty($params['message'])
+				)
+				break;
+
+			$is_queued = (isset($params['is_queued']) && $params['is_queued']) ? true : false; 
+			
+			if(is_array($ids))
+			foreach($ids as $addy_id) {
+				try {
+					CerberusSnippetContexts::getContext(CerberusSnippetContexts::CONTEXT_ADDRESS, $addy_id, $tpl_labels, $tpl_tokens);
+					$subject = $tpl_builder->build($params['subject'], $tpl_tokens);
+					$body = $tpl_builder->build($params['message'], $tpl_tokens);
+					
+					$fields = array(
+						DAO_MailQueue::TYPE => Model_MailQueue::TYPE_COMPOSE,
+						DAO_MailQueue::TICKET_ID => 0,
+						DAO_MailQueue::WORKER_ID => $params['worker_id'],
+						DAO_MailQueue::UPDATED => time(),
+						DAO_MailQueue::HINT_TO => $tpl_tokens['address'],
+						DAO_MailQueue::SUBJECT => $subject,
+						DAO_MailQueue::BODY => $body,
+						DAO_MailQueue::PARAMS_JSON => json_encode(array(
+							'to' => $tpl_tokens['address'],
+							'group_id' => $params['group_id'],
+						)),
+					);
+					
+					if($is_queued) {
+						$fields[DAO_MailQueue::IS_QUEUED] = 1;
+					}
+					
+					$draft_id = DAO_MailQueue::create($fields);
+					
+				} catch (Exception $e) {
+					// [TODO] ...
+				}
+			}
+		}		
+		
 		$batch_total = count($ids);
 		for($x=0;$x<=$batch_total;$x+=100) {
 			$batch_ids = array_slice($ids,$x,100);

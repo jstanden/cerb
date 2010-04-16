@@ -760,8 +760,17 @@ class ChContactsPage extends CerberusPageExtension {
 	        $tpl->assign('address_ids', $address_ids);
 	    }
 		
+	    // Custom fields
 	    $custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Address::ID);
 	    $tpl->assign('custom_fields', $custom_fields);
+	    
+		// Groups
+		$groups = DAO_Group::getAll();
+		$tpl->assign('groups', $groups);
+		
+		// Broadcast
+		CerberusSnippetContexts::getContext(CerberusSnippetContexts::CONTEXT_ADDRESS, null, $token_labels, $token_values);
+		$tpl->assign('token_labels', $token_labels);
 	    
 		$tpl->display('file:' . $this->_TPL_PATH . 'contacts/addresses/address_bulk.tpl');
 	}
@@ -1041,6 +1050,8 @@ class ChContactsPage extends CerberusPageExtension {
 	}
 	
 	function doAddressBatchUpdateAction() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
 	    @$address_id_str = DevblocksPlatform::importGPC($_REQUEST['address_ids'],'string');
 
 	    @$filter = DevblocksPlatform::importGPC($_REQUEST['filter'],'string','');
@@ -1068,6 +1079,24 @@ class ChContactsPage extends CerberusPageExtension {
 		if(0 != strlen($is_banned))
 			$do['banned'] = $is_banned;
 		
+		// Broadcast: Compose
+		if($active_worker->hasPriv('crm.opp.view.actions.broadcast')) {
+			@$do_broadcast = DevblocksPlatform::importGPC($_REQUEST['do_broadcast'],'string',null);
+			@$broadcast_group_id = DevblocksPlatform::importGPC($_REQUEST['broadcast_group_id'],'integer',0);
+			@$broadcast_subject = DevblocksPlatform::importGPC($_REQUEST['broadcast_subject'],'string',null);
+			@$broadcast_message = DevblocksPlatform::importGPC($_REQUEST['broadcast_message'],'string',null);
+			@$broadcast_is_queued = DevblocksPlatform::importGPC($_REQUEST['broadcast_is_queued'],'integer',0);
+			if(0 != strlen($do_broadcast) && !empty($broadcast_subject) && !empty($broadcast_message)) {
+				$do['broadcast'] = array(
+					'subject' => $broadcast_subject,
+					'message' => $broadcast_message,
+					'is_queued' => $broadcast_is_queued,
+					'group_id' => $broadcast_group_id,
+					'worker_id' => $active_worker->id,
+				);
+			}
+		}			
+			
 		// Do: Custom fields
 		$do = DAO_CustomFieldValue::handleBulkPost($do);
 			
@@ -1077,6 +1106,70 @@ class ChContactsPage extends CerberusPageExtension {
 		return;
 	}
 
+	function doAddressBulkUpdateBroadcastTestAction() {
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
+		
+		$active_worker = CerberusApplication::getActiveWorker();
+		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+		$view = C4_AbstractViewLoader::getView($view_id);
+
+		$tpl = DevblocksPlatform::getTemplateService();
+		
+		if($active_worker->hasPriv('core.addybook.addy.view.actions.broadcast')) {
+			@$broadcast_subject = DevblocksPlatform::importGPC($_REQUEST['broadcast_subject'],'string',null);
+			@$broadcast_message = DevblocksPlatform::importGPC($_REQUEST['broadcast_message'],'string',null);
+
+			// Get total
+			$view->renderPage = 0;
+			$view->renderLimit = 1;
+			$view->renderTotal = true;
+			list($null, $total) = $view->getData();
+			
+			// Get the first row from the view
+			$view->renderPage = mt_rand(0, $total-1);
+			$view->renderLimit = 1;
+			$view->renderTotal = false;
+			list($results, $null) = $view->getData();
+			
+			if(empty($results)) {
+				$success = false;
+				$output = "There aren't any rows in this view!";
+				
+			} else {
+				@$addy = DAO_Address::get(key($results));
+				
+				// Try to build the template
+				CerberusSnippetContexts::getContext(CerberusSnippetContexts::CONTEXT_ADDRESS, $addy, $token_labels, $token_values);
+
+				if(empty($broadcast_subject)) {
+					$success = false;
+					$output = "Subject is blank.";
+				
+				} else {
+					$template = "Subject: $broadcast_subject\n\n$broadcast_message";
+					
+					if(false === ($out = $tpl_builder->build($template, $token_values))) {
+						// If we failed, show the compile errors
+						$errors = $tpl_builder->getErrors();
+						$success= false;
+						$output = @array_shift($errors);
+					} else {
+						// If successful, return the parsed template
+						$success = true;
+						$output = $out;
+					}
+				}
+			}
+			
+			$tpl->assign('success', $success);
+			$tpl->assign('output', htmlentities($output, null, LANG_CHARSET_CODE));
+			
+			$core_tpl_path = APP_PATH . '/features/cerberusweb.core/templates/';
+			
+			$tpl->display('file:'.$core_tpl_path.'internal/renderers/test_results.tpl');
+		}
+	}	
+	
 	function doOrgBulkUpdateAction() {
 		// Checked rows
 	    @$org_ids_str = DevblocksPlatform::importGPC($_REQUEST['org_ids'],'string');
