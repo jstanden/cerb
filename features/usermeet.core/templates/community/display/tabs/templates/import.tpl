@@ -9,7 +9,6 @@
 <br>
 
 <button type="button" onclick="genericPanel.dialog('close');this.form.submit();"><span class="cerb-sprite sprite-import"></span> {'common.import'|devblocks_translate|capitalize}</button>
-<button type="button" onclick="genericPanel.dialog('close');"><span class="cerb-sprite sprite-delete"></span> {$translate->_('common.cancel')|capitalize}</button>
 
 </form>
 

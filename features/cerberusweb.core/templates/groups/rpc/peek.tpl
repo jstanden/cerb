@@ -20,7 +20,6 @@
 </table>
 
 <button type="button" onclick="genericPanel.dialog('close');genericAjaxPost('formGroupsPeek', 'view{$view_id}')"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')}</button>
-<button type="button" onclick="genericPanel.dialog('close');"><span class="cerb-sprite sprite-delete"></span> {$translate->_('common.cancel')|capitalize}</button>
  &nbsp; 
 <a href="{devblocks_url}c=groups&a=config&id={$group->id}{/devblocks_url}">configuration</a>
 <br>

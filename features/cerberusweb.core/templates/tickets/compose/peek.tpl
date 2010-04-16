@@ -71,7 +71,6 @@
 </table>
 
 <button type="button" onclick="genericPanel.dialog('close');genericAjaxPost('formComposePeek', 'view{$view_id}')"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')}</button>
-<button type="button" onclick="genericPanel.dialog('close');"><span class="cerb-sprite sprite-delete"></span> {$translate->_('common.cancel')|capitalize}</button>
 <br>
 </form>
 

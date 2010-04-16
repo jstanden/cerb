@@ -2,7 +2,6 @@
 <input type="hidden" name="c" value="config">
 <input type="hidden" name="a" value="saveTabPreParser">
 <input type="hidden" name="id" value="{$filter->id}">
-<h2>Add Pre-Parser Filter</h2>
 
 <b>Filter Name:</b> (e.g. Spam Bounces)<br>
 <input type="text" name="name" size="45" value="{$filter->name|escape}" style="width:95%;"><br>
@@ -240,3 +239,9 @@
 <button type="submit"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')}</button>
 </form>
 <br>
+
+<script language="JavaScript1.2" type="text/javascript">
+	genericPanel.one('dialogopen',function(event,ui) {
+		genericPanel.dialog('option','title', 'Add Pre-Parser Filter');
+	} );
+</script>

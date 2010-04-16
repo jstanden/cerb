@@ -33,7 +33,6 @@
 <br>
 
 <button type="submit"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')}</button>
-<button type="button" onclick="genericPanel.dialog('close');"><span class="cerb-sprite sprite-delete"></span> {$translate->_('common.cancel')|capitalize}</button>
 </form>
 
 <script type="text/javascript" language="JavaScript1.2">

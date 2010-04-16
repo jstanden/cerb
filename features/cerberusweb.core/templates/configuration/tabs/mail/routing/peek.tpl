@@ -3,8 +3,6 @@
 <input type="hidden" name="a" value="saveMailRoutingRuleAdd">
 <input type="hidden" name="id" value="{$rule->id}">
 
-<h2>Add Mail Routing Rule</h2>
-
 <b>Rule Name:</b> (e.g. ProductX Support)<br>
 <input type="text" name="name" value="{$rule->name|escape}" size="45" style="width:95%;"><br>
 <label><input type="checkbox" name="is_sticky" value="1" {if $rule->is_sticky}checked="checked"{/if}> <span style="border-bottom:1px dotted;" title="Sticky rules are checked for matches first, are manually sortable, and can be stacked with subsequent rules.">Sticky</span></label>
@@ -232,3 +230,9 @@
 <button type="submit"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')}</button>
 </form>
 <br>
+
+<script language="JavaScript1.2" type="text/javascript">
+	genericPanel.one('dialogopen',function(event,ui) {
+		genericPanel.dialog('option','title', 'Add Mail Routing Rule');
+	} );
+</script>

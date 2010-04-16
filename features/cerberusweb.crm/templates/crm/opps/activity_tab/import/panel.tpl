@@ -7,7 +7,6 @@
 <br>
 
 {if $active_worker->hasPriv('crm.opp.actions.import')}<button type="submit"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.upload')|capitalize}</button>{/if}
-<button type="button" onclick="document.location.href='{devblocks_url}c=activity&a=opps{/devblocks_url}';"><span class="cerb-sprite sprite-delete"></span> {$translate->_('common.cancel')|capitalize}</button>
 </form>
 
 <script type="text/javascript" language="JavaScript1.2">

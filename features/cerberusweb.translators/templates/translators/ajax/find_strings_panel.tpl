@@ -39,7 +39,6 @@ Leaving new text blank allows you to easily find translation work with a search.
 {/if}
 
 {if count($codes) > 1}<button type="submit"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')|capitalize}</button>{/if}
-<button type="button" onclick="genericPanel.dialog('close');"><span class="cerb-sprite sprite-delete"></span> {$translate->_('common.cancel')|capitalize}</button>
 
 </form>
 

@@ -56,7 +56,6 @@
 	<div class="error">{$translate->_('error.core.no_acl.edit')}</div>	
 {/if}
 <button type="button" onclick="this.form.a.value = 'testStorageProfilePeek';genericAjaxPost('formStorageProfilePeek','divTestStorageProfile');this.form.a.value = 'saveStorageProfilePeek';"><span class="cerb-sprite sprite-gear"></span> {$translate->_('Test')|capitalize}</button>
-<button type="button" onclick="genericPanel.dialog('close');"><span class="cerb-sprite sprite-delete"></span> {$translate->_('common.cancel')|capitalize}</button>
 
 <br>
 </form>

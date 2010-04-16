@@ -108,7 +108,7 @@
 	
 	{if $active_worker->hasPriv('core.ticket.view.actions.broadcast_reply')}
 	<tr>
-		<td width="0%" nowrap="nowrap"><label for="chkMassReply">Broadcast Reply:</label></td>
+		<td width="0%" nowrap="nowrap" align="right"><label for="chkMassReply">Broadcast Reply:</label></td>
 		<td width="100%">
 			<input type="checkbox" name="do_broadcast" id="chkMassReply" onclick="$('#bulkTicketBroadcast').toggle();">
 		</td>
@@ -120,27 +120,25 @@
 <blockquote id="bulkTicketBroadcast" style="display:none;margin:10px;">
 	<b>Reply:</b><br>
 	<textarea name="broadcast_message" style="width:100%;height:200px;border:1px solid rgb(180,180,180);padding:2px;"></textarea>
-	<select onchange="insertAtCursor(this.form.broadcast_message,this.options[this.selectedIndex].value);this.selectedIndex=0;this.form.broadcast_message.focus();">
-		<option value="">-- insert --</option>
+	<br>
+	<button type="button" onclick="genericAjaxPost('formBatchUpdate','bulkTicketBroadcastTest','c=tickets&a=doBatchUpdateBroadcastTest');"><span class="cerb-sprite sprite-gear"></span> Test</button><!--
+	--><select onchange="insertAtCursor(this.form.broadcast_message,this.options[this.selectedIndex].value);this.selectedIndex=0;this.form.broadcast_message.focus();">
+		<option value="">-- insert at cursor --</option>
 		{foreach from=$token_labels key=k item=v}
 		<option value="{literal}{{{/literal}{$k}{literal}}}{/literal}">{$v|escape}</option>
 		{/foreach}
 	</select>
 	<br>
-	<button type="button" onclick="genericAjaxPost('formBatchUpdate','bulkTicketBroadcastTest','c=tickets&a=doBatchUpdateBroadcastTest');"><span class="cerb-sprite sprite-gear"></span> Test</button>
 	<div id="bulkTicketBroadcastTest"></div>
 	<label><input type="radio" name="broadcast_is_queued" value="0" checked="checked"> Save as drafts</label>
 	<label><input type="radio" name="broadcast_is_queued" value="1"> Send now</label>
 </blockquote>
 {/if}
 
-
 {include file="file:$core_tpl/internal/custom_fields/bulk/form.tpl" bulk=true}
-
 <br>
 
 <button type="button" onclick="ajax.saveBatchPanel('{$view_id}');"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')|capitalize}</button>
-<button type="button" onclick="genericPanel.dialog('close');"><span class="cerb-sprite sprite-delete"></span> {$translate->_('common.cancel')|capitalize}</button>
 <br>
 </form>
 
