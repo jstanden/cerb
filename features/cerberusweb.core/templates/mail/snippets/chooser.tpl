@@ -11,7 +11,7 @@
   	{$view->render()}
 </div>
 
-<script language="JavaScript" type="application/javascript">
+<script language="JavaScript1.2" type="text/javascript">
 	genericPanel.one('dialogopen',function(event,ui) {
 		genericPanel.dialog('option','title',"Favorite Snippets");
 		$('#view{$view->id}').data('context_id','{$context_id}');
