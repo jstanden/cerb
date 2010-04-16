@@ -141,9 +141,12 @@
 
 {* Message Headers *}
 {assign var=expanded value=false}
-{if isset($filter->criteria.header)}
-	{assign var=expanded value=true}
-{/if}
+{section name=headers start=0 loop=5}
+	{assign var=headerx value='header'|cat:$smarty.section.headers.iteration}
+	{if isset($filter->criteria.$headerx)}
+		{assign var=expanded value=true}
+	{/if}
+{/section}
 <label><input type="checkbox" {if $expanded}checked="checked"{/if} onclick="toggleDiv('divBlockMessageHeaders',(this.checked?'block':'none'));if(!this.checked)checkAll('divBlockMessageHeaders',false);"> <b>Message Headers</b></label><br>
 <table width="500" style="margin-left:10px;display:{if $expanded}block{else}none{/if};" id="divBlockMessageHeaders">
 	<tr>
