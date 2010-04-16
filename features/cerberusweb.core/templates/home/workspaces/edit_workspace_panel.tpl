@@ -37,6 +37,6 @@
 
 <script type="text/javascript" language="JavaScript1.2">
 	genericPanel.one('dialogopen', function(event,ui) {
-		genericPanel.dialog('option','title',"{$workspace|escape:'quotes'}");
+		genericPanel.dialog('option','title',"{$workspace|escape}");
 	} );
 </script>
