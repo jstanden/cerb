@@ -498,6 +498,7 @@ class CerberusParser {
 					} 				
 					
 	        		$result = CerberusMail::sendTicketMessage(array(
+						'ticket_id' => $id,
 						'message_id' => $msgid,
 						'content' => $message->body,
 						'files' => $attachment_files,
