@@ -1196,6 +1196,18 @@ class DAO_CrmOpportunity extends C4_ORMHelper {
 		
 		self::update($id, $fields);
 		
+		// New opportunity
+	    $eventMgr = DevblocksPlatform::getEventService();
+	    $eventMgr->trigger(
+	        new Model_DevblocksEvent(
+	            'opportunity.create',
+                array(
+                    'opp_id' => $id,
+                	'fields' => $fields,
+                )
+            )
+	    );
+		
 		return $id;
 	}
 	

@@ -9,7 +9,7 @@
 	<tr>
 		<td width="0%" nowrap="nowrap" align="right" valign="top">{$translate->_('crm.opportunity.email_address')|capitalize}: </td>
 		<td width="100%">
-			<input type="text" name="email" id="emailinput" value="{$address->email|escape}" class="required" style="border:1px solid rgb(180,180,180);padding:2px;width:98%;">
+			<input type="text" name="email" id="emailinput" value="{$address->email|escape}" class="required email" style="border:1px solid rgb(180,180,180);padding:2px;width:98%;">
 		</td>
 	</tr>
 	<tr>

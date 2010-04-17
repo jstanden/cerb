@@ -38,6 +38,16 @@
 		<priv id="crm.opp.view.actions.export" label="acl.crm.opp.view.actions.export" />
 	</acl>
 	
+	<!-- Events -->
+	
+	<event_points>
+		<event id="opportunity.create">
+			<name>Opportunity Create</name>
+			<param key="opp_id" />
+			<param key="fields" />
+		</event>
+	</event_points>
+	
 	<extensions>
 	
 		<!-- Event Listeners -->
