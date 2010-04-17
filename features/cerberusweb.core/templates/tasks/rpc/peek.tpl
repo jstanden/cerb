@@ -51,7 +51,7 @@
 	</tr>
 	{if empty($task->id)}
 	<tr>
-		<td width="0%" nowrap="nowrap" align="right" valign="top">{'task.content'|devblocks_translate|capitalize}: </td>
+		<td width="0%" nowrap="nowrap" align="right" valign="top">{'common.content'|devblocks_translate|capitalize}: </td>
 		<td width="100%">
 			<textarea name="content" style="width:98%;height:100px;"></textarea>
 		</td>

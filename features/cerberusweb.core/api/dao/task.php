@@ -23,6 +23,18 @@ class DAO_Task extends C4_ORMHelper {
 		
 		self::update($id, $fields);
 		
+		// New task
+	    $eventMgr = DevblocksPlatform::getEventService();
+	    $eventMgr->trigger(
+	        new Model_DevblocksEvent(
+	            'task.create',
+                array(
+                    'task_id' => $id,
+                	'fields' => $fields,
+                )
+            )
+	    );
+		
 		return $id;
 	}
 	

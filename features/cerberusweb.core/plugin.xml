@@ -217,6 +217,11 @@
 			<name>Group Delete</name>
 			<param key="group_ids" />
 		</event>
+		<event id="task.create">
+			<name>Task Create</name>
+			<param key="task_id" />
+			<param key="fields" />
+		</event>
 		<event id="ticket.comment.create">
 			<name>Ticket Comment</name>
 			<param key="comment_id" />
