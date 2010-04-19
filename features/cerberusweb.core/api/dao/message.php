@@ -424,7 +424,13 @@ class Storage_MessageContent extends Extension_DevblocksStorageSchema {
 		if(false === ($storage = DevblocksPlatform::getStorageService($profile)))
 			return false;
 			
-		return $storage->get('message_content', $key, $fp);
+		$contents = $storage->get('message_content', $key, $fp);
+		
+		// Convert the appropriate bytes
+		if(!mb_check_encoding($contents, LANG_CHARSET_CODE))
+			$contents = mb_convert_encoding($contents, LANG_CHARSET_CODE);
+			
+		return $contents;
 	}
 	
 	public static function put($id, $contents, $profile=null) {
@@ -442,6 +448,10 @@ class Storage_MessageContent extends Extension_DevblocksStorageSchema {
 		
 		$storage = DevblocksPlatform::getStorageService($profile);
 
+		// Store the appropriate bytes
+		if(!mb_check_encoding($contents, LANG_CHARSET_CODE))
+			$contents = mb_convert_encoding($contents, LANG_CHARSET_CODE);
+		
 		// Save to storage
 		if(false === ($storage_key = $storage->put('message_content', $id, $contents)))
 			return false;
