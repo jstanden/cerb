@@ -102,7 +102,7 @@ class CerberusParser {
 		$msginfo = mailparse_msg_get_part_data($mime);
 		
 		$message = new CerberusParserMessage();
-		@$message->encoding = $msginfo['content-charset'];
+		@$message->encoding = $msginfo['charset'];
 		@$message->body_encoding = $message->encoding; // default
 
 		// Decode headers
@@ -135,11 +135,11 @@ class CerberusParser {
 		        if($info['content-type'] == 'text/plain') {
 					$text = mailparse_msg_extract_part_file($section, $full_filename, NULL);
 					
-					if(isset($info['content-charset']) && !empty($info['content-charset'])) {
-						$message->body_encoding = $info['content-charset'];
+					if(isset($info['charset']) && !empty($info['charset'])) {
+						$message->body_encoding = $info['charset'];
 						
-						if(@mb_check_encoding($text, $info['content-charset'])) {
-							$text = mb_convert_encoding($text, LANG_CHARSET_CODE, $info['content-charset']);
+						if(@mb_check_encoding($text, $info['charset'])) {
+							$text = mb_convert_encoding($text, LANG_CHARSET_CODE, $info['charset']);
 						} else {
 							$text = mb_convert_encoding($text, LANG_CHARSET_CODE);
 						}
@@ -153,9 +153,9 @@ class CerberusParser {
 		        } elseif($info['content-type'] == 'text/html') {
 	        		@$text = mailparse_msg_extract_part_file($section, $full_filename, NULL);
 
-					if(isset($info['content-charset']) && !empty($info['content-charset'])) {
-						if(@mb_check_encoding($text, $info['content-charset'])) {
-							$text = mb_convert_encoding($text, LANG_CHARSET_CODE, $info['content-charset']);
+					if(isset($info['charset']) && !empty($info['charset'])) {
+						if(@mb_check_encoding($text, $info['charset'])) {
+							$text = mb_convert_encoding($text, LANG_CHARSET_CODE, $info['charset']);
 						} else {
 							$text = mb_convert_encoding($text, LANG_CHARSET_CODE);
 						}
