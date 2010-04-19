@@ -568,7 +568,7 @@ class CerberusParser {
 				DAO_Ticket::FIRST_WROTE_ID => intval($fromAddressInst->id),
 				DAO_Ticket::LAST_WROTE_ID => intval($fromAddressInst->id),
 				DAO_Ticket::CREATED_DATE => $iDate,
-				DAO_Ticket::UPDATED_DATE => $iDate,
+				DAO_Ticket::UPDATED_DATE => time(),
 				DAO_Ticket::LAST_ACTION_CODE => CerberusTicketActionCode::TICKET_OPENED,
 			);
 			$id = DAO_Ticket::createTicket($fields);
