@@ -76,7 +76,7 @@ class DAO_Worker extends C4_ORMHelper {
 	static function getAll($nocache=false, $with_disabled=true) {
 	    $cache = DevblocksPlatform::getCacheService();
 	    if($nocache || null === ($workers = $cache->load(self::CACHE_ALL))) {
-    	    $workers = self::getList();
+    	    $workers = self::getWhere(null,array(DAO_Worker::FIRST_NAME,DAO_Worker::LAST_NAME),array(true,true));
     	    $cache->save($workers, self::CACHE_ALL);
 	    }
 	    
@@ -94,43 +94,69 @@ class DAO_Worker extends C4_ORMHelper {
 	    return $workers;
 	}
 	
-	static function getList($ids=array()) {
-		if(!is_array($ids)) $ids = array($ids);
-		
+	static function getWhere($where=null, $sortBy='first_name', $sortAsc=true, $limit=null) {
 		$db = DevblocksPlatform::getDatabaseService();
-		$workers = array();
 		
-		$sql = "SELECT a.id, a.first_name, a.last_name, a.email, a.pass, a.title, a.is_superuser, a.is_disabled, a.last_activity_date, a.last_activity, a.last_activity_ip ".
-			"FROM worker a ".
-			((!empty($ids) ? sprintf("WHERE a.id IN (%s) ",implode(',',$ids)) : " ").
-			"ORDER BY a.first_name, a.last_name "
-		);
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
+		
+		$sql = "SELECT id, first_name, last_name, email, pass, title, is_superuser, is_disabled, last_activity_date, last_activity, last_activity_ip ".
+			"FROM worker ".
+			$where_sql.
+			$sort_sql.
+			$limit_sql
+			;
+		$rs = $db->Execute($sql);
+		
+		return self::_createObjectsFromResultSet($rs);
+	}
+	
+	/**
+	 * Enter description here...
+	 *
+	 * @param resource $rs
+	 */
+	static private function _createObjectsFromResultSet($rs=null) {
+		$objects = array();
 		
 		while($row = mysql_fetch_assoc($rs)) {
-			$worker = new Model_Worker();
-			$worker->id = intval($row['id']);
-			$worker->first_name = $row['first_name'];
-			$worker->last_name = $row['last_name'];
-			$worker->email = $row['email'];
-			$worker->pass = $row['pass'];
-			$worker->title = $row['title'];
-			$worker->is_superuser = intval($row['is_superuser']);
-			$worker->is_disabled = intval($row['is_disabled']);
-			$worker->last_activity_date = intval($row['last_activity_date']);
+			$object = new Model_Worker();
+			$object->id = intval($row['id']);
+			$object->first_name = $row['first_name'];
+			$object->last_name = $row['last_name'];
+			$object->email = $row['email'];
+			$object->pass = $row['pass'];
+			$object->title = $row['title'];
+			$object->is_superuser = intval($row['is_superuser']);
+			$object->is_disabled = intval($row['is_disabled']);
+			$object->last_activity_date = intval($row['last_activity_date']);
 			
 			if(!empty($row['last_activity']))
-			    $worker->last_activity = unserialize($row['last_activity']);
+			    $object->last_activity = unserialize($row['last_activity']);
 			
 			if(!empty($row['last_activity_ip']))
-				$worker->last_activity_ip = long2ip($row['last_activity_ip']);
+				$object->last_activity_ip = long2ip($row['last_activity_ip']);
 			    
-			$workers[$worker->id] = $worker;
+			$objects[$object->id] = $object;
 		}
 		
 		mysql_free_result($rs);
 		
-		return $workers;		
+		return $objects;
+	}	
+	
+	static function getList($ids=array()) {
+		if(!is_array($ids)) $ids = array($ids);
+
+		$workers = self::getWhere(
+			sprintf("%s IN (%s)",
+				DAO_Worker::ID,
+				(!empty($ids) ? implode(',', $ids) : '0')
+			),
+			array(DAO_Worker::FIRST_NAME, DAO_Worker::LAST_NAME),
+			array(true, true)
+		);
+		
+		return $workers;
 	}
 	
 	/**
