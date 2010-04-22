@@ -80,6 +80,10 @@ $(document).ready(function(e) {
 	$('#explorerFrame').load(function() {
 		try {
 		$('#explorerFrame').contents().find('body').parent().keypress(function(event) {
+			// Don't fire if we're inside any form elements
+			if($(event.target).filter(':input').length > 0)
+				return;
+			
 			switch(event.which) {
 				case 91:
 					$('#btnExplorerPrev').click();
