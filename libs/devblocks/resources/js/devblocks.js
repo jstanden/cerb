@@ -62,7 +62,6 @@ var DevblocksClass = function() {
 			}
 		}
 	}
-	
 };
 var Devblocks = new DevblocksClass();
 
@@ -332,7 +331,7 @@ function genericAjaxGet(divName,args,cb) {
 		type: "GET",
 		url: DevblocksAppPath+'ajax.php?'+args,
 		cache: false,
-		success : cb, 
+		success : cb 
 	} );
 }
 

@@ -309,7 +309,7 @@ button span.cerb-sprite { display:inline-block; }
 .ui-state-error, .ui-widget-content .ui-state-error { background: #fef1ec none; } 
 
 .ui-tabs { border: 0px; padding: 0px; }
-.ui-tabs .ui-tabs-panel { background: #ffffff none; }
+.ui-tabs .ui-tabs-panel { background: #ffffff none; padding: 0px; margin: 5px 0px; 0px; 0px; }
 .ui-tabs .ui-tabs-nav { background: #ffffff none; border: none; border-bottom: 1px solid rgb(197,219,236); }
 .ui-tabs .ui-tabs-nav li { margin: 0 0.2em 0 0; background: rgb(232,242,254) none; }
 .ui-tabs .ui-tabs-nav li.ui-state-default a { color: rgb(74,110,158); }
