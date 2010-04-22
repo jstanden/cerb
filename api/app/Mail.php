@@ -592,17 +592,6 @@ class CerberusMail {
 			    }
 			}
 			
-			/*
-			 * [IMPORTANT -- Yes, this is simply a line in the sand.]
-			 * You're welcome to modify the code to meet your needs, but please respect 
-			 * our licensing.  Buy a legitimate copy to help support the project!
-			 * http://www.cerberusweb.com/
-			 */
-			$license = CerberusLicense::getInstance();
-			if(empty($license) || @empty($license['key'])) {
-				$content .= base64_decode("CgotLS0KUmVtZW1iZXIgYW55dGhpbmcgYWJvdXQgYW55Ym9keSwgZGVmdGx5IHJlcGx5IHRvIGFuIGUtbWFpbCBmbG9vZCwgcXVhcmFudGluZSBzcGFtLCBjYXB0dXJlIG9yZ2FuaWMgZmVlZGJhY2ssIHRyYWNrIHRpbWUsIGZsYWcgb3Bwb3J0dW5pdGllcywgc2hhcmUgdGFza3MsIGFuZCBvdGhlcndpc2UgY29sbGFib3JhdGUgZWZmaWNpZW50bHkgd2l0aCBDZXJiZXJ1cyBIZWxwZGVzayA1LjAuCmh0dHA6Ly93d3cuY2VyYmVydXN3ZWIuY29tLwo=");
-			}
-			
 			// Body
 			$mail->setBody($content);
 	

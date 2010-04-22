@@ -49,7 +49,7 @@
  *   WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
 define("APP_VERSION", '5.0.0-rc1');
-define("APP_BUILD", 2010042202);
+define("APP_BUILD", 2010042203);
 define("APP_MAIL_PATH", APP_STORAGE_PATH . '/mail/');
 
 require_once(APP_PATH . "/api/DAO.class.php");

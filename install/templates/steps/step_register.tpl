@@ -1,22 +1,20 @@
-<h2>Register for FREE Product Support and a FREE License</h2>
+<h2>Register now for a special one-time discount offer on a future purchase.</h2>
 
 <form action="index.php" method="POST">
 <input type="hidden" name="step" value="{$smarty.const.STEP_REGISTER}">
 <input type="hidden" name="form_submit" value="1">
 <input type="hidden" name="skip" value="0">
 
-<H3>You are now operating in Unlicensed Mode</H3>
+<H3>You are now running the Community Edition</H3>
 
-Each new Cerberus Helpdesk installation defaults to a "Unlicensed Free Version",
-allowing nearly full functionality with no expiration. In this mode, a small tagline 
-about Cerberus Helpdesk will be appended to all outgoing e-mail, and you are limited to 3
-workers. Companies with light requirements may find the unlicensed free version
-does everything they need. Go ahead, enjoy!<br>
+Each new Cerberus Helpdesk installation defaults to the Community Edition,
+which permits nearly full functionality with no expiration. Without a license, you are currently limited to 3
+workers and you can't enforce detailed permissions for them. If you're an organization with light requirements, 
+you may find that the Community Edition does everything you need. Go ahead, enjoy!<br>
 <br>
 
-<b>If you answer a few questions below to introduce yourself, we'll send you a free 
-registered license</b> for 3 workers.  A registered license will remove the Cerberus Helpdesk 
-tagline from your outgoing e-mail.<br>
+<b>If you answer a few questions below to introduce yourself, we'll send you a special 
+one-time discount coupon that you can apply to a future purchase.</b><br>
 <br>
 
 For organizations with more than 3 workers, <a href="http://www.cerberusweb.com/buy/" target="_blank">we offer affordable and flexible licensing
@@ -30,10 +28,10 @@ options</a>.<br>
 	easier by helping you quickly find useful information during your
 	Cerberus Helpdesk evaluation.<br>
 	<br>
-	If you can take a couple minutes out of your day to answer these quick
+	If you can take a couple minutes to answer these quick
 	questions we'll be able to focus our conversation on your most important
 	goals. If you aren't concerned about particular aspects of our software
-	or company, we won't waste your time talking about them!<br>
+	or company then we won't waste your time talking about them!<br>
 	<br>
 	So, let's hear about you...<br>
 	<br>
@@ -47,7 +45,7 @@ options</a>.<br>
 <input size="64" name="contact_company"><br>
 <br>
 
-<b>Your e-mail address:</b> (this is where we'll send your free license)<br>
+<b>Your e-mail address:</b> (this is where we'll send your discount coupon)<br>
 <input size="64" name="contact_email"><br>
 <br>
 
