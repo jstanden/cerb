@@ -573,10 +573,14 @@ class ChTicketsPage extends CerberusPageExtension {
 	
 	function showDraftsTabAction() {
 		$active_worker = CerberusApplication::getActiveWorker();
+		$visit = CerberusApplication::getVisit();
 		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('path', $this->_TPL_PATH);
 
+		// Remember the tab
+		$visit->set(CerberusVisit::KEY_MAIL_MODE, 'drafts');
+		
 		$view = C4_AbstractViewLoader::getView('mail_drafts');
 		
 		if(null == $view) {
@@ -762,10 +766,14 @@ class ChTicketsPage extends CerberusPageExtension {
 	
 	function showSnippetsTabAction() {
 		$active_worker = CerberusApplication::getActiveWorker();
+		$visit = CerberusApplication::getVisit();
 		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('path', $this->_TPL_PATH);
 
+		// Remember the tab
+		$visit->set(CerberusVisit::KEY_MAIL_MODE, 'snippets');
+		
 		$view = C4_AbstractViewLoader::getView('mail_snippets');
 		
 		if(null == $view) {
