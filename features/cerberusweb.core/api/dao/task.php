@@ -366,6 +366,7 @@ class Model_Task {
 	public $completed_date;
 	public $source_extension;
 	public $source_id;
+	public $updated_date;
 };
 
 class View_Task extends C4_AbstractView {
