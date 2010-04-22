@@ -11,6 +11,10 @@ class ChTasksActivityTab extends Extension_ActivityTab {
 	}
 	
 	function showTab() {
+		// Remember the tab
+		$visit = CerberusApplication::getVisit();
+		$visit->set(CerberusVisit::KEY_ACTIVITY_TAB, 'tasks');
+		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl_path = $this->_TPL_PATH;
 		$tpl->assign('path', $tpl_path);

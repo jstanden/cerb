@@ -32,6 +32,9 @@ class CrmOppsActivityTab extends Extension_ActivityTab {
 		$translate = DevblocksPlatform::getTranslationService();
 		$active_worker = CerberusApplication::getActiveWorker();
 
+		// Remember the tab
+		$visit->set(CerberusVisit::KEY_ACTIVITY_TAB, 'opps');
+		
 		// Read original request
 		@$request_path = DevblocksPlatform::importGPC($_REQUEST['request'],'string','');
 		$tpl->assign('request_path', $request_path);

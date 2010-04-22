@@ -117,6 +117,10 @@ class ChForumsActivityTab extends Extension_ActivityTab {
 	}
 	
 	function showTab() {
+		// Remember the tab
+		$visit = CerberusApplication::getVisit();
+		$visit->set(CerberusVisit::KEY_ACTIVITY_TAB, 'forums');
+		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl_path = dirname(dirname(__FILE__)) . '/templates/';
 		$tpl->assign('path', $tpl_path);

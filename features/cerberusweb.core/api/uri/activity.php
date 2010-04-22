@@ -28,17 +28,21 @@ class ChActivityPage extends CerberusPageExtension {
 		
 		$response = DevblocksPlatform::getHttpResponse();
 		$tpl->assign('request_path', implode('/',$response->path));
-		
+
+		// Remember the last tab/URL
+		$visit = CerberusApplication::getVisit();
+		if(null == ($selected_tab = @$response->path[1])) {
+			$selected_tab = $visit->get(CerberusVisit::KEY_ACTIVITY_TAB, '');
+		}
+		$tpl->assign('selected_tab', $selected_tab);
+
+		// Path
 		$stack = $response->path;
 		array_shift($stack); // activity
-
+		
 		$tab_manifests = DevblocksPlatform::getExtensions('cerberusweb.activity.tab', false);
 		uasort($tab_manifests, create_function('$a, $b', "return strcasecmp(\$a->name,\$b->name);\n"));
 		$tpl->assign('tab_manifests', $tab_manifests);
-		
-		@$tab_selected = array_shift($stack);
-		if(empty($tab_selected)) $tab_selected = 'tasks';
-		$tpl->assign('tab_selected', $tab_selected);
 		
 		$tpl->display('file:' . $this->_TPL_PATH . 'activity/index.tpl');
 	}

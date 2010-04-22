@@ -20,6 +20,10 @@ class ChFeedbackActivityTab extends Extension_ActivityTab {
 	function showTab() {
 		$translate = DevblocksPlatform::getTranslationService();
 		
+		// Remember the tab
+		$visit = CerberusApplication::getVisit();
+		$visit->set(CerberusVisit::KEY_ACTIVITY_TAB, 'feedback');
+		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl_path = dirname(dirname(__FILE__)) . '/templates/';
 		$tpl->assign('path', $tpl_path);
