@@ -656,7 +656,7 @@ class Model_GroupInboxFilter {
 					
 					if(is_array($tickets))
 					foreach($tickets as $ticket_id => $row) {
-						CerberusSnippetContexts::getContext(CerberusSnippetContexts::CONTEXT_TICKET, $row, $tpl_labels, $tpl_tokens);
+						CerberusContexts::getContext(CerberusContexts::CONTEXT_TICKET, $row, $tpl_labels, $tpl_tokens);
 						$body = $tpl_builder->build($params['message'], $tpl_tokens);
 						
 						$fields = array(

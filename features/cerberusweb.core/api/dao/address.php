@@ -656,7 +656,7 @@ class View_Address extends C4_AbstractView {
 			if(is_array($ids))
 			foreach($ids as $addy_id) {
 				try {
-					CerberusSnippetContexts::getContext(CerberusSnippetContexts::CONTEXT_ADDRESS, $addy_id, $tpl_labels, $tpl_tokens);
+					CerberusContexts::getContext(CerberusContexts::CONTEXT_ADDRESS, $addy_id, $tpl_labels, $tpl_tokens);
 					$subject = $tpl_builder->build($params['subject'], $tpl_tokens);
 					$body = $tpl_builder->build($params['message'], $tpl_tokens);
 					

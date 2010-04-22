@@ -783,7 +783,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		}
 		
 		$view->params = array(
-			SearchFields_Snippet::CONTEXT => new DevblocksSearchCriteria(SearchFields_Snippet::CONTEXT, DevblocksSearchCriteria::OPER_IN, array('cerberusweb.snippets.plaintext','cerberusweb.snippets.ticket','cerberusweb.snippets.worker')),
+			SearchFields_Snippet::CONTEXT => new DevblocksSearchCriteria(SearchFields_Snippet::CONTEXT, DevblocksSearchCriteria::OPER_IN, array('cerberusweb.contexts.plaintext','cerberusweb.contexts.ticket','cerberusweb.contexts.worker')),
 //			SearchFields_MailQueue::WORKER_ID => new DevblocksSearchCriteria(SearchFields_MailQueue::WORKER_ID, DevblocksSearchCriteria::OPER_EQ, $active_worker->id),
 //			SearchFields_MailQueue::IS_QUEUED => new DevblocksSearchCriteria(SearchFields_MailQueue::IS_QUEUED, DevblocksSearchCriteria::OPER_EQ, 0),
 		);
@@ -807,19 +807,19 @@ class ChTicketsPage extends CerberusPageExtension {
 		if(null == ($snippet = DAO_Snippet::get($snippet_id))) {
 			$snippet = new Model_Snippet();
 			$snippet->id = 0;
-			$snippet->context = !empty($context) ? $context : 'cerberusweb.snippets.plaintext';
+			$snippet->context = !empty($context) ? $context : 'cerberusweb.contexts.plaintext';
 		}
 		$tpl->assign('snippet', $snippet);
 		
 		switch($snippet->context) {
-			case 'cerberusweb.snippets.plaintext':
+			case 'cerberusweb.contexts.plaintext':
 				break;
-			case 'cerberusweb.snippets.ticket':
-				CerberusSnippetContexts::getContext(CerberusSnippetContexts::CONTEXT_TICKET, null, $token_labels, $token_values);
+			case 'cerberusweb.contexts.ticket':
+				CerberusContexts::getContext(CerberusContexts::CONTEXT_TICKET, null, $token_labels, $token_values);
 				$tpl->assign('token_labels', $token_labels);
 				break;
-			case 'cerberusweb.snippets.worker':
-				CerberusSnippetContexts::getContext(CerberusSnippetContexts::CONTEXT_WORKER, null, $token_labels, $token_values);
+			case 'cerberusweb.contexts.worker':
+				CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, null, $token_labels, $token_values);
 				$tpl->assign('token_labels', $token_labels);
 				break;
 		}
@@ -1285,7 +1285,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		}
 
 		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
-		CerberusSnippetContexts::getContext(CerberusSnippetContexts::CONTEXT_WORKER, $active_worker, $token_labels, $token_values);
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $active_worker, $token_labels, $token_values);
 		echo "\r\n", $tpl_builder->build($sig, $token_values), "\r\n";
 	}
 	
@@ -2262,7 +2262,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		$tpl->assign('custom_fields', $custom_fields);
 		
 		// Broadcast
-		CerberusSnippetContexts::getContext(CerberusSnippetContexts::CONTEXT_TICKET, null, $token_labels, $token_values);
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_TICKET, null, $token_labels, $token_values);
 		$tpl->assign('token_labels', $token_labels);
 		
 		$tpl->display('file:' . $this->_TPL_PATH . 'tickets/rpc/batch_panel.tpl');
@@ -2398,7 +2398,7 @@ class ChTicketsPage extends CerberusPageExtension {
 				
 			} else {
 				// Try to build the template
-				CerberusSnippetContexts::getContext(CerberusSnippetContexts::CONTEXT_TICKET, array_shift($result), $token_labels, $token_values);
+				CerberusContexts::getContext(CerberusContexts::CONTEXT_TICKET, array_shift($result), $token_labels, $token_values);
 				if(false === ($out = $tpl_builder->build($broadcast_message, $token_values))) {
 					// If we failed, show the compile errors
 					$errors = $tpl_builder->getErrors();

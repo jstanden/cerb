@@ -29,7 +29,7 @@
 		
 		<patch version="5.0.0-alpha" revision="855" file="patches/5.x/5.0.0_alpha.php" />
 		<patch version="5.0.0-beta" revision="856" file="patches/5.x/5.0.0_beta.php" />
-		<patch version="5.0.0-rc1" revision="857" file="patches/5.x/5.0.0_rc1.php" />
+		<patch version="5.0.0-rc1" revision="858" file="patches/5.x/5.0.0_rc1.php" />
 	</patches>
 
 	<!-- Declared Extension Points -->

@@ -88,10 +88,10 @@ class ChInternalController extends DevblocksControllerExtension {
 		$token_value = array();
 		
 		switch($snippet_context) {
-			case 'cerberusweb.snippets.plaintext':
+			case 'cerberusweb.contexts.plaintext':
 				break;
 				
-			case 'cerberusweb.snippets.ticket':
+			case 'cerberusweb.contexts.ticket':
 				// [TODO] Randomize
 				list($result, $count) = DAO_Ticket::search(
 					array(),
@@ -106,12 +106,12 @@ class ChInternalController extends DevblocksControllerExtension {
 				
 				shuffle($result);
 				
-				CerberusSnippetContexts::getContext(CerberusSnippetContexts::CONTEXT_TICKET, array_shift($result), $token_labels, $token_values);
+				CerberusContexts::getContext(CerberusContexts::CONTEXT_TICKET, array_shift($result), $token_labels, $token_values);
 				break;
 				
-			case 'cerberusweb.snippets.worker':
+			case 'cerberusweb.contexts.worker':
 				$active_worker = CerberusApplication::getActiveWorker();
-				CerberusSnippetContexts::getContext(CerberusSnippetContexts::CONTEXT_WORKER, $active_worker, $token_labels, $token_values);
+				CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $active_worker, $token_labels, $token_values);
 				break;
 		}
 

@@ -74,7 +74,7 @@
 				<b>Default E-mail Signature:</b><br>
 				<textarea name="default_signature" rows="10" cols="76" style="width:100%;" wrap="off">{$settings->get('cerberusweb.core','default_signature')|escape:"html"}</textarea><br>
 				<div style="padding-left:10px;">
-					<button type="button" onclick="genericAjaxPost('frmConfigMailOutgoing','divTemplateTester','c=internal&a=snippetTest&snippet_context=cerberusweb.snippets.worker&snippet_field=default_signature');"><span class="cerb-sprite sprite-gear"></span> Test</button>
+					<button type="button" onclick="genericAjaxPost('frmConfigMailOutgoing','divTemplateTester','c=internal&a=snippetTest&snippet_context=cerberusweb.contexts.worker&snippet_field=default_signature');"><span class="cerb-sprite sprite-gear"></span> Test</button>
 					<select name="sig_vars" onchange="insertAtCursor(this.form.default_signature,this.options[this.selectedIndex].value);this.selectedIndex=0;this.form.default_signature.focus();">
 						<option value="">-- insert at cursor --</option>
 						{foreach from=$token_labels key=k item=v}

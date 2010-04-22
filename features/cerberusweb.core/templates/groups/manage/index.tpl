@@ -57,7 +57,7 @@
 		<textarea name="default_signature">{$default_signature}</textarea>	
 	</div>
 	<textarea name="signature" rows="10" cols="76" style="width:100%;" wrap="off">{$team->signature}</textarea><br>
-		<button type="button" onclick="genericAjaxPost('frmGroupEdit','divSnippetGroupSigTester','c=internal&a=snippetTest&snippet_context=cerberusweb.snippets.worker&snippet_field=signature');"><span class="cerb-sprite sprite-gear"></span> Test</button>
+		<button type="button" onclick="genericAjaxPost('frmGroupEdit','divSnippetGroupSigTester','c=internal&a=snippetTest&snippet_context=cerberusweb.contexts.worker&snippet_field=signature');"><span class="cerb-sprite sprite-gear"></span> Test</button>
 		<select name="sig_token" onchange="insertAtCursor(this.form.signature,this.options[this.selectedIndex].value);this.selectedIndex=0;this.form.signature.focus();">
 			<option value="">-- insert at cursor --</option>
 			{foreach from=$worker_token_labels key=k item=v}
@@ -79,7 +79,7 @@
 	<div style="margin-top:10px;margin-left:20px;display:{if $group_settings.auto_reply_enabled}block{else}none{/if};" id="divGroupCfgAutoReply">
 		<b>Send the following message:</b><br>
 		<textarea name="auto_reply" rows="10" cols="76">{$group_settings.auto_reply}</textarea><br>
-			<button type="button" onclick="genericAjaxPost('frmGroupEdit','divSnippetAutoReplyTester','c=internal&a=snippetTest&snippet_context=cerberusweb.snippets.ticket&snippet_field=auto_reply');"><span class="cerb-sprite sprite-gear"></span> Test</button>
+			<button type="button" onclick="genericAjaxPost('frmGroupEdit','divSnippetAutoReplyTester','c=internal&a=snippetTest&snippet_context=cerberusweb.contexts.ticket&snippet_field=auto_reply');"><span class="cerb-sprite sprite-gear"></span> Test</button>
 			<select name="autoreply_token" onchange="insertAtCursor(this.form.auto_reply,this.options[this.selectedIndex].value);this.selectedIndex=0;this.form.auto_reply.focus();">
 				<option value="">-- insert at cursor --</option>
 				{foreach from=$ticket_token_labels key=k item=v}
@@ -97,7 +97,7 @@
 	<div style="margin-top:10px;margin-left:20px;display:{if $group_settings.close_reply_enabled}block{else}none{/if};" id="divGroupCfgCloseReply">
 		<b>Send the following message:</b><br>
 		<textarea name="close_reply" rows="10" cols="76">{$group_settings.close_reply}</textarea><br>
-			<button type="button" onclick="genericAjaxPost('frmGroupEdit','divSnippetCloseReplyTester','c=internal&a=snippetTest&snippet_context=cerberusweb.snippets.ticket&snippet_field=close_reply');"><span class="cerb-sprite sprite-gear"></span> Test</button>
+			<button type="button" onclick="genericAjaxPost('frmGroupEdit','divSnippetCloseReplyTester','c=internal&a=snippetTest&snippet_context=cerberusweb.contexts.ticket&snippet_field=close_reply');"><span class="cerb-sprite sprite-gear"></span> Test</button>
 			<select name="closereply_token" onchange="insertAtCursor(this.form.close_reply,this.options[this.selectedIndex].value);this.selectedIndex=0;this.form.close_reply.focus();">
 				<option value="">-- insert at cursor --</option>
 				{foreach from=$ticket_token_labels key=k item=v}

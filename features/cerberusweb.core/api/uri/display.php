@@ -438,7 +438,7 @@ class ChDisplayPage extends CerberusPageExtension {
 			}
 
 			$tpl_builder = DevblocksPlatform::getTemplateBuilder();
-			CerberusSnippetContexts::getContext(CerberusSnippetContexts::CONTEXT_WORKER, $active_worker, $token_labels, $token_values);
+			CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $active_worker, $token_labels, $token_values);
 			$tpl->assign('signature', $tpl_builder->build($signature, $token_values));
 			
 		    $signature_pos = $settings->get('cerberusweb.core',CerberusSettings::DEFAULT_SIGNATURE_POS,CerberusSettingsDefaults::DEFAULT_SIGNATURE_POS);
@@ -1214,7 +1214,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		$contexts = DevblocksPlatform::parseCsvString(DevblocksPlatform::importGPC($_REQUEST['contexts'],'string',''));
 		// Always plaintext too
 		if(false === array_search('cerberusweb.snippet.plaintext', $contexts))
-			$contexts[] = 'cerberusweb.snippets.plaintext';
+			$contexts[] = 'cerberusweb.contexts.plaintext';
 					
 		$view->name = 'Favorite Snippets';
 		$view->renderTemplate = 'chooser';
@@ -1245,14 +1245,14 @@ class ChDisplayPage extends CerberusPageExtension {
 		
 		if(null != ($snippet = DAO_Snippet::get($id))) {
 			switch($snippet->context) {
-				case 'cerberusweb.snippets.plaintext':
+				case 'cerberusweb.contexts.plaintext':
 					$token_values= array();
 					break;
-				case 'cerberusweb.snippets.ticket':
-					CerberusSnippetContexts::getContext(CerberusSnippetContexts::CONTEXT_TICKET, $context_id, $token_labels, $token_values);
+				case 'cerberusweb.contexts.ticket':
+					CerberusContexts::getContext(CerberusContexts::CONTEXT_TICKET, $context_id, $token_labels, $token_values);
 					break;
-				case 'cerberusweb.snippets.worker':
-					CerberusSnippetContexts::getContext(CerberusSnippetContexts::CONTEXT_WORKER, $active_worker, $token_labels, $token_values);
+				case 'cerberusweb.contexts.worker':
+					CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $active_worker, $token_labels, $token_values);
 					break;
 			}
 		}

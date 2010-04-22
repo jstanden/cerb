@@ -760,7 +760,7 @@ class CerberusParser {
 					try {
 						$token_labels = array();
 						$token_values = array();
-						CerberusSnippetContexts::getContext(CerberusSnippetContexts::CONTEXT_TICKET, $id, $token_labels, $token_values);
+						CerberusContexts::getContext(CerberusContexts::CONTEXT_TICKET, $id, $token_labels, $token_values);
 						
 						$tpl_builder = DevblocksPlatform::getTemplateBuilder();
 						if(false === ($autoreply_content = $tpl_builder->build($autoreply, $token_values)))

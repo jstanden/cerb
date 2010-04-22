@@ -522,7 +522,7 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 					try {
 						$token_labels = array();
 						$token_values = array();
-						CerberusSnippetContexts::getContext(CerberusSnippetContexts::CONTEXT_TICKET, $ticket->id, $token_labels, $token_values);
+						CerberusContexts::getContext(CerberusContexts::CONTEXT_TICKET, $ticket->id, $token_labels, $token_values);
 						
 						if(false === ($closereply_content = $tpl_builder->build($group_settings[$ticket->team_id][DAO_GroupSettings::SETTING_CLOSE_REPLY], $token_values)))
 							throw new Exception('Failed parsing close auto-reply snippet.');

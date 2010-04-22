@@ -52,4 +52,12 @@ $db->Execute("UPDATE group_setting SET value=REPLACE(value,'#mask#','{{mask}}') 
 $db->Execute("UPDATE group_setting SET value=REPLACE(value,'#ticket_id#','{{id}}') WHERE setting='close_reply'");
 $db->Execute("UPDATE group_setting SET value=REPLACE(value,'#subject#','{{subject}}') WHERE setting='close_reply'");
  
+// ===========================================================================
+// Snippet->Context changes
+
+if(!isset($tables['snippet']))
+	return FALSE;
+	
+$db->Execute("UPDATE snippet SET context=REPLACE(context,'cerberusweb.snippets.','cerberusweb.contexts.')");
+
 return TRUE;

@@ -769,7 +769,7 @@ class ChContactsPage extends CerberusPageExtension {
 		$tpl->assign('groups', $groups);
 		
 		// Broadcast
-		CerberusSnippetContexts::getContext(CerberusSnippetContexts::CONTEXT_ADDRESS, null, $token_labels, $token_values);
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_ADDRESS, null, $token_labels, $token_values);
 		$tpl->assign('token_labels', $token_labels);
 	    
 		$tpl->display('file:' . $this->_TPL_PATH . 'contacts/addresses/address_bulk.tpl');
@@ -1139,7 +1139,7 @@ class ChContactsPage extends CerberusPageExtension {
 				@$addy = DAO_Address::get(key($results));
 				
 				// Try to build the template
-				CerberusSnippetContexts::getContext(CerberusSnippetContexts::CONTEXT_ADDRESS, $addy, $token_labels, $token_values);
+				CerberusContexts::getContext(CerberusContexts::CONTEXT_ADDRESS, $addy, $token_labels, $token_values);
 
 				if(empty($broadcast_subject)) {
 					$success = false;

@@ -669,7 +669,7 @@ class CrmPage extends CerberusPageExtension {
 		$tpl->assign('groups', $groups);
 		
 		// Broadcast
-		CerberusSnippetContexts::getContext(CerberusSnippetContexts::CONTEXT_OPPORTUNITY, null, $token_labels, $token_values);
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_OPPORTUNITY, null, $token_labels, $token_values);
 		$tpl->assign('token_labels', $token_labels);
 		
 		$tpl->display('file:' . dirname(dirname(__FILE__)) . '/templates/crm/opps/bulk.tpl');
@@ -766,7 +766,7 @@ class CrmPage extends CerberusPageExtension {
 				@$opp = DAO_CrmOpportunity::get(key($results));
 				
 				// Try to build the template
-				CerberusSnippetContexts::getContext(CerberusSnippetContexts::CONTEXT_OPPORTUNITY, $opp, $token_labels, $token_values);
+				CerberusContexts::getContext(CerberusContexts::CONTEXT_OPPORTUNITY, $opp, $token_labels, $token_values);
 
 				if(empty($broadcast_subject)) {
 					$success = false;
@@ -1787,7 +1787,7 @@ class View_CrmOpportunity extends C4_AbstractView {
 			if(is_array($ids))
 			foreach($ids as $opp_id) {
 				try {
-					CerberusSnippetContexts::getContext(CerberusSnippetContexts::CONTEXT_OPPORTUNITY, $opp_id, $tpl_labels, $tpl_tokens);
+					CerberusContexts::getContext(CerberusContexts::CONTEXT_OPPORTUNITY, $opp_id, $tpl_labels, $tpl_tokens);
 					$subject = $tpl_builder->build($params['subject'], $tpl_tokens);
 					$body = $tpl_builder->build($params['message'], $tpl_tokens);
 					

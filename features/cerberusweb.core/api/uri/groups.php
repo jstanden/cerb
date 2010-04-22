@@ -83,13 +83,13 @@ class ChGroupsPage extends CerberusPageExtension  {
 		// Signature
 		$worker_token_labels = array();
 		$worker_token_values = array();
-		CerberusSnippetContexts::getContext(CerberusSnippetContexts::CONTEXT_WORKER, null, $worker_token_labels, $worker_token_values);
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, null, $worker_token_labels, $worker_token_values);
 		$tpl->assign('worker_token_labels', $worker_token_labels);
 		
 		// Auto-replies
 		$ticket_token_labels = array();
 		$ticket_token_values = array();
-		CerberusSnippetContexts::getContext(CerberusSnippetContexts::CONTEXT_TICKET, null, $ticket_token_labels, $ticket_token_values);
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_TICKET, null, $ticket_token_labels, $ticket_token_values);
 		$tpl->assign('ticket_token_labels', $ticket_token_labels);
 		
 		// Template
