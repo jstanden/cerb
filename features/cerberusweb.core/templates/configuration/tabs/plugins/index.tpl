@@ -5,37 +5,36 @@
 <a href="javascript:;" onclick="checkAll('frmConfigPlugins', true);">select all</a>
  | 
 <a href="javascript:;" onclick="checkAll('frmConfigPlugins', false)">select none</a>
+<br>
+<br>
  
-
-<ul style="list-style:none;margin-left:0;padding-left:0;text-indent:0;">
 {foreach from=$plugins item=plugin}
-		<li style='padding-bottom:5px;'>
-			<div style="{if $plugin->enabled}border:1px solid rgb(0,120,0);background-color:rgb(255,255,255);{else}margin-left:10px;border:1px solid rgb(180,180,180);background-color:rgb(240,240,240);{/if}" id="config_plugin_{$plugin->id}">
-			<table cellpadding="2" cellspacing="0" border="0" width="100%">
-				<tr>
-					<td nowrap="nowrap" width="0%" valign="middle" rowspan="2" style="background-color:{if $plugin->enabled}rgb(100,200,100){else}rgb(200,200,200){/if};">
-						<input type="checkbox" name="plugins_enabled[]" value="{$plugin->id}" {if $plugin->enabled}checked{/if}>
-					</td>
-					<td width="100%" style="padding-left:5px;" onclick="if(getEventTarget(event)=='TD') checkAll('config_plugin_{$plugin->id}');">
-						<span style="{if $plugin->enabled}font-size:120%;font-weight:bold;{else}font-weight:bold;color:rgb(120,120,120);{/if}">{$plugin->name}</span> &nbsp; 
-						<!-- (Revision: {$plugin->revision}) -->
-						{if !empty($plugin->link)}<a href="{$plugin->link}" target="_blank">more info</a>{/if}
-						<br>
-						by <span style="font-weight:normal;color:rgb(120,120,120);">{$plugin->author}</span>
-					</td>
-				</tr>
-				<tr>
-					<td style="padding-left:5px;">
-						{$plugin->description}	
-					</td>
-				</tr>
-			</table>
-			</div>
-		</li>
+	<div style="margin-top:5px;padding-top:5px;border-top:1px dashed rgb(230,230,230);background-color:rgb(255,255,255);{if $plugin->enabled}{else}margin-left:10px;{/if}" id="config_plugin_{$plugin->id}">
+	<table cellpadding="2" cellspacing="0" border="0" width="100%">
+		<tr>
+			<td valign="middle" align="left" width="1%" nowrap="nowrap">
+				<img src="{devblocks_url}{if !empty($plugin->manifest_cache.plugin_image)}c=resource&p={$plugin->id}&f={$plugin->manifest_cache.plugin_image}{else}c=resource&p=cerberusweb.core&f=images/wgm/plugin_code_gray.gif{/if}{/devblocks_url}" width="100" height="100" border="0" style="border:1px solid rgb(150,150,150);" onclick="checkAll('config_plugin_{$plugin->id}');">
+			</td>
+			<td width="99%" valign="top" align="left" style="padding-left:5px;">
+				<input type="checkbox" name="plugins_enabled[]" value="{$plugin->id}" {if $plugin->enabled}checked{/if}>
+				<h3 style="display:inline;" onclick="checkAll('config_plugin_{$plugin->id}');"><span style="{if !$plugin->enabled}color:rgb(120,120,120);background-color:rgb(230,230,230);{else}color:rgb(50,120,50);background-color:rgb(219,255,190);{/if}">{$plugin->name}</span></h3>
+				 &nbsp; 
+				<!-- (Revision: {$plugin->revision}) -->
+				{if !empty($plugin->link)}<a href="{$plugin->link}" target="_blank">more info</a>{/if}
+				<br>
+				by <span style="font-weight:normal;color:rgb(120,120,120);">{$plugin->author}</span>
+				<div style="padding:5px;">
+				{$plugin->description}
+				</div>
+			</td>
+		</tr>
+	</table>
+	</div>
 {foreachelse}
-	<li>No extensions installed.</li>
+	<b>No extensions installed.</b><br>
 {/foreach}
-</ul>
+
+<br>
 
 <button type="submit"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')|capitalize}</button>
 </form>

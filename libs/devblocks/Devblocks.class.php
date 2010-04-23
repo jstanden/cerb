@@ -1322,6 +1322,11 @@ abstract class DevblocksEngine {
 				}
 			}
 		}
+		
+		// Image
+		if(isset($plugin->image)) {
+			$manifest->manifest_cache['plugin_image'] = (string) $plugin->image;
+		}
 			
 		if(!$persist)
 			return $manifest;
