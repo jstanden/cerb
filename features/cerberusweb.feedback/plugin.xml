@@ -25,6 +25,11 @@
 	<class_loader>
 		<file path="api/App.php">
 			<class name="C4_FeedbackEntryView" />
+			<class name="ChCustomFieldSource_FeedbackEntry" />
+			<class name="ChWorkspaceSource_FeedbackEntry" />
+			<class name="DAO_FeedbackEntry" />
+			<class name="Model_FeedbackEntry" />
+			<class name="SearchFields_FeedbackEntry" />
 		</file>
 	</class_loader>
 	
