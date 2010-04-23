@@ -1,0 +1,156 @@
+<!DOCTYPE plugin SYSTEM "../../libs/devblocks/plugin.dtd">
+<plugin>
+	<id>cerberusweb.restapi</id>
+	<name>[Cerb5] Web Services API (JSON/XML)</name>
+	<description>A RESTful JSON/XML interface for integrating Cerb5 with other applications and tools.</description>
+	<author>WebGroup Media, LLC.</author>
+	<revision>0</revision>
+	<link>http://wiki.cerb5.com/wiki/Web-API</link>
+	<image>plugin.png</image>
+
+	<!-- Plugin Dependencies -->
+	
+	<dependencies>
+		<require plugin_id="cerberusweb.core" version="5.0.0-rc1" />
+	</dependencies>
+
+	<!-- Patches -->
+	
+	<!--
+	<patches>
+		<patch version="5.0.0-rc1" revision="1" file="patches/5.0.0_rc1.php" />
+	</patches>
+	-->
+
+	<!-- Exported Classes -->
+	
+	<class_loader>
+		<file path="api/App.php">
+			<class name="IExtensionRestController" />
+			<class name="Plugin_RestAPI" />
+		</file>
+	</class_loader>
+
+	<!-- Extensions -->
+	
+	<extensions>
+
+		<!-- Controllers -->
+	
+		<extension point="devblocks.controller">
+			<id>rest.controller</id>
+			<name>REST Controller</name>
+			<class>
+				<file>api/App.php</file>
+				<name>Ch_RestFrontController</name>
+			</class>
+			<params>
+				<param key="uri" value="rest" />
+			</params>
+		</extension>
+
+		<!-- REST Controllers -->
+		
+		<extension point="cerberusweb.rest.controller">
+			<id>cerberusweb.rest.controller.addresses</id>
+			<name>Addresses</name>
+			<class>
+				<file>api/rest/addresses.php</file>
+				<name>ChRest_Addresses</name>
+			</class>
+			<params>
+				<param key="uri" value="addresses" />
+			</params>
+		</extension>		
+		
+		<extension point="cerberusweb.rest.controller">
+			<id>cerberusweb.rest.controller.messages</id>
+			<name>Messages</name>
+			<class>
+				<file>api/rest/messages.php</file>
+				<name>ChRest_Messages</name>
+			</class>
+			<params>
+				<param key="uri" value="messages" />
+			</params>
+		</extension>		
+		
+		<extension point="cerberusweb.rest.controller">
+			<id>cerberusweb.rest.controller.notifications</id>
+			<name>Notifications</name>
+			<class>
+				<file>api/rest/notifications.php</file>
+				<name>ChRest_Notifications</name>
+			</class>
+			<params>
+				<param key="uri" value="notifications" />
+			</params>
+		</extension>		
+		
+		<extension point="cerberusweb.rest.controller">
+			<id>cerberusweb.rest.controller.orgs</id>
+			<name>Orgs</name>
+			<class>
+				<file>api/rest/orgs.php</file>
+				<name>ChRest_Orgs</name>
+			</class>
+			<params>
+				<param key="uri" value="orgs" />
+			</params>
+		</extension>		
+		
+		<extension point="cerberusweb.rest.controller">
+			<id>cerberusweb.rest.controller.tasks</id>
+			<name>Tasks</name>
+			<class>
+				<file>api/rest/tasks.php</file>
+				<name>ChRest_Tasks</name>
+			</class>
+			<params>
+				<param key="uri" value="tasks" />
+			</params>
+		</extension>		
+		
+		<extension point="cerberusweb.rest.controller">
+			<id>cerberusweb.rest.controller.tickets</id>
+			<name>Tickets</name>
+			<class>
+				<file>api/rest/tickets.php</file>
+				<name>ChRest_Tickets</name>
+			</class>
+			<params>
+				<param key="uri" value="tickets" />
+			</params>
+		</extension>		
+		
+		<extension point="cerberusweb.rest.controller">
+			<id>cerberusweb.rest.controller.workers</id>
+			<name>Workers</name>
+			<class>
+				<file>api/rest/workers.php</file>
+				<name>ChRest_Workers</name>
+			</class>
+			<params>
+				<param key="uri" value="workers" />
+			</params>
+		</extension>
+		
+		<!-- Config Tabs -->
+		
+		<!--
+		<extension point="cerberusweb.config.tab">
+			<id>webapi.config.tab</id>
+			<name>Web API Tab</name>
+			<class>
+				<file>api/App.php</file>
+				<name>ChWebApiConfigTab</name>
+			</class>
+			<params>
+				<param key="uri" value="webapi" />
+				<param key="title" value="Web API" />
+			</params>
+		</extension>
+		-->
+		
+	</extensions>
+</plugin>

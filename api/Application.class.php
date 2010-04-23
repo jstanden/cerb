@@ -49,7 +49,7 @@
  *   WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
 define("APP_VERSION", '5.0.0-rc1');
-define("APP_BUILD", 2010042203);
+define("APP_BUILD", 2010042204);
 define("APP_MAIL_PATH", APP_STORAGE_PATH . '/mail/');
 
 require_once(APP_PATH . "/api/DAO.class.php");
@@ -805,6 +805,7 @@ class CerberusContexts {
 		
 		// Address token values
 		if(null != $address) {
+			$token_values['id'] = $address->id;
 			if(!empty($address->email))
 				$token_values['address'] = $address->email;
 			if(!empty($address->first_name))
@@ -1162,6 +1163,9 @@ class CerberusContexts {
 		// Token labels
 		$token_labels = array(
 			'content' => $prefix.$translate->_('common.content'),
+			'created|date' => $prefix.$translate->_('common.created'),
+			'is_outgoing' => $prefix.$translate->_('message.is_outgoing'),
+			'storage_size' => $prefix.$translate->_('message.storage_size'),
 		);
 		
 		// Token values
@@ -1169,8 +1173,13 @@ class CerberusContexts {
 		
 		// Message token values
 		if($message) {
-			$token_values['id'] = $message->id;
 			$token_values['content'] = $message->getContent();
+			$token_values['created'] = $message->created_date;
+			$token_values['id'] = $message->id;
+			$token_values['is_outgoing'] = $message->is_outgoing;
+			$token_values['storage_size'] = $message->storage_size;
+			$token_values['ticket_id'] = $message->ticket_id;
+			$token_values['worker_id'] = $message->worker_id;
 		}
 
 		// Sender
@@ -1227,6 +1236,7 @@ class CerberusContexts {
 		
 		// Notification token values
 		if($notification) {
+			$token_values['id'] = $notification->id;
 			$token_values['content'] = $notification->content;
 			$token_values['created'] = $notification->created_date;
 			$token_values['id'] = $notification->id;
@@ -1298,6 +1308,7 @@ class CerberusContexts {
 		
 		// Org token values
 		if($org) {
+			$token_values['id'] = $org->id;
 			$token_values['name'] = $org->name;
 			$token_values['created'] = $org->created;
 			if(!empty($org->city))
@@ -1365,6 +1376,7 @@ class CerberusContexts {
 		
 		// Token labels
 		$token_labels = array(
+			'amount' => $prefix.$translate->_('crm.opportunity.amount'),
 			'created|date' => $prefix.$translate->_('crm.opportunity.created_date'),
 			'is_closed' => $prefix.$translate->_('crm.opportunity.is_closed'),
 			'is_won' => $prefix.$translate->_('crm.opportunity.is_won'),
@@ -1382,6 +1394,8 @@ class CerberusContexts {
 		
 		// Opp token values
 		if($opp) {
+			$token_values['id'] = $opp->id;
+			$token_values['amount'] = $opp->amount;
 			$token_values['created'] = $opp->created_date;
 			$token_values['is_closed'] = $opp->is_closed;
 			$token_values['is_won'] = $opp->is_won;

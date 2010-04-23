@@ -25,7 +25,10 @@
 	
 	<class_loader>
 		<file path="api/App.php">
+			<class name="CrmCustomFieldSource_Opportunity" />
 			<class name="DAO_CrmOpportunity" />
+			<class name="Model_CrmOpportunity" />
+			<class name="SearchFields_CrmOpportunity" />
 			<class name="View_CrmOpportunity" />
 		</file>
 	</class_loader>
@@ -181,6 +184,20 @@
 				<param key="title" value="crm.tab.title" />
 			</params>
 		</extension>
+		
+		<!-- REST Controllers -->
+		
+		<extension point="cerberusweb.rest.controller">
+			<id>crm.rest.controller.opps</id>
+			<name>Opportunities</name>
+			<class>
+				<file>api/rest/opps.php</file>
+				<name>ChRest_Opps</name>
+			</class>
+			<params>
+				<param key="uri" value="opps" />
+			</params>
+		</extension>		
 		
 	</extensions>
 </plugin>
