@@ -1,5 +1,5 @@
 <?php
-class ChRest_Messages extends Extension_RestController implements IExtensionRestController {
+class ChRest_Feedback extends Extension_RestController implements IExtensionRestController {
 	function __construct($manifest) {
 		parent::__construct($manifest);
 	}
@@ -13,11 +13,10 @@ class ChRest_Messages extends Extension_RestController implements IExtensionRest
 			
 		} else { // actions
 			switch($action) {
-				default:
-					$this->error(self::ERRNO_NOT_IMPLEMENTED);
-					break;
 			}
 		}
+		
+		$this->error(self::ERRNO_NOT_IMPLEMENTED);
 	}
 	
 	function putAction($stack) {
@@ -39,10 +38,49 @@ class ChRest_Messages extends Extension_RestController implements IExtensionRest
 	function deleteAction($stack) {
 		$this->error(self::ERRNO_NOT_IMPLEMENTED);
 	}
+
+	function translateToken($token, $type='dao') {
+		$tokens = array();
+		
+		if('dao'==$type) {
+			$tokens = array(
+//				'is_banned' => DAO_FeedbackEntry::IS_BANNED,
+			);
+		} else {
+			$tokens = array(
+				'author_address' => SearchFields_FeedbackEntry::ADDRESS_EMAIL,
+				'author_id' => SearchFields_FeedbackEntry::QUOTE_ADDRESS_ID,
+				'created' => SearchFields_FeedbackEntry::LOG_DATE,
+				'id' => SearchFields_FeedbackEntry::ID,
+				'quote_mood_id' => SearchFields_FeedbackEntry::QUOTE_MOOD,
+				'quote_text' => SearchFields_FeedbackEntry::QUOTE_TEXT,
+				'worker_id' => SearchFields_FeedbackEntry::WORKER_ID,
+			);
+		}
+		
+		if(isset($tokens[$token]))
+			return $tokens[$token];
+		
+		return NULL;
+	}		
 	
-	private function getId($id) {
+	function getContext($id) {
+		$labels = array();
+		$values = array();
+		$context = CerberusContexts::getContext(CerberusContexts::CONTEXT_FEEDBACK, $id, $labels, $values, null, true);
+
+//		unset($values['initial_message_content']);
+
+		return $values;
+	}
+	
+	function getId($id) {
 		$worker = $this->getActiveWorker();
 		
+		// ACL
+		if(!$worker->hasPriv('plugin.cerberusweb.feedback'))
+			$this->error(self::ERRNO_ACL);
+
 		$container = $this->search(array(
 			array('id', '=', $id),
 		));
@@ -51,39 +89,7 @@ class ChRest_Messages extends Extension_RestController implements IExtensionRest
 			$this->success($container['results'][$id]);
 
 		// Error
-		$this->error(self::ERRNO_CUSTOM, sprintf("Invalid message id '%d'", $id));
-	}
-
-	function translateToken($token, $type='dao') {
-		$tokens = array();
-		
-		if('dao'==$type) {
-			$tokens = array(
-//				'is_banned' => DAO_Address::IS_BANNED,
-//				'is_registered' => DAO_Address::IS_REGISTERED,
-			);
-		} else {
-			$tokens = array(
-				'created' => SearchFields_Message::CREATED_DATE,
-				'content' => SearchFields_Message::MESSAGE_CONTENT,
-				'id' => SearchFields_Message::ID,
-				'sender_id' => SearchFields_Message::ADDRESS_ID,
-				'ticket_id' => SearchFields_Message::TICKET_ID,
-			);
-		}
-		
-		if(isset($tokens[$token]))
-			return $tokens[$token];
-		
-		return NULL;
-	}	
-	
-	function getContext($id) {
-		$labels = array();
-		$values = array();
-		$context = CerberusContexts::getContext(CerberusContexts::CONTEXT_MESSAGE, $id, $labels, $values, null, true);
-
-		return $values;
+		$this->error(self::ERRNO_CUSTOM, sprintf("Invalid feedback id '%d'", $id));
 	}
 	
 	function search($filters=array(), $sortToken='id', $sortAsc=1, $page=1, $limit=10) {
@@ -91,23 +97,13 @@ class ChRest_Messages extends Extension_RestController implements IExtensionRest
 
 		$params = $this->_handleSearchBuildParams($filters);
 		
-		// (ACL) Add worker group privs
-		if(!$worker->is_superuser) {
-			$memberships = $worker->getMemberships();
-			$params['tmp_worker_memberships'] = new DevblocksSearchCriteria(
-				SearchFields_Message::TICKET_GROUP_ID,
-				'in',
-				(!empty($memberships) ? array_keys($memberships) : array(0))
-			);
-		}
-		
 		// Sort
 		$sortBy = $this->translateToken($sortToken, 'search');
 		$sortAsc = !empty($sortAsc) ? true : false;
 		
 		// Search
-		list($results, $total) = DAO_Message::search(
-//			array(),
+		list($results, $total) = DAO_FeedbackEntry::search(
+			array(),
 			$params,
 			$limit,
 			max(0,$page-1),
@@ -131,17 +127,18 @@ class ChRest_Messages extends Extension_RestController implements IExtensionRest
 		);
 		
 		return $container;		
-	}
+	}	
 	
 	function postSearch() {
 		$worker = $this->getActiveWorker();
 		
 		// ACL
-		if(!$worker->hasPriv('core.mail.search'))
-			$this->error(self::ERRNO_ACL, 'Access denied to search tickets.');
-		
+		if(!$worker->hasPriv('plugin.cerberusweb.feedback'))
+			$this->error(self::ERRNO_ACL);
+
 		$container = $this->_handlePostSearch();
 		
 		$this->success($container);
-	}
+	}	
+	
 };

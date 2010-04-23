@@ -102,7 +102,7 @@ class ChRest_Tasks extends Extension_RestController implements IExtensionRestCon
 //			$params['tmp_worker_memberships'] = new DevblocksSearchCriteria(
 //				SearchFields_Ticket::TICKET_TEAM_ID,
 //				'in',
-//				(!empty($memberships) ? implode(',', array_keys($memberships)) : '0')
+//				(!empty($memberships) ? array_keys($memberships) : array(0))
 //			);
 //		}
 		

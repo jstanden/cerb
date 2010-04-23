@@ -8,10 +8,10 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 		@$action = array_shift($stack);
 		
 		// Looking up a single ID?
-		if(is_numeric($action)) {
+		if(empty($stack) && is_numeric($action)) {
 			$this->getId(intval($action));
 			
-		} else { // actions
+		} else {
 			switch($action) {
 			}
 		}
@@ -185,11 +185,14 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 			);
 		} else {
 			$tokens = array(
+				'content' => SearchFields_Ticket::FULLTEXT_MESSAGE_CONTENT,
+				'created' => SearchFields_Ticket::TICKET_CREATED_DATE,
 				'id' => SearchFields_Ticket::TICKET_ID,
 				'is_closed' => SearchFields_Ticket::TICKET_CLOSED,
 				'is_deleted' => SearchFields_Ticket::TICKET_DELETED,
 				'mask' => SearchFields_Ticket::TICKET_MASK,
 				'subject' => SearchFields_Ticket::TICKET_SUBJECT,
+				'updated' => SearchFields_Ticket::TICKET_UPDATED_DATE,
 			);
 		}
 		
@@ -210,7 +213,7 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 			$params['tmp_worker_memberships'] = new DevblocksSearchCriteria(
 				SearchFields_Ticket::TICKET_TEAM_ID,
 				'in',
-				(!empty($memberships) ? implode(',', array_keys($memberships)) : '0')
+				(!empty($memberships) ? array_keys($memberships) : array(0))
 			);
 		}
 		
