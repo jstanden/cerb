@@ -107,7 +107,7 @@ class UmScKbController extends Extension_UmScController {
 					$umsession->setProperty(self::SESSION_ARTICLE_LIST, $article_list);
 				}
 
-				$categories = DAO_KbCategory::getWhere();
+				$categories = DAO_KbCategory::getAll();
 				$tpl->assign('categories', $categories);
 				
 				$cats = DAO_KbArticle::getCategoriesByArticleId($id);
@@ -148,7 +148,7 @@ class UmScKbController extends Extension_UmScController {
 				@$root = intval(array_shift($stack));
 				$tpl->assign('root_id', $root);
 				
-				$categories = DAO_KbCategory::getWhere();
+				$categories = DAO_KbCategory::getAll();
 				$tpl->assign('categories', $categories);
 				
 				$tree_map = DAO_KbCategory::getTreeMap(0);
@@ -229,7 +229,7 @@ class UmScKbController extends Extension_UmScController {
 		$levels = DAO_KbCategory::getTree(0);
 		$tpl->assign('levels', $levels);
 		
-		$categories = DAO_KbCategory::getWhere();
+		$categories = DAO_KbCategory::getAll();
 		$tpl->assign('categories', $categories);
 		
 		$sKbRoots = DAO_CommunityToolProperty::get($instance->code,self::PARAM_KB_ROOTS, '');

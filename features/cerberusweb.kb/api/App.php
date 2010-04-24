@@ -51,7 +51,7 @@ class ChKbResearchTab extends Extension_ResearchTab {
 				$tree = DAO_KbCategory::getTreeMap($root_id);
 				$tpl->assign('tree', $tree);
 		
-				$categories = DAO_KbCategory::getWhere();
+				$categories = DAO_KbCategory::getAll();
 				$tpl->assign('categories', $categories);
 				
 				// Breadcrumb // [TODO] API-ize inside Model_KbTree ?
@@ -286,7 +286,7 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 			$tpl->assign('article_categories', $article_categories);
 		}
 		
-		$categories = DAO_KbCategory::getWhere();
+		$categories = DAO_KbCategory::getAll();
 		$tpl->assign('categories', $categories);
 		
 		$levels = DAO_KbCategory::getTree(0); //$root_id
@@ -415,7 +415,7 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 		 * so the worker can't create a closed subtree (e.g. category's parent is its child)
 		 */
 		
-		$categories = DAO_KbCategory::getWhere();
+		$categories = DAO_KbCategory::getAll();
 		$tpl->assign('categories', $categories);
 		
 		$levels = DAO_KbCategory::getTree(0); //$root_id
@@ -545,7 +545,7 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 	    }
 		
 		// Categories
-		$categories = DAO_KbCategory::getWhere();
+		$categories = DAO_KbCategory::getAll();
 		$tpl->assign('categories', $categories);
 		
 		$levels = DAO_KbCategory::getTree(0); //$root_id
@@ -745,7 +745,7 @@ class DAO_KbArticle extends DevblocksORMHelper {
 			));
 		}
 		
-		$categories = DAO_KbCategory::getWhere();
+		$categories = DAO_KbCategory::getAll();
 		
 		if(is_array($category_ids) && !empty($category_ids)) {
 			foreach($category_ids as $category_id) {
@@ -913,6 +913,8 @@ class SearchFields_KbArticle implements IDevblocksSearchFields {
 };	
 
 class DAO_KbCategory extends DevblocksORMHelper {
+	const CACHE_ALL = 'ch_cache_kbcategories_all';
+	
 	const ID = 'id';
 	const PARENT_ID = 'parent_id';
 	const NAME = 'name';
@@ -935,6 +937,8 @@ class DAO_KbCategory extends DevblocksORMHelper {
 	
 	static function update($ids, $fields) {
 		parent::_update($ids, 'kb_category', $fields);
+		
+		self::clearCache();
 	}
 	
 	static function getTreeMap() {
@@ -974,6 +978,21 @@ class DAO_KbCategory extends DevblocksORMHelper {
 		mysql_free_result($rs);
 		
 		return $tree;
+	}
+
+	/**
+	 * 
+	 * @param bool $nocache
+	 * @return Model_KbCategory[]
+	 */
+	static function getAll($nocache=false) {
+	    $cache = DevblocksPlatform::getCacheService();
+	    if($nocache || null === ($categories = $cache->load(self::CACHE_ALL))) {
+    	    $categories = self::getWhere();
+    	    $cache->save($categories, self::CACHE_ALL);
+	    }
+	    
+	    return $categories;
 	}
 	
 	static function getTree($root=0) {
@@ -1069,7 +1088,14 @@ class DAO_KbCategory extends DevblocksORMHelper {
 
 		$db->Execute(sprintf("DELETE QUICK FROM kb_article_to_category WHERE kb_category_id IN (%s)", $ids_list));
 		
+		self::clearCache();
+		
 		return true;
+	}
+	
+	static public function clearCache() {
+		$cache = DevblocksPlatform::getCacheService();
+		$cache->remove(self::CACHE_ALL);
 	}
 };
 
@@ -1176,7 +1202,7 @@ class View_KbArticle extends C4_AbstractView {
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
 
-		$categories = DAO_KbCategory::getWhere();
+		$categories = DAO_KbCategory::getAll();
 		$tpl->assign('categories', $categories);
 
 		$tpl->assign('view_fields', $this->getColumns());

@@ -415,7 +415,7 @@ class ImportCron extends CerberusCronPageExtension {
 		}
 
 		if(NULL == $categoryMap || NULL == $categoryList) {
-			$categoryList = DAO_KbCategory::getWhere();
+			$categoryList = DAO_KbCategory::getAll();
 			$categoryMap = DAO_KbCategory::getTreeMap();
 		}
 		
