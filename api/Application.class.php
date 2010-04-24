@@ -636,6 +636,7 @@ class CerberusContexts {
 	const CONTEXT_BUCKET = 'cerberusweb.contexts.bucket';
 	const CONTEXT_FEEDBACK = 'cerberusweb.contexts.feedback';
 	const CONTEXT_GROUP = 'cerberusweb.contexts.group';
+	const CONTEXT_KB_ARTICLE = 'cerberusweb.contexts.kb_article';
 	const CONTEXT_MESSAGE = 'cerberusweb.contexts.message';
 	const CONTEXT_NOTIFICATION= 'cerberusweb.contexts.notification';
 	const CONTEXT_OPPORTUNITY = 'cerberusweb.contexts.opportunity';
@@ -661,6 +662,9 @@ class CerberusContexts {
 				break;
 			case 'cerberusweb.contexts.group':
 				self::_getGroupContext($context_object, $labels, $values, $prefix);
+				break;
+			case 'cerberusweb.contexts.kb_article':
+				self::_getKbArticleContext($context_object, $labels, $values, $prefix);
 				break;
 			case 'cerberusweb.contexts.message':
 				self::_getMessageContext($context_object, $labels, $values, $prefix);
@@ -1322,6 +1326,97 @@ class CerberusContexts {
 		
 		return true;
 	}
+	
+	/**
+	 * 
+	 * @param $article
+	 * @param $token_labels
+	 * @param $token_values
+	 * @param $prefix
+	 */
+	private static function _getKbArticleContext($article, &$token_labels, &$token_values, $prefix=null) {
+		if(is_null($prefix))
+			$prefix = 'Article:';
+		
+		$translate = DevblocksPlatform::getTranslationService();
+		//$fields = DAO_CustomField::getBySource(ChCustomFieldSource_Address::ID);
+		
+		// Polymorph
+		if(is_numeric($article)) {
+			$article = DAO_KbArticle::get($article);
+		} elseif($article instanceof Model_KbArticle) {
+			// It's what we want already.
+		} else {
+			$article = null;
+		}
+		/* @var $article Model_KbArticle */
+			
+		// Token labels
+		$token_labels = array(
+			'content' => $prefix.$translate->_('kb_article.content'),
+			'is_html' => $prefix.$translate->_('kb_article.format'),
+			'id' => $prefix.$translate->_('common.id'),
+			'title' => $prefix.$translate->_('kb_article.title'),
+			'updated|date' => $prefix.$translate->_('kb_article.updated'),
+			'views' => $prefix.$translate->_('kb_article.views'),
+		);
+		
+//		if(is_array($fields))
+//		foreach($fields as $cf_id => $field) {
+//			$token_labels['custom_'.$cf_id] = $prefix.$field->name;
+//		}
+
+		// Token values
+		$token_values = array();
+		
+		// Token values
+		if(null != $article) {
+			$token_values['content'] = $article->content;
+			$token_values['is_html'] = $article->format;
+			$token_values['id'] = $article->id;
+			$token_values['title'] = $article->title;
+			$token_values['updated'] = $article->updated;
+			$token_values['views'] = $article->views;
+			
+			// Categories
+			if(null != ($categories = $article->getCategories()) && is_array($categories)) {
+				$token_values['categories'] = array();
+				
+				foreach($categories as $category_id => $trail) {
+					foreach($trail as $step_id => $step) {
+						if(!isset($token_values['categories'][$category_id]))
+							$token_values['categories'][$category_id] = array();
+						$token_values['categories'][$category_id][$step_id] = $step->name;
+					}
+				}
+			}
+			
+			//$token_values['custom'] = array();
+			
+//			$field_values = array_shift(DAO_CustomFieldValue::getValuesBySourceIds(ChCustomFieldSource_Address::ID, $address->id));
+//			if(is_array($field_values) && !empty($field_values)) {
+//				foreach($field_values as $cf_id => $cf_val) {
+//					if(!isset($fields[$cf_id]))
+//						continue;
+//					
+//					// The literal value
+//					if(null != $address)
+//						$token_values['custom'][$cf_id] = $cf_val;
+//					
+//					// Stringify
+//					if(is_array($cf_val))
+//						$cf_val = implode(', ', $cf_val);
+//						
+//					if(is_string($cf_val)) {
+//						if(null != $address)
+//							$token_values['custom_'.$cf_id] = $cf_val;
+//					}
+//				}
+//			}
+		}
+		
+		return true;
+	}	
 	
 	/**
 	 * 
