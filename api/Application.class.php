@@ -632,6 +632,7 @@ interface IContextToken {
 
 class CerberusContexts {
 	const CONTEXT_ADDRESS = 'cerberusweb.contexts.address';
+	const CONTEXT_ATTACHMENT = 'cerberusweb.contexts.attachment';
 	const CONTEXT_BUCKET = 'cerberusweb.contexts.bucket';
 	const CONTEXT_FEEDBACK = 'cerberusweb.contexts.feedback';
 	const CONTEXT_GROUP = 'cerberusweb.contexts.group';
@@ -647,6 +648,9 @@ class CerberusContexts {
 		switch($context) {
 			case 'cerberusweb.contexts.address':
 				self::_getAddressContext($context_object, $labels, $values, $prefix);
+				break;
+			case 'cerberusweb.contexts.attachment':
+				self::_getAttachmentContext($context_object, $labels, $values, $prefix);
 				break;
 			case 'cerberusweb.contexts.bucket':
 				self::_getBucketContext($context_object, $labels, $values, $prefix);
@@ -858,6 +862,60 @@ class CerberusContexts {
 			$token_labels,
 			$token_values
 		);		
+		
+		return true;
+	}
+	
+	private static function _getAttachmentContext($attachment, &$token_labels, &$token_values, $prefix=null) {
+		if(is_null($prefix))
+			$prefix = 'Attachment:';
+		
+		$translate = DevblocksPlatform::getTranslationService();
+		
+		// Polymorph
+		if(is_numeric($attachment)) {
+			list($results, $total) = DAO_Attachment::search(
+				array(
+					SearchFields_Attachment::ID => new DevblocksSearchCriteria(SearchFields_Attachment::ID,'=',$attachment),
+				),
+				1,
+				0,
+				null,
+				null,
+				false
+			);
+			
+			if(isset($results[$attachment]))
+				$attachment = $results[$attachment];
+			else
+				$attachment = null;
+		} elseif(is_array($attachment)) {
+			// It's what we want already.
+		} else {
+			$attachment = null;
+		}
+			
+		// Token labels
+		$token_labels = array(
+			'created|date' => $prefix.$translate->_('common.created'),
+			'id' => $prefix.$translate->_('common.id'),
+			'mime_type' => $prefix.$translate->_('attachment.mime_type'),
+			'name' => $prefix.$translate->_('attachment.display_name'),
+			'size' => $prefix.$translate->_('attachment.storage_size'),
+		);
+		
+		// Token values
+		$token_values = array();
+		
+		if(null != $attachment) {
+			$token_values['created'] = $attachment[SearchFields_Attachment::MESSAGE_CREATED_DATE];
+			$token_values['id'] = $attachment[SearchFields_Attachment::ID];
+			$token_values['message_id'] = $attachment[SearchFields_Attachment::MESSAGE_ID];
+			$token_values['mime_type'] = $attachment[SearchFields_Attachment::MIME_TYPE];
+			$token_values['name'] = $attachment[SearchFields_Attachment::DISPLAY_NAME];
+			$token_values['size'] = $attachment[SearchFields_Attachment::STORAGE_SIZE];
+			$token_values['ticket_id'] = $attachment[SearchFields_Attachment::TICKET_ID];
+		}
 		
 		return true;
 	}

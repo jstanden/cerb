@@ -226,7 +226,7 @@ class DAO_Attachment extends DevblocksORMHelper {
 		    $rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
             $total = mysql_num_rows($rs);
 		}
-		
+
 		$results = array();
 		
 		while($row = mysql_fetch_assoc($rs)) {
@@ -266,6 +266,7 @@ class SearchFields_Attachment implements IDevblocksSearchFields {
     const MESSAGE_IS_OUTGOING = 'm_is_outgoing';
     
     const TICKET_ID = 't_id';
+    const TICKET_GROUP_ID = 't_group_id';
     const TICKET_MASK = 't_mask';
     const TICKET_SUBJECT = 't_subject';
     
@@ -292,6 +293,7 @@ class SearchFields_Attachment implements IDevblocksSearchFields {
 			self::MESSAGE_IS_OUTGOING => new DevblocksSearchField(self::MESSAGE_IS_OUTGOING, 'm', 'is_outgoing', $translate->_('mail.sent')),
 			
 			self::TICKET_ID => new DevblocksSearchField(self::TICKET_ID, 't', 'id', $translate->_('ticket.id')),
+			self::TICKET_GROUP_ID => new DevblocksSearchField(self::TICKET_GROUP_ID, 't', 'team_id'), //, $translate->_('ticket.team_id')
 			self::TICKET_MASK => new DevblocksSearchField(self::TICKET_MASK, 't', 'mask', $translate->_('ticket.mask')),
 			self::TICKET_SUBJECT => new DevblocksSearchField(self::TICKET_SUBJECT, 't', 'subject', $translate->_('ticket.subject')),
 			
