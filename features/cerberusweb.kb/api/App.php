@@ -1410,6 +1410,56 @@ class Model_KbArticle {
 	public $format = 0;
 	public $content = '';
 	public $content_raw = '';
+	
+	// [TODO] Reuse this!
+	function getCategories() {
+		$categories = DAO_KbCategory::getAll();
+		$cats = DAO_KbArticle::getCategoriesByArticleId($this->id);
+
+		$trails = array();
+		
+		foreach($cats as $cat_id) {
+			$pid = $cat_id;
+			$trail = array();
+			while($pid) {
+				array_unshift($trail,$pid);
+				$pid = $categories[$pid]->parent_id;
+			}
+			
+			$trails[] = $trail;
+		}
+		
+		// Remove redundant trails
+		if(is_array($trails))
+		foreach($trails as $idx => $trail) {
+			foreach($trails as $c_idx => $compare_trail) {
+				if($idx != $c_idx && count($compare_trail) >= count($trail)) {
+					if(array_slice($compare_trail,0,count($trail))==$trail) {
+						unset($trails[$idx]);
+					}
+				}
+			}
+		}
+		
+		$breadcrumbs = array();
+		
+		if(is_array($trails))
+		foreach($trails as $idx => $trail) {
+			$last_step = end($trail);
+			reset($trail);
+			
+			foreach($trail as $step) {
+				if(!isset($breadcrumbs[$last_step]))
+					$breadcrumbs[$last_step] = array();
+					
+				$breadcrumbs[$last_step][$step] = $categories[$step];
+			}
+		}
+		
+		unset($trails);
+		
+		return $breadcrumbs;
+	}
 };
 
 class Model_KbCategory {

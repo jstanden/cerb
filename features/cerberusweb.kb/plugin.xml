@@ -199,5 +199,19 @@
 		</extension>
 		-->
 		
+		<!-- REST Controllers -->
+		
+		<extension point="cerberusweb.rest.controller">
+			<id>cerberusweb.rest.controller.kbarticles</id>
+			<name>KB Articles</name>
+			<class>
+				<file>api/rest/kbarticles.php</file>
+				<name>ChRest_KbArticles</name>
+			</class>
+			<params>
+				<param key="uri" value="kbarticles" />
+			</params>
+		</extension>		
+		
 	</extensions>
 </plugin>
