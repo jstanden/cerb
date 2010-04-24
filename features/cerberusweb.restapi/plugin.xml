@@ -64,6 +64,18 @@
 		</extension>		
 		
 		<extension point="cerberusweb.rest.controller">
+			<id>cerberusweb.rest.controller.attachments</id>
+			<name>Attachments</name>
+			<class>
+				<file>api/rest/attachments.php</file>
+				<name>ChRest_Attachments</name>
+			</class>
+			<params>
+				<param key="uri" value="attachments" />
+			</params>
+		</extension>		
+		
+		<extension point="cerberusweb.rest.controller">
 			<id>cerberusweb.rest.controller.messages</id>
 			<name>Messages</name>
 			<class>
