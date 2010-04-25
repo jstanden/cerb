@@ -13,11 +13,10 @@
 
 <div class="block">
 <h2>Outgoing Message</h2>
-<form id="frmCompose" name="compose" enctype="multipart/form-data" method="post" action="{devblocks_url}{/devblocks_url}" onsubmit="return ('1' == this.do_submit.value);">
+<form id="frmCompose" name="compose" enctype="multipart/form-data" method="POST" action="{devblocks_url}{/devblocks_url}">
 <input type="hidden" name="c" value="tickets">
 <input type="hidden" name="a" value="composeMail">
 <input type="hidden" name="draft_id" value="{$draft->id}">
-<input type="hidden" name="do_submit" value="0">
 
 <table cellpadding="2" cellspacing="0" border="0" width="100%">
   <tbody>
@@ -27,7 +26,7 @@
 				<tr>
 					<td width="0%" nowrap="nowrap" valign="middle" align="right"><b>From:</b>&nbsp;</td>
 					<td width="100%">
-						<select name="team_id" id="team_id" style="border:1px solid rgb(180,180,180);padding:2px;">
+						<select name="team_id" id="team_id" class="required" style="border:1px solid rgb(180,180,180);padding:2px;">
 							{foreach from=$active_worker_memberships item=membership key=group_id}
 							<option value="{$group_id}" {if $group_id==$draft->params.group_id}selected{/if}>{$teams.$group_id->name}</option>
 							{/foreach}
@@ -37,7 +36,7 @@
 				<tr>
 					<td width="0%" nowrap="nowrap" valign="middle" align="right"><b>To:</b>&nbsp;</td>
 					<td width="100%">
-						<input type="text" name="to" value="{$draft->params.to|escape}" style="border:1px solid rgb(180,180,180);padding:2px;width:98%;">
+						<input type="text" name="to" value="{$draft->params.to|escape}" class="required" style="border:1px solid rgb(180,180,180);padding:2px;width:98%;">
 					</td>
 				</tr>
 				<tr>
@@ -54,7 +53,7 @@
 				</tr>
 				<tr>
 					<td width="0%" nowrap="nowrap" valign="middle" align="right"><b>Subject:</b>&nbsp;</td>
-					<td width="100%"><input type="text" size="100" name="subject" value="{$draft->subject|escape}" style="width:98%;border:1px solid rgb(180,180,180);padding:2px;"></td>
+					<td width="100%"><input type="text" size="100" name="subject" value="{$draft->subject|escape}" class="required" style="width:98%;border:1px solid rgb(180,180,180);padding:2px;"></td>
 				</tr>
 
 			</table>
@@ -77,7 +76,7 @@
 			<div id="sendMailToolbarOptions"></div>
 			<div id="divDraftStatus"></div>
 			
-			<textarea name="content" id="content" rows="15" cols="80" class="reply" style="width:98%;border:1px solid rgb(180,180,180);padding:2px;">{$draft->body|escape}</textarea>
+			<textarea name="content" id="content" rows="15" cols="80" class="reply required" style="width:98%;border:1px solid rgb(180,180,180);padding:2px;">{$draft->body|escape}</textarea>
 		</td>
 	</tr>
 
@@ -195,7 +194,7 @@
 		
 	<tr>
 		<td>
-			<button type="button" onclick="this.form.do_submit.value='1';this.form.submit();"><span class="cerb-sprite sprite-check"></span> Send Message</button>
+			<button type="submit" onclick="$('#btnSaveDraft').click();"><span class="cerb-sprite sprite-check"></span> Send Message</button>
 			<button type="button" onclick="$('#btnSaveDraft').click();document.location='{devblocks_url}c=tickets{/devblocks_url}';"><span class="cerb-sprite sprite-media_pause"></span> {$translate->_('display.ui.continue_later')|capitalize}</button>
 			<button type="button" onclick="if(confirm('Are you sure you want to discard this message?')) { if(0!==this.form.draft_id.value.length) { genericAjaxGet('', 'c=tickets&a=deleteDraft&draft_id='+escape(this.form.draft_id.value)); } document.location='{devblocks_url}c=tickets{/devblocks_url}'; } "><span class="cerb-sprite sprite-delete"></span> {$translate->_('display.ui.discard')|capitalize}</button>
 		</td>
@@ -210,6 +209,8 @@
 		ajax.emailAutoComplete('#frmCompose input[name=to]', { multiple: true } );
 		ajax.emailAutoComplete('#frmCompose input[name=cc]', { multiple: true } );
 		ajax.emailAutoComplete('#frmCompose input[name=bcc]', { multiple: true } );
+		
+		$('#frmCompose').validate();
 		
 		setInterval("$('#btnSaveDraft').click();", 30000);
 	} );
