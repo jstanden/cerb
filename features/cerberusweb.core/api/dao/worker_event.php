@@ -128,6 +128,15 @@ class DAO_WorkerEvent extends DevblocksORMHelper {
 		return true;
 	}
 
+	static function maint() {
+		$db = DevblocksPlatform::getDatabaseService();
+		$logger = DevblocksPlatform::getConsoleLog();
+		
+		$db->Execute("DELETE QUICK FROM worker_event WHERE is_read = 1");
+		
+		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' worker_event records.');
+	}
+	
 	static function clearCountCache($worker_id) {
 		$cache = DevblocksPlatform::getCacheService();
 		$cache->remove(self::CACHE_COUNT_PREFIX.$worker_id);
