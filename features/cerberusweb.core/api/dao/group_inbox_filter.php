@@ -579,7 +579,7 @@ class Model_GroupInboxFilter {
 	 * @param integer[] $ticket_ids
 	 */
 	function run($ticket_ids) {
-		$fields = array();
+		$change_fields = array();
 		$field_values = array();
 
 		$groups = DAO_Group::getAll();
@@ -593,18 +593,18 @@ class Model_GroupInboxFilter {
 			switch($action) {
 				case 'status':
 					if(isset($params['is_waiting']))
-						$fields[DAO_Ticket::IS_WAITING] = intval($params['is_waiting']);
+						$change_fields[DAO_Ticket::IS_WAITING] = intval($params['is_waiting']);
 					if(isset($params['is_closed']))
-						$fields[DAO_Ticket::IS_CLOSED] = intval($params['is_closed']);
+						$change_fields[DAO_Ticket::IS_CLOSED] = intval($params['is_closed']);
 					if(isset($params['is_deleted']))
-						$fields[DAO_Ticket::IS_DELETED] = intval($params['is_deleted']);
+						$change_fields[DAO_Ticket::IS_DELETED] = intval($params['is_deleted']);
 					break;
 
 				case 'assign':
 					if(isset($params['worker_id'])) {
 						$w_id = intval($params['worker_id']);
 						if(0 == $w_id || isset($workers[$w_id]))
-							$fields[DAO_Ticket::NEXT_WORKER_ID] = $w_id;
+							$change_fields[DAO_Ticket::NEXT_WORKER_ID] = $w_id;
 					}
 					break;
 
@@ -613,8 +613,8 @@ class Model_GroupInboxFilter {
 						$g_id = intval($params['group_id']);
 						$b_id = intval($params['bucket_id']);
 						if(isset($groups[$g_id]) && (0==$b_id || isset($buckets[$b_id]))) {
-							$fields[DAO_Ticket::TEAM_ID] = $g_id;
-							$fields[DAO_Ticket::CATEGORY_ID] = $b_id;
+							$change_fields[DAO_Ticket::TEAM_ID] = $g_id;
+							$change_fields[DAO_Ticket::CATEGORY_ID] = $b_id;
 						}
 					}
 					break;
@@ -638,7 +638,6 @@ class Model_GroupInboxFilter {
 						)
 						break;
 						
-					// [TODO] Any chance we could pass this to run?
 					list($tickets, $null) = DAO_Ticket::search(
 						array(),
 						array(
@@ -695,8 +694,8 @@ class Model_GroupInboxFilter {
 		}
 
 		if(!empty($ticket_ids)) {
-			if(!empty($fields))
-				DAO_Ticket::updateTicket($ticket_ids, $fields);
+			if(!empty($change_fields))
+				DAO_Ticket::updateTicket($ticket_ids, $change_fields);
 			
 			// Custom Fields
 			C4_AbstractView::_doBulkSetCustomFields(ChCustomFieldSource_Ticket::ID, $field_values, $ticket_ids);
