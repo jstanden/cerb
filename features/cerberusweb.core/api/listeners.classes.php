@@ -363,7 +363,12 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 		// Write a notification (if not assigned to ourselves)
 		$url_writer = DevblocksPlatform::getUrlService();
 		foreach($ticket_ids as $ticket_id) {
+			// If invalid
 			if(null == ($ticket = $tickets[$ticket_id])) /* @var $ticket Model_Ticket */
+				continue;
+			
+			// If the next worker is the same as the current worker
+			if($next_worker_id == $ticket->next_worker_id)
 				continue;
 				
 			$fields = array(
