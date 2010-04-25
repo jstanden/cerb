@@ -318,6 +318,10 @@ class Model_Message {
 		return DAO_MessageHeader::getAll($this->id);
 	}
 
+	function getSender() {
+		return DAO_Address::get($this->address_id);
+	}
+	
 	/**
 	 * returns an array of the message's attachments
 	 *

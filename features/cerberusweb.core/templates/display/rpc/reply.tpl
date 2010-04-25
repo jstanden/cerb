@@ -119,7 +119,7 @@
 {$signature}{*Sig above, 2 lines necessary whitespace*}
 
 
-{/if}{assign var=reply_date value=$message->created_date|devblocks_date}{'display.reply.reply_banner'|devblocks_translate:$reply_date:$headers.from}
+{/if}{$quote_sender=$message->getSender()}{$quote_sender_personal=$quote_sender->getName()}{if !empty($quote_sender_personal)}{$reply_personal=$quote_sender_personal}{else}{$reply_personal=$quote_sender->email}{/if}{$reply_date=$message->created_date|devblocks_date:'D, d M Y'}{'display.reply.reply_banner'|devblocks_translate:$reply_date:$reply_personal}
 {$message->getContent()|trim|escape|indent:1:'> '}
 
 {if !empty($signature) && !$signature_pos}{$signature}{/if}{*Sig below*}
