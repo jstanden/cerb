@@ -1134,6 +1134,7 @@ class ChTicketsPage extends CerberusPageExtension {
         $query = trim($query);
         
         $visit = CerberusApplication::getVisit(); /* @var $visit CerberusVisit */
+		$active_worker = CerberusApplication::getActiveWorker();
 		$searchView = C4_AbstractViewLoader::getView(CerberusApplication::VIEW_SEARCH);
 		
 		if(null == $searchView)
@@ -1187,6 +1188,10 @@ class ChTicketsPage extends CerberusPageExtension {
                 break;
                 
         }
+        
+		// Force group ACL
+		if(!$active_worker->is_superuser)
+        	$params[SearchFields_Ticket::TICKET_TEAM_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_TEAM_ID, 'in', array_keys($active_worker->getMemberships()));
         
         $searchView->params = $params;
         $searchView->renderPage = 0;
