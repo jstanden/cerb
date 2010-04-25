@@ -97,6 +97,7 @@ class DAO_ExplorerSet {
 	
 	static function maint() {
 		$db = DevblocksPlatform::getDatabaseService();
+		$logger = DevblocksPlatform::getConsoleLog();
 		
 		$rs = $db->Execute("SELECT hash, params_json FROM explorer_set WHERE pos = 0");
 		
@@ -110,6 +111,8 @@ class DAO_ExplorerSet {
 				}
 			} 
 		}
+		
+		$logger->info('[Maint] Cleaned up explorer items.');
 	}
 };
 
