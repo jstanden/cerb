@@ -626,6 +626,9 @@ class ChTicketsPage extends CerberusPageExtension {
 		if(!empty($to))
 			$params['to'] = $to;
 			
+		if(empty($subject) && empty($content))
+			return json_encode(array());
+			
 		@$type = DevblocksPlatform::importGPC($_REQUEST['type'],'string','');
 		
 		switch($type) {
