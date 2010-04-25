@@ -706,6 +706,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		@$active_worker = CerberusApplication::getActiveWorker();
 		
 		if(!empty($draft_id)
+			&& null != ($draft = DAO_MailQueue::get($draft_id))
 			&& ($active_worker->id == $draft->worker_id || $active_worker->is_superuser)) {
 			
 			DAO_MailQueue::delete($draft_id);
