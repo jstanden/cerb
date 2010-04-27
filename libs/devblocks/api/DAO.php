@@ -981,6 +981,9 @@ class DAO_Translation extends DevblocksORMHelper {
 	static private function _getObjectsFromResult($rs) {
 		$objects = array();
 		
+		if(!is_resource($rs))
+			return $objects;
+		
 		while($row = mysql_fetch_assoc($rs)) {
 			$object = new Model_Translation();
 			$object->id = $row['id'];

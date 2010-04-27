@@ -475,7 +475,7 @@ class DevblocksPlatform extends DevblocksEngine {
 			
 			// Re-read manifests
 			DevblocksPlatform::readPlugins();
-				
+			
 			if(self::_needsToPatch()) {
 				return false; // the update script will handle new caches
 			} else {
@@ -495,6 +495,10 @@ class DevblocksPlatform extends DevblocksEngine {
 	 */
 	static private function _needsToPatch() {
 		 $plugins = DevblocksPlatform::getPluginRegistry();
+		 
+		 // First install or upgrade
+		 if(empty($plugins))
+		 	return true;
 
 		 foreach($plugins as $plugin) { /* @var $plugin DevblocksPluginManifest */
 		 	if($plugin->enabled) {
@@ -770,7 +774,8 @@ class DevblocksPlatform extends DevblocksEngine {
 		    @$plugin->dir = $row['dir'];
 
 		    // JSON decode
-		    if(null != ($manifest_cache_json = $row['manifest_cache_json'])) {
+		    if(isset($row['manifest_cache_json'])
+		    	&& null != ($manifest_cache_json = $row['manifest_cache_json'])) {
 		    	$plugin->manifest_cache = json_decode($manifest_cache_json, true);
 		    }
 		    
