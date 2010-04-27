@@ -6,7 +6,6 @@
 
 <table cellpadding="0" cellspacing="5" border="0" width="100%" id="configACL" style="display:{if !$acl_enabled}none{else}block{/if};">
 	<tr>
-		{if !empty($license.workers)}
 		<td width="0%" nowrap="nowrap" valign="top">
 			<div class="block">
 			<table cellpadding="2" cellspacing="0" border="0">
@@ -14,7 +13,7 @@
 					<td><h2>Roles</h2></td>
 				</tr>
 				<tr>
-					<td>
+					<td nowrap="nowrap">
 						[ <a href="javascript:;" onclick="genericAjaxGet('configRole','c=config&a=getRole&id=0');">add new role</a> ]
 					</td>
 				</tr>
@@ -30,7 +29,6 @@
 			</table>
 			</div>
 		</td>
-		{/if}
 		
 		<td width="100%" valign="top">
 			<form action="{devblocks_url}{/devblocks_url}" method="post" id="configRole">

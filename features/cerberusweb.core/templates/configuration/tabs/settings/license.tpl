@@ -3,10 +3,13 @@
 <br>
 
 {if empty($license.key)}
-	<span style="color:rgb(200,0,0);">No License (Community Edition)</span><br>
+	<span style="color:rgb(200,0,0);">No License (Evaluation Edition)</span><br>
 	<ul style="margin-top:0px;">
-		<li>Limited to 3 workers</li>
-		<li>Worker itemized permissions are disabled</li>
+		<li>Limited to 1 worker.</li>
+		{*
+		<li>Worker itemized permissions are disabled.</li>
+		<li>Web-API is disabled.</li>
+		*}
 		<li><a href="http://www.cerberusweb.com/buy" target="_blank">Purchase a Cerberus Helpdesk license</a></li>
 	</ul> 
 {else}
