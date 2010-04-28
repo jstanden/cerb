@@ -778,10 +778,9 @@ class DevblocksPlatform extends DevblocksEngine {
 		    	&& null != ($manifest_cache_json = $row['manifest_cache_json'])) {
 		    	$plugin->manifest_cache = json_decode($manifest_cache_json, true);
 		    }
-		    
-		    if(file_exists(APP_PATH . DIRECTORY_SEPARATOR . $plugin->dir . DIRECTORY_SEPARATOR . 'plugin.xml')) {
-		        $plugins[$plugin->id] = $plugin;
-		    }
+
+		    if(file_exists(APP_PATH . DIRECTORY_SEPARATOR . $plugin->dir . DIRECTORY_SEPARATOR . 'plugin.xml'))
+	        	$plugins[$plugin->id] = $plugin;
 		}
 
 		$sql = sprintf("SELECT p.id, p.name, p.params, p.plugin_id ".

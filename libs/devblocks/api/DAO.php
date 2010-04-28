@@ -212,17 +212,30 @@ abstract class DevblocksORMHelper {
 
 class DAO_Platform {
     static function cleanupPluginTables() {
-		DevblocksPlatform::clearCache();
+		$db = DevblocksPlatform::getDatabaseService();
+		$prefix = (APP_DB_PREFIX != '') ? APP_DB_PREFIX.'_' : ''; // [TODO] Cleanup
 
-		// [JAS]: Remove any plugins that are no longer in the filesystem
-		$db_plugins = DevblocksPlatform::getPluginRegistry();
-		
-		foreach($db_plugins as $db_plugin_id => $db_plugin) { /* @var $db_plugin DevblocksPluginManifest */
-			if(!file_exists(APP_PATH . '/' . $db_plugin->dir)) {
-				$db_plugin->purge();
+		/*
+		 * Make sure this uses the DB directly and not the registry, since
+		 * that automatically filters out bad rows and we'd never purge them.
+		 */
+	    $sql = sprintf("SELECT p.* ".
+			"FROM %splugin p ".
+			"ORDER BY p.enabled DESC, p.name ASC ",
+			$prefix
+		);
+		$results = $db->GetArray($sql); 
+
+		foreach($results as $row) {
+		    $plugin = new DevblocksPluginManifest();
+		    @$plugin->id = $row['id'];
+		    @$plugin->dir = $row['dir'];
+		    
+			if(!file_exists(APP_PATH . '/' . $plugin->dir)) {
+				$plugin->purge();
 			}
 		}
-		
+				
 		DevblocksPlatform::clearCache();
     }
     
