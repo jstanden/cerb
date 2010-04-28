@@ -860,7 +860,7 @@ class ChTicketsPage extends CerberusPageExtension {
 			// Make sure we have permission
 			if($active_worker->is_superuser || null != DAO_Snippet::getWhere(sprintf("%s = %d AND %s = %d",
 				DAO_Snippet::ID,
-				DAO_Snippet::$id,
+				$id,
 				DAO_Snippet::CREATED_BY,
 				$active_worker->id
 			))) {
