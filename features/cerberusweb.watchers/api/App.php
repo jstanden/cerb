@@ -241,7 +241,7 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
 					$comment
 				);
 				
-				$headers->addTextHeader('X-Mailer','Cerberus Helpdesk (Build '.APP_BUILD.')');
+				$headers->addTextHeader('X-Mailer','Cerberus Helpdesk ' . APP_VERSION . ' (Build '.APP_BUILD.')');
 				$headers->addTextHeader('Precedence','List');
 				$headers->addTextHeader('Auto-Submitted','auto-generated');
 				
@@ -360,7 +360,7 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
 					    $headers->addTextHeader('In-Reply-To', $in_reply_to);
 					}
 					
-					$headers->addTextHeader('X-Mailer','Cerberus Helpdesk (Build '.APP_BUILD.')');
+					$headers->addTextHeader('X-Mailer','Cerberus Helpdesk ' . APP_VERSION . ' (Build '.APP_BUILD.')');
 					$headers->addTextHeader('Precedence','List');
 					$headers->addTextHeader('Auto-Submitted','auto-generated');
 					
@@ -506,7 +506,7 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
 					    $hdrs->addTextHeader('In-Reply-To', $in_reply_to);
 					}
 					
-					$hdrs->addTextHeader('X-Mailer','Cerberus Helpdesk (Build '.APP_BUILD.')');
+					$hdrs->addTextHeader('X-Mailer','Cerberus Helpdesk ' . APP_VERSION . ' (Build '.APP_BUILD.')');
 					$hdrs->addTextHeader('Precedence','List');
 					$hdrs->addTextHeader('Auto-Submitted','auto-generated');
 					

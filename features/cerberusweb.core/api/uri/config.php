@@ -512,7 +512,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 							
 							$headers = $mail->getHeaders();
 							
-					        $headers->addTextHeader('X-Mailer','Cerberus Helpdesk (Build '.APP_BUILD.')');
+					        $headers->addTextHeader('X-Mailer','Cerberus Helpdesk ' . APP_VERSION . ' (Build '.APP_BUILD.')');
 					        
 						    $body = sprintf("Your new helpdesk login information is below:\r\n".
 								"\r\n".

@@ -145,7 +145,7 @@ class ChSignInPage extends CerberusPageExtension {
 			
 			$headers = $mail->getHeaders();
 			
-			$headers->addTextHeader('X-Mailer','Cerberus Helpdesk (Build '.APP_BUILD.')');
+			$headers->addTextHeader('X-Mailer','Cerberus Helpdesk ' . APP_VERSION . ' (Build '.APP_BUILD.')');
 	
 			$mail->setBody(vsprintf($translate->_('signin.forgot.mail.body'), $code));
 			

@@ -88,7 +88,7 @@ class UmScRegisterController extends Extension_UmScController {
 			
 			$headers = $message->getHeaders();
 			
-			$headers->addTextHeader('X-Mailer','Cerberus Helpdesk (Build '.APP_BUILD.')');
+			$headers->addTextHeader('X-Mailer','Cerberus Helpdesk ' . APP_VERSION . ' (Build '.APP_BUILD.')');
 			
 			$result = $mailer->send($message);
 		}
@@ -192,7 +192,7 @@ class UmScRegisterController extends Extension_UmScController {
 		
 		$headers = $message->getHeaders();
 		
-		$headers->addTextHeader('X-Mailer','Cerberus Helpdesk (Build '.APP_BUILD.')');
+		$headers->addTextHeader('X-Mailer','Cerberus Helpdesk ' . APP_VERSION . ' (Build '.APP_BUILD.')');
 		
 		$result = $mailer->send($message);
 		
