@@ -681,12 +681,7 @@ class ImportCron extends CerberusCronPageExtension {
 			$sRequesterAddy = (string) $eAddress; // [TODO] RFC822
 			
 			// Insert requesters
-			if(null == ($requesterAddyInst = CerberusApplication::hashLookupAddress($sRequesterAddy, true))) {
-				$logger->warning('[Importer] Ticket ' . $sMask . ' - Ignoring malformed requester: ' . $sRequesterAddy);
-				continue;				
-			}
-			
-			DAO_Ticket::createRequester($requesterAddyInst->id, $ticket_id);
+			DAO_Ticket::createRequester($sRequesterAddy, $ticket_id);
 		}
 		
 		// Create messages

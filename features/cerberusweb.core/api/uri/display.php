@@ -941,9 +941,7 @@ class ChDisplayPage extends CerberusPageExtension {
 					
 					foreach($rfc_addys as $rfc_addy) {
 						$addy = $rfc_addy->mailbox . '@' . $rfc_addy->host;
-						
-						if(null != ($req_addy = CerberusApplication::hashLookupAddress($addy, true)))
-							DAO_Ticket::createRequester($req_addy->id, $ticket_id);
+						DAO_Ticket::createRequester($addy, $ticket_id);
 					}
 				}
 			}
@@ -953,7 +951,6 @@ class ChDisplayPage extends CerberusPageExtension {
 			foreach($remove as $address_id) {
 				$addy = DAO_Address::get($address_id);
 				DAO_Ticket::deleteRequester($ticket_id, $address_id);
-//				echo "Removed <b>" . $addy->email . "</b> as a recipient.<br>";
 			}
 		}
 		
@@ -998,8 +995,8 @@ class ChDisplayPage extends CerberusPageExtension {
 		
 		// Copy all the original tickets requesters
 		$orig_requesters = DAO_Ticket::getRequestersByTicket($orig_ticket->id);
-		foreach($orig_requesters as $orig_req_id => $orig_req_addy) {
-			DAO_Ticket::createRequester($orig_req_id, $new_ticket_id);
+		foreach($orig_requesters as $orig_req_addy) {
+			DAO_Ticket::createRequester($orig_req_addy, $new_ticket_id);
 		}
 		
 		// Pull the message off the ticket (reparent)
@@ -1304,9 +1301,7 @@ class ChDisplayPage extends CerberusPageExtension {
 				
 				foreach($rfc_addys as $rfc_addy) {
 					$addy = $rfc_addy->mailbox . '@' . $rfc_addy->host;
-					
-					if(null != ($req_addy = CerberusApplication::hashLookupAddress($addy, true)))
-						DAO_Ticket::createRequester($req_addy->id, $ticket_id);
+					DAO_Ticket::createRequester($addy, $ticket_id);
 				}
 			}
 		}

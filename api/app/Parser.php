@@ -316,7 +316,6 @@ class CerberusParser {
 		 */
 		$logger = DevblocksPlatform::getConsoleLog();
 		$settings = DevblocksPlatform::getPluginSettingsService();
-		$helpdesk_senders = CerberusApplication::getHelpdeskSenders();
 		
         // Pre-parse mail filters
 		$pre_filters = Model_PreParseRule::getMatches($message);
@@ -581,49 +580,16 @@ class CerberusParser {
 		}
 
 		// [JAS]: Add requesters to the ticket
-		if(!empty($fromAddressInst->id) && !empty($id)) {
-			// Don't add a requester if the sender is a helpdesk address
-			if(isset($helpdesk_senders[$fromAddressInst->email])) {
-				$logger->info("[Parser] Not adding ourselves as a requester: " . $fromAddressInst->email);
-			} else {
-				DAO_Ticket::createRequester($fromAddressInst->id,$id);
-			}
-		}
+		if(!empty($fromAddressInst->id) && !empty($id))
+			DAO_Ticket::createRequester($fromAddressInst->email, $id);
 	    
 		// Add the other TO/CC addresses to the ticket
-		// [TODO] This should be cleaned up and optimized
-		if($settings->get('cerberusweb.core',CerberusSettings::PARSER_AUTO_REQ,CerberusSettingsDefaults::PARSER_AUTO_REQ)) {
-			@$autoreq_exclude_list = $settings->get('cerberusweb.core',CerberusSettings::PARSER_AUTO_REQ_EXCLUDE,CerberusSettingsDefaults::PARSER_AUTO_REQ_EXCLUDE);
+		if($settings->get('cerberusweb.core',CerberusSettings::PARSER_AUTO_REQ, CerberusSettingsDefaults::PARSER_AUTO_REQ)) {
 			$destinations = self::getDestinations($headers);
 			
-			if(is_array($destinations) && !empty($destinations)) {
-				
-				// Filter out any excluded requesters
-				if(!empty($autoreq_exclude_list)) {
-					@$autoreq_exclude = DevblocksPlatform::parseCrlfString($autoreq_exclude_list);
-					
-					if(is_array($autoreq_exclude) && !empty($autoreq_exclude))
-					foreach($autoreq_exclude as $excl_pattern) {
-						$excl_regexp = DevblocksPlatform::parseStringAsRegExp($excl_pattern);
-						
-						// Check all destinations for this pattern
-						foreach($destinations as $idx => $dest) {
-							if(@preg_match($excl_regexp, $dest)) {
-								unset($destinations[$idx]);
-							}
-						}
-					}
-				}
-				
-				foreach($destinations as $dest) {
-					if(null != ($destInst = CerberusApplication::hashLookupAddress($dest, true))) {
-						// Skip if the destination is one of our senders or the matching TO
-						if(isset($helpdesk_senders[$destInst->email]))
-							continue;
-					 	
-						DAO_Ticket::createRequester($destInst->id,$id);
-					}
-				}
+			if(is_array($destinations))
+			foreach($destinations as $dest) {
+				DAO_Ticket::createRequester($dest, $id);
 			}
 		}
 		

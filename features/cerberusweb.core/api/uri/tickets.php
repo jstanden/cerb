@@ -1587,8 +1587,7 @@ class ChTicketsPage extends CerberusPageExtension {
 			if(empty($requester))
 				continue;
 			$host = empty($requester->host) ? 'localhost' : $requester->host;
-			$requester_addy = DAO_Address::lookupAddress($requester->mailbox . '@' . $host, true);
-			DAO_Ticket::createRequester($requester_addy->id, $ticket_id);
+			DAO_Ticket::createRequester($requester->mailbox . '@' . $host, $ticket_id);
 		}
 		
 		// Worker reply

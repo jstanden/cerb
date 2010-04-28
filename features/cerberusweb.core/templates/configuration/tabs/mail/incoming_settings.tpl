@@ -52,13 +52,11 @@
 			<label><input type="checkbox" name="parser_autoreq" value="1" {if $settings->get('cerberusweb.core','parser_autoreq')}checked{/if}> Send helpdesk replies to every recipient (To:/Cc:) on the original message.</label><br>
 			<br>
 
-			<div style="padding-left:10px;">
-				<b>Always Exclude These Recipients:</b><br>
-				<textarea name="parser_autoreq_exclude" rows="4" cols="76">{$settings->get('cerberusweb.core','parser_autoreq_exclude')|escape:"html"}</textarea><br>
-				<i>(one address per line)</i> &nbsp;  
-				<i>use * for wildcards, like: *@do-not-reply.com</i><br>
-				<br>
-			</div>
+			<b>Always exclude these addresses as recipients:</b><br>
+			<textarea name="parser_autoreq_exclude" rows="4" cols="76">{$settings->get('cerberusweb.core','parser_autoreq_exclude')|escape:"html"}</textarea><br>
+			<i>(one address per line)</i> &nbsp;  
+			<i>use * for wildcards, like: *@do-not-reply.com</i><br>
+			<br>
 
 			<b>Attachments:</b><br>
 			<label><input type="checkbox" name="attachments_enabled" value="1" {if $settings->get('cerberusweb.core','attachments_enabled')}checked{/if}> Allow Incoming Attachments</label><br>

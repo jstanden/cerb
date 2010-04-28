@@ -338,10 +338,7 @@ class CerberusMail {
 
 		// Set recipients to requesters
 		foreach($toList as $to) {
-			if(null != ($reqAddressInst = CerberusApplication::hashLookupAddress($to, true))) {
-				$reqAddressId = $reqAddressInst->id;
-				DAO_Ticket::createRequester($reqAddressId, $ticket_id);
-			}
+			DAO_Ticket::createRequester($to, $ticket_id);
 		}
 		
 		// Headers
