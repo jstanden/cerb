@@ -2156,6 +2156,8 @@ class C4_DevblocksExtensionDelegate implements DevblocksExtensionDelegate {
 	
 	static function shouldLoadExtension(DevblocksExtensionManifest $extension_manifest) {
 		// Always allow core
+		if("devblocks.core" == $extension_manifest->plugin_id)
+			return true;
 		if("cerberusweb.core" == $extension_manifest->plugin_id)
 			return true;
 			

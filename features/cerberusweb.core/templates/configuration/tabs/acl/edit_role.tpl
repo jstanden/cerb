@@ -50,6 +50,8 @@
 					<label>
 					{if $plugin->id=="cerberusweb.core"}
 						<input type="hidden" name="acl_privs[]" value="plugin.cerberusweb.core">
+					{elseif $plugin->id=="devblocks.core"}
+						<input type="hidden" name="acl_privs[]" value="plugin.devblocks.core">
 					{else}
 						<input type="checkbox" name="acl_privs[]" value="{$plugin_priv|escape}" {if isset($role_privs.$plugin_priv)}checked="checked"{/if} onchange="toggleDiv('privs{$plugin_id}',(this.checked)?'block':'none');">
 					{/if}
