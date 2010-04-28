@@ -94,6 +94,9 @@ class ChDisplayPage extends CerberusPageExtension {
 		$tasks_total = DAO_Task::getCountBySourceObjectId('cerberusweb.tasks.ticket',$id);
 		$tpl->assign('tasks_total', $tasks_total);
 		
+		$requesters = DAO_Ticket::getRequestersByTicket($ticket->id);
+		$tpl->assign('requesters', $requesters);
+		
 		$workers = DAO_Worker::getAll();
 		$tpl->assign('workers', $workers);
 		
@@ -459,6 +462,7 @@ class ChDisplayPage extends CerberusPageExtension {
 	function sendReplyAction() {
 	    @$ticket_id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer');
 	    @$draft_id = DevblocksPlatform::importGPC($_REQUEST['draft_id'],'integer');
+	    @$is_forward = DevblocksPlatform::importGPC($_REQUEST['is_forward'],'integer',0);
 	    
 	    $worker = CerberusApplication::getActiveWorker();
 	    
@@ -466,6 +470,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		    'draft_id' => $draft_id,
 		    'message_id' => DevblocksPlatform::importGPC(@$_REQUEST['id']),
 		    'ticket_id' => $ticket_id,
+		    'is_forward' => $is_forward,
 		    'to' => DevblocksPlatform::importGPC(@$_REQUEST['to']),
 		    'cc' => DevblocksPlatform::importGPC(@$_REQUEST['cc']),
 		    'bcc' => DevblocksPlatform::importGPC(@$_REQUEST['bcc']),
@@ -1265,10 +1270,10 @@ class ChDisplayPage extends CerberusPageExtension {
 		$tpl->assign('path', $this->_TPL_PATH);
 
 		@$ticket_id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer');
-		@$msg_id = DevblocksPlatform::importGPC($_REQUEST['msg_id'],'integer');
+		@$div = DevblocksPlatform::importGPC($_REQUEST['div'],'string');
 		
 		$tpl->assign('ticket_id', $ticket_id);
-		$tpl->assign('msg_id', $msg_id);
+		$tpl->assign('div', $div);
 		
 		$requesters = DAO_Ticket::getRequestersByTicket($ticket_id);
 		$tpl->assign('requesters', $requesters);
@@ -1308,12 +1313,13 @@ class ChDisplayPage extends CerberusPageExtension {
 				
 		$requesters = DAO_Ticket::getRequestersByTicket($ticket_id);
 
-		$list = array();		
-		foreach($requesters as $requester) {
-			$list[] = '<b>'.$requester->email.'</b>';
-		}
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('path', $this->_TPL_PATH);
 		
-		echo implode(', ', $list);
+		$tpl->assign('requesters', $requesters);
+		
+		$tpl->display('file:' . $this->_TPL_PATH . 'display/rpc/requester_list.tpl');
+		
 		exit;
 	}
 };

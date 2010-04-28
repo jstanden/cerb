@@ -123,29 +123,6 @@
 	</table>
 </blockquote>
 
-<h2>Send responses to:</h2>
-<blockquote style="margin:10px;">
-	{if !empty($requesters)}
-		<table cellpadding="2" cellspacing="0" border="0">
-		<tr>
-			<td><b>E-mail</b></td>
-			<td align="center"><b>{$translate->_('common.delete')|capitalize}</b></td>
-		</tr>
-		{foreach from=$requesters item=requester}
-			<tr>
-				<td align="left">{$requester->email}</td>
-				<td align="center"><input type="checkbox" name="remove[]" value="{$requester->id}"></td>
-			</tr>
-		{/foreach}
-		</table>
-		<br>
-	{/if}
-	
-	<b>Add more recipients:</b> (one e-mail address per line)<br>
-	<textarea rows="3" cols="50" name="add"></textarea><br>
-	
-	<br>
-	<button type="submit"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')|capitalize}</button>
-</blockquote>
+<button type="submit"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')|capitalize}</button>
 
 </form>

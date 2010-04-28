@@ -419,7 +419,7 @@ class DAO_Ticket extends C4_ORMHelper {
 		$db = DevblocksPlatform::getDatabaseService();
 		$addresses = array();
 		
-		$sql = sprintf("SELECT a.id , a.email ".
+		$sql = sprintf("SELECT a.id , a.email, a.first_name, a.last_name ".
 			"FROM address a ".
 			"INNER JOIN requester r ON (r.ticket_id = %d AND a.id=r.address_id) ".
 			"ORDER BY a.email ASC ",
@@ -431,6 +431,8 @@ class DAO_Ticket extends C4_ORMHelper {
 			$address = new Model_Address();
 			$address->id = intval($row['id']);
 			$address->email = $row['email'];
+			$address->first_name = $row['first_name'];
+			$address->last_name = $row['last_name'];
 			$addresses[$address->id] = $address;
 		}
 		

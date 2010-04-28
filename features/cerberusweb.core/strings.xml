@@ -1489,11 +1489,14 @@ For example: *receipt*</seg></tuv>
 		<tu tuid='ticket.next_worker'>
 			<tuv xml:lang="en_US"><seg>Next Worker</seg></tuv>
 		</tu>
+		<tu tuid='ticket.recipients.empty'>
+			<tuv xml:lang="en_US"><seg>This ticket has no recipients.</seg></tuv>
+		</tu>
 		<tu tuid='ticket.requester'>
-			<tuv xml:lang="en_US"><seg>Requester</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Recipient</seg></tuv>
 		</tu>
 		<tu tuid='ticket.requesters'>
-			<tuv xml:lang="en_US"><seg>Requesters</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Recipients</seg></tuv>
 		</tu>
 		<tu tuid='ticket.spam_score'>
 			<tuv xml:lang="en_US"><seg>Spam Score</seg></tuv>

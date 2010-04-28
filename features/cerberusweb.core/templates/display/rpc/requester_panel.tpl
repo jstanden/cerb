@@ -2,7 +2,6 @@
 <input type="hidden" name="c" value="display">
 <input type="hidden" name="a" value="saveRequestersPanel">
 <input type="hidden" name="ticket_id" value="{$ticket_id}">
-<input type="hidden" name="msg_id" value="{$msg_id}">
 
 {if !empty($requesters)}
 <b>Remove checked:</b><br>
@@ -23,7 +22,9 @@
 
 <script type="text/javascript" language="JavaScript1.2">
 	genericPanel.one('dialogopen',function(event,ui) {
-		genericPanel.dialog('option','title','Ticket Requesters');
+		genericPanel.dialog('option','title','Recipients');
+		
+		//ajax.emailAutoComplete('#formDisplayReq textarea[name=req_adds]', { multiple: true } );
 		
 		$('#btnSaveRequestersPanel').bind('click', function() {
 			genericAjaxPost('formDisplayReq','','',
@@ -35,7 +36,7 @@
 						} catch(e) {}
 					}
 					
-					$('#displayRequesters{$msg_id}').html(html);
+					$('#{$div}').html(html);
 				}
 			);
 		} );

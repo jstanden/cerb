@@ -5,7 +5,11 @@
 	<td valign="top">
 		<table cellpadding="0" cellspacing="0" width="100%">
 			<tr>
-				<td>
+				<td valign="top">
+					<div style="float:right">
+					{include file="file:$core_tpl/tickets/quick_search_box.tpl"}
+					</div>
+					
 					<h1>{$ticket->subject|escape}</h1>
 					{assign var=ticket_team_id value=$ticket->team_id}
 					{assign var=ticket_team value=$teams.$ticket_team_id}
@@ -25,9 +29,18 @@
 						{if $ticket->unlock_date}(until {$ticket->unlock_date|devblocks_date}){/if} 
 						<br>
 					{/if}
-				</td>
-				<td align="right">
-					{include file="file:$core_tpl/tickets/quick_search_box.tpl"}				
+					
+					<b>{$translate->_('ticket.requesters')|capitalize}:</b>
+					<span id="displayTicketRequesterBubbles">
+					{if !empty($requesters)}
+						{foreach from=$requesters item=req_addy key=req_id name=reqs}
+							<div class="ui-corner-all bubble"><a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showAddressPeek&address_id={$req_addy->id|escape:'url'}',null,false,'500');">{$req_name=$req_addy->getName()}{if !empty($req_name)}{$req_name|escape} {/if}&lt;{$req_addy->email}&gt;</a></div> 
+						{/foreach}
+					{else}
+						{$translate->_('common.nobody')}
+					{/if}
+					</span>
+					<a href="javascript:;" onclick="genericAjaxPanel('c=display&a=showRequestersPanel&ticket_id={$ticket->id}&div=displayTicketRequesterBubbles',null,false,'500');">...</a>
 				</td>
 			</tr>
 		</table>
@@ -45,7 +58,6 @@
 			<input type="hidden" name="spam" value="0">
 			<input type="hidden" name="next_worker_id" value="{$ticket->next_worker_id}">
 			<input type="hidden" name="unlock_date" value="{$ticket->unlock_date}">
-			
 			
 			{if !$ticket->is_deleted}
 				{if $ticket->is_closed}
@@ -124,6 +136,15 @@
 	</td>
 </tr>
 </table>
+
+{if empty($requesters)}
+<div class="ui-widget">
+	<div class="ui-state-error ui-corner-all" style="padding: 0 .7em; margin: 0.2em; "> 
+		<p><span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span> 
+		<strong>Warning:</strong> {$translate->_('ticket.recipients.empty')}</p>
+	</div>
+</div>
+{/if}
 
 <div id="displayTabs">
 	<ul>
