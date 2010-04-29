@@ -710,7 +710,6 @@ class CerberusParser {
 
 		// New ticket processing
 		if($bIsNew) {
-			
 			// Auto reply
 			@$autoreply_enabled = DAO_GroupSettings::get($group_id, DAO_GroupSettings::SETTING_AUTO_REPLY_ENABLED, 0);
 			@$autoreply = DAO_GroupSettings::get($group_id, DAO_GroupSettings::SETTING_AUTO_REPLY, '');

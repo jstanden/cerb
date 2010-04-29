@@ -409,7 +409,6 @@ class CerberusMail {
 	    // [TODO] If we still don't have a $from_addy we need a graceful failure. 
 		
 		/*
-	     * [TODO] Move these into constants?
 	    'draft_id'
 	    'message_id'
 	    'is_forward'
@@ -515,10 +514,20 @@ class CerberusMail {
 			if(isset($properties['is_autoreply']) && $properties['is_autoreply']) {
 				$headers->addTextHeader('Auto-Submitted','auto-replied');
 				
+			    // Recipients
+				$requesters = DAO_Ticket::getRequestersByTicket($ticket_id);
+			    if(!is_array($requesters))
+			    	return;
+
+				// Is the first sender still a requester?
+				if(!isset($requesters[$ticket->first_wrote_address_id]))
+					return;
+					
+				// A legit address?
 				if(null == ($first_address = DAO_Address::get($ticket->first_wrote_address_id)))
 					return;
 	
-				// Don't send e-mail to ourselves
+				// Ourselves?
 				if(isset($helpdesk_senders[$first_address->email]))
 					return;
 					
