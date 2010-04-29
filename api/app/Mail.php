@@ -651,7 +651,7 @@ class CerberusMail {
 				}
 				
 				$fields = array(
-					DAO_MailQueue::TYPE => Model_MailQueue::TYPE_TICKET_REPLY,
+					DAO_MailQueue::TYPE => empty($is_forward) ? Model_MailQueue::TYPE_TICKET_REPLY : Model_MailQueue::TYPE_TICKET_FORWARD,
 					DAO_MailQueue::TICKET_ID => $properties['ticket_id'],
 					DAO_MailQueue::WORKER_ID => intval($worker_id),
 					DAO_MailQueue::UPDATED => time()+5, // small offset

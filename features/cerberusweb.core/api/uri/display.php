@@ -393,13 +393,15 @@ class ChDisplayPage extends CerberusPageExtension {
 		@$draft_id = DevblocksPlatform::importGPC($_REQUEST['draft_id'],'integer',0);
 		if(!empty($draft_id)) {
 			// Drafts
-			$drafts = DAO_MailQueue::getWhere(sprintf("%s = %d AND %s = %d AND %s = %s AND %s = %d",
+			$drafts = DAO_MailQueue::getWhere(sprintf("%s = %d AND %s = %d AND (%s = %s OR %s = %s) AND %s = %d",
 				DAO_MailQueue::TICKET_ID,
 				$message->ticket_id,
 				DAO_MailQueue::WORKER_ID,
 				$active_worker->id,
 				DAO_MailQueue::TYPE,
 				C4_ORMHelper::qstr(Model_MailQueue::TYPE_TICKET_REPLY),
+				DAO_MailQueue::TYPE,
+				C4_ORMHelper::qstr(Model_MailQueue::TYPE_TICKET_FORWARD),
 				DAO_MailQueue::ID,
 				$draft_id
 			));
@@ -501,14 +503,13 @@ class ChDisplayPage extends CerberusPageExtension {
 		@$ticket_id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer',0); 
 		@$msg_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0); 
 		@$draft_id = DevblocksPlatform::importGPC($_REQUEST['draft_id'],'integer',0); 
+		@$is_forward = DevblocksPlatform::importGPC($_REQUEST['is_forward'],'integer',0); 
 		@$group_id = DevblocksPlatform::importGPC($_REQUEST['team_id'],'integer',0); 
 		@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string',''); 
 		@$cc = DevblocksPlatform::importGPC($_REQUEST['cc'],'string',''); 
 		@$bcc = DevblocksPlatform::importGPC($_REQUEST['bcc'],'string',''); 
 		@$subject = DevblocksPlatform::importGPC($_REQUEST['subject'],'string',''); 
 		@$content = DevblocksPlatform::importGPC($_REQUEST['content'],'string',''); 
-		
-		//print_r($_POST);
 		
 		// Validate
 		if(empty($msg_id) 
@@ -532,20 +533,24 @@ class ChDisplayPage extends CerberusPageExtension {
 		
 		// Hint to
 		$hint_to = '';
-		$reqs = $ticket->getRequesters();
-		$addys = array();
-		if(is_array($reqs))
-		foreach($reqs as $addy) {
-			$addys[] = $addy->email;
+		if(!empty($to)) {
+			$hint_to = $to;
+		} else {
+			$reqs = $ticket->getRequesters();
+			$addys = array();
+			if(is_array($reqs))
+			foreach($reqs as $addy) {
+				$addys[] = $addy->email;
+			}
+			if(!empty($addys))
+				$hint_to = implode(', ', $addys);
+			unset($reqs);
+			unset($addys);
 		}
-		if(!empty($addys))
-			$hint_to = implode(', ', $addys);
-		unset($reqs);
-		unset($addys);
 			
 		// Fields
 		$fields = array(
-			DAO_MailQueue::TYPE => 'ticket.reply',
+			DAO_MailQueue::TYPE => empty($is_forward) ? Model_MailQueue::TYPE_TICKET_REPLY : Model_MailQueue::TYPE_TICKET_FORWARD, 
 			DAO_MailQueue::TICKET_ID => $ticket_id,
 			DAO_MailQueue::WORKER_ID => $active_worker->id,
 			DAO_MailQueue::UPDATED => time(),
@@ -606,11 +611,13 @@ class ChDisplayPage extends CerberusPageExtension {
 		$tpl->assign('requesters', $ticket->getRequesters());
 
 		// Drafts
-		$drafts = DAO_MailQueue::getWhere(sprintf("%s = %d AND %s = %s",
+		$drafts = DAO_MailQueue::getWhere(sprintf("%s = %d AND (%s = %s OR %s = %s)",
 			DAO_MailQueue::TICKET_ID,
 			$id,
 			DAO_MailQueue::TYPE,
-			C4_ORMHelper::qstr(Model_MailQueue::TYPE_TICKET_REPLY)
+			C4_ORMHelper::qstr(Model_MailQueue::TYPE_TICKET_REPLY),
+			DAO_MailQueue::TYPE,
+			C4_ORMHelper::qstr(Model_MailQueue::TYPE_TICKET_FORWARD)
 		));
 		
 		if(!empty($drafts))

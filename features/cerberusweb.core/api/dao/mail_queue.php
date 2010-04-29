@@ -281,6 +281,7 @@ class SearchFields_MailQueue implements IDevblocksSearchFields {
 class Model_MailQueue {
 	const TYPE_COMPOSE = 'mail.compose';
 	const TYPE_OPEN_TICKET = 'mail.open_ticket';
+	const TYPE_TICKET_FORWARD = 'ticket.forward';
 	const TYPE_TICKET_REPLY = 'ticket.reply';
 	
 	public $id;
@@ -304,15 +305,16 @@ class Model_MailQueue {
 		// Determine the type of message
 		switch($this->type) {
 			case Model_MailQueue::TYPE_COMPOSE:
-				$success = $this->_sendCompose();
+				$success = $this->_sendCompose($this->type);
 				break;
 				
 			case Model_MailQueue::TYPE_OPEN_TICKET:
-				$success = $this->_sendOpenTicket();
+				$success = $this->_sendOpenTicket($this->type);
 				break;
 				
+			case Model_MailQueue::TYPE_TICKET_FORWARD:
 			case Model_MailQueue::TYPE_TICKET_REPLY:
-				$success = $this->_sendTicketReply();
+				$success = $this->_sendTicketReply($this->type);
 				break;
 		}
 		
@@ -324,7 +326,7 @@ class Model_MailQueue {
 		return $success;
 	}
 	
-	private function _sendCompose() {
+	private function _sendCompose($type) {
 		$properties = array(
 			'draft_id' => $this->id,
 		);
@@ -367,7 +369,7 @@ class Model_MailQueue {
 		return true;
 	}
 	
-	private function _sendOpenTicket() {
+	private function _sendOpenTicket($type) {
 		// [TODO] This shouldn't be redundant with open ticket functionality
 
 		// Worker
@@ -452,7 +454,7 @@ class Model_MailQueue {
 		return CerberusMail::sendTicketMessage($properties);
 	}
 	
-	private function _sendTicketReply() {
+	private function _sendTicketReply($type) {
 		$properties = array(
 			'draft_id' => $this->id,
 		);
@@ -466,6 +468,13 @@ class Model_MailQueue {
 		if(isset($this->ticket_id))
 			$properties['ticket_id'] = $this->ticket_id;
 
+		if($type == Model_MailQueue::TYPE_TICKET_FORWARD)
+			$properties['is_forward'] = 1;
+			
+		// To
+		if(isset($this->params['to']))
+			$properties['to'] = $this->params['to'];
+			
 		// Cc+Bcc
 		if(isset($this->params['cc']))
 			$properties['cc'] = $this->params['cc'];
@@ -497,7 +506,6 @@ class Model_MailQueue {
 //	    'ticket_reopen' => DevblocksPlatform::importGPC(@$_REQUEST['ticket_reopen'],'string',''),
 //	    'unlock_date' => DevblocksPlatform::importGPC(@$_REQUEST['unlock_date'],'string',''),
 
-//	    'to' => DevblocksPlatform::importGPC(@$_REQUEST['to']),
 //	    'forward_files' => DevblocksPlatform::importGPC(@$_REQUEST['forward_files'],'array',array()),
 		
 		// Send message

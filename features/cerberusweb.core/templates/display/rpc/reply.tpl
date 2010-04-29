@@ -25,10 +25,7 @@
 				<tr>
 					<td width="1%" nowrap="nowrap"><b>{$translate->_('message.header.to')|capitalize}:</b> </td>
 					<td width="99%" align="left">
-						<input type="text" size="45" name="to" value="{if !empty($draft)}{$draft->params.to|escape}{else}{if $is_forward}{else}{foreach from=$ticket->getRequesters() item=req_addy name=reqs}{$req_addy->email}{if !$smarty.foreach.reqs.last}, {/if}{/foreach}{/if}{/if}" onchange="$('#reply{$message->id}_part2 input[name=to]').val(this.value);" style="width:100%;border:1px solid rgb(180,180,180);padding:2px;">
-						{if $is_forward}
-						<input type="hidden" name="is_forward" value="1">
-						{/if}
+						<input type="text" size="45" name="to" value="{if !empty($draft)}{$draft->params.to|escape}{else}{if $is_forward}{else}{foreach from=$ticket->getRequesters() item=req_addy name=reqs}{$req_addy->email}{if !$smarty.foreach.reqs.last}, {/if}{/foreach}{/if}{/if}" onchange="$('#reply{$message->id}_part2 input[name=to]').val(this.value);" {if $is_forward}class="required"{/if} style="width:100%;border:1px solid rgb(180,180,180);padding:2px;">
 					</td>
 				</tr>
 				
@@ -81,6 +78,7 @@
 <input type="hidden" name="id" value="{$message->id}">
 <input type="hidden" name="ticket_id" value="{$ticket->id}">
 <input type="hidden" name="draft_id" value="{$draft->id}">
+{if $is_forward}<input type="hidden" name="is_forward" value="1">{/if}
 
 <!-- {* Copy these dynamically so a plugin dev doesn't need to conflict with the reply <form> *} -->
 <input type="hidden" name="to" value="{$draft->params.to|escape}">
@@ -90,6 +88,7 @@
 
 {if $is_forward}
 <textarea name="content" rows="20" cols="80" id="reply_{$message->id}" class="reply required" style="width:98%;border:1px solid rgb(180,180,180);padding:5px;">
+{if !empty($draft)}{$draft->body}{else}
 {if !empty($signature)}{$signature}{/if}
 
 {$translate->_('display.reply.forward.banner')}
@@ -99,6 +98,7 @@
 {if isset($headers.to)}{$translate->_('message.header.to')|capitalize}: {$headers.to|escape|cat:"\n"}{/if}
 
 {$message->getContent()|trim|escape}
+{/if}
 </textarea>
 {else}
 <textarea name="content" rows="20" cols="80" id="reply_{$message->id}" class="reply required" style="width:98%;border:1px solid rgb(180,180,180);padding:5px;">

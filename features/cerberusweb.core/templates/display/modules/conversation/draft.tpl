@@ -11,7 +11,7 @@
 		</h3> &nbsp;
 		
 		{if !$draft->is_queued}
-			{if $draft->worker_id==$active_worker->id && isset($draft->params.in_reply_message_id)}<a href="javascript:;" onclick="displayReply('{$draft->params.in_reply_message_id}',0,{$draft_id});">{$translate->_('Resume')|lower}</a>&nbsp;{/if}		
+			{if $draft->worker_id==$active_worker->id && isset($draft->params.in_reply_message_id)}<a href="javascript:;" onclick="displayReply('{$draft->params.in_reply_message_id}',{if $draft->type=='ticket.forward'}1{else}0{/if},{$draft_id});">{$translate->_('Resume')|lower}</a>&nbsp;{/if}		
 			{if $draft->worker_id==$active_worker->id}<a href="javascript:;" onclick="if(confirm('Are you sure you want to permanently delete this draft?')) { genericAjaxGet('', 'c=tickets&a=deleteDraft&draft_id={$draft_id}', function(o) { $('#draft{$draft_id}').remove(); } ); } ">{$translate->_('common.delete')|lower}</a>&nbsp;{/if}		
 		{/if}
 		<br>
