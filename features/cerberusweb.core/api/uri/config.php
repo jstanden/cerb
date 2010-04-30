@@ -1218,9 +1218,6 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		unset($plugins['cerberusweb.core']);
 		$tpl->assign('plugins', $plugins);
 		
-//		$points = DevblocksPlatform::getExtensionPoints();
-//		$tpl->assign('points', $points);
-		
 		$tpl->display('file:' . $this->_TPL_PATH . 'configuration/tabs/plugins/index.tpl');
 	}
 	
