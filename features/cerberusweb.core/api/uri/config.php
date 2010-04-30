@@ -99,9 +99,6 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('path', $this->_TPL_PATH);
 		
-		$license = CerberusLicense::getInstance();
-		$tpl->assign('license', $license);
-		
 		$tpl->display('file:' . $this->_TPL_PATH . 'configuration/tabs/settings/index.tpl');
 	}
 	
@@ -425,8 +422,6 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		$tpl->assign('view_fields', View_Worker::getFields());
 		$tpl->assign('view_searchable_fields', View_Worker::getSearchFields());
 		
-		$tpl->assign('license',CerberusLicense::getInstance());
-		
 		$tpl->display('file:' . $this->_TPL_PATH . 'configuration/tabs/workers/index.tpl');
 	}
 	
@@ -488,58 +483,54 @@ class ChConfigurationPage extends CerberusPageExtension  {
 			
 		} else {
 			if(empty($id) && null == DAO_Worker::lookupAgentEmail($email)) {
-				$workers = DAO_Worker::getAll();
-				$license = CerberusLicense::getInstance();
-				if ((!@empty($license['workers'])&&(@$license['workers']>=100||count($workers)<@$license['workers']))||(@empty($license['workers'])&&count($workers)<1)) {
-					// Creating new worker.  If password is empty, email it to them
-				    if(empty($password)) {
-				    	$settings = DevblocksPlatform::getPluginSettingsService();
-						$replyFrom = $settings->get('cerberusweb.core',CerberusSettings::DEFAULT_REPLY_FROM,CerberusSettingsDefaults::DEFAULT_REPLY_FROM);
-						$replyPersonal = $settings->get('cerberusweb.core',CerberusSettings::DEFAULT_REPLY_PERSONAL,CerberusSettingsDefaults::DEFAULT_REPLY_PERSONAL);
-						$url = DevblocksPlatform::getUrlService();
-				    	
-						$password = CerberusApplication::generatePassword(8);
-				    	
-						try {
-					        $mail_service = DevblocksPlatform::getMailService();
-					        $mailer = $mail_service->getMailer(CerberusMail::getMailerDefaults());
-					        $mail = $mail_service->createMessage();
-					        
-							$mail->setTo(array($email => $first_name . ' ' . $last_name));
-							$mail->setFrom(array($replyFrom => $replyPersonal));
-					        $mail->setSubject('Your new helpdesk login information!');
-					        $mail->generateId();
-							
-							$headers = $mail->getHeaders();
-							
-					        $headers->addTextHeader('X-Mailer','Cerberus Helpdesk ' . APP_VERSION . ' (Build '.APP_BUILD.')');
-					        
-						    $body = sprintf("Your new helpdesk login information is below:\r\n".
-								"\r\n".
-						        "URL: %s\r\n".
-						        "Login: %s\r\n".
-						        "Password: %s\r\n".
-						        "\r\n".
-						        "You should change your password from Preferences after logging in for the first time.\r\n".
-						        "\r\n",
-							        $url->write('',true),
-							        $email,
-							        $password
-						    );
-					        
-							$mail->setBody($body);
-	
-							if(!$mailer->send($mail)) {
-								throw new Exception('Password notification email failed to send.');
-							}
-						} catch (Exception $e) {
-							// [TODO] need to report to the admin when the password email doesn't send.  The try->catch
-							// will keep it from killing php, but the password will be empty and the user will never get an email.
+				// Creating new worker.  If password is empty, email it to them
+			    if(empty($password)) {
+			    	$settings = DevblocksPlatform::getPluginSettingsService();
+					$replyFrom = $settings->get('cerberusweb.core',CerberusSettings::DEFAULT_REPLY_FROM,CerberusSettingsDefaults::DEFAULT_REPLY_FROM);
+					$replyPersonal = $settings->get('cerberusweb.core',CerberusSettings::DEFAULT_REPLY_PERSONAL,CerberusSettingsDefaults::DEFAULT_REPLY_PERSONAL);
+					$url = DevblocksPlatform::getUrlService();
+			    	
+					$password = CerberusApplication::generatePassword(8);
+			    	
+					try {
+				        $mail_service = DevblocksPlatform::getMailService();
+				        $mailer = $mail_service->getMailer(CerberusMail::getMailerDefaults());
+				        $mail = $mail_service->createMessage();
+				        
+						$mail->setTo(array($email => $first_name . ' ' . $last_name));
+						$mail->setFrom(array($replyFrom => $replyPersonal));
+				        $mail->setSubject('Your new helpdesk login information!');
+				        $mail->generateId();
+						
+						$headers = $mail->getHeaders();
+						
+				        $headers->addTextHeader('X-Mailer','Cerberus Helpdesk ' . APP_VERSION . ' (Build '.APP_BUILD.')');
+				        
+					    $body = sprintf("Your new helpdesk login information is below:\r\n".
+							"\r\n".
+					        "URL: %s\r\n".
+					        "Login: %s\r\n".
+					        "Password: %s\r\n".
+					        "\r\n".
+					        "You should change your password from Preferences after logging in for the first time.\r\n".
+					        "\r\n",
+						        $url->write('',true),
+						        $email,
+						        $password
+					    );
+				        
+						$mail->setBody($body);
+
+						if(!$mailer->send($mail)) {
+							throw new Exception('Password notification email failed to send.');
 						}
-				    }
-					
-					$id = DAO_Worker::create($email, $password, '', '', '');
-				}
+					} catch (Exception $e) {
+						// [TODO] need to report to the admin when the password email doesn't send.  The try->catch
+						// will keep it from killing php, but the password will be empty and the user will never get an email.
+					}
+			    }
+				
+				$id = DAO_Worker::create($email, $password, '', '', '');
 			} // end create worker
 		    
 		    // Update
@@ -1230,9 +1221,6 @@ class ChConfigurationPage extends CerberusPageExtension  {
 //		$points = DevblocksPlatform::getExtensionPoints();
 //		$tpl->assign('points', $points);
 		
-		$license = CerberusLicense::getInstance();
-		$tpl->assign('license', $license);
-		
 		$tpl->display('file:' . $this->_TPL_PATH . 'configuration/tabs/plugins/index.tpl');
 	}
 	
@@ -1306,8 +1294,6 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		
 		$role_roster = DAO_WorkerRole::getRoleWorkers($id);
 		$tpl->assign('role_workers', $role_roster);
-		
-		$tpl->assign('license', CerberusLicense::getInstance());
 		
 		$tpl->display('file:' . $this->_TPL_PATH . 'configuration/tabs/acl/edit_role.tpl');
 	}
@@ -1508,7 +1494,6 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	// Post
 	function saveLicenseAction() {
 		$translate = DevblocksPlatform::getTranslationService();
-		$settings = DevblocksPlatform::getPluginSettingsService();
 		$worker = CerberusApplication::getActiveWorker();
 		
 		if(!$worker || !$worker->is_superuser) {
@@ -1526,7 +1511,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'],'integer',0);
 
 		if(!empty($do_delete)) {
-			$settings->set('cerberusweb.core',CerberusSettings::LICENSE, '');
+			DevblocksPlatform::setPluginSetting('cerberusweb.core',CerberusSettings::LICENSE, '');
 			$tpl->assign('license', '');
 			$tpl->assign('success', "Your license has been deleted.");
 			$tpl->display('file:'.$this->_TPL_PATH.'configuration/tabs/settings/license.tpl');
@@ -1539,8 +1524,17 @@ class ChConfigurationPage extends CerberusPageExtension  {
 			return;
 		}
 		
+		// It takes time, skill, and money to develop software like this.
 		if(null==($valid = CerberusLicense::validate($key,$company,$email)) || empty($valid)) {
-			$tpl->assign('error', "Your license could not be verified.  Please double-check the company name and e-mail address and make sure they exactly match your order.");
+			$tpl->assign('error', "The provided license could not be verified.  Please double-check the company name and e-mail address and make sure they exactly match your order.");
+			$tpl->display('file:'.$this->_TPL_PATH.'configuration/tabs/settings/license.tpl');
+			return;
+		}
+
+		// Our prices are very reasonable.
+		if(intval(gmdate("Ymd99",@$valid['upgrades'])) < APP_BUILD) {
+			$tpl->assign('error', sprintf("The provided license is expired and does not activate version %s.", APP_VERSION));
+			$valid = null;
 			$tpl->display('file:'.$this->_TPL_PATH.'configuration/tabs/settings/license.tpl');
 			return;
 		}
@@ -1552,8 +1546,8 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		 * http://www.cerberusweb.com/
 		 */
 
-		$settings->set('cerberusweb.core', CerberusSettings::LICENSE, json_encode($valid));
-		
+		// Please be honest.
+		DevblocksPlatform::setPluginSetting('cerberusweb.core', CerberusSettings::LICENSE, json_encode($valid));
 		$tpl->assign('license', $valid);
 		
 		$tpl->assign('success', "Your license has been updated!");
@@ -1589,8 +1583,6 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		
 		$workers = DAO_Worker::getAllActive();
 		$tpl->assign('workers', $workers);
-		
-		$tpl->assign('license',CerberusLicense::getInstance());
 		
 		$tpl->display('file:' . $this->_TPL_PATH . 'configuration/tabs/groups/edit_group.tpl');
 	}

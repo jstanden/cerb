@@ -66,6 +66,9 @@ class ChSignInPage extends CerberusPageExtension {
 
 		$url_service = DevblocksPlatform::getUrlService();
 		
+		$honesty = CerberusLicense::getInstance();
+		$online_workers = DAO_Worker::getAllOnline(600);
+
 		if($inst->authenticate()) {
 			//authentication passed
 			if($original_path[0]=='')
@@ -76,6 +79,20 @@ class ChSignInPage extends CerberusPageExtension {
 			// Worker
 			$worker = CerberusApplication::getActiveWorker();
 
+			// Please be honest
+			if(!isset($online_workers[$worker->id]) && $honesty->w<=count($online_workers) && 100>$honesty->w) {
+				$longest_idle = time();
+				foreach($online_workers as $idle_worker) {
+					if($idle_worker->last_activity_date < $longest_idle)
+						$longest_idle = $idle_worker->last_activity_date; 
+				}
+				$session = DevblocksPlatform::getSessionService();
+				$session->clear();
+				$time = 600 - max(0,time()-$longest_idle);
+				DevblocksPlatform::redirect(new DevblocksHttpResponse(array('login','too_many',$time)));
+				exit;
+			}
+			
 			// Timezone
 			if(null != ($timezone = DAO_WorkerPref::get($worker->id,'timezone'))) {
 				$_SESSION['timezone'] = $timezone;
@@ -93,11 +110,12 @@ class ChSignInPage extends CerberusPageExtension {
 				$next_page = ($tour_enabled) ?  'welcome' : 'home';				
 				$devblocks_response = new DevblocksHttpResponse(array($next_page));
 			}
-		}
-		else {
+			
+		} else {
 			//authentication failed
 			$devblocks_response = new DevblocksHttpResponse(array('login','failed'));
 		}
+		
 		DevblocksPlatform::redirect($devblocks_response);
 	}
 	

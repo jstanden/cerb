@@ -66,6 +66,10 @@ class DefaultLoginModule extends Extension_LoginAuthenticator {
 		$tpl->assign('original_path', (count($redir_path)==0) ? 'login' : implode(',',$redir_path));
 		
 		switch(array_shift($stack)) {
+			case 'too_many':
+				@$secs = array_shift($stack);
+				$tpl->assign('error', sprintf("The maximum number of simultaneous workers are currently signed on.  The next session expires in %s.", ltrim(_DevblocksTemplateManager::modifier_devblocks_prettytime($secs,true),'+')));
+				break;
 			case 'failed':
 				$tpl->assign('error', 'Login failed.');
 				break;

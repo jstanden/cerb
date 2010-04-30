@@ -205,7 +205,6 @@ class ChPageController extends DevblocksControllerExtension {
 		$tpl->assign('session', $_SESSION);
 		$tpl->assign('translate', $translate);
 		$tpl->assign('visit', $visit);
-		$tpl->assign('license',CerberusLicense::getInstance());
 		
 		$tpl->assign('page_manifests',$page_manifests);		
 		$tpl->assign('page',$page);

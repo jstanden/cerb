@@ -53,24 +53,32 @@ class DAO_Worker extends C4_ORMHelper {
 		return self::getAll(false, true);
 	}
 	
-	static function getAllOnline() {
-		list($whos_online_workers, $null) = self::search(
-			array(),
-		    array(
-		        new DevblocksSearchCriteria(SearchFields_Worker::LAST_ACTIVITY_DATE,DevblocksSearchCriteria::OPER_GT,(time()-60*15)), // idle < 15 mins
-		        new DevblocksSearchCriteria(SearchFields_Worker::LAST_ACTIVITY,DevblocksSearchCriteria::OPER_NOT_LIKE,'%translation_code";N;%'), // translation code not null (not just logged out)
-		    ),
-		    -1,
-		    0,
-		    SearchFields_Worker::LAST_ACTIVITY_DATE,
-		    false,
-		    false
-		);
-		
-		if(!empty($whos_online_workers))
-			return self::getList(array_keys($whos_online_workers));
+	static function getAllOnline($prune_secs=0) {
+		$session = DevblocksPlatform::getSessionService();
+
+		$workers = array();
+
+		foreach($session->getAll() as $sess) {
+			$key = $sess['session_key'];
+			$data = $session->decodeSession($sess['session_data']);
 			
-		return array();
+			@$visit = $data['db_visit']; /* @var $visit CerberusVisit */
+			if(is_null($visit))
+				continue;
+				
+			$worker = $visit->getWorker();
+			
+			// Check the last activity date (and log out as needed)
+			$idle_secs = time() - $worker->last_activity_date;
+			if($idle_secs > (!empty($prune_secs) ? $prune_secs : 600)) {
+				if(!empty($prune_secs))
+					$session->clear($key);
+			} else {
+				$workers[$worker->id] = $worker;
+			}
+		}
+		
+		return $workers;
 	}
 	
 	static function getAll($nocache=false, $with_disabled=true) {
