@@ -1,6 +1,18 @@
+{if !empty($error)}
+<div class="ui-widget">
+	<div class="ui-state-error ui-corner-all" style="padding: 0 .7em; margin: 0.2em; "> 
+		<p>
+		<span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span> 
+		<strong>{$error}</strong><br>
+		</p>
+	</div>
+</div>
+{/if}
+
 <div class="block">
-<form action="{devblocks_url}{/devblocks_url}" method="post" id="loginForm">
 <h2>{$translate->_('header.signon')|capitalize}</h2>
+
+<form action="{devblocks_url}{/devblocks_url}" method="post" id="loginForm">
 <input type="hidden" name="c" value="login">
 <input type="hidden" name="a" value="authenticate">
 <input type="hidden" name="original_path" value="{$original_path}">

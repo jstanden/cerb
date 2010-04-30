@@ -50,6 +50,11 @@
  */
 class DefaultLoginModule extends Extension_LoginAuthenticator {
 	function renderLoginForm() {
+		$request = DevblocksPlatform::getHttpRequest();
+		$stack = $request->path;
+		
+		@array_shift($stack); // login
+		
 		// draws HTML form of controls needed for login information
 		$tpl = DevblocksPlatform::getTemplateService();
 		
@@ -59,6 +64,12 @@ class DefaultLoginModule extends Extension_LoginAuthenticator {
 		
 		@$redir_path = explode('/',urldecode(DevblocksPlatform::importGPC($_REQUEST["url"],"string","")));
 		$tpl->assign('original_path', (count($redir_path)==0) ? 'login' : implode(',',$redir_path));
+		
+		switch(array_shift($stack)) {
+			case 'failed':
+				$tpl->assign('error', 'Login failed.');
+				break;
+		}
 		
 		$tpl->display('file:' . dirname(dirname(__FILE__)) . '/templates/login/login_form_default.tpl');
 	}
