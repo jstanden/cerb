@@ -567,9 +567,7 @@ class Model_Worker {
 		$settings = DevblocksPlatform::getPluginSettingsService();
 		$acl_enabled = $settings->get('cerberusweb.core',CerberusSettings::ACL_ENABLED,CerberusSettingsDefaults::ACL_ENABLED);
 			
-		// ACL is a paid feature (please respect the licensing and support the project!)
-		$license = CerberusLicense::getInstance();
-		if(!$acl_enabled || !isset($license['key']) || empty($license['workers']))
+		if(!$acl_enabled)
 			return ("core.config"==substr($priv_id,0,11)) ? false : true;
 			
 		// Check the aggregated worker privs from roles
