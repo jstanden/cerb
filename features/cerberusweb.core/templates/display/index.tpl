@@ -40,7 +40,7 @@
 						{$translate->_('common.nobody')}
 					{/if}
 					</span>
-					<a href="javascript:;" onclick="genericAjaxPanel('c=display&a=showRequestersPanel&ticket_id={$ticket->id}&div=displayTicketRequesterBubbles',null,false,'500');">...</a>
+					(<a href="javascript:;" onclick="genericAjaxPanel('c=display&a=showRequestersPanel&ticket_id={$ticket->id}&div=displayTicketRequesterBubbles',null,false,'500');">{$translate->_('common.edit')|lower}</a>)
 				</td>
 			</tr>
 		</table>
