@@ -1639,16 +1639,23 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		
 		if(!empty($id) && !empty($delete)) {
 			if(!empty($delete_move_id)) {
-				$fields = array(
-					DAO_Ticket::TEAM_ID => $delete_move_id
-				);
-				$where = sprintf("%s=%d",
-					DAO_Ticket::TEAM_ID,
-					$id
-				);
-				DAO_Ticket::updateWhere($fields, $where);
+				if(null != ($group = DAO_Group::getTeam($id))) {
+					$fields = array(
+						DAO_Ticket::TEAM_ID => $delete_move_id
+					);
+					$where = sprintf("%s=%d",
+						DAO_Ticket::TEAM_ID,
+						$id
+					);
+					DAO_Ticket::updateWhere($fields, $where);
+					
+					// If this was the default group, move it.
+					if($group->is_default)
+						DAO_Group::setDefaultGroup($delete_move_id);
+					
+					DAO_Group::deleteTeam($group->id);
+				}
 				
-				DAO_Group::deleteTeam($id);
 			}
 			
 		} elseif(!empty($id)) {
