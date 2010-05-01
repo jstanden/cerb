@@ -671,7 +671,7 @@ class ChTicketsPage extends CerberusPageExtension {
 			DAO_MailQueue::BODY => $content,
 			DAO_MailQueue::PARAMS_JSON => json_encode($params),
 			DAO_MailQueue::IS_QUEUED => 0,
-			DAO_MailQueue::PRIORITY => 0,
+			DAO_MailQueue::QUEUE_PRIORITY => 0,
 		);
 		
 		// Make sure the current worker is the draft author
@@ -711,6 +711,24 @@ class ChTicketsPage extends CerberusPageExtension {
 			
 			DAO_MailQueue::delete($draft_id);
 		}
+	}
+	
+	function showDraftsPeekAction() {
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
+		
+		@$active_worker = CerberusApplication::getActiveWorker();
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$path = $this->_TPL_PATH;
+		$tpl->assign('path', $path);
+		$tpl->assign('view_id', $view_id);
+		
+		if(null != ($draft = DAO_MailQueue::get($id)))
+			if($active_worker->is_superuser || $draft->worker_id==$active_worker->id)
+				$tpl->assign('draft', $draft);
+		
+		$tpl->display('file:' . $path . 'mail/queue/peek.tpl');
 	}
 	
 	function showDraftsBulkPanelAction() {

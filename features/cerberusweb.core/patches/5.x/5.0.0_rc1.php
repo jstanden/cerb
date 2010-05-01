@@ -60,4 +60,24 @@ if(!isset($tables['snippet']))
 	
 $db->Execute("UPDATE snippet SET context=REPLACE(context,'cerberusweb.snippets.','cerberusweb.contexts.')");
 
+// ===========================================================================
+// Mail Queue changes
+
+if(!isset($tables['mail_queue']))
+	return FALSE;
+	
+list($columns, $indexes) = $db->metaTable('mail_queue');
+
+// Queue Priority
+if(isset($columns['priority'])) {
+	$db->Execute("ALTER TABLE mail_queue CHANGE COLUMN priority queue_priority TINYINT UNSIGNED DEFAULT 0 NOT NULL");
+	$db->Execute("ALTER TABLE mail_queue DROP INDEX priority");
+	$db->Execute("ALTER TABLE mail_queue ADD INDEX queue_priority (queue_priority)");
+}
+
+// Queue Fails
+if(!isset($columns['queue_fails'])) {
+	$db->Execute("ALTER TABLE mail_queue ADD COLUMN queue_fails TINYINT UNSIGNED DEFAULT 0 NOT NULL");
+}
+
 return TRUE;

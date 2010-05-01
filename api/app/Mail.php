@@ -254,7 +254,7 @@ class CerberusMail {
 						DAO_MailQueue::BODY => $content,
 						DAO_MailQueue::PARAMS_JSON => json_encode($params),
 						DAO_MailQueue::IS_QUEUED => !empty($worker) ? 0 : 1,
-						DAO_MailQueue::PRIORITY => 0,
+						DAO_MailQueue::QUEUE_PRIORITY => 0,
 					);
 					DAO_MailQueue::create($fields);
 					
@@ -669,7 +669,7 @@ class CerberusMail {
 					DAO_MailQueue::BODY => $properties['content'],
 					DAO_MailQueue::PARAMS_JSON => json_encode($params),
 					DAO_MailQueue::IS_QUEUED => empty($worker_id) ? 1 : 0,
-					DAO_MailQueue::PRIORITY => 0,
+					DAO_MailQueue::QUEUE_PRIORITY => 0,
 				);
 				DAO_MailQueue::create($fields);
 			}

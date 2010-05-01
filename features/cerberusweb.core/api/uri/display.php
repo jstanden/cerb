@@ -559,7 +559,7 @@ class ChDisplayPage extends CerberusPageExtension {
 			DAO_MailQueue::BODY => $content,
 			DAO_MailQueue::PARAMS_JSON => json_encode($params),
 			DAO_MailQueue::IS_QUEUED => 0,
-			DAO_MailQueue::PRIORITY => 0,
+			DAO_MailQueue::QUEUE_PRIORITY => 0,
 		);
 		
 		// Make sure the current worker is the draft author

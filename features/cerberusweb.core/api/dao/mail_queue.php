@@ -10,7 +10,8 @@ class DAO_MailQueue extends DevblocksORMHelper {
 	const BODY = 'body';
 	const PARAMS_JSON = 'params_json';
 	const IS_QUEUED = 'is_queued';
-	const PRIORITY = 'priority';
+	const QUEUE_FAILS = 'queue_fails';
+	const QUEUE_PRIORITY = 'queue_priority';
 
 	static function create($fields) {
 		$db = DevblocksPlatform::getDatabaseService();
@@ -49,7 +50,7 @@ class DAO_MailQueue extends DevblocksORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, worker_id, updated, type, ticket_id, hint_to, subject, body, params_json, is_queued, priority ".
+		$sql = "SELECT id, worker_id, updated, type, ticket_id, hint_to, subject, body, params_json, is_queued, queue_fails, queue_priority ".
 			"FROM mail_queue ".
 			$where_sql.
 			$sort_sql.
@@ -93,7 +94,8 @@ class DAO_MailQueue extends DevblocksORMHelper {
 			$object->subject = $row['subject'];
 			$object->body = $row['body'];
 			$object->is_queued = $row['is_queued'];
-			$object->priority = $row['priority'];
+			$object->queue_fails = $row['queue_fails'];
+			$object->queue_priority = $row['queue_priority'];
 			
 			// Unserialize params
 			$params_json = $row['params_json'];
@@ -155,7 +157,8 @@ class DAO_MailQueue extends DevblocksORMHelper {
 			"mail_queue.hint_to as %s, ".
 			"mail_queue.subject as %s, ".
 			"mail_queue.is_queued as %s, ".
-			"mail_queue.priority as %s ",
+			"mail_queue.queue_fails as %s, ".
+			"mail_queue.queue_priority as %s ",
 //			"mail_queue.body as %s, ".
 //			"mail_queue.params_json as %s ",
 				SearchFields_MailQueue::ID,
@@ -166,7 +169,8 @@ class DAO_MailQueue extends DevblocksORMHelper {
 				SearchFields_MailQueue::HINT_TO,
 				SearchFields_MailQueue::SUBJECT,
 				SearchFields_MailQueue::IS_QUEUED,
-				SearchFields_MailQueue::PRIORITY
+				SearchFields_MailQueue::QUEUE_FAILS,
+				SearchFields_MailQueue::QUEUE_PRIORITY
 //				SearchFields_MailQueue::BODY,
 //				SearchFields_MailQueue::PARAMS_JSON
 			);
@@ -238,7 +242,8 @@ class SearchFields_MailQueue implements IDevblocksSearchFields {
 	const HINT_TO = 'm_hint_to';
 	const SUBJECT = 'm_subject';
 	const IS_QUEUED = 'm_is_queued';
-	const PRIORITY = 'm_priority';
+	const QUEUE_FAILS = 'm_queue_fails';
+	const QUEUE_PRIORITY = 'm_queue_priority';
 //	const BODY = 'm_body';
 //	const PARAMS_JSON = 'm_params_json';
 	
@@ -249,17 +254,18 @@ class SearchFields_MailQueue implements IDevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = array(
-			self::ID => new DevblocksSearchField(self::ID, 'mail_queue', 'id', $translate->_('id')),
-			self::WORKER_ID => new DevblocksSearchField(self::WORKER_ID, 'mail_queue', 'worker_id', $translate->_('worker_id')),
-			self::UPDATED => new DevblocksSearchField(self::UPDATED, 'mail_queue', 'updated', $translate->_('updated')),
-			self::TYPE => new DevblocksSearchField(self::TYPE, 'mail_queue', 'type', $translate->_('type')),
-			self::TICKET_ID => new DevblocksSearchField(self::TICKET_ID, 'mail_queue', 'ticket_id', $translate->_('ticket_id')),
-			self::HINT_TO => new DevblocksSearchField(self::HINT_TO, 'mail_queue', 'hint_to', $translate->_('hint_to')),
-			self::SUBJECT => new DevblocksSearchField(self::SUBJECT, 'mail_queue', 'subject', $translate->_('subject')),
-			self::IS_QUEUED => new DevblocksSearchField(self::IS_QUEUED, 'mail_queue', 'is_queued', $translate->_('is_queued')),
-			self::PRIORITY => new DevblocksSearchField(self::PRIORITY, 'mail_queue', 'priority', $translate->_('priority')),
-//			self::BODY => new DevblocksSearchField(self::BODY, 'mail_queue', 'body', $translate->_('body')),
-//			self::PARAMS_JSON => new DevblocksSearchField(self::PARAMS_JSON, 'mail_queue', 'params_json', $translate->_('params_json')),
+			self::ID => new DevblocksSearchField(self::ID, 'mail_queue', 'id', $translate->_('common.id')),
+			self::WORKER_ID => new DevblocksSearchField(self::WORKER_ID, 'mail_queue', 'worker_id', ucwords($translate->_('common.worker'))),
+			self::UPDATED => new DevblocksSearchField(self::UPDATED, 'mail_queue', 'updated', ucwords($translate->_('common.updated'))),
+			self::TYPE => new DevblocksSearchField(self::TYPE, 'mail_queue', 'type', $translate->_('mail_queue.type')),
+			self::TICKET_ID => new DevblocksSearchField(self::TICKET_ID, 'mail_queue', 'ticket_id', $translate->_('mail_queue.ticket_id')),
+			self::HINT_TO => new DevblocksSearchField(self::HINT_TO, 'mail_queue', 'hint_to', $translate->_('message.header.to')),
+			self::SUBJECT => new DevblocksSearchField(self::SUBJECT, 'mail_queue', 'subject', $translate->_('message.header.subject')),
+			self::IS_QUEUED => new DevblocksSearchField(self::IS_QUEUED, 'mail_queue', 'is_queued', $translate->_('mail_queue.is_queued')),
+			self::QUEUE_FAILS => new DevblocksSearchField(self::QUEUE_FAILS, 'mail_queue', 'queue_fails', $translate->_('mail_queue.queue_fails')),
+			self::QUEUE_PRIORITY => new DevblocksSearchField(self::QUEUE_PRIORITY, 'mail_queue', 'queue_priority', $translate->_('mail_queue.queue_priority')),
+//			self::BODY => new DevblocksSearchField(self::BODY, 'mail_queue', 'body', $translate->_('common.content')),
+//			self::PARAMS_JSON => new DevblocksSearchField(self::PARAMS_JSON, 'mail_queue', 'params_json', $translate->_('mail_queue.params_json')),
 		);
 		
 		// Custom Fields
@@ -294,7 +300,8 @@ class Model_MailQueue {
 	public $body;
 	public $params;
 	public $is_queued;
-	public $priority;
+	public $queue_fails;
+	public $queue_priority;
 	
 	/**
 	 * @return boolean
@@ -527,7 +534,6 @@ class View_MailQueue extends C4_AbstractView {
 		$this->renderSortAsc = false;
 
 		$this->view_columns = array(
-			SearchFields_MailQueue::SUBJECT,
 			SearchFields_MailQueue::HINT_TO,
 			SearchFields_MailQueue::UPDATED,
 		);
@@ -575,7 +581,8 @@ class View_MailQueue extends C4_AbstractView {
 				break;
 			case SearchFields_MailQueue::ID:
 			case SearchFields_MailQueue::TICKET_ID:
-			case SearchFields_MailQueue::PRIORITY:
+			case SearchFields_MailQueue::QUEUE_FAILS:
+			case SearchFields_MailQueue::QUEUE_PRIORITY:
 				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__number.tpl');
 				break;
 			case SearchFields_MailQueue::IS_QUEUED:
@@ -660,7 +667,8 @@ class View_MailQueue extends C4_AbstractView {
 				break;
 			case SearchFields_MailQueue::ID:
 			case SearchFields_MailQueue::TICKET_ID:
-			case SearchFields_MailQueue::PRIORITY:
+			case SearchFields_MailQueue::QUEUE_FAILS:
+			case SearchFields_MailQueue::QUEUE_PRIORITY:
 				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
 				break;
 				
@@ -713,9 +721,11 @@ class View_MailQueue extends C4_AbstractView {
 					switch($v) {
 						case 'queue':
 							$change_fields[DAO_MailQueue::IS_QUEUED] = 1;
+							$change_fields[DAO_MailQueue::QUEUE_FAILS] = 0;
 							break;
 						case 'draft':
 							$change_fields[DAO_MailQueue::IS_QUEUED] = 0;
+							$change_fields[DAO_MailQueue::QUEUE_FAILS] = 0;
 							break;
 						case 'delete':
 							$deleted = true;

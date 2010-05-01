@@ -147,6 +147,12 @@ table.worklistBody td {
 	font-size:11px;
 }
 
+table.worklistBody td b.subject {
+	font-size: 12px;
+	font-weight: bold;
+	color: rgb(75, 75, 75);
+}
+
 table.worklistBody td a.subject {
 	font-size: 12px;
 	font-weight: bold;

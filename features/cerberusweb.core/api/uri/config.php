@@ -915,6 +915,42 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','preparser')));
 	}
 	
+	function showTabQueueAction() {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('path', $this->_TPL_PATH);
+
+		$tpl->assign('response_uri', 'config/queue');
+		
+		$defaults = new C4_AbstractViewModel();
+		$defaults->id = 'config_mail_queue';
+		$defaults->name = 'Mail Queue';
+		$defaults->class_name = 'View_MailQueue';
+		$defaults->params = array(
+			SearchFields_MailQueue::IS_QUEUED => new DevblocksSearchCriteria(SearchFields_MailQueue::IS_QUEUED,'=', 1)
+		);
+		$defaults->view_columns = array(
+			SearchFields_MailQueue::HINT_TO,
+			SearchFields_MailQueue::UPDATED,
+			SearchFields_MailQueue::WORKER_ID,
+			SearchFields_MailQueue::QUEUE_FAILS,
+			SearchFields_MailQueue::QUEUE_PRIORITY,
+		);
+		
+		if(null != ($view = C4_AbstractViewLoader::getView($defaults->id, $defaults))) {
+			$view->params[SearchFields_MailQueue::IS_QUEUED] = new DevblocksSearchCriteria(SearchFields_MailQueue::IS_QUEUED,'=',1);
+			C4_AbstractViewLoader::setView($view->id, $view);
+			
+			$search_fields = View_MailQueue::getSearchFields();
+			unset($search_fields[SearchFields_MailQueue::IS_QUEUED]);
+			
+			$tpl->assign('view', $view);
+			$tpl->assign('view_fields', View_MailQueue::getFields());
+			$tpl->assign('view_searchable_fields', $search_fields);
+		} 
+		
+		$tpl->display('file:' . $this->_TPL_PATH . 'configuration/tabs/mail/queue/index.tpl');
+	}
+	
 	// Ajax
 	function showPreParserPanelAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);

@@ -354,6 +354,9 @@
 		<tu tuid='common.update'>
 			<tuv xml:lang="en_US"><seg>update</seg></tuv>
 		</tu>
+		<tu tuid='common.updated'>
+			<tuv xml:lang="en_US"><seg>updated</seg></tuv>
+		</tu>
 		<tu tuid='common.upload'>
 			<tuv xml:lang="en_US"><seg>upload</seg></tuv>
 		</tu>
@@ -1196,6 +1199,27 @@
 		</tu>
 		<tu tuid='mail.workspaces.workspace'>
 			<tuv xml:lang="en_US"><seg>Workspace</seg></tuv>
+		</tu>
+		
+		<!-- Mail Queue -->
+		
+		<tu tuid='mail_queue.is_queued'>
+			<tuv xml:lang="en_US"><seg>Is Queued</seg></tuv>
+		</tu>
+		<tu tuid='mail_queue.params_json'>
+			<tuv xml:lang="en_US"><seg>Parameters</seg></tuv>
+		</tu>
+		<tu tuid='mail_queue.queue_fails'>
+			<tuv xml:lang="en_US"><seg># Fails</seg></tuv>
+		</tu>
+		<tu tuid='mail_queue.queue_priority'>
+			<tuv xml:lang="en_US"><seg>Priority</seg></tuv>
+		</tu>
+		<tu tuid='mail_queue.ticket_id'>
+			<tuv xml:lang="en_US"><seg>Ticket ID</seg></tuv>
+		</tu>
+		<tu tuid='mail_queue.type'>
+			<tuv xml:lang="en_US"><seg>Message Type</seg></tuv>
 		</tu>
 		
 		<!-- Message -->
