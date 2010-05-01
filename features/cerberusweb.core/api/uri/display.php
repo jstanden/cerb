@@ -265,6 +265,10 @@ class ChDisplayPage extends CerberusPageExtension {
 		// Reset the unlock date (next worker "until")
 		$properties[DAO_Ticket::UNLOCK_DATE] = $unlock_date;
 		
+		// Don't double set the closed property (auto-close replies)
+		if(isset($properties[DAO_Ticket::IS_CLOSED]) && $properties[DAO_Ticket::IS_CLOSED]==$ticket->is_closed)
+			unset($properties[DAO_Ticket::IS_CLOSED]);
+		
 		DAO_Ticket::updateTicket($id, $properties);
 
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('display',$id)));
@@ -947,15 +951,19 @@ class ChDisplayPage extends CerberusPageExtension {
 		if(isset($closed)) {
 			switch($closed) {
 				case 0: // open
-					$fields[DAO_Ticket::IS_WAITING] = 0;
-					$fields[DAO_Ticket::IS_CLOSED] = 0;
-					$fields[DAO_Ticket::IS_DELETED] = 0;
-					$fields[DAO_Ticket::DUE_DATE] = 0;
+					if(array(0,0,0)!=array($ticket->is_waiting,$ticket->is_closed,$ticket->is_deleted)) {
+						$fields[DAO_Ticket::IS_WAITING] = 0;
+						$fields[DAO_Ticket::IS_CLOSED] = 0;
+						$fields[DAO_Ticket::IS_DELETED] = 0;
+						$fields[DAO_Ticket::DUE_DATE] = 0;
+					}
 					break;
 				case 1: // closed
-					$fields[DAO_Ticket::IS_WAITING] = 0;
-					$fields[DAO_Ticket::IS_CLOSED] = 1;
-					$fields[DAO_Ticket::IS_DELETED] = 0;
+					if(array(0,1,0)!=array($ticket->is_waiting,$ticket->is_closed,$ticket->is_deleted)) {
+						$fields[DAO_Ticket::IS_WAITING] = 0;
+						$fields[DAO_Ticket::IS_CLOSED] = 1;
+						$fields[DAO_Ticket::IS_DELETED] = 0;
+					}
 					
 					if(isset($ticket_reopen)) {
 						@$time = intval(strtotime($ticket_reopen));
@@ -963,9 +971,11 @@ class ChDisplayPage extends CerberusPageExtension {
 					}
 					break;
 				case 2: // waiting
-					$fields[DAO_Ticket::IS_WAITING] = 1;
-					$fields[DAO_Ticket::IS_CLOSED] = 0;
-					$fields[DAO_Ticket::IS_DELETED] = 0;
+					if(array(1,0,0)!=array($ticket->is_waiting,$ticket->is_closed,$ticket->is_deleted)) {
+						$fields[DAO_Ticket::IS_WAITING] = 1;
+						$fields[DAO_Ticket::IS_CLOSED] = 0;
+						$fields[DAO_Ticket::IS_DELETED] = 0;
+					}
 					
 					if(isset($ticket_reopen)) {
 						@$time = intval(strtotime($ticket_reopen));
@@ -973,9 +983,11 @@ class ChDisplayPage extends CerberusPageExtension {
 					}
 					break;
 				case 3: // deleted
-					$fields[DAO_Ticket::IS_WAITING] = 0;
-					$fields[DAO_Ticket::IS_CLOSED] = 1;
-					$fields[DAO_Ticket::IS_DELETED] = 1;
+					if(array(0,1,1)!=array($ticket->is_waiting,$ticket->is_closed,$ticket->is_deleted)) {
+						$fields[DAO_Ticket::IS_WAITING] = 0;
+						$fields[DAO_Ticket::IS_CLOSED] = 1;
+						$fields[DAO_Ticket::IS_DELETED] = 1;
+					}
 					$fields[DAO_Ticket::DUE_DATE] = 0;
 					break;
 			}
