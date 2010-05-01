@@ -53,7 +53,7 @@ class DAO_Worker extends C4_ORMHelper {
 		return self::getAll(false, true);
 	}
 	
-	static function getAllOnline($prune_secs=0) {
+	static function getAllOnline($idle_limit=600, $idle_kick=false) {
 		$session = DevblocksPlatform::getSessionService();
 
 		$workers = array();
@@ -70,8 +70,8 @@ class DAO_Worker extends C4_ORMHelper {
 			
 			// Check the last activity date (and log out as needed)
 			$idle_secs = time() - $worker->last_activity_date;
-			if($idle_secs > (!empty($prune_secs) ? $prune_secs : 600)) {
-				if(!empty($prune_secs))
+			if($idle_secs > $idle_limit) {
+				if($idle_kick)
 					$session->clear($key);
 			} else {
 				$workers[$worker->id] = $worker;
