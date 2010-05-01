@@ -76,25 +76,30 @@
 </html>
 
 <script type="text/javascript" language="JavaScript">
+var keys = function(event) {
+	// Don't fire if we're inside any form elements
+	if($(event.target).filter(':input').length > 0)
+		return;
+	
+	switch(event.which) {
+		case 91:
+			$('#btnExplorerPrev').click();
+			event.stopPropagation();
+			break;
+		case 93:
+			$('#btnExplorerNext').click();
+			event.stopPropagation();
+			break;
+	}
+}
+	
 $(document).ready(function(e) {
+	// The outer frame document
+	$(document).keypress(keys);
+	
 	$('#explorerFrame').load(function() {
 		try {
-		$('#explorerFrame').contents().find('body').parent().keypress(function(event) {
-			// Don't fire if we're inside any form elements
-			if($(event.target).filter(':input').length > 0)
-				return;
-			
-			switch(event.which) {
-				case 91:
-					$('#btnExplorerPrev').click();
-					event.stopPropagation();
-					break;
-				case 93:
-					$('#btnExplorerNext').click();
-					event.stopPropagation();
-					break;
-			}
-		});
+			$('#explorerFrame').contents().find('body').parent().keypress(keys);
 		} catch(e) { }
 	});
 	
