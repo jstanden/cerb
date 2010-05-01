@@ -1,3 +1,4 @@
+{if is_null($workers)}{$workers = DAO_Worker::getAll()}{/if}
 <b>{$translate->_('search.operator')|capitalize}:</b><br>
 <blockquote style="margin:5px;">
 	<select name="oper">
