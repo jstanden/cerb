@@ -270,6 +270,69 @@ class ChDisplayPage extends CerberusPageExtension {
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('display',$id)));
 	}
 
+	function showMergePanelAction() {
+		@$ticket_id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer',0);
+		
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		// ACL
+		if(!$active_worker->hasPriv('core.ticket.view.actions.merge')) {
+			return;
+		}
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('path', $this->_TPL_PATH);
+		
+		$tpl->assign('ticket_id', $ticket_id);
+		
+		$tpl->display('file:' . $this->_TPL_PATH . 'display/rpc/merge_panel.tpl');
+	}
+	
+	function saveMergePanelAction() {
+		@$src_ticket_id = DevblocksPlatform::importGPC($_REQUEST['src_ticket_id'],'integer',0);
+		@$dst_ticket_id = DevblocksPlatform::importGPC($_REQUEST['dst_ticket_id'],'string');
+		
+		$active_worker = CerberusApplication::getActiveWorker();
+		$dst_ticket = null;
+
+		$src_ticket = DAO_Ticket::getTicket($src_ticket_id);
+		
+		$refresh_id = !empty($src_ticket) ? $src_ticket->mask : $src_ticket_id;
+		
+		// ACL
+		if(!$active_worker->hasPriv('core.ticket.view.actions.merge')) {
+			DevblocksPlatform::redirect(new DevblocksHttpResponse(array('display',$refresh_id)));
+			exit;
+		}
+			
+		// Check that the tickets exist
+		if(is_string($dst_ticket_id))
+			$dst_ticket = DAO_Ticket::getTicketByMask($dst_ticket_id);
+		else
+			$dst_ticket = DAO_Ticket::getTicket($dst_ticket_id);
+			
+		if(empty($src_ticket) || empty($dst_ticket)) {
+			DevblocksPlatform::redirect(new DevblocksHttpResponse(array('display',$refresh_id)));
+		}
+		
+		// Check the current worker permissions
+		$active_worker_memberships = $active_worker->getMemberships();
+			
+		if($active_worker->is_superuser 
+			|| (isset($active_worker_memberships[$src_ticket->team_id]) && isset($active_worker_memberships[$dst_ticket->team_id]))) {
+
+			if(false != ($oldest_id = DAO_Ticket::merge(array($src_ticket->id, $dst_ticket->id)))) {
+				if($oldest_id == $src_ticket->id)
+					$refresh_id = $src_ticket->mask;
+				elseif($oldest_id = $dst_ticket->id)
+					$refresh_id = $dst_ticket->mask;
+			}
+		}
+		
+		// Redisplay
+		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('display', $refresh_id)));
+	}
+	
 	/**
 	 * Enter description here...
 	 * @param string $message_id

@@ -59,6 +59,7 @@
 			<input type="hidden" name="next_worker_id" value="{$ticket->next_worker_id}">
 			<input type="hidden" name="unlock_date" value="{$ticket->unlock_date}">
 			
+			<div style="padding-bottom:5px;">
 			{if !$ticket->is_deleted}
 				{if $ticket->is_closed}
 					<button type="button" onclick="this.form.closed.value='0';this.form.submit();"><span class="cerb-sprite sprite-folder_out"></span> {$translate->_('common.reopen')|capitalize}</button>
@@ -82,6 +83,16 @@
 			
 			{if !$expand_all}<button id="btnReadAll" title="{$translate->_('display.shortcut.read_all')}" type="button" onclick="document.location='{devblocks_url}c=display&id={$ticket->mask}&tab=conversation&opt=read_all{/devblocks_url}';"><span class="cerb-sprite sprite-document"></span> {$translate->_('display.button.read_all')|capitalize}</button>{/if} 
 			 
+		   	<button id="btnPrint" title="{$translate->_('display.shortcut.print')}" type="button" onclick="document.frmPrint.action='{devblocks_url}c=print&a=ticket&id={$ticket->mask}{/devblocks_url}';document.frmPrint.submit();">&nbsp;<span class="cerb-sprite sprite-printer"></span>&nbsp;</button>
+		   	<button type="button" title="{$translate->_('display.shortcut.refresh')}" onclick="document.location='{devblocks_url}c=display&id={$ticket->mask}{/devblocks_url}';">&nbsp;<span class="cerb-sprite sprite-refresh"></span>&nbsp;</button>
+		   	<button type="button" onclick="$('#divDisplayToolbarMore').toggle();">{$translate->_('common.more')|lower} &raquo;</button>
+			</div>
+			
+			<div id="divDisplayToolbarMore" style="padding-bottom:5px;display:none;">
+				{if $active_worker->hasPriv('core.ticket.view.actions.merge')}<button id="btnMerge" type="button" onclick="genericAjaxPanel('c=display&a=showMergePanel&ticket_id={$ticket->id|escape}',null,false,'500');"><span class="cerb-sprite sprite-folder_gear"></span> {$translate->_('mail.merge')|capitalize}</button>{/if}
+			</div>
+			
+			<div>
 			{if !$ticket->is_deleted}
 			{if $active_worker->hasPriv('core.ticket.actions.move')}
 		   	<select name="bucket_id" onchange="this.form.submit();">
@@ -105,18 +116,15 @@
 		  		{/foreach}
 		   	</select>
 		   	{/if}
-		   	{/if}
-		   	<button id="btnPrint" title="{$translate->_('display.shortcut.print')}" type="button" onclick="document.frmPrint.action='{devblocks_url}c=print&a=ticket&id={$ticket->mask}{/devblocks_url}';document.frmPrint.submit();">&nbsp;<span class="cerb-sprite sprite-printer"></span>&nbsp;</button>
-		   	<button type="button" title="{$translate->_('display.shortcut.refresh')}" onclick="document.location='{devblocks_url}c=display&id={$ticket->mask}{/devblocks_url}';">&nbsp;<span class="cerb-sprite sprite-refresh"></span>&nbsp;</button>
-			<br>
+		   	{/if}			
 			
 			{* Plugin Toolbar *}
 			{if !empty($ticket_toolbaritems)}
 				{foreach from=$ticket_toolbaritems item=renderer}
 					{if !empty($renderer)}{$renderer->render($ticket)}{/if}
 				{/foreach}
-				<br>
 			{/if}
+			</div>
 			
 			{if $pref_keyboard_shortcuts}
 			{$translate->_('common.keyboard')|lower}: 
