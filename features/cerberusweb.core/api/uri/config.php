@@ -278,7 +278,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		}
 		
 		if(!empty($view_id)) {
-			$view = Ps_AbstractViewLoader::getView($view_id);
+			$view = C4_AbstractViewLoader::getView($view_id);
 			$view->render();
 		}		
 	}
