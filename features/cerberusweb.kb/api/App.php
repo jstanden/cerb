@@ -1,8 +1,84 @@
 <?php
-if (class_exists('Extension_ResearchTab')):
-class ChKbResearchTab extends Extension_ResearchTab {
-	const VIEW_RESEARCH_KB_BROWSE = 'research_kb_browse';
-	const VIEW_RESEARCH_KB_SEARCH = 'research_kb_search';
+abstract class Extension_KnowledgebaseTab extends DevblocksExtension {
+	function __construct($manifest) {
+		$this->DevblocksExtension($manifest);
+	}
+	
+	function showTab() {}
+	function saveTab() {}
+};
+
+class ChKbPage extends CerberusPageExtension {
+	private $_TPL_PATH = '';
+	
+	function __construct($manifest) {
+		$this->_TPL_PATH = dirname(dirname(__FILE__)) . '/templates/';
+		parent::__construct($manifest);
+	}
+		
+	function isVisible() {
+		// check login
+		$visit = CerberusApplication::getVisit();
+		
+		if(empty($visit)) {
+			return false;
+		} else {
+			return true;
+		}
+	}
+	
+//	function getActivity() {
+		//return new Model_Activity('activity.kb');
+//	}
+	
+	function render() {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('path', $this->_TPL_PATH);
+		
+		$visit = CerberusApplication::getVisit();
+		$translate = DevblocksPlatform::getTranslationService();
+		
+		$response = DevblocksPlatform::getHttpResponse();
+		$tpl->assign('request_path', implode('/',$response->path));
+
+		$stack = $response->path;
+		array_shift($stack); // kb
+		
+		@$action = array_shift($stack);
+		
+		switch($action) {
+			case 'category':
+			case 'article':
+			default:
+				$tab_manifests = DevblocksPlatform::getExtensions('cerberusweb.knowledgebase.tab', false);
+				uasort($tab_manifests, create_function('$a, $b', "return strcasecmp(\$a->name,\$b->name);\n"));
+				$tpl->assign('tab_manifests', $tab_manifests);
+				
+				//@$tab_selected = array_shift($stack);
+				if(empty($tab_selected)) $tab_selected = '';
+				$tpl->assign('tab_selected', $action);
+				
+				$tpl->display('file:' . $this->_TPL_PATH . 'kb/index.tpl');
+				break;
+		}
+	}
+	
+	// Ajax
+	function showTabAction() {
+		@$ext_id = DevblocksPlatform::importGPC($_REQUEST['ext_id'],'string','');
+		
+		if(null != ($tab_mft = DevblocksPlatform::getExtension($ext_id)) 
+			&& null != ($inst = $tab_mft->createInstance()) 
+			&& $inst instanceof Extension_KnowledgebaseTab) {
+			$inst->showTab();
+		}
+	}
+
+};
+
+if (class_exists('Extension_KnowledgebaseTab')):
+class ChKbBrowseTab extends Extension_KnowledgebaseTab {
+	const VIEW_ID = 'kb_browse';
 	
 	function __construct($manifest) {
 		parent::__construct($manifest);
@@ -21,31 +97,18 @@ class ChKbResearchTab extends Extension_ResearchTab {
 
 		@$stack =  explode('/', $request_path);
 		
-		@array_shift($stack); // research
 		@array_shift($stack); // kb
 		
 		@$action = array_shift($stack);
 		
 		switch($action) {
-			case 'search':
-				if(null == ($view = C4_AbstractViewLoader::getView(self::VIEW_RESEARCH_KB_SEARCH))) {
-					$view = new View_KbArticle();
-					$view->id = self::VIEW_RESEARCH_KB_SEARCH;
-					$view->name = $translate->_('common.search_results');
-					C4_AbstractViewLoader::setView($view->id, $view);
-				}
-				
-				$tpl->assign('view', $view);
-				$tpl->assign('view_fields', View_KbArticle::getFields());
-				$tpl->assign('view_searchable_fields', View_KbArticle::getSearchFields());
-				
-				$tpl->assign('response_uri', 'research/kb/search');
-
-				$tpl->display($tpl_path . 'research_tab/kb/search.tpl');
+			case 'article':
 				break;
 				
+			case 'category':
 			default:
-				$root_id = intval($action);
+				@$category_id = array_shift($stack);
+				$root_id = intval($category_id);
 				$tpl->assign('root_id', $root_id);
 		
 				$tree = DAO_KbCategory::getTreeMap($root_id);
@@ -65,9 +128,9 @@ class ChKbResearchTab extends Extension_ResearchTab {
 				
 				$tpl->assign('mid', @intval(ceil(count($tree[$root_id])/2)));
 				
-				if(null == ($view = C4_AbstractViewLoader::getView(self::VIEW_RESEARCH_KB_BROWSE))) {
+				if(null == ($view = C4_AbstractViewLoader::getView(self::VIEW_ID))) {
 					$view = new View_KbArticle();
-					$view->id = self::VIEW_RESEARCH_KB_BROWSE;
+					$view->id = self::VIEW_ID;
 				}
 				
 				// Articles
@@ -90,9 +153,43 @@ class ChKbResearchTab extends Extension_ResearchTab {
 				
 				$tpl->assign('view', $view);
 				
-				$tpl->display($tpl_path . 'research_tab/kb/browse.tpl');	
+				$tpl->display($tpl_path . 'kb/tabs/articles/index.tpl');	
 				break;
 		}
+	}
+}
+endif;
+
+if (class_exists('Extension_KnowledgebaseTab')):
+class ChKbSearchTab extends Extension_KnowledgebaseTab {
+	const VIEW_ID = 'kb_search';
+	
+	function __construct($manifest) {
+		parent::__construct($manifest);
+	}
+	
+	function showTab() {
+		$visit = CerberusApplication::getVisit();
+		$translate = DevblocksPlatform::getTranslationService();
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl_path = dirname(dirname(__FILE__)) . '/templates/';
+		$tpl->assign('path', $tpl_path);
+
+		if(null == ($view = C4_AbstractViewLoader::getView(self::VIEW_ID))) {
+			$view = new View_KbArticle();
+			$view->id = self::VIEW_ID;
+			$view->name = $translate->_('common.search_results');
+			C4_AbstractViewLoader::setView($view->id, $view);
+		}
+		
+		$tpl->assign('view', $view);
+		$tpl->assign('view_fields', View_KbArticle::getFields());
+		$tpl->assign('view_searchable_fields', View_KbArticle::getSearchFields());
+		
+		$tpl->assign('response_uri', 'kb/search');
+
+		$tpl->display($tpl_path . 'kb/tabs/search/index.tpl');
 	}
 }
 endif;
@@ -201,7 +298,7 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 			$tpl->assign('article', $article);
 		}
 		
-		$tpl->display('file:' . $this->_TPL_PATH . 'ajax/article_peek_panel.tpl');
+		$tpl->display('file:' . $this->_TPL_PATH . 'kb/ajax/article_peek_panel.tpl');
 	}
 
 	function showTopicEditPanelAction() {
@@ -219,7 +316,7 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 			$tpl->assign('topic', $topic);
 		}
 		
-		$tpl->display('file:' . $this->_TPL_PATH . 'ajax/topic_edit_panel.tpl');
+		$tpl->display('file:' . $this->_TPL_PATH . 'kb/ajax/topic_edit_panel.tpl');
 	}
 
 	function saveTopicEditPanelAction() {
@@ -235,7 +332,7 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 			$ids = DAO_KbCategory::getDescendents($id);
 			DAO_KbCategory::delete($ids);
 			
-			$return = "research/kb";
+			$return = "kb";
 			
 		} elseif(empty($id)) { // create
 			$fields = array(
@@ -244,7 +341,7 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 			);
 			$id = DAO_KbCategory::create($fields);
 			
-			$return = "research/kb/";
+			$return = "kb/";
 			
 		} else { // update
 			$fields = array(
@@ -253,7 +350,7 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 			);
 			DAO_KbCategory::update($id, $fields);
 			
-			$return = "research/kb/" . sprintf("%04d", $id);
+			$return = "kb/category/" . $id;
 		}
 		
 		if(!empty($return)) {
@@ -292,7 +389,7 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 		$levels = DAO_KbCategory::getTree(0); //$root_id
 		$tpl->assign('levels',$levels);
 		
-		$tpl->display('file:' . $this->_TPL_PATH . 'ajax/article_edit_panel.tpl');
+		$tpl->display('file:' . $this->_TPL_PATH . 'kb/ajax/article_edit_panel.tpl');
 	}
 
 	function saveArticleEditPanelAction() {
@@ -363,9 +460,9 @@ class ChKbAjaxController extends DevblocksControllerExtension {
         $visit = CerberusApplication::getVisit(); /* @var $visit CerberusVisit */
         $translate = DevblocksPlatform::getTranslationService();
 		
-        if(null == ($searchView = C4_AbstractViewLoader::getView(ChKbResearchTab::VIEW_RESEARCH_KB_SEARCH))) {
+        if(null == ($searchView = C4_AbstractViewLoader::getView(ChKbSearchTab::VIEW_ID))) {
         	$searchView = new View_KbArticle();
-        	$searchView->id = ChKbResearchTab::VIEW_RESEARCH_KB_SEARCH;
+        	$searchView->id = ChKbSearchTab::VIEW_ID;
         	$searchView->name = $translate->_('common.search_results');
         	C4_AbstractViewLoader::setView($searchView->id, $searchView);
         }
@@ -387,7 +484,7 @@ class ChKbAjaxController extends DevblocksControllerExtension {
         
         C4_AbstractViewLoader::setView($searchView->id,$searchView);
         
-        DevblocksPlatform::redirect(new DevblocksHttpResponse(array('research','kb','search')));
+        DevblocksPlatform::redirect(new DevblocksHttpResponse(array('kb','search')));
 	}
 	
 	function showKbCategoryEditPanelAction() {
@@ -421,7 +518,7 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 		$levels = DAO_KbCategory::getTree(0); //$root_id
 		$tpl->assign('levels',$levels);
 		
-		$tpl->display('file:' . $this->_TPL_PATH . 'ajax/subcategory_edit_panel.tpl');
+		$tpl->display('file:' . $this->_TPL_PATH . 'kb/ajax/subcategory_edit_panel.tpl');
 	}
 	
 	function saveKbCategoryEditPanelAction() {
@@ -441,7 +538,7 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 			DAO_KbCategory::delete($ids);
 			
 			// Change $return to category parent
-			$return = "research/kb/" . sprintf("%06d", $parent_id);
+			$return = "kb/category/" . $parent_id;
 			
 		} elseif(empty($id)) { // create
 			$fields = array(
@@ -476,7 +573,7 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 		$topics = DAO_KbCategory::getWhere(sprintf("%s = 0", DAO_KbCategory::PARENT_ID));
 		$tpl->assign('topics', $topics);
 		
-		$tpl->display('file:' . $this->_TPL_PATH . 'ajax/kb_search.tpl');
+		$tpl->display('file:' . $this->_TPL_PATH . 'kb/ajax/kb_search.tpl');
 	}
 	
 	// For Display->Reply toolbar button
@@ -527,7 +624,7 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 		
 		$tpl->assign('results', $results);
 
-		$tpl->display('file:' . $this->_TPL_PATH . 'ajax/kb_search_results.tpl');
+		$tpl->display('file:' . $this->_TPL_PATH . 'kb/ajax/kb_search_results.tpl');
 	}
 	
 	function showArticlesBulkPanelAction() {
@@ -555,7 +652,7 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 //		$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_FeedbackEntry::ID);
 //		$tpl->assign('custom_fields', $custom_fields);
 		
-		$tpl->display('file:' . $path . 'ajax/articles_bulk_panel.tpl');
+		$tpl->display('file:' . $path . 'kb/ajax/articles_bulk_panel.tpl');
 	}
 	
 	function doArticlesBulkUpdateAction() {

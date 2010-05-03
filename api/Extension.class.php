@@ -117,15 +117,6 @@ abstract class Extension_HomeTab extends DevblocksExtension {
 	function saveTab() {}
 };
 
-abstract class Extension_ResearchTab extends DevblocksExtension {
-	function __construct($manifest) {
-		$this->DevblocksExtension($manifest);
-	}
-	
-	function showTab() {}
-	function saveTab() {}
-};
-
 abstract class Extension_TicketTab extends DevblocksExtension {
 	function __construct($manifest) {
 		$this->DevblocksExtension($manifest);

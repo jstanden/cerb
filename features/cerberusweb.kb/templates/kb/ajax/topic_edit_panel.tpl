@@ -1,4 +1,4 @@
-<form action="{devblocks_url}{/devblocks_url}" method="POST">
+<form action="{devblocks_url}{/devblocks_url}" method="POST" id="frmKbTopicEdit">
 <input type="hidden" name="c" value="kb.ajax">
 <input type="hidden" name="a" value="saveTopicEditPanel">
 <input type="hidden" name="id" value="{$topic->id}">
@@ -27,5 +27,6 @@
 <script type="text/javascript" language="JavaScript1.2">
 	genericPanel.one('dialogopen', function(event,ui) {
 		genericPanel.dialog('option','title',"Knowledgebase Topic");
+		$('#frmKbTopicEdit :input:text:first').focus().select();
 	} );
 </script>

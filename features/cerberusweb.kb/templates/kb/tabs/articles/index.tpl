@@ -18,7 +18,6 @@
 			{/if}
 			
 			{if $active_worker->hasPriv('core.kb.articles.modify')}<button type="button" onclick="genericAjaxPanel('c=kb.ajax&a=showArticleEditPanel&id=0&root_id={$root_id}&view_id={$view->id}',null,false,'550');"><span class="cerb-sprite sprite-add"></span> Add Article</button>{/if}
-			<button type="button" onclick="document.location.href='{devblocks_url}c=research&a=kb&s=search{/devblocks_url}';"><span class="cerb-sprite sprite-data_find"></span> {$translate->_('common.search')|capitalize}</button>
 		</form>
 	</td>
 	<td width="98%" valign="middle">
@@ -45,10 +44,10 @@
 {/if}
 
 <div style="padding-bottom:5px;">
-<a href="{devblocks_url}c=research&a=kb{/devblocks_url}">Top</a> ::
+<a href="{devblocks_url}c=kb{/devblocks_url}">Top</a> ::
 {if !empty($breadcrumb)}
 	{foreach from=$breadcrumb item=bread_id}
-		<a href="{devblocks_url}c=research&a=kb&id={$bread_id|string_format:"%06d"}{/devblocks_url}">{$categories.$bread_id->name}</a> :
+		<a href="{devblocks_url}c=kb&a=category&id={$bread_id}{/devblocks_url}">{$categories.$bread_id->name}</a> :
 	{/foreach} 
 {/if}
 </div>
@@ -60,12 +59,12 @@
 	<td width="50%" valign="top">
 	{foreach from=$tree.$root_id item=count key=cat_id name=kbcats}
 		<span class="cerb-sprite sprite-folder"></span>
-		<a href="{devblocks_url}c=research&a=kb&id={$cat_id|string_format:"%06d"}{/devblocks_url}" style="font-weight:bold;">{$categories.$cat_id->name}</a> ({$count|string_format:"%d"})<br>
+		<a href="{devblocks_url}c=kb&a=category&id={$cat_id}{/devblocks_url}" style="font-weight:bold;">{$categories.$cat_id->name}</a> ({$count|string_format:"%d"})<br>
 	
 		{if !empty($tree.$cat_id)}
 			&nbsp; &nbsp; 
 			{foreach from=$tree.$cat_id item=count key=child_id name=subcats}
-				 <a href="{devblocks_url}c=research&a=kb&id={$child_id|string_format:"%06d"}{/devblocks_url}">{$categories.$child_id->name}</a>{if !$smarty.foreach.subcats.last}, {/if}
+				 <a href="{devblocks_url}c=kb&a=category&id={$child_id}{/devblocks_url}">{$categories.$child_id->name}</a>{if !$smarty.foreach.subcats.last}, {/if}
 			{/foreach}
 			<br>
 		{/if}

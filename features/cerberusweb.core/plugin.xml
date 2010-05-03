@@ -287,9 +287,6 @@
 		<priv id="core.mail.search" label="acl.core.mail.search" />
 		<priv id="core.mail.send" label="acl.core.mail.send" />
 
-		<!-- Research -->
-		<priv id="core.research" label="acl.core.research" />
-
 		<!-- RSS -->
 		<priv id="core.rss" label="acl.core.rss" />
 
@@ -550,20 +547,6 @@
 			<params>
 				<param key="uri" value="activity" />
 				<param key="menutitle" value="core.menu.activity" />
-			</params>
-		</extension>
-
-		<extension point="cerberusweb.page">
-			<id>core.page.research</id>
-			<name>Research Page</name>
-			<class>
-				<file>api/uri/research.php</file>
-				<name>ChResearchPage</name>
-			</class>
-			<params>
-				<param key="uri" value="research" />
-				<param key="menutitle" value="core.menu.research" />
-				<param key="acl" value="core.research" />
 			</params>
 		</extension>
 

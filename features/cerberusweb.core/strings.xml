@@ -18,9 +18,6 @@
 		<tu tuid='core.menu.mail'>
 			<tuv xml:lang="en_US"><seg>mail</seg></tuv>
 		</tu>
-		<tu tuid='core.menu.research'>
-			<tuv xml:lang="en_US"><seg>research</seg></tuv>
-		</tu>
 		
 		<tu tuid='display.tab.comments'>
 			<tuv xml:lang="en_US"><seg>Comments (%s)</seg></tuv>
@@ -484,11 +481,6 @@
 			<tuv xml:lang="en_US"><seg>[Mail] Can compose new messages from the helpdesk</seg></tuv>
 		</tu>
 
-			<!-- Research -->
-		<tu tuid='acl.core.research'>
-			<tuv xml:lang="en_US"><seg>[Research] Can browse research resources</seg></tuv>
-		</tu>
-		
 			<!-- RSS -->
 		<tu tuid='acl.core.rss'>
 			<tuv xml:lang="en_US"><seg>[RSS] Can export lists as RSS feeds</seg></tuv>
@@ -1286,12 +1278,6 @@ If you did not request this, do not click the link above.  The request will expi
 			<tuv xml:lang="en_US"><seg>%s is not a valid e-mail address.</seg></tuv>
 		</tu>
 
-		<!-- Research -->
-
-		<tu tuid='research.tab.links'>
-			<tuv xml:lang="en_US"><seg>Links</seg></tuv>
-		</tu>
-		
 		<!-- RSS -->
 
 		<tu tuid='rss.bad_feed'>

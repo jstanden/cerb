@@ -2,14 +2,14 @@
 	<div style="padding-bottom:5px;"></div>
 </div>
 
-<div id="researchTabs">
+<div id="kbTabs">
 	<ul>
 		{$tabs = []}
 
 		{foreach from=$tab_manifests item=tab_manifest}
 			{if !isset($tab_manifest->params.acl) || $worker->hasPriv($tab_manifest->params.acl)}
 				{$tabs[] = $tab_manifest->params.uri}
-				<li><a href="{devblocks_url}ajax.php?c=research&a=showTab&ext_id={$tab_manifest->id}&request={$request_path|escape:'url'}{/devblocks_url}">{$tab_manifest->params.title|devblocks_translate|escape:'quotes'}</a></li>
+				<li><a href="{devblocks_url}ajax.php?c=kb&a=showTab&ext_id={$tab_manifest->id}&request={$request_path|escape:'url'}{/devblocks_url}">{$tab_manifest->params.title|devblocks_translate|escape:'quotes'}</a></li>
 			{/if}
 		{/foreach}
 	</ul>
@@ -23,6 +23,6 @@
 
 <script type="text/javascript">
 	$(function() {
-		var tabs = $("#researchTabs").tabs( { selected:{$tab_selected_idx} } );
+		var tabs = $("#kbTabs").tabs( { selected:{$tab_selected_idx} } );
 	});
 </script>

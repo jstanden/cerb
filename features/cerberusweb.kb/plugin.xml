@@ -26,6 +26,7 @@
 		<file path="api/App.php">
 			<class name="DAO_KbArticle" />
 			<class name="DAO_KbCategory" />
+			<class name="Extension_KnowledgebaseTab" />
 			<class name="Model_KbArticle" />
 			<class name="Model_KbCategory" />
 			<class name="Search_KbArticle" />
@@ -56,22 +57,20 @@
 	
 	<extensions>
 	
-		<!--
 		<extension point="cerberusweb.page">
 			<id>core.page.kb</id>
-			<name>Knowledgebase Page</name>
+			<name>Knowledgebase</name>
 			<class>
-				<file>api/uri/kb.php</file>
+				<file>api/App.php</file>
 				<name>ChKbPage</name>
 			</class>
 			<params>
 				<param key="uri" value="kb" />
-				<param key="menutitle" value="core.menu.knowledgebase" />
-				<param key="acl" value="core.kb" />
+				<param key="menutitle" value="common.knowledgebase" />
+				<!--<param key="acl" value="core.kb" />-->
 			</params>
 		</extension>
-		-->
-		
+	
 		<!-- Controllers -->
 		
  		<extension point="devblocks.controller">
@@ -86,18 +85,31 @@
 			</params>
 		</extension>
 		
-		<!-- Research Tab -->
+		<!-- Knowledgebase Tabs -->
 		
-		<extension point="cerberusweb.research.tab">
-			<id>cerberusweb.kb.research.tab.kb</id>
-			<name>Knowledgebase Tab</name>
+		<extension point="cerberusweb.knowledgebase.tab">
+			<id>cerberusweb.kb.tab.browse</id>
+			<name>KB Browse Tab</name>
 			<class>
 				<file>api/App.php</file>
-				<name>ChKbResearchTab</name>
+				<name>ChKbBrowseTab</name>
 			</class>
 			<params>
-				<param key="uri" value="kb" />
-				<param key="title" value="common.knowledgebase" />
+				<param key="uri" value="browse" />
+				<param key="title" value="Browse" />
+			</params>
+		</extension>
+		
+		<extension point="cerberusweb.knowledgebase.tab">
+			<id>cerberusweb.kb.tab.search</id>
+			<name>KB Search Tab</name>
+			<class>
+				<file>api/App.php</file>
+				<name>ChKbSearchTab</name>
+			</class>
+			<params>
+				<param key="uri" value="search" />
+				<param key="title" value="Search" />
 			</params>
 		</extension>
 
@@ -182,22 +194,6 @@
 			<params>
 			</params>
 		</extension>
-		
-		<!-- Config Tabs -->
-		<!-- 
-		<extension point="cerberusweb.config.tab">
-			<id>crm.config.tab.campaigns</id>
-			<name>Campaigns Tab</name>
-			<class>
-				<file>api/App.php</file>
-				<name>CrmConfigCampaignsTab</name>
-			</class>
-			<params>
-				<param key="uri" value="crm.campaigns" />
-				<param key="title" value="Campaigns (CRM)" />
-			</params>
-		</extension>
-		-->
 		
 		<!-- REST Controllers -->
 		
