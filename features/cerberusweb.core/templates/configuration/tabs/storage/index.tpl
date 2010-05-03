@@ -1,5 +1,5 @@
 <form action="{devblocks_url}{/devblocks_url}" method="POST" style="margin-bottom:5px;">
-	<button type="button" onclick="genericAjaxPanel('c=config&a=showStorageProfilePeek&id=0&view_id={$view->id|escape:'url'}',null,true,'500');"><span class="cerb-sprite sprite-add"></span> {$translate->_('Add Storage Profile')|capitalize}</button>
+	<button type="button" onclick="genericAjaxPanel('c=config&a=showStorageProfilePeek&id=0&view_id={$view->id|escape:'url'}',null,false,'500');"><span class="cerb-sprite sprite-add"></span> {$translate->_('Add Storage Profile')|capitalize}</button>
 </form>
 
 <div id="view{$view->id}">{$view->render()}</div>

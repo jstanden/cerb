@@ -58,7 +58,7 @@
 			{if $column=="d_id"}
 			<td>{$result.d_id}&nbsp;</td>
 			{elseif $column=="d_name"}
-			<td><a href="javascript:;" onclick="genericAjaxPanel('c=config&a=showStorageProfilePeek&id={$result.d_id|escape:'url'}&view_id={$view->id|escape:'url'}',null,true,'500');" class="subject">{$result.d_name}</a></td>
+			<td><a href="javascript:;" onclick="genericAjaxPanel('c=config&a=showStorageProfilePeek&id={$result.d_id|escape:'url'}&view_id={$view->id|escape:'url'}',null,false,'500');" class="subject">{$result.d_name}</a></td>
 			{else}
 			<td>{$result.$column}&nbsp;</td>
 			{/if}
