@@ -219,13 +219,22 @@ class ChConfigurationPage extends CerberusPageExtension  {
 			|| null == ($ext = $ext = DevblocksPlatform::getExtension($extension_id, true)))
 			return false;
 			
+		$tpl = DevblocksPlatform::getTemplateService();
+			
 		/* @var $ext Extension_DevblocksStorageEngine */
 			
 		if($ext->testConfig()) {
-			echo "PASS!!";
+			$output = 'Your storage profile is configured properly.';
+			$success = true;
 		} else {
-			echo "FAIL!!!";
+			$output = 'Your storage profile is not configured properly.';
+			$success = false;
 		}
+		
+		$tpl->assign('success', $success);
+		$tpl->assign('output', $output);
+		
+		$tpl->display('file:' . $this->_TPL_PATH . 'internal/renderers/test_results.tpl');
 	}
 	
 	function saveStorageProfilePeekAction() {
