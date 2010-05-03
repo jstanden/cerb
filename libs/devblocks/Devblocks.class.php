@@ -186,6 +186,15 @@ class DevblocksPlatform extends DevblocksEngine {
 		return $str;
 	}	
 	
+	static function parseMarkdown($text) {
+		static $parser = null;
+		
+		if(is_null($parser))
+			$parser = new Markdown_Parser();
+			
+		return $parser->transform($text);
+	}
+	
 	static function parseRss($url) {
 		// [TODO] curl | file_get_contents() support
 		// [TODO] rss://
@@ -4329,6 +4338,9 @@ class _DevblocksClassLoadManager {
 	}
 	
 	private function _initLibs() {
+		$this->registerClasses(DEVBLOCKS_PATH . 'libs/markdown/markdown.php', array(
+			'Markdown_Parser'
+		));
 		$this->registerClasses(DEVBLOCKS_PATH . 'libs/s3/S3.php', array(
 			'S3'
 		));
