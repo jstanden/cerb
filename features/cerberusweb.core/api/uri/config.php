@@ -188,6 +188,16 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		} else {
 			$storage_ext_id = 'devblocks.storage.engine.disk';
 		}
+
+		if(!empty($id)) {
+			$storage_schemas = DevblocksPlatform::getExtensions('devblocks.storage.schema', false, true);
+			$tpl->assign('storage_schemas', $storage_schemas);
+			
+			$storage_schema_stats = $profile->getUsageStats();
+			
+			if(!empty($storage_schema_stats))
+				$tpl->assign('storage_schema_stats', $storage_schema_stats);
+		}
 		
 		if(false !== ($storage_ext = DevblocksPlatform::getExtension($storage_ext_id, true))) {
 			$tpl->assign('storage_engine', $storage_ext);

@@ -1,7 +1,7 @@
-{if !empty($profile->id)}
+{if !empty($profile->id) && !empty($storage_schema_stats)}
 <div class="ui-state-error ui-corner-all" style="margin: 0 0 .5em 0; padding: 0 .7em;"> 
 	<p><span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>
-	[[WARNING ABOUT CHANGING PARAMS ON A LIVE STORAGE PROFILE]]
+	Warning!  You are changing the configuration of a live storage profile that contains content.  Unless you are very careful you may lose content.  You cannot delete this profile until you've moved all its content.
 	</p>
 </div>
 {/if}
@@ -46,6 +46,15 @@
 		</td>
 	</tr>
 </table>
+<br>
+
+{if !empty($storage_schema_stats)}
+Used by:<br>
+{foreach from=$storage_schema_stats item=stats key=schema_id}
+	<b>{$storage_schemas.{$schema_id}->name}</b>: {$stats.count} objects ({$stats.bytes|devblocks_prettybytes})<br>
+{/foreach}
+<br>
+{/if}
 
 <div id="divTestStorageProfile"></div>
 

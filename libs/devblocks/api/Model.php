@@ -539,4 +539,20 @@ class Model_DevblocksStorageProfile {
 	public $extension_id;
 	public $params_json;
 	public $params = array();
+	
+	function getUsageStats() {
+		// Schemas
+		$storage_schemas = DevblocksPlatform::getExtensions('devblocks.storage.schema', true, true);
+		
+		// Stats
+		$storage_schema_stats = array();
+		foreach($storage_schemas as $schema) {
+			$stats = $schema->getStats();
+			$key = $this->extension_id . ':' . intval($this->id);
+			if(isset($stats[$key]))
+				$storage_schema_stats[$schema->id] = $stats[$key];
+		}
+		
+		return $storage_schema_stats;
+	}
 };
