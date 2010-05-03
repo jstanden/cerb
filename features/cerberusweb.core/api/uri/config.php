@@ -249,23 +249,28 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	
 	function saveStorageProfilePeekAction() {
 		$translate = DevblocksPlatform::getTranslationService();
-		//$active_worker = PortSensorApplication::getActiveWorker();
-		
-		// [TODO] ACL
-		// return;
+		$active_worker = CerberusApplication::getActiveWorker();
+
+		// ACL
+		if(!$active_worker->is_superuser)
+			return;
 		
 		@$id = DevblocksPlatform::importGPC($_POST['id'],'integer');
 		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
 		@$name = DevblocksPlatform::importGPC($_POST['name'],'string');
 		@$extension_id = DevblocksPlatform::importGPC($_POST['extension_id'],'string');
-//		@$delete = DevblocksPlatform::importGPC($_POST['do_delete'],'integer',0);
+		@$delete = DevblocksPlatform::importGPC($_POST['do_delete'],'integer',0);
 
-		// [TODO] The superuser set bit here needs to be protected by ACL
-		
 		if(empty($name)) $name = "New Storage Profile";
 		
 		if(!empty($id) && !empty($delete)) {
-//			DAO_DevblocksStorageProfile::delete($id);
+			// Double check that the profile is empty
+			if(null != ($profile = DAO_DevblocksStorageProfile::get($id))) {
+				$stats = $profile->getUsageStats();
+				if(empty($stats)) {
+					DAO_DevblocksStorageProfile::delete($id);
+				}
+			}
 			
 		} else {
 		    $fields = array(

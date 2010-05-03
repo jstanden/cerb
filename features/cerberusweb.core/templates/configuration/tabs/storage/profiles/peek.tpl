@@ -60,11 +60,11 @@ Used by:<br>
 
 {if $active_worker->is_superuser}
 	<button type="button" onclick="genericAjaxPanelPostCloseReloadView('formStorageProfilePeek', '{$view_id}');"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')}</button>
-	{if 0&&$active_worker->is_superuser}<button type="button" onclick="if(confirm('Are you sure you want to delete this worker and their history?')) { this.form.do_delete.value='1';genericAjaxPanelPostCloseReloadView('formStorageProfilePeek', '{$view_id}'); } "><span class="cerb-sprite sprite-delete2"></span> {$translate->_('common.delete')|capitalize}</button>{/if}
+	{if !empty($profile->id) && empty($storage_schema_stats)}<button type="button" onclick="if(confirm('Are you sure you want to delete this storage profile?')) { this.form.do_delete.value='1';genericAjaxPanelPostCloseReloadView('formStorageProfilePeek', '{$view_id}'); } "><span class="cerb-sprite sprite-delete2"></span> {$translate->_('common.delete')|capitalize}</button>{/if}
 {else}
 	<div class="error">{$translate->_('error.core.no_acl.edit')}</div>	
 {/if}
-<button type="button" onclick="this.form.a.value = 'testStorageProfilePeek';genericAjaxPost('formStorageProfilePeek','divTestStorageProfile');this.form.a.value = 'saveStorageProfilePeek';"><span class="cerb-sprite sprite-gear"></span> {$translate->_('Test')|capitalize}</button>
+<button type="button" onclick="genericAjaxPost('formStorageProfilePeek','divTestStorageProfile','c=config&a=testStorageProfilePeek');"><span class="cerb-sprite sprite-gear"></span> {$translate->_('Test')|capitalize}</button>
 
 <br>
 </form>
