@@ -62,7 +62,7 @@
 
 <script type="text/javascript" language="JavaScript1.2">
 	genericPanel.one('dialogopen', function(event,ui) {
-		genericPanel.dialog('option','title',"{$schema->manifest->name|escape}");
+		genericPanel.dialog('option','title',"Storage Profile");
 	} );
 </script>
 

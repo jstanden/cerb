@@ -125,7 +125,6 @@ class DAO_Ticket extends C4_ORMHelper {
 	 * @param array $fields
 	 * @return integer
 	 * 
-	 * [TODO]: Change $last_wrote argument to an ID rather than string?
 	 */
 	static function createTicket($fields) {
 		$db = DevblocksPlatform::getDatabaseService();
@@ -140,9 +139,6 @@ class DAO_Ticket extends C4_ORMHelper {
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 		
 		self::updateTicket($newId, $fields);
-		
-		// send new ticket auto-response
-//		DAO_Mail::sendAutoresponse($id, 'new');
 		
 		return $newId;
 	}
