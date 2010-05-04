@@ -20,6 +20,7 @@
 	<link type="text/css" rel="stylesheet" href="{devblocks_url}c=resource&p=cerberusweb.core&f=css/cerberus.css{/devblocks_url}?v={$smarty.const.APP_BUILD}">
 	<!--[if IE]><script language="javascript" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=js/flot/excanvas.min.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script><![endif]-->
 	<script language="javascript" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=js/flot/jquery.flot.min.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>
+	<script language="javascript" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=js/markitup/jquery.markitup.pack.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>
 	<script language="javascript" type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=js/cerberus.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>
 </head>
 

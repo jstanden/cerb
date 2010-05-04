@@ -517,4 +517,19 @@ class ChInternalController extends DevblocksControllerExtension {
 	function stopAutoRefreshAction() {
 		unset($_SESSION['autorefresh']);
 	}
+	
+	function transformMarkupToHTMLAction() {
+		$format = DevblocksPlatform::importGPC($_REQUEST['format'],'string', '');
+		$data = DevblocksPlatform::importGPC($_REQUEST['data'],'string', '');
+		
+		switch($format) {
+			case 'markdown':
+				echo DevblocksPlatform::parseMarkdown($data);
+				break;
+			case 'html':
+			default:
+				echo $data;
+				break;
+		}
+	}
 };

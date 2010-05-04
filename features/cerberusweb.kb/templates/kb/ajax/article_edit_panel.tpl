@@ -41,7 +41,19 @@ Format:
 		genericPanel.dialog('option','title','Knowledgebase Article');
 		$('#frmKbEditPanel :input:text:first').focus().select();
 		
+		{if 2==$article->format}
+		$("#content").markItUp(markitupMarkdownSettings);
+		{elseif 1==$article->format}
+		$("#content").markItUp(markitupHTMLSettings);
+		{/if}
+
 		$('#frmKbEditPanel input[name=format]').bind('click', function(event) {
+			$("#content").markItUpRemove();
+			if(2==$(event.target).val()) {
+				$("#content").markItUp(markitupMarkdownSettings);
+			} else if(1==$(event.target).val()) {
+				$("#content").markItUp(markitupHTMLSettings);
+			} 
 		} );
 		
 		$('#btnKbArticleEditSave').bind('click', function() {
