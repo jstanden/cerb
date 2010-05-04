@@ -403,7 +403,7 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'],'integer',0);
 		@$title = DevblocksPlatform::importGPC($_REQUEST['title'],'string');
 		@$category_ids = DevblocksPlatform::importGPC($_REQUEST['category_ids'],'array',array());
-		@$content_raw = DevblocksPlatform::importGPC($_REQUEST['content_raw'],'string');
+		@$content = DevblocksPlatform::importGPC($_REQUEST['content'],'string');
 		@$format = DevblocksPlatform::importGPC($_REQUEST['format'],'integer',0);
 		
 		if(!empty($id) && !empty($do_delete)) { // Delete
@@ -417,22 +417,11 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 			if(empty($title))
 				$title = '(' . $translate->_('kb_article.title') . ')';
 			
-			switch($format) {
-				default:
-				case 0: // plaintext
-					$content_html = $content_raw;
-					break;
-				case 1: // HTML
-					$content_html = $content_raw;
-					break;
-			}
-				
 			if(empty($id)) { // create
 				$fields = array(
 					DAO_KbArticle::TITLE => $title,
 					DAO_KbArticle::FORMAT => $format,
-					DAO_KbArticle::CONTENT_RAW => $content_raw,
-					DAO_KbArticle::CONTENT => $content_html,
+					DAO_KbArticle::CONTENT => $content,
 					DAO_KbArticle::UPDATED => time(),
 				);
 				$id = DAO_KbArticle::create($fields);
@@ -441,8 +430,7 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 				$fields = array(
 					DAO_KbArticle::TITLE => $title,
 					DAO_KbArticle::FORMAT => $format,
-					DAO_KbArticle::CONTENT_RAW => $content_raw,
-					DAO_KbArticle::CONTENT => $content_html,
+					DAO_KbArticle::CONTENT => $content,
 					DAO_KbArticle::UPDATED => time(),
 				);
 				DAO_KbArticle::update($id, $fields);
@@ -707,14 +695,13 @@ class DAO_KbArticle extends DevblocksORMHelper {
 	const VIEWS = 'views';
 	const FORMAT = 'format';
 	const CONTENT = 'content';
-	const CONTENT_RAW = 'content_raw';
 	
 	static function create($fields) {
 		$db = DevblocksPlatform::getDatabaseService();
 		$id = $db->GenID('kb_seq');
 		
-		$sql = sprintf("INSERT INTO kb_article (id,title,views,updated,format,content,content_raw) ".
-			"VALUES (%d,'',0,%d,0,'','')",
+		$sql = sprintf("INSERT INTO kb_article (id,title,views,updated,format,content) ".
+			"VALUES (%d,'',0,%d,0,'')",
 			$id,
 			time()
 		);
@@ -742,7 +729,7 @@ class DAO_KbArticle extends DevblocksORMHelper {
 		
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
-		$sql = "SELECT id, title, views, updated, format, content, content_raw ".
+		$sql = "SELECT id, title, views, updated, format, content ".
 			"FROM kb_article ".
 			$where_sql.
 			$sort_sql.
@@ -769,7 +756,6 @@ class DAO_KbArticle extends DevblocksORMHelper {
 			$object->views = $row['views'];
 			$object->format = $row['format'];
 			$object->content = $row['content'];
-			$object->content_raw = $row['content_raw'];
 			$objects[$object->id] = $object;
 		}
 		
@@ -1506,7 +1492,6 @@ class Model_KbArticle {
 	public $updated = 0;
 	public $format = 0;
 	public $content = '';
-	public $content_raw = '';
 	
 	// [TODO] Reuse this!
 	function getCategories() {

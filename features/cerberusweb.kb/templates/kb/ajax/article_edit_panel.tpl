@@ -20,8 +20,8 @@
 </div>
 <br>
 
-<b>Insert/Paste Content:</b> (from your external editor, if applicable)<br>
-<textarea id="content_raw" name="content_raw" style="width:99%;height:150px;border:solid 1px rgb(180,180,180);">{$article->content_raw|escape}</textarea>
+<b>Content:</b><br>
+<textarea id="content" name="content" style="width:99%;height:200px;border:solid 1px rgb(180,180,180);">{$article->content|escape}</textarea>
 <br>
 
 Format:

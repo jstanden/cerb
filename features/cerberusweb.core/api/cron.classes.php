@@ -481,7 +481,6 @@ class ImportCron extends CerberusCronPageExtension {
 			DAO_KbArticle::TITLE => $title,
 			DAO_KbArticle::UPDATED => $created,
 			DAO_KbArticle::FORMAT => 1, // HTML
-			DAO_KbArticle::CONTENT_RAW => $content,
 			DAO_KbArticle::CONTENT => $content,
 			DAO_KbArticle::VIEWS => 0, // [TODO]
 		);
