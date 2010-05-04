@@ -25,26 +25,26 @@
 				<tr>
 					<td width="1%" nowrap="nowrap"><b>{$translate->_('message.header.to')|capitalize}:</b> </td>
 					<td width="99%" align="left">
-						<input type="text" size="45" name="to" value="{if !empty($draft)}{$draft->params.to|escape}{else}{if $is_forward}{else}{foreach from=$ticket->getRequesters() item=req_addy name=reqs}{$req_addy->email}{if !$smarty.foreach.reqs.last}, {/if}{/foreach}{/if}{/if}" onchange="$('#reply{$message->id}_part2 input[name=to]').val(this.value);" {if $is_forward}class="required"{/if} style="width:100%;border:1px solid rgb(180,180,180);padding:2px;">
+						<input type="text" size="45" name="to" value="{if !empty($draft)}{$draft->params.to|escape}{else}{if $is_forward}{else}{foreach from=$ticket->getRequesters() item=req_addy name=reqs}{$req_addy->email}{if !$smarty.foreach.reqs.last}, {/if}{/foreach}{/if}{/if}" {if $is_forward}class="required"{/if} style="width:100%;border:1px solid rgb(180,180,180);padding:2px;">
 					</td>
 				</tr>
 				
 				<tr>
 					<td width="1%" nowrap="nowrap">{$translate->_('message.header.cc')|capitalize}: </td>
 					<td width="99%" align="left">
-						<input type="text" size="45" name="cc" value="{$draft->params.cc|escape}" onchange="$('#reply{$message->id}_part2 input[name=cc]').val(this.value);" style="width:100%;border:1px solid rgb(180,180,180);padding:2px;">					
+						<input type="text" size="45" name="cc" value="{$draft->params.cc|escape}" style="width:100%;border:1px solid rgb(180,180,180);padding:2px;">					
 					</td>
 				</tr>
 				<tr>
 					<td width="1%" nowrap="nowrap">{$translate->_('message.header.bcc')|capitalize}: </td>
 					<td width="99%" align="left">
-						<input type="text" size="45" name="bcc" value="{$draft->params.bcc|escape}" onchange="$('#reply{$message->id}_part2 input[name=bcc]').val(this.value);" style="width:100%;border:1px solid rgb(180,180,180);padding:2px;">					
+						<input type="text" size="45" name="bcc" value="{$draft->params.bcc|escape}" style="width:100%;border:1px solid rgb(180,180,180);padding:2px;">					
 					</td>
 				</tr>
 				<tr>
 					<td width="1%" nowrap="nowrap">{$translate->_('message.header.subject')|capitalize}: </td>
 					<td width="99%" align="left">
-						<input type="text" size="45" name="subject" value="{if !empty($draft)}{$draft->subject|escape}{else}{if $is_forward}Fwd: {/if}{$ticket->subject|escape}{/if}" onchange="$('#reply{$message->id}_part2 input[name=subject]').val(this.value);" style="width:100%;border:1px solid rgb(180,180,180);padding:2px;" class="required">					
+						<input type="text" size="45" name="subject" value="{if !empty($draft)}{$draft->subject|escape}{else}{if $is_forward}Fwd: {/if}{$ticket->subject|escape}{/if}" style="width:100%;border:1px solid rgb(180,180,180);padding:2px;" class="required">					
 					</td>
 				</tr>
 			</table>
@@ -259,6 +259,11 @@
 		ajax.emailAutoComplete('#reply{$message->id}_part1 input[name=to]', { multiple: true } );
 		ajax.emailAutoComplete('#reply{$message->id}_part1 input[name=cc]', { multiple: true } );
 		ajax.emailAutoComplete('#reply{$message->id}_part1 input[name=bcc]', { multiple: true } );
+		
+		$('#reply{$message->id}_part1 input:text').blur(function(event) {
+			var name = event.target.name;
+			$('#reply{$message->id}_part2 input:hidden[name='+name+']').val(event.target.value);
+		} );
 		
 		$('#reply{$message->id}_part1').validate();
 		$('#reply{$message->id}_part2').validate();
