@@ -439,6 +439,9 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 			
 			DAO_KbArticle::setCategories($id, $category_ids, true);
 		}
+		
+		// JSON
+		echo json_encode(array('id'=>$id));
 	}
 	
 	function doArticleQuickSearchAction() {
@@ -685,7 +688,19 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 		$view->render();
 		return;
 	}
+	
+	function getArticleContentAction() {
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
+
+		// [TODO] ACL
+		// [TODO] Fetch article content from storage
 		
+		if(null == ($article = DAO_KbArticle::get($id)))
+			return;
+
+		echo $article->getContent();
+	}
+	
 };
 
 class DAO_KbArticle extends DevblocksORMHelper {
@@ -1486,12 +1501,34 @@ class View_KbArticle extends C4_AbstractView {
 };
 
 class Model_KbArticle {
+	const FORMAT_PLAINTEXT = 0;
+	const FORMAT_HTML = 1;
+	const FORMAT_MARKDOWN = 2;
+	
 	public $id = 0;
 	public $title = '';
 	public $views = 0;
 	public $updated = 0;
 	public $format = 0;
 	public $content = '';
+	
+	function getContent() {
+		$html = '';
+		
+		switch($this->format) {
+			case self::FORMAT_HTML:
+				$html = $this->content;
+				break;
+			case self::FORMAT_PLAINTEXT:
+				$html = nl2br(htmlentities($this->content, ENT_QUOTES, LANG_CHARSET_CODE));
+				break;
+			case self::FORMAT_MARKDOWN:
+				$html = DevblocksPlatform::parseMarkdown($this->content);
+				break;
+		}
+		
+		return $html;
+	}
 	
 	// [TODO] Reuse this!
 	function getCategories() {

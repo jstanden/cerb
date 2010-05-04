@@ -17,7 +17,7 @@
 	<!-- Patches -->
 	
 	<patches>
-		<patch version="5.0.0-beta" revision="4" file="patches/5.0.0_beta.php" />
+		<patch version="5.0.0-beta" revision="5" file="patches/5.0.0_beta.php" />
 	</patches>
 	
 	<!-- Exported Classes -->

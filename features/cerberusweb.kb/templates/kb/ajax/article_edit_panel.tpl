@@ -9,7 +9,7 @@
 <br>
 
 <b>Add to Categories:</b><br>
-<div style="overflow:auto;height:150px;border:solid 1px rgb(180,180,180);background-color:rgb(255,255,255);">
+<div style="overflow:auto;height:125px;border:solid 1px rgb(180,180,180);background-color:rgb(255,255,255);">
 	{foreach from=$levels item=depth key=node_id}
 		<label>
 			<input type="checkbox" name="category_ids[]" value="{$node_id}" onchange="div=document.getElementById('kbTreeCat{$node_id}');div.style.color=(this.checked)?'green':'';div.style.background=(this.checked)?'rgb(230,230,230)':'';" {if (empty($article) && $root_id==$node_id) || isset($article_categories.$node_id)}checked{/if}>
@@ -25,12 +25,14 @@
 <br>
 
 Format:
-<label><input type="radio" name="format" value="1" {if 1==$article->format}checked{/if}> HTML</label> 
-<label><input type="radio" name="format" value="0" {if 0==$article->format}checked{/if}> Plaintext</label> 
+<label><input type="radio" name="format" value="2" {if 2==$article->format || empty($article->format)}checked{/if}> <b>Markdown</b> (recommended)</label> [<a href="http://en.wikipedia.org/wiki/Markdown" target="_blank">?</a>] 
+<label><input type="radio" name="format" value="1" {if 1==$article->format}checked{/if}> <b>HTML</b></label> 
 <br>
 <br>
 
-{if $active_worker->hasPriv('core.kb.articles.modify')}<button type="button" id="btnKbArticleEditSave" onclick="genericAjaxPanelPostCloseReloadView('frmKbEditPanel','{$view_id}');"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')|capitalize}</button>{/if} 
+<div id="kbEditPreview"></div>
+
+{if $active_worker->hasPriv('core.kb.articles.modify')}<button type="button" id="btnKbArticleEditSave"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')|capitalize}</button>{/if} 
 {if !empty($article) && $active_worker->hasPriv('core.kb.articles.modify')}<button type="button" onclick="if(confirm('Are you sure you want to permanently delete this article?')) { this.form.do_delete.value='1';$('#btnKbArticleEditSave').click(); } "><span class="cerb-sprite sprite-delete2"></span> {$translate->_('common.delete')|capitalize}</button>{/if}
 </form>
 
@@ -38,5 +40,15 @@ Format:
 	genericPanel.one('dialogopen',function(event,ui) {
 		genericPanel.dialog('option','title','Knowledgebase Article');
 		$('#frmKbEditPanel :input:text:first').focus().select();
+		
+		$('#frmKbEditPanel input[name=format]').bind('click', function(event) {
+		} );
+		
+		$('#btnKbArticleEditSave').bind('click', function() {
+			genericPanel.dialog('close');
+			genericAjaxPost('frmKbEditPanel', '', '', function(json) {
+			{if !empty($view_id)}genericAjaxGet('view{$view_id}','c=internal&a=viewRefresh&id={$view_id|escape}');{/if}
+			} );
+		} );
 	} );
 </script>

@@ -5,7 +5,7 @@
 
 <div style="padding:10px;">
 	{if !empty($article->content)}
-		{if !$article->format}{$article->content|escape|nl2br}{else}{$article->content}{/if}<br>
+		{$article->getContent()}<br>
 	{else}
 		<i>[[ {$translate->_('portal.kb.public.no_content')} ]]</i><br>
 	{/if}
