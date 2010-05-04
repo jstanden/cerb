@@ -17,6 +17,8 @@
 		<br>
 		
 		{if isset($draft->hint_to)}<b>{$translate->_('message.header.to')|capitalize}:</b> {$draft->hint_to|escape}<br>{/if}
+		{if isset($draft->params.cc)}<b>{$translate->_('message.header.cc')|capitalize}:</b> {$draft->params.cc|escape}<br>{/if}
+		{if isset($draft->params.bcc)}<b>{$translate->_('message.header.bcc')|capitalize}:</b> {$draft->params.bcc|escape}<br>{/if}
 		{if isset($draft->subject)}<b>{$translate->_('message.header.subject')|capitalize}:</b> {$draft->subject|escape}<br>{/if}
 		{if isset($draft->updated)}<b>{$translate->_('message.header.date')|capitalize}:</b> {$draft->updated|devblocks_date}<br>{/if}
 		<pre class="emailbody" style="padding-top:10px;">{$draft->body|trim|escape|devblocks_hyperlinks}</pre>
