@@ -59,7 +59,11 @@ Format:
 		$('#btnKbArticleEditSave').bind('click', function() {
 			genericPanel.dialog('close');
 			genericAjaxPost('frmKbEditPanel', '', '', function(json) {
-			{if !empty($view_id)}genericAjaxGet('view{$view_id}','c=internal&a=viewRefresh&id={$view_id|escape}');{/if}
+			{if !empty($view_id)}
+			genericAjaxGet('view{$view_id}','c=internal&a=viewRefresh&id={$view_id|escape}');
+			{elseif !empty($return_uri)}
+			document.location = DevblocksAppPath + '{$return_uri}';
+			{/if}
 			} );
 		} );
 	} );

@@ -57,9 +57,8 @@
 			<td>{$result.kb_id}&nbsp;</td>
 			{elseif $column=="kb_title"}
 			<td>
-				{if !empty($result.kb_title)}
-				<span class="cerb-sprite sprite-document"></span> <a href="javascript:;" onclick="genericAjaxPanel('c=kb.ajax&a=showArticlePeekPanel&id={$result.kb_id}&view_id={$view->id}',null,false,'700');" class="subject">{$result.kb_title|escape}</a>				
-				{/if}
+				<a href="{devblocks_url}c=kb&a=article&id={$result.kb_id|escape}{/devblocks_url}" class="subject">{if !empty($result.kb_title)}{$result.kb_title|escape}{else}(no title){/if}</a>
+				<a href="javascript:;" onclick="genericAjaxPanel('c=kb.ajax&a=showArticlePeekPanel&id={$result.kb_id}&view_id={$view->id}',null,false,'700');"><span class="ui-icon ui-icon-newwin" style="display:inline-block;vertical-align:middle;" title="{$translate->_('views.peek')}"></span></a>
 			</td>
 			{elseif $column=="kb_updated"}
 			<td><abbr title="{$result.kb_updated|devblocks_date}">{$result.kb_updated|devblocks_prettytime}</abbr>&nbsp;</td>

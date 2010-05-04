@@ -47,14 +47,28 @@ class ChKbPage extends CerberusPageExtension {
 		@$action = array_shift($stack);
 		
 		switch($action) {
-			case 'category':
 			case 'article':
+				@$article_id = array_shift($stack);
+				
+				$categories = DAO_KbCategory::getAll();
+				$tpl->assign('categories', $categories);
+				
+				if(null != ($article = DAO_KbArticle::get($article_id))) {
+					$tpl->assign('article', $article);
+					
+					$breadcrumbs = $article->getCategories();
+					$tpl->assign('breadcrumbs', $breadcrumbs);
+				}
+				
+				$tpl->display('file:' . $this->_TPL_PATH . 'kb/display/index.tpl');
+				break;
+				
+			case 'category':
 			default:
 				$tab_manifests = DevblocksPlatform::getExtensions('cerberusweb.knowledgebase.tab', false);
 				uasort($tab_manifests, create_function('$a, $b', "return strcasecmp(\$a->name,\$b->name);\n"));
 				$tpl->assign('tab_manifests', $tab_manifests);
 				
-				//@$tab_selected = array_shift($stack);
 				if(empty($tab_selected)) $tab_selected = '';
 				$tpl->assign('tab_selected', $action);
 				
@@ -291,7 +305,12 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 		$tpl->assign('path', $this->_TPL_PATH);
 
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
-		$tpl->assign('view_id', $view_id);
+		if(!empty($view_id))
+			$tpl->assign('view_id', $view_id);
+			
+		@$return_uri = DevblocksPlatform::importGPC($_REQUEST['return_uri'],'string','');
+		if(!empty($return_uri))
+			$tpl->assign('return_uri', $return_uri);
 		
 		if(!empty($id)) {
 			$article = DAO_KbArticle::get($id);
@@ -373,7 +392,12 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 		$tpl->assign('root_id', $root_id);
 		
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
-		$tpl->assign('view_id', $view_id);
+		if(!empty($view_id))
+			$tpl->assign('view_id', $view_id);
+			
+		@$return_uri = DevblocksPlatform::importGPC($_REQUEST['return_uri'],'string','');
+		if(!empty($return_uri))
+			$tpl->assign('return_uri', $return_uri);
 		
 		if(!empty($id)) {
 			$article = DAO_KbArticle::get($id);
