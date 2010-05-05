@@ -5,7 +5,8 @@
 	<tr>
 		<td nowrap="nowrap"><span class="title">{$view->name}</span></td>
 		<td nowrap="nowrap" align="right">
-			<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewRefresh&id={$view->id}');">{$translate->_('common.refresh')|lower}</a>
+			<a href="javascript:;" onclick="$('#btnExplore{$view->id}').click();">explore</a>
+			 | <a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewRefresh&id={$view->id}');">{$translate->_('common.refresh')|lower}</a>
 			<!-- {if $view->id != 'search'} | <a href="{devblocks_url}c=internal&a=searchview&id={$view->id}{/devblocks_url}">{$translate->_('common.search')|lower} list</a>{/if} -->
 			 | <a href="javascript:;" onclick="genericAjaxGet('customize{$view->id}','c=internal&a=viewCustomize&id={$view->id}');toggleDiv('customize{$view->id}','block');">{$translate->_('common.customize')|lower}</a>
 		</td>
@@ -14,10 +15,12 @@
 
 <form id="customize{$view->id}" name="customize{$view->id}" action="#" onsubmit="return false;" style="display:none;"></form>
 <form id="viewForm{$view->id}" name="viewForm{$view->id}" action="{devblocks_url}{/devblocks_url}" method="post">
-<input type="hidden" name="id" value="{$view->id}">
+<button id="btnExplore{$view->id}" type="button" style="display:none;" onclick="this.form.a.value='viewKbArticlesExplore';this.form.submit();"></button>
+<input type="hidden" name="view_id" value="{$view->id}">
 <input type="hidden" name="c" value="kb">
 <input type="hidden" name="a" value="">
 <input type="hidden" name="return" value="{$response_uri}">
+<input type="hidden" name="explore_from" value="0">
 <table cellpadding="1" cellspacing="0" border="0" width="100%" class="worklistBody">
 
 	{* Column Headers *}
@@ -50,8 +53,8 @@
 		{assign var=tableRowClass value="odd"}
 	{/if}
 	
-		<tr class="{$tableRowClass}" id="{$rowIdPrefix}_s" onmouseover="$(this).addClass('hover');" onmouseout="$(this).removeClass('hover');" onclick="if(getEventTarget(event)=='TD') checkAll('{$rowIdPrefix}_s');">
-			<td align="center"><input type="checkbox" name="row_id[]" value="{$result.kb_id}"></td>
+		<tr class="{$tableRowClass}" id="{$rowIdPrefix}_s" onmouseover="$(this).addClass('hover');" onmouseout="$(this).removeClass('hover');" onclick="if(getEventTarget(event)=='TD') { $('#{$rowIdPrefix}_s').find('input[type=checkbox]').first().click(); } ">
+			<td align="center"><input type="checkbox" name="row_id[]" value="{$result.kb_id}" onclick="$(this).closest('form').find('input[name=explore_from]').first().val('{$result.kb_id}');"></td>
 		{foreach from=$view->view_columns item=column name=columns}
 			{if $column=="kb_id"}
 			<td>{$result.kb_id}&nbsp;</td>
