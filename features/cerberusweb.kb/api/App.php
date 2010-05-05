@@ -729,6 +729,8 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 		if(null == ($article = DAO_KbArticle::get($id)))
 			return;
 
+		echo "<style>BODY { font-family: Arial, Verdana, sans-serif, Helvetica; font-size: 11pt; } </style>";
+			
 		echo $article->getContent();
 	}
 	
