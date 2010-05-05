@@ -17,7 +17,7 @@
 <div id="{$view->id}_tips" class="block" style="display:none;margin:10px;padding:5px;">Loading...</div>
 <form id="customize{$view->id}" name="customize{$view->id}" action="#" onsubmit="return false;" style="display:none;"></form>
 <form id="viewForm{$view->id}" name="viewForm{$view->id}" action="{devblocks_url}{/devblocks_url}" method="post">
-<button id="btnExplore{$view->id}" type="button" style="display:none;" onclick="this.form.a.value='viewTasksExplore';this.form.submit();"></button>
+<button id="btnExplore{$view->id}" type="button" style="display:none;" onclick="this.form.explore_from.value=$(this).closest('form').find('tbody input:checkbox:checked:first').val();this.form.a.value='viewTasksExplore';this.form.submit();"></button>
 <input type="hidden" name="view_id" value="{$view->id}">
 <input type="hidden" name="c" value="tasks">
 <input type="hidden" name="a" value="">
@@ -54,7 +54,7 @@
 	{else}
 		{assign var=tableRowClass value="odd"}
 	{/if}
-	<tbody onmouseover="$(this).find('tr').addClass('hover');" onmouseout="$(this).find('tr').removeClass('hover');" onclick="if(getEventTarget(event)=='TD') { var $chk=$(this).find('input:checkbox:first');if(!$chk) return;$chk.attr('checked', !$chk.is(':checked')); $(this).closest('form').find('input[name=explore_from]:first').val($chk.val()); } ">
+	<tbody onmouseover="$(this).find('tr').addClass('hover');" onmouseout="$(this).find('tr').removeClass('hover');" onclick="if(getEventTarget(event)=='TD') { var $chk=$(this).find('input:checkbox:first');if(!$chk) return;$chk.attr('checked', !$chk.is(':checked')); } ">
 		<tr class="{$tableRowClass}">
 			<td align="center" rowspan="2"><input type="checkbox" name="row_id[]" value="{$result.t_id}"></td>
 			<td colspan="{math equation="x" x=$smarty.foreach.headers.total}">

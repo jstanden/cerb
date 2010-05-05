@@ -15,7 +15,7 @@
 <div id="{$view->id}_tips" class="block" style="display:none;margin:10px;padding:5px;">Loading...</div>
 <form id="customize{$view->id}" name="customize{$view->id}" action="#" onsubmit="return false;" style="display:none;"></form>
 <form id="viewForm{$view->id}" name="viewForm{$view->id}" action="{devblocks_url}{/devblocks_url}" method="post">
-<button id="btnExplore{$view->id}" type="button" style="display:none;" onclick="this.form.a.value='viewDraftsExplore';this.form.submit();"></button>
+<button id="btnExplore{$view->id}" type="button" style="display:none;" onclick="this.form.explore_from.value=$(this).closest('form').find('tbody input:checkbox:checked:first').val();this.form.a.value='viewDraftsExplore';this.form.submit();"></button>
 <input type="hidden" name="view_id" value="{$view->id}">
 <input type="hidden" name="c" value="tickets">
 <input type="hidden" name="a" value="">

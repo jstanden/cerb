@@ -15,7 +15,7 @@
 
 <form id="customize{$view->id}" name="customize{$view->id}" action="#" onsubmit="return false;" style="display:none;"></form>
 <form id="viewForm{$view->id}" name="viewForm{$view->id}" action="{devblocks_url}{/devblocks_url}" method="post">
-<button id="btnExplore{$view->id}" type="button" style="display:none;" onclick="this.form.a.value='viewKbArticlesExplore';this.form.submit();"></button>
+<button id="btnExplore{$view->id}" type="button" style="display:none;" onclick="this.form.explore_from.value=$(this).closest('form').find('tbody input:checkbox:checked:first').val();this.form.a.value='viewKbArticlesExplore';this.form.submit();"></button>
 <input type="hidden" name="view_id" value="{$view->id}">
 <input type="hidden" name="c" value="kb">
 <input type="hidden" name="a" value="">
@@ -51,7 +51,7 @@
 	{else}
 		{assign var=tableRowClass value="odd"}
 	{/if}
-	<tbody onmouseover="$(this).find('tr').addClass('hover');" onmouseout="$(this).find('tr').removeClass('hover');" onclick="if(getEventTarget(event)=='TD') { var $chk=$(this).find('input:checkbox:first');if(!$chk) return;$chk.attr('checked', !$chk.is(':checked')); $(this).closest('form').find('input[name=explore_from]:first').val($chk.val()); } ">
+	<tbody onmouseover="$(this).find('tr').addClass('hover');" onmouseout="$(this).find('tr').removeClass('hover');" onclick="if(getEventTarget(event)=='TD') { var $chk=$(this).find('input:checkbox:first');if(!$chk) return;$chk.attr('checked', !$chk.is(':checked')); } ">
 		<tr class="{$tableRowClass}">
 			<td align="center"><input type="checkbox" name="row_id[]" value="{$result.kb_id}"></td>
 		{foreach from=$view->view_columns item=column name=columns}
