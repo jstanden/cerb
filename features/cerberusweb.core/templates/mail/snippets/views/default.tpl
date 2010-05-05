@@ -45,15 +45,14 @@
 	{* Column Data *}
 	{foreach from=$data item=result key=idx name=results}
 
-	{assign var=rowIdPrefix value="row_"|cat:$view->id|cat:"_"|cat:$result.s_id}
 	{if $smarty.foreach.results.iteration % 2}
 		{assign var=tableRowClass value="even"}
 	{else}
 		{assign var=tableRowClass value="odd"}
 	{/if}
-	
-		<tr class="{$tableRowClass}" id="{$rowIdPrefix}_s" onmouseover="$(this).addClass('hover');$('#{$rowIdPrefix}_s').addClass('hover');" onmouseout="$(this).removeClass('hover');$('#{$rowIdPrefix}_s').removeClass('hover');" onclick="if(getEventTarget(event)=='TD') { $('#{$rowIdPrefix}_s').find('input[type=checkbox]').first().click(); }">
-		<td align="center"><input type="checkbox" name="row_id[]" value="{$result.s_id}" onclick="$(this).closest('form').find('input[name=explore_from]').first().val('{$result.s_id}');"></td>
+	<tbody onmouseover="$(this).find('tr').addClass('hover');" onmouseout="$(this).find('tr').removeClass('hover');" onclick="if(getEventTarget(event)=='TD') { var $chk=$(this).find('input:checkbox:first');if(!$chk) return;$chk.attr('checked', !$chk.is(':checked')); } ">
+		<tr class="{$tableRowClass}">
+		<td align="center"><input type="checkbox" name="row_id[]" value="{$result.s_id}"></td>
 		{foreach from=$view->view_columns item=column name=columns}
 			{if substr($column,0,3)=="cf_"}
 				{include file="file:$core_tpl/internal/custom_fields/view/cell_renderer.tpl"}
@@ -80,6 +79,7 @@
 			{/if}
 		{/foreach}
 		</tr>
+	</tbody>
 	{/foreach}
 	
 </table>

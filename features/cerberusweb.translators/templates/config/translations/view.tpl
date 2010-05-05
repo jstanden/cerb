@@ -43,7 +43,6 @@
 	{* Column Data *}
 	{foreach from=$data item=result key=idx name=results}
 
-	{assign var=rowIdPrefix value="row_"|cat:$view->id|cat:"_"|cat:$result.tl_id}
 	{if $smarty.foreach.results.iteration % 2}
 		{assign var=tableRowClass value="even"}
 	{else}
@@ -53,8 +52,8 @@
 	{assign var=list_id value=$result.f_list_id}
 	{assign var=worker_id value=$result.f_worker_id}
 	{assign var=mood value=$result.f_quote_mood}
-	
-		<tr class="{$tableRowClass}" id="{$rowIdPrefix}_s" onmouseover="$(this).addClass('hover');$('#{$rowIdPrefix}').addClass('hover');" onmouseout="$(this).removeClass('hover');$('#{$rowIdPrefix}').removeClass('hover');" onclick="if(getEventTarget(event)=='TD') checkAll('{$rowIdPrefix}_s');">
+	<tbody onmouseover="$(this).find('tr').addClass('hover');" onmouseout="$(this).find('tr').removeClass('hover');" onclick="if(getEventTarget(event)=='TD') { var $chk=$(this).find('input:checkbox:first');if(!$chk) return;$chk.attr('checked', !$chk.is(':checked')); } ">
+		<tr class="{$tableRowClass}">
 			<td align="center" rowspan="2">{*<input type="checkbox" name="row_id[]" value="{$result.tl_id}">*}</td>
 			<td colspan="{math equation="x" x=$smarty.foreach.headers.total}">
 				<div id="subject_{$result.tl_id}_{$view->id}" style="margin:2px;font-size:12px;">
@@ -108,7 +107,7 @@
 			</td>
 		</tr>
 
-		<tr class="{$tableRowClass}" id="{$rowIdPrefix}" onmouseover="$(this).addClass('hover');$('#{$rowIdPrefix}_s').addClass('hover');" onmouseout="$(this).removeClass('hover');$('#{$rowIdPrefix}_s').removeClass('hover');" onclick="if(getEventTarget(event)=='TD') checkAll('{$rowIdPrefix}_s');">
+		<tr class="{$tableRowClass}">
 		{foreach from=$view->view_columns item=column name=columns}
 			{assign var=lang_code value=$result.tl_lang_code}
 		
@@ -130,6 +129,7 @@
 			{/if}
 		{/foreach}
 		</tr>
+	</tbody>
 	{/foreach}
 </table>
 <table cellpadding="2" cellspacing="0" border="0" width="100%" id="{$view->id}_actions">

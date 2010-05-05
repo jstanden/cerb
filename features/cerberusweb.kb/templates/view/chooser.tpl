@@ -30,14 +30,13 @@
 	{* Column Data *}
 	{foreach from=$data item=result key=idx name=results}
 
-	{assign var=rowIdPrefix value="row_"|cat:$view->id|cat:"_"|cat:$result.kb_id}
 	{if $smarty.foreach.results.iteration % 2}
 		{assign var=tableRowClass value="even"}
 	{else}
 		{assign var=tableRowClass value="odd"}
 	{/if}
-	
-		<tr class="{$tableRowClass}" id="{$rowIdPrefix}_s" onmouseover="$(this).addClass('hover');" onmouseout="$(this).removeClass('hover');" onclick="if(getEventTarget(event)=='TD') { checkAll('{$rowIdPrefix}_s'); }">
+	<tbody onmouseover="$(this).find('tr').addClass('hover');" onmouseout="$(this).find('tr').removeClass('hover');">
+		<tr class="{$tableRowClass}">
 		{*<td align="center"><input type="checkbox" name="row_id[]" value="{$result.kb_id}"></td>*}
 		{foreach from=$view->view_columns item=column name=columns}
 			{if substr($column,0,3)=="cf_"}
@@ -77,6 +76,7 @@
 			{/if}
 		{/foreach}		
 		</tr>
+	</tbody>
 	{/foreach}
 	
 </table>

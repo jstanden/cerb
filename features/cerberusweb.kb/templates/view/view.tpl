@@ -46,15 +46,14 @@
 	{* Column Data *}
 	{foreach from=$data item=result key=idx name=results}
 
-	{assign var=rowIdPrefix value="row_"|cat:$view->id|cat:"_"|cat:$result.kb_id}
 	{if $smarty.foreach.results.iteration % 2}
 		{assign var=tableRowClass value="even"}
 	{else}
 		{assign var=tableRowClass value="odd"}
 	{/if}
-	
-		<tr class="{$tableRowClass}" id="{$rowIdPrefix}_s" onmouseover="$(this).addClass('hover');" onmouseout="$(this).removeClass('hover');" onclick="if(getEventTarget(event)=='TD') { $('#{$rowIdPrefix}_s').find('input[type=checkbox]').first().click(); } ">
-			<td align="center"><input type="checkbox" name="row_id[]" value="{$result.kb_id}" onclick="$(this).closest('form').find('input[name=explore_from]').first().val('{$result.kb_id}');"></td>
+	<tbody onmouseover="$(this).find('tr').addClass('hover');" onmouseout="$(this).find('tr').removeClass('hover');" onclick="if(getEventTarget(event)=='TD') { var $chk=$(this).find('input:checkbox:first');if(!$chk) return;$chk.attr('checked', !$chk.is(':checked')); $(this).closest('form').find('input[name=explore_from]:first').val($chk.val()); } ">
+		<tr class="{$tableRowClass}">
+			<td align="center"><input type="checkbox" name="row_id[]" value="{$result.kb_id}"></td>
 		{foreach from=$view->view_columns item=column name=columns}
 			{if $column=="kb_id"}
 			<td>{$result.kb_id}&nbsp;</td>
@@ -91,6 +90,7 @@
 			{/if}
 		{/foreach}
 		</tr>
+	</tbody>
 	{/foreach}
 	
 </table>

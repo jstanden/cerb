@@ -30,6 +30,7 @@
 <input type="hidden" name="explore_from" value="0">
 <table cellpadding="1" cellspacing="0" border="0" width="100%" class="worklistBody">
 	{* Column Headers *}
+	<thead>
 	<tr>
 		<th style="text-align:center"><input type="checkbox" onclick="checkAll('viewForm{$view->id}',this.checked);this.blur();"></th>
 		{foreach from=$view->view_columns item=header name=headers}
@@ -52,11 +53,11 @@
 			</th>
 		{/foreach}
 	</tr>
+	</thead>
 
 	{* Column Data *}
 	{foreach from=$tickets item=result key=idx name=results}
 
-	{assign var=rowIdPrefix value="row_"|cat:$view->id|cat:"_"|cat:$result.t_id}
 	{if $smarty.foreach.results.iteration % 2}
 		{assign var=tableRowClass value="even"}
 	{else}
@@ -65,6 +66,7 @@
 	
 	{assign var=ticket_group_id value=$result.t_team_id}
 	{if !isset($active_worker_memberships.$ticket_group_id)}{*censor*}
+	<tbody>
 	<tr class="{$tableRowClass}">
 		<td>&nbsp;</td>
 		<td rowspan="2" colspan="{math equation="x" x=$smarty.foreach.headers.total}" style="color:rgb(140,140,140);font-size:10px;text-align:left;vertical-align:middle;">[Access Denied: {$teams.$ticket_group_id->name} #{$result.t_mask}]</td>
@@ -72,16 +74,18 @@
 	<tr class="{$tableRowClass}">
 		<td>&nbsp;</td>
 	</tr>
+	</tbody>
 	
 	{else}
-	<tr class="{$tableRowClass}" id="{$rowIdPrefix}_s" onmouseover="$(this).addClass('hover');$('#{$rowIdPrefix}').addClass('hover');" onmouseout="$(this).removeClass('hover');$('#{$rowIdPrefix}').removeClass('hover');" onclick="if(getEventTarget(event)=='TD') { $('#{$rowIdPrefix}_s').find('input[type=checkbox]').first().click(); };">
-		<td align="center" rowspan="2"><input type="checkbox" name="ticket_id[]" value="{$result.t_id}" onclick="$(this).closest('form').find('input[name=explore_from]').first().val('{$result.t_id}');"></td>
+	<tbody onmouseover="$(this).find('tr').addClass('hover');" onmouseout="$(this).find('tr').removeClass('hover');" onclick="if(getEventTarget(event)=='TD') { var $chk=$(this).find('input:checkbox:first');if(!$chk) return;$chk.attr('checked', !$chk.is(':checked')); $(this).closest('form').find('input[name=explore_from]:first').val($chk.val()); } ">
+	<tr class="{$tableRowClass}">
+		<td align="center" rowspan="2"><input type="checkbox" name="ticket_id[]" value="{$result.t_id}"></td>
 		<td colspan="{math equation="x" x=$smarty.foreach.headers.total}">
 			<a href="{devblocks_url}c=display&id={$result.t_mask}{/devblocks_url}" class="subject">{if $result.t_is_deleted}<span class="cerb-sprite sprite-delete2_gray"></span> {elseif $result.t_is_closed}<span class="cerb-sprite sprite-check_gray" title="{$translate->_('status.closed')}"></span> {elseif $result.t_is_waiting}<span class="cerb-sprite sprite-clock"></span> {/if}{$result.t_subject|escape}</a> 
 			<a href="javascript:;" onclick="genericAjaxPanel('c=tickets&a=showPreview&view_id={$view->id}&tid={$result.t_id}', null, false, '550');"><span class="ui-icon ui-icon-newwin" style="display:inline-block;vertical-align:middle;" title="{$translate->_('views.peek')}"></span></a>
 		</td>
 	</tr>
-	<tr class="{$tableRowClass}" id="{$rowIdPrefix}" onmouseover="$(this).addClass('hover');$('#{$rowIdPrefix}_s').addClass('hover');" onmouseout="$(this).removeClass('hover');$('#{$rowIdPrefix}_s').removeClass('hover');" onclick="if(getEventTarget(event)=='TD') { $('#{$rowIdPrefix}_s').find('input[type=checkbox]').first().click(); }">
+	<tr class="{$tableRowClass}">
 	{foreach from=$view->view_columns item=column name=columns}
 		{if substr($column,0,3)=="cf_"}
 			{include file="file:$core_tpl/internal/custom_fields/view/cell_renderer.tpl"}
@@ -172,7 +176,7 @@
 		<td>
 			{math assign=score equation="x*100" format="%0.2f%%" x=$result.t_spam_score}
 			{if empty($result.t_spam_training)}
-			{if $active_worker->hasPriv('core.ticket.actions.spam')}<a href="javascript:;" onclick="toggleDiv('{$rowIdPrefix}_s','none');toggleDiv('{$rowIdPrefix}','none');genericAjaxGet('{$view->id}_output_container','c=tickets&a=reportSpam&id={$result.t_id}&viewId={$view->id}');">{/if}
+			{if $active_worker->hasPriv('core.ticket.actions.spam')}<a href="javascript:;" onclick="$(this).closest('tbody').remove();genericAjaxGet('{$view->id}_output_container','c=tickets&a=reportSpam&id={$result.t_id}&viewId={$view->id}');">{/if}
 			<span class="cerb-sprite sprite-{if $result.t_spam_score >= 0.90}warning{else}warning_gray{/if}" title="Report Spam ({$score})"></span>
 			{if $active_worker->hasPriv('core.ticket.actions.spam')}</a>{/if}
 			{/if}
@@ -182,6 +186,7 @@
 		{/if}
 	{/foreach}
 	</tr>
+	</tbody>
 	{/if}{*!censor*}
 	
 {/foreach}
