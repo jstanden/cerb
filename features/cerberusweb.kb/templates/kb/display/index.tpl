@@ -14,21 +14,28 @@
 </div>
 
 <h1>{$article->title|escape}</h1>
+<div style="margin-bottom:5px;">
+	<b>{$translate->_('kb_article.updated')|capitalize}:</b> <abbr title="{$article->updated|devblocks_date}">{$article->updated|devblocks_prettytime}</abbr> &nbsp;
+	<b>{$translate->_('kb_article.views')|capitalize}:</b> {$article->views|escape} &nbsp;
+	<b>{$translate->_('common.id')|upper}:</b> {$article->id|escape} &nbsp; 
+	<br>
+	
+	{if !empty($breadcrumbs)}
+	<b>Filed under:</b> 
+	{foreach from=$breadcrumbs item=trail name=trail}
+		{foreach from=$trail item=step key=cat_id name=cats}
+		<a href="{devblocks_url}c=kb&a=category&id={$cat_id|escape}{/devblocks_url}">{$categories.{$cat_id}->name}</a>
+		{if !$smarty.foreach.cats.last} &raquo; {/if}
+		{/foreach}
+		{if !$smarty.foreach.trail.last}; {/if}
+	{/foreach}
+	<br>
+	{/if}
+</div>
+
 <form>
 {if $active_worker->hasPriv('core.kb.articles.modify')}<button type="button" onclick="genericAjaxPanel('c=kb.ajax&a=showArticleEditPanel&id={$article->id}&return_uri={"kb/article/{$article->id}"|escape}',null,false,'725');"><span class="cerb-sprite sprite-document_edit"></span> {$translate->_('common.edit')|capitalize}</button>{/if}	
 </form>
 
 <iframe src="{$smarty.const.DEVBLOCKS_WEBPATH}ajax.php?c=kb.ajax&a=getArticleContent&id={$article->id|escape}" style="margin:5px 0px 5px 5px;height:50%;width:98%;border:1px solid rgb(200,200,200);" frameborder="0"></iframe>
 <br>
-
-{if !empty($breadcrumbs)}
-<b>Filed under:</b><br>
-{foreach from=$breadcrumbs item=trail}
-	{foreach from=$trail item=step key=cat_id name=cats}
-	<a href="{devblocks_url}c=kb&a=category&id={$cat_id|escape}{/devblocks_url}">{$categories.{$cat_id}->name}</a>
-	{if !$smarty.foreach.cats.last} &raquo; {/if}
-	{/foreach}
-	<br>
-{/foreach}
-<br>
-{/if}
