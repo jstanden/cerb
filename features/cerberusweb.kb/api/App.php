@@ -1,4 +1,8 @@
 <?php
+class ChCustomFieldSource_KbArticle extends Extension_CustomFieldSource {
+	const ID = 'cerberusweb.fields.source.kb_article';
+};
+
 abstract class Extension_KnowledgebaseTab extends DevblocksExtension {
 	function __construct($manifest) {
 		$this->DevblocksExtension($manifest);
@@ -476,6 +480,13 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 			
 			$article_categories = DAO_KbArticle::getCategoriesByArticleId($id);
 			$tpl->assign('article_categories', $article_categories);
+			
+			$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_KbArticle::ID);
+			$tpl->assign('custom_fields', $custom_fields);
+			
+			$custom_field_values = DAO_CustomFieldValue::getValuesBySourceIds(ChCustomFieldSource_KbArticle::ID, $id);
+			if(isset($custom_field_values[$id]))
+				$tpl->assign('custom_field_values', $custom_field_values[$id]);
 		}
 		
 		$categories = DAO_KbCategory::getAll();
@@ -533,6 +544,10 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 			}
 			
 			DAO_KbArticle::setCategories($id, $category_ids, true);
+			
+			// Custom fields
+			@$field_ids = DevblocksPlatform::importGPC($_REQUEST['field_ids'], 'array', array());
+			DAO_CustomFieldValue::handleFormPost(ChCustomFieldSource_KbArticle::ID, $id, $field_ids);
 		}
 		
 		// JSON
@@ -806,7 +821,7 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 	}
 };
 
-class DAO_KbArticle extends DevblocksORMHelper {
+class DAO_KbArticle extends C4_ORMHelper {
 	const ID = 'id';
 	const TITLE = 'title';
 	const UPDATED = 'updated';
@@ -989,7 +1004,7 @@ class DAO_KbArticle extends DevblocksORMHelper {
 		return TRUE;
 	}
 	
-    static function search($params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
+    static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
 		$db = DevblocksPlatform::getDatabaseService();
 		$fields = SearchFields_KbArticle::getFields();
 		
@@ -997,7 +1012,7 @@ class DAO_KbArticle extends DevblocksORMHelper {
 		if(!isset($fields[$sortBy]))
 			$sortBy=null;
 
-        list($tables,$wheres) = parent::_parseSearchParams($params, array(), $fields, $sortBy);
+        list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy);
 		$start = ($page * $limit); // [JAS]: 1-based [TODO] clean up + document
 		
 		$select_sql = sprintf("SELECT ".
@@ -1028,6 +1043,15 @@ class DAO_KbArticle extends DevblocksORMHelper {
 		if(isset($tables['ftkb'])) {
 			$join_sql .= 'LEFT JOIN fulltext_kb_article ftkb ON (ftkb.id=kb.id) ';
 		}
+		
+		// Custom field joins
+		list($select_sql, $join_sql, $has_multiple_values) = self::_appendSelectJoinSqlForCustomFieldTables(
+			$tables,
+			$params,
+			'kb.id',
+			$select_sql,
+			$join_sql
+		);
 		
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "");
@@ -1104,6 +1128,14 @@ class SearchFields_KbArticle implements IDevblocksSearchFields {
 		$tables = DevblocksPlatform::getDatabaseTables();
 		if(isset($tables['fulltext_kb_article'])) {
 			$columns[self::FULLTEXT_ARTICLE_CONTENT] = new DevblocksSearchField(self::FULLTEXT_ARTICLE_CONTENT, 'ftkb', 'content', $translate->_('kb_article.content'));
+		}
+		
+		// Custom Fields
+		$fields = DAO_CustomField::getBySource(ChCustomFieldSource_KbArticle::ID);
+		if(is_array($fields))
+		foreach($fields as $field_id => $field) {
+			$key = 'cf_'.$field_id;
+			$columns[$key] = new DevblocksSearchField($key,$key,'field_value',$field->name);
 		}
 		
 		// Sort by label (translation-conscious)
@@ -1386,6 +1418,7 @@ class View_KbArticle extends C4_AbstractView {
 
 	function getData() {
 		$objects = DAO_KbArticle::search(
+			$this->view_columns,
 			$this->params,
 			$this->renderLimit,
 			$this->renderPage,
@@ -1576,6 +1609,9 @@ class View_KbArticle extends C4_AbstractView {
 		if(empty($ids))
 		do {
 			list($objects,$null) = DAO_KbArticle::search(
+				array(
+					SearchFields_KbArticle::ID
+				),
 				$this->params,
 				100,
 				$pg++,

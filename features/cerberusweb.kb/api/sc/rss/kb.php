@@ -54,6 +54,7 @@ XML;
 		
         // Search Results
 		list($results, $null) = DAO_KbArticle::search(
+			array(),
 			array(
 				SearchFields_KbArticle::TOP_CATEGORY_ID => new DevblocksSearchCriteria(SearchFields_KbArticle::TOP_CATEGORY_ID,'in',array_keys($topics)),
 			),
@@ -117,6 +118,7 @@ XML;
 		
         // Search Results
 		list($results, $null) = DAO_KbArticle::search(
+			array(),
 			array(
 				SearchFields_KbArticle::TOP_CATEGORY_ID => new DevblocksSearchCriteria(SearchFields_KbArticle::TOP_CATEGORY_ID,'in',array_keys($topics)),
 			),

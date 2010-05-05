@@ -81,6 +81,7 @@ class UmScKbController extends Extension_UmScController {
 				$id = intval(array_shift($stack));
 
 				list($articles, $count) = DAO_KbArticle::search(
+					array(),
 					array(
 						new DevblocksSearchCriteria(SearchFields_KbArticle::ID,'=',$id),
 						new DevblocksSearchCriteria(SearchFields_KbArticle::TOP_CATEGORY_ID,'in',array_keys($kb_roots))
@@ -269,6 +270,7 @@ class UmSc_KbArticleView extends C4_AbstractView {
 
 	function getData() {
 		$objects = DAO_KbArticle::search(
+			$this->view_columns,
 			$this->params,
 			$this->renderLimit,
 			$this->renderPage,

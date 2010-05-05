@@ -17,7 +17,7 @@
 				{if $active_worker->hasPriv('core.kb.topics.modify')}<button type="button" onclick="genericAjaxPanel('c=kb.ajax&a=showTopicEditPanel&id=0&return={$request_path|escape:'url'}',null,false,'500');"><span class="cerb-sprite sprite-folder_add"></span> Add Topic</button>{/if}
 			{/if}
 			
-			{if $active_worker->hasPriv('core.kb.articles.modify')}<button type="button" onclick="genericAjaxPanel('c=kb.ajax&a=showArticleEditPanel&id=0&root_id={$root_id}&view_id={$view->id}',null,false,'550');"><span class="cerb-sprite sprite-add"></span> Add Article</button>{/if}
+			{if $active_worker->hasPriv('core.kb.articles.modify')}<button type="button" onclick="genericAjaxPanel('c=kb.ajax&a=showArticleEditPanel&id=0&root_id={$root_id}&view_id={$view->id}',null,false,'700');"><span class="cerb-sprite sprite-add"></span> Add Article</button>{/if}
 		</form>
 	</td>
 	<td width="98%" valign="middle">
