@@ -142,7 +142,7 @@ class ChHomePage extends CerberusPageExtension {
 					'created' => time(),
 					'worker_id' => $active_worker->id,
 					'total' => $total,
-					'return_url' => $url_writer->write('c=home&tab=events', true),
+					'return_url' => isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : $url_writer->write('c=home&tab=events', true),
 					'toolbar_extension_id' => 'cerberusweb.explorer.toolbar.worker_events',
 				);
 				$models[] = $model; 
