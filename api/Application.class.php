@@ -1329,7 +1329,7 @@ class CerberusContexts {
 			$prefix = 'Article:';
 		
 		$translate = DevblocksPlatform::getTranslationService();
-		//$fields = DAO_CustomField::getBySource(ChCustomFieldSource_Address::ID);
+		$fields = DAO_CustomField::getBySource(ChCustomFieldSource_KbArticle::ID);
 		
 		// Polymorph
 		if(is_numeric($article)) {
@@ -1351,10 +1351,10 @@ class CerberusContexts {
 			'views' => $prefix.$translate->_('kb_article.views'),
 		);
 		
-//		if(is_array($fields))
-//		foreach($fields as $cf_id => $field) {
-//			$token_labels['custom_'.$cf_id] = $prefix.$field->name;
-//		}
+		if(is_array($fields))
+		foreach($fields as $cf_id => $field) {
+			$token_labels['custom_'.$cf_id] = $prefix.$field->name;
+		}
 
 		// Token values
 		$token_values = array();
@@ -1381,28 +1381,28 @@ class CerberusContexts {
 				}
 			}
 			
-			//$token_values['custom'] = array();
+			$token_values['custom'] = array();
 			
-//			$field_values = array_shift(DAO_CustomFieldValue::getValuesBySourceIds(ChCustomFieldSource_Address::ID, $address->id));
-//			if(is_array($field_values) && !empty($field_values)) {
-//				foreach($field_values as $cf_id => $cf_val) {
-//					if(!isset($fields[$cf_id]))
-//						continue;
-//					
-//					// The literal value
-//					if(null != $address)
-//						$token_values['custom'][$cf_id] = $cf_val;
-//					
-//					// Stringify
-//					if(is_array($cf_val))
-//						$cf_val = implode(', ', $cf_val);
-//						
-//					if(is_string($cf_val)) {
-//						if(null != $address)
-//							$token_values['custom_'.$cf_id] = $cf_val;
-//					}
-//				}
-//			}
+			$field_values = array_shift(DAO_CustomFieldValue::getValuesBySourceIds(ChCustomFieldSource_KbArticle::ID, $article->id));
+			if(is_array($field_values) && !empty($field_values)) {
+				foreach($field_values as $cf_id => $cf_val) {
+					if(!isset($fields[$cf_id]))
+						continue;
+					
+					// The literal value
+					if(null != $article)
+						$token_values['custom'][$cf_id] = $cf_val;
+					
+					// Stringify
+					if(is_array($cf_val))
+						$cf_val = implode(', ', $cf_val);
+						
+					if(is_string($cf_val)) {
+						if(null != $article)
+							$token_values['custom_'.$cf_id] = $cf_val;
+					}
+				}
+			}
 		}
 		
 		return true;
