@@ -588,6 +588,8 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 		$topics = DAO_KbCategory::getWhere(sprintf("%s = 0", DAO_KbCategory::PARENT_ID));
 		$tpl->assign('topics', $topics);
 		
+		$tpl->assign('view_id', 'display_kb_search');
+		
 		$tpl->display('file:' . $this->_TPL_PATH . 'kb/ajax/kb_search.tpl');
 	}
 	
@@ -628,18 +630,23 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 				break;
 		}
 		
-		list($results, $null) = DAO_KbArticle::search(
-			$params,
-			25,
-			0,
-			DAO_KbArticle::VIEWS,
-			false,
-			false
-		);
+		$defaults = new C4_AbstractViewModel();
+		$defaults->id = 'display_kb_search';
+		$defaults->class_name = 'View_KbArticle'; 
+		$defaults->params = array();
+		$defaults->renderLimit = 10;
+		$defaults->renderTemplate = 'chooser';
 		
-		$tpl->assign('results', $results);
-
-		$tpl->display('file:' . $this->_TPL_PATH . 'kb/ajax/kb_search_results.tpl');
+		if(null != ($view = C4_AbstractViewLoader::getView($defaults->id, $defaults))) {
+			$view->renderPage = 0;
+			$view->renderSortBy = SearchFields_KbArticle::VIEWS;
+			$view->renderSortAsc = false;
+			$view->renderTemplate = 'chooser';
+			$view->params = $params;
+			C4_AbstractViewLoader::setView($view->id, $view);
+			
+			$view->render();
+		}
 	}
 	
 	function showArticlesBulkPanelAction() {
@@ -1328,7 +1335,15 @@ class View_KbArticle extends C4_AbstractView {
 		$tpl->assign('categories', $categories);
 
 		$tpl->assign('view_fields', $this->getColumns());
-		$tpl->display('file:' . $this->_TPL_PATH . 'view.tpl');
+		
+		switch($this->renderTemplate) {
+			case 'chooser':
+				$tpl->display('file:' . $this->_TPL_PATH . 'view/chooser.tpl');
+				break;
+			default:
+				$tpl->display('file:' . $this->_TPL_PATH . 'view/view.tpl');
+				break;
+		}
 	}
 
 	function renderCriteria($field) {

@@ -68,6 +68,8 @@
 					Plaintext
 				{elseif 1==$result.$column}
 					HTML
+				{elseif 2==$result.$column}
+					Markdown
 				{/if}
 				&nbsp;
 			</td>
