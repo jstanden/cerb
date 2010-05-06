@@ -24,22 +24,22 @@
 
 <!-- ************** -->
 
-<h2>IP Security</h2>
-<br>
-<b>Allow remote administration tools (upgrade, cron) from these IPs:</b> (one IP per line)
-<br>
-<textarea name="authorized_ips" rows="5" cols="24" style="width: 400;">{$settings->get('cerberusweb.core','authorized_ips')|escape:"html"}</textarea>	
-<br>
-(Partial IP matches OK. For example: 192.168.1.)<br>
+{if !$smarty.const.ONDEMAND_MODE}
+	<h2>IP Security</h2>
+	<br>
+	<b>Allow remote administration tools (upgrade, cron) from these IPs:</b> (one IP per line)
+	<br>
+	<textarea name="authorized_ips" rows="5" cols="24" style="width: 400;">{$settings->get('cerberusweb.core','authorized_ips')|escape:"html"}</textarea>	
+	<br>
+	(Partial IP matches OK. For example: 192.168.1.)<br>
+	<br>
+{/if}
 
-<br>
 <button type="submit"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')|capitalize}</button>
 </div>
 </form>
 
 <br>
-
-<div id="tourConfigLicenses"></div>
 
 <div id="divLicenseInfo">
 	{include file="{$core_tpl}configuration/tabs/settings/license.tpl"}

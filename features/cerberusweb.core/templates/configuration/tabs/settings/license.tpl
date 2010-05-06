@@ -14,14 +14,20 @@
 		<li><a href="http://www.cerberusweb.com/buy" target="_blank">Purchase a Cerberus Helpdesk license</a></li>
 	</ul> 
 {else}
-	<b>Serial #:</b> {$we_trust_you->key}<br>
-	<b>Licensed To:</b> {$we_trust_you->company}<br>
-	<b>Simultaneous Workers:</b> {if 100==$we_trust_you->seats}100+{else}{$we_trust_you->seats}{/if}<br>
-	<b>Software Updates Expire:</b> {$we_trust_you->upgrades|devblocks_date:'F d, Y':true}<br>
-	<br>
-	{if empty($error)}<a href="javascript:;" onclick="$(this).fadeOut();$('#frmLicense').fadeIn();">add new license</a>{/if}
+	{if $smarty.const.ONDEMAND_MODE}
+		<b>Licensed To:</b> {$we_trust_you->company}<br>
+		<b>Simultaneous Workers:</b> {if 100==$we_trust_you->seats}100+{else}{$we_trust_you->seats}{/if}<br>
+	{else}
+		<b>Serial #:</b> {$we_trust_you->key}<br>
+		<b>Licensed To:</b> {$we_trust_you->company}<br>
+		<b>Simultaneous Workers:</b> {if 100==$we_trust_you->seats}100+{else}{$we_trust_you->seats}{/if}<br>
+		<b>Software Updates Expire:</b> {$we_trust_you->upgrades|devblocks_date:'F d, Y':true}<br>
+		<br>
+		{if empty($error)}<a href="javascript:;" onclick="$(this).fadeOut();$('#frmLicense').fadeIn();">add new license</a>{/if}
+	{/if}
 {/if} 
 
+{if !$smarty.const.ONDEMAND_MODE}
 <form action="{devblocks_url}{/devblocks_url}" method="post" id="frmLicense" style="{if $we_trust_you->key && empty($error)}display:none;{/if}">
 <h2>Enter License</h2>
 <input type="hidden" name="c" value="config">
@@ -61,6 +67,7 @@
 <button type="button" onclick="genericAjaxPost('frmLicense','divLicenseInfo');"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')|capitalize}</button>
 {if $we_trust_you->key}<button type="button" onclick="if(confirm('Are you sure you want to remove your license?')) { this.form.do_delete.value='1'; genericAjaxPost('frmLicense','divLicenseInfo'); } "><span class="cerb-sprite sprite-forbidden"></span> Remove License</button>{/if}
 </form>
+{/if}
 
 </div>
 

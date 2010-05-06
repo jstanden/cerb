@@ -255,6 +255,9 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		if(!$active_worker->is_superuser)
 			return;
 		
+		if(ONDEMAND_MODE)
+			return;
+			
 		@$id = DevblocksPlatform::importGPC($_POST['id'],'integer');
 		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
 		@$name = DevblocksPlatform::importGPC($_POST['name'],'string');
@@ -342,6 +345,9 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	
 	function saveStorageSchemaPeekAction() {
 		@$ext_id = DevblocksPlatform::importGPC($_REQUEST['ext_id'],'string','');
+		
+		if(ONDEMAND_MODE)
+			return;
 		
 		$extension = DevblocksPlatform::getExtension($ext_id, true, true);
 		/* @var $extension Extension_DevblocksStorageSchema */
@@ -1510,6 +1516,9 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	function saveJobAction() {
 		$translate = DevblocksPlatform::getTranslationService();
 		
+		if(ONDEMAND_MODE)
+			return;
+		
 		$worker = CerberusApplication::getActiveWorker();
 		if(!$worker || !$worker->is_superuser) {
 			echo $translate->_('common.access_denied');
@@ -1552,6 +1561,9 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	function saveLicenseAction() {
 		$translate = DevblocksPlatform::getTranslationService();
 		$worker = CerberusApplication::getActiveWorker();
+
+		if(ONDEMAND_MODE)
+			return;
 		
 		if(!$worker || !$worker->is_superuser) {
 			echo $translate->_('common.access_denied');
@@ -1725,7 +1737,6 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		
 	    @$title = DevblocksPlatform::importGPC($_POST['title'],'string','');
 	    @$logo = DevblocksPlatform::importGPC($_POST['logo'],'string');
-	    @$authorized_ips_str = DevblocksPlatform::importGPC($_POST['authorized_ips'],'string','');
 
 	    if(empty($title))
 	    	$title = 'Cerberus Helpdesk :: Team-based E-mail Management';
@@ -1733,7 +1744,11 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	    $settings = DevblocksPlatform::getPluginSettingsService();
 	    $settings->set('cerberusweb.core',CerberusSettings::HELPDESK_TITLE, $title);
 	    $settings->set('cerberusweb.core',CerberusSettings::HELPDESK_LOGO_URL, $logo); // [TODO] Enforce some kind of max resolution?
-	    $settings->set('cerberusweb.core',CerberusSettings::AUTHORIZED_IPS, $authorized_ips_str);
+	    
+	    if(!ONDEMAND_MODE) {
+		    @$authorized_ips_str = DevblocksPlatform::importGPC($_POST['authorized_ips'],'string','');
+	    	$settings->set('cerberusweb.core',CerberusSettings::AUTHORIZED_IPS, $authorized_ips_str);
+	    }
 	    
 	    DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','settings')));
 	}

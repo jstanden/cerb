@@ -17,21 +17,50 @@
 
 <div id="configTabs">
 	<ul>
+		{$tabs = []}
+		
+		{$tabs[] = 'settings'}
 		<li><a href="{devblocks_url}ajax.php?c=config&a=showTabSettings{/devblocks_url}">System</a></li>
+		
+		{$tabs[] = 'plugins'}
 		<li><a href="{devblocks_url}ajax.php?c=config&a=showTabPlugins{/devblocks_url}">Plugins &amp; Features</a></li>
-		<li><a href="{devblocks_url}ajax.php?c=config&a=showTabStorage{/devblocks_url}">Storage</a></li>
+		
+		{if !$smarty.const.ONDEMAND_MODE}
+			{$tabs[] = 'storage'}
+			<li><a href="{devblocks_url}ajax.php?c=config&a=showTabStorage{/devblocks_url}">Storage</a></li>
+		{/if}
+		
+		{$tabs[] = 'mail'}
 		<li><a href="{devblocks_url}ajax.php?c=config&a=showTabMail{/devblocks_url}">Mail Setup</a></li>
+		
+		{$tabs[] = 'preparser'}
 		<li><a href="{devblocks_url}ajax.php?c=config&a=showTabPreParser{/devblocks_url}">Mail Filtering</a></li>
+		
+		{$tabs[] = 'parser'}
 		<li><a href="{devblocks_url}ajax.php?c=config&a=showTabParser{/devblocks_url}">Mail Routing</a></li>
+		
+		{$tabs[] = 'queue'}
 		<li><a href="{devblocks_url}ajax.php?c=config&a=showTabQueue{/devblocks_url}">Mail Queue</a></li>
+		
+		{$tabs[] = 'attachments'}
 		<li><a href="{devblocks_url}ajax.php?c=config&a=showTabAttachments{/devblocks_url}">Attachments</a></li>
-		<li><a href="{devblocks_url}ajax.php?c=config&a=showTabScheduler{/devblocks_url}">Scheduler</a></li>
+		
+		{if !$smarty.const.ONDEMAND_MODE}
+			{$tabs[] = 'scheduler'}
+			<li><a href="{devblocks_url}ajax.php?c=config&a=showTabScheduler{/devblocks_url}">Scheduler</a></li>
+		{/if}
+		
+		{$tabs[] = 'groups'}
 		<li><a href="{devblocks_url}ajax.php?c=config&a=showTabGroups{/devblocks_url}">Groups</a></li>
+		
+		{$tabs[] = 'workers'}
 		<li><a href="{devblocks_url}ajax.php?c=config&a=showTabWorkers{/devblocks_url}">Workers</a></li>
+		
+		{$tabs[] = 'acl'}
 		<li><a href="{devblocks_url}ajax.php?c=config&a=showTabPermissions{/devblocks_url}">Permissions</a></li>
+		
+		{$tabs[] = 'fields'}
 		<li><a href="{devblocks_url}ajax.php?c=config&a=showTabFields{/devblocks_url}">Custom Fields</a></li>
-
-		{$tabs = [settings,plugins,storage,mail,preparser,parser,queue,attachments,scheduler,groups,workers,acl,fields]}
 
 		{foreach from=$tab_manifests item=tab_manifest}
 			{$tabs[] = $tab_manifest->params.uri}
