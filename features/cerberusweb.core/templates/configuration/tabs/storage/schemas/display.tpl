@@ -1,5 +1,7 @@
 <div class="block">
-	<a href="javascript:;" onclick="genericAjaxPanel('c=config&a=showStorageSchemaPeek&ext_id={$schema->manifest->id}', null, false);"><h3>{$schema->manifest->name|escape}</h3></a>
+	<h3 style="display:inline;">{$schema->manifest->name|escape}</h3>
+	(<a href="javascript:;" onclick="genericAjaxPanel('c=config&a=showStorageSchemaPeek&ext_id={$schema->manifest->id}', null, false);">{$translate->_('common.edit')|lower}</a>)
+	<br>
 	{$schema->render()}
 	
 	{$schema_stats = $schema->getStats()}
