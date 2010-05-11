@@ -61,6 +61,8 @@
 						<a href="{devblocks_url}c=tickets&a=create&id={$result.m_id|escape:'url'}{/devblocks_url}" class="subject">{if empty($result.m_subject)}(no subject){else}{$result.m_subject}{/if}</a>
 					{elseif $result.m_type=="ticket.reply"}
 						<a href="{devblocks_url}c=display&id={$result.m_ticket_id|escape:'url'}{/devblocks_url}#draft{$result.m_id|escape:'url'}" class="subject">{if empty($result.m_subject)}(no subject){else}{$result.m_subject}{/if}</a>
+					{elseif $result.m_type=="ticket.forward"}
+						<a href="{devblocks_url}c=display&id={$result.m_ticket_id|escape:'url'}{/devblocks_url}#draft{$result.m_id|escape:'url'}" class="subject">{if empty($result.m_subject)}(no subject){else}{$result.m_subject}{/if}</a>
 					{/if}
 				{else}
 					<b class="subject">{if empty($result.m_subject)}(no subject){else}{$result.m_subject}{/if}</b>
