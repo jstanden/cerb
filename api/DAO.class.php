@@ -1196,7 +1196,7 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 	 * @param object $values
 	 * @return 
 	 */
-	public static function formatAndSetFieldValues($source_ext_id, $source_id, $values, $is_blank_unset=true) {
+	public static function formatAndSetFieldValues($source_ext_id, $source_id, $values, $is_blank_unset=true, $delta=false) {
 		if(empty($source_ext_id) || empty($source_id) || !is_array($values))
 			return;
 
@@ -1207,15 +1207,19 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 				continue;
 
 			$field =& $fields[$field_id]; /* @var $field Model_CustomField */
-			$delta = ($field->type==Model_CustomField::TYPE_MULTI_CHECKBOX || $field->type==Model_CustomField::TYPE_MULTI_PICKLIST) 
-					? true 
+			$is_delta = ($field->type==Model_CustomField::TYPE_MULTI_CHECKBOX || $field->type==Model_CustomField::TYPE_MULTI_PICKLIST) 
+					? $delta 
 					: false
 					;
 
 			// if the field is blank
-			if(0==strlen($value)) {
+			if(
+				(is_array($value) && empty($value))
+				||
+				(!is_array($value) && 0==strlen($value))
+			) {
 				// ... and blanks should unset
-				if($is_blank_unset && !$delta)
+				if($is_blank_unset && !$is_delta)
 					self::unsetFieldValue($source_ext_id, $source_id, $field_id);
 				
 				// Skip setting
@@ -1234,14 +1238,31 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 					break;
 
 				case Model_CustomField::TYPE_DROPDOWN:
-				case Model_CustomField::TYPE_MULTI_PICKLIST:
-				case Model_CustomField::TYPE_MULTI_CHECKBOX:
 					// If we're setting a field that doesn't exist yet, add it.
-					if(!in_array($value,$field->options) && !empty($value)) {
+					if(!in_array($value, $field->options) && !empty($value)) {
 						$field->options[] = $value;
 						DAO_CustomField::update($field_id, array(DAO_CustomField::OPTIONS => implode("\n",$field->options)));
 					}
-
+					
+					// If we're allowed to add/remove fields without touching the rest
+					self::setFieldValue($source_ext_id, $source_id, $field_id, $value, $delta); 
+					
+					break;
+					
+				case Model_CustomField::TYPE_MULTI_PICKLIST:
+				case Model_CustomField::TYPE_MULTI_CHECKBOX:
+					if(!is_array($value))
+						$value = array($value);
+						
+					// If we're setting a field that doesn't exist yet, add it.
+					foreach($value as $v) {
+						if(!in_array($v, $field->options) && !empty($v)) {
+							$field->options[] = $v;
+							DAO_CustomField::update($field_id, array(DAO_CustomField::OPTIONS => implode("\n",$field->options)));
+						}
+						
+					}
+					
 					// If we're allowed to add/remove fields without touching the rest
 					self::setFieldValue($source_ext_id, $source_id, $field_id, $value, $delta);
 						
@@ -1288,6 +1309,7 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 				if(255 < strlen($value))
 					$value = substr($value,0,255);
 				break;
+			case 'E': // date
 			case 'N': // number
 			case 'W': // worker
 				$value = intval($value);
