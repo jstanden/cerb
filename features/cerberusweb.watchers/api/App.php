@@ -496,12 +496,17 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
 					));
 
 					$hdrs = $mail->getHeaders();
-					
+
 					if(null !== (@$msgid = $headers['message-id'])) {
-						$hdrs->addTextHeader('Message-Id',$msgid);
+						$hdrs->removeAll('message-id');
+						
+						$hdrs->addTextHeader('Message-Id', $msgid);
 					}
 					
 					if(null !== (@$in_reply_to = $headers['in-reply-to'])) {
+						$hdrs->removeAll('references');
+						$hdrs->removeAll('in-reply-to');
+						
 					    $hdrs->addTextHeader('References', $in_reply_to);
 					    $hdrs->addTextHeader('In-Reply-To', $in_reply_to);
 					}
