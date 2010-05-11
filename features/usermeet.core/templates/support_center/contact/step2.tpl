@@ -57,13 +57,13 @@
 	      			<select name="followup_a_{$idx}" class="{if $required}required{/if}">
 	      				<option value=""></option>
 	      				{foreach from=$field->options item=opt}
-	      				<option value="{$opt}" {if $last_followup_a.$idx==$opt}selected{/if}>{$opt}
+	      				<option value="{$opt|escape}" {if $last_followup_a.$idx==$opt}selected="selected"{/if}>{$opt|escape}
 	      				{/foreach}
 	      			</select>
 				{elseif $field->type=='M'}
 					<select name="followup_a_{$idx}[]" size="5" multiple="multiple">
 						{foreach from=$field->options item=opt}
-						<option value="{$opt|escape}">{$opt}</option>
+						<option value="{$opt|escape}">{$opt|escape}</option>
 						{/foreach}
 					</select><br>
 					<i><small>{$translate->_('common.tips.multi_select')}</small></i>
@@ -74,17 +74,17 @@
 	      			<select name="followup_a_{$idx}" class="{if $required}required{/if}">
 	      				<option value=""></option>
 	      				{foreach from=$workers item=worker key=worker_id}
-	      				<option value="{$worker_id}" {if $last_followup_a.$idx==$worker_id}selected{/if}>{$worker->getName()}
+	      				<option value="{$worker_id}" {if $last_followup_a.$idx==$worker_id}selected="selected"{/if}>{$worker->getName()}</option>
 	      				{/foreach}
 	      			</select>
 	      		{elseif $field->type=='E'}
 	      			<input name="followup_a_{$idx}" value="{$last_followup_a.$idx|escape}" autocomplete="off" class="date {if $required}required{/if}">
 				{elseif $field->type=='X'}
 					{foreach from=$field->options item=opt}
-					<label><input type="checkbox" name="followup_a_{$idx}[]" value="{$opt|escape}"> {$opt}</label>
+					<label><input type="checkbox" name="followup_a_{$idx}[]" value="{$opt|escape}"> {$opt}</label><br>
 					{/foreach}
 	      		{elseif $field->type=='C'}
-	      			<label><input name="followup_a_{$idx}" type="checkbox" value="Yes" {if $last_followup_a.$idx}checked{/if}> {$translate->_('common.yes')|capitalize}</label>
+	      			<label><input name="followup_a_{$idx}" type="checkbox" value="Yes" {if $last_followup_a.$idx}checked="checked"{/if}> {$translate->_('common.yes')|capitalize}</label>
 	      		{/if}
 	      		
 	      	{else}
