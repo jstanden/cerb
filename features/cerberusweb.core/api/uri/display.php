@@ -1083,7 +1083,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		// Copy all the original tickets requesters
 		$orig_requesters = DAO_Ticket::getRequestersByTicket($orig_ticket->id);
 		foreach($orig_requesters as $orig_req_addy) {
-			DAO_Ticket::createRequester($orig_req_addy, $new_ticket_id);
+			DAO_Ticket::createRequester($orig_req_addy->email, $new_ticket_id);
 		}
 		
 		// Pull the message off the ticket (reparent)
