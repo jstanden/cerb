@@ -145,13 +145,13 @@ class UmScAccountController extends Extension_UmScController {
 			if(!empty($addy_fields))
 				DAO_Address::update($active_user->id, $addy_fields);
 			if(!empty($addy_customfields))
-				DAO_CustomFieldValue::formatAndSetFieldValues(ChCustomFieldSource_Address::ID, $active_user->id, $addy_customfields, true, false);
+				DAO_CustomFieldValue::formatAndSetFieldValues(ChCustomFieldSource_Address::ID, $active_user->id, $addy_customfields, true, false, false);
 			
 			// Org
 			if(!empty($org_fields))
 				DAO_ContactOrg::update($active_user->contact_org_id, $org_fields);
 			if(!empty($org_customfields) && !empty($active_user->contact_org_id))
-				DAO_CustomFieldValue::formatAndSetFieldValues(ChCustomFieldSource_Org::ID, $active_user->contact_org_id, $org_customfields, true, false);
+				DAO_CustomFieldValue::formatAndSetFieldValues(ChCustomFieldSource_Org::ID, $active_user->contact_org_id, $org_customfields, true, false, false);
 		}
 		
 		$tpl->assign('account_success', true);

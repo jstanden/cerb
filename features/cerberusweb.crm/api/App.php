@@ -1091,7 +1091,7 @@ class CrmPage extends CerberusPageExtension {
 			if(!empty($custom_fields) && !empty($id)) {
 				// Format (typecast) and set the custom field types
 				$source_ext_id = CrmCustomFieldSource_Opportunity::ID;
-				DAO_CustomFieldValue::formatAndSetFieldValues($source_ext_id, $id, $custom_fields, $is_blank_unset, true);
+				DAO_CustomFieldValue::formatAndSetFieldValues($source_ext_id, $id, $custom_fields, $is_blank_unset, true, true);
 			}
 			
 		}
