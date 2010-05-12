@@ -2213,7 +2213,11 @@ class _DevblocksCacheManagerMemcached extends _DevblocksCacheManagerAbstract {
 	
 	function save($data, $key, $tags=array(), $lifetime=0) {
 		$key = $this->_options['key_prefix'] . $key;
-		return $this->_driver->set($key, $data, 0, $lifetime);
+		
+		if($this->_driver instanceof Memcached)
+			return $this->_driver->set($key, $data, $lifetime);
+		else
+			return $this->_driver->set($key, $data, 0, $lifetime);
 	}
 	
 	function load($key) {
