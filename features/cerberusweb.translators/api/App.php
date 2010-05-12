@@ -322,7 +322,7 @@ class ChTranslatorsAjaxController extends DevblocksControllerExtension {
 		// Language Names
 		$translate = DevblocksPlatform::getTranslationService();
 		$locs = $translate->getLocaleStrings();
-		$tpl->assign_by_ref('locales', $locs);
+		$tpl->assign('locales', $locs);
 
 		// Defined languages (from translations)
 		$codes = DAO_Translation::getDefinedLangCodes();

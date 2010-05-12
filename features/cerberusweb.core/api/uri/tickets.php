@@ -57,7 +57,7 @@ class ChTicketsPage extends CerberusPageExtension {
 				
 				// Groups
 				$teams = DAO_Group::getAll();
-				$tpl->assign_by_ref('teams', $teams);
+				$tpl->assign('teams', $teams);
 				
 				// Groups+Buckets
 				$team_categories = DAO_Bucket::getTeams();
@@ -1234,7 +1234,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		$tpl->assign('to', $to);
 		
 		$teams = DAO_Group::getAll();
-		$tpl->assign_by_ref('teams', $teams);
+		$tpl->assign('teams', $teams);
 		
 		$workers = DAO_Worker::getAll();
 		$tpl->assign('workers', $workers);
