@@ -1316,6 +1316,34 @@ class ChTicketsPage extends CerberusPageExtension {
 		echo "\r\n", $tpl_builder->build($sig, $token_values), "\r\n";
 	}
 	
+	function getLogTicketSignatureAction() {
+		@$email = DevblocksPlatform::importGPC($_REQUEST['email'],'string','');
+		
+		$active_worker = CerberusApplication::getActiveWorker();
+		$group_settings = DAO_GroupSettings::getSettings();
+		
+		$group_id = 0;
+		
+		// Translate email to group id
+		if(is_array($group_settings))
+		foreach($group_settings as $settings_group_id => $settings) {
+			if(0==strcasecmp($settings[DAO_GroupSettings::SETTING_REPLY_FROM], $email)) {
+				$group_id = $settings_group_id;
+				break;
+			}
+		}
+		
+		if(!empty($group_id) && null != ($group = DAO_Group::getTeam($group_id)) && !empty($group->signature)) {
+			$sig = $group->signature;
+		} else {
+			$sig = DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::DEFAULT_SIGNATURE, CerberusSettingsDefaults::DEFAULT_SIGNATURE);
+		}
+
+		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $active_worker, $token_labels, $token_values);
+		echo "\r\n", $tpl_builder->build($sig, $token_values), "\r\n";
+	}
+	
 	// Ajax
 	function showPreviewAction() {
 	    @$tid = DevblocksPlatform::importGPC($_REQUEST['tid'],'integer',0);
