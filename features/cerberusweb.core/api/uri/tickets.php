@@ -1674,7 +1674,6 @@ class ChTicketsPage extends CerberusPageExtension {
 			$tpl->assign('workers', $workers);
 			
 			// Enforce group memberships
-	       	// [TODO] Test impact
 			$active_worker = CerberusApplication::getActiveWorker();
 			$memberships = $active_worker->getMemberships();
 			$view->params[] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_TEAM_ID, 'in', array_keys($memberships)); 
@@ -1704,6 +1703,11 @@ class ChTicketsPage extends CerberusPageExtension {
 	    
 	    $piles_always = array_flip($piles_always); // Flip hash
 
+	    // Enforce worker memberships
+		$active_worker = CerberusApplication::getActiveWorker();
+		$memberships = $active_worker->getMemberships();
+		$view->params['tmpMemberships'] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_TEAM_ID, 'in', array_keys($memberships)); 
+	    
 	    foreach($piles_hash as $idx => $hash) {
 	        @$moveto = $piles_moveto[$idx];
 	        @$type = $piles_type[$idx];
@@ -1821,8 +1825,8 @@ class ChTicketsPage extends CerberusPageExtension {
             $view->doBulkUpdate($doType, $doTypeParam, $doData, $doActions, array());
 	    }
 
-	    // Reset the paging since we may have reduced our list size
-	    $view->renderPage = 0;
+	    $view->renderPage = 0; // Reset the paging since we may have reduced our list size
+	    unset($view->params['tmpMemberships']); // Remove our filter
 	    C4_AbstractViewLoader::setView($view_id,$view);
 	    	    
         DevblocksPlatform::redirect(new DevblocksHttpResponse(array('tickets')));
