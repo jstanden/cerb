@@ -15,8 +15,12 @@ class DevblocksStorageEngineDisk extends Extension_DevblocksStorageEngine {
 	}
 	
 	function testConfig() {
-		$path = APP_STORAGE_PATH . '/';
-		if(!is_writeable($path))
+		@$path = DevblocksPlatform::importGPC($_POST['path'],'string','');
+		
+		if(empty($path))
+			$path = APP_STORAGE_PATH . '/';
+			
+		if(!is_dir($path) || !is_writeable($path))
 			return false;
 			
 		return true;
@@ -32,15 +36,21 @@ class DevblocksStorageEngineDisk extends Extension_DevblocksStorageEngine {
 	}
 	
 	function saveConfig(Model_DevblocksStorageProfile $profile) {
-//		@$var = DevblocksPlatform::importGPC($_POST['var'],'string','');
+		@$path = DevblocksPlatform::importGPC($_POST['path'],'string','');
 		
-//		$fields = array(
-//			DAO_DevblocksStorageProfile::PARAMS_JSON => json_encode(array(
-//				'var' => $var,
-//			)),
-//		);
+		if(!is_dir($path) || !is_writeable($path))
+			return;
 		
-//		DAO_DevblocksStorageProfile::update($profile->id, $fields);
+		// Format path
+		$path = rtrim($path,'\/') . '/';
+			
+		$fields = array(
+			DAO_DevblocksStorageProfile::PARAMS_JSON => json_encode(array(
+				'storage_path' => $path,
+			)),
+		);
+		
+		DAO_DevblocksStorageProfile::update($profile->id, $fields);
 	}
 	
 	public function exists($namespace, $key) {
