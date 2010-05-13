@@ -48,7 +48,7 @@
  * 		and Joe Geck.
  *   WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
-define("APP_BUILD", 2010051101);
+define("APP_BUILD", 2010051201);
 define("APP_VERSION", '5.0.0-rc3');
 define("APP_MAIL_PATH", APP_STORAGE_PATH . '/mail/');
 
