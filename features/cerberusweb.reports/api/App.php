@@ -130,6 +130,19 @@ class ChReportCustomFieldUsage extends Extension_Report {
 			$value = $row['field_value'];
 			$hits = intval($row['hits']);
 
+			switch($field->type) {
+				case Model_CustomField::TYPE_CHECKBOX:
+					$value = !empty($value) ? 'Yes' : 'No';
+					break;
+				case Model_CustomField::TYPE_DATE:
+					$value = gmdate("Y-m-d H:i:s", $value);
+					break;
+				case Model_CustomField::TYPE_WORKER:
+					$workers = DAO_Worker::getAll();
+					$value = (isset($workers[$value])) ? $workers[$value]->getName() : $value;
+					break;
+			}
+			
 			$value_counts[$value] = intval($hits);
 		}
 		
