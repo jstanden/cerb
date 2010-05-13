@@ -392,7 +392,7 @@ class DAO_Worker extends C4_ORMHelper {
 		    DAO_Worker::updateAgent($worker->id,array(
 		        DAO_Worker::LAST_ACTIVITY_DATE => time(),
 		        DAO_Worker::LAST_ACTIVITY => serialize($activity),
-		        DAO_Worker::LAST_ACTIVITY_IP => ip2long($ip),
+		        DAO_Worker::LAST_ACTIVITY_IP => sprintf("%u",ip2long($ip)),
 		    ));
 		}
 	}
