@@ -80,4 +80,24 @@ if(!isset($columns['queue_fails'])) {
 	$db->Execute("ALTER TABLE mail_queue ADD COLUMN queue_fails TINYINT UNSIGNED DEFAULT 0 NOT NULL");
 }
 
+// ===========================================================================
+// Snippet Worker Uses
+
+if(!isset($tables['snippet_usage'])) {
+	$sql = "
+		CREATE TABLE IF NOT EXISTS snippet_usage (
+			snippet_id INT UNSIGNED NOT NULL DEFAULT 0,
+			worker_id INT UNSIGNED NOT NULL DEFAULT 0,
+			hits INT UNSIGNED NOT NULL DEFAULT 0,
+			PRIMARY KEY (snippet_id, worker_id),
+			INDEX snippet_id (snippet_id),
+			INDEX worker_id (worker_id),
+			INDEX hits (hits)
+		) ENGINE=MyISAM;
+	";
+	$db->Execute($sql);
+
+	$tables['snippet_usage'] = 'snippet_usage';
+}
+
 return TRUE;

@@ -391,6 +391,7 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 		DAO_Message::maint();
 		DAO_Worker::maint();
 		DAO_WorkerEvent::maint();
+		DAO_Snippet::maint();
 	}
 	
 	private function _handleCronHeartbeat($event) {

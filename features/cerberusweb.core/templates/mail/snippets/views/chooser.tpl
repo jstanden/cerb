@@ -61,6 +61,8 @@
 					{$workers.{$worker_id}->getName()}
 				{/if}
 			</td>
+			{elseif $column=="su_hits"}
+			<td>{if empty($result.$column)}0{else}{$result.$column}{/if}&nbsp;</td>
 			{else}
 			<td>{$result.$column}&nbsp;</td>
 			{/if}

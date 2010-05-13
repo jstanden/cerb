@@ -1306,7 +1306,10 @@ class ChDisplayPage extends CerberusPageExtension {
 			SearchFields_Snippet::TITLE,
 			SearchFields_Snippet::LAST_UPDATED,
 			SearchFields_Snippet::LAST_UPDATED_BY,
+			SearchFields_Snippet::USAGE_HITS,
 		);
+		$view->renderSortBy = SearchFields_Snippet::USAGE_HITS;
+		$view->renderSortAsc = false;
 		$view->renderLimit = 10;
 		$view->params = array(
 			SearchFields_Snippet::CONTEXT => new DevblocksSearchCriteria(SearchFields_Snippet::CONTEXT, DevblocksSearchCriteria::OPER_IN, $contexts),
@@ -1347,7 +1350,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		if(null != ($snippet = DAO_Snippet::get($id))) {
 			switch($snippet->context) {
 				case 'cerberusweb.contexts.plaintext':
-					$token_values= array();
+					$token_values = array();
 					break;
 				case 'cerberusweb.contexts.ticket':
 					CerberusContexts::getContext(CerberusContexts::CONTEXT_TICKET, $context_id, $token_labels, $token_values);
@@ -1356,6 +1359,8 @@ class ChDisplayPage extends CerberusPageExtension {
 					CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $active_worker, $token_labels, $token_values);
 					break;
 			}
+			
+			$snippet->incrementUse($active_worker->id);
 		}
 		
 		$output = $tpl_builder->build($snippet->content, $token_values);
