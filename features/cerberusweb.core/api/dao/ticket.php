@@ -261,7 +261,10 @@ class DAO_Ticket extends C4_ORMHelper {
 				DAO_Ticket::LAST_MESSAGE_ID => $most_recent_updated_ticket[SearchFields_Ticket::TICKET_LAST_MESSAGE_ID], 
 				DAO_Ticket::LAST_WROTE_ID => $most_recent_updated_ticket[SearchFields_Ticket::TICKET_LAST_WROTE_ID], 
 				DAO_Ticket::LAST_WORKER_ID => $most_recent_updated_ticket[SearchFields_Ticket::TICKET_LAST_WORKER_ID], 
-				DAO_Ticket::UPDATED_DATE => $most_recent_updated_ticket[SearchFields_Ticket::TICKET_UPDATED_DATE]
+				DAO_Ticket::UPDATED_DATE => $most_recent_updated_ticket[SearchFields_Ticket::TICKET_UPDATED_DATE],
+				DAO_Ticket::IS_CLOSED => $most_recent_updated_ticket[SearchFields_Ticket::TICKET_CLOSED],
+				DAO_Ticket::IS_WAITING => $most_recent_updated_ticket[SearchFields_Ticket::TICKET_WAITING],
+				DAO_Ticket::IS_DELETED => $most_recent_updated_ticket[SearchFields_Ticket::TICKET_DELETED],
 			));			
 
 			// Set up forwarders for the old masks to their new mask
