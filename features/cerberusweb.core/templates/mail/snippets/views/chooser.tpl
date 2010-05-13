@@ -44,7 +44,7 @@
 			{elseif $column=="s_title"}
 			<td>
 				<a href="javascript:;" onclick="var contextId=$('#view{$view->id}').data('context_id');if(null==contextId)return;genericAjaxGet('','c=display&a=getSnippet&context_id='+contextId+'&id={$result.s_id|escape}',function(text) { var divname=$('#view{$view->id}').data('text_element');insertAtCursor($('#'+divname)[0], text);$('#'+divname).focus(); } );" class="subject">{if empty($result.$column)}(no title){else}{$result.$column}{/if}</a>
-				<a href="javascript:;" onclick="$('#divSnippetChooserPreview').html('<pre></pre>').insertAfter($(this));genericAjaxGet('','c=internal&a=snippetPaste&snippet_id={$result.s_id|escape}',function(text) { $('#divSnippetChooserPreview pre').append(text); } );"><span class="ui-icon ui-icon-newwin" style="display:inline-block;vertical-align:middle;" title="{$translate->_('views.peek')}"></span></a>
+				<a href="javascript:;" onclick="$('#divSnippetChooserPreview').html('<pre class=\'emailBody\'></pre>').insertAfter($(this));genericAjaxGet('','c=internal&a=snippetPaste&snippet_id={$result.s_id|escape}',function(text) { $('#divSnippetChooserPreview pre').append(text); } );"><span class="ui-icon ui-icon-newwin" style="display:inline-block;vertical-align:middle;" title="{$translate->_('views.peek')}"></span></a>
 				{* [TODO] I can just insert this from $result.s_content if we're not rendering it *}
 			</td>
 			{elseif $column=="s_last_updated"}

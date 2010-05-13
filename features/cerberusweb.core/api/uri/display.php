@@ -1318,6 +1318,23 @@ class ChDisplayPage extends CerberusPageExtension {
 		$tpl->display('file:' . $this->_TPL_PATH . 'mail/snippets/chooser.tpl');
 	}
 	
+	function filterSnippetsChooserAction() {
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
+		@$term = DevblocksPlatform::importGPC($_REQUEST['term'],'string','');
+		
+		if(null == ($view = C4_AbstractViewLoader::getView($view_id)))
+			return;
+
+		if(!empty($term)) {	
+			$view->params[SearchFields_Snippet::TITLE] = new DevblocksSearchCriteria(SearchFields_Snippet::TITLE, 'like', '%'.$term.'%');
+		} else {
+			unset($view->params[SearchFields_Snippet::TITLE]);
+		}
+		
+		$view->renderPage = 0;
+		$view->render();
+	}
+	
 	function getSnippetAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
 		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer',0);
