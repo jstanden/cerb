@@ -61,7 +61,10 @@ if('' == APP_DB_DRIVER
 	|| '' == APP_DB_DATABASE 
 	|| null == ($db = DevblocksPlatform::getDatabaseService())
 	|| DevblocksPlatform::isDatabaseEmpty()) {
-   		header('Location: '.dirname($_SERVER['PHP_SELF']).'/install/index.php'); // [TODO] change this to a meta redirect
+		DevblocksPlatform::init();
+		$url_writer = DevblocksPlatform::getUrlService();
+		$base_url = rtrim(preg_replace("/index\.php\/$/i",'',$url_writer->write('',true)),"/");
+   		header('Location: '.$base_url.'/install/index.php');
    		exit;
 	}
 
