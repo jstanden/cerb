@@ -584,7 +584,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 			}
 			
 			// Update worker
-			DAO_Worker::updateAgent($id, $fields);
+			DAO_Worker::update($id, $fields);
 			
 			// Update group memberships
 			if(is_array($group_ids) && is_array($group_roles))

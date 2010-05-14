@@ -203,7 +203,7 @@ class ChPreferencesPage extends CerberusPageExtension {
 			$fields = array(
 				DAO_Worker::PASSWORD => md5($new_password)
 			);
-			DAO_Worker::updateAgent($worker->id, $fields);
+			DAO_Worker::update($worker->id, $fields);
 		}
 
 		@$assist_mode = DevblocksPlatform::importGPC($_REQUEST['assist_mode'],'integer',0);

@@ -214,7 +214,7 @@ class ChSignInPage extends CerberusPageExtension {
 	        return;
         
 	    if(0 == strcmp($sentcode,$code)) { // passed
-	        DAO_Worker::updateAgent($worker_id, array(
+	        DAO_Worker::update($worker_id, array(
 	            DAO_Worker::PASSWORD => md5($password)
 	        ));
 	        

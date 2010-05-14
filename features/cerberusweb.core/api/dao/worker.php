@@ -197,7 +197,7 @@ class DAO_Worker extends C4_ORMHelper {
 		return null;		
 	}
 	
-	static function updateAgent($ids, $fields, $flush_cache=true) {
+	static function update($ids, $fields, $flush_cache=true) {
 		if(!is_array($ids)) $ids = array($ids);
 		
 		$db = DevblocksPlatform::getDatabaseService();
@@ -385,7 +385,7 @@ class DAO_Worker extends C4_ORMHelper {
 
 		// Update activity once per 30 seconds
 		if($worker->last_activity_date < (time()-30)) {
-		    DAO_Worker::updateAgent($worker->id,array(
+		    DAO_Worker::update($worker->id,array(
 		        DAO_Worker::LAST_ACTIVITY_DATE => time(),
 		        DAO_Worker::LAST_ACTIVITY => serialize($activity),
 		        DAO_Worker::LAST_ACTIVITY_IP => sprintf("%u",ip2long($ip)),
@@ -852,7 +852,7 @@ class View_Worker extends C4_AbstractView {
 		$batch_total = count($ids);
 		for($x=0;$x<=$batch_total;$x+=100) {
 			$batch_ids = array_slice($ids,$x,100);
-			DAO_Worker::updateAgent($batch_ids, $change_fields);
+			DAO_Worker::update($batch_ids, $change_fields);
 			
 			// Custom Fields
 			self::_doBulkSetCustomFields(ChCustomFieldSource_Worker::ID, $custom_fields, $batch_ids);
