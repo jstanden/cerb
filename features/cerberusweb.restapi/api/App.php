@@ -260,6 +260,7 @@ abstract class Extension_RestController extends DevblocksExtension {
 			$_PUT = array();
 			parse_str($this->_payload, $_PUT);
 			foreach($_PUT as $k => $v) {
+				$_POST[$k] = $v;
 				$_REQUEST[$k] = $v;
 			}
 		}
