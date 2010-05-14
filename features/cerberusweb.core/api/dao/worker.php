@@ -256,7 +256,7 @@ class DAO_Worker extends C4_ORMHelper {
 		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' worker_workspace_list records.');
 	}
 	
-	static function deleteAgent($id) {
+	static function delete($id) {
 		if(empty($id)) return;
 		
 		// [TODO] Delete worker notes, comments, etc.

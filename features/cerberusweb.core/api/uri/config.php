@@ -509,7 +509,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		if(!empty($id) && !empty($delete)) {
 			// Can't delete or disable self
 			if($active_worker->id != $id)
-				DAO_Worker::deleteAgent($id);
+				DAO_Worker::delete($id);
 			
 		} else {
 			if(empty($id) && null == DAO_Worker::lookupAgentEmail($email)) {
