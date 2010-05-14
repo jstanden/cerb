@@ -1246,7 +1246,7 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 					
 					// If we're allowed to add/remove fields without touching the rest
 					if(in_array($value, $field->options))
-						self::setFieldValue($source_ext_id, $source_id, $field_id, $value, $delta); 
+						self::setFieldValue($source_ext_id, $source_id, $field_id, $value); 
 					
 					break;
 					
