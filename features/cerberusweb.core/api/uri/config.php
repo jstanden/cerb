@@ -464,7 +464,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		
 		$tpl->assign('view_id', $view_id);
 		
-		$worker = DAO_Worker::getAgent($id);
+		$worker = DAO_Worker::get($id);
 		$tpl->assign('worker', $worker);
 		
 		$teams = DAO_Group::getAll();

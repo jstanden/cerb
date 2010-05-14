@@ -144,7 +144,7 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
 		if(null == ($worker_addy = DAO_AddressToWorker::getByAddress($address->email)))
 			return;
 				
-		if(null == ($worker = DAO_Worker::getAgent($worker_addy->worker_id)))
+		if(null == ($worker = DAO_Worker::get($worker_addy->worker_id)))
 			return;
 			
 		$url_writer = DevblocksPlatform::getUrlService();

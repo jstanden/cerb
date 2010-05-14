@@ -380,7 +380,7 @@ class Model_MailQueue {
 		// [TODO] This shouldn't be redundant with open ticket functionality
 
 		// Worker
-		if(null == ($worker = DAO_worker::getAgent($this->worker_id)))
+		if(null == ($worker = DAO_worker::get($this->worker_id)))
 			return false;
 		
 		// To

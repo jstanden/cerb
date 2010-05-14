@@ -933,7 +933,7 @@ class CerberusContexts {
 		
 		// Polymorph
 		if(is_numeric($worker)) {
-			$worker = DAO_Worker::getAgent($worker);
+			$worker = DAO_Worker::get($worker);
 		} elseif($worker instanceof Model_Worker) {
 			// It's what we want already.
 		} else {

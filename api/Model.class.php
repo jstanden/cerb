@@ -1426,7 +1426,7 @@ class CerberusVisit extends DevblocksVisit {
 		if(empty($this->worker_id))
 			return null;
 			
-		return DAO_Worker::getAgent($this->worker_id);
+		return DAO_Worker::get($this->worker_id);
 	}
 	
 	public function setWorker(Model_Worker $worker=null) {

@@ -166,7 +166,7 @@ class DAO_Worker extends C4_ORMHelper {
 	/**
 	 * @return Model_Worker
 	 */
-	static function getAgent($id) {
+	static function get($id) {
 		if(empty($id)) return null;
 		
 		$workers = self::getAllWithDisabled();
@@ -319,7 +319,7 @@ class DAO_Worker extends C4_ORMHelper {
 		$worker_id = $db->GetOne($sql); // or die(__CLASS__ . ':' . $db->ErrorMsg()); 
 
 		if(!empty($worker_id)) {
-			return self::getAgent($worker_id);
+			return self::get($worker_id);
 		}
 		
 		return null;

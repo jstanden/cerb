@@ -338,7 +338,7 @@ class UmScContactController extends Extension_UmScController {
 						
 						// Translate 'worker' fields into worker name (not ID)
 						case Model_CustomField::TYPE_WORKER:
-							if(null != ($worker = DAO_Worker::getAgent($answer))) {
+							if(null != ($worker = DAO_Worker::get($answer))) {
 								$aFollowUpA[$idx] = $worker->getName();
 							}
 							break;
