@@ -11,6 +11,7 @@
 		<td><b>Order</b></td>
 		<td><b>Type</b></td>
 		<td><b>Custom Field</b></td>
+		<td><b>ID</b></td>
 		<td align="center"><b>Delete</td>
 	</tr>
 {counter name=field_pos start=0 print=false}
@@ -26,6 +27,7 @@
 				<input type="hidden" name="options[]" value="">
 			{/if}
 		</td>
+		<td valign="middle">{$field_id}</td>
 		<td valign="top" align="center"><input type="checkbox" name="deletes[]" value="{$field_id}"></td>
 	</tr>
 	{if $type_code=='D' || $type_code=='M' || $type_code=='X'}
@@ -38,6 +40,7 @@
 			<textarea cols="35" rows="6" name="options[]" style="width:300;">{foreach from=$f->options item=opt}{$opt|cat:"\r\n"}{/foreach}</textarea>
 			</div>
 		</td>
+		<td></td>
 		<td></td>
 	</tr>
 	{/if}
