@@ -560,7 +560,12 @@ class ChConfigurationPage extends CerberusPageExtension  {
 					}
 			    }
 				
-				$id = DAO_Worker::create($email, $password, '', '', '');
+			    $fields = array(
+			    	DAO_Worker::EMAIL => $email,
+			    	DAO_Worker::PASSWORD => md5($password),
+			    );
+			    
+				$id = DAO_Worker::create($fields);
 			} // end create worker
 		    
 		    // Update

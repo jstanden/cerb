@@ -853,12 +853,14 @@ class ImportCron extends CerberusCronPageExtension {
 			return true;
 		}
 		
-		$worker_id = DAO_Worker::create($sEmail, CerberusApplication::generatePassword(8), $sFirstName, $sLastName, '');
-		
-		DAO_Worker::updateAgent($worker_id,array(
+		$fields = array(
+			DAO_Worker::EMAIL => $sEmail,
 			DAO_Worker::PASSWORD => $sPassword, // pre-MD5'd
+			DAO_Worker::FIRST_NAME => $sFirstName,
+			DAO_Worker::LAST_NAME => $sLastName,
 			DAO_Worker::IS_SUPERUSER => intval($isSuperuser),
-		));
+		);
+		$worker_id = DAO_Worker::create($fields);
 		
 		// Address to Worker
 		DAO_AddressToWorker::assign($sEmail, $worker_id);

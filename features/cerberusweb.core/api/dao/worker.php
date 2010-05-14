@@ -16,25 +16,21 @@ class DAO_Worker extends C4_ORMHelper {
 	const LAST_ACTIVITY_DATE = 'last_activity_date';
 	const LAST_ACTIVITY_IP = 'last_activity_ip';
 	
-	// [TODO] Convert to ::create($id, $fields)
-	static function create($email, $password, $first_name, $last_name, $title) {
-		if(empty($email) || empty($password))
-			return null;
+	static function create($fields) {
+		if(empty($fields[DAO_Worker::EMAIL]) || empty($fields[DAO_Worker::PASSWORD]))
+			return NULL;
 			
 		$db = DevblocksPlatform::getDatabaseService();
 		$id = $db->GenID('generic_seq');
 		
 		$sql = sprintf("INSERT INTO worker (id, email, pass, first_name, last_name, title, is_superuser, is_disabled) ".
-			"VALUES (%d, %s, %s, %s, %s, %s,0,0)",
-			$id,
-			$db->qstr($email),
-			$db->qstr(md5($password)),
-			$db->qstr($first_name),
-			$db->qstr($last_name),
-			$db->qstr($title)
+			"VALUES (%d, '', '', '', '', '', 0, 0)",
+			$id
 		);
 		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 
+		self::update($id, $fields);
+		
 		self::clearCache();
 		
 		return $id;
