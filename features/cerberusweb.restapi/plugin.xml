@@ -112,6 +112,18 @@
 		</extension>		
 		
 		<extension point="cerberusweb.rest.controller">
+			<id>cerberusweb.rest.controller.parser</id>
+			<name>Parser</name>
+			<class>
+				<file>api/rest/parser.php</file>
+				<name>ChRest_Parser</name>
+			</class>
+			<params>
+				<param key="uri" value="parser" />
+			</params>
+		</extension>		
+		
+		<extension point="cerberusweb.rest.controller">
 			<id>cerberusweb.rest.controller.tasks</id>
 			<name>Tasks</name>
 			<class>
