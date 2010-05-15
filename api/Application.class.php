@@ -1903,7 +1903,7 @@ class CerberusContexts {
 		
 		if($task) {
 			$token_values['completed'] = $task->completed_date;
-			$token_values['due'] = $task->updated_date;
+			$token_values['due'] = $task->due_date;
 			$token_values['id'] = $task->id;
 			$token_values['is_completed'] = $task->is_completed;
 			$token_values['title'] = $task->title;
