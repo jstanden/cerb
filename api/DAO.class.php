@@ -1263,15 +1263,26 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 						}
 					}
 
+					if(!$delta) {
+						self::unsetFieldValue($source_ext_id, $source_id, $field_id);
+					}
+					
 					// Protect from injection in cases where it's not desireable (controlled above)
 					foreach($value as $idx => $v) {
 						if(!in_array($v, $field->options))
-							unset($value[$idx]);
+							continue;
+
+						$is_unset = ('-'==substr($v,0,1)) ? true : false;
+						$v = ltrim($v,'+-');
+							
+						if($is_unset) {
+							if($delta)
+								self::unsetFieldValue($source_ext_id, $source_id, $field_id, $v);
+						} else {
+							self::setFieldValue($source_ext_id, $source_id, $field_id, $v, true);
+						}
 					}
 
-					// If we're allowed to add/remove fields without touching the rest
-					self::setFieldValue($source_ext_id, $source_id, $field_id, $value, $delta);
-						
 					break;
 
 				case Model_CustomField::TYPE_CHECKBOX:
@@ -1352,16 +1363,22 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 		if(null == ($table_name = self::getValueTableName($field_id)))
 			return FALSE;
 		
-		// Delete all values or optionally a specific given value
-		$sql = sprintf("DELETE QUICK FROM %s WHERE source_extension = '%s' AND source_id = %d AND field_id = %d %s",
-			$table_name,
-			$source_ext_id,
-			$source_id,
-			$field_id,
-			(!is_null($value) ? sprintf("AND field_value = %s ",$db->qstr($value)) : "")
-		);
+		if(!is_array($value))
+			$value = array($value);
+			
+		foreach($value as $v) {
+			// Delete all values or optionally a specific given value
+			$sql = sprintf("DELETE QUICK FROM %s WHERE source_extension = '%s' AND source_id = %d AND field_id = %d %s",
+				$table_name,
+				$source_ext_id,
+				$source_id,
+				$field_id,
+				(!is_null($v) ? sprintf("AND field_value = %s ",$db->qstr($v)) : "")
+			);
+			$db->Execute($sql);
+		}
 		
-		return $db->Execute($sql);
+		return TRUE;
 	}
 	
 	public static function handleBulkPost($do) {
