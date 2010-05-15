@@ -343,6 +343,44 @@ abstract class Extension_RestController extends DevblocksExtension {
 		
 		return $this->search($filters, $sortToken, $sortAsc, $page, $limit);
 	}
+	
+	protected function _handleSanitizeValue($value, $type) {
+		// Sanitize input
+		switch($type) {
+			case 'string':
+				break;
+			case 'integer':
+				$value = intval($value);
+				break;
+			case 'boolean':
+				$value = !empty($value) ? true : false;
+				break;
+		}
+		
+		return $value;
+	}
+	
+	protected function _handleRequiredFields($required, $fields) {
+		// Check required fields
+		if(is_array($required))
+		foreach($required as $reqfield)
+			if(!isset($fields[$reqfield]))
+				$this->error(self::ERRNO_CUSTOM, sprintf("'%s' is a required field.", $reqfield));
+	}
+	
+	protected function _handleCustomFields($scope_array) {
+		$fields = array();
+		
+		if(is_array($scope_array))
+		foreach($scope_array as $k => $v) {
+			$parts = explode("_",$k,2);
+			if(2==count($parts) && 'custom'==$parts[0] && is_numeric($parts[1])) {
+				$fields[intval($parts[1])] = DevblocksPlatform::importGPC($scope_array[$k]);
+			}
+		}
+		
+		return $fields;
+	}
 };
 
 interface IExtensionRestController {
