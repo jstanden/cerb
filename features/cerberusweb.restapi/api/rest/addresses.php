@@ -21,13 +21,28 @@ class ChRest_Addresses extends Extension_RestController implements IExtensionRes
 	}
 	
 	function putAction($stack) {
-		$this->error(self::ERRNO_NOT_IMPLEMENTED);
+		@$action = array_shift($stack);
+		
+		// Looking up a single ID?
+		if(is_numeric($action)) {
+			$this->putId(intval($action));
+			
+		} else { // actions
+			switch($action) {
+				default:
+					$this->error(self::ERRNO_NOT_IMPLEMENTED);
+					break;
+			}
+		}
 	}
 	
 	function postAction($stack) {
 		@$action = array_shift($stack);
 		
 		switch($action) {
+			case 'create':
+				$this->postCreate();
+				break;
 			case 'search':
 				$this->postSearch();
 				break;
@@ -63,8 +78,15 @@ class ChRest_Addresses extends Extension_RestController implements IExtensionRes
 		
 		if('dao'==$type) {
 			$tokens = array(
-//				'is_banned' => DAO_Address::IS_BANNED,
-//				'is_registered' => DAO_Address::IS_REGISTERED,
+				'email' => DAO_Address::EMAIL,
+				'first_name' => DAO_Address::FIRST_NAME,
+				'is_banned' => DAO_Address::IS_BANNED,
+				'is_registered' => DAO_Address::IS_REGISTERED,
+				'last_name' => DAO_Address::LAST_NAME,
+//				'num_nonspam' => DAO_Address::NUM_NONSPAM,
+//				'num_spam' => DAO_Address::NUM_SPAM,
+				'org_id' => DAO_Address::CONTACT_ORG_ID,
+				'password' => DAO_Address::PASS,
 			);
 		} else {
 			$tokens = array(
@@ -140,6 +162,120 @@ class ChRest_Addresses extends Extension_RestController implements IExtensionRes
 		);
 		
 		return $container;		
+	}
+	
+	function putId($id) {
+		$worker = $this->getActiveWorker();
+		
+		// ACL
+		if(!$worker->hasPriv('core.addybook.addy.actions.update'))
+			$this->error(self::ERRNO_ACL);
+		
+		// Validate the ID
+		if(null == DAO_Address::get($id))
+			$this->error(self::ERRNO_CUSTOM, sprintf("Invalid address ID '%d'", $id));
+			
+		$putfields = array(
+			'first_name' => 'string',
+			'is_banned' => 'integer',
+			'is_registered' => 'integer',
+			'last_name' => 'string',
+			'org_id' => 'integer',
+			'password' => 'string',
+		);
+
+		$fields = array();
+
+		foreach($putfields as $putfield => $type) {
+			if(!isset($_POST[$putfield]))
+				continue;
+			
+			@$value = DevblocksPlatform::importGPC($_POST[$putfield], 'string', '');
+			
+			if(null == ($field = self::translateToken($putfield, 'dao'))) {
+				$this->error(self::ERRNO_CUSTOM, sprintf("'%s' is not a valid field.", $putfield));
+			}
+			
+			// Sanitize
+			$value = $this->_handleSanitizeValue($value, $type);
+						
+			switch($field) {
+				case DAO_Address::PASS:
+					$value = md5($value);
+					break;
+			}
+			
+			$fields[$field] = $value;
+		}
+		
+		// Handle custom fields
+		$customfields = $this->_handleCustomFields($_POST);
+		if(is_array($customfields))
+			DAO_CustomFieldValue::formatAndSetFieldValues(ChCustomFieldSource_Address::ID, $id, $customfields, true, true, true);
+		
+		// Check required fields
+//		$reqfields = array(DAO_Address::EMAIL);
+//		$this->_handleRequiredFields($reqfields, $fields);
+
+		// Update
+		DAO_Address::update($id, $fields);
+		$this->getId($id);
+	}
+	
+	function postCreate() {
+		$worker = $this->getActiveWorker();
+		
+		// ACL
+		if(!$worker->hasPriv('core.addybook.addy.actions.update'))
+			$this->error(self::ERRNO_ACL);
+		
+		$postfields = array(
+			'email' => 'string',
+			'first_name' => 'string',
+			'is_banned' => 'integer',
+			'is_registered' => 'integer',
+			'last_name' => 'string',
+			'org_id' => 'integer',
+			'password' => 'string',
+		);
+
+		$fields = array();
+		
+		foreach($postfields as $postfield => $type) {
+			if(!isset($_POST[$postfield]))
+				continue;
+				
+			@$value = DevblocksPlatform::importGPC($_POST[$postfield], 'string', '');
+				
+			if(null == ($field = self::translateToken($postfield, 'dao'))) {
+				$this->error(self::ERRNO_CUSTOM, sprintf("'%s' is not a valid field.", $postfield));
+			}
+
+			// Sanitize
+			$value = $this->_handleSanitizeValue($value, $type);
+			
+			switch($field) {
+				case DAO_Address::PASS:
+					$value = md5($value);
+					break;
+			}
+			
+			$fields[$field] = $value;
+		}
+		
+		// Check required fields
+		$reqfields = array(DAO_Address::EMAIL);
+		$this->_handleRequiredFields($reqfields, $fields);
+		
+		// Create
+		if(false != ($id = DAO_Address::create($fields))) {
+			// Handle custom fields
+			$customfields = $this->_handleCustomFields($_POST);
+			if(is_array($customfields))
+				DAO_CustomFieldValue::formatAndSetFieldValues(ChCustomFieldSource_Address::ID, $id, $customfields, true, true, true);
+			
+			$this->getId($id);
+		}
 	}
 	
 	function postSearch() {
