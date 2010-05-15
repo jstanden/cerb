@@ -20,6 +20,17 @@ class ChRest_Orgs extends Extension_RestController implements IExtensionRestCont
 	}
 	
 	function putAction($stack) {
+		@$action = array_shift($stack);
+		
+		// Looking up a single ID?
+		if(is_numeric($action)) {
+			$this->putId(intval($action));
+			
+		} else { // actions
+			switch($action) {
+			}
+		}
+		
 		$this->error(self::ERRNO_NOT_IMPLEMENTED);
 	}
 	
@@ -27,6 +38,9 @@ class ChRest_Orgs extends Extension_RestController implements IExtensionRestCont
 		@$action = array_shift($stack);
 		
 		switch($action) {
+			case 'create':
+				$this->postCreate();
+				break;
 			case 'search':
 				$this->postSearch();
 				break;
@@ -62,7 +76,15 @@ class ChRest_Orgs extends Extension_RestController implements IExtensionRestCont
 		
 		if('dao'==$type) {
 			$tokens = array(
-//				'is_banned' => DAO_ContactOrg::IS_BANNED,
+				'name' => DAO_ContactOrg::NAME,
+				'street' => DAO_ContactOrg::STREET,
+				'city' => DAO_ContactOrg::CITY,
+				'province' => DAO_ContactOrg::PROVINCE,
+				'postal' => DAO_ContactOrg::POSTAL,
+				'country' => DAO_ContactOrg::COUNTRY,
+				'phone' => DAO_ContactOrg::PHONE,
+				'website' => DAO_ContactOrg::WEBSITE,
+				'created' => DAO_ContactOrg::CREATED,
 			);
 		} else {
 			$tokens = array(
@@ -83,7 +105,6 @@ class ChRest_Orgs extends Extension_RestController implements IExtensionRestCont
 		$context = CerberusContexts::getContext(CerberusContexts::CONTEXT_ORG, $id, $labels, $values, null, true);
 
 //		unset($values['initial_message_content']);
-//		unset($values['latest_message_content']);
 
 		return $values;
 	}
@@ -135,5 +156,128 @@ class ChRest_Orgs extends Extension_RestController implements IExtensionRestCont
 		$container = $this->_handlePostSearch();
 		
 		$this->success($container);
-	}	
+	}
+	
+	function putId($id) {
+		$worker = $this->getActiveWorker();
+		
+		// ACL
+		if(!$worker->hasPriv('core.addybook.org.actions.update'))
+			$this->error(self::ERRNO_ACL);
+		
+		// Validate the ID
+		if(null == DAO_ContactOrg::get($id))
+			$this->error(self::ERRNO_CUSTOM, sprintf("Invalid org ID '%d'", $id));
+			
+		$putfields = array(
+			'name' => 'string',
+			'street' => 'string',
+			'city' => 'string',
+			'province' => 'string',
+			'postal' => 'string',
+			'country' => 'string',
+			'phone' => 'string',
+			'website' => 'string',
+		);
+
+		$fields = array();
+
+		foreach($putfields as $putfield => $type) {
+			if(!isset($_POST[$putfield]))
+				continue;
+			
+			@$value = DevblocksPlatform::importGPC($_POST[$putfield], 'string', '');
+			
+			if(null == ($field = self::translateToken($putfield, 'dao'))) {
+				$this->error(self::ERRNO_CUSTOM, sprintf("'%s' is not a valid field.", $putfield));
+			}
+			
+			// Sanitize
+			$value = $this->_handleSanitizeValue($value, $type);
+						
+//			switch($field) {
+//				case DAO_Worker::PASSWORD:
+//					$value = md5($value);
+//					break;
+//			}
+			
+			$fields[$field] = $value;
+		}
+		
+		// Handle custom fields
+		$customfields = $this->_handleCustomFields($_POST);
+		if(is_array($customfields))
+			DAO_CustomFieldValue::formatAndSetFieldValues(ChCustomFieldSource_Org::ID, $id, $customfields, true, true, true);
+		
+		// Check required fields
+//		$reqfields = array(DAO_Address::EMAIL);
+//		$this->_handleRequiredFields($reqfields, $fields);
+
+		// Update
+		DAO_ContactOrg::update($id, $fields);
+		$this->getId($id);
+	}
+	
+	function postCreate() {
+		$worker = $this->getActiveWorker();
+		
+		// ACL
+		if(!$worker->hasPriv('core.addybook.org.actions.update'))
+			$this->error(self::ERRNO_ACL);
+		
+		$postfields = array(
+			'name' => 'string',
+			'street' => 'string',
+			'city' => 'string',
+			'province' => 'string',
+			'postal' => 'string',
+			'country' => 'string',
+			'phone' => 'string',
+			'website' => 'string',
+			'created' => 'integer',
+		);
+
+		$fields = array();
+		
+		foreach($postfields as $postfield => $type) {
+			if(!isset($_POST[$postfield]))
+				continue;
+				
+			@$value = DevblocksPlatform::importGPC($_POST[$postfield], 'string', '');
+				
+			if(null == ($field = self::translateToken($postfield, 'dao'))) {
+				$this->error(self::ERRNO_CUSTOM, sprintf("'%s' is not a valid field.", $postfield));
+			}
+
+			// Sanitize
+			$value = $this->_handleSanitizeValue($value, $type);
+			
+//			switch($field) {
+//				case DAO_Worker::PASSWORD:
+//					$value = md5($value);
+//					break;
+//			}
+			
+			$fields[$field] = $value;
+		}
+		
+		if(!isset($fields[DAO_ContactOrg::CREATED]))
+			$fields[DAO_ContactOrg::CREATED] = time();
+		
+		// Check required fields
+		$reqfields = array(
+			DAO_ContactOrg::NAME, 
+		);
+		$this->_handleRequiredFields($reqfields, $fields);
+		
+		// Create
+		if(false != ($id = DAO_ContactOrg::create($fields))) {
+			// Handle custom fields
+			$customfields = $this->_handleCustomFields($_POST);
+			if(is_array($customfields))
+				DAO_CustomFieldValue::formatAndSetFieldValues(ChCustomFieldSource_Org::ID, $id, $customfields, true, true, true);
+			
+			$this->getId($id);
+		}
+	}		
 };
