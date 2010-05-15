@@ -74,7 +74,7 @@ class DevblocksPlatform extends DevblocksEngine {
 				}
 				break;
 			default:
-				$value = NULL;
+				@settype($value,$type);
 				break;
 		}
 		
