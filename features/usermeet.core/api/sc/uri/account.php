@@ -54,6 +54,9 @@ class UmScAccountController extends Extension_UmScController {
 		$umsession = UmPortalHelper::getSession();
 		$active_user = $umsession->getProperty('sc_login', null);
 		
+		if(null == ($address = DAO_Address::get($active_user->id)))
+			return;
+		
 		$customfields = DAO_CustomField::getAll();
 		
 		// Compare editable fields
@@ -61,7 +64,7 @@ class UmScAccountController extends Extension_UmScController {
 		if(null != ($show_fields = DAO_CommunityToolProperty::get(UmPortalHelper::getCode(), 'account.fields', null)))
 			@$show_fields = json_decode($show_fields, true);
 		
-		if(!empty($active_user)) {
+		if(!empty($address)) {
 			$addy_fields = array();
 			$addy_customfields = array();
 			$org_fields = array();
@@ -143,15 +146,15 @@ class UmScAccountController extends Extension_UmScController {
 			
 			// Addy
 			if(!empty($addy_fields))
-				DAO_Address::update($active_user->id, $addy_fields);
+				DAO_Address::update($address->id, $addy_fields);
 			if(!empty($addy_customfields))
-				DAO_CustomFieldValue::formatAndSetFieldValues(ChCustomFieldSource_Address::ID, $active_user->id, $addy_customfields, true, false, false);
+				DAO_CustomFieldValue::formatAndSetFieldValues(ChCustomFieldSource_Address::ID, $address->id, $addy_customfields, true, false, false);
 			
 			// Org
-			if(!empty($org_fields))
-				DAO_ContactOrg::update($active_user->contact_org_id, $org_fields);
-			if(!empty($org_customfields) && !empty($active_user->contact_org_id))
-				DAO_CustomFieldValue::formatAndSetFieldValues(ChCustomFieldSource_Org::ID, $active_user->contact_org_id, $org_customfields, true, false, false);
+			if(!empty($org_fields) && !empty($address->contact_org_id))
+				DAO_ContactOrg::update($address->contact_org_id, $org_fields);
+			if(!empty($org_customfields) && !empty($address->contact_org_id))
+				DAO_CustomFieldValue::formatAndSetFieldValues(ChCustomFieldSource_Org::ID, $address->contact_org_id, $org_customfields, true, false, false);
 		}
 		
 		$tpl->assign('account_success', true);
