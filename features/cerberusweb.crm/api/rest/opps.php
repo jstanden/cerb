@@ -20,6 +20,17 @@ class ChRest_Opps extends Extension_RestController implements IExtensionRestCont
 	}
 	
 	function putAction($stack) {
+		@$action = array_shift($stack);
+		
+		// Looking up a single ID?
+		if(is_numeric($action)) {
+			$this->putId(intval($action));
+			
+		} else { // actions
+			switch($action) {
+			}
+		}
+		
 		$this->error(self::ERRNO_NOT_IMPLEMENTED);
 	}
 	
@@ -27,6 +38,9 @@ class ChRest_Opps extends Extension_RestController implements IExtensionRestCont
 		@$action = array_shift($stack);
 		
 		switch($action) {
+			case 'create':
+				$this->postCreate();
+				break;
 			case 'search':
 				$this->postSearch();
 				break;
@@ -54,7 +68,14 @@ class ChRest_Opps extends Extension_RestController implements IExtensionRestCont
 		
 		if('dao'==$type) {
 			$tokens = array(
-//				'is_banned' => DAO_Address::IS_BANNED,
+				'amount' => DAO_CrmOpportunity::AMOUNT,
+				'assignee_id' => DAO_CrmOpportunity::WORKER_ID,
+				'created' => DAO_CrmOpportunity::CREATED_DATE,
+				'email_id' => DAO_CrmOpportunity::PRIMARY_EMAIL_ID,
+				'is_closed' => DAO_CrmOpportunity::IS_CLOSED,
+				'is_won' => DAO_CrmOpportunity::IS_WON,
+				'title' => DAO_CrmOpportunity::NAME,
+				'updated' => DAO_CrmOpportunity::UPDATED_DATE,
 			);
 		} else {
 			$tokens = array(
@@ -142,5 +163,158 @@ class ChRest_Opps extends Extension_RestController implements IExtensionRestCont
 		$container = $this->_handlePostSearch();
 		
 		$this->success($container);
-	}	
+	}
+	
+	function putId($id) {
+		$worker = $this->getActiveWorker();
+		
+		// Validate the ID
+		if(null == ($opp = DAO_CrmOpportunity::get($id)))
+			$this->error(self::ERRNO_CUSTOM, sprintf("Invalid opportunity ID '%d'", $id));
+			
+		// ACL
+		if(!($worker->hasPriv('crm.opp.actions.update_all') || $opp->worker_id==$worker->id))
+			$this->error(self::ERRNO_ACL);
+		
+		$putfields = array(
+			'amount' => 'float',
+			'assignee_id' => 'integer',
+			'created' => 'timestamp',
+			'email_address' => 'string',
+			'email_id' => 'integer',
+			'is_closed' => 'bit',
+			'is_won' => 'bit',
+			'title' => 'string',
+			'updated' => 'timestamp',
+		);
+
+		$fields = array();
+
+		foreach($putfields as $putfield => $type) {
+			if(!isset($_POST[$putfield]))
+				continue;
+			
+			@$value = DevblocksPlatform::importGPC($_POST[$putfield], 'string', '');
+			
+			// Sanitize
+			$value = DevblocksPlatform::importVar($value, $type);
+
+			// Pre-filter
+			switch($putfield) {
+				case 'email_address':
+					if(null != ($lookup = DAO_Address::lookupAddress($value, true))) {
+						unset($putfields['email_id']);
+						$putfield = 'email_id';
+						$value = $lookup->id;
+					}
+					break;
+			}
+			
+			if(null == ($field = self::translateToken($putfield, 'dao'))) {
+				$this->error(self::ERRNO_CUSTOM, sprintf("'%s' is not a valid field.", $putfield));
+			}
+						
+			// Post-filter
+//			switch($field) {
+//				case DAO_Worker::PASSWORD:
+//					$value = md5($value);
+//					break;
+//			}
+			
+			$fields[$field] = $value;
+		}
+		
+		if(!isset($fields[DAO_CrmOpportunity::UPDATED_DATE]))
+			$fields[DAO_CrmOpportunity::UPDATED_DATE] = time();
+		
+		// Handle custom fields
+		$customfields = $this->_handleCustomFields($_POST);
+		if(is_array($customfields))
+			DAO_CustomFieldValue::formatAndSetFieldValues(CrmCustomFieldSource_Opportunity::ID, $id, $customfields, true, true, true);
+		
+		// Check required fields
+//		$reqfields = array(DAO_Address::EMAIL);
+//		$this->_handleRequiredFields($reqfields, $fields);
+
+		// Update
+		DAO_CrmOpportunity::update($id, $fields);
+		$this->getId($id);
+	}
+	
+	function postCreate() {
+		$worker = $this->getActiveWorker();
+		
+		// ACL
+		if(!$worker->hasPriv('crm.opp.actions.create'))
+			$this->error(self::ERRNO_ACL);
+		
+		$postfields = array(
+			'amount' => 'float',
+			'assignee_id' => 'integer',
+			'created' => 'timestamp',
+			'email_address' => 'string',
+			'email_id' => 'integer',
+			'is_closed' => 'bit',
+			'is_won' => 'bit',
+			'title' => 'string',
+			'updated' => 'timestamp',
+		);
+
+		$fields = array();
+		
+		foreach($postfields as $postfield => $type) {
+			if(!isset($_POST[$postfield]))
+				continue;
+				
+			@$value = DevblocksPlatform::importGPC($_POST[$postfield], 'string', '');
+				
+			// Sanitize
+			$value = DevblocksPlatform::importVar($value, $type);
+			
+			// Pre-filter
+			switch($postfield) {
+				case 'email_address':
+					if(null != ($lookup = DAO_Address::lookupAddress($value, true))) {
+						unset($postfields['email_id']);
+						$postfield = 'email_id';
+						$value = $lookup->id;
+					} 
+					break;
+			}
+			
+			if(null == ($field = self::translateToken($postfield, 'dao'))) {
+				$this->error(self::ERRNO_CUSTOM, sprintf("'%s' is not a valid field.", $postfield));
+			}
+			
+//			switch($field) {
+//				case DAO_Worker::PASSWORD:
+//					$value = md5($value);
+//					break;
+//			}
+			
+			$fields[$field] = $value;
+		}
+		
+		if(!isset($fields[DAO_CrmOpportunity::CREATED_DATE]))
+			$fields[DAO_CrmOpportunity::CREATED_DATE] = time();
+		if(!isset($fields[DAO_CrmOpportunity::UPDATED_DATE]))
+			$fields[DAO_CrmOpportunity::UPDATED_DATE] = time();
+		
+		// Check required fields
+		$reqfields = array(
+			DAO_CrmOpportunity::NAME, 
+			DAO_CrmOpportunity::PRIMARY_EMAIL_ID,
+		);
+		$this->_handleRequiredFields($reqfields, $fields);
+		
+		// Create
+		if(false != ($id = DAO_CrmOpportunity::create($fields))) {
+			// Handle custom fields
+			$customfields = $this->_handleCustomFields($_POST);
+			if(is_array($customfields))
+				DAO_CustomFieldValue::formatAndSetFieldValues(CrmCustomFieldSource_Opportunity::ID, $id, $customfields, true, true, true);
+			
+			$this->getId($id);
+		}
+	}		
 };
