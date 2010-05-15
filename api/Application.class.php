@@ -1583,7 +1583,7 @@ class CerberusContexts {
 			$token_values['created'] = $org->created;
 			if(!empty($org->city))
 				$token_values['city'] = $org->city;
-			if(!empty($org->county))
+			if(!empty($org->country))
 				$token_values['country'] = $org->country;
 			if(!empty($org->phone))
 				$token_values['phone'] = $org->phone;
