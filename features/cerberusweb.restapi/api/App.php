@@ -344,22 +344,6 @@ abstract class Extension_RestController extends DevblocksExtension {
 		return $this->search($filters, $sortToken, $sortAsc, $page, $limit);
 	}
 	
-	protected function _handleSanitizeValue($value, $type) {
-		// Sanitize input
-		switch($type) {
-			case 'string':
-				break;
-			case 'integer':
-				$value = intval($value);
-				break;
-			case 'boolean':
-				$value = !empty($value) ? true : false;
-				break;
-		}
-		
-		return $value;
-	}
-	
 	protected function _handleRequiredFields($required, $fields) {
 		// Check required fields
 		if(is_array($required))
