@@ -178,8 +178,8 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 		$putfields = array(
 			'email' => 'string',
 			'first_name' => 'string',
-			'is_disabled' => 'integer',
-			'is_superuser' => 'integer',
+			'is_disabled' => 'bit',
+			'is_superuser' => 'bit',
 			'last_name' => 'string',
 			'password' => 'string',
 			'title' => 'string',
@@ -198,7 +198,7 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 			}
 			
 			// Sanitize
-			$value = $this->_handleSanitizeValue($value, $type);
+			$value = DevblocksPlatform::importVar($value, $type);
 						
 			switch($field) {
 				case DAO_Worker::PASSWORD:
@@ -233,8 +233,8 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 		$postfields = array(
 			'email' => 'string',
 			'first_name' => 'string',
-			'is_disabled' => 'integer',
-			'is_superuser' => 'integer',
+			'is_disabled' => 'bit',
+			'is_superuser' => 'bit',
 			'last_name' => 'string',
 			'password' => 'string',
 			'title' => 'string',
@@ -253,7 +253,7 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 			}
 
 			// Sanitize
-			$value = $this->_handleSanitizeValue($value, $type);
+			$value = DevblocksPlatform::importVar($value, $type);
 			
 			switch($field) {
 				case DAO_Worker::PASSWORD:

@@ -193,7 +193,7 @@ class ChRest_Orgs extends Extension_RestController implements IExtensionRestCont
 			}
 			
 			// Sanitize
-			$value = $this->_handleSanitizeValue($value, $type);
+			$value = DevblocksPlatform::importVar($value, $type);
 						
 //			switch($field) {
 //				case DAO_Worker::PASSWORD:
@@ -234,7 +234,7 @@ class ChRest_Orgs extends Extension_RestController implements IExtensionRestCont
 			'country' => 'string',
 			'phone' => 'string',
 			'website' => 'string',
-			'created' => 'integer',
+			'created' => 'timestamp',
 		);
 
 		$fields = array();
@@ -250,7 +250,7 @@ class ChRest_Orgs extends Extension_RestController implements IExtensionRestCont
 			}
 
 			// Sanitize
-			$value = $this->_handleSanitizeValue($value, $type);
+			$value = DevblocksPlatform::importVar($value, $type);
 			
 //			switch($field) {
 //				case DAO_Worker::PASSWORD:

@@ -182,11 +182,11 @@ class ChRest_Tasks extends Extension_RestController implements IExtensionRestCon
 			
 		$putfields = array(
 			'assignee_id' => 'integer',		
-			'completed' => 'integer',
-			'due' => 'integer',
-			'is_completed' => 'integer',
+			'completed' => 'timestamp',
+			'due' => 'timestamp',
+			'is_completed' => 'bit',
 			'title' => 'string',
-			'updated' => 'integer',
+			'updated' => 'timestamp',
 		);
 
 		$fields = array();
@@ -202,7 +202,7 @@ class ChRest_Tasks extends Extension_RestController implements IExtensionRestCon
 			}
 			
 			// Sanitize
-			$value = $this->_handleSanitizeValue($value, $type);
+			$value = DevblocksPlatform::importVar($value, $type);
 						
 //			switch($field) {
 //				case DAO_Worker::PASSWORD:
@@ -239,11 +239,11 @@ class ChRest_Tasks extends Extension_RestController implements IExtensionRestCon
 		
 		$postfields = array(
 			'assignee_id' => 'integer',
-			'completed' => 'integer',
-			'due' => 'integer',
-			'is_completed' => 'integer',
+			'completed' => 'timestamp',
+			'due' => 'timestamp',
+			'is_completed' => 'bit',
 			'title' => 'string',
-			'updated' => 'integer',
+			'updated' => 'timestamp',
 		);
 
 		$fields = array();
@@ -259,7 +259,7 @@ class ChRest_Tasks extends Extension_RestController implements IExtensionRestCon
 			}
 
 			// Sanitize
-			$value = $this->_handleSanitizeValue($value, $type);
+			$value = DevblocksPlatform::importVar($value, $type);
 			
 //			switch($field) {
 //				case DAO_Worker::PASSWORD:

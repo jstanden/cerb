@@ -205,8 +205,8 @@ class ChRest_Notifications extends Extension_RestController implements IExtensio
 		$putfields = array(
 			'assignee_id' => 'integer',
 			'content' => 'string',
-			'created' => 'integer',
-			'is_read' => 'integer',
+			'created' => 'timestamp',
+			'is_read' => 'bit',
 			'title' => 'string',
 			'url' => 'string',
 		);
@@ -224,7 +224,7 @@ class ChRest_Notifications extends Extension_RestController implements IExtensio
 			}
 			
 			// Sanitize
-			$value = $this->_handleSanitizeValue($value, $type);
+			$value = DevblocksPlatform::importVar($value, $type);
 						
 //			switch($field) {
 //				case DAO_Worker::PASSWORD:
@@ -259,8 +259,8 @@ class ChRest_Notifications extends Extension_RestController implements IExtensio
 		$postfields = array(
 			'assignee_id' => 'integer',
 			'content' => 'string',
-			'created' => 'integer',
-			'is_read' => 'integer',
+			'created' => 'timestamp',
+			'is_read' => 'bit',
 			'title' => 'string',
 			'url' => 'string',
 		);
@@ -278,7 +278,7 @@ class ChRest_Notifications extends Extension_RestController implements IExtensio
 			}
 
 			// Sanitize
-			$value = $this->_handleSanitizeValue($value, $type);
+			$value = DevblocksPlatform::importVar($value, $type);
 			
 //			switch($field) {
 //				case DAO_Worker::PASSWORD:

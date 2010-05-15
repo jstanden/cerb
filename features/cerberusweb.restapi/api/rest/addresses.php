@@ -177,8 +177,8 @@ class ChRest_Addresses extends Extension_RestController implements IExtensionRes
 			
 		$putfields = array(
 			'first_name' => 'string',
-			'is_banned' => 'integer',
-			'is_registered' => 'integer',
+			'is_banned' => 'bit',
+			'is_registered' => 'bit',
 			'last_name' => 'string',
 			'org_id' => 'integer',
 			'password' => 'string',
@@ -197,7 +197,7 @@ class ChRest_Addresses extends Extension_RestController implements IExtensionRes
 			}
 			
 			// Sanitize
-			$value = $this->_handleSanitizeValue($value, $type);
+			$value = DevblocksPlatform::importVar($value, $type);
 						
 			switch($field) {
 				case DAO_Address::PASS:
@@ -232,8 +232,8 @@ class ChRest_Addresses extends Extension_RestController implements IExtensionRes
 		$postfields = array(
 			'email' => 'string',
 			'first_name' => 'string',
-			'is_banned' => 'integer',
-			'is_registered' => 'integer',
+			'is_banned' => 'bit',
+			'is_registered' => 'bit',
 			'last_name' => 'string',
 			'org_id' => 'integer',
 			'password' => 'string',
@@ -252,7 +252,7 @@ class ChRest_Addresses extends Extension_RestController implements IExtensionRes
 			}
 
 			// Sanitize
-			$value = $this->_handleSanitizeValue($value, $type);
+			$value = DevblocksPlatform::importVar($value, $type);
 			
 			switch($field) {
 				case DAO_Address::PASS:
