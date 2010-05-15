@@ -20,6 +20,17 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 	}
 	
 	function putAction($stack) {
+		@$action = array_shift($stack);
+		
+		// Looking up a single ID?
+		if(is_numeric($action)) {
+			$this->putId(intval($action));
+			
+		} else { // actions
+			switch($action) {
+			}
+		}
+		
 		$this->error(self::ERRNO_NOT_IMPLEMENTED);
 	}
 	
@@ -27,6 +38,9 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 		@$action = array_shift($stack);
 		
 		switch($action) {
+			case 'create':
+				$this->postCreate();
+				break;
 			case 'search':
 				$this->postSearch();
 				break;
@@ -54,7 +68,13 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 		
 		if('dao'==$type) {
 			$tokens = array(
-//				'is_banned' => DAO_Worker::IS_BANNED,
+				'email' => DAO_Worker::EMAIL,
+				'first_name' => DAO_Worker::FIRST_NAME,
+				'is_disabled' => DAO_Worker::IS_DISABLED,
+				'is_superuser' => DAO_Worker::IS_SUPERUSER,
+				'last_name' => DAO_Worker::LAST_NAME,
+				'password' => DAO_Worker::PASSWORD,
+				'title' => DAO_Worker::TITLE,
 			);
 		} else {
 			$tokens = array(
@@ -143,4 +163,122 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 		
 		return $container;			
 	}
+	
+	function putId($id) {
+		$worker = $this->getActiveWorker();
+		
+		// ACL
+		if(!$worker->is_superuser)
+			$this->error(self::ERRNO_ACL);
+		
+		// Validate the ID
+		if(null == DAO_Worker::get($id))
+			$this->error(self::ERRNO_CUSTOM, sprintf("Invalid worker ID '%d'", $id));
+			
+		$putfields = array(
+			'email' => 'string',
+			'first_name' => 'string',
+			'is_disabled' => 'integer',
+			'is_superuser' => 'integer',
+			'last_name' => 'string',
+			'password' => 'string',
+			'title' => 'string',
+		);
+
+		$fields = array();
+
+		foreach($putfields as $putfield => $type) {
+			if(!isset($_POST[$putfield]))
+				continue;
+			
+			@$value = DevblocksPlatform::importGPC($_POST[$putfield], 'string', '');
+			
+			if(null == ($field = self::translateToken($putfield, 'dao'))) {
+				$this->error(self::ERRNO_CUSTOM, sprintf("'%s' is not a valid field.", $putfield));
+			}
+			
+			// Sanitize
+			$value = $this->_handleSanitizeValue($value, $type);
+						
+			switch($field) {
+				case DAO_Worker::PASSWORD:
+					$value = md5($value);
+					break;
+			}
+			
+			$fields[$field] = $value;
+		}
+		
+		// Handle custom fields
+		$customfields = $this->_handleCustomFields($_POST);
+		if(is_array($customfields))
+			DAO_CustomFieldValue::formatAndSetFieldValues(ChCustomFieldSource_Worker::ID, $id, $customfields, true, true, true);
+		
+		// Check required fields
+//		$reqfields = array(DAO_Address::EMAIL);
+//		$this->_handleRequiredFields($reqfields, $fields);
+
+		// Update
+		DAO_Worker::update($id, $fields);
+		$this->getId($id);
+	}
+	
+	function postCreate() {
+		$worker = $this->getActiveWorker();
+		
+		// ACL
+		if(!$worker->is_superuser)
+			$this->error(self::ERRNO_ACL);
+		
+		$postfields = array(
+			'email' => 'string',
+			'first_name' => 'string',
+			'is_disabled' => 'integer',
+			'is_superuser' => 'integer',
+			'last_name' => 'string',
+			'password' => 'string',
+			'title' => 'string',
+		);
+
+		$fields = array();
+		
+		foreach($postfields as $postfield => $type) {
+			if(!isset($_POST[$postfield]))
+				continue;
+				
+			@$value = DevblocksPlatform::importGPC($_POST[$postfield], 'string', '');
+				
+			if(null == ($field = self::translateToken($postfield, 'dao'))) {
+				$this->error(self::ERRNO_CUSTOM, sprintf("'%s' is not a valid field.", $postfield));
+			}
+
+			// Sanitize
+			$value = $this->_handleSanitizeValue($value, $type);
+			
+			switch($field) {
+				case DAO_Worker::PASSWORD:
+					$value = md5($value);
+					break;
+			}
+			
+			$fields[$field] = $value;
+		}
+		
+		// Check required fields
+		$reqfields = array(
+			DAO_Worker::EMAIL, 
+			DAO_Worker::PASSWORD,
+		);
+		$this->_handleRequiredFields($reqfields, $fields);
+		
+		// Create
+		if(false != ($id = DAO_Worker::create($fields))) {
+			// Handle custom fields
+			$customfields = $this->_handleCustomFields($_POST);
+			if(is_array($customfields))
+				DAO_CustomFieldValue::formatAndSetFieldValues(ChCustomFieldSource_Worker::ID, $id, $customfields, true, true, true);
+			
+			$this->getId($id);
+		}
+	}	
 };
