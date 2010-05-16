@@ -2003,7 +2003,7 @@ class CerberusContexts {
 						continue;
 					
 					// The literal value
-					if(null != $org)
+					if(null != $feedback)
 						$token_values['custom'][$cf_id] = $cf_val;
 					
 					// Stringify
@@ -2011,7 +2011,7 @@ class CerberusContexts {
 						$cf_val = implode(', ', $cf_val);
 						
 					if(is_string($cf_val)) {
-						if(null != $org)
+						if(null != $feedback)
 							$token_values['custom_'.$cf_id] = $cf_val;
 					}
 				}
