@@ -37,13 +37,25 @@ class ChRest_Orgs extends Extension_RestController implements IExtensionRestCont
 	function postAction($stack) {
 		@$action = array_shift($stack);
 		
-		switch($action) {
-			case 'create':
-				$this->postCreate();
-				break;
-			case 'search':
-				$this->postSearch();
-				break;
+		if(is_numeric($action) && !empty($stack)) {
+			$id = intval($action);
+			$action = array_shift($stack);
+			
+			switch($action) {
+				case 'note':
+					$this->postNote($id);
+					break;
+			}
+			
+		} else {
+			switch($action) {
+				case 'create':
+					$this->postCreate();
+					break;
+				case 'search':
+					$this->postSearch();
+					break;
+			}
 		}
 		
 		$this->error(self::ERRNO_NOT_IMPLEMENTED);
@@ -279,5 +291,37 @@ class ChRest_Orgs extends Extension_RestController implements IExtensionRestCont
 			
 			$this->getId($id);
 		}
-	}		
+	}	
+
+	private function postNote($id) {
+		$worker = $this->getActiveWorker();
+
+		@$note = DevblocksPlatform::importGPC($_POST['note'],'string','');
+		
+		if(null == ($org = DAO_ContactOrg::get($id)))
+			$this->error(self::ERRNO_CUSTOM, sprintf("Invalid org ID %d", $id));
+
+		// ACL
+		if(!$worker->hasPriv('core.addybook.org.actions.update'))
+			$this->error(self::ERRNO_ACL);
+		
+		// Required fields
+		if(empty($note))
+			$this->error(self::ERRNO_CUSTOM, "The 'note' field is required.");
+			
+		// Post
+		$fields = array(
+			DAO_Note::SOURCE_EXTENSION_ID => ChNotesSource_Org::ID,
+			DAO_Note::SOURCE_ID => $org->id,
+			DAO_Note::WORKER_ID => $worker->id,
+			DAO_Note::CREATED => time(),
+			DAO_Note::CONTENT => $note,
+		);
+		$note_id = DAO_Note::create($fields);
+			
+		$this->success(array(
+			'org_id' => $org->id,
+			'note_id' => $note_id,
+		));
+	}	
 };
