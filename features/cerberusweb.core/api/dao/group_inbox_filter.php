@@ -274,7 +274,7 @@ class Model_GroupInboxFilter {
 		}
 
 		// Check the ticket
-		if(null === ($ticket = DAO_Ticket::getTicket($ticket_id)))
+		if(null === ($ticket = DAO_Ticket::get($ticket_id)))
 			return false;
 			
 		// Build our objects

@@ -98,7 +98,7 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 		@$is_deleted = DevblocksPlatform::importGPC($_REQUEST['is_deleted'],'string','');
 		@$next_worker_id = DevblocksPlatform::importGPC($_REQUEST['next_worker_id'],'string','');
 		
-		if(null == ($ticket = DAO_Ticket::getTicket($id)))
+		if(null == ($ticket = DAO_Ticket::get($id)))
 			$this->error(self::ERRNO_CUSTOM, sprintf("Invalid ticket ID %d", $id));
 			
 		// Check group memberships
@@ -169,7 +169,7 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 		if(!$worker->hasPriv('core.ticket.actions.delete'))
 			$this->error(self::ERRNO_ACL, 'Access denied to delete tickets.');
 
-		if(null == ($ticket = DAO_Ticket::getTicket($id)))
+		if(null == ($ticket = DAO_Ticket::get($id)))
 			$this->error(self::ERRNO_CUSTOM, sprintf("Invalid ticket ID %d", $id));
 			
 		// Check group memberships

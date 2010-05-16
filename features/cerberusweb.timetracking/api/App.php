@@ -963,7 +963,7 @@ class ChTimeTrackingAjaxController extends DevblocksControllerExtension {
 		switch($source_ext_id) {
 			// Ticket
 			case 'timetracking.source.ticket':
-				if(null != ($ticket = DAO_Ticket::getTicket($source_id))) {
+				if(null != ($ticket = DAO_Ticket::get($source_id))) {
 					
 					// Timeslip Responsible Party
 					if(null != ($address = DAO_Address::get($ticket->first_wrote_address_id))) {

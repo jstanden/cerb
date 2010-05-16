@@ -187,7 +187,7 @@ class ChGroupsPage extends CerberusPageExtension  {
 		
 		// Load the example ticket + headers if provided
 		if(!empty($ticket_id)) {
-			$ticket = DAO_Ticket::getTicket($ticket_id);
+			$ticket = DAO_Ticket::get($ticket_id);
 			$tpl->assign('ticket', $ticket);
 	
 			$messages = $ticket->getMessages();

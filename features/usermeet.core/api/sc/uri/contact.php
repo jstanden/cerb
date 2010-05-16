@@ -523,7 +523,7 @@ class UmScContactController extends Extension_UmScController {
 		$ticket_id = CerberusParser::parseMessage($message);
 		
 		// It's possible for the parser to reject the message using pre-filters
-		if(!empty($ticket_id) && null != ($ticket = DAO_Ticket::getTicket($ticket_id))) {
+		if(!empty($ticket_id) && null != ($ticket = DAO_Ticket::get($ticket_id))) {
 			$umsession->setProperty('support.write.last_opened',$ticket->mask);			
 		} else {
 			$umsession->setProperty('support.write.last_opened',null);			

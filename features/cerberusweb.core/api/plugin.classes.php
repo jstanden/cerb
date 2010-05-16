@@ -385,7 +385,7 @@ class ChTaskSource_Ticket extends Extension_TaskSource {
 	}
 	
 	function getSourceInfo($object_id) {
-		if(null == ($ticket = DAO_Ticket::getTicket($object_id)))
+		if(null == ($ticket = DAO_Ticket::get($object_id)))
 			return;
 		
 		$url = DevblocksPlatform::getUrlService();

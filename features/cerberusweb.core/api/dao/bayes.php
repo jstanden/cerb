@@ -337,7 +337,7 @@ class CerberusBayes {
 	static private function _markTicketAs($ticket_id,$spam=true) {
 		// [TODO] Make sure we can't retrain tickets which are already spam trained
 		// [TODO] This is a performance killer
-		$ticket = DAO_Ticket::getTicket($ticket_id);
+		$ticket = DAO_Ticket::get($ticket_id);
 		
 		if($ticket->spam_training != CerberusTicketSpamTraining::BLANK)
 			return TRUE;
@@ -549,7 +549,7 @@ class CerberusBayes {
 		// pull up text of first ticket message
 	    $messages = DAO_Message::getMessagesByTicket($ticket_id);
 	    $first_message = array_shift($messages);
-	    $ticket = DAO_Ticket::getTicket($ticket_id);
+	    $ticket = DAO_Ticket::get($ticket_id);
 	    
 		if(empty($ticket) || empty($first_message) || !($first_message instanceOf Model_Message)) 
 		    return FALSE;

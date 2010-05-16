@@ -61,7 +61,7 @@ class ChRest_Parser extends Extension_RestController { //implements IExtensionRe
 			$this->error(self::ERRNO_CUSTOM, "Your message content could not be parsed (it's probably malformed).");
 		}
 			
-		if(null == ($ticket = DAO_Ticket::getTicket($ticket_id))) {
+		if(null == ($ticket = DAO_Ticket::get($ticket_id))) {
 			@unlink($file);
 			$this->error(self::ERRNO_CUSTOM, "Could not return a ticket object.");
 		}

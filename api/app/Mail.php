@@ -447,7 +447,7 @@ class CerberusMail {
 			$message = DAO_Message::get($reply_message_id);
 	        $message_headers = DAO_MessageHeader::getAll($reply_message_id);		
 			$ticket_id = $message->ticket_id;
-			$ticket = DAO_Ticket::getTicket($ticket_id);
+			$ticket = DAO_Ticket::get($ticket_id);
 	
 			// [TODO] Check that message|ticket isn't NULL
 			

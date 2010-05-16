@@ -86,7 +86,7 @@ class DAO_Ticket extends C4_ORMHelper {
 	 */
 	static function getTicketByMask($mask) {
 		if(null != ($id = self::getTicketIdByMask($mask))) {
-			return self::getTicket($id);
+			return self::get($id);
 		}
 		
 		return NULL;
@@ -312,7 +312,7 @@ class DAO_Ticket extends C4_ORMHelper {
 	 * @param integer $id
 	 * @return Model_Ticket
 	 */
-	static function getTicket($id) {
+	static function get($id) {
 		if(empty($id)) return NULL;
 		
 		$tickets = self::getTickets(array($id));

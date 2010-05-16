@@ -1914,7 +1914,7 @@ class CrmTicketOppTab extends Extension_TicketTab {
 		$tpl_path = dirname(dirname(__FILE__)).'/templates/';
 		$tpl->assign('path', $tpl_path);
 
-		$ticket = DAO_Ticket::getTicket($ticket_id);
+		$ticket = DAO_Ticket::get($ticket_id);
 		$tpl->assign('ticket_id', $ticket_id);
 		
 		$address = DAO_Address::get($ticket->first_wrote_address_id);

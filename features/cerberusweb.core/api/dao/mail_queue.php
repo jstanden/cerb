@@ -430,7 +430,7 @@ class Model_MailQueue {
 		// Parse
 		$ticket_id = CerberusParser::parseMessage($message);
 		
-		$ticket = DAO_Ticket::getTicket($ticket_id);
+		$ticket = DAO_Ticket::get($ticket_id);
 		
 		// Add additional requesters to ticket
 		if(is_array($fromList) && !empty($fromList))

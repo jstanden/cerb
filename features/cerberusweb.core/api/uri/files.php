@@ -36,7 +36,7 @@ class ChFilesController extends DevblocksControllerExtension {
 			
 		// Security
 			$message = DAO_Message::get($file->message_id);
-		if(null == ($ticket = DAO_Ticket::getTicket($message->ticket_id)))
+		if(null == ($ticket = DAO_Ticket::get($message->ticket_id)))
 			die($translate->_('common.access_denied'));
 			
 		// Security

@@ -47,7 +47,7 @@ class ChPrintController extends DevblocksControllerExtension {
 		switch($object) {
 			case 'ticket':
 				@$id = array_shift($stack);
-				@$ticket = is_numeric($id) ? DAO_Ticket::getTicket($id) : DAO_Ticket::getTicketByMask($id);
+				@$ticket = is_numeric($id) ? DAO_Ticket::get($id) : DAO_Ticket::getTicketByMask($id);
 
 				$convo_timeline = array();
 				$messages = $ticket->getMessages();		
@@ -112,7 +112,7 @@ class ChPrintController extends DevblocksControllerExtension {
 			case 'message':
 				@$id = array_shift($stack);
 				@$message = DAO_Message::get($id);
-				@$ticket = DAO_Ticket::getTicket($message->ticket_id);
+				@$ticket = DAO_Ticket::get($message->ticket_id);
 				
 				// Make sure we're allowed to view this ticket or message
 				if(!isset($active_worker_memberships[$ticket->team_id])) {

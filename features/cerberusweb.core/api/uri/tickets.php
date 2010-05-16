@@ -1355,7 +1355,7 @@ class ChTicketsPage extends CerberusPageExtension {
 
 		$tpl->assign('view_id', $view_id);
 		
-		if(null != ($ticket = DAO_Ticket::getTicket($tid))) {
+		if(null != ($ticket = DAO_Ticket::get($tid))) {
 			/* @var $ticket Model_Ticket */
 		    $tpl->assign('ticket', $ticket);
 		}
@@ -1516,7 +1516,7 @@ class ChTicketsPage extends CerberusPageExtension {
 			if(!empty($draft_id))
 				DAO_MailQueue::delete($draft_id);
 				
-			$ticket = DAO_Ticket::getTicket($ticket_id);
+			$ticket = DAO_Ticket::get($ticket_id);
 			
 			$visit = CerberusApplication::getVisit(); /* @var CerberusVisit $visit */
 			$visit->set('compose.last_ticket', $ticket->mask);
@@ -1625,7 +1625,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		// Parse
 		$ticket_id = CerberusParser::parseMessage($message);
 		
-		$ticket = DAO_Ticket::getTicket($ticket_id);
+		$ticket = DAO_Ticket::get($ticket_id);
 		
 		// Add additional requesters to ticket
 		if(is_array($fromList) && !empty($fromList))
