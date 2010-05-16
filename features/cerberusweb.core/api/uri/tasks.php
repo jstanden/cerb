@@ -499,22 +499,6 @@ class ChTasksPage extends CerberusPageExtension {
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('tasks','display',$task_id)));
 	}
 	
-	// [TODO] This is redundant and should be handled by ?c=internal by passing a $return_path
-	function deleteTaskNoteAction() {
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer', 0);
-		@$task_id = DevblocksPlatform::importGPC($_REQUEST['task_id'],'integer', 0);
-		
-		$active_worker = CerberusApplication::getActiveWorker();
-		
-		if(null != ($note = DAO_Note::get($id))) {
-			if($note->worker_id == $active_worker->id || $active_worker->is_superuser) {
-				DAO_Note::delete($id);
-			}
-		}
-		
-		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('tasks','display',$task_id)));
-	}
-	
 	function viewTasksExploreAction() {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
 		

@@ -574,7 +574,7 @@ class CrmPage extends CerberusPageExtension {
 			),
 			25,
 			0,
-			DAO_Note::CREATED,
+			SearchFields_Note::CREATED,
 			false,
 			false
 		);
@@ -622,22 +622,6 @@ class CrmPage extends CerberusPageExtension {
 				DAO_WorkerEvent::IS_READ => 0,
 			);
 			DAO_WorkerEvent::create($fields);
-		}
-		
-		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('crm','opp',$opp_id)));
-	}
-	
-	// [TODO] This is redundant and should be handled by ?c=internal by passing a $return_path
-	function deleteOppNoteAction() {
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer', 0);
-		@$opp_id = DevblocksPlatform::importGPC($_REQUEST['opp_id'],'integer', 0);
-		
-		$active_worker = CerberusApplication::getActiveWorker();
-		
-		if(null != ($note = DAO_Note::get($id))) {
-			if($note->worker_id == $active_worker->id || $active_worker->is_superuser) {
-				DAO_Note::delete($id);
-			}
 		}
 		
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('crm','opp',$opp_id)));
