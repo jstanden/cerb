@@ -37,13 +37,25 @@ class ChRest_Tasks extends Extension_RestController implements IExtensionRestCon
 	function postAction($stack) {
 		@$action = array_shift($stack);
 		
-		switch($action) {
-			case 'create':
-				$this->postCreate();
-				break;
-			case 'search':
-				$this->postSearch();
-				break;
+		if(is_numeric($action) && !empty($stack)) {
+			$id = intval($action);
+			$action = array_shift($stack);
+			
+			switch($action) {
+				case 'note':
+					$this->postNote($id);
+					break;
+			}
+			
+		} else {
+			switch($action) {
+				case 'create':
+					$this->postCreate();
+					break;
+				case 'search':
+					$this->postSearch();
+					break;
+			}
 		}
 		
 		$this->error(self::ERRNO_NOT_IMPLEMENTED);
@@ -289,5 +301,37 @@ class ChRest_Tasks extends Extension_RestController implements IExtensionRestCon
 			
 			$this->getId($id);
 		}
-	}		
+	}
+
+	private function postNote($id) {
+		$worker = $this->getActiveWorker();
+
+		@$note = DevblocksPlatform::importGPC($_POST['note'],'string','');
+		
+		if(null == ($task = DAO_Task::get($id)))
+			$this->error(self::ERRNO_CUSTOM, sprintf("Invalid task ID %d", $id));
+
+		// ACL
+		if(!($worker->hasPriv('core.tasks.actions.update_all') || $task->worker_id==$worker->id))
+			$this->error(self::ERRNO_ACL);
+		
+		// Required fields
+		if(empty($note))
+			$this->error(self::ERRNO_CUSTOM, "The 'note' field is required.");
+			
+		// Post
+		$fields = array(
+			DAO_Note::SOURCE_EXTENSION_ID => ChNotesSource_Task::ID,
+			DAO_Note::SOURCE_ID => $task->id,
+			DAO_Note::WORKER_ID => $worker->id,
+			DAO_Note::CREATED => time(),
+			DAO_Note::CONTENT => $note,
+		);
+		$note_id = DAO_Note::create($fields);
+			
+		$this->success(array(
+			'task_id' => $task->id,
+			'note_id' => $note_id,
+		));
+	}	
 };
