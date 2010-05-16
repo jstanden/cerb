@@ -1395,7 +1395,7 @@ class Model_MailToGroupRule {
 
 		if(!empty($ticket_ids)) {
 			if(!empty($fields))
-				DAO_Ticket::updateTicket($ticket_ids, $fields);
+				DAO_Ticket::update($ticket_ids, $fields);
 			
 			// Custom Fields
 			C4_AbstractView::_doBulkSetCustomFields(ChCustomFieldSource_Ticket::ID, $field_values, $ticket_ids);

@@ -719,14 +719,14 @@ class ImportCron extends CerberusCronPageExtension {
 				
 				// First thread
 				if(1==$seek_messages) {
-					DAO_Ticket::updateTicket($ticket_id,array(
+					DAO_Ticket::update($ticket_id,array(
 						DAO_Ticket::FIRST_MESSAGE_ID => $email_id
 					));
 				}
 				
 				// Last thread
 				if($count_messages==$seek_messages) {
-					DAO_Ticket::updateTicket($ticket_id,array(
+					DAO_Ticket::update($ticket_id,array(
 						DAO_Ticket::LAST_MESSAGE_ID => $email_id
 					));
 				}

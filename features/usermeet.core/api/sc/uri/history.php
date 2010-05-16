@@ -185,7 +185,7 @@ class UmScHistoryController extends Extension_UmScController {
 		$fields = array(
 			DAO_Ticket::IS_CLOSED => ($closed) ? 1 : 0
 		);
-		DAO_Ticket::updateTicket($ticket_id,$fields);
+		DAO_Ticket::update($ticket_id,$fields);
 		
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',UmPortalHelper::getCode(),'history',$ticket[SearchFields_Ticket::TICKET_MASK])));		
 	}

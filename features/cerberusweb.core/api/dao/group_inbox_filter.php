@@ -695,7 +695,7 @@ class Model_GroupInboxFilter {
 
 		if(!empty($ticket_ids)) {
 			if(!empty($change_fields))
-				DAO_Ticket::updateTicket($ticket_ids, $change_fields);
+				DAO_Ticket::update($ticket_ids, $change_fields);
 			
 			// Custom Fields
 			C4_AbstractView::_doBulkSetCustomFields(ChCustomFieldSource_Ticket::ID, $field_values, $ticket_ids);

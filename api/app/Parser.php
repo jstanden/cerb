@@ -454,13 +454,13 @@ class CerberusParser {
 						
 						switch($command) {
 							case 'close':
-								DAO_Ticket::updateTicket($id,array(
+								DAO_Ticket::update($id,array(
 									DAO_Ticket::IS_CLOSED => CerberusTicketStatus::CLOSED
 								));
 								break;
 								
 							case 'take':
-								DAO_Ticket::updateTicket($id,array(
+								DAO_Ticket::update($id,array(
 									DAO_Ticket::NEXT_WORKER_ID => $worker_address->worker_id
 								));
 								break;
@@ -646,7 +646,7 @@ class CerberusParser {
 		// Finalize our new ticket details (post-message creation)
 		if($bIsNew && !empty($id) && !empty($email_id)) {
 			// First thread (needed for anti-spam)
-			DAO_Ticket::updateTicket($id, array(
+			DAO_Ticket::update($id, array(
 				 DAO_Ticket::FIRST_MESSAGE_ID => $email_id,
 				 DAO_Ticket::LAST_MESSAGE_ID => $email_id,
 			));
@@ -691,7 +691,7 @@ class CerberusParser {
 		
 			// Save properties
 			if(!empty($change_fields))
-				DAO_Ticket::updateTicket($id, $change_fields);
+				DAO_Ticket::update($id, $change_fields);
 		}
 
 		// Reply notifications (new messages are handled by 'move' listener)
@@ -750,7 +750,7 @@ class CerberusParser {
 		
 		// Re-open and update our date on new replies
 		if(!$bIsNew) {
-			DAO_Ticket::updateTicket($id,array(
+			DAO_Ticket::update($id,array(
 			    DAO_Ticket::UPDATED_DATE => time(),
 			    DAO_Ticket::IS_WAITING => 0,
 			    DAO_Ticket::IS_CLOSED => 0,

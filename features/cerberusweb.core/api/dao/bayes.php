@@ -385,7 +385,7 @@ class CerberusBayes {
 			'spam_score' => ($spam) ? 0.9999 : 0.0001,
 			'spam_training' => ($spam) ? CerberusTicketSpamTraining::SPAM : CerberusTicketSpamTraining::NOT_SPAM,
 		);
-		DAO_Ticket::updateTicket($ticket_id,$fields);
+		DAO_Ticket::update($ticket_id,$fields);
 
 		return TRUE;
 	}
@@ -584,7 +584,7 @@ class CerberusBayes {
 			    DAO_Ticket::SPAM_SCORE => $out['probability'],
 			    DAO_Ticket::INTERESTING_WORDS => substr(implode(',',array_reverse($rawwords)),0,255),
 			);
-			DAO_Ticket::updateTicket($ticket_id, $fields);
+			DAO_Ticket::update($ticket_id, $fields);
 		}
 		
 		return $out;

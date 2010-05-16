@@ -150,7 +150,7 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 		}
 		
 		if(!empty($fields))
-			DAO_Ticket::updateTicket($id, $fields);
+			DAO_Ticket::update($id, $fields);
 			
 		// Handle custom fields
 		$customfields = $this->_handleCustomFields($_POST);
@@ -158,7 +158,7 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 			DAO_CustomFieldValue::formatAndSetFieldValues(ChCustomFieldSource_Ticket::ID, $id, $customfields, true, true, true);
 
 		// Update
-		DAO_Ticket::updateTicket($id, $fields);
+		DAO_Ticket::update($id, $fields);
 		$this->getId($id);
 	}
 	
@@ -177,7 +177,7 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 		if(!$worker->is_superuser && !isset($memberships[$ticket->team_id]))
 			$this->error(self::ERRNO_ACL, 'Access denied to delete tickets in this group.');
 			
-		DAO_Ticket::updateTicket($ticket->id, array(
+		DAO_Ticket::update($ticket->id, array(
 			DAO_Ticket::IS_CLOSED => 1,
 			DAO_Ticket::IS_DELETED => 1,
 		));

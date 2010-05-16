@@ -269,7 +269,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		if(isset($properties[DAO_Ticket::IS_CLOSED]) && $properties[DAO_Ticket::IS_CLOSED]==$ticket->is_closed)
 			unset($properties[DAO_Ticket::IS_CLOSED]);
 		
-		DAO_Ticket::updateTicket($id, $properties);
+		DAO_Ticket::update($id, $properties);
 
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('display',$id)));
 	}
@@ -1005,7 +1005,7 @@ class ChDisplayPage extends CerberusPageExtension {
 			$fields[DAO_Ticket::SUBJECT] = $subject;
 
 		if(!empty($fields)) {
-			DAO_Ticket::updateTicket($ticket_id, $fields);
+			DAO_Ticket::update($ticket_id, $fields);
 		}
 
 		// Custom field saves
@@ -1096,7 +1096,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		// Reindex the original ticket (last wrote, etc.)
 		$last_message = end($messages); /* @var Model_Message $last_message */
 		
-		DAO_Ticket::updateTicket($orig_ticket->id, array(
+		DAO_Ticket::update($orig_ticket->id, array(
 			DAO_Ticket::LAST_MESSAGE_ID => $last_message->id,
 			DAO_Ticket::LAST_WROTE_ID => $last_message->address_id
 		));

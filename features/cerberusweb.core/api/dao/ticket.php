@@ -138,7 +138,7 @@ class DAO_Ticket extends C4_ORMHelper {
 		);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 		
-		self::updateTicket($newId, $fields);
+		self::update($newId, $fields);
 		
 		return $newId;
 	}
@@ -244,7 +244,7 @@ class DAO_Ticket extends C4_ORMHelper {
 			);
 			$db->Execute($sql);
 			
-			DAO_Ticket::updateTicket($merge_ticket_ids, array(
+			DAO_Ticket::update($merge_ticket_ids, array(
 				DAO_Ticket::IS_CLOSED => 1,
 				DAO_Ticket::IS_DELETED => 1,
 			));
@@ -256,7 +256,7 @@ class DAO_Ticket extends C4_ORMHelper {
 			$most_recent_updated_ticket = end($tickets);
 
 			// Set our destination ticket to the latest touched details
-			DAO_Ticket::updateTicket($oldest_id,array(
+			DAO_Ticket::update($oldest_id,array(
 				DAO_Ticket::LAST_ACTION_CODE => $most_recent_updated_ticket[SearchFields_Ticket::TICKET_LAST_ACTION_CODE], 
 				DAO_Ticket::LAST_MESSAGE_ID => $most_recent_updated_ticket[SearchFields_Ticket::TICKET_LAST_MESSAGE_ID], 
 				DAO_Ticket::LAST_WROTE_ID => $most_recent_updated_ticket[SearchFields_Ticket::TICKET_LAST_WROTE_ID], 
@@ -380,7 +380,7 @@ class DAO_Ticket extends C4_ORMHelper {
 		parent::_updateWhere('ticket', $fields, $where);
 	}
 	
-	static function updateTicket($ids,$fields) {
+	static function update($ids,$fields) {
 		if(!is_array($ids)) $ids = array($ids);
 		
 		/* This event fires before the change takes place in the db,
