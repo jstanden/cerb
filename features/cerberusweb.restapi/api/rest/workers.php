@@ -176,7 +176,7 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 			$this->error(self::ERRNO_CUSTOM, sprintf("Invalid worker ID '%d'", $id));
 			
 		$putfields = array(
-			'email' => 'string',
+//			'email' => 'string',
 			'first_name' => 'string',
 			'is_disabled' => 'bit',
 			'is_superuser' => 'bit',
@@ -220,6 +220,7 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 
 		// Update
 		DAO_Worker::update($id, $fields);
+		
 		$this->getId($id);
 	}
 	
@@ -273,6 +274,19 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 		
 		// Create
 		if(false != ($id = DAO_Worker::create($fields))) {
+			$email = $fields[DAO_Worker::EMAIL];
+			
+			// Add the worker e-mail to the addresses table
+			DAO_Address::lookupAddress($email, true);
+			
+			// Addresses
+			if(null == DAO_AddressToWorker::getByAddress($email)) {
+				DAO_AddressToWorker::assign($email, $id);
+				DAO_AddressToWorker::update($email, array(
+					DAO_AddressToWorker::IS_CONFIRMED => 1
+				));
+			}
+			
 			// Handle custom fields
 			$customfields = $this->_handleCustomFields($_POST);
 			if(is_array($customfields))
