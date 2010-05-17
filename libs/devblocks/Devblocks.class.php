@@ -1266,7 +1266,7 @@ class DevblocksPlatform extends DevblocksEngine {
     
 		// App path (always backend)
 	
-		$app_self = $_SERVER["PHP_SELF"];
+		$app_self = $_SERVER["SCRIPT_NAME"];
 		
         if(DEVBLOCKS_REWRITE) {
             $pos = strrpos($app_self,'/');
@@ -4502,7 +4502,7 @@ class _DevblocksUrlManager {
 	
 	function parseURL($url) {
 		// [JAS]: Use the index.php page as a reference to deconstruct the URI
-		$pos = stripos($_SERVER['PHP_SELF'],'index.php',0);
+		$pos = stripos($_SERVER['SCRIPT_NAME'],'index.php',0);
 		if($pos === FALSE) return array();
 
 		// Decode proxy requests
