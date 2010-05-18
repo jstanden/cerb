@@ -9,5 +9,5 @@
 	
 	<br>
 	{if isset($note.n_created)}<b>{$translate->_('message.header.date')|capitalize}:</b> {$note.n_created|devblocks_date}<br>{/if}
-	<pre>{$note.n_content|trim|escape|devblocks_hyperlinks}</pre>
+	<pre class="emailBody">{$note.n_content|trim|escape|devblocks_hyperlinks}</pre>
 </div>
