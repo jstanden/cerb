@@ -315,9 +315,10 @@ class UmCommunityPage extends CerberusPageExtension {
 			));
 		}
 
-		// Clear template cache
+		// Clear compiled templates
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->clear_compiled_tpl();
+		$tpl->utility->clearCompiledTemplate();
+		$tpl->cache->clearAll();
 		
 		if(null != ($view = C4_AbstractViewLoader::getView($view_id)))
 			$view->render();
@@ -418,9 +419,10 @@ class UmCommunityPage extends CerberusPageExtension {
 
 		DAO_DevblocksTemplate::importXmlFile($import_file['tmp_name'], 'portal_'.$portal);
 		
-		// Clear template cache
+		// Clear compiled templates
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->clear_compiled_tpl();
+		$tpl->utility->clearCompiledTemplate();
+		$tpl->cache->clearAll();
 		
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('community',$portal,'templates')));
 	}
