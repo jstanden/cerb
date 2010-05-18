@@ -369,6 +369,6 @@ abstract class Extension_RestController extends DevblocksExtension {
 
 interface IExtensionRestController {
 	function getContext($id);
-	function search($filters, $sortToken, $sortAsc, $page, $limit);
+	function search($filters=array(), $sortToken='', $sortAsc=1, $page=1, $limit=10);
 	function translateToken($token, $type='dao');
 };

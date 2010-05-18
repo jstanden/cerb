@@ -128,7 +128,7 @@ class ChRest_Opps extends Extension_RestController implements IExtensionRestCont
 		$this->error(self::ERRNO_CUSTOM, sprintf("Invalid opportunity id '%d'", $id));
 	}
 	
-	function search($filters=array(), $sortToken='', $sortAsc=1, $page=1, $limit=10) {
+	function search($filters=array(), $sortToken='id', $sortAsc=1, $page=1, $limit=10) {
 		$worker = $this->getActiveWorker();
 
 		$params = $this->_handleSearchBuildParams($filters);
