@@ -47,7 +47,7 @@ class DevblocksPlatform extends DevblocksEngine {
 		// Sanitize input
 		switch($type) {
 			case 'array':
-				$value = !is_array($value) ? array($value) : $value;
+				@settype($value,$type);
 				break;
 			case 'bit':
 				$value = !empty($value) ? 1 : 0;
