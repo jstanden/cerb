@@ -20,8 +20,8 @@
 	{assign var=owner_id value=$ticket->next_worker_id}
 	<tr>
 		<td>
-			<label><input type="checkbox" onclick="toggleDiv('addCommentNotifyWorkers');"> <b>Notify workers</b></label>
-			<div id="addCommentNotifyWorkers" style="display:none;">
+			<label><input type="checkbox" onclick="toggleDiv('addNoteNotifyWorkers{$message->id}');"> <b>Notify workers</b></label>
+			<div id="addNoteNotifyWorkers{$message->id}" style="display:none;">
 			<select name="notify_worker_ids[]" multiple="multiple" size="8" id="notify_worker_ids">
 				{foreach from=$active_workers item=worker name=notify_workers}
 				{if $owner_id && $worker->id == $owner_id}{math assign=notify_owner_id equation="x-1" x=$smarty.foreach.notify_workers.iteration}{/if}
