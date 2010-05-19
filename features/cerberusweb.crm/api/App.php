@@ -1323,6 +1323,10 @@ class DAO_CrmOpportunity extends C4_ORMHelper {
 			"org.name as %s, ".
 			"o.primary_email_id as %s, ".
 			"a.email as %s, ".
+			"a.first_name as %s, ".
+			"a.last_name as %s, ".
+			"a.num_spam as %s, ".
+			"a.num_nonspam as %s, ".
 			"o.created_date as %s, ".
 			"o.updated_date as %s, ".
 			"o.closed_date as %s, ".
@@ -1336,6 +1340,10 @@ class DAO_CrmOpportunity extends C4_ORMHelper {
 			    SearchFields_CrmOpportunity::ORG_NAME,
 			    SearchFields_CrmOpportunity::PRIMARY_EMAIL_ID,
 			    SearchFields_CrmOpportunity::EMAIL_ADDRESS,
+			    SearchFields_CrmOpportunity::EMAIL_FIRST_NAME,
+			    SearchFields_CrmOpportunity::EMAIL_LAST_NAME,
+			    SearchFields_CrmOpportunity::EMAIL_NUM_SPAM,
+			    SearchFields_CrmOpportunity::EMAIL_NUM_NONSPAM,
 			    SearchFields_CrmOpportunity::CREATED_DATE,
 			    SearchFields_CrmOpportunity::UPDATED_DATE,
 			    SearchFields_CrmOpportunity::CLOSED_DATE,
@@ -1420,6 +1428,10 @@ class SearchFields_CrmOpportunity implements IDevblocksSearchFields {
 	const ORG_NAME = 'org_name';
 
 	const EMAIL_ADDRESS = 'a_email';
+	const EMAIL_FIRST_NAME = 'a_first_name';
+	const EMAIL_LAST_NAME = 'a_last_name';
+	const EMAIL_NUM_SPAM = 'a_num_spam';
+	const EMAIL_NUM_NONSPAM = 'a_num_nonspam';
 	
 	/**
 	 * @return DevblocksSearchField[]
@@ -1432,6 +1444,10 @@ class SearchFields_CrmOpportunity implements IDevblocksSearchFields {
 			
 			self::PRIMARY_EMAIL_ID => new DevblocksSearchField(self::PRIMARY_EMAIL_ID, 'o', 'primary_email_id', $translate->_('crm.opportunity.primary_email_id')),
 			self::EMAIL_ADDRESS => new DevblocksSearchField(self::EMAIL_ADDRESS, 'a', 'email', $translate->_('crm.opportunity.email_address')),
+			self::EMAIL_FIRST_NAME => new DevblocksSearchField(self::EMAIL_FIRST_NAME, 'a', 'first_name', $translate->_('address.first_name')),
+			self::EMAIL_LAST_NAME => new DevblocksSearchField(self::EMAIL_LAST_NAME, 'a', 'last_name', $translate->_('address.last_name')),
+			self::EMAIL_NUM_SPAM => new DevblocksSearchField(self::EMAIL_NUM_SPAM, 'a', 'num_spam', $translate->_('address.num_spam')),
+			self::EMAIL_NUM_NONSPAM => new DevblocksSearchField(self::EMAIL_NUM_NONSPAM, 'a', 'num_nonspam', $translate->_('address.num_nonspam')),
 			
 			self::ORG_ID => new DevblocksSearchField(self::ORG_ID, 'org', 'id'),
 			self::ORG_NAME => new DevblocksSearchField(self::ORG_NAME, 'org', 'name', $translate->_('crm.opportunity.org_name')),
@@ -1490,6 +1506,7 @@ class View_CrmOpportunity extends C4_AbstractView {
 			SearchFields_CrmOpportunity::AMOUNT,
 			SearchFields_CrmOpportunity::UPDATED_DATE,
 			SearchFields_CrmOpportunity::WORKER_ID,
+			SearchFields_CrmOpportunity::EMAIL_NUM_NONSPAM,
 		);
 		
 		$this->params = array(
@@ -1537,10 +1554,14 @@ class View_CrmOpportunity extends C4_AbstractView {
 			case SearchFields_CrmOpportunity::NAME:
 			case SearchFields_CrmOpportunity::ORG_NAME:
 			case SearchFields_CrmOpportunity::EMAIL_ADDRESS:
+			case SearchFields_CrmOpportunity::EMAIL_FIRST_NAME:
+			case SearchFields_CrmOpportunity::EMAIL_LAST_NAME:
 				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__string.tpl');
 				break;
 				
 			case SearchFields_CrmOpportunity::AMOUNT:
+			case SearchFields_CrmOpportunity::EMAIL_NUM_NONSPAM:
+			case SearchFields_CrmOpportunity::EMAIL_NUM_SPAM:
 				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__number.tpl');
 				break;
 				
@@ -1635,6 +1656,8 @@ class View_CrmOpportunity extends C4_AbstractView {
 			case SearchFields_CrmOpportunity::NAME:
 			case SearchFields_CrmOpportunity::ORG_NAME:
 			case SearchFields_CrmOpportunity::EMAIL_ADDRESS:
+			case SearchFields_CrmOpportunity::EMAIL_FIRST_NAME:
+			case SearchFields_CrmOpportunity::EMAIL_LAST_NAME:
 				// force wildcards if none used on a LIKE
 				if(($oper == DevblocksSearchCriteria::OPER_LIKE || $oper == DevblocksSearchCriteria::OPER_NOT_LIKE)
 				&& false === (strpos($value,'*'))) {
@@ -1644,6 +1667,8 @@ class View_CrmOpportunity extends C4_AbstractView {
 				break;
 				
 			case SearchFields_CrmOpportunity::AMOUNT:
+			case SearchFields_CrmOpportunity::EMAIL_NUM_NONSPAM:
+			case SearchFields_CrmOpportunity::EMAIL_NUM_SPAM:
 				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
 				break;
 				
