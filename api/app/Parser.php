@@ -393,6 +393,8 @@ class CerberusParser {
 			if(is_array($sSubject))
 				$sSubject = array_shift($sSubject);
 		}
+		// Remove tabs, returns, and linefeeds
+		$sSubject = str_replace(array("\t","\n","\r")," ",$sSubject);
 		// The subject can still end up empty after QP decode
 		if(empty($sSubject))
 			$sSubject = "(no subject)";
