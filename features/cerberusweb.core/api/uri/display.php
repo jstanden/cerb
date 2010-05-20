@@ -52,6 +52,9 @@ class ChDisplayPage extends CerberusPageExtension {
 
 		@$tab_selected = array_shift($stack);
 		
+		if(empty($tab_selected))
+			$tab_selected = 'conversation';
+		
 		switch($tab_selected) {
 			case 'conversation':
 				@$mail_always_show_all = DAO_WorkerPref::get($active_worker->id,'mail_always_show_all',0);
@@ -63,7 +66,6 @@ class ChDisplayPage extends CerberusPageExtension {
 				break;
 		}
 		
-		if(empty($tab_selected)) $tab_selected = 'conversation';
 		$tpl->assign('tab_selected', $tab_selected);
 		
 		// Permissions 
