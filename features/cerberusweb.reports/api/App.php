@@ -659,7 +659,13 @@ class ChReportAverageResponseTime extends Extension_Report {
 			$is_outgoing = intval($row['is_outgoing']);
 			$team_id = intval($row['team_id']);
 			$category_id = intval($row['category_id']);
-			
+
+			if(!empty($worker_id) && !isset($workers[$worker_id]))
+				continue;
+
+			if(!empty($team_id) && !isset($groups[$team_id]))
+				continue;
+				
 			// we only add data if it's a worker reply to the same ticket as $prev
 			if ($is_outgoing==1 && !empty($prev) && $ticket_id==$prev['ticket_id']) {
 				// Initialize, if necessary

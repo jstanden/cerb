@@ -77,6 +77,7 @@
 <input type="hidden" name="a" value="sendReply">
 <input type="hidden" name="id" value="{$message->id}">
 <input type="hidden" name="ticket_id" value="{$ticket->id}">
+<input type="hidden" name="ticket_mask" value="{$ticket->mask|escape}">
 <input type="hidden" name="draft_id" value="{$draft->id}">
 {if $is_forward}<input type="hidden" name="is_forward" value="1">{/if}
 
@@ -243,7 +244,7 @@
 	</tr>
 	<tr>
 		<td>
-			<button type="button" onclick="if($('#reply{$message->id}_part1').validate().form() && $('#reply{$message->id}_part2').validate().form()) { $('#reply{$message->id}_part1 button[name=saveDraft]').click(); this.form.a.value='sendReply'; this.form.submit(); } "><span class="cerb-sprite sprite-check"></span> {if $is_forward}{$translate->_('display.ui.forward')|capitalize}{else}{$translate->_('display.ui.send_message')}{/if}</button>
+			<button type="button" onclick="if($('#reply{$message->id}_part1').validate().form() && $('#reply{$message->id}_part2').validate().form()) { genericAjaxPost('reply{$message->id}_part2',null,'c=display&a=saveDraftReply&is_ajax=1',function(json) { $('#reply{$message->id}_part2').submit(); } ); } "><span class="cerb-sprite sprite-check"></span> {if $is_forward}{$translate->_('display.ui.forward')|capitalize}{else}{$translate->_('display.ui.send_message')}{/if}</button>
 			<button type="button" onclick="if($('#reply{$message->id}_part1').validate().form() && $('#reply{$message->id}_part2').validate().form()) { this.form.a.value='saveDraftReply'; this.form.submit(); } "><span class="cerb-sprite sprite-media_pause"></span> {$translate->_('display.ui.continue_later')|capitalize}</button>
 			<button type="button" onclick="if(confirm('Are you sure you want to discard this reply?')) { if(0!==this.form.draft_id.value.length) { genericAjaxGet('', 'c=tickets&a=deleteDraft&draft_id='+escape(this.form.draft_id.value)); $('#draft'+escape(this.form.draft_id.value)).remove(); } $('#reply{$message->id}').html(''); } "><span class="cerb-sprite sprite-delete"></span> {$translate->_('display.ui.discard')|capitalize}</button>
 		</td>

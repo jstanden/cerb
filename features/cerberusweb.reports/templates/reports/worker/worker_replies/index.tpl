@@ -35,8 +35,8 @@ To: <input type="text" name="end" id="end" size="24" value="{$end}"><button type
 <script language="javascript" type="text/javascript">
 	$(function() {
 		var d = [
-			{foreach from=$data item=row key=iter}
-			[{$row.hits}, {$iter}],
+			{foreach from=$data item=row key=iter name=iters}
+			[{$row.hits}, {$iter}]{if !$smarty.foreach.iters.last},{/if}
 			{/foreach}
 		];
 		
@@ -47,19 +47,19 @@ To: <input type="text" name="end" id="end" size="24" value="{$end}"><button type
 			grid: {
 				borderWidth: 0,
 				horizontalLines: false,
-				hoverable: false,
+				hoverable: false
 			},
 			xaxis: {
 				min: 0,
 				minTickSize: 1,
 				tickFormatter: function(val, axis) {
 					return Math.floor(val).toString();
-				},
+				}
 			},
 			yaxis: {
 				ticks: [
-					{foreach from=$data item=row key=iter}
-					[{$iter},"<b>{$row.value|escape:'quotes'}</b>"],
+					{foreach from=$data item=row key=iter name=iters}
+					[{$iter},"<b>{$row.value|escape}</b>"]{if !$smarty.foreach.iters.last},{/if}
 					{/foreach}
 				]
 			}

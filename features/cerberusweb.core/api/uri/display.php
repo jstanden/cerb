@@ -52,6 +52,9 @@ class ChDisplayPage extends CerberusPageExtension {
 
 		@$tab_selected = array_shift($stack);
 		
+		if(empty($tab_selected))
+			$tab_selected = 'conversation';
+		
 		switch($tab_selected) {
 			case 'conversation':
 				@$mail_always_show_all = DAO_WorkerPref::get($active_worker->id,'mail_always_show_all',0);
@@ -63,7 +66,6 @@ class ChDisplayPage extends CerberusPageExtension {
 				break;
 		}
 		
-		if(empty($tab_selected)) $tab_selected = 'conversation';
 		$tpl->assign('tab_selected', $tab_selected);
 		
 		// Permissions 
@@ -530,6 +532,7 @@ class ChDisplayPage extends CerberusPageExtension {
 	
 	function sendReplyAction() {
 	    @$ticket_id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer');
+	    @$ticket_mask = DevblocksPlatform::importGPC($_REQUEST['ticket_mask'],'string');
 	    @$draft_id = DevblocksPlatform::importGPC($_REQUEST['draft_id'],'integer');
 	    @$is_forward = DevblocksPlatform::importGPC($_REQUEST['is_forward'],'integer',0);
 	    
@@ -560,7 +563,7 @@ class ChDisplayPage extends CerberusPageExtension {
 				DAO_MailQueue::delete($draft_id);
 		}
 
-        DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('display',$ticket_id)));
+        DevblocksPlatform::redirect(new DevblocksHttpResponse(array('display',$ticket_mask)));
 	}
 	
 	function saveDraftReplyAction() {
