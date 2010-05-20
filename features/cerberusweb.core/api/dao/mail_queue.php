@@ -364,9 +364,11 @@ class Model_MailQueue {
 			return false;
 		$properties['content'] = $this->body;
 
+		// Next action
+		$properties['closed'] = isset($this->params['next_is_closed']) ? intval($this->params['next_is_closed']) : 0; 
+		
 		// Files + Next step
 		//'files' => $files,
-		//'closed' => $closed,
 		//'next_worker_id' => $next_worker_id,
 
 		// Send mail

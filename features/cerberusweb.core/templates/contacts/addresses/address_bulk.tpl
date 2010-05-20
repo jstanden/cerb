@@ -63,8 +63,14 @@
 	</select>
 	<br>
 	<div id="bulkAddyBroadcastTest"></div>
+	<b>{$translate->_('common.options')|capitalize}:</b> 
 	<label><input type="radio" name="broadcast_is_queued" value="0" checked="checked"> Save as drafts</label>
 	<label><input type="radio" name="broadcast_is_queued" value="1"> Send now</label>
+	<br>
+	<b>{$translate->_('common.status')|capitalize}:</b> 
+	<label><input type="radio" name="broadcast_next_is_closed" value="0"> {$translate->_('status.open')|capitalize}</label>
+	<label><input type="radio" name="broadcast_next_is_closed" value="2" checked="checked"> {$translate->_('status.waiting')|capitalize}</label>
+	<label><input type="radio" name="broadcast_next_is_closed" value="1"> {$translate->_('status.closed')|capitalize}</label>
 </blockquote>
 {/if}
 

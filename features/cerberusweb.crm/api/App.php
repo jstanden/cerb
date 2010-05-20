@@ -697,11 +697,13 @@ class CrmPage extends CerberusPageExtension {
 			@$broadcast_subject = DevblocksPlatform::importGPC($_REQUEST['broadcast_subject'],'string',null);
 			@$broadcast_message = DevblocksPlatform::importGPC($_REQUEST['broadcast_message'],'string',null);
 			@$broadcast_is_queued = DevblocksPlatform::importGPC($_REQUEST['broadcast_is_queued'],'integer',0);
+			@$broadcast_is_closed = DevblocksPlatform::importGPC($_REQUEST['broadcast_next_is_closed'],'integer',0);
 			if(0 != strlen($do_broadcast) && !empty($broadcast_subject) && !empty($broadcast_message)) {
 				$do['broadcast'] = array(
 					'subject' => $broadcast_subject,
 					'message' => $broadcast_message,
 					'is_queued' => $broadcast_is_queued,
+					'next_is_closed' => $broadcast_is_closed,
 					'group_id' => $broadcast_group_id,
 					'worker_id' => $active_worker->id,
 				);
@@ -1792,6 +1794,7 @@ class View_CrmOpportunity extends C4_AbstractView {
 				break;
 
 			$is_queued = (isset($params['is_queued']) && $params['is_queued']) ? true : false; 
+			$next_is_closed = (isset($params['next_is_closed'])) ? intval($params['next_is_closed']) : 0; 
 			
 			if(is_array($ids))
 			foreach($ids as $opp_id) {
@@ -1799,6 +1802,12 @@ class View_CrmOpportunity extends C4_AbstractView {
 					CerberusContexts::getContext(CerberusContexts::CONTEXT_OPPORTUNITY, $opp_id, $tpl_labels, $tpl_tokens);
 					$subject = $tpl_builder->build($params['subject'], $tpl_tokens);
 					$body = $tpl_builder->build($params['message'], $tpl_tokens);
+					
+					$json_params = array(
+						'to' => $tpl_tokens['email_address'],
+						'group_id' => $params['group_id'],
+						'next_is_closed' => $next_is_closed,
+					);
 					
 					$fields = array(
 						DAO_MailQueue::TYPE => Model_MailQueue::TYPE_COMPOSE,
@@ -1808,10 +1817,7 @@ class View_CrmOpportunity extends C4_AbstractView {
 						DAO_MailQueue::HINT_TO => $tpl_tokens['email_address'],
 						DAO_MailQueue::SUBJECT => $subject,
 						DAO_MailQueue::BODY => $body,
-						DAO_MailQueue::PARAMS_JSON => json_encode(array(
-							'to' => $tpl_tokens['email_address'],
-							'group_id' => $params['group_id'],
-						)),
+						DAO_MailQueue::PARAMS_JSON => json_encode($json_params),
 					);
 					
 					if($is_queued) {

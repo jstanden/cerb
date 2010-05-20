@@ -652,13 +652,20 @@ class View_Address extends C4_AbstractView {
 				break;
 
 			$is_queued = (isset($params['is_queued']) && $params['is_queued']) ? true : false; 
-			
+			$next_is_closed = (isset($params['next_is_closed'])) ? intval($params['next_is_closed']) : 0; 
+						
 			if(is_array($ids))
 			foreach($ids as $addy_id) {
 				try {
 					CerberusContexts::getContext(CerberusContexts::CONTEXT_ADDRESS, $addy_id, $tpl_labels, $tpl_tokens);
 					$subject = $tpl_builder->build($params['subject'], $tpl_tokens);
 					$body = $tpl_builder->build($params['message'], $tpl_tokens);
+					
+					$json_params = array(
+						'to' => $tpl_tokens['address'],
+						'group_id' => $params['group_id'],
+						'next_is_closed' => $next_is_closed,
+					);
 					
 					$fields = array(
 						DAO_MailQueue::TYPE => Model_MailQueue::TYPE_COMPOSE,
@@ -668,10 +675,7 @@ class View_Address extends C4_AbstractView {
 						DAO_MailQueue::HINT_TO => $tpl_tokens['address'],
 						DAO_MailQueue::SUBJECT => $subject,
 						DAO_MailQueue::BODY => $body,
-						DAO_MailQueue::PARAMS_JSON => json_encode(array(
-							'to' => $tpl_tokens['address'],
-							'group_id' => $params['group_id'],
-						)),
+						DAO_MailQueue::PARAMS_JSON => json_encode($json_params),
 					);
 					
 					if($is_queued) {
