@@ -1,4 +1,4 @@
-<h2>Register now for a *free* Community Edition license and 90 days of product updates.</h2>
+<h2>Register now to receive your first 3 seats for FREE.</h2>
 
 <form action="index.php" method="POST">
 <input type="hidden" name="step" value="{$smarty.const.STEP_REGISTER}">
@@ -12,8 +12,8 @@ which provides full functionality for this version with no expiration. Without a
 simultaneous worker (a "seat").<br>
 <br>
 
-<b>If you answer a few questions below to introduce yourself, we'll send you a *free* Community Edition license, which provides 
-full functionality for 3 seats with 90 days of product updates.  It's the same thing you'd receive for buying 3 seats from our online shop.  It will never expire for this version.  There's no catch.</b><br>
+<b>If you answer a few questions below to introduce yourself, we'll send you a FREE license for 3 seats to help you get started.  
+Your license will never expire for <u>this version</u> of the software.</b><br>
 <br>
 
 We hope that you find the software useful, and we're looking forward to growing along with you.<br>
