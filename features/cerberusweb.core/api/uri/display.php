@@ -532,6 +532,7 @@ class ChDisplayPage extends CerberusPageExtension {
 	
 	function sendReplyAction() {
 	    @$ticket_id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer');
+	    @$ticket_mask = DevblocksPlatform::importGPC($_REQUEST['ticket_mask'],'string');
 	    @$draft_id = DevblocksPlatform::importGPC($_REQUEST['draft_id'],'integer');
 	    @$is_forward = DevblocksPlatform::importGPC($_REQUEST['is_forward'],'integer',0);
 	    
@@ -562,7 +563,7 @@ class ChDisplayPage extends CerberusPageExtension {
 				DAO_MailQueue::delete($draft_id);
 		}
 
-        DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('display',$ticket_id)));
+        DevblocksPlatform::redirect(new DevblocksHttpResponse(array('display',$ticket_mask)));
 	}
 	
 	function saveDraftReplyAction() {

@@ -77,6 +77,7 @@
 <input type="hidden" name="a" value="sendReply">
 <input type="hidden" name="id" value="{$message->id}">
 <input type="hidden" name="ticket_id" value="{$ticket->id}">
+<input type="hidden" name="ticket_mask" value="{$ticket->mask|escape}">
 <input type="hidden" name="draft_id" value="{$draft->id}">
 {if $is_forward}<input type="hidden" name="is_forward" value="1">{/if}
 
