@@ -1932,28 +1932,17 @@ class CrmTicketOppTab extends Extension_TicketTab {
 		$ticket = DAO_Ticket::get($ticket_id);
 		$tpl->assign('ticket_id', $ticket_id);
 		
-		$address = DAO_Address::get($ticket->first_wrote_address_id);
-		$tpl->assign('address', $address);
+		$requesters = DAO_Ticket::getRequestersByTicket($ticket_id);
 		
 		if(null == ($view = C4_AbstractViewLoader::getView('ticket_opps'))) {
 			$view = new View_CrmOpportunity();
 			$view->id = 'ticket_opps';
 		}
 
-		if(!empty($address->contact_org_id)) { // org
-			@$org = DAO_ContactOrg::get($address->contact_org_id);
-			
-			$view->name = "Org: " . $org->name;
-			$view->params = array(
-				SearchFields_CrmOpportunity::ORG_ID => new DevblocksSearchCriteria(SearchFields_CrmOpportunity::ORG_ID,'=',$org->id) 
-			);
-			
-		} else { // address
-			$view->name = "Requester: " . $address->email;
-			$view->params = array(
-				SearchFields_CrmOpportunity::PRIMARY_EMAIL_ID => new DevblocksSearchCriteria(SearchFields_CrmOpportunity::PRIMARY_EMAIL_ID,'=',$ticket->first_wrote_address_id) 
-			);
-		}
+		$view->name = sprintf("Opportunities: %s recipient(s)", count($requesters));
+		$view->params = array(
+			SearchFields_CrmOpportunity::PRIMARY_EMAIL_ID => new DevblocksSearchCriteria(SearchFields_CrmOpportunity::PRIMARY_EMAIL_ID,'in',array_keys($requesters)), 
+		);
 		
 		C4_AbstractViewLoader::setView($view->id, $view);
 		
