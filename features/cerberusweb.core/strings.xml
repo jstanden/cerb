@@ -26,7 +26,7 @@
 			<tuv xml:lang="en_US"><seg>Conversation</seg></tuv>
 		</tu>
 		<tu tuid='display.tab.history'>
-			<tuv xml:lang="en_US"><seg>Requester History</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Recipient History</seg></tuv>
 		</tu>
 		<tu tuid='display.tab.properties'>
 			<tuv xml:lang="en_US"><seg>Properties</seg></tuv>
@@ -584,7 +584,7 @@
 			<tuv xml:lang="en_US"><seg>Contact History</seg></tuv>
 		</tu>
 		<tu tuid='addy_book.history.view.requester'>
-			<tuv xml:lang="en_US"><seg>Requester History: %s contact(s)</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Recipient History: %s contact(s)</seg></tuv>
 		</tu>
 		<tu tuid='addy_book.import.dupes.check'>
 			<tuv xml:lang="en_US"><seg>Check for duplicates using</seg></tuv>
@@ -1102,10 +1102,10 @@
 			<tuv xml:lang="en_US"><seg>Open Ticket</seg></tuv>
 		</tu>
 		<tu tuid='mail.log_message.requesters'>
-			<tuv xml:lang="en_US"><seg>Requester(s)</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Recipient(s)</seg></tuv>
 		</tu>
 		<tu tuid='mail.log_message.send_to_requesters'>
-			<tuv xml:lang="en_US"><seg>Send a copy of this message to the requesters.</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Send a copy of this message to the recipients.</seg></tuv>
 		</tu>
 		<tu tuid='mail.merge'>
 			<tuv xml:lang="en_US"><seg>Merge</seg></tuv>

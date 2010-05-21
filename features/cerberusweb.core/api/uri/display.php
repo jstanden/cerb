@@ -1216,7 +1216,7 @@ class ChDisplayPage extends CerberusPageExtension {
 					SearchFields_Ticket::REQUESTER_ID => new DevblocksSearchCriteria(SearchFields_Ticket::REQUESTER_ID,'in',array_keys($requesters)),
 					SearchFields_Ticket::TICKET_DELETED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_DELETED,'=',0),
 				);
-				$view->name = ucwords($translate->_('common.email')) . ": " . $contact->email;
+				$view->name = sprintf("History: %d recipient(s)", count($requesters));
 				break;
 		}
 
