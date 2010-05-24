@@ -16,7 +16,7 @@ class UmScKbController extends Extension_UmScController {
 		@$q = DevblocksPlatform::importGPC($_POST['q'],'string','');
 		$tpl->assign('q', $q);
 		
-		$tpl->display("devblocks:cerberusweb.kb:support_center/kb/sidebar.tpl:portal_".UmPortalHelper::getCode());
+		$tpl->display("devblocks:cerberusweb.kb:portal_".UmPortalHelper::getCode() . ":support_center/kb/sidebar.tpl");
 	}
 	
 	function writeResponse(DevblocksHttpResponse $response) {
@@ -71,7 +71,7 @@ class UmScKbController extends Extension_UmScController {
 				UmScAbstractViewLoader::setView($view->id, $view);
 				$tpl->assign('view', $view);
 				
-				$tpl->display("devblocks:cerberusweb.kb:support_center/kb/search_results.tpl:portal_".UmPortalHelper::getCode());
+				$tpl->display("devblocks:cerberusweb.kb:portal_".UmPortalHelper::getCode() . ":support_center/kb/search_results.tpl");
 				break;
 				
 			case 'article':
@@ -141,7 +141,7 @@ class UmScKbController extends Extension_UmScController {
 				
 				$tpl->assign('breadcrumbs',$trails);
 				
-				$tpl->display("devblocks:cerberusweb.kb:support_center/kb/article.tpl:portal_".UmPortalHelper::getCode());
+				$tpl->display("devblocks:cerberusweb.kb:portal_".UmPortalHelper::getCode() . ":support_center/kb/article.tpl");
 				break;
 			
 			default:
@@ -213,7 +213,7 @@ class UmScKbController extends Extension_UmScController {
 				UmScAbstractViewLoader::setView($view->id, $view);
 				$tpl->assign('view', $view);
 				
-				$tpl->display("devblocks:cerberusweb.kb:support_center/kb/index.tpl:portal_".UmPortalHelper::getCode());
+				$tpl->display("devblocks:cerberusweb.kb:portal_".UmPortalHelper::getCode() . ":support_center/kb/index.tpl");
 	    	break;
 		}
 		
@@ -290,7 +290,7 @@ class UmSc_KbArticleView extends C4_AbstractView {
 
 		$tpl->assign('view_fields', $this->getColumns());
 		
-		$tpl->display("devblocks:cerberusweb.kb:support_center/kb/view.tpl:portal_".UmPortalHelper::getCode());
+		$tpl->display("devblocks:cerberusweb.kb:portal_".UmPortalHelper::getCode() . ":support_center/kb/view.tpl");
 	}
 
 	static function getFields() {

@@ -190,7 +190,7 @@ class UmScApp extends Extension_UsermeetTool {
 				$tpl->assign('module', $controller);
 				$tpl->assign('module_response', new DevblocksHttpResponse($stack));
 				
-   				$tpl->display('devblocks:usermeet.core:support_center/index.tpl:portal_'.UmPortalHelper::getCode());
+   				$tpl->display('devblocks:usermeet.core:portal_'.UmPortalHelper::getCode() . ":support_center/index.tpl");
 		    	break;
 		}
 	}

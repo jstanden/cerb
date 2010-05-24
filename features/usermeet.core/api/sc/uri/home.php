@@ -8,6 +8,6 @@ class UmScHomeController extends Extension_UmScController {
 	
 	function writeResponse(DevblocksHttpResponse $response) {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->display("devblocks:usermeet.core:support_center/home/index.tpl:portal_" . UmPortalHelper::getCode());
+		$tpl->display("devblocks:usermeet.core:portal_" . UmPortalHelper::getCode() .":support_center/home/index.tpl");
 	}
 };

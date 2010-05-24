@@ -46,7 +46,7 @@ class UmScAccountController extends Extension_UmScController {
         $login_handler = DAO_CommunityToolProperty::get(UmPortalHelper::getCode(), UmScApp::PARAM_LOGIN_HANDLER, '');
 		$tpl->assign('login_handler', $login_handler);
 		
-		$tpl->display("devblocks:usermeet.core:support_center/account/index.tpl:portal_".UmPortalHelper::getCode());
+		$tpl->display("devblocks:usermeet.core:portal_".UmPortalHelper::getCode() . ":support_center/account/index.tpl");
 	}
 
 	function saveAccountAction() {

@@ -26,7 +26,7 @@ class UmScAnnouncementsController extends Extension_UmScController {
 
 		$tpl->assign('feeds', $feeds);
 		
-		$tpl->display("devblocks:usermeet.core:support_center/announcements/index.tpl:portal_".UmPortalHelper::getCode());
+		$tpl->display("devblocks:usermeet.core:portal_".UmPortalHelper::getCode() . ":support_center/announcements/index.tpl");
 	}
 	
 	function configure(Model_CommunityTool $instance) {

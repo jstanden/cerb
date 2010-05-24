@@ -36,7 +36,7 @@ class UmScContactController extends Extension_UmScController {
     	switch($section) {
     		case 'confirm':
     			$tpl->assign('last_opened',$umsession->getProperty('support.write.last_opened',''));
-    			$tpl->display("devblocks:usermeet.core:support_center/contact/confirm.tpl:portal_".UmPortalHelper::getCode());
+    			$tpl->display("devblocks:usermeet.core:portal_".UmPortalHelper::getCode() . ":support_center/contact/confirm.tpl");
     			break;
     		
     		default:
@@ -73,7 +73,7 @@ class UmScContactController extends Extension_UmScController {
 				        	$umsession->setProperty('support.write.last_nature', $sNature);
 				        	reset($dispatch);
 				        } else {
-				        	$tpl->display("devblocks:usermeet.core:support_center/contact/step1.tpl:portal_".UmPortalHelper::getCode());
+				        	$tpl->display("devblocks:usermeet.core:portal_".UmPortalHelper::getCode() . ":support_center/contact/step1.tpl");
 				        	break;
 				        }
 		        		
@@ -92,7 +92,7 @@ class UmScContactController extends Extension_UmScController {
 				        $ticket_fields = DAO_CustomField::getBySource('cerberusweb.fields.source.ticket');
 						$tpl->assign('ticket_fields', $ticket_fields);
 				        
-						$tpl->display("devblocks:usermeet.core:support_center/contact/step2.tpl:portal_".UmPortalHelper::getCode());
+						$tpl->display("devblocks:usermeet.core:portal_".UmPortalHelper::getCode() . ":support_center/contact/step2.tpl");
 		        		break;
 		        }
 		        break;
