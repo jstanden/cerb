@@ -8,12 +8,12 @@
 	<script type="text/javascript" src="{devblocks_url}c=resource&p=usermeet.core&f=js/cerb4.common.js{/devblocks_url}"></script>
 	
 	<style type='text/css'>
-		{include file="devblocks:usermeet.core:support_center/style.css.tpl:portal_{$portal_code}"}
+		{include file="devblocks:usermeet.core:portal_{$portal_code}:support_center/style.css.tpl"}
 	</style>
 </head>
 
 <body>
-{include file="devblocks:usermeet.core:support_center/header.tpl:portal_{$portal_code}"}
+{include file="devblocks:usermeet.core:portal_{$portal_code}:support_center/header.tpl"}
 
 <table cellpadding="5" cellspacing="0" border="0" width="100%" align="center">
 	<tr>
@@ -79,7 +79,7 @@
 	</tr>
 </table>
 
-{include file="devblocks:usermeet.core:support_center/footer.tpl:portal_{$portal_code}"}
+{include file="devblocks:usermeet.core:portal_{$portal_code}:support_center/footer.tpl"}
 
 <div id="tagline" align="right">
 	<a href="http://www.cerberusweb.com/" target="_blank"><img src="{devblocks_url}c=resource&p=usermeet.core&f=images/_wgm/logo_small.gif{/devblocks_url}" border="0"></a>

@@ -3809,6 +3809,8 @@ class _DevblocksTemplateManager {
 			$instance->compile_dir = APP_TEMP_PATH . '/templates_c';
 			$instance->cache_dir = APP_TEMP_PATH . '/cache';
 
+			$instance->use_sub_dirs = false;
+
 			$instance->caching = 0;
 			$instance->cache_lifetime = 0;
 			$instance->compile_check = (defined('DEVELOPMENT_MODE') && DEVELOPMENT_MODE) ? true : false;
@@ -3984,7 +3986,7 @@ class _DevblocksTemplateManager {
 
 class _DevblocksSmartyTemplateResource {
 	static function get_template($tpl_name, &$tpl_source, $smarty_obj) {
-		list($plugin_id, $tpl_path, $tag) = explode(':',$tpl_name,3);
+		list($plugin_id, $tag, $tpl_path) = explode(':',$tpl_name,3);
 		
 		if(empty($plugin_id) || empty($tpl_path))
 			return false;
@@ -4019,13 +4021,11 @@ class _DevblocksSmartyTemplateResource {
 	}
 	
 	static function get_timestamp($tpl_name, &$tpl_timestamp, $smarty_obj) { /* @var $smarty_obj Smarty */
-		list($plugin_id, $tpl_path, $tag) = explode(':',$tpl_name,3);
+		list($plugin_id, $tag, $tpl_path) = explode(':',$tpl_name,3);
 		
 		if(empty($plugin_id) || empty($tpl_path))
 			return false;
 		
-//		echo $tpl_name,"<BR>";
-			
 		$plugins = DevblocksPlatform::getPluginRegistry();
 		$db = DevblocksPlatform::getDatabaseService();
 			
