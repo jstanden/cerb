@@ -74,7 +74,7 @@
 			{if !empty($view_id)}
 			genericAjaxGet('view{$view_id}','c=internal&a=viewRefresh&id={$view_id|escape}');
 			{elseif !empty($return_uri)}
-			document.location = DevblocksAppPath + '{$return_uri}';
+			document.location = "{devblocks_url}{/devblocks_url}{$return_uri}";
 			{/if}
 			} );
 		} );
