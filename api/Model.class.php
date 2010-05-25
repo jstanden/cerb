@@ -448,13 +448,15 @@ class C4_AbstractViewLoader {
 				&& $prefs instanceof C4_AbstractViewModel 
 				&& !empty($prefs->class_name)
 			) {
-				if(!class_exists($prefs->class_name))
+				if(!class_exists($prefs->class_name)) {
 					DAO_WorkerPref::delete($active_worker->id, 'view'.$view_label);
-					
+					$prefs = null;
+				}
+			} else {
 				$prefs = null;
 			}
 			
-			// If no worker prefsd, check if we're passed defaults
+			// If no worker prefs, check if we're passed defaults
 			if(!$prefs instanceof C4_AbstractViewModel && !empty($defaults))
 				$prefs = $defaults;
 			
