@@ -664,7 +664,6 @@ class CrmPage extends CerberusPageExtension {
 		
 		// Checked rows
 	    @$opp_ids_str = DevblocksPlatform::importGPC($_REQUEST['opp_ids'],'string');
-		$opp_ids = DevblocksPlatform::parseCsvString($opp_ids_str);
 
 		// Filter: whole list or check
 	    @$filter = DevblocksPlatform::importGPC($_REQUEST['filter'],'string','');
@@ -709,7 +708,13 @@ class CrmPage extends CerberusPageExtension {
 				);
 			}
 		}
-			
+		
+		if(empty($filter)) {
+			$opp_ids = array();
+		} elseif('checks'==$filter) {
+	        $opp_ids = DevblocksPlatform::parseCsvString($opp_ids_str);
+	    }
+		
 		// Do: Custom fields
 		$do = DAO_CustomFieldValue::handleBulkPost($do);
 		
