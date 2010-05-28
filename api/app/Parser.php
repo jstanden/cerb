@@ -205,9 +205,15 @@ class CerberusParser {
 				        break;
 				    }
 				    
+				    if(!isset($info['content-name']) || empty($info['content-name'])) {
+				    	if(isset($info['disposition-filename']))
+				    		$info['content-name'] = $info['disposition-filename'];
+				    	else
+				    		$info['content-name'] = '';
+				    }
+				    
 				    // if un-named, call it "unnamed message part"
-				    if (!isset($info['content-name']) // if not set 
-				    	|| (isset($info['content-name']) && empty($info['content-name']))) { // or blank 
+				    if (empty($info['content-name'])) { 
 				    	$info['content-name'] = 'unnamed_message_part';
 				    }
 				    
