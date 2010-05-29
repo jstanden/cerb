@@ -511,8 +511,8 @@ class Storage_MessageContent extends Extension_DevblocksStorageSchema {
 		
 		while($row = mysql_fetch_assoc($rs)) {
 			$profile = !empty($row['storage_profile_id']) ? $row['storage_profile_id'] : $row['storage_extension'];
-			$storage = DevblocksPlatform::getStorageService($profile);
-			$storage->delete('message_content', $row['storage_key']);
+			if(null != ($storage = DevblocksPlatform::getStorageService($profile)))
+				$storage->delete('message_content', $row['storage_key']);
 		}
 		
 		mysql_free_result($rs);
