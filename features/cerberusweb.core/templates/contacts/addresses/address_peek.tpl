@@ -1,4 +1,4 @@
-<form action="{devblocks_url}{/devblocks_url}" method="POST" id="formAddressPeek" name="formAddressPeek" onsubmit="if($(this).validate().form()) { genericAjaxPanelPostCloseReloadView('formAddressPeek', '{$view_id}');return false; } else { return false; }">
+<form action="{devblocks_url}{/devblocks_url}" method="POST" id="formAddressPeek" name="formAddressPeek">
 <input type="hidden" name="c" value="contacts">
 <input type="hidden" name="a" value="saveContact">
 <input type="hidden" name="id" value="{$address.a_id}">
@@ -75,15 +75,15 @@
 <br>
 
 {if $active_worker->hasPriv('core.addybook.addy.actions.update')}
-	<button type="submit"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')}</button>
+	<button type="button" onclick="genericAjaxPanelPostCloseReloadView('formAddressPeek', '{$view_id}');"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')}</button>
 {else}
 	<div class="error">{$translate->_('error.core.no_acl.edit')}</div>	
 {/if}
 
 {if $id != 0}
 	&nbsp; 
-	{if $active_worker->hasPriv('core.mail.search')}<a href="javascript:;" onclick="document.formAddressPeek.a.value='showAddressTickets';document.formAddressPeek.closed.value='0';document.formAddressPeek.submit();">{'addy_book.peek.count.open_tickets'|devblocks_translate:$open_count}</a> &nbsp; {/if}
-	{if $active_worker->hasPriv('core.mail.search')}<a href="javascript:;" onclick="document.formAddressPeek.a.value='showAddressTickets';document.formAddressPeek.closed.value='1';document.formAddressPeek.submit();">{'addy_book.peek.count.closed_tickets'|devblocks_translate:$closed_count}</a> &nbsp; {/if}
+	{if $active_worker->hasPriv('core.mail.search')}<a href="javascript:;" onclick="$('#formAddressPeek input:hidden[name=a]').val('showAddressTickets');$('#formAddressPeek input:hidden[name=closed]').val('0');$('#formAddressPeek').submit();">{'addy_book.peek.count.open_tickets'|devblocks_translate:$open_count}</a> &nbsp; {/if}
+	{if $active_worker->hasPriv('core.mail.search')}<a href="javascript:;" onclick="$('#formAddressPeek input:hidden[name=a]').val('showAddressTickets');$('#formAddressPeek input:hidden[name=closed]').val('1');$('#formAddressPeek').submit();">{'addy_book.peek.count.closed_tickets'|devblocks_translate:$closed_count}</a> &nbsp; {/if}
 	{if $active_worker->hasPriv('core.mail.send')}<a href="javascript:;" onclick="genericAjaxPanel('c=tickets&a=showComposePeek&view_id=&to={$address.a_email|escape:'url'}',null,false,'600');"> {$translate->_('addy_book.peek.compose')}</a>{/if}
 {/if}
 
