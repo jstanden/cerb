@@ -312,10 +312,10 @@ class ChDisplayPage extends CerberusPageExtension {
 		}
 			
 		// Check that the tickets exist
-		if(is_string($dst_ticket_id))
-			$dst_ticket = DAO_Ticket::getTicketByMask($dst_ticket_id);
-		else
+		if(is_numeric($dst_ticket_id))
 			$dst_ticket = DAO_Ticket::get($dst_ticket_id);
+		else
+			$dst_ticket = DAO_Ticket::getTicketByMask($dst_ticket_id);
 			
 		if(empty($src_ticket) || empty($dst_ticket)) {
 			DevblocksPlatform::redirect(new DevblocksHttpResponse(array('display',$refresh_id)));
