@@ -52,7 +52,7 @@
 			<div id="divDraftStatus{$message->id}"></div>
 			{assign var=ticket_team_id value=$ticket->team_id}
 			{assign var=headers value=$message->getHeaders()}
-			<button name="saveDraft" type="button" onclick="genericAjaxPost('reply{$message->id}_part2',null,'c=display&a=saveDraftReply&is_ajax=1',function(json) { var obj = $.parseJSON(json); $('#divDraftStatus{$message->id}').html(obj.html); $('#reply{$message->id}_part2 input[name=draft_id]').val(obj.draft_id); } );"><span class="cerb-sprite sprite-check"></span> Save Draft</button>
+			<button name="saveDraft" type="button" onclick="if($(this).attr('disabled'))return;$(this).attr('disabled','disabled');genericAjaxPost('reply{$message->id}_part2',null,'c=display&a=saveDraftReply&is_ajax=1',function(json, ui) { var obj = $.parseJSON(json); $('#divDraftStatus{$message->id}').html(obj.html); $('#reply{$message->id}_part2 input[name=draft_id]').val(obj.draft_id); $('#reply{$message->id}_part1 button[name=saveDraft]').removeAttr('disabled'); } );"><span class="cerb-sprite sprite-check"></span> Save Draft</button>
 			<button type="button" onclick="genericAjaxPanel('c=display&a=showSnippets&text=reply_{$message->id}&contexts=cerberusweb.contexts.ticket,cerberusweb.contexts.worker&id={$message->ticket_id}',null,false,'550');"><span class="cerb-sprite sprite-text_rich"></span> {$translate->_('common.snippets')|capitalize}</button>
 			<button type="button" onclick="genericAjaxGet('','c=tickets&a=getComposeSignature&group_id={$ticket->team_id}',function(text) { insertAtCursor(document.getElementById('reply_{$message->id}'),text);document.getElementById('reply_{$message->id}').focus(); } );"><span class="cerb-sprite sprite-document_edit"></span> {$translate->_('display.reply.insert_sig')|capitalize}</button>
 			{* Plugin Toolbar *}
@@ -88,7 +88,7 @@
 <input type="hidden" name="subject" value="{if !empty($draft)}{$draft->subject|escape}{else}{if $is_forward}Fwd: {/if}{$ticket->subject|escape}{/if}">
 
 {if $is_forward}
-<textarea name="content" rows="20" cols="80" id="reply_{$message->id}" class="reply required" style="width:98%;border:1px solid rgb(180,180,180);padding:5px;">
+<textarea name="content" rows="20" cols="80" id="reply_{$message->id}" class="reply" style="width:98%;border:1px solid rgb(180,180,180);padding:5px;">
 {if !empty($draft)}{$draft->body}{else}
 {if !empty($signature)}{$signature}{/if}
 
@@ -102,7 +102,7 @@
 {/if}
 </textarea>
 {else}
-<textarea name="content" rows="20" cols="80" id="reply_{$message->id}" class="reply required" style="width:98%;border:1px solid rgb(180,180,180);padding:5px;">
+<textarea name="content" rows="20" cols="80" id="reply_{$message->id}" class="reply" style="width:98%;border:1px solid rgb(180,180,180);padding:5px;">
 {if !empty($draft)}{$draft->body|escape}{else}
 {if !empty($signature) && $signature_pos}
 
@@ -244,8 +244,8 @@
 	</tr>
 	<tr>
 		<td>
-			<button type="button" onclick="if($('#reply{$message->id}_part1').validate().form() && $('#reply{$message->id}_part2').validate().form()) { genericAjaxPost('reply{$message->id}_part2',null,'c=display&a=saveDraftReply&is_ajax=1',function(json) { $('#reply{$message->id}_part2').submit(); } ); } "><span class="cerb-sprite sprite-check"></span> {if $is_forward}{$translate->_('display.ui.forward')|capitalize}{else}{$translate->_('display.ui.send_message')}{/if}</button>
-			<button type="button" onclick="if($('#reply{$message->id}_part1').validate().form() && $('#reply{$message->id}_part2').validate().form()) { this.form.a.value='saveDraftReply'; this.form.submit(); } "><span class="cerb-sprite sprite-media_pause"></span> {$translate->_('display.ui.continue_later')|capitalize}</button>
+			<button type="button" onclick="if($('#reply{$message->id}_part1').validate().form()) { genericAjaxPost('reply{$message->id}_part2',null,'c=display&a=saveDraftReply&is_ajax=1',function(json) { $('#reply{$message->id}_part2').submit(); } ); } "><span class="cerb-sprite sprite-check"></span> {if $is_forward}{$translate->_('display.ui.forward')|capitalize}{else}{$translate->_('display.ui.send_message')}{/if}</button>
+			<button type="button" onclick="if($('#reply{$message->id}_part1').validate().form()) { this.form.a.value='saveDraftReply'; this.form.submit(); } "><span class="cerb-sprite sprite-media_pause"></span> {$translate->_('display.ui.continue_later')|capitalize}</button>
 			<button type="button" onclick="if(confirm('Are you sure you want to discard this reply?')) { if(0!==this.form.draft_id.value.length) { genericAjaxGet('', 'c=tickets&a=deleteDraft&draft_id='+escape(this.form.draft_id.value)); $('#draft'+escape(this.form.draft_id.value)).remove(); } $('#reply{$message->id}').html(''); } "><span class="cerb-sprite sprite-delete"></span> {$translate->_('display.ui.discard')|capitalize}</button>
 		</td>
 	</tr>
@@ -267,7 +267,6 @@
 		} );
 		
 		$('#reply{$message->id}_part1').validate();
-		$('#reply{$message->id}_part2').validate();
 		
 		$('#reply{$message->id}_part1 button[name=saveDraft]').click(); // save now
 		setInterval("$('#reply{$message->id}_part1 button[name=saveDraft]').click();", 30000); // and every 30 sec
