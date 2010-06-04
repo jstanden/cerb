@@ -11,6 +11,19 @@
 		<td width="100%"><input type="text" name="org_name" value="{$contact->name|escape}" style="width:98%;" class="required"></td>
 	</tr>
 	<tr>
+		<td width="0%" nowrap="nowrap" align="right">{$translate->_('contact_org.parent_org_name')|capitalize}: </td>
+		<td width="100%">
+			{if !empty($parent_org)}
+				<div>
+					<b>{$parent_org->name|escape}</b>
+					(<a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showOrgPeek&id={$parent_org->id}&view_id={$view->id}',null,false,'500');">peek</a>) 
+					(<a href="javascript:;" onclick="$(this).closest('td').find('input:text[name=parent_org_name]').fadeIn();$(this).closest('div').remove();">edit</a>)
+				</div> 
+			{/if}
+			<input type="text" name="parent_org_name" value="{$parent_org->name|escape}" style="width:98%;{if !empty($parent_org)}display:none;{/if}">
+		</td>
+	</tr>
+	<tr>
 		<td align="right" valign="top">{$translate->_('contact_org.street')|capitalize}: </td>
 		<td><textarea name="street" style="width:98%;height:50px;">{$contact->street}</textarea></td>
 	</tr>
@@ -61,6 +74,7 @@
 		// Title
 		genericPanel.dialog('option','title', "{'contact_org.name'|devblocks_translate|capitalize|escape:'quotes'}");
 		// Autocomplete
+		ajax.orgAutoComplete('#formOrgPeek input:text[name=parent_org_name]');
 		ajax.countryAutoComplete('#org_country_input');
 		// Form validation
 	    $("#formOrgPeek").validate();

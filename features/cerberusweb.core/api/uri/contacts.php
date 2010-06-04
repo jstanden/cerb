@@ -76,6 +76,19 @@ class ChContactsPage extends CerberusPageExtension {
 						$contact = DAO_ContactOrg::get($id);
 						$tpl->assign('contact', $contact);
 						
+						// Parent breadcrumbs						
+						$breadcrumbs = array($id => $contact);
+						$pid = $contact->parent_org_id;
+						while(!empty($pid)) {
+							if(null != ($po = DAO_ContactOrg::get($pid))) {
+								$breadcrumbs[$po->id] = $po;
+								$pid = $po->parent_org_id;
+							}
+						}
+						$tpl->assign('breadcrumbs', array_reverse($breadcrumbs, true));
+						
+						// Tabs
+						
 						$task_count = DAO_Task::getCountBySourceObjectId('cerberusweb.tasks.org', $contact->id);
 						$tpl->assign('tasks_total', $task_count);
 						
@@ -805,6 +818,12 @@ class ChContactsPage extends CerberusPageExtension {
 		$contact = DAO_ContactOrg::get($id);
 		$tpl->assign('contact', $contact);
 
+		// Parent org
+		if(!empty($contact->parent_org_id)) {
+			if(null != ($parent_org = DAO_ContactOrg::get($contact->parent_org_id)))
+				$tpl->assign('parent_org', $parent_org);
+		}
+		
 		// Custom fields
 		$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Org::ID); 
 		$tpl->assign('custom_fields', $custom_fields);
@@ -990,6 +1009,7 @@ class ChContactsPage extends CerberusPageExtension {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer', 0);
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
 		@$org_name = DevblocksPlatform::importGPC($_REQUEST['org_name'],'string','');
+		@$parent_org_name = DevblocksPlatform::importGPC($_REQUEST['parent_org_name'],'string','');
 		@$street = DevblocksPlatform::importGPC($_REQUEST['street'],'string','');
 		@$city = DevblocksPlatform::importGPC($_REQUEST['city'],'string','');
 		@$province = DevblocksPlatform::importGPC($_REQUEST['province'],'string','');
@@ -1004,6 +1024,16 @@ class ChContactsPage extends CerberusPageExtension {
 				DAO_ContactOrg::delete($id);
 			
 		} else { // create/edit
+			$parent_org_id = 0;
+			var_dump($parent_org_name);
+			if(!empty($parent_org_name)) {
+				if(null != ($pid = DAO_ContactOrg::lookup($parent_org_name, true))
+					&& !empty($pid)
+					&& $pid != $id
+					)
+					$parent_org_id = $pid;
+			}
+			
 			if($active_worker->hasPriv('core.addybook.org.actions.update')) {
 				$fields = array(
 					DAO_ContactOrg::NAME => $org_name,
@@ -1014,6 +1044,7 @@ class ChContactsPage extends CerberusPageExtension {
 					DAO_ContactOrg::COUNTRY => $country,
 					DAO_ContactOrg::PHONE => $phone,
 					DAO_ContactOrg::WEBSITE => $website,
+					DAO_ContactOrg::PARENT_ORG_ID => $parent_org_id,
 				);
 		
 				if($id==0) {

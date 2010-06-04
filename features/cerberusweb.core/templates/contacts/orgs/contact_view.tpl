@@ -70,6 +70,8 @@
 			<td><a href="{$result.c_website}" target="_blank">{$result.c_website|truncate:45:'...':true}</a>&nbsp;</td>
 			{elseif $column=="c_created"}
 			<td title="{$result.c_created|devblocks_date}">{$result.c_created|devblocks_prettytime}&nbsp;</td>
+			{elseif $column=="po_name"}
+			<td><a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showOrgPeek&id={$result.po_id}&view_id={$view->id}',null,false,'600');">{$result.po_name}</a> </td>
 			{else}
 			<td>{$result.$column}</td>
 			{/if}

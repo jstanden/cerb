@@ -9,7 +9,8 @@
 <table cellpadding="2" cellspacing="0" border="0" width="100%">
 <tr>
 	<td valign="top">
-		<h1>{$contact->name}</h1>
+		<h1>{$contact->name|escape}</h1>
+		
 		{if !empty($contact->street) || !empty($contact->country)}
 			{if !empty($contact->street)}{$contact->street}, {/if}
 			{if !empty($contact->city)}{$contact->city}, {/if}
@@ -22,8 +23,22 @@
 			{$translate->_('contact_org.phone')|capitalize}: {$contact->phone}
 			<br>
 		{/if}
-		{if !empty($contact->website)}<a href="{$contact->website}" target="_blank">{$contact->website}</a>{/if}
+		{if !empty($contact->website)}<a href="{$contact->website}" target="_blank">{$contact->website}</a><br>{/if}
+
+		{if is_array($breadcrumbs) && count($breadcrumbs) > 1}
+		{foreach from=$breadcrumbs item=parent_org key=parent_org_id name=parent_orgs}
+		{if !$smarty.foreach.parent_orgs.last}
+			<a href="{devblocks_url}c=contacts&a=orgs&m=display&id={$parent_org_id}{/devblocks_url}">{$parent_org->name|escape}</a> 
+		{else}
+			<b>{$parent_org->name|escape}</b> 
+		{/if}
+		{if !$smarty.foreach.parent_orgs.last}
+			&raquo;
+		{/if}
+		{/foreach}
 		<br>
+		{/if}
+		
 		<br>
 	</td>
 	<td align="right" valign="top">
