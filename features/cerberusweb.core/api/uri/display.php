@@ -1377,10 +1377,8 @@ class ChDisplayPage extends CerberusPageExtension {
 		$tpl->assign('path', $this->_TPL_PATH);
 
 		@$ticket_id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer');
-		@$div = DevblocksPlatform::importGPC($_REQUEST['div'],'string');
 		
 		$tpl->assign('ticket_id', $ticket_id);
-		$tpl->assign('div', $div);
 		
 		$requesters = DAO_Ticket::getRequestersByTicket($ticket_id);
 		$tpl->assign('requesters', $requesters);
@@ -1390,43 +1388,52 @@ class ChDisplayPage extends CerberusPageExtension {
 	
 	function saveRequestersPanelAction() {
 		@$ticket_id = DevblocksPlatform::importGPC($_POST['ticket_id'],'integer');
-		@$msg_id = DevblocksPlatform::importGPC($_POST['msg_id'],'integer');
-
-		// Dels
-		@$req_deletes = DevblocksPlatform::importGPC($_POST['req_deletes'],'array',array());
-		if(!empty($req_deletes))
-		foreach($req_deletes as $del_id) {
-			DAO_Ticket::deleteRequester($ticket_id, $del_id);
-		}		
 
 		// Adds
-		@$req_adds = DevblocksPlatform::importGPC($_POST['req_adds'],'string','');
-		$req_list = DevblocksPlatform::parseCrlfString($req_adds);
-		$req_addys = array();
-		
-		if(is_array($req_list) && !empty($req_list)) {
-			foreach($req_list as $req) {
-				if(empty($req))
-					continue;
-					
-				$rfc_addys = imap_rfc822_parse_adrlist($req, 'localhost');
-				
-				foreach($rfc_addys as $rfc_addy) {
-					$addy = $rfc_addy->mailbox . '@' . $rfc_addy->host;
-					DAO_Ticket::createRequester($addy, $ticket_id);
-				}
-			}
+		@$req_adds = DevblocksPlatform::parseCrlfString(DevblocksPlatform::importGPC($_POST['req_adds'],'string',''));
+
+		if(is_array($req_adds))
+		foreach($req_adds as $req) {
+			DAO_Ticket::createRequester($req, $ticket_id);
 		}
-				
+		
+		// Deletes
+		@$req_deletes = DevblocksPlatform::importGPC($_POST['req_deletes'],'array',array());
+		
+		if(is_array($req_deletes))
+		foreach($req_deletes as $req_id) {
+			DAO_Ticket::deleteRequester($ticket_id, $req_id);
+		}
+		
+		exit;
+	}
+	
+	function requesterAddAction() {
+		@$ticket_id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer');
+		@$email = DevblocksPlatform::importGPC($_REQUEST['email'],'string');
+		
+		DAO_Ticket::createRequester($email, $ticket_id);
+	}
+	
+	function requesterRemoveAction() {
+		@$ticket_id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer');
+		@$address_id = DevblocksPlatform::importGPC($_REQUEST['address_id'],'integer');
+		
+		DAO_Ticket::deleteRequester($ticket_id, $address_id);
+	}
+	
+	function requestersRefreshAction() {
+		@$ticket_id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer');
+		
 		$requesters = DAO_Ticket::getRequestersByTicket($ticket_id);
 
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('path', $this->_TPL_PATH);
 		
+		$tpl->assign('ticket_id', $ticket_id);
 		$tpl->assign('requesters', $requesters);
 		
 		$tpl->display('file:' . $this->_TPL_PATH . 'display/rpc/requester_list.tpl');
-		
-		exit;
 	}
+	
 };

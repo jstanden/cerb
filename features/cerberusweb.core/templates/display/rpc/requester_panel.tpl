@@ -36,7 +36,7 @@
 						} catch(e) {}
 					}
 					
-					$('#{$div}').html(html);
+					genericAjaxGet('displayTicketRequesterBubbles', 'c=display&a=requestersRefresh&ticket_id={$ticket_id}');
 				}
 			);
 		} );

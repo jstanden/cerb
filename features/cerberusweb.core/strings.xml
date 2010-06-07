@@ -1076,6 +1076,9 @@
 			<tuv xml:lang="en_US"><seg>Assign this ticket to yourself (T)</seg></tuv>
 		</tu>
 
+		<tu tuid='display.ui.add_to_recipients'>
+			<tuv xml:lang="en_US"><seg>Add to Recipients</seg></tuv>
+		</tu>
 		<tu tuid='display.ui.continue_later'>
 			<tuv xml:lang="en_US"><seg>Continue Later</seg></tuv>
 		</tu>

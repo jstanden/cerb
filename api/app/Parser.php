@@ -579,6 +579,20 @@ class CerberusParser {
 				DAO_Ticket::LAST_ACTION_CODE => CerberusTicketActionCode::TICKET_OPENED,
 			);
 			$id = DAO_Ticket::createTicket($fields);
+
+			// [JAS]: Add requesters to the ticket
+			if(!empty($fromAddressInst->id) && !empty($id))
+				DAO_Ticket::createRequester($fromAddressInst->email, $id);
+				
+			// Add the other TO/CC addresses to the ticket
+			if($settings->get('cerberusweb.core', CerberusSettings::PARSER_AUTO_REQ, CerberusSettingsDefaults::PARSER_AUTO_REQ)) {
+				$destinations = self::getDestinations($headers);
+				
+				if(is_array($destinations))
+				foreach($destinations as $dest) {
+					DAO_Ticket::createRequester($dest, $id);
+				}
+			}
 			
 			// Apply routing actions to our new ticket ID
 			if(isset($routing_rules) && is_array($routing_rules))
@@ -586,21 +600,7 @@ class CerberusParser {
 				$rule->run($id);
 			}
 		}
-
-		// [JAS]: Add requesters to the ticket
-		if(!empty($fromAddressInst->id) && !empty($id))
-			DAO_Ticket::createRequester($fromAddressInst->email, $id);
-	    
-		// Add the other TO/CC addresses to the ticket
-		if($settings->get('cerberusweb.core',CerberusSettings::PARSER_AUTO_REQ, CerberusSettingsDefaults::PARSER_AUTO_REQ)) {
-			$destinations = self::getDestinations($headers);
-			
-			if(is_array($destinations))
-			foreach($destinations as $dest) {
-				DAO_Ticket::createRequester($dest, $id);
-			}
-		}
-		
+	    		
         $fields = array(
             DAO_Message::TICKET_ID => $id,
             DAO_Message::CREATED_DATE => $iDate,

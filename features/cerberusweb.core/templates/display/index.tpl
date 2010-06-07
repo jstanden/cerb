@@ -32,15 +32,9 @@
 					
 					<b>{$translate->_('ticket.requesters')|capitalize}:</b>
 					<span id="displayTicketRequesterBubbles">
-					{if !empty($requesters)}
-						{foreach from=$requesters item=req_addy key=req_id name=reqs}
-							<div class="ui-corner-all bubble"><a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showAddressPeek&address_id={$req_addy->id|escape:'url'}',null,false,'500');">{$req_name=$req_addy->getName()}{if !empty($req_name)}{$req_name|escape} {/if}&lt;{$req_addy->email}&gt;</a></div> 
-						{/foreach}
-					{else}
-						{$translate->_('common.nobody')}
-					{/if}
+						{include file="{$core_tpl}display/rpc/requester_list.tpl" ticket_id=$ticket->id}
 					</span>
-					(<a href="javascript:;" onclick="genericAjaxPanel('c=display&a=showRequestersPanel&ticket_id={$ticket->id}&div=displayTicketRequesterBubbles',null,false,'500');">{$translate->_('common.edit')|lower}</a>)
+					(<a href="javascript:;" onclick="genericAjaxPanel('c=display&a=showRequestersPanel&ticket_id={$ticket->id}',null,false,'500');">{$translate->_('common.edit')|lower}</a>)
 				</td>
 			</tr>
 		</table>

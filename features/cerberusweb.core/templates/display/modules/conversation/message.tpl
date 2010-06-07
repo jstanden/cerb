@@ -89,6 +89,12 @@
 	      		<tr>
 	      			<td align="left" id="{$message->id}act">
 	      				{assign var=show_more value=0}
+						
+						{* If not requester *}
+						{if !$message->is_outgoing && !isset($requesters.{$sender_id})}
+						<button type="button" onclick="$(this).remove(); genericAjaxGet('','c=display&a=requesterAdd&ticket_id={$ticket->id}&email='+encodeURIComponent('{$sender->email}'),function(o) { genericAjaxGet('displayTicketRequesterBubbles','c=display&a=requestersRefresh&ticket_id={$ticket->id}'); } );"><span class="cerb-sprite sprite-add"></span> {$translate->_('display.ui.add_to_recipients')}</button>
+						{/if}
+						
 				      	{if $active_worker->hasPriv('core.display.actions.reply')}{if !empty($requesters)}{assign var=show_more value=1}<button type="button" class="reply" onclick="displayReply('{$message->id}',0);"><span class="cerb-sprite sprite-export"></span> {$translate->_('display.ui.reply')|capitalize}</button>{/if}{/if}
 				      	{if $active_worker->hasPriv('core.display.actions.forward')}{assign var=show_more value=1}<button type="button" onclick="displayReply('{$message->id}',1);"><span class="cerb-sprite sprite-document_out"></span> {$translate->_('display.ui.forward')|capitalize}</button>{/if}
 				      	{if $active_worker->hasPriv('core.display.actions.note')}{assign var=show_more value=1}<button type="button" onclick="displayAddNote('{$message->id}');"><span class="cerb-sprite sprite-document_plain_yellow"></span> {$translate->_('display.ui.sticky_note')|capitalize}</button>{/if}
