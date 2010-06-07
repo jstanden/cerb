@@ -563,7 +563,9 @@ class ChDisplayPage extends CerberusPageExtension {
 				DAO_MailQueue::delete($draft_id);
 		}
 
-        DevblocksPlatform::redirect(new DevblocksHttpResponse(array('display',$ticket_mask)));
+		$ticket_uri = !empty($ticket_mask) ? $ticket_mask : $ticket_id;
+		
+        DevblocksPlatform::redirect(new DevblocksHttpResponse(array('display',$ticket_uri)));
 	}
 	
 	function saveDraftReplyAction() {
