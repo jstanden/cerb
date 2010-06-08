@@ -681,6 +681,11 @@ class CerberusContexts {
 				self::_getWorkerContext($context_object, $labels, $values, $prefix);
 				break;
 			default:
+				// [TODO] Migrated
+				if(null != ($ctx = DevblocksPlatform::getExtension($context, true)) 
+					&& $ctx instanceof Extension_DevblocksContext) {
+						$ctx->getContext($context_object, $labels, $values, $prefix);
+				}
 				break;
 		}
 

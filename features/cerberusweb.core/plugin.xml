@@ -31,6 +31,7 @@
 		<patch version="5.0.0-beta" revision="856" file="patches/5.x/5.0.0_beta.php" />
 		<patch version="5.0.0-rc1" revision="861" file="patches/5.x/5.0.0_rc1.php" />
 		<patch version="5.0.1" revision="863" file="patches/5.x/5.0.1.php" />
+		<patch version="5.1.0" revision="880" file="patches/5.x/5.1.0.php" />
 	</patches>
 
 	<!-- Declared Extension Points -->
@@ -107,6 +108,11 @@
 			<class name="Model_ContactOrg" />
 			<class name="SearchFields_ContactOrg" />
 			<class name="View_ContactOrg" />
+		</file>
+		
+		<file path="api/dao/context_link.php">
+			<class name="DAO_ContextLink" />
+			<class name="Model_ContextLink" />
 		</file>
 		
 		<file path="api/dao/explorer.php">

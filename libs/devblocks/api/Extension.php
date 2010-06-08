@@ -40,6 +40,16 @@ class DevblocksExtension {
 	}
 };
 
+abstract class Extension_DevblocksContext extends DevblocksExtension {
+    function __construct($manifest) {
+        self::DevblocksExtension($manifest);
+    }
+    
+    abstract function getContext($object, &$token_labels, &$token_values, $prefix=null);
+    //abstract function autocomplete($term);
+    abstract function getView($ids);
+};
+
 abstract class DevblocksHttpResponseListenerExtension extends DevblocksExtension {
 	function __construct($manifest) {
 		$this->DevblocksExtension($manifest);

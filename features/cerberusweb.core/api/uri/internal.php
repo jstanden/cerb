@@ -60,6 +60,64 @@ class ChInternalController extends DevblocksControllerExtension {
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('home')));
 	}
 	
+	// Contexts
+	
+	function contextLinkAddPeekAction() {
+		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string');
+		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer');
+		@$return_uri = DevblocksPlatform::importGPC($_REQUEST['return_uri'],'string','');
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('path', $this->_TPL_PATH);
+		
+		$tpl->assign('context', $context);
+		$tpl->assign('context_id', $context_id);
+		$tpl->assign('return_uri', $return_uri);
+		
+		$links = DAO_ContextLink::getLinks($context, $context_id);
+		$tpl->assign('context_links', $links);
+		
+		$context_extensions = DevblocksPlatform::getExtensions('devblocks.context', false);
+		$tpl->assign('context_extensions', $context_extensions);
+		
+		$tpl->display('file:'.$this->_TPL_PATH.'internal/context_links/peek_add.tpl');
+	}
+	
+	function contextDeleteLinkAction() {
+		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
+		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer',0);
+		@$dst_context = DevblocksPlatform::importGPC($_REQUEST['dst_context'],'string','');
+		@$dst_context_id = DevblocksPlatform::importGPC($_REQUEST['dst_context_id'],'integer',0);
+		
+		@$return_uri = DevblocksPlatform::importGPC($_REQUEST['return_uri'],'string','');
+		$return_uri = !empty($return_uri) ? explode('/', $return_uri) : array();
+
+		DAO_ContextLink::deleteLink($context, $context_id, $dst_context, $dst_context_id);
+		
+		DevblocksPlatform::redirect(new DevblocksHttpResponse($return_uri));
+	}
+	
+	function saveContextLinkAddPeekAction() {
+		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
+		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer',0);
+		@$ar_dst_context = DevblocksPlatform::importGPC($_REQUEST['dst_context'],'array',array());
+		@$ar_dst_context_id = DevblocksPlatform::importGPC($_REQUEST['dst_context_id'],'array',array());
+
+		@$return_uri = DevblocksPlatform::importGPC($_REQUEST['return_uri'],'string','');
+		$return_uri = !empty($return_uri) ? explode('/', $return_uri) : array();
+		
+		foreach($ar_dst_context as $idx => $dst_context) {
+			@$dst_context_id = $ar_dst_context_id[$idx];
+			
+			// [TODO] Ask the context to validate ID
+			
+			if(!empty($dst_context) && !empty($dst_context_id))
+				DAO_ContextLink::setLink($context, $context_id, $dst_context, $dst_context_id);
+		}
+		
+		DevblocksPlatform::redirect(new DevblocksHttpResponse($return_uri));
+	}	
+	
 	// Snippets
 	
 	function snippetPasteAction() {
