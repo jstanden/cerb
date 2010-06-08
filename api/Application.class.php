@@ -679,7 +679,7 @@ class CerberusContexts {
 
 		if(!$nested) {
 			// Globals
-			self::_merge(
+			CerberusContexts::merge(
 				'global_',
 				'(Global) ',
 				array(
@@ -698,7 +698,7 @@ class CerberusContexts {
 			$merge_token_values = array();
 			self::getContext(self::CONTEXT_WORKER, $active_worker, $merge_token_labels, $merge_token_values, '', true);
 	
-			self::_merge(
+			CerberusContexts::merge(
 				'worker_',
 				'Current:Worker:',
 				$merge_token_labels,
@@ -747,7 +747,7 @@ class CerberusContexts {
 	 * @param array $dst_values
 	 * @return void
 	 */
-	private static function _merge($token_prefix, $label_prefix, $src_labels, $src_values, &$dst_labels, &$dst_values) {
+	public static function merge($token_prefix, $label_prefix, $src_labels, $src_values, &$dst_labels, &$dst_values) {
 		foreach($src_labels as $token => $label) {
 			$dst_labels[$token_prefix.$token] = $label_prefix.$label; 
 		}
@@ -905,7 +905,7 @@ class CerberusContexts {
 		$merge_token_values = array();
 		self::getContext(self::CONTEXT_ORG, $org_id, $merge_token_labels, $merge_token_values, null, true);
 
-		self::_merge(
+		CerberusContexts::merge(
 			'org_',
 			'Org:',
 			$merge_token_labels,
@@ -920,7 +920,7 @@ class CerberusContexts {
 		$merge_token_values = array();
 		self::getContext(self::CONTEXT_WORKER, $worker_id, $merge_token_labels, $merge_token_values, null, true);
 
-		self::_merge(
+		CerberusContexts::merge(
 			'worker_',
 			'Worker:',
 			$merge_token_labels,
@@ -1028,7 +1028,7 @@ class CerberusContexts {
 		$merge_token_values = array();
 		self::getContext(self::CONTEXT_GROUP, $ticket[SearchFields_Ticket::TICKET_TEAM_ID], $merge_token_labels, $merge_token_values, '', true);
 
-		self::_merge(
+		CerberusContexts::merge(
 			'group_',
 			'Ticket:Group:',
 			$merge_token_labels,
@@ -1042,7 +1042,7 @@ class CerberusContexts {
 		$merge_token_values = array();
 		self::getContext(self::CONTEXT_BUCKET, $ticket[SearchFields_Ticket::TICKET_CATEGORY_ID], $merge_token_labels, $merge_token_values, '', true);
 
-		self::_merge(
+		CerberusContexts::merge(
 			'bucket_',
 			'Ticket:Bucket:',
 			$merge_token_labels,
@@ -1057,7 +1057,7 @@ class CerberusContexts {
 		$merge_token_values = array();
 		self::getContext(self::CONTEXT_WORKER, $next_worker_id, $merge_token_labels, $merge_token_values, '', true);
 
-		self::_merge(
+		CerberusContexts::merge(
 			'assignee_',
 			'Assignee:',
 			$merge_token_labels,
@@ -1072,7 +1072,7 @@ class CerberusContexts {
 		$merge_token_values = array();
 		self::getContext(self::CONTEXT_MESSAGE, $first_message_id, $merge_token_labels, $merge_token_values, 'Message:', true);
 		
-		self::_merge(
+		CerberusContexts::merge(
 			'initial_message_',
 			'Initial:',
 			$merge_token_labels,
@@ -1088,7 +1088,7 @@ class CerberusContexts {
 		$merge_token_values = array();
 		self::getContext(self::CONTEXT_MESSAGE, $last_message_id, $merge_token_labels, $merge_token_values, 'Message:', true);
 		
-		self::_merge(
+		CerberusContexts::merge(
 			'latest_message_',
 			'Latest:',
 			$merge_token_labels,
@@ -1265,7 +1265,7 @@ class CerberusContexts {
 		$merge_token_values = array();
 		self::getContext(self::CONTEXT_ADDRESS, $address_id, $merge_token_labels, $merge_token_values, '', true);
 
-		self::_merge(
+		CerberusContexts::merge(
 			'sender_',
 			'Message:Sender:',
 			$merge_token_labels,
@@ -1328,7 +1328,7 @@ class CerberusContexts {
 		$merge_token_values = array();
 		self::getContext(self::CONTEXT_WORKER, $worker_id, $merge_token_labels, $merge_token_values, '', true);
 
-		self::_merge(
+		CerberusContexts::merge(
 			'assignee_',
 			'Assignee:',
 			$merge_token_labels,
@@ -1422,7 +1422,7 @@ class CerberusContexts {
 		$merge_token_values = array();
 		self::getContext(self::CONTEXT_ADDRESS, $address_id, $merge_token_labels, $merge_token_values, '', true);
 
-		self::_merge(
+		CerberusContexts::merge(
 			'email_',
 			'Lead:',
 			$merge_token_labels,
@@ -1437,7 +1437,7 @@ class CerberusContexts {
 		$merge_token_values = array();
 		self::getContext(self::CONTEXT_WORKER, $assignee_id, $merge_token_labels, $merge_token_values, '', true);
 
-		self::_merge(
+		CerberusContexts::merge(
 			'assignee_',
 			'Assignee:',
 			$merge_token_labels,
@@ -1658,7 +1658,7 @@ class CerberusContexts {
 		$merge_token_values = array();
 		self::getContext(self::CONTEXT_ADDRESS, $address_id, $merge_token_labels, $merge_token_values, '', true);
 
-		self::_merge(
+		CerberusContexts::merge(
 			'author_',
 			'Author:',
 			$merge_token_labels,
@@ -1673,7 +1673,7 @@ class CerberusContexts {
 		$merge_token_values = array();
 		self::getContext(self::CONTEXT_WORKER, $assignee_id, $merge_token_labels, $merge_token_values, '', true);
 
-		self::_merge(
+		CerberusContexts::merge(
 			'worker_',
 			'Worker:',
 			$merge_token_labels,

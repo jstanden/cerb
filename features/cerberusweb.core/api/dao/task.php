@@ -622,9 +622,9 @@ class Context_Task extends Extension_DevblocksContext {
 		@$assignee_id = $task->worker_id;
 		$merge_token_labels = array();
 		$merge_token_values = array();
-		self::getContext(self::CONTEXT_WORKER, $assignee_id, $merge_token_labels, $merge_token_values, '', true);
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $assignee_id, $merge_token_labels, $merge_token_values, '', true);
 
-		self::_merge(
+		CerberusContexts::merge(
 			'assignee_',
 			'Assignee:',
 			$merge_token_labels,
