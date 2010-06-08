@@ -530,11 +530,9 @@ XML;
             $eItem = $channel->addChild('item');
             
             $escapedSubject = htmlspecialchars($task[SearchFields_Task::TITLE],null,LANG_CHARSET_CODE);
-            //filter out a couple non-UTF-8 characters (0xC and ESC)
-            $escapedSubject = preg_replace("/[]/", '', $escapedSubject);
+            $escapedSubject = mb_convert_encoding($escapedSubject, 'utf-8', LANG_CHARSET_CODE);
             $eTitle = $eItem->addChild('title', $escapedSubject);
 
-            //$eDesc = $eItem->addChild('description', htmlspecialchars($task[SearchFields_Task::CONTENT],null,LANG_CHARSET_CODE));
             $eDesc = $eItem->addChild('description', '');
 
             if(isset($task_sources[$task[SearchFields_Task::SOURCE_EXTENSION]]) && isset($task[SearchFields_Task::SOURCE_ID])) {
