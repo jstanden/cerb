@@ -325,6 +325,19 @@
 
 	<extensions>
 
+		<!-- Contexts -->
+		
+		<extension point="devblocks.context">
+			<id>cerberusweb.contexts.task</id>
+			<name>Task</name>
+			<class>
+				<file>api/dao/task.php</file>
+				<name>Context_Task</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+
 		<!-- Event Listeners -->
 		
 		<extension point="devblocks.listener.event">

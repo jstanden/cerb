@@ -538,8 +538,11 @@
 
 		<!-- Activity -->
 		
+		<tu tuid='activity.tasks.tab.links'>
+			<tuv xml:lang="en_US"><seg>Links</seg></tuv>
+		</tu>
 		<tu tuid='activity.tasks.tab.notes'>
-			<tuv xml:lang="en_US"><seg>Notes</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Comments</seg></tuv>
 		</tu>
 		<tu tuid='activity.tasks.tab.properties'>
 			<tuv xml:lang="en_US"><seg>Properties</seg></tuv>
@@ -623,10 +626,10 @@
 			<tuv xml:lang="en_US"><seg>Mail History</seg></tuv>
 		</tu>
 		<tu tuid='addy_book.org.tabs.notes'>
-			<tuv xml:lang="en_US"><seg>Notes</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Comments</seg></tuv>
 		</tu>
 		<tu tuid='addy_book.org.tabs.notes.add'>
-			<tuv xml:lang="en_US"><seg>Add a note about %s</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Add a comment about %s</seg></tuv>
 		</tu>
 		<tu tuid='addy_book.org.tabs.people'>
 			<tuv xml:lang="en_US"><seg>People (%s)</seg></tuv>
@@ -1411,7 +1414,7 @@ For example: *receipt*</seg></tuv>
 			<tuv xml:lang="en_US"><seg>+24hrs</seg></tuv>
 		</tu>
 		<tu tuid='tasks.tab.notes.add_note'>
-			<tuv xml:lang="en_US"><seg>Add a note about this task</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Add a comment about this task</seg></tuv>
 		</tu>
 		<tu tuid='tasks.ticket.tab.view'>
 			<tuv xml:lang="en_US"><seg>Ticket Tasks</seg></tuv>

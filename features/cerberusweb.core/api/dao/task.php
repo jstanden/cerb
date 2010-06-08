@@ -7,8 +7,6 @@ class DAO_Task extends C4_ORMHelper {
 	const DUE_DATE = 'due_date';
 	const IS_COMPLETED = 'is_completed';
 	const COMPLETED_DATE = 'completed_date';
-	const SOURCE_EXTENSION = 'source_extension';
-	const SOURCE_ID = 'source_id';
 
 	static function create($fields) {
 		$db = DevblocksPlatform::getDatabaseService();
@@ -53,7 +51,7 @@ class DAO_Task extends C4_ORMHelper {
 	static function getWhere($where=null) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = "SELECT id, title, worker_id, due_date, updated_date, is_completed, completed_date, source_extension, source_id ".
+		$sql = "SELECT id, title, worker_id, due_date, updated_date, is_completed, completed_date ".
 			"FROM task ".
 			(!empty($where) ? sprintf("WHERE %s ",$where) : "").
 			"ORDER BY id asc";
@@ -77,48 +75,6 @@ class DAO_Task extends C4_ORMHelper {
 		return null;
 	}
 	
-	static function getUnassignedSourceTotals() {
-		$db = DevblocksPlatform::getDatabaseService();
-		
-		$totals = array();
-		
-		$sql = "SELECT count(id) as hits, source_extension ".
-			"FROM task ".
-			"WHERE is_completed = 0 ".
-			"GROUP BY source_extension ";
-		$rs = $db->Execute($sql);
-		
-		while($row = mysql_fetch_assoc($rs)) {
-			$key = !empty($row['source_extension']) ? $row['source_extension'] : 'none';
-			$totals[$key] = intval($row['hits']);
-		}
-		
-		mysql_free_result($rs);
-		
-		return $totals;
-	}
-	
-	static function getAssignedSourceTotals() {
-		$db = DevblocksPlatform::getDatabaseService();
-		
-		$totals = array();
-		
-		$sql = "SELECT count(id) as hits, worker_id ".
-			"FROM task ".
-			"WHERE worker_id > 0 ".
-			"AND is_completed = 0 ".
-			"GROUP BY worker_id ";
-		$rs = $db->Execute($sql);
-		
-		while($row = mysql_fetch_assoc($rs)) {
-			$totals[$row['worker_id']] = intval($row['hits']);
-		}
-		
-		mysql_free_result($rs);
-		
-		return $totals;
-	}
-	
 	/**
 	 * @param resource $rs
 	 * @return Model_Task[]
@@ -135,8 +91,6 @@ class DAO_Task extends C4_ORMHelper {
 			$object->due_date = $row['due_date'];
 			$object->is_completed = $row['is_completed'];
 			$object->completed_date = $row['completed_date'];
-			$object->source_extension = $row['source_extension'];
-			$object->source_id = $row['source_id'];
 			$objects[$object->id] = $object;
 		}
 		
@@ -171,43 +125,6 @@ class DAO_Task extends C4_ORMHelper {
 		return true;
 	}
 
-	/**
-	 * Enter description here...
-	 *
-	 * @param string $source
-	 * @param array $ids
-	 */
-	static function deleteBySourceIds($source_extension, $ids) {
-		if(!is_array($ids)) $ids = array($ids);
-		$db = DevblocksPlatform::getDatabaseService();
-		
-		$ids_list = implode(',', $ids);
-		
-		// Tasks
-		$db->Execute(sprintf("DELETE QUICK FROM task WHERE source_extension = %s AND source_id IN (%s)",
-			$db->qstr($source_extension), 
-			$ids_list
-		));
-		
-		return true;
-	}
-
-	static function getCountBySourceObjectId($source_extension, $source_id, $include_completed=false) {
-		$db = DevblocksPlatform::getDatabaseService();
-		
-		$sql = sprintf("SELECT count(id) ".
-			"FROM task ".
-			"WHERE source_extension = %s ".
-			"AND source_id = %d ".
-			(($include_completed) ? " " : "AND is_completed = 0 "),
-			$db->qstr($source_extension),
-			$source_id
-		);
-		$total = intval($db->GetOne($sql));
-		
-		return $total;
-	}
-	
     /**
      * Enter description here...
      *
@@ -237,9 +154,7 @@ class DAO_Task extends C4_ORMHelper {
 			"t.is_completed as %s, ".
 			"t.completed_date as %s, ".
 			"t.title as %s, ".
-			"t.worker_id as %s, ".
-			"t.source_extension as %s, ".
-			"t.source_id as %s ",
+			"t.worker_id as %s ",
 //			"o.name as %s ".
 			    SearchFields_Task::ID,
 			    SearchFields_Task::UPDATED_DATE,
@@ -247,9 +162,7 @@ class DAO_Task extends C4_ORMHelper {
 			    SearchFields_Task::IS_COMPLETED,
 			    SearchFields_Task::COMPLETED_DATE,
 			    SearchFields_Task::TITLE,
-			    SearchFields_Task::WORKER_ID,
-			    SearchFields_Task::SOURCE_EXTENSION,
-			    SearchFields_Task::SOURCE_ID
+			    SearchFields_Task::WORKER_ID
 			 );
 		
 		$join_sql = 
@@ -320,8 +233,6 @@ class SearchFields_Task implements IDevblocksSearchFields {
 	const COMPLETED_DATE = 't_completed_date';
 	const TITLE = 't_title';
 	const WORKER_ID = 't_worker_id';
-	const SOURCE_EXTENSION = 't_source_extension';
-	const SOURCE_ID = 't_source_id';
 	
 	/**
 	 * @return DevblocksSearchField[]
@@ -337,8 +248,6 @@ class SearchFields_Task implements IDevblocksSearchFields {
 			self::DUE_DATE => new DevblocksSearchField(self::DUE_DATE, 't', 'due_date', $translate->_('task.due_date')),
 			self::COMPLETED_DATE => new DevblocksSearchField(self::COMPLETED_DATE, 't', 'completed_date', $translate->_('task.completed_date')),
 			self::WORKER_ID => new DevblocksSearchField(self::WORKER_ID, 't', 'worker_id', $translate->_('task.worker_id')),
-			self::SOURCE_EXTENSION => new DevblocksSearchField(self::SOURCE_EXTENSION, 't', 'source_extension', $translate->_('task.source_extension')),
-			self::SOURCE_ID => new DevblocksSearchField(self::SOURCE_ID, 't', 'source_id', $translate->_('task.source_id')),
 		);
 		
 		// Custom Fields
@@ -364,14 +273,12 @@ class Model_Task {
 	public $due_date;
 	public $is_completed;
 	public $completed_date;
-	public $source_extension;
-	public $source_id;
 	public $updated_date;
 };
 
 class View_Task extends C4_AbstractView {
 	const DEFAULT_ID = 'tasks';
-	const DEFAULT_TITLE = 'All Open Tasks';
+	const DEFAULT_TITLE = 'Tasks';
 
 	function __construct() {
 		$this->id = self::DEFAULT_ID;
@@ -381,7 +288,6 @@ class View_Task extends C4_AbstractView {
 		$this->renderSortAsc = true;
 
 		$this->view_columns = array(
-			SearchFields_Task::SOURCE_EXTENSION,
 			SearchFields_Task::UPDATED_DATE,
 			SearchFields_Task::DUE_DATE,
 			SearchFields_Task::WORKER_ID,
@@ -421,21 +327,6 @@ class View_Task extends C4_AbstractView {
 		$results = $this->getData();
 		$tpl->assign('results', $results);
 
-//		$source_renderers = DevblocksPlatform::getExtensions('cerberusweb.task.source', true);
-		
-		// Make a list of unique source_extension and load their renderers
-		$source_extensions = array();
-		if(is_array($results) && isset($results[0]))
-		foreach($results[0] as $rows) {
-			$source_extension = $rows[SearchFields_Task::SOURCE_EXTENSION];
-			if(!isset($source_extensions[$source_extension]) 
-				&& !empty($source_extension)
-				&& null != ($mft = DevblocksPlatform::getExtension($source_extension))) {
-				$source_extensions[$source_extension] = $mft->createInstance();
-			} 
-		}
-		$tpl->assign('source_renderers', $source_extensions);
-		
 		// Custom fields
 		$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Task::ID);
 		$tpl->assign('custom_fields', $custom_fields);
@@ -452,12 +343,6 @@ class View_Task extends C4_AbstractView {
 		switch($field) {
 			case SearchFields_Task::TITLE:
 				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__string.tpl');
-				break;
-				
-			case SearchFields_Task::SOURCE_EXTENSION:
-				$source_renderers = DevblocksPlatform::getExtensions('cerberusweb.task.source', true);
-				$tpl->assign('sources', $source_renderers);
-				$tpl->display('file:' . $tpl_path . 'tasks/criteria/source.tpl');
 				break;
 				
 			case SearchFields_Task::IS_COMPLETED:
@@ -509,19 +394,6 @@ class View_Task extends C4_AbstractView {
 				echo implode(", ", $strings);
 				break;
 				
-			case SearchFields_Task::SOURCE_EXTENSION:
-				$sources = $ext = DevblocksPlatform::getExtensions('cerberusweb.task.source', true);			
-				$strings = array();
-				
-				foreach($values as $val) {
-					if(!isset($sources[$val]))
-						continue;
-					else
-						$strings[] = $sources[$val]->getSourceName();
-				}
-				echo implode(", ", $strings);
-				break;
-			
 			default:
 				parent::renderCriteriaParam($param);
 				break;
@@ -535,14 +407,12 @@ class View_Task extends C4_AbstractView {
 	static function getSearchFields() {
 		$fields = self::getFields();
 		unset($fields[SearchFields_Task::ID]);
-		unset($fields[SearchFields_Task::SOURCE_ID]);
 		return $fields;
 	}
 
 	static function getColumns() {
 		$fields = self::getFields();
 		unset($fields[SearchFields_Task::ID]);
-		unset($fields[SearchFields_Task::SOURCE_ID]);
 		return $fields;
 	}
 
@@ -565,11 +435,6 @@ class View_Task extends C4_AbstractView {
 					$value = '*'.$value.'*';
 				}
 				$criteria = new DevblocksSearchCriteria($field, $oper, $value);
-				break;
-				
-			case SearchFields_Task::SOURCE_EXTENSION:
-				@$sources = DevblocksPlatform::importGPC($_REQUEST['sources'],'array',array());
-				$criteria = new DevblocksSearchCriteria($field,$oper,$sources);
 				break;
 				
 			case SearchFields_Task::UPDATED_DATE:
@@ -680,4 +545,156 @@ class View_Task extends C4_AbstractView {
 
 		unset($ids);
 	}	
+};
+
+class Context_Task extends Extension_DevblocksContext {
+    function __construct($manifest) {
+        parent::__construct($manifest);
+    }
+
+	function getContext($task, &$token_labels, &$token_values, $prefix=null) {
+		if(is_null($prefix))
+			$prefix = 'Task:';
+		
+		$translate = DevblocksPlatform::getTranslationService();
+		$fields = DAO_CustomField::getBySource(ChCustomFieldSource_Task::ID);
+
+		// Polymorph
+		if(is_numeric($task)) {
+			$task = DAO_Task::get($task);
+		} elseif($task instanceof Model_Task) {
+			// It's what we want already.
+		} else {
+			$task = null;
+		}
+		
+		// Token labels
+		$token_labels = array(
+			'completed|date' => $prefix.$translate->_('task.completed_date'),
+			'due|date' => $prefix.$translate->_('task.due_date'),
+			'id' => $prefix.$translate->_('common.id'),
+			'is_completed' => $prefix.$translate->_('task.is_completed'),
+			'title' => $prefix.$translate->_('task.title'),
+			'updated|date' => $prefix.$translate->_('task.updated_date'),
+		);
+		
+		if(is_array($fields))
+		foreach($fields as $cf_id => $field) {
+			$token_labels['custom_'.$cf_id] = $prefix.$field->name;
+		}
+
+		// Token values
+		$token_values = array();
+		
+		if($task) {
+			$token_values['completed'] = $task->completed_date;
+			$token_values['due'] = $task->due_date;
+			$token_values['id'] = $task->id;
+			$token_values['is_completed'] = $task->is_completed;
+			$token_values['title'] = $task->title;
+			$token_values['updated'] = $task->updated_date;
+			
+			$token_values['custom'] = array();
+			
+			$field_values = array_shift(DAO_CustomFieldValue::getValuesBySourceIds(ChCustomFieldSource_Task::ID, $task->id));
+			if(is_array($field_values) && !empty($field_values)) {
+				foreach($field_values as $cf_id => $cf_val) {
+					if(!isset($fields[$cf_id]))
+						continue;
+					
+					// The literal value
+					if(null != $task)
+						$token_values['custom'][$cf_id] = $cf_val;
+					
+					// Stringify
+					if(is_array($cf_val))
+						$cf_val = implode(', ', $cf_val);
+						
+					if(is_string($cf_val)) {
+						if(null != $task)
+							$token_values['custom_'.$cf_id] = $cf_val;
+					}
+				}
+			}
+		}
+
+		// Assignee
+		@$assignee_id = $task->worker_id;
+		$merge_token_labels = array();
+		$merge_token_values = array();
+		self::getContext(self::CONTEXT_WORKER, $assignee_id, $merge_token_labels, $merge_token_values, '', true);
+
+		self::_merge(
+			'assignee_',
+			'Assignee:',
+			$merge_token_labels,
+			$merge_token_values,
+			$token_labels,
+			$token_values
+		);			
+		
+		return true;
+	}
+    
+	function autocomplete($term) {
+		//$active_worker = CerberusApplication::getActiveWorker();
+		$workers = DAO_Worker::getAll();
+
+		if(is_numeric($term)) {
+			$params = array(
+				SearchFields_Task::ID => new DevblocksSearchCriteria(SearchFields_Task::ID,'=',intval($term)), 
+			);
+		} else {
+			if(false !== strpos('*', $term))
+				$find = str_replace('*','%',$term);
+			else
+				$find = $term . '%';
+			
+			$params = array(
+				SearchFields_Task::TITLE => new DevblocksSearchCriteria(SearchFields_Task::TITLE,'like', $find), 
+			);
+		}
+		
+		list($results, $null) = DAO_Task::search(
+			array(),
+			$params,
+			15,
+			0,
+			null,
+			null,
+			false
+		);
+		
+		$list = array();
+		
+		foreach($results as $id => $result) {
+			$worker_id = $result[SearchFields_Task::WORKER_ID];
+			$worker = (isset($workers[$worker_id])) ? $workers[$worker_id]->getName() : ''; 
+			
+			$label = sprintf("%d: %s %s",
+				$result[SearchFields_Task::ID],
+				$result[SearchFields_Task::TITLE],
+				(!empty($worker)?('('.$worker.')'):'')
+			);
+			
+			$list[] = $label; //array('label' => $label, 'value' => $result[SearchFields_Task::ID]);
+		}
+		
+		return $list;
+	}
+	
+	function getView($ids) {
+		$view_id = str_replace('.','_',$this->id);
+		
+		$defaults = new C4_AbstractViewModel();
+		$defaults->id = $view_id; 
+		$defaults->class_name = 'View_Task';
+		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
+		$view->name = 'Linked Tasks';
+		$view->params = array(
+			SearchFields_Task::ID => new DevblocksSearchCriteria(SearchFields_Task::ID,'in',$ids),
+		);
+		C4_AbstractViewLoader::setView($view_id, $view);
+		return $view;
+	}
 };

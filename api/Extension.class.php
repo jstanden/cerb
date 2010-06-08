@@ -205,17 +205,6 @@ abstract class Extension_MailFilterAction extends DevblocksExtension {
 	function saveConfig() { return array(); }
 };
 
-abstract class Extension_TaskSource extends DevblocksExtension {
-	const EXTENSION_POINT = 'cerberusweb.task.source';
-	
-	function __construct($manifest) {
-		$this->DevblocksExtension($manifest);
-	}
-
-	function getSourceName() {}
-	function getSourceInfo($object_id) {}
-};
-
 abstract class Extension_NoteSource extends DevblocksExtension {
 	const EXTENSION_POINT = 'cerberusweb.notes.source';
 	

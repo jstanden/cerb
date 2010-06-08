@@ -426,6 +426,63 @@ class ChTasksPage extends CerberusPageExtension {
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('tasks','display',$id,'properties')));
 	}
 	
+	function showTaskLinksTabAction() {
+		@$task_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer');
+		@$return_uri = DevblocksPlatform::importGPC($_REQUEST['return_uri'],'string');
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl_path = dirname(dirname(dirname(__FILE__))) . '/templates/';
+		$tpl->assign('path', $tpl_path);
+		
+		$tpl->assign('task_id', $task_id);
+		$tpl->assign('return_uri', $return_uri);
+		
+//		$visit = CerberusApplication::getVisit();
+//		$visit->set(self::SESSION_OPP_TAB, 'notes');
+		
+		// Contexts
+		
+		$context_extensions = DevblocksPlatform::getExtensions('devblocks.context', false);
+		$tpl->assign('context_extensions', $context_extensions);
+		
+		//var_dump($context_extensions);
+		
+		// Context Links
+		
+		$views = array();
+		$contexts = array();
+
+		$context_links = DAO_ContextLink::getLinks(CerberusContexts::CONTEXT_TASK, $task_id);
+		if(is_array($context_links))
+		foreach($context_links as $link) {
+			if(!isset($contexts[$link->context]))
+				$contexts[$link->context] = array();
+			
+			$contexts[$link->context][] = $link->context_id;
+		}
+		
+		unset($context_links);
+		
+		foreach($contexts as $context =>$ids) {
+			if(null == ($ext_context = DevblocksPlatform::getExtension($context, true)))
+				continue;
+				
+			if(!$ext_context instanceof Extension_DevblocksContext)
+				continue;
+				
+			$view = $ext_context->getView($ids);
+			
+			if(!empty($view))
+				$views[$view->id] = $view;
+		}
+		
+		ksort($views);
+		
+		$tpl->assign('views', $views);
+		
+		$tpl->display('file:' . $tpl_path . 'tasks/display/tabs/links.tpl');		
+	}
+	
 	function showTaskNotesTabAction() {
 		@$task_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer');
 		

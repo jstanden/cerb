@@ -1869,23 +1869,6 @@ class CrmEventListener extends DevblocksEventListenerExtension {
     }
 };
 
-class CrmTaskSource_Opp extends Extension_TaskSource {
-	function getSourceName() {
-		return "Opportunities";
-	}
-	
-	function getSourceInfo($object_id) {
-		if(null == ($opp = DAO_CrmOpportunity::get($object_id)))
-			return;
-		
-		$url = DevblocksPlatform::getUrlService();
-		return array(
-			'name' => '[Opp] '.$opp->name,
-			'url' => $url->write(sprintf('c=crm&a=opps&id=%d',$opp->id)),
-		);
-	}
-};
-
 class CrmOrgOppTab extends Extension_OrgTab {
 	function showTab() {
 		@$org_id = DevblocksPlatform::importGPC($_REQUEST['org_id'],'integer',0);

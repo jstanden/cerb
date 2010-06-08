@@ -668,9 +668,6 @@ class CerberusContexts {
 			case 'cerberusweb.contexts.org':
 				self::_getOrganizationContext($context_object, $labels, $values, $prefix);
 				break;
-			case 'cerberusweb.contexts.task':
-				self::_getTaskContext($context_object, $labels, $values, $prefix);
-				break;
 			case 'cerberusweb.contexts.ticket':
 				self::_getTicketContext($context_object, $labels, $values, $prefix);
 				break;
@@ -1871,90 +1868,6 @@ class CerberusContexts {
 
 		return true;
 	}
-	
-	private static function _getTaskContext($task, &$token_labels, &$token_values, $prefix=null) {
-		if(is_null($prefix))
-			$prefix = 'Task:';
-		
-		$translate = DevblocksPlatform::getTranslationService();
-		$fields = DAO_CustomField::getBySource(ChCustomFieldSource_Task::ID);
-
-		// Polymorph
-		if(is_numeric($task)) {
-			$task = DAO_Task::get($task);
-		} elseif($task instanceof Model_Task) {
-			// It's what we want already.
-		} else {
-			$task = null;
-		}
-		
-		// Token labels
-		$token_labels = array(
-			'completed|date' => $prefix.$translate->_('task.completed_date'),
-			'due|date' => $prefix.$translate->_('task.due_date'),
-			'id' => $prefix.$translate->_('common.id'),
-			'is_completed' => $prefix.$translate->_('task.is_completed'),
-			'title' => $prefix.$translate->_('task.title'),
-			'updated|date' => $prefix.$translate->_('task.updated_date'),
-		);
-		
-		if(is_array($fields))
-		foreach($fields as $cf_id => $field) {
-			$token_labels['custom_'.$cf_id] = $prefix.$field->name;
-		}
-
-		// Token values
-		$token_values = array();
-		
-		if($task) {
-			$token_values['completed'] = $task->completed_date;
-			$token_values['due'] = $task->due_date;
-			$token_values['id'] = $task->id;
-			$token_values['is_completed'] = $task->is_completed;
-			$token_values['title'] = $task->title;
-			$token_values['updated'] = $task->updated_date;
-			
-			$token_values['custom'] = array();
-			
-			$field_values = array_shift(DAO_CustomFieldValue::getValuesBySourceIds(ChCustomFieldSource_Task::ID, $task->id));
-			if(is_array($field_values) && !empty($field_values)) {
-				foreach($field_values as $cf_id => $cf_val) {
-					if(!isset($fields[$cf_id]))
-						continue;
-					
-					// The literal value
-					if(null != $task)
-						$token_values['custom'][$cf_id] = $cf_val;
-					
-					// Stringify
-					if(is_array($cf_val))
-						$cf_val = implode(', ', $cf_val);
-						
-					if(is_string($cf_val)) {
-						if(null != $task)
-							$token_values['custom_'.$cf_id] = $cf_val;
-					}
-				}
-			}
-		}
-
-		// Assignee
-		@$assignee_id = $task->worker_id;
-		$merge_token_labels = array();
-		$merge_token_values = array();
-		self::getContext(self::CONTEXT_WORKER, $assignee_id, $merge_token_labels, $merge_token_values, '', true);
-
-		self::_merge(
-			'assignee_',
-			'Assignee:',
-			$merge_token_labels,
-			$merge_token_values,
-			$token_labels,
-			$token_values
-		);			
-		
-		return true;
-	}	
 	
 	private static function _getFeedbackContext($feedback, &$token_labels, &$token_values, $prefix=null) {
 		if(is_null($prefix))

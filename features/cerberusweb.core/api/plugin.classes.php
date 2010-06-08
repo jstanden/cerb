@@ -362,40 +362,6 @@ XML;
 	}
 };
 
-class ChTaskSource_Org extends Extension_TaskSource {
-	function getSourceName() {
-		return "Orgs";
-	}
-	
-	function getSourceInfo($object_id) {
-		if(null == ($contact_org = DAO_ContactOrg::get($object_id)))
-			return;
-		
-		$url = DevblocksPlatform::getUrlService();
-		return array(
-			'name' => '[Org] '.$contact_org->name,
-			'url' => $url->write(sprintf('c=contacts&a=orgs&display=display&id=%d',$object_id), true),
-		);
-	}
-};
-
-class ChTaskSource_Ticket extends Extension_TaskSource {
-	function getSourceName() {
-		return "Tickets";
-	}
-	
-	function getSourceInfo($object_id) {
-		if(null == ($ticket = DAO_Ticket::get($object_id)))
-			return;
-		
-		$url = DevblocksPlatform::getUrlService();
-		return array(
-			'name' => '[Ticket] '.$ticket->subject,
-			'url' => $url->write(sprintf('c=display&mask=%s&tab=tasks',$ticket->mask), true),
-		);
-	}
-};
-
 class ChRssSource_Ticket extends Extension_RssSource {
 	function getSourceName() {
 		return "Tickets";
