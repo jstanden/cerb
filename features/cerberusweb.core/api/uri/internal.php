@@ -63,24 +63,15 @@ class ChInternalController extends DevblocksControllerExtension {
 	// Contexts
 	
 	function contextLinkAddPeekAction() {
-		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string');
-		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer');
+		@$from_context = DevblocksPlatform::importGPC($_REQUEST['from_context'],'string');
+		@$from_context_id = DevblocksPlatform::importGPC($_REQUEST['from_context_id'],'integer');
+		@$to_context = DevblocksPlatform::importGPC($_REQUEST['to_context'],'string');
 		@$return_uri = DevblocksPlatform::importGPC($_REQUEST['return_uri'],'string','');
 		
-		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('path', $this->_TPL_PATH);
-		
-		$tpl->assign('context', $context);
-		$tpl->assign('context_id', $context_id);
-		$tpl->assign('return_uri', $return_uri);
-		
-		$links = DAO_ContextLink::getLinks($context, $context_id);
-		$tpl->assign('context_links', $links);
-		
-		$context_extensions = DevblocksPlatform::getExtensions('devblocks.context', false);
-		$tpl->assign('context_extensions', $context_extensions);
-		
-		$tpl->display('file:'.$this->_TPL_PATH.'internal/context_links/peek_add.tpl');
+		if(null != ($context_extension = DevblocksPlatform::getExtension($to_context, true))) {
+			//$tpl->assign('context_extension', $context_extension);
+			$context_extension->renderChooserPanel($from_context, $from_context_id, $to_context, $return_uri);
+		}
 	}
 	
 	function contextDeleteLinkAction() {
@@ -98,22 +89,17 @@ class ChInternalController extends DevblocksControllerExtension {
 	}
 	
 	function saveContextLinkAddPeekAction() {
-		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
-		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer',0);
-		@$ar_dst_context = DevblocksPlatform::importGPC($_REQUEST['dst_context'],'array',array());
-		@$ar_dst_context_id = DevblocksPlatform::importGPC($_REQUEST['dst_context_id'],'array',array());
-
+		@$from_context = DevblocksPlatform::importGPC($_REQUEST['from_context'],'string','');
+		@$from_context_id = DevblocksPlatform::importGPC($_REQUEST['from_context_id'],'integer',0);
+		@$to_context = DevblocksPlatform::importGPC($_REQUEST['to_context'],'string','');
+		@$ar_to_context_id = DevblocksPlatform::importGPC($_REQUEST['to_context_id'],'array',array());
+		
 		@$return_uri = DevblocksPlatform::importGPC($_REQUEST['return_uri'],'string','');
 		$return_uri = !empty($return_uri) ? explode('/', $return_uri) : array();
 		
-		foreach($ar_dst_context as $idx => $dst_context) {
-			@$dst_context_id = $ar_dst_context_id[$idx];
-			
-			// [TODO] Ask the context to validate ID
-			
-			if(!empty($dst_context) && !empty($dst_context_id))
-				DAO_ContextLink::setLink($context, $context_id, $dst_context, $dst_context_id);
-		}
+		if(null != ($context_extension = DevblocksPlatform::getExtension($to_context, true))) {
+			$context_extension->saveChooserPanel($from_context, $from_context_id, $to_context, $ar_to_context_id);
+		}		
 		
 		DevblocksPlatform::redirect(new DevblocksHttpResponse($return_uri));
 	}	

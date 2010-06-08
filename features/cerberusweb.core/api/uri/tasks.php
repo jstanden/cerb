@@ -445,8 +445,6 @@ class ChTasksPage extends CerberusPageExtension {
 		$context_extensions = DevblocksPlatform::getExtensions('devblocks.context', false);
 		$tpl->assign('context_extensions', $context_extensions);
 		
-		//var_dump($context_extensions);
-		
 		// Context Links
 		
 		$views = array();
@@ -463,7 +461,7 @@ class ChTasksPage extends CerberusPageExtension {
 		
 		unset($context_links);
 		
-		foreach($contexts as $context =>$ids) {
+		foreach($contexts as $context => $ids) {
 			if(null == ($ext_context = DevblocksPlatform::getExtension($context, true)))
 				continue;
 				

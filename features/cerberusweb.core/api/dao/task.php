@@ -636,51 +636,31 @@ class Context_Task extends Extension_DevblocksContext {
 		return true;
 	}
     
-	function autocomplete($term) {
-		//$active_worker = CerberusApplication::getActiveWorker();
-		$workers = DAO_Worker::getAll();
-
-		if(is_numeric($term)) {
-			$params = array(
-				SearchFields_Task::ID => new DevblocksSearchCriteria(SearchFields_Task::ID,'=',intval($term)), 
-			);
-		} else {
-			if(false !== strpos('*', $term))
-				$find = str_replace('*','%',$term);
-			else
-				$find = $term . '%';
-			
-			$params = array(
-				SearchFields_Task::TITLE => new DevblocksSearchCriteria(SearchFields_Task::TITLE,'like', $find), 
-			);
-		}
+	function renderChooserPanel($from_context, $from_context_id, $to_context, $return_uri) {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$path = dirname(dirname(dirname(__FILE__))) . '/templates/';
+		$tpl->assign('path', $path);
 		
-		list($results, $null) = DAO_Task::search(
-			array(),
-			$params,
-			15,
-			0,
-			null,
-			null,
-			false
-		);
+		$tpl->assign('from_context', $from_context);
+		$tpl->assign('from_context_id', $from_context_id);
+		$tpl->assign('return_uri', $return_uri);
 		
-		$list = array();
+//		$links = DAO_ContextLink::getLinks($from_context, $from_context_id);
+//		$tpl->assign('context_links', $links);
 		
-		foreach($results as $id => $result) {
-			$worker_id = $result[SearchFields_Task::WORKER_ID];
-			$worker = (isset($workers[$worker_id])) ? $workers[$worker_id]->getName() : ''; 
-			
-			$label = sprintf("%d: %s %s",
-				$result[SearchFields_Task::ID],
-				$result[SearchFields_Task::TITLE],
-				(!empty($worker)?('('.$worker.')'):'')
-			);
-			
-			$list[] = $label; //array('label' => $label, 'value' => $result[SearchFields_Task::ID]);
-		}
+		$tpl->display('file:'.$path.'context_links/choosers/task.tpl');
+	}
+	
+	function saveChooserPanel($from_context, $from_context_id, $to_context, $to_context_data) {
+//		if(is_array($to_context_data))
+//		foreach($to_context_data as $to_context_item) {
+//			if(null != ($org_id = DAO_ContactOrg::lookup($to_context_item, false))) {
+//				if(!empty($to_context) && !empty($org_id))
+//					DAO_ContextLink::setLink($from_context, $from_context_id, $to_context, $org_id);
+//			}
+//		}
 		
-		return $list;
+		return TRUE;
 	}
 	
 	function getView($ids) {
@@ -690,7 +670,7 @@ class Context_Task extends Extension_DevblocksContext {
 		$defaults->id = $view_id; 
 		$defaults->class_name = 'View_Task';
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
-		$view->name = 'Linked Tasks';
+		$view->name = 'Tasks';
 		$view->params = array(
 			SearchFields_Task::ID => new DevblocksSearchCriteria(SearchFields_Task::ID,'in',$ids),
 		);

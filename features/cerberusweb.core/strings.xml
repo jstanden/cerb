@@ -539,7 +539,7 @@
 		<!-- Activity -->
 		
 		<tu tuid='activity.tasks.tab.links'>
-			<tuv xml:lang="en_US"><seg>Links</seg></tuv>
+			<tuv xml:lang="en_US"><seg>References</seg></tuv>
 		</tu>
 		<tu tuid='activity.tasks.tab.notes'>
 			<tuv xml:lang="en_US"><seg>Comments</seg></tuv>
