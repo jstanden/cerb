@@ -571,3 +571,153 @@ class View_ContactOrg extends C4_AbstractView {
 		unset($ids);
 	}
 };
+
+class Context_Org extends Extension_DevblocksContext {
+    function __construct($manifest) {
+        parent::__construct($manifest);
+    }
+
+	function getContext($org, &$token_labels, &$token_values, $prefix=null) {
+		if(is_null($prefix))
+			$prefix = 'Org:';
+		
+		$translate = DevblocksPlatform::getTranslationService();
+		$fields = DAO_CustomField::getBySource(ChCustomFieldSource_Org::ID);
+
+		// Polymorph
+		if(is_numeric($org)) {
+			$org = DAO_ContactOrg::get($org);
+		} elseif($org instanceof Model_ContactOrg) {
+			// It's what we want already.
+		} else {
+			$org = null;
+		}
+		
+		// Token labels
+		$token_labels = array(
+			'name' => $prefix.$translate->_('contact_org.name'),
+			'city' => $prefix.$translate->_('contact_org.city'),
+			'country' => $prefix.$translate->_('contact_org.country'),
+			'created' => $prefix.$translate->_('contact_org.created'),
+			'phone' => $prefix.$translate->_('contact_org.phone'),
+			'postal' => $prefix.$translate->_('contact_org.postal'),
+			'province' => $prefix.$translate->_('contact_org.province'),
+			'street' => $prefix.$translate->_('contact_org.street'),
+			'website' => $prefix.$translate->_('contact_org.website'),
+		);
+		
+		if(is_array($fields))
+		foreach($fields as $cf_id => $field) {
+			$token_labels['custom_'.$cf_id] = $prefix.$field->name;
+		}
+
+		// Token values
+		$token_values = array();
+		
+		// Org token values
+		if($org) {
+			$token_values['id'] = $org->id;
+			$token_values['name'] = $org->name;
+			$token_values['created'] = $org->created;
+			if(!empty($org->city))
+				$token_values['city'] = $org->city;
+			if(!empty($org->country))
+				$token_values['country'] = $org->country;
+			if(!empty($org->phone))
+				$token_values['phone'] = $org->phone;
+			if(!empty($org->postal))
+				$token_values['postal'] = $org->postal;
+			if(!empty($org->province))
+				$token_values['province'] = $org->province;
+			if(!empty($org->street))
+				$token_values['street'] = $org->street;
+			if(!empty($org->website))
+				$token_values['website'] = $org->website;
+			$token_values['custom'] = array();
+			
+			$field_values = array_shift(DAO_CustomFieldValue::getValuesBySourceIds(ChCustomFieldSource_Org::ID, $org->id));
+			if(is_array($field_values) && !empty($field_values)) {
+				foreach($field_values as $cf_id => $cf_val) {
+					if(!isset($fields[$cf_id]))
+						continue;
+					
+					// The literal value
+					if(null != $org)
+						$token_values['custom'][$cf_id] = $cf_val;
+					
+					// Stringify
+					if(is_array($cf_val))
+						$cf_val = implode(', ', $cf_val);
+						
+					if(is_string($cf_val)) {
+						if(null != $org)
+							$token_values['custom_'.$cf_id] = $cf_val;
+					}
+				}
+			}
+		}
+
+		return true;		
+	}
+	
+	function renderChooserPanel($from_context, $from_context_id, $to_context, $return_uri) {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$path = dirname(dirname(dirname(__FILE__))) . '/templates/';
+		$tpl->assign('path', $path);
+		
+		$tpl->assign('from_context', $from_context);
+		$tpl->assign('from_context_id', $from_context_id);
+		$tpl->assign('to_context', $to_context);
+		$tpl->assign('context_extension', $this);
+		$tpl->assign('return_uri', $return_uri);
+		
+		$links = DAO_ContextLink::getLinks($from_context, $from_context_id);
+		$ids = array();
+		
+		if(is_array($links))
+		foreach($links as $link) {
+			if($link->context !== CerberusContexts::CONTEXT_ORG)
+				continue;
+			$ids[] = $link->context_id;
+		}
+		
+		if(!empty($ids)) {
+			$links = DAO_ContactOrg::getWhere(
+				sprintf("%s IN (%s)",
+					DAO_ContactOrg::ID,
+					implode(',', $ids)
+				)
+			);
+			$tpl->assign('links', $links);
+		}
+		
+		$tpl->display('file:'.$path.'context_links/choosers/org.tpl');
+	}
+	
+	function saveChooserPanel($from_context, $from_context_id, $to_context, $to_context_data) {
+		if(is_array($to_context_data))
+		foreach($to_context_data as $to_context_item) {
+			if(null != ($org_id = DAO_ContactOrg::lookup($to_context_item, true))) {
+				if(!empty($to_context) && !empty($org_id))
+					DAO_ContextLink::setLink($from_context, $from_context_id, $to_context, $org_id);
+			}
+		}
+		
+		return TRUE;
+	}
+	
+	function getView($ids) {
+		$view_id = str_replace('.','_',$this->id);
+		
+		$defaults = new C4_AbstractViewModel();
+		$defaults->id = $view_id; 
+		$defaults->class_name = 'View_ContactOrg';
+		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
+		$view->name = 'Organizations';
+		$view->params = array(
+			SearchFields_ContactOrg::ID => new DevblocksSearchCriteria(SearchFields_ContactOrg::ID,'in',$ids),
+		);
+		C4_AbstractViewLoader::setView($view_id, $view);
+		return $view;
+	}
+};

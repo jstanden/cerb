@@ -328,6 +328,17 @@
 		<!-- Contexts -->
 		
 		<extension point="devblocks.context">
+			<id>cerberusweb.contexts.org</id>
+			<name>Organization</name>
+			<class>
+				<file>api/dao/contact_org.php</file>
+				<name>Context_Org</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+		
+		<extension point="devblocks.context">
 			<id>cerberusweb.contexts.task</id>
 			<name>Task</name>
 			<class>

@@ -665,9 +665,6 @@ class CerberusContexts {
 			case 'cerberusweb.contexts.opportunity':
 				self::_getOpportunityContext($context_object, $labels, $values, $prefix);
 				break;
-			case 'cerberusweb.contexts.org':
-				self::_getOrganizationContext($context_object, $labels, $values, $prefix);
-				break;
 			case 'cerberusweb.contexts.ticket':
 				self::_getTicketContext($context_object, $labels, $values, $prefix);
 				break;
@@ -1534,95 +1531,6 @@ class CerberusContexts {
 		
 		return true;
 	}	
-	
-	/**
-	 * 
-	 * @param mixed $org
-	 * @param array $token_labels
-	 * @param array $token_values
-	 */
-	private static function _getOrganizationContext($org, &$token_labels, &$token_values, $prefix=null) {
-		if(is_null($prefix))
-			$prefix = 'Org:';
-		
-		$translate = DevblocksPlatform::getTranslationService();
-		$fields = DAO_CustomField::getBySource(ChCustomFieldSource_Org::ID);
-
-		// Polymorph
-		if(is_numeric($org)) {
-			$org = DAO_ContactOrg::get($org);
-		} elseif($org instanceof Model_ContactOrg) {
-			// It's what we want already.
-		} else {
-			$org = null;
-		}
-		
-		// Token labels
-		$token_labels = array(
-			'name' => $prefix.$translate->_('contact_org.name'),
-			'city' => $prefix.$translate->_('contact_org.city'),
-			'country' => $prefix.$translate->_('contact_org.country'),
-			'created' => $prefix.$translate->_('contact_org.created'),
-			'phone' => $prefix.$translate->_('contact_org.phone'),
-			'postal' => $prefix.$translate->_('contact_org.postal'),
-			'province' => $prefix.$translate->_('contact_org.province'),
-			'street' => $prefix.$translate->_('contact_org.street'),
-			'website' => $prefix.$translate->_('contact_org.website'),
-		);
-		
-		if(is_array($fields))
-		foreach($fields as $cf_id => $field) {
-			$token_labels['custom_'.$cf_id] = $prefix.$field->name;
-		}
-
-		// Token values
-		$token_values = array();
-		
-		// Org token values
-		if($org) {
-			$token_values['id'] = $org->id;
-			$token_values['name'] = $org->name;
-			$token_values['created'] = $org->created;
-			if(!empty($org->city))
-				$token_values['city'] = $org->city;
-			if(!empty($org->country))
-				$token_values['country'] = $org->country;
-			if(!empty($org->phone))
-				$token_values['phone'] = $org->phone;
-			if(!empty($org->postal))
-				$token_values['postal'] = $org->postal;
-			if(!empty($org->province))
-				$token_values['province'] = $org->province;
-			if(!empty($org->street))
-				$token_values['street'] = $org->street;
-			if(!empty($org->website))
-				$token_values['website'] = $org->website;
-			$token_values['custom'] = array();
-			
-			$field_values = array_shift(DAO_CustomFieldValue::getValuesBySourceIds(ChCustomFieldSource_Org::ID, $org->id));
-			if(is_array($field_values) && !empty($field_values)) {
-				foreach($field_values as $cf_id => $cf_val) {
-					if(!isset($fields[$cf_id]))
-						continue;
-					
-					// The literal value
-					if(null != $org)
-						$token_values['custom'][$cf_id] = $cf_val;
-					
-					// Stringify
-					if(is_array($cf_val))
-						$cf_val = implode(', ', $cf_val);
-						
-					if(is_string($cf_val)) {
-						if(null != $org)
-							$token_values['custom_'.$cf_id] = $cf_val;
-					}
-				}
-			}
-		}
-
-		return true;
-	}
 	
 	/**
 	 * 
