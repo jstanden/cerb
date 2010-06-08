@@ -328,6 +328,17 @@
 		<!-- Contexts -->
 		
 		<extension point="devblocks.context">
+			<id>cerberusweb.contexts.address</id>
+			<name>Address</name>
+			<class>
+				<file>api/dao/address.php</file>
+				<name>Context_Address</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+		
+		<extension point="devblocks.context">
 			<id>cerberusweb.contexts.org</id>
 			<name>Organization</name>
 			<class>
