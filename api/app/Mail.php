@@ -702,7 +702,7 @@ class CerberusMail {
 		    }
 		    
 		    // Only change the subject if not forwarding
-		    if(!empty($subject) && empty($properties['to'])) {
+		    if(!empty($subject) && !$is_forward) {
 		    	$change_fields[DAO_Ticket::SUBJECT] = $subject;
 		    }
 		    
