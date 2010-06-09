@@ -934,3 +934,178 @@ class DAO_WorkerPref extends DevblocksORMHelper {
 		return $objects;
 	}
 };
+
+class Context_Worker extends Extension_DevblocksContext {
+    function __construct($manifest) {
+        parent::__construct($manifest);
+    }
+
+	function getContext($worker, &$token_labels, &$token_values, $prefix=null) {
+		if(is_null($prefix))
+			$prefix = 'Worker:';
+			
+		$translate = DevblocksPlatform::getTranslationService();
+		$fields = DAO_CustomField::getBySource(ChCustomFieldSource_Worker::ID);
+		
+		// Polymorph
+		if(is_numeric($worker)) {
+			$worker = DAO_Worker::get($worker);
+		} elseif($worker instanceof Model_Worker) {
+			// It's what we want already.
+		} else {
+			$worker = null;
+		}
+			
+		// Token labels
+		$token_labels = array(
+			'first_name' => $prefix.$translate->_('worker.first_name'),
+			'last_name' => $prefix.$translate->_('worker.last_name'),
+			'title' => $prefix.$translate->_('worker.title'),
+		);
+		
+		if(is_array($fields))
+		foreach($fields as $cf_id => $field) {
+			$token_labels['worker_custom_'.$cf_id] = $prefix.$field->name;
+		}
+
+		// Token values
+		$token_values = array();
+		
+		// Worker token values
+		if(null != $worker) {
+			$token_values['id'] = $worker->id;
+			if(!empty($worker->first_name))
+				$token_values['first_name'] = $worker->first_name;
+			if(!empty($worker->last_name))
+				$token_values['last_name'] = $worker->last_name;
+			if(!empty($worker->title))
+				$token_values['title'] = $worker->title;
+			$token_values['custom'] = array();
+			
+			$field_values = array_shift(DAO_CustomFieldValue::getValuesBySourceIds(ChCustomFieldSource_Worker::ID, $worker->id));
+			if(is_array($field_values) && !empty($field_values)) {
+				foreach($field_values as $cf_id => $cf_val) {
+					if(!isset($fields[$cf_id]))
+						continue;
+					
+					// The literal value
+					if(null != $worker)
+						$token_values['custom'][$cf_id] = $cf_val;
+					
+					// Stringify
+					if(is_array($cf_val))
+						$cf_val = implode(', ', $cf_val);
+						
+					if(is_string($cf_val)) {
+						if(null != $worker)
+							$token_values['custom_'.$cf_id] = $cf_val;
+					}
+				}
+			}
+		}
+		
+		// Worker email
+		@$worker_email = !is_null($worker) ? $worker->email : null;
+		$merge_token_labels = array();
+		$merge_token_values = array();
+		self::getContext(self::CONTEXT_ADDRESS, $worker_email, $merge_token_labels, $merge_token_values, null, true);
+
+		CerberusContexts::merge(
+			'address_',
+			'',
+			$merge_token_labels,
+			$merge_token_values,
+			$token_labels,
+			$token_values
+		);		
+		
+		return true;		
+	}
+	
+	function renderChooserPanel($from_context, $from_context_id, $to_context, $return_uri) {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$path = dirname(dirname(dirname(__FILE__))) . '/templates/';
+		$tpl->assign('path', $path);
+		
+		$tpl->assign('from_context', $from_context);
+		$tpl->assign('from_context_id', $from_context_id);
+		$tpl->assign('to_context', $to_context);
+		$tpl->assign('context_extension', $this);
+		$tpl->assign('return_uri', $return_uri);
+		
+		$links = DAO_ContextLink::getLinks($from_context, $from_context_id);
+		$ids = array();
+		
+		if(is_array($links))
+		foreach($links as $link) {
+			if($link->context !== CerberusContexts::CONTEXT_WORKER)
+				continue;
+			$ids[] = $link->context_id;
+		}
+		
+		if(!empty($ids)) {
+			$links = DAO_Worker::getWhere(
+				sprintf("%s IN (%s)",
+					DAO_Worker::ID,
+					implode(',', $ids)
+				)
+			);
+			$tpl->assign('links', $links);
+		}
+		
+		// View
+		
+		$view_id = 'contextlink_'.str_replace('.','_',$this->id);
+		$defaults = new C4_AbstractViewModel();
+		$defaults->id = $view_id; 
+		$defaults->class_name = 'View_Worker';
+		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
+		$view->name = 'Workers';
+		$view->view_columns = array(
+			SearchFields_Worker::FIRST_NAME,
+			SearchFields_Worker::LAST_NAME,
+			SearchFields_Worker::TITLE,
+//			SearchFields_Worker::EMAIL,
+		);
+		$view->params = array(
+			SearchFields_Worker::IS_DISABLED => new DevblocksSearchCriteria(SearchFields_Worker::IS_DISABLED,'=',0),
+		);
+		$view->renderLimit = 10;
+		$view->renderTemplate = 'contextlinks_chooser';
+		C4_AbstractViewLoader::setView($view_id, $view);
+		$tpl->assign('view', $view);
+
+		$tpl->assign('view_fields', View_Worker::getFields());
+		$tpl->assign('view_searchable_fields', View_Worker::getSearchFields());
+		
+		// Template
+		
+		$tpl->display('file:'.$path.'context_links/choosers/worker.tpl');
+	}
+	
+	function saveChooserPanel($from_context, $from_context_id, $to_context, $to_context_data) {
+		if(is_array($to_context_data))
+		foreach($to_context_data as $to_context_item) {
+			if(!empty($to_context) && null != ($worker = DAO_Worker::get($to_context_item))) {
+				DAO_ContextLink::setLink($from_context, $from_context_id, $to_context, $worker->id);
+			}
+		}
+		
+		return TRUE;
+	}
+	
+	function getView($ids) {
+		$view_id = str_replace('.','_',$this->id);
+		
+		$defaults = new C4_AbstractViewModel();
+		$defaults->id = $view_id; 
+		$defaults->class_name = 'View_Worker';
+		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
+		$view->name = 'Workers';
+		$view->params = array(
+			SearchFields_Worker::ID => new DevblocksSearchCriteria(SearchFields_Worker::ID,'in',$ids),
+		);
+		C4_AbstractViewLoader::setView($view_id, $view);
+		return $view;
+	}
+}

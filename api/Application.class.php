@@ -668,9 +668,6 @@ class CerberusContexts {
 			case 'cerberusweb.contexts.timetracking':
 				self::_getTimeTrackingContext($context_object, $labels, $values, $prefix);
 				break;
-			case 'cerberusweb.contexts.worker':
-				self::_getWorkerContext($context_object, $labels, $values, $prefix);
-				break;
 			default:
 				// [TODO] Migrated
 				if(null != ($ctx = DevblocksPlatform::getExtension($context, true)) 
@@ -812,94 +809,6 @@ class CerberusContexts {
 			$token_values['size'] = $attachment[SearchFields_Attachment::STORAGE_SIZE];
 			$token_values['ticket_id'] = $attachment[SearchFields_Attachment::TICKET_ID];
 		}
-		
-		return true;
-	}
-	
-	/**
-	 * 
-	 * @param mixed $worker
-	 * @param array $token_labels
-	 * @param array $token_values
-	 */
-	private static function _getWorkerContext($worker, &$token_labels, &$token_values, $prefix=null) {
-		if(is_null($prefix))
-			$prefix = 'Worker:';
-			
-		$translate = DevblocksPlatform::getTranslationService();
-		$fields = DAO_CustomField::getBySource(ChCustomFieldSource_Worker::ID);
-		
-		// Polymorph
-		if(is_numeric($worker)) {
-			$worker = DAO_Worker::get($worker);
-		} elseif($worker instanceof Model_Worker) {
-			// It's what we want already.
-		} else {
-			$worker = null;
-		}
-			
-		// Token labels
-		$token_labels = array(
-			'first_name' => $prefix.$translate->_('worker.first_name'),
-			'last_name' => $prefix.$translate->_('worker.last_name'),
-			'title' => $prefix.$translate->_('worker.title'),
-		);
-		
-		if(is_array($fields))
-		foreach($fields as $cf_id => $field) {
-			$token_labels['worker_custom_'.$cf_id] = $prefix.$field->name;
-		}
-
-		// Token values
-		$token_values = array();
-		
-		// Worker token values
-		if(null != $worker) {
-			$token_values['id'] = $worker->id;
-			if(!empty($worker->first_name))
-				$token_values['first_name'] = $worker->first_name;
-			if(!empty($worker->last_name))
-				$token_values['last_name'] = $worker->last_name;
-			if(!empty($worker->title))
-				$token_values['title'] = $worker->title;
-			$token_values['custom'] = array();
-			
-			$field_values = array_shift(DAO_CustomFieldValue::getValuesBySourceIds(ChCustomFieldSource_Worker::ID, $worker->id));
-			if(is_array($field_values) && !empty($field_values)) {
-				foreach($field_values as $cf_id => $cf_val) {
-					if(!isset($fields[$cf_id]))
-						continue;
-					
-					// The literal value
-					if(null != $worker)
-						$token_values['custom'][$cf_id] = $cf_val;
-					
-					// Stringify
-					if(is_array($cf_val))
-						$cf_val = implode(', ', $cf_val);
-						
-					if(is_string($cf_val)) {
-						if(null != $worker)
-							$token_values['custom_'.$cf_id] = $cf_val;
-					}
-				}
-			}
-		}
-		
-		// Worker email
-		@$worker_email = !is_null($worker) ? $worker->email : null;
-		$merge_token_labels = array();
-		$merge_token_values = array();
-		self::getContext(self::CONTEXT_ADDRESS, $worker_email, $merge_token_labels, $merge_token_values, null, true);
-
-		self::_merge(
-			'address_',
-			'',
-			$merge_token_labels,
-			$merge_token_values,
-			$token_labels,
-			$token_values
-		);		
 		
 		return true;
 	}

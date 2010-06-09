@@ -360,6 +360,17 @@
 			</params>
 		</extension>
 
+		<extension point="devblocks.context">
+			<id>cerberusweb.contexts.worker</id>
+			<name>Worker</name>
+			<class>
+				<file>api/dao/worker.php</file>
+				<name>Context_Worker</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+
 		<!-- Event Listeners -->
 		
 		<extension point="devblocks.listener.event">
