@@ -324,6 +324,7 @@ function genericAjaxGet(divName,args,cb) {
 		var cb = function(html) {
 			$('#'+divName).html(html);
 			$('#'+divName).fadeTo("normal", 1.0);
+			$('#'+divName).trigger('devblocks.refresh');
 		}
 	}
 	
@@ -345,6 +346,7 @@ function genericAjaxPost(formName,divName,args,cb) {
 		var cb = function(html) {
 			$('#'+divName).html(html);
 			$('#'+divName).fadeTo("normal", 1.0);
+			$('#'+divName).trigger('devblocks.refresh');
 		};
 	}
 
