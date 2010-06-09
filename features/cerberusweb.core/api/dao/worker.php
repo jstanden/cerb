@@ -675,7 +675,12 @@ class View_Worker extends C4_AbstractView {
 		$tpl->assign('custom_fields', $custom_fields);
 
 		$tpl->assign('view_fields', $this->getColumns());
-		$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/configuration/tabs/workers/view.tpl');
+		
+		switch($this->renderTemplate) {
+			default:
+				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/workers/view.tpl');
+				break;
+		}
 	}
 
 	function renderCriteria($field) {
