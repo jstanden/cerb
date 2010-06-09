@@ -677,6 +677,9 @@ class View_Worker extends C4_AbstractView {
 		$tpl->assign('view_fields', $this->getColumns());
 		
 		switch($this->renderTemplate) {
+			case 'contextlinks_chooser':
+				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/workers/view_contextlinks_chooser.tpl');
+				break;
 			default:
 				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/workers/view.tpl');
 				break;

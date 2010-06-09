@@ -3,6 +3,7 @@
 		<option value="">-- manage links --</option>
 		<option value="cerberusweb.contexts.address">Address</option>
 		<option value="cerberusweb.contexts.org">Organization</option>
+		<option value="cerberusweb.contexts.worker">Worker</option>
 	</select>
 </form>
 
