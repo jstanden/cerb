@@ -18,13 +18,13 @@ optgroup {
 }
 
 a {
-	color: rgb(102, 102, 102);
+	color: rgb(80, 80, 80);
 }
 
 h1 {
 	font-weight: bold;
 	font-size: 1.5em;
-	color: rgb(0, 102, 255);
+	color: rgb(0,150,0);
 	margin-top: 0px;
 	margin-bottom: 0px;
 }
@@ -130,17 +130,15 @@ table.worklist td span.title {
 }
 
 table.worklistBody th {
-	border-right: 1px solid rgb(150, 150, 150);
-	border-bottom: 1px solid rgb(150, 150, 150);
-	background-color: rgb(200, 200, 200);
-	padding: 2px 2px 2px 5px;
+	background-color: rgb(200,200,200);
+	padding-bottom:2px;
 	text-align: left;
 }
 
 table.worklistBody th a {
 	font-size: 12px;
 	font-weight: bold;
-	color: rgb(68, 68, 68);
+	color: rgb(80,80,80);
 }
 
 table.worklistBody td {
@@ -150,13 +148,13 @@ table.worklistBody td {
 table.worklistBody td b.subject {
 	font-size: 12px;
 	font-weight: bold;
-	color: rgb(75, 75, 75);
+	color: rgb(80,80,80);
 }
 
 table.worklistBody td a.subject {
 	font-size: 12px;
 	font-weight: bold;
-	color: rgb(75, 75, 75);
+	color: rgb(80,80,80);
 }
 table.worklistBody tr.even {
 	background-color:rgb(254,254,254); 
@@ -199,14 +197,14 @@ DIV.block {
 	background-image: url(bg_block.jpg);
 	background-repeat: repeat-x;
 	background-color: rgb(255, 255, 255);
-	border: 1px solid rgb(180,180,180);
+	border: 1px solid rgb(180, 180, 180);
 }
 
 DIV.block H2 {
 	font-weight: bold;
 	font-size: 18px;
 	margin: 0px;
-	color: rgb(0, 150, 0);
+	color: rgb(0,150,0);
 }
 
 DIV.block H3 {

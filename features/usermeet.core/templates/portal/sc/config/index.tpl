@@ -21,7 +21,7 @@
 <br>
 <br>
 
-<h2>Modules</h2>
+<h2 style="color:rgb(120,120,120);">Modules</h2>
 <table cellpadding="0" cellspacing="5" border="0">
 	<tr>
 		<td><b>{$translate->_('common.order')|capitalize}</b></td>
@@ -55,7 +55,7 @@
 	{assign var=module_id value=$module->manifest->id}
 	<div id="module{$module->manifest->id}" style="display:{if isset($visible_modules.$module_id)}block{else}none{/if};margin-left:10px;">
 		<div style="border-bottom:1px solid rgb(180,180,180);margin-bottom:5px;">
-		<h2 style="margin-bottom:0px;color:rgb(0,128,255);">{$module->manifest->name}</h2>
+		<h2 style="margin-bottom:0px;color:rgb(120,120,120);">{$module->manifest->name}</h2>
 		</div>
 		{$module->configure($instance)}
 	</div>
