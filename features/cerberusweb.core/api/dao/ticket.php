@@ -235,14 +235,29 @@ class DAO_Ticket extends C4_ORMHelper {
 				implode(',', $merge_ticket_ids)
 			);
 
-			// Tasks
-			$sql = sprintf("UPDATE task SET source_id = %d WHERE source_extension = %s AND source_id IN (%s)",
+			// Context Links
+			
+			$db->Execute(sprintf("INSERT IGNORE INTO context_link (from_context, from_context_id, to_context, to_context_id) ".
+				"SELECT 'cerberusweb.contexts.ticket', %d, to_context, to_context_id ".
+				"FROM context_link WHERE from_context = 'cerberusweb.contexts.ticket' AND from_context_id IN (%s)",
 				$oldest_id,
-				$db->qstr('cerberusweb.tasks.ticket'),
 				implode(',', $merge_ticket_ids)
-			);
-			$db->Execute($sql);
-
+			));
+			
+			$db->Execute(sprintf("INSERT IGNORE INTO context_link (from_context, from_context_id, to_context, to_context_id) ".
+				"SELECT from_context, from_context_id, 'cerberusweb.contexts.ticket', %d ".
+				"FROM context_link WHERE to_context = 'cerberusweb.contexts.ticket' AND to_context_id IN (%s)",
+				$oldest_id,
+				implode(',', $merge_ticket_ids)
+			));
+			
+			$db->Execute(sprintf("DELETE FROM context_link ".
+				"WHERE (from_context = 'cerberusweb.contexts.ticket' AND from_context_id IN (%s)) ".
+				"OR (to_context = 'cerberusweb.contexts.ticket' AND to_context_id IN (%s))",
+				implode(',', $merge_ticket_ids),
+				implode(',', $merge_ticket_ids)
+			));
+			
 			// Comments
 			$sql = sprintf("UPDATE ticket_comment SET ticket_id = %d WHERE ticket_id IN (%s)",
 				$oldest_id,
