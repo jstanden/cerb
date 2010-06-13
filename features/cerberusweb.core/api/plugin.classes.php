@@ -501,18 +501,8 @@ XML;
 
             $eDesc = $eItem->addChild('description', '');
 
-            if(isset($task_sources[$task[SearchFields_Task::SOURCE_EXTENSION]]) && isset($task[SearchFields_Task::SOURCE_ID])) {
-            	$source_ext =& $task_sources[$task[SearchFields_Task::SOURCE_EXTENSION]]; /* @var $source_ext Extension_TaskSource */
-            	$source_ext_info = $source_ext->getSourceInfo($task[SearchFields_Task::SOURCE_ID]);
-            	
-	            $link = $source_ext_info['url'];
-	            $eLink = $eItem->addChild('link', $link);
-	            
-            } else {
-	            $link = $url->write('c=activity&tab=tasks', true);
-	            $eLink = $eItem->addChild('link', $link);
-            	
-            }
+            $link = $url->write('c=tasks&a=display&id='.$task[SearchFields_Task::ID], true);
+            $eLink = $eItem->addChild('link', $link);
             	
             $eDate = $eItem->addChild('pubDate', gmdate('D, d M Y H:i:s T', $created));
             

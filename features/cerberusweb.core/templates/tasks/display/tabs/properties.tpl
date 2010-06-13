@@ -5,24 +5,6 @@
 <input type="hidden" name="do_delete" value="0">
 
 <table cellpadding="0" cellspacing="2" border="0" width="98%">
-	{if !empty($link_namespace) && !empty($link_object_id)}
-	<tr>
-		<td width="0%" nowrap="nowrap" align="right" valign="top">Link: </td>
-		<td width="100%">
-			<input type="hidden" name="link_namespace" value="{$link_namespace}">
-			<input type="hidden" name="link_object_id" value="{$link_object_id}">
-			{$link_namespace}={$link_object_id}
-		</td>
-	</tr>
-	{/if}
-	{if !empty($source_info)}
-	<tr>
-		<td width="0%" nowrap="nowrap" align="right" valign="top">{'task.source_extension'|devblocks_translate|capitalize}: </td>
-		<td width="100%">
-			<a href="{$source_info.url}" title="{$source_info.name|escape}">{$source_info.name|truncate:75:'...':true}</a>
-		</td>
-	</tr>
-	{/if}
 	<tr>
 		<td width="0%" nowrap="nowrap" align="right">{'task.title'|devblocks_translate|capitalize}: </td>
 		<td width="100%">

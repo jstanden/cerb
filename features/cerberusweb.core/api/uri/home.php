@@ -222,7 +222,6 @@ class ChHomePage extends CerberusPageExtension {
 		$list = new Model_WorkerWorkspaceListView();
 		$list->title = 'My Tasks';
 		$list->columns = array(
-			SearchFields_Task::SOURCE_EXTENSION,
 			SearchFields_Task::DUE_DATE,
 		);
 		$list->params = array(

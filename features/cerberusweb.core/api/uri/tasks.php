@@ -103,8 +103,6 @@ class ChTasksPage extends CerberusPageExtension {
 	function showTaskPeekAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer','');
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
-		@$link_namespace = DevblocksPlatform::importGPC($_REQUEST['link_namespace'],'string',''); // opt
-		@$link_object_id = DevblocksPlatform::importGPC($_REQUEST['link_object_id'],'integer',0); // opt
 		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$path = $this->_TPL_PATH;
@@ -113,21 +111,8 @@ class ChTasksPage extends CerberusPageExtension {
 		if(!empty($id)) {
 			$task = DAO_Task::get($id);
 			$tpl->assign('task', $task);
-			
-			if(!empty($task->source_extension) && !empty($task->source_id)) {
-				if(null != ($mft = DevblocksPlatform::getExtension($task->source_extension))) {
-					$source_info = $mft->createInstance();
-					@$tpl->assign('source_info', $source_info->getSourceInfo($task->source_id));
-				}
-			}
 		}
 
-		// Only used on create
-		if(!empty($link_namespace) && !empty($link_object_id)) {
-			$tpl->assign('link_namespace', $link_namespace);
-			$tpl->assign('link_object_id', $link_object_id);
-		}
-		
 		$workers = DAO_Worker::getAllActive();
 		$tpl->assign('workers', $workers);
 		
@@ -165,8 +150,6 @@ class ChTasksPage extends CerberusPageExtension {
 	function saveTaskPeekAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer','');
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
-		@$link_namespace = DevblocksPlatform::importGPC($_REQUEST['link_namespace'],'string','');
-		@$link_object_id = DevblocksPlatform::importGPC($_REQUEST['link_object_id'],'integer',0);
 		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'],'integer',0);
 
 		$active_worker = CerberusApplication::getActiveWorker();
@@ -209,12 +192,6 @@ class ChTasksPage extends CerberusPageExtension {
 			@$worker_id = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'integer',0);
 			@$fields[DAO_Task::WORKER_ID] = intval($worker_id);
 			
-			// Link to object (optional)
-			if(!empty($link_namespace) && !empty($link_object_id)) {
-				@$fields[DAO_Task::SOURCE_EXTENSION] = $link_namespace;
-				@$fields[DAO_Task::SOURCE_ID] = $link_object_id;
-			}
-			
 			// Save
 			if(!empty($id)) {
 				DAO_Task::update($id, $fields);
@@ -238,30 +215,22 @@ class ChTasksPage extends CerberusPageExtension {
 				}
 				
 				// Write a notification (if not assigned to ourselves)
-				$source_extensions = DevblocksPlatform::getExtensions('cerberusweb.task.source', true);
 				if(!empty($worker_id) && $active_worker->id != $worker_id) {
-					if(null != (@$source_renderer = $source_extensions[$link_namespace])) { /* @var $source_renderer Extension_TaskSource */
-						$source_info = $source_renderer->getSourceInfo($link_object_id);
-						$source_name = $source_info['name'];
-						$source_url = $source_info['url'];
-						
-						if(empty($source_name) || empty($source_url))
-							break;
-						
-						$fields = array(
-							DAO_WorkerEvent::CREATED_DATE => time(),
-							DAO_WorkerEvent::WORKER_ID => $worker_id,
-							DAO_WorkerEvent::URL => $source_url,
-							DAO_WorkerEvent::TITLE => 'New Task Assignment', // [TODO] Translate
-							DAO_WorkerEvent::CONTENT => sprintf("%s\n%s says: %s",
-								$source_name, 
-								$active_worker->getName(),
-								$title
-							),
-							DAO_WorkerEvent::IS_READ => 0,
-						);
-						DAO_WorkerEvent::create($fields);
-					}
+					$url_writer = DevblocksPlatform::getUrlService();
+					
+					$fields = array(
+						DAO_WorkerEvent::CREATED_DATE => time(),
+						DAO_WorkerEvent::WORKER_ID => $worker_id,
+						DAO_WorkerEvent::URL => $url_writer->write('c=tasks&a=display&id='.$id),
+						DAO_WorkerEvent::TITLE => 'New Task Assignment', // [TODO] Translate
+						DAO_WorkerEvent::CONTENT => sprintf("%s\n%s says: %s",
+							$source_name, 
+							$active_worker->getName(),
+							$title
+						),
+						DAO_WorkerEvent::IS_READ => 0,
+					);
+					DAO_WorkerEvent::create($fields);
 				}
 			}
 			
@@ -424,61 +393,6 @@ class ChTasksPage extends CerberusPageExtension {
 		}
 		
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('tasks','display',$id,'properties')));
-	}
-	
-	function showTaskLinksTabAction() {
-		@$task_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer');
-		@$return_uri = DevblocksPlatform::importGPC($_REQUEST['return_uri'],'string');
-		
-		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl_path = dirname(dirname(dirname(__FILE__))) . '/templates/';
-		$tpl->assign('path', $tpl_path);
-		
-		$tpl->assign('task_id', $task_id);
-		$tpl->assign('return_uri', $return_uri);
-		
-//		$visit = CerberusApplication::getVisit();
-//		$visit->set(self::SESSION_OPP_TAB, 'notes');
-		
-		// Contexts
-		
-		$context_extensions = DevblocksPlatform::getExtensions('devblocks.context', false);
-		$tpl->assign('context_extensions', $context_extensions);
-		
-		// Context Links
-		
-		$views = array();
-		$contexts = array();
-
-		$context_links = DAO_ContextLink::getLinks(CerberusContexts::CONTEXT_TASK, $task_id);
-		if(is_array($context_links))
-		foreach($context_links as $link) {
-			if(!isset($contexts[$link->context]))
-				$contexts[$link->context] = array();
-			
-			$contexts[$link->context][] = $link->context_id;
-		}
-		
-		unset($context_links);
-		
-		foreach($contexts as $context => $ids) {
-			if(null == ($ext_context = DevblocksPlatform::getExtension($context, true)))
-				continue;
-				
-			if(!$ext_context instanceof Extension_DevblocksContext)
-				continue;
-				
-			$view = $ext_context->getView($ids);
-			
-			if(!empty($view))
-				$views[$view->id] = $view;
-		}
-		
-		ksort($views);
-		
-		$tpl->assign('views', $views);
-		
-		$tpl->display('file:' . $tpl_path . 'tasks/display/tabs/links.tpl');		
 	}
 	
 	function showTaskNotesTabAction() {

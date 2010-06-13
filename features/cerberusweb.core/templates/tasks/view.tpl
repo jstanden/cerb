@@ -101,16 +101,6 @@
 					<span class="cerb-sprite sprite-check_gray"></span>
 					{/if}
 				</td>
-			{elseif $column=="t_source_extension"}
-				<td>
-					{assign var=source_extension value=$result.t_source_extension}
-					{assign var=source_id value=$result.t_source_id}
-					{assign var=source_renderer value=$source_renderers.$source_extension}
-					{if !empty($source_id) && !empty($source_renderer)}
-						{assign var=source_info value=$source_renderer->getSourceInfo($source_id)}
-						<a href="{$source_info.url}" title="{$source_info.name|escape}">{$source_info.name|truncate:75:'...':true|escape}</a>
-					{/if}
-				</td>
 			{else}
 				<td>{$result.$column}</td>
 			{/if}

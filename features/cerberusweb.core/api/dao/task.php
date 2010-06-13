@@ -332,7 +332,16 @@ class View_Task extends C4_AbstractView {
 		$tpl->assign('custom_fields', $custom_fields);
 		
 		$tpl->assign('view_fields', $this->getColumns());
-		$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/tasks/view.tpl');
+		
+		switch($this->renderTemplate) {
+			case 'contextlinks_chooser':
+				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/tasks/view_contextlinks_chooser.tpl');
+				break;
+			default:
+				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/tasks/view.tpl');
+				break;
+		}
+		
 	}
 
 	function renderCriteria($field) {
@@ -635,33 +644,89 @@ class Context_Task extends Extension_DevblocksContext {
 		
 		return true;
 	}
-    
+
 	function renderChooserPanel($from_context, $from_context_id, $to_context, $return_uri) {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$path = dirname(dirname(dirname(__FILE__))) . '/templates/';
 		$tpl->assign('path', $path);
 		
+		$tpl->assign('context', $this);
 		$tpl->assign('from_context', $from_context);
 		$tpl->assign('from_context_id', $from_context_id);
+		$tpl->assign('to_context', $to_context);
+		$tpl->assign('context_extension', $this);
 		$tpl->assign('return_uri', $return_uri);
 		
-//		$links = DAO_ContextLink::getLinks($from_context, $from_context_id);
-//		$tpl->assign('context_links', $links);
+		$links = DAO_ContextLink::getLinks($from_context, $from_context_id);
+		$ids = array();
 		
-		$tpl->display('file:'.$path.'context_links/choosers/task.tpl');
-	}
+		if(is_array($links))
+		foreach($links as $link) {
+			if($link->context !== $to_context)
+				continue;
+			$ids[] = $link->context_id;
+		}
+		
+		if(!empty($ids)) {
+			$links = array();
+			$link_ids = DAO_Task::getWhere(sprintf("%s IN (%s)",
+				DAO_Task::ID,
+				implode(',', $ids)
+			));
+			
+			if(is_array($link_ids))
+			foreach($link_ids as $link_id => $link) {
+				$links[$link_id] = sprintf("%s", $link->title);
+			}
+			
+			$tpl->assign('links', $links);
+		}
+		
+		// View
+		
+		$view_id = 'contextlink_'.str_replace('.','_',$this->id);
+		$defaults = new C4_AbstractViewModel();
+		$defaults->id = $view_id; 
+		$defaults->class_name = 'View_Task';
+		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
+		$view->name = 'Tasks';
+		$view->view_columns = array(
+			SearchFields_Task::UPDATED_DATE,
+			SearchFields_Task::DUE_DATE,
+			SearchFields_Task::WORKER_ID,
+		);
+		$view->params = array(
+			SearchFields_Task::IS_COMPLETED => new DevblocksSearchCriteria(SearchFields_Task::IS_COMPLETED,'=',0),
+			SearchFields_Task::WORKER_ID => new DevblocksSearchCriteria(SearchFields_Task::WORKER_ID,'=',$active_worker->id),
+		);
+		$view->renderSortBy = SearchFields_Task::UPDATED_DATE;
+		$view->renderSortAsc = false;
+		$view->renderLimit = 10;
+		$view->renderTemplate = 'contextlinks_chooser';
+		C4_AbstractViewLoader::setView($view_id, $view);
+		$tpl->assign('view', $view);
+
+		$tpl->assign('view_fields', View_Task::getFields());
+		$tpl->assign('view_searchable_fields', View_Task::getSearchFields());
+		
+		// Template
+		
+		$tpl->display('file:'.$path.'context_links/choosers/__generic.tpl');
+	}	
 	
 	function saveChooserPanel($from_context, $from_context_id, $to_context, $to_context_data) {
-//		if(is_array($to_context_data))
-//		foreach($to_context_data as $to_context_item) {
-//			if(null != ($org_id = DAO_ContactOrg::lookup($to_context_item, false))) {
-//				if(!empty($to_context) && !empty($org_id))
-//					DAO_ContextLink::setLink($from_context, $from_context_id, $to_context, $org_id);
-//			}
-//		}
+		if(is_array($to_context_data))
+		foreach($to_context_data as $to_context_item) {
+			if(!empty($to_context) && null != ($task = DAO_Task::get($to_context_item))) {
+				DAO_ContextLink::setLink($from_context, $from_context_id, $to_context, $task->id);
+			}
+		}
 		
 		return TRUE;
 	}
+
 	
 	function getView($ids) {
 		$view_id = str_replace('.','_',$this->id);
