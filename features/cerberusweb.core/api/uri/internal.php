@@ -62,6 +62,60 @@ class ChInternalController extends DevblocksControllerExtension {
 	
 	// Contexts
 	
+	function showTabContextLinksAction() {
+		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string');
+		@$context_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer');
+		@$return_uri = DevblocksPlatform::importGPC($_REQUEST['return_uri'],'string');
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl_path = dirname(dirname(dirname(__FILE__))) . '/templates/';
+		$tpl->assign('path', $tpl_path);
+		
+		$tpl->assign('context', $context);
+		$tpl->assign('context_id', $context_id);
+		$tpl->assign('return_uri', $return_uri);
+		
+		// Contexts
+		
+		$context_extensions = DevblocksPlatform::getExtensions('devblocks.context', false);
+		$tpl->assign('context_extensions', $context_extensions);
+		
+		// Context Links
+		
+		$views = array();
+		$contexts = array();
+
+		$context_links = DAO_ContextLink::getLinks($context, $context_id);
+		if(is_array($context_links))
+		foreach($context_links as $link) {
+			if(!isset($contexts[$link->context]))
+				$contexts[$link->context] = array();
+			
+			$contexts[$link->context][] = $link->context_id;
+		}
+		
+		unset($context_links);
+		
+		foreach($contexts as $ctx => $ids) {
+			if(null == ($ext_context = DevblocksPlatform::getExtension($ctx, true)))
+				continue;
+				
+			if(!$ext_context instanceof Extension_DevblocksContext)
+				continue;
+				
+			$view = $ext_context->getView($ids);
+			
+			if(!empty($view))
+				$views[$view->id] = $view;
+		}
+		
+		ksort($views);
+		
+		$tpl->assign('views', $views);
+		
+		$tpl->display('file:'.$this->_TPL_PATH.'context_links/tab.tpl');
+	}	
+	
 	function contextLinkAddPeekAction() {
 		@$from_context = DevblocksPlatform::importGPC($_REQUEST['from_context'],'string');
 		@$from_context_id = DevblocksPlatform::importGPC($_REQUEST['from_context_id'],'integer');
