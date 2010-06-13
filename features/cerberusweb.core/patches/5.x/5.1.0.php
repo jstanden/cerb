@@ -13,8 +13,10 @@ if(!isset($tables['context_link'])) {
 			from_context_id INT UNSIGNED NOT NULL DEFAULT 0,
 			to_context VARCHAR(128) DEFAULT '',
 			to_context_id INT UNSIGNED NOT NULL DEFAULT 0,
-			INDEX from_context (from_context, from_context_id),
-			INDEX to_context (to_context, to_context_id),
+			INDEX from_context (from_context),
+			INDEX from_context_id (from_context_id),
+			INDEX to_context (to_context),
+			INDEX to_context_id (to_context_id),
 			UNIQUE from_and_to (from_context, from_context_id, to_context, to_context_id)
 		) ENGINE=MyISAM;
 	";
@@ -26,26 +28,35 @@ if(!isset($tables['context_link'])) {
 // ===========================================================================
 // Task Sources->Context Links
 
-// ===========================================================================
-// Convert task sources to URLs
+if(!isset($tables['task']))
+	return FALSE;
 
-// Orgs
-//$url->write(sprintf('c=contacts&a=orgs&display=display&id=%d',$object_id)
-
-// Tickets
-//$url->write(sprintf('c=display&mask=%s&tab=tasks',$ticket->mask), true)
-
-// Opps
-//$url->write(sprintf('c=crm&a=opps&id=%d',$opp->id)),
-
-//if(!isset($tables['contact_org']))
-//	return FALSE;
-//
-//list($columns, $indexes) = $db->metaTable('contact_org');
-//
-//if(!isset($columns['parent_org_id'])) {
-//	$db->Execute("ALTER TABLE contact_org ADD COLUMN parent_org_id BIGINT UNSIGNED NOT NULL DEFAULT 0");
-//	$db->Execute("ALTER TABLE contact_org ADD INDEX parent_org_id (parent_org_id)");
-//}
+list($columns, $indexes) = $db->metaTable('task');
+	
+if(isset($columns['source_extension']) && isset($columns['source_id'])) {
+	$source_to_context = array(
+		'cerberusweb.tasks.ticket' => 'cerberusweb.contexts.ticket',
+		'cerberusweb.tasks.org' => 'cerberusweb.contexts.org',
+		'cerberusweb.tasks.opp' => 'cerberusweb.contexts.opportunity',
+	);
+	
+	if(is_array($source_to_context))
+	foreach($source_to_context as $source => $context) {
+		$db->Execute(sprintf("INSERT IGNORE INTO context_link (from_context, from_context_id, to_context, to_context_id) ".
+			"SELECT 'cerberusweb.contexts.task', id, %s, source_id FROM task WHERE source_extension = %s ",
+			$db->qstr($context),
+			$db->qstr($source)
+		));
+	}
+	
+	// Insert reciprocals
+	$db->Execute(sprintf("INSERT IGNORE INTO context_link (from_context, from_context_id, to_context, to_context_id) ".
+		"SELECT to_context, to_context_id, from_context, from_context_id ".
+		"FROM context_link"
+	));
+	
+	$db->Execute('ALTER TABLE task DROP COLUMN source_extension');
+	$db->Execute('ALTER TABLE task DROP COLUMN source_id');
+}
 
 return TRUE;
