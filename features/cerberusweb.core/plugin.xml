@@ -1024,30 +1024,6 @@
 			</params>
 		</extension>		
 		
-		<!-- Task Sources -->
-		
-		<extension point="cerberusweb.task.source">
-			<id>cerberusweb.tasks.org</id>
-			<name>Organization Task</name>
-			<class>
-				<file>api/plugin.classes.php</file>
-				<name>ChTaskSource_Org</name>
-			</class>
-			<params>
-			</params>
-		</extension>		
-		
-		<extension point="cerberusweb.task.source">
-			<id>cerberusweb.tasks.ticket</id>
-			<name>Ticket Task</name>
-			<class>
-				<file>api/plugin.classes.php</file>
-				<name>ChTaskSource_Ticket</name>
-			</class>
-			<params>
-			</params>
-		</extension>
-		
 		<!-- Explorer Toolbars -->
 		
 		<extension point="cerberusweb.explorer.toolbar">

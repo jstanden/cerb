@@ -155,19 +155,6 @@
 			</params>
 		</extension>
 
-		<!-- Task Sources -->
-		
-		<extension point="cerberusweb.task.source">
-			<id>cerberusweb.tasks.opp</id>
-			<name>Opportunity Task</name>
-			<class>
-				<file>api/App.php</file>
-				<name>CrmTaskSource_Opp</name>
-			</class>
-			<params>
-			</params>
-		</extension>
-		
 		<!-- Org Tabs -->
 		
 		<extension point="cerberusweb.org.tab">
