@@ -473,7 +473,16 @@ class View_Address extends C4_AbstractView {
 		$tpl->assign('custom_fields', $address_fields);
 		
 		$tpl->assign('view_fields', $this->getColumns());
-		$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/contacts/addresses/address_view.tpl');
+		
+		switch($this->renderTemplate) {
+			case 'contextlinks_chooser':
+				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/contacts/addresses/view_contextlinks_chooser.tpl');
+				break;
+			default:
+				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/contacts/addresses/address_view.tpl');
+				break;
+		}
+		
 	}
 
 	function renderCriteria($field) {
@@ -807,6 +816,7 @@ class Context_Address extends Extension_DevblocksContext {
 		$path = dirname(dirname(dirname(__FILE__))) . '/templates/';
 		$tpl->assign('path', $path);
 		
+		$tpl->assign('context', $this);
 		$tpl->assign('from_context', $from_context);
 		$tpl->assign('from_context_id', $from_context_id);
 		$tpl->assign('to_context', $to_context);
@@ -818,30 +828,64 @@ class Context_Address extends Extension_DevblocksContext {
 		
 		if(is_array($links))
 		foreach($links as $link) {
-			if($link->context !== CerberusContexts::CONTEXT_ADDRESS)
+			if($link->context !== $to_context)
 				continue;
 			$ids[] = $link->context_id;
 		}
 		
 		if(!empty($ids)) {
-			$links = DAO_Address::getWhere(
+			$links = array();
+			$link_ids = DAO_Address::getWhere(
 				sprintf("%s IN (%s)",
 					DAO_Address::ID,
 					implode(',', $ids)
 				)
 			);
+			
+			if(is_array($link_ids))
+			foreach($link_ids as $link_id => $link) {
+				$links[$link_id] = $link->email;
+			}
+			
 			$tpl->assign('links', $links);
 		}
 		
-		$tpl->display('file:'.$path.'context_links/choosers/address.tpl');
+		// View
+		
+		$view_id = 'contextlink_'.str_replace('.','_',$this->id);
+		$defaults = new C4_AbstractViewModel();
+		$defaults->id = $view_id; 
+		$defaults->class_name = 'View_Address';
+		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
+		$view->name = 'Organizations';
+		$view->view_columns = array(
+			SearchFields_Address::FIRST_NAME,
+			SearchFields_Address::LAST_NAME,
+			SearchFields_Address::ORG_NAME,
+		);
+		$view->params = array(
+			SearchFields_Address::IS_BANNED => new DevblocksSearchCriteria(SearchFields_Address::IS_BANNED,'=',0),
+		);
+		$view->renderSortBy = SearchFields_Address::EMAIL;
+		$view->renderSortAsc = true;
+		$view->renderLimit = 10;
+		$view->renderTemplate = 'contextlinks_chooser';
+		C4_AbstractViewLoader::setView($view_id, $view);
+		$tpl->assign('view', $view);
+
+		$tpl->assign('view_fields', View_Address::getFields());
+		$tpl->assign('view_searchable_fields', View_Address::getSearchFields());
+		
+		// Template
+		
+		$tpl->display('file:'.$path.'context_links/choosers/__generic.tpl');
 	}
 	
 	function saveChooserPanel($from_context, $from_context_id, $to_context, $to_context_data) {
 		if(is_array($to_context_data))
 		foreach($to_context_data as $to_context_item) {
-			if(null != ($addy = DAO_Address::lookupAddress($to_context_item, true))) {
-				if(!empty($to_context) && !empty($addy->id))
-					DAO_ContextLink::setLink($from_context, $from_context_id, $to_context, $addy->id);
+			if(!empty($to_context) && null != ($addy = DAO_Address::get($to_context_item))) {
+				DAO_ContextLink::setLink($from_context, $from_context_id, $to_context, $addy->id);
 			}
 		}
 		
