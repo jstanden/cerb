@@ -32,7 +32,7 @@
 			<tuv xml:lang="en_US"><seg>Properties</seg></tuv>
 		</tu>
 		<tu tuid='display.tab.tasks'>
-			<tuv xml:lang="en_US"><seg>Tasks (%s)</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Tasks</seg></tuv>
 		</tu>
 
 		<tu tuid='home.tab.my_notifications'>
@@ -242,6 +242,9 @@
 		</tu>		
 		<tu tuid='common.languages'>
 			<tuv xml:lang="en_US"><seg>Languages</seg></tuv>
+		</tu>
+		<tu tuid='common.links'>
+			<tuv xml:lang="en_US"><seg>Links</seg></tuv>
 		</tu>
 		<tu tuid='common.load'>
 			<tuv xml:lang="en_US"><seg>Load</seg></tuv>
@@ -538,9 +541,6 @@
 
 		<!-- Activity -->
 		
-		<tu tuid='activity.tasks.tab.links'>
-			<tuv xml:lang="en_US"><seg>References</seg></tuv>
-		</tu>
 		<tu tuid='activity.tasks.tab.notes'>
 			<tuv xml:lang="en_US"><seg>Comments</seg></tuv>
 		</tu>
@@ -636,9 +636,6 @@
 		</tu>
 		<tu tuid='addy_book.org.tabs.properties'>
 			<tuv xml:lang="en_US"><seg>Properties</seg></tuv>
-		</tu>
-		<tu tuid='addy_book.org.tabs.tasks'>
-			<tuv xml:lang="en_US"><seg>Tasks (%s)</seg></tuv>
 		</tu>
 		<tu tuid='addy_book.peek.compose'>
 			<tuv xml:lang="en_US"><seg>compose</seg></tuv>
