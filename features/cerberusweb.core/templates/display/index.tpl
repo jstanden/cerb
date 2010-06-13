@@ -151,12 +151,12 @@
 <div id="displayTabs">
 	<ul>
 		<li><a href="{devblocks_url}ajax.php?c=display&a=showConversation&ticket_id={$ticket->id}{if $expand_all}&expand_all=1{/if}{/devblocks_url}">{$translate->_('display.tab.conversation')|escape:'quotes'}</a></li>
+		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextLinks&context=cerberusweb.contexts.ticket&id={$ticket->id}&return_uri={"display/{$ticket->mask}/links"|escape:'url'}{/devblocks_url}">{$translate->_('common.links')|escape:'quotes'}</a></li>
 		<li><a href="{devblocks_url}ajax.php?c=display&a=showProperties&ticket_id={$ticket->id}{/devblocks_url}">{$translate->_('display.tab.properties')|escape:'quotes'}</a></li>
 		<li><a href="{devblocks_url}ajax.php?c=display&a=showComments&ticket_id={$ticket->id}{/devblocks_url}">{'display.tab.comments'|devblocks_translate:$comments_total|escape:'quotes'}</a></li>
-		<li><a href="{devblocks_url}ajax.php?c=display&a=showTasks&ticket_id={$ticket->id}{/devblocks_url}">{'display.tab.tasks'|devblocks_translate:$tasks_total|escape:'quotes'}</a></li>
 		<li><a href="{devblocks_url}ajax.php?c=display&a=showContactHistory&ticket_id={$ticket->id}{/devblocks_url}">{'display.tab.history'|devblocks_translate|escape:'quotes'}</a></li>
 
-		{$tabs = [conversation,properties,comments,tasks,history]}
+		{$tabs = [conversation,links,properties,comments,history]}
 
 		{foreach from=$tab_manifests item=tab_manifest}
 			{$tabs[] = $tab_manifest->params.uri}

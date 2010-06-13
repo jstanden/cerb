@@ -1154,7 +1154,16 @@ class View_Ticket extends C4_AbstractView {
 		$tpl->assign('timestamp_now', time());
 		
 		$tpl->assign('view_fields', $this->getColumns());
-		$tpl->display('file:' . $view_path . 'ticket_view.tpl');
+		
+
+		switch($this->renderTemplate) {
+			case 'contextlinks_chooser':
+				$tpl->display('file:' . $view_path . 'view_contextlinks_chooser.tpl');
+				break;
+			default:
+				$tpl->display('file:' . $view_path . 'ticket_view.tpl');
+				break;
+		}
 	}
 
 	function doResetCriteria() {

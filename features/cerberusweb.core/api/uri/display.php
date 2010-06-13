@@ -92,10 +92,6 @@ class ChDisplayPage extends CerberusPageExtension {
 		$comments_total = DAO_TicketComment::getCountByTicketId($id);
 		$tpl->assign('comments_total', $comments_total);
 		
-		// Tasks Total [TODO] Eventually this can be ticket.num_tasks
-		$tasks_total = DAO_Task::getCountBySourceObjectId('cerberusweb.tasks.ticket',$id);
-		$tpl->assign('tasks_total', $tasks_total);
-		
 		$requesters = DAO_Ticket::getRequestersByTicket($ticket->id);
 		$tpl->assign('requesters', $requesters);
 		
@@ -1242,39 +1238,6 @@ class ChDisplayPage extends CerberusPageExtension {
 		$tpl->assign('team_categories', $team_categories);
 		
 		$tpl->display('file:' . $this->_TPL_PATH . 'display/modules/history/index.tpl');
-	}
-
-	function showTasksAction() {
-		$translate = DevblocksPlatform::getTranslationService();
-		
-		@$ticket_id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer');
-
-		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('path', $this->_TPL_PATH);
-		
-		$ticket = DAO_Ticket::get($ticket_id);
-		$tpl->assign('ticket', $ticket);
-		
-		$defaults = new C4_AbstractViewModel();
-		$defaults->class_name = 'View_Task';
-		$defaults->id = 'ticket_tasks';
-		$defaults->name = $translate->_('tasks.ticket.tab.view');
-		$defaults->view_columns = array(
-			SearchFields_Task::SOURCE_EXTENSION,
-			SearchFields_Task::DUE_DATE,
-			SearchFields_Task::WORKER_ID,
-		);
-		
-		$view = C4_AbstractViewLoader::getView('ticket_tasks', $defaults);
-		$view->params = array(
-			SearchFields_Task::SOURCE_EXTENSION => new DevblocksSearchCriteria(SearchFields_Task::SOURCE_EXTENSION,'=','cerberusweb.tasks.ticket'),
-			SearchFields_Task::SOURCE_ID => new DevblocksSearchCriteria(SearchFields_Task::SOURCE_ID,'=',$ticket_id),
-		);
-		$tpl->assign('view', $view);
-		
-		C4_AbstractViewLoader::setView($view->id, $view);
-		
-		$tpl->display('file:' . $this->_TPL_PATH . 'display/modules/tasks/index.tpl');
 	}
 
 	function showSnippetsAction() {
