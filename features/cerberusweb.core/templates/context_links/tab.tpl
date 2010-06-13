@@ -2,6 +2,7 @@
 	<select name="to_context" onchange="if($(this).val().length==0)return;genericAjaxPanel('c=internal&a=contextLinkAddPeek&from_context={$context}&from_context_id={$context_id}&to_context='+encodeURIComponent($(this).val())+'&return_uri={$return_uri|escape:'url'}',null,false,'750');$(this).val('');">
 		<option value="">-- manage links --</option>
 		<option value="cerberusweb.contexts.address">Address</option>
+		<option value="cerberusweb.contexts.opportunity">Opportunity</option>
 		<option value="cerberusweb.contexts.org">Organization</option>
 		<option value="cerberusweb.contexts.task">Task</option>
 		<option value="cerberusweb.contexts.ticket">Ticket</option>

@@ -156,9 +156,6 @@ class CrmPage extends CerberusPageExtension {
 				$workers = DAO_Worker::getAll();
 				$tpl->assign('workers', $workers);
 				
-				$task_count = DAO_Task::getCountBySourceObjectId('cerberusweb.tasks.opp', $opp_id);
-				$tpl->assign('tasks_total', $task_count);
-				
 				$tpl->display($tpl_path . 'crm/opps/display/index.tpl');
 				break;
 		}
@@ -323,50 +320,6 @@ class CrmPage extends CerberusPageExtension {
 		}
 		
 		exit;
-	}
-	
-	function showOppTasksTabAction() {
-		@$opp_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer');
-
-		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl_path = dirname(dirname(__FILE__)) . '/templates/';
-		$tpl->assign('path', $tpl_path);
-		
-		$visit = CerberusApplication::getVisit();
-		$visit->set(self::SESSION_OPP_TAB, 'tasks');
-		
-		$opp = DAO_CrmOpportunity::get($opp_id);
-		$tpl->assign('opp', $opp);
-		
-		$defaults = new C4_AbstractViewModel();
-		$defaults->class_name = 'View_Task';
-		$defaults->id = 'opp_tasks';
-		$defaults->view_columns = array(
-			SearchFields_Task::SOURCE_EXTENSION,
-			SearchFields_Task::DUE_DATE,
-			SearchFields_Task::WORKER_ID,
-			SearchFields_Task::COMPLETED_DATE,
-		);
-		
-		$view = C4_AbstractViewLoader::getView('opp_tasks', $defaults);
-		$view->name = 'Opportunity Tasks';
-
-		$view->params = array(
-			new DevblocksSearchCriteria(SearchFields_Task::SOURCE_EXTENSION,'=','cerberusweb.tasks.opp'),
-			new DevblocksSearchCriteria(SearchFields_Task::SOURCE_ID,'=',$opp_id),
-		);
-
-		$tpl->assign('view', $view);
-		
-		C4_AbstractViewLoader::setView($view->id, $view);
-		
-//		$view->name = "Most recent tickets from " . htmlentities($contact->email);
-//		$view->params = array(
-//			SearchFields_Ticket::TICKET_FIRST_WROTE => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_FIRST_WROTE,DevblocksSearchCriteria::OPER_EQ,$contact->email)
-//		);
-//		$tpl->assign('view', $view);
-		
-		$tpl->display('file:' . $tpl_path . 'crm/opps/display/tabs/tasks.tpl');
 	}
 	
 	function showOppMailTabAction() {
@@ -1549,7 +1502,15 @@ class View_CrmOpportunity extends C4_AbstractView {
 		$tpl->assign('custom_fields', $custom_fields);
 		
 		$tpl->assign('view_fields', $this->getColumns());
-		$tpl->display('file:' . APP_PATH . '/features/cerberusweb.crm/templates/crm/opps/view.tpl');
+		
+		switch($this->renderTemplate) {
+			case 'contextlinks_chooser':
+				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.crm/templates/crm/opps/view_contextlinks_chooser.tpl');
+				break;
+			default:
+				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.crm/templates/crm/opps/view.tpl');
+				break;
+		}
 	}
 
 	function renderCriteria($field) {
@@ -1940,5 +1901,212 @@ class CrmTicketOppTab extends Extension_TicketTab {
 	}
 	
 	function saveTab() {
+	}
+};
+
+class Context_Opportunity extends Extension_DevblocksContext {
+    function __construct($manifest) {
+        parent::__construct($manifest);
+    }
+
+	function getContext($opp, &$token_labels, &$token_values, $prefix=null) {
+		if(is_null($prefix))
+			$prefix = 'Opportunity:';
+		
+		$translate = DevblocksPlatform::getTranslationService();
+		$fields = DAO_CustomField::getBySource(CrmCustomFieldSource_Opportunity::ID);
+
+		// Polymorph
+		if(is_numeric($opp)) {
+			$opp = DAO_CrmOpportunity::get($opp);
+		} elseif($opp instanceof Model_CrmOpportunity) {
+			// It's what we want already.
+		} else {
+			$opp = null;
+		}
+		
+		// Token labels
+		$token_labels = array(
+			'amount' => $prefix.$translate->_('crm.opportunity.amount'),
+			'created|date' => $prefix.$translate->_('crm.opportunity.created_date'),
+			'is_closed' => $prefix.$translate->_('crm.opportunity.is_closed'),
+			'is_won' => $prefix.$translate->_('crm.opportunity.is_won'),
+			'title' => $prefix.$translate->_('crm.opportunity.name'),
+			'updated|date' => $prefix.$translate->_('crm.opportunity.updated_date'),
+		);
+		
+		if(is_array($fields))
+		foreach($fields as $cf_id => $field) {
+			$token_labels['custom_'.$cf_id] = $prefix.$field->name;
+		}
+
+		// Token values
+		$token_values = array();
+		
+		// Opp token values
+		if($opp) {
+			$token_values['id'] = $opp->id;
+			$token_values['amount'] = $opp->amount;
+			$token_values['created'] = $opp->created_date;
+			$token_values['is_closed'] = $opp->is_closed;
+			$token_values['is_won'] = $opp->is_won;
+			$token_values['title'] = $opp->name;
+			$token_values['updated'] = $opp->updated_date;
+//			if(!empty($org->city))
+//				$token_values['city'] = $org->city;
+
+			$token_values['custom'] = array();
+			
+			$field_values = array_shift(DAO_CustomFieldValue::getValuesBySourceIds(CrmCustomFieldSource_Opportunity::ID, $opp->id));
+			if(is_array($field_values) && !empty($field_values)) {
+				foreach($field_values as $cf_id => $cf_val) {
+					if(!isset($fields[$cf_id]))
+						continue;
+					
+					// The literal value
+					if(null != $opp)
+						$token_values['custom'][$cf_id] = $cf_val;
+					
+					// Stringify
+					if(is_array($cf_val))
+						$cf_val = implode(', ', $cf_val);
+						
+					if(is_string($cf_val)) {
+						if(null != $opp)
+							$token_values['custom_'.$cf_id] = $cf_val;
+					}
+				}
+			}
+		}
+		
+		// Person
+		@$address_id = $opp->primary_email_id;
+		$merge_token_labels = array();
+		$merge_token_values = array();
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_ADDRESS, $address_id, $merge_token_labels, $merge_token_values, '', true);
+
+		CerberusContexts::merge(
+			'email_',
+			'Lead:',
+			$merge_token_labels,
+			$merge_token_values,
+			$token_labels,
+			$token_values
+		);
+		
+		// Assignee
+		@$assignee_id = $opp->worker_id;
+		$merge_token_labels = array();
+		$merge_token_values = array();
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $assignee_id, $merge_token_labels, $merge_token_values, '', true);
+
+		CerberusContexts::merge(
+			'assignee_',
+			'Assignee:',
+			$merge_token_labels,
+			$merge_token_values,
+			$token_labels,
+			$token_values
+		);		
+		
+		return true;
+	}
+
+	function renderChooserPanel($from_context, $from_context_id, $to_context, $return_uri) {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$path = APP_PATH . '/features/cerberusweb.core/templates/';
+		$tpl->assign('path', $path);
+		
+		$tpl->assign('context', $this);
+		$tpl->assign('from_context', $from_context);
+		$tpl->assign('from_context_id', $from_context_id);
+		$tpl->assign('to_context', $to_context);
+		$tpl->assign('context_extension', $this);
+		$tpl->assign('return_uri', $return_uri);
+		
+		$links = DAO_ContextLink::getLinks($from_context, $from_context_id);
+		$ids = array();
+		
+		if(is_array($links))
+		foreach($links as $link) {
+			if($link->context !== $to_context)
+				continue;
+			$ids[] = $link->context_id;
+		}
+		
+		if(!empty($ids)) {
+			$links = array();
+			$link_ids = DAO_CrmOpportunity::getWhere(sprintf("%s IN (%s)",
+				DAO_CrmOpportunity::ID,
+				implode(',', $ids)
+			));
+			
+			if(is_array($link_ids))
+			foreach($link_ids as $link_id => $link) {
+				$links[$link_id] = sprintf("%s", $link->name);
+			}
+			
+			$tpl->assign('links', $links);
+		}
+		
+		// View
+		
+		$view_id = 'contextlink_'.str_replace('.','_',$this->id);
+		$defaults = new C4_AbstractViewModel();
+		$defaults->id = $view_id; 
+		$defaults->class_name = 'View_CrmOpportunity';
+		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
+		$view->name = 'Opportunities';
+		$view->view_columns = array(
+			SearchFields_CrmOpportunity::PRIMARY_EMAIL_ID,
+			SearchFields_CrmOpportunity::ORG_NAME,
+			SearchFields_CrmOpportunity::UPDATED_DATE,
+			SearchFields_CrmOpportunity::WORKER_ID,
+		);
+		$view->params = array(
+			SearchFields_CrmOpportunity::IS_CLOSED => new DevblocksSearchCriteria(SearchFields_CrmOpportunity::IS_CLOSED,'=',0),
+			SearchFields_CrmOpportunity::WORKER_ID => new DevblocksSearchCriteria(SearchFields_CrmOpportunity::WORKER_ID,'=',$active_worker->id),
+		);
+		$view->renderSortBy = SearchFields_CrmOpportunity::UPDATED_DATE;
+		$view->renderSortAsc = false;
+		$view->renderLimit = 10;
+		$view->renderTemplate = 'contextlinks_chooser';
+		C4_AbstractViewLoader::setView($view_id, $view);
+		$tpl->assign('view', $view);
+
+		$tpl->assign('view_fields', View_CrmOpportunity::getFields());
+		$tpl->assign('view_searchable_fields', View_CrmOpportunity::getSearchFields());
+		
+		// Template
+		
+		$tpl->display('file:'.$path.'context_links/choosers/__generic.tpl');
+	}	
+	
+	function saveChooserPanel($from_context, $from_context_id, $to_context, $to_context_data) {
+		if(is_array($to_context_data))
+		foreach($to_context_data as $to_context_item) {
+			if(!empty($to_context) && null != ($opp = DAO_CrmOpportunity::get($to_context_item))) {
+				DAO_ContextLink::setLink($from_context, $from_context_id, $to_context, $opp->id);
+			}
+		}
+		
+		return TRUE;
+	}
+	
+	function getView($ids) {
+		$view_id = str_replace('.','_',$this->id);
+		
+		$defaults = new C4_AbstractViewModel();
+		$defaults->id = $view_id; 
+		$defaults->class_name = 'View_CrmOpportunity';
+		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
+		$view->name = 'Opportunities';
+		$view->params = array(
+			SearchFields_CrmOpportunity::ID => new DevblocksSearchCriteria(SearchFields_CrmOpportunity::ID,'in',$ids),
+		);
+		C4_AbstractViewLoader::setView($view_id, $view);
+		return $view;
 	}
 };

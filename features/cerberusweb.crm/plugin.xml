@@ -54,6 +54,19 @@
 	
 	<extensions>
 	
+		<!-- Contexts -->
+		
+		<extension point="devblocks.context">
+			<id>cerberusweb.contexts.opportunity</id>
+			<name>Opportunity</name>
+			<class>
+				<file>api/App.php</file>
+				<name>Context_Opportunity</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+	
 		<!-- Event Listeners -->
 		
 		<extension point="devblocks.listener.event">

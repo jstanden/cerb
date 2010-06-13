@@ -83,7 +83,7 @@
 			<tuv xml:lang="en_US"><seg>Properties</seg></tuv>
 		</tu>
 		<tu tuid='crm.opp.tab.tasks'>
-			<tuv xml:lang="en_US"><seg>Tasks (%s)</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Tasks</seg></tuv>
 		</tu>
 		
 		<!-- Opportunity -->

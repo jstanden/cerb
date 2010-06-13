@@ -23,11 +23,11 @@
 <div id="oppTabs">
 	<ul>
 		<li><a href="{devblocks_url}ajax.php?c=crm&a=showOppNotesTab&id={$opp->id}{/devblocks_url}">{'crm.opp.tab.notes'|devblocks_translate|escape}</a></li>
+		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextLinks&context=cerberusweb.contexts.opportunity&id={$opp->id}&return_uri={"crm/opps/{$opp->id}/links"|escape:'url'}{/devblocks_url}">{$translate->_('common.links')|escape:'quotes'}</a></li>		
 		<li><a href="{devblocks_url}ajax.php?c=crm&a=showOppPropertiesTab&id={$opp->id}{/devblocks_url}">{'crm.opp.tab.properties'|devblocks_translate|escape}</a></li>
 		<li><a href="{devblocks_url}ajax.php?c=crm&a=showOppMailTab&id={$opp->id}{/devblocks_url}">{'crm.opp.tab.mail_history'|devblocks_translate|escape}</a></li>
-		<li><a href="{devblocks_url}ajax.php?c=crm&a=showOppTasksTab&id={$opp->id}{/devblocks_url}">{'crm.opp.tab.tasks'|devblocks_translate:$tasks_total|escape}</a></li>
 
-		{$tabs = [notes,properties,mail,tasks]}
+		{$tabs = [notes,links,properties,mail]}
 
 		{foreach from=$tab_manifests item=tab_manifest}
 			{$tabs[] = $tab_manifest->params.uri}
