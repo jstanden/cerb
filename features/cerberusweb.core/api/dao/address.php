@@ -96,8 +96,19 @@ class DAO_Address extends C4_ORMHelper {
 		
 		$sql = "DELETE QUICK address_to_worker FROM address_to_worker LEFT JOIN worker ON address_to_worker.worker_id=worker.id WHERE worker.id IS NULL";
 		$db->Execute($sql);
-		
 		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' address_to_worker records.');
+		
+		// Context Links
+		$db->Execute(sprintf("DELETE QUICK context_link FROM context_link LEFT JOIN address ON context_link.from_context_id=address.id WHERE context_link.from_context = %s AND address.id IS NULL",
+			$db->qstr(CerberusContexts::CONTEXT_ADDRESS)
+		));
+		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' address context link sources.');
+		
+		$db->Execute(sprintf("DELETE QUICK context_link FROM context_link LEFT JOIN address ON context_link.to_context_id=address.id WHERE context_link.to_context = %s AND address.id IS NULL",
+			$db->qstr(CerberusContexts::CONTEXT_ADDRESS)
+		));
+		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' address context link targets.');
+		
 	}
 	
     static function delete($ids) {
@@ -114,6 +125,9 @@ class DAO_Address extends C4_ORMHelper {
         $sql = sprintf("DELETE QUICK FROM address WHERE id IN (%s)", $address_ids);
         $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
        
+		// Context links
+		DAO_ContextLink::delete(CerberusContexts::CONTEXT_ADDRESS, $ids);
+        
         // Custom fields
         DAO_CustomFieldValue::deleteBySourceIds(ChCustomFieldSource_Address::ID, $ids);
     }

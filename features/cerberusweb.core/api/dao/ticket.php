@@ -159,10 +159,16 @@ class DAO_Ticket extends C4_ORMHelper {
 		$db->Execute($sql);
 		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' requester records.');
 		
-		// Ticket tasks
-		$sql = "DELETE QUICK task FROM task LEFT JOIN ticket ON task.source_id = ticket.id WHERE task.source_extension = 'cerberusweb.tasks.ticket' AND ticket.id IS NULL";
-		$db->Execute($sql);
-		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' task records.');
+		// Context Links
+		$db->Execute(sprintf("DELETE QUICK context_link FROM context_link LEFT JOIN ticket ON context_link.from_context_id=ticket.id WHERE context_link.from_context = %s AND ticket.id IS NULL",
+			$db->qstr(CerberusContexts::CONTEXT_TICKET)
+		));
+		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' ticket context link sources.');
+		
+		$db->Execute(sprintf("DELETE QUICK context_link FROM context_link LEFT JOIN ticket ON context_link.to_context_id=ticket.id WHERE context_link.to_context = %s AND ticket.id IS NULL",
+			$db->qstr(CerberusContexts::CONTEXT_TICKET)
+		));
+		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' ticket context link targets.');
 		
 		// Recover any tickets assigned to next_worker_id = NULL
 		$sql = "UPDATE ticket LEFT JOIN worker ON ticket.next_worker_id = worker.id SET ticket.next_worker_id = 0 WHERE ticket.next_worker_id > 0 AND worker.id IS NULL";

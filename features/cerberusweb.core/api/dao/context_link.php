@@ -59,6 +59,26 @@ class DAO_ContextLink {
 		return $objects;
 	}
 	
+	static public function delete($context, $context_ids) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		if(!is_array($context_ids))
+			$context_ids = array($context_ids);
+		
+		$ids = implode(',', $context_ids);
+		
+		if(empty($ids))
+			return;
+		
+		$sql = sprintf("DELETE FROM context_link WHERE (from_context = %s AND from_context_id IN (%s)) OR (to_context = %s AND to_context_id IN (%s))",
+			$db->qstr($context),
+			$ids,
+			$db->qstr($context),
+			$ids
+		);
+		$db->Execute($sql);
+	}
+	
 	static public function deleteLink($src_context, $src_context_id, $dst_context, $dst_context_id, $is_reciprocal=true) {
 		$db = DevblocksPlatform::getDatabaseService();
 		

@@ -88,8 +88,8 @@ class DAO_ContactOrg extends C4_ORMHelper {
 		);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 		
-		// Tasks
-        DAO_Task::deleteBySourceIds('cerberusweb.tasks.org', $ids);
+		// Context links
+		DAO_ContextLink::delete(CerberusContexts::CONTEXT_ORG, $ids);
         
         // Custom fields
         DAO_CustomFieldValue::deleteBySourceIds(ChCustomFieldSource_Org::ID, $ids);

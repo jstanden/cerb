@@ -1233,6 +1233,16 @@ class DAO_CrmOpportunity extends C4_ORMHelper {
 		$db = DevblocksPlatform::getDatabaseService();
 		$logger = DevblocksPlatform::getConsoleLog();
 
+		// Context Links
+		$db->Execute(sprintf("DELETE QUICK context_link FROM context_link LEFT JOIN crm_opportunity ON context_link.from_context_id=crm_opportunity.id WHERE context_link.from_context = %s AND crm_opportunity.id IS NULL",
+			$db->qstr(CerberusContexts::CONTEXT_OPPORTUNITY)
+		));
+		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' opportunity context link sources.');
+		
+		$db->Execute(sprintf("DELETE QUICK context_link FROM context_link LEFT JOIN crm_opportunity ON context_link.to_context_id=crm_opportunity.id WHERE context_link.to_context = %s AND crm_opportunity.id IS NULL",
+			$db->qstr(CerberusContexts::CONTEXT_OPPORTUNITY)
+		));
+		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' opportunity context link targets.');
 	}
 	
 	static function delete($ids) {
@@ -1244,6 +1254,9 @@ class DAO_CrmOpportunity extends C4_ORMHelper {
 		// Opps
 		$db->Execute(sprintf("DELETE QUICK FROM crm_opportunity WHERE id IN (%s)", $ids_list));
 
+		// Context links
+		DAO_ContextLink::delete(CerberusContexts::CONTEXT_OPPORTUNITY, $ids);
+		
 		// Custom fields
 		DAO_CustomFieldValue::deleteBySourceIds(CrmCustomFieldSource_Opportunity::ID, $ids);
 		

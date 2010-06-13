@@ -116,6 +116,9 @@ class DAO_Task extends C4_ORMHelper {
 		// Tasks
 		$db->Execute(sprintf("DELETE QUICK FROM task WHERE id IN (%s)", $ids_list));
 		
+		// Context links
+		DAO_ContextLink::delete(CerberusContexts::CONTEXT_TASK, $ids);
+		
 		// Custom fields
 		DAO_CustomFieldValue::deleteBySourceIds(ChCustomFieldSource_Task::ID, $ids);
 		

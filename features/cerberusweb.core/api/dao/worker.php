@@ -251,6 +251,17 @@ class DAO_Worker extends C4_ORMHelper {
 		$sql = "DELETE QUICK worker_workspace_list FROM worker_workspace_list LEFT JOIN worker ON worker_workspace_list.worker_id = worker.id WHERE worker.id IS NULL";
 		$db->Execute($sql);
 		
+		// Context Links
+		$db->Execute(sprintf("DELETE QUICK context_link FROM context_link LEFT JOIN worker ON context_link.from_context_id=worker.id WHERE context_link.from_context = %s AND worker.id IS NULL",
+			$db->qstr(CerberusContexts::CONTEXT_WORKER)
+		));
+		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' worker context link sources.');
+		
+		$db->Execute(sprintf("DELETE QUICK context_link FROM context_link LEFT JOIN worker ON context_link.to_context_id=worker.id WHERE context_link.to_context = %s AND worker.id IS NULL",
+			$db->qstr(CerberusContexts::CONTEXT_WORKER)
+		));
+		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' worker context link targets.');
+		
 		// [TODO] Clear out workers from any group_inbox_filter rows
 		
 		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' worker_workspace_list records.');
@@ -297,6 +308,9 @@ class DAO_Worker extends C4_ORMHelper {
 
 		// Clear roles
 		$db->Execute(sprintf("DELETE FROM worker_to_role WHERE worker_id = %d", $id));
+		
+		// Context links
+		DAO_ContextLink::delete(CerberusContexts::CONTEXT_WORKER, $id);
 		
 		// Invalidate caches
 		self::clearCache();
