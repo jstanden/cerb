@@ -1609,3 +1609,292 @@ class View_Ticket extends C4_AbstractView {
 		$visit->set(CerberusVisit::KEY_VIEW_LAST_ACTION,array());
 	}
 };
+
+class Context_Ticket extends Extension_DevblocksContext {
+    function __construct($manifest) {
+        parent::__construct($manifest);
+    }
+
+	function getContext($ticket, &$token_labels, &$token_values, $prefix=null) {
+		if(is_null($prefix))
+			$prefix = 'Ticket:';
+		
+		$translate = DevblocksPlatform::getTranslationService();
+		$workers = DAO_Worker::getAll();
+		$fields = DAO_CustomField::getBySource(ChCustomFieldSource_Ticket::ID);
+		
+		// Polymorph
+		if(is_numeric($ticket)) {
+			list($results, $null) = DAO_Ticket::search(
+				array(),
+				array(
+					SearchFields_Ticket::TICKET_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_ID,'=',$ticket),
+					// [TODO] Enforce worker privs
+				),
+				1,
+				0,
+				null,
+				null,
+				false
+			);
+			
+			if(!empty($results))
+				$ticket = array_shift($results);
+			else
+				$ticket = null;
+				
+		} elseif(is_array($ticket)) {
+			// It's what we want
+		} else {
+			$ticket = null;
+		}
+			
+		// Token labels
+		$token_labels = array(
+			'id' => $prefix.$translate->_('ticket.id'),
+			'mask' => $prefix.$translate->_('ticket.mask'),
+			'subject' => $prefix.$translate->_('ticket.subject'),
+			'next_worker_id' => $prefix.$translate->_('ticket.next_worker'). ' ID',
+			'created|date' => $prefix.$translate->_('ticket.created'),
+			'updated|date' => $prefix.$translate->_('ticket.updated'),
+		);
+		
+		if(is_array($fields))
+		foreach($fields as $cf_id => $field) {
+			$token_labels['custom_'.$cf_id] = $prefix.$field->name;
+		}
+
+		// Token values
+		$token_values = array();
+		
+		// Ticket token values
+		if(null != $ticket) {
+			$token_values['id'] = $ticket[SearchFields_Ticket::TICKET_ID];
+			$token_values['mask'] = $ticket[SearchFields_Ticket::TICKET_MASK];
+			$token_values['subject'] = $ticket[SearchFields_Ticket::TICKET_SUBJECT];
+			$token_values['next_worker_id'] = $ticket[SearchFields_Ticket::TICKET_NEXT_WORKER_ID];
+			$token_values['created'] = $ticket[SearchFields_Ticket::TICKET_CREATED_DATE];
+			$token_values['updated'] = $ticket[SearchFields_Ticket::TICKET_UPDATED_DATE];
+			$token_values['custom'] = array();
+			
+			// Custom fields
+			$field_values = array_shift(DAO_CustomFieldValue::getValuesBySourceIds(ChCustomFieldSource_Ticket::ID, $ticket[SearchFields_Ticket::TICKET_ID]));
+			if(is_array($field_values) && !empty($field_values)) {
+				foreach($field_values as $cf_id => $cf_val) {
+					if(!isset($fields[$cf_id]))
+						continue;
+					
+					// The literal value
+					if(null != $ticket)
+						$token_values['custom'][$cf_id] = $cf_val;
+					
+					// Stringify
+					if(is_array($cf_val))
+						$cf_val = implode(', ', $cf_val);
+						
+					if(is_string($cf_val)) {
+						if(null != $ticket)
+							$token_values['custom_'.$cf_id] = $cf_val;
+					}
+				}
+			}
+		}
+
+		// Group
+		$merge_token_labels = array();
+		$merge_token_values = array();
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_GROUP, $ticket[SearchFields_Ticket::TICKET_TEAM_ID], $merge_token_labels, $merge_token_values, '', true);
+
+		CerberusContexts::merge(
+			'group_',
+			'Ticket:Group:',
+			$merge_token_labels,
+			$merge_token_values,
+			$token_labels,
+			$token_values
+		);
+		
+		// Bucket
+		$merge_token_labels = array();
+		$merge_token_values = array();
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_BUCKET, $ticket[SearchFields_Ticket::TICKET_CATEGORY_ID], $merge_token_labels, $merge_token_values, '', true);
+
+		CerberusContexts::merge(
+			'bucket_',
+			'Ticket:Bucket:',
+			$merge_token_labels,
+			$merge_token_values,
+			$token_labels,
+			$token_values
+		);
+		
+		// Next worker
+		$next_worker_id = $ticket[SearchFields_Ticket::TICKET_NEXT_WORKER_ID];
+		$merge_token_labels = array();
+		$merge_token_values = array();
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $next_worker_id, $merge_token_labels, $merge_token_values, '', true);
+
+		CerberusContexts::merge(
+			'assignee_',
+			'Assignee:',
+			$merge_token_labels,
+			$merge_token_values,
+			$token_labels,
+			$token_values
+		);
+
+		// First message
+		$first_message_id = $ticket[SearchFields_Ticket::TICKET_FIRST_MESSAGE_ID];
+		$merge_token_labels = array();
+		$merge_token_values = array();
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_MESSAGE, $first_message_id, $merge_token_labels, $merge_token_values, 'Message:', true);
+		
+		CerberusContexts::merge(
+			'initial_message_',
+			'Initial:',
+			$merge_token_labels,
+			$merge_token_values,
+			$token_labels,
+			$token_values
+		
+		);
+		
+		// Last message
+		$last_message_id = $ticket[SearchFields_Ticket::TICKET_LAST_MESSAGE_ID];
+		$merge_token_labels = array();
+		$merge_token_values = array();
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_MESSAGE, $last_message_id, $merge_token_labels, $merge_token_values, 'Message:', true);
+		
+		CerberusContexts::merge(
+			'latest_message_',
+			'Latest:',
+			$merge_token_labels,
+			$merge_token_values,
+			$token_labels,
+			$token_values
+		);
+		
+		// Plugin-provided tokens
+		$token_extension_mfts = DevblocksPlatform::getExtensions('cerberusweb.template.token', false);
+		foreach($token_extension_mfts as $mft) { /* @var $mft DevblocksExtensionManifest */
+			@$token = $mft->params['token'];
+			@$label = $mft->params['label'];
+			@$bind = $mft->params['bind'][0];
+			
+			if(empty($token) || empty($label) || !is_array($bind))
+				continue;
+
+			if(!isset($bind['ticket']))
+				continue;
+				
+			if(null != ($ext = $mft->createInstance()) && $ext instanceof ITemplateToken_Ticket) {
+				/* @var $ext ITemplateToken_Signature */
+				$value = $ext->getTicketTokenValue($worker);
+				
+				if(!empty($value)) {
+					$token_labels[$token] = $label;
+					$token_values[$token] = $value;
+				}
+			}
+		}
+		
+		return true;
+	}
+    
+	function renderChooserPanel($from_context, $from_context_id, $to_context, $return_uri) {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$path = dirname(dirname(dirname(__FILE__))) . '/templates/';
+		$tpl->assign('path', $path);
+		
+		$tpl->assign('context', $this);
+		$tpl->assign('from_context', $from_context);
+		$tpl->assign('from_context_id', $from_context_id);
+		$tpl->assign('to_context', $to_context);
+		$tpl->assign('context_extension', $this);
+		$tpl->assign('return_uri', $return_uri);
+		
+		$links = DAO_ContextLink::getLinks($from_context, $from_context_id);
+		$ids = array();
+		
+		if(is_array($links))
+		foreach($links as $link) {
+			if($link->context !== $to_context)
+				continue;
+			$ids[] = $link->context_id;
+		}
+		
+		if(!empty($ids)) {
+			$links = array();
+			$link_ids = DAO_Ticket::getTickets($ids);
+			
+			if(is_array($link_ids))
+			foreach($link_ids as $link_id => $link) {
+				$links[$link_id] = sprintf("[#%s] %s", $link->mask, $link->subject);
+			}
+			
+			$tpl->assign('links', $links);
+		}
+		
+		// View
+		
+		$view_id = 'contextlink_'.str_replace('.','_',$this->id);
+		$defaults = new C4_AbstractViewModel();
+		$defaults->id = $view_id; 
+		$defaults->class_name = 'View_Ticket';
+		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
+		$view->name = 'Tickets';
+		$view->view_columns = array(
+			SearchFields_Ticket::TICKET_LAST_ACTION_CODE,
+			SearchFields_Ticket::TICKET_TEAM_ID,
+			SearchFields_Ticket::TICKET_CATEGORY_ID,
+			SearchFields_Ticket::TICKET_UPDATED_DATE,
+			SearchFields_Ticket::TICKET_NEXT_WORKER_ID,
+		);
+		$view->params = array(
+			SearchFields_Ticket::TICKET_CLOSED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',0),
+			SearchFields_Ticket::TICKET_NEXT_WORKER_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_NEXT_WORKER_ID,'=',$active_worker->id),
+			SearchFields_Ticket::TICKET_TEAM_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_TEAM_ID,'in',array_keys($active_worker->getMemberships())),
+		);
+		$view->renderSortBy = SearchFields_Ticket::TICKET_UPDATED_DATE;
+		$view->renderSortAsc = false;
+		$view->renderLimit = 10;
+		$view->renderTemplate = 'contextlinks_chooser';
+		C4_AbstractViewLoader::setView($view_id, $view);
+		$tpl->assign('view', $view);
+
+		$tpl->assign('view_fields', View_Ticket::getFields());
+		$tpl->assign('view_searchable_fields', View_Ticket::getSearchFields());
+		
+		// Template
+		
+		$tpl->display('file:'.$path.'context_links/choosers/__generic.tpl');
+	}	
+	
+	function saveChooserPanel($from_context, $from_context_id, $to_context, $to_context_data) {
+		if(is_array($to_context_data))
+		foreach($to_context_data as $to_context_item) {
+			if(!empty($to_context) && null != ($ticket = DAO_Ticket::get($to_context_item))) {
+				DAO_ContextLink::setLink($from_context, $from_context_id, $to_context, $ticket->id);
+			}
+		}
+		
+		return TRUE;
+	}
+	
+	function getView($ids) {
+		$view_id = str_replace('.','_',$this->id);
+		
+		$defaults = new C4_AbstractViewModel();
+		$defaults->id = $view_id; 
+		$defaults->class_name = 'View_Ticket';
+		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
+		$view->name = 'Tickets';
+		$view->params = array(
+			SearchFields_Ticket::TICKET_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_ID,'in',$ids),
+		);
+		C4_AbstractViewLoader::setView($view_id, $view);
+		return $view;
+	}
+};
