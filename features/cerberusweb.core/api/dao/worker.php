@@ -1016,7 +1016,7 @@ class Context_Worker extends Extension_DevblocksContext {
 		@$worker_email = !is_null($worker) ? $worker->email : null;
 		$merge_token_labels = array();
 		$merge_token_values = array();
-		self::getContext(self::CONTEXT_ADDRESS, $worker_email, $merge_token_labels, $merge_token_values, null, true);
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_ADDRESS, $worker_email, $merge_token_labels, $merge_token_values, null, true);
 
 		CerberusContexts::merge(
 			'address_',
@@ -1035,6 +1035,7 @@ class Context_Worker extends Extension_DevblocksContext {
 		$path = dirname(dirname(dirname(__FILE__))) . '/templates/';
 		$tpl->assign('path', $path);
 		
+		$tpl->assign('context', $this);
 		$tpl->assign('from_context', $from_context);
 		$tpl->assign('from_context_id', $from_context_id);
 		$tpl->assign('to_context', $to_context);
@@ -1046,18 +1047,25 @@ class Context_Worker extends Extension_DevblocksContext {
 		
 		if(is_array($links))
 		foreach($links as $link) {
-			if($link->context !== CerberusContexts::CONTEXT_WORKER)
+			if($link->context !== $to_context)
 				continue;
 			$ids[] = $link->context_id;
 		}
 		
 		if(!empty($ids)) {
-			$links = DAO_Worker::getWhere(
+			$links = array();
+			$link_ids = DAO_Worker::getWhere(
 				sprintf("%s IN (%s)",
 					DAO_Worker::ID,
 					implode(',', $ids)
 				)
 			);
+			
+			if(is_array($link_ids))
+			foreach($link_ids as $link_id => $link) {
+				$links[$link_id] = $link->getName();
+			}
+			
 			$tpl->assign('links', $links);
 		}
 		
@@ -1088,7 +1096,7 @@ class Context_Worker extends Extension_DevblocksContext {
 		
 		// Template
 		
-		$tpl->display('file:'.$path.'context_links/choosers/worker.tpl');
+		$tpl->display('file:'.$path.'context_links/choosers/__generic.tpl');
 	}
 	
 	function saveChooserPanel($from_context, $from_context_id, $to_context, $to_context_data) {
