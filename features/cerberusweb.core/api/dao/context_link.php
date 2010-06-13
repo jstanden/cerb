@@ -6,7 +6,7 @@ class DAO_ContextLink {
 	const TO_CONTEXT_ID = 'to_context_id';
 
 	// [TODO] setLinks
-	static public function setLink($src_context, $src_context_id, $dst_context, $dst_context_id) {
+	static public function setLink($src_context, $src_context_id, $dst_context, $dst_context_id, $is_reciprocal=true) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
 		$sql = sprintf("INSERT IGNORE INTO context_link (from_context, from_context_id, to_context, to_context_id) ".
@@ -17,12 +17,26 @@ class DAO_ContextLink {
 			$dst_context_id
 		);
 		$db->Execute($sql);
+		
+		// Reciprocal
+		if($is_reciprocal) {
+			$sql = sprintf("INSERT IGNORE INTO context_link (from_context, from_context_id, to_context, to_context_id) ".
+				"VALUES (%s, %d, %s, %d) ",
+				$db->qstr($dst_context),
+				$dst_context_id,
+				$db->qstr($src_context),
+				$src_context_id
+			);
+			$db->Execute($sql);
+		}
 	}
 	
 	static public function getLinks($context, $context_id) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = sprintf("SELECT to_context AS context, to_context_id AS context_id FROM context_link WHERE %s = %s AND %s = %d",
+		$sql = sprintf("SELECT to_context AS context, to_context_id AS context_id ".
+			"FROM context_link ".
+			"WHERE (%s = %s AND %s = %d) ",
 			self::FROM_CONTEXT,
 			$db->qstr($context),
 			self::FROM_CONTEXT_ID,
@@ -45,7 +59,7 @@ class DAO_ContextLink {
 		return $objects;
 	}
 	
-	static public function deleteLink($src_context, $src_context_id, $dst_context, $dst_context_id) {
+	static public function deleteLink($src_context, $src_context_id, $dst_context, $dst_context_id, $is_reciprocal=true) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
 		$sql = sprintf("DELETE FROM context_link WHERE from_context = %s AND from_context_id = %d AND to_context = %s AND to_context_id = %d",
@@ -54,8 +68,17 @@ class DAO_ContextLink {
 			$db->qstr($dst_context),
 			$dst_context_id
 		);
-		
 		$db->Execute($sql);
+
+		if($is_reciprocal) {
+			$sql = sprintf("DELETE FROM context_link WHERE from_context = %s AND from_context_id = %d AND to_context = %s AND to_context_id = %d",
+				$db->qstr($dst_context),
+				$dst_context_id,
+				$db->qstr($src_context),
+				$src_context_id
+			);
+			$db->Execute($sql);
+		}
 		
 		return true;
 	}
