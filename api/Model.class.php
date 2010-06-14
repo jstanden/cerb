@@ -1135,13 +1135,15 @@ class Model_MailToGroupRule {
 						$dest_flag = false; // bail out when true
 						if(is_array($destinations) && is_array($tocc))
 						foreach($destinations as $dest) {
-							if($dest_flag) break;
+							if($dest_flag) 
+								break;
+								
 							$regexp_dest = DevblocksPlatform::strToRegExp($dest);
 							
 							foreach($tocc as $addy) {
 								if(@preg_match($regexp_dest, $addy)) {
 									$passed++;
-									$dest_flag = false;
+									$dest_flag = true;
 									break;
 								}
 							}
