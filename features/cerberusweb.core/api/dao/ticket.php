@@ -276,6 +276,7 @@ class DAO_Ticket extends C4_ORMHelper {
 			$sql = sprintf("DELETE FROM requester WHERE ticket_id IN (%s)",
 				implode(',', $merge_ticket_ids)
 			);
+			$db->Execute($sql);
 
 			// Tasks
 			$sql = sprintf("UPDATE task SET source_id = %d WHERE source_extension = %s AND source_id IN (%s)",
