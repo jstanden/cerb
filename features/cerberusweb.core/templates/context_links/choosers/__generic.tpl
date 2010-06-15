@@ -65,8 +65,9 @@
 		$('#frmContextLink :input:text:first').focus().select();
 		ajax.emailAutoComplete('#frmContextLink :input:text:first');
 		
-		$('#viewCustomFilters{$view->id}').bind('devblocks.refresh', function() { 
-			genericAjaxGet('view{$view->id}','c=internal&a=viewRefresh&id={$view->id|escape}');
+		$('#viewCustomFilters{$view->id}').bind('devblocks.refresh', function(event) {
+			if(event.target == event.currentTarget)
+				genericAjaxGet('view{$view->id}','c=internal&a=viewRefresh&id={$view->id|escape}');
 		} );
 	} );
 </script>
