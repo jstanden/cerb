@@ -21,21 +21,22 @@
  &nbsp; 
 <a href="javascript:;" onclick="Devblocks.resetSelectElements('customize{$view->id}','columns[]');">{$translate->_('common.clear')|lower}</a>
 <br>
+{$columnsAvailable = $view->getColumnsAvailable()}
 {section start=0 step=1 loop=15 name=columns}
 {assign var=index value=$smarty.section.columns.index}
 {math equation="x+1" x=$index format="%02d"}: 
 <select name="columns[]">
 	<option value=""></option>
 	
-	{foreach from=$optColumns item=optColumn}
-		{if substr($optColumn->token,0,3) != "cf_"}
+	{foreach from=$columnsAvailable item=colAvail}
+		{if substr($colAvail->token,0,3) != "cf_"}
 			{* [TODO] These should be excluded in the abstract class, not here *}
-			{if $optColumn->token=="a_contact_org_id"}
-			{elseif $optColumn->token=="a_id"}
-			{elseif $optColumn->token=="c_id"}
+			{if $colAvail->token=="a_contact_org_id"}
+			{elseif $colAvail->token=="a_id"}
+			{elseif $colAvail->token=="c_id"}
 			{else}
-				{if !empty($optColumn->db_label) && !empty($optColumn->token)}
-					<option value="{$optColumn->token}" {if $view->view_columns.$index==$optColumn->token}selected{/if}>{$optColumn->db_label}</option>
+				{if !empty($colAvail->db_label) && !empty($colAvail->token)}
+					<option value="{$colAvail->token}" {if $view->view_columns.$index==$colAvail->token}selected{/if}>{$colAvail->db_label}</option>
 				{/if}
 			{/if}
 		{else}
@@ -45,10 +46,10 @@
 	
 	{if $has_custom}
 	<optgroup label="Custom Fields">
-	{foreach from=$optColumns item=optColumn}
-		{if substr($optColumn->token,0,3) == "cf_"}
-			{if !empty($optColumn->db_label) && !empty($optColumn->token)}
-			<option value="{$optColumn->token}" {if $view->view_columns.$index==$optColumn->token}selected{/if}>{$optColumn->db_label}</option>
+	{foreach from=$columnsAvailable item=colAvail}
+		{if substr($colAvail->token,0,3) == "cf_"}
+			{if !empty($colAvail->db_label) && !empty($colAvail->token)}
+			<option value="{$colAvail->token}" {if $view->view_columns.$index==$colAvail->token}selected{/if}>{$colAvail->db_label}</option>
 			{/if}
 		{/if}
 	{/foreach}

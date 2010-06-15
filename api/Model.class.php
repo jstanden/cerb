@@ -65,6 +65,26 @@ abstract class C4_AbstractView {
 	function getData() {
 	}
 
+	function getColumnsAvailable() {
+		$columns = $this->getFields();
+		
+		if(is_array($this->columnsHidden))
+		foreach($this->columnsHidden as $col)
+			unset($columns[$col]);
+			
+		return $columns;
+	}
+	
+	function getParamsAvailable() {
+		$params = $this->getFields();
+		
+		if(is_array($this->paramsHidden))
+		foreach($this->paramsHidden as $param)
+			unset($params[$param]);
+		
+		return $params;
+	}
+	
 	function render() {
 		echo ' '; // Expect Override
 	}
@@ -172,7 +192,7 @@ abstract class C4_AbstractView {
 	 *
 	 */
 	protected function _sanitize() {
-		$fields = $this->getColumns();
+		$fields = $this->getColumnsAvailable();
 		$custom_fields = DAO_CustomField::getAll();
 		$needs_save = false;
 		

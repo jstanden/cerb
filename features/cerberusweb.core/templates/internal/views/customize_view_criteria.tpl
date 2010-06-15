@@ -49,19 +49,24 @@
 			<h2>Add Filter</h2>
 			<b>{$translate->_('common.field')|capitalize}:</b><br>
 			<blockquote style="margin:5px;">
+				{$searchable_fields = $view->getParamsAvailable()}
+				{$has_custom = false}
+				
 				<select name="field" onchange="genericAjaxGet('addCriteria{$view->id}','c=internal&a=viewGetCriteria&id={$view->id}&field='+selectValue(this));">
 					<option value="">-- choose --</option>
-					
-					{foreach from=$view_searchable_fields item=column key=token}
+					{foreach from=$searchable_fields item=column key=token}
 						{if substr($token,0,3) != "cf_"}
 							{if !empty($column->db_label) && !empty($token)}
 							<option value="{$token}">{$column->db_label|capitalize}</option>
 							{/if}
+						{else}
+							{$has_custom = true}
 						{/if}
 					{/foreach}
 					
+					{if $has_custom}
 					<optgroup label="Custom Fields">
-					{foreach from=$view_searchable_fields item=column key=token}
+					{foreach from=$searchable_fields item=column key=token}
 						{if substr($token,0,3) == "cf_"}
 							{if !empty($column->db_label) && !empty($token)}
 							<option value="{$token}">{$column->db_label|capitalize}</option>
@@ -69,6 +74,7 @@
 						{/if}
 					{/foreach}
 					</optgroup>
+					{/if}
 				</select>
 			</blockquote>
 		

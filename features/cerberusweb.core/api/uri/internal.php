@@ -364,13 +364,7 @@ class ChInternalController extends DevblocksControllerExtension {
 	
 	private function _viewRenderInlineFilters($view) {
 		$tpl = DevblocksPlatform::getTemplateService();
-		
-		$tpl->assign('optColumns', $view->getColumns());
-		$tpl->assign('view_fields', $view->getFields());
-		$tpl->assign('view_searchable_fields', $view->getSearchFields());
-		
 		$tpl->assign('view', $view);
-		
 		$tpl->display('file:' . $this->_TPL_PATH . 'internal/views/customize_view_criteria.tpl');
 	}
 	
@@ -477,10 +471,6 @@ class ChInternalController extends DevblocksControllerExtension {
 		$view = C4_AbstractViewLoader::getView($id);
 		$tpl->assign('view', $view);
 
-		$tpl->assign('optColumns', $view->getColumns());
-		$tpl->assign('view_fields', $view->getFields());
-		$tpl->assign('view_searchable_fields', $view->getSearchFields());
-		
 		$tpl->display('file:' . $this->_TPL_PATH . 'internal/views/customize_view.tpl');
 	}
 	
