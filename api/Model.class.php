@@ -51,9 +51,15 @@
 abstract class C4_AbstractView {
 	public $id = 0;
 	public $name = "";
+	
 	public $view_columns = array();
+	public $columnsHidden = array();
+	
 	public $params = array();
-
+	public $paramsDefault = array();
+	public $paramsRequired = array();
+	public $paramsHidden = array();
+	
 	public $renderPage = 0;
 	public $renderLimit = 10;
 	public $renderTotal = true;
@@ -320,7 +326,7 @@ abstract class C4_AbstractView {
 	}
 
 	function doResetCriteria() {
-		$this->params = array();
+		$this->params = $this->paramsDefault;
 		$this->renderPage = 0;
 	}
 	
@@ -400,8 +406,14 @@ class C4_AbstractViewModel {
 
 	public $id = 0;
 	public $name = "";
+	
 	public $view_columns = array();
+	public $columnsHidden = array();
+	
 	public $params = array();
+	public $paramsDefault = array();
+	public $paramsRequired = array();
+	public $paramsHidden = array();
 
 	public $renderPage = 0;
 	public $renderLimit = 10;
@@ -476,6 +488,14 @@ class C4_AbstractViewLoader {
 					$view->id = $view_label;
 					if(!empty($prefs->view_columns))
 						$view->view_columns = $prefs->view_columns;
+					if(!empty($prefs->columnsHidden))
+						$view->columnsHidden = $prefs->columnsHidden;
+					if(!empty($prefs->paramsDefault))
+						$view->paramsDefault = $prefs->paramsDefault;
+					if(!empty($prefs->paramsRequired))
+						$view->paramsRequired = $prefs->paramsRequired;
+					if(!empty($prefs->paramsHidden))
+						$view->paramsHidden = $prefs->paramsHidden;
 					if(!empty($prefs->renderLimit))
 						$view->renderLimit = $prefs->renderLimit;
 					if(null !== $prefs->renderSortBy)
@@ -527,9 +547,15 @@ class C4_AbstractViewLoader {
 
 		$model->id = $view->id;
 		$model->name = $view->name;
+		
 		$model->view_columns = $view->view_columns;
+		$model->columnsHidden = $view->columnsHidden;
+		
 		$model->params = $view->params;
-
+		$model->paramsDefault = $view->paramsDefault;
+		$model->paramsRequired = $view->paramsRequired;
+		$model->paramsHidden = $view->paramsHidden;
+		
 		$model->renderPage = $view->renderPage;
 		$model->renderLimit = $view->renderLimit;
 		$model->renderTotal = $view->renderTotal;
@@ -552,8 +578,14 @@ class C4_AbstractViewLoader {
 			
 		$inst->id = $model->id;
 		$inst->name = $model->name;
+		
 		$inst->view_columns = $model->view_columns;
+		$inst->columns = $model->columnsHidden;
+		
 		$inst->params = $model->params;
+		$inst->paramsDefault = $model->paramsDefault;
+		$inst->paramsRequired = $model->paramsRequired;
+		$inst->paramsHidden = $model->paramsHidden;
 
 		$inst->renderPage = $model->renderPage;
 		$inst->renderLimit = $model->renderLimit;
