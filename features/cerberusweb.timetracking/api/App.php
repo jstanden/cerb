@@ -478,7 +478,21 @@ class C4_TimeTrackingEntryView extends C4_AbstractView {
 			SearchFields_TimeTrackingEntry::SOURCE_EXTENSION_ID,
 			SearchFields_TimeTrackingEntry::ORG_NAME,
 		);
-
+		$this->columnsHidden = array(
+			SearchFields_TimeTrackingEntry::ID,
+			SearchFields_TimeTrackingEntry::SOURCE_ID,
+			SearchFields_TimeTrackingEntry::DEBIT_ORG_ID,
+		);
+		
+		$this->paramsHidden = array(
+			SearchFields_TimeTrackingEntry::ID,
+			SearchFields_TimeTrackingEntry::SOURCE_ID,
+			SearchFields_TimeTrackingEntry::DEBIT_ORG_ID,
+		);
+		$this->paramsDefault = array(
+			SearchFields_TimeTrackingEntry::LOG_DATE => new DevblocksSearchCriteria(SearchFields_TimeTrackingEntry::LOG_DATE,DevblocksSearchCriteria::OPER_BETWEEN,array('-1 month','now')),
+		);
+		
 		$this->doResetCriteria();
 	}
 
@@ -515,7 +529,6 @@ class C4_TimeTrackingEntryView extends C4_AbstractView {
 		$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_TimeEntry::ID);
 		$tpl->assign('custom_fields', $custom_fields);
 		
-		$tpl->assign('view_fields', $this->getColumns());
 		$tpl->display('file:' . APP_PATH . '/features/cerberusweb.timetracking/templates/timetracking/time/view.tpl');
 	}
 
@@ -630,30 +643,6 @@ class C4_TimeTrackingEntryView extends C4_AbstractView {
 		return SearchFields_TimeTrackingEntry::getFields();
 	}
 
-	static function getSearchFields() {
-		$fields = self::getFields();
-		unset($fields[SearchFields_TimeTrackingEntry::ID]);
-		unset($fields[SearchFields_TimeTrackingEntry::SOURCE_ID]);
-		unset($fields[SearchFields_TimeTrackingEntry::DEBIT_ORG_ID]);
-		return $fields;
-	}
-
-	static function getColumns() {
-		$fields = self::getFields();
-		unset($fields[SearchFields_TimeTrackingEntry::ID]);
-		unset($fields[SearchFields_TimeTrackingEntry::SOURCE_ID]);
-		unset($fields[SearchFields_TimeTrackingEntry::DEBIT_ORG_ID]);
-		return $fields;
-	}
-
-	function doResetCriteria() {
-		parent::doResetCriteria();
-		
-		$this->params = array(
-			SearchFields_TimeTrackingEntry::LOG_DATE => new DevblocksSearchCriteria(SearchFields_TimeTrackingEntry::LOG_DATE,DevblocksSearchCriteria::OPER_BETWEEN,array('-1 month','now')),
-		);
-	}
-	
 	function doSetCriteria($field, $oper, $value) {
 		$criteria = null;
 
@@ -1297,11 +1286,7 @@ class TimeTrackingActivityTab extends Extension_ActivityTab {
 			C4_AbstractViewLoader::setView($view->id, $view);
 		}
 
-		$tpl->assign('response_uri', 'activity/timetracking');
-		
 		$tpl->assign('view', $view);
-		$tpl->assign('view_fields', C4_TimeTrackingEntryView::getFields());
-		$tpl->assign('view_searchable_fields', C4_TimeTrackingEntryView::getSearchFields());
 		
 		$tpl->display($tpl_path . 'activity_tab/index.tpl');		
 	}

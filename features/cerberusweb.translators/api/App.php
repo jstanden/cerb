@@ -59,17 +59,12 @@ class ChTranslatorsConfigTab extends Extension_ConfigTab {
 		$core_tplpath = dirname(dirname(dirname(__FILE__))) . '/cerberusweb.core/templates/';
 		$tpl->assign('core_tplpath', $core_tplpath);
 
-		$tpl->assign('response_uri', 'config/translations');
-		
 		$defaults = new C4_AbstractViewModel();
 		$defaults->class_name = 'C4_TranslationView';
 		$defaults->id = C4_TranslationView::DEFAULT_ID;
 		
 		$view = C4_AbstractViewLoader::getView(C4_TranslationView::DEFAULT_ID, $defaults);
-		
 		$tpl->assign('view', $view);
-		$tpl->assign('view_fields', C4_TranslationView::getFields());
-		$tpl->assign('view_searchable_fields', C4_TranslationView::getSearchFields());
 		
 		$tpl->display('file:' . $tpl_path . 'config/translations/index.tpl');
 	}
@@ -97,7 +92,14 @@ class C4_TranslationView extends C4_AbstractView {
 			SearchFields_Translation::STRING_OVERRIDE,
 			SearchFields_Translation::STRING_ID,
 		);
-
+		$this->columnsHidden = array(
+			SearchFields_Translation::ID,
+		);
+		
+		$this->paramsHidden = array(
+			SearchFields_Translation::ID,
+		);
+		
 		$this->doResetCriteria();
 	}
 
@@ -128,7 +130,6 @@ class C4_TranslationView extends C4_AbstractView {
 		$english_map = DAO_Translation::getMapByLang('en_US');
 		$tpl->assign('english_map', $english_map);
 		
-		$tpl->assign('view_fields', $this->getColumns());
 		$tpl->display('file:' . APP_PATH . '/features/cerberusweb.translators/templates/config/translations/view.tpl');
 	}
 
@@ -184,26 +185,6 @@ class C4_TranslationView extends C4_AbstractView {
 		return SearchFields_Translation::getFields();
 	}
 
-	static function getSearchFields() {
-		$fields = self::getFields();
-		unset($fields[SearchFields_Translation::ID]);
-		return $fields;
-	}
-
-	static function getColumns() {
-		$fields = self::getFields();
-		unset($fields[SearchFields_Translation::ID]);
-		return $fields;
-	}
-
-	function doResetCriteria() {
-		parent::doResetCriteria();
-		
-		$this->params = array(
-//			SearchFields_FeedbackEntry::LOG_DATE => new DevblocksSearchCriteria(SearchFields_FeedbackEntry::LOG_DATE,DevblocksSearchCriteria::OPER_BETWEEN,array('-1 month','now')),
-		);
-	}
-	
 	function doSetCriteria($field, $oper, $value) {
 		$criteria = null;
 

@@ -154,7 +154,6 @@ class ChAuditLogTicketTab extends Extension_TicketTab {
 			SearchFields_TicketAuditLog::CHANGE_FIELD,
 			SearchFields_TicketAuditLog::CHANGE_VALUE,
 		);
-		$defaults->params = array();
 		$defaults->renderLimit = 15;
 		$defaults->renderPage = 0;
 		$defaults->renderSortBy = SearchFields_TicketAuditLog::CHANGE_DATE;
@@ -408,6 +407,12 @@ class C4_TicketAuditLogView extends C4_AbstractView {
 			SearchFields_TicketAuditLog::CHANGE_FIELD,
 			SearchFields_TicketAuditLog::CHANGE_VALUE,
 		);
+		
+		$this->paramsHidden = array(
+			SearchFields_TicketAuditLog::ID,
+		);
+		
+		$this->doResetCriteria();
 	}
 	
 	function getData() {
@@ -428,7 +433,6 @@ class C4_TicketAuditLogView extends C4_AbstractView {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
-		$tpl->assign('view_fields', $this->getColumns());
 		
 		$workers = DAO_Worker::getAll();
 		$tpl->assign('workers', $workers);
@@ -462,17 +466,6 @@ class C4_TicketAuditLogView extends C4_AbstractView {
 
 	function getFields() {
 		return SearchFields_TicketAuditLog::getFields();
-	}
-	
-	static function getSearchFields() {
-		$fields = self::getFields();
-		unset($fields[SearchFields_TicketAuditLog::ID]);
-		return $fields;
-	}
-	
-	static function getColumns() {
-		$fields = self::getFields();
-		return $fields;
 	}
 	
 	function doSetCriteria($field, $oper, $value) {

@@ -640,7 +640,6 @@ class View_DevblocksTemplate extends C4_AbstractView {
 //		$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Worker::ID);
 //		$tpl->assign('custom_fields', $custom_fields);
 
-		$tpl->assign('view_fields', $this->getColumns());
 		$tpl->display('file:' . APP_PATH . '/features/usermeet.core/templates/community/display/tabs/templates/view.tpl');
 	}
 
@@ -698,24 +697,6 @@ class View_DevblocksTemplate extends C4_AbstractView {
 		return SearchFields_DevblocksTemplate::getFields();
 	}
 
-	static function getSearchFields() {
-		$fields = self::getFields();
-		return $fields;
-	}
-
-	static function getColumns() {
-		$fields = self::getFields();
-		return $fields;
-	}
-
-	function doResetCriteria() {
-		parent::doResetCriteria();
-		
-//		$this->params = array(
-//			SearchFields_WorkerEvent::NUM_NONSPAM => new DevblocksSearchCriteria(SearchFields_WorkerEvent::NUM_NONSPAM,'>',0),
-//		);
-	}
-	
 	function doSetCriteria($field, $oper, $value) {
 		$criteria = null;
 
@@ -837,14 +818,23 @@ class View_DevblocksStorageProfile extends C4_AbstractView {
 	function __construct() {
 		$this->id = self::DEFAULT_ID;
 		$this->name = 'Storage Profiles';
-		$this->renderLimit = 25;
-		$this->renderSortBy = SearchFields_DevblocksStorageProfile::ID;
-		$this->renderSortAsc = true;
 
 		$this->view_columns = array(
 			SearchFields_DevblocksStorageProfile::NAME,
 			SearchFields_DevblocksStorageProfile::EXTENSION_ID,
 		);
+		$this->columnsHidden = array(
+			SearchFields_DevblocksStorageProfile::PARAMS_JSON,
+		);
+		
+		$this->paramsHidden = array(
+			SearchFields_DevblocksStorageProfile::ID,
+			SearchFields_DevblocksStorageProfile::PARAMS_JSON,
+		);
+		
+		$this->renderLimit = 25;
+		$this->renderSortBy = SearchFields_DevblocksStorageProfile::ID;
+		$this->renderSortAsc = true;
 		
 		$this->doResetCriteria();
 	}
@@ -868,8 +858,6 @@ class View_DevblocksStorageProfile extends C4_AbstractView {
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
 
-		$tpl->assign('view_fields', $this->getColumns());
-		
 		$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/configuration/tabs/storage/profiles/view.tpl');
 	}
 
@@ -912,27 +900,6 @@ class View_DevblocksStorageProfile extends C4_AbstractView {
 		return SearchFields_DevblocksStorageProfile::getFields();
 	}
 
-	static function getSearchFields() {
-		$fields = self::getFields();
-		unset($fields[SearchFields_DevblocksStorageProfile::ID]);
-		unset($fields[SearchFields_DevblocksStorageProfile::PARAMS_JSON]);
-		return $fields;
-	}
-
-	static function getColumns() {
-		$fields = self::getFields();
-		unset($fields[SearchFields_DevblocksStorageProfile::PARAMS_JSON]);
-		return $fields;
-	}
-
-	function doResetCriteria() {
-		parent::doResetCriteria();
-		
-		$this->params = array(
-			//SearchFields_DevblocksStorageProfile::ID => new DevblocksSearchCriteria(SearchFields_DevblocksStorageProfile::ID,'!=',0),
-		);
-	}
-	
 	function doSetCriteria($field, $oper, $value) {
 		$criteria = null;
 

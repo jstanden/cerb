@@ -1,3 +1,4 @@
+{$view_fields = $view->getColumnsAvailable()}
 {assign var=total value=$results[1]}
 {assign var=data value=$results[0]}
 <table cellpadding="0" cellspacing="0" border="0" class="worklist" width="100%">

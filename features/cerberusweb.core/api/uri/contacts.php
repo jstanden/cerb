@@ -169,8 +169,6 @@ class ChContactsPage extends CerberusPageExtension {
 //				
 //				$tpl->assign('view', $view);
 //				$tpl->assign('contacts_page', 'people');
-//				$tpl->assign('view_fields', View_Address::getFields());
-//				$tpl->assign('view_searchable_fields', View_Address::getSearchFields());
 //				$tpl->display('file:' . $this->_TPL_PATH . 'contacts/people/index.tpl');
 //				break;
 	}
@@ -186,9 +184,6 @@ class ChContactsPage extends CerberusPageExtension {
 		$view = C4_AbstractViewLoader::getView(View_ContactOrg::DEFAULT_ID, $defaults);
 		$tpl->assign('view', $view);
 		$tpl->assign('contacts_page', 'orgs');
-		$tpl->assign('response_uri', 'contacts/orgs');
-		$tpl->assign('view_fields', View_ContactOrg::getFields());
-		$tpl->assign('view_searchable_fields', View_ContactOrg::getSearchFields());
 		$tpl->display('file:' . $this->_TPL_PATH . 'contacts/orgs/index.tpl');
 	}
 	
@@ -203,9 +198,6 @@ class ChContactsPage extends CerberusPageExtension {
 		$view = C4_AbstractViewLoader::getView(View_Address::DEFAULT_ID, $defaults);
 		$tpl->assign('view', $view);
 		$tpl->assign('contacts_page', 'addresses');
-		$tpl->assign('response_uri', 'contacts/addresses');
-		$tpl->assign('view_fields', View_Address::getFields());
-		$tpl->assign('view_searchable_fields', View_Address::getSearchFields());
 		
 		$tpl->display('file:' . $this->_TPL_PATH . 'contacts/addresses/index.tpl');
 	}

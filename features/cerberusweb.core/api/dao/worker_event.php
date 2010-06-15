@@ -327,6 +327,13 @@ class View_WorkerEvent extends C4_AbstractView {
 			SearchFields_WorkerEvent::CONTENT,
 			SearchFields_WorkerEvent::CREATED_DATE,
 		);
+		$this->columnsHidden = array(
+			SearchFields_WorkerEvent::ID,
+		);
+		
+		$this->paramsHidden = array(
+			SearchFields_WorkerEvent::ID,
+		);
 		
 		$this->doResetCriteria();
 	}
@@ -353,7 +360,6 @@ class View_WorkerEvent extends C4_AbstractView {
 		$workers = DAO_Worker::getAll();
 		$tpl->assign('workers', $workers);
 		
-		$tpl->assign('view_fields', $this->getColumns());
 		$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/home/tabs/my_events/view.tpl');
 	}
 
@@ -418,25 +424,6 @@ class View_WorkerEvent extends C4_AbstractView {
 		return SearchFields_WorkerEvent::getFields();
 	}
 
-	static function getSearchFields() {
-		$fields = self::getFields();
-		unset($fields[SearchFields_WorkerEvent::ID]);
-		return $fields;
-	}
-
-	static function getColumns() {
-		$fields = self::getFields();
-		return $fields;
-	}
-
-	function doResetCriteria() {
-		parent::doResetCriteria();
-		
-//		$this->params = array(
-//			SearchFields_WorkerEvent::NUM_NONSPAM => new DevblocksSearchCriteria(SearchFields_WorkerEvent::NUM_NONSPAM,'>',0),
-//		);
-	}
-	
 	function doSetCriteria($field, $oper, $value) {
 		$criteria = null;
 

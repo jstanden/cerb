@@ -343,10 +343,18 @@ class View_Task extends C4_AbstractView {
 			SearchFields_Task::DUE_DATE,
 			SearchFields_Task::WORKER_ID,
 			);
+		$this->columnsHidden = array(
+			SearchFields_Task::ID,
+		);
 		
-		$this->params = array(
+		$this->paramsHidden = array(
+			SearchFields_Task::ID,
+		);
+		$this->paramsDefault = array(
 			SearchFields_Task::IS_COMPLETED => new DevblocksSearchCriteria(SearchFields_Task::IS_COMPLETED,'=',0),
 		);
+		
+		$this->doResetCriteria();
 	}
 
 	function getData() {
@@ -381,8 +389,6 @@ class View_Task extends C4_AbstractView {
 		// Custom fields
 		$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Task::ID);
 		$tpl->assign('custom_fields', $custom_fields);
-		
-		$tpl->assign('view_fields', $this->getColumns());
 		
 		switch($this->renderTemplate) {
 			case 'contextlinks_chooser':
@@ -464,26 +470,6 @@ class View_Task extends C4_AbstractView {
 		return SearchFields_Task::getFields();
 	}
 
-	static function getSearchFields() {
-		$fields = self::getFields();
-		unset($fields[SearchFields_Task::ID]);
-		return $fields;
-	}
-
-	static function getColumns() {
-		$fields = self::getFields();
-		unset($fields[SearchFields_Task::ID]);
-		return $fields;
-	}
-
-	function doResetCriteria() {
-		parent::doResetCriteria();
-		
-		$this->params = array(
-			SearchFields_Task::IS_COMPLETED => new DevblocksSearchCriteria(SearchFields_Task::IS_COMPLETED,'=',0)
-		);
-	}
-	
 	function doSetCriteria($field, $oper, $value) {
 		$criteria = null;
 
@@ -759,9 +745,6 @@ class Context_Task extends Extension_DevblocksContext {
 		C4_AbstractViewLoader::setView($view_id, $view);
 		$tpl->assign('view', $view);
 
-		$tpl->assign('view_fields', View_Task::getFields());
-		$tpl->assign('view_searchable_fields', View_Task::getSearchFields());
-		
 		// Template
 		
 		$tpl->display('file:'.$path.'context_links/choosers/__generic.tpl');

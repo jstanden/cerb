@@ -1,10 +1,10 @@
-<table cellpadding="2" cellspacing="0" border="0" width="97%">
+<table cellpadding="2" cellspacing="0" border="0" width="100%">
 <tr>
-	<td width="0%" nowrap="nowrap" valign="top">
-		<div class="block" style="width:300px;">
+	<td width="50%" valign="top">
+		<div class="block">
 			<h2>{$translate->_('common.filters')|capitalize}</h2>
 			<table cellpadding="2" cellspacing="0" border="0">
-			{include file="file:$core_tpl/internal/views/criteria_list_params.tpl" params=$view->params batchDelete=true}
+			{include file="file:$core_tpl/internal/views/criteria_list_params.tpl" params=$view->params}
 			</table>
 			
 			<div style="margin-top:2px;">

@@ -711,6 +711,14 @@ class View_Worker extends C4_AbstractView {
 			SearchFields_Worker::IS_SUPERUSER,
 		);
 		
+		$this->columnsHidden = array(
+			SearchFields_Worker::LAST_ACTIVITY,
+		);
+		$this->paramsHidden = array(
+			SearchFields_Worker::ID,
+			SearchFields_Worker::LAST_ACTIVITY,
+		);
+		
 		$this->doResetCriteria();
 	}
 
@@ -736,8 +744,6 @@ class View_Worker extends C4_AbstractView {
 		$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Worker::ID);
 		$tpl->assign('custom_fields', $custom_fields);
 
-		$tpl->assign('view_fields', $this->getColumns());
-		
 		switch($this->renderTemplate) {
 			case 'contextlinks_chooser':
 				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/workers/view_contextlinks_chooser.tpl');
@@ -806,27 +812,6 @@ class View_Worker extends C4_AbstractView {
 		return SearchFields_Worker::getFields();
 	}
 
-	static function getSearchFields() {
-		$fields = self::getFields();
-		unset($fields[SearchFields_Worker::ID]);
-		unset($fields[SearchFields_Worker::LAST_ACTIVITY]);
-		return $fields;
-	}
-
-	static function getColumns() {
-		$fields = self::getFields();
-		unset($fields[SearchFields_Worker::LAST_ACTIVITY]);
-		return $fields;
-	}
-
-	function doResetCriteria() {
-		parent::doResetCriteria();
-		
-//		$this->params = array(
-//			SearchFields_WorkerEvent::NUM_NONSPAM => new DevblocksSearchCriteria(SearchFields_WorkerEvent::NUM_NONSPAM,'>',0),
-//		);
-	}
-	
 	function doSetCriteria($field, $oper, $value) {
 		$criteria = null;
 
@@ -1143,7 +1128,6 @@ class Context_Worker extends Extension_DevblocksContext {
 			SearchFields_Worker::FIRST_NAME,
 			SearchFields_Worker::LAST_NAME,
 			SearchFields_Worker::TITLE,
-//			SearchFields_Worker::EMAIL,
 		);
 		$view->params = array(
 			SearchFields_Worker::IS_DISABLED => new DevblocksSearchCriteria(SearchFields_Worker::IS_DISABLED,'=',0),
@@ -1153,9 +1137,6 @@ class Context_Worker extends Extension_DevblocksContext {
 		C4_AbstractViewLoader::setView($view_id, $view);
 		$tpl->assign('view', $view);
 
-		$tpl->assign('view_fields', View_Worker::getFields());
-		$tpl->assign('view_searchable_fields', View_Worker::getSearchFields());
-		
 		// Template
 		
 		$tpl->display('file:'.$path.'context_links/choosers/__generic.tpl');

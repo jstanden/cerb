@@ -62,8 +62,6 @@ class ChWatchersConfigTab extends Extension_ConfigTab {
 		$tpl->assign('core_tplpath', $core_tplpath);
 		$tpl->assign('view_id', $view_id);
 
-		$tpl->assign('response_uri', 'config/watchers');
-		
 		$defaults = new C4_AbstractViewModel();
 		$defaults->class_name = 'View_WatcherMailFilter';
 		$defaults->id = View_WatcherMailFilter::DEFAULT_ID;
@@ -71,10 +69,7 @@ class ChWatchersConfigTab extends Extension_ConfigTab {
 		$defaults->renderSortAsc = 0;
 		
 		$view = C4_AbstractViewLoader::getView(View_WatcherMailFilter::DEFAULT_ID, $defaults);
-		
 		$tpl->assign('view', $view);
-		$tpl->assign('view_fields', View_WatcherMailFilter::getFields());
-		$tpl->assign('view_searchable_fields', View_WatcherMailFilter::getSearchFields());
 		
 		$tpl->display('file:' . $tpl_path . 'config/watchers/index.tpl');
 	}
@@ -609,7 +604,7 @@ class ChWatchersPreferences extends Extension_PreferenceTab {
 		$workers = DAO_Worker::getAll();
 		$tpl->assign('workers', $workers);
 		
-		$tpl->assign('response_uri', 'preferences/watchers');
+		// [TODO] Convert to $defaults
 		
 		if(null == ($view = C4_AbstractViewLoader::getView('prefs_watchers'))) {
 			$view = new View_WatcherMailFilter();
@@ -617,16 +612,21 @@ class ChWatchersPreferences extends Extension_PreferenceTab {
 			$view->name = "My Watcher Filters";
 			$view->renderSortBy = SearchFields_WatcherMailFilter::POS;
 			$view->renderSortAsc = 0;
-			$view->params = array(
-				SearchFields_WatcherMailFilter::WORKER_ID => new DevblocksSearchCriteria(SearchFields_WatcherMailFilter::WORKER_ID,'eq',$worker->id),
-			);
 			
-			C4_AbstractViewLoader::setView($view->id, $view);
 		}
 		
+		$view->paramsRequired = array(
+			SearchFields_WatcherMailFilter::WORKER_ID => new DevblocksSearchCriteria(SearchFields_WatcherMailFilter::WORKER_ID,'eq',$worker->id),
+		);
+		
+		$view->paramsHidden = array(
+			SearchFields_WatcherMailFilter::ID,
+			SearchFields_WatcherMailFilter::WORKER_ID,
+		);
+		
+		C4_AbstractViewLoader::setView($view->id, $view);
+		
 		$tpl->assign('view', $view);
-		$tpl->assign('view_fields', View_WatcherMailFilter::getFields());
-		$tpl->assign('view_searchable_fields', View_WatcherMailFilter::getSearchFields());
 		
 		$tpl->display('file:' . $this->_TPL_PATH . 'preferences/watchers.tpl');
 	}
@@ -982,7 +982,14 @@ class View_WatcherMailFilter extends C4_AbstractView {
 			SearchFields_WatcherMailFilter::WORKER_ID,
 			SearchFields_WatcherMailFilter::POS,
 		);
-
+		$this->columnsHidden = array(
+			SearchFields_WatcherMailFilter::ID,
+		);
+		
+		$this->paramsHidden = array(
+			SearchFields_WatcherMailFilter::ID,
+		);
+		
 		$this->doResetCriteria();
 	}
 
@@ -1011,7 +1018,6 @@ class View_WatcherMailFilter extends C4_AbstractView {
 		$workers = DAO_Worker::getAll();
 		$tpl->assign('workers', $workers);
 		
-		$tpl->assign('view_fields', $this->getColumns());
 		$tpl->display('file:' . APP_PATH . '/features/cerberusweb.watchers/templates/config/watchers/view.tpl');
 	}
 
@@ -1075,26 +1081,6 @@ class View_WatcherMailFilter extends C4_AbstractView {
 		return SearchFields_WatcherMailFilter::getFields();
 	}
 
-	static function getSearchFields() {
-		$fields = self::getFields();
-		unset($fields[SearchFields_WatcherMailFilter::ID]);
-		return $fields;
-	}
-
-	static function getColumns() {
-		$fields = self::getFields();
-		unset($fields[SearchFields_WatcherMailFilter::ID]);
-		return $fields;
-	}
-
-	function doResetCriteria() {
-		parent::doResetCriteria();
-		
-		$this->params = array(
-//			SearchFields_WatcherMailFilter::LOG_DATE => new DevblocksSearchCriteria(SearchFields_WatcherMailFilter::LOG_DATE,DevblocksSearchCriteria::OPER_BETWEEN,array('-1 month','now')),
-		);
-	}
-	
 	function doSetCriteria($field, $oper, $value) {
 		$criteria = null;
 

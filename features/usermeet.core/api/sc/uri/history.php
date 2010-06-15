@@ -267,6 +267,14 @@ class UmSc_TicketHistoryView extends C4_AbstractView {
 			SearchFields_Ticket::TICKET_SUBJECT,
 			SearchFields_Ticket::TICKET_UPDATED_DATE,
 		);
+		$this->columnsHidden = array(
+		);
+		
+		$this->paramsHidden = array(
+			SearchFields_Ticket::TICKET_ID,
+		);
+		
+		$this->doResetCriteria();
 	}
 
 	function getData() {
@@ -289,22 +297,10 @@ class UmSc_TicketHistoryView extends C4_AbstractView {
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
 
-		$tpl->assign('view_fields', $this->getColumns());
-		
 		$tpl->display("devblocks:usermeet.core:portal_".UmPortalHelper::getCode() . ":support_center/history/view.tpl");
 	}
 
 	function getFields() {
 		return SearchFields_Ticket::getFields();
-	}
-
-	static function getSearchFields() {
-		$fields = self::getFields();
-		unset($fields[SearchFields_Ticket::ID]);
-		return $fields;
-	}
-
-	static function getColumns() {
-		return self::getFields();
 	}
 };

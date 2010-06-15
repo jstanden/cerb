@@ -382,6 +382,14 @@ class View_Snippet extends C4_AbstractView {
 			SearchFields_Snippet::LAST_UPDATED,
 			SearchFields_Snippet::LAST_UPDATED_BY,
 		);
+		$this->columnsHidden = array(
+			SearchFields_Snippet::CONTENT,
+		);
+		
+		$this->paramsHidden = array(
+			SearchFields_Snippet::ID,
+			SearchFields_Snippet::USAGE_HITS,
+		);
 		
 		$this->doResetCriteria();
 	}
@@ -406,8 +414,6 @@ class View_Snippet extends C4_AbstractView {
 		$tpl_path = APP_PATH . '/features/cerberusweb.core/templates';
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
-
-		$tpl->assign('view_fields', $this->getColumns());
 
 		switch($this->renderTemplate) {
 			case 'chooser':
@@ -467,27 +473,6 @@ class View_Snippet extends C4_AbstractView {
 		return SearchFields_Snippet::getFields();
 	}
 
-	static function getSearchFields() {
-		$fields = self::getFields();
-		unset($fields[SearchFields_Snippet::ID]);
-		unset($fields[SearchFields_Snippet::USAGE_HITS]);
-		return $fields;
-	}
-
-	static function getColumns() {
-		$fields = self::getFields();
-		unset($fields[SearchFields_Snippet::CONTENT]);
-		return $fields;
-	}
-
-	function doResetCriteria() {
-		parent::doResetCriteria();
-		
-		$this->params = array(
-			//SearchFields_Snippet::ID => new DevblocksSearchCriteria(SearchFields_Snippet::ID,'!=',0),
-		);
-	}
-	
 	function doSetCriteria($field, $oper, $value) {
 		$criteria = null;
 

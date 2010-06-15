@@ -1155,6 +1155,9 @@ class View_Ticket extends C4_AbstractView {
 	const DEFAULT_ID = 'tickets_workspace';
 
 	function __construct() {
+		$active_worker = CerberusApplication::getActiveWorker(); /* @var $active_worker Model_Worker */
+		$active_worker_memberships = $active_worker->getMemberships();
+		
 		$this->id = self::DEFAULT_ID;
 		$this->name = 'Tickets';
 		$this->renderLimit = 10;
@@ -1168,6 +1171,23 @@ class View_Ticket extends C4_AbstractView {
 			SearchFields_Ticket::TICKET_CATEGORY_ID,
 			SearchFields_Ticket::TICKET_SPAM_SCORE,
 		);
+		$this->columnsHidden = array(
+			SearchFields_Ticket::REQUESTER_ID,
+			SearchFields_Ticket::REQUESTER_ADDRESS,
+			SearchFields_Ticket::TICKET_UNLOCK_DATE,
+			SearchFields_Ticket::TICKET_INTERESTING_WORDS,
+		);
+		
+		$this->paramsHidden = array(
+			SearchFields_Ticket::TICKET_CATEGORY_ID,
+			SearchFields_Ticket::TICKET_UNLOCK_DATE,
+		);
+		$this->paramsDefault = array(
+			SearchFields_Ticket::TICKET_CLOSED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',0),
+			SearchFields_Ticket::TICKET_TEAM_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_TEAM_ID,'in',array_keys($active_worker_memberships)), // censor
+		);
+		
+		$this->doResetCriteria();
 	}
 
 	function getData() {
@@ -1223,9 +1243,6 @@ class View_Ticket extends C4_AbstractView {
 
 		$tpl->assign('timestamp_now', time());
 		
-		$tpl->assign('view_fields', $this->getColumns());
-		
-
 		switch($this->renderTemplate) {
 			case 'contextlinks_chooser':
 				$tpl->display('file:' . $view_path . 'view_contextlinks_chooser.tpl');
@@ -1236,17 +1253,6 @@ class View_Ticket extends C4_AbstractView {
 		}
 	}
 
-	function doResetCriteria() {
-		$active_worker = CerberusApplication::getActiveWorker(); /* @var $active_worker Model_Worker */
-		$active_worker_memberships = $active_worker->getMemberships();
-		
-		$this->params = array(
-			SearchFields_Ticket::TICKET_CLOSED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',0),
-			SearchFields_Ticket::TICKET_TEAM_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_TEAM_ID,'in',array_keys($active_worker_memberships)), // censor
-		);
-		$this->renderPage = 0;
-	}
-	
 	function renderCriteria($field) {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('id', $this->id);
@@ -1422,22 +1428,6 @@ class View_Ticket extends C4_AbstractView {
 
 	function getFields() {
 		return SearchFields_Ticket::getFields();
-	}
-
-	static function getSearchFields() {
-		$fields = self::getFields();
-		unset($fields[SearchFields_Ticket::TICKET_CATEGORY_ID]);
-		unset($fields[SearchFields_Ticket::TICKET_UNLOCK_DATE]);
-		return $fields;
-	}
-
-	static function getColumns() {
-		$fields = self::getFields();
-		unset($fields[SearchFields_Ticket::REQUESTER_ID]);
-		unset($fields[SearchFields_Ticket::REQUESTER_ADDRESS]);
-		unset($fields[SearchFields_Ticket::TICKET_UNLOCK_DATE]);
-		unset($fields[SearchFields_Ticket::TICKET_INTERESTING_WORDS]);
-		return $fields;
 	}
 
 	function doSetCriteria($field, $oper, $value) {
@@ -1943,9 +1933,6 @@ class Context_Ticket extends Extension_DevblocksContext {
 		C4_AbstractViewLoader::setView($view_id, $view);
 		$tpl->assign('view', $view);
 
-		$tpl->assign('view_fields', View_Ticket::getFields());
-		$tpl->assign('view_searchable_fields', View_Ticket::getSearchFields());
-		
 		// Template
 		
 		$tpl->display('file:'.$path.'context_links/choosers/__generic.tpl');

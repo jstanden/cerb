@@ -97,11 +97,19 @@ class View_CommunityPortal extends C4_AbstractView {
 			SearchFields_CommunityTool::NAME,
 			SearchFields_CommunityTool::CODE,
 			SearchFields_CommunityTool::EXTENSION_ID,
-			);
+		);
+		$this->columnsHidden = array(
+			SearchFields_CommunityTool::ID,
+		);
 		
-		$this->params = array(
+		$this->paramsHidden = array(
+			SearchFields_CommunityTool::ID,
+		);
+		$this->paramsDefault = array(
 			//SearchFields_CommunityTool::IS_DISABLED => new DevblocksSearchCriteria(SearchFields_CommunityTool::IS_DISABLED,'=',0),
 		);
+		
+		$this->doResetCriteria();
 	}
 
 	function getData() {
@@ -136,7 +144,6 @@ class View_CommunityPortal extends C4_AbstractView {
 		$custom_fields = DAO_CustomField::getBySource(CustomFieldSource_CommunityPortal::ID);
 		$tpl->assign('custom_fields', $custom_fields);
 		
-		$tpl->assign('view_fields', $this->getColumns());
 		$tpl->display('file:' . APP_PATH . '/features/usermeet.core/templates/community/config/tab/view.tpl');
 	}
 
@@ -201,26 +208,6 @@ class View_CommunityPortal extends C4_AbstractView {
 		return SearchFields_CommunityTool::getFields();
 	}
 
-	static function getSearchFields() {
-		$fields = self::getFields();
-		unset($fields[SearchFields_CommunityTool::ID]);
-		return $fields;
-	}
-
-	static function getColumns() {
-		$fields = self::getFields();
-		unset($fields[SearchFields_CommunityTool::ID]);
-		return $fields;
-	}
-
-	function doResetCriteria() {
-		parent::doResetCriteria();
-		
-		$this->params = array(
-//			SearchFields_CommunityTool::IS_COMPLETED => new DevblocksSearchCriteria(SearchFields_CommunityTool::IS_COMPLETED,'=',0)
-		);
-	}
-	
 	function doSetCriteria($field, $oper, $value) {
 		$criteria = null;
 

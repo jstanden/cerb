@@ -705,10 +705,17 @@ class View_Attachment extends C4_AbstractView {
 			SearchFields_Attachment::ADDRESS_EMAIL,
 			SearchFields_Attachment::TICKET_MASK,
 		);
+		$this->columnsHidden = array(
+			SearchFields_Attachment::ID,
+			SearchFields_Attachment::MESSAGE_ID,
+		);
 		
-//		$this->params = array(
-//			SearchFields_Address::NUM_NONSPAM => new DevblocksSearchCriteria(SearchFields_Address::NUM_NONSPAM,'>',0),
-//		);
+		$this->paramsHidden = array(
+			SearchFields_Attachment::ID,
+			SearchFields_Attachment::MESSAGE_ID,
+		);
+		
+		$this->doResetCriteria();
 	}
 
 	function getData() {
@@ -730,7 +737,6 @@ class View_Attachment extends C4_AbstractView {
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
 
-		$tpl->assign('view_fields', $this->getColumns());
 		$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/configuration/tabs/attachments/view.tpl');
 	}
 
@@ -782,26 +788,6 @@ class View_Attachment extends C4_AbstractView {
 		return SearchFields_Attachment::getFields();
 	}
 
-	static function getSearchFields() {
-		$fields = self::getFields();
-		unset($fields[SearchFields_Attachment::ID]);
-		unset($fields[SearchFields_Attachment::MESSAGE_ID]);
-		return $fields;
-	}
-
-	static function getColumns() {
-		$fields = self::getFields();
-		return $fields;
-	}
-
-	function doResetCriteria() {
-		parent::doResetCriteria();
-		
-//		$this->params = array(
-//			SearchFields_Address::NUM_NONSPAM => new DevblocksSearchCriteria(SearchFields_Address::NUM_NONSPAM,'>',0),
-//		);
-	}
-	
 	function doSetCriteria($field, $oper, $value) {
 		$criteria = null;
 

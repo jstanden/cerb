@@ -227,8 +227,6 @@ class UmCommunityPage extends CerberusPageExtension {
 		C4_AbstractViewLoader::setView($view->id, $view);  
 		
 		$tpl->assign('view', $view);
-		$tpl->assign('view_fields', View_DevblocksTemplate::getFields());
-		$tpl->assign('view_searchable_fields', View_DevblocksTemplate::getSearchFields());
 			
 		$tpl->display('file:' . $this->_TPL_PATH . 'community/display/tabs/templates/index.tpl');
 	}
@@ -602,7 +600,6 @@ class UmConfigCommunitiesTab extends Extension_ConfigTab {
 		$tpl->assign('path', $tpl_path);
 
 	    // View
-		$tpl->assign('response_uri', 'config/communities');
 		
 		$defaults = new C4_AbstractViewModel();
 		$defaults->id = 'portals_cfg';
@@ -610,8 +607,6 @@ class UmConfigCommunitiesTab extends Extension_ConfigTab {
 		
 		$view = C4_AbstractViewLoader::getView($defaults->id, $defaults);
 		$tpl->assign('view', $view);
-		$tpl->assign('view_fields', View_CommunityPortal::getFields());
-		$tpl->assign('view_searchable_fields', View_CommunityPortal::getSearchFields());
 	    
 		$tpl->display('file:' . $tpl_path . 'community/config/tab/index.tpl');
 	}

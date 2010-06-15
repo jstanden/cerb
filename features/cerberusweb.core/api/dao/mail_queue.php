@@ -587,6 +587,14 @@ class View_MailQueue extends C4_AbstractView {
 			SearchFields_MailQueue::HINT_TO,
 			SearchFields_MailQueue::UPDATED,
 		);
+		$this->columnsHidden = array(
+			SearchFields_MailQueue::TICKET_ID,
+		);
+		
+		$this->paramsHidden = array(
+			SearchFields_MailQueue::ID,
+			SearchFields_MailQueue::TICKET_ID,
+		);
 		
 		$this->doResetCriteria();
 	}
@@ -594,7 +602,7 @@ class View_MailQueue extends C4_AbstractView {
 	function getData() {
 		$objects = DAO_MailQueue::search(
 			array(),
-			$this->params,
+			array_merge($this->params, $this->paramsRequired),
 			$this->renderLimit,
 			$this->renderPage,
 			$this->renderSortBy,
@@ -613,9 +621,6 @@ class View_MailQueue extends C4_AbstractView {
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
 
-		$tpl->assign('view_fields', $this->getColumns());
-		
-		// [TODO] Set your template path
 		$tpl->display('file:'.$path.'mail/queue/view.tpl');
 	}
 
@@ -678,27 +683,6 @@ class View_MailQueue extends C4_AbstractView {
 
 	function getFields() {
 		return SearchFields_MailQueue::getFields();
-	}
-
-	static function getSearchFields() {
-		$fields = self::getFields();
-		unset($fields[SearchFields_MailQueue::ID]);
-		unset($fields[SearchFields_MailQueue::TICKET_ID]);
-		return $fields;
-	}
-
-	static function getColumns() {
-		$fields = self::getFields();
-		unset($fields[SearchFields_MailQueue::TICKET_ID]);
-		return $fields;
-	}
-
-	function doResetCriteria() {
-		parent::doResetCriteria();
-		
-		$this->params = array(
-			//SearchFields_MailQueue::ID => new DevblocksSearchCriteria(SearchFields_MailQueue::ID,'!=',0),
-		);
 	}
 	
 	function doSetCriteria($field, $oper, $value) {

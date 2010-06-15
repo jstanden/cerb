@@ -266,6 +266,15 @@ class UmSc_KbArticleView extends C4_AbstractView {
 			SearchFields_KbArticle::UPDATED,
 			SearchFields_KbArticle::VIEWS,
 		);
+		$this->columnsHidden = array(
+		);
+		
+		$this->paramsHidden = array(
+			SearchFields_KbArticle::ID,
+			SearchFields_KbArticle::FORMAT,
+		);
+
+		$this->doResetCriteria();
 	}
 
 	function getData() {
@@ -288,23 +297,10 @@ class UmSc_KbArticleView extends C4_AbstractView {
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
 
-		$tpl->assign('view_fields', $this->getColumns());
-		
 		$tpl->display("devblocks:cerberusweb.kb:portal_".UmPortalHelper::getCode() . ":support_center/kb/view.tpl");
 	}
 
 	function getFields() {
 		return SearchFields_KbArticle::getFields();
-	}
-
-	static function getSearchFields() {
-		$fields = self::getFields();
-		unset($fields[SearchFields_KbArticle::ID]);
-		unset($fields[SearchFields_KbArticle::FORMAT]);
-		return $fields;
-	}
-
-	static function getColumns() {
-		return self::getFields();
 	}
 };

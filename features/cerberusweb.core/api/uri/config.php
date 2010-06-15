@@ -197,16 +197,12 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		
 		// View
 		
-		$tpl->assign('response_uri', 'config/storage');
-
 		$defaults = new C4_AbstractViewModel();
 		$defaults->class_name = 'View_DevblocksStorageProfile';
 		$defaults->id = View_DevblocksStorageProfile::DEFAULT_ID;
 
 		$view = C4_AbstractViewLoader::getView(View_DevblocksStorageProfile::DEFAULT_ID, $defaults);
 		$tpl->assign('view', $view);
-		$tpl->assign('view_fields', View_DevblocksStorageProfile::getFields());
-		$tpl->assign('view_searchable_fields', View_DevblocksStorageProfile::getSearchFields());
 		
 		$tpl->display('file:' . $this->_TPL_PATH . 'configuration/tabs/storage/index.tpl');		
 	}
@@ -409,16 +405,12 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('path', $this->_TPL_PATH);
 		
-		$tpl->assign('response_uri', 'config/attachments');
-
 		$defaults = new C4_AbstractViewModel();
 		$defaults->class_name = 'View_Attachment';
 		$defaults->id = View_Attachment::DEFAULT_ID;
 
 		$view = C4_AbstractViewLoader::getView(View_Attachment::DEFAULT_ID, $defaults);
 		$tpl->assign('view', $view);
-		$tpl->assign('view_fields', View_Attachment::getFields());
-		$tpl->assign('view_searchable_fields', View_Attachment::getSearchFields());
 		
 		$tpl->display('file:' . $this->_TPL_PATH . 'configuration/tabs/attachments/index.tpl');
 	}
@@ -489,16 +481,12 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		$teams = DAO_Group::getAll();
 		$tpl->assign('teams', $teams);
 		
-		$tpl->assign('response_uri', 'config/workers');
-		
 		$defaults = new C4_AbstractViewModel();
 		$defaults->id = 'workers_cfg';
 		$defaults->class_name = 'View_Worker';
 		
 		$view = C4_AbstractViewLoader::getView($defaults->id, $defaults);
 		$tpl->assign('view', $view);
-		$tpl->assign('view_fields', View_Worker::getFields());
-		$tpl->assign('view_searchable_fields', View_Worker::getSearchFields());
 		
 		$tpl->display('file:' . $this->_TPL_PATH . 'configuration/tabs/workers/index.tpl');
 	}
@@ -1002,15 +990,10 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('path', $this->_TPL_PATH);
 
-		$tpl->assign('response_uri', 'config/queue');
-		
 		$defaults = new C4_AbstractViewModel();
 		$defaults->id = 'config_mail_queue';
 		$defaults->name = 'Mail Queue';
 		$defaults->class_name = 'View_MailQueue';
-		$defaults->params = array(
-			SearchFields_MailQueue::IS_QUEUED => new DevblocksSearchCriteria(SearchFields_MailQueue::IS_QUEUED,'=', 1)
-		);
 		$defaults->view_columns = array(
 			SearchFields_MailQueue::HINT_TO,
 			SearchFields_MailQueue::UPDATED,
@@ -1020,15 +1003,19 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		);
 		
 		if(null != ($view = C4_AbstractViewLoader::getView($defaults->id, $defaults))) {
-			$view->params[SearchFields_MailQueue::IS_QUEUED] = new DevblocksSearchCriteria(SearchFields_MailQueue::IS_QUEUED,'=',1);
+			$view->columnsHidden = array(
+				SearchFields_MailQueue::IS_QUEUED,
+			);
+			$view->paramsRequired = array(
+				SearchFields_MailQueue::IS_QUEUED => new DevblocksSearchCriteria(SearchFields_MailQueue::IS_QUEUED,'=', 1)
+			);
+			$view->paramsHidden = array(
+				SearchFields_MailQueue::IS_QUEUED,
+			);
+			
 			C4_AbstractViewLoader::setView($view->id, $view);
 			
-			$search_fields = View_MailQueue::getSearchFields();
-			unset($search_fields[SearchFields_MailQueue::IS_QUEUED]);
-			
 			$tpl->assign('view', $view);
-			$tpl->assign('view_fields', View_MailQueue::getFields());
-			$tpl->assign('view_searchable_fields', $search_fields);
 		} 
 		
 		$tpl->display('file:' . $this->_TPL_PATH . 'configuration/tabs/mail/queue/index.tpl');

@@ -91,11 +91,7 @@ class ChFeedbackActivityTab extends Extension_ActivityTab {
 		
 		$view = C4_AbstractViewLoader::getView(self::VIEW_ACTIVITY_FEEDBACK, $defaults);
 
-		$tpl->assign('response_uri', 'activity/feedback');
-		
 		$tpl->assign('view', $view);
-		$tpl->assign('view_fields', C4_FeedbackEntryView::getFields());
-		$tpl->assign('view_searchable_fields', C4_FeedbackEntryView::getSearchFields());
 		
 		$tpl->display($tpl_path . 'activity_tab/index.tpl');		
 	}
@@ -381,7 +377,19 @@ class C4_FeedbackEntryView extends C4_AbstractView {
 			SearchFields_FeedbackEntry::ADDRESS_EMAIL,
 			SearchFields_FeedbackEntry::SOURCE_URL,
 		);
-
+		$this->columnsHidden = array(
+			SearchFields_FeedbackEntry::ID,
+			SearchFields_FeedbackEntry::QUOTE_ADDRESS_ID,
+		);
+		
+		$this->paramsHidden = array(
+			SearchFields_FeedbackEntry::ID,
+			SearchFields_FeedbackEntry::QUOTE_ADDRESS_ID,
+		);
+		$this->paramsDefault = array(
+			SearchFields_FeedbackEntry::LOG_DATE => new DevblocksSearchCriteria(SearchFields_FeedbackEntry::LOG_DATE,DevblocksSearchCriteria::OPER_BETWEEN,array('-1 month','now')),
+		);
+		
 		$this->doResetCriteria();
 	}
 
@@ -412,7 +420,6 @@ class C4_FeedbackEntryView extends C4_AbstractView {
 		$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_FeedbackEntry::ID);
 		$tpl->assign('custom_fields', $custom_fields);
 		
-		$tpl->assign('view_fields', $this->getColumns());
 		$tpl->display('file:' . APP_PATH . '/features/cerberusweb.feedback/templates/feedback/view.tpl');
 	}
 
@@ -503,28 +510,6 @@ class C4_FeedbackEntryView extends C4_AbstractView {
 		return SearchFields_FeedbackEntry::getFields();
 	}
 
-	static function getSearchFields() {
-		$fields = self::getFields();
-		unset($fields[SearchFields_FeedbackEntry::ID]);
-		unset($fields[SearchFields_FeedbackEntry::QUOTE_ADDRESS_ID]);
-		return $fields;
-	}
-
-	static function getColumns() {
-		$fields = self::getFields();
-		unset($fields[SearchFields_FeedbackEntry::ID]);
-		unset($fields[SearchFields_FeedbackEntry::QUOTE_ADDRESS_ID]);
-		return $fields;
-	}
-
-	function doResetCriteria() {
-		parent::doResetCriteria();
-		
-		$this->params = array(
-			SearchFields_FeedbackEntry::LOG_DATE => new DevblocksSearchCriteria(SearchFields_FeedbackEntry::LOG_DATE,DevblocksSearchCriteria::OPER_BETWEEN,array('-1 month','now')),
-		);
-	}
-	
 	function doSetCriteria($field, $oper, $value) {
 		$criteria = null;
 

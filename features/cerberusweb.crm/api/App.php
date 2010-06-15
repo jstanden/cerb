@@ -146,14 +146,10 @@ class CrmOppsActivityTab extends Extension_ActivityTab {
 		
 		$view = C4_AbstractViewLoader::getView(self::VIEW_ACTIVITY_OPPS, $defaults);
 		
-		$tpl->assign('response_uri', 'activity/opps');
-
 		$quick_search_type = $visit->get('crm.opps.quick_search_type');
 		$tpl->assign('quick_search_type', $quick_search_type);
 		
 		$tpl->assign('view', $view);
-		$tpl->assign('view_fields', View_CrmOpportunity::getFields());
-		$tpl->assign('view_searchable_fields', View_CrmOpportunity::getSearchFields());
 		
 		$tpl->display($tpl_path . 'crm/opps/activity_tab/index.tpl');		
 	}
@@ -1530,10 +1526,22 @@ class View_CrmOpportunity extends C4_AbstractView {
 			SearchFields_CrmOpportunity::WORKER_ID,
 			SearchFields_CrmOpportunity::EMAIL_NUM_NONSPAM,
 		);
+		$this->columnsHidden = array(
+			SearchFields_CrmOpportunity::ID,
+			SearchFields_CrmOpportunity::PRIMARY_EMAIL_ID,
+			SearchFields_CrmOpportunity::ORG_ID,
+		);
 		
-		$this->params = array(
+		$this->paramsDefault = array(
 			SearchFields_CrmOpportunity::IS_CLOSED => new DevblocksSearchCriteria(SearchFields_CrmOpportunity::IS_CLOSED,'=',0),
 		);
+		$this->paramsHidden = array(
+			SearchFields_CrmOpportunity::ID,
+			SearchFields_CrmOpportunity::PRIMARY_EMAIL_ID,
+			SearchFields_CrmOpportunity::ORG_ID,
+		);
+		
+		$this->doResetCriteria();
 	}
 
 	function getData() {
@@ -1562,8 +1570,6 @@ class View_CrmOpportunity extends C4_AbstractView {
 		// Custom fields
 		$custom_fields = DAO_CustomField::getBySource(CrmCustomFieldSource_Opportunity::ID);
 		$tpl->assign('custom_fields', $custom_fields);
-		
-		$tpl->assign('view_fields', $this->getColumns());
 		
 		switch($this->renderTemplate) {
 			case 'contextlinks_chooser':
@@ -1650,35 +1656,10 @@ class View_CrmOpportunity extends C4_AbstractView {
 		}
 	}
 
-	// [TODO] change globally to getColumnFields() in AbstractView
 	function getFields() {
-		$fields = SearchFields_CrmOpportunity::getFields();
-		return $fields;
+		return SearchFields_CrmOpportunity::getFields();
 	}
 
-	static function getSearchFields() {
-		$fields = self::getFields();
-		unset($fields[SearchFields_CrmOpportunity::ID]);
-		unset($fields[SearchFields_CrmOpportunity::PRIMARY_EMAIL_ID]);
-		unset($fields[SearchFields_CrmOpportunity::ORG_ID]);
-		return $fields;
-	}
-
-	static function getColumns() {
-		$fields = self::getFields();
-		unset($fields[SearchFields_CrmOpportunity::ID]);
-		unset($fields[SearchFields_CrmOpportunity::PRIMARY_EMAIL_ID]);
-		unset($fields[SearchFields_CrmOpportunity::ORG_ID]);
-		return $fields;
-	}
-
-	function doResetCriteria() {
-		parent::doResetCriteria();
-		
-		$this->params = array(
-		);
-	}
-	
 	function doSetCriteria($field, $oper, $value) {
 		$criteria = null;
 
@@ -2138,9 +2119,6 @@ class Context_Opportunity extends Extension_DevblocksContext {
 		C4_AbstractViewLoader::setView($view_id, $view);
 		$tpl->assign('view', $view);
 
-		$tpl->assign('view_fields', View_CrmOpportunity::getFields());
-		$tpl->assign('view_searchable_fields', View_CrmOpportunity::getSearchFields());
-		
 		// Template
 		
 		$tpl->display('file:'.$path.'context_links/choosers/__generic.tpl');

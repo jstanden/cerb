@@ -427,6 +427,16 @@ class View_ContactOrg extends C4_AbstractView {
 			SearchFields_ContactOrg::PHONE,
 			SearchFields_ContactOrg::WEBSITE,
 		);
+		$this->columnsHidden = array(
+			SearchFields_ContactOrg::PARENT_ORG_ID,
+		);
+		
+		$this->paramsHidden = array(
+			SearchFields_ContactOrg::ID,
+			SearchFields_ContactOrg::PARENT_ORG_ID,
+		);
+		
+		$this->doResetCriteria();
 	}
 
 	function getData() {
@@ -452,8 +462,6 @@ class View_ContactOrg extends C4_AbstractView {
 
 		$org_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Org::ID);
 		$tpl->assign('custom_fields', $org_fields);
-		
-		$tpl->assign('view_fields', $this->getColumns());
 		
 		switch($this->renderTemplate) {
 			case 'contextlinks_chooser':
@@ -508,19 +516,6 @@ class View_ContactOrg extends C4_AbstractView {
 
 	function getFields() {
 		return SearchFields_ContactOrg::getFields();
-	}
-
-	static function getSearchFields() {
-		$fields = self::getFields();
-		unset($fields[SearchFields_ContactOrg::ID]);
-		unset($fields[SearchFields_ContactOrg::PARENT_ORG_ID]);
-		return $fields;
-	}
-
-	static function getColumns() {
-		$fields = self::getFields();
-		unset($fields[SearchFields_ContactOrg::PARENT_ORG_ID]);
-		return $fields;
 	}
 
 	function doSetCriteria($field, $oper, $value) {
@@ -763,24 +758,22 @@ class Context_Org extends Extension_DevblocksContext {
 		$defaults->class_name = 'View_ContactOrg';
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = 'Organizations';
+
 		$view->view_columns = array(
 			SearchFields_ContactOrg::PHONE,
 			SearchFields_ContactOrg::COUNTRY,
 			SearchFields_ContactOrg::WEBSITE,
 		);
-		$view->params = array(
-			//SearchFields_Worker::IS_DISABLED => new DevblocksSearchCriteria(SearchFields_Worker::IS_DISABLED,'=',0),
-		);
+		
 		$view->renderSortBy = SearchFields_ContactOrg::NAME;
 		$view->renderSortAsc = true;
 		$view->renderLimit = 10;
 		$view->renderTemplate = 'contextlinks_chooser';
+		
 		C4_AbstractViewLoader::setView($view_id, $view);
+		
 		$tpl->assign('view', $view);
 
-		$tpl->assign('view_fields', View_ContactOrg::getFields());
-		$tpl->assign('view_searchable_fields', View_ContactOrg::getSearchFields());
-		
 		// Template
 		
 		$tpl->display('file:'.$path.'context_links/choosers/__generic.tpl');

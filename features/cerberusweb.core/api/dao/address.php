@@ -504,10 +504,20 @@ class View_Address extends C4_AbstractView {
 			SearchFields_Address::NUM_NONSPAM,
 			SearchFields_Address::NUM_SPAM,
 		);
+		$this->columnsHidden = array(
+			SearchFields_Address::PASS,
+		);
 		
-		$this->params = array(
+		$this->paramsDefault = array(
 			SearchFields_Address::IS_REGISTERED => new DevblocksSearchCriteria(SearchFields_Address::IS_REGISTERED,'=',1),
 		);
+		$this->paramsHidden = array(
+			SearchFields_Address::CONTACT_ORG_ID,
+			SearchFields_Address::ID,
+			SearchFields_Address::PASS,
+		);
+		
+		$this->doResetCriteria();
 	}
 
 	function getData() {
@@ -533,8 +543,6 @@ class View_Address extends C4_AbstractView {
 
 		$address_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Address::ID);
 		$tpl->assign('custom_fields', $address_fields);
-		
-		$tpl->assign('view_fields', $this->getColumns());
 		
 		switch($this->renderTemplate) {
 			case 'contextlinks_chooser':
@@ -594,28 +602,6 @@ class View_Address extends C4_AbstractView {
 		return SearchFields_Address::getFields();
 	}
 
-	static function getSearchFields() {
-		$fields = self::getFields();
-		unset($fields[SearchFields_Address::ID]);
-		unset($fields[SearchFields_Address::CONTACT_ORG_ID]);
-		unset($fields[SearchFields_Address::PASS]);
-		return $fields;
-	}
-
-	static function getColumns() {
-		$fields = self::getFields();
-		unset($fields[SearchFields_Address::PASS]);
-		return $fields;
-	}
-
-	function doResetCriteria() {
-		parent::doResetCriteria();
-		
-		$this->params = array(
-			SearchFields_Address::IS_REGISTERED => new DevblocksSearchCriteria(SearchFields_Address::IS_REGISTERED,'=',1),
-		);
-	}
-	
 	function doSetCriteria($field, $oper, $value) {
 		$criteria = null;
 
@@ -918,26 +904,34 @@ class Context_Address extends Extension_DevblocksContext {
 		$defaults = new C4_AbstractViewModel();
 		$defaults->id = $view_id; 
 		$defaults->class_name = 'View_Address';
+		
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = 'Organizations';
+		
 		$view->view_columns = array(
 			SearchFields_Address::FIRST_NAME,
 			SearchFields_Address::LAST_NAME,
 			SearchFields_Address::ORG_NAME,
 		);
-		$view->params = array(
+		
+		$view->paramsDefault = array(
 			SearchFields_Address::IS_BANNED => new DevblocksSearchCriteria(SearchFields_Address::IS_BANNED,'=',0),
 		);
+		$view->paramsHidden = array(
+			SearchFields_Address::ID,
+			SearchFields_Address::CONTACT_ORG_ID,
+		);
+		$view->params = $view->paramsDefault;
+		
 		$view->renderSortBy = SearchFields_Address::EMAIL;
 		$view->renderSortAsc = true;
 		$view->renderLimit = 10;
 		$view->renderTemplate = 'contextlinks_chooser';
+		
 		C4_AbstractViewLoader::setView($view_id, $view);
+		
 		$tpl->assign('view', $view);
 
-		$tpl->assign('view_fields', View_Address::getFields());
-		$tpl->assign('view_searchable_fields', View_Address::getSearchFields());
-		
 		// Template
 		
 		$tpl->display('file:'.$path.'context_links/choosers/__generic.tpl');

@@ -1,6 +1,7 @@
-{assign var=results value=$view->getData()}
-{assign var=total value=$results[1]}
-{assign var=data value=$results[0]}
+{$view_fields = $view->getColumnsAvailable()}
+{$results = $view->getData()}
+{$total = $results[1]}
+{$data = $results[0]}
 <table cellpadding="0" cellspacing="0" border="0" class="worklist" width="100%">
 	<tr>
 		<td nowrap="nowrap"><span class="title">{$view->name}</span></td>

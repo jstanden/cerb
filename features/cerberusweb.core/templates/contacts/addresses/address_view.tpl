@@ -1,3 +1,4 @@
+{$view_fields = $view->getColumnsAvailable()}
 {assign var=results value=$view->getData()}
 {assign var=total value=$results[1]}
 {assign var=data value=$results[0]}
