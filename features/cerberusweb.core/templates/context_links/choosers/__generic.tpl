@@ -1,4 +1,4 @@
-<form action="#" method="POST" id="customize{$view->id}">
+<form action="#" method="POST" id="filter{$view->id}">
 <input type="hidden" name="c" value="internal">
 <input type="hidden" name="a" value="">
 <input type="hidden" name="id" value="{$view->id}">
