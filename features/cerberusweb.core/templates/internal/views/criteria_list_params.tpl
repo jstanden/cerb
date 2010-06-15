@@ -36,7 +36,7 @@
 		
 	{if !$nested}
 		</td>
-		<td width="0%" nowrap="nowrap" valign="top">
+		<td width="0%" nowrap="nowrap" valign="top" align="center">
 			{if !$batchDelete}
 			<a href="javascript:;" onclick="document.{$view->id}_criteriaForm.field.value='{$param_key}';document.{$view->id}_criteriaForm.submit();"><span class="cerb-sprite sprite-forbidden"></span></a>
 			{else}

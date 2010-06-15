@@ -1,6 +1,6 @@
 <form action="#" method="POST" id="customize{$view->id}">
 <input type="hidden" name="c" value="internal">
-<input type="hidden" name="a" value="viewSaveCustomize">
+<input type="hidden" name="a" value="">
 <input type="hidden" name="id" value="{$view->id}">
 
 <div id="viewCustomFilters{$view->id}" style="margin:10px;">
@@ -24,7 +24,7 @@
 <div id="divContextLinkBuffer">
 	{foreach from=$links item=link key=link_id}
 		<div>
-			<a href="javascript:;" onclick="genericAjaxGet('','c=internal&a=contextDeleteLink&context={$from_context|escape}&context_id={$from_context_id|escape}&dst_context={$to_context|escape}&dst_context_id={$link_id|escape}');$(this).parent().remove();"><span class="cerb-sprite sprite-forbidden"></span></a> {$link|escape}
+			<button type="button" onclick="genericAjaxGet('','c=internal&a=contextDeleteLink&context={$from_context|escape}&context_id={$from_context_id|escape}&dst_context={$to_context|escape}&dst_context_id={$link_id|escape}');$(this).parent().remove();"><span class="cerb-sprite sprite-forbidden"></span></button> {$link|escape}
 			<input type="hidden" name="to_context_id[]" value="{$link_id}">
 		</div>
 	{/foreach}
@@ -39,7 +39,7 @@
 <script language="JavaScript1.2" type="text/javascript">
 	function _bufferAddLink($label,$value) {
 		var $html = $('<div>' + $label + '</div>');
-		$html.prepend(' <a href="javascript:;" onclick="$(this).parent().remove();"><span class="cerb-sprite sprite-forbidden"></span></a> ');
+		$html.prepend(' <button type="button" onclick="$(this).parent().remove();"><span class="cerb-sprite sprite-forbidden"></span></button> ');
 		$html.append('<input type="hidden" name="to_context_id[]" value="' + $value + '">');
 		$('#divContextLinkBuffer').append($html);
 	}

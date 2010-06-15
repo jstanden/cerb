@@ -362,6 +362,18 @@ class ChInternalController extends DevblocksControllerExtension {
 			DevblocksPlatform::redirect(new DevblocksHttpResponse(explode('/', $response_uri)));
 	}
 	
+	private function _viewRenderInlineFilters($view) {
+		$tpl = DevblocksPlatform::getTemplateService();
+		
+		$tpl->assign('optColumns', $view->getColumns());
+		$tpl->assign('view_fields', $view->getFields());
+		$tpl->assign('view_searchable_fields', $view->getSearchFields());
+		
+		$tpl->assign('view', $view);
+		
+		$tpl->display('file:' . $this->_TPL_PATH . 'internal/views/customize_view_criteria.tpl');
+	}
+	
 	// Ajax
 	function viewAddFilterAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
@@ -370,8 +382,6 @@ class ChInternalController extends DevblocksControllerExtension {
 		@$oper = DevblocksPlatform::importGPC($_REQUEST['oper']);
 		@$value = DevblocksPlatform::importGPC($_REQUEST['value']);
 		@$field_deletes = DevblocksPlatform::importGPC($_REQUEST['field_deletes'],'array',array());
-		
-		$tpl = DevblocksPlatform::getTemplateService();
 		
 		$view = C4_AbstractViewLoader::getView($id);
 
@@ -386,15 +396,75 @@ class ChInternalController extends DevblocksControllerExtension {
 			$view->doSetCriteria($field, $oper, $value);
 		}
 		
-		$tpl->assign('optColumns', $view->getColumns());
-		$tpl->assign('view_fields', $view->getFields());
-		$tpl->assign('view_searchable_fields', $view->getSearchFields());
+		C4_AbstractViewLoader::setView($view->id, $view);
 		
-		C4_AbstractViewLoader::setView($id, $view);
-		$tpl->assign('view', $view);
-		
-		$tpl->display('file:' . $this->_TPL_PATH . 'internal/views/customize_view_criteria.tpl');
+		$this->_viewRenderInlineFilters($view);
 	}
+	
+	function viewResetFiltersAction() {
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
+
+		$view = C4_AbstractViewLoader::getView($id);
+
+		$view->doResetCriteria();
+		
+		C4_AbstractViewLoader::setView($view->id, $view);
+		
+		$this->_viewRenderInlineFilters($view);		
+	}
+	
+	function viewLoadPresetAction() {
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
+		@$preset_id = DevblocksPlatform::importGPC($_REQUEST['_preset'],'integer',0);
+
+		$view = C4_AbstractViewLoader::getView($id);
+
+		$view->params = array();
+		
+		if(null != ($preset = DAO_ViewFiltersPreset::get($preset_id))) {
+			if(is_array($preset->params))
+			foreach($preset->params as $data) {
+				$view->params[$data['field']] = new DevblocksSearchCriteria($data['field'], $data['operator'], $data['value']);
+			}
+		}
+		
+		C4_AbstractViewLoader::setView($view->id, $view);
+		
+		$this->_viewRenderInlineFilters($view);
+	}
+	
+	function viewAddPresetAction() {
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
+		@$preset_name = DevblocksPlatform::importGPC($_REQUEST['_preset_name'],'string','');
+
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+
+		$view = C4_AbstractViewLoader::getView($id);
+
+		$fields = array(
+			DAO_ViewFiltersPreset::NAME => !empty($preset_name) ? $preset_name : 'New Preset',
+			DAO_ViewFiltersPreset::VIEW_CLASS => get_class($view),
+			DAO_ViewFiltersPreset::WORKER_ID => $active_worker->id,
+			DAO_ViewFiltersPreset::PARAMS_JSON => json_encode($view->params),
+		);
+		
+		DAO_ViewFiltersPreset::create($fields);
+		
+		$this->_viewRenderInlineFilters($view);
+	}
+	
+	function viewEditPresetsAction() {
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
+		@$preset_dels = DevblocksPlatform::importGPC($_REQUEST['_preset_del'],'array',array());
+
+		$view = C4_AbstractViewLoader::getView($id);
+
+		DAO_ViewFiltersPreset::delete($preset_dels);
+		
+		$this->_viewRenderInlineFilters($view);		
+	}
+	
 	
 	// Ajax
 	function viewCustomizeAction() {

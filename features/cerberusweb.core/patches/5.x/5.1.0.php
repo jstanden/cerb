@@ -59,4 +59,25 @@ if(isset($columns['source_extension']) && isset($columns['source_id'])) {
 	$db->Execute('ALTER TABLE task DROP COLUMN source_id');
 }
 
+// ===========================================================================
+// Search filter presets
+
+if(!isset($tables['view_filters_preset'])) {
+	$sql = "
+		CREATE TABLE IF NOT EXISTS view_filters_preset (
+			id INT UNSIGNED NOT NULL DEFAULT 0,
+			name VARCHAR(128) DEFAULT '',
+			view_class VARCHAR(255) DEFAULT '',
+			worker_id INT UNSIGNED NOT NULL DEFAULT 0,
+			params_json TEXT,
+			PRIMARY KEY (id),
+			INDEX view_class (view_class),
+			INDEX worker_id (worker_id)
+		) ENGINE=MyISAM;
+	";
+	$db->Execute($sql);
+
+	$tables['view_filters_preset'] = 'view_filters_preset';
+}
+
 return TRUE;

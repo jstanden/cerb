@@ -324,6 +324,20 @@ abstract class C4_AbstractView {
 		$this->renderPage = 0;
 	}
 	
+	function getPresets() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		// Presets
+		return DAO_ViewFiltersPreset::getWhere(
+			sprintf("%s = %s AND %s = %d",
+				DAO_ViewFiltersPreset::VIEW_CLASS,
+				C4_ORMHelper::qstr(get_class($this)),
+				DAO_ViewFiltersPreset::WORKER_ID,
+				$active_worker->id
+			)
+		);
+	}
+	
 	public static function _doBulkSetCustomFields($source_extension,$custom_fields, $ids) {
 		$fields = DAO_CustomField::getAll();
 		
