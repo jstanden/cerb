@@ -180,7 +180,7 @@ class C4_TranslationView extends C4_AbstractView {
 		}
 	}
 
-	static function getFields() {
+	function getFields() {
 		return SearchFields_Translation::getFields();
 	}
 

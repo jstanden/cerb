@@ -626,7 +626,7 @@ class C4_TimeTrackingEntryView extends C4_AbstractView {
 		}
 	}
 
-	static function getFields() {
+	function getFields() {
 		return SearchFields_TimeTrackingEntry::getFields();
 	}
 

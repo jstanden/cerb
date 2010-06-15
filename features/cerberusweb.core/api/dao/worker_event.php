@@ -414,7 +414,7 @@ class View_WorkerEvent extends C4_AbstractView {
 		}
 	}
 
-	static function getFields() {
+	function getFields() {
 		return SearchFields_WorkerEvent::getFields();
 	}
 

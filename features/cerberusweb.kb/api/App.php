@@ -1562,7 +1562,7 @@ class View_KbArticle extends C4_AbstractView {
 		}
 	}
 
-	static function getFields() {
+	function getFields() {
 		return SearchFields_KbArticle::getFields();
 	}
 

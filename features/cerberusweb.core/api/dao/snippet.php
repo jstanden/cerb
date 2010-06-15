@@ -463,7 +463,7 @@ class View_Snippet extends C4_AbstractView {
 		}
 	}
 
-	static function getFields() {
+	function getFields() {
 		return SearchFields_Snippet::getFields();
 	}
 

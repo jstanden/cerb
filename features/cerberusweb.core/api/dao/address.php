@@ -590,7 +590,7 @@ class View_Address extends C4_AbstractView {
 		}
 	}
 
-	static function getFields() {
+	function getFields() {
 		return SearchFields_Address::getFields();
 	}
 

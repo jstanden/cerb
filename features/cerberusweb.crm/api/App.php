@@ -1651,7 +1651,7 @@ class View_CrmOpportunity extends C4_AbstractView {
 	}
 
 	// [TODO] change globally to getColumnFields() in AbstractView
-	static function getFields() {
+	function getFields() {
 		$fields = SearchFields_CrmOpportunity::getFields();
 		return $fields;
 	}

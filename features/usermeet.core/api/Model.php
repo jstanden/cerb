@@ -197,7 +197,7 @@ class View_CommunityPortal extends C4_AbstractView {
 		}
 	}
 
-	static function getFields() {
+	function getFields() {
 		return SearchFields_CommunityTool::getFields();
 	}
 

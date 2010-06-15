@@ -460,7 +460,7 @@ class View_Task extends C4_AbstractView {
 		}
 	}
 
-	static function getFields() {
+	function getFields() {
 		return SearchFields_Task::getFields();
 	}
 

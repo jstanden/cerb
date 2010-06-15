@@ -676,7 +676,7 @@ class View_MailQueue extends C4_AbstractView {
 		}
 	}
 
-	static function getFields() {
+	function getFields() {
 		return SearchFields_MailQueue::getFields();
 	}
 

@@ -499,7 +499,7 @@ class C4_FeedbackEntryView extends C4_AbstractView {
 		}
 	}
 
-	static function getFields() {
+	function getFields() {
 		return SearchFields_FeedbackEntry::getFields();
 	}
 

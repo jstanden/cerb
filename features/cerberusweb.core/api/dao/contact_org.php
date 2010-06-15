@@ -506,7 +506,7 @@ class View_ContactOrg extends C4_AbstractView {
 		}
 	}
 
-	static function getFields() {
+	function getFields() {
 		return SearchFields_ContactOrg::getFields();
 	}
 

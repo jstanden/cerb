@@ -1071,7 +1071,7 @@ class View_WatcherMailFilter extends C4_AbstractView {
 		}
 	}
 
-	static function getFields() {
+	function getFields() {
 		return SearchFields_WatcherMailFilter::getFields();
 	}
 

@@ -293,7 +293,7 @@ class UmSc_KbArticleView extends C4_AbstractView {
 		$tpl->display("devblocks:cerberusweb.kb:portal_".UmPortalHelper::getCode() . ":support_center/kb/view.tpl");
 	}
 
-	static function getFields() {
+	function getFields() {
 		return SearchFields_KbArticle::getFields();
 	}
 

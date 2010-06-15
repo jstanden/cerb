@@ -294,7 +294,7 @@ class UmSc_TicketHistoryView extends C4_AbstractView {
 		$tpl->display("devblocks:usermeet.core:portal_".UmPortalHelper::getCode() . ":support_center/history/view.tpl");
 	}
 
-	static function getFields() {
+	function getFields() {
 		return SearchFields_Ticket::getFields();
 	}
 

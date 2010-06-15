@@ -258,27 +258,7 @@ abstract class C4_AbstractView {
 	 *
 	 * @return array
 	 */
-	static function getFields() {
-		// Expect Override
-		return array();
-	}
-
-	/**
-	 * All searchable fields
-	 *
-	 * @return array
-	 */
-	static function getSearchFields() {
-		// Expect Override
-		return array();
-	}
-
-	/**
-	 * All fields that can be displayed as columns in the view
-	 *
-	 * @return array
-	 */
-	static function getColumns() {
+	function getFields() {
 		// Expect Override
 		return array();
 	}
@@ -662,7 +642,7 @@ class View_DevblocksTemplate extends C4_AbstractView {
 		}
 	}
 
-	static function getFields() {
+	function getFields() {
 		return SearchFields_DevblocksTemplate::getFields();
 	}
 
@@ -876,7 +856,7 @@ class View_DevblocksStorageProfile extends C4_AbstractView {
 		}
 	}
 
-	static function getFields() {
+	function getFields() {
 		return SearchFields_DevblocksStorageProfile::getFields();
 	}
 

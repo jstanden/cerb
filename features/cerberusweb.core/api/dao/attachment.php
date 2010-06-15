@@ -778,7 +778,7 @@ class View_Attachment extends C4_AbstractView {
 		}
 	}
 
-	static function getFields() {
+	function getFields() {
 		return SearchFields_Attachment::getFields();
 	}
 

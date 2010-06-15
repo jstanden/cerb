@@ -1420,7 +1420,7 @@ class View_Ticket extends C4_AbstractView {
 		}
 	}
 
-	static function getFields() {
+	function getFields() {
 		return SearchFields_Ticket::getFields();
 	}
 

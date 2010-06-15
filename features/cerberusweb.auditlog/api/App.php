@@ -460,7 +460,7 @@ class C4_TicketAuditLogView extends C4_AbstractView {
 		}
 	}
 
-	static function getFields() {
+	function getFields() {
 		return SearchFields_TicketAuditLog::getFields();
 	}
 	
