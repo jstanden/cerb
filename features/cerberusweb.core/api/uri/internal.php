@@ -320,48 +320,6 @@ class ChInternalController extends DevblocksControllerExtension {
 		$view->renderCriteria($field);
 	}
 	
-	// Post
-	function viewAddCriteriaAction() {
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
-		@$response_uri = DevblocksPlatform::importGPC($_REQUEST['response_uri']);
-		@$field = DevblocksPlatform::importGPC($_REQUEST['field']);
-		@$oper = DevblocksPlatform::importGPC($_REQUEST['oper']);
-		@$value = DevblocksPlatform::importGPC($_REQUEST['value']);
-		
-		$view = C4_AbstractViewLoader::getView($id);
-		$view->doSetCriteria($field, $oper, $value);
-		C4_AbstractViewLoader::setView($id, $view);
-		
-		// [TODO] Need to put them back on org or person (depending on which was active)
-		if(!empty($response_uri))
-			DevblocksPlatform::redirect(new DevblocksHttpResponse(explode('/', $response_uri)));
-	}
-	
-	function viewRemoveCriteriaAction() {
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
-		@$response_uri = DevblocksPlatform::importGPC($_REQUEST['response_uri']);
-		@$field = DevblocksPlatform::importGPC($_REQUEST['field']);
-		
-		$view = C4_AbstractViewLoader::getView($id);
-		$view->doRemoveCriteria($field);
-		C4_AbstractViewLoader::setView($id, $view);
-		
-		if(!empty($response_uri))
-			DevblocksPlatform::redirect(new DevblocksHttpResponse(explode('/', $response_uri)));
-	}
-	
-	function viewResetCriteriaAction() {
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
-		@$response_uri = DevblocksPlatform::importGPC($_REQUEST['response_uri']);
-		
-		$view = C4_AbstractViewLoader::getView($id);
-		$view->doResetCriteria();
-		C4_AbstractViewLoader::setView($id, $view);
-
-		if(!empty($response_uri))
-			DevblocksPlatform::redirect(new DevblocksHttpResponse(explode('/', $response_uri)));
-	}
-	
 	private function _viewRenderInlineFilters($view) {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('view', $view);
@@ -563,7 +521,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		$view = C4_AbstractViewLoader::getView($view_id);
 		$tpl->assign('view', $view);
 		
-		$model_columns = $view->getColumns();
+		$model_columns = $view->getColumnsAvailable();
 		$tpl->assign('model_columns', $model_columns);
 		
 		$view_columns = $view->view_columns;
@@ -585,7 +543,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		}
 		
 		$view = C4_AbstractViewLoader::getView($view_id);
-		$column_manifests = $view->getColumns();
+		$column_manifests = $view->getColumnsAvailable();
 
 		// Override display
 		$view->view_columns = $columns;

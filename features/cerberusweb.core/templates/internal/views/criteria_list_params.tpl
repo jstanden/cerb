@@ -15,7 +15,7 @@
 					{include file="file:$core_tpl/internal/views/criteria_list_params.tpl" params=$p nested=true}
 				{else}
 					{assign var=field value=$p->field} 
-					{$view_filters.$field->db_label} 
+					{$view_filters.$field->db_label|capitalize} 
 					{$p->operator}
 					<b>{$view->renderCriteriaParam($p)}</b>
 				{/if}
@@ -25,7 +25,7 @@
 		{/foreach}
 	{else}
 		{assign var=field value=$param->field} 
-		{$view_filters.$field->db_label} 
+		{$view_filters.$field->db_label|capitalize} 
 		{$param->operator}
 		<b>{$view->renderCriteriaParam($param)}</b>
 		
