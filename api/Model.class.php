@@ -580,7 +580,7 @@ class C4_AbstractViewLoader {
 		$inst->name = $model->name;
 		
 		$inst->view_columns = $model->view_columns;
-		$inst->columns = $model->columnsHidden;
+		$inst->columnsHidden = $model->columnsHidden;
 		
 		$inst->params = $model->params;
 		$inst->paramsDefault = $model->paramsDefault;

@@ -1,4 +1,4 @@
-{$view_filters = $view->getParamsAvailable()}
+{$view_filters = $view->getFields()}
 {if !empty($params)}
 {foreach from=$params item=param key=param_key name=params}
 	{if !$nested}
