@@ -59,6 +59,9 @@
 		<tr class="{$tableRowClass}">
 			<td align="center" rowspan="2"><input type="checkbox" name="row_id[]" value="{$result.we_id}"></td>
 			<td colspan="{math equation="x" x=$smarty.foreach.headers.total}">
+				{if $result.we_is_read}
+				<span class="cerb-sprite sprite-check_gray"></span>
+				{/if}
 				<a href="{devblocks_url}c=home&a=redirectRead&id={$result.we_id}{/devblocks_url}" class="subject">{$result.we_title}</a><br>
 			</td>
 		</tr>

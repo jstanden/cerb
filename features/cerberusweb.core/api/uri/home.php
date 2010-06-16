@@ -121,32 +121,41 @@ class ChHomePage extends CerberusPageExtension {
 		$visit->set(CerberusVisit::KEY_HOME_SELECTED_TAB, 'events');
 		
 		// My Events
-		$myEventsView = C4_AbstractViewLoader::getView(self::VIEW_MY_EVENTS);
-		
-		$title = vsprintf($translate->_('home.my_notifications.view.title'), $active_worker->getName());
-		
-		if(null == $myEventsView) {
-			$myEventsView = new View_WorkerEvent();
-			$myEventsView->id = self::VIEW_MY_EVENTS;
-			$myEventsView->name = $title;
-			$myEventsView->renderLimit = 25;
-			$myEventsView->renderPage = 0;
-			$myEventsView->renderSortBy = SearchFields_WorkerEvent::CREATED_DATE;
-			$myEventsView->renderSortAsc = 0;
-		}
-
-		// Overload criteria
-		$myEventsView->name = $title;
-		$myEventsView->params = array(
-			SearchFields_WorkerEvent::WORKER_ID => new DevblocksSearchCriteria(SearchFields_WorkerEvent::WORKER_ID,'=',$active_worker->id),
+		$defaults = new C4_AbstractViewModel();
+		$defaults->id = self::VIEW_MY_EVENTS;
+		$defaults->class_name = 'View_WorkerEvent';
+		$defaults->renderLimit = 25;
+		$defaults->renderPage = 0;
+		$defaults->renderSortBy = SearchFields_WorkerEvent::CREATED_DATE;
+		$defaults->renderSortAsc = false;
+		$defaults->paramsDefault = array(
 			SearchFields_WorkerEvent::IS_READ => new DevblocksSearchCriteria(SearchFields_WorkerEvent::IS_READ,'=',0),
 		);
+		
+		$myEventsView = C4_AbstractViewLoader::getView(self::VIEW_MY_EVENTS, $defaults);
+		
+		$myEventsView->name = vsprintf($translate->_('home.my_notifications.view.title'), $active_worker->getName());
+		
+		$myEventsView->columnsHidden = array(
+			SearchFields_WorkerEvent::ID,
+			SearchFields_WorkerEvent::WORKER_ID,
+		);
+		
+		$myEventsView->paramsHidden = array(
+			SearchFields_WorkerEvent::ID,
+			SearchFields_WorkerEvent::WORKER_ID,
+		);
+		$myEventsView->paramsDefault = $defaults->paramsDefault;
+		$myEventsView->paramsRequired = array(
+			SearchFields_WorkerEvent::WORKER_ID => new DevblocksSearchCriteria(SearchFields_WorkerEvent::WORKER_ID,'=',$active_worker->id),
+		);
+		
 		/*
 		 * [TODO] This doesn't need to save every display, but it was possible to 
 		 * lose the params in the saved version of the view in the DB w/o recovery.
 		 * This should be moved back into the if(null==...) check in a later build.
 		 */
-		C4_AbstractViewLoader::setView($myEventsView->id,$myEventsView);
+		C4_AbstractViewLoader::setView($myEventsView->id, $myEventsView);
 		
 		$tpl->assign('view', $myEventsView);
 		$tpl->display('file:' . $this->_TPL_PATH . 'home/tabs/my_events/index.tpl');

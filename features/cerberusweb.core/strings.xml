@@ -1618,7 +1618,7 @@ For example: *receipt*</seg></tuv>
 			<tuv xml:lang="en_US"><seg>Created</seg></tuv>
 		</tu>
 		<tu tuid='worker_event.is_read'>
-			<tuv xml:lang="en_US"><seg>Read</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Is Read</seg></tuv>
 		</tu>
 		<tu tuid='worker_event.title'>
 			<tuv xml:lang="en_US"><seg>Title</seg></tuv>
