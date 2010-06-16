@@ -34,11 +34,11 @@
 <input type="hidden" name="a" value="saveLicense">
 <input type="hidden" name="do_delete" value="0">
 
-<b>Enter your company name <u>exactly</u> as it appears on your order:</b></br>
+<b>Enter your company name <u>exactly</u> as it appears on your order:</b><br>
 <input type="text" name="company" size="64" value=""><br>
 <br>
 
-<b>Enter your e-mail address <u>exactly</u> as it appears on your order:</b></br>
+<b>Enter your e-mail address <u>exactly</u> as it appears on your order:</b><br>
 <input type="text" name="email" size="64" value=""><br>
 <br>
 
