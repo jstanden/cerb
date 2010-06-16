@@ -833,6 +833,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		// Remember the tab
 		$visit->set(CerberusVisit::KEY_MAIL_MODE, 'snippets');
 		
+		// [TODO] Use $defaults
 		$view = C4_AbstractViewLoader::getView('mail_snippets');
 		
 		if(null == $view) {
@@ -841,11 +842,14 @@ class ChTicketsPage extends CerberusPageExtension {
 			$view->name = 'Mail Snippets';
 		}
 		
-		$view->params = array(
+		$view->columnsHidden[] = SearchFields_Snippet::ID;
+		$view->columnsHidden[] = SearchFields_Snippet::IS_PRIVATE;
+		
+		$view->paramsRequired = array(
 			SearchFields_Snippet::CONTEXT => new DevblocksSearchCriteria(SearchFields_Snippet::CONTEXT, DevblocksSearchCriteria::OPER_IN, array('cerberusweb.contexts.plaintext','cerberusweb.contexts.ticket','cerberusweb.contexts.worker')),
-//			SearchFields_MailQueue::WORKER_ID => new DevblocksSearchCriteria(SearchFields_MailQueue::WORKER_ID, DevblocksSearchCriteria::OPER_EQ, $active_worker->id),
-//			SearchFields_MailQueue::IS_QUEUED => new DevblocksSearchCriteria(SearchFields_MailQueue::IS_QUEUED, DevblocksSearchCriteria::OPER_EQ, 0),
 		);
+		$view->paramsHidden[] = SearchFields_Snippet::ID;
+		$view->paramsHidden[] = SearchFields_Snippet::IS_PRIVATE;
 		
 		C4_AbstractViewLoader::setView($view->id,$view);
 		$tpl->assign('view', $view);
