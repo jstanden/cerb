@@ -620,15 +620,32 @@ class ChTicketsPage extends CerberusPageExtension {
 		
 		$view = C4_AbstractViewLoader::getView('mail_drafts');
 		
+		// [TODO] Use $defaults
+		
 		if(null == $view) {
 			$view = new View_MailQueue();
 			$view->id = 'mail_drafts';
 			$view->name = 'Drafts';
 		}
 		
-		$view->params = array(
+		$view->columnsHidden = array(
+			SearchFields_MailQueue::ID,
+			SearchFields_MailQueue::IS_QUEUED,
+			SearchFields_MailQueue::QUEUE_FAILS,
+			SearchFields_MailQueue::QUEUE_PRIORITY,
+			SearchFields_MailQueue::TICKET_ID,
+		);
+		
+		$view->paramsRequired = array(
 			SearchFields_MailQueue::WORKER_ID => new DevblocksSearchCriteria(SearchFields_MailQueue::WORKER_ID, DevblocksSearchCriteria::OPER_EQ, $active_worker->id),
 			SearchFields_MailQueue::IS_QUEUED => new DevblocksSearchCriteria(SearchFields_MailQueue::IS_QUEUED, DevblocksSearchCriteria::OPER_EQ, 0),
+		);
+		$view->paramsHidden = array(
+			SearchFields_MailQueue::ID,
+			SearchFields_MailQueue::IS_QUEUED,
+			SearchFields_MailQueue::QUEUE_FAILS,
+			SearchFields_MailQueue::QUEUE_PRIORITY,
+			SearchFields_MailQueue::TICKET_ID,
 		);
 		
 		C4_AbstractViewLoader::setView($view->id,$view);

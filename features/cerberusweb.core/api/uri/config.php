@@ -1004,13 +1004,17 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		
 		if(null != ($view = C4_AbstractViewLoader::getView($defaults->id, $defaults))) {
 			$view->columnsHidden = array(
+				SearchFields_MailQueue::ID,
 				SearchFields_MailQueue::IS_QUEUED,
+				SearchFields_MailQueue::TICKET_ID,
 			);
 			$view->paramsRequired = array(
 				SearchFields_MailQueue::IS_QUEUED => new DevblocksSearchCriteria(SearchFields_MailQueue::IS_QUEUED,'=', 1)
 			);
 			$view->paramsHidden = array(
+				SearchFields_MailQueue::ID,
 				SearchFields_MailQueue::IS_QUEUED,
+				SearchFields_MailQueue::TICKET_ID,
 			);
 			
 			C4_AbstractViewLoader::setView($view->id, $view);
