@@ -1,7 +1,7 @@
 <input type="hidden" name="c" value="internal">
 <input type="hidden" name="a" value="viewSaveCustomize">
 <input type="hidden" name="id" value="{$view->id}">
-<div style="background-color: #EEEEEE;padding:5px;">
+<div class="block" style="margin:5px;">
 <h1>{$translate->_('common.customize')|capitalize}</h1>
 
 {* Custom Views *}
