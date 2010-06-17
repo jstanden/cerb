@@ -75,7 +75,7 @@
 <br>
 
 {if $active_worker->hasPriv('core.addybook.addy.actions.update')}
-	<button type="button" onclick="genericAjaxPanelPostCloseReloadView('formAddressPeek', '{$view_id}');"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')}</button>
+	<button name="submit" type="button" onclick="if($('#formAddressPeek').validate().form()) { genericAjaxPanelPostCloseReloadView('formAddressPeek', '{$view_id}'); } "><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')}</button>
 {else}
 	<div class="error">{$translate->_('error.core.no_acl.edit')}</div>	
 {/if}
