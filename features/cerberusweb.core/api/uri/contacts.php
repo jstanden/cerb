@@ -1115,9 +1115,8 @@ class ChContactsPage extends CerberusPageExtension {
 	function doAddressBatchUpdateAction() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-	    @$address_id_str = DevblocksPlatform::importGPC($_REQUEST['address_ids'],'string');
-
 	    @$filter = DevblocksPlatform::importGPC($_REQUEST['filter'],'string','');
+	    $ids = array();
 	    
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
 		$view = C4_AbstractViewLoader::getView($view_id);
@@ -1126,8 +1125,6 @@ class ChContactsPage extends CerberusPageExtension {
 		@$sla = DevblocksPlatform::importGPC($_POST['sla'],'string','');
 		@$is_banned = DevblocksPlatform::importGPC($_POST['is_banned'],'integer',0);
 
-		$address_ids = DevblocksPlatform::parseCsvString($address_id_str);
-		
 		$do = array();
 		
 		// Do: Organization
@@ -1164,8 +1161,18 @@ class ChContactsPage extends CerberusPageExtension {
 			
 		// Do: Custom fields
 		$do = DAO_CustomFieldValue::handleBulkPost($do);
-			
-		$view->doBulkUpdate($filter, $do, $address_ids);
+		
+		switch($filter) {
+			// Checked rows
+			case 'checks':
+				@$address_id_str = DevblocksPlatform::importGPC($_REQUEST['address_ids'],'string');
+				$ids = DevblocksPlatform::parseCsvString($address_id_str);
+				break;
+			default:
+				break;
+		}
+		
+		$view->doBulkUpdate($filter, $do, $ids);
 		
 		$view->render();
 		return;
@@ -1236,12 +1243,9 @@ class ChContactsPage extends CerberusPageExtension {
 	}	
 	
 	function doOrgBulkUpdateAction() {
-		// Checked rows
-	    @$org_ids_str = DevblocksPlatform::importGPC($_REQUEST['org_ids'],'string');
-		$org_ids = DevblocksPlatform::parseCsvString($org_ids_str);
-
 		// Filter: whole list or check
 	    @$filter = DevblocksPlatform::importGPC($_REQUEST['filter'],'string','');
+	    $ids = array();
 	    
 	    // View
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
@@ -1258,8 +1262,18 @@ class ChContactsPage extends CerberusPageExtension {
 			
 		// Do: Custom fields
 		$do = DAO_CustomFieldValue::handleBulkPost($do);
-			
-		$view->doBulkUpdate($filter, $do, $org_ids);
+		
+		switch($filter) {
+			// Checked rows
+			case 'checks':
+			    @$org_ids_str = DevblocksPlatform::importGPC($_REQUEST['org_ids'],'string');
+				$ids = DevblocksPlatform::parseCsvString($org_ids_str);
+				break;
+			default:
+				break;
+		}
+		
+		$view->doBulkUpdate($filter, $do, $ids);
 		
 		$view->render();
 		return;
