@@ -58,7 +58,6 @@ class DAO_ContactOrg extends C4_ORMHelper {
 	const PHONE = 'phone';
 	const WEBSITE = 'website';
 	const CREATED = 'created';
-	const PARENT_ORG_ID = 'parent_org_id';
 	
 	private function __construct() {}
 	
@@ -75,7 +74,6 @@ class DAO_ContactOrg extends C4_ORMHelper {
 			'phone' => $translate->_('contact_org.phone'),
 			'website' => $translate->_('contact_org.website'),
 			'created' => $translate->_('contact_org.created'),
-			'parent_org_id' => $translate->_('contact_org.parent_org_id'),
 		);
 	}
 	
@@ -89,8 +87,8 @@ class DAO_ContactOrg extends C4_ORMHelper {
 		$db = DevblocksPlatform::getDatabaseService();
 		$id = $db->GenID('contact_org_seq');
 		
-		$sql = sprintf("INSERT INTO contact_org (id,name,street,city,province,postal,country,phone,website,created,parent_org_id) ".
-  			"VALUES (%d,'','','','','','','','',%d,0)",
+		$sql = sprintf("INSERT INTO contact_org (id,name,street,city,province,postal,country,phone,website,created) ".
+  			"VALUES (%d,'','','','','','','','',%d)",
 			$id,
 			time()
 		);
@@ -153,7 +151,7 @@ class DAO_ContactOrg extends C4_ORMHelper {
 	static function getWhere($where=null) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = "SELECT id,name,street,city,province,postal,country,phone,website,created,parent_org_id ".
+		$sql = "SELECT id,name,street,city,province,postal,country,phone,website,created ".
 			"FROM contact_org ".
 			(!empty($where) ? sprintf("WHERE %s ", $where) : " ")
 		;
@@ -177,7 +175,6 @@ class DAO_ContactOrg extends C4_ORMHelper {
 			$object->phone = $row['phone'];
 			$object->website = $row['website'];
 			$object->created = intval($row['created']);
-			$object->parent_org_id = intval($row['parent_org_id']);
 			$objects[$object->id] = $object;
 		}
 		
@@ -264,9 +261,7 @@ class DAO_ContactOrg extends C4_ORMHelper {
 			"c.country as %s, ".
 			"c.phone as %s, ".
 			"c.website as %s, ".
-			"c.created as %s, ".
-			"c.parent_org_id as %s, ".
-			"po.name as %s ",
+			"c.created as %s ",
 //			"INNER JOIN team tm ON (tm.id = t.team_id) ".
 			    SearchFields_ContactOrg::ID,
 			    SearchFields_ContactOrg::NAME,
@@ -277,14 +272,11 @@ class DAO_ContactOrg extends C4_ORMHelper {
 			    SearchFields_ContactOrg::COUNTRY,
 			    SearchFields_ContactOrg::PHONE,
 			    SearchFields_ContactOrg::WEBSITE,
-			    SearchFields_ContactOrg::CREATED,
-			    SearchFields_ContactOrg::PARENT_ORG_ID,
-			    SearchFields_ContactOrg::PARENT_ORG_NAME
+			    SearchFields_ContactOrg::CREATED
 			);
 
 		$join_sql = 
-			"FROM contact_org c ".
-			"LEFT JOIN contact_org po ON (c.parent_org_id=po.id) ";
+			"FROM contact_org c ";
 			
 		// Custom field joins
 		list($select_sql, $join_sql, $has_multiple_values) = self::_appendSelectJoinSqlForCustomFieldTables(
@@ -353,9 +345,6 @@ class SearchFields_ContactOrg {
 	const WEBSITE = 'c_website';
 	const CREATED = 'c_created';
 
-	const PARENT_ORG_ID = 'po_id';
-	const PARENT_ORG_NAME = 'po_name';
-	
 	/**
 	 * @return DevblocksSearchField[]
 	 */
@@ -373,9 +362,6 @@ class SearchFields_ContactOrg {
 			self::PHONE => new DevblocksSearchField(self::PHONE, 'c', 'phone', $translate->_('contact_org.phone')),
 			self::WEBSITE => new DevblocksSearchField(self::WEBSITE, 'c', 'website', $translate->_('contact_org.website')),
 			self::CREATED => new DevblocksSearchField(self::CREATED, 'c', 'created', $translate->_('contact_org.created')),
-			
-			self::PARENT_ORG_ID => new DevblocksSearchField(self::PARENT_ORG_ID, 'c', 'parent_org_id', $translate->_('contact_org.parent_org_id')),
-			self::PARENT_ORG_NAME => new DevblocksSearchField(self::PARENT_ORG_NAME, 'po', 'name', $translate->_('contact_org.parent_org_name')),
 		);
 		
 		// Custom Fields
@@ -405,7 +391,6 @@ class Model_ContactOrg {
 	public $phone;
 	public $website;
 	public $created;
-	public $parent_org_id;
 	public $sync_id = '';
 };
 
@@ -421,7 +406,6 @@ class View_ContactOrg extends C4_AbstractView {
 		$this->renderSortAsc = true;
 
 		$this->view_columns = array(
-			SearchFields_ContactOrg::PARENT_ORG_ID,
 			SearchFields_ContactOrg::CREATED,
 			SearchFields_ContactOrg::COUNTRY,
 			SearchFields_ContactOrg::PHONE,
@@ -470,7 +454,6 @@ class View_ContactOrg extends C4_AbstractView {
 			case SearchFields_ContactOrg::COUNTRY:
 			case SearchFields_ContactOrg::PHONE:
 			case SearchFields_ContactOrg::WEBSITE:
-			case SearchFields_ContactOrg::PARENT_ORG_NAME:
 				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__string.tpl');
 				break;
 			case SearchFields_ContactOrg::CREATED:
@@ -505,13 +488,11 @@ class View_ContactOrg extends C4_AbstractView {
 	static function getSearchFields() {
 		$fields = self::getFields();
 		unset($fields[SearchFields_ContactOrg::ID]);
-		unset($fields[SearchFields_ContactOrg::PARENT_ORG_ID]);
 		return $fields;
 	}
 
 	static function getColumns() {
 		$fields = self::getFields();
-		unset($fields[SearchFields_ContactOrg::PARENT_ORG_ID]);
 		return $fields;
 	}
 
@@ -527,7 +508,6 @@ class View_ContactOrg extends C4_AbstractView {
 			case SearchFields_ContactOrg::COUNTRY:
 			case SearchFields_ContactOrg::PHONE:
 			case SearchFields_ContactOrg::WEBSITE:
-			case SearchFields_ContactOrg::PARENT_ORG_NAME:
 				// force wildcards if none used on a LIKE
 				if(($oper == DevblocksSearchCriteria::OPER_LIKE || $oper == DevblocksSearchCriteria::OPER_NOT_LIKE)
 				&& false === (strpos($value,'*'))) {
