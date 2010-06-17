@@ -1344,7 +1344,6 @@ class CerberusContexts {
 		// Token labels
 		$token_labels = array(
 			'content' => $prefix.$translate->_('kb_article.content'),
-			'is_html' => $prefix.$translate->_('kb_article.format'),
 			'id' => $prefix.$translate->_('common.id'),
 			'title' => $prefix.$translate->_('kb_article.title'),
 			'updated|date' => $prefix.$translate->_('kb_article.updated'),
@@ -1361,8 +1360,7 @@ class CerberusContexts {
 		
 		// Token values
 		if(null != $article) {
-			$token_values['content'] = $article->content;
-			$token_values['is_html'] = $article->format;
+			$token_values['content'] = $article->getContent();
 			$token_values['id'] = $article->id;
 			$token_values['title'] = $article->title;
 			$token_values['updated'] = $article->updated;
