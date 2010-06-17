@@ -461,13 +461,13 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		$view = C4_AbstractViewLoader::getView($view_id);
 		
 		// Attachment fields
-		@$deleted = trim(DevblocksPlatform::importGPC($_POST['deleted'],'integer',0));
+		@$deleted = DevblocksPlatform::importGPC($_POST['deleted'],'string');
 
 		$do = array();
 		
 		// Do: Deleted
 		if(0 != strlen($deleted))
-			$do['deleted'] = $deleted;
+			$do['deleted'] = intval($deleted);
 			
 		// Do: Custom fields
 //		$do = DAO_CustomFieldValue::handleBulkPost($do);
