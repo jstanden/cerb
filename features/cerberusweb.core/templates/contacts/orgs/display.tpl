@@ -24,20 +24,6 @@
 			<br>
 		{/if}
 		{if !empty($contact->website)}<a href="{$contact->website}" target="_blank">{$contact->website}</a><br>{/if}
-
-		{if is_array($breadcrumbs) && count($breadcrumbs) > 1}
-		{foreach from=$breadcrumbs item=parent_org key=parent_org_id name=parent_orgs}
-		{if !$smarty.foreach.parent_orgs.last}
-			<a href="{devblocks_url}c=contacts&a=orgs&m=display&id={$parent_org_id}{/devblocks_url}">{$parent_org->name|escape}</a> 
-		{else}
-			<b>{$parent_org->name|escape}</b> 
-		{/if}
-		{if !$smarty.foreach.parent_orgs.last}
-			&raquo;
-		{/if}
-		{/foreach}
-		<br>
-		{/if}
 		
 		<br>
 	</td>

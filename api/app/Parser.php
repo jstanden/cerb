@@ -87,6 +87,33 @@ class ParserFile {
 	}
 };
 
+class ParseFileBuffer extends ParserFile {
+	private $mime_filename = '';
+	private $section = null;
+	private $info = array();
+	private $fp = null;
+
+	function __construct($section, $info, $mime_filename) {
+		$this->mime_filename = $mime_filename;
+		$this->section = $section;
+		$this->info = $info;
+
+		$this->setTempFile(ParserFile::makeTempFilename(),@$info['content-type']);
+		$this->fp = fopen($this->getTempFile(),'wb');
+
+		if($this->fp && !empty($this->section) && !empty($this->mime_filename)) {
+			mailparse_msg_extract_part_file($this->section, $this->mime_filename, array($this, "writeCallback"));
+		}
+
+		@fclose($this->fp);
+	}
+
+	function writeCallback($chunk) {
+		$this->file_size += fwrite($this->fp, $chunk);
+		//        echo $chunk;
+	}
+};
+
 class CerberusParser {
     const ATTACHMENT_BUCKETS = 100; // hash
 
@@ -195,7 +222,7 @@ class CerberusParser {
 	                if(!$is_attachments_enabled) {
 	                    break; // skip attachment
 	                }
-				    $attach = new ParseCronFileBuffer($section, $info, $full_filename);
+				    $attach = new ParseFileBuffer($section, $info, $full_filename);
 	                
 				    // [TODO] This could be more efficient by not even saving in the first place above:
                     // Make sure our attachment is under the max preferred size

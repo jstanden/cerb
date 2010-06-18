@@ -256,6 +256,8 @@ abstract class Extension_RestController extends DevblocksExtension {
 		
 		$out = array(
 			'__status' => 'error',
+			'__version' => APP_VERSION,
+			'__build' => APP_BUILD,
 			'__error' => $code,
 			'message' => $message,
 		);
@@ -271,7 +273,13 @@ abstract class Extension_RestController extends DevblocksExtension {
 		if(!is_array($array))
 			return false;
 			
-		return Plugin_RestAPI::render(array('__status'=>'success') + $array, $this->_format);
+		$out = array(
+			'__status' => 'success',
+			'__version' => APP_VERSION,
+			'__build' => APP_BUILD,
+		);
+		
+		return Plugin_RestAPI::render($out + $array, $this->_format);
 	} 
 	
 	/**

@@ -811,12 +811,9 @@ class ChTicketsPage extends CerberusPageExtension {
 	}
 	
 	function doDraftsBulkUpdateAction() {
-		// Checked rows
-	    @$ids_str = DevblocksPlatform::importGPC($_REQUEST['ids'],'string');
-		$ids = DevblocksPlatform::parseCsvString($ids_str);
-
 		// Filter: whole list or check
 	    @$filter = DevblocksPlatform::importGPC($_REQUEST['filter'],'string','');
+	    $ids = array();
 	    
 	    // View
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
@@ -833,7 +830,17 @@ class ChTicketsPage extends CerberusPageExtension {
 			
 		// Do: Custom fields
 //		$do = DAO_CustomFieldValue::handleBulkPost($do);
-			
+
+		switch($filter) {
+			// Checked rows
+			case 'checks':
+			    @$ids_str = DevblocksPlatform::importGPC($_REQUEST['ids'],'string');
+				$ids = DevblocksPlatform::parseCsvString($ids_str);
+				break;
+			default:
+				break;
+		}
+
 		$view->doBulkUpdate($filter, $do, $ids);
 		
 		$view->render();

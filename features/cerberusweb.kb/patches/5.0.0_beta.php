@@ -23,7 +23,7 @@ if(!isset($tables['kb_article']))
 
 list($columns, $indexes) = $db->metaTable('kb_article');
 
-if(!isset($columns['content_raw'])) {
+if(isset($columns['content_raw'])) {
 	$db->Execute("ALTER TABLE kb_article DROP COLUMN content_raw");
 }
 

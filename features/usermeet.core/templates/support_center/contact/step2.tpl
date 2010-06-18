@@ -27,7 +27,7 @@
 		<br>
 		
       	{if !empty($situation_params.followups)}
-		<div class="header"><h1>{$translate->_('Additional Information')}</h1></div>
+		<div class="header"><h1>{$translate->_('portal.public.open_ticket.additional_info')}</h1></div>
       	
       	<blockquote style="margin-left:10px;">
 		{foreach from=$situation_params.followups key=question item=field_id name=situations}
@@ -97,7 +97,7 @@
 		</blockquote>
 		{/if}
 		
-		<div class="header"><h1>Message</h1></div>
+		<div class="header"><h1>{$translate->_('portal.public.open_ticket.message')}</h1></div>
 		<textarea name="content" rows="15" cols="60" style="width:98%;" class="required">{$last_content|escape}</textarea><br>
 		<br>
 		

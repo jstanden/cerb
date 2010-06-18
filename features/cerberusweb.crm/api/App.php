@@ -660,11 +660,9 @@ class CrmPage extends CerberusPageExtension {
 	function doOppBulkUpdateAction() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		// Checked rows
-	    @$opp_ids_str = DevblocksPlatform::importGPC($_REQUEST['opp_ids'],'string');
-
 		// Filter: whole list or check
 	    @$filter = DevblocksPlatform::importGPC($_REQUEST['filter'],'string','');
+	    $ids = array();
 	    
 	    // View
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
@@ -707,16 +705,20 @@ class CrmPage extends CerberusPageExtension {
 			}
 		}
 		
-		if(empty($filter)) {
-			$opp_ids = array();
-		} elseif('checks'==$filter) {
-	        $opp_ids = DevblocksPlatform::parseCsvString($opp_ids_str);
-	    }
+		switch($filter) {
+			// Checked rows
+			case 'checks':
+			    @$opp_ids_str = DevblocksPlatform::importGPC($_REQUEST['opp_ids'],'string');
+		        $ids = DevblocksPlatform::parseCsvString($opp_ids_str);
+				break;
+			default:
+				break;
+		}
 		
 		// Do: Custom fields
 		$do = DAO_CustomFieldValue::handleBulkPost($do);
 		
-		$view->doBulkUpdate($filter, $do, $opp_ids);
+		$view->doBulkUpdate($filter, $do, $ids);
 		
 		$view->render();
 		return;

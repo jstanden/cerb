@@ -854,7 +854,7 @@ class View_Attachment extends C4_AbstractView {
 		foreach($do as $k => $v) {
 			switch($k) {
 				case 'deleted':
-					$deleted = true;
+					$deleted = !empty($v);
 					break;
 				default:
 					break;

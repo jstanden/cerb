@@ -13,14 +13,24 @@ class ChRest_KbArticles extends Extension_RestController implements IExtensionRe
 			
 		} else { // actions
 			switch($action) {
-				default:
-					$this->error(self::ERRNO_NOT_IMPLEMENTED);
-					break;
 			}
 		}
+		
+		$this->error(self::ERRNO_NOT_IMPLEMENTED);
 	}
 	
 	function putAction($stack) {
+		@$action = array_shift($stack);
+		
+		// Looking up a single ID?
+		if(is_numeric($action)) {
+			$this->putId(intval($action));
+			
+		} else { // actions
+			switch($action) {
+			}
+		}
+		
 		$this->error(self::ERRNO_NOT_IMPLEMENTED);
 	}
 	
@@ -28,6 +38,9 @@ class ChRest_KbArticles extends Extension_RestController implements IExtensionRe
 		@$action = array_shift($stack);
 		
 		switch($action) {
+			case 'create':
+				$this->postCreate();
+				break;
 			case 'search':
 				$this->postSearch();
 				break;
@@ -63,15 +76,19 @@ class ChRest_KbArticles extends Extension_RestController implements IExtensionRe
 		
 		if('dao'==$type) {
 			$tokens = array(
-//				'is_banned' => DAO_Address::IS_BANNED,
-//				'is_registered' => DAO_Address::IS_REGISTERED,
+				'content' => DAO_KbArticle::CONTENT,
+				'id' => DAO_KbArticle::ID,
+				'format' => DAO_KbArticle::FORMAT,
+				'title' => DAO_KbArticle::TITLE,
+				'updated' => DAO_KbArticle::UPDATED,
+				'views' => DAO_KbArticle::VIEWS,
 			);
 		} else {
 			$tokens = array(
 				'category_id' => SearchFields_KbArticle::CATEGORY_ID,
 				'content' => SearchFields_KbArticle::FULLTEXT_ARTICLE_CONTENT,
 				'id' => SearchFields_KbArticle::ID,
-				'is_html' => SearchFields_KbArticle::FORMAT,
+				'format' => SearchFields_KbArticle::FORMAT,
 				'title' => SearchFields_KbArticle::TITLE,
 				'updated' => SearchFields_KbArticle::UPDATED,
 				'views' => SearchFields_KbArticle::VIEWS,
@@ -140,4 +157,140 @@ class ChRest_KbArticles extends Extension_RestController implements IExtensionRe
 		
 		$this->success($container);
 	}
+	
+	function putId($id) {
+		$worker = $this->getActiveWorker();
+		
+		// Validate the ID
+		if(null == ($article = DAO_KbArticle::get($id)))
+			$this->error(self::ERRNO_CUSTOM, sprintf("Invalid article ID '%d'", $id));
+			
+		// ACL
+		if(!($worker->hasPriv('core.kb.articles.modify')))
+			$this->error(self::ERRNO_ACL);
+			
+		$putfields = array(
+			'content' => 'string',
+			'format' => 'integer',
+			'title' => 'string',
+			'updated' => 'timestamp',
+			'views' => 'integer',
+		);
+
+		$fields = array();
+
+		foreach($putfields as $putfield => $type) {
+			if(!isset($_POST[$putfield]))
+				continue;
+			
+			@$value = DevblocksPlatform::importGPC($_POST[$putfield], 'string', '');
+			
+			if(null == ($field = self::translateToken($putfield, 'dao'))) {
+				$this->error(self::ERRNO_CUSTOM, sprintf("'%s' is not a valid field.", $putfield));
+			}
+			
+			// Sanitize
+			$value = DevblocksPlatform::importVar($value, $type);
+						
+//			switch($field) {
+//				case DAO_Worker::PASSWORD:
+//					$value = md5($value);
+//					break;
+//			}
+			
+			$fields[$field] = $value;
+		}
+		
+		if(!isset($fields[DAO_KbArticle::UPDATED]))
+			$fields[DAO_KbArticle::UPDATED] = time();
+		
+		// Handle custom fields
+		$customfields = $this->_handleCustomFields($_POST);
+		if(is_array($customfields))
+			DAO_CustomFieldValue::formatAndSetFieldValues(ChCustomFieldSource_KbArticle::ID, $id, $customfields, true, true, true);
+		
+		// Check required fields
+//		$reqfields = array(DAO_Address::EMAIL);
+//		$this->_handleRequiredFields($reqfields, $fields);
+
+		// Update
+		DAO_KbArticle::update($id, $fields);
+		
+		// Handle delta categories
+		if(isset($_POST['category_id'])) {
+			$category_ids = !is_array($_POST['category_id']) ? array($_POST['category_id']) : $_POST['category_id'];
+			DAO_KbArticle::setCategories($id, $category_ids, false);
+		}
+		
+		$this->getId($id);
+	}
+	
+	function postCreate() {
+		$worker = $this->getActiveWorker();
+		
+		// ACL
+		if(!$worker->hasPriv('core.kb.articles.modify'))
+			$this->error(self::ERRNO_ACL);
+		
+		$postfields = array(
+			'content' => 'string',
+			'format' => 'integer',
+			'title' => 'string',
+			'updated' => 'timestamp',
+			'views' => 'integer',
+		);
+
+		$fields = array();
+		
+		foreach($postfields as $postfield => $type) {
+			if(!isset($_POST[$postfield]))
+				continue;
+				
+			@$value = DevblocksPlatform::importGPC($_POST[$postfield], 'string', '');
+				
+			if(null == ($field = self::translateToken($postfield, 'dao'))) {
+				$this->error(self::ERRNO_CUSTOM, sprintf("'%s' is not a valid field.", $postfield));
+			}
+
+			// Sanitize
+			$value = DevblocksPlatform::importVar($value, $type);
+			
+//			switch($field) {
+//				case DAO_Worker::PASSWORD:
+//					$value = md5($value);
+//					break;
+//			}
+			
+			$fields[$field] = $value;
+		}
+
+		// Defaults
+		if(!isset($fields[DAO_KbArticle::UPDATED]))
+			$fields[DAO_KbArticle::UPDATED] = time();
+		if(!isset($fields[DAO_KbArticle::FORMAT]))
+			$fields[DAO_KbArticle::FORMAT] = Model_KbArticle::FORMAT_HTML;
+			
+		// Check required fields
+		$reqfields = array(
+			DAO_KbArticle::TITLE, 
+			DAO_KbArticle::CONTENT, 
+		);
+		$this->_handleRequiredFields($reqfields, $fields);
+		
+		// Create
+		if(false != ($id = DAO_KbArticle::create($fields))) {
+			// Handle custom fields
+			$customfields = $this->_handleCustomFields($_POST);
+			if(is_array($customfields))
+				DAO_CustomFieldValue::formatAndSetFieldValues(ChCustomFieldSource_KbArticle::ID, $id, $customfields, true, true, true);
+			
+			// Handle delta categories
+			if(isset($_POST['category_id'])) {
+				$category_ids = !is_array($_POST['category_id']) ? array($_POST['category_id']) : $_POST['category_id'];
+				DAO_KbArticle::setCategories($id, $category_ids, false);
+			}
+				
+			$this->getId($id);
+		}
+	}	
 };

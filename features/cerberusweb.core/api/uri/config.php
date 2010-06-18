@@ -441,28 +441,35 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	}
 	
 	function doAttachmentsBulkUpdateAction() {
-		// Checked rows
-	    @$ids_str = DevblocksPlatform::importGPC($_REQUEST['ids'],'string');
-		$ids = DevblocksPlatform::parseCsvString($ids_str);
-
 		// Filter: whole list or check
 	    @$filter = DevblocksPlatform::importGPC($_REQUEST['filter'],'string','');
+	    $ids = array();
 	    
 	    // View
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
 		$view = C4_AbstractViewLoader::getView($view_id);
 		
 		// Attachment fields
-		@$deleted = trim(DevblocksPlatform::importGPC($_POST['deleted'],'integer',0));
+		@$deleted = DevblocksPlatform::importGPC($_POST['deleted'],'string');
 
 		$do = array();
 		
 		// Do: Deleted
 		if(0 != strlen($deleted))
-			$do['deleted'] = $deleted;
+			$do['deleted'] = intval($deleted);
 			
 		// Do: Custom fields
 //		$do = DAO_CustomFieldValue::handleBulkPost($do);
+		
+		switch($filter) {
+			// Checked rows
+			case 'checks':
+			    @$ids_str = DevblocksPlatform::importGPC($_REQUEST['ids'],'string');
+				$ids = DevblocksPlatform::parseCsvString($ids_str);
+				break;
+			default:
+				break;
+		}
 			
 		$view->doBulkUpdate($filter, $do, $ids);
 		
@@ -683,12 +690,9 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	}
 	
 	function doWorkersBulkUpdateAction() {
-		// Checked rows
-	    @$ids_str = DevblocksPlatform::importGPC($_REQUEST['ids'],'string');
-		$ids = DevblocksPlatform::parseCsvString($ids_str);
-
 		// Filter: whole list or check
 	    @$filter = DevblocksPlatform::importGPC($_REQUEST['filter'],'string','');
+	    $ids = array();
 	    
 	    // View
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
@@ -705,6 +709,16 @@ class ChConfigurationPage extends CerberusPageExtension  {
 			
 		// Do: Custom fields
 		$do = DAO_CustomFieldValue::handleBulkPost($do);
+		
+		switch($filter) {
+			// Checked rows
+			case 'checks':
+			    @$ids_str = DevblocksPlatform::importGPC($_REQUEST['ids'],'string');
+				$ids = DevblocksPlatform::parseCsvString($ids_str);
+				break;
+			default:
+				break;
+		}
 		
 		$view->doBulkUpdate($filter, $do, $ids);
 		

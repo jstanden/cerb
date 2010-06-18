@@ -733,12 +733,6 @@
 		<tu tuid='contact_org.website'>
 			<tuv xml:lang="en_US"><seg>Website</seg></tuv>
 		</tu>
-		<tu tuid='contact_org.parent_org_id'>
-			<tuv xml:lang="en_US"><seg>Parent Org ID</seg></tuv>
-		</tu>
-		<tu tuid='contact_org.parent_org_name'>
-			<tuv xml:lang="en_US"><seg>Parent Org</seg></tuv>
-		</tu>
 
 		<!-- Contact People -->
 		<tu tuid='contact_person.contact_org_id'>
