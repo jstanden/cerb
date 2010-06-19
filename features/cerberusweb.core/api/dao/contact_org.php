@@ -412,12 +412,10 @@ class View_ContactOrg extends C4_AbstractView {
 			SearchFields_ContactOrg::WEBSITE,
 		);
 		$this->columnsHidden = array(
-			SearchFields_ContactOrg::PARENT_ORG_ID,
 		);
 		
 		$this->paramsHidden = array(
 			SearchFields_ContactOrg::ID,
-			SearchFields_ContactOrg::PARENT_ORG_ID,
 		);
 		
 		$this->doResetCriteria();
