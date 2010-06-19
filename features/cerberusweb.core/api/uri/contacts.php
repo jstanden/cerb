@@ -82,6 +82,8 @@ class ChContactsPage extends CerberusPageExtension {
 		@array_shift($stack); // contacts
 		@$selected_tab = array_shift($stack); // orgs|addresses|*
 		
+		$tpl->assign('selected_tab', $selected_tab);
+		
 		// Allow a non-tab renderer
 		switch($selected_tab) {
 			case 'import':
@@ -123,9 +125,6 @@ class ChContactsPage extends CerberusPageExtension {
 						$tpl->assign('contact', $contact);
 						
 						// Tabs
-
-						$selected_tab = array_shift($stack);
-						$tpl->assign('selected_tab', $selected_tab);
 						
 						$people_count = DAO_Address::getCountByOrgId($contact->id);
 						$tpl->assign('people_total', $people_count);
