@@ -1549,7 +1549,7 @@ class View_CrmOpportunity extends C4_AbstractView {
 	function getData() {
 		$objects = DAO_CrmOpportunity::search(
 			$this->view_columns,
-			$this->params,
+			array_merge($this->params, $this->paramsRequired),
 			$this->renderLimit,
 			$this->renderPage,
 			$this->renderSortBy,

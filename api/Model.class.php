@@ -621,7 +621,7 @@ class View_DevblocksTemplate extends C4_AbstractView {
 	function getData() {
 		return DAO_DevblocksTemplate::search(
 			$this->view_columns,
-			$this->params,
+			array_merge($this->params, $this->paramsRequired),
 			$this->renderLimit,
 			$this->renderPage,
 			$this->renderSortBy,
@@ -841,7 +841,7 @@ class View_DevblocksStorageProfile extends C4_AbstractView {
 
 	function getData() {
 		$objects = DAO_DevblocksStorageProfile::search(
-			$this->params,
+			array_merge($this->params, $this->paramsRequired),
 			$this->renderLimit,
 			$this->renderPage,
 			$this->renderSortBy,

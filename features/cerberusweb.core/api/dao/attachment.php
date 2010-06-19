@@ -720,7 +720,7 @@ class View_Attachment extends C4_AbstractView {
 
 	function getData() {
 		$objects = DAO_Attachment::search(
-			$this->params,
+			array_merge($this->params, $this->paramsRequired),
 			$this->renderLimit,
 			$this->renderPage,
 			$this->renderSortBy,

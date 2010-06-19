@@ -105,7 +105,7 @@ class C4_TranslationView extends C4_AbstractView {
 
 	function getData() {
 		$objects = DAO_Translation::search(
-			$this->params,
+			array_merge($this->params, $this->paramsRequired),
 			$this->renderLimit,
 			$this->renderPage,
 			$this->renderSortBy,

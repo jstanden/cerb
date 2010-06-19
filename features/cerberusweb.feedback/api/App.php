@@ -396,7 +396,7 @@ class C4_FeedbackEntryView extends C4_AbstractView {
 	function getData() {
 		$objects = DAO_FeedbackEntry::search(
 			$this->view_columns,
-			$this->params,
+			array_merge($this->params, $this->paramsRequired),
 			$this->renderLimit,
 			$this->renderPage,
 			$this->renderSortBy,

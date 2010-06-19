@@ -1003,7 +1003,7 @@ class View_WatcherMailFilter extends C4_AbstractView {
 	function getData() {
 		$objects = DAO_WatcherMailFilter::search(
 			array(),
-			$this->params,
+			array_merge($this->params, $this->paramsRequired),
 			$this->renderLimit,
 			$this->renderPage,
 			$this->renderSortBy,

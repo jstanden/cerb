@@ -499,7 +499,7 @@ class C4_TimeTrackingEntryView extends C4_AbstractView {
 	function getData() {
 		$objects = DAO_TimeTrackingEntry::search(
 			$this->view_columns,
-			$this->params,
+			array_merge($this->params, $this->paramsRequired),
 			$this->renderLimit,
 			$this->renderPage,
 			$this->renderSortBy,

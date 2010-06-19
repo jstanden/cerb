@@ -340,7 +340,7 @@ class View_WorkerEvent extends C4_AbstractView {
 
 	function getData() {
 		$objects = DAO_WorkerEvent::search(
-			$this->params,
+			array_merge($this->params, $this->paramsRequired),
 			$this->renderLimit,
 			$this->renderPage,
 			$this->renderSortBy,

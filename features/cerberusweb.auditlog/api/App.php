@@ -417,7 +417,7 @@ class C4_TicketAuditLogView extends C4_AbstractView {
 	
 	function getData() {
 		$objects = DAO_TicketAuditLog::search(
-			$this->params,
+			array_merge($this->params, $this->paramsRequired),
 			$this->renderLimit,
 			$this->renderPage,
 			$this->renderSortBy,

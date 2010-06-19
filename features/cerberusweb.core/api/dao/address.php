@@ -523,7 +523,7 @@ class View_Address extends C4_AbstractView {
 	function getData() {
 		$objects = DAO_Address::search(
 			$this->view_columns,
-			$this->params,
+			array_merge($this->params, $this->paramsRequired),
 			$this->renderLimit,
 			$this->renderPage,
 			$this->renderSortBy,

@@ -725,7 +725,7 @@ class View_Worker extends C4_AbstractView {
 	function getData() {
 		return DAO_Worker::search(
 			$this->view_columns,
-			$this->params,
+			array_merge($this->params, $this->paramsRequired),
 			$this->renderLimit,
 			$this->renderPage,
 			$this->renderSortBy,

@@ -397,7 +397,7 @@ class View_Snippet extends C4_AbstractView {
 	function getData() {
 		$objects = DAO_Snippet::search(
 			array(),
-			$this->params,
+			array_merge($this->params, $this->paramsRequired),
 			$this->renderLimit,
 			$this->renderPage,
 			$this->renderSortBy,

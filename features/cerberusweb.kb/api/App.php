@@ -1485,7 +1485,7 @@ class View_KbArticle extends C4_AbstractView {
 	function getData() {
 		$objects = DAO_KbArticle::search(
 			$this->view_columns,
-			$this->params,
+			array_merge($this->params, $this->paramsRequired),
 			$this->renderLimit,
 			$this->renderPage,
 			$this->renderSortBy,
