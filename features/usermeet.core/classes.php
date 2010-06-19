@@ -223,7 +223,7 @@ class UmCommunityPage extends CerberusPageExtension {
 		$view = C4_AbstractViewLoader::getView($defaults->id, $defaults);
 
 		$view->name = 'Custom Templates';
-		$view->params[SearchFields_DevblocksTemplate::TAG] = new DevblocksSearchCriteria(SearchFields_DevblocksTemplate::TAG,'=','portal_'.$tool->code);
+		$view->addParam(new DevblocksSearchCriteria(SearchFields_DevblocksTemplate::TAG,'=','portal_'.$tool->code));
 		C4_AbstractViewLoader::setView($view->id, $view);  
 		
 		$tpl->assign('view', $view);

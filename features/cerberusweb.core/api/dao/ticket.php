@@ -1155,9 +1155,6 @@ class View_Ticket extends C4_AbstractView {
 	const DEFAULT_ID = 'tickets_workspace';
 
 	function __construct() {
-		$active_worker = CerberusApplication::getActiveWorker(); /* @var $active_worker Model_Worker */
-		$active_worker_memberships = $active_worker->getMemberships();
-		
 		$this->id = self::DEFAULT_ID;
 		$this->name = 'Tickets';
 		$this->renderLimit = 10;
@@ -1182,10 +1179,16 @@ class View_Ticket extends C4_AbstractView {
 			SearchFields_Ticket::TICKET_CATEGORY_ID,
 			SearchFields_Ticket::TICKET_UNLOCK_DATE,
 		);
-		$this->paramsDefault = array(
-			SearchFields_Ticket::TICKET_CLOSED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',0),
-			SearchFields_Ticket::TICKET_TEAM_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_TEAM_ID,'in',array_keys($active_worker_memberships)), // censor
-		);
+		
+		$active_worker = CerberusApplication::getActiveWorker(); /* @var $active_worker Model_Worker */
+		
+		if(!empty($active_worker)) {
+			$active_worker_memberships = $active_worker->getMemberships();
+			$this->paramsDefault = array(
+				SearchFields_Ticket::TICKET_CLOSED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',0),
+				SearchFields_Ticket::TICKET_TEAM_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_TEAM_ID,'in',array_keys($active_worker_memberships)), // censor
+			);
+		}
 		
 		$this->doResetCriteria();
 	}
@@ -1193,7 +1196,7 @@ class View_Ticket extends C4_AbstractView {
 	function getData() {
 		$objects = DAO_Ticket::search(
 			$this->view_columns,
-			array_merge($this->params, $this->paramsRequired),
+			$this->getParams(),
 			$this->renderLimit,
 			$this->renderPage,
 			$this->renderSortBy,
@@ -1505,9 +1508,9 @@ class View_Ticket extends C4_AbstractView {
 				@$bucket_ids = DevblocksPlatform::importGPC($_REQUEST['bucket_id'],'array');
 
 				if(!empty($team_ids))
-				$this->params[SearchFields_Ticket::TICKET_TEAM_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_TEAM_ID,$oper,$team_ids);
+					$this->addParam(new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_TEAM_ID,$oper,$team_ids));
 				if(!empty($bucket_ids))
-				$this->params[SearchFields_Ticket::TICKET_CATEGORY_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CATEGORY_ID,$oper,$bucket_ids);
+					$this->addParam(new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CATEGORY_ID,$oper,$bucket_ids));
 
 				break;
 				
@@ -1525,7 +1528,7 @@ class View_Ticket extends C4_AbstractView {
 		}
 
 		if(!empty($criteria)) {
-			$this->params[$field] = $criteria;
+			$this->addParam($criteria);
 			$this->renderPage = 0;
 		}
 	}
@@ -1546,7 +1549,7 @@ class View_Ticket extends C4_AbstractView {
 		$rule = new Model_GroupInboxFilter();
 		$rule->actions = $do;
 	  
-		$params = $this->params;
+		$params = $this->getParams();
 
 		if(empty($filter)) {
 			$data[] = '*'; // All, just to permit a loop in foreach($data ...)
@@ -1636,10 +1639,10 @@ class View_Ticket extends C4_AbstractView {
 			SearchFields_Ticket::TICKET_CATEGORY_ID,
 			SearchFields_Ticket::TICKET_SPAM_SCORE,
 		);
-		$view->params = array(
+		$view->addParams(array(
 			SearchFields_Ticket::TICKET_CLOSED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,DevblocksSearchCriteria::OPER_EQ,0),
 			SearchFields_Ticket::TICKET_TEAM_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_TEAM_ID,'in',array_keys($memberships)), // censor
-		);
+		), true);
 		$view->renderLimit = 100;
 		$view->renderPage = 0;
 		$view->renderSortBy = null; // SearchFields_Ticket::TICKET_UPDATED_DATE
@@ -1921,11 +1924,11 @@ class Context_Ticket extends Extension_DevblocksContext {
 			SearchFields_Ticket::TICKET_UPDATED_DATE,
 			SearchFields_Ticket::TICKET_NEXT_WORKER_ID,
 		);
-		$view->params = array(
+		$view->addParams(array(
 			SearchFields_Ticket::TICKET_CLOSED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',0),
 			SearchFields_Ticket::TICKET_NEXT_WORKER_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_NEXT_WORKER_ID,'=',$active_worker->id),
 			SearchFields_Ticket::TICKET_TEAM_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_TEAM_ID,'in',array_keys($active_worker->getMemberships())),
-		);
+		), true);
 		$view->renderSortBy = SearchFields_Ticket::TICKET_UPDATED_DATE;
 		$view->renderSortAsc = false;
 		$view->renderLimit = 10;
@@ -1957,9 +1960,9 @@ class Context_Ticket extends Extension_DevblocksContext {
 		$defaults->class_name = 'View_Ticket';
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = 'Tickets';
-		$view->params = array(
+		$view->addParams(array(
 			SearchFields_Ticket::TICKET_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_ID,'in',$ids),
-		);
+		), true);
 		C4_AbstractViewLoader::setView($view_id, $view);
 		return $view;
 	}

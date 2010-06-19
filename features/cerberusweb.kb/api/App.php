@@ -273,15 +273,15 @@ class ChKbBrowseTab extends Extension_KnowledgebaseTab {
 				
 				// Articles
 				if(empty($root_id)) {
-					$view->params = array(
+					$view->addParams(array(
 						new DevblocksSearchCriteria(SearchFields_KbArticle::CATEGORY_ID,DevblocksSearchCriteria::OPER_IS_NULL,true),
-					);
+					), true);
 					$view->name = $translate->_('kb.view.uncategorized');
 					
 				} else {
-					$view->params = array(
+					$view->addParams(array(
 						new DevblocksSearchCriteria(SearchFields_KbArticle::CATEGORY_ID,'=',$root_id),
-					);
+					), true);
 					$view->name = vsprintf($translate->_('kb.view.articles'), $categories[$root_id]->name);
 				}
 		
@@ -626,7 +626,7 @@ class ChKbAjaxController extends DevblocksControllerExtension {
                 break;
         }
         
-        $searchView->params = $params;
+        $searchView->addParams($params, true);
         $searchView->renderPage = 0;
         $searchView->renderSortBy = null;
         
@@ -766,7 +766,6 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 		$defaults = new C4_AbstractViewModel();
 		$defaults->id = 'display_kb_search';
 		$defaults->class_name = 'View_KbArticle'; 
-		$defaults->params = array();
 		$defaults->renderLimit = 10;
 		$defaults->renderTemplate = 'chooser';
 		
@@ -775,7 +774,7 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 			$view->renderSortBy = SearchFields_KbArticle::VIEWS;
 			$view->renderSortAsc = false;
 			$view->renderTemplate = 'chooser';
-			$view->params = $params;
+			$view->addParams($params);
 			C4_AbstractViewLoader::setView($view->id, $view);
 			
 			$view->render();
@@ -1485,7 +1484,7 @@ class View_KbArticle extends C4_AbstractView {
 	function getData() {
 		$objects = DAO_KbArticle::search(
 			$this->view_columns,
-			array_merge($this->params, $this->paramsRequired),
+			$this->getParams(),
 			$this->renderLimit,
 			$this->renderPage,
 			$this->renderSortBy,
@@ -1620,7 +1619,7 @@ class View_KbArticle extends C4_AbstractView {
 		}
 
 		if(!empty($criteria)) {
-			$this->params[$field] = $criteria;
+			$this->addParam($criteria);
 			$this->renderPage = 0;
 		}
 	}
@@ -1661,7 +1660,7 @@ class View_KbArticle extends C4_AbstractView {
 				array(
 					SearchFields_KbArticle::ID
 				),
-				$this->params,
+				$this->getParams(),
 				100,
 				$pg++,
 				SearchFields_KbArticle::ID,

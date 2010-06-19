@@ -523,7 +523,7 @@ class View_Address extends C4_AbstractView {
 	function getData() {
 		$objects = DAO_Address::search(
 			$this->view_columns,
-			array_merge($this->params, $this->paramsRequired),
+			$this->getParams(),
 			$this->renderLimit,
 			$this->renderPage,
 			$this->renderSortBy,
@@ -639,7 +639,7 @@ class View_Address extends C4_AbstractView {
 		}
 
 		if(!empty($criteria)) {
-			$this->params[$field] = $criteria;
+			$this->addParam($criteria);
 			$this->renderPage = 0;
 		}
 	}
@@ -681,7 +681,7 @@ class View_Address extends C4_AbstractView {
 		do {
 			list($objects,$null) = DAO_Address::search(
 				array(),
-				$this->params,
+				$this->getParams(),
 				100,
 				$pg++,
 				SearchFields_Address::ID,
@@ -921,7 +921,7 @@ class Context_Address extends Extension_DevblocksContext {
 			SearchFields_Address::ID,
 			SearchFields_Address::CONTACT_ORG_ID,
 		);
-		$view->params = $view->paramsDefault;
+		$view->addParams($view->paramsDefault, true);
 		
 		$view->renderSortBy = SearchFields_Address::EMAIL;
 		$view->renderSortAsc = true;
@@ -956,9 +956,9 @@ class Context_Address extends Extension_DevblocksContext {
 		$defaults->class_name = 'View_Address';
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = 'E-mail Addresses';
-		$view->params = array(
+		$view->addParams(array(
 			SearchFields_Address::ID => new DevblocksSearchCriteria(SearchFields_Address::ID,'in',$ids),
-		);
+		), true);
 		C4_AbstractViewLoader::setView($view_id, $view);
 		return $view;
 	}

@@ -290,23 +290,23 @@ class ChTicketsPage extends CerberusPageExtension {
 			case 'group':
 				@$filter_group_id = array_shift($response_path);
 
-				$workflowView->params = array(
+				$workflowView->addParams(array(
 					SearchFields_Ticket::TICKET_CLOSED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',CerberusTicketStatus::OPEN),
 					SearchFields_Ticket::TICKET_WAITING => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_WAITING,'=',0),
 					SearchFields_Ticket::TICKET_NEXT_WORKER_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_NEXT_WORKER_ID,'=',0),
-				);
+				), true);
 				
 				if(!is_null($filter_group_id) && isset($groups[$filter_group_id])) {
 					$tpl->assign('filter_group_id', $filter_group_id);
 					$title = $groups[$filter_group_id]->name;
-					$workflowView->params[SearchFields_Ticket::TICKET_TEAM_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_TEAM_ID,'=',$filter_group_id);
+					$workflowView->addParam(new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_TEAM_ID,'=',$filter_group_id));
 					
 					@$filter_bucket_id = array_shift($response_path);
 					if(!is_null($filter_bucket_id)) {
 						$tpl->assign('filter_bucket_id', $filter_bucket_id);
 						@$title .= ': '.
 							(($filter_bucket_id == 0) ? $translate->_('common.inbox') : $group_buckets[$filter_group_id][$filter_bucket_id]->name);
-						$workflowView->params[SearchFields_Ticket::TICKET_CATEGORY_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CATEGORY_ID,'=',$filter_bucket_id);
+						$workflowView->addParam(new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CATEGORY_ID,'=',$filter_bucket_id));
 					} else {
 						$assignable_buckets = DAO_Bucket::getAssignableBuckets($filter_group_id);
 						$assignable_bucket_ids = array_keys($assignable_buckets);
@@ -315,7 +315,7 @@ class ChTicketsPage extends CerberusPageExtension {
 						if(DAO_GroupSettings::get($filter_group_id, DAO_GroupSettings::SETTING_INBOX_IS_ASSIGNABLE, 1))
 							array_unshift($assignable_bucket_ids,0);
 						
-						$workflowView->params[SearchFields_Ticket::TICKET_CATEGORY_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CATEGORY_ID,'in',$assignable_bucket_ids);
+						$workflowView->addParam(new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CATEGORY_ID,'in',$assignable_bucket_ids));
 					}
 				}
 
@@ -323,11 +323,11 @@ class ChTicketsPage extends CerberusPageExtension {
 				
 			case 'all':
 			default:
-				$workflowView->params = array(
+				$workflowView->addParams(array(
 					SearchFields_Ticket::TICKET_CLOSED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',CerberusTicketStatus::OPEN),
 					SearchFields_Ticket::TICKET_WAITING => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_WAITING,'=',0),
 					SearchFields_Ticket::TICKET_NEXT_WORKER_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_NEXT_WORKER_ID,'=',0),
-				);
+				), true);
 
 				$subparams = array(
 					DevblocksSearchCriteria::GROUP_OR
@@ -355,9 +355,9 @@ class ChTicketsPage extends CerberusPageExtension {
 				
 				// If we had subgroups from memberships
 				if(1 < count($subparams))
-					$workflowView->params['tmp_GrpBkt'] = $subparams;
+					$workflowView->addParam($subparams, 'tmp_GrpBkt');
 				else // We're not in any groups
-					$workflowView->params[SearchFields_Ticket::TICKET_TEAM_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_TEAM_ID,'=',-1);
+					$workflowView->addParam(new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_TEAM_ID,'=',-1));
 				
 				break;
 		}
@@ -473,22 +473,22 @@ class ChTicketsPage extends CerberusPageExtension {
 			case 'group':
 				@$filter_group_id = array_shift($response_path);
 				
-				$overView->params = array(
+				$overView->addParams(array(
 					SearchFields_Ticket::TICKET_CLOSED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',CerberusTicketStatus::OPEN),
 					SearchFields_Ticket::TICKET_WAITING => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_WAITING,'=',0),
-				);
+				), true);
 				
 				if(!is_null($filter_group_id) && isset($groups[$filter_group_id])) {
 					$tpl->assign('filter_group_id', $filter_group_id);
 					$title = $groups[$filter_group_id]->name;
-					$overView->params[SearchFields_Ticket::TICKET_TEAM_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_TEAM_ID,'=',$filter_group_id);
+					$overView->addParam(new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_TEAM_ID,'=',$filter_group_id));
 					
 					@$filter_bucket_id = array_shift($response_path);
 					if(!is_null($filter_bucket_id)) {
 						$tpl->assign('filter_bucket_id', $filter_bucket_id);
 						@$title .= ': '.
 							(($filter_bucket_id == 0) ? $translate->_('common.inbox') : $group_buckets[$filter_group_id][$filter_bucket_id]->name);
-						$overView->params[SearchFields_Ticket::TICKET_CATEGORY_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CATEGORY_ID,'=',$filter_bucket_id);
+						$overView->addParam(new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CATEGORY_ID,'=',$filter_bucket_id));
 					}
 				}
 
@@ -497,15 +497,15 @@ class ChTicketsPage extends CerberusPageExtension {
 			case 'waiting':
 				@$filter_group_id = array_shift($response_path);
 				
-				$overView->params = array(
+				$overView->addParams(array(
 					SearchFields_Ticket::TICKET_CLOSED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',CerberusTicketStatus::OPEN),
 					SearchFields_Ticket::TICKET_WAITING => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_WAITING,'=',1),
-				);
+				), true);
 				
 				if(!is_null($filter_group_id) && isset($groups[$filter_group_id])) {
 					$tpl->assign('filter_group_id', $filter_group_id);
 					$title = vsprintf($translate->_('mail.overview.waiting.title'), $groups[$filter_group_id]->name);
-					$overView->params[SearchFields_Ticket::TICKET_TEAM_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_TEAM_ID,'=',$filter_group_id);
+					$overView->addParam(new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_TEAM_ID,'=',$filter_group_id));
 				}
 
 				break;
@@ -513,19 +513,19 @@ class ChTicketsPage extends CerberusPageExtension {
 			case 'worker':
 				@$filter_worker_id = array_shift($response_path);
 
-				$overView->params = array(
+				$overView->addParams(array(
 					SearchFields_Ticket::TICKET_CLOSED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',CerberusTicketStatus::OPEN),
 					SearchFields_Ticket::TICKET_WAITING => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_WAITING,'=',0),
-					$overView->params[SearchFields_Ticket::TICKET_TEAM_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_TEAM_ID,'in',array_keys($memberships)), // censor
-				);
+					SearchFields_Ticket::TICKET_TEAM_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_TEAM_ID,'in',array_keys($memberships)), // censor
+				), true);
 
 				if(!is_null($filter_worker_id)) {
 					$title = vsprintf($translate->_('mail.overview.assigned.title'), $workers[$filter_worker_id]->getName());
-					$overView->params[SearchFields_Ticket::TICKET_NEXT_WORKER_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_NEXT_WORKER_ID,'=',$filter_worker_id);
+					$overView->addParam(new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_NEXT_WORKER_ID,'=',$filter_worker_id));
 					
 					@$filter_group_id = array_shift($response_path);
 					if(!is_null($filter_group_id) && isset($groups[$filter_group_id])) {
-						$overView->params[SearchFields_Ticket::TICKET_TEAM_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_TEAM_ID,'=',$filter_group_id);
+						$overView->addParam(new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_TEAM_ID,'=',$filter_group_id));
 					}
 				}
 				
@@ -533,11 +533,11 @@ class ChTicketsPage extends CerberusPageExtension {
 				
 			case 'all':
 			default:
-				$overView->params = array(
+				$overView->addParams(array(
 					SearchFields_Ticket::TICKET_CLOSED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',CerberusTicketStatus::OPEN),
 					SearchFields_Ticket::TICKET_WAITING => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_WAITING,'=',0),
 					SearchFields_Ticket::TICKET_TEAM_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_TEAM_ID,'in',array_keys($memberships)),
-				);
+				), true);
 				
 				break;
 		}
@@ -1277,7 +1277,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		if(!$active_worker->is_superuser)
         	$params[SearchFields_Ticket::TICKET_TEAM_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_TEAM_ID, 'in', array_keys($active_worker->getMemberships()));
         
-        $searchView->params = $params;
+        $searchView->addParams($params, true);
         $searchView->renderPage = 0;
         
         C4_AbstractViewLoader::setView($searchView->id,$searchView);
@@ -1769,10 +1769,12 @@ class ChTicketsPage extends CerberusPageExtension {
 			// Enforce group memberships
 			$active_worker = CerberusApplication::getActiveWorker();
 			$memberships = $active_worker->getMemberships();
-			$view->params[] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_TEAM_ID, 'in', array_keys($memberships)); 
+			
+			$params = $view->getParams();
+			$params[] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_TEAM_ID, 'in', array_keys($memberships)); 
 			
 	        // [JAS]: Calculate statistics about the current view (top unique senders/subjects/domains)
-		    $biggest = DAO_Ticket::analyze($view->params, 15, $mode, $mode_param);
+		    $biggest = DAO_Ticket::analyze($params, 15, $mode, $mode_param);
 		    $tpl->assign('biggest', $biggest);
 	        
 	        $tpl->display($tpl_path.'tickets/rpc/ticket_view_assist.tpl');
@@ -1799,7 +1801,7 @@ class ChTicketsPage extends CerberusPageExtension {
 	    // Enforce worker memberships
 		$active_worker = CerberusApplication::getActiveWorker();
 		$memberships = $active_worker->getMemberships();
-		$view->params['tmpMemberships'] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_TEAM_ID, 'in', array_keys($memberships)); 
+		$view->addParam(new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_TEAM_ID, 'in', array_keys($memberships)), 'tmpMemberships'); 
 	    
 	    foreach($piles_hash as $idx => $hash) {
 	        @$moveto = $piles_moveto[$idx];
@@ -1919,7 +1921,7 @@ class ChTicketsPage extends CerberusPageExtension {
 	    }
 
 	    $view->renderPage = 0; // Reset the paging since we may have reduced our list size
-	    unset($view->params['tmpMemberships']); // Remove our filter
+	    $view->removeParam('tmpMemberships'); // Remove our filter
 	    C4_AbstractViewLoader::setView($view_id,$view);
 	    	    
         DevblocksPlatform::redirect(new DevblocksHttpResponse(array('tickets')));
@@ -2476,7 +2478,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		
 	    // Restrict to current worker groups
 		$memberships = $active_worker->getMemberships();
-		$view->params['tmp'] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_TEAM_ID, 'in', array_keys($memberships)); 
+		$view->addParam(new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_TEAM_ID, 'in', array_keys($memberships)), 'tmp'); 
 	    
 		// Do: Custom fields
 		$do = DAO_CustomFieldValue::handleBulkPost($do);
@@ -2484,7 +2486,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		$view->doBulkUpdate($filter, '', $data, $do, $ticket_ids);
 		
 		// Clear our temporary group restriction before re-rendering
-		unset($view->params['tmp']);
+		$view->removeParam('tmp');
 		
 		$view->render();
 		return;
@@ -2572,7 +2574,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		$params = array(
-			'params' => $view->params,
+			'params' => $view->getParams(),
 			'sort_by' => $view->renderSortBy,
 			'sort_asc' => $view->renderSortAsc
 		);
@@ -2600,13 +2602,14 @@ class ChTicketsPage extends CerberusPageExtension {
 	    $id = array_shift($path);
 
 	    $view = C4_AbstractViewLoader::getView($id);
+	    $view_params = $view->getParams();
 
-		if(!empty($view->params)) {
+		if(!empty($view_params)) {
 		    $params = array();
 		    
 		    // Index by field name for search system
-		    if(is_array($view->params))
-		    foreach($view->params as $key => $criteria) { /* @var $criteria DevblocksSearchCriteria */
+		    if(is_array($view_params))
+		    foreach($view_params as $key => $criteria) { /* @var $criteria DevblocksSearchCriteria */
                 $params[$key] = $criteria;
 		    }
 		}
@@ -2614,7 +2617,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		if(null == ($search_view = C4_AbstractViewLoader::getView(CerberusApplication::VIEW_SEARCH))) {
 			$search_view = View_Ticket::createSearchView();
 		}
-		$search_view->params = $params;
+		$search_view->addParams($params, true);
 		$search_view->renderPage = 0;
 		C4_AbstractViewLoader::setView($search_view->id,$search_view);
 

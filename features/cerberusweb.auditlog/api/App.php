@@ -161,9 +161,9 @@ class ChAuditLogTicketTab extends Extension_TicketTab {
 		
 		$view = C4_AbstractViewLoader::getView('audit_log', $defaults);
 		
-		$view->params = array(
+		$view->addParams(array(
 			SearchFields_TicketAuditLog::TICKET_ID => new DevblocksSearchCriteria(SearchFields_TicketAuditLog::TICKET_ID,DevblocksSearchCriteria::OPER_EQ,$ticket_id)
-		);
+		), true);
 		$view->renderPage = 0;
 		
 		C4_AbstractViewLoader::setView($view->id,$view);
@@ -417,7 +417,7 @@ class C4_TicketAuditLogView extends C4_AbstractView {
 	
 	function getData() {
 		$objects = DAO_TicketAuditLog::search(
-			array_merge($this->params, $this->paramsRequired),
+			$this->getParams(),
 			$this->renderLimit,
 			$this->renderPage,
 			$this->renderSortBy,
@@ -488,7 +488,7 @@ class C4_TicketAuditLogView extends C4_AbstractView {
 		}
 		
 		if(!empty($criteria)) {
-			$this->params[$field] = $criteria;
+			$this->addParam($criteria);
 			$this->renderPage = 0;
 		}
 	}	

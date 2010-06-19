@@ -360,7 +360,7 @@ class View_Task extends C4_AbstractView {
 	function getData() {
 		$objects = DAO_Task::search(
 			$this->view_columns,
-			array_merge($this->params, $this->paramsRequired),
+			$this->getParams(),
 			$this->renderLimit,
 			$this->renderPage,
 			$this->renderSortBy,
@@ -514,7 +514,7 @@ class View_Task extends C4_AbstractView {
 		}
 
 		if(!empty($criteria)) {
-			$this->params[$field] = $criteria;
+			$this->addParam($criteria);
 			$this->renderPage = 0;
 		}
 	}
@@ -566,7 +566,7 @@ class View_Task extends C4_AbstractView {
 		do {
 			list($objects,$null) = DAO_Task::search(
 				array(),
-				$this->params,
+				$this->getParams(),
 				100,
 				$pg++,
 				SearchFields_Task::ID,
@@ -734,10 +734,10 @@ class Context_Task extends Extension_DevblocksContext {
 			SearchFields_Task::DUE_DATE,
 			SearchFields_Task::WORKER_ID,
 		);
-		$view->params = array(
+		$view->addParams(array(
 			SearchFields_Task::IS_COMPLETED => new DevblocksSearchCriteria(SearchFields_Task::IS_COMPLETED,'=',0),
 			SearchFields_Task::WORKER_ID => new DevblocksSearchCriteria(SearchFields_Task::WORKER_ID,'=',$active_worker->id),
-		);
+		), true);
 		$view->renderSortBy = SearchFields_Task::UPDATED_DATE;
 		$view->renderSortAsc = false;
 		$view->renderLimit = 10;
@@ -770,9 +770,9 @@ class Context_Task extends Extension_DevblocksContext {
 		$defaults->class_name = 'View_Task';
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = 'Tasks';
-		$view->params = array(
+		$view->addParams(array(
 			SearchFields_Task::ID => new DevblocksSearchCriteria(SearchFields_Task::ID,'in',$ids),
-		);
+		), true);
 		C4_AbstractViewLoader::setView($view_id, $view);
 		return $view;
 	}

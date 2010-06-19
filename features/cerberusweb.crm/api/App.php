@@ -424,28 +424,28 @@ class CrmPage extends CerberusPageExtension {
 
 		switch($scope) {
 			case 'org':
-				$view->params = array(
+				$view->addParams(array(
 					SearchFields_Ticket::TICKET_FIRST_CONTACT_ORG_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_FIRST_CONTACT_ORG_ID,'=',$address->contact_org_id),
 					SearchFields_Ticket::TICKET_DELETED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_DELETED,'=',0),
-				);
+				), true);
 				$view->name = ucwords($translate->_('contact_org.name')) . ": " . $contact_org->name;
 				break;
 				
 			case 'domain':
-				$view->params = array(
+				$view->addParams(array(
 					SearchFields_Ticket::REQUESTER_ADDRESS => new DevblocksSearchCriteria(SearchFields_Ticket::REQUESTER_ADDRESS,'like','*@'.$email_parts[1]),
 					SearchFields_Ticket::TICKET_DELETED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_DELETED,'=',0),
-				);
+				), true);
 				$view->name = ucwords($translate->_('common.email')) . ": *@" . $email_parts[1];
 				break;
 				
 			default:
 			case 'email':
 				$scope = 'email';
-				$view->params = array(
+				$view->addParams(array(
 					SearchFields_Ticket::REQUESTER_ID => new DevblocksSearchCriteria(SearchFields_Ticket::REQUESTER_ID,'in',array($opp->primary_email_id)),
 					SearchFields_Ticket::TICKET_DELETED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_DELETED,'=',0),
-				);
+				), true);
 				$view->name = ucwords($translate->_('common.email')) . ": " . $address->email;
 				break;
 		}
@@ -826,7 +826,7 @@ class CrmPage extends CerberusPageExtension {
                 break;
         }
         
-        $searchView->params = $params;
+        $searchView->addParams($params, true);
         $searchView->renderPage = 0;
         $searchView->renderSortBy = null;
         
@@ -1549,7 +1549,7 @@ class View_CrmOpportunity extends C4_AbstractView {
 	function getData() {
 		$objects = DAO_CrmOpportunity::search(
 			$this->view_columns,
-			array_merge($this->params, $this->paramsRequired),
+			$this->getParams(),
 			$this->renderLimit,
 			$this->renderPage,
 			$this->renderSortBy,
@@ -1717,7 +1717,7 @@ class View_CrmOpportunity extends C4_AbstractView {
 		}
 
 		if(!empty($criteria)) {
-			$this->params[$field] = $criteria;
+			$this->addParam($criteria);
 			$this->renderPage = 0;
 		}
 	}
@@ -1778,7 +1778,7 @@ class View_CrmOpportunity extends C4_AbstractView {
 		do {
 			list($objects, $null) = DAO_CrmOpportunity::search(
 				array(),
-				$this->params,
+				$this->getParams(),
 				100,
 				$pg++,
 				SearchFields_CrmOpportunity::ID,
@@ -1900,9 +1900,9 @@ class CrmOrgOppTab extends Extension_OrgTab {
 		$view = C4_AbstractViewLoader::getView('org_opps', $defaults);
 		
 		$view->name = "Org: " . $org->name;
-		$view->params = array(
+		$view->addParams(array(
 			SearchFields_CrmOpportunity::ORG_ID => new DevblocksSearchCriteria(SearchFields_CrmOpportunity::ORG_ID,'=',$org_id) 
-		);
+		), true);
 
 		C4_AbstractViewLoader::setView($view->id, $view);
 		
@@ -1934,9 +1934,9 @@ class CrmTicketOppTab extends Extension_TicketTab {
 		}
 
 		$view->name = sprintf("Opportunities: %s recipient(s)", count($requesters));
-		$view->params = array(
+		$view->addParams(array(
 			SearchFields_CrmOpportunity::PRIMARY_EMAIL_ID => new DevblocksSearchCriteria(SearchFields_CrmOpportunity::PRIMARY_EMAIL_ID,'in',array_keys($requesters)), 
-		);
+		), true);
 		
 		C4_AbstractViewLoader::setView($view->id, $view);
 		
@@ -2110,10 +2110,10 @@ class Context_Opportunity extends Extension_DevblocksContext {
 			SearchFields_CrmOpportunity::UPDATED_DATE,
 			SearchFields_CrmOpportunity::WORKER_ID,
 		);
-		$view->params = array(
+		$view->addParams(array(
 			SearchFields_CrmOpportunity::IS_CLOSED => new DevblocksSearchCriteria(SearchFields_CrmOpportunity::IS_CLOSED,'=',0),
 			SearchFields_CrmOpportunity::WORKER_ID => new DevblocksSearchCriteria(SearchFields_CrmOpportunity::WORKER_ID,'=',$active_worker->id),
-		);
+		), true);
 		$view->renderSortBy = SearchFields_CrmOpportunity::UPDATED_DATE;
 		$view->renderSortAsc = false;
 		$view->renderLimit = 10;
@@ -2145,9 +2145,9 @@ class Context_Opportunity extends Extension_DevblocksContext {
 		$defaults->class_name = 'View_CrmOpportunity';
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = 'Opportunities';
-		$view->params = array(
+		$view->addParams(array(
 			SearchFields_CrmOpportunity::ID => new DevblocksSearchCriteria(SearchFields_CrmOpportunity::ID,'in',$ids),
-		);
+		), true);
 		C4_AbstractViewLoader::setView($view_id, $view);
 		return $view;
 	}

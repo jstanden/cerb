@@ -371,12 +371,12 @@ class ChInternalController extends DevblocksControllerExtension {
 
 		$view = C4_AbstractViewLoader::getView($id);
 
-		$view->params = array();
+		$view->removeAllParams();
 		
 		if(null != ($preset = DAO_ViewFiltersPreset::get($preset_id))) {
 			if(is_array($preset->params))
 			foreach($preset->params as $data) {
-				$view->params[$data['field']] = new DevblocksSearchCriteria($data['field'], $data['operator'], $data['value']);
+				$view->addParam(new DevblocksSearchCriteria($data['field'], $data['operator'], $data['value']));
 			}
 		}
 		
@@ -398,7 +398,7 @@ class ChInternalController extends DevblocksControllerExtension {
 			DAO_ViewFiltersPreset::NAME => !empty($preset_name) ? $preset_name : 'New Preset',
 			DAO_ViewFiltersPreset::VIEW_CLASS => get_class($view),
 			DAO_ViewFiltersPreset::WORKER_ID => $active_worker->id,
-			DAO_ViewFiltersPreset::PARAMS_JSON => json_encode($view->params),
+			DAO_ViewFiltersPreset::PARAMS_JSON => json_encode($view->getEditableParams()),
 		);
 		
 		DAO_ViewFiltersPreset::create($fields);
@@ -489,7 +489,7 @@ class ChInternalController extends DevblocksControllerExtension {
 			$list_view->title = $list_title;
 			$list_view->num_rows = $view->renderLimit;
 			$list_view->columns = $view->view_columns;
-			$list_view->params = $view->params;
+			$list_view->params = $view->getEditableParams();
 			$list_view->sort_by = $view->renderSortBy;
 			$list_view->sort_asc = $view->renderSortAsc;
 			
@@ -643,7 +643,7 @@ class ChInternalController extends DevblocksControllerExtension {
 			$list_view->title = $title;
 			$list_view->columns = $view->view_columns;
 			$list_view->num_rows = $view->renderLimit;
-			$list_view->params = $view->params;
+			$list_view->params = $view->getEditableParams();
 			$list_view->sort_by = $view->renderSortBy;
 			$list_view->sort_asc = $view->renderSortAsc;
 			

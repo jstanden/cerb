@@ -720,7 +720,7 @@ class View_Attachment extends C4_AbstractView {
 
 	function getData() {
 		$objects = DAO_Attachment::search(
-			array_merge($this->params, $this->paramsRequired),
+			$this->getParams(),
 			$this->renderLimit,
 			$this->renderPage,
 			$this->renderSortBy,
@@ -831,7 +831,7 @@ class View_Attachment extends C4_AbstractView {
 		}
 
 		if(!empty($criteria)) {
-			$this->params[$field] = $criteria;
+			$this->addParam($criteria);
 			$this->renderPage = 0;
 		}
 	}
@@ -866,7 +866,7 @@ class View_Attachment extends C4_AbstractView {
 		if(empty($ids))
 		do {
 			list($objects,$null) = DAO_Attachment::search(
-				$this->params,
+				$this->getParams(),
 				100,
 				$pg++,
 				SearchFields_Attachment::ID,

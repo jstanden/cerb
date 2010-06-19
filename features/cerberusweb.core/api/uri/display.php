@@ -1215,8 +1215,6 @@ class ChDisplayPage extends CerberusPageExtension {
 			SearchFields_Ticket::TICKET_TEAM_ID,
 			SearchFields_Ticket::TICKET_CATEGORY_ID,
 		);
-		$defaults->params = array(
-		);
 		$defaults->renderLimit = 10;
 		$defaults->renderSortBy = SearchFields_Ticket::TICKET_CREATED_DATE;
 		$defaults->renderSortAsc = false;
@@ -1240,28 +1238,28 @@ class ChDisplayPage extends CerberusPageExtension {
 
 		switch($scope) {
 			case 'org':
-				$view->params = array(
+				$view->addParams(array(
 					SearchFields_Ticket::TICKET_FIRST_CONTACT_ORG_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_FIRST_CONTACT_ORG_ID,'=',$contact->contact_org_id),
 					SearchFields_Ticket::TICKET_DELETED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_DELETED,'=',0),
-				);
+				), true);
 				$view->name = ucwords($translate->_('contact_org.name')) . ": " . $contact_org->name;
 				break;
 				
 			case 'domain':
-				$view->params = array(
+				$view->addParams(array(
 					SearchFields_Ticket::REQUESTER_ADDRESS => new DevblocksSearchCriteria(SearchFields_Ticket::REQUESTER_ADDRESS,'like','*@'.$email_parts[1]),
 					SearchFields_Ticket::TICKET_DELETED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_DELETED,'=',0),
-				);
+				), true);
 				$view->name = ucwords($translate->_('common.email')) . ": *@" . $email_parts[1];
 				break;
 				
 			default:
 			case 'email':
 				$scope = 'email';
-				$view->params = array(
+				$view->addParams(array(
 					SearchFields_Ticket::REQUESTER_ID => new DevblocksSearchCriteria(SearchFields_Ticket::REQUESTER_ID,'in',array_keys($requesters)),
 					SearchFields_Ticket::TICKET_DELETED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_DELETED,'=',0),
-				);
+				), true);
 				$view->name = sprintf("History: %d recipient(s)", count($requesters));
 				break;
 		}
@@ -1327,9 +1325,9 @@ class ChDisplayPage extends CerberusPageExtension {
 		$view->renderSortBy = SearchFields_Snippet::USAGE_HITS;
 		$view->renderSortAsc = false;
 		$view->renderLimit = 10;
-		$view->params = array(
+		$view->addParams(array(
 			SearchFields_Snippet::CONTEXT => new DevblocksSearchCriteria(SearchFields_Snippet::CONTEXT, DevblocksSearchCriteria::OPER_IN, $contexts),
-		);
+		), true);
 		
 		C4_AbstractViewLoader::setView($view->id,$view);
 		$tpl->assign('view', $view);
@@ -1345,9 +1343,9 @@ class ChDisplayPage extends CerberusPageExtension {
 			return;
 
 		if(!empty($term)) {	
-			$view->params[SearchFields_Snippet::TITLE] = new DevblocksSearchCriteria(SearchFields_Snippet::TITLE, 'like', '%'.$term.'%');
+			$view->addParam(new DevblocksSearchCriteria(SearchFields_Snippet::TITLE, 'like', '%'.$term.'%'));
 		} else {
-			unset($view->params[SearchFields_Snippet::TITLE]);
+			$view->removeParam(SearchFields_Snippet::TITLE);
 		}
 		
 		$view->renderPage = 0;

@@ -1,19 +1,20 @@
+{$view_editable_params = $view->getEditableParams()}
 <table cellpadding="2" cellspacing="0" border="0" width="100%">
 <tr>
 	<td width="50%" valign="top">
 		<div class="block">
 			<h2>{$translate->_('common.filters')|capitalize}</h2>
 			<table cellpadding="2" cellspacing="0" border="0">
-			{include file="file:$core_tpl/internal/views/criteria_list_params.tpl" params=$view->params}
+			{include file="file:$core_tpl/internal/views/criteria_list_params.tpl" params=$view_editable_params}
 			</table>
 			
 			<div style="margin-top:2px;">
 				<select name="_preset" onchange="$val=$(this).val();if(0==$val.length)return;if('reset'==$val) { genericAjaxPost('filter{$view->id}','viewCustomFilters{$view->id}','c=internal&a=viewResetFilters'); return; } if('remove'==$val) { genericAjaxPost('filter{$view->id}','viewCustomFilters{$view->id}','c=internal&a=viewAddFilter'); return; } if('edit'==$val) { $(this).val('');$('#divRemovePresets{$view->id}').fadeIn();return; } if('add'==$val) { $(this).val('');$('#divAddPreset{$view->id}').fadeIn().find('input:text:first').focus();return; } genericAjaxPost('filter{$view->id}','viewCustomFilters{$view->id}','c=internal&a=viewLoadPreset');">
 					<option value="">-- action --</option>
 					<optgroup label="Filters">
-						{if !empty($view->params)}<option value="remove">Remove selected filters</option>{/if}
+						{if !empty($view_editable_params)}<option value="remove">Remove selected filters</option>{/if}
 						<option value="reset">Reset filters</option>
-						{if !empty($view->params)}<option value="add">Save filters as preset</option>{/if}
+						{if !empty($view_editable_params)}<option value="add">Save filters as preset</option>{/if}
 					</optgroup>
 					{$presets = $view->getPresets()}
 					{if !empty($presets)}

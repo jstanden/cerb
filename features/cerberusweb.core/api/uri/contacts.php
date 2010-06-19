@@ -141,25 +141,6 @@ class ChContactsPage extends CerberusPageExtension {
 		
 		$tpl->display('file:' . $this->_TPL_PATH . 'contacts/index.tpl');
 		return;
-		
-//			case 'people':
-//				$view = C4_AbstractViewLoader::getView('addybook_people'); // View_Address::DEFAULT_ID
-//				
-//				if(null == $view) {
-//					$view = new View_Address();
-//					$view->id = 'addybook_people';
-//					$view->name = 'People';
-//					$view->params = array(
-//						new DevblocksSearchCriteria(SearchFields_Address::CONTACT_ORG_ID,'!=',0),
-//					);
-//					
-//					C4_AbstractViewLoader::setView('addybook_people', $view);
-//				}
-//				
-//				$tpl->assign('view', $view);
-//				$tpl->assign('contacts_page', 'people');
-//				$tpl->display('file:' . $this->_TPL_PATH . 'contacts/people/index.tpl');
-//				break;
 	}
 	
 	function showOrgsTabAction() {
@@ -539,9 +520,9 @@ class ChContactsPage extends CerberusPageExtension {
 		
 		$view = C4_AbstractViewLoader::getView('org_contacts', $defaults);
 		$view->name = 'Contacts: ' . $contact->name;
-		$view->params = array(
+		$view->addParams(array(
 			new DevblocksSearchCriteria(SearchFields_Address::CONTACT_ORG_ID,'=',$org)
-		);
+		), true);
 		$tpl->assign('view', $view);
 		
 		C4_AbstractViewLoader::setView($view->id, $view);
@@ -616,8 +597,6 @@ class ChContactsPage extends CerberusPageExtension {
 				SearchFields_Ticket::TICKET_TEAM_ID,
 				SearchFields_Ticket::TICKET_CATEGORY_ID,
 			);
-			$tickets_view->params = array(
-			);
 			$tickets_view->renderLimit = 10;
 			$tickets_view->renderPage = 0;
 			$tickets_view->renderSortBy = SearchFields_Ticket::TICKET_CREATED_DATE;
@@ -625,10 +604,10 @@ class ChContactsPage extends CerberusPageExtension {
 		}
 
 		@$tickets_view->name = $translate->_('ticket.requesters') . ": " . htmlspecialchars($contact->name) . ' - ' . intval(count($people)) . ' contact(s)';
-		$tickets_view->params = array(
+		$tickets_view->addParams(array(
 			SearchFields_Ticket::REQUESTER_ID => new DevblocksSearchCriteria(SearchFields_Ticket::REQUESTER_ID,'in',array_keys($people)),
 			SearchFields_Ticket::TICKET_DELETED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_DELETED,DevblocksSearchCriteria::OPER_EQ,0)
-		);
+		), true);
 		$tpl->assign('contact_history', $tickets_view);
 		
 		C4_AbstractViewLoader::setView($tickets_view->id,$tickets_view);
@@ -739,10 +718,10 @@ class ChContactsPage extends CerberusPageExtension {
 			$search_view = View_Ticket::createSearchView();
 		}
 		
-		$search_view->params = array(
+		$search_view->addParams(array(
 			SearchFields_Ticket::TICKET_CLOSED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',$closed),
 			SearchFields_Ticket::REQUESTER_ADDRESS => new DevblocksSearchCriteria(SearchFields_Ticket::REQUESTER_ADDRESS,'=',$address->email),
-		);
+		), true);
 		$search_view->renderPage = 0;
 		
 		C4_AbstractViewLoader::setView(CerberusApplication::VIEW_SEARCH, $search_view);
@@ -1229,7 +1208,7 @@ class ChContactsPage extends CerberusPageExtension {
                 break;
         }
         
-        $view->params = $params;
+        $view->addParams($params, true);
         $view->renderPage = 0;
         $view->renderSortBy = null;
         
@@ -1264,7 +1243,7 @@ class ChContactsPage extends CerberusPageExtension {
                 break;
         }
         
-        $view->params = $params;
+        $view->addParams($params, true);
         $view->renderPage = 0;
         $view->renderSortBy = null;
         

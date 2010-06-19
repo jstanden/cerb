@@ -28,11 +28,11 @@ class UmScHistoryController extends Extension_UmScController {
 			}
 			
 			// Lock to current visitor and open tickets
-			$open_view->params = array(
+			$open_view->addParams(array(
 				new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_FIRST_WROTE_ID,'=',$active_user->id),
 				new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',0),
 				new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_DELETED,'=',0),
-			);
+			), true);
 
 			$open_view->name = "";
 			$open_view->renderSortBy = SearchFields_Ticket::TICKET_UPDATED_DATE;
@@ -50,11 +50,11 @@ class UmScHistoryController extends Extension_UmScController {
 			}
 			
 			// Lock to current visitor and closed tickets
-			$closed_view->params = array(
+			$closed_view->addParams(array(
 				new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_FIRST_WROTE_ID,'=',$active_user->id),
 				new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',1),
 				new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_DELETED,'=',0),
-			);
+			), true);
 
 			$closed_view->name = "";
 			$closed_view->renderSortBy = SearchFields_Ticket::TICKET_UPDATED_DATE;
@@ -82,7 +82,7 @@ class UmScHistoryController extends Extension_UmScController {
 				SearchFields_Ticket::TICKET_UPDATED_DATE,
 				SearchFields_Ticket::TICKET_CLOSED,
 			);
-			$view->params = array(
+			$view->addParams(array(
 				array(
 					DevblocksSearchCriteria::GROUP_OR,
 					new DevblocksSearchCriteria(SearchFields_Ticket::FULLTEXT_MESSAGE_CONTENT,DevblocksSearchCriteria::OPER_FULLTEXT,array($q,'all')),
@@ -90,7 +90,7 @@ class UmScHistoryController extends Extension_UmScController {
 				),
 				new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_FIRST_WROTE_ID,'=',$active_user->id),
 				new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_DELETED,'=',0),
-			);
+			), true);
 			
 			UmScAbstractViewLoader::setView($view->id, $view);
 			$tpl->assign('view', $view);
@@ -280,7 +280,7 @@ class UmSc_TicketHistoryView extends C4_AbstractView {
 	function getData() {
 		$objects = DAO_Ticket::search(
 			array(),
-			array_merge($this->params, $this->paramsRequired),
+			$this->getParams(),
 			$this->renderLimit,
 			$this->renderPage,
 			$this->renderSortBy,

@@ -66,7 +66,7 @@ class UmScKbController extends Extension_UmScController {
 
 		        $params[SearchFields_KbArticle::TOP_CATEGORY_ID] = new DevblocksSearchCriteria(SearchFields_KbArticle::TOP_CATEGORY_ID,'in',array_keys($kb_roots));
 		        
-		        $view->params = $params;
+		        $view->addParams($params, true);
 		        
 				UmScAbstractViewLoader::setView($view->id, $view);
 				$tpl->assign('view', $view);
@@ -193,15 +193,15 @@ class UmScKbController extends Extension_UmScController {
 				}
 				
 				if(!empty($root)) {
-					$view->params = array(
+					$view->addParams(array(
 						new DevblocksSearchCriteria(SearchFields_KbArticle::CATEGORY_ID,'=',$root),
 						new DevblocksSearchCriteria(SearchFields_KbArticle::TOP_CATEGORY_ID,'in',array_keys($kb_roots)),
-					);
+					), true);
 				} else {
 					// Most Popular Articles
-					$view->params = array(
+					$view->addParams(array(
 						new DevblocksSearchCriteria(SearchFields_KbArticle::TOP_CATEGORY_ID,'in',array_keys($kb_roots)),
-					);
+					), true);
 				}
 
 				$view->name = "";
@@ -280,7 +280,7 @@ class UmSc_KbArticleView extends C4_AbstractView {
 	function getData() {
 		$objects = DAO_KbArticle::search(
 			$this->view_columns,
-			array_merge($this->params, $this->paramsRequired),
+			$this->getParams(),
 			$this->renderLimit,
 			$this->renderPage,
 			$this->renderSortBy,

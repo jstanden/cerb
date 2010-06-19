@@ -725,7 +725,7 @@ class View_Worker extends C4_AbstractView {
 	function getData() {
 		return DAO_Worker::search(
 			$this->view_columns,
-			array_merge($this->params, $this->paramsRequired),
+			$this->getParams(),
 			$this->renderLimit,
 			$this->renderPage,
 			$this->renderSortBy,
@@ -852,7 +852,7 @@ class View_Worker extends C4_AbstractView {
 		}
 
 		if(!empty($criteria)) {
-			$this->params[$field] = $criteria;
+			$this->addParam($criteria);
 			$this->renderPage = 0;
 		}
 	}
@@ -892,7 +892,7 @@ class View_Worker extends C4_AbstractView {
 		do {
 			list($objects,$null) = DAO_Worker::search(
 			array(),
-			$this->params,
+			$this->getParams(),
 			100,
 			$pg++,
 			SearchFields_Worker::ID,
@@ -1129,9 +1129,9 @@ class Context_Worker extends Extension_DevblocksContext {
 			SearchFields_Worker::LAST_NAME,
 			SearchFields_Worker::TITLE,
 		);
-		$view->params = array(
+		$view->addParams(array(
 			SearchFields_Worker::IS_DISABLED => new DevblocksSearchCriteria(SearchFields_Worker::IS_DISABLED,'=',0),
-		);
+		), true);
 		$view->renderLimit = 10;
 		$view->renderTemplate = 'contextlinks_chooser';
 		C4_AbstractViewLoader::setView($view_id, $view);
@@ -1161,9 +1161,9 @@ class Context_Worker extends Extension_DevblocksContext {
 		$defaults->class_name = 'View_Worker';
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = 'Workers';
-		$view->params = array(
+		$view->addParams(array(
 			SearchFields_Worker::ID => new DevblocksSearchCriteria(SearchFields_Worker::ID,'in',$ids),
-		);
+		), true);
 		C4_AbstractViewLoader::setView($view_id, $view);
 		return $view;
 	}

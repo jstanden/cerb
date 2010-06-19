@@ -55,7 +55,7 @@ abstract class C4_AbstractView {
 	public $view_columns = array();
 	public $columnsHidden = array();
 	
-	public $params = array();
+	private $_paramsEditable = array();
 	public $paramsDefault = array();
 	public $paramsRequired = array();
 	public $paramsHidden = array();
@@ -81,6 +81,8 @@ abstract class C4_AbstractView {
 		return $columns;
 	}
 	
+	// Params
+	
 	function getParamsAvailable() {
 		$params = $this->getFields();
 		
@@ -90,6 +92,41 @@ abstract class C4_AbstractView {
 		
 		return $params;
 	}
+	
+	function getParams() {
+		return array_merge($this->_paramsEditable, $this->paramsRequired);
+	}
+	
+	function getEditableParams() {
+		return $this->_paramsEditable;
+	}
+	
+	function addParam($param, $key=null) {
+		if(empty($key) && $param instanceof DevblocksSearchCriteria)
+			$key = $param->field;
+		
+		$this->_paramsEditable[$key] = $param;
+	}
+	
+	function addParams($params, $replace=false) {
+		if($replace)
+			$this->removeAllParams();
+			
+		if(is_array($params))
+		foreach($params as $key => $param)
+			$this->addParam($param, $key);		
+	}
+	
+	function removeParam($key) {
+		if(isset($this->_paramsEditable[$key]))
+			unset($this->_paramsEditable[$key]);
+	}
+	
+	function removeAllParams() {
+		$this->_paramsEditable = array();
+	}
+	
+	// Render
 	
 	function render() {
 		echo ' '; // Expect Override
@@ -202,20 +239,23 @@ abstract class C4_AbstractView {
 		$custom_fields = DAO_CustomField::getAll();
 		$needs_save = false;
 		
+		$params = $this->getParams();
+		
 		// Parameter sanity check
-		if(is_array($this->params))
-		foreach($this->params as $pidx => $null) {
+		if(is_array($params))
+		foreach($params as $pidx => $null) {
 			if(substr($pidx,0,3)!="cf_")
 				continue;
 				
 			if(0 != ($cf_id = intval(substr($pidx,3)))) {
 				// Make sure our custom fields still exist
 				if(!isset($custom_fields[$cf_id])) {
-					unset($this->params[$pidx]);
+					$this->removeParam($pidx);
 					$needs_save = true;
 				}
 			}
 		}
+		unset($params);
 		
 		// View column sanity check
 		if(is_array($this->view_columns))
@@ -320,13 +360,13 @@ abstract class C4_AbstractView {
 		$this->renderPage = $page;
 	}
 
-	function doRemoveCriteria($field) {
-		unset($this->params[$field]);
+	function doRemoveCriteria($key) {
+		$this->removeParam($key);
 		$this->renderPage = 0;
 	}
 
 	function doResetCriteria() {
-		$this->params = $this->paramsDefault;
+		$this->addParams($this->paramsDefault, true);
 		$this->renderPage = 0;
 	}
 	
@@ -410,7 +450,7 @@ class C4_AbstractViewModel {
 	public $view_columns = array();
 	public $columnsHidden = array();
 	
-	public $params = array();
+	public $paramsEditable = array();
 	public $paramsDefault = array();
 	public $paramsRequired = array();
 	public $paramsHidden = array();
@@ -551,7 +591,7 @@ class C4_AbstractViewLoader {
 		$model->view_columns = $view->view_columns;
 		$model->columnsHidden = $view->columnsHidden;
 		
-		$model->params = $view->params;
+		$model->paramsEditable = $view->getEditableParams();
 		$model->paramsDefault = $view->paramsDefault;
 		$model->paramsRequired = $view->paramsRequired;
 		$model->paramsHidden = $view->paramsHidden;
@@ -582,7 +622,7 @@ class C4_AbstractViewLoader {
 		$inst->view_columns = $model->view_columns;
 		$inst->columnsHidden = $model->columnsHidden;
 		
-		$inst->params = $model->params;
+		$inst->addParams($model->paramsEditable, true);
 		$inst->paramsDefault = $model->paramsDefault;
 		$inst->paramsRequired = $model->paramsRequired;
 		$inst->paramsHidden = $model->paramsHidden;
@@ -621,7 +661,7 @@ class View_DevblocksTemplate extends C4_AbstractView {
 	function getData() {
 		return DAO_DevblocksTemplate::search(
 			$this->view_columns,
-			array_merge($this->params, $this->paramsRequired),
+			$this->getParams(),
 			$this->renderLimit,
 			$this->renderPage,
 			$this->renderSortBy,
@@ -732,7 +772,7 @@ class View_DevblocksTemplate extends C4_AbstractView {
 		}
 
 		if(!empty($criteria)) {
-			$this->params[$field] = $criteria;
+			$this->addParam($criteria);
 			$this->renderPage = 0;
 		}
 	}
@@ -773,7 +813,7 @@ class View_DevblocksTemplate extends C4_AbstractView {
 		do {
 			list($objects,$null) = DAO_DevblocksTemplate::search(
 				array(),
-				$this->params,
+				$this->getParams(),
 				100,
 				$pg++,
 				DAO_DevblocksTemplate::ID,
@@ -841,7 +881,7 @@ class View_DevblocksStorageProfile extends C4_AbstractView {
 
 	function getData() {
 		$objects = DAO_DevblocksStorageProfile::search(
-			array_merge($this->params, $this->paramsRequired),
+			$this->getParams(),
 			$this->renderLimit,
 			$this->renderPage,
 			$this->renderSortBy,
@@ -934,7 +974,7 @@ class View_DevblocksStorageProfile extends C4_AbstractView {
 		}
 
 		if(!empty($criteria)) {
-			$this->params[$field] = $criteria;
+			$this->addParam($criteria);
 			$this->renderPage = 0;
 		}
 	}
@@ -970,7 +1010,7 @@ class View_DevblocksStorageProfile extends C4_AbstractView {
 		if(empty($ids))
 		do {
 			list($objects,$null) = DAO_DevblocksStorageProfile::search(
-				$this->params,
+				$this->getParams(),
 				100,
 				$pg++,
 				SearchFields_DevblocksStorageProfile::ID,

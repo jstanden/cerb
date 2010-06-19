@@ -397,7 +397,7 @@ class View_Snippet extends C4_AbstractView {
 	function getData() {
 		$objects = DAO_Snippet::search(
 			array(),
-			array_merge($this->params, $this->paramsRequired),
+			$this->getParams(),
 			$this->renderLimit,
 			$this->renderPage,
 			$this->renderSortBy,
@@ -515,7 +515,7 @@ class View_Snippet extends C4_AbstractView {
 		}
 
 		if(!empty($criteria)) {
-			$this->params[$field] = $criteria;
+			$this->addParam($criteria);
 			$this->renderPage = 0;
 		}
 	}
@@ -551,7 +551,7 @@ class View_Snippet extends C4_AbstractView {
 		if(empty($ids))
 		do {
 			list($objects,$null) = DAO_Snippet::search(
-				$this->params,
+				$this->getParams(),
 				100,
 				$pg++,
 				SearchFields_Snippet::ID,

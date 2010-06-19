@@ -319,7 +319,7 @@ XML;
         // View
         $view = new View_WorkerEvent();
         $view->name = $feed->title;
-        $view->params = $feed->params['params'];
+        $view->addParams($feed->params['params'], true);
         $view->renderLimit = 100;
         $view->renderSortBy = $feed->params['sort_by'];
         $view->renderSortAsc = $feed->params['sort_asc'];
@@ -385,7 +385,7 @@ XML;
         // View
         $view = new View_Ticket();
         $view->name = $feed->title;
-        $view->params = $feed->params['params'];
+        $view->addParams($feed->params['params'], true);
         $view->renderLimit = 100;
         $view->renderSortBy = $feed->params['sort_by'];
         $view->renderSortAsc = $feed->params['sort_asc'];
@@ -478,7 +478,7 @@ XML;
         // View
         $view = new View_Task();
         $view->name = $feed->title;
-        $view->params = $feed->params['params'];
+        $view->addParams($feed->params['params'], true);
         $view->renderLimit = 100;
         $view->renderSortBy = $feed->params['sort_by'];
         $view->renderSortAsc = $feed->params['sort_asc'];

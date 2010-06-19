@@ -396,7 +396,7 @@ class C4_FeedbackEntryView extends C4_AbstractView {
 	function getData() {
 		$objects = DAO_FeedbackEntry::search(
 			$this->view_columns,
-			array_merge($this->params, $this->paramsRequired),
+			$this->getParams(),
 			$this->renderLimit,
 			$this->renderPage,
 			$this->renderSortBy,
@@ -554,7 +554,7 @@ class C4_FeedbackEntryView extends C4_AbstractView {
 		}
 
 		if(!empty($criteria)) {
-			$this->params[$field] = $criteria;
+			$this->addParam($criteria);
 			$this->renderPage = 0;
 		}
 	}
@@ -591,7 +591,7 @@ class C4_FeedbackEntryView extends C4_AbstractView {
 		do {
 			list($objects,$null) = DAO_FeedbackEntry::search(
 				array(),
-				$this->params,
+				$this->getParams(),
 				100,
 				$pg++,
 				SearchFields_FeedbackEntry::ID,

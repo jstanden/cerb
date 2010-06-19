@@ -602,7 +602,7 @@ class View_MailQueue extends C4_AbstractView {
 	function getData() {
 		$objects = DAO_MailQueue::search(
 			array(),
-			array_merge($this->params, $this->paramsRequired),
+			$this->getParams(),
 			$this->renderLimit,
 			$this->renderPage,
 			$this->renderSortBy,
@@ -728,7 +728,7 @@ class View_MailQueue extends C4_AbstractView {
 		}
 
 		if(!empty($criteria)) {
-			$this->params[$field] = $criteria;
+			$this->addParam($criteria);
 			$this->renderPage = 0;
 		}
 	}
@@ -776,7 +776,7 @@ class View_MailQueue extends C4_AbstractView {
 		if(empty($ids))
 		do {
 			list($objects,$null) = DAO_MailQueue::search(
-				$this->params,
+				$this->getParams(),
 				100,
 				$pg++,
 				SearchFields_MailQueue::ID,

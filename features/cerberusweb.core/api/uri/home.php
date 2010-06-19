@@ -128,8 +128,6 @@ class ChHomePage extends CerberusPageExtension {
 		$defaults->renderPage = 0;
 		$defaults->renderSortBy = SearchFields_WorkerEvent::CREATED_DATE;
 		$defaults->renderSortAsc = false;
-		$defaults->paramsDefault = array(
-		);
 		
 		$myEventsView = C4_AbstractViewLoader::getView(self::VIEW_MY_EVENTS, $defaults);
 		
@@ -351,7 +349,7 @@ class ChHomePage extends CerberusPageExtension {
 				$list = new Model_WorkerWorkspaceListView();
 				$list->title = $name;
 				$list->columns = $view->view_columns;
-				$list->params = $view->params;
+				$list->params = $view->getEditableParams();
 				$list->num_rows = 5;
 				$list->sort_by = $view->renderSortBy;
 				$list->sort_asc = $view->renderSortAsc;
@@ -511,7 +509,7 @@ class ChHomePage extends CerberusPageExtension {
 					$view->renderLimit = $list_view->num_rows;
 					$view->renderPage = 0;
 					$view->view_columns = $list_view->columns;
-					$view->params = $list_view->params;
+					$view->addParams($list_view->params, true);
 					$view->renderSortBy = $list_view->sort_by;
 					$view->renderSortAsc = $list_view->sort_asc;
 					C4_AbstractViewLoader::setView($view_id, $view);

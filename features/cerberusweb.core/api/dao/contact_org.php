@@ -426,7 +426,7 @@ class View_ContactOrg extends C4_AbstractView {
 	function getData() {
 		$objects = DAO_ContactOrg::search(
 			$this->view_columns,
-			array_merge($this->params, $this->paramsRequired),
+			$this->getParams(),
 			$this->renderLimit,
 			$this->renderPage,
 			$this->renderSortBy,
@@ -538,7 +538,7 @@ class View_ContactOrg extends C4_AbstractView {
 		}
 
 		if(!empty($criteria)) {
-			$this->params[$field] = $criteria;
+			$this->addParam($criteria);
 			$this->renderPage = 0;
 		}
 	}
@@ -578,7 +578,7 @@ class View_ContactOrg extends C4_AbstractView {
 		do {
 			list($objects,$null) = DAO_ContactOrg::search(
 				array(),
-				$this->params,
+				$this->getParams(),
 				100,
 				$pg++,
 				SearchFields_ContactOrg::ID,
@@ -780,9 +780,9 @@ class Context_Org extends Extension_DevblocksContext {
 		$defaults->class_name = 'View_ContactOrg';
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = 'Organizations';
-		$view->params = array(
+		$view->addParams(array(
 			SearchFields_ContactOrg::ID => new DevblocksSearchCriteria(SearchFields_ContactOrg::ID,'in',$ids),
-		);
+		), true);
 		C4_AbstractViewLoader::setView($view_id, $view);
 		return $view;
 	}
