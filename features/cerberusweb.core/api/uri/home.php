@@ -129,7 +129,6 @@ class ChHomePage extends CerberusPageExtension {
 		$defaults->renderSortBy = SearchFields_WorkerEvent::CREATED_DATE;
 		$defaults->renderSortAsc = false;
 		$defaults->paramsDefault = array(
-			SearchFields_WorkerEvent::IS_READ => new DevblocksSearchCriteria(SearchFields_WorkerEvent::IS_READ,'=',0),
 		);
 		
 		$myEventsView = C4_AbstractViewLoader::getView(self::VIEW_MY_EVENTS, $defaults);
@@ -138,15 +137,18 @@ class ChHomePage extends CerberusPageExtension {
 		
 		$myEventsView->columnsHidden = array(
 			SearchFields_WorkerEvent::ID,
+			SearchFields_WorkerEvent::IS_READ,
 			SearchFields_WorkerEvent::WORKER_ID,
 		);
 		
 		$myEventsView->paramsHidden = array(
 			SearchFields_WorkerEvent::ID,
+			SearchFields_WorkerEvent::IS_READ,
 			SearchFields_WorkerEvent::WORKER_ID,
 		);
 		$myEventsView->paramsDefault = $defaults->paramsDefault;
 		$myEventsView->paramsRequired = array(
+			SearchFields_WorkerEvent::IS_READ => new DevblocksSearchCriteria(SearchFields_WorkerEvent::IS_READ,'=',0),
 			SearchFields_WorkerEvent::WORKER_ID => new DevblocksSearchCriteria(SearchFields_WorkerEvent::WORKER_ID,'=',$active_worker->id),
 		);
 		
