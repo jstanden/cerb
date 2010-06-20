@@ -30,14 +30,8 @@
 	
 	{foreach from=$columnsAvailable item=colAvail}
 		{if substr($colAvail->token,0,3) != "cf_"}
-			{* [TODO] These should be excluded in the abstract class, not here *}
-			{if $colAvail->token=="a_contact_org_id"}
-			{elseif $colAvail->token=="a_id"}
-			{elseif $colAvail->token=="c_id"}
-			{else}
-				{if !empty($colAvail->db_label) && !empty($colAvail->token)}
-					<option value="{$colAvail->token}" {if $view->view_columns.$index==$colAvail->token}selected{/if}>{$colAvail->db_label}</option>
-				{/if}
+			{if !empty($colAvail->db_label) && !empty($colAvail->token)}
+				<option value="{$colAvail->token}" {if $view->view_columns.$index==$colAvail->token}selected{/if}>{$colAvail->db_label}</option>
 			{/if}
 		{else}
 			{assign var=has_custom value=1}
