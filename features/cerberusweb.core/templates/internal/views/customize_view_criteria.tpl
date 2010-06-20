@@ -9,7 +9,7 @@
 			</table>
 			
 			<div style="margin-top:2px;">
-				<select name="_preset" onchange="$val=$(this).val();if(0==$val.length)return;if('reset'==$val) { genericAjaxPost('filter{$view->id}','viewCustomFilters{$view->id}','c=internal&a=viewResetFilters'); return; } if('remove'==$val) { genericAjaxPost('filter{$view->id}','viewCustomFilters{$view->id}','c=internal&a=viewAddFilter'); return; } if('edit'==$val) { $(this).val('');$('#divRemovePresets{$view->id}').fadeIn();return; } if('add'==$val) { $(this).val('');$('#divAddPreset{$view->id}').fadeIn().find('input:text:first').focus();return; } genericAjaxPost('filter{$view->id}','viewCustomFilters{$view->id}','c=internal&a=viewLoadPreset');">
+				<select name="_preset" onchange="$val=$(this).val();if(0==$val.length)return;if('reset'==$val) { var $form_id = $(this).closest('form').attr('id'); if(0==$form_id.length)return;genericAjaxPost($form_id,'viewCustomFilters{$view->id}','c=internal&a=viewResetFilters'); return; } if('remove'==$val) { var $form_id = $(this).closest('form').attr('id'); if(0==$form_id.length)return;genericAjaxPost($form_id,'viewCustomFilters{$view->id}','c=internal&a=viewAddFilter'); return; } if('edit'==$val) { $(this).val('');$('#divRemovePresets{$view->id}').fadeIn();return; } if('add'==$val) { $(this).val('');$('#divAddPreset{$view->id}').fadeIn().find('input:text:first').focus();return; } var $form_id = $(this).closest('form').attr('id'); if(0==$form_id.length)return;genericAjaxPost($form_id,'viewCustomFilters{$view->id}','c=internal&a=viewLoadPreset');">
 					<option value="">-- action --</option>
 					<optgroup label="Filters">
 						{if !empty($view_editable_params)}<option value="remove">Remove selected filters</option>{/if}
@@ -30,7 +30,7 @@
 					<b>Save filters as preset:</b><br>
 					<input type="text" name="_preset_name" size="32" value="">
 					<br>
-					<button type="button" onclick="genericAjaxPost('filter{$view->id}','viewCustomFilters{$view->id}','c=internal&a=viewAddPreset');"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')|capitalize}</button>
+					<button type="button" onclick="var $form_id = $(this).closest('form').attr('id'); if(0==$form_id.length)return;genericAjaxPost($form_id,'viewCustomFilters{$view->id}','c=internal&a=viewAddPreset');"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')|capitalize}</button>
 					<a href="javascript:;" onclick="$(this).closest('div').fadeOut();"> {$translate->_('common.cancel')|lower}</a>
 				</div>
 				<div id="divRemovePresets{$view->id}" class="block" style="display:none;margin:5px;">
@@ -39,7 +39,7 @@
 					<label><input type="checkbox" name="_preset_del[]" value="{$preset_id}"> {$preset->name|escape}</label><br>
 					{/foreach}
 					<br>
-					<button type="button" onclick="genericAjaxPost('filter{$view->id}','viewCustomFilters{$view->id}','c=internal&a=viewEditPresets');"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')|capitalize}</button>
+					<button type="button" onclick="var $form_id = $(this).closest('form').attr('id'); if(0==$form_id.length)return;genericAjaxPost($form_id,'viewCustomFilters{$view->id}','c=internal&a=viewEditPresets');"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')|capitalize}</button>
 					<a href="javascript:;" onclick="$(this).closest('div').fadeOut();"> {$translate->_('common.cancel')|lower}</a>
 				</div>
 			</div>
@@ -80,7 +80,7 @@
 			</blockquote>
 		
 			<div id="addCriteria{$view->id}" style="background-color:rgb(255,255,255);"></div>
-			<button type="button" onclick="genericAjaxPost('filter{$view->id}','viewCustomFilters{$view->id}','c=internal&a=viewAddFilter');"><span class="cerb-sprite sprite-add"></span> Add Filter</button>
+			<button type="button" onclick="var $form_id = $(this).closest('form').attr('id'); if(0==$form_id.length)return;genericAjaxPost($form_id,'viewCustomFilters{$view->id}','c=internal&a=viewAddFilter');"><span class="cerb-sprite sprite-add"></span> Add Filter</button>
 		</div>		
 	</td>
 </tr>
