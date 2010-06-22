@@ -3,7 +3,6 @@
 <input type="hidden" name="a" value="saveContact">
 <input type="hidden" name="id" value="{$address.a_id}">
 <input type="hidden" name="view_id" value="{$view_id}">
-<input type="hidden" name="closed" value="0">
 
 <table cellpadding="0" cellspacing="2" border="0" width="98%">
 	<tr>
@@ -82,8 +81,8 @@
 
 {if $id != 0}
 	&nbsp; 
-	{if $active_worker->hasPriv('core.mail.search')}<a href="javascript:;" onclick="$('#formAddressPeek input:hidden[name=a]').val('showAddressTickets');$('#formAddressPeek input:hidden[name=closed]').val('0');$('#formAddressPeek').submit();">{'addy_book.peek.count.open_tickets'|devblocks_translate:$open_count}</a> &nbsp; {/if}
-	{if $active_worker->hasPriv('core.mail.search')}<a href="javascript:;" onclick="$('#formAddressPeek input:hidden[name=a]').val('showAddressTickets');$('#formAddressPeek input:hidden[name=closed]').val('1');$('#formAddressPeek').submit();">{'addy_book.peek.count.closed_tickets'|devblocks_translate:$closed_count}</a> &nbsp; {/if}
+	{if $active_worker->hasPriv('core.mail.search')}<a href="{devblocks_url}c=contacts&a=findTickets{/devblocks_url}?email={$address.a_email|escape}&closed=0">{'addy_book.peek.count.open_tickets'|devblocks_translate:$open_count}</a> &nbsp; {/if}
+	{if $active_worker->hasPriv('core.mail.search')}<a href="{devblocks_url}c=contacts&a=findTickets{/devblocks_url}?email={$address.a_email|escape}&closed=1">{'addy_book.peek.count.closed_tickets'|devblocks_translate:$closed_count}</a> &nbsp; {/if}
 	{if $active_worker->hasPriv('core.mail.send')}<a href="javascript:;" onclick="genericAjaxPanel('c=tickets&a=showComposePeek&view_id=&to={$address.a_email|escape:'url'}',null,false,'600');"> {$translate->_('addy_book.peek.compose')}</a>{/if}
 {/if}
 

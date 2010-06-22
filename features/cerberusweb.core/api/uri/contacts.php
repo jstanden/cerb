@@ -706,26 +706,30 @@ class ChContactsPage extends CerberusPageExtension {
 		$tpl->display('file:' . $this->_TPL_PATH . 'contacts/addresses/address_peek.tpl');
 	}
 	
-	function showAddressTicketsAction() {
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
-		@$closed = DevblocksPlatform::importGPC($_REQUEST['closed'],'integer',0);
+	function findTicketsAction() {
+		@$email = DevblocksPlatform::importGPC($_REQUEST['email'],'string','');
+		@$closed = DevblocksPlatform::importGPC($_REQUEST['closed'],'string','');
 		
-		if(null == ($address = DAO_Address::get($id)))
+		if(null == ($address = DAO_Address::lookupAddress($email, false)))
 			return;
 		
 		if(null == ($search_view = C4_AbstractViewLoader::getView(CerberusApplication::VIEW_SEARCH))) {
 			$search_view = View_Ticket::createSearchView();
 		}
 		
-		$search_view->addParams(array(
-			SearchFields_Ticket::TICKET_CLOSED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',$closed),
-			SearchFields_Ticket::REQUESTER_ADDRESS => new DevblocksSearchCriteria(SearchFields_Ticket::REQUESTER_ADDRESS,'=',$address->email),
-		), true);
+		$search_view->removeAllParams();
+		
+		if(!empty($address))
+			$search_view->addParam(new DevblocksSearchCriteria(SearchFields_Ticket::REQUESTER_ADDRESS,'=',$address->email));
+
+		if(0 != strlen($closed))
+			$search_view->addParam(new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',$closed));
+			
 		$search_view->renderPage = 0;
 		
 		C4_AbstractViewLoader::setView(CerberusApplication::VIEW_SEARCH, $search_view);
 		
-		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('tickets','search')));
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','search')));
 	}
 	
 	function showAddressBatchPanelAction() {
