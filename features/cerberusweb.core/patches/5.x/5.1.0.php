@@ -80,4 +80,24 @@ if(!isset($tables['view_filters_preset'])) {
 	$tables['view_filters_preset'] = 'view_filters_preset';
 }
 
+// ===========================================================================
+// Make address autocompletion more efficient 
+
+if(!isset($tables['address']))
+	return FALSE;
+
+list($columns, $indexes) = $db->metaTable('address');
+$changes = array();
+
+if(!isset($indexes['first_name'])) {
+	$changes[] = sprintf("ADD INDEX first_name (first_name(4))");
+}
+if(!isset($indexes['last_name'])) {
+	$changes[] = sprintf("ADD INDEX last_name (last_name(4))");
+}
+
+if(!empty($changes))
+	$db->Execute("ALTER TABLE address " . implode('', $changes));
+
+
 return TRUE;

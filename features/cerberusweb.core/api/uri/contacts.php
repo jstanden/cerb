@@ -1284,20 +1284,39 @@ class ChContactsPage extends CerberusPageExtension {
 		$db = DevblocksPlatform::getDatabaseService();
 		@$query = DevblocksPlatform::importGPC($_REQUEST['term'],'string','');
 		
-		$starts_with = strtolower($query) . '%';
+		if(false !== (strpos($query,'@'))) { // email search
+			$sql = sprintf("SELECT first_name, last_name, email, num_nonspam ".
+				"FROM address ".
+				"WHERE is_banned = 0 ".
+				"AND email LIKE %s ".
+				"ORDER BY num_nonspam DESC ".
+				"LIMIT 0,25",
+				$db->qstr($query . '%')
+			);
+		} elseif(false !== (strpos($query,' '))) { // first+last
+			$sql = sprintf("SELECT first_name, last_name, email, num_nonspam ".
+				"FROM address ".
+				"WHERE is_banned = 0 ".
+				"AND concat(first_name,' ',last_name) LIKE %s ".
+				"ORDER BY num_nonspam DESC ".
+				"LIMIT 0,25",
+				$db->qstr($query . '%')
+			);
+		} else { // first, last, or email 
+			$sql = sprintf("SELECT first_name, last_name, email, num_nonspam ".
+				"FROM address ".
+				"WHERE is_banned = 0 ".
+				"AND (email LIKE %s ".
+				"OR first_name LIKE %s ".
+				"OR last_name LIKE %s) ".
+				"ORDER BY num_nonspam DESC ".
+				"LIMIT 0,25",
+				$db->qstr($query . '%'),
+				$db->qstr($query . '%'),
+				$db->qstr($query . '%')
+			);
+		}
 		
-		$sql = sprintf("SELECT first_name, last_name, email, num_nonspam ".
-			"FROM address ".
-			"WHERE is_banned = 0 ".
-			"AND (lower(email) LIKE %s ".
-			"OR lower(concat(first_name,' ',last_name)) LIKE %s ".
-			"OR lower(last_name) LIKE %s) ".
-			"ORDER BY num_nonspam DESC ".
-			"LIMIT 0,25",
-			$db->qstr($starts_with),
-			$db->qstr($starts_with),
-			$db->qstr($starts_with)
-		);
 		$rs = $db->Execute($sql);
 		
 		$list = array();
@@ -1305,8 +1324,8 @@ class ChContactsPage extends CerberusPageExtension {
 		while($row = mysql_fetch_assoc($rs)) {
 			$first = $row['first_name'];
 			$last = $row['last_name'];
-			$email = $row['email'];
-			$num_nonspam = $row['num_nonspam'];
+			$email = strtolower($row['email']);
+			$num_nonspam = intval($row['num_nonspam']);
 			
 			$personal = sprintf("%s%s%s",
 				(!empty($first)) ? $first : '',
