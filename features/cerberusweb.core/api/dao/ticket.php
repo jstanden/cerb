@@ -450,38 +450,58 @@ class DAO_Ticket extends C4_ORMHelper {
 		parent::_updateWhere('ticket', $fields, $where);
 	}
 	
-	static function update($ids,$fields) {
-		if(!is_array($ids)) $ids = array($ids);
+	static function update($ids, $fields) {
+		if(!is_array($ids))
+			$ids = array($ids);
 		
-		/* This event fires before the change takes place in the db,
-		 * so we can denote what is actually changing against the db state
+		/*
+		 * Make a diff for the requested objects in batches
 		 */
-	    $eventMgr = DevblocksPlatform::getEventService();
-	    $eventMgr->trigger(
-	        new Model_DevblocksEvent(
-	            'ticket.property.pre_change',
-                array(
-                    'ticket_ids' => $ids,
-                    'changed_fields' => $fields,
-                )
-            )
-	    );
-		
-        parent::_update($ids,'ticket',$fields);
-        
-		/* This event fires after the change takes place in the db,
-		 * which is important if the listener needs to stack changes
-		 */
-	    $eventMgr = DevblocksPlatform::getEventService();
-	    $eventMgr->trigger(
-	        new Model_DevblocksEvent(
-	            'ticket.property.post_change',
-                array(
-                    'ticket_ids' => $ids,
-                    'changed_fields' => $fields,
-                )
-            )
-	    );
+    	$chunks = array_chunk($ids, 25, true);
+    	while($ids = array_shift($chunks)) {
+	    	$objects = DAO_Ticket::getTickets($ids);
+	    	$object_changes = array();
+	    	
+	    	foreach($objects as $object_id => $object) {
+	    		$pre_fields = get_object_vars($object);
+	    		$changes = array();
+	    		
+	    		foreach($fields as $field_key => $field_val) {
+	    			// Make sure the value of the field actually changed
+	    			if($pre_fields[$field_key] != $field_val) {
+	    				$changes[$field_key] = array('from' => $pre_fields[$field_key], 'to' => $field_val);
+	    			}
+	    		}
+	    		
+	    		// If we had changes
+	    		if(!empty($changes)) {
+	    			$object_changes[$object_id] = array(
+	    				'model' => array_merge($pre_fields, $fields),
+	    				'changes' => $changes,
+	    			);
+	    		}
+	    	}
+	    	
+	    	/*
+	    	 * Make the changes
+	    	 */
+	        parent::_update($ids, 'ticket', $fields);
+	
+	        /*
+	         * Trigger an event about the changes
+	         */
+	    	if(!empty($object_changes)) {
+			    $eventMgr = DevblocksPlatform::getEventService();
+			    $eventMgr->trigger(
+			        new Model_DevblocksEvent(
+			            'dao.ticket.update',
+		                array(
+		                    'objects' => $object_changes,
+		                )
+		            )
+			    );
+	    	}
+    	}
 	}
 	
 	static function getRequestersByTicket($ticket_id) {

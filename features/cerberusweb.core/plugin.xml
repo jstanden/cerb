@@ -226,6 +226,10 @@
 		<event id="cron.maint">
 			<name>Maintenance</name>
 		</event>
+		<event id="dao.ticket.update">
+			<name>Ticket Properties Updated</name>
+			<param key="objects" />
+		</event>
 		<event id="group.delete">
 			<name>Group Delete</name>
 			<param key="group_ids" />
@@ -235,27 +239,28 @@
 			<param key="task_id" />
 			<param key="fields" />
 		</event>
-		<event id="ticket.comment.create">
-			<name>Ticket Comment</name>
-			<param key="comment_id" />
+		<event id="ticket.action.assigned">
+			<name>Ticket Assigned</name>
 			<param key="ticket_id" />
-			<param key="address_id" />
-			<param key="comment" />
+			<param key="worker_id" />
+			<param key="model" />
+		</event>
+		<event id="ticket.action.closed">
+			<name>Ticket Closed</name>
+			<param key="ticket_id" />
+			<param key="model" />
 		</event>
 		<event id="ticket.action.merge">
 			<name>Ticket Merge</name>
 			<param key="new_ticket_id" />
 			<param key="old_ticket_ids" />
 		</event>
-		<event id="ticket.property.pre_change">
-			<name>Ticket Property Pre-Change</name>
-			<param key="ticket_ids" />
-			<param key="changed_fields" />
-		</event>
-		<event id="ticket.property.post_change">
-			<name>Ticket Property Post-Change</name>
-			<param key="ticket_ids" />
-			<param key="changed_fields" />
+		<event id="ticket.action.moved">
+			<name>Ticket Moved</name>
+			<param key="ticket_id" />
+			<param key="group_id" />
+			<param key="bucket_id" />
+			<param key="model" />
 		</event>
 		<event id="ticket.reply.inbound">
 			<name>Ticket Inbound Reply</name>
@@ -398,7 +403,16 @@
 				<name>ChCoreEventListener</name>
 			</class>
 			<params>
-				<!-- Global Event Listener -->
+				<param key="events">
+					<value>
+						<data key="dao.ticket.update" />						
+						<data key="ticket.action.assigned" />						
+						<data key="ticket.action.closed" />						
+						<data key="ticket.action.moved" />						
+						<data key="cron.heartbeat" />
+						<data key="cron.maint" />						
+					</value>
+				</param>
 			</params>
 		</extension>
  

@@ -2652,7 +2652,7 @@ class _DevblocksEventManager {
 		}
 
 		// [TODO] Make sure we can't get a double listener
-	    if(is_array($events['*']))
+	    if(isset($events['*']) && is_array($events['*']))
 	    foreach($events['*'] as $evt) {
 	        $listeners[] = $evt;
 	    }

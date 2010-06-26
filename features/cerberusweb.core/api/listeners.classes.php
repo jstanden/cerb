@@ -318,13 +318,20 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 	function handleEvent(Model_DevblocksEvent $event) {
 		// Cerberus Helpdesk Workflow
 		switch($event->id) {
-            case 'ticket.property.pre_change':
-				$this->_workerAssigned($event);
-            	break;
-			
-			case 'ticket.property.post_change':
-				$this->_handleTicketMoved($event);
+			case 'dao.ticket.update':
+				$this->_handleDaoTicketUpdate($event);
+				break;
+				
+			case 'ticket.action.assigned':
+				$this->_handleTicketAssigned($event);
+				break;
+				
+			case 'ticket.action.closed':
 				$this->_handleTicketClosed($event);
+				break;
+				
+			case 'ticket.action.moved':
+				$this->_handleTicketMoved($event);
 				break;
 
 			case 'cron.heartbeat':
@@ -337,50 +344,176 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 		}
 	}
 
-    private function _workerAssigned($event) {
-    	@$ticket_ids = $event->params['ticket_ids'];
-    	@$changed_fields = $event->params['changed_fields'];
-    	
-    	if(empty($ticket_ids) || empty($changed_fields))
-    		return;
-    		
-    	@$next_worker_id = $changed_fields[DAO_Ticket::NEXT_WORKER_ID];
+	private function _handleDaoTicketUpdate($event) {
+    	@$objects = $event->params['objects'];
 
-    	// Make sure a next worker was assigned
-    	if(empty($next_worker_id))
-    		return;
-
-    	@$active_worker = CerberusApplication::getActiveWorker();
+		$eventMgr = DevblocksPlatform::getEventService();
+		
+    	if(is_array($objects))
+    	foreach($objects as $object_id => $object) {
+    		@$model = $object['model'];
+    		@$changes = $object['changes'];
     		
-    	// Make sure we're not assigning work to ourselves, if so then bail
-    	if(null != $active_worker && $active_worker->id == $next_worker_id) {
-    		return;
-    	}
-    	
-    	$tickets = DAO_Ticket::getTickets($ticket_ids);
-    	
-		// Write a notification (if not assigned to ourselves)
-		$url_writer = DevblocksPlatform::getUrlService();
-		foreach($ticket_ids as $ticket_id) {
-			// If invalid
-			if(null == ($ticket = $tickets[$ticket_id])) /* @var $ticket Model_Ticket */
-				continue;
+    		if(empty($model) || empty($changes))
+    			continue;
+    		
+        	/*
+        	 * Ticket assigned to worker/nobody
+        	 */
+			@$next_worker_id = $changes[DAO_Ticket::NEXT_WORKER_ID];
 			
-			// If the next worker is the same as the current worker
-			if($next_worker_id == $ticket->next_worker_id)
-				continue;
-				
+			if(!is_null($next_worker_id)) {
+			    $eventMgr->trigger(
+			        new Model_DevblocksEvent(
+			            'ticket.action.assigned',
+		                array(
+		                    'ticket_id' => $object_id,
+		                	'worker_id' => $model[DAO_Ticket::NEXT_WORKER_ID],
+		                    'model' => $model,
+		                )
+		            )
+			    );
+			}
+	    	
+			/*
+			 * Ticket moved
+			 */
+			@$group_id = $changes[DAO_Ticket::TEAM_ID];
+			@$bucket_id = $changes[DAO_Ticket::CATEGORY_ID];
+			
+			if(!is_null($group_id) || !is_null($bucket_id)) {
+			    $eventMgr->trigger(
+			        new Model_DevblocksEvent(
+			            'ticket.action.moved',
+		                array(
+		                    'ticket_id' => $object_id,
+		                	'group_id' => $model[DAO_Ticket::TEAM_ID],
+		                	'bucket_id' => $model[DAO_Ticket::CATEGORY_ID],
+		                    'model' => $model,
+		                )
+		            )
+			    );
+			}
+			
+			/*
+			 * Ticket closed
+			 */
+			@$closed = $changes[DAO_Ticket::IS_CLOSED];
+			
+			if(!is_null($closed) && !empty($model[DAO_Ticket::IS_CLOSED])) {
+			    $eventMgr->trigger(
+			        new Model_DevblocksEvent(
+			            'ticket.action.closed',
+		                array(
+		                    'ticket_id' => $object_id,
+		                    'model' => $model,
+		                )
+		            )
+			    );
+			}	    	
+    	}
+	}
+	
+	private function _handleTicketAssigned($event) {
+		$active_worker = CerberusApplication::getActiveWorker();
+		$url_writer = DevblocksPlatform::getUrlService();
+		
+		@$ticket_id = $event->params['ticket_id'];
+		@$worker_id = $event->params['worker_id'];
+		@$model = $event->params['model'];
+		
+		if(empty($worker_id))
+			return;
+		
+    	// If this is headless, or we're assigning a different worker
+    	if(empty($active_worker) || $active_worker->id != $worker_id) {
+	    	// Send a notification
 			$fields = array(
 				DAO_WorkerEvent::CREATED_DATE => time(),
-				DAO_WorkerEvent::WORKER_ID => $next_worker_id,
-				DAO_WorkerEvent::URL => $url_writer->write('c=display&id='.$ticket->mask,true),
+				DAO_WorkerEvent::WORKER_ID => $worker_id,
+				DAO_WorkerEvent::URL => $url_writer->write('c=display&id='.$model[DAO_Ticket::MASK],true),
 				DAO_WorkerEvent::TITLE => 'New Ticket Assignment', // [TODO] Translate
-				DAO_WorkerEvent::CONTENT => sprintf("#%s: %s", $ticket->mask, $ticket->subject),
+				DAO_WorkerEvent::CONTENT => sprintf("#%s: %s", $model[DAO_Ticket::MASK], $model[DAO_Ticket::SUBJECT]),
 				DAO_WorkerEvent::IS_READ => 0,
 			);
 			DAO_WorkerEvent::create($fields);
+    	}
+	}
+	
+	private function _handleTicketMoved($event) {
+		@$ticket_id = $event->params['ticket_id'];
+		@$group_id = $event->params['group_id'];
+		@$bucket_id = $event->params['bucket_id'];
+		
+		// If we're landing in an inbox we need to check its filters
+		if(!empty($group_id) && empty($bucket_id)) { // moving to an inbox
+			// Run the new inbox filters
+			$matches = CerberusApplication::runGroupRouting($group_id, $ticket_id);
+			
+			// If we matched no rules, we're stuck in the destination inbox.
+			if(!empty($matches)) {
+				// If more inbox rules want to move this ticket don't consider this finished
+				if(is_array($matches))
+				foreach($matches as $match) {
+	                if(isset($match->actions['move'])) // any moves
+						return;
+				}
+			}
 		}
-    }
+
+		// Trigger an inbound event			
+	    $eventMgr = DevblocksPlatform::getEventService();
+	    $eventMgr->trigger(
+	        new Model_DevblocksEvent(
+	            'ticket.reply.inbound',
+                array(
+                    'ticket_id' => $ticket_id,
+                )
+            )
+	    );
+	}
+	
+	private function _handleTicketClosed($event) {
+		@$ticket_id = $event->params['ticket_id'];
+		@$model = $event->params['model'];
+
+		// If we're closing *and* deleting, abort.
+		@$is_deleted = $model[DAO_Ticket::IS_DELETED];
+		if(!is_null($is_deleted) && $is_deleted)
+			return;
+			
+		$group_settings = DAO_GroupSettings::getSettings();
+		@$group_id = $model[DAO_Ticket::TEAM_ID];
+
+		// Make sure the current group has an auto-close reply
+		if(!isset($group_settings[$group_id][DAO_GroupSettings::SETTING_CLOSE_REPLY_ENABLED]))
+			return;
+
+		// If the template doesn't exist or is empty
+		if(!isset($group_settings[$group_id][DAO_GroupSettings::SETTING_CLOSE_REPLY])
+			|| empty($group_settings[$group_id][DAO_GroupSettings::SETTING_CLOSE_REPLY]))
+			return;
+			
+		try {
+			$token_labels = array();
+			$token_values = array();
+			CerberusContexts::getContext(CerberusContexts::CONTEXT_TICKET, $ticket_id, $token_labels, $token_values);
+			
+			if(false === ($closereply_content = $tpl_builder->build($group_settings[$group_id][DAO_GroupSettings::SETTING_CLOSE_REPLY], $token_values)))
+				throw new Exception('Failed parsing close auto-reply snippet.');
+			
+			$result = CerberusMail::sendTicketMessage(array(
+				'ticket_id' => $ticket_id,
+				'message_id' => $model[DAO_Ticket::FIRST_MESSAGE_ID],
+				'content' => $closereply_content,
+				'is_autoreply' => false,
+				'dont_keep_copy' => true
+			));
+			
+		} catch (Exception $e) {
+			// [TODO] Error report
+		}
+	}
 	
 	private function _handleCronMaint($event) {
 		DAO_Address::maint();
@@ -426,128 +559,5 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 			time()
 		);
 		DAO_Ticket::updateWhere($fields, $where);
-	}
-
-	private function _handleTicketMoved($event) {
-		@$ticket_ids = $event->params['ticket_ids'];
-		@$changed_fields = $event->params['changed_fields'];
-
-		if(!isset($changed_fields[DAO_Ticket::TEAM_ID]))
-			return;
-
-		@$team_id = $changed_fields[DAO_Ticket::TEAM_ID];
-		@$bucket_id = $changed_fields[DAO_Ticket::CATEGORY_ID];
-
-		$final_moves = array();
-
-		// If we're landing in an inbox we need to check its filters
-		if(!empty($ticket_ids) && !empty($team_id) && empty($bucket_id)) { // moving to an inbox
-
-			if(is_array($ticket_ids))
-			foreach($ticket_ids as $ticket_id) {
-				// Run the new inbox filters
-				$matches = CerberusApplication::runGroupRouting($team_id, $ticket_id);
-				
-				// If we matched no rules, we're stuck in the destination inbox.
-				if(empty($matches)) {
-					$final_moves[] = $ticket_id;
-					
-				} else {
-					// If more inbox rules want to move this ticket don't consider this finished
-					if(is_array($matches))
-					foreach($matches as $match) {
-		                if(isset($match->actions['move'])) // any moves
-							break;
-						$final_moves[] = $ticket_id;
-					}
-				}
-			}
-			
-		// Anything dropping into a non-inbox bucket is done chain-moving
-		} elseif(!empty($ticket_ids) && !empty($team_id) && !empty($bucket_id)) {
-			$final_moves = $ticket_ids;
-			
-		}
-
-		// Did we have any tickets finish chain-moving?
-		if(!empty($final_moves)) {
-
-			// Trigger an inbound event for all moves			
-			if(is_array($final_moves))
-			foreach($final_moves as $ticket_id) {
-				// Inbound Reply Event
-			    $eventMgr = DevblocksPlatform::getEventService();
-			    $eventMgr->trigger(
-			        new Model_DevblocksEvent(
-			            'ticket.reply.inbound',
-		                array(
-		                    'ticket_id' => $ticket_id,
-		                )
-		            )
-			    );
-			}
-		}
-	}
-	
-	private function _handleTicketClosed($event) {
-		@$ticket_ids = $event->params['ticket_ids'];
-		@$changed_fields = $event->params['changed_fields'];
-
-		// for anything other than setting is_closed = 1, we don't need to do anything
-		// also don't send if the ticket is being deleted
-		if((!isset($changed_fields[DAO_Ticket::IS_CLOSED]) || 1 != $changed_fields[DAO_Ticket::IS_CLOSED])
-		|| (isset($changed_fields[DAO_Ticket::IS_DELETED]) && 1 == $changed_fields[DAO_Ticket::IS_DELETED]))
-			return;
-			
-		$group_settings = DAO_GroupSettings::getSettings();
-			
-		if(!empty($ticket_ids)) {
-			$tpl_builder = DevblocksPlatform::getTemplateBuilder();
-			$tickets = DAO_Ticket::getTickets($ticket_ids);
-			
-			foreach($tickets as $ticket) { /* @var $ticket Model_Ticket */
-				if(!isset($group_settings[$ticket->team_id][DAO_GroupSettings::SETTING_CLOSE_REPLY_ENABLED]))
-					continue;
-				if(1 == $ticket->is_deleted)
-					continue;
-				
-				if($group_settings[$ticket->team_id][DAO_GroupSettings::SETTING_CLOSE_REPLY_ENABLED]
-				&& !empty($group_settings[$ticket->team_id][DAO_GroupSettings::SETTING_CLOSE_REPLY])) {
-					if(null != ($msg_first = DAO_Message::get($ticket->first_message_id))) {
-						// First sender
-						$ticket_sender = '';
-						$ticket_sender_first = '';
-						if(null != ($sender_first = DAO_Address::get($msg_first->address_id))) {
-							$ticket_sender = $sender_first->email;
-							$ticket_sender_first = $sender_first->first_name;
-						}
-						
-						// First body
-						$ticket_body = $msg_first->getContent();
-					}
-					
-					try {
-						$token_labels = array();
-						$token_values = array();
-						CerberusContexts::getContext(CerberusContexts::CONTEXT_TICKET, $ticket->id, $token_labels, $token_values);
-						
-						if(false === ($closereply_content = $tpl_builder->build($group_settings[$ticket->team_id][DAO_GroupSettings::SETTING_CLOSE_REPLY], $token_values)))
-							throw new Exception('Failed parsing close auto-reply snippet.');
-						
-						$result = CerberusMail::sendTicketMessage(array(
-							'ticket_id' => $ticket->id,
-							'message_id' => $ticket->first_message_id,
-							'content' => $closereply_content,
-							'is_autoreply' => false,
-							'dont_keep_copy' => true
-						));
-						
-					} catch (Exception $e) {
-						// [TODO] Error report
-					}
-				}
-			}
-		}
-		
 	}
 };
