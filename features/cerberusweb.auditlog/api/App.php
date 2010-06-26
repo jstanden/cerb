@@ -61,7 +61,7 @@ class ChAuditLogEventListener extends DevblocksEventListenerExtension {
             	DAO_TicketAuditLog::maint();
             	break;
             
-            case 'ticket.merge':
+            case 'ticket.action.merge':
             	// Listen for ticket merges and update our internal ticket_id records
             	
             	@$new_ticket_id = $event->params['new_ticket_id'];

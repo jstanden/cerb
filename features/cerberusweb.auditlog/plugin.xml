@@ -46,7 +46,7 @@
 				<param key="events">
 					<value>
 						<data key="ticket.property.pre_change" />
-						<data key="ticket.merge" />
+						<data key="ticket.action.merge" />
 						<data key="cron.maint" />
 					</value>
 				</param>

@@ -67,7 +67,7 @@
 			<params>
 				<param key="events">
 					<value>
-						<data key="ticket.merge" />
+						<data key="ticket.action.merge" />
 					</value>
 				</param>
 			</params>

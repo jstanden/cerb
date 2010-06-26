@@ -242,7 +242,7 @@
 			<param key="address_id" />
 			<param key="comment" />
 		</event>
-		<event id="ticket.merge">
+		<event id="ticket.action.merge">
 			<name>Ticket Merge</name>
 			<param key="new_ticket_id" />
 			<param key="old_ticket_ids" />

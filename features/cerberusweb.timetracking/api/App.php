@@ -868,7 +868,7 @@ class ChTimeTrackingEventListener extends DevblocksEventListenerExtension {
      */
     function handleEvent(Model_DevblocksEvent $event) {
         switch($event->id) {
-            case 'ticket.merge':
+            case 'ticket.action.merge':
             	$new_ticket_id = $event->params['new_ticket_id'];
             	$old_ticket_ids = $event->params['old_ticket_ids'];
             	

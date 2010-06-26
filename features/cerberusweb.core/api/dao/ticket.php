@@ -364,7 +364,7 @@ class DAO_Ticket extends C4_ORMHelper {
 		    $eventMgr = DevblocksPlatform::getEventService();
 		    $eventMgr->trigger(
 		        new Model_DevblocksEvent(
-		            'ticket.merge',
+		            'ticket.action.merge',
 	                array(
 	                    'new_ticket_id' => $oldest_id,
 	                    'old_ticket_ids' => $merge_ticket_ids,
