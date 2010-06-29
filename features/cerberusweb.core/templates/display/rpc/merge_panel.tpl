@@ -12,8 +12,9 @@
 </form>
 
 <script type="text/javascript" language="JavaScript1.2">
-	genericPanel.one('dialogopen',function(event,ui) {
-		genericPanel.dialog('option','title','{$translate->_('mail.merge')|escape}');
+	var $popup = genericAjaxPopupFetch('peek');
+	$popup.one('dialogopen',function(event,ui) {
+		$popup.dialog('option','title','{$translate->_('mail.merge')|escape}');
 		
 		//ajax.emailAutoComplete('#frmDisplayMerge textarea[name=req_adds]', { multiple: true } );
 	});

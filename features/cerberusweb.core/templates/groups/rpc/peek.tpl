@@ -19,14 +19,15 @@
 	</tr>
 </table>
 
-<button type="button" onclick="genericPanel.dialog('close');genericAjaxPost('formGroupsPeek', 'view{$view_id}')"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')}</button>
+<button type="button" onclick="genericAjaxPopupClose('peek');genericAjaxPost('formGroupsPeek', 'view{$view_id}')"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')}</button>
  &nbsp; 
 <a href="{devblocks_url}c=groups&a=config&id={$group->id}{/devblocks_url}">configuration</a>
 <br>
 </form>
 
 <script type="text/javascript" language="JavaScript1.2">
-	genericPanel.one('dialogopen', function(event,ui) {
-		genericPanel.dialog('option','title',"Groups");
+	var $popup = genericAjaxPopupFetch('peek');
+	$popup.one('dialogopen', function(event,ui) {
+		$popup.dialog('option','title',"Groups");
 	} );
 </script>

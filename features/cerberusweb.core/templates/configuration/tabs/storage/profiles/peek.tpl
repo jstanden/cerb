@@ -59,8 +59,8 @@ Used by:<br>
 <div id="divTestStorageProfile"></div>
 
 {if $active_worker->is_superuser}
-	<button type="button" onclick="genericAjaxPanelPostCloseReloadView('formStorageProfilePeek', '{$view_id}');"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')}</button>
-	{if !empty($profile->id) && empty($storage_schema_stats)}<button type="button" onclick="if(confirm('Are you sure you want to delete this storage profile?')) { this.form.do_delete.value='1';genericAjaxPanelPostCloseReloadView('formStorageProfilePeek', '{$view_id}'); } "><span class="cerb-sprite sprite-delete2"></span> {$translate->_('common.delete')|capitalize}</button>{/if}
+	<button type="button" onclick="genericAjaxPopupPostCloseReloadView('peek','formStorageProfilePeek', '{$view_id}');"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')}</button>
+	{if !empty($profile->id) && empty($storage_schema_stats)}<button type="button" onclick="if(confirm('Are you sure you want to delete this storage profile?')) { this.form.do_delete.value='1';genericAjaxPopupPostCloseReloadView('peek','formStorageProfilePeek', '{$view_id}'); } "><span class="cerb-sprite sprite-delete2"></span> {$translate->_('common.delete')|capitalize}</button>{/if}
 {else}
 	<div class="error">{$translate->_('error.core.no_acl.edit')}</div>	
 {/if}
@@ -70,8 +70,9 @@ Used by:<br>
 </form>
 
 <script type="text/javascript" language="JavaScript1.2">
-	genericPanel.one('dialogopen', function(event,ui) {
-		genericPanel.dialog('option','title',"Storage Profile");
+	var $popup = genericAjaxPopupFetch('peek');
+	$popup.one('dialogopen', function(event,ui) {
+		$popup.dialog('option','title',"Storage Profile");
 	} );
 </script>
 

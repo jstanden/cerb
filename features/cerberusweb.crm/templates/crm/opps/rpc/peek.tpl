@@ -80,8 +80,8 @@
 {if ($active_worker->hasPriv('crm.opp.actions.create') && (empty($opp) || $active_worker->id==$opp->worker_id))
 	|| ($active_worker->hasPriv('crm.opp.actions.update_nobody') && empty($opp->worker_id)) 
 	|| $active_worker->hasPriv('crm.opp.actions.update_all')} 
-	<button type="button" onclick="if($('#formOppPeek').validate().form()) { genericPanel.dialog('close'); genericAjaxPost('formOppPeek', 'view{$view_id}'); } "><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')}</button>
-	{if !empty($opp)}<button type="button" onclick="if(confirm('Are you sure you want to permanently delete this opportunity?')) { this.form.do_delete.value='1';genericPanel.dialog('close');genericAjaxPost('formOppPeek', 'view{$view_id}'); } "><span class="cerb-sprite sprite-delete2"></span> {$translate->_('common.delete')|capitalize}</button>{/if}
+	<button type="button" onclick="if($('#formOppPeek').validate().form()) { genericAjaxPopupClose('peek'); genericAjaxPost('formOppPeek', 'view{$view_id}'); } "><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')}</button>
+	{if !empty($opp)}<button type="button" onclick="if(confirm('Are you sure you want to permanently delete this opportunity?')) { this.form.do_delete.value='1';genericAjaxPopupClose('peek');genericAjaxPost('formOppPeek', 'view{$view_id}'); } "><span class="cerb-sprite sprite-delete2"></span> {$translate->_('common.delete')|capitalize}</button>{/if}
 {else}
 	<div class="error">You do not have permission to modify this record.</div>
 {/if}
@@ -89,8 +89,9 @@
 </form>
 
 <script language="JavaScript1.2" type="text/javascript">
-	genericPanel.one('dialogopen',function(event,ui) {
-		genericPanel.dialog('option','title', '{'Opportunity'|devblocks_translate|escape:'quotes'}');
+	var $popup = genericAjaxPopupFetch('peek');
+	$popup.one('dialogopen',function(event,ui) {
+		$popup.dialog('option','title', '{'Opportunity'|devblocks_translate|escape:'quotes'}');
 		ajax.emailAutoComplete('#emailinput');
 		$("#formOppPeek").validate();
 		$('#formOppPeek :input:text:first').focus();

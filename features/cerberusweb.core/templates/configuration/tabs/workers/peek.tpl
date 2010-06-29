@@ -87,9 +87,9 @@
 <br>
 
 {if $active_worker->is_superuser}
-	<button type="button" onclick="if($('#formWorkerPeek').validate().form()) { genericAjaxPanelPostCloseReloadView('formWorkerPeek', '{$view_id}'); } "><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')}</button>
+	<button type="button" onclick="if($('#formWorkerPeek').validate().form()) { genericAjaxPopupPostCloseReloadView('peek','formWorkerPeek', '{$view_id}'); } "><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')}</button>
 	{if !$disabled}
-		{if !empty($worker)}{if $active_worker->is_superuser && $active_worker->id != $worker->id}<button type="button" onclick="if(confirm('Are you sure you want to delete this worker and their history?')) { this.form.do_delete.value='1';genericAjaxPanelPostCloseReloadView('formWorkerPeek', '{$view_id}'); } "><span class="cerb-sprite sprite-delete2"></span> {$translate->_('common.delete')|capitalize}</button>{/if}{/if}
+		{if !empty($worker)}{if $active_worker->is_superuser && $active_worker->id != $worker->id}<button type="button" onclick="if(confirm('Are you sure you want to delete this worker and their history?')) { this.form.do_delete.value='1';genericAjaxPopupPostCloseReloadView('peek','formWorkerPeek', '{$view_id}'); } "><span class="cerb-sprite sprite-delete2"></span> {$translate->_('common.delete')|capitalize}</button>{/if}{/if}
 	{/if}
 {else}
 	<div class="error">{$translate->_('error.core.no_acl.edit')}</div>	
@@ -99,8 +99,9 @@
 </form>
 
 <script type="text/javascript" language="JavaScript1.2">
-	genericPanel.one('dialogopen', function(event,ui) {
-		genericPanel.dialog('option','title',"Worker");
+	var $popup = genericAjaxPopupFetch('peek');
+	$popup.one('dialogopen', function(event,ui) {
+		$popup.dialog('option','title',"Worker");
 		$("#formWorkerPeek").validate( {
 			rules: {
 				password2: {

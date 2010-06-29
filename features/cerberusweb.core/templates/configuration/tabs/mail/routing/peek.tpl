@@ -235,7 +235,8 @@
 <br>
 
 <script language="JavaScript1.2" type="text/javascript">
-	genericPanel.one('dialogopen',function(event,ui) {
-		genericPanel.dialog('option','title', 'Add Mail Routing Rule');
+	var $popup = genericAjaxPopupFetch('peek');
+	$popup.one('dialogopen',function(event,ui) {
+		$popup.dialog('option','title', 'Add Mail Routing Rule');
 	} );
 </script>

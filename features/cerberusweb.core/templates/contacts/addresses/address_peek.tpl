@@ -40,7 +40,7 @@
 		<td width="100%" valign="top">
 			{if !empty($address.a_contact_org_id)}
 				<b>{if !empty($address.o_name)}{$address.o_name}{else if !empty({$org_name})}{$org_name}{/if}</b>
-				<a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showOrgPeek&id={if !empty($address.a_contact_org_id)}{$address.a_contact_org_id}{else}{$org_id}{/if}&view_id={$view->id}',null,false,'500');">{$translate->_('views.peek')}</a>
+				<a href="javascript:;" onclick="genericAjaxPopup('peek','c=contacts&a=showOrgPeek&id={if !empty($address.a_contact_org_id)}{$address.a_contact_org_id}{else}{$org_id}{/if}&view_id={$view->id}',null,false,'500');">{$translate->_('views.peek')}</a>
 				<a href="javascript:;" onclick="toggleDiv('divAddressOrg');">({$translate->_('common.edit')|lower})</a>
 				<br>
 			{/if}
@@ -74,7 +74,7 @@
 <br>
 
 {if $active_worker->hasPriv('core.addybook.addy.actions.update')}
-	<button name="submit" type="button" onclick="if($('#formAddressPeek').validate().form()) { genericAjaxPanelPostCloseReloadView('formAddressPeek', '{$view_id}'); } "><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')}</button>
+	<button name="submit" type="button" onclick="if($('#formAddressPeek').validate().form()) { genericAjaxPopupPostCloseReloadView('peek','formAddressPeek', '{$view_id}'); } "><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')}</button>
 {else}
 	<div class="error">{$translate->_('error.core.no_acl.edit')}</div>	
 {/if}
@@ -83,16 +83,17 @@
 	&nbsp; 
 	{if $active_worker->hasPriv('core.mail.search')}<a href="{devblocks_url}c=contacts&a=findTickets{/devblocks_url}?email={$address.a_email|escape}&closed=0">{'addy_book.peek.count.open_tickets'|devblocks_translate:$open_count}</a> &nbsp; {/if}
 	{if $active_worker->hasPriv('core.mail.search')}<a href="{devblocks_url}c=contacts&a=findTickets{/devblocks_url}?email={$address.a_email|escape}&closed=1">{'addy_book.peek.count.closed_tickets'|devblocks_translate:$closed_count}</a> &nbsp; {/if}
-	{if $active_worker->hasPriv('core.mail.send')}<a href="javascript:;" onclick="genericAjaxPanel('c=tickets&a=showComposePeek&view_id=&to={$address.a_email|escape:'url'}',null,false,'600');"> {$translate->_('addy_book.peek.compose')}</a>{/if}
+	{if $active_worker->hasPriv('core.mail.send')}<a href="javascript:;" onclick="genericAjaxPopup('peek','c=tickets&a=showComposePeek&view_id=&to={$address.a_email|escape:'url'}',null,false,'600');"> {$translate->_('addy_book.peek.compose')}</a>{/if}
 {/if}
 
 <br>
 </form>
 
 <script language="JavaScript1.2" type="text/javascript">
-	genericPanel.one('dialogopen',function(event,ui) {
+	var $popup = genericAjaxPopupFetch('peek');
+	$popup.one('dialogopen',function(event,ui) {
 		// Title
-		genericPanel.dialog('option','title', '{'addy_book.peek.title'|devblocks_translate|escape:'quotes'}');
+		$popup.dialog('option','title', '{'addy_book.peek.title'|devblocks_translate|escape:'quotes'}');
 		// Autocomplete
 		ajax.orgAutoComplete('#contactinput');
 		// Form validation

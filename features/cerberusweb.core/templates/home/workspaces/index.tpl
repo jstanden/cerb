@@ -7,7 +7,7 @@
 		<td>
 		</td>
 		<td align="right">
-			<a href="javascript:;" onclick="genericAjaxPanel('c=home&a=showEditWorkspacePanel&workspace={$current_workspace|escape:'url'}',null,false,'450');">{$translate->_('dashboard.edit')|lower}</a>
+			<a href="javascript:;" onclick="genericAjaxPopup('peek','c=home&a=showEditWorkspacePanel&workspace={$current_workspace|escape:'url'}',null,false,'450');">{$translate->_('dashboard.edit')|lower}</a>
 			| <a href="javascript:;" onclick="if(confirm('{$translate->_('dashboard.delete.confirm')|escape}'))$(this).closest('form').submit();">{$translate->_('dashboard.delete')|lower}</a>
 		</td>
 	</tr>

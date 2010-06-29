@@ -7,8 +7,9 @@
 </div>
 
 <script language="JavaScript1.2" type="text/javascript">
-	genericPanel.one('dialogopen',function(event,ui) {
-		genericPanel.dialog('option','title',"Snippets");
+	var $popup = genericAjaxPopupFetch('peek');
+	$popup.one('dialogopen',function(event,ui) {
+		$popup.dialog('option','title',"Snippets");
 		$('#view{$view->id}').data('context_id','{$context_id}');
 		$('#view{$view->id}').data('text_element','{$text_element}');
 		

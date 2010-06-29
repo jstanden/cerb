@@ -65,7 +65,7 @@
 			{elseif $column=="a_email"}
 				<td>
 					{if !empty($result.a_email)}
-						<a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showAddressPeek&address_id={$result.f_quote_address_id}&view_id={$view->id}',null,false,'500');">{$result.a_email}</a>
+						<a href="javascript:;" onclick="genericAjaxPopup('peek','c=contacts&a=showAddressPeek&address_id={$result.f_quote_address_id}&view_id={$view->id}',null,false,'500');">{$result.a_email}</a>
 					{else}
 						<i>{'common.anonymous'|devblocks_translate|lower}</i>
 					{/if}
@@ -96,7 +96,7 @@
 				<div id="subject_{$result.f_id}_{$view->id}" style="margin:5px;margin-left:10px;font-size:12px;">
 					<img src="{devblocks_url}c=resource&p=cerberusweb.feedback&f=images/{if 1==$mood}bullet_ball_glass_green.png{elseif 2==$mood}bullet_ball_glass_red.png{else}bullet_ball_glass_grey.png{/if}{/devblocks_url}" align="top" title="{if 1==$mood}Praise{elseif 2==$mood}Criticism{else}Neutral{/if}"> 
 					{$result.f_quote_text} 
-					{if ($active_worker->hasPriv('feedback.actions.create') && $result.f_worker_id==$active_worker->id) || $active_worker->hasPriv('feedback.actions.update_all')}<a href="javascript:;" style="color:rgb(180,180,180);font-size:90%;" onclick="genericAjaxPanel('c=feedback&a=showEntry&id={$result.f_id}&view_id={$view->id}',null,false,'500');">({'common.edit'|devblocks_translate})</a>{/if}
+					{if ($active_worker->hasPriv('feedback.actions.create') && $result.f_worker_id==$active_worker->id) || $active_worker->hasPriv('feedback.actions.update_all')}<a href="javascript:;" style="color:rgb(180,180,180);font-size:90%;" onclick="genericAjaxPopup('peek','c=feedback&a=showEntry&id={$result.f_id}&view_id={$view->id}',null,false,'500');">({'common.edit'|devblocks_translate})</a>{/if}
 				</div>
 			</td>
 		</tr>
@@ -108,7 +108,7 @@
 	{if $total}
 	<tr>
 		<td colspan="2">
-			{if $active_worker->hasPriv('feedback.actions.update_all')}<button type="button" onclick="genericAjaxPanel('c=feedback&a=showBulkPanel&view_id={$view->id}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','row_id[]'),null,false,'500');"><span class="cerb-sprite sprite-folder_gear"></span> {'common.bulk_update'|devblocks_translate|lower}</button>{/if}
+			{if $active_worker->hasPriv('feedback.actions.update_all')}<button type="button" onclick="genericAjaxPopup('peek','c=feedback&a=showBulkPanel&view_id={$view->id}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','row_id[]'),null,false,'500');"><span class="cerb-sprite sprite-folder_gear"></span> {'common.bulk_update'|devblocks_translate|lower}</button>{/if}
 		</td>
 	</tr>
 	{/if}

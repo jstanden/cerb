@@ -36,7 +36,8 @@
 </form>
 
 <script type="text/javascript" language="JavaScript1.2">
-	genericPanel.one('dialogopen', function(event,ui) {
-		genericPanel.dialog('option','title',"{$workspace|escape}");
+	var $popup = genericAjaxPopupFetch('peek');
+	$popup.one('dialogopen', function(event,ui) {
+		$popup.dialog('option','title',"{$workspace|escape}");
 	} );
 </script>

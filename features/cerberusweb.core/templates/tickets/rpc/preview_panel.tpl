@@ -14,7 +14,7 @@
 			{assign var=headers value=$message->getHeaders()}
 			<b>To:</b> {$headers.to|escape}<br>
 			<b>From:</b> {$headers.from|escape}<br>
-			<div id="ticketPeekContent" style="width:400;height:250px;overflow:auto;border:1px solid rgb(180,180,180);margin:2px;padding:3px;background-color:rgb(255,255,255);" ondblclick="if(null != genericPanel) genericPanel.dialog('close');">
+			<div id="ticketPeekContent" style="width:400;height:250px;overflow:auto;border:1px solid rgb(180,180,180);margin:2px;padding:3px;background-color:rgb(255,255,255);" ondblclick="genericAjaxPopupClose('peek');">
 				<pre class="emailbody">{$content|trim|escape|devblocks_hyperlinks|devblocks_hideemailquotes}</pre>
 			</div>
 			
@@ -170,11 +170,12 @@
 </form>
 
 <script language="JavaScript1.2" type="text/javascript">
-	genericPanel.one('dialogopen',function(event,ui) {
-		genericPanel.dialog('option','title',"{$ticket->subject|escape}");
+	var $popup = genericAjaxPopupFetch('peek');
+	$popup.one('dialogopen',function(event,ui) {
+		$popup.dialog('option','title',"{$ticket->subject|escape}");
 		$("#peekTabs").tabs();
 		$("#ticketPeekContent").css('width','100%');
 		$("#ticketPeekTab2").show();
-		genericPanel.focus();
+		$popup.focus();
 	} );
 </script>

@@ -52,7 +52,7 @@
 		<tr class="{$tableRowClass}">
 			<td align="center" rowspan="2"><input type="checkbox" name="row_id[]" value="{$result.d_id}"></td>
 			<td colspan="{math equation="x" x=$smarty.foreach.headers.total}">
-				<a href="javascript:;" onclick="genericAjaxPanel('c=community&a=getTemplatePeek&portal={$tool->code|escape}&view_id={$view->id}&id={$result.d_id}',null,false,'600');" class="subject">{$result.d_path}</a>
+				<a href="javascript:;" onclick="genericAjaxPopup('peek','c=community&a=getTemplatePeek&portal={$tool->code|escape}&view_id={$view->id}&id={$result.d_id}',null,false,'600');" class="subject">{$result.d_path}</a>
 			</td>
 		</tr>
 		<tr class="{$tableRowClass}">
@@ -77,8 +77,8 @@
 	<tr>
 		<td colspan="2">
 			{if $active_worker && $active_worker->is_superuser}
-				<button type="button" onclick="genericAjaxPanel('c=community&a=showTemplatesBulkPanel&view_id={$view->id}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','row_id[]'),null,false,'500');"><span class="cerb-sprite sprite-folder_gear"></span> bulk update</button>
-				<button type="button" onclick="genericAjaxPanel('c=community&a=showExportTemplatesPeek&portal={$tool->code}&view_id={$view->id|escape:'url'}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','row_id[]'),null,false,'500');"><span class="cerb-sprite sprite-export"></span> {'common.export'|devblocks_translate|lower}</button>
+				<button type="button" onclick="genericAjaxPopup('peek','c=community&a=showTemplatesBulkPanel&view_id={$view->id}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','row_id[]'),null,false,'500');"><span class="cerb-sprite sprite-folder_gear"></span> bulk update</button>
+				<button type="button" onclick="genericAjaxPopup('peek','c=community&a=showExportTemplatesPeek&portal={$tool->code}&view_id={$view->id|escape:'url'}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','row_id[]'),null,false,'500');"><span class="cerb-sprite sprite-export"></span> {'common.export'|devblocks_translate|lower}</button>
 			{/if}
 		</td>
 	</tr>

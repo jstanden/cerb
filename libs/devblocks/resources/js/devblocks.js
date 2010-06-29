@@ -188,15 +188,15 @@ function showLoadingPanel() {
 	}
 	
 	var options = {
-			bgiframe : true,
-			autoOpen : false,
-			closeOnEscape : false,
-			draggable : false,
-			resizable : false,
-			modal : true,
-			width : "300",
-			title : 'Running...'
-		};
+		bgiframe : true,
+		autoOpen : false,
+		closeOnEscape : false,
+		draggable : false,
+		resizable : false,
+		modal : true,
+		width : "300",
+		title : 'Running...'
+	};
 
 	if(0 == $("#loadingPanel").length) {
 		$("body").append("<div id='loadingPanel' style='display:none;'></div>");
@@ -217,16 +217,51 @@ function hideLoadingPanel() {
 	loadingPanel = null;
 }
 
-var genericPanel;
-function genericAjaxPanel(request,target,modal,width,cb) {
-	// Reset
-	if(null != genericPanel) {
-		genericPanel.unbind();
-		genericPanel.dialog('destroy');
-		genericPanel = null;
+function genericAjaxPopupFetch($ns) {
+	$devblocksPopups = $('#devblocksPopups');
+	
+	if(0 == $devblocksPopups.length) {
+		$('body').append("<div id='devblocksPopups' style='display:none;'></div>");
+		$devblocksPopups = $('#devblocksPopups');
 	}
+	
+	return $devblocksPopups.data($ns);
+}
 
-	// Options
+function genericAjaxPopupClose($ns) {
+	$popup = genericAjaxPopupFetch($ns);
+	if(null != $popup) {
+		try {
+			$popup.unbind();
+			$popup.dialog('close');
+		} catch(e) { }
+		return true;
+	}
+	return false;
+}
+
+function genericAjaxPopupDestroy($ns) {
+	$popup = genericAjaxPopupFetch($ns);
+	if(null != $popup) {
+		genericAjaxPopupClose($ns);
+		try {
+			$popup.dialog('destroy');
+		} catch(e) { }
+		$devblocksPopups.removeData($popup);
+		return true;
+	}
+	return false;
+}
+
+function genericAjaxPopupRegister($ns, $popup) {
+	$devblocksPopups.data($ns, $popup);
+}
+
+function genericAjaxPopup($ns,request,target,modal,width,cb) {
+	// Reset (if exists)
+	genericAjaxPopupDestroy($ns);
+	
+	// Default options
 	var options = {
 		bgiframe : true,
 		autoOpen : false,
@@ -243,16 +278,20 @@ function genericAjaxPanel(request,target,modal,width,cb) {
 	if(null != width) options.width = width;
 	if(null != modal) options.modal = modal;
 	
+	// Load the popup content
 	genericAjaxGet('',request,
 		function(html) {
-			if(0 == $("#genericPanel").length) {
-				$("body").append("<div id='genericPanel' style='display:none;'></div>");
+			$popup = $("#popup"+$ns);
+			if(0 == $popup.length) {
+				$("body").append("<div id='popup"+$ns+"' style='display:none;'></div>");
+				$popup = $('#popup'+$ns);
 			}
-			
-			genericPanel = $("#genericPanel");
+
+			// Persist
+			genericAjaxPopupRegister($ns, $popup);
 			
 			// Set the content
-			genericPanel.html(html);
+			$popup.html(html);
 			
 			// Target
 			if(null != target) {
@@ -264,24 +303,18 @@ function genericAjaxPanel(request,target,modal,width,cb) {
 			} else {
 				options.position = [ 'center', 'top' ];
 			}
-			
+
 			// Render
-			genericPanel.dialog(options);
-			genericPanel.dialog('open');
-			
-			// Focus
-			//if(null != target) {
-				//var offset = $(target).offset();
-				//$(document).scrollTop(offset.top); // Focus
-			//}
+			$popup.dialog(options);
+			$popup.dialog('open');
 			
 			// Callback
 			try { cb(html); } catch(e) { }
 		}
-	);
+	);	
 }
 
-function genericAjaxPanelPostCloseReloadView(frm, view_id, has_output) {
+function genericAjaxPopupPostCloseReloadView($ns, frm, view_id, has_output) {
 	var has_view = (null != view_id && view_id.length > 0 && $('#view'+view_id).length > 0) ? true : false;
 	if(null == has_output)
 		has_output = false;
@@ -301,14 +334,10 @@ function genericAjaxPanelPostCloseReloadView(frm, view_id, has_output) {
 			if(has_view)
 				$('#view'+view_id).fadeTo("normal", 1.0);
 
-			if(null != genericPanel) {
-				genericPanel.trigger('devblocks_dialogsaved');
-				
-				try {
-					genericPanel.unbind();
-					genericPanel.dialog('destroy');
-					genericPanel = null;
-				} catch(e) {}
+			$popup = genericAjaxPopupFetch($ns);
+			if(null != $popup) {
+				$popup.trigger('devblocks_popupsaved');
+				genericAjaxPopupDestroy($ns);
 			}
 		}
 	);

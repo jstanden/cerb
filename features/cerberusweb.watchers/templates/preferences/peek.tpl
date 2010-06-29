@@ -238,12 +238,13 @@
 
 <br>
 
-<button type="button" onclick="genericAjaxPanelPostCloseReloadView('frmWatcherFilter', '{$view_id}');"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')}</button>
+<button type="button" onclick="genericAjaxPopupPostCloseReloadView('peek','frmWatcherFilter', '{$view_id}');"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')}</button>
 </form>
 <br>
 
 <script type="text/javascript" language="JavaScript1.2">
-	genericPanel.one('dialogopen', function(event,ui) {
-		genericPanel.dialog('option','title',"Add Watcher Filter");
+	var $popup = genericAjaxPopupFetch('peek');
+	$popup.one('dialogopen', function(event,ui) {
+		$popup.dialog('option','title',"Add Watcher Filter");
 	} );
 </script>

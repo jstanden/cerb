@@ -27,7 +27,7 @@
 			
 			<div id="view{$view_id}"></div>
 			
-			{if $active_worker->hasPriv('core.kb.articles.modify')}<button type="button" onclick="genericAjaxPanel('c=kb.ajax&a=showArticleEditPanel&id=0&root_id={$root_id}&view_id={$view->id}',null,false,'550');"><span class="cerb-sprite sprite-add"></span> Add Article</button>{/if}			
+			{if $active_worker->hasPriv('core.kb.articles.modify')}<button type="button" onclick="genericAjaxPopup('peek','c=kb.ajax&a=showArticleEditPanel&id=0&root_id={$root_id}&view_id={$view->id}',null,false,'550');"><span class="cerb-sprite sprite-add"></span> Add Article</button>{/if}			
 			<button type="button" onclick="$('#{$div}').html('');"><span class="cerb-sprite sprite-delete"></span> {$translate->_('common.close')|capitalize}</button>
 			</form>
 		

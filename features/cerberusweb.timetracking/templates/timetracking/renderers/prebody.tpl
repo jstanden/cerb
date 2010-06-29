@@ -101,7 +101,7 @@
 			if(null != btn) btn.style.display = 'none';
 
 			genericAjaxGet('','c=timetracking&a=pauseTimer', function() {
-				genericAjaxPanel('c=timetracking&a=getStopTimerPanel',null,true,'500');
+				genericAjaxPopup('peek','c=timetracking&a=getStopTimerPanel',null,true,'500');
 			} );
 		}
 		
@@ -112,7 +112,7 @@
 		
 			this.counter = 0;
 			genericAjaxGet('','c=timetracking&a=clearEntry');
-			genericPanel.dialog('close');
+			genericAjaxPopupClose('peek');
 		}
 	};
 	

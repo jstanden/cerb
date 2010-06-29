@@ -8,16 +8,16 @@
 			{if $root_id}
 				{assign var=parent_id value=$categories.$root_id->parent_id}
 				{if $parent_id}
-					{if $active_worker->hasPriv('core.kb.categories.modify')}<button type="button" onclick="genericAjaxPanel('c=kb.ajax&a=showKbCategoryEditPanel&id={$root_id}&return={$request_path|escape:'url'}',null,false,'500');"><span class="cerb-sprite sprite-folder_gear"></span> Edit Category</button>{/if}
+					{if $active_worker->hasPriv('core.kb.categories.modify')}<button type="button" onclick="genericAjaxPopup('peek','c=kb.ajax&a=showKbCategoryEditPanel&id={$root_id}&return={$request_path|escape:'url'}',null,false,'500');"><span class="cerb-sprite sprite-folder_gear"></span> Edit Category</button>{/if}
 				{else}
-					{if $active_worker->hasPriv('core.kb.topics.modify')}<button type="button" onclick="genericAjaxPanel('c=kb.ajax&a=showTopicEditPanel&id={$root_id}&return={$request_path|escape:'url'}',null,false,'500');"><span class="cerb-sprite sprite-folder_gear"></span> Edit Topic</button>{/if}
+					{if $active_worker->hasPriv('core.kb.topics.modify')}<button type="button" onclick="genericAjaxPopup('peek','c=kb.ajax&a=showTopicEditPanel&id={$root_id}&return={$request_path|escape:'url'}',null,false,'500');"><span class="cerb-sprite sprite-folder_gear"></span> Edit Topic</button>{/if}
 				{/if}
-				{if $active_worker->hasPriv('core.kb.categories.modify')}<button type="button" onclick="genericAjaxPanel('c=kb.ajax&a=showKbCategoryEditPanel&id=0&root_id={$root_id}&return={$request_path|escape:'url'}',null,false,'500');"><span class="cerb-sprite sprite-folder_add"></span> Add Subcategory</button>{/if}
+				{if $active_worker->hasPriv('core.kb.categories.modify')}<button type="button" onclick="genericAjaxPopup('peek','c=kb.ajax&a=showKbCategoryEditPanel&id=0&root_id={$root_id}&return={$request_path|escape:'url'}',null,false,'500');"><span class="cerb-sprite sprite-folder_add"></span> Add Subcategory</button>{/if}
 			{else}
-				{if $active_worker->hasPriv('core.kb.topics.modify')}<button type="button" onclick="genericAjaxPanel('c=kb.ajax&a=showTopicEditPanel&id=0&return={$request_path|escape:'url'}',null,false,'500');"><span class="cerb-sprite sprite-folder_add"></span> Add Topic</button>{/if}
+				{if $active_worker->hasPriv('core.kb.topics.modify')}<button type="button" onclick="genericAjaxPopup('peek','c=kb.ajax&a=showTopicEditPanel&id=0&return={$request_path|escape:'url'}',null,false,'500');"><span class="cerb-sprite sprite-folder_add"></span> Add Topic</button>{/if}
 			{/if}
 			
-			{if $active_worker->hasPriv('core.kb.articles.modify')}<button type="button" onclick="genericAjaxPanel('c=kb.ajax&a=showArticleEditPanel&id=0&root_id={$root_id}&view_id={$view->id}',null,false,'700');"><span class="cerb-sprite sprite-add"></span> Add Article</button>{/if}
+			{if $active_worker->hasPriv('core.kb.articles.modify')}<button type="button" onclick="genericAjaxPopup('peek','c=kb.ajax&a=showArticleEditPanel&id=0&root_id={$root_id}&view_id={$view->id}',null,false,'700');"><span class="cerb-sprite sprite-add"></span> Add Article</button>{/if}
 		</form>
 	</td>
 	<td width="98%" valign="middle">

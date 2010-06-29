@@ -244,7 +244,8 @@
 <br>
 
 <script language="JavaScript1.2" type="text/javascript">
-	genericPanel.one('dialogopen',function(event,ui) {
-		genericPanel.dialog('option','title', 'Add Pre-Parser Filter');
+	var $popup = genericAjaxPopupFetch('peek');
+	$popup.one('dialogopen',function(event,ui) {
+		$popup.dialog('option','title', 'Add Pre-Parser Filter');
 	} );
 </script>

@@ -34,7 +34,7 @@
 					<span id="displayTicketRequesterBubbles">
 						{include file="{$core_tpl}display/rpc/requester_list.tpl" ticket_id=$ticket->id}
 					</span>
-					(<a href="javascript:;" onclick="genericAjaxPanel('c=display&a=showRequestersPanel&ticket_id={$ticket->id}',null,false,'500');">{$translate->_('common.edit')|lower}</a>)
+					(<a href="javascript:;" onclick="genericAjaxPopup('peek','c=display&a=showRequestersPanel&ticket_id={$ticket->id}',null,false,'500');">{$translate->_('common.edit')|lower}</a>)
 				</td>
 			</tr>
 		</table>
@@ -83,7 +83,7 @@
 			</div>
 			
 			<div id="divDisplayToolbarMore" style="padding-bottom:5px;display:none;">
-				{if $active_worker->hasPriv('core.ticket.view.actions.merge')}<button id="btnMerge" type="button" onclick="genericAjaxPanel('c=display&a=showMergePanel&ticket_id={$ticket->id|escape}',null,false,'500');"><span class="cerb-sprite sprite-folder_gear"></span> {$translate->_('mail.merge')|capitalize}</button>{/if}
+				{if $active_worker->hasPriv('core.ticket.view.actions.merge')}<button id="btnMerge" type="button" onclick="genericAjaxPopup('peek','c=display&a=showMergePanel&ticket_id={$ticket->id|escape}',null,false,'500');"><span class="cerb-sprite sprite-folder_gear"></span> {$translate->_('mail.merge')|capitalize}</button>{/if}
 			</div>
 			
 			<div>

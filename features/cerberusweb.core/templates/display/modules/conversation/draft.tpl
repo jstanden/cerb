@@ -7,7 +7,7 @@
 			{else} 
 				<span style="background-color:rgb(248,238,166);color:rgb(222,73,0);">{$translate->_('draft')|lower}</span>
 			{/if} 
-			{if !empty($draft_worker)}<a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showAddressPeek&email={$draft_worker->email|escape:'url'}', null, false, '500');" title="{$worker->email|escape}">{$draft_worker->getName()}</a>{else}{/if}
+			{if !empty($draft_worker)}<a href="javascript:;" onclick="genericAjaxPopup('peek','c=contacts&a=showAddressPeek&email={$draft_worker->email|escape:'url'}', null, false, '500');" title="{$worker->email|escape}">{$draft_worker->getName()}</a>{else}{/if}
 		</h3> &nbsp;
 		
 		{if !$draft->is_queued}

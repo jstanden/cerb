@@ -46,8 +46,8 @@
 <br>
 
 {if $active_worker->hasPriv('core.addybook.org.actions.update')}
-	<button type="button" onclick="if($('#formOrgPeek').validate().form()) { genericAjaxPanelPostCloseReloadView('formOrgPeek', '{$view_id}'); } "><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')|capitalize}</button>
-	{if $active_worker->hasPriv('core.addybook.org.actions.delete')}{if !empty($contact->id)}<button type="button" onclick="{literal}if(confirm('Are you sure you want to permanently delete this contact?')){this.form.do_delete.value='1';genericPanel.dialog('close');genericAjaxPost('formOrgPeek', 'view{/literal}{$view_id}{literal}');}{/literal}"><span class="cerb-sprite sprite-delete2"></span> {$translate->_('common.delete')|capitalize}</button>{/if}{/if}
+	<button type="button" onclick="if($('#formOrgPeek').validate().form()) { genericAjaxPopupPostCloseReloadView('peek','formOrgPeek', '{$view_id}'); } "><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')|capitalize}</button>
+	{if $active_worker->hasPriv('core.addybook.org.actions.delete')}{if !empty($contact->id)}<button type="button" onclick="{literal}if(confirm('Are you sure you want to permanently delete this contact?')){this.form.do_delete.value='1';genericAjaxPopupClose('peek');genericAjaxPost('formOrgPeek', 'view{/literal}{$view_id}{literal}');}{/literal}"><span class="cerb-sprite sprite-delete2"></span> {$translate->_('common.delete')|capitalize}</button>{/if}{/if}
 {else}
 	<div class="error">{$translate->_('error.core.no_acl.edit')}</div>
 {/if}
@@ -57,9 +57,10 @@
 </form>
 
 <script language="JavaScript1.2" type="text/javascript">
-	genericPanel.one('dialogopen',function(event,ui) {
+	var $popup = genericAjaxPopupFetch('peek');
+	$popup.one('dialogopen',function(event,ui) {
 		// Title
-		genericPanel.dialog('option','title', "{'contact_org.name'|devblocks_translate|capitalize|escape:'quotes'}");
+		$popup.dialog('option','title', "{'contact_org.name'|devblocks_translate|capitalize|escape:'quotes'}");
 		// Autocomplete
 		ajax.countryAutoComplete('#org_country_input');
 		// Form validation

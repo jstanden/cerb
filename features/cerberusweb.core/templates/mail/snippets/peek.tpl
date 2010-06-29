@@ -27,17 +27,18 @@
 
 <br>
 
-<button type="button" onclick="genericPanel.dialog('close');genericAjaxPost('formSnippetsPeek', 'view{$view_id}')"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')}</button>
-{if !empty($snippet->id) && ($active_worker->is_superuser || $snippet->created_by==$active_worker->id)}<button type="button" onclick="if(confirm('Are you sure you want to permanently delete this snippet?')) { this.form.do_delete.value='1';genericPanel.dialog('close');genericAjaxPost('formSnippetsPeek', 'view{$view_id}'); } "><span class="cerb-sprite sprite-delete2"></span> {$translate->_('common.delete')|capitalize}</button>{/if}
+<button type="button" onclick="genericAjaxPopupClose('peek');genericAjaxPost('formSnippetsPeek', 'view{$view_id}')"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')}</button>
+{if !empty($snippet->id) && ($active_worker->is_superuser || $snippet->created_by==$active_worker->id)}<button type="button" onclick="if(confirm('Are you sure you want to permanently delete this snippet?')) { this.form.do_delete.value='1';genericAjaxPopupClose('peek');genericAjaxPost('formSnippetsPeek', 'view{$view_id}'); } "><span class="cerb-sprite sprite-delete2"></span> {$translate->_('common.delete')|capitalize}</button>{/if}
 <br>
 </form>
 
 <script language="JavaScript1.2" type="text/javascript">
-	genericPanel.one('dialogopen',function(event,ui) {
+	var $popup = genericAjaxPopupFetch('peek');
+	$popup.one('dialogopen',function(event,ui) {
 		{if empty($snippet->id)}
-		genericPanel.dialog('option','title', 'Create Snippet ({$snippet->context})');
+		$popup.dialog('option','title', 'Create Snippet ({$snippet->context})');
 		{else}
-		genericPanel.dialog('option','title', 'Modify Snippet ({$snippet->context})');
+		$popup.dialog('option','title', 'Modify Snippet ({$snippet->context})');
 		{/if}
 		//ajax.emailAutoComplete('#emailinput');
 	} );

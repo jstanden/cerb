@@ -70,13 +70,14 @@
 	</tr>
 </table>
 
-<button type="button" onclick="genericPanel.dialog('close');genericAjaxPost('formComposePeek', 'view{$view_id}')"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')}</button>
+<button type="button" onclick="genericAjaxPopupClose('peek');genericAjaxPost('formComposePeek', 'view{$view_id}')"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')}</button>
 <br>
 </form>
 
 <script language="JavaScript1.2" type="text/javascript">
-	genericPanel.one('dialogopen',function(event,ui) {
-		genericPanel.dialog('option','title','Compose');
+	var $popup = genericAjaxPopupFetch('peek');
+	$popup.one('dialogopen',function(event,ui) {
+		$popup.dialog('option','title','Compose');
 		ajax.emailAutoComplete('#emailinput', { multiple: true } );
 		$('#formComposePeek :input:text:first').focus().select();
 	} );

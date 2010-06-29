@@ -48,8 +48,9 @@
 </form>
 
 <script language="JavaScript1.2" type="text/javascript">
-	genericPanel.one('dialogopen',function(event,ui) {
-		genericPanel.dialog('option','title','Knowledgebase Article');
+	var $popup = genericAjaxPopupFetch('peek');
+	$popup.one('dialogopen',function(event,ui) {
+		$popup.dialog('option','title','Knowledgebase Article');
 		$("#kbArticleTabs").tabs();
 		$('#frmKbEditPanel :input:text:first').focus().select();
 		
@@ -69,7 +70,7 @@
 		} );
 		
 		$('#btnKbArticleEditSave').bind('click', function() {
-			genericPanel.dialog('close');
+			genericAjaxPopupClose('peek');
 			genericAjaxPost('frmKbEditPanel', '', '', function(json) {
 			{if !empty($view_id)}
 			genericAjaxGet('view{$view_id}','c=internal&a=viewRefresh&id={$view_id|escape}');

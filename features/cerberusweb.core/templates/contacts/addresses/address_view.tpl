@@ -55,7 +55,7 @@
 	<tbody onmouseover="$(this).find('tr').addClass('hover');" onmouseout="$(this).find('tr').removeClass('hover');" onclick="if(getEventTarget(event)=='TD') { var $chk=$(this).find('input:checkbox:first');if(!$chk) return;$chk.attr('checked', !$chk.is(':checked')); } ">
 		<tr class="{$tableRowClass}">
 			<td align="center" rowspan="2"><input type="checkbox" name="row_id[]" value="{$result.a_id}"></td>
-			<td colspan="{math equation="x" x=$smarty.foreach.headers.total}">{if $result.a_is_banned}(banned) {/if}<a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showAddressPeek&email={$result.a_email|escape:'url'}&view_id={$view->id}',null,false,'550');" class="subject">{$result.a_email}</a></td>
+			<td colspan="{math equation="x" x=$smarty.foreach.headers.total}">{if $result.a_is_banned}(banned) {/if}<a href="javascript:;" onclick="genericAjaxPopup('peek','c=contacts&a=showAddressPeek&email={$result.a_email|escape:'url'}&view_id={$view->id}',null,false,'550');" class="subject">{$result.a_email}</a></td>
 		</tr>
 		<tr class="{$tableRowClass}">
 		{foreach from=$view->view_columns item=column name=columns}
@@ -66,7 +66,7 @@
 			{elseif $column=="o_name"}
 			<td>
 				{if !empty($result.o_name)}
-				<a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showOrgPeek&id={$result.a_contact_org_id}&view_id={$view->id}',null,false,'600');">{$result.o_name}</a>
+				<a href="javascript:;" onclick="genericAjaxPopup('peek','c=contacts&a=showOrgPeek&id={$result.a_contact_org_id}&view_id={$view->id}',null,false,'600');">{$result.o_name}</a>
 				{/if}
 			</td>
 			{elseif $column=="a_is_banned"}

@@ -60,8 +60,9 @@
 		} );
 	}
 	
-	genericPanel.one('dialogopen',function(event,ui) {
-		genericPanel.dialog('option','title','Link {$context->manifest->name}');
+	var $popup = genericAjaxPopupFetch('chooser');
+	$popup.one('dialogopen',function(event,ui) {
+		$popup.dialog('option','title','Link {$context->manifest->name}');
 		$('#frmContextLink :input:text:first').focus().select();
 		ajax.emailAutoComplete('#frmContextLink :input:text:first');
 		

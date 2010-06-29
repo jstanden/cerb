@@ -8,7 +8,7 @@
 			{else}
 				{assign var=note_worker_id value=$note->worker_id}
 				{if $workers.$note_worker_id}
-					<h3 style="display:inline;"><span style="color:rgb(222,73,0);background-color:rgb(255,235,104);">{$translate->_('display.ui.sticky_note')|lower}</span> <a href="javascript:;" onclick="genericAjaxPanel('c=contacts&a=showAddressPeek&email={$workers.$note_worker_id->email|escape:'url'}', this, false, '500');" title="{$workers.$note_worker_id->email|escape}">{if empty($workers.$note_worker_id->first_name) && empty($workers.$note_worker_id->last_name)}&lt;{$workers.$note_worker_id->email}&gt;{else}{$workers.$note_worker_id->getName()}{/if}</a></h3>&nbsp;
+					<h3 style="display:inline;"><span style="color:rgb(222,73,0);background-color:rgb(255,235,104);">{$translate->_('display.ui.sticky_note')|lower}</span> <a href="javascript:;" onclick="genericAjaxPopup('peek','c=contacts&a=showAddressPeek&email={$workers.$note_worker_id->email|escape:'url'}', this, false, '500');" title="{$workers.$note_worker_id->email|escape}">{if empty($workers.$note_worker_id->first_name) && empty($workers.$note_worker_id->last_name)}&lt;{$workers.$note_worker_id->email}&gt;{else}{$workers.$note_worker_id->getName()}{/if}</a></h3>&nbsp;
 				{else}
 					<h3 style="display:inline;"><span style="color:rgb(222,73,0);background-color:rgb(255,235,104);">{$translate->_('display.ui.sticky_note')|lower}</span> (Deleted Worker)</h3>&nbsp;
 				{/if}

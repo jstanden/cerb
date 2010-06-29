@@ -21,21 +21,16 @@
 </form>
 
 <script type="text/javascript" language="JavaScript1.2">
-	genericPanel.one('dialogopen',function(event,ui) {
-		genericPanel.dialog('option','title','Recipients');
+	var $popup = genericAjaxPopupFetch('peek');
+	$popup.one('dialogopen',function(event,ui) {
+		$popup.dialog('option','title','Recipients');
 		
 		//ajax.emailAutoComplete('#formDisplayReq textarea[name=req_adds]', { multiple: true } );
 		
 		$('#btnSaveRequestersPanel').bind('click', function() {
 			genericAjaxPost('formDisplayReq','','',
 				function(html) {
-					if(null != genericPanel) {
-						try {
-							genericPanel.dialog('close');
-							genericPanel = null;
-						} catch(e) {}
-					}
-					
+					genericAjaxPopupClose('peek');
 					genericAjaxGet('displayTicketRequesterBubbles', 'c=display&a=requestersRefresh&ticket_id={$ticket_id}');
 				}
 			);

@@ -16,12 +16,13 @@
 <input type="text" name="email" size="45" value=""><br>
 <br>
 
-<button type="button" onclick="genericPanel.dialog('close');this.form.submit();"><span class="cerb-sprite sprite-export"></span> {'common.export'|devblocks_translate|capitalize}</button>
+<button type="button" onclick="genericAjaxPopupClose('peek');this.form.submit();"><span class="cerb-sprite sprite-export"></span> {'common.export'|devblocks_translate|capitalize}</button>
 
 </form>
 
 <script type="text/javascript" language="JavaScript1.2">
-	genericPanel.one('dialogopen', function(event,ui) {
-		genericPanel.dialog('option','title',"{'common.export'|devblocks_translate|capitalize|escape:'quotes'}");
+	var $popup = genericAjaxPopupFetch('peek');
+	$popup.one('dialogopen', function(event,ui) {
+		$popup.dialog('option','title',"{'common.export'|devblocks_translate|capitalize|escape:'quotes'}");
 	} );
 </script>

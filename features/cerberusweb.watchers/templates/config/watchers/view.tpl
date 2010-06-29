@@ -58,7 +58,7 @@
 				{if $result.wmf_is_disabled}
 					<span class="cerb-sprite sprite-delete_gray" title="{'common.disabled'|devblocks_translate|capitalize}"></span>
 				{/if}
-				<a href="javascript:;" onclick="genericAjaxPanel('c=preferences&a=handleTabAction&tab=core.pref.notifications&action=showWatcherPanel&id={$result.wmf_id}&view_id={$view->id}',null,false,'550');" class="subject">{$result.wmf_name}</a>
+				<a href="javascript:;" onclick="genericAjaxPopup('peek','c=preferences&a=handleTabAction&tab=core.pref.notifications&action=showWatcherPanel&id={$result.wmf_id}&view_id={$view->id}',null,false,'550');" class="subject">{$result.wmf_name}</a>
 			</td>
 		</tr>
 		<tr class="{$tableRowClass}">
@@ -82,7 +82,7 @@
 	{if $total}
 	<tr>
 		<td colspan="2">
-			<button type="button" onclick="genericAjaxPanel('c=preferences&a=handleTabAction&tab=core.pref.notifications&action=showWatcherBulkPanel&view_id={$view->id}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','row_id[]'),null,false,'500');"><span class="cerb-sprite sprite-folder_gear"></span> {'common.bulk_update'|devblocks_translate|lower}</button>
+			<button type="button" onclick="genericAjaxPopup('peek','c=preferences&a=handleTabAction&tab=core.pref.notifications&action=showWatcherBulkPanel&view_id={$view->id}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','row_id[]'),null,false,'500');"><span class="cerb-sprite sprite-folder_gear"></span> {'common.bulk_update'|devblocks_translate|lower}</button>
 		</td>
 	</tr>
 	{/if}

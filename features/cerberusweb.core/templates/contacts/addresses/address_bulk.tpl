@@ -84,8 +84,9 @@
 </form>
 
 <script language="JavaScript1.2" type="text/javascript">
-	genericPanel.one('dialogopen',function(event,ui) {
-		genericPanel.dialog('option','title',"{$translate->_('common.bulk_update')|capitalize|escape:'quotes'}");
+	var $panel = genericAjaxPopupFetch('peek');
+	$panel.one('dialogopen',function(event,ui) {
+		$panel.dialog('option','title',"{$translate->_('common.bulk_update')|capitalize|escape:'quotes'}");
 		ajax.orgAutoComplete('#orginput');
 	} );
 </script>

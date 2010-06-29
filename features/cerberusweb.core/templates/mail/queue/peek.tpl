@@ -36,7 +36,7 @@
 	</tr>
 </table>
 
-<div id="draftPeekContent" style="width:400;height:250px;overflow:auto;border:1px solid rgb(180,180,180);padding:5px;background-color:rgb(255,255,255);" ondblclick="if(null != genericPanel) genericPanel.dialog('close');">
+<div id="draftPeekContent" style="width:400;height:250px;overflow:auto;border:1px solid rgb(180,180,180);padding:5px;background-color:rgb(255,255,255);" ondblclick="genericAjaxPopupClose('peek');">
 <pre class="emailbody">{$draft->body|trim|escape|devblocks_hyperlinks|devblocks_hideemailquotes}</pre>
 </div>
 
@@ -45,8 +45,8 @@
 <br>
 
 {if $active_worker->id==$draft->worker_id || $active_worker->is_superuser}
-	{*<button type="button" onclick="genericPanel.dialog('close');genericAjaxPost('formDraftPeek', 'view{$view_id}');"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')}</button>*}
-	{*{if !empty($task)}<button type="button" onclick="if(confirm('Are you sure you want to permanently delete this draft?')) { $('#formDraftPeek input[name=do_delete]').val('1'); genericAjaxPost('formDraftPeek', 'view{$view_id}'); genericPanel.dialog('close'); } "><span class="cerb-sprite sprite-delete2"></span> {$translate->_('common.delete')|capitalize}</button>{/if}*}
+	{*<button type="button" onclick="genericAjaxPopupClose('peek');genericAjaxPost('formDraftPeek', 'view{$view_id}');"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')}</button>*}
+	{*{if !empty($task)}<button type="button" onclick="if(confirm('Are you sure you want to permanently delete this draft?')) { $('#formDraftPeek input[name=do_delete]').val('1'); genericAjaxPost('formDraftPeek', 'view{$view_id}'); genericAjaxPopupClose('peek'); } "><span class="cerb-sprite sprite-delete2"></span> {$translate->_('common.delete')|capitalize}</button>{/if}*}
 {else}
 	<div class="error">{'error.core.no_acl.edit'|devblocks_translate}</div>
 {/if}
@@ -54,8 +54,9 @@
 </form>
 
 <script language="JavaScript1.2" type="text/javascript">
-	genericPanel.one('dialogopen',function(event,ui) {
-		genericPanel.dialog('option','title','{if $draft->is_queued}Queued Message{else}Draft{/if}');
+	var $popup = genericAjaxPopupFetch('peek');
+	$popup.one('dialogopen',function(event,ui) {
+		$popup.dialog('option','title','{if $draft->is_queued}Queued Message{else}Draft{/if}');
 		$('#formDraftPeek :input:text:first').focus().select();
 		$("#draftPeekContent").css('width','98%');
 	} );
