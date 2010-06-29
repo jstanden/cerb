@@ -307,6 +307,7 @@ function genericAjaxPopup($ns,request,target,modal,width,cb) {
 			// Render
 			$popup.dialog(options);
 			$popup.dialog('open');
+			$popup.trigger('popup_open');
 			
 			// Callback
 			try { cb(html); } catch(e) { }
@@ -336,7 +337,7 @@ function genericAjaxPopupPostCloseReloadView($ns, frm, view_id, has_output) {
 
 			$popup = genericAjaxPopupFetch($ns);
 			if(null != $popup) {
-				$popup.trigger('devblocks_popupsaved');
+				$popup.trigger('popup_saved');
 				genericAjaxPopupDestroy($ns);
 			}
 		}
@@ -353,7 +354,7 @@ function genericAjaxGet(divName,args,cb) {
 		var cb = function(html) {
 			$('#'+divName).html(html);
 			$('#'+divName).fadeTo("normal", 1.0);
-			$('#'+divName).trigger('devblocks.refresh');
+			$('#'+divName).trigger('view_refresh');
 		}
 	}
 	
@@ -375,7 +376,7 @@ function genericAjaxPost(formName,divName,args,cb) {
 		var cb = function(html) {
 			$('#'+divName).html(html);
 			$('#'+divName).fadeTo("normal", 1.0);
-			$('#'+divName).trigger('devblocks.refresh');
+			$('#'+divName).trigger('view_refresh');
 		};
 	}
 

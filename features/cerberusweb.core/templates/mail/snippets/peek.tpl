@@ -34,7 +34,7 @@
 
 <script language="JavaScript1.2" type="text/javascript">
 	var $popup = genericAjaxPopupFetch('peek');
-	$popup.one('dialogopen',function(event,ui) {
+	$popup.one('popup_open',function(event,ui) {
 		{if empty($snippet->id)}
 		$popup.dialog('option','title', 'Create Snippet ({$snippet->context})');
 		{else}

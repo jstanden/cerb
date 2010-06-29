@@ -55,7 +55,7 @@
 
 <script language="JavaScript1.2" type="text/javascript">
 	var $popup = genericAjaxPopupFetch('peek');
-	$popup.one('dialogopen',function(event,ui) {
+	$popup.one('popup_open',function(event,ui) {
 		$popup.dialog('option','title','{if $draft->is_queued}Queued Message{else}Draft{/if}');
 		$('#formDraftPeek :input:text:first').focus().select();
 		$("#draftPeekContent").css('width','98%');

@@ -166,7 +166,7 @@
 			expanded=false;
 		
 		var $popup = genericAjaxPopupFetch('peek');
-		$popup.one('devblocks_popupsaved',function(e) {
+		$popup.one('popup_saved',function(e) {
 			if(expanded) 
 				$('#btnMsgMax' + msgid).click();
 			else 

@@ -14,7 +14,7 @@
 
 <script type="text/javascript" language="JavaScript1.2">
 	var $popup = genericAjaxPopupFetch('peek');
-	$popup.one('dialogopen', function(event,ui) {
+	$popup.one('popup_open', function(event,ui) {
 		$popup.dialog('option','title',"{'common.import'|devblocks_translate|capitalize|escape:'quotes'}");
 	} );
 </script>

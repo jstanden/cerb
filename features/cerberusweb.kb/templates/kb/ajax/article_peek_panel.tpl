@@ -8,7 +8,7 @@
 
 <script language="JavaScript1.2" type="text/javascript">
 	var $popup = genericAjaxPopupFetch('peek');
-	$popup.one('dialogopen',function(event,ui) {
+	$popup.one('popup_open',function(event,ui) {
 		$popup.dialog('option','title','{$article->title|escape}');
 		$('#frmKbEditPanel :input:text:first').focus().select();
 	} );

@@ -61,12 +61,12 @@
 	}
 	
 	var $popup = genericAjaxPopupFetch('chooser');
-	$popup.one('dialogopen',function(event,ui) {
+	$popup.one('popup_open',function(event,ui) {
 		$popup.dialog('option','title','Link {$context->manifest->name}');
 		$('#frmContextLink :input:text:first').focus().select();
 		ajax.emailAutoComplete('#frmContextLink :input:text:first');
 		
-		$('#viewCustomFilters{$view->id}').bind('devblocks.refresh', function(event) {
+		$('#viewCustomFilters{$view->id}').bind('view_refresh', function(event) {
 			if(event.target == event.currentTarget)
 				genericAjaxGet('view{$view->id}','c=internal&a=viewRefresh&id={$view->id|escape}');
 		} );

@@ -58,7 +58,7 @@
 
 <script language="JavaScript1.2" type="text/javascript">
 	var $popup = genericAjaxPopupFetch('peek');
-	$popup.one('dialogopen',function(event,ui) {
+	$popup.one('popup_open',function(event,ui) {
 		// Title
 		$popup.dialog('option','title', "{'contact_org.name'|devblocks_translate|capitalize|escape:'quotes'}");
 		// Autocomplete

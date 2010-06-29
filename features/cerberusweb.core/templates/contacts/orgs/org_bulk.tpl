@@ -31,7 +31,7 @@
 
 <script type="text/javascript" language="JavaScript1.2">
 	var $popup = genericAjaxPopupFetch('peek');
-	$popup.one('dialogopen', function(event,ui) {
+	$popup.one('popup_open', function(event,ui) {
 		$popup.dialog('option','title',"{'common.bulk_update'|devblocks_translate|escape:'quotes'}");
 	} );
 </script>
