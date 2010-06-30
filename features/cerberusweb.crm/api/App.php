@@ -1375,11 +1375,11 @@ class DAO_CrmOpportunity extends C4_ORMHelper {
 		$join_sql = 
 			"FROM crm_opportunity o ".
 			"LEFT JOIN address a ON (a.id = o.primary_email_id) ".
-			"LEFT JOIN contact_org org ON (org.id = a.contact_org_id) "
-		;
+			"LEFT JOIN contact_org org ON (org.id = a.contact_org_id) ".
 			
 			// [JAS]: Dynamic table joins
-//			(isset($tables['m']) ? "INNER JOIN requester r ON (r.ticket_id=t.id)" : " ").
+			(isset($tables['context_link']) ? "INNER JOIN context_link ON (context_link.to_context = 'cerberusweb.contexts.opportunity' AND context_link.to_context_id = o.id) " : " ")
+			;
 			
 		// Custom field joins
 		list($select_sql, $join_sql, $has_multiple_values) = self::_appendSelectJoinSqlForCustomFieldTables(
@@ -1452,6 +1452,9 @@ class SearchFields_CrmOpportunity implements IDevblocksSearchFields {
 	const EMAIL_LAST_NAME = 'a_last_name';
 	const EMAIL_NUM_SPAM = 'a_num_spam';
 	const EMAIL_NUM_NONSPAM = 'a_num_nonspam';
+
+	const CONTEXT_LINK = 'cl_context_from';
+	const CONTEXT_LINK_ID = 'cl_context_from_id';
 	
 	/**
 	 * @return DevblocksSearchField[]
@@ -1480,6 +1483,9 @@ class SearchFields_CrmOpportunity implements IDevblocksSearchFields {
 			self::IS_WON => new DevblocksSearchField(self::IS_WON, 'o', 'is_won', $translate->_('crm.opportunity.is_won')),
 			self::IS_CLOSED => new DevblocksSearchField(self::IS_CLOSED, 'o', 'is_closed', $translate->_('crm.opportunity.is_closed')),
 			self::WORKER_ID => new DevblocksSearchField(self::WORKER_ID, 'o', 'worker_id', $translate->_('crm.opportunity.worker_id')),
+			
+			self::CONTEXT_LINK => new DevblocksSearchField(self::CONTEXT_LINK, 'context_link', 'from_context', null),
+			self::CONTEXT_LINK_ID => new DevblocksSearchField(self::CONTEXT_LINK_ID, 'context_link', 'from_context_id', null),
 		);
 		
 		// Custom Fields
@@ -1532,6 +1538,8 @@ class View_CrmOpportunity extends C4_AbstractView {
 			SearchFields_CrmOpportunity::ID,
 			SearchFields_CrmOpportunity::PRIMARY_EMAIL_ID,
 			SearchFields_CrmOpportunity::ORG_ID,
+			SearchFields_CrmOpportunity::CONTEXT_LINK,
+			SearchFields_CrmOpportunity::CONTEXT_LINK_ID,
 		);
 		
 		$this->paramsDefault = array(
@@ -1541,6 +1549,8 @@ class View_CrmOpportunity extends C4_AbstractView {
 			SearchFields_CrmOpportunity::ID,
 			SearchFields_CrmOpportunity::PRIMARY_EMAIL_ID,
 			SearchFields_CrmOpportunity::ORG_ID,
+			SearchFields_CrmOpportunity::CONTEXT_LINK,
+			SearchFields_CrmOpportunity::CONTEXT_LINK_ID,
 		);
 		
 		$this->doResetCriteria();
@@ -2057,47 +2067,10 @@ class Context_Opportunity extends Extension_DevblocksContext {
 		return true;
 	}
 
-	function renderChooserPanel($from_context, $from_context_id, $to_context, $return_uri) {
+	function getChooserView() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		$tpl = DevblocksPlatform::getTemplateService();
-		$path = APP_PATH . '/features/cerberusweb.core/templates/';
-		$tpl->assign('path', $path);
-		
-		$tpl->assign('context', $this);
-		$tpl->assign('from_context', $from_context);
-		$tpl->assign('from_context_id', $from_context_id);
-		$tpl->assign('to_context', $to_context);
-		$tpl->assign('context_extension', $this);
-		$tpl->assign('return_uri', $return_uri);
-		
-		$links = DAO_ContextLink::getLinks($from_context, $from_context_id);
-		$ids = array();
-		
-		if(is_array($links))
-		foreach($links as $link) {
-			if($link->context !== $to_context)
-				continue;
-			$ids[] = $link->context_id;
-		}
-		
-		if(!empty($ids)) {
-			$links = array();
-			$link_ids = DAO_CrmOpportunity::getWhere(sprintf("%s IN (%s)",
-				DAO_CrmOpportunity::ID,
-				implode(',', $ids)
-			));
-			
-			if(is_array($link_ids))
-			foreach($link_ids as $link_id => $link) {
-				$links[$link_id] = sprintf("%s", $link->name);
-			}
-			
-			$tpl->assign('links', $links);
-		}
-		
 		// View
-		
 		$view_id = 'contextlink_'.str_replace('.','_',$this->id);
 		$defaults = new C4_AbstractViewModel();
 		$defaults->id = $view_id; 
@@ -2118,26 +2091,12 @@ class Context_Opportunity extends Extension_DevblocksContext {
 		$view->renderSortAsc = false;
 		$view->renderLimit = 10;
 		$view->renderTemplate = 'contextlinks_chooser';
+		
 		C4_AbstractViewLoader::setView($view_id, $view);
-		$tpl->assign('view', $view);
-
-		// Template
-		
-		$tpl->display('file:'.$path.'context_links/choosers/__generic.tpl');
-	}	
-	
-	function saveChooserPanel($from_context, $from_context_id, $to_context, $to_context_data) {
-		if(is_array($to_context_data))
-		foreach($to_context_data as $to_context_item) {
-			if(!empty($to_context) && null != ($opp = DAO_CrmOpportunity::get($to_context_item))) {
-				DAO_ContextLink::setLink($from_context, $from_context_id, $to_context, $opp->id);
-			}
-		}
-		
-		return TRUE;
+		return $view;
 	}
 	
-	function getView($ids) {
+	function getView($context, $context_id) {
 		$view_id = str_replace('.','_',$this->id);
 		
 		$defaults = new C4_AbstractViewModel();
@@ -2146,8 +2105,10 @@ class Context_Opportunity extends Extension_DevblocksContext {
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = 'Opportunities';
 		$view->addParams(array(
-			SearchFields_CrmOpportunity::ID => new DevblocksSearchCriteria(SearchFields_CrmOpportunity::ID,'in',$ids),
+			new DevblocksSearchCriteria(SearchFields_CrmOpportunity::CONTEXT_LINK,'=',$context),
+			new DevblocksSearchCriteria(SearchFields_CrmOpportunity::CONTEXT_LINK_ID,'=',$context_id),
 		), true);
+		$view->renderTemplate = 'context';
 		C4_AbstractViewLoader::setView($view_id, $view);
 		return $view;
 	}

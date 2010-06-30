@@ -276,8 +276,12 @@ class DAO_ContactOrg extends C4_ORMHelper {
 			);
 
 		$join_sql = 
-			"FROM contact_org c ";
+			"FROM contact_org c ".
 			
+			// [JAS]: Dynamic table joins
+			(isset($tables['context_link']) ? "INNER JOIN context_link ON (context_link.to_context = 'cerberusweb.contexts.org' AND context_link.to_context_id = c.id) " : " ")
+			;		
+		
 		// Custom field joins
 		list($select_sql, $join_sql, $has_multiple_values) = self::_appendSelectJoinSqlForCustomFieldTables(
 			$tables,
@@ -345,6 +349,9 @@ class SearchFields_ContactOrg {
 	const WEBSITE = 'c_website';
 	const CREATED = 'c_created';
 
+	const CONTEXT_LINK = 'cl_context_from';
+	const CONTEXT_LINK_ID = 'cl_context_from_id';
+	
 	/**
 	 * @return DevblocksSearchField[]
 	 */
@@ -362,6 +369,9 @@ class SearchFields_ContactOrg {
 			self::PHONE => new DevblocksSearchField(self::PHONE, 'c', 'phone', $translate->_('contact_org.phone')),
 			self::WEBSITE => new DevblocksSearchField(self::WEBSITE, 'c', 'website', $translate->_('contact_org.website')),
 			self::CREATED => new DevblocksSearchField(self::CREATED, 'c', 'created', $translate->_('contact_org.created')),
+			
+			self::CONTEXT_LINK => new DevblocksSearchField(self::CONTEXT_LINK, 'context_link', 'from_context', null),
+			self::CONTEXT_LINK_ID => new DevblocksSearchField(self::CONTEXT_LINK_ID, 'context_link', 'from_context_id', null),
 		);
 		
 		// Custom Fields
@@ -412,10 +422,14 @@ class View_ContactOrg extends C4_AbstractView {
 			SearchFields_ContactOrg::WEBSITE,
 		);
 		$this->columnsHidden = array(
+			SearchFields_ContactOrg::CONTEXT_LINK,
+			SearchFields_ContactOrg::CONTEXT_LINK_ID,
 		);
 		
 		$this->paramsHidden = array(
 			SearchFields_ContactOrg::ID,
+			SearchFields_ContactOrg::CONTEXT_LINK,
+			SearchFields_ContactOrg::CONTEXT_LINK_ID,
 		);
 		
 		$this->doResetCriteria();
@@ -691,47 +705,8 @@ class Context_Org extends Extension_DevblocksContext {
 		return true;		
 	}
 
-	function renderChooserPanel($from_context, $from_context_id, $to_context, $return_uri) {
-		$tpl = DevblocksPlatform::getTemplateService();
-		$path = dirname(dirname(dirname(__FILE__))) . '/templates/';
-		$tpl->assign('path', $path);
-		
-		$tpl->assign('context', $this);
-		$tpl->assign('from_context', $from_context);
-		$tpl->assign('from_context_id', $from_context_id);
-		$tpl->assign('to_context', $to_context);
-		$tpl->assign('context_extension', $this);
-		$tpl->assign('return_uri', $return_uri);
-		
-		$links = DAO_ContextLink::getLinks($from_context, $from_context_id);
-		$ids = array();
-		
-		if(is_array($links))
-		foreach($links as $link) {
-			if($link->context !== $to_context)
-				continue;
-			$ids[] = $link->context_id;
-		}
-		
-		if(!empty($ids)) {
-			$links = array();
-			$link_ids = DAO_ContactOrg::getWhere(
-				sprintf("%s IN (%s)",
-					DAO_ContactOrg::ID,
-					implode(',', $ids)
-				)
-			);
-			
-			if(is_array($link_ids))
-			foreach($link_ids as $link_id => $link) {
-				$links[$link_id] = $link->name;
-			}
-			
-			$tpl->assign('links', $links);
-		}
-		
+	function getChooserView() {
 		// View
-		
 		$view_id = 'contextlink_'.str_replace('.','_',$this->id);
 		$defaults = new C4_AbstractViewModel();
 		$defaults->id = $view_id; 
@@ -751,26 +726,10 @@ class Context_Org extends Extension_DevblocksContext {
 		$view->renderTemplate = 'contextlinks_chooser';
 		
 		C4_AbstractViewLoader::setView($view_id, $view);
-		
-		$tpl->assign('view', $view);
-
-		// Template
-		
-		$tpl->display('file:'.$path.'context_links/choosers/__generic.tpl');
-	}	
-	
-	function saveChooserPanel($from_context, $from_context_id, $to_context, $to_context_data) {
-		if(is_array($to_context_data))
-		foreach($to_context_data as $to_context_item) {
-			if(!empty($to_context) && null != ($org = DAO_ContactOrg::get($to_context_item))) {
-				DAO_ContextLink::setLink($from_context, $from_context_id, $to_context, $org->id);
-			}
-		}
-		
-		return TRUE;
+		return $view;		
 	}
 	
-	function getView($ids) {
+	function getView($context, $context_id) {
 		$view_id = str_replace('.','_',$this->id);
 		
 		$defaults = new C4_AbstractViewModel();
@@ -779,8 +738,10 @@ class Context_Org extends Extension_DevblocksContext {
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = 'Organizations';
 		$view->addParams(array(
-			SearchFields_ContactOrg::ID => new DevblocksSearchCriteria(SearchFields_ContactOrg::ID,'in',$ids),
+			new DevblocksSearchCriteria(SearchFields_ContactOrg::CONTEXT_LINK,'=',$context),
+			new DevblocksSearchCriteria(SearchFields_ContactOrg::CONTEXT_LINK_ID,'=',$context_id),
 		), true);
+		$view->renderTemplate = 'context';
 		C4_AbstractViewLoader::setView($view_id, $view);
 		return $view;
 	}

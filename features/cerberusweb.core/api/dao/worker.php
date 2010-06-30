@@ -497,7 +497,11 @@ class DAO_Worker extends C4_ORMHelper {
 			    SearchFields_Worker::IS_DISABLED
 			);
 			
-		$join_sql = "FROM worker w ";
+		$join_sql = "FROM worker w ".
+
+		// Dynamic joins
+		(isset($tables['context_link']) ? "INNER JOIN context_link ON (context_link.to_context = 'cerberusweb.contexts.worker' AND context_link.to_context_id = w.id) " : " ")
+		;
 		
 		// Custom field joins
 		list($select_sql, $join_sql, $has_multiple_values) = self::_appendSelectJoinSqlForCustomFieldTables(
@@ -571,6 +575,9 @@ class SearchFields_Worker implements IDevblocksSearchFields {
 	const LAST_ACTIVITY_DATE = 'w_last_activity_date';
 	const IS_DISABLED = 'w_is_disabled';
 	
+	const CONTEXT_LINK = 'cl_context_from';
+	const CONTEXT_LINK_ID = 'cl_context_from_id';
+	
 	/**
 	 * @return DevblocksSearchField[]
 	 */
@@ -587,6 +594,9 @@ class SearchFields_Worker implements IDevblocksSearchFields {
 			self::LAST_ACTIVITY => new DevblocksSearchField(self::LAST_ACTIVITY, 'w', 'last_activity', $translate->_('worker.last_activity')),
 			self::LAST_ACTIVITY_DATE => new DevblocksSearchField(self::LAST_ACTIVITY_DATE, 'w', 'last_activity_date', $translate->_('worker.last_activity_date')),
 			self::IS_DISABLED => new DevblocksSearchField(self::IS_DISABLED, 'w', 'is_disabled', ucwords($translate->_('common.disabled'))),
+			
+			self::CONTEXT_LINK => new DevblocksSearchField(self::CONTEXT_LINK, 'context_link', 'from_context', null),
+			self::CONTEXT_LINK_ID => new DevblocksSearchField(self::CONTEXT_LINK_ID, 'context_link', 'from_context_id', null),
 		);
 		
 		// Custom Fields
@@ -713,10 +723,14 @@ class View_Worker extends C4_AbstractView {
 		
 		$this->columnsHidden = array(
 			SearchFields_Worker::LAST_ACTIVITY,
+			SearchFields_Worker::CONTEXT_LINK,
+			SearchFields_Worker::CONTEXT_LINK_ID,
 		);
 		$this->paramsHidden = array(
 			SearchFields_Worker::ID,
 			SearchFields_Worker::LAST_ACTIVITY,
+			SearchFields_Worker::CONTEXT_LINK,
+			SearchFields_Worker::CONTEXT_LINK_ID,
 		);
 		
 		$this->doResetCriteria();
@@ -1077,48 +1091,9 @@ class Context_Worker extends Extension_DevblocksContext {
 		return true;		
 	}
 	
-	function renderChooserPanel($from_context, $from_context_id, $to_context, $return_uri) {
-		$tpl = DevblocksPlatform::getTemplateService();
-		$path = dirname(dirname(dirname(__FILE__))) . '/templates/';
-		$tpl->assign('path', $path);
-		
-		$tpl->assign('context', $this);
-		$tpl->assign('from_context', $from_context);
-		$tpl->assign('from_context_id', $from_context_id);
-		$tpl->assign('to_context', $to_context);
-		$tpl->assign('context_extension', $this);
-		$tpl->assign('return_uri', $return_uri);
-		
-		$links = DAO_ContextLink::getLinks($from_context, $from_context_id);
-		$ids = array();
-		
-		if(is_array($links))
-		foreach($links as $link) {
-			if($link->context !== $to_context)
-				continue;
-			$ids[] = $link->context_id;
-		}
-		
-		if(!empty($ids)) {
-			$links = array();
-			$link_ids = DAO_Worker::getWhere(
-				sprintf("%s IN (%s)",
-					DAO_Worker::ID,
-					implode(',', $ids)
-				)
-			);
-			
-			if(is_array($link_ids))
-			foreach($link_ids as $link_id => $link) {
-				$links[$link_id] = $link->getName();
-			}
-			
-			$tpl->assign('links', $links);
-		}
-		
+	function getChooserView() {
 		// View
-		
-		$view_id = 'contextlink_'.str_replace('.','_',$this->id);
+		$view_id = 'chooser_'.str_replace('.','_',$this->id);
 		$defaults = new C4_AbstractViewModel();
 		$defaults->id = $view_id; 
 		$defaults->class_name = 'View_Worker';
@@ -1135,25 +1110,11 @@ class Context_Worker extends Extension_DevblocksContext {
 		$view->renderLimit = 10;
 		$view->renderTemplate = 'contextlinks_chooser';
 		C4_AbstractViewLoader::setView($view_id, $view);
-		$tpl->assign('view', $view);
-
-		// Template
 		
-		$tpl->display('file:'.$path.'context_links/choosers/__generic.tpl');
+		return $view;
 	}
 	
-	function saveChooserPanel($from_context, $from_context_id, $to_context, $to_context_data) {
-		if(is_array($to_context_data))
-		foreach($to_context_data as $to_context_item) {
-			if(!empty($to_context) && null != ($worker = DAO_Worker::get($to_context_item))) {
-				DAO_ContextLink::setLink($from_context, $from_context_id, $to_context, $worker->id);
-			}
-		}
-		
-		return TRUE;
-	}
-	
-	function getView($ids) {
+	function getView($context, $context_id) {
 		$view_id = str_replace('.','_',$this->id);
 		
 		$defaults = new C4_AbstractViewModel();
@@ -1162,8 +1123,10 @@ class Context_Worker extends Extension_DevblocksContext {
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = 'Workers';
 		$view->addParams(array(
-			SearchFields_Worker::ID => new DevblocksSearchCriteria(SearchFields_Worker::ID,'in',$ids),
+			new DevblocksSearchCriteria(SearchFields_Worker::CONTEXT_LINK,'=',$context),
+			new DevblocksSearchCriteria(SearchFields_Worker::CONTEXT_LINK_ID,'=',$context_id),
 		), true);
+		$view->renderTemplate = 'context';
 		C4_AbstractViewLoader::setView($view_id, $view);
 		return $view;
 	}

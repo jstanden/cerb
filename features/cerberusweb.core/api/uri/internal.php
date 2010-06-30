@@ -138,10 +138,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		foreach($context_links as $link) {
 			if(!isset($contexts[$link->context]))
 				$contexts[$link->context] = array();
-			
-			$contexts[$link->context][] = $link->context_id;
 		}
-		
 		unset($context_links);
 		
 		foreach($contexts as $ctx => $ids) {
@@ -151,7 +148,7 @@ class ChInternalController extends DevblocksControllerExtension {
 			if(!$ext_context instanceof Extension_DevblocksContext)
 				continue;
 				
-			$view = $ext_context->getView($ids);
+			$view = $ext_context->getView($context, $context_id);
 			
 			if(!empty($view))
 				$views[$view->id] = $view;
@@ -164,47 +161,39 @@ class ChInternalController extends DevblocksControllerExtension {
 		$tpl->display('file:'.$this->_TPL_PATH.'context_links/tab.tpl');
 	}	
 	
-	function contextLinkAddPeekAction() {
-		@$from_context = DevblocksPlatform::importGPC($_REQUEST['from_context'],'string');
-		@$from_context_id = DevblocksPlatform::importGPC($_REQUEST['from_context_id'],'integer');
-		@$to_context = DevblocksPlatform::importGPC($_REQUEST['to_context'],'string');
-		@$return_uri = DevblocksPlatform::importGPC($_REQUEST['return_uri'],'string','');
+	function chooserOpenAction() {
+		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string');
 		
-		if(null != ($context_extension = DevblocksPlatform::getExtension($to_context, true))) {
-			//$tpl->assign('context_extension', $context_extension);
-			$context_extension->renderChooserPanel($from_context, $from_context_id, $to_context, $return_uri);
+		if(null != ($context_extension = DevblocksPlatform::getExtension($context, true))) {
+			$tpl = DevblocksPlatform::getTemplateService();
+			$path = dirname(dirname(dirname(__FILE__))) . '/templates/';
+			$tpl->assign('context', $context_extension);
+			$tpl->assign('view', $context_extension->getChooserView());
+			$tpl->display('file:'.$path.'context_links/choosers/__generic.tpl');
 		}
 	}
 	
-	function contextDeleteLinkAction() {
-		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
-		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer',0);
-		@$dst_context = DevblocksPlatform::importGPC($_REQUEST['dst_context'],'string','');
-		@$dst_context_id = DevblocksPlatform::importGPC($_REQUEST['dst_context_id'],'integer',0);
-		
-		@$return_uri = DevblocksPlatform::importGPC($_REQUEST['return_uri'],'string','');
-		$return_uri = !empty($return_uri) ? explode('/', $return_uri) : array();
-
-		DAO_ContextLink::deleteLink($context, $context_id, $dst_context, $dst_context_id);
-		
-		DevblocksPlatform::redirect(new DevblocksHttpResponse($return_uri));
-	}
-	
-	function saveContextLinkAddPeekAction() {
+	function contextAddLinksAction() {
 		@$from_context = DevblocksPlatform::importGPC($_REQUEST['from_context'],'string','');
 		@$from_context_id = DevblocksPlatform::importGPC($_REQUEST['from_context_id'],'integer',0);
-		@$to_context = DevblocksPlatform::importGPC($_REQUEST['to_context'],'string','');
-		@$ar_to_context_id = DevblocksPlatform::importGPC($_REQUEST['to_context_id'],'array',array());
+		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
+		@$context_ids = DevblocksPlatform::importGPC($_REQUEST['context_id'],'array',array());
 		
-		@$return_uri = DevblocksPlatform::importGPC($_REQUEST['return_uri'],'string','');
-		$return_uri = !empty($return_uri) ? explode('/', $return_uri) : array();
+		if(is_array($context_ids))
+		foreach($context_ids as $context_id)
+			DAO_ContextLink::setLink($context, $context_id, $from_context, $from_context_id, true);
+	}
+	
+	function contextDeleteLinksAction() {
+		@$from_context = DevblocksPlatform::importGPC($_REQUEST['from_context'],'string','');
+		@$from_context_id = DevblocksPlatform::importGPC($_REQUEST['from_context_id'],'integer',0);
+		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
+		@$context_ids = DevblocksPlatform::importGPC($_REQUEST['context_id'],'array',array());
 		
-		if(null != ($context_extension = DevblocksPlatform::getExtension($to_context, true))) {
-			$context_extension->saveChooserPanel($from_context, $from_context_id, $to_context, $ar_to_context_id);
-		}		
-		
-		DevblocksPlatform::redirect(new DevblocksHttpResponse($return_uri));
-	}	
+		if(is_array($context_ids))
+		foreach($context_ids as $context_id)
+			DAO_ContextLink::deleteLink($context, $context_id, $from_context, $from_context_id, true);
+	}
 	
 	// Snippets
 	

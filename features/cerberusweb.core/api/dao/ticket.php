@@ -950,7 +950,8 @@ class DAO_Ticket extends C4_ORMHelper {
 			(isset($tables['ra']) ? "INNER JOIN address ra ON (ra.id=r.address_id) " : " ").
 			(isset($tables['msg']) || isset($tables['ftmc']) ? "INNER JOIN message msg ON (msg.ticket_id=t.id) " : " ").
 			(isset($tables['ftmc']) ? "INNER JOIN fulltext_message_content ftmc ON (ftmc.id=msg.id) " : " ").
-			(isset($tables['mh']) ? "INNER JOIN message_header mh ON (mh.message_id=t.first_message_id) " : " ") // [TODO] Choose between first message and all?
+			(isset($tables['mh']) ? "INNER JOIN message_header mh ON (mh.message_id=t.first_message_id) " : " "). // [TODO] Choose between first message and all?
+			(isset($tables['context_link']) ? "INNER JOIN context_link ON (context_link.to_context = 'cerberusweb.contexts.ticket' AND context_link.to_context_id = t.id) " : " ")
 			;
 			
 		// Org joins
@@ -1055,6 +1056,9 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 	// Message Content
 	const FULLTEXT_MESSAGE_CONTENT = 'ftmc_content';
 	
+	const CONTEXT_LINK = 'cl_context_from';
+	const CONTEXT_LINK_ID = 'cl_context_from_id';
+	
 	/**
 	 * @return DevblocksSearchField[]
 	 */
@@ -1103,6 +1107,9 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 			
 			self::TICKET_MESSAGE_HEADER => new DevblocksSearchField(self::TICKET_MESSAGE_HEADER, 'mh', 'header_name'),
 			self::TICKET_MESSAGE_HEADER_VALUE => new DevblocksSearchField(self::TICKET_MESSAGE_HEADER_VALUE, 'mh', 'header_value'),
+			
+			self::CONTEXT_LINK => new DevblocksSearchField(self::CONTEXT_LINK, 'context_link', 'from_context', null),
+			self::CONTEXT_LINK_ID => new DevblocksSearchField(self::CONTEXT_LINK_ID, 'context_link', 'from_context_id', null),
 		);
 
 		$tables = DevblocksPlatform::getDatabaseTables();
@@ -1193,11 +1200,15 @@ class View_Ticket extends C4_AbstractView {
 			SearchFields_Ticket::REQUESTER_ADDRESS,
 			SearchFields_Ticket::TICKET_UNLOCK_DATE,
 			SearchFields_Ticket::TICKET_INTERESTING_WORDS,
+			SearchFields_Ticket::CONTEXT_LINK,
+			SearchFields_Ticket::CONTEXT_LINK_ID,
 		);
 		
 		$this->paramsHidden = array(
 			SearchFields_Ticket::TICKET_CATEGORY_ID,
 			SearchFields_Ticket::TICKET_UNLOCK_DATE,
+			SearchFields_Ticket::CONTEXT_LINK,
+			SearchFields_Ticket::CONTEXT_LINK_ID,
 		);
 		
 		$active_worker = CerberusApplication::getActiveWorker(); /* @var $active_worker Model_Worker */
@@ -1893,44 +1904,10 @@ class Context_Ticket extends Extension_DevblocksContext {
 		return true;
 	}
     
-	function renderChooserPanel($from_context, $from_context_id, $to_context, $return_uri) {
+	function getChooserView() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		$tpl = DevblocksPlatform::getTemplateService();
-		$path = dirname(dirname(dirname(__FILE__))) . '/templates/';
-		$tpl->assign('path', $path);
-		
-		$tpl->assign('context', $this);
-		$tpl->assign('from_context', $from_context);
-		$tpl->assign('from_context_id', $from_context_id);
-		$tpl->assign('to_context', $to_context);
-		$tpl->assign('context_extension', $this);
-		$tpl->assign('return_uri', $return_uri);
-		
-		$links = DAO_ContextLink::getLinks($from_context, $from_context_id);
-		$ids = array();
-		
-		if(is_array($links))
-		foreach($links as $link) {
-			if($link->context !== $to_context)
-				continue;
-			$ids[] = $link->context_id;
-		}
-		
-		if(!empty($ids)) {
-			$links = array();
-			$link_ids = DAO_Ticket::getTickets($ids);
-			
-			if(is_array($link_ids))
-			foreach($link_ids as $link_id => $link) {
-				$links[$link_id] = sprintf("[#%s] %s", $link->mask, $link->subject);
-			}
-			
-			$tpl->assign('links', $links);
-		}
-		
 		// View
-		
 		$view_id = 'contextlink_'.str_replace('.','_',$this->id);
 		$defaults = new C4_AbstractViewModel();
 		$defaults->id = $view_id; 
@@ -1954,25 +1931,10 @@ class Context_Ticket extends Extension_DevblocksContext {
 		$view->renderLimit = 10;
 		$view->renderTemplate = 'contextlinks_chooser';
 		C4_AbstractViewLoader::setView($view_id, $view);
-		$tpl->assign('view', $view);
-
-		// Template
-		
-		$tpl->display('file:'.$path.'context_links/choosers/__generic.tpl');
-	}	
-	
-	function saveChooserPanel($from_context, $from_context_id, $to_context, $to_context_data) {
-		if(is_array($to_context_data))
-		foreach($to_context_data as $to_context_item) {
-			if(!empty($to_context) && null != ($ticket = DAO_Ticket::get($to_context_item))) {
-				DAO_ContextLink::setLink($from_context, $from_context_id, $to_context, $ticket->id);
-			}
-		}
-		
-		return TRUE;
+		return $view;		
 	}
 	
-	function getView($ids) {
+	function getView($context, $context_id) {
 		$view_id = str_replace('.','_',$this->id);
 		
 		$defaults = new C4_AbstractViewModel();
@@ -1981,8 +1943,10 @@ class Context_Ticket extends Extension_DevblocksContext {
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = 'Tickets';
 		$view->addParams(array(
-			SearchFields_Ticket::TICKET_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_ID,'in',$ids),
+			new DevblocksSearchCriteria(SearchFields_Ticket::CONTEXT_LINK,'=',$context),
+			new DevblocksSearchCriteria(SearchFields_Ticket::CONTEXT_LINK_ID,'=',$context_id),
 		), true);
+		$view->renderTemplate = 'context';
 		C4_AbstractViewLoader::setView($view_id, $view);
 		return $view;
 	}

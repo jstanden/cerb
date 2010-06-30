@@ -13,34 +13,40 @@
 </div>
 
 <form action="{devblocks_url}{/devblocks_url}" method="POST" id="frmContextLink" name="frmContextLink" onsubmit="return false;">
-<input type="hidden" name="c" value="internal">
-<input type="hidden" name="a" value="saveContextLinkAddPeek">
-<input type="hidden" name="from_context" value="{$from_context}">
-<input type="hidden" name="from_context_id" value="{$from_context_id}">
-<input type="hidden" name="to_context" value="{$to_context}">
-<input type="hidden" name="return_uri" value="{$return_uri}">
-
-<b>Linked:</b>
+<b>Selected:</b>
 <div id="divContextLinkBuffer">
-	{foreach from=$links item=link key=link_id}
-		<div>
-			<button type="button" onclick="genericAjaxGet('','c=internal&a=contextDeleteLink&context={$from_context|escape}&context_id={$from_context_id|escape}&dst_context={$to_context|escape}&dst_context_id={$link_id|escape}');$(this).parent().remove();"><span class="cerb-sprite sprite-forbidden"></span></button> {$link|escape}
-			<input type="hidden" name="to_context_id[]" value="{$link_id}">
-		</div>
-	{/foreach}
 </div>
 <br>
-
-<button type="button" onclick="this.form.submit();"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')}</button>
-
+<button type="button" type="button" onclick="_saveChooser();"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')}</button>
 <br>
 </form>
 
 <script language="JavaScript1.2" type="text/javascript">
-	function _bufferAddLink($label,$value) {
+	var $popup = genericAjaxPopupFetch('chooser');
+	
+	function _saveChooser() {
+		var $buffer = $('#divContextLinkBuffer input:hidden');
+		var $labels = [];
+		var $values = [];
+		
+		$buffer.each(function() {
+			$labels.push($(this).attr('title')); 
+			$values.push($(this).val()); 
+		} );
+	
+		// Trigger event
+		var event = jQuery.Event('chooser_save');
+		event.labels = $labels;
+		event.values = $values;
+		$popup.trigger(event);
+		
+		genericAjaxPopupClose('chooser');
+	}
+	
+	function _bufferAddLink($label, $value) {
 		var $html = $('<div>' + $label + '</div>');
-		$html.prepend(' <button type="button" onclick="$(this).parent().remove();"><span class="cerb-sprite sprite-forbidden"></span></button> ');
-		$html.append('<input type="hidden" name="to_context_id[]" value="' + $value + '">');
+		$html.prepend(' <button type="button" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash"></span></button> ');
+		$html.append('<input type="hidden" name="to_context_id[]" title="' + $label + '" value="' + $value + '">');
 		$('#divContextLinkBuffer').append($html);
 	}
 
@@ -60,11 +66,8 @@
 		} );
 	}
 	
-	var $popup = genericAjaxPopupFetch('chooser');
 	$popup.one('popup_open',function(event,ui) {
-		$popup.dialog('option','title','Link {$context->manifest->name}');
-		$('#frmContextLink :input:text:first').focus().select();
-		ajax.emailAutoComplete('#frmContextLink :input:text:first');
+		$popup.dialog('option','title','{$context->manifest->name} Chooser');
 		
 		$('#viewCustomFilters{$view->id}').bind('view_refresh', function(event) {
 			if(event.target == event.currentTarget)

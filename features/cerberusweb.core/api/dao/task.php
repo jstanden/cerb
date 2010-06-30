@@ -217,12 +217,11 @@ class DAO_Task extends C4_ORMHelper {
 			 );
 		
 		$join_sql = 
-			"FROM task t ";
-//			"LEFT JOIN contact_org o ON (o.id=a.contact_org_id) "
+			"FROM task t ".
 
 			// [JAS]: Dynamic table joins
-//			(isset($tables['o']) ? "LEFT JOIN contact_org o ON (o.id=a.contact_org_id)" : " ").
-//			(isset($tables['mc']) ? "INNER JOIN message_content mc ON (mc.message_id=m.id)" : " ").
+			(isset($tables['context_link']) ? "INNER JOIN context_link ON (context_link.to_context = 'cerberusweb.contexts.task' AND context_link.to_context_id = t.id) " : " ")
+			;
 
 		// Custom field joins
 		list($select_sql, $join_sql, $has_multiple_values) = self::_appendSelectJoinSqlForCustomFieldTables(
@@ -285,6 +284,9 @@ class SearchFields_Task implements IDevblocksSearchFields {
 	const TITLE = 't_title';
 	const WORKER_ID = 't_worker_id';
 	
+	const CONTEXT_LINK = 'cl_context_from';
+	const CONTEXT_LINK_ID = 'cl_context_from_id';
+	
 	/**
 	 * @return DevblocksSearchField[]
 	 */
@@ -299,6 +301,9 @@ class SearchFields_Task implements IDevblocksSearchFields {
 			self::DUE_DATE => new DevblocksSearchField(self::DUE_DATE, 't', 'due_date', $translate->_('task.due_date')),
 			self::COMPLETED_DATE => new DevblocksSearchField(self::COMPLETED_DATE, 't', 'completed_date', $translate->_('task.completed_date')),
 			self::WORKER_ID => new DevblocksSearchField(self::WORKER_ID, 't', 'worker_id', $translate->_('task.worker_id')),
+			
+			self::CONTEXT_LINK => new DevblocksSearchField(self::CONTEXT_LINK, 'context_link', 'from_context', null),
+			self::CONTEXT_LINK_ID => new DevblocksSearchField(self::CONTEXT_LINK_ID, 'context_link', 'from_context_id', null),
 		);
 		
 		// Custom Fields
@@ -342,13 +347,17 @@ class View_Task extends C4_AbstractView {
 			SearchFields_Task::UPDATED_DATE,
 			SearchFields_Task::DUE_DATE,
 			SearchFields_Task::WORKER_ID,
-			);
+			SearchFields_Task::CONTEXT_LINK,
+			SearchFields_Task::CONTEXT_LINK_ID,
+		);
 		$this->columnsHidden = array(
 			SearchFields_Task::ID,
 		);
 		
 		$this->paramsHidden = array(
 			SearchFields_Task::ID,
+			SearchFields_Task::CONTEXT_LINK,
+			SearchFields_Task::CONTEXT_LINK_ID,
 		);
 		$this->paramsDefault = array(
 			SearchFields_Task::IS_COMPLETED => new DevblocksSearchCriteria(SearchFields_Task::IS_COMPLETED,'=',0),
@@ -682,47 +691,10 @@ class Context_Task extends Extension_DevblocksContext {
 		return true;
 	}
 
-	function renderChooserPanel($from_context, $from_context_id, $to_context, $return_uri) {
+	function getChooserView() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		$tpl = DevblocksPlatform::getTemplateService();
-		$path = dirname(dirname(dirname(__FILE__))) . '/templates/';
-		$tpl->assign('path', $path);
-		
-		$tpl->assign('context', $this);
-		$tpl->assign('from_context', $from_context);
-		$tpl->assign('from_context_id', $from_context_id);
-		$tpl->assign('to_context', $to_context);
-		$tpl->assign('context_extension', $this);
-		$tpl->assign('return_uri', $return_uri);
-		
-		$links = DAO_ContextLink::getLinks($from_context, $from_context_id);
-		$ids = array();
-		
-		if(is_array($links))
-		foreach($links as $link) {
-			if($link->context !== $to_context)
-				continue;
-			$ids[] = $link->context_id;
-		}
-		
-		if(!empty($ids)) {
-			$links = array();
-			$link_ids = DAO_Task::getWhere(sprintf("%s IN (%s)",
-				DAO_Task::ID,
-				implode(',', $ids)
-			));
-			
-			if(is_array($link_ids))
-			foreach($link_ids as $link_id => $link) {
-				$links[$link_id] = sprintf("%s", $link->title);
-			}
-			
-			$tpl->assign('links', $links);
-		}
-		
 		// View
-		
 		$view_id = 'contextlink_'.str_replace('.','_',$this->id);
 		$defaults = new C4_AbstractViewModel();
 		$defaults->id = $view_id; 
@@ -743,26 +715,10 @@ class Context_Task extends Extension_DevblocksContext {
 		$view->renderLimit = 10;
 		$view->renderTemplate = 'contextlinks_chooser';
 		C4_AbstractViewLoader::setView($view_id, $view);
-		$tpl->assign('view', $view);
-
-		// Template
-		
-		$tpl->display('file:'.$path.'context_links/choosers/__generic.tpl');
-	}	
-	
-	function saveChooserPanel($from_context, $from_context_id, $to_context, $to_context_data) {
-		if(is_array($to_context_data))
-		foreach($to_context_data as $to_context_item) {
-			if(!empty($to_context) && null != ($task = DAO_Task::get($to_context_item))) {
-				DAO_ContextLink::setLink($from_context, $from_context_id, $to_context, $task->id);
-			}
-		}
-		
-		return TRUE;
+		return $view;		
 	}
-
 	
-	function getView($ids) {
+	function getView($context, $context_id) {
 		$view_id = str_replace('.','_',$this->id);
 		
 		$defaults = new C4_AbstractViewModel();
@@ -771,8 +727,10 @@ class Context_Task extends Extension_DevblocksContext {
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = 'Tasks';
 		$view->addParams(array(
-			SearchFields_Task::ID => new DevblocksSearchCriteria(SearchFields_Task::ID,'in',$ids),
+			new DevblocksSearchCriteria(SearchFields_Task::CONTEXT_LINK,'=',$context),
+			new DevblocksSearchCriteria(SearchFields_Task::CONTEXT_LINK_ID,'=',$context_id),
 		), true);
+		$view->renderTemplate = 'context';
 		C4_AbstractViewLoader::setView($view_id, $view);
 		return $view;
 	}

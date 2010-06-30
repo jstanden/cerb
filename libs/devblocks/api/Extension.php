@@ -46,9 +46,8 @@ abstract class Extension_DevblocksContext extends DevblocksExtension {
     }
     
     abstract function getContext($object, &$token_labels, &$token_values, $prefix=null);
-	abstract function renderChooserPanel($from_context, $from_context_id, $to_context, $return_uri);
-	abstract function saveChooserPanel($from_context, $from_context_id, $to_context, $to_context_data);
-    abstract function getView($ids);
+    abstract function getChooserView();
+    abstract function getView($context, $context_id);
 };
 
 abstract class DevblocksHttpResponseListenerExtension extends DevblocksExtension {

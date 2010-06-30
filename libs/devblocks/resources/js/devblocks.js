@@ -279,6 +279,7 @@ function genericAjaxPopup($ns,request,target,modal,width,cb) {
 	if(null != modal) options.modal = modal;
 	
 	// Load the popup content
+	$options = { async: false }
 	genericAjaxGet('',request,
 		function(html) {
 			$popup = $("#popup"+$ns);
@@ -311,8 +312,11 @@ function genericAjaxPopup($ns,request,target,modal,width,cb) {
 			
 			// Callback
 			try { cb(html); } catch(e) { }
-		}
-	);	
+		},
+		$options
+	);
+	
+	return $popup;
 }
 
 function genericAjaxPopupPostCloseReloadView($ns, frm, view_id, has_output) {
@@ -344,7 +348,7 @@ function genericAjaxPopupPostCloseReloadView($ns, frm, view_id, has_output) {
 	);
 }
 
-function genericAjaxGet(divName,args,cb) {
+function genericAjaxGet(divName,args,cb,options) {
 	if(null == divName || 0 == divName.length)
 		divName = 'null';
 
@@ -358,15 +362,19 @@ function genericAjaxGet(divName,args,cb) {
 		}
 	}
 	
-	$.ajax( {
-		type: "GET",
-		url: DevblocksAppPath+'ajax.php?'+args,
-		cache: false,
-		success : cb 
-	} );
+	// Allow custom options
+	if(null == options)
+		options = { };
+	
+	options.type = 'GET';
+	options.url = DevblocksAppPath+'ajax.php?'+args;
+	options.cache = false;
+	options.success = cb;
+	
+	$.ajax(options);
 }
 
-function genericAjaxPost(formName,divName,args,cb) {
+function genericAjaxPost(formName,divName,args,cb,options) {
 	if(null == divName || 0 == divName.length)
 		divName = 'null';
 	
@@ -380,13 +388,17 @@ function genericAjaxPost(formName,divName,args,cb) {
 		};
 	}
 
-	$.ajax( {
-		type: "POST",
-		url: DevblocksAppPath+'ajax.php'+(null!=args?('?'+args):''),
-		data: $('#'+formName).serialize(),
-		cache: false,
-		success: cb 
-	} );
+	// Allow custom options
+	if(null == options)
+		options = { };
+	
+	options.type = 'POST';
+	options.data = $('#'+formName).serialize();
+	options.url = DevblocksAppPath+'ajax.php'+(null!=args?('?'+args):''),
+	options.cache = false;
+	options.success = cb;
+	
+	$.ajax(options);
 }
 
 function devblocksAjaxDateChooser(field, div, options) {
