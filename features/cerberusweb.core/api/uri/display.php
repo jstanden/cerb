@@ -340,13 +340,11 @@ class ChDisplayPage extends CerberusPageExtension {
 	
 	function saveMergePanelAction() {
 		@$src_ticket_id = DevblocksPlatform::importGPC($_REQUEST['src_ticket_id'],'integer',0);
-		@$dst_ticket_id = DevblocksPlatform::importGPC($_REQUEST['dst_ticket_id'],'string');
+		@$dst_ticket_ids = DevblocksPlatform::importGPC($_REQUEST['dst_ticket_id'],'array');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
-		$dst_ticket = null;
 
 		$src_ticket = DAO_Ticket::get($src_ticket_id);
-		
 		$refresh_id = !empty($src_ticket) ? $src_ticket->mask : $src_ticket_id;
 		
 		// ACL
@@ -354,29 +352,33 @@ class ChDisplayPage extends CerberusPageExtension {
 			DevblocksPlatform::redirect(new DevblocksHttpResponse(array('display',$refresh_id)));
 			exit;
 		}
-			
-		// Check that the tickets exist
-		if(is_numeric($dst_ticket_id))
-			$dst_ticket = DAO_Ticket::get($dst_ticket_id);
-		else
-			$dst_ticket = DAO_Ticket::getTicketByMask($dst_ticket_id);
-			
-		if(empty($src_ticket) || empty($dst_ticket)) {
+		
+		// Load and filter by the current worker permissions
+		$active_worker_memberships = $active_worker->getMemberships();
+		
+		$dst_tickets = DAO_Ticket::getTickets($dst_ticket_ids);
+		foreach($dst_tickets as $dst_ticket_id => $dst_ticket) {
+			if($active_worker->is_superuser 
+				|| (isset($active_worker_memberships[$dst_ticket->team_id]))) {
+					// Permission
+			} else {
+				unset($dst_tickets[$dst_ticket_id]);
+			}
+		}
+		
+		// Load the merge IDs
+		$merge_ids = array_merge(array($src_ticket_id), array_keys($dst_tickets));
+
+		// Abort if we don't have a source and at least one target
+		if(count($merge_ids) < 2) {
 			DevblocksPlatform::redirect(new DevblocksHttpResponse(array('display',$refresh_id)));
 		}
 		
-		// Check the current worker permissions
-		$active_worker_memberships = $active_worker->getMemberships();
-			
-		if($active_worker->is_superuser 
-			|| (isset($active_worker_memberships[$src_ticket->team_id]) && isset($active_worker_memberships[$dst_ticket->team_id]))) {
-
-			if(false != ($oldest_id = DAO_Ticket::merge(array($src_ticket->id, $dst_ticket->id)))) {
-				if($oldest_id == $src_ticket->id)
-					$refresh_id = $src_ticket->mask;
-				elseif($oldest_id = $dst_ticket->id)
-					$refresh_id = $dst_ticket->mask;
-			}
+		if(false != ($oldest_id = DAO_Ticket::merge($merge_ids))) {
+			if($oldest_id == $src_ticket->id)
+				$refresh_id = $src_ticket->mask;
+			elseif(isset($dst_tickets[$oldest_id]))
+				$refresh_id = $dst_tickets[$oldest_id]->mask;
 		}
 		
 		// Redisplay
