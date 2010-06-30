@@ -60,6 +60,7 @@ button {
 	background-color: rgb(209,209,209);
 	margin-right:1px;
 	vertical-align:middle;
+	-moz-border-radius: 5px; -webkit-border-radius: 5px; border-radius: 5px;
 }
 
 button:hover {
