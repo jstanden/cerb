@@ -113,7 +113,6 @@ class ChInternalController extends DevblocksControllerExtension {
 	function showTabContextLinksAction() {
 		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string');
 		@$context_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer');
-		@$return_uri = DevblocksPlatform::importGPC($_REQUEST['return_uri'],'string');
 		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl_path = dirname(dirname(dirname(__FILE__))) . '/templates/';
@@ -121,7 +120,6 @@ class ChInternalController extends DevblocksControllerExtension {
 		
 		$tpl->assign('context', $context);
 		$tpl->assign('context_id', $context_id);
-		$tpl->assign('return_uri', $return_uri);
 		
 		// Contexts
 		
@@ -686,6 +684,25 @@ class ChInternalController extends DevblocksControllerExtension {
 		}
 	}
 
+	// Comments
+	
+	function showTabContextCommentsAction() {
+		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string');
+		@$context_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer');
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl_path = dirname(dirname(dirname(__FILE__))) . '/templates/';
+		$tpl->assign('path', $tpl_path);
+		
+		$tpl->assign('context', $context);
+		$tpl->assign('context_id', $context_id);
+
+		$comments = DAO_Comment::getByContext($context, $context_id);
+		$tpl->assign('comments', $comments);
+		
+		$tpl->display('file:' . $this->_TPL_PATH . 'internal/comments/tab.tpl');
+	}
+	
 	function commentShowPopupAction() {
 		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string');
 		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer',0);

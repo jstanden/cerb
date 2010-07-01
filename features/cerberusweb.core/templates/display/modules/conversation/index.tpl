@@ -60,7 +60,7 @@
 {/if}
 </div>
 
-<script type="text/javascript" language="JavaScript1.2">
+<script type="text/javascript" language="JavaScript">
 	$('#btnComment').click(function(event) {
 		$popup = genericAjaxPopup('peek', 'c=internal&a=commentShowPopup&context=cerberusweb.contexts.ticket&context_id={$ticket->id}', null, false, '550');
 		$popup.one('comment_save', function(event) {

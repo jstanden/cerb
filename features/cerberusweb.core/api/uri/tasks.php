@@ -174,8 +174,8 @@ class ChTasksPage extends CerberusPageExtension {
 		$tpl->assign('types', $types);
 
 		// Notes
-		$notes = DAO_Comment::getByContext(CerberusContexts::CONTEXT_TASK, $id);
-		$tpl->assign('notes', $notes);
+		$comments = DAO_Comment::getByContext(CerberusContexts::CONTEXT_TASK, $id);
+		$tpl->assign('comments', $comments);
 
 		// View
 		$tpl->assign('id', $id);
@@ -436,75 +436,6 @@ class ChTasksPage extends CerberusPageExtension {
 		}
 		
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('tasks','display',$id,'properties')));
-	}
-	
-	function showTaskNotesTabAction() {
-		@$task_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer');
-		
-		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl_path = dirname(dirname(dirname(__FILE__))) . '/templates/';
-		$tpl->assign('path', $tpl_path);
-		
-		$visit = CerberusApplication::getVisit();
-//		$visit->set(self::SESSION_OPP_TAB, 'notes');
-		
-		$tpl->assign('task_id', $task_id);
-		
-		$notes = DAO_Comment::getWhere(
-			sprintf("%s = %s AND %s = %d",
-				DAO_Comment::CONTEXT,
-				C4_ORMHelper::qstr(CerberusContexts::CONTEXT_TASK),
-				DAO_Comment::CONTEXT_ID,
-				$task_id
-			)
-		);
-		$tpl->assign('notes', $notes);
-		
-		$active_workers = DAO_Worker::getAllActive();
-		$tpl->assign('active_workers', $active_workers);
-
-		$workers = DAO_Worker::getAllWithDisabled();
-		$tpl->assign('workers', $workers);
-				
-		$tpl->display('file:' . $tpl_path . 'tasks/display/tabs/notes.tpl');
-	}
-	
-	function saveTaskNoteAction() {
-		@$task_id = DevblocksPlatform::importGPC($_REQUEST['task_id'],'integer', 0);
-		@$content = DevblocksPlatform::importGPC($_REQUEST['content'],'string','');
-		
-		$active_worker = CerberusApplication::getActiveWorker();
-		
-		if(!empty($task_id) && 0 != strlen(trim($content))) {
-			$fields = array(
-				DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_TASK,
-				DAO_Comment::CONTEXT_ID => $task_id,
-				DAO_Comment::ADDRESS_ID => $active_worker->getAddress()->id,
-				DAO_Comment::CREATED => time(),
-				DAO_Comment::COMMENT => $content,
-			);
-			$note_id = DAO_Comment::create($fields);
-		}
-		
-		$task = DAO_Task::get($task_id);
-		
-		// Worker notifications
-		$url_writer = DevblocksPlatform::getUrlService();
-		@$notify_worker_ids = DevblocksPlatform::importGPC($_REQUEST['notify_worker_ids'],'array',array());
-		if(is_array($notify_worker_ids) && !empty($notify_worker_ids))
-		foreach($notify_worker_ids as $notify_worker_id) {
-			$fields = array(
-				DAO_WorkerEvent::CREATED_DATE => time(),
-				DAO_WorkerEvent::WORKER_ID => $notify_worker_id,
-				DAO_WorkerEvent::URL => $url_writer->write('c=tasks&a=display&id='.$task_id,true),
-				DAO_WorkerEvent::TITLE => 'New Task Note', // [TODO] Translate
-				DAO_WorkerEvent::CONTENT => sprintf("%s\n%s notes: %s", $task->title, $active_worker->getName(), $content), // [TODO] Translate
-				DAO_WorkerEvent::IS_READ => 0,
-			);
-			DAO_WorkerEvent::create($fields);
-		}
-		
-		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('tasks','display',$task_id)));
 	}
 	
 	function viewTasksExploreAction() {

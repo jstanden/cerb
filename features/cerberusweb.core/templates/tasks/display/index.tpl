@@ -36,8 +36,8 @@
 
 <div id="tasksTabs">
 	<ul>
-		<li><a href="{devblocks_url}ajax.php?c=tasks&a=showTaskNotesTab&id={$task->id}{/devblocks_url}">{'activity.tasks.tab.notes'|devblocks_translate|escape}</a></li>
-		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextLinks&context=cerberusweb.contexts.task&id={$task->id}&return_uri={"tasks/display/{$task->id}/links"|escape:'url'}{/devblocks_url}">{'common.links'|devblocks_translate|escape}</a></li>
+		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextComments&context=cerberusweb.contexts.task&id={$task->id}{/devblocks_url}">{'common.comments'|devblocks_translate|capitalize|escape}</a></li>
+		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextLinks&context=cerberusweb.contexts.task&id={$task->id}{/devblocks_url}">{'common.links'|devblocks_translate|escape}</a></li>
 
 		{$tabs = [notes, links]}
 		
