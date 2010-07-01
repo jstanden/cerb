@@ -237,16 +237,6 @@ class ChPageController extends DevblocksControllerExtension {
 	}
 };
 
-// Note Sources
-
-class ChNotesSource_Org extends Extension_NoteSource {
-	const ID = 'cerberusweb.notes.source.org';
-};
-
-class ChNotesSource_Task extends Extension_NoteSource {
-	const ID = 'cerberusweb.notes.source.task';
-};
-
 // Custom Field Sources
 
 class ChCustomFieldSource_Address extends Extension_CustomFieldSource {

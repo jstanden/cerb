@@ -174,17 +174,7 @@ class ChTasksPage extends CerberusPageExtension {
 		$tpl->assign('types', $types);
 
 		// Notes
-		list($notes, $null) = DAO_Note::search(
-			array(
-				new DevblocksSearchCriteria(SearchFields_Note::SOURCE_EXT_ID,'=',ChNotesSource_Task::ID),
-				new DevblocksSearchCriteria(SearchFields_Note::SOURCE_ID,'=',$id),
-			),
-			-1,
-			0,
-			SearchFields_Note::CREATED,
-			false,
-			false
-		);
+		$notes = DAO_Comment::getByContext(CerberusContexts::CONTEXT_TASK, $id);
 		$tpl->assign('notes', $notes);
 
 		// View
@@ -251,13 +241,13 @@ class ChTasksPage extends CerberusPageExtension {
 				// Append a note from the first content block, if provided				
 				if(!empty($content) && !empty($id)) {
 					$fields = array(
-						DAO_Note::SOURCE_EXTENSION_ID => ChNotesSource_Task::ID,
-						DAO_Note::SOURCE_ID => $id,
-						DAO_Note::WORKER_ID => $active_worker->id,
-						DAO_Note::CREATED => time(),
-						DAO_Note::CONTENT => $content,
+						DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_TASK,
+						DAO_Comment::CONTEXT_ID => $id,
+						DAO_Comment::ADDRESS_ID => $active_worker->getAddress()->id,
+						DAO_Comment::CREATED => time(),
+						DAO_Comment::COMMENT => $content,
 					);
-					$note_id = DAO_Note::create($fields);
+					$note_id = DAO_Comment::create($fields);
 				}
 				
 				// Write a notification (if not assigned to ourselves)
@@ -458,19 +448,15 @@ class ChTasksPage extends CerberusPageExtension {
 		$visit = CerberusApplication::getVisit();
 //		$visit->set(self::SESSION_OPP_TAB, 'notes');
 		
-		$task = DAO_Task::get($task_id);
-		$tpl->assign('task', $task);
-
-		list($notes, $null) = DAO_Note::search(
-			array(
-				new DevblocksSearchCriteria(SearchFields_Note::SOURCE_EXT_ID,'=',ChNotesSource_Task::ID),
-				new DevblocksSearchCriteria(SearchFields_Note::SOURCE_ID,'=',$task->id),
-			),
-			25,
-			0,
-			SearchFields_Note::CREATED,
-			false,
-			false
+		$tpl->assign('task_id', $task_id);
+		
+		$notes = DAO_Comment::getWhere(
+			sprintf("%s = %s AND %s = %d",
+				DAO_Comment::CONTEXT,
+				C4_ORMHelper::qstr(CerberusContexts::CONTEXT_TASK),
+				DAO_Comment::CONTEXT_ID,
+				$task_id
+			)
 		);
 		$tpl->assign('notes', $notes);
 		
@@ -491,13 +477,13 @@ class ChTasksPage extends CerberusPageExtension {
 		
 		if(!empty($task_id) && 0 != strlen(trim($content))) {
 			$fields = array(
-				DAO_Note::SOURCE_EXTENSION_ID => ChNotesSource_Task::ID,
-				DAO_Note::SOURCE_ID => $task_id,
-				DAO_Note::WORKER_ID => $active_worker->id,
-				DAO_Note::CREATED => time(),
-				DAO_Note::CONTENT => $content,
+				DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_TASK,
+				DAO_Comment::CONTEXT_ID => $task_id,
+				DAO_Comment::ADDRESS_ID => $active_worker->getAddress()->id,
+				DAO_Comment::CREATED => time(),
+				DAO_Comment::COMMENT => $content,
 			);
-			$note_id = DAO_Note::create($fields);
+			$note_id = DAO_Comment::create($fields);
 		}
 		
 		$task = DAO_Task::get($task_id);

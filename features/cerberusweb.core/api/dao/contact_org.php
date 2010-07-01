@@ -141,7 +141,7 @@ class DAO_ContactOrg extends C4_ORMHelper {
         DAO_CustomFieldValue::deleteBySourceIds(ChCustomFieldSource_Org::ID, $ids);
 
         // Notes
-        DAO_Note::deleteBySourceIds(ChNotesSource_Org::ID, $ids);
+        DAO_Comment::deleteByContext(CerberusContexts::CONTEXT_ORG, $ids);
 	}
 	
 	/**

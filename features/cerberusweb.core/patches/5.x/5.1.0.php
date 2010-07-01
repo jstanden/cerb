@@ -99,5 +99,116 @@ if(!isset($indexes['last_name'])) {
 if(!empty($changes))
 	$db->Execute("ALTER TABLE address " . implode('', $changes));
 
+// ===========================================================================
+// Comment
+
+if(!isset($tables['comment'])) {
+	$sql = "
+		CREATE TABLE IF NOT EXISTS comment (
+			id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+			context VARCHAR(128) DEFAULT '',
+			context_id INT UNSIGNED NOT NULL DEFAULT 0,
+			created INT UNSIGNED NOT NULL DEFAULT 0,
+			address_id INT UNSIGNED NOT NULL DEFAULT 0,
+			comment MEDIUMTEXT,
+			PRIMARY KEY (id),
+			INDEX context (context),
+			INDEX context_id (context_id),
+			INDEX address_id (address_id),
+			INDEX created (created)
+		) ENGINE=MyISAM;
+	";
+	$db->Execute($sql);
+
+	// ===========================================================================
+	// Migrate 'ticket_comment' to 'comment'
+	
+	if(isset($tables['ticket_comment'])) {
+		$db->Execute("INSERT INTO comment (context, context_id, created, address_id, comment) ".
+			"SELECT 'cerberusweb.contexts.ticket', ticket_id, created, address_id, comment ".
+			"FROM ticket_comment ORDER BY id"
+		) or die($db->ErrorMsg());
+		
+		$db->Execute("DROP TABLE ticket_comment");
+		$db->Execute("DROP TABLE ticket_comment_seq");
+		unset($tables['ticket_comment']);
+		unset($tables['ticket_comment_seq']);
+	}
+	
+	// ===========================================================================
+	// Migrate 'note' to 'comment'
+
+	// cerberusweb.notes.source.org
+	if(isset($tables['note'])) {
+		$db->Execute("INSERT INTO comment (context, context_id, created, address_id, comment) ".
+			"SELECT 'cerberusweb.contexts.org', note.source_id, note.created, address.id, note.content ".
+			"FROM note ".
+			"INNER JOIN worker ON (worker.id=note.worker_id) ".
+			"INNER JOIN address ON (address.email=worker.email) ".
+			"WHERE note.source_extension_id = 'cerberusweb.notes.source.org' ".
+			"ORDER BY note.id "
+		) or die($db->ErrorMsg());
+	}
+	
+	// cerberusweb.notes.source.task
+	if(isset($tables['note'])) {
+		$db->Execute("INSERT INTO comment (context, context_id, created, address_id, comment) ".
+			"SELECT 'cerberusweb.contexts.task', note.source_id, note.created, address.id, note.content ".
+			"FROM note ".
+			"INNER JOIN worker ON (worker.id=note.worker_id) ".
+			"INNER JOIN address ON (address.email=worker.email) ".
+			"WHERE note.source_extension_id = 'cerberusweb.notes.source.task' ".
+			"ORDER BY note.id "
+		) or die($db->ErrorMsg());
+	}
+	
+	// crm.notes.source.opportunity
+	if(isset($tables['note'])) {
+		$db->Execute("INSERT INTO comment (context, context_id, created, address_id, comment) ".
+			"SELECT 'cerberusweb.contexts.opportunity', note.source_id, note.created, address.id, note.content ".
+			"FROM note ".
+			"INNER JOIN worker ON (worker.id=note.worker_id) ".
+			"INNER JOIN address ON (address.email=worker.email) ".
+			"WHERE note.source_extension_id = 'crm.notes.source.opportunity' ".
+			"ORDER BY note.id "
+		) or die($db->ErrorMsg());
+	}
+	
+	$db->Execute("DROP TABLE note");
+	$db->Execute("DROP TABLE note_seq");
+	unset($tables['note']);
+	unset($tables['note_seq']);
+	
+	// ===========================================================================
+	// Migrate 'message_note' to 'comment'
+
+	if(isset($tables['message_note'])) {
+		$db->Execute("INSERT INTO comment (context, context_id, created, address_id, comment) ".
+			"SELECT 'cerberusweb.contexts.message', message_note.message_id, message_note.created, address.id, message_note.content ".
+			"FROM message_note ".
+			"INNER JOIN worker ON (worker.id=message_note.worker_id) ".
+			"INNER JOIN address ON (address.email=worker.email) ".
+			"ORDER BY message_note.id "
+		) or die($db->ErrorMsg());
+	}
+	
+	$db->Execute("DROP TABLE message_note");
+	$db->Execute("DROP TABLE message_note_seq");
+	unset($tables['message_note']);
+	unset($tables['message_note_seq']);
+
+	// ===========================================================================
+	// Swap out the auto-increment index
+	
+	$db->Execute("ALTER TABLE comment MODIFY COLUMN id INT UNSIGNED NOT NULL DEFAULT 0");
+	
+	// Swap the autoincrement to a sequence
+	$db->GenID('comment_seq');
+	
+	$max_id = $db->GetOne("SELECT MAX(id) FROM comment");
+	$db->Execute(sprintf("UPDATE comment_seq SET id = %d", $max_id));
+	
+	$tables['comment'] = 'comment';
+}
 
 return TRUE;

@@ -107,12 +107,12 @@ class ChPrintController extends DevblocksControllerExtension {
 				@$mail_inline_comments = DAO_WorkerPref::get($active_worker->id,'mail_inline_comments',1);
 				
 				if($mail_inline_comments) { // if inline comments are enabled
-					$comments = DAO_TicketComment::getByTicketId($ticket->id);
+					$comments = DAO_Comment::getByContext(CerberusContexts::CONTEXT_TICKET, $ticket->id);
 					arsort($comments);
 					$tpl->assign('comments', $comments);
 					
 					// build a chrono index of comments
-					foreach($comments as $comment_id => $comment) { /* @var $comment Model_TicketComment */
+					foreach($comments as $comment_id => $comment) { /* @var $comment Model_Comment */
 						$key = $comment->created . '_c' . $comment_id;
 						$convo_timeline[$key] = array('c',$comment_id);
 					}
@@ -124,7 +124,7 @@ class ChPrintController extends DevblocksControllerExtension {
 
 				// Comment parent addresses
 				$comment_addresses = array();
-				foreach($comments as $comment) { /* @var $comment Model_TicketComment */
+				foreach($comments as $comment) { /* @var $comment Model_Comment */
 					$address_id = intval($comment->address_id);
 					if(!isset($comment_addresses[$address_id])) {
 						$address = DAO_Address::get($address_id);
@@ -134,14 +134,14 @@ class ChPrintController extends DevblocksControllerExtension {
 				$tpl->assign('comment_addresses', $comment_addresses);				
 				
 				// Message Notes
-				$notes = DAO_MessageNote::getByTicketId($ticket->id);
+				$notes = DAO_Comment::getByContext(CerberusContexts::CONTEXT_TICKET, $ticket->id);
 				$message_notes = array();
 				// Index notes by message id
 				if(is_array($notes))
 				foreach($notes as $note) {
-					if(!isset($message_notes[$note->message_id]))
-						$message_notes[$note->message_id] = array();
-					$message_notes[$note->message_id][$note->id] = $note;
+					if(!isset($message_notes[$note->context_id]))
+						$message_notes[$note->context_id] = array();
+					$message_notes[$note->context_id][$note->id] = $note;
 				}
 				$tpl->assign('message_notes', $message_notes);
 				
@@ -169,14 +169,14 @@ class ChPrintController extends DevblocksControllerExtension {
 				}
 				
 				// Message Notes
-				$notes = DAO_MessageNote::getByTicketId($ticket->id);
+				$notes = DAO_Comment::getByContext(CerberusContexts::CONTEXT_TICKET, $ticket->id);
 				$message_notes = array();
 				// Index notes by message id
 				if(is_array($notes))
 				foreach($notes as $note) {
-					if(!isset($message_notes[$note->message_id]))
-						$message_notes[$note->message_id] = array();
-					$message_notes[$note->message_id][$note->id] = $note;
+					if(!isset($message_notes[$note->context_id]))
+						$message_notes[$note->context_id] = array();
+					$message_notes[$note->context_id][$note->id] = $note;
 				}
 				$tpl->assign('message_notes', $message_notes);				
 				

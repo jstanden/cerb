@@ -117,7 +117,7 @@ class DAO_Message extends DevblocksORMHelper {
 	
 	/**
 	 * @param resource $rs
-	 * @return Model_Note[]
+	 * @return Model_Message[]
 	 */
 	static private function _getObjectsFromResult($rs) {
 		$objects = array();

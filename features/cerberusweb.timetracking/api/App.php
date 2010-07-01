@@ -1188,12 +1188,13 @@ class ChTimeTrackingAjaxController extends DevblocksControllerExtension {
 						);
 						//timetracking.ui.billable timetracking.ui.non_billable
 						$fields = array(
-							DAO_TicketComment::ADDRESS_ID => intval($worker_address->id),
-							DAO_TicketComment::COMMENT => $comment,
-							DAO_TicketComment::CREATED => time(),
-							DAO_TicketComment::TICKET_ID => intval($ticket_id),
+							DAO_Comment::ADDRESS_ID => intval($worker_address->id),
+							DAO_Comment::COMMENT => $comment,
+							DAO_Comment::CREATED => time(),
+							DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_TICKET,
+							DAO_Comment::CONTEXT_ID => intval($ticket_id),
 						);
-						DAO_TicketComment::create($fields);
+						DAO_Comment::create($fields);
 					}
 					break;
 			}

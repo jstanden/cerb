@@ -635,6 +635,13 @@ class Model_Worker {
 		return DAO_Worker::getWorkerGroups($this->id); 
 	}
 
+	/**
+	 * @return Model_Address
+	 */
+	function getAddress() {
+		return DAO_Address::getByEmail($this->email);
+	}
+	
 	function hasPriv($priv_id) {
 		// We don't need to do much work if we're a superuser
 		if($this->is_superuser)

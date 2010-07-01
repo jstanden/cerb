@@ -2,8 +2,7 @@
 <form action="{devblocks_url}{/devblocks_url}" method="post" id="frmAddTaskNote">
 <input type="hidden" name="c" value="tasks">
 <input type="hidden" name="a" value="saveTaskNote">
-<input type="hidden" name="task_id" value="{$task->id}">
-<input type="hidden" name="id" value="">
+<input type="hidden" name="task_id" value="{$task_id}">
 
 <b>{'tasks.tab.notes.add_note'|devblocks_translate|escape}:</b><br>
 <textarea name="content" rows="8" cols="65" style="width:98%;height:150px;"></textarea><br>
@@ -29,7 +28,7 @@
 
 {* Display Notes *}
 {foreach from=$notes item=note}
-	{include file="{$core_tpl}/internal/notes/note.tpl"}
+	{include file="{$core_tpl}/internal/comments/comment.tpl"}
 {/foreach}
 
 </form>

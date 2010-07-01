@@ -142,19 +142,6 @@
 			</params>
 		</extension>
 
-		<!-- Notes Sources -->
-		
-		<extension point="cerberusweb.notes.source">
-			<id>crm.notes.source.opportunity</id>
-			<name>Opportunity</name>
-			<class>
-				<file>api/App.php</file>
-				<name>CrmNotesSource_Opportunity</name>
-			</class>
-			<params>
-			</params>
-		</extension>
-
 		<!-- Org Tabs -->
 		
 		<extension point="cerberusweb.org.tab">

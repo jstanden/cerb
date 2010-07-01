@@ -311,12 +311,13 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 			$this->error(self::ERRNO_CUSTOM, "The 'comment' field is required.");
 			
 		$fields = array(
-			DAO_TicketComment::CREATED => time(),
-			DAO_TicketComment::TICKET_ID => $ticket->id,
-			DAO_TicketComment::ADDRESS_ID => $address->id,
-			DAO_TicketComment::COMMENT => $comment,
+			DAO_Comment::CREATED => time(),
+			DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_TICKET,
+			DAO_Comment::CONTEXT_ID => $ticket->id,
+			DAO_Comment::ADDRESS_ID => $address->id,
+			DAO_Comment::COMMENT => $comment,
 		);
-		$comment_id = DAO_TicketComment::create($fields);
+		$comment_id = DAO_Comment::create($fields);
 
 		$this->success(array(
 			'ticket_id' => $ticket->id,

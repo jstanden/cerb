@@ -171,7 +171,7 @@ class DAO_Task extends C4_ORMHelper {
 		DAO_CustomFieldValue::deleteBySourceIds(ChCustomFieldSource_Task::ID, $ids);
 		
 		// Notes
-		DAO_Note::deleteBySourceIds(ChNotesSource_Task::ID, $ids);
+		DAO_Comment::deleteByContext(CerberusContexts::CONTEXT_TASK, $ids);
 		
 		return true;
 	}
@@ -195,7 +195,7 @@ class DAO_Task extends C4_ORMHelper {
 		if(!isset($fields[$sortBy]))
 			$sortBy=null;
 		
-        list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields,$sortBy);
+        list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy);
 		$start = ($page * $limit); // [JAS]: 1-based [TODO] clean up + document
 		
 		$select_sql = sprintf("SELECT ".
@@ -347,11 +347,11 @@ class View_Task extends C4_AbstractView {
 			SearchFields_Task::UPDATED_DATE,
 			SearchFields_Task::DUE_DATE,
 			SearchFields_Task::WORKER_ID,
-			SearchFields_Task::CONTEXT_LINK,
-			SearchFields_Task::CONTEXT_LINK_ID,
 		);
 		$this->columnsHidden = array(
 			SearchFields_Task::ID,
+			SearchFields_Task::CONTEXT_LINK,
+			SearchFields_Task::CONTEXT_LINK_ID,
 		);
 		
 		$this->paramsHidden = array(

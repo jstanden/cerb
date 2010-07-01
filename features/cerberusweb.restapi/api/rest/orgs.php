@@ -311,13 +311,13 @@ class ChRest_Orgs extends Extension_RestController implements IExtensionRestCont
 			
 		// Post
 		$fields = array(
-			DAO_Note::SOURCE_EXTENSION_ID => ChNotesSource_Org::ID,
-			DAO_Note::SOURCE_ID => $org->id,
-			DAO_Note::WORKER_ID => $worker->id,
-			DAO_Note::CREATED => time(),
-			DAO_Note::CONTENT => $note,
+			DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_ORG,
+			DAO_Comment::CONTEXT_ID => $org->id,
+			DAO_Comment::ADDRESS_ID => $worker->getAddress()->id,
+			DAO_Comment::CREATED => time(),
+			DAO_Comment::COMMENT => $note,
 		);
-		$note_id = DAO_Note::create($fields);
+		$note_id = DAO_Comment::create($fields);
 			
 		$this->success(array(
 			'org_id' => $org->id,

@@ -321,13 +321,13 @@ class ChRest_Tasks extends Extension_RestController implements IExtensionRestCon
 			
 		// Post
 		$fields = array(
-			DAO_Note::SOURCE_EXTENSION_ID => ChNotesSource_Task::ID,
-			DAO_Note::SOURCE_ID => $task->id,
-			DAO_Note::WORKER_ID => $worker->id,
-			DAO_Note::CREATED => time(),
-			DAO_Note::CONTENT => $note,
+			DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_TASK,
+			DAO_Comment::CONTEXT_ID => $task->id,
+			DAO_Comment::ADDRESS_ID => $worker->getAddress()->id,
+			DAO_Comment::CREATED => time(),
+			DAO_Comment::COMMENT => $note,
 		);
-		$note_id = DAO_Note::create($fields);
+		$note_id = DAO_Comment::create($fields);
 			
 		$this->success(array(
 			'task_id' => $task->id,

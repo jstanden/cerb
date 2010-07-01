@@ -27,7 +27,7 @@
 
 {* Display Notes *}
 {foreach from=$notes item=note}
-	{include file="{$core_tpl}/internal/notes/note.tpl"}
+	{include file="{$core_tpl}/internal/comments/comment.tpl"}
 {/foreach}
 
 </form>

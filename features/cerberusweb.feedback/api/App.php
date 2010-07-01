@@ -804,12 +804,13 @@ class ChFeedbackController extends DevblocksControllerExtension {
 						$quote
 					);
 					$fields = array(
-						DAO_TicketComment::ADDRESS_ID => $worker_address->id,
-						DAO_TicketComment::COMMENT => $comment_text,
-						DAO_TicketComment::CREATED => time(),
-						DAO_TicketComment::TICKET_ID => intval($source_id),
+						DAO_Comment::ADDRESS_ID => $worker_address->id,
+						DAO_Comment::COMMENT => $comment_text,
+						DAO_Comment::CREATED => time(),
+						DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_TICKET,
+						DAO_Comment::CONTEXT_ID => intval($source_id),
 					);
-					DAO_TicketComment::create($fields);
+					DAO_Comment::create($fields);
 					break;
 			}
 			

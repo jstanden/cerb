@@ -1,3 +1,8 @@
+<form style="margin:5px;">
+	{if $active_worker->hasPriv('core.display.actions.comment')}<button type="button" id="btnComment"><span class="cerb-sprite sprite-document_edit"></span> Comment</button>{/if}
+	{if !$expand_all}<button id="btnReadAll" title="{$translate->_('display.shortcut.read_all')}" type="button" onclick="document.location='{devblocks_url}c=display&id={$ticket->mask}&tab=conversation&opt=read_all{/devblocks_url}';"><span class="cerb-sprite sprite-document"></span> {$translate->_('display.button.read_all')|capitalize}</button>{/if} 
+</form>
+
 {if is_array($pending_drafts)}
 <div class="ui-widget">
 	<div class="ui-state-highlight ui-corner-all" style="padding: 0 .7em; margin: 0.2em; "> 
@@ -56,6 +61,16 @@
 </div>
 
 <script type="text/javascript" language="JavaScript1.2">
+	$('#btnComment').click(function(event) {
+		$popup = genericAjaxPopup('peek', 'c=internal&a=commentShowPopup&context=cerberusweb.contexts.ticket&context_id={$ticket->id}', null, false, '550');
+		$popup.one('comment_save', function(event) {
+			$tabs = $('#btnComment').closest('div.ui-tabs');
+			if(0 != $tabs) {
+				$tabs.tabs('load', $tabs.tabs('option','selected'));
+			}
+		});
+	});
+	
 	function displayReply(msgid, is_forward, draft_id) {
 		msgid = parseInt(msgid);
 		var div = document.getElementById('reply' + msgid);

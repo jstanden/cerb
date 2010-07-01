@@ -31,7 +31,7 @@
 		<patch version="5.0.0-beta" revision="856" file="patches/5.x/5.0.0_beta.php" />
 		<patch version="5.0.0-rc1" revision="861" file="patches/5.x/5.0.0_rc1.php" />
 		<patch version="5.0.1" revision="864" file="patches/5.x/5.0.1.php" />
-		<patch version="5.1.0" revision="883" file="patches/5.x/5.1.0.php" />
+		<patch version="5.1.0" revision="884" file="patches/5.x/5.1.0.php" />
 	</patches>
 
 	<!-- Declared Extension Points -->
@@ -57,8 +57,6 @@
 			<class name="ChCustomFieldSource_Task" />
 			<class name="ChCustomFieldSource_Ticket" />
 			<class name="ChCustomFieldSource_Worker" />
-			<class name="ChNotesSource_Org" />
-			<class name="ChNotesSource_Task" />
 			<class name="ChPageController" />
 			<class name="ChRssSource_Notification" />
 			<class name="ChRssSource_Task" />
@@ -101,6 +99,13 @@
 		<file path="api/dao/bucket.php">
 			<class name="DAO_Bucket" />
 			<class name="Model_Bucket" />
+		</file>
+		
+		<file path="api/dao/comment.php">
+			<class name="DAO_Comment" />
+			<class name="Model_Comment" />
+			<class name="SearchFields_Comment" />
+			<class name="View_Comment" />
 		</file>
 		
 		<file path="api/dao/contact_org.php">
@@ -146,17 +151,6 @@
 			<class name="Search_MessageContent" />
 			<class name="SearchFields_Message" />
 			<class name="Storage_MessageContent" />
-		</file>
-		
-		<file path="api/dao/message_note.php">
-			<class name="DAO_MessageNote" />
-			<class name="Model_MessageNote" />
-		</file>
-		
-		<file path="api/dao/note.php">
-			<class name="DAO_Note" />
-			<class name="Model_Note" />
-			<class name="SearchFields_Note" />
 		</file>
 		
 		<file path="api/dao/preparse_rule.php">
@@ -910,30 +904,6 @@
 			<params>
 			</params>
 		</extension>		
-		
-		<!-- Notes Sources -->
-		
-		<extension point="cerberusweb.notes.source">
-			<id>cerberusweb.notes.source.org</id>
-			<name>Organization</name>
-			<class>
-				<file>api/plugin.classes.php</file>
-				<name>ChNotesSource_Org</name>
-			</class>
-			<params>
-			</params>
-		</extension>
-
-		<extension point="cerberusweb.notes.source">
-			<id>cerberusweb.notes.source.task</id>
-			<name>Task</name>
-			<class>
-				<file>api/plugin.classes.php</file>
-				<name>ChNotesSource_Task</name>
-			</class>
-			<params>
-			</params>
-		</extension>
 		
 		<!-- Workspace Sources -->
 		

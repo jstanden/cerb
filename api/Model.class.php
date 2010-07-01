@@ -1553,18 +1553,6 @@ class Model_Pop3Account {
 	public $port=110;
 };
 
-class Model_TicketComment {
-	public $id;
-	public $ticket_id;
-	public $address_id;
-	public $created;
-	public $comment;
-	
-	public function getAddress() {
-		return DAO_Address::get($this->address_id);
-	}
-};
-
 class Model_CustomField {
 	const TYPE_CHECKBOX = 'C';
 	const TYPE_DROPDOWN = 'D';

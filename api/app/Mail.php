@@ -256,18 +256,6 @@ class CerberusMail {
 						DAO_MailQueue::QUEUE_PRIORITY => 0,
 					);
 					DAO_MailQueue::create($fields);
-					
-//					// if email sending failed, add an error note to the message
-//					if ($mail_succeeded === false) {
-//						$fields = array(
-//							DAO_MessageNote::MESSAGE_ID => $message_id,
-//							DAO_MessageNote::CREATED => time(),
-//							DAO_MessageNote::WORKER_ID => 0,
-//							DAO_MessageNote::CONTENT => 'Exception thrown while sending email: ' . $e->getMessage(),
-//							DAO_MessageNote::TYPE => Model_MessageNote::TYPE_ERROR,
-//						);
-//						DAO_MessageNote::create($fields);
-//					}
 				}
 				
 				return false;

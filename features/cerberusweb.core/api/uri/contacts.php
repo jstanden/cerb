@@ -542,18 +542,14 @@ class ChContactsPage extends CerberusPageExtension {
 		$org = DAO_ContactOrg::get($org_id);
 		$tpl->assign('org', $org);
 		
-		list($notes, $null) = DAO_Note::search(
-			array(
-				new DevblocksSearchCriteria(SearchFields_Note::SOURCE_EXT_ID,'=',ChNotesSource_Org::ID),
-				new DevblocksSearchCriteria(SearchFields_Note::SOURCE_ID,'=',$org->id),
-			),
-			25,
-			0,
-			SearchFields_Note::CREATED,
-			false,
-			false
+		$notes = DAO_Comment::getWhere(
+			sprintf("%s = %s AND %s = %d",
+				DAO_Comment::CONTEXT,
+				C4_ORMHelper::qstr(CerberusContexts::CONTEXT_ORG),
+				DAO_Comment::CONTEXT_ID,
+				$org->id
+			)
 		);
-
 		$tpl->assign('notes', $notes);
 		
 		$active_workers = DAO_Worker::getAllActive();
@@ -939,13 +935,13 @@ class ChContactsPage extends CerberusPageExtension {
 		
 		if(!empty($org_id) && 0 != strlen(trim($content))) {
 			$fields = array(
-				DAO_Note::SOURCE_EXTENSION_ID => ChNotesSource_Org::ID,
-				DAO_Note::SOURCE_ID => $org_id,
-				DAO_Note::WORKER_ID => $active_worker->id,
-				DAO_Note::CREATED => time(),
-				DAO_Note::CONTENT => $content,
+				DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_ORG,
+				DAO_Comment::CONTEXT_ID => $org_id,
+				DAO_Comment::ADDRESS_ID => $active_worker->getAddress()->id,
+				DAO_Comment::CREATED => time(),
+				DAO_Comment::COMMENT => $content,
 			);
-			$note_id = DAO_Note::create($fields);
+			$note_id = DAO_Comment::create($fields);
 		}
 		
 		$org = DAO_ContactOrg::get($org_id);
