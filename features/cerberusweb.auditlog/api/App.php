@@ -81,49 +81,45 @@ class ChAuditLogEventListener extends DevblocksEventListenerExtension {
             	
             	break;
             	
-            case 'ticket.property.pre_change':
-            	@$ticket_ids = $event->params['ticket_ids'];
-            	@$changed_fields = $event->params['changed_fields'];
-
-            	// Filter out any mandatory changes we could care less about
-				unset($changed_fields[DAO_Ticket::UPDATED_DATE]);
-				unset($changed_fields[DAO_Ticket::MASK]);
-				unset($changed_fields[DAO_Ticket::FIRST_MESSAGE_ID]);
-				unset($changed_fields[DAO_Ticket::LAST_MESSAGE_ID]);
-				unset($changed_fields[DAO_Ticket::FIRST_WROTE_ID]);
-				unset($changed_fields[DAO_Ticket::LAST_WROTE_ID]);
-				unset($changed_fields[DAO_Ticket::INTERESTING_WORDS]);
+            case 'dao.ticket.update':
+            	@$objects = $event->params['objects'];
             	
-            	@$tickets = DAO_Ticket::getTickets($ticket_ids);
-            	// Is a worker around to invoke this change?  0 = automatic
-            	@$worker_id = (null != ($active_worker = CerberusApplication::getActiveWorker()) && !empty($active_worker->id))
-            		? $active_worker->id
-            		: 0;
-            	
-            	if(is_array($tickets) 
-            		&& !empty($tickets) 
-            		&& is_array($changed_fields) 
-            		&& !empty($changed_fields))
-            	foreach($tickets as $ticket_id => $ticket) { /* @var $ticket Model_Ticket */
-            		foreach($changed_fields as $changed_field => $changed_value) {
-            			if(is_array($changed_value))
-							$changed_value = implode("\r\n", $changed_value);
+            	foreach($objects as $object_id => $object) {
+            		$model = $object['model'];
+            		$changes = $object['changes'];
+            		
+	            	// Filter out any mandatory changes we could care less about
+					unset($changes[DAO_Ticket::UPDATED_DATE]);
+					unset($changes[DAO_Ticket::MASK]);
+					unset($changes[DAO_Ticket::FIRST_MESSAGE_ID]);
+					unset($changes[DAO_Ticket::LAST_MESSAGE_ID]);
+					unset($changes[DAO_Ticket::FIRST_WROTE_ID]);
+					unset($changes[DAO_Ticket::LAST_WROTE_ID]);
+					unset($changes[DAO_Ticket::INTERESTING_WORDS]);
+            		
+	            	// Is a worker around to invoke this change?  0 = automatic
+	            	@$worker_id = (null != ($active_worker = CerberusApplication::getActiveWorker()) && !empty($active_worker->id))
+	            		? $active_worker->id
+	            		: 0;
+	            		
+	            	if(!empty($changes))
+	            	foreach($changes as $key => $change) {
+	            		$value = $change['to'];
+	            		
+            			if(is_array($value))
+							$value = implode("\r\n", $value);
 						
-            			// If different
-            			if(isset($ticket->$changed_field) 
-            				&& 0 != strcmp($ticket->$changed_field,$changed_value)) {
-		            		$fields = array(
-		            			DAO_TicketAuditLog::TICKET_ID => $ticket_id,
-		            			DAO_TicketAuditLog::WORKER_ID => $worker_id,
-		            			DAO_TicketAuditLog::CHANGE_DATE => time(),
-		            			DAO_TicketAuditLog::CHANGE_FIELD => $changed_field,
-		            			DAO_TicketAuditLog::CHANGE_VALUE => substr($changed_value,0,128),
-		            		);
-			            	$log_id = DAO_TicketAuditLog::create($fields);
-            			}
-            		}
-            	}
-            	break;
+	            		$fields = array(
+	            			DAO_TicketAuditLog::TICKET_ID => $object_id,
+	            			DAO_TicketAuditLog::WORKER_ID => $worker_id,
+	            			DAO_TicketAuditLog::CHANGE_DATE => time(),
+	            			DAO_TicketAuditLog::CHANGE_FIELD => $key,
+	            			DAO_TicketAuditLog::CHANGE_VALUE => substr($value,0,128),
+	            		);
+		            	$log_id = DAO_TicketAuditLog::create($fields);
+	            	}
+				}
+           		break;
         }
     }
 };
