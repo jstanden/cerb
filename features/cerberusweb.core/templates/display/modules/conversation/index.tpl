@@ -40,7 +40,7 @@
 				{assign var=comment_id value=$convo_set.1}
 				{assign var=comment value=$comments.$comment_id}
 				<div id="comment{$comment->id}" style="background-color:rgb(255,255,255);">
-					{include file="$core_tpl/display/modules/conversation/comment.tpl"}
+					{include file="$core_tpl/internal/comments/comment.tpl"}
 				</div>
 				
 			{elseif $convo_set.0=='d'}
