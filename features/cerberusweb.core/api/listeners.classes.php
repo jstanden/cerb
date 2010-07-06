@@ -432,8 +432,9 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 				DAO_WorkerEvent::CREATED_DATE => time(),
 				DAO_WorkerEvent::WORKER_ID => $worker_id,
 				DAO_WorkerEvent::URL => $url_writer->write('c=display&id='.$model[DAO_Ticket::MASK],true),
-				DAO_WorkerEvent::TITLE => 'New Ticket Assignment', // [TODO] Translate
-				DAO_WorkerEvent::CONTENT => sprintf("#%s: %s", $model[DAO_Ticket::MASK], $model[DAO_Ticket::SUBJECT]),
+				DAO_WorkerEvent::MESSAGE => sprintf("%s assigned a ticket to you.",
+					$active_worker->getName()
+				),
 				DAO_WorkerEvent::IS_READ => 0,
 			);
 			DAO_WorkerEvent::create($fields);

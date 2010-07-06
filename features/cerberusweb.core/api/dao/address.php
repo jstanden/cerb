@@ -778,6 +778,11 @@ class Context_Address extends Extension_DevblocksContext {
         parent::__construct($manifest);
     }
 
+    function getPermalink($context_id) {
+    	$url_writer = DevblocksPlatform::getUrlService();
+    	return $url_writer->write('c=contacts&tab=addresses', true);
+    }
+    
 	function getContext($address, &$token_labels, &$token_values, $prefix=null) {
 		if(is_null($prefix))
 			$prefix = 'Email:';

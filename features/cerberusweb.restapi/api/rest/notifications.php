@@ -63,10 +63,9 @@ class ChRest_Notifications extends Extension_RestController implements IExtensio
 		if('dao'==$type) {
 			$tokens = array(
 				'assignee_id' => DAO_WorkerEvent::WORKER_ID,
-				'content' => DAO_WorkerEvent::CONTENT,
+				'message' => DAO_WorkerEvent::MESSAGE,
 				'created' => DAO_WorkerEvent::CREATED_DATE,
 				'is_read' => DAO_WorkerEvent::IS_READ,
-				'title' => DAO_WorkerEvent::TITLE,
 				'url' => DAO_WorkerEvent::URL,
 			);
 		} else {
@@ -294,7 +293,8 @@ class ChRest_Notifications extends Extension_RestController implements IExtensio
 		
 		// Check required fields
 		$reqfields = array(
-			DAO_WorkerEvent::TITLE, 
+			DAO_WorkerEvent::MESSAGE, 
+			DAO_WorkerEvent::URL, 
 			DAO_WorkerEvent::WORKER_ID,
 		);
 		$this->_handleRequiredFields($reqfields, $fields);

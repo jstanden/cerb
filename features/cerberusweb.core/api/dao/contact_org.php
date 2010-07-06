@@ -622,6 +622,11 @@ class Context_Org extends Extension_DevblocksContext {
         parent::__construct($manifest);
     }
 
+    function getPermalink($context_id) {
+    	$url_writer = DevblocksPlatform::getUrlService();
+    	return $url_writer->write('c=contacts&tab=orgs&action=display&id='.$context_id, true);
+    }
+    
 	function getContext($org, &$token_labels, &$token_values, $prefix=null) {
 		if(is_null($prefix))
 			$prefix = 'Org:';

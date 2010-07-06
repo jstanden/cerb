@@ -1016,6 +1016,13 @@ class Context_Worker extends Extension_DevblocksContext {
         parent::__construct($manifest);
     }
 
+    function getPermalink($context_id) {
+    	// [TODO] Profiles
+    	$url_writer = DevblocksPlatform::getUrlService();
+    	return null;
+    	//return $url_writer->write('c=home&tab=orgs&action=display&id='.$context_id, true);
+    }
+    
 	function getContext($worker, &$token_labels, &$token_values, $prefix=null) {
 		if(is_null($prefix))
 			$prefix = 'Worker:';

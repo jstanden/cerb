@@ -721,6 +721,8 @@ class ChInternalController extends DevblocksControllerExtension {
 		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer',0);
 		@$comment = DevblocksPlatform::importGPC($_REQUEST['comment'],'string','');
 		
+		$translate = DevblocksPlatform::getTranslationService();
+		
 		// Worker is logged in
 		if(null === ($active_worker = CerberusApplication::getActiveWorker()))
 			return;
@@ -739,30 +741,28 @@ class ChInternalController extends DevblocksControllerExtension {
 		);
 		$comment_id = DAO_Comment::create($fields);
 		
-//		// Worker address exists
-//		if(null === ($address = CerberusApplication::hashLookupAddress($active_worker->email,true)))
-//			DevblocksPlatform::redirect(new DevblocksHttpResponse(array('display',$ticket_id)));
+		if(null == ($extension = DevblocksPlatform::getExtension($context, true, true)))
+			return; 
+		
+		if(null == (@$string = $extension->manifest->params['events'][0]['context.commented']))
+			$string = 'context.default.commented';
 			
-//		@$ticket = DAO_Ticket::get($ticket_id);
-		
-		
+		// URL
+		if(null == ($url = $extension->getPermalink($context_id)))
+			return;
+			
 		// Notifications
-		$url_writer = DevblocksPlatform::getUrlService();
 		@$notify_worker_ids = DevblocksPlatform::importGPC($_REQUEST['notify_worker_ids'],'array',array());
 		if(is_array($notify_worker_ids) && !empty($notify_worker_ids))
 		foreach($notify_worker_ids as $notify_worker_id) {
 			$fields = array(
 				DAO_WorkerEvent::CREATED_DATE => time(),
 				DAO_WorkerEvent::WORKER_ID => $notify_worker_id,
-				//DAO_WorkerEvent::URL => $url_writer->write('c=display&id='.$ticket->mask,true),
-				DAO_WorkerEvent::TITLE => 'New Comment', // [TODO] Translate
-				DAO_WorkerEvent::CONTENT => sprintf("%s comments: %s", $active_worker->getName(), $comment), // [TODO] Translate
+				DAO_WorkerEvent::URL => $url,
+				DAO_WorkerEvent::MESSAGE => vsprintf($translate->_($string), $active_worker->getName()),
 			);
 			DAO_WorkerEvent::create($fields);
 		}
-		
-//		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('display',$ticket->mask,'comments')));		
-		
 	}
 	
 	function commentDeleteAction() {

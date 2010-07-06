@@ -31,7 +31,7 @@
 		<patch version="5.0.0-beta" revision="856" file="patches/5.x/5.0.0_beta.php" />
 		<patch version="5.0.0-rc1" revision="861" file="patches/5.x/5.0.0_rc1.php" />
 		<patch version="5.0.1" revision="864" file="patches/5.x/5.0.1.php" />
-		<patch version="5.1.0" revision="884" file="patches/5.x/5.1.0.php" />
+		<patch version="5.1.0" revision="885" file="patches/5.x/5.1.0.php" />
 	</patches>
 
 	<!-- Declared Extension Points -->
@@ -340,6 +340,12 @@
 				<name>Context_Address</name>
 			</class>
 			<params>
+				<param key="events">
+					<value>
+						<data key="context.assigned" value="context.address.assigned" />
+						<data key="context.commented" value="context.address.commented" />
+					</value>
+				</param>
 			</params>
 		</extension>
 		
@@ -351,6 +357,12 @@
 				<name>Context_Org</name>
 			</class>
 			<params>
+				<param key="events">
+					<value>
+						<data key="context.assigned" value="context.org.assigned" />
+						<data key="context.commented" value="context.org.commented" />
+					</value>
+				</param>
 			</params>
 		</extension>
 		
@@ -362,6 +374,12 @@
 				<name>Context_Task</name>
 			</class>
 			<params>
+				<param key="events">
+					<value>
+						<data key="context.assigned" value="context.task.assigned" />
+						<data key="context.commented" value="context.task.commented" />
+					</value>
+				</param>
 			</params>
 		</extension>
 
@@ -373,6 +391,12 @@
 				<name>Context_Ticket</name>
 			</class>
 			<params>
+				<param key="events">
+					<value>
+						<data key="context.assigned" value="context.ticket.assigned" />
+						<data key="context.commented" value="context.ticket.commented" />
+					</value>
+				</param>
 			</params>
 		</extension>
 
@@ -384,6 +408,12 @@
 				<name>Context_Worker</name>
 			</class>
 			<params>
+				<param key="events">
+					<value>
+						<data key="context.assigned" value="context.worker.assigned" />
+						<data key="context.commented" value="context.worker.commented" />
+					</value>
+				</param>
 			</params>
 		</extension>
 

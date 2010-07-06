@@ -1887,6 +1887,11 @@ class Context_Opportunity extends Extension_DevblocksContext {
         parent::__construct($manifest);
     }
 
+    function getPermalink($context_id) {
+    	$url_writer = DevblocksPlatform::getUrlService();
+    	return $url_writer->write('c=crm&tab=opps&id='.$context_id, true);
+    }
+    
 	function getContext($opp, &$token_labels, &$token_values, $prefix=null) {
 		if(is_null($prefix))
 			$prefix = 'Opportunity:';

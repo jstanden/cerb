@@ -150,7 +150,7 @@
 <div id="displayTabs">
 	<ul>
 		<li><a href="{devblocks_url}ajax.php?c=display&a=showConversation&ticket_id={$ticket->id}{if $expand_all}&expand_all=1{/if}{/devblocks_url}">{$translate->_('display.tab.conversation')|escape:'quotes'}</a></li>
-		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextLinks&context=cerberusweb.contexts.ticket&id={$ticket->id}&return_uri={"display/{$ticket->mask}/links"|escape:'url'}{/devblocks_url}">{$translate->_('common.links')|escape:'quotes'}</a></li>
+		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextLinks&context=cerberusweb.contexts.ticket&id={$ticket->id}{/devblocks_url}">{$translate->_('common.links')|escape:'quotes'}</a></li>
 		<li><a href="{devblocks_url}ajax.php?c=display&a=showProperties&ticket_id={$ticket->id}{/devblocks_url}">{$translate->_('display.tab.properties')|escape:'quotes'}</a></li>
 		<li><a href="{devblocks_url}ajax.php?c=display&a=showContactHistory&ticket_id={$ticket->id}{/devblocks_url}">{'display.tab.history'|devblocks_translate|escape:'quotes'}</a></li>
 

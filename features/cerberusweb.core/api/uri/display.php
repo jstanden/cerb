@@ -462,8 +462,9 @@ class ChDisplayPage extends CerberusPageExtension {
 					DAO_WorkerEvent::CREATED_DATE => time(),
 					DAO_WorkerEvent::WORKER_ID => $notify_worker_id,
 					DAO_WorkerEvent::URL => $url_writer->write('c=display&id='.$ticket->mask,true),
-					DAO_WorkerEvent::TITLE => 'New Ticket Note', // [TODO] Translate
-					DAO_WorkerEvent::CONTENT => sprintf("#%s: %s\n%s notes: %s", $ticket->mask, $ticket->subject, $worker->getName(), $content), // [TODO] Translate
+					DAO_WorkerEvent::MESSAGE => sprintf("%s left a note for you on a ticket.",
+						$worker->getName()
+					),
 					DAO_WorkerEvent::IS_READ => 0,
 				);
 				DAO_WorkerEvent::create($fields);

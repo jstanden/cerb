@@ -258,11 +258,8 @@ class ChTasksPage extends CerberusPageExtension {
 						DAO_WorkerEvent::CREATED_DATE => time(),
 						DAO_WorkerEvent::WORKER_ID => $worker_id,
 						DAO_WorkerEvent::URL => $url_writer->write('c=tasks&a=display&id='.$id),
-						DAO_WorkerEvent::TITLE => 'New Task Assignment', // [TODO] Translate
-						DAO_WorkerEvent::CONTENT => sprintf("%s\n%s says: %s",
-							$source_name, 
-							$active_worker->getName(),
-							$title
+						DAO_WorkerEvent::MESSAGE => sprintf("%s assigned a task to you.",
+							$active_worker->getName()
 						),
 						DAO_WorkerEvent::IS_READ => 0,
 					);

@@ -211,4 +211,23 @@ if(!isset($tables['comment'])) {
 	$tables['comment'] = 'comment';
 }
 
+// ===========================================================================
+// Simplify notifications
+
+if(!isset($tables['worker_event']))
+	return FALSE;
+
+list($columns, $indexes) = $db->metaTable('worker_event');
+
+if(isset($columns['content'])) {
+	$db->Execute('ALTER TABLE worker_event DROP COLUMN content');
+}
+
+if(isset($columns['title']) && !isset($columns['message'])) {
+	$db->Execute('ALTER TABLE worker_event CHANGE COLUMN title message TEXT');
+	
+	// Clear view customizations since fields changed significantly
+	$db->Execute("DELETE FROM worker_pref WHERE setting = 'viewhome_myevents'");
+}
+
 return TRUE;

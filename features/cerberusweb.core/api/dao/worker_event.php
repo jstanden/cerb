@@ -53,8 +53,7 @@ class DAO_WorkerEvent extends DevblocksORMHelper {
 	const ID = 'id';
 	const CREATED_DATE = 'created_date';
 	const WORKER_ID = 'worker_id';
-	const TITLE = 'title';
-	const CONTENT = 'content';
+	const MESSAGE = 'message';
 	const IS_READ = 'is_read';
 	const URL = 'url';
 
@@ -95,7 +94,7 @@ class DAO_WorkerEvent extends DevblocksORMHelper {
 	static function getWhere($where=null) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = "SELECT id, created_date, worker_id, title, content, is_read, url ".
+		$sql = "SELECT id, created_date, worker_id, message, is_read, url ".
 			"FROM worker_event ".
 			(!empty($where) ? sprintf("WHERE %s ",$where) : "").
 			"ORDER BY id asc";
@@ -150,9 +149,8 @@ class DAO_WorkerEvent extends DevblocksORMHelper {
 			$object->id = $row['id'];
 			$object->created_date = $row['created_date'];
 			$object->worker_id = $row['worker_id'];
-			$object->title = $row['title'];
+			$object->message = $row['message'];
 			$object->url = $row['url'];
-			$object->content = $row['content'];
 			$object->is_read = $row['is_read'];
 			$objects[$object->id] = $object;
 		}
@@ -217,8 +215,7 @@ class DAO_WorkerEvent extends DevblocksORMHelper {
 			"we.id as %s, ".
 			"we.created_date as %s, ".
 			"we.worker_id as %s, ".
-			"we.title as %s, ".
-			"we.content as %s, ".
+			"we.message as %s, ".
 			"we.is_read as %s, ".
 			"we.url as %s ".
 			"FROM worker_event we ",
@@ -226,8 +223,7 @@ class DAO_WorkerEvent extends DevblocksORMHelper {
 			    SearchFields_WorkerEvent::ID,
 			    SearchFields_WorkerEvent::CREATED_DATE,
 			    SearchFields_WorkerEvent::WORKER_ID,
-			    SearchFields_WorkerEvent::TITLE,
-			    SearchFields_WorkerEvent::CONTENT,
+			    SearchFields_WorkerEvent::MESSAGE,
 			    SearchFields_WorkerEvent::IS_READ,
 			    SearchFields_WorkerEvent::URL
 			).
@@ -275,8 +271,7 @@ class SearchFields_WorkerEvent implements IDevblocksSearchFields {
 	const ID = 'we_id';
 	const CREATED_DATE = 'we_created_date';
 	const WORKER_ID = 'we_worker_id';
-	const TITLE = 'we_title';
-	const CONTENT = 'we_content';
+	const MESSAGE = 'we_message';
 	const IS_READ = 'we_is_read';
 	const URL = 'we_url';
 	
@@ -290,8 +285,7 @@ class SearchFields_WorkerEvent implements IDevblocksSearchFields {
 			self::ID => new DevblocksSearchField(self::ID, 'we', 'id', $translate->_('worker_event.id')),
 			self::CREATED_DATE => new DevblocksSearchField(self::CREATED_DATE, 'we', 'created_date', $translate->_('worker_event.created_date')),
 			self::WORKER_ID => new DevblocksSearchField(self::WORKER_ID, 'we', 'worker_id', $translate->_('worker_event.worker_id')),
-			self::TITLE => new DevblocksSearchField(self::TITLE, 'we', 'title', $translate->_('worker_event.title')),
-			self::CONTENT => new DevblocksSearchField(self::CONTENT, 'we', 'content', $translate->_('worker_event.content')),
+			self::MESSAGE => new DevblocksSearchField(self::MESSAGE, 'we', 'message', $translate->_('worker_event.message')),
 			self::IS_READ => new DevblocksSearchField(self::IS_READ, 'we', 'is_read', $translate->_('worker_event.is_read')),
 			self::URL => new DevblocksSearchField(self::URL, 'we', 'url', $translate->_('common.url')),
 		);
@@ -307,8 +301,7 @@ class Model_WorkerEvent {
 	public $id;
 	public $created_date;
 	public $worker_id;
-	public $title;
-	public $content;
+	public $message;
 	public $is_read;
 	public $url;
 };
@@ -324,7 +317,7 @@ class View_WorkerEvent extends C4_AbstractView {
 		$this->renderSortAsc = false;
 
 		$this->view_columns = array(
-			SearchFields_WorkerEvent::CONTENT,
+			SearchFields_WorkerEvent::MESSAGE,
 			SearchFields_WorkerEvent::CREATED_DATE,
 		);
 		$this->columnsHidden = array(
@@ -368,8 +361,7 @@ class View_WorkerEvent extends C4_AbstractView {
 		$tpl->assign('id', $this->id);
 
 		switch($field) {
-			case SearchFields_WorkerEvent::TITLE:
-			case SearchFields_WorkerEvent::CONTENT:
+			case SearchFields_WorkerEvent::MESSAGE:
 			case SearchFields_WorkerEvent::URL:
 				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__string.tpl');
 				break;
@@ -428,8 +420,7 @@ class View_WorkerEvent extends C4_AbstractView {
 		$criteria = null;
 
 		switch($field) {
-			case SearchFields_WorkerEvent::TITLE:
-			case SearchFields_WorkerEvent::CONTENT:
+			case SearchFields_WorkerEvent::MESSAGE:
 			case SearchFields_WorkerEvent::URL:
 				// force wildcards if none used on a LIKE
 				if(($oper == DevblocksSearchCriteria::OPER_LIKE || $oper == DevblocksSearchCriteria::OPER_NOT_LIKE)

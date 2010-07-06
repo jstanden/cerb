@@ -57,20 +57,18 @@
 	{/if}
 	<tbody onmouseover="$(this).find('tr').addClass('hover');" onmouseout="$(this).find('tr').removeClass('hover');" onclick="if(getEventTarget(event)=='TD') { var $chk=$(this).find('input:checkbox:first');if(!$chk) return;$chk.attr('checked', !$chk.is(':checked')); } ">
 		<tr class="{$tableRowClass}">
-			<td align="center" rowspan="2"><input type="checkbox" name="row_id[]" value="{$result.we_id}"></td>
-			<td colspan="{math equation="x" x=$smarty.foreach.headers.total}">
-				{if $result.we_is_read}
-				<span class="cerb-sprite sprite-check_gray"></span>
-				{/if}
-				<a href="{devblocks_url}c=home&a=redirectRead&id={$result.we_id}{/devblocks_url}" class="subject">{$result.we_title}</a><br>
+			<td align="center">		
+				<input type="checkbox" name="row_id[]" value="{$result.we_id}">
 			</td>
-		</tr>
-		<tr class="{$tableRowClass}">
 		{foreach from=$view->view_columns item=column name=columns}
 			{if $column=="we_id"}
-			<td valign="top">{$result.we_id}&nbsp;</td>
+				<td valign="top">{$result.we_id}&nbsp;</td>
+			{elseif $column=="we_message"}
+				<td valign="top">
+					{if $result.we_is_read}<span class="cerb-sprite sprite-check_gray"></span>{/if}<a href="{devblocks_url}c=home&a=redirectRead&id={$result.we_id}{/devblocks_url}" class="subject">{$result.we_message}</a>			
+				</td>
 			{elseif $column=="we_created_date"}
-			<td valign="top"><abbr title="{$result.we_created_date|devblocks_date}">{$result.we_created_date|devblocks_prettytime}</abbr>&nbsp;</td>
+				<td valign="top"><abbr title="{$result.we_created_date|devblocks_date}">{$result.we_created_date|devblocks_prettytime}</abbr>&nbsp;</td>
 			{elseif $column=="we_worker_id"}
 				{assign var=worker_id value=$result.$column}
 				<td>
@@ -82,13 +80,11 @@
 					&nbsp;
 				</td>
 			{elseif $column=="we_url"}
-			<td valign="top"><a href="{devblocks_url}c=home&a=redirectRead&id={$result.we_id}{/devblocks_url}">{$result.$column}</a>&nbsp;</td>
+				<td valign="top"><a href="{devblocks_url}c=home&a=redirectRead&id={$result.we_id}{/devblocks_url}">{$result.$column}</a>&nbsp;</td>
 			{elseif $column=="we_is_read"}
-			<td valign="top">{if $result.$column}<span class="cerb-sprite sprite-check_gray"></span>{/if}&nbsp;</td>
-			{elseif $column=="we_content"}
-			<td valign="top">{$result.$column|nl2br}&nbsp;</td>
+				<td valign="top">{if $result.$column}<span class="cerb-sprite sprite-check_gray"></span>{/if}&nbsp;</td>
 			{else}
-			<td valign="top">{$result.$column}&nbsp;</td>
+				<td valign="top">{$result.$column}&nbsp;</td>
 			{/if}
 		{/foreach}
 		</tr>

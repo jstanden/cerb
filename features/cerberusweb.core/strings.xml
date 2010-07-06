@@ -321,6 +321,9 @@
 		<tu tuid='common.status'>
 			<tuv xml:lang="en_US"><seg>Status</seg></tuv>
 		</tu>
+		<tu tuid='common.summary'>
+			<tuv xml:lang="en_US"><seg>Summary</seg></tuv>
+		</tu>
 		<tu tuid='common.synchronize'>
 			<tuv xml:lang="en_US"><seg>Synchronize</seg></tuv>
 		</tu>
@@ -749,6 +752,45 @@
 		</tu>
 		<tu tuid='contact_person.title'>
 			<tuv xml:lang="en_US"><seg>Title</seg></tuv>
+		</tu>
+
+		<!-- Contexts -->
+		
+		<tu tuid='context.default.assigned'>
+			<tuv xml:lang="en_US"><seg>%s assigned something to you.</seg></tuv>
+		</tu>
+		<tu tuid='context.default.commented'>
+			<tuv xml:lang="en_US"><seg>%s left a comment for you.</seg></tuv>
+		</tu>
+		<tu tuid='context.address.assigned'>
+			<tuv xml:lang="en_US"><seg>%s assigned a contact to you.</seg></tuv>
+		</tu>
+		<tu tuid='context.address.commented'>
+			<tuv xml:lang="en_US"><seg>%s commented on a contact.</seg></tuv>
+		</tu>
+		<tu tuid='context.org.assigned'>
+			<tuv xml:lang="en_US"><seg>%s assigned an organization to you.</seg></tuv>
+		</tu>
+		<tu tuid='context.org.commented'>
+			<tuv xml:lang="en_US"><seg>%s commented on an organization.</seg></tuv>
+		</tu>
+		<tu tuid='context.task.assigned'>
+			<tuv xml:lang="en_US"><seg>%s assigned a task to you.</seg></tuv>
+		</tu>
+		<tu tuid='context.task.commented'>
+			<tuv xml:lang="en_US"><seg>%s commented on a task.</seg></tuv>
+		</tu>
+		<tu tuid='context.ticket.assigned'>
+			<tuv xml:lang="en_US"><seg>%s assigned a ticket to you.</seg></tuv>
+		</tu>
+		<tu tuid='context.ticket.commented'>
+			<tuv xml:lang="en_US"><seg>%s commented on a ticket.</seg></tuv>
+		</tu>
+		<tu tuid='context.worker.assigned'>
+			<tuv xml:lang="en_US"><seg>%s assigned a worker to you.</seg></tuv>
+		</tu>
+		<tu tuid='context.worker.commented'>
+			<tuv xml:lang="en_US"><seg>%s commented on another worker.</seg></tuv>
 		</tu>
 
 		<!-- Cron -->
@@ -1596,17 +1638,14 @@ For example: *receipt*</seg></tuv>
 		<tu tuid='worker_event.id'>
 			<tuv xml:lang="en_US"><seg>ID</seg></tuv>
 		</tu>
-		<tu tuid='worker_event.content'>
-			<tuv xml:lang="en_US"><seg>Content</seg></tuv>
-		</tu>
 		<tu tuid='worker_event.created_date'>
 			<tuv xml:lang="en_US"><seg>Created</seg></tuv>
 		</tu>
 		<tu tuid='worker_event.is_read'>
 			<tuv xml:lang="en_US"><seg>Is Read</seg></tuv>
 		</tu>
-		<tu tuid='worker_event.title'>
-			<tuv xml:lang="en_US"><seg>Title</seg></tuv>
+		<tu tuid='worker_event.message'>
+			<tuv xml:lang="en_US"><seg>Message</seg></tuv>
 		</tu>
 		<tu tuid='worker_event.worker_id'>
 			<tuv xml:lang="en_US"><seg>Worker</seg></tuv>

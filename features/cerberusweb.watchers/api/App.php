@@ -154,8 +154,9 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
 					DAO_WorkerEvent::CREATED_DATE => time(),
 					DAO_WorkerEvent::WORKER_ID => $filter->worker_id,
 					DAO_WorkerEvent::URL => $url,
-					DAO_WorkerEvent::TITLE => 'Watcher: '. $filter->name,
-					DAO_WorkerEvent::CONTENT => $msg,
+					DAO_WorkerEvent::MESSAGE => sprintf("A ticket matched your watcher filter: %s",
+						$filter->name
+					),
 					DAO_WorkerEvent::IS_READ => 0,
 				);
 				DAO_WorkerEvent::create($fields);
