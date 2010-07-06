@@ -714,7 +714,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		$tpl->assign('context_id', $context_id);
 		
 		// Automatically tell anybody associated with this context object
-		$workers = DAO_ContextLink::getWorkers($context, $context_id);
+		$workers = CerberusContexts::getWorkers($context, $context_id);
 		$tpl->assign('notify_workers', $workers);
 		
 		$tpl->display('file:' . $this->_TPL_PATH . 'internal/comments/peek.tpl');

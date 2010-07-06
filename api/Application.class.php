@@ -753,6 +753,53 @@ class CerberusContexts {
 		return true;
 	}
 	
+	static public function getWorkers($context, $context_id) {
+		list($results, $null) = DAO_Worker::search(
+			array(
+				SearchFields_Worker::ID,
+			),
+			array(
+				new DevblocksSearchCriteria(SearchFields_Worker::CONTEXT_LINK,'=',$context),
+				new DevblocksSearchCriteria(SearchFields_Worker::CONTEXT_LINK_ID,'=',$context_id),
+			),
+			0,
+			0,
+			null,
+			null,
+			false
+		);
+		
+		$workers = array();
+		
+		if(!empty($results)) {
+			$workers = DAO_Worker::getWhere(sprintf("%s IN (%s)",
+				DAO_Worker::ID,
+				implode(',', array_keys($results))
+			));
+		}
+		
+		return $workers;
+	}
+	
+	static public function setWorkers($context, $context_id, $worker_ids) {
+		$current_workers = self::getWorkers($context, $context_id);
+		
+		// Remove
+		if(is_array($current_workers))
+		foreach($current_workers as $current_worker_id => $current_worker) {
+			if(false === array_search($current_worker_id, $worker_ids))
+				DAO_ContextLink::deleteLink($context, $context_id, CerberusContexts::CONTEXT_WORKER, $current_worker_id, true);
+		}
+		
+		// Add
+		if(is_array($worker_ids))
+		foreach($worker_ids as $worker_id) {
+			if(true == DAO_ContextLink::setLink($context, $context_id, CerberusContexts::CONTEXT_WORKER, $worker_id, true)) {
+				// [TODO] Trigger 'context.assigned' notification
+			}
+		}
+	}	
+	
 	private static function _getAttachmentContext($attachment, &$token_labels, &$token_values, $prefix=null) {
 		if(is_null($prefix))
 			$prefix = 'Attachment:';

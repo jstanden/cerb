@@ -29,6 +29,8 @@ class DAO_ContextLink {
 			);
 			$db->Execute($sql);
 		}
+		
+		return $db->Affected_Rows();
 	}
 	
 	static public function getLinks($context, $context_id) {
@@ -45,34 +47,6 @@ class DAO_ContextLink {
 		$rs = $db->Execute($sql);
 		
 		return self::_getObjectsFromResultSet($rs);
-	}
-	
-	static public function getWorkers($context, $context_id) {
-		list($results, $null) = DAO_Worker::search(
-			array(
-				SearchFields_Worker::ID,
-			),
-			array(
-				new DevblocksSearchCriteria(SearchFields_Worker::CONTEXT_LINK,'=',$context),
-				new DevblocksSearchCriteria(SearchFields_Worker::CONTEXT_LINK_ID,'=',$context_id),
-			),
-			0,
-			0,
-			null,
-			null,
-			false
-		);
-		
-		$workers = array();
-		
-		if(!empty($results)) {
-			$workers = DAO_Worker::getWhere(sprintf("%s IN (%s)",
-				DAO_Worker::ID,
-				implode(',', array_keys($results))
-			));
-		}
-		
-		return $workers;
 	}
 	
 	static private function _getObjectsFromResultSet($rs) {
