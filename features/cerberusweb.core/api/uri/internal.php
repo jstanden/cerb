@@ -713,6 +713,31 @@ class ChInternalController extends DevblocksControllerExtension {
 		$tpl->assign('context', $context);
 		$tpl->assign('context_id', $context_id);
 		
+		// Automatically tell anybody associated with this context object
+		
+		list($results, $null) = DAO_Worker::search(
+			array(
+				SearchFields_Worker::ID,
+			),
+			array(
+				new DevblocksSearchCriteria(SearchFields_Worker::CONTEXT_LINK,'=',$context),
+				new DevblocksSearchCriteria(SearchFields_Worker::CONTEXT_LINK_ID,'=',$context_id),
+			),
+			0,
+			0,
+			null,
+			null,
+			false
+		);
+		
+		if(!empty($results)) {
+			$workers = DAO_Worker::getWhere(sprintf("%s IN (%s)",
+				DAO_Worker::ID,
+				implode(',', array_keys($results))
+			));
+			$tpl->assign('notify_workers', $workers);
+		}
+		
 		$tpl->display('file:' . $this->_TPL_PATH . 'internal/comments/peek.tpl');
 	}
 	

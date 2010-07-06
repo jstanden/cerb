@@ -10,6 +10,13 @@
 
 <b>Notify workers</b>:<br>
 <div style="margin-left:20px;margin-bottom:1em;">
+	{if !empty($notify_workers)}
+	<div class="chooser-container">
+		{foreach from=$notify_workers item=notify_worker}
+		<div><button type="button" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash"></span></button> {$notify_worker->getName()|escape}<input type="hidden" name="notify_worker_ids[]" value="{$notify_worker->id}"></div>
+		{/foreach}
+	</div>
+	{/if}
 	<button type="button" class="chooser_worker"><span class="cerb-sprite sprite-add"></span></button>
 </div>
 
