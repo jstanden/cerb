@@ -35,15 +35,28 @@
 </div>
 
 {* Message History *}
+{$badge_extensions = DevblocksPlatform::getExtensions('cerberusweb.support_center.message.badge', true)}
 {foreach from=$messages item=message key=message_id}
 	{assign var=headers value=$message->getHeaders()}
-	<div class="message {if $message->is_outgoing}outbound_message{else}inbound_message{/if}">
-	<span class="header"><b>{$translate->_('message.header.from')|capitalize}:</b> {$headers.from|escape}</span><br>
+	{assign var=sender value=$message->getSender()}
+	<div class="message {if $message->is_outgoing}outbound_message{else}inbound_message{/if}" style="overflow:auto;">
+
+	{foreach from=$badge_extensions item=extension}
+		{$extension->render($message)}
+	{/foreach}
+		
+	<span class="header"><b>{$translate->_('message.header.from')|capitalize}:</b>
+		{$sender_name = $sender->getName()}
+		{if !empty($sender_name)}&quot;{$sender_name|escape}&quot; {/if}&lt;{$sender->email|escape}&gt; 
+	</span><br>
 	<span class="header"><b>{$translate->_('message.header.to')|capitalize}:</b> {$headers.to|escape}</span><br>
 	{if !empty($headers.cc)}<span class="header"><b>{$translate->_('message.header.cc')|capitalize}:</b> {$headers.cc|escape}</span><br>{/if}
 	{if !empty($headers.date)}<span class="header"><b>{$translate->_('message.header.date')|capitalize}:</b> {$headers.date|escape}</span><br>{/if}
 	<br>
+	
+	<div style="clear:both;">
 	{$message->getContent()|trim|escape|nl2br}
+	</div>
 	
 	{if isset($attachments.$message_id)}
 		<div style="margin-top:10px;">

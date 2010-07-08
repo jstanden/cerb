@@ -223,5 +223,12 @@ abstract class Extension_ScLoginAuthenticator extends DevblocksExtension {
 		$umsession = UmPortalHelper::getSession();
 		$umsession->setProperty('sc_login',null);
 	}
+};
+
+abstract class Extension_SupportCenterMessageBadge extends DevblocksExtension {
+	function __construct($manifest) {
+		$this->DevblocksExtension($manifest);
+	}
 	
+	function render(Model_Message $message) {}
 };
