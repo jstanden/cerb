@@ -283,8 +283,15 @@ class Model_Comment {
 	public $address_id;
 	public $comment;
 	
+	public $_email_record = null;
+	
 	public function getAddress() {
-		return DAO_Address::get($this->address_id);
+		// Cache repeated calls
+		if(null == $this->_email_record) {
+			$this->_email_record = DAO_Address::get($this->address_id);
+		}
+		
+		return $this->_email_record;
 	}
 };
 
