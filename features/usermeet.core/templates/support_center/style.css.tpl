@@ -28,6 +28,7 @@ BUTTON {
 	color: rgb(30, 30, 30);
 	border: 1px solid rgb(150, 150, 150);
 	margin-right:1px;
+	-moz-border-radius: 5px; -webkit-border-radius: 5px; border-radius: 5px;
 }
 
 BUTTON:hover {
@@ -162,9 +163,6 @@ TABLE.sidebar TD INPUT {
 }
 
 #history DIV.outbound_message SPAN.header {
-	background-color:rgb(232,242,254);
-	color:rgb(32,48,114);
-	font-size:120%;
 }
 
 #history DIV.inbound_message {
