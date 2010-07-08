@@ -1,4 +1,5 @@
 <?php
+if (class_exists('Extension_CommentBadge')):
 class WgmGravatarCommentBadge extends Extension_CommentBadge {
 	function __construct($manifest) {
 		parent::__construct($manifest);
@@ -12,7 +13,9 @@ class WgmGravatarCommentBadge extends Extension_CommentBadge {
 		}
 	}
 };
+endif;
 
+if (class_exists('Extension_MessageBadge')):
 class WgmGravatarMessageBadge extends Extension_MessageBadge {
 	function __construct($manifest) {
 		parent::__construct($manifest);
@@ -26,7 +29,9 @@ class WgmGravatarMessageBadge extends Extension_MessageBadge {
 		}
 	}
 };
+endif;
 
+if (class_exists('Extension_SupportCenterMessageBadge')):
 class WgmGravatarSupportCenterMessageBadge extends Extension_SupportCenterMessageBadge {
 	function __construct($manifest) {
 		parent::__construct($manifest);
@@ -40,4 +45,4 @@ class WgmGravatarSupportCenterMessageBadge extends Extension_SupportCenterMessag
 		}
 	}
 };
-
+endif;
