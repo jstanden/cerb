@@ -245,6 +245,9 @@ For example: http://www.cerberusweb.com/support/</seg></tuv>
 		<tu tuid='portal.sc.public.my_account.change_password_verify'>
 			<tuv xml:lang="en_US"><seg>Verify Password:</seg></tuv>
 		</tu>
+		<tu tuid='portal.sc.public.my_account.profile_picture'>
+			<tuv xml:lang="en_US"><seg>Profile Picture</seg></tuv>
+		</tu>
 		<tu tuid='portal.sc.public.my_account.settings_saved'>
 			<tuv xml:lang="en_US"><seg>Account settings saved!</seg></tuv>
 		</tu>
