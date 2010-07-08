@@ -228,11 +228,12 @@ function genericAjaxPopupFetch($ns) {
 	return $devblocksPopups.data($ns);
 }
 
-function genericAjaxPopupClose($ns) {
+function genericAjaxPopupClose($ns, $event) {
 	$popup = genericAjaxPopupFetch($ns);
 	if(null != $popup) {
 		try {
-			$popup.unbind();
+			if(null != $event)
+				$popup.trigger($event);
 			$popup.dialog('close');
 		} catch(e) { }
 		return true;
@@ -246,6 +247,7 @@ function genericAjaxPopupDestroy($ns) {
 		genericAjaxPopupClose($ns);
 		try {
 			$popup.dialog('destroy');
+			$popup.unbind();
 		} catch(e) { }
 		$devblocksPopups.removeData($popup);
 		return true;
