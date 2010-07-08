@@ -51,5 +51,18 @@
 			</params>
 		</extension>
 		
+		<!-- Support Center -->
+		
+		<extension point="cerberusweb.support_center.message.badge">
+			<id>wgm.gravatar.support_center.message.badge</id>
+			<name>Gravatar Support Center Message Badge</name>
+			<class>
+				<file>api/App.php</file>
+				<name>WgmGravatarSupportCenterMessageBadge</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+		
 	</extensions>
 </plugin>
