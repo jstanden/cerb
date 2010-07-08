@@ -352,6 +352,8 @@ class Model_Message {
 	public $storage_key;
 	public $storage_profile_id;
 	public $storage_size;
+	
+	private $_sender_object = null;
 
 	function Model_Message() {}
 
@@ -367,7 +369,12 @@ class Model_Message {
 	}
 
 	function getSender() {
-		return DAO_Address::get($this->address_id);
+		// Lazy load + cache
+		if(null == $this->_sender_object) {
+			$this->_sender_object = DAO_Address::get($this->address_id);
+		}
+		
+		return $this->_sender_object;
 	}
 	
 	/**
