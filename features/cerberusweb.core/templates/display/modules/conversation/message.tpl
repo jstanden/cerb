@@ -4,58 +4,59 @@
   <tbody>
     <tr>
       <td>
-      <table cellspacing="0" cellpadding="0" width="100%" border="0">
-      	<tr>
-      		<td>
-      			{assign var=sender_id value=$message->address_id}
-      			{if isset($message_senders.$sender_id)}
-      				{assign var=sender value=$message_senders.$sender_id}
-      				{assign var=sender_org_id value=$sender->contact_org_id}
-      				{assign var=sender_org value=$message_sender_orgs.$sender_org_id}
-      				{assign var=is_outgoing value=$message->worker_id}
-      				{if $expanded}
-						<h3 style="display:inline;"><span style="{if !$is_outgoing}color:rgb(255,50,50);background-color:rgb(255,213,213);{else}color:rgb(50,120,50);background-color:rgb(219,255,190);{/if}">{if $is_outgoing}{$translate->_('mail.sent')|lower}{else}{$translate->_('mail.received')|lower}{/if}</span>
-						{if $message->worker_id && isset($workers.{$message->worker_id})}
-							{$msg_worker = $workers.{$message->worker_id}}
-	      					<a href="javascript:;" onclick="genericAjaxPopup('peek','c=contacts&a=showAddressPeek&email={$msg_worker->email|escape:'url'}', null, false, '500', function() { C4_ReloadMessageOnSave('{$message->id}', {if $expanded}true{else}false{/if}); } );" title="{$sender->email}">{if 0 != strlen($msg_worker->getName())}{$msg_worker->getName()}{else}&lt;{$msg_worker->email}&gt;{/if}</a>
-						{else}
-	      					<a href="javascript:;" onclick="genericAjaxPopup('peek','c=contacts&a=showAddressPeek&address_id={$sender_id}', null, false, '500', function() { C4_ReloadMessageOnSave('{$message->id}', {if $expanded}true{else}false{/if}); } );" title="{$sender->email}">{if 0 != strlen($sender->getName())}{$sender->getName()}{else}&lt;{$sender->email}&gt;{/if}</a>
-						{/if}
-						</h3>
-      				{else}
-						<b><span style="{if !$is_outgoing}color:rgb(255,50,50);background-color:rgb(255,213,213);{else}color:rgb(50,120,50);background-color:rgb(219,255,190);{/if}">{if $is_outgoing}{$translate->_('mail.sent')|lower}{else}{$translate->_('mail.received')|lower}{/if}</span>
-						{if $message->worker_id && isset($workers.{$message->worker_id})}
-							{$msg_worker = $workers.{$message->worker_id}}
-      						<a href="javascript:;" onclick="genericAjaxPopup('peek','c=contacts&a=showAddressPeek&email={$msg_worker->email|escape:'url'}', null, false, '500', function() { C4_ReloadMessageOnSave('{$message->id}', {if $expanded}true{else}false{/if}); } );">{if 0 != strlen($msg_worker->getName())}{$msg_worker->getName()}{else}&lt;{$msg_worker->email}&gt;{/if}</a>
-						{else}
-      						<a href="javascript:;" onclick="genericAjaxPopup('peek','c=contacts&a=showAddressPeek&address_id={$sender_id}', null, false, '500', function() { C4_ReloadMessageOnSave('{$message->id}', {if $expanded}true{else}false{/if}); } );">{if 0 != strlen($sender->getName())}{$sender->getName()}{else}&lt;{$sender->email}&gt;{/if}</a>
-						{/if}
-						</b>
-      				{/if}
-      				
-      				&nbsp;
-      				
-      				{if $sender_org_id}
-      					<a href="javascript:;" onclick="genericAjaxPopup('peek','c=contacts&a=showOrgPeek&id={$sender_org_id}', null, false, '500', function() { C4_ReloadMessageOnSave('{$message->id}',{if $expanded}true{else}false{/if}); } );"><small style="">{$sender_org->name}</small></a>
-      				{else}{* No org *}
-      					{if $active_worker->hasPriv('core.addybook.addy.actions.update')}<a href="javascript:;" onclick="genericAjaxPopup('peek','c=contacts&a=showAddressPeek&address_id={$sender_id}', null, false, '500', function() { C4_ReloadMessageOnSave('{$message->id}', {if $expanded}true{else}false{/if}); } );"><small style="background-color:rgb(255,255,194);">{$translate->_('display.convo.set_org')|lower}</small></a>{/if}
-      				{/if}
-      				
-      				<br>
-      			{/if}
-      		</td>
-      		<td align="right">
-      			<button id="btnMsgMax{$message->id}" style="display:none;visibility:hidden;" onclick="genericAjaxGet('{$message->id}t','c=display&a=getMessage&id={$message->id}');"></button>
-      			<button id="btnMsgMin{$message->id}" style="display:none;visibility:hidden;" onclick="genericAjaxGet('{$message->id}t','c=display&a=getMessage&id={$message->id}&hide=1');"></button>
+		{assign var=sender_id value=$message->address_id}
+		{if isset($message_senders.$sender_id)}
+			{assign var=sender value=$message_senders.$sender_id}
+			{assign var=sender_org_id value=$sender->contact_org_id}
+			{assign var=sender_org value=$message_sender_orgs.$sender_org_id}
+			{assign var=is_outgoing value=$message->worker_id}
+
+			<div style="float:right;">      
+	  			<button id="btnMsgMax{$message->id}" style="display:none;visibility:hidden;" onclick="genericAjaxGet('{$message->id}t','c=display&a=getMessage&id={$message->id}');"></button>
+	  			<button id="btnMsgMin{$message->id}" style="display:none;visibility:hidden;" onclick="genericAjaxGet('{$message->id}t','c=display&a=getMessage&id={$message->id}&hide=1');"></button>
 		      {if !$expanded}
 				<a href="javascript:;" onclick="$('#btnMsgMax{$message->id}').click();">{$translate->_('common.maximize')|lower}</a>
 			  {else}
 			  	<a href="javascript:;" onclick="$('#btnMsgMin{$message->id}').click();">{$translate->_('common.minimize')|lower}</a>
-      		  {/if}
-      		</td>
-      	</tr>
-      </table>
-      
+	  		  {/if}
+			</div>
+		
+			{if $expanded}
+			<h3 style="display:inline;"><span style="{if !$is_outgoing}color:rgb(255,50,50);background-color:rgb(255,213,213);{else}color:rgb(50,120,50);background-color:rgb(219,255,190);{/if}">{if $is_outgoing}{$translate->_('mail.sent')|lower}{else}{$translate->_('mail.received')|lower}{/if}</span>
+			{if $message->worker_id && isset($workers.{$message->worker_id})}
+				{$msg_worker = $workers.{$message->worker_id}}
+					<a href="javascript:;" onclick="genericAjaxPopup('peek','c=contacts&a=showAddressPeek&email={$msg_worker->email|escape:'url'}', null, false, '500', function() { C4_ReloadMessageOnSave('{$message->id}', {if $expanded}true{else}false{/if}); } );" title="{$sender->email}">{if 0 != strlen($msg_worker->getName())}{$msg_worker->getName()}{else}&lt;{$msg_worker->email}&gt;{/if}</a>
+			{else}
+					<a href="javascript:;" onclick="genericAjaxPopup('peek','c=contacts&a=showAddressPeek&address_id={$sender_id}', null, false, '500', function() { C4_ReloadMessageOnSave('{$message->id}', {if $expanded}true{else}false{/if}); } );" title="{$sender->email}">{if 0 != strlen($sender->getName())}{$sender->getName()}{else}&lt;{$sender->email}&gt;{/if}</a>
+			{/if}
+			</h3>
+			{else}
+			<b><span style="{if !$is_outgoing}color:rgb(255,50,50);background-color:rgb(255,213,213);{else}color:rgb(50,120,50);background-color:rgb(219,255,190);{/if}">{if $is_outgoing}{$translate->_('mail.sent')|lower}{else}{$translate->_('mail.received')|lower}{/if}</span>
+			{if $message->worker_id && isset($workers.{$message->worker_id})}
+				{$msg_worker = $workers.{$message->worker_id}}
+					<a href="javascript:;" onclick="genericAjaxPopup('peek','c=contacts&a=showAddressPeek&email={$msg_worker->email|escape:'url'}', null, false, '500', function() { C4_ReloadMessageOnSave('{$message->id}', {if $expanded}true{else}false{/if}); } );">{if 0 != strlen($msg_worker->getName())}{$msg_worker->getName()}{else}&lt;{$msg_worker->email}&gt;{/if}</a>
+			{else}
+					<a href="javascript:;" onclick="genericAjaxPopup('peek','c=contacts&a=showAddressPeek&address_id={$sender_id}', null, false, '500', function() { C4_ReloadMessageOnSave('{$message->id}', {if $expanded}true{else}false{/if}); } );">{if 0 != strlen($sender->getName())}{$sender->getName()}{else}&lt;{$sender->email}&gt;{/if}</a>
+			{/if}
+			</b>
+			{/if}
+			
+			&nbsp;
+			
+			{if $sender_org_id}
+				<a href="javascript:;" onclick="genericAjaxPopup('peek','c=contacts&a=showOrgPeek&id={$sender_org_id}', null, false, '500', function() { C4_ReloadMessageOnSave('{$message->id}',{if $expanded}true{else}false{/if}); } );"><small style="">{$sender_org->name}</small></a>
+			{else}{* No org *}
+				{if $active_worker->hasPriv('core.addybook.addy.actions.update')}<a href="javascript:;" onclick="genericAjaxPopup('peek','c=contacts&a=showAddressPeek&address_id={$sender_id}', null, false, '500', function() { C4_ReloadMessageOnSave('{$message->id}', {if $expanded}true{else}false{/if}); } );"><small style="background-color:rgb(255,255,194);">{$translate->_('display.convo.set_org')|lower}</small></a>{/if}
+			{/if}
+			
+			{$extensions = DevblocksPlatform::getExtensions('cerberusweb.message.badge', true)}
+			{foreach from=$extensions item=extension}
+				{$extension->render($message)}
+			{/foreach}
+			
+			<br>
+		{/if}
+	  
 	  <div id="{$message->id}sh" style="display:block;">      
       {if isset($headers.from)}<b>{$translate->_('message.header.from')|capitalize}:</b> {$headers.from|escape|nl2br}<br>{/if}
       {if isset($headers.to)}<b>{$translate->_('message.header.to')|capitalize}:</b> {$headers.to|escape|nl2br}<br>{/if}
@@ -81,8 +82,8 @@
       </div>
       {/if}
       
-      <div style="display:block;padding-top:10px;">
-      	{if $expanded}
+  	{if $expanded}
+      <div style="clear:both;display:block;padding-top:10px;">
     	  	<pre class="emailbody">{$message->getContent()|trim|escape|devblocks_hyperlinks|devblocks_hideemailquotes}</pre>
     	  	<br>
 	      	<table width="100%" cellpadding="0" cellspacing="0" border="0">
@@ -145,9 +146,8 @@
 			</ul>
 			{/if}
 			{/if}
-      	{/if}
-		
 		</div> <!-- end visible -->
+      	{/if}
       </td>
     </tr>
   </tbody>

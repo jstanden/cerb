@@ -181,6 +181,14 @@ abstract class Extension_CommentBadge extends DevblocksExtension {
 	function render(Model_Comment $comment) {}
 };
 
+abstract class Extension_MessageBadge extends DevblocksExtension {
+	function __construct($manifest) {
+		$this->DevblocksExtension($manifest);
+	}
+	
+	function render(Model_Message $message) {}
+};
+
 abstract class Extension_OrgTab extends DevblocksExtension {
 	function __construct($manifest) {
 		$this->DevblocksExtension($manifest);
