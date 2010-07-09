@@ -249,22 +249,6 @@ class ChTasksPage extends CerberusPageExtension {
 					);
 					$note_id = DAO_Comment::create($fields);
 				}
-				
-				// Write a notification (if not assigned to ourselves)
-				if(!empty($worker_id) && $active_worker->id != $worker_id) {
-					$url_writer = DevblocksPlatform::getUrlService();
-					
-					$fields = array(
-						DAO_WorkerEvent::CREATED_DATE => time(),
-						DAO_WorkerEvent::WORKER_ID => $worker_id,
-						DAO_WorkerEvent::URL => $url_writer->write('c=tasks&a=display&id='.$id),
-						DAO_WorkerEvent::MESSAGE => sprintf("%s assigned a task to you.",
-							$active_worker->getName()
-						),
-						DAO_WorkerEvent::IS_READ => 0,
-					);
-					DAO_WorkerEvent::create($fields);
-				}
 			}
 			
 			// Custom field saves
