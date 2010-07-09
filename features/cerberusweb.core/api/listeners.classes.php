@@ -381,6 +381,32 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 		$context = $event->params['context'];
 		$context_id = $event->params['context_id'];
 		
+		// Abstract context assigned notifications
+		if(null != ($mft = DevblocksPlatform::getExtension($context, false, true))) {
+			@$string_assigned = $mft->params['events'][0]['context.assigned'];
+			
+			if(!empty($string_assigned) 
+				&& null != ($ext = $mft->createInstance())	
+				&& null != ($url = $ext->getPermalink($context_id))) {
+				/* @var $ext Extension_DevblocksContext */
+
+				if(null != ($active_worker = CerberusApplication::getActiveWorker())) {
+					$worker_name = $active_worker->getName();
+				} else {
+					$worker_name = 'The system'; 
+				}
+					
+				// Assignment Notification
+				$fields = array(
+					DAO_WorkerEvent::CREATED_DATE => time(),
+					DAO_WorkerEvent::WORKER_ID => $worker_id,
+					DAO_WorkerEvent::URL => $url,
+					DAO_WorkerEvent::MESSAGE => vsprintf($translate->_($string_assigned), $worker_name),
+				);
+				DAO_WorkerEvent::create($fields);
+			}
+		}
+		
 		// Per-context itemized notifications
 		switch($context) {
 			// Task
