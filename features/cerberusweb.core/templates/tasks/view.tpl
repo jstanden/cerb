@@ -89,13 +89,6 @@
 					<a href="{$result.t_url}" target="_blank">{$result.t_url|truncate:64:'...':true}</a>
 					{/if}
 				</td>
-			{elseif $column=="t_worker_id"}
-				<td>
-					{assign var=t_worker_id value=$result.t_worker_id}
-					{if isset($workers.$t_worker_id)}
-						{$workers.$t_worker_id->getName()}&nbsp;
-					{/if}
-				</td>
 			{elseif $column=="t_is_completed"}
 				<td>
 					{if $result.t_is_completed}

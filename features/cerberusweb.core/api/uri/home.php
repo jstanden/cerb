@@ -274,28 +274,6 @@ class ChHomePage extends CerberusPageExtension {
 		);
 		DAO_WorkerWorkspaceList::create($fields);
 		
-		// My Tasks
-		
-		$list = new Model_WorkerWorkspaceListView();
-		$list->title = 'My Tasks';
-		$list->columns = array(
-			SearchFields_Task::DUE_DATE,
-		);
-		$list->params = array(
-			SearchFields_Task::IS_COMPLETED => new DevblocksSearchCriteria(SearchFields_Task::IS_COMPLETED,'=',0), 
-			SearchFields_Task::WORKER_ID => new DevblocksSearchCriteria(SearchFields_Task::WORKER_ID,'=',$active_worker->id), 
-		);
-		$list->num_rows = 5;
-		
-		$fields = array(
-			DAO_WorkerWorkspaceList::WORKER_ID => $active_worker->id,
-			DAO_WorkerWorkspaceList::LIST_POS => 2,
-			DAO_WorkerWorkspaceList::LIST_VIEW => serialize($list),
-			DAO_WorkerWorkspaceList::WORKSPACE => $workspace,
-			DAO_WorkerWorkspaceList::SOURCE_EXTENSION => ChWorkspaceSource_Task::ID,
-		);
-		DAO_WorkerWorkspaceList::create($fields);
-		
 		// Select the new tab
 		$visit->set(CerberusVisit::KEY_HOME_SELECTED_TAB, 'w_'.$workspace);
 		

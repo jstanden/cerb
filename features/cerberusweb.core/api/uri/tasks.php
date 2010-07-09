@@ -159,9 +159,6 @@ class ChTasksPage extends CerberusPageExtension {
 			$tpl->assign('task', $task);
 		}
 
-		$workers = DAO_Worker::getAllActive();
-		$tpl->assign('workers', $workers);
-		
 		// Custom fields
 		$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Task::ID); 
 		$tpl->assign('custom_fields', $custom_fields);
@@ -177,6 +174,10 @@ class ChTasksPage extends CerberusPageExtension {
 		$comments = DAO_Comment::getByContext(CerberusContexts::CONTEXT_TASK, $id);
 		$tpl->assign('comments', $comments);
 
+		// Workers
+		$context_workers = CerberusContexts::getWorkers(CerberusContexts::CONTEXT_TASK, $id);
+		$tpl->assign('context_workers', $context_workers);
+		
 		// View
 		$tpl->assign('id', $id);
 		$tpl->assign('view_id', $view_id);
@@ -194,8 +195,9 @@ class ChTasksPage extends CerberusPageExtension {
 			$task = DAO_Task::get($id);
 
 			// Check privs
-			if(($active_worker->hasPriv('core.tasks.actions.create') && $active_worker->id==$task->worker_id)
-				|| ($active_worker->hasPriv('core.tasks.actions.update_nobody') && empty($task->worker_id)) 
+			// [TODO] Workers on task
+			if(($active_worker->hasPriv('core.tasks.actions.create') /*&& $active_worker->id==$task->worker_id*/)
+				|| ($active_worker->hasPriv('core.tasks.actions.update_nobody') /*&& empty($task->worker_id)*/) 
 				|| $active_worker->hasPriv('core.tasks.actions.update_all'))
 					DAO_Task::delete($id);
 			
@@ -224,10 +226,6 @@ class ChTasksPage extends CerberusPageExtension {
 			@$due_date = DevblocksPlatform::importGPC($_REQUEST['due_date'],'string','');
 			@$fields[DAO_Task::DUE_DATE] = empty($due_date) ? 0 : intval(strtotime($due_date));		
 	
-			// Worker
-			@$worker_id = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'integer',0);
-			@$fields[DAO_Task::WORKER_ID] = intval($worker_id);
-			
 			// Save
 			if(!empty($id)) {
 				DAO_Task::update($id, $fields);
@@ -250,6 +248,10 @@ class ChTasksPage extends CerberusPageExtension {
 					$note_id = DAO_Comment::create($fields);
 				}
 			}
+
+			// Workers
+			@$worker_ids = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',array());
+			CerberusContexts::setWorkers(CerberusContexts::CONTEXT_TASK, $id, $worker_ids);
 			
 			// Custom field saves
 			@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', array());
@@ -297,7 +299,6 @@ class ChTasksPage extends CerberusPageExtension {
 		// Task fields
 		$due = trim(DevblocksPlatform::importGPC($_POST['due'],'string',''));
 		$status = trim(DevblocksPlatform::importGPC($_POST['status'],'string',''));
-		$worker_id = trim(DevblocksPlatform::importGPC($_POST['worker_id'],'string',''));
 
 		$do = array();
 		
@@ -308,10 +309,6 @@ class ChTasksPage extends CerberusPageExtension {
 		// Do: Status
 		if(0 != strlen($status))
 			$do['status'] = $status;
-			
-		// Do: Worker
-		if(0 != strlen($worker_id))
-			$do['worker_id'] = $worker_id;
 			
 		// Do: Custom fields
 		$do = DAO_CustomFieldValue::handleBulkPost($do);
@@ -368,7 +365,7 @@ class ChTasksPage extends CerberusPageExtension {
 				$model->params = array(
 					'title' => $view->name,
 					'created' => time(),
-					'worker_id' => $active_worker->id,
+					//'worker_id' => $active_worker->id,
 					'total' => $total,
 					'return_url' => isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : $url_writer->write('c=activity&tab=tasks', true),
 //					'toolbar_extension_id' => 'cerberusweb.explorer.toolbar.',

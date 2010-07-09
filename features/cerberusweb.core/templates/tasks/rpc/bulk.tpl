@@ -32,6 +32,7 @@
 			<button type="button" onclick="this.form.status.selectedIndex = 2;">{'task.status.completed'|devblocks_translate|lower}</button>
 		</td>
 	</tr>
+	{*
 	<tr>
 		<td width="0%" nowrap="nowrap" align="right">{'common.worker'|devblocks_translate|capitalize}:</td>
 		<td width="100%">
@@ -49,6 +50,7 @@
 	      	{/if}
 		</td>
 	</tr>
+	*}
 </table>
 
 {include file="file:$core_tpl/internal/custom_fields/bulk/form.tpl" bulk=true}	

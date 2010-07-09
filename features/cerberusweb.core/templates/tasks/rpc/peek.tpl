@@ -20,15 +20,22 @@
 		</td>
 	</tr>
 	<tr>
-		<td width="0%" nowrap="nowrap" align="right">{'common.worker'|devblocks_translate|capitalize}: </td>
+		<td width="0%" nowrap="nowrap" align="right" valign="top"><label for="checkTaskCompleted">{'task.is_completed'|devblocks_translate|capitalize}:</label> </td>
 		<td width="100%">
-			<select name="worker_id">
-				<option value="0">- {'common.anybody'|devblocks_translate|lower} -</option>
-				{foreach from=$workers item=worker key=worker_id name=workers}
-				{if $worker_id==$active_worker->id}{assign var=active_worker_sel_id value=$smarty.foreach.workers.iteration}{/if}
-				<option value="{$worker_id}" {if $worker_id==$task->worker_id}selected{/if}>{$worker->getName()}</option>
+			<input id="checkTaskCompleted" type="checkbox" name="completed" value="1" {if $task->is_completed}checked{/if}>
+		</td>
+	</tr>
+	<tr>
+		<td width="0%" nowrap="nowrap" valign="top" align="right">{'common.workers'|devblocks_translate|capitalize}: </td>
+		<td width="100%">
+			{if !empty($context_workers)}
+			<div class="chooser-container">
+				{foreach from=$context_workers item=context_worker}
+				<div><button type="button" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash"></span></button> {$context_worker->getName()|escape}<input type="hidden" name="worker_id[]" value="{$context_worker->id}"></div>
 				{/foreach}
-			</select>{if !empty($active_worker_sel_id)}<button type="button" onclick="this.form.worker_id.selectedIndex = {$active_worker_sel_id};">{'common.me'|devblocks_translate|lower}</button>{/if}
+			</div>
+			{/if}
+			<button type="button" class="chooser_worker"><span class="cerb-sprite sprite-add"></span></button>
 		</td>
 	</tr>
 	{if empty($task->id)}
@@ -39,29 +46,30 @@
 		</td>
 	</tr>
 	{/if}
-	<tr>
-		<td width="0%" nowrap="nowrap" align="right" valign="top"><label for="checkTaskCompleted">{'task.is_completed'|devblocks_translate|capitalize}:</label> </td>
-		<td width="100%">
-			<input id="checkTaskCompleted" type="checkbox" name="completed" value="1" {if $task->is_completed}checked{/if}>
-		</td>
-	</tr>
 </table>
 
 {include file="file:$core_tpl/internal/custom_fields/bulk/form.tpl" bulk=false}
 
-{include file="file:$core_tpl/tasks/display/tabs/notes.tpl" readonly=true}
-
+{* Only display the latest *}
+{if !empty($comments)}
+	{$comment = array_shift($comments)}
+	{include file="file:$core_tpl/internal/comments/comment.tpl" readonly=true}
+{/if}
 <br>
 
 {if ($active_worker->hasPriv('core.tasks.actions.create') && (empty($task) || $active_worker->id==$task->worker_id))
 	|| ($active_worker->hasPriv('core.tasks.actions.update_nobody') && empty($task->worker_id)) 
 	|| $active_worker->hasPriv('core.tasks.actions.update_all')}
-	<button type="button" onclick="genericAjaxPopupClose('peek');genericAjaxPost('formTaskPeek', 'view{$view_id}');"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')}</button>
+	<button type="button" onclick="genericAjaxPopupClose('peek', 'task_save');genericAjaxPost('formTaskPeek', 'view{$view_id}');"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')}</button>
 	{if !empty($task)}<button type="button" onclick="if(confirm('Are you sure you want to permanently delete this task?')) { $('#formTaskPeek input[name=do_delete]').val('1'); genericAjaxPost('formTaskPeek', 'view{$view_id}'); genericAjaxPopupClose('peek'); } "><span class="cerb-sprite sprite-delete2"></span> {$translate->_('common.delete')|capitalize}</button>{/if}
 {else}
 	<div class="error">{'error.core.no_acl.edit'|devblocks_translate}</div>
 {/if}
-<br>
+{if !empty($task)}
+<div style="float:right;">
+	<a href="{devblocks_url}c=tasks&a=display&id={$task->id}{/devblocks_url}">view full record</a>
+</div>
+{/if}
 </form>
 
 <script language="JavaScript1.2" type="text/javascript">
@@ -69,5 +77,17 @@
 	$popup.one('popup_open',function(event,ui) {
 		$popup.dialog('option','title','Tasks');
 		$('#formTaskPeek :input:text:first').focus().select();
-	} );
+	});
+	$('#formTaskPeek button.chooser_worker').click(function() {
+		$button = $(this);
+		$chooser=genericAjaxPopup('chooser','c=internal&a=chooserOpen&context=cerberusweb.contexts.worker',null,true,'750');
+		$chooser.one('chooser_save', function(event) {
+			$label = $button.prev('div.chooser-container');
+			if(0==$label.length)
+				$label = $('<div class="chooser-container"></div>').insertBefore($button);
+			for(var idx in event.labels)
+				if(0==$label.find('input:hidden[value='+event.values[idx]+']').length)
+					$label.append($('<div><button type="button" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash"></span></button> '+event.labels[idx]+'<input type="hidden" name="worker_id[]" value="'+event.values[idx]+'"></div>'));
+		});
+	});
 </script>

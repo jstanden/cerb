@@ -50,7 +50,6 @@
 class DAO_Task extends C4_ORMHelper {
 	const ID = 'id';
 	const TITLE = 'title';
-	const WORKER_ID = 'worker_id';
 	const UPDATED_DATE = 'updated_date';
 	const DUE_DATE = 'due_date';
 	const IS_COMPLETED = 'is_completed';
@@ -99,7 +98,7 @@ class DAO_Task extends C4_ORMHelper {
 	static function getWhere($where=null) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = "SELECT id, title, worker_id, due_date, updated_date, is_completed, completed_date ".
+		$sql = "SELECT id, title, due_date, updated_date, is_completed, completed_date ".
 			"FROM task ".
 			(!empty($where) ? sprintf("WHERE %s ",$where) : "").
 			"ORDER BY id asc";
@@ -134,7 +133,6 @@ class DAO_Task extends C4_ORMHelper {
 			$object = new Model_Task();
 			$object->id = $row['id'];
 			$object->title = $row['title'];
-			$object->worker_id = $row['worker_id'];
 			$object->updated_date = $row['updated_date'];
 			$object->due_date = $row['due_date'];
 			$object->is_completed = $row['is_completed'];
@@ -195,7 +193,7 @@ class DAO_Task extends C4_ORMHelper {
 		if(!isset($fields[$sortBy]))
 			$sortBy=null;
 		
-        list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy);
+        list($tables, $wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy);
 		$start = ($page * $limit); // [JAS]: 1-based [TODO] clean up + document
 		
 		$select_sql = sprintf("SELECT ".
@@ -204,16 +202,14 @@ class DAO_Task extends C4_ORMHelper {
 			"t.due_date as %s, ".
 			"t.is_completed as %s, ".
 			"t.completed_date as %s, ".
-			"t.title as %s, ".
-			"t.worker_id as %s ",
+			"t.title as %s ",
 //			"o.name as %s ".
 			    SearchFields_Task::ID,
 			    SearchFields_Task::UPDATED_DATE,
 			    SearchFields_Task::DUE_DATE,
 			    SearchFields_Task::IS_COMPLETED,
 			    SearchFields_Task::COMPLETED_DATE,
-			    SearchFields_Task::TITLE,
-			    SearchFields_Task::WORKER_ID
+			    SearchFields_Task::TITLE
 			 );
 		
 		$join_sql = 
@@ -282,7 +278,6 @@ class SearchFields_Task implements IDevblocksSearchFields {
 	const IS_COMPLETED = 't_is_completed';
 	const COMPLETED_DATE = 't_completed_date';
 	const TITLE = 't_title';
-	const WORKER_ID = 't_worker_id';
 	
 	const CONTEXT_LINK = 'cl_context_from';
 	const CONTEXT_LINK_ID = 'cl_context_from_id';
@@ -300,7 +295,6 @@ class SearchFields_Task implements IDevblocksSearchFields {
 			self::IS_COMPLETED => new DevblocksSearchField(self::IS_COMPLETED, 't', 'is_completed', $translate->_('task.is_completed')),
 			self::DUE_DATE => new DevblocksSearchField(self::DUE_DATE, 't', 'due_date', $translate->_('task.due_date')),
 			self::COMPLETED_DATE => new DevblocksSearchField(self::COMPLETED_DATE, 't', 'completed_date', $translate->_('task.completed_date')),
-			self::WORKER_ID => new DevblocksSearchField(self::WORKER_ID, 't', 'worker_id', $translate->_('task.worker_id')),
 			
 			self::CONTEXT_LINK => new DevblocksSearchField(self::CONTEXT_LINK, 'context_link', 'from_context', null),
 			self::CONTEXT_LINK_ID => new DevblocksSearchField(self::CONTEXT_LINK_ID, 'context_link', 'from_context_id', null),
@@ -324,7 +318,6 @@ class SearchFields_Task implements IDevblocksSearchFields {
 class Model_Task {
 	public $id;
 	public $title;
-	public $worker_id;
 	public $created;
 	public $due_date;
 	public $is_completed;
@@ -346,7 +339,6 @@ class View_Task extends C4_AbstractView {
 		$this->view_columns = array(
 			SearchFields_Task::UPDATED_DATE,
 			SearchFields_Task::DUE_DATE,
-			SearchFields_Task::WORKER_ID,
 		);
 		$this->columnsHidden = array(
 			SearchFields_Task::ID,
@@ -367,7 +359,7 @@ class View_Task extends C4_AbstractView {
 	}
 
 	function getData() {
-		$objects = DAO_Task::search(
+		return $this->_objects = DAO_Task::search(
 			$this->view_columns,
 			$this->getParams(),
 			$this->renderLimit,
@@ -376,7 +368,6 @@ class View_Task extends C4_AbstractView {
 			$this->renderSortAsc,
 			$this->renderTotal
 		);
-		return $objects;
 	}
 
 	function render() {
@@ -430,11 +421,6 @@ class View_Task extends C4_AbstractView {
 				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__date.tpl');
 				break;
 				
-			case SearchFields_Task::WORKER_ID:
-				$workers = DAO_Worker::getAll();
-				$tpl->assign('workers', $workers);
-				
-				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__worker.tpl');
 				break;
 
 			default:
@@ -454,21 +440,6 @@ class View_Task extends C4_AbstractView {
 		$values = !is_array($param->value) ? array($param->value) : $param->value;
 
 		switch($field) {
-			case SearchFields_Task::WORKER_ID:
-				$workers = DAO_Worker::getAll();
-				$strings = array();
-
-				foreach($values as $val) {
-					if(empty($val))
-						$strings[] = "Nobody";
-					elseif(!isset($workers[$val]))
-						continue;
-					else
-						$strings[] = $workers[$val]->getName();
-				}
-				echo implode(", ", $strings);
-				break;
-				
 			default:
 				parent::renderCriteriaParam($param);
 				break;
@@ -509,9 +480,6 @@ class View_Task extends C4_AbstractView {
 				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
 				break;
 				
-			case SearchFields_Task::WORKER_ID:
-				@$worker_id = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',array());
-				$criteria = new DevblocksSearchCriteria($field,$oper,$worker_id);
 				break;
 				
 			default:
@@ -557,9 +525,6 @@ class View_Task extends C4_AbstractView {
 						$change_fields[DAO_Task::IS_COMPLETED] = 0;
 						$change_fields[DAO_Task::COMPLETED_DATE] = 0;
 					}
-					break;
-				case 'worker_id':
-					$change_fields[DAO_Task::WORKER_ID] = intval($v);
 					break;
 				default:
 					// Custom fields
@@ -679,19 +644,19 @@ class Context_Task extends Extension_DevblocksContext {
 		}
 
 		// Assignee
-		@$assignee_id = $task->worker_id;
-		$merge_token_labels = array();
-		$merge_token_values = array();
-		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $assignee_id, $merge_token_labels, $merge_token_values, '', true);
-
-		CerberusContexts::merge(
-			'assignee_',
-			'Assignee:',
-			$merge_token_labels,
-			$merge_token_values,
-			$token_labels,
-			$token_values
-		);			
+//		@$assignee_id = $task->worker_id;
+//		$merge_token_labels = array();
+//		$merge_token_values = array();
+//		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $assignee_id, $merge_token_labels, $merge_token_values, '', true);
+//
+//		CerberusContexts::merge(
+//			'assignee_',
+//			'Assignee:',
+//			$merge_token_labels,
+//			$merge_token_values,
+//			$token_labels,
+//			$token_values
+//		);			
 		
 		return true;
 	}
@@ -709,11 +674,13 @@ class Context_Task extends Extension_DevblocksContext {
 		$view->view_columns = array(
 			SearchFields_Task::UPDATED_DATE,
 			SearchFields_Task::DUE_DATE,
-			SearchFields_Task::WORKER_ID,
 		);
 		$view->addParams(array(
 			SearchFields_Task::IS_COMPLETED => new DevblocksSearchCriteria(SearchFields_Task::IS_COMPLETED,'=',0),
-			SearchFields_Task::WORKER_ID => new DevblocksSearchCriteria(SearchFields_Task::WORKER_ID,'=',$active_worker->id),
+			array(
+				SearchFields_Task::CONTEXT_LINK => new DevblocksSearchCriteria(SearchFields_Task::CONTEXT_LINK,'=',CerberusContexts::CONTEXT_WORKER),
+				SearchFields_Task::CONTEXT_LINK_ID => new DevblocksSearchCriteria(SearchFields_Task::CONTEXT_LINK_ID,'=',$active_worker->id),
+			)
 		), true);
 		$view->renderSortBy = SearchFields_Task::UPDATED_DATE;
 		$view->renderSortAsc = false;

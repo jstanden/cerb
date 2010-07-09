@@ -70,7 +70,7 @@ class ChRest_Tasks extends Extension_RestController implements IExtensionRestCon
 		
 		if('dao'==$type) {
 			$tokens = array(
-				'assignee_id' => DAO_Task::WORKER_ID,
+//				'assignee_id' => DAO_Task::WORKER_ID,
 				'completed' => DAO_Task::COMPLETED_DATE,
 				'due' => DAO_Task::DUE_DATE,
 				'is_completed' => DAO_Task::IS_COMPLETED,
@@ -79,7 +79,7 @@ class ChRest_Tasks extends Extension_RestController implements IExtensionRestCon
 			);
 		} else {
 			$tokens = array(
-				'assignee_id' => SearchFields_Task::WORKER_ID,
+//				'assignee_id' => SearchFields_Task::WORKER_ID,
 				'completed' => SearchFields_Task::COMPLETED_DATE,
 				'due' => SearchFields_Task::DUE_DATE,
 				'id' => SearchFields_Task::ID,
