@@ -363,7 +363,14 @@ class ChInternalController extends DevblocksControllerExtension {
 		if(null != ($preset = DAO_ViewFiltersPreset::get($preset_id))) {
 			if(is_array($preset->params))
 			foreach($preset->params as $data) {
-				$view->addParam(new DevblocksSearchCriteria($data['field'], $data['operator'], $data['value']));
+				if(isset($data[0])) {
+					$params = array(array_shift($data));
+					while(null != ($item = array_shift($data)))
+						$params[] = new DevblocksSearchCriteria($item['field'], $item['operator'], $item['value']);
+					$view->addParam($params);
+				} else {
+					$view->addParam(new DevblocksSearchCriteria($data['field'], $data['operator'], $data['value']));
+				}
 			}
 		}
 		
