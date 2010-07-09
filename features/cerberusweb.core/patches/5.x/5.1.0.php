@@ -224,10 +224,13 @@ if(isset($columns['content'])) {
 }
 
 if(isset($columns['title']) && !isset($columns['message'])) {
-	$db->Execute('ALTER TABLE worker_event CHANGE COLUMN title message TEXT');
+	$db->Execute('ALTER TABLE worker_event CHANGE COLUMN title message VARCHAR(255)');
 	
 	// Clear view customizations since fields changed significantly
 	$db->Execute("DELETE FROM worker_pref WHERE setting = 'viewhome_myevents'");
 }
 
+if(isset($columns['message']) && 0 != strcasecmp('varchar(255)',$columns['message']['type'])) {
+	$db->Execute("ALTER TABLE worker_event MODIFY COLUMN message VARCHAR(255) NOT NULL DEFAULT ''");
+}
 return TRUE;
