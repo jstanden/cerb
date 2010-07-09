@@ -788,13 +788,13 @@ class CerberusContexts {
 		if(is_array($current_workers))
 		foreach($current_workers as $current_worker_id => $current_worker) {
 			if(false === array_search($current_worker_id, $worker_ids))
-				DAO_ContextLink::deleteLink($context, $context_id, CerberusContexts::CONTEXT_WORKER, $current_worker_id, true);
+				DAO_ContextLink::deleteLink($context, $context_id, CerberusContexts::CONTEXT_WORKER, $current_worker_id);
 		}
 		
 		// Add
 		if(is_array($worker_ids))
 		foreach($worker_ids as $worker_id) {
-			if(true == DAO_ContextLink::setLink($context, $context_id, CerberusContexts::CONTEXT_WORKER, $worker_id, true)) {
+			if(true == DAO_ContextLink::setLink($context, $context_id, CerberusContexts::CONTEXT_WORKER, $worker_id)) {
 				// [TODO] Trigger 'context.assigned' notification
 			}
 		}

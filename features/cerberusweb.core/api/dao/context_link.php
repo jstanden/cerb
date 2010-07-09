@@ -6,7 +6,7 @@ class DAO_ContextLink {
 	const TO_CONTEXT_ID = 'to_context_id';
 
 	// [TODO] setLinks
-	static public function setLink($src_context, $src_context_id, $dst_context, $dst_context_id, $is_reciprocal=true) {
+	static public function setLink($src_context, $src_context_id, $dst_context, $dst_context_id) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
 		$sql = sprintf("INSERT IGNORE INTO context_link (from_context, from_context_id, to_context, to_context_id) ".
@@ -19,15 +19,14 @@ class DAO_ContextLink {
 		$db->Execute($sql);
 		
 		// Reciprocal
-		if($is_reciprocal) {
-			$sql = sprintf("INSERT IGNORE INTO context_link (from_context, from_context_id, to_context, to_context_id) ".
-				"VALUES (%s, %d, %s, %d) ",
-				$db->qstr($dst_context),
-				$dst_context_id,
-				$db->qstr($src_context),
-				$src_context_id
-			);
-			$db->Execute($sql);
+		$sql = sprintf("INSERT IGNORE INTO context_link (from_context, from_context_id, to_context, to_context_id) ".
+			"VALUES (%s, %d, %s, %d) ",
+			$db->qstr($dst_context),
+			$dst_context_id,
+			$db->qstr($src_context),
+			$src_context_id
+		);
+		$db->Execute($sql);
 		}
 		
 		return $db->Affected_Rows();
@@ -81,7 +80,7 @@ class DAO_ContextLink {
 		$db->Execute($sql);
 	}
 	
-	static public function deleteLink($src_context, $src_context_id, $dst_context, $dst_context_id, $is_reciprocal=true) {
+	static public function deleteLink($src_context, $src_context_id, $dst_context, $dst_context_id) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
 		$sql = sprintf("DELETE FROM context_link WHERE from_context = %s AND from_context_id = %d AND to_context = %s AND to_context_id = %d",
@@ -92,15 +91,14 @@ class DAO_ContextLink {
 		);
 		$db->Execute($sql);
 
-		if($is_reciprocal) {
-			$sql = sprintf("DELETE FROM context_link WHERE from_context = %s AND from_context_id = %d AND to_context = %s AND to_context_id = %d",
-				$db->qstr($dst_context),
-				$dst_context_id,
-				$db->qstr($src_context),
-				$src_context_id
-			);
-			$db->Execute($sql);
-		}
+		// Reciprocal
+		$sql = sprintf("DELETE FROM context_link WHERE from_context = %s AND from_context_id = %d AND to_context = %s AND to_context_id = %d",
+			$db->qstr($dst_context),
+			$dst_context_id,
+			$db->qstr($src_context),
+			$src_context_id
+		);
+		$db->Execute($sql);
 		
 		return true;
 	}

@@ -179,7 +179,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		
 		if(is_array($context_ids))
 		foreach($context_ids as $context_id)
-			DAO_ContextLink::setLink($context, $context_id, $from_context, $from_context_id, true);
+			DAO_ContextLink::setLink($context, $context_id, $from_context, $from_context_id);
 	}
 	
 	function contextDeleteLinksAction() {
@@ -190,7 +190,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		
 		if(is_array($context_ids))
 		foreach($context_ids as $context_id)
-			DAO_ContextLink::deleteLink($context, $context_id, $from_context, $from_context_id, true);
+			DAO_ContextLink::deleteLink($context, $context_id, $from_context, $from_context_id);
 	}
 	
 	// Snippets
