@@ -129,17 +129,9 @@ class ChInternalController extends DevblocksControllerExtension {
 		// Context Links
 		
 		$views = array();
-		$contexts = array();
-
-		$context_links = DAO_ContextLink::getLinks($context, $context_id);
-		if(is_array($context_links))
-		foreach($context_links as $link) {
-			if(!isset($contexts[$link->context]))
-				$contexts[$link->context] = array();
-		}
-		unset($context_links);
+		$contexts = DAO_ContextLink::getDistinctContexts($context, $context_id);
 		
-		foreach($contexts as $ctx => $ids) {
+		foreach($contexts as $ctx) {
 			if(null == ($ext_context = DevblocksPlatform::getExtension($ctx, true)))
 				continue;
 				
