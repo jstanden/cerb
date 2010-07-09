@@ -4,7 +4,7 @@
 	{if !$nested}
 	<tr>
 		<td width="100%">
-		<input type="checkbox" name="field_deletes[]" value="{$param->field}">
+		<input type="checkbox" name="field_deletes[]" value="{$param_key}">
 	{/if}
 		
 	{if is_array($param)}
