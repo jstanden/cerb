@@ -61,34 +61,60 @@ class DAO_ContextLink {
 		);
 		
 		return true;
-		}
-		
-		return $db->Affected_Rows();
 	}
 	
-	static public function getLinks($context, $context_id) {
+	static public function getDistinctContexts($context, $context_id) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = sprintf("SELECT to_context AS context, to_context_id AS context_id ".
-			"FROM context_link ".
-			"WHERE (%s = %s AND %s = %d) ",
-			self::FROM_CONTEXT,
+		$rows = array();
+		
+		$rs = $db->Execute(sprintf("SELECT DISTINCT to_context AS context FROM context_link WHERE from_context = %s AND from_context_id = %d",
 			$db->qstr($context),
-			self::FROM_CONTEXT_ID,
 			$context_id
+		));
+		
+		if(is_resource($rs))
+		while($row = mysql_fetch_assoc($rs)) {
+			$rows[] = $row['context'];
+		}
+		
+		return $rows;
+	}
+	
+	static public function getContextLinks($from_context, $from_context_ids, $to_context) {
+		if(!is_array($from_context_ids))
+			$from_context_ids = array($from_context_ids);
+		
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		if(empty($from_context_ids))
+			return array();
+		
+		$sql = sprintf("SELECT from_context, from_context_id, to_context, to_context_id ".
+			"FROM context_link ".
+			"WHERE %s = %s ".
+			"AND (%s = %s AND %s IN (%s)) ",
+			self::TO_CONTEXT,
+			$db->qstr($to_context),
+			self::FROM_CONTEXT,
+			$db->qstr($from_context),
+			self::FROM_CONTEXT_ID,
+			implode(',', $from_context_ids)
 		);
 		$rs = $db->Execute($sql);
 		
-		return self::_getObjectsFromResultSet($rs);
-	}
-	
-	static private function _getObjectsFromResultSet($rs) {
 		$objects = array();
 		
 		if(is_resource($rs))
 		while($row = mysql_fetch_assoc($rs)) {
-			$object = new Model_ContextLink($row['context'], $row['context_id']);
-			$objects[] = $object;
+			$from_context_id = $row['from_context_id'];
+			$to_context_id = $row['to_context_id'];
+			$object = new Model_ContextLink($row['to_context'], $row['to_context_id']);
+			
+			if(!isset($objects[$from_context_id]))
+				$objects[$from_context_id] = array();
+			
+			$objects[$from_context_id][$to_context_id] = $object;
 		}
 		
 		return $objects;
