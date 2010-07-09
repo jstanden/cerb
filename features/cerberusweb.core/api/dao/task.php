@@ -233,6 +233,22 @@ class DAO_Task extends C4_ORMHelper {
 			
 		$sort_sql =	(!empty($sortBy) ? sprintf("ORDER BY %s %s ",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : " ");
 		
+		// Virtuals
+		foreach($params as $param_key => $param) {
+			switch($param_key) {
+				case SearchFields_Task::VIRTUAL_WORKERS:
+					if(empty($param->value)) { // empty
+						$where_sql .= "AND (SELECT GROUP_CONCAT(context_link.to_context_id) FROM context_link WHERE context_link.from_context = 'cerberusweb.contexts.task' AND context_link.from_context_id = t.id AND context_link.to_context = 'cerberusweb.contexts.worker') IS NULL ";
+					} else {
+						$where_sql .= sprintf("AND (SELECT GROUP_CONCAT(context_link.to_context_id) FROM context_link WHERE context_link.from_context = 'cerberusweb.contexts.task' AND context_link.from_context_id = t.id AND context_link.to_context = 'cerberusweb.contexts.worker' AND context_link.to_context_id IN (%s)) IS NOT NULL ",
+							implode(',', $param->value)
+						);
+					}
+					break;
+			}
+		}
+		
+		// Build it
 		$sql = 
 			$select_sql.
 			$join_sql.
@@ -279,6 +295,8 @@ class SearchFields_Task implements IDevblocksSearchFields {
 	const COMPLETED_DATE = 't_completed_date';
 	const TITLE = 't_title';
 	
+	const VIRTUAL_WORKERS = '*_workers';
+	
 	const CONTEXT_LINK = 'cl_context_from';
 	const CONTEXT_LINK_ID = 'cl_context_from_id';
 	
@@ -295,6 +313,8 @@ class SearchFields_Task implements IDevblocksSearchFields {
 			self::IS_COMPLETED => new DevblocksSearchField(self::IS_COMPLETED, 't', 'is_completed', $translate->_('task.is_completed')),
 			self::DUE_DATE => new DevblocksSearchField(self::DUE_DATE, 't', 'due_date', $translate->_('task.due_date')),
 			self::COMPLETED_DATE => new DevblocksSearchField(self::COMPLETED_DATE, 't', 'completed_date', $translate->_('task.completed_date')),
+			
+			self::VIRTUAL_WORKERS => new DevblocksSearchField(self::VIRTUAL_WORKERS, '*', 'workers', $translate->_('common.worker')),
 			
 			self::CONTEXT_LINK => new DevblocksSearchField(self::CONTEXT_LINK, 'context_link', 'from_context', null),
 			self::CONTEXT_LINK_ID => new DevblocksSearchField(self::CONTEXT_LINK_ID, 'context_link', 'from_context_id', null),
@@ -344,6 +364,7 @@ class View_Task extends C4_AbstractView {
 			SearchFields_Task::ID,
 			SearchFields_Task::CONTEXT_LINK,
 			SearchFields_Task::CONTEXT_LINK_ID,
+			SearchFields_Task::VIRTUAL_WORKERS,
 		);
 		
 		$this->paramsHidden = array(
@@ -421,8 +442,10 @@ class View_Task extends C4_AbstractView {
 				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__date.tpl');
 				break;
 				
+			case SearchFields_Task::VIRTUAL_WORKERS:
+				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__context_worker.tpl');
 				break;
-
+				
 			default:
 				// Custom Fields
 				if('cf_' == substr($field,0,3)) {
@@ -434,8 +457,31 @@ class View_Task extends C4_AbstractView {
 		}
 	}
 
+	function renderVirtualCriteria($param) {
+		$key = $param->field;
+		
+		switch($key) {
+			case SearchFields_Task::VIRTUAL_WORKERS:
+				if(empty($param->value)) {
+					echo "Workers <b>are not assigned</b>";
+					
+				} elseif(is_array($param->value)) {
+					$workers = DAO_Worker::getAll();
+					$strings = array();
+					
+					foreach($param->value as $worker_id) {
+						if(isset($workers[$worker_id]))
+							$strings[] = '<b>'.$workers[$worker_id]->getName().'</b>';
+					}
+					
+					echo sprintf("Worker is %s", implode(' or ', $strings));
+				}
+				break;
+		}
+	}
+	
 	function renderCriteriaParam($param) {
-		$field = $param->field;
+		$field = !is_null($param_key) ? $param_key : $param->field;
 		$translate = DevblocksPlatform::getTranslationService();
 		$values = !is_array($param->value) ? array($param->value) : $param->value;
 
@@ -480,6 +526,9 @@ class View_Task extends C4_AbstractView {
 				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
 				break;
 				
+			case SearchFields_Task::VIRTUAL_WORKERS:
+				@$worker_ids = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',array());
+				$criteria = new DevblocksSearchCriteria($field,'in', $worker_ids);
 				break;
 				
 			default:
@@ -491,7 +540,7 @@ class View_Task extends C4_AbstractView {
 		}
 
 		if(!empty($criteria)) {
-			$this->addParam($criteria);
+			$this->addParam($criteria, $field);
 			$this->renderPage = 0;
 		}
 	}
