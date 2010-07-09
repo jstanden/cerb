@@ -133,7 +133,13 @@ abstract class DevblocksORMHelper {
 		// Columns
 		if(is_array($columns))
 		foreach($columns as $column) {
-			$tables[$fields[$column]->db_table] = $fields[$column]->db_table;
+			$table_name = $fields[$column]->db_table;
+			$tables[$fields[$column]->db_table] = $table_name;
+			
+			// Skip virtuals
+			if('*' == $table_name)
+				continue;
+			
 			$selects[] = sprintf("%s.%s AS %s",
 				$fields[$column]->db_table,
 				$fields[$column]->db_column,
@@ -143,7 +149,10 @@ abstract class DevblocksORMHelper {
 		
 		// Params
 		if(is_array($params))
-		foreach($params as $param) {
+		foreach($params as $param_key => $param) {
+			// Skip virtuals
+			if('*_' == substr($param_key,0,2))
+				continue;
 			
 			// Is this a criteria group (OR, AND)?
 			if(is_array($param)) {

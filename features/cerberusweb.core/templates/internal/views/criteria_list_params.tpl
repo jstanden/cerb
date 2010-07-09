@@ -7,7 +7,9 @@
 		<input type="checkbox" name="field_deletes[]" value="{$param_key}">
 	{/if}
 		
-	{if is_array($param)}
+	{if '*_' == substr($param_key,0,2)}
+		{$view->renderVirtualCriteria($param)}
+	{elseif is_array($param)}
 		{foreach from=$param item=p name=p}
 			{if $smarty.foreach.p.first}
 			{else}
