@@ -8,6 +8,7 @@ class DAO_ContextLink {
 	// [TODO] setLinks
 	static public function setLink($src_context, $src_context_id, $dst_context, $dst_context_id) {
 		$db = DevblocksPlatform::getDatabaseService();
+		$event = DevblocksPlatform::getEventService();
 		
 		$sql = sprintf("INSERT IGNORE INTO context_link (from_context, from_context_id, to_context, to_context_id) ".
 			"VALUES (%s, %d, %s, %d) ",
@@ -17,6 +18,24 @@ class DAO_ContextLink {
 			$dst_context_id
 		);
 		$db->Execute($sql);
+
+		// Fire an event
+		if($db->Affected_Rows()) {
+			$event->trigger(
+		        new Model_DevblocksEvent(
+		            'context_link.set',
+	                array(
+	                    'from_context' => $src_context,
+	                	'from_context_id' => $src_context_id,
+	                    'to_context' => $dst_context,
+	                	'to_context_id' => $dst_context_id,
+	                )
+	            )
+			);
+			
+		} else {
+			return false;
+		}
 		
 		// Reciprocal
 		$sql = sprintf("INSERT IGNORE INTO context_link (from_context, from_context_id, to_context, to_context_id) ".
@@ -27,6 +46,21 @@ class DAO_ContextLink {
 			$src_context_id
 		);
 		$db->Execute($sql);
+		
+		// Fire an event
+		$event->trigger(
+	        new Model_DevblocksEvent(
+	            'context_link.set',
+                array(
+                    'from_context' => $dst_context,
+                	'from_context_id' => $dst_context_id,
+                    'to_context' => $src_context,
+                	'to_context_id' => $src_context_id,
+                )
+            )
+		);
+		
+		return true;
 		}
 		
 		return $db->Affected_Rows();

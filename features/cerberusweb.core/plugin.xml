@@ -214,6 +214,12 @@
 			<name>Bucket Delete</name>
 			<param key="bucket_ids" />
 		</event>
+		<event id="context_link.set">
+			<name>from_context</name>
+			<name>from_context_id</name>
+			<name>to_context</name>
+			<name>to_context_id</name>
+		</event>
 		<event id="cron.heartbeat">
 			<name>Heartbeat</name>
 		</event>
