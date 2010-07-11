@@ -727,10 +727,7 @@ class Context_Task extends Extension_DevblocksContext {
 		);
 		$view->addParams(array(
 			SearchFields_Task::IS_COMPLETED => new DevblocksSearchCriteria(SearchFields_Task::IS_COMPLETED,'=',0),
-			array(
-				SearchFields_Task::CONTEXT_LINK => new DevblocksSearchCriteria(SearchFields_Task::CONTEXT_LINK,'=',CerberusContexts::CONTEXT_WORKER),
-				SearchFields_Task::CONTEXT_LINK_ID => new DevblocksSearchCriteria(SearchFields_Task::CONTEXT_LINK_ID,'=',$active_worker->id),
-			)
+			//SearchFields_Task::VIRTUAL_WORKERS => new DevblocksSearchCriteria(SearchFields_Task::VIRTUAL_WORKERS,'in',array($active_worker->id)),
 		), true);
 		$view->renderSortBy = SearchFields_Task::UPDATED_DATE;
 		$view->renderSortAsc = false;
