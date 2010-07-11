@@ -17,7 +17,6 @@
 			for(var idx in event.labels)
 				if(0==$label.find('input:hidden[value='+event.values[idx]+']').length)
 					$label.append($('<div><button type="button" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash"></span></button> '+event.labels[idx]+'<input type="hidden" name="worker_id[]" value="'+event.values[idx]+'"></div>'));
-			$button.closest('form').find('button:last').click();
 		});
 	}
 </script>
