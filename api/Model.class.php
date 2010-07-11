@@ -113,8 +113,10 @@ abstract class C4_AbstractView {
 			$this->removeAllParams();
 			
 		if(is_array($params))
-		foreach($params as $key => $param)
-			$this->addParam($param, $key);		
+		foreach($params as $key => $param) {
+			$key = !is_string($key) ? $param->field : $key;
+			$this->addParam($param, $key);	
+		}	
 	}
 	
 	function removeParam($key) {

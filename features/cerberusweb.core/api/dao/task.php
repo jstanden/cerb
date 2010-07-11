@@ -235,6 +235,7 @@ class DAO_Task extends C4_ORMHelper {
 		
 		// Virtuals
 		foreach($params as $param_key => $param) {
+			settype($param_key, 'string');
 			switch($param_key) {
 				case SearchFields_Task::VIRTUAL_WORKERS:
 					if(empty($param->value)) { // empty
