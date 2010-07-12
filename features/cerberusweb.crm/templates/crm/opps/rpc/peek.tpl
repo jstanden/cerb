@@ -35,19 +35,16 @@
 		</td>
 	</tr>
 	<tr>
-		<td width="0%" nowrap="nowrap" align="right" valign="top">{$translate->_('crm.opportunity.worker_id')|capitalize}: </td>
+		<td width="0%" nowrap="nowrap" valign="top" align="right">{'common.workers'|devblocks_translate|capitalize}: </td>
 		<td width="100%">
-			<select name="worker_id" style="border:1px solid rgb(180,180,180);padding:2px;">
-				<option value="0">- {'common.anybody'|devblocks_translate|lower} -</option>
-				{foreach from=$workers item=worker key=worker_id name=workers}
-					{if $worker_id==$active_worker->id}{math assign=me_worker_id equation="x" x=$smarty.foreach.workers.iteration}{/if}
-					<option value="{$worker_id}" {if $opp->worker_id==$worker_id}selected{/if}>{$worker->getName()}</option>
+			{if !empty($context_workers)}
+			<div class="chooser-container">
+				{foreach from=$context_workers item=context_worker}
+				<div><button type="button" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash"></span></button> {$context_worker->getName()|escape}<input type="hidden" name="worker_id[]" value="{$context_worker->id}"></div>
 				{/foreach}
-			</select>
-			{if !empty($me_worker_id)}
-				<button type="button" onclick="this.form.worker_id.selectedIndex = {$me_worker_id};">{$translate->_('common.me')|lower}</button>
+			</div>
 			{/if}
-			<button type="button" onclick="this.form.worker_id.selectedIndex = 0;">{$translate->_('common.anybody')|lower}</button>
+			<button type="button" class="chooser_worker"><span class="cerb-sprite sprite-add"></span></button>
 		</td>
 	</tr>
 	<tr>
@@ -75,17 +72,27 @@
 </table>
 
 {include file="file:$core_tpl/internal/custom_fields/bulk/form.tpl" bulk=false}
+
+{* Comment *}
+{if !empty($last_comment)}
+	<br>
+	{include file="file:$core_tpl/internal/comments/comment.tpl" readonly=true comment=$last_comment}
+{/if}
 <br>
 
-{if ($active_worker->hasPriv('crm.opp.actions.create') && (empty($opp) || $active_worker->id==$opp->worker_id))
-	|| ($active_worker->hasPriv('crm.opp.actions.update_nobody') && empty($opp->worker_id)) 
-	|| $active_worker->hasPriv('crm.opp.actions.update_all')} 
-	<button type="button" onclick="if($('#formOppPeek').validate().form()) { genericAjaxPopupClose('peek'); genericAjaxPost('formOppPeek', 'view{$view_id}'); } "><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')}</button>
+{if $active_worker->hasPriv('crm.opp.actions.create')}
+	<button type="button" onclick="if($('#formOppPeek').validate().form()) { genericAjaxPopupClose('peek', 'opp_save'); genericAjaxPost('formOppPeek', 'view{$view_id}'); } "><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')}</button>
 	{if !empty($opp)}<button type="button" onclick="if(confirm('Are you sure you want to permanently delete this opportunity?')) { this.form.do_delete.value='1';genericAjaxPopupClose('peek');genericAjaxPost('formOppPeek', 'view{$view_id}'); } "><span class="cerb-sprite sprite-delete2"></span> {$translate->_('common.delete')|capitalize}</button>{/if}
 {else}
 	<div class="error">You do not have permission to modify this record.</div>
 {/if}
 <br>
+
+{if !empty($opp)}
+<div style="float:right;">
+	<a href="{devblocks_url}c=crm&a=opps&id={$opp->id}{/devblocks_url}">view full record</a>
+</div>
+{/if}
 </form>
 
 <script language="JavaScript1.2" type="text/javascript">
@@ -96,4 +103,16 @@
 		$("#formOppPeek").validate();
 		$('#formOppPeek :input:text:first').focus();
 	} );
+	$('#formOppPeek button.chooser_worker').click(function() {
+		$button = $(this);
+		$chooser=genericAjaxPopup('chooser','c=internal&a=chooserOpen&context=cerberusweb.contexts.worker',null,true,'750');
+		$chooser.one('chooser_save', function(event) {
+			$label = $button.prev('div.chooser-container');
+			if(0==$label.length)
+				$label = $('<div class="chooser-container"></div>').insertBefore($button);
+			for(var idx in event.labels)
+				if(0==$label.find('input:hidden[value='+event.values[idx]+']').length)
+					$label.append($('<div><button type="button" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash"></span></button> '+event.labels[idx]+'<input type="hidden" name="worker_id[]" value="'+event.values[idx]+'"></div>'));
+		});
+	});
 </script>

@@ -46,12 +46,14 @@
 <b>{'common.options'|devblocks_translate|capitalize}:</b><br>
 <label><input type="checkbox" name="include_first" value="1"> {'crm.opp.import.options.import_first_row'|devblocks_translate}</label><br>
 <label><input type="checkbox" name="is_blank_unset" value="1"> {'crm.opp.import.options.blank_fields'|devblocks_translate}</label><br>
+{*
 <label><input type="checkbox" name="opt_assign" value="1"> {'crm.opp.import.options.set_owner'|devblocks_translate}</label> <select name="opt_assign_worker_id">
 	<option value="">- {'common.nobody'|devblocks_translate|lower} -</option>
 	{foreach from=$workers item=worker key=worker_id}
 		<option value="{$worker_id}">{$worker->getName()}</option>
 	{/foreach}
 </select><br>
+*}
 <br>
 
 <button type="submit"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.upload')|capitalize}</button>

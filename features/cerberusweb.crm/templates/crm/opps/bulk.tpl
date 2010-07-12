@@ -27,6 +27,7 @@
       	</td>
 	</tr>
 	
+	{*
 	<tr>
 		<td width="0%" align="right" nowrap="nowrap">{'common.worker'|devblocks_translate|capitalize}:</td>
 		<td width="100%"><select name="worker_id">
@@ -43,6 +44,7 @@
       	{/if}
 		</td>
 	</tr>
+	*}
 	
 	<tr>
 		<td width="0%" nowrap="nowrap" align="right">{'crm.opportunity.closed_date'|devblocks_translate|capitalize}:</td>

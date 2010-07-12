@@ -14,6 +14,11 @@
 		{if !empty($opp_worker_id) && isset($workers.$opp_worker_id)}
 			<b>{'common.worker'|devblocks_translate|capitalize}:</b> {$workers.$opp_worker_id->getName()} &nbsp;
 		{/if}
+		<br>
+		
+		<!-- Toolbar -->
+		<button type="button" id="btnDisplayOppEdit"><span class="cerb-sprite sprite-document_edit"></span> Edit</button>
+		
 		</form>
 		<br>
 	</td>
@@ -24,10 +29,9 @@
 	<ul>
 		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextComments&context=cerberusweb.contexts.opportunity&id={$opp->id}{/devblocks_url}">{$translate->_('common.comments')|capitalize|escape:'quotes'}</a></li>		
 		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextLinks&context=cerberusweb.contexts.opportunity&id={$opp->id}{/devblocks_url}">{$translate->_('common.links')|escape:'quotes'}</a></li>		
-		<li><a href="{devblocks_url}ajax.php?c=crm&a=showOppPropertiesTab&id={$opp->id}{/devblocks_url}">{'crm.opp.tab.properties'|devblocks_translate|escape}</a></li>
 		<li><a href="{devblocks_url}ajax.php?c=crm&a=showOppMailTab&id={$opp->id}{/devblocks_url}">{'crm.opp.tab.mail_history'|devblocks_translate|escape}</a></li>
 
-		{$tabs = [notes,links,properties,mail]}
+		{$tabs = [notes,links,mail]}
 
 		{foreach from=$tab_manifests item=tab_manifest}
 			{$tabs[] = $tab_manifest->params.uri}
@@ -45,6 +49,14 @@
 <script type="text/javascript">
 	$(function() {
 		var tabs = $("#oppTabs").tabs( { selected:{$tab_selected_idx} } );
+		
+		$('#btnDisplayOppEdit').bind('click', function() {
+			$popup = genericAjaxPopup('peek','c=crm&a=showOppPanel&id={$opp->id}',null,false,'550');
+			$popup.one('opp_save', function(event) {
+				event.stopPropagation();
+				document.location.href = '{devblocks_url}c=crm&a=display&id={$opp->id}{/devblocks_url}';
+			});
+		})
 	});
 </script>
 

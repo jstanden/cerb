@@ -129,7 +129,7 @@ class ChRest_Opps extends Extension_RestController implements IExtensionRestCont
 		if('dao'==$type) {
 			$tokens = array(
 				'amount' => DAO_CrmOpportunity::AMOUNT,
-				'assignee_id' => DAO_CrmOpportunity::WORKER_ID,
+//				'assignee_id' => DAO_CrmOpportunity::WORKER_ID,
 				'created' => DAO_CrmOpportunity::CREATED_DATE,
 				'email_id' => DAO_CrmOpportunity::PRIMARY_EMAIL_ID,
 				'is_closed' => DAO_CrmOpportunity::IS_CLOSED,
