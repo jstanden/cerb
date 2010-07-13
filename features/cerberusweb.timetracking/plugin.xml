@@ -130,7 +130,7 @@
 			<params>
 			</params>
 		</extension>
-	
+		
 		<!-- Log Mail Toolbar -->
 		<!-- 
 		<extension point="cerberusweb.mail.log.toolbaritem">
@@ -158,6 +158,19 @@
 			</params>
 		</extension>
 	 	-->
+	 
+		<!-- Task Toolbar -->
+			
+		<extension point="cerberusweb.task.toolbaritem">
+			<id>timetracking.task.toolbaritem.timer</id>
+			<name>Task Toolbar Timer</name>
+			<class>
+				<file>api/App.php</file>
+				<name>ChTimeTrackingTaskToolbarTimer</name>
+			</class>
+			<params>
+			</params>
+		</extension>
 	 
 		<!-- Activity Tabs -->
 		
