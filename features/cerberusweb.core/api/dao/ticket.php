@@ -622,7 +622,7 @@ class DAO_Ticket extends C4_ORMHelper {
 				(isset($tables['ra']) ? "INNER JOIN requester r ON (r.ticket_id=t.id)" : " ").
 				(isset($tables['ra']) ? "INNER JOIN address ra ON (ra.id=r.address_id) " : " ").
 				
-				(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "").
+				(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ").
 		        "GROUP BY domain HAVING count(*) > 1 ".
 		        "ORDER BY hits DESC ";
 			
@@ -700,7 +700,7 @@ class DAO_Ticket extends C4_ORMHelper {
 				(isset($tables['ra']) ? "INNER JOIN requester r ON (r.ticket_id=t.id)" : " ").
 				(isset($tables['ra']) ? "INNER JOIN address ra ON (ra.id=r.address_id) " : " ").
 				
-				(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "").
+				(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ").
 		        "GROUP BY substring(t.subject from 1 for 8) ".
 		        "ORDER BY hits DESC ";
 			
@@ -787,7 +787,7 @@ class DAO_Ticket extends C4_ORMHelper {
 				(isset($tables['ra']) ? "INNER JOIN requester r ON (r.ticket_id=t.id)" : " ").
 				(isset($tables['ra']) ? "INNER JOIN address ra ON (ra.id=r.address_id) " : " ").
 				
-				(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "").
+				(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ").
 		        "GROUP BY mh.header_value HAVING mh.header_value <> '' ".
 		        "ORDER BY hits DESC ";
 		    $rs = $db->SelectLimit($sql, 25, 0) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
@@ -970,7 +970,7 @@ class DAO_Ticket extends C4_ORMHelper {
 		);
 		
 		$where_sql = "".
-			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "");
+			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
 			
 		$sort_sql = (!empty($sortBy) ? sprintf("ORDER BY %s %s ",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : " ");
 
