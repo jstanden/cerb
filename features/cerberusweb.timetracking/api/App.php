@@ -476,6 +476,22 @@ class DAO_TimeTrackingEntry extends C4_ORMHelper {
 			
 		$sort_sql = (!empty($sortBy) ? sprintf("ORDER BY %s %s ",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : " ");
 		
+		// Virtuals
+		foreach($params as $param_key => $param) {
+			settype($param_key, 'string');
+			switch($param_key) {
+				case SearchFields_TimeTrackingEntry::VIRTUAL_OWNERS:
+					if(empty($param->value)) { // empty
+						$where_sql .= "AND (SELECT GROUP_CONCAT(context_link.to_context_id) FROM context_link WHERE context_link.from_context = 'cerberusweb.contexts.timetracking' AND context_link.from_context_id = tt.id AND context_link.to_context = 'cerberusweb.contexts.worker') IS NULL ";
+					} else {
+						$where_sql .= sprintf("AND (SELECT GROUP_CONCAT(context_link.to_context_id) FROM context_link WHERE context_link.from_context = 'cerberusweb.contexts.timetracking' AND context_link.from_context_id = tt.id AND context_link.to_context = 'cerberusweb.contexts.worker' AND context_link.to_context_id IN (%s)) IS NOT NULL ",
+							implode(',', $param->value)
+						);
+					}
+					break;
+			}
+		}
+		
 		$sql = 
 			$select_sql.
 			$join_sql.
@@ -536,6 +552,9 @@ class SearchFields_TimeTrackingEntry {
 	
 	const CONTEXT_LINK = 'cl_context_from';
 	const CONTEXT_LINK_ID = 'cl_context_from_id';
+	
+	const VIRTUAL_OWNERS = '*_owners';
+	
 	/**
 	 * @return DevblocksSearchField[]
 	 */
@@ -555,6 +574,8 @@ class SearchFields_TimeTrackingEntry {
 			
 			self::CONTEXT_LINK => new DevblocksSearchField(self::CONTEXT_LINK, 'context_link', 'from_context', null),
 			self::CONTEXT_LINK_ID => new DevblocksSearchField(self::CONTEXT_LINK_ID, 'context_link', 'from_context_id', null),
+			
+			self::VIRTUAL_OWNERS => new DevblocksSearchField(self::VIRTUAL_OWNERS, '*', 'owners', $translate->_('common.owners')),
 		);
 		
 		// Custom Fields
@@ -593,6 +614,7 @@ class View_TimeTracking extends C4_AbstractView {
 			SearchFields_TimeTrackingEntry::DEBIT_ORG_ID,
 			SearchFields_TimeTrackingEntry::CONTEXT_LINK,
 			SearchFields_TimeTrackingEntry::CONTEXT_LINK_ID,
+			SearchFields_TimeTrackingEntry::VIRTUAL_OWNERS,
 		);
 		
 		$this->paramsHidden = array(
@@ -649,6 +671,29 @@ class View_TimeTracking extends C4_AbstractView {
 		
 	}
 
+	function renderVirtualCriteria($param) {
+		$key = $param->field;
+		
+		switch($key) {
+			case SearchFields_TimeTrackingEntry::VIRTUAL_OWNERS:
+				if(empty($param->value)) {
+					echo "Owners <b>are not assigned</b>";
+					
+				} elseif(is_array($param->value)) {
+					$workers = DAO_Worker::getAll();
+					$strings = array();
+					
+					foreach($param->value as $worker_id) {
+						if(isset($workers[$worker_id]))
+							$strings[] = '<b>'.$workers[$worker_id]->getName().'</b>';
+					}
+					
+					echo sprintf("Worker is %s", implode(' or ', $strings));
+				}
+				break;
+		}
+	}	
+	
 	function renderCriteria($field) {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('id', $this->id);
@@ -665,10 +710,8 @@ class View_TimeTracking extends C4_AbstractView {
 			case SearchFields_TimeTrackingEntry::LOG_DATE:
 				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__date.tpl');
 				break;
-			case SearchFields_TimeTrackingEntry::WORKER_ID:
-				$workers = DAO_Worker::getAll();
-				$tpl->assign('workers', $workers);
-				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__worker.tpl');
+			case SearchFields_TimeTrackingEntry::VIRTUAL_OWNERS:
+				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__context_worker.tpl');
 				break;
 			case SearchFields_TimeTrackingEntry::ACTIVITY_ID:
 				$billable_activities = DAO_TimeTrackingActivity::getWhere(sprintf("%s!=0",DAO_TimeTrackingActivity::RATE));
@@ -763,9 +806,9 @@ class View_TimeTracking extends C4_AbstractView {
 
 				$criteria = new DevblocksSearchCriteria($field,$oper,array($from,$to));
 				break;
-			case SearchFields_TimeTrackingEntry::WORKER_ID:
-				@$worker_id = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',array());
-				$criteria = new DevblocksSearchCriteria($field,$oper,$worker_id);
+			case SearchFields_TimeTrackingEntry::VIRTUAL_OWNERS:
+				@$worker_ids = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',array());
+				$criteria = new DevblocksSearchCriteria($field,'in', $worker_ids);
 				break;
 			case SearchFields_TimeTrackingEntry::ACTIVITY_ID:
 				@$activity_ids = DevblocksPlatform::importGPC($_REQUEST['activity_ids'],'array',array());
