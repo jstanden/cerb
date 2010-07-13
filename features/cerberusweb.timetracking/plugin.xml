@@ -24,7 +24,7 @@
 	
 	<class_loader>
 		<file path="api/App.php">
-			<class name="C4_TimeTrackingEntryView" />
+			<class name="View_TimeTracking" />
 			<class name="DAO_TimeTrackingEntry" />
 			<class name="Model_TimeTrackingEntry" />
 			<class name="SearchFields_TimeTrackingEntry" />
@@ -96,7 +96,7 @@
 				<name>ChWorkspaceSource_TimeEntry</name>
 			</class>
 			<params>
-				<param key="view_class" value="C4_TimeTrackingEntryView" />
+				<param key="view_class" value="View_TimeTracking" />
 			</params>
 		</extension>
 

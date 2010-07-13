@@ -461,7 +461,7 @@ class SearchFields_TimeTrackingEntry {
 	}
 };
 
-class C4_TimeTrackingEntryView extends C4_AbstractView {
+class View_TimeTracking extends C4_AbstractView {
 	const DEFAULT_ID = 'timetracking_entries';
 
 	function __construct() {
@@ -1286,7 +1286,7 @@ class TimeTrackingActivityTab extends Extension_ActivityTab {
 		$tpl->assign('path', $tpl_path);
 		
 		if(null == ($view = C4_AbstractViewLoader::getView(self::VIEW_ACTIVITY_TIMETRACKING))) {
-			$view = new C4_TimeTrackingEntryView();
+			$view = new View_TimeTracking();
 			$view->id = self::VIEW_ACTIVITY_TIMETRACKING;
 			$view->renderSortBy = SearchFields_TimeTrackingEntry::LOG_DATE;
 			$view->renderSortAsc = 0;
