@@ -6,10 +6,13 @@
 
 <table cellpadding="2" cellspacing="0" width="100%">
 	<tr>
+		{if !empty($nonbillable_activities) || !empty($billable_activities)}
 		<td width="1%" nowrap="nowrap"><b>{$translate->_('timetracking.ui.entry_panel.activity')}</b></td>
+		{/if}
 		<td width="99%" nowrap="nowrap"><b>{$translate->_('timetracking.ui.entry_panel.time_spent')}</b></td>
 	</tr>
 	<tr>
+		{if !empty($nonbillable_activities) || !empty($billable_activities)}
 		<td nowrap="nowrap">
 			<select name="activity_id">
 				{if !empty($nonbillable_activities)}
@@ -28,6 +31,7 @@
 				{/if}
 			</select>
 		</td>
+		{/if}
 		<td><input type="text" name="time_actual_mins" size="5" value="{$model->time_actual_mins}"> {$translate->_('timetracking.ui.entry_panel.mins')}</td>
 	</tr>
 </table>
