@@ -252,7 +252,7 @@ if (class_exists('Extension_TicketToolbarItem',true)):
 //				$tpl->assign('tt_first_wrote', $first_wrote_address);
 //			}
 			
-			$tpl->display('file:' . $tpl_path . 'timetracking/renderers/ticket_toolbar_timer.tpl');
+			$tpl->display('file:' . $tpl_path . 'timetracking/renderers/tickets/ticket_toolbar_timer.tpl');
 		}
 	};
 endif;
@@ -271,7 +271,7 @@ if (class_exists('Extension_ReplyToolbarItem',true)):
 //				$tpl->assign('tt_first_wrote', $first_wrote_address);
 //			}
 			
-			$tpl->display('file:' . $tpl_path . 'timetracking/renderers/reply_toolbar_timer.tpl');
+			$tpl->display('file:' . $tpl_path . 'timetracking/renderers/tickets/reply_toolbar_timer.tpl');
 		}
 	};
 endif;
@@ -283,7 +283,7 @@ if (class_exists('Extension_LogMailToolbarItem',true)):
 			$tpl_path = dirname(dirname(__FILE__)).'/templates/';
 			$tpl->assign('path', $tpl_path);
 			
-			$tpl->display('file:' . $tpl_path . 'timetracking/renderers/logmail_toolbar_timer.tpl');
+			$tpl->display('file:' . $tpl_path . 'timetracking/renderers/tickets/logmail_toolbar_timer.tpl');
 		}
 	};
 endif;
@@ -295,7 +295,7 @@ if (class_exists('Extension_SendMailToolbarItem',true)):
 			$tpl_path = dirname(dirname(__FILE__)).'/templates/';
 			$tpl->assign('path', $tpl_path);
 			
-			$tpl->display('file:' . $tpl_path . 'timetracking/renderers/sendmail_toolbar_timer.tpl');
+			$tpl->display('file:' . $tpl_path . 'timetracking/renderers/tickets/sendmail_toolbar_timer.tpl');
 		}
 	};
 endif;
