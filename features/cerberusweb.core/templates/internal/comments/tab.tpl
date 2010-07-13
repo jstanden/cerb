@@ -1,5 +1,5 @@
 <form action="#" style="margin:5px;">
-<button type="button" id="btnComment"><span class="cerb-sprite sprite-document_edit"></span> Comment</button>
+<button type="button" id="btnComment"><span class="cerb-sprite sprite-document_plain_yellow"></span> Comment</button>
 </form>
 
 {* Display Notes *}
