@@ -60,11 +60,11 @@
 			} ,10);
 		}
 		
-		this.play = function(source_ext_id, source_id) {
+		this.play = function(context, context_id) {
 			if(this.enabled) return; // don't start twice
-			if(null == source_ext_id) source_ext_id = '';
-			if(null == source_id) source_id = '';
-			genericAjaxGet('','c=timetracking&a=startTimer&source_ext_id=' + source_ext_id + '&source_id=' + source_id);
+			if(null == context) context = '';
+			if(null == context_id) context_id = '';
+			genericAjaxGet('','c=timetracking&a=startTimer&context=' + context + '&context_id=' + context_id);
 			this.enabled = true;
 	
 			this.show();

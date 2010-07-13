@@ -138,12 +138,6 @@
 		<tu tuid='timetracking_entry.notes'>
 			<tuv xml:lang="en_US"><seg>Notes</seg></tuv>
 		</tu>
-		<tu tuid='timetracking_entry.source_id'>
-			<tuv xml:lang="en_US"><seg>Source ID</seg></tuv>
-		</tu>
-		<tu tuid='timetracking_entry.source_extension_id'>
-			<tuv xml:lang="en_US"><seg>Source</seg></tuv>
-		</tu>
 		<tu tuid='timetracking_entry.time_actual_mins'>
 			<tuv xml:lang="en_US"><seg>Mins</seg></tuv>
 		</tu>
@@ -239,9 +233,6 @@
 		</tu>
 		<tu tuid='timetracking.ui.reports.to'>
 			<tuv xml:lang="en_US"><seg>To:</seg></tuv>
-		</tu>
-		<tu tuid='timetracking.ui.reports.tracked_desc.with_org'>
-			<tuv xml:lang="en_US"><seg>%s tracked %s mins on %s for %s</seg></tuv>
 		</tu>
 		
 		<!-- Time Tracking Comment Text -->

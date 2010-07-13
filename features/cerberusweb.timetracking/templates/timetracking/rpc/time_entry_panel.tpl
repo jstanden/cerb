@@ -48,12 +48,9 @@
 {include file="file:$core_tpl/internal/custom_fields/bulk/form.tpl" bulk=false}
 <br>
 
-{if !empty($source)}
-<b>{$translate->_('timetracking.ui.entry_panel.reference')}</b><br>
-<input type="hidden" name="source_extension_id" value="{$model->source_extension_id}">
-<input type="hidden" name="source_id" value="{$model->source_id}">
-<a href="{$source->getLink($model->source_id)}" target="_blank">{$source->getLinkText($model->source_id)}</a><br>
-<br>
+{if $model->context && $model->context_id}
+<input type="hidden" name="context" value="{$model->context}">
+<input type="hidden" name="context_id" value="{$model->context_id}">
 {/if}
 
 {if ($active_worker->hasPriv('timetracking.actions.create') && (empty($model->id) || $active_worker->id==$model->worker_id))

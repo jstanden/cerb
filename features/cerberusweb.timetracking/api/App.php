@@ -308,8 +308,6 @@ class DAO_TimeTrackingEntry extends C4_ORMHelper {
 	const ACTIVITY_ID = 'activity_id';
 	const DEBIT_ORG_ID = 'debit_org_id';
 	const NOTES = 'notes';
-	const SOURCE_EXTENSION_ID = 'source_extension_id';
-	const SOURCE_ID = 'source_id';
 
 	static function create($fields) {
 		$db = DevblocksPlatform::getDatabaseService();
@@ -1084,20 +1082,20 @@ class ChTimeTrackingAjaxController extends DevblocksControllerExtension {
 	}
 	
 	private function _destroyTimer() {
-		unset($_SESSION['timetracking_source_ext_id']);
-		unset($_SESSION['timetracking_source_id']);
+		unset($_SESSION['timetracking_context']);
+		unset($_SESSION['timetracking_context_id']);
 		unset($_SESSION['timetracking_started']);
 		unset($_SESSION['timetracking_total']);
 		unset($_SESSION['timetracking_link']);
 	}
 	
 	function startTimerAction() {
-		@$source_ext_id = urldecode(DevblocksPlatform::importGPC($_REQUEST['source_ext_id'],'string',''));
-		@$source_id = intval(DevblocksPlatform::importGPC($_REQUEST['source_id'],'integer',0));
+		@$context = urldecode(DevblocksPlatform::importGPC($_REQUEST['context'],'string',''));
+		@$context_id = intval(DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer',0));
 		
-		if(!empty($source_ext_id) && !isset($_SESSION['timetracking_source_ext_id'])) {
-			$_SESSION['timetracking_source_ext_id'] = $source_ext_id;
-			$_SESSION['timetracking_source_id'] = $source_id;
+		if(!empty($context) && !isset($_SESSION['timetracking_context'])) {
+			$_SESSION['timetracking_context'] = $context;
+			$_SESSION['timetracking_context_id'] = $context_id;
 		}
 		
 		$this->_startTimer();
@@ -1117,13 +1115,11 @@ class ChTimeTrackingAjaxController extends DevblocksControllerExtension {
 		// Time
 		$object->time_actual_mins = ceil($total_secs/60);
 
-		// Source
-		@$source_ext_id = strtolower($_SESSION['timetracking_source_ext_id']);
-		@$source_id = intval($_SESSION['timetracking_source_id']);
-		
-		$object->source_extension_id = $source_ext_id;
-		$object->source_id = $source_id;
-		
+		// If we're linking a context during creation
+		@$context = strtolower($_SESSION['timetracking_context']);
+		@$context_id = intval($_SESSION['timetracking_context_id']);
+		$object->context = $context;
+		$object->context_id = $context_id;
 		
 		$this->showEntryAction($object);
 	}
@@ -1236,6 +1232,13 @@ class ChTimeTrackingAjaxController extends DevblocksControllerExtension {
 			
 		} else { // modify
 			DAO_TimeTrackingEntry::update($id, $fields);
+		}
+
+		// Establishing a context link?
+		@$context = DevblocksPlatform::importGPC($_POST['context'],'string','');		
+		@$context_id = DevblocksPlatform::importGPC($_POST['context_id'],'integer',0);
+		if(!empty($context) && !empty($context_id)) {
+			DAO_ContextLink::setLink(CerberusContexts::CONTEXT_TIMETRACKING, $id, $context, $context_id);
 		}
 		
 		// Custom field saves
