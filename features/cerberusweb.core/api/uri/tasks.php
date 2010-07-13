@@ -170,9 +170,11 @@ class ChTasksPage extends CerberusPageExtension {
 		$types = Model_CustomField::getTypes();
 		$tpl->assign('types', $types);
 
-		// Notes
+		// Comments
 		$comments = DAO_Comment::getByContext(CerberusContexts::CONTEXT_TASK, $id);
-		$tpl->assign('comments', $comments);
+		$last_comment = array_shift($comments);
+		unset($comments);
+		$tpl->assign('last_comment', $last_comment);
 
 		// Workers
 		$context_workers = CerberusContexts::getWorkers(CerberusContexts::CONTEXT_TASK, $id);
