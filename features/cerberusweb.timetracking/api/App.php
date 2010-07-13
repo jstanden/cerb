@@ -181,7 +181,8 @@ class Context_TimeTracking extends Extension_DevblocksContext {
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = 'Time Tracking';
 		$view->view_columns = array(
-			//SearchFields_TimeTrackingEntry::PRIMARY_EMAIL_ID,
+			SearchFields_TimeTrackingEntry::LOG_DATE,
+			SearchFields_TimeTrackingEntry::ORG_NAME,
 		);
 		$view->addParams(array(
 			//SearchFields_TimeTrackingEntry::IS_CLOSED => new DevblocksSearchCriteria(SearchFields_TimeTrackingEntry::IS_CLOSED,'=',0),
@@ -222,49 +223,6 @@ class ChCustomFieldSource_TimeEntry extends Extension_CustomFieldSource {
 class ChWorkspaceSource_TimeEntry extends Extension_WorkspaceSource {
 	const ID = 'timetracking.workspace.source.time_entry';
 };
-
-abstract class Extension_TimeTrackingSource extends DevblocksExtension {
-	function __construct($manifest) {
-		parent::DevblocksExtension($manifest);
-	}
-
-	function getSourceName() {
-		return NULL;
-	}
-	
-	function getLinkText($source_id) {
-		return NULL;
-	}
-	
-	function getLink($source_id) {
-		return NULL;
-	}
-};
-
-if (class_exists('Extension_TimeTrackingSource',true)):
-class ChTimeTrackingTicketSource extends Extension_TimeTrackingSource {
-	const ID = 'timetracking.source.ticket';
-	
-	function __construct($manifest) {
-		parent::__construct($manifest);
-	}
-	
-	function getSourceName() {
-		$translate = DevblocksPlatform::getTranslationService();
-		return ucwords($translate->_('common.ticket'));
-	}
-	
-	function getLinkText($source_id) {
-		$translate = DevblocksPlatform::getTranslationService();
-		return vsprintf($translate->_('timetracking.ui.source.ticket.link_text'), $source_id);
-	}
-	
-	function getLink($source_id) {
-		$url = DevblocksPlatform::getUrlService();
-		return $url->write('c=display&id=' . $source_id);
-	}
-};
-endif;
 
 if (class_exists('Extension_AppPreBodyRenderer',true)):
 	class ChTimeTrackingPreBodyRenderer extends Extension_AppPreBodyRenderer {
@@ -384,7 +342,7 @@ class DAO_TimeTrackingEntry extends C4_ORMHelper {
 	static function getWhere($where=null) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = "SELECT id, time_actual_mins, log_date, worker_id, activity_id, debit_org_id, notes, source_extension_id, source_id ".
+		$sql = "SELECT id, time_actual_mins, log_date, worker_id, activity_id, debit_org_id, notes ".
 			"FROM timetracking_entry ".
 			(!empty($where) ? sprintf("WHERE %s ",$where) : "").
 			"ORDER BY id asc";
@@ -424,8 +382,6 @@ class DAO_TimeTrackingEntry extends C4_ORMHelper {
 			$object->activity_id = $row['activity_id'];
 			$object->debit_org_id = $row['debit_org_id'];
 			$object->notes = $row['notes'];
-			$object->source_extension_id = $row['source_extension_id'];
-			$object->source_id = $row['source_id'];
 			$objects[$object->id] = $object;
 		}
 		
@@ -487,8 +443,6 @@ class DAO_TimeTrackingEntry extends C4_ORMHelper {
 			"tt.activity_id as %s, ".
 			"tt.debit_org_id as %s, ".
 			"tt.notes as %s, ".
-			"tt.source_extension_id as %s, ".
-			"tt.source_id as %s, ".
 			"o.name as %s ",
 			    SearchFields_TimeTrackingEntry::ID,
 			    SearchFields_TimeTrackingEntry::TIME_ACTUAL_MINS,
@@ -497,19 +451,17 @@ class DAO_TimeTrackingEntry extends C4_ORMHelper {
 			    SearchFields_TimeTrackingEntry::ACTIVITY_ID,
 			    SearchFields_TimeTrackingEntry::DEBIT_ORG_ID,
 			    SearchFields_TimeTrackingEntry::NOTES,
-			    SearchFields_TimeTrackingEntry::SOURCE_EXTENSION_ID,
-			    SearchFields_TimeTrackingEntry::SOURCE_ID,
 			    SearchFields_TimeTrackingEntry::ORG_NAME
 			 );
 		
 		$join_sql = 
 			"FROM timetracking_entry tt ".
-			"LEFT JOIN contact_org o ON (o.id=tt.debit_org_id) "
-		;
+			"LEFT JOIN contact_org o ON (o.id=tt.debit_org_id) ".
+		
 			// [JAS]: Dynamic table joins
-//			(isset($tables['o']) ? "LEFT JOIN contact_org o ON (o.id=tt.debit_org_id)" : " ").
-//			(isset($tables['mc']) ? "INNER JOIN message_content mc ON (mc.message_id=m.id)" : " ").
-
+			(isset($tables['context_link']) ? "INNER JOIN context_link ON (context_link.to_context = 'cerberusweb.contexts.timetracking' AND context_link.to_context_id = tt.id) " : " ")
+			;
+		
 		// Custom field joins
 		list($select_sql, $join_sql, $has_multiple_values) = self::_appendSelectJoinSqlForCustomFieldTables(
 			$tables,
@@ -558,11 +510,6 @@ class DAO_TimeTrackingEntry extends C4_ORMHelper {
 		
 		return array($results,$total);
     }
-    
-    static function getSources() {
-    	// Pull this off an extension point
-    	return DevblocksPlatform::getExtensions('timetracking.source', true);
-    }
 };
 
 class Model_TimeTrackingEntry {
@@ -573,8 +520,6 @@ class Model_TimeTrackingEntry {
 	public $activity_id;
 	public $debit_org_id;
 	public $notes;
-	public $source_extension_id;
-	public $source_id;
 };
 
 class SearchFields_TimeTrackingEntry {
@@ -586,11 +531,11 @@ class SearchFields_TimeTrackingEntry {
 	const ACTIVITY_ID = 'tt_activity_id';
 	const DEBIT_ORG_ID = 'tt_debit_org_id';
 	const NOTES = 'tt_notes';
-	const SOURCE_EXTENSION_ID = 'tt_source_extension_id';
-	const SOURCE_ID = 'tt_source_id';
 	
 	const ORG_NAME = 'o_name';
 	
+	const CONTEXT_LINK = 'cl_context_from';
+	const CONTEXT_LINK_ID = 'cl_context_from_id';
 	/**
 	 * @return DevblocksSearchField[]
 	 */
@@ -605,10 +550,11 @@ class SearchFields_TimeTrackingEntry {
 			self::ACTIVITY_ID => new DevblocksSearchField(self::ACTIVITY_ID, 'tt', 'activity_id', $translate->_('timetracking_entry.activity_id')),
 			self::DEBIT_ORG_ID => new DevblocksSearchField(self::DEBIT_ORG_ID, 'tt', 'debit_org_id', $translate->_('timetracking_entry.debit_org_id')),
 			self::NOTES => new DevblocksSearchField(self::NOTES, 'tt', 'notes', $translate->_('timetracking_entry.notes')),
-			self::SOURCE_EXTENSION_ID => new DevblocksSearchField(self::SOURCE_EXTENSION_ID, 'tt', 'source_extension_id', $translate->_('timetracking_entry.source_extension_id')),
-			self::SOURCE_ID => new DevblocksSearchField(self::SOURCE_ID, 'tt', 'source_id', $translate->_('timetracking_entry.source_id')),
 			
 			self::ORG_NAME => new DevblocksSearchField(self::ORG_NAME, 'o', 'name', $translate->_('contact_org.name')),
+			
+			self::CONTEXT_LINK => new DevblocksSearchField(self::CONTEXT_LINK, 'context_link', 'from_context', null),
+			self::CONTEXT_LINK_ID => new DevblocksSearchField(self::CONTEXT_LINK_ID, 'context_link', 'from_context_id', null),
 		);
 		
 		// Custom Fields
@@ -640,19 +586,20 @@ class View_TimeTracking extends C4_AbstractView {
 
 		$this->view_columns = array(
 			SearchFields_TimeTrackingEntry::LOG_DATE,
-			SearchFields_TimeTrackingEntry::SOURCE_EXTENSION_ID,
 			SearchFields_TimeTrackingEntry::ORG_NAME,
 		);
 		$this->columnsHidden = array(
 			SearchFields_TimeTrackingEntry::ID,
-			SearchFields_TimeTrackingEntry::SOURCE_ID,
 			SearchFields_TimeTrackingEntry::DEBIT_ORG_ID,
+			SearchFields_TimeTrackingEntry::CONTEXT_LINK,
+			SearchFields_TimeTrackingEntry::CONTEXT_LINK_ID,
 		);
 		
 		$this->paramsHidden = array(
 			SearchFields_TimeTrackingEntry::ID,
-			SearchFields_TimeTrackingEntry::SOURCE_ID,
 			SearchFields_TimeTrackingEntry::DEBIT_ORG_ID,
+			SearchFields_TimeTrackingEntry::CONTEXT_LINK,
+			SearchFields_TimeTrackingEntry::CONTEXT_LINK_ID,
 		);
 		$this->paramsDefault = array(
 			SearchFields_TimeTrackingEntry::LOG_DATE => new DevblocksSearchCriteria(SearchFields_TimeTrackingEntry::LOG_DATE,DevblocksSearchCriteria::OPER_BETWEEN,array('-1 month','now')),
@@ -687,14 +634,19 @@ class View_TimeTracking extends C4_AbstractView {
 		$activities = DAO_TimeTrackingActivity::getWhere(); // [TODO] getAll cache
 		$tpl->assign('activities', $activities);
 		
-		$sources = DAO_TimeTrackingEntry::getSources();
-		$tpl->assign('sources', $sources);		
-		
 		// Custom fields
 		$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_TimeEntry::ID);
 		$tpl->assign('custom_fields', $custom_fields);
 		
-		$tpl->display('file:' . APP_PATH . '/features/cerberusweb.timetracking/templates/timetracking/time/view.tpl');
+		switch($this->renderTemplate) {
+			case 'contextlinks_chooser':
+				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.timetracking/templates/timetracking/time/view_contextlinks_chooser.tpl');
+				break;
+			default:
+				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.timetracking/templates/timetracking/time/view.tpl');
+				break;
+		}
+		
 	}
 
 	function renderCriteria($field) {
@@ -708,7 +660,6 @@ class View_TimeTracking extends C4_AbstractView {
 				break;
 			case SearchFields_TimeTrackingEntry::ID:
 			case SearchFields_TimeTrackingEntry::TIME_ACTUAL_MINS:
-			case SearchFields_TimeTrackingEntry::SOURCE_ID:
 				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__number.tpl');
 				break;
 			case SearchFields_TimeTrackingEntry::LOG_DATE:
@@ -727,13 +678,6 @@ class View_TimeTracking extends C4_AbstractView {
 				$tpl->assign('nonbillable_activities', $nonbillable_activities);
 
 				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.timetracking/templates/timetracking/criteria/activity.tpl');
-				break;
-			case SearchFields_TimeTrackingEntry::SOURCE_EXTENSION_ID:
-				$sources = DAO_TimeTrackingEntry::getSources();
-				$tpl->assign('sources', $sources);
-				
-				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.timetracking/templates/timetracking/criteria/source.tpl');
-				break;
 			default:
 				// Custom Fields
 				if('cf_' == substr($field,0,3)) {
@@ -782,22 +726,6 @@ class View_TimeTracking extends C4_AbstractView {
 				echo implode(", ", $strings);
 				break;
 
-			case SearchFields_TimeTrackingEntry::SOURCE_EXTENSION_ID:
-				$sources = DAO_TimeTrackingEntry::getSources();
-				$strings = array();
-				
-				foreach($values as $val) {
-					if(empty($val)) {
-//						$strings[] = "None";
-					} else {
-						if(!isset($sources[$val]))
-							continue;
-						$strings[] = $sources[$val]->getSourceName();
-					}
-				}
-				echo implode(", ", $strings);
-				break;
-
 			default:
 				parent::renderCriteriaParam($param);
 				break;
@@ -823,7 +751,6 @@ class View_TimeTracking extends C4_AbstractView {
 				break;
 			case SearchFields_TimeTrackingEntry::ID:
 			case SearchFields_TimeTrackingEntry::TIME_ACTUAL_MINS:
-			case SearchFields_TimeTrackingEntry::SOURCE_ID:
 				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
 				break;
 				
@@ -843,10 +770,6 @@ class View_TimeTracking extends C4_AbstractView {
 			case SearchFields_TimeTrackingEntry::ACTIVITY_ID:
 				@$activity_ids = DevblocksPlatform::importGPC($_REQUEST['activity_ids'],'array',array());
 				$criteria = new DevblocksSearchCriteria($field,$oper,$activity_ids);
-				break;
-			case SearchFields_TimeTrackingEntry::SOURCE_EXTENSION_ID:
-				@$source_ids = DevblocksPlatform::importGPC($_REQUEST['source_ids'],'array',array());
-				$criteria = new DevblocksSearchCriteria($field,$oper,$source_ids);
 				break;
 			default:
 				// Custom Fields
@@ -1149,8 +1072,6 @@ class ChTimeTrackingAjaxController extends DevblocksControllerExtension {
 		$object->id = 0;
 
 		// Time
-//		$tpl->assign('total_secs', $total_secs);
-//		$tpl->assign('total_mins', ceil($total_secs/60));
 		$object->time_actual_mins = ceil($total_secs/60);
 
 		// Source
@@ -1160,43 +1081,6 @@ class ChTimeTrackingAjaxController extends DevblocksControllerExtension {
 		$object->source_extension_id = $source_ext_id;
 		$object->source_id = $source_id;
 		
-//		$tpl->assign('source_ext_id', $source_ext_id);
-//		$tpl->assign('source_id', $source_id);
-		
-		switch($source_ext_id) {
-			// Ticket
-			case 'timetracking.source.ticket':
-				if(null != ($ticket = DAO_Ticket::get($source_id))) {
-					
-					// Timeslip Responsible Party
-					if(null != ($address = DAO_Address::get($ticket->first_wrote_address_id))) {
-//						$tpl->assign('performed_for', $address->email);
-
-						// Timeslip Org
-						if(!empty($address->contact_org_id)) { 
-//							&& null != ($org = DAO_ContactOrg::get($address->contact_org_id))) {
-//							$tpl->assign('org', $org->name);
-							$object->debit_org_id = $address->contact_org_id;
-						}
-					}
-					
-					// Timeslip reference
-//					$tpl->assign('reference', sprintf("Ticket #%s", 
-//						$ticket->mask 
-//						//((strlen($ticket->subject)>45) ? (substr($ticket->subject,0,45).'...') : $ticket->subject)
-//					));
-					
-					// Timeslip note
-					$object->notes = sprintf("Ticket #%s ",
-						$ticket->mask
-					);
-//					$tpl->assign('note', sprintf("Replied to %s", 
-//						$ticket->mask, 
-//						(!empty($address->email) ? $address->email : '') 
-//					));
-				} 
-				break;
-		}		
 		
 		$this->showEntryAction($object);
 	}
@@ -1223,12 +1107,6 @@ class ChTimeTrackingAjaxController extends DevblocksControllerExtension {
 		}
 
 		/* @var $model Model_TimeTrackingEntry */
-		
-		// Source extension
-		if(!empty($model->source_extension_id)) {
-			if(null != ($source = DevblocksPlatform::getExtension($model->source_extension_id,true))) 
-				$tpl->assign('source', $source);		
-		}
 		
 		// Org Name
 		if(!empty($model->debit_org_id)) {
@@ -1276,8 +1154,6 @@ class ChTimeTrackingAjaxController extends DevblocksControllerExtension {
 		@$time_actual_mins = DevblocksPlatform::importGPC($_POST['time_actual_mins'],'integer',0);
 		@$notes = DevblocksPlatform::importGPC($_POST['notes'],'string','');
 		@$org_str = DevblocksPlatform::importGPC($_POST['org'],'string','');
-		@$source_extension_id = DevblocksPlatform::importGPC($_POST['source_extension_id'],'string','');
-		@$source_id = DevblocksPlatform::importGPC($_POST['source_id'],'integer',0);
 		
 		// Translate org string into org id, if exists
 		$org_id = 0;
@@ -1308,61 +1184,12 @@ class ChTimeTrackingAjaxController extends DevblocksControllerExtension {
 		// Only on new
 		if(empty($id)) {
 			$fields[DAO_TimeTrackingEntry::LOG_DATE] = time();
-			$fields[DAO_TimeTrackingEntry::SOURCE_EXTENSION_ID] = $source_extension_id;
-			$fields[DAO_TimeTrackingEntry::SOURCE_ID] = intval($source_id);
 			$fields[DAO_TimeTrackingEntry::WORKER_ID] = intval($active_worker->id);
 		}
 		
 		if(empty($id)) { // create
 			$id = DAO_TimeTrackingEntry::create($fields);
 			
-			// Procedurally create a comment
-			$translate = DevblocksPlatform::getTranslationService();
-			switch($source_extension_id) {
-				// If ticket, add a comment about the timeslip to the ticket
-				case 'timetracking.source.ticket':
-					$ticket_id = intval($source_id);
-					
-					if(null != ($worker_address = DAO_Address::lookupAddress($active_worker->email, false))) {
-						if(!empty($activity_id)) {
-							$activity = DAO_TimeTrackingActivity::get($activity_id);
-						}
-						
-						if(!empty($org_id))
-							$org = DAO_ContactOrg::get($org_id);
-						
-						$comment = sprintf(
-							"== %s ==\n".
-							"%s %s\n".
-							"%s %d\n".
-							"%s %s (%s)\n".
-							"%s %s\n".
-							"%s %s\n",
-							$translate->_('timetracking.ui.timetracking'),
-							$translate->_('timetracking.ui.worker'),
-							$active_worker->getName(),
-							$translate->_('timetracking.ui.comment.time_spent'),
-							$time_actual_mins,
-							$translate->_('timetracking.ui.comment.activity'),
-							(!empty($activity) ? $activity->name : ''),
-							((!empty($activity) && $activity->rate > 0.00) ? $translate->_('timetracking.ui.billable') : $translate->_('timetracking.ui.non_billable')),
-							$translate->_('timetracking.ui.comment.organization'),
-							(!empty($org) ? $org->name : $translate->_('timetracking.ui.comment.not_set')),
-							$translate->_('timetracking.ui.comment.notes'),
-							$notes
-						);
-						//timetracking.ui.billable timetracking.ui.non_billable
-						$fields = array(
-							DAO_Comment::ADDRESS_ID => intval($worker_address->id),
-							DAO_Comment::COMMENT => $comment,
-							DAO_Comment::CREATED => time(),
-							DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_TICKET,
-							DAO_Comment::CONTEXT_ID => intval($ticket_id),
-						);
-						DAO_Comment::create($fields);
-					}
-					break;
-			}
 			
 		} else { // modify
 			DAO_TimeTrackingEntry::update($id, $fields);
@@ -1560,9 +1387,6 @@ class ChReportTimeSpentWorker extends Extension_Report {
 		$workers = DAO_Worker::getAll();
 		$tpl->assign('workers', $workers);
 
-		$sources = DAO_TimeTrackingEntry::getSources();
-		$tpl->assign('sources', $sources);		
-		
 		@$sel_worker_id = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'integer',0);
 		$tpl->assign('sel_worker_id', $sel_worker_id);
 		
@@ -1697,9 +1521,6 @@ class ChReportTimeSpentOrg extends Extension_Report {
 
 		$workers = DAO_Worker::getAll();
 		$tpl->assign('workers', $workers);
-		
-		$sources = DAO_TimeTrackingEntry::getSources();
-		$tpl->assign('sources', $sources);
 		
 		// Dates
 		
@@ -1836,9 +1657,6 @@ class ChReportTimeSpentActivity extends Extension_Report {
 
 		$workers = DAO_Worker::getAll();
 		$tpl->assign('workers', $workers);
-		
-		$sources = DAO_TimeTrackingEntry::getSources();
-		$tpl->assign('sources', $sources);
 		
 		// Dates
 
