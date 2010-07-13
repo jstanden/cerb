@@ -20,6 +20,10 @@
 		
 		<!-- Toolbar -->
 		<button type="button" id="btnDisplayTaskEdit"><span class="cerb-sprite sprite-document_edit"></span> Edit</button>
+		{$toolbar_extensions = DevblocksPlatform::getExtensions('cerberusweb.task.toolbaritem',true)}
+		{foreach from=$toolbar_extensions item=toolbar_extension}
+			{$toolbar_extension->render($task)}
+		{/foreach}
 		
 		</form>
 		<br>
