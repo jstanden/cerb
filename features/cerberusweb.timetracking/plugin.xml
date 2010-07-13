@@ -18,7 +18,7 @@
 	
 	<patches>
 		<patch version="4.1.0" revision="4" file="patches/4.1.0.php" />
-		<patch version="5.1.0-dev" revision="5" file="patches/5.1.0.php" />
+		<patch version="5.1.0-dev" revision="7" file="patches/5.1.0.php" />
 	</patches>
 	
 	<!-- Exported Classes -->

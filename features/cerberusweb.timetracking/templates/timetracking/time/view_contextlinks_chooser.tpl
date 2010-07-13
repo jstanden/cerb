@@ -84,12 +84,6 @@
 				{include file="file:$core_tpl/internal/custom_fields/view/cell_renderer.tpl"}
 			{elseif $column=="tt_id"}
 			<td>{$result.tt_id}&nbsp;</td>
-			{elseif $column=="o_name"}
-			<td>
-				{if !empty($result.o_name)}
-				<a href="javascript:;" onclick="genericAjaxPopup('peek','c=contacts&a=showOrgPeek&id={$result.tt_debit_org_id}&view_id={$view->id}',null,false,'500');">{$result.o_name}</a>
-				{/if}
-			</td>
 			{elseif $column=="tt_log_date"}
 			<td title="{$result.tt_log_date|devblocks_date}">{$result.tt_log_date|devblocks_prettytime}&nbsp;</td>
 			{elseif $column=="tt_worker_id"}

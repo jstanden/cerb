@@ -41,10 +41,6 @@
 <input type="text" name="notes" size="45" maxlength="255" style="width:98%;" value="{$model->notes|escape}"><br>
 <br>
 
-<b>{$translate->_('timetracking.ui.entry_panel.debit_time_client')}</b> {$translate->_('timetracking.ui.entry_panel.debit_time_client_hint')}<br>
-<input type="text" name="org" id="orginput" value="{$org->name|escape}" style="width:98%;">
-<br>
-
 {include file="file:$core_tpl/internal/custom_fields/bulk/form.tpl" bulk=false}
 <br>
 
@@ -73,6 +69,5 @@
 	var $popup = genericAjaxPopupFetch('peek');
 	$popup.one('popup_open',function(event,ui) {
 		$popup.dialog('option','title',"{'timetracking.ui.timetracking'|devblocks_translate|escape:'quotes'}");
-		ajax.orgAutoComplete('#orginput');
 	} );
 </script>

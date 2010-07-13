@@ -137,21 +137,6 @@ class Context_TimeTracking extends Extension_DevblocksContext {
 			}
 		}
 		
-		// Email Org
-		@$org_id = $timeentry[SearchFields_TimeTrackingEntry::DEBIT_ORG_ID];
-		$merge_token_labels = array();
-		$merge_token_values = array();
-		CerberusContexts::getContext(CerberusContexts::CONTEXT_ORG, $org_id, $merge_token_labels, $merge_token_values, null, true);
-
-		CerberusContexts::merge(
-			'org_',
-			'Org:',
-			$merge_token_labels,
-			$merge_token_values,
-			$token_labels,
-			$token_values
-		);		
-		
 		// Worker
 		@$worker_id = $timeentry[SearchFields_TimeTrackingEntry::WORKER_ID];
 		$merge_token_labels = array();
@@ -182,7 +167,6 @@ class Context_TimeTracking extends Extension_DevblocksContext {
 		$view->name = 'Time Tracking';
 		$view->view_columns = array(
 			SearchFields_TimeTrackingEntry::LOG_DATE,
-			SearchFields_TimeTrackingEntry::ORG_NAME,
 		);
 		$view->addParams(array(
 			//SearchFields_TimeTrackingEntry::IS_CLOSED => new DevblocksSearchCriteria(SearchFields_TimeTrackingEntry::IS_CLOSED,'=',0),
@@ -306,7 +290,6 @@ class DAO_TimeTrackingEntry extends C4_ORMHelper {
 	const LOG_DATE = 'log_date';
 	const WORKER_ID = 'worker_id';
 	const ACTIVITY_ID = 'activity_id';
-	const DEBIT_ORG_ID = 'debit_org_id';
 	const NOTES = 'notes';
 
 	static function create($fields) {
@@ -340,7 +323,7 @@ class DAO_TimeTrackingEntry extends C4_ORMHelper {
 	static function getWhere($where=null) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = "SELECT id, time_actual_mins, log_date, worker_id, activity_id, debit_org_id, notes ".
+		$sql = "SELECT id, time_actual_mins, log_date, worker_id, activity_id ".
 			"FROM timetracking_entry ".
 			(!empty($where) ? sprintf("WHERE %s ",$where) : "").
 			"ORDER BY id asc";
@@ -378,7 +361,6 @@ class DAO_TimeTrackingEntry extends C4_ORMHelper {
 			$object->log_date = $row['log_date'];
 			$object->worker_id = $row['worker_id'];
 			$object->activity_id = $row['activity_id'];
-			$object->debit_org_id = $row['debit_org_id'];
 			$object->notes = $row['notes'];
 			$objects[$object->id] = $object;
 		}
@@ -438,23 +420,18 @@ class DAO_TimeTrackingEntry extends C4_ORMHelper {
 			"tt.time_actual_mins as %s, ".
 			"tt.log_date as %s, ".
 			"tt.worker_id as %s, ".
-			"tt.activity_id as %s, ".
-			"tt.debit_org_id as %s, ".
 			"tt.notes as %s, ".
-			"o.name as %s ",
+			"tt.activity_id as %s ",
 			    SearchFields_TimeTrackingEntry::ID,
 			    SearchFields_TimeTrackingEntry::TIME_ACTUAL_MINS,
 			    SearchFields_TimeTrackingEntry::LOG_DATE,
 			    SearchFields_TimeTrackingEntry::WORKER_ID,
-			    SearchFields_TimeTrackingEntry::ACTIVITY_ID,
-			    SearchFields_TimeTrackingEntry::DEBIT_ORG_ID,
 			    SearchFields_TimeTrackingEntry::NOTES,
-			    SearchFields_TimeTrackingEntry::ORG_NAME
+			    SearchFields_TimeTrackingEntry::ACTIVITY_ID
 			 );
 		
 		$join_sql = 
 			"FROM timetracking_entry tt ".
-			"LEFT JOIN contact_org o ON (o.id=tt.debit_org_id) ".
 		
 			// [JAS]: Dynamic table joins
 			(isset($tables['context_link']) ? "INNER JOIN context_link ON (context_link.to_context = 'cerberusweb.contexts.timetracking' AND context_link.to_context_id = tt.id) " : " ")
@@ -532,7 +509,6 @@ class Model_TimeTrackingEntry {
 	public $log_date;
 	public $worker_id;
 	public $activity_id;
-	public $debit_org_id;
 	public $notes;
 };
 
@@ -543,10 +519,7 @@ class SearchFields_TimeTrackingEntry {
 	const LOG_DATE = 'tt_log_date';
 	const WORKER_ID = 'tt_worker_id';
 	const ACTIVITY_ID = 'tt_activity_id';
-	const DEBIT_ORG_ID = 'tt_debit_org_id';
 	const NOTES = 'tt_notes';
-	
-	const ORG_NAME = 'o_name';
 	
 	const CONTEXT_LINK = 'cl_context_from';
 	const CONTEXT_LINK_ID = 'cl_context_from_id';
@@ -565,10 +538,7 @@ class SearchFields_TimeTrackingEntry {
 			self::LOG_DATE => new DevblocksSearchField(self::LOG_DATE, 'tt', 'log_date', $translate->_('timetracking_entry.log_date')),
 			self::WORKER_ID => new DevblocksSearchField(self::WORKER_ID, 'tt', 'worker_id', $translate->_('timetracking_entry.worker_id')),
 			self::ACTIVITY_ID => new DevblocksSearchField(self::ACTIVITY_ID, 'tt', 'activity_id', $translate->_('timetracking_entry.activity_id')),
-			self::DEBIT_ORG_ID => new DevblocksSearchField(self::DEBIT_ORG_ID, 'tt', 'debit_org_id', $translate->_('timetracking_entry.debit_org_id')),
 			self::NOTES => new DevblocksSearchField(self::NOTES, 'tt', 'notes', $translate->_('timetracking_entry.notes')),
-			
-			self::ORG_NAME => new DevblocksSearchField(self::ORG_NAME, 'o', 'name', $translate->_('contact_org.name')),
 			
 			self::CONTEXT_LINK => new DevblocksSearchField(self::CONTEXT_LINK, 'context_link', 'from_context', null),
 			self::CONTEXT_LINK_ID => new DevblocksSearchField(self::CONTEXT_LINK_ID, 'context_link', 'from_context_id', null),
@@ -605,11 +575,9 @@ class View_TimeTracking extends C4_AbstractView {
 
 		$this->view_columns = array(
 			SearchFields_TimeTrackingEntry::LOG_DATE,
-			SearchFields_TimeTrackingEntry::ORG_NAME,
 		);
 		$this->columnsHidden = array(
 			SearchFields_TimeTrackingEntry::ID,
-			SearchFields_TimeTrackingEntry::DEBIT_ORG_ID,
 			SearchFields_TimeTrackingEntry::CONTEXT_LINK,
 			SearchFields_TimeTrackingEntry::CONTEXT_LINK_ID,
 			SearchFields_TimeTrackingEntry::VIRTUAL_OWNERS,
@@ -617,7 +585,6 @@ class View_TimeTracking extends C4_AbstractView {
 		
 		$this->paramsHidden = array(
 			SearchFields_TimeTrackingEntry::ID,
-			SearchFields_TimeTrackingEntry::DEBIT_ORG_ID,
 			SearchFields_TimeTrackingEntry::CONTEXT_LINK,
 			SearchFields_TimeTrackingEntry::CONTEXT_LINK_ID,
 		);
@@ -698,7 +665,7 @@ class View_TimeTracking extends C4_AbstractView {
 
 		switch($field) {
 			case SearchFields_TimeTrackingEntry::NOTES:
-			case SearchFields_TimeTrackingEntry::ORG_NAME:
+			case 'placeholder_string':
 				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__string.tpl');
 				break;
 			case SearchFields_TimeTrackingEntry::ID:
@@ -782,7 +749,7 @@ class View_TimeTracking extends C4_AbstractView {
 
 		switch($field) {
 			case SearchFields_TimeTrackingEntry::NOTES:
-			case SearchFields_TimeTrackingEntry::ORG_NAME:
+			case 'placeholder_string':
 				// force wildcards if none used on a LIKE
 				if(($oper == DevblocksSearchCriteria::OPER_LIKE || $oper == DevblocksSearchCriteria::OPER_NOT_LIKE)
 				&& false === (strpos($value,'*'))) {
@@ -1000,16 +967,16 @@ class ChTimeTrackingEventListener extends DevblocksEventListenerExtension {
             case 'ticket.action.merge':
             	$new_ticket_id = $event->params['new_ticket_id'];
             	$old_ticket_ids = $event->params['old_ticket_ids'];
-            	
-            	$fields = array(
-            		DAO_TimeTrackingEntry::SOURCE_ID => $new_ticket_id,
-            	);
-            	 DAO_TimeTrackingEntry::updateWhere($fields,sprintf("%s = '%s' AND %s IN (%s)",
-            		DAO_TimeTrackingEntry::SOURCE_EXTENSION_ID,
-            		ChTimeTrackingTicketSource::ID,
-            		DAO_TimeTrackingEntry::SOURCE_ID,
-            		implode(',', $old_ticket_ids)
-            	));
+
+//            	$fields = array(
+//            		DAO_TimeTrackingEntry::SOURCE_ID => $new_ticket_id,
+//            	);
+//            	 DAO_TimeTrackingEntry::updateWhere($fields,sprintf("%s = '%s' AND %s IN (%s)",
+//            		DAO_TimeTrackingEntry::SOURCE_EXTENSION_ID,
+//            		ChTimeTrackingTicketSource::ID,
+//            		DAO_TimeTrackingEntry::SOURCE_ID,
+//            		implode(',', $old_ticket_ids)
+//            	));
             	break;
         }
     }
@@ -1147,12 +1114,6 @@ class ChTimeTrackingAjaxController extends DevblocksControllerExtension {
 
 		/* @var $model Model_TimeTrackingEntry */
 		
-		// Org Name
-		if(!empty($model->debit_org_id)) {
-			if(null != ($org = DAO_ContactOrg::get($model->debit_org_id)))
-				$tpl->assign('org', $org);
-		}
-		
 		// Activities
 		// [TODO] Cache
 		$billable_activities = DAO_TimeTrackingActivity::getWhere(sprintf("%s!=0",DAO_TimeTrackingActivity::RATE));
@@ -1192,14 +1153,7 @@ class ChTimeTrackingAjaxController extends DevblocksControllerExtension {
 		@$activity_id = DevblocksPlatform::importGPC($_POST['activity_id'],'integer',0);
 		@$time_actual_mins = DevblocksPlatform::importGPC($_POST['time_actual_mins'],'integer',0);
 		@$notes = DevblocksPlatform::importGPC($_POST['notes'],'string','');
-		@$org_str = DevblocksPlatform::importGPC($_POST['org'],'string','');
 		
-		// Translate org string into org id, if exists
-		$org_id = 0;
-		if(!empty($org_str)) {
-			$org_id = DAO_ContactOrg::lookup($org_str, true);
-		}
-
 		// Delete entries
 		if(!empty($id) && !empty($do_delete)) {
 			if(null != ($entry = DAO_TimeTrackingEntry::get($id))) {
@@ -1217,7 +1171,6 @@ class ChTimeTrackingAjaxController extends DevblocksControllerExtension {
 			DAO_TimeTrackingEntry::ACTIVITY_ID => intval($activity_id),
 			DAO_TimeTrackingEntry::TIME_ACTUAL_MINS => intval($time_actual_mins),
 			DAO_TimeTrackingEntry::NOTES => $notes,
-			DAO_TimeTrackingEntry::DEBIT_ORG_ID => intval($org_id),
 		);
 
 		// Only on new
@@ -1229,6 +1182,52 @@ class ChTimeTrackingAjaxController extends DevblocksControllerExtension {
 		if(empty($id)) { // create
 			$id = DAO_TimeTrackingEntry::create($fields);
 			
+//			$translate = DevblocksPlatform::getTranslationService();
+//			switch($source_extension_id) {
+//				// If ticket, add a comment about the timeslip to the ticket
+//				case 'timetracking.source.ticket':
+//					$ticket_id = intval($source_id);
+//					
+//					if(null != ($worker_address = DAO_Address::lookupAddress($active_worker->email, false))) {
+//						if(!empty($activity_id)) {
+//							$activity = DAO_TimeTrackingActivity::get($activity_id);
+//						}
+//						
+//						if(!empty($org_id))
+//							$org = DAO_ContactOrg::get($org_id);
+//						
+//						$comment = sprintf(
+//							"== %s ==\n".
+//							"%s %s\n".
+//							"%s %d\n".
+//							"%s %s (%s)\n".
+//							"%s %s\n".
+//							"%s %s\n",
+//							$translate->_('timetracking.ui.timetracking'),
+//							$translate->_('timetracking.ui.worker'),
+//							$active_worker->getName(),
+//							$translate->_('timetracking.ui.comment.time_spent'),
+//							$time_actual_mins,
+//							$translate->_('timetracking.ui.comment.activity'),
+//							(!empty($activity) ? $activity->name : ''),
+//							((!empty($activity) && $activity->rate > 0.00) ? $translate->_('timetracking.ui.billable') : $translate->_('timetracking.ui.non_billable')),
+//							$translate->_('timetracking.ui.comment.organization'),
+//							(!empty($org) ? $org->name : $translate->_('timetracking.ui.comment.not_set')),
+//							$translate->_('timetracking.ui.comment.notes'),
+//							$notes
+//						);
+//						//timetracking.ui.billable timetracking.ui.non_billable
+//						$fields = array(
+//							DAO_Comment::ADDRESS_ID => intval($worker_address->id),
+//							DAO_Comment::COMMENT => $comment,
+//							DAO_Comment::CREATED => time(),
+//							DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_TICKET,
+//							DAO_Comment::CONTEXT_ID => intval($ticket_id),
+//						);
+//						DAO_Comment::create($fields);
+//					}
+//					break;
+//			}
 			
 		} else { // modify
 			DAO_TimeTrackingEntry::update($id, $fields);

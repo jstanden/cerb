@@ -70,8 +70,6 @@ class ChRest_TimeTracking extends Extension_RestController implements IExtension
 			$tokens = array(
 				'created' => SearchFields_TimeTrackingEntry::LOG_DATE,
 				'id' => SearchFields_TimeTrackingEntry::ID,
-				'org_id' => SearchFields_TimeTrackingEntry::DEBIT_ORG_ID,
-				'org_name' => SearchFields_TimeTrackingEntry::ORG_NAME,
 				'mins' => SearchFields_TimeTrackingEntry::TIME_ACTUAL_MINS,
 				'worker_id' => SearchFields_TimeTrackingEntry::WORKER_ID,
 			);

@@ -126,9 +126,6 @@
 		<tu tuid='timetracking_entry.activity_id'>
 			<tuv xml:lang="en_US"><seg>Activity</seg></tuv>
 		</tu>
-		<tu tuid='timetracking_entry.debit_org_id'>
-			<tuv xml:lang="en_US"><seg>Org</seg></tuv>
-		</tu>
 		<tu tuid='timetracking_entry.id'>
 			<tuv xml:lang="en_US"><seg>ID</seg></tuv>
 		</tu>
