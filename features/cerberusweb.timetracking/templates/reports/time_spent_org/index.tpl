@@ -104,12 +104,7 @@
 							{assign var=tagged_mins value="<B>"|cat:$time_entry.mins|cat:"</B>"}
 							{assign var=tagged_activity value="<B>"|cat:$time_entry.activity_name|cat:"</B>"}
 					
-							{if !empty($time_entry.org_name)}
-								{assign var=tagged_org_name value="<B>"|cat:$time_entry.org_name|cat:"</B>"}
-								{'timetracking.ui.reports.tracked_desc.with_org'|devblocks_translate:$tagged_worker_name:$tagged_mins:$tagged_activity:$tagged_org_name}
-							{else}
-								{'timetracking.ui.tracked_desc'|devblocks_translate:$tagged_worker_name:$tagged_mins:$tagged_activity}
-							{/if}
+							{'timetracking.ui.tracked_desc'|devblocks_translate:$tagged_worker_name:$tagged_mins:$tagged_activity}
 
 							{if !empty($source_ext_id)}
 								{assign var=source value=$sources.$source_ext_id}

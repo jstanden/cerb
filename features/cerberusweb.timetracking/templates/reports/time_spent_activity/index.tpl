@@ -103,10 +103,7 @@ To: <input type="text" name="end" id="end" size="24" value="{$end}"><button type
 							{assign var=tagged_mins value="<B>"|cat:$time_entry.mins|cat:"</B>"}
 							{assign var=tagged_activity value="<B>"|cat:$activity_entry.activity_name|cat:"</B>"}
 						
-							{if !empty($time_entry.org_name)}
-								{assign var=tagged_org_name value="<B>"|cat:$time_entry.org_name|cat:"</B>"}							
-								{'timetracking.ui.reports.tracked_desc.with_org'|devblocks_translate:$tagged_worker_name:$tagged_mins:$tagged_activity:$tagged_org_name}
-							{elseif !empty($activity_entry.activity_name)}
+							{if !empty($activity_entry.activity_name)}
 								{'timetracking.ui.tracked_desc'|devblocks_translate:$tagged_worker_name:$tagged_mins:$tagged_activity}
 							{else}
 								{'%s tracked %s mins'|devblocks_translate:$tagged_worker_name:$tagged_mins}

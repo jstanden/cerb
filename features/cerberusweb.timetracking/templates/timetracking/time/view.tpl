@@ -65,7 +65,11 @@
 			<td align="center" rowspan="2"><input type="checkbox" name="row_id[]" value="{$result.tt_id}"></td>
 			<td colspan="{math equation="x" x=$smarty.foreach.headers.total}">
 				<a href="javascript:;" onclick="genericAjaxPopup('peek','c=timetracking&a=showEntry&id={$result.tt_id}&view_id={$view->id}',null,false,'500');" class="subject">
-				{'timetracking.ui.tracked_desc'|devblocks_translate:$worker_name:$result.tt_time_actual_mins:$activities.$activity_id->name}
+				{if isset($activities.$activity_id->name)}
+					{'timetracking.ui.tracked_desc'|devblocks_translate:$worker_name:$result.tt_time_actual_mins:$activities.$activity_id->name}
+				{else}
+					{'%s tracked %s mins'|devblocks_translate:$worker_name:$result.tt_time_actual_mins}
+				{/if}					
 				</a>
 				<br>
 				{if !empty($result.tt_notes)}{$result.tt_notes}{/if}
