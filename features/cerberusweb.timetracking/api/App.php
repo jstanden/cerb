@@ -985,9 +985,12 @@ class ChTimeTrackingEventListener extends DevblocksEventListenerExtension {
     }
 };
 
-class ChTimeTrackingAjaxController extends DevblocksControllerExtension {
+class ChTimeTrackingPage extends CerberusPageExtension {
+	private $plugin_path = '';
+	
 	function __construct($manifest) {
 		parent::__construct($manifest);
+		$this->plugin_path = dirname(dirname(__FILE__)).'/';
 	}
 	
 	function isVisible() {
@@ -1002,30 +1005,51 @@ class ChTimeTrackingAjaxController extends DevblocksControllerExtension {
 		}
 	}
 	
-	/*
-	 * Request Overload
-	 */
-	function handleRequest(DevblocksHttpRequest $request) {
-		if(!$this->isVisible())
-			return;
+	function render() {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl_path = $this->plugin_path . '/templates/';
+		$tpl->assign('path', $tpl_path);
+
+		$visit = CerberusApplication::getVisit();
+		$translate = DevblocksPlatform::getTranslationService();
 		
-	    $path = $request->path;
-		$controller = array_shift($path); // timetracking
-
-	    @$action = DevblocksPlatform::strAlphaNumDash(array_shift($path)) . 'Action';
-
-	    switch($action) {
-	        case NULL:
-	            // [TODO] Index/page render
-	            break;
-	            
-	        default:
-			    // Default action, call arg as a method suffixed with Action
-				if(method_exists($this,$action)) {
-					call_user_func(array(&$this, $action));
+		$response = DevblocksPlatform::getHttpResponse();
+		$stack = $response->path;
+		
+		array_shift($stack); // timetracking
+		
+		$module = array_shift($stack); // display
+		
+		switch($module) {
+			default:
+			case 'display':
+				@$time_id = intval(array_shift($stack));
+				if(null == ($time_entry = DAO_TimeTrackingEntry::get($time_id))) {
+					break; // [TODO] Not found
 				}
-	            break;
-	    }
+				$tpl->assign('time_entry', $time_entry);						
+
+//				if(null == (@$tab_selected = $stack[0])) {
+//					$tab_selected = $visit->get(self::SESSION_OPP_TAB, '');
+//				}
+//				$tpl->assign('tab_selected', $tab_selected);
+
+//				$address = DAO_Address::get($opp->primary_email_id);
+//				$tpl->assign('address', $address);
+				
+//				$workers = DAO_Worker::getAll();
+//				$tpl->assign('workers', $workers);
+				
+				$tpl->display($tpl_path . 'timetracking/display/index.tpl');
+				break;
+		}
+	}	
+	
+	/**
+	 * @return Model_Activity
+	 */
+	public function getActivity() {
+        return new Model_Activity('activity.default');
 	}
 	
 	private function _startTimer() {
@@ -1081,10 +1105,11 @@ class ChTimeTrackingAjaxController extends DevblocksControllerExtension {
 		
 		$object = new Model_TimeTrackingEntry();
 		$object->id = 0;
+		$object->log_date = time();
 
 		// Time
 		$object->time_actual_mins = ceil($total_secs/60);
-
+		
 		// If we're linking a context during creation
 		@$context = strtolower($_SESSION['timetracking_context']);
 		@$context_id = intval($_SESSION['timetracking_context_id']);
@@ -1123,6 +1148,16 @@ class ChTimeTrackingAjaxController extends DevblocksControllerExtension {
 		$tpl->assign('billable_activities', $billable_activities);
 		$nonbillable_activities = DAO_TimeTrackingActivity::getWhere(sprintf("%s=0",DAO_TimeTrackingActivity::RATE));
 		$tpl->assign('nonbillable_activities', $nonbillable_activities);
+
+		// Comments
+		$comments = DAO_Comment::getByContext(CerberusContexts::CONTEXT_TIMETRACKING, $id);
+		$last_comment = array_shift($comments);
+		unset($comments);
+		$tpl->assign('last_comment', $last_comment);
+		
+		// Workers
+		$context_workers = CerberusContexts::getWorkers(CerberusContexts::CONTEXT_TIMETRACKING, $id);
+		$tpl->assign('context_workers', $context_workers);
 		
 		// Custom fields
 		$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_TimeEntry::ID); 
@@ -1138,11 +1173,6 @@ class ChTimeTrackingAjaxController extends DevblocksControllerExtension {
 		$tpl->display('file:' . $tpl_path . 'timetracking/rpc/time_entry_panel.tpl');
 	}
 	
-//	function writeResponse(DevblocksHttpResponse $response) {
-//		if(!$this->isVisible())
-//			return;
-//	}
-
 	function saveEntryAction() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
@@ -1155,6 +1185,14 @@ class ChTimeTrackingAjaxController extends DevblocksControllerExtension {
 			
 		@$activity_id = DevblocksPlatform::importGPC($_POST['activity_id'],'integer',0);
 		@$time_actual_mins = DevblocksPlatform::importGPC($_POST['time_actual_mins'],'integer',0);
+		
+		// Date
+		@$log_date = DevblocksPlatform::importGPC($_REQUEST['log_date'],'string','now');
+		if(false == (@$log_date = strtotime($log_date)))
+			$log_date = time();
+		
+		@$context = DevblocksPlatform::importGPC($_POST['context'],'string','');		
+		@$context_id = DevblocksPlatform::importGPC($_POST['context_id'],'integer',0);
 		
 		// Delete entries
 		if(!empty($id) && !empty($do_delete)) {
@@ -1172,11 +1210,11 @@ class ChTimeTrackingAjaxController extends DevblocksControllerExtension {
 		$fields = array(
 			DAO_TimeTrackingEntry::ACTIVITY_ID => intval($activity_id),
 			DAO_TimeTrackingEntry::TIME_ACTUAL_MINS => intval($time_actual_mins),
+			DAO_TimeTrackingEntry::LOG_DATE => intval($log_date),
 		);
 
 		// Only on new
 		if(empty($id)) {
-			$fields[DAO_TimeTrackingEntry::LOG_DATE] = time();
 			$fields[DAO_TimeTrackingEntry::WORKER_ID] = intval($active_worker->id);
 		}
 		
@@ -1235,21 +1273,26 @@ class ChTimeTrackingAjaxController extends DevblocksControllerExtension {
 		}
 
 		// Establishing a context link?
-		@$context = DevblocksPlatform::importGPC($_POST['context'],'string','');		
-		@$context_id = DevblocksPlatform::importGPC($_POST['context_id'],'integer',0);
 		if(!empty($context) && !empty($context_id)) {
 			DAO_ContextLink::setLink(CerberusContexts::CONTEXT_TIMETRACKING, $id, $context, $context_id);
 		}
 		
+		// Owners
+		@$worker_ids = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',array());
+		CerberusContexts::setWorkers(CerberusContexts::CONTEXT_TIMETRACKING, $id, $worker_ids);
+
+		// Comments
 		@$comment = DevblocksPlatform::importGPC($_POST['comment'],'string','');
-		$fields = array(
-			DAO_Comment::ADDRESS_ID => $active_worker->getAddress()->id,
-			DAO_Comment::COMMENT => $comment,
-			DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_TIMETRACKING,
-			DAO_Comment::CONTEXT_ID => $id,
-			DAO_Comment::CREATED => time(),
-		);		
-		$comment_id = DAO_Comment::create($fields);
+		if(!empty($comment)) {
+			$fields = array(
+				DAO_Comment::ADDRESS_ID => $active_worker->getAddress()->id,
+				DAO_Comment::COMMENT => $comment,
+				DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_TIMETRACKING,
+				DAO_Comment::CONTEXT_ID => $id,
+				DAO_Comment::CREATED => time(),
+			);		
+			$comment_id = DAO_Comment::create($fields);
+		}
 		
 		// Custom field saves
 		@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', array());

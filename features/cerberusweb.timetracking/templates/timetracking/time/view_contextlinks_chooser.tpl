@@ -60,8 +60,7 @@
 			<td colspan="{math equation="x" x=$smarty.foreach.headers.total}">
 				<a href="javascript:;" onclick="genericAjaxPopup('peek','c=timetracking&a=showEntry&id={$result.tt_id}&view_id={$view->id}',null,false,'500');" class="subject">{$title}</a>
 				
-				{*
-				{$object_workers = DAO_ContextLink::getContextLinks(CerberusContexts::CONTEXT_OPPORTUNITY, array_keys($data), CerberusContexts::CONTEXT_WORKER)}
+				{$object_workers = DAO_ContextLink::getContextLinks(CerberusContexts::CONTEXT_TIMETRACKING, array_keys($data), CerberusContexts::CONTEXT_WORKER)}
 				{if isset($object_workers.{$result.tt_id})}
 				<div style="display:inline;padding-left:5px;">
 				{foreach from=$object_workers.{$result.tt_id} key=worker_id item=worker name=workers}
@@ -73,7 +72,6 @@
 				{/foreach}
 				</div>
 				{/if}
-				*}
 			</td>
 		</tr>
 		<tr class="{$tableRowClass}">

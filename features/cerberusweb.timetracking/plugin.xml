@@ -204,15 +204,16 @@
 		
 		<!-- Controllers -->
 		
- 		<extension point="devblocks.controller">
-			<id>timetracking.controller.ajax</id>
-			<name>Time Tracking Ajax Controller</name>
+ 		<extension point="cerberusweb.page">
+			<id>timetracking.page</id>
+			<name>Time Tracking Page</name>
 			<class>
 				<file>api/App.php</file>
-				<name>ChTimeTrackingAjaxController</name>
+				<name>ChTimeTrackingPage</name>
 			</class>
 			<params>
 				<param key="uri" value="timetracking" />
+				<param key="menutitle" value="" />
 			</params>
 		</extension>
 		 

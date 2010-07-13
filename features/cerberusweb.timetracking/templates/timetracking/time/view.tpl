@@ -64,13 +64,21 @@
 		<tr class="{$tableRowClass}">
 			<td align="center" rowspan="2"><input type="checkbox" name="row_id[]" value="{$result.tt_id}"></td>
 			<td colspan="{math equation="x" x=$smarty.foreach.headers.total}">
-				<a href="javascript:;" onclick="genericAjaxPopup('peek','c=timetracking&a=showEntry&id={$result.tt_id}&view_id={$view->id}',null,false,'500');" class="subject">
-				{if isset($activities.$activity_id->name)}
-					{'timetracking.ui.tracked_desc'|devblocks_translate:$worker_name:$result.tt_time_actual_mins:$activities.$activity_id->name}
-				{else}
-					{'%s tracked %s mins'|devblocks_translate:$worker_name:$result.tt_time_actual_mins}
-				{/if}					
-				</a>
+				<a href="{devblocks_url}c=timetracking&a=display&id={$result.tt_id}{/devblocks_url}" class="subject">{if isset($activities.$activity_id->name)}{'timetracking.ui.tracked_desc'|devblocks_translate:$worker_name:$result.tt_time_actual_mins:$activities.$activity_id->name}{else}{'%s tracked %s mins'|devblocks_translate:$worker_name:$result.tt_time_actual_mins}{/if}</a>
+				<a href="javascript:;" onclick="genericAjaxPopup('peek','c=timetracking&a=showEntry&id={$result.tt_id}&view_id={$view->id}',null,false,'500');"><span class="ui-icon ui-icon-newwin" style="display:inline-block;vertical-align:middle;" title="{$translate->_('views.peek')}"></span></a>
+				
+				{$object_workers = DAO_ContextLink::getContextLinks(CerberusContexts::CONTEXT_TIMETRACKING, array_keys($data), CerberusContexts::CONTEXT_WORKER)}
+				{if isset($object_workers.{$result.tt_id})}
+				<div style="display:inline;padding-left:5px;">
+				{foreach from=$object_workers.{$result.tt_id} key=worker_id item=worker name=workers}
+					{if isset($workers.{$worker_id})}
+						<span style="color:rgb(150,150,150);">
+						{$workers.{$worker_id}->getName()}{if !$smarty.foreach.workers.last}, {/if}
+						</span>
+					{/if}
+				{/foreach}
+				</div>
+				{/if}
 			</td>
 		</tr>
 		<tr class="{$tableRowClass}">
