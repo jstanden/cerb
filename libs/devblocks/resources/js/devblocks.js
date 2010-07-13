@@ -321,7 +321,7 @@ function genericAjaxPopup($ns,request,target,modal,width,cb) {
 	return $popup;
 }
 
-function genericAjaxPopupPostCloseReloadView($ns, frm, view_id, has_output) {
+function genericAjaxPopupPostCloseReloadView($ns, frm, view_id, has_output, $event) {
 	var has_view = (null != view_id && view_id.length > 0 && $('#view'+view_id).length > 0) ? true : false;
 	if(null == has_output)
 		has_output = false;
@@ -344,7 +344,7 @@ function genericAjaxPopupPostCloseReloadView($ns, frm, view_id, has_output) {
 			$popup = genericAjaxPopupFetch($ns);
 			if(null != $popup) {
 				$popup.trigger('popup_saved');
-				genericAjaxPopupDestroy($ns);
+				genericAjaxPopupClose($ns, $event);
 			}
 		}
 	);
