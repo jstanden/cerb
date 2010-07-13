@@ -37,8 +37,8 @@
 </table>
 <br>
 
-<b>{$translate->_('timetracking.ui.entry_panel.note')}</b> {$translate->_('timetracking.ui.entry_panel.note_hint')}<br>
-<input type="text" name="notes" size="45" maxlength="255" style="width:98%;" value="{$model->notes|escape}"><br>
+<b>{$translate->_('common.comment')|capitalize}</b><br>
+<textarea name="comment" rows="4" cols="45" style="width:98%;">{$model->notes|escape}</textarea><br>
 <br>
 
 {include file="file:$core_tpl/internal/custom_fields/bulk/form.tpl" bulk=false}

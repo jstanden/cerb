@@ -71,8 +71,6 @@
 					{'%s tracked %s mins'|devblocks_translate:$worker_name:$result.tt_time_actual_mins}
 				{/if}					
 				</a>
-				<br>
-				{if !empty($result.tt_notes)}{$result.tt_notes}{/if}
 			</td>
 		</tr>
 		<tr class="{$tableRowClass}">

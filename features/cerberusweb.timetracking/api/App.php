@@ -97,7 +97,6 @@ class Context_TimeTracking extends Extension_DevblocksContext {
 			'created|date' => $prefix.$translate->_('timetracking_entry.log_date'),
 			'id' => $prefix.$translate->_('common.id'),
 			'mins' => $prefix.$translate->_('timetracking_entry.time_actual_mins'),
-			'notes' => $prefix.$translate->_('timetracking_entry.notes'),
 		);
 		
 		if(is_array($fields))
@@ -112,7 +111,6 @@ class Context_TimeTracking extends Extension_DevblocksContext {
 			$token_values['created'] = $timeentry[SearchFields_TimeTrackingEntry::LOG_DATE];
 			$token_values['id'] = $timeentry[SearchFields_TimeTrackingEntry::ID];
 			$token_values['mins'] = $timeentry[SearchFields_TimeTrackingEntry::TIME_ACTUAL_MINS];
-			$token_values['notes'] = $timeentry[SearchFields_TimeTrackingEntry::NOTES];
 			$token_values['custom'] = array();
 			
 			$field_values = array_shift(DAO_CustomFieldValue::getValuesBySourceIds(ChCustomFieldSource_TimeEntry::ID, $timeentry[SearchFields_TimeTrackingEntry::ID]));
@@ -290,7 +288,6 @@ class DAO_TimeTrackingEntry extends C4_ORMHelper {
 	const LOG_DATE = 'log_date';
 	const WORKER_ID = 'worker_id';
 	const ACTIVITY_ID = 'activity_id';
-	const NOTES = 'notes';
 
 	static function create($fields) {
 		$db = DevblocksPlatform::getDatabaseService();
@@ -361,7 +358,6 @@ class DAO_TimeTrackingEntry extends C4_ORMHelper {
 			$object->log_date = $row['log_date'];
 			$object->worker_id = $row['worker_id'];
 			$object->activity_id = $row['activity_id'];
-			$object->notes = $row['notes'];
 			$objects[$object->id] = $object;
 		}
 		
@@ -420,13 +416,11 @@ class DAO_TimeTrackingEntry extends C4_ORMHelper {
 			"tt.time_actual_mins as %s, ".
 			"tt.log_date as %s, ".
 			"tt.worker_id as %s, ".
-			"tt.notes as %s, ".
 			"tt.activity_id as %s ",
 			    SearchFields_TimeTrackingEntry::ID,
 			    SearchFields_TimeTrackingEntry::TIME_ACTUAL_MINS,
 			    SearchFields_TimeTrackingEntry::LOG_DATE,
 			    SearchFields_TimeTrackingEntry::WORKER_ID,
-			    SearchFields_TimeTrackingEntry::NOTES,
 			    SearchFields_TimeTrackingEntry::ACTIVITY_ID
 			 );
 		
@@ -509,7 +503,6 @@ class Model_TimeTrackingEntry {
 	public $log_date;
 	public $worker_id;
 	public $activity_id;
-	public $notes;
 };
 
 class SearchFields_TimeTrackingEntry {
@@ -519,7 +512,6 @@ class SearchFields_TimeTrackingEntry {
 	const LOG_DATE = 'tt_log_date';
 	const WORKER_ID = 'tt_worker_id';
 	const ACTIVITY_ID = 'tt_activity_id';
-	const NOTES = 'tt_notes';
 	
 	const CONTEXT_LINK = 'cl_context_from';
 	const CONTEXT_LINK_ID = 'cl_context_from_id';
@@ -538,7 +530,6 @@ class SearchFields_TimeTrackingEntry {
 			self::LOG_DATE => new DevblocksSearchField(self::LOG_DATE, 'tt', 'log_date', $translate->_('timetracking_entry.log_date')),
 			self::WORKER_ID => new DevblocksSearchField(self::WORKER_ID, 'tt', 'worker_id', $translate->_('timetracking_entry.worker_id')),
 			self::ACTIVITY_ID => new DevblocksSearchField(self::ACTIVITY_ID, 'tt', 'activity_id', $translate->_('timetracking_entry.activity_id')),
-			self::NOTES => new DevblocksSearchField(self::NOTES, 'tt', 'notes', $translate->_('timetracking_entry.notes')),
 			
 			self::CONTEXT_LINK => new DevblocksSearchField(self::CONTEXT_LINK, 'context_link', 'from_context', null),
 			self::CONTEXT_LINK_ID => new DevblocksSearchField(self::CONTEXT_LINK_ID, 'context_link', 'from_context_id', null),
@@ -664,7 +655,6 @@ class View_TimeTracking extends C4_AbstractView {
 		$tpl->assign('id', $this->id);
 
 		switch($field) {
-			case SearchFields_TimeTrackingEntry::NOTES:
 			case 'placeholder_string':
 				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__string.tpl');
 				break;
@@ -748,7 +738,6 @@ class View_TimeTracking extends C4_AbstractView {
 		$criteria = null;
 
 		switch($field) {
-			case SearchFields_TimeTrackingEntry::NOTES:
 			case 'placeholder_string':
 				// force wildcards if none used on a LIKE
 				if(($oper == DevblocksSearchCriteria::OPER_LIKE || $oper == DevblocksSearchCriteria::OPER_NOT_LIKE)
@@ -1152,7 +1141,6 @@ class ChTimeTrackingAjaxController extends DevblocksControllerExtension {
 			
 		@$activity_id = DevblocksPlatform::importGPC($_POST['activity_id'],'integer',0);
 		@$time_actual_mins = DevblocksPlatform::importGPC($_POST['time_actual_mins'],'integer',0);
-		@$notes = DevblocksPlatform::importGPC($_POST['notes'],'string','');
 		
 		// Delete entries
 		if(!empty($id) && !empty($do_delete)) {
@@ -1170,7 +1158,6 @@ class ChTimeTrackingAjaxController extends DevblocksControllerExtension {
 		$fields = array(
 			DAO_TimeTrackingEntry::ACTIVITY_ID => intval($activity_id),
 			DAO_TimeTrackingEntry::TIME_ACTUAL_MINS => intval($time_actual_mins),
-			DAO_TimeTrackingEntry::NOTES => $notes,
 		);
 
 		// Only on new
@@ -1239,6 +1226,16 @@ class ChTimeTrackingAjaxController extends DevblocksControllerExtension {
 		if(!empty($context) && !empty($context_id)) {
 			DAO_ContextLink::setLink(CerberusContexts::CONTEXT_TIMETRACKING, $id, $context, $context_id);
 		}
+		
+		@$comment = DevblocksPlatform::importGPC($_POST['comment'],'string','');
+		$fields = array(
+			DAO_Comment::ADDRESS_ID => $active_worker->getAddress()->id,
+			DAO_Comment::COMMENT => $comment,
+			DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_TIMETRACKING,
+			DAO_Comment::CONTEXT_ID => $id,
+			DAO_Comment::CREATED => time(),
+		);		
+		$comment_id = DAO_Comment::create($fields);
 		
 		// Custom field saves
 		@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', array());

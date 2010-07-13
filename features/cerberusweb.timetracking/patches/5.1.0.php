@@ -35,4 +35,55 @@ if(isset($columns['source_extension_id']) && isset($columns['source_id'])) {
 	$db->Execute('ALTER TABLE timetracking_entry DROP COLUMN source_id');
 }
 
+// ===========================================================================
+// Convert orgs to contexts
+
+if(!isset($tables['timetracking_entry']))
+	return FALSE;
+
+list($columns, $indexes) = $db->metaTable('timetracking_entry');
+
+if(isset($columns['debit_org_id'])) {
+	$db->Execute("INSERT IGNORE INTO context_link (from_context, from_context_id, to_context, to_context_id) ".
+		"SELECT 'cerberusweb.contexts.timetracking', id, 'cerberusweb.contexts.org', worker_id FROM timetracking_entry WHERE debit_org_id > 0"
+	);
+	$db->Execute("INSERT IGNORE INTO context_link (from_context, from_context_id, to_context, to_context_id) ".
+		"SELECT 'cerberusweb.contexts.org', debit_org_id, 'cerberusweb.contexts.timetracking', id FROM timetracking_entry WHERE debit_org_id > 0"
+	);
+	
+	$db->Execute('ALTER TABLE timetracking_entry DROP COLUMN debit_org_id');
+}
+
+// ===========================================================================
+// Convert notes to comments
+
+if(!isset($tables['timetracking_entry']))
+	return FALSE;
+
+list($columns, $indexes) = $db->metaTable('timetracking_entry');
+
+if(isset($columns['notes'])) {
+	// Add autoincrement
+	$db->Execute("ALTER TABLE comment MODIFY COLUMN id INT UNSIGNED NOT NULL AUTO_INCREMENT");
+	
+	$db->Execute("INSERT INTO comment (context, context_id, created, address_id, comment) ".
+		"SELECT 'cerberusweb.contexts.timetracking', timetracking_entry.id, timetracking_entry.log_date, address.id, timetracking_entry.notes ".
+		"FROM timetracking_entry ".
+		"INNER JOIN worker ON (worker.id=timetracking_entry.worker_id) ".
+		"INNER JOIN address ON (address.email=worker.email) ".
+		"WHERE timetracking_entry.notes !='' ".
+		"ORDER BY timetracking_entry.id "
+		) or die($db->ErrorMsg());
+
+	// Drop column
+	$db->Execute('ALTER TABLE timetracking_entry DROP COLUMN notes');
+	
+	// Remove autoincrement
+	$db->Execute("ALTER TABLE comment MODIFY COLUMN id INT UNSIGNED NOT NULL DEFAULT 0");
+
+	// Update counter
+	$max_id = $db->GetOne("SELECT MAX(id) FROM comment");
+	$db->Execute(sprintf("UPDATE comment_seq SET id = %d", $max_id));
+}
+
 return TRUE;

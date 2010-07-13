@@ -132,9 +132,6 @@
 		<tu tuid='timetracking_entry.log_date'>
 			<tuv xml:lang="en_US"><seg>Log Date</seg></tuv>
 		</tu>
-		<tu tuid='timetracking_entry.notes'>
-			<tuv xml:lang="en_US"><seg>Notes</seg></tuv>
-		</tu>
 		<tu tuid='timetracking_entry.time_actual_mins'>
 			<tuv xml:lang="en_US"><seg>Mins</seg></tuv>
 		</tu>
@@ -246,13 +243,6 @@
 		<tu tuid='timetracking.ui.comment.not_set'>
 			<tuv xml:lang="en_US"><seg>(not set)</seg></tuv>
 		</tu>
-		<tu tuid='timetracking.ui.comment.notes'>
-			<tuv xml:lang="en_US"><seg>Notes:</seg></tuv>
-		</tu>
-		<tu tuid='timetracking.ui.comment.notes'>
-			<tuv xml:lang="en_US"><seg>Notes:</seg></tuv>
-		</tu>
-
 
 	</body>
 </tmx>
