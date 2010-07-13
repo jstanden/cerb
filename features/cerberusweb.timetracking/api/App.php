@@ -48,6 +48,171 @@
  *	 WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
 
+class Context_TimeTracking extends Extension_DevblocksContext {
+    function __construct($manifest) {
+        parent::__construct($manifest);
+    }
+
+    function getPermalink($context_id) {
+    	$url_writer = DevblocksPlatform::getUrlService();
+    	return $url_writer->write('c=timetracking&tab=display&id='.$context_id, true);
+    }
+    
+    function getContext($timeentry, &$token_labels, &$token_values, $prefix=null) {
+		if(is_null($prefix))
+			$prefix = 'TimeEntry:';
+		
+		$translate = DevblocksPlatform::getTranslationService();
+		$fields = DAO_CustomField::getBySource(ChCustomFieldSource_TimeEntry::ID);
+		
+		// Polymorph
+		if(is_numeric($timeentry) || $timeentry instanceof Model_TimeTrackingEntry) {
+			@$id = is_object($timeentry) ? $timeentry->id : intval($timeentry);
+			
+			list($results, $null) = DAO_TimeTrackingEntry::search(
+				array(),
+				array(
+					SearchFields_TimeTrackingEntry::ID => new DevblocksSearchCriteria(SearchFields_TimeTrackingEntry::ID,'=',$id),
+				),
+				1,
+				0,
+				null,
+				null,
+				false
+			);
+			
+			if(isset($results[$id]))
+				$timeentry = $results[$id];
+			else
+				$timeentry = null;
+			
+		} elseif(is_array($timeentry)) {
+			// It's what we want already.
+		} else {
+			$timeentry = null;
+		}
+			
+		// Token labels
+		$token_labels = array(
+			'created|date' => $prefix.$translate->_('timetracking_entry.log_date'),
+			'id' => $prefix.$translate->_('common.id'),
+			'mins' => $prefix.$translate->_('timetracking_entry.time_actual_mins'),
+			'notes' => $prefix.$translate->_('timetracking_entry.notes'),
+		);
+		
+		if(is_array($fields))
+		foreach($fields as $cf_id => $field) {
+			$token_labels['custom_'.$cf_id] = $prefix.$field->name;
+		}
+
+		// Token values
+		$token_values = array();
+		
+		if(null != $timeentry) {
+			$token_values['created'] = $timeentry[SearchFields_TimeTrackingEntry::LOG_DATE];
+			$token_values['id'] = $timeentry[SearchFields_TimeTrackingEntry::ID];
+			$token_values['mins'] = $timeentry[SearchFields_TimeTrackingEntry::TIME_ACTUAL_MINS];
+			$token_values['notes'] = $timeentry[SearchFields_TimeTrackingEntry::NOTES];
+			$token_values['custom'] = array();
+			
+			$field_values = array_shift(DAO_CustomFieldValue::getValuesBySourceIds(ChCustomFieldSource_TimeEntry::ID, $timeentry[SearchFields_TimeTrackingEntry::ID]));
+			if(is_array($field_values) && !empty($field_values)) {
+				foreach($field_values as $cf_id => $cf_val) {
+					if(!isset($fields[$cf_id]))
+						continue;
+					
+					// The literal value
+					if(null != $address)
+						$token_values['custom'][$cf_id] = $cf_val;
+					
+					// Stringify
+					if(is_array($cf_val))
+						$cf_val = implode(', ', $cf_val);
+						
+					if(is_string($cf_val)) {
+						if(null != $address)
+							$token_values['custom_'.$cf_id] = $cf_val;
+					}
+				}
+			}
+		}
+		
+		// Email Org
+		@$org_id = $timeentry[SearchFields_TimeTrackingEntry::DEBIT_ORG_ID];
+		$merge_token_labels = array();
+		$merge_token_values = array();
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_ORG, $org_id, $merge_token_labels, $merge_token_values, null, true);
+
+		CerberusContexts::merge(
+			'org_',
+			'Org:',
+			$merge_token_labels,
+			$merge_token_values,
+			$token_labels,
+			$token_values
+		);		
+		
+		// Worker
+		@$worker_id = $timeentry[SearchFields_TimeTrackingEntry::WORKER_ID];
+		$merge_token_labels = array();
+		$merge_token_values = array();
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $worker_id, $merge_token_labels, $merge_token_values, null, true);
+
+		CerberusContexts::merge(
+			'worker_',
+			'Worker:',
+			$merge_token_labels,
+			$merge_token_values,
+			$token_labels,
+			$token_values
+		);		
+		
+		return true;    
+    }
+    
+	function getChooserView() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		// View
+		$view_id = 'contextlink_'.str_replace('.','_',$this->id);
+		$defaults = new C4_AbstractViewModel();
+		$defaults->id = $view_id; 
+		$defaults->class_name = 'View_TimeTracking';
+		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
+		$view->name = 'Time Tracking';
+		$view->view_columns = array(
+			//SearchFields_TimeTrackingEntry::PRIMARY_EMAIL_ID,
+		);
+		$view->addParams(array(
+			//SearchFields_TimeTrackingEntry::IS_CLOSED => new DevblocksSearchCriteria(SearchFields_TimeTrackingEntry::IS_CLOSED,'=',0),
+		), true);
+		$view->renderSortBy = SearchFields_TimeTrackingEntry::LOG_DATE;
+		$view->renderSortAsc = false;
+		$view->renderLimit = 10;
+		$view->renderTemplate = 'contextlinks_chooser';
+		
+		C4_AbstractViewLoader::setView($view_id, $view);
+		return $view;
+	}
+	
+	function getView($context, $context_id) {
+		$view_id = str_replace('.','_',$this->id);
+		
+		$defaults = new C4_AbstractViewModel();
+		$defaults->id = $view_id; 
+		$defaults->class_name = 'View_TimeTracking';
+		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
+		$view->name = 'Time Tracking';
+		$view->addParams(array(
+			new DevblocksSearchCriteria(SearchFields_TimeTrackingEntry::CONTEXT_LINK,'=',$context),
+			new DevblocksSearchCriteria(SearchFields_TimeTrackingEntry::CONTEXT_LINK_ID,'=',$context_id),
+		), true);
+		$view->renderTemplate = 'context';
+		C4_AbstractViewLoader::setView($view_id, $view);
+		return $view;
+	}    
+};
+
 class ChCustomFieldSource_TimeEntry extends Extension_CustomFieldSource {
 	const ID = 'timetracking.fields.source.time_entry';
 };
@@ -1293,7 +1458,7 @@ class TimeTrackingActivityTab extends Extension_ActivityTab {
 			
 			C4_AbstractViewLoader::setView($view->id, $view);
 		}
-
+		
 		$tpl->assign('view', $view);
 		
 		$tpl->display($tpl_path . 'activity_tab/index.tpl');		

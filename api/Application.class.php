@@ -659,9 +659,6 @@ class CerberusContexts {
 			case 'cerberusweb.contexts.notification':
 				self::_getNotificationContext($context_object, $labels, $values, $prefix);
 				break;
-			case 'cerberusweb.contexts.timetracking':
-				self::_getTimeTrackingContext($context_object, $labels, $values, $prefix);
-				break;
 			default:
 				// [TODO] Migrated
 				if(null != ($ctx = DevblocksPlatform::getExtension($context, true)) 
@@ -853,125 +850,6 @@ class CerberusContexts {
 		
 		return true;
 	}
-	
-	/**
-	 * 
-	 * @param $timeentry
-	 * @param $token_labels
-	 * @param $token_values
-	 * @param $prefix
-	 */
-	private static function _getTimeTrackingContext($timeentry, &$token_labels, &$token_values, $prefix=null) {
-		if(is_null($prefix))
-			$prefix = 'TimeEntry:';
-		
-		$translate = DevblocksPlatform::getTranslationService();
-		$fields = DAO_CustomField::getBySource(ChCustomFieldSource_TimeEntry::ID);
-		
-		// Polymorph
-		if(is_numeric($timeentry) || $timeentry instanceof Model_TimeTrackingEntry) {
-			@$id = is_object($timeentry) ? $timeentry->id : intval($timeentry);
-			
-			list($results, $null) = DAO_TimeTrackingEntry::search(
-				array(),
-				array(
-					SearchFields_TimeTrackingEntry::ID => new DevblocksSearchCriteria(SearchFields_TimeTrackingEntry::ID,'=',$id),
-				),
-				1,
-				0,
-				null,
-				null,
-				false
-			);
-			
-			if(isset($results[$id]))
-				$timeentry = $results[$id];
-			else
-				$timeentry = null;
-			
-		} elseif(is_array($timeentry)) {
-			// It's what we want already.
-		} else {
-			$timeentry = null;
-		}
-			
-		// Token labels
-		$token_labels = array(
-			'created|date' => $prefix.$translate->_('timetracking_entry.log_date'),
-			'id' => $prefix.$translate->_('common.id'),
-			'mins' => $prefix.$translate->_('timetracking_entry.time_actual_mins'),
-			'notes' => $prefix.$translate->_('timetracking_entry.notes'),
-		);
-		
-		if(is_array($fields))
-		foreach($fields as $cf_id => $field) {
-			$token_labels['custom_'.$cf_id] = $prefix.$field->name;
-		}
-
-		// Token values
-		$token_values = array();
-		
-		if(null != $timeentry) {
-			$token_values['created'] = $timeentry[SearchFields_TimeTrackingEntry::LOG_DATE];
-			$token_values['id'] = $timeentry[SearchFields_TimeTrackingEntry::ID];
-			$token_values['mins'] = $timeentry[SearchFields_TimeTrackingEntry::TIME_ACTUAL_MINS];
-			$token_values['notes'] = $timeentry[SearchFields_TimeTrackingEntry::NOTES];
-			$token_values['custom'] = array();
-			
-			$field_values = array_shift(DAO_CustomFieldValue::getValuesBySourceIds(ChCustomFieldSource_TimeEntry::ID, $timeentry[SearchFields_TimeTrackingEntry::ID]));
-			if(is_array($field_values) && !empty($field_values)) {
-				foreach($field_values as $cf_id => $cf_val) {
-					if(!isset($fields[$cf_id]))
-						continue;
-					
-					// The literal value
-					if(null != $address)
-						$token_values['custom'][$cf_id] = $cf_val;
-					
-					// Stringify
-					if(is_array($cf_val))
-						$cf_val = implode(', ', $cf_val);
-						
-					if(is_string($cf_val)) {
-						if(null != $address)
-							$token_values['custom_'.$cf_id] = $cf_val;
-					}
-				}
-			}
-		}
-		
-		// Email Org
-		@$org_id = $timeentry[SearchFields_TimeTrackingEntry::DEBIT_ORG_ID];
-		$merge_token_labels = array();
-		$merge_token_values = array();
-		self::getContext(self::CONTEXT_ORG, $org_id, $merge_token_labels, $merge_token_values, null, true);
-
-		CerberusContexts::merge(
-			'org_',
-			'Org:',
-			$merge_token_labels,
-			$merge_token_values,
-			$token_labels,
-			$token_values
-		);		
-		
-		// Worker
-		@$worker_id = $timeentry[SearchFields_TimeTrackingEntry::WORKER_ID];
-		$merge_token_labels = array();
-		$merge_token_values = array();
-		self::getContext(self::CONTEXT_WORKER, $worker_id, $merge_token_labels, $merge_token_values, null, true);
-
-		CerberusContexts::merge(
-			'worker_',
-			'Worker:',
-			$merge_token_labels,
-			$merge_token_values,
-			$token_labels,
-			$token_values
-		);		
-		
-		return true;
-	}	
 	
 	/**
 	 * 

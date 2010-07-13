@@ -40,20 +40,24 @@
 	
 	<extensions>
 	
-		<!-- Http Listeners -->
+		<!-- Contexts -->
 		
-		<!-- 
-		<extension point="devblocks.listener.http">
-			<id>simulator.listeners.tour</id>
-			<name>Simulator Tour</name>
+		<extension point="devblocks.context">
+			<id>cerberusweb.contexts.timetracking</id>
+			<name>Time Tracking</name>
 			<class>
-				<file>listeners.classes.php</file>
-				<name>ChSimulatorTour</name>
+				<file>api/App.php</file>
+				<name>Context_TimeTracking</name>
 			</class>
 			<params>
+				<param key="events">
+					<value>
+						<data key="context.assigned" value="context.timetracking.assigned" />
+						<data key="context.commented" value="context.timetracking.commented" />
+					</value>
+				</param>
 			</params>
 		</extension>
-		 -->
 	
 		<!-- Event Listeners -->
 
