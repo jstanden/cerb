@@ -35,7 +35,7 @@
 		</td>
 	</tr>
 	<tr>
-		<td width="0%" nowrap="nowrap" valign="top" align="right">{'common.workers'|devblocks_translate|capitalize}: </td>
+		<td width="0%" nowrap="nowrap" valign="top" align="right">{'common.owners'|devblocks_translate|capitalize}: </td>
 		<td width="100%">
 			{if !empty($context_workers)}
 			<div class="chooser-container">
