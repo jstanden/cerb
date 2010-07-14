@@ -72,7 +72,11 @@
 			event.values = $values;
 			$popup.trigger(event);
 			
-			genericAjaxPopupClose('{$layer}');
+			genericAjaxPopupDestroy('{$layer}');
 		});		
-	} );
+	});
+	$popup.one('diagogclose', function(event) {
+		event.stopPropagation();
+		genericAjaxPopupDestroy('{$layer}');
+	});
 </script>

@@ -254,7 +254,8 @@ function genericAjaxPopupDestroy($layer) {
 			$popup.dialog('destroy');
 			$popup.unbind();
 		} catch(e) { }
-		$('#devblocksPopups').removeData($popup);
+		$($('#devblocksPopups').data($layer)).remove(); // remove DOM
+		$('#devblocksPopups').removeData($layer); // remove from registry
 		return true;
 	}
 	return false;
@@ -285,7 +286,7 @@ function genericAjaxPopup($layer,request,target,modal,width,cb) {
 		stack: true,
 		width : "300",
 		close: function(event, ui) { 
-			//$(this).unbind();
+			$(this).unbind();
 		}
 	};
 	
