@@ -689,6 +689,9 @@ class View_TimeTracking extends C4_AbstractView {
 			case SearchFields_TimeTrackingEntry::IS_CLOSED:
 				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__bool.tpl');
 				break;
+			case SearchFields_TimeTrackingEntry::WORKER_ID:
+				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__worker.tpl');
+				break;
 			case SearchFields_TimeTrackingEntry::VIRTUAL_OWNERS:
 				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__context_worker.tpl');
 				break;
@@ -788,6 +791,13 @@ class View_TimeTracking extends C4_AbstractView {
 				if(empty($to)) $to = 'today';
 
 				$criteria = new DevblocksSearchCriteria($field,$oper,array($from,$to));
+				break;
+				@$worker_id = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',array());
+				$criteria = new DevblocksSearchCriteria($field,$oper,$worker_id);
+				break;
+			case SearchFields_TimeTrackingEntry::WORKER_ID:
+				@$worker_id = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',array());
+				$criteria = new DevblocksSearchCriteria($field,$oper,$worker_id);
 				break;
 			case SearchFields_TimeTrackingEntry::VIRTUAL_OWNERS:
 				@$worker_ids = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',array());
