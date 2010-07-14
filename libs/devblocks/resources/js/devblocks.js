@@ -217,19 +217,24 @@ function hideLoadingPanel() {
 	loadingPanel = null;
 }
 
-function genericAjaxPopupFetch($ns) {
+function genericAjaxPopupFind($sel) {
 	$devblocksPopups = $('#devblocksPopups');
-	
-	if(0 == $devblocksPopups.length) {
-		$('body').append("<div id='devblocksPopups' style='display:none;'></div>");
-		$devblocksPopups = $('#devblocksPopups');
+	$data = $devblocksPopups.data();
+	$element = $($sel).closest('DIV.devblocks-popup');
+	for($key in $data) {
+		if($element.attr('id') == $data[$key].attr('id'))
+			return $data[$key];
 	}
 	
-	return $devblocksPopups.data($ns);
+	return null;
 }
 
-function genericAjaxPopupClose($ns, $event) {
-	$popup = genericAjaxPopupFetch($ns);
+function genericAjaxPopupFetch($layer) {
+	return $('#devblocksPopups').data($layer);
+}
+
+function genericAjaxPopupClose($layer, $event) {
+	$popup = genericAjaxPopupFetch($layer);
 	if(null != $popup) {
 		try {
 			if(null != $event)
@@ -241,27 +246,34 @@ function genericAjaxPopupClose($ns, $event) {
 	return false;
 }
 
-function genericAjaxPopupDestroy($ns) {
-	$popup = genericAjaxPopupFetch($ns);
+function genericAjaxPopupDestroy($layer) {
+	$popup = genericAjaxPopupFetch($layer);
 	if(null != $popup) {
-		genericAjaxPopupClose($ns);
+		genericAjaxPopupClose($layer);
 		try {
 			$popup.dialog('destroy');
 			$popup.unbind();
 		} catch(e) { }
-		$devblocksPopups.removeData($popup);
+		$('#devblocksPopups').removeData($popup);
 		return true;
 	}
 	return false;
 }
 
-function genericAjaxPopupRegister($ns, $popup) {
-	$devblocksPopups.data($ns, $popup);
+function genericAjaxPopupRegister($layer, $popup) {
+	$devblocksPopups = $('#devblocksPopups');
+	
+	if(0 == $devblocksPopups.length) {
+		$('body').append("<div id='devblocksPopups' style='display:none;'></div>");
+		$devblocksPopups = $('#devblocksPopups');
+	}
+	
+	$('#devblocksPopups').data($layer, $popup);
 }
 
-function genericAjaxPopup($ns,request,target,modal,width,cb) {
+function genericAjaxPopup($layer,request,target,modal,width,cb) {
 	// Reset (if exists)
-	genericAjaxPopupDestroy($ns);
+	genericAjaxPopupDestroy($layer);
 	
 	// Default options
 	var options = {
@@ -273,7 +285,7 @@ function genericAjaxPopup($ns,request,target,modal,width,cb) {
 		stack: true,
 		width : "300",
 		close: function(event, ui) { 
-			$(this).unbind();
+			//$(this).unbind();
 		}
 	};
 	
@@ -282,16 +294,16 @@ function genericAjaxPopup($ns,request,target,modal,width,cb) {
 	
 	// Load the popup content
 	$options = { async: false }
-	genericAjaxGet('',request,
+	genericAjaxGet('',request + '&layer=' + $layer,
 		function(html) {
-			$popup = $("#popup"+$ns);
+			$popup = $("#popup"+$layer);
 			if(0 == $popup.length) {
-				$("body").append("<div id='popup"+$ns+"' style='display:none;'></div>");
-				$popup = $('#popup'+$ns);
+				$("body").append("<div id='popup"+$layer+"' class='devblocks-popup' style='display:none;'></div>");
+				$popup = $('#popup'+$layer);
 			}
 
 			// Persist
-			genericAjaxPopupRegister($ns, $popup);
+			genericAjaxPopupRegister($layer, $popup);
 			
 			// Set the content
 			$popup.html(html);
@@ -321,7 +333,7 @@ function genericAjaxPopup($ns,request,target,modal,width,cb) {
 	return $popup;
 }
 
-function genericAjaxPopupPostCloseReloadView($ns, frm, view_id, has_output, $event) {
+function genericAjaxPopupPostCloseReloadView($layer, frm, view_id, has_output, $event) {
 	var has_view = (null != view_id && view_id.length > 0 && $('#view'+view_id).length > 0) ? true : false;
 	if(null == has_output)
 		has_output = false;
@@ -341,10 +353,10 @@ function genericAjaxPopupPostCloseReloadView($ns, frm, view_id, has_output, $eve
 			if(has_view)
 				$('#view'+view_id).fadeTo("normal", 1.0);
 
-			$popup = genericAjaxPopupFetch($ns);
+			$popup = genericAjaxPopupFetch($layer);
 			if(null != $popup) {
 				$popup.trigger('popup_saved');
-				genericAjaxPopupClose($ns, $event);
+				genericAjaxPopupClose($layer, $event);
 			}
 		}
 	);
