@@ -6,7 +6,8 @@
 	<tr>
 		<td nowrap="nowrap"><span class="title">{$view->name}</span> {if $view->id == 'search'}<a href="#{$view->id}_actions">{$translate->_('views.jump_to_actions')}</a>{/if}</td>
 		<td nowrap="nowrap" align="right">
-			<a href="javascript:;" onclick="genericAjaxGet('customize{$view->id}','c=internal&a=viewCustomize&id={$view->id}');toggleDiv('customize{$view->id}','block');">{$translate->_('common.customize')|lower}</a>
+			<a href="javascript:;" onclick="$('#btnExplore{$view->id}').click();">explore</a>
+			 | <a href="javascript:;" onclick="genericAjaxGet('customize{$view->id}','c=internal&a=viewCustomize&id={$view->id}');toggleDiv('customize{$view->id}','block');">{$translate->_('common.customize')|lower}</a>
 			{if $active_worker->hasPriv('core.home.workspaces')} | <a href="javascript:;" onclick="genericAjaxGet('{$view->id}_tips','c=internal&a=viewShowCopy&view_id={$view->id}');toggleDiv('{$view->id}_tips','block');">{$translate->_('common.copy')|lower}</a>{/if}
 			{if $active_worker->hasPriv('timetracking.view.actions.export')} | <a href="javascript:;" onclick="genericAjaxGet('{$view->id}_tips','c=internal&a=viewShowExport&id={$view->id}');toggleDiv('{$view->id}_tips','block');">{$translate->_('common.export')|lower}</a>{/if}
 			 | <a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewRefresh&id={$view->id}');"><span class="cerb-sprite sprite-refresh"></span></a>
@@ -16,10 +17,13 @@
 
 <div id="{$view->id}_tips" class="block" style="display:none;margin:10px;padding:5px;">Analyzing...</div>
 <form id="customize{$view->id}" name="customize{$view->id}" action="#" onsubmit="return false;" style="display:none;"></form>
-<form id="viewForm{$view->id}" name="viewForm{$view->id}" action="#">
+<form id="viewForm{$view->id}" name="viewForm{$view->id}" action="{devblocks_url}{/devblocks_url}" method="post">
+<button id="btnExplore{$view->id}" type="button" style="display:none;" onclick="this.form.explore_from.value=$(this).closest('form').find('tbody input:checkbox:checked:first').val();this.form.a.value='viewTimeExplore';this.form.submit();"></button>
+<input type="hidden" name="view_id" value="{$view->id}">
 <input type="hidden" name="id" value="{$view->id}">
-<input type="hidden" name="c" value="time">
+<input type="hidden" name="c" value="timetracking">
 <input type="hidden" name="a" value="">
+<input type="hidden" name="explore_from" value="0">
 <table cellpadding="1" cellspacing="0" border="0" width="100%" class="worklistBody">
 
 	{* Column Headers *}
