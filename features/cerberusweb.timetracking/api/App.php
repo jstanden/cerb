@@ -167,7 +167,7 @@ class Context_TimeTracking extends Extension_DevblocksContext {
 			SearchFields_TimeTrackingEntry::LOG_DATE,
 		);
 		$view->addParams(array(
-			//SearchFields_TimeTrackingEntry::IS_CLOSED => new DevblocksSearchCriteria(SearchFields_TimeTrackingEntry::IS_CLOSED,'=',0),
+			SearchFields_TimeTrackingEntry::IS_CLOSED => new DevblocksSearchCriteria(SearchFields_TimeTrackingEntry::IS_CLOSED,'=',0),
 		), true);
 		$view->renderSortBy = SearchFields_TimeTrackingEntry::LOG_DATE;
 		$view->renderSortAsc = false;
@@ -302,6 +302,7 @@ class DAO_TimeTrackingEntry extends C4_ORMHelper {
 	const LOG_DATE = 'log_date';
 	const WORKER_ID = 'worker_id';
 	const ACTIVITY_ID = 'activity_id';
+	const IS_CLOSED = 'is_closed';
 
 	static function create($fields) {
 		$db = DevblocksPlatform::getDatabaseService();
@@ -334,7 +335,7 @@ class DAO_TimeTrackingEntry extends C4_ORMHelper {
 	static function getWhere($where=null) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = "SELECT id, time_actual_mins, log_date, worker_id, activity_id ".
+		$sql = "SELECT id, time_actual_mins, log_date, worker_id, activity_id, is_closed ".
 			"FROM timetracking_entry ".
 			(!empty($where) ? sprintf("WHERE %s ",$where) : "").
 			"ORDER BY id asc";
@@ -372,6 +373,7 @@ class DAO_TimeTrackingEntry extends C4_ORMHelper {
 			$object->log_date = $row['log_date'];
 			$object->worker_id = $row['worker_id'];
 			$object->activity_id = $row['activity_id'];
+			$object->is_closed = $row['is_closed'];
 			$objects[$object->id] = $object;
 		}
 		
@@ -430,12 +432,14 @@ class DAO_TimeTrackingEntry extends C4_ORMHelper {
 			"tt.time_actual_mins as %s, ".
 			"tt.log_date as %s, ".
 			"tt.worker_id as %s, ".
-			"tt.activity_id as %s ",
+			"tt.activity_id as %s, ".
+			"tt.is_closed as %s ",
 			    SearchFields_TimeTrackingEntry::ID,
 			    SearchFields_TimeTrackingEntry::TIME_ACTUAL_MINS,
 			    SearchFields_TimeTrackingEntry::LOG_DATE,
 			    SearchFields_TimeTrackingEntry::WORKER_ID,
-			    SearchFields_TimeTrackingEntry::ACTIVITY_ID
+			    SearchFields_TimeTrackingEntry::ACTIVITY_ID,
+			    SearchFields_TimeTrackingEntry::IS_CLOSED
 			 );
 		
 		$join_sql = 
@@ -517,6 +521,7 @@ class Model_TimeTrackingEntry {
 	public $log_date;
 	public $worker_id;
 	public $activity_id;
+	public $is_closed;
 };
 
 class SearchFields_TimeTrackingEntry {
@@ -526,6 +531,7 @@ class SearchFields_TimeTrackingEntry {
 	const LOG_DATE = 'tt_log_date';
 	const WORKER_ID = 'tt_worker_id';
 	const ACTIVITY_ID = 'tt_activity_id';
+	const IS_CLOSED = 'tt_is_closed';
 	
 	const CONTEXT_LINK = 'cl_context_from';
 	const CONTEXT_LINK_ID = 'cl_context_from_id';
@@ -544,6 +550,7 @@ class SearchFields_TimeTrackingEntry {
 			self::LOG_DATE => new DevblocksSearchField(self::LOG_DATE, 'tt', 'log_date', $translate->_('timetracking_entry.log_date')),
 			self::WORKER_ID => new DevblocksSearchField(self::WORKER_ID, 'tt', 'worker_id', $translate->_('timetracking_entry.worker_id')),
 			self::ACTIVITY_ID => new DevblocksSearchField(self::ACTIVITY_ID, 'tt', 'activity_id', $translate->_('timetracking_entry.activity_id')),
+			self::IS_CLOSED => new DevblocksSearchField(self::IS_CLOSED, 'tt', 'is_closed', $translate->_('timetracking_entry.is_closed')),
 			
 			self::CONTEXT_LINK => new DevblocksSearchField(self::CONTEXT_LINK, 'context_link', 'from_context', null),
 			self::CONTEXT_LINK_ID => new DevblocksSearchField(self::CONTEXT_LINK_ID, 'context_link', 'from_context_id', null),
@@ -594,7 +601,7 @@ class View_TimeTracking extends C4_AbstractView {
 			SearchFields_TimeTrackingEntry::CONTEXT_LINK_ID,
 		);
 		$this->paramsDefault = array(
-			SearchFields_TimeTrackingEntry::LOG_DATE => new DevblocksSearchCriteria(SearchFields_TimeTrackingEntry::LOG_DATE,DevblocksSearchCriteria::OPER_BETWEEN,array('-1 month','now')),
+			SearchFields_TimeTrackingEntry::IS_CLOSED => new DevblocksSearchCriteria(SearchFields_TimeTrackingEntry::IS_CLOSED,DevblocksSearchCriteria::OPER_EQ,0),
 		);
 		
 		$this->doResetCriteria();
@@ -678,6 +685,9 @@ class View_TimeTracking extends C4_AbstractView {
 				break;
 			case SearchFields_TimeTrackingEntry::LOG_DATE:
 				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__date.tpl');
+				break;
+			case SearchFields_TimeTrackingEntry::IS_CLOSED:
+				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__bool.tpl');
 				break;
 			case SearchFields_TimeTrackingEntry::VIRTUAL_OWNERS:
 				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__context_worker.tpl');
@@ -763,6 +773,11 @@ class View_TimeTracking extends C4_AbstractView {
 			case SearchFields_TimeTrackingEntry::ID:
 			case SearchFields_TimeTrackingEntry::TIME_ACTUAL_MINS:
 				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
+				break;
+				
+			case SearchFields_TimeTrackingEntry::IS_CLOSED:
+				@$bool = DevblocksPlatform::importGPC($_REQUEST['bool'],'integer',0);
+				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
 				break;
 				
 			case SearchFields_TimeTrackingEntry::LOG_DATE:
@@ -1185,6 +1200,7 @@ class ChTimeTrackingPage extends CerberusPageExtension {
 			
 		@$activity_id = DevblocksPlatform::importGPC($_POST['activity_id'],'integer',0);
 		@$time_actual_mins = DevblocksPlatform::importGPC($_POST['time_actual_mins'],'integer',0);
+		@$is_closed = DevblocksPlatform::importGPC($_POST['is_closed'],'integer',0);
 		
 		// Date
 		@$log_date = DevblocksPlatform::importGPC($_REQUEST['log_date'],'string','now');
@@ -1211,6 +1227,7 @@ class ChTimeTrackingPage extends CerberusPageExtension {
 			DAO_TimeTrackingEntry::ACTIVITY_ID => intval($activity_id),
 			DAO_TimeTrackingEntry::TIME_ACTUAL_MINS => intval($time_actual_mins),
 			DAO_TimeTrackingEntry::LOG_DATE => intval($log_date),
+			DAO_TimeTrackingEntry::IS_CLOSED => intval($is_closed),
 		);
 
 		// Only on new

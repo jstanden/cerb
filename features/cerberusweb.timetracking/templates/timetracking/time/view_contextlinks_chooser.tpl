@@ -58,6 +58,7 @@
 			{/if}					
 			<td align="center" rowspan="2"><input type="checkbox" name="row_id[]" title="{$title|escape}" value="{$result.tt_id}"></td>
 			<td colspan="{math equation="x" x=$smarty.foreach.headers.total}">
+				{if $result.tt_is_closed}<span class="cerb-sprite sprite-check_gray" title=""></span>{/if}
 				<a href="javascript:;" onclick="genericAjaxPopup('peek','c=timetracking&a=showEntry&id={$result.tt_id}&view_id={$view->id}',null,false,'500');" class="subject">{$title}</a>
 				
 				{$object_workers = DAO_ContextLink::getContextLinks(CerberusContexts::CONTEXT_TIMETRACKING, array_keys($data), CerberusContexts::CONTEXT_WORKER)}

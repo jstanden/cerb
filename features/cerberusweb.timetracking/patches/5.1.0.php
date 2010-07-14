@@ -86,4 +86,16 @@ if(isset($columns['notes'])) {
 	$db->Execute(sprintf("UPDATE comment_seq SET id = %d", $max_id));
 }
 
+// ===========================================================================
+// Add 'is_closed' field
+
+if(!isset($tables['timetracking_entry']))
+	return FALSE;
+
+list($columns, $indexes) = $db->metaTable('timetracking_entry');
+	
+if(!isset($columns['is_closed'])) {
+	$db->Execute('ALTER TABLE timetracking_entry ADD COLUMN is_closed TINYINT UNSIGNED DEFAULT 0 NOT NULL, ADD INDEX is_closed (is_closed)');
+}
+
 return TRUE;

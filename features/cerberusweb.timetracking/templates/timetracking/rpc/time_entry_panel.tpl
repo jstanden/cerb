@@ -7,7 +7,7 @@
 <table cellpadding="2" cellspacing="0" width="100%">
 	{if !empty($nonbillable_activities) || !empty($billable_activities)}
 	<tr>
-		<td width="0%" nowrap="nowrap" valign="top" align="right"><b>{$translate->_('timetracking.ui.entry_panel.activity')}</b></td>
+		<td width="0%" nowrap="nowrap" valign="top" align="right"><b>{$translate->_('timetracking.ui.entry_panel.activity')}</b>:</td>
 		<td width="100%">
 			<select name="activity_id">
 				<option value=""></option>
@@ -30,7 +30,7 @@
 	</tr>
 	{/if}
 	<tr>
-		<td width="0%" nowrap="nowrap" valign="top" align="right"><b>{$translate->_('timetracking.ui.entry_panel.time_spent')}</b></td>
+		<td width="0%" nowrap="nowrap" valign="top" align="right"><b>{$translate->_('timetracking.ui.entry_panel.time_spent')}</b>:</td>
 		<td width="100%">
 			<input type="text" name="time_actual_mins" size="5" value="{$model->time_actual_mins}"> {$translate->_('timetracking.ui.entry_panel.mins')}
 		</td>
@@ -42,13 +42,20 @@
 		</td>
 	</tr>
 	<tr>
+		<td width="0%" nowrap="nowrap" valign="top" align="right"><b>{$translate->_('common.status')|capitalize}</b>:</td>
+		<td width="100%">
+			<label><input type="radio" name="is_closed" value="0" {if !$model->is_closed}checked="checked"{/if}> {$translate->_('status.open')|capitalize}</label>
+			<label><input type="radio" name="is_closed" value="1" {if $model->is_closed}checked="checked"{/if}> {$translate->_('status.closed')|capitalize}</label>
+		</td>
+	</tr>
+	<tr>
 		<td width="0%" nowrap="nowrap" valign="top" align="right"><b>{$translate->_('common.comment')|capitalize}</b>:</td>
 		<td width="100%">
 			<textarea name="comment" rows="4" cols="45" style="width:98%;">{$model->notes|escape}</textarea>
 		</td>
 	</tr>
 	<tr>
-		<td width="0%" nowrap="nowrap" valign="top" align="right"><b>{'common.owners'|devblocks_translate|capitalize}:</b></td>
+		<td width="0%" nowrap="nowrap" valign="top" align="right"><b>{'common.owners'|devblocks_translate|capitalize}</b>:</td>
 		<td width="100%">
 			{if !empty($context_workers)}
 			<div class="chooser-container">

@@ -15,6 +15,9 @@
 		<h1>{$title}</h1>
 		<b>{'timetracking_entry.log_date'|devblocks_translate}:</b>
 		{$time_entry->log_date|devblocks_prettytime}
+		 &nbsp; 
+		<b>{'common.status'|devblocks_translate|capitalize}:</b>
+		{if !empty($time_entry->is_closed)}{'status.closed'|devblocks_translate|capitalize}{else}{'status.open'|devblocks_translate|capitalize}{/if}
 		
 		<form action="{devblocks_url}{/devblocks_url}" onsubmit="return false;">
 		
