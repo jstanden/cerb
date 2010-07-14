@@ -34,7 +34,7 @@
 
 </form>
 
-<script type="text/javascript" language="JavaScript1.2">
+<script type="text/javascript">
 	var $popup = genericAjaxPopupFetch('peek');
 	$popup.one('popup_open', function(event,ui) {
 		$popup.dialog('option','title',"{'feedback.button.capture'|devblocks_translate|capitalize|escape:'quotes'}");

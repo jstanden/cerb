@@ -19,7 +19,7 @@
 {/foreach}
 {/if}
 
-<script language="JavaScript" type="text/javascript">
+<script type="text/javascript">
 function chooserOpen(ref) {
 	$select = $(ref);
 	$form = $select.closest('form');

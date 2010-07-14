@@ -101,7 +101,7 @@
 						<i><small>{$translate->_('common.tips.multi_select')}</small></i>
 					{elseif $f->type=='E'}
 						<input type="text" id="field_{$f_id}" name="field_{$f_id}" size="45" maxlength="255" value="{if !empty($ticket_field_values.$f_id)}{$ticket_field_values.$f_id|devblocks_date}{/if}">
-						<script type="text/javascript" language="JavaScript1.2">
+						<script type="text/javascript">
 							devblocksAjaxDateChooser('#field_{$f_id}');
 						</script>
 					{elseif $f->type=='W'}

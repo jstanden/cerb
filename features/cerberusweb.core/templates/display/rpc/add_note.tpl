@@ -34,7 +34,7 @@
 </div>
 </form>
 
-<script language="JavaScript" type="text/javascript">
+<script type="text/javascript">
 	var $frm = $('#frmAddOrgNote');
 	
 	$frm.find('button.chooser_worker').click(function() {

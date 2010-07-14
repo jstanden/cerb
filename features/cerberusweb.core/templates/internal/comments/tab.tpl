@@ -7,7 +7,7 @@
 	{include file="{$core_tpl}/internal/comments/comment.tpl"}
 {/foreach}
 
-<script type="text/javascript" language="JavaScript">
+<script type="text/javascript">
 	$('#btnComment').click(function(event) {
 		$popup = genericAjaxPopup('peek', 'c=internal&a=commentShowPopup&context={$context|escape}&context_id={$context_id|escape}', null, false, '550');
 		$popup.one('comment_save', function(event) {

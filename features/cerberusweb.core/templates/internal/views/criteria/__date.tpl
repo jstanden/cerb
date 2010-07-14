@@ -9,7 +9,7 @@
 	{$translate->_('search.date.examples')|nl2br}
 </blockquote>
 
-<script type="text/javascript" language="JavaScript1.2">
+<script type="text/javascript">
 	devblocksAjaxDateChooser('#searchDateFrom');
 	devblocksAjaxDateChooser('#searchDateTo');
 </script>

@@ -36,6 +36,6 @@
 </table>
 </div>
 	
-<script language="JavaScript" type="text/javascript">
+<script type="text/javascript">
 $('#{$div}_kbsearch input:text:first').focus();
 </script>

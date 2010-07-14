@@ -56,7 +56,7 @@
 <br>
 </form>
 
-<script language="JavaScript1.2" type="text/javascript">
+<script type="text/javascript">
 	var $popup = genericAjaxPopupFetch('peek');
 	$popup.one('popup_open',function(event,ui) {
 		// Title

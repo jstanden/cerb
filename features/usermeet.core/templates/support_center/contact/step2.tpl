@@ -129,7 +129,7 @@
 </div>
 
 {literal}
-<script language="JavaScript1.2" type="text/javascript">
+<script type="text/javascript">
   $(document).ready(function(){
     $("#openTicketForm").validate({
 		rules: {

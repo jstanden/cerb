@@ -160,7 +160,7 @@
 <div id="reply{$message->id}"></div>
 <br>
 
-<script language="JavaScript1.2" type="text/javascript">
+<script type="text/javascript">
 	function C4_ReloadMessageOnSave(msgid, expanded) {
 		if(null==expanded)
 			expanded=false;

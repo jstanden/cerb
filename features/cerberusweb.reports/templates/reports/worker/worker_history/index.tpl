@@ -41,7 +41,7 @@
 {if !empty($data)}
 <div id="placeholder" style="margin:1em;width:650px;height:{20+(32*count($data))}px;"></div>
 
-<script language="javascript" type="text/javascript">
+<script type="text/javascript">
 	$(function() {
 		var d = [
 			{foreach from=$data item=row key=iter name=iters}

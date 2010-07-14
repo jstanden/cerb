@@ -47,7 +47,7 @@
 {if !empty($article) && $active_worker->hasPriv('core.kb.articles.modify')}<button type="button" onclick="if(confirm('Are you sure you want to permanently delete this article?')) { this.form.do_delete.value='1';$('#btnKbArticleEditSave').click(); } "><span class="cerb-sprite sprite-delete2"></span> {$translate->_('common.delete')|capitalize}</button>{/if}
 </form>
 
-<script language="JavaScript1.2" type="text/javascript">
+<script type="text/javascript">
 	var $popup = genericAjaxPopupFetch('peek');
 	$popup.one('popup_open',function(event,ui) {
 		$popup.dialog('option','title','Knowledgebase Article');

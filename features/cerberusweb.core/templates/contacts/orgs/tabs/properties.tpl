@@ -55,6 +55,6 @@
 
 </form>
 
-<script language="JavaScript1.2" type="text/javascript">
+<script type="text/javascript">
 	ajax.countryAutoComplete('#countryinput');
 </script>

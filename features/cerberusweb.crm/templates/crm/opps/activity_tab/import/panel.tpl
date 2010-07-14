@@ -9,7 +9,7 @@
 {if $active_worker->hasPriv('crm.opp.actions.import')}<button type="submit"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.upload')|capitalize}</button>{/if}
 </form>
 
-<script type="text/javascript" language="JavaScript1.2">
+<script type="text/javascript">
 	var $popup = genericAjaxPopupFetch('peek');
 	$popup.one('popup_open', function(event,ui) {
 		$popup.dialog('option','title',"{'common.import'|devblocks_translate|capitalize|escape:'quotes'}");

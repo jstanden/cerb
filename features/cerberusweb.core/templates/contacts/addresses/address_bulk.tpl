@@ -83,7 +83,7 @@
 <br>
 </form>
 
-<script language="JavaScript1.2" type="text/javascript">
+<script type="text/javascript">
 	var $panel = genericAjaxPopupFetch('peek');
 	$panel.one('popup_open',function(event,ui) {
 		$panel.dialog('option','title',"{$translate->_('common.bulk_update')|capitalize|escape:'quotes'}");

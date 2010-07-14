@@ -224,7 +224,7 @@
 
 {if !empty($login_handler) && 0==strcasecmp($login_handler,'sc.login.auth.default')}
 {literal}
-<script language="JavaScript1.2" type="text/javascript">
+<script type="text/javascript">
   $(document).ready(function(){
     $("#myAccountForm").validate({
 		rules: {

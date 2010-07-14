@@ -24,7 +24,7 @@
 {if $active_worker->hasPriv('core.kb.topics.modify') && !empty($topic)}<button type="button" onclick="toggleDiv('deleteTopic','block');"><span class="cerb-sprite sprite-delete2"></span> {$translate->_('common.remove')|capitalize}</button>{/if}
 </form>
 
-<script type="text/javascript" language="JavaScript1.2">
+<script type="text/javascript">
 	var $popup = genericAjaxPopupFetch('peek');
 	$popup.one('popup_open', function(event,ui) {
 		$popup.dialog('option','title',"Knowledgebase Topic");

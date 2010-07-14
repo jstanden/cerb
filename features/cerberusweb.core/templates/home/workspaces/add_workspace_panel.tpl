@@ -29,7 +29,7 @@
 <button type="submit"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')}</button>
 </form>
 
-<script type="text/javascript" language="JavaScript1.2">
+<script type="text/javascript">
 	var $popup = genericAjaxPopupFetch('peek');
 	$popup.one('popup_open', function(event,ui) {
 		$popup.dialog('option','title',"{$translate->_('dashboard.add_view')|capitalize|escape:'quotes'}");

@@ -254,7 +254,7 @@
 
 </div>
 
-<script language="JavaScript1.2" type="text/javascript">
+<script type="text/javascript">
 	$(function() {
 		// Autocompletes
 		ajax.emailAutoComplete('#reply{$message->id}_part1 input[name=to]', { multiple: true } );

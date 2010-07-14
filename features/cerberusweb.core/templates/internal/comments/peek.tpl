@@ -24,7 +24,7 @@
 </form>
 <br>
 
-<script language="JavaScript" type="text/javascript">
+<script type="text/javascript">
 	var $popup = genericAjaxPopupFetch('peek');
 	var $frm = $('#internalCommentPopup');
 	$popup.one('popup_open',function(event,ui) {

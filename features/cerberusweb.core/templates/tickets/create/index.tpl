@@ -193,7 +193,7 @@
 </form>
 </div>
 
-<script language="JavaScript1.2" type="text/javascript">
+<script type="text/javascript">
 	$(function() {
 		ajax.emailAutoComplete('#frmLogTicket input[name=reqs]', { multiple: true } );
 		

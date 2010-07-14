@@ -6,7 +6,7 @@
 <button type="button" class="chooser_worker" onclick="criteriaChooserClick(this);"><span class="cerb-sprite sprite-add"></span></button>
 </div>
 
-<script language="JavaScript1.2" type="text/javascript">
+<script type="text/javascript">
 	function criteriaChooserClick(button) {
 		$button = $(button);
 		$chooser=genericAjaxPopup('chooser','c=internal&a=chooserOpen&context=cerberusweb.contexts.worker',null,true,'750');
