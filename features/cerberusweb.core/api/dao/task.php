@@ -715,7 +715,7 @@ class Context_Task extends Extension_DevblocksContext {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		// View
-		$view_id = 'contextlink_'.str_replace('.','_',$this->id);
+		$view_id = 'chooser_'.str_replace('.','_',$this->id).time().mt_rand(0,9999);
 		$defaults = new C4_AbstractViewModel();
 		$defaults->id = $view_id; 
 		$defaults->class_name = 'View_Task';
