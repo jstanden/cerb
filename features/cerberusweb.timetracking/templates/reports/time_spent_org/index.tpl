@@ -87,8 +87,6 @@
 			{foreach from=$org_entry.entries item=time_entry key=time_entry_id}
 				{if is_numeric($time_entry_id)}
 					{assign var=entry_worker_id value=$time_entry.worker_id}
-					{assign var=source_ext_id value=$time_entry.source_extension_id}
-					{assign var=source_id value=$time_entry.source_id}
 					{assign var=worker_name value=$workers.$entry_worker_id->getName()}
 					{assign var=generic_worker value='timetracking.ui.generic_worker'|devblocks_translate}
 					
@@ -104,20 +102,15 @@
 							{assign var=tagged_mins value="<B>"|cat:$time_entry.mins|cat:"</B>"}
 							{assign var=tagged_activity value="<B>"|cat:$time_entry.activity_name|cat:"</B>"}
 					
-							{'timetracking.ui.tracked_desc'|devblocks_translate:$tagged_worker_name:$tagged_mins:$tagged_activity}
-
-							{if !empty($source_ext_id)}
-								{assign var=source value=$sources.$source_ext_id}
-								{if !empty($source)}<small>(<a href="{$source->getLink($source_id)}">{$source->getLinkText($source_id)}</a>)</small>{/if}
+							{if !empty($activity_entry.activity_name)}
+								{'timetracking.ui.tracked_desc'|devblocks_translate:$tagged_worker_name:$tagged_mins:$tagged_activity}
+							{else}
+								{'%s tracked %s mins'|devblocks_translate:$tagged_worker_name:$tagged_mins}
 							{/if}
+
+							<a href="javascript:;" onclick="genericAjaxPopup('peek','c=timetracking&a=showEntry&id={$time_entry.id}',null,false,'500');"><span class="ui-icon ui-icon-newwin" style="display:inline-block;vertical-align:middle;" title="{$translate->_('views.peek')}"></span></a>
 						</td>
 					</tr>
-					{if !empty($time_entry.notes)}
-					<tr>
-						<td></td>
-						<td><i>{$time_entry.notes}</i></td>
-					</tr>
-					{/if}
 				{/if}
 			{/foreach}
 			</table>

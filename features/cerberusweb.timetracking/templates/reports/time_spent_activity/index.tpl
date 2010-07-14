@@ -87,8 +87,6 @@ To: <input type="text" name="end" id="end" size="24" value="{$end}"><button type
 		
 			{foreach from=$activity_entry.entries item=time_entry key=time_entry_id}
 				{if is_numeric($time_entry_id)}
-					{assign var=source_ext_id value=$time_entry.source_extension_id}
-					{assign var=source_id value=$time_entry.source_id}
 					{assign var=generic_worker value='timetracking.ui.generic_worker'|devblocks_translate}
 					
 					{if isset($time_entry.worker_name)}
@@ -109,18 +107,9 @@ To: <input type="text" name="end" id="end" size="24" value="{$end}"><button type
 								{'%s tracked %s mins'|devblocks_translate:$tagged_worker_name:$tagged_mins}
 							{/if}
 						
-							{if !empty($source_ext_id)}
-								{assign var=source value=$sources.$source_ext_id}
-								{if !empty($source)}<small>(<a href="{$source->getLink($source_id)}">{$source->getLinkText($source_id)}</a>)</small>{/if}
-							{/if}
+							<a href="javascript:;" onclick="genericAjaxPopup('peek','c=timetracking&a=showEntry&id={$time_entry.id}',null,false,'500');"><span class="ui-icon ui-icon-newwin" style="display:inline-block;vertical-align:middle;" title="{$translate->_('views.peek')}"></span></a>
 						</td>
 					</tr>
-					{if !empty($time_entry.notes)}
-					<tr>
-						<td></td>
-						<td><i>{$time_entry.notes}</i></td>
-					</tr>
-					{/if}
 				{/if}
 			{/foreach}
 

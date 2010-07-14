@@ -1524,12 +1524,9 @@ class ChReportTimeSpentWorker extends Extension_Report {
 		
 		// Table
 		
-		$sql = sprintf("SELECT tte.log_date, tte.time_actual_mins, tte.worker_id, tte.notes, ".
-				"tte.source_extension_id, tte.source_id, ".
-				"tta.name activity_name, o.name org_name, o.id org_id ".
+		$sql = sprintf("SELECT tte.id, tte.log_date, tte.time_actual_mins, tte.worker_id, tta.name activity_name ".
 				"FROM timetracking_entry tte ".
 				"LEFT JOIN timetracking_activity tta ON tte.activity_id = tta.id ".
-				"LEFT JOIN contact_org o ON o.id = tte.debit_org_id ".
 				"INNER JOIN worker w ON tte.worker_id = w.id ".
 				"WHERE log_date > %d AND log_date <= %d ".
 				(($sel_worker_id!=0) ? "AND tte.worker_id = ". $sel_worker_id. ' ' : '') .
@@ -1541,27 +1538,20 @@ class ChReportTimeSpentWorker extends Extension_Report {
 	
 		$time_entries = array();
 		
-		
 		while($row = mysql_fetch_assoc($rs)) {
 			$mins = intval($row['time_actual_mins']);
 			$worker_id = intval($row['worker_id']);
-			$org_id = intval($row['org_id']);
 			$activity = $row['activity_name'];
-			$org_name = $row['org_name'];
 			$log_date = intval($row['log_date']);
-			$notes = $row['notes'];
 			
 			if(!isset($time_entries[$worker_id]))
 				$time_entries[$worker_id] = array();
 				
 			unset($time_entry);
+			$time_entry['id'] = $row['id'];
 			$time_entry['activity_name'] = $activity;
-			$time_entry['org_name'] = $org_name;
 			$time_entry['mins'] = $mins;
 			$time_entry['log_date'] = $log_date;
-			$time_entry['notes'] = $notes;
-			$time_entry['source_extension_id'] = $row['source_extension_id'];
-			$time_entry['source_id'] = intval($row['source_id']);
 			
 			$time_entries[$worker_id]['entries'][] = $time_entry;
 			@$time_entries[$worker_id]['total_mins'] = intval($time_entries[$worker_id]['total_mins']) + $mins;
@@ -1656,22 +1646,20 @@ class ChReportTimeSpentOrg extends Extension_Report {
 		
 		// Table
 		
-		$sql = sprintf("SELECT tte.log_date, tte.time_actual_mins, tte.notes, tte.worker_id, ".
-				"tte.source_extension_id, tte.source_id, ".
-				"tta.name activity_name, o.name org_name, o.id org_id ".
-				"FROM timetracking_entry tte ".
-				"LEFT JOIN timetracking_activity tta ON tte.activity_id = tta.id ".
-				"LEFT JOIN contact_org o ON o.id = tte.debit_org_id ".
-				"WHERE log_date > %d AND log_date <= %d ".
-				"ORDER BY org_name, log_date ",
+		$sql = sprintf("SELECT tte.id, tte.log_date, tte.time_actual_mins, tte.worker_id, tta.name activity_name, contact_org.id as org_id, contact_org.name as org_name ". 
+			"FROM timetracking_entry tte ".
+			"LEFT JOIN timetracking_activity tta ON tte.activity_id = tta.id ".
+			"INNER JOIN context_link ON (context_link.from_context = 'cerberusweb.contexts.timetracking' AND tte.id = context_link.from_context_id AND context_link.to_context = 'cerberusweb.contexts.org') ". 
+			"INNER JOIN contact_org ON (context_link.to_context_id = contact_org.id) ". 
+			"WHERE log_date > %d ".
+			"AND log_date <= %d ".
+			"ORDER BY log_date",
 			$start_time,
 			$end_time
 		);
-		//echo $sql;
 		$rs = $db->Execute($sql);
 	
 		$time_entries = array();
-		
 		
 		while($row = mysql_fetch_assoc($rs)) {
 			$mins = intval($row['time_actual_mins']);
@@ -1679,7 +1667,6 @@ class ChReportTimeSpentOrg extends Extension_Report {
 			$activity = $row['activity_name'];
 			$org_name = $row['org_name'];
 			$log_date = intval($row['log_date']);
-			$notes = $row['notes'];
 			$worker_id = intval($row['worker_id']);
 			
 			if(!isset($time_entries[$org_id]))
@@ -1689,13 +1676,11 @@ class ChReportTimeSpentOrg extends Extension_Report {
 				
 				
 			unset($time_entry);
+			$time_entry['id'] = $row['id'];
 			$time_entry['activity_name'] = $activity;
 			$time_entry['mins'] = $mins;
 			$time_entry['log_date'] = $log_date;
-			$time_entry['notes'] = $notes;
 			$time_entry['worker_id'] = $worker_id;
-			$time_entry['source_extension_id'] = $row['source_extension_id'];
-			$time_entry['source_id'] = intval($row['source_id']);
 
 			$time_entries[$org_id]['entries'][] = $time_entry;
 			@$time_entries[$org_id]['total_mins'] = intval($time_entries[$org_id]['total_mins']) + $mins;
@@ -1707,12 +1692,13 @@ class ChReportTimeSpentOrg extends Extension_Report {
 		
 		// Chart
 		
-		$sql = sprintf("SELECT sum(tte.time_actual_mins) mins, o.id org_id, o.name org_name ".
+		$sql = sprintf("SELECT sum(tte.time_actual_mins) mins, contact_org.id AS org_id, contact_org.name AS org_name ".
 				"FROM timetracking_entry tte ".
-				"LEFT JOIN contact_org o ON tte.debit_org_id = o.id ".
+				"INNER JOIN context_link ON (context_link.from_context = 'cerberusweb.contexts.timetracking' AND tte.id = context_link.from_context_id AND context_link.to_context = 'cerberusweb.contexts.org') ". 
+				"INNER JOIN contact_org ON (context_link.to_context_id = contact_org.id) ". 
 				"WHERE log_date > %d AND log_date <= %d ".
-				"GROUP BY org_id, org_name ".
-				"ORDER BY org_name desc ",
+				"GROUP BY contact_org.id, contact_org.name ".
+				"ORDER BY contact_org.name desc ",
 				$start_time,
 				$end_time
 				);
@@ -1792,31 +1778,24 @@ class ChReportTimeSpentActivity extends Extension_Report {
 		
 		// Table
 		
-		$sql = sprintf("SELECT tte.log_date, tte.time_actual_mins, tte.notes, tte.source_extension_id, tte.source_id,".
-				"tta.id activity_id, tta.name activity_name, ".
-				"o.name org_name, tte.worker_id ".
+		$sql = sprintf("SELECT tte.id, tte.log_date, tte.time_actual_mins, tta.id activity_id, tta.name activity_name, tte.worker_id ".
 				"FROM timetracking_entry tte ".
 				"LEFT JOIN timetracking_activity tta ON tte.activity_id = tta.id ".
-				"LEFT JOIN contact_org o ON tte.debit_org_id = o.id " .
 				"WHERE log_date > %d AND log_date <= %d ".
 				"ORDER BY activity_name, log_date ",
 			$start_time,
 			$end_time
 		);
-		//echo $sql;
 		$rs = $db->Execute($sql);
 	
 		$time_entries = array();
-		
 		
 		while($row = mysql_fetch_assoc($rs)) {
 			$mins = intval($row['time_actual_mins']);
 			$activity = $row['activity_name'];
 			$log_date = intval($row['log_date']);
 			$activity_id = intval($row['activity_id']);
-			$notes = $row['notes'];
 			$worker_id = intval($row['worker_id']);
-			$org_name = $row['org_name'];
 			
 			if(!isset($time_entries[$activity_id]))
 				$time_entries[$activity_id] = array();
@@ -1824,13 +1803,10 @@ class ChReportTimeSpentActivity extends Extension_Report {
 				$time_entries[$activity_id]['entries'] = array();
 				
 			unset($time_entry);
+			$time_entry['id'] = $row['id'];
 			$time_entry['mins'] = $mins;
 			$time_entry['log_date'] = $log_date;
-			$time_entry['notes'] = $notes;
 			$time_entry['worker_name'] = $workers[$worker_id]->getName();
-			$time_entry['org_name'] = $org_name;
-			$time_entry['source_extension_id'] = $row['source_extension_id'];
-			$time_entry['source_id'] = intval($row['source_id']);
 			
 			$time_entries[$activity_id]['entries'][] = $time_entry;
 			@$time_entries[$activity_id]['total_mins'] = intval($time_entries[$activity_id]['total_mins']) + $mins;
