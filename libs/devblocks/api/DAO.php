@@ -1,28 +1,5 @@
 <?php
 abstract class DevblocksORMHelper {
-	/**
-	 * @return integer new id
-	 */
-	// [TODO] Phase this out for create($fields);
-	static protected function _createId($properties) {
-		$sequence = !empty($properties['sequence']) ? $properties['sequence'] : 'generic_seq';
-		
-		if(empty($properties['table']) || empty($properties['id_column']))
-			return FALSE;
-		
-		$db = DevblocksPlatform::getDatabaseService();
-		$id = $db->GenID($sequence);
-		
-		$sql = sprintf("INSERT INTO %s (%s) VALUES (%d)",
-			$properties['table'],
-			$properties['id_column'],
-			$id
-		);
-		$db->Execute($sql); 
-		
-		return $id;
-	}
-	
 	static protected function _getWhereSQL($where=null, $sortBy=null, $sortAsc=true, $limit=null) {
 		// Where
 		$where_sql = !empty($where) ? sprintf("WHERE %s ", $where) : '';
@@ -522,13 +499,11 @@ class DAO_DevblocksTemplate extends DevblocksORMHelper {
 	static function create($fields) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$id = $db->GenID('generic_seq');
-		
-		$sql = sprintf("INSERT INTO devblocks_template (id) ".
-			"VALUES (%d)",
-			$id
+		$sql = sprintf("INSERT INTO devblocks_template () ".
+			"VALUES ()"
 		);
 		$db->Execute($sql);
+		$id = $db->LastInsertId();
 		
 		self::update($id, $fields);
 		
@@ -798,13 +773,11 @@ class DAO_Translation extends DevblocksORMHelper {
 	static function create($fields) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$id = $db->GenID('generic_seq');
-		
-		$sql = sprintf("INSERT INTO translation (id) ".
-			"VALUES (%d)",
-			$id
+		$sql = sprintf("INSERT INTO translation () ".
+			"VALUES ()"
 		);
 		$db->Execute($sql);
+		$id = $db->LastInsertId();
 		
 		self::update($id, $fields);
 		
@@ -1148,13 +1121,11 @@ class DAO_DevblocksStorageProfile extends DevblocksORMHelper {
 	static function create($fields) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$id = $db->GenID('generic_seq');
-		
-		$sql = sprintf("INSERT INTO devblocks_storage_profile (id) ".
-			"VALUES (%d)",
-			$id
+		$sql = sprintf("INSERT INTO devblocks_storage_profile () ".
+			"VALUES ()"
 		);
 		$db->Execute($sql);
+		$id = $db->LastInsertId();
 		
 		self::update($id, $fields);
 		

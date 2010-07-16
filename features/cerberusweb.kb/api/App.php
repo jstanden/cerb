@@ -884,14 +884,13 @@ class DAO_KbArticle extends C4_ORMHelper {
 	
 	static function create($fields) {
 		$db = DevblocksPlatform::getDatabaseService();
-		$id = $db->GenID('kb_seq');
 		
-		$sql = sprintf("INSERT INTO kb_article (id,title,views,updated,format,content) ".
-			"VALUES (%d,'',0,%d,0,'')",
-			$id,
+		$sql = sprintf("INSERT INTO kb_article (updated) ".
+			"VALUES (%d)",
 			time()
 		);
 		$db->Execute($sql);
+		$id = $db->LastInsertId();
 		
 		self::update($id, $fields);
 		
@@ -1208,13 +1207,11 @@ class DAO_KbCategory extends DevblocksORMHelper {
 	static function create($fields) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$id = $db->GenID('generic_seq');
-		
-		$sql = sprintf("INSERT INTO kb_category (id) ".
-			"VALUES (%d)",
-			$id
+		$sql = sprintf("INSERT INTO kb_category () ".
+			"VALUES ()"
 		);
 		$db->Execute($sql);
+		$id = $db->LastInsertId();
 		
 		self::update($id, $fields);
 		

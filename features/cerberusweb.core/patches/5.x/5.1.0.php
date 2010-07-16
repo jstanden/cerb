@@ -105,7 +105,7 @@ if(!empty($changes))
 if(!isset($tables['comment'])) {
 	$sql = "
 		CREATE TABLE IF NOT EXISTS comment (
-			id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+			id INT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE,
 			context VARCHAR(128) DEFAULT '',
 			context_id INT UNSIGNED NOT NULL DEFAULT 0,
 			created INT UNSIGNED NOT NULL DEFAULT 0,
@@ -197,17 +197,6 @@ if(!isset($tables['comment'])) {
 	unset($tables['message_note']);
 	unset($tables['message_note_seq']);
 
-	// ===========================================================================
-	// Swap out the auto-increment index
-	
-	$db->Execute("ALTER TABLE comment MODIFY COLUMN id INT UNSIGNED NOT NULL DEFAULT 0");
-	
-	// Swap the autoincrement to a sequence
-	$db->GenID('comment_seq');
-	
-	$max_id = $db->GetOne("SELECT MAX(id) FROM comment");
-	$db->Execute(sprintf("UPDATE comment_seq SET id = %d", $max_id));
-	
 	$tables['comment'] = 'comment';
 }
 
@@ -323,6 +312,80 @@ if(!isset($tables['worker_view_model'])) {
 	mysql_free_result($rs);
 	
 	$db->Execute("DELETE FROM worker_pref WHERE setting LIKE 'view%'");
+}
+
+// ===========================================================================
+// Clean up the last bit of parent orgs
+
+list($columns, $indexes) = $db->metaTable('contact_org');
+
+if(isset($columns['parent_org_id']))
+	$db->Execute("ALTER TABLE contact_org DROP COLUMN parent_org_id");
+
+// ===========================================================================
+// Convert sequences to MySQL AUTO_INCREMENT, make UNSIGNED
+
+// Drop sequence tables
+$tables_seq = array(
+	'generic_seq',
+	'address_seq',
+	'attachment_seq',
+	'bayes_words_seq',
+	'comment_seq',
+	'contact_org_seq',
+	'custom_field_seq',
+	'mail_queue_seq',
+	'message_seq',
+	'snippet_seq',
+	'task_seq',
+	'ticket_seq',
+	'worker_event_seq',
+);
+foreach($tables_seq as $table) {
+	if(isset($tables[$table])) {
+		$db->Execute(sprintf("DROP TABLE IF EXISTS %s", $table));
+		unset($tables[$table]);
+	}
+}
+
+// Convert tables to ID = INT4 UNSIGNED AUTO_INCREMENT UNIQUE
+$tables_autoinc = array(
+	'address',
+	'attachment',
+	'bayes_words',
+	'category',
+	'comment',
+	'custom_field',
+	'fnr_external_resource',
+	'fnr_topic',
+	'group_inbox_filter',
+	'mail_queue',
+	'mail_to_group_rule',
+	'message',
+	'pop3_account',
+	'preparse_rule',
+	'snippet',
+	'task',
+	'team',
+	'ticket',
+	'view_filters_preset',
+	'worker',
+	'worker_event',
+	'worker_role',
+	'worker_workspace_list',
+	'view_rss',
+);
+foreach($tables_autoinc as $table) {
+	if(!isset($tables[$table]))
+		return FALSE;
+	
+	list($columns, $indexes) = $db->metaTable($table);
+	if(isset($columns['id']) 
+		&& ('int(10) unsigned' != $columns['id']['type'] 
+		|| 'auto_increment' != $columns['id']['extra'])
+	) {
+		$db->Execute(sprintf("ALTER TABLE %s MODIFY COLUMN id INT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE", $table));
+	}
 }
 
 return TRUE;

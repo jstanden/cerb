@@ -110,13 +110,11 @@ class DAO_FeedbackEntry extends C4_ORMHelper {
 	static function create($fields) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$id = $db->GenID('feedback_entry_seq');
-		
-		$sql = sprintf("INSERT INTO feedback_entry (id) ".
-			"VALUES (%d)",
-			$id
+		$sql = sprintf("INSERT INTO feedback_entry () ".
+			"VALUES ()"
 		);
 		$db->Execute($sql);
+		$id = $db->LastInsertId();
 		
 		self::update($id, $fields);
 		

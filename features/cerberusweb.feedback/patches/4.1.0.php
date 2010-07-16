@@ -84,14 +84,13 @@ if(isset($tables['feedback_entry'])) {
 	
 		if(!empty($lists)) { // Move to a custom field before dropping
 			// Create the new custom field
-			$field_id = $db->GenID('custom_field_seq');
-			$sql = sprintf("INSERT INTO custom_field (id,name,type,group_id,pos,options,source_extension) ".
-				"VALUES (%d,'List','D',0,0,%s,%s)",
-				$field_id,
+			$sql = sprintf("INSERT INTO custom_field (name,type,group_id,pos,options,source_extension) ".
+				"VALUES ('List','D',0,0,%s,%s)",
 				$db->qstr(implode("\n",$lists)),
 				$db->qstr('feedback.fields.source.feedback_entry')
 			);
 			$db->Execute($sql);
+			$field_id = $db->LastInsertId();
 			
 			// Populate the custom field from opp records
 			$sql = sprintf("INSERT INTO custom_field_stringvalue (field_id, source_id, field_value, source_extension) ".

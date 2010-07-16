@@ -67,7 +67,7 @@ $db->Execute($sql);
 if(!isset($tables['watcher_mail_filter'])) {
 	$sql = "
 		CREATE TABLE IF NOT EXISTS watcher_mail_filter (
-			id INT UNSIGNED DEFAULT 0 NOT NULL,
+			id INT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE,
 			pos SMALLINT UNSIGNED DEFAULT 0 NOT NULL,
 			name VARCHAR(128) DEFAULT '' NOT NULL,
 			created INT UNSIGNED DEFAULT 0 NOT NULL,
@@ -78,6 +78,15 @@ if(!isset($tables['watcher_mail_filter'])) {
 		) ENGINE=MyISAM;
 	";
 	$db->Execute($sql);	
+}
+
+list($columns, $indexes) = $db->metaTable('watcher_mail_filter');
+
+if(isset($columns['id']) 
+	&& ('int(10) unsigned' != $columns['id']['type'] 
+	|| 'auto_increment' != $columns['id']['extra'])
+) {
+	$db->Execute("ALTER TABLE watcher_mail_filter MODIFY COLUMN id INT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE");
 }
 
 // Migrate and then drop the old forward table
@@ -138,10 +147,8 @@ if(isset($tables['worker_mail_forward'])) {
 		}
 		
 		// Create new filter
-		$id = $db->GenID('generic_seq');
-		$sql = sprintf("INSERT INTO watcher_mail_filter (id,pos,name,created,worker_id,criteria_ser,actions_ser) ".
-			"VALUES (%d,%d,%s,%d,%d,%s,%s)",
-			$id,
+		$sql = sprintf("INSERT INTO watcher_mail_filter (pos,name,created,worker_id,criteria_ser,actions_ser) ".
+			"VALUES (%d,%s,%d,%d,%s,%s)",
 			0,
 			$db->qstr($name),
 			time(),
@@ -150,6 +157,7 @@ if(isset($tables['worker_mail_forward'])) {
 			$db->qstr(serialize($actions))
 		);
 		$db->Execute($sql);
+		$id = $db->LastInsertId();
 		
 		// Delete source row (for partial success)
 		$db->Execute(sprintf("DELETE FROM worker_mail_forward WHERE worker_id=%d AND id=%d", $worker_id, $old_id));

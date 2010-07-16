@@ -10,13 +10,8 @@ class DAO_Comment extends DevblocksORMHelper {
 	static function create($fields) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$id = $db->GenID('comment_seq');
-		
-		$sql = sprintf("INSERT INTO comment (id) ".
-			"VALUES (%d)",
-			$id
-		);
-		$db->Execute($sql);
+		$db->Execute("INSERT INTO comment () VALUES ()");
+		$id = $db->LastInsertId();
 		
 		self::update($id, $fields);
 		

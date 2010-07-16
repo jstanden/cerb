@@ -20,14 +20,13 @@ if(isset($tables['crm_opportunity'])) {
 	
 		if(!empty($campaigns)) { // Move to a custom field before dropping
 			// Create the new custom field
-			$field_id = $db->GenID('custom_field_seq');
-			$sql = sprintf("INSERT INTO custom_field (id,name,type,group_id,pos,options,source_extension) ".
-				"VALUES (%d,'Campaign','D',0,0,%s,%s)",
-				$field_id,
+			$sql = sprintf("INSERT INTO custom_field (name,type,group_id,pos,options,source_extension) ".
+				"VALUES ('Campaign','D',0,0,%s,%s)",
 				$db->qstr(implode("\n",$campaigns)),
 				$db->qstr('crm.fields.source.opportunity')
 			);
 			$db->Execute($sql);
+			$field_id = $db->LastInsertId();
 			
 			// Populate the custom field from opp records
 			$sql = sprintf("INSERT INTO custom_field_stringvalue (field_id, source_id, field_value, source_extension) ".
@@ -49,13 +48,12 @@ if(isset($tables['crm_opportunity'])) {
 	
 	if(isset($columns['source']) && $count) {
 		// Create the new custom field
-		$field_id = $db->GenID('custom_field_seq');
-		$sql = sprintf("INSERT INTO custom_field (id,name,type,group_id,pos,options,source_extension) ".
-			"VALUES (%d,'Lead Source','S',0,0,'',%s)",
-			$field_id,
+		$sql = sprintf("INSERT INTO custom_field (name,type,group_id,pos,options,source_extension) ".
+			"VALUES ('Lead Source','S',0,0,'',%s)",
 			$db->qstr('crm.fields.source.opportunity')
 		);
 		$db->Execute($sql);
+		$field = $db->LastInsertId();
 		
 		// Populate the custom field from opp records
 		$sql = sprintf("INSERT INTO custom_field_stringvalue (field_id, source_id, field_value, source_extension) ".
@@ -76,13 +74,12 @@ if(isset($tables['crm_opportunity'])) {
 	
 	if(isset($columns['next_action']) && $count) {
 		// Create the new custom field
-		$field_id = $db->GenID('custom_field_seq');
-		$sql = sprintf("INSERT INTO custom_field (id,name,type,group_id,pos,options,source_extension) ".
-			"VALUES (%d,'Next Action','S',0,0,'',%s)",
-			$field_id,
+		$sql = sprintf("INSERT INTO custom_field (name,type,group_id,pos,options,source_extension) ".
+			"VALUES ('Next Action','S',0,0,'',%s)",
 			$db->qstr('crm.fields.source.opportunity')
 		);
 		$db->Execute($sql);
+		$field_id = $db->LastInsertId();
 		
 		// Populate the custom field from opp records
 		$sql = sprintf("INSERT INTO custom_field_stringvalue (field_id, source_id, field_value, source_extension) ".
@@ -100,10 +97,8 @@ if(isset($tables['crm_opp_comment'])) {
 	$sql = "SELECT id, opportunity_id, created_date, worker_id, content FROM crm_opp_comment";
 	$rs = $db->Execute($sql);
 	while($row = mysql_fetch_assoc($rs)) {
-		$note_id = $db->GenID('note_seq');
-		$sql = sprintf("INSERT INTO note (id, source_extension_id, source_id, created, worker_id, content) ".
-			"VALUES (%d,'%s',%d,%d,%d,%s)",
-			$note_id,
+		$sql = sprintf("INSERT INTO note (source_extension_id, source_id, created, worker_id, content) ".
+			"VALUES ('%s',%d,%d,%d,%s)",
 			'crm.notes.source.opportunity',
 			$row['opportunity_id'],
 			$row['created_date'],

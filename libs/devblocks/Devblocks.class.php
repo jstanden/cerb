@@ -4310,21 +4310,8 @@ class _DevblocksDatabaseManager {
 		
 		return false;
 	}
-	
-	function GenID($seq) {
-		// Attempt to update and see if we fail, if so we need to create table
-		if(false === ($rs = $this->Execute("UPDATE ${seq} SET id=LAST_INSERT_ID(id+1)"))) {
-			// Create the table
-			$sql = "
-				CREATE TABLE IF NOT EXISTS ${seq} (
-					id INT UNSIGNED NOT NULL
-				) ENGINE=MyISAM;
-			";
-			$this->Execute($sql);
-			$this->Execute(sprintf("INSERT INTO ${seq} (id) VALUES (1)"));
-			return 1;
-		}
-		
+
+	function LastInsertId() {
 		return mysql_insert_id($this->_db);
 	}
 	

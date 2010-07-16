@@ -26,10 +26,8 @@ if(isset($columns['content'])) {
 	
 	// Move 'content' blocks to anonymous notes on each task record
 	while($row = mysql_fetch_assoc($rs)) {
-		$note_id = $db->GenID('note_seq');
-		$sql = sprintf('INSERT INTO note (id, source_extension_id, source_id, created, worker_id, content) '.
-			'VALUES (%d, %s, %d, %d, %d, %s)',
-			$note_id,
+		$sql = sprintf('INSERT INTO note (source_extension_id, source_id, created, worker_id, content) '.
+			'VALUES (%s, %d, %d, %d, %s)',
 			$db->qstr('cerberusweb.notes.source.task'),
 			$row['id'],
 			$row['updated_date'],

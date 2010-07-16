@@ -307,13 +307,11 @@ class DAO_WorkerRole extends DevblocksORMHelper {
 	static function create($fields) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$id = $db->GenID('generic_seq');
-		
-		$sql = sprintf("INSERT INTO worker_role (id) ".
-			"VALUES (%d)",
-			$id
+		$sql = sprintf("INSERT INTO worker_role () ".
+			"VALUES ()"
 		);
 		$db->Execute($sql);
+		$id = $db->LastInsertId();
 		
 		self::update($id, $fields);
 		
@@ -552,15 +550,16 @@ class DAO_ViewRss extends DevblocksORMHelper {
 	
 	static function create($fields) {
 		$db = DevblocksPlatform::getDatabaseService();
-		$newId = $db->GenID('generic_seq');
 		
-		$sql = sprintf("INSERT INTO view_rss (id,hash,title,worker_id,created,source_extension,params) ".
-			"VALUES (%d,'','',0,0,'','')",
-			$newId
+		$sql = sprintf("INSERT INTO view_rss () ".
+			"VALUES ()"
 		);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		$id = $db->LastInsertId(); 
 		
-		self::update($newId, $fields);
+		self::update($id, $fields);
+		
+		return $id;
 	}
 	
 	/**
@@ -702,17 +701,16 @@ class DAO_Mail {
 	
 	static function createPop3Account($fields) {
 		$db = DevblocksPlatform::getDatabaseService();
-		$newId = $db->GenID('generic_seq');
 		
-		$sql = sprintf("INSERT INTO pop3_account (id, enabled, nickname, host, username, password) ".
-			"VALUES (%d,0,'','','','')",
-			$newId
+		$sql = sprintf("INSERT INTO pop3_account () ".
+			"VALUES ()"
 		);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		$id = $db->LastInsertId(); 
 		
-		self::updatePop3Account($newId, $fields);
+		self::updatePop3Account($id, $fields);
 		
-		return $newId;
+		return $id;
 	}
 	
 	static function getPop3Accounts($ids=array()) {
@@ -808,14 +806,12 @@ class DAO_MailToGroupRule extends DevblocksORMHelper {
 	static function create($fields) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$id = $db->GenID('generic_seq');
-		
-		$sql = sprintf("INSERT INTO mail_to_group_rule (id, created) ".
-			"VALUES (%d, %d)",
-			$id,
+		$sql = sprintf("INSERT INTO mail_to_group_rule (created) ".
+			"VALUES (%d)",
 			time()
 		);
 		$db->Execute($sql);
+		$id = $db->LastInsertId();
 		
 		self::update($id, $fields);
 		
@@ -929,13 +925,11 @@ class DAO_WorkerWorkspaceList extends DevblocksORMHelper {
 		if(empty($fields))
 			return NULL;
 		
-		$id = $db->GenID('generic_seq');
-		
-		$sql = sprintf("INSERT INTO worker_workspace_list (id, worker_id, workspace, source_extension, list_view, list_pos) ".
-			"VALUES (%d, 0, '', '', '',0)",
-			$id
+		$sql = sprintf("INSERT INTO worker_workspace_list () ".
+			"VALUES ()"
 		);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		$id = $db->LastInsertId();
 
 		self::update($id, $fields);
 		
@@ -1052,13 +1046,12 @@ class DAO_CustomField extends DevblocksORMHelper {
 	
 	static function create($fields) {
 		$db = DevblocksPlatform::getDatabaseService();
-		$id = $db->GenID('custom_field_seq');
 		
-		$sql = sprintf("INSERT INTO custom_field (id,name,type,source_extension,group_id,pos,options) ".
-			"VALUES (%d,'','','',0,0,'')",
-			$id
+		$sql = sprintf("INSERT INTO custom_field () ".
+			"VALUES ()"
 		);
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		$id = $db->LastInsertId(); 
 
 		self::update($id, $fields);
 		

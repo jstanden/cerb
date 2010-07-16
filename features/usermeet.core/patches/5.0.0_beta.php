@@ -21,16 +21,14 @@ if(isset($tables['community'])) {
 	asort($communities);
 	
 	if(!empty($communities)) {
-		$field_id = $db->GenID('custom_field_seq');
-		
 		// Make a custom field for the portal
-		$sql = sprintf("INSERT INTO custom_field (id,name,type,group_id,pos,options,source_extension) ".
-			"VALUES (%d,'Community','D',0,0,%s,%s)",
-			$field_id,
+		$sql = sprintf("INSERT INTO custom_field (name,type,group_id,pos,options,source_extension) ".
+			"VALUES ('Community','D',0,0,%s,%s)",
 			$db->qstr(implode("\n", $communities)),
 			$db->qstr('usermeet.fields.source.community_portal')
 		);
 		$db->Execute($sql);
+		$field_id = $db->LastInsertId();
 
 		// Loop through set community_id's on portals
 		$sql = "SELECT id, community_id FROM community_tool";
@@ -103,28 +101,26 @@ if(!empty($portals))
 foreach($portals as $portal_code => $props) {
 	// Header
 	if(isset($props['common.header_html']) && !empty($props['common.header_html'])) {
-		$id = $db->GenID('generic_seq');
-		$sql = sprintf("INSERT INTO devblocks_template (id, plugin_id, path, tag, last_updated, content) ".
-			"VALUES (%d, 'usermeet.core', 'support_center/header.tpl', 'portal_%s', %d, %s)",
-			$id,
+		$sql = sprintf("INSERT INTO devblocks_template (plugin_id, path, tag, last_updated, content) ".
+			"VALUES ('usermeet.core', 'support_center/header.tpl', 'portal_%s', %d, %s)",
 			$portal_code,
 			time(),
 			$db->qstr('<div id="header">'.$props['common.header_html'].'</div>')
 		);
 		$db->Execute($sql);
+		$id = $db->LastInsertId();
 	}
 	
 	// Footer
 	if(isset($props['common.footer_html']) && !empty($props['common.footer_html'])) {
-		$id = $db->GenID('generic_seq');
-		$sql = sprintf("INSERT INTO devblocks_template (id, plugin_id, path, tag, last_updated, content) ".
-			"VALUES (%d, 'usermeet.core', 'support_center/footer.tpl', 'portal_%s', %d, %s)",
-			$id,
+		$sql = sprintf("INSERT INTO devblocks_template (plugin_id, path, tag, last_updated, content) ".
+			"VALUES ('usermeet.core', 'support_center/footer.tpl', 'portal_%s', %d, %s)",
 			$portal_code,
 			time(),
 			$db->qstr('<div id="footer">'.$props['common.footer_html'].'</div>')
 		);
 		$db->Execute($sql);
+		$id = $db->LastInsertId();
 	}
 	
 	// Style
@@ -137,28 +133,26 @@ foreach($portals as $portal_code => $props) {
 		}
 		$css .= $props['common.style_css'];
 		
-		$id = $db->GenID('generic_seq');
-		$sql = sprintf("INSERT INTO devblocks_template (id, plugin_id, path, tag, last_updated, content) ".
-			"VALUES (%d, 'usermeet.core', 'support_center/style.css.tpl', 'portal_%s', %d, %s)",
-			$id,
+		$sql = sprintf("INSERT INTO devblocks_template (plugin_id, path, tag, last_updated, content) ".
+			"VALUES ('usermeet.core', 'support_center/style.css.tpl', 'portal_%s', %d, %s)",
 			$portal_code,
 			time(),
 			$db->qstr($css)
 		);
 		$db->Execute($sql);
+		$id = $db->LastInsertId();
 	}
 	
 	// Welcome
 	if(isset($props['home.html']) && !empty($props['home.html'])) {
-		$id = $db->GenID('generic_seq');
-		$sql = sprintf("INSERT INTO devblocks_template (id, plugin_id, path, tag, last_updated, content) ".
-			"VALUES (%d, 'usermeet.core', 'support_center/home/index.tpl', 'portal_%s', %d, %s)",
-			$id,
+		$sql = sprintf("INSERT INTO devblocks_template (plugin_id, path, tag, last_updated, content) ".
+			"VALUES ('usermeet.core', 'support_center/home/index.tpl', 'portal_%s', %d, %s)",
 			$portal_code,
 			time(),
 			$db->qstr('<div id="home">'.$props['home.html'].'</div>')
 		);
 		$db->Execute($sql);
+		$db = $db->LastInsertId();
 	}
 }
 

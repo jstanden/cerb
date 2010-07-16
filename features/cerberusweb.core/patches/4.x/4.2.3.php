@@ -7,6 +7,15 @@ $tables = $db->metaTables();
 
 if(isset($tables['bayes_words'])) {
 
+	list($columns, $indexes) = $db->metaTable('bayes_words');
+	
+	if(isset($columns['id']) 
+		&& ('int(10) unsigned' != $columns['id']['type'] 
+		|| 'auto_increment' != $columns['id']['extra'])
+	) {
+		$db->Execute("ALTER TABLE bayes_words MODIFY COLUMN id INT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE");
+	}
+	
 	// Delete empty words
 	$db->Execute("DELETE FROM bayes_words WHERE word = '';");
 
@@ -27,12 +36,9 @@ if(isset($tables['bayes_words'])) {
 		// Nuke all the dupes
 		$db->Execute(sprintf("DELETE FROM bayes_words WHERE word = %s", $db->qstr($word)));
 
-		$id = $db->GenID('bayes_words_seq');
-		
 		// Insert a single new row with aggregate totals
-		$db->Execute(sprintf("INSERT IGNORE INTO bayes_words (id,word,spam,nonspam) ".
-			"VALUES (%d,%s,%d,%d)",
-			$id,
+		$db->Execute(sprintf("INSERT IGNORE INTO bayes_words (word,spam,nonspam) ".
+			"VALUES (%s,%d,%d)",
 			$db->qstr($word),
 			$spam,
 			$nonspam

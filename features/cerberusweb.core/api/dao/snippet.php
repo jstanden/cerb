@@ -60,13 +60,11 @@ class DAO_Snippet extends DevblocksORMHelper {
 	static function create($fields) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$id = $db->GenID('snippet_seq');
-		
-		$sql = sprintf("INSERT INTO snippet (id) ".
-			"VALUES (%d)",
-			$id
+		$sql = sprintf("INSERT INTO snippet () ".
+			"VALUES ()"
 		);
 		$db->Execute($sql);
+		$id = $db->LastInsertId();
 		
 		self::update($id, $fields);
 		

@@ -277,7 +277,7 @@ $db->Execute("DELETE FROM devblocks_setting WHERE plugin_id='cerberusweb.core' A
 if(!isset($tables['snippet'])) {
 	$sql = "
 		CREATE TABLE IF NOT EXISTS snippet (
-			id INT UNSIGNED NOT NULL DEFAULT 0,
+			id INT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE,
 			title VARCHAR(255) NOT NULL DEFAULT '',
 			context VARCHAR(255) NOT NULL DEFAULT '',
 			created_by INT UNSIGNED NOT NULL DEFAULT 0,
@@ -292,6 +292,15 @@ if(!isset($tables['snippet'])) {
 	$db->Execute($sql);
 
 	$tables['snippet'] = 'snippet';
+}
+
+list($columns, $indexes) = $db->metaTable('snippet');
+
+if(isset($columns['id']) 
+	&& ('int(10) unsigned' != $columns['id']['type'] 
+	|| 'auto_increment' != $columns['id']['extra'])
+) {
+	$db->Execute("ALTER TABLE snippet MODIFY COLUMN id INT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE");
 }
 
 // ===========================================================================
@@ -339,11 +348,8 @@ if(isset($tables['mail_template'])) {
 			!empty($row['description']) ? (' - '.$row['description']) : ''
 		); 
 		
-		$id = $db->GenID('snippet_seq');
-		
-		$sql = sprintf("INSERT INTO snippet (id,title,context,created_by,last_updated,last_updated_by,is_private,content) ".
-			"VALUES (%d,%s,%s,%d,%d,%d,%d,%s)",
-			$id,
+		$sql = sprintf("INSERT INTO snippet (title,context,created_by,last_updated,last_updated_by,is_private,content) ".
+			"VALUES (%s,%s,%d,%d,%d,%d,%s)",
 			$db->qstr($title),
 			$db->qstr($context),
 			$row['owner_id'],

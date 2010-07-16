@@ -9,13 +9,11 @@ class DAO_ViewFiltersPreset extends DevblocksORMHelper {
 	static function create($fields) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$id = $db->GenID('generic_seq');
-		
-		$sql = sprintf("INSERT INTO view_filters_preset (id) ".
-			"VALUES (%d)",
-			$id
+		$sql = sprintf("INSERT INTO view_filters_preset () ".
+			"VALUES ()"
 		);
 		$db->Execute($sql);
+		$id = $db->LastInsertId();
 		
 		self::update($id, $fields);
 		

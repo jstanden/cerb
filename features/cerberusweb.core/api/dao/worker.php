@@ -69,13 +69,12 @@ class DAO_Worker extends C4_ORMHelper {
 			return NULL;
 			
 		$db = DevblocksPlatform::getDatabaseService();
-		$id = $db->GenID('generic_seq');
 		
-		$sql = sprintf("INSERT INTO worker (id, email, pass, first_name, last_name, title, is_superuser, is_disabled) ".
-			"VALUES (%d, '', '', '', '', '', 0, 0)",
-			$id
+		$sql = sprintf("INSERT INTO worker () ".
+			"VALUES ()"
 		);
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		$id = $db->LastInsertId(); 
 
 		self::update($id, $fields);
 		

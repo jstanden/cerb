@@ -92,8 +92,6 @@ class DAO_Address extends C4_ORMHelper {
 	static function create($fields) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$id = $db->GenID('address_seq');
-
 		if(null == ($email = @$fields[self::EMAIL]))
 			return NULL;
 		
@@ -112,12 +110,12 @@ class DAO_Address extends C4_ORMHelper {
 			
 		// Make sure the address doesn't exist already
 		if(null == ($check = self::getByEmail($full_address))) {
-			$sql = sprintf("INSERT INTO address (id,email,first_name,last_name,contact_org_id,num_spam,num_nonspam,is_banned,is_registered,pass,last_autoreply) ".
-				"VALUES (%d,%s,'','',0,0,0,0,0,'',0)",
-				$id,
+			$sql = sprintf("INSERT INTO address (email,first_name,last_name,contact_org_id,num_spam,num_nonspam,is_banned,is_registered,pass,last_autoreply) ".
+				"VALUES (%s,'','',0,0,0,0,0,'',0)",
 				$db->qstr($full_address)
 			);
-			$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+			$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+			$id = $db->LastInsertId(); 
 
 		} else { // update
 			$id = $check->id;

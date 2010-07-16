@@ -60,13 +60,11 @@ class DAO_WorkerEvent extends DevblocksORMHelper {
 	static function create($fields) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$id = $db->GenID('worker_event_seq');
-		
-		$sql = sprintf("INSERT INTO worker_event (id) ".
-			"VALUES (%d)",
-			$id
+		$sql = sprintf("INSERT INTO worker_event () ".
+			"VALUES ()"
 		);
 		$db->Execute($sql);
+		$id = $db->LastInsertId();
 		
 		self::update($id, $fields);
 		

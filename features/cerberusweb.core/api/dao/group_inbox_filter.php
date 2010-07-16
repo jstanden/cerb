@@ -60,14 +60,13 @@ class DAO_GroupInboxFilter extends DevblocksORMHelper {
     
 	public static function create($fields) {
 	    $db = DevblocksPlatform::getDatabaseService();
-		$id = $db->GenID('generic_seq');
 		
-		$sql = sprintf("INSERT INTO group_inbox_filter (id,name,created,group_id,criteria_ser,actions_ser,pos,is_sticky,sticky_order,is_stackable) ".
-		    "VALUES (%d,'',%d,0,'','',0,0,0,0)",
-		    $id,
+		$sql = sprintf("INSERT INTO group_inbox_filter (created) ".
+		    "VALUES (%d)",
 		    time()
 		);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		$id = $db->LastInsertId(); 
 		
 		self::update($id, $fields);
 		

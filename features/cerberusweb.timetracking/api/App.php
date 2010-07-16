@@ -308,13 +308,11 @@ class DAO_TimeTrackingEntry extends C4_ORMHelper {
 	static function create($fields) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$id = $db->GenID('timetracking_entry_seq');
-		
-		$sql = sprintf("INSERT INTO timetracking_entry (id) ".
-			"VALUES (%d)",
-			$id
+		$sql = sprintf("INSERT INTO timetracking_entry () ".
+			"VALUES ()"
 		);
 		$db->Execute($sql);
+		$id = $db->LastInsertId();
 		
 		self::update($id, $fields);
 		
@@ -893,13 +891,11 @@ class DAO_TimeTrackingActivity extends DevblocksORMHelper {
 	static function create($fields) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$id = $db->GenID('generic_seq');
-		
-		$sql = sprintf("INSERT INTO timetracking_activity (id) ".
-			"VALUES (%d)",
-			$id
+		$sql = sprintf("INSERT INTO timetracking_activity () ".
+			"VALUES ()"
 		);
 		$db->Execute($sql);
+		$id = $db->LastInsertId();
 		
 		self::update($id, $fields);
 		

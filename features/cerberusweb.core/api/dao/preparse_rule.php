@@ -62,14 +62,12 @@ class DAO_PreParseRule extends DevblocksORMHelper {
 	static function create($fields) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$id = $db->GenID('generic_seq');
-		
-		$sql = sprintf("INSERT INTO preparse_rule (id,created) ".
-			"VALUES (%d,%d)",
-			$id,
+		$sql = sprintf("INSERT INTO preparse_rule (created) ".
+			"VALUES (%d)",
 			time()
 		);
 		$db->Execute($sql);
+		$id = $db->LastInsertId();
 		
 		self::update($id, $fields);
 		

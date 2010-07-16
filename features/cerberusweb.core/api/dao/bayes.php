@@ -97,15 +97,14 @@ class DAO_Bayes {
 		// Insert new words
 		if(is_array($tmp))
 		foreach($tmp as $new_word => $v) {
-			$new_id = $db->GenID('bayes_words_seq');
-			$sql = sprintf("INSERT INTO bayes_words (id,word) VALUES (%d,%s)",
-				$new_id,
+			$sql = sprintf("INSERT INTO bayes_words (word) VALUES (%s)",
 				$db->qstr($new_word)
 			);
-			$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+			$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+			$id = $db->LastInsertId(); 
 			
 			$w = new Model_BayesWord();
-			$w->id = $new_id;
+			$w->id = $id;
 			$w->word = $new_word;
 			$outwords[$w->word] = $w;
 		}

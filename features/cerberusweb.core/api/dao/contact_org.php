@@ -85,14 +85,13 @@ class DAO_ContactOrg extends C4_ORMHelper {
 	 */
 	static function create($fields) {
 		$db = DevblocksPlatform::getDatabaseService();
-		$id = $db->GenID('contact_org_seq');
 		
-		$sql = sprintf("INSERT INTO contact_org (id,name,street,city,province,postal,country,phone,website,created) ".
-  			"VALUES (%d,'','','','','','','','',%d)",
-			$id,
+		$sql = sprintf("INSERT INTO contact_org (created) ".
+  			"VALUES (%d)",
 			time()
 		);
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		$id = $db->LastInsertId(); 
 		
 		self::update($id, $fields);
 		return $id;

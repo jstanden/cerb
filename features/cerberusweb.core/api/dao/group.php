@@ -189,19 +189,16 @@ class DAO_Group {
 	 */
 	static function createTeam($fields) {
 		$db = DevblocksPlatform::getDatabaseService();
-		$newId = $db->GenID('generic_seq');
 		
-		$sql = sprintf("INSERT INTO team (id, name, signature, is_default) ".
-			"VALUES (%d,'','',0)",
-			$newId
-		);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+		$sql = "INSERT INTO team () VALUES ()";
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		$id = $db->LastInsertId(); 
 		
-		self::updateTeam($newId, $fields);
+		self::updateTeam($id, $fields);
 
 		self::clearCache();
 		
-		return $newId;
+		return $id;
 	}
 
 	/**

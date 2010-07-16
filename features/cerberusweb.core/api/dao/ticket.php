@@ -176,19 +176,18 @@ class DAO_Ticket extends C4_ORMHelper {
 	 */
 	static function createTicket($fields) {
 		$db = DevblocksPlatform::getDatabaseService();
-		$newId = $db->GenID('ticket_seq');
 		
-		$sql = sprintf("INSERT INTO ticket (id, mask, subject, first_message_id, last_message_id, last_wrote_address_id, first_wrote_address_id, created_date, updated_date, due_date, unlock_date, team_id, category_id) ".
-			"VALUES (%d,'','',0,0,0,0,%d,%d,0,0,0,0)",
-			$newId,
+		$sql = sprintf("INSERT INTO ticket (created_date, updated_date) ".
+			"VALUES (%d,%d)",
 			time(),
 			time()
 		);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		$id = $db->LastInsertId(); 
 		
-		self::update($newId, $fields);
+		self::update($id, $fields);
 		
-		return $newId;
+		return $id;
 	}
 
 	static function maint() {

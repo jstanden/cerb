@@ -951,14 +951,12 @@ class DAO_WatcherMailFilter extends DevblocksORMHelper {
 	static function create($fields) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$id = $db->GenID('generic_seq');
-		
-		$sql = sprintf("INSERT INTO watcher_mail_filter (id,created) ".
-			"VALUES (%d,%d)",
-			$id,
+		$sql = sprintf("INSERT INTO watcher_mail_filter (created) ".
+			"VALUES (%d)",
 			time()
 		);
 		$db->Execute($sql);
+		$id = $db->LastInsertId();
 		
 		self::update($id, $fields);
 		

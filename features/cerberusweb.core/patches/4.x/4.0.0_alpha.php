@@ -6,7 +6,7 @@ $tables = $db->metaTables();
 if(!isset($tables['ticket'])) {
 	$sql = "
 		CREATE TABLE IF NOT EXISTS ticket (
-			id INT UNSIGNED DEFAULT 0 NOT NULL,
+			id INT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE,
 			mask VARCHAR(16) DEFAULT '' NOT NULL, 
 			subject VARCHAR(255)  DEFAULT '' NOT NULL,
 			is_closed TINYINT(1) UNSIGNED DEFAULT 0 NOT NULL,
@@ -33,7 +33,7 @@ if(!isset($tables['ticket'])) {
 if(!isset($tables['message'])) {
 	$sql = "
 		CREATE TABLE IF NOT EXISTS message (
-			id INT UNSIGNED DEFAULT 0 NOT NULL,
+			id INT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE,
 			ticket_id INT UNSIGNED DEFAULT 0 NOT NULL,
 			is_admin TINYINT(1) UNSIGNED DEFAULT 0 NOT NULL,
 			message_type VARCHAR(1),
@@ -51,7 +51,7 @@ if(!isset($tables['message'])) {
 if(!isset($tables['attachment'])) {
 	$sql = "
 		CREATE TABLE IF NOT EXISTS attachment (
-			id INT UNSIGNED DEFAULT 0 NOT NULL,
+			id INT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE,
 			message_id INT UNSIGNED DEFAULT 0 NOT NULL,
 			display_name VARCHAR(128) DEFAULT '' NOT NULL,
 			mime_type VARCHAR(255) DEFAULT '' NOT NULL,
@@ -67,7 +67,7 @@ if(!isset($tables['attachment'])) {
 if(!isset($tables['team'])) {
 	$sql = "
 		CREATE TABLE IF NOT EXISTS team (
-			id INT UNSIGNED DEFAULT 0 NOT NULL,
+			id INT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE,
 			name VARCHAR(32) DEFAULT '' NOT NULL,
 			signature BLOB,
 			PRIMARY KEY (id)
@@ -80,7 +80,7 @@ if(!isset($tables['team'])) {
 if(!isset($tables['category'])) {
 	$sql = "
 		CREATE TABLE IF NOT EXISTS category (
-			id INT UNSIGNED DEFAULT 0 NOT NULL,
+			id INT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE,
 			team_id INT UNSIGNED DEFAULT 0 NOT NULL,
 			name VARCHAR(32) DEFAULT '' NOT NULL,
 			PRIMARY KEY (id)
@@ -141,7 +141,7 @@ if(!isset($tables['dashboard_view_action'])) {
 if(!isset($tables['address'])) {
 	$sql = "
 		CREATE TABLE IF NOT EXISTS address (
-			id INT UNSIGNED DEFAULT 0 NOT NULL,
+			id INT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE,
 			email VARCHAR(255) DEFAULT '' NOT NULL,
 			personal VARCHAR(255) DEFAULT '',
 			PRIMARY KEY (id)
@@ -193,7 +193,7 @@ if(!isset($tables['worker_to_team'])) {
 if(!isset($tables['pop3_account'])) {
 	$sql = "
 		CREATE TABLE IF NOT EXISTS pop3_account (
-			id INT UNSIGNED DEFAULT 0 NOT NULL,
+			id INT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE,
 			enabled TINYINT(1) UNSIGNED DEFAULT 1 NOT NULL,
 			nickname VARCHAR(128) DEFAULT '' NOT NULL,
 			protocol VARCHAR(32) DEFAULT 'pop3' NOT NULL,
@@ -211,7 +211,7 @@ if(!isset($tables['pop3_account'])) {
 if(!isset($tables['worker'])) {
 	$sql = "
 		CREATE TABLE IF NOT EXISTS worker (
-			id INT UNSIGNED DEFAULT 0 NOT NULL,
+			id INT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE,
 			first_name VARCHAR(32) DEFAULT '',
 			last_name VARCHAR(64) DEFAULT '',
 			title VARCHAR(64) DEFAULT '',
@@ -231,7 +231,7 @@ if(!isset($tables['worker'])) {
 if(!isset($tables['bayes_words'])) {
 	$sql = "
 		CREATE TABLE IF NOT EXISTS bayes_words (
-			id INT UNSIGNED DEFAULT 0 NOT NULL,
+			id INT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE,
 			word VARCHAR(64) DEFAULT '' NOT NULL,
 			spam INT UNSIGNED DEFAULT 0,
 			nonspam INT UNSIGNED DEFAULT 0,

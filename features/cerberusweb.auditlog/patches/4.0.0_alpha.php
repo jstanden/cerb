@@ -6,7 +6,7 @@ $tables = $db->metaTables();
 if(!isset($tables['ticket_audit_log'])) {
 	$sql = "
 		CREATE TABLE IF NOT EXISTS ticket_audit_log (
-			id INT UNSIGNED DEFAULT 0 NOT NULL,
+			id INT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE,
 			ticket_id INT UNSIGNED DEFAULT 0 NOT NULL,
 			worker_id INT UNSIGNED DEFAULT 0 NOT NULL,
 			change_date INT UNSIGNED DEFAULT 0 NOT NULL,

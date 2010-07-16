@@ -64,13 +64,9 @@ class DAO_MailQueue extends DevblocksORMHelper {
 	static function create($fields) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$id = $db->GenID('mail_queue_seq');
-		
-		$sql = sprintf("INSERT INTO mail_queue (id) ".
-			"VALUES (%d)",
-			$id
-		);
+		$sql = "INSERT INTO mail_queue () VALUES ()";
 		$db->Execute($sql);
+		$id = $db->LastInsertId();
 		
 		self::update($id, $fields);
 		

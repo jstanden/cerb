@@ -192,18 +192,16 @@ class DAO_Bucket extends DevblocksORMHelper {
 			}
 		}
 
-		$id = $db->GenID('generic_seq');
 		$next_pos = self::getNextPos($team_id);
 		
-		$sql = sprintf("INSERT INTO category (id,pos,name,team_id,is_assignable) ".
-			"VALUES (%d,%d,%s,%d,1)",
-			$id,
+		$sql = sprintf("INSERT INTO category (pos,name,team_id,is_assignable) ".
+			"VALUES (%d,%s,%d,1)",
 			$next_pos,
 			$db->qstr($name),
 			$team_id
 		);
-
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		$id = $db->LastInsertId(); 
 
 		self::clearCache();
 		

@@ -185,14 +185,12 @@ class DAO_TicketAuditLog extends DevblocksORMHelper {
 	public static function create($fields) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$id = $db->GenID('ticket_audit_log_seq');
-		
-		$sql = sprintf("INSERT INTO ticket_audit_log (id, worker_id, ticket_id, change_date, change_field, change_value) ".
-			"VALUES (%d,0,0,%d,'','')",
-			$id,
+		$sql = sprintf("INSERT INTO ticket_audit_log (change_date) ".
+			"VALUES (%d)",
 			time()
 		);
 		$db->Execute($sql);
+		$id = $db->LastInsertId();
 		
 		self::update($id, $fields);
 		

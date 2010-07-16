@@ -55,16 +55,15 @@ class DAO_CommunityTool extends C4_ORMHelper {
     
 	public static function create($fields) {
 	    $db = DevblocksPlatform::getDatabaseService();
-		$id = $db->GenID('generic_seq');
 		
 		if(!isset($fields[self::CODE]))
 			$fields[self::CODE] = self::generateUniqueCode();
 		
-		$sql = sprintf("INSERT INTO community_tool (id,name,code,extension_id) ".
-		    "VALUES (%d,'','','')",
-		    $id
+		$sql = sprintf("INSERT INTO community_tool () ".
+		    "VALUES ()"
 		);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		$id = $db->LastInsertId(); 
 		
 		self::update($id, $fields);
 		

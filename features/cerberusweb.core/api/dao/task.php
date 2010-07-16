@@ -58,13 +58,11 @@ class DAO_Task extends C4_ORMHelper {
 	static function create($fields) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$id = $db->GenID('task_seq');
-		
-		$sql = sprintf("INSERT INTO task (id) ".
-			"VALUES (%d)",
-			$id
+		$sql = sprintf("INSERT INTO task () ".
+			"VALUES ()"
 		);
 		$db->Execute($sql);
+		$id = $db->LastInsertId();
 		
 		self::update($id, $fields);
 		

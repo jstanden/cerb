@@ -59,13 +59,10 @@ class DAO_Attachment extends DevblocksORMHelper {
     
 	public static function create($fields) {
 	    $db = DevblocksPlatform::getDatabaseService();
-		$id = $db->GenID('attachment_seq');
 		
-		$sql = sprintf("INSERT INTO attachment (id,message_id,display_name,mime_type,storage_size,storage_extension,storage_key,storage_profile_id) ".
-		    "VALUES (%d,0,'','',0,'','',0)",
-		    $id
-		);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+		$sql = "INSERT INTO attachment () VALUES ()";
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		$id = $db->LastInsertId();
 		
 		self::update($id, $fields);
 		

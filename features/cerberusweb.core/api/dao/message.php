@@ -61,17 +61,14 @@ class DAO_Message extends DevblocksORMHelper {
 
 	static function create($fields) {
 		$db = DevblocksPlatform::getDatabaseService();
-		$newId = $db->GenID('message_seq');
 		
-		$sql = sprintf("INSERT INTO message (id,ticket_id,created_date,is_outgoing,worker_id,address_id,storage_extension,storage_key,storage_profile_id,storage_size) ".
-			"VALUES (%d,0,0,0,0,0,'','',0,0)",
-			$newId
-		);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+		$sql = "INSERT INTO message () VALUES ()";
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		$id = $db->LastInsertId(); 
 
-		self::update($newId, $fields);
+		self::update($id, $fields);
 		
-		return $newId;
+		return $id;
 	}
 
     static function update($id, $fields) {

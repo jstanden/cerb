@@ -1020,13 +1020,11 @@ class DAO_CrmOpportunity extends C4_ORMHelper {
 	static function create($fields) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$id = $db->GenID('crm_opportunity_seq');
-		
-		$sql = sprintf("INSERT INTO crm_opportunity (id) ".
-			"VALUES (%d)",
-			$id
+		$sql = sprintf("INSERT INTO crm_opportunity () ".
+			"VALUES ()"
 		);
 		$db->Execute($sql);
+		$id = $db->LastInsertId();
 		
 		self::update($id, $fields);
 		

@@ -8,7 +8,7 @@ $tables = $db->metaTables();
 if(!isset($tables['mail_to_group_rule'])) {
 	$sql = "
 		CREATE TABLE IF NOT EXISTS mail_to_group_rule (
-			id INT UNSIGNED DEFAULT 0 NOT NULL,
+			id INT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE,
 			pos SMALLINT UNSIGNED DEFAULT 0 NOT NULL,
 			created INT UNSIGNED DEFAULT 0 NOT NULL,
 			name VARCHAR(128) DEFAULT '' NOT NULL,
@@ -20,6 +20,15 @@ if(!isset($tables['mail_to_group_rule'])) {
 		) ENGINE=MyISAM;
 	";
 	$db->Execute($sql);	
+}
+
+list($columns, $indexes) = $db->metaTable('mail_to_group_rule');
+
+if(isset($columns['id']) 
+	&& ('int(10) unsigned' != $columns['id']['type'] 
+	|| 'auto_increment' != $columns['id']['extra'])
+) {
+	$db->Execute("ALTER TABLE mail_to_group_rule MODIFY COLUMN id INT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE");
 }
 
 if(isset($tables['mail_routing'])) {
@@ -38,9 +47,8 @@ if(isset($tables['mail_routing'])) {
 			'move' => array('group_id' => intval($row['team_id']),'bucket_id' => 0),
 		);
 		
-		$sql = sprintf("INSERT INTO mail_to_group_rule (id,pos,created,name,criteria_ser,actions_ser,is_sticky,sticky_order) ".
-			"VALUES(%d,%d,%d,%s,%s,%s,0,0)",
-			$db->GenID('generic_seq'),
+		$sql = sprintf("INSERT INTO mail_to_group_rule (pos,created,name,criteria_ser,actions_ser,is_sticky,sticky_order) ".
+			"VALUES(%d,%d,%s,%s,%s,0,0)",
 			intval($row['pos']),
 			time(),
 			$db->qstr($row['pattern']),

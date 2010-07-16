@@ -13,7 +13,7 @@ if(!isset($indexes['message_id'])) {
 if(!isset($tables['kb_category'])) {
 	$sql = "
 		CREATE TABLE IF NOT EXISTS kb_category (
-			id INT UNSIGNED DEFAULT 0 NOT NULL,
+			id INT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE,
 			parent_id INT UNSIGNED DEFAULT 0 NOT NULL,
 			name VARCHAR(64) DEFAULT '' NOT NULL,
 			PRIMARY KEY (id)
@@ -27,6 +27,13 @@ list($columns, $indexes) = $db->metaTable('kb_category');
 
 if(!isset($indexes['parent_id'])) {
     $db->Execute('ALTER TABLE kb_category ADD INDEX parent_id (parent_id)');
+}
+
+if(isset($columns['id']) 
+	&& ('int(10) unsigned' != $columns['id']['type'] 
+	|| 'auto_increment' != $columns['id']['extra'])
+) {
+	$db->Execute("ALTER TABLE kb_category MODIFY COLUMN id INT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE");
 }
 
 // `kb_article_to_category` =============================
@@ -103,8 +110,6 @@ if(!isset($indexes['content'])) {
 }
 
 if(isset($columns['code'])) {
-    // [TODO] Look up the KB page_title
-
 	// First translate any existing codes to new KB topics
 	$sql = "SELECT DISTINCT code FROM kb_article";
 	$rs = $db->Execute($sql);
@@ -112,19 +117,17 @@ if(isset($columns['code'])) {
 	$num = 1;
 	
     while($row = mysql_fetch_assoc($rs)) {
-    	$cat_id = $db->GenID('generic_seq');
     	$code = $row['code'];
 
-    	if(empty($cat_id) || empty($code)) {
+    	if(empty($code))
     		continue;
-    	}
     	
     	$cat_name = "Imported KB #".$num++;
     	
-    	$db->Execute(sprintf("INSERT INTO kb_category (id,parent_id,name) VALUES (%d,0,%s)",
-    		$cat_id,
+    	$db->Execute(sprintf("INSERT INTO kb_category (parent_id,name) VALUES (0,%s)",
     		$db->qstr($cat_name)
     	));
+    	$cat_id = $db->LastInsertId();
     	
     	$rs2 = $db->Execute(sprintf("SELECT id FROM kb_article WHERE code = %s",
     		$db->qstr($code)
@@ -191,7 +194,7 @@ if(!isset($indexes['message_id'])) {
 if(!isset($tables['note'])) {
 	$sql = "
 		CREATE TABLE IF NOT EXISTS note (
-			id INT UNSIGNED DEFAULT 0 NOT NULL,
+			id INT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE,
 			source_extension_id VARCHAR(128) DEFAULT '' NOT NULL,
 			source_id INT UNSIGNED DEFAULT 0 NOT NULL,
 			created INT UNSIGNED DEFAULT 0 NOT NULL,
@@ -204,6 +207,13 @@ if(!isset($tables['note'])) {
 }
 
 list($columns, $indexes) = $db->metaTable('note');
+
+if(isset($columns['id']) 
+	&& ('int(10) unsigned' != $columns['id']['type'] 
+	|| 'auto_increment' != $columns['id']['extra'])
+) {
+	$db->Execute("ALTER TABLE note MODIFY COLUMN id INT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE");
+}
 
 if(!isset($indexes['source_extension_id'])) {
 	$db->Execute('ALTER TABLE note ADD INDEX source_extension_id (source_extension_id)');
@@ -394,6 +404,13 @@ if(!isset($indexes['source_extension'])) {
 	$db->Execute('ALTER TABLE custom_field ADD INDEX source_extension (source_extension)');
 }
 
+if(isset($columns['id']) 
+	&& ('int(10) unsigned' != $columns['id']['type'] 
+	|| 'auto_increment' != $columns['id']['extra'])
+) {
+	$db->Execute("ALTER TABLE custom_field MODIFY COLUMN id INT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE");
+}
+
 // `custom_field_value` ========================
 list($columns, $indexes) = $db->metaTable('custom_field_value');
 
@@ -437,13 +454,12 @@ if(!isset($indexes['source_id'])) {
 		
 		if(!empty($count)) { // Move to a custom field before dropping
 			// Create the new custom field
-			$field_id = $db->GenID('custom_field_seq');
-			$sql = sprintf("INSERT INTO custom_field (id,name,type,group_id,pos,options,source_extension) ".
-				"VALUES (%d,'Phone','S',0,0,'',%s)",
-				$field_id,
+			$sql = sprintf("INSERT INTO custom_field (name,type,group_id,pos,options,source_extension) ".
+				"VALUES ('Phone','S',0,0,'',%s)",
 				$db->qstr('cerberusweb.fields.source.address')
 			);
 			$db->Execute($sql);
+			$field_id = $db->LastInsertId();
 			
 			// Populate the custom field from org records
 			$sql = sprintf("INSERT INTO custom_field_value (field_id, source_id, field_value, source_extension) ".
@@ -467,13 +483,12 @@ if(!isset($indexes['source_id'])) {
 		
 		if(!empty($count)) { // Move to a custom field before dropping
 			// Create the new custom field
-			$field_id = $db->GenID('custom_field_seq');
-			$sql = sprintf("INSERT INTO custom_field (id,name,type,group_id,pos,options,source_extension) ".
-				"VALUES (%d,'Account #','S',0,0,'',%s)",
-				$field_id,
+			$sql = sprintf("INSERT INTO custom_field (name,type,group_id,pos,options,source_extension) ".
+				"VALUES ('Account #','S',0,0,'',%s)",
 				$db->qstr('cerberusweb.fields.source.org')
 			);
 			$db->Execute($sql);
+			$field_id = $db->LastInsertId();
 			
 			// Populate the custom field from org records
 			$sql = sprintf("INSERT INTO custom_field_value (field_id, source_id, field_value, source_extension) ".
