@@ -618,15 +618,12 @@ class ChTicketsPage extends CerberusPageExtension {
 		// Remember the tab
 		$visit->set(CerberusVisit::KEY_MAIL_MODE, 'drafts');
 		
-		$view = C4_AbstractViewLoader::getView('mail_drafts');
+		$defaults = new C4_AbstractViewModel();
+		$defaults->class_name = 'View_MailQueue';
+		$defaults->id = 'mail_drafts';
 		
-		// [TODO] Use $defaults
-		
-		if(null == $view) {
-			$view = new View_MailQueue();
-			$view->id = 'mail_drafts';
-			$view->name = 'Drafts';
-		}
+		$view = C4_AbstractViewLoader::getView($defaults->id, $defaults);
+		$view->name = 'Drafts';
 		
 		$view->columnsHidden = array(
 			SearchFields_MailQueue::ID,
