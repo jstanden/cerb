@@ -253,4 +253,76 @@ if(isset($columns['worker_id'])) {
 	$db->Execute('ALTER TABLE task DROP COLUMN worker_id');
 }
 
+// ===========================================================================
+// Create a table for persisting worker view models
+
+if(!isset($tables['worker_view_model'])) {
+	$sql = "
+		CREATE TABLE IF NOT EXISTS worker_view_model (
+			worker_id INT UNSIGNED NOT NULL DEFAULT '0',
+			view_id VARCHAR(255) NOT NULL DEFAULT '',
+			is_ephemeral TINYINT UNSIGNED NOT NULL DEFAULT '0',
+			class_name VARCHAR(255) NOT NULL DEFAULT '',
+			title VARCHAR(255) NOT NULL DEFAULT '',
+			columns_json TEXT,
+			columns_hidden_json TEXT,
+			params_editable_json TEXT,
+			params_default_json TEXT,
+			params_required_json TEXT,
+			params_hidden_json TEXT,
+			render_page SMALLINT UNSIGNED NOT NULL DEFAULT 0,
+			render_total TINYINT UNSIGNED NOT NULL DEFAULT 0,
+			render_limit SMALLINT UNSIGNED NOT NULL DEFAULT 0,
+			render_sort_by VARCHAR(255) NOT NULL DEFAULT '',
+			render_sort_asc TINYINT UNSIGNED NOT NULL DEFAULT 1,
+			render_template VARCHAR(255) NOT NULL DEFAULT '',
+			INDEX worker_id (worker_id),
+			INDEX view_id (view_id),
+			UNIQUE worker_to_view_id (worker_id, view_id)
+		) ENGINE=MyISAM;
+	";
+	$db->Execute($sql);
+
+	$tables['worker_view_model'] = 'worker_view_model';
+	
+	$rs = $db->Execute("SELECT worker_id, SUBSTRING(setting,5) AS view_id, value AS model FROM worker_pref WHERE setting LIKE 'view%%'");
+	
+	if(false !== $rs)
+	while($row = mysql_fetch_assoc($rs)) {
+		$worker_id = $row['worker_id'];
+		$view_id = $row['view_id'];
+		
+		if(false !== (@$model = unserialize($row['model']))) {
+			$fields = array(
+				'worker_id' => $worker_id,
+				'view_id' => $db->qstr($view_id),
+				'class_name' => $db->qstr($model->class_name),
+				'title' => $db->qstr($model->name),
+				'columns_json' => $db->qstr(json_encode($model->view_columns)),
+				'columns_hidden_json' => $db->qstr(json_encode($model->columnsHidden)),
+				'params_editable_json' => $db->qstr(json_encode($model->paramsEditable)),
+				'params_required_json' => $db->qstr(json_encode($model->paramsRequired)),
+				'params_default_json' => $db->qstr(json_encode($model->paramsDefault)),
+				'params_hidden_json' => $db->qstr(json_encode($model->paramsHidden)),
+				'render_page' => abs(intval($model->renderPage)),
+				'render_total' => !empty($model->renderTotal) ? 1 : 0,
+				'render_limit' => intval($model->renderLimit),
+				'render_sort_by' => $db->qstr($model->renderSortBy),
+				'render_sort_asc' => !empty($model->renderSortAsc) ? 1 : 0,
+				'render_template' => $db->qstr($model->renderTemplate),
+			);
+			
+			$db->Execute(sprintf("REPLACE INTO worker_view_model (%s)".
+				"VALUES (%s)",
+				implode(',', array_keys($fields)),
+				implode(',', $fields)
+			));			
+		}
+	}
+	
+	mysql_free_result($rs);
+	
+	$db->Execute("DELETE FROM worker_pref WHERE setting LIKE 'view%'");
+}
+
 return TRUE;

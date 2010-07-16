@@ -135,6 +135,164 @@ class C4_ORMHelper extends DevblocksORMHelper {
 	}
 };
 
+class DAO_WorkerViewModel {
+	// [TODO] Add an 'ephemeral' bit to clear record on login
+	
+	/**
+	 * 
+	 * @param integer $worker_id
+	 * @param string $view_id
+	 * @return C4_AbstractViewModel or false
+	 */
+	static public function getView($worker_id, $view_id) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$fields = array(
+			'worker_id',
+			'view_id',
+			'is_ephemeral',
+			'class_name',
+			'title',
+			'columns_json',
+			'columns_hidden_json',
+			'params_editable_json',
+			'params_required_json',
+			'params_default_json',
+			'params_hidden_json',
+			'render_page',
+			'render_total',
+			'render_limit',
+			'render_sort_by',
+			'render_sort_asc',
+			'render_template',
+		);
+		
+		$row = $db->GetRow(sprintf("SELECT %s FROM worker_view_model WHERE worker_id = %d AND view_id = %s",
+			implode(',', $fields),
+			$worker_id,
+			$db->qstr($view_id)
+		));
+		
+		if(!empty($row)) {
+			$model = new C4_AbstractViewModel();
+			$model->id = $row['view_id'];
+			$model->is_ephemeral = $row['is_ephemeral'];
+			$model->class_name = $row['class_name'];
+			$model->name = $row['title'];
+			$model->renderPage = $row['render_page'];
+			$model->renderTotal = $row['render_total'];
+			$model->renderLimit = $row['render_limit'];
+			$model->renderSortBy = $row['render_sort_by'];
+			$model->renderSortAsc = $row['render_sort_asc'];
+			$model->renderTemplate = $row['render_template'];
+			
+			// JSON blocks
+			$model->view_columns = json_decode($row['columns_json'], true);
+			$model->columnsHidden = json_decode($row['columns_hidden_json'], true);
+			$model->paramsEditable = self::decodeParamsJson($row['params_editable_json']);
+			$model->paramsRequired = self::decodeParamsJson($row['params_required_json']);
+			$model->paramsDefault = self::decodeParamsJson($row['params_default_json']);
+			$model->paramsHidden = json_decode($row['params_hidden_json'], true);
+			
+			return $model;
+		}
+			
+		return false; 
+	}
+
+	static public function decodeParamsJson($json) {
+		$params = array();
+		
+		if(empty($json) || false === ($params_data = json_decode($json, true)))
+			return array();
+		
+		if(is_array($params_data))
+		foreach($params_data as $key => $data) {
+			if(is_numeric(key($data))) {
+				$params[$key] = self::_recurseParam($data);
+			} else {
+				$params[$key] = new DevblocksSearchCriteria($data['field'], $data['operator'], $data['value']); 
+			}
+		}
+		
+		return $params;
+	}
+	
+	static private function _recurseParam($group) {
+		$params = array();
+		
+		foreach($group as $key => $data) {
+			if(is_array($data)) {
+				if(is_numeric(key($data))) {
+					$params[$key] = array(array_shift($data)) + self::_recurseParam($data);
+				} else {
+					$param = new DevblocksSearchCriteria($data['field'], $data['operator'], $data['value']);
+					$params[$key] = $param;
+				}
+			} elseif(is_string($data)) {
+				$params[$key] = $data;
+			}
+		}
+		
+		return $params;
+	}
+	
+	static public function setView($worker_id, $view_id, C4_AbstractViewModel $model) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$fields = array(
+			'worker_id' => $worker_id,
+			'view_id' => $db->qstr($view_id),
+			'is_ephemeral' => !empty($model->is_ephemeral) ? 1 : 0,
+			'class_name' => $db->qstr($model->class_name),
+			'title' => $db->qstr($model->name),
+			'columns_json' => $db->qstr(json_encode($model->view_columns)),
+			'columns_hidden_json' => $db->qstr(json_encode($model->columnsHidden)),
+			'params_editable_json' => $db->qstr(json_encode($model->paramsEditable)),
+			'params_required_json' => $db->qstr(json_encode($model->paramsRequired)),
+			'params_default_json' => $db->qstr(json_encode($model->paramsDefault)),
+			'params_hidden_json' => $db->qstr(json_encode($model->paramsHidden)),
+			'render_page' => abs(intval($model->renderPage)),
+			'render_total' => !empty($model->renderTotal) ? 1 : 0,
+			'render_limit' => intval($model->renderLimit),
+			'render_sort_by' => $db->qstr($model->renderSortBy),
+			'render_sort_asc' => !empty($model->renderSortAsc) ? 1 : 0,
+			'render_template' => $db->qstr($model->renderTemplate),
+		);
+		
+		$db->Execute(sprintf("REPLACE INTO worker_view_model (%s)".
+			"VALUES (%s)",
+			implode(',', array_keys($fields)),
+			implode(',', $fields)
+		));
+	}
+	
+	static public function deleteView($worker_id, $view_id) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$db->Execute(sprintf("DELETE FROM worker_view_model WHERE worker_id = %d AND view_id = %s",
+			$worker_id,
+			$db->qstr($view_id)
+		));
+	}
+	
+	/**
+	 * Prepares for a new session by removing ephemeral views and 
+	 * resetting all page cursors to the first page of the list.
+	 * 
+	 * @param integer$worker_id
+	 */
+	static public function flush($worker_id) {
+		$db = DevblocksPlatform::getDatabaseService();
+		$db->Execute(sprintf("DELETE FROM worker_view_model WHERE worker_id = %d and is_ephemeral = 1",
+			$worker_id
+		));
+		$db->Execute(sprintf("UPDATE worker_view_model SET render_page = 0 WHERE worker_id = %d",
+			$worker_id
+		));
+	}
+};
+
 class DAO_WorkerRole extends DevblocksORMHelper {
 	const _CACHE_ALL = 'ch_acl';
 	

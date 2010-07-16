@@ -354,19 +354,8 @@ class ChInternalController extends DevblocksControllerExtension {
 
 		$view->removeAllParams();
 		
-		if(null != ($preset = DAO_ViewFiltersPreset::get($preset_id))) {
-			if(is_array($preset->params))
-			foreach($preset->params as $data) {
-				if(isset($data[0])) {
-					$params = array(array_shift($data));
-					while(null != ($item = array_shift($data)))
-						$params[] = new DevblocksSearchCriteria($item['field'], $item['operator'], $item['value']);
-					$view->addParam($params);
-				} else {
-					$view->addParam(new DevblocksSearchCriteria($data['field'], $data['operator'], $data['value']));
-				}
-			}
-		}
+		if(null != ($preset = DAO_ViewFiltersPreset::get($preset_id)))
+			$view->addParams($preset->params);
 		
 		C4_AbstractViewLoader::setView($view->id, $view);
 		
@@ -617,7 +606,7 @@ class ChInternalController extends DevblocksControllerExtension {
 
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		// Conditional Persist
+		// Handle worklists specially
 		if(substr($id,0,5)=="cust_") { // custom workspace
 			$list_view_id = intval(substr($id,5));
 			
@@ -638,16 +627,6 @@ class ChInternalController extends DevblocksControllerExtension {
 			DAO_WorkerWorkspaceList::update($list_view_id, array(
 				DAO_WorkerWorkspaceList::LIST_VIEW => serialize($list_view)
 			));
-			
-		} else {
-			$prefs = new C4_AbstractViewModel();
-			$prefs->class_name = get_class($view);
-			$prefs->view_columns = $view->view_columns;
-			$prefs->renderLimit = $view->renderLimit;
-			$prefs->renderSortBy = $view->renderSortBy;
-			$prefs->renderSortAsc = $view->renderSortAsc;
-			
-			DAO_WorkerPref::set($active_worker->id, 'view'.$view->id, serialize($prefs));
 		}
 		
 		C4_AbstractViewLoader::setView($id, $view);

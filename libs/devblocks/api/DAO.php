@@ -116,9 +116,6 @@ abstract class DevblocksORMHelper {
 		$db->Execute($sql); 
 	}
 	
-	/**
-	 * [TODO]: Import the searchDAO functionality + combine the extraneous classes
-	 */
 	static protected function _parseSearchParams($params,$columns=array(),$fields,$sortBy='') {
 		$db = DevblocksPlatform::getDatabaseService();
 		

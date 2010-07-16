@@ -50,6 +50,7 @@
 
 abstract class C4_AbstractView {
 	public $id = 0;
+	public $is_ephemeral = 0;
 	public $name = "";
 	
 	public $view_columns = array();
@@ -446,8 +447,9 @@ abstract class C4_AbstractView {
 class C4_AbstractViewModel {
 	public $class_name = '';
 
-	public $id = 0;
+	public $id = '';
 	public $name = "";
+	public $is_ephemeral = 0;
 	
 	public $view_columns = array();
 	public $columnsHidden = array();
@@ -470,88 +472,29 @@ class C4_AbstractViewModel {
  * This is essentially an AbstractView Factory
  */
 class C4_AbstractViewLoader {
-	static $views = null;
-	const VISIT_ABSTRACTVIEWS = 'abstractviews_list';
-
-	static private function _init() {
-		$visit = CerberusApplication::getVisit();
-		self::$views = $visit->get(self::VISIT_ABSTRACTVIEWS,array());
-	}
-
-	/**
-	 * @param string $view_label Abstract view identifier
-	 * @return boolean
-	 */
-	static function exists($view_label) {
-		if(is_null(self::$views)) self::_init();
-		return isset(self::$views[$view_label]);
-	}
-
 	/**
 	 * Enter description here...
 	 *
 	 * @param string $class C4_AbstractView
 	 * @param string $view_label ID
-	 * @return C4_AbstractView instance
+	 * @return C4_AbstractView or null
 	 */
-	static function getView($view_label, C4_AbstractViewModel $defaults=null) {
+	static function getView($view_id, C4_AbstractViewModel $defaults=null) {
 		$active_worker = CerberusApplication::getActiveWorker();
-		if(is_null(self::$views)) self::_init();
 
-		if(self::exists($view_label)) {
-			$model = self::$views[$view_label];
+		// Check if we've ever persisted this view
+		if(false !== ($model = DAO_WorkerViewModel::getView($active_worker->id, $view_id))) {
 			return self::unserializeAbstractView($model);
 			
-		} else {
-			// See if the worker has their own saved prefs
-			@$prefs = unserialize(DAO_WorkerPref::get($active_worker->id, 'view'.$view_label));
-
-			// Sanitize
-			if(!empty($prefs)
-				&& $prefs instanceof C4_AbstractViewModel 
-				&& !empty($prefs->class_name)
-			) {
-				if(!class_exists($prefs->class_name)) {
-					DAO_WorkerPref::delete($active_worker->id, 'view'.$view_label);
-					$prefs = null;
-				}
-			} else {
-				$prefs = null;
+		} elseif(!empty($defaults) && $defaults instanceof C4_AbstractViewModel) {
+			// Load defaults if they were provided
+			if(null != ($view = self::unserializeAbstractView($defaults)))  {
+				self::setView($view_id, $view);
+				return $view;
 			}
-			
-			// If no worker prefs, check if we're passed defaults
-			if(!$prefs instanceof C4_AbstractViewModel && !empty($defaults))
-				$prefs = $defaults;
-			
-			// Create a default view if it doesn't exist
-			if($prefs instanceof C4_AbstractViewModel) {
-				if(!empty($prefs->class_name) && class_exists($prefs->class_name)) {
-					$view = new $prefs->class_name;
-					$view->id = $view_label;
-					if(!empty($prefs->view_columns))
-						$view->view_columns = $prefs->view_columns;
-					if(!empty($prefs->columnsHidden))
-						$view->columnsHidden = $prefs->columnsHidden;
-					if(!empty($prefs->paramsDefault))
-						$view->paramsDefault = $prefs->paramsDefault;
-					if(!empty($prefs->paramsRequired))
-						$view->paramsRequired = $prefs->paramsRequired;
-					if(!empty($prefs->paramsHidden))
-						$view->paramsHidden = $prefs->paramsHidden;
-					if(!empty($prefs->renderLimit))
-						$view->renderLimit = $prefs->renderLimit;
-					if(null !== $prefs->renderSortBy)
-						$view->renderSortBy = $prefs->renderSortBy;
-					if(null !== $prefs->renderSortAsc)
-						$view->renderSortAsc = $prefs->renderSortAsc;
-					self::setView($view_label, $view);
-					return $view;
-				}
-			}
-			
 		}
-
-		return null;
+		
+		return NULL;
 	}
 
 	/**
@@ -561,33 +504,27 @@ class C4_AbstractViewLoader {
 	 * @param string $view_label ID
 	 * @param C4_AbstractView $view
 	 */
-	static function setView($view_label, $view) {
-		if(is_null(self::$views)) self::_init();
-		self::$views[$view_label] = self::serializeAbstractView($view);
-		self::_save();
+	static function setView($view_id, C4_AbstractView $view) {
+		$active_worker = CerberusApplication::getActiveWorker();
+		$model = self::serializeAbstractView($view);
+		DAO_WorkerViewModel::setView($active_worker->id, $view_id, $model);
 	}
 
-	static function deleteView($view_label) {
-		unset(self::$views[$view_label]);
-		self::_save();
+	static function deleteView($view_id) {
+		$active_worker = CerberusApplication::getActiveWorker();
+		DAO_WorkerViewModel::deleteView($active_worker->id, $view_id);
 	}
 	
-	static private function _save() {
-		// persist
-		$visit = CerberusApplication::getVisit();
-		$visit->set(self::VISIT_ABSTRACTVIEWS, self::$views);
-	}
-
 	static function serializeAbstractView($view) {
-		if(!$view instanceof C4_AbstractView) {
-			return null;
-		}
+		if(!$view instanceof C4_AbstractView)
+			return NULL;
 
 		$model = new C4_AbstractViewModel();
 			
 		$model->class_name = get_class($view);
 
 		$model->id = $view->id;
+		$model->is_ephemeral = $view->is_ephemeral;
 		$model->name = $view->name;
 		
 		$model->view_columns = $view->view_columns;
@@ -617,25 +554,41 @@ class C4_AbstractViewLoader {
 			return null;
 
 		/* @var $inst C4_AbstractView */
-			
-		$inst->id = $model->id;
-		$inst->name = $model->name;
 		
-		$inst->view_columns = $model->view_columns;
-		$inst->columnsHidden = $model->columnsHidden;
+		if(!empty($model->id))
+			$inst->id = $model->id;
+		if(null !== $model->is_ephemeral)
+			$inst->is_ephemeral = $model->is_ephemeral;
+		if(!empty($model->name))
+			$inst->name = $model->name;
 		
-		$inst->addParams($model->paramsEditable, true);
-		$inst->paramsDefault = $model->paramsDefault;
-		$inst->paramsRequired = $model->paramsRequired;
-		$inst->paramsHidden = $model->paramsHidden;
+		if(!empty($model->view_columns))
+			$inst->view_columns = $model->view_columns;
+		if(!empty($model->columnsHidden))
+			$inst->columnsHidden = $model->columnsHidden;
+		
+		if(!empty($model->paramsEditable))
+			$inst->addParams($model->paramsEditable, true);
+		if(!empty($model->paramsDefault))
+			$inst->paramsDefault = $model->paramsDefault;
+		if(!empty($model->paramsRequired))
+			$inst->paramsRequired = $model->paramsRequired;
+		if(!empty($model->paramsHidden))
+			$inst->paramsHidden = $model->paramsHidden;
 
-		$inst->renderPage = $model->renderPage;
-		$inst->renderLimit = $model->renderLimit;
-		$inst->renderTotal = $model->renderTotal;
-		$inst->renderSortBy = $model->renderSortBy;
-		$inst->renderSortAsc = $model->renderSortAsc;
+		if(null !== $model->renderPage)
+			$inst->renderPage = $model->renderPage;
+		if(null !== $model->renderLimit)
+			$inst->renderLimit = $model->renderLimit;
+		if(null !== $model->renderTotal)
+			$inst->renderTotal = $model->renderTotal;
+		if(null !== $model->renderSortBy)
+			$inst->renderSortBy = $model->renderSortBy;
+		if(null !== $model->renderSortBy)
+			$inst->renderSortAsc = $model->renderSortAsc;
 
-		$inst->renderTemplate = $model->renderTemplate;
+		if(!empty($model->renderTemplate))
+			$inst->renderTemplate = $model->renderTemplate;
 		
 		return $inst;
 	}

@@ -879,7 +879,8 @@ class Context_Address extends Extension_DevblocksContext {
 		// View
 		$view_id = 'chooser_'.str_replace('.','_',$this->id).time().mt_rand(0,9999);
 		$defaults = new C4_AbstractViewModel();
-		$defaults->id = $view_id; 
+		$defaults->id = $view_id;
+		$defaults->is_ephemeral = true;
 		$defaults->class_name = 'View_Address';
 		
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);

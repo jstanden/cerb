@@ -82,10 +82,7 @@ class DAO_ViewFiltersPreset extends DevblocksORMHelper {
 			$object->name = $row['name'];
 			$object->view_class = $row['view_class'];
 			$object->worker_id = $row['worker_id'];
-			
-			if(false !== ($params = @json_decode($row['params_json'], true)))
-				$object->params = $params;
-			
+			$object->params = DAO_WorkerViewModel::decodeParamsJson($row['params_json']);
 			$objects[$object->id] = $object;
 		}
 		

@@ -250,8 +250,8 @@ class DevblocksSearchCriteria {
 
         return $where_value;
 	}
-	
 };
+
 class DevblocksSearchField {
 	public $token;
 	public $db_table;

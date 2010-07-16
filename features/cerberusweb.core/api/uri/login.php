@@ -156,6 +156,9 @@ class ChSignInPage extends CerberusPageExtension {
 				DevblocksPlatform::setLocale($lang_code);
 			}
 			
+			// Flush views
+			DAO_WorkerViewModel::flush($worker->id);
+			
 			if(empty($devblocks_response->path)) {
 				$tour_enabled = intval(DAO_WorkerPref::get($worker->id, 'assist_mode', 1));
 				$next_page = ($tour_enabled) ?  'welcome' : 'home';				
