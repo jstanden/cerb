@@ -30,8 +30,8 @@
 </form>
 
 <script type="text/javascript">
-	var $popup = genericAjaxPopupFetch('peek');
+	$popup = genericAjaxPopupFetch('peek');
 	$popup.one('popup_open', function(event,ui) {
-		$popup.dialog('option','title',"{'common.bulk_update'|devblocks_translate|escape:'quotes'}");
+		$(this).dialog('option','title',"{'common.bulk_update'|devblocks_translate|escape:'quotes'}");
 	} );
 </script>

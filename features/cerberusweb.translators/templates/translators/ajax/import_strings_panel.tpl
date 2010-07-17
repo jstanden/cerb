@@ -10,9 +10,9 @@
 </form>
 
 <script type="text/javascript">
-	var $popup = genericAjaxPopupFetch('peek');
+	$popup = genericAjaxPopupFetch('peek');
 	$popup.one('popup_open', function(event,ui) {
-		$popup.dialog('option','title',"{$translate->_('common.import')|capitalize|escape:'quotes'}");
+		$(this).dialog('option','title',"{$translate->_('common.import')|capitalize|escape:'quotes'}");
 	} );
 </script>
 

@@ -57,10 +57,10 @@
 </form>
 
 <script type="text/javascript">
-	var $popup = genericAjaxPopupFetch('peek');
+	$popup = genericAjaxPopupFetch('peek');
 	$popup.one('popup_open',function(event,ui) {
 		// Title
-		$popup.dialog('option','title', "{'contact_org.name'|devblocks_translate|capitalize|escape:'quotes'}");
+		$(this).dialog('option','title', "{'contact_org.name'|devblocks_translate|capitalize|escape:'quotes'}");
 		// Autocomplete
 		ajax.countryAutoComplete('#org_country_input');
 		// Form validation

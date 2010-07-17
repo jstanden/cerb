@@ -71,9 +71,9 @@
 </form>
 
 <script type="text/javascript">
-	var $popup = genericAjaxPopupFetch('peek');
+	$popup = genericAjaxPopupFetch('peek');
 	$popup.one('popup_open',function(event,ui) {
-		$popup.dialog('option','title','Tasks');
+		$(this).dialog('option','title','Tasks');
 		$('#formTaskPeek :input:text:first').focus().select();
 	});
 	$('#formTaskPeek button.chooser_worker').click(function() {

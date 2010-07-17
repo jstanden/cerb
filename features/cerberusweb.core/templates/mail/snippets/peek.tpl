@@ -33,12 +33,12 @@
 </form>
 
 <script type="text/javascript">
-	var $popup = genericAjaxPopupFetch('peek');
+	$popup = genericAjaxPopupFetch('peek');
 	$popup.one('popup_open',function(event,ui) {
 		{if empty($snippet->id)}
-		$popup.dialog('option','title', 'Create Snippet ({$snippet->context})');
+		$(this).dialog('option','title', 'Create Snippet ({$snippet->context})');
 		{else}
-		$popup.dialog('option','title', 'Modify Snippet ({$snippet->context})');
+		$(this).dialog('option','title', 'Modify Snippet ({$snippet->context})');
 		{/if}
 		//ajax.emailAutoComplete('#emailinput');
 	} );

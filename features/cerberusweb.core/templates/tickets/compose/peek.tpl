@@ -75,9 +75,9 @@
 </form>
 
 <script type="text/javascript">
-	var $popup = genericAjaxPopupFetch('peek');
+	$popup = genericAjaxPopupFetch('peek');
 	$popup.one('popup_open',function(event,ui) {
-		$popup.dialog('option','title','Compose');
+		$(this).dialog('option','title','Compose');
 		ajax.emailAutoComplete('#emailinput', { multiple: true } );
 		$('#formComposePeek :input:text:first').focus().select();
 	} );

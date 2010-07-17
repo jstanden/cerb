@@ -13,11 +13,9 @@
 </form>
 
 <script type="text/javascript">
-	var $popup = genericAjaxPopupFetch('peek');
+	$popup = genericAjaxPopupFetch('peek');
 	$popup.one('popup_open',function(event,ui) {
-		$popup.dialog('option','title','{$translate->_('mail.merge')|escape}');
-		
-		//ajax.emailAutoComplete('#frmDisplayMerge textarea[name=req_adds]', { multiple: true } );
+		$(this).dialog('option','title','{$translate->_('mail.merge')|escape}');
 	});
 	$('#frmDisplayMerge button.chooser_ticket').click(function() {
 		$button = $(this);

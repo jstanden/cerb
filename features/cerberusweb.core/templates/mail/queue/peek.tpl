@@ -54,9 +54,9 @@
 </form>
 
 <script type="text/javascript">
-	var $popup = genericAjaxPopupFetch('peek');
+	$popup = genericAjaxPopupFetch('peek');
 	$popup.one('popup_open',function(event,ui) {
-		$popup.dialog('option','title','{if $draft->is_queued}Queued Message{else}Draft{/if}');
+		$(this).dialog('option','title','{if $draft->is_queued}Queued Message{else}Draft{/if}');
 		$('#formDraftPeek :input:text:first').focus().select();
 		$("#draftPeekContent").css('width','98%');
 	} );

@@ -7,16 +7,16 @@
 </div>
 
 <script type="text/javascript">
-	var $popup = genericAjaxPopupFetch('peek');
+	$popup = genericAjaxPopupFetch('peek');
 	$popup.one('popup_open',function(event,ui) {
-		$popup.dialog('option','title',"Snippets");
+		$(this).dialog('option','title',"Snippets");
 		$('#view{$view->id}').data('context_id','{$context_id}');
 		$('#view{$view->id}').data('text_element','{$text_element}');
 		
 		$('#frmSnippetChooser input:text:first').focus();
 		
-		var $snippetWaitTime = 0;
-		var $snippetTimer = null;
+		$snippetWaitTime = 0;
+		$snippetTimer = null;
 		$('#frmSnippetChooser input:text[name=term]').bind('keyup', function(evt) {
 			var $term = $(evt.target).val();
 			

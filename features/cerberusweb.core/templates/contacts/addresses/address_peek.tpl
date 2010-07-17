@@ -90,10 +90,10 @@
 </form>
 
 <script type="text/javascript">
-	var $popup = genericAjaxPopupFetch('peek');
+	$popup = genericAjaxPopupFetch('peek');
 	$popup.one('popup_open',function(event,ui) {
 		// Title
-		$popup.dialog('option','title', '{'addy_book.peek.title'|devblocks_translate|escape:'quotes'}');
+		$(this).dialog('option','title', '{'addy_book.peek.title'|devblocks_translate|escape:'quotes'}');
 		// Autocomplete
 		ajax.orgAutoComplete('#contactinput');
 		// Form validation

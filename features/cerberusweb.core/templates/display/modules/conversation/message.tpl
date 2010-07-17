@@ -165,7 +165,7 @@
 		if(null==expanded)
 			expanded=false;
 		
-		var $popup = genericAjaxPopupFetch('peek');
+		$popup = genericAjaxPopupFetch('peek');
 		$popup.one('popup_saved',function(e) {
 			if(expanded) 
 				$('#btnMsgMax' + msgid).click();

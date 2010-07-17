@@ -21,8 +21,8 @@
 </form>
 
 <script type="text/javascript">
-	var $popup = genericAjaxPopupFetch('peek');
+	$popup = genericAjaxPopupFetch('peek');
 	$popup.one('popup_open', function(event,ui) {
-		$popup.dialog('option','title',"{'common.export'|devblocks_translate|capitalize|escape:'quotes'}");
+		$(this).dialog('option','title',"{'common.export'|devblocks_translate|capitalize|escape:'quotes'}");
 	} );
 </script>

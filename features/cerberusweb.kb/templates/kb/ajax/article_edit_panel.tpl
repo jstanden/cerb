@@ -48,9 +48,9 @@
 </form>
 
 <script type="text/javascript">
-	var $popup = genericAjaxPopupFetch('peek');
+	$popup = genericAjaxPopupFetch('peek');
 	$popup.one('popup_open',function(event,ui) {
-		$popup.dialog('option','title','Knowledgebase Article');
+		$(this).dialog('option','title','Knowledgebase Article');
 		$("#kbArticleTabs").tabs();
 		$('#frmKbEditPanel :input:text:first').focus().select();
 		

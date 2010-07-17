@@ -25,10 +25,10 @@
 <br>
 
 <script type="text/javascript">
-	var $popup = genericAjaxPopupFetch('peek');
+	$popup = genericAjaxPopupFetch('peek');
 	var $frm = $('#internalCommentPopup');
 	$popup.one('popup_open',function(event,ui) {
-		$popup.dialog('option','title','Comment');
+		$(this).dialog('option','title','Comment');
 		
 		$frm.find('button.submit').click(function() {
 			$popup = genericAjaxPopupFetch('peek');

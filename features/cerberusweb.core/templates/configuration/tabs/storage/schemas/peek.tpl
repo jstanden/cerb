@@ -10,8 +10,8 @@
 </form>
 
 <script type="text/javascript">
-	var $popup = genericAjaxPopupFetch('peek');
+	$popup = genericAjaxPopupFetch('peek');
 	$popup.one('popup_open', function(event,ui) {
-		$popup.dialog('option','title',"{$schema->manifest->name|escape}");
+		$(this).dialog('option','title',"{$schema->manifest->name|escape}");
 	} );
 </script>

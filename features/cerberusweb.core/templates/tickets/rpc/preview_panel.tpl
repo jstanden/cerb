@@ -170,12 +170,12 @@
 </form>
 
 <script type="text/javascript">
-	var $popup = genericAjaxPopupFetch('peek');
+	$popup = genericAjaxPopupFetch('peek');
 	$popup.one('popup_open',function(event,ui) {
-		$popup.dialog('option','title',"{$ticket->subject|escape}");
+		$(this).dialog('option','title',"{$ticket->subject|escape}");
 		$("#peekTabs").tabs();
 		$("#ticketPeekContent").css('width','100%');
 		$("#ticketPeekTab2").show();
-		$popup.focus();
+		$(this).focus();
 	} );
 </script>
