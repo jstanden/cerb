@@ -55,22 +55,6 @@ class ChPageController extends DevblocksControllerExtension {
 		parent::__construct($manifest);
 	}
 
-	/**
-	 * Enter description here...
-	 *
-	 * @param string $uri
-	 * @return string $id
-	 */
-	public function _getPageIdByUri($uri) {
-        $pages = DevblocksPlatform::getExtensions('cerberusweb.page', false);
-        foreach($pages as $manifest) { /* @var $manifest DevblocksExtensionManifest */
-            if(0 == strcasecmp($uri,$manifest->params['uri'])) {
-                return $manifest->id;
-            }
-        }
-        return NULL;
-	}
-	
 	// [TODO] We probably need a CerberusApplication scope for getting content that has ACL applied
 	private function _getAllowedPages() {
 		$active_worker = CerberusApplication::getActiveWorker();
@@ -96,9 +80,10 @@ class ChPageController extends DevblocksControllerExtension {
 	    $path = $request->path;
 		$controller = array_shift($path);
 
-		// [TODO] _getAllowedPages() should take over, but it currently blocks hidden stubs
-        $page_id = $this->_getPageIdByUri($controller);
-		@$page = DevblocksPlatform::getExtension($page_id, true); /* @var $page CerberusPageExtension */
+		$page = null;
+        if(null != ($page_manifest = CerberusApplication::getPageManifestByUri($controller))) {
+			$page = $page_manifest->createInstance(); /* @var $page CerberusPageExtension */
+        }
 
         if(empty($page)) {
 	        switch($controller) {
@@ -160,13 +145,18 @@ class ChPageController extends DevblocksControllerExtension {
 	    // [JAS]: Require us to always be logged in for Cerberus pages
 		if(empty($visit) && 0 != strcasecmp($controller,'login')) {
 			$query = array();
-			if(!empty($response->path))
-				$query = array('url'=> urlencode(implode('/',$response->path)));
+			// Must be a valid page controller
+			if(!empty($response->path)) {
+				if(is_array($response->path) && !empty($response->path) && CerberusApplication::getPageManifestByUri(current($response->path)))
+					$query = array('url'=> urlencode(implode('/',$response->path)));
+			}
 			DevblocksPlatform::redirect(new DevblocksHttpRequest(array('login'),$query));
 		}
-
-	    $page_id = $this->_getPageIdByUri($controller);
-		@$page = DevblocksPlatform::getExtension($page_id, true); /* @var $page CerberusPageExtension */
+		
+		$page = null;
+	    if(null != ($page_manifest = CerberusApplication::getPageManifestByUri($controller))) {
+			@$page = $page_manifest->createInstance(); /* @var $page CerberusPageExtension */
+	    }
         
         if(empty($page)) {
    		    header("Status: 404");

@@ -61,8 +61,10 @@ class DefaultLoginModule extends Extension_LoginAuthenticator {
 		$translate = DevblocksPlatform::getTranslationService();
 		$tpl->assign('translate', $translate);
 		
+		// Must be a valid page controller
 		@$redir_path = explode('/',urldecode(DevblocksPlatform::importGPC($_REQUEST["url"],"string","")));
-		$tpl->assign('original_path', (count($redir_path)==0) ? 'login' : implode(',',$redir_path));
+		if(is_array($redir_path) && isset($redir_path[0]) && CerberusApplication::getPageManifestByUri($redir_path[0]))
+			$tpl->assign('original_path', implode('/',$redir_path));
 		
 		switch(array_shift($stack)) {
 			case 'too_many':

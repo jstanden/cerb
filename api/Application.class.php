@@ -108,6 +108,21 @@ class CerberusApplication extends DevblocksApplication {
 			;
 	}
 	
+	/**
+	 * 
+	 * @param string $uri
+	 * @return DevblocksExtensionManifest or NULL
+	 */
+	static function getPageManifestByUri($uri) {
+        $pages = DevblocksPlatform::getExtensions('cerberusweb.page', false);
+        foreach($pages as $manifest) { /* @var $manifest DevblocksExtensionManifest */
+            if(0 == strcasecmp($uri,$manifest->params['uri'])) {
+                return $manifest;
+            }
+        }
+        return NULL;
+	}
+	
 	static function processRequest(DevblocksHttpRequest $request, $is_ajax=false) {
 		/**
 		 * Override the 'update' URI since we can't count on the database 

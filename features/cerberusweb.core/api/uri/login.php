@@ -107,7 +107,7 @@ class ChSignInPage extends CerberusPageExtension {
 
 	// POST
 	function authenticateAction() {
-		@$original_path = explode(',',DevblocksPlatform::importGPC($_POST['original_path']));
+		@$redirect_path = explode('/',DevblocksPlatform::importGPC($_POST['original_path']));
 
 		$manifest = DevblocksPlatform::getExtension('login.default');
 		$inst = $manifest->createInstance(); /* @var $inst Extension_LoginAuthenticator */
@@ -118,12 +118,17 @@ class ChSignInPage extends CerberusPageExtension {
 		$online_workers = DAO_Worker::getAllOnline(86400, true);
 		
 		if($inst->authenticate()) {
-			//authentication passed
-			if($original_path[0]=='')
-				unset($original_path[0]);
+			if(!is_array($redirect_path) || empty($redirect_path) || empty($redirect_path[0]))
+				$redirect_path = array();
 			
-			$devblocks_response = new DevblocksHttpResponse($original_path);
-
+			// Only valid pages
+			if(is_array($redirect_path) && !empty($redirect_path)) {
+				$redirect_uri = current($redirect_path);
+				if(!CerberusApplication::getPageManifestByUri($redirect_uri))
+					$redirect_path = array();
+			}
+				
+			$devblocks_response = new DevblocksHttpResponse($redirect_path);
 			$worker = CerberusApplication::getActiveWorker();
 			
 			// Please be honest
