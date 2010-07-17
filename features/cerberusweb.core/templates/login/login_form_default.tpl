@@ -24,7 +24,7 @@
 <tr>
 	<td align="right" valign="middle">Password:</td>
 	<td nowrap="nowrap">
-		<input type="password" name="password" size="16" id="loginForm_password">
+		<input type="password" name="password" size="16" id="loginForm_password" autocomplete="off">
 		 &nbsp; 
 		<a href="{devblocks_url}c=login&a=forgot{/devblocks_url}">forgot your password?</a> 
 	</td>
