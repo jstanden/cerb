@@ -287,8 +287,11 @@ class DAO_Worker extends C4_ORMHelper {
 		
 		$sql = "DELETE QUICK worker_pref FROM worker_pref LEFT JOIN worker ON worker_pref.worker_id = worker.id WHERE worker.id IS NULL";
 		$db->Execute($sql);
-		
 		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' worker_pref records.');
+
+		$sql = "DELETE QUICK worker_view_model FROM worker_view_model LEFT JOIN worker ON worker_view_model.worker_id = worker.id WHERE worker.id IS NULL";
+		$db->Execute($sql);
+		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' worker_view_model records.');
 		
 		$sql = "DELETE QUICK worker_to_team FROM worker_to_team LEFT JOIN worker ON worker_to_team.agent_id = worker.id WHERE worker.id IS NULL";
 		$db->Execute($sql);
