@@ -1947,6 +1947,8 @@ class _DevblocksSessionManager {
 		static $instance = null;
 		if(null == $instance) {
 		    $db = DevblocksPlatform::getDatabaseService();
+		    $url_writer = DevblocksPlatform::getUrlService();
+		    
 			if(is_null($db) || !$db->isConnected()) { 
 				return null;
 			}
@@ -1967,7 +1969,7 @@ class _DevblocksSessionManager {
 			);
 			
 			session_name(APP_SESSION_NAME);
-			session_set_cookie_params(0);
+			session_set_cookie_params(0, NULL, NULL, $url_writer->isSSL(), true);
 			session_start();
 			
 			$instance = new _DevblocksSessionManager();
