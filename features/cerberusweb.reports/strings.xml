@@ -205,7 +205,7 @@
 		</tu>
 		
 		<tu tuid='reports.ui.ticket.waiting_tickets'>
-			<tuv xml:lang="en_US"><seg>Waiting Tickets By Group</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Currently Waiting Tickets By Group</seg></tuv>
 		</tu>
 		
 		<!-- Worker Reports -->
