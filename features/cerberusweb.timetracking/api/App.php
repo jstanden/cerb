@@ -1679,7 +1679,8 @@ class ChReportTimeSpentWorker extends Extension_Report {
 		$time = strtotime(sprintf("-1 %s", $date_increment), $start_time);
 		while($time < $end_time) {
 			$time = strtotime(sprintf("+1 %s", $date_increment), $time);
-			$ticks[strftime($date_group, $time)] = 0;
+			if($time <= $end_time)
+				$ticks[strftime($date_group, $time)] = 0;
 		}
 
 		// Chart
@@ -1842,7 +1843,8 @@ class ChReportTimeSpentOrg extends Extension_Report {
 		$time = strtotime(sprintf("-1 %s", $date_increment), $start_time);
 		while($time < $end_time) {
 			$time = strtotime(sprintf("+1 %s", $date_increment), $time);
-			$ticks[strftime($date_group, $time)] = 0;
+			if($time <= $end_time)
+				$ticks[strftime($date_group, $time)] = 0;
 		}
 
 		// Chart
@@ -1966,7 +1968,8 @@ class ChReportTimeSpentActivity extends Extension_Report {
 		$time = strtotime(sprintf("-1 %s", $date_increment), $start_time);
 		while($time < $end_time) {
 			$time = strtotime(sprintf("+1 %s", $date_increment), $time);
-			$ticks[strftime($date_group, $time)] = 0;
+			if($time <= $end_time)
+				$ticks[strftime($date_group, $time)] = 0;
 		}		
 		
 		// Table

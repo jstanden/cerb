@@ -298,7 +298,8 @@ class ChReportNewTickets extends Extension_Report {
 		$time = strtotime(sprintf("-1 %s", $date_increment), $start_time);
 		while($time < $end_time) {
 			$time = strtotime(sprintf("+1 %s", $date_increment), $time);
-			$ticks[strftime($date_group, $time)] = 0;
+			if($time <= $end_time)
+				$ticks[strftime($date_group, $time)] = 0;
 		}
 		
 		// Chart
@@ -489,9 +490,10 @@ class ChReportWorkerReplies extends Extension_Report {
 		$time = strtotime(sprintf("-1 %s", $date_increment), $start_time);
 		while($time < $end_time) {
 			$time = strtotime(sprintf("+1 %s", $date_increment), $time);
-			$ticks[strftime($date_group, $time)] = 0;
-		}		
-
+			if($time <= $end_time)
+				$ticks[strftime($date_group, $time)] = 0;
+		}
+		
 		// Chart
 		
 		$sql = sprintf("SELECT m.worker_id, DATE_FORMAT(FROM_UNIXTIME(m.created_date),'%s') as date_plot, count(*) AS hits ".
@@ -909,7 +911,8 @@ class ChReportGroupReplies extends Extension_Report {
 		$time = strtotime(sprintf("-1 %s", $date_increment), $start_time);
 		while($time < $end_time) {
 			$time = strtotime(sprintf("+1 %s", $date_increment), $time);
-			$ticks[strftime($date_group, $time)] = 0;
+			if($time <= $end_time)
+				$ticks[strftime($date_group, $time)] = 0;
 		}		
 		
 		// Table
@@ -1383,7 +1386,8 @@ class ChReportClosedTickets extends Extension_Report {
 		$time = strtotime(sprintf("-1 %s", $date_increment), $start_time);
 		while($time < $end_time) {
 			$time = strtotime(sprintf("+1 %s", $date_increment), $time);
-			$ticks[strftime($date_group, $time)] = 0;
+			if($time <= $end_time)
+				$ticks[strftime($date_group, $time)] = 0;
 		}
 		
 		$sql = sprintf("SELECT team.id as group_id, DATE_FORMAT(FROM_UNIXTIME(t.updated_date),'%s') as date_plot, ".
@@ -1585,7 +1589,8 @@ class ChReportTopTicketsByContact extends Extension_Report {
 		$time = strtotime(sprintf("-1 %s", $date_increment), $start_time);
 		while($time < $end_time) {
 			$time = strtotime(sprintf("+1 %s", $date_increment), $time);
-			$ticks[strftime($date_group, $time)] = 0;
+			if($time <= $end_time)
+				$ticks[strftime($date_group, $time)] = 0;
 		}		
 		
 		// Table
@@ -1848,7 +1853,8 @@ class ChReportWorkerHistory extends Extension_Report {
 		$time = strtotime(sprintf("-1 %s", $date_increment), $start_time);
 		while($time < $end_time) {
 			$time = strtotime(sprintf("+1 %s", $date_increment), $time);
-			$ticks[strftime($date_group, $time)] = 0;
+			if($time <= $end_time)
+				$ticks[strftime($date_group, $time)] = 0;
 		}		
 		
 		@$worker_id = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'integer',0);
@@ -1896,7 +1902,8 @@ class ChReportWorkerHistory extends Extension_Report {
 		$time = strtotime(sprintf("-1 %s", $date_increment), $start_time);
 		while($time < $end_time) {
 			$time = strtotime(sprintf("+1 %s", $date_increment), $time);
-			$ticks[strftime($date_group, $time)] = 0;
+			if($time <= $end_time)
+				$ticks[strftime($date_group, $time)] = 0;
 		}		
 		
 		// Table
