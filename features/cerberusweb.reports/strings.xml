@@ -227,7 +227,7 @@
 			<tuv xml:lang="en_US"><seg>Worker Responses</seg></tuv>
 		</tu>
 		<tu tuid='reports.ui.worker.ticket_assignment'>
-			<tuv xml:lang="en_US"><seg>Ticket Assignments</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Current Ticket Assignments</seg></tuv>
 		</tu>
 		<tu tuid='reports.ui.worker.worker_history'>
 			<tuv xml:lang="en_US"><seg>Worker History over Date Range</seg></tuv>

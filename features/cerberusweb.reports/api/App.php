@@ -1478,14 +1478,15 @@ class ChReportTicketAssignment extends Extension_Report {
 		// Chart
 		
 		$sql = sprintf("SELECT w.id worker_id ,count(*) as hits ".
-				"FROM ticket t inner join worker w on t.next_worker_id = w.id ".
-				"WHERE t.is_deleted = 0 ". 
-				"AND t.is_closed = 0 ".
-				"AND t.spam_score < 0.9000 ".
-				"AND t.spam_training != 'S' ". 
-				"AND is_waiting != 1 ".	
-				"GROUP by w.id ".
-				"ORDER by w.last_name");
+			"FROM ticket t inner join worker w on t.next_worker_id = w.id ".
+			"WHERE t.is_deleted = 0 ". 
+			"AND t.is_closed = 0 ".
+			"AND t.spam_score < 0.9000 ".
+			"AND t.spam_training != 'S' ". 
+			"AND is_waiting != 1 ".	
+			"GROUP by w.id ".
+			"ORDER by w.last_name DESC"
+		);
 		$rs = $db->Execute($sql);
 
 		$iter = 0;
