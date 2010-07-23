@@ -269,26 +269,63 @@ class ChReportNewTickets extends Extension_Report {
 		$group_buckets = DAO_Bucket::getTeams();
 		$tpl->assign('group_buckets', $group_buckets);
 
+		// Calculate the # of ticks between the dates (and the scale -- day, month, etc)
+		$range = $end_time - $start_time;
+		$range_days = $range/86400;
+		$plots = $range/15;
+		
+		$ticks = array();
+		
+		if($range_days > 365) {
+			$date_group = '%Y';
+			$date_increment = 'year';
+		} elseif($range_days > 32) {
+			$date_group = '%Y-%m';
+			$date_increment = 'month';
+		} elseif($range_days > 1) {
+			$date_group = '%Y-%m-%d';
+			$date_increment = 'day';
+		} else {
+			$date_group = '%Y-%m-%d %H';
+			$date_increment = 'hour';
+		}
+		
+		// Find unique values
+		$time = strtotime(sprintf("-1 %s", $date_increment), $start_time);
+		while($time < $end_time) {
+			$time = strtotime(sprintf("+1 %s", $date_increment), $time);
+			$ticks[strftime($date_group, $time)] = 0;
+		}
+		
 		// Chart
-		$sql = sprintf("SELECT team.id as group_id, ".
-				"count(*) as hits ".
-				"FROM ticket t inner join team on t.team_id = team.id ".
-				"WHERE t.created_date > %d ".
-				"AND t.created_date <= %d ".
-				"AND t.is_deleted = 0 ".
-				"AND t.spam_score < 0.9000 ".
-				"AND t.spam_training != 'S' ".
-				"GROUP BY group_id ORDER by team.name desc ",
-				$start_time,
-				$end_time
-				);
+		$sql = sprintf("SELECT team.id as group_id, DATE_FORMAT(FROM_UNIXTIME(t.created_date),'%s') as date_plot, ".
+			"count(*) as hits ".
+			"FROM ticket t inner join team on t.team_id = team.id ".
+			"WHERE t.created_date >= %d ".
+			"AND t.created_date <= %d ".
+			"AND t.is_deleted = 0 ".
+			"AND t.spam_score < 0.9000 ".
+			"AND t.spam_training != 'S' ".
+			"GROUP BY group_id, date_plot ".
+			"ORDER BY hits DESC",
+			$date_group,
+			$start_time,
+			$end_time
+		);
 		$rs = $db->Execute($sql);
 		
 		$data = array();
-		$iter = 0;
 		while($row = mysql_fetch_assoc($rs)) {
-			$data[$iter++] = array('group_id'=>$row['group_id'],'hits'=>$row['hits']);
+			$group_id = intval($row['group_id']);
+			$date_plot = $row['date_plot'];
+			
+			if(!isset($data[$group_id]))
+				$data[$group_id] = $ticks;
+			
+			$data[$group_id][$date_plot] = intval($row['hits']);
 		}
+		
+		$tpl->assign('xaxis_ticks', array_keys($ticks));
 		$tpl->assign('data', $data);
 		
 		mysql_free_result($rs);
