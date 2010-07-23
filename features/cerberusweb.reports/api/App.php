@@ -146,6 +146,10 @@ class ChReportCustomFieldUsage extends Extension_Report {
 			foreach($value_counts as $value=>$hits) {
 				$data[$iter++] = array('value'=>$value,'hits'=>$hits);
 			}
+			
+			// Charts load backwards
+			$data = array_reverse($data, true);
+			
 			$tpl->assign('data', $data);
 		}
 		
@@ -166,7 +170,7 @@ class ChReportCustomFieldUsage extends Extension_Report {
 			"FROM %s ".
 			"WHERE source_extension = %s ".
 			"AND field_id = %d ".
-			"GROUP BY field_value",
+			"GROUP BY field_value ",
 			$table,
 			$db->qstr($field->source_extension),
 			$field->id
