@@ -1720,6 +1720,13 @@ class ChReportWorkerHistory extends Extension_Report {
 		$start_time = 0;
 		$end_time = 0;
 
+		// Find unique values
+		$time = strtotime(sprintf("-1 %s", $date_increment), $start_time);
+		while($time < $end_time) {
+			$time = strtotime(sprintf("+1 %s", $date_increment), $time);
+			$ticks[strftime($date_group, $time)] = 0;
+		}		
+		
 		@$worker_id = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'integer',0);
 		if(!$worker_id) {
 			$worker = CerberusApplication::getActiveWorker();
@@ -1740,24 +1747,52 @@ class ChReportWorkerHistory extends Extension_Report {
 		$tpl->assign('start', $start);
 		$tpl->assign('end', $end);
 
+		// Calculate the # of ticks between the dates (and the scale -- day, month, etc)
+		$range = $end_time - $start_time;
+		$range_days = $range/86400;
+		$plots = $range/15;
+		
+		$ticks = array();
+		
+		if($range_days > 365) {
+			$date_group = '%Y';
+			$date_increment = 'year';
+		} elseif($range_days > 32) {
+			$date_group = '%Y-%m';
+			$date_increment = 'month';
+		} elseif($range_days > 1) {
+			$date_group = '%Y-%m-%d';
+			$date_increment = 'day';
+		} else {
+			$date_group = '%Y-%m-%d %H';
+			$date_increment = 'hour';
+		}
+		
+		// Find unique values
+		$time = strtotime(sprintf("-1 %s", $date_increment), $start_time);
+		while($time < $end_time) {
+			$time = strtotime(sprintf("+1 %s", $date_increment), $time);
+			$ticks[strftime($date_group, $time)] = 0;
+		}		
+		
 		// Table
 		
 		$sql = sprintf("SELECT t.id, t.mask, t.subject, a.email as email, " . 
-				"date_format(from_unixtime(m.created_date),'%%Y-%%m-%%d') as day ".
-				"FROM ticket t ".
-				"INNER JOIN message m ON t.id = m.ticket_id ".
-				"INNER JOIN worker w ON m.worker_id = w.id ".
-				"INNER JOIN address a on t.first_wrote_address_id = a.id ".
-				"WHERE m.created_date > %d AND m.created_date <= %d ".
-				"AND m.is_outgoing = 1 ".
-				"AND t.is_deleted = 0 ".
-				"AND w.id = %d ".
-				"GROUP BY day, t.id ".
-				"order by m.created_date",
-				$start_time,
-				$end_time,
-				$worker_id);
-				
+			"date_format(from_unixtime(m.created_date),'%%Y-%%m-%%d') as day ".
+			"FROM ticket t ".
+			"INNER JOIN message m ON t.id = m.ticket_id ".
+			"INNER JOIN worker w ON m.worker_id = w.id ".
+			"INNER JOIN address a on t.first_wrote_address_id = a.id ".
+			"WHERE m.created_date > %d AND m.created_date <= %d ".
+			"AND m.is_outgoing = 1 ".
+			"AND t.is_deleted = 0 ".
+			"AND w.id = %d ".
+			"GROUP BY day, t.id ".
+			"order by m.created_date",
+			$start_time,
+			$end_time,
+			$worker_id
+		);
 		$rs = $db->Execute($sql);
 
 		$tickets_replied = array();
@@ -1780,36 +1815,36 @@ class ChReportWorkerHistory extends Extension_Report {
 		
 		// Chart
 		
-		$sql = sprintf("SELECT count(*) AS hits, m.worker_id ".
+		$sql = sprintf("SELECT m.worker_id, DATE_FORMAT(FROM_UNIXTIME(m.created_date),'%s') AS date_plot, ".
+			"count(*) AS hits ".
 			"FROM message m ".
 			"INNER JOIN ticket t ON (t.id=m.ticket_id) ".
 			"INNER JOIN worker w ON w.id=m.worker_id ".
 			"WHERE m.created_date > %d AND m.created_date <= %d ".
 			"AND m.is_outgoing = 1 ".
 			"AND t.is_deleted = 0 ".
-			"GROUP BY m.worker_id ORDER BY w.last_name DESC ",
+			"GROUP BY m.worker_id, date_plot ",
+			$date_group,
 			$start_time,
 			$end_time
 		);
-
 		$rs = $db->Execute($sql);
 		
-		$worker_counts = array();
 		$data = array();
-		$iter = 0;
-		
 		while($row = mysql_fetch_assoc($rs)) {
-			$hits = intval($row['hits']);
 			$worker_id = intval($row['worker_id']);
+			$date_plot = $row['date_plot'];
 			
-			if(!isset($workers[$worker_id]))
-				continue;
-
-			$data[$iter++] = array('value'=>$workers[$worker_id]->getName(),'hits'=>$hits);
+			if(!isset($data[$worker_id]))
+				$data[$worker_id] = $ticks;
+			
+			$data[$worker_id][$date_plot] = intval($row['hits']);
 		}
+		
+		$tpl->assign('xaxis_ticks', array_keys($ticks));
 		$tpl->assign('data', $data);
 		
-		mysql_free_result($rs);
+		mysql_free_result($rs);		
 		
 		// Template
 		
