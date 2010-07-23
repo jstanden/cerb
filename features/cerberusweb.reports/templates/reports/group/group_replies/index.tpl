@@ -26,57 +26,118 @@
 	{/foreach}
 	<br>
 {/if}
-<br>
 
 <!-- Chart -->
 
 {if !empty($data)}
-<div id="placeholder" style="margin:1em;width:650px;height:{20+(32*count($data))}px;"></div>
+
+<!--[if IE]><script language="javascript" type="text/javascript" src="{devblocks_url}c=resource&plugin=cerberusweb.reports&f=js/jqplot/excanvas.min.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script><![endif]-->
+<script language="javascript" type="text/javascript" src="{devblocks_url}c=resource&plugin=cerberusweb.reports&f=js/jqplot/jquery.jqplot.min.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>
+<script language="javascript" type="text/javascript" src="{devblocks_url}c=resource&plugin=cerberusweb.reports&f=js/jqplot/plugins/jqplot.barRenderer.min.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>
+<script language="javascript" type="text/javascript" src="{devblocks_url}c=resource&plugin=cerberusweb.reports&f=js/jqplot/plugins/jqplot.canvasTextRenderer.min.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>
+<script language="javascript" type="text/javascript" src="{devblocks_url}c=resource&plugin=cerberusweb.reports&f=js/jqplot/plugins/jqplot.canvasAxisTickRenderer.min.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>
+<script language="javascript" type="text/javascript" src="{devblocks_url}c=resource&plugin=cerberusweb.reports&f=js/jqplot/plugins/jqplot.canvasAxisLabelRenderer.min.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>
+<script language="javascript" type="text/javascript" src="{devblocks_url}c=resource&plugin=cerberusweb.reports&f=js/jqplot/plugins/jqplot.categoryAxisRenderer.min.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>
+<link rel="stylesheet" type="text/css" href="{devblocks_url}c=resource&plugin=cerberusweb.reports&f=css/jqplot/jquery.jqplot.min.css{/devblocks_url}?v={$smarty.const.APP_BUILD}" />
+
+<div id="reportChart" style="width:98%;height:350px;"></div>
 
 <script type="text/javascript">
-	$(function() {
-		var d = [
-			{foreach from=$data item=row key=iter name=iters}
-			[{$row.hits}, {$iter}]{if !$smarty.foreach.iters.last},{/if}
-			{/foreach}
-		];
-		
-		var options = {
-			lines: { show: false, fill: false },
-			bars: { show: true, fill: true, horizontal: true, align: "center", barWidth: 1 },
-			points: { show: false, fill: false },
-			grid: {
-				borderWidth: 0,
-				horizontalLines: false,
-				hoverable: false
-			},
-			xaxis: {
-				min: 0,
-				minTickSize: 1,
-				tickFormatter: function(val, axis) {
-					return Math.floor(val).toString();
-				}
-			},
-			yaxis: {
-				ticks: [
-					{foreach from=$data item=row key=iter name=iters}
-					[{$iter},"<b>{$row.value|escape}</b>"]{if !$smarty.foreach.iters.last},{/if}
-					{/foreach}
-				]
-			}
-		} ;
-		
-		$.plot($("#placeholder"), [d], options);
-	} );
+{foreach from=$data item=plots key=group_id}
+line{$group_id} = [{foreach from=$plots key=plot item=freq name=plots}
+{$freq}{if !$smarty.foreach.plots.last},{/if}
+{/foreach}
+];
+{/foreach}
+
+chartData = [
+{foreach from=$data item=null key=group_id name=groups}line{$group_id}{if !$smarty.foreach.groups.last},{/if}{/foreach}
+];
+
+chartOptions = {
+    stackSeries: true,
+	legend:{ 
+		show:true,
+		location:'nw'
+	},
+	title:{
+		show: false 
+	},
+	grid:{
+		shadow: false,
+		background:'rgb(255,255,255)',
+		borderWidth:0
+	},
+	seriesColors: [
+		'rgba(115,168,0,0.8)', 
+		'rgba(249,190,49,0.8)', 
+		'rgba(50,153,187,0.8)', 
+		'rgba(191,52,23,0.8)', 
+		'rgba(122,103,165,0.8)', 
+		'rgba(0,76,102,0.8)', 
+		'rgba(196,197,209,0.8)', 
+		'rgba(190,232,110,0.8)',
+		'rgba(182,0,34,0.8)', 
+		'rgba(61,28,33,0.8)' 
+	],	
+    seriesDefaults:{
+        rendererOptions:{ 
+			highlightMouseOver: false
+		},
+		shadow: false,
+		fill:true,
+		fillAndStroke:true,
+		//fillAlpha:0.7,
+		showLine:true,
+		showMarker:false,
+		markerOptions: {
+			style:'filledCircle',
+			shadow:false
+		}
+	},
+    series:[
+		{foreach from=$data key=group_id item=group name=groups}{ label:'{$groups.$group_id->name|escape}' }{if !$smarty.foreach.groups.last},{/if}{/foreach}
+    ],
+    axes:{
+        xaxis:{
+		  renderer:$.jqplot.CategoryAxisRenderer,
+	      tickRenderer: $.jqplot.CanvasAxisTickRenderer,
+	      tickOptions: {
+	        {if count($xaxis_ticks) > 13}
+			angle: 90,
+			{/if}
+	        fontSize: '8pt'
+	      },
+		  ticks:['{implode("','",$xaxis_ticks)}']
+		}, 
+        yaxis:{
+		  labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
+		  label:'(# replies)',
+		  min:0,
+		  autoscale:true,
+		  tickRenderer: $.jqplot.CanvasAxisTickRenderer,
+		  tickOptions:{
+		  	formatString:'%d',
+			fontSize: '8pt'
+		  }
+		}
+    }
+};
+
+plot1 = $.jqplot('reportChart', chartData, chartOptions);	
 </script>
+
+{include file="devblocks:cerberusweb.reports::reports/_shared/chart_selector.tpl"}
 {/if}
+
+<br>
 
 <!-- Table -->
 
-{if $invalidDate}<font color="red"><b>{$translate->_('reports.invalid_date')}</b></font>{/if}
-<br>
-
-{if !empty($group_counts)}
+{if $invalidDate}
+	<font color="red"><b>{$translate->_('reports.invalid_date')}</b></font>
+	<br>
+{elseif !empty($group_counts)}
 	<table cellspacing="0" cellpadding="2" border="0">
 	{foreach from=$groups item=group key=group_id}
 		{assign var=counts value=$group_counts.$group_id}
@@ -112,4 +173,6 @@
 		{/if}
 	{/foreach}
 	</table>
+{else}
+<div><b>No data.</b></div>
 {/if}

@@ -90,7 +90,7 @@
 			<tuv xml:lang="en_US"><seg>Group Reports</seg></tuv>
 		</tu>
 		<tu tuid='reports.ui.group.replies'>
-			<tuv xml:lang="en_US"><seg>Group Replies by Date</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Group Replies over Date Range</seg></tuv>
 		</tu>
 		<tu tuid='reports.ui.group.roster'>
 			<tuv xml:lang="en_US"><seg>Group Rosters</seg></tuv>
