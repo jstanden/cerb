@@ -233,7 +233,7 @@
 			<tuv xml:lang="en_US"><seg>Worker History over Date Range</seg></tuv>
 		</tu>
 		<tu tuid='reports.ui.worker.worker_replies'>
-			<tuv xml:lang="en_US"><seg>Worker Replies by Date</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Worker Replies over Date Range</seg></tuv>
 		</tu>
 		<tu tuid='reports.ui.worker.worker_replies.average'>
 			<tuv xml:lang="en_US"><seg>(avg: %s/day)</seg></tuv>

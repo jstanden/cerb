@@ -460,37 +460,66 @@ class ChReportWorkerReplies extends Extension_Report {
 		
 		mysql_free_result($rs);
 		
+		// Calculate the # of ticks between the dates (and the scale -- day, month, etc)
+		$range = $end_time - $start_time;
+		$range_days = $range/86400;
+		$plots = $range/15;
+		
+		$ticks = array();
+		
+		if($range_days > 365) {
+			$date_group = '%Y';
+			$date_increment = 'year';
+		} elseif($range_days > 32) {
+			$date_group = '%Y-%m';
+			$date_increment = 'month';
+		} elseif($range_days > 1) {
+			$date_group = '%Y-%m-%d';
+			$date_increment = 'day';
+		} else {
+			$date_group = '%Y-%m-%d %H';
+			$date_increment = 'hour';
+		}
+		
+		// Find unique values
+		$time = strtotime(sprintf("-1 %s", $date_increment), $start_time);
+		while($time < $end_time) {
+			$time = strtotime(sprintf("+1 %s", $date_increment), $time);
+			$ticks[strftime($date_group, $time)] = 0;
+		}		
+
 		// Chart
 		
-		$sql = sprintf("SELECT count(*) AS hits, m.worker_id ".
+		$sql = sprintf("SELECT m.worker_id, DATE_FORMAT(FROM_UNIXTIME(m.created_date),'%s') as date_plot, count(*) AS hits ".
 			"FROM message m ".
 			"INNER JOIN ticket t ON (t.id=m.ticket_id) ".
-			"INNER JOIN worker w ON w.id=m.worker_id ".
+			"INNER JOIN worker w ON (w.id=m.worker_id) ".
 			"WHERE m.created_date > %d AND m.created_date <= %d ".
 			"AND m.is_outgoing = 1 ".
 			"AND t.is_deleted = 0 ".
-			"GROUP BY m.worker_id ORDER BY w.last_name DESC ",
+			"GROUP BY m.worker_id, date_plot ".
+			"ORDER BY w.last_name DESC ",
+			$date_group,
 			$start_time,
 			$end_time
 		);
-
 		$rs = $db->Execute($sql);
 		
-		$worker_counts = array();
-		
-		$iter = 0;
 		$data = array();
-		
 		while($row = mysql_fetch_assoc($rs)) {
-			$hits = intval($row['hits']);
 			$worker_id = intval($row['worker_id']);
+			$date_plot = $row['date_plot'];
 			
-			if(isset($workers[$worker_id]))
-				$data[$iter++] = array('value'=>$workers[$worker_id]->getName(),'hits'=>$hits);
+			if(!isset($data[$worker_id]))
+				$data[$worker_id] = $ticks;
+			
+			$data[$worker_id][$date_plot] = intval($row['hits']);
 		}
+		
+		$tpl->assign('xaxis_ticks', array_keys($ticks));
 		$tpl->assign('data', $data);
-
-		mysql_free_result($rs);
+		
+		mysql_free_result($rs);		
 		
 		// Template
 		
