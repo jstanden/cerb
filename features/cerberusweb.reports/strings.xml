@@ -34,6 +34,10 @@
 		
 		<!-- Reports Common -->
 		
+		<tu tuid='reports.common.run_report'>
+			<tuv xml:lang="en_US"><seg>Run report</seg></tuv>
+		</tu>
+		
 		<tu tuid='reports.ui.average_per_day'>
 			<tuv xml:lang="en_US"><seg>(avg: %s/day)</seg></tuv>
 		</tu>

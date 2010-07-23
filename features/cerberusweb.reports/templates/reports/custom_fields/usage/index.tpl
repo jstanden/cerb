@@ -17,7 +17,7 @@
 	{/foreach}
 </select>
 
-<button type="submit" id="btnSubmit">{$translate->_('common.refresh')|capitalize}</button>
+<button type="submit" id="btnSubmit">{$translate->_('reports.common.run_report')|capitalize}</button>
 <div id="divCal" style="display:none;position:absolute;z-index:1;"></div>
 </form>
 
