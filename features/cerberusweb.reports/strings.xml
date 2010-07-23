@@ -187,7 +187,7 @@
 		</tu>
 
 		<tu tuid='reports.ui.ticket.oldest_open'>
-			<tuv xml:lang="en_US"><seg>Oldest Open Tickets By Group</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Oldest Open Tickets by Group</seg></tuv>
 		</tu>
 
 		<tu tuid='reports.ui.ticket.open_tickets'>
@@ -215,7 +215,7 @@
 		</tu>
 	
 		<tu tuid='reports.ui.worker.response_time'>
-			<tuv xml:lang="en_US"><seg>Average Response Time</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Average Response Time over Date Range</seg></tuv>
 		</tu>
 		<tu tuid='reports.ui.worker.response_time.date_range'>
 			<tuv xml:lang="en_US"><seg>Date Range:</seg></tuv>
