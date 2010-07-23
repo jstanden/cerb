@@ -191,7 +191,7 @@
 		</tu>
 
 		<tu tuid='reports.ui.ticket.open_tickets'>
-			<tuv xml:lang="en_US"><seg>Open Tickets By Group</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Currently Open Tickets by Group</seg></tuv>
 		</tu>
 
 		<tu tuid='reports.ui.ticket.top_contacts'>

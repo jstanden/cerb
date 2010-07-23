@@ -962,29 +962,7 @@ class ChReportOpenTickets extends Extension_Report {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('path', $this->tpl_path);
 
-		@$start = DevblocksPlatform::importGPC($_REQUEST['start'],'string','-30 days');
-		@$end = DevblocksPlatform::importGPC($_REQUEST['end'],'string','now');
-		
 		$db = DevblocksPlatform::getDatabaseService();
-		
-		// Start + End
-		@$start_time = strtotime($start);
-		@$end_time = strtotime($end);
-		$tpl->assign('start', $start);
-		$tpl->assign('end', $end);
-		$tpl->assign('age_dur', abs(floor(($start_time - $end_time)/86400)));
-		
-		// Year shortcuts
-		$years = array();
-		$sql = "SELECT date_format(from_unixtime(created_date),'%Y') as year FROM ticket WHERE created_date > 0 GROUP BY year having year <= date_format(now(),'%Y') ORDER BY year desc limit 0,10";
-		$rs = $db->Execute($sql);
-		
-		while($row = mysql_fetch_assoc($rs)) {
-			$years[] = intval($row['year']);
-		}
-		$tpl->assign('years', $years);
-		
-		mysql_free_result($rs);
 		
 		// DAO
 		$groups = DAO_Group::getAll();
@@ -996,22 +974,23 @@ class ChReportOpenTickets extends Extension_Report {
 		$sql = sprintf("SELECT team.id as group_id, ".
 			"count(*) as hits ".
 			"FROM ticket t inner join team on t.team_id = team.id ".
-			"WHERE t.created_date > %d AND t.created_date <= %d ".
+			"WHERE 1 ".
 			"AND t.is_deleted = 0 ".
 			"AND t.is_closed = 0 ".
 			"AND t.spam_score < 0.9000 ".
 			"AND t.spam_training != 'S' ".
 			"AND is_waiting != 1 " .				
-			"GROUP BY group_id ORDER by team.name desc ",
-			$start_time,
-			$end_time
+			"GROUP BY group_id ORDER by team.name desc "
 			);
 		$rs = $db->Execute($sql);
 		
 		$data = array();
 		$iter = 0;
 		while($row = mysql_fetch_assoc($rs)) {
-			$data[$iter++] = array('group_id'=>$row['group_id'],'hits'=>$row['hits']);
+			if(!isset($groups[$row['group_id']]))
+				continue;
+			
+			$data[$iter++] = array('value'=>$groups[$row['group_id']]->name,'hits'=>$row['hits']);
 		}
 		$tpl->assign('data', $data);
 		
@@ -1021,15 +1000,14 @@ class ChReportOpenTickets extends Extension_Report {
 		
 		$sql = sprintf("SELECT count(*) AS hits, team_id, category_id ".
 			"FROM ticket ".
-			"WHERE created_date > %d AND created_date <= %d ".			
+			"WHERE 1 ".			
 			"AND is_deleted = 0 ".
 			"AND is_closed = 0 ".
 			"AND spam_score < 0.9000 ".
 			"AND spam_training != 'S' ".
 			"AND is_waiting != 1 " .
-			"GROUP BY team_id, category_id ",
-			$start_time,
-			$end_time);
+			"GROUP BY team_id, category_id "
+			);
 		$rs = $db->Execute($sql);
 	
 		$group_counts = array();

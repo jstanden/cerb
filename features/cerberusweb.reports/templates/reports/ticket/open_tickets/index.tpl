@@ -5,66 +5,95 @@
 
 <h2>{$translate->_('reports.ui.ticket.open_tickets')}</h2>
 
-<form action="{devblocks_url}c=reports&report=report.tickets.open_tickets{/devblocks_url}" method="POST" id="frmRange" name="frmRange">
-<input type="hidden" name="c" value="reports">
-{$translate->_('reports.ui.date_from')} <input type="text" name="start" id="start" size="24" value="{$start}"><button type="button" onclick="devblocksAjaxDateChooser('#start','#divCal');">&nbsp;<span class="cerb-sprite sprite-calendar"></span>&nbsp;</button>
-{$translate->_('reports.ui.date_to')} <input type="text" name="end" id="end" size="24" value="{$end}"><button type="button" onclick="devblocksAjaxDateChooser('#end','#divCal');">&nbsp;<span class="cerb-sprite sprite-calendar"></span>&nbsp;</button>
-<button type="submit" id="btnSubmit" onclick="genericAjaxPost('frmRange', 'report');drawChart(document.getElementById('start').value, document.getElementById('end').value);">{$translate->_('common.refresh')|capitalize}</button>
-<div id="divCal"></div>
-{$translate->_('reports.ui.date_past')} <a href="javascript:;" onclick="document.getElementById('start').value='-1 year';document.getElementById('end').value='now';$('#btnSubmit').click();">{$translate->_('reports.ui.filters.1_year')|lower}</a>
-| <a href="javascript:;" onclick="document.getElementById('start').value='-6 months';document.getElementById('end').value='now';$('#btnSubmit').click();">{'reports.ui.filters.n_months'|devblocks_translate:6}</a>
-| <a href="javascript:;" onclick="document.getElementById('start').value='-3 months';document.getElementById('end').value='now';$('#btnSubmit').click();">{'reports.ui.filters.n_months'|devblocks_translate:3}</a>
-| <a href="javascript:;" onclick="document.getElementById('start').value='-1 month';document.getElementById('end').value='now';$('#btnSubmit').click();">{$translate->_('reports.ui.filters.1_month')|lower}</a>
-| <a href="javascript:;" onclick="document.getElementById('start').value='-1 week';document.getElementById('end').value='now';$('#btnSubmit').click();">{$translate->_('reports.ui.filters.1_week')|lower}</a>
-| <a href="javascript:;" onclick="document.getElementById('start').value='-1 day';document.getElementById('end').value='now';$('#btnSubmit').click();">{$translate->_('reports.ui.filters.1_day')|lower}</a>
-| <a href="javascript:;" onclick="document.getElementById('start').value='today';document.getElementById('end').value='now';$('#btnSubmit').click();">{$translate->_('common.today')|lower}</a>
-<br>{$active_worker->name}
-{if !empty($years)}
-	{foreach from=$years item=year name=years}
-		{if !$smarty.foreach.years.first} | {/if}<a href="javascript:;" onclick="document.getElementById('start').value='Jan 1 {$year}';document.getElementById('end').value='Dec 31 {$year}';$('#btnSubmit').click();">{$year}</a>
-	{/foreach}
-	<br>
-{/if}
-
 <!-- Chart -->
 
-<div id="placeholder" style="margin:1em;width:650px;height:{20+(32*count($data))}px;"></div>
+<!--[if IE]><script language="javascript" type="text/javascript" src="{devblocks_url}c=resource&plugin=cerberusweb.reports&f=js/jqplot/excanvas.min.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script><![endif]-->
+<script language="javascript" type="text/javascript" src="{devblocks_url}c=resource&plugin=cerberusweb.reports&f=js/jqplot/jquery.jqplot.min.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>
+<script language="javascript" type="text/javascript" src="{devblocks_url}c=resource&plugin=cerberusweb.reports&f=js/jqplot/plugins/jqplot.barRenderer.min.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>
+<script language="javascript" type="text/javascript" src="{devblocks_url}c=resource&plugin=cerberusweb.reports&f=js/jqplot/plugins/jqplot.categoryAxisRenderer.min.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>
+<script language="javascript" type="text/javascript" src="{devblocks_url}c=resource&plugin=cerberusweb.reports&f=js/jqplot/plugins/jqplot.pointLabels.min.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>
+<link rel="stylesheet" type="text/css" href="{devblocks_url}c=resource&plugin=cerberusweb.reports&f=css/jqplot/jquery.jqplot.min.css{/devblocks_url}?v={$smarty.const.APP_BUILD}" />
+
+<div id="reportChart" style="width:98%;height:{25+(32*{count($data)})}px;"></div>
+
+<style type="text/css">
+	.jqplot-yaxis-tick {
+		white-space:nowrap;	
+	}
+</style>
 
 <script type="text/javascript">
-	$(function() {
-		var d = [
-			{foreach from=$data item=row key=iter name=iters}
-			[{$row.hits}, {$iter}]{if !$smarty.foreach.iters.last},{/if}
-			{/foreach}
-		];
-		
-		var options = {
-			lines: { show: false, fill: false },
-			bars: { show: true, fill: true, horizontal: true, align: "center", barWidth: 1 },
-			points: { show: false, fill: false },
-			grid: {
-				borderWidth: 0,
-				horizontalLines: false,
-				hoverable: false
+series1 = [
+{foreach from=$data item=plot key=null name=plots}
+[{$plot.hits},'{$plot.value|escape}']{if !$smarty.foreach.plots.last},{/if}
+{/foreach}
+];
+
+plot1 = $.jqplot('reportChart', [series1], {
+    stackSeries: false,
+	legend:{ 
+		show:false,
+		location:'nw'
+	},
+	title:{
+		show: false,
+		text: ''
+	},
+	grid:{
+		shadow: false,
+		background:'rgb(255,255,255)',
+		borderWidth:0
+	},
+	seriesColors: [
+		'rgba(115,168,0,0.8)', 
+		'rgba(249,190,49,0.8)', 
+		'rgba(50,153,187,0.8)', 
+		'rgba(191,52,23,0.8)', 
+		'rgba(122,103,165,0.8)', 
+		'rgba(0,76,102,0.8)', 
+		'rgba(196,197,209,0.8)', 
+		'rgba(190,232,110,0.8)',
+		'rgba(182,0,34,0.8)', 
+		'rgba(61,28,33,0.8)' 
+	],	
+    seriesDefaults:{
+			renderer:$.jqplot.BarRenderer,
+	        rendererOptions:{ 
+				barDirection: 'horizontal',
+				barMargin:3,
+				varyBarColor:true,
+				highlightMouseOver: false
 			},
-			xaxis: {
-				min: 0,
-				minTickSize: 1,
-				tickFormatter: function(val, axis) {
-					return Math.floor(val).toString();
-				}
-			},
-			yaxis: {
-				ticks: [
-					{foreach from=$data item=row key=iter name=iters}
-					[{$iter},"<b>{$groups.{$row.group_id}->name|escape}</b>"]{if !$smarty.foreach.iters.last},{/if}
-					{/foreach}
-				]
-			}
-		} ;
-		
-		$.plot($("#placeholder"), [d], options);
-	} );
+			shadow: false
+	},
+	series:[{
+		pointLabels:{
+			show:true,
+			location:'e',
+			labelsFromSeries:true,
+			seriesLabelIndex:0
+		}
+	}],
+    axes:{
+        yaxis:{
+		  renderer:$.jqplot.CategoryAxisRenderer,
+	      tickOptions:{ 
+	        fontSize:'11px',
+			mark:null,
+		  	showGridline:false
+	      },
+		}, 
+        xaxis:{
+		  min:0,
+		  padMax:1.2,
+		  tickOptions:{
+		  	show:false, 
+			showLabel:false,
+		  	formatString:'%d'
+		  }
+		}
+    },
+});	
 </script>
 
 <!-- Table -->
@@ -75,14 +104,13 @@
 		{assign var=counts value=$group_counts.$group_id}
 		{if !empty($counts.total)}
 			<tr>
-				<td colspan="3" style="border-bottom:1px solid rgb(200,200,200);padding-right:20px;"><h2>{$groups.$group_id->name}</h2></td>
+				<td colspan="2" style="border-bottom:1px solid rgb(200,200,200);padding-right:20px;"><h2>{$groups.$group_id->name}</h2></td>
 			</tr>
 			
 			{if !empty($counts.0)}
 			<tr>
 				<td style="padding-left:10px;padding-right:20px;">Inbox</td>
 				<td align="right">{$counts.0}</td>
-				<td></td>
 			</tr>
 			{/if}
 			
@@ -91,7 +119,6 @@
 				<tr>
 					<td style="padding-left:10px;padding-right:20px;">{$b->name}</td>
 					<td align="right">{$counts.$bucket_id}</td>
-					<td></td>
 				</tr>
 				{/if}
 			{/foreach}
@@ -99,8 +126,6 @@
 			<tr>
 				<td></td>						
 				<td align="right" style="border-top:1px solid rgb(200,200,200);"><b>{$counts.total}</b></td>
-				{math assign="avg_new" equation="x/y" x=$counts.total y=$age_dur format="%0.2f"}
-				<td style="padding-left:10px;"><b>{'reports.ui.average_per_day'|devblocks_translate:$avg_new}</b></td>
 			</tr>
 		{/if}
 	{/foreach}
