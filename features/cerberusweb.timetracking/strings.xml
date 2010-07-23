@@ -220,7 +220,7 @@
 			<tuv xml:lang="en_US"><seg>Past:</seg></tuv>
 		</tu>
 		<tu tuid='timetracking.ui.reports.time_spent_activity'>
-			<tuv xml:lang="en_US"><seg>Time Spent Per Activity</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Time Spent by Activity over Date Range</seg></tuv>
 		</tu>
 		<tu tuid='timetracking.ui.reports.time_spent_activity.no_activity'>
 			<tuv xml:lang="en_US"><seg>(no activity)</seg></tuv>
