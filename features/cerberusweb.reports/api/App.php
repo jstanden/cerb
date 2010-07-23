@@ -1247,7 +1247,6 @@ class ChReportClosedTickets extends Extension_Report {
 		$sql = "SELECT date_format(from_unixtime(created_date),'%Y') as year FROM ticket WHERE created_date > 0 AND is_deleted = 0 AND is_closed = 1 GROUP BY year having year <= date_format(now(),'%Y') ORDER BY year desc limit 0,10";
 		$rs = $db->Execute($sql);
 		
-		
 		while($row = mysql_fetch_assoc($rs)) {
 			$years[] = intval($row['year']);
 		}
@@ -1289,8 +1288,8 @@ class ChReportClosedTickets extends Extension_Report {
 			"AND spam_training != 'S' ".
 			"GROUP BY team_id, category_id" ,
 			$start_time,
-			$end_time);
-			
+			$end_time
+		);
 		$rs = $db->Execute($sql);
 	
 		$group_counts = array();
@@ -1311,36 +1310,66 @@ class ChReportClosedTickets extends Extension_Report {
 				
 		// Chart
 		
-			$sql = sprintf("SELECT team.id as group_id, ".
-				"count(*) as hits ".
-				"FROM ticket t inner join team on t.team_id = team.id ".
-				"WHERE updated_date > %d AND updated_date <= %d ".
-				"AND t.is_deleted = 0 ".
-				"AND t.is_closed = 1 ".
-				"AND t.spam_score < 0.9000 ".
-				"AND t.spam_training != 'S' ".
-				"GROUP BY group_id ORDER by team.name desc ",
-				$start_time,
-				$end_time);
-
+		// Calculate the # of ticks between the dates (and the scale -- day, month, etc)
+		$range = $end_time - $start_time;
+		$range_days = $range/86400;
+		$plots = $range/15;
+		
+		$ticks = array();
+		
+		if($range_days > 365) {
+			$date_group = '%Y';
+			$date_increment = 'year';
+		} elseif($range_days > 32) {
+			$date_group = '%Y-%m';
+			$date_increment = 'month';
+		} elseif($range_days > 1) {
+			$date_group = '%Y-%m-%d';
+			$date_increment = 'day';
+		} else {
+			$date_group = '%Y-%m-%d %H';
+			$date_increment = 'hour';
+		}
+		
+		// Find unique values
+		$time = strtotime(sprintf("-1 %s", $date_increment), $start_time);
+		while($time < $end_time) {
+			$time = strtotime(sprintf("+1 %s", $date_increment), $time);
+			$ticks[strftime($date_group, $time)] = 0;
+		}
+		
+		$sql = sprintf("SELECT team.id as group_id, DATE_FORMAT(FROM_UNIXTIME(t.updated_date),'%s') as date_plot, ".
+			"count(*) as hits ".
+			"FROM ticket t inner join team on t.team_id = team.id ".
+			"WHERE updated_date > %d AND updated_date <= %d ".
+			"AND t.is_deleted = 0 ".
+			"AND t.is_closed = 1 ".
+			"AND t.spam_score < 0.9000 ".
+			"AND t.spam_training != 'S' ".
+			"GROUP BY group_id, date_plot ".
+			"ORDER BY hits DESC",
+			$date_group,
+			$start_time,
+			$end_time
+		);
 		$rs = $db->Execute($sql);
-
-		$iter = 0;
+		
 		$data = array();
-		
-	    while($row = mysql_fetch_assoc($rs)) {
-	    	$hits = intval($row['hits']);
-			$group_id = $row['group_id'];
+		while($row = mysql_fetch_assoc($rs)) {
+			$group_id = intval($row['group_id']);
+			$date_plot = $row['date_plot'];
 			
-			if(!isset($groups[$group_id]))
-				continue;
+			if(!isset($data[$group_id]))
+				$data[$group_id] = $ticks;
 			
-			$data[$iter++] = array('value'=>$groups[$group_id]->name, 'hits'=>$hits);
-	    }		
-	    $tpl->assign('data', $data);
-	    
-	    mysql_free_result($rs);
+			$data[$group_id][$date_plot] = intval($row['hits']);
+		}
 		
+		$tpl->assign('xaxis_ticks', array_keys($ticks));
+		$tpl->assign('data', $data);
+		
+		mysql_free_result($rs);		
+
 		// Template
 		
 		$tpl->display('file:' . $this->tpl_path . '/reports/ticket/closed_tickets/index.tpl');
