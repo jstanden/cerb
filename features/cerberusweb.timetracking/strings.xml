@@ -226,7 +226,7 @@
 			<tuv xml:lang="en_US"><seg>(no activity)</seg></tuv>
 		</tu>
 		<tu tuid='timetracking.ui.reports.time_spent_org'>
-			<tuv xml:lang="en_US"><seg>Time Spent Per Organization</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Time Spent by Organization over Date Range</seg></tuv>
 		</tu>
 		<tu tuid='timetracking.ui.reports.time_spent_org.no_organization'>
 			<tuv xml:lang="en_US"><seg>(no organization)</seg></tuv>

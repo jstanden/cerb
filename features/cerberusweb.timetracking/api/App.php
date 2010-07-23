@@ -1783,34 +1783,72 @@ class ChReportTimeSpentOrg extends Extension_Report {
 		$tpl->assign('time_entries', $time_entries);		
 		
 		mysql_free_result($rs);
+
+		// Calculate the # of ticks between the dates (and the scale -- day, month, etc)
+		$range = $end_time - $start_time;
+		$range_days = $range/86400;
+		$plots = $range/15;
 		
+		$ticks = array();
+		
+		if($range_days > 365) {
+			$date_group = '%Y';
+			$date_increment = 'year';
+		} elseif($range_days > 32) {
+			$date_group = '%Y-%m';
+			$date_increment = 'month';
+		} elseif($range_days > 1) {
+			$date_group = '%Y-%m-%d';
+			$date_increment = 'day';
+		} else {
+			$date_group = '%Y-%m-%d %H';
+			$date_increment = 'hour';
+		}
+		
+		// Find unique values
+		$time = strtotime(sprintf("-1 %s", $date_increment), $start_time);
+		while($time < $end_time) {
+			$time = strtotime(sprintf("+1 %s", $date_increment), $time);
+			$ticks[strftime($date_group, $time)] = 0;
+		}
+
 		// Chart
-		
-		$sql = sprintf("SELECT sum(tte.time_actual_mins) mins, contact_org.id AS org_id, contact_org.name AS org_name ".
-				"FROM timetracking_entry tte ".
-				"INNER JOIN context_link ON (context_link.from_context = 'cerberusweb.contexts.timetracking' AND tte.id = context_link.from_context_id AND context_link.to_context = 'cerberusweb.contexts.org') ". 
-				"INNER JOIN contact_org ON (context_link.to_context_id = contact_org.id) ". 
-				"WHERE log_date > %d AND log_date <= %d ".
-				"GROUP BY contact_org.id, contact_org.name ".
-				"ORDER BY contact_org.name desc ",
-				$start_time,
-				$end_time
-				);
+		// [TODO] Limit to top 5-10, or aggregate non-top "Other"
+		$sql = sprintf("SELECT contact_org.id AS org_id, DATE_FORMAT(FROM_UNIXTIME(tte.log_date),'%s') as date_plot, ".
+			"SUM(tte.time_actual_mins) AS mins, contact_org.name AS org_name ".
+			"FROM timetracking_entry tte ".
+			"INNER JOIN context_link ON (context_link.from_context = 'cerberusweb.contexts.timetracking' AND tte.id = context_link.from_context_id AND context_link.to_context = 'cerberusweb.contexts.org') ". 
+			"INNER JOIN contact_org ON (context_link.to_context_id = contact_org.id) ". 
+			"WHERE log_date > %d AND log_date <= %d ".
+			"GROUP BY contact_org.id, date_plot ".
+			"ORDER BY contact_org.name asc",
+			$date_group,
+			$start_time,
+			$end_time
+		);
 		$rs = $db->Execute($sql);
 		
 		$data = array();
-		$iter = 0;
-	    
-	    while($row = mysql_fetch_assoc($rs)) {
-	    	$mins = intval($row['mins']);
-			$org_name = $row['org_name'];
-			if(empty($org_name)) $org_name = '(no org)';
+		$orgs = array();
+		
+		while($row = mysql_fetch_assoc($rs)) {
+			$org_id = intval($row['org_id']);
+			$date_plot = $row['date_plot'];
 			
-			$data[$iter++] = array('value'=>$org_name,'mins'=>$mins);
-	    }
-	    $tpl->assign('data', $data);
-	    
-	    mysql_free_result($rs);
+			if(!isset($data[$org_id]))
+				$data[$org_id] = $ticks;
+				
+			if(!isset($orgs[$org_id]))
+				$orgs[$org_id] = $row['org_name'];
+			
+			$data[$org_id][$date_plot] = intval($row['mins']);
+		}
+		
+		$tpl->assign('xaxis_ticks', array_keys($ticks));
+		$tpl->assign('orgs', $orgs);
+		$tpl->assign('data', $data);
+		
+		mysql_free_result($rs);
 		
 		// Template
 		
