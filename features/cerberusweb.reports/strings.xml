@@ -195,13 +195,13 @@
 		</tu>
 
 		<tu tuid='reports.ui.ticket.top_contacts'>
-			<tuv xml:lang="en_US"><seg>Top Created Tickets By Contact</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Tickets Created by Top Contacts over Date Range</seg></tuv>
 		</tu>
 		<tu tuid='reports.ui.ticket.top_contacts.by_org'>
-			<tuv xml:lang="en_US"><seg>By Organization</seg></tuv>
+			<tuv xml:lang="en_US"><seg>by Organization</seg></tuv>
 		</tu>
 		<tu tuid='reports.ui.ticket.top_contacts.by_address'>
-			<tuv xml:lang="en_US"><seg>By Address</seg></tuv>
+			<tuv xml:lang="en_US"><seg>by Address</seg></tuv>
 		</tu>
 		
 		<tu tuid='reports.ui.ticket.waiting_tickets'>
