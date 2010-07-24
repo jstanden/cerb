@@ -136,7 +136,7 @@
 		<id>report.custom_fields.usage</id>
 		<name>Custom Field Usage Report</name>
 		<class>
-			<file>api/App.php</file>
+			<file>api/reports/custom_fields/CustomFieldsUsageReport.php</file>
 			<name>ChReportCustomFieldUsage</name>
 		</class>
 		<params>
@@ -149,7 +149,7 @@
 		<id>report.tickets.new_tickets</id>
 		<name>Created Tickets By Group Report</name>
 		<class>
-			<file>api/App.php</file>
+			<file>api/reports/tickets/CreatedTicketsReport.php</file>
 			<name>ChReportNewTickets</name>
 		</class>
 		<params>
@@ -162,7 +162,7 @@
 		<id>report.tickets.spam_words</id>
 		<name>Spam Word Report</name>
 		<class>
-			<file>api/App.php</file>
+			<file>api/reports/spam/TopSpamWordsReport.php</file>
 			<name>ChReportSpamWords</name>
 		</class>
 		<params>
@@ -175,7 +175,7 @@
 		<id>report.tickets.spam_addys</id>
 		<name>Spam Addy Report</name>
 		<class>
-			<file>api/App.php</file>
+			<file>api/reports/spam/TopSpamAddysReport.php</file>
 			<name>ChReportSpamAddys</name>
 		</class>
 		<params>
@@ -188,7 +188,7 @@
 		<id>report.tickets.spam_domains</id>
 		<name>Spam Domains Report</name>
 		<class>
-			<file>api/App.php</file>
+			<file>api/reports/spam/TopSpamDomainsReport.php</file>
 			<name>ChReportSpamDomains</name>
 		</class>
 		<params>
@@ -201,7 +201,7 @@
 		<id>report.tickets.worker_replies</id>
 		<name>Worker Replies Report</name>
 		<class>
-			<file>api/App.php</file>
+			<file>api/reports/worker/WorkerRepliesReport.php</file>
 			<name>ChReportWorkerReplies</name>
 		</class>
 		<params>
@@ -214,7 +214,7 @@
 		<id>report.workers.roster</id>
 		<name>Group Roster Report</name>
 		<class>
-			<file>api/App.php</file>
+			<file>api/reports/groups/GroupRostersReport.php</file>
 			<name>ChReportGroupRoster</name>
 		</class>
 		<params>
@@ -227,7 +227,7 @@
 		<id>report.workers.averageresponsetime</id>
 		<name>Average Response Time Report</name>
 		<class>
-			<file>api/App.php</file>
+			<file>api/reports/worker/WorkerAverageResponseTimeReport.php</file>
 			<name>ChReportAverageResponseTime</name>
 		</class>
 		<params>
@@ -240,7 +240,7 @@
 		<id>report.groups.group_replies</id>
 		<name>Group Replies Report</name>
 		<class>
-			<file>api/App.php</file>
+			<file>api/reports/groups/GroupRepliesReport.php</file>
 			<name>ChReportGroupReplies</name>
 		</class>
 		<params>
@@ -253,7 +253,7 @@
 		<id>report.tickets.open_tickets</id>
 		<name>Open Tickets Report</name>
 		<class>
-			<file>api/App.php</file>
+			<file>api/reports/tickets/OpenTicketsReport.php</file>
 			<name>ChReportOpenTickets</name>
 		</class>
 		<params>
@@ -266,7 +266,7 @@
 		<id>report.tickets.closed_tickets</id>
 		<name>Closed Tickets Report</name>
 		<class>
-			<file>api/App.php</file>
+			<file>api/reports/tickets/ClosedTicketsReport.php</file>
 			<name>ChReportClosedTickets</name>
 		</class>
 		<params>
@@ -279,7 +279,7 @@
 		<id>report.orgs.shared_sender_domains</id>
 		<name>Top 100 Shared Sender Domains Report</name>
 		<class>
-			<file>api/App.php</file>
+			<file>api/reports/orgs/SharedSenderDomainsReport.php</file>
 			<name>ChReportOrgSharedEmailDomains</name>
 		</class>
 		<params>
@@ -292,7 +292,7 @@
 		<id>report.tickets.top_contacts</id>
 		<name>Top Created Tickets By Contact Report</name>
 		<class>
-			<file>api/App.php</file>
+			<file>api/reports/tickets/TopContactsReport.php</file>
 			<name>ChReportTopTicketsByContact</name>
 		</class>
 		<params>
@@ -306,7 +306,7 @@
 		<id>report.workers.worker_history</id>
 		<name>Worker History Report</name>
 		<class>
-			<file>api/App.php</file>
+			<file>api/reports/worker/WorkerHistoryReport.php</file>
 			<name>ChReportWorkerHistory</name>
 		</class>
 		<params>
@@ -319,7 +319,7 @@
 		<id>report.tickets.waiting_tickets</id>
 		<name>Waiting Tickets By Group Report</name>
 		<class>
-			<file>api/App.php</file>
+			<file>api/reports/tickets/WaitingTicketsReport.php</file>
 			<name>ChReportWaitingTickets</name>
 		</class>
 		<params>
@@ -332,7 +332,7 @@
 		<id>report.tickets.oldest_open_tickets</id>
 		<name>Oldest Open Tickets By Group Report</name>
 		<class>
-			<file>api/App.php</file>
+			<file>api/reports/tickets/OldestOpenTicketsReport.php</file>
 			<name>ChReportOldestOpenTickets</name>
 		</class>
 		<params>
@@ -342,15 +342,15 @@
 	</extension>
 	
 	<extension point="cerberusweb.report">
-		<id>report.workers.ticket_assignment</id>
+		<id>report.tickets.ticket_assignment</id>
 		<name>Ticket Assignment Report</name>
 		<class>
-			<file>api/App.php</file>
+			<file>api/reports/tickets/TicketsAssignmentReport.php</file>
 			<name>ChReportTicketAssignment</name>
 		</class>
 		<params>
-			<param key="report_name" value="reports.ui.worker.ticket_assignment" />
-			<param key="report_group" value="report.group.workers" />
+			<param key="report_name" value="reports.ui.ticket.assignment" />
+			<param key="report_group" value="report.group.tickets" />
 		</params>
 	</extension>
 	
