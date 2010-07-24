@@ -2,8 +2,8 @@
 <b>Chart options:</b> 
 <button type="button" class="line">Line</button>
 <button type="button" class="line filled">Line (Filled)</button>
-{*<button type="button" class="line filled stacked">Line (Stacked)</button>*}
-{*<button type="button" class="bar">Bar</button>*}
+<button type="button" class="line filled stacked">Line (Stacked)</button>
+<button type="button" class="bar">Bar</button>
 <button type="button" class="bar stacked">Bar (Stacked)</button>
 </form>
 
@@ -18,6 +18,7 @@
 		chartOptions.seriesDefaults.renderer = (is_bar) ? $.jqplot.BarRenderer : $.jqplot.LineRenderer;
 		if (is_bar) {
 			chartOptions.seriesDefaults.fill = true;
+			chartOptions.seriesDefaults.fillAlpha = 1.0;
 			chartOptions.seriesDefaults.showMarker = false;
 			chartOptions.seriesDefaults.rendererOptions.barPadding = 0;
 			chartOptions.seriesDefaults.rendererOptions.barMargin = 0;
@@ -26,6 +27,7 @@
 			chartOptions.axes.xaxis.tickOptions.showGridline = false;
 			if(is_filled) {
 				chartOptions.seriesDefaults.fill = true;
+				chartOptions.seriesDefaults.fillAlpha = 0.8;
 				chartOptions.seriesDefaults.showMarker = false;
 			} else {
 				chartOptions.seriesDefaults.fill = false;
