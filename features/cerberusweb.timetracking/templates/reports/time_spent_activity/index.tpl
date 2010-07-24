@@ -49,7 +49,7 @@ chartData = [
 ];
 
 chartOptions = {
-    stackSeries: true,
+    stackSeries: false,
 	legend:{ 
 		show:true,
 		location:'nw'
