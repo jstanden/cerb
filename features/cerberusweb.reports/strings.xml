@@ -68,6 +68,9 @@
 		<tu tuid='reports.ui.filters.n_months'>
 			<tuv xml:lang="en_US"><seg>%s months</seg></tuv>
 		</tu>
+		<tu tuid='reports.ui.filters.worker'>
+			<tuv xml:lang="en_US"><seg>Filter workers:</seg></tuv>
+		</tu>
 		<tu tuid='reports.ui.invalid_date'>
 			<tuv xml:lang="en_US"><seg>Invalid Date specified.  Please try again.</seg></tuv>
 		</tu>		
