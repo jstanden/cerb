@@ -17,7 +17,7 @@
 </select>
 <div id="divCal"></div>
 <b>{$translate->_('reports.ui.filters.worker')}</b> 
-<button type="button" class="chooser_worker"><span class="cerb-sprite sprite-add"></span></button>
+<button type="button" class="chooser_worker" onclick="reportChooserClick(this);"><span class="cerb-sprite sprite-add"></span></button>
 {if is_array($filter_worker_ids) && !empty($filter_worker_ids)}
 <span class="chooser-container">
 	{foreach from=$filter_worker_ids item=filter_worker_id}
@@ -73,11 +73,41 @@ line{$worker_id} = [{foreach from=$plots key=plot item=freq name=plots}
 ];
 {/foreach}
 
-chartData = [
+var chartData = [
 {foreach from=$data item=null key=worker_id name=groups}line{$worker_id}{if !$smarty.foreach.groups.last},{/if}{/foreach}
 ];
 
-chartOptions = {
+var cerbChartStyle = {
+	seriesColors: [
+		'rgba(115,168,0,0.8)',
+		'rgba(207,218,30,0.8)',
+		'rgba(249,190,49,0.8)',
+		'rgba(244,89,9,0.8)',
+		'rgba(238,24,49,0.8)',
+		'rgba(189,19,79,0.8)',
+		'rgba(50,37,238,0.8)',
+		'rgba(87,109,243,0.8)',
+		'rgba(116,87,229,0.8)',
+		'rgba(143,46,137,0.8)',
+		'rgba(241,124,242,0.8)',
+		'rgba(180,117,198,0.8)',
+		'rgba(196,191,210,0.8)',
+		'rgba(18,134,49,0.8)',
+		'rgba(44,187,105,0.8)',
+		'rgba(184,197,146,0.8)',
+		'rgba(46,124,180,0.8)',
+		'rgba(84,189,199,0.8)',
+		'rgba(24,200,252,0.8)',
+		'rgba(254,194,153,0.8)',
+		'rgba(213,153,160,0.8)',
+		'rgba(244,237,86,0.8)',
+		'rgba(204,137,59,0.8)',
+		'rgba(157,88,44,0.8)',
+		'rgba(108,46,45,0.8)'
+	]
+};
+
+var chartOptions = {
     stackSeries: true,
 	legend:{ 
 		show:false
@@ -90,18 +120,7 @@ chartOptions = {
 		background:'rgb(255,255,255)',
 		borderWidth:0
 	},
-	seriesColors: [
-		'rgba(115,168,0,0.8)', 
-		'rgba(249,190,49,0.8)', 
-		'rgba(50,153,187,0.8)', 
-		'rgba(191,52,23,0.8)', 
-		'rgba(122,103,165,0.8)', 
-		'rgba(0,76,102,0.8)', 
-		'rgba(196,197,209,0.8)', 
-		'rgba(190,232,110,0.8)',
-		'rgba(182,0,34,0.8)', 
-		'rgba(61,28,33,0.8)' 
-	],	
+	seriesColors: cerbChartStyle.seriesColors,	
     seriesDefaults:{
 		renderer:$.jqplot.BarRenderer,
         rendererOptions:{ 
@@ -115,6 +134,7 @@ chartOptions = {
 		showLine:true,
 		showMarker:false,
 		markerOptions: {
+			size:8,
 			style:'filledCircle',
 			shadow:false
 		}
@@ -235,16 +255,19 @@ var plot1 = $.jqplot('reportChart', chartData, chartOptions);
 <br>
 
 <script type="text/javascript">
-	$('#frmRange button.chooser_worker').click(function() {
-		$button = $(this);
+	function reportChooserClick(button) {
 		$chooser=genericAjaxPopup('chooser','c=internal&a=chooserOpen&context=cerberusweb.contexts.worker',null,true,'750');
 		$chooser.one('chooser_save', function(event) {
+			event.stopPropagation();
+			$button = $(button);
 			$label = $button.next('span.chooser-container');
 			if(0==$label.length)
 				$label = $('<span class="chooser-container"></span>').insertAfter($button);
-			for(var idx in event.labels)
-				if(0==$label.find('input:hidden[value='+event.values[idx]+']').length)
+			for(idx in event.labels) {
+				if(0==$label.find('input:hidden[value='+event.values[idx]+']').length) {
 					$label.append($('<div class="bubble" style="padding-right:5px;">'+event.labels[idx]+'<input type="hidden" name="worker_id[]" value="'+event.values[idx]+'"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></div>'));
+				}
+			}
 		});
-	});
+	}
 </script>
