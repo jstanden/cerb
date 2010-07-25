@@ -518,7 +518,23 @@ class DAO_Worker extends C4_ORMHelper {
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
 			
 		$sort_sql = (!empty($sortBy)) ? sprintf("ORDER BY %s %s ",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : " ";
-			
+		
+		// Virtuals
+		foreach($params as $param_key => $param) {
+			settype($param_key, 'string');
+			switch($param_key) {
+				case SearchFields_Worker::VIRTUAL_GROUPS:
+					if(empty($param->value)) { // empty
+						$where_sql .= "AND (SELECT GROUP_CONCAT(worker_to_team.team_id) FROM worker_to_team WHERE worker_to_team.agent_id = w.id) IS NULL ";
+					} else {
+						$where_sql .= sprintf("AND (SELECT GROUP_CONCAT(worker_to_team.team_id) FROM worker_to_team WHERE worker_to_team.agent_id = w.id AND worker_to_team.team_id IN (%s)) IS NOT NULL ",
+							implode(',', $param->value)
+						);
+					}
+					break;
+			}
+		}
+		
 		$sql = 
 			$select_sql.
 			$join_sql.
@@ -577,6 +593,8 @@ class SearchFields_Worker implements IDevblocksSearchFields {
 	const LAST_ACTIVITY_DATE = 'w_last_activity_date';
 	const IS_DISABLED = 'w_is_disabled';
 	
+	const VIRTUAL_GROUPS = '*_groups';
+	
 	const CONTEXT_LINK = 'cl_context_from';
 	const CONTEXT_LINK_ID = 'cl_context_from_id';
 	
@@ -596,6 +614,8 @@ class SearchFields_Worker implements IDevblocksSearchFields {
 			self::LAST_ACTIVITY => new DevblocksSearchField(self::LAST_ACTIVITY, 'w', 'last_activity', $translate->_('worker.last_activity')),
 			self::LAST_ACTIVITY_DATE => new DevblocksSearchField(self::LAST_ACTIVITY_DATE, 'w', 'last_activity_date', $translate->_('worker.last_activity_date')),
 			self::IS_DISABLED => new DevblocksSearchField(self::IS_DISABLED, 'w', 'is_disabled', ucwords($translate->_('common.disabled'))),
+			
+			self::VIRTUAL_GROUPS => new DevblocksSearchField(self::VIRTUAL_GROUPS, '*', 'groups', $translate->_('common.groups')),
 			
 			self::CONTEXT_LINK => new DevblocksSearchField(self::CONTEXT_LINK, 'context_link', 'from_context', null),
 			self::CONTEXT_LINK_ID => new DevblocksSearchField(self::CONTEXT_LINK_ID, 'context_link', 'from_context_id', null),
@@ -734,6 +754,7 @@ class View_Worker extends C4_AbstractView {
 			SearchFields_Worker::LAST_ACTIVITY,
 			SearchFields_Worker::CONTEXT_LINK,
 			SearchFields_Worker::CONTEXT_LINK_ID,
+			SearchFields_Worker::VIRTUAL_GROUPS,
 		);
 		$this->paramsHidden = array(
 			SearchFields_Worker::ID,
@@ -777,6 +798,29 @@ class View_Worker extends C4_AbstractView {
 		}
 	}
 
+	function renderVirtualCriteria($param) {
+		$key = $param->field;
+		
+		switch($key) {
+			case SearchFields_Worker::VIRTUAL_GROUPS:
+				if(empty($param->value)) {
+					echo "<b>Not</b> a member of any groups";
+					
+				} elseif(is_array($param->value)) {
+					$groups = DAO_Group::getAll();
+					$strings = array();
+					
+					foreach($param->value as $group_id) {
+						if(isset($groups[$group_id]))
+							$strings[] = '<b>'.$groups[$group_id]->name.'</b>';
+					}
+					
+					echo sprintf("Group member of %s", implode(' or ', $strings));
+				}
+				break;
+		}
+	}	
+	
 	function renderCriteria($field) {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('id', $this->id);
@@ -788,13 +832,20 @@ class View_Worker extends C4_AbstractView {
 			case SearchFields_Worker::TITLE:
 				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__string.tpl');
 				break;
+				
 			case SearchFields_Worker::IS_DISABLED:
 			case SearchFields_Worker::IS_SUPERUSER:
 				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__bool.tpl');
 				break;
+				
 			case SearchFields_Worker::LAST_ACTIVITY_DATE:
 				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__date.tpl');
 				break;
+				
+			case SearchFields_Worker::VIRTUAL_GROUPS:
+				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__context_group.tpl');
+				break;
+				
 			default:
 				// Custom Fields
 				if('cf_' == substr($field,0,3)) {
@@ -866,6 +917,12 @@ class View_Worker extends C4_AbstractView {
 				@$bool = DevblocksPlatform::importGPC($_REQUEST['bool'],'integer',1);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
 				break;
+				
+			case SearchFields_Worker::VIRTUAL_GROUPS:
+				@$group_ids = DevblocksPlatform::importGPC($_REQUEST['group_id'],'array',array());
+				$criteria = new DevblocksSearchCriteria($field,'in', $group_ids);
+				break;
+				
 			default:
 				// Custom Fields
 				if(substr($field,0,3)=='cf_') {
