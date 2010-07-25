@@ -6,15 +6,14 @@ class ChReportClosedTickets extends Extension_Report {
 	
 	function render() {
 		$db = DevblocksPlatform::getDatabaseService();
-		
 		$tpl = DevblocksPlatform::getTemplateService();
+
+		@$filter_group_ids = DevblocksPlatform::importGPC($_REQUEST['group_id'],'array',array());
+		$tpl->assign('filter_group_ids', $filter_group_ids);
 		
 	   	// Top Buckets
 		$groups = DAO_Group::getAll();
 		$tpl->assign('groups', $groups);
-		
-		$group_buckets = DAO_Bucket::getTeams();
-		$tpl->assign('group_buckets', $group_buckets);
 		
 		// Year shortcuts
 		$years = array();
@@ -51,37 +50,6 @@ class ChReportClosedTickets extends Extension_Report {
 		$tpl->assign('start', $start);
 		$tpl->assign('end', $end);
 		
-		// Table
-
-		$sql = sprintf("SELECT count(*) AS hits, team_id, category_id ".
-			"FROM ticket ".
-			"WHERE updated_date > %d AND updated_date <= %d ".
-			"AND is_deleted = 0 ".
-			"AND is_closed = 1 ".
-			"AND spam_score < 0.9000 ".
-			"AND spam_training != 'S' ".
-			"GROUP BY team_id, category_id" ,
-			$start_time,
-			$end_time
-		);
-		$rs = $db->Execute($sql);
-	
-		$group_counts = array();
-		while($row = mysql_fetch_assoc($rs)) {
-			$team_id = intval($row['team_id']);
-			$category_id = intval($row['category_id']);
-			$hits = intval($row['hits']);
-			
-			if(!isset($group_counts[$team_id]))
-				$group_counts[$team_id] = array();
-				
-			$group_counts[$team_id][$category_id] = $hits;
-			@$group_counts[$team_id]['total'] = intval($group_counts[$team_id]['total']) + $hits;
-		}
-		$tpl->assign('group_counts', $group_counts);
-		
-		mysql_free_result($rs);
-				
 		// Chart
 		
 		// Calculate the # of ticks between the dates (and the scale -- day, month, etc)
@@ -90,20 +58,45 @@ class ChReportClosedTickets extends Extension_Report {
 		$plots = $range/15;
 		
 		$ticks = array();
+
+		@$report_date_grouping = DevblocksPlatform::importGPC($_REQUEST['report_date_grouping'],'string','');
+		$date_group = '';
+		$date_increment = '';
 		
-		if($range_days > 365) {
-			$date_group = '%Y';
-			$date_increment = 'year';
-		} elseif($range_days > 32) {
-			$date_group = '%Y-%m';
-			$date_increment = 'month';
-		} elseif($range_days > 1) {
-			$date_group = '%Y-%m-%d';
-			$date_increment = 'day';
-		} else {
-			$date_group = '%Y-%m-%d %H';
-			$date_increment = 'hour';
+		// Did the user choose a specific grouping?
+		switch($report_date_grouping) {
+			case 'year':
+				$date_group = '%Y';
+				$date_increment = 'year';
+				break;
+			case 'month':
+				$date_group = '%Y-%m';
+				$date_increment = 'month';
+				break;
+			case 'day':
+				$date_group = '%Y-%m-%d';
+				$date_increment = 'day';
+				break;
 		}
+		
+		// Fallback to automatic grouping
+		if(empty($date_group) || empty($date_increment)) {
+			if($range_days > 365) {
+				$date_group = '%Y';
+				$date_increment = 'year';
+			} elseif($range_days > 32) {
+				$date_group = '%Y-%m';
+				$date_increment = 'month';
+			} elseif($range_days > 1) {
+				$date_group = '%Y-%m-%d';
+				$date_increment = 'day';
+			} else {
+				$date_group = '%Y-%m-%d %H';
+				$date_increment = 'hour';
+			}
+		}
+		
+		$tpl->assign('report_date_grouping', $date_increment);
 		
 		// Find unique values
 		$time = strtotime(sprintf("-1 %s", $date_increment), $start_time);
@@ -113,19 +106,20 @@ class ChReportClosedTickets extends Extension_Report {
 				$ticks[strftime($date_group, $time)] = 0;
 		}
 		
-		$sql = sprintf("SELECT team.id as group_id, DATE_FORMAT(FROM_UNIXTIME(t.updated_date),'%s') as date_plot, ".
-			"count(*) as hits ".
-			"FROM ticket t inner join team on t.team_id = team.id ".
-			"WHERE updated_date > %d AND updated_date <= %d ".
+		$sql = sprintf("SELECT t.team_id as group_id, DATE_FORMAT(FROM_UNIXTIME(t.updated_date),'%s') as date_plot, ".
+			"count(*) AS hits ".
+			"FROM ticket t ".
+			"WHERE t.updated_date > %d AND t.updated_date <= %d ".
+			"%s ".
 			"AND t.is_deleted = 0 ".
 			"AND t.is_closed = 1 ".
 			"AND t.spam_score < 0.9000 ".
 			"AND t.spam_training != 'S' ".
-			"GROUP BY group_id, date_plot ".
-			"ORDER BY hits DESC",
+			"GROUP BY group_id, date_plot ",
 			$date_group,
 			$start_time,
-			$end_time
+			$end_time,
+			(is_array($filter_group_ids) && !empty($filter_group_ids) ? sprintf("AND t.team_id IN (%s)", implode(',', $filter_group_ids)) : "")
 		);
 		$rs = $db->Execute($sql);
 		
@@ -139,6 +133,9 @@ class ChReportClosedTickets extends Extension_Report {
 			
 			$data[$group_id][$date_plot] = intval($row['hits']);
 		}
+		
+		// Sort the data in descending order
+		uasort($data, array('ChReportSorters','sortDataDesc'));
 		
 		$tpl->assign('xaxis_ticks', array_keys($ticks));
 		$tpl->assign('data', $data);
