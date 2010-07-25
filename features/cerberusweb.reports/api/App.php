@@ -66,13 +66,22 @@ abstract class Extension_ReportGroup extends DevblocksExtension {
 
 class ChReportSorters {
 	static function sortDataDesc($a, $b) {
-		$sum1 = array_sum($a);
-		$sum2 = array_sum($b);
+		$sum1 = is_array($a) ? array_sum($a) : $a;
+		$sum2 = is_array($b) ? array_sum($b) : $b;
 		
 		if($sum1 == $sum2)
 			return 0;
 		
 		return ($sum1 > $sum2) ? -1 : 1; // desc order
+	}
+	static function sortDataAsc($a, $b) {
+		$sum1 = is_array($a) ? array_sum($a) : $a;
+		$sum2 = is_array($b) ? array_sum($b) : $b;
+		
+		if($sum1 == $sum2)
+			return 0;
+		
+		return ($sum1 > $sum2) ? 1 : -1; // asc order
 	}
 };
 
