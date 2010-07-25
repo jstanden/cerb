@@ -17,17 +17,17 @@
 </select>
 <div id="divCal"></div>
 
-<b>{$translate->_('reports.ui.date_past')}</b> <a href="javascript:;" onclick="document.getElementById('start').value='-1 year';document.getElementById('end').value='now';">{$translate->_('reports.ui.filters.1_year')|lower}</a>
-| <a href="javascript:;" onclick="document.getElementById('start').value='-6 months';document.getElementById('end').value='now';">{'reports.ui.filters.n_months'|devblocks_translate:6}</a>
-| <a href="javascript:;" onclick="document.getElementById('start').value='-3 months';document.getElementById('end').value='now';">{'reports.ui.filters.n_months'|devblocks_translate:3}</a>
-| <a href="javascript:;" onclick="document.getElementById('start').value='-1 month';document.getElementById('end').value='now';">{$translate->_('reports.ui.filters.1_month')|lower}</a>
-| <a href="javascript:;" onclick="document.getElementById('start').value='-1 week';document.getElementById('end').value='now';">{$translate->_('reports.ui.filters.1_week')|lower}</a>
-| <a href="javascript:;" onclick="document.getElementById('start').value='-1 day';document.getElementById('end').value='now';">{$translate->_('reports.ui.filters.1_day')|lower}</a>
-| <a href="javascript:;" onclick="document.getElementById('start').value='today';document.getElementById('end').value='now';">{$translate->_('common.today')|lower}</a>
+<b>{$translate->_('reports.ui.date_past')}</b> <a href="javascript:;" onclick="$('#start').val('-1 year');$('#end').val('now');">{$translate->_('reports.ui.filters.1_year')|lower}</a>
+| <a href="javascript:;" onclick="$('#start').val('-6 months');$('#end').val('now');">{'reports.ui.filters.n_months'|devblocks_translate:6}</a>
+| <a href="javascript:;" onclick="$('#start').val('-3 months');$('#end').val('now');">{'reports.ui.filters.n_months'|devblocks_translate:3}</a>
+| <a href="javascript:;" onclick="$('#start').val('-1 month');$('#end').val('now');">{$translate->_('reports.ui.filters.1_month')|lower}</a>
+| <a href="javascript:;" onclick="$('#start').val('-1 week');$('#end').val('now');">{$translate->_('reports.ui.filters.1_week')|lower}</a>
+| <a href="javascript:;" onclick="$('#start').val('-1 day');$('#end').val('now');">{$translate->_('reports.ui.filters.1_day')|lower}</a>
+| <a href="javascript:;" onclick="$('#start').val('today');$('#end').val('now');">{$translate->_('common.today')|lower}</a>
 <br>
 {if !empty($years)}
 	{foreach from=$years item=year name=years}
-		{if !$smarty.foreach.years.first} | {/if}<a href="javascript:;" onclick="document.getElementById('start').value='Jan 1 {$year}';document.getElementById('end').value='Dec 31 {$year} 23:59:59';">{$year}</a>
+		{if !$smarty.foreach.years.first} | {/if}<a href="javascript:;" onclick="$('#start').val('Jan 1 {$year}');$('#end').val('Dec 31 {$year} 23:59:59');">{$year}</a>
 	{/foreach}
 	<br>
 {/if}
