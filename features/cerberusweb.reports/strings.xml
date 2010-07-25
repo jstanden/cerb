@@ -65,6 +65,9 @@
 		<tu tuid='reports.ui.filters.1_year'>
 			<tuv xml:lang="en_US"><seg>1 year</seg></tuv>
 		</tu>
+		<tu tuid='reports.ui.filters.group'>
+			<tuv xml:lang="en_US"><seg>Filter groups:</seg></tuv>
+		</tu>
 		<tu tuid='reports.ui.filters.n_months'>
 			<tuv xml:lang="en_US"><seg>%s months</seg></tuv>
 		</tu>

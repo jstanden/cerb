@@ -10,6 +10,8 @@ class ChReportWorkerReplies extends Extension_Report {
 
 		@$filter_worker_ids = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',array());
 		$tpl->assign('filter_worker_ids', $filter_worker_ids);
+		@$filter_group_ids = DevblocksPlatform::importGPC($_REQUEST['group_id'],'array',array());
+		$tpl->assign('filter_group_ids', $filter_group_ids);
 		
 		$workers = DAO_Worker::getAll();
 		$tpl->assign('workers', $workers);
@@ -123,17 +125,17 @@ class ChReportWorkerReplies extends Extension_Report {
 		$sql = sprintf("SELECT m.worker_id, DATE_FORMAT(FROM_UNIXTIME(m.created_date),'%s') as date_plot, count(*) AS hits ".
 			"FROM message m ".
 			"INNER JOIN ticket t ON (t.id=m.ticket_id) ".
-			"INNER JOIN worker w ON (w.id=m.worker_id) ".
 			"WHERE m.created_date > %d AND m.created_date <= %d ".
+			"%s ".
 			"%s ".
 			"AND m.is_outgoing = 1 ".
 			"AND t.is_deleted = 0 ".
-			"GROUP BY m.worker_id, date_plot ".
-			"ORDER BY w.last_name DESC ",
+			"GROUP BY m.worker_id, date_plot ",
 			$date_group,
 			$start_time,
 			$end_time,
-			(is_array($filter_worker_ids) && !empty($filter_worker_ids) ? sprintf("AND m.worker_id IN (%s)", implode(',', $filter_worker_ids)) : "")
+			(is_array($filter_worker_ids) && !empty($filter_worker_ids) ? sprintf("AND m.worker_id IN (%s)", implode(',', $filter_worker_ids)) : ""),
+			(is_array($filter_group_ids) && !empty($filter_group_ids) ? sprintf("AND t.team_id IN (%s)", implode(',', $filter_group_ids)) : "")
 		);
 		$rs = $db->Execute($sql);
 		

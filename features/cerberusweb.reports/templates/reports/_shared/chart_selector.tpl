@@ -22,7 +22,11 @@
 			chartOptions.seriesDefaults.showMarker = false;
 			chartOptions.seriesDefaults.rendererOptions.barPadding = 0;
 			chartOptions.seriesDefaults.rendererOptions.barMargin = 0;
-			chartOptions.axes.xaxis.tickOptions.showGridline = true;
+			if(is_stacked) {
+				chartOptions.axes.xaxis.tickOptions.showGridline = false;
+			} else {
+				chartOptions.axes.xaxis.tickOptions.showGridline = true;
+			}
 		} else {
 			chartOptions.axes.xaxis.tickOptions.showGridline = false;
 			if(is_filled) {
