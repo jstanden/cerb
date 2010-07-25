@@ -16,9 +16,6 @@ class ChReportWorkerReplies extends Extension_Report {
 		$workers = DAO_Worker::getAll();
 		$tpl->assign('workers', $workers);
 		
-		$groups = DAO_Group::getAll();
-		$tpl->assign('groups', $groups);
-		
 		// Years
 		$years = array();
 		$sql = "SELECT DATE_FORMAT(FROM_UNIXTIME(created_date),'%Y') AS year FROM message WHERE created_date > 0 AND is_outgoing = 1 GROUP BY year HAVING year <= date_format(now(),'%Y') ORDER BY year desc limit 0,10";
@@ -129,6 +126,7 @@ class ChReportWorkerReplies extends Extension_Report {
 			"%s ".
 			"%s ".
 			"AND m.is_outgoing = 1 ".
+			"AND m.worker_id > 0 ".
 			"AND t.is_deleted = 0 ".
 			"GROUP BY m.worker_id, date_plot ",
 			$date_group,
@@ -143,6 +141,9 @@ class ChReportWorkerReplies extends Extension_Report {
 		while($row = mysql_fetch_assoc($rs)) {
 			$worker_id = intval($row['worker_id']);
 			$date_plot = $row['date_plot'];
+			
+			if(!isset($workers[$worker_id]))
+				continue;
 			
 			if(!isset($data[$worker_id]))
 				$data[$worker_id] = $ticks;
