@@ -6,14 +6,13 @@ class ChReportGroupReplies extends Extension_Report {
 	
 	function render() {
 		$db = DevblocksPlatform::getDatabaseService();
-
 		$tpl = DevblocksPlatform::getTemplateService();
 		
+		@$filter_group_ids = DevblocksPlatform::importGPC($_REQUEST['group_id'],'array',array());
+		$tpl->assign('filter_group_ids', $filter_group_ids);
+
 		$groups = DAO_Group::getAll();
 		$tpl->assign('groups', $groups);
-		
-		$group_buckets = DAO_Bucket::getTeams();
-		$tpl->assign('group_buckets', $group_buckets);
 		
 		// Years
 		$years = array();
@@ -68,19 +67,44 @@ class ChReportGroupReplies extends Extension_Report {
 		
 		$ticks = array();
 		
-		if($range_days > 365) {
-			$date_group = '%Y';
-			$date_increment = 'year';
-		} elseif($range_days > 32) {
-			$date_group = '%Y-%m';
-			$date_increment = 'month';
-		} elseif($range_days > 1) {
-			$date_group = '%Y-%m-%d';
-			$date_increment = 'day';
-		} else {
-			$date_group = '%Y-%m-%d %H';
-			$date_increment = 'hour';
+		@$report_date_grouping = DevblocksPlatform::importGPC($_REQUEST['report_date_grouping'],'string','');
+		$date_group = '';
+		$date_increment = '';
+		
+		// Did the user choose a specific grouping?
+		switch($report_date_grouping) {
+			case 'year':
+				$date_group = '%Y';
+				$date_increment = 'year';
+				break;
+			case 'month':
+				$date_group = '%Y-%m';
+				$date_increment = 'month';
+				break;
+			case 'day':
+				$date_group = '%Y-%m-%d';
+				$date_increment = 'day';
+				break;
 		}
+		
+		// Fallback to automatic grouping
+		if(empty($date_group) || empty($date_increment)) {
+			if($range_days > 365) {
+				$date_group = '%Y';
+				$date_increment = 'year';
+			} elseif($range_days > 32) {
+				$date_group = '%Y-%m';
+				$date_increment = 'month';
+			} elseif($range_days > 1) {
+				$date_group = '%Y-%m-%d';
+				$date_increment = 'day';
+			} else {
+				$date_group = '%Y-%m-%d %H';
+				$date_increment = 'hour';
+			}
+		}
+		
+		$tpl->assign('report_date_grouping', $date_increment);
 		
 		// Find unique values
 		$time = strtotime(sprintf("-1 %s", $date_increment), $start_time);
@@ -90,53 +114,21 @@ class ChReportGroupReplies extends Extension_Report {
 				$ticks[strftime($date_group, $time)] = 0;
 		}		
 		
-		// Table
-		
-		$sql = sprintf("SELECT count(*) AS hits, t.team_id, category_id ".
-			"FROM message m ".
-			"INNER JOIN ticket t ON (t.id=m.ticket_id) ".
-			"INNER JOIN team ON t.team_id = team.id ".
-			"WHERE m.created_date > %d AND m.created_date <= %d ".
-			"AND m.is_outgoing = 1 ".
-			"AND t.is_deleted = 0 ".
-			"AND t.team_id != 0 " .
-			"GROUP BY t.team_id, category_id ORDER BY team.name ",
-			$start_time,
-			$end_time
-		);
-		$rs = $db->Execute($sql);
-		$group_counts = array();
-		
-		while($row = mysql_fetch_assoc($rs)) {
-			$team_id = intval($row['team_id']);
-			$category_id = intval($row['category_id']);
-			$hits = intval($row['hits']);
-			
-			if(!isset($group_counts[$team_id]))
-				$group_counts[$team_id] = array();
-			
-			$group_counts[$team_id][$category_id] = $hits;
-			@$group_counts[$team_id]['total'] = intval($group_counts[$team_id]['total']) + $hits;
-		}
-		$tpl->assign('group_counts', $group_counts);
-
-		mysql_free_result($rs);
-		
 		// Chart
 		$sql = sprintf("SELECT t.team_id as group_id, DATE_FORMAT(FROM_UNIXTIME(m.created_date),'%s') as date_plot, ".
 			"count(*) AS hits ".
 			"FROM message m ".
 			"INNER JOIN ticket t ON (t.id=m.ticket_id) ".
-			"INNER JOIN team on t.team_id = team.id ".
 			"WHERE m.created_date > %d AND m.created_date <= %d ".
+			"%s ".
 			"AND m.is_outgoing = 1 ".
 			"AND t.is_deleted = 0 ".
 			"AND t.team_id != 0 " .			
-			"GROUP BY group_id, date_plot ".
-			"ORDER BY team.name DESC ",
+			"GROUP BY group_id, date_plot ",
 			$date_group,
 			$start_time,
-			$end_time
+			$end_time,
+			(is_array($filter_group_ids) && !empty($filter_group_ids) ? sprintf("AND t.team_id IN (%s)", implode(',', $filter_group_ids)) : "")
 		);
 		$rs = $db->Execute($sql);
 		
@@ -150,6 +142,9 @@ class ChReportGroupReplies extends Extension_Report {
 			
 			$data[$group_id][$date_plot] = intval($row['hits']);
 		}
+		
+		// Sort the data in descending order
+		uasort($data, array('ChReportSorters','sortDataDesc'));
 		
 		$tpl->assign('xaxis_ticks', array_keys($ticks));
 		$tpl->assign('data', $data);
