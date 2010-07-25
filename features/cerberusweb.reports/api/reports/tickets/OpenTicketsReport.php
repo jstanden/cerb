@@ -37,6 +37,10 @@ class ChReportOpenTickets extends Extension_Report {
 			
 			$data[$iter++] = array('value'=>$groups[$row['group_id']]->name,'hits'=>$row['hits']);
 		}
+		
+		// Sort the data in descending order (chart reverses)
+		uasort($data, array('ChReportSorters','sortDataAsc'));
+		
 		$tpl->assign('data', $data);
 		
 		mysql_free_result($rs);

@@ -67,14 +67,14 @@ class ChReportWaitingTickets extends Extension_Report {
 		// Chart
 		
 		$sql = "SELECT team.id as group_id, ".
-				"count(*) as hits ".
-				"FROM ticket t inner join team on t.team_id = team.id ".
-				"WHERE t.is_deleted = 0 ".
-				"AND t.is_closed = 0 ".
-				"AND t.spam_score < 0.9000 ".
-				"AND t.spam_training != 'S' ".
-				"AND is_waiting = 1 " .				
-				"GROUP BY group_id ORDER by team.name desc ";
+			"count(*) as hits ".
+			"FROM ticket t inner join team on t.team_id = team.id ".
+			"WHERE t.is_deleted = 0 ".
+			"AND t.is_closed = 0 ".
+			"AND t.spam_score < 0.9000 ".
+			"AND t.spam_training != 'S' ".
+			"AND is_waiting = 1 " .				
+			"GROUP BY group_id ORDER by team.name desc ";
 
 		$rs = $db->Execute($sql);
 
@@ -90,6 +90,10 @@ class ChReportWaitingTickets extends Extension_Report {
 			
 			$data[$iter++] = array('value'=>$groups[$group_id]->name, 'hits'=> $hits);
 	    }
+	    
+		// Sort the data in descending order (chart reverses)
+		uasort($data, array('ChReportSorters','sortDataAsc'));
+	    
 	    $tpl->assign('data', $data);
 	    
 	    mysql_free_result($rs);

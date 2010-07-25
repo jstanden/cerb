@@ -71,6 +71,10 @@ class ChReportTicketAssignment extends Extension_Report {
 				
 			$data[$iter++] = array('value'=>$workers[$worker_id]->getName(),'hits'=>$hits);
 	    }
+	    
+		// Sort the data in descending order
+		uasort($data, array('ChReportSorters','sortDataAsc'));
+	    
 	    $tpl->assign('data', $data);
 	    
 	    mysql_free_result($rs);

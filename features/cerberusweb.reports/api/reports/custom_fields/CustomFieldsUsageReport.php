@@ -40,8 +40,8 @@ class ChReportCustomFieldUsage extends Extension_Report {
 				$data[$iter++] = array('value'=>$value,'hits'=>$hits);
 			}
 			
-			// Charts load backwards
-			$data = array_reverse($data, true);
+			// Sort the data in descending order (chart reverses it)
+			uasort($data, array('ChReportSorters','sortDataAsc'));
 			
 			$tpl->assign('data', $data);
 		}
