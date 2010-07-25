@@ -47,7 +47,7 @@
  * 		and Jerry Kanoholani. 
  *	 WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
-class DAO_Group {
+class DAO_Group extends C4_ORMHelper {
     const CACHE_ALL = 'cerberus_cache_teams_all';
 	const CACHE_ROSTERS = 'ch_group_rosters';
     
@@ -378,6 +378,122 @@ class DAO_Group {
 		$cache->remove(self::CACHE_ROSTERS);
 		$cache->remove(CerberusApplication::CACHE_HELPDESK_FROMS);
 	}
+	
+    static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
+		$db = DevblocksPlatform::getDatabaseService();
+		$fields = SearchFields_Group::getFields();
+
+		// Sanitize
+		if(!isset($fields[$sortBy]))
+			$sortBy=null;
+
+        list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy);
+		$start = ($page * $limit); // [JAS]: 1-based [TODO] clean up + document
+		$total = -1;
+		
+		$select_sql = sprintf("SELECT ".
+			"g.id as %s, ".
+			"g.name as %s ",
+			    SearchFields_Group::ID,
+			    SearchFields_Group::NAME
+			);
+			
+		$join_sql = "FROM team g ".
+
+		// Dynamic joins
+		(isset($tables['context_link']) ? "INNER JOIN context_link ON (context_link.to_context = 'cerberusweb.contexts.group' AND context_link.to_context_id = g.id) " : " ")
+		;
+		
+		// Custom field joins
+//		list($select_sql, $join_sql, $has_multiple_values) = self::_appendSelectJoinSqlForCustomFieldTables(
+//			$tables,
+//			$params,
+//			'g.id',
+//			$select_sql,
+//			$join_sql
+//		);
+				
+		$where_sql = "".
+			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
+			
+		$sort_sql = (!empty($sortBy)) ? sprintf("ORDER BY %s %s ",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : " ";
+		
+		$sql = 
+			$select_sql.
+			$join_sql.
+			$where_sql.
+			($has_multiple_values ? 'GROUP BY g.id ' : '').
+			$sort_sql;
+			
+		if($limit > 0) {
+    		$rs = $db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+		} else {
+		    $rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+            $total = mysql_num_rows($rs);
+		}
+		
+		$results = array();
+		
+		while($row = mysql_fetch_assoc($rs)) {
+			$result = array();
+			foreach($row as $f => $v) {
+				$result[$f] = $v;
+			}
+			$object_id = intval($row[SearchFields_Group::ID]);
+			$results[$object_id] = $result;
+		}
+		
+		// [JAS]: Count all
+		if($withCounts) {
+			$count_sql = 
+				($has_multiple_values ? "SELECT COUNT(DISTINCT g.id) " : "SELECT COUNT(g.id) ").
+				$join_sql.
+				$where_sql;
+			$total = $db->GetOne($count_sql);
+		}
+		
+		mysql_free_result($rs);
+		
+		return array($results,$total);
+    }	
+};
+
+class SearchFields_Group implements IDevblocksSearchFields {
+	// Worker
+	const ID = 'g_id';
+	const NAME = 'g_name';
+	
+	const CONTEXT_LINK = 'cl_context_from';
+	const CONTEXT_LINK_ID = 'cl_context_from_id';
+	
+	/**
+	 * @return DevblocksSearchField[]
+	 */
+	static function getFields() {
+		$translate = DevblocksPlatform::getTranslationService();
+		
+		$columns = array(
+			self::ID => new DevblocksSearchField(self::ID, 'g', 'id', $translate->_('common.id')),
+			self::NAME => new DevblocksSearchField(self::NAME, 'g', 'name', $translate->_('common.name')),
+			
+			self::CONTEXT_LINK => new DevblocksSearchField(self::CONTEXT_LINK, 'context_link', 'from_context', null),
+			self::CONTEXT_LINK_ID => new DevblocksSearchField(self::CONTEXT_LINK_ID, 'context_link', 'from_context_id', null),
+		);
+		
+		// Custom Fields
+		//$fields = DAO_CustomField::getBySource(ChCustomFieldSource_Group::ID);
+
+//		if(is_array($fields))
+//		foreach($fields as $field_id => $field) {
+//			$key = 'cf_'.$field_id;
+//			$columns[$key] = new DevblocksSearchField($key,$key,'field_value',$field->name);
+//		}
+		
+		// Sort by label (translation-conscious)
+		uasort($columns, create_function('$a, $b', "return strcasecmp(\$a->db_label,\$b->db_label);\n"));
+
+		return $columns;		
+	}
 };
 
 class Model_Group {
@@ -476,5 +592,358 @@ class DAO_GroupSettings {
 	    
 	    // All groups
 		return $groups;
+	}
+};
+
+class View_Group extends C4_AbstractView {
+	const DEFAULT_ID = 'groups';
+
+	function __construct() {
+		$this->id = self::DEFAULT_ID;
+		$this->name = 'Groups';
+		$this->renderLimit = 25;
+		$this->renderSortBy = SearchFields_Group::NAME;
+		$this->renderSortAsc = true;
+
+		$this->view_columns = array(
+			SearchFields_Group::NAME,
+		);
+		
+		$this->columnsHidden = array(
+			SearchFields_Group::ID,
+		);
+		$this->paramsHidden = array(
+			SearchFields_Group::ID,
+		);
+		
+		$this->doResetCriteria();
+	}
+
+	function getData() {
+		return DAO_Group::search(
+			$this->view_columns,
+			$this->getParams(),
+			$this->renderLimit,
+			$this->renderPage,
+			$this->renderSortBy,
+			$this->renderSortAsc,
+			$this->renderTotal
+		);
+	}
+
+	function render() {
+		$this->_sanitize();
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('id', $this->id);
+		$tpl->assign('view', $this);
+
+		//$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Group::ID);
+		//$tpl->assign('custom_fields', $custom_fields);
+
+		switch($this->renderTemplate) {
+			case 'contextlinks_chooser':
+				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/groups/view_contextlinks_chooser.tpl');
+				break;
+			default:
+				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/groups/view.tpl');
+				break;
+		}
+	}
+
+	function renderCriteria($field) {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('id', $this->id);
+
+		switch($field) {
+			case SearchFields_Group::NAME:
+				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__string.tpl');
+				break;
+				
+			case 'placeholder_bool':
+				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__bool.tpl');
+				break;
+				
+			case 'placeholder_date':
+				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__date.tpl');
+				break;
+				
+			default:
+				// Custom Fields
+//				if('cf_' == substr($field,0,3)) {
+//					$this->_renderCriteriaCustomField($tpl, substr($field,3));
+//				} else {
+//					echo ' ';
+//				}
+				break;
+		}
+	}
+
+	function renderCriteriaParam($param) {
+		$field = $param->field;
+		$values = !is_array($param->value) ? array($param->value) : $param->value;
+
+		switch($field) {
+//			case SearchFields_WorkerEvent::WORKER_ID:
+//				$workers = DAO_Worker::getAll();
+//				$strings = array();
+//
+//				foreach($values as $val) {
+//					if(empty($val))
+//					$strings[] = "Nobody";
+//					elseif(!isset($workers[$val]))
+//					continue;
+//					else
+//					$strings[] = $workers[$val]->getName();
+//				}
+//				echo implode(", ", $strings);
+//				break;
+			default:
+				parent::renderCriteriaParam($param);
+				break;
+		}
+	}
+
+	function getFields() {
+		return SearchFields_Group::getFields();
+	}
+
+	function doSetCriteria($field, $oper, $value) {
+		$criteria = null;
+
+		switch($field) {
+			case SearchFields_Group::NAME:
+				// force wildcards if none used on a LIKE
+				if(($oper == DevblocksSearchCriteria::OPER_LIKE || $oper == DevblocksSearchCriteria::OPER_NOT_LIKE)
+				&& false === (strpos($value,'*'))) {
+					$value = '*'.$value.'*';
+				}
+				$criteria = new DevblocksSearchCriteria($field, $oper, $value);
+				break;
+				
+			case 'placeholder_date':
+				@$from = DevblocksPlatform::importGPC($_REQUEST['from'],'string','');
+				@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string','');
+
+				if(empty($from)) $from = 0;
+				if(empty($to)) $to = 'today';
+
+				$criteria = new DevblocksSearchCriteria($field,$oper,array($from,$to));
+				break;
+				
+			case 'placeholder_bool':
+				@$bool = DevblocksPlatform::importGPC($_REQUEST['bool'],'integer',1);
+				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
+				break;
+				
+			default:
+				// Custom Fields
+//				if(substr($field,0,3)=='cf_') {
+//					$criteria = $this->_doSetCriteriaCustomField($field, substr($field,3));
+//				}
+				break;
+		}
+
+		if(!empty($criteria)) {
+			$this->addParam($criteria);
+			$this->renderPage = 0;
+		}
+	}
+
+	function doBulkUpdate($filter, $do, $ids=array()) {
+		@set_time_limit(600); // [TODO] Temp!
+	  
+		$change_fields = array();
+		$custom_fields = array();
+
+		// [TODO] Implement
+		return;
+		
+		if(empty($do))
+			return;
+
+		// Make sure we have checked items if we want a checked list
+		if(0 == strcasecmp($filter,"checks") && empty($ids))
+			return;
+			
+		if(is_array($do))
+		foreach($do as $k => $v) {
+			switch($k) {
+//				case 'is_disabled':
+//					$change_fields[DAO_Worker::IS_DISABLED] = intval($v);
+//					break;
+				default:
+					// Custom fields
+//					if(substr($k,0,3)=="cf_") {
+//						$custom_fields[substr($k,3)] = $v;
+//					}
+					break;
+
+			}
+		}
+
+		$pg = 0;
+
+		if(empty($ids))
+		do {
+			list($objects,$null) = DAO_Group::search(
+			array(),
+			$this->getParams(),
+			100,
+			$pg++,
+			SearchFields_Group::ID,
+			true,
+			false
+			);
+			 
+			$ids = array_merge($ids, array_keys($objects));
+			 
+		} while(!empty($objects));
+
+		$batch_total = count($ids);
+		for($x=0;$x<=$batch_total;$x+=100) {
+			$batch_ids = array_slice($ids,$x,100);
+			DAO_Worker::update($batch_ids, $change_fields);
+			
+			// Custom Fields
+			//self::_doBulkSetCustomFields(ChCustomFieldSource_Worker::ID, $custom_fields, $batch_ids);
+			
+			unset($batch_ids);
+		}
+
+		unset($ids);
+	}
+};
+
+class Context_Group extends Extension_DevblocksContext {
+    function __construct($manifest) {
+        parent::__construct($manifest);
+    }
+
+    function getPermalink($context_id) {
+    	// [TODO] Profiles
+    	$url_writer = DevblocksPlatform::getUrlService();
+    	return null;
+    	//return $url_writer->write('c=home&tab=orgs&action=display&id='.$context_id, true);
+    }
+    
+	function getContext($group, &$token_labels, &$token_values, $prefix=null) {
+		if(is_null($prefix))
+			$prefix = 'Group:';
+			
+		$translate = DevblocksPlatform::getTranslationService();
+		//$fields = DAO_CustomField::getBySource(ChCustomFieldSource_Group::ID);
+		
+		// Polymorph
+		if(is_numeric($group)) {
+			$group = DAO_Group::get($group);
+		} elseif($group instanceof Model_Group) {
+			// It's what we want already.
+		} else {
+			$group = null;
+		}
+			
+		// Token labels
+		$token_labels = array(
+			'name' => $prefix.$translate->_('common.name'),
+		);
+		
+//		if(is_array($fields))
+//		foreach($fields as $cf_id => $field) {
+//			$token_labels['worker_custom_'.$cf_id] = $prefix.$field->name;
+//		}
+
+		// Token values
+		$token_values = array();
+		
+		// Group token values
+		if(null != $group) {
+			$token_values['id'] = $group->id;
+			$token_values['name'] = $group->name;
+//			if(!empty($worker->title))
+//				$token_values['title'] = $worker->title;
+//			$token_values['custom'] = array();
+			
+//			$field_values = array_shift(DAO_CustomFieldValue::getValuesBySourceIds(ChCustomFieldSource_Worker::ID, $worker->id));
+//			if(is_array($field_values) && !empty($field_values)) {
+//				foreach($field_values as $cf_id => $cf_val) {
+//					if(!isset($fields[$cf_id]))
+//						continue;
+//					
+//					// The literal value
+//					if(null != $worker)
+//						$token_values['custom'][$cf_id] = $cf_val;
+//					
+//					// Stringify
+//					if(is_array($cf_val))
+//						$cf_val = implode(', ', $cf_val);
+//						
+//					if(is_string($cf_val)) {
+//						if(null != $worker)
+//							$token_values['custom_'.$cf_id] = $cf_val;
+//					}
+//				}
+//			}
+		}
+		
+//		// Worker email
+//		@$worker_email = !is_null($worker) ? $worker->email : null;
+//		$merge_token_labels = array();
+//		$merge_token_values = array();
+//		CerberusContexts::getContext(CerberusContexts::CONTEXT_ADDRESS, $worker_email, $merge_token_labels, $merge_token_values, null, true);
+
+//		CerberusContexts::merge(
+//			'address_',
+//			'',
+//			$merge_token_labels,
+//			$merge_token_values,
+//			$token_labels,
+//			$token_values
+//		);		
+		
+		return true;		
+	}
+	
+	function getChooserView() {
+		// View
+		$view_id = 'chooser_'.str_replace('.','_',$this->id).time().mt_rand(0,9999);
+		$defaults = new C4_AbstractViewModel();
+		$defaults->id = $view_id;
+		$defaults->is_ephemeral = true;
+		$defaults->class_name = 'View_Group';
+		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
+		$view->name = 'Groups';
+		$view->view_columns = array(
+			SearchFields_Group::NAME,
+//			SearchFields_Worker::LAST_NAME,
+//			SearchFields_Worker::TITLE,
+		);
+		$view->addParams(array(
+//			SearchFields_Worker::IS_DISABLED => new DevblocksSearchCriteria(SearchFields_Worker::IS_DISABLED,'=',0),
+		), true);
+//		$view->renderSortBy = SearchFields_Group::NAME;
+//		$view->renderSortAsc = true;
+		$view->renderLimit = 10;
+		$view->renderTemplate = 'contextlinks_chooser';
+		C4_AbstractViewLoader::setView($view_id, $view);
+
+		return $view;
+	}
+	
+	function getView($context, $context_id) {
+		$view_id = str_replace('.','_',$this->id);
+		
+		$defaults = new C4_AbstractViewModel();
+		$defaults->id = $view_id; 
+		$defaults->class_name = 'View_Group';
+		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
+		$view->name = 'Groups';
+		$view->addParams(array(
+			new DevblocksSearchCriteria(SearchFields_Worker::CONTEXT_LINK,'=',$context),
+			new DevblocksSearchCriteria(SearchFields_Worker::CONTEXT_LINK_ID,'=',$context_id),
+		), true);
+		$view->renderTemplate = 'context';
+		C4_AbstractViewLoader::setView($view_id, $view);
+		return $view;
 	}
 };

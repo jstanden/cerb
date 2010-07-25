@@ -129,6 +129,8 @@
 			<class name="DAO_Group" />
 			<class name="DAO_GroupSettings" />
 			<class name="Model_Group" />
+			<class name="SearchFields_Group" />
+			<class name="View_Group" />
 		</file>
 		
 		<file path="api/dao/group_inbox_filter.php">
@@ -351,6 +353,25 @@
 						<data key="context.assigned" value="context.address.assigned" />
 						<data key="context.commented" value="context.address.commented" />
 					</value>
+				</param>
+			</params>
+		</extension>
+		
+		<extension point="devblocks.context">
+			<id>cerberusweb.contexts.group</id>
+			<name>Group</name>
+			<class>
+				<file>api/dao/group.php</file>
+				<name>Context_Group</name>
+			</class>
+			<params>
+				<param key="events">
+					<!--
+					<value>
+						<data key="context.assigned" value="context.group.assigned" />
+						<data key="context.commented" value="context.group.commented" />
+					</value>
+					-->
 				</param>
 			</params>
 		</extension>

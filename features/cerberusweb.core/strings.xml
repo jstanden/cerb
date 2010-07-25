@@ -774,6 +774,14 @@
 		<tu tuid='context.address.commented'>
 			<tuv xml:lang="en_US"><seg>%s commented on a contact.</seg></tuv>
 		</tu>
+		<!--
+		<tu tuid='context.group.assigned'>
+			<tuv xml:lang="en_US"><seg>%s assigned a group to you.</seg></tuv>
+		</tu>
+		<tu tuid='context.group.commented'>
+			<tuv xml:lang="en_US"><seg>%s commented on a group.</seg></tuv>
+		</tu>
+		-->
 		<tu tuid='context.org.assigned'>
 			<tuv xml:lang="en_US"><seg>%s assigned an organization to you.</seg></tuv>
 		</tu>
