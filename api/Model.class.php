@@ -582,7 +582,7 @@ class C4_AbstractViewLoader {
 			$inst->renderLimit = $model->renderLimit;
 		if(null !== $model->renderTotal)
 			$inst->renderTotal = $model->renderTotal;
-		if(null !== $model->renderSortBy)
+		if(!empty($model->renderSortBy))
 			$inst->renderSortBy = $model->renderSortBy;
 		if(null !== $model->renderSortBy)
 			$inst->renderSortAsc = $model->renderSortAsc;
