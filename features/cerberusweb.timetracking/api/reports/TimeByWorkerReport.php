@@ -155,6 +155,9 @@ class ChReportTimeSpentWorker extends Extension_Report {
 			$worker_id = intval($row['worker_id']);
 			$date_plot = $row['date_plot'];
 			
+			if(!isset($workers[$worker_id]))
+				continue;
+			
 			if(!isset($data[$worker_id]))
 				$data[$worker_id] = $ticks;
 			
