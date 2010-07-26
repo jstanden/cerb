@@ -282,7 +282,7 @@
 		<id>report.timetracking.timespentworker</id>
 		<name>Time Spent Per Worker</name>
 		<class>
-			<file>api/App.php</file>
+			<file>api/reports/TimeByWorkerReport.php</file>
 			<name>ChReportTimeSpentWorker</name>
 		</class>
 		<params>
