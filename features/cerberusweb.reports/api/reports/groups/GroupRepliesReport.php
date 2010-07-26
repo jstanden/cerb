@@ -58,7 +58,6 @@ class ChReportGroupReplies extends Extension_Report {
 		// reload variables in template
 		$tpl->assign('start', $start);
 		$tpl->assign('end', $end);
-		$tpl->assign('age_dur', abs(floor(($start_time - $end_time)/86400)));
 		
 		// Calculate the # of ticks between the dates (and the scale -- day, month, etc)
 		$range = $end_time - $start_time;
@@ -114,15 +113,49 @@ class ChReportGroupReplies extends Extension_Report {
 				$ticks[strftime($date_group, $time)] = 0;
 		}		
 		
+		// Table
+		
+		$defaults = new C4_AbstractViewModel();
+		$defaults->id = 'report_group_history';
+		$defaults->class_name = 'View_Message';
+		
+		if(null != ($view = C4_AbstractViewLoader::getView($defaults->id, $defaults))) {
+			$view->is_ephemeral = true;
+			$view->paramsDefault = array();
+			$view->removeAllParams();
+
+			$view->view_columns = array(
+				SearchFields_Message::TICKET_GROUP_ID,
+				SearchFields_Message::CREATED_DATE,
+				SearchFields_Message::WORKER_ID,
+			);
+			
+			$view->addParam(new DevblocksSearchCriteria(SearchFields_Message::CREATED_DATE,DevblocksSearchCriteria::OPER_BETWEEN, array($start_time, $end_time)));
+			$view->addParam(new DevblocksSearchCriteria(SearchFields_Message::IS_OUTGOING,DevblocksSearchCriteria::OPER_EQ, 1));
+			$view->addParam(new DevblocksSearchCriteria(SearchFields_Message::WORKER_ID,DevblocksSearchCriteria::OPER_NEQ, 0));
+			
+			if(!empty($filter_group_ids)) {
+				$view->addParam(new DevblocksSearchCriteria(SearchFields_Message::TICKET_GROUP_ID,DevblocksSearchCriteria::OPER_IN, $filter_group_ids));
+			}
+			
+			$view->renderPage = 0;
+			$view->renderSortBy = SearchFields_Message::CREATED_DATE;
+			$view->renderSortAsc = false;
+			
+			C4_AbstractViewLoader::setView($view->id, $view);
+			
+			$tpl->assign('view', $view);
+		}		
+		
 		// Chart
 		$sql = sprintf("SELECT t.team_id as group_id, DATE_FORMAT(FROM_UNIXTIME(m.created_date),'%s') as date_plot, ".
-			"count(*) AS hits ".
+			"count(m.id) AS hits ".
 			"FROM message m ".
-			"INNER JOIN ticket t ON (t.id=m.ticket_id) ".
-			"WHERE m.created_date > %d AND m.created_date <= %d ".
+			"INNER JOIN ticket t ON (m.ticket_id=t.id) ".
+			"WHERE m.created_date BETWEEN %d AND %d ".
 			"%s ".
+			"AND m.worker_id != 0 ".
 			"AND m.is_outgoing = 1 ".
-			"AND t.is_deleted = 0 ".
 			"AND t.team_id != 0 " .			
 			"GROUP BY group_id, date_plot ",
 			$date_group,

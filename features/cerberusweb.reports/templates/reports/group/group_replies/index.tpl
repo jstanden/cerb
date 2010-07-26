@@ -239,7 +239,13 @@ plot1 = $.jqplot('reportChart', chartData, chartOptions);
 
 {if $invalidDate}<div><font color="red"><b>{$translate->_('reports.ui.invalid_date')}</b></font></div>{/if}
 
-{if !empty($data)}
+{if !empty($view) || !empty($data)}
+	{if !empty($view)}
+	<div id="view{$view->id}">{$view->render()}</div>
+	<br>
+	{/if}
+
+	{if !empty($data)}
 	{foreach from=$data key=group_id item=plots name=groups}
 		<div class="block" style="display:inline-block;">
 		{$sum = 0}
@@ -252,6 +258,7 @@ plot1 = $.jqplot('reportChart', chartData, chartOptions);
 		<b>Mean: {($sum/count($plots))|string_format:"%0.2f"}</b><br>
 		</div>
 	{/foreach}
+	{/if}
 {else}
 <div><b>No data.</b></div>
 {/if}
