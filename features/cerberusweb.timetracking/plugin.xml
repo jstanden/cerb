@@ -308,7 +308,7 @@
 		<id>report.timetracking.timespentactivity</id>
 		<name>Time Spent Per Activity</name>
 		<class>
-			<file>api/App.php</file>
+			<file>api/reports/TimeByActivityReport.php</file>
 			<name>ChReportTimeSpentActivity</name>
 		</class>
 		<params>
