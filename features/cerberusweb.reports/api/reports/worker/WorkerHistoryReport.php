@@ -6,11 +6,18 @@ class ChReportWorkerHistory extends Extension_Report {
 	
 	function render() {
 		$db = DevblocksPlatform::getDatabaseService();
-
 		$tpl = DevblocksPlatform::getTemplateService();
+		
+		@$filter_worker_ids = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',array());
+		$tpl->assign('filter_worker_ids', $filter_worker_ids);
+		@$filter_group_ids = DevblocksPlatform::importGPC($_REQUEST['group_id'],'array',array());
+		$tpl->assign('filter_group_ids', $filter_group_ids);
 		
 		$workers = DAO_Worker::getAll();
 		$tpl->assign('workers', $workers);
+		
+		$groups = DAO_Group::getAll();
+		$tpl->assign('groups', $groups);
 
 		// Year shortcuts
 		$years = array();
@@ -42,15 +49,8 @@ class ChReportWorkerHistory extends Extension_Report {
 				$ticks[strftime($date_group, $time)] = 0;
 		}		
 		
-		@$worker_id = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'integer',0);
-		if(!$worker_id) {
-			$worker = CerberusApplication::getActiveWorker();
-			$worker_id = $worker->id;
-		}
-		$tpl->assign('worker_id', $worker_id);
-		
 		if (empty($start) && empty($end)) {
-			$start = "-30 days";
+			$start = "-7 days";
 			$end = "now";
 			$start_time = strtotime($start);
 			$end_time = strtotime($end);
@@ -68,20 +68,45 @@ class ChReportWorkerHistory extends Extension_Report {
 		$plots = $range/15;
 		
 		$ticks = array();
+
+		@$report_date_grouping = DevblocksPlatform::importGPC($_REQUEST['report_date_grouping'],'string','');
+		$date_group = '';
+		$date_increment = '';
 		
-		if($range_days > 365) {
-			$date_group = '%Y';
-			$date_increment = 'year';
-		} elseif($range_days > 32) {
-			$date_group = '%Y-%m';
-			$date_increment = 'month';
-		} elseif($range_days > 1) {
-			$date_group = '%Y-%m-%d';
-			$date_increment = 'day';
-		} else {
-			$date_group = '%Y-%m-%d %H';
-			$date_increment = 'hour';
+		// Did the user choose a specific grouping?
+		switch($report_date_grouping) {
+			case 'year':
+				$date_group = '%Y';
+				$date_increment = 'year';
+				break;
+			case 'month':
+				$date_group = '%Y-%m';
+				$date_increment = 'month';
+				break;
+			case 'day':
+				$date_group = '%Y-%m-%d';
+				$date_increment = 'day';
+				break;
 		}
+		
+		// Fallback to automatic grouping
+		if(empty($date_group) || empty($date_increment)) {
+			if($range_days > 365) {
+				$date_group = '%Y';
+				$date_increment = 'year';
+			} elseif($range_days > 32) {
+				$date_group = '%Y-%m';
+				$date_increment = 'month';
+			} elseif($range_days > 1) {
+				$date_group = '%Y-%m-%d';
+				$date_increment = 'day';
+			} else {
+				$date_group = '%Y-%m-%d %H';
+				$date_increment = 'hour';
+			}
+		}
+		
+		$tpl->assign('report_date_grouping', $date_increment);		
 		
 		// Find unique values
 		$time = strtotime(sprintf("-1 %s", $date_increment), $start_time);
@@ -93,41 +118,42 @@ class ChReportWorkerHistory extends Extension_Report {
 		
 		// Table
 		
-		$sql = sprintf("SELECT t.id, t.mask, t.subject, a.email as email, " . 
-			"date_format(from_unixtime(m.created_date),'%%Y-%%m-%%d') as day ".
-			"FROM ticket t ".
-			"INNER JOIN message m ON t.id = m.ticket_id ".
-			"INNER JOIN worker w ON m.worker_id = w.id ".
-			"INNER JOIN address a on t.first_wrote_address_id = a.id ".
-			"WHERE m.created_date > %d AND m.created_date <= %d ".
-			"AND m.is_outgoing = 1 ".
-			"AND t.is_deleted = 0 ".
-			"AND w.id = %d ".
-			"GROUP BY day, t.id ".
-			"order by m.created_date",
-			$start_time,
-			$end_time,
-			$worker_id
-		);
-		$rs = $db->Execute($sql);
-
-		$tickets_replied = array();
+		$defaults = new C4_AbstractViewModel();
+		$defaults->id = 'report_worker_history';
+		$defaults->class_name = 'View_Message';
 		
-		while($row = mysql_fetch_assoc($rs)) {
-			$created_day = $row['day'];
+		if(null != ($view = C4_AbstractViewLoader::getView($defaults->id, $defaults))) {
+			$view->is_ephemeral = true;
+			$view->paramsDefault = array();
+			$view->removeAllParams();
+
+			$view->view_columns = array(
+				SearchFields_Message::TICKET_GROUP_ID,
+				SearchFields_Message::CREATED_DATE,
+				SearchFields_Message::WORKER_ID,
+			);
 			
-			unset($reply_date_ticket);
-			$reply_date_ticket->mask = $row['mask'];
-			$reply_date_ticket->email = $row['email'];
-			$reply_date_ticket->subject = $row['subject'];
-			$reply_date_ticket->id = intval($row['id']);
-
-			$tickets_replied[$created_day][] = $reply_date_ticket;
+			$view->addParam(new DevblocksSearchCriteria(SearchFields_Message::CREATED_DATE,DevblocksSearchCriteria::OPER_BETWEEN, array($start_time, $end_time)));
+			$view->addParam(new DevblocksSearchCriteria(SearchFields_Message::IS_OUTGOING,DevblocksSearchCriteria::OPER_EQ, 1));
+			
+			if(!empty($filter_worker_ids)) {
+				$view->addParam(new DevblocksSearchCriteria(SearchFields_Message::WORKER_ID,DevblocksSearchCriteria::OPER_IN, $filter_worker_ids));
+			} else {
+				$view->addParam(new DevblocksSearchCriteria(SearchFields_Message::WORKER_ID,DevblocksSearchCriteria::OPER_NEQ, 0));
+			}
+			
+			if(!empty($filter_group_ids)) {
+				$view->addParam(new DevblocksSearchCriteria(SearchFields_Message::TICKET_GROUP_ID,DevblocksSearchCriteria::OPER_IN, $filter_group_ids));
+			}
+			
+			$view->renderPage = 0;
+			$view->renderSortBy = SearchFields_Message::CREATED_DATE;
+			$view->renderSortAsc = false;
+			
+			C4_AbstractViewLoader::setView($view->id, $view);
+			
+			$tpl->assign('view', $view);
 		}
-		
-		mysql_free_result($rs);
-
-		$tpl->assign('tickets_replied', $tickets_replied);		
 		
 		// Chart
 		
@@ -135,14 +161,18 @@ class ChReportWorkerHistory extends Extension_Report {
 			"count(*) AS hits ".
 			"FROM message m ".
 			"INNER JOIN ticket t ON (t.id=m.ticket_id) ".
-			"INNER JOIN worker w ON w.id=m.worker_id ".
 			"WHERE m.created_date > %d AND m.created_date <= %d ".
+			"%s ".
+			"%s ".
 			"AND m.is_outgoing = 1 ".
 			"AND t.is_deleted = 0 ".
+			"AND m.worker_id != 0 ".
 			"GROUP BY m.worker_id, date_plot ",
 			$date_group,
 			$start_time,
-			$end_time
+			$end_time,
+			(is_array($filter_worker_ids) && !empty($filter_worker_ids) ? sprintf("AND m.worker_id IN (%s)", implode(',', $filter_worker_ids)) : ""),
+			(is_array($filter_group_ids) && !empty($filter_group_ids) ? sprintf("AND t.team_id IN (%s)", implode(',', $filter_group_ids)) : "")
 		);
 		$rs = $db->Execute($sql);
 		
@@ -151,11 +181,17 @@ class ChReportWorkerHistory extends Extension_Report {
 			$worker_id = intval($row['worker_id']);
 			$date_plot = $row['date_plot'];
 			
+			if(!isset($workers[$worker_id]))
+				continue;
+			
 			if(!isset($data[$worker_id]))
 				$data[$worker_id] = $ticks;
 			
 			$data[$worker_id][$date_plot] = intval($row['hits']);
 		}
+		
+		// Sort the data in descending order
+		uasort($data, array('ChReportSorters','sortDataDesc'));
 		
 		$tpl->assign('xaxis_ticks', array_keys($ticks));
 		$tpl->assign('data', $data);

@@ -77,9 +77,6 @@
 		<tu tuid='reports.ui.invalid_date'>
 			<tuv xml:lang="en_US"><seg>Invalid Date specified.  Please try again.</seg></tuv>
 		</tu>		
-		<tu tuid='reports.ui.worker'>
-			<tuv xml:lang="en_US"><seg>Worker:</seg></tuv>
-		</tu>
 
 		<tu tuid='reports.activity'>
 			<tuv xml:lang="en_US"><seg>%s is running reports</seg></tuv>
@@ -241,12 +238,6 @@
 		</tu>
 		<tu tuid='reports.ui.worker.worker_history'>
 			<tuv xml:lang="en_US"><seg>Worker History over Date Range</seg></tuv>
-		</tu>
-		<tu tuid='reports.ui.worker.worker_replies'>
-			<tuv xml:lang="en_US"><seg>Worker Replies over Date Range</seg></tuv>
-		</tu>
-		<tu tuid='reports.ui.worker.worker_replies.average'>
-			<tuv xml:lang="en_US"><seg>(avg: %s/day)</seg></tuv>
 		</tu>
 	</body>
 </tmx>
