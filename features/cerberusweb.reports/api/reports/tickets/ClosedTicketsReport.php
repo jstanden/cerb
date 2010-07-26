@@ -50,8 +50,6 @@ class ChReportClosedTickets extends Extension_Report {
 		$tpl->assign('start', $start);
 		$tpl->assign('end', $end);
 		
-		// Chart
-		
 		// Calculate the # of ticks between the dates (and the scale -- day, month, etc)
 		$range = $end_time - $start_time;
 		$range_days = $range/86400;
@@ -105,6 +103,38 @@ class ChReportClosedTickets extends Extension_Report {
 			if($time <= $end_time)
 				$ticks[strftime($date_group, $time)] = 0;
 		}
+		
+		// Table
+
+		$defaults = new C4_AbstractViewModel();
+		$defaults->id = 'report_tickets_created';
+		$defaults->class_name = 'View_Ticket';
+		
+		if(null != ($view = C4_AbstractViewLoader::getView($defaults->id, $defaults))) {
+			$view->is_ephemeral = true;
+			$view->paramsDefault = array();
+			$view->removeAllParams();
+
+			$view->addParam(new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_UPDATED_DATE,DevblocksSearchCriteria::OPER_BETWEEN, array($start_time, $end_time)));
+			$view->addParam(new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_DELETED,DevblocksSearchCriteria::OPER_EQ, 0));
+			$view->addParam(new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,DevblocksSearchCriteria::OPER_EQ, 1));
+			$view->addParam(new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_SPAM_SCORE,DevblocksSearchCriteria::OPER_LT, 0.9));
+			$view->addParam(new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_SPAM_TRAINING,DevblocksSearchCriteria::OPER_NEQ, 'S'));
+			
+			if(!empty($filter_group_ids)) {
+				$view->addParam(new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_TEAM_ID,DevblocksSearchCriteria::OPER_IN, $filter_group_ids));
+			}
+			
+			$view->renderPage = 0;
+			$view->renderSortBy = SearchFields_Ticket::TICKET_UPDATED_DATE;
+			$view->renderSortAsc = false;
+			
+			C4_AbstractViewLoader::setView($view->id, $view);
+			
+			$tpl->assign('view', $view);
+		}		
+		
+		// Chart
 		
 		$sql = sprintf("SELECT t.team_id as group_id, DATE_FORMAT(FROM_UNIXTIME(t.updated_date),'%s') as date_plot, ".
 			"count(*) AS hits ".
