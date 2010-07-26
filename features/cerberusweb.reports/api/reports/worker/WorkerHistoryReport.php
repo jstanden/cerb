@@ -33,7 +33,6 @@ class ChReportWorkerHistory extends Extension_Report {
 		
 		// Dates
 		
-		@$age = DevblocksPlatform::importGPC($_REQUEST['age'],'string','30d');
 		@$start = DevblocksPlatform::importGPC($_REQUEST['start'],'string','');
 		@$end = DevblocksPlatform::importGPC($_REQUEST['end'],'string','');
 
@@ -41,14 +40,6 @@ class ChReportWorkerHistory extends Extension_Report {
 		$start_time = 0;
 		$end_time = 0;
 
-		// Find unique values
-		$time = strtotime(sprintf("-1 %s", $date_increment), $start_time);
-		while($time < $end_time) {
-			$time = strtotime(sprintf("+1 %s", $date_increment), $time);
-			if($time <= $end_time)
-				$ticks[strftime($date_group, $time)] = 0;
-		}		
-		
 		if (empty($start) && empty($end)) {
 			$start = "-7 days";
 			$end = "now";
