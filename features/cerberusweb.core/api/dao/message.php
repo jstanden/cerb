@@ -237,25 +237,37 @@ class DAO_Message extends DevblocksORMHelper {
 			"m.id as %s, ".
 			"m.address_id as %s, ".
 			"m.created_date as %s, ".
+			"m.is_outgoing as %s, ".
 			"m.ticket_id as %s, ".
+			"m.worker_id as %s, ".
 			"m.storage_extension as %s, ".
 			"m.storage_key as %s, ".
 			"m.storage_profile_id as %s, ".
-			"m.storage_size as %s ".
-			"FROM message m ",
-//			"INNER JOIN team tm ON (tm.id = t.team_id) ".
+			"m.storage_size as %s, ".
+			"t.team_id as %s, ".
+			"t.mask as %s, ".
+			"t.subject as %s, ".
+			"a.email as %s ".
+			"FROM message m ".
+			"INNER JOIN ticket t ON (m.ticket_id = t.id) ".
+			"INNER JOIN address a ON (m.address_id = a.id) ",
 			    SearchFields_Message::ID,
 			    SearchFields_Message::ADDRESS_ID,
 			    SearchFields_Message::CREATED_DATE,
+			    SearchFields_Message::IS_OUTGOING,
 			    SearchFields_Message::TICKET_ID,
+			    SearchFields_Message::WORKER_ID,
 			    SearchFields_Message::STORAGE_EXTENSION,
 			    SearchFields_Message::STORAGE_KEY,
 			    SearchFields_Message::STORAGE_PROFILE_ID,
-			    SearchFields_Message::STORAGE_SIZE
+			    SearchFields_Message::STORAGE_SIZE,
+			    SearchFields_Message::TICKET_GROUP_ID,
+			    SearchFields_Message::TICKET_MASK,
+			    SearchFields_Message::TICKET_SUBJECT,
+			    SearchFields_Message::ADDRESS_EMAIL
 			).
 			
 			// [JAS]: Dynamic table joins
-			(isset($tables['t']) ? "INNER JOIN ticket t ON (t.id=m.ticket_id)" : " ").
 			(isset($tables['mh']) ? "INNER JOIN message_header mh ON (mh.message_id=m.id)" : " ").
 			(isset($tables['ftmc']) ? "INNER JOIN fulltext_message_content ftmc ON (ftmc.id=m.id)" : " ").
 			
@@ -293,7 +305,11 @@ class SearchFields_Message implements IDevblocksSearchFields {
 	const ID = 'm_id';
 	const ADDRESS_ID = 'm_address_id';
 	const CREATED_DATE = 'm_created_date';
+	const IS_OUTGOING = 'm_is_outgoing';
 	const TICKET_ID = 'm_ticket_id';
+	const WORKER_ID = 'm_worker_id';
+	
+	// Storage
 	const STORAGE_EXTENSION = 'm_storage_extension';
 	const STORAGE_KEY = 'm_storage_key';
 	const STORAGE_PROFILE_ID = 'm_storage_profile_id';
@@ -306,18 +322,28 @@ class SearchFields_Message implements IDevblocksSearchFields {
 	// Content
 	const MESSAGE_CONTENT = 'ftmc_content';
 	
+	// Address
+	const ADDRESS_EMAIL = 'a_email';
+	
 	// Ticket
 	const TICKET_GROUP_ID = 't_group_id';
+	const TICKET_MASK = 't_mask';
+	const TICKET_SUBJECT = 't_subject';
 
 	/**
 	 * @return DevblocksSearchField[]
 	 */
 	static function getFields() {
+		$translate = DevblocksPlatform::getTranslationService();
+		
 		$columns = array(
-			SearchFields_Message::ID => new DevblocksSearchField(SearchFields_Message::ID, 'm', 'id'),
+			SearchFields_Message::ID => new DevblocksSearchField(SearchFields_Message::ID, 'm', 'id', $translate->_('common.id')),
 			SearchFields_Message::ADDRESS_ID => new DevblocksSearchField(SearchFields_Message::ADDRESS_ID, 'm', 'address_id'),
-			SearchFields_Message::CREATED_DATE => new DevblocksSearchField(SearchFields_Message::CREATED_DATE, 'm', 'created_date'),
+			SearchFields_Message::CREATED_DATE => new DevblocksSearchField(SearchFields_Message::CREATED_DATE, 'm', 'created_date', $translate->_('common.created')),
+			SearchFields_Message::IS_OUTGOING => new DevblocksSearchField(SearchFields_Message::IS_OUTGOING, 'm', 'is_outgoing'),
 			SearchFields_Message::TICKET_ID => new DevblocksSearchField(SearchFields_Message::TICKET_ID, 'm', 'ticket_id'),
+			SearchFields_Message::WORKER_ID => new DevblocksSearchField(SearchFields_Message::WORKER_ID, 'm', 'worker_id', $translate->_('common.worker')),
+			
 			SearchFields_Message::STORAGE_EXTENSION => new DevblocksSearchField(SearchFields_Message::STORAGE_EXTENSION, 'm', 'storage_extension'),
 			SearchFields_Message::STORAGE_KEY => new DevblocksSearchField(SearchFields_Message::STORAGE_KEY, 'm', 'storage_key'),
 			SearchFields_Message::STORAGE_PROFILE_ID => new DevblocksSearchField(SearchFields_Message::STORAGE_PROFILE_ID, 'm', 'storage_profile_id'),
@@ -328,7 +354,11 @@ class SearchFields_Message implements IDevblocksSearchFields {
 			
 			SearchFields_Message::MESSAGE_CONTENT => new DevblocksSearchField(SearchFields_Message::MESSAGE_CONTENT, 'ftmc', 'content'),
 			
-			SearchFields_Message::TICKET_GROUP_ID => new DevblocksSearchField(SearchFields_Message::TICKET_GROUP_ID, 't', 'team_id'),
+			SearchFields_Message::ADDRESS_EMAIL => new DevblocksSearchField(SearchFields_Message::ADDRESS_EMAIL, 'a', 'email', $translate->_('common.email')),
+			
+			SearchFields_Message::TICKET_GROUP_ID => new DevblocksSearchField(SearchFields_Message::TICKET_GROUP_ID, 't', 'team_id', $translate->_('common.group')),
+			SearchFields_Message::TICKET_MASK => new DevblocksSearchField(SearchFields_Message::TICKET_MASK, 't', 'mask', $translate->_('common.mask')),
+			SearchFields_Message::TICKET_SUBJECT => new DevblocksSearchField(SearchFields_Message::TICKET_SUBJECT, 't', 'subject', $translate->_('common.subject')),
 		);
 		
 		// Sort by label (translation-conscious)
@@ -820,4 +850,252 @@ class DAO_MessageHeader {
         
         return $headers;
     }
+};
+
+class View_Message extends C4_AbstractView {
+	const DEFAULT_ID = 'messages';
+
+	function __construct() {
+		$this->id = self::DEFAULT_ID;
+		$this->name = 'Messages';
+		$this->renderLimit = 25;
+		$this->renderSortBy = SearchFields_Message::CREATED_DATE;
+		$this->renderSortAsc = true;
+
+		$this->view_columns = array(
+			SearchFields_Message::TICKET_GROUP_ID,
+			SearchFields_Message::ADDRESS_EMAIL,
+			SearchFields_Message::CREATED_DATE,
+		);
+		
+		$this->columnsHidden = array(
+			SearchFields_Message::ID,
+			SearchFields_Message::MESSAGE_CONTENT,
+			SearchFields_Message::MESSAGE_HEADER_NAME,
+			SearchFields_Message::MESSAGE_HEADER_VALUE,
+			SearchFields_Message::STORAGE_EXTENSION,
+			SearchFields_Message::STORAGE_KEY,
+			SearchFields_Message::STORAGE_PROFILE_ID,
+			SearchFields_Message::STORAGE_SIZE,
+		);
+		$this->paramsHidden = array(
+			SearchFields_Message::ID,
+		);
+		
+		$this->doResetCriteria();
+	}
+
+	function getData() {
+		return DAO_Message::search(
+			//$this->view_columns,
+			$this->getParams(),
+			$this->renderLimit,
+			$this->renderPage,
+			$this->renderSortBy,
+			$this->renderSortAsc,
+			$this->renderTotal
+		);
+	}
+
+	function render() {
+		$this->_sanitize();
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('id', $this->id);
+		$tpl->assign('view', $this);
+
+//		$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Worker::ID);
+//		$tpl->assign('custom_fields', $custom_fields);
+
+		switch($this->renderTemplate) {
+//			case 'contextlinks_chooser':
+//				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/workers/view_contextlinks_chooser.tpl');
+//				break;
+			default:
+				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/messages/view.tpl');
+				break;
+		}
+	}
+
+	function renderVirtualCriteria($param) {
+		$key = $param->field;
+		
+		switch($key) {
+//			case SearchFields_Worker::VIRTUAL_GROUPS:
+//				if(empty($param->value)) {
+//					echo "<b>Not</b> a member of any groups";
+//					
+//				} elseif(is_array($param->value)) {
+//					$groups = DAO_Group::getAll();
+//					$strings = array();
+//					
+//					foreach($param->value as $group_id) {
+//						if(isset($groups[$group_id]))
+//							$strings[] = '<b>'.$groups[$group_id]->name.'</b>';
+//					}
+//					
+//					echo sprintf("Group member of %s", implode(' or ', $strings));
+//				}
+//				break;
+		}
+	}	
+	
+	function renderCriteria($field) {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('id', $this->id);
+
+		switch($field) {
+			case 'placeholder_string':
+				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__string.tpl');
+				break;
+				
+			case 'placeholder_bool':
+				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__bool.tpl');
+				break;
+				
+			case 'placeholder_date':
+				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__date.tpl');
+				break;
+				
+			default:
+				// Custom Fields
+//				if('cf_' == substr($field,0,3)) {
+//					$this->_renderCriteriaCustomField($tpl, substr($field,3));
+//				} else {
+//					echo ' ';
+//				}
+				break;
+		}
+	}
+
+	function renderCriteriaParam($param) {
+		$field = $param->field;
+		$values = !is_array($param->value) ? array($param->value) : $param->value;
+
+		switch($field) {
+//			case SearchFields_WorkerEvent::WORKER_ID:
+//				$workers = DAO_Worker::getAll();
+//				$strings = array();
+//
+//				foreach($values as $val) {
+//					if(empty($val))
+//					$strings[] = "Nobody";
+//					elseif(!isset($workers[$val]))
+//					continue;
+//					else
+//					$strings[] = $workers[$val]->getName();
+//				}
+//				echo implode(", ", $strings);
+//				break;
+			default:
+				parent::renderCriteriaParam($param);
+				break;
+		}
+	}
+
+	function getFields() {
+		return SearchFields_Message::getFields();
+	}
+
+	function doSetCriteria($field, $oper, $value) {
+		$criteria = null;
+
+		switch($field) {
+			case 'placeholder_string':
+				// force wildcards if none used on a LIKE
+				if(($oper == DevblocksSearchCriteria::OPER_LIKE || $oper == DevblocksSearchCriteria::OPER_NOT_LIKE)
+				&& false === (strpos($value,'*'))) {
+					$value = '*'.$value.'*';
+				}
+				$criteria = new DevblocksSearchCriteria($field, $oper, $value);
+				break;
+				
+			case 'placeholder_date':
+				@$from = DevblocksPlatform::importGPC($_REQUEST['from'],'string','');
+				@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string','');
+
+				if(empty($from)) $from = 0;
+				if(empty($to)) $to = 'today';
+
+				$criteria = new DevblocksSearchCriteria($field,$oper,array($from,$to));
+				break;
+				
+			case 'placeholder_bool':
+				@$bool = DevblocksPlatform::importGPC($_REQUEST['bool'],'integer',1);
+				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
+				break;
+				
+			default:
+				// Custom Fields
+//				if(substr($field,0,3)=='cf_') {
+//					$criteria = $this->_doSetCriteriaCustomField($field, substr($field,3));
+//				}
+				break;
+		}
+
+		if(!empty($criteria)) {
+			$this->addParam($criteria);
+			$this->renderPage = 0;
+		}
+	}
+
+	function doBulkUpdate($filter, $do, $ids=array()) {
+		@set_time_limit(600); // [TODO] Temp!
+	  
+		$change_fields = array();
+		$custom_fields = array();
+
+		if(empty($do))
+			return;
+
+		// Make sure we have checked items if we want a checked list
+		if(0 == strcasecmp($filter,"checks") && empty($ids))
+			return;
+			
+		if(is_array($do))
+		foreach($do as $k => $v) {
+			switch($k) {
+//				case 'is_disabled':
+//					$change_fields[DAO_Worker::IS_DISABLED] = intval($v);
+//					break;
+//				default:
+//					// Custom fields
+//					if(substr($k,0,3)=="cf_") {
+//						$custom_fields[substr($k,3)] = $v;
+//					}
+//					break;
+			}
+		}
+
+		$pg = 0;
+
+		if(empty($ids))
+		do {
+			list($objects,$null) = DAO_Message::search(
+//			array(),
+			$this->getParams(),
+			100,
+			$pg++,
+			SearchFields_Message::ID,
+			true,
+			false
+			);
+			 
+			$ids = array_merge($ids, array_keys($objects));
+			 
+		} while(!empty($objects));
+
+		$batch_total = count($ids);
+		for($x=0;$x<=$batch_total;$x+=100) {
+			$batch_ids = array_slice($ids,$x,100);
+			DAO_Message::update($batch_ids, $change_fields);
+			
+			// Custom Fields
+			//self::_doBulkSetCustomFields(ChCustomFieldSource_Worker::ID, $custom_fields, $batch_ids);
+			
+			unset($batch_ids);
+		}
+
+		unset($ids);
+	}
 };

@@ -153,6 +153,7 @@
 			<class name="Search_MessageContent" />
 			<class name="SearchFields_Message" />
 			<class name="Storage_MessageContent" />
+			<class name="View_Message" />
 		</file>
 		
 		<file path="api/dao/preparse_rule.php">
