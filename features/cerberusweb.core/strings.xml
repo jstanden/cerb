@@ -139,7 +139,7 @@
 			<tuv xml:lang="en_US"><seg>discard</seg></tuv>
 		</tu>
 		<tu tuid='common.email'>
-			<tuv xml:lang="en_US"><seg>E-mail</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Email</seg></tuv>
 		</tu>
 		<tu tuid='common.enabled'>
 			<tuv xml:lang="en_US"><seg>Enabled</seg></tuv>
@@ -437,13 +437,13 @@
 			<tuv xml:lang="en_US"><seg>[Address Book] Can import/upload records into the address book</seg></tuv>
 		</tu>
 		<tu tuid='acl.core.addybook.addy.actions.update'>
-			<tuv xml:lang="en_US"><seg>[Address Book] Can modify e-mail address contacts</seg></tuv>
+			<tuv xml:lang="en_US"><seg>[Address Book] Can modify email address contacts</seg></tuv>
 		</tu>
 		<tu tuid='acl.core.addybook.addy.view.actions.broadcast'>
-			<tuv xml:lang="en_US"><seg>[Address Book] Can broadcast compose e-mail to address lists</seg></tuv>
+			<tuv xml:lang="en_US"><seg>[Address Book] Can broadcast compose email to address lists</seg></tuv>
 		</tu>
 		<tu tuid='acl.core.addybook.addy.view.actions.export'>
-			<tuv xml:lang="en_US"><seg>[Address Book] Can export e-mail address lists to CSV/XML</seg></tuv>
+			<tuv xml:lang="en_US"><seg>[Address Book] Can export email address lists to CSV/XML</seg></tuv>
 		</tu>
 		<tu tuid='acl.core.addybook.org.actions.update'>
 			<tuv xml:lang="en_US"><seg>[Address Book] Can modify organizations</seg></tuv>
@@ -463,7 +463,7 @@
 			<tuv xml:lang="en_US"><seg>[Display Ticket] Can comment on tickets</seg></tuv>
 		</tu>
 		<tu tuid='acl.core.display.actions.forward'>
-			<tuv xml:lang="en_US"><seg>[Display Ticket] Can forward tickets to third-party e-mail addresses</seg></tuv>
+			<tuv xml:lang="en_US"><seg>[Display Ticket] Can forward tickets to third-party email addresses</seg></tuv>
 		</tu>
 		<tu tuid='acl.core.display.actions.note'>
 			<tuv xml:lang="en_US"><seg>[Display Ticket] Can add sticky notes to tickets</seg></tuv>
@@ -650,7 +650,7 @@
 			<tuv xml:lang="en_US"><seg>%s closed ticket(s)</seg></tuv>
 		</tu>
 		<tu tuid='addy_book.peek.title'>
-			<tuv xml:lang="en_US"><seg>E-mail Contact</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Email Contact</seg></tuv>
 		</tu>
 		<tu tuid='addy_book.peek.view_full'>
 			<tuv xml:lang="en_US"><seg>view full record</seg></tuv>
@@ -1049,7 +1049,7 @@
 			<tuv xml:lang="en_US"><seg>(The maximum attachment size is %s)</seg></tuv>
 		</tu>
 		<tu tuid='display.reply.email_templates'>
-			<tuv xml:lang="en_US"><seg>E-mail Templates</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Email Templates</seg></tuv>
 		</tu>
 		<tu tuid='display.reply.forward.banner'>
 			<tuv xml:lang="en_US"><seg>---- Forwarded message ----</seg></tuv>
@@ -1320,7 +1320,7 @@
 			<tuv xml:lang="en_US"><seg>The confirmation code you provided is not valid.</seg></tuv>
 		</tu>
 		<tu tuid='prefs.address.confirm.mail.body'>
-			<tuv xml:lang="en_US"><seg>%s has just added this e-mail address to their helpdesk account.
+			<tuv xml:lang="en_US"><seg>%s has just added this email address to their helpdesk account.
 
 To approve and continue, click the following link:
 %s
@@ -1329,13 +1329,13 @@ If you did not request this, do not click the link above.  The request will expi
 		</seg></tuv>
 		</tu>
 		<tu tuid='prefs.address.confirm.mail.subject'>
-			<tuv xml:lang="en_US"><seg>Confirm New Worker E-mail (%s)</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Confirm New Worker Email (%s)</seg></tuv>
 		</tu>
 		<tu tuid='prefs.address.confirm.mail.sent'>
-			<tuv xml:lang="en_US"><seg>A confirmation e-mail has been sent to %s</seg></tuv>
+			<tuv xml:lang="en_US"><seg>A confirmation email has been sent to %s</seg></tuv>
 		</tu>
 		<tu tuid='prefs.address.invalid'>
-			<tuv xml:lang="en_US"><seg>%s is not a valid e-mail address.</seg></tuv>
+			<tuv xml:lang="en_US"><seg>%s is not a valid email address.</seg></tuv>
 		</tu>
 
 		<!-- RSS -->
@@ -1704,7 +1704,7 @@ For example: *receipt*</seg></tuv>
 			<tuv xml:lang="en_US"><seg>Language:</seg></tuv>
 	    </tu>
 	    <tu tuid='preferences.account.email'>
-			<tuv xml:lang="en_US"><seg>E-mail Addresses</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Email Addresses</seg></tuv>
 	    </tu>
 	    <tu tuid='preferences.account.email.associated'>
 			<tuv xml:lang="en_US"><seg>These addresses will be associated with your helpdesk account.</seg></tuv>
@@ -1719,7 +1719,7 @@ For example: *receipt*</seg></tuv>
 			<tuv xml:lang="en_US"><seg>resend confirmation</seg></tuv>
 	    </tu>
 	    <tu tuid='preferences.account.email.address.add'>
-			<tuv xml:lang="en_US"><seg>Add e-mail address:</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Add email address:</seg></tuv>
 	    </tu>
 	    <tu tuid='preferences.account.preferences'>
 			<tuv xml:lang="en_US"><seg>Preferences</seg></tuv>
