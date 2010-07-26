@@ -71,6 +71,9 @@
 		<tu tuid='reports.ui.filters.n_months'>
 			<tuv xml:lang="en_US"><seg>%s months</seg></tuv>
 		</tu>
+		<tu tuid='reports.ui.filters.org'>
+			<tuv xml:lang="en_US"><seg>Filter organizations:</seg></tuv>
+		</tu>
 		<tu tuid='reports.ui.filters.worker'>
 			<tuv xml:lang="en_US"><seg>Filter workers:</seg></tuv>
 		</tu>

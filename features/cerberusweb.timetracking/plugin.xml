@@ -295,7 +295,7 @@
 		<id>report.timetracking.timespentorg</id>
 		<name>Time Spent Per Organization</name>
 		<class>
-			<file>api/App.php</file>
+			<file>api/reports/TimeByOrgReport.php</file>
 			<name>ChReportTimeSpentOrg</name>
 		</class>
 		<params>
