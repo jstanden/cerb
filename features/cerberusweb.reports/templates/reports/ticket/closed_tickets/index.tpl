@@ -134,7 +134,7 @@ chartOptions = {
 		},
 		shadow: false,
 		fill:true,
-		fillAndStroke:true,
+		fillAndStroke:false,
 		showLine:true,
 		showMarker:false,
 		markerOptions: {

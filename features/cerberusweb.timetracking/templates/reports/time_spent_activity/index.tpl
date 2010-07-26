@@ -80,8 +80,7 @@ chartOptions = {
 		},
 		shadow: false,
 		fill:true,
-		fillAndStroke:true,
-		//fillAlpha:0.7,
+		fillAndStroke:false,
 		showLine:true,
 		showMarker:false,
 		markerOptions: {
