@@ -181,6 +181,7 @@ function appendTextboxAsCsv(formName, field, oLink) {
 	txt.value = txt.value + sAppend;
 }
 
+// [TODO] Merge this into genericAjaxPopup
 var loadingPanel;
 function showLoadingPanel() {
 	if(null != loadingPanel) {

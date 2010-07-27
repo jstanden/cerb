@@ -263,8 +263,9 @@ class ChInternalController extends DevblocksControllerExtension {
 		$tpl->assign('output', htmlentities($output, null, LANG_CHARSET_CODE));
 		$tpl->display('file:'.$this->_TPL_PATH.'internal/renderers/test_results.tpl');
 	}
+
+	// Views
 	
-	// Ajax
 	function viewRefreshAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
 		$view = C4_AbstractViewLoader::getView($id);
@@ -367,7 +368,6 @@ class ChInternalController extends DevblocksControllerExtension {
 		@$preset_name = DevblocksPlatform::importGPC($_REQUEST['_preset_name'],'string','');
 
 		$active_worker = CerberusApplication::getActiveWorker();
-		
 
 		$view = C4_AbstractViewLoader::getView($id);
 
@@ -394,8 +394,6 @@ class ChInternalController extends DevblocksControllerExtension {
 		$this->_viewRenderInlineFilters($view);		
 	}
 	
-	
-	// Ajax
 	function viewCustomizeAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
 		
@@ -487,7 +485,6 @@ class ChInternalController extends DevblocksControllerExtension {
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('home')));
 	}
 
-	// Ajax
 	function viewShowExportAction() {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['id']);
 
@@ -591,7 +588,6 @@ class ChInternalController extends DevblocksControllerExtension {
 		exit;
 	}
 	
-	// Post?
 	function viewSaveCustomizeAction() {
 		$translate = DevblocksPlatform::getTranslationService();
 		
@@ -616,6 +612,7 @@ class ChInternalController extends DevblocksControllerExtension {
 			$view->name = $title;
 
 			// Persist Object
+			// [TODO] The list view can auto-persist in the 'worker_view_model' table
 			$list_view = new Model_WorkerWorkspaceListView();
 			$list_view->title = $title;
 			$list_view->columns = $view->view_columns;
@@ -644,6 +641,8 @@ class ChInternalController extends DevblocksControllerExtension {
 			'secs' => $secs,
 		);
 	}
+	
+	// Utils
 	
 	function stopAutoRefreshAction() {
 		unset($_SESSION['autorefresh']);
@@ -711,6 +710,8 @@ class ChInternalController extends DevblocksControllerExtension {
 		if(null === ($active_worker = CerberusApplication::getActiveWorker()))
 			return;
 		
+		// [TODO] Validate context + ID
+		// [TODO] Validate ACL
 		
 		// Form was filled in
 		if(empty($context) || empty($context_id) || empty($comment))

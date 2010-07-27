@@ -408,6 +408,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		$tpl->display('file:' . $this->_TPL_PATH . 'display/modules/conversation/notes.tpl');
 	}
 	
+	// [TODO] Merge w/ the new comments functionality?
 	function addNoteAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
 
@@ -432,6 +433,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		$tpl->display('file:' . $this->_TPL_PATH . 'display/rpc/add_note.tpl');
 	}
 	
+	// [TODO] Merge w/ the new comments functionality?
 	function doAddNoteAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
 		@$ticket_id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer',0);

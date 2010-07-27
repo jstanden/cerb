@@ -46,6 +46,7 @@ function chooserOpen(ref) {
 		for(idx in event.values)
 			$data.push('context_id[]='+encodeURIComponent(event.values[idx]));
 		
+		// [TODO] Switch to genericAjaxPost(), polymorph 'data/form'
 		options = { };
 		options.async = false;	
 		options.type = 'POST';
@@ -86,6 +87,7 @@ function removeSelectedContextLinks(view_id) {
 			$data.push('context_id[]='+$id);
 	});
 	
+	// [TODO] Switch to genericAjaxPost(), polymorph 'data/form'
 	options = { };
 	options.async = false;	
 	options.type = 'POST';

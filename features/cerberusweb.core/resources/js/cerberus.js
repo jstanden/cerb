@@ -150,6 +150,7 @@ function appendFileInput(divName,fieldName) {
 
 var cAjaxCalls = function() {
 
+	// [TODO] We don't really need all this
 	this.showBatchPanel = function(view_id,target) {
 		var viewForm = document.getElementById('viewForm'+view_id);
 		if(null == viewForm) return;
@@ -175,6 +176,7 @@ var cAjaxCalls = function() {
 		genericAjaxPopup('peek','c=tickets&a=showBatchPanel&view_id=' + view_id + '&ids=' + ticket_ids,target,false,'500');
 	}
 
+	// [TODO] This isn't necessary with *any* other bulk update panel
 	this.saveBatchPanel = function(view_id) {
 		var divName = 'view'+view_id;
 		var formName = 'viewForm'+view_id;
@@ -214,6 +216,7 @@ var cAjaxCalls = function() {
 		});
 	}
 
+	// [TODO] This is not necessary
 	this.showAddressBatchPanel = function(view_id,target) {
 		var viewForm = document.getElementById('viewForm'+view_id);
 		if(null == viewForm) return;
@@ -239,6 +242,7 @@ var cAjaxCalls = function() {
 		genericAjaxPopup('peek','c=contacts&a=showAddressBatchPanel&view_id=' + view_id + '&ids=' + row_ids,null,false,'500');
 	}
 	
+	// [TODO] This is not necessary
 	this.saveAddressBatchPanel = function(view_id) {
 		var divName = 'view'+view_id;
 		var formName = 'viewForm'+view_id;
