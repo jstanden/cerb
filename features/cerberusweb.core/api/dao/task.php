@@ -462,7 +462,7 @@ class View_Task extends C4_AbstractView {
 		switch($key) {
 			case SearchFields_Task::VIRTUAL_WORKERS:
 				if(empty($param->value)) {
-					echo "Workers <b>are not assigned</b>";
+					echo "Owners <b>are not assigned</b>";
 					
 				} elseif(is_array($param->value)) {
 					$workers = DAO_Worker::getAll();
@@ -473,7 +473,7 @@ class View_Task extends C4_AbstractView {
 							$strings[] = '<b>'.$workers[$worker_id]->getName().'</b>';
 					}
 					
-					echo sprintf("Worker is %s", implode(' or ', $strings));
+					echo sprintf("Owner is %s", implode(' or ', $strings));
 				}
 				break;
 		}

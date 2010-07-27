@@ -664,7 +664,7 @@ class View_TimeTracking extends C4_AbstractView {
 							$strings[] = '<b>'.$workers[$worker_id]->getName().'</b>';
 					}
 					
-					echo sprintf("Worker is %s", implode(' or ', $strings));
+					echo sprintf("Owner is %s", implode(' or ', $strings));
 				}
 				break;
 		}
