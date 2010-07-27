@@ -1,6 +1,6 @@
 {$view_fields = $view->getColumnsAvailable()}
 {assign var=total value=$results[1]}
-{assign var=tickets value=$results[0]}
+{assign var=data value=$results[0]}
 <div id="{$view->id}_output_container">
 	{include file="file:$view_path/rpc/ticket_view_output.tpl"}
 </div>
@@ -57,7 +57,7 @@
 	</thead>
 
 	{* Column Data *}
-	{foreach from=$tickets item=result key=idx name=results}
+	{foreach from=$data item=result key=idx name=results}
 
 	{if $smarty.foreach.results.iteration % 2}
 		{assign var=tableRowClass value="even"}
@@ -84,6 +84,19 @@
 		<td colspan="{math equation="x" x=$smarty.foreach.headers.total}">
 			<a href="{devblocks_url}c=display&id={$result.t_mask}{/devblocks_url}" class="subject">{if $result.t_is_deleted}<span class="cerb-sprite sprite-delete2_gray"></span> {elseif $result.t_is_closed}<span class="cerb-sprite sprite-check_gray" title="{$translate->_('status.closed')}"></span> {elseif $result.t_is_waiting}<span class="cerb-sprite sprite-clock"></span> {/if}{$result.t_subject|escape}</a> 
 			<a href="javascript:;" onclick="genericAjaxPopup('peek','c=tickets&a=showPreview&view_id={$view->id}&tid={$result.t_id}', null, false, '550');"><span class="ui-icon ui-icon-newwin" style="display:inline-block;vertical-align:middle;" title="{$translate->_('views.peek')}"></span></a>
+			
+			{$object_workers = DAO_ContextLink::getContextLinks(CerberusContexts::CONTEXT_TICKET, array_keys($data), CerberusContexts::CONTEXT_WORKER)}
+			{if isset($object_workers.{$result.t_id})}
+			<div style="display:inline;padding-left:5px;">
+			{foreach from=$object_workers.{$result.t_id} key=worker_id item=worker name=workers}
+				{if isset($workers.{$worker_id})}
+					<span style="color:rgb(150,150,150);">
+					{$workers.{$worker_id}->getName()}{if !$smarty.foreach.workers.last}, {/if}
+					</span>
+				{/if}
+			{/foreach}
+			</div>
+			{/if}
 		</td>
 	</tr>
 	<tr class="{$tableRowClass}">
