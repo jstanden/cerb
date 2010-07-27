@@ -45,7 +45,7 @@ list($columns, $indexes) = $db->metaTable('timetracking_entry');
 
 if(isset($columns['debit_org_id'])) {
 	$db->Execute("INSERT IGNORE INTO context_link (from_context, from_context_id, to_context, to_context_id) ".
-		"SELECT 'cerberusweb.contexts.timetracking', id, 'cerberusweb.contexts.org', worker_id FROM timetracking_entry WHERE debit_org_id > 0"
+		"SELECT 'cerberusweb.contexts.timetracking', id, 'cerberusweb.contexts.org', debit_org_id FROM timetracking_entry WHERE debit_org_id > 0"
 	);
 	$db->Execute("INSERT IGNORE INTO context_link (from_context, from_context_id, to_context, to_context_id) ".
 		"SELECT 'cerberusweb.contexts.org', debit_org_id, 'cerberusweb.contexts.timetracking', id FROM timetracking_entry WHERE debit_org_id > 0"
