@@ -1438,9 +1438,10 @@ class ChTicketsPage extends CerberusPageExtension {
 		$team_categories = DAO_Bucket::getTeams();
 		$tpl->assign('team_categories', $team_categories);
 	    
-	    $workers = DAO_Worker::getAllActive();
-		$tpl->assign('workers', $workers);
-	    
+		// Workers
+		$context_workers = CerberusContexts::getWorkers(CerberusContexts::CONTEXT_TICKET, $ticket->id);
+		$tpl->assign('context_workers', $context_workers);
+		
 		// Custom fields
 		$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Ticket::ID);
 		$tpl->assign('custom_fields', $custom_fields);
@@ -1459,13 +1460,12 @@ class ChTicketsPage extends CerberusPageExtension {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
 		@$subject = DevblocksPlatform::importGPC($_REQUEST['subject'],'string','');
 		@$closed = DevblocksPlatform::importGPC($_REQUEST['closed'],'integer',0);
-		@$next_worker_id = DevblocksPlatform::importGPC($_REQUEST['next_worker_id'],'integer',0);
+		@$worker_ids = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',array());
 		@$bucket = DevblocksPlatform::importGPC($_REQUEST['bucket_id'],'string','');
 		@$spam_training = DevblocksPlatform::importGPC($_REQUEST['spam_training'],'string','');
 		
 		$fields = array(
 			DAO_Ticket::SUBJECT => $subject,
-			DAO_Ticket::NEXT_WORKER_ID => $next_worker_id,
 		);
 		
 		// Status
@@ -1515,6 +1515,9 @@ class ChTicketsPage extends CerberusPageExtension {
 		}
 		
 		DAO_Ticket::update($id, $fields);
+		
+		// Context Workers
+		CerberusContexts::setWorkers(CerberusContexts::CONTEXT_TICKET, $id, $worker_ids);
 		
 		// Custom field saves
 		@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', array());
