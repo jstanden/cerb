@@ -313,12 +313,8 @@ XML;
 
             $eItem = $channel->addChild('item');
             
-            $escapedSubject = htmlspecialchars($event[SearchFields_WorkerEvent::TITLE],null,LANG_CHARSET_CODE);
-            //filter out a couple non-UTF-8 characters (0xC and ESC)
-            $escapedSubject = preg_replace("/[]/", '', $escapedSubject);
-            $eTitle = $eItem->addChild('title', $escapedSubject);
-
-            $eDesc = $eItem->addChild('description', htmlspecialchars($event[SearchFields_WorkerEvent::CONTENT],null,LANG_CHARSET_CODE));
+            $escapedSubject = htmlspecialchars($event[SearchFields_WorkerEvent::MESSAGE],null,LANG_CHARSET_CODE);
+            $eDesc = $eItem->addChild('description', '');
 
             if(isset($event[SearchFields_WorkerEvent::URL])) {
 //	            $link = $event[SearchFields_WorkerEvent::URL];
