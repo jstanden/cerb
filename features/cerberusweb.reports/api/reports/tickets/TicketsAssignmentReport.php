@@ -13,14 +13,17 @@ class ChReportTicketAssignment extends Extension_Report {
 		
 		// Table
 		
-		$sql = sprintf("SELECT w.id worker_id, t.id ticket_id, t.mask, t.subject, t.created_date ".
-				"FROM ticket t inner join worker w on t.next_worker_id = w.id ".
-				"WHERE t.is_deleted = 0 ". 
-				"AND t.is_closed = 0 ".
-				"AND t.spam_score < 0.9000 ".
-				"AND t.spam_training != 'S' ". 
-				"AND is_waiting != 1 ".		
-				"ORDER by w.last_name");
+		$sql = sprintf("SELECT worker.id worker_id, t.id ticket_id, t.mask, t.subject, t.created_date ".
+			"FROM ticket t ".
+			"INNER JOIN context_link ON (context_link.from_context = 'cerberusweb.contexts.ticket' AND context_link.from_context_id = t.id AND context_link.to_context = 'cerberusweb.contexts.worker') ".
+			"INNER JOIN worker ON (worker.id = context_link.to_context_id) ".
+			"WHERE t.is_deleted = 0 ". 
+			"AND t.is_closed = 0 ".
+			"AND t.spam_score < 0.9000 ".
+			"AND t.spam_training != 'S' ". 
+			"AND is_waiting != 1 ".	
+			"ORDER by worker.last_name DESC"
+		);
 		$rs = $db->Execute($sql);
 	
 		$ticket_assignments = array();
@@ -47,15 +50,17 @@ class ChReportTicketAssignment extends Extension_Report {
 		
 		// Chart
 		
-		$sql = sprintf("SELECT w.id worker_id ,count(*) as hits ".
-			"FROM ticket t inner join worker w on t.next_worker_id = w.id ".
+		$sql = sprintf("SELECT worker.id worker_id, count(*) as hits ".
+			"FROM ticket t ".
+			"INNER JOIN context_link ON (context_link.from_context = 'cerberusweb.contexts.ticket' AND context_link.from_context_id = t.id AND context_link.to_context = 'cerberusweb.contexts.worker') ".
+			"INNER JOIN worker ON (worker.id = context_link.to_context_id) ".
 			"WHERE t.is_deleted = 0 ". 
 			"AND t.is_closed = 0 ".
 			"AND t.spam_score < 0.9000 ".
 			"AND t.spam_training != 'S' ". 
 			"AND is_waiting != 1 ".	
-			"GROUP by w.id ".
-			"ORDER by w.last_name DESC"
+			"GROUP by worker.id ".
+			"ORDER by worker.last_name DESC"
 		);
 		$rs = $db->Execute($sql);
 
