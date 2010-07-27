@@ -13,8 +13,9 @@ class ChReportTimeSpentOrg extends Extension_Report {
 		$tpl->assign('filter_worker_ids', $filter_worker_ids);
 		
 		@$filter_org_ids = DevblocksPlatform::importGPC($_REQUEST['org_id'],'array',array());
+		$orgs = array();
 		if(!empty($filter_org_ids)) {
-			$tpl->assign('orgs', DAO_ContactOrg::getWhere(sprintf("%s IN (%s)", DAO_ContactOrg::ID, implode(',', $filter_org_ids))));
+			$orgs = DAO_ContactOrg::getWhere(sprintf("id IN (%s)", implode(',', $filter_org_ids)));
 			$tpl->assign('filter_org_ids', $filter_org_ids);
 		}
 		
@@ -108,6 +109,75 @@ class ChReportTimeSpentOrg extends Extension_Report {
 				$ticks[strftime($date_group, $time)] = 0;
 		}
 		
+		// Chart
+		$sql = sprintf("SELECT contact_org.id AS org_id, DATE_FORMAT(FROM_UNIXTIME(tte.log_date),'%s') as date_plot, ".
+			"SUM(tte.time_actual_mins) AS mins, contact_org.name AS org_name ".
+			"FROM timetracking_entry tte ".
+			"INNER JOIN context_link ON (context_link.to_context = 'cerberusweb.contexts.timetracking' AND context_link.to_context_id = tte.id AND context_link.from_context = 'cerberusweb.contexts.org') ". 
+			"INNER JOIN contact_org ON (context_link.from_context_id = contact_org.id) ". 
+			"WHERE 1 ".
+			"AND log_date > %d ".
+			"AND log_date <= %d ".
+			"%s ".
+			"%s ".
+			"GROUP BY contact_org.id, date_plot ",
+			$date_group,
+			$start_time,
+			$end_time,
+			(is_array($filter_worker_ids) && !empty($filter_worker_ids) ? sprintf("AND tte.worker_id IN (%s)", implode(',', $filter_worker_ids)) : ""),
+			(is_array($filter_org_ids) && !empty($filter_org_ids) ? sprintf("AND context_link.from_context_id IN (%s)", implode(',', $filter_org_ids)) : "")
+		);
+		$rs = $db->Execute($sql);
+		
+		$data = array();
+		
+		while($row = mysql_fetch_assoc($rs)) {
+			$org_id = intval($row['org_id']);
+			$date_plot = $row['date_plot'];
+			
+			if(!isset($orgs[$org_id]))
+				$orgs[$org_id] = DAO_ContactOrg::get($org_id);
+			
+			if(!isset($data[$org_id]))
+				$data[$org_id] = $ticks;
+				
+			$data[$org_id][$date_plot] = intval($row['mins']);
+		}
+		
+		// Sort the data in descending order
+		uasort($data, array('ChReportSorters','sortDataDesc'));
+		
+		// If not filtering, keep the top 10 and put the rest in 'other'
+		$max_series = 24;
+		$chart_data = $data;
+		if(empty($filter_org_ids)) {
+			if(count($chart_data) > $max_series) {
+				$other = array_slice($chart_data,$max_series,null,true);
+				$chart_data = array_slice($chart_data,0,$max_series,true);
+				
+				$chart_data[0] = $ticks; // other
+				$blank_org = new Model_ContactOrg();
+				$blank_org->id = 0;
+				$blank_org->name = '(Other)';
+				$orgs[0] = $blank_org;
+				
+				// Aggregate the rest of the plots
+				foreach($other as $org_id => $plots)
+					foreach($plots as $plot => $mins)
+						$chart_data[0][$plot] += $mins;
+
+				unset($other);
+				uasort($chart_data, array('ChReportSorters','sortDataDesc'));
+			}
+		}
+		
+		$tpl->assign('xaxis_ticks', array_keys($ticks));
+		$tpl->assign('orgs', $orgs);
+		$tpl->assign('chart_data', $chart_data);
+		$tpl->assign('data', $data);
+		
+		mysql_free_result($rs);		
+		
 		// Table
 		
 		$defaults = new C4_AbstractViewModel();
@@ -143,48 +213,6 @@ class ChReportTimeSpentOrg extends Extension_Report {
 			
 			$tpl->assign('view', $view);
 		}		
-
-		// Chart
-		// [TODO] Limit to top 5-10, or aggregate non-top "Other"
-		$sql = sprintf("SELECT contact_org.id AS org_id, DATE_FORMAT(FROM_UNIXTIME(tte.log_date),'%s') as date_plot, ".
-			"SUM(tte.time_actual_mins) AS mins, contact_org.name AS org_name ".
-			"FROM timetracking_entry tte ".
-			"INNER JOIN context_link ON (context_link.to_context = 'cerberusweb.contexts.timetracking' AND tte.id = context_link.to_context_id AND context_link.from_context = 'cerberusweb.contexts.org') ". 
-			"INNER JOIN contact_org ON (context_link.from_context_id = contact_org.id) ". 
-			"WHERE 1 ".
-			"AND log_date > %d ".
-			"AND log_date <= %d ".
-			"%s ".
-			"%s ".
-			"GROUP BY contact_org.id, date_plot ".
-			"ORDER BY contact_org.name asc",
-			$date_group,
-			$start_time,
-			$end_time,
-			(is_array($filter_worker_ids) && !empty($filter_worker_ids) ? sprintf("AND tte.worker_id IN (%s)", implode(',', $filter_worker_ids)) : ""),
-			(is_array($filter_org_ids) && !empty($filter_org_ids) ? sprintf("AND context_link.to_context_id IN (%s)", implode(',', $filter_org_ids)) : "")
-		);
-		$rs = $db->Execute($sql);
-		
-		$data = array();
-		
-		while($row = mysql_fetch_assoc($rs)) {
-			$org_id = intval($row['org_id']);
-			$date_plot = $row['date_plot'];
-			
-			if(!isset($data[$org_id]))
-				$data[$org_id] = $ticks;
-				
-			$data[$org_id][$date_plot] = intval($row['mins']);
-		}
-		
-		// Sort the data in descending order
-		uasort($data, array('ChReportSorters','sortDataDesc'));
-		
-		$tpl->assign('xaxis_ticks', array_keys($ticks));
-		$tpl->assign('data', $data);
-		
-		mysql_free_result($rs);
 		
 		// Template
 		

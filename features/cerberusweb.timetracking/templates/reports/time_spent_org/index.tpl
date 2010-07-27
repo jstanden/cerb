@@ -63,7 +63,7 @@
 
 <!-- Chart -->
 
-{if !empty($data)}
+{if !empty($chart_data)}
 
 <!--[if IE]><script language="javascript" type="text/javascript" src="{devblocks_url}c=resource&plugin=cerberusweb.reports&f=js/jqplot/excanvas.min.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script><![endif]-->
 <script language="javascript" type="text/javascript" src="{devblocks_url}c=resource&plugin=cerberusweb.reports&f=js/jqplot/jquery.jqplot.min.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>
@@ -79,7 +79,7 @@
 <div id="reportChart" style="width:98%;height:350px;"></div>
 
 <script type="text/javascript">
-{foreach from=$data item=plots key=org_id}
+{foreach from=$chart_data item=plots key=org_id}
 line{$org_id} = [{foreach from=$plots key=plot item=freq name=plots}
 {$freq}{if !$smarty.foreach.plots.last},{/if}
 {/foreach}
@@ -87,7 +87,7 @@ line{$org_id} = [{foreach from=$plots key=plot item=freq name=plots}
 {/foreach}
 
 chartData = [
-{foreach from=$data item=null key=org_id name=orgs}line{$org_id}{if !$smarty.foreach.orgs.last},{/if}{/foreach}
+{foreach from=$chart_data item=null key=org_id name=orgs}line{$org_id}{if !$smarty.foreach.orgs.last},{/if}{/foreach}
 ];
 
 var cerbChartStyle = {
@@ -153,7 +153,7 @@ chartOptions = {
 		}
 	},
     series:[
-		{foreach from=$data key=org_id item=org name=orgs}{ label:'{$orgs.$org_id->name|escape}' }{if !$smarty.foreach.orgs.last},{/if}{/foreach}
+		{foreach from=$chart_data key=org_id item=org name=orgs}{ label:'{$orgs.$org_id->name|escape}' }{if !$smarty.foreach.orgs.last},{/if}{/foreach}
     ],
     axes:{
         xaxis:{
