@@ -81,17 +81,10 @@
 <table cellspacing="0" cellpadding="2" border="0" width="220">
 	{foreach from=$workers item=worker key=worker_id}
 		{if !empty($worker_counts.$worker_id)}
-		{assign var=counts value=$worker_counts.$worker_id}
+		{assign var=count value=$worker_counts.$worker_id}
 		<tr>
 			<td style="padding-right:20px;" nowrap="nowrap" valign="top">
-				<a href="{devblocks_url}c=tickets&a=overview&s=worker&wid={$worker_id}{/devblocks_url}" style="font-weight:bold;{if $worker_id==$active_worker->id}color:rgb(255,50,50);background-color:rgb(255,213,213);{/if}">{$workers.$worker_id->getName()}</a> <span style="color:rgb(150,150,150);">({$counts.total})</span>
-				<div style="display:none;padding-left:10px;padding-bottom:0px;">
-					{foreach from=$counts item=team_hits key=team_id}
-						{if is_numeric($team_id)}
-							<a href="{devblocks_url}c=tickets&a=overview&s=worker&wid={$worker_id}&gid={$team_id}{/devblocks_url}">{$groups.$team_id->name}</a> <span style="color:rgb(150,150,150);">({$team_hits})</span><br>
-						{/if}
-					{/foreach}
-				</div>
+				<a href="{devblocks_url}c=tickets&a=overview&s=worker&wid={$worker_id}{/devblocks_url}" style="font-weight:bold;{if $worker_id==$active_worker->id}color:rgb(255,50,50);background-color:rgb(255,213,213);{/if}">{$workers.$worker_id->getName()}</a> <span style="color:rgb(150,150,150);">({$count})</span>
 			</td>
 		</tr>
 		{/if}

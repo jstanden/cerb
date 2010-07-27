@@ -1764,12 +1764,16 @@ class DAO_Overview {
 			return array();
 		
 		// Worker Loads
-		$sql = sprintf("SELECT count(*) AS hits, t.team_id, t.next_worker_id ".
-			"FROM ticket t ".
-			"WHERE t.is_waiting = 0 AND t.is_closed = 0 AND t.is_deleted = 0 ".
-			"AND t.next_worker_id > 0 ".
-			"AND t.team_id IN (%s) ".
-			"GROUP BY t.team_id, t.next_worker_id ",
+		$sql = sprintf("SELECT COUNT(from_context_id) AS hits, from_context_id AS worker_id ".
+			"FROM context_link ".
+			"INNER JOIN ticket ON (context_link.to_context_id=ticket.id) ".
+			"WHERE ticket.is_closed = 0 ".
+			"AND ticket.is_waiting = 0 ".
+			"AND ticket.is_deleted = 0 ".
+			"AND ticket.team_id IN (%s) ".
+			"AND from_context = 'cerberusweb.contexts.worker' ".
+			"AND to_context = 'cerberusweb.contexts.ticket' ".
+			"GROUP BY from_context_id",
 			implode(',', array_keys($memberships))
 		);
 		$rs = $db->Execute($sql);
@@ -1777,14 +1781,8 @@ class DAO_Overview {
 		$worker_counts = array();
 		while($row = mysql_fetch_assoc($rs)) {
 			$hits = intval($row['hits']);
-			$team_id = intval($row['team_id']);
-			$worker_id = intval($row['next_worker_id']);
-				
-			if(!isset($worker_counts[$worker_id]))
-			$worker_counts[$worker_id] = array();
-				
-			$worker_counts[$worker_id][$team_id] = $hits;
-			@$worker_counts[$worker_id]['total'] = intval($worker_counts[$worker_id]['total']) + $hits;
+			$worker_id = intval($row['worker_id']);
+			$worker_counts[$worker_id] = $hits;
 		}
 		
 		mysql_free_result($rs);
@@ -1804,14 +1802,22 @@ class DAO_WorkflowView {
 			return array();
 		
 		// Group Loads
-		$sql = sprintf("SELECT count(t.id) AS hits, t.team_id, t.category_id ".
+		$sql = "SELECT count(t.id) AS hits, t.team_id, t.category_id ". 
 			"FROM ticket t ".
-			"LEFT JOIN category c ON (t.category_id=c.id) ".
-			"WHERE t.is_waiting = 0 AND t.is_closed = 0 AND t.is_deleted = 0 ".
-			"AND t.next_worker_id = 0 ".
+			"LEFT JOIN category c ON (t.category_id=c.id) ". 
+			"WHERE t.is_waiting = 0 ".
+			"AND t.is_closed = 0 ".
+			"AND t.is_deleted = 0 ".
 			"AND (c.id IS NULL OR c.is_assignable = 1) ".
-			"GROUP BY t.team_id, c.pos "
-		);
+			"AND (".
+			"SELECT COUNT(*) ".
+				"FROM context_link ".
+				"WHERE context_link.from_context = 'cerberusweb.contexts.ticket' ". 
+				"AND context_link.to_context = 'cerberusweb.contexts.worker' ". 
+				"AND context_link.from_context_id = t.id ".		
+			") = 0 ". 
+			"GROUP BY t.team_id, c.pos"
+		; 
 		$rs = $db->Execute($sql);
 
 		$group_counts = array();
