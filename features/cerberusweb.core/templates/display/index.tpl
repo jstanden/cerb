@@ -54,6 +54,8 @@
 			<input type="hidden" name="unlock_date" value="{$ticket->unlock_date}">
 			
 			<div style="padding-bottom:5px;">
+			<button type="button" id="btnDisplayTicketEdit"><span class="cerb-sprite sprite-document_edit"></span> Edit</button>
+			
 			{if !$ticket->is_deleted}
 				{if $ticket->is_closed}
 					<button type="button" onclick="this.form.closed.value='0';this.form.submit();"><span class="cerb-sprite sprite-folder_out"></span> {$translate->_('common.reopen')|capitalize}</button>
@@ -151,7 +153,6 @@
 	<ul>
 		<li><a href="{devblocks_url}ajax.php?c=display&a=showConversation&ticket_id={$ticket->id}{if $expand_all}&expand_all=1{/if}{/devblocks_url}">{$translate->_('display.tab.conversation')|escape:'quotes'}</a></li>
 		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextLinks&context=cerberusweb.contexts.ticket&id={$ticket->id}{/devblocks_url}">{$translate->_('common.links')|escape:'quotes'}</a></li>
-		<li><a href="{devblocks_url}ajax.php?c=display&a=showProperties&ticket_id={$ticket->id}{/devblocks_url}">{$translate->_('display.tab.properties')|escape:'quotes'}</a></li>
 		<li><a href="{devblocks_url}ajax.php?c=display&a=showContactHistory&ticket_id={$ticket->id}{/devblocks_url}">{'display.tab.history'|devblocks_translate|escape:'quotes'}</a></li>
 
 		{$tabs = [conversation,links,properties,history]}
@@ -172,6 +173,14 @@
 <script type="text/javascript">
 	$(function() {
 		var tabs = $("#displayTabs").tabs( { selected:{$tab_selected_idx} } );
+		
+		$('#btnDisplayTicketEdit').bind('click', function() {
+			$popup = genericAjaxPopup('peek','c=tickets&a=showPreview&tid={$ticket->id}',null,false,'550');
+			$popup.one('ticket_save', function(event) {
+				event.stopPropagation();
+				document.location.href = '{devblocks_url}c=display&mask={$ticket->mask|escape}{/devblocks_url}';
+			});
+		})
 	});
 </script>
 
@@ -189,6 +198,11 @@ CreateKeyHandler(function doShortcuts(e) {
 		case 67:  // (C) close
 			try {
 				document.getElementById('btnClose').click();
+			} catch(ex) { } 
+			break;
+		case 69:  // (E) edit
+			try {
+				document.getElementById('btnDisplayTicketEdit').click();
 			} catch(ex) { } 
 			break;
 		case 79:  // (O) comment
