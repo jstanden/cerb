@@ -6,11 +6,12 @@
 
 <div id="peekTabs">
 	<ul>
-		<li><a href="#ticketPeekTab1">Message</a></li>
-		<li><a href="#ticketPeekTab2">Properties</a></li>
+		{if !$edit_mode}<li><a href="#ticketPeekMessage">Message</a></li>{/if}
+		<li><a href="#ticketPeekProps">Properties</a></li>
 	</ul>
 		
-    <div id="ticketPeekTab1">
+	{if !$edit_mode}
+    <div id="ticketPeekMessage">
 			{assign var=headers value=$message->getHeaders()}
 			<b>To:</b> {$headers.to|escape}<br>
 			<b>From:</b> {$headers.from|escape}<br>
@@ -20,8 +21,9 @@
 			
 			<b>URL:</b> <a href="{devblocks_url}c=display&id={$ticket->mask}{/devblocks_url}">{devblocks_url full=true}c=display&id={$ticket->mask}{/devblocks_url}</a>
     </div>
+	{/if}
 	
-    <div id="ticketPeekTab2" style="display:none;">
+    <div id="ticketPeekProps" style="display:none;">
 		<table cellpadding="0" cellspacing="2" border="0" width="98%">
 			<tr>
 				<td width="0%" nowrap="nowrap" align="right">{$translate->_('ticket.status')|capitalize}: </td>
@@ -159,11 +161,13 @@
 		{/if}
 		{/foreach}
 		</table>
+		<br>
+		
+		<button type="button" onclick="genericAjaxPopupClose('peek', 'ticket_save');genericAjaxPost('frmTicketPeek', 'view{$view_id}');"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')}</button>
     </div><!--tab2-->		
 </div> 
 <br>
 
-<button type="button" onclick="genericAjaxPopupClose('peek', 'ticket_save');genericAjaxPost('frmTicketPeek', 'view{$view_id}');"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')}</button>
 </form>
 
 <script type="text/javascript">
@@ -172,7 +176,7 @@
 		$(this).dialog('option','title',"{$ticket->subject|escape}");
 		$("#peekTabs").tabs();
 		$("#ticketPeekContent").css('width','100%');
-		$("#ticketPeekTab2").show();
+		$("#ticketPeekProps").show();
 		$(this).focus();
 	});
 	$('#frmTicketPeek button.chooser_worker').each(function() {

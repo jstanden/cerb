@@ -177,7 +177,7 @@
 		var tabs = $("#displayTabs").tabs( { selected:{$tab_selected_idx} } );
 		
 		$('#btnDisplayTicketEdit').bind('click', function() {
-			$popup = genericAjaxPopup('peek','c=tickets&a=showPreview&tid={$ticket->id}',null,false,'550');
+			$popup = genericAjaxPopup('peek','c=tickets&a=showPreview&tid={$ticket->id}&edit=1',null,false,'650');
 			$popup.one('ticket_save', function(event) {
 				event.stopPropagation();
 				document.location.href = '{devblocks_url}c=display&mask={$ticket->mask|escape}{/devblocks_url}';

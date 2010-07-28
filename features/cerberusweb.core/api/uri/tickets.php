@@ -1415,12 +1415,14 @@ class ChTicketsPage extends CerberusPageExtension {
 	function showPreviewAction() {
 	    @$tid = DevblocksPlatform::importGPC($_REQUEST['tid'],'integer',0);
 	    @$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
+	    @$edit_mode = DevblocksPlatform::importGPC($_REQUEST['edit'],'integer',0);
 	    
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl_path = $this->_TPL_PATH;
 		$tpl->assign('path', $tpl_path);
 
 		$tpl->assign('view_id', $view_id);
+		$tpl->assign('edit_mode', $edit_mode);
 		
 		if(null != ($ticket = DAO_Ticket::get($tid))) {
 			/* @var $ticket Model_Ticket */
