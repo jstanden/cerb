@@ -376,8 +376,6 @@ XML;
             $eItem = $channel->addChild('item');
             
             $escapedSubject = htmlspecialchars($ticket[SearchFields_Ticket::TICKET_SUBJECT],null,LANG_CHARSET_CODE);
-            //filter out a couple non-UTF-8 characters (0xC and ESC)
-            $escapedSubject = preg_replace("/[]/", '', $escapedSubject);
             $eTitle = $eItem->addChild('title', $escapedSubject);
 
             $eDesc = $eItem->addChild('description', $this->_getTicketLastAction($ticket));
