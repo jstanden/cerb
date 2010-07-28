@@ -1805,17 +1805,11 @@ class DAO_WorkflowView {
 		$sql = "SELECT count(t.id) AS hits, t.team_id, t.category_id ". 
 			"FROM ticket t ".
 			"LEFT JOIN category c ON (t.category_id=c.id) ". 
-			"WHERE t.is_waiting = 0 ".
+			"LEFT JOIN context_link ON (context_link.from_context = 'cerberusweb.contexts.ticket' AND context_link.from_context_id = t.id AND context_link.to_context = 'cerberusweb.contexts.worker') ".
+			"WHERE context_link.to_context_id IS NULL ".
+			"AND t.is_waiting = 0 ".
 			"AND t.is_closed = 0 ".
-			"AND t.is_deleted = 0 ".
 			"AND (c.id IS NULL OR c.is_assignable = 1) ".
-			"AND (".
-			"SELECT COUNT(*) ".
-				"FROM context_link ".
-				"WHERE context_link.from_context = 'cerberusweb.contexts.ticket' ". 
-				"AND context_link.to_context = 'cerberusweb.contexts.worker' ". 
-				"AND context_link.from_context_id = t.id ".		
-			") = 0 ". 
 			"GROUP BY t.team_id, c.pos"
 		; 
 		$rs = $db->Execute($sql);
