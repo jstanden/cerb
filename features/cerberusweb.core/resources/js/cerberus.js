@@ -149,7 +149,6 @@ function appendFileInput(divName,fieldName) {
 }
 
 var cAjaxCalls = function() {
-
 	// [TODO] We don't really need all this
 	this.showBatchPanel = function(view_id,target) {
 		var viewForm = document.getElementById('viewForm'+view_id);
@@ -486,6 +485,48 @@ var cAjaxCalls = function() {
 			options.minLength = 1;
 
 		$(sel).autocomplete(options);
+	}
+	
+	this.chooser = function(button, context, field_name, options) {
+		if(null == field_name)
+			field_name = 'context_id';
+		
+		if(null == options) 
+			options = { };
+		if(null == options.after)
+			options.after = true;
+		
+		$button = $(button);
+
+		$button.click(function(event) {
+			$button = $(this);
+			$chooser=genericAjaxPopup('chooser','c=internal&a=chooserOpen&context=' + context,null,true,'750');
+			$chooser.one('chooser_save', function(event) {
+				// Look for an existing label
+				if(!options.after)
+					$label = $button.prev('ul.chooser-container');
+				else
+					$label = $button.next('ul.chooser-container');
+				
+				// Add the container
+				if(0==$label.length) {
+					$label = $('<ul class="bubbles chooser-container"></ul>');
+					if(!options.after)
+						$label.insertBefore($button);
+					else
+						$label.insertAfter($button);
+				}
+				
+				// Add the labels
+				for(var idx in event.labels)
+					if(0==$label.find('input:hidden[value='+event.values[idx]+']').length) {
+						$li = $('<li>'+event.labels[idx]+'<input type="hidden" name="' + field_name + '[]" value="'+event.values[idx]+'"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></li>');
+						if(null != options.style)
+							$li.addClass(options.style);
+						$label.append($li);
+					}
+			});
+		});
 	}
 }
 
