@@ -647,14 +647,15 @@ class Model_GroupInboxFilter {
 						$change_fields[DAO_Ticket::IS_DELETED] = intval($params['is_deleted']);
 					break;
 
-				case 'assign':
-					if(isset($params['worker_id'])) {
-						$w_id = intval($params['worker_id']);
-						if(0 == $w_id || isset($workers[$w_id]))
-							$change_fields[DAO_Ticket::NEXT_WORKER_ID] = $w_id;
+				case 'owner':
+					foreach($ticket_ids as $ticket_id) {
+						if(isset($params['add']) && is_array($params['add']))
+							CerberusContexts::addWorkers(CerberusContexts::CONTEXT_TICKET, $ticket_id, $params['add']);
+						if(isset($params['remove']) && is_array($params['remove']))
+							CerberusContexts::removeWorkers(CerberusContexts::CONTEXT_TICKET, $ticket_id, $params['remove']);
 					}
 					break;
-
+					
 				case 'move':
 					if(isset($params['group_id']) && isset($params['bucket_id'])) {
 						$g_id = intval($params['group_id']);

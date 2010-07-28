@@ -139,8 +139,9 @@ class ChDisplayPage extends CerberusPageExtension {
 		$requesters = DAO_Ticket::getRequestersByTicket($ticket->id);
 		$tpl->assign('requesters', $requesters);
 		
-		$workers = DAO_Worker::getAll();
-		$tpl->assign('workers', $workers);
+		// Workers
+		$context_workers = CerberusContexts::getWorkers(CerberusContexts::CONTEXT_TICKET, $ticket->id);
+		$tpl->assign('context_workers', $context_workers);
 		
 		$teams = DAO_Group::getAll();
 		$tpl->assign('teams', $teams);
@@ -256,13 +257,15 @@ class ChDisplayPage extends CerberusPageExtension {
 	}
 
 	function updatePropertiesAction() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id']); // ticket id
 		@$closed = DevblocksPlatform::importGPC($_REQUEST['closed'],'integer',0);
 		@$spam = DevblocksPlatform::importGPC($_REQUEST['spam'],'integer',0);
 		@$deleted = DevblocksPlatform::importGPC($_REQUEST['deleted'],'integer',0);
+		@$do_take = DevblocksPlatform::importGPC($_REQUEST['do_take'],'integer',0);
+		@$do_surrender = DevblocksPlatform::importGPC($_REQUEST['do_surrender'],'integer',0);
 		@$bucket = DevblocksPlatform::importGPC($_REQUEST['bucket_id'],'string');
-		@$next_worker_id = DevblocksPlatform::importGPC($_REQUEST['next_worker_id'],'integer',0);
-		@$unlock_date = DevblocksPlatform::importGPC($_REQUEST['unlock_date'],'integer',0);
 		
 		@$ticket = DAO_Ticket::get($id);
 		
@@ -300,10 +303,6 @@ class ChDisplayPage extends CerberusPageExtension {
 			}
 		}
 		
-		if($next_worker_id != $ticket->next_worker_id) {
-			$properties[DAO_Ticket::NEXT_WORKER_ID] = $next_worker_id;
-		}
-		
 		// Reset the unlock date (next worker "until")
 		$properties[DAO_Ticket::UNLOCK_DATE] = $unlock_date;
 		
@@ -312,6 +311,12 @@ class ChDisplayPage extends CerberusPageExtension {
 			unset($properties[DAO_Ticket::IS_CLOSED]);
 		
 		DAO_Ticket::update($id, $properties);
+		
+		// Context workers
+		if($do_take)
+			CerberusContexts::addWorkers(CerberusContexts::CONTEXT_TICKET, $id, array($active_worker->id));
+		if($do_surrender)
+			CerberusContexts::removeWorkers(CerberusContexts::CONTEXT_TICKET, $id, array($active_worker->id));
 
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('display',$id)));
 	}
@@ -494,6 +499,10 @@ class ChDisplayPage extends CerberusPageExtension {
 		$ticket = DAO_Ticket::get($message->ticket_id);
 		$tpl->assign('ticket',$ticket);
 
+		// Workers
+		$context_workers = CerberusContexts::getWorkers(CerberusContexts::CONTEXT_TICKET, $ticket->id);
+		$tpl->assign('context_workers', $context_workers);
+		
 		// Are we continuing a draft?
 		@$draft_id = DevblocksPlatform::importGPC($_REQUEST['draft_id'],'integer',0);
 		if(!empty($draft_id)) {
@@ -571,6 +580,7 @@ class ChDisplayPage extends CerberusPageExtension {
 	    @$ticket_mask = DevblocksPlatform::importGPC($_REQUEST['ticket_mask'],'string');
 	    @$draft_id = DevblocksPlatform::importGPC($_REQUEST['draft_id'],'integer');
 	    @$is_forward = DevblocksPlatform::importGPC($_REQUEST['is_forward'],'integer',0);
+	    @$worker_ids = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',array());
 	    
 	    $worker = CerberusApplication::getActiveWorker();
 	    
@@ -585,10 +595,10 @@ class ChDisplayPage extends CerberusPageExtension {
 		    'subject' => DevblocksPlatform::importGPC(@$_REQUEST['subject'],'string'),
 		    'content' => DevblocksPlatform::importGPC(@$_REQUEST['content']),
 		    'files' => @$_FILES['attachment'],
-		    'next_worker_id' => DevblocksPlatform::importGPC(@$_REQUEST['next_worker_id'],'integer',0),
 		    'closed' => DevblocksPlatform::importGPC(@$_REQUEST['closed'],'integer',0),
 		    'bucket_id' => DevblocksPlatform::importGPC(@$_REQUEST['bucket_id'],'string',''),
 		    'ticket_reopen' => DevblocksPlatform::importGPC(@$_REQUEST['ticket_reopen'],'string',''),
+		    'context_workers' => $worker_ids,
 		    'unlock_date' => DevblocksPlatform::importGPC(@$_REQUEST['unlock_date'],'string',''),
 		    'agent_id' => @$worker->id,
 		    'forward_files' => DevblocksPlatform::importGPC(@$_REQUEST['forward_files'],'array',array()),

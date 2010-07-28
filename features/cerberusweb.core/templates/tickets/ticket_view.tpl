@@ -136,8 +136,6 @@
 			{assign var=ticket_team_id value=$result.t_team_id}
 			{$teams.$ticket_team_id->name}
 		</td>
-		{elseif $column=="t_interesting_words"}
-		<td>{$result.t_interesting_words|replace:',':', '}</td>
 		{elseif $column=="t_category_id"}
 			{assign var=ticket_team_id value=$result.t_team_id}
 			{assign var=ticket_category_id value=$result.t_category_id}
@@ -153,33 +151,16 @@
 		{elseif $column=="t_last_action_code"}
 		<td>
 			{if $result.t_last_action_code=='O'}
-				{assign var=action_worker_id value=$result.t_next_worker_id}
-				<span title="{$result.t_first_wrote}">New 
-				{if isset($workers.$action_worker_id)}for {$workers.$action_worker_id->getName()}{else}from <a href="javascript:;" onclick="genericAjaxPopup('peek','c=contacts&a=showAddressPeek&email={$result.t_first_wrote|escape:'url'}&view_id={$view->id}',null,false,'500');">{$result.t_first_wrote|truncate:45:'...':true:true}</a>{/if}</span>
+				<span title="{$result.t_first_wrote}">New from <a href="javascript:;" onclick="genericAjaxPopup('peek','c=contacts&a=showAddressPeek&email={$result.t_last_wrote|escape:'url'}&view_id={$view->id}',null,false,'500');">{$result.t_last_wrote|truncate:45:'...':true:true}</a></span>
 			{elseif $result.t_last_action_code=='R'}
-				{assign var=action_worker_id value=$result.t_next_worker_id}
-				{if isset($workers.$action_worker_id)}
-					<span title="{$result.t_last_wrote}">{'mail.received'|devblocks_translate} for {$workers.$action_worker_id->getName()}</span>
-				{else}
-					<span title="{$result.t_last_wrote}">{'mail.received'|devblocks_translate} from <a href="javascript:;" onclick="genericAjaxPopup('peek','c=contacts&a=showAddressPeek&email={$result.t_last_wrote|escape:'url'}&view_id={$view->id}',null,false,'500');">{$result.t_last_wrote|truncate:45:'...':true:true}</a></span>
-				{/if}
+				<span title="{$result.t_last_wrote}">{'mail.received'|devblocks_translate} from <a href="javascript:;" onclick="genericAjaxPopup('peek','c=contacts&a=showAddressPeek&email={$result.t_last_wrote|escape:'url'}&view_id={$view->id}',null,false,'500');">{$result.t_last_wrote|truncate:45:'...':true:true}</a></span>
 			{elseif $result.t_last_action_code=='W'}
-				{assign var=action_worker_id value=$result.t_last_worker_id}
-				{if isset($workers.$action_worker_id)}
-					<span title="{$result.t_last_wrote}">{'mail.sent'|devblocks_translate} from {$workers.$action_worker_id->getName()}</span>
-				{else}
-					<span title="{$result.t_last_wrote}">{'mail.sent'|devblocks_translate} from Helpdesk</span>
-				{/if}
+				<span title="{$result.t_last_wrote}">{'mail.sent'|devblocks_translate} from <a href="javascript:;" onclick="genericAjaxPopup('peek','c=contacts&a=showAddressPeek&email={$result.t_last_wrote|escape:'url'}&view_id={$view->id}',null,false,'500');">{$result.t_last_wrote|truncate:45:'...':true:true}</a></span>
 			{/if}
 		</td>
 		{elseif $column=="t_last_worker_id"}
 		<td>
 			{assign var=action_worker_id value=$result.t_last_worker_id}
-			{if isset($workers.$action_worker_id)}{$workers.$action_worker_id->getName()}{/if}
-		</td>
-		{elseif $column=="t_next_worker_id"}
-		<td>
-			{assign var=action_worker_id value=$result.t_next_worker_id}
 			{if isset($workers.$action_worker_id)}{$workers.$action_worker_id->getName()}{/if}
 		</td>
 		{elseif $column=="t_first_wrote_spam"}

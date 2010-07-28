@@ -23,11 +23,13 @@
 					<b>{$translate->_('ticket.mask')|capitalize}:</b> {$ticket->mask} &nbsp; 
 					<b>{$translate->_('ticket.id')}:</b> {$ticket->id} &nbsp; 
 					<br>
-					{if !empty($ticket->next_worker_id)}
-						{assign var=next_worker_id value=$ticket->next_worker_id}
-						<b>{$translate->_('ticket.next_worker')|capitalize}:</b> <span {if $next_worker_id==$active_worker->id}style="font-weight:bold;color:rgb(255,50,50);background-color:rgb(255,213,213);"{/if}>{$workers.$next_worker_id->getName()}</span> 
-						{if $ticket->unlock_date}(until {$ticket->unlock_date|devblocks_date}){/if} 
-						<br>
+					
+					{if !empty($context_workers)}
+						<b>{'common.owners'|devblocks_translate|capitalize}:</b> 
+						{foreach from=$context_workers item=context_worker name=context_workers}
+						{$context_worker->getName()}{if !$smarty.foreach.context_workers.last}, {/if}
+						{/foreach}	
+					<br>
 					{/if}
 					
 					<b>{$translate->_('ticket.requesters')|capitalize}:</b>
@@ -50,7 +52,8 @@
 			<input type="hidden" name="closed" value="{if $ticket->is_closed}1{else}0{/if}">
 			<input type="hidden" name="deleted" value="{if $ticket->is_deleted}1{else}0{/if}">
 			<input type="hidden" name="spam" value="0">
-			<input type="hidden" name="next_worker_id" value="{$ticket->next_worker_id}">
+			<input type="hidden" name="do_take" value="0">
+			<input type="hidden" name="do_surrender" value="0">
 			<input type="hidden" name="unlock_date" value="{$ticket->unlock_date}">
 			
 			<div style="padding-bottom:5px;">
@@ -74,8 +77,8 @@
 				{if $active_worker->hasPriv('core.ticket.actions.delete')}<button title="{$translate->_('display.shortcut.delete')}" id="btnDelete" type="button" onclick="this.form.deleted.value=1;this.form.closed.value=1;this.form.submit();"><span class="cerb-sprite sprite-delete"></span> {$translate->_('common.delete')|capitalize}</button>{/if}
 			{/if}
 			
-			{if empty($ticket->next_worker_id)}<button id="btnTake" title="{$translate->_('display.shortcut.take')}" type="button" onclick="this.form.next_worker_id.value='{$active_worker->id}';this.form.submit();"><span class="cerb-sprite sprite-hand_paper"></span> {$translate->_('mail.take')|capitalize}</button>{/if}
-			{if $ticket->next_worker_id == $active_worker->id}<button id="btnSurrender" title="{$translate->_('display.shortcut.surrender')}" type="button" onclick="this.form.next_worker_id.value='0';this.form.unlock_date.value='0';this.form.submit();"><span class="cerb-sprite sprite-flag_white"></span> {$translate->_('mail.surrender')|capitalize}</button>{/if}
+			{if !isset($context_workers.{$active_worker->id})}<button id="btnTake" title="{$translate->_('display.shortcut.take')}" type="button" onclick="this.form.do_take.value='1';this.form.submit();"><span class="cerb-sprite sprite-hand_paper"></span> {$translate->_('mail.take')|capitalize}</button>{/if}
+			{if isset($context_workers.{$active_worker->id})}<button id="btnSurrender" title="{$translate->_('display.shortcut.surrender')}" type="button" onclick="this.form.do_surrender.value='1';this.form.submit();"><span class="cerb-sprite sprite-flag_white"></span> {$translate->_('mail.surrender')|capitalize}</button>{/if}
 			
 		   	<button id="btnPrint" title="{$translate->_('display.shortcut.print')}" type="button" onclick="document.frmPrint.action='{devblocks_url}c=print&a=ticket&id={$ticket->mask}{/devblocks_url}';document.frmPrint.submit();">&nbsp;<span class="cerb-sprite sprite-printer"></span>&nbsp;</button>
 		   	<button type="button" title="{$translate->_('display.shortcut.refresh')}" onclick="document.location='{devblocks_url}c=display&id={$ticket->mask}{/devblocks_url}';">&nbsp;<span class="cerb-sprite sprite-refresh"></span>&nbsp;</button>
@@ -126,8 +129,8 @@
 			{if !$ticket->is_closed && $active_worker->hasPriv('core.ticket.actions.close')}(<b>c</b>) {$translate->_('common.close')|lower} {/if}
 			{if !$ticket->spam_trained && $active_worker->hasPriv('core.ticket.actions.spam')}(<b>s</b>) {$translate->_('common.spam')|lower} {/if}
 			{if !$ticket->is_deleted && $active_worker->hasPriv('core.ticket.actions.delete')}(<b>x</b>) {$translate->_('common.delete')|lower} {/if}
-			{if empty($ticket->next_worker_id)}(<b>t</b>) {$translate->_('mail.take')|lower} {/if}
-			{if $ticket->next_worker_id == $active_worker->id}(<b>u</b>) {$translate->_('mail.surrender')|lower} {/if}
+			{if !isset($context_workers.{$active_worker->id})}(<b>t</b>) {$translate->_('mail.take')|lower} {/if}
+			{if isset($context_workers.{$active_worker->id})}(<b>u</b>) {$translate->_('mail.surrender')|lower} {/if}
 			{if !$expand_all}(<b>a</b>) {$translate->_('display.button.read_all')|lower} {/if} 
 			{if $active_worker->hasPriv('core.display.actions.reply')}(<b>r</b>) {$translate->_('display.ui.reply')|lower} {/if}  
 			(<b>p</b>) {$translate->_('common.print')|lower} 

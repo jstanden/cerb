@@ -83,10 +83,16 @@
 								<b>{if 0==$b_id}Inbox{else}{$buckets.$b_id->name}{/if}</b>
 							{/if}
 							<br>
-						{elseif $action_key=="assign"}
-							{assign var=worker_id value=$action.worker_id}
-							{if isset($workers.$worker_id)}
-								Assign to <b>{$workers.$worker_id->getName()}</b><br>
+						{elseif $action_key=="owner"}
+							{if isset($action.add)}
+							Add owner 
+							{foreach from=$action.add item=worker_id name=worker_ids}
+								{if isset($workers.$worker_id)}
+									<b>{$workers.$worker_id->getName()}</b>
+									{if !$smarty.foreach.worker_ids.last} and {/if}
+								{/if}
+							{/foreach}
+							<br>
 							{/if}
 						{elseif $action_key=="spam"}
 							{if $action.is_spam}Report Spam{else}Mark Not Spam{/if}<br>

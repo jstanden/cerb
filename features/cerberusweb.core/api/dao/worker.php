@@ -352,10 +352,6 @@ class DAO_Worker extends C4_ORMHelper {
 		$sql = sprintf("DELETE QUICK FROM worker_workspace_list WHERE worker_id = %d", $id);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 
-		// Clear assigned workers
-		$sql = sprintf("UPDATE ticket SET next_worker_id = 0 WHERE next_worker_id = %d", $id);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
-
 		// Clear roles
 		$db->Execute(sprintf("DELETE FROM worker_to_role WHERE worker_id = %d", $id));
 		

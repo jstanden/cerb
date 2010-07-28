@@ -1553,9 +1553,6 @@ For example: *receipt*</seg></tuv>
 		<tu tuid='ticket.mask'>
 			<tuv xml:lang="en_US"><seg>Mask</seg></tuv>
 		</tu>
-		<tu tuid='ticket.next_worker'>
-			<tuv xml:lang="en_US"><seg>Next Worker</seg></tuv>
-		</tu>
 		<tu tuid='ticket.recipients.empty'>
 			<tuv xml:lang="en_US"><seg>This ticket has no recipients.</seg></tuv>
 		</tu>

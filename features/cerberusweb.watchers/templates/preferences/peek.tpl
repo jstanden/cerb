@@ -94,7 +94,7 @@
 
 {* Ticket *}
 {assign var=expanded value=false}
-{if isset($filter->criteria.mask) || isset($filter->criteria.groups) || isset($filter->criteria.next_worker_id)}
+{if isset($filter->criteria.mask) || isset($filter->criteria.groups) || isset($filter->criteria.owner)}
 	{assign var=expanded value=true}
 {/if}
 <label><input type="checkbox" {if $expanded}checked="checked"{/if} onclick="toggleDiv('divBlockTicket',(this.checked?'block':'none'));if(!this.checked)checkAll('divBlockTicket',false);"> <b>Ticket</b></label><br>
@@ -109,17 +109,22 @@
 		</td>
 	</tr>
 	<tr>
-		<td valign="top">
-			{assign var=crit_next_worker value=$filter->criteria.next_worker_id}
-			<label><input type="checkbox" id="chkRuleNextWorkerId" name="rules[]" value="next_worker_id" {if !is_null($crit_next_worker)}checked="checked"{/if}> Assigned to:</label>
-		</td>
-		<td valign="top">
-			<select name="value_next_worker_id" onchange="document.getElementById('chkRuleNextWorkerId').checked=(''==selectValue(this)?false:true);">
-				<option value="0">- {$translate->_('common.nobody')} -</option>
-				{foreach from=$workers item=worker}
-					<option value="{$worker->id}" {if $crit_next_worker.value==$worker->id}selected="selected"{/if}>{$worker->getName()}</option>
-				{/foreach}
-			</select>
+		<td valign="top" colspan="2">
+			{assign var=crit_owner value=$filter->criteria.owner}
+			<label><input type="checkbox" id="chkRuleOwner" name="rules[]" value="owner" onclick="toggleDiv('divRuleOwners',(this.checked?'block':'none'));" {if !is_null($crit_owner)}checked="checked"{/if}> {'common.owners'|devblocks_translate|capitalize}: (any of the following)</label><br>
+			
+			<div id="divRuleOwners" style="margin-left:20px;display:{if !is_null($crit_owner)}block{else}none{/if};">
+				<button type="button" class="chooser_worker"><span class="cerb-sprite sprite-add"></span></button>
+				{if isset($crit_owner.value)}
+				<ul class="chooser-container bubbles">
+					{foreach from=$crit_owner.value item=worker_id}
+						{if isset($workers.{$worker_id})}
+						<li>{$workers.{$worker_id}->getName()|escape}<input type="hidden" name="value_owner[]" value="{$worker_id}"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></li>
+						{/if}
+					{/foreach}
+				</ul>
+				{/if}
+			</div>
 		</td>
 	</tr>
 	<tr>
@@ -246,5 +251,8 @@
 	$popup = genericAjaxPopupFetch('peek');
 	$popup.one('popup_open', function(event,ui) {
 		$(this).dialog('option','title',"Add Watcher Filter");
-	} );
+	});
+	$('#frmWatcherFilter button.chooser_worker').each(function() {
+		ajax.chooser(this, 'cerberusweb.contexts.worker', 'value_owner')
+	});
 </script>

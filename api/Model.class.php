@@ -1356,14 +1356,6 @@ class Model_MailToGroupRule {
 //						$fields[DAO_Ticket::IS_DELETED] = intval($params['is_deleted']);
 //					break;
 
-//				case 'assign':
-//					if(isset($params['worker_id'])) {
-//						$w_id = intval($params['worker_id']);
-//						if(0 == $w_id || isset($workers[$w_id]))
-//							$fields[DAO_Ticket::NEXT_WORKER_ID] = $w_id;
-//					}
-//					break;
-
 				case 'move':
 					if(isset($params['group_id']) && isset($params['bucket_id'])) {
 						$g_id = intval($params['group_id']);

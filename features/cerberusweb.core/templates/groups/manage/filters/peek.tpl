@@ -169,7 +169,7 @@
 <table width="500">
 	<tr>
 		{assign var=act_move value=$filter->actions.move}
-		<td>
+		<td nowrap="nowrap" valign="top">
 			<label><input id="chkDoMove" type="checkbox" name="do[]" value="move" {if isset($act_move)}checked="checked"{/if}> Move to:</label>
 		</td>
 		<td>
@@ -195,7 +195,7 @@
 	</tr>
 	<tr>
 		{assign var=act_status value=$filter->actions.status}
-		<td>
+		<td nowrap="nowrap" valign="top">
 			<label><input id="chkDoStatus" type="checkbox" name="do[]" value="status" {if isset($act_status)}checked="checked"{/if}> Status:</label>
 		</td>
 		<td>
@@ -214,7 +214,7 @@
 	</tr>
 	<tr>
 		{assign var=act_spam value=$filter->actions.spam}
-		<td>
+		<td nowrap="nowrap" valign="top">
 			<label><input id="chkDoSpam" type="checkbox" name="do[]" value="spam" {if isset($act_spam)}checked="checked"{/if}> Spam:</label>
 		</td>
 		<td>
@@ -226,21 +226,21 @@
 		</td>
 	</tr>
 	<tr>
-		{assign var=act_assign value=$filter->actions.assign}
-		<td>
-			<label><input id="chkDoAssign" type="checkbox" name="do[]" value="assign" {if isset($act_assign)}checked="checked"{/if}> Assign:</label>
+		{assign var=act_owner value=$filter->actions.owner}
+		<td nowrap="nowrap" valign="top">
+			<label><input id="chkDoAssign" type="checkbox" name="do[]" value="owner" {if isset($act_owner)}checked="checked"{/if}> {'common.owners'|devblocks_translate|capitalize}:</label>
 		</td>
 		<td>
-			<select name="do_assign" onchange="document.getElementById('chkDoAssign').checked=((''==selectValue(this))?false:true);">
-				<option value="">&nbsp;</option>
-				{foreach from=$workers item=worker key=worker_id name=workers}
-					{if $worker_id==$active_worker->id}{math assign=next_worker_id_sel equation="x" x=$smarty.foreach.workers.iteration}{/if}
-					<option value="{$worker_id}" {if $act_assign.worker_id==$worker_id}selected="selected"{/if}>{$worker->getName()}</option>
+			<button type="button" class="chooser_worker"><span class="cerb-sprite sprite-add"></span></button>
+			{if isset($act_owner.add)}
+			<ul class="chooser-container bubbles">
+				{foreach from=$act_owner.add item=worker_id}
+					{if isset($workers.{$worker_id})}
+					<li>{$workers.{$worker_id}->getName()|escape}<input type="hidden" name="do_owner[]" value="{$worker_id}"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></li>
+					{/if}
 				{/foreach}
-			</select> 
-	      	{if !empty($next_worker_id_sel)}
-	      		<button type="button" onclick="this.form.do_assign.selectedIndex = {$next_worker_id_sel};">me</button>
-	      	{/if}
+			</ul>
+			{/if}
 		</td>
 	</tr>
 </table>
@@ -262,5 +262,8 @@
 	$popup = genericAjaxPopupFetch('peek');
 	$popup.one('popup_open', function(event,ui) {
 		$(this).dialog('option','title',"Add Inbox Routing Rule");
-	} );
+	});
+	$('#frmInboxFilter button.chooser_worker').each(function() {
+		ajax.chooser(this, 'cerberusweb.contexts.worker', 'do_owner')
+	});
 </script>

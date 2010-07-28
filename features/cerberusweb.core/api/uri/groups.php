@@ -426,12 +426,12 @@ class ChGroupsPage extends CerberusPageExtension  {
 						);
 					}
 					break;
-				// Assign to worker
-				case 'assign':
-					@$worker_id = DevblocksPlatform::importGPC($_REQUEST['do_assign'],'string',null);
-					if(0 != strlen($worker_id))
+				// Owners
+				case 'owner':
+					@$worker_ids = DevblocksPlatform::importGPC($_REQUEST['do_owner'],'array',array());
+					if(!empty($worker_ids))
 						$action = array(
-							'worker_id' => intval($worker_id)
+							'add' => $worker_ids
 						);
 					break;
 				// Spam training

@@ -27,9 +27,11 @@
 <b>Mask:</b> {$ticket->mask} &nbsp; 
 <b>Internal ID:</b> {$ticket->id} &nbsp; 
 <br>
-{if !empty($ticket->next_worker_id)}
-	{assign var=next_worker_id value=$ticket->next_worker_id}
-	<b>Next Worker:</b> {$workers.$next_worker_id->getName()}<br>
+{if !empty($context_workers)}
+	<b>{'common.owners'|devblocks_translate|capitalize}:</b> 
+	{foreach from=$context_workers item=context_worker name=context_workers}
+	{$context_worker->getName()}{if !$smarty.foreach.context_workers.last}, {/if}
+	{/foreach}	
 {/if}
 <br>
 

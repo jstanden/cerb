@@ -566,7 +566,9 @@ class ChWatchersPreferences extends Extension_PreferenceTab {
 					}
 					unset($criteria['value']);
 					break;
-				case 'next_worker_id':
+				case 'owner':
+					$value = DevblocksPlatform::importGPC($_POST['value_'.$rule],'array',array());
+					$criteria['value'] = $value;
 					break;
 				case 'subject':
 					break;
@@ -1402,18 +1404,18 @@ class Model_WatcherMailFilter {
 								$passed++;
 						break;
 						
-					case 'next_worker_id':
-						// If it's an assigned event, we only care about the filter's owner
-						if(!empty($event) && 0==strcasecmp($event,'ticket_assignment')) {
-							if(intval($value)==intval($filter->worker_id)) {
-								$passed++;
-								break;
-							}
+					case 'owner':
+						$context_workers = CerberusContexts::getWorkers(CerberusContexts::CONTEXT_TICKET, $ticket->id);
+						$found = false;
+						if(is_array($value))
+						foreach($value as $worker_id) {
+							if(isset($context_workers[$worker_id]))
+								$found = true;
 						}
-
-						if(intval($value)==intval($ticket->next_worker_id))
+						
+						if($found)
 							$passed++;
-						break;					
+						break;
 
 					case 'mask':
 						$regexp_mask = DevblocksPlatform::strToRegExp($value);
@@ -1577,7 +1579,7 @@ class Model_WatcherMailFilter {
 						break;
 				}
 			}
-			
+
 			// If our rule matched every criteria, stop and return the filter
 			if($passed == count($filter->criteria)) {
 				DAO_WatcherMailFilter::increment($filter->id); // ++ the times we've matched

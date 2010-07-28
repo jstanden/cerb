@@ -494,9 +494,7 @@ class CerberusParser {
 								break;
 								
 							case 'take':
-								DAO_Ticket::update($id,array(
-									DAO_Ticket::NEXT_WORKER_ID => $worker_address->worker_id
-								));
+								CerberusContexts::addWorkers(CerberusContexts::CONTEXT_TICKET, $id, $worker_address->worker_id);
 								break;
 								
 							case 'comment':

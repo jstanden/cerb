@@ -88,20 +88,11 @@
 	
 	{if $active_worker->hasPriv('core.ticket.actions.assign')}
 	<tr>
-		<td width="0%" nowrap="nowrap">Next Worker:</td>
+		<td width="0%" nowrap="nowrap" valign="top">{'common.owners'|devblocks_translate|capitalize}:</td>
 		<td width="100%">
-			<select name="do_assign">
-				<option value=""></option>
-				<option value="0">Anybody</option>
-				{foreach from=$workers item=worker key=worker_id name=workers}
-					{if $worker_id==$active_worker->id}{math assign=next_worker_id_sel equation="x+1" x=$smarty.foreach.workers.iteration}{/if}
-					<option value="{$worker_id}">{$worker->getName()}</option>
-				{/foreach}
-			</select>
-	      	{if !empty($next_worker_id_sel)}
-	      		<button type="button" onclick="this.form.do_assign.selectedIndex = {$next_worker_id_sel};">me</button>
-	      		<button type="button" onclick="this.form.do_assign.selectedIndex = 1;">anybody</button>
-	      	{/if}
+			<button type="button" class="chooser-worker add"><span class="cerb-sprite sprite-add"></span></button>
+			<br>
+			<button type="button" class="chooser-worker remove"><span class="cerb-sprite sprite-forbidden"></span></button>
 		</td>
 	</tr>
 	{/if}
@@ -146,5 +137,15 @@
 	$popup = genericAjaxPopupFetch('peek');
 	$popup.one('popup_open', function(event,ui) {
 		$(this).dialog('option','title',"{$translate->_('common.bulk_update')|capitalize|escape:'quotes'}");
-	} );
+		
+		$('#formBatchUpdate button.chooser-worker').each(function() {
+			$button = $(this);
+			context = 'cerberusweb.contexts.worker';
+			
+			if($button.hasClass('remove'))
+				ajax.chooser(this, context, 'do_owner_remove_ids');
+			else
+				ajax.chooser(this, context, 'do_owner_add_ids');
+		});
+	});
 </script>

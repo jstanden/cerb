@@ -167,62 +167,6 @@
 			</select>
 		</td>
 	</tr>
-	{*
-	<tr>
-		{assign var=act_status value=$rule->actions.status}
-		<td valign="top">
-			<label><input type="checkbox" name="do[]" value="status" {if isset($act_status)}checked="checked"{/if}> Status:</label>
-		</td>
-		<td valign="top">
-			<select name="do_status">
-				<option value="">&nbsp;</option>
-				<option value="0" {if isset($act_status) && !$act_status.is_closed && !$act_status.is_deleted}selected="selected"{/if}>{$translate->_('status.open')|capitalize}</option>
-				<option value="3" {if isset($act_status) && !$act_status.is_closed && !$act_status.is_deleted && $act_status.is_waiting}selected="selected"{/if}>Waiting</option>
-				{if $active_worker->hasPriv('core.ticket.actions.close') || (isset($act_status) && $act_status.is_closed && !$act_status.is_deleted)}
-					<option value="1" {if isset($act_status) && $act_status.is_closed && !$act_status.is_deleted}selected="selected"{/if}>{$translate->_('status.closed')|capitalize}</option>
-				{/if}
-				{if $active_worker->hasPriv('core.ticket.actions.delete') || (isset($act_status) && $act_status.is_deleted)}
-					<option value="2" {if isset($act_status) && $act_status.is_deleted}selected="selected"{/if}>Deleted</option>
-				{/if}
-			</select>
-		</td>
-	</tr>
-	*}
-	{*
-	<tr>
-		{assign var=act_spam value=$rule->actions.spam}
-		<td>
-			<label><input type="checkbox" name="do[]" value="spam" {if isset($act_spam)}checked="checked"{/if}> Spam:</label>
-		</td>
-		<td>
-			<select name="do_spam">
-				<option value="">&nbsp;</option>
-				<option value="1" {if isset($act_spam) && $act_spam.is_spam}selected="selected"{/if}>{$translate->_('training.report_spam')|capitalize}</option>
-				<option value="0" {if isset($act_spam) && !$act_spam.is_spam}selected="selected"{/if}>{$translate->_('training.not_spam')|capitalize}</option>
-			</select>
-		</td>
-	</tr>
-	*}
-	{*
-	<tr>
-		{assign var=act_assign value=$rule->actions.assign}
-		<td>
-			<label><input type="checkbox" name="do[]" value="assign" {if isset($act_assign)}checked="checked"{/if}> Assign:</label>
-		</td>
-		<td>
-			<select name="do_assign">
-				<option value="">&nbsp;</option>
-				{foreach from=$workers item=worker key=worker_id name=workers}
-					{if $worker_id==$active_worker->id}{math assign=next_worker_id_sel equation="x" x=$smarty.foreach.workers.iteration}{/if}
-					<option value="{$worker_id}" {if $act_assign.worker_id==$worker_id}selected="selected"{/if}>{$worker->getName()}</option>
-				{/foreach}
-			</select> 
-	      	{if !empty($next_worker_id_sel)}
-	      		<button type="button" onclick="this.form.do_assign.selectedIndex = {$next_worker_id_sel};">me</button>
-	      	{/if}
-		</td>
-	</tr>
-	*}
 </table>
 
 {* Set Ticket Fields *}

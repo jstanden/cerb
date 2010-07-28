@@ -413,7 +413,6 @@ class Model_MailQueue {
 		
 		// Files + Next step
 		//'files' => $files,
-		//'next_worker_id' => $next_worker_id,
 
 		// Send mail
 		if(false == ($ticket_id = CerberusMail::compose($properties)))
@@ -495,7 +494,6 @@ class Model_MailQueue {
 		    'subject' => $this->subject,
 		    'content' => $this->body,
 //		    'files' => @$_FILES['attachment'],
-//		    'next_worker_id' => $next_worker_id,
 //		    'closed' => $closed,
 //		    'bucket_id' => $move_bucket,
 //		    'ticket_reopen' => $ticket_reopen,
@@ -553,7 +551,6 @@ class Model_MailQueue {
 		// 'files' => $attachment_files,
 		// 'files' => @$_FILES['attachment'],
 		
-//	    'next_worker_id' => DevblocksPlatform::importGPC(@$_REQUEST['next_worker_id'],'integer',0),
 //	    'closed' => DevblocksPlatform::importGPC(@$_REQUEST['closed'],'integer',0),
 //	    'bucket_id' => DevblocksPlatform::importGPC(@$_REQUEST['bucket_id'],'string',''),
 //	    'ticket_reopen' => DevblocksPlatform::importGPC(@$_REQUEST['ticket_reopen'],'string',''),

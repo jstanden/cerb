@@ -404,7 +404,6 @@ class CrmPage extends CerberusPageExtension {
 			SearchFields_Ticket::TICKET_UPDATED_DATE,
 			SearchFields_Ticket::TICKET_TEAM_ID,
 			SearchFields_Ticket::TICKET_CATEGORY_ID,
-			SearchFields_Ticket::TICKET_NEXT_WORKER_ID,
 		);
 		
 		$view = C4_AbstractViewLoader::getView('opp_tickets', $defaults);

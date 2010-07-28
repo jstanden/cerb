@@ -323,6 +323,67 @@ if(isset($columns['parent_org_id']))
 	$db->Execute("ALTER TABLE contact_org DROP COLUMN parent_org_id");
 
 // ===========================================================================
+// Convert ticket 'next_worker' assignments to contexts
+
+if(!isset($tables['ticket']))
+	return FALSE;
+
+list($columns, $indexes) = $db->metaTable('ticket');
+
+if(isset($columns['next_worker_id'])) {
+	// ~23s
+	$db->Execute("INSERT IGNORE INTO context_link (from_context, from_context_id, to_context, to_context_id) ".
+		"SELECT 'cerberusweb.contexts.ticket', id, 'cerberusweb.contexts.worker', next_worker_id FROM ticket WHERE next_worker_id > 0 AND is_deleted = 0"
+	);
+	// ~30s
+	$db->Execute("INSERT IGNORE INTO context_link (from_context, from_context_id, to_context, to_context_id) ".
+		"SELECT 'cerberusweb.contexts.worker', next_worker_id, 'cerberusweb.contexts.ticket', id FROM ticket WHERE next_worker_id > 0 AND is_deleted = 0"
+	);
+	
+	$db->Execute('ALTER TABLE ticket DROP COLUMN next_worker_id');
+}
+
+// ===========================================================================
+// Convert group_inbox_filter actions from 'assign' to 'owners_set'
+
+if(!isset($tables['group_inbox_filter']))
+	return FALSE;
+
+$sql = "SELECT id, actions_ser FROM group_inbox_filter";
+$rs = $db->Execute($sql);
+
+if(false !== $rs)
+while($row = mysql_fetch_assoc($rs)) {
+	$filter_id = $row['id'];
+	$filter_actions_ser = $row['actions_ser'];
+	
+	$filter_actions = array();
+	if(!empty($filter_actions_ser))
+		@$filter_actions = unserialize($filter_actions_ser);
+		
+	if(!empty($filter_actions)) {
+		if(isset($filter_actions['assign'])) {
+			@$worker_id = $filter_actions['assign']['worker_id'];
+			
+			if(!empty($worker_id)) {
+				$filter_actions['owner'] = array(
+					'add' => array($worker_id),
+				);
+			}
+				
+			unset($filter_actions['assign']);
+			
+			$db->Execute(sprintf("UPDATE group_inbox_filter SET actions_ser = %s WHERE id = %d",
+				$db->qstr(serialize($filter_actions)),
+				$filter_id
+			));
+		}
+	}
+}
+
+mysql_free_result($rs);
+
+// ===========================================================================
 // Convert sequences to MySQL AUTO_INCREMENT, make UNSIGNED
 
 // Drop sequence tables

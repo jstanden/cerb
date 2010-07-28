@@ -8,8 +8,7 @@
 	<tr>
 		<td width="100%">
 			<table cellpadding="1" cellspacing="0" border="0" width="100%">
-				{assign var=assigned_worker_id value=$ticket->next_worker_id}
-				{if $assigned_worker_id > 0 && $assigned_worker_id != $active_worker->id && isset($workers.$assigned_worker_id)}
+				{if !empty($context_workers) && !isset($context_workers.{$active_worker->id})}
 				<tr>
 					<td width="100%" colspan="2">
 						<div class="ui-widget">
@@ -182,30 +181,17 @@
 		
 								<div style="margin-left:10px;">
 								<b>{$translate->_('display.reply.next.handle_reply')}</b><br>
-						      	<select name="next_worker_id" onchange="toggleDiv('replySurrender{$message->id}',this.selectedIndex?'block':'none');">
-						      		{if $active_worker->id==$ticket->next_worker_id || 0==$ticket->next_worker_id || $active_worker->hasPriv('core.ticket.actions.assign')}<option value="0" {if 0==$ticket->next_worker_id}selected{/if}>{$translate->_('common.anybody')|capitalize}{/if}
-						      		{foreach from=$workers item=worker key=worker_id name=workers}
-										{if ($worker_id==$active_worker->id && !$ticket->next_worker_id) || $worker_id==$ticket->next_worker_id || $active_worker->hasPriv('core.ticket.actions.assign')}
-							      			{if $worker_id==$active_worker->id}{assign var=next_worker_id_sel value=$smarty.foreach.workers.iteration}{/if}
-							      			<option value="{$worker_id}" {if $worker_id==$ticket->next_worker_id}selected{/if}>{$worker->getName()}
-										{/if}
-						      		{/foreach}
-						      	</select>&nbsp;
-						      	{if $active_worker->hasPriv('core.ticket.actions.assign') && !empty($next_worker_id_sel)}
-						      		<button type="button" onclick="this.form.next_worker_id.selectedIndex = {$next_worker_id_sel};toggleDiv('replySurrender{$message->id}','block');">{$translate->_('common.me')|lower}</button>
-						      		<button type="button" onclick="this.form.next_worker_id.selectedIndex = 0;toggleDiv('replySurrender{$message->id}','none');">{$translate->_('common.anybody')|lower}</button>
-						      	{/if}
-						      	</div>
+								<button type="button" class="chooser_worker"><span class="cerb-sprite sprite-add"></span></button>
+								{if !empty($context_workers)}
+								<span class="chooser-container">
+									{foreach from=$context_workers item=context_worker}
+									<div class="bubble" style="padding-right:5px;">{$context_worker->getName()|escape}<input type="hidden" name="worker_id[]" value="{$context_worker->id}"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></div>
+									{/foreach}
+								</span>
+								{/if}
+						      	<br>
 						      	<br>
 						      	
-						      	<div id="replySurrender{$message->id}" style="display:{if $ticket->next_worker_id}block{else}none{/if};margin-left:10px;">
-									<b>{$translate->_('display.reply.next.handle_reply_after')}</b> {$translate->_('display.reply.next.handle_reply_after_eg')}<br>  
-							      	<input type="text" name="unlock_date" size="32" maxlength="255" value="">
-							      	<button type="button" onclick="this.form.unlock_date.value='+2 hours';">{$translate->_('display.reply.next.handle_reply_after_2hrs')}</button>
-							      	<br>
-							      	<br>
-							    </div>
-		
 								{if $active_worker->hasPriv('core.ticket.actions.move')}
 								<b>{$translate->_('display.reply.next.move')}</b><br>  
 						      	<select name="bucket_id">
@@ -270,5 +256,18 @@
 		
 		$('#reply{$message->id}_part1 button[name=saveDraft]').click(); // save now
 		setInterval("$('#reply{$message->id}_part1 button[name=saveDraft]').click();", 30000); // and every 30 sec
+		
+		$('#reply{$message->id}_part2 button.chooser_worker').click(function() {
+			$button = $(this);
+			$chooser=genericAjaxPopup('chooser','c=internal&a=chooserOpen&context=cerberusweb.contexts.worker',null,true,'750');
+			$chooser.one('chooser_save', function(event) {
+				$label = $button.next('span.chooser-container');
+				if(0==$label.length)
+					$label = $('<span class="chooser-container"></span>').insertAfter($button);
+				for(var idx in event.labels)
+					if(0==$label.find('input:hidden[value='+event.values[idx]+']').length)
+						$label.append($('<div class="bubble" style="padding-right:5px;">'+event.labels[idx]+'<input type="hidden" name="worker_id[]" value="'+event.values[idx]+'"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></div>'));
+			});
+		});
 	} );
 </script>

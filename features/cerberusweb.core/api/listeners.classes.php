@@ -338,10 +338,6 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 				$this->_handleDaoTicketUpdate($event);
 				break;
 				
-			case 'ticket.action.assigned':
-				$this->_handleTicketAssigned($event);
-				break;
-				
 			case 'ticket.action.closed':
 				$this->_handleTicketClosed($event);
 				break;
@@ -437,24 +433,6 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
     		if(empty($model) || empty($changes))
     			continue;
     		
-        	/*
-        	 * Ticket assigned to worker/nobody
-        	 */
-			@$next_worker_id = $changes[DAO_Ticket::NEXT_WORKER_ID];
-			
-			if(!is_null($next_worker_id)) {
-			    $eventMgr->trigger(
-			        new Model_DevblocksEvent(
-			            'ticket.action.assigned',
-		                array(
-		                    'ticket_id' => $object_id,
-		                	'worker_id' => $model[DAO_Ticket::NEXT_WORKER_ID],
-		                    'model' => $model,
-		                )
-		            )
-			    );
-			}
-	    	
 			/*
 			 * Ticket moved
 			 */
@@ -491,33 +469,6 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 		            )
 			    );
 			}	    	
-    	}
-	}
-	
-	private function _handleTicketAssigned($event) {
-		$active_worker = CerberusApplication::getActiveWorker();
-		$url_writer = DevblocksPlatform::getUrlService();
-		
-		@$ticket_id = $event->params['ticket_id'];
-		@$worker_id = $event->params['worker_id'];
-		@$model = $event->params['model'];
-		
-		if(empty($worker_id))
-			return;
-		
-    	// If this is headless, or we're assigning a different worker
-    	if(empty($active_worker) || $active_worker->id != $worker_id) {
-	    	// Send a notification
-			$fields = array(
-				DAO_WorkerEvent::CREATED_DATE => time(),
-				DAO_WorkerEvent::WORKER_ID => $worker_id,
-				DAO_WorkerEvent::URL => $url_writer->write('c=display&id='.$model[DAO_Ticket::MASK],true),
-				DAO_WorkerEvent::MESSAGE => sprintf("%s assigned a ticket to you.",
-					$active_worker->getName()
-				),
-				DAO_WorkerEvent::IS_READ => 0,
-			);
-			DAO_WorkerEvent::create($fields);
     	}
 	}
 	
@@ -628,18 +579,5 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 
 		// Close any 'waiting' tickets past their group max wait time 
 		// [TODO]
-		
-		// Surrender any tickets past their unlock date
-		$fields = array(
-			DAO_Ticket::NEXT_WORKER_ID => 0,
-			DAO_Ticket::UNLOCK_DATE => 0
-		);
-		$where = sprintf("%s > 0 AND %s > 0 AND %s < %d",
-			DAO_Ticket::NEXT_WORKER_ID,
-			DAO_Ticket::UNLOCK_DATE,
-			DAO_Ticket::UNLOCK_DATE,
-			time()
-		);
-		DAO_Ticket::updateWhere($fields, $where);
 	}
 };

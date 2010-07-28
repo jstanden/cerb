@@ -151,6 +151,10 @@ class ChPrintController extends DevblocksControllerExtension {
 					echo "<H1>" . $translate->_('common.access_denied') . "</H1>";
 					return;
 				}
+				
+				// Owners
+				$context_workers = CerberusContexts::getWorkers(CerberusContexts::CONTEXT_TICKET, $ticket->id);
+				$tpl->assign('context_workers', $context_workers);
 
 				$tpl->assign('ticket', $ticket);
 				
@@ -179,6 +183,10 @@ class ChPrintController extends DevblocksControllerExtension {
 					$message_notes[$note->context_id][$note->id] = $note;
 				}
 				$tpl->assign('message_notes', $message_notes);				
+				
+				// Owners
+				$context_workers = CerberusContexts::getWorkers(CerberusContexts::CONTEXT_TICKET, $ticket->id);
+				$tpl->assign('context_workers', $context_workers);
 				
 				$tpl->assign('message', $message);
 				$tpl->assign('ticket', $ticket);
