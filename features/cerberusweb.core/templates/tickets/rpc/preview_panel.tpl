@@ -45,11 +45,11 @@
 				<td width="100%">
 					<button type="button" class="chooser_worker"><span class="cerb-sprite sprite-add"></span></button>
 					{if !empty($context_workers)}
-					<span class="chooser-container">
+					<ul class="chooser-container bubbles">
 						{foreach from=$context_workers item=context_worker}
-						<div class="bubble" style="padding-right:5px;">{$context_worker->getName()|escape}<input type="hidden" name="worker_id[]" value="{$context_worker->id}"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></div>
+						<li>{$context_worker->getName()|escape}<input type="hidden" name="worker_id[]" value="{$context_worker->id}"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></li>
 						{/foreach}
-					</span>
+					</ul>
 					{/if}
 				</td>
 			</tr>

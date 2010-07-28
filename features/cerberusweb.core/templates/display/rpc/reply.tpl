@@ -183,11 +183,11 @@
 								<b>{$translate->_('display.reply.next.handle_reply')}</b><br>
 								<button type="button" class="chooser_worker"><span class="cerb-sprite sprite-add"></span></button>
 								{if !empty($context_workers)}
-								<span class="chooser-container">
+								<ul class="chooser-container bubbles">
 									{foreach from=$context_workers item=context_worker}
-									<div class="bubble" style="padding-right:5px;">{$context_worker->getName()|escape}<input type="hidden" name="worker_id[]" value="{$context_worker->id}"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></div>
+									<li>{$context_worker->getName()|escape}<input type="hidden" name="worker_id[]" value="{$context_worker->id}"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></li>
 									{/foreach}
-								</span>
+								</ul>
 								{/if}
 						      	<br>
 						      	<br>
@@ -257,17 +257,8 @@
 		$('#reply{$message->id}_part1 button[name=saveDraft]').click(); // save now
 		setInterval("$('#reply{$message->id}_part1 button[name=saveDraft]').click();", 30000); // and every 30 sec
 		
-		$('#reply{$message->id}_part2 button.chooser_worker').click(function() {
-			$button = $(this);
-			$chooser=genericAjaxPopup('chooser','c=internal&a=chooserOpen&context=cerberusweb.contexts.worker',null,true,'750');
-			$chooser.one('chooser_save', function(event) {
-				$label = $button.next('span.chooser-container');
-				if(0==$label.length)
-					$label = $('<span class="chooser-container"></span>').insertAfter($button);
-				for(var idx in event.labels)
-					if(0==$label.find('input:hidden[value='+event.values[idx]+']').length)
-						$label.append($('<div class="bubble" style="padding-right:5px;">'+event.labels[idx]+'<input type="hidden" name="worker_id[]" value="'+event.values[idx]+'"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></div>'));
-			});
+		$('#reply{$message->id}_part2 button.chooser_worker').each(function() {
+			ajax.chooser(this,'cerberusweb.contexts.worker','worker_id');			
 		});
 	} );
 </script>

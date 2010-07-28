@@ -35,18 +35,7 @@
 </form>
 
 <script type="text/javascript">
-	var $frm = $('#frmAddOrgNote');
-	
-	$frm.find('button.chooser_worker').click(function() {
-		$button = $(this);
-		$chooser=genericAjaxPopup('chooser','c=internal&a=chooserOpen&context=cerberusweb.contexts.worker',null,true,'750');
-		$chooser.one('chooser_save', function(event) {
-			$label = $button.prev('div.chooser-container');
-			if(0==$label.length)
-				$label = $('<div class="chooser-container"></div>').insertBefore($button);
-			for(var idx in event.labels)
-				if(0==$label.find('input:hidden[value='+event.values[idx]+']').length)
-					$label.append($('<div><button type="button" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash"></span></button> '+event.labels[idx]+'<input type="hidden" name="notify_worker_ids[]" value="'+event.values[idx]+'"></div>'));
-		});
+	$('#reply{$message->id}_form button.chooser_worker').each(function() {
+		ajax.chooser(this,'cerberusweb.contexts.worker','notify_worker_ids');
 	});
 </script>

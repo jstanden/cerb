@@ -36,14 +36,14 @@
 <b>{$translate->_('reports.ui.filters.group')}</b> 
 <button type="button" class="chooser_group"><span class="cerb-sprite sprite-add"></span></button>
 {if is_array($filter_group_ids) && !empty($filter_group_ids)}
-<span class="chooser-container">
+<ul class="chooser-container bubbles">
 	{foreach from=$filter_group_ids item=filter_group_id}
 	{$filter_group = $groups.{$filter_group_id}}
 	{if !empty($filter_group)}
-	<div class="bubble" style="padding-right:5px;">{$filter_group->name|escape}<input type="hidden" name="group_id[]" value="{$filter_group->id}"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></div>
+	<li>{$filter_group->name|escape}<input type="hidden" name="group_id[]" value="{$filter_group->id}"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></li>
 	{/if}
 	{/foreach}
-</span>
+</li>
 {/if}
 <br>
 <br>
@@ -263,19 +263,7 @@ plot1 = $.jqplot('reportChart', chartData, chartOptions);
 <br>
 
 <script type="text/javascript">
-	$('#frmRange button.chooser_group').click(function(event) {
-		$chooser=genericAjaxPopup('chooser','c=internal&a=chooserOpen&context=cerberusweb.contexts.group',null,true,'750');
-		$chooser.one('chooser_save', function(event) {
-			event.stopPropagation();
-			$button = $('#frmRange button.chooser_group');
-			$label = $button.next('span.chooser-container');
-			if(0==$label.length)
-				$label = $('<span class="chooser-container"></span>').insertAfter($button);
-			for(idx in event.labels) {
-				if(0==$label.find('input:hidden[value='+event.values[idx]+']').length) {
-					$label.append($('<div class="bubble" style="padding-right:5px;">'+event.labels[idx]+'<input type="hidden" name="group_id[]" value="'+event.values[idx]+'"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></div>'));
-				}
-			}
-		});
+	$('#frmRange button.chooser_group').each(function(event) {
+		ajax.chooser(this,'cerberusweb.contexts.group','group_id');
 	});
 </script>

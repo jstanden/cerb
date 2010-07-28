@@ -183,17 +183,8 @@
 		
 		setInterval("$('#btnSaveDraft').click();", 30000);
 		
-		$('#frmLogTicket button.chooser_worker').click(function() {
-			$button = $(this);
-			$chooser=genericAjaxPopup('chooser','c=internal&a=chooserOpen&context=cerberusweb.contexts.worker',null,true,'750');
-			$chooser.one('chooser_save', function(event) {
-				$label = $button.next('span.chooser-container');
-				if(0==$label.length)
-					$label = $('<span class="chooser-container"></span>').insertAfter($button);
-				for(var idx in event.labels)
-					if(0==$label.find('input:hidden[value='+event.values[idx]+']').length)
-						$label.append($('<div class="bubble" style="padding-right:5px;">'+event.labels[idx]+'<input type="hidden" name="worker_id[]" value="'+event.values[idx]+'"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></div>'));
-			});
+		$('#frmLogTicket button.chooser_worker').each(function() {
+			ajax.chooser(this,'cerberusweb.contexts.worker','worker_id');
 		});		
 	});
 </script>

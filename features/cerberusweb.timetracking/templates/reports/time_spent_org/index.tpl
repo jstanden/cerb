@@ -29,28 +29,28 @@
 <b>{$translate->_('reports.ui.filters.worker')}</b> 
 <button type="button" class="chooser_worker"><span class="cerb-sprite sprite-add"></span></button>
 {if is_array($filter_worker_ids) && !empty($filter_worker_ids)}
-<span class="chooser-container">
+<ul class="chooser-container bubbles">
 	{foreach from=$filter_worker_ids item=filter_worker_id}
 	{$filter_worker = $workers.{$filter_worker_id}}
 	{if !empty($filter_worker)}
-	<div class="bubble" style="padding-right:5px;">{$filter_worker->getName()|escape}<input type="hidden" name="worker_id[]" value="{$filter_worker->id}"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></div>
+	<li>{$filter_worker->getName()|escape}<input type="hidden" name="worker_id[]" value="{$filter_worker->id}"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></li>
 	{/if}
 	{/foreach}
-</span>
+</ul>
 {/if}
 <br>
 
 <b>{$translate->_('reports.ui.filters.org')}</b> 
 <button type="button" class="chooser_org"><span class="cerb-sprite sprite-add"></span></button>
 {if is_array($filter_org_ids) && !empty($filter_org_ids)}
-<span class="chooser-container">
+<ul class="chooser-container bubbles">
 	{foreach from=$filter_org_ids item=filter_org_id}
 	{$filter_org = $orgs.{$filter_org_id}}
 	{if !empty($filter_org)}
-	<div class="bubble" style="padding-right:5px;">{$filter_org->name|escape}<input type="hidden" name="org_id[]" value="{$filter_org_id}"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></div>
+	<li>{$filter_org->name|escape}<input type="hidden" name="org_id[]" value="{$filter_org_id}"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></ul>
 	{/if}
 	{/foreach}
-</span>
+</ul>
 {/if}
 <br>
 
@@ -274,36 +274,12 @@ plot1 = $.jqplot('reportChart', chartData, chartOptions);
 {/if}
 
 <script type="text/javascript">
-	$('#frmRange button.chooser_worker').click(function(event) {
-		$chooser=genericAjaxPopup('chooser','c=internal&a=chooserOpen&context=cerberusweb.contexts.worker',null,true,'750');
-		$chooser.one('chooser_save', function(event) {
-			event.stopPropagation();
-			$button = $('#frmRange button.chooser_worker');
-			$label = $button.next('span.chooser-container');
-			if(0==$label.length)
-				$label = $('<span class="chooser-container"></span>').insertAfter($button);
-			for(idx in event.labels) {
-				if(0==$label.find('input:hidden[value='+event.values[idx]+']').length) {
-					$label.append($('<div class="bubble" style="padding-right:5px;">'+event.labels[idx]+'<input type="hidden" name="worker_id[]" value="'+event.values[idx]+'"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></div>'));
-				}
-			}
-		});
+	$('#frmRange button.chooser_worker').each(function(event) {
+		ajax.chooser(this,'cerberusweb.contexts.worker','worker_id');
 	});
 	
-	$('#frmRange button.chooser_org').click(function(event) {
-		$chooser=genericAjaxPopup('chooser','c=internal&a=chooserOpen&context=cerberusweb.contexts.org',null,true,'750');
-		$chooser.one('chooser_save', function(event) {
-			event.stopPropagation();
-			$button = $('#frmRange button.chooser_org');
-			$label = $button.next('span.chooser-container');
-			if(0==$label.length)
-				$label = $('<span class="chooser-container"></span>').insertAfter($button);
-			for(idx in event.labels) {
-				if(0==$label.find('input:hidden[value='+event.values[idx]+']').length) {
-					$label.append($('<div class="bubble" style="padding-right:5px;">'+event.labels[idx]+'<input type="hidden" name="org_id[]" value="'+event.values[idx]+'"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></div>'));
-				}
-			}
-		});
+	$('#frmRange button.chooser_org').each(function(event) {
+		ajax.chooser(this,'cerberusweb.contexts.org','org_id');
 	});	
 </script>
 
