@@ -303,9 +303,6 @@ class ChDisplayPage extends CerberusPageExtension {
 			}
 		}
 		
-		// Reset the unlock date (next worker "until")
-		$properties[DAO_Ticket::UNLOCK_DATE] = $unlock_date;
-		
 		// Don't double set the closed property (auto-close replies)
 		if(isset($properties[DAO_Ticket::IS_CLOSED]) && $properties[DAO_Ticket::IS_CLOSED]==$ticket->is_closed)
 			unset($properties[DAO_Ticket::IS_CLOSED]);
@@ -599,7 +596,6 @@ class ChDisplayPage extends CerberusPageExtension {
 		    'bucket_id' => DevblocksPlatform::importGPC(@$_REQUEST['bucket_id'],'string',''),
 		    'ticket_reopen' => DevblocksPlatform::importGPC(@$_REQUEST['ticket_reopen'],'string',''),
 		    'context_workers' => $worker_ids,
-		    'unlock_date' => DevblocksPlatform::importGPC(@$_REQUEST['unlock_date'],'string',''),
 		    'agent_id' => @$worker->id,
 		    'forward_files' => DevblocksPlatform::importGPC(@$_REQUEST['forward_files'],'array',array()),
 		);

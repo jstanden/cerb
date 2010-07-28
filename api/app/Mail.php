@@ -115,7 +115,6 @@ class CerberusMail {
 		@$closed = $properties['closed'];
 		@$move_bucket = $properties['move_bucket'];
 		@$ticket_reopen = $properties['ticket_reopen'];
-		@$unlock_date = $properties['unlock_date'];
 		
 		$worker = CerberusApplication::getActiveWorker();
 		
@@ -289,12 +288,6 @@ class CerberusMail {
 			$due = strtotime($ticket_reopen);
 			if($due) $fields[DAO_Ticket::DUE_DATE] = $due;
 		}
-        // Allow anybody to reply after 
-		if(!empty($unlock_date)) {
-		    $unlock = strtotime($unlock_date);
-		    if(intval($unlock) > 0)
-	            $fields[DAO_Ticket::UNLOCK_DATE] = $unlock;
-		}
 		// End "Next:"
 		
 		$ticket_id = DAO_Ticket::createTicket($fields);
@@ -413,7 +406,6 @@ class CerberusMail {
 	    'files'
 	    'closed'
 	    'ticket_reopen'
-	    'unlock_date'
 	    'context_workers'
 	    'bucket_id'
 	    'agent_id',

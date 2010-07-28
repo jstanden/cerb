@@ -323,12 +323,16 @@ if(isset($columns['parent_org_id']))
 	$db->Execute("ALTER TABLE contact_org DROP COLUMN parent_org_id");
 
 // ===========================================================================
-// Convert ticket 'next_worker' assignments to contexts
+// Convert ticket 'next_worker' assignments to contexts, drop unlock_date
 
 if(!isset($tables['ticket']))
 	return FALSE;
 
 list($columns, $indexes) = $db->metaTable('ticket');
+
+if(isset($columns['unlock_date'])) {
+	$db->Execute("ALTER TABLE ticket DROP COLUMN unlock_date");
+}
 
 if(isset($columns['next_worker_id'])) {
 	// ~23s

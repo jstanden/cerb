@@ -1063,15 +1063,6 @@
 		<tu tuid='display.reply.next.handle_reply'>
 			<tuv xml:lang="en_US"><seg>Who should handle the next reply?</seg></tuv>
 		</tu>
-		<tu tuid='display.reply.next.handle_reply_after'>
-			<tuv xml:lang="en_US"><seg>Allow anybody to handle the next reply after:</seg></tuv>
-		</tu>
-		<tu tuid='display.reply.next.handle_reply_after_2hrs'>
-			<tuv xml:lang="en_US"><seg>+2 hours</seg></tuv>
-		</tu>
-		<tu tuid='display.reply.next.handle_reply_after_eg'>
-			<tuv xml:lang="en_US"><seg>(e.g. "2 hours", "5pm", or leave blank to keep assigned)</seg></tuv>
-		</tu>
 		<tu tuid='display.reply.next.move'>
 			<tuv xml:lang="en_US"><seg>Would you like to move this conversation?</seg></tuv>
 		</tu>
@@ -1573,9 +1564,6 @@ For example: *receipt*</seg></tuv>
 		</tu>
 		<tu tuid='ticket.subject'>
 			<tuv xml:lang="en_US"><seg>Subject</seg></tuv>
-		</tu>
-		<tu tuid='ticket.unlock_date'>
-			<tuv xml:lang="en_US"><seg>Auto-Surrender Date</seg></tuv>
 		</tu>
 		<tu tuid='ticket.updated'>
 			<tuv xml:lang="en_US"><seg>Updated</seg></tuv>

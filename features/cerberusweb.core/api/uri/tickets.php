@@ -1557,7 +1557,6 @@ class ChTicketsPage extends CerberusPageExtension {
 		@$move_bucket = DevblocksPlatform::importGPC($_POST['bucket_id'],'string','');
 		@$owner_ids = DevblocksPlatform::importGPC($_POST['worker_id'],'array',array());
 		@$ticket_reopen = DevblocksPlatform::importGPC($_POST['ticket_reopen'],'string','');
-		@$unlock_date = DevblocksPlatform::importGPC($_POST['unlock_date'],'string','');
 		
 		if(empty($to)) {
 			DevblocksPlatform::redirect(new DevblocksHttpResponse(array('tickets','compose')));
@@ -1577,7 +1576,6 @@ class ChTicketsPage extends CerberusPageExtension {
 			'move_bucket' => $move_bucket,
 			'context_workers' => $owner_ids,
 			'ticket_reopen' => $ticket_reopen,
-			'unlock_date' => $unlock_date,
 		);
 		
 		$ticket_id = CerberusMail::compose($properties);
@@ -1613,7 +1611,6 @@ class ChTicketsPage extends CerberusPageExtension {
 		@$move_bucket = DevblocksPlatform::importGPC($_POST['bucket_id'],'string','');
 		@$owner_ids = DevblocksPlatform::importGPC($_POST['worker_id'],'array',array());
 		@$ticket_reopen = DevblocksPlatform::importGPC($_POST['ticket_reopen'],'string','');
-		@$unlock_date = DevblocksPlatform::importGPC($_POST['unlock_date'],'string','');
 		
 		// ********
 		
@@ -1717,7 +1714,6 @@ class ChTicketsPage extends CerberusPageExtension {
 		    'closed' => $closed,
 		    'bucket_id' => $move_bucket,
 		    'ticket_reopen' => $ticket_reopen,
-		    'unlock_date' => $unlock_date,
 		    'agent_id' => $active_worker->id,
 			'dont_send' => (false==$send_to_requesters),
 		);

@@ -497,7 +497,6 @@ class Model_MailQueue {
 //		    'closed' => $closed,
 //		    'bucket_id' => $move_bucket,
 //		    'ticket_reopen' => $ticket_reopen,
-//		    'unlock_date' => $unlock_date,
 		    'agent_id' => $worker->id,
 			'dont_send' => (false==$send_to_reqs),
 		);
@@ -554,7 +553,6 @@ class Model_MailQueue {
 //	    'closed' => DevblocksPlatform::importGPC(@$_REQUEST['closed'],'integer',0),
 //	    'bucket_id' => DevblocksPlatform::importGPC(@$_REQUEST['bucket_id'],'string',''),
 //	    'ticket_reopen' => DevblocksPlatform::importGPC(@$_REQUEST['ticket_reopen'],'string',''),
-//	    'unlock_date' => DevblocksPlatform::importGPC(@$_REQUEST['unlock_date'],'string',''),
 
 //	    'forward_files' => DevblocksPlatform::importGPC(@$_REQUEST['forward_files'],'array',array()),
 		

@@ -54,7 +54,6 @@
 			<input type="hidden" name="spam" value="0">
 			<input type="hidden" name="do_take" value="0">
 			<input type="hidden" name="do_surrender" value="0">
-			<input type="hidden" name="unlock_date" value="{$ticket->unlock_date}">
 			
 			<div style="padding-bottom:5px;">
 			<button type="button" id="btnDisplayTicketEdit"><span class="cerb-sprite sprite-document_edit"></span> Edit</button>

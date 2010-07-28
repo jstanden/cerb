@@ -63,7 +63,6 @@ class DAO_Ticket extends C4_ORMHelper {
 	const CREATED_DATE = 'created_date';
 	const UPDATED_DATE = 'updated_date';
 	const DUE_DATE = 'due_date';
-	const UNLOCK_DATE = 'unlock_date';
 	const SPAM_TRAINING = 'spam_training';
 	const SPAM_SCORE = 'spam_score';
 	const INTERESTING_WORDS = 'interesting_words';
@@ -400,7 +399,7 @@ class DAO_Ticket extends C4_ORMHelper {
 		if(empty($ids)) return array();
 		
 		$sql = "SELECT t.id , t.mask, t.subject, t.is_waiting, t.is_closed, t.is_deleted, t.team_id, t.category_id, t.first_message_id, t.last_message_id, ".
-			"t.first_wrote_address_id, t.last_wrote_address_id, t.created_date, t.updated_date, t.due_date, t.unlock_date, t.spam_training, ". 
+			"t.first_wrote_address_id, t.last_wrote_address_id, t.created_date, t.updated_date, t.due_date, t.spam_training, ". 
 			"t.spam_score, t.interesting_words, t.last_worker_id ".
 			"FROM ticket t ".
 			(!empty($ids) ? sprintf("WHERE t.id IN (%s) ",implode(',',$ids)) : " ").
@@ -425,7 +424,6 @@ class DAO_Ticket extends C4_ORMHelper {
 			$ticket->created_date = intval($row['created_date']);
 			$ticket->updated_date = intval($row['updated_date']);
 			$ticket->due_date = intval($row['due_date']);
-			$ticket->unlock_date = intval($row['unlock_date']);
 			$ticket->spam_score = floatval($row['spam_score']);
 			$ticket->spam_training = $row['spam_training'];
 			$ticket->interesting_words = $row['interesting_words'];
@@ -1037,7 +1035,6 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 	const TICKET_CREATED_DATE = 't_created_date';
 	const TICKET_UPDATED_DATE = 't_updated_date';
 	const TICKET_DUE_DATE = 't_due_date';
-	const TICKET_UNLOCK_DATE = 't_unlock_date';
 	const TICKET_SPAM_SCORE = 't_spam_score';
 	const TICKET_SPAM_TRAINING = 't_spam_training';
 	const TICKET_INTERESTING_WORDS = 't_interesting_words';
@@ -1107,7 +1104,6 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 			self::TICKET_FIRST_WROTE_NONSPAM => new DevblocksSearchField(self::TICKET_FIRST_WROTE_NONSPAM, 'a1', 'num_nonspam',$translate->_('address.num_nonspam')),
 			self::TICKET_INTERESTING_WORDS => new DevblocksSearchField(self::TICKET_INTERESTING_WORDS, 't', 'interesting_words',$translate->_('ticket.interesting_words')),
 			self::TICKET_DUE_DATE => new DevblocksSearchField(self::TICKET_DUE_DATE, 't', 'due_date',$translate->_('ticket.due')),
-			self::TICKET_UNLOCK_DATE => new DevblocksSearchField(self::TICKET_UNLOCK_DATE, 't', 'unlock_date', $translate->_('ticket.unlock_date')),
 			self::TICKET_FIRST_CONTACT_ORG_ID => new DevblocksSearchField(self::TICKET_FIRST_CONTACT_ORG_ID, 'a1', 'contact_org_id'),
 			
 			self::REQUESTER_ID => new DevblocksSearchField(self::REQUESTER_ID, 'ra', 'id'),
@@ -1160,7 +1156,6 @@ class Model_Ticket {
 	public $created_date;
 	public $updated_date;
 	public $due_date;
-	public $unlock_date;
 	public $spam_score;
 	public $spam_training;
 	public $interesting_words;
@@ -1208,7 +1203,6 @@ class View_Ticket extends C4_AbstractView {
 		$this->columnsHidden = array(
 			SearchFields_Ticket::REQUESTER_ID,
 			SearchFields_Ticket::REQUESTER_ADDRESS,
-			SearchFields_Ticket::TICKET_UNLOCK_DATE,
 			SearchFields_Ticket::TICKET_INTERESTING_WORDS,
 			SearchFields_Ticket::CONTEXT_LINK,
 			SearchFields_Ticket::CONTEXT_LINK_ID,
@@ -1216,7 +1210,6 @@ class View_Ticket extends C4_AbstractView {
 		
 		$this->paramsHidden = array(
 			SearchFields_Ticket::TICKET_CATEGORY_ID,
-			SearchFields_Ticket::TICKET_UNLOCK_DATE,
 			SearchFields_Ticket::CONTEXT_LINK,
 			SearchFields_Ticket::CONTEXT_LINK_ID,
 		);
