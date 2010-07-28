@@ -248,8 +248,9 @@ DIV.subtle2 {
 DIV.bubble {
 	line-height:1.9em;
 	white-space:nowrap;
-	padding:0.2em;
-	display:inline;
+	padding:0 0.2em 0 0.2em;
+	margin:2px;
+	display:inline-block;
 	color:rgb(74,110,158);
 	background-color:rgb(232,242,254);
 	border:1px solid rgb(197,219,236);	
@@ -261,6 +262,46 @@ DIV.bubble A {
 }
 
 DIV.bubble A:hover {
+	text-decoration:underline;
+}
+
+UL.bubbles {
+	display:inline;
+	margin:0px;
+	padding:0px;
+}
+
+UL.bubbles LI {
+	list-style:none;
+	line-height:1.9em;
+	white-space:nowrap;
+	padding:0 0.2em 0 0.2em;
+	margin:2px;
+	display:inline-block;
+	color:rgb(74,110,158);
+	background-color:rgb(232,242,254);
+	border:1px solid rgb(197,219,236);
+	-moz-border-radius: 5px; -webkit-border-radius: 5px; border-radius: 5px;	
+}
+
+UL.bubbles LI.bubble-blue {
+	color:rgb(74,110,158);
+	background-color:rgb(232,242,254);
+	border:1px solid rgb(197,219,236);
+}
+
+UL.bubbles LI.bubble-red {
+	color:rgb(220,50,50);
+	background-color:rgb(255,230,230);
+	border:1px solid rgb(220,120,120);
+}
+
+UL.bubbles LI  A {
+	color:rgb(74,110,158);
+	text-decoration:none;
+}
+
+UL.bubbles LI A:hover {
 	text-decoration:underline;
 }
 

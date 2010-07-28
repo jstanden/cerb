@@ -14,7 +14,8 @@
 
 <form action="#" method="POST" id="chooser{$view->id}">
 <b>Selected:</b>
-<div class="buffer"></div>
+<ul class="buffer bubbles"></ul>
+<br>
 <br>
 <button type="button" class="submit"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')}</button>
 <br>
@@ -34,7 +35,7 @@
 		$('#view{$view->id}').delegate('button.devblocks-chooser-add-selected', 'click', function(event) {
 			event.stopPropagation();
 			$view = $('#viewForm{$view->id}');
-			$buffer = $('form#chooser{$view->id} DIV.buffer');
+			$buffer = $('form#chooser{$view->id} UL.buffer');
 			
 			$view.find('input:checkbox:checked').each(function(index) {
 				$label = $(this).attr('title');
@@ -42,10 +43,10 @@
 				
 				if($label.length > 0 && $value.length > 0) {
 					if(0==$buffer.find('input:hidden[value='+$value+']').length) {
-						$html = $('<div>' + $label + '</div>');
-						$html.prepend(' <button type="button" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash"></span></button> ');
+						$html = $('<li>' + $label + '</li>');
+						$html.append('<a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></a></button>');
 						$html.append('<input type="hidden" name="to_context_id[]" title="' + $label + '" value="' + $value + '">');
-						$('form#chooser{$view->id} DIV.buffer').append($html);
+						$buffer.append($html);
 					}
 				}
 					
@@ -56,8 +57,7 @@
 		$("form#chooser{$view->id} button.submit").click(function(event) {
 			event.stopPropagation();
 			$popup = genericAjaxPopupFind('form#chooser{$view->id}');
-			//$buffer = $('form#chooser{$view->id} DIV.buffer input:hidden');
-			$buffer = $($popup).find('DIV.buffer input:hidden');
+			$buffer = $($popup).find('UL.buffer input:hidden');
 			$labels = [];
 			$values = [];
 			
