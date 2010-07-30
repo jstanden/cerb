@@ -121,11 +121,6 @@
 				<span title="{$result.t_last_wrote}">{'mail.sent'|devblocks_translate} from {$result.t_last_wrote|truncate:45:'...':true:true}</span>
 			{/if}
 		</td>
-		{elseif $column=="t_last_worker_id"}
-		<td>
-			{assign var=action_worker_id value=$result.t_last_worker_id}
-			{if isset($workers.$action_worker_id)}{$workers.$action_worker_id->getName()}{/if}
-		</td>
 		{elseif $column=="t_first_wrote_spam"}
 		<td>{$result.t_first_wrote_spam}</td>
 		{elseif $column=="t_first_wrote_nonspam"}

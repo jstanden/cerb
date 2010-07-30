@@ -628,13 +628,11 @@ class ImportCron extends CerberusCronPageExtension {
 
 		// Last action code + last worker
 		$sLastActionCode = CerberusTicketActionCode::TICKET_OPENED;
-		$iLastWorkerId = 0;
 		if($iNumMessages > 1) {
-			if(null != (@$iLastWorkerId = $email_to_worker_id[strtolower($lastWroteInst->email)])) {
+			if(isset($email_to_worker_id[strtolower($lastWroteInst->email)])) {
 				$sLastActionCode = CerberusTicketActionCode::TICKET_WORKER_REPLY;
 			} else {
 				$sLastActionCode = CerberusTicketActionCode::TICKET_CUSTOMER_REPLY;
-				$iLastWorkerId = 0;
 			}
 		}
 		
@@ -666,7 +664,6 @@ class ImportCron extends CerberusCronPageExtension {
 			DAO_Ticket::TEAM_ID => intval($iDestGroupId),
 			DAO_Ticket::CATEGORY_ID => intval($iDestBucketId),
 			DAO_Ticket::LAST_ACTION_CODE => $sLastActionCode,
-			DAO_Ticket::LAST_WORKER_ID => intval($iLastWorkerId),
 		);
 		$ticket_id = DAO_Ticket::createTicket($fields);
 

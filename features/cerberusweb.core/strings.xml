@@ -1535,9 +1535,6 @@ For example: *receipt*</seg></tuv>
 		<tu tuid='ticket.last_action'>
 			<tuv xml:lang="en_US"><seg>Last Action</seg></tuv>
 		</tu>
-		<tu tuid='ticket.last_worker'>
-			<tuv xml:lang="en_US"><seg>Last Worker</seg></tuv>
-		</tu>
 		<tu tuid='ticket.last_wrote'>
 			<tuv xml:lang="en_US"><seg>Last Wrote</seg></tuv>
 		</tu>

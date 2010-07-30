@@ -158,11 +158,6 @@
 				<span title="{$result.t_last_wrote}">{'mail.sent'|devblocks_translate} from <a href="javascript:;" onclick="genericAjaxPopup('peek','c=contacts&a=showAddressPeek&email={$result.t_last_wrote|escape:'url'}&view_id={$view->id}',null,false,'500');">{$result.t_last_wrote|truncate:45:'...':true:true}</a></span>
 			{/if}
 		</td>
-		{elseif $column=="t_last_worker_id"}
-		<td>
-			{assign var=action_worker_id value=$result.t_last_worker_id}
-			{if isset($workers.$action_worker_id)}{$workers.$action_worker_id->getName()}{/if}
-		</td>
 		{elseif $column=="t_first_wrote_spam"}
 		<td>{$result.t_first_wrote_spam}</td>
 		{elseif $column=="t_first_wrote_nonspam"}

@@ -75,9 +75,6 @@
 						{$result.l_change_value|devblocks_date}
 					{elseif $change_field=="due_date"}
 						{$result.l_change_value|devblocks_date}
-					{elseif $change_field=="last_worker_id"}
-						{assign var=change_worker_id value=$result.l_change_value}
-						{if isset($workers.$change_worker_id)}{$workers.$change_worker_id->getName()}{else}Anybody{/if}&nbsp;
 					{elseif $change_field=="is_deleted" || $change_field=="is_closed"}
 						{if $result.l_change_value==1}{$translate->_('common.yes')}{else}{$translate->_('common.no')}{/if}
 					{elseif $change_field=="spam_training"}

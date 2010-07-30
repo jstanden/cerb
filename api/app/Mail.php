@@ -272,7 +272,6 @@ class CerberusMail {
 			DAO_Ticket::FIRST_WROTE_ID => $fromAddressId,
 			DAO_Ticket::LAST_WROTE_ID => $fromAddressId,
 			DAO_Ticket::LAST_ACTION_CODE => CerberusTicketActionCode::TICKET_WORKER_REPLY,
-			DAO_Ticket::LAST_WORKER_ID => $worker->id,
 			DAO_Ticket::TEAM_ID => $team_id,
 		);
 		
@@ -679,7 +678,6 @@ class CerberusMail {
 			$change_fields[DAO_Ticket::UPDATED_DATE] = time();
 			
 		    if(!empty($worker_id)) {
-		        $change_fields[DAO_Ticket::LAST_WORKER_ID] = $worker_id;
 		        $change_fields[DAO_Ticket::LAST_ACTION_CODE] = CerberusTicketActionCode::TICKET_WORKER_REPLY;
 		    }
 		    
