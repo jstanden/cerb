@@ -213,7 +213,7 @@ class DAO_Attachment extends DevblocksORMHelper {
 		$start = ($page * $limit); // [JAS]: 1-based [TODO] clean up + document
 		$total = -1;
 		
-		$sql = sprintf("SELECT ".
+		$select_sql = sprintf("SELECT ".
 			"a.id as %s, ".
 			"a.message_id as %s, ".
 			"a.display_name as %s, ".
@@ -232,11 +232,6 @@ class DAO_Attachment extends DevblocksORMHelper {
 			"t.subject as %s, ".
 		
 			"ad.email as %s ".
-		
-			"FROM attachment a ".
-			"INNER JOIN message m ON (a.message_id = m.id) ".
-			"INNER JOIN ticket t ON (m.ticket_id = t.id) ".
-			"INNER JOIN address ad ON (m.address_id = ad.id) ".
 			"",
 			    SearchFields_Attachment::ID,
 			    SearchFields_Attachment::MESSAGE_ID,
@@ -256,22 +251,27 @@ class DAO_Attachment extends DevblocksORMHelper {
 			    SearchFields_Attachment::TICKET_SUBJECT,
 			    
 			    SearchFields_Attachment::ADDRESS_EMAIL
-			).
+		);
+		
+		$join_sql = "FROM attachment a ".
+			"INNER JOIN message m ON (a.message_id = m.id) ".
+			"INNER JOIN ticket t ON (m.ticket_id = t.id) ".
+			"INNER JOIN address ad ON (m.address_id = ad.id) ";
+//			(isset($tables['ra']) ? "INNER JOIN requester r ON (r.ticket_id=t.id)" : " ")
 			
-			// [JAS]: Dynamic table joins
-//			(isset($tables['ra']) ? "INNER JOIN requester r ON (r.ticket_id=t.id)" : " ").
+		$where_sql = "".
+			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
 			
-			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ").
-			(!empty($sortBy) ? sprintf("ORDER BY %s %s",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : "")
-		;
-		// [TODO] Could push the select logic down a level too
-		if($limit > 0) {
-    		$rs = $db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
-		} else {
-		    $rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
-            $total = mysql_num_rows($rs);
-		}
+		$sort_sql = (!empty($sortBy) ? sprintf("ORDER BY %s %s ",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : " ");
 
+		$sql = 
+			$select_sql.
+			$join_sql.
+			$where_sql.
+			($has_multiple_values ? 'GROUP BY t.id ' : '').
+			$sort_sql;
+		$rs = $db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+		
 		$results = array();
 		
 		while($row = mysql_fetch_assoc($rs)) {
@@ -279,14 +279,16 @@ class DAO_Attachment extends DevblocksORMHelper {
 			foreach($row as $f => $v) {
 				$result[$f] = $v;
 			}
-			$ticket_id = intval($row[SearchFields_Attachment::ID]);
-			$results[$ticket_id] = $result;
+			$id = intval($row[SearchFields_Attachment::ID]);
+			$results[$id] = $result;
 		}
 
-		// [JAS]: Count all
 		if($withCounts) {
-		    $rs = $db->Execute($sql);
-		    $total = mysql_num_rows($rs);
+			$count_sql = 
+				"SELECT COUNT(a.id) ".
+				$join_sql.
+				$where_sql;
+			$total = $db->GetOne($count_sql);
 		}
 		
 		mysql_free_result($rs);
