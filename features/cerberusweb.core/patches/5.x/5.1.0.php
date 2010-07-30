@@ -391,6 +391,11 @@ while($row = mysql_fetch_assoc($rs)) {
 
 mysql_free_result($rs);
 
+
+// ===========================================================================
+// Nuke the 'inbox_is_assignable' preference since they always are now
+$db->Execute("DELETE FROM group_setting WHERE setting = 'inbox_is_assignable'");
+
 // ===========================================================================
 // Convert sequences to MySQL AUTO_INCREMENT, make UNSIGNED
 

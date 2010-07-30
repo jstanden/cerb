@@ -679,9 +679,6 @@ class ChGroupsPage extends CerberusPageExtension  {
 		$team_categories = DAO_Bucket::getByTeam($group_id);
 		$tpl->assign('categories', $team_categories);
 		
-		$inbox_is_assignable = DAO_GroupSettings::get($group_id, DAO_GroupSettings::SETTING_INBOX_IS_ASSIGNABLE, 1);
-		$tpl->assign('inbox_is_assignable', $inbox_is_assignable);
-		
 		$tpl->display('file:' . $tpl_path . 'groups/manage/buckets.tpl');
 	}
 	
@@ -692,10 +689,6 @@ class ChGroupsPage extends CerberusPageExtension  {
 	    if(!$active_worker->isTeamManager($team_id) && !$active_worker->is_superuser)
 	    	return;
 	    
-	    // Inbox assignable
-	    @$inbox_assignable = DevblocksPlatform::importGPC($_REQUEST['inbox_assignable'],'integer',0);
-	    DAO_GroupSettings::set($team_id, DAO_GroupSettings::SETTING_INBOX_IS_ASSIGNABLE, intval($inbox_assignable));
-	    	
 	    //========== BUCKETS   
 	    @$ids = DevblocksPlatform::importGPC($_REQUEST['ids'],'array');
 	    @$add_str = DevblocksPlatform::importGPC($_REQUEST['add'],'string');

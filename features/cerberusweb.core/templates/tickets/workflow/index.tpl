@@ -8,15 +8,9 @@
       </td>
       <td nowrap="nowrap" width="0%" style="padding-right:5px;"></td>
       <td width="100%" valign="top">
-	      {foreach from=$views item=view name=views}
-	      	<div id="view{$view->id}">
-		      	{$view->render()}
-		    </div>
-	      {/foreach}
-	      
-	      {include file="file:$core_tpl/tickets/whos_online.tpl"}
+		<div id="view{$view->id}">{$view->render()}</div>
+		{include file="file:$core_tpl/tickets/whos_online.tpl"}
       </td>
-      
     </tr>
   </tbody>
 </table>

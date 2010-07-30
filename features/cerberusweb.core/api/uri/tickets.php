@@ -223,8 +223,6 @@ class ChTicketsPage extends CerberusPageExtension {
 		// Remember the tab
 		$visit->set(CerberusVisit::KEY_MAIL_MODE, 'workflow');
 		
-		$views = array();
-
 		// Request path
 		@$request = DevblocksPlatform::importGPC($_REQUEST['request'],'string','');
 		$response_path = explode('/', $request);
@@ -311,9 +309,8 @@ class ChTicketsPage extends CerberusPageExtension {
 						$assignable_buckets = DAO_Bucket::getAssignableBuckets($filter_group_id);
 						$assignable_bucket_ids = array_keys($assignable_buckets);
 						
-						// Does this manager want the inbox assignable?
-						if(DAO_GroupSettings::get($filter_group_id, DAO_GroupSettings::SETTING_INBOX_IS_ASSIGNABLE, 1))
-							array_unshift($assignable_bucket_ids,0);
+						// Inbox is always assignable
+						array_unshift($assignable_bucket_ids,0);
 						
 						$workflowView->addParam(new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CATEGORY_ID,'in',$assignable_bucket_ids));
 					}
@@ -323,50 +320,22 @@ class ChTicketsPage extends CerberusPageExtension {
 				
 			case 'all':
 			default:
+				$assignable_buckets = DAO_Bucket::getAssignableBuckets(array_keys($memberships));
+				
 				$workflowView->addParams(array(
 					SearchFields_Ticket::TICKET_CLOSED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',CerberusTicketStatus::OPEN),
 					SearchFields_Ticket::TICKET_WAITING => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_WAITING,'=',0),
+					SearchFields_Ticket::VIRTUAL_ASSIGNABLE => new DevblocksSearchCriteria(SearchFields_Ticket::VIRTUAL_ASSIGNABLE,null,true),
 					SearchFields_Ticket::VIRTUAL_WORKERS => new DevblocksSearchCriteria(SearchFields_Ticket::VIRTUAL_WORKERS,null,array()),
 				), true);
 
-				$subparams = array(
-					DevblocksSearchCriteria::GROUP_OR
-				);
-				
-				if(is_array($memberships))
-				foreach($memberships as $group_id => $member) {
-					$assignable_buckets = DAO_Bucket::getAssignableBuckets($group_id);
-					$assignable_bucket_ids = array_keys($assignable_buckets);
-					
-					// Does this manager want the inbox assignable?
-					if(DAO_GroupSettings::get($group_id, DAO_GroupSettings::SETTING_INBOX_IS_ASSIGNABLE, 1))
-						array_unshift($assignable_bucket_ids,0);
-					
-					// Don't push empty groups into the param stack
-					if(empty($assignable_bucket_ids))
-						continue;
-					
-					$subparams[] = array(
-						DevblocksSearchCriteria::GROUP_AND,
-						SearchFields_Ticket::TICKET_TEAM_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_TEAM_ID,'=',$group_id),
-						SearchFields_Ticket::TICKET_CATEGORY_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CATEGORY_ID,'in',$assignable_bucket_ids),
-					);
-				}
-				
-				// If we had subgroups from memberships
-				if(1 < count($subparams))
-					$workflowView->addParam($subparams, 'tmp_GrpBkt');
-				else // We're not in any groups
-					$workflowView->addParam(new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_TEAM_ID,'=',-1));
-				
 				break;
 		}
 		
 		$workflowView->name = $title;
 		C4_AbstractViewLoader::setView($workflowView->id, $workflowView);
-		$views[] = $workflowView;
 		
-		$tpl->assign('views', $views);
+		$tpl->assign('view', $workflowView);
 		
 		// Log activity
 		DAO_Worker::logActivity(

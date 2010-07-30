@@ -971,6 +971,16 @@ class DAO_Ticket extends C4_ORMHelper {
 						);
 					}
 					break;
+				case SearchFields_Ticket::VIRTUAL_ASSIGNABLE:
+					$assignable_buckets = DAO_Bucket::getAssignableBuckets();
+					$assignable_bucket_ids = array_keys($assignable_buckets);
+					array_unshift($assignable_bucket_ids, 0);
+					if($param->value) { // true
+						$where_sql .= sprintf("AND t.category_id IN (%s) ", implode(',', $assignable_bucket_ids));	
+					} else { // false
+						$where_sql .= sprintf("AND t.category_id NOT IN (%s) ", implode(',', $assignable_bucket_ids));	
+					}
+					break;
 			}
 		}
 		
@@ -980,7 +990,6 @@ class DAO_Ticket extends C4_ORMHelper {
 			$where_sql.
 			($has_multiple_values ? 'GROUP BY t.id ' : '').
 			$sort_sql;
-
 		$rs = $db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 		
 		$results = array();
@@ -1058,6 +1067,7 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 	const CONTEXT_LINK_ID = 'cl_context_from_id';
 	
 	// Virtuals
+	const VIRTUAL_ASSIGNABLE = '*_assignable';
 	const VIRTUAL_WORKERS = '*_workers';
 	
 	/**
@@ -1109,6 +1119,7 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 			self::CONTEXT_LINK => new DevblocksSearchField(self::CONTEXT_LINK, 'context_link', 'from_context', null),
 			self::CONTEXT_LINK_ID => new DevblocksSearchField(self::CONTEXT_LINK_ID, 'context_link', 'from_context_id', null),
 			
+			self::VIRTUAL_ASSIGNABLE => new DevblocksSearchField(self::VIRTUAL_ASSIGNABLE, '*', 'assignable', $translate->_('ticket.assignable')),
 			self::VIRTUAL_WORKERS => new DevblocksSearchField(self::VIRTUAL_WORKERS, '*', 'workers', $translate->_('common.owners')),
 		);
 
@@ -1308,6 +1319,7 @@ class View_Ticket extends C4_AbstractView {
 			case SearchFields_Ticket::TICKET_WAITING:
 			case SearchFields_Ticket::TICKET_DELETED:
 			case SearchFields_Ticket::TICKET_CLOSED:
+			case SearchFields_Ticket::VIRTUAL_ASSIGNABLE:
 				$tpl->display('file:' . $tpl_path . 'internal/views/criteria/__bool.tpl');
 				break;
 					
@@ -1362,6 +1374,14 @@ class View_Ticket extends C4_AbstractView {
 		$key = $param->field;
 		
 		switch($key) {
+			case SearchFields_Ticket::VIRTUAL_ASSIGNABLE:
+				if(empty($param->value)) {
+					echo "Tickets <b>are not assignable</b>";
+				} else { 
+					echo "Tickets <b>are assignable</b>";
+				}
+				break;
+				
 			case SearchFields_Ticket::VIRTUAL_WORKERS:
 				if(empty($param->value)) {
 					echo "Owners <b>are not assigned</b>";
@@ -1486,6 +1506,7 @@ class View_Ticket extends C4_AbstractView {
 			case SearchFields_Ticket::TICKET_WAITING:
 			case SearchFields_Ticket::TICKET_DELETED:
 			case SearchFields_Ticket::TICKET_CLOSED:
+			case SearchFields_Ticket::VIRTUAL_ASSIGNABLE:
 				@$bool = DevblocksPlatform::importGPC($_REQUEST['bool'],'integer',1);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
 				break;

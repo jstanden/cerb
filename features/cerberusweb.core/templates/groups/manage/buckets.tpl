@@ -24,10 +24,10 @@
 					{$translate->_('common.inbox')|capitalize}
 				</td>
 				<td align="center" style="padding-left:5px;">
-					<label><input type="checkbox" name="inbox_assignable" value="1" {if $inbox_is_assignable}checked="checked"{/if}></label>
+					<span class="ui-icon ui-icon-check"></span>
 				</td>
 				<td align="center" style="padding-left:5px;">
-					--
+					<span class="ui-icon ui-icon-cancel"></span>
 				</td>
 			</tr>
 			

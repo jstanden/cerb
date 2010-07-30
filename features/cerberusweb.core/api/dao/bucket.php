@@ -162,7 +162,8 @@ class DAO_Bucket extends DevblocksORMHelper {
 	}
 	
 	static function getAssignableBuckets($group_ids=null) {
-		if(!is_array($group_ids)) $group_ids = array($group_ids);
+		if(!is_null($group_ids) && !is_array($group_ids)) 
+			$group_ids = array($group_ids);
 		
 		if(empty($group_ids)) {
 			$buckets = self::getAll();

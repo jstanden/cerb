@@ -1821,16 +1821,11 @@ class DAO_WorkflowView {
 			$hits = intval($row['hits']);
 				
 			if(isset($memberships[$team_id])) {
-				// If the group manager doesn't want this group inbox assignable (default to YES)
-				if(empty($category_id) && !DAO_GroupSettings::get($team_id, DAO_GroupSettings::SETTING_INBOX_IS_ASSIGNABLE, 1)) {
-					// ...skip the unassignable inbox	
-				} else {
-					if(!isset($group_counts[$team_id]))
-						$group_counts[$team_id] = array();
-						
-					$group_counts[$team_id][$category_id] = $hits;
-					@$group_counts[$team_id]['total'] = intval($group_counts[$team_id]['total']) + $hits;
-				}
+				if(!isset($group_counts[$team_id]))
+					$group_counts[$team_id] = array();
+				
+				$group_counts[$team_id][$category_id] = $hits;
+				@$group_counts[$team_id]['total'] = intval($group_counts[$team_id]['total']) + $hits;
 			}
 		}
 		

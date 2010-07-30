@@ -78,9 +78,7 @@
 					
 					<blockquote style="margin:2px;margin-left:20px;font-size:95%;color:rgb(100,100,100);">
 						{foreach from=$rule->actions item=action key=action_key}
-							{if $action_key=="status"}
-								{if $action.is_deleted==1}Delete Ticket{elseif $action.is_closed==1}Close Ticket{elseif $action.is_waiting==1}Waiting for Reply{else}Open Ticket{/if}<br>
-							{elseif $action_key=="move"}
+							{if $action_key=="move"}
 								{assign var=g_id value=$action.group_id}
 								{assign var=b_id value=$action.bucket_id}
 								{if isset($groups.$g_id) && (0==$b_id || isset($buckets.$b_id))}
@@ -89,13 +87,6 @@
 									<b>{if 0==$b_id}Inbox{else}{$buckets.$b_id->name}{/if}</b>
 								{/if}
 								<br>
-							{elseif $action_key=="assign"}
-								{assign var=worker_id value=$action.worker_id}
-								{if isset($workers.$worker_id)}
-									Assign to <b>{$workers.$worker_id->getName()}</b><br>
-								{/if}
-							{elseif $action_key=="spam"}
-								{if $action.is_spam}Report Spam{else}Mark Not Spam{/if}<br>
 							{elseif 0==strcasecmp('cf_',substr($action_key,0,3))}
 								{include file="$core_tpl/internal/custom_fields/filters/render_action_list.tpl"}
 							{/if}
