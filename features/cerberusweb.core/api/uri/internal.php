@@ -121,6 +121,13 @@ class ChInternalController extends DevblocksControllerExtension {
 		$tpl->assign('context', $context);
 		$tpl->assign('context_id', $context_id);
 		
+		// Options
+		$options = array();
+
+		@$filter_open = DevblocksPlatform::importGPC($_REQUEST['filter_open'],'integer', 0);
+		if(!empty($filter_open))
+			$options['filter_open'] = true;
+		
 		// Contexts
 		
 		$context_extensions = DevblocksPlatform::getExtensions('devblocks.context', false);
@@ -138,7 +145,7 @@ class ChInternalController extends DevblocksControllerExtension {
 			if(!$ext_context instanceof Extension_DevblocksContext)
 				continue;
 				
-			$view = $ext_context->getView($context, $context_id);
+			$view = $ext_context->getView($context, $context_id, $options);
 			
 			if(!empty($view))
 				$views[$view->id] = $view;

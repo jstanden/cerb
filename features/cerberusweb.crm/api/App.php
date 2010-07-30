@@ -1956,7 +1956,7 @@ class Context_Opportunity extends Extension_DevblocksContext {
 		return $view;
 	}
 	
-	function getView($context, $context_id) {
+	function getView($context, $context_id, $options=array()) {
 		$view_id = str_replace('.','_',$this->id);
 		
 		$defaults = new C4_AbstractViewModel();
@@ -1964,10 +1964,17 @@ class Context_Opportunity extends Extension_DevblocksContext {
 		$defaults->class_name = 'View_CrmOpportunity';
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = 'Opportunities';
-		$view->addParams(array(
+		
+		$params = array(
 			new DevblocksSearchCriteria(SearchFields_CrmOpportunity::CONTEXT_LINK,'=',$context),
 			new DevblocksSearchCriteria(SearchFields_CrmOpportunity::CONTEXT_LINK_ID,'=',$context_id),
-		), true);
+		);
+		
+		if(isset($options['filter_open']))
+			$params[] = new DevblocksSearchCriteria(SearchFields_CrmOpportunity::IS_CLOSED,'=',0);
+		
+		$view->addParams($params, true);
+		
 		$view->renderTemplate = 'context';
 		C4_AbstractViewLoader::setView($view_id, $view);
 		return $view;

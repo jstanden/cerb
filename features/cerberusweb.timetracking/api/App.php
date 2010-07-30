@@ -179,7 +179,7 @@ class Context_TimeTracking extends Extension_DevblocksContext {
 		return $view;
 	}
 	
-	function getView($context, $context_id) {
+	function getView($context, $context_id, $options=array()) {
 		$view_id = str_replace('.','_',$this->id);
 		
 		$defaults = new C4_AbstractViewModel();
@@ -187,10 +187,17 @@ class Context_TimeTracking extends Extension_DevblocksContext {
 		$defaults->class_name = 'View_TimeTracking';
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = 'Time Tracking';
-		$view->addParams(array(
+		
+		$params = array(
 			new DevblocksSearchCriteria(SearchFields_TimeTrackingEntry::CONTEXT_LINK,'=',$context),
 			new DevblocksSearchCriteria(SearchFields_TimeTrackingEntry::CONTEXT_LINK_ID,'=',$context_id),
-		), true);
+		);
+
+		if(isset($options['filter_open']))
+			$params[] = new DevblocksSearchCriteria(SearchFields_TimeTrackingEntry::IS_CLOSED,'=',0);
+		
+		$view->addParams($params, true);
+		
 		$view->renderTemplate = 'context';
 		C4_AbstractViewLoader::setView($view_id, $view);
 		return $view;

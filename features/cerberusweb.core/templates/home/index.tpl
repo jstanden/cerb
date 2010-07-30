@@ -22,7 +22,7 @@
 		{$tabs = [events]}
 
 		<li><a href="{devblocks_url}ajax.php?c=home&a=showMyEvents{/devblocks_url}">{'home.tab.my_notifications'|devblocks_translate|escape:'quotes'}</a></li>
-		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextLinks&context=cerberusweb.contexts.worker&id={$active_worker->id}{/devblocks_url}">{'My Work'|devblocks_translate|escape}</a></li>
+		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextLinks&context=cerberusweb.contexts.worker&id={$active_worker->id}&filter_open=1{/devblocks_url}">{'My Work'|devblocks_translate|escape}</a></li>
 
 		{if empty($workspaces) && $active_worker->hasPriv('core.home.workspaces')}
 			{$tabs[] = intro}		
