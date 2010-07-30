@@ -233,7 +233,7 @@ class DAO_Message extends DevblocksORMHelper {
         list($tables,$wheres,$selects) = parent::_parseSearchParams($params, array(),$fields,$sortBy);
 		$start = ($page * $limit); // [JAS]: 1-based [TODO] clean up + document
 
-		$sql = sprintf("SELECT ".
+		$select_sql = sprintf("SELECT ".
 			"m.id as %s, ".
 			"m.address_id as %s, ".
 			"m.created_date as %s, ".
@@ -247,10 +247,7 @@ class DAO_Message extends DevblocksORMHelper {
 			"t.team_id as %s, ".
 			"t.mask as %s, ".
 			"t.subject as %s, ".
-			"a.email as %s ".
-			"FROM message m ".
-			"INNER JOIN ticket t ON (m.ticket_id = t.id) ".
-			"INNER JOIN address a ON (m.address_id = a.id) ",
+			"a.email as %s ",
 			    SearchFields_Message::ID,
 			    SearchFields_Message::ADDRESS_ID,
 			    SearchFields_Message::CREATED_DATE,
@@ -265,15 +262,26 @@ class DAO_Message extends DevblocksORMHelper {
 			    SearchFields_Message::TICKET_MASK,
 			    SearchFields_Message::TICKET_SUBJECT,
 			    SearchFields_Message::ADDRESS_EMAIL
-			).
-			
-			// [JAS]: Dynamic table joins
+		);
+		
+		$join_sql = "FROM message m ".
+			"INNER JOIN ticket t ON (m.ticket_id = t.id) ".
+			"INNER JOIN address a ON (m.address_id = a.id) ".
 			(isset($tables['mh']) ? "INNER JOIN message_header mh ON (mh.message_id=m.id)" : " ").
-			(isset($tables['ftmc']) ? "INNER JOIN fulltext_message_content ftmc ON (ftmc.id=m.id)" : " ").
+			(isset($tables['ftmc']) ? "INNER JOIN fulltext_message_content ftmc ON (ftmc.id=m.id)" : " ");
 			
-			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ").
-			(!empty($sortBy) ? sprintf("ORDER BY %s %s",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : "")
-		;
+		$where_sql = "".
+			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
+			
+		$sort_sql = (!empty($sortBy) ? sprintf("ORDER BY %s %s ",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : " ");
+
+		$sql = 
+			$select_sql.
+			$join_sql.
+			$where_sql.
+			($has_multiple_values ? 'GROUP BY m.id ' : '').
+			$sort_sql;
+		
 		$rs = $db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 		
 		$results = array();
@@ -286,12 +294,16 @@ class DAO_Message extends DevblocksORMHelper {
 			$ticket_id = intval($row[SearchFields_Message::ID]);
 			$results[$ticket_id] = $result;
 		}
-
+		
 		// [JAS]: Count all
 		$total = -1;
+		$has_multiple_values = false;
 		if($withCounts) {
-		    $rs = $db->Execute($sql);
-		    $total = mysql_num_rows($rs);
+			$count_sql = 
+				($has_multiple_values ? "SELECT COUNT(DISTINCT m.id) " : "SELECT COUNT(m.id) ").
+				$join_sql.
+				$where_sql;
+			$total = $db->GetOne($count_sql);
 		}
 
 		mysql_free_result($rs);
@@ -340,7 +352,7 @@ class SearchFields_Message implements IDevblocksSearchFields {
 			SearchFields_Message::ID => new DevblocksSearchField(SearchFields_Message::ID, 'm', 'id', $translate->_('common.id')),
 			SearchFields_Message::ADDRESS_ID => new DevblocksSearchField(SearchFields_Message::ADDRESS_ID, 'm', 'address_id'),
 			SearchFields_Message::CREATED_DATE => new DevblocksSearchField(SearchFields_Message::CREATED_DATE, 'm', 'created_date', $translate->_('common.created')),
-			SearchFields_Message::IS_OUTGOING => new DevblocksSearchField(SearchFields_Message::IS_OUTGOING, 'm', 'is_outgoing'),
+			SearchFields_Message::IS_OUTGOING => new DevblocksSearchField(SearchFields_Message::IS_OUTGOING, 'm', 'is_outgoing', $translate->_('message.is_outgoing')),
 			SearchFields_Message::TICKET_ID => new DevblocksSearchField(SearchFields_Message::TICKET_ID, 'm', 'ticket_id'),
 			SearchFields_Message::WORKER_ID => new DevblocksSearchField(SearchFields_Message::WORKER_ID, 'm', 'worker_id', $translate->_('common.worker')),
 			
@@ -357,8 +369,8 @@ class SearchFields_Message implements IDevblocksSearchFields {
 			SearchFields_Message::ADDRESS_EMAIL => new DevblocksSearchField(SearchFields_Message::ADDRESS_EMAIL, 'a', 'email', $translate->_('common.email')),
 			
 			SearchFields_Message::TICKET_GROUP_ID => new DevblocksSearchField(SearchFields_Message::TICKET_GROUP_ID, 't', 'team_id', $translate->_('common.group')),
-			SearchFields_Message::TICKET_MASK => new DevblocksSearchField(SearchFields_Message::TICKET_MASK, 't', 'mask', $translate->_('common.mask')),
-			SearchFields_Message::TICKET_SUBJECT => new DevblocksSearchField(SearchFields_Message::TICKET_SUBJECT, 't', 'subject', $translate->_('common.subject')),
+			SearchFields_Message::TICKET_MASK => new DevblocksSearchField(SearchFields_Message::TICKET_MASK, 't', 'mask', $translate->_('ticket.mask')),
+			SearchFields_Message::TICKET_SUBJECT => new DevblocksSearchField(SearchFields_Message::TICKET_SUBJECT, 't', 'subject', $translate->_('ticket.subject')),
 		);
 		
 		// Sort by label (translation-conscious)
@@ -863,8 +875,9 @@ class View_Message extends C4_AbstractView {
 		$this->renderSortAsc = true;
 
 		$this->view_columns = array(
-			SearchFields_Message::TICKET_GROUP_ID,
 			SearchFields_Message::ADDRESS_EMAIL,
+			SearchFields_Message::TICKET_GROUP_ID,
+			SearchFields_Message::WORKER_ID,
 			SearchFields_Message::CREATED_DATE,
 		);
 		
