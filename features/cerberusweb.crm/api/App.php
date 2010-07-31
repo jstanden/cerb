@@ -1208,7 +1208,7 @@ class DAO_CrmOpportunity extends C4_ORMHelper {
 			
 		$join_sql = 
 			"FROM crm_opportunity o ".
-			"LEFT JOIN address a ON (a.id = o.primary_email_id) ".
+			"INNER JOIN address a ON (a.id = o.primary_email_id) ".
 			"LEFT JOIN contact_org org ON (org.id = a.contact_org_id) ".
 			
 			// [JAS]: Dynamic table joins
@@ -1234,10 +1234,12 @@ class DAO_CrmOpportunity extends C4_ORMHelper {
 			settype($param_key, 'string');
 			switch($param_key) {
 				case SearchFields_CrmOpportunity::VIRTUAL_WORKERS:
+					$has_multiple_values = true;
 					if(empty($param->value)) { // empty
-						$where_sql .= "AND (SELECT GROUP_CONCAT(context_link.to_context_id) FROM context_link WHERE context_link.from_context = 'cerberusweb.contexts.opportunity' AND context_link.from_context_id = o.id AND context_link.to_context = 'cerberusweb.contexts.worker') IS NULL ";
+						$join_sql .= "LEFT JOIN context_link AS context_owner ON (context_owner.from_context = 'cerberusweb.contexts.opportunity' AND context_owner.from_context_id = o.id AND context_owner.to_context = 'cerberusweb.contexts.worker') ";
+						$where_sql .= "AND context_owner.to_context_id IS NULL ";
 					} else {
-						$where_sql .= sprintf("AND (SELECT GROUP_CONCAT(context_link.to_context_id) FROM context_link WHERE context_link.from_context = 'cerberusweb.contexts.opportunity' AND context_link.from_context_id = o.id AND context_link.to_context = 'cerberusweb.contexts.worker' AND context_link.to_context_id IN (%s)) IS NOT NULL ",
+						$join_sql .= sprintf("INNER JOIN context_link AS context_owner ON (context_owner.from_context = 'cerberusweb.contexts.opportunity' AND context_owner.from_context_id = o.id AND context_owner.to_context = 'cerberusweb.contexts.worker' AND context_owner.to_context_id IN (%s)) ",
 							implode(',', $param->value)
 						);
 					}

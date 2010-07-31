@@ -520,10 +520,12 @@ class DAO_Worker extends C4_ORMHelper {
 			settype($param_key, 'string');
 			switch($param_key) {
 				case SearchFields_Worker::VIRTUAL_GROUPS:
+					$has_multiple_values = true;
 					if(empty($param->value)) { // empty
-						$where_sql .= "AND (SELECT GROUP_CONCAT(worker_to_team.team_id) FROM worker_to_team WHERE worker_to_team.agent_id = w.id) IS NULL ";
+						$join_sql .= "LEFT JOIN worker_to_team ON (worker_to_team.agent_id = w.id) ";
+						$where_sql .= "AND worker_to_team.agent_id IS NULL ";
 					} else {
-						$where_sql .= sprintf("AND (SELECT GROUP_CONCAT(worker_to_team.team_id) FROM worker_to_team WHERE worker_to_team.agent_id = w.id AND worker_to_team.team_id IN (%s)) IS NOT NULL ",
+						$join_sql .= sprintf("INNER JOIN worker_to_team ON (worker_to_team.agent_id = w.id) ",
 							implode(',', $param->value)
 						);
 					}

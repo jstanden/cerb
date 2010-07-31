@@ -962,6 +962,7 @@ class DAO_Ticket extends C4_ORMHelper {
 			settype($param_key, 'string');
 			switch($param_key) {
 				case SearchFields_Ticket::VIRTUAL_WORKERS:
+					$has_multiple_values = true;
 					if(empty($param->value)) { // empty
 						$join_sql .= "LEFT JOIN context_link AS context_owner ON (context_owner.from_context = 'cerberusweb.contexts.ticket' AND context_owner.from_context_id = t.id AND context_owner.to_context = 'cerberusweb.contexts.worker') ";
 						$where_sql .= "AND context_owner.to_context_id IS NULL ";

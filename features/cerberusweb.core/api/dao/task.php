@@ -236,10 +236,12 @@ class DAO_Task extends C4_ORMHelper {
 			settype($param_key, 'string');
 			switch($param_key) {
 				case SearchFields_Task::VIRTUAL_WORKERS:
+					$has_multiple_values = true;
 					if(empty($param->value)) { // empty
-						$where_sql .= "AND (SELECT GROUP_CONCAT(context_link.to_context_id) FROM context_link WHERE context_link.from_context = 'cerberusweb.contexts.task' AND context_link.from_context_id = t.id AND context_link.to_context = 'cerberusweb.contexts.worker') IS NULL ";
+						$join_sql .= "LEFT JOIN context_link AS context_owner ON (context_owner.from_context = 'cerberusweb.contexts.task' AND context_owner.from_context_id = t.id AND context_owner.to_context = 'cerberusweb.contexts.worker') ";
+						$where_sql .= "AND context_owner.to_context_id IS NULL ";
 					} else {
-						$where_sql .= sprintf("AND (SELECT GROUP_CONCAT(context_link.to_context_id) FROM context_link WHERE context_link.from_context = 'cerberusweb.contexts.task' AND context_link.from_context_id = t.id AND context_link.to_context = 'cerberusweb.contexts.worker' AND context_link.to_context_id IN (%s)) IS NOT NULL ",
+						$join_sql .= sprintf("INNER JOIN context_link AS context_owner ON (context_owner.from_context = 'cerberusweb.contexts.task' AND context_owner.from_context_id = t.id AND context_owner.to_context = 'cerberusweb.contexts.worker' AND context_owner.to_context_id IN (%s)) ",
 							implode(',', $param->value)
 						);
 					}
