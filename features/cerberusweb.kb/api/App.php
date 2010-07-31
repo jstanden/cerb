@@ -1110,12 +1110,13 @@ class DAO_KbArticle extends C4_ORMHelper {
 			
 		$sort_sql = (!empty($sortBy) ? sprintf("ORDER BY %s %s ",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : " ");
 
+		$has_multiple_values = true;
+		
 		$sql = 
 			$select_sql.
 			$join_sql.
 			$where_sql.
-			//($has_multiple_values ? 'GROUP BY kb.id ' : '').
-			'GROUP BY kb.id '.
+			($has_multiple_values ? 'GROUP BY kb.id ' : '').
 			$sort_sql;
 		
 		$rs = $db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
@@ -1134,8 +1135,11 @@ class DAO_KbArticle extends C4_ORMHelper {
 		// [JAS]: Count all
 		$total = -1;
 		if($withCounts) {
-		    $rs = $db->Execute($sql);
-		    $total = mysql_num_rows($rs);
+			$count_sql = 
+				($has_multiple_values ? "SELECT COUNT(DISTINCT kb.id) " : "SELECT COUNT(kb.id) ").
+				$join_sql.
+				$where_sql;
+			$total = $db->GetOne($count_sql);
 		}
 		
 		mysql_free_result($rs);

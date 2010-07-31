@@ -213,33 +213,44 @@ class DAO_GroupInboxFilter extends DevblocksORMHelper {
         list($tables,$wheres) = parent::_parseSearchParams($params, array(), $fields,$sortBy);
 		$start = ($page * $limit); // [JAS]: 1-based [TODO] clean up + document
 		
-		$sql = sprintf("SELECT ".
+		$select_sql = sprintf("SELECT ".
 			"trr.id as %s, ".
 			"trr.group_id as %s, ".
 			"trr.pos as %s, ".
 			"trr.is_sticky as %s, ".
 			"trr.sticky_order as %s, ".
-			"trr.is_stackable as %s ".
-			"FROM group_inbox_filter trr ",
-//			"INNER JOIN team tm ON (tm.id = t.team_id) ".
+			"trr.is_stackable as %s ",
 			    SearchFields_GroupInboxFilter::ID,
 			    SearchFields_GroupInboxFilter::GROUP_ID,
 			    SearchFields_GroupInboxFilter::POS,
 			    SearchFields_GroupInboxFilter::IS_STICKY,
 			    SearchFields_GroupInboxFilter::STICKY_ORDER,
 			    SearchFields_GroupInboxFilter::IS_STACKABLE
-			).
+			);
 			
+		$join_sql = "FROM group_inbox_filter trr "
+//			"INNER JOIN team tm ON (tm.id = t.team_id) ".
 			// [JAS]: Dynamic table joins
 //			(isset($tables['ra']) ? "INNER JOIN requester r ON (r.ticket_id=t.id)" : " ").
-			
-			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ").
-			(!empty($sortBy) ? sprintf("ORDER BY %s %s",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : "")
 		;
+		
+		$where_sql = "".
+			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
+		
+		$sort_sql = (!empty($sortBy) ? sprintf("ORDER BY %s %s ",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : " ");
+
+		$has_multiple_values = false;
+		
+		$sql = 
+			$select_sql.
+			$join_sql.
+			$where_sql.
+			($has_multiple_values ? 'GROUP BY trr.id ' : '').
+			$sort_sql;
+		
 		$rs = $db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 		
 		$results = array();
-		
 		
 		while($row = mysql_fetch_assoc($rs)) {
 			$result = array();
@@ -253,8 +264,11 @@ class DAO_GroupInboxFilter extends DevblocksORMHelper {
 		// [JAS]: Count all
 		$total = -1;
 		if($withCounts) {
-		    $rs = $db->Execute($sql);
-		    $total = mysql_num_rows($rs);
+			$count_sql = 
+				($has_multiple_values ? "SELECT COUNT(DISTINCT trr.id) " : "SELECT COUNT(trr.id) ").
+				$join_sql.
+				$where_sql;
+			$total = $db->GetOne($count_sql);
 		}
 		
 		mysql_free_result($rs);

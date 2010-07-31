@@ -286,32 +286,42 @@ class DAO_TicketAuditLog extends DevblocksORMHelper {
 
         list($tables,$wheres) = parent::_parseSearchParams($params, array(), $fields,$sortBy);
 		$start = ($page * $limit); // [JAS]: 1-based [TODO] clean up + document
-		$total = -1;
 		
-		$sql = sprintf("SELECT ".
+		$select_sql = sprintf("SELECT ".
 			"l.id as %s, ".
 			"l.ticket_id as %s, ".
 			"l.worker_id as %s, ".
 			"l.change_date as %s, ".
 			"l.change_field as %s, ".
-			"l.change_value as %s ".
-			"FROM ticket_audit_log l ",
-//			"INNER JOIN team tm ON (tm.id = t.team_id) ".
+			"l.change_value as %s ",
 			    SearchFields_TicketAuditLog::ID,
 			    SearchFields_TicketAuditLog::TICKET_ID,
 			    SearchFields_TicketAuditLog::WORKER_ID,
 			    SearchFields_TicketAuditLog::CHANGE_DATE,
 			    SearchFields_TicketAuditLog::CHANGE_FIELD,
 			    SearchFields_TicketAuditLog::CHANGE_VALUE
-			).
+			);
 			
+		$join_sql = "FROM ticket_audit_log l "
 			// [JAS]: Dynamic table joins
+//			"INNER JOIN team tm ON (tm.id = t.team_id) ".
 //			(isset($tables['ra']) ? "INNER JOIN requester r ON (r.ticket_id=t.id)" : " ").
-			
-			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ").
-			(!empty($sortBy) ? sprintf("ORDER BY %s %s",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : "")
 		;
-		// [TODO] Could push the select logic down a level too
+
+		$where_sql = "".
+			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
+		
+		$sort_sql = (!empty($sortBy) ? sprintf("ORDER BY %s %s ",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : " ");
+
+		$has_multiple_values = false;
+		
+		$sql = 
+			$select_sql.
+			$join_sql.
+			$where_sql.
+			($has_multiple_values ? 'GROUP BY l.id ' : '').
+			$sort_sql;
+		
 		if($limit > 0) {
     		$rs = $db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 		} else {
@@ -331,14 +341,18 @@ class DAO_TicketAuditLog extends DevblocksORMHelper {
 		}
 
 		// [JAS]: Count all
+		$total = -1;
 		if($withCounts) {
-		    $rs = $db->Execute($sql);
-		    $total = mysql_num_rows($rs);
+			$count_sql = 
+				($has_multiple_values ? "SELECT COUNT(DISTINCT l.id) " : "SELECT COUNT(l.id) ").
+				$join_sql.
+				$where_sql;
+			$total = $db->GetOne($count_sql);
 		}
 		
 		mysql_free_result($rs);
 		
-		return array($results,$total);
+		return array($results, $total);
     }
 	
 };
