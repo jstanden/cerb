@@ -42,6 +42,11 @@
 			<li><a href="{devblocks_url}ajax.php?c=tickets&a=showSearchTab&request={$request_path|escape:'url'}{/devblocks_url}">{$translate->_('common.search')|capitalize|escape:'quotes'}</a></li>
 		{/if}
 
+		{if 1 || $active_worker->hasPriv('core.mail.messages')}
+			{$tabs[] = messages}
+			<li><a href="{devblocks_url}ajax.php?c=tickets&a=showMessagesTab&request={$request_path|escape:'url'}{/devblocks_url}">{$translate->_('common.messages')|capitalize|escape:'quotes'}</a></li>
+		{/if}
+
 		{$tabs[] = drafts}
 		<li><a href="{devblocks_url}ajax.php?c=tickets&a=showDraftsTab&request={$request_path|escape:'url'}{/devblocks_url}">{$translate->_('mail.drafts')|capitalize|escape:'quotes'}</a></li>
 

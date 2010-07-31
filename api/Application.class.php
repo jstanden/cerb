@@ -85,6 +85,7 @@ class CerberusApplication extends DevblocksApplication {
 		
 	const VIEW_SEARCH = 'search';
 	const VIEW_MAIL_WORKFLOW = 'mail_workflow';
+	const VIEW_MAIL_MESSAGES = 'mail_messages';
 	const VIEW_OVERVIEW_ALL = 'overview_all';
 	
 	const CACHE_HELPDESK_FROMS = 'ch_helpdesk_froms';

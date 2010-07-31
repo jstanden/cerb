@@ -198,6 +198,9 @@
 		<tu tuid='common.me'>
 			<tuv xml:lang="en_US"><seg>me</seg></tuv>
 		</tu>
+		<tu tuid='common.messages'>
+			<tuv xml:lang="en_US"><seg>Messages</seg></tuv>
+		</tu>
 		<tu tuid='common.minimize'>
 			<tuv xml:lang="en_US"><seg>minimize</seg></tuv>
 		</tu>

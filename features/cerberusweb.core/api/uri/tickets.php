@@ -536,6 +536,57 @@ class ChTicketsPage extends CerberusPageExtension {
         $tpl->display('file:' . $this->_TPL_PATH . 'tickets/overview/index.tpl');		
 	}
 	
+	function showMessagesTabAction() {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('path', $this->_TPL_PATH);
+		
+		$visit = CerberusApplication::getVisit();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		// Log activity
+//		DAO_Worker::logActivity(
+//			new Model_Activity(
+//				'activity.mail.search'
+//			)
+//		);
+		
+		// Remember the tab
+		$visit->set(CerberusVisit::KEY_MAIL_MODE, 'messages');		
+		
+		$defaults = new C4_AbstractViewModel();
+		$defaults->id = CerberusApplication::VIEW_MAIL_MESSAGES;
+		$defaults->class_name = 'View_Message';
+//		$defaults->view_columns = array(
+//		);
+		$defaults->paramsDefault = array(
+			new DevblocksSearchCriteria(SearchFields_Message::IS_OUTGOING,'=',1),
+			new DevblocksSearchCriteria(SearchFields_Message::CREATED_DATE,DevblocksSearchCriteria::OPER_BETWEEN,array('-30 days', 'now')),
+		);
+		$defaults->paramsRequired = array(
+			new DevblocksSearchCriteria(SearchFields_Message::TICKET_GROUP_ID,'in',array_keys($active_worker->getMemberships())),
+		);
+		$defaults->paramsEditable = $defaults->paramsDefault;
+		$defaults->renderSortBy = SearchFields_Message::CREATED_DATE;
+		$defaults->renderSortAsc = false;
+		
+		$view = C4_AbstractViewLoader::getView($defaults->id, $defaults);
+		
+		C4_AbstractViewLoader::setView($view->id,$view);
+		
+		$tpl->assign('view', $view);
+	
+//		$teams = DAO_Group::getAll();
+//		$tpl->assign('teams', $teams);
+//		
+//		$buckets = DAO_Bucket::getAll();
+//		$tpl->assign('buckets', $buckets);
+//		
+//		$team_categories = DAO_Bucket::getTeams();
+//		$tpl->assign('team_categories', $team_categories);
+		
+		$tpl->display('file:' . $this->_TPL_PATH . 'tickets/messages/index.tpl');
+	}
+	
 	function showSearchTabAction() {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('path', $this->_TPL_PATH);
@@ -1383,6 +1434,7 @@ class ChTicketsPage extends CerberusPageExtension {
 	// Ajax
 	function showPreviewAction() {
 	    @$tid = DevblocksPlatform::importGPC($_REQUEST['tid'],'integer',0);
+	    @$msgid = DevblocksPlatform::importGPC($_REQUEST['msgid'],'integer',0);
 	    @$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
 	    @$edit_mode = DevblocksPlatform::importGPC($_REQUEST['edit'],'integer',0);
 	    
@@ -1398,16 +1450,18 @@ class ChTicketsPage extends CerberusPageExtension {
 		    $tpl->assign('ticket', $ticket);
 		}
 		
-		if(null != ($messages = DAO_Message::getMessagesByTicket($tid))) {
-	        if(!empty($messages)) {	    
-		        @$last = array_pop($messages); /* @var $last Model_Message */
-		        $content = $last->getContent();
-				
-			    $tpl->assign('message', $last);
-			    $tpl->assign('content', $content);
-	        }
+		// Do we have a specific message to look at?
+		if(!empty($msgid) && null != ($message = DAO_Message::get($msgid)) && $message->ticket_id == $tid) {
+			 // Good
+		} else {
+			$message = $ticket->getLastMessage();
 		}
-	    
+
+		if(!empty($message)) {
+			$tpl->assign('message', $message);
+			$tpl->assign('content', $message->getContent());
+		}
+		
 		$teams = DAO_Group::getAll();
 		$tpl->assign('teams', $teams);
 		

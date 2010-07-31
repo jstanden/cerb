@@ -53,8 +53,8 @@
 		<tr class="{$tableRowClass}">
 			<td align="center" rowspan="2"><input type="checkbox" name="row_id[]" value="{$result.w_id}"></td>
 			<td colspan="{math equation="x" x=$smarty.foreach.headers.total}">
-				<a href="{devblocks_url}c=display&id={$result.t_mask}{/devblocks_url}#{$result.m_id}t" class="subject">{$result.t_subject|escape}</a> 
-				<a href="javascript:;" onclick="genericAjaxPopup('peek','c=tickets&a=showPreview&view_id={$view->id}&tid={$result.m_ticket_id}', null, false, '550');"><span class="ui-icon ui-icon-newwin" style="display:inline-block;vertical-align:middle;" title="{$translate->_('views.peek')}"></span></a>
+				<a href="{devblocks_url}c=display&id={$result.t_mask}{/devblocks_url}" class="subject">{$result.t_subject|escape}</a> 
+				<a href="javascript:;" onclick="genericAjaxPopup('peek','c=tickets&a=showPreview&view_id={$view->id}&tid={$result.m_ticket_id}&msgid={$result.m_id}', null, false, '550');"><span class="ui-icon ui-icon-newwin" style="display:inline-block;vertical-align:middle;" title="{$translate->_('views.peek')}"></span></a>
 			</td>
 		</tr>
 		<tr class="{$tableRowClass}">

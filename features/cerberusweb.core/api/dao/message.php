@@ -958,16 +958,26 @@ class View_Message extends C4_AbstractView {
 		$tpl->assign('id', $this->id);
 
 		switch($field) {
-			case 'placeholder_string':
+			case SearchFields_Message::ADDRESS_EMAIL:
+			case SearchFields_Message::TICKET_MASK:
+			case SearchFields_Message::TICKET_SUBJECT:
 				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__string.tpl');
 				break;
 				
-			case 'placeholder_bool':
+			case SearchFields_Message::IS_OUTGOING:
 				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__bool.tpl');
 				break;
 				
-			case 'placeholder_date':
+			case SearchFields_Message::CREATED_DATE:
 				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__date.tpl');
+				break;
+				
+			case SearchFields_Message::TICKET_GROUP_ID:
+				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__context_group.tpl');
+				break;
+				
+			case SearchFields_Message::WORKER_ID:
+				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__context_worker.tpl');
 				break;
 				
 			default:
@@ -986,20 +996,33 @@ class View_Message extends C4_AbstractView {
 		$values = !is_array($param->value) ? array($param->value) : $param->value;
 
 		switch($field) {
-//			case SearchFields_WorkerEvent::WORKER_ID:
-//				$workers = DAO_Worker::getAll();
-//				$strings = array();
-//
-//				foreach($values as $val) {
-//					if(empty($val))
-//					$strings[] = "Nobody";
-//					elseif(!isset($workers[$val]))
-//					continue;
-//					else
-//					$strings[] = $workers[$val]->getName();
-//				}
-//				echo implode(", ", $strings);
-//				break;
+			case SearchFields_Message::TICKET_GROUP_ID:
+				$teams = DAO_Group::getAll();
+				$strings = array();
+
+				foreach($values as $val) {
+					if(!isset($teams[$val]))
+					continue;
+
+					$strings[] = $teams[$val]->name;
+				}
+				echo implode(" or ", $strings);
+				break;
+				
+			case SearchFields_Message::WORKER_ID:
+				$workers = DAO_Worker::getAll();
+				$strings = array();
+
+				foreach($values as $val) {
+					if(empty($val))
+					$strings[] = "Nobody";
+					elseif(!isset($workers[$val]))
+					continue;
+					else
+					$strings[] = $workers[$val]->getName();
+				}
+				echo implode(" or ", $strings);
+				break;
 			default:
 				parent::renderCriteriaParam($param);
 				break;
@@ -1014,7 +1037,9 @@ class View_Message extends C4_AbstractView {
 		$criteria = null;
 
 		switch($field) {
-			case 'placeholder_string':
+			case SearchFields_Message::ADDRESS_EMAIL:
+			case SearchFields_Message::TICKET_MASK:
+			case SearchFields_Message::TICKET_SUBJECT:
 				// force wildcards if none used on a LIKE
 				if(($oper == DevblocksSearchCriteria::OPER_LIKE || $oper == DevblocksSearchCriteria::OPER_NOT_LIKE)
 				&& false === (strpos($value,'*'))) {
@@ -1023,7 +1048,7 @@ class View_Message extends C4_AbstractView {
 				$criteria = new DevblocksSearchCriteria($field, $oper, $value);
 				break;
 				
-			case 'placeholder_date':
+			case SearchFields_Message::CREATED_DATE:
 				@$from = DevblocksPlatform::importGPC($_REQUEST['from'],'string','');
 				@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string','');
 
@@ -1033,9 +1058,19 @@ class View_Message extends C4_AbstractView {
 				$criteria = new DevblocksSearchCriteria($field,$oper,array($from,$to));
 				break;
 				
-			case 'placeholder_bool':
+			case SearchFields_Message::IS_OUTGOING:
 				@$bool = DevblocksPlatform::importGPC($_REQUEST['bool'],'integer',1);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
+				break;
+
+			case SearchFields_Message::TICKET_GROUP_ID:
+				@$group_ids = DevblocksPlatform::importGPC($_REQUEST['group_id'],'array',array());
+				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$group_ids);
+				break;
+				
+			case SearchFields_Message::WORKER_ID:
+				@$worker_ids = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',array());
+				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$worker_ids);
 				break;
 				
 			default:
