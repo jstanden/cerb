@@ -438,9 +438,7 @@ class C4_FeedbackEntryView extends C4_AbstractView {
 				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__date.tpl');
 				break;
 			case SearchFields_FeedbackEntry::WORKER_ID:
-				$workers = DAO_Worker::getAll();
-				$tpl->assign('workers', $workers);
-				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__worker.tpl');
+				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__context_worker.tpl');
 				break;
 			case SearchFields_FeedbackEntry::QUOTE_MOOD:
 				// [TODO] Translations

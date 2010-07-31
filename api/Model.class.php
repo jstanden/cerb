@@ -160,8 +160,7 @@ abstract class C4_AbstractView {
 				$tpl->display('file:' . $tpl_path . 'internal/views/criteria/__number.tpl');
 				break;
 			case Model_CustomField::TYPE_WORKER:
-				$tpl->assign('workers', DAO_Worker::getAllActive());
-				$tpl->display('file:' . $tpl_path . 'internal/views/criteria/__worker.tpl');
+				$tpl->display('file:' . $tpl_path . 'internal/views/criteria/__context_worker.tpl');
 				break;
 			default:
 				$tpl->display('file:' . $tpl_path . 'internal/views/criteria/__string.tpl');

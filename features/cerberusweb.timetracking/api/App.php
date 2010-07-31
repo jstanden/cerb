@@ -696,7 +696,7 @@ class View_TimeTracking extends C4_AbstractView {
 				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__bool.tpl');
 				break;
 			case SearchFields_TimeTrackingEntry::WORKER_ID:
-				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__worker.tpl');
+				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__context_worker.tpl');
 				break;
 			case SearchFields_TimeTrackingEntry::VIRTUAL_OWNERS:
 				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__context_worker.tpl');

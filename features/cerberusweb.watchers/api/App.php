@@ -784,9 +784,7 @@ class View_WatcherMailFilter extends C4_AbstractView {
 				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__bool.tpl');
 				break;
 			case SearchFields_WatcherMailFilter::WORKER_ID:
-				$workers = DAO_Worker::getAll();
-				$tpl->assign('workers', $workers);
-				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__worker.tpl');
+				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__context_worker.tpl');
 				break;
 			default:
 				echo '';
