@@ -33,4 +33,9 @@ foreach($tables_autoinc as $table) {
 	}
 }
 
+// ===========================================================================
+// Clear out fields that no longer exist
+
+$db->Execute("DELETE FROM ticket_audit_log WHERE change_field IN ('last_worker_id', 'next_worker_id', 'unlock_date', 'sla_id', 'sla_priority')");
+
 return TRUE;
