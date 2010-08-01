@@ -1105,7 +1105,7 @@ class Context_Worker extends Extension_DevblocksContext {
 		
 		if(is_array($fields))
 		foreach($fields as $cf_id => $field) {
-			$token_labels['worker_custom_'.$cf_id] = $prefix.$field->name;
+			$token_labels['custom_'.$cf_id] = $prefix.$field->name;
 		}
 
 		// Token values
