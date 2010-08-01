@@ -397,6 +397,14 @@ mysql_free_result($rs);
 $db->Execute("DELETE FROM group_setting WHERE setting = 'inbox_is_assignable'");
 
 // ===========================================================================
+// Collapse redundant worker tokens
+
+if(!isset($tables['snippet']))
+	return FALSE;
+	
+$db->Execute("UPDATE snippet SET content=REPLACE(content,'{{worker_','{{') WHERE context='cerberusweb.snippets.worker'");
+
+// ===========================================================================
 // Convert sequences to MySQL AUTO_INCREMENT, make UNSIGNED
 
 // Drop sequence tables
