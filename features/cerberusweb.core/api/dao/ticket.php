@@ -587,32 +587,29 @@ class DAO_Ticket extends C4_ORMHelper {
 	
 	static function analyze($params, $limit=15, $mode="senders", $mode_param=null) { // or "subjects"
 		$db = DevblocksPlatform::getDatabaseService();
-		list($tables,$wheres) = parent::_parseSearchParams($params, array(), SearchFields_Ticket::getFields());
-
+		
 		$tops = array();
 		
 		if($mode=="senders") {
-			$senders = array();
+			$query_parts = DAO_Ticket::getSearchQueryComponents(
+				array(),
+				$params,
+				null,
+				null
+			);
 			
+			// Overload
+			$join_sql = $query_parts['join'];
+			$where_sql = $query_parts['where'];
+			
+			$senders = array();
+
 			// [JAS]: Most common sender domains in work pile
-			$sql = sprintf("SELECT ".
-			    "count(*) as hits, substring(a1.email from position('@' in a1.email)) as domain ".
-				"FROM ticket t ".
-				"INNER JOIN team tm ON (tm.id = t.team_id) ".
-				"INNER JOIN address a1 ON (t.first_wrote_address_id=a1.id) ".
-				"INNER JOIN address a2 ON (t.last_wrote_address_id=a2.id) "
-				).
-				
-				(isset($tables['msg']) || isset($tables['mc']) ? "INNER JOIN message msg ON (msg.ticket_id=t.id) " : " ").
-				(isset($tables['mh']) ? "INNER JOIN message_header mh ON (mh.message_id=t.first_message_id) " : " "). // [TODO] Choose between first message and all?
-				(isset($tables['ftmc']) ? "INNER JOIN fulltext_message_content ftmc ON (ftmc.id=msg.id) " : " ").
-				(isset($tables['ra']) ? "INNER JOIN requester r ON (r.ticket_id=t.id)" : " ").
-				(isset($tables['ra']) ? "INNER JOIN address ra ON (ra.id=r.address_id) " : " ").
-				
-				(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ").
+			$sql = "SELECT COUNT(*) AS hits, SUBSTRING(a1.email FROM POSITION('@' IN a1.email)) AS domain ".
+				$join_sql.
+				$where_sql.
 		        "GROUP BY domain HAVING count(*) > 1 ".
 		        "ORDER BY hits DESC ";
-			
 		    $rs = $db->SelectLimit($sql, $limit, 0) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		    
 			$domains = array(); // [TODO] Temporary
@@ -624,31 +621,15 @@ class DAO_Ticket extends C4_ORMHelper {
 		    
 		    mysql_free_result($rs);
 		    
-		    // [TODO] Temporary
-		    $sender_wheres = $wheres;
-		    $sender_wheres[] = sprintf("substring(a1.email from position('@' in a1.email)) IN ('%s')",
-		        implode("','", $domains)
-		    );
-		    
 			// [JAS]: Most common senders in work pile
-			$sql = sprintf("SELECT ".
-			    "count(*) as hits, a1.email ".
-				"FROM ticket t ".
-				"INNER JOIN team tm ON (tm.id = t.team_id) ".
-				"INNER JOIN address a1 ON (t.first_wrote_address_id=a1.id) ".
-				"INNER JOIN address a2 ON (t.last_wrote_address_id=a2.id) "
-				).
-				
-				(isset($tables['msg']) || isset($tables['mc']) ? "INNER JOIN message msg ON (msg.ticket_id=t.id) " : " ").
-				(isset($tables['mh']) ? "INNER JOIN message_header mh ON (mh.message_id=t.first_message_id) " : " "). // [TODO] Choose between first message and all?
-				(isset($tables['ftmc']) ? "INNER JOIN fulltext_message_content ftmc ON (ftmc.id=msg.id) " : " ").
-				(isset($tables['ra']) ? "INNER JOIN requester r ON (r.ticket_id=t.id)" : " ").
-				(isset($tables['ra']) ? "INNER JOIN address ra ON (ra.id=r.address_id) " : " ").
-				
-				(!empty($sender_wheres) ? sprintf("WHERE %s ",implode(' AND ',$sender_wheres)) : "").
-		        "GROUP BY a1.email HAVING count(*) > 1 ".
-		        "ORDER BY hits DESC ";
-	
+			$sql = "SELECT count(*) AS hits, a1.email ".
+				$join_sql.
+				$where_sql . 
+					sprintf(" AND SUBSTRING(a1.email FROM POSITION('@' IN a1.email)) IN ('%s')",
+		        		implode("','", $domains)
+		    		).
+				"GROUP BY a1.email HAVING count(*) > 1 ".
+				"ORDER BY hits DESC ";
 		    $rs = $db->SelectLimit($sql, $limit*2, 0) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		    
 		    while($row = mysql_fetch_assoc($rs)) {
@@ -671,26 +652,24 @@ class DAO_Ticket extends C4_ORMHelper {
 	        }
 		 
 		} elseif ($mode=="subjects") {
+			$query_parts = DAO_Ticket::getSearchQueryComponents(
+				array(),
+				$params,
+				null,
+				null
+			);
+			
+			// Overload
+			$join_sql = $query_parts['join'];
+			$where_sql = $query_parts['where'];
+			
 			$prefixes = array();
 			
-			// [JAS]: Most common subjects in work pile
-			$sql = sprintf("SELECT ".
-			    "count(*) as hits, substring(t.subject from 1 for 8) as prefix ".
-				"FROM ticket t ".
-				"INNER JOIN team tm ON (tm.id = t.team_id) ".
-				"INNER JOIN address a1 ON (t.first_wrote_address_id=a1.id) ".
-				"INNER JOIN address a2 ON (t.last_wrote_address_id=a2.id) "
-				).
-				
-				(isset($tables['msg']) || isset($tables['mc']) ? "INNER JOIN message msg ON (msg.ticket_id=t.id) " : " ").
-				(isset($tables['mh']) ? "INNER JOIN message_header mh ON (mh.message_id=t.first_message_id) " : " "). // [TODO] Choose between first message and all?
-				(isset($tables['ra']) ? "INNER JOIN requester r ON (r.ticket_id=t.id)" : " ").
-				(isset($tables['ra']) ? "INNER JOIN address ra ON (ra.id=r.address_id) " : " ").
-				
-				(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ").
-		        "GROUP BY substring(t.subject from 1 for 8) ".
+			$sql = "SELECT COUNT(*) AS hits, SUBSTRING(t.subject FROM 1 FOR 8) AS prefix ".
+				$join_sql.
+				$where_sql.
+		        "GROUP BY SUBSTRING(t.subject FROM 1 FOR 8) HAVING hits > 1 ".
 		        "ORDER BY hits DESC ";
-			
 		    $rs = $db->SelectLimit($sql, $limit, 0) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		    
 			$prefixes = array(); // [TODO] Temporary
@@ -702,86 +681,71 @@ class DAO_Ticket extends C4_ORMHelper {
 		    mysql_free_result($rs);
 
 		    foreach($prefixes as $prefix_idx => $prefix) {
-			    $prefix_wheres = $wheres;
-			    $prefix_wheres[] = sprintf("substring(t.subject from 1 for 8) = %s",
-			        $db->qstr($prefix)
-			    );
-		    	
 				// [JAS]: Most common subjects in work pile
-				$sql = sprintf("SELECT ".
-				    "t.subject ".
-					"FROM ticket t ".
-					"INNER JOIN team tm ON (tm.id = t.team_id) ".
-					"INNER JOIN address a1 ON (t.first_wrote_address_id=a1.id) ".
-					"INNER JOIN address a2 ON (t.last_wrote_address_id=a2.id) "
-					).
-					
-					(isset($tables['msg']) || isset($tables['mc']) ? "INNER JOIN message msg ON (msg.ticket_id=t.id) " : " ").
-					(isset($tables['mh']) ? "INNER JOIN message_header mh ON (mh.message_id=t.first_message_id) " : " "). // [TODO] Choose between first message and all?
-					(isset($tables['ftmc']) ? "INNER JOIN fulltext_message_content ftmc ON (ftmc.id=msg.id) " : " ").
-					(isset($tables['ra']) ? "INNER JOIN requester r ON (r.ticket_id=t.id)" : " ").
-					(isset($tables['ra']) ? "INNER JOIN address ra ON (ra.id=r.address_id) " : " ").
-					
-					(!empty($prefix_wheres) ? sprintf("WHERE %s ",implode(' AND ',$prefix_wheres)) : "").
-			        "GROUP BY t.id, t.subject ";
-		
-				// [TODO] $limit here is completely arbitrary
-			    $rs = $db->SelectLimit($sql, 2500, 0) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
-			    
-			    $lines = array();
-			    $subjects = array();
-			    $patterns = array();
-			    $subpatterns = array();
-			    
-			    while($row = mysql_fetch_assoc($rs)) {
-			    	$lines[] = $row['subject'];
-			    }
-			    
-			    $patterns = self::findPatterns($lines, 8);
+				$sql = "SELECT COUNT(t.id) AS hits, t.subject ".
+					$join_sql.
+					$where_sql.
+						sprintf(" AND t.subject LIKE %s ",
+			        		$db->qstr($prefix.'%')
+			    		).
+			        "GROUP BY t.subject HAVING hits > 1 ".
+			        "ORDER BY hits DESC ";
+		    	
+			    $rs = $db->SelectLimit($sql, 15, 0) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 			    $num_rows = mysql_num_rows($rs);
-				mysql_free_result($rs);
-			    
-			    if(!empty($patterns)) {
-			    	@$pattern = array_shift($patterns);
-			        $tophash = md5('subject'.$pattern.'*');
-			        $tops[$tophash] = array('subject',$pattern.'*',$num_rows);
 
-			        if(!empty($patterns)) // thread subpatterns
-			    	foreach($patterns as $hits => $pattern) {
-				        $hash = md5('subject'.$pattern.'*');
-				        $tops[$tophash][3][$hash] = array('subject',$pattern.'*',0);
-				    }
+			    $lines = array();
+			    while($row = mysql_fetch_assoc($rs)) {
+			    	$lines[$row['subject']] = $row['hits'];
 			    }
 			    
-			    unset($lines);
+			    $prefix = self::findLongestCommonPrefix($lines);
+			    
+			    if(strlen(key($prefix)) < 8)
+			    	continue;
+
+		        if(count($lines) > 1) {
+        	        $tophash = md5('subject'.key($prefix).'*');
+			        $tops[$tophash] = array('subject',key($prefix).'*',current($prefix));
+		        	
+			        foreach($lines as $line => $hits) {
+			        	$hash = md5('subject'.$line);
+			        	$tops[$tophash][3][$hash] = array('subject',$line,$hits);
+			        }
+			        
+		        } else {
+			        $tophash = md5('subject'.key($prefix));
+			        $tops[$tophash] = array('subject',key($prefix),current($prefix));
+		        }
+		        
+				mysql_free_result($rs);
 		    }
 
 		} elseif ($mode=="headers") {
-			$tables['mh'] = 'mh';
-			$wheres[] = sprintf("mh.header_name=%s",$db->qstr($mode_param));
-				
-		    $sql = sprintf("SELECT ".
-			    "count(t.id) as hits, mh.header_value ".
-				"FROM ticket t ".
-				"INNER JOIN team tm ON (tm.id = t.team_id) ".
-				"INNER JOIN address a1 ON (t.first_wrote_address_id=a1.id) ".
-				"INNER JOIN address a2 ON (t.last_wrote_address_id=a2.id) "
-				).
-				
-				(isset($tables['msg']) || isset($tables['mc']) ? "INNER JOIN message msg ON (msg.ticket_id=t.id) " : " ").
-				(isset($tables['mh']) ? "INNER JOIN message_header mh ON (mh.message_id=t.first_message_id) " : " "). // [TODO] Choose between first message and all?
-				(isset($tables['ftmc']) ? "INNER JOIN fulltext_message_content ftmc ON (ftmc.id=msg.id) " : " ").
-				(isset($tables['ra']) ? "INNER JOIN requester r ON (r.ticket_id=t.id)" : " ").
-				(isset($tables['ra']) ? "INNER JOIN address ra ON (ra.id=r.address_id) " : " ").
-				
-				(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ").
-		        "GROUP BY mh.header_value HAVING mh.header_value <> '' ".
-		        "ORDER BY hits DESC ";
+			$params[] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_MESSAGE_HEADER,'=',$mode_param);
+			
+			$query_parts = DAO_Ticket::getSearchQueryComponents(
+				array(),
+				$params,
+				null,
+				null
+			);
+			
+			// Overload
+			$join_sql = $query_parts['join'];
+			$where_sql = $query_parts['where'];
+			
+			$sql = "SELECT count(t.id) as hits, mh.header_value ".
+				$join_sql.
+				$where_sql.
+				"GROUP BY mh.header_value HAVING mh.header_value != '' ".
+				"ORDER BY hits DESC ";
+			
 		    $rs = $db->SelectLimit($sql, 25, 0) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
-		    
+
 		    while($row = mysql_fetch_assoc($rs)) {
-		        $hash = md5('header'.$row['header_value']);
-		        $tops[$hash] = array('header',$row['header_value'],$row['hits'],array(),$mode_param);
+				$hash = md5('header'.$row['header_value']);
+				$tops[$hash] = array('header',$row['header_value'],$row['hits'],array(),$mode_param);
 		    }
 		    
 		    mysql_free_result($rs);
@@ -799,45 +763,43 @@ class DAO_Ticket extends C4_ORMHelper {
         return ($a[2] > $b[2]) ? -1 : 1;        
     }
 
-	private function findPatterns($list, $min_chars=8) {
-		$patterns = array();
-		$simil = array();
-		$simil_hash = array();
-		$MAX_PASS = 15;
-		$MAX_HITS = 5;
-	
-		// Remove dupes (not sure this makes much diff)
-	//	array_unique($list);
+	private function findLongestCommonPrefix($list) {
+		// Find the longest subject line
+		$subjects = array_keys($list);
+		usort($subjects, array('DAO_Ticket','sortByLen'));
+		$longest_item = reset($subjects);
+		unset($subjects);
 		
-		// Sort by longest subjects
-		usort($list,array('DAO_Ticket','sortByLen'));
-		
-		$len = count($list);
-		for($x=0;$x<$MAX_PASS;$x++) {
-			for($y=0;$y<$len;$y++) {
-				if($x==$y) continue; // skip ourselves
-				if(!isset($list[$x]) || !isset($list[$y])) break;
-				if(0 != ($max = self::str_similar_prefix($list[$x],$list[$y])) && $max >= $min_chars) {
-					@$simil[$max] = intval($simil[$max]) + 1;
-					@$simil_hash[$max] = trim(substr($list[$x],0,$max));
-				}
+		// Find the optimal similar prefix
+		$positions = array();
+		foreach($list as $subject => $hits) {
+			$x = 0;
+			while(isset($longest_item[$x]) && isset($subject[$x]) && $longest_item[$x]==$subject[$x]) {
+				if(!isset($positions[$x]))
+					$positions[$x] = 0;
+					
+				$positions[$x] += $hits;
+				$x++;
 			}
 		}
 		
-		// Results from optimial # of chars similar from left
-		arsort($simil);
-	
-		$max = current($simil);
-		$hits = 0;
-		foreach($simil as $k=>$v) {
-			if($hits>$MAX_HITS)
-				continue;
-	
-			$patterns[$v] = $simil_hash[$k];
-			$hits++; 
-		}
-	
-		return $patterns;
+		// Find the positions with the most hits
+		arsort($positions);
+		
+		// Only keep positions tied for first
+		foreach($positions as $k=>$v)
+			if($positions[$k] != $positions[0])
+				unset($positions[$k]);
+		
+		// And find the highest position
+		krsort($positions);
+		reset($positions);
+
+		$results = array(
+			substr($longest_item,0,key($positions)+1) => current($positions),
+		);
+		
+		return $results;
 	}
 	
 	// Sort by strlen (longest to shortest)
@@ -848,32 +810,15 @@ class DAO_Ticket extends C4_ORMHelper {
 		return ($asize>$bsize)?-1:1;
 	}
 	
-	private function str_similar_prefix($str1,$str2) {
-		$pos = 0;
-		
-		$str1 = trim($str1);
-		$str2 = trim($str2);
-		
-		while((isset($str1[$pos]) && isset($str2[$pos])) && $str1[$pos]==$str2[$pos]) {
-			$pos++;
-		}
-		
-		return $pos;
-	}
-    
-    static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
-		$db = DevblocksPlatform::getDatabaseService();
+	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_Ticket::getFields();
 		
-		$total = -1;
-
 		// Sanitize
 		if(!isset($fields[$sortBy])) {
 			$sortBy=null;
 		}
 		
-        list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy);
-		$start = ($page * $limit); // [JAS]: 1-based
+        list($tables, $wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
 			"t.id as %s, ".
@@ -922,7 +867,7 @@ class DAO_Ticket extends C4_ORMHelper {
 			    SearchFields_Ticket::TICKET_LAST_ACTION_CODE,
 			    SearchFields_Ticket::TICKET_TEAM_ID,
 			    SearchFields_Ticket::TICKET_CATEGORY_ID
-			);
+		);
 
 		$join_sql = 
 			"FROM ticket t ".
@@ -942,7 +887,7 @@ class DAO_Ticket extends C4_ORMHelper {
 			$select_sql .= ", o.name as o_name ";
 			$join_sql .= "LEFT JOIN contact_org o ON (a1.contact_org_id=o.id) ";
 		}
-			
+		
 		// Custom field joins
 		list($select_sql, $join_sql, $has_multiple_values) = self::_appendSelectJoinSqlForCustomFieldTables(
 			$tables,
@@ -985,13 +930,37 @@ class DAO_Ticket extends C4_ORMHelper {
 			}
 		}
 		
+		$result = array(
+			'select' => $select_sql,
+			'join' => $join_sql,
+			'where' => $where_sql,
+			'has_multiple_values' => $has_multiple_values,
+			'sort' => $sort_sql,
+		);
+		
+		return $result;
+	}
+	
+    static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
+		$db = DevblocksPlatform::getDatabaseService();
+    	
+		// Build search queries
+		$query_parts = self::getSearchQueryComponents($columns,$params,$sortBy,$sortAsc);
+
+		$select_sql = $query_parts['select'];
+		$join_sql = $query_parts['join'];
+		$where_sql = $query_parts['where'];
+		$has_multiple_values = $query_parts['has_multiple_values'];
+		$sort_sql = $query_parts['sort'];
+		
 		$sql = 
 			$select_sql.
 			$join_sql.
 			$where_sql.
 			($has_multiple_values ? 'GROUP BY t.id ' : '').
 			$sort_sql;
-		$rs = $db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+
+		$rs = $db->SelectLimit($sql,$limit,$page*$limit) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 		
 		$results = array();
 		
@@ -1000,11 +969,12 @@ class DAO_Ticket extends C4_ORMHelper {
 			foreach($row as $f => $v) {
 				$result[$f] = $v;
 			}
-			$ticket_id = intval($row[SearchFields_Ticket::TICKET_ID]);
-			$results[$ticket_id] = $result;
+			$id = intval($row[SearchFields_Ticket::TICKET_ID]);
+			$results[$id] = $result;
 		}
 
 		// [JAS]: Count all
+		$total = -1;
 		if($withCounts) {
 			$count_sql = 
 				(($has_multiple_values) ? "SELECT COUNT(DISTINCT t.id) " : "SELECT COUNT(t.id) ").
@@ -1015,7 +985,7 @@ class DAO_Ticket extends C4_ORMHelper {
 		
 		mysql_free_result($rs);
 		
-		return array($results,$total);
+		return array($results, $total);
     }	
 	
 };
