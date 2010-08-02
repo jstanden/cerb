@@ -948,15 +948,12 @@ class ChTicketsPage extends CerberusPageExtension {
 		
 		switch($section) {
 			case 'workflow':
-				$groups = DAO_Group::getAll();
-				$tpl->assign('groups', $groups);
-				
-				$group_buckets = DAO_Bucket::getTeams();
-				$tpl->assign('group_buckets', $group_buckets);
-				
 				$view = C4_AbstractViewLoader::getView(CerberusApplication::VIEW_MAIL_WORKFLOW);
-				$counts = $view->getCounts();
-				$tpl->assign('group_counts', $counts);
+				$original_params = $view->getEditableParams();
+				$view->removeParam(SearchFields_Ticket::TICKET_CATEGORY_ID);
+				$counts = $view->getCounts('group');
+				$view->addParams($original_params, true);
+				$tpl->assign('counts', $counts);
 				
 				$tpl->display('file:' . $this->_TPL_PATH . 'tickets/workflow/sidebar.tpl');
 				break;
