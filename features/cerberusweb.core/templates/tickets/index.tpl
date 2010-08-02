@@ -32,19 +32,14 @@
 		
 		<li><a href="{devblocks_url}ajax.php?c=tickets&a=showWorkflowTab&request={$request_path|escape:'url'}{/devblocks_url}">{$translate->_('mail.workflow')|capitalize|escape:'quotes'}</a></li>
 		
-		{if $active_worker->hasPriv('core.mail.overview')}
-			{$tabs[] = overview}
-			<li><a href="{devblocks_url}ajax.php?c=tickets&a=showOverviewTab&request={$request_path|escape:'url'}{/devblocks_url}">{$translate->_('mail.overview')|capitalize|escape:'quotes'}</a></li>
-		{/if}
-
 		{if $active_worker->hasPriv('core.mail.search')}
 			{$tabs[] = search}
-			<li><a href="{devblocks_url}ajax.php?c=tickets&a=showSearchTab&request={$request_path|escape:'url'}{/devblocks_url}">{$translate->_('common.search')|capitalize|escape:'quotes'}</a></li>
+			<li><a href="{devblocks_url}ajax.php?c=tickets&a=showSearchTab&request={$request_path|escape:'url'}{/devblocks_url}">{$translate->_('mail.search.tickets')|capitalize|escape:'quotes'}</a></li>
 		{/if}
 
 		{if 1 || $active_worker->hasPriv('core.mail.messages')}
 			{$tabs[] = messages}
-			<li><a href="{devblocks_url}ajax.php?c=tickets&a=showMessagesTab&request={$request_path|escape:'url'}{/devblocks_url}">{$translate->_('common.messages')|capitalize|escape:'quotes'}</a></li>
+			<li><a href="{devblocks_url}ajax.php?c=tickets&a=showMessagesTab&request={$request_path|escape:'url'}{/devblocks_url}">{$translate->_('mail.search.messages')|capitalize|escape:'quotes'}</a></li>
 		{/if}
 
 		{$tabs[] = drafts}
@@ -79,12 +74,6 @@
 						case {$case}:
 							doWorkflowKeys();
 							break;
-						{if $active_worker->hasPriv('core.mail.overview')}
-							{$case = $case + 1}
-							case {$case}:
-								doOverviewKeys();
-								break;
-						{/if}
 						{if $active_worker->hasPriv('core.mail.search')}
 							{$case = $case + 1}
 							case {$case}:
@@ -151,55 +140,6 @@
 					break;
 			}
 		} );		
-	}
-	
-	function doOverviewKeys() {
-		CreateKeyHandler(function (e) {
-			var mycode = getKeyboardKey(e, true);
-			
-			switch(mycode) {
-				case 65: // (A) list all
-					try {
-						document.getElementById('btnOverviewListAll').click();
-					} catch(e) { } 
-					break;
-				case 66:  // (B) bulk update
-					try {
-						document.getElementById('btnoverview_allBulkUpdate').click();
-					} catch(e) { } 
-					break;
-				case 67:  // (C) close
-					try {
-						document.getElementById('btnoverview_allClose').click();
-					} catch(e) { } 
-					break;
-				case 77:  // (M) my tickets
-					try {
-						document.getElementById('btnMyTickets').click();
-					} catch(e) { } 
-					break;
-				case 83:  // (S) spam
-					try {
-						document.getElementById('btnoverview_allSpam').click();
-					} catch(e) { } 
-					break;
-				case 84:  // (T) take
-					try {
-						document.getElementById('btnoverview_allTake').click();
-					} catch(e) { } 
-					break;
-				case 85:  // (U) surrender
-					try {
-						document.getElementById('btnoverview_allSurrender').click();
-					} catch(e) { } 
-					break;
-				case 88:  // (X) delete
-					try {
-						document.getElementById('btnoverview_allDelete').click();
-					} catch(e) { } 
-					break;
-			}
-		});		
 	}
 	
 	function doSearchKeys() {

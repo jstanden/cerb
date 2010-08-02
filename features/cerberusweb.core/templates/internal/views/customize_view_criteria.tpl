@@ -80,7 +80,7 @@
 			</blockquote>
 		
 			<div id="addCriteria{$view->id}" style="background-color:rgb(255,255,255);"></div>
-			<button type="button" onclick="var $form_id = $(this).closest('form').attr('id'); if(0==$form_id.length)return;genericAjaxPost($form_id,'viewCustomFilters{$view->id}','c=internal&a=viewAddFilter');"><span class="cerb-sprite sprite-add"></span> Add Filter</button>
+			<button type="button" onclick="$form_id = $(this).closest('form').attr('id'); if(0==$form_id.length)return;genericAjaxPost($form_id,'viewCustomFilters{$view->id}','c=internal&a=viewAddFilter');"><span class="cerb-sprite sprite-add"></span> Add Filter</button>
 		</div>		
 	</td>
 </tr>

@@ -493,9 +493,6 @@
 		<tu tuid='acl.core.mail.log_ticket'>
 			<tuv xml:lang="en_US"><seg>[Mail] Can open tickets on behalf of customers</seg></tuv>
 		</tu>
-		<tu tuid='acl.core.mail.overview'>
-			<tuv xml:lang="en_US"><seg>[Mail] Can use the Overview tab on the Mail page</seg></tuv>
-		</tu>
 		<tu tuid='acl.core.mail.search'>
 			<tuv xml:lang="en_US"><seg>[Mail] Can use the Search tab on the Mail page</seg></tuv>
 		</tu>
@@ -839,9 +836,6 @@
 		<tu tuid='activity.home'>
 			<tuv xml:lang="en_US"><seg>%s is browsing their assigned work</seg></tuv>
 		</tu>
-		<tu tuid='activity.mail.overview'>
-			<tuv xml:lang="en_US"><seg>%s is browsing %s in Overview</seg></tuv>
-		</tu>
 		<tu tuid='activity.mail.search'>
 			<tuv xml:lang="en_US"><seg>%s is searching tickets</seg></tuv>
 		</tu>
@@ -1167,9 +1161,6 @@
 			<tuv xml:lang="en_US"><seg>Not Waiting</seg></tuv>
 		</tu>
 		
-		<tu tuid='mail.overview'>
-			<tuv xml:lang="en_US"><seg>Overview</seg></tuv>
-		</tu>
 		<tu tuid='mail.overview.all_done'>
 			<tuv xml:lang="en_US"><seg>All Done!</seg></tuv>
 		</tu>
@@ -1182,14 +1173,8 @@
 		<tu tuid='mail.overview.assigned.title'>
 			<tuv xml:lang="en_US"><seg>For %s</seg></tuv>
 		</tu>
-		<tu tuid='mail.overview.expand_list'>
-			<tuv xml:lang="en_US"><seg>expand list</seg></tuv>
-		</tu>
 		<tu tuid='mail.overview.my_mail'>
 			<tuv xml:lang="en_US"><seg>my mail</seg></tuv>
-		</tu>
-		<tu tuid='mail.overview.waiting.title'>
-			<tuv xml:lang="en_US"><seg>[Waiting] %s</seg></tuv>
 		</tu>
 		
 		<tu tuid='mail.piles'>
@@ -1210,6 +1195,14 @@
 		<tu tuid='mail.sent'>
 			<tuv xml:lang="en_US"><seg>Sent</seg></tuv>
 		</tu>
+		
+		<tu tuid='mail.search.messages'>
+			<tuv xml:lang="en_US"><seg>Search Messages</seg></tuv>
+		</tu>
+		<tu tuid='mail.search.tickets'>
+			<tuv xml:lang="en_US"><seg>Search Tickets</seg></tuv>
+		</tu>
+		
 		<tu tuid='mail.surrender'>
 			<tuv xml:lang="en_US"><seg>Surrender</seg></tuv>
 		</tu>

@@ -298,7 +298,6 @@
 		<!-- Mail page -->
 		<priv id="core.mail.actions.auto_refresh" label="acl.core.mail.actions.auto_refresh" />
 		<priv id="core.mail.log_ticket" label="acl.core.mail.log_ticket" />
-		<priv id="core.mail.overview" label="acl.core.mail.overview" />
 		<priv id="core.mail.search" label="acl.core.mail.search" />
 		<priv id="core.mail.send" label="acl.core.mail.send" />
 
