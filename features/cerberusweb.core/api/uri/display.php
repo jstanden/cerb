@@ -1148,21 +1148,36 @@ class ChDisplayPage extends CerberusPageExtension {
 	
 	function saveRequestersPanelAction() {
 		@$ticket_id = DevblocksPlatform::importGPC($_POST['ticket_id'],'integer');
+		@$address_ids = DevblocksPlatform::importGPC($_POST['address_id'],'array',array());
+		@$lookup_str = DevblocksPlatform::importGPC($_POST['lookup'],'string','');
 
-		// Adds
-		@$req_adds = DevblocksPlatform::parseCrlfString(DevblocksPlatform::importGPC($_POST['req_adds'],'string',''));
-
-		if(is_array($req_adds))
-		foreach($req_adds as $req) {
-			DAO_Ticket::createRequester($req, $ticket_id);
+		if(empty($ticket_id))
+			return;
+		
+		$requesters = DAO_Ticket::getRequestersByTicket($ticket_id);
+		
+		// Delete requesters we've removed
+		foreach($requesters as $req_id => $req_addy) {
+			if(false === array_search($req_id, $address_ids))
+				DAO_Ticket::deleteRequester($ticket_id, $req_id);
 		}
 		
-		// Deletes
-		@$req_deletes = DevblocksPlatform::importGPC($_POST['req_deletes'],'array',array());
+		// Add chooser requesters
+		foreach($address_ids as $id) {
+			if(is_numeric($id) && !isset($requesters[$id])) {
+				if(null != ($address = DAO_Address::get($id)))
+					DAO_Ticket::createRequester($address->email, $ticket_id);
+			}
+		}
 		
-		if(is_array($req_deletes))
-		foreach($req_deletes as $req_id) {
-			DAO_Ticket::deleteRequester($ticket_id, $req_id);
+		// Perform lookups
+		if(!empty($lookup_str)) {
+			$lookups = DevblocksPlatform::parseCsvString($lookup_str);
+			foreach($lookups as $lookup) {
+				// Create if a valid email and we haven't heard of them
+				if(null != ($address = DAO_Address::lookupAddress($lookup, true)))
+					DAO_Ticket::createRequester($address->email, $ticket_id);
+			}
 		}
 		
 		exit;

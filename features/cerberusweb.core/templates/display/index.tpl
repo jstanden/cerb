@@ -36,7 +36,7 @@
 					<span id="displayTicketRequesterBubbles">
 						{include file="{$core_tpl}display/rpc/requester_list.tpl" ticket_id=$ticket->id}
 					</span>
-					(<a href="javascript:;" onclick="genericAjaxPopup('peek','c=display&a=showRequestersPanel&ticket_id={$ticket->id}',null,false,'500');">{$translate->_('common.edit')|lower}</a>)
+					(<a href="javascript:;" onclick="genericAjaxPopup('peek','c=display&a=showRequestersPanel&ticket_id={$ticket->id}',null,true,'500');">{$translate->_('common.edit')|lower}</a>)
 				</td>
 			</tr>
 		</table>

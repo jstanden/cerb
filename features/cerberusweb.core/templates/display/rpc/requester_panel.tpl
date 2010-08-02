@@ -3,17 +3,21 @@
 <input type="hidden" name="a" value="saveRequestersPanel">
 <input type="hidden" name="ticket_id" value="{$ticket_id}">
 
+<b>{'display.ui.add_to_recipients'|devblocks_translate}:</b><br>
+<button type="button" class="chooser_address"><span class="cerb-sprite sprite-add"></span></button>
+<ul class="chooser-container bubbles">
 {if !empty($requesters)}
-<b>Remove checked:</b><br>
 {foreach from=$requesters item=requester}
-	<label><input type="checkbox" name="req_deletes[]" value="{$requester->id}"> {$requester->email}</label>
-	<br>
+<li>{$requester->email|escape}<input type="hidden" name="address_id[]" value="{$requester->id|escape}"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></li>
 {/foreach}
+{/if}	
+</ul>
 <br>
-{/if}
+<br>
 
-<b>Add new requesters:</b> (one e-mail per line)<br>
-<textarea name="req_adds" rows="4" cols="35" style="width:98%;"></textarea><br>
+<b>Add new e-mail addresses:</b> (comma-separated)<br>
+<input type="text" name="lookup" style="width:100%;">
+<br>
 <br>
 
 <button id="btnSaveRequestersPanel" type="button"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')|capitalize}</button>
@@ -21,12 +25,14 @@
 </form>
 
 <script type="text/javascript">
-	var $popup = genericAjaxPopupFetch('peek');
+	$popup = genericAjaxPopupFetch('peek');
 	$popup.one('popup_open',function(event,ui) {
-		$popup.dialog('option','title','Recipients');
+		$(this).dialog('option','title','Recipients');
 		
-		//ajax.emailAutoComplete('#formDisplayReq textarea[name=req_adds]', { multiple: true } );
+		// Add an autocomplete for single address entry (including new IDs)
+		ajax.emailAutoComplete('#formDisplayReq input:text[name=lookup]', { multiple: true } );
 		
+		// Save button		
 		$('#btnSaveRequestersPanel').bind('click', function() {
 			genericAjaxPost('formDisplayReq','','',
 				function(html) {
@@ -35,5 +41,8 @@
 				}
 			);
 		} );
+	});
+	$('#formDisplayReq button.chooser_address').each(function() {
+		ajax.chooser(this,'cerberusweb.contexts.address','address_id');
 	});
 </script>
