@@ -126,7 +126,7 @@ foreach($tables_autoinc as $table) {
 		&& ('int(10) unsigned' != $columns['id']['type'] 
 		|| 'auto_increment' != $columns['id']['extra'])
 	) {
-		$db->Execute(sprintf("ALTER TABLE %s MODIFY COLUMN id INT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE", $table));
+		$db->Execute(sprintf("ALTER TABLE %s MODIFY COLUMN id INT UNSIGNED NOT NULL AUTO_INCREMENT", $table));
 	}
 }
 return TRUE;
