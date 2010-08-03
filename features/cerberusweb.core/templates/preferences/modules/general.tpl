@@ -80,7 +80,6 @@
 <br>
 
 <b>{$translate->_('preferences.account.mail')|capitalize}</b><br>
-<label><input type="checkbox" name="mail_inline_comments" value="1" {if $mail_inline_comments}checked{/if}> {$translate->_('preferences.account.mail.comments')}</label><br>
 <label><input type="checkbox" name="mail_always_show_all" value="1" {if $mail_always_show_all}checked{/if}> {$translate->_('preferences.account.mail.readall')}</label><br>
 <br>
 

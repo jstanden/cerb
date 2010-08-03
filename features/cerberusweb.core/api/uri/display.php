@@ -788,18 +788,14 @@ class ChDisplayPage extends CerberusPageExtension {
 		$tpl->assign('message_senders', $message_senders);
 		$tpl->assign('message_sender_orgs', $message_sender_orgs);
 		
-		@$mail_inline_comments = DAO_WorkerPref::get($active_worker->id,'mail_inline_comments',1);
+		$comments = DAO_Comment::getByContext(CerberusContexts::CONTEXT_TICKET, $id);
+		arsort($comments);
+		$tpl->assign('comments', $comments);
 		
-		if($mail_inline_comments) { // if inline comments are enabled
-			$comments = DAO_Comment::getByContext(CerberusContexts::CONTEXT_TICKET, $id);
-			arsort($comments);
-			$tpl->assign('comments', $comments);
-			
-			// build a chrono index of comments
-			foreach($comments as $comment_id => $comment) { /* @var $comment Model_Comment */
-				$key = $comment->created . '_c' . $comment_id;
-				$convo_timeline[$key] = array('c',$comment_id);
-			}
+		// build a chrono index of comments
+		foreach($comments as $comment_id => $comment) { /* @var $comment Model_Comment */
+			$key = $comment->created . '_c' . $comment_id;
+			$convo_timeline[$key] = array('c',$comment_id);
 		}
 		
 		// Thread drafts into conversation

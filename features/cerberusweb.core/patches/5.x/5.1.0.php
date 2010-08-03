@@ -397,6 +397,10 @@ mysql_free_result($rs);
 $db->Execute("DELETE FROM group_setting WHERE setting = 'inbox_is_assignable'");
 
 // ===========================================================================
+// Nuke the 'mail_inline_comments' pref from workers
+$db->Execute("DELETE FROM worker_pref WHERE setting = 'mail_inline_comments'");
+
+// ===========================================================================
 // Collapse redundant worker tokens
 
 if(!isset($tables['snippet']))

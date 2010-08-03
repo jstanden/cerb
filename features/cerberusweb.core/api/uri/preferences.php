@@ -183,9 +183,6 @@ class ChPreferencesPage extends CerberusPageExtension {
 		$keyboard_shortcuts = intval(DAO_WorkerPref::get($worker->id, 'keyboard_shortcuts', 1));
 		$tpl->assign('keyboard_shortcuts', $keyboard_shortcuts);
 
-		$mail_inline_comments = DAO_WorkerPref::get($worker->id,'mail_inline_comments',1);
-		$tpl->assign('mail_inline_comments', $mail_inline_comments);
-		
 		$mail_always_show_all = DAO_WorkerPref::get($worker->id,'mail_always_show_all',0);
 		$tpl->assign('mail_always_show_all', $mail_always_show_all);
 		
@@ -260,9 +257,6 @@ class ChPreferencesPage extends CerberusPageExtension {
 		@$keyboard_shortcuts = DevblocksPlatform::importGPC($_REQUEST['keyboard_shortcuts'],'integer',0);
 		DAO_WorkerPref::set($worker->id, 'keyboard_shortcuts', $keyboard_shortcuts);
 
-		@$mail_inline_comments = DevblocksPlatform::importGPC($_REQUEST['mail_inline_comments'],'integer',0);
-		DAO_WorkerPref::set($worker->id, 'mail_inline_comments', $mail_inline_comments);
-		
 		@$mail_always_show_all = DevblocksPlatform::importGPC($_REQUEST['mail_always_show_all'],'integer',0);
 		DAO_WorkerPref::set($worker->id, 'mail_always_show_all', $mail_always_show_all);
 		
