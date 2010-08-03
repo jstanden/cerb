@@ -515,9 +515,9 @@ class View_Address extends C4_AbstractView {
 			SearchFields_Address::CONTEXT_LINK_ID,
 		);
 		
-		$this->paramsDefault = array(
+		$this->paramsDefault = array_merge($this->paramsDefault, array(
 			SearchFields_Address::IS_REGISTERED => new DevblocksSearchCriteria(SearchFields_Address::IS_REGISTERED,'=',1),
-		);
+		));
 		$this->paramsHidden = array(
 			SearchFields_Address::CONTACT_ORG_ID,
 			SearchFields_Address::ID,
@@ -525,8 +525,6 @@ class View_Address extends C4_AbstractView {
 			SearchFields_Address::CONTEXT_LINK,
 			SearchFields_Address::CONTEXT_LINK_ID,
 		);
-		
-		$this->doResetCriteria();
 	}
 
 	function getData() {
