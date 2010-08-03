@@ -372,13 +372,21 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 	private function _handleContextLinkAssigned($event) {
 		$translate = DevblocksPlatform::getTranslationService();
 		$events = DevblocksPlatform::getEventService();
-		
+
 		$worker_id = $event->params['worker_id'];
 		$context = $event->params['context'];
 		$context_id = $event->params['context_id'];
 		
+		$notifying_ourself = false;
+		
+		// Don't notify ourself
+		if(null != ($active_worker = CerberusApplication::getActiveWorker())) {
+			if($active_worker->id == $worker_id)
+				$notifying_ourself = true;
+		}
+		
 		// Abstract context assigned notifications
-		if(null != ($mft = DevblocksPlatform::getExtension($context, false, true))) {
+		if(!$notifying_ourself && null != ($mft = DevblocksPlatform::getExtension($context, false, true))) {
 			@$string_assigned = $mft->params['events'][0]['context.assigned'];
 			
 			if(!empty($string_assigned) 
@@ -386,7 +394,7 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 				&& null != ($url = $ext->getPermalink($context_id))) {
 				/* @var $ext Extension_DevblocksContext */
 
-				if(null != ($active_worker = CerberusApplication::getActiveWorker())) {
+				if(null != $active_worker) {
 					$worker_name = $active_worker->getName();
 				} else {
 					$worker_name = 'The system'; 
