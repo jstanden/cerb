@@ -935,6 +935,7 @@ class ChTicketsPage extends CerberusPageExtension {
 	}
 	
 	// Ajax
+	// [TODO] Merge w/ the other sidebar method
 	function refreshSidebarAction() {
 		$db = DevblocksPlatform::getDatabaseService();
 		
@@ -948,11 +949,10 @@ class ChTicketsPage extends CerberusPageExtension {
 		
 		switch($section) {
 			case 'workflow':
+				// Since we don't re-save the view, we can remove filters that we don't want to restrict the count
 				$view = C4_AbstractViewLoader::getView(CerberusApplication::VIEW_MAIL_WORKFLOW);
-				$original_params = $view->getEditableParams();
 				$view->removeParam(SearchFields_Ticket::TICKET_CATEGORY_ID);
 				$counts = $view->getCounts('group');
-				$view->addParams($original_params, true);
 				$tpl->assign('counts', $counts);
 				
 				$tpl->display('file:' . $this->_TPL_PATH . 'tickets/workflow/sidebar.tpl');
