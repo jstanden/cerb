@@ -736,6 +736,7 @@ class CerberusParser {
 		            'ticket.reply.inbound',
 	                array(
 	                    'ticket_id' => $id,
+	                    'address_model' => $fromAddressInst,
 	                )
 	            )
 		    );

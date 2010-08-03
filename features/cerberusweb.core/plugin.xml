@@ -262,6 +262,8 @@
 		<event id="ticket.reply.inbound">
 			<name>Ticket Inbound Reply</name>
 			<param key="ticket_id" />
+			<param key="address_model" />
+			<param key="is_move" />
 		</event>
 		<event id="ticket.reply.outbound">
 			<name>Ticket Outbound Reply</name>

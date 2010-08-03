@@ -364,6 +364,7 @@ class CerberusMail {
 		            'ticket.reply.inbound',
 	                array(
 	                    'ticket_id' => $ticket_id,
+	                    'address_model' => $fromAddressInst,
 	                )
 	            )
 		    );

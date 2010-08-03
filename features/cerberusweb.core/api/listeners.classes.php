@@ -501,13 +501,15 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 			}
 		}
 
-		// Trigger an inbound event			
+		// Trigger an inbound event
+		// [TODO] This really should be a different event to run inbox filters	
 	    $eventMgr = DevblocksPlatform::getEventService();
 	    $eventMgr->trigger(
 	        new Model_DevblocksEvent(
 	            'ticket.reply.inbound',
                 array(
                     'ticket_id' => $ticket_id,
+                    'is_move' => true,
                 )
             )
 	    );
