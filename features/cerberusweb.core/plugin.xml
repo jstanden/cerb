@@ -452,13 +452,15 @@
 			<params>
 				<param key="events">
 					<value>
-						<data key="context_link.assigned" />						
-						<data key="context_link.set" />						
+						<data key="context_link.assigned" />
+						<data key="context_link.set" />
 						<data key="cron.heartbeat" />
-						<data key="cron.maint" />						
-						<data key="dao.ticket.update" />						
-						<data key="ticket.action.closed" />						
-						<data key="ticket.action.moved" />						
+						<data key="cron.maint" />
+						<data key="dao.ticket.update" />
+						<data key="ticket.action.closed" />
+						<data key="ticket.action.moved" />					
+						<data key="ticket.reply.inbound" />
+						<data key="ticket.reply.outbound" />						
 					</value>
 				</param>
 			</params>
