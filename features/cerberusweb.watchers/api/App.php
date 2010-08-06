@@ -1504,7 +1504,17 @@ class DAO_WatcherMailFilter extends DevblocksORMHelper {
 		mysql_free_result($rs);
 		
 		return array($results,$total);
-    }	
+    }
+    
+    public static function maint() {
+    	$db = DevblocksPlatform::getDatabaseService();
+    	$logger = DevblocksPlatform::getConsoleLog();
+    	
+		$sql = "DELETE QUICK watcher_mail_filter FROM watcher_mail_filter LEFT JOIN worker ON watcher_mail_filter.worker_id = worker.id WHERE worker.id IS NULL";
+		$db->Execute($sql);
+		
+		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' watcher_mail_filter records.');
+    }
 	
 };
 
