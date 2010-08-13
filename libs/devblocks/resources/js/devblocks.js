@@ -195,7 +195,7 @@ function showLoadingPanel() {
 		draggable : false,
 		resizable : false,
 		modal : true,
-		width : "300",
+		width : '300px',
 		title : 'Running...'
 	};
 
@@ -285,13 +285,13 @@ function genericAjaxPopup($layer,request,target,modal,width,cb) {
 		draggable : true,
 		modal : false,
 		stack: true,
-		width : "300",
+		width : '300px',
 		close: function(event, ui) { 
 			$(this).unbind();
 		}
 	};
 	
-	if(null != width) options.width = width;
+	if(null != width) options.width = width + 'px'; // [TODO] Fixed the forced 'px' later
 	if(null != modal) options.modal = modal;
 	
 	// Load the popup content
