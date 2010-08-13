@@ -60,7 +60,9 @@ button {
 	background-color: rgb(209,209,209);
 	margin-right:1px;
 	vertical-align:middle;
-	-moz-border-radius: 5px; -webkit-border-radius: 5px; border-radius: 5px;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	border-radius: 5px;
 }
 
 button:hover {
@@ -272,22 +274,23 @@ UL.bubbles {
 }
 
 UL.bubbles LI {
+	display:inline-block;
+	list-style-type:none;
 	list-style:none;
 	line-height:1.9em;
 	white-space:nowrap;
 	padding:0 0.2em 0 0.2em;
 	margin:2px;
-	display:inline-block;
 	color:rgb(74,110,158);
 	border:1px solid rgb(197,219,236);
+	
 	border-radius: 5px;	
 	-moz-border-radius: 5px;
 	-webkit-border-radius: 5px;
 	
-	background: rgb(232,242,254);
 	background: -webkit-gradient(linear, left top, left bottom, from(rgb(232,242,254)), to(rgb(255,255,255)));
 	background: -moz-linear-gradient(top,  rgb(232,242,254),  rgb(255,255,255));
-	filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='rgb(232,242,254)', endColorstr='rgb(255,255,255)');
+	background-color:rgb(232,242,254);
 }
 
 UL.bubbles LI.bubble-blue {
@@ -316,42 +319,28 @@ UL.bubbles LI A:hover {
 DIV.badge {
 	display:inline-block;
 
-	background:rgb(175,175,175);
-	background: -webkit-gradient(linear, left top, left bottom, from(rgb(185,185,185)), to(rgb(165,165,165)));
-	background: -moz-linear-gradient(top,  rgb(185,185,185),  rgb(165,165,165));
-	filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='rgb(185,185,185)', endColorstr='rgb(165,165,165)');
-
-	color:rgb(255,255,255);
-	border:1px solid rgba(150,150,150,0.9);
 	font-weight:normal;
 	padding:1px 4px 1px 4px;
+	
 	border-radius:5px;
 	-moz-border-radius:5px;
 	-webkit-border-radius:5px;
+	
+	background: -webkit-gradient(linear, left top, left bottom, from(rgb(185,185,185)), to(rgb(165,165,165)));
+	background: -moz-linear-gradient(top, rgb(185,185,185), rgb(165,165,165));
+	background-color:rgb(175,175,175);
 
-	/*
-	text-shadow:1px 1px 1px rgba(0,0,0,0.2);
-	box-shadow: 0px 0px 3px #bbb;
-	-moz-box-shadow: 0px 0px 3px #bbb;
-	-webkit-box-shadow: 0px 0px 3px #bbb;
-	*/
+	color:rgb(255,255,255);
+	border:1px solid rgb(150,150,150);
 }
 
 DIV.badge-lightgray {
-	background-color:rgb(230,230,230);
 	background: -webkit-gradient(linear, left top, left bottom, from(rgb(240,240,240)), to(rgb(230,230,230)));
-	background: -moz-linear-gradient(top,  rgb(240,240,240),  rgb(230,230,230));
-	filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='rgb(240,240,240)', endColorstr='rgb(230,230,230)');
+	background: -moz-linear-gradient(top, rgb(240,240,240), rgb(230,230,230));
+	background-color:rgb(230,230,230);
 	
 	color:rgb(120,120,120);
-	border:1px solid rgba(200,200,200,0.9);
-	
-	/*
-	text-shadow:1px 1px 1px rgba(180,180,180,0.2);
-	box-shadow: 0px 0px 3px #ccc;
-	-moz-box-shadow: 0px 0px 3px #ccc;
-	-webkit-box-shadow: 0px 0px 3px #ccc;
-	*/
+	border:1px solid rgb(200,200,200);
 }
 
 /* Sprite container */

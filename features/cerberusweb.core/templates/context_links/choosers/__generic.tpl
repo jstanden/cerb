@@ -43,10 +43,8 @@
 				
 				if($label.length > 0 && $value.length > 0) {
 					if(0==$buffer.find('input:hidden[value='+$value+']').length) {
-						$html = $('<li>' + $label + '</li>');
-						$html.append('<a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></a></button>');
-						$html.append('<input type="hidden" name="to_context_id[]" title="' + $label + '" value="' + $value + '">');
-						$buffer.append($html);
+						$li = $('<li>'+$label+'<input type="hidden" name="to_context_id[]" title="'+$label+'" value="'+$value+'"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></li>');
+						$buffer.append($li);
 					}
 				}
 					
