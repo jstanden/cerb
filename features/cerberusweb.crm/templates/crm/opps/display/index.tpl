@@ -62,29 +62,19 @@
 
 <script type="text/javascript">
 {if $pref_keyboard_shortcuts}
-CreateKeyHandler(function doShortcuts(e) {
+$(document).keypress(function(event) {
+	if($(event.target).is(':input'))
+		return;
 
-	var mycode = getKeyboardKey(e, true);
-	
-	switch(mycode) {
-		case 65:  // (A) E-mail Peek
+	switch(event.which) {
+		case 97:  // (A) E-mail Peek
 			try {
-				document.getElementById('btnOppAddyPeek').click();
+				$('#btnOppAddyPeek').click();
 			} catch(e) { } 
 			break;
-		case 81:  // (Q) quick compose
+		case 113:  // (Q) quick compose
 			try {
-				document.getElementById('btnQuickCompose').click();
-			} catch(e) { } 
-			break;
-		case 219:  // [ - prev page
-			try {
-				document.getElementById('btnPagePrev').click();
-			} catch(e) { } 
-			break;
-		case 221:  // ] - next page
-			try {
-				document.getElementById('btnPageNext').click();
+				$('#btnQuickCompose').click();
 			} catch(e) { } 
 			break;
 		default:

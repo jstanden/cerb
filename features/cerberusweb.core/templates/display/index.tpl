@@ -188,64 +188,65 @@
 
 <script type="text/javascript">
 {if $pref_keyboard_shortcuts}
-CreateKeyHandler(function doShortcuts(e) {
-	var mycode = getKeyboardKey(e,true);
+$(document).keypress(function(event) {
+	if($(event.target).is(':input'))
+		return;
 	
-	switch(mycode) {
-		case 65:  // (A) read all
+	switch(event.which) {
+		case 97:  // (A) read all
 			try {
-				document.getElementById('btnReadAll').click();
+				$('#btnReadAll').click();
 			} catch(ex) { } 
 			break;
-		case 67:  // (C) close
+		case 99:  // (C) close
 			try {
-				document.getElementById('btnClose').click();
+				$('#btnClose').click();
 			} catch(ex) { } 
 			break;
-		case 69:  // (E) edit
+		case 101:  // (E) edit
 			try {
-				document.getElementById('btnDisplayTicketEdit').click();
+				$('#btnDisplayTicketEdit').click();
 			} catch(ex) { } 
 			break;
-		case 79:  // (O) comment
+		case 111:  // (O) comment
 			try {
 				$('#btnComment').click();
 			} catch(ex) { } 
 			break;
-		case 80:  // (P) print
+		case 112:  // (P) print
 			try {
-				document.getElementById('btnPrint').click();
+				$('#btnPrint').click();
 			} catch(ex) { } 
 			break;
-		case 82:  // (R) reply to first message
+		case 114:  // (R) reply to first message
 			try {
 				{if $expand_all}$('BUTTON.reply').last().click();{else}$('BUTTON.reply').first().click();{/if}
 			} catch(ex) { } 
 			break;
-		case 83:  // (S) spam
+		case 115:  // (S) spam
 			try {
-				document.getElementById('btnSpam').click();
+				$('#btnSpam').click();
 			} catch(ex) { } 
 			break;
-		case 84:  // (T) take/assign
+		case 116:  // (T) take/assign
 			try {
-				document.getElementById('btnTake').click();
+				$('#btnTake').click();
 			} catch(ex) { } 
 			break;
-		case 85:  // (U) surrender/unassign
+		case 117:  // (U) surrender/unassign
 			try {
-				document.getElementById('btnSurrender').click();
+				$('#btnSurrender').click();
 			} catch(ex) { } 
 			break;
-		case 88:  // (X) delete
+		case 120:  // (X) delete
 			try {
-				document.getElementById('btnDelete').click();
+				$('#btnDelete').click();
 			} catch(ex) { } 
 			break;
 		default:
 			// We didn't find any obvious keys, try other codes
 			break;
 	}
-} );
+});
 {/if}
 </script>

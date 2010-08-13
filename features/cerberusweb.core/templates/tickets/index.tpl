@@ -64,120 +64,115 @@
 <script type="text/javascript">
 	$(function() {
 		var tabs = $("#mailTabs").tabs( { 
-			selected: {$tab_selected_idx},
-			show: function(event, ui) {
-				idx = $("#mailTabs").tabs('option', 'selected');
-
-				{if $pref_keyboard_shortcuts}
-					{$case = 0}
-					switch(idx) {
-						case {$case}:
-							doWorkflowKeys();
-							break;
-						{if $active_worker->hasPriv('core.mail.search')}
-							{$case = $case + 1}
-							case {$case}:
-								doSearchKeys();
-								break;
-						{/if}
-						default:
-							doNullKeys();
-							break;
-					}
-				{/if}
-			} 
-		} );
+			selected: {$tab_selected_idx}
+		});
 	});
-
-	function doNullKeys() {
-		CreateKeyHandler(function (e) { } );
+	
+	{if $pref_keyboard_shortcuts}
+	$(document).keypress(function(event) {
+		// Don't trigger on forms
+		if($(event.target).is(':input'))
+			return;
+		
+		idx = $("#mailTabs").tabs('option', 'selected');
+		{$case = 0}
+		switch(idx) {
+			case {$case}:
+				doWorkflowKeys(event);
+				break;
+			{if $active_worker->hasPriv('core.mail.search')}
+				{$case = $case + 1}
+				case {$case}:
+					doSearchKeys(event);
+					break;
+			{/if}
+			default:
+				doNullKeys(event);							
+				break;
+		}
+	});
+	{/if}
+	
+	function doNullKeys(event) {
 	}
 
-	function doWorkflowKeys() {
-		CreateKeyHandler(function (e) {
-			var mycode = getKeyboardKey(e, true);
-			
-			switch(mycode) {
-				case 65:  // (A) list all
-					try {
-						document.getElementById('btnWorkflowListAll').click();
-					} catch(e) { } 
-					break;
-				case 66:  // (B) bulk update
-					try {
-						document.getElementById('btnmail_workflowBulkUpdate').click();
-					} catch(e) { } 
-					break;
-				case 67:  // (C) close
-					try {
-						document.getElementById('btnmail_workflowClose').click();
-					} catch(e) { } 
-					break;
-				case 77:  // (M) my tickets
-					try {
-						document.getElementById('btnMyTickets').click();
-					} catch(e) { } 
-					break;
-				case 83:  // (S) spam
-					try {
-						document.getElementById('btnmail_workflowSpam').click();
-					} catch(e) { } 
-					break;
-				case 84:  // (T) take
-					try {
-						document.getElementById('btnmail_workflowTake').click();
-					} catch(e) { } 
-					break;
-				case 85:  // (U) surrender
-					try {
-						document.getElementById('btnmail_workflowSurrender').click();
-					} catch(e) { } 
-					break;
-				case 88:  // (X) delete
-					try {
-						document.getElementById('btnmail_workflowDelete').click();
-					} catch(e) { } 
-					break;
-			}
-		} );		
+	function doWorkflowKeys(event) {
+		switch(event.which) {
+			case 97:  // (A) list all
+				try {
+					$('#btnWorkflowListAll').click();
+				} catch(e) { } 
+				break;
+			case 98:  // (B) bulk update
+				try {
+					$('#btnmail_workflowBulkUpdate').click();
+				} catch(e) { } 
+				break;
+			case 99:  // (C) close
+				try {
+					$('#btnmail_workflowClose').click();
+				} catch(e) { } 
+				break;
+			case 109:  // (M) my tickets
+				try {
+					$('#btnMyTickets').click();
+				} catch(e) { } 
+				break;
+			case 115:  // (S) spam
+				try {
+					$('#btnmail_workflowSpam').click();
+				} catch(e) { } 
+				break;
+			case 116:  // (T) take
+				try {
+					$('#btnmail_workflowTake').click();
+				} catch(e) { } 
+				break;
+			case 117:  // (U) surrender
+				try {
+					$('#btnmail_workflowSurrender').click();
+				} catch(e) { } 
+				break;
+			case 120:  // (X) delete
+				try {
+					$('#btnmail_workflowDelete').click();
+				} catch(e) { } 
+				break;
+		}
 	}
 	
-	function doSearchKeys() {
-		CreateKeyHandler(function (e) {
-			var mycode = getKeyboardKey(e, true);
-			
-			switch(mycode) {
-				case 66:  // (B) bulk update
-					try {
-						document.getElementById('btnsearchBulkUpdate').click();
-					} catch(e) { } 
-					break;
-				case 67:  // close
-					try {
-						document.getElementById('btnsearchClose').click();
-					} catch(e) { } 
-					break;
-				case 83:  // spam
-					try {
-						document.getElementById('btnsearchSpam').click();
-					} catch(e) { } 
-					break;
-				case 84:  // take
-					try {
-						document.getElementById('btnsearchTake').click();
-					} catch(e) { } 
-					break;
-				case 85:  // surrender
-					try {
-						document.getElementById('btnsearchSurrender').click();
-					} catch(e) { } 
-					break;
-				case 88:  // delete
-					try {
-						document.getElementById('btnsearchDelete').click();
-					} catch(e) { } 
-					break;
-			}
-		});		
+	function doSearchKeys(event) {
+		switch(event.which) {
+			case 98:  // (B) bulk update
+				try {
+					$('#btnsearchBulkUpdate').click();
+				} catch(e) { } 
+				break;
+			case 99:  // (C) close
+				try {
+					$('#btnsearchClose').click();
+				} catch(e) { } 
+				break;
+			case 115:  // (S) spam
+				try {
+					$('#btnsearchSpam').click();
+				} catch(e) { } 
+				break;
+			case 116:  // (T) take
+				try {
+					$('#btnsearchTake').click();
+				} catch(e) { } 
+				break;
+			case 117:  // (S) surrender
+				try {
+					$('#btnsearchSurrender').click();
+				} catch(e) { } 
+				break;
+			case 120:  // (X) delete
+				try {
+					$('#btnsearchDelete').click();
+				} catch(e) { } 
+				break;
+		}
 	}	
 </script>
