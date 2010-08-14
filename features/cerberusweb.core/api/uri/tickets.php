@@ -206,11 +206,54 @@ class ChTicketsPage extends CerberusPageExtension {
 				$quick_search_type = $visit->get('quick_search_type');
 				$tpl->assign('quick_search_type', $quick_search_type);
 
+				$tab_manifests = DevblocksPlatform::getExtensions('cerberusweb.mail.tab', false);
+				$tpl->assign('tab_manifests', $tab_manifests);
+				
 				$tpl->display('file:' . $this->_TPL_PATH . 'tickets/index.tpl');
 				break;
 		}
 		
 	}
+	
+	// Ajax
+	function showTabAction() {
+		@$ext_id = DevblocksPlatform::importGPC($_REQUEST['ext_id'],'string','');
+		
+		if(null != ($tab_mft = DevblocksPlatform::getExtension($ext_id)) 
+			&& null != ($inst = $tab_mft->createInstance()) 
+			&& $inst instanceof Extension_MailTab) {
+			$inst->showTab();
+		}
+	}
+	
+	// Post
+	function saveTabAction() {
+		@$ext_id = DevblocksPlatform::importGPC($_REQUEST['ext_id'],'string','');
+		
+		if(null != ($tab_mft = DevblocksPlatform::getExtension($ext_id)) 
+			&& null != ($inst = $tab_mft->createInstance()) 
+			&& $inst instanceof Extension_MailTab) {
+			$inst->saveTab();
+		}
+	}
+	
+	/*
+	 * [TODO] Proxy any func requests to be handled by the tab directly, 
+	 * instead of forcing tabs to implement controllers.  This should check 
+	 * for the *Action() functions just as a handleRequest would
+	 */
+	function handleTabActionAction() {
+		@$tab = DevblocksPlatform::importGPC($_REQUEST['tab'],'string','');
+		@$action = DevblocksPlatform::importGPC($_REQUEST['action'],'string','');
+
+		if(null != ($tab_mft = DevblocksPlatform::getExtension($tab)) 
+			&& null != ($inst = $tab_mft->createInstance()) 
+			&& $inst instanceof Extension_MailTab) {
+				if(method_exists($inst,$action.'Action')) {
+					call_user_func(array(&$inst, $action.'Action'));
+				}
+		}
+	}	
 	
 	function showWorkflowTabAction() {
 		$tpl = DevblocksPlatform::getTemplateService();
