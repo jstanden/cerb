@@ -1,22 +1,10 @@
-{if empty($counts)}
-<div class="block">
-<h2>{$translate->_('mail.overview.all_done')}</h2>
-<table cellspacing="0" cellpadding="2" border="0" width="220">
-	<tr>
-		<td>{$translate->_('mail.overview.all_done_text')}</td>
-	</tr>
-</table>
-</div>
-<br>
-{/if}
-
-{if !empty($counts)}
 <div class="block">
 <table cellspacing="0" cellpadding="2" border="0" width="220">
 <tr>
 	<td><h2>{$translate->_('common.available')|capitalize}</h2></td>
 </tr>
 
+{if !empty($counts)}
 {foreach from=$counts item=category key=group_id}
 	<tr>
 		<td style="padding-right:20px;" nowrap="nowrap" valign="top">
@@ -31,6 +19,13 @@
 		</td>
 	</tr>
 {/foreach}
+{else}
+	<tr>
+		<td>
+			{'mail.overview.all_done_text'|devblocks_translate|escape}
+		</td>
+	</tr>
+{/if}
 
 <tr>
 	<td>
@@ -45,4 +40,3 @@
 </table>
 </div>
 <br>
-{/if}
