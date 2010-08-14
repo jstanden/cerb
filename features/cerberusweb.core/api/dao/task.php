@@ -232,7 +232,8 @@ class DAO_Task extends C4_ORMHelper {
 		$sort_sql =	(!empty($sortBy) ? sprintf("ORDER BY %s %s ",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : " ");
 		
 		// Virtuals
-		foreach($params as $param_key => $param) {
+		foreach($params as $param) {
+			$param_key = $param->field;
 			settype($param_key, 'string');
 			switch($param_key) {
 				case SearchFields_Task::VIRTUAL_WORKERS:

@@ -306,11 +306,13 @@ class ChTicketsPage extends CerberusPageExtension {
 		$workflowView = C4_AbstractViewLoader::getView(CerberusApplication::VIEW_MAIL_WORKFLOW, $defaults);
 		
 		$workflowView->paramsRequired = array(
-			SearchFields_Ticket::TICKET_CLOSED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',CerberusTicketStatus::OPEN),
-			SearchFields_Ticket::TICKET_WAITING => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_WAITING,'=',0),
-			SearchFields_Ticket::VIRTUAL_ASSIGNABLE => new DevblocksSearchCriteria(SearchFields_Ticket::VIRTUAL_ASSIGNABLE,null,true),
-			SearchFields_Ticket::VIRTUAL_WORKERS => new DevblocksSearchCriteria(SearchFields_Ticket::VIRTUAL_WORKERS,null,array()),
+			new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',CerberusTicketStatus::OPEN),
+			new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_WAITING,'=',0),
+			new DevblocksSearchCriteria(SearchFields_Ticket::VIRTUAL_ASSIGNABLE,null,true),
+			new DevblocksSearchCriteria(SearchFields_Ticket::VIRTUAL_WORKERS,null,array()),
+			new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_TEAM_ID,'in',array_keys($active_worker->getMemberships())),
 		);
+		$workflowView->paramsDefault = array();
 		$workflowView->paramsHidden = array(
 			SearchFields_Ticket::TICKET_CLOSED,
 			SearchFields_Ticket::TICKET_WAITING,
@@ -352,8 +354,7 @@ class ChTicketsPage extends CerberusPageExtension {
 				
 			case 'all':
 			default:
-				$workflowView->removeParam(SearchFields_Ticket::TICKET_TEAM_ID);
-				$workflowView->removeParam(SearchFields_Ticket::TICKET_CATEGORY_ID);
+				$workflowView->doResetCriteria();
 				break;
 		}
 		
@@ -438,6 +439,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		
 		$visit = CerberusApplication::getVisit();
 		$active_worker = CerberusApplication::getActiveWorker();
+		$memberships = $active_worker->getMemberships();
 		
 		// Log activity
 		DAO_Worker::logActivity(
@@ -449,14 +451,18 @@ class ChTicketsPage extends CerberusPageExtension {
 		// Remember the tab
 		$visit->set(CerberusVisit::KEY_MAIL_MODE, 'search');		
 		
-		$view = C4_AbstractViewLoader::getView(CerberusApplication::VIEW_SEARCH);
-		
 		// [TODO] Convert to defaults
 		
-		if(null == $view) {
+		if(null == ($view = C4_AbstractViewLoader::getView(CerberusApplication::VIEW_SEARCH))) {
 			$view = View_Ticket::createSearchView();
-			C4_AbstractViewLoader::setView($view->id,$view);
 		}
+		
+		$view->paramsDefault = array(
+			SearchFields_Ticket::TICKET_CLOSED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,DevblocksSearchCriteria::OPER_EQ,0),
+			SearchFields_Ticket::TICKET_TEAM_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_TEAM_ID,'in',array_keys($memberships)), // censor
+		);
+				
+		C4_AbstractViewLoader::setView($view->id,$view);
 		
 		$tpl->assign('view', $view);
 		

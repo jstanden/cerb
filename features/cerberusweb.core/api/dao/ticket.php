@@ -903,7 +903,8 @@ class DAO_Ticket extends C4_ORMHelper {
 		$sort_sql = (!empty($sortBy) ? sprintf("ORDER BY %s %s ",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : " ");
 
 		// Virtuals
-		foreach($params as $param_key => $param) {
+		foreach($params as $param) {
+			$param_key = $param->field;
 			settype($param_key, 'string');
 
 			switch($param_key) {
@@ -1896,8 +1897,6 @@ class View_Ticket extends C4_AbstractView {
 	}
 
 	static function createSearchView() {
-		$active_worker = CerberusApplication::getActiveWorker();
-		$memberships = $active_worker->getMemberships();
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$view = new View_Ticket();
@@ -1910,10 +1909,6 @@ class View_Ticket extends C4_AbstractView {
 			SearchFields_Ticket::TICKET_CATEGORY_ID,
 			SearchFields_Ticket::TICKET_SPAM_SCORE,
 		);
-		$view->addParams(array(
-			SearchFields_Ticket::TICKET_CLOSED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,DevblocksSearchCriteria::OPER_EQ,0),
-			SearchFields_Ticket::TICKET_TEAM_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_TEAM_ID,'in',array_keys($memberships)), // censor
-		), true);
 		$view->renderLimit = 100;
 		$view->renderPage = 0;
 		$view->renderSortBy = null; // SearchFields_Ticket::TICKET_UPDATED_DATE

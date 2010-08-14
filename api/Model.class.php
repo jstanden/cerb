@@ -95,7 +95,12 @@ abstract class C4_AbstractView {
 	}
 	
 	function getParams() {
-		return array_merge($this->_paramsEditable, $this->paramsRequired);
+		$params = $this->_paramsEditable;
+		// Make them anonymous and stackable (no key)
+		foreach($this->paramsRequired as $param) {
+			$params[] = $param;
+		}
+		return $params;
 	}
 	
 	function getEditableParams() {
