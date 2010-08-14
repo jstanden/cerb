@@ -6,11 +6,6 @@ body, td, form {
 	font-size: 12px;
 }
 
-b {
-	font-weight: bold;
-	color: rgb(80, 80, 80);
-}
-
 optgroup {
 	font-style: normal;
 	font-weight: bold;
