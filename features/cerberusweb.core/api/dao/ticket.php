@@ -905,6 +905,7 @@ class DAO_Ticket extends C4_ORMHelper {
 		// Virtuals
 		foreach($params as $param_key => $param) {
 			settype($param_key, 'string');
+
 			switch($param_key) {
 				case SearchFields_Ticket::VIRTUAL_WORKERS:
 					$has_multiple_values = true;
@@ -922,6 +923,7 @@ class DAO_Ticket extends C4_ORMHelper {
 						);
 					}
 					break;
+					
 				case SearchFields_Ticket::VIRTUAL_ASSIGNABLE:
 					$assignable_buckets = DAO_Bucket::getAssignableBuckets();
 					$assignable_bucket_ids = array_keys($assignable_buckets);
@@ -1220,64 +1222,10 @@ class View_Ticket extends C4_AbstractView {
 		$counts = array();
 
 		switch($category) {
-			case 'available':
-				$params = $this->getParams();
-				$params[SearchFields_Ticket::TICKET_CLOSED] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',0);
-				$params[SearchFields_Ticket::TICKET_WAITING] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_WAITING,'=',0);
-				$params[SearchFields_Ticket::VIRTUAL_ASSIGNABLE] = new DevblocksSearchCriteria(SearchFields_Ticket::VIRTUAL_ASSIGNABLE,'',true);
-				$params[SearchFields_Ticket::VIRTUAL_WORKERS] = new DevblocksSearchCriteria(SearchFields_Ticket::VIRTUAL_WORKERS,'',array());
-				
-				$query_parts = DAO_Ticket::getSearchQueryComponents(
-					$this->view_columns,
-					$params,
-					$this->renderSortBy,
-					$this->renderSortAsc
-				);
-				
-				$join_sql = $query_parts['join'];
-				$where_sql = $query_parts['where'];
-				
-				$sql = 
-					"SELECT t.team_id, t.category_id, count(t.id) as hits ".
-					$join_sql.
-					$where_sql.
-					"GROUP BY t.team_id, t.category_id ";
-		
-				$results = $db->GetArray($sql);
-				
-				foreach($results as $result) {
-					$group_id = $result['team_id'];
-					$bucket_id = $result['category_id'];
-					$hits = $result['hits'];
-		
-					// ACL
-					if(!isset($counts[$group_id]))
-						$counts[$group_id] = array('hits'=>0, 'label'=>$groups[$group_id]->name, 'children'=>array());
-					
-					if(empty($bucket_id))
-						$label = 'Inbox';
-					else
-						$label = $buckets[$bucket_id]->name;
-						
-					$counts[$group_id]['children'][$bucket_id] = array('hits'=>$hits, 'label'=>$label);
-					$counts[$group_id]['hits'] += $hits;
-				}
-				
-				unset($results);
-				
-				// Sort groups by name
-				uasort($counts, array($this, '_sortByLabel'));
-				
-				// Sort by bucket position
-				foreach($counts as $group_id => $group)
-					uksort($counts[$group_id]['children'], array($this, '_sortByBucketPos'));
-							
-				break;
-				
 			case 'open':
 				$params = $this->getParams();
-				$params[SearchFields_Ticket::TICKET_CLOSED] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',0);
-				$params[SearchFields_Ticket::TICKET_WAITING] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_WAITING,'=',0);
+				$params[] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',0);
+				$params[] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_WAITING,'=',0);
 				
 				$query_parts = DAO_Ticket::getSearchQueryComponents(
 					$this->view_columns,
@@ -1328,8 +1276,8 @@ class View_Ticket extends C4_AbstractView {
 				
 			case 'waiting':
 				$params = $this->getParams();
-				$params[SearchFields_Ticket::TICKET_CLOSED] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',0);
-				$params[SearchFields_Ticket::TICKET_WAITING] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_WAITING,'=',1);
+				$params[] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',0);
+				$params[] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_WAITING,'=',1);
 				
 				$query_parts = DAO_Ticket::getSearchQueryComponents(
 					$this->view_columns,
@@ -1378,9 +1326,58 @@ class View_Ticket extends C4_AbstractView {
 				
 				break;
 				
-			case 'worker':
+			case 'group':
 				$params = $this->getParams();
-				$params[SearchFields_Ticket::VIRTUAL_WORKERS] = new DevblocksSearchCriteria(SearchFields_Ticket::VIRTUAL_WORKERS,DevblocksSearchCriteria::OPER_NIN,array());
+				
+				$query_parts = DAO_Ticket::getSearchQueryComponents(
+					$this->view_columns,
+					$params,
+					$this->renderSortBy,
+					$this->renderSortAsc
+				);
+				
+				$join_sql = $query_parts['join'];
+				$where_sql = $query_parts['where'];
+				
+				$sql = 
+					"SELECT t.team_id, t.category_id, count(t.id) as hits ".
+					$join_sql.
+					$where_sql.
+					"GROUP BY t.team_id, t.category_id ";
+		
+				$results = $db->GetArray($sql);
+				
+				foreach($results as $result) {
+					$group_id = $result['team_id'];
+					$bucket_id = $result['category_id'];
+					$hits = $result['hits'];
+		
+					// ACL
+					if(!isset($counts[$group_id]))
+						$counts[$group_id] = array('hits'=>0, 'label'=>$groups[$group_id]->name, 'children'=>array());
+					
+					if(empty($bucket_id))
+						$label = 'Inbox';
+					else
+						$label = $buckets[$bucket_id]->name;
+						
+					$counts[$group_id]['children'][$bucket_id] = array('hits'=>$hits, 'label'=>$label);
+					$counts[$group_id]['hits'] += $hits;
+				}
+				
+				unset($results);
+				
+				// Sort groups by name
+				uasort($counts, array($this, '_sortByLabel'));
+				
+				// Sort by bucket position
+				foreach($counts as $group_id => $group)
+					uksort($counts[$group_id]['children'], array($this, '_sortByBucketPos'));				
+					
+				break;
+				
+			case 'status':
+				$params = $this->getParams();
 				
 				$query_parts = DAO_Ticket::getSearchQueryComponents(
 					$this->view_columns,
@@ -1393,29 +1390,56 @@ class View_Ticket extends C4_AbstractView {
 				$where_sql = $query_parts['where'];				
 				
 				$sql = 
-					"SELECT context_owner.to_context_id as worker_id, t.team_id, count(t.id) as hits ".
+					"SELECT COUNT(IF(t.is_closed=0 AND t.is_waiting=0,1,NULL)) AS open_hits, COUNT(IF(t.is_waiting=1,1,NULL)) AS waiting_hits, COUNT(IF(t.is_closed=1,1,NULL)) AS closed_hits ".
 					$join_sql.
 					$where_sql.
-					"GROUP BY context_owner.to_context_id, t.team_id ";
+					"";
+		
+				$result = $db->GetRow($sql);
+				
+				$counts['open'] = array('hits'=> $result['open_hits'], 'label'=>'Open');
+				$counts['waiting'] = array('hits'=> $result['waiting_hits'], 'label'=>'Waiting');
+				$counts['closed'] = array('hits'=> $result['closed_hits'], 'label'=>'Closed');
+
+				unset($result);
+				
+				break;
+				
+			case 'worker':
+				$params = $this->getParams();
+				
+				if(!isset($params[SearchFields_Ticket::VIRTUAL_WORKERS]))
+					$params[SearchFields_Ticket::VIRTUAL_WORKERS] = new DevblocksSearchCriteria(SearchFields_Ticket::VIRTUAL_WORKERS,DevblocksSearchCriteria::OPER_NIN,array());
+				
+				$query_parts = DAO_Ticket::getSearchQueryComponents(
+					$this->view_columns,
+					$params,
+					$this->renderSortBy,
+					$this->renderSortAsc
+				);
+				
+				$join_sql = $query_parts['join'];
+				$where_sql = $query_parts['where'];				
+				
+				$sql = 
+					"SELECT context_owner.to_context_id as worker_id, count(t.id) as hits ".
+					$join_sql.
+					$where_sql.
+					"GROUP BY context_owner.to_context_id ";
 		
 				$results = $db->GetArray($sql);
 				
 				foreach($results as $result) {
 					$worker_id = $result['worker_id'];
-					$group_id = $result['team_id'];
 					$hits = $result['hits'];
 		
 					if(!isset($workers[$worker_id]))
 						continue;
 						
-					if(!isset($groups[$group_id]))
-						continue;
-					
 					// ACL
 					if(!isset($counts[$worker_id]))
 						$counts[$worker_id] = array('hits'=>0, 'label'=>$workers[$worker_id]->getName(), 'children'=>array());
 					
-					$counts[$worker_id]['children'][$group_id] = array('hits'=>$hits, 'label'=>$groups[$group_id]->name);
 					$counts[$worker_id]['hits'] += $hits;
 				}
 				
@@ -1423,10 +1447,6 @@ class View_Ticket extends C4_AbstractView {
 				
 				// Sort groups by name
 				uasort($counts, array($this, '_sortByLabel'));
-				
-				// Sort by bucket position
-				foreach($counts as $worker_id => $worker)
-					uasort($counts[$worker_id]['children'], array($this, '_sortByLabel'));				
 				
 				break;
 		}

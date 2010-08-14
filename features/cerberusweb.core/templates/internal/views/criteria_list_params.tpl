@@ -1,11 +1,7 @@
 {$view_filters = $view->getFields()}
 {if !empty($params)}
 {foreach from=$params item=param key=param_key name=params}
-	{if !$nested}
-	<tr>
-		<td width="100%">
-		<input type="checkbox" name="field_deletes[]" value="{$param_key}">
-	{/if}
+	{if !$nested}<label><input type="checkbox" name="field_deletes[]" value="{$param_key|escape}"> {/if}
 		
 	{if '*_' == substr($param_key,0,2)}
 		{$view->renderVirtualCriteria($param)}
@@ -37,9 +33,6 @@
 		{/if}
 	{/if}
 		
-	{if !$nested}
-		</td>
-	</tr>
-	{/if}
+	{if !$nested}</label><br>{/if}
 {/foreach}
 {/if}

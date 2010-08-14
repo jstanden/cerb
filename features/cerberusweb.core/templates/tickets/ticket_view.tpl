@@ -7,7 +7,7 @@
 
 <table cellpadding="0" cellspacing="0" border="0" width="100%">
 	<tr>
-		<td valign="top" width="0%" nowrap="nowrap" id="{$view->id}_sidebar"></td>
+		<td valign="top" width="0%" nowrap="nowrap" id="view{$view->id}_sidebar"></td>
 		<td valign="top" width="100%">
 			
 			<table cellpadding="0" cellspacing="0" border="0" class="worklist" width="100%">
@@ -15,7 +15,7 @@
 					<td nowrap="nowrap"><span class="title">{$view->name}</span> {if $view->id == 'search'}<a href="#{$view->id}_actions">{$translate->_('views.jump_to_actions')}</a>{/if}</td>
 					<td nowrap="nowrap" align="right">
 						<a href="javascript:;" onclick="$('#btnExplore{$view->id}').click();">explore</a>
-						{if 'mail_workflow' != $view->id} | <a href="javascript:;" id="{$view->id}_sidebartoggle">subtotals</a>{/if}
+						{if 'mail_workflow' != $view->id} | <a href="javascript:;" id="view{$view->id}_sidebartoggle">subtotals</a>{/if}
 						 | <a href="javascript:;" onclick="genericAjaxGet('customize{$view->id}','c=internal&a=viewCustomize&id={$view->id}');toggleDiv('customize{$view->id}','block');">{$translate->_('common.customize')|lower}</a>
 						{if $active_worker->hasPriv('core.ticket.view.actions.pile_sort')} | <a href="javascript:;" onclick="genericAjaxGet('{$view->id}_tips','c=tickets&a=showViewAutoAssist&view_id={$view->id}');toggleDiv('{$view->id}_tips','block');">{$translate->_('mail.piles')|lower}</a>{/if}
 						{if $active_worker->hasPriv('core.mail.search')} | <a href="{devblocks_url}c=tickets&a=searchview&id={$view->id}{/devblocks_url}">{$translate->_('common.search')|lower}</a>{/if}
@@ -284,11 +284,11 @@
 </table>
 
 <script type="text/javascript">
-	$('#{$view->id}_sidebartoggle').click(function(event) {
-		$sidebar = $('#{$view->id}_sidebar');
+	$('#view{$view->id}_sidebartoggle').click(function(event) {
+		$sidebar = $('#view{$view->id}_sidebar');
 		
 		if(0 == $sidebar.html().length) {
-			genericAjaxGet('{$view->id}_sidebar','c=tickets&a=viewSidebar&id={$view->id}');
+			genericAjaxGet('view{$view->id}_sidebar','c=internal&a=viewSubtotal&view_id={$view->id}&category=group');
 			$sidebar.css('padding-right','5px');
 		} else {
 			$sidebar.html('');

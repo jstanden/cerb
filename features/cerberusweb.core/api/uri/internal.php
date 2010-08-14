@@ -638,6 +638,26 @@ class ChInternalController extends DevblocksControllerExtension {
 		$view->render();
 	}
 	
+	function viewSubtotalAction() {
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
+		@$category = DevblocksPlatform::importGPC($_REQUEST['category'],'string','');
+		
+		if(null == ($view = C4_AbstractViewLoader::getView($view_id)))
+			return;
+			
+		if(!method_exists($view, 'getCounts'))
+			return;
+			
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('view_id', $view_id);
+		$tpl->assign('category', $category);
+			
+		$counts = $view->getCounts($category);
+		$tpl->assign('counts', $counts);
+		
+		$tpl->display('devblocks:cerberusweb.core::tickets/view_sidebar.tpl');
+	}
+	
 	function startAutoRefreshAction() {
 		$url = DevblocksPlatform::importGPC($_REQUEST['url'],'string', '');
 		$secs = DevblocksPlatform::importGPC($_REQUEST['secs'],'integer', 300);

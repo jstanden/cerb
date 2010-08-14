@@ -1,14 +1,12 @@
 {$view_editable_params = $view->getEditableParams()}
 <table cellpadding="2" cellspacing="0" border="0" width="100%">
 <tr>
-	<td width="50%" valign="top">
+	<td width="60%" valign="top">
 		<div class="block">
 			<h2>{$translate->_('common.filters')|capitalize}</h2>
-			<table cellpadding="2" cellspacing="0" border="0">
 			{include file="file:$core_tpl/internal/views/criteria_list_params.tpl" params=$view_editable_params}
-			</table>
 			
-			<div style="margin-top:2px;">
+			<div style="margin-top:5px;">
 				<select name="_preset" onchange="$val=$(this).val();if(0==$val.length)return;if('reset'==$val) { var $form_id = $(this).closest('form').attr('id'); if(0==$form_id.length)return;genericAjaxPost($form_id,'viewCustomFilters{$view->id}','c=internal&a=viewResetFilters'); return; } if('remove'==$val) { var $form_id = $(this).closest('form').attr('id'); if(0==$form_id.length)return;genericAjaxPost($form_id,'viewCustomFilters{$view->id}','c=internal&a=viewAddFilter'); return; } if('edit'==$val) { $(this).val('');$('#divRemovePresets{$view->id}').fadeIn();return; } if('add'==$val) { $(this).val('');$('#divAddPreset{$view->id}').fadeIn().find('input:text:first').focus();return; } var $form_id = $(this).closest('form').attr('id'); if(0==$form_id.length)return;genericAjaxPost($form_id,'viewCustomFilters{$view->id}','c=internal&a=viewLoadPreset');">
 					<option value="">-- action --</option>
 					<optgroup label="Filters">
@@ -45,7 +43,7 @@
 			</div>
 		</div>
 	</td>
-	<td valign="top" width="50%">
+	<td valign="top" width="40%">
 		<div class="block">
 			<h2>Add Filter</h2>
 			<b>{$translate->_('common.field')|capitalize}:</b><br>

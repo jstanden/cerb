@@ -361,11 +361,12 @@ class ChTicketsPage extends CerberusPageExtension {
 		C4_AbstractViewLoader::setView($workflowView->id, $workflowView);
 		
 		$tpl->assign('view', $workflowView);
+		$tpl->assign('filter', $filter);
 		
 		// Totals (only drill down as deep as a group)
 		$original_params = $workflowView->getEditableParams();
 		$workflowView->removeParam(SearchFields_Ticket::TICKET_CATEGORY_ID);
-		$counts = $workflowView->getCounts('available');
+		$counts = $workflowView->getCounts('group');
 		$workflowView->addParams($original_params, true);
 		$tpl->assign('counts', $counts);
 		
@@ -460,25 +461,6 @@ class ChTicketsPage extends CerberusPageExtension {
 		$tpl->assign('view', $view);
 		
 		$tpl->display('file:' . $this->_TPL_PATH . 'tickets/search/index.tpl');
-	}
-	
-	function viewSidebarAction() {
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['id'],'string','');
-		@$field = DevblocksPlatform::importGPC($_REQUEST['field'],'string');
-
-		if(empty($field))
-			$field = 'available';
-		
-		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('view_id', $view_id);
-		$tpl->assign('field', $field);
-		
-		if(null != ($view = C4_AbstractViewLoader::getView($view_id))) {
-			$counts = $view->getCounts($field);
-			$tpl->assign('counts', $counts);
-		}
-		
-		$tpl->display('devblocks:cerberusweb.core::tickets/view_sidebar.tpl');
 	}
 	
 	function showDraftsTabAction() {
@@ -994,7 +976,7 @@ class ChTicketsPage extends CerberusPageExtension {
 				// Since we don't re-save the view, we can remove filters that we don't want to restrict the count
 				$view = C4_AbstractViewLoader::getView(CerberusApplication::VIEW_MAIL_WORKFLOW);
 				$view->removeParam(SearchFields_Ticket::TICKET_CATEGORY_ID);
-				$counts = $view->getCounts('available');
+				$counts = $view->getCounts('group');
 				$tpl->assign('counts', $counts);
 				
 				$tpl->display('file:' . $this->_TPL_PATH . 'tickets/workflow/sidebar.tpl');
