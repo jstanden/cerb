@@ -1,0 +1,35 @@
+<!DOCTYPE plugin SYSTEM "../../libs/devblocks/plugin.dtd">
+<plugin>
+	<id>cerberusweb.mail.overview</id>
+	<name>[Cerb5] Mail Overview</name>
+	<description>This plugin adds an 'Overview' tab to the Mail page, with a worklist of all open tickets and a clickable sidebar of subtotals by group, status, and worker.</description>
+	<author>WebGroup Media, LLC.</author>
+	<revision>0</revision>
+	<link>http://wiki.cerb5.com/wiki/</link>
+	<image>plugin.png</image>
+	
+	<!-- Plugin Dependencies -->
+	
+	<dependencies>
+		<require plugin_id="cerberusweb.core" version="5.1.0-dev" />
+	</dependencies>
+
+	<!-- Extensions -->
+	
+	<extensions>
+
+		<extension point="cerberusweb.mail.tab">
+			<id>cerberusweb.mail.overview.tab</id>
+			<name>Overview Tab</name>
+			<class>
+				<file>api/App.php</file>
+				<name>ChMailOverviewTab</name>
+			</class>
+			<params>
+				<param key="uri" value="overview" />
+				<param key="title" value="Overview" />
+			</params>
+		</extension>
+		
+	</extensions>
+</plugin>
