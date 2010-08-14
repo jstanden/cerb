@@ -27,16 +27,19 @@
 	</tr>
 {/if}
 
+{if 'all' != $filter}
 <tr>
 	<td>
 		<div style="display:none;visibility:hidden;">
 			<button id="btnWorkflowListAll" onclick="document.location='{devblocks_url}c=tickets&a=workflow&all=all{/devblocks_url}';"></button>
 		</div>
-		<div style="margin-top:2px;color:rgb(150,150,150);">
-			(<b>a</b>) <a href="javascript:;" onclick="document.getElementById('btnWorkflowListAll').click();" style="color:rgb(150,150,150);">{$translate->_('mail.overview.all_groups')|lower}</a>
+		<div style="margin-top:2px;">
+			(<b>a</b>) <a href="javascript:;" onclick="document.getElementById('btnWorkflowListAll').click();">{$translate->_('mail.overview.all_groups')|lower}</a>
 		</div>
 	</td>
 </tr>
+{/if}
+
 </table>
 </div>
 <br>
