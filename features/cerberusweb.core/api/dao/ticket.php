@@ -1210,58 +1210,226 @@ class View_Ticket extends C4_AbstractView {
 	}
 
 	// [TODO] This code really should be in DAO_*
-	function getCounts() {
+	function getCounts($category=null) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$query_parts = DAO_Ticket::getSearchQueryComponents(
-			$this->view_columns,
-			$this->getParams(),
-			$this->renderSortBy,
-			$this->renderSortAsc
-		);
-		
-		$join_sql = $query_parts['join'];
-		$where_sql = $query_parts['where'];
-
-		$counts = array();
-
 		$groups = DAO_Group::getAll();
 		$buckets = DAO_Bucket::getAll();
+		$workers = DAO_Worker::getAll();
 		
-		$sql = 
-			"SELECT t.team_id, t.category_id, count(t.id) as hits ".
-			$join_sql.
-			$where_sql.
-			"GROUP BY t.team_id, t.category_id ";
+		$counts = array();
 
-		$results = $db->GetArray($sql);
-		
-		foreach($results as $result) {
-			$group_id = $result['team_id'];
-			$bucket_id = $result['category_id'];
-			$hits = $result['hits'];
-
-			// ACL
-			if(!isset($counts[$group_id]))
-				$counts[$group_id] = array('hits'=>0, 'label'=>$groups[$group_id]->name, 'children'=>array());
-			
-			if(empty($bucket_id))
-				$label = 'Inbox';
-			else
-				$label = $buckets[$bucket_id]->name;
+		switch($category) {
+			case 'available':
+				$params = $this->getParams();
+				$params[SearchFields_Ticket::TICKET_CLOSED] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',0);
+				$params[SearchFields_Ticket::TICKET_WAITING] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_WAITING,'=',0);
+				$params[SearchFields_Ticket::VIRTUAL_ASSIGNABLE] = new DevblocksSearchCriteria(SearchFields_Ticket::VIRTUAL_ASSIGNABLE,'',true);
+				$params[SearchFields_Ticket::VIRTUAL_WORKERS] = new DevblocksSearchCriteria(SearchFields_Ticket::VIRTUAL_WORKERS,'',array());
 				
-			$counts[$group_id]['children'][$bucket_id] = array('hits'=>$hits, 'label'=>$label);
-			$counts[$group_id]['hits'] += $hits;
+				$query_parts = DAO_Ticket::getSearchQueryComponents(
+					$this->view_columns,
+					$params,
+					$this->renderSortBy,
+					$this->renderSortAsc
+				);
+				
+				$join_sql = $query_parts['join'];
+				$where_sql = $query_parts['where'];
+				
+				$sql = 
+					"SELECT t.team_id, t.category_id, count(t.id) as hits ".
+					$join_sql.
+					$where_sql.
+					"GROUP BY t.team_id, t.category_id ";
+		
+				$results = $db->GetArray($sql);
+				
+				foreach($results as $result) {
+					$group_id = $result['team_id'];
+					$bucket_id = $result['category_id'];
+					$hits = $result['hits'];
+		
+					// ACL
+					if(!isset($counts[$group_id]))
+						$counts[$group_id] = array('hits'=>0, 'label'=>$groups[$group_id]->name, 'children'=>array());
+					
+					if(empty($bucket_id))
+						$label = 'Inbox';
+					else
+						$label = $buckets[$bucket_id]->name;
+						
+					$counts[$group_id]['children'][$bucket_id] = array('hits'=>$hits, 'label'=>$label);
+					$counts[$group_id]['hits'] += $hits;
+				}
+				
+				unset($results);
+				
+				// Sort groups by name
+				uasort($counts, array($this, '_sortByLabel'));
+				
+				// Sort by bucket position
+				foreach($counts as $group_id => $group)
+					uksort($counts[$group_id]['children'], array($this, '_sortByBucketPos'));
+							
+				break;
+				
+			case 'open':
+				$params = $this->getParams();
+				$params[SearchFields_Ticket::TICKET_CLOSED] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',0);
+				$params[SearchFields_Ticket::TICKET_WAITING] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_WAITING,'=',0);
+				
+				$query_parts = DAO_Ticket::getSearchQueryComponents(
+					$this->view_columns,
+					$params,
+					$this->renderSortBy,
+					$this->renderSortAsc
+				);
+				
+				$join_sql = $query_parts['join'];
+				$where_sql = $query_parts['where'];
+				
+				$sql = 
+					"SELECT t.team_id, t.category_id, count(t.id) as hits ".
+					$join_sql.
+					$where_sql.
+					"GROUP BY t.team_id, t.category_id ";
+		
+				$results = $db->GetArray($sql);
+				
+				foreach($results as $result) {
+					$group_id = $result['team_id'];
+					$bucket_id = $result['category_id'];
+					$hits = $result['hits'];
+		
+					// ACL
+					if(!isset($counts[$group_id]))
+						$counts[$group_id] = array('hits'=>0, 'label'=>$groups[$group_id]->name, 'children'=>array());
+					
+					if(empty($bucket_id))
+						$label = 'Inbox';
+					else
+						$label = $buckets[$bucket_id]->name;
+						
+					$counts[$group_id]['children'][$bucket_id] = array('hits'=>$hits, 'label'=>$label);
+					$counts[$group_id]['hits'] += $hits;
+				}
+				
+				unset($results);
+				
+				// Sort groups by name
+				uasort($counts, array($this, '_sortByLabel'));
+				
+				// Sort by bucket position
+				foreach($counts as $group_id => $group)
+					uksort($counts[$group_id]['children'], array($this, '_sortByBucketPos'));				
+					
+				break;
+				
+			case 'waiting':
+				$params = $this->getParams();
+				$params[SearchFields_Ticket::TICKET_CLOSED] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',0);
+				$params[SearchFields_Ticket::TICKET_WAITING] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_WAITING,'=',1);
+				
+				$query_parts = DAO_Ticket::getSearchQueryComponents(
+					$this->view_columns,
+					$params,
+					$this->renderSortBy,
+					$this->renderSortAsc
+				);
+				
+				$join_sql = $query_parts['join'];
+				$where_sql = $query_parts['where'];
+				
+				$sql = 
+					"SELECT t.team_id, t.category_id, count(t.id) as hits ".
+					$join_sql.
+					$where_sql.
+					"GROUP BY t.team_id, t.category_id ";
+		
+				$results = $db->GetArray($sql);
+				
+				foreach($results as $result) {
+					$group_id = $result['team_id'];
+					$bucket_id = $result['category_id'];
+					$hits = $result['hits'];
+		
+					// ACL
+					if(!isset($counts[$group_id]))
+						$counts[$group_id] = array('hits'=>0, 'label'=>$groups[$group_id]->name, 'children'=>array());
+					
+					if(empty($bucket_id))
+						$label = 'Inbox';
+					else
+						$label = $buckets[$bucket_id]->name;
+						
+					$counts[$group_id]['children'][$bucket_id] = array('hits'=>$hits, 'label'=>$label);
+					$counts[$group_id]['hits'] += $hits;
+				}
+				
+				unset($results);
+				
+				// Sort groups by name
+				uasort($counts, array($this, '_sortByLabel'));
+				
+				// Sort by bucket position
+				foreach($counts as $group_id => $group)
+					uksort($counts[$group_id]['children'], array($this, '_sortByBucketPos'));				
+				
+				break;
+				
+			case 'worker':
+				$params = $this->getParams();
+				$params[SearchFields_Ticket::VIRTUAL_WORKERS] = new DevblocksSearchCriteria(SearchFields_Ticket::VIRTUAL_WORKERS,DevblocksSearchCriteria::OPER_NIN,array());
+				
+				$query_parts = DAO_Ticket::getSearchQueryComponents(
+					$this->view_columns,
+					$params,
+					$this->renderSortBy,
+					$this->renderSortAsc
+				);
+				
+				$join_sql = $query_parts['join'];
+				$where_sql = $query_parts['where'];				
+				
+				$sql = 
+					"SELECT context_owner.to_context_id as worker_id, t.team_id, count(t.id) as hits ".
+					$join_sql.
+					$where_sql.
+					"GROUP BY context_owner.to_context_id, t.team_id ";
+		
+				$results = $db->GetArray($sql);
+				
+				foreach($results as $result) {
+					$worker_id = $result['worker_id'];
+					$group_id = $result['team_id'];
+					$hits = $result['hits'];
+		
+					if(!isset($workers[$worker_id]))
+						continue;
+						
+					if(!isset($groups[$group_id]))
+						continue;
+					
+					// ACL
+					if(!isset($counts[$worker_id]))
+						$counts[$worker_id] = array('hits'=>0, 'label'=>$workers[$worker_id]->getName(), 'children'=>array());
+					
+					$counts[$worker_id]['children'][$group_id] = array('hits'=>$hits, 'label'=>$groups[$group_id]->name);
+					$counts[$worker_id]['hits'] += $hits;
+				}
+				
+				unset($results);
+				
+				// Sort groups by name
+				uasort($counts, array($this, '_sortByLabel'));
+				
+				// Sort by bucket position
+				foreach($counts as $worker_id => $worker)
+					uasort($counts[$worker_id]['children'], array($this, '_sortByLabel'));				
+				
+				break;
 		}
-		
-		unset($results);
-		
-		// Sort groups by name
-		uasort($counts, array($this, '_sortByLabel'));
-		
-		// Sort by bucket position
-		foreach($counts as $group_id => $group)
-			uksort($counts[$group_id]['children'], array($this, '_sortByBucketPos'));
 		
 		return $counts;
 	}

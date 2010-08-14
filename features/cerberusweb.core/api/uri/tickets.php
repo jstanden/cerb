@@ -259,7 +259,6 @@ class ChTicketsPage extends CerberusPageExtension {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('path', $this->_TPL_PATH);
 		
-		$db = DevblocksPlatform::getDatabaseService();
 		$visit = CerberusApplication::getVisit();
 		$translate = DevblocksPlatform::getTranslationService();
 		
@@ -366,7 +365,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		// Totals (only drill down as deep as a group)
 		$original_params = $workflowView->getEditableParams();
 		$workflowView->removeParam(SearchFields_Ticket::TICKET_CATEGORY_ID);
-		$counts = $workflowView->getCounts('group');
+		$counts = $workflowView->getCounts('available');
 		$workflowView->addParams($original_params, true);
 		$tpl->assign('counts', $counts);
 		
@@ -468,7 +467,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		@$field = DevblocksPlatform::importGPC($_REQUEST['field'],'string');
 
 		if(empty($field))
-			$field = 'group';
+			$field = 'available';
 		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('view_id', $view_id);
@@ -995,7 +994,7 @@ class ChTicketsPage extends CerberusPageExtension {
 				// Since we don't re-save the view, we can remove filters that we don't want to restrict the count
 				$view = C4_AbstractViewLoader::getView(CerberusApplication::VIEW_MAIL_WORKFLOW);
 				$view->removeParam(SearchFields_Ticket::TICKET_CATEGORY_ID);
-				$counts = $view->getCounts('group');
+				$counts = $view->getCounts('available');
 				$tpl->assign('counts', $counts);
 				
 				$tpl->display('file:' . $this->_TPL_PATH . 'tickets/workflow/sidebar.tpl');
