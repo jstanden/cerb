@@ -647,12 +647,19 @@ class ChInternalController extends DevblocksControllerExtension {
 			
 		if(!method_exists($view, 'getCounts'))
 			return;
-			
+		
+		$view->renderSubtotals = $category;
+
+		C4_AbstractViewLoader::setView($view->id, $view);
+		
+		if(empty($view->renderSubtotals))
+			return;
+		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('view_id', $view_id);
-		$tpl->assign('category', $category);
+		$tpl->assign('view', $view);
 			
-		$counts = $view->getCounts($category);
+		$counts = $view->getCounts($view->renderSubtotals);
 		$tpl->assign('counts', $counts);
 		
 		$tpl->display('devblocks:cerberusweb.core::tickets/view_sidebar.tpl');

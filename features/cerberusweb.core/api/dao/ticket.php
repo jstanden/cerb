@@ -1244,9 +1244,24 @@ class View_Ticket extends C4_AbstractView {
 		return $objects;
 	}
 
+	function renderSubtotals() {
+		if(!method_exists($this, 'getCounts'))
+			return;
+			
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('view_id', $this->id);
+		$tpl->assign('view', $this);
+			
+		$counts = $this->getCounts($this->renderSubtotals);
+		$tpl->assign('counts', $counts);
+		
+		$tpl->display('devblocks:cerberusweb.core::tickets/view_sidebar.tpl');
+	}
+	
 	// [TODO] This code really should be in DAO_*
 	function getCounts($category=null) {
 		$db = DevblocksPlatform::getDatabaseService();
+		$translate = DevblocksPlatform::getTranslationService();
 		
 		$groups = DAO_Group::getAll();
 		$buckets = DAO_Bucket::getAll();
@@ -1255,110 +1270,6 @@ class View_Ticket extends C4_AbstractView {
 		$counts = array();
 
 		switch($category) {
-			case 'open':
-				$params = $this->getParams();
-				$params[] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',0);
-				$params[] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_WAITING,'=',0);
-				
-				$query_parts = DAO_Ticket::getSearchQueryComponents(
-					$this->view_columns,
-					$params,
-					$this->renderSortBy,
-					$this->renderSortAsc
-				);
-				
-				$join_sql = $query_parts['join'];
-				$where_sql = $query_parts['where'];
-				
-				$sql = 
-					"SELECT t.team_id, t.category_id, count(t.id) as hits ".
-					$join_sql.
-					$where_sql.
-					"GROUP BY t.team_id, t.category_id ";
-		
-				$results = $db->GetArray($sql);
-				
-				foreach($results as $result) {
-					$group_id = $result['team_id'];
-					$bucket_id = $result['category_id'];
-					$hits = $result['hits'];
-		
-					// ACL
-					if(!isset($counts[$group_id]))
-						$counts[$group_id] = array('hits'=>0, 'label'=>$groups[$group_id]->name, 'children'=>array());
-					
-					if(empty($bucket_id))
-						$label = 'Inbox';
-					else
-						$label = $buckets[$bucket_id]->name;
-						
-					$counts[$group_id]['children'][$bucket_id] = array('hits'=>$hits, 'label'=>$label);
-					$counts[$group_id]['hits'] += $hits;
-				}
-				
-				unset($results);
-				
-				// Sort groups by name
-				uasort($counts, array($this, '_sortByLabel'));
-				
-				// Sort by bucket position
-				foreach($counts as $group_id => $group)
-					uksort($counts[$group_id]['children'], array($this, '_sortByBucketPos'));				
-					
-				break;
-				
-			case 'waiting':
-				$params = $this->getParams();
-				$params[] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',0);
-				$params[] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_WAITING,'=',1);
-				
-				$query_parts = DAO_Ticket::getSearchQueryComponents(
-					$this->view_columns,
-					$params,
-					$this->renderSortBy,
-					$this->renderSortAsc
-				);
-				
-				$join_sql = $query_parts['join'];
-				$where_sql = $query_parts['where'];
-				
-				$sql = 
-					"SELECT t.team_id, t.category_id, count(t.id) as hits ".
-					$join_sql.
-					$where_sql.
-					"GROUP BY t.team_id, t.category_id ";
-		
-				$results = $db->GetArray($sql);
-				
-				foreach($results as $result) {
-					$group_id = $result['team_id'];
-					$bucket_id = $result['category_id'];
-					$hits = $result['hits'];
-		
-					// ACL
-					if(!isset($counts[$group_id]))
-						$counts[$group_id] = array('hits'=>0, 'label'=>$groups[$group_id]->name, 'children'=>array());
-					
-					if(empty($bucket_id))
-						$label = 'Inbox';
-					else
-						$label = $buckets[$bucket_id]->name;
-						
-					$counts[$group_id]['children'][$bucket_id] = array('hits'=>$hits, 'label'=>$label);
-					$counts[$group_id]['hits'] += $hits;
-				}
-				
-				unset($results);
-				
-				// Sort groups by name
-				uasort($counts, array($this, '_sortByLabel'));
-				
-				// Sort by bucket position
-				foreach($counts as $group_id => $group)
-					uksort($counts[$group_id]['children'], array($this, '_sortByBucketPos'));				
-				
-				break;
-				
 			case 'group':
 				$params = $this->getParams();
 				
@@ -1387,14 +1298,21 @@ class View_Ticket extends C4_AbstractView {
 		
 					// ACL
 					if(!isset($counts[$group_id]))
-						$counts[$group_id] = array('hits'=>0, 'label'=>$groups[$group_id]->name, 'children'=>array());
+						$counts[$group_id] = array(
+							'hits'=>0,
+							'label'=>$groups[$group_id]->name,
+							'children'=>array()
+						);
 					
 					if(empty($bucket_id))
 						$label = 'Inbox';
 					else
 						$label = $buckets[$bucket_id]->name;
 						
-					$counts[$group_id]['children'][$bucket_id] = array('hits'=>$hits, 'label'=>$label);
+					$counts[$group_id]['children'][$bucket_id] = array(
+						'hits'=>$hits,
+						'label'=>$label
+					);
 					$counts[$group_id]['hits'] += $hits;
 				}
 				
@@ -1845,10 +1763,17 @@ class View_Ticket extends C4_AbstractView {
 				@$team_ids = DevblocksPlatform::importGPC($_REQUEST['team_id'],'array');
 				@$bucket_ids = DevblocksPlatform::importGPC($_REQUEST['bucket_id'],'array');
 
-				if(!empty($team_ids))
+				// Groups
+				if(!empty($team_ids)) {
 					$this->addParam(new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_TEAM_ID,$oper,$team_ids));
-				if(!empty($bucket_ids))
+				}
+					
+				// Buckets
+				if(!empty($bucket_ids)) {
 					$this->addParam(new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CATEGORY_ID,$oper,$bucket_ids));
+				} else { // clear if no buckets provided
+					$this->removeParam(SearchFields_Ticket::TICKET_CATEGORY_ID);
+				}
 
 				break;
 				

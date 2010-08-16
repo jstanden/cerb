@@ -164,6 +164,8 @@ class DAO_WorkerViewModel {
 			'render_limit',
 			'render_sort_by',
 			'render_sort_asc',
+			'render_subtotals',
+			'render_subtotals_clickable',
 			'render_template',
 		);
 		
@@ -184,6 +186,8 @@ class DAO_WorkerViewModel {
 			$model->renderLimit = $row['render_limit'];
 			$model->renderSortBy = $row['render_sort_by'];
 			$model->renderSortAsc = $row['render_sort_asc'];
+			$model->renderSubtotals = $row['render_subtotals'];
+			$model->renderSubtotalsClickable = $row['render_subtotals_clickable'];
 			$model->renderTemplate = $row['render_template'];
 			
 			// JSON blocks
@@ -257,6 +261,8 @@ class DAO_WorkerViewModel {
 			'render_limit' => intval($model->renderLimit),
 			'render_sort_by' => $db->qstr($model->renderSortBy),
 			'render_sort_asc' => !empty($model->renderSortAsc) ? 1 : 0,
+			'render_subtotals' => $db->qstr($model->renderSubtotals),
+			'render_subtotals_clickable' => !empty($model->renderSubtotalsClickable) ? 1 : 0,
 			'render_template' => $db->qstr($model->renderTemplate),
 		);
 		

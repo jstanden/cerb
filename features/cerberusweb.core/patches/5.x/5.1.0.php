@@ -314,6 +314,18 @@ if(!isset($tables['worker_view_model'])) {
 	$db->Execute("DELETE FROM worker_pref WHERE setting LIKE 'view%'");
 }
 
+// Add render_subtotals
+list($columns, $indexes) = $db->metaTable('worker_view_model');
+
+if(!isset($columns['render_subtotals'])) {
+	$db->Execute("ALTER TABLE worker_view_model ADD COLUMN render_subtotals VARCHAR(255) NOT NULL DEFAULT ''");
+	$db->Execute("UPDATE worker_view_model SET render_subtotals = 'group' WHERE view_id = 'mail_workflow'");
+}
+
+if(!isset($columns['render_subtotals_clickable'])) {
+	$db->Execute("ALTER TABLE worker_view_model ADD COLUMN render_subtotals_clickable TINYINT(1) NOT NULL DEFAULT 0");
+}
+
 // ===========================================================================
 // Clean up the last bit of parent orgs
 

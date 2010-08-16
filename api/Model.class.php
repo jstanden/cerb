@@ -61,11 +61,15 @@ abstract class C4_AbstractView {
 	public $paramsRequired = array();
 	public $paramsHidden = array();
 	
+	
 	public $renderPage = 0;
 	public $renderLimit = 10;
 	public $renderTotal = true;
 	public $renderSortBy = '';
 	public $renderSortAsc = 1;
+
+	public $renderSubtotals = null;
+	public $renderSubtotalsClickable = 0;
 	
 	public $renderTemplate = null;
 
@@ -95,12 +99,8 @@ abstract class C4_AbstractView {
 	}
 	
 	function getParams() {
-		$params = $this->_paramsEditable;
-		// Make them anonymous and stackable (no key)
-		foreach($this->paramsRequired as $param) {
-			$params[] = $param;
-		}
-		return $params;
+		// Required should override editable
+		return array_merge($this->_paramsEditable, $this->paramsRequired);
 	}
 	
 	function getEditableParams() {
@@ -469,6 +469,9 @@ class C4_AbstractViewModel {
 	public $renderSortBy = '';
 	public $renderSortAsc = 1;
 	
+	public $renderSubtotals = null;
+	public $renderSubtotalsClickable = null;
+	
 	public $renderTemplate = null;
 };
 
@@ -545,6 +548,9 @@ class C4_AbstractViewLoader {
 		$model->renderSortBy = $view->renderSortBy;
 		$model->renderSortAsc = $view->renderSortAsc;
 
+		$model->renderSubtotals = $view->renderSubtotals;
+		$model->renderSubtotalsClickable = $view->renderSubtotalsClickable;
+		
 		$model->renderTemplate = $view->renderTemplate;
 		
 		return $model;
@@ -591,8 +597,10 @@ class C4_AbstractViewLoader {
 		if(null !== $model->renderSortBy)
 			$inst->renderSortAsc = $model->renderSortAsc;
 
-		if(!empty($model->renderTemplate))
-			$inst->renderTemplate = $model->renderTemplate;
+		$inst->renderSubtotals = $model->renderSubtotals;
+		$inst->renderSubtotalsClickable = $model->renderSubtotalsClickable;
+			
+		$inst->renderTemplate = $model->renderTemplate;
 		
 		return $inst;
 	}
