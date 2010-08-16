@@ -118,9 +118,10 @@ class ChUpdateController extends DevblocksControllerExtension {
 			    // Release dates
 			    $r = array(
 			    	'5.0' => gmmktime(0,0,0,4,22,2010),
+			    	'5.1' => gmmktime(0,0,0,8,15,2010),
 			    );
 			    
-			    /*																																																																																																																																																																																																																			*/$r = array('5.0'=>1271894400,);/*
+			    /*																																																																																																																																																																																																																			*/$r = array('5.0'=>1271894400,'5.1'=>1281873600,);/*
 			     * This well-designed software is the result of over 8 years of R&D.
 			     * We're sharing every resulting byte of that hard work with you.
 			     * You're free to make changes for your own use, but we ask that you 
