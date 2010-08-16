@@ -17,7 +17,7 @@
 <table border="0" cellpadding="0" cellspacing="0" width="100%">
   <tbody>
     <tr>
-      <td nowrap="nowrap" width="100%" valign="top">
+      <td width="100%" valign="top">
       
       <div id="tourDashboardViews"></div>
       {if !empty($views)}
