@@ -487,14 +487,14 @@ class Storage_Attachments extends Extension_DevblocksStorageSchema {
 		$db = DevblocksPlatform::getDatabaseService();
 		
 		$sql = sprintf("SELECT storage_extension, storage_key, storage_profile_id FROM attachment WHERE id IN (%s)", implode(',',$ids));
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		
 		// Delete the physical files
 		
 		while($row = mysql_fetch_assoc($rs)) {
 			$profile = !empty($row['storage_profile_id']) ? $row['storage_profile_id'] : $row['storage_extension'];
-			$storage = DevblocksPlatform::getStorageService($profile);
-			return $storage->delete('attachments', $row['storage_key']);
+			if(null != ($storage = DevblocksPlatform::getStorageService($profile)))
+				$storage->delete('attachments', $row['storage_key']);
 		}
 		
 		mysql_free_result($rs);
