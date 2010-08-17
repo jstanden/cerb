@@ -194,12 +194,6 @@ class DAO_Message extends DevblocksORMHelper {
 
 		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' message_header records.');
 		
-		// Notes
-		$sql = "DELETE QUICK message_note FROM message_note LEFT JOIN message ON message_note.message_id = message.id WHERE message.id IS NULL";
-		$db->Execute($sql);
-		
-		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' message_note records.');
-		
 		// Search indexes
 
 		$sql = "DELETE QUICK fulltext_message_content FROM fulltext_message_content LEFT JOIN message ON fulltext_message_content.id = message.id WHERE message.id IS NULL";
