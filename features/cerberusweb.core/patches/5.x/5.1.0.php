@@ -97,7 +97,7 @@ if(!isset($indexes['last_name'])) {
 }
 
 if(!empty($changes))
-	$db->Execute("ALTER TABLE address " . implode('', $changes));
+	$db->Execute("ALTER TABLE address " . implode(', ', $changes));
 
 // ===========================================================================
 // Comment
