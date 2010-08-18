@@ -459,6 +459,7 @@ $tables_autoinc = array(
 	'bayes_words',
 	'category',
 	'comment',
+	'contact_org',
 	'custom_field',
 	'fnr_external_resource',
 	'fnr_topic',

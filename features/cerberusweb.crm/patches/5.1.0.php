@@ -27,6 +27,7 @@ if(isset($columns['worker_id'])) {
 
 // Drop sequence tables
 $tables_seq = array(
+	'crm_campaign_seq',
 	'crm_opportunity_seq',
 );
 foreach($tables_seq as $table) {
