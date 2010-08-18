@@ -75,7 +75,7 @@
 						{$result.l_change_value|devblocks_date}
 					{elseif $change_field=="due_date"}
 						{$result.l_change_value|devblocks_date}
-					{elseif $change_field=="is_deleted" || $change_field=="is_closed"}
+					{elseif $change_field=="is_waiting" || $change_field=="is_deleted" || $change_field=="is_closed"}
 						{if $result.l_change_value==1}{$translate->_('common.yes')}{else}{$translate->_('common.no')}{/if}
 					{elseif $change_field=="spam_training"}
 						{if $result.l_change_value=='S'}{$translate->_('training.report_spam')}{else}{$translate->_('training.not_spam')}{/if}
