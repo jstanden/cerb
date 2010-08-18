@@ -406,6 +406,11 @@ class ChTicketsPage extends CerberusPageExtension {
 			SearchFields_Ticket::VIRTUAL_STATUS => new DevblocksSearchCriteria(SearchFields_Ticket::VIRTUAL_STATUS,'',array('open','waiting')),
 			SearchFields_Ticket::TICKET_TEAM_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_TEAM_ID,'in',array_keys($memberships)), // censor
 		);
+		$view->paramsHidden = array(
+			SearchFields_Ticket::TICKET_CATEGORY_ID,
+			SearchFields_Ticket::CONTEXT_LINK,
+			SearchFields_Ticket::CONTEXT_LINK_ID,
+		);
 		
 		$view->renderSubtotalsClickable = 1;
 		
