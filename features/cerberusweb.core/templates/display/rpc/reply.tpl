@@ -13,8 +13,13 @@
 					<td width="100%" colspan="2">
 						<div class="ui-widget">
 							<div class="ui-state-error ui-corner-all" style="padding: 0 .7em; margin: 0.2em; "> 
-								<p><span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span> 
-								{'display.reply.warn_assigned'|devblocks_translate:$workers.$assigned_worker_id->getName()}.</p>
+								<p><span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>
+									{$worker_string = ''}
+									{foreach from=$context_workers item=worker name=workers}
+										{$worker_string = $worker_string|cat:'<b>'|cat:$worker->getName()|cat:'</b>'}{if !$smarty.foreach.workers.last}{$worker_string = $worker_string|cat:' and '}{/if}
+									{/foreach}
+									{'display.reply.warn_assigned'|devblocks_translate:$worker_string}
+								</p> 
 							</div>
 						</div>
 					</td>
