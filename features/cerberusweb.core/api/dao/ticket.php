@@ -1583,28 +1583,29 @@ class View_Ticket extends C4_AbstractView {
 				break;
 				
 			case SearchFields_Ticket::VIRTUAL_STATUS:
-				if(is_array($param->value)) {
-					$strings = array();
+				if(!is_array($param->value))
+					$param->value = array($param->value);
 					
-					foreach($param->value as $value) {
-						switch($value) {
-							case 'open':
-								$strings[] = '<b>' . $translate->_('status.open') . '</b>';
-								break;
-							case 'waiting':
-								$strings[] = '<b>' . $translate->_('status.waiting') . '</b>';
-								break;
-							case 'closed':
-								$strings[] = '<b>' . $translate->_('status.closed') . '</b>';
-								break;
-							case 'deleted':
-								$strings[] = '<b>' . $translate->_('status.deleted') . '</b>';
-								break;
-						}
+				$strings = array();
+				
+				foreach($param->value as $value) {
+					switch($value) {
+						case 'open':
+							$strings[] = '<b>' . $translate->_('status.open') . '</b>';
+							break;
+						case 'waiting':
+							$strings[] = '<b>' . $translate->_('status.waiting') . '</b>';
+							break;
+						case 'closed':
+							$strings[] = '<b>' . $translate->_('status.closed') . '</b>';
+							break;
+						case 'deleted':
+							$strings[] = '<b>' . $translate->_('status.deleted') . '</b>';
+							break;
 					}
-					
-					echo sprintf("Status is %s", implode(' or ', $strings));
 				}
+				
+				echo sprintf("Status is %s", implode(' or ', $strings));
 				break;
 		}
 	}	
