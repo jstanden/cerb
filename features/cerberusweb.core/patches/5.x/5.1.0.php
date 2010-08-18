@@ -421,6 +421,12 @@ if(!isset($tables['snippet']))
 $db->Execute("UPDATE snippet SET content=REPLACE(content,'{{worker_','{{') WHERE context='cerberusweb.snippets.worker'");
 
 // ===========================================================================
+// Fix orphaned ticket.last_message_id
+
+$db->Execute("UPDATE ticket SET last_message_id=(SELECT max(id) FROM message WHERE message.ticket_id=ticket.id) WHERE last_message_id=0 AND is_deleted=0");
+$db->Execute("UPDATE ticket SET is_closed=1, is_deleted=1 WHERE last_message_id=0 AND is_deleted=0");
+
+// ===========================================================================
 // Convert sequences to MySQL AUTO_INCREMENT, make UNSIGNED
 
 // Drop sequence tables

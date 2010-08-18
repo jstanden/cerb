@@ -338,6 +338,7 @@ class CerberusMail {
 		// Finalize ticket
 		$fields = array(
 			DAO_Ticket::FIRST_MESSAGE_ID => $message_id,
+			DAO_Ticket::LAST_MESSAGE_ID => $message_id,
 		);
 		
 		if(isset($closed) && 1==$closed)
