@@ -189,6 +189,9 @@
 <script type="text/javascript">
 {if $pref_keyboard_shortcuts}
 $(document).keypress(function(event) {
+	if(event.altKey || event.ctrlKey || event.shiftKey || event.metaKey)
+		return;
+	
 	if($(event.target).is(':input'))
 		return;
 	

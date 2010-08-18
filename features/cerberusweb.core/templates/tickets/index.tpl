@@ -97,6 +97,9 @@
 	}
 
 	function doWorkflowKeys(event) {
+		if(event.altKey || event.ctrlKey || event.shiftKey || event.metaKey)
+			return;
+
 		switch(event.which) {
 			case 97:  // (A) list all
 				try {
@@ -142,6 +145,9 @@
 	}
 	
 	function doSearchKeys(event) {
+		if(event.altKey || event.ctrlKey || event.shiftKey)
+			return;
+
 		switch(event.which) {
 			case 98:  // (B) bulk update
 				try {

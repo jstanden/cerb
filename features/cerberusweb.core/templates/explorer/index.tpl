@@ -77,6 +77,9 @@
 
 <script type="text/javascript">
 var keys = function(event) {
+	if(event.altKey || event.ctrlKey || event.shiftKey || event.metaKey)
+		return;
+		
 	// Don't fire if we're inside any form elements
 	if($(event.target).filter(':input').length > 0)
 		return;
