@@ -37,7 +37,7 @@
 			<tr>
 				<td width="0%" nowrap="nowrap" align="right">Subject: </td>
 				<td width="100%">
-					<input type="text" name="subject" size="45" maxlength="255" value="{$ticket->subject|escape}">
+					<input type="text" name="subject" size="45" maxlength="255" style="width:98%;" value="{$ticket->subject|escape}">
 				</td>
 			</tr>
 			
@@ -113,9 +113,9 @@
 					</td>
 					<td valign="top" width="99%">
 						{if $f->type=='S'}
-							<input type="text" name="field_{$f_id}" size="45" maxlength="255" value="{$custom_field_values.$f_id|escape}"><br>
+							<input type="text" name="field_{$f_id}" size="45" maxlength="255" style="width:98%;" value="{$custom_field_values.$f_id|escape}"><br>
 						{elseif $f->type=='U'}
-							<input type="text" name="field_{$f_id}" size="40" maxlength="255" value="{$custom_field_values.$f_id|escape}">
+							<input type="text" name="field_{$f_id}" size="40" maxlength="255" style="width:98%;" value="{$custom_field_values.$f_id|escape}">
 							{if !empty($custom_field_values.$f_id)}<a href="{$custom_field_values.$f_id|escape}" target="_blank">URL</a>{else}<i>(URL)</i>{/if}
 						{elseif $f->type=='N'}
 							<input type="text" name="field_{$f_id}" size="45" maxlength="255" value="{$custom_field_values.$f_id|escape}"><br>
@@ -163,7 +163,7 @@
 		</table>
 		<br>
 		
-		<button type="button" onclick="genericAjaxPopupClose('peek', 'ticket_save');genericAjaxPost('frmTicketPeek', 'view{$view_id}');"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')}</button>
+		<button type="button" onclick="genericAjaxPost('frmTicketPeek', 'view{$view_id}', '', function() { genericAjaxPopupClose('peek', 'ticket_save'); } );"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')}</button>
     </div><!--tab2-->		
 </div> 
 <br>
