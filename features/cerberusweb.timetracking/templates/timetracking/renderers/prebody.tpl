@@ -1,5 +1,5 @@
 {* begin time tracking *}
-<div id="divTimeTrackingBox" style="display:{if isset($session.timetracking)}block{else}none{/if};position:fixed;width:300px;height:30px;top:2;right:320;background-color:rgb(50,50,50);color:rgb(255,255,255);opacity:.9;filter:alpha(opacity=90);z-index:2;vertical-align:middle;text-align:center;padding:5px;">
+<div id="divTimeTrackingBox" style="display:{if isset($session.timetracking)}block{else}none{/if};position:fixed;width:300px;height:30px;top:2px;right:320px;background-color:rgb(50,50,50);color:rgb(255,255,255);opacity:.9;filter:alpha(opacity=90);z-index:2;vertical-align:middle;text-align:center;padding:5px;">
 	{'timetracking.activity.tab'|devblocks_translate}: 
 	<span style="font-size:18pt;font-weight:bold;"><span id="divTimeTrackingCounter">--</span></span>
 	<button id="btnTimeTrackingPlay" type="button" onclick="timeTrackingTimer.play();" style="display:none;"><span class="cerb-sprite sprite-media_play_green"></span></button>

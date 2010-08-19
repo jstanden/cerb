@@ -1,4 +1,4 @@
-<div id="divAutoRefresh" style="display:{if isset($session.autorefresh)}block{else}none{/if};position:fixed;width:300px;height:30px;top:45;right:320;background-color:rgb(50,50,50);color:rgb(255,255,255);opacity:.9;filter:alpha(opacity=90);z-index:2;vertical-align:middle;text-align:center;padding:5px;">
+<div id="divAutoRefresh" style="display:{if isset($session.autorefresh)}block{else}none{/if};position:fixed;width:300px;height:30px;top:45px;right:320px;background-color:rgb(50,50,50);color:rgb(255,255,255);opacity:.9;filter:alpha(opacity=90);z-index:2;vertical-align:middle;text-align:center;padding:5px;">
 <form action="" method="POST">
 	<span style="color:rgb(255,255,255);">Auto-Refresh:</span> 
 	<span style="font-size:18pt;font-weight:bold;color:rgb(255,255,255);"><span id="divAutoRefreshCounter">--</span></span>
