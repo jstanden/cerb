@@ -2,6 +2,10 @@
 <input type="hidden" name="c" value="contacts">
 <input type="hidden" name="a" value="saveContact">
 <input type="hidden" name="id" value="{$address.a_id}">
+{if empty($id) && !empty($context)}
+<input type="hidden" name="context" value="{$context}">
+<input type="hidden" name="context_id" value="{$context_id}">
+{/if}
 <input type="hidden" name="view_id" value="{$view_id}">
 
 <table cellpadding="0" cellspacing="2" border="0" width="98%">

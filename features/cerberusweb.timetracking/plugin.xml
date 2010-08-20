@@ -51,6 +51,11 @@
 				<name>Context_TimeTracking</name>
 			</class>
 			<params>
+				<param key="link_options">
+					<value>
+						<data key="find" />
+					</value>
+				</param>
 				<param key="events">
 					<value>
 						<data key="context.assigned" value="context.timetracking.assigned" />

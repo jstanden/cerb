@@ -1,8 +1,12 @@
 <form action="{devblocks_url}{/devblocks_url}" method="POST" id="formTaskPeek" name="formTaskPeek" onsubmit="return false;">
 <input type="hidden" name="c" value="tasks">
 <input type="hidden" name="a" value="saveTaskPeek">
-<input type="hidden" name="id" value="{$task->id}">
 <input type="hidden" name="view_id" value="{$view_id}">
+<input type="hidden" name="id" value="{$task->id}">
+{if empty($id) && !empty($context)}
+<input type="hidden" name="context" value="{$context}">
+<input type="hidden" name="context_id" value="{$context_id}">
+{/if}
 <input type="hidden" name="do_delete" value="0">
 
 <table cellpadding="0" cellspacing="2" border="0" width="98%">

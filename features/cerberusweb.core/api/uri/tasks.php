@@ -153,6 +153,12 @@ class ChTasksPage extends CerberusPageExtension {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$path = $this->_TPL_PATH;
 		$tpl->assign('path', $path);
+
+		// Handle context links ([TODO] as an optional array)
+		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
+		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer','');
+		$tpl->assign('context', $context);
+		$tpl->assign('context_id', $context_id);
 		
 		if(!empty($id)) {
 			$task = DAO_Task::get($id);
@@ -190,7 +196,7 @@ class ChTasksPage extends CerberusPageExtension {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer','');
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
 		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'],'integer',0);
-
+		
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		if(!empty($id) && !empty($do_delete)) { // delete
@@ -238,6 +244,13 @@ class ChTasksPage extends CerberusPageExtension {
 				// Content
 				@$content = DevblocksPlatform::importGPC($_REQUEST['content'],'string','');
 
+				// Context Link (if given)
+				@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
+				@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer','');
+				if(!empty($id) && !empty($context) && !empty($context_id)) {
+					DAO_ContextLink::setLink(CerberusContexts::CONTEXT_TASK, $id, $context, $context_id);
+				}
+				
 				// Append a note from the first content block, if provided				
 				if(!empty($content) && !empty($id)) {
 					$fields = array(

@@ -607,6 +607,12 @@ class ChContactsPage extends CerberusPageExtension {
 		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('path', $this->_TPL_PATH);
+
+		// Handle context links ([TODO] as an optional array)
+		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
+		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer','');
+		$tpl->assign('context', $context);
+		$tpl->assign('context_id', $context_id);
 		
 		if(!empty($address_id)) {
 			$email = '';
@@ -758,6 +764,12 @@ class ChContactsPage extends CerberusPageExtension {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('path', $this->_TPL_PATH);
 		
+		// Handle context links ([TODO] as an optional array)
+		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
+		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer','');
+		$tpl->assign('context', $context);
+		$tpl->assign('context_id', $context_id);
+				
 		$contact = DAO_ContactOrg::get($id);
 		$tpl->assign('contact', $contact);
 
@@ -821,6 +833,13 @@ class ChContactsPage extends CerberusPageExtension {
 			if($id==0) {
 				$fields = $fields + array(DAO_Address::EMAIL => $email);
 				$id = DAO_Address::create($fields);
+				
+				// Context Link (if given)
+				@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
+				@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer','');
+				if(!empty($id) && !empty($context) && !empty($context_id)) {
+					DAO_ContextLink::setLink(CerberusContexts::CONTEXT_ADDRESS, $id, $context, $context_id);
+				}
 			}
 			else {
 				DAO_Address::update($id, $fields);
@@ -936,6 +955,13 @@ class ChContactsPage extends CerberusPageExtension {
 		
 				if($id==0) {
 					$id = DAO_ContactOrg::create($fields);
+					
+					// Context Link (if given)
+					@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
+					@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer','');
+					if(!empty($id) && !empty($context) && !empty($context_id)) {
+						DAO_ContextLink::setLink(CerberusContexts::CONTEXT_ORG, $id, $context, $context_id);
+					}
 				}
 				else {
 					DAO_ContactOrg::update($id, $fields);	

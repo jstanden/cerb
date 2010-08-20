@@ -213,6 +213,12 @@ class CrmPage extends CerberusPageExtension {
 		$tpl->assign('view_id', $view_id);
 		$tpl->assign('email', $email);
 		
+		// Handle context links ([TODO] as an optional array)
+		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
+		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer','');
+		$tpl->assign('context', $context);
+		$tpl->assign('context_id', $context_id);
+		
 		if(!empty($opp_id) && null != ($opp = DAO_CrmOpportunity::get($opp_id))) {
 			$tpl->assign('opp', $opp);
 			
@@ -304,6 +310,13 @@ class CrmPage extends CerberusPageExtension {
 				DAO_CrmOpportunity::IS_WON => $is_won,
 			);
 			$opp_id = DAO_CrmOpportunity::create($fields);
+			
+			// Context Link (if given)
+			@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
+			@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer','');
+			if(!empty($opp_id) && !empty($context) && !empty($context_id)) {
+				DAO_ContextLink::setLink(CerberusContexts::CONTEXT_OPPORTUNITY, $opp_id, $context, $context_id);
+			}
 			
 			// Custom fields
 			@$field_ids = DevblocksPlatform::importGPC($_REQUEST['field_ids'], 'array', array());

@@ -675,7 +675,7 @@ class CerberusContexts {
 				self::_getNotificationContext($context_object, $labels, $values, $prefix);
 				break;
 			default:
-				// [TODO] Migrated
+				// Migrated
 				if(null != ($ctx = DevblocksPlatform::getExtension($context, true)) 
 					&& $ctx instanceof Extension_DevblocksContext) {
 						$ctx->getContext($context_object, $labels, $values, $prefix);

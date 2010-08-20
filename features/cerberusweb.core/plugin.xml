@@ -344,6 +344,12 @@
 				<name>Context_Address</name>
 			</class>
 			<params>
+				<param key="link_options">
+					<value>
+						<data key="create" />
+						<data key="find" />
+					</value>
+				</param>
 				<param key="events">
 					<value>
 						<data key="context.assigned" value="context.address.assigned" />
@@ -361,6 +367,12 @@
 				<name>Context_Group</name>
 			</class>
 			<params>
+				<!--
+				<param key="link_options">
+					<value>
+					</value>
+				</param>
+				-->
 				<param key="events">
 					<!--
 					<value>
@@ -380,6 +392,12 @@
 				<name>Context_Org</name>
 			</class>
 			<params>
+				<param key="link_options">
+					<value>
+						<data key="create" />
+						<data key="find" />
+					</value>
+				</param>
 				<param key="events">
 					<value>
 						<data key="context.assigned" value="context.org.assigned" />
@@ -397,6 +415,12 @@
 				<name>Context_Task</name>
 			</class>
 			<params>
+				<param key="link_options">
+					<value>
+						<data key="create" />
+						<data key="find" />
+					</value>
+				</param>
 				<param key="events">
 					<value>
 						<data key="context.assigned" value="context.task.assigned" />
@@ -414,6 +438,11 @@
 				<name>Context_Ticket</name>
 			</class>
 			<params>
+				<param key="link_options">
+					<value>
+						<data key="find" />
+					</value>
+				</param>
 				<param key="events">
 					<value>
 						<data key="context.assigned" value="context.ticket.assigned" />
@@ -431,6 +460,11 @@
 				<name>Context_Worker</name>
 			</class>
 			<params>
+				<param key="link_options">
+					<value>
+						<data key="find" />
+					</value>
+				</param>
 				<param key="events">
 					<value>
 						<data key="context.assigned" value="context.worker.assigned" />

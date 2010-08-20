@@ -1,13 +1,23 @@
+{$contexts = DevblocksPlatform::getExtensions('devblocks.context', false)}
+{$null = asort($contexts)}
+
 <form action="{devblocks_url}{/devblocks_url}" method="POST" style="margin-bottom:10px;">
-	<select name="to_context" onchange="chooserOpen(this);">
-		<option value="">-- add links --</option>
-		<option value="cerberusweb.contexts.address">Address</option>
-		<option value="cerberusweb.contexts.opportunity">Opportunity</option>
-		<option value="cerberusweb.contexts.org">Organization</option>
-		<option value="cerberusweb.contexts.task">Task</option>
-		<option value="cerberusweb.contexts.ticket">Ticket</option>
-		<option value="cerberusweb.contexts.timetracking">Time Tracking</option>
-		<option value="cerberusweb.contexts.worker">Worker</option>
+	<select onchange="chooserOpen(this);">
+		<option value="">-- find &amp; link --</option>
+		{foreach from=$contexts item=context_mft key=context_mft_id}
+		{if isset($context_mft->params['link_options'][0]['find'])}
+		<option value="{$context_mft_id}">{$context_mft->name}</option>
+		{/if}
+		{/foreach}
+	</select>
+	
+	<select onchange="linkAddContext(this);">
+		<option value="">-- create &amp; link --</option>
+		{foreach from=$contexts item=context_mft key=context_mft_id}
+		{if isset($context_mft->params['link_options'][0]['create'])}
+		<option value="{$context_mft_id}">{$context_mft->name}</option>
+		{/if}
+		{/foreach}
 	</select>
 </form>
 
@@ -20,6 +30,48 @@
 {/if}
 
 <script type="text/javascript">
+function linkAddContext(ref) {
+	$select = $(ref);
+	$form = $select.closest('form');
+
+	if(0==$select.val().length)
+		return;
+
+	$context = $select.val();
+
+	reload_action = function(event) {
+		// Reload the tab
+		event.stopPropagation();
+		$id = $context.replace(/\./g,'_');
+		$view = $('#view' + encodeURIComponent($id));
+	
+		if(0==$view.length) {
+			$tabs = $form.closest('div.ui-tabs');
+			if(0 != $tabs) {
+				$tabs.tabs('load', $tabs.tabs('option','selected'));
+			}
+		} else {
+			genericAjaxGet($view.attr('id'), 'c=internal&a=viewRefresh&id=' + $id);
+		}
+	}
+
+	if($context == 'cerberusweb.contexts.task') {
+		$popup = genericAjaxPopup('peek','c=tasks&a=showTaskPeek&id=0&context={$context}&context_id={$context_id}',null,false,'500');
+		$popup.one('dialogclose', reload_action);
+	} else if($context == 'cerberusweb.contexts.address') {
+		$popup = genericAjaxPopup('peek','c=contacts&a=showAddressPeek&id=0&context={$context}&context_id={$context_id}',null,false,'500');
+		$popup.one('dialogclose', reload_action);
+	} else if($context == 'cerberusweb.contexts.org') {
+		$popup = genericAjaxPopup('peek','c=contacts&a=showOrgPeek&id=0&context={$context}&context_id={$context_id}',null,false,'500');
+		$popup.one('dialogclose', reload_action);
+	} else if($context == 'cerberusweb.contexts.opportunity') {
+		$popup = genericAjaxPopup('peek','c=crm&a=showOppPanel&id=0&context={$context}&context_id={$context_id}',null,false,'500');
+		$popup.one('dialogclose', reload_action);
+	}
+	
+	$select.val('');
+}
+	
 function chooserOpen(ref) {
 	$select = $(ref);
 	$form = $select.closest('form');
