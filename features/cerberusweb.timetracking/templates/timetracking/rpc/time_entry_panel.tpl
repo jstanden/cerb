@@ -1,10 +1,20 @@
 <form action="{devblocks_url}{/devblocks_url}" method="post" id="frmTimeEntry">
 <input type="hidden" name="c" value="timetracking">
 <input type="hidden" name="a" value="saveEntry">
+{if empty($workers)}{$workers = DAO_Worker::getAll()}{/if}
+
 {if !empty($model) && !empty($model->id)}<input type="hidden" name="id" value="{$model->id}">{/if}
 <input type="hidden" name="do_delete" value="0">
 
 <table cellpadding="2" cellspacing="0" width="100%">
+	{if !empty($model->worker_id) && isset($workers.{$model->worker_id})}
+	<tr>
+		<td width="0%" nowrap="nowrap" valign="top" align="right"><b>{$translate->_('common.worker')|capitalize}</b>:</td>
+		<td width="100%">
+			{$workers.{$model->worker_id}->getName()}
+		</td>
+	</tr>
+	{/if}
 	{if !empty($nonbillable_activities) || !empty($billable_activities)}
 	<tr>
 		<td width="0%" nowrap="nowrap" valign="top" align="right"><b>{$translate->_('timetracking.ui.entry_panel.activity')}</b>:</td>
