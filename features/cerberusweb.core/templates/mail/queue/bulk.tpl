@@ -1,4 +1,4 @@
-<form action="{devblocks_url}{/devblocks_url}" method="POST" id="formBatchUpdate" name="formBatchUpdate">
+<form action="{devblocks_url}{/devblocks_url}" method="POST" id="formBatchUpdate" name="formBatchUpdate" onsubmit="return false;">
 <input type="hidden" name="c" value="tickets">
 <input type="hidden" name="a" value="doDraftsBulkUpdate">
 <input type="hidden" name="view_id" value="{$view_id}">
