@@ -437,7 +437,6 @@ class ChInternalController extends DevblocksControllerExtension {
 	function viewDoCopyAction() {
 		$translate = DevblocksPlatform::getTranslationService();
 		$active_worker = CerberusApplication::getActiveWorker();
-		$visit = CerberusApplication::getVisit();
 		
 	    @$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
 		$view = C4_AbstractViewLoader::getView($view_id);
@@ -485,9 +484,6 @@ class ChInternalController extends DevblocksControllerExtension {
 			);
 			$list_id = DAO_WorkerWorkspaceList::create($fields);
         }
-		
-		// Select the workspace tab
-		$visit->set(CerberusVisit::KEY_HOME_SELECTED_TAB, 'w_'.$workspace_name);
         
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('home')));
 	}

@@ -79,15 +79,6 @@ class ChHomePage extends CerberusPageExtension {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('path', $this->_TPL_PATH);
 
-		$response = DevblocksPlatform::getHttpResponse();
-		$tpl->assign('request_path', implode('/',$response->path));
-		
-		// Remember the last tab/URL
-		if(null == ($selected_tab = @$response->path[1])) {
-			$selected_tab = $visit->get(CerberusVisit::KEY_HOME_SELECTED_TAB, 'events');
-		}
-		$tpl->assign('selected_tab', $selected_tab);
-		
 		$tab_manifests = DevblocksPlatform::getExtensions('cerberusweb.home.tab', false);
 		$tpl->assign('tab_manifests', $tab_manifests);
 		
@@ -110,15 +101,11 @@ class ChHomePage extends CerberusPageExtension {
 	}
 	
 	function showMyEventsAction() {
-		$visit = CerberusApplication::getVisit();
 		$translate = DevblocksPlatform::getTranslationService();
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('path', $this->_TPL_PATH);
-		
-		// Select tab
-		$visit->set(CerberusVisit::KEY_HOME_SELECTED_TAB, 'events');
 		
 		// My Events
 		$defaults = new C4_AbstractViewModel();
@@ -244,7 +231,6 @@ class ChHomePage extends CerberusPageExtension {
 	
 	function doWorkspaceInitAction() {
 		$active_worker = CerberusApplication::getActiveWorker();
-		$visit = CerberusApplication::getVisit();
 		
 		$workspace = 'My Work';
 		
@@ -274,9 +260,6 @@ class ChHomePage extends CerberusPageExtension {
 		);
 		DAO_WorkerWorkspaceList::create($fields);
 		
-		// Select the new tab
-		$visit->set(CerberusVisit::KEY_HOME_SELECTED_TAB, 'w_'.$workspace);
-		
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('home')));
 	}
 	
@@ -303,7 +286,6 @@ class ChHomePage extends CerberusPageExtension {
 		@$new_workspace = DevblocksPlatform::importGPC($_REQUEST['new_workspace'], 'string', '');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
-		$visit = CerberusApplication::getVisit();
 
 		// Source extension exists
 		if(null != ($source_manifest = DevblocksPlatform::getExtension($source, false))) {
@@ -341,9 +323,6 @@ class ChHomePage extends CerberusPageExtension {
 					DAO_WorkerWorkspaceList::SOURCE_EXTENSION => $source_manifest->id,
 				);
 				DAO_WorkerWorkspaceList::create($fields);
-				
-				// Select the new tab
-				$visit->set(CerberusVisit::KEY_HOME_SELECTED_TAB, 'w_'.$workspace);
 			}
 		}
 		
@@ -432,7 +411,6 @@ class ChHomePage extends CerberusPageExtension {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('path', $this->_TPL_PATH);
 		
-		$visit = CerberusApplication::getVisit();
 		$db = DevblocksPlatform::getDatabaseService();
 		$active_worker = CerberusApplication::getActiveWorker();
 		
@@ -450,9 +428,6 @@ class ChHomePage extends CerberusPageExtension {
 		}
 		
 		if(!empty($current_workspace)) {
-			// Remember the tab
-			$visit->set(CerberusVisit::KEY_HOME_SELECTED_TAB, 'w_'.$current_workspace);
-			
 			$lists = DAO_WorkerWorkspaceList::getWhere(sprintf("%s = %d AND %s = %s",
 				DAO_WorkerWorkspaceList::WORKER_ID,
 				$active_worker->id,
@@ -548,7 +523,6 @@ class ChHomePage extends CerberusPageExtension {
 		
 		$db = DevblocksPlatform::getDatabaseService();
 		$active_worker = CerberusApplication::getActiveWorker();
-		$visit = CerberusApplication::getVisit();
 		
 		$worklists = DAO_WorkerWorkspaceList::getWhere(sprintf("%s = %s",
 			DAO_WorkerWorkspaceList::WORKSPACE,
@@ -599,9 +573,6 @@ class ChHomePage extends CerberusPageExtension {
 			
 			$workspace = $rename_workspace;
 		}
-		
-		// Change active tab
-		$visit->set(CerberusVisit::KEY_HOME_SELECTED_TAB, 'w_'.$workspace);
 		
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('home')));	
 	}

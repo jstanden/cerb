@@ -44,13 +44,8 @@
 </div> 
 <br>
 
-{$tab_selected_idx=0}
-{foreach from=$tabs item=tab_label name=tabs}
-	{if $tab_label==$selected_tab}{$tab_selected_idx = $smarty.foreach.tabs.index}{/if}
-{/foreach}
-
 <script type="text/javascript">
 	$(function() {
-		var tabs = $("#homeTabs").tabs( { selected:{$tab_selected_idx} } );
+		var tabs = $("#homeTabs").tabs( { cookie:{ name:'homeTabs', path:'/' } } );
 	});
 </script>
