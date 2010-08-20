@@ -17,7 +17,7 @@ especially likely if you are migrating away from desktop e-mail programs to the
 web for the first time.<br>
 <br>
 The best place to become familiar with the concepts used in Cerberus Helpdesk 
-is the <a href="http://wiki.cerb4.com/wiki/Main_Page" target="_blank">online documentation</a>. 
+is the <a href="http://wiki.cerb5.com/wiki/" target="_blank">online documentation</a>. 
 This area is dedicated to creating and maintaining tutorials, feature guides and best practices.<br>
 <br>
 
