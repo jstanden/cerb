@@ -151,8 +151,8 @@ switch($step) {
 		if ($memory_limit == '') { // empty string means failure or not defined, assume no compiled memory limits
 			$results['memory_limit'] = true;
 		} else {
-			$ini_memory_limit = intval($memory_limit);
-			if($ini_memory_limit >= 16) {
+			$ini_memory_limit = DevblocksPlatform::parseBytesString($memory_limit);
+			if($ini_memory_limit >= 16777216) {
 				$results['memory_limit'] = true;
 			} else {
 				$results['memory_limit'] = false;

@@ -13,6 +13,33 @@
 <h1>Cerberus Helpdesk 5.x - Server Environment Checker</h1>
 
 <?php
+function parse_bytes_string($string) {
+    if(is_numeric($string)) { 
+        return intval($string);
+        
+    } else { 
+        $value = intval($string); 
+        $unit = strtolower(substr($string, -1)); 
+         
+        switch($unit) { 
+            default: 
+            case 'm': 
+                return $value * 1048576; // 1024^2
+                break; 
+            case 'g': 
+                return $value * 1073741824; // 1024^3 
+                break;
+            case 'k': 
+                return $value * 1024; // 1024^1
+                break; 
+        }
+    }
+    
+    return FALSE;
+}
+?>
+
+<?php
 $results = array();
 $fails = 0;
 
@@ -47,14 +74,15 @@ $memory_limit = ini_get("memory_limit");
 if ($memory_limit == '') { // empty string means failure or not defined, assume no compiled memory limits
 	$results['memory_limit'] = true;
 } else {
-	$ini_memory_limit = intval($memory_limit);
-	if($ini_memory_limit >= 16) {
+	$ini_memory_limit = parse_bytes_string($memory_limit);
+	if($ini_memory_limit >= 16777216) {
 		$results['memory_limit'] = true;
 	} else {
 		$results['memory_limit'] = false;
 		$fails++;
 	}
 }
+
 
 // Extension: MySQL
 if(extension_loaded("mysql")) {

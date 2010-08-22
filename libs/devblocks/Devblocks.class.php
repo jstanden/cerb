@@ -117,6 +117,37 @@ class DevblocksPlatform extends DevblocksEngine {
 		return $pattern;
 	}
 	
+	/**
+	 * Returns a formatted string as a number of bytes (e.g. 200M = 209715200)
+	 * 
+	 * @param string $string
+	 * @return integer|FALSE
+	 */
+	static function parseBytesString($string) {
+	    if(is_numeric($string)) { 
+	        return intval($string);
+	        
+	    } else { 
+	        $value = intval($string); 
+	        $unit = strtolower(substr($string, -1)); 
+	         
+	        switch($unit) { 
+	            default: 
+	            case 'm': 
+	                return $value * 1048576; // 1024^2
+	                break; 
+	            case 'g': 
+	                return $value * 1073741824; // 1024^3 
+	                break;
+	            case 'k': 
+	                return $value * 1024; // 1024^1
+	                break; 
+	        }
+	    }
+	    
+	    return FALSE;
+	}
+	
 	static function parseCrlfString($string) {
 		$parts = preg_split("/[\r\n]/", $string);
 		
