@@ -289,6 +289,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		$defaults->renderLimit = 10;
 		$defaults->renderSortBy = SearchFields_Ticket::TICKET_UPDATED_DATE;
 		$defaults->renderSortAsc = 0;
+		$defaults->renderSubtotals = 'group';
 		
 		$workflowView = C4_AbstractViewLoader::getView(CerberusApplication::VIEW_MAIL_WORKFLOW, $defaults);
 		
