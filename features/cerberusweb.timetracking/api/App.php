@@ -1003,6 +1003,7 @@ class ChTimeTrackingEventListener extends DevblocksEventListenerExtension {
             	$new_ticket_id = $event->params['new_ticket_id'];
             	$old_ticket_ids = $event->params['old_ticket_ids'];
 
+            	// [TODO] Change over to context links (and handle globally)
 //            	$fields = array(
 //            		DAO_TimeTrackingEntry::SOURCE_ID => $new_ticket_id,
 //            	);
@@ -1255,52 +1256,50 @@ class ChTimeTrackingPage extends CerberusPageExtension {
 		if(empty($id)) { // create
 			$id = DAO_TimeTrackingEntry::create($fields);
 			
-//			$translate = DevblocksPlatform::getTranslationService();
-//			switch($source_extension_id) {
-//				// If ticket, add a comment about the timeslip to the ticket
-//				case 'timetracking.source.ticket':
-//					$ticket_id = intval($source_id);
-//					
-//					if(null != ($worker_address = DAO_Address::lookupAddress($active_worker->email, false))) {
-//						if(!empty($activity_id)) {
-//							$activity = DAO_TimeTrackingActivity::get($activity_id);
-//						}
-//						
-//						if(!empty($org_id))
-//							$org = DAO_ContactOrg::get($org_id);
-//						
-//						$comment = sprintf(
-//							"== %s ==\n".
-//							"%s %s\n".
-//							"%s %d\n".
-//							"%s %s (%s)\n".
-//							"%s %s\n".
-//							"%s %s\n",
-//							$translate->_('timetracking.ui.timetracking'),
-//							$translate->_('timetracking.ui.worker'),
-//							$active_worker->getName(),
-//							$translate->_('timetracking.ui.comment.time_spent'),
-//							$time_actual_mins,
-//							$translate->_('timetracking.ui.comment.activity'),
-//							(!empty($activity) ? $activity->name : ''),
-//							((!empty($activity) && $activity->rate > 0.00) ? $translate->_('timetracking.ui.billable') : $translate->_('timetracking.ui.non_billable')),
-//							$translate->_('timetracking.ui.comment.organization'),
-//							(!empty($org) ? $org->name : $translate->_('timetracking.ui.comment.not_set')),
-//							$translate->_('timetracking.ui.comment.notes'),
-//							$notes
-//						);
-//						//timetracking.ui.billable timetracking.ui.non_billable
-//						$fields = array(
-//							DAO_Comment::ADDRESS_ID => intval($worker_address->id),
-//							DAO_Comment::COMMENT => $comment,
-//							DAO_Comment::CREATED => time(),
-//							DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_TICKET,
-//							DAO_Comment::CONTEXT_ID => intval($ticket_id),
-//						);
-//						DAO_Comment::create($fields);
-//					}
-//					break;
-//			}
+			// Procedurally create a comment
+			// [TODO] Move this to a better event
+			$translate = DevblocksPlatform::getTranslationService();
+			$url_writer = DevblocksPlatform::getUrlService();
+			
+			switch($context) {
+				// If ticket, add a comment about the timeslip to the ticket
+				case CerberusContexts::CONTEXT_TICKET:
+					$ticket_id = intval($context_id);
+					
+					if(null != ($worker_address = DAO_Address::lookupAddress($active_worker->email, false))) {
+						if(!empty($activity_id)) {
+							$activity = DAO_TimeTrackingActivity::get($activity_id);
+						}
+						
+						$comment = sprintf(
+							"== %s ==\n".
+							"%s %s\n".
+							"%s %d\n".
+							"%s %s (%s)\n".
+							(!empty($notes) ? sprintf("%s %s\n", $translate->_('timetracking.ui.comment.notes'), $notes) : '').
+							"\n".
+							"%s\n",
+							$translate->_('timetracking.ui.timetracking'),
+							$translate->_('timetracking.ui.worker'),
+							$active_worker->getName(),
+							$translate->_('timetracking.ui.comment.time_spent'),
+							$time_actual_mins,
+							$translate->_('timetracking.ui.comment.activity'),
+							(!empty($activity) ? $activity->name : ''),
+							((!empty($activity) && $activity->rate > 0.00) ? $translate->_('timetracking.ui.billable') : $translate->_('timetracking.ui.non_billable')),
+							$url_writer->write(sprintf("c=timetracking&a=display&id=%d", $id), true)
+						);
+						$fields = array(
+							DAO_Comment::ADDRESS_ID => intval($worker_address->id),
+							DAO_Comment::COMMENT => $comment,
+							DAO_Comment::CREATED => time(),
+							DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_TICKET,
+							DAO_Comment::CONTEXT_ID => intval($ticket_id),
+						);
+						DAO_Comment::create($fields);
+					}
+					break;
+			}
 			
 		} else { // modify
 			DAO_TimeTrackingEntry::update($id, $fields);
