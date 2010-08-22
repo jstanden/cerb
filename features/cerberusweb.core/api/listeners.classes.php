@@ -600,7 +600,7 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 		@$is_deleted = $model[DAO_Ticket::IS_DELETED];
 		if(!is_null($is_deleted) && $is_deleted)
 			return;
-			
+
 		$group_settings = DAO_GroupSettings::getSettings();
 		@$group_id = $model[DAO_Ticket::TEAM_ID];
 
@@ -611,6 +611,12 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 		// If the template doesn't exist or is empty
 		if(!isset($group_settings[$group_id][DAO_GroupSettings::SETTING_CLOSE_REPLY])
 			|| empty($group_settings[$group_id][DAO_GroupSettings::SETTING_CLOSE_REPLY]))
+			return;
+
+		$requesters = DAO_Ticket::getRequestersByTicket($ticket_id);
+		
+		// Don't send a close reply to a blank requesters list
+		if(empty($requesters))
 			return;
 			
 		try {
