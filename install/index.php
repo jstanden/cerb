@@ -401,7 +401,11 @@ switch($step) {
 				switch ($plugin->id) {
 					case 'devblocks.core':
 					case 'cerberusweb.core':
+					case 'cerberusweb.crm':
+					case 'cerberusweb.feedback':
+					case 'cerberusweb.reports':
 					case 'cerberusweb.simulator':
+					case 'cerberusweb.timetracking':
 					case 'cerberusweb.watchers':
 					case 'usermeet.core':
 						$plugin->setEnabled(true);
