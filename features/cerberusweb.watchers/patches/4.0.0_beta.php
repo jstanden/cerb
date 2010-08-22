@@ -9,7 +9,7 @@ if(!isset($tables['worker_mail_forward'])) {
 			id INT UNSIGNED DEFAULT 0 NOT NULL,
 			worker_id INT UNSIGNED DEFAULT 0 NOT NULL,
 			group_id INT UNSIGNED DEFAULT 0 NOT NULL,
-			bucket_id INT UNSIGNED DEFAULT -1 NOT NULL,
+			bucket_id INT UNSIGNED DEFAULT 0 NOT NULL,
 			email VARCHAR(128) DEFAULT '' NOT NULL,
 			event VARCHAR(3) DEFAULT '' NOT NULL,
 			PRIMARY KEY (id)

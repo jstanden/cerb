@@ -458,7 +458,7 @@ if(!isset($indexes['ticket_id'])) {
 // `setting` ==================================
 list($columns, $indexes) = $db->metaTable('setting');
 
-if(0 != strcasecmp($columns['value']['type'],'blob')) {
+if(0 != strcasecmp(@$columns['value']['type'],'blob')) {
 	$db->Execute("ALTER TABLE setting CHANGE COLUMN value value_old VARCHAR(255) DEFAULT '' NOT NULL");
 	$db->Execute("ALTER TABLE setting ADD COLUMN value BLOB");
 	
