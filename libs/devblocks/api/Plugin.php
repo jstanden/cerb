@@ -111,6 +111,9 @@ class DevblocksStorageEngineDisk extends Extension_DevblocksStorageEngine {
 			$key
 		);
 		
+		if(!file_exists($path))
+			return false;
+		
 		// Read into file handle
 		if($fp && is_resource($fp)) {
 			$src_fp = fopen($path, 'rb');
