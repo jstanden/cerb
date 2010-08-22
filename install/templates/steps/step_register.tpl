@@ -47,7 +47,7 @@ options</a>.<br>
 <input size="64" name="contact_company"><br>
 <br>
 
-<b>Your e-mail address:</b> (this is where we'll send your discount coupon)<br>
+<b>Your e-mail address:</b> (this is where we'll send your free 3-seat license)<br>
 <input size="64" name="contact_email"><br>
 <br>
 
@@ -76,6 +76,15 @@ options</a>.<br>
 <h3>#4: What will be your first important milestone to measure the success of your new helpdesk implementation?</h3>
 <textarea cols="65" rows="3" name="q4"></textarea><br>
 
+<h3>#5: How many workers do you expect to use the helpdesk simultaneously?</h3>
+<label><input type="radio" name="q5" value="1-3" checked="checked"> 1-3</label><br>
+<label><input type="radio" name="q5" value="4-7"> 4-7</label><br>
+<label><input type="radio" name="q5" value="8-15"> 8-15</label><br>
+<label><input type="radio" name="q5" value="16-24"> 16-24</label><br>
+<label><input type="radio" name="q5" value="25+"> 25+</label><br>
+<br>
+
+{*
 <h3>#5: How important are the following benefits in making your decision?</h3>
 <table border="0" cellpadding="2" cellspacing="2" width="100">
 	<tbody>
@@ -155,6 +164,7 @@ options</a>.<br>
 	</tbody>
 </table>
 <br>
+*}
 
 <h3>Is there anything you would like to add?</h3>
 <textarea cols="65" rows="3" name="comments"></textarea>

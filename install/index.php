@@ -726,12 +726,13 @@ EOF;
 				@$q2 = stripslashes($_REQUEST['q2']);
 				@$q3 = stripslashes($_REQUEST['q3']);
 				@$q4 = stripslashes($_REQUEST['q4']);
-				@$q5_support = stripslashes($_REQUEST['q5_support']);
-				@$q5_opensource = stripslashes($_REQUEST['q5_opensource']);
-				@$q5_price = stripslashes($_REQUEST['q5_price']);
-				@$q5_updates = stripslashes($_REQUEST['q5_updates']);
-				@$q5_developers = stripslashes($_REQUEST['q5_developers']);
-				@$q5_community = stripslashes($_REQUEST['q5_community']);
+				@$q5 = stripslashes($_REQUEST['q5']);
+				//@$q5_support = stripslashes($_REQUEST['q5_support']);
+				//@$q5_opensource = stripslashes($_REQUEST['q5_opensource']);
+				//@$q5_price = stripslashes($_REQUEST['q5_price']);
+				//@$q5_updates = stripslashes($_REQUEST['q5_updates']);
+				//@$q5_developers = stripslashes($_REQUEST['q5_developers']);
+				//@$q5_community = stripslashes($_REQUEST['q5_community']);
 				@$comments = stripslashes($_REQUEST['comments']);
 				
 				if(isset($_REQUEST['form_submit'])) {
@@ -745,9 +746,10 @@ EOF;
 				    "#2: How is your team currently handling e-mail management?\r\n%s\r\n\r\n".
 				    "#3: Are you considering both free and commercial solutions?\r\n%s\r\n\r\n".
 				    "#4: What will be your first important milestone?\r\n%s\r\n\r\n".
-				    "#5: How important are the following benefits in making your decision?\r\n".
-				    "Near-Instant Support: %d\r\nAvailable Source Code: %d\r\nCompetitive Purchase Price: %d\r\n".
-				    "Frequent Product Updates: %d\r\nAccess to Developers: %d\r\nLarge User Community: %d\r\n".
+				    "#5: How many workers do you expect to use the helpdesk simultaneously?\r\n%s\r\n\r\n".
+//				    "#5: How important are the following benefits in making your decision?\r\n".
+//				    "Near-Instant Support: %d\r\nAvailable Source Code: %d\r\nCompetitive Purchase Price: %d\r\n".
+//				    "Frequent Product Updates: %d\r\nAccess to Developers: %d\r\nLarge User Community: %d\r\n".
 				    "\r\n".
 				    "Additional Comments: \r\n%s\r\n\r\n"
 				    ,
@@ -759,12 +761,13 @@ EOF;
 				    $q2,
 				    $q3,
 				    $q4,
-				    $q5_support,
-				    $q5_opensource,
-				    $q5_price,
-				    $q5_updates,
-				    $q5_developers,
-				    $q5_community,
+				    $q5,
+				    //$q5_support,
+				    //$q5_opensource,
+				    //$q5_price,
+				    //$q5_updates,
+				    //$q5_developers,
+				    //$q5_community,
 				    $comments
 				  );
 
