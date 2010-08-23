@@ -1241,16 +1241,16 @@ class ChTimeTrackingPage extends CerberusPageExtension {
 		if(empty($id)) { // create
 			$id = DAO_TimeTrackingEntry::create($fields);
 			
-			// Procedurally create a comment
-			// [TODO] Move this to a better event
 			$translate = DevblocksPlatform::getTranslationService();
 			$url_writer = DevblocksPlatform::getUrlService();
 			
+			// Procedurally create a comment
+			// [TODO] Move this to a better event
 			switch($context) {
 				// If ticket, add a comment about the timeslip to the ticket
+				case CerberusContexts::CONTEXT_OPPORTUNITY:
 				case CerberusContexts::CONTEXT_TICKET:
-					$ticket_id = intval($context_id);
-					
+				case CerberusContexts::CONTEXT_TASK:
 					if(null != ($worker_address = DAO_Address::lookupAddress($active_worker->email, false))) {
 						if(!empty($activity_id)) {
 							$activity = DAO_TimeTrackingActivity::get($activity_id);
@@ -1278,8 +1278,8 @@ class ChTimeTrackingPage extends CerberusPageExtension {
 							DAO_Comment::ADDRESS_ID => intval($worker_address->id),
 							DAO_Comment::COMMENT => $comment,
 							DAO_Comment::CREATED => time(),
-							DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_TICKET,
-							DAO_Comment::CONTEXT_ID => intval($ticket_id),
+							DAO_Comment::CONTEXT => $context,
+							DAO_Comment::CONTEXT_ID => intval($context_id),
 						);
 						DAO_Comment::create($fields);
 					}
