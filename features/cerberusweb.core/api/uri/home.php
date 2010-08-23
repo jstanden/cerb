@@ -76,9 +76,16 @@ class ChHomePage extends CerberusPageExtension {
 		$active_worker = CerberusApplication::getActiveWorker();
 		$visit = CerberusApplication::getVisit();
 		
+		$response = DevblocksPlatform::getHttpResponse();
+
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('path', $this->_TPL_PATH);
 
+		// Are we requesting a specific tab?
+		if(null != ($selected_tab = @$response->path[1]))
+			$tpl->assign('selected_tab', $selected_tab);
+		
+		// Tabs
 		$tab_manifests = DevblocksPlatform::getExtensions('cerberusweb.home.tab', false);
 		$tpl->assign('tab_manifests', $tab_manifests);
 		
