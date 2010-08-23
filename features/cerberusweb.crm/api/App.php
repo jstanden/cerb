@@ -48,6 +48,10 @@
  *	 WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
 
+abstract class Extension_CrmOpportunityToolbarItem extends DevblocksExtension {
+	function render(Model_CrmOpportunity $opp) { }
+};
+
 class CrmCustomFieldSource_Opportunity extends Extension_CustomFieldSource {
 	const ID = 'crm.fields.source.opportunity';
 };

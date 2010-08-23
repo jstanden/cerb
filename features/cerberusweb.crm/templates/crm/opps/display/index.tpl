@@ -19,6 +19,11 @@
 		<!-- Toolbar -->
 		<button type="button" id="btnDisplayOppEdit"><span class="cerb-sprite sprite-document_edit"></span> Edit</button>
 		
+		{$toolbar_exts = DevblocksPlatform::getExtensions('cerberusweb.crm.opp.toolbaritem', true)}
+		{foreach from=$toolbar_exts item=ext}
+			{$ext->render($opp)}
+		{/foreach}
+		
 		</form>
 		<br>
 	</td>

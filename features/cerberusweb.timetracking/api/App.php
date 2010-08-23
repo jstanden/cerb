@@ -218,12 +218,18 @@ if (class_exists('Extension_AppPreBodyRenderer',true)):
 	class ChTimeTrackingPreBodyRenderer extends Extension_AppPreBodyRenderer {
 		function render() {
 			$tpl = DevblocksPlatform::getTemplateService();
-			$tpl_path = dirname(dirname(__FILE__)).'/templates/';
-			$tpl->assign('path', $tpl_path);
-			
 			$tpl->assign('current_timestamp', time());
-			
-			$tpl->display('file:' . $tpl_path . 'timetracking/renderers/prebody.tpl');
+			$tpl->display('devblocks:cerberusweb.timetracking::timetracking/renderers/prebody.tpl');
+		}
+	};
+endif;
+
+if (class_exists('Extension_CrmOpportunityToolbarItem',true)):
+	class ChCrmOppToolbarTimer extends Extension_CrmOpportunityToolbarItem {
+		function render(Model_CrmOpportunity $opp) {
+			$tpl = DevblocksPlatform::getTemplateService();
+			$tpl->assign('opp', $opp); /* @var $opp Model_CrmOpportunity */
+			$tpl->display('devblocks:cerberusweb.timetracking::timetracking/renderers/opps/opp_toolbar_timer.tpl');
 		}
 	};
 endif;
@@ -232,12 +238,8 @@ if (class_exists('Extension_TaskToolbarItem',true)):
 	class ChTimeTrackingTaskToolbarTimer extends Extension_TaskToolbarItem {
 		function render(Model_Task $task) {
 			$tpl = DevblocksPlatform::getTemplateService();
-			$tpl_path = dirname(dirname(__FILE__)).'/templates/';
-			$tpl->assign('path', $tpl_path);
-			
 			$tpl->assign('task', $task); /* @var $task Model_Task */
-			
-			$tpl->display('file:' . $tpl_path . 'timetracking/renderers/tasks/task_toolbar_timer.tpl');
+			$tpl->display('devblocks:cerberusweb.timetracking::timetracking/renderers/tasks/task_toolbar_timer.tpl');
 		}
 	};
 endif;
@@ -246,17 +248,8 @@ if (class_exists('Extension_TicketToolbarItem',true)):
 	class ChTimeTrackingTicketToolbarTimer extends Extension_TicketToolbarItem {
 		function render(Model_Ticket $ticket) {
 			$tpl = DevblocksPlatform::getTemplateService();
-			$tpl_path = dirname(dirname(__FILE__)).'/templates/';
-			$tpl->assign('path', $tpl_path);
-			
 			$tpl->assign('ticket', $ticket); /* @var $ticket Model_Ticket */
-			
-//			if(null != ($first_wrote_address_id = $ticket->first_wrote_address_id)
-//				&& null != ($first_wrote_address = DAO_Address::get($first_wrote_address_id))) {
-//				$tpl->assign('tt_first_wrote', $first_wrote_address);
-//			}
-			
-			$tpl->display('file:' . $tpl_path . 'timetracking/renderers/tickets/ticket_toolbar_timer.tpl');
+			$tpl->display('devblocks:cerberusweb.timetracking::timetracking/renderers/tickets/ticket_toolbar_timer.tpl');
 		}
 	};
 endif;
@@ -265,8 +258,6 @@ if (class_exists('Extension_ReplyToolbarItem',true)):
 	class ChTimeTrackingReplyToolbarTimer extends Extension_ReplyToolbarItem {
 		function render(Model_Message $message) { 
 			$tpl = DevblocksPlatform::getTemplateService();
-			$tpl_path = dirname(dirname(__FILE__)).'/templates/';
-			$tpl->assign('path', $tpl_path);
 			
 			$tpl->assign('message', $message); /* @var $message Model_Message */
 			
@@ -275,7 +266,7 @@ if (class_exists('Extension_ReplyToolbarItem',true)):
 //				$tpl->assign('tt_first_wrote', $first_wrote_address);
 //			}
 			
-			$tpl->display('file:' . $tpl_path . 'timetracking/renderers/tickets/reply_toolbar_timer.tpl');
+			$tpl->display('devblocks:cerberusweb.timetracking::timetracking/renderers/tickets/reply_toolbar_timer.tpl');
 		}
 	};
 endif;
@@ -284,10 +275,7 @@ if (class_exists('Extension_LogMailToolbarItem',true)):
 	class ChTimeTrackingLogMailToolbarTimer extends Extension_LogMailToolbarItem {
 		function render() { 
 			$tpl = DevblocksPlatform::getTemplateService();
-			$tpl_path = dirname(dirname(__FILE__)).'/templates/';
-			$tpl->assign('path', $tpl_path);
-			
-			$tpl->display('file:' . $tpl_path . 'timetracking/renderers/tickets/logmail_toolbar_timer.tpl');
+			$tpl->display('devblocks:cerberusweb.timetracking::timetracking/renderers/tickets/logmail_toolbar_timer.tpl');
 		}
 	};
 endif;
@@ -296,10 +284,7 @@ if (class_exists('Extension_SendMailToolbarItem',true)):
 	class ChTimeTrackingSendMailToolbarTimer extends Extension_SendMailToolbarItem {
 		function render() { 
 			$tpl = DevblocksPlatform::getTemplateService();
-			$tpl_path = dirname(dirname(__FILE__)).'/templates/';
-			$tpl->assign('path', $tpl_path);
-			
-			$tpl->display('file:' . $tpl_path . 'timetracking/renderers/tickets/sendmail_toolbar_timer.tpl');
+			$tpl->display('devblocks:cerberusweb.timetracking::timetracking/renderers/tickets/sendmail_toolbar_timer.tpl');
 		}
 	};
 endif;

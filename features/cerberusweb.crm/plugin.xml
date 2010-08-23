@@ -26,6 +26,7 @@
 	
 	<class_loader>
 		<file path="api/App.php">
+			<class name="Extension_CrmOpportunityToolbarItem" />
 			<class name="CrmCustomFieldSource_Opportunity" />
 			<class name="DAO_CrmOpportunity" />
 			<class name="Model_CrmOpportunity" />
