@@ -177,7 +177,11 @@ $('#reportChart').bind('jqplotPostDraw',function(event, plot) {
 	$legend.html('');
 	len = plot.series.length;
 	for(series in plot.series) {
-		$cell = $('<span style="margin-right:5px;display:inline-block;"><span style="background-color:'+plot.series[series].color+';display:inline-block;padding:0px;margin:2px;width:16px;height:16px;">&nbsp;</span>'+plot.series[series].label+'</span>');
+		if(navigator.appName == 'Microsoft Internet Explorer') {
+			$cell = $('<span style="margin-right:5px;display:inline-block;"><span style="background-color:'+plot.series[series].color.replace('rgba','rgb').replace(',0.8','')+';display:inline-block;padding:0px;margin:2px;width:16px;height:16px;">&nbsp;</span>'+plot.series[series].label+'</span>');
+		} else {
+			$cell = $('<span style="margin-right:5px;display:inline-block;"><span style="background-color:'+plot.series[series].color+';display:inline-block;padding:0px;margin:2px;width:16px;height:16px;">&nbsp;</span>'+plot.series[series].label+'</span>');
+		}
 		$legend.append($cell);
 	}
 });
