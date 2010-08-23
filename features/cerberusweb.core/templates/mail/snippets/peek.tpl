@@ -40,6 +40,5 @@
 		{else}
 		$(this).dialog('option','title', 'Modify Snippet ({$snippet->context})');
 		{/if}
-		//ajax.emailAutoComplete('#emailinput');
 	} );
 </script>

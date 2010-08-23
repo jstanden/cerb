@@ -64,7 +64,7 @@
 		<td>
 			<button id="btnSaveDraft" type="button" onclick="genericAjaxPost('frmCompose',null,'c=tickets&a=saveDraft&type=compose',function(json) { var obj = $.parseJSON(json); if(!obj || !obj.html || !obj.draft_id) return; $('#divDraftStatus').html(obj.html); $('#frmCompose input[name=draft_id]').val(obj.draft_id); } );"><span class="cerb-sprite sprite-check"></span> Save Draft</button>
 			<button type="button" onclick="genericAjaxGet('','c=tickets&a=getComposeSignature&group_id='+selectValue(this.form.team_id),function(text) { insertAtCursor(document.getElementById('content'),text); } );"><span class="cerb-sprite sprite-document_edit"></span> Insert Signature</button>
-			<button type="button" onclick="genericAjaxPopup('peek','c=display&a=showSnippets&text=content&contexts=cerberusweb.contexts.worker',null,false,'550');"><span class="cerb-sprite sprite-text_rich"></span> {$translate->_('common.snippets')|capitalize}</button>
+			<button type="button" onclick="openSnippetsChooser(this);"><span class="cerb-sprite sprite-text_rich"></span> {$translate->_('common.snippets')|capitalize}</button>
 			{* Plugin Toolbar *}
 			{if !empty($sendmail_toolbaritems)}
 				{foreach from=$sendmail_toolbaritems item=renderer}
@@ -200,4 +200,34 @@
 			ajax.chooser(this,'cerberusweb.contexts.worker','worker_id');
 		});		
 	});
+	
+	function openSnippetsChooser(button) {
+		$chooser=genericAjaxPopup('chooser','c=internal&a=chooserOpen&context=cerberusweb.contexts.snippet&contexts=cerberusweb.contexts.worker',null,true,'750');
+		$chooser.one('chooser_save', function(event) {
+			event.stopPropagation();
+			$button = $(button);
+			$textarea = $('#content');
+			
+			for(idx in event.labels) {
+				value = event.values[idx];
+				valueParts = value.split('::');
+				
+				if(null == valueParts || null == valueParts[0] || null == valueParts[1])
+					continue;
+				
+				// Now we need to read in each snippet as either 'raw' or 'parsed' via Ajax
+				url = 'c=internal&a=snippetPaste&id='+valueParts[0];
+				
+				// Context-dependent arguments
+				if ('cerberusweb.contexts.worker'==valueParts[1]) {
+					url += "&context_id={$active_worker->id}";
+				}
+				
+				// Ajax the content (synchronously)
+				genericAjaxGet('',url,function(txt) {
+					$textarea.insertAtCursor(txt);
+				}, { async: false });
+			}
+		});
+	}	
 </script>

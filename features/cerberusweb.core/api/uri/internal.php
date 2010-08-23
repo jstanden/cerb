@@ -197,11 +197,38 @@ class ChInternalController extends DevblocksControllerExtension {
 	// Snippets
 	
 	function snippetPasteAction() {
-		@$snippet_id = DevblocksPlatform::importGPC($_REQUEST['snippet_id'],'integer',0);
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
+		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer',0);
+
+		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+		$active_worker = CerberusApplication::getActiveWorker();
 		
-		if(null != ($snippet = DAO_Snippet::get($snippet_id))) {
-			echo $snippet->content;
+		// [TODO] Make sure the worker is allowed to view this context+ID
+		
+		if(null != ($snippet = DAO_Snippet::get($id))) {
+			switch($snippet->context) {
+				case 'cerberusweb.contexts.ticket':
+					CerberusContexts::getContext(CerberusContexts::CONTEXT_TICKET, $context_id, $token_labels, $token_values);
+					break;
+				case 'cerberusweb.contexts.worker':
+					CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $context_id, $token_labels, $token_values);
+					break;
+				case 'cerberusweb.contexts.plaintext':
+					$token_values = array();
+					break;
+			}
+			
+			$snippet->incrementUse($active_worker->id);
 		}
+		
+		if(!empty($context_id)) {
+			$output = $tpl_builder->build($snippet->content, $token_values);
+		} else {
+			$output = $snippet->content;
+		}
+		
+		if(!empty($output))
+			echo rtrim($output,"\r\n"),"\n\n";		
 	}
 	
 	function snippetTestAction() {

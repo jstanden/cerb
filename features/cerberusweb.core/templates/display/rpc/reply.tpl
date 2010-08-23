@@ -57,7 +57,7 @@
 			{assign var=ticket_team_id value=$ticket->team_id}
 			{assign var=headers value=$message->getHeaders()}
 			<button name="saveDraft" type="button" onclick="if($(this).attr('disabled'))return;$(this).attr('disabled','disabled');genericAjaxPost('reply{$message->id}_part2',null,'c=display&a=saveDraftReply&is_ajax=1',function(json, ui) { var obj = $.parseJSON(json); $('#divDraftStatus{$message->id}').html(obj.html); $('#reply{$message->id}_part2 input[name=draft_id]').val(obj.draft_id); $('#reply{$message->id}_part1 button[name=saveDraft]').removeAttr('disabled'); } );"><span class="cerb-sprite sprite-check"></span> Save Draft</button>
-			<button type="button" onclick="genericAjaxPopup('peek','c=display&a=showSnippets&text=reply_{$message->id}&contexts=cerberusweb.contexts.ticket,cerberusweb.contexts.worker&id={$message->ticket_id}',null,false,'550');"><span class="cerb-sprite sprite-text_rich"></span> {$translate->_('common.snippets')|capitalize}</button>
+			<button name="showSnippets" type="button" onclick="openSnippetsChooser(this);"><span class="cerb-sprite sprite-text_rich"></span> {$translate->_('common.snippets')|capitalize}</button>
 			<button type="button" onclick="genericAjaxGet('','c=tickets&a=getComposeSignature&group_id={$ticket->team_id}',function(text) { insertAtCursor(document.getElementById('reply_{$message->id}'),text);document.getElementById('reply_{$message->id}').focus(); } );"><span class="cerb-sprite sprite-document_edit"></span> {$translate->_('display.reply.insert_sig')|capitalize}</button>
 			{* Plugin Toolbar *}
 			{if !empty($reply_toolbaritems)}
@@ -266,4 +266,37 @@
 			ajax.chooser(this,'cerberusweb.contexts.worker','worker_id');			
 		});
 	} );
+
+	function openSnippetsChooser(button) {
+		$chooser=genericAjaxPopup('chooser{$message->id}','c=internal&a=chooserOpen&context=cerberusweb.contexts.snippet&contexts=cerberusweb.contexts.ticket,cerberusweb.contexts.worker',null,true,'750');
+		$chooser.one('chooser_save', function(event) {
+			event.stopPropagation();
+			$button = $(button);
+			$textarea = $('#reply_{$message->id}');
+			
+			for(idx in event.labels) {
+				value = event.values[idx];
+				valueParts = value.split('::');
+				
+				if(null == valueParts || null == valueParts[0] || null == valueParts[1])
+					continue;
+				
+				// Now we need to read in each snippet as either 'raw' or 'parsed' via Ajax
+				url = 'c=internal&a=snippetPaste&id='+valueParts[0];
+				
+				// Context-dependent arguments
+				if('cerberusweb.contexts.ticket'==valueParts[1]) {
+					url += "&context_id={$ticket->id}";
+				} else if ('cerberusweb.contexts.worker'==valueParts[1]) {
+					url += "&context_id={$active_worker->id}";
+				}
+				
+				// Ajax the content (synchronously)
+				genericAjaxGet('',url,function(txt) {
+					$textarea.insertAtCursor(txt);
+				}, { async: false });
+			}
+		});
+	}
 </script>
+

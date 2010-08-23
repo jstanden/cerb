@@ -408,6 +408,31 @@
 		</extension>
 		
 		<extension point="devblocks.context">
+			<id>cerberusweb.contexts.snippet</id>
+			<name>Snippet</name>
+			<class>
+				<file>api/dao/snippet.php</file>
+				<name>Context_Snippet</name>
+			</class>
+			<params>
+				<param key="link_options">
+					<!--
+					<value>
+						<data key="create" />
+						<data key="find" />
+					</value>
+					-->
+				</param>
+				<param key="events">
+					<value>
+						<!--<data key="context.assigned" value="context.task.assigned" />-->
+						<!--<data key="context.commented" value="context.task.commented" />-->
+					</value>
+				</param>
+			</params>
+		</extension>
+		
+		<extension point="devblocks.context">
 			<id>cerberusweb.contexts.task</id>
 			<name>Task</name>
 			<class>

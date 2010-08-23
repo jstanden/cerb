@@ -645,6 +645,7 @@ class CerberusContexts {
 	const CONTEXT_NOTIFICATION= 'cerberusweb.contexts.notification';
 	const CONTEXT_OPPORTUNITY = 'cerberusweb.contexts.opportunity';
 	const CONTEXT_ORG = 'cerberusweb.contexts.org';
+	const CONTEXT_SNIPPET = 'cerberusweb.contexts.snippet';
 	const CONTEXT_TASK = 'cerberusweb.contexts.task';
 	const CONTEXT_TICKET = 'cerberusweb.contexts.ticket';
 	const CONTEXT_TIMETRACKING = 'cerberusweb.contexts.timetracking';

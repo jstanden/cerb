@@ -5,12 +5,14 @@
 
 <form id="viewForm{$view->id}" name="viewForm{$view->id}" action="{devblocks_url}{/devblocks_url}" method="post" onsubmit="return false;">
 <input type="hidden" name="view_id" value="{$view->id}">
-<input type="hidden" name="c" value="tickets">
+<input type="hidden" name="c" value="display">
 <input type="hidden" name="a" value="">
+
 <table cellpadding="1" cellspacing="0" border="0" width="100%" class="worklistBody">
 
 	{* Column Headers *}
 	<tr>
+		<th style="text-align:center;background-color:rgb(232,242,254);border-color:rgb(121,183,231);"><input type="checkbox" onclick="checkAll('view{$view->id}',this.checked);"></th>
 		{foreach from=$view->view_columns item=header name=headers}
 			{* start table header, insert column title and link *}
 			<th nowrap="nowrap" style="background-color:rgb(232,242,254);border-color:rgb(121,183,231);">
@@ -38,15 +40,13 @@
 	{/if}
 	<tbody onmouseover="$(this).find('tr').addClass('hover');" onmouseout="$(this).find('tr').removeClass('hover');" onclick="if(getEventTarget(event)=='TD') { var $chk=$(this).find('input:checkbox:first');if(!$chk) return;$chk.attr('checked', !$chk.is(':checked')); } ">
 		<tr class="{$tableRowClass}">
-		{*<td align="center"><input type="checkbox" name="row_id[]" value="{$result.s_id}"></td>*}
+		<td align="center"><input type="checkbox" name="row_id[]" title="{$result.s_title|escape}" value="{$result.s_id}::{$result.s_context|escape}"></td>
 		{foreach from=$view->view_columns item=column name=columns}
 			{if substr($column,0,3)=="cf_"}
 				{include file="file:$core_tpl/internal/custom_fields/view/cell_renderer.tpl"}
 			{elseif $column=="s_title"}
 			<td>
-				<a href="javascript:;" onclick="var contextId=$('#view{$view->id}').data('context_id');if(null==contextId)return;genericAjaxGet('','c=display&a=getSnippet&context_id='+contextId+'&id={$result.s_id|escape}',function(text) { var divname=$('#view{$view->id}').data('text_element');insertAtCursor($('#'+divname)[0], text);$('#'+divname).focus(); } );" class="subject">{if empty($result.$column)}(no title){else}{$result.$column}{/if}</a>
-				<a href="javascript:;" onclick="$('#divSnippetChooserPreview').html('<pre class=\'emailBody\'></pre>').insertAfter($(this));genericAjaxGet('','c=internal&a=snippetPaste&snippet_id={$result.s_id|escape}',function(text) { $('#divSnippetChooserPreview pre').append(text); } );"><span class="ui-icon ui-icon-newwin" style="display:inline-block;vertical-align:middle;" title="{$translate->_('views.peek')}"></span></a>
-				{* [TODO] I can just insert this from $result.s_content if we're not rendering it *}
+				<b class="subject">{if empty($result.$column)}(no title){else}{$result.$column}{/if}</b> 
 			</td>
 			{elseif $column=="s_last_updated"}
 			<td>
@@ -73,8 +73,11 @@
 	{/foreach}
 	
 </table>
-<table cellpadding="2" cellspacing="0" border="0" width="100%" id="{$view->id}_actions">
+<table cellpadding="2" cellspacing="0" border="0" width="100%">
 	<tr>
+		<td align="left" valign="top" id="{$view->id}_actions">
+			<button type="button" class="devblocks-chooser-add-selected"><span class="cerb-sprite sprite-add"></span> Add Selected</button>
+		</td>
 		<td align="right" valign="top" nowrap="nowrap">
 			{math assign=fromRow equation="(x*y)+1" x=$view->renderPage y=$view->renderLimit}
 			{math assign=toRow equation="(x-1)+y" x=$fromRow y=$view->renderLimit}
@@ -99,5 +102,4 @@
 	</tr>
 </table>
 </form>
-<div id="divSnippetChooserPreview"></div>
 <br>

@@ -414,9 +414,12 @@ class View_Snippet extends C4_AbstractView {
 		$tpl->assign('view', $this);
 
 		switch($this->renderTemplate) {
-			case 'chooser':
-				$tpl->display('file:'.$tpl_path.'/mail/snippets/views/chooser.tpl');
+			case 'contextlinks_chooser':
+				$tpl->display('file:'.$tpl_path.'/mail/snippets/views/view_contextlinks_chooser.tpl');
 				break;
+//			case 'context':
+//				$tpl->display('file:'.$tpl_path.'/mail/snippets/views/.tpl');
+//				break;
 			default:
 				$tpl->display('file:'.$tpl_path.'/mail/snippets/views/default.tpl');
 				break;
@@ -438,7 +441,6 @@ class View_Snippet extends C4_AbstractView {
 			case SearchFields_Snippet::LAST_UPDATED_BY:
 			case SearchFields_Snippet::IS_PRIVATE:
 			case SearchFields_Snippet::CONTENT:
-			case 'placeholder_string':
 				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__string.tpl');
 				break;
 			case 'placeholder_number':
@@ -484,7 +486,6 @@ class View_Snippet extends C4_AbstractView {
 			case SearchFields_Snippet::LAST_UPDATED_BY:
 			case SearchFields_Snippet::IS_PRIVATE:
 			case SearchFields_Snippet::CONTENT:
-			case 'placeholder_string':
 				// force wildcards if none used on a LIKE
 				if(($oper == DevblocksSearchCriteria::OPER_LIKE || $oper == DevblocksSearchCriteria::OPER_NOT_LIKE)
 				&& false === (strpos($value,'*'))) {
@@ -574,4 +575,133 @@ class View_Snippet extends C4_AbstractView {
 
 		unset($ids);
 	}			
+};
+
+class Context_Snippet extends Extension_DevblocksContext {
+    function __construct($manifest) {
+        parent::__construct($manifest);
+    }
+    
+    function getPermalink($context_id) {
+    	$url_writer = DevblocksPlatform::getUrlService();
+    	return NULL;
+    }
+
+	function getContext($snippet, &$token_labels, &$token_values, $prefix=null) {
+		if(is_null($prefix))
+			$prefix = 'Snippet:';
+		
+		$translate = DevblocksPlatform::getTranslationService();
+		//$fields = DAO_CustomField::getBySource(ChCustomFieldSource_Task::ID);
+
+		// Polymorph
+		if(is_numeric($snippet)) {
+			$snippet = DAO_Task::get($snippet);
+		} elseif($snippet instanceof Model_Snippet) {
+			// It's what we want already.
+		} else {
+			$snippet = null;
+		}
+		
+		// Token labels
+		$token_labels = array(
+//			'completed|date' => $prefix.$translate->_('task.completed_date'),
+		);
+		
+//		if(is_array($fields))
+//		foreach($fields as $cf_id => $field) {
+//			$token_labels['custom_'.$cf_id] = $prefix.$field->name;
+//		}
+
+		// Token values
+		$token_values = array();
+		
+		if($snippet) {
+//			$token_values['completed'] = $task->completed_date;
+			
+//			$token_values['custom'] = array();
+			
+//			$field_values = array_shift(DAO_CustomFieldValue::getValuesBySourceIds(ChCustomFieldSource_Task::ID, $task->id));
+//			if(is_array($field_values) && !empty($field_values)) {
+//				foreach($field_values as $cf_id => $cf_val) {
+//					if(!isset($fields[$cf_id]))
+//						continue;
+//					
+//					// The literal value
+//					if(null != $task)
+//						$token_values['custom'][$cf_id] = $cf_val;
+//					
+//					// Stringify
+//					if(is_array($cf_val))
+//						$cf_val = implode(', ', $cf_val);
+//						
+//					if(is_string($cf_val)) {
+//						if(null != $task)
+//							$token_values['custom_'.$cf_id] = $cf_val;
+//					}
+//				}
+//			}
+		}
+
+		return true;
+	}
+
+	function getChooserView() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		// View
+		$view_id = 'chooser_'.str_replace('.','_',$this->id).time().mt_rand(0,9999);
+		$defaults = new C4_AbstractViewModel();
+		$defaults->id = $view_id;
+		$defaults->is_ephemeral = true;
+		$defaults->class_name = 'View_Snippet';
+		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
+		$view->name = 'Snippets';
+		$view->view_columns = array(
+			SearchFields_Snippet::TITLE,
+			SearchFields_Snippet::LAST_UPDATED,
+			SearchFields_Snippet::LAST_UPDATED_BY,
+			SearchFields_Snippet::USAGE_HITS,
+		);
+		
+		// If we're being given contexts to filter down to
+		if(isset($_REQUEST['contexts'])) {
+			$contexts = DevblocksPlatform::parseCsvString(DevblocksPlatform::importGPC($_REQUEST['contexts'],'string',''));
+			$contexts[] = 'cerberusweb.contexts.plaintext';
+			if(is_array($contexts) && !empty($contexts)) {
+				$view->paramsRequired[SearchFields_Snippet::CONTEXT] = new DevblocksSearchCriteria(SearchFields_Snippet::CONTEXT, DevblocksSearchCriteria::OPER_IN, $contexts);
+			}
+		}
+		
+		$view->renderSortBy = SearchFields_Snippet::USAGE_HITS;
+		$view->renderSortAsc = false;
+		$view->renderLimit = 10;
+		$view->renderTemplate = 'contextlinks_chooser';
+		C4_AbstractViewLoader::setView($view_id, $view);
+		return $view;		
+	}
+	
+	function getView($context, $context_id, $options=array()) {
+		$view_id = str_replace('.','_',$this->id);
+		
+		$defaults = new C4_AbstractViewModel();
+		$defaults->id = $view_id; 
+		$defaults->class_name = 'View_Snippet';
+		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
+		$view->name = 'Snippets';
+		
+		$params = array(
+			//new DevblocksSearchCriteria(SearchFields_Snippet::CONTEXT_LINK,'=',$context),
+			//new DevblocksSearchCriteria(SearchFields_Snippet::CONTEXT_LINK_ID,'=',$context_id),
+		);
+		
+//		if(isset($options['filter_open']))
+//			$params[] = new DevblocksSearchCriteria(SearchFields_Task::IS_COMPLETED,'=',0);
+		
+		$view->addParams($params, true);
+		
+		$view->renderTemplate = 'context';
+		C4_AbstractViewLoader::setView($view_id, $view);
+		return $view;
+	}
 };
