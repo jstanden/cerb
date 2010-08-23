@@ -136,6 +136,19 @@
 			</params>
 		</extension>
 		
+		<!-- CRM Opportunity Toolbar -->
+		
+		<extension point="cerberusweb.crm.opp.toolbaritem">
+			<id>timetracking.crmopp.toolbaritem.timer</id>
+			<name>CRM Opportunity Toolbar Timer</name>
+			<class>
+				<file>api/App.php</file>
+				<name>ChCrmOppToolbarTimer</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+		
 		<!-- Log Mail Toolbar -->
 		<!-- 
 		<extension point="cerberusweb.mail.log.toolbaritem">
