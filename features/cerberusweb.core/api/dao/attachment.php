@@ -206,7 +206,7 @@ class DAO_Attachment extends DevblocksORMHelper {
 		$fields = SearchFields_Attachment::getFields();
 		
 		// Sanitize
-		if(!isset($fields[$sortBy]))
+		if(!isset($fields[$sortBy]) || '*'==substr($sortBy,0,1))
 			$sortBy=null;
 
         list($tables,$wheres) = parent::_parseSearchParams($params, array(),$fields,$sortBy);

@@ -810,9 +810,8 @@ class DAO_Ticket extends C4_ORMHelper {
 		$fields = SearchFields_Ticket::getFields();
 		
 		// Sanitize
-		if(!isset($fields[$sortBy])) {
+		if(!isset($fields[$sortBy]) || '*'==substr($sortBy,0,1))
 			$sortBy=null;
-		}
 		
         list($tables, $wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy);
 		
@@ -1210,22 +1209,28 @@ class View_Ticket extends C4_AbstractView {
 			SearchFields_Ticket::TICKET_CATEGORY_ID,
 			SearchFields_Ticket::TICKET_SPAM_SCORE,
 		);
-		$this->columnsHidden = array_merge($this->columnsHidden, array(
+		$this->columnsHidden = array(
 			SearchFields_Ticket::REQUESTER_ID,
 			SearchFields_Ticket::REQUESTER_ADDRESS,
+			SearchFields_Ticket::TICKET_CLOSED,
+			SearchFields_Ticket::TICKET_DELETED,
+			SearchFields_Ticket::TICKET_WAITING,
 			SearchFields_Ticket::TICKET_INTERESTING_WORDS,
 			SearchFields_Ticket::CONTEXT_LINK,
 			SearchFields_Ticket::CONTEXT_LINK_ID,
-		));
+			SearchFields_Ticket::VIRTUAL_ASSIGNABLE,
+			SearchFields_Ticket::VIRTUAL_STATUS,
+			SearchFields_Ticket::VIRTUAL_WORKERS,
+		);
 		
-		$this->paramsHidden = array_merge($this->paramsHidden, array(
+		$this->paramsHidden = array(
 			SearchFields_Ticket::TICKET_CLOSED,
 			SearchFields_Ticket::TICKET_DELETED,
 			SearchFields_Ticket::TICKET_WAITING,
 			SearchFields_Ticket::TICKET_CATEGORY_ID,
 			SearchFields_Ticket::CONTEXT_LINK,
 			SearchFields_Ticket::CONTEXT_LINK_ID,
-		));
+		);
 		
 		$this->doResetCriteria();
 	}

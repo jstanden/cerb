@@ -384,7 +384,7 @@ class DAO_Group extends C4_ORMHelper {
 		$fields = SearchFields_Group::getFields();
 
 		// Sanitize
-		if(!isset($fields[$sortBy]))
+		if(!isset($fields[$sortBy]) || '*'==substr($sortBy,0,1))
 			$sortBy=null;
 
         list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy);

@@ -202,7 +202,7 @@ class DAO_WorkerEvent extends DevblocksORMHelper {
 		$fields = SearchFields_WorkerEvent::getFields();
 		
 		// Sanitize
-		if(!isset($fields[$sortBy]))
+		if(!isset($fields[$sortBy]) || '*'==substr($sortBy,0,1))
 			$sortBy=null;
 
         list($tables,$wheres) = parent::_parseSearchParams($params, array(),$fields,$sortBy);

@@ -206,7 +206,7 @@ class DAO_Snippet extends DevblocksORMHelper {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		// Sanitize
-		if(!isset($fields[$sortBy]))
+		if(!isset($fields[$sortBy]) || '*'==substr($sortBy,0,1))
 			$sortBy=null;
 
         list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy);

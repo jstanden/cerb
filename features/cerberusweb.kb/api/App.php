@@ -1061,7 +1061,7 @@ class DAO_KbArticle extends C4_ORMHelper {
 		$fields = SearchFields_KbArticle::getFields();
 		
 		// Sanitize
-		if(!isset($fields[$sortBy]))
+		if(!isset($fields[$sortBy]) || '*'==substr($sortBy,0,1))
 			$sortBy=null;
 
         list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy);

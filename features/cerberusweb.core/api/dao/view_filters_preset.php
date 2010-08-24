@@ -120,7 +120,7 @@ class DAO_ViewFiltersPreset extends DevblocksORMHelper {
 		$fields = SearchFields_ViewFiltersPreset::getFields();
 		
 		// Sanitize
-		if(!isset($fields[$sortBy]))
+		if(!isset($fields[$sortBy]) || '*'==substr($sortBy,0,1))
 			$sortBy=null;
 
         list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy);
