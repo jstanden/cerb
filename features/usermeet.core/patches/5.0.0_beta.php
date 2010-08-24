@@ -108,7 +108,6 @@ foreach($portals as $portal_code => $props) {
 			$db->qstr('<div id="header">'.$props['common.header_html'].'</div>')
 		);
 		$db->Execute($sql);
-		$id = $db->LastInsertId();
 	}
 	
 	// Footer
@@ -120,7 +119,6 @@ foreach($portals as $portal_code => $props) {
 			$db->qstr('<div id="footer">'.$props['common.footer_html'].'</div>')
 		);
 		$db->Execute($sql);
-		$id = $db->LastInsertId();
 	}
 	
 	// Style
@@ -140,7 +138,6 @@ foreach($portals as $portal_code => $props) {
 			$db->qstr($css)
 		);
 		$db->Execute($sql);
-		$id = $db->LastInsertId();
 	}
 	
 	// Welcome
@@ -152,7 +149,6 @@ foreach($portals as $portal_code => $props) {
 			$db->qstr('<div id="home">'.$props['home.html'].'</div>')
 		);
 		$db->Execute($sql);
-		$db = $db->LastInsertId();
 	}
 }
 
