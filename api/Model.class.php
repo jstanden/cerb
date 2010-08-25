@@ -1016,6 +1016,7 @@ class View_DevblocksStorageProfile extends C4_AbstractView {
 		if(empty($ids))
 		do {
 			list($objects,$null) = DAO_DevblocksStorageProfile::search(
+				array(),
 				$this->getParams(),
 				100,
 				$pg++,

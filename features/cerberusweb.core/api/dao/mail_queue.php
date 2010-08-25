@@ -766,8 +766,10 @@ class View_MailQueue extends C4_AbstractView {
 
 		if(empty($ids))
 		do {
+			$params = $this->getParams();
 			list($objects,$null) = DAO_MailQueue::search(
-				$this->getParams(),
+				array(),
+				$params,
 				100,
 				$pg++,
 				SearchFields_MailQueue::ID,

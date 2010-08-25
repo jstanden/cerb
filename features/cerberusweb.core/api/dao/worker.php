@@ -963,15 +963,14 @@ class View_Worker extends C4_AbstractView {
 		if(empty($ids))
 		do {
 			list($objects,$null) = DAO_Worker::search(
-			array(),
-			$this->getParams(),
-			100,
-			$pg++,
-			SearchFields_Worker::ID,
-			true,
-			false
+				array(),
+				$this->getParams(),
+				100,
+				$pg++,
+				SearchFields_Worker::ID,
+				true,
+				false
 			);
-			 
 			$ids = array_merge($ids, array_keys($objects));
 			 
 		} while(!empty($objects));

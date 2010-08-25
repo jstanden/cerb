@@ -786,15 +786,14 @@ class View_Group extends C4_AbstractView {
 		if(empty($ids))
 		do {
 			list($objects,$null) = DAO_Group::search(
-			array(),
-			$this->getParams(),
-			100,
-			$pg++,
-			SearchFields_Group::ID,
-			true,
-			false
+				array(),
+				$this->getParams(),
+				100,
+				$pg++,
+				SearchFields_Group::ID,
+				true,
+				false
 			);
-			 
 			$ids = array_merge($ids, array_keys($objects));
 			 
 		} while(!empty($objects));

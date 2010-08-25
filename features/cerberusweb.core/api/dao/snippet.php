@@ -553,6 +553,7 @@ class View_Snippet extends C4_AbstractView {
 		if(empty($ids))
 		do {
 			list($objects,$null) = DAO_Snippet::search(
+				array(),
 				$this->getParams(),
 				100,
 				$pg++,
