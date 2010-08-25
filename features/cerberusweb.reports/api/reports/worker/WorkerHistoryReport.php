@@ -115,7 +115,6 @@ class ChReportWorkerHistory extends Extension_Report {
 		
 		if(null != ($view = C4_AbstractViewLoader::getView($defaults->id, $defaults))) {
 			$view->is_ephemeral = true;
-			$view->paramsDefault = array();
 			$view->removeAllParams();
 
 			$view->view_columns = array(

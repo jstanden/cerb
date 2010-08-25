@@ -168,6 +168,11 @@ class ChContactsPage extends CerberusPageExtension {
 		);
 		
 		$view = C4_AbstractViewLoader::getView(View_Address::DEFAULT_ID, $defaults);
+		
+		$view->addParamsDefault(array(
+			SearchFields_Address::IS_REGISTERED => new DevblocksSearchCriteria(SearchFields_Address::IS_REGISTERED,'=',1),
+		));
+		
 		$tpl->assign('view', $view);
 		$tpl->assign('contacts_page', 'addresses');
 		

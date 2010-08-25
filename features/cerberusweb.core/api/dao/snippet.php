@@ -381,11 +381,14 @@ class View_Snippet extends C4_AbstractView {
 			SearchFields_Snippet::LAST_UPDATED_BY,
 		);
 		$this->columnsHidden = array(
+			SearchFields_Snippet::ID,
+			SearchFields_Snippet::IS_PRIVATE,
 			SearchFields_Snippet::CONTENT,
 		);
 		
 		$this->paramsHidden = array(
 			SearchFields_Snippet::ID,
+			SearchFields_Snippet::IS_PRIVATE,
 			SearchFields_Snippet::USAGE_HITS,
 		);
 		
@@ -669,7 +672,11 @@ class Context_Snippet extends Extension_DevblocksContext {
 			$contexts = DevblocksPlatform::parseCsvString(DevblocksPlatform::importGPC($_REQUEST['contexts'],'string',''));
 			$contexts[] = 'cerberusweb.contexts.plaintext';
 			if(is_array($contexts) && !empty($contexts)) {
-				$view->paramsRequired[SearchFields_Snippet::CONTEXT] = new DevblocksSearchCriteria(SearchFields_Snippet::CONTEXT, DevblocksSearchCriteria::OPER_IN, $contexts);
+				$view->addParamsRequired(
+					array(
+						SearchFields_Snippet::CONTEXT => new DevblocksSearchCriteria(SearchFields_Snippet::CONTEXT, DevblocksSearchCriteria::OPER_IN, $contexts)
+					)
+				);
 			}
 		}
 		

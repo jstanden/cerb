@@ -293,22 +293,12 @@ class ChTicketsPage extends CerberusPageExtension {
 		
 		$workflowView = C4_AbstractViewLoader::getView(CerberusApplication::VIEW_MAIL_WORKFLOW, $defaults);
 		
-		$workflowView->paramsRequired = array(
+		$workflowView->addParamsRequired(array(
 			SearchFields_Ticket::VIRTUAL_STATUS => new DevblocksSearchCriteria(SearchFields_Ticket::VIRTUAL_STATUS,'',array('open')),
 			SearchFields_Ticket::VIRTUAL_ASSIGNABLE => new DevblocksSearchCriteria(SearchFields_Ticket::VIRTUAL_ASSIGNABLE,null,true),
 			SearchFields_Ticket::VIRTUAL_WORKERS => new DevblocksSearchCriteria(SearchFields_Ticket::VIRTUAL_WORKERS,null,array()),
 			new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_TEAM_ID,'in',array_keys($active_worker->getMemberships())),
-		);
-		$workflowView->paramsDefault = array();
-		$workflowView->paramsHidden = array(
-			SearchFields_Ticket::TICKET_CLOSED,
-			SearchFields_Ticket::TICKET_DELETED,
-			SearchFields_Ticket::TICKET_WAITING,
-			SearchFields_Ticket::TICKET_CATEGORY_ID,
-			SearchFields_Ticket::VIRTUAL_ASSIGNABLE,
-			SearchFields_Ticket::VIRTUAL_WORKERS,
-			SearchFields_Ticket::VIRTUAL_STATUS,
-		);
+		));
 		
 		$workflowView->renderPage = 0;
 		$workflowView->renderSubtotalsClickable = 1;
@@ -404,18 +394,10 @@ class ChTicketsPage extends CerberusPageExtension {
 			$view = View_Ticket::createSearchView();
 		}
 		
-		$view->paramsDefault = array(
+		$view->addParamsDefault(array(
 			SearchFields_Ticket::VIRTUAL_STATUS => new DevblocksSearchCriteria(SearchFields_Ticket::VIRTUAL_STATUS,'',array('open','waiting')),
 			SearchFields_Ticket::TICKET_TEAM_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_TEAM_ID,'in',array_keys($memberships)), // censor
-		);
-		$view->paramsHidden = array(
-			SearchFields_Ticket::TICKET_CLOSED,
-			SearchFields_Ticket::TICKET_DELETED,
-			SearchFields_Ticket::TICKET_WAITING,
-			SearchFields_Ticket::TICKET_CATEGORY_ID,
-			SearchFields_Ticket::CONTEXT_LINK,
-			SearchFields_Ticket::CONTEXT_LINK_ID,
-		);
+		));
 		
 		$view->renderSubtotalsClickable = 1;
 		
@@ -443,25 +425,25 @@ class ChTicketsPage extends CerberusPageExtension {
 		$view = C4_AbstractViewLoader::getView($defaults->id, $defaults);
 		$view->name = 'Drafts';
 		
-		$view->columnsHidden = array(
+		$view->addColumnsHidden(array(
 			SearchFields_MailQueue::ID,
 			SearchFields_MailQueue::IS_QUEUED,
 			SearchFields_MailQueue::QUEUE_FAILS,
 			SearchFields_MailQueue::QUEUE_PRIORITY,
 			SearchFields_MailQueue::TICKET_ID,
-		);
+		));
 		
-		$view->paramsRequired = array(
+		$view->addParamsRequired(array(
 			SearchFields_MailQueue::WORKER_ID => new DevblocksSearchCriteria(SearchFields_MailQueue::WORKER_ID, DevblocksSearchCriteria::OPER_EQ, $active_worker->id),
 			SearchFields_MailQueue::IS_QUEUED => new DevblocksSearchCriteria(SearchFields_MailQueue::IS_QUEUED, DevblocksSearchCriteria::OPER_EQ, 0),
-		);
-		$view->paramsHidden = array(
+		));
+		$view->addParamsHidden(array(
 			SearchFields_MailQueue::ID,
 			SearchFields_MailQueue::IS_QUEUED,
 			SearchFields_MailQueue::QUEUE_FAILS,
 			SearchFields_MailQueue::QUEUE_PRIORITY,
 			SearchFields_MailQueue::TICKET_ID,
-		);
+		));
 		
 		C4_AbstractViewLoader::setView($view->id,$view);
 		$tpl->assign('view', $view);
@@ -681,14 +663,9 @@ class ChTicketsPage extends CerberusPageExtension {
 			$view->name = 'Mail Snippets';
 		}
 		
-		$view->columnsHidden[] = SearchFields_Snippet::ID;
-		$view->columnsHidden[] = SearchFields_Snippet::IS_PRIVATE;
-		
-		$view->paramsRequired = array(
+		$view->addParamsRequired(array(
 			SearchFields_Snippet::CONTEXT => new DevblocksSearchCriteria(SearchFields_Snippet::CONTEXT, DevblocksSearchCriteria::OPER_IN, array('cerberusweb.contexts.plaintext','cerberusweb.contexts.ticket','cerberusweb.contexts.worker')),
-		);
-		$view->paramsHidden[] = SearchFields_Snippet::ID;
-		$view->paramsHidden[] = SearchFields_Snippet::IS_PRIVATE;
+		));
 		
 		C4_AbstractViewLoader::setView($view->id,$view);
 		$tpl->assign('view', $view);

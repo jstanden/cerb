@@ -515,9 +515,6 @@ class View_Address extends C4_AbstractView {
 			SearchFields_Address::CONTEXT_LINK_ID,
 		);
 		
-		$this->paramsDefault = array_merge($this->paramsDefault, array(
-			SearchFields_Address::IS_REGISTERED => new DevblocksSearchCriteria(SearchFields_Address::IS_REGISTERED,'=',1),
-		));
 		$this->paramsHidden = array(
 			SearchFields_Address::CONTACT_ORG_ID,
 			SearchFields_Address::ID,
@@ -888,14 +885,10 @@ class Context_Address extends Extension_DevblocksContext {
 			SearchFields_Address::ORG_NAME,
 		);
 		
-		$view->paramsDefault = array(
+		$view->addParamsDefault(array(
 			SearchFields_Address::IS_BANNED => new DevblocksSearchCriteria(SearchFields_Address::IS_BANNED,'=',0),
-		);
-		$view->paramsHidden = array(
-			SearchFields_Address::ID,
-			SearchFields_Address::CONTACT_ORG_ID,
-		);
-		$view->addParams($view->paramsDefault, true);
+		));
+		$view->addParams($view->getParamsDefault(), true);
 		
 		$view->renderSortBy = SearchFields_Address::EMAIL;
 		$view->renderSortAsc = true;

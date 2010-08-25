@@ -54,13 +54,12 @@ abstract class C4_AbstractView {
 	public $name = "";
 	
 	public $view_columns = array();
-	public $columnsHidden = array();
+	private $columnsHidden = array();
 	
 	private $_paramsEditable = array();
-	public $paramsDefault = array();
-	public $paramsRequired = array();
-	public $paramsHidden = array();
-	
+	private $paramsDefault = array();
+	private $paramsRequired = array();
+	private $paramsHidden = array();
 	
 	public $renderPage = 0;
 	public $renderLimit = 10;
@@ -86,7 +85,17 @@ abstract class C4_AbstractView {
 		return $columns;
 	}
 	
-	// Params
+	// Columns Hidden
+
+	function getColumnsHidden() {
+		return $this->columnsHidden;
+	}
+	
+	function addColumnsHidden($params) {
+		$this->columnsHidden = array_unique(array_merge($this->columnsHidden, $params));
+	}
+	
+	// Params Editable
 	
 	function getParamsAvailable() {
 		$params = $this->getFields();
@@ -132,6 +141,36 @@ abstract class C4_AbstractView {
 	
 	function removeAllParams() {
 		$this->_paramsEditable = array();
+	}
+	
+	// Params Default
+	
+	function addParamsDefault($params) {
+		$this->paramsDefault = array_merge($this->paramsDefault, $params);
+	}
+	
+	function getParamsDefault() {
+		return $this->paramsDefault;
+	}
+	
+	// Params Required
+	
+	function addParamsRequired($params) {
+		$this->paramsRequired = array_merge($this->paramsRequired, $params);
+	}
+	
+	function getParamsRequired() {
+		return $this->paramsRequired;
+	}
+	
+	// Params Hidden
+	
+	function addParamsHidden($params) {
+		$this->paramsHidden = array_unique(array_merge($this->paramsHidden, $params));
+	}
+	
+	function getParamsHidden() {
+		return $this->paramsHidden;
 	}
 	
 	// Render
@@ -535,12 +574,12 @@ class C4_AbstractViewLoader {
 		$model->name = $view->name;
 		
 		$model->view_columns = $view->view_columns;
-		$model->columnsHidden = $view->columnsHidden;
+		$model->columnsHidden = $view->getColumnsHidden();
 		
 		$model->paramsEditable = $view->getEditableParams();
-		$model->paramsDefault = $view->paramsDefault;
-		$model->paramsRequired = $view->paramsRequired;
-		$model->paramsHidden = $view->paramsHidden;
+		$model->paramsDefault = $view->getParamsDefault();
+		$model->paramsRequired = $view->getParamsRequired();
+		$model->paramsHidden = $view->getParamsHidden();
 		
 		$model->renderPage = $view->renderPage;
 		$model->renderLimit = $view->renderLimit;
@@ -575,16 +614,16 @@ class C4_AbstractViewLoader {
 		if(!empty($model->view_columns))
 			$inst->view_columns = $model->view_columns;
 		if(!empty($model->columnsHidden))
-			$inst->columnsHidden = $model->columnsHidden;
+			$inst->addColumnsHidden($model->columnsHidden);
 		
 		if(!empty($model->paramsEditable))
 			$inst->addParams($model->paramsEditable, true);
 		if(!empty($model->paramsDefault))
-			$inst->paramsDefault = $model->paramsDefault;
+			$inst->addParamsDefault($model->paramsDefault);
 		if(!empty($model->paramsRequired))
-			$inst->paramsRequired = $model->paramsRequired;
+			$inst->addParamsRequired($model->paramsRequired);
 		if(!empty($model->paramsHidden))
-			$inst->paramsHidden = $model->paramsHidden;
+			$inst->addParamsHidden($model->paramsHidden);
 
 		if(null !== $model->renderPage)
 			$inst->renderPage = $model->renderPage;

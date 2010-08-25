@@ -98,16 +98,16 @@ class View_CommunityPortal extends C4_AbstractView {
 			SearchFields_CommunityTool::CODE,
 			SearchFields_CommunityTool::EXTENSION_ID,
 		);
-		$this->columnsHidden = array(
+		$this->addColumnsHidden(array(
 			SearchFields_CommunityTool::ID,
-		);
+		));
 		
-		$this->paramsHidden = array(
+		$this->addParamsHidden(array(
 			SearchFields_CommunityTool::ID,
-		);
-		$this->paramsDefault = array(
+		));
+		$this->addParamsDefault(array(
 			//SearchFields_CommunityTool::IS_DISABLED => new DevblocksSearchCriteria(SearchFields_CommunityTool::IS_DISABLED,'=',0),
-		);
+		));
 		
 		$this->doResetCriteria();
 	}

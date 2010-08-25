@@ -1404,25 +1404,25 @@ class View_CrmOpportunity extends C4_AbstractView {
 			SearchFields_CrmOpportunity::UPDATED_DATE,
 			SearchFields_CrmOpportunity::EMAIL_NUM_NONSPAM,
 		);
-		$this->columnsHidden = array(
+		$this->addColumnsHidden(array(
 			SearchFields_CrmOpportunity::ID,
 			SearchFields_CrmOpportunity::PRIMARY_EMAIL_ID,
 			SearchFields_CrmOpportunity::ORG_ID,
 			SearchFields_CrmOpportunity::CONTEXT_LINK,
 			SearchFields_CrmOpportunity::CONTEXT_LINK_ID,
 			SearchFields_CrmOpportunity::VIRTUAL_WORKERS
-		);
+		));
 		
-		$this->paramsDefault = array(
+		$this->addParamsDefault(array(
 			SearchFields_CrmOpportunity::IS_CLOSED => new DevblocksSearchCriteria(SearchFields_CrmOpportunity::IS_CLOSED,'=',0),
-		);
-		$this->paramsHidden = array(
+		));
+		$this->addParamsHidden(array(
 			SearchFields_CrmOpportunity::ID,
 			SearchFields_CrmOpportunity::PRIMARY_EMAIL_ID,
 			SearchFields_CrmOpportunity::ORG_ID,
 			SearchFields_CrmOpportunity::CONTEXT_LINK,
 			SearchFields_CrmOpportunity::CONTEXT_LINK_ID,
-		);
+		));
 		
 		$this->doResetCriteria();
 	}

@@ -267,12 +267,10 @@ class UmSc_TicketHistoryView extends C4_AbstractView {
 			SearchFields_Ticket::TICKET_SUBJECT,
 			SearchFields_Ticket::TICKET_UPDATED_DATE,
 		);
-		$this->columnsHidden = array(
-		);
 		
-		$this->paramsHidden = array(
+		$this->addParamsHidden(array(
 			SearchFields_Ticket::TICKET_ID,
-		);
+		));
 		
 		$this->doResetCriteria();
 	}

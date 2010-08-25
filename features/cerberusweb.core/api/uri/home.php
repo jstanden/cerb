@@ -127,22 +127,21 @@ class ChHomePage extends CerberusPageExtension {
 		
 		$myEventsView->name = vsprintf($translate->_('home.my_notifications.view.title'), $active_worker->getName());
 		
-		$myEventsView->columnsHidden = array(
+		$myEventsView->addColumnsHidden(array(
 			SearchFields_WorkerEvent::ID,
 			SearchFields_WorkerEvent::IS_READ,
 			SearchFields_WorkerEvent::WORKER_ID,
-		);
+		));
 		
-		$myEventsView->paramsHidden = array(
+		$myEventsView->addParamsHidden(array(
 			SearchFields_WorkerEvent::ID,
 			SearchFields_WorkerEvent::IS_READ,
 			SearchFields_WorkerEvent::WORKER_ID,
-		);
-		$myEventsView->paramsDefault = $defaults->paramsDefault;
-		$myEventsView->paramsRequired = array(
+		));
+		$myEventsView->addParamsRequired(array(
 			SearchFields_WorkerEvent::IS_READ => new DevblocksSearchCriteria(SearchFields_WorkerEvent::IS_READ,'=',0),
 			SearchFields_WorkerEvent::WORKER_ID => new DevblocksSearchCriteria(SearchFields_WorkerEvent::WORKER_ID,'=',$active_worker->id),
-		);
+		));
 		
 		/*
 		 * [TODO] This doesn't need to save every display, but it was possible to 
