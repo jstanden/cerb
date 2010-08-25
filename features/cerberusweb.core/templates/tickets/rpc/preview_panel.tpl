@@ -163,7 +163,7 @@
 		</table>
 		<br>
 		
-		<button type="button" onclick="genericAjaxPost('frmTicketPeek', 'view{$view_id}', '', function() { genericAjaxPopupClose('peek', 'ticket_save'); } );"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')}</button>
+		<button type="button" onclick="genericAjaxPopupPostCloseReloadView('peek','frmTicketPeek','{$view_id}',false,'ticket_save');"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')}</button>
     </div><!--tab2-->		
 </div> 
 <br>
