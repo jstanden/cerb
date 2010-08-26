@@ -1759,13 +1759,17 @@ abstract class DevblocksEngine {
 		        if(!is_file($resource) || 'php' == $ext) die(""); // extension security
 
                 // Caching
-	            if($ext == 'css' || $ext == 'js' || $ext == 'png' || $ext == 'gif' || $ext == 'jpg') {
-	                header('Cache-control: max-age=604800', true); // 1 wk // , must-revalidate
-	                header('Expires: ' . gmdate('D, d M Y H:i:s',time()+604800) . ' GMT'); // 1 wk
-	                header('Content-length: '. filesize($resource));
-	            }
-
-	            // [TODO] Get a better mime list together?
+                switch($ext) {
+                	case 'css':
+                	case 'gif':
+                	case 'jpg':
+                	case 'js':
+                	case 'png':
+		                header('Cache-control: max-age=604800', true); // 1 wk // , must-revalidate
+		                header('Expires: ' . gmdate('D, d M Y H:i:s',time()+604800) . ' GMT'); // 1 wk
+                		break;
+                }
+                
 	            switch($ext) {
 	            	case 'css':
 	            		header('Content-type: text/css;');
@@ -1788,7 +1792,14 @@ abstract class DevblocksEngine {
 	            		break;
 	            }
 	            
-		        echo file_get_contents($resource,false);
+		        $out = file_get_contents($resource, false);
+		        
+                // Pass through
+                if($out) {
+                	header('Content-Length: '. strlen($out));
+                	echo $out;
+                }
+		        
 				exit;
     	        break;
 		        
