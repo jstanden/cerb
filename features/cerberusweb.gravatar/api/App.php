@@ -9,7 +9,8 @@ class WgmGravatarCommentBadge extends Extension_CommentBadge {
 		if(null != ($email_address = $comment->getAddress())) {
 			$tpl = DevblocksPlatform::getTemplateService();
 			$tpl->assign('gravatar_email', $email_address->email);
-			$tpl->display('devblocks:cerberusweb.gravatar::gravatar_icon.tpl');
+			
+			$tpl->display('devblocks:cerberusweb.gravatar::renderers/gravatar_icon.tpl');
 		}
 	}
 };
@@ -25,7 +26,7 @@ class WgmGravatarMessageBadge extends Extension_MessageBadge {
 		if(null != ($email_address = $message->getSender())) {
 			$tpl = DevblocksPlatform::getTemplateService();
 			$tpl->assign('gravatar_email', $email_address->email);
-			$tpl->display('devblocks:cerberusweb.gravatar::gravatar_icon.tpl');
+			$tpl->display('devblocks:cerberusweb.gravatar::renderers/gravatar_icon.tpl');
 		}
 	}
 };
@@ -41,7 +42,7 @@ class WgmGravatarSupportCenterMessageBadge extends Extension_SupportCenterMessag
 		if(null != ($email_address = $message->getSender())) {
 			$tpl = DevblocksPlatform::getTemplateService();
 			$tpl->assign('gravatar_email', $email_address->email);
-			$tpl->display('devblocks:cerberusweb.gravatar::gravatar_icon.tpl');
+			$tpl->display('devblocks:cerberusweb.gravatar::renderers/gravatar_icon.tpl');
 		}
 	}
 };
