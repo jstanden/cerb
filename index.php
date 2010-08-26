@@ -51,7 +51,7 @@
 if(version_compare(PHP_VERSION, "5.2", "<"))
 	die("Cerberus Helpdesk 5.x requires PHP 5.2 or later.");
 
-require(getcwd() . '/framework.config.php');
+require(dirname(__FILE__) . '/framework.config.php');
 require(DEVBLOCKS_PATH . 'Devblocks.class.php');
 
 // If this is our first run, redirect to the installer
