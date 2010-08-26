@@ -578,14 +578,14 @@ class View_MailQueue extends C4_AbstractView {
 			SearchFields_MailQueue::HINT_TO,
 			SearchFields_MailQueue::UPDATED,
 		);
-		$this->columnsHidden = array(
+		$this->addColumnsHidden(array(
 			SearchFields_MailQueue::TICKET_ID,
-		);
+		));
 		
-		$this->paramsHidden = array(
+		$this->addParamsHidden(array(
 			SearchFields_MailQueue::ID,
 			SearchFields_MailQueue::TICKET_ID,
-		);
+		));
 		
 		$this->doResetCriteria();
 	}

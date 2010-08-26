@@ -1209,7 +1209,7 @@ class View_Ticket extends C4_AbstractView {
 			SearchFields_Ticket::TICKET_CATEGORY_ID,
 			SearchFields_Ticket::TICKET_SPAM_SCORE,
 		);
-		$this->columnsHidden = array(
+		$this->addColumnsHidden(array(
 			SearchFields_Ticket::REQUESTER_ID,
 			SearchFields_Ticket::REQUESTER_ADDRESS,
 			SearchFields_Ticket::TICKET_CLOSED,
@@ -1221,16 +1221,16 @@ class View_Ticket extends C4_AbstractView {
 			SearchFields_Ticket::VIRTUAL_ASSIGNABLE,
 			SearchFields_Ticket::VIRTUAL_STATUS,
 			SearchFields_Ticket::VIRTUAL_WORKERS,
-		);
+		));
 		
-		$this->paramsHidden = array(
+		$this->addParamsHidden(array(
 			SearchFields_Ticket::TICKET_CLOSED,
 			SearchFields_Ticket::TICKET_DELETED,
 			SearchFields_Ticket::TICKET_WAITING,
 			SearchFields_Ticket::TICKET_CATEGORY_ID,
 			SearchFields_Ticket::CONTEXT_LINK,
 			SearchFields_Ticket::CONTEXT_LINK_ID,
-		);
+		));
 		
 		$this->doResetCriteria();
 	}
@@ -1300,6 +1300,9 @@ class View_Ticket extends C4_AbstractView {
 					$bucket_id = $result['category_id'];
 					$hits = $result['hits'];
 		
+					if(!isset($groups[$group_id]))
+						continue;
+					
 					// ACL
 					if(!isset($counts[$group_id]))
 						$counts[$group_id] = array(

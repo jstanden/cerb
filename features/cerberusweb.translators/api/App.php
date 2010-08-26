@@ -92,13 +92,13 @@ class C4_TranslationView extends C4_AbstractView {
 			SearchFields_Translation::STRING_OVERRIDE,
 			SearchFields_Translation::STRING_ID,
 		);
-		$this->columnsHidden = array(
+		$this->addColumnsHidden(array(
 			SearchFields_Translation::ID,
-		);
+		));
 		
-		$this->paramsHidden = array(
+		$this->addParamsHidden(array(
 			SearchFields_Translation::ID,
-		);
+		));
 		
 		$this->doResetCriteria();
 	}

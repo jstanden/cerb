@@ -420,16 +420,16 @@ class View_ContactOrg extends C4_AbstractView {
 			SearchFields_ContactOrg::PHONE,
 			SearchFields_ContactOrg::WEBSITE,
 		);
-		$this->columnsHidden = array(
+		$this->addColumnsHidden(array(
 			SearchFields_ContactOrg::CONTEXT_LINK,
 			SearchFields_ContactOrg::CONTEXT_LINK_ID,
-		);
+		));
 		
-		$this->paramsHidden = array(
+		$this->addParamsHidden(array(
 			SearchFields_ContactOrg::ID,
 			SearchFields_ContactOrg::CONTEXT_LINK,
 			SearchFields_ContactOrg::CONTEXT_LINK_ID,
-		);
+		));
 		
 		$this->doResetCriteria();
 	}

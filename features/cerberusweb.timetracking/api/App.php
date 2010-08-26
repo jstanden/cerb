@@ -582,21 +582,21 @@ class View_TimeTracking extends C4_AbstractView {
 		$this->view_columns = array(
 			SearchFields_TimeTrackingEntry::LOG_DATE,
 		);
-		$this->columnsHidden = array(
+		$this->addColumnsHidden(array(
 			SearchFields_TimeTrackingEntry::ID,
 			SearchFields_TimeTrackingEntry::CONTEXT_LINK,
 			SearchFields_TimeTrackingEntry::CONTEXT_LINK_ID,
 			SearchFields_TimeTrackingEntry::VIRTUAL_OWNERS,
-		);
+		));
 		
-		$this->paramsHidden = array(
+		$this->addParamsHidden(array(
 			SearchFields_TimeTrackingEntry::ID,
 			SearchFields_TimeTrackingEntry::CONTEXT_LINK,
 			SearchFields_TimeTrackingEntry::CONTEXT_LINK_ID,
-		);
-		$this->paramsDefault = array(
+		));
+		$this->addParamsDefault(array(
 			SearchFields_TimeTrackingEntry::IS_CLOSED => new DevblocksSearchCriteria(SearchFields_TimeTrackingEntry::IS_CLOSED,DevblocksSearchCriteria::OPER_EQ,0),
-		);
+		));
 		
 		$this->doResetCriteria();
 	}

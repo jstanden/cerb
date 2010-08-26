@@ -742,18 +742,18 @@ class View_Worker extends C4_AbstractView {
 			SearchFields_Worker::IS_SUPERUSER,
 		);
 		
-		$this->columnsHidden = array(
+		$this->addColumnsHidden(array(
 			SearchFields_Worker::LAST_ACTIVITY,
 			SearchFields_Worker::CONTEXT_LINK,
 			SearchFields_Worker::CONTEXT_LINK_ID,
 			SearchFields_Worker::VIRTUAL_GROUPS,
-		);
-		$this->paramsHidden = array(
+		));
+		$this->addParamsHidden(array(
 			SearchFields_Worker::ID,
 			SearchFields_Worker::LAST_ACTIVITY,
 			SearchFields_Worker::CONTEXT_LINK,
 			SearchFields_Worker::CONTEXT_LINK_ID,
-		);
+		));
 		
 		$this->doResetCriteria();
 	}

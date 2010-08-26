@@ -508,20 +508,20 @@ class View_Address extends C4_AbstractView {
 			SearchFields_Address::NUM_NONSPAM,
 			SearchFields_Address::NUM_SPAM,
 		);
-		$this->columnsHidden = array(
+		$this->addColumnsHidden(array(
 			SearchFields_Address::CONTACT_ORG_ID,
 			SearchFields_Address::PASS,
 			SearchFields_Address::CONTEXT_LINK,
 			SearchFields_Address::CONTEXT_LINK_ID,
-		);
+		));
 		
-		$this->paramsHidden = array(
+		$this->addParamsHidden(array(
 			SearchFields_Address::CONTACT_ORG_ID,
 			SearchFields_Address::ID,
 			SearchFields_Address::PASS,
 			SearchFields_Address::CONTEXT_LINK,
 			SearchFields_Address::CONTEXT_LINK_ID,
-		);
+		));
 	}
 
 	function getData() {

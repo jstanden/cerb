@@ -293,6 +293,11 @@ class ChTicketsPage extends CerberusPageExtension {
 		
 		$workflowView = C4_AbstractViewLoader::getView(CerberusApplication::VIEW_MAIL_WORKFLOW, $defaults);
 		
+		$workflowView->addParamsHidden(array(
+			SearchFields_Ticket::VIRTUAL_ASSIGNABLE,
+			SearchFields_Ticket::VIRTUAL_STATUS,
+			SearchFields_Ticket::VIRTUAL_WORKERS,
+		));
 		$workflowView->addParamsRequired(array(
 			SearchFields_Ticket::VIRTUAL_STATUS => new DevblocksSearchCriteria(SearchFields_Ticket::VIRTUAL_STATUS,'',array('open')),
 			SearchFields_Ticket::VIRTUAL_ASSIGNABLE => new DevblocksSearchCriteria(SearchFields_Ticket::VIRTUAL_ASSIGNABLE,null,true),

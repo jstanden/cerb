@@ -311,13 +311,6 @@ class View_Comment extends C4_AbstractView {
 			SearchFields_Comment::ADDRESS_ID,
 			SearchFields_Comment::COMMENT,
 		);
-		// Filter fields
-		$this->columnsHidden = array(
-		);
-		
-		// Filter fields
-		$this->paramsHidden = array(
-		);
 		
 		$this->doResetCriteria();
 	}

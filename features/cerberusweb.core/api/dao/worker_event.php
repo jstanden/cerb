@@ -332,13 +332,13 @@ class View_WorkerEvent extends C4_AbstractView {
 			SearchFields_WorkerEvent::MESSAGE,
 			SearchFields_WorkerEvent::CREATED_DATE,
 		);
-		$this->columnsHidden = array(
+		$this->addColumnsHidden(array(
 			SearchFields_WorkerEvent::ID,
-		);
+		));
 		
-		$this->paramsHidden = array(
+		$this->addParamsHidden(array(
 			SearchFields_WorkerEvent::ID,
-		);
+		));
 		
 		$this->doResetCriteria();
 	}

@@ -54,12 +54,12 @@ abstract class C4_AbstractView {
 	public $name = "";
 	
 	public $view_columns = array();
-	private $columnsHidden = array();
+	private $_columnsHidden = array();
 	
 	private $_paramsEditable = array();
-	private $paramsDefault = array();
-	private $paramsRequired = array();
-	private $paramsHidden = array();
+	private $_paramsDefault = array();
+	private $_paramsRequired = array();
+	private $_paramsHidden = array();
 	
 	public $renderPage = 0;
 	public $renderLimit = 10;
@@ -78,8 +78,7 @@ abstract class C4_AbstractView {
 	function getColumnsAvailable() {
 		$columns = $this->getFields();
 		
-		if(is_array($this->columnsHidden))
-		foreach($this->columnsHidden as $col)
+		foreach($this->getColumnsHidden() as $col)
 			unset($columns[$col]);
 			
 		return $columns;
@@ -88,11 +87,16 @@ abstract class C4_AbstractView {
 	// Columns Hidden
 
 	function getColumnsHidden() {
-		return $this->columnsHidden;
+		$columnsHidden = $this->_columnsHidden;
+		
+		if(!is_array($columnsHidden))
+			$columnsHidden = array();
+			
+		return $columnsHidden;
 	}
 	
-	function addColumnsHidden($params) {
-		$this->columnsHidden = array_unique(array_merge($this->columnsHidden, $params));
+	function addColumnsHidden($columnsToHide) {
+		$this->_columnsHidden = array_unique(array_merge($this->getColumnsHidden(), $columnsToHide));
 	}
 	
 	// Params Editable
@@ -100,8 +104,8 @@ abstract class C4_AbstractView {
 	function getParamsAvailable() {
 		$params = $this->getFields();
 		
-		if(is_array($this->paramsHidden))
-		foreach($this->paramsHidden as $param)
+		if(is_array($this->_paramsHidden))
+		foreach($this->_paramsHidden as $param)
 			unset($params[$param]);
 		
 		return $params;
@@ -109,7 +113,7 @@ abstract class C4_AbstractView {
 	
 	function getParams() {
 		// Required should override editable
-		return array_merge($this->_paramsEditable, $this->paramsRequired);
+		return array_merge($this->_paramsEditable, $this->_paramsRequired);
 	}
 	
 	function getEditableParams() {
@@ -146,31 +150,31 @@ abstract class C4_AbstractView {
 	// Params Default
 	
 	function addParamsDefault($params) {
-		$this->paramsDefault = array_merge($this->paramsDefault, $params);
+		$this->_paramsDefault = array_merge($this->_paramsDefault, $params);
 	}
 	
 	function getParamsDefault() {
-		return $this->paramsDefault;
+		return $this->_paramsDefault;
 	}
 	
 	// Params Required
 	
 	function addParamsRequired($params) {
-		$this->paramsRequired = array_merge($this->paramsRequired, $params);
+		$this->_paramsRequired = array_merge($this->_paramsRequired, $params);
 	}
 	
 	function getParamsRequired() {
-		return $this->paramsRequired;
+		return $this->_paramsRequired;
 	}
 	
 	// Params Hidden
 	
 	function addParamsHidden($params) {
-		$this->paramsHidden = array_unique(array_merge($this->paramsHidden, $params));
+		$this->_paramsHidden = array_unique(array_merge($this->_paramsHidden, $params));
 	}
 	
 	function getParamsHidden() {
-		return $this->paramsHidden;
+		return $this->_paramsHidden;
 	}
 	
 	// Render
@@ -412,7 +416,7 @@ abstract class C4_AbstractView {
 	}
 
 	function doResetCriteria() {
-		$this->addParams($this->paramsDefault, true);
+		$this->addParams($this->_paramsDefault, true);
 		$this->renderPage = 0;
 	}
 	
@@ -869,11 +873,11 @@ class View_DevblocksStorageProfile extends C4_AbstractView {
 			SearchFields_DevblocksStorageProfile::NAME,
 			SearchFields_DevblocksStorageProfile::EXTENSION_ID,
 		);
-		$this->columnsHidden = array(
+		$this->_columnsHidden = array(
 			SearchFields_DevblocksStorageProfile::PARAMS_JSON,
 		);
 		
-		$this->paramsHidden = array(
+		$this->_paramsHidden = array(
 			SearchFields_DevblocksStorageProfile::ID,
 			SearchFields_DevblocksStorageProfile::PARAMS_JSON,
 		);

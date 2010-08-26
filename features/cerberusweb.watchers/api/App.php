@@ -726,13 +726,13 @@ class View_WatcherMailFilter extends C4_AbstractView {
 			SearchFields_WatcherMailFilter::WORKER_ID,
 			SearchFields_WatcherMailFilter::POS,
 		);
-		$this->columnsHidden = array(
+		$this->addColumnsHidden(array(
 			SearchFields_WatcherMailFilter::ID,
-		);
+		));
 		
-		$this->paramsHidden = array(
+		$this->addParamsHidden(array(
 			SearchFields_WatcherMailFilter::ID,
-		);
+		));
 		
 		$this->doResetCriteria();
 	}

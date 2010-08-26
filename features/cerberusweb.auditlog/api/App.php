@@ -416,9 +416,9 @@ class C4_TicketAuditLogView extends C4_AbstractView {
 			SearchFields_TicketAuditLog::CHANGE_VALUE,
 		);
 		
-		$this->paramsHidden = array(
+		$this->addParamsHidden(array(
 			SearchFields_TicketAuditLog::ID,
-		);
+		));
 		
 		$this->doResetCriteria();
 	}

@@ -375,18 +375,18 @@ class C4_FeedbackEntryView extends C4_AbstractView {
 			SearchFields_FeedbackEntry::ADDRESS_EMAIL,
 			SearchFields_FeedbackEntry::SOURCE_URL,
 		);
-		$this->columnsHidden = array(
+		$this->addColumnsHidden(array(
 			SearchFields_FeedbackEntry::ID,
 			SearchFields_FeedbackEntry::QUOTE_ADDRESS_ID,
-		);
+		));
 		
-		$this->paramsHidden = array(
+		$this->addParamsHidden(array(
 			SearchFields_FeedbackEntry::ID,
 			SearchFields_FeedbackEntry::QUOTE_ADDRESS_ID,
-		);
-		$this->paramsDefault = array(
+		));
+		$this->addParamsDefault(array(
 			SearchFields_FeedbackEntry::LOG_DATE => new DevblocksSearchCriteria(SearchFields_FeedbackEntry::LOG_DATE,DevblocksSearchCriteria::OPER_BETWEEN,array('-1 month','now')),
-		);
+		));
 		
 		$this->doResetCriteria();
 	}

@@ -875,7 +875,7 @@ class View_Message extends C4_AbstractView {
 			SearchFields_Message::CREATED_DATE,
 		);
 		
-		$this->columnsHidden = array(
+		$this->addColumnsHidden(array(
 			SearchFields_Message::ID,
 			SearchFields_Message::MESSAGE_CONTENT,
 			SearchFields_Message::MESSAGE_HEADER_NAME,
@@ -884,10 +884,10 @@ class View_Message extends C4_AbstractView {
 			SearchFields_Message::STORAGE_KEY,
 			SearchFields_Message::STORAGE_PROFILE_ID,
 			SearchFields_Message::STORAGE_SIZE,
-		);
-		$this->paramsHidden = array(
+		));
+		$this->addParamsHidden(array(
 			SearchFields_Message::ID,
-		);
+		));
 		
 		$this->doResetCriteria();
 	}

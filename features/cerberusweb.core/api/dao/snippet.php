@@ -380,17 +380,17 @@ class View_Snippet extends C4_AbstractView {
 			SearchFields_Snippet::LAST_UPDATED,
 			SearchFields_Snippet::LAST_UPDATED_BY,
 		);
-		$this->columnsHidden = array(
+		$this->addColumnsHidden(array(
 			SearchFields_Snippet::ID,
 			SearchFields_Snippet::IS_PRIVATE,
 			SearchFields_Snippet::CONTENT,
-		);
+		));
 		
-		$this->paramsHidden = array(
+		$this->addParamsHidden(array(
 			SearchFields_Snippet::ID,
 			SearchFields_Snippet::IS_PRIVATE,
 			SearchFields_Snippet::USAGE_HITS,
-		);
+		));
 		
 		$this->doResetCriteria();
 	}

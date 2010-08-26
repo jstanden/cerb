@@ -704,15 +704,15 @@ class View_Attachment extends C4_AbstractView {
 			SearchFields_Attachment::ADDRESS_EMAIL,
 			SearchFields_Attachment::TICKET_MASK,
 		);
-		$this->columnsHidden = array(
+		$this->addColumnsHidden(array(
 			SearchFields_Attachment::ID,
 			SearchFields_Attachment::MESSAGE_ID,
-		);
+		));
 		
-		$this->paramsHidden = array(
+		$this->addParamsHidden(array(
 			SearchFields_Attachment::ID,
 			SearchFields_Attachment::MESSAGE_ID,
-		);
+		));
 		
 		$this->doResetCriteria();
 	}

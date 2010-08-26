@@ -608,12 +608,12 @@ class View_Group extends C4_AbstractView {
 			SearchFields_Group::NAME,
 		);
 		
-		$this->columnsHidden = array(
+		$this->addColumnsHidden(array(
 			SearchFields_Group::ID,
-		);
-		$this->paramsHidden = array(
+		));
+		$this->addParamsHidden(array(
 			SearchFields_Group::ID,
-		);
+		));
 		
 		$this->doResetCriteria();
 	}

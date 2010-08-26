@@ -362,21 +362,21 @@ class View_Task extends C4_AbstractView {
 			SearchFields_Task::UPDATED_DATE,
 			SearchFields_Task::DUE_DATE,
 		);
-		$this->columnsHidden = array(
+		$this->addColumnsHidden(array(
 			SearchFields_Task::ID,
 			SearchFields_Task::CONTEXT_LINK,
 			SearchFields_Task::CONTEXT_LINK_ID,
 			SearchFields_Task::VIRTUAL_WORKERS,
-		);
+		));
 		
-		$this->paramsHidden = array(
+		$this->addParamsHidden(array(
 			SearchFields_Task::ID,
 			SearchFields_Task::CONTEXT_LINK,
 			SearchFields_Task::CONTEXT_LINK_ID,
-		);
-		$this->paramsDefault = array(
+		));
+		$this->addParamsDefault(array(
 			SearchFields_Task::IS_COMPLETED => new DevblocksSearchCriteria(SearchFields_Task::IS_COMPLETED,'=',0),
-		);
+		));
 		
 		$this->doResetCriteria();
 	}
