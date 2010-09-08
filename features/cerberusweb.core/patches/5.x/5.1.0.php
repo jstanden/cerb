@@ -105,7 +105,7 @@ if(!empty($changes))
 if(!isset($tables['comment'])) {
 	$sql = "
 		CREATE TABLE IF NOT EXISTS comment (
-			id INT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE,
+			id INT UNSIGNED NOT NULL AUTO_INCREMENT,
 			context VARCHAR(128) DEFAULT '',
 			context_id INT UNSIGNED NOT NULL DEFAULT 0,
 			created INT UNSIGNED NOT NULL DEFAULT 0,
