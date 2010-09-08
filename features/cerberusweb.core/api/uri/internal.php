@@ -400,19 +400,31 @@ class ChInternalController extends DevblocksControllerExtension {
 	function viewAddPresetAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
 		@$preset_name = DevblocksPlatform::importGPC($_REQUEST['_preset_name'],'string','');
+		@$preset_replace_id = DevblocksPlatform::importGPC($_REQUEST['_preset_replace'],'integer',0);
 
 		$active_worker = CerberusApplication::getActiveWorker();
 
 		$view = C4_AbstractViewLoader::getView($id);
+		$params_json = json_encode($view->getEditableParams());
 
-		$fields = array(
-			DAO_ViewFiltersPreset::NAME => !empty($preset_name) ? $preset_name : 'New Preset',
-			DAO_ViewFiltersPreset::VIEW_CLASS => get_class($view),
-			DAO_ViewFiltersPreset::WORKER_ID => $active_worker->id,
-			DAO_ViewFiltersPreset::PARAMS_JSON => json_encode($view->getEditableParams()),
-		);
-		
-		DAO_ViewFiltersPreset::create($fields);
+		if(!empty($preset_replace_id)) {
+			$fields = array(
+				DAO_ViewFiltersPreset::NAME => !empty($preset_name) ? $preset_name : 'New Preset',
+				DAO_ViewFiltersPreset::PARAMS_JSON => $params_json,
+			);
+			
+			DAO_ViewFiltersPreset::update($preset_replace_id, $fields);
+			
+		} else { // new
+			$fields = array(
+				DAO_ViewFiltersPreset::NAME => !empty($preset_name) ? $preset_name : 'New Preset',
+				DAO_ViewFiltersPreset::VIEW_CLASS => get_class($view),
+				DAO_ViewFiltersPreset::WORKER_ID => $active_worker->id,
+				DAO_ViewFiltersPreset::PARAMS_JSON => $params_json,
+			);
+			
+			DAO_ViewFiltersPreset::create($fields);
+		}
 		
 		$this->_viewRenderInlineFilters($view);
 	}

@@ -26,7 +26,16 @@
 				</select>
 				<div id="divAddPreset{$view->id}" class="block" style="display:none;margin:5px;">
 					<b>Save filters as preset:</b><br>
+					{if !empty($presets)}
+					<select name="_preset_replace" onchange="if(''==$(this).val()) { $(this).siblings('input:text[name=_preset_name]').val('').focus(); } else { $(this).siblings('input:text[name=_preset_name]').val($(this).find('option:selected').text()).focus(); } ">
+						<option value="" selected="selected">- new preset: -</option>
+						{foreach from=$presets item=preset key=preset_id}
+						<option value="{$preset_id}">{$preset->name|escape}</option>
+						{/foreach}
+					</select>
+					{/if}
 					<input type="text" name="_preset_name" size="32" value="">
+					<br>
 					<br>
 					<button type="button" onclick="var $form_id = $(this).closest('form').attr('id'); if(0==$form_id.length)return;genericAjaxPost($form_id,'viewCustomFilters{$view->id}','c=internal&a=viewAddPreset');"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')|capitalize}</button>
 					<a href="javascript:;" onclick="$(this).closest('div').fadeOut();"> {$translate->_('common.cancel')|lower}</a>
