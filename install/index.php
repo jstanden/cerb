@@ -403,6 +403,7 @@ switch($step) {
 					case 'cerberusweb.core':
 					case 'cerberusweb.crm':
 					case 'cerberusweb.feedback':
+					case 'cerberusweb.kb':
 					case 'cerberusweb.reports':
 					case 'cerberusweb.simulator':
 					case 'cerberusweb.timetracking':

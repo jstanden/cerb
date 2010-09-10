@@ -130,12 +130,4 @@ if(isset($columns['pos']) && 0 != strcasecmp('int',substr($columns['pos']['type'
 	$db->Execute("ALTER TABLE group_inbox_filter CHANGE COLUMN pos pos int unsigned DEFAULT 0 NOT NULL");
 }
 
-// ===========================================================================
-// Enable the new KB plugin by default
-
-if(isset($tables['cerb_plugin'])) {
-	$sql = sprintf("UPDATE cerb_plugin SET enabled=1 WHERE id = %s",$db->qstr('cerberusweb.kb'));
-	$db->Execute($sql);
-}
-
 return TRUE;
