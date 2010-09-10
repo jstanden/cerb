@@ -542,6 +542,20 @@ class CrmPage extends CerberusPageExtension {
 		if(0 != strlen($worker_id))
 			$do['worker_id'] = $worker_id;
 			
+		// Owners
+		$owner_options = array();
+		
+		@$owner_add_ids = DevblocksPlatform::importGPC($_REQUEST['do_owner_add_ids'],'array',array());
+		if(!empty($owner_add_ids))
+			$owner_params['add'] = $owner_add_ids;
+			
+		@$owner_remove_ids = DevblocksPlatform::importGPC($_REQUEST['do_owner_remove_ids'],'array',array());
+		if(!empty($owner_remove_ids))
+			$owner_params['remove'] = $owner_remove_ids;
+		
+		if(!empty($owner_params))
+			$do['owner'] = $owner_params;
+			
 		// Broadcast: Mass Reply
 		if($active_worker->hasPriv('crm.opp.view.actions.broadcast')) {
 			@$do_broadcast = DevblocksPlatform::importGPC($_REQUEST['do_broadcast'],'string',null);
@@ -1736,6 +1750,17 @@ class View_CrmOpportunity extends C4_AbstractView {
 			
 			// Custom Fields
 			self::_doBulkSetCustomFields(CrmCustomFieldSource_Opportunity::ID, $custom_fields, $batch_ids);
+			
+			// Owners
+			if(isset($do['owner']) && is_array($do['owner'])) {
+				$owner_params = $do['owner'];
+				foreach($batch_ids as $batch_id) {
+					if(isset($owner_params['add']) && is_array($owner_params['add']))
+						CerberusContexts::addWorkers(CerberusContexts::CONTEXT_OPPORTUNITY, $batch_id, $owner_params['add']);
+					if(isset($owner_params['remove']) && is_array($owner_params['remove']))
+						CerberusContexts::removeWorkers(CerberusContexts::CONTEXT_OPPORTUNITY, $batch_id, $owner_params['remove']);
+				}
+			}
 			
 			unset($batch_ids);
 		}
