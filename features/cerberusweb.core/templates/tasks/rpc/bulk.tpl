@@ -32,25 +32,14 @@
 			<button type="button" onclick="this.form.status.selectedIndex = 2;">{'task.status.completed'|devblocks_translate|lower}</button>
 		</td>
 	</tr>
-	{*
 	<tr>
-		<td width="0%" nowrap="nowrap" align="right">{'common.worker'|devblocks_translate|capitalize}:</td>
+		<td width="0%" nowrap="nowrap" valign="top">{'common.owners'|devblocks_translate|capitalize}:</td>
 		<td width="100%">
-			<select name="worker_id">
-				<option value=""></option>
-				<option value="0">- {'common.anybody'|devblocks_translate|lower} -</option>
-				{foreach from=$workers item=worker key=worker_id name=workers}
-					{if $worker_id==$active_worker->id}{math assign=me_worker_id equation="x+1" x=$smarty.foreach.workers.iteration}{/if}
-					<option value="{$worker_id}">{$worker->getName()}</option>
-				{/foreach}
-			</select>
-	      	{if !empty($me_worker_id)}
-	      		<button type="button" onclick="this.form.worker_id.selectedIndex = {$me_worker_id};">{'common.me'|devblocks_translate|lower}</button>
-	      		<button type="button" onclick="this.form.worker_id.selectedIndex = 1;">{'common.anybody'|devblocks_translate|lower}</button>
-	      	{/if}
+			<button type="button" class="chooser-worker add"><span class="cerb-sprite sprite-add"></span></button>
+			<br>
+			<button type="button" class="chooser-worker remove"><span class="cerb-sprite sprite-forbidden"></span></button>
 		</td>
 	</tr>
-	*}
 </table>
 
 {include file="file:$core_tpl/internal/custom_fields/bulk/form.tpl" bulk=true}	
@@ -65,5 +54,15 @@
 	$popup = genericAjaxPopupFetch('peek');
 	$popup.one('popup_open', function(event,ui) {
 		$(this).dialog('option','title',"{$translate->_('common.bulk_update')|capitalize|escape:'quotes'}");
-	} );
+		
+		$('#formBatchUpdate button.chooser-worker').each(function() {
+			$button = $(this);
+			context = 'cerberusweb.contexts.worker';
+			
+			if($button.hasClass('remove'))
+				ajax.chooser(this, context, 'do_owner_remove_ids');
+			else
+				ajax.chooser(this, context, 'do_owner_add_ids');
+		});
+	});
 </script>

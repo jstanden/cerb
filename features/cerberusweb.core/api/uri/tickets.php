@@ -2145,7 +2145,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		}
 		
 		// Owners
-		$owner_options = array();
+		$owner_params = array();
 		
 		@$owner_add_ids = DevblocksPlatform::importGPC($_REQUEST['do_owner_add_ids'],'array',array());
 		if(!empty($owner_add_ids))

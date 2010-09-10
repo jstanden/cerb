@@ -611,6 +611,17 @@ class View_Task extends C4_AbstractView {
 			// Custom Fields
 			self::_doBulkSetCustomFields(ChCustomFieldSource_Task::ID, $custom_fields, $batch_ids);
 			
+			// Owners
+			if(isset($do['owner']) && is_array($do['owner'])) {
+				$owner_params = $do['owner'];
+				foreach($batch_ids as $batch_id) {
+					if(isset($owner_params['add']) && is_array($owner_params['add']))
+						CerberusContexts::addWorkers(CerberusContexts::CONTEXT_TASK, $batch_id, $owner_params['add']);
+					if(isset($owner_params['remove']) && is_array($owner_params['remove']))
+						CerberusContexts::removeWorkers(CerberusContexts::CONTEXT_TASK, $batch_id, $owner_params['remove']);
+				}
+			}
+			
 			unset($batch_ids);
 		}
 
