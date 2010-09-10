@@ -5,7 +5,7 @@
 </head>
 
 <body>
-<H1>Installing Cerberus Helpdesk 5.x</H1>
+<H1>Installing Cerberus Helpdesk {$smarty.const.APP_VERSION}</H1>
 <table cellpadding="2" cellspacing="2">
 	<tr>
 		<td>Progress: </td>

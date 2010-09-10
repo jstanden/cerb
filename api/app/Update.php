@@ -74,7 +74,7 @@ class ChUpdateController extends DevblocksControllerExtension {
 	    		
 	    	case 'locked':
 	    		if(!DevblocksPlatform::versionConsistencyCheck()) {
-	    			echo "<h1>Cerberus Helpdesk 5.x</h1>";
+	    			echo sprintf("<h1>Cerberus Helpdesk %s</h1>", APP_VERSION);
 	    			echo "The helpdesk is currently waiting for an administrator to finish upgrading. ".
 	    				"Please wait a few minutes and then ". 
 		    			sprintf("<a href='%s'>try again</a>.<br><br>",
@@ -161,7 +161,7 @@ class ChUpdateController extends DevblocksControllerExtension {
 				    </style>
 				    ";
 			    	
-				    echo "<h1>Cerberus Helpdesk 5.x</h1>";
+				    echo sprintf("<h1>Cerberus Helpdesk %s</h1>", APP_VERSION);
 				    
 			    	echo $translate->_('update.correct_errors');
 			    	echo "<ul>";
