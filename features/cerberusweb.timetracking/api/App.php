@@ -1292,7 +1292,40 @@ class ChTimeTrackingPage extends CerberusPageExtension {
 
 		// Establishing a context link?
 		if(!empty($context) && !empty($context_id)) {
+			// Primary context
 			DAO_ContextLink::setLink(CerberusContexts::CONTEXT_TIMETRACKING, $id, $context, $context_id);
+			
+			// Associated contexts
+			switch($context) {
+				case CerberusContexts::CONTEXT_OPPORTUNITY:
+					if(!class_exists('DAO_CrmOpportunity', true))
+						break;
+						
+					$labels = null;
+					$values = null;
+					CerberusContexts::getContext($context, $context_id, $labels, $values);
+					
+					if(is_array($values)) {
+						// Is there an org associated with this context?
+						if(isset($values['email_org_id']) && !empty($values['email_org_id'])) {
+							DAO_ContextLink::setLink(CerberusContexts::CONTEXT_TIMETRACKING, $id, CerberusContexts::CONTEXT_ORG, $values['email_org_id']);
+						}
+					}
+					break;
+					
+				case CerberusContexts::CONTEXT_TICKET:
+					$labels = null;
+					$values = null;
+					CerberusContexts::getContext($context, $context_id, $labels, $values);
+					
+					if(is_array($values)) {
+						// Is there an org associated with this context?
+						if(isset($values['initial_message_sender_org_id']) && !empty($values['initial_message_sender_org_id'])) {
+							DAO_ContextLink::setLink(CerberusContexts::CONTEXT_TIMETRACKING, $id, CerberusContexts::CONTEXT_ORG, $values['initial_message_sender_org_id']);
+						}
+					}
+					break;
+			}
 		}
 		
 		// Owners
