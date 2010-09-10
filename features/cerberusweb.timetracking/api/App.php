@@ -867,6 +867,17 @@ class View_TimeTracking extends C4_AbstractView {
 			$batch_ids = array_slice($ids,$x,100);
 			DAO_TimeTrackingEntry::update($batch_ids, $change_fields);
 
+			// Owners
+			if(isset($do['owner']) && is_array($do['owner'])) {
+				$owner_params = $do['owner'];
+				foreach($batch_ids as $batch_id) {
+					if(isset($owner_params['add']) && is_array($owner_params['add']))
+						CerberusContexts::addWorkers(CerberusContexts::CONTEXT_TIMETRACKING, $batch_id, $owner_params['add']);
+					if(isset($owner_params['remove']) && is_array($owner_params['remove']))
+						CerberusContexts::removeWorkers(CerberusContexts::CONTEXT_TIMETRACKING, $batch_id, $owner_params['remove']);
+				}
+			}
+			
 			// Custom Fields
 			self::_doBulkSetCustomFields(ChCustomFieldSource_TimeEntry::ID, $custom_fields, $batch_ids);
 			
@@ -1462,7 +1473,21 @@ class ChTimeTrackingPage extends CerberusPageExtension {
 		// Do: ...
 //		if(0 != strlen($list_id))
 //			$do['list_id'] = $list_id;
+
+		// Owners
+		$owner_options = array();
+		
+		@$owner_add_ids = DevblocksPlatform::importGPC($_REQUEST['do_owner_add_ids'],'array',array());
+		if(!empty($owner_add_ids))
+			$owner_params['add'] = $owner_add_ids;
 			
+		@$owner_remove_ids = DevblocksPlatform::importGPC($_REQUEST['do_owner_remove_ids'],'array',array());
+		if(!empty($owner_remove_ids))
+			$owner_params['remove'] = $owner_remove_ids;
+		
+		if(!empty($owner_params))
+			$do['owner'] = $owner_params;
+		
 		// Do: Custom fields
 		$do = DAO_CustomFieldValue::handleBulkPost($do);
 
