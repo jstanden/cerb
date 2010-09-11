@@ -19,6 +19,15 @@
 			<input type="text" name="country" value="" size="35">
 		</td>
 	</tr>
+	
+	<tr>
+		<td width="0%" nowrap="nowrap" valign="top" align="right">{'common.owners'|devblocks_translate|capitalize}:</td>
+		<td width="100%">
+			<button type="button" class="chooser-worker add"><span class="cerb-sprite sprite-add"></span></button>
+			<br>
+			<button type="button" class="chooser-worker remove"><span class="cerb-sprite sprite-forbidden"></span></button>
+		</td>
+	</tr>
 </table>
 
 {include file="file:$core_tpl/internal/custom_fields/bulk/form.tpl" bulk=true}	
@@ -33,5 +42,15 @@
 	$popup = genericAjaxPopupFetch('peek');
 	$popup.one('popup_open', function(event,ui) {
 		$(this).dialog('option','title',"{'common.bulk_update'|devblocks_translate|escape:'quotes'}");
-	} );
+		
+		$('#formBatchUpdate button.chooser-worker').each(function() {
+			$button = $(this);
+			context = 'cerberusweb.contexts.worker';
+			
+			if($button.hasClass('remove'))
+				ajax.chooser(this, context, 'do_owner_remove_ids');
+			else
+				ajax.chooser(this, context, 'do_owner_add_ids');
+		});
+	});
 </script>

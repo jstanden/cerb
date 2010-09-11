@@ -606,6 +606,17 @@ class View_ContactOrg extends C4_AbstractView {
 			$batch_ids = array_slice($ids,$x,100);
 			DAO_ContactOrg::update($batch_ids, $change_fields);
 
+			// Owners
+			if(isset($do['owner']) && is_array($do['owner'])) {
+				$owner_params = $do['owner'];
+				foreach($batch_ids as $batch_id) {
+					if(isset($owner_params['add']) && is_array($owner_params['add']))
+						CerberusContexts::addWorkers(CerberusContexts::CONTEXT_ORG, $batch_id, $owner_params['add']);
+					if(isset($owner_params['remove']) && is_array($owner_params['remove']))
+						CerberusContexts::removeWorkers(CerberusContexts::CONTEXT_ORG, $batch_id, $owner_params['remove']);
+				}
+			}
+			
 			// Custom Fields
 			self::_doBulkSetCustomFields(ChCustomFieldSource_Org::ID, $custom_fields, $batch_ids);
 
