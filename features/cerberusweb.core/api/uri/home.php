@@ -154,6 +154,62 @@ class ChHomePage extends CerberusPageExtension {
 		$tpl->display('file:' . $this->_TPL_PATH . 'home/tabs/my_events/index.tpl');
 	}
 	
+	function showNotificationsBulkPanelAction() {
+		@$ids = DevblocksPlatform::importGPC($_REQUEST['ids']);
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id']);
+
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('view_id', $view_id);
+
+	    if(!empty($ids)) {
+	        $id_list = DevblocksPlatform::parseCsvString($ids);
+	        $tpl->assign('ids', implode(',', $id_list));
+	    }
+		
+		// Custom Fields
+		//$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Task::ID);
+		//$tpl->assign('custom_fields', $custom_fields);
+		
+		$tpl->display('file:' . $this->_TPL_PATH . 'home/tabs/my_events/bulk.tpl');
+	}
+	
+	function doNotificationsBulkUpdateAction() {
+		// Filter: whole list or check
+	    @$filter = DevblocksPlatform::importGPC($_REQUEST['filter'],'string','');
+		$ids = array();
+	    
+	    // View
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
+		$view = C4_AbstractViewLoader::getView($view_id);
+		
+		// Task fields
+		$is_read = trim(DevblocksPlatform::importGPC($_POST['is_read'],'string',''));
+
+		$do = array();
+		
+		// Do: Mark Read
+		if(0 != strlen($is_read))
+			$do['is_read'] = $is_read;
+			
+		// Do: Custom fields
+		//$do = DAO_CustomFieldValue::handleBulkPost($do);
+
+		switch($filter) {
+			// Checked rows
+			case 'checks':
+			    @$ids_str = DevblocksPlatform::importGPC($_REQUEST['ids'],'string');
+				$ids = DevblocksPlatform::parseCsvString($ids_str);
+				break;
+			default:
+				break;
+		}
+		
+		$view->doBulkUpdate($filter, $do, $ids);
+		
+		$view->render();
+		return;
+	}	
+	
 	function viewEventsExploreAction() {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
 		
@@ -363,32 +419,6 @@ class ChHomePage extends CerberusPageExtension {
 		}
 		exit;
 	} 
-	
-	function doNotificationsMarkReadAction() {
-		$worker = CerberusApplication::getActiveWorker();
-		
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'], 'string', '');
-		@$row_ids = DevblocksPlatform::importGPC($_REQUEST['row_id'],'array',array());
-
-		if(is_array($row_ids) && !empty($row_ids)) {
-			DAO_WorkerEvent::updateWhere(
-				array(
-					DAO_WorkerEvent::IS_READ => 1,
-				), 
-				sprintf("%s = %d AND %s IN (%s)",
-					DAO_WorkerEvent::WORKER_ID,
-					$worker->id,
-					DAO_WorkerEvent::ID,
-					implode(',', $row_ids)
-				)
-			);
-			
-			DAO_WorkerEvent::clearCountCache($worker->id);
-		}
-		
-		$myEventsView = C4_AbstractViewLoader::getView($view_id);
-		$myEventsView->render();
-	}
 	
 	function explorerEventMarkReadAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'integer', 0);
