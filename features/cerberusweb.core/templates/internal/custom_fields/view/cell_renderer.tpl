@@ -1,3 +1,4 @@
+{if empty($custom_fields)}{$custom_fields = DAO_CustomField::getAll()}{/if}
 {$col = explode('_',$column)}
 {$col_id = $col[1]}
 {$col = $custom_fields[$col_id]}
@@ -32,4 +33,6 @@
 		{$workers.$worker_id->getName()}
 	{/if}
 	</td>
+{else}
+	<td></td>
 {/if}
