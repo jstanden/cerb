@@ -385,7 +385,7 @@ class View_Server extends C4_AbstractView {
 		$this->renderSortAsc = true;
 
 		$this->view_columns = array(
-			SearchFields_Server::NAME,
+			SearchFields_Server::ID,
 		);
 		// Filter cols
 		$this->addColumnsHidden(array(
