@@ -19,7 +19,7 @@
 <form id="viewForm{$view->id}" name="viewForm{$view->id}" action="{devblocks_url}{/devblocks_url}" method="post">
 <input type="hidden" name="view_id" value="{$view->id}">
 <input type="hidden" name="id" value="{$view->id}">
-<input type="hidden" name="c" value="datacenter.sites">
+<input type="hidden" name="c" value="datacenter.domains">
 <input type="hidden" name="a" value="">
 <table cellpadding="1" cellspacing="0" border="0" width="100%" class="worklistBody">
 
@@ -55,7 +55,7 @@
 		<tr class="{$tableRowClass}">
 			<td align="center" rowspan="2"><input type="checkbox" name="row_id[]" value="{$result.w_id}"></td>
 			<td colspan="{math equation="x" x=$smarty.foreach.headers.total}">
-				<a href="{devblocks_url}c=datacenter.sites&a=site&id={$result.w_id}{/devblocks_url}" class="subject">{$result.w_domain|escape}</a><a href="{devblocks_url}c=datacenter&a=server&id={$result.s_id}{/devblocks_url}" class="subject">{$result.s_name|escape}</a><a href="javascript:;" onclick="genericAjaxPopup('peek','c=datacenter.sites&a=showSitePeek&view_id={$view->id}&id={$result.w_id}', null, false, '500');"><span class="ui-icon ui-icon-newwin" style="display:inline-block;vertical-align:middle;" title="{$translate->_('views.peek')}"></span></a>
+				<a href="{devblocks_url}c=datacenter.domains&a=domain&id={$result.w_id}{/devblocks_url}" class="subject">{$result.w_name|escape}</a><a href="{devblocks_url}c=datacenter&a=server&id={$result.s_id}{/devblocks_url}" class="subject">{$result.s_name|escape}</a><a href="javascript:;" onclick="genericAjaxPopup('peek','c=datacenter.domains&a=showDomainPeek&view_id={$view->id}&id={$result.w_id}', null, false, '500');"><span class="ui-icon ui-icon-newwin" style="display:inline-block;vertical-align:middle;" title="{$translate->_('views.peek')}"></span></a>
 			</td>
 		</tr>
 		<tr class="{$tableRowClass}">
@@ -85,7 +85,7 @@
 	<tr>
 		<td colspan="2">
 			{if 'context'==$view->renderTemplate}<button type="button" onclick="removeSelectedContextLinks('{$view->id}');">Unlink</button>{/if}
-			<button type="button" onclick="genericAjaxPopup('peek','c=datacenter.sites&a=showSiteBulkUpdate&view_id={$view->id}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','row_id[]'),null,false,'550');"><span class="cerb-sprite sprite-folder_gear"></span> {'common.bulk_update'|devblocks_translate|lower}</button>
+			<button type="button" onclick="genericAjaxPopup('peek','c=datacenter.domains&a=showDomainBulkUpdate&view_id={$view->id}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','row_id[]'),null,false,'550');"><span class="cerb-sprite sprite-folder_gear"></span> {'common.bulk_update'|devblocks_translate|lower}</button>
 		</td>
 	</tr>
 	{/if}

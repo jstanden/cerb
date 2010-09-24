@@ -1,7 +1,7 @@
 <!DOCTYPE plugin SYSTEM "../../libs/devblocks/plugin.dtd">
 <plugin>
-	<id>cerberusweb.datacenter.sites</id>
-	<name>[Cerb5] Datacenter: Site Manager</name>
+	<id>cerberusweb.datacenter.domains</id>
+	<name>[Cerb5] Datacenter: Domain Manager</name>
 	<description>Management of hosting/SaaS/on-demand infrastructure.</description>
 	<author>WebGroup Media, LLC.</author>
 	<revision>1</revision>
@@ -25,15 +25,15 @@
 	
 	<class_loader>
 		<file path="api/App.php">
-			<class name="ChCustomFieldSource_DatacenterSite" />
+			<class name="ChCustomFieldSource_Domain" />
 		</file>
-		<file path="api/dao/datacenter_site.php">
-			<class name="Context_DatacenterSite" />
-			<class name="DAO_DatacenterSite" />
-			<class name="Model_DatacenterSite" />
-			<class name="Plugin_DatacenterSite" />
-			<class name="SearchFields_DatacenterSite" />
-			<class name="View_DatacenterSite" />
+		<file path="api/dao/datacenter_domain.php">
+			<class name="Context_Domain" />
+			<class name="DAO_Domain" />
+			<class name="Model_Domain" />
+			<class name="Plugin_Domain" />
+			<class name="SearchFields_Domain" />
+			<class name="View_Domain" />
 		</file>
 	</class_loader>
 
@@ -44,11 +44,11 @@
 		<!-- Contexts -->
 		
 		<extension point="devblocks.context">
-			<id>cerberusweb.contexts.datacenter.site</id>
-			<name>Site</name>
+			<id>cerberusweb.contexts.datacenter.domain</id>
+			<name>Domain</name>
 			<class>
-				<file>api/dao/datacenter_site.php</file>
-				<name>Context_DatacenterSite</name>
+				<file>api/dao/datacenter_domain.php</file>
+				<name>Context_Domain</name>
 			</class>
 			<params>
 				<param key="link_options">
@@ -73,14 +73,14 @@
 		<!-- Pages -->
 
 		<extension point="cerberusweb.page">
-			<id>cerberusweb.datacenter.sites.page</id>
-			<name>Sites Page</name>
+			<id>cerberusweb.datacenter.domains.page</id>
+			<name>Domains Page</name>
 			<class>
 				<file>api/App.php</file>
-				<name>Page_DatacenterSites</name>
+				<name>Page_Domains</name>
 			</class>
 			<params>
-				<param key="uri" value="datacenter.sites" />
+				<param key="uri" value="datacenter.domains" />
 				<param key="menutitle" value="" />
 			</params>
 		</extension>
@@ -88,41 +88,41 @@
 		<!-- Datacenter Tab -->
 		
 		<extension point="cerberusweb.datacenter.tab">
-			<id>cerberusweb.datacenter.sites.datacenter_tab</id>
-			<name>Sites Tab</name>
+			<id>cerberusweb.datacenter.domains.datacenter_tab</id>
+			<name>Domains Tab</name>
 			<class>
 				<file>api/App.php</file>
-				<name>ChSitesDatacenterTab</name>
+				<name>ChDomainsDatacenterTab</name>
 			</class>
 			<params>
-				<param key="uri" value="sites" />
-				<param key="title" value="cerberusweb.datacenter.sites" />
+				<param key="uri" value="domains" />
+				<param key="title" value="cerberusweb.datacenter.domains" />
 			</params>
 		</extension>
 		
 		<!-- Server Tab -->
 		
 		<extension point="cerberusweb.datacenter.server.tab">
-			<id>cerberusweb.datacenter.sites.server_tab</id>
-			<name>Sites Tab</name>
+			<id>cerberusweb.datacenter.domains.server_tab</id>
+			<name>Domains Tab</name>
 			<class>
 				<file>api/App.php</file>
-				<name>ChSitesServerTab</name>
+				<name>ChDomainsServerTab</name>
 			</class>
 			<params>
-				<param key="uri" value="sites" />
-				<param key="title" value="cerberusweb.datacenter.sites" />
+				<param key="uri" value="domains" />
+				<param key="title" value="cerberusweb.datacenter.domains" />
 			</params>
 		</extension>
 		
 		<!-- Custom Field Sources -->
 		
 		<extension point="cerberusweb.fields.source">
-			<id>cerberusweb.datacenter.sites.fields.site</id>
-			<name>Datacenter Website</name>
+			<id>cerberusweb.datacenter.domains.fields.domain</id>
+			<name>Domain</name>
 			<class>
 				<file>api/Api.php</file>
-				<name>ChCustomFieldSource_DatacenterSite</name>
+				<name>ChCustomFieldSource_Domain</name>
 			</class>
 			<params>
 			</params>

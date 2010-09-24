@@ -1,36 +1,36 @@
 <?php
-class Context_DatacenterSite extends Extension_DevblocksContext {
+class Context_Domain extends Extension_DevblocksContext {
     function getPermalink($context_id) {
     	$url_writer = DevblocksPlatform::getUrlService();
-    	return $url_writer->write(sprintf("c=datacenter.sites&tab=site&id=%d",$context_id), true);
+    	return $url_writer->write(sprintf("c=datacenter.domains&tab=domain&id=%d",$context_id), true);
     }
     
 	function getContext($id_map, &$token_labels, &$token_values, $prefix=null) {
 		if(is_array($id_map)) {
-			$site = $id_map['id'];
+			$domain = $id_map['id'];
 		} else {
-			$site = $id_map;
+			$domain = $id_map;
 		}
 		
 		if(is_null($prefix))
-			$prefix = 'Site:';
+			$prefix = 'Domain:';
 		
 		$translate = DevblocksPlatform::getTranslationService();
-		$fields = DAO_CustomField::getBySource(ChCustomFieldSource_DatacenterSite::ID);
+		$fields = DAO_CustomField::getBySource(ChCustomFieldSource_Domain::ID);
 		
 		// Polymorph
-		if(is_numeric($site)) {
-			$site = DAO_DatacenterSite::get($site);
-		} elseif($site instanceof Model_DatacenterSite) {
+		if(is_numeric($domain)) {
+			$domain = DAO_Domain::get($domain);
+		} elseif($domain instanceof Model_Domain) {
 			// It's what we want already.
 		} else {
-			$site = null;
+			$domain = null;
 		}
 			
 		// Token labels
 		$token_labels = array(
 			'created|date' => $prefix.$translate->_('common.created'),
-			'domain' => $prefix.$translate->_('dao.datacenter_site.domain'),
+			'name' => $prefix.$translate->_('common.name'),
 		);
 		
 		if(is_array($fields))
@@ -42,21 +42,21 @@ class Context_DatacenterSite extends Extension_DevblocksContext {
 		$token_values = array();
 		
 		// Address token values
-		if(null != $site) {
-			$token_values['id'] = $site->id;
-			$token_values['created'] = $site->created;
-			if(!empty($site->domain))
-				$token_values['domain'] = $site->domain;
+		if(null != $domain) {
+			$token_values['id'] = $domain->id;
+			$token_values['created'] = $domain->created;
+			if(!empty($domain->name))
+				$token_values['name'] = $domain->name;
 			$token_values['custom'] = array();
 			
-			$field_values = array_shift(DAO_CustomFieldValue::getValuesBySourceIds(ChCustomFieldSource_DatacenterSite::ID, $site->id));
+			$field_values = array_shift(DAO_CustomFieldValue::getValuesBySourceIds(ChCustomFieldSource_Domain::ID, $domain->id));
 			if(is_array($field_values) && !empty($field_values)) {
 				foreach($field_values as $cf_id => $cf_val) {
 					if(!isset($fields[$cf_id]))
 						continue;
 					
 					// The literal value
-					if(null != $site)
+					if(null != $domain)
 						$token_values['custom'][$cf_id] = $cf_val;
 					
 					// Stringify
@@ -64,7 +64,7 @@ class Context_DatacenterSite extends Extension_DevblocksContext {
 						$cf_val = implode(', ', $cf_val);
 						
 					if(is_string($cf_val)) {
-						if(null != $site)
+						if(null != $domain)
 							$token_values['custom_'.$cf_id] = $cf_val;
 					}
 				}
@@ -85,15 +85,15 @@ class Context_DatacenterSite extends Extension_DevblocksContext {
 			$token_values
 		);
 		
-		// [TODO] Server
-		$server_id = (null != $site && !empty($site->server_id)) ? $site->server_id : null;
+		// Server
+		$server_id = (null != $domain && !empty($domain->server_id)) ? $domain->server_id : null;
 		$merge_token_labels = array();
 		$merge_token_values = array();
 		CerberusContexts::getContext('cerberusweb.contexts.datacenter.server', $server_id, $merge_token_labels, $merge_token_values, null, true);
 
 		CerberusContexts::merge(
 			'server_',
-			'Server:',
+			'',
 			$merge_token_labels,
 			$merge_token_values,
 			$token_labels,
@@ -109,23 +109,11 @@ class Context_DatacenterSite extends Extension_DevblocksContext {
 		$defaults = new C4_AbstractViewModel();
 		$defaults->id = $view_id;
 		$defaults->is_ephemeral = true;
-		$defaults->class_name = 'View_DatacenterSite';
+		$defaults->class_name = 'View_Domain';
 		
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
-		//$view->name = 'Sites';
 		
-//		$view->view_columns = array(
-//			SearchFields_DatacenterSite::FIRST_NAME,
-//			SearchFields_DatacenterSite::LAST_NAME,
-//			SearchFields_DatacenterSite::ORG_NAME,
-//		);
-		
-//		$view->addParamsDefault(array(
-//			SearchFields_DatacenterSite::IS_BANNED => new DevblocksSearchCriteria(SearchFields_DatacenterSite::IS_BANNED,'=',0),
-//		));
-//		$view->addParams($view->getParamsDefault(), true);
-		
-		$view->renderSortBy = SearchFields_DatacenterSite::DOMAIN;
+		$view->renderSortBy = SearchFields_Domain::NAME;
 		$view->renderSortAsc = true;
 		$view->renderLimit = 10;
 		$view->renderTemplate = 'contextlinks_chooser';
@@ -139,13 +127,12 @@ class Context_DatacenterSite extends Extension_DevblocksContext {
 		
 		$defaults = new C4_AbstractViewModel();
 		$defaults->id = $view_id; 
-		$defaults->class_name = 'View_DatacenterSite';
+		$defaults->class_name = 'View_Domain';
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
-		//$view->name = 'Sites';
 		
 		$params = array(
-			new DevblocksSearchCriteria(SearchFields_DatacenterSite::CONTEXT_LINK,'=',$context),
-			new DevblocksSearchCriteria(SearchFields_DatacenterSite::CONTEXT_LINK_ID,'=',$context_id),
+			new DevblocksSearchCriteria(SearchFields_Domain::CONTEXT_LINK,'=',$context),
+			new DevblocksSearchCriteria(SearchFields_Domain::CONTEXT_LINK_ID,'=',$context_id),
 		);
 		
 		if(isset($options['filter_open']))
@@ -158,16 +145,16 @@ class Context_DatacenterSite extends Extension_DevblocksContext {
 	}
 };
 
-class DAO_DatacenterSite extends C4_ORMHelper {
+class DAO_Domain extends C4_ORMHelper {
 	const ID = 'id';
-	const DOMAIN = 'domain';
+	const NAME = 'name';
 	const SERVER_ID = 'server_id';
 	const CREATED = 'created';
 
 	static function create($fields) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = "INSERT INTO datacenter_site () VALUES ()";
+		$sql = "INSERT INTO datacenter_domain () VALUES ()";
 		$db->Execute($sql);
 		$id = $db->LastInsertId();
 		
@@ -177,11 +164,11 @@ class DAO_DatacenterSite extends C4_ORMHelper {
 	}
 	
 	static function update($ids, $fields) {
-		parent::_update($ids, 'datacenter_site', $fields);
+		parent::_update($ids, 'datacenter_domain', $fields);
 	}
 	
 	static function updateWhere($fields, $where) {
-		parent::_updateWhere('datacenter_site', $fields, $where);
+		parent::_updateWhere('datacenter_domain', $fields, $where);
 	}
 	
 	/**
@@ -189,7 +176,7 @@ class DAO_DatacenterSite extends C4_ORMHelper {
 	 * @param mixed $sortBy
 	 * @param mixed $sortAsc
 	 * @param integer $limit
-	 * @return Model_DatacenterSite[]
+	 * @return Model_Domain[]
 	 */
 	static function getWhere($where=null, $sortBy=null, $sortAsc=true, $limit=null) {
 		$db = DevblocksPlatform::getDatabaseService();
@@ -197,8 +184,8 @@ class DAO_DatacenterSite extends C4_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, domain, server_id, created ".
-			"FROM datacenter_site ".
+		$sql = "SELECT id, name, server_id, created ".
+			"FROM datacenter_domain ".
 			$where_sql.
 			$sort_sql.
 			$limit_sql
@@ -210,7 +197,7 @@ class DAO_DatacenterSite extends C4_ORMHelper {
 
 	/**
 	 * @param integer $id
-	 * @return Model_DatacenterSite	 */
+	 * @return Model_Domain	 */
 	static function get($id) {
 		$objects = self::getWhere(sprintf("%s = %d",
 			self::ID,
@@ -225,15 +212,15 @@ class DAO_DatacenterSite extends C4_ORMHelper {
 	
 	/**
 	 * @param resource $rs
-	 * @return Model_DatacenterSite[]
+	 * @return Model_Domain[]
 	 */
 	static private function _getObjectsFromResult($rs) {
 		$objects = array();
 		
 		while($row = mysql_fetch_assoc($rs)) {
-			$object = new Model_DatacenterSite();
+			$object = new Model_Domain();
 			$object->id = $row['id'];
-			$object->domain = $row['domain'];
+			$object->name = $row['name'];
 			$object->server_id = $row['server_id'];
 			$object->created = $row['created'];
 			$objects[$object->id] = $object;
@@ -253,7 +240,7 @@ class DAO_DatacenterSite extends C4_ORMHelper {
 		
 		$ids_list = implode(',', $ids);
 		
-		$db->Execute(sprintf("DELETE FROM datacenter_site WHERE id IN (%s)", $ids_list));
+		$db->Execute(sprintf("DELETE FROM datacenter_domain WHERE id IN (%s)", $ids_list));
 		
 		return true;
 	}
@@ -272,7 +259,7 @@ class DAO_DatacenterSite extends C4_ORMHelper {
      */
     static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
 		$db = DevblocksPlatform::getDatabaseService();
-		$fields = SearchFields_DatacenterSite::getFields();
+		$fields = SearchFields_Domain::getFields();
 		
 		// Sanitize
 		if(!isset($fields[$sortBy]))
@@ -283,26 +270,26 @@ class DAO_DatacenterSite extends C4_ORMHelper {
 		$total = -1;
 		
 		$select_sql = sprintf("SELECT ".
-			"datacenter_site.id as %s, ".
-			"datacenter_site.domain as %s, ".
-			"datacenter_site.server_id as %s, ".
-			"datacenter_site.created as %s ",
-				SearchFields_DatacenterSite::ID,
-				SearchFields_DatacenterSite::DOMAIN,
-				SearchFields_DatacenterSite::SERVER_ID,
-				SearchFields_DatacenterSite::CREATED
+			"datacenter_domain.id as %s, ".
+			"datacenter_domain.name as %s, ".
+			"datacenter_domain.server_id as %s, ".
+			"datacenter_domain.created as %s ",
+				SearchFields_Domain::ID,
+				SearchFields_Domain::NAME,
+				SearchFields_Domain::SERVER_ID,
+				SearchFields_Domain::CREATED
 			);
 			
-		$join_sql = "FROM datacenter_site ".
+		$join_sql = "FROM datacenter_domain ".
 			// [JAS]: Dynamic table joins
-			(isset($tables['context_link']) ? "INNER JOIN context_link ON (context_link.to_context = 'cerberusweb.contexts.datacenter.site' AND context_link.to_context_id = datacenter_site.id) " : " ")
+			(isset($tables['context_link']) ? "INNER JOIN context_link ON (context_link.to_context = 'cerberusweb.contexts.datacenter.domain' AND context_link.to_context_id = datacenter_domain.id) " : " ")
 		;
 		
 		// Custom field joins
 		list($select_sql, $join_sql, $has_multiple_values) = self::_appendSelectJoinSqlForCustomFieldTables(
 			$tables,
 			$params,
-			'datacenter_site.id',
+			'datacenter_domain.id',
 			$select_sql,
 			$join_sql
 		);
@@ -316,7 +303,7 @@ class DAO_DatacenterSite extends C4_ORMHelper {
 			$select_sql.
 			$join_sql.
 			$where_sql.
-			($has_multiple_values ? 'GROUP BY datacenter_site.id ' : '').
+			($has_multiple_values ? 'GROUP BY datacenter_domain.id ' : '').
 			$sort_sql;
 			
 		// [TODO] Could push the select logic down a level too
@@ -334,14 +321,14 @@ class DAO_DatacenterSite extends C4_ORMHelper {
 			foreach($row as $f => $v) {
 				$result[$f] = $v;
 			}
-			$object_id = intval($row[SearchFields_DatacenterSite::ID]);
+			$object_id = intval($row[SearchFields_Domain::ID]);
 			$results[$object_id] = $result;
 		}
 
 		// [JAS]: Count all
 		if($withCounts) {
 			$count_sql = 
-				($has_multiple_values ? "SELECT COUNT(DISTINCT datacenter_site.id) " : "SELECT COUNT(datacenter_site.id) ").
+				($has_multiple_values ? "SELECT COUNT(DISTINCT datacenter_domain.id) " : "SELECT COUNT(datacenter_domain.id) ").
 				$join_sql.
 				$where_sql;
 			$total = $db->GetOne($count_sql);
@@ -354,9 +341,9 @@ class DAO_DatacenterSite extends C4_ORMHelper {
 
 };
 
-class SearchFields_DatacenterSite implements IDevblocksSearchFields {
+class SearchFields_Domain implements IDevblocksSearchFields {
 	const ID = 'w_id';
-	const DOMAIN = 'w_domain';
+	const NAME = 'w_name';
 	const SERVER_ID = 'w_server_id';
 	const CREATED = 'w_created';
 	
@@ -370,17 +357,17 @@ class SearchFields_DatacenterSite implements IDevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = array(
-			self::ID => new DevblocksSearchField(self::ID, 'datacenter_site', 'id', $translate->_('common.id')),
-			self::DOMAIN => new DevblocksSearchField(self::DOMAIN, 'datacenter_site', 'domain', $translate->_('dao.datacenter_site.domain')),
-			self::SERVER_ID => new DevblocksSearchField(self::SERVER_ID, 'datacenter_site', 'server_id', $translate->_('cerberusweb.datacenter.common.server')),
-			self::CREATED => new DevblocksSearchField(self::CREATED, 'datacenter_site', 'created', $translate->_('common.created')),
+			self::ID => new DevblocksSearchField(self::ID, 'datacenter_domain', 'id', $translate->_('common.id')),
+			self::NAME => new DevblocksSearchField(self::NAME, 'datacenter_domain', 'name', $translate->_('common.name')),
+			self::SERVER_ID => new DevblocksSearchField(self::SERVER_ID, 'datacenter_domain', 'server_id', $translate->_('cerberusweb.datacenter.common.server')),
+			self::CREATED => new DevblocksSearchField(self::CREATED, 'datacenter_domain', 'created', $translate->_('common.created')),
 			
 			self::CONTEXT_LINK => new DevblocksSearchField(self::CONTEXT_LINK, 'context_link', 'from_context', null),
 			self::CONTEXT_LINK_ID => new DevblocksSearchField(self::CONTEXT_LINK_ID, 'context_link', 'from_context_id', null),
 		);
 		
 		// Custom Fields
-		$fields = DAO_CustomField::getBySource(ChCustomFieldSource_DatacenterSite::ID);
+		$fields = DAO_CustomField::getBySource(ChCustomFieldSource_Domain::ID);
 
 		if(is_array($fields))
 		foreach($fields as $field_id => $field) {
@@ -395,27 +382,28 @@ class SearchFields_DatacenterSite implements IDevblocksSearchFields {
 	}
 };
 
-class Model_DatacenterSite {
+class Model_Domain {
 	public $id;
-	public $domain;
+	public $name;
 	public $server_id;
 	public $created;
 };
 
-class View_DatacenterSite extends C4_AbstractView {
-	const DEFAULT_ID = 'datacenter_site';
+class View_Domain extends C4_AbstractView {
+	const DEFAULT_ID = 'datacenter_domain';
 
 	function __construct() {
 		$translate = DevblocksPlatform::getTranslationService();
 	
 		$this->id = self::DEFAULT_ID;
-		$this->name = 'Sites'; // $translate->_('On-Demand');
+		$this->name = $translate->_('cerberusweb.datacenter.domains');
 		$this->renderLimit = 25;
-		$this->renderSortBy = SearchFields_DatacenterSite::ID;
+		$this->renderSortBy = SearchFields_Domain::ID;
 		$this->renderSortAsc = true;
 
 		$this->view_columns = array(
-			SearchFields_DatacenterSite::CREATED,
+			SearchFields_Domain::SERVER_ID,
+			SearchFields_Domain::CREATED,
 		);
 		
 		// Filter columns
@@ -430,7 +418,7 @@ class View_DatacenterSite extends C4_AbstractView {
 	}
 
 	function getData() {
-		$objects = DAO_DatacenterSite::search(
+		$objects = DAO_Domain::search(
 			$this->view_columns,
 			$this->getParams(),
 			$this->renderLimit,
@@ -450,15 +438,15 @@ class View_DatacenterSite extends C4_AbstractView {
 		$tpl->assign('view', $this);
 
 		// Custom fields
-		$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_DatacenterSite::ID);
+		$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Domain::ID);
 		$tpl->assign('custom_fields', $custom_fields);
 		
 		switch($this->renderTemplate) {
 			case 'contextlinks_chooser':
-				$tpl->display('devblocks:cerberusweb.datacenter.sites::site/view_contextlinks_chooser.tpl');
+				$tpl->display('devblocks:cerberusweb.datacenter.domains::domain/view_contextlinks_chooser.tpl');
 				break;
 			default:
-				$tpl->display('devblocks:cerberusweb.datacenter.sites::site/view.tpl');
+				$tpl->display('devblocks:cerberusweb.datacenter.domains::domain/view.tpl');
 				break;
 		}
 		
@@ -469,23 +457,23 @@ class View_DatacenterSite extends C4_AbstractView {
 		$tpl->assign('id', $this->id);
 
 		switch($field) {
-			case SearchFields_DatacenterSite::DOMAIN:
+			case SearchFields_Domain::NAME:
 				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__string.tpl');
 				break;
-			case SearchFields_DatacenterSite::ID:
+			case SearchFields_Domain::ID:
 				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__number.tpl');
 				break;
 			case 'placeholder_bool':
 				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__bool.tpl');
 				break;
-			case SearchFields_DatacenterSite::CREATED:
+			case SearchFields_Domain::CREATED:
 				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__date.tpl');
 				break;
-			case SearchFields_DatacenterSite::SERVER_ID:
+			case SearchFields_Domain::SERVER_ID:
 				$servers = DAO_Server::getAll();
 				$tpl->assign('servers', $servers);
 				
-				$tpl->display('devblocks:cerberusweb.datacenter.sites::site/filter/server.tpl');
+				$tpl->display('devblocks:cerberusweb.datacenter.domains::domain/filter/server.tpl');
 				break;
 			default:
 				// Custom Fields
@@ -503,7 +491,7 @@ class View_DatacenterSite extends C4_AbstractView {
 		$values = !is_array($param->value) ? array($param->value) : $param->value;
 
 		switch($field) {
-			case SearchFields_DatacenterSite::SERVER_ID:
+			case SearchFields_Domain::SERVER_ID:
 				$servers = DAO_Server::getAll();
 				$strings = array();
 
@@ -529,14 +517,14 @@ class View_DatacenterSite extends C4_AbstractView {
 	}
 
 	function getFields() {
-		return SearchFields_DatacenterSite::getFields();
+		return SearchFields_Domain::getFields();
 	}
 
 	function doSetCriteria($field, $oper, $value) {
 		$criteria = null;
 
 		switch($field) {
-			case SearchFields_DatacenterSite::DOMAIN:
+			case SearchFields_Domain::NAME:
 				// force wildcards if none used on a LIKE
 				if(($oper == DevblocksSearchCriteria::OPER_LIKE || $oper == DevblocksSearchCriteria::OPER_NOT_LIKE)
 				&& false === (strpos($value,'*'))) {
@@ -544,11 +532,11 @@ class View_DatacenterSite extends C4_AbstractView {
 				}
 				$criteria = new DevblocksSearchCriteria($field, $oper, $value);
 				break;
-			case SearchFields_DatacenterSite::ID:
+			case SearchFields_Domain::ID:
 				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
 				break;
 				
-			case SearchFields_DatacenterSite::CREATED:
+			case SearchFields_Domain::CREATED:
 				@$from = DevblocksPlatform::importGPC($_REQUEST['from'],'string','');
 				@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string','');
 
@@ -563,7 +551,7 @@ class View_DatacenterSite extends C4_AbstractView {
 				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
 				break;
 				
-			case SearchFields_DatacenterSite::SERVER_ID:
+			case SearchFields_Domain::SERVER_ID:
 				@$server_ids = DevblocksPlatform::importGPC($_REQUEST['server_id'],'array',array());
 				$criteria = new DevblocksSearchCriteria($field,$oper,$server_ids);
 				break;
@@ -601,7 +589,7 @@ class View_DatacenterSite extends C4_AbstractView {
 			switch($k) {
 				// [TODO] Implement actions
 				case 'example':
-					//$change_fields[DAO_DatacenterSite::EXAMPLE] = 'some value';
+					//$change_fields[DAO_Domain::EXAMPLE] = 'some value';
 					break;
 				default:
 					// Custom fields
@@ -616,12 +604,12 @@ class View_DatacenterSite extends C4_AbstractView {
 
 		if(empty($ids))
 		do {
-			list($objects,$null) = DAO_DatacenterSite::search(
+			list($objects,$null) = DAO_Domain::search(
 				array(),
 				$this->getParams(),
 				100,
 				$pg++,
-				SearchFields_DatacenterSite::ID,
+				SearchFields_Domain::ID,
 				true,
 				false
 			);
@@ -648,12 +636,12 @@ class View_DatacenterSite extends C4_AbstractView {
 			$next_is_closed = (isset($params['next_is_closed'])) ? intval($params['next_is_closed']) : 0; 
 			
 			if(is_array($ids))
-			foreach($ids as $site_id) {
-				$addresses = Context_Address::searchInboundLinks('cerberusweb.contexts.datacenter.site', $site_id);
+			foreach($ids as $domain_id) {
+				$addresses = Context_Address::searchInboundLinks('cerberusweb.contexts.datacenter.domain', $domain_id);
 				
 				foreach($addresses as $address_id => $address) {
 					try {
-						CerberusContexts::getContext('cerberusweb.contexts.datacenter.site', array('id'=>$site_id,'address_id'=>$address_id), $tpl_labels, $tpl_tokens);
+						CerberusContexts::getContext('cerberusweb.contexts.datacenter.domain', array('id'=>$domain_id,'address_id'=>$address_id), $tpl_labels, $tpl_tokens);
 						$subject = $tpl_builder->build($params['subject'], $tpl_tokens);
 						$body = $tpl_builder->build($params['message'], $tpl_tokens);
 						
@@ -691,10 +679,10 @@ class View_DatacenterSite extends C4_AbstractView {
 		for($x=0;$x<=$batch_total;$x+=100) {
 			$batch_ids = array_slice($ids,$x,100);
 			
-			DAO_DatacenterSite::update($batch_ids, $change_fields);
+			DAO_Domain::update($batch_ids, $change_fields);
 
 			// Custom Fields
-			self::_doBulkSetCustomFields(ChCustomFieldSource_DatacenterSite::ID, $custom_fields, $batch_ids);
+			self::_doBulkSetCustomFields(ChCustomFieldSource_Domain::ID, $custom_fields, $batch_ids);
 			
 			unset($batch_ids);
 		}

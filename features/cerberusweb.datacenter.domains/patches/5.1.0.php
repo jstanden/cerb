@@ -6,14 +6,13 @@ $tables = $db->metaTables();
 // ===========================================================================
 // Create initial tables
 
-if(!isset($tables['datacenter_site'])) {
+if(!isset($tables['datacenter_domain'])) {
 	$sql = "
-		CREATE TABLE IF NOT EXISTS datacenter_site (
+		CREATE TABLE IF NOT EXISTS datacenter_domain (
 			id INT UNSIGNED NOT NULL AUTO_INCREMENT,
-			domain VARCHAR(255) DEFAULT '',
+			name VARCHAR(255) DEFAULT '',
 			server_id INT UNSIGNED NOT NULL DEFAULT 0,
 			created INT UNSIGNED NOT NULL DEFAULT 0,
-			monthly_rate DECIMAL(8,2) UNSIGNED NOT NULL DEFAULT 0.00,
 			PRIMARY KEY (id),
 			INDEX created (created),
 			INDEX server_id (server_id)
@@ -21,7 +20,7 @@ if(!isset($tables['datacenter_site'])) {
 	";
 	$db->Execute($sql);
 
-	$tables['datacenter_site'] = 'datacenter_site';
+	$tables['datacenter_domain'] = 'datacenter_domain';
 }
 
 return TRUE;

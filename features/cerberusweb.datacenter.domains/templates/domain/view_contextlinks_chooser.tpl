@@ -40,9 +40,9 @@
 	{/if}
 	<tbody onmouseover="$(this).find('tr').addClass('hover');" onmouseout="$(this).find('tr').removeClass('hover');" onclick="if(getEventTarget(event)=='TD') { var $chk=$(this).find('input:checkbox:first');if(!$chk) return;$chk.attr('checked', !$chk.is(':checked')); } ">
 		<tr class="{$tableRowClass}">
-			<td align="center" rowspan="2"><input type="checkbox" name="row_id[]" title="{$result.w_domain|escape}" value="{$result.w_id}"></td>
+			<td align="center" rowspan="2"><input type="checkbox" name="row_id[]" title="{$result.w_name|escape}" value="{$result.w_id}"></td>
 			<td colspan="{math equation="x" x=$smarty.foreach.headers.total}">
-				<a href="{devblocks_url}c=datacenter.sites&m=site&id={$result.w_id}{/devblocks_url}" class="subject">{$result.w_domain}</a>
+				<a href="{devblocks_url}c=datacenter.domains&m=domain&id={$result.w_id}{/devblocks_url}" class="subject">{$result.w_name}</a>
 			</td>
 		</tr>
 		<tr class="{$tableRowClass}">

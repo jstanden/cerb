@@ -1,68 +1,68 @@
 <?php
 if(class_exists('Extension_DatacenterTab', true)):
-class ChSitesDatacenterTab extends Extension_DatacenterTab {
+class ChDomainsDatacenterTab extends Extension_DatacenterTab {
 	function showTab() {
 		$tpl = DevblocksPlatform::getTemplateService();
 
 		// View
-		$view_id = 'datacenter_sites';
+		$view_id = 'datacenter_domains';
 		
 		$defaults = new C4_AbstractViewModel();
 		$defaults->id = $view_id;
-		$defaults->class_name = 'View_DatacenterSite';
+		$defaults->class_name = 'View_Domain';
 		
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->id = $view_id;
-		$view->name = 'Sites';
+		$view->name = 'Domains';
 		$tpl->assign('view', $view);
 		
 		C4_AbstractViewLoader::setView($view_id, $view);
 
 		// Template
-		$tpl->display('devblocks:cerberusweb.datacenter.sites::datacenter_tab/index.tpl');
+		$tpl->display('devblocks:cerberusweb.datacenter.domains::datacenter_tab/index.tpl');
 	}
 };
 endif;
 
 if(class_exists('Extension_ServerTab', true)):
-class ChSitesServerTab extends Extension_ServerTab {
+class ChDomainsServerTab extends Extension_ServerTab {
 	function showTab(Model_Server $server) {
 		$tpl = DevblocksPlatform::getTemplateService();
 
 		// View
-		$view_id = 'server_sites';
+		$view_id = 'server_domains';
 		
 		$defaults = new C4_AbstractViewModel();
 		$defaults->id = $view_id;
-		$defaults->class_name = 'View_DatacenterSite';
+		$defaults->class_name = 'View_Domain';
 		
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->id = $view_id;
-		$view->name = 'Sites';
+		$view->name = 'Domains';
 		$tpl->assign('view', $view);
 		
 		$view->addParamsHidden(array(
-			SearchFields_DatacenterSite::SERVER_ID,
+			SearchFields_Domain::SERVER_ID,
 		));
 		$view->addParamsRequired(array(
-			SearchFields_DatacenterSite::SERVER_ID => new DevblocksSearchCriteria(SearchFields_DatacenterSite::SERVER_ID, '=', $server->id),
+			SearchFields_Domain::SERVER_ID => new DevblocksSearchCriteria(SearchFields_Domain::SERVER_ID, '=', $server->id),
 		));
 		
 		C4_AbstractViewLoader::setView($view_id, $view);
 
 		// Template
-		$tpl->display('devblocks:cerberusweb.datacenter.sites::server_tab/index.tpl');
+		$tpl->display('devblocks:cerberusweb.datacenter.domains::server_tab/index.tpl');
 	}
 };
 endif;
 
 // [TODO] This will no longer be necessary soon
-class ChCustomFieldSource_DatacenterSite extends Extension_CustomFieldSource {
-	const ID = 'cerberusweb.datacenter.sites.fields.site';
+class ChCustomFieldSource_Domain extends Extension_CustomFieldSource {
+	const ID = 'cerberusweb.datacenter.domains.fields.domain';
 };
 
 // Controller
-class Page_DatacenterSites extends CerberusPageExtension {
+class Page_Domains extends CerberusPageExtension {
 	function isVisible() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		return ($active_worker) ? true : false;
@@ -83,22 +83,22 @@ class Page_DatacenterSites extends CerberusPageExtension {
 
 		// Path
 		$stack = $response->path;
-		@array_shift($stack); // datacenter.sites
-		@$module = array_shift($stack); // sites
+		@array_shift($stack); // datacenter.domains
+		@$module = array_shift($stack); // domain
 
 		switch($module) {
-			case 'site':
-				@$site_id = array_shift($stack); // id
-				if(is_numeric($site_id) && null != ($site = DAO_DatacenterSite::get($site_id)))
-					$tpl->assign('site', $site);
+			case 'domain':
+				@$domain_id = array_shift($stack); // id
+				if(is_numeric($domain_id) && null != ($domain = DAO_Domain::get($domain_id)))
+					$tpl->assign('domain', $domain);
 				
-				$tab_manifests = DevblocksPlatform::getExtensions('cerberusweb.datacenter.site.tab', false);
+				$tab_manifests = DevblocksPlatform::getExtensions('cerberusweb.datacenter.domain.tab', false);
 				uasort($tab_manifests, create_function('$a, $b', "return strcasecmp(\$a->name,\$b->name);\n"));
 				$tpl->assign('tab_manifests', $tab_manifests);
 				
 				// [TODO] Comments
 				
-				$tpl->display('devblocks:cerberusweb.datacenter.sites::site/display/index.tpl');		
+				$tpl->display('devblocks:cerberusweb.datacenter.domains::domain/display/index.tpl');		
 				break;
 			default:
 				break;
@@ -117,20 +117,20 @@ class Page_DatacenterSites extends CerberusPageExtension {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		$defaults = new C4_AbstractViewModel();
-		$defaults->id = 'datacenter_sites';
-		$defaults->class_name = 'View_DatacenterSite';
+		$defaults->id = 'datacenter_domains';
+		$defaults->class_name = 'View_Domain';
 		
-		$view = C4_AbstractViewLoader::getView('datacenter_sites', $defaults);
+		$view = C4_AbstractViewLoader::getView('datacenter_domains', $defaults);
 		
         $visit->set('quick_search_type', $type);
         
         $params = array();
         
         switch($type) {
-            case "domain":
+            case "name":
 		        if($query && false===strpos($query,'*'))
 		            $query = $query . '*';
-                $params[SearchFields_DatacenterSite::DOMAIN] = new DevblocksSearchCriteria(SearchFields_DatacenterSite::DOMAIN,DevblocksSearchCriteria::OPER_LIKE,strtolower($query));               
+                $params[SearchFields_Domain::NAME] = new DevblocksSearchCriteria(SearchFields_Domain::NAME,DevblocksSearchCriteria::OPER_LIKE,strtolower($query));               
                 break;
         }
         
@@ -139,10 +139,10 @@ class Page_DatacenterSites extends CerberusPageExtension {
         
         C4_AbstractViewLoader::setView($view->id, $view);
         
-        DevblocksPlatform::redirect(new DevblocksHttpResponse(array('datacenter','sites')));
+        DevblocksPlatform::redirect(new DevblocksHttpResponse(array('datacenter','domains')));
 	}	
 	
-	function showSitePeekAction() {
+	function showDomainPeekAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
 		
@@ -151,8 +151,8 @@ class Page_DatacenterSites extends CerberusPageExtension {
 		
 		// Model
 		$model = null;
-		if(empty($id) || null == ($model = DAO_DatacenterSite::get($id)))
-			$model = new Model_DatacenterSite();
+		if(empty($id) || null == ($model = DAO_Domain::get($id)))
+			$model = new Model_Domain();
 		
 		$tpl->assign('model', $model);
 		
@@ -161,10 +161,10 @@ class Page_DatacenterSites extends CerberusPageExtension {
 		$tpl->assign('servers', $servers);
 		
 		// Custom fields
-		$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_DatacenterSite::ID); 
+		$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Domain::ID); 
 		$tpl->assign('custom_fields', $custom_fields);
 
-		$custom_field_values = DAO_CustomFieldValue::getValuesBySourceIds(ChCustomFieldSource_DatacenterSite::ID, $id);
+		$custom_field_values = DAO_CustomFieldValue::getValuesBySourceIds(ChCustomFieldSource_Domain::ID, $id);
 		if(isset($custom_field_values[$id]))
 			$tpl->assign('custom_field_values', $custom_field_values[$id]);
 		
@@ -172,55 +172,55 @@ class Page_DatacenterSites extends CerberusPageExtension {
 		$tpl->assign('types', $types);
 		
 		// Context: Addresses
-		$context_addresses = Context_Address::searchInboundLinks('cerberusweb.contexts.datacenter.site', $id);
+		$context_addresses = Context_Address::searchInboundLinks('cerberusweb.contexts.datacenter.domain', $id);
 		$tpl->assignByRef('context_addresses', $context_addresses);
 		
 		// Render
-		$tpl->display('devblocks:cerberusweb.datacenter.sites::site/peek.tpl');
+		$tpl->display('devblocks:cerberusweb.datacenter.domains::domain/peek.tpl');
 	}
 	
-	function saveSitePeekAction() {
+	function saveDomainPeekAction() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
-		@$domain = DevblocksPlatform::importGPC($_REQUEST['domain'],'string','');
+		@$name = DevblocksPlatform::importGPC($_REQUEST['name'],'string','');
 		@$server_id = DevblocksPlatform::importGPC($_REQUEST['server_id'],'integer',0);
 		@$created = DevblocksPlatform::importGPC($_REQUEST['created'],'string','');
 		@$contact_address_ids = DevblocksPlatform::importGPC($_REQUEST['contact_address_id'],'array',array());
 		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'],'integer',0);
 		
 		if($do_delete) { // delete
-			DAO_DatacenterSite::delete($id);
+			DAO_Domain::delete($id);
 			
 		} else { // create | update
 			if(false == (@$created = strtotime($created)))
 				$created = time();
 			
 			$fields = array(
-				DAO_DatacenterSite::DOMAIN => $domain,
-				DAO_DatacenterSite::SERVER_ID => $server_id,
-				DAO_DatacenterSite::CREATED => $created,
+				DAO_Domain::NAME => $name,
+				DAO_Domain::SERVER_ID => $server_id,
+				DAO_Domain::CREATED => $created,
 			);
 			
 			// Create/Update
 			if(empty($id)) {
-				$id = DAO_DatacenterSite::create($fields);
+				$id = DAO_Domain::create($fields);
 				
 			} else {
-				DAO_DatacenterSite::update($id, $fields);
+				DAO_Domain::update($id, $fields);
 			}
 			
 			// Custom field saves
 			@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', array());
-			DAO_CustomFieldValue::handleFormPost(ChCustomFieldSource_DatacenterSite::ID, $id, $field_ids);
+			DAO_CustomFieldValue::handleFormPost(ChCustomFieldSource_Domain::ID, $id, $field_ids);
 			
 			// Address context links
-			DAO_ContextLink::setContextOutboundLinks('cerberusweb.contexts.datacenter.site', $id, CerberusContexts::CONTEXT_ADDRESS, $contact_address_ids);
+			DAO_ContextLink::setContextOutboundLinks('cerberusweb.contexts.datacenter.domain', $id, CerberusContexts::CONTEXT_ADDRESS, $contact_address_ids);
 		}
 		
 	}
 	
-	function showSiteBulkUpdateAction() {
+	function showDomainBulkUpdateAction() {
 		@$ids = DevblocksPlatform::importGPC($_REQUEST['ids']);
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id']);
 
@@ -241,17 +241,17 @@ class Page_DatacenterSites extends CerberusPageExtension {
 		//$tpl->assign('team_categories', $team_categories);
 		
 		// Custom Fields
-		$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_DatacenterSite::ID);
+		$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Domain::ID);
 		$tpl->assign('custom_fields', $custom_fields);
 		
 		// Broadcast
-		CerberusContexts::getContext('cerberusweb.contexts.datacenter.site', null, $token_labels, $token_values);
+		CerberusContexts::getContext('cerberusweb.contexts.datacenter.domain', null, $token_labels, $token_values);
 		$tpl->assign('token_labels', $token_labels);
 		
-		$tpl->display('devblocks:cerberusweb.datacenter.sites::site/bulk.tpl');
+		$tpl->display('devblocks:cerberusweb.datacenter.domains::domain/bulk.tpl');
 	}
 	
-	function doSiteBulkUpdateAction() {
+	function doDomainBulkUpdateAction() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		// Filter: whole list or check
@@ -354,7 +354,7 @@ class Page_DatacenterSites extends CerberusPageExtension {
 				
 			} else {
 				// Pull one of the addresses on this row
-				$addresses = Context_Address::searchInboundLinks('cerberusweb.contexts.datacenter.site', key($results));
+				$addresses = Context_Address::searchInboundLinks('cerberusweb.contexts.datacenter.domain', key($results));
 				
 				if(empty($addresses)) {
 					echo "This row has no associated addresses. Try again.";
@@ -365,7 +365,7 @@ class Page_DatacenterSites extends CerberusPageExtension {
 				@$addy = DAO_Address::get(array_rand($addresses, 1));
 
 				// Try to build the template
-				CerberusContexts::getContext('cerberusweb.contexts.datacenter.site', array('id'=>key($results),'address_id'=>$addy->id), $token_labels, $token_values);
+				CerberusContexts::getContext('cerberusweb.contexts.datacenter.domain', array('id'=>key($results),'address_id'=>$addy->id), $token_labels, $token_values);
 
 				if(empty($broadcast_subject)) {
 					$success = false;

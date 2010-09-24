@@ -1,6 +1,6 @@
 <form action="{devblocks_url}{/devblocks_url}" method="POST" id="formBatchUpdate" name="formBatchUpdate" onsubmit="return false;">
-<input type="hidden" name="c" value="datacenter.sites">
-<input type="hidden" name="a" value="doSiteBulkUpdate">
+<input type="hidden" name="c" value="datacenter.domains">
+<input type="hidden" name="a" value="doDomainBulkUpdate">
 <input type="hidden" name="view_id" value="{$view_id}">
 <input type="hidden" name="ids" value="{$ids}">
 
@@ -27,14 +27,14 @@
 	<tr>
 		<td width="0%" nowrap="nowrap" align="right"><label for="chkMassReply">Broadcast:</label></td>
 		<td width="100%">
-			<input type="checkbox" name="do_broadcast" id="chkMassReply" onclick="$('#bulkDatacenterSiteBroadcast').toggle();">
+			<input type="checkbox" name="do_broadcast" id="chkMassReply" onclick="$('#bulkDatacenterDomainBroadcast').toggle();">
 		</td>
 	</tr>
 	{*/if*}
 </table>
 
 {*if $active_worker->hasPriv('crm.opp.view.actions.broadcast')*}
-<blockquote id="bulkDatacenterSiteBroadcast" style="display:none;margin:10px;">
+<blockquote id="bulkDatacenterDomainBroadcast" style="display:none;margin:10px;">
 	<b>From:</b> <br>
 	<select name="broadcast_group_id">
 		{foreach from=$groups item=group key=group_id}
@@ -49,7 +49,7 @@
 	<b>Compose:</b> {*[<a href="#">syntax</a>]*}<br>
 	<textarea name="broadcast_message" style="width:100%;height:200px;border:1px solid rgb(180,180,180);padding:2px;"></textarea>
 	<br>
-	<button type="button" onclick="genericAjaxPost('formBatchUpdate','bulkDatacenterSiteBroadcastTest','c=datacenter.sites&a=doBulkUpdateBroadcastTest');"><span class="cerb-sprite sprite-gear"></span> Test</button><!--
+	<button type="button" onclick="genericAjaxPost('formBatchUpdate','bulkDatacenterDomainBroadcastTest','c=datacenter.domains&a=doBulkUpdateBroadcastTest');"><span class="cerb-sprite sprite-gear"></span> Test</button><!--
 	--><select onchange="insertAtCursor(this.form.broadcast_message,this.options[this.selectedIndex].value);this.selectedIndex=0;this.form.broadcast_message.focus();">
 		<option value="">-- insert at cursor --</option>
 		{foreach from=$token_labels key=k item=v}
@@ -57,7 +57,7 @@
 		{/foreach}
 	</select>
 	<br>
-	<div id="bulkDatacenterSiteBroadcastTest"></div>
+	<div id="bulkDatacenterDomainBroadcastTest"></div>
 	<b>{$translate->_('common.options')|capitalize}:</b> 
 	<label><input type="radio" name="broadcast_is_queued" value="0" checked="checked"> Save as drafts</label>
 	<label><input type="radio" name="broadcast_is_queued" value="1"> Send now</label>
