@@ -771,6 +771,25 @@ class Context_Address extends Extension_DevblocksContext {
         parent::__construct($manifest);
     }
 
+    static function searchInboundLinks($from_context, $from_context_id) {
+    	list($results, $null) = DAO_Address::search(
+    		array(
+    			SearchFields_Address::ID,
+    		),
+    		array(
+				new DevblocksSearchCriteria(SearchFields_Address::CONTEXT_LINK,'=',$from_context),
+				new DevblocksSearchCriteria(SearchFields_Address::CONTEXT_LINK_ID,'=',$from_context_id),
+    		),
+    		-1,
+    		0,
+    		SearchFields_Address::EMAIL,
+    		true,
+    		false
+    	);
+    	
+    	return $results;
+    }
+    
     function getPermalink($context_id) {
     	$url_writer = DevblocksPlatform::getUrlService();
     	return $url_writer->write('c=contacts&tab=addresses', true);

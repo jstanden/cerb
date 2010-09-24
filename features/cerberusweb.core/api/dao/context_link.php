@@ -81,6 +81,62 @@ class DAO_ContextLink {
 		return $rows;
 	}
 	
+	// [TODO] This could replace the worker specific implementations
+	static public function setContextOutboundLinks($from_context, $from_context_id, $to_context, $to_context_ids) {
+		$links = DAO_ContextLink::getContextLinks($from_context, $from_context_id, $to_context, $to_context_ids);
+
+		if(!is_array($to_context_ids))
+			$to_context_ids = array($to_context_ids);
+		
+		// Remove
+		if(is_array($links))
+		foreach($links[$from_context_id] as $link_id => $link) {
+			if(false === array_search($link_id, $to_context_ids))
+				DAO_ContextLink::deleteLink($from_context, $from_context_id, $to_context, $link_id);
+		}
+		
+		// Add
+		if(is_array($to_context_ids))
+		foreach($to_context_ids as $to_context_id) {
+			DAO_ContextLink::setLink($from_context, $from_context_id, $to_context, $to_context_id);
+		}
+	}	
+	
+//	static public function getContextOutboundLinks($from_context, $from_context_id, $to_context, $to_context_ids) {
+//		$db = DevblocksPlatform::getDatabaseService();
+//		
+//		if(!is_array($to_context_ids))
+//			$to_context_ids = array($to_context_ids);
+//		
+//		if(empty($from_context) || empty($from_context_id) || empty($to_context) || empty($to_context_ids))
+//			return array();
+//		
+//		$sql = sprintf("SELECT from_context, from_context_id, to_context, to_context_id ".
+//			"FROM context_link ".
+//			"WHERE 1 ".
+//			"AND (%s = %s AND %s = %d) ",
+//			"AND (%s = %s AND %s IN (%s)) ",
+//			self::FROM_CONTEXT,
+//			$db->qstr($from_context),
+//			self::FROM_CONTEXT_ID,
+//			$from_context_id,
+//			self::TO_CONTEXT,
+//			$db->qstr($to_context),
+//			self::TO_CONTEXT_ID,
+//			implode(',', $to_context_ids)
+//		);
+//		$rs = $db->Execute($sql);
+//		
+//		$objects = array();
+//		
+//		if(is_resource($rs))
+//		while($row = mysql_fetch_assoc($rs)) {
+//			$objects[$row['to_context_id']] = new Model_ContextLink($row['to_context'], $row['to_context_id']);
+//		}
+//		
+//		return $objects;
+//	}
+	
 	static public function getContextLinks($from_context, $from_context_ids, $to_context) {
 		if(!is_array($from_context_ids))
 			$from_context_ids = array($from_context_ids);
