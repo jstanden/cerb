@@ -1,22 +1,18 @@
+{if !empty($custom_fields)}
 <table cellspacing="0" cellpadding="2" width="100%">
 	<!-- Custom Fields -->
-	<tr>
-		<td colspan="2" align="center">&nbsp;</td>
-	</tr>
 	{foreach from=$custom_fields item=f key=f_id}
 		<tr>
 			<td width="1%" nowrap="nowrap" valign="top">
 				{if $bulk}
-				<label><input type="checkbox" onclick="toggleDiv('bulkOpts{$f_id}');" name="field_ids[]" value="{$f_id}"><span style="font-size:90%;">{$f->name}:</span></label>
+				<label><input type="checkbox" onclick="toggleDiv('bulkOpts{$f_id}');" name="field_ids[]" value="{$f_id}">{$f->name}:</label>
 				{else}
-					<span style="font-size:0.9em;">
 					<input type="hidden" name="field_ids[]" value="{$f_id}">
 					{if $f->type=='U'}
 						{if !empty($custom_field_values.$f_id)}<a href="{$custom_field_values.$f_id|escape}" target="_blank">{$f->name}</a>{else}{$f->name}{/if}:
 					{else}
 						{$f->name}:
 					{/if}
-					</span>
 				{/if}
 			</td>
 			<td width="99%">
@@ -94,3 +90,4 @@
 		</tr>
 	{/foreach}
 </table>
+{/if}
