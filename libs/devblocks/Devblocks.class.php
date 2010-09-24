@@ -4423,6 +4423,9 @@ class _DevblocksClassLoadManager {
 		$this->registerClasses(DEVBLOCKS_PATH . 'libs/markdown/markdown.php', array(
 			'Markdown_Parser'
 		));
+		$this->registerClasses(DEVBLOCKS_PATH . 'libs/lightopenid/openid.php', array(
+			'LightOpenID'
+		));
 		$this->registerClasses(DEVBLOCKS_PATH . 'libs/s3/S3.php', array(
 			'S3'
 		));
