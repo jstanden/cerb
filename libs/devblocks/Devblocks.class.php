@@ -1084,6 +1084,13 @@ class DevblocksPlatform extends DevblocksEngine {
 	}
 	
 	/**
+	 * @return _DevblocksOpenIDManager 
+	 */
+	static function getOpenIDService() {
+		return _DevblocksOpenIDManager::getInstance();
+	}
+	
+	/**
 	 * @return _DevblocksSearchEngineMysqlFulltext
 	 */
 	static function getSearchService() {
@@ -2147,6 +2154,186 @@ class _DevblocksSessionDatabaseDriver {
 	static function destroyAll() {
 		$db = DevblocksPlatform::getDatabaseService();
 		$db->Execute("DELETE FROM devblocks_session");
+	}
+};
+
+class _DevblocksOpenIDManager {
+	private static $instance = null;
+	
+	public static function getInstance() {
+		if(null == self::$instance) {
+			self::$instance = new _DevblocksOpenIDManager();
+		}
+		
+		return self::$instance;
+	}
+	
+	public function discover($url) {
+		do {
+			$repeat = false;
+			
+			$ch = curl_init();
+			curl_setopt($ch, CURLOPT_URL, $url);
+			curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+			curl_setopt($ch, CURLOPT_HEADER, 1);
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+			$content = curl_exec($ch);
+			$info = curl_getinfo($ch);
+			curl_close($ch);
+	
+			//print_r($info);
+			$lines = explode("\n", $content);
+			
+			$headers = array();
+			$content = '';
+	
+			$is_headers = true;
+			while($line = array_shift($lines)) {
+				if($is_headers && $line == "\r") {
+					$is_headers = false;
+					continue;
+				}
+				
+				if($is_headers)
+					$headers[] = $line;
+				else {
+					// Everything else
+					$content = $line . "\n" . implode("\n", $lines);
+					$lines = array();
+				} 
+			}		
+			
+			unset($lines);
+			
+			// Check the headers for an 'X-XRDS-Location'
+			foreach($headers as $header) {
+				if(preg_match("/^X-XRDS-Location:.*?/", $header)) {
+					$out = explode(':', $header, 2);
+					$url = isset($out[1]) ? trim($out[1]) : null;
+					$repeat = true;
+					break;
+				}
+			}
+			
+		} while($repeat);
+		
+		if(isset($info['content_type']))  {
+			$result = explode(';', $info['content_type']);
+			$type = isset($result[0]) ? trim($result[0]) : null;
+			
+			$server = null;
+			
+			switch($type) {
+				case 'application/xrds+xml':
+					$xml = simplexml_load_string($content);
+					
+					foreach($xml->XRD->Service as $service) {
+						$types = array();
+						foreach($service->Type as $type) {
+							$types[] = $type;
+						}
+
+						// [TODO] OpenID 1.0
+						if(false !== ($pos = array_search('http://specs.openid.net/auth/2.0/server', $types))) {
+							$server = $service->URI;
+						} elseif(false !== ($pos = array_search('http://specs.openid.net/auth/2.0/signon', $types))) {
+							$server = $service->URI;
+						}
+					}
+					break;
+					
+				case 'text/html':
+					//echo "<pre>",$content,"</pre>";
+					
+					// [TODO] Check for provider/proxy?
+					preg_match("<link rel=\"openid.server\" href=\"(.*?)\" />", $content, $found);
+					//print_r($found[1]);
+					
+					if($found && isset($found[1]))
+						$server = $found[1];
+					break;
+					
+				default:
+					break;
+			}
+
+			return $server;
+		}		
+	}
+	
+	public function getAuthUrl($openid_identifier, $return_to) {
+		$url_writer = DevblocksPlatform::getUrlService();
+		
+		$server = $this->discover($openid_identifier);
+		
+		$parts = explode('?', $server, 2);
+		$url = isset($parts[0]) ? $parts[0] : '';
+		$query = isset($parts[1]) ? ('?'.$parts[1]) : '';
+		
+		$query .= (!empty($query)) ? '&' : '?';
+		$query .= "openid.mode=checkid_setup";
+		$query .= "&openid.claimed_id=".urlencode("http://specs.openid.net/auth/2.0/identifier_select");
+		$query .= "&openid.identity=".urlencode("http://specs.openid.net/auth/2.0/identifier_select");
+//		$query .= "&openid.realm=".urlencode($url_writer->write('',true));
+//		$query .= "&openid.claimed_id=".urlencode($openid_identifier);
+//		$query .= "&openid.identity=".urlencode($openid_identifier);
+		$query .= "&openid.ns=".urlencode("http://specs.openid.net/auth/2.0");
+		$query .= "&openid.return_to=".urlencode($return_to);
+		
+		return $url.$query;
+	}
+	
+	public function validate($scope) {
+		$url_writer = DevblocksPlatform::getUrlService();
+		
+		$openid_identifier = $scope['openid_identity'];
+		
+		$server = $this->discover($openid_identifier);
+		
+		$parts = explode('?', $server, 2);
+		$url = isset($parts[0]) ? $parts[0] : '';
+		$query = isset($parts[1]) ? ('?'.$parts[1]) : '';
+		
+		$query .= (!empty($query)) ? '&' : '?';
+		$query .= "openid.ns=".urlencode("http://specs.openid.net/auth/2.0");
+		$query .= "&openid.mode=check_authentication";
+		$query .= "&openid.sig=".urlencode($_GET['openid_sig']);
+		$query .= "&openid.signed=".urlencode($_GET['openid_signed']);
+		
+		// Append all the tokens used in the signed
+		$tokens = explode(',', $scope['openid_signed']);
+		foreach($tokens as $token) {
+			switch($token) {
+				case 'mode':
+				case 'ns':
+				case 'sig':
+				case 'signed':
+					break;
+					
+				default:
+					$key = str_replace('.', '_', $token);
+					
+					if(isset($scope['openid_'.$key])) {
+						$query .= sprintf("&openid.%s=%s",
+							$token,
+							urlencode($scope['openid_'.$key])
+						);
+					}
+					break;
+			}
+		}
+		
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_URL, $url.$query);
+		curl_setopt($ch, CURLOPT_HEADER, 0);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+		$response = curl_exec($ch);
+		curl_close($ch);
+		
+		if(preg_match('/is_valid:true/', $response))
+			return true;
+		else
+			return false;
 	}
 };
 
@@ -4422,9 +4609,6 @@ class _DevblocksClassLoadManager {
 	private function _initLibs() {
 		$this->registerClasses(DEVBLOCKS_PATH . 'libs/markdown/markdown.php', array(
 			'Markdown_Parser'
-		));
-		$this->registerClasses(DEVBLOCKS_PATH . 'libs/lightopenid/openid.php', array(
-			'LightOpenID'
 		));
 		$this->registerClasses(DEVBLOCKS_PATH . 'libs/s3/S3.php', array(
 			'S3'
