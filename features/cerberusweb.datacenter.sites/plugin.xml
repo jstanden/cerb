@@ -1,0 +1,132 @@
+<!DOCTYPE plugin SYSTEM "../../libs/devblocks/plugin.dtd">
+<plugin>
+	<id>cerberusweb.datacenter.sites</id>
+	<name>[Cerb5] Datacenter: Site Manager</name>
+	<description>Management of hosting/SaaS/on-demand infrastructure.</description>
+	<author>WebGroup Media, LLC.</author>
+	<revision>1</revision>
+	<link>http://www.cerb5.com/</link>
+	<!--<image>plugin.png</image>-->
+ 
+	<!-- Plugin Dependencies -->
+	
+	<dependencies>
+		<require plugin_id="cerberusweb.core" version="5.1.0" />
+		<require plugin_id="cerberusweb.datacenter" version="5.1.0" />
+	</dependencies>
+
+	<!-- Patches -->
+	
+	<patches>
+		<patch version="5.1.0" revision="1" file="patches/5.1.0.php" />
+	</patches>
+	
+	<!-- Exported Classes -->
+	
+	<class_loader>
+		<file path="api/App.php">
+			<class name="ChCustomFieldSource_DatacenterSite" />
+		</file>
+		<file path="api/dao/datacenter_site.php">
+			<class name="Context_DatacenterSite" />
+			<class name="DAO_DatacenterSite" />
+			<class name="Model_DatacenterSite" />
+			<class name="Plugin_DatacenterSite" />
+			<class name="SearchFields_DatacenterSite" />
+			<class name="View_DatacenterSite" />
+		</file>
+	</class_loader>
+
+	<!-- Extensions -->
+ 
+	<extensions>
+
+		<!-- Contexts -->
+		
+		<extension point="devblocks.context">
+			<id>cerberusweb.contexts.datacenter.site</id>
+			<name>Site</name>
+			<class>
+				<file>api/dao/datacenter_site.php</file>
+				<name>Context_DatacenterSite</name>
+			</class>
+			<params>
+				<param key="link_options">
+					<value>
+						<data key="find" />
+					</value>
+					<!--
+						<data key="create" />
+					-->
+				</param>
+				<param key="events">
+					<value>
+						<!--
+						<data key="context.assigned" value="context.address.assigned" />
+						<data key="context.commented" value="context.address.commented" />
+						-->
+					</value>
+				</param>
+			</params>
+		</extension>
+
+		<!-- Pages -->
+
+		<extension point="cerberusweb.page">
+			<id>cerberusweb.datacenter.sites.page</id>
+			<name>Sites Page</name>
+			<class>
+				<file>api/App.php</file>
+				<name>Page_DatacenterSites</name>
+			</class>
+			<params>
+				<param key="uri" value="datacenter.sites" />
+				<param key="menutitle" value="" />
+			</params>
+		</extension>
+		
+		<!-- Datacenter Tab -->
+		
+		<extension point="cerberusweb.datacenter.tab">
+			<id>cerberusweb.datacenter.sites.datacenter_tab</id>
+			<name>Sites Tab</name>
+			<class>
+				<file>api/App.php</file>
+				<name>ChSitesDatacenterTab</name>
+			</class>
+			<params>
+				<param key="uri" value="sites" />
+				<param key="title" value="cerberusweb.datacenter.sites" />
+			</params>
+		</extension>
+		
+		<!-- Server Tab -->
+		
+		<extension point="cerberusweb.datacenter.server.tab">
+			<id>cerberusweb.datacenter.sites.server_tab</id>
+			<name>Sites Tab</name>
+			<class>
+				<file>api/App.php</file>
+				<name>ChSitesServerTab</name>
+			</class>
+			<params>
+				<param key="uri" value="sites" />
+				<param key="title" value="cerberusweb.datacenter.sites" />
+			</params>
+		</extension>
+		
+		<!-- Custom Field Sources -->
+		
+		<extension point="cerberusweb.fields.source">
+			<id>cerberusweb.datacenter.sites.fields.site</id>
+			<name>Datacenter Website</name>
+			<class>
+				<file>api/Api.php</file>
+				<name>ChCustomFieldSource_DatacenterSite</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+		
+    </extensions> 
+</plugin>
