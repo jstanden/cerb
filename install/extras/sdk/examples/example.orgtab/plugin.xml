@@ -1,0 +1,32 @@
+<!DOCTYPE plugin SYSTEM "../../libs/devblocks/plugin.dtd">
+<plugin>
+	<id>example.orgtab</id>
+	<name>[Examples] Example Org Tab</name>
+	<description>This example plugin adds an example tab to the organization page (under address book)</description>
+	<author>WebGroup Media, LLC.</author>
+	<revision>0</revision>
+	<link>http://wiki.cerberusweb.com/wiki/5.x/Extension:cerberusweb.activity.tab</link>
+	
+    <!-- Plugin Dependencies -->
+	
+	<dependencies>
+		<require plugin_id="cerberusweb.core" version="5.1.0" />
+	</dependencies>
+    
+    <!-- Exported Classes -->
+   
+	<extensions>
+		<extension point="cerberusweb.org.tab">
+			<id>example.orgtab.tab</id>
+			<name>Example Org Tab</name>
+			<class>
+				<file>api/App.php</file>
+				<name>ExOrgTab</name>
+			</class>
+			<params>
+				<param key="uri" value="example" />
+    			<param key="title" value="example.org.tab" />
+			</params>
+		</extension>
+	</extensions>
+</plugin>

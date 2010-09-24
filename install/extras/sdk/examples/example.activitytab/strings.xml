@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE tmx SYSTEM "tmx14.dtd">
+<tmx version="1.4">
+	<header datatype="winres" segtype="sentence" adminlang="en-us"
+		srclang="en-us" o-tmf="abc" />
+	<body>
+
+		<!-- Manifest -->
+		
+		<tu tuid='example.activity.tab'>
+			<tuv xml:lang="en_US"><seg>Example Tab</seg></tuv>
+		</tu>
+	</body>
+</tmx>
+<!-- 
+	
+-->

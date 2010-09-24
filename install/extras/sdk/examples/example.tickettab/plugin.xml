@@ -1,0 +1,32 @@
+<!DOCTYPE plugin SYSTEM "../../libs/devblocks/plugin.dtd">
+<plugin>
+	<id>example.tickettab</id>
+	<name>[Examples] Example Ticket Tab</name>
+	<description>This example plugin adds an example tab to the ticket display page</description>
+	<author>WebGroup Media, LLC.</author>
+	<revision>0</revision>
+	<link>http://wiki.cerberusweb.com/wiki/5.x/Extension_Point:cerberusweb.ticket.tab</link>
+	
+    <!-- Plugin Dependencies -->
+	
+	<dependencies>
+		<require plugin_id="cerberusweb.core" version="5.1.0" />
+	</dependencies>
+    
+    <!-- Exported Classes -->
+   
+	<extensions>
+		<extension point="cerberusweb.ticket.tab">
+			<id>example.ticket.tab</id>
+			<name>Example Ticket Tab</name>
+			<class>
+				<file>api/App.php</file>
+				<name>ExTicketTab</name>
+			</class>
+			<params>
+				<param key="uri" value="example" />
+    			<param key="title" value="example.ticket.tab" />
+			</params>
+		</extension>
+	</extensions>
+</plugin>

@@ -1,0 +1,32 @@
+<!DOCTYPE plugin SYSTEM "../../libs/devblocks/plugin.dtd">
+<plugin>
+	<id>example.configtab</id>
+	<name>[Examples] Example Config Tab</name>
+	<description>This example plugin adds an example tab to the config page</description>
+	<author>WebGroup Media, LLC.</author>
+	<revision>0</revision>
+	<link>http://wiki.cerberusweb.com/wiki/5.x/Extension:cerberusweb.config.tab</link>
+	
+    <!-- Plugin Dependencies -->
+	
+	<dependencies>
+		<require plugin_id="cerberusweb.core" version="5.1.0" />
+	</dependencies>
+    
+    <!-- Exported Classes -->
+   
+	<extensions>
+		<extension point="cerberusweb.config.tab">
+			<id>example.configtab.tab</id>
+			<name>Example Config Tab</name>
+			<class>
+				<file>api/App.php</file>
+				<name>ExConfigTab</name>
+			</class>
+			<params>
+				<param key="uri" value="example" />
+    			<param key="title" value="example.config.tab" />
+			</params>
+		</extension>
+	</extensions>
+</plugin>

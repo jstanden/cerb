@@ -1,0 +1,32 @@
+<!DOCTYPE plugin SYSTEM "../../libs/devblocks/plugin.dtd">
+<plugin>
+	<id>example.mailtab</id>
+	<name>[Examples] Example Mail Tab</name>
+	<description>This example plugin adds an example tab to the mail page</description>
+	<author>WebGroup Media, LLC.</author>
+	<revision>0</revision>
+	<link>http://wiki.cerberusweb.com/wiki/5.x/Extension_Point:cerberusweb.mail.tab</link>
+	
+    <!-- Plugin Dependencies -->
+	
+	<dependencies>
+		<require plugin_id="cerberusweb.core" version="5.1.0" />
+	</dependencies>
+    
+    <!-- Exported Classes -->
+   
+	<extensions>
+		<extension point="cerberusweb.mail.tab">
+			<id>example.mail.tab</id>
+			<name>Example Mail Tab</name>
+			<class>
+				<file>api/App.php</file>
+				<name>ExMailTab</name>
+			</class>
+			<params>
+				<param key="uri" value="example" />
+    			<param key="title" value="example.mail.tab" />
+			</params>
+		</extension>
+	</extensions>
+</plugin>
