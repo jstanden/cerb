@@ -48,7 +48,17 @@
  *	 WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
 
-abstract class Extension_UsermeetTool extends DevblocksExtension implements DevblocksHttpRequestHandler {
+abstract class Extension_UmScRssController extends DevblocksExtension {
+    function __construct($manifest) {
+        parent::__construct($manifest);
+    }
+	
+	function handleRequest(DevblocksHttpRequest $request) {
+		//$path = $request->path;
+	}
+};
+
+abstract class Extension_UmScController extends DevblocksExtension implements DevblocksHttpRequestHandler {
 	private $portal = '';
 	
     function __construct($manifest) {
@@ -92,15 +102,77 @@ abstract class Extension_UsermeetTool extends DevblocksExtension implements Devb
 	}
 	
 	public function writeResponse(DevblocksHttpResponse $response) {
+		/* Expect Overload */
 	}
 	
-	/**
-	 * @param Model_CommunityTool $instance
-	 */
-	public function configure($instance) {
+	public function renderSidebar(DevblocksHttpResponse $response) {
+		/* Expect Overload */
+		return;
+	}
+	
+	public function isVisible() {
+		/* Expect Overload */
+		return true;
+	}
+	
+	public function configure() {
+		// [TODO] Translate
+		echo "This module has no configuration options.<br><br>";
 	}
 	
 	public function saveConfiguration() {
+		/* Expect Overload */
 	}
     
+};
+
+abstract class Extension_ScLoginAuthenticator extends DevblocksExtension {
+	function __construct($manifest) {
+		$this->DevblocksExtension($manifest);
+	}
+	
+	/**
+	 * draws html form for adding necessary settings (host, port, etc) to be stored in the db
+	 */
+//	function renderConfigForm() {
+//	}
+	
+	/**
+	 * Receives posted config form, saves to manifest
+	 */
+//	function saveConfiguration() {
+//		$field_value = DevblocksPlatform::importGPC($_POST['field_value']);
+//		$this->params['field_name'] = $field_value;
+//	}
+	
+	/**
+	 * draws HTML form of controls needed for login information
+	 */
+	function renderLoginForm() {
+	}
+	
+	/**
+	 * pull auth info out of $_POST, check it, return user_id or false
+	 * 
+	 * @return boolean whether login succeeded
+	 */
+	function authenticate() {
+		return false;
+	}
+	
+	/**
+	 * release any resources tied up by the authenticate process, if necessary
+	 */
+	function signoff() {
+		$umsession = UmPortalHelper::getSession();
+		$umsession->setProperty('sc_login',null);
+	}
+};
+
+abstract class Extension_SupportCenterMessageBadge extends DevblocksExtension {
+	function __construct($manifest) {
+		$this->DevblocksExtension($manifest);
+	}
+	
+	function render(Model_Message $message) {}
 };

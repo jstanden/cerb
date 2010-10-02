@@ -20,14 +20,6 @@ foreach($tables_autoinc as $table) {
 }
 
 // ===========================================================================
-// Clear unused property keys 
-
-$db->Execute("DELETE FROM community_tool_property WHERE property_key = 'common.header_html'");
-$db->Execute("DELETE FROM community_tool_property WHERE property_key = 'common.footer_html'");
-$db->Execute("DELETE FROM community_tool_property WHERE property_key = 'common.style_css'");
-$db->Execute("DELETE FROM community_tool_property WHERE property_key = 'home.html'");
-
-// ===========================================================================
 // Fix BLOBS
 
 list($columns, $indexes) = $db->metaTable('community_session');

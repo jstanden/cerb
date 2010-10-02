@@ -618,7 +618,7 @@ class UmConfigCommunitiesTab extends Extension_ConfigTab {
 		$tpl->display('file:' . $tpl_path . 'community/config/tab/index.tpl');
 	}
 	
-	// [TODO] This really doesn't belong on the tab here
+	// [TODO] Move this to the SC plugin
 	function getContactSituationAction() {
 		@$portal = DevblocksPlatform::importGPC($_REQUEST['portal'],'string','');
 		

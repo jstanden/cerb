@@ -6,7 +6,7 @@
 	<author>WebGroup Media, LLC.</author>
 	<revision>0</revision>
 	<link>http://wiki.cerb4.com/wiki/New_Changes#Community_Tools</link>
-	<image>plugin.png</image>
+	<!--<image>plugin.png</image>-->
 	
 	<!-- Plugin Dependencies -->
 	
@@ -19,9 +19,6 @@
 	<patches>
 		<patch version="4.0.0-alpha" revision="11" file="patches/4.0.0_alpha.php" />
 		<patch version="4.1.0" revision="13" file="patches/4.1.0.php" />
-		<patch version="4.2.2" revision="14" file="patches/4.2.2.php" />
-		<patch version="4.3.0" revision="15" file="patches/4.3.0.php" />
-		<patch version="4.3.1" revision="16" file="patches/4.3.1.php" />
 		<patch version="5.0.0-beta" revision="19" file="patches/5.0.0_beta.php" />
 		<patch version="5.1.0-dev" revision="21" file="patches/5.1.0.php" />
 	</patches>
@@ -34,7 +31,6 @@
 			<class name="SearchFields_CommunityTool" />
 		</file>
 		<file path="api/Extension.php">
-			<class name="Extension_UmScController" />
 			<class name="Extension_UsermeetTool" />
 		</file>
 		<file path="api/Model.php">
@@ -46,32 +42,23 @@
 		</file>
 	</class_loader>
 	
-	<!-- Templates -->
-	
-	<templates set="cerberusweb.support_center">
-		<template path="support_center/index.tpl" />
-		<template path="support_center/header.tpl" />
-		<template path="support_center/footer.tpl" />
-		<template path="support_center/style.css.tpl" />
-		<template path="support_center/account/index.tpl" />
-		<template path="support_center/announcements/index.tpl" />
-		<template path="support_center/contact/confirm.tpl" />
-		<template path="support_center/contact/step1.tpl" />
-		<template path="support_center/contact/step2.tpl" />
-		<template path="support_center/history/display.tpl" />
-		<template path="support_center/history/index.tpl" />
-		<template path="support_center/history/search_results.tpl" />
-		<template path="support_center/history/view.tpl" />
-		<template path="support_center/home/index.tpl" />
-		<template path="support_center/register/index.tpl" />
-		<template path="support_center/register/forgot.tpl" />
-		<template path="support_center/register/forgot_confirm.tpl" />
-		<template path="support_center/register/confirm.tpl" />
-	</templates>
-	
 	<!-- Extensions -->
 	
 	<extensions>
+	
+		<!-- Usermeet Tools -->
+		
+		<extension point="usermeet.tool">
+			<id>usermeet.tool.community</id>
+			<name>Community</name>
+			<class>
+				<file>api/App.php</file>
+				<name>UsermeetCommunityApp</name>
+			</class>
+			<params>
+				<param key="template_set" value="cerberusweb.support_center" />
+			</params>
+		</extension>
 	
 		<!-- Controllers -->
 	
@@ -99,119 +86,6 @@
 			<params>
 				<param key="uri" value="community" />
 				<param key="menu_title" value="" />
-			</params>
-		</extension>
-		
-		<!-- Usermeet Tools -->
-		
-		<extension point="usermeet.tool">
-			<id>sc.tool</id>
-			<name>Support Center</name>
-			<class>
-				<file>api/UmScApp.php</file>
-				<name>UmScApp</name>
-			</class>
-			<params>
-				<param key="template_set" value="cerberusweb.support_center" />
-			</params>
-		</extension>
-		
-		<!-- Login Authenticators -->
-		
-		<extension point="usermeet.login.authenticator">
-			<id>sc.login.auth.default</id>
-			<name>Cerb5 (Default)</name>
-			<class>
-				<file>api/UmScApp.php</file>
-				<name>UmScLoginAuthenticator</name>
-			</class>
-			<params>
-			</params>
-		</extension>
-		
-		<!-- Support Center Modules -->
-
-		<extension point="usermeet.sc.controller">
-			<id>sc.controller.home</id>
-			<name>Home</name>
-			<class>
-				<file>api/sc/uri/home.php</file>
-				<name>UmScHomeController</name>
-			</class>
-			<params>
-				<param key="uri" value="home" />
-				<param key="menu_title" value="portal.sc.public.home" />
-				<param key="icon" value="images/crystal/icon_home.gif" />
-			</params>
-		</extension>
-		
-		<extension point="usermeet.sc.controller">
-			<id>sc.controller.announcements</id>
-			<name>Announcements</name>
-			<class>
-				<file>api/sc/uri/announcements.php</file>
-				<name>UmScAnnouncementsController</name>
-			</class>
-			<params>
-				<param key="uri" value="announcements" />
-				<param key="menu_title" value="portal.sc.public.announcements" />
-				<param key="icon" value="images/feed-icon-16x16.gif" />
-			</params>
-		</extension>
-
-		<extension point="usermeet.sc.controller">
-			<id>sc.controller.contact</id>
-			<name>Open Ticket</name>
-			<class>
-				<file>api/sc/uri/contact.php</file>
-				<name>UmScContactController</name>
-			</class>
-			<params>
-				<param key="uri" value="contact" />
-				<param key="menu_title" value="portal.common.open_ticket" />
-				<param key="icon" value="images/crystal/icon_open_ticket.gif" />
-			</params>
-		</extension>
-		
-		<extension point="usermeet.sc.controller">
-			<id>sc.controller.history</id>
-			<name>Ticket History</name>
-			<class>
-				<file>api/sc/uri/history.php</file>
-				<name>UmScHistoryController</name>
-			</class>
-			<params>
-				<param key="uri" value="history" />
-				<param key="menu_title" value="portal.sc.public.history.ticket_history" />
-				<param key="icon" value="images/crystal/icon_ticket_history.gif" />
-			</params>
-		</extension>
-
-		<extension point="usermeet.sc.controller">
-			<id>sc.controller.account</id>
-			<name>My Account</name>
-			<class>
-				<file>api/sc/uri/account.php</file>
-				<name>UmScAccountController</name>
-			</class>
-			<params>
-				<param key="uri" value="account" />
-				<param key="menu_title" value="portal.sc.public.my_account" />
-				<param key="icon" value="images/crystal/icon_my_account.gif" />
-			</params>
-		</extension>
-
-		<extension point="usermeet.sc.controller">
-			<id>sc.controller.register</id>
-			<name>Registration</name>
-			<class>
-				<file>api/sc/uri/register.php</file>
-				<name>UmScRegisterController</name>
-			</class>
-			<params>
-				<param key="uri" value="register" />
-				<param key="menu_title" value="" />
-				<param key="icon" value="" />
 			</params>
 		</extension>
 		
