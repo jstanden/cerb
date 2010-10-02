@@ -56,13 +56,12 @@ class ExPreferencesTab extends Extension_PreferenceTab {
 	}
 	
 	function showTab() {
-		$translate = DevblocksPlatform::getTranslationService();
+		$tpl = DevblocksPlatform::getTemplateService();
+		//$translate = DevblocksPlatform::getTranslationService();
 		
 		// Remember the tab
-		$visit = CerberusApplication::getVisit();
-		$visit->set(CerberusVisit::KEY_ACTIVITY_TAB, 'example');
-		
-		$tpl = DevblocksPlatform::getTemplateService();
+		//$visit = CerberusApplication::getVisit();
+		//$visit->set(CerberusVisit::KEY_ACTIVITY_TAB, 'example');
 		
 		$tpl->display('devblocks:example.preferencestab::index.tpl');		
 	}

@@ -2,57 +2,15 @@
 /**
  * Devblocks DAO
  * @author Jeff Standen, WebGroup Media LLC <jeff@webgroupmedia.com>
- * @version 2010-09-14 
+ * @version 2010-10-02 
  */
 
 $tables = array();
 
-$tables['Server'] = "
+$tables['ExampleTable'] = "
 id INT UNSIGNED NOT NULL AUTO_INCREMENT,
 name VARCHAR(255) DEFAULT '',
 ";
-
-//$tables['usermeet_project'] = "
-//id INT UNSIGNED NOT NULL DEFAULT 0,
-//name VARCHAR(128) DEFAULT '',
-//view_id VARCHAR(255) DEFAULT '',
-//worker_id INT UNSIGNED NOT NULL DEFAULT 0,
-//hits INT UNSIGNED NOT NULL DEFAULT 0
-//";
-
-//$tables['portsensor_server'] = "
-//id INT UNSIGNED NOT NULL DEFAULT 0,
-//summary VARCHAR(255) DEFAULT '',
-//project_id INT UNSIGNED NOT NULL DEFAULT 0,
-//deck_id INT UNSIGNED NOT NULL DEFAULT 0
-//";
-
-//$tables['portsensor_device'] = "
-//id INT UNSIGNED NOT NULL DEFAULT 0,
-//name VARCHAR(255) DEFAULT ''
-//";
-
-//$tables['portsensor_sensor'] = "
-//id INT UNSIGNED NOT NULL DEFAULT 0,
-//name VARCHAR(255) DEFAULT '',
-//device_id INT UNSIGNED NOT NULL DEFAULT 0,
-//extension_id VARCHAR(255) DEFAULT '',
-//params_json TEXT,
-//status TINYINT UNSIGNED NOT NULL DEFAULT 0,
-//updated_date INT UNSIGNED NOT NULL DEFAULT 0,
-//is_disabled TINYINT UNSIGNED NOT NULL DEFAULT 0,
-//metric TEXT,
-//output TEXT,
-//fail_count TINYINT UNSIGNED NOT NULL DEFAULT 0
-//";
-
-//$tables['usermeet_deck'] = "
-//id INT UNSIGNED NOT NULL DEFAULT 0,
-//name VARCHAR(255) DEFAULT '',
-//project_id INT UNSIGNED NOT NULL DEFAULT 0
-//";
-
-//address_id INT UNSIGNED NOT NULL DEFAULT 0,
 
 foreach($tables as $table_name => $field_strs) {
 	// Class
@@ -240,6 +198,7 @@ foreach($fields as $field_name => $field_type) {
 		//	$select_sql,
 		//	$join_sql
 		//);
+		$has_multiple_values = false; // [TODO] Temporary when custom fields disabled
 				
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");

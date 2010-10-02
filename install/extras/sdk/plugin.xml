@@ -36,6 +36,14 @@
 		-->
 	</class_loader>
 
+	<!-- Templates -->
+	
+	<!--
+	<templates set="example.template.namespace">
+		<template path="path/to/template.tpl" />
+	</templates>
+	-->	
+
 	<!-- Extensions -->
  
 	<extensions>
