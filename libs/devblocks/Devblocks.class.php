@@ -2169,6 +2169,8 @@ class _DevblocksOpenIDManager {
 	}
 	
 	public function discover($url) {
+		$num_redirects = 0;
+		
 		do {
 			$repeat = false;
 			
@@ -2181,41 +2183,58 @@ class _DevblocksOpenIDManager {
 			$info = curl_getinfo($ch);
 			curl_close($ch);
 	
-			//print_r($info);
 			$lines = explode("\n", $content);
-			
+
 			$headers = array();
 			$content = '';
-	
+
 			$is_headers = true;
 			while($line = array_shift($lines)) {
 				if($is_headers && $line == "\r") {
-					$is_headers = false;
-					continue;
+					// Is the next line another headers block?
+					$line = array_shift($lines);
+					if(preg_match("/^HTTP\/\S+ \d+/i", $line)) {
+						$headers = array(); // flush
+					} else {
+						$is_headers = false;
+						array_unshift($lines, $line);
+						continue;
+					}
 				}
 				
-				if($is_headers)
+				if($is_headers) {
 					$headers[] = $line;
-				else {
+				} else {
 					// Everything else
 					$content = $line . "\n" . implode("\n", $lines);
 					$lines = array();
 				} 
-			}		
+			}
 			
 			unset($lines);
 			
 			// Check the headers for an 'X-XRDS-Location'
 			foreach($headers as $header) {
-				if(preg_match("/^X-XRDS-Location:.*?/", $header)) {
+				if(preg_match("/^X-XRDS-Location:.*?/i", $header)) {
 					$out = explode(':', $header, 2);
-					$url = isset($out[1]) ? trim($out[1]) : null;
-					$repeat = true;
+					$xrds_url = isset($out[1]) ? trim($out[1]) : null;
+					
+					// We have a redirect header on an XRDS document
+					if(0 == strcasecmp($xrds_url, $url)) {
+						$repeat = false;
+						
+					// We're being redirected
+					} else {
+						$repeat = true;
+						$headers = array();
+						$url = $xrds_url;
+					}
+					
 					break;
 				}
 			}
 			
-		} while($repeat);
+		} while($repeat || ++$num_redirects > 10);
 		
 		if(isset($info['content_type']))  {
 			$result = explode(';', $info['content_type']);
@@ -2243,14 +2262,15 @@ class _DevblocksOpenIDManager {
 					break;
 					
 				case 'text/html':
-					//echo "<pre>",$content,"</pre>";
-					
-					// [TODO] Check for provider/proxy?
-					preg_match("<link rel=\"openid.server\" href=\"(.*?)\" />", $content, $found);
-					//print_r($found[1]);
-					
+					// [TODO] This really needs to parse syntax better (can be single or double quotes, and attribs in any order)
+					preg_match("/<link rel=\"openid.server\" href=\"(.*?)\"/", $content, $found);
 					if($found && isset($found[1]))
 						$server = $found[1];
+						
+					preg_match("/<link rel=\"openid.delegate\" href=\"(.*?)\"/", $content, $found);
+					if($found && isset($found[1]))
+						$delegate = $found[1];
+						
 					break;
 					
 				default:
@@ -2264,6 +2284,12 @@ class _DevblocksOpenIDManager {
 	public function getAuthUrl($openid_identifier, $return_to) {
 		$url_writer = DevblocksPlatform::getUrlService();
 		
+		// Normalize the URL
+		$parts = parse_url($openid_identifier);
+		if(!isset($parts['scheme'])) {
+			$openid_identifier = 'http://' . $openid_identifier;
+		}
+		
 		$server = $this->discover($openid_identifier);
 		
 		$parts = explode('?', $server, 2);
@@ -2274,11 +2300,22 @@ class _DevblocksOpenIDManager {
 		$query .= "openid.mode=checkid_setup";
 		$query .= "&openid.claimed_id=".urlencode("http://specs.openid.net/auth/2.0/identifier_select");
 		$query .= "&openid.identity=".urlencode("http://specs.openid.net/auth/2.0/identifier_select");
-//		$query .= "&openid.realm=".urlencode($url_writer->write('',true));
-//		$query .= "&openid.claimed_id=".urlencode($openid_identifier);
-//		$query .= "&openid.identity=".urlencode($openid_identifier);
+		$query .= "&openid.realm=".urlencode($url_writer->write('',true));
 		$query .= "&openid.ns=".urlencode("http://specs.openid.net/auth/2.0");
 		$query .= "&openid.return_to=".urlencode($return_to);
+		
+		// AX 1.0 (axschema)
+		$query .= "&openid.ns.ax=".urlencode("http://openid.net/srv/ax/1.0");
+		$query .= "&openid.ax.mode=".urlencode("fetch_request");
+		$query .= "&openid.ax.type.nickname=".urlencode('http://axschema.org/namePerson/friendly');
+		$query .= "&openid.ax.type.fullname=".urlencode('http://axschema.org/namePerson');
+		$query .= "&openid.ax.type.email=".urlencode('http://axschema.org/contact/email');
+		$query .= "&openid.ax.required=".urlencode('email,nickname,fullname');
+		
+		// SREG 1.1
+		$query .= "&openid.ns.sreg=".urlencode('http://openid.net/extensions/sreg/1.1');
+		$query .= "&openid.sreg.required=".urlencode("nickname,fullname,email");
+		$query .= "&openid.sreg.optional=".urlencode("dob,gender,postcode,country,language,timezone");
 		
 		return $url.$query;
 	}
@@ -2334,6 +2371,37 @@ class _DevblocksOpenIDManager {
 			return true;
 		else
 			return false;
+	}
+	
+	public function getAttributes($scope) {
+		$ns = array();
+		$attribs = array();
+		
+		foreach($scope as $ns => $spec) {
+			// Namespaces
+			if(preg_match("/^openid_ns_(.*)$/",$ns,$ns_found)) {
+				switch(strtolower($spec)) {
+					case 'http://openid.net/srv/ax/1.0';
+						foreach($scope as $k => $v) {
+							if(preg_match("/^openid_".$ns_found[1]."_value_(.*)$/i",$k,$attrib_found)) {
+								$attribs[strtolower($attrib_found[1])] = $v;
+							}
+						}
+						break;
+						
+					case 'http://openid.net/srv/sreg/1.0';
+					case 'http://openid.net/extensions/sreg/1.1';
+						foreach($scope as $k => $v) {
+							if(preg_match("/^openid_".$ns_found[1]."_(.*)$/i",$k,$attrib_found)) {
+								$attribs[strtolower($attrib_found[1])] = $v;
+							}
+						}
+						break;
+				}
+			}
+		}
+		
+		return $attribs;
 	}
 };
 
