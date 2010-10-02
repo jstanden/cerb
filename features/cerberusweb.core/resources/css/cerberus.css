@@ -36,6 +36,33 @@ form {
 	margin: 0px;
 }
 
+fieldset {
+	background-image: url(bg_block.jpg);
+	background-repeat: repeat-x;
+	border:1px solid rgb(230,230,230);
+	margin-bottom:10px;
+}
+
+fieldset legend {
+	color:rgb(0,120,0);
+	font-size:120%;
+	font-weight:bold;
+}
+
+select {
+	border:1px solid rgb(150,150,150);
+}
+
+input[type=text], input[type=password] {
+	border:1px solid rgb(150,150,150);
+	padding:2px;
+}
+
+input[type=text]:focus, input[type=password]:focus {
+	background-color:rgb(255,248,213);
+	border:1px solid rgb(235,185,91);
+}
+
 /* See: http://www.longren.org/2006/09/27/wrapping-text-inside-pre-tags/ */
 pre.emailbody {
 	white-space: pre-wrap; /* css-3 */
