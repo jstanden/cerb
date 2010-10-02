@@ -1,0 +1,91 @@
+<!DOCTYPE plugin SYSTEM "../../libs/devblocks/plugin.dtd">
+<plugin>
+	<id>cerberusweb.openid</id>
+	<name>[Cerb5] OpenID Integration</name>
+	<description>Allow worker logins via OpenID.</description>
+	<author>WebGroup Media, LLC.</author>
+	<revision>1</revision>
+	<link>http://www.cerb5.com/</link>
+	<image>plugin.png</image>
+ 
+	<!-- Plugin Dependencies -->
+	
+	<dependencies>
+		<require plugin_id="cerberusweb.core" version="5.1.0" />
+	</dependencies>
+
+	<!-- Patches -->
+	
+	<patches>
+		<patch version="5.1.0" revision="1" file="patches/5.1.0.php" />
+	</patches>
+	
+	<!-- Exported Classes -->
+	
+	<class_loader>
+		<file path="api/dao/openid_to_worker.php">
+			<class name="DAO_OpenIDToWorker" />
+			<class name="Model_OpenIDToWorker" />
+			<class name="Plugin_OpenIDToWorker" />
+			<class name="SearchFields_OpenIDToWorker" />
+			<class name="View_OpenIDToWorker" />
+		</file>
+	</class_loader>
+
+	<!-- Templates -->
+	
+	<!--
+	<templates set="example.template.namespace">
+		<template path="path/to/template.tpl" />
+	</templates>
+	-->	
+
+	<!-- Extensions -->
+ 
+	<extensions>
+
+		<!--  Login Extensions -->
+
+		<extension point="cerberusweb.login">
+			<id>login.openid</id>
+			<name>OpenID Login Module</name>
+			<class>
+				<file>api/App.php</file>
+				<name>ChOpenIdLoginModule</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+
+		<!-- Page Controllers -->
+		
+ 		<extension point="cerberusweb.page">
+			<id>cerberusweb.openid.page.ajax</id>
+			<name>Ajax Controller</name>
+			<class>
+				<file>api/App.php</file>
+				<name>ChOpenIdAjaxController</name>
+			</class>
+			<params>
+				<param key="uri" value="openid.ajax" />
+				<param key="menutitle" value="" />
+			</params>
+		</extension>
+
+		<!-- Preference Tab -->
+
+		<extension point="cerberusweb.preferences.tab">
+			<id>cerberusweb.openid.preferences.tab</id>
+			<name>OpenID</name>
+			<class>
+				<file>api/App.php</file>
+				<name>ChOpenIdPreferenceTab</name>
+			</class>
+			<params>
+				<param key="uri" value="openid" />
+    			<param key="title" value="openid.common.openid" />
+			</params>
+		</extension>
+		
+    </extensions> 
+</plugin>
