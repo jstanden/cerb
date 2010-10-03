@@ -48,7 +48,7 @@
 		<select name="broadcast_group_id">
 			{foreach from=$groups item=group key=group_id}
 			{if $active_worker_memberships.$group_id}
-			<option value="{$group->id}|escape">{$group->name}</option>
+			<option value="{$group->id|escape}">{$group->name}</option>
 			{/if}
 			{/foreach}
 		</select>
