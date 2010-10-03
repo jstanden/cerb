@@ -188,9 +188,6 @@ class ChUpdateController extends DevblocksControllerExtension {
 						// Clean up
 						@unlink($file);
 
-						$cache = DevblocksPlatform::getCacheService();
-						$cache->save(APP_BUILD, "devblocks_app_build");
-
 						// Clear all caches
 						$cache->clean();
 						DevblocksPlatform::getClassLoaderService()->destroy();
@@ -203,6 +200,10 @@ class ChUpdateController extends DevblocksControllerExtension {
 						// Reload plugin translations
 						DAO_Translation::reloadPluginStrings();
 
+						// Set the build
+						$cache = DevblocksPlatform::getCacheService();
+						$cache->save(APP_BUILD, "devblocks_app_build");
+						
 						// Redirect
 				    	DevblocksPlatform::redirect(new DevblocksHttpResponse(array('login')));
 	
