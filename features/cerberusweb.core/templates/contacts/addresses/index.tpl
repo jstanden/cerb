@@ -16,7 +16,7 @@
 		<span><b>{$translate->_('common.quick_search')|capitalize}:</b></span> <select name="type">
 			<option value="email">{$translate->_('address.email')|capitalize}</option>
 			<option value="org">{$translate->_('contact_org.name')|capitalize}</option>
-		</select><input type="text" name="query" size="24"><button type="submit">{$translate->_('common.search_go')|lower}</button>
+		</select><input type="text" name="query" class="input_search" size="24"><button type="submit">{$translate->_('common.search_go')|lower}</button>
 		</form>
 	</td>
 </tr>

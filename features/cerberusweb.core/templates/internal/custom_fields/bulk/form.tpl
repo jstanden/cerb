@@ -20,9 +20,9 @@
 				{if $f->type=='S'}
 					<input type="text" name="field_{$f_id}" size="45" style="width:98%;" maxlength="255" value="{$custom_field_values.$f_id|escape}">
 				{elseif $f->type=='U'}
-					<input type="text" name="field_{$f_id}" size="45" style="width:98%;" maxlength="255" value="{$custom_field_values.$f_id|escape}" class="url">
+					<input type="text" name="field_{$f_id}" size="45" style="width:98%;" maxlength="255" value="{$custom_field_values.$f_id|escape}" class="url input_url">
 				{elseif $f->type=='N'}
-					<input type="text" name="field_{$f_id}" size="45" style="width:98%;" maxlength="255" value="{$custom_field_values.$f_id|escape}" class="number">
+					<input type="text" name="field_{$f_id}" size="45" style="width:98%;" maxlength="255" value="{$custom_field_values.$f_id|escape}" class="number input_number">
 				{elseif $f->type=='T'}
 					<textarea name="field_{$f_id}" rows="4" cols="50" style="width:98%;">{$custom_field_values.$f_id|escape}</textarea>
 				{elseif $f->type=='C'}
@@ -83,7 +83,7 @@
 					<input type="file" name="field_{$f_id}" size="45" maxlength="255" value="{$custom_field_values.$f_id|escape}">
 				{elseif $f->type=='E'}
 					<div id="dateCustom{$f_id}"></div>
-					<input type="text" id="field_{$f_id}" name="field_{$f_id}" size="30" maxlength="255" value="{if !empty($custom_field_values.$f_id)}{$custom_field_values.$f_id|devblocks_date}{/if}"><button type="button" onclick="devblocksAjaxDateChooser('#field_{$f_id}','#dateCustom{$f_id}');">&nbsp;<span class="cerb-sprite sprite-calendar"></span>&nbsp;</button>
+					<input type="text" id="field_{$f_id}" name="field_{$f_id}" class="input_date" size="30" maxlength="255" value="{if !empty($custom_field_values.$f_id)}{$custom_field_values.$f_id|devblocks_date}{/if}"><button type="button" onclick="devblocksAjaxDateChooser('#field_{$f_id}','#dateCustom{$f_id}');">&nbsp;<span class="cerb-sprite sprite-calendar"></span>&nbsp;</button>
 				{/if}
 				</div>
 			</td>

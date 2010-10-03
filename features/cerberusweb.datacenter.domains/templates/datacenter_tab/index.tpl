@@ -4,7 +4,7 @@
 <input type="hidden" name="a" value="doQuickSearch">
 <b>{$translate->_('common.quick_search')}</b> <select name="type">
 	<option value="name"{if $quick_search_type eq 'name'}selected{/if}>{$translate->_('common.name')|capitalize}</option>
-</select><input type="text" name="query" size="16"><button type="submit">{$translate->_('common.search_go')|lower}</button>
+</select><input type="text" name="query" class="input_search" size="16"><button type="submit">{$translate->_('common.search_go')|lower}</button>
 </form>
 </div>
 
