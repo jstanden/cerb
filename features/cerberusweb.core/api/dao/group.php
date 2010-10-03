@@ -379,8 +379,7 @@ class DAO_Group extends C4_ORMHelper {
 		$cache->remove(CerberusApplication::CACHE_HELPDESK_FROMS);
 	}
 	
-    static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
-		$db = DevblocksPlatform::getDatabaseService();
+	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_Group::getFields();
 
 		// Sanitize
@@ -388,8 +387,6 @@ class DAO_Group extends C4_ORMHelper {
 			$sortBy=null;
 
         list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy);
-		$start = ($page * $limit); // [JAS]: 1-based [TODO] clean up + document
-		$total = -1;
 		
 		$select_sql = sprintf("SELECT ".
 			"g.id as %s, ".
@@ -417,6 +414,32 @@ class DAO_Group extends C4_ORMHelper {
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
 			
 		$sort_sql = (!empty($sortBy)) ? sprintf("ORDER BY %s %s ",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : " ";
+
+		$has_multiple_values = false;
+		
+		$result = array(
+			'primary_table' => 'g',
+			'select' => $select_sql,
+			'join' => $join_sql,
+			'where' => $where_sql,
+			'has_multiple_values' => $has_multiple_values,
+			'sort' => $sort_sql,
+		);
+		
+		return $result;
+	}	
+	
+    static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
+		$db = DevblocksPlatform::getDatabaseService();
+
+		// Build search queries
+		$query_parts = self::getSearchQueryComponents($columns,$params,$sortBy,$sortAsc);
+
+		$select_sql = $query_parts['select'];
+		$join_sql = $query_parts['join'];
+		$where_sql = $query_parts['where'];
+		$has_multiple_values = $query_parts['has_multiple_values'];
+		$sort_sql = $query_parts['sort'];
 		
 		$sql = 
 			$select_sql.
@@ -426,13 +449,14 @@ class DAO_Group extends C4_ORMHelper {
 			$sort_sql;
 			
 		if($limit > 0) {
-    		$rs = $db->SelectLimit($sql,$limit,$start) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+    		$rs = $db->SelectLimit($sql,$limit,$page*$limit) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 		} else {
 		    $rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
             $total = mysql_num_rows($rs);
 		}
 		
 		$results = array();
+		$total = -1;
 		
 		while($row = mysql_fetch_assoc($rs)) {
 			$result = array();
