@@ -110,7 +110,7 @@ class ChPageController extends DevblocksControllerExtension {
 			    
 			    if($page->isVisible()) {
 					if(method_exists($page,$action)) {
-						call_user_func(array(&$page, $action)); // [TODO] Pass HttpRequest as arg?
+						call_user_func(array($page, $action)); // [TODO] Pass HttpRequest as arg?
 					}
 				} else {
 					// if Ajax [TODO] percolate isAjax from platform to handleRequest

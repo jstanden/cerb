@@ -863,17 +863,6 @@
 			</params>
 		</extension>
 
-		<extension point="cerberusweb.login">
-			<id>login.ldap</id>
-			<name>LDAP Login Module</name>
-			<class>
-				<file>api/login.classes.php</file>
-				<name>LDAPLoginModule</name>
-			</class>
-			<params>
-			</params>
-		</extension>
-		 
 		<!-- Cron Extensions -->
 		
 		<extension point="cerberusweb.cron">
