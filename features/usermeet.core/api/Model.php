@@ -124,6 +124,10 @@ class View_CommunityPortal extends C4_AbstractView {
 		);
 		return $objects;
 	}
+	
+	function getDataSample($size) {
+		return $this->_doGetDataSample('DAO_CommunityTool', $size);
+	}
 
 	function render() {
 		$this->_sanitize();

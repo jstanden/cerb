@@ -377,6 +377,10 @@ class View_WorkerEvent extends C4_AbstractView {
 		return $objects;
 	}
 
+	function getDataSample($size) {
+		return $this->_doGetDataSample('DAO_WorkerEvent', $size);
+	}
+	
 	function render() {
 		$this->_sanitize();
 		

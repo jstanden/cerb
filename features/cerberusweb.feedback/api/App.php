@@ -426,6 +426,10 @@ class C4_FeedbackEntryView extends C4_AbstractView {
 		return $objects;
 	}
 
+	function getDataSample($size) {
+		return $this->_doGetDataSample('DAO_FeedbackEntry', $size);
+	}
+	
 	function render() {
 		$this->_sanitize();
 		
@@ -888,6 +892,11 @@ class ChFeedbackController extends DevblocksControllerExtension {
 			case 'checks':
 			    @$ids_str = DevblocksPlatform::importGPC($_REQUEST['ids'],'string');
 				$ids = DevblocksPlatform::parseCsvString($ids_str);
+				break;
+			case 'sample':
+				@$sample_size = min(DevblocksPlatform::importGPC($_REQUEST['filter_sample_size'],'integer',0),9999);
+				$filter = 'checks';
+				$ids = $view->getDataSample($sample_size);
 				break;
 			default:
 				break;

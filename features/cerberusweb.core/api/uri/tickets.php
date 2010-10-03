@@ -639,6 +639,11 @@ class ChTicketsPage extends CerberusPageExtension {
 			    @$ids_str = DevblocksPlatform::importGPC($_REQUEST['ids'],'string');
 				$ids = DevblocksPlatform::parseCsvString($ids_str);
 				break;
+			case 'sample':
+				@$sample_size = min(DevblocksPlatform::importGPC($_REQUEST['filter_sample_size'],'integer',0),9999);
+				$filter = 'checks';
+				$ids = $view->getDataSample($sample_size);
+				break;
 			default:
 				break;
 		}
@@ -2132,9 +2137,8 @@ class ChTicketsPage extends CerberusPageExtension {
 		
 		$do = array();
 		
-		// [TODO] This logic is repeated in several places -- try to condense (like custom field form handlers)
-		
 		// Move to Group/Bucket
+		// [TODO] This logic is repeated in several places -- try to condense (like custom field form handlers)
 		@$move_code = DevblocksPlatform::importGPC($_REQUEST['do_move'],'string',null);
 		if(0 != strlen($move_code)) {
 			list($g_id, $b_id) = CerberusApplication::translateTeamCategoryCode($move_code);
@@ -2191,15 +2195,26 @@ class ChTicketsPage extends CerberusPageExtension {
 		}
 		
 	    $data = array();
-	    $ticket_ids = array();
+	    $ids = array();
 	    
-	    if($filter == 'sender') {
-	        $data = $senders;
-		} elseif($filter == 'subject') {
-	        $data = $subjects;
-	    } elseif($filter == 'checks') {
-	    	$filter = ''; // bulk update just looks for $ticket_ids == !null
-	        $ticket_ids = DevblocksPlatform::parseCsvString($ticket_id_str);
+	    switch($filter) {
+	    	case 'sender':
+		        $data = $senders;
+	    		break;
+	    	case 'subject':
+		        $data = $subjects;
+	    		break;
+	    	case 'checks':
+		    	$filter = ''; // bulk update just looks for $ids == !null
+		        $ids = DevblocksPlatform::parseCsvString($ticket_id_str);
+	    		break;
+			case 'sample':
+				@$sample_size = min(DevblocksPlatform::importGPC($_REQUEST['filter_sample_size'],'integer',0),9999);
+				$filter = '';
+				$ids = $view->getDataSample($sample_size);
+				break;
+			default:
+				break;
 	    }
 		
 	    // Restrict to current worker groups
@@ -2209,7 +2224,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		// Do: Custom fields
 		$do = DAO_CustomFieldValue::handleBulkPost($do);
 		
-		$view->doBulkUpdate($filter, '', $data, $do, $ticket_ids);
+		$view->doBulkUpdate($filter, '', $data, $do, $ids);
 		
 		// Clear our temporary group restriction before re-rendering
 		$view->removeParam('tmp');

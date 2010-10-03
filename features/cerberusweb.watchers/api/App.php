@@ -420,6 +420,11 @@ class ChWatchersPreferences extends Extension_PreferenceTab {
 			    @$ids_str = DevblocksPlatform::importGPC($_REQUEST['ids'],'string');
 				$ids = DevblocksPlatform::parseCsvString($ids_str);
 				break;
+			case 'sample':
+				@$sample_size = min(DevblocksPlatform::importGPC($_REQUEST['filter_sample_size'],'integer',0),9999);
+				$filter = 'checks';
+				$ids = $view->getDataSample($sample_size);
+				break;
 			default:
 				break;
 		}
@@ -749,6 +754,10 @@ class View_WatcherMailFilter extends C4_AbstractView {
 		);
 		
 		return $objects;
+	}
+	
+	function getDataSample($size) {
+		return $this->_doGetDataSample('DAO_WatcherMailFilter', $size);
 	}
 
 	function render() {
@@ -1176,6 +1185,8 @@ class DAO_WatcherMailFilter extends DevblocksORMHelper {
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
 			
 		$sort_sql = (!empty($sortBy) ? sprintf("ORDER BY %s %s ",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : " ");
+		
+		$has_multiple_values = false;
 		
 		$result = array(
 			'primary_table' => 'wmf',

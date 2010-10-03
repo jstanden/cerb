@@ -452,6 +452,10 @@ class View_Domain extends C4_AbstractView {
 		return $objects;
 	}
 
+	function getDataSample($size) {
+		return $this->_doGetDataSample('DAO_Domain', $size);
+	}
+	
 	function render() {
 		$this->_sanitize();
 		

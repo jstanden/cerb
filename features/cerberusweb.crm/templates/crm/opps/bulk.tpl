@@ -7,7 +7,11 @@
 <fieldset>
 	<legend>{$translate->_('common.bulk_update.with')|capitalize}</legend>
 	<label><input type="radio" name="filter" value="" {if empty($opp_ids)}checked{/if}> {$translate->_('common.bulk_update.filter.all')}</label> 
-	<label><input type="radio" name="filter" value="checks" {if !empty($opp_ids)}checked{/if}> {$translate->_('common.bulk_update.filter.checked')}</label> 
+	{if !empty($opp_ids)}
+		<label><input type="radio" name="filter" value="checks" {if !empty($opp_ids)}checked{/if}> {$translate->_('common.bulk_update.filter.checked')}</label>
+	{else}
+		<label><input type="radio" name="filter" value="sample"> {'common.bulk_update.filter.random'|devblocks_translate|escape} </label><input type="text" name="filter_sample_size" size="5" maxlength="4" value="100" class="input_number">
+	{/if}
 </fieldset>
 
 <fieldset>
@@ -68,9 +72,9 @@
 		</select>
 		<br>
 		<b>Subject:</b> <br>
-		<input type="text" name="broadcast_subject" value="" style="width:100%;border:1px solid rgb(180,180,180);padding:2px;"><br>
+		<input type="text" name="broadcast_subject" value="" style="width:100%;"><br>
 		<b>Compose:</b> {*[<a href="#">syntax</a>]*}<br>
-		<textarea name="broadcast_message" style="width:100%;height:200px;border:1px solid rgb(180,180,180);padding:2px;"></textarea>
+		<textarea name="broadcast_message" style="width:100%;height:200px;"></textarea>
 		<br>
 		<button type="button" onclick="genericAjaxPost('formBatchUpdate','bulkOppBroadcastTest','c=crm&a=doOppBulkUpdateBroadcastTest');"><span class="cerb-sprite sprite-gear"></span> Test</button><!--
 		--><select onchange="insertAtCursor(this.form.broadcast_message,this.options[this.selectedIndex].value);this.selectedIndex=0;this.form.broadcast_message.focus();">

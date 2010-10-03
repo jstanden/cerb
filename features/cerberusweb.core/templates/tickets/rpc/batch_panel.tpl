@@ -7,9 +7,14 @@
 <fieldset>
 	<legend>{$translate->_('common.bulk_update.with')|capitalize}</legend>
 	<label><input type="radio" name="filter" value="" onclick="toggleDiv('categoryFilterPanelSender','none');toggleDiv('categoryFilterPanelSubject','none');" {if empty($ticket_ids)}checked{/if}> {$translate->_('common.bulk_update.filter.all')}</label> 
-	<label><input type="radio" name="filter" value="checks" onclick="toggleDiv('categoryFilterPanelSender','none');toggleDiv('categoryFilterPanelSubject','none');" {if !empty($ticket_ids)}checked{/if}> {$translate->_('common.bulk_update.filter.checked')}</label> 
+ 	{if !empty($ticket_ids)}
+		<label><input type="radio" name="filter" value="checks" onclick="toggleDiv('categoryFilterPanelSender','none');toggleDiv('categoryFilterPanelSubject','none');" {if !empty($ticket_ids)}checked{/if}> {$translate->_('common.bulk_update.filter.checked')}</label> 
+	{/if}
 	<label><input type="radio" name="filter" value="sender" onclick="toggleDiv('categoryFilterPanelSender','block');toggleDiv('categoryFilterPanelSubject','none');"> Similar senders</label>
 	<label><input type="radio" name="filter" value="subject" onclick="toggleDiv('categoryFilterPanelSender','none');toggleDiv('categoryFilterPanelSubject','block');"> Similar subjects</label>
+ 	{if empty($ticket_ids)}
+		<label><input type="radio" name="filter" value="sample"> {'common.bulk_update.filter.random'|devblocks_translate|escape} </label><input type="text" name="filter_sample_size" size="5" maxlength="4" value="100" class="input_number">
+	{/if}
 	
 	<div style='display:none;' id='categoryFilterPanelSender'>
 	<label><b>When sender matches:</b> (one per line, use * for wildcards)</label><br>

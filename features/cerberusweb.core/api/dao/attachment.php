@@ -250,8 +250,10 @@ class DAO_Attachment extends DevblocksORMHelper {
 			
 		$sort_sql = (!empty($sortBy) ? sprintf("ORDER BY %s %s ",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : " ");
 		
+		$has_multiple_values = false;
+		
 		$result = array(
-			'primary_table' => 'l',
+			'primary_table' => 'a',
 			'select' => $select_sql,
 			'join' => $join_sql,
 			'where' => $where_sql,
@@ -749,6 +751,10 @@ class View_Attachment extends C4_AbstractView {
 			$this->renderTotal
 		);
 		return $objects;
+	}
+	
+	function getDataSample($size) {
+		return $this->_doGetDataSample('DAO_Attachment', $size);
 	}
 
 	function render() {

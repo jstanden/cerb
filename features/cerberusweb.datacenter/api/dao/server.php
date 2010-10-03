@@ -433,6 +433,10 @@ class View_Server extends C4_AbstractView {
 		return $objects;
 	}
 
+	function getDataSample($size) {
+		return $this->_doGetDataSample('DAO_Server', $size);
+	}
+	
 	function render() {
 		$this->_sanitize();
 		

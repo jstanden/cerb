@@ -1038,6 +1038,11 @@ class ChContactsPage extends CerberusPageExtension {
 				@$address_id_str = DevblocksPlatform::importGPC($_REQUEST['address_ids'],'string');
 				$ids = DevblocksPlatform::parseCsvString($address_id_str);
 				break;
+			case 'sample':
+				@$sample_size = min(DevblocksPlatform::importGPC($_REQUEST['filter_sample_size'],'integer',0),9999);
+				$filter = 'checks';
+				$ids = $view->getDataSample($sample_size);
+				break;
 			default:
 				break;
 		}
@@ -1152,6 +1157,11 @@ class ChContactsPage extends CerberusPageExtension {
 			case 'checks':
 			    @$org_ids_str = DevblocksPlatform::importGPC($_REQUEST['org_ids'],'string');
 				$ids = DevblocksPlatform::parseCsvString($org_ids_str);
+				break;
+			case 'sample':
+				@$sample_size = min(DevblocksPlatform::importGPC($_REQUEST['filter_sample_size'],'integer',0),9999);
+				$filter = 'checks';
+				$ids = $view->getDataSample($sample_size);
 				break;
 			default:
 				break;

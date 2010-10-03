@@ -624,6 +624,10 @@ class View_MailQueue extends C4_AbstractView {
 		);
 		return $objects;
 	}
+	
+	function getDataSample($size) {
+		return $this->_doGetDataSample('DAO_MailQueue', $size);
+	}
 
 	function render() {
 		$this->_sanitize();

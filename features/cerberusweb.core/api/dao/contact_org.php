@@ -468,6 +468,10 @@ class View_ContactOrg extends C4_AbstractView {
 		return $objects;
 	}
 
+	function getDataSample($size) {
+		return $this->_doGetDataSample('DAO_ContactOrg', $size);
+	}
+	
 	function render() {
 		$this->_sanitize();
 		

@@ -849,6 +849,11 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 			    @$ids_str = DevblocksPlatform::importGPC($_REQUEST['ids'],'string');
 				$ids = DevblocksPlatform::parseCsvString($ids_str);
 				break;
+			case 'sample':
+				@$sample_size = min(DevblocksPlatform::importGPC($_REQUEST['filter_sample_size'],'integer',0),9999);
+				$filter = 'checks';
+				$ids = $view->getDataSample($sample_size);
+				break;
 			default:
 				break;
 		}
@@ -1515,6 +1520,10 @@ class View_KbArticle extends C4_AbstractView {
 			$this->renderTotal
 		);
 		return $objects;
+	}
+	
+	function getDataSample($size) {
+		return $this->_doGetDataSample('DAO_KbArticle', $size);
 	}
 
 	function render() {

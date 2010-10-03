@@ -558,7 +558,11 @@ class View_Address extends C4_AbstractView {
 		);
 		return $objects;
 	}
-
+	
+	function getDataSample($size) {
+		return $this->_doGetDataSample('DAO_Address', $size);
+	}
+	
 	function render() {
 		$this->_sanitize();
 		

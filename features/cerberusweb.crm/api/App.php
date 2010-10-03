@@ -523,7 +523,7 @@ class CrmPage extends CerberusPageExtension {
 	    
 	    // View
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
-		$view = C4_AbstractViewLoader::getView($view_id);
+		$view = C4_AbstractViewLoader::getView($view_id); /* @var $view View_CrmOpportunity */
 		
 		// Opp fields
 		@$status = trim(DevblocksPlatform::importGPC($_POST['status'],'string',''));
@@ -581,6 +581,11 @@ class CrmPage extends CerberusPageExtension {
 			case 'checks':
 			    @$opp_ids_str = DevblocksPlatform::importGPC($_REQUEST['opp_ids'],'string');
 		        $ids = DevblocksPlatform::parseCsvString($opp_ids_str);
+				break;
+			case 'sample':
+				@$sample_size = min(DevblocksPlatform::importGPC($_REQUEST['filter_sample_size'],'integer',0),9999);
+				$filter = 'checks';
+				$ids = $view->getDataSample($sample_size);
 				break;
 			default:
 				break;
@@ -1475,7 +1480,11 @@ class View_CrmOpportunity extends C4_AbstractView {
 		);
 		return $objects;
 	}
-
+	
+	function getDataSample($size) {
+		return $this->_doGetDataSample('DAO_CrmOpportunity', $size);
+	}
+	
 	function render() {
 		$this->_sanitize();
 		

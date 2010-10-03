@@ -414,6 +414,10 @@ class View_Task extends C4_AbstractView {
 			$this->renderTotal
 		);
 	}
+	
+	function getDataSample($size) {
+		return $this->_doGetDataSample('DAO_Task', $size);
+	}
 
 	function render() {
 		$this->_sanitize();

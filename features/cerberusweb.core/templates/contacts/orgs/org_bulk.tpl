@@ -7,7 +7,11 @@
 <fieldset>
 	<legend>{$translate->_('common.bulk_update.with')|capitalize}</legend>
 	<label><input type="radio" name="filter" value="" {if empty($org_ids)}checked{/if}> {$translate->_('common.bulk_update.filter.all')}</label> 
-	<label><input type="radio" name="filter" value="checks" {if !empty($org_ids)}checked{/if}> {$translate->_('common.bulk_update.filter.checked')}</label> 
+ 	{if !empty($org_ids)}
+		<label><input type="radio" name="filter" value="checks" {if !empty($org_ids)}checked{/if}> {$translate->_('common.bulk_update.filter.checked')}</label> 
+	{else}
+		<label><input type="radio" name="filter" value="sample"> {'common.bulk_update.filter.random'|devblocks_translate|escape} </label><input type="text" name="filter_sample_size" size="5" maxlength="4" value="100" class="input_number">
+	{/if}
 </fieldset>
 
 <fieldset>

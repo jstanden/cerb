@@ -964,6 +964,7 @@ class DAO_Ticket extends C4_ORMHelper {
 		}
 		
 		$result = array(
+			'primary_table' => 't',
 			'select' => $select_sql,
 			'join' => $join_sql,
 			'where' => $where_sql,
@@ -1248,6 +1249,10 @@ class View_Ticket extends C4_AbstractView {
 		return $objects;
 	}
 
+	function getDataSample($size) {
+		return $this->_doGetDataSample('DAO_Ticket', $size);
+	}
+	
 	function renderSubtotals() {
 		if(!method_exists($this, 'getCounts'))
 			return;
@@ -1836,70 +1841,62 @@ class View_Ticket extends C4_AbstractView {
 			$data[] = '*'; // All, just to permit a loop in foreach($data ...)
 		}
 
-		switch($filter) {
-			default:
-			case 'subject':
-			case 'sender':
-			case 'header':
-				if(is_array($data))
-				foreach($data as $v) {
-					$new_params = array();
-					$do_header = null;
-		    
-					switch($filter) {
-						case 'subject':
-							$new_params = array(
-								new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_SUBJECT,DevblocksSearchCriteria::OPER_LIKE,$v)
-							);
-							$do_header = 'subject';
-							$ticket_ids = array();
-							break;
-						case 'sender':
-							$new_params = array(
-								new DevblocksSearchCriteria(SearchFields_Ticket::SENDER_ADDRESS,DevblocksSearchCriteria::OPER_LIKE,$v)
-							);
-							$do_header = 'from';
-							$ticket_ids = array();
-							break;
-						case 'header':
-							$new_params = array(
-								// [TODO] It will eventually come up that we need multiple header matches (which need to be pair grouped as OR)
-								new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_MESSAGE_HEADER,DevblocksSearchCriteria::OPER_EQ,$filter_param),
-								new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_MESSAGE_HEADER_VALUE,DevblocksSearchCriteria::OPER_EQ,$v)
-							);
-							$ticket_ids = array();
-							break;
-					}
+		if(is_array($data))
+		foreach($data as $v) {
+			$new_params = array();
+			$do_header = null;
+    
+			switch($filter) {
+				case 'subject':
+					$new_params = array(
+						new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_SUBJECT,DevblocksSearchCriteria::OPER_LIKE,$v)
+					);
+					$do_header = 'subject';
+					$ticket_ids = array();
+					break;
+				case 'sender':
+					$new_params = array(
+						new DevblocksSearchCriteria(SearchFields_Ticket::SENDER_ADDRESS,DevblocksSearchCriteria::OPER_LIKE,$v)
+					);
+					$do_header = 'from';
+					$ticket_ids = array();
+					break;
+				case 'header':
+					$new_params = array(
+						// [TODO] It will eventually come up that we need multiple header matches (which need to be pair grouped as OR)
+						new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_MESSAGE_HEADER,DevblocksSearchCriteria::OPER_EQ,$filter_param),
+						new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_MESSAGE_HEADER_VALUE,DevblocksSearchCriteria::OPER_EQ,$v)
+					);
+					$ticket_ids = array();
+					break;
+			}
 
-					$new_params = array_merge($new_params, $params);
-					$pg = 0;
+			$new_params = array_merge($new_params, $params);
+			$pg = 0;
 
-					if(empty($ticket_ids)) {
-						do {
-							list($tickets,$null) = DAO_Ticket::search(
-								array(),
-								$new_params,
-								100,
-								$pg++,
-								SearchFields_Ticket::TICKET_ID,
-								true,
-								false
-							);
-							 
-							$ticket_ids = array_merge($ticket_ids, array_keys($tickets));
-							 
-						} while(!empty($tickets));
-					}
-			   
-					$batch_total = count($ticket_ids);
-					for($x=0;$x<=$batch_total;$x+=200) {
-						$batch_ids = array_slice($ticket_ids,$x,200);
-						$rule->run($batch_ids);
-						unset($batch_ids);
-					}
-				}
-
-				break;
+			if(empty($ticket_ids)) {
+				do {
+					list($tickets,$null) = DAO_Ticket::search(
+						array(),
+						$new_params,
+						100,
+						$pg++,
+						SearchFields_Ticket::TICKET_ID,
+						true,
+						false
+					);
+					 
+					$ticket_ids = array_merge($ticket_ids, array_keys($tickets));
+					 
+				} while(!empty($tickets));
+			}
+	   
+			$batch_total = count($ticket_ids);
+			for($x=0;$x<=$batch_total;$x+=200) {
+				$batch_ids = array_slice($ticket_ids,$x,200);
+				$rule->run($batch_ids);
+				unset($batch_ids);
+			}
 		}
 
 		unset($ticket_ids);
