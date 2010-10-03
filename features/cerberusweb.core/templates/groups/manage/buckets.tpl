@@ -3,9 +3,9 @@
 <input type="hidden" name="a" value="saveTabBuckets">
 <input type="hidden" name="team_id" value="{$team->id}">
 
-<div class="block">
-<h2>Buckets</h2>
-
+<fieldset>
+	<legend>Buckets</legend>
+	
 	<div style="margin-left:20px">
 		<table cellspacing="2" cellpadding="0">
 			<tr>
@@ -66,14 +66,15 @@
 			</ul>
 		</div>
 		{/if}
-	
-		<h3>Add Buckets</h3>
-		<b>Enter bucket names:</b> (one label per line)<br>
-		<textarea rows="5" cols="45" name="add"></textarea><br>
 	</div>
+</fieldset>
+
+<fieldset>
+	<legend>Add Buckets</legend>
+	<b>Enter bucket names:</b> (one label per line)<br>
+	<textarea rows="5" cols="45" name="add"></textarea><br>
+</fieldset>
 	
-	<br>
-	<button type="submit"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')|capitalize}</button>
-</div>
+<button type="submit"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')|capitalize}</button>
 
 </form>

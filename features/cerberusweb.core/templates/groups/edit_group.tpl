@@ -1,5 +1,3 @@
-<h2>{$team->name|escape}</h2>
-
 <div id="groupTabs">
 	<ul>
 		<li><a href="{devblocks_url}ajax.php?c=groups&a=showTabBuckets&id={$team->id}{/devblocks_url}">Workflow</a></li>

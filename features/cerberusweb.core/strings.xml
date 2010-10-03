@@ -28,9 +28,6 @@
 		<tu tuid='display.tab.history'>
 			<tuv xml:lang="en_US"><seg>Recipient History</seg></tuv>
 		</tu>
-		<tu tuid='display.tab.properties'>
-			<tuv xml:lang="en_US"><seg>Properties</seg></tuv>
-		</tu>
 		<tu tuid='display.tab.tasks'>
 			<tuv xml:lang="en_US"><seg>Tasks</seg></tuv>
 		</tu>
@@ -121,7 +118,7 @@
 			<tuv xml:lang="en_US"><seg>created</seg></tuv>
 		</tu>
 		<tu tuid='common.custom_fields'>
-			<tuv xml:lang="en_US"><seg>custom fields</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Custom Fields</seg></tuv>
 		</tu>
 		<tu tuid='common.customize'>
 			<tuv xml:lang="en_US"><seg>customize</seg></tuv>
@@ -284,6 +281,9 @@
 		</tu>
 		<tu tuid='common.print'>
 			<tuv xml:lang="en_US"><seg>Print</seg></tuv>
+		</tu>
+		<tu tuid='common.properties'>
+			<tuv xml:lang="en_US"><seg>Properties</seg></tuv>
 		</tu>
 		<tu tuid='common.quick_compose'>
 			<tuv xml:lang="en_US"><seg>Quick Compose</seg></tuv>
@@ -554,12 +554,6 @@
 			<tuv xml:lang="en_US"><seg>[Tickets] Can use the pile sorter on lists</seg></tuv>
 		</tu>
 
-		<!-- Activity -->
-		
-		<tu tuid='activity.tasks.tab.properties'>
-			<tuv xml:lang="en_US"><seg>Properties</seg></tuv>
-		</tu>
-		
 		<!-- Addresses -->
 		
 		<tu tuid='address.id'>
@@ -639,9 +633,6 @@
 		</tu>
 		<tu tuid='addy_book.org.tabs.people'>
 			<tuv xml:lang="en_US"><seg>People (%s)</seg></tuv>
-		</tu>
-		<tu tuid='addy_book.org.tabs.properties'>
-			<tuv xml:lang="en_US"><seg>Properties</seg></tuv>
 		</tu>
 		<tu tuid='addy_book.peek.compose'>
 			<tuv xml:lang="en_US"><seg>compose</seg></tuv>

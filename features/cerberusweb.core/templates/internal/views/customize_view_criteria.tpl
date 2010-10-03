@@ -2,8 +2,9 @@
 <table cellpadding="2" cellspacing="0" border="0" width="100%">
 <tr>
 	<td width="60%" valign="top">
-		<div class="block">
-			<h2>{$translate->_('common.filters')|capitalize}</h2>
+		<fieldset>
+			<legend>{$translate->_('common.filters')|capitalize}</legend>
+			
 			{include file="file:$core_tpl/internal/views/criteria_list_params.tpl" params=$view_editable_params}
 			
 			<div style="margin-top:5px;">
@@ -50,11 +51,12 @@
 					<a href="javascript:;" onclick="$(this).closest('div').fadeOut();"> {$translate->_('common.cancel')|lower}</a>
 				</div>
 			</div>
-		</div>
+		</fieldset>
 	</td>
 	<td valign="top" width="40%">
-		<div class="block">
-			<h2>Add Filter</h2>
+		<fieldset>
+			<legend>Add Filter</legend>
+			
 			<b>{$translate->_('common.field')|capitalize}:</b><br>
 			<blockquote style="margin:5px;">
 				{$searchable_fields = $view->getParamsAvailable()}
@@ -88,7 +90,7 @@
 		
 			<div id="addCriteria{$view->id}" style="background-color:rgb(255,255,255);"></div>
 			<button type="button" onclick="$form_id = $(this).closest('form').attr('id'); if(0==$form_id.length)return;genericAjaxPost($form_id,'viewCustomFilters{$view->id}','c=internal&a=viewAddFilter');"><span class="cerb-sprite sprite-add"></span> Add Filter</button>
-		</div>		
+		</fieldset>
 	</td>
 </tr>
 </table>

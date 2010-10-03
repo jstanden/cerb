@@ -6,86 +6,94 @@
 {if !empty($model) && !empty($model->id)}<input type="hidden" name="id" value="{$model->id}">{/if}
 <input type="hidden" name="do_delete" value="0">
 
-<table cellpadding="2" cellspacing="0" width="100%">
-	{if !empty($model->worker_id) && isset($workers.{$model->worker_id})}
-	<tr>
-		<td width="0%" nowrap="nowrap" valign="top" align="right"><b>{$translate->_('common.worker')|capitalize}</b>:</td>
-		<td width="100%">
-			{$workers.{$model->worker_id}->getName()}
-		</td>
-	</tr>
-	{/if}
-	{if !empty($nonbillable_activities) || !empty($billable_activities)}
-	<tr>
-		<td width="0%" nowrap="nowrap" valign="top" align="right"><b>{$translate->_('timetracking.ui.entry_panel.activity')}</b>:</td>
-		<td width="100%">
-			<select name="activity_id">
-				<option value=""></option>
-				{if !empty($nonbillable_activities)}
-				<optgroup label="{$translate->_('timetracking.ui.non_billable')}">
-					{foreach from=$nonbillable_activities item=activity}
-					<option value="{$activity->id}" {if $model->activity_id==$activity->id}selected{/if}>{$activity->name|escape}</option>
+<fieldset>
+	<legend>{'common.properties'|devblocks_translate}</legend>
+	<table cellpadding="2" cellspacing="0" width="100%">
+		{if !empty($model->worker_id) && isset($workers.{$model->worker_id})}
+		<tr>
+			<td width="0%" nowrap="nowrap" valign="top" align="right"><b>{$translate->_('common.worker')|capitalize}</b>:</td>
+			<td width="100%">
+				{$workers.{$model->worker_id}->getName()}
+			</td>
+		</tr>
+		{/if}
+		{if !empty($nonbillable_activities) || !empty($billable_activities)}
+		<tr>
+			<td width="0%" nowrap="nowrap" valign="top" align="right"><b>{$translate->_('timetracking.ui.entry_panel.activity')}</b>:</td>
+			<td width="100%">
+				<select name="activity_id">
+					<option value=""></option>
+					{if !empty($nonbillable_activities)}
+					<optgroup label="{$translate->_('timetracking.ui.non_billable')}">
+						{foreach from=$nonbillable_activities item=activity}
+						<option value="{$activity->id}" {if $model->activity_id==$activity->id}selected{/if}>{$activity->name|escape}</option>
+						{/foreach}
+					</optgroup>
+					{/if}
+					{if !empty($billable_activities)}
+					<optgroup label="{$translate->_('timetracking.ui.billable')}">
+						{foreach from=$billable_activities item=activity}
+						<option value="{$activity->id}" {if $model->activity_id==$activity->id}selected{/if}>{$activity->name|escape}</option>
+						{/foreach}
+					</optgroup>
+					{/if}
+				</select>
+			</td>
+		</tr>
+		{/if}
+		<tr>
+			<td width="0%" nowrap="nowrap" valign="top" align="right"><b>{$translate->_('timetracking.ui.entry_panel.time_spent')}</b>:</td>
+			<td width="100%">
+				<input type="text" name="time_actual_mins" size="5" value="{$model->time_actual_mins}"> {$translate->_('timetracking.ui.entry_panel.mins')}
+			</td>
+		</tr>
+		<tr>
+			<td width="0%" nowrap="nowrap" valign="top" align="right"><b>{$translate->_('timetracking_entry.log_date')|capitalize}</b>:</td>
+			<td width="100%">
+				<input type="text" name="log_date" size="45" style="width:98%;" value="{$model->log_date|devblocks_date}"> 
+			</td>
+		</tr>
+		<tr>
+			<td width="0%" nowrap="nowrap" valign="top" align="right"><b>{$translate->_('common.status')|capitalize}</b>:</td>
+			<td width="100%">
+				<label><input type="radio" name="is_closed" value="0" {if !$model->is_closed}checked="checked"{/if}> {$translate->_('status.open')|capitalize}</label>
+				<label><input type="radio" name="is_closed" value="1" {if $model->is_closed}checked="checked"{/if}> {$translate->_('status.closed')|capitalize}</label>
+			</td>
+		</tr>
+		<tr>
+			<td width="0%" nowrap="nowrap" valign="top" align="right"><b>{$translate->_('common.comment')|capitalize}</b>:</td>
+			<td width="100%">
+				<textarea name="comment" rows="4" cols="45" style="width:98%;">{$model->notes|escape}</textarea>
+			</td>
+		</tr>
+		<tr>
+			<td width="0%" nowrap="nowrap" valign="top" align="right"><b>{'common.owners'|devblocks_translate|capitalize}</b>:</td>
+			<td width="100%">
+				<button type="button" class="chooser_worker"><span class="cerb-sprite sprite-add"></span></button>
+				{if !empty($context_workers)}
+				<ul class="chooser-container bubbles">
+					{foreach from=$context_workers item=context_worker}
+					<li>{$context_worker->getName()|escape}<input type="hidden" name="worker_id[]" value="{$context_worker->id}"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></li>
 					{/foreach}
-				</optgroup>
+				</ul>
 				{/if}
-				{if !empty($billable_activities)}
-				<optgroup label="{$translate->_('timetracking.ui.billable')}">
-					{foreach from=$billable_activities item=activity}
-					<option value="{$activity->id}" {if $model->activity_id==$activity->id}selected{/if}>{$activity->name|escape}</option>
-					{/foreach}
-				</optgroup>
-				{/if}
-			</select>
-		</td>
-	</tr>
-	{/if}
-	<tr>
-		<td width="0%" nowrap="nowrap" valign="top" align="right"><b>{$translate->_('timetracking.ui.entry_panel.time_spent')}</b>:</td>
-		<td width="100%">
-			<input type="text" name="time_actual_mins" size="5" value="{$model->time_actual_mins}"> {$translate->_('timetracking.ui.entry_panel.mins')}
-		</td>
-	</tr>
-	<tr>
-		<td width="0%" nowrap="nowrap" valign="top" align="right"><b>{$translate->_('timetracking_entry.log_date')|capitalize}</b>:</td>
-		<td width="100%">
-			<input type="text" name="log_date" size="45" style="width:98%;" value="{$model->log_date|devblocks_date}"> 
-		</td>
-	</tr>
-	<tr>
-		<td width="0%" nowrap="nowrap" valign="top" align="right"><b>{$translate->_('common.status')|capitalize}</b>:</td>
-		<td width="100%">
-			<label><input type="radio" name="is_closed" value="0" {if !$model->is_closed}checked="checked"{/if}> {$translate->_('status.open')|capitalize}</label>
-			<label><input type="radio" name="is_closed" value="1" {if $model->is_closed}checked="checked"{/if}> {$translate->_('status.closed')|capitalize}</label>
-		</td>
-	</tr>
-	<tr>
-		<td width="0%" nowrap="nowrap" valign="top" align="right"><b>{$translate->_('common.comment')|capitalize}</b>:</td>
-		<td width="100%">
-			<textarea name="comment" rows="4" cols="45" style="width:98%;">{$model->notes|escape}</textarea>
-		</td>
-	</tr>
-	<tr>
-		<td width="0%" nowrap="nowrap" valign="top" align="right"><b>{'common.owners'|devblocks_translate|capitalize}</b>:</td>
-		<td width="100%">
-			<button type="button" class="chooser_worker"><span class="cerb-sprite sprite-add"></span></button>
-			{if !empty($context_workers)}
-			<ul class="chooser-container bubbles">
-				{foreach from=$context_workers item=context_worker}
-				<li>{$context_worker->getName()|escape}<input type="hidden" name="worker_id[]" value="{$context_worker->id}"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></li>
-				{/foreach}
-			</ul>
-			{/if}
-		</td>
-	</tr>
-</table>
+			</td>
+		</tr>
+	</table>
+</fieldset>
 
-{include file="file:$core_tpl/internal/custom_fields/bulk/form.tpl" bulk=false}
+{if !empty($custom_fields)}
+<fieldset>
+	<legend>{'common.custom_fields'|devblocks_translate}</legend>
+	{include file="file:$core_tpl/internal/custom_fields/bulk/form.tpl" bulk=false}
+</fieldset>
+{/if}
 
 {* Comment *}
 {if !empty($last_comment)}
 	{include file="file:$core_tpl/internal/comments/comment.tpl" readonly=true comment=$last_comment}
+	<br>
 {/if}
-<br>
 
 {if $model->context && $model->context_id}
 <input type="hidden" name="context" value="{$model->context}">

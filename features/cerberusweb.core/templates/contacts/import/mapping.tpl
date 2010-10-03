@@ -39,7 +39,7 @@
 		{/foreach}
 		
 		{if !empty($custom_fields)}
-		<optgroup label="- {$translate->_('common.custom_fields')|capitalize} -">
+		<optgroup label="- {$translate->_('common.custom_fields')} -">
 		{foreach from=$custom_fields item=field}
 			<option value="cf_{$field->id}">{$field->name}</option>
 		{/foreach}
