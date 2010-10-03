@@ -341,17 +341,15 @@ class Page_Domains extends CerberusPageExtension {
 			@$broadcast_subject = DevblocksPlatform::importGPC($_REQUEST['broadcast_subject'],'string',null);
 			@$broadcast_message = DevblocksPlatform::importGPC($_REQUEST['broadcast_message'],'string',null);
 
-			// Get total
-			$view->renderPage = 0;
-			$view->renderLimit = 1;
-			$view->renderTotal = true;
-			list($null, $total) = $view->getData();
+			@$filter = DevblocksPlatform::importGPC($_REQUEST['filter'],'string','');
+			@$ids = DevblocksPlatform::importGPC($_REQUEST['ids'],'string','');
 			
-			// Get the first row from the view
-			$view->renderPage = mt_rand(0, $total-1);
-			$view->renderLimit = 1;
-			$view->renderTotal = false;
-			list($results, $null) = $view->getData();
+			// Filter to checked
+			if('checks' == $filter && !empty($ids)) {
+				$view->addParam(new DevblocksSearchCriteria(SearchFields_Domain::ID,'in',explode(',', $ids)));
+			}
+			
+			$results = $view->getDataSample(1);
 			
 			if(empty($results)) {
 				$success = false;
@@ -359,7 +357,7 @@ class Page_Domains extends CerberusPageExtension {
 				
 			} else {
 				// Pull one of the addresses on this row
-				$addresses = Context_Address::searchInboundLinks('cerberusweb.contexts.datacenter.domain', key($results));
+				$addresses = Context_Address::searchInboundLinks('cerberusweb.contexts.datacenter.domain', current($results));
 				
 				if(empty($addresses)) {
 					echo "This row has no associated addresses. Try again.";
@@ -370,7 +368,7 @@ class Page_Domains extends CerberusPageExtension {
 				@$addy = DAO_Address::get(array_rand($addresses, 1));
 
 				// Try to build the template
-				CerberusContexts::getContext('cerberusweb.contexts.datacenter.domain', array('id'=>key($results),'address_id'=>$addy->id), $token_labels, $token_values);
+				CerberusContexts::getContext('cerberusweb.contexts.datacenter.domain', array('id'=>current($results),'address_id'=>$addy->id), $token_labels, $token_values);
 
 				if(empty($broadcast_subject)) {
 					$success = false;

@@ -1066,24 +1066,22 @@ class ChContactsPage extends CerberusPageExtension {
 			@$broadcast_subject = DevblocksPlatform::importGPC($_REQUEST['broadcast_subject'],'string',null);
 			@$broadcast_message = DevblocksPlatform::importGPC($_REQUEST['broadcast_message'],'string',null);
 
-			// Get total
-			$view->renderPage = 0;
-			$view->renderLimit = 1;
-			$view->renderTotal = true;
-			list($null, $total) = $view->getData();
+			@$filter = DevblocksPlatform::importGPC($_REQUEST['filter'],'string','');
+			@$ids = DevblocksPlatform::importGPC($_REQUEST['address_ids'],'string','');
 			
-			// Get the first row from the view
-			$view->renderPage = mt_rand(0, $total-1);
-			$view->renderLimit = 1;
-			$view->renderTotal = false;
-			list($results, $null) = $view->getData();
+			// Filter to checked
+			if('checks' == $filter && !empty($ids)) {
+				$view->addParam(new DevblocksSearchCriteria(SearchFields_Address::ID,'in',explode(',', $ids)));
+			}
+			
+			$results = $view->getDataSample(1);
 			
 			if(empty($results)) {
 				$success = false;
 				$output = "There aren't any rows in this view!";
 				
 			} else {
-				@$addy = DAO_Address::get(key($results));
+				@$addy = DAO_Address::get(current($results));
 				
 				// Try to build the template
 				CerberusContexts::getContext(CerberusContexts::CONTEXT_ADDRESS, $addy, $token_labels, $token_values);

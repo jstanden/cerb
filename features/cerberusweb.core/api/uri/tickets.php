@@ -2246,25 +2246,23 @@ class ChTicketsPage extends CerberusPageExtension {
 		if($active_worker->hasPriv('core.ticket.view.actions.broadcast_reply')) {
 			@$broadcast_message = DevblocksPlatform::importGPC($_REQUEST['broadcast_message'],'string',null);
 
-			// Get total
-			$view->renderPage = 0;
-			$view->renderLimit = 1;
-			$view->renderTotal = true;
-			list($null, $total) = $view->getData();
+			@$filter = DevblocksPlatform::importGPC($_REQUEST['filter'],'string','');
+			@$ids = DevblocksPlatform::importGPC($_REQUEST['ids'],'string','');
 			
-			// Get the first row from the view
-			$view->renderPage = mt_rand(0, $total-1);
-			$view->renderLimit = 1;
-			$view->renderTotal = false;
-			list($result, $null) = $view->getData();
+			// Filter to checked
+			if('checks' == $filter && !empty($ids)) {
+				$view->addParam(new DevblocksSearchCriteria(SearchFields_Ticket::ID,'in',explode(',', $ids)));
+			}
 			
-			if(empty($result)) {
+			$results = $view->getDataSample(1);
+			
+			if(empty($results)) {
 				$success = false;
 				$output = "There aren't any rows in this view!";
 				
 			} else {
 				// Try to build the template
-				CerberusContexts::getContext(CerberusContexts::CONTEXT_TICKET, array_shift($result), $token_labels, $token_values);
+				CerberusContexts::getContext(CerberusContexts::CONTEXT_TICKET, current($results), $token_labels, $token_values);
 				if(false === ($out = $tpl_builder->build($broadcast_message, $token_values))) {
 					// If we failed, show the compile errors
 					$errors = $tpl_builder->getErrors();

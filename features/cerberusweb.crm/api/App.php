@@ -613,24 +613,22 @@ class CrmPage extends CerberusPageExtension {
 			@$broadcast_subject = DevblocksPlatform::importGPC($_REQUEST['broadcast_subject'],'string',null);
 			@$broadcast_message = DevblocksPlatform::importGPC($_REQUEST['broadcast_message'],'string',null);
 
-			// Get total
-			$view->renderPage = 0;
-			$view->renderLimit = 1;
-			$view->renderTotal = true;
-			list($null, $total) = $view->getData();
+			@$filter = DevblocksPlatform::importGPC($_REQUEST['filter'],'string','');
+			@$opp_ids = DevblocksPlatform::importGPC($_REQUEST['opp_ids'],'string','');
 			
-			// Get the first row from the view
-			$view->renderPage = mt_rand(0, $total-1);
-			$view->renderLimit = 1;
-			$view->renderTotal = false;
-			list($results, $null) = $view->getData();
+			// Filter to checked
+			if('checks' == $filter && !empty($opp_ids)) {
+				$view->addParam(new DevblocksSearchCriteria(SearchFields_CrmOpportunity::ID,'in',explode(',', $opp_ids)));
+			}
+			
+			$results = $view->getDataSample(1);
 			
 			if(empty($results)) {
 				$success = false;
 				$output = "There aren't any rows in this view!";
 				
 			} else {
-				@$opp = DAO_CrmOpportunity::get(key($results));
+				@$opp = DAO_CrmOpportunity::get(current($results));
 				
 				// Try to build the template
 				CerberusContexts::getContext(CerberusContexts::CONTEXT_OPPORTUNITY, $opp, $token_labels, $token_values);
