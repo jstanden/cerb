@@ -4,29 +4,24 @@
 <input type="hidden" name="view_id" value="{$view_id}">
 <input type="hidden" name="ids" value="{$ids}">
 
-<h2>{$translate->_('common.bulk_update.with')|capitalize}:</h2>
+<fieldset>
+	<legend>{$translate->_('common.bulk_update.with')|capitalize}</legend>
+	<label><input type="radio" name="filter" value="" {if empty($ids)}checked{/if}> {$translate->_('common.bulk_update.filter.all')}</label> 
+	<label><input type="radio" name="filter" value="checks" {if !empty($ids)}checked{/if}> {$translate->_('common.bulk_update.filter.checked')}</label> 
+</fieldset>
 
-<label><input type="radio" name="filter" value="" {if empty($ids)}checked{/if}> {$translate->_('common.bulk_update.filter.all')}</label> 
-<label><input type="radio" name="filter" value="checks" {if !empty($ids)}checked{/if}> {$translate->_('common.bulk_update.filter.checked')}</label> 
-<br>
-<br>
+{*
+<fieldset>
+	<legend>Set Fields</legend>
+</fieldset>
+*}
 
-<h2>{$translate->_('common.bulk_update.do')|capitalize}:</h2>
-<table cellspacing="0" cellpadding="2" width="100%">
-	{*
-	<tr>
-		<td width="0%" nowrap="nowrap" align="right">{'crm.opportunity.closed_date'|devblocks_translate|capitalize}:</td>
-		<td width="100%">
-			<input type="text" name="closed_date" size=35 value=""><button type="button" onclick="devblocksAjaxDateChooser(this.form.closed_date,'#dateOppBulkClosed');">&nbsp;<span class="cerb-sprite sprite-calendar"></span>&nbsp;</button>
-			<div id="dateOppBulkClosed"></div>
-      	</td>
-	</tr>
-	*}
-</table>
-
-{include file="file:$core_tpl/internal/custom_fields/bulk/form.tpl" bulk=true}
-
-<br>
+{if !empty($custom_fields)}
+<fieldset>
+	<legend>Set Custom Fields</legend>
+	{include file="file:$core_tpl/internal/custom_fields/bulk/form.tpl" bulk=true}	
+</fieldset>
+{/if}
 
 <button type="button" onclick="genericAjaxPopupClose('peek');genericAjaxPost('formBatchUpdate','view{$view_id}');"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')|capitalize}</button>
 </form>

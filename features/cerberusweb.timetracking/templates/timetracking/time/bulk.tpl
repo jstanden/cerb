@@ -4,27 +4,32 @@
 <input type="hidden" name="view_id" value="{$view_id}">
 <input type="hidden" name="ids" value="{$ids}">
 
-<h2>{$translate->_('common.bulk_update.with')|capitalize}:</h2>
-<label><input type="radio" name="filter" value="" {if empty($ids)}checked{/if}> {$translate->_('common.bulk_update.filter.all')}</label> 
-<label><input type="radio" name="filter" value="checks" {if !empty($ids)}checked{/if}> {$translate->_('common.bulk_update.filter.checked')}</label> 
-<br>
-<br>
+<fieldset>
+	<legend>{$translate->_('common.bulk_update.with')|capitalize}</legend>
+	<label><input type="radio" name="filter" value="" {if empty($ids)}checked{/if}> {$translate->_('common.bulk_update.filter.all')}</label> 
+	<label><input type="radio" name="filter" value="checks" {if !empty($ids)}checked{/if}> {$translate->_('common.bulk_update.filter.checked')}</label> 
+</fieldset>
 
-<h2>{$translate->_('common.bulk_update.do')|capitalize}:</h2>
-<table cellspacing="0" cellpadding="2" width="100%">
-	<tr>
-		<td width="0%" nowrap="nowrap" valign="top">{'common.owners'|devblocks_translate|capitalize}:</td>
-		<td width="100%">
-			<button type="button" class="chooser-worker add"><span class="cerb-sprite sprite-add"></span></button>
-			<br>
-			<button type="button" class="chooser-worker remove"><span class="cerb-sprite sprite-forbidden"></span></button>
-		</td>
-	</tr>
-</table>
+<fieldset>
+	<legend>Set Fields</legend>
+	<table cellspacing="0" cellpadding="2" width="100%">
+		<tr>
+			<td width="0%" nowrap="nowrap" valign="top">{'common.owners'|devblocks_translate|capitalize}:</td>
+			<td width="100%">
+				<button type="button" class="chooser-worker add"><span class="cerb-sprite sprite-add"></span></button>
+				<br>
+				<button type="button" class="chooser-worker remove"><span class="cerb-sprite sprite-forbidden"></span></button>
+			</td>
+		</tr>
+	</table>
+</fieldset>
 
-{include file="file:$core_tpl/internal/custom_fields/bulk/form.tpl" bulk=true}
-
-<br>
+{if !empty($custom_fields)}
+<fieldset>
+	<legend>Set Custom Fields</legend>
+	{include file="file:$core_tpl/internal/custom_fields/bulk/form.tpl" bulk=true}	
+</fieldset>
+{/if}
 
 <button type="button" onclick="genericAjaxPopupClose('peek');genericAjaxPost('formBatchUpdate','view{$view_id}');"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')|capitalize}</button>
 <br>
