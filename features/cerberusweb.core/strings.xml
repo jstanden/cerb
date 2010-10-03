@@ -84,6 +84,9 @@
 		<tu tuid='common.bulk_update.filter.checked'>
 			<tuv xml:lang="en_US"><seg>Only checked</seg></tuv>
 		</tu>
+		<tu tuid='common.bulk_update.filter.random'>
+			<tuv xml:lang="en_US"><seg>Random</seg></tuv>
+		</tu>
 		<tu tuid='common.bulk_update.with'>
 			<tuv xml:lang="en_US"><seg>With</seg></tuv>
 		</tu>

@@ -72,7 +72,46 @@ abstract class C4_AbstractView {
 	
 	public $renderTemplate = null;
 
-	function getData() {
+	abstract function getData();
+	function getDataSample($size) {}
+	
+	protected function _doGetDataSample($dao_class, $size) {
+		$db = DevblocksPlatform::getDatabaseService();
+
+		if(!method_exists($dao_class,'getSearchQueryComponents'))
+			return array();
+		
+		$query_parts = call_user_func_array(
+			array($dao_class,'getSearchQueryComponents'),
+			array(
+				$this->view_columns,
+				$this->getParams(),
+				$this->renderSortBy,
+				$this->renderSortAsc
+			)
+		);
+		
+		$select_sql = sprintf("SELECT %s.id ", $query_parts['primary_table']);
+		$join_sql = $query_parts['join'];
+		$where_sql = $query_parts['where'];
+		$has_multiple_values = $query_parts['has_multiple_values'];
+		$sort_sql = sprintf("ORDER BY RAND() LIMIT %d ", $size);
+		
+		$sql = 
+			$select_sql.
+			$join_sql.
+			$where_sql.
+			($has_multiple_values ? sprintf("GROUP BY %s.id ", $query_parts['primary_table']) : '').
+			$sort_sql;
+			
+		$rs = $db->Execute($sql);
+		
+		$objects = array();
+		while($row = mysql_fetch_row($rs)) {
+			$objects[] = $row[0];
+		}		
+		
+		return $objects;		
 	}
 
 	function getColumnsAvailable() {
