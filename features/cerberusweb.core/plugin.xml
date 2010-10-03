@@ -855,12 +855,14 @@
 
 		<extension point="cerberusweb.login">
 			<id>login.default</id>
-			<name>Default Login Module</name>
+			<name>Default Login</name>
 			<class>
 				<file>api/login.classes.php</file>
 				<name>DefaultLoginModule</name>
 			</class>
 			<params>
+				<param key="switcher_icon" value="images/plugin/mail.png" />
+				<param key="switcher_label" value="Log in with email and password" />
 			</params>
 		</extension>
 

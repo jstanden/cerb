@@ -18,7 +18,7 @@
 	<table cellpadding="0" cellspacing="2">
 	<tr>
 		<td align="right" valign="middle">E-mail:</td>
-		<td><input type="text" name="email" size="45" id="loginForm_email"></td>
+		<td><input type="text" name="email" size="45" id="loginForm_email" class="input_email"></td>
 	</tr>
 	<tr>
 		<td align="right" valign="middle">Password:</td>
@@ -32,6 +32,8 @@
 	<button type="submit">{$translate->_('header.signon')|capitalize}</button>
 </fieldset>
 </form>
+
+{include file="devblocks:cerberusweb.core::login/switcher.tpl"}
 
 <script type="text/javascript">
 	$(function() {

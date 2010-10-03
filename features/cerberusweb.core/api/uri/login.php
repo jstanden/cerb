@@ -48,6 +48,7 @@
  *	 WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
 class ChSignInPage extends CerberusPageExtension {
+	// [TODO] Move this to the default login handler
     const KEY_FORGOT_EMAIL = 'login.recover.email';
     const KEY_FORGOT_SENTCODE = 'login.recover.sentcode';
     const KEY_FORGOT_CODE = 'login.recover.code';
@@ -63,6 +64,33 @@ class ChSignInPage extends CerberusPageExtension {
 		return true;
 	}
 	
+	function getLoginProvider() {
+		@$extension_id = DevblocksPlatform::importGPC($_COOKIE['login_extension_id'],'string','login.default');
+
+		if(!empty($extension_id) && null != ($extension = DevblocksPlatform::getExtension($extension_id, true, true))) {
+			return $extension;
+		} else {
+			return DevblocksPlatform::getExtension('login.default', true);
+		}
+	}
+	
+	function providerAction() {
+	    $request = DevblocksPlatform::getHttpRequest();
+	    $stack = $request->path;
+	    @array_shift($stack); // login
+	    @array_shift($stack); // provider
+        @$extension_id = array_shift($stack);
+		
+        if(!empty($extension_id) && null != ($ext = DevblocksPlatform::getExtension($extension_id, true, true)) 
+        	&& $ext instanceof Extension_LoginAuthenticator) {
+        		setcookie('login_extension_id', $ext->manifest->id, strtotime('+1 year'), '/');
+        } else {
+        	setcookie('login_extension_id', 'login.default', strtotime('+1 year'), '/');
+        }
+        
+		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('login')));
+	}
+	
 	function render() {
 	    $response = DevblocksPlatform::getHttpResponse();
 	    $stack = $response->path;
@@ -70,6 +98,7 @@ class ChSignInPage extends CerberusPageExtension {
         $section = array_shift($stack);
         
         switch($section) {
+        	// [TODO] Move this to the default login handler
             case "forgot":
                 $step = array_shift($stack);
                 $tpl = DevblocksPlatform::getTemplateService();
@@ -93,9 +122,15 @@ class ChSignInPage extends CerberusPageExtension {
                 }
                 
                 break;
+                
             default:
-				$manifest = DevblocksPlatform::getExtension('login.default');
-				$inst = $manifest->createInstance(); /* @var $inst Extension_LoginAuthenticator */
+				$inst = $this->getLoginProvider();
+
+				$tpl = DevblocksPlatform::getTemplateService();
+            	$login_extensions = DevblocksPlatform::getExtensions('cerberusweb.login', false, true);
+            	unset($login_extensions[$inst->id]); 
+            	$tpl->assign('login_extensions', $login_extensions);
+            	
 				$inst->renderLoginForm();
                 break;
         }
@@ -104,13 +139,31 @@ class ChSignInPage extends CerberusPageExtension {
 	function showAction() {
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('login')));
 	}
+	
+	// [TODO] Still needed?
+	function delegateAction() {
+	    $request = DevblocksPlatform::getHttpRequest();
+	    $stack = $request->path;
+	    array_shift($stack); // login
+	    array_shift($stack); // delegate
+		
+		if(null == (@$action = array_shift($stack)))
+			exit;
 
+		if(null != ($inst = $this->getLoginProvider())) {
+			if(method_exists($inst,$action.'Action')) {
+				call_user_func(array($inst,$action.'Action'));
+			}
+		}
+		
+		exit;
+	}
+	
 	// POST
 	function authenticateAction() {
 		@$redirect_path = explode('/',DevblocksPlatform::importGPC($_POST['original_path']));
 
-		$manifest = DevblocksPlatform::getExtension('login.default');
-		$inst = $manifest->createInstance(); /* @var $inst Extension_LoginAuthenticator */
+		$inst = $this->getLoginProvider(); /* @var $inst Extension_LoginAuthenticator */
 
 		$url_service = DevblocksPlatform::getUrlService();
 		
@@ -181,6 +234,8 @@ class ChSignInPage extends CerberusPageExtension {
 	function signoutAction() {
 		$session = DevblocksPlatform::getSessionService();
 		$visit = $session->getVisit();
+		
+		// [TODO] This also needs to invoke a signout on the login auth extension
 		
 		DAO_Worker::logActivity(new Model_Activity(null));
 		

@@ -48,12 +48,14 @@
 
 		<extension point="cerberusweb.login">
 			<id>login.openid</id>
-			<name>OpenID Login Module</name>
+			<name>OpenID Login</name>
 			<class>
 				<file>api/App.php</file>
 				<name>ChOpenIdLoginModule</name>
 			</class>
 			<params>
+				<param key="switcher_icon" value="images/openid-inputicon.gif" />
+				<param key="switcher_label" value="Log in with OpenID" />
 			</params>
 		</extension>
 
