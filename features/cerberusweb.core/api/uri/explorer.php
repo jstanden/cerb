@@ -92,7 +92,6 @@ class ChExplorerController extends DevblocksControllerExtension {
 	
 	function writeResponse(DevblocksHttpResponse $response) {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$path = dirname(dirname(dirname(__FILE__))) . '/templates/';
 
 		$stack = $response->path;
 		array_shift($stack); // explorer
@@ -154,7 +153,7 @@ class ChExplorerController extends DevblocksControllerExtension {
 		$translate = DevblocksPlatform::getTranslationService();
 		$tpl->assign('translate', $translate);
 			
-		$tpl->display('file:'.$path.'explorer/index.tpl');
+		$tpl->display('devblocks:cerberusweb.core::explorer/index.tpl');
 	}
 };
 

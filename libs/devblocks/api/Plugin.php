@@ -28,11 +28,10 @@ class DevblocksStorageEngineDisk extends Extension_DevblocksStorageEngine {
 	
 	function renderConfig(Model_DevblocksStorageProfile $profile) {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$path = dirname(dirname(__FILE__)) . '/templates';
 		
 		$tpl->assign('profile', $profile);
 		
-		$tpl->display("file:{$path}/storage_engine/config/disk.tpl");
+		$tpl->display("devblocks:devblocks.core::storage_engine/config/disk.tpl");
 	}
 	
 	function saveConfig(Model_DevblocksStorageProfile $profile) {
@@ -212,11 +211,9 @@ class DevblocksStorageEngineDatabase extends Extension_DevblocksStorageEngine {
 	
 	function renderConfig(Model_DevblocksStorageProfile $profile) {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$path = dirname(dirname(__FILE__)) . '/templates';
-		
 		$tpl->assign('profile', $profile);
 		
-		$tpl->display("file:{$path}/storage_engine/config/database.tpl");
+		$tpl->display("devblocks:devblocks.core::storage_engine/config/database.tpl");
 	}
 	
 	function saveConfig(Model_DevblocksStorageProfile $profile) {
@@ -460,11 +457,9 @@ class DevblocksStorageEngineS3 extends Extension_DevblocksStorageEngine {
 	
 	function renderConfig(Model_DevblocksStorageProfile $profile) {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$path = dirname(dirname(__FILE__)) . '/templates';
-		
 		$tpl->assign('profile', $profile);
 		
-		$tpl->display("file:{$path}/storage_engine/config/s3.tpl");
+		$tpl->display("devblocks:devblocks.core::storage_engine/config/s3.tpl");
 	}
 	
 	function saveConfig(Model_DevblocksStorageProfile $profile) {

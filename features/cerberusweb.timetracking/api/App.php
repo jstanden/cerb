@@ -1462,8 +1462,6 @@ class ChTimeTrackingPage extends CerberusPageExtension {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id']);
 
 		$tpl = DevblocksPlatform::getTemplateService();
-		$path = dirname(dirname(__FILE__)) . '/templates/';
-		$tpl->assign('path', $path);
 		$tpl->assign('view_id', $view_id);
 
 	    if(!empty($id_csv)) {
@@ -1475,7 +1473,7 @@ class ChTimeTrackingPage extends CerberusPageExtension {
 		$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_TimeEntry::ID);
 		$tpl->assign('custom_fields', $custom_fields);
 		
-		$tpl->display('file:' . $path . 'timetracking/time/bulk.tpl');
+		$tpl->display('devblocks:cerberusweb.timetracking::timetracking/time/bulk.tpl');
 	}
 	
 	function doBulkUpdateAction() {

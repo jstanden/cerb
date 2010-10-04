@@ -176,7 +176,7 @@ class ChTasksPage extends CerberusPageExtension {
 		// View
 		$tpl->assign('id', $id);
 		$tpl->assign('view_id', $view_id);
-		$tpl->display('file:' . $path . 'tasks/rpc/peek.tpl');
+		$tpl->display('devblocks:cerberusweb.core::tasks/rpc/peek.tpl');
 	}
 	
 	function saveTaskPeekAction() {

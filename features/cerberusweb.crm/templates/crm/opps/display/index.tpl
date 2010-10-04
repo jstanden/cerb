@@ -1,4 +1,4 @@
-{include file="$path/crm/submenu.tpl"}
+{include file="devblocks:cerberusweb.crm::crm/submenu.tpl"}
 
 <table cellspacing="0" cellpadding="0" border="0" width="100%" style="padding-bottom:5px;">
 <tr>

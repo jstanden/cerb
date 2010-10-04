@@ -1,4 +1,4 @@
-{include file="$path/timetracking/display/submenu.tpl"}
+{include file="devblocks:cerberusweb.timetracking::timetracking/display/submenu.tpl"}
 
 <table cellspacing="0" cellpadding="0" border="0" width="100%" style="padding-bottom:5px;">
 <tr>

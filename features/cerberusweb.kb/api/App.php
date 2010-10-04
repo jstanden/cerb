@@ -761,8 +761,6 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id']);
 
 		$tpl = DevblocksPlatform::getTemplateService();
-		$path = dirname(dirname(__FILE__)) . '/templates/';
-		$tpl->assign('path', $path);
 		$tpl->assign('view_id', $view_id);
 
 	    if(!empty($id_csv)) {
@@ -781,7 +779,7 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 //		$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_FeedbackEntry::ID);
 //		$tpl->assign('custom_fields', $custom_fields);
 		
-		$tpl->display('file:' . $path . 'kb/ajax/articles_bulk_panel.tpl');
+		$tpl->display('devblocks:cerberusweb.kb::kb/ajax/articles_bulk_panel.tpl');
 	}
 	
 	function doArticlesBulkUpdateAction() {

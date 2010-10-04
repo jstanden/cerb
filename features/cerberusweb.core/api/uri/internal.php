@@ -159,11 +159,10 @@ class ChInternalController extends DevblocksControllerExtension {
 		
 		if(null != ($context_extension = DevblocksPlatform::getExtension($context, true))) {
 			$tpl = DevblocksPlatform::getTemplateService();
-			$path = dirname(dirname(dirname(__FILE__))) . '/templates/';
 			$tpl->assign('context', $context_extension);
 			$tpl->assign('layer', $layer);
 			$tpl->assign('view', $context_extension->getChooserView());
-			$tpl->display('file:'.$path.'context_links/choosers/__generic.tpl');
+			$tpl->display('devblocks:cerberusweb.core::context_links/choosers/__generic.tpl');
 		}
 	}
 	

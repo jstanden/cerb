@@ -406,24 +406,22 @@ class Storage_Attachments extends Extension_DevblocksStorageSchema {
 
 	function render() {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$path = dirname(dirname(dirname(__FILE__))) . '/templates';
 		
 		$tpl->assign('active_storage_profile', $this->getParam('active_storage_profile', 'devblocks.storage.engine.disk'));
 		$tpl->assign('archive_storage_profile', $this->getParam('archive_storage_profile', 'devblocks.storage.engine.disk'));
 		$tpl->assign('archive_after_days', $this->getParam('archive_after_days', 7));
 		
-		$tpl->display("file:{$path}/configuration/tabs/storage/schemas/attachments/render.tpl");
+		$tpl->display("devblocks:cerberusweb.core::configuration/tabs/storage/schemas/attachments/render.tpl");
 	}	
 	
 	function renderConfig() {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$path = dirname(dirname(dirname(__FILE__))) . '/templates';
 		
 		$tpl->assign('active_storage_profile', $this->getParam('active_storage_profile', 'devblocks.storage.engine.disk'));
 		$tpl->assign('archive_storage_profile', $this->getParam('archive_storage_profile', 'devblocks.storage.engine.disk'));
 		$tpl->assign('archive_after_days', $this->getParam('archive_after_days', 7));
 		
-		$tpl->display("file:{$path}/configuration/tabs/storage/schemas/attachments/config.tpl");
+		$tpl->display("devblocks:cerberusweb.core::configuration/tabs/storage/schemas/attachments/config.tpl");
 	}
 	
 	function saveConfig() {

@@ -42,7 +42,7 @@
 		
 		<td width="100%" valign="top">
 			<form action="{devblocks_url}{/devblocks_url}" method="post" id="configActivity">
-				{include file="$path/config/activities/edit_activity.tpl" activity=null}
+				{include file="devblocks:cerberusweb.timetracking::config/activities/edit_activity.tpl" activity=null}
 			</form>
 		</td>
 		

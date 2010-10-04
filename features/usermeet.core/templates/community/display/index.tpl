@@ -1,4 +1,4 @@
-{include file="$path/community/display/submenu.tpl"}
+{include file="devblocks:usermeet.core::community/display/submenu.tpl"}
 
 {if !empty($tool->name)}
 	<h1>{$tool->name|escape}</h1>

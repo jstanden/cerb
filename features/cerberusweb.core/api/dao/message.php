@@ -501,24 +501,22 @@ class Storage_MessageContent extends Extension_DevblocksStorageSchema {
 	
 	function render() {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$path = dirname(dirname(dirname(__FILE__))) . '/templates';
 		
 		$tpl->assign('active_storage_profile', $this->getParam('active_storage_profile'));
 		$tpl->assign('archive_storage_profile', $this->getParam('archive_storage_profile'));
 		$tpl->assign('archive_after_days', $this->getParam('archive_after_days'));
 		
-		$tpl->display("file:{$path}/configuration/tabs/storage/schemas/message_content/render.tpl");
+		$tpl->display("devblocks:cerberusweb.core::configuration/tabs/storage/schemas/message_content/render.tpl");
 	}	
 	
 	function renderConfig() {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$path = dirname(dirname(dirname(__FILE__))) . '/templates';
 		
 		$tpl->assign('active_storage_profile', $this->getParam('active_storage_profile'));
 		$tpl->assign('archive_storage_profile', $this->getParam('archive_storage_profile'));
 		$tpl->assign('archive_after_days', $this->getParam('archive_after_days'));
 		
-		$tpl->display("file:{$path}/configuration/tabs/storage/schemas/message_content/config.tpl");
+		$tpl->display("devblocks:cerberusweb.core::configuration/tabs/storage/schemas/message_content/config.tpl");
 	}
 	
 	function saveConfig() {

@@ -253,7 +253,7 @@ class UmCommunityPage extends CerberusPageExtension {
 //		$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_FeedbackEntry::ID);
 //		$tpl->assign('custom_fields', $custom_fields);
 		
-		$tpl->display('file:' . $path . 'community/display/tabs/templates/bulk.tpl');
+		$tpl->display('devblocks:usermeet.core::community/display/tabs/templates/bulk.tpl');
 	}
 	
 	function doTemplatesBulkUpdateAction() {

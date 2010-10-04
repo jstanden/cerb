@@ -633,12 +633,11 @@ class View_MailQueue extends C4_AbstractView {
 		$this->_sanitize();
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		$path = dirname(dirname(dirname(__FILE__))) . '/templates/';
 		
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
 
-		$tpl->display('file:'.$path.'mail/queue/view.tpl');
+		$tpl->display('devblocks:cerberusweb.core::mail/queue/view.tpl');
 	}
 
 	function renderCriteria($field) {
