@@ -9,7 +9,6 @@ class UmScAccountController extends Extension_UmScController {
 	
 	function writeResponse(DevblocksHttpResponse $response) {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl_path = dirname(dirname(dirname(dirname(__FILE__)))) . '/templates/';
 		
 		$umsession = UmPortalHelper::getSession();
 		$active_user = $umsession->getProperty('sc_login', null);
@@ -164,7 +163,6 @@ class UmScAccountController extends Extension_UmScController {
 	
 	function configure(Model_CommunityTool $instance) {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl_path = dirname(dirname(dirname(dirname(__FILE__)))) . '/templates/';
 
 		if(null != ($show_fields = DAO_CommunityToolProperty::get($instance->code, 'account.fields', null))) {
 			$tpl->assign('show_fields', @json_decode($show_fields, true));
@@ -179,7 +177,7 @@ class UmScAccountController extends Extension_UmScController {
 		$types = Model_CustomField::getTypes();
 		$tpl->assign('field_types', $types);
 		
-		$tpl->display("file:${tpl_path}portal/sc/config/module/account.tpl");
+		$tpl->display("devblocks:cerberusweb.support_center::portal/sc/config/module/account.tpl");
 	}
 	
 	function saveConfiguration(Model_CommunityTool $instance) {

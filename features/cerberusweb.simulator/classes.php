@@ -52,8 +52,6 @@ class ChSimulatorConfigTab extends Extension_ConfigTab {
 	
 	function showTab() {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl_path = dirname(__FILE__) . '/templates/';
-		$tpl->assign('path', $tpl_path);
 		
 		$flavors = array(
 			'hosting' => 'Web Hosting',
@@ -65,15 +63,13 @@ class ChSimulatorConfigTab extends Extension_ConfigTab {
 		);
 		$tpl->assign('flavors', $flavors);
 		
-		$tpl->display('file:' . $tpl_path . 'config_tab/index.tpl');
+		$tpl->display('devblocks:cerberusweb.simulator::config_tab/index.tpl');
 	}
 	
 	function generateTicketsAction() {
 		require_once(dirname(__FILE__) . '/api/API.class.php');
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl_path = dirname(__FILE__) . '/templates/';
-		$tpl->assign('path', $tpl_path);
 		
 		@$address = DevblocksPlatform::importGPC($_POST['address'],'string'); 
 		@$dataset = DevblocksPlatform::importGPC($_POST['dataset'],'string');
@@ -81,7 +77,7 @@ class ChSimulatorConfigTab extends Extension_ConfigTab {
 
 		if(empty($address)) {
 			$tpl->assign('error', sprintf("Oops! '%s' is not a valid e-mail address.", htmlspecialchars($address)));
-			$tpl->display('file:' . $tpl_path . 'config_tab/output.tpl');
+			$tpl->display('devblocks:cerberusweb.simulator::config_tab/output.tpl');
 			return;
 		}
 		
@@ -136,7 +132,7 @@ class ChSimulatorConfigTab extends Extension_ConfigTab {
 		
 		$tpl->assign('output', sprintf("Success!  %d simulated tickets were generated for %s", $how_many, htmlspecialchars($address)));
 		
-		$tpl->display('file:' . $tpl_path . 'config_tab/output.tpl');
+		$tpl->display('devblocks:cerberusweb.simulator::config_tab/output.tpl');
 	}
 	
 };

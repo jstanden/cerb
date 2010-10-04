@@ -4,7 +4,7 @@
 
 {* Display Notes *}
 {foreach from=$comments item=comment}
-	{include file="{$core_tpl}/internal/comments/comment.tpl"}
+	{include file="devblocks:cerberusweb.core::internal/comments/comment.tpl"}
 {/foreach}
 
 <script type="text/javascript">

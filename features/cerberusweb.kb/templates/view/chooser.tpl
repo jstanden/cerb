@@ -41,7 +41,7 @@
 		{*<td align="center"><input type="checkbox" name="row_id[]" value="{$result.kb_id}"></td>*}
 		{foreach from=$view->view_columns item=column name=columns}
 			{if substr($column,0,3)=="cf_"}
-				{include file="file:$core_tpl/internal/custom_fields/view/cell_renderer.tpl"}
+				{include file="devblocks:cerberusweb.core::internal/custom_fields/view/cell_renderer.tpl"}
 			{elseif $column=="kb_id"}
 			<td>{$result.kb_id}&nbsp;</td>
 			{elseif $column=="kb_title"}

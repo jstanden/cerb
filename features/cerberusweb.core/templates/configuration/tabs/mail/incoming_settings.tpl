@@ -29,7 +29,7 @@
 		
 		<td width="100%" valign="top">
 			<form action="{devblocks_url}{/devblocks_url}" method="post" id="configMailbox">
-				{include file="$core_tpl/configuration/tabs/mail/edit_pop3_account.tpl" pop3=null}
+				{include file="devblocks:cerberusweb.core::configuration/tabs/mail/edit_pop3_account.tpl" pop3=null}
 			</form>
 		</td>
 		

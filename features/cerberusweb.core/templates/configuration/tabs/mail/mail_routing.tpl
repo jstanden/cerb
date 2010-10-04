@@ -72,7 +72,7 @@
 								<b>{$to_time[0]|string_format:"%d"}:{$to_time[1]|string_format:"%02d"}</b> 
 								<br>
 						{elseif 0==strcasecmp('cf_',substr($crit_key,0,3))}
-							{include file="$core_tpl/internal/custom_fields/filters/render_criteria_list.tpl"}					
+							{include file="devblocks:cerberusweb.core::internal/custom_fields/filters/render_criteria_list.tpl"}					
 						{/if}
 					{/foreach}
 					
@@ -88,7 +88,7 @@
 								{/if}
 								<br>
 							{elseif 0==strcasecmp('cf_',substr($action_key,0,3))}
-								{include file="$core_tpl/internal/custom_fields/filters/render_action_list.tpl"}
+								{include file="devblocks:cerberusweb.core::internal/custom_fields/filters/render_action_list.tpl"}
 							{/if}
 						{/foreach}
 					<span>(Matched {$rule->pos} new messages)</span><br>

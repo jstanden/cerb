@@ -391,7 +391,7 @@ class View_WorkerEvent extends C4_AbstractView {
 		$workers = DAO_Worker::getAll();
 		$tpl->assign('workers', $workers);
 		
-		$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/home/tabs/my_events/view.tpl');
+		$tpl->display('devblocks:cerberusweb.core::home/tabs/my_events/view.tpl');
 	}
 
 	function renderCriteria($field) {
@@ -401,21 +401,21 @@ class View_WorkerEvent extends C4_AbstractView {
 		switch($field) {
 			case SearchFields_WorkerEvent::MESSAGE:
 			case SearchFields_WorkerEvent::URL:
-				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__string.tpl');
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__string.tpl');
 				break;
 //			case SearchFields_WorkerEvent::ID:
 //			case SearchFields_WorkerEvent::MESSAGE_ID:
 //			case SearchFields_WorkerEvent::TICKET_ID:
-//				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__number.tpl');
+//				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__number.tpl');
 //				break;
 			case SearchFields_WorkerEvent::IS_READ:
-				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__bool.tpl');
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__bool.tpl');
 				break;
 			case SearchFields_WorkerEvent::CREATED_DATE:
-				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__date.tpl');
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__date.tpl');
 				break;
 			case SearchFields_WorkerEvent::WORKER_ID:
-				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__context_worker.tpl');
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context_worker.tpl');
 				break;
 			default:
 				echo '';

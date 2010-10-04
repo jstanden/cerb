@@ -155,7 +155,7 @@
 </div>
 <div id="{$message->id}b"></div>
 <div id="{$message->id}notes" style="background-color:rgb(255,255,255);">
-	{include file="$core_tpl/display/modules/conversation/notes.tpl"}
+	{include file="devblocks:cerberusweb.core::display/modules/conversation/notes.tpl"}
 </div>
 <div id="reply{$message->id}"></div>
 <br>

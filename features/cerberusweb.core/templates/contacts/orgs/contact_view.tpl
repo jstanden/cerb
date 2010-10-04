@@ -64,7 +64,7 @@
 		<tr class="{$tableRowClass}">
 		{foreach from=$view->view_columns item=column name=columns}
 			{if substr($column,0,3)=="cf_"}
-				{include file="file:$core_tpl/internal/custom_fields/view/cell_renderer.tpl"}
+				{include file="devblocks:cerberusweb.core::internal/custom_fields/view/cell_renderer.tpl"}
 			{elseif $column=="c_id"}
 			<td>{$result.c_id}&nbsp;</td>
 			{elseif $column=="c_website"}

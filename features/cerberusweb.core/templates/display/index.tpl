@@ -1,4 +1,4 @@
-{include file="file:$core_tpl/tickets/submenu.tpl"}
+{include file="devblocks:cerberusweb.core::tickets/submenu.tpl"}
 
 <table cellpadding="0" cellspacing="0" width="100%" border="0">
 <tr>
@@ -7,7 +7,7 @@
 			<tr>
 				<td valign="top">
 					<div style="float:right">
-					{include file="file:$core_tpl/tickets/quick_search_box.tpl"}
+					{include file="devblocks:cerberusweb.core::tickets/quick_search_box.tpl"}
 					</div>
 					
 					<h1>{$ticket->subject|escape}</h1>
@@ -34,7 +34,7 @@
 					
 					<b>{$translate->_('ticket.requesters')|capitalize}:</b>
 					<span id="displayTicketRequesterBubbles">
-						{include file="{$core_tpl}display/rpc/requester_list.tpl" ticket_id=$ticket->id}
+						{include file="devblocks:cerberusweb.core::display/rpc/requester_list.tpl" ticket_id=$ticket->id}
 					</span>
 					(<a href="javascript:;" onclick="genericAjaxPopup('peek','c=display&a=showRequestersPanel&ticket_id={$ticket->id}',null,true,'500');">{$translate->_('common.edit')|lower}</a>)
 				</td>

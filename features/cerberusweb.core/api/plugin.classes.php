@@ -200,9 +200,6 @@ class ChPageController extends DevblocksControllerExtension {
 
 		$tpl->assign('response_uri', implode('/', $response->path));
 		
-		$core_tpl = APP_PATH . '/features/cerberusweb.core/templates/';
-		$tpl->assign('core_tpl', $core_tpl);
-		
 		// Prebody Renderers
 		$preBodyRenderers = DevblocksPlatform::getExtensions('cerberusweb.renderer.prebody', true);
 		if(!empty($preBodyRenderers))
@@ -220,7 +217,7 @@ class ChPageController extends DevblocksControllerExtension {
 			$tpl->assign('render_peak_memory', memory_get_peak_usage() - DevblocksPlatform::getStartPeakMemory());
 		}
 		
-		$tpl->display($core_tpl.'border.tpl');
+		$tpl->display('devblocks:cerberusweb.core::border.tpl');
 		
 //		$cache = DevblocksPlatform::getCacheService();
 //		$cache->printStatistics();

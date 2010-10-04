@@ -48,10 +48,7 @@
  *	 WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
 class ChConfigurationPage extends CerberusPageExtension  {
-	private $_TPL_PATH = '';
-	
 	function __construct($manifest) {
-		$this->_TPL_PATH = dirname(dirname(dirname(__FILE__))) . '/templates/';
 		parent::__construct($manifest);
 	}
 	
@@ -74,7 +71,6 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('path', $this->_TPL_PATH);
 
 		$worker = CerberusApplication::getActiveWorker();
 		if(!$worker || !$worker->is_superuser) {
@@ -99,7 +95,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		
 		// [TODO] check showTab* hooks for active_worker->is_superuser (no ajax bypass)
 		
-		$tpl->display('file:' . $this->_TPL_PATH . 'configuration/index.tpl');
+		$tpl->display('devblocks:cerberusweb.core::configuration/index.tpl');
 	}
 	
 	// Ajax
@@ -145,14 +141,11 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	// Ajax
 	function showTabSettingsAction() {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('path', $this->_TPL_PATH);
-		
-		$tpl->display('file:' . $this->_TPL_PATH . 'configuration/tabs/settings/index.tpl');
+		$tpl->display('devblocks:cerberusweb.core::configuration/tabs/settings/index.tpl');
 	}
 	
 	function showTabStorageAction() {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('path', $this->_TPL_PATH);
 		
 		// Scope
 		
@@ -204,7 +197,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		$view = C4_AbstractViewLoader::getView(View_DevblocksStorageProfile::DEFAULT_ID, $defaults);
 		$tpl->assign('view', $view);
 		
-		$tpl->display('file:' . $this->_TPL_PATH . 'configuration/tabs/storage/index.tpl');		
+		$tpl->display('devblocks:cerberusweb.core::configuration/tabs/storage/index.tpl');		
 	}
 	
 	function showStorageProfilePeekAction() {
@@ -212,7 +205,6 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('path', $this->_TPL_PATH);
 		$tpl->assign('view_id', $view_id);
 		
 		// Storage engines
@@ -247,7 +239,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 			$tpl->assign('storage_engine', $storage_ext);
 		}
 		
-		$tpl->display('file:' . $this->_TPL_PATH . 'configuration/tabs/storage/profiles/peek.tpl');
+		$tpl->display('devblocks:cerberusweb.core::configuration/tabs/storage/profiles/peek.tpl');
 	}
 	
 	function showStorageProfileConfigAction() {
@@ -288,7 +280,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		$tpl->assign('success', $success);
 		$tpl->assign('output', $output);
 		
-		$tpl->display('file:' . $this->_TPL_PATH . 'internal/renderers/test_results.tpl');
+		$tpl->display('devblocks:cerberusweb.core::internal/renderers/test_results.tpl');
 	}
 	
 	function saveStorageProfilePeekAction() {
@@ -358,7 +350,6 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		@$ext_id = DevblocksPlatform::importGPC($_REQUEST['ext_id'],'string','');
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('path', $this->_TPL_PATH);
 		
 		$storage_engines = DevblocksPlatform::getExtensions('devblocks.storage.engine', false, true);
 		$tpl->assign('storage_engines', $storage_engines);
@@ -369,14 +360,13 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		$extension = DevblocksPlatform::getExtension($ext_id, true, true);
 		$tpl->assign('schema', $extension);
 		
-		$tpl->display('file:' . $this->_TPL_PATH . 'configuration/tabs/storage/schemas/display.tpl');
+		$tpl->display('devblocks:cerberusweb.core::configuration/tabs/storage/schemas/display.tpl');
 	}
 	
 	function showStorageSchemaPeekAction() {
 		@$ext_id = DevblocksPlatform::importGPC($_REQUEST['ext_id'],'string','');
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('path', $this->_TPL_PATH);
 		
 		$extension = DevblocksPlatform::getExtension($ext_id, true, true);
 		$tpl->assign('schema', $extension);
@@ -384,7 +374,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		$storage_profiles = DAO_DevblocksStorageProfile::getAll();
 		$tpl->assign('storage_profiles', $storage_profiles);
 		
-		$tpl->display('file:' . $this->_TPL_PATH . 'configuration/tabs/storage/schemas/peek.tpl');
+		$tpl->display('devblocks:cerberusweb.core::configuration/tabs/storage/schemas/peek.tpl');
 	}
 	
 	function saveStorageSchemaPeekAction() {
@@ -403,8 +393,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	// Ajax
 	function showTabAttachmentsAction() {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('path', $this->_TPL_PATH);
-		
+				
 		$defaults = new C4_AbstractViewModel();
 		$defaults->class_name = 'View_Attachment';
 		$defaults->id = View_Attachment::DEFAULT_ID;
@@ -412,7 +401,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		$view = C4_AbstractViewLoader::getView(View_Attachment::DEFAULT_ID, $defaults);
 		$tpl->assign('view', $view);
 		
-		$tpl->display('file:' . $this->_TPL_PATH . 'configuration/tabs/attachments/index.tpl');
+		$tpl->display('devblocks:cerberusweb.core::configuration/tabs/attachments/index.tpl');
 	}
 	
 	function showAttachmentsBulkPanelAction() {
@@ -420,8 +409,6 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id']);
 
 		$tpl = DevblocksPlatform::getTemplateService();
-		$path = $this->_TPL_PATH;
-		$tpl->assign('path', $path);
 		$tpl->assign('view_id', $view_id);
 
 	    if(!empty($id_csv)) {
@@ -437,7 +424,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 //		$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_FeedbackEntry::ID);
 //		$tpl->assign('custom_fields', $custom_fields);
 		
-		$tpl->display('file:' . $path . 'configuration/tabs/attachments/bulk.tpl');
+		$tpl->display('devblocks:cerberusweb.core::configuration/tabs/attachments/bulk.tpl');
 	}
 	
 	function doAttachmentsBulkUpdateAction() {
@@ -485,8 +472,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	// Ajax
 	function showTabWorkersAction() {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('path', $this->_TPL_PATH);
-		
+				
 		$workers = DAO_Worker::getAllWithDisabled();
 		$tpl->assign('workers', $workers);
 
@@ -500,7 +486,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		$view = C4_AbstractViewLoader::getView($defaults->id, $defaults);
 		$tpl->assign('view', $view);
 		
-		$tpl->display('file:' . $this->_TPL_PATH . 'configuration/tabs/workers/index.tpl');
+		$tpl->display('devblocks:cerberusweb.core::configuration/tabs/workers/index.tpl');
 	}
 	
 	function showWorkerPeekAction() {
@@ -508,8 +494,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('path', $this->_TPL_PATH);
-		
+				
 		$tpl->assign('view_id', $view_id);
 		
 		$worker = DAO_Worker::get($id);
@@ -526,7 +511,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		if(isset($custom_field_values[$id]))
 			$tpl->assign('custom_field_values', $custom_field_values[$id]);
 		
-		$tpl->display('file:' . $this->_TPL_PATH . 'configuration/tabs/workers/peek.tpl');		
+		$tpl->display('devblocks:cerberusweb.core::configuration/tabs/workers/peek.tpl');		
 	}
 	
 	function saveWorkerPeekAction() {
@@ -674,8 +659,6 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id']);
 
 		$tpl = DevblocksPlatform::getTemplateService();
-		$path = $this->_TPL_PATH;
-		$tpl->assign('path', $path);
 		$tpl->assign('view_id', $view_id);
 
 	    if(!empty($id_csv)) {
@@ -691,7 +674,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Worker::ID);
 		$tpl->assign('custom_fields', $custom_fields);
 		
-		$tpl->display('file:' . $path . 'configuration/tabs/workers/bulk.tpl');
+		$tpl->display('devblocks:cerberusweb.core::configuration/tabs/workers/bulk.tpl');
 	}
 	
 	function doWorkersBulkUpdateAction() {
@@ -734,22 +717,20 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	// Ajax
 	function showTabGroupsAction() {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('path', $this->_TPL_PATH);
-		
+				
 		$workers = DAO_Worker::getAllActive();
 		$tpl->assign('workers', $workers);
 
 		$teams = DAO_Group::getAll();
 		$tpl->assign('teams', $teams);
 		
-		$tpl->display('file:' . $this->_TPL_PATH . 'configuration/tabs/groups/index.tpl');
+		$tpl->display('devblocks:cerberusweb.core::configuration/tabs/groups/index.tpl');
 	}
 	
 	// Ajax
 	function showTabMailAction() {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('path', $this->_TPL_PATH);
-		
+				
 		$settings = DevblocksPlatform::getPluginSettingsService();
 		$mail_service = DevblocksPlatform::getMailService();
 		
@@ -776,21 +757,20 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, null, $token_labels, $token_values);
 		$tpl->assign('token_labels', $token_labels);
 		
-		$tpl->display('file:' . $this->_TPL_PATH . 'configuration/tabs/mail/index.tpl');
+		$tpl->display('devblocks:cerberusweb.core::configuration/tabs/mail/index.tpl');
 	}
 	
 	function getMailboxAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('path', $this->_TPL_PATH);
-		
+				
 		if(!empty($id)) {
 			@$pop3 = DAO_Mail::getPop3Account($id);
 			$tpl->assign('pop3_account', $pop3);
 		}
 		
-		$tpl->display('file:' . $this->_TPL_PATH . 'configuration/tabs/mail/edit_pop3_account.tpl');
+		$tpl->display('devblocks:cerberusweb.core::configuration/tabs/mail/edit_pop3_account.tpl');
 		
 		return;
 	}
@@ -874,8 +854,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		@$smtp_pass = DevblocksPlatform::importGPC($_REQUEST['smtp_pass'],'string','');
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('path', $this->_TPL_PATH);
-		
+				
 		// [JAS]: Test the provided SMTP settings and give form feedback
 		if(!empty($host)) {
 			try {
@@ -898,7 +877,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 				$tpl->assign('smtp_test_output', $translate->_('config.mail.smtp.failed') . ' ' . $e->getMessage());
 			}
 			
-			$tpl->display('file:' . $this->_TPL_PATH . 'configuration/tabs/mail/test_smtp.tpl');			
+			$tpl->display('devblocks:cerberusweb.core::configuration/tabs/mail/test_smtp.tpl');			
 		}
 		
 		return;
@@ -932,8 +911,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		}
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('path', $this->_TPL_PATH);
-		
+				
 		// [JAS]: Test the provided POP settings and give form feedback
 		if(!empty($host)) {
 			$mail_service = DevblocksPlatform::getMailService();
@@ -951,7 +929,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 			$tpl->assign('pop_test_output', $translate->_('config.mail.pop3.error_hostname'));
 		}
 		
-		$tpl->display('file:' . $this->_TPL_PATH . 'configuration/tabs/mail/test_pop.tpl');
+		$tpl->display('devblocks:cerberusweb.core::configuration/tabs/mail/test_pop.tpl');
 		
 		return;
 	}
@@ -959,8 +937,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	// Ajax
 	function showTabPreParserAction() {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('path', $this->_TPL_PATH);
-		
+				
 		$filters = DAO_PreParseRule::getAll(true);
 		$tpl->assign('filters', $filters);
 		
@@ -983,7 +960,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		$filter_action_exts = DevblocksPlatform::getExtensions('cerberusweb.mail_filter.action', false);
 		$tpl->assign('filter_action_exts', $filter_action_exts);
 
-		$tpl->display('file:' . $this->_TPL_PATH . 'configuration/tabs/mail/mail_preparse.tpl');
+		$tpl->display('devblocks:cerberusweb.core::configuration/tabs/mail/mail_preparse.tpl');
 	}
 
 	function saveTabPreParseFiltersAction() {
@@ -1007,8 +984,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	
 	function showTabQueueAction() {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('path', $this->_TPL_PATH);
-
+		
 		$defaults = new C4_AbstractViewModel();
 		$defaults->id = 'config_mail_queue';
 		$defaults->name = 'Mail Queue';
@@ -1041,7 +1017,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 			$tpl->assign('view', $view);
 		} 
 		
-		$tpl->display('file:' . $this->_TPL_PATH . 'configuration/tabs/mail/queue/index.tpl');
+		$tpl->display('devblocks:cerberusweb.core::configuration/tabs/mail/queue/index.tpl');
 	}
 	
 	// Ajax
@@ -1049,8 +1025,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('path', $this->_TPL_PATH);
-		
+				
 		if(null != ($filter = DAO_PreParseRule::get($id))) {
 			$tpl->assign('filter', $filter);
 		}
@@ -1074,7 +1049,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		$filter_action_exts = DevblocksPlatform::getExtensions('cerberusweb.mail_filter.action', true);
 		$tpl->assign('filter_action_exts', $filter_action_exts);
 		
-		$tpl->display('file:' . $this->_TPL_PATH . 'configuration/tabs/mail/preparser/peek.tpl');
+		$tpl->display('devblocks:cerberusweb.core::configuration/tabs/mail/preparser/peek.tpl');
 	}
 	
 	// Post
@@ -1296,8 +1271,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	// Ajax
 	function showTabParserAction() {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('path', $this->_TPL_PATH);
-
+		
 		$rules = DAO_MailToGroupRule::getWhere();
 		$tpl->assign('rules', $rules);
 
@@ -1315,27 +1289,25 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		$custom_fields =  DAO_CustomField::getAll();
 		$tpl->assign('custom_fields', $custom_fields);
 		
-		$tpl->display('file:' . $this->_TPL_PATH . 'configuration/tabs/mail/mail_routing.tpl');
+		$tpl->display('devblocks:cerberusweb.core::configuration/tabs/mail/mail_routing.tpl');
 	}
 	
 	// Ajax
 	function showTabFieldsAction() {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('path', $this->_TPL_PATH);
-		
+				
 		// Alphabetize
 		$source_manifests = DevblocksPlatform::getExtensions('cerberusweb.fields.source', false);
 		uasort($source_manifests, create_function('$a, $b', "return strcasecmp(\$a->name,\$b->name);\n"));
 		$tpl->assign('source_manifests', $source_manifests);
 		
-		$tpl->display('file:' . $this->_TPL_PATH . 'configuration/tabs/fields/index.tpl');
+		$tpl->display('devblocks:cerberusweb.core::configuration/tabs/fields/index.tpl');
 	}
 	
 	// Ajax
 	function showTabPluginsAction() {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('path', $this->_TPL_PATH);
-		
+				
 		// Auto synchronize when viewing Config->Extensions
         DevblocksPlatform::readPlugins();
 
@@ -1347,7 +1319,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		unset($plugins['cerberusweb.core']);
 		$tpl->assign('plugins', $plugins);
 		
-		$tpl->display('file:' . $this->_TPL_PATH . 'configuration/tabs/plugins/index.tpl');
+		$tpl->display('devblocks:cerberusweb.core::configuration/tabs/plugins/index.tpl');
 	}
 	
 	// Ajax
@@ -1355,8 +1327,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		$settings = DevblocksPlatform::getPluginSettingsService();
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('path', $this->_TPL_PATH);
-		
+				
 		$plugins = DevblocksPlatform::getPluginRegistry();
 		$tpl->assign('plugins', $plugins);
 		
@@ -1373,7 +1344,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		$acl_enabled = $settings->get('cerberusweb.core',CerberusSettings::ACL_ENABLED,CerberusSettingsDefaults::ACL_ENABLED);
 		$tpl->assign('acl_enabled', $acl_enabled);
 		
-		$tpl->display('file:' . $this->_TPL_PATH . 'configuration/tabs/acl/index.tpl');
+		$tpl->display('devblocks:cerberusweb.core::configuration/tabs/acl/index.tpl');
 	}
 	
 	function toggleACLAction() {
@@ -1401,8 +1372,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
 
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('path', $this->_TPL_PATH);
-
+		
 		$plugins = DevblocksPlatform::getPluginRegistry();
 		$tpl->assign('plugins', $plugins);
 		
@@ -1421,7 +1391,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		$role_roster = DAO_WorkerRole::getRoleWorkers($id);
 		$tpl->assign('role_workers', $role_roster);
 		
-		$tpl->display('file:' . $this->_TPL_PATH . 'configuration/tabs/acl/edit_role.tpl');
+		$tpl->display('devblocks:cerberusweb.core::configuration/tabs/acl/edit_role.tpl');
 	}
 	
 	// Post
@@ -1473,18 +1443,16 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	// Ajax
 	function showTabSchedulerAction() {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('path', $this->_TPL_PATH);
-		
+				
 	    $jobs = DevblocksPlatform::getExtensions('cerberusweb.cron', true);
 		$tpl->assign('jobs', $jobs);
 		
-		$tpl->display('file:' . $this->_TPL_PATH . 'configuration/tabs/scheduler/index.tpl');
+		$tpl->display('devblocks:cerberusweb.core::configuration/tabs/scheduler/index.tpl');
 	}
 	
 	private function _getFieldSource($ext_id) {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('path', $this->_TPL_PATH);
-
+		
 		$tpl->assign('ext_id', $ext_id);
 
 		// [TODO] Make sure the extension exists before continuing
@@ -1498,7 +1466,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		$fields = DAO_CustomField::getBySourceAndGroupId($ext_id, 0);
 		$tpl->assign('fields', $fields);
 		
-		$tpl->display('file:' . $this->_TPL_PATH . 'configuration/tabs/fields/edit_source.tpl');
+		$tpl->display('devblocks:cerberusweb.core::configuration/tabs/fields/edit_source.tpl');
 	}
 	
 	// Ajax
@@ -1634,8 +1602,6 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		}
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('path', $this->_TPL_PATH);
-		
 		
 		@$key = DevblocksPlatform::importGPC($_POST['key'],'string','');
 		@$company = DevblocksPlatform::importGPC($_POST['company'],'string','');
@@ -1646,20 +1612,20 @@ class ChConfigurationPage extends CerberusPageExtension  {
 			DevblocksPlatform::setPluginSetting('cerberusweb.core',CerberusSettings::LICENSE, '');
 			$tpl->assign('license', '');
 			$tpl->assign('success', "Your license has been deleted.");
-			$tpl->display('file:'.$this->_TPL_PATH.'configuration/tabs/settings/license.tpl');
+			$tpl->display('devblocks:cerberusweb.core::configuration/tabs/settings/license.tpl');
 			return;
 		}
 		
 		if(empty($key) || empty($company) || empty($email)) {
 			$tpl->assign('error', "You provided an empty license.");
-			$tpl->display('file:'.$this->_TPL_PATH.'configuration/tabs/settings/license.tpl');
+			$tpl->display('devblocks:cerberusweb.core::configuration/tabs/settings/license.tpl');
 			return;
 		}
 		
 		// It takes time, skill, and money to develop software like this.
 		if(null==($valid = CerberusLicense::validate($key,$company,$email)) || empty($valid)) {
 			$tpl->assign('error', "The provided license could not be verified.  Please double-check the company name and e-mail address and make sure they exactly match your order.");
-			$tpl->display('file:'.$this->_TPL_PATH.'configuration/tabs/settings/license.tpl');
+			$tpl->display('devblocks:cerberusweb.core::configuration/tabs/settings/license.tpl');
 			return;
 		}
 
@@ -1667,7 +1633,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		if(intval(gmdate("Ymd99",@$valid['upgrades'])) < APP_BUILD) {
 			$tpl->assign('error', sprintf("The provided license is expired and does not activate version %s.", APP_VERSION));
 			$valid = null;
-			$tpl->display('file:'.$this->_TPL_PATH.'configuration/tabs/settings/license.tpl');
+			$tpl->display('devblocks:cerberusweb.core::configuration/tabs/settings/license.tpl');
 			return;
 		}
 		
@@ -1683,7 +1649,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		$tpl->assign('license', $valid);
 		
 		$tpl->assign('success', "Your license has been updated!");
-		$tpl->display('file:'.$this->_TPL_PATH.'configuration/tabs/settings/license.tpl');
+		$tpl->display('devblocks:cerberusweb.core::configuration/tabs/settings/license.tpl');
 		return;
 	}
 	
@@ -1700,7 +1666,6 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
 
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('path', $this->_TPL_PATH);
 
 		$teams = DAO_Group::getAll();
 		$tpl->assign('teams', $teams);
@@ -1716,7 +1681,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		$workers = DAO_Worker::getAllActive();
 		$tpl->assign('workers', $workers);
 		
-		$tpl->display('file:' . $this->_TPL_PATH . 'configuration/tabs/groups/edit_group.tpl');
+		$tpl->display('devblocks:cerberusweb.core::configuration/tabs/groups/edit_group.tpl');
 	}
 	
 	// Post
@@ -1932,9 +1897,6 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		$active_worker = CerberusApplication::getActiveWorker();
 
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl_path = $this->_TPL_PATH;
-		$tpl->assign('path', $tpl_path);
-   		
 		$tpl->assign('group_id', $group_id);
 		
 		if(null != ($rule = DAO_MailToGroupRule::get($id))) {
@@ -1964,7 +1926,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		$ticket_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Ticket::ID);
 		$tpl->assign('ticket_fields', $ticket_fields);
 		
-		$tpl->display('file:' . $tpl_path . 'configuration/tabs/mail/routing/peek.tpl');
+		$tpl->display('devblocks:cerberusweb.core::configuration/tabs/mail/routing/peek.tpl');
    	}
    	
    	function saveMailRoutingRuleAddAction() {

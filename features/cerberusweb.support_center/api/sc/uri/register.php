@@ -10,7 +10,6 @@ class UmScRegisterController extends Extension_UmScController {
 	
 	function writeResponse(DevblocksHttpResponse $response) {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl_path = dirname(dirname(dirname(dirname(__FILE__)))) . '/templates/';
 
 		$umsession = UmPortalHelper::getSession();
 		$active_user = $umsession->getProperty('sc_login', null);

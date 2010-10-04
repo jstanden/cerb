@@ -50,7 +50,7 @@
 {if !empty($custom_fields)}
 <fieldset>
 	<legend>{'common.custom_fields'|devblocks_translate}</legend>
-	{include file="file:$core_tpl/internal/custom_fields/bulk/form.tpl" bulk=false}
+	{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false}
 </fieldset>
 {/if}
 

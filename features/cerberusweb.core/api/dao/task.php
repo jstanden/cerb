@@ -441,10 +441,10 @@ class View_Task extends C4_AbstractView {
 		
 		switch($this->renderTemplate) {
 			case 'contextlinks_chooser':
-				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/tasks/view_contextlinks_chooser.tpl');
+				$tpl->display('devblocks:cerberusweb.core::tasks/view_contextlinks_chooser.tpl');
 				break;
 			default:
-				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/tasks/view.tpl');
+				$tpl->display('devblocks:cerberusweb.core::tasks/view.tpl');
 				break;
 		}
 		
@@ -452,26 +452,25 @@ class View_Task extends C4_AbstractView {
 
 	function renderCriteria($field) {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl_path = APP_PATH . '/features/cerberusweb.core/templates/';
 		$tpl->assign('id', $this->id);
 		
 		switch($field) {
 			case SearchFields_Task::TITLE:
-				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__string.tpl');
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__string.tpl');
 				break;
 				
 			case SearchFields_Task::IS_COMPLETED:
-				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__bool.tpl');
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__bool.tpl');
 				break;
 				
 			case SearchFields_Task::UPDATED_DATE:
 			case SearchFields_Task::DUE_DATE:
 			case SearchFields_Task::COMPLETED_DATE:
-				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__date.tpl');
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__date.tpl');
 				break;
 				
 			case SearchFields_Task::VIRTUAL_WORKERS:
-				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__context_worker.tpl');
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context_worker.tpl');
 				break;
 				
 			default:

@@ -125,11 +125,8 @@ class ChAuditLogEventListener extends DevblocksEventListenerExtension {
 };
 
 class ChAuditLogTicketTab extends Extension_TicketTab {
-	private $tpl_path = null; 
-	
     function __construct($manifest) {
         parent::__construct($manifest);
-        $this->tpl_path = dirname(dirname(__FILE__)).'/templates';
     }
 	
 	function showTab() {
@@ -139,7 +136,6 @@ class ChAuditLogTicketTab extends Extension_TicketTab {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('path', $this->tpl_path);
 		
 		$defaults = new C4_AbstractViewModel();
 		$defaults->class_name = 'C4_TicketAuditLogView';
@@ -166,7 +162,7 @@ class ChAuditLogTicketTab extends Extension_TicketTab {
 		
 		$tpl->assign('view', $view);
 		
-		$tpl->display('file:' . $this->tpl_path . '/display/log/index.tpl');
+		$tpl->display('devblocks:cerberusweb.auditlog::display/log/index.tpl');
 	}
 	
 	function saveTab() {
@@ -476,7 +472,7 @@ class C4_TicketAuditLogView extends C4_AbstractView {
 		$ticket_fields = SearchFields_Ticket::getFields();
 		$tpl->assign('ticket_fields', $ticket_fields);
 		
-		$tpl->display('file:' . APP_PATH . '/features/cerberusweb.auditlog/templates/display/log/log_view.tpl');
+		$tpl->display('devblocks:cerberusweb.auditlog::display/log/log_view.tpl');
 	}
 	
 	function renderCriteria($field) {
@@ -486,7 +482,7 @@ class C4_TicketAuditLogView extends C4_AbstractView {
 		switch($field) {
 			case SearchFields_TicketAuditLog::CHANGE_FIELD:
 			case SearchFields_TicketAuditLog::CHANGE_VALUE:
-				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__string.tpl');
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__string.tpl');
 				break;
 			default:
 				echo '';

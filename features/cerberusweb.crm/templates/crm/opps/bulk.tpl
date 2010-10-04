@@ -51,7 +51,7 @@
 {if !empty($custom_fields)}
 <fieldset>
 	<legend>Set Custom Fields</legend>
-	{include file="file:$core_tpl/internal/custom_fields/bulk/form.tpl" bulk=true}	
+	{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=true}	
 </fieldset>
 {/if}
 

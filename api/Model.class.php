@@ -228,29 +228,28 @@ abstract class C4_AbstractView {
 
 	protected function _renderCriteriaCustomField($tpl, $field_id) {
 		$field = DAO_CustomField::get($field_id);
-		$tpl_path = APP_PATH . '/features/cerberusweb.core/templates/';
 		
 		switch($field->type) {
 			case Model_CustomField::TYPE_DROPDOWN:
 			case Model_CustomField::TYPE_MULTI_PICKLIST:
 			case Model_CustomField::TYPE_MULTI_CHECKBOX:
 				$tpl->assign('field', $field);
-				$tpl->display('file:' . $tpl_path . 'internal/views/criteria/__cfield_picklist.tpl');
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__cfield_picklist.tpl');
 				break;
 			case Model_CustomField::TYPE_CHECKBOX:
-				$tpl->display('file:' . $tpl_path . 'internal/views/criteria/__cfield_checkbox.tpl');
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__cfield_checkbox.tpl');
 				break;
 			case Model_CustomField::TYPE_DATE:
-				$tpl->display('file:' . $tpl_path . 'internal/views/criteria/__date.tpl');
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__date.tpl');
 				break;
 			case Model_CustomField::TYPE_NUMBER:
-				$tpl->display('file:' . $tpl_path . 'internal/views/criteria/__number.tpl');
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__number.tpl');
 				break;
 			case Model_CustomField::TYPE_WORKER:
-				$tpl->display('file:' . $tpl_path . 'internal/views/criteria/__context_worker.tpl');
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context_worker.tpl');
 				break;
 			default:
-				$tpl->display('file:' . $tpl_path . 'internal/views/criteria/__string.tpl');
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__string.tpl');
 				break;
 		}
 	}
@@ -729,7 +728,7 @@ class View_DevblocksTemplate extends C4_AbstractView {
 //		$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Worker::ID);
 //		$tpl->assign('custom_fields', $custom_fields);
 
-		$tpl->display('file:' . APP_PATH . '/features/usermeet.core/templates/community/display/tabs/templates/view.tpl');
+		$tpl->display('devblocks:usermeet.core::community/display/tabs/templates/view.tpl');
 	}
 
 	function renderCriteria($field) {
@@ -741,10 +740,10 @@ class View_DevblocksTemplate extends C4_AbstractView {
 			case SearchFields_DevblocksTemplate::PATH:
 			case SearchFields_DevblocksTemplate::PLUGIN_ID:
 			case SearchFields_DevblocksTemplate::TAG:
-				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__string.tpl');
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__string.tpl');
 				break;
 			case SearchFields_DevblocksTemplate::LAST_UPDATED:
-				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__date.tpl');
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__date.tpl');
 				break;
 			default:
 				// Custom Fields
@@ -947,7 +946,7 @@ class View_DevblocksStorageProfile extends C4_AbstractView {
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
 
-		$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/configuration/tabs/storage/profiles/view.tpl');
+		$tpl->display('devblocks:cerberusweb.core::configuration/tabs/storage/profiles/view.tpl');
 	}
 
 	function renderCriteria($field) {
@@ -957,16 +956,16 @@ class View_DevblocksStorageProfile extends C4_AbstractView {
 		switch($field) {
 			case SearchFields_DevblocksStorageProfile::NAME:
 			case SearchFields_DevblocksStorageProfile::EXTENSION_ID:
-				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__string.tpl');
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__string.tpl');
 				break;
 			case SearchFields_DevblocksStorageProfile::ID:
-				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__number.tpl');
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__number.tpl');
 				break;
 			case 'placeholder_bool':
-				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__bool.tpl');
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__bool.tpl');
 				break;
 			case 'placeholder_date':
-				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__date.tpl');
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__date.tpl');
 				break;
 			default:
 				echo '';

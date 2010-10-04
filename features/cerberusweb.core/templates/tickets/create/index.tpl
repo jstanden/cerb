@@ -1,4 +1,4 @@
-{include file="file:$core_tpl/tickets/submenu.tpl"}
+{include file="devblocks:cerberusweb.core::tickets/submenu.tpl"}
 
 {if !empty($last_ticket_mask)}
 <div class="ui-widget">

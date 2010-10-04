@@ -764,7 +764,7 @@ class View_Attachment extends C4_AbstractView {
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
 
-		$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/configuration/tabs/attachments/view.tpl');
+		$tpl->display('devblocks:cerberusweb.core::configuration/tabs/attachments/view.tpl');
 	}
 
 	function renderCriteria($field) {
@@ -779,20 +779,20 @@ class View_Attachment extends C4_AbstractView {
 			case SearchFields_Attachment::TICKET_MASK:
 			case SearchFields_Attachment::TICKET_SUBJECT:
 			case SearchFields_Attachment::ADDRESS_EMAIL:
-				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__string.tpl');
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__string.tpl');
 				break;
 //			case SearchFields_Attachment::ID:
 //			case SearchFields_Attachment::MESSAGE_ID:
 			case SearchFields_Attachment::TICKET_ID:
 			case SearchFields_Attachment::STORAGE_SIZE:
 			case SearchFields_Attachment::STORAGE_PROFILE_ID:
-				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__number.tpl');
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__number.tpl');
 				break;
 			case SearchFields_Attachment::MESSAGE_IS_OUTGOING:
-				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__bool.tpl');
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__bool.tpl');
 				break;
 			case SearchFields_Attachment::MESSAGE_CREATED_DATE:
-				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__date.tpl');
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__date.tpl');
 				break;
 			default:
 				echo '';

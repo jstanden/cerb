@@ -659,10 +659,10 @@ class View_TimeTracking extends C4_AbstractView {
 		
 		switch($this->renderTemplate) {
 			case 'contextlinks_chooser':
-				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.timetracking/templates/timetracking/time/view_contextlinks_chooser.tpl');
+				$tpl->display('devblocks:cerberusweb.timetracking::timetracking/time/view_contextlinks_chooser.tpl');
 				break;
 			default:
-				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.timetracking/templates/timetracking/time/view.tpl');
+				$tpl->display('devblocks:cerberusweb.timetracking::timetracking/time/view.tpl');
 				break;
 		}
 		
@@ -697,23 +697,23 @@ class View_TimeTracking extends C4_AbstractView {
 
 		switch($field) {
 			case 'placeholder_string':
-				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__string.tpl');
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__string.tpl');
 				break;
 			case SearchFields_TimeTrackingEntry::ID:
 			case SearchFields_TimeTrackingEntry::TIME_ACTUAL_MINS:
-				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__number.tpl');
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__number.tpl');
 				break;
 			case SearchFields_TimeTrackingEntry::LOG_DATE:
-				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__date.tpl');
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__date.tpl');
 				break;
 			case SearchFields_TimeTrackingEntry::IS_CLOSED:
-				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__bool.tpl');
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__bool.tpl');
 				break;
 			case SearchFields_TimeTrackingEntry::WORKER_ID:
-				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__context_worker.tpl');
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context_worker.tpl');
 				break;
 			case SearchFields_TimeTrackingEntry::VIRTUAL_OWNERS:
-				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__context_worker.tpl');
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context_worker.tpl');
 				break;
 			case SearchFields_TimeTrackingEntry::ACTIVITY_ID:
 				$billable_activities = DAO_TimeTrackingActivity::getWhere(sprintf("%s!=0",DAO_TimeTrackingActivity::RATE));
@@ -722,7 +722,7 @@ class View_TimeTracking extends C4_AbstractView {
 				$nonbillable_activities = DAO_TimeTrackingActivity::getWhere(sprintf("%s=0",DAO_TimeTrackingActivity::RATE));
 				$tpl->assign('nonbillable_activities', $nonbillable_activities);
 
-				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.timetracking/templates/timetracking/criteria/activity.tpl');
+				$tpl->display('devblocks:cerberusweb.timetracking::timetracking/criteria/activity.tpl');
 			default:
 				// Custom Fields
 				if('cf_' == substr($field,0,3)) {
@@ -1062,8 +1062,6 @@ class ChTimeTrackingPage extends CerberusPageExtension {
 	
 	function render() {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl_path = $this->plugin_path . '/templates/';
-		$tpl->assign('path', $tpl_path);
 
 		$visit = CerberusApplication::getVisit();
 		$translate = DevblocksPlatform::getTranslationService();
@@ -1095,7 +1093,7 @@ class ChTimeTrackingPage extends CerberusPageExtension {
 //				$workers = DAO_Worker::getAll();
 //				$tpl->assign('workers', $workers);
 				
-				$tpl->display($tpl_path . 'timetracking/display/index.tpl');
+				$tpl->display('devblocks:cerberusweb.timetracking::timetracking/display/index.tpl');
 				break;
 		}
 	}	
@@ -1176,8 +1174,6 @@ class ChTimeTrackingPage extends CerberusPageExtension {
 	
 	function showEntryAction($model=null) {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl_path = dirname(dirname(__FILE__)).'/templates/';
-		$tpl->assign('path', $tpl_path);
 
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
 		
@@ -1225,7 +1221,7 @@ class ChTimeTrackingPage extends CerberusPageExtension {
 		$types = Model_CustomField::getTypes();
 		$tpl->assign('types', $types);
 		
-		$tpl->display('file:' . $tpl_path . 'timetracking/rpc/time_entry_panel.tpl');
+		$tpl->display('devblocks:cerberusweb.timetracking::timetracking/rpc/time_entry_panel.tpl');
 	}
 	
 	function saveEntryAction() {
@@ -1550,8 +1546,6 @@ class TimeTrackingActivityTab extends Extension_ActivityTab {
 	
 	function showTab() {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl_path = dirname(dirname(__FILE__)) . '/templates/';
-		$tpl->assign('path', $tpl_path);
 		
 		if(null == ($view = C4_AbstractViewLoader::getView(self::VIEW_ACTIVITY_TIMETRACKING))) {
 			$view = new View_TimeTracking();
@@ -1564,7 +1558,7 @@ class TimeTrackingActivityTab extends Extension_ActivityTab {
 		
 		$tpl->assign('view', $view);
 		
-		$tpl->display($tpl_path . 'activity_tab/index.tpl');		
+		$tpl->display('devblocks:cerberusweb.timetracking::activity_tab/index.tpl');		
 	}
 }
 endif;
@@ -1576,8 +1570,6 @@ class ChTimeTrackingConfigActivityTab extends Extension_ConfigTab {
 		$settings = DevblocksPlatform::getPluginSettingsService();
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl_path = dirname(dirname(__FILE__)) . '/templates/';
-		$tpl->assign('path', $tpl_path);
 
 		$billable_activities = DAO_TimeTrackingActivity::getWhere(sprintf("%s!=0",DAO_TimeTrackingActivity::RATE));
 		$tpl->assign('billable_activities', $billable_activities);
@@ -1585,7 +1577,7 @@ class ChTimeTrackingConfigActivityTab extends Extension_ConfigTab {
 		$nonbillable_activities = DAO_TimeTrackingActivity::getWhere(sprintf("%s=0",DAO_TimeTrackingActivity::RATE));
 		$tpl->assign('nonbillable_activities', $nonbillable_activities);
 		
-		$tpl->display('file:' . $tpl_path . 'config/activities/index.tpl');
+		$tpl->display('devblocks:cerberusweb.timetracking::config/activities/index.tpl');
 	}
 	
 	function saveTab() {
@@ -1626,13 +1618,11 @@ class ChTimeTrackingConfigActivityTab extends Extension_ConfigTab {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'integer', 0);
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl_path = dirname(dirname(__FILE__)) . '/templates/';
-		$tpl->assign('path', $tpl_path);
 		
 		if(!empty($id) && null != ($activity = DAO_TimeTrackingActivity::get($id)))
 			$tpl->assign('activity', $activity);
 		
-		$tpl->display('file:' . $tpl_path . 'config/activities/edit_activity.tpl');
+		$tpl->display('devblocks:cerberusweb.timetracking::config/activities/edit_activity.tpl');
 	}
 	
 };

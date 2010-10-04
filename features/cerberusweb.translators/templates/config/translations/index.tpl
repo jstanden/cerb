@@ -4,4 +4,4 @@
 	<button type="button" onclick="genericAjaxPopup('peek','c=translators&a=showImportStringsPanel',null,false,'500' );"><img src="{devblocks_url}c=resource&p=cerberusweb.translators&f=images/16x16/document_up.png{/devblocks_url}" align="top"> {$translate->_('common.import')|capitalize}</button>
 </form>
 
-{include file="$core_tpl/internal/views/search_and_view.tpl" view=$view}
+{include file="devblocks:cerberusweb.core::internal/views/search_and_view.tpl" view=$view}

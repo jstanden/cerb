@@ -1,4 +1,4 @@
-{include file="file:$core_tpl/tickets/submenu.tpl"}
+{include file="devblocks:cerberusweb.core::tickets/submenu.tpl"}
 
 <table cellspacing="0" cellpadding="0" border="0" width="100%" style="padding-bottom:5px;">
 <tr>
@@ -21,7 +21,7 @@
 	<td width="98%" valign="middle">
 	</td>
 	<td width="1%" valign="middle" nowrap="nowrap">
-		{include file="file:$core_tpl/tickets/quick_search_box.tpl"}
+		{include file="devblocks:cerberusweb.core::tickets/quick_search_box.tpl"}
 	</td>
 </tr>
 </table>

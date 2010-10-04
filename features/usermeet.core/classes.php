@@ -86,10 +86,7 @@ class UmPortalHelper {
 class UmCommunityPage extends CerberusPageExtension {
 	const ID = 'usermeet.page.community';
 
-	private $_TPL_PATH = '';
-	
 	function __construct($manifest) {
-		$this->_TPL_PATH = dirname(__FILE__) . '/templates/';
 		parent::__construct($manifest);
 	}
 	
@@ -106,7 +103,6 @@ class UmCommunityPage extends CerberusPageExtension {
 
 	function render() {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('path', $this->_TPL_PATH);
 		
 		$response = DevblocksPlatform::getHttpResponse();
 		$tpl->assign('request_path', implode('/',$response->path));
@@ -128,19 +124,18 @@ class UmCommunityPage extends CerberusPageExtension {
 			if(empty($tab_selected)) $tab_selected = 'settings';
 			$tpl->assign('tab_selected', $tab_selected);
 			
-			$tpl->display('file:' . $this->_TPL_PATH . 'community/display/index.tpl');
+			$tpl->display('devblocks:usermeet.core::community/display/index.tpl');
 		}
 		
 	}
 	
 	function showAddPortalPeekAction() {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('path', $this->_TPL_PATH);
 		
 		$tool_manifests = DevblocksPlatform::getExtensions('usermeet.tool', false);
 		$tpl->assign('tool_manifests', $tool_manifests);
 		
-		$tpl->display('file:' . $this->_TPL_PATH . 'community/config/tab/add.tpl');
+		$tpl->display('devblocks:usermeet.core::community/config/tab/add.tpl');
 	}
 	
 	function saveAddPortalPeekAction() {
@@ -165,7 +160,6 @@ class UmCommunityPage extends CerberusPageExtension {
 		@$tool_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('path', $this->_TPL_PATH);
 
 		if(null != ($instance = DAO_CommunityTool::get($tool_id))) {
 			$tool = DevblocksPlatform::getExtension($instance->extension_id, true);
@@ -173,7 +167,7 @@ class UmCommunityPage extends CerberusPageExtension {
 			$tpl->assign('instance', $instance);
 		}
 			
-		$tpl->display('file:' . $this->_TPL_PATH . 'community/display/tabs/settings/index.tpl');
+		$tpl->display('devblocks:usermeet.core::community/display/tabs/settings/index.tpl');
 	}
 	
 	function saveTabSettingsAction() {
@@ -211,7 +205,6 @@ class UmCommunityPage extends CerberusPageExtension {
 		@$tool_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('path', $this->_TPL_PATH);
 
 		if(null != ($tool = DAO_CommunityTool::get($tool_id)))
 			$tpl->assign('tool', $tool);
@@ -228,7 +221,7 @@ class UmCommunityPage extends CerberusPageExtension {
 		
 		$tpl->assign('view', $view);
 			
-		$tpl->display('file:' . $this->_TPL_PATH . 'community/display/tabs/templates/index.tpl');
+		$tpl->display('devblocks:usermeet.core::community/display/tabs/templates/index.tpl');
 	}
 	
 	function getTemplatePeekAction() {
@@ -236,13 +229,12 @@ class UmCommunityPage extends CerberusPageExtension {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('path', $this->_TPL_PATH);
 		$tpl->assign('view_id', $view_id);
 		
 		if(null != ($template = DAO_DevblocksTemplate::get($id)))
 			$tpl->assign('template', $template);
 		
-		$tpl->display('file:' . $this->_TPL_PATH . 'community/display/tabs/templates/peek.tpl');
+		$tpl->display('devblocks:usermeet.core::community/display/tabs/templates/peek.tpl');
 	}
 	
 	function showTemplatesBulkPanelAction() {
@@ -250,8 +242,6 @@ class UmCommunityPage extends CerberusPageExtension {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id']);
 
 		$tpl = DevblocksPlatform::getTemplateService();
-		$path = $this->_TPL_PATH;
-		$tpl->assign('path', $path);
 		$tpl->assign('view_id', $view_id);
 
 	    if(!empty($id_csv)) {
@@ -338,7 +328,6 @@ class UmCommunityPage extends CerberusPageExtension {
 		@$portal = DevblocksPlatform::importGPC($_REQUEST['portal'],'string','');
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('path', $this->_TPL_PATH);
 		$tpl->assign('view_id', $view_id);
 		$tpl->assign('portal', $portal);
 
@@ -372,7 +361,7 @@ class UmCommunityPage extends CerberusPageExtension {
 		}
 		$tpl->assign('templates', $templates);
 		
-		$tpl->display('file:' . $this->_TPL_PATH . 'community/display/tabs/templates/add.tpl');
+		$tpl->display('devblocks:usermeet.core::community/display/tabs/templates/add.tpl');
 	}
 	
 	function saveAddTemplatePeekAction() {
@@ -406,7 +395,7 @@ class UmCommunityPage extends CerberusPageExtension {
 		$template = DAO_DevblocksTemplate::get($id);
 		$tpl->assign('template', $template); 
 		
-		$tpl->display('file:' . $this->_TPL_PATH . 'community/display/tabs/templates/peek.tpl');
+		$tpl->display('devblocks:usermeet.core::community/display/tabs/templates/peek.tpl');
 	}
 	
 	function showImportTemplatesPeekAction() {
@@ -414,11 +403,10 @@ class UmCommunityPage extends CerberusPageExtension {
 		@$portal = DevblocksPlatform::importGPC($_REQUEST['portal'],'string','');
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('path', $this->_TPL_PATH);
 		$tpl->assign('view_id', $view_id);
 		$tpl->assign('portal', $portal);
 		
-		$tpl->display('file:' . $this->_TPL_PATH . 'community/display/tabs/templates/import.tpl');
+		$tpl->display('devblocks:usermeet.core::community/display/tabs/templates/import.tpl');
 	}
 	
 	function saveImportTemplatesPeekAction() {
@@ -441,11 +429,10 @@ class UmCommunityPage extends CerberusPageExtension {
 		@$portal = DevblocksPlatform::importGPC($_REQUEST['portal'],'string','');
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('path', $this->_TPL_PATH);
 		$tpl->assign('view_id', $view_id);
 		$tpl->assign('portal', $portal);
 		
-		$tpl->display('file:' . $this->_TPL_PATH . 'community/display/tabs/templates/export.tpl');
+		$tpl->display('devblocks:usermeet.core::community/display/tabs/templates/export.tpl');
 	}
 	
 	function saveExportTemplatesPeekAction() {
@@ -514,7 +501,6 @@ class UmCommunityPage extends CerberusPageExtension {
 		@$tool_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('path', $this->_TPL_PATH);
 
 		if(null != ($tool = DAO_CommunityTool::get($tool_id)))
 			$tpl->assign('tool', $tool);
@@ -540,7 +526,7 @@ class UmCommunityPage extends CerberusPageExtension {
 		$tpl->assign('base', $base);
 		$tpl->assign('path', $path);
 			
-		$tpl->display('file:' . $this->_TPL_PATH . 'community/display/tabs/installation/index.tpl');
+		$tpl->display('devblocks:usermeet.core::community/display/tabs/installation/index.tpl');
 	}
 	
 };
@@ -608,8 +594,6 @@ class UmConfigCommunitiesTab extends Extension_ConfigTab {
 	
 	function showTab() {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl_path = dirname(__FILE__) . '/templates/';
-		$tpl->assign('path', $tpl_path);
 
 	    // View
 		
@@ -620,7 +604,7 @@ class UmConfigCommunitiesTab extends Extension_ConfigTab {
 		$view = C4_AbstractViewLoader::getView($defaults->id, $defaults);
 		$tpl->assign('view', $view);
 	    
-		$tpl->display('file:' . $tpl_path . 'community/config/tab/index.tpl');
+		$tpl->display('devblocks:usermeet.core::community/config/tab/index.tpl');
 	}
 	
 	// [TODO] Move this to the SC plugin

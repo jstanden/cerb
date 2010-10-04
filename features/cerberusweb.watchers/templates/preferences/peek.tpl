@@ -153,7 +153,7 @@
 </table>
 
 {* Get Ticket Fields *}
-{include file="file:$core_tpl/internal/custom_fields/filters/peek_get_custom_fields.tpl" fields=$ticket_fields filter=$filter divName="divGetTicketFields" label="Ticket custom fields"}
+{include file="devblocks:cerberusweb.core::internal/custom_fields/filters/peek_get_custom_fields.tpl" fields=$ticket_fields filter=$filter divName="divGetTicketFields" label="Ticket custom fields"}
 
 {* Message *}
 {assign var=expanded value=false}
@@ -219,10 +219,10 @@
 </table>
 
 {* Get Address Fields *}
-{include file="file:$core_tpl/internal/custom_fields/filters/peek_get_custom_fields.tpl" fields=$address_fields filter=$filter divName="divGetAddyFields" label="Sender address"}
+{include file="devblocks:cerberusweb.core::internal/custom_fields/filters/peek_get_custom_fields.tpl" fields=$address_fields filter=$filter divName="divGetAddyFields" label="Sender address"}
 
 {* Get Org Fields *}
-{include file="file:$core_tpl/internal/custom_fields/filters/peek_get_custom_fields.tpl" fields=$org_fields filter=$filter divName="divGetOrgFields" label="Sender organization"}
+{include file="devblocks:cerberusweb.core::internal/custom_fields/filters/peek_get_custom_fields.tpl" fields=$org_fields filter=$filter divName="divGetOrgFields" label="Sender organization"}
 
 <br>
 <h2>Then perform these actions:</h2>

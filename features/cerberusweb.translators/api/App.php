@@ -55,9 +55,6 @@ class ChTranslatorsConfigTab extends Extension_ConfigTab {
 		$settings = DevblocksPlatform::getPluginSettingsService();
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl_path = dirname(dirname(__FILE__)) . '/templates/';
-		$core_tplpath = dirname(dirname(dirname(__FILE__))) . '/cerberusweb.core/templates/';
-		$tpl->assign('core_tplpath', $core_tplpath);
 
 		$defaults = new C4_AbstractViewModel();
 		$defaults->class_name = 'C4_TranslationView';
@@ -66,7 +63,7 @@ class ChTranslatorsConfigTab extends Extension_ConfigTab {
 		$view = C4_AbstractViewLoader::getView(C4_TranslationView::DEFAULT_ID, $defaults);
 		$tpl->assign('view', $view);
 		
-		$tpl->display('file:' . $tpl_path . 'config/translations/index.tpl');
+		$tpl->display('devblocks:cerberusweb.translators::config/translations/index.tpl');
 	}
 	
 	function saveTab() {
@@ -130,7 +127,7 @@ class C4_TranslationView extends C4_AbstractView {
 		$english_map = DAO_Translation::getMapByLang('en_US');
 		$tpl->assign('english_map', $english_map);
 		
-		$tpl->display('file:' . APP_PATH . '/features/cerberusweb.translators/templates/config/translations/view.tpl');
+		$tpl->display('devblocks:cerberusweb.translators::config/translations/view.tpl');
 	}
 
 	function renderCriteria($field) {
@@ -141,15 +138,15 @@ class C4_TranslationView extends C4_AbstractView {
 			case SearchFields_Translation::STRING_ID:
 			case SearchFields_Translation::STRING_DEFAULT:
 			case SearchFields_Translation::STRING_OVERRIDE:
-				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__string.tpl');
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__string.tpl');
 				break;
 			case SearchFields_Translation::ID:
-				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__number.tpl');
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__number.tpl');
 				break;
 			case SearchFields_Translation::LANG_CODE:
 				$langs = DAO_Translation::getDefinedLangCodes(); // [TODO] Cache!
 				$tpl->assign('langs', $langs);
-				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__language.tpl');
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__language.tpl');
 				break;
 			default:
 				echo '';
@@ -276,13 +273,11 @@ class ChTranslatorsAjaxController extends DevblocksControllerExtension {
 
 	function showFindStringsPanelAction($model=null) {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl_path = dirname(dirname(__FILE__)).'/templates/';
-		$tpl->assign('path', $tpl_path);
 
 		$codes = DAO_Translation::getDefinedLangCodes();
 		$tpl->assign('codes', $codes);
 		
-		$tpl->display('file:' . $tpl_path . 'translators/ajax/find_strings_panel.tpl');
+		$tpl->display('devblocks:cerberusweb.translators::translators/ajax/find_strings_panel.tpl');
 	}
 
 	function saveFindStringsPanelAction() {
@@ -346,8 +341,6 @@ class ChTranslatorsAjaxController extends DevblocksControllerExtension {
 	
 	function showAddLanguagePanelAction($model=null) {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl_path = dirname(dirname(__FILE__)).'/templates/';
-		$tpl->assign('path', $tpl_path);
 
 		// Language Names
 		$translate = DevblocksPlatform::getTranslationService();
@@ -358,7 +351,7 @@ class ChTranslatorsAjaxController extends DevblocksControllerExtension {
 		$codes = DAO_Translation::getDefinedLangCodes();
 		$tpl->assign('codes', $codes);
 		
-		$tpl->display('file:' . $tpl_path . 'translators/ajax/add_language_panel.tpl');
+		$tpl->display('devblocks:cerberusweb.translators::translators/ajax/add_language_panel.tpl');
 	}
 
 	function saveAddLanguagePanelAction() {
@@ -457,10 +450,7 @@ class ChTranslatorsAjaxController extends DevblocksControllerExtension {
 	
 	function showImportStringsPanelAction($model=null) {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl_path = dirname(dirname(__FILE__)).'/templates/';
-		$tpl->assign('path', $tpl_path);
-
-		$tpl->display('file:' . $tpl_path . 'translators/ajax/import_strings_panel.tpl');
+		$tpl->display('devblocks:cerberusweb.translators::translators/ajax/import_strings_panel.tpl');
 	}
 
 	function saveImportStringsPanelAction() {

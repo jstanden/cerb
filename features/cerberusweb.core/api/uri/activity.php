@@ -48,10 +48,7 @@
  *	 WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
 class ChActivityPage extends CerberusPageExtension {
-	private $_TPL_PATH = '';
-	
 	function __construct($manifest) {
-		$this->_TPL_PATH = dirname(dirname(dirname(__FILE__))) . '/templates/';
 		parent::__construct($manifest);
 	}
 		
@@ -72,7 +69,6 @@ class ChActivityPage extends CerberusPageExtension {
 	
 	function render() {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('path', $this->_TPL_PATH);
 		
 		$response = DevblocksPlatform::getHttpResponse();
 		$tpl->assign('request_path', implode('/',$response->path));
@@ -92,7 +88,7 @@ class ChActivityPage extends CerberusPageExtension {
 		uasort($tab_manifests, create_function('$a, $b', "return strcasecmp(\$a->name,\$b->name);\n"));
 		$tpl->assign('tab_manifests', $tab_manifests);
 		
-		$tpl->display('file:' . $this->_TPL_PATH . 'activity/index.tpl');
+		$tpl->display('devblocks:cerberusweb.core::activity/index.tpl');
 	}
 	
 	// Ajax

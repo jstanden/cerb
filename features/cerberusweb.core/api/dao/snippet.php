@@ -435,19 +435,18 @@ class View_Snippet extends C4_AbstractView {
 		$this->_sanitize();
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl_path = APP_PATH . '/features/cerberusweb.core/templates';
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
 
 		switch($this->renderTemplate) {
 			case 'contextlinks_chooser':
-				$tpl->display('file:'.$tpl_path.'/mail/snippets/views/view_contextlinks_chooser.tpl');
+				$tpl->display('devblocks:cerberusweb.core::mail/snippets/views/view_contextlinks_chooser.tpl');
 				break;
 //			case 'context':
-//				$tpl->display('file:'.$tpl_path.'/mail/snippets/views/.tpl');
+//				$tpl->display('devblocks:cerberusweb.core::mail/snippets/views/.tpl');
 //				break;
 			default:
-				$tpl->display('file:'.$tpl_path.'/mail/snippets/views/default.tpl');
+				$tpl->display('devblocks:cerberusweb.core::mail/snippets/views/default.tpl');
 				break;
 		}
 		
@@ -467,16 +466,16 @@ class View_Snippet extends C4_AbstractView {
 			case SearchFields_Snippet::LAST_UPDATED_BY:
 			case SearchFields_Snippet::IS_PRIVATE:
 			case SearchFields_Snippet::CONTENT:
-				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__string.tpl');
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__string.tpl');
 				break;
 			case 'placeholder_number':
-				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__number.tpl');
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__number.tpl');
 				break;
 			case 'placeholder_bool':
-				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__bool.tpl');
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__bool.tpl');
 				break;
 			case 'placeholder_date':
-				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__date.tpl');
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__date.tpl');
 				break;
 			default:
 				echo '';

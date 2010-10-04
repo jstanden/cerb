@@ -4,7 +4,6 @@ class UmScAnnouncementsController extends Extension_UmScController {
 	
 	function writeResponse(DevblocksHttpResponse $response) {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl_path = dirname(dirname(dirname(dirname(__FILE__)))) . '/templates/';
 		
 		$sNewsRss = DAO_CommunityToolProperty::get(UmPortalHelper::getCode(),self::PARAM_NEWS_RSS, '');
 		$aNewsRss = !empty($sNewsRss) ? unserialize($sNewsRss) : array();
@@ -31,13 +30,12 @@ class UmScAnnouncementsController extends Extension_UmScController {
 	
 	function configure(Model_CommunityTool $instance) {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl_path = dirname(dirname(dirname(dirname(__FILE__)))) . '/templates/';
 
         $sNewsRss = DAO_CommunityToolProperty::get($instance->code,self::PARAM_NEWS_RSS, '');
         $news_rss = !empty($sNewsRss) ? unserialize($sNewsRss) : array();
         $tpl->assign('news_rss', $news_rss);
 		
-		$tpl->display("file:${tpl_path}portal/sc/config/module/announcements.tpl");
+		$tpl->display("devblocks:cerberusweb.support_center::portal/sc/config/module/announcements.tpl");
 	}
 	
 	function saveConfiguration(Model_CommunityTool $instance) {

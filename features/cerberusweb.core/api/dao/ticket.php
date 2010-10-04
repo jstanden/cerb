@@ -1490,8 +1490,6 @@ class View_Ticket extends C4_AbstractView {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('id', $this->id);
 
-		$tpl_path = APP_PATH . '/features/cerberusweb.core/templates/';
-
 		switch($field) {
 			case SearchFields_Ticket::TICKET_ID:
 			case SearchFields_Ticket::TICKET_MASK:
@@ -1501,37 +1499,37 @@ class View_Ticket extends C4_AbstractView {
 			case SearchFields_Ticket::REQUESTER_ADDRESS:
 			case SearchFields_Ticket::TICKET_INTERESTING_WORDS:
 			case SearchFields_Ticket::ORG_NAME:
-				$tpl->display('file:' . $tpl_path . 'internal/views/criteria/__string.tpl');
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__string.tpl');
 				break;
 
 			case SearchFields_Ticket::TICKET_FIRST_WROTE_SPAM:
 			case SearchFields_Ticket::TICKET_FIRST_WROTE_NONSPAM:
-				$tpl->display('file:' . $tpl_path . 'internal/views/criteria/__number.tpl');
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__number.tpl');
 				break;
 					
 			case SearchFields_Ticket::TICKET_WAITING:
 			case SearchFields_Ticket::TICKET_DELETED:
 			case SearchFields_Ticket::TICKET_CLOSED:
 			case SearchFields_Ticket::VIRTUAL_ASSIGNABLE:
-				$tpl->display('file:' . $tpl_path . 'internal/views/criteria/__bool.tpl');
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__bool.tpl');
 				break;
 					
 			case SearchFields_Ticket::TICKET_CREATED_DATE:
 			case SearchFields_Ticket::TICKET_UPDATED_DATE:
 			case SearchFields_Ticket::TICKET_DUE_DATE:
-				$tpl->display('file:' . $tpl_path . 'internal/views/criteria/__date.tpl');
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__date.tpl');
 				break;
 					
 			case SearchFields_Ticket::TICKET_SPAM_TRAINING:
-				$tpl->display('file:' . $tpl_path . 'tickets/search/criteria/ticket_spam_training.tpl');
+				$tpl->display('devblocks:cerberusweb.core::tickets/search/criteria/ticket_spam_training.tpl');
 				break;
 				
 			case SearchFields_Ticket::TICKET_SPAM_SCORE:
-				$tpl->display('file:' . $tpl_path . 'tickets/search/criteria/ticket_spam_score.tpl');
+				$tpl->display('devblocks:cerberusweb.core::tickets/search/criteria/ticket_spam_score.tpl');
 				break;
 
 			case SearchFields_Ticket::TICKET_LAST_ACTION_CODE:
-				$tpl->display('file:' . $tpl_path . 'tickets/search/criteria/ticket_last_action.tpl');
+				$tpl->display('devblocks:cerberusweb.core::tickets/search/criteria/ticket_last_action.tpl');
 				break;
 
 			case SearchFields_Ticket::TICKET_TEAM_ID:
@@ -1541,19 +1539,19 @@ class View_Ticket extends C4_AbstractView {
 				$team_categories = DAO_Bucket::getTeams();
 				$tpl->assign('team_categories', $team_categories);
 
-				$tpl->display('file:' . $tpl_path . 'tickets/search/criteria/ticket_team.tpl');
+				$tpl->display('devblocks:cerberusweb.core::tickets/search/criteria/ticket_team.tpl');
 				break;
 
 			case SearchFields_Ticket::FULLTEXT_MESSAGE_CONTENT:
-				$tpl->display('file:' . $tpl_path . 'internal/views/criteria/__fulltext.tpl');
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__fulltext.tpl');
 				break;
 				
 			case SearchFields_Ticket::VIRTUAL_WORKERS:
-				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__context_worker.tpl');
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context_worker.tpl');
 				break;
 				
 			case SearchFields_Ticket::VIRTUAL_STATUS:
-				$tpl->display('file:' . $tpl_path . 'tickets/search/criteria/ticket_status.tpl');
+				$tpl->display('devblocks:cerberusweb.core::tickets/search/criteria/ticket_status.tpl');
 				break;
 				
 			default:

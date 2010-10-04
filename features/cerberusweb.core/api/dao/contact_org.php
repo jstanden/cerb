@@ -485,10 +485,10 @@ class View_ContactOrg extends C4_AbstractView {
 		
 		switch($this->renderTemplate) {
 			case 'contextlinks_chooser':
-				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/contacts/orgs/view_contextlinks_chooser.tpl');
+				$tpl->display('devblocks:cerberusweb.core::contacts/orgs/view_contextlinks_chooser.tpl');
 				break;
 			default:
-				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/contacts/orgs/contact_view.tpl');
+				$tpl->display('devblocks:cerberusweb.core::contacts/orgs/contact_view.tpl');
 				break;
 		}
 	}
@@ -506,10 +506,10 @@ class View_ContactOrg extends C4_AbstractView {
 			case SearchFields_ContactOrg::COUNTRY:
 			case SearchFields_ContactOrg::PHONE:
 			case SearchFields_ContactOrg::WEBSITE:
-				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__string.tpl');
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__string.tpl');
 				break;
 			case SearchFields_ContactOrg::CREATED:
-				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__date.tpl');
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__date.tpl');
 				break;
 			default:
 				// Custom Fields

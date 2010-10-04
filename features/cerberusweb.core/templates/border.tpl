@@ -1,5 +1,5 @@
-{include file="$core_tpl/header.tpl"}
-{include file="$core_tpl/internal/renderers/prebody_autoreload.tpl"}
+{include file="devblocks:cerberusweb.core::header.tpl"}
+{include file="devblocks:cerberusweb.core::internal/renderers/prebody_autoreload.tpl"}
 
 {if !empty($prebody_renderers)}
 	{foreach from=$prebody_renderers item=renderer}
@@ -7,7 +7,7 @@
 	{/foreach}
 {/if}
 
-{if !empty($tour_enabled)}{include file="$core_tpl/internal/tour/banner.tpl"}{/if}
+{if !empty($tour_enabled)}{include file="devblocks:cerberusweb.core::internal/tour/banner.tpl"}{/if}
 <table cellspacing="0" cellpadding="2" border="0" width="100%">
 	<tr>
 		<td align="left" valign="bottom">
@@ -41,7 +41,7 @@
 	</tr>
 </table>
 
-{include file="$core_tpl/menu.tpl"}
+{include file="devblocks:cerberusweb.core::menu.tpl"}
 
 {if !empty($page) && $page->isVisible()}
 	{$page->render()}
@@ -55,4 +55,4 @@
 	{/foreach}
 {/if}
 
-{include file="$core_tpl/footer.tpl"}
+{include file="devblocks:cerberusweb.core::footer.tpl"}

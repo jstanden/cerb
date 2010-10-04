@@ -1,4 +1,4 @@
-{include file="file:$core_tpl/groups/submenu.tpl"}
+{include file="devblocks:cerberusweb.core::groups/submenu.tpl"}
 
 {if !empty($team)}
 	<h1>{$team->name|escape}</h1>
@@ -39,7 +39,7 @@
 		
 		<td width="99%" valign="top">
 			{if !empty($team)}
-				{include file="$core_tpl/groups/edit_group.tpl" group=$team}
+				{include file="devblocks:cerberusweb.core::groups/edit_group.tpl" group=$team}
 			{/if}
 		</td>
 		

@@ -49,10 +49,8 @@
  */
 class ChInternalController extends DevblocksControllerExtension {
 	const ID = 'core.controller.internal';
-	private $_TPL_PATH = '';
 	
 	function __construct($manifest) {
-		$this->_TPL_PATH = dirname(dirname(dirname(__FILE__))) . '/templates/';
 		parent::__construct($manifest);
 	}
 	
@@ -87,7 +85,6 @@ class ChInternalController extends DevblocksControllerExtension {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'string');
 
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('path', $this->_TPL_PATH);
 
 		$callouts = CerberusApplication::getTourCallouts();
 		
@@ -97,7 +94,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		
 	    $tpl->assign('callout',$callout);
 		
-		$tpl->display('file:' . $this->_TPL_PATH . 'internal/tour/callout.tpl');
+		$tpl->display('devblocks:cerberusweb.core::internal/tour/callout.tpl');
 	}
 
 	// Post
@@ -115,8 +112,6 @@ class ChInternalController extends DevblocksControllerExtension {
 		@$context_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer');
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl_path = dirname(dirname(dirname(__FILE__))) . '/templates/';
-		$tpl->assign('path', $tpl_path);
 		
 		$tpl->assign('context', $context);
 		$tpl->assign('context_id', $context_id);
@@ -155,7 +150,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		
 		$tpl->assign('views', $views);
 		
-		$tpl->display('file:'.$this->_TPL_PATH.'context_links/tab.tpl');
+		$tpl->display('devblocks:cerberusweb.core::context_links/tab.tpl');
 	}	
 	
 	function chooserOpenAction() {
@@ -243,7 +238,6 @@ class ChInternalController extends DevblocksControllerExtension {
 		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
 
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('path', $this->_TPL_PATH);
 
 		$token_labels = array();
 		$token_value = array();
@@ -295,7 +289,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		
 		$tpl->assign('success', $success);
 		$tpl->assign('output', htmlentities($output, null, LANG_CHARSET_CODE));
-		$tpl->display('file:'.$this->_TPL_PATH.'internal/renderers/test_results.tpl');
+		$tpl->display('devblocks:cerberusweb.core::internal/renderers/test_results.tpl');
 	}
 
 	// Views
@@ -339,7 +333,7 @@ class ChInternalController extends DevblocksControllerExtension {
 	private function _viewRenderInlineFilters($view) {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('view', $view);
-		$tpl->display('file:' . $this->_TPL_PATH . 'internal/views/customize_view_criteria.tpl');
+		$tpl->display('devblocks:cerberusweb.core::internal/views/customize_view_criteria.tpl');
 	}
 	
 	// Ajax
@@ -444,13 +438,12 @@ class ChInternalController extends DevblocksControllerExtension {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('path', $this->_TPL_PATH . '');
 		$tpl->assign('id', $id);
 
 		$view = C4_AbstractViewLoader::getView($id);
 		$tpl->assign('view', $view);
 
-		$tpl->display('file:' . $this->_TPL_PATH . 'internal/views/customize_view.tpl');
+		$tpl->display('devblocks:cerberusweb.core::internal/views/customize_view.tpl');
 	}
 	
 	function viewShowCopyAction() {
@@ -459,8 +452,6 @@ class ChInternalController extends DevblocksControllerExtension {
 		$active_worker = CerberusApplication::getActiveWorker();
 
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl_path = $this->_TPL_PATH . '';
-		$tpl->assign('path', $tpl_path);
         
         $view = C4_AbstractViewLoader::getView($view_id);
 
@@ -470,7 +461,7 @@ class ChInternalController extends DevblocksControllerExtension {
         $tpl->assign('view_id', $view_id);
 		$tpl->assign('view', $view);
 
-        $tpl->display($tpl_path.'internal/views/copy.tpl');
+        $tpl->display('devblocks:cerberusweb.core::internal/views/copy.tpl');
 	}
 	
 	function viewDoCopyAction() {
@@ -531,7 +522,6 @@ class ChInternalController extends DevblocksControllerExtension {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['id']);
 
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('path', $this->_TPL_PATH . '');
 		$tpl->assign('view_id', $view_id);
 
 		$view = C4_AbstractViewLoader::getView($view_id);
@@ -543,7 +533,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		$view_columns = $view->view_columns;
 		$tpl->assign('view_columns', $view_columns);
 		
-		$tpl->display('file:' . $this->_TPL_PATH . 'internal/views/view_export.tpl');
+		$tpl->display('devblocks:cerberusweb.core::internal/views/view_export.tpl');
 	}
 	
 	function viewDoExportAction() {
@@ -739,8 +729,6 @@ class ChInternalController extends DevblocksControllerExtension {
 		@$context_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer');
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl_path = dirname(dirname(dirname(__FILE__))) . '/templates/';
-		$tpl->assign('path', $tpl_path);
 		
 		$tpl->assign('context', $context);
 		$tpl->assign('context_id', $context_id);
@@ -748,7 +736,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		$comments = DAO_Comment::getByContext($context, $context_id);
 		$tpl->assign('comments', $comments);
 		
-		$tpl->display('file:' . $this->_TPL_PATH . 'internal/comments/tab.tpl');
+		$tpl->display('devblocks:cerberusweb.core::internal/comments/tab.tpl');
 	}
 	
 	function commentShowPopupAction() {
@@ -756,7 +744,6 @@ class ChInternalController extends DevblocksControllerExtension {
 		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer',0);
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('path', $this->_TPL_PATH . '');
 		
 		$tpl->assign('context', $context);
 		$tpl->assign('context_id', $context_id);
@@ -765,7 +752,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		$workers = CerberusContexts::getWorkers($context, $context_id);
 		$tpl->assign('notify_workers', $workers);
 		
-		$tpl->display('file:' . $this->_TPL_PATH . 'internal/comments/peek.tpl');
+		$tpl->display('devblocks:cerberusweb.core::internal/comments/peek.tpl');
 	}
 	
 	function commentSavePopupAction() {

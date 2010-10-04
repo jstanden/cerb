@@ -34,7 +34,7 @@
 	</table>
 </fieldset>
 
-{*include file="file:$core_tpl/internal/custom_fields/bulk/form.tpl" bulk=true*}	
+{*include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=true*}	
 
 <button type="button" onclick="genericAjaxPopupClose('peek');genericAjaxPost('formBatchUpdate','view{$view_id}');"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')|capitalize}</button>
 <br>

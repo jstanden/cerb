@@ -74,8 +74,6 @@ class ChFeedbackActivityTab extends Extension_ActivityTab {
 		$visit->set(CerberusVisit::KEY_ACTIVITY_TAB, 'feedback');
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl_path = dirname(dirname(__FILE__)) . '/templates/';
-		$tpl->assign('path', $tpl_path);
 		
 		$defaults = new C4_AbstractViewModel();
 		$defaults->class_name = 'C4_FeedbackEntryView';
@@ -93,7 +91,7 @@ class ChFeedbackActivityTab extends Extension_ActivityTab {
 
 		$tpl->assign('view', $view);
 		
-		$tpl->display($tpl_path . 'activity_tab/index.tpl');		
+		$tpl->display('devblocks:cerberusweb.feedback::activity_tab/index.tpl');		
 	}
 }
 endif;
@@ -444,7 +442,7 @@ class C4_FeedbackEntryView extends C4_AbstractView {
 		$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_FeedbackEntry::ID);
 		$tpl->assign('custom_fields', $custom_fields);
 		
-		$tpl->display('file:' . APP_PATH . '/features/cerberusweb.feedback/templates/feedback/view.tpl');
+		$tpl->display('devblocks:cerberusweb.feedback::feedback/view.tpl');
 	}
 
 	function renderCriteria($field) {
@@ -455,20 +453,20 @@ class C4_FeedbackEntryView extends C4_AbstractView {
 			case SearchFields_FeedbackEntry::QUOTE_TEXT:
 			case SearchFields_FeedbackEntry::SOURCE_URL:
 			case SearchFields_FeedbackEntry::ADDRESS_EMAIL:
-				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__string.tpl');
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__string.tpl');
 				break;
 			case SearchFields_FeedbackEntry::ID:
-				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__number.tpl');
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__number.tpl');
 				break;
 			case SearchFields_FeedbackEntry::LOG_DATE:
-				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__date.tpl');
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__date.tpl');
 				break;
 			case SearchFields_FeedbackEntry::WORKER_ID:
-				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__context_worker.tpl');
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context_worker.tpl');
 				break;
 			case SearchFields_FeedbackEntry::QUOTE_MOOD:
 				// [TODO] Translations
-				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.feedback/templates/feedback/criteria/quote_mood.tpl');
+				$tpl->display('devblocks:cerberusweb.feedback::feedback/criteria/quote_mood.tpl');
 				break;
 			default:
 				// Custom Fields
@@ -689,8 +687,6 @@ class ChFeedbackController extends DevblocksControllerExtension {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl_path = dirname(dirname(__FILE__)).'/templates/';
-		$tpl->assign('path', $this->plugin_path . '/templates/');
 		$tpl->assign('view_id', $view_id);
 
 		// Editing
@@ -914,11 +910,10 @@ if (class_exists('Extension_MessageToolbarItem',true)):
 	class ChFeedbackMessageToolbarFeedback extends Extension_MessageToolbarItem {
 		function render(Model_Message $message) { 
 			$tpl = DevblocksPlatform::getTemplateService();
-			$tpl_path = dirname(dirname(__FILE__)).'/templates/';
 			
 			$tpl->assign('message', $message); /* @var $message Model_Message */
 			
-			$tpl->display('file:' . $tpl_path . 'feedback/renderers/message_toolbar_feedback.tpl');
+			$tpl->display('devblocks:cerberusweb.feedback::feedback/renderers/message_toolbar_feedback.tpl');
 		}
 	};
 endif;

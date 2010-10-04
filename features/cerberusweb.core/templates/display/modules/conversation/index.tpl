@@ -33,21 +33,21 @@
 				<div id="{$message->id}t" style="background-color:rgb(255,255,255);">
 					{assign var=expanded value=false}
 					{if $expand_all || $latest_message_id==$message_id || isset($message_notes.$message_id)}{assign var=expanded value=true}{/if}
-					{include file="$core_tpl/display/modules/conversation/message.tpl" expanded=$expanded}
+					{include file="devblocks:cerberusweb.core::display/modules/conversation/message.tpl" expanded=$expanded}
 				</div>
 				
 			{elseif $convo_set.0=='c'}
 				{assign var=comment_id value=$convo_set.1}
 				{assign var=comment value=$comments.$comment_id}
 				<div id="comment{$comment->id}" style="background-color:rgb(255,255,255);">
-					{include file="$core_tpl/internal/comments/comment.tpl"}
+					{include file="devblocks:cerberusweb.core::internal/comments/comment.tpl"}
 				</div>
 				
 			{elseif $convo_set.0=='d'}
 				{assign var=draft_id value=$convo_set.1}
 				{assign var=draft value=$drafts.$draft_id}
 				<div id="draft{$draft->id}" style="background-color:rgb(255,255,255);">
-					{include file="$core_tpl/display/modules/conversation/draft.tpl"}
+					{include file="devblocks:cerberusweb.core::display/modules/conversation/draft.tpl"}
 				</div>
 			{/if}
 			

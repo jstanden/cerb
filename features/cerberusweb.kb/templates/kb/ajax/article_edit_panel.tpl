@@ -38,7 +38,7 @@
 			{/foreach}
 		</div>
 		
-		{include file="file:$core_tpl/internal/custom_fields/bulk/form.tpl" bulk=false}
+		{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false}
 		<br>
 	</div>
 </div> 

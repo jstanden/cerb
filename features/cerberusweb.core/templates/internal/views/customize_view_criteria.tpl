@@ -5,7 +5,7 @@
 		<fieldset>
 			<legend>{$translate->_('common.filters')|capitalize}</legend>
 			
-			{include file="file:$core_tpl/internal/views/criteria_list_params.tpl" params=$view_editable_params}
+			{include file="devblocks:cerberusweb.core::internal/views/criteria_list_params.tpl" params=$view_editable_params}
 			
 			<div style="margin-top:5px;">
 				<select name="_preset" onchange="$val=$(this).val();if(0==$val.length)return;if('reset'==$val) { var $form_id = $(this).closest('form').attr('id'); if(0==$form_id.length)return;genericAjaxPost($form_id,'viewCustomFilters{$view->id}','c=internal&a=viewResetFilters'); return; } if('remove'==$val) { var $form_id = $(this).closest('form').attr('id'); if(0==$form_id.length)return;genericAjaxPost($form_id,'viewCustomFilters{$view->id}','c=internal&a=viewAddFilter'); return; } if('edit'==$val) { $(this).val('');$('#divRemovePresets{$view->id}').fadeIn();return; } if('add'==$val) { $(this).val('');$('#divAddPreset{$view->id}').fadeIn().find('input:text:first').focus();return; } var $form_id = $(this).closest('form').attr('id'); if(0==$form_id.length)return;genericAjaxPost($form_id,'viewCustomFilters{$view->id}','c=internal&a=viewLoadPreset');">

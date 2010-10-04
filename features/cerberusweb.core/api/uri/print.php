@@ -50,10 +50,7 @@
 class ChPrintController extends DevblocksControllerExtension {
 	const ID = 'core.controller.print';
 	
-	private $_TPL_PATH = '';
-	
 	function __construct($manifest) {
-		$this->_TPL_PATH = dirname(dirname(dirname(__FILE__))) . '/templates/';
 		parent::__construct($manifest);
 	}
 	
@@ -69,7 +66,6 @@ class ChPrintController extends DevblocksControllerExtension {
 		@$object = strtolower(array_shift($stack)); // ticket|message|etc
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('path', $this->_TPL_PATH);
 		
 		$settings = DevblocksPlatform::getPluginSettingsService();
 		$tpl->assign('settings', $settings);
@@ -155,7 +151,7 @@ class ChPrintController extends DevblocksControllerExtension {
 
 				$tpl->assign('ticket', $ticket);
 				
-				$tpl->display('file:' . $this->_TPL_PATH . 'print/ticket.tpl');
+				$tpl->display('devblocks:cerberusweb.core::print/ticket.tpl');
 				break;
 				
 			case 'message':
@@ -188,7 +184,7 @@ class ChPrintController extends DevblocksControllerExtension {
 				$tpl->assign('message', $message);
 				$tpl->assign('ticket', $ticket);
 				
-				$tpl->display('file:' . $this->_TPL_PATH . 'print/message.tpl');
+				$tpl->display('devblocks:cerberusweb.core::print/message.tpl');
 				break;
 		}
 	}

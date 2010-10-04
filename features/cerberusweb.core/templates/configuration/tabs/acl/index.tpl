@@ -32,7 +32,7 @@
 		
 		<td width="100%" valign="top">
 			<form action="{devblocks_url}{/devblocks_url}" method="post" id="configRole">
-				{include file="$core_tpl/configuration/tabs/acl/edit_role.tpl" role=null}
+				{include file="devblocks:cerberusweb.core::configuration/tabs/acl/edit_role.tpl" role=null}
 			</form>
 		</td>
 		

@@ -939,10 +939,10 @@ class View_Message extends C4_AbstractView {
 
 		switch($this->renderTemplate) {
 //			case 'contextlinks_chooser':
-//				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/workers/view_contextlinks_chooser.tpl');
+//				$tpl->display('devblocks:cerberusweb.core::workers/view_contextlinks_chooser.tpl');
 //				break;
 			default:
-				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/messages/view.tpl');
+				$tpl->display('devblocks:cerberusweb.core::messages/view.tpl');
 				break;
 		}
 	}
@@ -978,23 +978,23 @@ class View_Message extends C4_AbstractView {
 			case SearchFields_Message::ADDRESS_EMAIL:
 			case SearchFields_Message::TICKET_MASK:
 			case SearchFields_Message::TICKET_SUBJECT:
-				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__string.tpl');
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__string.tpl');
 				break;
 				
 			case SearchFields_Message::IS_OUTGOING:
-				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__bool.tpl');
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__bool.tpl');
 				break;
 				
 			case SearchFields_Message::CREATED_DATE:
-				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__date.tpl');
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__date.tpl');
 				break;
 				
 			case SearchFields_Message::TICKET_GROUP_ID:
-				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__context_group.tpl');
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context_group.tpl');
 				break;
 				
 			case SearchFields_Message::WORKER_ID:
-				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__context_worker.tpl');
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context_worker.tpl');
 				break;
 				
 			default:

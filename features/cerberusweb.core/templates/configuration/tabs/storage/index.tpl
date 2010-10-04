@@ -20,7 +20,7 @@
 
 {foreach from=$storage_schemas item=schema key=schema_id}
 	<div id="schema_{$schema_id|md5}">
-	{include file="{$core_tpl}configuration/tabs/storage/schemas/display.tpl"}
+	{include file="devblocks:cerberusweb.core::configuration/tabs/storage/schemas/display.tpl"}
 	</div>
 {/foreach}
 

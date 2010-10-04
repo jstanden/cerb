@@ -50,10 +50,7 @@
 class ChHomePage extends CerberusPageExtension {
 	const VIEW_MY_EVENTS = 'home_myevents';
 	
-	private $_TPL_PATH = '';
-	
 	function __construct($manifest) {
-		$this->_TPL_PATH = dirname(dirname(dirname(__FILE__))) . '/templates/';
 		parent::__construct($manifest);
 	}
 		
@@ -79,7 +76,6 @@ class ChHomePage extends CerberusPageExtension {
 		$response = DevblocksPlatform::getHttpResponse();
 
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('path', $this->_TPL_PATH);
 
 		// Are we requesting a specific tab?
 		if(null != ($selected_tab = @$response->path[1]))
@@ -93,7 +89,7 @@ class ChHomePage extends CerberusPageExtension {
 		$workspaces = DAO_WorkerWorkspaceList::getWorkspaces($active_worker->id);
 		$tpl->assign('workspaces', $workspaces);
 		
-		$tpl->display('file:' . $this->_TPL_PATH . 'home/index.tpl');
+		$tpl->display('devblocks:cerberusweb.core::home/index.tpl');
 	}
 	
 	// Ajax
@@ -112,7 +108,6 @@ class ChHomePage extends CerberusPageExtension {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('path', $this->_TPL_PATH);
 		
 		// My Events
 		$defaults = new C4_AbstractViewModel();
@@ -151,7 +146,7 @@ class ChHomePage extends CerberusPageExtension {
 		C4_AbstractViewLoader::setView($myEventsView->id, $myEventsView);
 		
 		$tpl->assign('view', $myEventsView);
-		$tpl->display('file:' . $this->_TPL_PATH . 'home/tabs/my_events/index.tpl');
+		$tpl->display('devblocks:cerberusweb.core::home/tabs/my_events/index.tpl');
 	}
 	
 	function showNotificationsBulkPanelAction() {
@@ -170,7 +165,7 @@ class ChHomePage extends CerberusPageExtension {
 		//$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Task::ID);
 		//$tpl->assign('custom_fields', $custom_fields);
 		
-		$tpl->display('file:' . $this->_TPL_PATH . 'home/tabs/my_events/bulk.tpl');
+		$tpl->display('devblocks:cerberusweb.core::home/tabs/my_events/bulk.tpl');
 	}
 	
 	function doNotificationsBulkUpdateAction() {
@@ -290,10 +285,8 @@ class ChHomePage extends CerberusPageExtension {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('path', $this->_TPL_PATH);
 		
-		
-		$tpl->display('file:' . $this->_TPL_PATH . 'home/tabs/workspaces_intro/index.tpl');
+		$tpl->display('devblocks:cerberusweb.core::home/tabs/workspaces_intro/index.tpl');
 	}
 	
 	function doWorkspaceInitAction() {
@@ -334,7 +327,6 @@ class ChHomePage extends CerberusPageExtension {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('path', $this->_TPL_PATH);
 
 		$source_manifests = DevblocksPlatform::getExtensions(Extension_WorkspaceSource::EXTENSION_POINT, false);
 		uasort($source_manifests, create_function('$a, $b', "return strcasecmp(\$a->name,\$b->name);\n"));
@@ -343,7 +335,7 @@ class ChHomePage extends CerberusPageExtension {
 		$workspaces = DAO_WorkerWorkspaceList::getWorkspaces($active_worker->id);
 		$tpl->assign('workspaces', $workspaces);
 		
-		$tpl->display('file:' . $this->_TPL_PATH . 'home/workspaces/add_workspace_panel.tpl');
+		$tpl->display('devblocks:cerberusweb.core::home/workspaces/add_workspace_panel.tpl');
 	}
 	
 	function doAddWorkspaceAction() {
@@ -450,7 +442,6 @@ class ChHomePage extends CerberusPageExtension {
 	
 	function showWorkspaceTabAction() {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('path', $this->_TPL_PATH);
 		
 		$db = DevblocksPlatform::getDatabaseService();
 		$active_worker = CerberusApplication::getActiveWorker();
@@ -527,15 +518,13 @@ class ChHomePage extends CerberusPageExtension {
 			)
 		);
 		
-		$tpl->display('file:' . $this->_TPL_PATH . 'home/workspaces/index.tpl');
+		$tpl->display('devblocks:cerberusweb.core::home/workspaces/index.tpl');
 	}
 	
 	function showEditWorkspacePanelAction() {
 		@$workspace = DevblocksPlatform::importGPC($_REQUEST['workspace'],'string', '');
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl_path = $this->_TPL_PATH;
-		$tpl->assign('path', $tpl_path);
 
 		$db = DevblocksPlatform::getDatabaseService();
 		
@@ -551,7 +540,7 @@ class ChHomePage extends CerberusPageExtension {
 		));
 		$tpl->assign('worklists', $worklists);
 		
-		$tpl->display('file:' . $this->_TPL_PATH . 'home/workspaces/edit_workspace_panel.tpl');
+		$tpl->display('devblocks:cerberusweb.core::home/workspaces/edit_workspace_panel.tpl');
 	}
 	
 	function doEditWorkspaceAction() {
@@ -644,10 +633,9 @@ class ChExplorerToolbarWorkerEvents extends Extension_ExplorerToolbar {
 	
 	function render(Model_ExplorerSet $item) {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl_path = dirname(dirname(dirname(__FILE__))) . '/templates/';
 		
 		$tpl->assign('item', $item);
 		
-		$tpl->display('file:'.$tpl_path.'home/renderer/explorer_toolbar.tpl');
+		$tpl->display('devblocks:cerberusweb.core::home/renderer/explorer_toolbar.tpl');
 	}
 };

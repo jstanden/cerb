@@ -803,10 +803,10 @@ class View_Worker extends C4_AbstractView {
 
 		switch($this->renderTemplate) {
 			case 'contextlinks_chooser':
-				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/workers/view_contextlinks_chooser.tpl');
+				$tpl->display('devblocks:cerberusweb.core::workers/view_contextlinks_chooser.tpl');
 				break;
 			default:
-				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/workers/view.tpl');
+				$tpl->display('devblocks:cerberusweb.core::workers/view.tpl');
 				break;
 		}
 	}
@@ -843,20 +843,20 @@ class View_Worker extends C4_AbstractView {
 			case SearchFields_Worker::FIRST_NAME:
 			case SearchFields_Worker::LAST_NAME:
 			case SearchFields_Worker::TITLE:
-				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__string.tpl');
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__string.tpl');
 				break;
 				
 			case SearchFields_Worker::IS_DISABLED:
 			case SearchFields_Worker::IS_SUPERUSER:
-				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__bool.tpl');
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__bool.tpl');
 				break;
 				
 			case SearchFields_Worker::LAST_ACTIVITY_DATE:
-				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__date.tpl');
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__date.tpl');
 				break;
 				
 			case SearchFields_Worker::VIRTUAL_GROUPS:
-				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__context_group.tpl');
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context_group.tpl');
 				break;
 				
 			default:

@@ -48,10 +48,7 @@
  *	 WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
 class ChDisplayPage extends CerberusPageExtension {
-	private $_TPL_PATH = '';
-	
 	function __construct($manifest) {
-		$this->_TPL_PATH = dirname(dirname(dirname(__FILE__))) . '/templates/';
 		parent::__construct($manifest);
 	}
 	
@@ -69,7 +66,6 @@ class ChDisplayPage extends CerberusPageExtension {
 	
 	function render() {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('path', $this->_TPL_PATH);
 
 		$visit = CerberusApplication::getVisit(); /* @var $visit CerberusVisit */
 		$response = DevblocksPlatform::getHttpResponse();
@@ -161,7 +157,7 @@ class ChDisplayPage extends CerberusPageExtension {
 			))
 		);
 		
-		$tpl->display('file:' . $this->_TPL_PATH . 'display/index.tpl');
+		$tpl->display('devblocks:cerberusweb.core::display/index.tpl');
 	}
 	
 	// Ajax
@@ -201,8 +197,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		@$hide = DevblocksPlatform::importGPC($_REQUEST['hide'],'integer',0);
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('path', $this->_TPL_PATH);
-
+		
 		$message = DAO_Message::get($id);
 		$tpl->assign('message', $message);
 		$tpl->assign('message_id', $message->id);
@@ -253,7 +248,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		
 		$tpl->assign('expanded', (empty($hide) ? true : false));
 		
-		$tpl->display('file:' . $this->_TPL_PATH . 'display/modules/conversation/message.tpl');
+		$tpl->display('devblocks:cerberusweb.core::display/modules/conversation/message.tpl');
 	}
 
 	function updatePropertiesAction() {
@@ -329,11 +324,10 @@ class ChDisplayPage extends CerberusPageExtension {
 		}
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('path', $this->_TPL_PATH);
-		
+				
 		$tpl->assign('ticket_id', $ticket_id);
 		
-		$tpl->display('file:' . $this->_TPL_PATH . 'display/rpc/merge_panel.tpl');
+		$tpl->display('devblocks:cerberusweb.core::display/rpc/merge_panel.tpl');
 	}
 	
 	function saveMergePanelAction() {
@@ -389,8 +383,7 @@ class ChDisplayPage extends CerberusPageExtension {
 	 */
 	private function _renderNotes($message_id) {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('path', $this->_TPL_PATH);
-		$tpl->assign('message_id', $message_id);
+				$tpl->assign('message_id', $message_id);
 		
 		$notes = DAO_Comment::getByContext(CerberusContexts::CONTEXT_MESSAGE, $message_id);
 		$message_notes = array();
@@ -407,7 +400,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		$workers = DAO_Worker::getAll();
 		$tpl->assign('workers', $workers);
 
-		$tpl->display('file:' . $this->_TPL_PATH . 'display/modules/conversation/notes.tpl');
+		$tpl->display('devblocks:cerberusweb.core::display/modules/conversation/notes.tpl');
 	}
 	
 	// [TODO] Merge w/ the new comments functionality?
@@ -415,8 +408,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
 
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('path', $this->_TPL_PATH);
-		$tpl->assign('id',$id);
+				$tpl->assign('id',$id);
 		
 		$message = DAO_Message::get($id);
 		$ticket = DAO_Ticket::get($message->ticket_id);
@@ -432,7 +424,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		$workers = DAO_Worker::getAll();
 		$tpl->assign('workers', $workers);
 		
-		$tpl->display('file:' . $this->_TPL_PATH . 'display/rpc/add_note.tpl');
+		$tpl->display('devblocks:cerberusweb.core::display/rpc/add_note.tpl');
 	}
 	
 	// [TODO] Merge w/ the new comments functionality?
@@ -486,8 +478,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		$active_worker = CerberusApplication::getActiveWorker();  /* @var $active_worker Model_Worker */
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('path', $this->_TPL_PATH);
-		$tpl->assign('id',$id);
+				$tpl->assign('id',$id);
 		$tpl->assign('is_forward',$is_forward);
 		
 		$message = DAO_Message::get($id);
@@ -569,7 +560,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		));
 		$tpl->assign('kb_topics', $kb_topics);
 		
-		$tpl->display('file:' . $this->_TPL_PATH . 'display/rpc/reply.tpl');
+		$tpl->display('devblocks:cerberusweb.core::display/rpc/reply.tpl');
 	}
 	
 	function sendReplyAction() {
@@ -700,7 +691,7 @@ class ChDisplayPage extends CerberusPageExtension {
 			// Template
 			$tpl = DevblocksPlatform::getTemplateService();
 			$tpl->assign('timestamp', time());
-			$html = $tpl->fetch('file:' . $this->_TPL_PATH . 'mail/queue/saved.tpl');
+			$html = $tpl->fetch('devblocks:cerberusweb.core::mail/queue/saved.tpl');
 			
 			// Response
 			echo json_encode(array('draft_id'=>$draft_id, 'html'=>$html));
@@ -716,8 +707,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		@$active_worker = CerberusApplication::getActiveWorker();
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('path', $this->_TPL_PATH);
-		
+				
 		$tpl->assign('expand_all', $expand_all);
 		
 		$ticket = DAO_Ticket::get($id);
@@ -835,7 +825,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		$workers = DAO_Worker::getAll();
 		$tpl->assign('workers', $workers);
 		
-		$tpl->display('file:' . $this->_TPL_PATH . 'display/modules/conversation/index.tpl');
+		$tpl->display('devblocks:cerberusweb.core::display/modules/conversation/index.tpl');
 	}
 	
 	function doSplitMessageAction() {
@@ -932,8 +922,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		@$ticket_id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer');
 
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('path', $this->_TPL_PATH);
-		
+				
 		// Ticket
 		$ticket = DAO_Ticket::get($ticket_id);
 		$tpl->assign('ticket', $ticket);
@@ -1028,15 +1017,14 @@ class ChDisplayPage extends CerberusPageExtension {
 		$team_categories = DAO_Bucket::getTeams();
 		$tpl->assign('team_categories', $team_categories);
 		
-		$tpl->display('file:' . $this->_TPL_PATH . 'display/modules/history/index.tpl');
+		$tpl->display('devblocks:cerberusweb.core::display/modules/history/index.tpl');
 	}
 
 	// Requesters
 	
 	function showRequestersPanelAction() {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('path', $this->_TPL_PATH);
-
+		
 		@$ticket_id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer');
 		
 		$tpl->assign('ticket_id', $ticket_id);
@@ -1044,7 +1032,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		$requesters = DAO_Ticket::getRequestersByTicket($ticket_id);
 		$tpl->assign('requesters', $requesters);
 		
-		$tpl->display('file:' . $this->_TPL_PATH . 'display/rpc/requester_panel.tpl');
+		$tpl->display('devblocks:cerberusweb.core::display/rpc/requester_panel.tpl');
 	}
 	
 	function saveRequestersPanelAction() {
@@ -1104,12 +1092,11 @@ class ChDisplayPage extends CerberusPageExtension {
 		$requesters = DAO_Ticket::getRequestersByTicket($ticket_id);
 
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('path', $this->_TPL_PATH);
-		
+				
 		$tpl->assign('ticket_id', $ticket_id);
 		$tpl->assign('requesters', $requesters);
 		
-		$tpl->display('file:' . $this->_TPL_PATH . 'display/rpc/requester_list.tpl');
+		$tpl->display('devblocks:cerberusweb.core::display/rpc/requester_list.tpl');
 	}
 	
 };

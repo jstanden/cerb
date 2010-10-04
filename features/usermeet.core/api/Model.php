@@ -148,28 +148,27 @@ class View_CommunityPortal extends C4_AbstractView {
 		$custom_fields = DAO_CustomField::getBySource(CustomFieldSource_CommunityPortal::ID);
 		$tpl->assign('custom_fields', $custom_fields);
 		
-		$tpl->display('file:' . APP_PATH . '/features/usermeet.core/templates/community/config/tab/view.tpl');
+		$tpl->display('devblocks:usermeet.core::community/config/tab/view.tpl');
 	}
 
 	function renderCriteria($field) {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl_path = APP_PATH . '/features/usermeet.core/templates/';
 		$tpl->assign('id', $this->id);
 		
 		switch($field) {
 			case SearchFields_CommunityTool::NAME:
 			case SearchFields_CommunityTool::CODE:
-				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__string.tpl');
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__string.tpl');
 				break;
 				
 			case SearchFields_CommunityTool::EXTENSION_ID:
 //				$source_renderers = DevblocksPlatform::getExtensions('cerberusweb.task.source', true);
 //				$tpl->assign('sources', $source_renderers);
-//				$tpl->display('file:' . $tpl_path . 'tasks/criteria/source.tpl');
+//				$tpl->display('devblocks:cerberusweb.core::tasks/criteria/source.tpl');
 				break;
 				
 //			case SearchFields_CommunityTool::IS_COMPLETED:
-//				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__bool.tpl');
+//				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__bool.tpl');
 //				break;
 				
 			default:

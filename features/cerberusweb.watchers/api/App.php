@@ -57,9 +57,6 @@ class ChWatchersConfigTab extends Extension_ConfigTab {
 		$settings = DevblocksPlatform::getPluginSettingsService();
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl_path = dirname(dirname(__FILE__)) . '/templates/';
-		$core_tplpath = dirname(dirname(dirname(__FILE__))) . '/cerberusweb.core/templates/';
-		$tpl->assign('core_tplpath', $core_tplpath);
 		$tpl->assign('view_id', $view_id);
 
 		$defaults = new C4_AbstractViewModel();
@@ -71,7 +68,7 @@ class ChWatchersConfigTab extends Extension_ConfigTab {
 		$view = C4_AbstractViewLoader::getView(View_WatcherMailFilter::DEFAULT_ID, $defaults);
 		$tpl->assign('view', $view);
 		
-		$tpl->display('file:' . $tpl_path . 'config/watchers/index.tpl');
+		$tpl->display('devblocks:cerberusweb.watchers::config/watchers/index.tpl');
 	}
 	
 	function saveTab() {
@@ -322,17 +319,13 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
 };
 
 class ChWatchersPreferences extends Extension_PreferenceTab {
-	private $_TPL_PATH = null; 
-	
     function __construct($manifest) {
         parent::__construct($manifest);
-        $this->_TPL_PATH = dirname(dirname(__FILE__)).'/templates/';
     }
 	
 	// Ajax
 	function showTab() {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('path', $this->_TPL_PATH);
 		
 		$worker = CerberusApplication::getActiveWorker();
 		
@@ -363,7 +356,7 @@ class ChWatchersPreferences extends Extension_PreferenceTab {
 		
 		$tpl->assign('view', $view);
 		
-		$tpl->display('file:' . $this->_TPL_PATH . 'preferences/watchers.tpl');
+		$tpl->display('devblocks:cerberusweb.watchers::preferences/watchers.tpl');
 	}
     
 	// Post
@@ -441,7 +434,6 @@ class ChWatchersPreferences extends Extension_PreferenceTab {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id']);
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('path', $this->_TPL_PATH);
 		$tpl->assign('view_id', $view_id);
 		
 		$active_worker = CerberusApplication::getActiveWorker();
@@ -484,7 +476,7 @@ class ChWatchersPreferences extends Extension_PreferenceTab {
 		$org_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Org::ID);
 		$tpl->assign('org_fields', $org_fields);
 		
-		$tpl->display('file:' . $this->_TPL_PATH . 'preferences/peek.tpl');
+		$tpl->display('devblocks:cerberusweb.watchers::preferences/peek.tpl');
 	}
 	
 	function saveWatcherPanelAction() {
@@ -706,12 +698,11 @@ class ChWatchersPreferences extends Extension_PreferenceTab {
    		@$worker_id = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'integer',0);
 	
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('path', $this->_TPL_PATH);
 
 		$addresses = DAO_AddressToWorker::getByWorker($worker_id);
 		$tpl->assign('addresses', $addresses);
 		
-		$tpl->display('file:' . $this->_TPL_PATH . 'preferences/worker_addresses.tpl');
+		$tpl->display('devblocks:cerberusweb.watchers::preferences/worker_addresses.tpl');
 	}
 	
 };
@@ -771,7 +762,7 @@ class View_WatcherMailFilter extends C4_AbstractView {
 		$workers = DAO_Worker::getAll();
 		$tpl->assign('workers', $workers);
 		
-		$tpl->display('file:' . APP_PATH . '/features/cerberusweb.watchers/templates/config/watchers/view.tpl');
+		$tpl->display('devblocks:cerberusweb.watchers::config/watchers/view.tpl');
 	}
 
 	function renderCriteria($field) {
@@ -780,20 +771,20 @@ class View_WatcherMailFilter extends C4_AbstractView {
 
 		switch($field) {
 			case SearchFields_WatcherMailFilter::NAME:
-				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__string.tpl');
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__string.tpl');
 				break;
 			case SearchFields_WatcherMailFilter::ID:
 			case SearchFields_WatcherMailFilter::POS:
-				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__number.tpl');
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__number.tpl');
 				break;
 			case SearchFields_WatcherMailFilter::CREATED:
-				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__date.tpl');
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__date.tpl');
 				break;
 			case SearchFields_WatcherMailFilter::IS_DISABLED:
-				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__bool.tpl');
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__bool.tpl');
 				break;
 			case SearchFields_WatcherMailFilter::WORKER_ID:
-				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__context_worker.tpl');
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context_worker.tpl');
 				break;
 			default:
 				echo '';

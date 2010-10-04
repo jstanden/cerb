@@ -51,10 +51,7 @@ if (class_exists('Extension_ActivityTab')):
 class ChTasksActivityTab extends Extension_ActivityTab {
 	const VIEW_ACTIVITY_TASKS = 'activity_tasks';
 	
-	private $_TPL_PATH = '';
-	
 	function __construct($manifest) {
-		$this->_TPL_PATH = dirname(dirname(dirname(__FILE__))) . '/templates/';
 		parent::__construct($manifest);
 	}
 	
@@ -64,8 +61,6 @@ class ChTasksActivityTab extends Extension_ActivityTab {
 		$visit->set(CerberusVisit::KEY_ACTIVITY_TAB, 'tasks');
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl_path = $this->_TPL_PATH;
-		$tpl->assign('path', $tpl_path);
 		
 		$translate = DevblocksPlatform::getTranslationService();
 		
@@ -84,24 +79,18 @@ class ChTasksActivityTab extends Extension_ActivityTab {
 
 		$tpl->assign('view', $view);
 		
-		$tpl->display($tpl_path . 'tasks/activity_tab/index.tpl');		
+		$tpl->display('devblocks:cerberusweb.core::tasks/activity_tab/index.tpl');		
 	}
 }
 endif;
 
 class ChTasksPage extends CerberusPageExtension {
-	private $_TPL_PATH = '';
-	
-//	const SESSION_OPP_TAB = '';
-	
 	function __construct($manifest) {
 		parent::__construct($manifest);
-		$this->_TPL_PATH = dirname(dirname(dirname(__FILE__))) . '/templates/';
 	}
 	
 	function render() {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('path', $this->_TPL_PATH);
 
 		$visit = CerberusApplication::getVisit();
 		$translate = DevblocksPlatform::getTranslationService();
@@ -130,7 +119,7 @@ class ChTasksPage extends CerberusPageExtension {
 				$workers = DAO_Worker::getAll();
 				$tpl->assign('workers', $workers);
 				
-				$tpl->display($this->_TPL_PATH . 'tasks/display/index.tpl');
+				$tpl->display('devblocks:cerberusweb.core::tasks/display/index.tpl');
 				break;
 		}
 	}
@@ -151,8 +140,6 @@ class ChTasksPage extends CerberusPageExtension {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		$path = $this->_TPL_PATH;
-		$tpl->assign('path', $path);
 
 		// Handle context links ([TODO] as an optional array)
 		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
@@ -299,7 +286,7 @@ class ChTasksPage extends CerberusPageExtension {
 		$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Task::ID);
 		$tpl->assign('custom_fields', $custom_fields);
 		
-		$tpl->display('file:' . $this->_TPL_PATH . 'tasks/rpc/bulk.tpl');
+		$tpl->display('devblocks:cerberusweb.core::tasks/rpc/bulk.tpl');
 	}
 	
 	function doTaskBulkUpdateAction() {

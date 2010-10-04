@@ -53,8 +53,6 @@ class ChSpamAnalysisTicketTab extends Extension_TicketTab {
 		@$ticket_id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer',0);
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl_path = dirname(dirname(__FILE__)).'/templates/';
-		$tpl->assign('path', $tpl_path);
 
 		$ticket = DAO_Ticket::get($ticket_id);
 		$tpl->assign('ticket_id', $ticket_id);
@@ -74,7 +72,7 @@ class ChSpamAnalysisTicketTab extends Extension_TicketTab {
 		$analysis = CerberusBayes::calculateTicketSpamProbability($ticket_id, true);
 		$tpl->assign('analysis', $analysis);
 		
-		$tpl->display('file:' . $tpl_path . 'ticket_tab/index.tpl');
+		$tpl->display('devblocks:cerberusweb.spam_analysis::ticket_tab/index.tpl');
 	}
 	
 	function saveTab() {

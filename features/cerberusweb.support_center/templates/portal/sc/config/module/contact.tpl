@@ -49,5 +49,5 @@
 </div>
 
 <div class="subtle2" id="add_situation">
-{include file="$config_path/portal/sc/config/module/contact/add_situation.tpl"}
+{include file="devblocks:cerberusweb.support_center::portal/sc/config/module/contact/add_situation.tpl"}
 </div>

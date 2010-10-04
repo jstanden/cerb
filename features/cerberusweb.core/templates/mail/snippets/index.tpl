@@ -9,4 +9,4 @@
 	-->{if 1||$active_worker->hasPriv('crm.opp.actions.create')}<button type="button" onclick="genericAjaxPopup('peek','c=tickets&a=showSnippetsPeek&id=0&view_id={$view->id}&context='+selectValue(this.form.context),null,false,'550');"><span class="cerb-sprite sprite-add"></span> Add Snippet</button>{/if}
 </form>
 
-{include file="$core_tpl/internal/views/search_and_view.tpl" view=$view}
+{include file="devblocks:cerberusweb.core::internal/views/search_and_view.tpl" view=$view}

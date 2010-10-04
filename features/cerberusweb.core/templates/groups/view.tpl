@@ -54,7 +54,7 @@
 			<td align="center"><input type="checkbox" name="row_id[]" value="{$result.g_id}"></td>
 		{foreach from=$view->view_columns item=column name=columns}
 			{if substr($column,0,3)=="cf_"}
-				{include file="file:$core_tpl/internal/custom_fields/view/cell_renderer.tpl"}
+				{include file="devblocks:cerberusweb.core::internal/custom_fields/view/cell_renderer.tpl"}
 			{*
 			{elseif $column=="g_name"}
 			<td><a href="javascript:;" onclick="genericAjaxPopup('peek','c=config&a=showWorkerPeek&id={$result.w_id}&view_id={$view->id|escape:'url'}',null,false,'550');" class="subject" style="{if $result.w_is_disabled}color:rgb(120,0,0);font-style:italic;{/if}">{$result.$column}</a>&nbsp;</td>

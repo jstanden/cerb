@@ -666,10 +666,10 @@ class View_Group extends C4_AbstractView {
 
 		switch($this->renderTemplate) {
 			case 'contextlinks_chooser':
-				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/groups/view_contextlinks_chooser.tpl');
+				$tpl->display('devblocks:cerberusweb.core::groups/view_contextlinks_chooser.tpl');
 				break;
 			default:
-				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/groups/view.tpl');
+				$tpl->display('devblocks:cerberusweb.core::groups/view.tpl');
 				break;
 		}
 	}
@@ -680,15 +680,15 @@ class View_Group extends C4_AbstractView {
 
 		switch($field) {
 			case SearchFields_Group::NAME:
-				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__string.tpl');
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__string.tpl');
 				break;
 				
 			case 'placeholder_bool':
-				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__bool.tpl');
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__bool.tpl');
 				break;
 				
 			case 'placeholder_date':
-				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__date.tpl');
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__date.tpl');
 				break;
 				
 			default:

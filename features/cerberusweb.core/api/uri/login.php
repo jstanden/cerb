@@ -53,10 +53,7 @@ class ChSignInPage extends CerberusPageExtension {
     const KEY_FORGOT_SENTCODE = 'login.recover.sentcode';
     const KEY_FORGOT_CODE = 'login.recover.code';
     
-	private $_TPL_PATH = '';
-	
 	function __construct($manifest) {
-		$this->_TPL_PATH = dirname(dirname(dirname(__FILE__))) . '/templates/';
 		parent::__construct($manifest);
 	}
 	
@@ -109,15 +106,15 @@ class ChSignInPage extends CerberusPageExtension {
                     	if ((@$failed = array_shift($stack)) == "failed") {
                     		$tpl->assign('failed',true);
                     	}
-                        $tpl->display('file:' . $this->_TPL_PATH . 'login/forgot1.tpl');
+                        $tpl->display('devblocks:cerberusweb.core::login/forgot1.tpl');
                         break;
                     
                     case "step2":
-                        $tpl->display('file:' . $this->_TPL_PATH . 'login/forgot2.tpl');
+                        $tpl->display('devblocks:cerberusweb.core::login/forgot2.tpl');
                         break;
                         
                     case "step3":
-                        $tpl->display('file:' . $this->_TPL_PATH . 'login/forgot3.tpl');
+                        $tpl->display('devblocks:cerberusweb.core::login/forgot3.tpl');
                         break;
                 }
                 

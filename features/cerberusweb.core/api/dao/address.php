@@ -576,10 +576,10 @@ class View_Address extends C4_AbstractView {
 		
 		switch($this->renderTemplate) {
 			case 'contextlinks_chooser':
-				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/contacts/addresses/view_contextlinks_chooser.tpl');
+				$tpl->display('devblocks:cerberusweb.core::contacts/addresses/view_contextlinks_chooser.tpl');
 				break;
 			default:
-				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/contacts/addresses/address_view.tpl');
+				$tpl->display('devblocks:cerberusweb.core::contacts/addresses/address_view.tpl');
 				break;
 		}
 		
@@ -589,22 +589,20 @@ class View_Address extends C4_AbstractView {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('id', $this->id);
 
-		$tpl_path = APP_PATH . '/features/cerberusweb.core/templates/';
-		
 		switch($field) {
 			case SearchFields_Address::EMAIL:
 			case SearchFields_Address::FIRST_NAME:
 			case SearchFields_Address::LAST_NAME:
 			case SearchFields_Address::ORG_NAME:
-				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__string.tpl');
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__string.tpl');
 				break;
 			case SearchFields_Address::NUM_SPAM:
 			case SearchFields_Address::NUM_NONSPAM:
-				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__number.tpl');
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__number.tpl');
 				break;
 			case SearchFields_Address::IS_BANNED:
 			case SearchFields_Address::IS_REGISTERED:
-				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__bool.tpl');
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__bool.tpl');
 				break;
 			default:
 				// Custom Fields

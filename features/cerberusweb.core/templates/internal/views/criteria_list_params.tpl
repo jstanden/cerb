@@ -10,7 +10,7 @@
 			{if $smarty.foreach.p.first}
 			{else}
 				{if is_array($p)}
-					{include file="file:$core_tpl/internal/views/criteria_list_params.tpl" params=$p nested=true}
+					{include file="devblocks:cerberusweb.core::internal/views/criteria_list_params.tpl" params=$p nested=true}
 				{else}
 					{assign var=field value=$p->field} 
 					{$view_filters.$field->db_label|capitalize} 

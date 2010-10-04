@@ -15,12 +15,12 @@
 
 <b>{$translate->_('portal.cfg.followup_questions')}</b> {$translate->_('portal.sc.cfg.followup_questions_hint')}<br>
 {foreach from=$situation_params.followups key=q item=field_id name=followups}
-	{include file="$config_path/portal/sc/config/module/contact/add_situation_followups.tpl" field_id=$field_id}
+	{include file="devblocks:cerberusweb.support_center::portal/sc/config/module/contact/add_situation_followups.tpl" field_id=$field_id}
 {/foreach}
 
 {math assign=dispatch_start equation="x+1" x=$smarty.foreach.followups.index}
 {section name="dispatch" start=$dispatch_start loop=100 max=5}
-	{include file="$config_path/portal/sc/config/module/contact/add_situation_followups.tpl" q=null field_id=null}
+	{include file="devblocks:cerberusweb.support_center::portal/sc/config/module/contact/add_situation_followups.tpl" q=null field_id=null}
 {/section}
 
 {$translate->_('portal.sc.cfg.save_to_add_followups')}<br>

@@ -9,7 +9,6 @@ class UmScHistoryController extends Extension_UmScController {
 	
 	function writeResponse(DevblocksHttpResponse $response) {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl_path = dirname(dirname(dirname(dirname(__FILE__)))) . '/templates/';
 		
 		$umsession = UmPortalHelper::getSession();
 		$active_user = $umsession->getProperty('sc_login', null);
@@ -252,11 +251,7 @@ class UmScHistoryController extends Extension_UmScController {
 class UmSc_TicketHistoryView extends C4_AbstractView {
 	const DEFAULT_ID = 'sc_history';
 	
-	private $_TPL_PATH = '';
-
 	function __construct() {
-		$this->_TPL_PATH = dirname(dirname(dirname(dirname(__FILE__)))) . '/templates/';
-		
 		$this->id = self::DEFAULT_ID;
 		$this->name = 'Tickets';
 		$this->renderSortBy = SearchFields_Ticket::TICKET_UPDATED_DATE;

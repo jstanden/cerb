@@ -40,7 +40,7 @@
 <pre class="emailbody">{$draft->body|trim|escape|devblocks_hyperlinks|devblocks_hideemailquotes}</pre>
 </div>
 
-{*include file="file:$core_tpl/tasks/display/tabs/notes.tpl" readonly=true*}
+{*include file="devblocks:cerberusweb.core::tasks/display/tabs/notes.tpl" readonly=true*}
 
 <br>
 

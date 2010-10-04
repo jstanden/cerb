@@ -134,7 +134,6 @@ class UmScApp extends Extension_UsermeetTool {
 		$stack = $response->path;
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl_path = dirname(dirname(__FILE__)) . '/templates/';
 		$tpl->assign('portal_code', UmPortalHelper::getCode());
 		
 		$page_title = DAO_CommunityToolProperty::get(UmPortalHelper::getCode(), self::PARAM_PAGE_TITLE, 'Support Center');
@@ -249,8 +248,6 @@ class UmScApp extends Extension_UsermeetTool {
 	 */
     public function configure(Model_CommunityTool $instance) {
         $tpl = DevblocksPlatform::getTemplateService();
-        $tpl_path = dirname(dirname(__FILE__)) . '/templates/';
-        $tpl->assign('config_path', $tpl_path);
         
 		// Locales
 		
@@ -301,7 +298,7 @@ class UmScApp extends Extension_UsermeetTool {
 		
 		$tpl->assign('modules', $modules);
 		
-        $tpl->display("file:${tpl_path}portal/sc/config/index.tpl");
+        $tpl->display("devblocks:cerberusweb.support_center::portal/sc/config/index.tpl");
     }
     
     public function saveConfiguration(Model_CommunityTool $instance) {
@@ -403,10 +400,7 @@ class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
 	 */
 	function renderLoginForm() {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl_path = dirname(dirname(__FILE__)) . '/templates/';
-		$tpl->assign('tpl_path', $tpl_path);
-
-		$tpl->display("file:${tpl_path}portal/sc/login/default/login.tpl");
+		$tpl->display("devblocks:cerberusweb.support_center::portal/sc/login/default/login.tpl");
 	}
 	
 	/**
@@ -580,14 +574,8 @@ class UmScRssController extends Extension_UmScController {
 };
 
 class UmScAjaxController extends Extension_UmScController {
-	private $_TPL_PATH = '';
-	
 	function __construct($manifest=null) {
-		$this->_TPL_PATH = dirname(dirname(__FILE__)) . '/templates/';
 		parent::__construct($manifest);
-		
-//		$tpl = DevblocksPlatform::getTemplateService();
-//		$tpl->display("file:".$this->_TPL_PATH."portal/sc/internal/views/hello.tpl");
 	}
 	
 	function handleRequest(DevblocksHttpRequest $request) {

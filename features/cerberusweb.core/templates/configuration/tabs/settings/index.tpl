@@ -42,5 +42,5 @@
 <br>
 
 <div id="divLicenseInfo">
-	{include file="{$core_tpl}configuration/tabs/settings/license.tpl"}
+	{include file="devblocks:cerberusweb.core::configuration/tabs/settings/license.tpl"}
 </div>

@@ -74,8 +74,6 @@ class CrmOppsActivityTab extends Extension_ActivityTab {
 	function showTab() {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('core_tpl', APP_PATH . '/features/cerberusweb.core/templates/');
-		$tpl_path = dirname(dirname(__FILE__)) . '/templates/';
-		$tpl->assign('path', $tpl_path);
 		
 		$visit = CerberusApplication::getVisit();
 		$translate = DevblocksPlatform::getTranslationService();
@@ -127,7 +125,7 @@ class CrmOppsActivityTab extends Extension_ActivityTab {
 						$workers = DAO_Worker::getAllActive();
 						$tpl->assign('workers', $workers);
 						
-						$tpl->display($tpl_path . 'crm/opps/activity_tab/import/mapping.tpl');
+						$tpl->display('devblocks:cerberusweb.crm::crm/opps/activity_tab/import/mapping.tpl');
 						return;
 						break;
 						
@@ -150,7 +148,7 @@ class CrmOppsActivityTab extends Extension_ActivityTab {
 		
 		$tpl->assign('view', $view);
 		
-		$tpl->display($tpl_path . 'crm/opps/activity_tab/index.tpl');		
+		$tpl->display('devblocks:cerberusweb.crm::crm/opps/activity_tab/index.tpl');		
 	}
 }
 endif;
@@ -167,8 +165,6 @@ class CrmPage extends CerberusPageExtension {
 	
 	function render() {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl_path = $this->plugin_path . '/templates/';
-		$tpl->assign('path', $tpl_path);
 
 		$visit = CerberusApplication::getVisit();
 		$translate = DevblocksPlatform::getTranslationService();
@@ -200,7 +196,7 @@ class CrmPage extends CerberusPageExtension {
 				$workers = DAO_Worker::getAll();
 				$tpl->assign('workers', $workers);
 				
-				$tpl->display($tpl_path . 'crm/opps/display/index.tpl');
+				$tpl->display('devblocks:cerberusweb.crm::crm/opps/display/index.tpl');
 				break;
 		}
 	}
@@ -211,8 +207,6 @@ class CrmPage extends CerberusPageExtension {
 		@$email = DevblocksPlatform::importGPC($_REQUEST['email'],'string','');
 
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl_path = dirname(dirname(__FILE__)) . '/templates/';
-		$tpl->assign('path', $tpl_path);
 		
 		$tpl->assign('view_id', $view_id);
 		$tpl->assign('email', $email);
@@ -250,7 +244,7 @@ class CrmPage extends CerberusPageExtension {
 		$context_workers = CerberusContexts::getWorkers(CerberusContexts::CONTEXT_OPPORTUNITY, $opp_id);
 		$tpl->assign('context_workers', $context_workers);
 		
-		$tpl->display('file:' . $tpl_path . 'crm/opps/rpc/peek.tpl');
+		$tpl->display('devblocks:cerberusweb.crm::crm/opps/rpc/peek.tpl');
 	}
 	
 	function saveOppPanelAction() {
@@ -384,8 +378,6 @@ class CrmPage extends CerberusPageExtension {
 		@$opp_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer');
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl_path = dirname(dirname(__FILE__)) . '/templates/';
-		$tpl->assign('path', $tpl_path);
 		
 		$visit = CerberusApplication::getVisit();
 		$translate = DevblocksPlatform::getTranslationService();
@@ -468,7 +460,7 @@ class CrmPage extends CerberusPageExtension {
 		
 		C4_AbstractViewLoader::setView($view->id, $view);
 		
-		$tpl->display('file:' . $tpl_path . 'crm/opps/display/tabs/mail.tpl');
+		$tpl->display('devblocks:cerberusweb.crm::crm/opps/display/tabs/mail.tpl');
 	}
 	
 	function doOppHistoryScopeAction() {
@@ -656,9 +648,7 @@ class CrmPage extends CerberusPageExtension {
 			$tpl->assign('success', $success);
 			$tpl->assign('output', htmlentities($output, null, LANG_CHARSET_CODE));
 			
-			$core_tpl_path = APP_PATH . '/features/cerberusweb.core/templates/';
-			
-			$tpl->display('file:'.$core_tpl_path.'internal/renderers/test_results.tpl');
+			$tpl->display('devblocks:cerberusweb.core::internal/renderers/test_results.tpl');
 		}
 	}	
 	
@@ -716,10 +706,8 @@ class CrmPage extends CerberusPageExtension {
 			return;
 
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl_path = dirname(dirname(__FILE__)) . '/templates/';
-		$tpl->assign('path', $tpl_path);
 		
-		$tpl->display($tpl_path . 'crm/opps/activity_tab/import/panel.tpl');		
+		$tpl->display('devblocks:cerberusweb.crm::crm/opps/activity_tab/import/panel.tpl');		
 	}
 	
 	// Post
@@ -1499,10 +1487,10 @@ class View_CrmOpportunity extends C4_AbstractView {
 		
 		switch($this->renderTemplate) {
 			case 'contextlinks_chooser':
-				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.crm/templates/crm/opps/view_contextlinks_chooser.tpl');
+				$tpl->display('devblocks:cerberusweb.crm::crm/opps/view_contextlinks_chooser.tpl');
 				break;
 			default:
-				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.crm/templates/crm/opps/view.tpl');
+				$tpl->display('devblocks:cerberusweb.crm::crm/opps/view.tpl');
 				break;
 		}
 	}
@@ -1532,7 +1520,6 @@ class View_CrmOpportunity extends C4_AbstractView {
 	
 	function renderCriteria($field) {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl_path = dirname(dirname(__FILE__)).'/templates/';
 		$tpl->assign('id', $this->id);
 
 		switch($field) {
@@ -1541,28 +1528,28 @@ class View_CrmOpportunity extends C4_AbstractView {
 			case SearchFields_CrmOpportunity::EMAIL_ADDRESS:
 			case SearchFields_CrmOpportunity::EMAIL_FIRST_NAME:
 			case SearchFields_CrmOpportunity::EMAIL_LAST_NAME:
-				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__string.tpl');
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__string.tpl');
 				break;
 				
 			case SearchFields_CrmOpportunity::AMOUNT:
 			case SearchFields_CrmOpportunity::EMAIL_NUM_NONSPAM:
 			case SearchFields_CrmOpportunity::EMAIL_NUM_SPAM:
-				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__number.tpl');
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__number.tpl');
 				break;
 				
 			case SearchFields_CrmOpportunity::IS_CLOSED:
 			case SearchFields_CrmOpportunity::IS_WON:
-				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__bool.tpl');
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__bool.tpl');
 				break;
 				
 			case SearchFields_CrmOpportunity::CREATED_DATE:
 			case SearchFields_CrmOpportunity::UPDATED_DATE:
 			case SearchFields_CrmOpportunity::CLOSED_DATE:
-				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__date.tpl');
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__date.tpl');
 				break;
 				
 			case SearchFields_CrmOpportunity::VIRTUAL_WORKERS:
-				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__context_worker.tpl');
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context_worker.tpl');
 				break;
 				
 			default:
@@ -1820,8 +1807,6 @@ class CrmOrgOppTab extends Extension_OrgTab {
 		@$org_id = DevblocksPlatform::importGPC($_REQUEST['org_id'],'integer',0);
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl_path = dirname(dirname(__FILE__)).'/templates/';
-		$tpl->assign('path', $tpl_path);
 
 		$org = DAO_ContactOrg::get($org_id);
 		$tpl->assign('org_id', $org_id);
@@ -1847,7 +1832,7 @@ class CrmOrgOppTab extends Extension_OrgTab {
 		
 		$tpl->assign('view', $view);
 		
-		$tpl->display('file:' . $tpl_path . 'crm/opps/org/tab.tpl');
+		$tpl->display('devblocks:cerberusweb.crm::crm/opps/org/tab.tpl');
 	}
 	
 	function saveTab() {
@@ -1859,8 +1844,6 @@ class CrmTicketOppTab extends Extension_TicketTab {
 		@$ticket_id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer',0);
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl_path = dirname(dirname(__FILE__)).'/templates/';
-		$tpl->assign('path', $tpl_path);
 
 		$ticket = DAO_Ticket::get($ticket_id);
 		$tpl->assign('ticket_id', $ticket_id);
@@ -1881,7 +1864,7 @@ class CrmTicketOppTab extends Extension_TicketTab {
 		
 		$tpl->assign('view', $view);
 		
-		$tpl->display('file:' . $tpl_path . 'crm/opps/ticket/tab.tpl');
+		$tpl->display('devblocks:cerberusweb.crm::crm/opps/ticket/tab.tpl');
 	}
 	
 	function saveTab() {

@@ -43,7 +43,7 @@
 		<td align="center"><input type="checkbox" name="row_id[]" title="{$result.s_title|escape}" value="{$result.s_id}::{$result.s_context|escape}"></td>
 		{foreach from=$view->view_columns item=column name=columns}
 			{if substr($column,0,3)=="cf_"}
-				{include file="file:$core_tpl/internal/custom_fields/view/cell_renderer.tpl"}
+				{include file="devblocks:cerberusweb.core::internal/custom_fields/view/cell_renderer.tpl"}
 			{elseif $column=="s_title"}
 			<td>
 				<b class="subject">{if empty($result.$column)}(no title){else}{$result.$column}{/if}</b> 

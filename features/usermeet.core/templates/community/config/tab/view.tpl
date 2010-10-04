@@ -55,7 +55,7 @@
 		{foreach from=$view->view_columns item=column name=columns}
 			{assign var=extid value=$result.ct_extension_id}
 			{if substr($column,0,3)=="cf_"}
-				{include file="file:$core_tpl/internal/custom_fields/view/cell_renderer.tpl"}
+				{include file="devblocks:cerberusweb.core::internal/custom_fields/view/cell_renderer.tpl"}
 			{elseif $column=="ct_name"}
 			<td>
 				<a href="{devblocks_url}c=community&portal={$result.ct_code}{/devblocks_url}" class="subject">{if !empty($result.ct_name)}{$result.ct_name|escape}{elseif isset($tool_extensions.$extid)}{$tool_extensions.$extid->name|escape}{else}(no name){/if}</a>&nbsp;

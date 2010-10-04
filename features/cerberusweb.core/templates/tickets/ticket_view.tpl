@@ -114,7 +114,7 @@
 				<tr class="{$tableRowClass}">
 				{foreach from=$view->view_columns item=column name=columns}
 					{if substr($column,0,3)=="cf_"}
-						{include file="file:$core_tpl/internal/custom_fields/view/cell_renderer.tpl"}
+						{include file="devblocks:cerberusweb.core::internal/custom_fields/view/cell_renderer.tpl"}
 					{elseif $column=="t_id"}
 					<td><a href="{devblocks_url}c=display&id={$result.t_id}{/devblocks_url}">{$result.t_id}</a></td>
 					{elseif $column=="t_mask"}

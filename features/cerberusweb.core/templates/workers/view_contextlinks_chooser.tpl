@@ -43,7 +43,7 @@
 		<td align="center"><input type="checkbox" name="row_id[]" title="{$result.w_first_name}{if $result.w_last_name} {$result.w_last_name}{/if}" value="{$result.w_id}"></td>
 		{foreach from=$view->view_columns item=column name=columns}
 			{if substr($column,0,3)=="cf_"}
-				{include file="file:$core_tpl/internal/custom_fields/view/cell_renderer.tpl"}
+				{include file="devblocks:cerberusweb.core::internal/custom_fields/view/cell_renderer.tpl"}
 			{elseif $column=="w_id"}
 			<td>{$result.w_id}&nbsp;</td>
 			{elseif $column=="w_first_name" || $column=="w_last_name"}
