@@ -31,6 +31,7 @@ foreach($tables as $table_name => $field_strs) {
 	}
 	
 ?>
+<b>api/dao/<?php echo $table_name; ?>.php</b><br>
 <textarea style="width:98%;height:200px;">
 class DAO_<?php echo $class_name; ?> extends DevblocksORMHelper {
 <?php 
@@ -190,7 +191,7 @@ foreach($fields as $field_name => $field_type) {
 			
 		$sort_sql = (!empty($sortBy)) ? sprintf("ORDER BY %s %s ",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : " ";
 	
-		$result = array(
+		return array(
 			'primary_table' => '<?php echo $table_name; ?>',
 			'select' => $select_sql,
 			'join' => $join_sql,
@@ -231,7 +232,6 @@ foreach($fields as $field_name => $field_type) {
 			($has_multiple_values ? 'GROUP BY <?php echo $table_name; ?>.id ' : '').
 			$sort_sql;
 			
-		// [TODO] Could push the select logic down a level too
 		if($limit > 0) {
     		$rs = $db->SelectLimit($sql,$limit,$page*$limit) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs ADORecordSet */
 		} else {
@@ -394,7 +394,7 @@ foreach($fields as $field_name => $field_type) {
 		//$tpl->assign('custom_fields', $custom_fields);
 
 		// [TODO] Set your template path
-		$tpl->display('file:/path/to/view.tpl');
+		$tpl->display('devblocks:example.plugin::path/to/view.tpl');
 	}
 
 	function renderCriteria($field) {
@@ -412,16 +412,16 @@ foreach($fields as $field_name => $field_type) {
 }
 ?>
 			case 'placeholder_string':
-				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__string.tpl');
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__string.tpl');
 				break;
 			case 'placeholder_number':
-				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__number.tpl');
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__number.tpl');
 				break;
 			case 'placeholder_bool':
-				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__bool.tpl');
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__bool.tpl');
 				break;
 			case 'placeholder_date':
-				$tpl->display('file:' . APP_PATH . '/features/cerberusweb.core/templates/internal/views/criteria/__date.tpl');
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__date.tpl');
 				break;
 			/*
 			default:
@@ -573,6 +573,17 @@ foreach($fields as $field_name => $field_type) {
 };
 </textarea>
 
+<b>plugin.xml</b><br>
+<textarea style="width:98%;height:200px;">
+<file path="api/dao/<?php echo $table_name; ?>.php">
+	<class name="DAO_<?php echo $class_name; ?>" />
+	<class name="Model_<?php echo $class_name; ?>" />
+	<class name="SearchFields_<?php echo $class_name; ?>" />
+	<class name="View_<?php echo $class_name; ?>" />
+</file>
+</textarea>
+
+<b>strings.xml</b><br>
 <textarea style="width:98%;height:200px;">
 <!-- <?php echo $class_name; ?> -->
 
