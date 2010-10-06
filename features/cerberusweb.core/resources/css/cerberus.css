@@ -66,19 +66,19 @@ input[type=text]:focus, input[type=password]:focus {
 }
 
 input[type=text].input_color {
-	background:url('input_icons/color.png') no-repeat scroll 5px 50% #ffffff;
+	background:url('input_icons/iconic/eyedropper_16x16.png') no-repeat scroll 5px 50% #ffffff;
 	padding-left:25px;
 }
 input[type=text].input_date {
-	background:url('input_icons/date.png') no-repeat scroll 5px 50% #ffffff;
+	background:url('input_icons/iconic/clock_16x16.png') no-repeat scroll 5px 50% #ffffff;
 	padding-left:25px;
 }
 input[type=text].input_email {
-	background:url('input_icons/mail.png') no-repeat scroll 5px 50% #ffffff;
+	background:url('input_icons/iconic/mail_16x12.png') no-repeat scroll 5px 50% #ffffff;
 	padding-left:25px;
 }
 input[type=text].input_location {
-	background:url('input_icons/location.png') no-repeat scroll 5px 50% #ffffff;
+	background:url('input_icons/iconic/map_pin_stroke_16x16.png') no-repeat scroll 5px 50% #ffffff;
 	padding-left:25px;
 }
 input[type=text].input_money {
@@ -94,7 +94,7 @@ input[type=text].input_openid {
 	padding-left:25px;
 }
 input[type=text].input_password, input[type=password] {
-	background:url('input_icons/password.png') no-repeat scroll 5px 50% #ffffff;
+	background:url('input_icons/iconic/lock_stroke_12x16.png') no-repeat scroll 5px 50% #ffffff;
 	padding-left:25px;
 }
 input[type=text].input_percent {
@@ -102,19 +102,19 @@ input[type=text].input_percent {
 	padding-left:25px;
 }
 input[type=text].input_phone {
-	background:url('input_icons/phone.png') no-repeat scroll 5px 50% #ffffff;
+	background:url('input_icons/iconic/iphone_12x16.png') no-repeat scroll 5px 50% #ffffff;
 	padding-left:25px;
 }
 input[type=text].input_search {
-	background:url('input_icons/search.png') no-repeat scroll 5px 50% #ffffff;
+	background:url('input_icons/iconic/magnifying_glass_alt_16x16.png') no-repeat scroll 5px 50% #ffffff;
 	padding-left:25px;
 }
 input[type=text].input_tags {
-	background:url('input_icons/tags.png') no-repeat scroll 5px 50% #ffffff;
+	background:url('input_icons/iconic/tag_fill_16x16.png') no-repeat scroll 5px 50% #ffffff;
 	padding-left:25px;
 }
 input[type=text].input_url {
-	background:url('input_icons/url.png') no-repeat scroll 5px 50% #ffffff;
+	background:url('input_icons/iconic/link_16x16.png') no-repeat scroll 5px 50% #ffffff;
 	padding-left:25px;
 }
 
