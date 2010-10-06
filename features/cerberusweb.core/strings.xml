@@ -658,6 +658,9 @@
 		<tu tuid='addy_book.tab.import'>
 			<tuv xml:lang="en_US"><seg>Import</seg></tuv>
 		</tu>
+		<tu tuid='addy_book.tab.lists'>
+			<tuv xml:lang="en_US"><seg>Contact Lists</seg></tuv>
+		</tu>
 		<tu tuid='addy_book.tab.organizations'>
 			<tuv xml:lang="en_US"><seg>Organizations</seg></tuv>
 		</tu>

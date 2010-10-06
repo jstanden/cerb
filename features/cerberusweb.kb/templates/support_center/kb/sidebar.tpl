@@ -14,8 +14,8 @@
 				<button type="submit">{'common.search'|devblocks_translate|lower}</button>
 			</form>
 			
-			<div style="padding:2px;"><img src="{devblocks_url}c=resource&p=usermeet.core&f=images/feed-icon-16x16.gif{/devblocks_url}" align="top"> <a href="{devblocks_url}c=rss&m=kb&a=most_popular{/devblocks_url}">Most Popular</a></div>
-			<div style="padding:2px;"><img src="{devblocks_url}c=resource&p=usermeet.core&f=images/feed-icon-16x16.gif{/devblocks_url}" align="top"> <a href="{devblocks_url}c=rss&m=kb&a=recent_changes{/devblocks_url}">Recent Changes</a></div>
+			<div style="padding:2px;"><img src="{devblocks_url}c=resource&p=cerberusweb.support_center&f=images/feed-icon-16x16.gif{/devblocks_url}" align="top"> <a href="{devblocks_url}c=rss&m=kb&a=most_popular{/devblocks_url}">Most Popular</a></div>
+			<div style="padding:2px;"><img src="{devblocks_url}c=resource&p=cerberusweb.support_center&f=images/feed-icon-16x16.gif{/devblocks_url}" align="top"> <a href="{devblocks_url}c=rss&m=kb&a=recent_changes{/devblocks_url}">Recent Changes</a></div>
 		</td>
 	</tr>
 </table>

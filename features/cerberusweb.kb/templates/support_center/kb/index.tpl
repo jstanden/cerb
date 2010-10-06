@@ -29,7 +29,7 @@
 	<tr>
 	<td width="50%" valign="top">
 	{foreach from=$tree.$root_id item=count key=cat_id name=kbcats}
-		<img src="{devblocks_url}c=resource&p=usermeet.core&f=images/folder.png{/devblocks_url}" align="top">
+		<img src="{devblocks_url}c=resource&p=cerberusweb.support_center&f=images/folder.png{/devblocks_url}" align="top">
 		<a href="{devblocks_url}c=kb&a=browse&id={$cat_id|string_format:"%06d"}{/devblocks_url}" style="font-weight:bold;">{$categories.$cat_id->name}</a> ({$count|string_format:"%d"})<br>
 	
 		{if !empty($tree.$cat_id)}
