@@ -103,8 +103,7 @@ class ChRest_Attachments extends Extension_RestController implements IExtensionR
 		
 		if('dao'==$type) {
 			$tokens = array(
-//				'is_banned' => DAO_Address::IS_BANNED,
-//				'is_registered' => DAO_Address::IS_REGISTERED,
+//				'example' => DAO_Example::PROPERTY,
 			);
 		} else {
 			$tokens = array(

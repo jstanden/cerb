@@ -4,7 +4,7 @@
 {assign var=data value=$results[0]}
 
 <form id="viewForm{$view->id}" name="viewForm{$view->id}" action="{devblocks_url}{/devblocks_url}" method="post" onsubmit="return false;">
-<input type="hidden" name="viec_id" value="{$view->id}">
+<input type="hidden" name="view_id" value="{$view->id}">
 <input type="hidden" name="c" value="config">
 <input type="hidden" name="a" value="">
 
