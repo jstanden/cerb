@@ -36,9 +36,10 @@
 			<form id="customize{$view->id}" action="#" onsubmit="return false;" style="display:none;"></form>
 			<form id="viewForm{$view->id}" name="viewForm{$view->id}" action="{devblocks_url}{/devblocks_url}" method="post">
 			<button id="btnExplore{$view->id}" type="button" style="display:none;" onclick="this.form.explore_from.value=$(this).closest('form').find('tbody input:checkbox:checked:first').val();this.form.a.value='viewTicketsExplore';this.form.submit();"></button>
+			<input type="hidden" name="view_id" value="{$view->id}">
+			<input type="hidden" name="context_id" value="cerberusweb.contexts.ticket">
 			<input type="hidden" name="c" value="tickets">
 			<input type="hidden" name="a" value="">
-			<input type="hidden" name="view_id" value="{$view->id}">
 			<input type="hidden" name="id" value="{$view->id}">
 			<input type="hidden" name="explore_from" value="0">
 			<table cellpadding="1" cellspacing="0" border="0" width="100%" class="worklistBody">
