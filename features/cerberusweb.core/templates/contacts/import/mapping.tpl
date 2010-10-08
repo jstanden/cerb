@@ -1,10 +1,7 @@
-<div id="headerSubMenu">
-	<div style="padding:5px;">
-		<a href="{devblocks_url}c=contacts{/devblocks_url}">{$translate->_('core.menu.address_book')|lower}</a>
-		 &raquo; 
-		<a href="{devblocks_url}c=contacts&a=import{/devblocks_url}">{$translate->_('addy_book.tab.import')|lower}</a>
-	</div>
-</div>
+<ul class="submenu">
+	<li><a href="{devblocks_url}c=contacts&a=import{/devblocks_url}">{$translate->_('addy_book.tab.import')|lower}</a></li>
+</ul>
+<div style="clear:both;"></div>
 
 <div class="block">
 {assign var=type value=$visit->get('import.last.type')}

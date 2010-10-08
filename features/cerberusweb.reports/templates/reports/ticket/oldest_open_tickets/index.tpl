@@ -1,10 +1,8 @@
-<div id="headerSubMenu">
-	<div style="padding-bottom:5px;">
-	</div>
-</div>
+<ul class="submenu">
+</ul>
+<div style="clear:both;"></div>
 
 <h2>{$translate->_('reports.ui.ticket.oldest_open')}</h2>
-
 
 <form action="{devblocks_url}c=reports&report=report.tickets.oldest_open_tickets{/devblocks_url}" method="POST" id="frmRange" name="frmRange">
 <input type="hidden" name="c" value="reports">

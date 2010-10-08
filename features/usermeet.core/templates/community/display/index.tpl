@@ -1,4 +1,7 @@
-{include file="devblocks:usermeet.core::community/display/submenu.tpl"}
+<ul class="submenu">
+	<li><a href="{devblocks_url}c=config&a=communities{/devblocks_url}">{'community portals'|devblocks_translate|lower}</a></li>
+</ul>
+<div style="clear:both;"></div>
 
 {if !empty($tool->name)}
 	<h1>{$tool->name|escape}</h1>

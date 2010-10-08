@@ -1,7 +1,6 @@
-<div id="headerSubMenu">
-	<div style="padding-bottom:5px;">
-	</div>
-</div>
+<ul class="submenu">
+</ul>
+<div style="clear:both;"></div>
 
 {counter assign=num_groups_displayed name=num_groups_displayed start=0}
 {if !empty($report_groups)}

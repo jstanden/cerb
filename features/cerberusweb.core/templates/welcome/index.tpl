@@ -1,7 +1,6 @@
-<div id="headerSubMenu">
-	<div style="padding-bottom:5px;">
-	</div>
-</div> 
+<ul class="submenu">
+</ul>
+<div style="clear:both;"></div>
 
 <H1>Welcome to Cerberus Helpdesk (Cerb5)!</H1>
 

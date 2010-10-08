@@ -1,7 +1,6 @@
-<div id="headerSubMenu">
-	<div style="padding-bottom:5px;">
-	</div>
-</div>
+<ul class="submenu">
+</ul>
+<div style="clear:both;"></div>
 
 <h2>{$translate->_('reports.ui.worker.ticket_assignment')}</h2>
 

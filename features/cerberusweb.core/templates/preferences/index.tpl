@@ -1,7 +1,6 @@
-<div id="headerSubMenu">
-	<div style="padding-bottom:5px;">
-	</div>
-</div> 
+<ul class="submenu">
+</ul>
+<div style="clear:both;"></div>
 
 <h1>{$translate->_('header.preferences')|capitalize}</h1>
 

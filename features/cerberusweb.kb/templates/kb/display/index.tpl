@@ -1,6 +1,6 @@
-<div id="headerSubMenu">
-	<div style="padding-bottom:5px;"></div>
-</div>
+<ul class="submenu">
+</ul>
+<div style="clear:both;"></div>
 
 <div style="float:right;">
 	<form action="{devblocks_url}{/devblocks_url}" method="post">
@@ -13,8 +13,10 @@
 	</form>
 </div>
 
-<h1>{$article->title|escape}</h1>
-<div style="margin-bottom:5px;">
+<fieldset style="float:left;min-width:400px;">
+	<legend>Knowledgebase Article</legend>
+	<h1><b>{$article->title|escape}</b></h1>
+		
 	<b>{$translate->_('kb_article.updated')|capitalize}:</b> <abbr title="{$article->updated|devblocks_date}">{$article->updated|devblocks_prettytime}</abbr> &nbsp;
 	<b>{$translate->_('kb_article.views')|capitalize}:</b> {$article->views|escape} &nbsp;
 	<b>{$translate->_('common.id')|upper}:</b> {$article->id|escape} &nbsp; 
@@ -29,30 +31,15 @@
 		{/foreach}
 		{if !$smarty.foreach.trail.last}; {/if}
 	{/foreach}
-	<br>
 	{/if}
+	
+	<form style="margin:5px;">
+	{if $active_worker->hasPriv('core.kb.articles.modify')}<button type="button" onclick="genericAjaxPopup('peek','c=kb.ajax&a=showArticleEditPanel&id={$article->id}&return_uri={"kb/article/{$article->id}"|escape}',null,false,'725');"><span class="cerb-sprite sprite-document_edit"></span> {$translate->_('common.edit')|capitalize}</button>{/if}	
+	</form>
+</fieldset>
+
+<div style="clear:both;"></div>
+
+<div>
+	{$article->getContent()}
 </div>
-
-<form>
-{if $active_worker->hasPriv('core.kb.articles.modify')}<button type="button" onclick="genericAjaxPopup('peek','c=kb.ajax&a=showArticleEditPanel&id={$article->id}&return_uri={"kb/article/{$article->id}"|escape}',null,false,'725');"><span class="cerb-sprite sprite-document_edit"></span> {$translate->_('common.edit')|capitalize}</button>{/if}	
-</form>
-
-<div id="kbArticleFrame" style="height:450px;width:98%;">
-	<iframe src="{$smarty.const.DEVBLOCKS_WEBPATH}ajax.php?c=kb.ajax&a=getArticleContent&id={$article->id|escape}" style="margin:5px 0px 5px 5px;height:100%;width:100%;border:1px solid rgb(200,200,200);" frameborder="0"></iframe>
-</div>
-<br>
-
-<script type="text/javascript">
-$(function() {
-	$kbFrame = $('#kbArticleFrame');
-	height = $(window).height() - $('#kbArticleFrame').offset().top - 100;
-	$kbFrame.height(height);
-	$kbFrame.resizable({
-		minHeight: 200,
-		minWidth: 200,
-		containment:'document',
-		handles:'se',
-		autoHide:true
-	});
-});
-</script>

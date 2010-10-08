@@ -1,7 +1,9 @@
-{include file="devblocks:cerberusweb.core::groups/submenu.tpl"}
+<ul class="submenu">
+</ul>
+<div style="clear:both;"></div>
 
 {if !empty($team)}
-	<h1>{$team->name|escape}</h1>
+<h2>{$team->name|escape}</h2>
 {/if}
 
 <table cellpadding="0" cellspacing="5" border="0" width="100%">

@@ -1,7 +1,6 @@
-<div id="headerSubMenu">
-	<div style="padding-bottom:5px;">
-	</div>
-</div>
+<ul class="submenu">
+</ul>
+<div style="clear:both;"></div>
 
 <form action="{devblocks_url}{/devblocks_url}" method="POST" style="margin-bottom:5px;">
 {if $active_worker->hasPriv('core.home.workspaces')}<button type="button" onclick="genericAjaxPopup('peek','c=home&a=showAddWorkspacePanel',null,false,'550');"><span class="cerb-sprite sprite-add"></span> {$translate->_('dashboard.add_view')|capitalize}</button>{/if}

@@ -1,6 +1,6 @@
-<div id="headerSubMenu">
-	<div style="padding-bottom:5px;"></div>
-</div>
+<ul class="submenu">
+</ul>
+<div style="clear:both;"></div>
 
 <div class="block">
 <h2>{$translate->_('timetracking.ui.reports.time_spent_org')}</h2>
