@@ -343,8 +343,8 @@ class SearchFields_Snippet implements IDevblocksSearchFields {
 		
 		$columns = array(
 			self::ID => new DevblocksSearchField(self::ID, 'snippet', 'id', $translate->_('common.id')),
-			self::TITLE => new DevblocksSearchField(self::TITLE, 'snippet', 'title', $translate->_('dao.snippet.title')),
-			self::CONTEXT => new DevblocksSearchField(self::CONTEXT, 'snippet', 'context', $translate->_('dao.snippet.context')),
+			self::TITLE => new DevblocksSearchField(self::TITLE, 'snippet', 'title', $translate->_('common.title')),
+			self::CONTEXT => new DevblocksSearchField(self::CONTEXT, 'snippet', 'context', $translate->_('common.context')),
 			self::CREATED_BY => new DevblocksSearchField(self::CREATED_BY, 'snippet', 'created_by', $translate->_('dao.snippet.created_by')),
 			self::LAST_UPDATED => new DevblocksSearchField(self::LAST_UPDATED, 'snippet', 'last_updated', $translate->_('dao.snippet.last_updated')),
 			self::LAST_UPDATED_BY => new DevblocksSearchField(self::LAST_UPDATED_BY, 'snippet', 'last_updated_by', $translate->_('dao.snippet.last_updated_by')),

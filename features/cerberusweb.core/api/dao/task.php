@@ -331,9 +331,9 @@ class SearchFields_Task implements IDevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = array(
-			self::ID => new DevblocksSearchField(self::ID, 't', 'id', $translate->_('task.id')),
+			self::ID => new DevblocksSearchField(self::ID, 't', 'id', $translate->_('common.id')),
 			self::UPDATED_DATE => new DevblocksSearchField(self::UPDATED_DATE, 't', 'updated_date', $translate->_('task.updated_date')),
-			self::TITLE => new DevblocksSearchField(self::TITLE, 't', 'title', $translate->_('task.title')),
+			self::TITLE => new DevblocksSearchField(self::TITLE, 't', 'title', $translate->_('common.title')),
 			self::IS_COMPLETED => new DevblocksSearchField(self::IS_COMPLETED, 't', 'is_completed', $translate->_('task.is_completed')),
 			self::DUE_DATE => new DevblocksSearchField(self::DUE_DATE, 't', 'due_date', $translate->_('task.due_date')),
 			self::COMPLETED_DATE => new DevblocksSearchField(self::COMPLETED_DATE, 't', 'completed_date', $translate->_('task.completed_date')),
@@ -686,7 +686,7 @@ class Context_Task extends Extension_DevblocksContext {
 			'due|date' => $prefix.$translate->_('task.due_date'),
 			'id' => $prefix.$translate->_('common.id'),
 			'is_completed' => $prefix.$translate->_('task.is_completed'),
-			'title' => $prefix.$translate->_('task.title'),
+			'title' => $prefix.$translate->_('common.title'),
 			'updated|date' => $prefix.$translate->_('task.updated_date'),
 		);
 		

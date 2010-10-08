@@ -7,7 +7,7 @@
 <input type="hidden" name="do_delete" value="0">
 
 <fieldset>
-	<legend>{'dao.snippet.title'|devblocks_translate|capitalize}</legend>
+	<legend>{'common.title'|devblocks_translate|capitalize}</legend>
 	
 	<input type="text" name="title" value="{$snippet->title|escape}" style="border:1px solid rgb(180,180,180);padding:2px;width:98%;">
 </fieldset>

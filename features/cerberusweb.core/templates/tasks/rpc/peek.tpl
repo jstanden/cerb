@@ -14,7 +14,7 @@
 	
 	<table cellpadding="0" cellspacing="2" border="0" width="98%">
 		<tr>
-			<td width="0%" nowrap="nowrap" align="right">{'task.title'|devblocks_translate|capitalize}: </td>
+			<td width="0%" nowrap="nowrap" align="right">{'common.title'|devblocks_translate|capitalize}: </td>
 			<td width="100%">
 				<input type="text" name="title" style="width:98%;" value="{$task->title|escape}">
 			</td>

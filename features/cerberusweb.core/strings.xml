@@ -114,6 +114,12 @@
 		<tu tuid='common.content'>
 			<tuv xml:lang="en_US"><seg>Content</seg></tuv>
 		</tu>
+		<tu tuid='common.context'>
+			<tuv xml:lang="en_US"><seg>Context</seg></tuv>
+		</tu>
+		<tu tuid='common.context_id'>
+			<tuv xml:lang="en_US"><seg>Context ID</seg></tuv>
+		</tu>
 		<tu tuid='common.copy'>
 			<tuv xml:lang="en_US"><seg>copy</seg></tuv>
 		</tu>
@@ -363,6 +369,9 @@
 		<tu tuid='common.tips.multi_select'>
 			<tuv xml:lang="en_US"><seg>(hold CTRL or COMMAND to select multiple options)</seg></tuv>
 		</tu>
+		<tu tuid='common.title'>
+			<tuv xml:lang="en_US"><seg>Title</seg></tuv>
+		</tu>
 		<tu tuid='common.today'>
 			<tuv xml:lang="en_US"><seg>today</seg></tuv>
 		</tu>
@@ -407,9 +416,6 @@
 		
 			<!-- Snippets -->
 
-		<tu tuid='dao.snippet.context'>
-			<tuv xml:lang="en_US"><seg>Context</seg></tuv>
-		</tu>
 		<tu tuid='dao.snippet.created_by'>
 			<tuv xml:lang="en_US"><seg>Created By</seg></tuv>
 		</tu>
@@ -421,9 +427,6 @@
 		</tu>
 		<tu tuid='dao.snippet.last_updated_by'>
 			<tuv xml:lang="en_US"><seg>Updated By</seg></tuv>
-		</tu>
-		<tu tuid='dao.snippet.title'>
-			<tuv xml:lang="en_US"><seg>Title</seg></tuv>
 		</tu>
 		
 		<tu tuid='dao.snippet_usage.hits'>
@@ -1461,9 +1464,6 @@ For example: *receipt*</seg></tuv>
 		<tu tuid='task.due_date'>
 			<tuv xml:lang="en_US"><seg>Due Date</seg></tuv>
 		</tu>
-		<tu tuid='task.id'>
-			<tuv xml:lang="en_US"><seg>Id</seg></tuv>
-		</tu>
 		<tu tuid='task.is_completed'>
 			<tuv xml:lang="en_US"><seg>Completed</seg></tuv>
 		</tu>
@@ -1472,9 +1472,6 @@ For example: *receipt*</seg></tuv>
 		</tu>
 		<tu tuid='task.source_id'>
 			<tuv xml:lang="en_US"><seg>Source ID</seg></tuv>
-		</tu>
-		<tu tuid='task.title'>
-			<tuv xml:lang="en_US"><seg>Title</seg></tuv>
 		</tu>
 		<tu tuid='task.updated_date'>
 			<tuv xml:lang="en_US"><seg>Last Updated</seg></tuv>
