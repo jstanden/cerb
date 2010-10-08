@@ -21,7 +21,7 @@ define('REMOTE_URI', '{$path}'); // NO trailing slash!
 define('URL_REWRITE', file_exists('.htaccess'));
 define('LOCAL_HOST', $_SERVER['HTTP_HOST']);
 define('LOCAL_BASE', DevblocksRouter::getLocalBase()); // NO trailing slash!
-define('SCRIPT_LAST_MODIFY', 2009070901); // last change
+define('SCRIPT_LAST_MODIFY', 2010100601); // last change
 
 @session_start();
 
@@ -94,6 +94,41 @@ class DevblocksProxy {
         die("Subclass abstract " . __CLASS__ . "...");
     }
 
+    function _parseResponse($content) {
+		$lines = explode("\n", $content);
+
+		$headers = array();
+		$content = '';
+
+		$is_headers = true;
+		while($line = array_shift($lines)) {
+			if($is_headers && $line == "\r") {
+				// Is the next line another headers block?
+				$line = array_shift($lines);
+				if(preg_match("/^HTTP\/\S+ \d+/i", $line)) {
+					$headers = array(); // flush
+				} else {
+					$is_headers = false;
+					array_unshift($lines, $line);
+					continue;
+				}
+			}
+			
+			if($is_headers) {
+				$headers[] = $line;
+			} else {
+				// Everything else
+				$content = $line . "\n" . implode("\n", $lines);
+				$lines = array();
+			} 
+		}
+		
+		return array(
+			$headers,
+			$content
+		);
+    }
+    
     /**
      * @return boolean
      */
@@ -257,24 +292,27 @@ class DevblocksProxy_Socket extends DevblocksProxy {
     function _send($fp, $out) {
 	    fwrite($fp, $out);
 	
-	    $in_headers = true;
-	    while (!feof($fp)) {
-	        $line = fgets($fp, 1024);
-	        if(0 == strcmp($line,"\r\n")) $in_headers = false;
-	        
-	        if($in_headers) {
-	            // Split the header/value
-	            @list($header,$value) = explode(":", $line, 2);
-	            
-	            // Recycle the content type through the proxy
-	            if(!empty($header) && !empty($value) && 0==strcasecmp($header, "content-type"))
-	            	header($line);
-	        } else {
-	            fpassthru($fp);
-	        }
-	    }
+	    $content = '';
 	    
+		while(!feof($fp))
+			$content .= fread($fp, 1024);	    
 	    fclose($fp);
+	    
+	    list($headers, $content) = $this->_parseResponse($content);
+	    
+		foreach($headers as $header) {
+			// Do we need to redirect?
+			if(preg_match("/^Location:/i", $header)) {
+				header($header);
+				exit;
+			}
+			// Passthru content type
+			if(preg_match("/^Content-Type:/i", $header)) {
+				header($header);
+			}
+		}
+		
+		echo $content;
     }
 };
 
@@ -294,7 +332,7 @@ class DevblocksProxy_Curl extends DevblocksProxy {
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
         curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
-        curl_setopt($ch, CURLOPT_HEADER, 0);
+        curl_setopt($ch, CURLOPT_HEADER, 1);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         
         $this->_returnTransfer($ch, $out);
@@ -323,7 +361,7 @@ class DevblocksProxy_Curl extends DevblocksProxy {
         curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
         curl_setopt($ch, CURLOPT_POST, 1);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $content);
-        curl_setopt($ch, CURLOPT_HEADER, 0);
+        curl_setopt($ch, CURLOPT_HEADER, 1);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 
         $this->_returnTransfer($ch, $out);
@@ -333,13 +371,23 @@ class DevblocksProxy_Curl extends DevblocksProxy {
     
     function _returnTransfer($ch) {
     	$out = curl_exec($ch);
+
+		list($headers, $content) = $this->_parseResponse($out);    	
     	
+		foreach($headers as $header) {
+			// Do we need to redirect?
+			if(preg_match("/^Location:/i", $header)) {
+				header($header);
+				exit;
+			}
+		}
+		
         $content_type = curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
 
         if(!empty($content_type))
         	header("Content-type: " . $content_type);
         
-        echo $out;
+        echo $content;
     }
 };
 
