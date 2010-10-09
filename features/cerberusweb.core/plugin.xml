@@ -33,7 +33,7 @@
 		<patch version="5.0.1" revision="864" file="patches/5.x/5.0.1.php" />
 		<patch version="5.1.0" revision="896" file="patches/5.x/5.1.0.php" />
 		<patch version="5.1.1" revision="898" file="patches/5.x/5.1.1.php" />
-		<patch version="5.2.0-dev" revision="899" file="patches/5.x/5.2.0.php" />
+		<patch version="5.2.0-dev" revision="900" file="patches/5.x/5.2.0.php" />
 	</patches>
 
 	<!-- Declared Extension Points -->
@@ -116,6 +116,13 @@
 			<class name="Model_ContactList" />
 			<class name="SearchFields_ContactList" />
 			<class name="View_ContactList" />
+		</file>
+		
+		<file path="api/dao/contact_person.php">
+			<class name="DAO_ContactPerson" />
+			<class name="Model_ContactPerson" />
+			<class name="SearchFields_ContactPerson" />
+			<class name="View_ContactPerson" />
 		</file>
 		
 		<file path="api/dao/contact_org.php">

@@ -388,7 +388,7 @@ class ImportCron extends CerberusCronPageExtension {
 		 		return $this->_handleImportOrg($xml);
 		 		break;
 		 	case 'contact':
-		 		return $this->_handleImportContact($xml);
+		 		return $this->_handleImportAddress($xml);
 		 		break;
 		 	default:
 		 		break;
@@ -901,7 +901,7 @@ class ImportCron extends CerberusCronPageExtension {
 		return true;
 	}
 
-	private function _handleImportContact($xml) {
+	private function _handleImportAddress($xml) {
 		$settings = DevblocksPlatform::getPluginSettingsService();
 		$logger = DevblocksPlatform::getConsoleLog();
 
@@ -925,11 +925,7 @@ class ImportCron extends CerberusCronPageExtension {
 			DAO_Address::EMAIL => $sEmail,
 		);
 
-		// Associate SC password
-		if(!empty($sPassword) && $sPassword != md5('')) {
-			$fields[DAO_Address::IS_REGISTERED] = 1;
-			$fields[DAO_Address::PASS] = $sPassword;
-		}
+		// [TODO] Associate SC password
 		
 		$address_id = DAO_Address::create($fields);
 		
@@ -942,7 +938,7 @@ class ImportCron extends CerberusCronPageExtension {
 			}
 		}
 		
-		$logger->info('[Importer] Imported contact #'.$address_id.' ('.$sEmail.')');
+		$logger->info('[Importer] Imported address #'.$address_id.' ('.$sEmail.')');
 		
 		return true;
 	}

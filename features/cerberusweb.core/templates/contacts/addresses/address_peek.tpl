@@ -57,15 +57,6 @@
 			</td>
 		</tr>
 		<tr>
-			<td width="0%" nowrap="nowrap" valign="top" align="right">{$translate->_('common.password')|capitalize}: </td>
-			<td width="100%">
-				<input type="text" name="pass" value="" size="16">
-				{if $address.a_is_registered}
-					<label><input type="checkbox" name="unregister" value="1"> {'common.clear'|devblocks_translate|capitalize}</label>
-				{/if}
-			</td>
-		</tr>
-		<tr>
 			<td width="0%" nowrap="nowrap" valign="top" align="right">{$translate->_('address.is_banned')|capitalize}: </td>
 			<td width="100%">
 				<select name="is_banned">

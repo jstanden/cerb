@@ -580,9 +580,6 @@
 		<tu tuid='address.is_banned'>
 			<tuv xml:lang="en_US"><seg>Is Banned</seg></tuv>
 		</tu>
-		<tu tuid='address.is_registered'>
-			<tuv xml:lang="en_US"><seg>Is Registered</seg></tuv>
-		</tu>
 		<tu tuid='address.last_name'>
 			<tuv xml:lang="en_US"><seg>Last Name</seg></tuv>
 		</tu>
@@ -667,6 +664,9 @@
 		<tu tuid='addy_book.tab.organizations'>
 			<tuv xml:lang="en_US"><seg>Organizations</seg></tuv>
 		</tu>
+		<tu tuid='addy_book.tab.people'>
+			<tuv xml:lang="en_US"><seg>People</seg></tuv>
+		</tu>
 
 		<!-- Attachment -->
 		
@@ -741,26 +741,15 @@
 		</tu>
 
 		<!-- Contact People -->
-		<tu tuid='contact_person.contact_org_id'>
-			<tuv xml:lang="en_US"><seg>Organization</seg></tuv>
+		
+		<tu tuid='dao.contact_person.auth_salt'>
+			<tuv xml:lang="en_US"><seg>Password Salt</seg></tuv>
 		</tu>
-		<tu tuid='contact_person.created'>
-			<tuv xml:lang="en_US"><seg>Created</seg></tuv>
+		<tu tuid='dao.contact_person.auth_password'>
+			<tuv xml:lang="en_US"><seg>Password</seg></tuv>
 		</tu>
-		<tu tuid='contact_person.email'>
-			<tuv xml:lang="en_US"><seg>Primary Email</seg></tuv>
-		</tu>
-		<tu tuid='contact_person.first_name'>
-			<tuv xml:lang="en_US"><seg>First Name</seg></tuv>
-		</tu>
-		<tu tuid='contact_person.id'>
-			<tuv xml:lang="en_US"><seg>ID</seg></tuv>
-		</tu>
-		<tu tuid='contact_person.last_name'>
-			<tuv xml:lang="en_US"><seg>Last Name</seg></tuv>
-		</tu>
-		<tu tuid='contact_person.title'>
-			<tuv xml:lang="en_US"><seg>Title</seg></tuv>
+		<tu tuid='dao.contact_person.last_login'>
+			<tuv xml:lang="en_US"><seg>Last Login</seg></tuv>
 		</tu>
 
 		<!-- Contexts -->

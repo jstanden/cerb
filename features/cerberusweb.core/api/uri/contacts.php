@@ -157,21 +157,36 @@ class ChContactsPage extends CerberusPageExtension {
 		$defaults = new C4_AbstractViewModel();
 		$defaults->class_name = 'View_Address';
 		$defaults->id = View_Address::DEFAULT_ID;
-		$defaults->paramsDefault = array(
-			SearchFields_Address::IS_REGISTERED => new DevblocksSearchCriteria(SearchFields_Address::IS_REGISTERED,'=',1),
-		);
 		
 		$view = C4_AbstractViewLoader::getView(View_Address::DEFAULT_ID, $defaults);
-		
-		$view->addParamsDefault(array(
-			SearchFields_Address::IS_REGISTERED => new DevblocksSearchCriteria(SearchFields_Address::IS_REGISTERED,'=',1),
-		));
 		
 		$tpl->assign('view', $view);
 		$tpl->assign('contacts_page', 'addresses');
 		
 		$tpl->display('devblocks:cerberusweb.core::contacts/addresses/index.tpl');
 	}
+	
+	function showPeopleTabAction() {
+		$tpl = DevblocksPlatform::getTemplateService();
+		
+		$defaults = new C4_AbstractViewModel();
+		$defaults->class_name = 'View_ContactPerson';
+		$defaults->id = View_ContactPerson::DEFAULT_ID;
+		//$defaults->paramsDefault = array(
+			//SearchFields_Example::PROPERTY => new DevblocksSearchCriteria(SearchFields_Example::PROPERTY,'=',1),
+		//);
+		
+		$view = C4_AbstractViewLoader::getView($defaults->id, $defaults);
+		
+		//$view->addParamsDefault(array(
+			//SearchFields_Example::PROPERTY => new DevblocksSearchCriteria(SearchFields_Example::PROPERTY,'=',1),
+		//));
+		
+		$tpl->assign('view', $view);
+		$tpl->assign('contacts_page', 'people');
+		
+		$tpl->display('devblocks:cerberusweb.core::contacts/people/index.tpl');
+	}	
 	
 	function showListsTabAction() {
 		$tpl = DevblocksPlatform::getTemplateService();
@@ -180,13 +195,13 @@ class ChContactsPage extends CerberusPageExtension {
 		$defaults->class_name = 'View_ContactList';
 		$defaults->id = View_ContactList::DEFAULT_ID;
 		$defaults->paramsDefault = array(
-			//SearchFields_Address::IS_REGISTERED => new DevblocksSearchCriteria(SearchFields_Address::IS_REGISTERED,'=',1),
+			//SearchFields_Example::PROPERTY => new DevblocksSearchCriteria(SearchFields_Example::PROPERTY,'=',1),
 		);
 		
 		$view = C4_AbstractViewLoader::getView(View_ContactList::DEFAULT_ID, $defaults);
 		
 		$view->addParamsDefault(array(
-			//SearchFields_Address::IS_REGISTERED => new DevblocksSearchCriteria(SearchFields_Address::IS_REGISTERED,'=',1),
+			//SearchFields_Example::PROPERTY => new DevblocksSearchCriteria(SearchFields_Example::PROPERTY,'=',1),
 		));
 		
 		$tpl->assign('view', $view);
@@ -325,8 +340,6 @@ class ChContactsPage extends CerberusPageExtension {
 		@$include_first = DevblocksPlatform::importGPC($_REQUEST['include_first'],'integer',0);
 		@$is_blank_unset = DevblocksPlatform::importGPC($_REQUEST['is_blank_unset'],'integer',0);
 		
-		@$replace_passwords = DevblocksPlatform::importGPC($_REQUEST['replace_passwords'],'integer',0);
-		
 		$visit = CerberusApplication::getVisit();
 		$db = DevblocksPlatform::getDatabaseService();
 		
@@ -352,7 +365,6 @@ class ChContactsPage extends CerberusPageExtension {
 			$sync_val = '';
 			
 			// Overrides
-			$contact_password = '';
 			
 			if(is_array($pos))
 			foreach($pos as $idx => $p) {
@@ -390,16 +402,6 @@ class ChContactsPage extends CerberusPageExtension {
 									$val = $org_id;
 								} else {
 									$val = 0;
-								}
-								break;
-								
-							case 'pass':
-								$key = null;
-								// Detect if we need to MD5 a plaintext password.
-								if(preg_match("/[a-z0-9]{32}/", $val)) {
-									$contact_password = $val;
-								} else {
-									$contact_password = md5($val);
 								}
 								break;
 						}
@@ -447,21 +449,6 @@ class ChContactsPage extends CerberusPageExtension {
 						);
 					
 					if(isset($fields['email'])) {
-						// Overrides
-						if(!empty($contact_password)) {
-							if($replace_passwords) { // always replace
-								$fields[DAO_Address::IS_REGISTERED] = 1;
-								$fields[DAO_Address::PASS] = $contact_password;
-								
-							} else { // only replace if null
-								if(null == ($addy = DAO_Address::lookupAddress($fields['email'], false))
-									|| !$addy->is_registered) {
-										$fields[DAO_Address::IS_REGISTERED] = 1;
-										$fields[DAO_Address::PASS] = $contact_password;
-								}
-							}
-						}
-						
 						if(empty($addys)) {
 							$id = DAO_Address::create($fields);
 						} else {
@@ -813,8 +800,6 @@ class ChContactsPage extends CerberusPageExtension {
 		@$last_name = trim(DevblocksPlatform::importGPC($_REQUEST['last_name'],'string',''));
 		@$contact_org = trim(DevblocksPlatform::importGPC($_REQUEST['contact_org'],'string',''));
 		@$is_banned = DevblocksPlatform::importGPC($_REQUEST['is_banned'],'integer',0);
-		@$pass = DevblocksPlatform::importGPC($_REQUEST['pass'],'string','');
-		@$unregister = DevblocksPlatform::importGPC($_REQUEST['unregister'],'integer',0);
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string', '');
 		
 		if($active_worker->hasPriv('core.addybook.addy.actions.update')) {
@@ -832,16 +817,6 @@ class ChContactsPage extends CerberusPageExtension {
 				DAO_Address::CONTACT_ORG_ID => $contact_org_id,
 				DAO_Address::IS_BANNED => $is_banned,
 			);
-			
-			// Are we clearing the contact's login?
-			if($unregister) {
-				$fields[DAO_Address::IS_REGISTERED] = 0;
-				$fields[DAO_Address::PASS] = '';
-				
-			} elseif(!empty($pass)) { // Are we changing their password?
-				$fields[DAO_Address::IS_REGISTERED] = 1;
-				$fields[DAO_Address::PASS] = md5($pass);
-			}
 			
 			if($id==0) {
 				$fields = $fields + array(DAO_Address::EMAIL => $email);

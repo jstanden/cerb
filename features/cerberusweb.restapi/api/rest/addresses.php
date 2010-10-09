@@ -81,12 +81,10 @@ class ChRest_Addresses extends Extension_RestController implements IExtensionRes
 				'email' => DAO_Address::EMAIL,
 				'first_name' => DAO_Address::FIRST_NAME,
 				'is_banned' => DAO_Address::IS_BANNED,
-				'is_registered' => DAO_Address::IS_REGISTERED,
 				'last_name' => DAO_Address::LAST_NAME,
 //				'num_nonspam' => DAO_Address::NUM_NONSPAM,
 //				'num_spam' => DAO_Address::NUM_SPAM,
 				'org_id' => DAO_Address::CONTACT_ORG_ID,
-				'password' => DAO_Address::PASS,
 			);
 		} else {
 			$tokens = array(
@@ -94,7 +92,6 @@ class ChRest_Addresses extends Extension_RestController implements IExtensionRes
 				'email' => SearchFields_Address::EMAIL,
 				'first_name' => SearchFields_Address::FIRST_NAME,
 				'is_banned' => SearchFields_Address::IS_BANNED,
-				'is_registered' => SearchFields_Address::IS_REGISTERED,
 				'last_name' => SearchFields_Address::LAST_NAME,
 				'num_nonspam' => SearchFields_Address::NUM_NONSPAM,
 				'num_spam' => SearchFields_Address::NUM_SPAM,
@@ -178,10 +175,8 @@ class ChRest_Addresses extends Extension_RestController implements IExtensionRes
 		$putfields = array(
 			'first_name' => 'string',
 			'is_banned' => 'bit',
-			'is_registered' => 'bit',
 			'last_name' => 'string',
 			'org_id' => 'integer',
-			'password' => 'string',
 		);
 
 		$fields = array();
@@ -198,11 +193,9 @@ class ChRest_Addresses extends Extension_RestController implements IExtensionRes
 			
 			// Sanitize
 			$value = DevblocksPlatform::importVar($value, $type);
-						
+
+			// Overrides
 			switch($field) {
-				case DAO_Address::PASS:
-					$value = md5($value);
-					break;
 			}
 			
 			$fields[$field] = $value;
@@ -233,10 +226,8 @@ class ChRest_Addresses extends Extension_RestController implements IExtensionRes
 			'email' => 'string',
 			'first_name' => 'string',
 			'is_banned' => 'bit',
-			'is_registered' => 'bit',
 			'last_name' => 'string',
 			'org_id' => 'integer',
-			'password' => 'string',
 		);
 
 		$fields = array();
@@ -254,10 +245,8 @@ class ChRest_Addresses extends Extension_RestController implements IExtensionRes
 			// Sanitize
 			$value = DevblocksPlatform::importVar($value, $type);
 			
+			// Overrides
 			switch($field) {
-				case DAO_Address::PASS:
-					$value = md5($value);
-					break;
 			}
 			
 			$fields[$field] = $value;
