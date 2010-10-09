@@ -163,19 +163,42 @@ button span {
 
 /* Menu */
 
-#headerMenu {
-	background-color: rgb(240, 240, 240);
-	color: rgb(60, 60, 60);
+UL.navmenu {
+	clear:both;
+	width:100%;
+	margin:0px;
+	padding:0px;
+	height:5px;
+	list-style:none;
+	color: rgb(80, 80, 80);
 }
 
-#headerMenuSelected {
+UL.navmenu LI {
+	float:left;
+	background-color:rgb(240,240,240);
+	padding:8px 5px 8px 5px;
+	margin:0px 2px 0px 2px;
+	border-radius: 5px 5px 0px 0px;	
+	-moz-border-radius: 5px 5px 0px 0px;
+	-webkit-border-radius: 5px 5px 0px 0px;
+}
+
+UL.navmenu LI A {
+	color: rgb(80, 80, 80);
+	font-weight:normal;
+	text-decoration:underline;
+}
+
+UL.navmenu LI.selected {
 	background-image: url(bg_ltblue.jpg);
 	background-repeat: repeat-x;
 	background-color: rgb(134, 169, 227);
 }
 
-#headerMenuSelected, #headerMenuSelected a {
-	color: rgb(255, 255, 255);
+UL.navmenu LI.selected A {
+	color:rgb(255,255,255);
+	text-decoration:none;
+	font-weight:bold;
 }
 
 UL.submenu {
@@ -186,13 +209,13 @@ UL.submenu {
 	padding:0px;
 	height:5px;
 	list-style:none;
-	background-color: rgb(134, 169, 227);
+	background-color: rgb(145,178,239);
 	color: rgb(255, 255, 255);
 }
 
 UL.submenu LI {
 	float:left;
-	background-color: rgb(134, 169, 227);
+	background-color: rgb(145,178,239);
 	padding:8px 5px 8px 5px;
 	margin:0px 2px 5px 2px;
 	border-radius: 0px 0px 5px 5px;	
