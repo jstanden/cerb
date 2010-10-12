@@ -40,11 +40,10 @@
 	<ul>
 		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextComments&context=cerberusweb.contexts.org&id={$contact->id}{/devblocks_url}">{$translate->_('common.comments')|capitalize|escape:'quotes'}</a></li>
 		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextLinks&context=cerberusweb.contexts.org&id={$contact->id}{/devblocks_url}">{$translate->_('common.links')|escape:'quotes'}</a></li>
-		<li><a href="{devblocks_url}ajax.php?c=contacts&a=showTabProperties&org={$contact->id}{/devblocks_url}">{$translate->_('common.properties')|escape:'quotes'}</a></li>
 		<li><a href="{devblocks_url}ajax.php?c=contacts&a=showTabHistory&org={$contact->id}{/devblocks_url}">{$translate->_('addy_book.org.tabs.mail_history')|escape:'quotes'}</a></li>
 		<li><a href="{devblocks_url}ajax.php?c=contacts&a=showTabPeople&org={$contact->id}{/devblocks_url}">{'addy_book.org.tabs.people'|devblocks_translate:$people_total|escape:'quotes'}</a></li>
 
-		{$tabs = [notes,links,properties,history,people]}
+		{$tabs = [notes,links,history,people]}
 
 		{foreach from=$tab_manifests item=tab_manifest}
 			{$tabs[] = $tab_manifest->params.uri}
