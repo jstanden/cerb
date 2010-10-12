@@ -54,6 +54,9 @@ function linkAddContext(ref) {
 			genericAjaxGet($view.attr('id'), 'c=internal&a=viewRefresh&id=' + $id);
 		}
 	}
+	
+	// [TODO] Make this generic
+	// [TODO] Move peek to context?
 
 	if($context == 'cerberusweb.contexts.task') {
 		$popup = genericAjaxPopup('peek','c=tasks&a=showTaskPeek&id=0&context={$context}&context_id={$context_id}',null,false,'500');
@@ -124,7 +127,7 @@ function chooserOpen(ref) {
 
 function removeSelectedContextLinks(view_id) {
 	$view = $('#view' + view_id);
-	context = view_id.replace('view','').replace(/\_/g,'.');
+	context = $view.find('FORM input:hidden[name=context_id]').val();
 	
 	$data = [ 
 		'c=internal',
