@@ -7,6 +7,15 @@ class UmScHistoryController extends Extension_UmScController {
 		return !empty($active_user);
 	}
 	
+	function renderSidebar(DevblocksHttpResponse $response) {
+		$tpl = DevblocksPlatform::getTemplateService();
+		
+		@$q = DevblocksPlatform::importGPC($_POST['q'],'string','');
+		$tpl->assign('q', $q);
+		
+		$tpl->display("devblocks:cerberusweb.support_center:portal_".UmPortalHelper::getCode() . ":support_center/history/sidebar_search.tpl");
+	}
+	
 	function writeResponse(DevblocksHttpResponse $response) {
 		$tpl = DevblocksPlatform::getTemplateService();
 		

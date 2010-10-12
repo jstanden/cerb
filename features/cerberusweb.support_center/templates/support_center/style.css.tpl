@@ -28,13 +28,41 @@ BUTTON {
 	color: rgb(30, 30, 30);
 	border: 1px solid rgb(150, 150, 150);
 	margin-right:1px;
-	-moz-border-radius: 5px; -webkit-border-radius: 5px; border-radius: 5px;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	border-radius: 5px;
 }
 
 BUTTON:hover {
 	background-color: rgb(160,198,254);
 	border: 1px solid rgb(36,111,223);
 	cursor: hand;
+}
+
+INPUT[type=text], INPUT[type=password], SELECT, TEXTAREA {
+	border:1px solid rgb(150,150,150);
+	padding:2px;
+}
+
+INPUT[type=text]:focus, INPUT[type=password]:focus, SELECT:focus, TEXTAREA:focus {
+	border:1px solid rgb(121,183,231);
+}
+
+INPUT[type=text]:focus, INPUT[type=password]:focus {
+	/*background-color:rgb(245,245,245);*/
+}
+
+FIELDSET {
+	background-image: url(bg_block.jpg);
+	background-repeat: repeat-x;
+	border:1px solid rgb(230,230,230);
+	margin-bottom:10px;
+}
+
+FIELDSET LEGEND {
+	color:rgb(0,150,0);
+	font-size:120%;
+	font-weight:bold;
 }
 
 DIV.header {
@@ -46,10 +74,35 @@ DIV.header H1 {
 	margin-bottom:0px;
 }
 
-#menu TD A {
+UL.menu {
+	padding:0px;
+	margin:0px;
+	list-style:none;
 }
 
-#menu TD A.selected {
+UL.menu LI {
+	padding:5px 8px;
+	margin:0px 2px;
+	float:left;
+	background-color:rgb(240,240,240);
+	-moz-border-radius: 5px 5px 0px 0px;
+	-webkit-border-radius: 5px 5px 0px 0px;
+	border-radius: 5px 5px 0px 0px;
+}
+
+UL.menu LI A {
+	color:rgb(74,110,173);
+	padding:5px 0px 5px 0px;
+	text-decoration:underline;
+	font-weight:normal;
+}
+
+UL.menu LI.selected {
+	background-color:rgb(8,90,173);
+}
+
+UL.menu LI.selected A {
+	color:rgb(255,255,255);
 	font-weight:bold;
 	text-decoration:none;
 }
@@ -120,33 +173,8 @@ TABLE.sidebar TD INPUT {
 	padding:5px;
 }
 
-#announcements DIV.feed {
-	border:1px solid rgb(204,204,204);
-	padding:5px;
-	margin-bottom:10px;
-}
-
-#contact {
-	border:1px solid rgb(204,204,204);
-	padding:5px;
-}
-
 #home {
 	padding:5px;
-}
-
-#history {
-}
-
-#history DIV.search {
-	margin-bottom:5px;
-}
-
-#history DIV.search INPUT.query {
-	width:200px;
-	background-color:rgb(232,242,254);
-	border:1px solid rgb(200,200,200);
-	padding:2px;
 }
 
 #history DIV.message {
@@ -173,14 +201,6 @@ TABLE.sidebar TD INPUT {
 }
 
 #history DIV.reply TEXTAREA {
-}
-
-#kb {
-}
-
-#kb DIV.browse {
-	padding:5px;
-	border:1px solid rgb(204,204,204);	
 }
 
 LABEL.error {

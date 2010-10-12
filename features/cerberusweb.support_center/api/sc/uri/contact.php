@@ -88,7 +88,7 @@ class UmScContactController extends Extension_UmScController {
 				        	}
 				        }
 				        
-				        $ticket_fields = DAO_CustomField::getBySource('cerberusweb.fields.source.ticket');
+				        $ticket_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TICKET);
 						$tpl->assign('ticket_fields', $ticket_fields);
 				        
 						$tpl->display("devblocks:cerberusweb.support_center:portal_".UmPortalHelper::getCode() . ":support_center/contact/step2.tpl");
@@ -129,7 +129,7 @@ class UmScContactController extends Extension_UmScController {
 		$tpl->assign('groups', $groups);
         
 		// Contact: Fields
-		$ticket_fields = DAO_CustomField::getBySource('cerberusweb.fields.source.ticket');
+		$ticket_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TICKET);
 		$tpl->assign('ticket_fields', $ticket_fields);
         
 		// Custom field types
@@ -165,7 +165,7 @@ class UmScContactController extends Extension_UmScController {
 		$tpl->assign('groups', $groups);
 		
 		// Contact: Fields
-		$ticket_fields = DAO_CustomField::getBySource('cerberusweb.fields.source.ticket');
+		$ticket_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TICKET);
 		$tpl->assign('ticket_fields', $ticket_fields);
 		
 		// Custom field types
@@ -306,7 +306,7 @@ class UmScContactController extends Extension_UmScController {
 		@$aFieldIds = DevblocksPlatform::importGPC($_POST['field_ids'],'array',array());
 		@$aFollowUpQ = DevblocksPlatform::importGPC($_POST['followup_q'],'array',array());
 		
-		$fields = DAO_CustomField::getBySource('cerberusweb.fields.source.ticket');
+		$fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TICKET);
 		
 		// Load the answers to any situational questions
 		$aFollowUpA = array();

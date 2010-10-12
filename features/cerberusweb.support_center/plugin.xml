@@ -45,6 +45,7 @@
 		<template path="support_center/header.tpl" />
 		<template path="support_center/footer.tpl" />
 		<template path="support_center/style.css.tpl" />
+		<template path="support_center/user_styles.css.tpl" />
 		<template path="support_center/account/index.tpl" />
 		<template path="support_center/announcements/index.tpl" />
 		<template path="support_center/contact/confirm.tpl" />
@@ -55,6 +56,8 @@
 		<template path="support_center/history/search_results.tpl" />
 		<template path="support_center/history/view.tpl" />
 		<template path="support_center/home/index.tpl" />
+		<template path="support_center/login/default/login_form.tpl" />
+		<template path="support_center/login/openid/login_form.tpl" />
 		<template path="support_center/register/index.tpl" />
 		<template path="support_center/register/forgot.tpl" />
 		<template path="support_center/register/forgot_confirm.tpl" />
@@ -92,6 +95,17 @@
 			</params>
 		</extension>
 		
+		<extension point="usermeet.login.authenticator">
+			<id>sc.login.auth.openid</id>
+			<name>OpenID (Recommended)</name>
+			<class>
+				<file>api/UmScApp.php</file>
+				<name>ScOpenIDLoginAuthenticator</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+		
 		<!-- Support Center Modules -->
 
 		<extension point="usermeet.sc.controller">
@@ -104,7 +118,6 @@
 			<params>
 				<param key="uri" value="home" />
 				<param key="menu_title" value="portal.sc.public.home" />
-				<param key="icon" value="images/crystal/icon_home.gif" />
 			</params>
 		</extension>
 		
@@ -118,13 +131,12 @@
 			<params>
 				<param key="uri" value="announcements" />
 				<param key="menu_title" value="portal.sc.public.announcements" />
-				<param key="icon" value="images/feed-icon-16x16.gif" />
 			</params>
 		</extension>
 
 		<extension point="usermeet.sc.controller">
 			<id>sc.controller.contact</id>
-			<name>Open Ticket</name>
+			<name>Contact Us</name>
 			<class>
 				<file>api/sc/uri/contact.php</file>
 				<name>UmScContactController</name>
@@ -132,7 +144,6 @@
 			<params>
 				<param key="uri" value="contact" />
 				<param key="menu_title" value="portal.common.open_ticket" />
-				<param key="icon" value="images/crystal/icon_open_ticket.gif" />
 			</params>
 		</extension>
 		
@@ -146,7 +157,6 @@
 			<params>
 				<param key="uri" value="history" />
 				<param key="menu_title" value="portal.sc.public.history.ticket_history" />
-				<param key="icon" value="images/crystal/icon_ticket_history.gif" />
 			</params>
 		</extension>
 
@@ -160,10 +170,22 @@
 			<params>
 				<param key="uri" value="account" />
 				<param key="menu_title" value="portal.sc.public.my_account" />
-				<param key="icon" value="images/crystal/icon_my_account.gif" />
 			</params>
 		</extension>
 
+		<extension point="usermeet.sc.controller">
+			<id>sc.controller.login</id>
+			<name>Login</name>
+			<class>
+				<file>api/sc/uri/login.php</file>
+				<name>UmScLoginController</name>
+			</class>
+			<params>
+				<param key="uri" value="login" />
+				<param key="menu_title" value="" />
+			</params>
+		</extension>
+		
 		<extension point="usermeet.sc.controller">
 			<id>sc.controller.register</id>
 			<name>Registration</name>
@@ -174,7 +196,6 @@
 			<params>
 				<param key="uri" value="register" />
 				<param key="menu_title" value="" />
-				<param key="icon" value="" />
 			</params>
 		</extension>
 		

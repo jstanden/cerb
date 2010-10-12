@@ -55,7 +55,7 @@
 			<tuv xml:lang="en_US"><seg>(where you plan to install this portal, e.g. http://website/portal/)</seg></tuv>
 		</tu>
 		<tu tuid='portal.common.open_ticket'>
-			<tuv xml:lang="en_US"><seg>Open a Ticket</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Contact Us</seg></tuv>
 		</tu>
 		<tu tuid='portal.public.open_ticket.additional_info'>
 			<tuv xml:lang="en_US"><seg>Additional Information</seg></tuv>

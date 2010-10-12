@@ -78,10 +78,10 @@ abstract class Extension_UmScController extends DevblocksExtension implements De
 	 */
 	public function handleRequest(DevblocksHttpRequest $request) {
 	    $path = $request->path;
-
 		@$a = DevblocksPlatform::importGPC($_REQUEST['a'],'string');
-	    
+
 		if(empty($a)) {
+			@array_shift($path); // controller
     	    @$action = array_shift($path) . 'Action';
 		} else {
 	    	@$action = $a . 'Action';

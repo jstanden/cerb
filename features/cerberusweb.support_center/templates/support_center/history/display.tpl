@@ -1,8 +1,6 @@
 <div id="history">
 	
-<div class="header"><h1>{$translate->_('portal.sc.public.history.ticket_history')}</h1></div>
-
-<h2>{$ticket.t_subject|escape}</h2>
+<div class="header"><h1>{$ticket.t_subject|escape}</h1></div>
 
 <form action="{devblocks_url}c=history{/devblocks_url}" method="post" name="">
 <input type="hidden" name="a" value="saveTicketProperties">

@@ -17,10 +17,10 @@ class UmScAccountController extends Extension_UmScController {
 		$address = DAO_Address::get($active_user->id);
 		$tpl->assign('address',$address);
 
-		$address_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Address::ID);
+		$address_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ADDRESS);
 		$tpl->assign('address_custom_fields', $address_fields);
 
-		if(null != ($address_field_values = DAO_CustomFieldValue::getValuesBySourceIds(ChCustomFieldSource_Address::ID, $address->id))
+		if(null != ($address_field_values = DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_ADDRESS, $address->id))
 			&& is_array($address_field_values))
 			$tpl->assign('address_custom_field_values', array_shift($address_field_values));
 		
@@ -28,10 +28,10 @@ class UmScAccountController extends Extension_UmScController {
 		if(!empty($address->contact_org_id) && null != ($org = DAO_ContactOrg::get($address->contact_org_id))) {
 			$tpl->assign('org',$org);
 			
-			$org_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Org::ID);
+			$org_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ORG);
 			$tpl->assign('org_custom_fields', $org_fields);
 			
-			if(null != ($org_field_values = DAO_CustomFieldValue::getValuesBySourceIds(ChCustomFieldSource_Org::ID, $org->id))
+			if(null != ($org_field_values = DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_ORG, $org->id))
 				&& is_array($org_field_values))
 				$tpl->assign('org_custom_field_values', array_shift($org_field_values));
 		}
@@ -147,13 +147,13 @@ class UmScAccountController extends Extension_UmScController {
 			if(!empty($addy_fields))
 				DAO_Address::update($address->id, $addy_fields);
 			if(!empty($addy_customfields))
-				DAO_CustomFieldValue::formatAndSetFieldValues(ChCustomFieldSource_Address::ID, $address->id, $addy_customfields, true, false, false);
+				DAO_CustomFieldValue::formatAndSetFieldValues(CerberusContexts::CONTEXT_ADDRESS, $address->id, $addy_customfields, true, false, false);
 			
 			// Org
 			if(!empty($org_fields) && !empty($address->contact_org_id))
 				DAO_ContactOrg::update($address->contact_org_id, $org_fields);
 			if(!empty($org_customfields) && !empty($address->contact_org_id))
-				DAO_CustomFieldValue::formatAndSetFieldValues(ChCustomFieldSource_Org::ID, $address->contact_org_id, $org_customfields, true, false, false);
+				DAO_CustomFieldValue::formatAndSetFieldValues(CerberusContexts::CONTEXT_ORG, $address->contact_org_id, $org_customfields, true, false, false);
 		}
 		
 		$tpl->assign('account_success', true);
@@ -168,10 +168,10 @@ class UmScAccountController extends Extension_UmScController {
 			$tpl->assign('show_fields', @json_decode($show_fields, true));
 		}
 		
-		$address_fields = DAO_CustomField::getBySource('cerberusweb.fields.source.address');
+		$address_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ADDRESS);
 		$tpl->assign('address_custom_fields', $address_fields);
 
-		$org_fields = DAO_CustomField::getBySource('cerberusweb.fields.source.org');
+		$org_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ORG);
 		$tpl->assign('org_custom_fields', $org_fields);
 		
 		$types = Model_CustomField::getTypes();

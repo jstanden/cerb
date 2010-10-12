@@ -1,6 +1,6 @@
 <table cellpadding="0" cellspacing="0" border="0" class="sidebar" id="kb_sidebar">
 	<tr>
-		<th>{$translate->_('common.knowledgebase')|capitalize}</th>
+		<th>{$translate->_('common.search')|capitalize}</th>
 	</tr>
 	<tr>
 		<td>

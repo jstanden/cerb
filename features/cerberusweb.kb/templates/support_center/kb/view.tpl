@@ -8,7 +8,6 @@
 	</tr>
 </table>
 
-<form id="customize{$view->id}" name="customize{$view->id}" action="#" onsubmit="return false;" style="display:none;"></form>
 <form id="viewForm{$view->id}" name="viewForm{$view->id}" action="{devblocks_url}{/devblocks_url}" method="post">
 <input type="hidden" name="id" value="{$view->id}">
 <input type="hidden" name="c" value="kb">

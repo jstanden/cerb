@@ -38,7 +38,7 @@
 					{if 'sc.controller.history' != $module->manifest->id && 'sc.controller.account' != $module->manifest->id}
 					<option value="0" {if isset($visible_modules.$module_id) && '0'==$visible_modules.$module_id}selected="selected"{/if}>Everyone</option>
 					{/if}
-					{if 'sc.controller.register' != $module->manifest->id}
+					{if 'sc.controller.login' != $module->manifest->id && 'sc.controller.register' != $module->manifest->id}
 					<option value="1" {if isset($visible_modules.$module_id) && '1'==$visible_modules.$module_id}selected="selected"{/if}>Logged in</option>
 					{/if}
 					<option value="2" {if !isset($visible_modules.$module_id) || '2'==$visible_modules.$module_id}selected="selected"{/if}>Disabled</option>

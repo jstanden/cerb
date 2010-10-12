@@ -104,14 +104,6 @@ class UmScApp extends Extension_UsermeetTool {
 		DevblocksPlatform::setLocale($default_locale);
 		
 		switch($module_uri) {
-			case 'login':
-				$this->doLogin();
-				break;
-				
-			case 'logout':
-				$this->doLogout();
-				break;
-				
 			default:
 		        $modules = $this->_getModules();
 				$controller = null;
@@ -139,12 +131,6 @@ class UmScApp extends Extension_UsermeetTool {
 		$page_title = DAO_CommunityToolProperty::get(UmPortalHelper::getCode(), self::PARAM_PAGE_TITLE, 'Support Center');
 		$tpl->assign('page_title', $page_title);
 
-        $login_handler = DAO_CommunityToolProperty::get(UmPortalHelper::getCode(), self::PARAM_LOGIN_HANDLER, '');
-		$tpl->assign('login_handler', $login_handler);
-		
-		$login_extension = DevblocksPlatform::getExtension($login_handler, true);
-		$tpl->assign('login_extension', $login_extension);
-		
        	@$visible_modules = unserialize(DAO_CommunityToolProperty::get(UmPortalHelper::getCode(), self::PARAM_VISIBLE_MODULES, ''));
 		$tpl->assign('visible_modules', $visible_modules);
 		
@@ -343,44 +329,9 @@ class UmScApp extends Extension_UsermeetTool {
 		}
 
     }
-	
-	function doLogin() {
-//		if(!$this->allow_logins)
-//			die();
-
-		// [TODO] Fall back
-        $login_handler = DAO_CommunityToolProperty::get(UmPortalHelper::getCode(), self::PARAM_LOGIN_HANDLER, 'sc.login.auth.default');
-
-		if(null != ($handler = DevblocksPlatform::getExtension($login_handler, true))) {
-			if(!$handler->authenticate()) {
-				// ...
-			}
-		}
-		
-
-		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',UmPortalHelper::getCode())));
-	}
-	
-	function doLogout() {
-		// [TODO] Fall back
-        $login_handler = DAO_CommunityToolProperty::get(UmPortalHelper::getCode(), self::PARAM_LOGIN_HANDLER, 'sc.login.auth.default');
-
-		if(null != ($handler = DevblocksPlatform::getExtension($login_handler, true))) {
-			if($handler->signoff()) {
-				// ...
-			}
-		}
-		
-		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',UmPortalHelper::getCode())));
-	}
-	
 };
 
 class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
-	function __construct($manifest) {
-		$this->DevblocksExtension($manifest);
-	}
-	
 	/**
 	 * draws html form for adding necessary settings (host, port, etc) to be stored in the db
 	 */
@@ -400,7 +351,7 @@ class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
 	 */
 	function renderLoginForm() {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->display("devblocks:cerberusweb.support_center::portal/sc/login/default/login.tpl");
+		$tpl->display("devblocks:cerberusweb.support_center:portal_".UmPortalHelper::getCode().":support_center/login/default/login_form.tpl");
 	}
 	
 	/**
@@ -412,25 +363,63 @@ class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
 		$umsession = UmPortalHelper::getSession();
 
 		@$email = DevblocksPlatform::importGPC($_REQUEST['email']);
-		@$pass = DevblocksPlatform::importGPC($_REQUEST['pass']);
-		$valid = false;
+		@$pass = DevblocksPlatform::importGPC($_REQUEST['password']);
 
-		if(null != ($addy = DAO_Address::lookupAddress($email, false))) {
-			if($addy->is_registered 
-				&& !empty($addy->pass) 
-				&& 0==strcmp(md5($pass),$addy->pass)) {
-					$valid = true;
-					$umsession->setProperty('sc_login',$addy);
-			}
-		}
-		
-		if($valid)
-			return true;
-		
+		// Clear the past session
 		$umsession->setProperty('sc_login',null);
-		return false;
+		
+		// Find the address
+		if(null == ($addy = DAO_Address::lookupAddress($email, FALSE)))
+			return FALSE;
+			
+		// Not registered
+		if(empty($addy->contact_person_id))
+			return FALSE;
+			
+		// Can't find contact
+		if(null == ($contact = DAO_ContactPerson::get($addy->contact_person_id)))
+			return FALSE;
+		
+		// Compare salt
+		if(0 == strcmp(md5($contact->auth_salt.md5($pass)),$contact->auth_password)) {
+			$umsession->setProperty('sc_login', $addy);
+			return TRUE;
+		}
+			
+		return FALSE;
+	}
+};
+
+class ScOpenIDLoginAuthenticator extends Extension_ScLoginAuthenticator {
+	/**
+	 * draws HTML form of controls needed for login information
+	 */
+	function renderLoginForm() {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->display("devblocks:cerberusweb.support_center:portal_".UmPortalHelper::getCode().":support_center/login/openid/login_form.tpl");
 	}
 	
+	/**
+	 * pull auth info out of $_POST, check it, return user_id or false
+	 * 
+	 * @return boolean whether login succeeded
+	 */
+	function authenticate() {
+		@$openid_url = DevblocksPlatform::importGPC($_REQUEST['openid_url']);
+
+		$umsession = UmPortalHelper::getSession();
+
+		// Clear the past session
+		$umsession->setProperty('sc_login',null);
+		
+//		// Compare OpenID URLs
+//		if(0 == strcmp(md5($contact->auth_salt.md5($pass)),$contact->auth_password)) {
+//			$umsession->setProperty('sc_login', $addy);
+//			return TRUE;
+//		}
+			
+		return FALSE;
+	}	
 };
 
 // [TODO] Redundant w/ C4_AbstractViewLoader
