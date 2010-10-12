@@ -544,20 +544,20 @@ class Model_GroupInboxFilter {
 
 							// Lazy values loader
 							$field_values = array();
-							switch($field->source_extension) {
-								case ChCustomFieldSource_Address::ID:
+							switch($field->context) {
+								case CerberusContexts::CONTEXT_ADDRESS:
 									if(null == $address_field_values)
-										$address_field_values = array_shift(DAO_CustomFieldValue::getValuesBySourceIds(ChCustomFieldSource_Address::ID, $ticket_from->id));
+										$address_field_values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_ADDRESS, $ticket_from->id));
 									$field_values =& $address_field_values;
 									break;
-								case ChCustomFieldSource_Org::ID:
+								case CerberusContexts::CONTEXT_ORG:
 									if(null == $org_field_values)
-										$org_field_values = array_shift(DAO_CustomFieldValue::getValuesBySourceIds(ChCustomFieldSource_Org::ID, $ticket_from->contact_org_id));
+										$org_field_values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_ORG, $ticket_from->contact_org_id));
 									$field_values =& $org_field_values;
 									break;
-								case ChCustomFieldSource_Ticket::ID:
+								case CerberusContexts::CONTEXT_TICKET:
 									if(null == $ticket_field_values)
-										$ticket_field_values = array_shift(DAO_CustomFieldValue::getValuesBySourceIds(ChCustomFieldSource_Ticket::ID, $ticket->id));
+										$ticket_field_values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_TICKET, $ticket->id));
 									$field_values =& $ticket_field_values;
 									break;
 							}
@@ -782,7 +782,7 @@ class Model_GroupInboxFilter {
 				DAO_Ticket::update($ticket_ids, $change_fields);
 			
 			// Custom Fields
-			C4_AbstractView::_doBulkSetCustomFields(ChCustomFieldSource_Ticket::ID, $field_values, $ticket_ids);
+			C4_AbstractView::_doBulkSetCustomFields(CerberusContexts::CONTEXT_TICKET, $field_values, $ticket_ids);
 		}
 	}
 };

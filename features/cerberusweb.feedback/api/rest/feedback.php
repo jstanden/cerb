@@ -237,7 +237,7 @@ class ChRest_Feedback extends Extension_RestController implements IExtensionRest
 		// Handle custom fields
 		$customfields = $this->_handleCustomFields($_POST);
 		if(is_array($customfields))
-			DAO_CustomFieldValue::formatAndSetFieldValues(ChCustomFieldSource_FeedbackEntry::ID, $id, $customfields, true, true, true);
+			DAO_CustomFieldValue::formatAndSetFieldValues(CerberusContexts::CONTEXT_FEEDBACK, $id, $customfields, true, true, true);
 		
 		// Check required fields
 //		$reqfields = array(DAO_Address::EMAIL);
@@ -334,7 +334,7 @@ class ChRest_Feedback extends Extension_RestController implements IExtensionRest
 			// Handle custom fields
 			$customfields = $this->_handleCustomFields($_POST);
 			if(is_array($customfields))
-				DAO_CustomFieldValue::formatAndSetFieldValues(ChCustomFieldSource_FeedbackEntry::ID, $id, $customfields, true, true, true);
+				DAO_CustomFieldValue::formatAndSetFieldValues(CerberusContexts::CONTEXT_FEEDBACK, $id, $customfields, true, true, true);
 			
 			$this->getId($id);
 		}

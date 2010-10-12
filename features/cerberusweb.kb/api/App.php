@@ -48,10 +48,6 @@
  *	 WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
 
-class ChCustomFieldSource_KbArticle extends Extension_CustomFieldSource {
-	const ID = 'cerberusweb.fields.source.kb_article';
-};
-
 abstract class Extension_KnowledgebaseTab extends DevblocksExtension {
 	function __construct($manifest) {
 		$this->DevblocksExtension($manifest);
@@ -506,10 +502,10 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 			$article_categories = DAO_KbArticle::getCategoriesByArticleId($id);
 			$tpl->assign('article_categories', $article_categories);
 			
-			$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_KbArticle::ID);
+			$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_KB_ARTICLE);
 			$tpl->assign('custom_fields', $custom_fields);
 			
-			$custom_field_values = DAO_CustomFieldValue::getValuesBySourceIds(ChCustomFieldSource_KbArticle::ID, $id);
+			$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_KB_ARTICLE, $id);
 			if(isset($custom_field_values[$id]))
 				$tpl->assign('custom_field_values', $custom_field_values[$id]);
 		}
@@ -572,7 +568,7 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 			
 			// Custom fields
 			@$field_ids = DevblocksPlatform::importGPC($_REQUEST['field_ids'], 'array', array());
-			DAO_CustomFieldValue::handleFormPost(ChCustomFieldSource_KbArticle::ID, $id, $field_ids);
+			DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_KB_ARTICLE, $id, $field_ids);
 		}
 		
 		// JSON
@@ -776,7 +772,7 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 		$tpl->assign('levels',$levels);
 		
 		// Custom Fields
-//		$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_FeedbackEntry::ID);
+//		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_FEEDBACK);
 //		$tpl->assign('custom_fields', $custom_fields);
 		
 		$tpl->display('devblocks:cerberusweb.kb::kb/ajax/articles_bulk_panel.tpl');
@@ -1187,7 +1183,7 @@ class SearchFields_KbArticle implements IDevblocksSearchFields {
 		}
 		
 		// Custom Fields
-		$fields = DAO_CustomField::getBySource(ChCustomFieldSource_KbArticle::ID);
+		$fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_KB_ARTICLE);
 		if(is_array($fields))
 		foreach($fields as $field_id => $field) {
 			$key = 'cf_'.$field_id;
@@ -1684,7 +1680,7 @@ class View_KbArticle extends C4_AbstractView {
 			}
 			
 			// Custom Fields
-			//self::_doBulkSetCustomFields(ChCustomFieldSource_Address::ID, $custom_fields, $batch_ids);
+			//self::_doBulkSetCustomFields(CerberusContexts::CONTEXT_ADDRESS, $custom_fields, $batch_ids);
 			
 			unset($batch_ids);
 		}

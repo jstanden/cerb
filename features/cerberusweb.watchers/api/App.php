@@ -377,7 +377,7 @@ class ChWatchersPreferences extends Extension_PreferenceTab {
 	    }
 		
 		// Custom Fields
-//		$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_TimeEntry::ID);
+//		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TIMETRACKING);
 //		$tpl->assign('custom_fields', $custom_fields);
 		
 		$tpl->display('devblocks:cerberusweb.watchers::preferences/bulk.tpl');
@@ -463,15 +463,15 @@ class ChWatchersPreferences extends Extension_PreferenceTab {
 		$tpl->assign('all_workers', DAO_Worker::getAll());
 
 		// Custom Fields: Ticket
-		$ticket_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Ticket::ID);
+		$ticket_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TICKET);
 		$tpl->assign('ticket_fields', $ticket_fields);
 
 		// Custom Fields: Address
-		$address_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Address::ID);
+		$address_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ADDRESS);
 		$tpl->assign('address_fields', $address_fields);
 		
 		// Custom Fields: Orgs
-		$org_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Org::ID);
+		$org_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ORG);
 		$tpl->assign('org_fields', $org_fields);
 		
 		$tpl->display('devblocks:cerberusweb.watchers::preferences/peek.tpl');
@@ -925,7 +925,7 @@ class View_WatcherMailFilter extends C4_AbstractView {
 				DAO_WatcherMailFilter::update($batch_ids, $change_fields);
 
 				// Custom Fields
-				//self::_doBulkSetCustomFields(ChCustomFieldSource_TimeEntry::ID, $custom_fields, $batch_ids);
+				//self::_doBulkSetCustomFields(CerberusContexts::CONTEXT_TIMETRACKING, $custom_fields, $batch_ids);
 			}
 			
 			unset($batch_ids);
@@ -1283,7 +1283,7 @@ class SearchFields_WatcherMailFilter {
 		);
 		
 		// Custom Fields
-//		$fields = DAO_CustomField::getBySource(ChCustomFieldSource_TimeEntry::ID);
+//		$fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TIMETRACKING);
 //		if(is_array($fields))
 //		foreach($fields as $field_id => $field) {
 //			$key = 'cf_'.$field_id;
@@ -1521,20 +1521,20 @@ class Model_WatcherMailFilter {
 
 							// Lazy values loader
 							$field_values = array();
-							switch($field->source_extension) {
-								case ChCustomFieldSource_Address::ID:
+							switch($field->context) {
+								case CerberusContexts::CONTEXT_ADDRESS:
 									if(null == $address_field_values)
-										$address_field_values = array_shift(DAO_CustomFieldValue::getValuesBySourceIds(ChCustomFieldSource_Address::ID, $ticket_from->id));
+										$address_field_values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_ADDRESS, $ticket_from->id));
 									$field_values =& $address_field_values;
 									break;
-								case ChCustomFieldSource_Org::ID:
+								case CerberusContexts::CONTEXT_ORG:
 									if(null == $org_field_values)
-										$org_field_values = array_shift(DAO_CustomFieldValue::getValuesBySourceIds(ChCustomFieldSource_Org::ID, $ticket_from->contact_org_id));
+										$org_field_values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_ORG, $ticket_from->contact_org_id));
 									$field_values =& $org_field_values;
 									break;
-								case ChCustomFieldSource_Ticket::ID:
+								case CerberusContexts::CONTEXT_TICKET:
 									if(null == $ticket_field_values)
-										$ticket_field_values = array_shift(DAO_CustomFieldValue::getValuesBySourceIds(ChCustomFieldSource_Ticket::ID, $ticket->id));
+										$ticket_field_values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_TICKET, $ticket->id));
 									$field_values =& $ticket_field_values;
 									break;
 							}

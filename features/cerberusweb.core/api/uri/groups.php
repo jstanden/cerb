@@ -164,8 +164,7 @@ class ChGroupsPage extends CerberusPageExtension  {
 		$tpl->assign('workers', $workers);
 
 		// Custom Field Sources
-		$source_manifests = DevblocksPlatform::getExtensions('cerberusweb.fields.source', false);
-		$tpl->assign('source_manifests', $source_manifests);
+		$tpl->assign('context_manifests', DAO_CustomField::getContexts());
 		
 		// Custom Fields
 		$custom_fields =  DAO_CustomField::getAll();
@@ -248,15 +247,15 @@ class ChGroupsPage extends CerberusPageExtension  {
 		$tpl->assign('workers', $workers);
 		
 		// Custom Fields: Address
-		$address_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Address::ID);
+		$address_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ADDRESS);
 		$tpl->assign('address_fields', $address_fields);
 		
 		// Custom Fields: Orgs
-		$org_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Org::ID);
+		$org_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ORG);
 		$tpl->assign('org_fields', $org_fields);
 		
 		// Custom Fields: Tickets
-		$ticket_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Ticket::ID);
+		$ticket_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TICKET);
 		$tpl->assign('ticket_fields', $ticket_fields);
 		
 		$tpl->display('devblocks:cerberusweb.core::groups/manage/filters/peek.tpl');
@@ -729,7 +728,7 @@ class ChGroupsPage extends CerberusPageExtension  {
 			$tpl->assign('team', $group);
 		}
 		
-		$group_fields = DAO_CustomField::getBySourceAndGroupId(ChCustomFieldSource_Ticket::ID, $group_id); 
+		$group_fields = DAO_CustomField::getByContextAndGroupId(CerberusContexts::CONTEXT_TICKET, $group_id); 
 		$tpl->assign('group_fields', $group_fields);
                     
 		$types = Model_CustomField::getTypes();
@@ -783,7 +782,7 @@ class ChGroupsPage extends CerberusPageExtension  {
 				DAO_CustomField::NAME => $add_name,
 				DAO_CustomField::TYPE => $add_type,
 				DAO_CustomField::GROUP_ID => $group_id,
-				DAO_CustomField::SOURCE_EXTENSION => ChCustomFieldSource_Ticket::ID,
+				DAO_CustomField::CONTEXT => CerberusContexts::CONTEXT_TICKET,
 				DAO_CustomField::OPTIONS => $add_options,
 			);
 			$id = DAO_CustomField::create($fields);

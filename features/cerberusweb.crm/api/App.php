@@ -52,10 +52,6 @@ abstract class Extension_CrmOpportunityToolbarItem extends DevblocksExtension {
 	function render(Model_CrmOpportunity $opp) { }
 };
 
-class CrmCustomFieldSource_Opportunity extends Extension_CustomFieldSource {
-	const ID = 'crm.fields.source.opportunity';
-};
-
 // Workspace Sources
 
 class CrmWorkspaceSource_Opportunity extends Extension_WorkspaceSource {
@@ -119,7 +115,7 @@ class CrmOppsActivityTab extends Extension_ActivityTab {
 						);
 						$tpl->assign('fields',$fields);
 						
-						$custom_fields = DAO_CustomField::getBySource(CrmCustomFieldSource_Opportunity::ID);
+						$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_OPPORTUNITY);
 						$tpl->assign('custom_fields', $custom_fields);
 						
 						$workers = DAO_Worker::getAllActive();
@@ -225,11 +221,11 @@ class CrmPage extends CerberusPageExtension {
 			}
 		}
 		
-		$custom_fields = DAO_CustomField::getBySource(CrmCustomFieldSource_Opportunity::ID);
+		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_OPPORTUNITY);
 		$tpl->assign('custom_fields', $custom_fields);
 		
 		if(!empty($opp_id)) {
-			$custom_field_values = DAO_CustomFieldValue::getValuesBySourceIds(CrmCustomFieldSource_Opportunity::ID, $opp_id);
+			$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_OPPORTUNITY, $opp_id);
 			if(isset($custom_field_values[$opp->id]))
 				$tpl->assign('custom_field_values', $custom_field_values[$opp->id]);
 		}
@@ -318,7 +314,7 @@ class CrmPage extends CerberusPageExtension {
 			
 			// Custom fields
 			@$field_ids = DevblocksPlatform::importGPC($_REQUEST['field_ids'], 'array', array());
-			DAO_CustomFieldValue::handleFormPost(CrmCustomFieldSource_Opportunity::ID, $opp_id, $field_ids);
+			DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_OPPORTUNITY, $opp_id, $field_ids);
 			
 			// If we're adding a first comment
 			if(!empty($comment)) {
@@ -358,7 +354,7 @@ class CrmPage extends CerberusPageExtension {
 				
 				// Custom fields
 				@$field_ids = DevblocksPlatform::importGPC($_REQUEST['field_ids'], 'array', array());
-				DAO_CustomFieldValue::handleFormPost(CrmCustomFieldSource_Opportunity::ID, $opp_id, $field_ids);
+				DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_OPPORTUNITY, $opp_id, $field_ids);
 			}
 		}
 		
@@ -492,7 +488,7 @@ class CrmPage extends CerberusPageExtension {
 	    $tpl->assign('workers', $workers);
 	    
 		// Custom Fields
-		$custom_fields = DAO_CustomField::getBySource(CrmCustomFieldSource_Opportunity::ID);
+		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_OPPORTUNITY);
 		$tpl->assign('custom_fields', $custom_fields);
 		
 		// Groups
@@ -943,8 +939,8 @@ class CrmPage extends CerberusPageExtension {
 			
 			if(!empty($custom_fields) && !empty($id)) {
 				// Format (typecast) and set the custom field types
-				$source_ext_id = CrmCustomFieldSource_Opportunity::ID;
-				DAO_CustomFieldValue::formatAndSetFieldValues($source_ext_id, $id, $custom_fields, $is_blank_unset, true, true);
+				$context_ext_id = CerberusContexts::CONTEXT_OPPORTUNITY;
+				DAO_CustomFieldValue::formatAndSetFieldValues($context_ext_id, $id, $custom_fields, $is_blank_unset, true, true);
 			}
 			
 		}
@@ -1163,7 +1159,7 @@ class DAO_CrmOpportunity extends C4_ORMHelper {
 		DAO_ContextLink::delete(CerberusContexts::CONTEXT_OPPORTUNITY, $ids);
 		
 		// Custom fields
-		DAO_CustomFieldValue::deleteBySourceIds(CrmCustomFieldSource_Opportunity::ID, $ids);
+		DAO_CustomFieldValue::deleteByContextIds(CerberusContexts::CONTEXT_OPPORTUNITY, $ids);
 		
 		// Notes
 		DAO_Comment::deleteByContext(CerberusContexts::CONTEXT_OPPORTUNITY, $ids);
@@ -1388,7 +1384,7 @@ class SearchFields_CrmOpportunity implements IDevblocksSearchFields {
 		);
 		
 		// Custom Fields
-		$fields = DAO_CustomField::getBySource(CrmCustomFieldSource_Opportunity::ID);
+		$fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_OPPORTUNITY);
 		if(is_array($fields))
 		foreach($fields as $field_id => $field) {
 			$key = 'cf_'.$field_id;
@@ -1482,7 +1478,7 @@ class View_CrmOpportunity extends C4_AbstractView {
 		$tpl->assign('workers', $workers);
 		
 		// Custom fields
-		$custom_fields = DAO_CustomField::getBySource(CrmCustomFieldSource_Opportunity::ID);
+		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_OPPORTUNITY);
 		$tpl->assign('custom_fields', $custom_fields);
 		
 		switch($this->renderTemplate) {
@@ -1765,7 +1761,7 @@ class View_CrmOpportunity extends C4_AbstractView {
 			DAO_CrmOpportunity::update($batch_ids, $change_fields);
 			
 			// Custom Fields
-			self::_doBulkSetCustomFields(CrmCustomFieldSource_Opportunity::ID, $custom_fields, $batch_ids);
+			self::_doBulkSetCustomFields(CerberusContexts::CONTEXT_OPPORTUNITY, $custom_fields, $batch_ids);
 			
 			// Owners
 			if(isset($do['owner']) && is_array($do['owner'])) {
@@ -1886,7 +1882,7 @@ class Context_Opportunity extends Extension_DevblocksContext {
 			$prefix = 'Opportunity:';
 		
 		$translate = DevblocksPlatform::getTranslationService();
-		$fields = DAO_CustomField::getBySource(CrmCustomFieldSource_Opportunity::ID);
+		$fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_OPPORTUNITY);
 
 		// Polymorph
 		if(is_numeric($opp)) {
@@ -1929,7 +1925,7 @@ class Context_Opportunity extends Extension_DevblocksContext {
 
 			$token_values['custom'] = array();
 			
-			$field_values = array_shift(DAO_CustomFieldValue::getValuesBySourceIds(CrmCustomFieldSource_Opportunity::ID, $opp->id));
+			$field_values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_OPPORTUNITY, $opp->id));
 			if(is_array($field_values) && !empty($field_values)) {
 				foreach($field_values as $cf_id => $cf_val) {
 					if(!isset($fields[$cf_id]))

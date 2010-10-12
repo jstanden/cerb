@@ -548,7 +548,7 @@ class View_WorkerEvent extends C4_AbstractView {
 			DAO_WorkerEvent::update($batch_ids, $change_fields);
 			
 			// Custom Fields
-			//self::_doBulkSetCustomFields(ChCustomFieldSource_Task::ID, $custom_fields, $batch_ids);
+			//self::_doBulkSetCustomFields(CerberusContexts::CONTEXT_TASK, $custom_fields, $batch_ids);
 			
 			unset($batch_ids);
 		}

@@ -24,9 +24,6 @@
 	<!-- Exported Classes -->
 	
 	<class_loader>
-		<file path="api/App.php">
-			<class name="ChCustomFieldSource_Domain" />
-		</file>
 		<file path="api/dao/datacenter_domain.php">
 			<class name="Context_Domain" />
 			<class name="DAO_Domain" />
@@ -112,19 +109,6 @@
 			<params>
 				<param key="uri" value="domains" />
 				<param key="title" value="cerberusweb.datacenter.domains" />
-			</params>
-		</extension>
-		
-		<!-- Custom Field Sources -->
-		
-		<extension point="cerberusweb.fields.source">
-			<id>cerberusweb.datacenter.domains.fields.domain</id>
-			<name>Domain</name>
-			<class>
-				<file>api/Api.php</file>
-				<name>ChCustomFieldSource_Domain</name>
-			</class>
-			<params>
 			</params>
 		</extension>
 		

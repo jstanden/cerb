@@ -932,7 +932,7 @@ class View_Message extends C4_AbstractView {
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
 
-//		$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Worker::ID);
+//		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_WORKER);
 //		$tpl->assign('custom_fields', $custom_fields);
 
 		switch($this->renderTemplate) {
@@ -1154,7 +1154,7 @@ class View_Message extends C4_AbstractView {
 			DAO_Message::update($batch_ids, $change_fields);
 			
 			// Custom Fields
-			//self::_doBulkSetCustomFields(ChCustomFieldSource_Worker::ID, $custom_fields, $batch_ids);
+			//self::_doBulkSetCustomFields(CerberusContexts::CONTEXT_WORKER, $custom_fields, $batch_ids);
 			
 			unset($batch_ids);
 		}

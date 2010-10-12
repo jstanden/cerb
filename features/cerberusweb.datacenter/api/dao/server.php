@@ -10,7 +10,7 @@ class Context_Server extends Extension_DevblocksContext {
 			$prefix = 'Server:';
 		
 		$translate = DevblocksPlatform::getTranslationService();
-		$fields = DAO_CustomField::getBySource(ChCustomFieldSource_Server::ID);
+		$fields = DAO_CustomField::getByContext('cerberusweb.contexts.datacenter.server');
 		
 		// Polymorph
 		if(is_numeric($server)) {
@@ -40,7 +40,7 @@ class Context_Server extends Extension_DevblocksContext {
 			$token_values['name'] = $server->name;
 			$token_values['custom'] = array();
 			
-			$field_values = array_shift(DAO_CustomFieldValue::getValuesBySourceIds(ChCustomFieldSource_Server::ID, $server->id));
+			$field_values = array_shift(DAO_CustomFieldValue::getValuesByContextIds('cerberusweb.contexts.datacenter.server', $server->id));
 			if(is_array($field_values) && !empty($field_values)) {
 				foreach($field_values as $cf_id => $cf_val) {
 					if(!isset($fields[$cf_id]))
@@ -374,7 +374,7 @@ class SearchFields_Server implements IDevblocksSearchFields {
 		);
 		
 		// Custom Fields
-		$fields = DAO_CustomField::getBySource(ChCustomFieldSource_Server::ID);
+		$fields = DAO_CustomField::getByContext('cerberusweb.contexts.datacenter.server');
 
 		if(is_array($fields))
 		foreach($fields as $field_id => $field) {
@@ -445,7 +445,7 @@ class View_Server extends C4_AbstractView {
 		$tpl->assign('view', $this);
 
 		// Custom fields
-		$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Server::ID);
+		$custom_fields = DAO_CustomField::getByContext('cerberusweb.contexts.datacenter.server');
 		$tpl->assign('custom_fields', $custom_fields);
 
 		switch($this->renderTemplate) {
@@ -600,7 +600,7 @@ class View_Server extends C4_AbstractView {
 			DAO_Server::update($batch_ids, $change_fields);
 
 			// Custom Fields
-			self::_doBulkSetCustomFields(ChCustomFieldSource_Server::ID, $custom_fields, $batch_ids);
+			self::_doBulkSetCustomFields('cerberusweb.contexts.datacenter.server', $custom_fields, $batch_ids);
 			
 			unset($batch_ids);
 		}

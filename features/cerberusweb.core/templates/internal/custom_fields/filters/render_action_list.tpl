@@ -4,8 +4,8 @@
 {if isset($custom_fields.$cf_id)}
 	Set 
 	{assign var=cfield value=$custom_fields.$cf_id}
-	{assign var=cfield_source value=$cfield->source_extension}
-	{$source_manifests.$cfield_source->name}:{$custom_fields.$cf_id->name} 
+	{assign var=cfield_context value=$cfield->context}
+	{$context_manifests.$cfield_context->name}:{$custom_fields.$cf_id->name} 
 	 = 
 	{if isset($action.value) && is_array($action.value)}
 		{foreach from=$action.value item=i name=vals}

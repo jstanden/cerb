@@ -48,10 +48,6 @@
  *	 WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
 
-class CustomFieldSource_CommunityPortal extends Extension_CustomFieldSource {
-	const ID = 'usermeet.fields.source.community_portal';
-};
-
 class UmPortalHelper {
 	static private $_code = null; 
 	
@@ -250,7 +246,7 @@ class UmCommunityPage extends CerberusPageExtension {
 	    }
 		
 		// Custom Fields
-//		$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_FeedbackEntry::ID);
+//		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_FEEDBACK);
 //		$tpl->assign('custom_fields', $custom_fields);
 		
 		$tpl->display('devblocks:usermeet.core::community/display/tabs/templates/bulk.tpl');

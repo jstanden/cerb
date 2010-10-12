@@ -91,13 +91,13 @@ class ChContactsPage extends CerberusPageExtension {
 							case 'orgs':
 								$fields = DAO_ContactOrg::getFields();
 								$tpl->assign('fields',$fields);
-								$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Org::ID);
+								$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ORG);
 								$tpl->assign('custom_fields', $custom_fields);
 								break;
 							case 'addys':
 								$fields = DAO_Address::getFields();
 								$tpl->assign('fields',$fields);
-								$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Address::ID);
+								$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ADDRESS);
 								$tpl->assign('custom_fields', $custom_fields);
 								break;
 						}
@@ -462,8 +462,8 @@ class ChContactsPage extends CerberusPageExtension {
 			
 			if(!empty($custom_fields) && !empty($id)) {
 				// Format (typecast) and set the custom field types
-				$source_ext_id = ($type=="orgs") ? ChCustomFieldSource_Org::ID : ChCustomFieldSource_Address::ID;
-				DAO_CustomFieldValue::formatAndSetFieldValues($source_ext_id, $id, $custom_fields, $is_blank_unset, true, true);
+				$context_ext_id = ($type=="orgs") ? CerberusContexts::CONTEXT_ORG : CerberusContexts::CONTEXT_ADDRESS;
+				DAO_CustomFieldValue::formatAndSetFieldValues($context_ext_id, $id, $custom_fields, $is_blank_unset, true, true);
 			}
 			
 		}
@@ -497,10 +497,10 @@ class ChContactsPage extends CerberusPageExtension {
 		$contact = DAO_ContactOrg::get($org);
 		$tpl->assign('contact', $contact);
 
-		$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Org::ID);
+		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ORG);
 		$tpl->assign('custom_fields', $custom_fields);
 		
-		$custom_field_values = DAO_CustomFieldValue::getValuesBySourceIds(ChCustomFieldSource_Org::ID, $org);
+		$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_ORG, $org);
 		if(isset($custom_field_values[$org]))
 			$tpl->assign('custom_field_values', $custom_field_values[$org]);
 		
@@ -670,10 +670,10 @@ class ChContactsPage extends CerberusPageExtension {
 		}
 		
 		// Custom fields
-		$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Address::ID); 
+		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ADDRESS); 
 		$tpl->assign('custom_fields', $custom_fields);
 
-		$custom_field_values = DAO_CustomFieldValue::getValuesBySourceIds(ChCustomFieldSource_Address::ID, $id);
+		$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_ADDRESS, $id);
 		if(isset($custom_field_values[$id]))
 			$tpl->assign('custom_field_values', $custom_field_values[$id]);
 		
@@ -725,7 +725,7 @@ class ChContactsPage extends CerberusPageExtension {
 	    }
 		
 	    // Custom fields
-	    $custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Address::ID);
+	    $custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ADDRESS);
 	    $tpl->assign('custom_fields', $custom_fields);
 	    
 		// Groups
@@ -752,7 +752,7 @@ class ChContactsPage extends CerberusPageExtension {
 	    }
 		
 		// Custom Fields
-		$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Org::ID);
+		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ORG);
 		$tpl->assign('custom_fields', $custom_fields);
 		
 		$tpl->display('devblocks:cerberusweb.core::contacts/orgs/org_bulk.tpl');
@@ -774,10 +774,10 @@ class ChContactsPage extends CerberusPageExtension {
 		$tpl->assign('contact', $contact);
 
 		// Custom fields
-		$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Org::ID); 
+		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ORG); 
 		$tpl->assign('custom_fields', $custom_fields);
 
-		$custom_field_values = DAO_CustomFieldValue::getValuesBySourceIds(ChCustomFieldSource_Org::ID, $id);
+		$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_ORG, $id);
 		if(isset($custom_field_values[$id]))
 			$tpl->assign('custom_field_values', $custom_field_values[$id]);
 		
@@ -835,7 +835,7 @@ class ChContactsPage extends CerberusPageExtension {
 	
 			// Custom field saves
 			@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', array());
-			DAO_CustomFieldValue::handleFormPost(ChCustomFieldSource_Address::ID, $id, $field_ids);
+			DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_ADDRESS, $id, $field_ids);
 			
 			/*
 			 * Notify anything that wants to know when Address Peek saves.
@@ -957,7 +957,7 @@ class ChContactsPage extends CerberusPageExtension {
 				
 				// Custom field saves
 				@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', array());
-				DAO_CustomFieldValue::handleFormPost(ChCustomFieldSource_Org::ID, $id, $field_ids);
+				DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_ORG, $id, $field_ids);
 			}
 		}
 		

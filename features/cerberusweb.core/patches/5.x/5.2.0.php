@@ -73,6 +73,110 @@ if(isset($columns['is_registered']) && isset($columns['pass'])) {
 }
 
 // ===========================================================================
+// Migrate custom fields to contexts
+
+if(!isset($tables['custom_field']))
+	return FALSE;
+if(!isset($tables['custom_field_stringvalue']))
+	return FALSE;
+if(!isset($tables['custom_field_numbervalue']))
+	return FALSE;
+if(!isset($tables['custom_field_clobvalue']))
+	return FALSE;
+
+$mapping = array(
+	'cerberusweb.fields.source.address' => 'cerberusweb.contexts.address',
+	'cerberusweb.fields.source.kb_article' => 'cerberusweb.contexts.kb_article',
+	'cerberusweb.fields.source.org' => 'cerberusweb.contexts.org',
+	'cerberusweb.fields.source.task' => 'cerberusweb.contexts.task',
+	'cerberusweb.fields.source.ticket' => 'cerberusweb.contexts.ticket',
+	'cerberusweb.fields.source.worker' => 'cerberusweb.contexts.worker',
+	'cerberusweb.datacenter.domains.fields.domain' => 'cerberusweb.contexts.datacenter.domain',
+	'cerberusweb.datacenter.fields.server' => 'cerberusweb.contexts.datacenter.server',
+	'crm.fields.source.opportunity' => 'cerberusweb.contexts.opportunity',
+	'feedback.fields.source.feedback_entry' => 'cerberusweb.contexts.feedback',
+	'timetracking.fields.source.time_entry' => 'cerberusweb.contexts.timetracking',
+	'usermeet.fields.source.community_portal' => 'cerberusweb.contexts.portal',
+);
+
+// custom_field
+list($columns, $indexes) = $db->metaTable('custom_field');
+
+if(isset($columns['source_extension'])) {
+	$db->Execute("ALTER TABLE custom_field ADD COLUMN context VARCHAR(255) NOT NULL DEFAULT ''");
+	
+	foreach($mapping as $map_from => $map_to) {
+		$db->Execute(sprintf("UPDATE custom_field SET context = %s WHERE source_extension = %s",
+			$db->qstr($map_to),
+			$db->qstr($map_from)
+		));
+	}
+	
+	$db->Execute("ALTER TABLE custom_field DROP COLUMN source_extension, ADD INDEX context (context)");
+}
+
+// custom_field_stringvalue
+list($columns, $indexes) = $db->metaTable('custom_field_stringvalue');
+
+if(isset($columns['source_id'])) {
+	$db->Execute("ALTER TABLE custom_field_stringvalue CHANGE COLUMN source_id context_id INT UNSIGNED NOT NULL DEFAULT 0");
+}
+
+if(isset($columns['source_extension'])) {
+	$db->Execute("ALTER TABLE custom_field_stringvalue ADD COLUMN context VARCHAR(255) NOT NULL DEFAULT ''");
+	
+	foreach($mapping as $map_from => $map_to) {
+		$db->Execute(sprintf("UPDATE custom_field_stringvalue SET context = %s WHERE source_extension = %s",
+			$db->qstr($map_to),
+			$db->qstr($map_from)
+		));
+	}
+	
+	$db->Execute("ALTER TABLE custom_field_stringvalue DROP COLUMN source_extension, ADD INDEX context (context)");
+}
+
+// custom_field_numbervalue
+list($columns, $indexes) = $db->metaTable('custom_field_numbervalue');
+
+if(isset($columns['source_id'])) {
+	$db->Execute("ALTER TABLE custom_field_numbervalue CHANGE COLUMN source_id context_id INT UNSIGNED NOT NULL DEFAULT 0");
+}
+
+if(isset($columns['source_extension'])) {
+	$db->Execute("ALTER TABLE custom_field_numbervalue ADD COLUMN context VARCHAR(255) NOT NULL DEFAULT ''");
+	
+	foreach($mapping as $map_from => $map_to) {
+		$db->Execute(sprintf("UPDATE custom_field_numbervalue SET context = %s WHERE source_extension = %s",
+			$db->qstr($map_to),
+			$db->qstr($map_from)
+		));
+	}
+	
+	$db->Execute("ALTER TABLE custom_field_numbervalue DROP COLUMN source_extension, ADD INDEX context (context)");
+}
+
+// custom_field_clobvalue
+list($columns, $indexes) = $db->metaTable('custom_field_clobvalue');
+
+if(isset($columns['source_id'])) {
+	$db->Execute("ALTER TABLE custom_field_clobvalue CHANGE COLUMN source_id context_id INT UNSIGNED NOT NULL DEFAULT 0");
+}
+
+if(isset($columns['source_extension'])) {
+	$db->Execute("ALTER TABLE custom_field_clobvalue ADD COLUMN context VARCHAR(255) NOT NULL DEFAULT ''");
+	
+	foreach($mapping as $map_from => $map_to) {
+		$db->Execute(sprintf("UPDATE custom_field_clobvalue SET context = %s WHERE source_extension = %s",
+			$db->qstr($map_to),
+			$db->qstr($map_from)
+		));
+	}
+	
+	$db->Execute("ALTER TABLE custom_field_clobvalue DROP COLUMN source_extension, ADD INDEX context (context)");
+}
+
+
+// ===========================================================================
 // Contact lists 
 
 if(!isset($tables['contact_list'])) {

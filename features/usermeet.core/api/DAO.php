@@ -336,7 +336,7 @@ class SearchFields_CommunityTool implements IDevblocksSearchFields {
 		);
 		
 		// Custom Fields
-		$fields = DAO_CustomField::getBySource(CustomFieldSource_CommunityPortal::ID);
+		$fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_PORTAL);
 
 		if(is_array($fields))
 		foreach($fields as $field_id => $field) {

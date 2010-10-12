@@ -1,9 +1,9 @@
 <input type="hidden" name="c" value="config">
 <input type="hidden" name="a" value="saveFields">
-<input type="hidden" name="ext_id" value="{$source_manifest->id}">
+<input type="hidden" name="ext_id" value="{$context_manifest->id}">
 
 <div class="block">
-<h2>{$source_manifest->name} Fields</h2>
+<h2>{$context_manifest->name} Fields</h2>
 <br>
 
 <table cellspacing="2" cellpadding="1" border="0">

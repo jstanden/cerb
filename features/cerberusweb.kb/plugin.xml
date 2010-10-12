@@ -25,7 +25,6 @@
 	
 	<class_loader>
 		<file path="api/App.php">
-			<class name="ChCustomFieldSource_KbArticle" />
 			<class name="DAO_KbArticle" />
 			<class name="DAO_KbCategory" />
 			<class name="Extension_KnowledgebaseTab" />
@@ -149,19 +148,6 @@
 			<class>
 				<file>api/App.php</file>
 				<name>ChKbSendMailToolbarButton</name>
-			</class>
-			<params>
-			</params>
-		</extension>
-		
-		<!-- Custom Fields -->
-		
-		<extension point="cerberusweb.fields.source">
-			<id>cerberusweb.fields.source.kb_article</id>
-			<name>Knowledgebase Article</name>
-			<class>
-				<file>api/App.php</file>
-				<name>ChCustomFieldSource_KbArticle</name>
 			</class>
 			<params>
 			</params>

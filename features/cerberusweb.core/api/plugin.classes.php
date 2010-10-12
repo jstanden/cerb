@@ -224,28 +224,6 @@ class ChPageController extends DevblocksControllerExtension {
 	}
 };
 
-// Custom Field Sources
-
-class ChCustomFieldSource_Address extends Extension_CustomFieldSource {
-	const ID = 'cerberusweb.fields.source.address';
-};
-
-class ChCustomFieldSource_Org extends Extension_CustomFieldSource {
-	const ID = 'cerberusweb.fields.source.org';
-};
-
-class ChCustomFieldSource_Task extends Extension_CustomFieldSource {
-	const ID = 'cerberusweb.fields.source.task';
-};
-
-class ChCustomFieldSource_Ticket extends Extension_CustomFieldSource {
-	const ID = 'cerberusweb.fields.source.ticket';
-};
-
-class ChCustomFieldSource_Worker extends Extension_CustomFieldSource {
-	const ID = 'cerberusweb.fields.source.worker';
-};
-
 // Workspace Sources
 
 class ChWorkspaceSource_Address extends Extension_WorkspaceSource {

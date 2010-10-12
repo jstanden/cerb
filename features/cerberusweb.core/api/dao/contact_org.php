@@ -137,7 +137,7 @@ class DAO_ContactOrg extends C4_ORMHelper {
 		DAO_ContextLink::delete(CerberusContexts::CONTEXT_ORG, $ids);
         
         // Custom fields
-        DAO_CustomFieldValue::deleteBySourceIds(ChCustomFieldSource_Org::ID, $ids);
+        DAO_CustomFieldValue::deleteByContextIds(CerberusContexts::CONTEXT_ORG, $ids);
 
         // Notes
         DAO_Comment::deleteByContext(CerberusContexts::CONTEXT_ORG, $ids);
@@ -395,7 +395,7 @@ class SearchFields_ContactOrg {
 		);
 		
 		// Custom Fields
-		$fields = DAO_CustomField::getBySource(ChCustomFieldSource_Org::ID);
+		$fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ORG);
 
 		if(is_array($fields))
 		foreach($fields as $field_id => $field) {
@@ -480,7 +480,7 @@ class View_ContactOrg extends C4_AbstractView {
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
 
-		$org_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Org::ID);
+		$org_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ORG);
 		$tpl->assign('custom_fields', $org_fields);
 		
 		switch($this->renderTemplate) {
@@ -643,7 +643,7 @@ class View_ContactOrg extends C4_AbstractView {
 			}
 			
 			// Custom Fields
-			self::_doBulkSetCustomFields(ChCustomFieldSource_Org::ID, $custom_fields, $batch_ids);
+			self::_doBulkSetCustomFields(CerberusContexts::CONTEXT_ORG, $custom_fields, $batch_ids);
 
 			unset($batch_ids);
 		}
@@ -667,7 +667,7 @@ class Context_Org extends Extension_DevblocksContext {
 			$prefix = 'Org:';
 		
 		$translate = DevblocksPlatform::getTranslationService();
-		$fields = DAO_CustomField::getBySource(ChCustomFieldSource_Org::ID);
+		$fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ORG);
 
 		// Polymorph
 		if(is_numeric($org)) {
@@ -720,7 +720,7 @@ class Context_Org extends Extension_DevblocksContext {
 				$token_values['website'] = $org->website;
 			$token_values['custom'] = array();
 			
-			$field_values = array_shift(DAO_CustomFieldValue::getValuesBySourceIds(ChCustomFieldSource_Org::ID, $org->id));
+			$field_values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_ORG, $org->id));
 			if(is_array($field_values) && !empty($field_values)) {
 				foreach($field_values as $cf_id => $cf_val) {
 					if(!isset($fields[$cf_id]))

@@ -47,7 +47,7 @@
  * 		and Jerry Kanoholani. 
  *	 WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
-define("APP_BUILD", 2010100301);
+define("APP_BUILD", 2010101201);
 define("APP_VERSION", '5.2.0-dev');
 define("APP_MAIL_PATH", APP_STORAGE_PATH . '/mail/');
 
@@ -648,6 +648,7 @@ class CerberusContexts {
 	const CONTEXT_NOTIFICATION= 'cerberusweb.contexts.notification';
 	const CONTEXT_OPPORTUNITY = 'cerberusweb.contexts.opportunity';
 	const CONTEXT_ORG = 'cerberusweb.contexts.org';
+	const CONTEXT_PORTAL = 'cerberusweb.contexts.portal';
 	const CONTEXT_SNIPPET = 'cerberusweb.contexts.snippet';
 	const CONTEXT_TASK = 'cerberusweb.contexts.task';
 	const CONTEXT_TICKET = 'cerberusweb.contexts.ticket';
@@ -891,7 +892,7 @@ class CerberusContexts {
 			$prefix = 'Article:';
 		
 		$translate = DevblocksPlatform::getTranslationService();
-		$fields = DAO_CustomField::getBySource(ChCustomFieldSource_KbArticle::ID);
+		$fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_KB_ARTICLE);
 		
 		// Polymorph
 		if(is_numeric($article)) {
@@ -943,7 +944,7 @@ class CerberusContexts {
 			
 			$token_values['custom'] = array();
 			
-			$field_values = array_shift(DAO_CustomFieldValue::getValuesBySourceIds(ChCustomFieldSource_KbArticle::ID, $article->id));
+			$field_values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_KB_ARTICLE, $article->id));
 			if(is_array($field_values) && !empty($field_values)) {
 				foreach($field_values as $cf_id => $cf_val) {
 					if(!isset($fields[$cf_id]))
@@ -1104,7 +1105,7 @@ class CerberusContexts {
 			$prefix = 'Group:';
 		
 		$translate = DevblocksPlatform::getTranslationService();
-		//$fields = DAO_CustomField::getBySource(ChCustomFieldSource_Org::ID);
+		//$fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ORG);
 
 		// Polymorph
 		if(is_numeric($group)) {
@@ -1136,7 +1137,7 @@ class CerberusContexts {
 			$token_values['name'] = $group->name;
 			//$token_values['custom'] = array();
 			
-//			$field_values = array_shift(DAO_CustomFieldValue::getValuesBySourceIds(ChCustomFieldSource_Org::ID, $org->id));
+//			$field_values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_ORG, $org->id));
 //			if(is_array($field_values) && !empty($field_values)) {
 //				foreach($field_values as $cf_id => $cf_val) {
 //					if(!isset($fields[$cf_id]))
@@ -1172,7 +1173,7 @@ class CerberusContexts {
 			$prefix = 'Bucket:';
 		
 		$translate = DevblocksPlatform::getTranslationService();
-		//$fields = DAO_CustomField::getBySource(ChCustomFieldSource_Org::ID);
+		//$fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ORG);
 
 		// Polymorph
 		if(is_numeric($bucket)) {
@@ -1204,7 +1205,7 @@ class CerberusContexts {
 			$token_values['name'] = $bucket->name;
 			//$token_values['custom'] = array();
 			
-//			$field_values = array_shift(DAO_CustomFieldValue::getValuesBySourceIds(ChCustomFieldSource_Org::ID, $org->id));
+//			$field_values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_ORG, $org->id));
 //			if(is_array($field_values) && !empty($field_values)) {
 //				foreach($field_values as $cf_id => $cf_val) {
 //					if(!isset($fields[$cf_id]))
@@ -1234,7 +1235,7 @@ class CerberusContexts {
 			$prefix = 'Feedback:';
 		
 		$translate = DevblocksPlatform::getTranslationService();
-		$fields = DAO_CustomField::getBySource(ChCustomFieldSource_FeedbackEntry::ID);
+		$fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_FEEDBACK);
 
 		// Polymorph
 		if(is_numeric($feedback)) {
@@ -1274,7 +1275,7 @@ class CerberusContexts {
 			
 			$token_values['custom'] = array();
 			
-			$field_values = array_shift(DAO_CustomFieldValue::getValuesBySourceIds(ChCustomFieldSource_FeedbackEntry::ID, $feedback->id));
+			$field_values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_FEEDBACK, $feedback->id));
 			if(is_array($field_values) && !empty($field_values)) {
 				foreach($field_values as $cf_id => $cf_val) {
 					if(!isset($fields[$cf_id]))

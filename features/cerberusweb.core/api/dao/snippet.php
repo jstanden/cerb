@@ -355,7 +355,7 @@ class SearchFields_Snippet implements IDevblocksSearchFields {
 		);
 		
 		// Custom Fields
-		//$fields = DAO_CustomField::getBySource(PsCustomFieldSource_XXX::ID);
+		//$fields = DAO_CustomField::getByContext(CerberusContexts::XXX);
 
 		//if(is_array($fields))
 		//foreach($fields as $field_id => $field) {
@@ -618,7 +618,7 @@ class Context_Snippet extends Extension_DevblocksContext {
 			$prefix = 'Snippet:';
 		
 		$translate = DevblocksPlatform::getTranslationService();
-		//$fields = DAO_CustomField::getBySource(ChCustomFieldSource_Task::ID);
+		//$fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TASK);
 
 		// Polymorph
 		if(is_numeric($snippet)) {
@@ -647,7 +647,7 @@ class Context_Snippet extends Extension_DevblocksContext {
 			
 //			$token_values['custom'] = array();
 			
-//			$field_values = array_shift(DAO_CustomFieldValue::getValuesBySourceIds(ChCustomFieldSource_Task::ID, $task->id));
+//			$field_values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_TASK, $task->id));
 //			if(is_array($field_values) && !empty($field_values)) {
 //				foreach($field_values as $cf_id => $cf_val) {
 //					if(!isset($fields[$cf_id]))

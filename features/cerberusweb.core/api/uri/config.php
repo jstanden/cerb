@@ -421,7 +421,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 //	    $tpl->assign('lists', $lists);
 	    
 		// Custom Fields
-//		$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_FeedbackEntry::ID);
+//		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_FEEDBACK);
 //		$tpl->assign('custom_fields', $custom_fields);
 		
 		$tpl->display('devblocks:cerberusweb.core::configuration/tabs/attachments/bulk.tpl');
@@ -504,10 +504,10 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		$tpl->assign('teams', $teams);
 		
 		// Custom Fields
-		$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Worker::ID);
+		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_WORKER);
 		$tpl->assign('custom_fields', $custom_fields);
 		
-		$custom_field_values = DAO_CustomFieldValue::getValuesBySourceIds(ChCustomFieldSource_Worker::ID, $id);
+		$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_WORKER, $id);
 		if(isset($custom_field_values[$id]))
 			$tpl->assign('custom_field_values', $custom_field_values[$id]);
 		
@@ -643,7 +643,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 			
 			// Custom field saves
 			@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', array());
-			DAO_CustomFieldValue::handleFormPost(ChCustomFieldSource_Worker::ID, $id, $field_ids);
+			DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_WORKER, $id, $field_ids);
 		}
 		
 		if(!empty($view_id)) {
@@ -671,7 +671,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 //	    $tpl->assign('lists', $lists);
 	    
 		// Custom Fields
-		$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Worker::ID);
+		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_WORKER);
 		$tpl->assign('custom_fields', $custom_fields);
 		
 		$tpl->display('devblocks:cerberusweb.core::configuration/tabs/workers/bulk.tpl');
@@ -944,9 +944,8 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		$groups = DAO_Group::getAll();
 		$tpl->assign('groups', $groups);
 		
-		// Custom Field Sources
-		$source_manifests = DevblocksPlatform::getExtensions('cerberusweb.fields.source', false);
-		$tpl->assign('source_manifests', $source_manifests);
+		// Custom Field contexts (tickets, orgs, etc.)
+		$tpl->assign('context_manifests', DAO_CustomField::getContexts());
 		
 		// Custom Fields
 		$custom_fields =  DAO_CustomField::getAll();
@@ -1034,11 +1033,11 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		$tpl->assign('groups', $groups);
 
 		// Custom Fields: Address
-		$address_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Address::ID);
+		$address_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ADDRESS);
 		$tpl->assign('address_fields', $address_fields);
 		
 		// Custom Fields: Orgs
-		$org_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Org::ID);
+		$org_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ORG);
 		$tpl->assign('org_fields', $org_fields);
 		
 		// Criteria extensions
@@ -1282,8 +1281,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 //		$tpl->assign('buckets', $buckets);
 		
 		// Custom Field Sources
-		$source_manifests = DevblocksPlatform::getExtensions('cerberusweb.fields.source', false);
-		$tpl->assign('source_manifests', $source_manifests);
+		$tpl->assign('context_manifests', DAO_CustomField::getContexts());
 		
 		// Custom Fields
 		$custom_fields =  DAO_CustomField::getAll();
@@ -1296,10 +1294,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	function showTabFieldsAction() {
 		$tpl = DevblocksPlatform::getTemplateService();
 				
-		// Alphabetize
-		$source_manifests = DevblocksPlatform::getExtensions('cerberusweb.fields.source', false);
-		uasort($source_manifests, create_function('$a, $b', "return strcasecmp(\$a->name,\$b->name);\n"));
-		$tpl->assign('source_manifests', $source_manifests);
+		$tpl->assign('context_manifests', DAO_CustomField::getContexts());
 		
 		$tpl->display('devblocks:cerberusweb.core::configuration/tabs/fields/index.tpl');
 	}
@@ -1456,14 +1451,14 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		$tpl->assign('ext_id', $ext_id);
 
 		// [TODO] Make sure the extension exists before continuing
-		$source_manifest = DevblocksPlatform::getExtension($ext_id, false);
-		$tpl->assign('source_manifest', $source_manifest);
+		$context_manifest = DevblocksPlatform::getExtension($ext_id, false);
+		$tpl->assign('context_manifest', $context_manifest);
 		
 		$types = Model_CustomField::getTypes();
 		$tpl->assign('types', $types);
 
 		// Look up the defined global fields by the given extension
-		$fields = DAO_CustomField::getBySourceAndGroupId($ext_id, 0);
+		$fields = DAO_CustomField::getByContextAndGroupId($ext_id, 0);
 		$tpl->assign('fields', $fields);
 		
 		$tpl->display('devblocks:cerberusweb.core::configuration/tabs/fields/edit_source.tpl');
@@ -1533,7 +1528,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 				DAO_CustomField::NAME => $add_name,
 				DAO_CustomField::TYPE => $add_type,
 				DAO_CustomField::GROUP_ID => 0,
-				DAO_CustomField::SOURCE_EXTENSION => $ext_id,
+				DAO_CustomField::CONTEXT => $ext_id,
 				DAO_CustomField::OPTIONS => $add_options,
 			);
 			$id = DAO_CustomField::create($fields);
@@ -1915,15 +1910,15 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		$tpl->assign('workers', $workers);
 		
 		// Custom Fields: Address
-		$address_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Address::ID);
+		$address_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ADDRESS);
 		$tpl->assign('address_fields', $address_fields);
 		
 		// Custom Fields: Orgs
-		$org_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Org::ID);
+		$org_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ORG);
 		$tpl->assign('org_fields', $org_fields);
 
 		// Custom Fields: Ticket
-		$ticket_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Ticket::ID);
+		$ticket_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TICKET);
 		$tpl->assign('ticket_fields', $ticket_fields);
 		
 		$tpl->display('devblocks:cerberusweb.core::configuration/tabs/mail/routing/peek.tpl');

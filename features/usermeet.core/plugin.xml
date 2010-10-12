@@ -37,9 +37,6 @@
 			<class name="Model_CommunityTool" />
 			<class name="View_CommunityPortal" />
 		</file>
-		<file path="classes.php">
-			<class name="CustomFieldSource_CommunityPortal" />
-		</file>
 	</class_loader>
 	
 	<!-- Extensions -->
@@ -86,19 +83,6 @@
 			<params>
 				<param key="uri" value="community" />
 				<param key="menu_title" value="" />
-			</params>
-		</extension>
-		
-		<!-- Custom Field Sources -->
-		
-		<extension point="cerberusweb.fields.source">
-			<id>usermeet.fields.source.community_portal</id>
-			<name>Community Portal</name>
-			<class>
-				<file>classes.php</file>
-				<name>CustomFieldSource_CommunityPortal</name>
-			</class>
-			<params>
 			</params>
 		</extension>
 		

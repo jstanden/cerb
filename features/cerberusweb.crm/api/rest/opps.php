@@ -290,7 +290,7 @@ class ChRest_Opps extends Extension_RestController implements IExtensionRestCont
 		// Handle custom fields
 		$customfields = $this->_handleCustomFields($_POST);
 		if(is_array($customfields))
-			DAO_CustomFieldValue::formatAndSetFieldValues(CrmCustomFieldSource_Opportunity::ID, $id, $customfields, true, true, true);
+			DAO_CustomFieldValue::formatAndSetFieldValues(CerberusContexts::CONTEXT_OPPORTUNITY, $id, $customfields, true, true, true);
 		
 		// Check required fields
 //		$reqfields = array(DAO_Address::EMAIL);
@@ -372,7 +372,7 @@ class ChRest_Opps extends Extension_RestController implements IExtensionRestCont
 			// Handle custom fields
 			$customfields = $this->_handleCustomFields($_POST);
 			if(is_array($customfields))
-				DAO_CustomFieldValue::formatAndSetFieldValues(CrmCustomFieldSource_Opportunity::ID, $id, $customfields, true, true, true);
+				DAO_CustomFieldValue::formatAndSetFieldValues(CerberusContexts::CONTEXT_OPPORTUNITY, $id, $customfields, true, true, true);
 			
 			$this->getId($id);
 		}

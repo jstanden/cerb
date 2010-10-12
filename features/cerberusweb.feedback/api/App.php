@@ -48,10 +48,6 @@
  *	 WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
 
-class ChCustomFieldSource_FeedbackEntry extends Extension_CustomFieldSource {
-	const ID = 'feedback.fields.source.feedback_entry';
-};
-
 // Workspace Sources
 
 class ChWorkspaceSource_FeedbackEntry extends Extension_WorkspaceSource {
@@ -193,7 +189,7 @@ class DAO_FeedbackEntry extends C4_ORMHelper {
 		$db->Execute(sprintf("DELETE FROM feedback_entry WHERE id IN (%s)", $ids_list));
 		
 		// Custom fields
-		DAO_CustomFieldValue::deleteBySourceIds(ChCustomFieldSource_FeedbackEntry::ID, $ids);
+		DAO_CustomFieldValue::deleteByContextIds(CerberusContexts::CONTEXT_FEEDBACK, $ids);
 		
 		return true;
 	}
@@ -364,7 +360,7 @@ class SearchFields_FeedbackEntry {
 		);
 		
 		// Custom Fields
-		$fields = DAO_CustomField::getBySource(ChCustomFieldSource_FeedbackEntry::ID);
+		$fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_FEEDBACK);
 		if(is_array($fields))
 		foreach($fields as $field_id => $field) {
 			$key = 'cf_'.$field_id;
@@ -439,7 +435,7 @@ class C4_FeedbackEntryView extends C4_AbstractView {
 		$tpl->assign('workers', $workers);
 		
 		// Custom fields
-		$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_FeedbackEntry::ID);
+		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_FEEDBACK);
 		$tpl->assign('custom_fields', $custom_fields);
 		
 		$tpl->display('devblocks:cerberusweb.feedback::feedback/view.tpl');
@@ -629,7 +625,7 @@ class C4_FeedbackEntryView extends C4_AbstractView {
 			DAO_FeedbackEntry::update($batch_ids, $change_fields);
 
 			// Custom Fields
-			self::_doBulkSetCustomFields(ChCustomFieldSource_FeedbackEntry::ID, $custom_fields, $batch_ids);
+			self::_doBulkSetCustomFields(CerberusContexts::CONTEXT_FEEDBACK, $custom_fields, $batch_ids);
 
 			unset($batch_ids);
 		}
@@ -737,10 +733,10 @@ class ChFeedbackController extends DevblocksControllerExtension {
 		}
 		
 		// Custom fields
-		$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_FeedbackEntry::ID); 
+		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_FEEDBACK); 
 		$tpl->assign('custom_fields', $custom_fields);
 
-		$custom_field_values = DAO_CustomFieldValue::getValuesBySourceIds(ChCustomFieldSource_FeedbackEntry::ID, $id);
+		$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_FEEDBACK, $id);
 		if(isset($custom_field_values[$id]))
 			$tpl->assign('custom_field_values', $custom_field_values[$id]);
 		
@@ -838,7 +834,7 @@ class ChFeedbackController extends DevblocksControllerExtension {
 		
 		// Custom field saves
 		@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', array());
-		DAO_CustomFieldValue::handleFormPost(ChCustomFieldSource_FeedbackEntry::ID, $id, $field_ids);
+		DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_FEEDBACK, $id, $field_ids);
 	}
 	
 	function showBulkPanelAction() {
@@ -854,7 +850,7 @@ class ChFeedbackController extends DevblocksControllerExtension {
 	    }
 		
 		// Custom Fields
-		$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_FeedbackEntry::ID);
+		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_FEEDBACK);
 		$tpl->assign('custom_fields', $custom_fields);
 		
 		$tpl->display('devblocks:cerberusweb.feedback::feedback/bulk.tpl');

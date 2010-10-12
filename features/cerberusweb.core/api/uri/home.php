@@ -162,7 +162,7 @@ class ChHomePage extends CerberusPageExtension {
 	    }
 		
 		// Custom Fields
-		//$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Task::ID);
+		//$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TASK);
 		//$tpl->assign('custom_fields', $custom_fields);
 		
 		$tpl->display('devblocks:cerberusweb.core::home/tabs/my_events/bulk.tpl');

@@ -4,8 +4,8 @@
 {if isset($custom_fields.$cf_id)}
 	{assign var=cfield value=$custom_fields.$cf_id}
 	{assign var=crit_oper value=$crit.oper}
-	{assign var=cfield_source value=$cfield->source_extension}
-	{$source_manifests.$cfield_source->name}:{$custom_fields.$cf_id->name} 
+	{assign var=cfield_context value=$cfield->context}
+	{$context_manifests.$cfield_context->name}:{$custom_fields.$cf_id->name} 
 	{if 'E'==$cfield->type}
 		<i>between</i> <b>{$crit.from}</b> <i>and</i> <b>{$crit.to}</b>
 	{elseif 'W'==$cfield->type}

@@ -217,9 +217,15 @@ class DAO_Ticket extends C4_ORMHelper {
 		
 		// ===========================================================================
 		// Ophaned ticket custom fields
-		$db->Execute("DELETE QUICK custom_field_stringvalue FROM custom_field_stringvalue LEFT JOIN ticket ON (ticket.id=custom_field_stringvalue.source_id) WHERE custom_field_stringvalue.source_extension = 'cerberusweb.fields.source.ticket' AND ticket.id IS NULL");
-		$db->Execute("DELETE QUICK custom_field_numbervalue FROM custom_field_numbervalue LEFT JOIN ticket ON (ticket.id=custom_field_numbervalue.source_id) WHERE custom_field_numbervalue.source_extension = 'cerberusweb.fields.source.ticket' AND ticket.id IS NULL");
-		$db->Execute("DELETE QUICK custom_field_clobvalue FROM custom_field_clobvalue LEFT JOIN ticket ON (ticket.id=custom_field_clobvalue.source_id) WHERE custom_field_clobvalue.source_extension = 'cerberusweb.fields.source.ticket' AND ticket.id IS NULL");
+		$db->Execute(sprintf("DELETE QUICK custom_field_stringvalue FROM custom_field_stringvalue LEFT JOIN ticket ON (ticket.id=custom_field_stringvalue.context_id) WHERE custom_field_stringvalue.context = %s AND ticket.id IS NULL",
+			$db->qstr(CerberusContexts::CONTEXT_TICKET)
+		));
+		$db->Execute(sprintf("DELETE QUICK custom_field_numbervalue FROM custom_field_numbervalue LEFT JOIN ticket ON (ticket.id=custom_field_numbervalue.context_id) WHERE custom_field_numbervalue.context = %s AND ticket.id IS NULL",
+			$db->qstr(CerberusContexts::CONTEXT_TICKET)
+		));
+		$db->Execute(sprintf("DELETE QUICK custom_field_clobvalue FROM custom_field_clobvalue LEFT JOIN ticket ON (ticket.id=custom_field_clobvalue.context_id) WHERE custom_field_clobvalue.context = %s AND ticket.id IS NULL",
+			$db->qstr(CerberusContexts::CONTEXT_TICKET)
+		));
 	}
 	
 	static function merge($ids=array()) {
@@ -1136,7 +1142,7 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 		}
 		
 		// Custom Fields
-		$fields = DAO_CustomField::getBySource(ChCustomFieldSource_Ticket::ID);
+		$fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TICKET);
 
 		if(is_array($fields))
 		foreach($fields as $field_id => $field) {
@@ -1464,7 +1470,7 @@ class View_Ticket extends C4_AbstractView {
 		$team_categories = DAO_Bucket::getTeams();
 		$tpl->assign('team_categories', $team_categories);
 
-		$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Ticket::ID);
+		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TICKET);
 		$tpl->assign('custom_fields', $custom_fields);
 		
 		// Undo?
@@ -1968,7 +1974,7 @@ class Context_Ticket extends Extension_DevblocksContext {
 		
 		$translate = DevblocksPlatform::getTranslationService();
 		$workers = DAO_Worker::getAll();
-		$fields = DAO_CustomField::getBySource(ChCustomFieldSource_Ticket::ID);
+		$fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TICKET);
 		
 		// Polymorph
 		if(is_numeric($ticket)) {
@@ -2023,7 +2029,7 @@ class Context_Ticket extends Extension_DevblocksContext {
 			$token_values['custom'] = array();
 			
 			// Custom fields
-			$field_values = array_shift(DAO_CustomFieldValue::getValuesBySourceIds(ChCustomFieldSource_Ticket::ID, $ticket[SearchFields_Ticket::TICKET_ID]));
+			$field_values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_TICKET, $ticket[SearchFields_Ticket::TICKET_ID]));
 			if(is_array($field_values) && !empty($field_values)) {
 				foreach($field_values as $cf_id => $cf_val) {
 					if(!isset($fields[$cf_id]))

@@ -159,7 +159,7 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 		// Handle custom fields
 		$customfields = $this->_handleCustomFields($_POST);
 		if(is_array($customfields))
-			DAO_CustomFieldValue::formatAndSetFieldValues(ChCustomFieldSource_Ticket::ID, $id, $customfields, true, true, true);
+			DAO_CustomFieldValue::formatAndSetFieldValues(CerberusContexts::CONTEXT_TICKET, $id, $customfields, true, true, true);
 
 		// Update
 		DAO_Ticket::update($id, $fields);

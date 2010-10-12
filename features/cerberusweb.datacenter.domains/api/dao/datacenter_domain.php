@@ -16,7 +16,7 @@ class Context_Domain extends Extension_DevblocksContext {
 			$prefix = 'Domain:';
 		
 		$translate = DevblocksPlatform::getTranslationService();
-		$fields = DAO_CustomField::getBySource(ChCustomFieldSource_Domain::ID);
+		$fields = DAO_CustomField::getByContext('cerberusweb.contexts.datacenter.domain');
 		
 		// Polymorph
 		if(is_numeric($domain)) {
@@ -49,7 +49,7 @@ class Context_Domain extends Extension_DevblocksContext {
 				$token_values['name'] = $domain->name;
 			$token_values['custom'] = array();
 			
-			$field_values = array_shift(DAO_CustomFieldValue::getValuesBySourceIds(ChCustomFieldSource_Domain::ID, $domain->id));
+			$field_values = array_shift(DAO_CustomFieldValue::getValuesByContextIds('cerberusweb.contexts.datacenter.domain', $domain->id));
 			if(is_array($field_values) && !empty($field_values)) {
 				foreach($field_values as $cf_id => $cf_val) {
 					if(!isset($fields[$cf_id]))
@@ -389,7 +389,7 @@ class SearchFields_Domain implements IDevblocksSearchFields {
 		);
 		
 		// Custom Fields
-		$fields = DAO_CustomField::getBySource(ChCustomFieldSource_Domain::ID);
+		$fields = DAO_CustomField::getByContext('cerberusweb.contexts.datacenter.domain');
 
 		if(is_array($fields))
 		foreach($fields as $field_id => $field) {
@@ -464,7 +464,7 @@ class View_Domain extends C4_AbstractView {
 		$tpl->assign('view', $this);
 
 		// Custom fields
-		$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Domain::ID);
+		$custom_fields = DAO_CustomField::getByContext('cerberusweb.contexts.datacenter.domain');
 		$tpl->assign('custom_fields', $custom_fields);
 		
 		switch($this->renderTemplate) {
@@ -708,7 +708,7 @@ class View_Domain extends C4_AbstractView {
 			DAO_Domain::update($batch_ids, $change_fields);
 
 			// Custom Fields
-			self::_doBulkSetCustomFields(ChCustomFieldSource_Domain::ID, $custom_fields, $batch_ids);
+			self::_doBulkSetCustomFields('cerberusweb.contexts.datacenter.domain', $custom_fields, $batch_ids);
 			
 			unset($batch_ids);
 		}

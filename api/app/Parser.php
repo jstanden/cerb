@@ -673,7 +673,7 @@ class CerberusParser {
 		foreach($message->custom_fields as $cf_id => $cf_val) {
 			if((is_array($cf_val) && !empty($cf_val))
 				|| (!is_array($cf_val) && 0 != strlen($cf_val)))
-				DAO_CustomFieldValue::setFieldValue('cerberusweb.fields.source.ticket',$id,$cf_id,$cf_val);
+				DAO_CustomFieldValue::setFieldValue(CerberusContexts::CONTEXT_TICKET,$id,$cf_id,$cf_val);
 		}
 
 		// Finalize our new ticket details (post-message creation)

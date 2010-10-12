@@ -67,7 +67,7 @@ class C4_ORMHelper extends DevblocksORMHelper {
 				|| 0 == ($field_id = intval(substr($tbl_name,3)))) // not a field_id
 				continue;
 
-			// Make sure the field exists for this source
+			// Make sure the field exists for this context
 			if(!isset($custom_fields[$field_id]))
 				continue; 
 			
@@ -103,7 +103,7 @@ class C4_ORMHelper extends DevblocksORMHelper {
 
 			// If we have multiple values but we don't need to WHERE the JOIN, be efficient and don't GROUP BY
 			if(!isset($params['cf_'.$field_id])) {
-				$select_sql .= sprintf(",(SELECT field_value FROM %s WHERE %s=source_id AND field_id=%d LIMIT 0,1) AS %s ",
+				$select_sql .= sprintf(",(SELECT field_value FROM %s WHERE %s=context_id AND field_id=%d LIMIT 0,1) AS %s ",
 					$value_table,
 					$key,
 					$field_id,
@@ -116,7 +116,7 @@ class C4_ORMHelper extends DevblocksORMHelper {
 					$field_table
 				);
 				
-				$join_sql .= sprintf("LEFT JOIN %s %s ON (%s=%s.source_id AND %s.field_id=%d) ",
+				$join_sql .= sprintf("LEFT JOIN %s %s ON (%s=%s.context_id AND %s.field_id=%d) ",
 					$value_table,
 					$field_table,
 					$key,
@@ -1044,7 +1044,7 @@ class DAO_CustomField extends DevblocksORMHelper {
 	const NAME = 'name';
 	const TYPE = 'type';
 	const GROUP_ID = 'group_id';
-	const SOURCE_EXTENSION = 'source_extension';
+	const CONTEXT = 'context';
 	const POS = 'pos';
 	const OPTIONS = 'options';
 	
@@ -1085,12 +1085,21 @@ class DAO_CustomField extends DevblocksORMHelper {
 		return null;
 	}
 	
-	static function getBySourceAndGroupId($source_ext_id, $group_id) {
+	static function getContexts($as_instances=false) {
+		$context_manifests = DevblocksPlatform::getExtensions('devblocks.context', $as_instances);
+		if($as_instances)
+			uasort($context_manifests, create_function('$a, $b', "return strcasecmp(\$a->manifest->name,\$b->manifest->name);\n"));
+		else
+			uasort($context_manifests, create_function('$a, $b', "return strcasecmp(\$a->name,\$b->name);\n"));
+		return $context_manifests;
+	}
+	
+	static function getByContextAndGroupId($context, $group_id) {
 		$fields = self::getAll();
 
 		// Filter out groups that don't match
 		foreach($fields as $field_id => $field) { /* @var $field Model_CustomField */
-			if($group_id != $field->group_id || $source_ext_id != $field->source_extension) {
+			if($group_id != $field->group_id || $context != $field->context) {
 				unset($fields[$field_id]);
 			}
 		}
@@ -1098,12 +1107,12 @@ class DAO_CustomField extends DevblocksORMHelper {
 		return $fields;
 	}
 	
-	static function getBySource($source_ext_id) {
+	static function getByContext($context) {
 		$fields = self::getAll();
 		
 		// Filter fields to only the requested source
 		foreach($fields as $idx => $field) { /* @var $field Model_CustomField */
-			if(0 != strcasecmp($field->source_extension, $source_ext_id))
+			if(0 != strcasecmp($field->context, $context))
 				unset($fields[$idx]);
 		}
 		
@@ -1115,7 +1124,7 @@ class DAO_CustomField extends DevblocksORMHelper {
 		
 		if(null === ($objects = $cache->load(self::CACHE_ALL))) {
 			$db = DevblocksPlatform::getDatabaseService();
-			$sql = "SELECT id, name, type, source_extension, group_id, pos, options ".
+			$sql = "SELECT id, name, type, context, group_id, pos, options ".
 				"FROM custom_field ".
 				"ORDER BY group_id ASC, pos ASC "
 			;
@@ -1139,7 +1148,7 @@ class DAO_CustomField extends DevblocksORMHelper {
 			$object->id = intval($row['id']);
 			$object->name = $row['name'];
 			$object->type = $row['type'];
-			$object->source_extension = $row['source_extension'];
+			$object->context = $row['context'];
 			$object->group_id = intval($row['group_id']);
 			$object->pos = intval($row['pos']);
 			$object->options = DevblocksPlatform::parseCrlfString($row['options']);
@@ -1181,8 +1190,8 @@ class DAO_CustomField extends DevblocksORMHelper {
 
 class DAO_CustomFieldValue extends DevblocksORMHelper {
 	const FIELD_ID = 'field_id';
-	const SOURCE_EXTENSION = 'source_extension';
-	const SOURCE_ID = 'source_id';
+	const CONTEXT = 'context';
+	const CONTEXT_ID = 'context_id';
 	const FIELD_VALUE = 'field_value';
 	
 	public static function getValueTableName($field_id) {
@@ -1217,16 +1226,16 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 	
 	/**
 	 * 
-	 * @param object $source_ext_id
-	 * @param object $source_id
+	 * @param object $context
+	 * @param object $context_id
 	 * @param object $values
 	 * @return 
 	 */
-	public static function formatAndSetFieldValues($source_ext_id, $source_id, $values, $is_blank_unset=true, $delta=false, $autoadd_options=false) {
-		if(empty($source_ext_id) || empty($source_id) || !is_array($values))
+	public static function formatAndSetFieldValues($context, $context_id, $values, $is_blank_unset=true, $delta=false, $autoadd_options=false) {
+		if(empty($context) || empty($context_id) || !is_array($values))
 			return;
 
-		$fields = DAO_CustomField:: getBySource($source_ext_id);
+		$fields = DAO_CustomField::getByContext($context);
 
 		foreach($values as $field_id => $value) {
 			if(!isset($fields[$field_id]))
@@ -1246,7 +1255,7 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 			) {
 				// ... and blanks should unset
 				if($is_blank_unset && !$is_delta)
-					self::unsetFieldValue($source_ext_id, $source_id, $field_id);
+					self::unsetFieldValue($context, $context_id, $field_id);
 				
 				// Skip setting
 				continue;
@@ -1256,11 +1265,11 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 				case Model_CustomField::TYPE_SINGLE_LINE:
 				case Model_CustomField::TYPE_URL:
 					$value = (strlen($value) > 255) ? substr($value,0,255) : $value;
-					self::setFieldValue($source_ext_id, $source_id, $field_id, $value);
+					self::setFieldValue($context, $context_id, $field_id, $value);
 					break;
 
 				case Model_CustomField::TYPE_MULTI_LINE:
-					self::setFieldValue($source_ext_id, $source_id, $field_id, $value);
+					self::setFieldValue($context, $context_id, $field_id, $value);
 					break;
 
 				case Model_CustomField::TYPE_DROPDOWN:
@@ -1272,7 +1281,7 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 					
 					// If we're allowed to add/remove fields without touching the rest
 					if(in_array($value, $field->options))
-						self::setFieldValue($source_ext_id, $source_id, $field_id, $value); 
+						self::setFieldValue($context, $context_id, $field_id, $value); 
 					
 					break;
 					
@@ -1290,7 +1299,7 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 					}
 
 					if(!$delta) {
-						self::unsetFieldValue($source_ext_id, $source_id, $field_id);
+						self::unsetFieldValue($context, $context_id, $field_id);
 					}
 					
 					// Protect from injection in cases where it's not desireable (controlled above)
@@ -1303,9 +1312,9 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 							
 						if($is_unset) {
 							if($delta)
-								self::unsetFieldValue($source_ext_id, $source_id, $field_id, $v);
+								self::unsetFieldValue($context, $context_id, $field_id, $v);
 						} else {
-							self::setFieldValue($source_ext_id, $source_id, $field_id, $v, true);
+							self::setFieldValue($context, $context_id, $field_id, $v, true);
 						}
 					}
 
@@ -1313,29 +1322,29 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 
 				case Model_CustomField::TYPE_CHECKBOX:
 					$value = !empty($value) ? 1 : 0;
-					self::setFieldValue($source_ext_id, $source_id, $field_id, $value);
+					self::setFieldValue($context, $context_id, $field_id, $value);
 					break;
 
 				case Model_CustomField::TYPE_DATE:
 					@$value = strtotime($value);
-					self::setFieldValue($source_ext_id, $source_id, $field_id, $value);
+					self::setFieldValue($context, $context_id, $field_id, $value);
 					break;
 
 				case Model_CustomField::TYPE_NUMBER:
 					$value = intval($value);
-					self::setFieldValue($source_ext_id, $source_id, $field_id, $value);
+					self::setFieldValue($context, $context_id, $field_id, $value);
 					break;
 					
 				case Model_CustomField::TYPE_WORKER:
 					$value = intval($value);
-					self::setFieldValue($source_ext_id, $source_id, $field_id, $value);
+					self::setFieldValue($context, $context_id, $field_id, $value);
 					break;
 			}
 		}
 		
 	}
 	
-	public static function setFieldValue($source_ext_id, $source_id, $field_id, $value, $delta=false) {
+	public static function setFieldValue($context, $context_id, $field_id, $value, $delta=false) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
 		if(null == ($field = DAO_CustomField::get($field_id)))
@@ -1359,19 +1368,19 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 		}
 		
 		// Clear existing values (beats replace logic)
-		self::unsetFieldValue($source_ext_id, $source_id, $field_id, ($delta?$value:null));
+		self::unsetFieldValue($context, $context_id, $field_id, ($delta?$value:null));
 
 		// Set values consistently
 		if(!is_array($value))
 			$value = array($value);
 			
 		foreach($value as $v) {
-			$sql = sprintf("INSERT INTO %s (field_id, source_extension, source_id, field_value) ".
+			$sql = sprintf("INSERT INTO %s (field_id, context, context_id, field_value) ".
 				"VALUES (%d, %s, %d, %s)",
 				$table_name,
 				$field_id,
-				$db->qstr($source_ext_id),
-				$source_id,
+				$db->qstr($context),
+				$context_id,
 				$db->qstr($v)
 			);
 			$db->Execute($sql);
@@ -1380,7 +1389,7 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 		return TRUE;
 	}
 	
-	public static function unsetFieldValue($source_ext_id, $source_id, $field_id, $value=null) {
+	public static function unsetFieldValue($context, $context_id, $field_id, $value=null) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
 		if(null == ($field = DAO_CustomField::get($field_id)))
@@ -1394,10 +1403,10 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 			
 		foreach($value as $v) {
 			// Delete all values or optionally a specific given value
-			$sql = sprintf("DELETE QUICK FROM %s WHERE source_extension = '%s' AND source_id = %d AND field_id = %d %s",
+			$sql = sprintf("DELETE QUICK FROM %s WHERE context = '%s' AND context_id = %d AND field_id = %d %s",
 				$table_name,
-				$source_ext_id,
-				$source_id,
+				$context,
+				$context_id,
 				$field_id,
 				(!is_null($v) ? sprintf("AND field_value = %s ",$db->qstr($v)) : "")
 			);
@@ -1467,8 +1476,8 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 		return $do;
 	}
 	
-	public static function handleFormPost($source_ext_id, $source_id, $field_ids) {
-		$fields = DAO_CustomField::getBySource($source_ext_id);
+	public static function handleFormPost($context, $context_id, $field_ids) {
+		$fields = DAO_CustomField::getByContext($context);
 		
 		if(is_array($field_ids))
 		foreach($field_ids as $field_id) {
@@ -1481,42 +1490,42 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 				case Model_CustomField::TYPE_URL:
 					@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id],'string','');
 					if(0 != strlen($field_value)) {
-						DAO_CustomFieldValue::setFieldValue($source_ext_id, $source_id, $field_id, $field_value);
+						DAO_CustomFieldValue::setFieldValue($context, $context_id, $field_id, $field_value);
 					} else {
-						DAO_CustomFieldValue::unsetFieldValue($source_ext_id, $source_id, $field_id);
+						DAO_CustomFieldValue::unsetFieldValue($context, $context_id, $field_id);
 					}
 					break;
 					
 				case Model_CustomField::TYPE_DROPDOWN:
 					@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id],'string','');
 					if(0 != strlen($field_value)) {
-						DAO_CustomFieldValue::setFieldValue($source_ext_id, $source_id, $field_id, $field_value);
+						DAO_CustomFieldValue::setFieldValue($context, $context_id, $field_id, $field_value);
 					} else {
-						DAO_CustomFieldValue::unsetFieldValue($source_ext_id, $source_id, $field_id);
+						DAO_CustomFieldValue::unsetFieldValue($context, $context_id, $field_id);
 					}
 					break;
 					
 				case Model_CustomField::TYPE_MULTI_PICKLIST:
 					@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id],'array',array());
 					if(!empty($field_value)) {
-						DAO_CustomFieldValue::setFieldValue($source_ext_id, $source_id, $field_id, $field_value);
+						DAO_CustomFieldValue::setFieldValue($context, $context_id, $field_id, $field_value);
 					} else {
-						DAO_CustomFieldValue::unsetFieldValue($source_ext_id, $source_id, $field_id);
+						DAO_CustomFieldValue::unsetFieldValue($context, $context_id, $field_id);
 					}
 					break;
 					
 				case Model_CustomField::TYPE_CHECKBOX:
 					@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id],'integer',0);
 					$set = !empty($field_value) ? 1 : 0;
-					DAO_CustomFieldValue::setFieldValue($source_ext_id, $source_id, $field_id, $set);
+					DAO_CustomFieldValue::setFieldValue($context, $context_id, $field_id, $set);
 					break;
 
 				case Model_CustomField::TYPE_MULTI_CHECKBOX:
 					@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id],'array',array());
 					if(!empty($field_value)) {
-						DAO_CustomFieldValue::setFieldValue($source_ext_id, $source_id, $field_id, $field_value);
+						DAO_CustomFieldValue::setFieldValue($context, $context_id, $field_id, $field_value);
 					} else {
-						DAO_CustomFieldValue::unsetFieldValue($source_ext_id, $source_id, $field_id);
+						DAO_CustomFieldValue::unsetFieldValue($context, $context_id, $field_id);
 					}
 					break;
 				
@@ -1524,9 +1533,9 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 					@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id],'string','');
 					@$date = strtotime($field_value);
 					if(!empty($date)) {
-						DAO_CustomFieldValue::setFieldValue($source_ext_id, $source_id, $field_id, $date);
+						DAO_CustomFieldValue::setFieldValue($context, $context_id, $field_id, $date);
 					} else {
-						DAO_CustomFieldValue::unsetFieldValue($source_ext_id, $source_id, $field_id);
+						DAO_CustomFieldValue::unsetFieldValue($context, $context_id, $field_id);
 					}
 					break;
 
@@ -1534,9 +1543,9 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 				case Model_CustomField::TYPE_WORKER:
 					@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id],'string','');
 					if(0 != strlen($field_value)) {
-						DAO_CustomFieldValue::setFieldValue($source_ext_id, $source_id, $field_id, intval($field_value));
+						DAO_CustomFieldValue::setFieldValue($context, $context_id, $field_id, intval($field_value));
 					} else {
-						DAO_CustomFieldValue::unsetFieldValue($source_ext_id, $source_id, $field_id);
+						DAO_CustomFieldValue::unsetFieldValue($context, $context_id, $field_id);
 					}
 					break;
 			}
@@ -1545,13 +1554,13 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 		return true;
 	}
 	
-	public static function getValuesBySourceIds($source_ext_id, $source_ids) {
-		if(is_null($source_ids))
+	public static function getValuesByContextIds($context, $context_ids) {
+		if(is_null($context_ids))
 			return array();
-		elseif(!is_array($source_ids))
-			$source_ids = array($source_ids);
+		elseif(!is_array($context_ids))
+			$context_ids = array($context_ids);
 
-		if(empty($source_ids))
+		if(empty($context_ids))
 			return array();
 			
 		$db = DevblocksPlatform::getDatabaseService();
@@ -1563,33 +1572,33 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 		// [TODO] This is inefficient (and redundant)
 			
 		// STRINGS
-		$sql = sprintf("SELECT source_id, field_id, field_value ".
+		$sql = sprintf("SELECT context_id, field_id, field_value ".
 			"FROM custom_field_stringvalue ".
-			"WHERE source_extension = '%s' AND source_id IN (%s)",
-			$source_ext_id,
-			implode(',', $source_ids)
+			"WHERE context = '%s' AND context_id IN (%s)",
+			$context,
+			implode(',', $context_ids)
 		);
 		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 		
 		while($row = mysql_fetch_assoc($rs)) {
-			$source_id = intval($row['source_id']);
+			$context_id = intval($row['context_id']);
 			$field_id = intval($row['field_id']);
 			$field_value = $row['field_value'];
 			
-			if(!isset($results[$source_id]))
-				$results[$source_id] = array();
+			if(!isset($results[$context_id]))
+				$results[$context_id] = array();
 				
-			$source =& $results[$source_id];
+			$ptr =& $results[$context_id];
 			
 			// If multiple value type (multi-picklist, multi-checkbox)
 			if($fields[$field_id]->type=='M' || $fields[$field_id]->type=='X') {
-				if(!isset($source[$field_id]))
-					$source[$field_id] = array();
+				if(!isset($ptr[$field_id]))
+					$ptr[$field_id] = array();
 					
-				$source[$field_id][$field_value] = $field_value;
+				$ptr[$field_id][$field_value] = $field_value;
 				
 			} else { // single value
-				$source[$field_id] = $field_value;
+				$ptr[$field_id] = $field_value;
 				
 			}
 		}
@@ -1597,48 +1606,48 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 		mysql_free_result($rs);
 		
 		// CLOBS
-		$sql = sprintf("SELECT source_id, field_id, field_value ".
+		$sql = sprintf("SELECT context_id, field_id, field_value ".
 			"FROM custom_field_clobvalue ".
-			"WHERE source_extension = '%s' AND source_id IN (%s)",
-			$source_ext_id,
-			implode(',', $source_ids)
+			"WHERE context = '%s' AND context_id IN (%s)",
+			$context,
+			implode(',', $context_ids)
 		);
 		
 		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 
 		while($row = mysql_fetch_assoc($rs)) {
-			$source_id = intval($row['source_id']);
+			$context_id = intval($row['context_id']);
 			$field_id = intval($row['field_id']);
 			$field_value = $row['field_value'];
 			
-			if(!isset($results[$source_id]))
-				$results[$source_id] = array();
+			if(!isset($results[$context_id]))
+				$results[$context_id] = array();
 				
-			$source =& $results[$source_id];
-			$source[$field_id] = $field_value;
+			$ptr =& $results[$context_id];
+			$ptr[$field_id] = $field_value;
 		}
 		
 		mysql_free_result($rs);
 
 		// NUMBERS
-		$sql = sprintf("SELECT source_id, field_id, field_value ".
+		$sql = sprintf("SELECT context_id, field_id, field_value ".
 			"FROM custom_field_numbervalue ".
-			"WHERE source_extension = '%s' AND source_id IN (%s)",
-			$source_ext_id,
-			implode(',', $source_ids)
+			"WHERE context = '%s' AND context_id IN (%s)",
+			$context,
+			implode(',', $context_ids)
 		);
 		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 
 		while($row = mysql_fetch_assoc($rs)) {
-			$source_id = intval($row['source_id']);
+			$context_id = intval($row['context_id']);
 			$field_id = intval($row['field_id']);
 			$field_value = $row['field_value'];
 			
-			if(!isset($results[$source_id]))
-				$results[$source_id] = array();
+			if(!isset($results[$context_id]))
+				$results[$context_id] = array();
 				
-			$source =& $results[$source_id];
-			$source[$field_id] = $field_value;
+			$ptr =& $results[$context_id];
+			$ptr[$field_id] = $field_value;
 		}
 		
 		mysql_free_result($rs);
@@ -1646,20 +1655,20 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 		return $results;
 	}
 	
-	public static function deleteBySourceIds($source_extension, $source_ids) {
+	public static function deleteByContextIds($context, $context_ids) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		if(!is_array($source_ids)) $source_ids = array($source_ids);
-		$ids_list = implode(',', $source_ids);
+		if(!is_array($context_ids)) $context_ids = array($context_ids);
+		$ids_list = implode(',', $context_ids);
 
 		$tables = array('custom_field_stringvalue','custom_field_clobvalue','custom_field_numbervalue');
 		
-		if(!empty($source_ids))
+		if(!empty($context_ids))
 		foreach($tables as $table) {
-			$sql = sprintf("DELETE QUICK FROM %s WHERE source_extension = %s AND source_id IN (%s)",
+			$sql = sprintf("DELETE QUICK FROM %s WHERE context = %s AND context_id IN (%s)",
 				$table,
-				$db->qstr($source_extension),
-				implode(',', $source_ids)
+				$db->qstr($context),
+				implode(',', $context_ids)
 			);
 			$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		}

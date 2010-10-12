@@ -173,7 +173,7 @@ class DAO_Address extends C4_ORMHelper {
 		DAO_ContextLink::delete(CerberusContexts::CONTEXT_ADDRESS, $ids);
         
         // Custom fields
-        DAO_CustomFieldValue::deleteBySourceIds(ChCustomFieldSource_Address::ID, $ids);
+        DAO_CustomFieldValue::deleteByContextIds(CerberusContexts::CONTEXT_ADDRESS, $ids);
     }
 		
 	static function getWhere($where=null) {
@@ -465,7 +465,7 @@ class SearchFields_Address implements IDevblocksSearchFields {
 		);
 		
 		// Custom Fields
-		$fields = DAO_CustomField::getBySource(ChCustomFieldSource_Address::ID);
+		$fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ADDRESS);
 		if(is_array($fields))
 		foreach($fields as $field_id => $field) {
 			$key = 'cf_'.$field_id;
@@ -562,7 +562,7 @@ class View_Address extends C4_AbstractView {
 		
 		$tpl->assign('view', $this);
 
-		$address_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Address::ID);
+		$address_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ADDRESS);
 		$tpl->assign('custom_fields', $address_fields);
 		
 		switch($this->renderTemplate) {
@@ -767,7 +767,7 @@ class View_Address extends C4_AbstractView {
 			DAO_Address::update($batch_ids, $change_fields);
 			
 			// Custom Fields
-			self::_doBulkSetCustomFields(ChCustomFieldSource_Address::ID, $custom_fields, $batch_ids);
+			self::_doBulkSetCustomFields(CerberusContexts::CONTEXT_ADDRESS, $custom_fields, $batch_ids);
 			
 			unset($batch_ids);
 		}
@@ -810,7 +810,7 @@ class Context_Address extends Extension_DevblocksContext {
 			$prefix = 'Email:';
 		
 		$translate = DevblocksPlatform::getTranslationService();
-		$fields = DAO_CustomField::getBySource(ChCustomFieldSource_Address::ID);
+		$fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ADDRESS);
 		
 		// Polymorph
 		if(is_numeric($address)) {
@@ -855,7 +855,7 @@ class Context_Address extends Extension_DevblocksContext {
 			$token_values['is_banned'] = $address->is_banned;
 			$token_values['custom'] = array();
 			
-			$field_values = array_shift(DAO_CustomFieldValue::getValuesBySourceIds(ChCustomFieldSource_Address::ID, $address->id));
+			$field_values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_ADDRESS, $address->id));
 			if(is_array($field_values) && !empty($field_values)) {
 				foreach($field_values as $cf_id => $cf_val) {
 					if(!isset($fields[$cf_id]))

@@ -35,11 +35,6 @@ class DatacenterServersTab extends Extension_DatacenterTab {
 	}
 };
 
-// [TODO] This will no longer be necessary soon
-class ChCustomFieldSource_Server extends Extension_CustomFieldSource {
-	const ID = 'cerberusweb.datacenter.fields.server';
-};
-
 class Page_Datacenter extends CerberusPageExtension {
 	function isVisible() {
 		$active_worker = CerberusApplication::getActiveWorker();
@@ -163,10 +158,10 @@ class Page_Datacenter extends CerberusPageExtension {
 		$tpl->assign('model', $model);
 		
 		// Custom fields
-		$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Server::ID); 
+		$custom_fields = DAO_CustomField::getByContext('cerberusweb.contexts.datacenter.server'); 
 		$tpl->assign('custom_fields', $custom_fields);
 
-		$custom_field_values = DAO_CustomFieldValue::getValuesBySourceIds(ChCustomFieldSource_Server::ID, $id);
+		$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds('cerberusweb.contexts.datacenter.server', $id);
 		if(isset($custom_field_values[$id]))
 			$tpl->assign('custom_field_values', $custom_field_values[$id]);
 		
@@ -202,7 +197,7 @@ class Page_Datacenter extends CerberusPageExtension {
 			
 			// Custom field saves
 			@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', array());
-			DAO_CustomFieldValue::handleFormPost(ChCustomFieldSource_Server::ID, $id, $field_ids);
+			DAO_CustomFieldValue::handleFormPost('cerberusweb.contexts.datacenter.server', $id, $field_ids);
 			
 			// [TODO] Context links
 		}
@@ -230,7 +225,7 @@ class Page_Datacenter extends CerberusPageExtension {
 		//$tpl->assign('team_categories', $team_categories);
 		
 		// Custom Fields
-		$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Server::ID);
+		$custom_fields = DAO_CustomField::getByContext('cerberusweb.contexts.datacenter.server');
 		$tpl->assign('custom_fields', $custom_fields);
 		
 		$tpl->display('devblocks:cerberusweb.datacenter::datacenter/servers/bulk.tpl');

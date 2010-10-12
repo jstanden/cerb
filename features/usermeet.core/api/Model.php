@@ -145,7 +145,7 @@ class View_CommunityPortal extends C4_AbstractView {
 		$tpl->assign('results', $results);
 
 		// Custom fields
-		$custom_fields = DAO_CustomField::getBySource(CustomFieldSource_CommunityPortal::ID);
+		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_PORTAL);
 		$tpl->assign('custom_fields', $custom_fields);
 		
 		$tpl->display('devblocks:usermeet.core::community/config/tab/view.tpl');
@@ -307,7 +307,7 @@ class View_CommunityPortal extends C4_AbstractView {
 			DAO_CommunityTool::update($batch_ids, $change_fields);
 			
 			// Custom Fields
-			self::_doBulkSetCustomFields(CustomFieldSource_CommunityPortal::ID, $custom_fields, $batch_ids);
+			self::_doBulkSetCustomFields(CerberusContexts::CONTEXT_PORTAL, $custom_fields, $batch_ids);
 			
 			unset($batch_ids);
 		}

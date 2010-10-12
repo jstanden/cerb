@@ -24,7 +24,6 @@
 	
 	<class_loader>
 		<file path="api/App.php">
-			<class name="ChCustomFieldSource_Server" />
 			<class name="Extension_DatacenterTab" />
 		</file>
 		<file path="api/dao/server.php">
@@ -94,19 +93,6 @@
 			<params>
 				<param key="uri" value="servers" />
     			<param key="title" value="cerberusweb.datacenter.common.servers" />
-			</params>
-		</extension>
-
-		<!-- Custom Field Sources -->
-		
-		<extension point="cerberusweb.fields.source">
-			<id>cerberusweb.datacenter.fields.server</id>
-			<name>Server</name>
-			<class>
-				<file>api/App.php</file>
-				<name>ChCustomFieldSource_Server</name>
-			</class>
-			<params>
 			</params>
 		</extension>
 

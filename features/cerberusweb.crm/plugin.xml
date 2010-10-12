@@ -27,7 +27,6 @@
 	<class_loader>
 		<file path="api/App.php">
 			<class name="Extension_CrmOpportunityToolbarItem" />
-			<class name="CrmCustomFieldSource_Opportunity" />
 			<class name="DAO_CrmOpportunity" />
 			<class name="Model_CrmOpportunity" />
 			<class name="SearchFields_CrmOpportunity" />
@@ -126,19 +125,6 @@
 			<params>
 				<param key="uri" value="crm" />
 				<param key="menutitle" value="" />
-			</params>
-		</extension>
-
-		<!-- Custom Field Sources -->
-		
-		<extension point="cerberusweb.fields.source">
-			<id>crm.fields.source.opportunity</id>
-			<name>Opportunity</name>
-			<class>
-				<file>api/App.php</file>
-				<name>CrmCustomFieldSource_Opportunity</name>
-			</class>
-			<params>
 			</params>
 		</extension>
 

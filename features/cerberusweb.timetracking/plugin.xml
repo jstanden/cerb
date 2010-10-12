@@ -249,19 +249,6 @@
 			</params>
 		</extension>		
 		 
-		<!-- Custom Field Source -->
-		 
-		<extension point="cerberusweb.fields.source">
-			<id>timetracking.fields.source.time_entry</id>
-			<name>Time Tracking</name>
-			<class>
-				<file>api/App.php</file>
-				<name>ChCustomFieldSource_TimeEntry</name>
-			</class>
-			<params>
-			</params>
-		</extension>
-		 
 		<!-- Tabs -->
 		 
 		<!--

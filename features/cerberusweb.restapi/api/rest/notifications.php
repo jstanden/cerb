@@ -237,7 +237,7 @@ class ChRest_Notifications extends Extension_RestController implements IExtensio
 		// Handle custom fields
 //		$customfields = $this->_handleCustomFields($_POST);
 //		if(is_array($customfields))
-//			DAO_CustomFieldValue::formatAndSetFieldValues(ChCustomFieldSource_Worker::ID, $id, $customfields, true, true, true);
+//			DAO_CustomFieldValue::formatAndSetFieldValues(CerberusContexts::CONTEXT_WORKER, $id, $customfields, true, true, true);
 		
 		// Check required fields
 //		$reqfields = array(DAO_Address::EMAIL);
@@ -304,7 +304,7 @@ class ChRest_Notifications extends Extension_RestController implements IExtensio
 			// Handle custom fields
 //			$customfields = $this->_handleCustomFields($_POST);
 //			if(is_array($customfields))
-//				DAO_CustomFieldValue::formatAndSetFieldValues(ChCustomFieldSource_Worker::ID, $id, $customfields, true, true, true);
+//				DAO_CustomFieldValue::formatAndSetFieldValues(CerberusContexts::CONTEXT_WORKER, $id, $customfields, true, true, true);
 			
 			$this->getId($id);
 		}

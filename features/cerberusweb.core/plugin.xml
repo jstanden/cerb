@@ -33,7 +33,7 @@
 		<patch version="5.0.1" revision="864" file="patches/5.x/5.0.1.php" />
 		<patch version="5.1.0" revision="896" file="patches/5.x/5.1.0.php" />
 		<patch version="5.1.1" revision="898" file="patches/5.x/5.1.1.php" />
-		<patch version="5.2.0-dev" revision="900" file="patches/5.x/5.2.0.php" />
+		<patch version="5.2.0-dev" revision="901" file="patches/5.x/5.2.0.php" />
 	</patches>
 
 	<!-- Declared Extension Points -->
@@ -54,11 +54,6 @@
 	
 	<class_loader>
 		<file path="api/plugin.classes.php">
-			<class name="ChCustomFieldSource_Address" />
-			<class name="ChCustomFieldSource_Org" />
-			<class name="ChCustomFieldSource_Task" />
-			<class name="ChCustomFieldSource_Ticket" />
-			<class name="ChCustomFieldSource_Worker" />
 			<class name="ChPageController" />
 			<class name="ChRssSource_Notification" />
 			<class name="ChRssSource_Task" />
@@ -970,63 +965,6 @@
 			<params>
 			</params>
 		</extension>
-		
-		<!-- Custom Field Sources -->
-		
-		<extension point="cerberusweb.fields.source">
-			<id>cerberusweb.fields.source.address</id>
-			<name>Address</name>
-			<class>
-				<file>api/plugin.classes.php</file>
-				<name>ChCustomFieldSource_Address</name>
-			</class>
-			<params>
-			</params>
-		</extension>
-				
-		<extension point="cerberusweb.fields.source">
-			<id>cerberusweb.fields.source.org</id>
-			<name>Organization</name>
-			<class>
-				<file>api/plugin.classes.php</file>
-				<name>ChCustomFieldSource_Org</name>
-			</class>
-			<params>
-			</params>
-		</extension>
-				
-		<extension point="cerberusweb.fields.source">
-			<id>cerberusweb.fields.source.task</id>
-			<name>Task</name>
-			<class>
-				<file>api/plugin.classes.php</file>
-				<name>ChCustomFieldSource_Task</name>
-			</class>
-			<params>
-			</params>
-		</extension>
-				
-		<extension point="cerberusweb.fields.source">
-			<id>cerberusweb.fields.source.ticket</id>
-			<name>Ticket</name>
-			<class>
-				<file>api/plugin.classes.php</file>
-				<name>ChCustomFieldSource_Ticket</name>
-			</class>
-			<params>
-			</params>
-		</extension>		
-		
-		<extension point="cerberusweb.fields.source">
-			<id>cerberusweb.fields.source.worker</id>
-			<name>Worker</name>
-			<class>
-				<file>api/plugin.classes.php</file>
-				<name>ChCustomFieldSource_Worker</name>
-			</class>
-			<params>
-			</params>
-		</extension>		
 		
 		<!-- Workspace Sources -->
 		

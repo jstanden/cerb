@@ -260,7 +260,7 @@ class SearchFields_ContactPerson implements IDevblocksSearchFields {
 		);
 		
 		// Custom Fields
-		//$fields = DAO_CustomField::getBySource(CustomFieldSource_XXX::ID);
+		//$fields = DAO_CustomField::getByContext(CerberusContexts::XXX);
 
 		//if(is_array($fields))
 		//foreach($fields as $field_id => $field) {
@@ -345,7 +345,7 @@ class View_ContactPerson extends C4_AbstractView {
 		$tpl->assign('view', $this);
 
 		// Custom fields
-		//$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Example::ID);
+		//$custom_fields = DAO_CustomField::getByContext(CerberusContexts::XXX);
 		//$tpl->assign('custom_fields', $custom_fields);
 
 		$tpl->display('devblocks:cerberusweb.core::contacts/people/view.tpl');

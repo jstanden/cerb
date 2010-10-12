@@ -8,9 +8,9 @@
 <input type="hidden" name="c" value="reports">
 
 <select name="field_id" onchange="this.form.btnSubmit.click();">
-	{foreach from=$source_manifests item=mft}
+	{foreach from=$context_manifests item=mft}
 		{foreach from=$custom_fields item=f key=field_idx}
-			{if 'T' != $f->type && 0==strcasecmp($mft->id,$f->source_extension)}{* Ignore clobs *}
+			{if 'T' != $f->type && 0==strcasecmp($mft->id,$f->context)}{* Ignore clobs *}
 			<option value="{$field_idx}" {if $field_id==$field_idx}selected="selected"{/if}>{$mft->name}:{$f->name}</option>
 			{/if}
 		{/foreach}
@@ -142,7 +142,7 @@ plot1 = $.jqplot('reportChart', [series1], {
 {if empty($value_counts)}
 	<h3>No data.</h3>
 {else}
-	{$manifest = $source_manifests.{$f->source_extension}}
+	{$manifest = $context_manifests.{$f->context}}
 	<h2>{$manifest->name}: {$field->name}</h2>
 	<table cellpadding="2" cellspacing="2" border="0">
 		<tr>

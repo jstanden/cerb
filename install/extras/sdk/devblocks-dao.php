@@ -302,7 +302,7 @@ foreach($fields as $field_name => $field_type) {
 		);
 		
 		// Custom Fields
-		//$fields = DAO_CustomField::getBySource(CustomFieldSource_XXX::ID);
+		//$fields = DAO_CustomField::getByContext(CerberusContexts::XXX);
 
 		//if(is_array($fields))
 		//foreach($fields as $field_id => $field) {
@@ -390,7 +390,7 @@ foreach($fields as $field_name => $field_type) {
 		$tpl->assign('view', $this);
 
 		// Custom fields
-		//$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Example::ID);
+		//$custom_fields = DAO_CustomField::getByContext(CerberusContexts::XXX);
 		//$tpl->assign('custom_fields', $custom_fields);
 
 		// [TODO] Set your template path

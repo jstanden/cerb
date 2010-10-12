@@ -10,8 +10,8 @@
 				</tr>
 				<tr>
 					<td nowrap="nowrap">
-						{if !empty($source_manifests)}
-							{foreach from=$source_manifests item=manifest key=manifest_id}
+						{if !empty($context_manifests)}
+							{foreach from=$context_manifests item=manifest key=manifest_id}
 								&#187; <a href="javascript:;" onclick="genericAjaxGet('frmConfigFieldSource','c=config&a=getFieldSource&ext_id={$manifest_id}');">{$manifest->name}</a><br>
 							{/foreach}
 						{/if}
@@ -25,8 +25,8 @@
 		<td width="100%" valign="top">
 			<form action="{devblocks_url}{/devblocks_url}" method="post" id="frmConfigFieldSource" onsubmit="return false;">
 				{if !empty($ext_id)}
-					{assign var=source_manifest value=$source_manifests.$ext_id}
-					{include file="devblocks:cerberusweb.core::configuration/tabs/fields/edit_source.tpl" object=$source_manifest}
+					{assign var=context_manifest value=$context_manifests.$ext_id}
+					{include file="devblocks:cerberusweb.core::configuration/tabs/fields/edit_source.tpl" object=$context_manifest}
 				{/if}
 			</form>
 		</td>

@@ -153,10 +153,10 @@ class ChTasksPage extends CerberusPageExtension {
 		}
 
 		// Custom fields
-		$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Task::ID); 
+		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TASK); 
 		$tpl->assign('custom_fields', $custom_fields);
 
-		$custom_field_values = DAO_CustomFieldValue::getValuesBySourceIds(ChCustomFieldSource_Task::ID, $id);
+		$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_TASK, $id);
 		if(isset($custom_field_values[$id]))
 			$tpl->assign('custom_field_values', $custom_field_values[$id]);
 		
@@ -257,7 +257,7 @@ class ChTasksPage extends CerberusPageExtension {
 			
 			// Custom field saves
 			@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', array());
-			DAO_CustomFieldValue::handleFormPost(ChCustomFieldSource_Task::ID, $id, $field_ids);
+			DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_TASK, $id, $field_ids);
 		}
 		
 		if(!empty($view_id) && null != ($view = C4_AbstractViewLoader::getView($view_id))) {
@@ -283,7 +283,7 @@ class ChTasksPage extends CerberusPageExtension {
 	    $tpl->assign('workers', $workers);
 	    
 		// Custom Fields
-		$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Task::ID);
+		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TASK);
 		$tpl->assign('custom_fields', $custom_fields);
 		
 		$tpl->display('devblocks:cerberusweb.core::tasks/rpc/bulk.tpl');

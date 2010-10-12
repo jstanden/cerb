@@ -635,7 +635,7 @@ class SearchFields_Worker implements IDevblocksSearchFields {
 		);
 		
 		// Custom Fields
-		$fields = DAO_CustomField::getBySource(ChCustomFieldSource_Worker::ID);
+		$fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_WORKER);
 
 		if(is_array($fields))
 		foreach($fields as $field_id => $field) {
@@ -798,7 +798,7 @@ class View_Worker extends C4_AbstractView {
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
 
-		$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Worker::ID);
+		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_WORKER);
 		$tpl->assign('custom_fields', $custom_fields);
 
 		switch($this->renderTemplate) {
@@ -1002,7 +1002,7 @@ class View_Worker extends C4_AbstractView {
 			DAO_Worker::update($batch_ids, $change_fields);
 			
 			// Custom Fields
-			self::_doBulkSetCustomFields(ChCustomFieldSource_Worker::ID, $custom_fields, $batch_ids);
+			self::_doBulkSetCustomFields(CerberusContexts::CONTEXT_WORKER, $custom_fields, $batch_ids);
 			
 			unset($batch_ids);
 		}
@@ -1099,7 +1099,7 @@ class Context_Worker extends Extension_DevblocksContext {
 			$prefix = 'Worker:';
 			
 		$translate = DevblocksPlatform::getTranslationService();
-		$fields = DAO_CustomField::getBySource(ChCustomFieldSource_Worker::ID);
+		$fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_WORKER);
 		
 		// Polymorph
 		if(is_numeric($worker)) {
@@ -1136,7 +1136,7 @@ class Context_Worker extends Extension_DevblocksContext {
 				$token_values['title'] = $worker->title;
 			$token_values['custom'] = array();
 			
-			$field_values = array_shift(DAO_CustomFieldValue::getValuesBySourceIds(ChCustomFieldSource_Worker::ID, $worker->id));
+			$field_values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_WORKER, $worker->id));
 			if(is_array($field_values) && !empty($field_values)) {
 				foreach($field_values as $cf_id => $cf_val) {
 					if(!isset($fields[$cf_id]))

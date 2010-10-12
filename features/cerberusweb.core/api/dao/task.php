@@ -164,7 +164,7 @@ class DAO_Task extends C4_ORMHelper {
 		DAO_ContextLink::delete(CerberusContexts::CONTEXT_TASK, $ids);
 		
 		// Custom fields
-		DAO_CustomFieldValue::deleteBySourceIds(ChCustomFieldSource_Task::ID, $ids);
+		DAO_CustomFieldValue::deleteByContextIds(CerberusContexts::CONTEXT_TASK, $ids);
 		
 		// Notes
 		DAO_Comment::deleteByContext(CerberusContexts::CONTEXT_TASK, $ids);
@@ -345,7 +345,7 @@ class SearchFields_Task implements IDevblocksSearchFields {
 		);
 		
 		// Custom Fields
-		$fields = DAO_CustomField::getBySource(ChCustomFieldSource_Task::ID);
+		$fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TASK);
 		if(is_array($fields))
 		foreach($fields as $field_id => $field) {
 			$key = 'cf_'.$field_id;
@@ -436,7 +436,7 @@ class View_Task extends C4_AbstractView {
 		$tpl->assign('results', $results);
 
 		// Custom fields
-		$custom_fields = DAO_CustomField::getBySource(ChCustomFieldSource_Task::ID);
+		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TASK);
 		$tpl->assign('custom_fields', $custom_fields);
 		
 		switch($this->renderTemplate) {
@@ -634,7 +634,7 @@ class View_Task extends C4_AbstractView {
 			DAO_Task::update($batch_ids, $change_fields);
 			
 			// Custom Fields
-			self::_doBulkSetCustomFields(ChCustomFieldSource_Task::ID, $custom_fields, $batch_ids);
+			self::_doBulkSetCustomFields(CerberusContexts::CONTEXT_TASK, $custom_fields, $batch_ids);
 			
 			// Owners
 			if(isset($do['owner']) && is_array($do['owner'])) {
@@ -669,7 +669,7 @@ class Context_Task extends Extension_DevblocksContext {
 			$prefix = 'Task:';
 		
 		$translate = DevblocksPlatform::getTranslationService();
-		$fields = DAO_CustomField::getBySource(ChCustomFieldSource_Task::ID);
+		$fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TASK);
 
 		// Polymorph
 		if(is_numeric($task)) {
@@ -708,7 +708,7 @@ class Context_Task extends Extension_DevblocksContext {
 			
 			$token_values['custom'] = array();
 			
-			$field_values = array_shift(DAO_CustomFieldValue::getValuesBySourceIds(ChCustomFieldSource_Task::ID, $task->id));
+			$field_values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_TASK, $task->id));
 			if(is_array($field_values) && !empty($field_values)) {
 				foreach($field_values as $cf_id => $cf_val) {
 					if(!isset($fields[$cf_id]))
