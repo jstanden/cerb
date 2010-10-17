@@ -112,7 +112,7 @@ input[type=text].input_phone {
 	padding-left:25px;
 }
 input[type=text].input_search {
-	background:url('input_icons/iconic/magnifying_glass_alt_16x16.png') no-repeat scroll 5px 50% #ffffff;
+	background:url('input_icons/view.png') no-repeat scroll 5px 50% #ffffff;
 	padding-left:25px;
 }
 input[type=text].input_tags {
