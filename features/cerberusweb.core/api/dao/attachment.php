@@ -279,7 +279,7 @@ class DAO_Attachment extends DevblocksORMHelper {
 		$db = DevblocksPlatform::getDatabaseService();
 
 		// Build search queries
-		$query_parts = self::getSearchQueryComponents($columns,$params,$sortBy,$sortAsc);
+		$query_parts = self::getSearchQueryComponents(array(),$params,$sortBy,$sortAsc);
 
 		$select_sql = $query_parts['select'];
 		$join_sql = $query_parts['join'];
