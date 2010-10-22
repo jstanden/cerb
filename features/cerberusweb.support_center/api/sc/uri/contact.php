@@ -13,7 +13,6 @@ class UmScContactController extends Extension_UmScController {
 		$tpl = DevblocksPlatform::getTemplateService();
 
 		$umsession = UmPortalHelper::getSession();
-		$active_user = $umsession->getProperty('sc_login', null);
 		
 		$stack = $response->path;
 		array_shift($stack); // contact
@@ -47,7 +46,6 @@ class UmScContactController extends Extension_UmScController {
     			$sSubject = $umsession->getProperty('support.write.last_subject','');
     			$sNature = $umsession->getProperty('support.write.last_nature','');
     			$sContent = $umsession->getProperty('support.write.last_content','');
-//		    			$aLastFollowupQ = $umsession->getProperty('support.write.last_followup_q','');
     			$aLastFollowupA = $umsession->getProperty('support.write.last_followup_a','');
     			$sError = $umsession->getProperty('support.write.last_error','');
     			
@@ -55,12 +53,10 @@ class UmScContactController extends Extension_UmScController {
 				$tpl->assign('last_subject', $sSubject);
 				$tpl->assign('last_nature', $sNature);
 				$tpl->assign('last_content', $sContent);
-//						$tpl->assign('last_followup_q', $aLastFollowupQ);
 				$tpl->assign('last_followup_a', $aLastFollowupA);
 				$tpl->assign('last_error', $sError);
 				
    				$sDispatch = DAO_CommunityToolProperty::get(UmPortalHelper::getCode(),self::PARAM_SITUATIONS, '');
-//		    			$dispatch = !empty($sDispatch) ? (is_array($sDispatch) ? unserialize($sDispatch): array($sDispatch)) : array();
     			$dispatch = !empty($sDispatch) ? unserialize($sDispatch) : array();
 		        $tpl->assign('dispatch', $dispatch);
 		        
@@ -348,7 +344,7 @@ class UmScContactController extends Extension_UmScController {
 		}
 		
 		$umsession = UmPortalHelper::getSession();
-		$active_user = $umsession->getProperty('sc_login', null);
+		$active_contact = $umsession->getProperty('sc_login', null);
 		$fingerprint = UmPortalHelper::getFingerprint();
 
         $settings = DevblocksPlatform::getPluginSettingsService();
@@ -442,7 +438,7 @@ class UmScContactController extends Extension_UmScController {
 		// Attachments
         $attachments_mode = DAO_CommunityToolProperty::get(UmPortalHelper::getCode(), self::PARAM_ATTACHMENTS_MODE, 0);
 
-		if(0==$attachments_mode || (1==$attachments_mode && !empty($active_user)))
+		if(0==$attachments_mode || (1==$attachments_mode && !empty($active_contact)))
 		if(is_array($_FILES) && !empty($_FILES))
 		foreach($_FILES as $name => $files) {
 			// field[]

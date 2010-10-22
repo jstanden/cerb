@@ -80,6 +80,11 @@ class Model_CommunitySession {
 	function getProperty($key, $default = null) {
 		return isset($this->_properties[$key]) ? $this->_properties[$key] : $default;
 	}
+	
+	function destroy() {
+		$this->_properties = array();
+		DAO_CommunitySession::delete($this->session_id);
+	}
 };
 
 class View_CommunityPortal extends C4_AbstractView {

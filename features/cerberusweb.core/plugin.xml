@@ -33,7 +33,7 @@
 		<patch version="5.0.1" revision="864" file="patches/5.x/5.0.1.php" />
 		<patch version="5.1.0" revision="896" file="patches/5.x/5.1.0.php" />
 		<patch version="5.1.1" revision="898" file="patches/5.x/5.1.1.php" />
-		<patch version="5.2.0-dev" revision="901" file="patches/5.x/5.2.0.php" />
+		<patch version="5.2.0-dev" revision="903" file="patches/5.x/5.2.0.php" />
 	</patches>
 
 	<!-- Declared Extension Points -->
@@ -106,6 +106,12 @@
 			<class name="View_Comment" />
 		</file>
 		
+		<file path="api/dao/confirmation_code.php">
+			<class name="DAO_ConfirmationCode" />
+			<class name="Model_ConfirmationCode" />
+			<class name="SearchFields_ConfirmationCode" />
+		</file>
+		
 		<file path="api/dao/contact_list.php">
 			<class name="DAO_ContactList" />
 			<class name="Model_ContactList" />
@@ -166,6 +172,11 @@
 			<class name="SearchFields_Message" />
 			<class name="Storage_MessageContent" />
 			<class name="View_Message" />
+		</file>
+		
+		<file path="api/dao/openid_to_contact_person.php">
+			<class name="DAO_OpenIdToContactPerson" />
+			<class name="Model_OpenIdToContactPerson" />
 		</file>
 		
 		<file path="api/dao/preparse_rule.php">

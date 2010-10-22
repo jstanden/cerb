@@ -145,20 +145,7 @@ abstract class Extension_ScLoginAuthenticator extends DevblocksExtension {
 //		$this->params['field_name'] = $field_value;
 //	}
 	
-	/**
-	 * draws HTML form of controls needed for login information
-	 */
-	function renderLoginForm() {
-	}
-	
-	/**
-	 * pull auth info out of $_POST, check it, return user_id or false
-	 * 
-	 * @return boolean whether login succeeded
-	 */
-	function authenticate() {
-		return false;
-	}
+	abstract function writeResponse(DevblocksHttpResponse $response);
 	
 	/**
 	 * release any resources tied up by the authenticate process, if necessary

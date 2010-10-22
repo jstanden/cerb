@@ -707,7 +707,16 @@
 			<tuv xml:lang="en_US"><seg>SMTP Connection Failed:</seg></tuv>
 		</tu>
 		
-
+		<!-- ConfirmationCode -->
+		
+		<tu tuid='dao.confirmation_code.namespace_key'>
+			<tuv xml:lang="en_US"><seg>Namespace</seg></tuv>
+		</tu>
+		<tu tuid='dao.confirmation_code.confirmation_code'>
+			<tuv xml:lang="en_US"><seg>Confirmation Code</seg></tuv>
+		</tu>
+		
+		
 		<!-- Contact orgs -->
 		<tu tuid='contact_org.city'>
 			<tuv xml:lang="en_US"><seg>City</seg></tuv>

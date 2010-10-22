@@ -68,7 +68,7 @@ class UmScApp extends Extension_UsermeetTool {
 			@$visible_modules = unserialize(DAO_CommunityToolProperty::get(UmPortalHelper::getCode(), self::PARAM_VISIBLE_MODULES, ''));
 
     		$umsession = UmPortalHelper::getSession();
-			@$active_user = $umsession->getProperty('sc_login',null);
+			@$active_contact = $umsession->getProperty('sc_login',null);
 			
 			if(is_array($visible_modules))
 			foreach($visible_modules as $module_id => $visibility) {
@@ -77,7 +77,7 @@ class UmScApp extends Extension_UsermeetTool {
 					continue;
 
 				// Must be logged in
-				if(0==strcmp($visibility, '1') && empty($active_user))
+				if(0==strcmp($visibility, '1') && empty($active_contact))
 					continue;
 				
 				$module = DevblocksPlatform::getExtension($module_id,true,true); /* @var $module Extension_UmScController */
@@ -134,8 +134,8 @@ class UmScApp extends Extension_UsermeetTool {
        	@$visible_modules = unserialize(DAO_CommunityToolProperty::get(UmPortalHelper::getCode(), self::PARAM_VISIBLE_MODULES, ''));
 		$tpl->assign('visible_modules', $visible_modules);
 		
-        @$active_user = $umsession->getProperty('sc_login',null);
-        $tpl->assign('active_user', $active_user);
+        @$active_contact = $umsession->getProperty('sc_login',null);
+        $tpl->assign('active_contact', $active_contact);
 
 		// Usermeet Session
 		if(null == ($fingerprint = UmPortalHelper::getFingerprint())) {
@@ -346,57 +346,552 @@ class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
 //		$this->params['field_name'] = $field_value;
 //	}
 	
-	/**
-	 * draws HTML form of controls needed for login information
-	 */
-	function renderLoginForm() {
+	function writeResponse(DevblocksHttpResponse $response) {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->display("devblocks:cerberusweb.support_center:portal_".UmPortalHelper::getCode().":support_center/login/default/login_form.tpl");
+		$umsession = UmPortalHelper::getSession();
+		
+		$stack = $response->path;
+		@$module = array_shift($stack);
+		
+		switch($module) {
+			case 'register':
+				$tpl->assign('email', $umsession->getProperty('register.email',''));
+				
+				if(isset($stack[0]) && 0==strcasecmp('confirm',$stack[0])) {
+					$tpl->display("devblocks:cerberusweb.support_center:portal_".UmPortalHelper::getCode().":support_center/login/default/register_confirm.tpl");
+				} else {
+					$tpl->display("devblocks:cerberusweb.support_center:portal_".UmPortalHelper::getCode().":support_center/login/default/register.tpl");
+				}
+				break;
+			case 'forgot':
+				if(isset($stack[0]) && 0==strcasecmp('confirm',$stack[0])) {
+					$tpl->display("devblocks:cerberusweb.support_center:portal_".UmPortalHelper::getCode().":support_center/login/default/forgot_confirm.tpl");
+				} else {
+					$tpl->display("devblocks:cerberusweb.support_center:portal_".UmPortalHelper::getCode().":support_center/login/default/forgot.tpl");
+				}
+				break;
+			default:
+				$tpl->display("devblocks:cerberusweb.support_center:portal_".UmPortalHelper::getCode().":support_center/login/default/login.tpl");
+				break;
+		}		
 	}
+	
+	function doRegisterAction() {
+		@$email = DevblocksPlatform::importGPC($_REQUEST['email'],'string','');
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$url_writer = DevblocksPlatform::getUrlService();
+		$umsession = UmPortalHelper::getSession();
+		
+		try {
+			if(empty($email) || null == ($address = DAO_Address::lookupAddress($email, true)))
+				throw new Exception("You provided an invalid email address.");
+			
+			// Check to see if the address is currently assigned to an account
+			if(!empty($address->contact_person_id))
+				throw new Exception("The provided email address is already associated with an account.");
+				
+			// Update the preferred email address
+			$umsession->setProperty('register.email', $address->email);
+				
+			// Send a confirmation code
+			$fields = array(
+				DAO_ConfirmationCode::CONFIRMATION_CODE => CerberusApplication::generatePassword(8),
+				DAO_ConfirmationCode::NAMESPACE_KEY => 'support_center.login.register.verify',
+				DAO_ConfirmationCode::META_JSON => json_encode(array(
+					'email' => $email,
+				)),
+				DAO_ConfirmationCode::CREATED => time(),
+			);
+			DAO_ConfirmationCode::create($fields);
+
+			// Quick send
+			$msg = sprintf(
+				"Your confirmation code: %s",
+				urlencode($fields[DAO_ConfirmationCode::CONFIRMATION_CODE])
+			);
+			CerberusMail::quickSend($address->email,"Please confirm your email address", $msg);
+				
+		} catch(Exception $e) {
+			$tpl->assign('error', $e->getMessage());
+			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',UmPortalHelper::getCode(),'login','register')));
+			return;
+			
+		}
+		
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',UmPortalHelper::getCode(),'login','register','confirm')));
+	}
+	
+	function doRegisterConfirmAction() {
+		@$confirm = DevblocksPlatform::importGPC($_REQUEST['confirm'],'string','');
+		@$password = DevblocksPlatform::importGPC($_REQUEST['password'],'string','');
+		@$password2 = DevblocksPlatform::importGPC($_REQUEST['password2'],'string','');
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$url_writer = DevblocksPlatform::getUrlService();
+		$umsession = UmPortalHelper::getSession();
+		
+		try {
+			// Load the session (OpenID + email)
+			$email = $umsession->getProperty('register.email', '');
+
+			// We need the basics in place
+			if(empty($email)) {
+				header("Location: " . $url_writer->write('c=login', true));
+				exit;
+			}
+			
+			// Load the address
+			if(null == ($address = DAO_Address::lookupAddress($email, false)))
+				throw new Exception("You have provided an invalid email address.");
+				
+			if(empty($password) || empty($password2))
+				throw new Exception("Your password cannot be blank.");
+
+			if(0 != strcmp($password, $password2))
+				throw new Exception("Your passwords do not match.");
+				
+			// Verify address is unlinked
+			if(!empty($address->contact_person_id))
+				throw new Exception("The email address you provided is already associated with an account.");
+				
+			// Lookup code
+			if(null == ($code = DAO_ConfirmationCode::getByCode('support_center.login.register.verify', $confirm)))
+				throw new Exception("Your confirmation code is invalid.");
+			
+			// Compare to address
+			if(!isset($code->meta['email']) || 0 != strcasecmp($address->email, $code->meta['email']))
+				throw new Exception("Your confirmation code is invalid.");
+
+			// Create the contact
+			$salt = CerberusApplication::generatePassword(8);
+			$fields = array(
+				DAO_ContactPerson::EMAIL_ID => $address->id,
+				DAO_ContactPerson::LAST_LOGIN => time(),
+				DAO_ContactPerson::CREATED => time(),
+				DAO_ContactPerson::AUTH_SALT => $salt,
+				DAO_ContactPerson::AUTH_PASSWORD => md5($salt.md5($password)),
+			);
+			$contact_person_id = DAO_ContactPerson::create($fields);
+			
+			if(empty($contact_person_id) || null == ($contact = DAO_ContactPerson::get($contact_person_id)))
+				throw new Exception("There was an error creating your account.");
+				
+			// Link email
+			DAO_Address::update($address->id,array(
+				DAO_Address::CONTACT_PERSON_ID => $contact_person_id,
+			));
+			
+			// Delete confirmation and one-time login token
+			DAO_ConfirmationCode::delete($code->id);
+			
+			// Log in the session
+			$umsession->setProperty('sc_login', $contact);
+			
+			$address_uri = urlencode(str_replace(array('@','.'),array('_at_','_dot_'),$address->email));
+			header("Location: " . $url_writer->write('c=account&a=email&address='.$address_uri, true));
+			exit;
+				
+		} catch(Exception $e) {
+			$tpl->assign('error', $e->getMessage());
+		}
+		
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',UmPortalHelper::getCode(),'login','register','confirm')));
+	}
+	
+	function doRecoverAction() {
+		@$email = DevblocksPlatform::importGPC($_REQUEST['email'],'string','');
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$url_writer = DevblocksPlatform::getUrlService();
+		
+		try {
+			// Verify email is a contact
+			if(null == ($address = DAO_Address::lookupAddress($email, false))) {
+				throw new Exception("The email address you provided is not registered.");
+			}
+			
+			if(empty($address->contact_person_id) || null == ($contact = DAO_ContactPerson::get($address->contact_person_id))) {
+				throw new Exception("The email address you provided is not registered.");
+			}
+			
+			// Generate + send confirmation
+			$fields = array(
+				DAO_ConfirmationCode::CONFIRMATION_CODE => CerberusApplication::generatePassword(8),
+				DAO_ConfirmationCode::NAMESPACE_KEY => 'support_center.login.recover',
+				DAO_ConfirmationCode::META_JSON => json_encode(array(
+					'contact_id' => $contact->id,
+					'address_id' => $address->id,
+				)),
+				DAO_ConfirmationCode::CREATED => time(),
+			);
+			DAO_ConfirmationCode::create($fields);
+
+			// Quick send
+			$msg = sprintf(
+				"Your confirmation code: %s",
+				urlencode($fields[DAO_ConfirmationCode::CONFIRMATION_CODE])
+			);
+			CerberusMail::quickSend($address->email,"Please confirm your email address", $msg);
+			
+			$tpl->assign('email', $address->email);
+			
+		} catch (Exception $e) {
+			$tpl->assign('error', $e->getMessage());
+			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',UmPortalHelper::getCode(),'login','forgot')));
+			return;
+		}
+		
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',UmPortalHelper::getCode(),'login','forgot','confirm')));
+	}
+	
+	function recoverAccountAction() {
+		@$email = DevblocksPlatform::importGPC($_REQUEST['email'],'string','');
+		@$confirm = DevblocksPlatform::importGPC($_REQUEST['confirm'],'string','');
+		
+		$umsession = UmPortalHelper::getSession();
+		$url_writer = DevblocksPlatform::getUrlService();
+		$tpl = DevblocksPlatform::getTemplateService();
+		
+		try {
+			// Verify email is a contact
+			if(null == ($address = DAO_Address::lookupAddress($email, false))) {
+				throw new Exception("The email address you provided is not registered.");
+			}
+			
+			$tpl->assign('email', $address->email);
+			
+			if(empty($address->contact_person_id) || null == ($contact = DAO_ContactPerson::get($address->contact_person_id))) {
+				throw new Exception("The email address you provided is not registered.");
+			}
+			
+			// Lookup code
+			if(null == ($code = DAO_ConfirmationCode::getByCode('support_center.login.recover', $confirm)))
+				throw new Exception("Your confirmation code is invalid.");
+			
+			// Compare to contact
+			if(!isset($code->meta['contact_id']) || $contact->id != $code->meta['contact_id'])
+				throw new Exception("Your confirmation code is invalid.");
+				
+			// Compare to email address
+			if(!isset($code->meta['address_id']) || $address->id != $code->meta['address_id'])
+				throw new Exception("Your confirmation code is invalid.");
+				
+			// Success (delete token and one-time log in token)
+			DAO_ConfirmationCode::delete($code->id);
+			$umsession->setProperty('sc_login', $contact);
+			header("Location: " . $url_writer->write('c=account&a=password', true));
+			exit;
+			
+		} catch (Exception $e) {
+			$tpl->assign('error', $e->getMessage());
+			
+		}
+		
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',UmPortalHelper::getCode(),'login','forgot','confirm')));
+	}	
 	
 	/**
 	 * pull auth info out of $_POST, check it, return user_id or false
 	 * 
 	 * @return boolean whether login succeeded
 	 */
-	function authenticate() {
+	function authenticateAction() {
 		$umsession = UmPortalHelper::getSession();
+		$tpl = DevblocksPlatform::getTemplateService();
+		$url_writer = DevblocksPlatform::getUrlService();
 
 		@$email = DevblocksPlatform::importGPC($_REQUEST['email']);
 		@$pass = DevblocksPlatform::importGPC($_REQUEST['password']);
 
 		// Clear the past session
-		$umsession->setProperty('sc_login',null);
+		$umsession->setProperty('sc_login', null);
 		
-		// Find the address
-		if(null == ($addy = DAO_Address::lookupAddress($email, FALSE)))
-			return FALSE;
+		try {
+			// Find the address
+			if(null == ($addy = DAO_Address::lookupAddress($email, FALSE)))
+				throw new Exception("Login failed.");
+				
+			// Not registered
+			if(empty($addy->contact_person_id) || null == ($contact = DAO_ContactPerson::get($addy->contact_person_id)))
+				throw new Exception("Login failed.");
 			
-		// Not registered
-		if(empty($addy->contact_person_id))
-			return FALSE;
+			// Compare salt
+			if(0 != strcmp(md5($contact->auth_salt.md5($pass)),$contact->auth_password))
+				throw new Exception("Login failed.");	
 			
-		// Can't find contact
-		if(null == ($contact = DAO_ContactPerson::get($addy->contact_person_id)))
-			return FALSE;
-		
-		// Compare salt
-		if(0 == strcmp(md5($contact->auth_salt.md5($pass)),$contact->auth_password)) {
-			$umsession->setProperty('sc_login', $addy);
-			return TRUE;
+			$umsession->setProperty('sc_login', $contact);
+			header("Location: " . $url_writer->write('', true));
+			exit;
+			
+		} catch (Exception $e) {
+			$tpl->assign('error', $e->getMessage());
 		}
-			
-		return FALSE;
+		
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',UmPortalHelper::getCode(),'login')));
 	}
 };
 
 class ScOpenIDLoginAuthenticator extends Extension_ScLoginAuthenticator {
-	/**
-	 * draws HTML form of controls needed for login information
-	 */
-	function renderLoginForm() {
+	function writeResponse(DevblocksHttpResponse $response) {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->display("devblocks:cerberusweb.support_center:portal_".UmPortalHelper::getCode().":support_center/login/openid/login_form.tpl");
+		$umsession = UmPortalHelper::getSession();
+		
+		$stack = $response->path;
+		@$module = array_shift($stack);
+		
+		switch($module) {
+			case 'register':
+				$tpl->assign('openid_url', $umsession->getProperty('register.openid_claimed_id',''));
+				$tpl->assign('email', $umsession->getProperty('register.email',''));
+				
+				if(isset($stack[0]) && 0==strcasecmp('confirm',$stack[0])) {
+					$tpl->display("devblocks:cerberusweb.support_center:portal_".UmPortalHelper::getCode().":support_center/login/openid/register_confirm.tpl");
+				} else {
+					$tpl->display("devblocks:cerberusweb.support_center:portal_".UmPortalHelper::getCode().":support_center/login/openid/register.tpl");
+				}
+				break;
+			case 'forgot':
+				if(isset($stack[0]) && 0==strcasecmp('confirm',$stack[0])) {
+					$tpl->display("devblocks:cerberusweb.support_center:portal_".UmPortalHelper::getCode().":support_center/login/openid/forgot_confirm.tpl");
+				} else {
+					$tpl->display("devblocks:cerberusweb.support_center:portal_".UmPortalHelper::getCode().":support_center/login/openid/forgot.tpl");
+				}
+				break;
+			default:
+				$tpl->display("devblocks:cerberusweb.support_center:portal_".UmPortalHelper::getCode().":support_center/login/openid/login.tpl");
+				break;
+		}
+	}	
+	
+	function discoverAction() {
+		@$openid_url = DevblocksPlatform::importGPC($_REQUEST['openid_url']);
+				
+		$openid = DevblocksPlatform::getOpenIDService();
+		$url_writer = DevblocksPlatform::getUrlService();
+		
+		$return_url = $url_writer->write('c=login&a=authenticate', true);
+		
+		// Handle invalid URLs
+		if(false === ($auth_url = $openid->getAuthUrl($openid_url, $return_url))) {
+			$tpl = DevblocksPlatform::getTemplateService();
+			$tpl->assign('error', 'The OpenID you provided is invalid.');
+			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',UmPortalHelper::getCode(),'login')));
+			
+		} else {
+			header("Location: " . $auth_url);
+			exit;
+		}
+	}
+	
+	function doRegisterAction() {
+		@$email = DevblocksPlatform::importGPC($_REQUEST['email'],'string','');
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$url_writer = DevblocksPlatform::getUrlService();
+		$umsession = UmPortalHelper::getSession();
+		
+		try {
+			if(empty($email) || null == ($address = DAO_Address::lookupAddress($email, true)))
+				throw new Exception("You provided an invalid email address.");
+			
+			// Check to see if the address is currently assigned to an account
+			if(!empty($address->contact_person_id))
+				throw new Exception("The provided email address is already associated with an account.");
+				
+			// Update the preferred email address
+			$umsession->setProperty('register.email', $address->email);
+				
+			// Send a confirmation code
+			$fields = array(
+				DAO_ConfirmationCode::CONFIRMATION_CODE => CerberusApplication::generatePassword(8),
+				DAO_ConfirmationCode::NAMESPACE_KEY => 'support_center.openid.register.verify',
+				DAO_ConfirmationCode::META_JSON => json_encode(array(
+					'email' => $email,
+				)),
+				DAO_ConfirmationCode::CREATED => time(),
+			);
+			DAO_ConfirmationCode::create($fields);
+
+			// Quick send
+			$msg = sprintf(
+				"Your confirmation code: %s",
+				urlencode($fields[DAO_ConfirmationCode::CONFIRMATION_CODE])
+			);
+			CerberusMail::quickSend($address->email,"Please confirm your email address", $msg);
+				
+		} catch(Exception $e) {
+			$tpl->assign('error', $e->getMessage());
+			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',UmPortalHelper::getCode(),'login','register')));
+			return;
+			
+		}
+		
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',UmPortalHelper::getCode(),'login','register','confirm')));
+	}
+	
+	function doRegisterConfirmAction() {
+		@$confirm = DevblocksPlatform::importGPC($_REQUEST['confirm'],'string','');
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$url_writer = DevblocksPlatform::getUrlService();
+		$umsession = UmPortalHelper::getSession();
+		
+		try {
+			// Load the session (OpenID + email)
+			$openid_claimed_id = $umsession->getProperty('register.openid_claimed_id', '');
+			$email = $umsession->getProperty('register.email', '');
+
+			// We need the basics in place
+			if(empty($openid_claimed_id) || empty($email)) {
+				header("Location: " . $url_writer->write('c=login', true));
+				exit;
+			}
+			
+			// Load the address
+			if(null == ($address = DAO_Address::lookupAddress($email, false)))
+				throw new Exception("You have provided an invalid email address.");
+				
+			// Verify address is unlinked
+			if(!empty($address->contact_person_id))
+				throw new Exception("The email address you provided is already associated with an account.");
+				
+			// Lookup code
+			if(null == ($code = DAO_ConfirmationCode::getByCode('support_center.openid.register.verify', $confirm)))
+				throw new Exception("Your confirmation code is invalid.");
+			
+			// Compare to address
+			if(!isset($code->meta['email']) || 0 != strcasecmp($address->email, $code->meta['email']))
+				throw new Exception("Your confirmation code is invalid.");
+
+			// Create the contact
+			$fields = array(
+				DAO_ContactPerson::EMAIL_ID => $address->id,
+				DAO_ContactPerson::LAST_LOGIN => time(),
+				DAO_ContactPerson::CREATED => time(),
+				DAO_ContactPerson::AUTH_SALT => substr($code->confirmation_code,0,3),
+				DAO_ContactPerson::AUTH_PASSWORD => md5(substr($code->confirmation_code,0,3).md5($code->confirmation_code)),
+			);
+			$contact_person_id = DAO_ContactPerson::create($fields);
+			
+			if(empty($contact_person_id) || null == ($contact = DAO_ContactPerson::get($contact_person_id)))
+				throw new Exception("There was an error creating your account.");
+				
+			// Link email
+			DAO_Address::update($address->id,array(
+				DAO_Address::CONTACT_PERSON_ID => $contact_person_id,
+			));
+			
+			// Link OpenID
+			DAO_OpenIdToContactPerson::addOpenId($openid_claimed_id, $contact_person_id);
+				
+			// Delete confirmation and one-time login token
+			DAO_ConfirmationCode::delete($code->id);
+			
+			// Log in the session
+			$umsession->setProperty('sc_login', $contact);
+			
+			$address_uri = urlencode(str_replace(array('@','.'),array('_at_','_dot_'),$address->email));
+			header("Location: " . $url_writer->write('c=account&a=email&address='.$address_uri, true));
+			exit;
+				
+		} catch(Exception $e) {
+			$tpl->assign('error', $e->getMessage());
+		}
+		
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',UmPortalHelper::getCode(),'login','register','confirm')));
+	}
+	
+	function doRecoverAction() {
+		@$email = DevblocksPlatform::importGPC($_REQUEST['email'],'string','');
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$url_writer = DevblocksPlatform::getUrlService();
+		
+		try {
+			// Verify email is a contact
+			if(null == ($address = DAO_Address::lookupAddress($email, false))) {
+				throw new Exception("The email address you provided is not registered.");
+			}
+			
+			if(empty($address->contact_person_id) || null == ($contact = DAO_ContactPerson::get($address->contact_person_id))) {
+				throw new Exception("The email address you provided is not registered.");
+			}
+			
+			// Generate + send confirmation
+			$fields = array(
+				DAO_ConfirmationCode::CONFIRMATION_CODE => CerberusApplication::generatePassword(8),
+				DAO_ConfirmationCode::NAMESPACE_KEY => 'support_center.openid.recover',
+				DAO_ConfirmationCode::META_JSON => json_encode(array(
+					'contact_id' => $contact->id,
+					'address_id' => $address->id,
+				)),
+				DAO_ConfirmationCode::CREATED => time(),
+			);
+			DAO_ConfirmationCode::create($fields);
+
+			// Quick send
+			$msg = sprintf(
+				"Your confirmation code: %s",
+				urlencode($fields[DAO_ConfirmationCode::CONFIRMATION_CODE])
+			);
+			CerberusMail::quickSend($address->email,"Please confirm your email address", $msg);
+			
+			$tpl->assign('email', $address->email);
+			
+		} catch (Exception $e) {
+			$tpl->assign('error', $e->getMessage());
+			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',UmPortalHelper::getCode(),'login','forgot')));
+			return;
+		}
+		
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',UmPortalHelper::getCode(),'login','forgot','confirm')));
+	}
+	
+	function recoverAccountAction() {
+		@$email = DevblocksPlatform::importGPC($_REQUEST['email'],'string','');
+		@$confirm = DevblocksPlatform::importGPC($_REQUEST['confirm'],'string','');
+		
+		$umsession = UmPortalHelper::getSession();
+		$url_writer = DevblocksPlatform::getUrlService();
+		$tpl = DevblocksPlatform::getTemplateService();
+		
+		try {
+			// Verify email is a contact
+			if(null == ($address = DAO_Address::lookupAddress($email, false))) {
+				throw new Exception("The email address you provided is not registered.");
+			}
+			
+			$tpl->assign('email', $address->email);
+			
+			if(empty($address->contact_person_id) || null == ($contact = DAO_ContactPerson::get($address->contact_person_id))) {
+				throw new Exception("The email address you provided is not registered.");
+			}
+			
+			// Lookup code
+			if(null == ($code = DAO_ConfirmationCode::getByCode('support_center.openid.recover', $confirm)))
+				throw new Exception("Your confirmation code is invalid.");
+			
+			// Compare to contact
+			if(!isset($code->meta['contact_id']) || $contact->id != $code->meta['contact_id'])
+				throw new Exception("Your confirmation code is invalid.");
+				
+			// Compare to email address
+			if(!isset($code->meta['address_id']) || $address->id != $code->meta['address_id'])
+				throw new Exception("Your confirmation code is invalid.");
+				
+			// Success (delete token and one-time log in token)
+			DAO_ConfirmationCode::delete($code->id);
+			$umsession->setProperty('sc_login', $contact);
+			header("Location: " . $url_writer->write('c=account&a=openid', true));
+			exit;
+			
+		} catch (Exception $e) {
+			$tpl->assign('error', $e->getMessage());
+			
+		}
+		
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',UmPortalHelper::getCode(),'login','forgot','confirm')));
 	}
 	
 	/**
@@ -404,22 +899,67 @@ class ScOpenIDLoginAuthenticator extends Extension_ScLoginAuthenticator {
 	 * 
 	 * @return boolean whether login succeeded
 	 */
-	function authenticate() {
-		@$openid_url = DevblocksPlatform::importGPC($_REQUEST['openid_url']);
-
+	function authenticateAction() {
 		$umsession = UmPortalHelper::getSession();
+		$url_writer = DevblocksPlatform::getUrlService();
+		$openid = DevblocksPlatform::getOpenIDService();
+		$tpl = DevblocksPlatform::getTemplateService();
 
 		// Clear the past session
-		$umsession->setProperty('sc_login',null);
+		$umsession->setProperty('sc_login', null);
 		
-//		// Compare OpenID URLs
-//		if(0 == strcmp(md5($contact->auth_salt.md5($pass)),$contact->auth_password)) {
-//			$umsession->setProperty('sc_login', $addy);
-//			return TRUE;
-//		}
-			
-		return FALSE;
-	}	
+		try {
+			// Mode (Cancel)
+			if(isset($_GET['openid_mode']))
+			switch($_GET['openid_mode']) {
+				case 'cancel':
+					header("Location: " . $url_writer->write('c=login', true));
+					exit;
+					break;
+					
+				default:
+					// If we failed validation
+					if(!$openid->validate($_REQUEST))
+						throw new Exception("Login failed.");
+	
+					// Get parameters
+					$attribs = $openid->getAttributes($_REQUEST);
+	
+					// Compare OpenIDs
+					$contact_id = DAO_OpenIdToContactPerson::getContactIdByOpenId($_REQUEST['openid_claimed_id']);
+					
+					if(null != ($contact = DAO_ContactPerson::get($contact_id))) {
+						$umsession->setProperty('sc_login', $contact);
+						header("Location: " . $url_writer->write('', true));
+						exit;
+						
+					} else {
+						// Preserve the OpenID URL
+						$umsession->setProperty('register.openid_claimed_id', $_REQUEST['openid_claimed_id']);
+						
+						// If we can introspect the email or name, save them too.
+						if(isset($attribs['email']))
+							$umsession->setProperty('register.email', $attribs['email']);
+							
+						if(isset($attribs['full_name'])) {
+							$nameParts = explode(' ', $attribs['full_name']); 
+							$umsession->setProperty('register.last_name', array_pop($nameParts));
+							$umsession->setProperty('register.first_name', implode(' ',$nameParts));
+						}
+						
+						//throw new Exception("The OpenID you provided is not registered.");
+						header("Location: " . $url_writer->write('c=login&a=register', true));
+						exit;
+					}
+					break;
+			}
+					
+		} catch (Exception $e) {
+			$tpl->assign('error', $e->getMessage());
+		}
+		
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',UmPortalHelper::getCode(),'login')));
+	}
 };
 
 // [TODO] Redundant w/ C4_AbstractViewLoader
@@ -635,9 +1175,18 @@ class UmScAjaxController extends Extension_UmScController {
 		$umsession = UmPortalHelper::getSession();
 		$stack = $request->path;
 		
-        if(null == ($active_user = $umsession->getProperty('sc_login',null)))
+        if(null == ($active_contact = $umsession->getProperty('sc_login',null)))
 			return;
 
+		// [TODO] API/model ::getAddresses()
+		$addresses = array();
+		if(!empty($active_contact) && !empty($active_contact->id)) {
+			$addresses = DAO_Address::getWhere(sprintf("%s = %d",
+				DAO_Address::CONTACT_PERSON_ID,
+				$active_contact->id
+			));
+		}
+			
 		// Attachment ID + display name
 		@$ticket_mask = array_shift($stack);
 		@$hash = array_shift($stack);
@@ -681,9 +1230,11 @@ class UmScAjaxController extends Extension_UmScController {
 		// Load requesters		
 		if(null == ($requesters = DAO_Ticket::getRequestersByTicket($ticket_id)))
 			return;
-			
+
+		$authorized_addresses = array_intersect(array_keys($requesters), array_keys($addresses));
+		
 		// Security: Make sure the active user is a requester on the proper ticket
-		if(!isset($requesters[$active_user->id]))
+		if(!is_array($authorized_addresses) || 0 == count($authorized_addresses))
 			return;
 		
 		$contents = $attachment->getFileContents();

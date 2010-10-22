@@ -23,7 +23,6 @@ class UmScKbController extends Extension_UmScController {
 		$tpl = DevblocksPlatform::getTemplateService();
 		
 		$umsession = UmPortalHelper::getSession();
-		$active_user = $umsession->getProperty('sc_login', null);
 		
 		$stack = $response->path;
 		array_shift($stack); // kb

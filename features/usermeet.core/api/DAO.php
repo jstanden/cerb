@@ -458,6 +458,17 @@ class DAO_CommunitySession {
 		return $session;
 	}
 	
+	static public function delete($session_id) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$sql = sprintf("DELETE FROM community_session WHERE session_id = %s",
+			$db->qstr($session_id)
+		);
+		$db->Execute($sql);
+		
+		return TRUE;
+	}
+	
 	/**
 	 * @param string $session_id
 	 * @return Model_CommunitySession

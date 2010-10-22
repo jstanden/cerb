@@ -2292,6 +2292,9 @@ class _DevblocksOpenIDManager {
 		
 		$server = $this->discover($openid_identifier);
 		
+		if(empty($server))
+			return FALSE;
+		
 		$parts = explode('?', $server, 2);
 		$url = isset($parts[0]) ? $parts[0] : '';
 		$query = isset($parts[1]) ? ('?'.$parts[1]) : '';

@@ -178,11 +178,8 @@
 		<tu tuid='portal.sc.public.announcements'>
 			<tuv xml:lang="en_US"><seg>Announcements</seg></tuv>
 		</tu>
-		<tu tuid='portal.sc.public.history.my_closed_conversations'>
-			<tuv xml:lang="en_US"><seg>My Closed Conversations</seg></tuv>
-		</tu>
-		<tu tuid='portal.sc.public.history.my_open_conversations'>
-			<tuv xml:lang="en_US"><seg>My Open Conversations</seg></tuv>
+		<tu tuid='portal.sc.public.history.my_conversations'>
+			<tuv xml:lang="en_US"><seg>My Conversations</seg></tuv>
 		</tu>
 		<tu tuid='portal.sc.public.history.no_messages_from_email'>
 			<tuv xml:lang="en_US"><seg>We don't have a record of any messages sent from %s.</seg></tuv>

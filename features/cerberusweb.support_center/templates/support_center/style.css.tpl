@@ -91,7 +91,7 @@ UL.menu LI {
 }
 
 UL.menu LI A {
-	color:rgb(74,110,173);
+	color:rgb(80,80,80);
 	padding:5px 0px 5px 0px;
 	text-decoration:underline;
 	font-weight:normal;

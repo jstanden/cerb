@@ -1,10 +1,9 @@
 <?php
 class UmScHistoryController extends Extension_UmScController {
-	
 	function isVisible() {
 		$umsession = UmPortalHelper::getSession();
-		$active_user = $umsession->getProperty('sc_login', null);
-		return !empty($active_user);
+		$active_contact = $umsession->getProperty('sc_login', null);
+		return !empty($active_contact);
 	}
 	
 	function renderSidebar(DevblocksHttpResponse $response) {
@@ -20,57 +19,44 @@ class UmScHistoryController extends Extension_UmScController {
 		$tpl = DevblocksPlatform::getTemplateService();
 		
 		$umsession = UmPortalHelper::getSession();
-		$active_user = $umsession->getProperty('sc_login', null);
+		$active_contact = $umsession->getProperty('sc_login', null);
 		
 		$stack = $response->path;
 		array_shift($stack); // history
 		$mask = array_shift($stack);
+
+		// [TODO] API/model ::getAddresses()
+		$addresses = array();
+		if(!empty($active_contact) && !empty($active_contact->id)) {
+			$addresses = DAO_Address::getWhere(sprintf("%s = %d",
+				DAO_Address::CONTACT_PERSON_ID,
+				$active_contact->id
+			));
+		}
+		$address_ids = array_keys($addresses);
+		if(empty($address_ids))
+			$address_ids = array('-1');
 		
 		if(empty($mask)) {
-			
-			// Open Tickets
-			
-			if(null == ($open_view = UmScAbstractViewLoader::getView('', 'sc_history_open'))) {
-				$open_view = new UmSc_TicketHistoryView();
-				$open_view->id = 'sc_history_open';
+			// Ticket history
+			if(null == ($history_view = UmScAbstractViewLoader::getView('', 'sc_history_list'))) {
+				$history_view = new UmSc_TicketHistoryView();
+				$history_view->id = 'sc_history_list';
 			}
 			
-			// Lock to current visitor and open tickets
-			$open_view->addParams(array(
-				new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_FIRST_WROTE_ID,'=',$active_user->id),
-				new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',0),
+			// Lock to current visitor
+			$history_view->addParams(array(
+				new DevblocksSearchCriteria(SearchFields_Ticket::REQUESTER_ID,'in',$address_ids),
 				new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_DELETED,'=',0),
 			), true);
-
-			$open_view->name = "";
-			$open_view->renderSortBy = SearchFields_Ticket::TICKET_UPDATED_DATE;
-			$open_view->renderSortAsc = false;
-			$open_view->renderLimit = 10;
-
-			UmScAbstractViewLoader::setView($open_view->id, $open_view);
-			$tpl->assign('open_view', $open_view);
 			
-			// Closed Tickets
-			
-			if(null == ($closed_view = UmScAbstractViewLoader::getView('', 'sc_history_closed'))) {
-				$closed_view = new UmSc_TicketHistoryView();
-				$closed_view->id = 'sc_history_closed';
-			}
-			
-			// Lock to current visitor and closed tickets
-			$closed_view->addParams(array(
-				new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_FIRST_WROTE_ID,'=',$active_user->id),
-				new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',1),
-				new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_DELETED,'=',0),
-			), true);
+			$history_view->name = "";
+			$history_view->renderSortBy = SearchFields_Ticket::TICKET_UPDATED_DATE;
+			$history_view->renderSortAsc = false;
+			$history_view->renderLimit = 10;
 
-			$closed_view->name = "";
-			$closed_view->renderSortBy = SearchFields_Ticket::TICKET_UPDATED_DATE;
-			$closed_view->renderSortAsc = false;
-			$closed_view->renderLimit = 10;
-
-			UmScAbstractViewLoader::setView($closed_view->id, $closed_view);
-			$tpl->assign('closed_view', $closed_view);
+			UmScAbstractViewLoader::setView($history_view->id, $history_view);
+			$tpl->assign('history_view', $history_view);
 
 			$tpl->display("devblocks:cerberusweb.support_center:portal_".UmPortalHelper::getCode() . ":support_center/history/index.tpl");
 			
@@ -85,20 +71,24 @@ class UmScHistoryController extends Extension_UmScController {
 			
 			$view->name = "";
 			$view->view_columns = array(
-				SearchFields_Ticket::TICKET_MASK,
 				SearchFields_Ticket::TICKET_SUBJECT,
+				SearchFields_Ticket::TICKET_LAST_WROTE,
 				SearchFields_Ticket::TICKET_UPDATED_DATE,
-				SearchFields_Ticket::TICKET_CLOSED,
 			);
-			$view->addParams(array(
-				array(
+			
+			$params = array(
+				new DevblocksSearchCriteria(SearchFields_Ticket::REQUESTER_ID,'in',$address_ids),
+				new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_DELETED,'=',0),
+			);
+			
+			if(!empty($q))
+				$params[] = array(
 					DevblocksSearchCriteria::GROUP_OR,
 					new DevblocksSearchCriteria(SearchFields_Ticket::FULLTEXT_MESSAGE_CONTENT,DevblocksSearchCriteria::OPER_FULLTEXT,array($q,'all')),
 					new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_MASK,DevblocksSearchCriteria::OPER_LIKE,$q.'%'),
-				),
-				new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_FIRST_WROTE_ID,'=',$active_user->id),
-				new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_DELETED,'=',0),
-			), true);
+				);
+			
+			$view->addParams($params, true);
 			
 			UmScAbstractViewLoader::setView($view->id, $view);
 			$tpl->assign('view', $view);
@@ -111,7 +101,7 @@ class UmScHistoryController extends Extension_UmScController {
 				array(),
 				array(
 					new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_MASK,'=',$mask),
-					new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_FIRST_WROTE_ID,'=',$active_user->id),
+					new DevblocksSearchCriteria(SearchFields_Ticket::REQUESTER_ID,'in',$address_ids),
 				),
 				1,
 				0,
@@ -172,14 +162,26 @@ class UmScHistoryController extends Extension_UmScController {
 		@$closed = DevblocksPlatform::importGPC($_REQUEST['closed'],'integer','0');
 		
 		$umsession = UmPortalHelper::getSession();
-		$active_user = $umsession->getProperty('sc_login', null);
+		$active_contact = $umsession->getProperty('sc_login', null);
 
+		// [TODO] API/model ::getAddresses()
+		$addresses = array();
+		if(!empty($active_contact) && !empty($active_contact->id)) {
+			$addresses = DAO_Address::getWhere(sprintf("%s = %d",
+				DAO_Address::CONTACT_PERSON_ID,
+				$active_contact->id
+			));
+		}
+		$address_ids = array_keys($addresses);
+		if(empty($address_ids))
+			$address_ids = array('-1');		
+		
 		// Secure retrieval (address + mask)
 		list($tickets) = DAO_Ticket::search(
 			array(),
 			array(
 				new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_MASK,'=',$mask),
-				new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_FIRST_WROTE_ID,'=',$active_user->id),
+				new DevblocksSearchCriteria(SearchFields_Ticket::REQUESTER_ID,'in',$address_ids),
 			),
 			1,
 			0,
@@ -203,14 +205,26 @@ class UmScHistoryController extends Extension_UmScController {
 		@$content = DevblocksPlatform::importGPC($_REQUEST['content'],'string','');
 		
 		$umsession = UmPortalHelper::getSession();
-		$active_user = $umsession->getProperty('sc_login', null);
+		$active_contact = $umsession->getProperty('sc_login', null);
 
+		// [TODO] API/model ::getAddresses()
+		$addresses = array();
+		if(!empty($active_contact) && !empty($active_contact->id)) {
+			$addresses = DAO_Address::getWhere(sprintf("%s = %d",
+				DAO_Address::CONTACT_PERSON_ID,
+				$active_contact->id
+			));
+		}
+		$address_ids = array_keys($addresses);
+		if(empty($address_ids))
+			$address_ids = array('-1');		
+		
 		// Secure retrieval (address + mask)
 		list($tickets) = DAO_Ticket::search(
 			array(),
 			array(
 				new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_MASK,'=',$mask),
-				new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_FIRST_WROTE_ID,'=',$active_user->id),
+				new DevblocksSearchCriteria(SearchFields_Ticket::REQUESTER_ID,'in',$address_ids),
 			),
 			1,
 			0,
@@ -239,7 +253,7 @@ class UmScHistoryController extends Extension_UmScController {
 		@$message_id = CerberusApplication::generateMessageId();
 		
 		$message = new CerberusParserMessage();
-		$message->headers['from'] = $active_user->email;
+		$message->headers['from'] = $primary_address->email;
 		$message->headers['to'] = $to;
 		$message->headers['date'] = date('r');
 		$message->headers['subject'] = 'Re: ' . $ticket[SearchFields_Ticket::TICKET_SUBJECT];
@@ -267,8 +281,8 @@ class UmSc_TicketHistoryView extends C4_AbstractView {
 		$this->renderSortAsc = false;
 
 		$this->view_columns = array(
-			SearchFields_Ticket::TICKET_MASK,
 			SearchFields_Ticket::TICKET_SUBJECT,
+			SearchFields_Ticket::TICKET_LAST_WROTE,
 			SearchFields_Ticket::TICKET_UPDATED_DATE,
 		);
 		

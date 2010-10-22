@@ -24,7 +24,7 @@
 	<a href="{devblocks_url}c={$item->manifest->params.uri}{/devblocks_url}">{$item->manifest->params.menu_title|devblocks_translate|lower}</a>
 </li>
 {/foreach}
-{if !empty($active_user)}
+{if !empty($active_contact)}
 	<li style="float:right;"><a href="{devblocks_url}c=login&a=signout{/devblocks_url}">sign out</a></li>
 {else}
 	<li style="float:right;background-color:rgb(46,183,39);"><a style="color:rgb(255,255,255);" href="{devblocks_url}c=login{/devblocks_url}">sign on</a>

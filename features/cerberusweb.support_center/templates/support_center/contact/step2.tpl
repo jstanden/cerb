@@ -15,7 +15,7 @@
 			
 	      	<b>{$translate->_('portal.public.what_email_reply')}</b><br>
 	      	<input type="hidden" name="nature" value="{$sNature}">	
-			<input type="text" name="from" value="{if !empty($last_from)}{$last_from|escape}{else}{$active_user->email|escape}{/if}" autocomplete="off" style="width:100%;" class="required email"><br>
+			<input type="text" name="from" value="{if !empty($last_from)}{$last_from|escape}{else}{$address = DAO_Address::get($active_contact->email_id)}{if !empty($address)}{$address->email|escape}{/if}{/if}" autocomplete="off" style="width:100%;" class="required email"><br>
 			<br>
 	
 	      	<b>{$translate->_('ticket.subject')|capitalize}:</b><br>
@@ -101,7 +101,7 @@
 		</fieldset>
 		{/if}
 
-		{if 0==$attachments_mode || (1==$attachments_mode && !empty($active_user))}
+		{if 0==$attachments_mode || (1==$attachments_mode && !empty($active_contact))}
 		<fieldset>
 			<legend>Attachments:</legend>
 			<input type="file" name="attachments[]" class="multi"><br>

@@ -44,6 +44,16 @@
 		{foreach from=$view->view_columns item=column name=columns}
 			{if $column=="t_subject"}
 			<td>
+				{if $result.t_is_closed == 0}{* Active *}
+					 {if $result.t_is_waiting == 0}{* Open *}
+					 	<img src="{devblocks_url}c=resource&p=cerberusweb.support_center&f=images/clock_gray.png{/devblocks_url}" border="0" align="top">
+					 {else}{* Waiting *}
+					 	<img src="{devblocks_url}c=resource&p=cerberusweb.support_center&f=images/information.png{/devblocks_url}" border="0" align="top">
+					 {/if}
+				{else}{* Closed *}
+				 	<img src="{devblocks_url}c=resource&p=cerberusweb.support_center&f=images/check_gray.png{/devblocks_url}" border="0" align="top">
+				{/if}
+				
 				{if !empty($result.t_subject)}
 				<a href="{devblocks_url}c=history&mask={$result.t_mask}{/devblocks_url}"><span id="subject_{$result.t_id}_{$view->id}">{$result.t_subject|escape}</span></a>				
 				{/if}
@@ -52,6 +62,8 @@
 			<td><abbr title="{$result.$column|devblocks_date}">{$result.$column|devblocks_prettytime}</abbr>&nbsp;</td>
 			{elseif $column=="t_is_closed" || $column=="t_is_deleted" || $column=="t_is_waiting"}
 			<td>{if $result.$column}{$translate->_('common.yes')}{else}{$translate->_('common.no')}{/if}</td>
+			{elseif $column=="t_mask"}
+			<td><a href="{devblocks_url}c=history&mask={$result.t_mask}{/devblocks_url}">{$result.$column}</a></td>
 			{else}
 			<td>{$result.$column}&nbsp;</td>
 			{/if}

@@ -1,31 +1,12 @@
 <?php
 class UmScLoginController extends Extension_UmScController {
 	function isVisible() {
-//		$umsession = UmPortalHelper::getSession();
-//		$active_user = $umsession->getProperty('sc_login', null);
-//		return !empty($active_user);
 		return true;
 	}
 	
-	function authenticateAction() {
-//		if(!$this->allow_logins)
-//			die();
-
-		// Fall back
-        $login_handler = DAO_CommunityToolProperty::get(UmPortalHelper::getCode(), UmScApp::PARAM_LOGIN_HANDLER, 'sc.login.auth.default');
-
-		if(null != ($handler = DevblocksPlatform::getExtension($login_handler, true))) {
-			if($handler->authenticate()) {
-				// ...
-				DevblocksPlatform::redirect(new DevblocksHttpResponse(array('login')));
-			}
-		}
-		
-		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('login','failed')));
-		exit;
-	}
-	
 	function signoutAction() {
+		$umsession = UmPortalHelper::getSession();
+		
 		// Fall back
         $login_handler = DAO_CommunityToolProperty::get(UmPortalHelper::getCode(), UmScApp::PARAM_LOGIN_HANDLER, 'sc.login.auth.default');
 
@@ -35,45 +16,53 @@ class UmScLoginController extends Extension_UmScController {
 			}
 		}
 		
-		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('portal',UmPortalHelper::getCode(),'login')));
+		// Globally destroy
+		$umsession->destroy();
+		
+		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('login')));
 		exit;
 	}
 	
-	function writeResponse(DevblocksHttpResponse $response) {
-		$tpl = DevblocksPlatform::getTemplateService();
-
+	function handleRequest(DevblocksHttpRequest $request) {
 		$umsession = UmPortalHelper::getSession();
-		$active_user = $umsession->getProperty('sc_login', null);
 
-		// Fall back
-        $login_handler = DAO_CommunityToolProperty::get(UmPortalHelper::getCode(), UmScApp::PARAM_LOGIN_HANDLER, 'sc.login.auth.default');
+		$stack = $request->path;
+		@array_shift($stack); // login
 		
-		if(null != ($handler = DevblocksPlatform::getExtension($login_handler, true))) {
-			if($handler->renderLoginForm()) {
-				// ...
-			}
+		@$a = DevblocksPlatform::importGPC($_REQUEST['a'],'string');
+
+		if(empty($a)) {
+    	    @$action = $stack[0] . 'Action';
+		} else {
+	    	@$action = $a . 'Action';
 		}
+
+		// Login extension
+        $login_handler_id = DAO_CommunityToolProperty::get(UmPortalHelper::getCode(), UmScApp::PARAM_LOGIN_HANDLER, 'sc.login.auth.default');
+
+        // Try the extension subcontroller first (overload)
+        if(null != ($handler = DevblocksPlatform::getExtension($login_handler_id, true)) 
+        	&& method_exists($handler, $action)) {
+				call_user_func(array($handler, $action));
         
-//		$stack = $response->path;
-//		array_shift($stack); // register
-//		
-//		@$step = array_shift($stack);
-//		
-//		switch($step) {
-//			case 'forgot':
-//				$tpl->display("devblocks:cerberusweb.support_center:portal_".UmPortalHelper::getCode() . ":support_center/register/forgot.tpl");
-//				break;
-//			case 'forgot2':
-//				$tpl->display("devblocks:cerberusweb.support_center:portal_".UmPortalHelper::getCode() . ":support_center/register/forgot_confirm.tpl");
-//				break;
-//			case 'confirm':
-//				$tpl->display("devblocks:cerberusweb.support_center:portal_".UmPortalHelper::getCode() . ":support_center/register/confirm.tpl");
-//				break;
-//			default:
-//				$tpl->display("devblocks:cerberusweb.support_center:portal_".UmPortalHelper::getCode() . ":support_center/login/index.tpl");
-//				break;
-//		}
+		// Then try the login controller
+		} elseif(method_exists($this, $action)) {
+			call_user_func(array($this, $action));
+		}
+	}
+	
+	function writeResponse(DevblocksHttpResponse $response) {
+		$umsession = UmPortalHelper::getSession();
+
+		$stack = $response->path;
+		@array_shift($stack); // login
 		
+		// Fall back
+        $login_handler_id = DAO_CommunityToolProperty::get(UmPortalHelper::getCode(), UmScApp::PARAM_LOGIN_HANDLER, 'sc.login.auth.default');
+		
+		if(null != ($handler = DevblocksPlatform::getExtension($login_handler_id, true))) {
+			$handler->writeResponse(new DevblocksHttpResponse($stack));
+		}
 	}
 	
 };
