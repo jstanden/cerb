@@ -968,7 +968,11 @@ class DAO_Ticket extends C4_ORMHelper {
 					break;
 			}
 		}
-		
+
+		// Fulltext has multiple values
+		if(isset($tables['ftmc']))
+			$has_multiple_values = true; 		
+
 		$result = array(
 			'primary_table' => 't',
 			'select' => $select_sql,
