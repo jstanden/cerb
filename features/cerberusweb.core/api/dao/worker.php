@@ -96,32 +96,56 @@ class DAO_Worker extends C4_ORMHelper {
 		return self::getAll(false, true);
 	}
 	
-	static function getAllOnline($idle_limit=600, $idle_kick=false) {
+	static function getAllOnline($idle_limit=600, $idle_kick_limit=0) {
 		$session = DevblocksPlatform::getSessionService();
 
-		$workers = array();
-
-		foreach($session->getAll() as $sess) {
-			$key = $sess['session_key'];
-			$data = $session->decodeSession($sess['session_data']);
-			
+		$sessions = $session->getAll();
+		$session_workers = array();
+		$active_workers = array();
+		$workers_to_sessions = array();
+		
+		// Track the active workers based on session data
+		foreach($sessions as $session_id => $session_data) {
+			$key = $session_data['session_key'];
+			$data = $session->decodeSession($session_data['session_data']);
 			@$visit = $data['db_visit']; /* @var $visit CerberusVisit */
-			if(is_null($visit))
-				continue;
-				
-			$worker = $visit->getWorker();
 			
-			// Check the last activity date (and log out as needed)
-			$idle_secs = time() - $worker->last_activity_date;
-			if($idle_secs > $idle_limit) {
-				if($idle_kick)
-					$session->clear($key);
+			if(null == ($worker = $visit->getWorker()))
+				continue;
+
+			// All workers from the sessions
+			$session_workers[$worker->id] = $worker;
+
+			// Map workers to sessions
+			if(!isset($workers_to_sessions[$worker->id]))
+				$workers_to_sessions[$worker->id] = array();
+			$workers_to_sessions[$worker->id][$key] = $data;
+		}
+		
+		// Sort workers by idle time (newest first)
+		$sort_func = create_function('$a, $b', "return \$a->last_activity_date > \$b->last_activity_date;");
+		uasort($session_workers, $sort_func);
+		
+		// Find active workers from sessions (idle but not logged out)
+		foreach($session_workers as $worker_id => $worker) {
+			if($worker->last_activity_date > time() - $idle_limit) {
+				$active_workers[$worker->id] = $worker;
+				
 			} else {
-				$workers[$worker->id] = $worker;
+				if($idle_kick_limit) {
+					// Kill all sessions for this worker
+					foreach($workers_to_sessions[$worker->id] as $session_key => $session_data) {
+						$session->clear($session_key);
+					}
+					$idle_kick_limit--;
+				}
 			}
 		}
 		
-		return $workers;
+		// Most recently active first
+		$active_workers = array_reverse($active_workers, true);
+		
+		return $active_workers;
 	}
 	
 	static function getAll($nocache=false, $with_disabled=true) {
