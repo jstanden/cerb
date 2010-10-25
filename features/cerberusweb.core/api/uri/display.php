@@ -267,7 +267,8 @@ class ChDisplayPage extends CerberusPageExtension {
 		@$do_surrender = DevblocksPlatform::importGPC($_REQUEST['do_surrender'],'integer',0);
 		@$bucket = DevblocksPlatform::importGPC($_REQUEST['bucket_id'],'string');
 		
-		@$ticket = DAO_Ticket::get($id);
+		if(null == ($ticket = DAO_Ticket::get($id)))
+			return;
 		
 		// Anti-Spam
 		if(!empty($spam)) {
