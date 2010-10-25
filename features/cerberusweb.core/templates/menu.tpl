@@ -9,6 +9,22 @@
 			</li>
 		{/if}
 	{/foreach}
+	
+	{if $active_worker->is_superuser}
+	<li class="{if $page->id=='core.page.configuration'}selected{/if}" style="float:right;">
+		<a href="{devblocks_url}c=config{/devblocks_url}">{$translate->_('header.config')|lower}</a>				
+	</li>
+	{/if}
+	
+	{if !empty($active_worker_memberships)}
+	<li class="{if $page->id=='core.page.groups'}selected{/if}" style="float:right;">
+		<a href="{devblocks_url}c=groups{/devblocks_url}">{$translate->_('common.groups')|lower}</a>				
+	</li>
+	{/if}
+	
+	<li class="{if $page->id=='core.page.preferences'}selected{/if}" style="float:right;">
+		<a href="{devblocks_url}c=preferences{/devblocks_url}">{$translate->_('header.preferences')|lower}</a>				
+	</li>
 </ul>
 <div style="clear:both;"></div>
 {/if}

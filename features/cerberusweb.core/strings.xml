@@ -862,13 +862,10 @@
 		<!-- Header -->
 
 		<tu tuid='header.config'>
-			<tuv xml:lang="en_US"><seg>helpdesk setup</seg></tuv>
+			<tuv xml:lang="en_US"><seg>setup</seg></tuv>
 		</tu>
 		<tu tuid='header.history'>
 			<tuv xml:lang="en_US"><seg>history</seg></tuv>
-		</tu>
-		<tu tuid='header.group_setup'>
-			<tuv xml:lang="en_US"><seg>group setup</seg></tuv>
 		</tu>
 		<tu tuid='header.last_viewed'>
 			<tuv xml:lang="en_US"><seg>last viewed</seg></tuv>
