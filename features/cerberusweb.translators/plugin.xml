@@ -5,7 +5,7 @@
 	<description>A GUI for translating the Cerberus Helpdesk interface into other languages.  This adds a 'Translations' tab to Configuration.</description>
 	<author>WebGroup Media, LLC.</author>
 	<revision>0</revision>
-	<link>http://wiki.cerb4.com/wiki/</link>
+	<link>http://wiki.cerb5.com/wiki/Features:Translation_Editor</link>
 	<image>plugin.png</image>
 	
 	<!-- Plugin Dependencies -->

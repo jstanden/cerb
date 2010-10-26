@@ -5,7 +5,7 @@
 	<description>Track iterative changes and events on tickets.  This adds a Spam Analysis tab on Display Ticket.</description>
 	<author>WebGroup Media, LLC.</author>
 	<revision>0</revision>
-	<link>http://wiki.cerb4.com/wiki/New_Changes#Audit_Log</link>
+	<link>http://wiki.cerb5.com/wiki/Features:Ticket_Audit_Log</link>
 	<image>plugin.png</image>
 
 	<!-- Plugin Dependencies -->

@@ -5,7 +5,7 @@
 	<description>Displays profile pictures for contacts using gravatar.com</description>
 	<author>WebGroup Media, LLC.</author>
 	<revision>0</revision>
-	<link>http://www.cerberusweb.com/</link>
+	<link>http://wiki.cerb5.com/wiki/Features:Gravatar_Profile_Pictures</link>
 	<image>images/plugin.jpg</image>
 	
 	<!-- Plugin Dependencies -->

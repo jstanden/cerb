@@ -5,7 +5,7 @@
 	<description>A tool that makes it easy to create batches of realistic sample tickets; useful for evaluations, plugin development, and testing.  This adds a Simulator tab in Configuration.</description>
 	<author>WebGroup Media, LLC.</author>
 	<revision>0</revision>
-	<link>http://wiki.cerb4.com/wiki/New_Changes#Simulator</link>
+	<link>http://wiki.cerb5.com/wiki/Features:Ticket_Simulator</link>
 	<image>plugin.png</image>
 	
 	<!-- Plugin Dependencies -->
