@@ -63,9 +63,6 @@ if(!isset($tables['timetracking_entry']))
 list($columns, $indexes) = $db->metaTable('timetracking_entry');
 
 if(isset($columns['notes'])) {
-	// Add autoincrement
-	$db->Execute("ALTER TABLE comment MODIFY COLUMN id INT UNSIGNED NOT NULL AUTO_INCREMENT");
-	
 	$db->Execute("INSERT INTO comment (context, context_id, created, address_id, comment) ".
 		"SELECT 'cerberusweb.contexts.timetracking', timetracking_entry.id, timetracking_entry.log_date, address.id, timetracking_entry.notes ".
 		"FROM timetracking_entry ".
@@ -77,13 +74,6 @@ if(isset($columns['notes'])) {
 
 	// Drop column
 	$db->Execute('ALTER TABLE timetracking_entry DROP COLUMN notes');
-	
-	// Remove autoincrement
-	$db->Execute("ALTER TABLE comment MODIFY COLUMN id INT UNSIGNED NOT NULL DEFAULT 0");
-
-	// Update counter
-	$max_id = $db->GetOne("SELECT MAX(id) FROM comment");
-	$db->Execute(sprintf("UPDATE comment_seq SET id = %d", $max_id));
 }
 
 // ===========================================================================

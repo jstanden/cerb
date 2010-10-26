@@ -165,7 +165,6 @@ class ChSignInPage extends CerberusPageExtension {
 		$url_service = DevblocksPlatform::getUrlService();
 		
 		$honesty = CerberusLicense::getInstance();
-		$online_workers = DAO_Worker::getAllOnline(86400, true);
 		
 		if($inst->authenticate()) {
 			if(!is_array($redirect_path) || empty($redirect_path) || empty($redirect_path[0]))
@@ -182,18 +181,14 @@ class ChSignInPage extends CerberusPageExtension {
 			$worker = CerberusApplication::getActiveWorker();
 			
 			// Please be honest
+			$online_workers = DAO_Worker::getAllOnline(86400, 100);
 			if(!isset($online_workers[$worker->id]) && $honesty->w <= count($online_workers) && 100 > $honesty->w) {
-				$online_workers = DAO_Worker::getAllOnline(600, true);
-				
+				$online_workers = DAO_Worker::getAllOnline(600, 1);
 				if($honesty->w <= count($online_workers)) {
-					$longest_idle = time();
-					foreach($online_workers as $idle_worker) {
-						if($idle_worker->last_activity_date < $longest_idle)
-							$longest_idle = $idle_worker->last_activity_date; 
-					}
+					$most_idle_worker =  end($online_workers);
 					$session = DevblocksPlatform::getSessionService();
 					$session->clear();
-					$time = 600 - max(0,time()-$longest_idle);
+					$time = 600 - max(0,time()-$most_idle_worker->last_activity_date);
 					DevblocksPlatform::redirect(new DevblocksHttpResponse(array('login','too_many',$time)));
 					exit;
 				}

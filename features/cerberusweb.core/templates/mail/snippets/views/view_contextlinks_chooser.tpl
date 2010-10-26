@@ -65,7 +65,7 @@
 			{elseif $column=="su_hits"}
 			<td>{if empty($result.$column)}0{else}{$result.$column}{/if}&nbsp;</td>
 			{else}
-			<td>{$result.$column}&nbsp;</td>
+			<td>{$result.$column|escape}</td>
 			{/if}
 		{/foreach}
 		</tr>

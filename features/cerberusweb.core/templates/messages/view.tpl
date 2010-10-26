@@ -81,7 +81,7 @@
 			{elseif $column=="m_created_date"}
 				<td><abbr title="{$result.$column|devblocks_date|escape}">{$result.$column|devblocks_prettytime}</abbr>&nbsp;</td>
 			{else}
-				<td>{$result.$column}&nbsp;</td>
+				<td>{$result.$column|escape}</td>
 			{/if}
 		{/foreach}
 		</tr>

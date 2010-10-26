@@ -262,8 +262,13 @@ class ChDisplayPage extends CerberusPageExtension {
 		@$do_surrender = DevblocksPlatform::importGPC($_REQUEST['do_surrender'],'integer',0);
 		@$bucket = DevblocksPlatform::importGPC($_REQUEST['bucket_id'],'string');
 		
-		@$ticket = DAO_Ticket::get($id);
+		if(null == ($ticket = DAO_Ticket::get($id)))
+			return;
 		
+		// Group security
+		if(!$active_worker->isTeamMember($ticket->team_id))
+			return;
+			
 		// Anti-Spam
 		if(!empty($spam)) {
 		    CerberusBayes::markTicketAsSpam($id);
@@ -336,7 +341,13 @@ class ChDisplayPage extends CerberusPageExtension {
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 
-		$src_ticket = DAO_Ticket::get($src_ticket_id);
+		if(null == ($src_ticket = DAO_Ticket::get($src_ticket_id)))
+			return;
+			
+		// Group security
+		if(!$active_worker->isTeamMember($src_ticket->team_id))
+			return;
+		
 		$refresh_id = !empty($src_ticket) ? $src_ticket->mask : $src_ticket_id;
 		
 		// ACL

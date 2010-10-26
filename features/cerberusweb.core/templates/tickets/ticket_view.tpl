@@ -119,9 +119,9 @@
 					{elseif $column=="t_id"}
 					<td><a href="{devblocks_url}c=display&id={$result.t_id}{/devblocks_url}">{$result.t_id}</a></td>
 					{elseif $column=="t_mask"}
-					<td><a href="{devblocks_url}c=display&id={$result.t_mask}{/devblocks_url}">{$result.t_mask}</a></td>
+					<td><a href="{devblocks_url}c=display&id={$result.t_mask}{/devblocks_url}">{$result.t_mask|escape}</a></td>
 					{elseif $column=="t_subject"}
-					<td title="{$result.t_subject}">{$result.t_subject|truncate:35:'...'}</td>
+					<td title="{$result.t_subject}">{$result.t_subject|escape}</td>
 					{elseif $column=="t_is_waiting"}
 					<td>{if $result.t_is_waiting}<span class="cerb-sprite sprite-clock"></span>{else}{/if}</td>
 					{elseif $column=="t_is_closed"}
@@ -147,7 +147,7 @@
 					{elseif $column=="t_team_id"}
 					<td>
 						{assign var=ticket_team_id value=$result.t_team_id}
-						{$teams.$ticket_team_id->name}
+						{$teams.$ticket_team_id->name|escape}
 					</td>
 					{elseif $column=="t_category_id"}
 						{assign var=ticket_team_id value=$result.t_team_id}
@@ -158,7 +158,7 @@
 									<a href="javascript:;" onclick="genericAjaxPopup('peek','c=groups&a=showInboxFilterPanel&id=0&group_id={$ticket_team_id}&ticket_id={$result.t_id}&view_id={$view->id}',null,false,'600');">{$translate->_('mail.view.add_filter')}</a>
 								{/if}
 							{else}
-								{$buckets.$ticket_category_id->name}
+								{$buckets.$ticket_category_id->name|escape}
 							{/if}
 						</td>
 					{elseif $column=="t_last_action_code"}
@@ -185,7 +185,7 @@
 						{/if}
 					</td>
 					{else}
-					<td>{if $result.$column}{$result.$column}{/if}</td>
+					<td>{if $result.$column}{$result.$column|escape}{/if}</td>
 					{/if}
 				{/foreach}
 				</tr>

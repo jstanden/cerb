@@ -33,7 +33,8 @@
 		<patch version="5.0.1" revision="864" file="patches/5.x/5.0.1.php" />
 		<patch version="5.1.0" revision="896" file="patches/5.x/5.1.0.php" />
 		<patch version="5.1.1" revision="898" file="patches/5.x/5.1.1.php" />
-		<patch version="5.2.0-dev" revision="903" file="patches/5.x/5.2.0.php" />
+		<patch version="5.1.2" revision="904" file="patches/5.x/5.1.2.php" />
+		<patch version="5.2.0-dev" revision="905" file="patches/5.x/5.2.0.php" />
 	</patches>
 
 	<!-- Declared Extension Points -->

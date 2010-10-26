@@ -43,7 +43,7 @@
 	<tbody>
 	<tr class="{$tableRowClass}">
 		<td>&nbsp;</td>
-		<td rowspan="2" colspan="{math equation="x" x=$smarty.foreach.headers.total}" style="color:rgb(140,140,140);font-size:10px;text-align:left;vertical-align:middle;">[Access Denied: {$teams.$ticket_group_id->name} #{$result.t_mask}]</td>
+		<td rowspan="2" colspan="{math equation="x" x=$smarty.foreach.headers.total}" style="color:rgb(140,140,140);font-size:10px;text-align:left;vertical-align:middle;">[Access Denied: {$teams.$ticket_group_id->name|escape} #{$result.t_mask|escape}]</td>
 	</tr>
 	<tr class="{$tableRowClass}">
 		<td>&nbsp;</td>
@@ -55,7 +55,7 @@
 	<tr class="{$tableRowClass}">
 		<td align="center" rowspan="2"><input type="checkbox" name="ticket_id[]" title="[#{$result.t_mask|escape}] {$result.t_subject|escape}" value="{$result.t_id}"></td>
 		<td colspan="{math equation="x" x=$smarty.foreach.headers.total}">
-			<a href="{devblocks_url}c=display&id={$result.t_mask}{/devblocks_url}" class="subject" target="_blank">{if $result.t_is_deleted}<span class="cerb-sprite sprite-delete2_gray"></span> {elseif $result.t_is_closed}<span class="cerb-sprite sprite-check_gray" title="{$translate->_('status.closed')}"></span> {elseif $result.t_is_waiting}<span class="cerb-sprite sprite-clock"></span> {/if}{$result.t_subject|escape}</a>
+			<a href="{devblocks_url}c=display&id={$result.t_mask|escape}{/devblocks_url}" class="subject" target="_blank">{if $result.t_is_deleted}<span class="cerb-sprite sprite-delete2_gray"></span> {elseif $result.t_is_closed}<span class="cerb-sprite sprite-check_gray" title="{$translate->_('status.closed')}"></span> {elseif $result.t_is_waiting}<span class="cerb-sprite sprite-clock"></span> {/if}{$result.t_subject|escape}</a>
 			
 			{$object_workers = DAO_ContextLink::getContextLinks(CerberusContexts::CONTEXT_TICKET, array_keys($data), CerberusContexts::CONTEXT_WORKER)}
 			{if isset($object_workers.{$result.t_id})}
@@ -76,7 +76,7 @@
 		{if substr($column,0,3)=="cf_"}
 			{include file="devblocks:cerberusweb.core::internal/custom_fields/view/cell_renderer.tpl"}
 		{elseif $column=="t_subject"}
-		<td title="{$result.t_subject}">{$result.t_subject|truncate:35:'...'}</td>
+		<td title="{$result.t_subject}">{$result.t_subject|escape}</td>
 		{elseif $column=="t_is_waiting"}
 		<td>{if $result.t_is_waiting}<span class="cerb-sprite sprite-clock"></span>{else}{/if}</td>
 		{elseif $column=="t_is_closed"}
@@ -100,7 +100,7 @@
 		{elseif $column=="t_team_id"}
 		<td>
 			{assign var=ticket_team_id value=$result.t_team_id}
-			{$teams.$ticket_team_id->name}
+			{$teams.$ticket_team_id->name|escape}
 		</td>
 		{elseif $column=="t_category_id"}
 			{assign var=ticket_team_id value=$result.t_team_id}
@@ -108,7 +108,7 @@
 			<td>
 				{if 0 == $ticket_category_id}
 				{else}
-					{$buckets.$ticket_category_id->name}
+					{$buckets.$ticket_category_id->name|escape}
 				{/if}
 			</td>
 		{elseif $column=="t_last_action_code"}
@@ -133,7 +133,7 @@
 			{/if}
 		</td>
 		{else}
-		<td>{if $result.$column}{$result.$column}{/if}</td>
+		<td>{if $result.$column}{$result.$column|escape}{/if}</td>
 		{/if}
 	{/foreach}
 	</tr>

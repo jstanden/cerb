@@ -62,7 +62,7 @@
 			{elseif $column=="d_name"}
 			<td><a href="javascript:;" onclick="genericAjaxPopup('peek','c=config&a=showStorageProfilePeek&id={$result.d_id|escape:'url'}&view_id={$view->id|escape:'url'}',null,false,'500');" class="subject">{$result.d_name}</a></td>
 			{else}
-			<td>{$result.$column}&nbsp;</td>
+			<td>{$result.$column|escape}</td>
 			{/if}
 		{/foreach}
 		</tr>
