@@ -295,8 +295,9 @@ class DAO_Ticket extends C4_ORMHelper {
 			));
 			
 			// Comments
-			$sql = sprintf("UPDATE ticket_comment SET ticket_id = %d WHERE ticket_id IN (%s)",
+			$sql = sprintf("UPDATE comment SET context_id = %d WHERE context = %s AND context_id IN (%s)",
 				$oldest_id,
+				$db->qstr(CerberusContexts::CONTEXT_TICKET),
 				implode(',', $merge_ticket_ids)
 			);
 			$db->Execute($sql);
