@@ -52,7 +52,7 @@
 			{elseif $column=="kb_updated"}
 			<td><abbr title="{$result.kb_updated|devblocks_date}">{$result.kb_updated|devblocks_prettytime}</abbr>&nbsp;</td>
 			{else}
-			<td>{$result.$column}&nbsp;</td>
+			<td>{$result.$column|escape}</td>
 			{/if}
 		{/foreach}
 		</tr>

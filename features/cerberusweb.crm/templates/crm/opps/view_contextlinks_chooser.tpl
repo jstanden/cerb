@@ -94,7 +94,7 @@
 					{/if}
 				</td>
 			{else}
-				<td>{$result.$column}</td>
+				<td>{$result.$column|escape}</td>
 			{/if}
 		{/foreach}
 		</tr>

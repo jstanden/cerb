@@ -73,7 +73,7 @@
 				&nbsp;
 			</td>
 			{else}
-			<td>{$result.$column}&nbsp;</td>
+			<td>{$result.$column|escape}</td>
 			{/if}
 		{/foreach}		
 		</tr>

@@ -53,7 +53,7 @@
 			{elseif $column=="t_is_closed" || $column=="t_is_deleted" || $column=="t_is_waiting"}
 			<td>{if $result.$column}{$translate->_('common.yes')}{else}{$translate->_('common.no')}{/if}</td>
 			{else}
-			<td>{$result.$column}&nbsp;</td>
+			<td>{$result.$column|escape}</td>
 			{/if}
 		{/foreach}
 		</tr>

@@ -75,7 +75,7 @@
 			{elseif $column=="ad_email"}
 				<td><a href="javascript:;" onclick="genericAjaxPopup('peek','c=contacts&a=showAddressPeek&email={$result.ad_email|escape:'url'}&view_id={$view->id}',null,false,'500');" title="{$result.ad_email|escape}">{$result.ad_email|truncate:64:'...':true:true}</a></td>
 			{else}
-			<td>{$result.$column}&nbsp;</td>
+			<td>{$result.$column|escape}</td>
 			{/if}
 		{/foreach}
 		</tr>

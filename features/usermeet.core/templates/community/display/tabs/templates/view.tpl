@@ -64,7 +64,7 @@
 				<abbr title="{$result.$column|devblocks_date}">{$result.$column|devblocks_prettytime}</abbr>
 			</td>
 			{else}
-			<td>{$result.$column}&nbsp;</td>
+			<td>{$result.$column|escape}</td>
 			{/if}
 		{/foreach}
 		</tr>
