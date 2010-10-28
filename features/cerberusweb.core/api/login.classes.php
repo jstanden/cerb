@@ -76,7 +76,7 @@ class DefaultLoginModule extends Extension_LoginAuthenticator {
 				break;
 		}
 		
-		$tpl->display('file:' . dirname(dirname(__FILE__)) . '/templates/login/login_form_default.tpl');
+		$tpl->display('devblocks:cerberusweb.core::login/login_form_default.tpl');
 	}
 	
 	function authenticate() {

@@ -499,7 +499,7 @@ class CrmPage extends CerberusPageExtension {
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_OPPORTUNITY, null, $token_labels, $token_values);
 		$tpl->assign('token_labels', $token_labels);
 		
-		$tpl->display('file:' . dirname(dirname(__FILE__)) . '/templates/crm/opps/bulk.tpl');
+		$tpl->display('devblocks:cerberusweb.crm::crm/opps/bulk.tpl');
 	}
 	
 	function doOppBulkUpdateAction() {

@@ -1452,8 +1452,6 @@ class View_Ticket extends C4_AbstractView {
 		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('id', $this->id);
-		$view_path = APP_PATH . '/features/cerberusweb.core/templates/tickets/';
-		$tpl->assign('view_path',$view_path);
 		$tpl->assign('view', $this);
 
 		$visit = CerberusApplication::getVisit();
@@ -1489,10 +1487,10 @@ class View_Ticket extends C4_AbstractView {
 		
 		switch($this->renderTemplate) {
 			case 'contextlinks_chooser':
-				$tpl->display('file:' . $view_path . 'view_contextlinks_chooser.tpl');
+				$tpl->display('devblocks:cerberusweb.core::tickets/view_contextlinks_chooser.tpl');
 				break;
 			default:
-				$tpl->display('file:' . $view_path . 'ticket_view.tpl');
+				$tpl->display('devblocks:cerberusweb.core::tickets/ticket_view.tpl');
 				break;
 		}
 	}

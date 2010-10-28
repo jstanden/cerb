@@ -312,7 +312,7 @@ class View_OpenIDToWorker extends C4_AbstractView {
 		//$tpl->assign('custom_fields', $custom_fields);
 
 		// [TODO] Set your template path
-		$tpl->display('file:/path/to/view.tpl');
+		$tpl->display('devblocks:/path/to/view.tpl');
 	}
 
 	function renderCriteria($field) {

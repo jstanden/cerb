@@ -358,7 +358,7 @@ class View_Comment extends C4_AbstractView {
 		$tpl->assign('view', $this);
 
 		// [TODO] Set your template path
-		$tpl->display('file:/path/to/view.tpl');
+		$tpl->display('devblocks:/path/to/view.tpl');
 	}
 
 	function renderCriteria($field) {

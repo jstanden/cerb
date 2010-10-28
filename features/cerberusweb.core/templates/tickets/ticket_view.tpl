@@ -2,7 +2,7 @@
 {assign var=total value=$results[1]}
 {assign var=data value=$results[0]}
 <div id="{$view->id}_output_container">
-	{include file="file:$view_path/rpc/ticket_view_output.tpl"}
+	{include file="devblocks:cerberusweb.core::tickets/rpc/ticket_view_output.tpl"}
 </div>
 
 <table cellpadding="0" cellspacing="0" border="0" width="100%">

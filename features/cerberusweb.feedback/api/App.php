@@ -743,7 +743,7 @@ class ChFeedbackController extends DevblocksControllerExtension {
 		$types = Model_CustomField::getTypes();
 		$tpl->assign('types', $types);
 		
-		$tpl->display('file:' . $this->plugin_path . '/templates/feedback/ajax/feedback_entry_panel.tpl');
+		$tpl->display('devblocks:cerberusweb.feedback::feedback/ajax/feedback_entry_panel.tpl');
 	}
 	
 	function saveEntryAction() {
