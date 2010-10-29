@@ -22,13 +22,13 @@
 		{if empty($visit)}
 			{$translate->_('header.not_signed_in')} <a href="{devblocks_url}c=login{/devblocks_url}">{$translate->_('header.signon')|lower}</a>
 		{elseif !empty($active_worker)}
+			{if $active_worker_notify_count}
+			<span style="padding:3px 5px 3px 5px;background-color:rgb(200,0,0);"><a href="{devblocks_url}c=home&a=events{/devblocks_url}" style="color:rgb(255,255,255);text-decoration:none;font-weight:bold;">{'header.notifications.unread'|devblocks_translate:$active_worker_notify_count}</a></span>
+			{/if}
+			
 			{assign var=worker_name value=''|cat:'<b>'|cat:$active_worker->getName()|cat:'</b>'}
 			{'header.signed_in'|devblocks_translate:$worker_name}
 			(<a href="{devblocks_url}c=login&a=signout{/devblocks_url}">{$translate->_('header.signoff')|lower}</a>)
-	
-			{if $active_worker_notify_count}
-			<div style="padding:3px 5px 3px 5px;background-color:rgb(200,0,0);"><a href="{devblocks_url}c=home&a=events{/devblocks_url}" style="color:rgb(255,255,255);text-decoration:none;font-weight:bold;">{'header.notifications.unread'|devblocks_translate:$active_worker_notify_count}</a></div>
-			{/if}
 		{/if}
 		</td>
 	</tr>
