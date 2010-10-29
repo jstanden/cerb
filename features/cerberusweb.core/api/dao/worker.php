@@ -529,7 +529,7 @@ class DAO_Worker extends C4_ORMHelper {
 						$join_sql .= "LEFT JOIN worker_to_team ON (worker_to_team.agent_id = w.id) ";
 						$where_sql .= "AND worker_to_team.agent_id IS NULL ";
 					} else {
-						$join_sql .= sprintf("INNER JOIN worker_to_team ON (worker_to_team.agent_id = w.id AND worker_to_team.agent_id IN (%s)) ",
+						$join_sql .= sprintf("INNER JOIN worker_to_team ON (worker_to_team.agent_id = w.id AND worker_to_team.team_id IN (%s)) ",
 							implode(',', $param->value)
 						);
 					}
