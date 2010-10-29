@@ -541,6 +541,12 @@ class UmPortalController extends DevblocksControllerExtension {
 	function handleRequest(DevblocksHttpRequest $request) {
 		$stack = $request->path;
 
+		$tpl = DevblocksPlatform::getTemplateService();
+
+		// Globals for Community Tool template scope
+		$translate = DevblocksPlatform::getTranslationService();
+		$tpl->assign('translate', $translate);
+		
 		array_shift($stack); // portal
 		$code = array_shift($stack); // xxxxxxxx
 

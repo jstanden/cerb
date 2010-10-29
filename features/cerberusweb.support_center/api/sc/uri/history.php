@@ -7,12 +7,7 @@ class UmScHistoryController extends Extension_UmScController {
 	}
 	
 	function renderSidebar(DevblocksHttpResponse $response) {
-		$tpl = DevblocksPlatform::getTemplateService();
-		
-		@$q = DevblocksPlatform::importGPC($_POST['q'],'string','');
-		$tpl->assign('q', $q);
-		
-		$tpl->display("devblocks:cerberusweb.support_center:portal_".UmPortalHelper::getCode() . ":support_center/history/sidebar_search.tpl");
+//		$tpl = DevblocksPlatform::getTemplateService();
 	}
 	
 	function writeResponse(DevblocksHttpResponse $response) {
@@ -26,13 +21,7 @@ class UmScHistoryController extends Extension_UmScController {
 		$mask = array_shift($stack);
 
 		// [TODO] API/model ::getAddresses()
-		$addresses = array();
-		if(!empty($active_contact) && !empty($active_contact->id)) {
-			$addresses = DAO_Address::getWhere(sprintf("%s = %d",
-				DAO_Address::CONTACT_PERSON_ID,
-				$active_contact->id
-			));
-		}
+		$addresses = $active_contact->getAddresses();
 		$address_ids = array_keys($addresses);
 		if(empty($address_ids))
 			$address_ids = array('-1');
@@ -42,58 +31,26 @@ class UmScHistoryController extends Extension_UmScController {
 			if(null == ($history_view = UmScAbstractViewLoader::getView('', 'sc_history_list'))) {
 				$history_view = new UmSc_TicketHistoryView();
 				$history_view->id = 'sc_history_list';
+				$history_view->name = "";
+				$history_view->renderSortBy = SearchFields_Ticket::TICKET_UPDATED_DATE;
+				$history_view->renderSortAsc = false;
+				$history_view->renderLimit = 10;
+				
+				$history_view->addParams(array(
+					new DevblocksSearchCriteria(SearchFields_Ticket::VIRTUAL_STATUS,null,array('open','waiting')),
+				), true);
 			}
 			
 			// Lock to current visitor
-			$history_view->addParams(array(
-				new DevblocksSearchCriteria(SearchFields_Ticket::REQUESTER_ID,'in',$address_ids),
-				new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_DELETED,'=',0),
-			), true);
+			$history_view->addParamsRequired(array(
+				'_acl_reqs' => new DevblocksSearchCriteria(SearchFields_Ticket::REQUESTER_ID,'in',$address_ids),
+				'_acl_status' => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_DELETED,'=',0),
+			));
 			
-			$history_view->name = "";
-			$history_view->renderSortBy = SearchFields_Ticket::TICKET_UPDATED_DATE;
-			$history_view->renderSortAsc = false;
-			$history_view->renderLimit = 10;
-
 			UmScAbstractViewLoader::setView($history_view->id, $history_view);
-			$tpl->assign('history_view', $history_view);
+			$tpl->assign('view', $history_view);
 
 			$tpl->display("devblocks:cerberusweb.support_center:portal_".UmPortalHelper::getCode() . ":support_center/history/index.tpl");
-			
-		} elseif ('search'==$mask) {
-			@$q = DevblocksPlatform::importGPC($_REQUEST['q'],'string','');
-			$tpl->assign('q', $q);
-
-			if(null == ($view = UmScAbstractViewLoader::getView('', 'sc_history_search'))) {
-				$view = new UmSc_TicketHistoryView();
-				$view->id = 'sc_history_search';
-			}
-			
-			$view->name = "";
-			$view->view_columns = array(
-				SearchFields_Ticket::TICKET_SUBJECT,
-				SearchFields_Ticket::TICKET_LAST_WROTE,
-				SearchFields_Ticket::TICKET_UPDATED_DATE,
-			);
-			
-			$params = array(
-				new DevblocksSearchCriteria(SearchFields_Ticket::REQUESTER_ID,'in',$address_ids),
-				new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_DELETED,'=',0),
-			);
-			
-			if(!empty($q))
-				$params[] = array(
-					DevblocksSearchCriteria::GROUP_OR,
-					new DevblocksSearchCriteria(SearchFields_Ticket::FULLTEXT_MESSAGE_CONTENT,DevblocksSearchCriteria::OPER_FULLTEXT,array($q,'all')),
-					new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_MASK,DevblocksSearchCriteria::OPER_LIKE,$q.'%'),
-				);
-			
-			$view->addParams($params, true);
-			
-			UmScAbstractViewLoader::setView($view->id, $view);
-			$tpl->assign('view', $view);
-			
-			$tpl->display("devblocks:cerberusweb.support_center:portal_".UmPortalHelper::getCode() . ":support_center/history/search_results.tpl");
 			
 		} else {
 			// Secure retrieval (address + mask)
@@ -165,13 +122,7 @@ class UmScHistoryController extends Extension_UmScController {
 		$active_contact = $umsession->getProperty('sc_login', null);
 
 		// [TODO] API/model ::getAddresses()
-		$addresses = array();
-		if(!empty($active_contact) && !empty($active_contact->id)) {
-			$addresses = DAO_Address::getWhere(sprintf("%s = %d",
-				DAO_Address::CONTACT_PERSON_ID,
-				$active_contact->id
-			));
-		}
+		$addresses = $active_contact->getAddresses();
 		$address_ids = array_keys($addresses);
 		if(empty($address_ids))
 			$address_ids = array('-1');		
@@ -208,13 +159,7 @@ class UmScHistoryController extends Extension_UmScController {
 		$active_contact = $umsession->getProperty('sc_login', null);
 
 		// [TODO] API/model ::getAddresses()
-		$addresses = array();
-		if(!empty($active_contact) && !empty($active_contact->id)) {
-			$addresses = DAO_Address::getWhere(sprintf("%s = %d",
-				DAO_Address::CONTACT_PERSON_ID,
-				$active_contact->id
-			));
-		}
+		$addresses = $active_contact->getAddresses();
 		$address_ids = array_keys($addresses);
 		if(empty($address_ids))
 			$address_ids = array('-1');		
@@ -318,5 +263,196 @@ class UmSc_TicketHistoryView extends C4_AbstractView {
 
 	function getFields() {
 		return SearchFields_Ticket::getFields();
+	}
+	
+	function getSearchFields() {
+		$fields = SearchFields_Ticket::getFields();
+
+		foreach($fields as $key => $field) {
+			switch($key) {
+				case SearchFields_Ticket::FULLTEXT_MESSAGE_CONTENT:
+				case SearchFields_Ticket::REQUESTER_ID:
+				case SearchFields_Ticket::TICKET_MASK:
+				case SearchFields_Ticket::TICKET_SUBJECT:
+				case SearchFields_Ticket::TICKET_CREATED_DATE:
+				case SearchFields_Ticket::TICKET_UPDATED_DATE:
+				case SearchFields_Ticket::VIRTUAL_STATUS:
+					break;
+				default:
+					unset($fields[$key]);
+			}
+		}
+		
+		return $fields;
+	}
+	
+	function renderCriteria($field) {
+		$umsession = UmPortalHelper::getSession();
+		$active_contact = $umsession->getProperty('sc_login', null);
+		$tpl = DevblocksPlatform::getTemplateService();
+		
+		$tpl->assign('id', $this->id);
+
+		switch($field) {
+			case SearchFields_Ticket::TICKET_MASK:
+			case SearchFields_Ticket::TICKET_SUBJECT:
+				$tpl->display('devblocks:cerberusweb.support_center::support_center/internal/view/criteria/__string.tpl');
+				break;
+			case 'placeholder_number':
+				$tpl->display('devblocks:cerberusweb.support_center::support_center/internal/view/criteria/__number.tpl');
+				break;
+			case SearchFields_Ticket::TICKET_CREATED_DATE:
+			case SearchFields_Ticket::TICKET_UPDATED_DATE:
+				$tpl->display('devblocks:cerberusweb.support_center::support_center/internal/view/criteria/__date.tpl');
+				break;
+			case 'placeholder_bool':
+				$tpl->display('devblocks:cerberusweb.support_center::support_center/internal/view/criteria/__bool.tpl');
+				break;
+			case SearchFields_Ticket::FULLTEXT_MESSAGE_CONTENT:
+				$tpl->display('devblocks:cerberusweb.support_center::support_center/internal/view/criteria/__fulltext.tpl');
+				break;
+			case SearchFields_Ticket::REQUESTER_ID:
+				$tpl->assign('requesters', $active_contact->getAddresses());
+				$tpl->display('devblocks:cerberusweb.support_center::support_center/history/criteria/requester.tpl');
+				break;
+			case SearchFields_Ticket::VIRTUAL_STATUS:
+				$tpl->display('devblocks:cerberusweb.support_center::support_center/history/criteria/status.tpl');
+				break;
+//			default:
+//				// Custom Fields
+//				if('cf_' == substr($field,0,3)) {
+//					$this->_renderCriteriaCustomField($tpl, substr($field,3));
+//				} else {
+//					echo ' ';
+//				}
+//				break;
+		}		
+	}
+	
+	function renderCriteriaParam($param) {
+		$field = $param->field;
+		$values = !is_array($param->value) ? array($param->value) : $param->value;
+
+		$translate = DevblocksPlatform::getTranslationService();
+		
+		switch($field) {
+			// Overload
+			case SearchFields_Ticket::REQUESTER_ID:
+				$strings = array();
+				if(empty($values) || !is_array($values))
+					break;
+				$addresses = DAO_Address::getWhere(sprintf("%s IN (%s)", DAO_Address::ID, implode(',', $values)));
+				
+				foreach($values as $val) {
+					if(isset($addresses[$val]))
+						$strings[] = $addresses[$val]->email;
+				}
+				echo implode('</b> or <b>', $strings);
+				break;
+				
+			// Overload
+			case SearchFields_Ticket::VIRTUAL_STATUS:
+				$strings = array();
+
+				foreach($values as $val) {
+					switch($val) {
+						case 'open':
+							$strings[] = $translate->_('status.waiting');
+							break;
+						case 'waiting':
+							$strings[] = $translate->_('status.open');
+							break;
+						case 'closed':
+							$strings[] = $translate->_('status.closed');
+							break;
+					}
+				}
+				echo implode(", ", $strings);
+				break;
+
+			default:
+				parent::renderCriteriaParam($param);
+				break;
+		}		
+	}
+	
+	function doSetCriteria($field, $oper, $value) {
+		$umsession = UmPortalHelper::getSession();
+		$active_contact = $umsession->getProperty('sc_login', null);
+		
+		$criteria = null;
+
+		switch($field) {
+			case SearchFields_Ticket::TICKET_MASK:
+			case SearchFields_Ticket::TICKET_SUBJECT:
+				// force wildcards if none used on a LIKE
+				if(($oper == DevblocksSearchCriteria::OPER_LIKE || $oper == DevblocksSearchCriteria::OPER_NOT_LIKE)
+				&& false === (strpos($value,'*'))) {
+					$value = $value.'*';
+				}
+				$criteria = new DevblocksSearchCriteria($field, $oper, $value);
+				break;
+				
+			case SearchFields_Ticket::FULLTEXT_MESSAGE_CONTENT:
+				@$scope = DevblocksPlatform::importGPC($_REQUEST['scope'],'string','expert');
+				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_FULLTEXT,array($value,$scope));
+				break;
+				
+			case SearchFields_Ticket::VIRTUAL_STATUS:
+				@$statuses = DevblocksPlatform::importGPC($_REQUEST['value'],'array',array());
+				$criteria = new DevblocksSearchCriteria($field, null, $statuses);
+				break;
+				
+			case SearchFields_Ticket::TICKET_CREATED_DATE:
+			case SearchFields_Ticket::TICKET_UPDATED_DATE:
+				@$from = DevblocksPlatform::importGPC($_REQUEST['from'],'string','');
+				@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string','');
+
+				if(empty($from) || (!is_numeric($from) && @false === strtotime(str_replace('.','-',$from))))
+					$from = 0;
+					
+				if(empty($to) || (!is_numeric($to) && @false === strtotime(str_replace('.','-',$to))))
+					$to = 'now';
+
+				$criteria = new DevblocksSearchCriteria($field,$oper,array($from,$to));
+				break;
+				
+			case 'placeholder_number':
+				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
+				break;
+				
+			case 'placeholder_bool':
+				@$bool = DevblocksPlatform::importGPC($_REQUEST['bool'],'integer',1);
+				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
+				break;
+				
+			case SearchFields_Ticket::REQUESTER_ID:
+				@$requester_ids = DevblocksPlatform::importGPC($_REQUEST['requester_ids'],'array',array());
+				
+				// If blank, this is pointless.
+				if(empty($active_contact) || empty($requester_ids))
+					break;
+				
+				// Sanitize the selections to make sure they only include verified addresses on this contact
+				$intersect = array_intersect(array_keys($active_contact->getAddresses()), $requester_ids);
+				
+				if(empty($intersect))
+					break;
+				
+				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$intersect);
+				break;
+				
+//			default:
+//				// Custom Fields
+//				if(substr($field,0,3)=='cf_') {
+//					$criteria = $this->_doSetCriteriaCustomField($field, substr($field,3));
+//				}
+//				break;
+		}
+
+		if(!empty($criteria)) {
+			$this->addParam($criteria);
+			$this->renderPage = 0;
+		}
 	}
 };

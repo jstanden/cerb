@@ -5,7 +5,7 @@
 	<script type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.support_center&f=js/jquery.js{/devblocks_url}"></script>
 	<script type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.support_center&f=js/jquery.MultiFile.pack.js{/devblocks_url}"></script>
 	<script type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.support_center&f=js/jquery.validate.pack.js{/devblocks_url}"></script>
-	<script type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.support_center&f=js/cerb4.common.js{/devblocks_url}"></script>
+	<script type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.support_center&f=js/devblocks.common.js{/devblocks_url}"></script>
 	
 	<style type='text/css'>
 		{include file="devblocks:cerberusweb.support_center:portal_{$portal_code}:support_center/style.css.tpl"}

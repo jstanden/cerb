@@ -282,6 +282,18 @@ class Model_ContactPerson {
 	public $last_login;
 	public $auth_salt;
 	public $auth_password;
+	
+	public function getAddresses() {
+		$addresses = array();
+		if(!empty($this->id)) {
+			$addresses = DAO_Address::getWhere(sprintf("%s = %d",
+				DAO_Address::CONTACT_PERSON_ID,
+				$this->id
+			));
+		}
+		
+		return $addresses;
+	}
 };
 
 class View_ContactPerson extends C4_AbstractView {

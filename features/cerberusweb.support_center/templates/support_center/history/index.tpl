@@ -1,12 +1,16 @@
 <div id="history">
-	
-{if !empty($history_view)}
-<fieldset>
-	<legend>{$translate->_('portal.sc.public.history.my_conversations')}</legend>
-	<div id="view{$history_view->id}">
-	{$history_view->render()}
+
+<form action="#" method="POST" id="filters_{$view->id|escape}">
+{include file="devblocks:cerberusweb.support_center:portal_{$portal_code}:support_center/internal/view/view_filters.tpl" view=$view}
+</form>
+
+{if !empty($view)}
+	<div class="header">
+		<h1>Ticket History</h1>
 	</div>
-</fieldset>
+	<div id="view{$view->id}">
+	{$view->render()}
+	</div>
 {/if}
 
 </div><!--#history-->

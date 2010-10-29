@@ -36,6 +36,12 @@
 			<class name="Extension_UmScController" />
 			<class name="Extension_UmScRssController" />
 		</file>
+		<file path="api/sc/uri/ajax.php">
+			<class name="UmScAjaxController" />
+		</file>
+		<file path="api/sc/uri/history.php">
+			<class name="UmSc_TicketHistoryView" />
+		</file>
 	</class_loader>
 
 	<!-- Templates -->
