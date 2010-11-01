@@ -198,7 +198,7 @@ class UmScAccountController extends Extension_UmScController {
 						$contact_fields[DAO_ContactPerson::EMAIL_ID] = $address->id;
 						// [TODO] This could be done better
 						$active_contact->email_id = $address->id;
-						$umsession->setProperty('sc_login', $active_contact);
+						$umsession->login($active_contact);
 					}
 					
 					if(is_array($show_fields))

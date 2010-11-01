@@ -487,7 +487,7 @@ class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
 			DAO_ConfirmationCode::delete($code->id);
 			
 			// Log in the session
-			$umsession->setProperty('sc_login', $contact);
+			$umsession->login($contact);
 			
 			$address_uri = urlencode(str_replace(array('@','.'),array('_at_','_dot_'),$address->email));
 			header("Location: " . $url_writer->write('c=account&a=email&address='.$address_uri, true));
@@ -580,7 +580,7 @@ class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
 				
 			// Success (delete token and one-time log in token)
 			DAO_ConfirmationCode::delete($code->id);
-			$umsession->setProperty('sc_login', $contact);
+			$umsession->login($contact);
 			header("Location: " . $url_writer->write('c=account&a=password', true));
 			exit;
 			
@@ -606,7 +606,7 @@ class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
 		@$pass = DevblocksPlatform::importGPC($_REQUEST['password']);
 
 		// Clear the past session
-		$umsession->setProperty('sc_login', null);
+		$umsession->logout();
 		
 		try {
 			// Find the address
@@ -621,7 +621,7 @@ class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
 			if(0 != strcmp(md5($contact->auth_salt.md5($pass)),$contact->auth_password))
 				throw new Exception("Login failed.");	
 			
-			$umsession->setProperty('sc_login', $contact);
+			$umsession->login($contact);
 			header("Location: " . $url_writer->write('', true));
 			exit;
 			
@@ -790,7 +790,7 @@ class ScOpenIDLoginAuthenticator extends Extension_ScLoginAuthenticator {
 			DAO_ConfirmationCode::delete($code->id);
 			
 			// Log in the session
-			$umsession->setProperty('sc_login', $contact);
+			$umsession->login($contact);
 			
 			$address_uri = urlencode(str_replace(array('@','.'),array('_at_','_dot_'),$address->email));
 			header("Location: " . $url_writer->write('c=account&a=email&address='.$address_uri, true));
@@ -883,7 +883,7 @@ class ScOpenIDLoginAuthenticator extends Extension_ScLoginAuthenticator {
 				
 			// Success (delete token and one-time log in token)
 			DAO_ConfirmationCode::delete($code->id);
-			$umsession->setProperty('sc_login', $contact);
+			$umsession->login($contact);
 			header("Location: " . $url_writer->write('c=account&a=openid', true));
 			exit;
 			
@@ -907,7 +907,7 @@ class ScOpenIDLoginAuthenticator extends Extension_ScLoginAuthenticator {
 		$tpl = DevblocksPlatform::getTemplateService();
 
 		// Clear the past session
-		$umsession->setProperty('sc_login', null);
+		$umsession->logout();
 		
 		try {
 			// Mode (Cancel)
@@ -930,7 +930,7 @@ class ScOpenIDLoginAuthenticator extends Extension_ScLoginAuthenticator {
 					$contact_id = DAO_OpenIdToContactPerson::getContactIdByOpenId($_REQUEST['openid_claimed_id']);
 					
 					if(null != ($contact = DAO_ContactPerson::get($contact_id))) {
-						$umsession->setProperty('sc_login', $contact);
+						$umsession->login($contact);
 						header("Location: " . $url_writer->write('', true));
 						exit;
 						

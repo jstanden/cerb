@@ -152,7 +152,7 @@ abstract class Extension_ScLoginAuthenticator extends DevblocksExtension {
 	 */
 	function signoff() {
 		$umsession = UmPortalHelper::getSession();
-		$umsession->setProperty('sc_login',null);
+		$umsession->logout();
 	}
 };
 
