@@ -4185,7 +4185,11 @@ class _DevblocksTemplateManager {
 		
 		// The past
 		if($diffsecs >= 0) {
-			if($diffsecs >= 86400) { // days
+			if($diffsecs >= 31557600) { // years
+				$whole .= floor($diffsecs/31557600).'yr';
+			} elseif($diffsecs >= 2592000) { // mo
+				$whole .= floor($diffsecs/2592000).'mo';
+			} elseif($diffsecs >= 86400) { // days
 				$whole .= floor($diffsecs/86400).'d';
 			} elseif($diffsecs >= 3600) { // hours
 				$whole .= floor($diffsecs/3600).'h';
@@ -4199,7 +4203,11 @@ class _DevblocksTemplateManager {
 				$whole .= ' ago';
 			
 		} else { // The future
-			if($diffsecs <= -86400) { // days
+			if($diffsecs <= -31557600) { // years
+				$whole .= floor($diffsecs/-31557600).'yr';
+			} elseif($diffsecs <= -2592000) { // mo
+				$whole .= floor($diffsecs/-2592000).'mo';
+			} elseif($diffsecs <= -86400) { // days
 				$whole .= floor($diffsecs/-86400).'d';
 			} elseif($diffsecs <= -3600) { // hours
 				$whole .= floor($diffsecs/-3600).'h';
