@@ -132,6 +132,18 @@ class ChContactsPage extends CerberusPageExtension {
 				} // switch (action)
 				break;
 				
+			case 'people':
+				@$id = array_shift($stack);
+				
+				if(!empty($id) && is_numeric($id)) {
+					$person = DAO_ContactPerson::get($id);
+					$tpl->assign('person', $person);
+					
+					$tpl->display('devblocks:cerberusweb.core::contacts/people/display/index.tpl');
+					return;
+				}
+				break;
+				
 		} // switch (tab)
 		
 		$tpl->display('devblocks:cerberusweb.core::contacts/index.tpl');
@@ -520,6 +532,96 @@ class ChContactsPage extends CerberusPageExtension {
 		exit;
 	}
 	
+	function showTabPeopleAddressesAction() {
+		$translate = DevblocksPlatform::getTranslationService();
+		
+		@$contact_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+				
+		$person = DAO_ContactPerson::get($contact_id);
+		$tpl->assign('person', $person);
+		
+		$visit = CerberusApplication::getVisit(); /* @var $visit CerberusVisit */
+
+		$view = C4_AbstractViewLoader::getView('contact_person_addresses');
+		
+		// All contact addresses
+		$contact_addresses = $person->getAddresses();
+		
+		if(null == $view) {
+			$view = new View_Address();
+			$view->id = 'contact_person_addresses';
+			$view->name = '';
+			$view->view_columns = array(
+				SearchFields_Address::FIRST_NAME,
+				SearchFields_Address::LAST_NAME,
+				SearchFields_Address::ORG_NAME,
+			);
+			$view->renderLimit = 10;
+			$view->renderPage = 0;
+			$view->renderSortBy = SearchFields_Address::EMAIL;
+			$view->renderSortAsc = true;
+		}
+
+		@$view->name = 'Verified Email Addresses';
+		$view->addParams(array(
+			SearchFields_Address::ID => new DevblocksSearchCriteria(SearchFields_Address::ID,'in',array_keys($contact_addresses)),
+		), true);
+		$tpl->assign('view', $view);
+		
+		C4_AbstractViewLoader::setView($view->id, $view);
+		
+		$tpl->display('devblocks:cerberusweb.core::contacts/people/display/addresses_tab.tpl');
+		exit;
+	}	
+	
+	function showTabPeopleHistoryAction() {
+		$translate = DevblocksPlatform::getTranslationService();
+		
+		@$contact_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+				
+		$person = DAO_ContactPerson::get($contact_id);
+		$tpl->assign('person', $person);
+		
+		$visit = CerberusApplication::getVisit(); /* @var $visit CerberusVisit */
+
+		$view = C4_AbstractViewLoader::getView('contact_person_history');
+		
+		// All contact addresses
+		$contact_addresses = $person->getAddresses();
+		
+		if(null == $view) {
+			$view = new View_Ticket();
+			$view->id = 'contact_person_history';
+			$view->name = $translate->_('addy_book.history.view_title');
+			$view->view_columns = array(
+				SearchFields_Ticket::TICKET_LAST_ACTION_CODE,
+				SearchFields_Ticket::TICKET_CREATED_DATE,
+				SearchFields_Ticket::TICKET_TEAM_ID,
+				SearchFields_Ticket::TICKET_CATEGORY_ID,
+			);
+			$view->renderLimit = 10;
+			$view->renderPage = 0;
+			$view->renderSortBy = SearchFields_Ticket::TICKET_CREATED_DATE;
+			$view->renderSortAsc = false;
+		}
+
+		@$view->name = $translate->_('ticket.requesters') . ": " . intval(count($contact_addresses)) . ' address(es)';
+		$view->addParams(array(
+			SearchFields_Ticket::REQUESTER_ID => new DevblocksSearchCriteria(SearchFields_Ticket::REQUESTER_ID,'in',array_keys($contact_addresses)),
+			SearchFields_Ticket::TICKET_DELETED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_DELETED,DevblocksSearchCriteria::OPER_EQ,0)
+		), true);
+		$tpl->assign('view', $view);
+		
+		C4_AbstractViewLoader::setView($view->id, $view);
+		
+		$tpl->display('devblocks:cerberusweb.core::contacts/people/display/history_tab.tpl');
+		exit;
+	}	
+	
 	function showTabHistoryAction() {
 		$translate = DevblocksPlatform::getTranslationService();
 		
@@ -564,18 +666,6 @@ class ChContactsPage extends CerberusPageExtension {
 		$tpl->assign('contact_history', $tickets_view);
 		
 		C4_AbstractViewLoader::setView($tickets_view->id,$tickets_view);
-		
-		$workers = DAO_Worker::getAll();
-		$tpl->assign('workers', $workers);
-		
-		$teams = DAO_Group::getAll();
-		$tpl->assign('teams', $teams);
-		
-		$buckets = DAO_Bucket::getAll();
-		$tpl->assign('buckets', $buckets);
-		
-		$team_categories = DAO_Bucket::getTeams();
-		$tpl->assign('team_categories', $team_categories);
 		
 		$tpl->display('devblocks:cerberusweb.core::contacts/orgs/tabs/history.tpl');
 		exit;

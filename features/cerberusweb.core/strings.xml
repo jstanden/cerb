@@ -231,6 +231,9 @@
 		<tu tuid='common.name'>
 			<tuv xml:lang="en_US"><seg>Name</seg></tuv>
 		</tu>
+		<tu tuid='common.never'>
+			<tuv xml:lang="en_US"><seg>Never</seg></tuv>
+		</tu>
 		<tu tuid='common.no'>
 			<tuv xml:lang="en_US"><seg>no</seg></tuv>
 		</tu>
@@ -665,7 +668,7 @@
 			<tuv xml:lang="en_US"><seg>Organizations</seg></tuv>
 		</tu>
 		<tu tuid='addy_book.tab.people'>
-			<tuv xml:lang="en_US"><seg>People</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Registered Contacts</seg></tuv>
 		</tu>
 
 		<!-- Attachment -->

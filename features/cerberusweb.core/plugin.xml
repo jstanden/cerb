@@ -121,6 +121,7 @@
 		</file>
 		
 		<file path="api/dao/contact_person.php">
+			<class name="Context_ContactPerson" />
 			<class name="DAO_ContactPerson" />
 			<class name="Model_ContactPerson" />
 			<class name="SearchFields_ContactPerson" />
@@ -359,6 +360,29 @@
 	<extensions>
 
 		<!-- Contexts -->
+		
+		<extension point="devblocks.context">
+			<id>cerberusweb.contexts.contact_person</id>
+			<name>Contact Person</name>
+			<class>
+				<file>api/dao/contact_person.php</file>
+				<name>Context_ContactPerson</name>
+			</class>
+			<params>
+				<param key="link_options">
+					<value>
+						<!--<data key="create" />-->
+						<data key="find" />
+					</value>
+				</param>
+				<param key="events">
+					<value>
+						<data key="context.assigned" value="context.contact_person.assigned" />
+						<data key="context.commented" value="context.contact_person.commented" />
+					</value>
+				</param>
+			</params>
+		</extension>
 		
 		<extension point="devblocks.context">
 			<id>cerberusweb.contexts.address</id>

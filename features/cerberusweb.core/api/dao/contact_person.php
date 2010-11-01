@@ -134,7 +134,8 @@ class DAO_ContactPerson extends DevblocksORMHelper {
 			);
 			
 		$join_sql = "FROM contact_person ".
-			"INNER JOIN address ON (contact_person.email_id=address.id) "
+			"INNER JOIN address ON (contact_person.email_id=address.id) ".
+			(isset($tables['context_link']) ? "INNER JOIN context_link ON (context_link.to_context = 'cerberusweb.contexts.contact_person' AND context_link.to_context_id = contact_person.id) " : " ")
 			;
 		
 		// Custom field joins
@@ -240,6 +241,9 @@ class SearchFields_ContactPerson implements IDevblocksSearchFields {
 	const ADDRESS_FIRST_NAME = 'a_first_name';
 	const ADDRESS_LAST_NAME = 'a_last_name';
 	
+	const CONTEXT_LINK = 'cl_context_from';
+	const CONTEXT_LINK_ID = 'cl_context_from_id';
+	
 	/**
 	 * @return DevblocksSearchField[]
 	 */
@@ -257,6 +261,9 @@ class SearchFields_ContactPerson implements IDevblocksSearchFields {
 			self::ADDRESS_EMAIL => new DevblocksSearchField(self::ADDRESS_EMAIL, 'address', 'email', $translate->_('common.email')),
 			self::ADDRESS_FIRST_NAME => new DevblocksSearchField(self::ADDRESS_FIRST_NAME, 'address', 'first_name', $translate->_('address.first_name')),
 			self::ADDRESS_LAST_NAME => new DevblocksSearchField(self::ADDRESS_LAST_NAME, 'address', 'last_name', $translate->_('address.last_name')),
+			
+			self::CONTEXT_LINK => new DevblocksSearchField(self::CONTEXT_LINK, 'context_link', 'from_context', null),
+			self::CONTEXT_LINK_ID => new DevblocksSearchField(self::CONTEXT_LINK_ID, 'context_link', 'from_context_id', null),
 		);
 		
 		// Custom Fields
@@ -283,16 +290,25 @@ class Model_ContactPerson {
 	public $auth_salt;
 	public $auth_password;
 	
+	private $_addresses = array();
+	
 	public function getAddresses() {
-		$addresses = array();
-		if(!empty($this->id)) {
-			$addresses = DAO_Address::getWhere(sprintf("%s = %d",
+		if(empty($this->_addresses) && !empty($this->id)) {
+			$this->_addresses = DAO_Address::getWhere(sprintf("%s = %d",
 				DAO_Address::CONTACT_PERSON_ID,
 				$this->id
 			));
 		}
 		
-		return $addresses;
+		return $this->_addresses;
+	}
+	
+	public function getPrimaryAddress() {
+		$addresses = $this->getAddresses();
+		if(isset($addresses[$this->email_id]))
+			return $addresses[$this->email_id];
+			
+		return NULL;
 	}
 };
 
@@ -303,7 +319,7 @@ class View_ContactPerson extends C4_AbstractView {
 		$translate = DevblocksPlatform::getTranslationService();
 	
 		$this->id = self::DEFAULT_ID;
-		$this->name = $translate->_('People');
+		$this->name = $translate->_('addy_book.tab.people');
 		$this->renderLimit = 25;
 		$this->renderSortBy = SearchFields_ContactPerson::ID;
 		$this->renderSortAsc = true;
@@ -360,7 +376,15 @@ class View_ContactPerson extends C4_AbstractView {
 		//$custom_fields = DAO_CustomField::getByContext(CerberusContexts::XXX);
 		//$tpl->assign('custom_fields', $custom_fields);
 
-		$tpl->display('devblocks:cerberusweb.core::contacts/people/view.tpl');
+		switch($this->renderTemplate) {
+			case 'contextlinks_chooser':
+				$tpl->display('devblocks:cerberusweb.core::contacts/people/view_contextlinks_chooser.tpl');
+				break;
+			default:
+				$tpl->display('devblocks:cerberusweb.core::contacts/people/view.tpl');
+				break;
+		}
+		
 	}
 
 	function renderCriteria($field) {
@@ -528,3 +552,171 @@ class View_ContactPerson extends C4_AbstractView {
 	}			
 };
 
+class Context_ContactPerson extends Extension_DevblocksContext {
+    static function searchInboundLinks($from_context, $from_context_id) {
+    	list($results, $null) = DAO_ContactPerson::search(
+    		array(
+    			SearchFields_ContactPerson::ID,
+    		),
+    		array(
+				new DevblocksSearchCriteria(SearchFields_ContactPerson::CONTEXT_LINK,'=',$from_context),
+				new DevblocksSearchCriteria(SearchFields_ContactPerson::CONTEXT_LINK_ID,'=',$from_context_id),
+    		),
+    		-1,
+    		0,
+    		SearchFields_ContactPerson::LAST_LOGIN,
+    		false,
+    		false
+    	);
+    	
+    	return $results;
+    }
+    
+    function getPermalink($context_id) {
+    	$url_writer = DevblocksPlatform::getUrlService();
+    	return $url_writer->write('c=contacts&tab=people&id='.$context_id, true);
+    }
+    
+	function getContext($person, &$token_labels, &$token_values, $prefix=null) {
+		if(is_null($prefix))
+			$prefix = 'Person:';
+		
+		$translate = DevblocksPlatform::getTranslationService();
+		$fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_CONTACT_PERSON);
+		
+		// Polymorph
+		if(is_numeric($person)) {
+			$person = DAO_ContactPerson::get($person);
+		} elseif($person instanceof Model_ContactPerson) {
+			// It's what we want already.
+		} else {
+			$person = null;
+		}
+			
+		// Token labels
+		$token_labels = array(
+			'id' => $prefix.$translate->_('common.id'),
+		);
+		
+//		if(is_array($fields))
+//		foreach($fields as $cf_id => $field) {
+//			$token_labels['custom_'.$cf_id] = $prefix.$field->name;
+//		}
+
+		// Token values
+		$token_values = array();
+		
+		// Address token values
+		if(null != $person) {
+			$token_values['id'] = $address->id;
+//			if(!empty($address->email))
+//				$token_values['address'] = $address->email;
+//			if(!empty($address->first_name))
+//				$token_values['first_name'] = $address->first_name;
+//			if(!empty($address->last_name))
+//				$token_values['last_name'] = $address->last_name;
+//			$token_values['num_spam'] = $address->num_spam;
+//			$token_values['num_nonspam'] = $address->num_nonspam;
+//			$token_values['is_banned'] = $address->is_banned;
+//			$token_values['custom'] = array();
+			
+//			$field_values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_ADDRESS, $address->id));
+//			if(is_array($field_values) && !empty($field_values)) {
+//				foreach($field_values as $cf_id => $cf_val) {
+//					if(!isset($fields[$cf_id]))
+//						continue;
+//					
+//					// The literal value
+//					if(null != $address)
+//						$token_values['custom'][$cf_id] = $cf_val;
+//					
+//					// Stringify
+//					if(is_array($cf_val))
+//						$cf_val = implode(', ', $cf_val);
+//						
+//					if(is_string($cf_val)) {
+//						if(null != $address)
+//							$token_values['custom_'.$cf_id] = $cf_val;
+//					}
+//				}
+//			}
+		}
+		
+		// Email Org
+//		$org_id = (null != $address && !empty($address->contact_org_id)) ? $address->contact_org_id : null;
+//		$merge_token_labels = array();
+//		$merge_token_values = array();
+//		CerberusContexts::getContext(CerberusContexts::CONTEXT_ORG, $org_id, $merge_token_labels, $merge_token_values, null, true);
+//
+//		CerberusContexts::merge(
+//			'org_',
+//			'',
+//			$merge_token_labels,
+//			$merge_token_values,
+//			$token_labels,
+//			$token_values
+//		);		
+		
+		// [TODO] Link contact
+		
+		return true;		
+	}
+
+	function getChooserView() {
+		$translate = DevblocksPlatform::getTranslationService();
+		
+		// View
+		$view_id = 'chooser_'.str_replace('.','_',$this->id).time().mt_rand(0,9999);
+		$defaults = new C4_AbstractViewModel();
+		$defaults->id = $view_id;
+		$defaults->is_ephemeral = true;
+		$defaults->class_name = 'View_ContactPerson';
+		
+		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
+		$view->name = $translate->_('addy_book.tab.people');
+		
+		$view->view_columns = array(
+			SearchFields_ContactPerson::ADDRESS_FIRST_NAME,
+			SearchFields_ContactPerson::ADDRESS_LAST_NAME,
+			SearchFields_ContactPerson::ADDRESS_EMAIL,
+		);
+		
+//		$view->addParamsDefault(array(
+//			SearchFields_Address::IS_BANNED => new DevblocksSearchCriteria(SearchFields_Address::IS_BANNED,'=',0),
+//		));
+//		$view->addParams($view->getParamsDefault(), true);
+		
+		$view->renderSortBy = SearchFields_ContactPerson::LAST_LOGIN;
+		$view->renderSortAsc = false;
+		$view->renderLimit = 10;
+		$view->renderTemplate = 'contextlinks_chooser';
+		
+		C4_AbstractViewLoader::setView($view_id, $view);
+		return $view;		
+	}
+	
+	function getView($context, $context_id, $options=array()) {
+		$translate = DevblocksPlatform::getTranslationService();
+		
+		$view_id = str_replace('.','_',$this->id);
+		
+		$defaults = new C4_AbstractViewModel();
+		$defaults->id = $view_id; 
+		$defaults->class_name = 'View_ContactPerson';
+		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
+		$view->name = $translate->_('addy_book.tab.people');
+		
+		$params = array(
+			new DevblocksSearchCriteria(SearchFields_ContactPerson::CONTEXT_LINK,'=',$context),
+			new DevblocksSearchCriteria(SearchFields_ContactPerson::CONTEXT_LINK_ID,'=',$context_id),
+		);
+		
+		if(isset($options['filter_open']))
+			true; // Do nothing
+		
+		$view->addParams($params, true);
+		$view->renderTemplate = 'context';
+		C4_AbstractViewLoader::setView($view_id, $view);
+		return $view;
+	}
+};

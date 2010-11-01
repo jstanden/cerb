@@ -18,7 +18,7 @@
 <form id="customize{$view->id}" name="customize{$view->id}" action="#" onsubmit="return false;" style="display:none;"></form>
 <form id="viewForm{$view->id}" name="viewForm{$view->id}" action="{devblocks_url}{/devblocks_url}" method="post">
 <input type="hidden" name="view_id" value="{$view->id}">
-<input type="hidden" name="context_id" value="cerberusweb.contexts.contact_list">
+<input type="hidden" name="context_id" value="cerberusweb.contexts.contact_person">
 <input type="hidden" name="id" value="{$view->id}">
 <input type="hidden" name="c" value="contacts">
 <input type="hidden" name="a" value="">
@@ -72,7 +72,7 @@
 				{else}
 					{$display_name = "Contact"}
 				{/if}
-				<a href="{devblocks_url}c=contacts&a=list&id={$result.c_id}{/devblocks_url}" class="subject">{$display_name|escape}</a><a href="javascript:;" onclick="genericAjaxPopup('peek','c=contacts&a=showPeoplePeek&view_id={$view->id}&id={$result.c_id}', null, false, '500');"><span class="ui-icon ui-icon-newwin" style="display:inline-block;vertical-align:middle;" title="{$translate->_('views.peek')}"></span></a>
+				<a href="{devblocks_url}c=contacts&a=people&id={$result.c_id}{/devblocks_url}" class="subject">{$display_name|escape}</a>{*<a href="javascript:;" onclick="genericAjaxPopup('peek','c=contacts&a=showContactPersonPeek&view_id={$view->id}&id={$result.c_id}', null, false, '500');"><span class="ui-icon ui-icon-newwin" style="display:inline-block;vertical-align:middle;" title="{$translate->_('views.peek')}"></span></a>*}
 			</td>
 		</tr>
 		<tr class="{$tableRowClass}">

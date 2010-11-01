@@ -3,7 +3,7 @@
 </ul>
 <div style="clear:both;"></div>
 
-<div style="clear:both; float:right;">
+<div style="float:right;">
 <form action="{devblocks_url}{/devblocks_url}" method="post">
 <input type="hidden" name="c" value="contacts">
 <input type="hidden" name="a" value="doOrgQuickSearch">
