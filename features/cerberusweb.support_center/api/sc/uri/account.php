@@ -9,9 +9,6 @@ class UmScAccountController extends Extension_UmScController {
 	function renderSidebar(DevblocksHttpResponse $response) {
 		$tpl = DevblocksPlatform::getTemplateService();
 		
-        $login_handler = DAO_CommunityToolProperty::get(UmPortalHelper::getCode(), UmScApp::PARAM_LOGIN_HANDLER, '');
-		$tpl->assign('login_handler', $login_handler);
-		
 		$tpl->display("devblocks:cerberusweb.support_center:portal_".UmPortalHelper::getCode() . ":support_center/account/sidebar_menu.tpl");
 	}
 	
@@ -21,24 +18,13 @@ class UmScAccountController extends Extension_UmScController {
 		
 		@array_shift($path); // account
 		
-		// Login handler
-        $login_handler = DAO_CommunityToolProperty::get(UmPortalHelper::getCode(), UmScApp::PARAM_LOGIN_HANDLER, '');
-		$tpl->assign('login_handler', $login_handler);
-		
 		// Scope
 		$umsession = UmPortalHelper::getSession();
 		$active_contact = $umsession->getProperty('sc_login', null);
 		
-		// [TODO] Do this globally?
-		$tpl->assign('active_contact', $active_contact);
-		
 		@$module = array_shift($path);
 		
 		switch($module) {
-//			case 'preferences':
-//				$tpl->display("devblocks:cerberusweb.support_center:portal_".UmPortalHelper::getCode() . ":support_center/account/preferences/index.tpl");
-//				break;
-				
 			case 'password':
 				$tpl->display("devblocks:cerberusweb.support_center:portal_".UmPortalHelper::getCode() . ":support_center/account/password/index.tpl");
 				break;

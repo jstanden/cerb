@@ -254,61 +254,14 @@
 			<tuv xml:lang="en_US"><seg>Send Confirmation E-mail</seg></tuv>
 		</tu>
 
-		<tu tuid='portal.sc.public.search.more_from'>
-			<tuv xml:lang="en_US"><seg>more from %s</seg></tuv>
-		</tu>
-		<tu tuid='portal.sc.public.search.search_results'>
-			<tuv xml:lang="en_US"><seg>Search results for '%s'</seg></tuv>
-		</tu>
-		<tu tuid='portal.sc.public.search.source'>
-			<tuv xml:lang="en_US"><seg>Source:</seg></tuv>
-		</tu>
-
-		<tu tuid='portal.sc.public.themes.click_to_log_in'>
-			<tuv xml:lang="en_US"><seg>Click to log in</seg></tuv>
-		</tu>
-		<tu tuid='portal.sc.public.themes.click_to_log_out'>
-			<tuv xml:lang="en_US"><seg>Click to log out</seg></tuv>
-		</tu>
-		<tu tuid='portal.sc.public.themes.find'>
-			<tuv xml:lang="en_US"><seg>Find</seg></tuv>
-		</tu>
-		<tu tuid='portal.sc.public.themes.find_hint'>
-			<tuv xml:lang="en_US"><seg>(Enter keywords separated by a space. For example: %s</seg></tuv>
-		</tu>
-		<tu tuid='portal.sc.public.themes.forgot'>
-			<tuv xml:lang="en_US"><seg>forgot?</seg></tuv>
-		</tu>
-		<tu tuid='portal.sc.public.themes.keywords'>
-			<tuv xml:lang="en_US"><seg>Keywords:</seg></tuv>
-		</tu>
 		<tu tuid='portal.sc.public.themes.log_in'>
 			<tuv xml:lang="en_US"><seg>Log in</seg></tuv>
 		</tu>
-		<tu tuid='portal.sc.public.themes.logged_in'>
-			<tuv xml:lang="en_US"><seg>Logged in</seg></tuv>
+		<tu tuid='portal.sc.public.themes.sign_in'>
+			<tuv xml:lang="en_US"><seg>sign in</seg></tuv>
 		</tu>
-		<tu tuid='portal.sc.public.themes.logged_in_as'>
-			<tuv xml:lang="en_US"><seg>Logged in as %s</seg></tuv>
+		<tu tuid='portal.sc.public.themes.sign_out'>
+			<tuv xml:lang="en_US"><seg>sign out</seg></tuv>
 		</tu>
-		<tu tuid='portal.sc.public.themes.login'>
-			<tuv xml:lang="en_US"><seg>login</seg></tuv>
-		</tu>
-		<tu tuid='portal.sc.public.themes.login_label'>
-			<tuv xml:lang="en_US"><seg>login:</seg></tuv>
-		</tu>
-		<tu tuid='portal.sc.public.themes.logout'>
-			<tuv xml:lang="en_US"><seg>logout</seg></tuv>
-		</tu>
-		<tu tuid='portal.sc.public.themes.main_menu'>
-			<tuv xml:lang="en_US"><seg>Main Menu</seg></tuv>
-		</tu>
-		<tu tuid='portal.sc.public.themes.search_help'>
-			<tuv xml:lang="en_US"><seg>Search Help</seg></tuv>
-		</tu>
-		<tu tuid='portal.sc.public.themes.search_resources'>
-			<tuv xml:lang="en_US"><seg>search resources</seg></tuv>
-		</tu>		
-		
 	</body>
 </tmx>

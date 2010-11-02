@@ -24,7 +24,7 @@
 		<patch version="4.3.1" revision="16" file="patches/4.3.1.php" />
 		<patch version="5.0.0-beta" revision="19" file="patches/5.0.0_beta.php" />
 		<patch version="5.1.0-dev" revision="21" file="patches/5.1.0.php" />
-		<patch version="5.2.0-dev" revision="22" file="patches/5.2.0.php" />
+		<patch version="5.2.0-dev" revision="23" file="patches/5.2.0.php" />
 	</patches>
 	
 	<!-- Exported Classes -->
@@ -98,6 +98,8 @@
 				<name>UmScLoginAuthenticator</name>
 			</class>
 			<params>
+				<param key="switcher_icon" value="images/mail.png" />
+				<param key="switcher_label" value="Log in with email and password" />
 			</params>
 		</extension>
 		
@@ -109,6 +111,8 @@
 				<name>ScOpenIDLoginAuthenticator</name>
 			</class>
 			<params>
+				<param key="switcher_icon" value="images/openid.gif" />
+				<param key="switcher_label" value="Log in with OpenID" />
 			</params>
 		</extension>
 		
@@ -188,20 +192,7 @@
 			</class>
 			<params>
 				<param key="uri" value="login" />
-				<param key="menu_title" value="" />
-			</params>
-		</extension>
-		
-		<extension point="usermeet.sc.controller">
-			<id>sc.controller.register</id>
-			<name>Registration</name>
-			<class>
-				<file>api/sc/uri/register.php</file>
-				<name>UmScRegisterController</name>
-			</class>
-			<params>
-				<param key="uri" value="register" />
-				<param key="menu_title" value="" />
+				<param key="menu_title" value="portal.sc.public.themes.sign_in" />
 			</params>
 		</extension>
 		

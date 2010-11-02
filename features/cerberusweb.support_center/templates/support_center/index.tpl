@@ -20,16 +20,18 @@
 
 <ul class="menu">
 {foreach from=$menu item=item name=menu}
-<li {if !empty($module) && 0==strcasecmp($module->manifest->params.uri,$item->manifest->params.uri)}class="selected"{/if}>
-	<a href="{devblocks_url}c={$item->manifest->params.uri}{/devblocks_url}">{$item->manifest->params.menu_title|devblocks_translate|lower}</a>
-</li>
-{/foreach}
-{if !empty($active_contact)}
-	<li style="float:right;"><a href="{devblocks_url}c=login&a=signout{/devblocks_url}">sign out</a></li>
+{if $item->manifest->id == 'sc.controller.login'}
+	{if !empty($active_contact)}
+		<li style="float:right;"><a href="{devblocks_url}c={$item->manifest->params.uri}&a=signout{/devblocks_url}">{'portal.sc.public.themes.sign_out'|devblocks_translate|lower}</a></li>
+	{else}
+		<li style="float:right;background-color:rgb(46,183,39);"><a style="color:rgb(255,255,255);" href="{devblocks_url}c={$item->manifest->params.uri}{/devblocks_url}">{'portal.sc.public.themes.sign_in'|devblocks_translate|lower}</a></li>
+	{/if}
 {else}
-	<li style="float:right;background-color:rgb(46,183,39);"><a style="color:rgb(255,255,255);" href="{devblocks_url}c=login{/devblocks_url}">sign on</a>
+	<li {if !empty($module) && 0==strcasecmp($module->manifest->params.uri,$item->manifest->params.uri)}class="selected"{/if}>
+		<a href="{devblocks_url}c={$item->manifest->params.uri}{/devblocks_url}">{$item->manifest->params.menu_title|devblocks_translate|lower}</a>
+	</li>
 {/if}
-</li>
+{/foreach}
 </ul>
 <div style="clear:both;border-top:2px solid rgb(8,90,173);">
 </div>

@@ -7,11 +7,8 @@ class UmScLoginController extends Extension_UmScController {
 	function signoutAction() {
 		$umsession = UmPortalHelper::getSession();
 		
-		// Fall back
-        $login_handler = DAO_CommunityToolProperty::get(UmPortalHelper::getCode(), UmScApp::PARAM_LOGIN_HANDLER, 'sc.login.auth.default');
-
-		if(null != ($handler = DevblocksPlatform::getExtension($login_handler, true))) {
-			if($handler->signoff()) {
+		if(null != ($login_extension = UmScApp::getLoginExtensionActive(UmPortalHelper::getCode()))) {
+			if($login_extension->signoff()) {
 				// ...
 			}
 		}
@@ -21,6 +18,27 @@ class UmScLoginController extends Extension_UmScController {
 		
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('login')));
 		exit;
+	}
+	
+	function providerAction() {
+		$umsession = UmPortalHelper::getSession();
+	    $request = DevblocksPlatform::getHttpRequest();
+	    
+	    $stack = $request->path;
+	    @array_shift($stack); // portal
+	    @array_shift($stack); // xxxxxx
+	    @array_shift($stack); // login
+	    @array_shift($stack); // provider
+        @$extension_id = array_shift($stack);
+        
+        if(!empty($extension_id) && null != ($ext = DevblocksPlatform::getExtension($extension_id, true, true)) 
+        	&& $ext instanceof Extension_ScLoginAuthenticator) {
+        		$umsession->setProperty('login_method', $ext->manifest->id);
+        } else {
+        	$umsession->setProperty('login_method', null);
+        }
+        
+		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('login')));
 	}
 	
 	function handleRequest(DevblocksHttpRequest $request) {
@@ -38,12 +56,10 @@ class UmScLoginController extends Extension_UmScController {
 		}
 
 		// Login extension
-        $login_handler_id = DAO_CommunityToolProperty::get(UmPortalHelper::getCode(), UmScApp::PARAM_LOGIN_HANDLER, 'sc.login.auth.default');
-
         // Try the extension subcontroller first (overload)
-        if(null != ($handler = DevblocksPlatform::getExtension($login_handler_id, true)) 
-        	&& method_exists($handler, $action)) {
-				call_user_func(array($handler, $action));
+        if(null != ($login_extension = UmScApp::getLoginExtensionActive(UmPortalHelper::getCode())) 
+        	&& method_exists($login_extension, $action)) {
+				call_user_func(array($login_extension, $action));
         
 		// Then try the login controller
 		} elseif(method_exists($this, $action)) {
@@ -53,16 +69,48 @@ class UmScLoginController extends Extension_UmScController {
 	
 	function writeResponse(DevblocksHttpResponse $response) {
 		$umsession = UmPortalHelper::getSession();
+		$tpl = DevblocksPlatform::getTemplateService();
 
 		$stack = $response->path;
 		@array_shift($stack); // login
+
+        $login_extension_active = UmScApp::getLoginExtensionActive(UmPortalHelper::getCode());
+        $tpl->assign('login_extension_active', $login_extension_active);
 		
 		// Fall back
-        $login_handler_id = DAO_CommunityToolProperty::get(UmPortalHelper::getCode(), UmScApp::PARAM_LOGIN_HANDLER, 'sc.login.auth.default');
-		
-		if(null != ($handler = DevblocksPlatform::getExtension($login_handler_id, true))) {
-			$handler->writeResponse(new DevblocksHttpResponse($stack));
+		if(null != ($login_extension = UmScApp::getLoginExtensionActive(UmPortalHelper::getCode()))) {
+			$login_extension->writeResponse(new DevblocksHttpResponse($stack));
 		}
 	}
 	
+	function configure(Model_CommunityTool $instance) {
+		$tpl = DevblocksPlatform::getTemplateService();
+
+		// Login extensions
+		$login_extensions = DevblocksPlatform::getExtensions('usermeet.login.authenticator');
+		if(!empty($login_extensions)) {
+			uasort($login_extensions, create_function('$a, $b', "return strcasecmp(\$a->name,\$b->name);\n"));
+			$tpl->assign('login_extensions', $login_extensions);
+		}
+
+		// Enabled login extensions
+        $login_extensions_enabled = UmScApp::getLoginExtensionsEnabled($instance->code);
+        $tpl->assign('login_extensions_enabled', $login_extensions_enabled);
+		
+		$tpl->display("devblocks:cerberusweb.support_center::portal/sc/config/module/login.tpl");
+	}
+	
+	function saveConfiguration(Model_CommunityTool $instance) {
+		@$login_extensions_enabled = DevblocksPlatform::importGPC($_POST['login_extensions'],'array',array());
+
+		$login_extensions = DevblocksPlatform::getExtensions('usermeet.login.authenticator', false, true);
+		
+		// Validate
+		foreach($login_extensions_enabled as $idx => $login_extension_enabled) {
+			if(!isset($login_extensions[$login_extension_enabled]))
+				unset($login_extensions_enabled[$idx]);
+		}
+
+		DAO_CommunityToolProperty::set($instance->code, UmScApp::PARAM_LOGIN_EXTENSIONS, implode(',', $login_extensions_enabled));
+	}	
 };

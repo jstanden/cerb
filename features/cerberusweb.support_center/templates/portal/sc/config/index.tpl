@@ -11,16 +11,6 @@
 <br>
 <br>
 
-<b>Authenticate Logins:</b><br>
-<select name="login_handler">
-	<option value="" {if empty($login_handler)}selected="selected"{/if}>- disable logins -</option>
-	{foreach from=$login_handlers item=ext}
-		<option value="{$ext->id}" {if $ext->id==$login_handler}selected="selected"{/if}>{$ext->name}</option>
-	{/foreach}
-</select>
-<br>
-<br>
-
 <h2 style="color:rgb(120,120,120);">Modules</h2>
 <table cellpadding="0" cellspacing="5" border="0">
 	<tr>
@@ -38,7 +28,7 @@
 					{if 'sc.controller.history' != $module->manifest->id && 'sc.controller.account' != $module->manifest->id}
 					<option value="0" {if isset($visible_modules.$module_id) && '0'==$visible_modules.$module_id}selected="selected"{/if}>Everyone</option>
 					{/if}
-					{if 'sc.controller.login' != $module->manifest->id && 'sc.controller.register' != $module->manifest->id}
+					{if 'sc.controller.login' != $module->manifest->id}
 					<option value="1" {if isset($visible_modules.$module_id) && '1'==$visible_modules.$module_id}selected="selected"{/if}>Logged in</option>
 					{/if}
 					<option value="2" {if !isset($visible_modules.$module_id) || '2'==$visible_modules.$module_id}selected="selected"{/if}>Disabled</option>

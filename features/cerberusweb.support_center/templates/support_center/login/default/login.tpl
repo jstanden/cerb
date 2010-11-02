@@ -21,7 +21,7 @@
 <a href="{devblocks_url}c=login&a=register{/devblocks_url}">Don't have an account? Create one for free.</a><br>
 <a href="{devblocks_url}c=login&a=forgot{/devblocks_url}">Forgot your password? Click here to recover it.</a><br>
 
-{*include file="devblocks:cerberusweb.core::login/switcher.tpl"*}
+{include file="devblocks:cerberusweb.support_center::support_center/login/switcher.tpl"}
 
 <script type="text/javascript">
 	$(function() {
