@@ -27,6 +27,15 @@
 	<input type="hidden" name="a" value="doReply">
 	<input type="hidden" name="mask" value="{$ticket.t_mask}">
 	
+	<b>{'message.header.from'|devblocks_translate|capitalize}:</b> 
+	<select name="from">
+		{$contact_addresses = $active_contact->getAddresses()}
+		{foreach from=$contact_addresses item=address}
+		<option value="{$address->email|escape}" {if 0==strcasecmp($address->id,$active_contact->email_id)}selected="selected"{/if}>{$address->email|escape}</option>
+		{/foreach}
+	</select>
+	<br>
+	
 	<textarea name="content" rows="10" cols="80" style="width:98%;"></textarea><br>
 	<button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.support_center&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('portal.public.send_message')}</button>
 	</form>

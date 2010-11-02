@@ -152,18 +152,24 @@ class UmScHistoryController extends Extension_UmScController {
 	}
 	
 	function doReplyAction() {
+		@$from = DevblocksPlatform::importGPC($_REQUEST['from'],'string','');
 		@$mask = DevblocksPlatform::importGPC($_REQUEST['mask'],'string','');
 		@$content = DevblocksPlatform::importGPC($_REQUEST['content'],'string','');
 		
 		$umsession = UmPortalHelper::getSession();
 		$active_contact = $umsession->getProperty('sc_login', null);
 
-		// [TODO] API/model ::getAddresses()
+		// Load contact addresses
 		$addresses = $active_contact->getAddresses();
 		$address_ids = array_keys($addresses);
 		if(empty($address_ids))
-			$address_ids = array('-1');		
-		
+			$address_ids = array('-1');
+			
+		// Validate FROM address
+		if(null == ($from_address = DAO_Address::lookupAddress($from, false)) 
+			|| $from_address->contact_person_id != $active_contact->id)
+			return FALSE;
+			
 		// Secure retrieval (address + mask)
 		list($tickets) = DAO_Ticket::search(
 			array(),
@@ -198,7 +204,7 @@ class UmScHistoryController extends Extension_UmScController {
 		@$message_id = CerberusApplication::generateMessageId();
 		
 		$message = new CerberusParserMessage();
-		$message->headers['from'] = $primary_address->email;
+		$message->headers['from'] = $from_address->email;
 		$message->headers['to'] = $to;
 		$message->headers['date'] = date('r');
 		$message->headers['subject'] = 'Re: ' . $ticket[SearchFields_Ticket::TICKET_SUBJECT];
