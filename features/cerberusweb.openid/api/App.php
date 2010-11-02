@@ -181,7 +181,7 @@ class ChOpenIdLoginModule extends Extension_LoginAuthenticator {
 				if(null == ($openid_owner = array_shift($openids)) || empty($openid_owner->worker_id))
 					return false;
 					
-				if(null != ($worker = DAO_Worker::get($openid_owner->worker_id))) {
+				if(null != ($worker = DAO_Worker::get($openid_owner->worker_id)) && !$worker->is_disabled) {
 					$session = DevblocksPlatform::getSessionService();
 					$visit = new CerberusVisit();
 					$visit->setWorker($worker);
