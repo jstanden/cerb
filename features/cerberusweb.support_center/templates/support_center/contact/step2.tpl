@@ -14,8 +14,19 @@
       		<legend>{$translate->_('portal.common.open_ticket')}:</legend>
 			
 	      	<b>{$translate->_('portal.public.what_email_reply')}</b><br>
-	      	<input type="hidden" name="nature" value="{$sNature}">	
-			<input type="text" name="from" value="{if !empty($last_from)}{$last_from|escape}{else}{$address = DAO_Address::get($active_contact->email_id)}{if !empty($address)}{$address->email|escape}{/if}{/if}" autocomplete="off" style="width:100%;" class="required email"><br>
+	      	<input type="hidden" name="nature" value="{$sNature}">
+			
+			{if !empty($active_contact)}
+				<select name="from">
+					{$contact_addresses = $active_contact->getAddresses()}
+					{foreach from=$contact_addresses item=address}
+					<option value="{$address->email|escape}" {if 0==strcasecmp($address->id,$active_contact->email_id)}selected="selected"{/if}>{$address->email|escape}</option>
+					{/foreach}
+				</select>
+				<br>
+			{else}
+				<input type="text" name="from" value="{if !empty($last_from)}{$last_from|escape}{/if}" autocomplete="off" style="width:100%;" class="required email"><br>
+			{/if}
 			<br>
 	
 	      	<b>{$translate->_('ticket.subject')|capitalize}:</b><br>
