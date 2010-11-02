@@ -41,6 +41,9 @@ class UmScAccountController extends Extension_UmScController {
 					@$email = DevblocksPlatform::importGPC($_REQUEST['email'],'string','');
 					@$confirm = DevblocksPlatform::importGPC($_REQUEST['confirm'],'string','');
 					
+					if(empty($email))
+						$email = $umsession->getProperty('account.email.add', '');
+					
 					$tpl->assign('email', $email);
 					$tpl->assign('confirm', $confirm);
 					
@@ -350,11 +353,11 @@ class UmScAccountController extends Extension_UmScController {
 			);
 			DAO_ConfirmationCode::create($fields);
 
+			$umsession->setProperty('account.email.add', $add_email);
+			
 			// Quick send
 			$msg = sprintf(
-				"%s?email=%s&confirm=%s",
-				$url_writer->write('c=account&a=email&o=confirm', true),
-				urlencode($address->email),
+				"Confirmation code: %s",
 				urlencode($fields[DAO_ConfirmationCode::CONFIRMATION_CODE])
 			);
 			CerberusMail::quickSend($address->email,"Please confirm your email address", $msg);
