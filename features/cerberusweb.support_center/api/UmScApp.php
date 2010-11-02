@@ -369,20 +369,6 @@ class UmScApp extends Extension_UsermeetTool {
 };
 
 class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
-	/**
-	 * draws html form for adding necessary settings (host, port, etc) to be stored in the db
-	 */
-//	function renderConfigForm() {
-//	}
-	
-	/**
-	 * Receives posted config form, saves to manifest
-	 */
-//	function saveConfiguration() {
-//		$field_value = DevblocksPlatform::importGPC($_POST['field_value']);
-//		$this->params['field_name'] = $field_value;
-//	}
-	
 	function writeResponse(DevblocksHttpResponse $response) {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$umsession = UmPortalHelper::getSession();
@@ -421,15 +407,17 @@ class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
 		$umsession = UmPortalHelper::getSession();
 		
 		try {
-			if(empty($email) || null == ($address = DAO_Address::lookupAddress($email, true)))
-				throw new Exception("You provided an invalid email address.");
+			// Validate
+			$address_parsed = imap_rfc822_parse_adrlist($email,'host');
+			if(empty($email) || empty($address_parsed) || !is_array($address_parsed) || empty($address_parsed[0]->host) || $address_parsed[0]->host=='host')
+				throw new Exception("The email address you provided is invalid.");
 			
 			// Check to see if the address is currently assigned to an account
-			if(!empty($address->contact_person_id))
+			if(null != ($address = DAO_Address::lookupAddress($email, false)) && !empty($address->contact_person_id))
 				throw new Exception("The provided email address is already associated with an account.");
 				
 			// Update the preferred email address
-			$umsession->setProperty('register.email', $address->email);
+			$umsession->setProperty('register.email', $email);
 				
 			// Send a confirmation code
 			$fields = array(
@@ -447,7 +435,7 @@ class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
 				"Your confirmation code: %s",
 				urlencode($fields[DAO_ConfirmationCode::CONFIRMATION_CODE])
 			);
-			CerberusMail::quickSend($address->email,"Please confirm your email address", $msg);
+			CerberusMail::quickSend($email,"Please confirm your email address", $msg);
 				
 		} catch(Exception $e) {
 			$tpl->assign('error', $e->getMessage());
@@ -478,27 +466,28 @@ class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
 				exit;
 			}
 			
-			// Load the address
-			if(null == ($address = DAO_Address::lookupAddress($email, false)))
-				throw new Exception("You have provided an invalid email address.");
-				
+			// Lookup code
+			if(null == ($code = DAO_ConfirmationCode::getByCode('support_center.login.register.verify', $confirm)))
+				throw new Exception("Your confirmation code is invalid.");
+			
+			// Compare to address
+			if(!isset($code->meta['email']) || 0 != strcasecmp($email, $code->meta['email']))
+				throw new Exception("Your confirmation code is invalid.");
+
+			// Password
 			if(empty($password) || empty($password2))
 				throw new Exception("Your password cannot be blank.");
 
 			if(0 != strcmp($password, $password2))
 				throw new Exception("Your passwords do not match.");
 				
+			// Load the address
+			if(null == ($address = DAO_Address::lookupAddress($email, true)))
+				throw new Exception("You have provided an invalid email address.");
+				
 			// Verify address is unlinked
 			if(!empty($address->contact_person_id))
 				throw new Exception("The email address you provided is already associated with an account.");
-				
-			// Lookup code
-			if(null == ($code = DAO_ConfirmationCode::getByCode('support_center.login.register.verify', $confirm)))
-				throw new Exception("Your confirmation code is invalid.");
-			
-			// Compare to address
-			if(!isset($code->meta['email']) || 0 != strcasecmp($address->email, $code->meta['email']))
-				throw new Exception("Your confirmation code is invalid.");
 
 			// Create the contact
 			$salt = CerberusApplication::generatePassword(8);
@@ -729,15 +718,17 @@ class ScOpenIDLoginAuthenticator extends Extension_ScLoginAuthenticator {
 		$umsession = UmPortalHelper::getSession();
 		
 		try {
-			if(empty($email) || null == ($address = DAO_Address::lookupAddress($email, true)))
-				throw new Exception("You provided an invalid email address.");
+			// Validate
+			$address_parsed = imap_rfc822_parse_adrlist($email,'host');
+			if(empty($email) || empty($address_parsed) || !is_array($address_parsed) || empty($address_parsed[0]->host) || $address_parsed[0]->host=='host')
+				throw new Exception("The email address you provided is invalid.");
 			
 			// Check to see if the address is currently assigned to an account
-			if(!empty($address->contact_person_id))
+			if(null != ($address = DAO_Address::lookupAddress($email, false)) && !empty($address->contact_person_id))
 				throw new Exception("The provided email address is already associated with an account.");
-				
+			
 			// Update the preferred email address
-			$umsession->setProperty('register.email', $address->email);
+			$umsession->setProperty('register.email', $email);
 				
 			// Send a confirmation code
 			$fields = array(
@@ -755,7 +746,7 @@ class ScOpenIDLoginAuthenticator extends Extension_ScLoginAuthenticator {
 				"Your confirmation code: %s",
 				urlencode($fields[DAO_ConfirmationCode::CONFIRMATION_CODE])
 			);
-			CerberusMail::quickSend($address->email,"Please confirm your email address", $msg);
+			CerberusMail::quickSend($email,"Please confirm your email address", $msg);
 				
 		} catch(Exception $e) {
 			$tpl->assign('error', $e->getMessage());
@@ -784,22 +775,22 @@ class ScOpenIDLoginAuthenticator extends Extension_ScLoginAuthenticator {
 				header("Location: " . $url_writer->write('c=login', true));
 				exit;
 			}
-			
+
+			// Lookup code
+			if(null == ($code = DAO_ConfirmationCode::getByCode('support_center.openid.register.verify', $confirm)))
+				throw new Exception("Your confirmation code is invalid.");
+
+			// Compare to address
+			if(!isset($code->meta['email']) || 0 != strcasecmp($email, $code->meta['email']))
+				throw new Exception("Your confirmation code is invalid.");
+				
 			// Load the address
-			if(null == ($address = DAO_Address::lookupAddress($email, false)))
+			if(null == ($address = DAO_Address::lookupAddress($email, true)))
 				throw new Exception("You have provided an invalid email address.");
 				
 			// Verify address is unlinked
 			if(!empty($address->contact_person_id))
 				throw new Exception("The email address you provided is already associated with an account.");
-				
-			// Lookup code
-			if(null == ($code = DAO_ConfirmationCode::getByCode('support_center.openid.register.verify', $confirm)))
-				throw new Exception("Your confirmation code is invalid.");
-			
-			// Compare to address
-			if(!isset($code->meta['email']) || 0 != strcasecmp($address->email, $code->meta['email']))
-				throw new Exception("Your confirmation code is invalid.");
 
 			// Create the contact
 			$fields = array(

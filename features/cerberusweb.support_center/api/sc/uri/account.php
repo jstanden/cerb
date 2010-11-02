@@ -331,12 +331,15 @@ class UmScAccountController extends Extension_UmScController {
 			if(null == ($contact = DAO_ContactPerson::get($active_contact->id)))
 				return;
 	
-			@$add_email = DevblocksPlatform::importGPC($_REQUEST['add_email'],'string','');
-			if(empty($add_email) || null == ($address = DAO_Address::lookupAddress($add_email, true)))
+			@$add_email = strtolower(DevblocksPlatform::importGPC($_REQUEST['add_email'],'string',''));
+			
+			// Validate
+			$address_parsed = imap_rfc822_parse_adrlist($add_email,'host');
+			if(empty($add_email) || empty($address_parsed) || !is_array($address_parsed) || empty($address_parsed[0]->host) || $address_parsed[0]->host=='host')
 				throw new Exception("The email address you provided is invalid.");
 	
 			// Is this address already assigned
-			if(!empty($address->contact_person_id)) {
+			if(null != ($address = DAO_Address::lookupAddress($add_email, false)) && !empty($address->contact_person_id)) {
 				// [TODO] Or awaiting confirmation
 				throw new Exception("The email address you provided is already assigned to an account.");
 			}
@@ -347,7 +350,7 @@ class UmScAccountController extends Extension_UmScController {
 				DAO_ConfirmationCode::NAMESPACE_KEY => 'support_center.email.confirm',
 				DAO_ConfirmationCode::META_JSON => json_encode(array(
 					'contact_id' => $contact->id,
-					'address_id' => $address->id,
+					'email' => $add_email,
 				)),
 				DAO_ConfirmationCode::CREATED => time(),
 			);
@@ -395,10 +398,12 @@ class UmScAccountController extends Extension_UmScController {
 				throw new Exception("Your confirmation code is invalid.");
 				
 			// Compare email addy
-			if(!isset($code->meta['address_id'])  
-				|| null == ($address = DAO_Address::get($code->meta['address_id'])) 
-				|| 0 != strcasecmp($address->email,$email))
-				throw new Exception("Your confirmation code is invalid.");
+			if(!isset($code->meta['email'])  
+				|| null == ($address = DAO_Address::lookupAddress($code->meta['email'], true)) 
+				|| 0 != strcasecmp($code->meta['email'],$email)
+				|| 0 != strcasecmp($address->email,$email)
+				)
+				throw new Exception("Your email address could not be registered.");
 				
 			// Pass + associate
 			DAO_ConfirmationCode::delete($code->id);
