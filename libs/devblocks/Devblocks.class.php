@@ -2029,16 +2029,22 @@ class _DevblocksSessionManager {
 	}
 	
 	function decodeSession($data) {
-		$original_session = $_SESSION;
-		try {
-			session_decode($data);
-			$scope = $_SESSION;
-		} catch(Exception $e) {
-			$scope = array();
+		$vars=preg_split(
+			'/([a-zA-Z_\.\x7f-\xff][a-zA-Z0-9_\.\x7f-\xff^|]*)\|/',
+			$data,
+			-1,
+			PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE
+		);
+		
+		$scope = array();
+		
+		while(!empty($vars)) {
+			@$key = array_shift($vars);
+			@$value = unserialize(array_shift($vars));
+			$scope[$key] = $value;
 		}
 		
-		$_SESSION = $original_session;
-	    return $scope;		
+		return $scope; 		
 	}
 	
 	/**
