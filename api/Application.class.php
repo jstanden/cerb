@@ -47,7 +47,7 @@
  * 		and Jerry Kanoholani. 
  *	 WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
-define("APP_BUILD", 2010110202);
+define("APP_BUILD", 2010110801);
 define("APP_VERSION", '5.2.0-beta1');
 define("APP_MAIL_PATH", APP_STORAGE_PATH . '/mail/');
 
