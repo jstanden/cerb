@@ -29,6 +29,21 @@ class UmScAccountController extends Extension_UmScController {
 				$tpl->display("devblocks:cerberusweb.support_center:portal_".UmPortalHelper::getCode() . ":support_center/account/password/index.tpl");
 				break;
 				
+			case 'sharing':
+				$contact_addresses = $active_contact->getAddresses();
+				$tpl->assign('contact_addresses', $contact_addresses);
+				
+				if(is_array($contact_addresses)) {
+					$shared_by = DAO_SupportCenterAddressShare::getSharedBy(array_keys($contact_addresses), false);
+					$tpl->assign('shared_by_me', $shared_by);
+					
+					$shared_with = DAO_SupportCenterAddressShare::getSharedWith(array_keys($contact_addresses), false);
+					$tpl->assign('shared_with_me', $shared_with);
+				}
+				
+				$tpl->display("devblocks:cerberusweb.support_center:portal_".UmPortalHelper::getCode() . ":support_center/account/sharing/index.tpl");
+				break;
+				
 			case 'delete':
 				$tpl->display("devblocks:cerberusweb.support_center:portal_".UmPortalHelper::getCode() . ":support_center/account/delete/index.tpl");
 				break;
@@ -51,17 +66,7 @@ class UmScAccountController extends Extension_UmScController {
 				
 				// Security check
 				} elseif(empty($id) || null == ($address = DAO_Address::lookupAddress(urldecode(str_replace(array('_at_','_dot_'),array('%40','.'),$id)), false)) || $address->contact_person_id != $active_contact->id) {
-					list($addresses, $null) = DAO_Address::search(
-						array(),
-						array(
-							new DevblocksSearchCriteria(SearchFields_Address::CONTACT_PERSON_ID,'=',$active_contact->id),
-						),
-						-1,
-						0,
-						null,
-						null,
-						false
-					);
+					$addresses = $active_contact->getAddresses();
 					$tpl->assign('addresses', $addresses);
 					
 					$tpl->display("devblocks:cerberusweb.support_center:portal_".UmPortalHelper::getCode() . ":support_center/account/email/index.tpl");
@@ -281,6 +286,108 @@ class UmScAccountController extends Extension_UmScController {
 		}
 				
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',UmPortalHelper::getCode(),'account','email')));
+	}
+	
+	function doShareUpdateAction() {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$umsession = UmPortalHelper::getSession();
+		$active_contact = $umsession->getProperty('sc_login', null);
+		$contact_addresses = $active_contact->getAddresses();
+
+		$errors = array();
+
+		try {
+			// *** Handle shared by
+			@$share_email = DevblocksPlatform::importGPC($_REQUEST['share_email'],'array','');
+
+			if(is_array($share_email) && !empty($share_email)) {
+				foreach($share_email as $idx => $share_id) {
+					// Permissions
+					if(!isset($contact_addresses[$share_id])) {
+						unset($share_email[$idx]);
+						continue;
+					}
+					
+					@$share_emails = DevblocksPlatform::importGPC($_REQUEST['share_with_'.$share_id],'array',array());
+					$share_with_ids = array();
+					
+					if(is_array($share_emails) && !empty($share_emails)) {
+						$share_emails = array_unique($share_emails);
+						
+						foreach($share_emails as $email) {
+							if(0==strlen(trim($email)))
+								continue;
+								
+							// Lookup
+							if(null !== ($lookup = DAO_Address::lookupAddress($email, false)) && $lookup->contact_person_id) {
+								if(isset($contact_addresses[$lookup->id])) {
+									$errors[] = sprintf("%s is your own email address.", $email);
+								} else {
+									$share_with_ids[] = $lookup->id;
+								}
+							} else {
+								$errors[] = sprintf("%s is not registered here.", $email);
+							}
+						}
+					}
+
+					// Share
+					if(!empty($share_with_ids))
+						DAO_SupportCenterAddressShare::setSharedWith($share_id, $share_with_ids);
+						
+					// Delete omitted rows
+					DAO_SupportCenterAddressShare::deleteWhereNotIn($share_id, $share_with_ids);					
+				}
+			}
+
+			// *** Handle shared with
+			@$address_with_id = DevblocksPlatform::importGPC($_REQUEST['address_with_id'],'array','');
+			@$address_from_id = DevblocksPlatform::importGPC($_REQUEST['address_from_id'],'array','');
+			@$share_with_status = DevblocksPlatform::importGPC($_REQUEST['share_with_status'],'array','');
+			
+			if(is_array($address_with_id) && !empty($address_with_id)) {
+				foreach($address_with_id as $idx => $with_id) {
+					if(!isset($address_with_id[$idx]) || !isset($share_with_status[$idx]))
+						continue;
+						
+					// Authorize
+					if(!isset($contact_addresses[$with_id])) {
+						unset($address_with_id[$idx]);
+						unset($address_from_id[$idx]);
+						unset($share_with_status[$idx]);
+						continue;
+					}
+					
+					// Delete
+					if(2 == $share_with_status[$idx]) {
+						DAO_SupportCenterAddressShare::delete($address_from_id[$idx], $with_id);
+						
+					// Show|Hide
+					} else {
+						$fields = array(
+							DAO_SupportCenterAddressShare::IS_ENABLED => $share_with_status[$idx] ? 1 : 0,
+						);
+						$where = sprintf("%s = %d AND %s = %d",
+							DAO_SupportCenterAddressShare::SHARE_ADDRESS_ID,
+							$address_from_id[$idx],
+							DAO_SupportCenterAddressShare::WITH_ADDRESS_ID,
+							$with_id
+						);
+						DAO_SupportCenterAddressShare::updateWhere($fields, $where);
+					}
+				}
+			}
+			
+			if(!empty($errors))
+				$tpl->assign('error', implode('<br>', $errors));
+			
+		} catch(Exception $e) {
+			$tpl = DevblocksPlatform::getTemplateService();
+			$tpl->assign('error', $e->getMessage());
+			
+		}
+		
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',UmPortalHelper::getCode(),'account','sharing')));
 	}
 	
 	function doPasswordUpdateAction() {

@@ -24,4 +24,24 @@ $db->Execute("INSERT INTO community_tool_property (tool_code, property_key, prop
 );
 $db->Execute("DELETE FROM community_tool_property WHERE property_key = 'common.login_handler'");
 
+// ===========================================================================
+// contact_person_address_share
+ 
+if(!isset($tables['supportcenter_address_share'])) {
+	$sql = "
+		CREATE TABLE IF NOT EXISTS supportcenter_address_share (
+			share_address_id INT UNSIGNED NOT NULL,
+			with_address_id INT UNSIGNED NOT NULL,
+			is_enabled TINYINT UNSIGNED DEFAULT 0 NOT NULL,
+			PRIMARY KEY (share_address_id, with_address_id),
+			INDEX share_address_id (share_address_id),
+			INDEX with_address_id (with_address_id),
+			INDEX is_enabled (is_enabled)
+		) ENGINE=MyISAM;
+	";
+	$db->Execute($sql);
+
+	$tables['supportcenter_address_share'] = 'supportcenter_address_share';
+}
+
 return TRUE;

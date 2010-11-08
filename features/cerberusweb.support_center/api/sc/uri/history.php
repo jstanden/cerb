@@ -20,11 +20,9 @@ class UmScHistoryController extends Extension_UmScController {
 		array_shift($stack); // history
 		$mask = array_shift($stack);
 
-		// [TODO] API/model ::getAddresses()
-		$addresses = $active_contact->getAddresses();
-		$address_ids = array_keys($addresses);
-		if(empty($address_ids))
-			$address_ids = array('-1');
+		$shared_address_ids = DAO_SupportCenterAddressShare::getContactAddressesWithShared($active_contact->id, true);
+		if(empty($shared_address_ids))
+			$shared_address_ids = array(-1);
 		
 		if(empty($mask)) {
 			// Ticket history
@@ -43,7 +41,7 @@ class UmScHistoryController extends Extension_UmScController {
 			
 			// Lock to current visitor
 			$history_view->addParamsRequired(array(
-				'_acl_reqs' => new DevblocksSearchCriteria(SearchFields_Ticket::REQUESTER_ID,'in',$address_ids),
+				'_acl_reqs' => new DevblocksSearchCriteria(SearchFields_Ticket::REQUESTER_ID,'in',$shared_address_ids),
 				'_acl_status' => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_DELETED,'=',0),
 			));
 			
@@ -58,7 +56,7 @@ class UmScHistoryController extends Extension_UmScController {
 				array(),
 				array(
 					new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_MASK,'=',$mask),
-					new DevblocksSearchCriteria(SearchFields_Ticket::REQUESTER_ID,'in',$address_ids),
+					new DevblocksSearchCriteria(SearchFields_Ticket::REQUESTER_ID,'in',$shared_address_ids),
 				),
 				1,
 				0,
@@ -121,18 +119,16 @@ class UmScHistoryController extends Extension_UmScController {
 		$umsession = UmPortalHelper::getSession();
 		$active_contact = $umsession->getProperty('sc_login', null);
 
-		// [TODO] API/model ::getAddresses()
-		$addresses = $active_contact->getAddresses();
-		$address_ids = array_keys($addresses);
-		if(empty($address_ids))
-			$address_ids = array('-1');		
+		$shared_address_ids = DAO_SupportCenterAddressShare::getContactAddressesWithShared($active_contact->id, true);
+		if(empty($shared_address_ids))
+			$shared_address_ids = array(-1);
 		
 		// Secure retrieval (address + mask)
 		list($tickets) = DAO_Ticket::search(
 			array(),
 			array(
 				new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_MASK,'=',$mask),
-				new DevblocksSearchCriteria(SearchFields_Ticket::REQUESTER_ID,'in',$address_ids),
+				new DevblocksSearchCriteria(SearchFields_Ticket::REQUESTER_ID,'in',$shared_address_ids),
 			),
 			1,
 			0,
@@ -160,11 +156,10 @@ class UmScHistoryController extends Extension_UmScController {
 		$active_contact = $umsession->getProperty('sc_login', null);
 
 		// Load contact addresses
-		$addresses = $active_contact->getAddresses();
-		$address_ids = array_keys($addresses);
-		if(empty($address_ids))
-			$address_ids = array('-1');
-			
+		$shared_address_ids = DAO_SupportCenterAddressShare::getContactAddressesWithShared($active_contact->id, true);
+		if(empty($shared_address_ids))
+			$shared_address_ids = array(-1);
+		
 		// Validate FROM address
 		if(null == ($from_address = DAO_Address::lookupAddress($from, false)) 
 			|| $from_address->contact_person_id != $active_contact->id)
@@ -175,7 +170,7 @@ class UmScHistoryController extends Extension_UmScController {
 			array(),
 			array(
 				new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_MASK,'=',$mask),
-				new DevblocksSearchCriteria(SearchFields_Ticket::REQUESTER_ID,'in',$address_ids),
+				new DevblocksSearchCriteria(SearchFields_Ticket::REQUESTER_ID,'in',$shared_address_ids),
 			),
 			1,
 			0,
@@ -318,7 +313,8 @@ class UmSc_TicketHistoryView extends C4_AbstractView {
 				$tpl->display('devblocks:cerberusweb.support_center::support_center/internal/view/criteria/__fulltext.tpl');
 				break;
 			case SearchFields_Ticket::REQUESTER_ID:
-				$tpl->assign('requesters', $active_contact->getAddresses());
+				$shared_addresses = DAO_SupportCenterAddressShare::getContactAddressesWithShared($active_contact->id, false);
+				$tpl->assign('requesters', $shared_addresses);
 				$tpl->display('devblocks:cerberusweb.support_center::support_center/history/criteria/requester.tpl');
 				break;
 			case SearchFields_Ticket::VIRTUAL_STATUS:
@@ -439,8 +435,12 @@ class UmSc_TicketHistoryView extends C4_AbstractView {
 				if(empty($active_contact) || empty($requester_ids))
 					break;
 				
+				$shared_address_ids = DAO_SupportCenterAddressShare::getContactAddressesWithShared($active_contact->id, true);
+				if(empty($shared_address_ids))
+					$shared_address_ids = array(-1);
+					
 				// Sanitize the selections to make sure they only include verified addresses on this contact
-				$intersect = array_intersect(array_keys($active_contact->getAddresses()), $requester_ids);
+				$intersect = array_intersect(array_keys($shared_address_ids), $requester_ids);
 				
 				if(empty($intersect))
 					break;

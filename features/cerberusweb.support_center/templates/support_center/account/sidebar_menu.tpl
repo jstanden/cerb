@@ -14,6 +14,7 @@
 					<li><a href="{devblocks_url}c=account&a=password{/devblocks_url}">Change Password</a></li>
 				{/if}
 				
+				<li><a href="{devblocks_url}c=account&a=sharing{/devblocks_url}">Sharing/Collaboration</a></li>
 				<li><a href="{devblocks_url}c=account&a=delete{/devblocks_url}">Delete My Account</a></li>
 			</ul>
 		</td>

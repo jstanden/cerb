@@ -302,7 +302,7 @@ class Model_ContactPerson {
 		
 		return $this->_addresses;
 	}
-	
+
 	public function getPrimaryAddress() {
 		$addresses = $this->getAddresses();
 		if(isset($addresses[$this->email_id]))

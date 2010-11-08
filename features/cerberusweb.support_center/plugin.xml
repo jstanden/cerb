@@ -24,7 +24,7 @@
 		<patch version="4.3.1" revision="16" file="patches/4.3.1.php" />
 		<patch version="5.0.0-beta" revision="19" file="patches/5.0.0_beta.php" />
 		<patch version="5.1.0-dev" revision="21" file="patches/5.1.0.php" />
-		<patch version="5.2.0-dev" revision="23" file="patches/5.2.0.php" />
+		<patch version="5.2.0-dev" revision="24" file="patches/5.2.0.php" />
 	</patches>
 	
 	<!-- Exported Classes -->
@@ -35,6 +35,10 @@
 			<class name="Extension_SupportCenterMessageBadge" />
 			<class name="Extension_UmScController" />
 			<class name="Extension_UmScRssController" />
+		</file>
+		<file path="api/dao/supportcenter_address_share.php">
+			<class name="DAO_SupportCenterAddressShare" />
+			<class name="Model_SupportCenterAddressShare" />
 		</file>
 		<file path="api/sc/uri/ajax.php">
 			<class name="UmScAjaxController" />

@@ -20,4 +20,3 @@
 <button name="action" type="submit" value="remove"><img src="{devblocks_url}c=resource&p=cerberusweb.support_center&f=images/forbidden.png{/devblocks_url}" align="top"> Remove from account</button><br>
 {/if}
 </form>
-</div>
