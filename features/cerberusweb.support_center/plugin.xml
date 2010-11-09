@@ -78,6 +78,24 @@
  
 	<extensions>
 
+		<!-- Event Listeners -->
+		
+		<extension point="devblocks.listener.event">
+			<id>sc.listeners.core</id>
+			<name>Support Center Event Listener</name>
+			<class>
+				<file>api/UmScApp.php</file>
+				<name>UmScEventListener</name>
+			</class>
+			<params>
+				<param key="events">
+					<value>
+						<data key="cron.maint" />						
+					</value>
+				</param>
+			</params>
+		</extension>
+
 		<!-- Usermeet Tools -->
 		
 		<extension point="usermeet.tool">

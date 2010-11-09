@@ -48,6 +48,19 @@
  *	 WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
 
+class UmScEventListener extends DevblocksEventListenerExtension {
+    /**
+     * @param Model_DevblocksEvent $event
+     */
+    function handleEvent(Model_DevblocksEvent $event) {
+        switch($event->id) {
+            case 'cron.maint':
+            	DAO_SupportCenterAddressShare::maint();
+            	break;
+        }
+    }
+};
+
 class UmScApp extends Extension_UsermeetTool {
 	const PARAM_PAGE_TITLE = 'common.page_title';
 	const PARAM_DEFAULT_LOCALE = 'common.locale';

@@ -246,6 +246,18 @@ class DAO_ContactPerson extends DevblocksORMHelper {
 		
 		return array($results,$total);
 	}
+	
+	static function maint() {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$sql = "UPDATE address ".
+			"LEFT JOIN contact_person ON (address.contact_person_id=contact_person.id) ".
+			"SET address.contact_person_id = 0 ".
+			"WHERE address.contact_person_id != 0 ".
+			"AND contact_person.id IS NULL"
+		;
+		$db->Execute($sql);		
+	}
 
 };
 

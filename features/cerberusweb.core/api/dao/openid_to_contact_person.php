@@ -97,6 +97,18 @@ class DAO_OpenIdToContactPerson {
 		);
 		$db->Execute($sql);
 	}
+	
+	public static function maint() {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		// Delete where orphaned contact_person
+		$sql = "DELETE openid_to_contact_person ".
+			"FROM openid_to_contact_person ".
+			"LEFT JOIN contact_person ON (openid_to_contact_person.contact_person_id = contact_person.id) ".
+			"WHERE contact_person.id IS NULL "
+		;
+		$db->Execute($sql);
+	}
 };
 
 class Model_OpenIdToContactPerson {
