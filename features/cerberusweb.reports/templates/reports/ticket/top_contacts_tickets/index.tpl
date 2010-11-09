@@ -2,18 +2,14 @@
 </ul>
 <div style="clear:both;"></div>
 
+<div class="block">
 <h2>{$translate->_('reports.ui.ticket.top_contacts')}</h2>
 
 <form action="{devblocks_url}c=reports&report=report.tickets.top_contacts{/devblocks_url}" method="POST" id="frmRange" name="frmRange">
 <input type="hidden" name="c" value="reports">
 {$translate->_('reports.ui.date_from')} <input type="text" name="start" id="start" size="24" value="{$start}"><button type="button" onclick="devblocksAjaxDateChooser('#start','#divCal');">&nbsp;<span class="cerb-sprite sprite-calendar"></span>&nbsp;</button>
 {$translate->_('reports.ui.date_to')} <input type="text" name="end" id="end" size="24" value="{$end}"><button type="button" onclick="devblocksAjaxDateChooser('#end','#divCal');">&nbsp;<span class="cerb-sprite sprite-calendar"></span>&nbsp;</button>
-<button type="submit" id="btnSubmit">{$translate->_('reports.common.run_report')|capitalize}</button>
 <div id="divCal"></div>
-<label><input type="radio" name="by_address" value="0" {if 0==$by_address}checked="checked"{/if} onclick="$('#btnSubmit').click();"></input>{$translate->_('reports.ui.ticket.top_contacts.by_org')}</label>
-<label><input type="radio" name="by_address" value="1" {if 1==$by_address}checked="checked"{/if} onclick="$('#btnSubmit').click();"></input>{$translate->_('reports.ui.ticket.top_contacts.by_address')}</label>
-</form>
-<br>
 
 {$translate->_('reports.ui.date_past')} <a href="javascript:;" onclick="$('#start').val('-1 year');$('#end').val('now');$('#btnSubmit').click();">{$translate->_('reports.ui.filters.1_year')|lower}</a>
 | <a href="javascript:;" onclick="$('#start').val('-6 months');$('#end').val('now');$('#btnSubmit').click();">{'reports.ui.filters.n_months'|devblocks_translate:6}</a>
@@ -29,6 +25,15 @@
 	{/foreach}
 	<br>
 {/if}
+<br>
+<label><input type="radio" name="by_address" value="0" {if 0==$by_address}checked="checked"{/if} onclick="$('#btnSubmit').click();"></input>{$translate->_('reports.ui.ticket.top_contacts.by_org')}</label>
+<label><input type="radio" name="by_address" value="1" {if 1==$by_address}checked="checked"{/if} onclick="$('#btnSubmit').click();"></input>{$translate->_('reports.ui.ticket.top_contacts.by_address')}</label>
+<br>
+<br>
+
+<button type="submit" id="btnSubmit">{$translate->_('reports.common.run_report')|capitalize}</button>
+</form>
+</div>
 
 <!-- Chart -->
 
@@ -44,6 +49,7 @@
 <script language="javascript" type="text/javascript" src="{devblocks_url}c=resource&plugin=cerberusweb.reports&f=js/jqplot/plugins/jqplot.categoryAxisRenderer.min.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>
 <link rel="stylesheet" type="text/css" href="{devblocks_url}c=resource&plugin=cerberusweb.reports&f=css/jqplot/jquery.jqplot.min.css{/devblocks_url}?v={$smarty.const.APP_BUILD}" />
 
+<div id="reportLegend" style="margin:5px;"></div>
 <div id="reportChart" style="width:98%;height:350px;"></div>
 
 <script type="text/javascript">
@@ -55,11 +61,41 @@ line{$group_id} = [{foreach from=$plots key=plot item=freq name=plots}
 {/foreach}
 
 var chartData = [{foreach from=$data item=null key=group_id name=groups}line{$group_id}{if !$smarty.foreach.groups.last},{/if}{/foreach}];
+
+var cerbChartStyle = {
+	seriesColors:[
+		'rgba(115,168,0,0.8)',
+		'rgba(207,218,30,0.8)',
+		'rgba(249,190,49,0.8)',
+		'rgba(244,89,9,0.8)',
+		'rgba(238,24,49,0.8)',
+		'rgba(189,19,79,0.8)',
+		'rgba(50,37,238,0.8)',
+		'rgba(87,109,243,0.8)',
+		'rgba(116,87,229,0.8)',
+		'rgba(143,46,137,0.8)',
+		'rgba(241,124,242,0.8)',
+		'rgba(180,117,198,0.8)',
+		'rgba(196,191,210,0.8)',
+		'rgba(18,134,49,0.8)',
+		'rgba(44,187,105,0.8)',
+		'rgba(184,197,146,0.8)',
+		'rgba(46,124,180,0.8)',
+		'rgba(84,189,199,0.8)',
+		'rgba(24,200,252,0.8)',
+		'rgba(254,194,153,0.8)',
+		'rgba(213,153,160,0.8)',
+		'rgba(244,237,86,0.8)',
+		'rgba(204,137,59,0.8)',
+		'rgba(157,88,44,0.8)',
+		'rgba(108,46,45,0.8)'
+	]
+};
+
 var chartOptions = {
-    stackSeries: true,
+    stackSeries: false,
 	legend:{ 
-		show:true,
-		location:'nw'
+		show:false
 	},
 	title:{
 		show: false 
@@ -69,18 +105,7 @@ var chartOptions = {
 		background:'rgb(255,255,255)',
 		borderWidth:0
 	},
-	seriesColors: [
-		'rgba(115,168,0,0.8)', 
-		'rgba(249,190,49,0.8)', 
-		'rgba(50,153,187,0.8)', 
-		'rgba(191,52,23,0.8)', 
-		'rgba(122,103,165,0.8)', 
-		'rgba(0,76,102,0.8)', 
-		'rgba(196,197,209,0.8)', 
-		'rgba(190,232,110,0.8)',
-		'rgba(182,0,34,0.8)', 
-		'rgba(61,28,33,0.8)' 
-	],	
+	seriesColors: cerbChartStyle.seriesColors,	
     seriesDefaults:{
 		//renderer:$.jqplot.BarRenderer,
         rendererOptions:{ 
@@ -104,6 +129,7 @@ var chartOptions = {
 		  renderer:$.jqplot.CategoryAxisRenderer,
 	      tickRenderer: $.jqplot.CanvasAxisTickRenderer,
 	      tickOptions: {
+		  	showGridline:false,
 	        {if count($xaxis_ticks) > 13}
 			angle: 90,
 			{/if}
@@ -124,6 +150,20 @@ var chartOptions = {
 		}
     }
 };
+
+$('#reportChart').bind('jqplotPostDraw',function(event, plot) {
+	$legend = $('#reportLegend');
+	$legend.html('');
+	len = plot.series.length;
+	for(series in plot.series) {
+		if(navigator.appName == 'Microsoft Internet Explorer') {
+			$cell = $('<span style="margin-right:5px;display:inline-block;"><span style="background-color:'+plot.series[series].color.replace('rgba','rgb').replace(',0.8','')+';display:inline-block;padding:0px;margin:2px;width:16px;height:16px;">&nbsp;</span>'+plot.series[series].label+'</span>');
+		} else {
+			$cell = $('<span style="margin-right:5px;display:inline-block;"><span style="background-color:'+plot.series[series].color+';display:inline-block;padding:0px;margin:2px;width:16px;height:16px;">&nbsp;</span>'+plot.series[series].label+'</span>');
+		}
+		$legend.append($cell);
+	}
+});
 
 var plot1 = $.jqplot('reportChart', chartData, chartOptions);
 </script>
