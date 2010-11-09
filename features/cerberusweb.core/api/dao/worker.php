@@ -110,7 +110,10 @@ class DAO_Worker extends C4_ORMHelper {
 			$data = $session->decodeSession($session_data['session_data']);
 			@$visit = $data['db_visit']; /* @var $visit CerberusVisit */
 			
-			if(null == ($worker = $visit->getWorker()))
+			if(empty($visit))
+				continue;
+			
+			if(!empty($visit) && null == ($worker = $visit->getWorker()))
 				continue;
 
 			// All workers from the sessions
