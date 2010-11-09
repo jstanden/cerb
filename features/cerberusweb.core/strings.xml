@@ -469,6 +469,9 @@
 		<tu tuid='acl.core.addybook.org.view.actions.export'>
 			<tuv xml:lang="en_US"><seg>[Address Book] Can export organization lists to CSV/XML</seg></tuv>
 		</tu>
+		<tu tuid='acl.core.addybook.person.actions.delete'>
+			<tuv xml:lang="en_US"><seg>[Address Book] Can delete registered contacts</seg></tuv>
+		</tu>
 
 			<!-- Display Ticket -->
 		<tu tuid='acl.core.display.actions.attachments.download'>

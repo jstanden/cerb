@@ -616,9 +616,6 @@ class UmScAccountController extends Extension_UmScController {
 			if(0 != strcasecmp($captcha, $compare_captcha))
 				throw new Exception("Your text did not match the image.");
 				
-			// Release OpenIDs
-			DAO_OpenIdToContactPerson::deleteByContactPerson($contact->id);
-			
 			// Delete the contact account
 			DAO_ContactPerson::delete($contact->id);
 			unset($contact);

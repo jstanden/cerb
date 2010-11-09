@@ -233,6 +233,75 @@ class ChContactsPage extends CerberusPageExtension {
 		$tpl->display('devblocks:cerberusweb.core::contacts/import/index.tpl');
 	}
 	
+	function showPeopleBulkUpdateAction() {
+		@$ids = DevblocksPlatform::importGPC($_REQUEST['ids']);
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id']);
+
+		$tpl = DevblocksPlatform::getTemplateService();
+				$tpl->assign('view_id', $view_id);
+
+	    if(!empty($ids)) {
+	        $ids = DevblocksPlatform::parseCsvString($ids);
+	        $tpl->assign('ids', $ids);
+	    }
+		
+	    // Custom fields
+	    $custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_CONTACT_PERSON);
+	    $tpl->assign('custom_fields', $custom_fields);
+	    
+		// Groups
+		//$groups = DAO_Group::getAll();
+		//$tpl->assign('groups', $groups);
+		
+		// Broadcast
+		//CerberusContexts::getContext(CerberusContexts::CONTEXT_CONTACT_PERSON, null, $token_labels, $token_values);
+		//$tpl->assign('token_labels', $token_labels);
+	    
+		$tpl->display('devblocks:cerberusweb.core::contacts/people/bulk.tpl');
+	}
+	
+	function doPeopleBulkUpdateAction() {
+		// Filter: whole list or check
+	    @$filter = DevblocksPlatform::importGPC($_REQUEST['filter'],'string','');
+		$ids = array();
+	    
+	    // View
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
+		$view = C4_AbstractViewLoader::getView($view_id);
+		
+		// Fields
+		@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'],'integer',0);
+
+		$do = array();
+		
+		// Do: Delete
+		if(!empty($do_delete))
+			$do['delete'] = 1;
+			
+		// Do: Custom fields
+		//$do = DAO_CustomFieldValue::handleBulkPost($do);
+
+		switch($filter) {
+			// Checked rows
+			case 'checks':
+			    @$ids_str = DevblocksPlatform::importGPC($_REQUEST['ids'],'string');
+				$ids = DevblocksPlatform::parseCsvString($ids_str);
+				break;
+			case 'sample':
+				@$sample_size = min(DevblocksPlatform::importGPC($_REQUEST['filter_sample_size'],'integer',0),9999);
+				$filter = 'checks';
+				$ids = $view->getDataSample($sample_size);
+				break;
+			default:
+				break;
+		}
+		
+		$view->doBulkUpdate($filter, $do, $ids);
+		
+		$view->render();
+		return;		
+	}
+	
 	function viewOrgsExploreAction() {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
 		

@@ -98,6 +98,26 @@ class DAO_ContactPerson extends DevblocksORMHelper {
 		
 		$ids_list = implode(',', $ids);
 		
+		foreach($ids as $id) {
+			if(null == ($person = DAO_ContactPerson::get($id)))
+				continue;
+				
+			$addresses = $person->getAddresses();
+			$address_ids = array_keys($addresses);
+			
+			// Remove shares
+			// [TODO] A listener should really be handling this
+			$db->Execute(sprintf("DELETE FROM supportcenter_address_share WHERE share_address_id IN (%s) OR with_address_id IN (%s)", $address_ids, $address_ids));
+			
+			// Release OpenIDs
+			if(class_exists('DAO_OpenIdToContactPerson', true))
+				DAO_OpenIdToContactPerson::deleteByContactPerson($id);
+		}
+		
+		// Release verified email addresses
+		$db->Execute(sprintf("UPDATE address SET contact_person_id = 0 WHERE contact_person_id IN (%s)", $ids_list));
+		
+		// Remove records
 		$db->Execute(sprintf("DELETE FROM contact_person WHERE id IN (%s)", $ids_list));
 		
 		return true;
@@ -488,6 +508,8 @@ class View_ContactPerson extends C4_AbstractView {
 	}
 		
 	function doBulkUpdate($filter, $do, $ids=array()) {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
 		@set_time_limit(0);
 	  
 		$change_fields = array();
@@ -505,7 +527,7 @@ class View_ContactPerson extends C4_AbstractView {
 		foreach($do as $k => $v) {
 			switch($k) {
 				// [TODO] Implement actions
-				case 'example':
+				case 'delete':
 					//$change_fields[DAO_ContactPerson::EXAMPLE] = 'some value';
 					break;
 				/*
@@ -540,10 +562,17 @@ class View_ContactPerson extends C4_AbstractView {
 		for($x=0;$x<=$batch_total;$x+=100) {
 			$batch_ids = array_slice($ids,$x,100);
 			
-			DAO_ContactPerson::update($batch_ids, $change_fields);
-
-			// Custom Fields
-			//self::_doBulkSetCustomFields(ChCustomFieldSource_ContactPerson::ID, $custom_fields, $batch_ids);
+			if(isset($do['delete'])) {
+				// Re-check ACL
+				if($active_worker->hasPriv('core.addybook.person.actions.delete'))
+					DAO_ContactPerson::delete($batch_ids);
+				
+			} else {
+				DAO_ContactPerson::update($batch_ids, $change_fields);
+				
+				// Custom Fields
+				//self::_doBulkSetCustomFields(ChCustomFieldSource_ContactPerson::ID, $custom_fields, $batch_ids);
+			}
 			
 			unset($batch_ids);
 		}
