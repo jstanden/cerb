@@ -29,7 +29,7 @@ class Smarty_Internal_Config {
         $this->compiler_object = null; 
         // parse config resource name
         if (!$this->parseConfigResourceName ($config_resource)) {
-            throw new Exception ("Unable to parse config resource '{$config_resource}'");
+            throw new SmartyException ("Unable to parse config resource '{$config_resource}'");
         } 
     } 
 
@@ -87,7 +87,7 @@ class Smarty_Internal_Config {
         if (file_exists($this->config_resource_name))
             return $this->config_resource_name; 
         // no tpl file found
-        throw new Exception("Unable to load config file \"{$this->config_resource_name}\"");
+        throw new SmartyException("Unable to load config file \"{$this->config_resource_name}\"");
         return false;
     } 
     /**
@@ -106,7 +106,7 @@ class Smarty_Internal_Config {
     {
         if ($this->config_source === null) {
             if ($this->readConfigSource($this) === false) {
-                throw new Exception("Unable to load config file \"{$this->config_resource_name}\"");
+                throw new SmartyException("Unable to load config file \"{$this->config_resource_name}\"");
             } 
         } 
         return $this->config_source;
@@ -172,7 +172,7 @@ class Smarty_Internal_Config {
     public function mustCompile ()
     {
         return $this->mustCompile === null ?
-        $this->mustCompile = ($this->smarty->force_compile || $this->smarty->compile_check && $this->getCompiledTimestamp () !== $this->getTimestamp ()):
+        $this->mustCompile = ($this->smarty->force_compile || $this->getCompiledTimestamp () === false || $this->smarty->compile_check && $this->getCompiledTimestamp () < $this->getTimestamp ()):
         $this->mustCompile;
     } 
     /**
@@ -243,7 +243,8 @@ class Smarty_Internal_Config {
         if ($this->mustCompile()) {
             $this->compileConfigSource();
         } 
-        include($this->getCompiledFilepath ());
+        $_config_vars = array();
+        include($this->getCompiledFilepath ()); 
         // copy global config vars
         foreach ($_config_vars['vars'] as $variable => $value) {
             if ($this->smarty->config_overwrite || !isset($scope->config_vars[$variable])) {

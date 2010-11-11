@@ -67,18 +67,18 @@ class Smarty_Internal_Utility {
                 $_file = $_fileinfo->getFilename();
                 if (!substr_compare($_file, $extention, - strlen($extention)) == 0) continue;
                 if ($_fileinfo->getPath() == substr($_dir, 0, -1)) {
-                    $_template_file = $_file;
+                   $_template_file = $_file;
                 } else {
-                    $_template_file = substr($_fileinfo->getPath(), strlen($_dir)) . DS . $_file;
-                } 
+                    $_template_file = substr(substr($_fileinfo->getPath(), strlen($_dir)) . DS . $_file,1);
+                }
                 echo '<br>', $_dir, '---', $_template_file;
                 flush();
-                $_start_time = $this->_get_time();
+                $_start_time = microtime(true);
                 try {
                     $_tpl = $this->smarty->createTemplate($_template_file);
                     if ($_tpl->mustCompile()) {
                         $_tpl->compileTemplateSource();
-                        echo ' compiled in  ', $this->_get_time() - $_start_time, ' seconds';
+                        echo ' compiled in  ', microtime(true) - $_start_time, ' seconds';
                         flush();
                     } else {
                         echo ' is up to date';
@@ -127,16 +127,16 @@ class Smarty_Internal_Utility {
                 if ($_fileinfo->getPath() == substr($_dir, 0, -1)) {
                     $_config_file = $_file;
                 } else {
-                    $_config_file = substr($_fileinfo->getPath(), strlen($_dir)) . DS . $_file;
+                    $_config_file = substr(substr($_fileinfo->getPath(), strlen($_dir)) . DS . $_file,1);
                 } 
                 echo '<br>', $_dir, '---', $_config_file;
                 flush();
-                $_start_time = $this->_get_time();
+                $_start_time = microtime(true);
                 try {
                     $_config = new Smarty_Internal_Config($_config_file, $this->smarty);
                     if ($_config->mustCompile()) {
                         $_config->compileConfigSource();
-                        echo ' compiled in  ', $this->_get_time() - $_start_time, ' seconds';
+                        echo ' compiled in  ', microtime(true) - $_start_time, ' seconds';
                         flush();
                     } else {
                         echo ' is up to date';
@@ -273,15 +273,5 @@ class Smarty_Internal_Utility {
 
         return true;
     } 
-    /**
-     * Get Micro Time
-     * 
-     * @return double micro time
-     */
-    function _get_time()
-    {
-        $_mtime = microtime();
-        $_mtime = explode(" ", $_mtime);
-        return (double)($_mtime[1]) + (double)($_mtime[0]);
-    } 
 }
+?>

@@ -8,6 +8,7 @@
  * @subpackage Compiler
  * @author Uwe Tews 
  */
+
 /**
  * Smarty Internal Plugin Compile Foreach Class
  */
@@ -28,18 +29,22 @@ class Smarty_Internal_Compile_Foreach extends Smarty_Internal_CompileBase {
         // check and get attributes
         $_attr = $this->_get_attributes($args);
 
-        $this->_open_tag('foreach', array('foreach', $this->compiler->nocache)); 
-        // maybe nocache because of nocache variables
-        $this->compiler->nocache = $this->compiler->nocache | $this->compiler->tag_nocache;
-
         $from = $_attr['from'];
         $item = $_attr['item'];
+
+        if (substr_compare("\$_smarty_tpl->getVariable($item)", $from,0, strlen("\$_smarty_tpl->getVariable($item)")) == 0) {
+            $this->compiler->trigger_template_error("item parameter {$item} may not be the same parameter at 'from'");
+        } 
 
         if (isset($_attr['key'])) {
             $key = $_attr['key'];
         } else {
             $key = null;
         } 
+
+        $this->_open_tag('foreach', array('foreach', $this->compiler->nocache, $item, $key)); 
+        // maybe nocache because of nocache variables
+        $this->compiler->nocache = $this->compiler->nocache | $this->compiler->tag_nocache;
 
         if (isset($_attr['name'])) {
             $name = $_attr['name'];
@@ -80,7 +85,7 @@ class Smarty_Internal_Compile_Foreach extends Smarty_Internal_CompileBase {
         } 
         $output .= " \$_from = $from; if (!is_array(\$_from) && !is_object(\$_from)) { settype(\$_from, 'array');}\n";
         if ($usesPropTotal) {
-            $output .= " \$_smarty_tpl->tpl_vars[$item]->total=count(\$_from);\n";
+            $output .= " \$_smarty_tpl->tpl_vars[$item]->total=(\$_from instanceof Traversable)?iterator_count(\$_from):count(\$_from);\n";
         } 
         if ($usesPropIteration) {
             $output .= " \$_smarty_tpl->tpl_vars[$item]->iteration=0;\n";
@@ -153,8 +158,8 @@ class Smarty_Internal_Compile_Foreachelse extends Smarty_Internal_CompileBase {
         // check and get attributes
         $_attr = $this->_get_attributes($args);
 
-        list($_open_tag, $nocache) = $this->_close_tag(array('foreach'));
-        $this->_open_tag('foreachelse', array('foreachelse', $nocache));
+        list($_open_tag, $nocache, $item, $key) = $this->_close_tag(array('foreach'));
+        $this->_open_tag('foreachelse', array('foreachelse', $nocache, $item, $key));
 
         return "<?php }} else { ?>";
     } 
@@ -181,7 +186,11 @@ class Smarty_Internal_Compile_Foreachclose extends Smarty_Internal_CompileBase {
             $this->compiler->tag_nocache = true;
         } 
 
-        list($_open_tag, $this->compiler->nocache) = $this->_close_tag(array('foreach', 'foreachelse'));
+        list($_open_tag, $this->compiler->nocache, $item, $key) = $this->_close_tag(array('foreach', 'foreachelse'));
+        unset($compiler->local_var[$item]);
+        if ($key != null) {
+            unset($compiler->local_var[$key]);
+        } 
 
         if ($_open_tag == 'foreachelse')
             return "<?php } ?>";
