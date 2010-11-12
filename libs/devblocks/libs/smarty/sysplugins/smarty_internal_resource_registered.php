@@ -129,8 +129,14 @@ class Smarty_Internal_Resource_Registered {
         $_compile_dir = $_template->smarty->compile_dir;
         if (strpos('/\\', substr($_compile_dir, -1)) === false) {
             $_compile_dir .= DS;
-        } 
-        return $_compile_dir . $_filepath . '.' . $_template->resource_type . '.' . basename($_template->resource_name) . $_cache . '.php';
+        }
+        
+        // [WGM] Produce safe filenames
+        $_safe_resource_name = preg_replace("/[^A-Za-z0-9\_\.]/",'_',basename($_template->resource_name));
+        return $_compile_dir . $_filepath . '.' . $_template->resource_type . '.' . $_safe_resource_name . $_cache . '.php';
+        
+        // [WGM] Commented out to produce safe filenames above.
+        //return $_compile_dir . $_filepath . '.' . $_template->resource_type . '.' . basename($_template->resource_name) . $_cache . '.php';
     } 
 } 
 
