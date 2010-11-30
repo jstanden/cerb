@@ -38,7 +38,7 @@
 	{else}
 		{assign var=tableRowClass value="odd"}
 	{/if}
-	<tbody onmouseover="$(this).find('tr').addClass('hover');" onmouseout="$(this).find('tr').removeClass('hover');" onclick="if(getEventTarget(event)=='TD') { var $chk=$(this).find('input:checkbox:first');if(!$chk) return;$chk.attr('checked', !$chk.is(':checked')); } ">
+	<tbody onmouseover="$(this).find('tr').addClass('hover');" onmouseout="$(this).find('tr').removeClass('hover');" onclick="if(getEventTarget(event) != 'A') { var $chk=$(this).find('input:checkbox:first');if(!$chk) return;$chk.attr('checked', !$chk.is(':checked')); } ">
 		<tr class="{$tableRowClass}">
 			{if !empty($result.a_first_name) || !empty($result.a_last_name)}
 				{$display_name = ''}
