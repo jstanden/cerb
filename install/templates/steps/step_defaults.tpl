@@ -20,11 +20,11 @@ Next we need to create an account for you on your new helpdesk.<br>
 <br>
 
 <b>Choose a password:</b><br>
-<input type="password" name="worker_pass" value="{$worker_pass}" size="16"><br>
+<input type="password" name="worker_pass" value="{$worker_pass}" size="16" autocomplete="off"><br>
 <br>
 
 <b>Confirm your password:</b><br>
-<input type="password" name="worker_pass2" value="{$worker_pass2}" size="16"><br>
+<input type="password" name="worker_pass2" value="{$worker_pass2}" size="16" autocomplete="off"><br>
 <br>
 
 <input type="submit" value="Continue &gt;&gt;">
