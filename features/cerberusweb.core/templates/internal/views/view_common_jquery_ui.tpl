@@ -1,6 +1,6 @@
 <script type="text/javascript">
 $('FORM#viewForm{$view->id} TABLE.worklistBody TBODY').click(function(e) {
-	$target = $(event.target);
+	$target = $(e.target);
 
 	// Are any of our parents an anchor tag?	
 	$parents = $target.parents('a');

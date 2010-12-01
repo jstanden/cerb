@@ -168,7 +168,6 @@ UL.navmenu {
 	width:100%;
 	margin:0px;
 	padding:0px;
-	height:5px;
 	list-style:none;
 	color: rgb(80, 80, 80);
 }
@@ -205,9 +204,7 @@ UL.submenu {
 	margin:0px;
 	margin-bottom:5px;
 	padding:0px;
-	height:5px;
 	list-style:none;
-	background-color: rgb(134,169,227);
 	color: rgb(255, 255, 255);
 }
 

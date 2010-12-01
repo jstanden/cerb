@@ -26,5 +26,5 @@
 		<a href="{devblocks_url}c=preferences{/devblocks_url}">{$translate->_('header.preferences')|lower}</a>				
 	</li>
 </ul>
-<div style="clear:both;"></div>
+<div style="clear:both;background-color:rgb(134,169,227);height:5px;"></div>
 {/if}
