@@ -211,9 +211,16 @@ class DevblocksPlatform extends DevblocksEngine {
 	static function stripHTML($str) {
 		// Strip all CRLF and tabs, spacify </TD>
 		$str = str_ireplace(
-			array("\r","\n","\t","</TD>"),
+			array("\r","\n","\t","</td>"),
 			array('','',' ',' '),
 			trim($str)
+		);
+		
+		// Handle XHTML variations
+		$str = str_ireplace(
+			array("<br />", "<br/>"),
+			"<br>",
+			$str
 		);
 		
 		// Turn block tags into a linefeed
