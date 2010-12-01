@@ -51,7 +51,7 @@
 	</tbody>
 	
 	{else}
-	<tbody onmouseover="$(this).find('tr').addClass('hover');" onmouseout="$(this).find('tr').removeClass('hover');" onclick="if(getEventTarget(event) != 'A') { var $chk=$(this).find('input:checkbox:first');if(!$chk) return;$chk.attr('checked', !$chk.is(':checked')); } ">
+	<tbody onmouseover="$(this).find('tr').addClass('hover');" onmouseout="$(this).find('tr').removeClass('hover');">
 	<tr class="{$tableRowClass}">
 		<td align="center" rowspan="2"><input type="checkbox" name="ticket_id[]" title="[#{$result.t_mask|escape}] {$result.t_subject|escape}" value="{$result.t_id}"></td>
 		<td colspan="{math equation="x" x=$smarty.foreach.headers.total}">
@@ -171,3 +171,5 @@
 </table>
 </form>
 <br>
+
+{include file="devblocks:cerberusweb.core::internal/views/view_common_jquery_ui.tpl"}
