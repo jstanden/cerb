@@ -73,6 +73,16 @@
 						{$result.l_change_value|devblocks_date}
 					{elseif $change_field=="created_date"}
 						{$result.l_change_value|devblocks_date}
+					{elseif $change_field=="last_action_code"}
+						{if $result.l_change_value == "O"}
+							{$translate->_('ticket.last_action.opened')|escape}
+						{elseif $result.l_change_value == "R"}
+							{$translate->_('ticket.last_action.recipient_reply')|escape}
+						{elseif $result.l_change_value == "W"}
+							{$translate->_('ticket.last_action.worker_reply')|escape}
+						{else}
+							{$result.l_change_value|escape}
+						{/if}
 					{elseif $change_field=="due_date"}
 						{$result.l_change_value|devblocks_date}
 					{elseif $change_field=="is_waiting" || $change_field=="is_deleted" || $change_field=="is_closed"}

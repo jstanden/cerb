@@ -1526,9 +1526,20 @@ For example: *receipt*</seg></tuv>
 		<tu tuid='ticket.interesting_words'>
 			<tuv xml:lang="en_US"><seg>Interesting Words</seg></tuv>
 		</tu>
+		
 		<tu tuid='ticket.last_action'>
 			<tuv xml:lang="en_US"><seg>Last Action</seg></tuv>
 		</tu>
+		<tu tuid='ticket.last_action.opened'>
+			<tuv xml:lang="en_US"><seg>Ticket opened</seg></tuv>
+		</tu>
+		<tu tuid='ticket.last_action.recipient_reply'>
+			<tuv xml:lang="en_US"><seg>Recipient replied</seg></tuv>
+		</tu>
+		<tu tuid='ticket.last_action.worker_reply'>
+			<tuv xml:lang="en_US"><seg>Worker replied</seg></tuv>
+		</tu>
+		
 		<tu tuid='ticket.last_wrote'>
 			<tuv xml:lang="en_US"><seg>Last Wrote</seg></tuv>
 		</tu>
