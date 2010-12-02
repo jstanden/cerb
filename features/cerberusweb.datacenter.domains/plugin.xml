@@ -58,10 +58,8 @@
 				</param>
 				<param key="events">
 					<value>
-						<!--
-						<data key="context.assigned" value="context.address.assigned" />
-						<data key="context.commented" value="context.address.commented" />
-						-->
+						<data key="context.assigned" value="context.datacenter.domain.assigned" />
+						<data key="context.commented" value="context.datacenter.domain.commented" />
 					</value>
 				</param>
 			</params>
