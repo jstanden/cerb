@@ -195,6 +195,8 @@ $(document).keypress(function(event) {
 	if($(event.target).is(':input'))
 		return;
 	
+	event.preventDefault();
+	
 	switch(event.which) {
 		case 97:  // (A) read all
 			try {

@@ -18,6 +18,9 @@
 
 	<!-- Application -->
 	<link type="text/css" rel="stylesheet" href="{devblocks_url}c=resource&p=cerberusweb.core&f=css/cerberus.css{/devblocks_url}?v={$smarty.const.APP_BUILD}">
+	<!--[if IE]>
+	<link type="text/css" rel="stylesheet" href="{devblocks_url}c=resource&p=cerberusweb.core&f=css/cerberus-iehacks.css{/devblocks_url}?v={$smarty.const.APP_BUILD}">
+	<![endif]-->
 	<script type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=js/markitup/jquery.markitup.pack.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>
 	<script type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=js/cerberus.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>
 </head>

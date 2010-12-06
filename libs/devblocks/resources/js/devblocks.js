@@ -79,16 +79,6 @@ function interceptInputCRLF(e,cb) {
 	return code != 13;
 }
 
-function getEventTarget(e) {
-	if(!e) e = event;
-	
-	if(e.target) {
-		return e.target.nodeName;
-	} else if (e.srcElement) {
-		return e.srcElement.nodeName;
-	}
-}
-
 /* From:
  * http://www.webmasterworld.com/forum91/4527.htm
  */

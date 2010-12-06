@@ -125,7 +125,8 @@ abstract class DevblocksORMHelper {
 		if(is_array($params))
 		foreach($params as $param) {
 			// Skip virtuals
-			if('*_' == substr($param->field,0,2))
+			// [TODO] Handle this better (GROUP_OR/AND)
+			if(!is_array($param) && '*_' == substr($param->field,0,2))
 				continue;
 			
 			// Is this a criteria group (OR, AND)?

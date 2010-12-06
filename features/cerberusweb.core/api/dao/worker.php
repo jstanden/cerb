@@ -523,6 +523,10 @@ class DAO_Worker extends C4_ORMHelper {
 		
 		// Virtuals
 		foreach($params as $param) {
+			// [TODO] This needs to be handled better (GROUP_AND/GROUP_OR)
+			if(is_array($param))
+				continue;
+			
 			$param_key = $param->field;
 			settype($param_key, 'string');
 			switch($param_key) {

@@ -3,7 +3,7 @@ include_once(DEVBLOCKS_PATH . "api/Model.php");
 include_once(DEVBLOCKS_PATH . "api/DAO.php");
 include_once(DEVBLOCKS_PATH . "api/Extension.php");
 
-define('PLATFORM_BUILD',2010040401);
+define('PLATFORM_BUILD',2010120101);
 
 /**
  * A platform container for plugin/extension registries.
@@ -211,9 +211,16 @@ class DevblocksPlatform extends DevblocksEngine {
 	static function stripHTML($str) {
 		// Strip all CRLF and tabs, spacify </TD>
 		$str = str_ireplace(
-			array("\r","\n","\t","</TD>"),
+			array("\r","\n","\t","</td>"),
 			array('','',' ',' '),
 			trim($str)
+		);
+		
+		// Handle XHTML variations
+		$str = str_ireplace(
+			array("<br />", "<br/>"),
+			"<br>",
+			$str
 		);
 		
 		// Turn block tags into a linefeed
@@ -2173,15 +2180,20 @@ class _DevblocksOpenIDManager {
 	
 	public function discover($url) {
 		$num_redirects = 0;
+		$is_safemode = !(ini_get('open_basedir') == '' && ini_get('safe_mode' == 'Off'));
 		
 		do {
 			$repeat = false;
 			
 			$ch = curl_init();
 			curl_setopt($ch, CURLOPT_URL, $url);
-			curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
 			curl_setopt($ch, CURLOPT_HEADER, 1);
 			curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+
+			// We can't use option this w/ safemode enabled
+			if(!$is_safemode)
+				curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+			
 			$content = curl_exec($ch);
 			$info = curl_getinfo($ch);
 			curl_close($ch);
@@ -2211,13 +2223,24 @@ class _DevblocksOpenIDManager {
 					// Everything else
 					$content = $line . "\n" . implode("\n", $lines);
 					$lines = array();
-				} 
+				}
 			}
 			
 			unset($lines);
 			
-			// Check the headers for an 'X-XRDS-Location'
+			// Scan headers
 			foreach($headers as $header) {
+				// Safemode specific behavior
+				if($is_safemode) {
+					if(preg_match("/^Location:.*?/i", $header)) {
+						$out = explode(':', $header, 2);
+						$url = isset($out[1]) ? trim($out[1]) : null;
+						$repeat = true;
+						break;
+					}
+				}
+				
+				// Check the headers for an 'X-XRDS-Location'
 				if(preg_match("/^X-XRDS-Location:.*?/i", $header)) {
 					$out = explode(':', $header, 2);
 					$xrds_url = isset($out[1]) ? trim($out[1]) : null;
