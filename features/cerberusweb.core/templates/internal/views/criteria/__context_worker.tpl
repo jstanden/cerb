@@ -3,7 +3,7 @@
 <b>{$translate->_('common.workers')|capitalize}:</b><br>
 
 <div style="margin:0px 0px 10px 10px;">
-<button type="button" class="chooser_worker" onclick="criteriaChooserClick(this);"><span class="cerb-sprite sprite-add"></span></button>
+<button type="button" class="chooser_worker" onclick="criteriaChooserClick(this);"><span class="cerb-sprite sprite-view"></span></button>
 </div>
 
 <script type="text/javascript">

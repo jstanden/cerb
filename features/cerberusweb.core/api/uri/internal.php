@@ -188,6 +188,46 @@ class ChInternalController extends DevblocksControllerExtension {
 			DAO_ContextLink::deleteLink($context, $context_id, $from_context, $from_context_id);
 	}
 	
+	// Autocomplete
+	
+	function autocompleteAction() {
+		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
+		@$term = DevblocksPlatform::importGPC($_REQUEST['term'],'string','');
+		
+		$list = array();
+		
+		// [TODO] This should be handled by the context extension
+		switch($context) {
+			case CerberusContexts::CONTEXT_WORKER:
+				list($results, $null) = DAO_Worker::search(
+					array(),
+					array(
+						array(
+							DevblocksSearchCriteria::GROUP_OR,
+							new DevblocksSearchCriteria(SearchFields_Worker::LAST_NAME,DevblocksSearchCriteria::OPER_LIKE,$term.'%'),
+							new DevblocksSearchCriteria(SearchFields_Worker::FIRST_NAME,DevblocksSearchCriteria::OPER_LIKE,$term.'%'),
+						),
+					),
+					25,
+					0,
+					SearchFields_Worker::FIRST_NAME,
+					true,
+					false
+				);
+				
+				foreach($results AS $row){
+					$entry = new stdClass();
+					$entry->label = $row[SearchFields_Worker::FIRST_NAME] . ' ' . $row[SearchFields_Worker::LAST_NAME];
+					$entry->value = $row[SearchFields_Worker::ID]; 
+					$list[] = $entry;
+				}
+				break;
+		}
+		
+		echo json_encode($list);
+		exit;
+	}
+	
 	// Snippets
 	
 	function snippetPasteAction() {

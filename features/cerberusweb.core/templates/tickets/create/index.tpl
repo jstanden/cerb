@@ -124,7 +124,7 @@
 		
 								{if $active_worker->hasPriv('core.ticket.actions.assign')}
 									<b>{$translate->_('display.reply.next.handle_reply')}</b><br>
-									<button type="button" class="chooser_worker"><span class="cerb-sprite sprite-add"></span></button>
+									<button type="button" class="chooser_worker"><span class="cerb-sprite sprite-view"></span></button>
 							      	<br>
 							      	<br>
 								{/if}
@@ -184,7 +184,7 @@
 		setInterval("$('#btnSaveDraft').click();", 30000);
 		
 		$('#frmLogTicket button.chooser_worker').each(function() {
-			ajax.chooser(this,'cerberusweb.contexts.worker','worker_id');
+			ajax.chooser(this,'cerberusweb.contexts.worker','worker_id', { autocomplete:true });
 		});		
 	});
 	

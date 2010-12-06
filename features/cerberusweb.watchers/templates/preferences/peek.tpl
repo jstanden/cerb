@@ -114,16 +114,16 @@
 			<label><input type="checkbox" id="chkRuleOwner" name="rules[]" value="owner" onclick="toggleDiv('divRuleOwners',(this.checked?'block':'none'));" {if !is_null($crit_owner)}checked="checked"{/if}> {'common.owners'|devblocks_translate|capitalize}: (any of the following)</label><br>
 			
 			<div id="divRuleOwners" style="margin-left:20px;display:{if !is_null($crit_owner)}block{else}none{/if};">
-				<button type="button" class="chooser_worker"><span class="cerb-sprite sprite-add"></span></button>
+				<button type="button" class="chooser_worker"><span class="cerb-sprite sprite-view"></span></button>
+				<ul class="chooser-container bubbles" style="display:block;">
 				{if isset($crit_owner.value)}
-				<ul class="chooser-container bubbles">
 					{foreach from=$crit_owner.value item=worker_id}
 						{if isset($workers.{$worker_id})}
 						<li>{$workers.{$worker_id}->getName()|escape}<input type="hidden" name="value_owner[]" value="{$worker_id}"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></li>
 						{/if}
 					{/foreach}
-				</ul>
 				{/if}
+				</ul>
 			</div>
 		</td>
 	</tr>
@@ -253,6 +253,6 @@
 		$(this).dialog('option','title',"Add Watcher Filter");
 	});
 	$('#frmWatcherFilter button.chooser_worker').each(function() {
-		ajax.chooser(this, 'cerberusweb.contexts.worker', 'value_owner')
+		ajax.chooser(this, 'cerberusweb.contexts.worker', 'value_owner', { autocomplete:true })
 	});
 </script>

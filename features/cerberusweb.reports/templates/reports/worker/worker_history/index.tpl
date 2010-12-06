@@ -33,21 +33,21 @@
 {/if}
 
 <b>{$translate->_('reports.ui.filters.worker')}</b> 
-<button type="button" class="chooser_worker"><span class="cerb-sprite sprite-add"></span></button>
-{if is_array($filter_worker_ids) && !empty($filter_worker_ids)}
+<button type="button" class="chooser_worker"><span class="cerb-sprite sprite-view"></span></button>
 <ul class="chooser-container bubbles">
+{if is_array($filter_worker_ids) && !empty($filter_worker_ids)}
 	{foreach from=$filter_worker_ids item=filter_worker_id}
 	{$filter_worker = $workers.{$filter_worker_id}}
 	{if !empty($filter_worker)}
 	<li>{$filter_worker->getName()|escape}<input type="hidden" name="worker_id[]" value="{$filter_worker->id}"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></li>
 	{/if}
 	{/foreach}
-</ul>
 {/if}
+</ul>
 <br>
 
 <b>{$translate->_('reports.ui.filters.group')}</b> 
-<button type="button" class="chooser_group"><span class="cerb-sprite sprite-add"></span></button>
+<button type="button" class="chooser_group"><span class="cerb-sprite sprite-view"></span></button>
 {if is_array($filter_group_ids) && !empty($filter_group_ids)}
 <ul class="chooser-container bubbles">
 	{foreach from=$filter_group_ids item=filter_group_id}
@@ -279,7 +279,7 @@ plot1 = $.jqplot('reportChart', chartData, chartOptions);
 
 <script type="text/javascript">
 	$('#frmRange button.chooser_worker').each(function(event) {
-		ajax.chooser(this,'cerberusweb.contexts.worker','worker_id');
+		ajax.chooser(this,'cerberusweb.contexts.worker','worker_id', { autocomplete:true });
 	});
 	
 	$('#frmRange button.chooser_group').each(function(event) {

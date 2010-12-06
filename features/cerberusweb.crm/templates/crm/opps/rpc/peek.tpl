@@ -44,14 +44,14 @@
 		<tr>
 			<td width="0%" nowrap="nowrap" valign="top" align="right">{'common.owners'|devblocks_translate|capitalize}: </td>
 			<td width="100%">
-				<button type="button" class="chooser_worker"><span class="cerb-sprite sprite-add"></span></button>
+				<button type="button" class="chooser_worker"><span class="cerb-sprite sprite-view"></span></button>
+				<ul class="chooser-container bubbles" style="display:block;">
 				{if !empty($context_workers)}
-				<ul class="chooser-container bubbles">
 					{foreach from=$context_workers item=context_worker}
 					<li>{$context_worker->getName()|escape}<input type="hidden" name="worker_id[]" value="{$context_worker->id}"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></li>
 					{/foreach}
-				</ul>
 				{/if}
+				</ul>
 			</td>
 		</tr>
 		<tr>
@@ -116,6 +116,6 @@
 		$('#formOppPeek :input:text:first').focus();
 	} );
 	$('#formOppPeek button.chooser_worker').each(function() {
-		ajax.chooser(this,'cerberusweb.contexts.worker','worker_id');
+		ajax.chooser(this,'cerberusweb.contexts.worker','worker_id', { autocomplete:true });
 	});
 </script>
