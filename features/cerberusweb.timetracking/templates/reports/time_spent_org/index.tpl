@@ -41,7 +41,7 @@
 <br>
 
 <b>{$translate->_('reports.ui.filters.org')}</b> 
-<button type="button" class="chooser_org"><span class="cerb-sprite sprite-add"></span></button>
+<button type="button" class="chooser_org"><span class="cerb-sprite sprite-view"></span></button>
 {if is_array($filter_org_ids) && !empty($filter_org_ids)}
 <ul class="chooser-container bubbles">
 	{foreach from=$filter_org_ids item=filter_org_id}
@@ -283,7 +283,7 @@ plot1 = $.jqplot('reportChart', chartData, chartOptions);
 	});
 	
 	$('#frmRange button.chooser_org').each(function(event) {
-		ajax.chooser(this,'cerberusweb.contexts.org','org_id');
+		ajax.chooser(this,'cerberusweb.contexts.org','org_id', { autocomplete:true });
 	});	
 </script>
 

@@ -283,7 +283,7 @@ plot1 = $.jqplot('reportChart', chartData, chartOptions);
 	});
 	
 	$('#frmRange button.chooser_group').each(function(event) {
-		ajax.chooser(this,'cerberusweb.contexts.group','group_id');
+		ajax.chooser(this,'cerberusweb.contexts.group','group_id', { autocomplete:true });
 	});
 </script>
 

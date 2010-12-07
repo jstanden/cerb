@@ -33,7 +33,7 @@
 {/if}
 
 <b>{$translate->_('reports.ui.filters.group')}</b> 
-<button type="button" class="chooser_group"><span class="cerb-sprite sprite-add"></span></button>
+<button type="button" class="chooser_group"><span class="cerb-sprite sprite-view"></span></button>
 {if is_array($filter_group_ids) && !empty($filter_group_ids)}
 <ul class="chooser-container bubbles">
 	{foreach from=$filter_group_ids item=filter_group_id}
@@ -267,6 +267,6 @@ plot1 = $.jqplot('reportChart', chartData, chartOptions);
 
 <script type="text/javascript">
 	$('#frmRange button.chooser_group').each(function(event) {
-		ajax.chooser(this,'cerberusweb.contexts.group','group_id');
+		ajax.chooser(this,'cerberusweb.contexts.group','group_id', { autocomplete:true });
 	});
 </script>
