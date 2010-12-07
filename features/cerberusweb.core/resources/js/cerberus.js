@@ -487,12 +487,14 @@ var cAjaxCalls = function() {
 				select:function(event, ui) {
 					$this = $(this);
 					$label = ui.item.label;
+					$labelEscaped = $label.replace("<","&lt;");
+					$labelEscaped = $labelEscaped.replace(">","&gt;");
 					$value = ui.item.value;
 					$ul = $(this).nextAll('button:first').nextAll('ul.chooser-container:first');
 					
 					if($label.length > 0 && $value.length > 0) {
 						if(0==$ul.find('input:hidden[value='+$value+']').length) {
-							$li = $('<li>'+$label+'<input type="hidden" name="' + field_name + '[]" title="'+$label+'" value="'+$value+'"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></li>');
+							$li = $('<li>'+$labelEscaped+'<input type="hidden" name="' + field_name + '[]" title="'+$labelEscaped+'" value="'+$value+'"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></li>');
 							$ul.append($li);
 						}
 					}
