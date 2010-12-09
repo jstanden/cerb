@@ -1,0 +1,130 @@
+<!DOCTYPE plugin SYSTEM "../../libs/devblocks/plugin.dtd">
+<plugin>
+	<id>cerberusweb.calls</id>
+	<name>[Cerb5] Call Logging (Experimental)</name>
+	<description>Track phone calls in the helpdesk</description>
+	<author>WebGroup Media, LLC.</author>
+	<revision>0</revision>
+	<link>http://www.cerberusweb.com/</link>
+	
+	<!-- Plugin Dependencies -->
+	
+	<dependencies>
+		<require plugin_id="cerberusweb.core" version="5.2.0-dev" />
+	</dependencies>
+	
+	<!-- Patches -->
+	
+	<patches>
+		<patch version="4.0.0-alpha" revision="1" file="patches/4.0.0_alpha.php" />
+		<patch version="5.1.0-dev" revision="4" file="patches/5.1.0.php" />
+	</patches>
+	
+	<!-- Exported Classes -->
+	
+	<class_loader>
+		<file path="api/App.php">
+			<class name="ChWorkspaceSource_Call" />
+		</file>
+		<file path="api/dao/call_entry.php">
+			<class name="DAO_CallEntry" />
+			<class name="Model_CallEntry" />
+			<class name="SearchFields_CallEntry" />
+			<class name="View_CallEntry" />
+		</file>
+	</class_loader>
+
+	<!-- Privileges -->
+	
+	<acl>
+		<priv id="calls.view.actions.export" label="acl.calls.view.actions.export" />
+	</acl>
+	
+	<extensions>
+	
+		<!-- Contexts -->
+		
+		<extension point="devblocks.context">
+			<id>cerberusweb.contexts.call</id>
+			<name>Call</name>
+			<class>
+				<file>api/dao/call_entry.php</file>
+				<name>Context_Call</name>
+			</class>
+			<params>
+				<param key="link_options">
+					<value>
+						<data key="create" />
+						<data key="find" />
+					</value>
+				</param>
+				<param key="events">
+					<value>
+						<data key="context.assigned" value="context.call.assigned" />
+						<data key="context.commented" value="context.call.commented" />
+					</value>
+				</param>
+			</params>
+		</extension>	
+	
+		<!-- Page -->
+		
+ 		<extension point="cerberusweb.page">
+			<id>calls.page</id>
+			<name>Call Logging Page</name>
+			<class>
+				<file>api/App.php</file>
+				<name>CallsPage</name>
+			</class>
+			<params>
+				<param key="uri" value="calls" />
+			</params>
+		</extension>
+		
+		<!-- Activity Tab -->
+		
+		<extension point="cerberusweb.activity.tab">
+			<id>calls.activity.tab</id>
+			<name>Call Logging Tab</name>
+			<class>
+				<file>api/App.php</file>
+				<name>CallsActivityTab</name>
+			</class>
+			<params>
+				<param key="uri" value="calls" />
+				<param key="title" value="calls.activity.tab" />
+			</params>
+		</extension>
+		
+		<!-- Workspace Sources -->
+		
+		<extension point="cerberusweb.workspace.source">
+			<id>calls.workspace.source.call</id>
+			<name>Calls</name>
+			<class>
+				<file>api/App.php</file>
+				<name>ChWorkspaceSource_Call</name>
+			</class>
+			<params>
+				<param key="view_class" value="View_CallEntry" />
+			</params>
+		</extension>
+		
+		<!-- Config Tabs -->
+		<!-- 
+		<extension point="cerberusweb.config.tab">
+			<id>crm.config.tab.campaigns</id>
+			<name>Campaigns Tab</name>
+			<class>
+				<file>api/App.php</file>
+				<name>CrmConfigCampaignsTab</name>
+			</class>
+			<params>
+				<param key="uri" value="crm.campaigns" />
+				<param key="title" value="Campaigns (CRM)" />
+			</params>
+		</extension>
+		-->
+		 
+	</extensions>
+</plugin>
