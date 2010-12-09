@@ -50,11 +50,6 @@
 
 if (class_exists('Extension_PreferenceTab')):
 class ExTicketTab extends Extension_TicketTab {
-	
-	function __construct($manifest) {
-		parent::__construct($manifest);
-	}
-	
 	function showTab() {
 		$translate = DevblocksPlatform::getTranslationService();
 		

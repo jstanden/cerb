@@ -58,10 +58,6 @@ if (class_exists('Extension_ActivityTab')):
 class ChFeedbackActivityTab extends Extension_ActivityTab {
 	const VIEW_ACTIVITY_FEEDBACK = 'activity_feedback';
 	
-	function __construct($manifest) {
-		parent::__construct($manifest);
-	}
-	
 	function showTab() {
 		$translate = DevblocksPlatform::getTranslationService();
 		
@@ -635,14 +631,6 @@ class C4_FeedbackEntryView extends C4_AbstractView {
 };
 
 class ChFeedbackController extends DevblocksControllerExtension {
-	private $plugin_path = '';
-	
-	function __construct($manifest) {
-		parent::__construct($manifest);
-
-		$this->plugin_path = dirname(dirname(__FILE__)) . '/';
-	}
-		
 	function isVisible() {
 		// check login
 		$session = DevblocksPlatform::getSessionService();

@@ -82,10 +82,6 @@ class UmPortalHelper {
 class UmCommunityPage extends CerberusPageExtension {
 	const ID = 'usermeet.page.community';
 
-	function __construct($manifest) {
-		parent::__construct($manifest);
-	}
-	
 	function isVisible() {
 		// check login
 		$visit = CerberusApplication::getVisit();
@@ -530,10 +526,6 @@ class UmCommunityPage extends CerberusPageExtension {
 class UmPortalController extends DevblocksControllerExtension {
     const ID = 'usermeet.controller.portal';
     
-	function __construct($manifest) {
-		parent::__construct($manifest);
-	}
-		
 	/**
 	 * @param DevblocksHttpRequest $request 
 	 * @return DevblocksHttpResponse $response 

@@ -1,10 +1,6 @@
 <?php
 if (class_exists('Extension_CommentBadge')):
 class ExCommentBadge extends Extension_CommentBadge {
-	function __construct($manifest) {
-		parent::__construct($manifest);
-	}
-	
 	function render(Model_Comment $comment) {
 		if(null != ($email_address = $comment->getAddress())) {
 			$tpl = DevblocksPlatform::getTemplateService();

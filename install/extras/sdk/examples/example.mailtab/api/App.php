@@ -50,11 +50,6 @@
 
 if (class_exists('Extension_PreferenceTab')):
 class ExMailTab extends Extension_MailTab {
-	
-	function __construct($manifest) {
-		parent::__construct($manifest);
-	}
-	
 	function showTab() {
 		$translate = DevblocksPlatform::getTranslationService();
 		

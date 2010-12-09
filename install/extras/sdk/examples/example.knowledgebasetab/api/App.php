@@ -50,11 +50,6 @@
 
 
 class ExKnowledgebaseTab extends Extension_KnowledgebaseTab {
-	
-	function __construct($manifest) {
-		parent::__construct($manifest);
-	}
-	
 	function showTab() {
 		$translate = DevblocksPlatform::getTranslationService();
 		

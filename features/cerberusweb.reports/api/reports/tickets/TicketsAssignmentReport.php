@@ -1,9 +1,5 @@
 <?php
 class ChReportTicketAssignment extends Extension_Report {
-	function __construct($manifest) {
-		parent::__construct($manifest);
-	}
-	
 	function render() {
 		$db = DevblocksPlatform::getDatabaseService();
 		$tpl = DevblocksPlatform::getTemplateService();

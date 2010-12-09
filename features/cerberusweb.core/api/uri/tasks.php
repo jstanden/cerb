@@ -51,10 +51,6 @@ if (class_exists('Extension_ActivityTab')):
 class ChTasksActivityTab extends Extension_ActivityTab {
 	const VIEW_ACTIVITY_TASKS = 'activity_tasks';
 	
-	function __construct($manifest) {
-		parent::__construct($manifest);
-	}
-	
 	function showTab() {
 		// Remember the tab
 		$visit = CerberusApplication::getVisit();
@@ -85,10 +81,6 @@ class ChTasksActivityTab extends Extension_ActivityTab {
 endif;
 
 class ChTasksPage extends CerberusPageExtension {
-	function __construct($manifest) {
-		parent::__construct($manifest);
-	}
-	
 	function render() {
 		$tpl = DevblocksPlatform::getTemplateService();
 

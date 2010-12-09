@@ -51,10 +51,6 @@
 class ChPageController extends DevblocksControllerExtension {
     const ID = 'core.controller.page';
     
-	function __construct($manifest) {
-		parent::__construct($manifest);
-	}
-
 	// [TODO] We probably need a CerberusApplication scope for getting content that has ACL applied
 	private function _getAllowedPages() {
 		$active_worker = CerberusApplication::getActiveWorker();

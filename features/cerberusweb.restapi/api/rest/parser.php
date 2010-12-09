@@ -1,9 +1,5 @@
 <?php
 class ChRest_Parser extends Extension_RestController { //implements IExtensionRestController
-	function __construct($manifest) {
-		parent::__construct($manifest);
-	}
-	
 	function getAction($stack) {
 		$this->error(self::ERRNO_NOT_IMPLEMENTED);
 	}

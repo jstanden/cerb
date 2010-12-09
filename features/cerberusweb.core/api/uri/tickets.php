@@ -48,10 +48,6 @@
  *	 WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
 class ChTicketsPage extends CerberusPageExtension {
-	function __construct($manifest) {
-		parent::__construct($manifest);
-	}
-
 	function isVisible() {
 		// check login
 		$session = DevblocksPlatform::getSessionService();

@@ -50,10 +50,6 @@
 class ChPrintController extends DevblocksControllerExtension {
 	const ID = 'core.controller.print';
 	
-	function __construct($manifest) {
-		parent::__construct($manifest);
-	}
-	
 	/*
 	 * Request Overload
 	 */

@@ -777,10 +777,6 @@ class View_Address extends C4_AbstractView {
 };
 
 class Context_Address extends Extension_DevblocksContext {
-    function __construct($manifest) {
-        parent::__construct($manifest);
-    }
-
     static function searchInboundLinks($from_context, $from_context_id) {
     	list($results, $null) = DAO_Address::search(
     		array(

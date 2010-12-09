@@ -1,10 +1,6 @@
 <?php
 if (class_exists('Extension_Report',true)):
 class ChReportTimeSpentOrg extends Extension_Report {
-	function __construct($manifest) {
-		parent::__construct($manifest);
-	}
-	
 	function render() {
 		$db = DevblocksPlatform::getDatabaseService();
 		$tpl = DevblocksPlatform::getTemplateService();

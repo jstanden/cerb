@@ -48,10 +48,6 @@
  *	 WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
 class ChRest_Opps extends Extension_RestController implements IExtensionRestController {
-	function __construct($manifest) {
-		parent::__construct($manifest);
-	}
-	
 	function getAction($stack) {
 		@$action = array_shift($stack);
 		

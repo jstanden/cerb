@@ -50,11 +50,6 @@
 
 if (class_exists('Extension_PreferenceTab')):
 class ExPreferencesTab extends Extension_PreferenceTab {
-	
-	function __construct($manifest) {
-		parent::__construct($manifest);
-	}
-	
 	function showTab() {
 		$tpl = DevblocksPlatform::getTemplateService();
 		//$translate = DevblocksPlatform::getTranslationService();

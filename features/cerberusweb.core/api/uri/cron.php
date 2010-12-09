@@ -48,10 +48,6 @@
  *	 WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
 class ChCronController extends DevblocksControllerExtension {
-	function __construct($manifest) {
-		parent::__construct($manifest);
-	}
-	
 	function isVisible() {
 		// [TODO] This should restrict by IP rather than session
 	}

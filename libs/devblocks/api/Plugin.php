@@ -2,10 +2,6 @@
 class DevblocksStorageEngineDisk extends Extension_DevblocksStorageEngine {
 	const ID = 'devblocks.storage.engine.disk'; 
 	
-	function __construct($manifest) {
-		parent::__construct($manifest);
-	}
-	
 	public function setOptions($options) {
 		parent::setOptions($options);
 		
@@ -156,10 +152,6 @@ class DevblocksStorageEngineDatabase extends Extension_DevblocksStorageEngine {
 	const ID = 'devblocks.storage.engine.database';
 	
 	private $_db = null;
-	
-	function __construct($manifest) {
-		parent::__construct($manifest);
-	}
 	
 	public function setOptions($options) {
 		parent::setOptions($options);
@@ -413,10 +405,6 @@ class DevblocksStorageEngineS3 extends Extension_DevblocksStorageEngine {
 	const ID = 'devblocks.storage.engine.s3';
 	
 	private $_s3 = null;
-	
-	function __construct($manifest) {
-		parent::__construct($manifest);
-	}
 	
 	public function setOptions($options) {
 		parent::setOptions($options);

@@ -48,10 +48,6 @@
  *	 WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
 class ChGroupsPage extends CerberusPageExtension  {
-	function __construct($manifest) {
-		parent::__construct($manifest);
-	}
-	
 	// [TODO] Refactor to isAuthorized
 	function isVisible() {
 		$worker = CerberusApplication::getActiveWorker();

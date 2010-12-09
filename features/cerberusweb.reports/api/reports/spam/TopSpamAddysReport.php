@@ -1,9 +1,5 @@
 <?php
 class ChReportSpamAddys extends Extension_Report {
-	function __construct($manifest) {
-		parent::__construct($manifest);
-	}
-	
 	function render() {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$db = DevblocksPlatform::getDatabaseService();

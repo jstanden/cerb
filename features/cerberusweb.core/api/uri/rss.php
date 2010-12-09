@@ -48,10 +48,6 @@
  *	 WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
 class ChRssController extends DevblocksControllerExtension {
-	function __construct($manifest) {
-		parent::__construct($manifest);
-	}
-	
 	/*
 	 * Request Overload
 	 */

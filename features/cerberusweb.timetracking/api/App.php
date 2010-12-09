@@ -49,10 +49,6 @@
  */
 
 class Context_TimeTracking extends Extension_DevblocksContext {
-    function __construct($manifest) {
-        parent::__construct($manifest);
-    }
-
     function getPermalink($context_id) {
     	$url_writer = DevblocksPlatform::getUrlService();
     	return $url_writer->write('c=timetracking&tab=display&id='.$context_id, true);
@@ -1008,10 +1004,6 @@ class Model_TimeTrackingActivity {
 };
 
 class ChTimeTrackingEventListener extends DevblocksEventListenerExtension {
-    function __construct($manifest) {
-        parent::__construct($manifest);
-    }
-
     /**
      * @param Model_DevblocksEvent $event
      */
@@ -1037,13 +1029,6 @@ class ChTimeTrackingEventListener extends DevblocksEventListenerExtension {
 };
 
 class ChTimeTrackingPage extends CerberusPageExtension {
-	private $plugin_path = '';
-	
-	function __construct($manifest) {
-		parent::__construct($manifest);
-		$this->plugin_path = dirname(dirname(__FILE__)).'/';
-	}
-	
 	function isVisible() {
 		// check login
 		$session = DevblocksPlatform::getSessionService();
@@ -1534,10 +1519,6 @@ if (class_exists('Extension_ActivityTab')):
 class TimeTrackingActivityTab extends Extension_ActivityTab {
 	const VIEW_ACTIVITY_TIMETRACKING = 'activity_timetracking';
 	
-	function __construct($manifest) {
-		parent::__construct($manifest);
-	}
-	
 	function showTab() {
 		$tpl = DevblocksPlatform::getTemplateService();
 		
@@ -1623,9 +1604,6 @@ class ChTimeTrackingConfigActivityTab extends Extension_ConfigTab {
 
 if (class_exists('Extension_ReportGroup',true)):
 class ChReportGroupTimeTracking extends Extension_ReportGroup {
-	function __construct($manifest) {
-		parent::__construct($manifest);
-	}
 };
 endif;
 

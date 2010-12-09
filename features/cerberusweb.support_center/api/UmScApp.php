@@ -1128,10 +1128,6 @@ class UmScAbstractViewLoader {
 };
 
 class UmScRssController extends Extension_UmScController {
-	function __construct($manifest=null) {
-		parent::__construct($manifest);
-	}
-	
 	function handleRequest(DevblocksHttpRequest $request) {
 		@$path = $request->path;
 				

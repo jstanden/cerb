@@ -838,10 +838,6 @@ class View_Group extends C4_AbstractView {
 };
 
 class Context_Group extends Extension_DevblocksContext {
-    function __construct($manifest) {
-        parent::__construct($manifest);
-    }
-
     function getPermalink($context_id) {
     	// [TODO] Profiles
     	$url_writer = DevblocksPlatform::getUrlService();

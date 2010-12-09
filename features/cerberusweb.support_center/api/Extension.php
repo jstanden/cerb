@@ -49,10 +49,6 @@
  */
 
 abstract class Extension_UmScRssController extends DevblocksExtension {
-    function __construct($manifest) {
-        parent::__construct($manifest);
-    }
-	
 	function handleRequest(DevblocksHttpRequest $request) {
 		//$path = $request->path;
 	}

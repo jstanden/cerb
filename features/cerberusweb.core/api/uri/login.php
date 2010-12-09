@@ -53,10 +53,6 @@ class ChSignInPage extends CerberusPageExtension {
     const KEY_FORGOT_SENTCODE = 'login.recover.sentcode';
     const KEY_FORGOT_CODE = 'login.recover.code';
     
-	function __construct($manifest) {
-		parent::__construct($manifest);
-	}
-	
 	function isVisible() {
 		return true;
 	}

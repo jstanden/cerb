@@ -396,10 +396,6 @@ class Model_Attachment {
 class Storage_Attachments extends Extension_DevblocksStorageSchema {
 	const ID = 'cerberusweb.storage.schema.attachments';
 	
-	function __construct($manifest) {
-		parent::__construct($manifest);
-	}
-	
 	public static function getActiveStorageProfile() {
 		return DAO_DevblocksExtensionPropertyStore::get(self::ID, 'active_storage_profile', 'devblocks.storage.engine.disk');
 	}

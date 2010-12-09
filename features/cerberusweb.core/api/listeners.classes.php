@@ -48,10 +48,6 @@
  *	 WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
 class ChCoreTour extends DevblocksHttpResponseListenerExtension implements IDevblocksTourListener {
-	function __construct($manifest) {
-		parent::__construct($manifest);
-	}
-
 	/**
 	 * @return DevblocksTourCallout[]
 	 */
@@ -308,10 +304,6 @@ class ChCoreTour extends DevblocksHttpResponseListenerExtension implements IDevb
 };
 
 class ChCoreEventListener extends DevblocksEventListenerExtension {
-	function __construct($manifest) {
-		parent::__construct($manifest);
-	}
-
 	/**
 	 * @param Model_DevblocksEvent $event
 	 */

@@ -58,10 +58,6 @@ abstract class Extension_KnowledgebaseTab extends DevblocksExtension {
 };
 
 class ChKbPage extends CerberusPageExtension {
-	function __construct($manifest) {
-		parent::__construct($manifest);
-	}
-		
 	function isVisible() {
 		// check login
 		$visit = CerberusApplication::getVisit();
@@ -210,10 +206,6 @@ if (class_exists('Extension_KnowledgebaseTab')):
 class ChKbBrowseTab extends Extension_KnowledgebaseTab {
 	const VIEW_ID = 'kb_browse';
 	
-	function __construct($manifest) {
-		parent::__construct($manifest);
-	}
-	
 	function showTab() {
 		$visit = CerberusApplication::getVisit();
 		$translate = DevblocksPlatform::getTranslationService();
@@ -292,10 +284,6 @@ if (class_exists('Extension_KnowledgebaseTab')):
 class ChKbSearchTab extends Extension_KnowledgebaseTab {
 	const VIEW_ID = 'kb_search';
 	
-	function __construct($manifest) {
-		parent::__construct($manifest);
-	}
-	
 	function showTab() {
 		$visit = CerberusApplication::getVisit();
 		$translate = DevblocksPlatform::getTranslationService();
@@ -355,10 +343,6 @@ if (class_exists('Extension_SendMailToolbarItem',true)):
 endif;
 
 class ChKbAjaxController extends DevblocksControllerExtension {
-	function __construct($manifest) {
-		parent::__construct($manifest);
-	}
-	
 	function isVisible() {
 		// check login
 		$session = DevblocksPlatform::getSessionService();

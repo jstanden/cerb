@@ -81,10 +81,6 @@ class ChWatchersConfigTab extends Extension_ConfigTab {
 };
 
 class ChWatchersEventListener extends DevblocksEventListenerExtension {
-    function __construct($manifest) {
-        parent::__construct($manifest);
-    }
-
     /**
      * @param Model_DevblocksEvent $event
      */
@@ -319,10 +315,6 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
 };
 
 class ChWatchersPreferences extends Extension_PreferenceTab {
-    function __construct($manifest) {
-        parent::__construct($manifest);
-    }
-	
 	// Ajax
 	function showTab() {
 		$tpl = DevblocksPlatform::getTemplateService();

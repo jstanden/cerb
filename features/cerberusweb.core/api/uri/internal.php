@@ -50,10 +50,6 @@
 class ChInternalController extends DevblocksControllerExtension {
 	const ID = 'core.controller.internal';
 	
-	function __construct($manifest) {
-		parent::__construct($manifest);
-	}
-	
 	/*
 	 * Request Overload
 	 */

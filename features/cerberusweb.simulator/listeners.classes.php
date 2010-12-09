@@ -48,10 +48,6 @@
  *	 WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
 class ChSimulatorTour extends DevblocksHttpResponseListenerExtension implements IDevblocksTourListener {
-    function __construct($manifest) {
-        parent::__construct($manifest);
-    }
-    
     /**
      * @return DevblocksTourCallout[]
      */

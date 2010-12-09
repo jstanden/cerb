@@ -50,11 +50,6 @@
 
 if (class_exists('Extension_OrgTab')):
 class ExOrgTab extends Extension_OrgTab {
-	
-	function __construct($manifest) {
-		parent::__construct($manifest);
-	}
-	
 	function showTab() {
 		$translate = DevblocksPlatform::getTranslationService();
 		

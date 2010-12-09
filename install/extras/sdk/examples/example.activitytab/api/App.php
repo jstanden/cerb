@@ -50,11 +50,6 @@
 
 if (class_exists('Extension_ActivityTab')):
 class ExActivityTab extends Extension_ActivityTab {
-	
-	function __construct($manifest) {
-		parent::__construct($manifest);
-	}
-	
 	function showTab() {
 		$translate = DevblocksPlatform::getTranslationService();
 		

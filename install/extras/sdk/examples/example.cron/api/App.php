@@ -50,11 +50,6 @@
 
 
 class ExCron extends CerberusCronPageExtension {
-	
-	public function __construct($manifest) {
-		parent::__construct($manifest);
-	}
-	
 	public function run() {
 		$logger = DevblocksPlatform::getConsoleLog();
 		$logger->info("[Example] Starting Example Task");

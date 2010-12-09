@@ -50,10 +50,6 @@
 class ChHomePage extends CerberusPageExtension {
 	const VIEW_MY_EVENTS = 'home_myevents';
 	
-	function __construct($manifest) {
-		parent::__construct($manifest);
-	}
-		
 	function isVisible() {
 		// check login
 		$visit = CerberusApplication::getVisit();

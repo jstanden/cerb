@@ -86,46 +86,24 @@ class ChReportSorters {
 };
 
 class ChReportGroupTickets extends Extension_ReportGroup {
-	function __construct($manifest) {
-		parent::__construct($manifest);
-	}
 };
 
 class ChReportGroupWorkers extends Extension_ReportGroup {
-	function __construct($manifest) {
-		parent::__construct($manifest);
-	}
 };
 
 class ChReportGroupGroups extends Extension_ReportGroup {
-	function __construct($manifest) {
-		parent::__construct($manifest);
-	}
 };
 
 class ChReportGroupCustomFields extends Extension_ReportGroup {
-	function __construct($manifest) {
-		parent::__construct($manifest);
-	}
 };
 
 class ChReportGroupOrgs extends Extension_ReportGroup {
-	function __construct($manifest) {
-		parent::__construct($manifest);
-	}
 };
 
 class ChReportGroupSpam extends Extension_ReportGroup {
-	function __construct($manifest) {
-		parent::__construct($manifest);
-	}
 };
 
 class ChReportsPage extends CerberusPageExtension {
-	function __construct($manifest) {
-		parent::__construct($manifest);
-	}
-		
 	function isVisible() {
 		// check login
 		$session = DevblocksPlatform::getSessionService();

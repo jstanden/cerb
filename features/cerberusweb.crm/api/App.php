@@ -63,10 +63,6 @@ class CrmOppsActivityTab extends Extension_ActivityTab {
 	const EXTENSION_ID = 'crm.activity.tab.opps';
 	const VIEW_ACTIVITY_OPPS = 'activity_opps';
 	
-	function __construct($manifest) {
-		parent::__construct($manifest);
-	}
-	
 	function showTab() {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('core_tpl', APP_PATH . '/features/cerberusweb.core/templates/');
@@ -150,14 +146,7 @@ class CrmOppsActivityTab extends Extension_ActivityTab {
 endif;
 
 class CrmPage extends CerberusPageExtension {
-	private $plugin_path = '';
-	
 	const SESSION_OPP_TAB = '';
-	
-	function __construct($manifest) {
-		parent::__construct($manifest);
-		$this->plugin_path = dirname(dirname(__FILE__)).'/';
-	}
 	
 	function render() {
 		$tpl = DevblocksPlatform::getTemplateService();
@@ -1477,10 +1466,6 @@ class View_CrmOpportunity extends C4_AbstractView {
 		$workers = DAO_Worker::getAll();
 		$tpl->assign('workers', $workers);
 		
-		// Custom fields
-		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_OPPORTUNITY);
-		$tpl->assign('custom_fields', $custom_fields);
-		
 		switch($this->renderTemplate) {
 			case 'contextlinks_chooser':
 				$tpl->display('devblocks:cerberusweb.crm::crm/opps/view_contextlinks_chooser.tpl');
@@ -1782,10 +1767,6 @@ class View_CrmOpportunity extends C4_AbstractView {
 };	
 
 class CrmEventListener extends DevblocksEventListenerExtension {
-    function __construct($manifest) {
-        parent::__construct($manifest);
-    }
-
     /**
      * @param Model_DevblocksEvent $event
      */
@@ -1868,10 +1849,6 @@ class CrmTicketOppTab extends Extension_TicketTab {
 };
 
 class Context_Opportunity extends Extension_DevblocksContext {
-    function __construct($manifest) {
-        parent::__construct($manifest);
-    }
-
     function getPermalink($context_id) {
     	$url_writer = DevblocksPlatform::getUrlService();
     	return $url_writer->write('c=crm&tab=opps&id='.$context_id, true);

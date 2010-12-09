@@ -50,11 +50,6 @@
 
 
 class ExConfigTab extends Extension_ConfigTab {
-	
-	function __construct($manifest) {
-		parent::__construct($manifest);
-	}
-	
 	function showTab() {
 		$translate = DevblocksPlatform::getTranslationService();
 		

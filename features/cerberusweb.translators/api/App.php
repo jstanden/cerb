@@ -213,10 +213,6 @@ class C4_TranslationView extends C4_AbstractView {
 };
 
 class ChTranslatorsAjaxController extends DevblocksControllerExtension {
-	function __construct($manifest) {
-		parent::__construct($manifest);
-	}
-	
 	function isVisible() {
 		// check login
 		$session = DevblocksPlatform::getSessionService();

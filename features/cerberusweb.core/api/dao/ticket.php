@@ -1963,10 +1963,6 @@ class View_Ticket extends C4_AbstractView {
 };
 
 class Context_Ticket extends Extension_DevblocksContext {
-    function __construct($manifest) {
-        parent::__construct($manifest);
-    }
-    
     function getPermalink($context_id) {
     	$url_writer = DevblocksPlatform::getUrlService();
     	return $url_writer->write('c=display&id='.$context_id, true);

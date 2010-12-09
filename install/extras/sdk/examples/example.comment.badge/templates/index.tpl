@@ -83,10 +83,6 @@ The <strong>cerberusweb.fields.source</strong> extension point allows you to cre
 <pre>
 	abstract class Extension_CustomFieldSource extends DevblocksExtension {
 	  const EXTENSION_POINT = 'cerberusweb.fields.source';
-
-	  function __construct($manifest) {
-	    parent::__construct($manifest);
-	  }
 	};
 </pre>
 <ul>

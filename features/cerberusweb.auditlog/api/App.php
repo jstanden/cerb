@@ -48,10 +48,6 @@
  *	 WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
 class ChAuditLogEventListener extends DevblocksEventListenerExtension {
-    function __construct($manifest) {
-        parent::__construct($manifest);
-    }
-
     /**
      * @param Model_DevblocksEvent $event
      */
@@ -125,10 +121,6 @@ class ChAuditLogEventListener extends DevblocksEventListenerExtension {
 };
 
 class ChAuditLogTicketTab extends Extension_TicketTab {
-    function __construct($manifest) {
-        parent::__construct($manifest);
-    }
-	
 	function showTab() {
 		@$ticket_id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer', 0);
 
