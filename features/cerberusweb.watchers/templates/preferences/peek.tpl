@@ -6,7 +6,7 @@
 <input type="hidden" name="id" value="{$filter->id}">
 
 <b>Filter Name:</b> (e.g. Emergency Support to SMS)<br>
-<input type="text" name="name" value="{$filter->name|escape}" size="45" style="width:95%;"><br>
+<input type="text" name="name" value="{$filter->name}" size="45" style="width:95%;"><br>
 
 {if $active_worker->is_superuser}
 	{'common.worker'|devblocks_translate|capitalize}:
@@ -105,7 +105,7 @@
 			<label><input type="checkbox" id="chkRuleMask" name="rules[]" value="mask" {if !is_null($crit_mask)}checked="checked"{/if}> Mask:</label>
 		</td>
 		<td valign="top">
-			<input type="text" name="value_mask" size="45" value="{$crit_mask.value|escape}" onchange="document.getElementById('chkRuleMask').checked=((0==this.value.length)?false:true);" style="width:95%;">
+			<input type="text" name="value_mask" size="45" value="{$crit_mask.value}" onchange="document.getElementById('chkRuleMask').checked=((0==this.value.length)?false:true);" style="width:95%;">
 		</td>
 	</tr>
 	<tr>
@@ -119,7 +119,7 @@
 				{if isset($crit_owner.value)}
 					{foreach from=$crit_owner.value item=worker_id}
 						{if isset($workers.{$worker_id})}
-						<li>{$workers.{$worker_id}->getName()|escape}<input type="hidden" name="value_owner[]" value="{$worker_id}"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></li>
+						<li>{$workers.{$worker_id}->getName()}<input type="hidden" name="value_owner[]" value="{$worker_id}"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></li>
 						{/if}
 					{/foreach}
 				{/if}
@@ -168,7 +168,7 @@
 			<label><input type="checkbox" id="chkRuleFrom" name="rules[]" value="from" {if !is_null($crit_from)}checked="checked"{/if}> From:</label>
 		</td>
 		<td valign="top">
-			<input type="text" name="value_from" size="45" value="{$crit_from.value|escape}" onchange="document.getElementById('chkRuleFrom').checked=((0==this.value.length)?false:true);" style="width:95%;">
+			<input type="text" name="value_from" size="45" value="{$crit_from.value}" onchange="document.getElementById('chkRuleFrom').checked=((0==this.value.length)?false:true);" style="width:95%;">
 		</td>
 	</tr>
 	<tr>
@@ -177,7 +177,7 @@
 			<label><input type="checkbox" id="chkfiltersubject" name="rules[]" value="subject" {if !is_null($crit_subject)}checked="checked"{/if}> Subject:</label>
 		</td>
 		<td valign="top">
-			<input type="text" name="value_subject" size="45" value="{$crit_subject.value|escape}" onchange="document.getElementById('chkfiltersubject').checked=((0==this.value.length)?false:true);" style="width:95%;">
+			<input type="text" name="value_subject" size="45" value="{$crit_subject.value}" onchange="document.getElementById('chkfiltersubject').checked=((0==this.value.length)?false:true);" style="width:95%;">
 		</td>
 	</tr>
 	<tr>
@@ -186,7 +186,7 @@
 			<label><input type="checkbox" id="chkRuleBody" name="rules[]" value="body" {if !is_null($crit_body)}checked="checked"{/if}> Body Content:</label>
 		</td>
 		<td valign="top">
-			<input type="text" name="value_body" size="45" value="{$crit_body.value|escape}" onchange="document.getElementById('chkRuleBody').checked=((0==this.value.length)?false:true);" style="width:95%;"><br>
+			<input type="text" name="value_body" size="45" value="{$crit_body.value}" onchange="document.getElementById('chkRuleBody').checked=((0==this.value.length)?false:true);" style="width:95%;"><br>
 			<i>Enter as a <a href="http://us2.php.net/manual/en/reference.pcre.pattern.syntax.php" target="_blank">regular expression</a>; scans content line-by-line.</i><br>
 			Example: /(how do|where can)/i<br>
 		</td>
@@ -209,10 +209,10 @@
 	<tr>
 		<td valign="top">
 			<input type="checkbox" id="chkHeader{$smarty.section.headers.iteration}" name="rules[]" {if !is_null($crit_headerx)}checked="checked"{/if} value="header{$smarty.section.headers.iteration}">
-			<input type="text" name="{$headerx}" value="{$crit_headerx.header|escape}" size="16" onchange="document.getElementById('chkHeader{$smarty.section.headers.iteration}').checked=((0==this.value.length)?false:true);">:
+			<input type="text" name="{$headerx}" value="{$crit_headerx.header}" size="16" onchange="document.getElementById('chkHeader{$smarty.section.headers.iteration}').checked=((0==this.value.length)?false:true);">:
 		</td>
 		<td valign="top">
-			<input type="text" name="value_{$headerx}" value="{$crit_headerx.value|escape}" size="45">
+			<input type="text" name="value_{$headerx}" value="{$crit_headerx.value}" size="45">
 		</td>
 	</tr>
 	{/section}
@@ -237,7 +237,7 @@
 <label><input type="checkbox" name="do[]" value="email" {if !is_null($filter->actions.email)}checked="checked"{/if}> <b>Forward e-mail to:</b></label><br>
 <blockquote style="margin-top:0px;" id="div_do_email">
 	{foreach from=$addresses item=address}
-	<label><input type="checkbox" name="do_email[]" value="{$address->address|escape}" {if is_array($act_email.to) && in_array($address->address,$act_email.to)}checked="checked"{/if} onclick="if(this.checked) $('#frmWatcherFilter input[name=do\[\]][value=email]').attr('checked','checked');"> {$address->address}</label><br>
+	<label><input type="checkbox" name="do_email[]" value="{$address->address}" {if is_array($act_email.to) && in_array($address->address,$act_email.to)}checked="checked"{/if} onclick="if(this.checked) $('#frmWatcherFilter input[name=do\[\]][value=email]').attr('checked','checked');"> {$address->address}</label><br>
 	{/foreach}
 </blockquote>
 

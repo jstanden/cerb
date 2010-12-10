@@ -53,7 +53,7 @@
 			<br>
 
 			<b>Always exclude these addresses as recipients:</b><br>
-			<textarea name="parser_autoreq_exclude" rows="4" cols="76">{$settings->get('cerberusweb.core','parser_autoreq_exclude')|escape:"html"}</textarea><br>
+			<textarea name="parser_autoreq_exclude" rows="4" cols="76">{$settings->get('cerberusweb.core','parser_autoreq_exclude')}</textarea><br>
 			<i>(one address per line)</i> &nbsp;  
 			<i>use * for wildcards, like: *@do-not-reply.com</i><br>
 			<br>
@@ -64,7 +64,7 @@
 			
 			<div style="padding-left:10px;">
 				<b>Maximum Attachment Size:</b><br>
-				<input type="text" name="attachments_max_size" value="{$settings->get('cerberusweb.core','attachments_max_size')|escape:"html"}" size="5"> MB<br>
+				<input type="text" name="attachments_max_size" value="{$settings->get('cerberusweb.core','attachments_max_size')}" size="5"> MB<br>
 				<i>(attachments larger than this will be ignored)</i><br>
 				<br>
 			</div>

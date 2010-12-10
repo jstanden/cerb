@@ -33,7 +33,7 @@
 	{foreach from=$filter_worker_ids item=filter_worker_id}
 	{$filter_worker = $workers.{$filter_worker_id}}
 	{if !empty($filter_worker)}
-	<li>{$filter_worker->getName()|escape}<input type="hidden" name="worker_id[]" value="{$filter_worker->id}"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></li>
+	<li>{$filter_worker->getName()}<input type="hidden" name="worker_id[]" value="{$filter_worker->id}"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></li>
 	{/if}
 	{/foreach}
 {/if}
@@ -137,7 +137,7 @@ chartOptions = {
 		}
 	},
     series:[
-		{foreach from=$data key=activity_id item=null name=activities}{ label:'{$activities.$activity_id|escape}' }{if !$smarty.foreach.activities.last},{/if}{/foreach}
+		{foreach from=$data key=activity_id item=null name=activities}{ label:'{$activities.$activity_id}' }{if !$smarty.foreach.activities.last},{/if}{/foreach}
     ],
     axes:{
         xaxis:{
@@ -151,7 +151,7 @@ chartOptions = {
 			{/if}
 	        fontSize: '8pt'
 	      },
-		  ticks:['{implode("','",$xaxis_ticks)}']
+		  ticks:['{implode("','",$xaxis_ticks) nofilter}']
 		}, 
         yaxis:{
 		  labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
@@ -248,7 +248,7 @@ plot1 = $.jqplot('reportChart', chartData, chartOptions);
 	{foreach from=$data key=activity_id item=plots name=activities}
 		<div class="block" style="display:inline-block;">
 		{$sum = 0}
-		<h2>{$activities.{$activity_id}->name|escape}</h2>
+		<h2>{$activities.{$activity_id}->name}</h2>
 		{foreach from=$plots key=plot item=data name=plots}
 			{$plot}: {$data}<br>
 			{$sum = $sum + $data}

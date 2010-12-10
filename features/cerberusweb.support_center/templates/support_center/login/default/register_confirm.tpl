@@ -10,7 +10,7 @@
 
 	{if !empty($email)}
 	<b>Email:</b><br>
-	{$email|escape}<br>
+	{$email}<br>
 	<br>
 	{/if}
 

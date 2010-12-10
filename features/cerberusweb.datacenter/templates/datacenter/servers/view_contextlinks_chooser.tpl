@@ -40,7 +40,7 @@
 	{/if}
 	<tbody onmouseover="$(this).find('tr').addClass('hover');" onmouseout="$(this).find('tr').removeClass('hover');">
 		<tr class="{$tableRowClass}">
-			<td align="center" rowspan="2"><input type="checkbox" name="row_id[]" title="{$result.s_name|escape}" value="{$result.s_id}"></td>
+			<td align="center" rowspan="2"><input type="checkbox" name="row_id[]" title="{$result.s_name}" value="{$result.s_id}"></td>
 			<td colspan="{math equation="x" x=$smarty.foreach.headers.total}">
 				<a href="{devblocks_url}c=datacenter&m=server&id={$result.s_id}{/devblocks_url}" class="subject">{$result.s_name}</b>
 			</td>

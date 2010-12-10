@@ -18,7 +18,7 @@
 {if !empty($workspaces)}
 {'home.workspaces.worklist.add.existing'|devblocks_translate|capitalize}: <select name="workspace">
 	{foreach from=$workspaces item=workspace}
-	<option value="{$workspace|escape}">{$workspace}</option>
+	<option value="{$workspace}">{$workspace}</option>
 	{/foreach}
 </select><br>
 -{'common.or'|devblocks_translate|lower}-<br>
@@ -32,7 +32,7 @@
 <script type="text/javascript">
 	$popup = genericAjaxPopupFetch('peek');
 	$popup.one('popup_open', function(event,ui) {
-		$(this).dialog('option','title',"{$translate->_('dashboard.add_view')|capitalize|escape:'quotes'}");
+		$(this).dialog('option','title',"{$translate->_('dashboard.add_view')|capitalize}");
 	} );
 </script>
 

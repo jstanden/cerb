@@ -41,7 +41,7 @@
 	<ul id="listWorkerEmailAddresses" style="padding:0px;margin:5px 0px 0px 10px;list-style:none;">
 		{foreach from=$addresses item=address}
 		<li style="padding-bottom:10px;">
-			<input type="hidden" name="worker_emails[]" value="{$address->address|escape}">
+			<input type="hidden" name="worker_emails[]" value="{$address->address}">
 			
 			{if $address->address==$active_worker->email}
 			<button type="button"><span class="cerb-sprite sprite-check_gray"></span></button> 
@@ -49,7 +49,7 @@
 			<button type="button" onclick="if(confirm('Are you sure you want to delete this email address?')) { $(this).closest('li').remove(); }" class="delete"><span class="cerb-sprite sprite-forbidden"></span></button> 
 			{/if}
 	
-			<b>{$address->address|escape}</b>
+			<b>{$address->address}</b>
 			
 			{if $address->is_confirmed}
 				{if $address->address==$active_worker->email}

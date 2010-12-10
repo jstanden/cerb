@@ -20,23 +20,23 @@
 	<ul>
 		{$tabs = [events,links]}
 
-		<li><a href="{devblocks_url}ajax.php?c=home&a=showMyEvents{/devblocks_url}">{'home.tab.my_notifications'|devblocks_translate|escape:'quotes'}</a></li>
-		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextLinks&context=cerberusweb.contexts.worker&id={$active_worker->id}&filter_open=1{/devblocks_url}">{'My Work'|devblocks_translate|escape}</a></li>
+		<li><a href="{devblocks_url}ajax.php?c=home&a=showMyEvents{/devblocks_url}">{'home.tab.my_notifications'|devblocks_translate}</a></li>
+		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextLinks&context=cerberusweb.contexts.worker&id={$active_worker->id}&filter_open=1{/devblocks_url}">{'My Work'|devblocks_translate}</a></li>
 
 		{if empty($workspaces) && $active_worker->hasPriv('core.home.workspaces')}
 			{$tabs[] = intro}		
-			<li><a href="{devblocks_url}ajax.php?c=home&a=showWorkspacesIntroTab{/devblocks_url}">{'home.tab.workspaces_intro'|devblocks_translate|escape:'quotes'}</a></li>
+			<li><a href="{devblocks_url}ajax.php?c=home&a=showWorkspacesIntroTab{/devblocks_url}">{'home.tab.workspaces_intro'|devblocks_translate}</a></li>
 		{/if}
 
 		{foreach from=$tab_manifests item=tab_manifest}
 			{$tabs[] = $tab_manifest->params.uri}
-			<li><a href="{devblocks_url}ajax.php?c=home&a=showTab&ext_id={$tab_manifest->id}{/devblocks_url}">{$tab_manifest->params.title|devblocks_translate|escape:'quotes'}</a></li>
+			<li><a href="{devblocks_url}ajax.php?c=home&a=showTab&ext_id={$tab_manifest->id}{/devblocks_url}">{$tab_manifest->params.title|devblocks_translate}</a></li>
 		{/foreach}
 
 		{if $active_worker->hasPriv('core.home.workspaces')}
 		{foreach from=$workspaces item=workspace}
 			{$tabs[] = "w_{$workspace}"}
-			<li><a href="{devblocks_url}ajax.php?c=home&a=showWorkspaceTab&workspace={$workspace|escape:'url'}{/devblocks_url}"><i>{$workspace|escape}</i></a></li>
+			<li><a href="{devblocks_url}ajax.php?c=home&a=showWorkspaceTab&workspace={$workspace|escape:'url'}{/devblocks_url}"><i>{$workspace}</i></a></li>
 		{/foreach}
 		{/if}
 	</ul>

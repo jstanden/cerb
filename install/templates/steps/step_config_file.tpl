@@ -18,7 +18,7 @@ Since your environment did not support the writing of your <b>framework.config.p
 you'll need to overwrite the existing contents of the file with the following:<br>
 <br>
 <i>{$config_path}</i>:<br>
-<textarea cols="80" rows="10" name="result">{$result|escape}</textarea><br>
+<textarea cols="80" rows="10" name="result">{$result}</textarea><br>
 <br>
 <input type="submit" value="Test My Changes&gt;&gt;">
 </form>

@@ -45,6 +45,6 @@ Leaving new text blank allows you to easily find translation work with a search.
 <script type="text/javascript">
 	$popup = genericAjaxPopupFetch('peek');
 	$popup.one('popup_open', function(event,ui) {
-		$(this).dialog('option','title',"{$translate->_('common.synchronize')|capitalize|escape:'quotes'}");
+		$(this).dialog('option','title',"{$translate->_('common.synchronize')|capitalize}");
 	} );
 </script>

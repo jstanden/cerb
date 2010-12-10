@@ -1,11 +1,11 @@
 <div id="kb">
 	
-<div class="header"><h1>{$article->title|escape}</h1></div>
+<div class="header"><h1>{$article->title}</h1></div>
 <b>Article ID:</b> {$article->id|string_format:"%06d"}
 
 <div style="padding:10px;">
 	{if !empty($article->content)}
-		{$article->getContent()}<br>
+		{$article->getContent() nofilter}<br>
 	{else}
 		<i>[[ {$translate->_('portal.kb.public.no_content')} ]]</i><br>
 	{/if}

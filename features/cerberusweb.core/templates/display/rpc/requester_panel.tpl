@@ -8,7 +8,7 @@
 <ul class="chooser-container bubbles">
 {if !empty($requesters)}
 {foreach from=$requesters item=requester}
-<li>{$requester->email|escape}<input type="hidden" name="address_id[]" value="{$requester->id|escape}"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></li>
+<li>{$requester->email}<input type="hidden" name="address_id[]" value="{$requester->id}"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></li>
 {/foreach}
 {/if}	
 </ul>

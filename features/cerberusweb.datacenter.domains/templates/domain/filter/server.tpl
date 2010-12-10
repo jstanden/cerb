@@ -8,6 +8,6 @@
 
 <blockquote style="margin:5px;">
 	{foreach from=$servers item=server}
-		<label><input type="checkbox" name="server_id[]" value="{$server->id}">{$server->name|escape}</label><br>
+		<label><input type="checkbox" name="server_id[]" value="{$server->id}">{$server->name}</label><br>
 	{/foreach}
 </blockquote>

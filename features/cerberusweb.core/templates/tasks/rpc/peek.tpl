@@ -16,7 +16,7 @@
 		<tr>
 			<td width="0%" nowrap="nowrap" align="right">{'common.title'|devblocks_translate|capitalize}: </td>
 			<td width="100%">
-				<input type="text" name="title" style="width:98%;" value="{$task->title|escape}">
+				<input type="text" name="title" style="width:98%;" value="{$task->title}">
 			</td>
 		</tr>
 		<tr>
@@ -39,7 +39,7 @@
 				<ul class="chooser-container bubbles" style="display:block;">
 				{if !empty($context_workers)}
 					{foreach from=$context_workers item=context_worker}
-					<li>{$context_worker->getName()|escape}<input type="hidden" name="worker_id[]" value="{$context_worker->id}"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></li>
+					<li>{$context_worker->getName()}<input type="hidden" name="worker_id[]" value="{$context_worker->id}"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></li>
 					{/foreach}
 				{/if}
 				</ul>

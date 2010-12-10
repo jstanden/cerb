@@ -14,7 +14,7 @@
 	</tr>
 	<tr>
 		<td width="0%" nowrap="nowrap" valign="top"><b>Name:</b></td>
-		<td width="100%"><input type="text" name="name" value="{$team->name|escape}" size="45"></td>
+		<td width="100%"><input type="text" name="name" value="{$team->name}" size="45"></td>
 	</tr>
 	
 	<tr>

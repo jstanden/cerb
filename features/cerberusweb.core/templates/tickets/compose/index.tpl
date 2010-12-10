@@ -36,24 +36,24 @@
 				<tr>
 					<td width="0%" nowrap="nowrap" valign="middle" align="right"><b>To:</b>&nbsp;</td>
 					<td width="100%">
-						<input type="text" name="to" value="{$draft->params.to|escape}" class="required" style="border:1px solid rgb(180,180,180);padding:2px;width:98%;">
+						<input type="text" name="to" value="{$draft->params.to}" class="required" style="border:1px solid rgb(180,180,180);padding:2px;width:98%;">
 					</td>
 				</tr>
 				<tr>
 					<td width="0%" nowrap="nowrap" valign="middle" align="right">Cc:&nbsp;</td>
 					<td width="100%">
-						<input type="text" size="100" name="cc" value="{$draft->params.cc|escape}" style="width:98%;border:1px solid rgb(180,180,180);padding:2px;">
+						<input type="text" size="100" name="cc" value="{$draft->params.cc}" style="width:98%;border:1px solid rgb(180,180,180);padding:2px;">
 					</td>
 				</tr>
 				<tr>
 					<td width="0%" nowrap="nowrap" valign="middle" align="right">Bcc:&nbsp;</td>
 					<td width="100%">
-						<input type="text" size="100" name="bcc" value="{$draft->params.bcc|escape}" style="width:98%;border:1px solid rgb(180,180,180);padding:2px;">
+						<input type="text" size="100" name="bcc" value="{$draft->params.bcc}" style="width:98%;border:1px solid rgb(180,180,180);padding:2px;">
 					</td>
 				</tr>
 				<tr>
 					<td width="0%" nowrap="nowrap" valign="middle" align="right"><b>Subject:</b>&nbsp;</td>
-					<td width="100%"><input type="text" size="100" name="subject" value="{$draft->subject|escape}" class="required" style="width:98%;border:1px solid rgb(180,180,180);padding:2px;"></td>
+					<td width="100%"><input type="text" size="100" name="subject" value="{$draft->subject}" class="required" style="width:98%;border:1px solid rgb(180,180,180);padding:2px;"></td>
 				</tr>
 
 			</table>
@@ -76,7 +76,7 @@
 			<div id="sendMailToolbarOptions"></div>
 			<div id="divDraftStatus"></div>
 			
-			<textarea name="content" id="content" rows="15" cols="80" class="reply required" style="width:98%;border:1px solid rgb(180,180,180);padding:2px;">{$draft->body|escape}</textarea>
+			<textarea name="content" id="content" rows="15" cols="80" class="reply required" style="width:98%;border:1px solid rgb(180,180,180);padding:2px;">{$draft->body}</textarea>
 		</td>
 	</tr>
 

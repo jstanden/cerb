@@ -13,7 +13,7 @@
 
 {if $is_custom}
 <b>List Title:</b><br>
-<input type="text" name="title" value="{$view->name|escape}" size="64" autocomplete="off"><br>
+<input type="text" name="title" value="{$view->name}" size="64" autocomplete="off"><br>
 <br>
 {/if}
 

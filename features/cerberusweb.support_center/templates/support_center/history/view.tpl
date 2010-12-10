@@ -55,7 +55,7 @@
 				{/if}
 				
 				{if !empty($result.t_subject)}
-				<a href="{devblocks_url}c=history&mask={$result.t_mask}{/devblocks_url}"><span id="subject_{$result.t_id}_{$view->id}">{$result.t_subject|escape}</span></a>				
+				<a href="{devblocks_url}c=history&mask={$result.t_mask}{/devblocks_url}"><span id="subject_{$result.t_id}_{$view->id}">{$result.t_subject}</span></a>				
 				{/if}
 			</td>
 			{elseif $column=="t_updated_date" || $column=="t_created_date"}
@@ -65,7 +65,7 @@
 			{elseif $column=="t_mask"}
 			<td><a href="{devblocks_url}c=history&mask={$result.t_mask}{/devblocks_url}">{$result.$column}</a></td>
 			{else}
-			<td>{$result.$column|escape}</td>
+			<td>{$result.$column}</td>
 			{/if}
 		{/foreach}
 		</tr>

@@ -1,5 +1,5 @@
 <div class="block">
-	<h3 style="display:inline;">{$schema->manifest->name|escape}</h3>
+	<h3 style="display:inline;">{$schema->manifest->name}</h3>
 	(<a href="javascript:;" onclick="genericAjaxPopup('peek','c=config&a=showStorageSchemaPeek&ext_id={$schema->manifest->id}', null, false);">{$translate->_('common.edit')|lower}</a>)
 	<br>
 	{$schema->render()}

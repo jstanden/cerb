@@ -33,7 +33,7 @@
 	{foreach from=$filter_worker_ids item=filter_worker_id}
 	{$filter_worker = $workers.{$filter_worker_id}}
 	{if !empty($filter_worker)}
-	<li>{$filter_worker->getName()|escape}<input type="hidden" name="worker_id[]" value="{$filter_worker->id}"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></li>
+	<li>{$filter_worker->getName()}<input type="hidden" name="worker_id[]" value="{$filter_worker->id}"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></li>
 	{/if}
 	{/foreach}
 {/if}
@@ -137,7 +137,7 @@ chartOptions = {
 		}
 	},
     series:[
-		{foreach from=$data key=worker_id item=worker name=groups}{ label:'{$workers.$worker_id->getName()|escape}' }{if !$smarty.foreach.groups.last},{/if}{/foreach}
+		{foreach from=$data key=worker_id item=worker name=groups}{ label:'{$workers.$worker_id->getName()}' }{if !$smarty.foreach.groups.last},{/if}{/foreach}
     ],
     axes:{
         xaxis:{
@@ -151,7 +151,7 @@ chartOptions = {
 			{/if}
 	        fontSize: '8pt'
 	      },
-		  ticks:['{implode("','",$xaxis_ticks)}']
+		  ticks:['{implode("','",$xaxis_ticks) nofilter}']
 		}, 
         yaxis:{
 		  labelRenderer: $.jqplot.CanvasAxisLabelRenderer,

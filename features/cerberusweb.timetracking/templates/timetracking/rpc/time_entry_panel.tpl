@@ -26,14 +26,14 @@
 					{if !empty($nonbillable_activities)}
 					<optgroup label="{$translate->_('timetracking.ui.non_billable')}">
 						{foreach from=$nonbillable_activities item=activity}
-						<option value="{$activity->id}" {if $model->activity_id==$activity->id}selected{/if}>{$activity->name|escape}</option>
+						<option value="{$activity->id}" {if $model->activity_id==$activity->id}selected{/if}>{$activity->name}</option>
 						{/foreach}
 					</optgroup>
 					{/if}
 					{if !empty($billable_activities)}
 					<optgroup label="{$translate->_('timetracking.ui.billable')}">
 						{foreach from=$billable_activities item=activity}
-						<option value="{$activity->id}" {if $model->activity_id==$activity->id}selected{/if}>{$activity->name|escape}</option>
+						<option value="{$activity->id}" {if $model->activity_id==$activity->id}selected{/if}>{$activity->name}</option>
 						{/foreach}
 					</optgroup>
 					{/if}
@@ -63,7 +63,7 @@
 		<tr>
 			<td width="0%" nowrap="nowrap" valign="top" align="right"><b>{$translate->_('common.comment')|capitalize}</b>:</td>
 			<td width="100%">
-				<textarea name="comment" rows="4" cols="45" style="width:98%;">{$model->notes|escape}</textarea>
+				<textarea name="comment" rows="4" cols="45" style="width:98%;">{$model->notes}</textarea>
 			</td>
 		</tr>
 		<tr>
@@ -73,7 +73,7 @@
 				<ul class="chooser-container bubbles" style="display:block;">
 				{if !empty($context_workers)}
 					{foreach from=$context_workers item=context_worker}
-					<li>{$context_worker->getName()|escape}<input type="hidden" name="worker_id[]" value="{$context_worker->id}"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></li>
+					<li>{$context_worker->getName()}<input type="hidden" name="worker_id[]" value="{$context_worker->id}"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></li>
 					{/foreach}
 				{/if}
 				</ul>
@@ -125,7 +125,7 @@
 <script type="text/javascript">
 	$popup = genericAjaxPopupFetch('peek');
 	$popup.one('popup_open',function(event,ui) {
-		$(this).dialog('option','title',"{'timetracking.ui.timetracking'|devblocks_translate|escape:'quotes'}");
+		$(this).dialog('option','title',"{'timetracking.ui.timetracking'|devblocks_translate}");
 	} );
 	$('#frmTimeEntry button.chooser_worker').each(function() {
 		ajax.chooser(this,'cerberusweb.contexts.worker','worker_id', { autocomplete:true });

@@ -22,7 +22,7 @@
 		<td valign="middle">{$types.$type_code}</td>
 		<td valign="middle">
 			<input type="hidden" name="ids[]" value="{$field_id}">
-			<input type="text" name="names[]" value="{$f->name|escape}" size="35" style="width:300;">
+			<input type="text" name="names[]" value="{$f->name}" size="35" style="width:300;">
 			{if $type_code != 'D' && $type_code != 'M' && $type_code != 'X'}
 				<input type="hidden" name="options[]" value="">
 			{/if}

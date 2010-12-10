@@ -4143,6 +4143,10 @@ class _DevblocksTemplateManager {
 			$instance->cache_lifetime = 0;
 			$instance->compile_check = (defined('DEVELOPMENT_MODE') && DEVELOPMENT_MODE) ? true : false;
 			
+			// Auto-escape HTML output
+			$instance->loadFilter('variable','htmlspecialchars');
+			//$instance->register->variableFilter(array('_DevblocksTemplateManager','variable_filter_esc'));
+			
 			// Devblocks plugins
 			$instance->register->block('devblocks_url', array('_DevblocksTemplateManager', 'block_devblocks_url'));
 			$instance->register->modifier('devblocks_date', array('_DevblocksTemplateManager', 'modifier_devblocks_date'));

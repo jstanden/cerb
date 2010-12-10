@@ -10,7 +10,7 @@
 	<option value="devblocks.storage.engine.disk" {if 'devblocks.storage.engine.disk'==$archive_storage_profile}selected="selected"{/if}>Local filesystem (/storage)</option>
 	<option value="devblocks.storage.engine.database" {if 'devblocks.storage.engine.database'==$archive_storage_profile}selected="selected"{/if}>Local database</option>
 	{foreach from=$storage_profiles item=profile key=profile_id}
-		<option value="{$profile_id}" {if $profile_id==$archive_storage_profile}selected="selected"{/if}>{$profile->name|escape}</option>
+		<option value="{$profile_id}" {if $profile_id==$archive_storage_profile}selected="selected"{/if}>{$profile->name}</option>
 	{/foreach}
 </select><br>
 <br>

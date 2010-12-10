@@ -22,7 +22,7 @@
 			<input type="text" name="pos[]" size="2" maxlength="2" value="{counter name=worklistPos}">
 		</td>
 		<td>
-			<input type="text" name="names[]" value="{$worklist_view->title|escape}" style="width:100%;">
+			<input type="text" name="names[]" value="{$worklist_view->title}" style="width:100%;">
 		</td>
 		<td align="center">
 			<input type="checkbox" name="deletes[]" value="{$worklist->id}">
@@ -38,6 +38,6 @@
 <script type="text/javascript">
 	$popup = genericAjaxPopupFetch('peek');
 	$popup.one('popup_open', function(event,ui) {
-		$(this).dialog('option','title',"{$workspace|escape}");
+		$(this).dialog('option','title',"{$workspace}");
 	} );
 </script>

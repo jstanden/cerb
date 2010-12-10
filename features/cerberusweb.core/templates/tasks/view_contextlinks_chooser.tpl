@@ -40,12 +40,12 @@
 	{/if}
 	<tbody onmouseover="$(this).find('tr').addClass('hover');" onmouseout="$(this).find('tr').removeClass('hover');">
 		<tr class="{$tableRowClass}">
-			<td align="center" rowspan="2"><input type="checkbox" name="row_id[]" title="{$result.t_title|escape}" value="{$result.t_id}"></td>
+			<td align="center" rowspan="2"><input type="checkbox" name="row_id[]" title="{$result.t_title}" value="{$result.t_id}"></td>
 			<td colspan="{math equation="x" x=$smarty.foreach.headers.total}">
 				{if $result.t_is_completed}
 					<span class="cerb-sprite sprite-check_gray" title="{$result.t_completed_date|devblocks_date}"></span>
 				{/if}
-				<a href="{devblocks_url}c=tasks&d=display&id={$result.t_id}{/devblocks_url}" class="subject" target="_blank">{if !empty($result.t_title)}{$result.t_title|escape}{else}New Task{/if}</a>
+				<a href="{devblocks_url}c=tasks&d=display&id={$result.t_id}{/devblocks_url}" class="subject" target="_blank">{if !empty($result.t_title)}{$result.t_title}{else}New Task{/if}</a>
 				
 				{$object_workers = DAO_ContextLink::getContextLinks(CerberusContexts::CONTEXT_TASK, array_keys($data), CerberusContexts::CONTEXT_WORKER)}
 				{if isset($object_workers.{$result.t_id})}
@@ -99,7 +99,7 @@
 					{/if}
 				</td>
 			{else}
-				<td>{$result.$column|escape}</td>
+				<td>{$result.$column}</td>
 			{/if}
 		{/foreach}
 		</tr>

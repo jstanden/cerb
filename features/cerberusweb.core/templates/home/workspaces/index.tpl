@@ -1,14 +1,14 @@
 <form action="{devblocks_url}{/devblocks_url}" method="POST">
 <input type="hidden" name="c" value="home">
 <input type="hidden" name="a" value="doDeleteWorkspace">
-<input type="hidden" name="workspace" value="{$current_workspace|escape}">
+<input type="hidden" name="workspace" value="{$current_workspace}">
 <table width="100%" style="margin-bottom:5px;">
 	<tr>
 		<td>
 		</td>
 		<td align="right">
 			<a href="javascript:;" onclick="genericAjaxPopup('peek','c=home&a=showEditWorkspacePanel&workspace={$current_workspace|escape:'url'}',null,false,'450');">{$translate->_('dashboard.edit')|lower}</a>
-			| <a href="javascript:;" onclick="if(confirm('{$translate->_('dashboard.delete.confirm')|escape}'))$(this).closest('form').submit();">{$translate->_('dashboard.delete')|lower}</a>
+			| <a href="javascript:;" onclick="if(confirm('{$translate->_('dashboard.delete.confirm')}'))$(this).closest('form').submit();">{$translate->_('dashboard.delete')|lower}</a>
 		</td>
 	</tr>
 </table>

@@ -12,9 +12,9 @@
 	
 	<div id="kbArticleEditor">
 		<b>Title:</b><br>
-		<input type="text" name="title" value="{$article->title|escape}" style="width:99%;border:solid 1px rgb(180,180,180);"><br>
+		<input type="text" name="title" value="{$article->title}" style="width:99%;border:solid 1px rgb(180,180,180);"><br>
 		
-		<textarea id="content" name="content" style="width:99%;height:200px;border:solid 1px rgb(180,180,180);">{$article->content|escape}</textarea>
+		<textarea id="content" name="content" style="width:99%;height:200px;border:solid 1px rgb(180,180,180);">{$article->content}</textarea>
 		<br>
 		
 		Format:
@@ -73,7 +73,7 @@
 			genericAjaxPopupClose('peek');
 			genericAjaxPost('frmKbEditPanel', '', '', function(json) {
 			{if !empty($view_id)}
-			genericAjaxGet('view{$view_id}','c=internal&a=viewRefresh&id={$view_id|escape}');
+			genericAjaxGet('view{$view_id}','c=internal&a=viewRefresh&id={$view_id}');
 			{elseif !empty($return_uri)}
 			document.location = "{devblocks_url}{/devblocks_url}{$return_uri}";
 			{/if}

@@ -11,7 +11,7 @@
 		<tr>
 			<td width="0%" nowrap="nowrap" valign="top" align="right">{$translate->_('common.name')|capitalize}: </td>
 			<td width="100%">
-				<input type="text" name="name" value="{$list->name|escape}" class="required" style="width:98%;">
+				<input type="text" name="name" value="{$list->name}" class="required" style="width:98%;">
 			</td>
 		</tr>
 	</table>
@@ -39,7 +39,7 @@
 	$popup = genericAjaxPopupFetch('peek');
 	$popup.one('popup_open',function(event,ui) {
 		// Title
-		$(this).dialog('option','title', '{'Contact List'|devblocks_translate|escape:'quotes'}');
+		$(this).dialog('option','title', '{'Contact List'|devblocks_translate}');
 		// Form validation
 	    $("#frmContactListPeek").validate();
 		$('#frmContactListPeek :input:text:first').focus();

@@ -117,7 +117,7 @@
 			{elseif $column=="tl_string_override"}
 				<td>
 					{math assign=height equation="25+(25*floor(x/65))" x=$english_string->string_default|count_characters format="%d"}
-					<textarea name="translations[]" style="width:98%;height:{$height}px;border:1px solid rgb(80,80,80);" rows="3" cols="45">{if !empty($result.$column)}{$result.$column|escape}{/if}</textarea>
+					<textarea name="translations[]" style="width:98%;height:{$height}px;border:1px solid rgb(80,80,80);" rows="3" cols="45">{if !empty($result.$column)}{$result.$column}{/if}</textarea>
 				</td>
 			{elseif $column=="tl_string_id"}
 				<td valign="top">{$result.$column}&nbsp;</td>

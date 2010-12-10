@@ -43,7 +43,7 @@
 <script type="text/javascript">
 series1 = [
 {foreach from=$data item=plot key=null name=plots}
-[{$plot.hits},'{$plot.value|escape}']{if !$smarty.foreach.plots.last},{/if}
+[{$plot.hits},'{$plot.value}']{if !$smarty.foreach.plots.last},{/if}
 {/foreach}
 ];
 
@@ -151,7 +151,7 @@ plot1 = $.jqplot('reportChart', [series1], {
 		</tr>
 	{foreach from=$value_counts item=count key=value}
 		<tr>
-			<td>{$value|escape}</td>
+			<td>{$value}</td>
 			<td align="center">{$count}</td>
 		</tr>
 	{/foreach}

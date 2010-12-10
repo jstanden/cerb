@@ -9,14 +9,14 @@ You can copy this worklist into your own workspaces, allowing you to put your fa
 <br>
 
 <b>Worklist Name:</b><br>
-<input type="text" name="list_title" value="{$view->name|escape}" size="45"><br>
+<input type="text" name="list_title" value="{$view->name}" size="45"><br>
 <br>
 
 <b>Add List to Workspace:</b><br>
 {if !empty($workspaces)}
 Existing: <select name="workspace">
 	{foreach from=$workspaces item=workspace}
-	<option value="{$workspace|escape}">{$workspace}</option>
+	<option value="{$workspace}">{$workspace}</option>
 	{/foreach}
 </select><br>
 -or-<br>

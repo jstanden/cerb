@@ -15,18 +15,18 @@
 
 <fieldset style="float:left;min-width:400px;">
 	<legend>Knowledgebase Article</legend>
-	<h1><b>{$article->title|escape}</b></h1>
+	<h1><b>{$article->title}</b></h1>
 		
 	<b>{$translate->_('kb_article.updated')|capitalize}:</b> <abbr title="{$article->updated|devblocks_date}">{$article->updated|devblocks_prettytime}</abbr> &nbsp;
-	<b>{$translate->_('kb_article.views')|capitalize}:</b> {$article->views|escape} &nbsp;
-	<b>{$translate->_('common.id')|upper}:</b> {$article->id|escape} &nbsp; 
+	<b>{$translate->_('kb_article.views')|capitalize}:</b> {$article->views} &nbsp;
+	<b>{$translate->_('common.id')|upper}:</b> {$article->id} &nbsp; 
 	<br>
 	
 	{if !empty($breadcrumbs)}
 	<b>Filed under:</b> 
 	{foreach from=$breadcrumbs item=trail name=trail}
 		{foreach from=$trail item=step key=cat_id name=cats}
-		<a href="{devblocks_url}c=kb&a=category&id={$cat_id|escape}{/devblocks_url}">{$categories.{$cat_id}->name}</a>
+		<a href="{devblocks_url}c=kb&a=category&id={$cat_id}{/devblocks_url}">{$categories.{$cat_id}->name}</a>
 		{if !$smarty.foreach.cats.last} &raquo; {/if}
 		{/foreach}
 		{if !$smarty.foreach.trail.last}; {/if}
@@ -34,12 +34,12 @@
 	{/if}
 	
 	<form style="margin:5px;">
-	{if $active_worker->hasPriv('core.kb.articles.modify')}<button type="button" onclick="genericAjaxPopup('peek','c=kb.ajax&a=showArticleEditPanel&id={$article->id}&return_uri={"kb/article/{$article->id}"|escape}',null,false,'725');"><span class="cerb-sprite sprite-document_edit"></span> {$translate->_('common.edit')|capitalize}</button>{/if}	
+	{if $active_worker->hasPriv('core.kb.articles.modify')}<button type="button" onclick="genericAjaxPopup('peek','c=kb.ajax&a=showArticleEditPanel&id={$article->id}&return_uri={"kb/article/{$article->id}"}',null,false,'725');"><span class="cerb-sprite sprite-document_edit"></span> {$translate->_('common.edit')|capitalize}</button>{/if}	
 	</form>
 </fieldset>
 
 <div style="clear:both;"></div>
 
 <div>
-	{$article->getContent()}
+	{$article->getContent() nofilter}
 </div>

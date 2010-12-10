@@ -11,7 +11,7 @@
 		<tr>
 			<td width="1%" nowrap="nowrap"><b>{'common.name'|devblocks_translate}:</b></td>
 			<td width="99%">
-				<input type="text" name="name" value="{$model->name|escape}" style="width:98%;">
+				<input type="text" name="name" value="{$model->name}" style="width:98%;">
 			</td>
 		</tr>
 	</table>
@@ -31,6 +31,6 @@
 <script type="text/javascript">
 	$popup = genericAjaxPopupFetch('peek');
 	$popup.one('popup_open', function(event,ui) {
-		$(this).dialog('option','title',"{'Server'|escape:'quotes'}");
+		$(this).dialog('option','title',"{'Server'}");
 	} );
 </script>

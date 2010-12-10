@@ -39,7 +39,7 @@
 	{foreach from=$filter_group_ids item=filter_group_id}
 	{$filter_group = $groups.{$filter_group_id}}
 	{if !empty($filter_group)}
-	<li>{$filter_group->name|escape}<input type="hidden" name="group_id[]" value="{$filter_group->id}"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></li>
+	<li>{$filter_group->name}<input type="hidden" name="group_id[]" value="{$filter_group->id}"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></li>
 	{/if}
 	{/foreach}
 </li>
@@ -143,7 +143,7 @@ chartOptions = {
 		}
 	},
     series:[
-		{foreach from=$data key=group_id item=group name=groups}{ label:'{$groups.$group_id->name|escape}' }{if !$smarty.foreach.groups.last},{/if}{/foreach}
+		{foreach from=$data key=group_id item=group name=groups}{ label:'{$groups.$group_id->name}' }{if !$smarty.foreach.groups.last},{/if}{/foreach}
     ],
     axes:{
         xaxis:{
@@ -157,7 +157,7 @@ chartOptions = {
 			{/if}
 	        fontSize: '8pt'
 	      },
-		  ticks:['{implode("','",$xaxis_ticks)}']
+		  ticks:['{implode("','",$xaxis_ticks) nofilter}']
 		}, 
         yaxis:{
 		  min:0,
@@ -250,7 +250,7 @@ plot1 = $.jqplot('reportChart', chartData, chartOptions);
 	{foreach from=$data key=group_id item=plots name=groups}
 		<div class="block" style="display:inline-block;">
 		{$sum = 0}
-		<h2>{$groups.{$group_id}->name|escape}</h2>
+		<h2>{$groups.{$group_id}->name}</h2>
 		{foreach from=$plots key=plot item=data name=plots}
 			{$plot}: {$data}<br>
 			{$sum = $sum + $data}

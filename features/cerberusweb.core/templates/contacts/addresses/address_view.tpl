@@ -75,7 +75,7 @@
 				{if $result.a_is_banned}Yes{/if}&nbsp;
 			</td>
 			{else}
-			<td>{$result.$column|escape}</td>
+			<td>{$result.$column}</td>
 			{/if}
 		{/foreach}
 		</tr>

@@ -6,13 +6,13 @@
 
 <form action="{devblocks_url}c=account{/devblocks_url}" method="post" id="frmMyOpenID">
 <input type="hidden" name="a" value="doOpenIdUpdate">
-<input type="hidden" name="hash_key" value="{$openid->hash_key|escape}">
+<input type="hidden" name="hash_key" value="{$openid->hash_key}">
 
 <fieldset>
 	<legend>OpenID</legend>
 	
 	<b>Claimed ID:</b><br>
-	{$openid->openid_claimed_id|escape}<br>
+	{$openid->openid_claimed_id}<br>
 </fieldset>
 
 <button name="action" type="submit" value=""><img src="{devblocks_url}c=resource&p=cerberusweb.support_center&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('common.save_changes')}</button>

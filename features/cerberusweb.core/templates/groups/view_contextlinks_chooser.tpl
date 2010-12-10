@@ -47,7 +47,7 @@
 			{elseif $column=="g_name"}
 			<td><a href="javascript:;" class="subject" style="text-decoration:none;">{$result.$column}</a>&nbsp;</td>
 			{else}
-			<td>{$result.$column|escape}</td>
+			<td>{$result.$column}</td>
 			{/if}
 		{/foreach}
 		</tr>

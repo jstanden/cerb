@@ -64,21 +64,21 @@
 			
 			<blockquote style="margin-left:20px;">
 				<b>By default, reply to mail as:</b> (E-mail Address)<br>
-				<input type="text" name="sender_address" value="{$settings->get('cerberusweb.core','default_reply_from')|escape}" size="45"> (e.g. support@yourcompany.com)<br>
+				<input type="text" name="sender_address" value="{$settings->get('cerberusweb.core','default_reply_from')}" size="45"> (e.g. support@yourcompany.com)<br>
 				<br>
 				
 				<b>By default, reply to mail as:</b> (Personal Name)<br>
-				<input type="text" name="sender_personal" value="{$settings->get('cerberusweb.core','default_reply_personal')|escape}" size="45"> (e.g. Acme Widgets)<br>
+				<input type="text" name="sender_personal" value="{$settings->get('cerberusweb.core','default_reply_personal')}" size="45"> (e.g. Acme Widgets)<br>
 				<br>
 				
 				<b>Default E-mail Signature:</b><br>
-				<textarea name="default_signature" rows="10" cols="76" style="width:100%;" wrap="off">{$settings->get('cerberusweb.core','default_signature')|escape:"html"}</textarea><br>
+				<textarea name="default_signature" rows="10" cols="76" style="width:100%;" wrap="off">{$settings->get('cerberusweb.core','default_signature')}</textarea><br>
 				<div style="padding-left:10px;">
 					<button type="button" onclick="genericAjaxPost('frmConfigMailOutgoing','divTemplateTester','c=internal&a=snippetTest&snippet_context=cerberusweb.contexts.worker&snippet_field=default_signature');"><span class="cerb-sprite sprite-gear"></span> Test</button>
 					<select name="sig_vars" onchange="insertAtCursor(this.form.default_signature,this.options[this.selectedIndex].value);this.selectedIndex=0;this.form.default_signature.focus();">
 						<option value="">-- insert at cursor --</option>
 						{foreach from=$token_labels key=k item=v}
-						<option value="{literal}{{{/literal}{$k}{literal}}}{/literal}">{$v|escape}</option>
+						<option value="{literal}{{{/literal}{$k}{literal}}}{/literal}">{$v}</option>
 						{/foreach}
 					</select>
 					<br>

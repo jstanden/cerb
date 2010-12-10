@@ -45,13 +45,13 @@
 			<td>
 				{if !empty($result.kb_title)}
 				<img src="{devblocks_url}c=resource&p=cerberusweb.support_center&f=images/document.gif{/devblocks_url}" align="absmiddle">
-				<a href="{devblocks_url}c=kb&a=article&id={$result.kb_id|string_format:"%06d"}{/devblocks_url}"><span id="subject_{$result.kb_id}_{$view->id}">{$result.kb_title|escape}</span></a>				
+				<a href="{devblocks_url}c=kb&a=article&id={$result.kb_id|string_format:"%06d"}{/devblocks_url}"><span id="subject_{$result.kb_id}_{$view->id}">{$result.kb_title}</span></a>				
 				{/if}
 			</td>
 			{elseif $column=="kb_updated"}
 			<td><abbr title="{$result.kb_updated|devblocks_date}">{$result.kb_updated|devblocks_prettytime}</abbr>&nbsp;</td>
 			{else}
-			<td>{$result.$column|escape}</td>
+			<td>{$result.$column}</td>
 			{/if}
 		{/foreach}
 		</tr>

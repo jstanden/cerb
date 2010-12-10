@@ -9,7 +9,7 @@
 
 <script type="text/javascript">
 	$('#btnComment').click(function(event) {
-		$popup = genericAjaxPopup('peek', 'c=internal&a=commentShowPopup&context={$context|escape}&context_id={$context_id|escape}', null, false, '550');
+		$popup = genericAjaxPopup('peek', 'c=internal&a=commentShowPopup&context={$context}&context_id={$context_id}', null, false, '550');
 		$popup.one('comment_save', function(event) {
 			$tabs = $('#btnComment').closest('div.ui-tabs');
 			if(0 != $tabs) {

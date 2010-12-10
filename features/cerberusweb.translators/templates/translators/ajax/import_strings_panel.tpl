@@ -12,7 +12,7 @@
 <script type="text/javascript">
 	$popup = genericAjaxPopupFetch('peek');
 	$popup.one('popup_open', function(event,ui) {
-		$(this).dialog('option','title',"{$translate->_('common.import')|capitalize|escape:'quotes'}");
+		$(this).dialog('option','title',"{$translate->_('common.import')|capitalize}");
 	} );
 </script>
 

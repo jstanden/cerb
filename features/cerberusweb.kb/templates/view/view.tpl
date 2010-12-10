@@ -60,7 +60,7 @@
 			<td>{$result.kb_id}&nbsp;</td>
 			{elseif $column=="kb_title"}
 			<td>
-				<a href="{devblocks_url}c=kb&a=article&id={$result.kb_id|escape}{/devblocks_url}" class="subject">{if !empty($result.kb_title)}{$result.kb_title|escape}{else}(no title){/if}</a>
+				<a href="{devblocks_url}c=kb&a=article&id={$result.kb_id}{/devblocks_url}" class="subject">{if !empty($result.kb_title)}{$result.kb_title}{else}(no title){/if}</a>
 				<a href="javascript:;" onclick="genericAjaxPopup('peek','c=kb.ajax&a=showArticlePeekPanel&id={$result.kb_id}&view_id={$view->id}',null,false,'700');"><span class="ui-icon ui-icon-newwin" style="display:inline-block;vertical-align:middle;" title="{$translate->_('views.peek')}"></span></a>
 			</td>
 			{elseif $column=="kb_updated"}
@@ -87,7 +87,7 @@
 				&nbsp;
 			</td>
 			{else}
-			<td>{$result.$column|escape}</td>
+			<td>{$result.$column}</td>
 			{/if}
 		{/foreach}
 		</tr>

@@ -18,13 +18,13 @@
 		<tr>
 			<td width="1%" nowrap="nowrap" valign="top"><b>Subject:</b></td>
 			<td width="99%" valign="top">
-				<input type="text" name="subject" value="{$model->subject|escape}" style="width:98%;">
+				<input type="text" name="subject" value="{$model->subject}" style="width:98%;">
 			</td>
 		</tr>
 		<tr>
 			<td width="1%" nowrap="nowrap" valign="top"><b>Phone #:</b></td>
 			<td width="99%" valign="top">
-				<input type="text" name="phone" value="{$model->phone|escape}" style="width:98%;">
+				<input type="text" name="phone" value="{$model->phone}" style="width:98%;">
 			</td>
 		</tr>
 		<tr>
@@ -34,7 +34,7 @@
 				<ul class="chooser-container bubbles" style="display:block;">
 				{if !empty($context_workers)}
 					{foreach from=$context_workers item=context_worker}
-					<li>{$context_worker->getName()|escape}<input type="hidden" name="worker_id[]" value="{$context_worker->id}"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></li>
+					<li>{$context_worker->getName()}<input type="hidden" name="worker_id[]" value="{$context_worker->id}"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></li>
 					{/foreach}
 				{/if}
 				</ul>
@@ -75,7 +75,7 @@
 <script type="text/javascript">
 	$popup = genericAjaxPopupFetch('peek');
 	$popup.one('popup_open', function(event,ui) {
-		$(this).dialog('option','title',"{$translate->_('calls.ui.log_call')|escape:'quotes'}");
+		$(this).dialog('option','title',"{$translate->_('calls.ui.log_call')}");
 		ajax.orgAutoComplete('#orginput');
 		ajax.emailAutoComplete('#emailinput');
 	});

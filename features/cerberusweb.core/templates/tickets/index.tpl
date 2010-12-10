@@ -30,27 +30,27 @@
 	<ul>
 		{$tabs = [workflow]}
 		
-		<li><a href="{devblocks_url}ajax.php?c=tickets&a=showWorkflowTab&request={$request_path|escape:'url'}{/devblocks_url}">{$translate->_('mail.workflow')|capitalize|escape:'quotes'}</a></li>
+		<li><a href="{devblocks_url}ajax.php?c=tickets&a=showWorkflowTab&request={$request_path|escape:'url'}{/devblocks_url}">{$translate->_('mail.workflow')|capitalize}</a></li>
 		
 		{if $active_worker->hasPriv('core.mail.search')}
 			{$tabs[] = search}
-			<li><a href="{devblocks_url}ajax.php?c=tickets&a=showSearchTab&request={$request_path|escape:'url'}{/devblocks_url}">{$translate->_('mail.search.tickets')|capitalize|escape:'quotes'}</a></li>
+			<li><a href="{devblocks_url}ajax.php?c=tickets&a=showSearchTab&request={$request_path|escape:'url'}{/devblocks_url}">{$translate->_('mail.search.tickets')|capitalize}</a></li>
 		{/if}
 
 		{if 1 || $active_worker->hasPriv('core.mail.messages')}
 			{$tabs[] = messages}
-			<li><a href="{devblocks_url}ajax.php?c=tickets&a=showMessagesTab&request={$request_path|escape:'url'}{/devblocks_url}">{$translate->_('mail.search.messages')|capitalize|escape:'quotes'}</a></li>
+			<li><a href="{devblocks_url}ajax.php?c=tickets&a=showMessagesTab&request={$request_path|escape:'url'}{/devblocks_url}">{$translate->_('mail.search.messages')|capitalize}</a></li>
 		{/if}
 
 		{$tabs[] = drafts}
-		<li><a href="{devblocks_url}ajax.php?c=tickets&a=showDraftsTab&request={$request_path|escape:'url'}{/devblocks_url}">{$translate->_('mail.drafts')|capitalize|escape:'quotes'}</a></li>
+		<li><a href="{devblocks_url}ajax.php?c=tickets&a=showDraftsTab&request={$request_path|escape:'url'}{/devblocks_url}">{$translate->_('mail.drafts')|capitalize}</a></li>
 
 		{$tabs[] = snippets}
-		<li><a href="{devblocks_url}ajax.php?c=tickets&a=showSnippetsTab&request={$request_path|escape:'url'}{/devblocks_url}">{$translate->_('common.snippets')|capitalize|escape:'quotes'}</a></li>
+		<li><a href="{devblocks_url}ajax.php?c=tickets&a=showSnippetsTab&request={$request_path|escape:'url'}{/devblocks_url}">{$translate->_('common.snippets')|capitalize}</a></li>
 		
 		{foreach from=$tab_manifests item=tab_manifest}
 			{$tabs[] = $tab_manifest->params.uri}
-			<li><a href="{devblocks_url}ajax.php?c=tickets&a=showTab&ext_id={$tab_manifest->id}&request={$request_path|escape:'url'}{/devblocks_url}"><i>{$tab_manifest->params.title|devblocks_translate|escape:'quotes'}</i></a></li>
+			<li><a href="{devblocks_url}ajax.php?c=tickets&a=showTab&ext_id={$tab_manifest->id}&request={$request_path|escape:'url'}{/devblocks_url}"><i>{$tab_manifest->params.title|devblocks_translate}</i></a></li>
 		{/foreach}
 	</ul>
 </div> 

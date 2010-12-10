@@ -8,7 +8,7 @@
 	<tr>
 		<td width="0%" nowrap="nowrap" align="right" valign="top">Name: </td>
 		<td width="100%">
-			<input type="text" name="name" style="width:98%;border:1px solid rgb(180,180,180);padding:2px;" value="{$group->name|escape}" autocomplete="off">
+			<input type="text" name="name" style="width:98%;border:1px solid rgb(180,180,180);padding:2px;" value="{$group->name}" autocomplete="off">
 		</td>
 	</tr>
 	<tr>

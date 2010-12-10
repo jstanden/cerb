@@ -56,7 +56,7 @@
 		<tr class="{$tableRowClass}">
 			<td align="center" rowspan="2"><input type="checkbox" name="row_id[]" value="{$result.w_id}"></td>
 			<td colspan="{math equation="x" x=$smarty.foreach.headers.total}">
-				<a href="{devblocks_url}c=datacenter.domains&a=domain&id={$result.w_id}{/devblocks_url}" class="subject">{$result.w_name|escape}</a><a href="{devblocks_url}c=datacenter&a=server&id={$result.s_id}{/devblocks_url}" class="subject">{$result.s_name|escape}</a><a href="javascript:;" onclick="genericAjaxPopup('peek','c=datacenter.domains&a=showDomainPeek&view_id={$view->id}&id={$result.w_id}', null, false, '500');"><span class="ui-icon ui-icon-newwin" style="display:inline-block;vertical-align:middle;" title="{$translate->_('views.peek')}"></span></a>
+				<a href="{devblocks_url}c=datacenter.domains&a=domain&id={$result.w_id}{/devblocks_url}" class="subject">{$result.w_name}</a><a href="{devblocks_url}c=datacenter&a=server&id={$result.s_id}{/devblocks_url}" class="subject">{$result.s_name}</a><a href="javascript:;" onclick="genericAjaxPopup('peek','c=datacenter.domains&a=showDomainPeek&view_id={$view->id}&id={$result.w_id}', null, false, '500');"><span class="ui-icon ui-icon-newwin" style="display:inline-block;vertical-align:middle;" title="{$translate->_('views.peek')}"></span></a>
 			</td>
 		</tr>
 		<tr class="{$tableRowClass}">
@@ -67,7 +67,7 @@
 				{if empty($servers)}{$servers = DAO_Server::getAll()}{/if}
 				<td>
 					{if !empty($result.$column) && isset($servers.{$result.$column})}
-						<a href="javascript:;" onclick="genericAjaxPopup('peek','c=datacenter&a=showServerPeek&view_id={$view->id}&id={$servers.{$result.$column}->id}', null, false, '500');">{$servers.{$result.$column}->name|escape}</a>
+						<a href="javascript:;" onclick="genericAjaxPopup('peek','c=datacenter&a=showServerPeek&view_id={$view->id}&id={$servers.{$result.$column}->id}', null, false, '500');">{$servers.{$result.$column}->name}</a>
 					{/if}
 				</td>
 			{elseif $column=="w_created"}

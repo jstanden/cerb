@@ -1,29 +1,29 @@
 <form action="{devblocks_url}{/devblocks_url}" method="POST" id="formSnippetsPeek" name="formSnippetsPeek" onsubmit="return false;">
 <input type="hidden" name="c" value="tickets">
 <input type="hidden" name="a" value="saveSnippetsPeek">
-<input type="hidden" name="id" value="{$snippet->id|escape}">
-<input type="hidden" name="context" value="{$snippet->context|escape}">
-<input type="hidden" name="view_id" value="{$view_id|escape}">
+<input type="hidden" name="id" value="{$snippet->id}">
+<input type="hidden" name="context" value="{$snippet->context}">
+<input type="hidden" name="view_id" value="{$view_id}">
 <input type="hidden" name="do_delete" value="0">
 
 <fieldset>
 	<legend>{'common.title'|devblocks_translate|capitalize}</legend>
 	
-	<input type="text" name="title" value="{$snippet->title|escape}" style="border:1px solid rgb(180,180,180);padding:2px;width:98%;">
+	<input type="text" name="title" value="{$snippet->title}" style="border:1px solid rgb(180,180,180);padding:2px;width:98%;">
 </fieldset>
 
 <fieldset>
 	<legend>{'common.content'|devblocks_translate|capitalize}</legend>
 	
-	<textarea name="content" style="width:98%;height:250px;border:1px solid rgb(180,180,180);padding:2px;">{$snippet->content|escape}</textarea>
+	<textarea name="content" style="width:98%;height:250px;border:1px solid rgb(180,180,180);padding:2px;">{$snippet->content}</textarea>
 	<br>
 	
 	{if !empty($token_labels)}
-	<button type="button" onclick="genericAjaxPost('formSnippetsPeek','peekTemplateTest','c=internal&a=snippetTest&snippet_context={$snippet->context|escape}&snippet_field=content');"><span class="cerb-sprite sprite-gear"></span> Test</button>
+	<button type="button" onclick="genericAjaxPost('formSnippetsPeek','peekTemplateTest','c=internal&a=snippetTest&snippet_context={$snippet->context}&snippet_field=content');"><span class="cerb-sprite sprite-gear"></span> Test</button>
 	<select onchange="insertAtCursor(this.form.content,this.options[this.selectedIndex].value);this.selectedIndex=0;this.form.content.focus();">
 		<option value="">-- insert at cursor --</option>
 		{foreach from=$token_labels key=k item=v}
-		<option value="{literal}{{{/literal}{$k}{literal}}}{/literal}">{$v|escape}</option>
+		<option value="{literal}{{{/literal}{$k}{literal}}}{/literal}">{$v}</option>
 		{/foreach}
 	</select>
 	<br>

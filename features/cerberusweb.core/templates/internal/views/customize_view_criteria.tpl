@@ -19,7 +19,7 @@
 					{if !empty($presets)}
 					<optgroup label="All Presets">
 						{foreach from=$presets item=preset key=preset_id}
-						<option value="{$preset_id}">{$preset->name|escape}</option>
+						<option value="{$preset_id}">{$preset->name}</option>
 						{/foreach}
 						<option value="edit">(edit presets)</option>
 					</optgroup>
@@ -31,7 +31,7 @@
 					<select name="_preset_replace" onchange="if(''==$(this).val()) { $(this).siblings('input:text[name=_preset_name]').val('').focus(); } else { $(this).siblings('input:text[name=_preset_name]').val($(this).find('option:selected').text()).focus(); } ">
 						<option value="" selected="selected">- new preset: -</option>
 						{foreach from=$presets item=preset key=preset_id}
-						<option value="{$preset_id}">{$preset->name|escape}</option>
+						<option value="{$preset_id}">{$preset->name}</option>
 						{/foreach}
 					</select>
 					{/if}
@@ -44,7 +44,7 @@
 				<div id="divRemovePresets{$view->id}" class="block" style="display:none;margin:5px;">
 					<b>Remove these presets:</b><br>
 					{foreach from=$presets item=preset key=preset_id}
-					<label><input type="checkbox" name="_preset_del[]" value="{$preset_id}"> {$preset->name|escape}</label><br>
+					<label><input type="checkbox" name="_preset_del[]" value="{$preset_id}"> {$preset->name}</label><br>
 					{/foreach}
 					<br>
 					<button type="button" onclick="var $form_id = $(this).closest('form').attr('id'); if(0==$form_id.length)return;genericAjaxPost($form_id,'viewCustomFilters{$view->id}','c=internal&a=viewEditPresets');"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')|capitalize}</button>

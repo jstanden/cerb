@@ -7,7 +7,7 @@
 			{else} 
 				<span style="background-color:rgb(248,238,166);color:rgb(222,73,0);">{$translate->_('draft')|lower}</span>
 			{/if} 
-			{if !empty($draft_worker)}<a href="javascript:;" onclick="genericAjaxPopup('peek','c=contacts&a=showAddressPeek&email={$draft_worker->email|escape:'url'}', null, false, '500');" title="{$worker->email|escape}">{$draft_worker->getName()}</a>{else}{/if}
+			{if !empty($draft_worker)}<a href="javascript:;" onclick="genericAjaxPopup('peek','c=contacts&a=showAddressPeek&email={$draft_worker->email|escape:'url'}', null, false, '500');" title="{$worker->email}">{$draft_worker->getName()}</a>{else}{/if}
 		</h3> &nbsp;
 		
 		{if !$draft->is_queued}
@@ -16,12 +16,12 @@
 		{/if}
 		<br>
 		
-		{if isset($draft->hint_to)}<b>{$translate->_('message.header.to')|capitalize}:</b> {$draft->hint_to|escape}<br>{/if}
-		{if isset($draft->params.cc)}<b>{$translate->_('message.header.cc')|capitalize}:</b> {$draft->params.cc|escape}<br>{/if}
-		{if isset($draft->params.bcc)}<b>{$translate->_('message.header.bcc')|capitalize}:</b> {$draft->params.bcc|escape}<br>{/if}
-		{if isset($draft->subject)}<b>{$translate->_('message.header.subject')|capitalize}:</b> {$draft->subject|escape}<br>{/if}
+		{if isset($draft->hint_to)}<b>{$translate->_('message.header.to')|capitalize}:</b> {$draft->hint_to}<br>{/if}
+		{if isset($draft->params.cc)}<b>{$translate->_('message.header.cc')|capitalize}:</b> {$draft->params.cc}<br>{/if}
+		{if isset($draft->params.bcc)}<b>{$translate->_('message.header.bcc')|capitalize}:</b> {$draft->params.bcc}<br>{/if}
+		{if isset($draft->subject)}<b>{$translate->_('message.header.subject')|capitalize}:</b> {$draft->subject}<br>{/if}
 		{if isset($draft->updated)}<b>{$translate->_('message.header.date')|capitalize}:</b> {$draft->updated|devblocks_date}<br>{/if}
-		<pre class="emailbody" style="padding-top:10px;">{$draft->body|trim|escape|devblocks_hyperlinks}</pre>
+		<pre class="emailbody" style="padding-top:10px;">{$draft->body|trim|devblocks_hyperlinks}</pre>
 	</div>
 	<br>
 </div>

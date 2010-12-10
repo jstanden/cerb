@@ -15,7 +15,7 @@
 	<table cellpadding="0" cellspacing="2" border="0" width="98%">
 		<tr>
 			<td width="0%" nowrap="nowrap" align="right">{$translate->_('common.name')|capitalize}: </td>
-			<td width="100%"><input type="text" name="org_name" value="{$contact->name|escape}" style="width:98%;" class="required"></td>
+			<td width="100%"><input type="text" name="org_name" value="{$contact->name}" style="width:98%;" class="required"></td>
 		</tr>
 		<tr>
 			<td align="right" valign="top">{$translate->_('contact_org.street')|capitalize}: </td>
@@ -23,29 +23,29 @@
 		</tr>
 		<tr>
 			<td align="right">{$translate->_('contact_org.city')|capitalize}: </td>
-			<td><input type="text" name="city" value="{$contact->city|escape}" style="width:98%;"></td>
+			<td><input type="text" name="city" value="{$contact->city}" style="width:98%;"></td>
 		</tr>
 		<tr>
 			<td align="right">{$translate->_('contact_org.province')|capitalize}.: </td>
-			<td><input type="text" name="province" value="{$contact->province|escape}" style="width:98%;"></td>
+			<td><input type="text" name="province" value="{$contact->province}" style="width:98%;"></td>
 		</tr>
 		<tr>
 			<td align="right">{$translate->_('contact_org.postal')|capitalize}: </td>
-			<td><input type="text" name="postal" value="{$contact->postal|escape}" style="width:98%;"></td>
+			<td><input type="text" name="postal" value="{$contact->postal}" style="width:98%;"></td>
 		</tr>
 		<tr>
 			<td align="right">{$translate->_('contact_org.country')|capitalize}: </td>
 			<td>
-				<input type="text" name="country" id="org_country_input" value="{$contact->country|escape}" style="width:98%;">
+				<input type="text" name="country" id="org_country_input" value="{$contact->country}" style="width:98%;">
 			</td>
 		</tr>
 		<tr>
 			<td align="right">{$translate->_('contact_org.phone')|capitalize}: </td>
-			<td><input type="text" name="phone" value="{$contact->phone|escape}" style="width:98%;"></td>
+			<td><input type="text" name="phone" value="{$contact->phone}" style="width:98%;"></td>
 		</tr>
 		<tr>
-			<td align="right">{if !empty($contact->website)}<a href="{$contact->website|escape}" target="_blank">{$translate->_('contact_org.website')|capitalize}</a>{else}{$translate->_('contact_org.website')|capitalize}{/if}: </td>
-			<td><input type="text" name="website" value="{$contact->website|escape}" style="width:98%;" class="url"></td>
+			<td align="right">{if !empty($contact->website)}<a href="{$contact->website}" target="_blank">{$translate->_('contact_org.website')|capitalize}</a>{else}{$translate->_('contact_org.website')|capitalize}{/if}: </td>
+			<td><input type="text" name="website" value="{$contact->website}" style="width:98%;" class="url"></td>
 		</tr>
 	</table>
 </fieldset>
@@ -72,7 +72,7 @@
 	$popup = genericAjaxPopupFetch('peek');
 	$popup.one('popup_open',function(event,ui) {
 		// Title
-		$(this).dialog('option','title', "{'contact_org.name'|devblocks_translate|capitalize|escape:'quotes'}");
+		$(this).dialog('option','title', "{'contact_org.name'|devblocks_translate|capitalize}");
 		// Autocomplete
 		ajax.countryAutoComplete('#org_country_input');
 		// Form validation

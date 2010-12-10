@@ -13,7 +13,7 @@
 {/if}
 <br>
 
-<h2 style="margin-bottom:0px;">{$ticket->subject|escape}</h2>
+<h2 style="margin-bottom:0px;">{$ticket->subject}</h2>
 
 {assign var=ticket_team_id value=$ticket->team_id}
 {assign var=ticket_team value=$teams.$ticket_team_id}
@@ -37,13 +37,13 @@
 
 {assign var=headers value=$message->getHeaders()}
 <hr>
-{if isset($headers.to)}<b>To:</b> {$headers.to|escape}<br>{/if}
-{if isset($headers.cc)}<b>Cc:</b> {$headers.cc|escape}<br>{/if}
-{if isset($headers.from)}<b>From:</b> {$headers.from|escape}<br>{/if}
-{if isset($headers.date)}<b>Date:</b> {$headers.date|escape}<br>{/if}
-{if isset($headers.subject)}<b>Subject:</b> {$headers.subject|escape}<br>{/if}
+{if isset($headers.to)}<b>To:</b> {$headers.to}<br>{/if}
+{if isset($headers.cc)}<b>Cc:</b> {$headers.cc}<br>{/if}
+{if isset($headers.from)}<b>From:</b> {$headers.from}<br>{/if}
+{if isset($headers.date)}<b>Date:</b> {$headers.date}<br>{/if}
+{if isset($headers.subject)}<b>Subject:</b> {$headers.subject}<br>{/if}
 <br>
-{$message->getContent()|escape|trim|nl2br}<br>
+{$message->getContent()|trim|nl2br}<br>
 <br>
 {assign var=message_id value=$message->id}
 {if isset($message_notes.$message_id) && is_array($message_notes.$message_id)}
@@ -66,7 +66,7 @@
 				{/if}
 				<br>
 				<b>{$translate->_('message.header.date')|capitalize}:</b> {$note->created|devblocks_date}<br>
-				{if !empty($note->content)}{$note->content|escape}{/if}
+				{if !empty($note->content)}{$note->content}{/if}
 			</div>
 	{/foreach}
 {/if}

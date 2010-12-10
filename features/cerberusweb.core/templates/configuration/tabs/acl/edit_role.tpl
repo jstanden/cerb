@@ -17,7 +17,7 @@
 	<tr>
 		<td colspan="2" style="padding-top:5px;">
 			<h3>Role Name</h3>
-			<input type="text" name="name" value="{$role->name|escape}" size="45" style="width:98%;">
+			<input type="text" name="name" value="{$role->name}" size="45" style="width:98%;">
 		</td>
 	</tr>
 	
@@ -53,7 +53,7 @@
 					{elseif $plugin->id=="devblocks.core"}
 						<input type="hidden" name="acl_privs[]" value="plugin.devblocks.core">
 					{else}
-						<input type="checkbox" name="acl_privs[]" value="{$plugin_priv|escape}" {if isset($role_privs.$plugin_priv)}checked="checked"{/if} onchange="toggleDiv('privs{$plugin_id}',(this.checked)?'block':'none');">
+						<input type="checkbox" name="acl_privs[]" value="{$plugin_priv}" {if isset($role_privs.$plugin_priv)}checked="checked"{/if} onchange="toggleDiv('privs{$plugin_id}',(this.checked)?'block':'none');">
 					{/if}
 					<b>{$plugin->name}</b></label><br>
 						<div id="privs{$plugin_id}" style="padding-left:10px;margin-bottom:5px;display:{if $plugin->id=="cerberusweb.core" || isset($role_privs.$plugin_priv)}block{else}none{/if}">

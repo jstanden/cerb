@@ -22,7 +22,7 @@
 				</tr>
 				{foreach from=$top_spam_words key=word item=counts}
 				<tr>
-					<td>{$word|escape}</td>
+					<td>{$word}</td>
 					<td align="center" style="color:rgb(200,0,0);font-weight:bold;">{$counts.0}</td>
 					<td align="center" style="color:rgb(0,200,0);font-weight:bold;">{$counts.1}</td>
 					<td align="center">{if $counts.0 + $counts.1 > 0}{math equation="(s/(s+n))*100" s=$counts.0 n=$counts.1 format="%0.1f"}%{/if}</td>
@@ -41,7 +41,7 @@
 				</tr>
 				{foreach from=$top_nonspam_words key=word item=counts}
 				<tr>
-					<td>{$word|escape}</td>
+					<td>{$word}</td>
 					<td align="center" style="color:rgb(0,200,0);font-weight:bold;">{$counts.1}</td>
 					<td align="center" style="color:rgb(200,0,0);font-weight:bold;">{$counts.0}</td>
 					<td align="center">{if $counts.0 + $counts.1 > 0}{math equation="(n/(n+s))*100" s=$counts.0 n=$counts.1 format="%0.1f"}%{/if}</td>

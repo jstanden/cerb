@@ -10,7 +10,7 @@
 {/if}
 
 <form action="{devblocks_url}c=login&m=delegate&a=discover{/devblocks_url}" method="post" id="loginOpenID">
-<input type="hidden" name="original_path" value="{$original_path|escape}">
+<input type="hidden" name="original_path" value="{$original_path}">
 
 <fieldset>
 	<legend>Sign on using OpenID</legend>

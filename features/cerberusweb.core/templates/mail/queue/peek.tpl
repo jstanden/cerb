@@ -12,20 +12,20 @@
 	<tr>
 		<td width="0%" nowrap="nowrap" align="right" valign="top"><b>From:</b> </td>
 		<td width="100%">
-			{$worker->getName()|escape} &lt;{$worker->email|escape}&gt;
+			{$worker->getName()} &lt;{$worker->email}&gt;
 		</td>
 	</tr>
 	{/if}
 	<tr>
 		<td width="0%" nowrap="nowrap" align="right" valign="top"><b>To:</b> </td>
 		<td width="100%">
-			{$draft->hint_to|escape}
+			{$draft->hint_to}
 		</td>
 	</tr>
 	<tr>
 		<td width="0%" nowrap="nowrap" align="right" valign="top"><b>Subject:</b> </td>
 		<td width="100%">
-			{$draft->subject|escape}
+			{$draft->subject}
 		</td>
 	</tr>
 	<tr>
@@ -37,7 +37,7 @@
 </table>
 
 <div id="draftPeekContent" style="width:400;height:250px;overflow:auto;border:1px solid rgb(180,180,180);padding:5px;background-color:rgb(255,255,255);" ondblclick="genericAjaxPopupClose('peek');">
-<pre class="emailbody">{$draft->body|trim|escape|devblocks_hyperlinks|devblocks_hideemailquotes}</pre>
+<pre class="emailbody">{$draft->body|trim|devblocks_hyperlinks|devblocks_hideemailquotes}</pre>
 </div>
 
 {*include file="devblocks:cerberusweb.core::tasks/display/tabs/notes.tpl" readonly=true*}

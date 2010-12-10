@@ -4,7 +4,7 @@
 <input type="hidden" name="id" value="{$rule->id}">
 
 <b>Rule Name:</b> (e.g. ProductX Support)<br>
-<input type="text" name="name" value="{$rule->name|escape}" size="45" style="width:95%;"><br>
+<input type="text" name="name" value="{$rule->name}" size="45" style="width:95%;"><br>
 <label><input type="checkbox" name="is_sticky" value="1" {if $rule->is_sticky}checked="checked"{/if}> <span style="border-bottom:1px dotted;" title="Sticky rules are checked for matches first, are manually sortable, and can be stacked with subsequent rules.">Sticky</span></label>
 <br>
 <br>
@@ -82,7 +82,7 @@
 			<label><input type="checkbox" id="chkRuleTo" name="rules[]" value="tocc" {if !is_null($crit_tocc)}checked="checked"{/if}> To/Cc:</label>
 		</td>
 		<td valign="top">
-			<input type="text" name="value_tocc" size="45" value="{$crit_tocc.value|escape}" value="{$tocc_list}" onchange="document.getElementById('chkRuleTo').checked=((0==this.value.length)?false:true);" style="width:95%;"><br>
+			<input type="text" name="value_tocc" size="45" value="{$crit_tocc.value}" value="{$tocc_list}" onchange="document.getElementById('chkRuleTo').checked=((0==this.value.length)?false:true);" style="width:95%;"><br>
 			<i>Comma-delimited address patterns; only one e-mail must match.</i><br>
 			Example: support@example.com, support@*, *@example.com<br>
 		</td>
@@ -93,7 +93,7 @@
 			<label><input type="checkbox" id="chkRuleFrom" name="rules[]" value="from" {if !is_null($crit_from)}checked="checked"{/if}> From:</label>
 		</td>
 		<td valign="top">
-			<input type="text" name="value_from" size="45" value="{$crit_from.value|escape}" onchange="document.getElementById('chkRuleFrom').checked=((0==this.value.length)?false:true);" style="width:95%;">
+			<input type="text" name="value_from" size="45" value="{$crit_from.value}" onchange="document.getElementById('chkRuleFrom').checked=((0==this.value.length)?false:true);" style="width:95%;">
 		</td>
 	</tr>
 	<tr>
@@ -102,7 +102,7 @@
 			<label><input type="checkbox" id="chkRuleSubject" name="rules[]" value="subject" {if !is_null($crit_subject)}checked="checked"{/if}> Subject:</label>
 		</td>
 		<td valign="top">
-			<input type="text" name="value_subject" size="45" value="{$crit_subject.value|escape}" onchange="document.getElementById('chkRuleSubject').checked=((0==this.value.length)?false:true);" style="width:95%;">
+			<input type="text" name="value_subject" size="45" value="{$crit_subject.value}" onchange="document.getElementById('chkRuleSubject').checked=((0==this.value.length)?false:true);" style="width:95%;">
 		</td>
 	</tr>
 	<tr>
@@ -111,7 +111,7 @@
 			<label><input type="checkbox" id="chkRuleBody" name="rules[]" value="body" {if !is_null($crit_body)}checked="checked"{/if}> Body Content:</label>
 		</td>
 		<td valign="top">
-			<input type="text" name="value_body" size="45" value="{$crit_body.value|escape}" onchange="document.getElementById('chkRuleBody').checked=((0==this.value.length)?false:true);" style="width:95%;"><br>
+			<input type="text" name="value_body" size="45" value="{$crit_body.value}" onchange="document.getElementById('chkRuleBody').checked=((0==this.value.length)?false:true);" style="width:95%;"><br>
 			<i>Enter as a <a href="http://us2.php.net/manual/en/reference.pcre.pattern.syntax.php" target="_blank">regular expression</a>; scans content line-by-line.</i><br>
 			Example: /(how do|where can)/i<br>
 		</td>
@@ -134,10 +134,10 @@
 	<tr>
 		<td valign="top">
 			<input type="checkbox" id="chkHeader{$smarty.section.headers.iteration}" name="rules[]" {if !is_null($crit_headerx)}checked="checked"{/if} value="header{$smarty.section.headers.iteration}">
-			<input type="text" name="{$headerx}" value="{$crit_headerx.header|escape}" size="16" onchange="document.getElementById('chkHeader{$smarty.section.headers.iteration}').checked=((0==this.value.length)?false:true);">:
+			<input type="text" name="{$headerx}" value="{$crit_headerx.header}" size="16" onchange="document.getElementById('chkHeader{$smarty.section.headers.iteration}').checked=((0==this.value.length)?false:true);">:
 		</td>
 		<td valign="top">
-			<input type="text" name="value_{$headerx}" value="{$crit_headerx.value|escape}" size="45">
+			<input type="text" name="value_{$headerx}" value="{$crit_headerx.value}" size="45">
 		</td>
 	</tr>
 	{/section}

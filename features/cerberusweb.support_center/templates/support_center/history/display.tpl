@@ -1,6 +1,6 @@
 <div id="history">
 	
-<div class="header"><h1>{$ticket.t_subject|escape}</h1></div>
+<div class="header"><h1>{$ticket.t_subject}</h1></div>
 
 <form action="{devblocks_url}c=history{/devblocks_url}" method="post" name="">
 <input type="hidden" name="a" value="saveTicketProperties">
@@ -31,7 +31,7 @@
 	<select name="from">
 		{$contact_addresses = $active_contact->getAddresses()}
 		{foreach from=$contact_addresses item=address}
-		<option value="{$address->email|escape}" {if 0==strcasecmp($address->id,$active_contact->email_id)}selected="selected"{/if}>{$address->email|escape}</option>
+		<option value="{$address->email}" {if 0==strcasecmp($address->id,$active_contact->email_id)}selected="selected"{/if}>{$address->email}</option>
 		{/foreach}
 	</select>
 	<br>
@@ -54,15 +54,15 @@
 		
 	<span class="header"><b>{$translate->_('message.header.from')|capitalize}:</b>
 		{$sender_name = $sender->getName()}
-		{if !empty($sender_name)}&quot;{$sender_name|escape}&quot; {/if}&lt;{$sender->email|escape}&gt; 
+		{if !empty($sender_name)}&quot;{$sender_name}&quot; {/if}&lt;{$sender->email}&gt; 
 	</span><br>
-	<span class="header"><b>{$translate->_('message.header.to')|capitalize}:</b> {$headers.to|escape}</span><br>
-	{if !empty($headers.cc)}<span class="header"><b>{$translate->_('message.header.cc')|capitalize}:</b> {$headers.cc|escape}</span><br>{/if}
-	{if !empty($headers.date)}<span class="header"><b>{$translate->_('message.header.date')|capitalize}:</b> {$headers.date|escape}</span><br>{/if}
+	<span class="header"><b>{$translate->_('message.header.to')|capitalize}:</b> {$headers.to}</span><br>
+	{if !empty($headers.cc)}<span class="header"><b>{$translate->_('message.header.cc')|capitalize}:</b> {$headers.cc}</span><br>{/if}
+	{if !empty($headers.date)}<span class="header"><b>{$translate->_('message.header.date')|capitalize}:</b> {$headers.date}</span><br>{/if}
 	<br>
 	
 	<div style="clear:both;">
-	{$message->getContent()|trim|escape|nl2br}
+	{$message->getContent()|trim|nl2br}
 	</div>
 	
 	{if isset($attachments.$message_id)}
@@ -71,7 +71,7 @@
 		<ul style="margin-top:0px;">
 		{foreach from=$attachments.$message_id item=attachment key=attachment_id}
 			<li>
-				<a href="{devblocks_url}c=ajax&a=downloadFile&mask={$ticket.t_mask}&md5={$attachment_id|cat:$message->id|cat:$attachment.a_display_name|md5}&name={$attachment.a_display_name|escape}{/devblocks_url}" target="_blank">{$attachment.a_display_name|escape}</a>
+				<a href="{devblocks_url}c=ajax&a=downloadFile&mask={$ticket.t_mask}&md5={$attachment_id|cat:$message->id|cat:$attachment.a_display_name|md5}&name={$attachment.a_display_name}{/devblocks_url}" target="_blank">{$attachment.a_display_name}</a>
 				( 
 					{$attachment.a_storage_size|devblocks_prettybytes}
 					- 

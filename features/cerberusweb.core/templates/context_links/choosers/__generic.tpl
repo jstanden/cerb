@@ -32,7 +32,7 @@
 		
 		$('#viewCustomFilters{$view->id}').bind('view_refresh', function(event) {
 			if(event.target == event.currentTarget)
-				genericAjaxGet('view{$view->id}','c=internal&a=viewRefresh&id={$view->id|escape}');
+				genericAjaxGet('view{$view->id}','c=internal&a=viewRefresh&id={$view->id}');
 		});
 		
 		$('#view{$view->id}').delegate('button.devblocks-chooser-add-selected', 'click', function(event) {

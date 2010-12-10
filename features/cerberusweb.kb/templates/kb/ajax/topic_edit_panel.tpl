@@ -5,7 +5,7 @@
 <input type="hidden" name="delete_box" value="0">
 
 <b>Name:</b><br>
-<input type="text" name="name" value="{$topic->name|escape}" style="width:99%;border:solid 1px rgb(180,180,180);"><br>
+<input type="text" name="name" value="{$topic->name}" style="width:99%;border:solid 1px rgb(180,180,180);"><br>
 <br>
 
 <div id="deleteTopic" style="display:none;">

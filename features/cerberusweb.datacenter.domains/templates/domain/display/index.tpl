@@ -3,14 +3,14 @@
 <table cellspacing="0" cellpadding="0" border="0" width="100%" style="padding-bottom:5px;">
 <tr>
 	<td valign="top" style="padding-right:5px;">
-		<h1 style="margin-bottom:5px;">{$domain->name|escape}</h1> 
+		<h1 style="margin-bottom:5px;">{$domain->name}</h1> 
 		<form action="{devblocks_url}{/devblocks_url}" onsubmit="return false;" style="margin-bottom:5px;">
 		<div style="margin-bottom:5px;">
 		{if !empty($domain->server_id)}
 			{$servers = DAO_Server::getAll()}
 			{if isset($servers.{$domain->server_id})}
 			<b>{'cerberusweb.datacenter.common.server'|devblocks_translate}:</b> 
-			<a href="javascript:;" onclick="genericAjaxPopup('peek','c=datacenter&a=showServerPeek&view_id=&id={$domain->server_id}', null, false, '500');">{$servers.{$domain->server_id}->name|escape}</a>
+			<a href="javascript:;" onclick="genericAjaxPopup('peek','c=datacenter&a=showServerPeek&view_id=&id={$domain->server_id}', null, false, '500');">{$servers.{$domain->server_id}->name}</a>
 			{/if}
 		{/if}
 		</div>
@@ -46,8 +46,8 @@
 
 <div id="datacenterDomainTabs">
 	<ul>
-		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextComments&context=cerberusweb.contexts.datacenter.domain&id={$domain->id}{/devblocks_url}">{'common.comments'|devblocks_translate|capitalize|escape}</a></li>
-		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextLinks&context=cerberusweb.contexts.datacenter.domain&id={$domain->id}{/devblocks_url}">{'common.links'|devblocks_translate|escape}</a></li>
+		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextComments&context=cerberusweb.contexts.datacenter.domain&id={$domain->id}{/devblocks_url}">{'common.comments'|devblocks_translate|capitalize}</a></li>
+		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextLinks&context=cerberusweb.contexts.datacenter.domain&id={$domain->id}{/devblocks_url}">{'common.links'|devblocks_translate}</a></li>
 
 		{$tabs = [comments, links]}
 	</ul>

@@ -10,7 +10,7 @@
 	{if !empty($opp_ids)}
 		<label><input type="radio" name="filter" value="checks" {if !empty($opp_ids)}checked{/if}> {$translate->_('common.bulk_update.filter.checked')}</label>
 	{else}
-		<label><input type="radio" name="filter" value="sample"> {'common.bulk_update.filter.random'|devblocks_translate|escape} </label><input type="text" name="filter_sample_size" size="5" maxlength="4" value="100" class="input_number">
+		<label><input type="radio" name="filter" value="sample"> {'common.bulk_update.filter.random'|devblocks_translate} </label><input type="text" name="filter_sample_size" size="5" maxlength="4" value="100" class="input_number">
 	{/if}
 </fieldset>
 
@@ -66,7 +66,7 @@
 		<select name="broadcast_group_id">
 			{foreach from=$groups item=group key=group_id}
 			{if $active_worker_memberships.$group_id}
-			<option value="{$group->id|escape}">{$group->name}</option>
+			<option value="{$group->id}">{$group->name}</option>
 			{/if}
 			{/foreach}
 		</select>
@@ -80,7 +80,7 @@
 		--><select onchange="insertAtCursor(this.form.broadcast_message,this.options[this.selectedIndex].value);this.selectedIndex=0;this.form.broadcast_message.focus();">
 			<option value="">-- insert at cursor --</option>
 			{foreach from=$token_labels key=k item=v}
-			<option value="{literal}{{{/literal}{$k}{literal}}}{/literal}">{$v|escape}</option>
+			<option value="{literal}{{{/literal}{$k}{literal}}}{/literal}">{$v}</option>
 			{/foreach}
 		</select>
 		<br>
@@ -103,7 +103,7 @@
 <script type="text/javascript">
 	$popup = genericAjaxPopupFetch('peek');
 	$popup.one('popup_open', function(event,ui) {
-		$(this).dialog('option','title',"{$translate->_('common.bulk_update')|capitalize|escape:'quotes'}");
+		$(this).dialog('option','title',"{$translate->_('common.bulk_update')|capitalize}");
 	
 		$('#formBatchUpdate button.chooser-worker').each(function() {
 			$button = $(this);

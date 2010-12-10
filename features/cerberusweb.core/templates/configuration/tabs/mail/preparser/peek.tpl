@@ -4,7 +4,7 @@
 <input type="hidden" name="id" value="{$filter->id}">
 
 <b>Filter Name:</b> (e.g. Spam Bounces)<br>
-<input type="text" name="name" size="45" value="{$filter->name|escape}" style="width:95%;"><br>
+<input type="text" name="name" size="45" value="{$filter->name}" style="width:95%;"><br>
 <label><input type="checkbox" name="is_sticky" value="1" {if $filter->is_sticky}checked="checked"{/if}> <span style="border-bottom:1px dotted;" title="Sticky filters are checked for matches first, are manually sortable, and can be stacked with subsequent filters.">Sticky</span></label><br>
 <br>
 
@@ -93,7 +93,7 @@
 			<label><input type="checkbox" name="rules[]" value="from" id="chkRuleFrom" {if !is_null($crit_from)}checked="checked"{/if}> From:</label>
 		</td>
 		<td valign="top">
-			<input type="text" name="value_from" size="45" value="{$crit_from.value|escape}" onchange="document.getElementById('chkRuleFrom').checked=((0==this.value.length)?false:true);" style="width:95%;"><br>
+			<input type="text" name="value_from" size="45" value="{$crit_from.value}" onchange="document.getElementById('chkRuleFrom').checked=((0==this.value.length)?false:true);" style="width:95%;"><br>
 			Example: customer@example.com, newsletter@*, *@spammer.com<br>
 		</td>
 	</tr>
@@ -103,7 +103,7 @@
 			<label><input type="checkbox" id="chkRuleTo" name="rules[]" value="tocc" {if !is_null($crit_tocc)}checked="checked"{/if}> To/Cc:</label>
 		</td>
 		<td valign="top">
-			<input type="text" name="value_tocc" size="45" value="{$crit_tocc.value|escape}" value="{$tocc_list}" onchange="document.getElementById('chkRuleTo').checked=((0==this.value.length)?false:true);" style="width:95%;"><br>
+			<input type="text" name="value_tocc" size="45" value="{$crit_tocc.value}" value="{$tocc_list}" onchange="document.getElementById('chkRuleTo').checked=((0==this.value.length)?false:true);" style="width:95%;"><br>
 			<i>Comma-delimited address patterns; only one e-mail must match.</i><br>
 			Example: support@example.com, support@*, *@example.com<br>
 		</td>
@@ -114,7 +114,7 @@
 			<label><input type="checkbox" id="chkRuleBody" name="rules[]" value="body" {if !is_null($crit_body)}checked="checked"{/if}> Body Content:</label>
 		</td>
 		<td valign="top">
-			<input type="text" name="value_body" size="45" value="{$crit_body.value|escape}" onchange="document.getElementById('chkRuleBody').checked=((0==this.value.length)?false:true);" style="width:95%;"><br>
+			<input type="text" name="value_body" size="45" value="{$crit_body.value}" onchange="document.getElementById('chkRuleBody').checked=((0==this.value.length)?false:true);" style="width:95%;"><br>
 			<i>Enter as a <a href="http://us2.php.net/manual/en/reference.pcre.pattern.syntax.php" target="_blank">regular expression</a>; scans content line-by-line.</i><br>
 			Example: /(how do|where can)/i<br>
 		</td>
@@ -125,7 +125,7 @@
 			<label><input type="checkbox" name="rules[]" value="body_encoding" id="chkRuleBodyEncoding" {if !is_null($crit_body_encoding)}checked="checked"{/if}> Body Charset:</label>
 		</td>
 		<td valign="top">
-			<input type="text" name="value_body_encoding" value="{$crit_body_encoding.value|escape}" size="45" onchange="document.getElementById('chkRuleBodyEncoding').checked=((0==this.value.length)?false:true);" style="width:95%;">
+			<input type="text" name="value_body_encoding" value="{$crit_body_encoding.value}" size="45" onchange="document.getElementById('chkRuleBodyEncoding').checked=((0==this.value.length)?false:true);" style="width:95%;">
 		</td>
 	</tr>
 	<tr>
@@ -134,7 +134,7 @@
 			<label><input type="checkbox" name="rules[]" value="attachment" id="chkRuleAttachment" {if !is_null($crit_attachment)}checked="checked"{/if}> Attachment Name:</label>
 		</td>
 		<td valign="top">
-			<input type="text" name="value_attachment" value="{$crit_attachment.value|escape}" size="45" onchange="document.getElementById('chkRuleAttachment').checked=((0==this.value.length)?false:true);" style="width:95%;">
+			<input type="text" name="value_attachment" value="{$crit_attachment.value}" size="45" onchange="document.getElementById('chkRuleAttachment').checked=((0==this.value.length)?false:true);" style="width:95%;">
 		</td>
 	</tr>
 </table>
@@ -158,10 +158,10 @@
 	<tr>
 		<td valign="top">
 			<input type="checkbox" name="rules[]" value="header{$smarty.section.headers.iteration}" id="chkRuleHeader{$smarty.section.headers.iteration}" {if !is_null($crit_headerx)}checked="checked"{/if}>
-			<input type="text" name="{$headerx}" value="{$crit_headerx.header|escape}" size="16" onchange="document.getElementById('chkRuleHeader{$smarty.section.headers.iteration}').checked=((0==this.value.length)?false:true);">: 
+			<input type="text" name="{$headerx}" value="{$crit_headerx.header}" size="16" onchange="document.getElementById('chkRuleHeader{$smarty.section.headers.iteration}').checked=((0==this.value.length)?false:true);">: 
 		</td>
 		<td valign="top">
-			<input type="text" name="value_{$headerx}" value="{$crit_headerx.value|escape}" size="45">
+			<input type="text" name="value_{$headerx}" value="{$crit_headerx.value}" size="45">
 		</td>
 	</tr>
 	{/section}
@@ -223,7 +223,7 @@
 			{assign var=act_redirect value=$filter->actions.redirect}
 			<label><input type="radio" name="do_stop" value="redirect" {if !is_null($act_redirect)}checked="checked"{/if}> 
 			Redirect to e-mail:</label> 
-			<input type="text" name="do_redirect" size="45" value="{$act_redirect.to|escape}" style="width:300;">
+			<input type="text" name="do_redirect" size="45" value="{$act_redirect.to}" style="width:300;">
 		</td>
 	</tr>
 	<tr>
@@ -231,7 +231,7 @@
 			{assign var=act_bounce value=$filter->actions.bounce}
 			<label><input type="radio" name="do_stop" value="bounce" {if !is_null($act_bounce)}checked="checked"{/if}> 
 			Bounce with message:</label>
-			<div style="margin-left:30px;"><textarea rows="8" cols="80" name="do_bounce" style="width:95%;">{$act_bounce.message|escape}</textarea></div>
+			<div style="margin-left:30px;"><textarea rows="8" cols="80" name="do_bounce" style="width:95%;">{$act_bounce.message}</textarea></div>
 		</td>
 	</tr>
 </table>

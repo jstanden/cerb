@@ -13,6 +13,6 @@
 <script>
 	$('#viewCustomFilters{$view->id}').bind('view_refresh', function(event) {
 		if(event.target == event.currentTarget)
-			genericAjaxGet('view{$view->id}','c=internal&a=viewRefresh&id={$view->id|escape}');
+			genericAjaxGet('view{$view->id}','c=internal&a=viewRefresh&id={$view->id}');
 	} );
 </script>

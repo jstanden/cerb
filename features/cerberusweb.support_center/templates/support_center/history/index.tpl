@@ -1,6 +1,6 @@
 <div id="history">
 
-<form action="#" method="POST" id="filters_{$view->id|escape}">
+<form action="#" method="POST" id="filters_{$view->id}">
 {include file="devblocks:cerberusweb.support_center:portal_{$portal_code}:support_center/internal/view/view_filters.tpl" view=$view}
 </form>
 

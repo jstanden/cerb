@@ -58,33 +58,33 @@
 		{/if}
 	  
 	  <div id="{$message->id}sh" style="display:block;">      
-      {if isset($headers.from)}<b>{$translate->_('message.header.from')|capitalize}:</b> {$headers.from|escape|nl2br}<br>{/if}
-      {if isset($headers.to)}<b>{$translate->_('message.header.to')|capitalize}:</b> {$headers.to|escape|nl2br}<br>{/if}
-      {if isset($headers.cc)}<b>{$translate->_('message.header.cc')|capitalize}:</b> {$headers.cc|escape|nl2br}<br>{/if}
-      {if isset($headers.bcc)}<b>{$translate->_('message.header.bcc')|capitalize}:</b> {$headers.bcc|escape|nl2br}<br>{/if}      
-      {if isset($headers.subject)}<b>{$translate->_('message.header.subject')|capitalize}:</b> {$headers.subject|escape|nl2br}<br>{/if}
-      {if isset($headers.date)}<b>{$translate->_('message.header.date')|capitalize}:</b> {$headers.date|escape|nl2br}<br>{/if}
+      {if isset($headers.from)}<b>{$translate->_('message.header.from')|capitalize}:</b> {$headers.from|nl2br}<br>{/if}
+      {if isset($headers.to)}<b>{$translate->_('message.header.to')|capitalize}:</b> {$headers.to|nl2br}<br>{/if}
+      {if isset($headers.cc)}<b>{$translate->_('message.header.cc')|capitalize}:</b> {$headers.cc|nl2br}<br>{/if}
+      {if isset($headers.bcc)}<b>{$translate->_('message.header.bcc')|capitalize}:</b> {$headers.bcc|nl2br}<br>{/if}      
+      {if isset($headers.subject)}<b>{$translate->_('message.header.subject')|capitalize}:</b> {$headers.subject|nl2br}<br>{/if}
+      {if isset($headers.date)}<b>{$translate->_('message.header.date')|capitalize}:</b> {$headers.date|nl2br}<br>{/if}
       </div>
 
 	  <div id="{$message->id}h" style="display:none;">      
       	{if is_array($headers)}
       	{foreach from=$headers item=headerValue key=headerKey}
       		<b>{$headerKey|capitalize}:</b>
-   			{$headerValue|escape|nl2br}<br>
+   			{$headerValue|nl2br}<br>
       	{/foreach}
       	{/if}
       </div>
       
       {if $expanded}
       <div style="margin:2px;margin-left:10px;">
-      	 <a href="javascript:;" class="brief" onclick="if($(this).hasClass('brief')) { $('#{$message->id}sh').hide();$('#{$message->id}h').show();$(this).html('{$translate->_('display.convo.brief_headers')|lower|escape}').removeClass('brief'); } else { $('#{$message->id}sh').show();$('#{$message->id}h').hide();$(this).html('{$translate->_('display.convo.full_headers')|lower|escape}').addClass('brief'); } ">{$translate->_('display.convo.full_headers')|lower|escape}</a>
+      	 <a href="javascript:;" class="brief" onclick="if($(this).hasClass('brief')) { $('#{$message->id}sh').hide();$('#{$message->id}h').show();$(this).html('{$translate->_('display.convo.brief_headers')|lower}').removeClass('brief'); } else { $('#{$message->id}sh').show();$('#{$message->id}h').hide();$(this).html('{$translate->_('display.convo.full_headers')|lower}').addClass('brief'); } ">{$translate->_('display.convo.full_headers')|lower}</a>
       	 | <a href="#{$message->id}act">{$translate->_('display.convo.skip_to_bottom')|lower}</a>
       </div>
       {/if}
       
   	{if $expanded}
       <div style="clear:both;display:block;padding-top:10px;">
-    	  	<pre class="emailbody">{$message->getContent()|trim|escape|devblocks_hyperlinks|devblocks_hideemailquotes}</pre>
+    	  	<pre class="emailbody">{$message->getContent()|trim|devblocks_hyperlinks|devblocks_hideemailquotes}</pre>
     	  	<br>
 	      	<table width="100%" cellpadding="0" cellspacing="0" border="0">
 	      		<tr>

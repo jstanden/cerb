@@ -3,7 +3,7 @@
 <table cellspacing="0" cellpadding="0" border="0" width="100%" style="padding-bottom:5px;">
 <tr>
 	<td valign="top" style="padding-right:5px;">
-		<h1>{$task->title|escape}</h1> 
+		<h1>{$task->title}</h1> 
 		<form action="{devblocks_url}{/devblocks_url}" onsubmit="return false;">
 		<b>{'task.is_completed'|devblocks_translate|capitalize}:</b> {if $task->is_completed}{'common.yes'|devblocks_translate|capitalize}{else}{'common.no'|devblocks_translate|capitalize}{/if} &nbsp;
 		{if !empty($task->updated_date)}
@@ -45,8 +45,8 @@
 
 <div id="tasksTabs">
 	<ul>
-		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextComments&context=cerberusweb.contexts.task&id={$task->id}{/devblocks_url}">{'common.comments'|devblocks_translate|capitalize|escape}</a></li>
-		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextLinks&context=cerberusweb.contexts.task&id={$task->id}{/devblocks_url}">{'common.links'|devblocks_translate|escape}</a></li>
+		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextComments&context=cerberusweb.contexts.task&id={$task->id}{/devblocks_url}">{'common.comments'|devblocks_translate|capitalize}</a></li>
+		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextLinks&context=cerberusweb.contexts.task&id={$task->id}{/devblocks_url}">{'common.links'|devblocks_translate}</a></li>
 
 		{$tabs = [notes, links]}
 	</ul>

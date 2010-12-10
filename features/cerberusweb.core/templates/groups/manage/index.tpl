@@ -35,19 +35,19 @@
 	<h3>Group E-mail Preferences</h3>
 
 	<b>Send replies as e-mail:</b> (optional, defaults to: {$settings->get('cerberusweb.core','default_reply_from','')})<br>
-	<input type="text" name="sender_address" value="{$group_settings.reply_from|escape}" size="65"><br>
+	<input type="text" name="sender_address" value="{$group_settings.reply_from}" size="65"><br>
 	<span style="color:rgb(30,150,30);">(Make sure the above address delivers to the helpdesk or you won't receive replies!)</span><br>
 	<br>
 	
 	<b>Send replies as name:</b> (optional, defaults to: {$settings->get('cerberusweb.core','default_reply_personal','')})<br>
-	<input type="text" name="sender_personal" value="{$group_settings.reply_personal|escape}" size="65"><br>
+	<input type="text" name="sender_personal" value="{$group_settings.reply_personal}" size="65"><br>
 	<label><input type="checkbox" name="sender_personal_with_worker" value="1" {if !empty($group_settings.reply_personal_with_worker)}checked{/if}> Also prefix the replying worker's name as the sender.</label><br>
 	<br>
 	
 	<label><input type="checkbox" name="subject_has_mask" value="1" onclick="toggleDiv('divGroupCfgSubject',(this.checked)?'block':'none');" {if $group_settings.subject_has_mask}checked{/if}> Include the ticket's ID in subject line:</label><br>
 	<blockquote id="divGroupCfgSubject" style="margin-left:20px;margin-bottom:0px;display:{if $group_settings.subject_has_mask}block{else}none{/if}">
 		<b>Subject prefix:</b> (optional, e.g. "Billing", "Tech Support")<br>
-		Re: [ <input type="text" name="subject_prefix" value="{$group_settings.subject_prefix|escape}" size="24"> #MASK-12345-678]: This is the subject line<br>
+		Re: [ <input type="text" name="subject_prefix" value="{$group_settings.subject_prefix}" size="24"> #MASK-12345-678]: This is the subject line<br>
 	</blockquote>
 	<br>
 	
@@ -61,7 +61,7 @@
 		<select name="sig_token" onchange="insertAtCursor(this.form.signature,this.options[this.selectedIndex].value);this.selectedIndex=0;this.form.signature.focus();">
 			<option value="">-- insert at cursor --</option>
 			{foreach from=$worker_token_labels key=k item=v}
-			<option value="{literal}{{{/literal}{$k}{literal}}}{/literal}">{$v|escape}</option>
+			<option value="{literal}{{{/literal}{$k}{literal}}}{/literal}">{$v}</option>
 			{/foreach}
 		</select>
 		
@@ -83,7 +83,7 @@
 			<select name="autoreply_token" onchange="insertAtCursor(this.form.auto_reply,this.options[this.selectedIndex].value);this.selectedIndex=0;this.form.auto_reply.focus();">
 				<option value="">-- insert at cursor --</option>
 				{foreach from=$ticket_token_labels key=k item=v}
-				<option value="{literal}{{{/literal}{$k}{literal}}}{/literal}">{$v|escape}</option>
+				<option value="{literal}{{{/literal}{$k}{literal}}}{/literal}">{$v}</option>
 				{/foreach}
 			</select>
 		<br>
@@ -101,7 +101,7 @@
 			<select name="closereply_token" onchange="insertAtCursor(this.form.close_reply,this.options[this.selectedIndex].value);this.selectedIndex=0;this.form.close_reply.focus();">
 				<option value="">-- insert at cursor --</option>
 				{foreach from=$ticket_token_labels key=k item=v}
-				<option value="{literal}{{{/literal}{$k}{literal}}}{/literal}">{$v|escape}</option>
+				<option value="{literal}{{{/literal}{$k}{literal}}}{/literal}">{$v}</option>
 				{/foreach}
 			</select>
 		<br>

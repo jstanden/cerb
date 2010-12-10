@@ -10,7 +10,7 @@
 	<b>Type:</b><br>
 	<select name="extension_id">
 		{foreach from=$tool_manifests item=tool}
-		<option value="{$tool->id|escape}">{$tool->name|escape}</option>
+		<option value="{$tool->id}">{$tool->name}</option>
 		{/foreach}
 	</select><br>
 	<br>

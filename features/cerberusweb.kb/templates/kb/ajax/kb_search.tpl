@@ -12,10 +12,10 @@
 			<select name="topic_id">
 				<option value="">- {$translate->_('display.reply.kb.all_topics')} -</option>
 				{foreach from=$topics item=topic key=topic_id}
-					<option value="{$topic_id}">{$topic->name|escape}</option>
+					<option value="{$topic_id}">{$topic->name}</option>
 				{/foreach}
 			</select>
-			<input type="text" name="q" size="24" value="{$q|escape}">
+			<input type="text" name="q" size="24" value="{$q}">
 			<button type="submit" name="btn_search"><span class="cerb-sprite sprite-data_find"></span> {$translate->_('common.search')|capitalize}</button>
 
 			<label><input type="radio" name="scope" value="all" checked="checked"> all words</label>

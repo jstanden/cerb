@@ -5,7 +5,7 @@
 <b>{$translate->_('portal.cfg.language')}</b><br>
 <select name="default_locale">
 	{foreach from=$locales item=loc key=code}
-	<option value="{$code|escape}" {if $code==$default_locale}selected="selected"{/if}>{$loc}</option>
+	<option value="{$code}" {if $code==$default_locale}selected="selected"{/if}>{$loc}</option>
 	{/foreach}
 </select>
 <br>

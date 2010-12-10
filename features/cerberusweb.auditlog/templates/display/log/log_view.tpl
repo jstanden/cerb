@@ -75,13 +75,13 @@
 						{$result.l_change_value|devblocks_date}
 					{elseif $change_field=="last_action_code"}
 						{if $result.l_change_value == "O"}
-							{$translate->_('ticket.last_action.opened')|escape}
+							{$translate->_('ticket.last_action.opened')}
 						{elseif $result.l_change_value == "R"}
-							{$translate->_('ticket.last_action.recipient_reply')|escape}
+							{$translate->_('ticket.last_action.recipient_reply')}
 						{elseif $result.l_change_value == "W"}
-							{$translate->_('ticket.last_action.worker_reply')|escape}
+							{$translate->_('ticket.last_action.worker_reply')}
 						{else}
-							{$result.l_change_value|escape}
+							{$result.l_change_value}
 						{/if}
 					{elseif $change_field=="due_date"}
 						{$result.l_change_value|devblocks_date}
@@ -101,7 +101,7 @@
 					&nbsp;
 				</td>
 			{else}
-			<td>{$result.$column|escape}</td>
+			<td>{$result.$column}</td>
 			{/if}
 		{/foreach}
 		</tr>

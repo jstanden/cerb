@@ -17,10 +17,10 @@
 			<td width="100%">
 				{if $id == 0}
 					{if !empty($email)}
-						<input type="hidden" name="email" value="{$email|escape}">
+						<input type="hidden" name="email" value="{$email}">
 						<b>{$email}</b>
 					{else}
-						<input type="text" id="formAddressPeek_email" name="email" style="width:98%;" value="{$email|escape}" class="required email">
+						<input type="text" id="formAddressPeek_email" name="email" style="width:98%;" value="{$email}" class="required email">
 					{/if}
 				{else}
 					<b>{$address.a_email}</b>
@@ -36,11 +36,11 @@
 		
 		<tr>
 			<td width="0%" nowrap="nowrap" valign="top" align="right">{$translate->_('address.first_name')|capitalize}: </td>
-			<td width="100%"><input type="text" name="first_name" value="{$address.a_first_name|escape}" style="width:98%;"></td>
+			<td width="100%"><input type="text" name="first_name" value="{$address.a_first_name}" style="width:98%;"></td>
 		</tr>
 		<tr>
 			<td width="0%" nowrap="nowrap" valign="top" align="right">{$translate->_('address.last_name')|capitalize}: </td>
-			<td width="100%"><input type="text" name="last_name" value="{$address.a_last_name|escape}" style="width:98%;"></td>
+			<td width="100%"><input type="text" name="last_name" value="{$address.a_last_name}" style="width:98%;"></td>
 		</tr>
 		<tr>
 			<td width="0%" nowrap="nowrap" valign="top" align="right" valign="top">{$translate->_('contact_org.name')|capitalize}: </td>
@@ -52,7 +52,7 @@
 					<br>
 				{/if}
 				<div id="divAddressOrg" style="display:{if empty($address.a_contact_org_id)}block{else}none{/if};">
-					<input type="text" name="contact_org" id="contactinput" style="width:98%;" value="{if !empty($address.a_contact_org_id)}{$address.o_name|escape}{else}{$org_name|escape}{/if}">
+					<input type="text" name="contact_org" id="contactinput" style="width:98%;" value="{if !empty($address.a_contact_org_id)}{$address.o_name}{else}{$org_name}{/if}">
 				</div>
 			</td>
 		</tr>
@@ -84,8 +84,8 @@
 
 {if $id != 0}
 	&nbsp; 
-	{if $active_worker->hasPriv('core.mail.search')}<a href="{devblocks_url}c=contacts&a=findTickets{/devblocks_url}?email={$address.a_email|escape}&closed=0">{'addy_book.peek.count.open_tickets'|devblocks_translate:$open_count}</a> &nbsp; {/if}
-	{if $active_worker->hasPriv('core.mail.search')}<a href="{devblocks_url}c=contacts&a=findTickets{/devblocks_url}?email={$address.a_email|escape}&closed=1">{'addy_book.peek.count.closed_tickets'|devblocks_translate:$closed_count}</a> &nbsp; {/if}
+	{if $active_worker->hasPriv('core.mail.search')}<a href="{devblocks_url}c=contacts&a=findTickets{/devblocks_url}?email={$address.a_email}&closed=0">{'addy_book.peek.count.open_tickets'|devblocks_translate:$open_count}</a> &nbsp; {/if}
+	{if $active_worker->hasPriv('core.mail.search')}<a href="{devblocks_url}c=contacts&a=findTickets{/devblocks_url}?email={$address.a_email}&closed=1">{'addy_book.peek.count.closed_tickets'|devblocks_translate:$closed_count}</a> &nbsp; {/if}
 	{if $active_worker->hasPriv('core.mail.send')}<a href="javascript:;" onclick="genericAjaxPopup('peek','c=tickets&a=showComposePeek&view_id=&to={$address.a_email|escape:'url'}',null,false,'600');"> {$translate->_('addy_book.peek.compose')}</a>{/if}
 {/if}
 
@@ -96,7 +96,7 @@
 	$popup = genericAjaxPopupFetch('peek');
 	$popup.one('popup_open',function(event,ui) {
 		// Title
-		$(this).dialog('option','title', '{'addy_book.peek.title'|devblocks_translate|escape:'quotes'}');
+		$(this).dialog('option','title', '{'addy_book.peek.title'|devblocks_translate}');
 		// Autocomplete
 		ajax.orgAutoComplete('#contactinput');
 		// Form validation

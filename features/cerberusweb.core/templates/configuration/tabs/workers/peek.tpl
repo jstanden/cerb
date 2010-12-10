@@ -11,19 +11,19 @@
 	<table cellpadding="0" cellspacing="2" border="0" width="98%">
 		<tr>
 			<td width="0%" nowrap="nowrap" align="right" valign="top"><b>{$translate->_('worker.first_name')|capitalize}:</b> </td>
-			<td width="100%"><input type="text" name="first_name" value="{$worker->first_name|escape}" class="required" style="width:98%;"></td>
+			<td width="100%"><input type="text" name="first_name" value="{$worker->first_name}" class="required" style="width:98%;"></td>
 		</tr>
 		<tr>
 			<td width="0%" nowrap="nowrap" align="right" valign="top">{$translate->_('worker.last_name')|capitalize}: </td>
-			<td width="100%"><input type="text" name="last_name" value="{$worker->last_name|escape}" style="width:98%;"></td>
+			<td width="100%"><input type="text" name="last_name" value="{$worker->last_name}" style="width:98%;"></td>
 		</tr>
 		<tr>
 			<td width="0%" nowrap="nowrap" align="right" valign="top">{$translate->_('worker.title')|capitalize}: </td>
-			<td width="100%"><input type="text" name="title" value="{$worker->title|escape}" style="width:98%;"></td>
+			<td width="100%"><input type="text" name="title" value="{$worker->title}" style="width:98%;"></td>
 		</tr>
 		<tr>
 			<td width="0%" nowrap="nowrap" align="right" valign="top"><b>{$translate->_('common.email')}</b>: </td>
-			<td width="100%"><input type="text" name="email" value="{$worker->email|escape}" class="required" style="width:98%;"></td>
+			<td width="100%"><input type="text" name="email" value="{$worker->email}" class="required" style="width:98%;"></td>
 		</tr>
 	</table>
 </fieldset>
@@ -58,7 +58,7 @@
 			</td>
 		</tr>
 		{if $active_worker->id == $worker->id}
-			<input type="hidden" name="is_disabled" value="{$worker->is_disabled|escape}">
+			<input type="hidden" name="is_disabled" value="{$worker->is_disabled}">
 		{else}
 		<tr>
 			<td width="0%" nowrap="nowrap" align="right">{$translate->_('common.disabled')|capitalize}: </td>

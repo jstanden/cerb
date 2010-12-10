@@ -16,7 +16,7 @@
 <table cellpadding="0" cellspacing="2" border="0" width="98%">
 	<tr>
 		<td width="0%" nowrap="nowrap" align="right"><b>{$translate->_('Name')|capitalize}:</b> </td>
-		<td width="100%"><input type="text" name="name" value="{$profile->name|escape}" style="width:98%;"></td>
+		<td width="100%"><input type="text" name="name" value="{$profile->name}" style="width:98%;"></td>
 	</tr>
 	<tr>
 		<td width="0%" nowrap="nowrap" align="right" valign="top"><b>{$translate->_('Engine')|capitalize}:</b> </td>
@@ -34,7 +34,7 @@
 				{else}
 					{$profile->extension_id}
 				{/if}
-				<input type="hidden" name="extension_id" value="{$profile->extension_id|escape}">
+				<input type="hidden" name="extension_id" value="{$profile->extension_id}">
 			{/if}
 			<br>
 			

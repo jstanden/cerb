@@ -63,7 +63,7 @@
 				{if $result.t_is_completed}
 					<span class="cerb-sprite sprite-check_gray" title="{$result.t_completed_date|devblocks_date}"></span>
 				{/if}
-				<a href="{devblocks_url}c=tasks&d=display&id={$result.t_id}{/devblocks_url}" class="subject">{if !empty($result.t_title)}{$result.t_title|escape}{else}New Task{/if}</a> <a href="javascript:;" onclick="genericAjaxPopup('peek','c=tasks&a=showTaskPeek&id={$result.t_id}&view_id={$view->id}',null,false,'550');"><span class="ui-icon ui-icon-newwin" style="display:inline-block;vertical-align:middle;" title="{$translate->_('views.peek')}"></span></a>
+				<a href="{devblocks_url}c=tasks&d=display&id={$result.t_id}{/devblocks_url}" class="subject">{if !empty($result.t_title)}{$result.t_title}{else}New Task{/if}</a> <a href="javascript:;" onclick="genericAjaxPopup('peek','c=tasks&a=showTaskPeek&id={$result.t_id}&view_id={$view->id}',null,false,'550');"><span class="ui-icon ui-icon-newwin" style="display:inline-block;vertical-align:middle;" title="{$translate->_('views.peek')}"></span></a>
 				
 				{$object_workers = DAO_ContextLink::getContextLinks(CerberusContexts::CONTEXT_TASK, array_keys($data), CerberusContexts::CONTEXT_WORKER)}
 				{if isset($object_workers.{$result.t_id})}
@@ -110,7 +110,7 @@
 					{/if}
 				</td>
 			{else}
-				<td>{$result.$column|escape}</td>
+				<td>{$result.$column}</td>
 			{/if}
 		{/foreach}
 		</tr>

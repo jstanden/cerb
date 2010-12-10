@@ -6,11 +6,11 @@
 <input type="hidden" name="edit_reason" value="{$situation_reason|md5}">
 
 <b>{$translate->_('portal.sc.cfg.reason_contacting')}</b> {$translate->_('portal.sc.cfg.reason_contacting_hint')}<br>
-<input type="text" name="reason" size="65" value="{$situation_reason|escape}"><br>
+<input type="text" name="reason" size="65" value="{$situation_reason}"><br>
 <br>
 
 <b>{$translate->_('portal.cfg.deliver_to')}</b> {'portal.cfg.deliver_to_hint'|devblocks_translate:$default_from}<br>
-<input type="text" name="to" size="65" value="{$situation_params.to|escape}"><br>
+<input type="text" name="to" size="65" value="{$situation_params.to}"><br>
 <br>
 
 <b>{$translate->_('portal.cfg.followup_questions')}</b> {$translate->_('portal.sc.cfg.followup_questions_hint')}<br>

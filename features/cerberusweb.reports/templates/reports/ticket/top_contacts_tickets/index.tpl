@@ -122,7 +122,7 @@ var chartOptions = {
 		}
 	},
     series:[
-		{foreach from=$data key=group_id item=group name=groups}{ label:'{$labels.$group_id|escape}' }{if !$smarty.foreach.groups.last},{/if}{/foreach}
+		{foreach from=$data key=group_id item=group name=groups}{ label:'{$labels.$group_id}' }{if !$smarty.foreach.groups.last},{/if}{/foreach}
     ],
     axes:{
         xaxis:{
@@ -135,7 +135,7 @@ var chartOptions = {
 			{/if}
 	        fontSize: '8pt'
 	      },
-		  ticks:['{implode("','",$xaxis_ticks)}']
+		  ticks:['{implode("','",$xaxis_ticks) nofilter}']
 		}, 
         yaxis:{
 		  labelRenderer: $.jqplot.CanvasAxisLabelRenderer,

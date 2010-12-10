@@ -3,7 +3,7 @@
 <table cellspacing="0" cellpadding="0" border="0" width="100%" style="padding-bottom:5px;">
 <tr>
 	<td valign="top" style="padding-right:5px;">
-		<h1 style="margin-bottom:5px;">{$server->name|escape}</h1> 
+		<h1 style="margin-bottom:5px;">{$server->name}</h1> 
 		<form action="{devblocks_url}{/devblocks_url}" onsubmit="return false;">
 		{*
 		<b>{'task.is_completed'|devblocks_translate|capitalize}:</b> {if $task->is_completed}{'common.yes'|devblocks_translate|capitalize}{else}{'common.no'|devblocks_translate|capitalize}{/if} &nbsp;
@@ -48,14 +48,14 @@
 
 <div id="datacenterServerTabs">
 	<ul>
-		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextComments&context=cerberusweb.contexts.datacenter.server&id={$server->id}{/devblocks_url}">{'common.comments'|devblocks_translate|capitalize|escape}</a></li>
-		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextLinks&context=cerberusweb.contexts.datacenter.server&id={$server->id}{/devblocks_url}">{'common.links'|devblocks_translate|escape}</a></li>
+		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextComments&context=cerberusweb.contexts.datacenter.server&id={$server->id}{/devblocks_url}">{'common.comments'|devblocks_translate|capitalize}</a></li>
+		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextLinks&context=cerberusweb.contexts.datacenter.server&id={$server->id}{/devblocks_url}">{'common.links'|devblocks_translate}</a></li>
 
 		{$tabs = [comments, links]}
 		
 		{foreach from=$tab_manifests item=tab_manifest}
 			{$tabs[] = $tab_manifest->params.uri}
-			<li><a href="{devblocks_url}ajax.php?c=datacenter&a=showServerTab&ext_id={$tab_manifest->id}&server_id={$server->id}{/devblocks_url}"><i>{$tab_manifest->params.title|devblocks_translate|escape:'quotes'}</i></a></li>
+			<li><a href="{devblocks_url}ajax.php?c=datacenter&a=showServerTab&ext_id={$tab_manifest->id}&server_id={$server->id}{/devblocks_url}"><i>{$tab_manifest->params.title|devblocks_translate}</i></a></li>
 		{/foreach}
 	</ul>
 </div> 

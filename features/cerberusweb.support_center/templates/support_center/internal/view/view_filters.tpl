@@ -1,4 +1,4 @@
-<input type="hidden" name="id" value="{$view->id|escape}">
+<input type="hidden" name="id" value="{$view->id}">
 <div style="float:left;width:60%;">
 	<fieldset>
 		<legend>Filters</legend>
@@ -15,7 +15,7 @@
 			{/foreach}
 		</ul>
 		
-		<select name="do" onchange="ajaxHtmlPost('FORM#filters_{$view->id|escape}','FORM#filters_{$view->id|escape}','{devblocks_url}c=ajax&a=viewFiltersDo{/devblocks_url}');">
+		<select name="do" onchange="ajaxHtmlPost('FORM#filters_{$view->id}','FORM#filters_{$view->id}','{devblocks_url}c=ajax&a=viewFiltersDo{/devblocks_url}');">
 			<option value="">-- action --</option>
 			<option value="remove">Remove selected filters</option>
 			<option value="reset">Reset filters</option>
@@ -27,7 +27,7 @@
 		<legend>Add Filter</legend>
 		
 		<b>Criteria:</b><br>
-		<select name="field" onchange="ajaxHtmlPost('FORM#filters_{$view->id|escape}','FORM#filters_{$view->id|escape} DIV.filter_fov','{devblocks_url}c=ajax&a=viewFilterGet{/devblocks_url}');">
+		<select name="field" onchange="ajaxHtmlPost('FORM#filters_{$view->id}','FORM#filters_{$view->id} DIV.filter_fov','{devblocks_url}c=ajax&a=viewFilterGet{/devblocks_url}');">
 			<option value="">-- choose --</option>
 			{$fields = $view->getSearchFields()}
 			{foreach from=$fields item=field key=field_key}
@@ -37,13 +37,13 @@
 		
 		<div class="filter_fov"></div>
 		
-		<button type="button" onclick="ajaxHtmlPost('FORM#filters_{$view->id|escape}','FORM#filters_{$view->id|escape}','{devblocks_url}c=ajax&a=viewFilterAdd{/devblocks_url}');">Add Filter</button>
+		<button type="button" onclick="ajaxHtmlPost('FORM#filters_{$view->id}','FORM#filters_{$view->id}','{devblocks_url}c=ajax&a=viewFilterAdd{/devblocks_url}');">Add Filter</button>
 	</fieldset>
 </div>
 <br style="clear:both;">
 
 {if $reload_view}
 <script type="text/javascript">
-	ajaxHtmlGet('#view{$view->id|escape}','{devblocks_url}c=ajax&a=viewRefresh{/devblocks_url}?id={$view->id|escape}');
+	ajaxHtmlGet('#view{$view->id}','{devblocks_url}c=ajax&a=viewRefresh{/devblocks_url}?id={$view->id}');
 </script>
 {/if}

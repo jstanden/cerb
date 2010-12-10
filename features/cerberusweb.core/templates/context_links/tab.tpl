@@ -93,8 +93,8 @@ function chooserOpen(ref) {
 		$data = [ 
 			'c=internal',
 			'a=contextAddLinks',
-			'from_context={$context|escape}',
-			'from_context_id={$context_id|escape}', 
+			'from_context={$context}',
+			'from_context_id={$context_id}', 
 			'context='+$context
 		];
 		
@@ -132,8 +132,8 @@ function removeSelectedContextLinks(view_id) {
 	$data = [ 
 		'c=internal',
 		'a=contextDeleteLinks',
-		'from_context={$context|escape}',
-		'from_context_id={$context_id|escape}', 
+		'from_context={$context}',
+		'from_context_id={$context_id}', 
 		'context='+context
 	];
 	$checks = $view.find('input:checkbox:checked').each(function() {

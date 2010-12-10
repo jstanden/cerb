@@ -9,8 +9,8 @@
 		{foreach from=$addresses item=address key=address_id}
 		<li style="margin-bottom:5px;">
 			<img src="{devblocks_url}c=resource&p=cerberusweb.support_center&f=images/mail.png{/devblocks_url}" height="16" width="16" align="top">
-			{$address->first_name|escape} {$address->last_name|escape}
-			&lt;{$address->email|escape}&gt;
+			{$address->first_name} {$address->last_name}
+			&lt;{$address->email}&gt;
 			{if $address->id == $active_contact->email_id}
 				(<b>Primary</b>)
 			{/if}

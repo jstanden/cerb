@@ -57,7 +57,7 @@
 		<tr class="{$tableRowClass}">
 			<td align="center" rowspan="2"><input type="checkbox" name="row_id[]" value="{$result.c_id}"></td>
 			<td colspan="{math equation="x" x=$smarty.foreach.headers.total}">
-				<a href="{devblocks_url}c=calls&id={$result.c_id|escape}{/devblocks_url}" class="subject">{$result.c_subject|escape}</a> 
+				<a href="{devblocks_url}c=calls&id={$result.c_id}{/devblocks_url}" class="subject">{$result.c_subject}</a> 
 				<a href="javascript:;" onclick="genericAjaxPopup('peek','c=calls&a=showEntry&id={$result.c_id}&view_id={$view->id}',null,false,'550');"><span class="ui-icon ui-icon-newwin" style="display:inline-block;vertical-align:middle;" title="{$translate->_('views.peek')}"></span></a>
 				
 				{$object_workers = DAO_ContextLink::getContextLinks(CerberusContexts::CONTEXT_CALL, array_keys($data), CerberusContexts::CONTEXT_WORKER)}
@@ -93,7 +93,7 @@
 					{/if}
 				</td>
 			{else}
-				<td>{$result.$column|escape}</td>
+				<td>{$result.$column}</td>
 			{/if}
 		{/foreach}
 		</tr>

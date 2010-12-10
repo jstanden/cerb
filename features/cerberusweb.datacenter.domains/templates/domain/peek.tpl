@@ -11,7 +11,7 @@
 		<tr>
 			<td width="1%" nowrap="nowrap"><b>{'common.name'|devblocks_translate}:</b></td>
 			<td width="99%">
-				<input type="text" name="name" value="{$model->name|escape}" style="width:98%;">
+				<input type="text" name="name" value="{$model->name}" style="width:98%;">
 			</td>
 		</tr>
 		<tr>
@@ -20,7 +20,7 @@
 				<select name="server_id">
 					<option value="0" {if empty($model->server_id)}selected="selected"{/if}>-- specify server --</option>
 					{foreach from=$servers item=server key=server_id}
-						<option value="{$server_id}" {if $model->server_id==$server_id}selected="selected"{/if}>{$server->name|escape}</option>
+						<option value="{$server_id}" {if $model->server_id==$server_id}selected="selected"{/if}>{$server->name}</option>
 					{/foreach}
 				</select>
 			</td>
@@ -38,7 +38,7 @@
 				{if !empty($context_addresses)}
 				<ul class="chooser-container bubbles">
 					{foreach from=$context_addresses item=context_address key=context_address_id}
-					<li>{$context_address.a_first_name} {$context_address.a_last_name} &lt;{$context_address.a_email|escape}&gt;<input type="hidden" name="contact_address_id[]" value="{$context_address_id}"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></li>
+					<li>{$context_address.a_first_name} {$context_address.a_last_name} &lt;{$context_address.a_email}&gt;<input type="hidden" name="contact_address_id[]" value="{$context_address_id}"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></li>
 					{/foreach}
 				</ul>
 				{/if}
@@ -61,7 +61,7 @@
 <script type="text/javascript">
 	$popup = genericAjaxPopupFetch('peek');
 	$popup.one('popup_open', function(event,ui) {
-		$(this).dialog('option','title',"{'cerberusweb.datacenter.domain'|devblocks_translate|escape:'quotes'}");
+		$(this).dialog('option','title',"{'cerberusweb.datacenter.domain'|devblocks_translate}");
 		
 		$('#frmDatacenterDomain button.chooser_addy').each(function() {
 			ajax.chooser(this,'cerberusweb.contexts.address','contact_address_id', { autocomplete:true });

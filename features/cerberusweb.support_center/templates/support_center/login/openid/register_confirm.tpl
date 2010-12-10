@@ -10,13 +10,13 @@
 
 	{if !empty($openid_url)}
 	<b>OpenID Identity:</b><br>
-	{$openid_url|escape}<br>
+	{$openid_url}<br>
 	<br>
 	{/if}
 	
 	{if !empty($email)}
 	<b>Email:</b><br>
-	{$email|escape}<br>
+	{$email}<br>
 	<br>
 	{/if}
 

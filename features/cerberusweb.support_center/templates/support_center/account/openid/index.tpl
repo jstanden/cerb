@@ -9,8 +9,8 @@
 		{foreach from=$openids item=openid_url}
 		<li style="margin-bottom:5px;">
 			<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=css/input_icons/openid.gif{/devblocks_url}" align="top">
-			{$openid_url|escape}
-			(<a href="{devblocks_url}c=account&m=openid&id={$openid_url|md5|escape}{/devblocks_url}">edit</a>)
+			{$openid_url}
+			(<a href="{devblocks_url}c=account&m=openid&id={$openid_url|md5}{/devblocks_url}">edit</a>)
 		</li>
 		{/foreach}
 	</ul>

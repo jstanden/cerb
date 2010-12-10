@@ -1,7 +1,7 @@
 <form action="{devblocks_url}{/devblocks_url}" method="post" id="internalCommentPopup" onsubmit="return false;">
 <input type="hidden" name="c" value="internal">
 <input type="hidden" name="a" value="commentSavePopup">
-<input type="hidden" name="context" value="{$context|escape}">
+<input type="hidden" name="context" value="{$context}">
 <input type="hidden" name="context_id" value="{$context_id}">
 
 <b>Author:</b> {$active_worker->getName()}<br>
@@ -14,7 +14,7 @@
 	<ul class="chooser-container bubbles" style="display:block;">
 	{if !empty($notify_workers)}
 		{foreach from=$notify_workers item=notify_worker}
-		<li>{$notify_worker->getName()|escape}<input type="hidden" name="notify_worker_ids[]" value="{$notify_worker->id}"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></li>
+		<li>{$notify_worker->getName()}<input type="hidden" name="notify_worker_ids[]" value="{$notify_worker->id}"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></li>
 		{/foreach}
 	{/if}
 	</ul>

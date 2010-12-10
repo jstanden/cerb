@@ -9,7 +9,7 @@
 	<legend>Recover my account</legend>
 	
 	<b>Enter your email address:</b><br>
-	<input type="text" name="email" size="64" value="{$email|escape}"><br>
+	<input type="text" name="email" size="64" value="{$email}"><br>
 	<br>
 	
 	<b>Enter the confirmation code sent to your email address:</b><br>

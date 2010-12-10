@@ -40,9 +40,9 @@
 	{/if}
 	<tbody onmouseover="$(this).find('tr').addClass('hover');" onmouseout="$(this).find('tr').removeClass('hover');">
 		<tr class="{$tableRowClass}">
-			<td align="center" rowspan="2"><input type="checkbox" name="row_id[]" title="{$result.c_subject|escape}" value="{$result.c_id}"></td>
+			<td align="center" rowspan="2"><input type="checkbox" name="row_id[]" title="{$result.c_subject}" value="{$result.c_id}"></td>
 			<td colspan="{math equation="x" x=$smarty.foreach.headers.total}">
-				<b class="subject">{$result.c_subject|escape}</b> 
+				<b class="subject">{$result.c_subject}</b> 
 				
 				{$object_workers = DAO_ContextLink::getContextLinks(CerberusContexts::CONTEXT_OPPORTUNITY, array_keys($data), CerberusContexts::CONTEXT_WORKER)}
 				{if isset($object_workers.{$result.c_id})}
@@ -77,7 +77,7 @@
 					{/if}
 				</td>
 			{else}
-				<td>{$result.$column|escape}</td>
+				<td>{$result.$column}</td>
 			{/if}
 		{/foreach}
 		</tr>

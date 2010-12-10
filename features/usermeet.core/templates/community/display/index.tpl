@@ -4,7 +4,7 @@
 <div style="clear:both;"></div>
 
 {if !empty($tool->name)}
-	<h1>{$tool->name|escape}</h1>
+	<h1>{$tool->name}</h1>
 {else}
 	{$tool_extid = $tool->extension_id}
 	{if isset($tool_manifests.$tool_extid)}
@@ -19,9 +19,9 @@
 
 <div id="communityToolTabs">
 	<ul>
-		<li><a href="{devblocks_url}ajax.php?c=community&a=showTabSettings&id={$tool->id}{/devblocks_url}">{'Settings'|devblocks_translate|escape}</a></li>
-		<li><a href="{devblocks_url}ajax.php?c=community&a=showTabTemplates&id={$tool->id}{/devblocks_url}">{'Custom Templates'|devblocks_translate|escape}</a></li>
-		<li><a href="{devblocks_url}ajax.php?c=community&a=showTabInstallation&id={$tool->id}{/devblocks_url}">{'Installation'|devblocks_translate|escape}</a></li>
+		<li><a href="{devblocks_url}ajax.php?c=community&a=showTabSettings&id={$tool->id}{/devblocks_url}">{'Settings'|devblocks_translate}</a></li>
+		<li><a href="{devblocks_url}ajax.php?c=community&a=showTabTemplates&id={$tool->id}{/devblocks_url}">{'Custom Templates'|devblocks_translate}</a></li>
+		<li><a href="{devblocks_url}ajax.php?c=community&a=showTabInstallation&id={$tool->id}{/devblocks_url}">{'Installation'|devblocks_translate}</a></li>
 
 		{$tabs = [settings,templates,installation]}
 	</ul>

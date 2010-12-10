@@ -24,7 +24,7 @@
 <script type="text/javascript">
 series1 = [
 {foreach from=$data item=plot key=null name=plots}
-[{$plot.hits},'{$plot.value|escape}']{if !$smarty.foreach.plots.last},{/if}
+[{$plot.hits},'{$plot.value}']{if !$smarty.foreach.plots.last},{/if}
 {/foreach}
 ];
 

@@ -54,7 +54,7 @@
 		<tr class="{$tableRowClass}">
 			<td align="center" rowspan="2"><input type="checkbox" name="row_id[]" value="{$result.w_id}"></td>
 			<td colspan="{math equation="x" x=$smarty.foreach.headers.total}">
-				<a href="{devblocks_url}c=display&id={$result.t_mask}{/devblocks_url}" class="subject">{$result.t_subject|escape}</a> 
+				<a href="{devblocks_url}c=display&id={$result.t_mask}{/devblocks_url}" class="subject">{$result.t_subject}</a> 
 				<a href="javascript:;" onclick="genericAjaxPopup('peek','c=tickets&a=showPreview&view_id={$view->id}&tid={$result.m_ticket_id}&msgid={$result.m_id}', null, false, '550');"><span class="ui-icon ui-icon-newwin" style="display:inline-block;vertical-align:middle;" title="{$translate->_('views.peek')}"></span></a>
 			</td>
 		</tr>
@@ -67,7 +67,7 @@
 				{if empty($groups)}{$groups = DAO_Group::getAll()}{/if}
 				{$group_id = $result.$column}
 				{if isset($groups.$group_id)}
-					{$groups.{$group_id}->name|escape}
+					{$groups.{$group_id}->name}
 				{/if}
 				</td>
 			{elseif $column=="m_worker_id"}
@@ -75,13 +75,13 @@
 				{if empty($workers)}{$workers = DAO_Worker::getAll()}{/if}
 				{$worker_id = $result.$column}
 				{if isset($workers.$worker_id)}
-					{$workers.{$worker_id}->getName()|escape}
+					{$workers.{$worker_id}->getName()}
 				{/if}
 				</td>
 			{elseif $column=="m_created_date"}
-				<td><abbr title="{$result.$column|devblocks_date|escape}">{$result.$column|devblocks_prettytime}</abbr>&nbsp;</td>
+				<td><abbr title="{$result.$column|devblocks_date}">{$result.$column|devblocks_prettytime}</abbr>&nbsp;</td>
 			{else}
-				<td>{$result.$column|escape}</td>
+				<td>{$result.$column}</td>
 			{/if}
 		{/foreach}
 		</tr>

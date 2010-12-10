@@ -29,26 +29,26 @@
 				<tr>
 					<td width="1%" nowrap="nowrap"><b>{$translate->_('message.header.to')|capitalize}:</b> </td>
 					<td width="99%" align="left">
-						<input type="text" size="45" name="to" value="{if !empty($draft)}{$draft->params.to|escape}{else}{if $is_forward}{else}{foreach from=$ticket->getRequesters() item=req_addy name=reqs}{$req_addy->email}{if !$smarty.foreach.reqs.last}, {/if}{/foreach}{/if}{/if}" {if $is_forward}class="required"{/if} style="width:100%;border:1px solid rgb(180,180,180);padding:2px;">
+						<input type="text" size="45" name="to" value="{if !empty($draft)}{$draft->params.to}{else}{if $is_forward}{else}{foreach from=$ticket->getRequesters() item=req_addy name=reqs}{$req_addy->email}{if !$smarty.foreach.reqs.last}, {/if}{/foreach}{/if}{/if}" {if $is_forward}class="required"{/if} style="width:100%;border:1px solid rgb(180,180,180);padding:2px;">
 					</td>
 				</tr>
 				
 				<tr>
 					<td width="1%" nowrap="nowrap">{$translate->_('message.header.cc')|capitalize}: </td>
 					<td width="99%" align="left">
-						<input type="text" size="45" name="cc" value="{$draft->params.cc|escape}" style="width:100%;border:1px solid rgb(180,180,180);padding:2px;">					
+						<input type="text" size="45" name="cc" value="{$draft->params.cc}" style="width:100%;border:1px solid rgb(180,180,180);padding:2px;">					
 					</td>
 				</tr>
 				<tr>
 					<td width="1%" nowrap="nowrap">{$translate->_('message.header.bcc')|capitalize}: </td>
 					<td width="99%" align="left">
-						<input type="text" size="45" name="bcc" value="{$draft->params.bcc|escape}" style="width:100%;border:1px solid rgb(180,180,180);padding:2px;">					
+						<input type="text" size="45" name="bcc" value="{$draft->params.bcc}" style="width:100%;border:1px solid rgb(180,180,180);padding:2px;">					
 					</td>
 				</tr>
 				<tr>
 					<td width="1%" nowrap="nowrap">{$translate->_('message.header.subject')|capitalize}: </td>
 					<td width="99%" align="left">
-						<input type="text" size="45" name="subject" value="{if !empty($draft)}{$draft->subject|escape}{else}{if $is_forward}Fwd: {/if}{$ticket->subject|escape}{/if}" style="width:100%;border:1px solid rgb(180,180,180);padding:2px;" class="required">					
+						<input type="text" size="45" name="subject" value="{if !empty($draft)}{$draft->subject}{else}{if $is_forward}Fwd: {/if}{$ticket->subject}{/if}" style="width:100%;border:1px solid rgb(180,180,180);padding:2px;" class="required">					
 					</td>
 				</tr>
 			</table>
@@ -81,15 +81,15 @@
 <input type="hidden" name="a" value="sendReply">
 <input type="hidden" name="id" value="{$message->id}">
 <input type="hidden" name="ticket_id" value="{$ticket->id}">
-<input type="hidden" name="ticket_mask" value="{$ticket->mask|escape}">
+<input type="hidden" name="ticket_mask" value="{$ticket->mask}">
 <input type="hidden" name="draft_id" value="{$draft->id}">
 {if $is_forward}<input type="hidden" name="is_forward" value="1">{/if}
 
 <!-- {* Copy these dynamically so a plugin dev doesn't need to conflict with the reply <form> *} -->
-<input type="hidden" name="to" value="{$draft->params.to|escape}">
-<input type="hidden" name="cc" value="{$draft->params.cc|escape}">
-<input type="hidden" name="bcc" value="{$draft->params.bcc|escape}">
-<input type="hidden" name="subject" value="{if !empty($draft)}{$draft->subject|escape}{else}{if $is_forward}Fwd: {/if}{$ticket->subject|escape}{/if}">
+<input type="hidden" name="to" value="{$draft->params.to}">
+<input type="hidden" name="cc" value="{$draft->params.cc}">
+<input type="hidden" name="bcc" value="{$draft->params.bcc}">
+<input type="hidden" name="subject" value="{if !empty($draft)}{$draft->subject}{else}{if $is_forward}Fwd: {/if}{$ticket->subject}{/if}">
 
 {if $is_forward}
 <textarea name="content" rows="20" cols="80" id="reply_{$message->id}" class="reply" style="width:98%;border:1px solid rgb(180,180,180);padding:5px;">
@@ -97,24 +97,24 @@
 {if !empty($signature)}{$signature}{/if}
 
 {$translate->_('display.reply.forward.banner')}
-{if isset($headers.subject)}{$translate->_('message.header.subject')|capitalize}: {$headers.subject|escape|cat:"\n"}{/if}
-{if isset($headers.from)}{$translate->_('message.header.from')|capitalize}: {$headers.from|escape|cat:"\n"}{/if}
-{if isset($headers.date)}{$translate->_('message.header.date')|capitalize}: {$headers.date|escape|cat:"\n"}{/if}
-{if isset($headers.to)}{$translate->_('message.header.to')|capitalize}: {$headers.to|escape|cat:"\n"}{/if}
+{if isset($headers.subject)}{$translate->_('message.header.subject')|capitalize}: {$headers.subject|cat:"\n"}{/if}
+{if isset($headers.from)}{$translate->_('message.header.from')|capitalize}: {$headers.from|cat:"\n"}{/if}
+{if isset($headers.date)}{$translate->_('message.header.date')|capitalize}: {$headers.date|cat:"\n"}{/if}
+{if isset($headers.to)}{$translate->_('message.header.to')|capitalize}: {$headers.to|cat:"\n"}{/if}
 
-{$message->getContent()|trim|escape}
+{$message->getContent()|trim}
 {/if}
 </textarea>
 {else}
 <textarea name="content" rows="20" cols="80" id="reply_{$message->id}" class="reply" style="width:98%;border:1px solid rgb(180,180,180);padding:5px;">
-{if !empty($draft)}{$draft->body|escape}{else}
+{if !empty($draft)}{$draft->body}{else}
 {if !empty($signature) && $signature_pos}
 
 {$signature}{*Sig above, 2 lines necessary whitespace*}
 
 
 {/if}{$quote_sender=$message->getSender()}{$quote_sender_personal=$quote_sender->getName()}{if !empty($quote_sender_personal)}{$reply_personal=$quote_sender_personal}{else}{$reply_personal=$quote_sender->email}{/if}{$reply_date=$message->created_date|devblocks_date:'D, d M Y'}{'display.reply.reply_banner'|devblocks_translate:$reply_date:$reply_personal}
-{$message->getContent()|trim|escape|indent:1:'> '}
+{$message->getContent()|trim|indent:1:'> '}
 
 {if !empty($signature) && !$signature_pos}{$signature}{/if}{*Sig below*}
 {/if}
@@ -136,7 +136,7 @@
 						<br>
 						<b>{$translate->_('display.reply.attachments_forward')|capitalize}</b><br>
 						{foreach from=$forward_attachments item=attach key=attach_id}
-							<label><input type="checkbox" name="forward_files[]" value="{$attach->id}" checked> {$attach->display_name|escape}</label><br>
+							<label><input type="checkbox" name="forward_files[]" value="{$attach->id}" checked> {$attach->display_name}</label><br>
 						{/foreach}
 						<br>
 					{/if}
@@ -190,7 +190,7 @@
 								<ul class="chooser-container bubbles">
 								{if !empty($context_workers)}
 									{foreach from=$context_workers item=context_worker}
-									<li>{$context_worker->getName()|escape}<input type="hidden" name="worker_id[]" value="{$context_worker->id}"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></li>
+									<li>{$context_worker->getName()}<input type="hidden" name="worker_id[]" value="{$context_worker->id}"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></li>
 									{/foreach}
 								{/if}
 								</ul>

@@ -12,7 +12,7 @@
 			<td width="1%" nowrap="nowrap" align="right">
 				<b>History for:</b> 
 				{$addy_split = explode('@',$address->email)}
-				<label title="{$address->email|escape}"><input type="radio" name="scope" value="email" onclick="this.form.a.value='doOppHistoryScope';this.form.submit();" {if empty($scope) || 'email'==$scope}checked="checked"{/if}> {'common.email'|devblocks_translate|capitalize}</label>
+				<label title="{$address->email}"><input type="radio" name="scope" value="email" onclick="this.form.a.value='doOppHistoryScope';this.form.submit();" {if empty($scope) || 'email'==$scope}checked="checked"{/if}> {'common.email'|devblocks_translate|capitalize}</label>
 				{if !empty($address->contact_org_id)}<label><input type="radio" name="scope" value="org" onclick="this.form.a.value='doOppHistoryScope';this.form.submit();" {if 'org'==$scope}checked="checked"{/if}> {'contact_org.name'|devblocks_translate|capitalize}</label>{/if}
 				{if 2==count($addy_split)}<label><input type="radio" name="scope" value="domain" onclick="this.form.a.value='doOppHistoryScope';this.form.submit();" {if 'domain'==$scope}checked="checked"{/if}> *@{$addy_split.1}</label>{/if}
 			</td>

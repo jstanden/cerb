@@ -1,14 +1,14 @@
 {if $field->type=='S'}
-	{$values.{$field->id}|escape}
+	{$values.{$field->id}}
 {elseif $field->type=='U'}
-	{$url = $values.{$field->id}|escape}
-	<a href="{$url|escape}" target="_blank">{$url|escape}</a>
+	{$url = $values.{$field->id}}
+	<a href="{$url}" target="_blank">{$url}</a>
 {elseif $field->type=='N'}
-	{$values.{$field->id}|escape}
+	{$values.{$field->id}}
 {elseif $field->type=='T'}
-	{$values.{$field->id}|escape|nl2br}
+	{$values.{$field->id}|nl2br}
 {elseif $field->type=='D'}
-	{$values.{$field->id}|escape}
+	{$values.{$field->id}}
 {elseif $field->type=='M'}
 	{if is_array($values.{$field->id})}
 	{foreach from=$values.{$field->id} item=row name=rows}

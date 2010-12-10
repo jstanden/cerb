@@ -58,7 +58,7 @@
 				{include file="devblocks:cerberusweb.core::internal/custom_fields/view/cell_renderer.tpl"}
 			{elseif $column=="ct_name"}
 			<td>
-				<a href="{devblocks_url}c=community&portal={$result.ct_code}{/devblocks_url}" class="subject">{if !empty($result.ct_name)}{$result.ct_name|escape}{elseif isset($tool_extensions.$extid)}{$tool_extensions.$extid->name|escape}{else}(no name){/if}</a>&nbsp;
+				<a href="{devblocks_url}c=community&portal={$result.ct_code}{/devblocks_url}" class="subject">{if !empty($result.ct_name)}{$result.ct_name}{elseif isset($tool_extensions.$extid)}{$tool_extensions.$extid->name}{else}(no name){/if}</a>&nbsp;
 			</td>
 			{elseif $column=="ct_extension_id"}
 			<td>
@@ -68,7 +68,7 @@
 				{/if}
 			</td>
 			{else}
-			<td>{$result.$column|escape}</td>
+			<td>{$result.$column}</td>
 			{/if}
 		{/foreach}
 		</tr>

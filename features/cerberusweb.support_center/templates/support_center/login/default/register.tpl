@@ -9,7 +9,7 @@
 	<legend>Register</legend>
 
 	<b>What is your primary email address?</b><br>
-	<input type="text" name="email" size="64" value="{$email|escape}"><br>
+	<input type="text" name="email" size="64" value="{$email}"><br>
 	<br>
 	
 	<button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.support_center&f=images/check.gif{/devblocks_url}" align="top"> {$translate->_('portal.sc.public.register.send_confirmation')}</button><br> 

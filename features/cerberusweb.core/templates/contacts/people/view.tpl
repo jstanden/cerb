@@ -72,7 +72,7 @@
 				{else}
 					{$display_name = "Contact"}
 				{/if}
-				<a href="{devblocks_url}c=contacts&a=people&id={$result.c_id}{/devblocks_url}" class="subject">{$display_name|escape}</a>{*<a href="javascript:;" onclick="genericAjaxPopup('peek','c=contacts&a=showContactPersonPeek&view_id={$view->id}&id={$result.c_id}', null, false, '500');"><span class="ui-icon ui-icon-newwin" style="display:inline-block;vertical-align:middle;" title="{$translate->_('views.peek')}"></span></a>*}
+				<a href="{devblocks_url}c=contacts&a=people&id={$result.c_id}{/devblocks_url}" class="subject">{$display_name}</a>{*<a href="javascript:;" onclick="genericAjaxPopup('peek','c=contacts&a=showContactPersonPeek&view_id={$view->id}&id={$result.c_id}', null, false, '500');"><span class="ui-icon ui-icon-newwin" style="display:inline-block;vertical-align:middle;" title="{$translate->_('views.peek')}"></span></a>*}
 			</td>
 		</tr>
 		<tr class="{$tableRowClass}">

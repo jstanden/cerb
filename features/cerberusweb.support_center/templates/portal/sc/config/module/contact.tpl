@@ -25,14 +25,14 @@
 	<b>{$translate->_('portal.cfg.send_to')}</b> {$params.to}<br>
 	{if is_array($params.followups)}
 	{foreach from=$params.followups key=question item=field_id}
-	<b>{$translate->_('portal.cfg.ask')}</b> {$question|escape} 
+	<b>{$translate->_('portal.cfg.ask')}</b> {$question} 
 	{if $field_id}
 		{assign var=field value=$ticket_fields.$field_id}
 		{assign var=field_group_id value=$field->group_id}
 		<i>
 		 &raquo; 
 		{if isset($groups.$field_group_id)}{$groups.$field_group_id->name}: {/if}
-		{$field->name|escape}
+		{$field->name}
 		{assign var=field_type value=$field->type}
 		{if isset($field_types.$field_type)}({$field_types.$field_type}){/if}
 		</i>

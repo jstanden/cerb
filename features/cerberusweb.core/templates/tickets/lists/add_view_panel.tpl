@@ -14,7 +14,7 @@ worklists on a "workspace", which is simply the name given to them collectively.
 {if !empty($workspaces)}
 Existing: <select name="workspace">
 	{foreach from=$workspaces item=workspace}
-	<option value="{$workspace|escape}">{$workspace}</option>
+	<option value="{$workspace}">{$workspace}</option>
 	{/foreach}
 </select><br>
 -or-<br>

@@ -13,10 +13,10 @@
 	{if !$edit_mode}
     <div id="ticketPeekMessage">
 			{assign var=headers value=$message->getHeaders()}
-			<b>To:</b> {$headers.to|escape}<br>
-			<b>From:</b> {$headers.from|escape}<br>
+			<b>To:</b> {$headers.to}<br>
+			<b>From:</b> {$headers.from}<br>
 			<div id="ticketPeekContent" style="width:400;height:250px;overflow:auto;border:1px solid rgb(180,180,180);margin:2px;padding:3px;background-color:rgb(255,255,255);" ondblclick="genericAjaxPopupClose('peek');">
-				<pre class="emailbody">{$content|trim|escape|devblocks_hyperlinks|devblocks_hideemailquotes}</pre>
+				<pre class="emailbody">{$content|trim|devblocks_hyperlinks|devblocks_hideemailquotes}</pre>
 			</div>
 			
 			<b>URL:</b> <a href="{devblocks_url}c=display&id={$ticket->mask}{/devblocks_url}">{devblocks_url full=true}c=display&id={$ticket->mask}{/devblocks_url}</a>
@@ -40,7 +40,7 @@
 				<tr>
 					<td width="0%" nowrap="nowrap" align="right">Subject: </td>
 					<td width="100%">
-						<input type="text" name="subject" size="45" maxlength="255" style="width:98%;" value="{$ticket->subject|escape}">
+						<input type="text" name="subject" size="45" maxlength="255" style="width:98%;" value="{$ticket->subject}">
 					</td>
 				</tr>
 				
@@ -52,7 +52,7 @@
 						<ul class="chooser-container bubbles" style="display:block;">
 						{if !empty($context_workers)}
 							{foreach from=$context_workers item=context_worker}
-							<li>{$context_worker->getName()|escape}<input type="hidden" name="worker_id[]" value="{$context_worker->id}"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></li>
+							<li>{$context_worker->getName()}<input type="hidden" name="worker_id[]" value="{$context_worker->id}"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></li>
 							{/foreach}
 						{/if}
 						</ul>
@@ -120,31 +120,31 @@
 						</td>
 						<td valign="top" width="99%">
 							{if $f->type=='S'}
-								<input type="text" name="field_{$f_id}" size="45" maxlength="255" style="width:98%;" value="{$custom_field_values.$f_id|escape}"><br>
+								<input type="text" name="field_{$f_id}" size="45" maxlength="255" style="width:98%;" value="{$custom_field_values.$f_id}"><br>
 							{elseif $f->type=='U'}
-								<input type="text" name="field_{$f_id}" size="40" maxlength="255" style="width:98%;" value="{$custom_field_values.$f_id|escape}">
-								{if !empty($custom_field_values.$f_id)}<a href="{$custom_field_values.$f_id|escape}" target="_blank">URL</a>{else}<i>(URL)</i>{/if}
+								<input type="text" name="field_{$f_id}" size="40" maxlength="255" style="width:98%;" value="{$custom_field_values.$f_id}">
+								{if !empty($custom_field_values.$f_id)}<a href="{$custom_field_values.$f_id}" target="_blank">URL</a>{else}<i>(URL)</i>{/if}
 							{elseif $f->type=='N'}
-								<input type="text" name="field_{$f_id}" size="45" maxlength="255" value="{$custom_field_values.$f_id|escape}"><br>
+								<input type="text" name="field_{$f_id}" size="45" maxlength="255" value="{$custom_field_values.$f_id}"><br>
 							{elseif $f->type=='T'}
 								<textarea name="field_{$f_id}" rows="4" cols="50" style="width:98%;">{$custom_field_values.$f_id}</textarea><br>
 							{elseif $f->type=='C'}
 								<input type="checkbox" name="field_{$f_id}" value="1" {if $custom_field_values.$f_id}checked{/if}><br>
 							{elseif $f->type=='X'}
 								{foreach from=$f->options item=opt}
-								<label><input type="checkbox" name="field_{$f_id}[]" value="{$opt|escape}" {if isset($custom_field_values.$f_id.$opt)}checked="checked"{/if}> {$opt}</label><br>
+								<label><input type="checkbox" name="field_{$f_id}[]" value="{$opt}" {if isset($custom_field_values.$f_id.$opt)}checked="checked"{/if}> {$opt}</label><br>
 								{/foreach}
 							{elseif $f->type=='D'}
 								<select name="field_{$f_id}">{* [TODO] Fix selected *}
 									<option value=""></option>
 									{foreach from=$f->options item=opt}
-									<option value="{$opt|escape}" {if $opt==$custom_field_values.$f_id}selected{/if}>{$opt}</option>
+									<option value="{$opt}" {if $opt==$custom_field_values.$f_id}selected{/if}>{$opt}</option>
 									{/foreach}
 								</select><br>
 							{elseif $f->type=='M'}
 								<select name="field_{$f_id}[]" size="5" multiple="multiple">
 									{foreach from=$f->options item=opt}
-									<option value="{$opt|escape}" {if isset($custom_field_values.$f_id.$opt)}selected="selected"{/if}>{$opt}</option>
+									<option value="{$opt}" {if isset($custom_field_values.$f_id.$opt)}selected="selected"{/if}>{$opt}</option>
 									{/foreach}
 								</select><br>
 								<i><small>{$translate->_('common.tips.multi_select')}</small></i>
@@ -181,7 +181,7 @@
 	// Popups
 	$popup = genericAjaxPopupFetch('peek');
 	$popup.one('popup_open',function(event,ui) {
-		$(this).dialog('option','title',"{$ticket->subject|escape}");
+		$(this).dialog('option','title',"{$ticket->subject}");
 		$("#peekTabs").tabs();
 		$("#ticketPeekContent").css('width','100%');
 		$("#ticketPeekProps").show();

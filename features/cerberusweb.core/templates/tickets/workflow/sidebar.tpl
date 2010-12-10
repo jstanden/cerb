@@ -22,7 +22,7 @@
 {else}
 	<tr>
 		<td>
-			{'mail.overview.all_done_text'|devblocks_translate|escape}
+			{'mail.overview.all_done_text'|devblocks_translate}
 		</td>
 	</tr>
 {/if}

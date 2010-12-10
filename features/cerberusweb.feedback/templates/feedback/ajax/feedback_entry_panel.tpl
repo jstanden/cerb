@@ -8,11 +8,11 @@
 	<legend>Properties</legend>
 	
 	<b>{'feedback_entry.quote_address'|devblocks_translate|capitalize}:</b> ({'feedback.peek.quote.tooltip'|devblocks_translate})<br>
-	<input type="text" name="email" size="45" maxlength="255" style="width:98%;" value="{$address->email|escape}"><br>
+	<input type="text" name="email" size="45" maxlength="255" style="width:98%;" value="{$address->email}"><br>
 	<br>
 	
 	<b>{'feedback_entry.quote_text'|devblocks_translate|capitalize}:</b><br>
-	<textarea name="quote" cols="45" rows="4" style="width:98%;">{$model->quote_text|escape}</textarea><br>
+	<textarea name="quote" cols="45" rows="4" style="width:98%;">{$model->quote_text}</textarea><br>
 	<br>
 	
 	<b>{'feedback_entry.quote_mood'|devblocks_translate|capitalize}:</b> 
@@ -23,7 +23,7 @@
 	<br>
 	
 	<b>{'feedback_entry.source_url'|devblocks_translate|capitalize}:</b> ({'common.optional'|devblocks_translate|lower})<br>
-	<input type="text" name="url" size="45" maxlength="255" style="width:98%;" value="{$model->source_url|escape}"><br>
+	<input type="text" name="url" size="45" maxlength="255" style="width:98%;" value="{$model->source_url}"><br>
 </fieldset>
 
 {if !empty($custom_fields)}
@@ -45,6 +45,6 @@
 <script type="text/javascript">
 	$popup = genericAjaxPopupFetch('peek');
 	$popup.one('popup_open', function(event,ui) {
-		$(this).dialog('option','title',"{'feedback.button.capture'|devblocks_translate|capitalize|escape:'quotes'}");
+		$(this).dialog('option','title',"{'feedback.button.capture'|devblocks_translate|capitalize}");
 	} );
 </script>
