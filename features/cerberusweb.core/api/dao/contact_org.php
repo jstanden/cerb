@@ -476,7 +476,6 @@ class View_ContactOrg extends C4_AbstractView {
 		$this->_sanitize();
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('core_tpl', APP_PATH . '/features/cerberusweb.core/templates/');
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
 

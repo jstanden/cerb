@@ -72,7 +72,6 @@ $tpl->assign('session', $_SESSION);
 $tpl->assign('visit', $session->getVisit());
 $tpl->assign('active_worker', $worker);
 $tpl->assign('settings', $settings);
-$tpl->assign('core_tpl', APP_PATH . '/features/cerberusweb.core/templates/');
 
 if(!empty($worker)) {
 	$active_worker_memberships = $worker->getMemberships();

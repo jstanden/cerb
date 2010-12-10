@@ -4,7 +4,7 @@
 <input type="hidden" name="id" value="{$view->id}">
 
 <div id="viewCustomFilters{$view->id}" style="margin:10px;">
-{include file="$core_tpl/internal/views/customize_view_criteria.tpl"}
+{include file="devblocks:cerberusweb.core::internal/views/customize_view_criteria.tpl"}
 </div>
 </form>
 

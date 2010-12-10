@@ -65,7 +65,6 @@ class CrmOppsActivityTab extends Extension_ActivityTab {
 	
 	function showTab() {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('core_tpl', APP_PATH . '/features/cerberusweb.core/templates/');
 		
 		$visit = CerberusApplication::getVisit();
 		$translate = DevblocksPlatform::getTranslationService();
