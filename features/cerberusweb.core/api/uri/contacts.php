@@ -1385,7 +1385,7 @@ class ChContactsPage extends CerberusPageExtension {
 
 			$label = sprintf("%s%s (%d messages)",
 				!empty($personal) ? $personal : '',
-				!empty($personal) ? (" &lt;".$email."&gt;") : $email,
+				!empty($personal) ? (" <".$email.">") : $email,
 				$num_nonspam
 			);
 
