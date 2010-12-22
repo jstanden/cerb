@@ -103,11 +103,8 @@ class ChRest_Attachments extends Extension_RestController implements IExtensionR
 			);
 		} else {
 			$tokens = array(
-				'created' => SearchFields_Attachment::MESSAGE_CREATED_DATE,
 				'id' => SearchFields_Attachment::ID,
-				'message_id' => SearchFields_Attachment::MESSAGE_ID,
-				'ticket_group_id' => SearchFields_Attachment::TICKET_GROUP_ID,
-				'ticket_id' => SearchFields_Attachment::TICKET_ID,
+				//'updated' => SearchFields_Attachment::MESSAGE_CREATED_DATE,
 			);
 		}
 		
@@ -130,15 +127,17 @@ class ChRest_Attachments extends Extension_RestController implements IExtensionR
 
 		$params = $this->_handleSearchBuildParams($filters);
 		
+		// [TODO] Fix
+		
 		// (ACL) Add worker group privs
-		if(!$worker->is_superuser) {
-			$memberships = $worker->getMemberships();
-			$params['tmp_worker_memberships'] = new DevblocksSearchCriteria(
-				SearchFields_Attachment::TICKET_GROUP_ID,
-				'in',
-				(!empty($memberships) ? array_keys($memberships) : array(0))
-			);
-		}
+//		if(!$worker->is_superuser) {
+//			$memberships = $worker->getMemberships();
+//			$params['tmp_worker_memberships'] = new DevblocksSearchCriteria(
+//				SearchFields_Attachment::TICKET_GROUP_ID,
+//				'in',
+//				(!empty($memberships) ? array_keys($memberships) : array(0))
+//			);
+//		}
 		
 		// Sort
 		$sortBy = $this->translateToken($sortToken, 'search');

@@ -160,55 +160,34 @@ class UmScAjaxController extends Extension_UmScController {
 		}
 			
 		// Attachment ID + display name
-		@$ticket_mask = array_shift($stack);
-		@$hash = array_shift($stack);
+		@$guid = array_shift($stack);
 		@$display_name = array_shift($stack);
 		
-		if(empty($ticket_mask) || empty($hash) || empty($display_name))
-			return;
-			
-		if(null == ($ticket_id = DAO_Ticket::getTicketIdByMask($ticket_mask)))
-			return;
-		
-		// Load attachments by ticket mask
-		list($attachments) = DAO_Attachment::search(
-			array(
-				SearchFields_Attachment::TICKET_MASK => new DevblocksSearchCriteria(SearchFields_Attachment::TICKET_MASK,'=',$ticket_mask), 
-			),
-			-1,
-			0,
-			null,
-			null,
-			false
-		);
-
-		$attachment = null;
-
-		if(is_array($attachments))
-		foreach($attachments as $possible_file) {
-			// Compare the hash
-			$fingerprint = md5($possible_file[SearchFields_Attachment::ID].$possible_file[SearchFields_Attachment::MESSAGE_ID].$possible_file[SearchFields_Attachment::DISPLAY_NAME]);
-			if(0 == strcmp($fingerprint,$hash)) {
-				if(null == ($attachment = DAO_Attachment::get($possible_file[SearchFields_Attachment::ID])))
-					return;
-				break;
-			}
-		}
-
-		// No hit (bad hash)
-		if(null == $attachment)
+		if(empty($guid) || empty($display_name))
 			return;
 
-		// Load requesters		
-		if(null == ($requesters = DAO_Ticket::getRequestersByTicket($ticket_id)))
+		// Attachment link
+		if(null == ($link = DAO_AttachmentLink::getByGUID($guid)))
 			return;
 
-		$authorized_addresses = array_intersect(array_keys($requesters), array_keys($addresses));
-		
+		// Context
+		if($link->context != CerberusContexts::CONTEXT_MESSAGE)
+			return;
+
+		// Message
+		if(null == ($message = DAO_Message::get($link->context_id)))
+			return;
+
+		// Requesters		
+		if(null == ($requesters = DAO_Ticket::getRequestersByTicket($message->ticket_id)))
+			return;
+
 		// Security: Make sure the active user is a requester on the proper ticket
+		$authorized_addresses = array_intersect(array_keys($requesters), array_keys($addresses));
 		if(!is_array($authorized_addresses) || 0 == count($authorized_addresses))
 			return;
-		
+
+		$attachment = $link->getAttachment();
 		$contents = $attachment->getFileContents();
 			
 		// Set headers

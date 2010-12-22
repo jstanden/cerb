@@ -506,6 +506,42 @@ var cAjaxCalls = function() {
 			});
 		}
 	}
+	
+	this.chooserFile = function(button, field_name, options) {
+		if(null == field_name)
+			field_name = 'context_id';
+		
+		if(null == options) 
+			options = { };
+		
+		$button = $(button);
+
+		// The <ul> buffer
+		$ul = $button.next('ul.chooser-container');
+		
+		// Add the container if it doesn't exist
+		if(0==$ul.length) {
+			$ul = $('<ul class="bubbles chooser-container"></ul>');
+			$ul.insertAfter($button);
+		}
+		
+		// The chooser search button
+		$button.click(function(event) {
+			$button = $(this);
+			$ul = $(this).nextAll('ul.chooser-container:first');
+			$chooser=genericAjaxPopup('chooser','c=internal&a=chooserOpenFile',null,true,'750');
+			$chooser.one('chooser_save', function(event) {
+				// Add the labels
+				for(var idx in event.labels)
+					if(0==$ul.find('input:hidden[value='+event.values[idx]+']').length) {
+						$li = $('<li>'+event.labels[idx]+'<input type="hidden" name="' + field_name + '[]" value="'+event.values[idx]+'"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></li>');
+						if(null != options.style)
+							$li.addClass(options.style);
+						$ul.append($li);
+					}
+			});
+		});
+	}	
 }
 
 var ajax = new cAjaxCalls();

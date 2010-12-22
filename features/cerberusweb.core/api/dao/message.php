@@ -185,24 +185,22 @@ class DAO_Message extends DevblocksORMHelper {
 		// Purge messages without linked tickets  
 		$sql = "DELETE QUICK message FROM message LEFT JOIN ticket ON message.ticket_id = ticket.id WHERE ticket.id IS NULL";
 		$db->Execute($sql);
-		
 		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' message records.');
 		
 		// Headers
 		$sql = "DELETE QUICK message_header FROM message_header LEFT JOIN message ON message_header.message_id = message.id WHERE message.id IS NULL";
 		$db->Execute($sql);
-
 		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' message_header records.');
+
+		// Attachments
+		$sql = "DELETE QUICK attachment_link FROM attachment_link LEFT JOIN message ON (attachment_link.context_id=message.id) WHERE attachment_link.context = 'cerberusweb.contexts.message' AND message.id IS NULL";
+		$db->Execute($sql);
+		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' message attachment_links.');
 		
 		// Search indexes
-
 		$sql = "DELETE QUICK fulltext_message_content FROM fulltext_message_content LEFT JOIN message ON fulltext_message_content.id = message.id WHERE message.id IS NULL";
 		$db->Execute($sql);
-		
 		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' fulltext_message_content records.');
-		
-		// Attachments
-		DAO_Attachment::maint();
     }
     
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
@@ -439,8 +437,11 @@ class Model_Message {
 	 * @return Model_Attachment[]
 	 */
 	function getAttachments() {
-		$attachments = DAO_Attachment::getByMessageId($this->id);
-		return $attachments;
+		return DAO_Attachment::getByContextIds(CerberusContexts::CONTEXT_MESSAGE, $this->id);
+	}
+	
+	function getLinksAndAttachments() {
+		return DAO_AttachmentLink::getLinksAndAttachments(CerberusContexts::CONTEXT_MESSAGE, $this->id);
 	}
 };
 
@@ -1161,4 +1162,163 @@ class View_Message extends C4_AbstractView {
 
 		unset($ids);
 	}
+};
+
+class Context_Message extends Extension_DevblocksContext {
+	function authorize($context_id, Model_Worker $worker) {
+		// Security
+		try {
+			if(empty($worker))
+				throw new Exception();
+			
+			if($worker->is_superuser)
+				return TRUE;
+				
+			if(null == ($message = DAO_Message::get($context_id)))
+				throw new Exception();
+			
+			if(null == ($ticket = DAO_Ticket::get($message->ticket_id)))
+				throw new Exception();
+			
+			return $worker->isTeamMember($ticket->team_id);
+				
+		} catch (Exception $e) {
+			// Fail
+		}
+		
+		return FALSE;
+	}
+	
+    function getPermalink($context_id) {
+    	// [TODO] Load ticket from message
+    	return null;
+    	//$url_writer = DevblocksPlatform::getUrlService();
+    	//return $url_writer->write('c=tasks&action=display&id='.$context_id, true);
+    }
+
+	function getContext($message, &$token_labels, &$token_values, $prefix=null) {
+		if(is_null($prefix))
+			$prefix = 'Message:';
+		
+		$translate = DevblocksPlatform::getTranslationService();
+		$fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_MESSAGE);
+
+		// Polymorph
+		if(is_numeric($message)) {
+			$message = DAO_Message::get($message);
+		} elseif($message instanceof Model_Message) {
+			// It's what we want already.
+		} else {
+			$message = null;
+		}
+		
+		// Token labels
+		$token_labels = array(
+//			'completed|date' => $prefix.$translate->_('task.completed_date'),
+		);
+		
+		if(is_array($fields))
+		foreach($fields as $cf_id => $field) {
+			$token_labels['custom_'.$cf_id] = $prefix.$field->name;
+		}
+
+		// Token values
+		$token_values = array();
+		
+		if($message) {
+//			$token_values['completed'] = $task->completed_date;
+			
+			$token_values['custom'] = array();
+			
+			$field_values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_MESSAGE, $message->id));
+			if(is_array($field_values) && !empty($field_values)) {
+				foreach($field_values as $cf_id => $cf_val) {
+					if(!isset($fields[$cf_id]))
+						continue;
+					
+					// The literal value
+					if(null != $message)
+						$token_values['custom'][$cf_id] = $cf_val;
+					
+					// Stringify
+					if(is_array($cf_val))
+						$cf_val = implode(', ', $cf_val);
+						
+					if(is_string($cf_val)) {
+						if(null != $message)
+							$token_values['custom_'.$cf_id] = $cf_val;
+					}
+				}
+			}
+		}
+
+		// Assignee
+//		@$assignee_id = $task->worker_id;
+//		$merge_token_labels = array();
+//		$merge_token_values = array();
+//		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $assignee_id, $merge_token_labels, $merge_token_values, '', true);
+//
+//		CerberusContexts::merge(
+//			'assignee_',
+//			'Assignee:',
+//			$merge_token_labels,
+//			$merge_token_values,
+//			$token_labels,
+//			$token_values
+//		);			
+		
+		return true;
+	}
+
+	function getChooserView() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		// View
+		$view_id = 'chooser_'.str_replace('.','_',$this->id).time().mt_rand(0,9999);
+		$defaults = new C4_AbstractViewModel();
+		$defaults->id = $view_id;
+		$defaults->is_ephemeral = true;
+		$defaults->class_name = 'View_Message';
+		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
+		$view->name = 'Messages';
+//		$view->view_columns = array(
+//			SearchFields_Message::UPDATED_DATE,
+//			SearchFields_Message::DUE_DATE,
+//		);
+		$view->addParams(array(
+//			SearchFields_Task::IS_COMPLETED => new DevblocksSearchCriteria(SearchFields_Task::IS_COMPLETED,'=',0),
+			//SearchFields_Task::VIRTUAL_WORKERS => new DevblocksSearchCriteria(SearchFields_Task::VIRTUAL_WORKERS,'in',array($active_worker->id)),
+		), true);
+		$view->renderSortBy = SearchFields_Message::CREATED_DATE;
+		$view->renderSortAsc = false;
+		$view->renderLimit = 10;
+		$view->renderTemplate = 'contextlinks_chooser';
+		C4_AbstractViewLoader::setView($view_id, $view);
+		return $view;		
+	}
+	
+	function getView($context, $context_id, $options=array()) {
+		$view_id = str_replace('.','_',$this->id);
+		
+		$defaults = new C4_AbstractViewModel();
+		$defaults->id = $view_id; 
+		$defaults->class_name = 'View_Message';
+		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
+		$view->name = 'Messages';
+		
+		$params = array(
+			new DevblocksSearchCriteria(SearchFields_Message::CONTEXT_LINK,'=',$context),
+			new DevblocksSearchCriteria(SearchFields_Message::CONTEXT_LINK_ID,'=',$context_id),
+		);
+		
+//		if(isset($options['filter_open']))
+//			$params[] = new DevblocksSearchCriteria(SearchFields_Message::IS_COMPLETED,'=',0);
+		
+		$view->addParams($params, true);
+		
+		$view->renderTemplate = 'context';
+		C4_AbstractViewLoader::setView($view_id, $view);
+		return $view;
+	}
+	
 };

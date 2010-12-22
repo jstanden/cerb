@@ -41,9 +41,9 @@ class DevblocksExtension {
 };
 
 abstract class Extension_DevblocksContext extends DevblocksExtension {
-    function __construct($manifest) {
-        self::DevblocksExtension($manifest);
-    }
+   	function authorize($context_id) {
+		return true;
+	}
     
     abstract function getPermalink($context_id);
     abstract function getContext($object, &$token_labels, &$token_values, $prefix=null);
@@ -126,19 +126,11 @@ abstract class Extension_DevblocksStorageSchema extends DevblocksExtension {
 };
 
 abstract class DevblocksControllerExtension extends DevblocksExtension implements DevblocksHttpRequestHandler {
-    function __construct($manifest) {
-        self::DevblocksExtension($manifest);
-    }
-
 	public function handleRequest(DevblocksHttpRequest $request) {}
 	public function writeResponse(DevblocksHttpResponse $response) {}
 };
 
 abstract class DevblocksEventListenerExtension extends DevblocksExtension {
-    function __construct($manifest) {
-        self::DevblocksExtension($manifest);
-    }
-    
     /**
      * @param Model_DevblocksEvent $event
      */

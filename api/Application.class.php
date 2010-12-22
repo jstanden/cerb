@@ -642,6 +642,7 @@ class CerberusContexts {
 	const CONTEXT_ATTACHMENT = 'cerberusweb.contexts.attachment';
 	const CONTEXT_BUCKET = 'cerberusweb.contexts.bucket';
 	const CONTEXT_CALL = 'cerberusweb.contexts.call';
+	const CONTEXT_COMMENT = 'cerberusweb.contexts.comment';
 	const CONTEXT_CONTACT_PERSON = 'cerberusweb.contexts.contact_person';
 	const CONTEXT_FEEDBACK = 'cerberusweb.contexts.feedback';
 	const CONTEXT_GROUP = 'cerberusweb.contexts.group';
@@ -836,22 +837,8 @@ class CerberusContexts {
 		
 		// Polymorph
 		if(is_numeric($attachment)) {
-			list($results, $total) = DAO_Attachment::search(
-				array(
-					SearchFields_Attachment::ID => new DevblocksSearchCriteria(SearchFields_Attachment::ID,'=',$attachment),
-				),
-				1,
-				0,
-				null,
-				null,
-				false
-			);
-			
-			if(isset($results[$attachment]))
-				$attachment = $results[$attachment];
-			else
-				$attachment = null;
-		} elseif(is_array($attachment)) {
+			$attachment = DAO_Attachment::get($attachment);
+		} elseif($attachment instanceof Model_Attachment) {
 			// It's what we want already.
 		} else {
 			$attachment = null;
@@ -859,24 +846,22 @@ class CerberusContexts {
 			
 		// Token labels
 		$token_labels = array(
-			'created|date' => $prefix.$translate->_('common.created'),
 			'id' => $prefix.$translate->_('common.id'),
 			'mime_type' => $prefix.$translate->_('attachment.mime_type'),
 			'name' => $prefix.$translate->_('attachment.display_name'),
 			'size' => $prefix.$translate->_('attachment.storage_size'),
+			'updated|date' => $prefix.$translate->_('common.updated'),
 		);
 		
 		// Token values
 		$token_values = array();
 		
 		if(null != $attachment) {
-			$token_values['created'] = $attachment[SearchFields_Attachment::MESSAGE_CREATED_DATE];
-			$token_values['id'] = $attachment[SearchFields_Attachment::ID];
-			$token_values['message_id'] = $attachment[SearchFields_Attachment::MESSAGE_ID];
-			$token_values['mime_type'] = $attachment[SearchFields_Attachment::MIME_TYPE];
-			$token_values['name'] = $attachment[SearchFields_Attachment::DISPLAY_NAME];
-			$token_values['size'] = $attachment[SearchFields_Attachment::STORAGE_SIZE];
-			$token_values['ticket_id'] = $attachment[SearchFields_Attachment::TICKET_ID];
+			$token_values['id'] = $attachment->id;
+			$token_values['mime_type'] = $attachment->mime_type;
+			$token_values['name'] = $attachment->display_name;
+			$token_values['size'] = $attachment->storage_size;
+			$token_values['updated'] = $attachment->updated;
 		}
 		
 		return true;

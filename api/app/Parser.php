@@ -649,12 +649,15 @@ class CerberusParser {
 				}
 				
 			    $fields = array(
-			        DAO_Attachment::MESSAGE_ID => $email_id,
 			        DAO_Attachment::DISPLAY_NAME => $filename,
 			        DAO_Attachment::MIME_TYPE => $file->mime_type,
 			    );
 			    $file_id = DAO_Attachment::create($fields);
 				
+			    // Link
+			    DAO_AttachmentLink::create($file_id, CerberusContexts::CONTEXT_MESSAGE, $email_id);
+			    
+			    // Content
 			    if(empty($file_id)) {
 			        @unlink($file->tmpname); // remove our temp file
 				    continue;

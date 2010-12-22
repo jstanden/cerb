@@ -736,11 +736,13 @@ class ImportCron extends CerberusCronPageExtension {
 					unset($sFileContentB64);
 					
 					$fields = array(
-						DAO_Attachment::MESSAGE_ID => $email_id,
 						DAO_Attachment::DISPLAY_NAME => $sFileName,
 						DAO_Attachment::MIME_TYPE => $sMimeType,
 					);
 					$file_id = DAO_Attachment::create($fields);
+					
+					// Link
+					DAO_AttachmentLink::create($file_id, CerberusContexts::CONTEXT_MESSAGE, $email_id);
 					
 					// Write file to storage
 					Storage_Attachments::put($file_id, $sFileContent);

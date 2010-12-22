@@ -25,7 +25,7 @@
 		{foreach from=$view->view_columns item=header name=headers}
 			{* start table header, insert column title and link *}
 			<th nowrap="nowrap">
-			{if $header=="x"}<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewSortBy&id={$view->id}&sortBy=a_id');">{$translate->_('contact_org.id')|capitalize}</a>
+			{if $header=="x"}<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewSortBy&id={$view->id}&sortBy=al_attachment_id');">{$translate->_('contact_org.id')|capitalize}</a>
 			{else}<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewSortBy&id={$view->id}&sortBy={$header}');">{$view_fields.$header->db_label|capitalize}</a>
 			{/if}
 			
@@ -51,29 +51,19 @@
 	{/if}
 	<tbody onmouseover="$(this).find('tr').addClass('hover');" onmouseout="$(this).find('tr').removeClass('hover');">
 		<tr class="{$tableRowClass}">
-			<td align="center" rowspan="2"><input type="checkbox" name="row_id[]" value="{$result.a_id}"></td>
+			<td align="center" rowspan="2"><input type="checkbox" name="row_id[]" value="{$result.al_guid}"></td>
 			<td colspan="{math equation="x" x=$smarty.foreach.headers.total}">
-				<a href="{devblocks_url}c=files&p={$result.a_id}&name={$result.a_display_name|escape:'url'}{/devblocks_url}" class="subject" target="_blank">{$result.a_display_name}</a>
+				<a href="{devblocks_url}c=files&p={$result.al_guid}&name={$result.a_display_name|escape:'url'}{/devblocks_url}" class="subject" target="_blank">{$result.a_display_name}</a>
 			</td>
 		</tr>
 		<tr class="{$tableRowClass}">
 		{foreach from=$view->view_columns item=column name=columns}
-			{if $column=="a_id"}
-			<td>{$result.a_id}&nbsp;</td>
+			{if $column=="al_attachment_id"}
+			<td>{$result.al_attachment_id}&nbsp;</td>
 			{elseif $column=="a_storage_size"}
 			<td>{$result.a_storage_size|devblocks_prettybytes}&nbsp;</td>
-			{elseif $column=="m_created_date"}
-			<td title="{$result.m_created_date|devblocks_date}">{$result.m_created_date|devblocks_prettytime}&nbsp;</td>
-			{elseif $column=="m_is_outgoing"}
-			<td>{if $result.m_is_outgoing}{$translate->_('mail.sent')}{else}{$translate->_('mail.received')}{/if}&nbsp;</td>
-			{elseif $column=="t_mask"}
-				<td><a href="{devblocks_url}c=display&id={$result.t_mask}{/devblocks_url}" title="{$result.t_subject}">{$result.t_mask}</a></td>
-			{elseif $column=="t_id"}
-				<td><a href="{devblocks_url}c=display&id={$result.t_mask}{/devblocks_url}" title="{$result.t_subject}">{$result.t_id}</a></td>
-			{elseif $column=="t_subject"}
-				<td><a href="{devblocks_url}c=display&id={$result.t_mask}{/devblocks_url}" title="{$result.t_subject}">{$result.t_subject|truncate:45:'...'}</a></td>
-			{elseif $column=="ad_email"}
-				<td><a href="javascript:;" onclick="genericAjaxPopup('peek','c=contacts&a=showAddressPeek&email={$result.ad_email|escape:'url'}&view_id={$view->id}',null,false,'500');" title="{$result.ad_email}">{$result.ad_email|truncate:64:'...':true:true}</a></td>
+			{elseif $column=="a_updated"}
+			<td title="{$result.a_updated|devblocks_date}">{$result.a_updated|devblocks_prettytime}&nbsp;</td>
 			{else}
 			<td>{$result.$column}</td>
 			{/if}

@@ -74,31 +74,35 @@ class UmScHistoryController extends Extension_UmScController {
 				
 				// Attachments
 				if(is_array($messages) && !empty($messages)) {
-					list($msg_attachments) = DAO_Attachment::search(
-						array(
-							SearchFields_Attachment::MESSAGE_ID => new DevblocksSearchCriteria(SearchFields_Attachment::MESSAGE_ID,'in',array_keys($messages))
-						),
-						-1,
-						0,
-						null,
-						null,
-						false
-					);
-					
-					if(is_array($msg_attachments))
-					foreach($msg_attachments as $attach_id => $attach) {
-						if(null == ($msg_id = intval($attach[SearchFields_Attachment::MESSAGE_ID])))
-							continue;
-							
-						if(0 == strcasecmp('original_message.html',$attach[SearchFields_Attachment::DISPLAY_NAME]))
-							continue;
-							
-						if(!isset($attachments[$msg_id]))
-							$attachments[$msg_id] = array();
+					// Populate attachments per message
+					foreach($messages as $message_id => $message) {
+						$map = $message->getLinksAndAttachments();
 						
-						$attachments[$msg_id][$attach_id] = $attach;
+						if(!isset($map['links']) || empty($map['links']) 
+							|| !isset($map['attachments']) || empty($map['attachments']))
+							continue;
 						
-						unset($attach);
+						foreach($map['links'] as $link_id => $link) {
+							$file = $map['attachments'][$link->attachment_id];
+							
+							if(empty($file)) {
+								unset($map['links'][$link_id]);
+								continue;
+							}
+								
+							if(0 == strcasecmp('original_message.html', $file->display_name)) {
+								unset($map['links'][$link_id]);
+								unset($map['files'][$link->attachment_id]);
+								continue;
+							}
+						}
+						
+						if(!empty($map)) {
+							if(!isset($attachments[$message_id]))
+								$attachments[$message_id] = array();
+							
+							$attachments[$message_id][$link->guid] = $map;
+						}
 					}
 				}
 				

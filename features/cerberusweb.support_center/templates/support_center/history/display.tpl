@@ -69,15 +69,21 @@
 		<div style="margin-top:10px;">
 		<b>Attachments:</b><br>
 		<ul style="margin-top:0px;">
-		{foreach from=$attachments.$message_id item=attachment key=attachment_id}
+		{foreach from=$attachments.$message_id item=map}
+			{$links = $map.links}
+			{$files = $map.attachments}
+			
+			{foreach from=$links item=link}
+			{$attachment = $files.{$link->attachment_id}}
 			<li>
-				<a href="{devblocks_url}c=ajax&a=downloadFile&mask={$ticket.t_mask}&md5={$attachment_id|cat:$message->id|cat:$attachment.a_display_name|md5}&name={$attachment.a_display_name}{/devblocks_url}" target="_blank">{$attachment.a_display_name}</a>
+				<a href="{devblocks_url}c=ajax&a=downloadFile&guid={$link->guid}&name={$attachment->display_name}{/devblocks_url}" target="_blank">{$attachment->display_name}</a>
 				( 
-					{$attachment.a_storage_size|devblocks_prettybytes}
+					{$attachment->storage_size|devblocks_prettybytes}
 					- 
-					{if !empty($attachment.a_mime_type)}{$attachment.a_mime_type}{else}{$translate->_('display.convo.unknown_format')|capitalize}{/if}
+					{if !empty($attachment->mime_type)}{$attachment->mime_type}{else}{$translate->_('display.convo.unknown_format')|capitalize}{/if}
 				 )
 			</li>
+			{/foreach}
 		{/foreach}
 		</ul>
 		</div>

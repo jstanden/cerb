@@ -180,6 +180,9 @@
 		<tu tuid='common.groups'>
 			<tuv xml:lang="en_US"><seg>Groups</seg></tuv>
 		</tu>
+		<tu tuid='common.guid'>
+			<tuv xml:lang="en_US"><seg>GUID</seg></tuv>
+		</tu>
 		<tu tuid='common.hours'>
 			<tuv xml:lang="en_US"><seg>hours</seg></tuv>
 		</tu>
@@ -681,9 +684,6 @@
 		</tu>
 		<tu tuid='attachment.display_name'>
 			<tuv xml:lang="en_US"><seg>File Name</seg></tuv>
-		</tu>
-		<tu tuid='attachment.message_id'>
-			<tuv xml:lang="en_US"><seg>Message ID</seg></tuv>
 		</tu>
 		<tu tuid='attachment.mime_type'>
 			<tuv xml:lang="en_US"><seg>MIME Type</seg></tuv>

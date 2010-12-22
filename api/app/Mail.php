@@ -321,12 +321,15 @@ class CerberusMail {
 					continue;
 					
 				$fields = array(
-					DAO_Attachment::MESSAGE_ID => $message_id,
 					DAO_Attachment::DISPLAY_NAME => $files['name'][$idx],
 					DAO_Attachment::MIME_TYPE => $files['type'][$idx],
 				);
 				$file_id = DAO_Attachment::create($fields);
 
+				// Link
+				DAO_AttachmentLink::create($file_id, CerberusContexts::CONTEXT_MESSAGE, $message_id);
+				
+				// Content
 				if(null !== ($fp = fopen($file, 'rb'))) {
 					Storage_Attachments::put($file_id, $fp);
 					fclose($fp);
@@ -722,12 +725,15 @@ class CerberusMail {
 
 					// Create record
 					$fields = array(
-						DAO_Attachment::MESSAGE_ID => $message_id,
 						DAO_Attachment::DISPLAY_NAME => $files['name'][$idx],
 						DAO_Attachment::MIME_TYPE => $files['type'][$idx],
 					);
 					$file_id = DAO_Attachment::create($fields);
 
+					// Link
+					DAO_AttachmentLink::create($file_id, CerberusContexts::CONTEXT_MESSAGE, $message_id);
+					
+					// Content
 					if(null !== ($fp = fopen($file, 'rb'))) {
 		            	Storage_Attachments::put($file_id, $fp);
 						fclose($fp);

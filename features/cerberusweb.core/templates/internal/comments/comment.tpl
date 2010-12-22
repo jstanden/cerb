@@ -14,6 +14,10 @@
 		
 		{if isset($comment->created)}<b>{$translate->_('message.header.date')|capitalize}:</b> {$comment->created|devblocks_date}<br>{/if}
 		<pre class="emailbody" style="padding-top:10px;">{$comment->comment|trim|devblocks_hyperlinks}</pre>
+		<br>
+		
+		{* Attachments *}
+		{include file="devblocks:cerberusweb.core::internal/attachments/list.tpl" context="{CerberusContexts::CONTEXT_COMMENT}" context_id=$comment->id}
 	</div>
 	<br>
 </div>

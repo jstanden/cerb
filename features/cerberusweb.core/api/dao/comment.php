@@ -129,7 +129,11 @@ class DAO_Comment extends DevblocksORMHelper {
 		
 		$ids_list = implode(',', $ids);
 		
+		// Comments
 		$db->Execute(sprintf("DELETE FROM comment WHERE id IN (%s)", $ids_list));
+		
+		// Attachments
+		DAO_AttachmentLink::removeAllByContext(CerberusContexts::CONTEXT_COMMENT, $ids);
 		
 		return true;
 	}
@@ -251,6 +255,14 @@ class DAO_Comment extends DevblocksORMHelper {
 		return array($results,$total);
 	}
 
+	static function maint() {
+		$db = DevblocksPlatform::getDatabaseService();
+		$logger = DevblocksPlatform::getConsoleLog();
+
+		$sql = "DELETE QUICK attachment_link FROM attachment_link LEFT JOIN comment ON (attachment_link.context_id=comment.id) WHERE attachment_link.context = 'cerberusweb.contexts.comment' AND comment.id IS NULL";
+		$db->Execute($sql);
+		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' comment attachment_links.');
+	}		
 };
 
 class SearchFields_Comment implements IDevblocksSearchFields {
@@ -309,6 +321,10 @@ class Model_Comment {
 		}
 		
 		return $this->_email_record;
+	}
+	
+	function getLinksAndAttachments() {
+		return DAO_AttachmentLink::getLinksAndAttachments(CerberusContexts::CONTEXT_COMMENT, $this->id);
 	}
 };
 
@@ -508,4 +524,162 @@ class View_Comment extends C4_AbstractView {
 
 		unset($ids);
 	}			
+};
+
+class Context_Comment extends Extension_DevblocksContext {
+	function authorize($context_id, Model_Worker $worker) {
+		// Security
+		try {
+			if(empty($worker))
+				throw new Exception();
+			
+			if($worker->is_superuser)
+				return TRUE;
+
+			if(null == ($comment = DAO_Comment::get($context_id)))
+				throw new Exception();
+				
+			if(null == ($defer_context = DevblocksPlatform::getExtension($comment->context, true)))
+				throw new Exception();
+				
+			return $defer_context->authorize($comment->context_id, $worker);
+			
+		} catch (Exception $e) {
+			// Fail
+		}
+		
+		return FALSE;
+	}
+	
+    function getPermalink($context_id) {
+    	// [TODO] Defer to link
+    	return null;
+    	//$url_writer = DevblocksPlatform::getUrlService();
+    	//return $url_writer->write('c=tasks&action=display&id='.$context_id, true);
+    }
+
+	function getContext($comment, &$token_labels, &$token_values, $prefix=null) {
+		if(is_null($prefix))
+			$prefix = 'Comment:';
+		
+		$translate = DevblocksPlatform::getTranslationService();
+		$fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_COMMENT);
+
+		// Polymorph
+		if(is_numeric($comment)) {
+			$comment = DAO_Comment::get($comment);
+		} elseif($comment instanceof Model_Comment) {
+			// It's what we want already.
+		} else {
+			$comment = null;
+		}
+		
+		// Token labels
+		$token_labels = array(
+//			'completed|date' => $prefix.$translate->_('task.completed_date'),
+		);
+		
+		if(is_array($fields))
+		foreach($fields as $cf_id => $field) {
+			$token_labels['custom_'.$cf_id] = $prefix.$field->name;
+		}
+
+		// Token values
+		$token_values = array();
+		
+		if($comment) {
+//			$token_values['completed'] = $task->completed_date;
+			
+			$token_values['custom'] = array();
+			
+			$field_values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_COMMENT, $comment->id));
+			if(is_array($field_values) && !empty($field_values)) {
+				foreach($field_values as $cf_id => $cf_val) {
+					if(!isset($fields[$cf_id]))
+						continue;
+					
+					// The literal value
+					if(null != $comment)
+						$token_values['custom'][$cf_id] = $cf_val;
+					
+					// Stringify
+					if(is_array($cf_val))
+						$cf_val = implode(', ', $cf_val);
+						
+					if(is_string($cf_val)) {
+						if(null != $comment)
+							$token_values['custom_'.$cf_id] = $cf_val;
+					}
+				}
+			}
+		}
+
+		// Assignee
+//		@$assignee_id = $task->worker_id;
+//		$merge_token_labels = array();
+//		$merge_token_values = array();
+//		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $assignee_id, $merge_token_labels, $merge_token_values, '', true);
+//
+//		CerberusContexts::merge(
+//			'assignee_',
+//			'Assignee:',
+//			$merge_token_labels,
+//			$merge_token_values,
+//			$token_labels,
+//			$token_values
+//		);			
+		
+		return true;
+	}
+
+	function getChooserView() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		// View
+		$view_id = 'chooser_'.str_replace('.','_',$this->id).time().mt_rand(0,9999);
+		$defaults = new C4_AbstractViewModel();
+		$defaults->id = $view_id;
+		$defaults->is_ephemeral = true;
+		$defaults->class_name = 'View_Comment';
+		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
+		$view->name = 'Comments';
+//		$view->view_columns = array(
+//			SearchFields_Message::UPDATED_DATE,
+//			SearchFields_Message::DUE_DATE,
+//		);
+		$view->addParams(array(
+//			SearchFields_Task::IS_COMPLETED => new DevblocksSearchCriteria(SearchFields_Task::IS_COMPLETED,'=',0),
+			//SearchFields_Task::VIRTUAL_WORKERS => new DevblocksSearchCriteria(SearchFields_Task::VIRTUAL_WORKERS,'in',array($active_worker->id)),
+		), true);
+		$view->renderSortBy = SearchFields_Comment::CREATED;
+		$view->renderSortAsc = false;
+		$view->renderLimit = 10;
+		$view->renderTemplate = 'contextlinks_chooser';
+		C4_AbstractViewLoader::setView($view_id, $view);
+		return $view;		
+	}
+	
+	function getView($context, $context_id, $options=array()) {
+		$view_id = str_replace('.','_',$this->id);
+		
+		$defaults = new C4_AbstractViewModel();
+		$defaults->id = $view_id; 
+		$defaults->class_name = 'View_Comment';
+		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
+		$view->name = 'Comments';
+		
+		$params = array(
+			new DevblocksSearchCriteria(SearchFields_Comment::CONTEXT_LINK,'=',$context),
+			new DevblocksSearchCriteria(SearchFields_Comment::CONTEXT_LINK_ID,'=',$context_id),
+		);
+		
+//		if(isset($options['filter_open']))
+//			$params[] = new DevblocksSearchCriteria(SearchFields_Message::IS_COMPLETED,'=',0);
+		
+		$view->addParams($params, true);
+		
+		$view->renderTemplate = 'context';
+		C4_AbstractViewLoader::setView($view_id, $view);
+		return $view;
+	}
 };

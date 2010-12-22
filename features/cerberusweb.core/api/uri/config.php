@@ -391,10 +391,10 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		$tpl = DevblocksPlatform::getTemplateService();
 				
 		$defaults = new C4_AbstractViewModel();
-		$defaults->class_name = 'View_Attachment';
-		$defaults->id = View_Attachment::DEFAULT_ID;
+		$defaults->class_name = 'View_AttachmentLink';
+		$defaults->id = View_AttachmentLink::DEFAULT_ID;
 
-		$view = C4_AbstractViewLoader::getView(View_Attachment::DEFAULT_ID, $defaults);
+		$view = C4_AbstractViewLoader::getView(View_AttachmentLink::DEFAULT_ID, $defaults);
 		$tpl->assign('view', $view);
 		
 		$tpl->display('devblocks:cerberusweb.core::configuration/tabs/attachments/index.tpl');

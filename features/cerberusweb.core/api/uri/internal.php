@@ -162,6 +162,42 @@ class ChInternalController extends DevblocksControllerExtension {
 		}
 	}
 	
+	function chooserOpenFileAction() {
+		@$layer = DevblocksPlatform::importGPC($_REQUEST['layer'],'string');
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('layer', $layer);
+		$tpl->display('devblocks:cerberusweb.core::context_links/choosers/__file.tpl');
+	}
+	
+	function chooserOpenFileUploadAction() {
+		@$file = $_FILES['file_data'];
+		
+		// [TODO] Return false in JSON if file is empty, etc.
+		
+		// Create a record w/ timestamp + ID
+		$fields = array(
+			DAO_Attachment::DISPLAY_NAME => $file['name'],
+			DAO_Attachment::MIME_TYPE => $file['type'],
+		);
+		$file_id = DAO_Attachment::create($fields);
+		
+		// Save the file
+		if(null !== ($fp = fopen($file['tmp_name'], 'rb'))) {
+            Storage_Attachments::put($file_id, $fp);
+			fclose($fp);
+            unlink($file['tmp_name']);
+		}
+		
+		// [TODO] Unlinked records should expire
+		
+		echo json_encode(array(
+			'name' => $file['name'],
+			'size' => $file['size'],
+			'id' => $file_id,
+		));
+	}
+	
 	function contextAddLinksAction() {
 		@$from_context = DevblocksPlatform::importGPC($_REQUEST['from_context'],'string','');
 		@$from_context_id = DevblocksPlatform::importGPC($_REQUEST['from_context_id'],'integer',0);
@@ -862,6 +898,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string');
 		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer',0);
 		@$comment = DevblocksPlatform::importGPC($_REQUEST['comment'],'string','');
+		@$file_ids = DevblocksPlatform::importGPC($_REQUEST['file_ids'],'array',array());
 		
 		$translate = DevblocksPlatform::getTranslationService();
 		
@@ -884,6 +921,12 @@ class ChInternalController extends DevblocksControllerExtension {
 			DAO_Comment::CREATED => time(),
 		);
 		$comment_id = DAO_Comment::create($fields);
+		
+		// Attachments
+		if(!empty($file_ids))
+		foreach($file_ids as $file_id) {
+			DAO_AttachmentLink::create(intval($file_id), CerberusContexts::CONTEXT_COMMENT, $comment_id);
+		}
 		
 		if(null == ($extension = DevblocksPlatform::getExtension($context, true, true)))
 			return; 

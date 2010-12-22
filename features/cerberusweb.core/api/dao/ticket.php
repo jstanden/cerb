@@ -1963,6 +1963,27 @@ class View_Ticket extends C4_AbstractView {
 };
 
 class Context_Ticket extends Extension_DevblocksContext {
+	function authorize($context_id, Model_Worker $worker) {
+		// Security
+		try {
+			if(empty($worker))
+				throw new Exception();
+			
+			if($worker->is_superuser)
+				return TRUE;
+				
+			if(null == ($ticket = DAO_Ticket::get($context_id)))
+				throw new Exception();
+			
+			return $worker->isTeamMember($ticket->team_id);
+				
+		} catch (Exception $e) {
+			// Fail
+		}
+		
+		return FALSE;
+	}
+		
     function getPermalink($context_id) {
     	$url_writer = DevblocksPlatform::getUrlService();
     	return $url_writer->write('c=display&id='.$context_id, true);

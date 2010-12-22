@@ -68,25 +68,27 @@ class ChFilesController extends DevblocksControllerExtension {
 		
 		$stack = $request->path;				// URLS like: /files/10000/plaintext.txt
 		array_shift($stack);					// files	
-		$file_id = array_shift($stack); 		// 10000
+		$file_guid = array_shift($stack); 		// GUID
 		$file_name = array_shift($stack); 		// plaintext.txt
 
 		// Security
 		if(null == ($active_worker = CerberusApplication::getActiveWorker()))
 			die($translate->_('common.access_denied'));
 		
-		if(empty($file_id) || empty($file_name) || null == ($file = DAO_Attachment::get($file_id)))
+		if(empty($file_guid) || empty($file_name))
 			die($translate->_('files.not_found'));
-			
+		
+		$link = DAO_AttachmentLink::getByGUID($file_guid);
+		
+		if(null == ($context = $link->getContext()))
+			die($translate->_('common.access_denied'));
+		
 		// Security
-			$message = DAO_Message::get($file->message_id);
-		if(null == ($ticket = DAO_Ticket::get($message->ticket_id)))
+		if(!$context->authorize($link->context_id, $active_worker))
 			die($translate->_('common.access_denied'));
 			
-		// Security
-		$active_worker_memberships = $active_worker->getMemberships();
-		if(null == ($active_worker_memberships[$ticket->team_id]))
-			die($translate->_('common.access_denied'));
+		$file = $link->getAttachment();
+		
 		
 		if(false === ($fp = DevblocksPlatform::getTempFile()))
 			die("Could not open a temporary file.");

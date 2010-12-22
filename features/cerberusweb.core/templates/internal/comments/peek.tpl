@@ -8,6 +8,13 @@
 <textarea name="comment" rows="5" cols="60" style="width:98%;"></textarea><br>
 <br>
 
+<b>Attachments:</b><br>
+<div style="margin-left:20px;margin-bottom:1em;">
+	<button type="button" class="chooser_file"><span class="cerb-sprite sprite-view"></span></button>
+	<ul class="chooser-container bubbles" style="display:block;">
+	</ul>
+</div>
+
 <b>Notify workers</b>:<br>
 <div style="margin-left:20px;margin-bottom:1em;">
 	<button type="button" class="chooser_worker"><span class="cerb-sprite sprite-view"></span></button>
@@ -39,6 +46,10 @@
 	
 		$frm.find('button.chooser_worker').each(function() {
 			ajax.chooser(this,'cerberusweb.contexts.worker','notify_worker_ids', { autocomplete:true });
+		});
+		
+		$frm.find('button.chooser_file').each(function() {
+			ajax.chooserFile(this,'file_ids');
 		});
 		
 		// [TODO] This shouldn't catch an 'o'.
