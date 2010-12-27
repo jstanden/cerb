@@ -71,6 +71,10 @@ input[type=text]:focus, input[type=password]:focus {
 	background-color:rgb(245,245,245);
 }
 
+input[type=text].input_add {
+	background:url('input_icons/add.png') no-repeat scroll 5px 50% #ffffff;
+	padding-left:25px;
+}
 input[type=text].input_color {
 	background:url('input_icons/colors.png') no-repeat scroll 5px 50% #ffffff;
 	padding-left:25px;
@@ -109,6 +113,10 @@ input[type=text].input_percent {
 }
 input[type=text].input_phone {
 	background:url('input_icons/phone.png') no-repeat scroll 5px 50% #ffffff;
+	padding-left:25px;
+}
+input[type=text].input_remove {
+	background:url('input_icons/forbidden.png') no-repeat scroll 5px 50% #ffffff;
 	padding-left:25px;
 }
 input[type=text].input_search {

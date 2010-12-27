@@ -33,9 +33,9 @@
 		<tr>
 			<td width="0%" nowrap="nowrap" align="right" valign="top">{'common.owners'|devblocks_translate|capitalize}:</td>
 			<td width="100%">
-				<button type="button" class="chooser-worker add"><span class="cerb-sprite sprite-add"></span></button>
+				<button type="button" class="chooser-worker add"><span class="cerb-sprite sprite-view"></span></button>
 				<br>
-				<button type="button" class="chooser-worker remove"><span class="cerb-sprite sprite-forbidden"></span></button>
+				<button type="button" class="chooser-worker remove"><span class="cerb-sprite sprite-view"></span></button>
 			</td>
 		</tr>
 		<tr>
@@ -110,9 +110,9 @@
 			context = 'cerberusweb.contexts.worker';
 			
 			if($button.hasClass('remove'))
-				ajax.chooser(this, context, 'do_owner_remove_ids');
+				ajax.chooser(this, context, 'do_owner_remove_ids', { autocomplete: true, autocomplete_class:'input_remove' } );
 			else
-				ajax.chooser(this, context, 'do_owner_add_ids');
+				ajax.chooser(this, context, 'do_owner_add_ids', { autocomplete: true, autocomplete_class:'input_add'} );
 		});
 	});
 </script>
