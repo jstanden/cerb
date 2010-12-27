@@ -174,6 +174,81 @@ class CallsPage extends CerberusPageExtension {
 		}
 	}
 	
+	function showCallsBulkPanelAction() {
+		@$ids = DevblocksPlatform::importGPC($_REQUEST['ids']);
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id']);
+
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('view_id', $view_id);
+
+	    if(!empty($ids)) {
+	        $id_list = DevblocksPlatform::parseCsvString($ids);
+	        $tpl->assign('ids', implode(',', $id_list));
+	    }
+		
+		// Custom Fields
+		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_CALL);
+		$tpl->assign('custom_fields', $custom_fields);
+		
+		$tpl->display('devblocks:cerberusweb.calls::calls/ajax/bulk.tpl');
+	}
+	
+	function doCallsBulkUpdateAction() {
+		// Filter: whole list or check
+	    @$filter = DevblocksPlatform::importGPC($_REQUEST['filter'],'string','');
+		$ids = array();
+	    
+	    // View
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
+		$view = C4_AbstractViewLoader::getView($view_id);
+		
+		// Call fields
+		$is_closed = trim(DevblocksPlatform::importGPC($_POST['is_closed'],'string',''));
+
+		$do = array();
+		
+		// Do: Due
+		if(0 != strlen($is_closed))
+			$do['is_closed'] = !empty($is_closed) ? 1 : 0;
+			
+		// Owners
+		$owner_params = array();
+		
+		@$owner_add_ids = DevblocksPlatform::importGPC($_REQUEST['do_owner_add_ids'],'array',array());
+		if(!empty($owner_add_ids))
+			$owner_params['add'] = $owner_add_ids;
+			
+		@$owner_remove_ids = DevblocksPlatform::importGPC($_REQUEST['do_owner_remove_ids'],'array',array());
+		if(!empty($owner_remove_ids))
+			$owner_params['remove'] = $owner_remove_ids;
+		
+		if(!empty($owner_params))
+			$do['owner'] = $owner_params;
+			
+		// Do: Custom fields
+		$do = DAO_CustomFieldValue::handleBulkPost($do);
+
+		switch($filter) {
+			// Checked rows
+			case 'checks':
+			    @$ids_str = DevblocksPlatform::importGPC($_REQUEST['ids'],'string');
+				$ids = DevblocksPlatform::parseCsvString($ids_str);
+				break;
+			case 'sample':
+				@$sample_size = min(DevblocksPlatform::importGPC($_REQUEST['filter_sample_size'],'integer',0),9999);
+				$filter = 'checks';
+				$ids = $view->getDataSample($sample_size);
+				break;
+			default:
+				break;
+		}
+		
+		$view->doBulkUpdate($filter, $do, $ids);
+		
+		$view->render();
+		return;
+	}	
+	
 	function viewCallsExploreAction() {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
 		

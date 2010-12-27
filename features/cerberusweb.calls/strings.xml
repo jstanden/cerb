@@ -8,6 +8,15 @@
 		<!-- Common Strings -->
 		
 		<!-- ACL -->
+		<tu tuid='acl.calls.actions.create'>
+			<tuv xml:lang="en_US"><seg>[Call Logging] Can create calls</seg></tuv>
+		</tu>
+		<tu tuid='acl.calls.actions.update_all'>
+			<tuv xml:lang="en_US"><seg>[Call Logging] Can manage everyone's calls</seg></tuv>
+		</tu>
+		<tu tuid='acl.calls.actions.update_nobody'>
+			<tuv xml:lang="en_US"><seg>[Call Logging] Can manage unassigned calls</seg></tuv>
+		</tu>
 		<tu tuid='acl.calls.view.actions.export'>
 			<tuv xml:lang="en_US"><seg>[Call Logging] Can export call lists to CSV/XML</seg></tuv>
 		</tu>

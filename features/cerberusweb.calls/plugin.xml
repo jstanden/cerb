@@ -37,6 +37,9 @@
 	<!-- Privileges -->
 	
 	<acl>
+		<!--<priv id="calls.actions.create" label="acl.calls.actions.create" />-->
+		<priv id="calls.actions.update_all" label="acl.calls.actions.update_all" />
+		<!--<priv id="calls.actions.update_nobody" label="acl.calls.actions.update_nobody" />-->
 		<priv id="calls.view.actions.export" label="acl.calls.view.actions.export" />
 	</acl>
 	
