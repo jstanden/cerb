@@ -518,7 +518,7 @@ class View_CallEntry extends C4_AbstractView {
 class Context_Call extends Extension_DevblocksContext {
     function getPermalink($context_id) {
     	$url_writer = DevblocksPlatform::getUrlService();
-    	return $url_writer->write('c=call&tab=display&id='.$context_id, true);
+    	return $url_writer->write('c=calls&id='.$context_id, true);
     }
     
 	function getContext($call, &$token_labels, &$token_values, $prefix=null) {
