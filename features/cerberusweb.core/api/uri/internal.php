@@ -486,7 +486,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		
 		$view = C4_AbstractViewLoader::getView($id);
 
-		// [TODO] Nuke criteria
+		// Nuke criteria
 		if(is_array($field_deletes) && !empty($field_deletes)) {
 			foreach($field_deletes as $field_delete) {
 				$view->doRemoveCriteria($field_delete);

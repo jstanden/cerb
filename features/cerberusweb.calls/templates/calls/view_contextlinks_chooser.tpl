@@ -42,6 +42,9 @@
 		<tr class="{$tableRowClass}">
 			<td align="center" rowspan="2"><input type="checkbox" name="row_id[]" title="{$result.c_subject}" value="{$result.c_id}"></td>
 			<td colspan="{math equation="x" x=$smarty.foreach.headers.total}">
+				{if $result.c_is_closed}
+					<span class="cerb-sprite sprite-check_gray"></span>
+				{/if}
 				<b class="subject">{$result.c_subject}</b> 
 				
 				{$object_workers = DAO_ContextLink::getContextLinks(CerberusContexts::CONTEXT_OPPORTUNITY, array_keys($data), CerberusContexts::CONTEXT_WORKER)}

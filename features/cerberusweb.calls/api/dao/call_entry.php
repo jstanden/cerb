@@ -341,9 +341,6 @@ class View_CallEntry extends C4_AbstractView {
 			SearchFields_CallEntry::CONTEXT_LINK,
 			SearchFields_CallEntry::CONTEXT_LINK_ID,
 		));
-		$this->addParamsDefault(array(
-			SearchFields_CallEntry::IS_CLOSED => new DevblocksSearchCriteria(SearchFields_CallEntry::IS_CLOSED,DevblocksSearchCriteria::OPER_EQ,0),
-		));
 
 		$this->doResetCriteria();
 	}

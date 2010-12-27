@@ -191,10 +191,14 @@ class CallsActivityTab extends Extension_ActivityTab {
 		$defaults->id = self::VIEW_ACTIVITY_CALLS;
 		$defaults->renderSortBy = SearchFields_CallEntry::UPDATED_DATE;
 		$defaults->renderSortAsc = 0;
+		$defaults->paramsDefault = array(
+			SearchFields_CallEntry::IS_CLOSED => new DevblocksSearchCriteria(SearchFields_CallEntry::IS_CLOSED,DevblocksSearchCriteria::OPER_EQ,0),
+		);
 		
-		$view = C4_AbstractViewLoader::getView(self::VIEW_ACTIVITY_CALLS, $defaults);
-		$view->name = "Calls";
-		C4_AbstractViewLoader::setView($view->id, $view);
+		if(null == ($view = C4_AbstractViewLoader::getView(self::VIEW_ACTIVITY_CALLS, $defaults))) {
+			$view->name = "Calls";
+			C4_AbstractViewLoader::setView($view->id, $view);
+		}
 
 		$tpl->assign('view', $view);
 		

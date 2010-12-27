@@ -9,10 +9,17 @@
 
 	<table cellspacing="0" cellpadding="2" border="0" width="98%">
 		<tr>
-			<td width="1%" nowrap="nowrap" valign="top"><b>Type:</b></td>
-			<td width="99%" valign="top">
-				<label><input type="radio" name="is_outgoing" value="0" {if empty($model) || !$model->is_outgoing}checked="checked"{/if}> Incoming</label>
-				<label><input type="radio" name="is_outgoing" value="1" {if !empty($model) && $model->is_outgoing}checked="checked"{/if}> Outgoing</label>
+			<td colspan="2">
+				<div style="float:left;">
+					<b>Type:</b>
+					<label><input type="radio" name="is_outgoing" value="0" {if empty($model) || !$model->is_outgoing}checked="checked"{/if}> Incoming</label>
+					<label><input type="radio" name="is_outgoing" value="1" {if !empty($model) && $model->is_outgoing}checked="checked"{/if}> Outgoing</label>
+				</div>
+				<div style="float:right;">
+					<b>{'common.status'|devblocks_translate|capitalize}:</b>
+					<label><input type="radio" name="is_closed" value="0" {if empty($model) || !$model->is_closed}checked="checked"{/if}> {'status.open'|devblocks_translate|capitalize}</label>
+					<label><input type="radio" name="is_closed" value="1" {if !empty($model) && $model->is_closed}checked="checked"{/if}> {'status.closed'|devblocks_translate|capitalize}</label>
+				</div>
 			</td>
 		</tr>
 		<tr>
