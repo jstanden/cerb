@@ -43,20 +43,6 @@
 	
 	<extensions>
 	
-		<!-- Usermeet Tools -->
-		
-		<extension point="usermeet.tool">
-			<id>usermeet.tool.community</id>
-			<name>Community</name>
-			<class>
-				<file>api/App.php</file>
-				<name>UsermeetCommunityApp</name>
-			</class>
-			<params>
-				<param key="template_set" value="cerberusweb.support_center" />
-			</params>
-		</extension>
-	
 		<!-- Controllers -->
 	
 		<extension point="devblocks.controller">
