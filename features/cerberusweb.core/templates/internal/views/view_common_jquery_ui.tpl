@@ -8,8 +8,10 @@ $('FORM#viewForm{$view->id} TABLE.worklistBody TBODY').click(function(e) {
 		$target = $parents[$parents.length-1]; // 0-based
 	}
 	
-	if($target.is(':input,:button,a')) {
-		// Ignore these clicks
+	if (false == $target instanceof jQuery) {
+		// Not a jQuery object
+	} else if($target.is(':input,:button,a')) {
+		// Ignore form elements and links
 	} else {
 		e.preventDefault();
 		$chk=$(this).find('input:checkbox:first');
