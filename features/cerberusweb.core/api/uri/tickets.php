@@ -1205,7 +1205,8 @@ class ChTicketsPage extends CerberusPageExtension {
 		@$worker_ids = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',array());
 		@$bucket = DevblocksPlatform::importGPC($_REQUEST['bucket_id'],'string','');
 		@$spam_training = DevblocksPlatform::importGPC($_REQUEST['spam_training'],'string','');
-		
+		@$ticket_reopen = DevblocksPlatform::importGPC(@$_REQUEST['ticket_reopen'],'string','');
+
 		$fields = array(
 			DAO_Ticket::SUBJECT => $subject,
 		);
@@ -1254,6 +1255,11 @@ class ChTicketsPage extends CerberusPageExtension {
 				CerberusBayes::markTicketAsSpam($id);
 			elseif('N'==$spam_training)
 				CerberusBayes::markTicketAsNotSpam($id);
+		}
+		
+		if(!empty($ticket_reopen)) {
+			if(false !== ($due = strtotime($ticket_reopen)))
+				$fields[DAO_Ticket::DUE_DATE] = $due;
 		}
 		
 		DAO_Ticket::update($id, $fields);
