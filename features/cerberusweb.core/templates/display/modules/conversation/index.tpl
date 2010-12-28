@@ -7,7 +7,7 @@
 <div class="ui-widget">
 	<div class="ui-state-highlight ui-corner-all" style="padding: 0 .7em; margin: 0.2em; "> 
 		<p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span> 
-		This ticket has <strong>{$drafts|count}</strong> pending draft(s): 
+		This ticket has <strong>{$drafts|count nofilter}</strong> pending draft(s): 
 		{foreach from=$pending_drafts item=draft name=drafts}
 			<a href="#draft{$draft->id}">{$draft->updated|devblocks_prettytime}</a>{if !$smarty.foreach.drafts.last}, {/if} 
 		{/foreach}
