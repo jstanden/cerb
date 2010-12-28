@@ -29,12 +29,19 @@
 			
 			<table cellpadding="0" cellspacing="2" border="0" width="98%">
 				<tr>
-					<td width="0%" nowrap="nowrap" align="right">{$translate->_('ticket.status')|capitalize}: </td>
+					<td width="0%" nowrap="nowrap" valign="top" align="right">{$translate->_('ticket.status')|capitalize}: </td>
 					<td width="100%">
 						<label><input type="radio" name="closed" value="0" onclick="toggleDiv('ticketClosed','none');" {if !$ticket->is_closed && !$ticket->is_waiting}checked{/if}>{$translate->_('status.open')|capitalize}</label>
 						<label><input type="radio" name="closed" value="2" onclick="toggleDiv('ticketClosed','block');" {if !$ticket->is_closed && $ticket->is_waiting}checked{/if}>{$translate->_('status.waiting')|capitalize}</label>
 						{if $active_worker->hasPriv('core.ticket.actions.close') || ($ticket->is_closed && !$ticket->is_deleted)}<label><input type="radio" name="closed" value="1" onclick="toggleDiv('ticketClosed','block');" {if $ticket->is_closed && !$ticket->is_deleted}checked{/if}>{$translate->_('status.closed')|capitalize}</label>{/if}
 						{if $active_worker->hasPriv('core.ticket.actions.delete') || ($ticket->is_deleted)}<label><input type="radio" name="closed" value="3" onclick="toggleDiv('ticketClosed','none');" {if $ticket->is_deleted}checked{/if}>{$translate->_('status.deleted')|capitalize}</label>{/if}
+						
+						<div id="ticketClosed" style="display:{if $ticket->is_closed || $ticket->is_waiting}block{else}none{/if};margin:5px 0px 5px 15px;">
+							<b>{$translate->_('display.reply.next.resume')}:</b><br>
+							<i>{$translate->_('display.reply.next.resume_eg')}</i><br>
+							<input type="text" name="ticket_reopen" size="55" value="{if !empty($ticket->due_date)}{$ticket->due_date|devblocks_date}{/if}"><br>
+							{$translate->_('display.reply.next.resume_blank')}<br>
+						</div>
 					</td>
 				</tr>
 				<tr>
