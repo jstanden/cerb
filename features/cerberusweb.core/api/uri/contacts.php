@@ -907,6 +907,10 @@ class ChContactsPage extends CerberusPageExtension {
 		$contact = DAO_ContactOrg::get($id);
 		$tpl->assign('contact', $contact);
 
+		// Workers
+		$context_workers = CerberusContexts::getWorkers(CerberusContexts::CONTEXT_ORG, $id);
+		$tpl->assign('context_workers', $context_workers);
+		
 		// Custom fields
 		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ORG); 
 		$tpl->assign('custom_fields', $custom_fields);
@@ -1037,6 +1041,10 @@ class ChContactsPage extends CerberusPageExtension {
 				else {
 					DAO_ContactOrg::update($id, $fields);	
 				}
+				
+				// Workers
+				@$worker_ids = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',array());
+				CerberusContexts::setWorkers(CerberusContexts::CONTEXT_ORG, $id, $worker_ids);
 				
 				// Custom field saves
 				@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', array());

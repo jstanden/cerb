@@ -41,7 +41,22 @@
 	<tbody onmouseover="$(this).find('tr').addClass('hover');" onmouseout="$(this).find('tr').removeClass('hover');">
 		<tr class="{$tableRowClass}">
 			<td align="center" rowspan="2"><input type="checkbox" name="row_id[]" title="{$result.c_name}" value="{$result.c_id}"></td>
-			<td colspan="{math equation="x" x=$smarty.foreach.headers.total}"><b class="subject">{$result.c_name}</b></td>
+			<td colspan="{math equation="x" x=$smarty.foreach.headers.total}">
+				<b class="subject">{$result.c_name}</b>
+
+				{$object_workers = DAO_ContextLink::getContextLinks(CerberusContexts::CONTEXT_ORG, array_keys($data), CerberusContexts::CONTEXT_WORKER)}
+				{if isset($object_workers.{$result.c_id})}
+				<div style="display:inline;padding-left:5px;">
+				{foreach from=$object_workers.{$result.c_id} key=worker_id item=worker name=workers}
+					{if isset($workers.{$worker_id})}
+						<span style="color:rgb(150,150,150);">
+						{$workers.{$worker_id}->getName()}{if !$smarty.foreach.workers.last}, {/if}
+						</span>
+					{/if}
+				{/foreach}
+				</div>
+				{/if}
+			</td>
 		</tr>
 		<tr class="{$tableRowClass}">
 		{foreach from=$view->view_columns item=column name=columns}

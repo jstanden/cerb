@@ -47,6 +47,20 @@
 			<td align="right">{if !empty($contact->website)}<a href="{$contact->website}" target="_blank">{$translate->_('contact_org.website')|capitalize}</a>{else}{$translate->_('contact_org.website')|capitalize}{/if}: </td>
 			<td><input type="text" name="website" value="{$contact->website}" style="width:98%;" class="url"></td>
 		</tr>
+		
+		<tr>
+			<td width="0%" nowrap="nowrap" valign="top" align="right">{'common.owners'|devblocks_translate|capitalize}: </td>
+			<td width="100%">
+				<button type="button" class="chooser_worker"><span class="cerb-sprite sprite-view"></span></button>
+				<ul class="chooser-container bubbles" style="display:block;">
+				{if !empty($context_workers)}
+					{foreach from=$context_workers item=context_worker}
+					<li>{$context_worker->getName()}<input type="hidden" name="worker_id[]" value="{$context_worker->id}"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></li>
+					{/foreach}
+				{/if}
+				</ul>
+			</td>
+		</tr>
 	</table>
 </fieldset>
 
@@ -78,5 +92,8 @@
 		// Form validation
 	    $("#formOrgPeek").validate();
 		$('#formOrgPeek :input:text:first').focus();
-	} );
+	});
+	$('#formOrgPeek button.chooser_worker').each(function() {
+		ajax.chooser(this,'cerberusweb.contexts.worker','worker_id', { autocomplete:true });
+	});
 </script>

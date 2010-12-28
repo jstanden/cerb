@@ -281,6 +281,25 @@ class DAO_ContactOrg extends C4_ORMHelper {
 			
 		$sort_sql = (!empty($sortBy)) ? sprintf("ORDER BY %s %s ",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : " ";
 		
+		// Virtuals
+		foreach($params as $param) {
+			$param_key = $param->field;
+			settype($param_key, 'string');
+			switch($param_key) {
+				case SearchFields_Task::VIRTUAL_WORKERS:
+					$has_multiple_values = true;
+					if(empty($param->value)) { // empty
+						$join_sql .= "LEFT JOIN context_link AS context_owner ON (context_owner.from_context = 'cerberusweb.contexts.org' AND context_owner.from_context_id = c.id AND context_owner.to_context = 'cerberusweb.contexts.worker') ";
+						$where_sql .= "AND context_owner.to_context_id IS NULL ";
+					} else {
+						$join_sql .= sprintf("INNER JOIN context_link AS context_owner ON (context_owner.from_context = 'cerberusweb.contexts.org' AND context_owner.from_context_id = c.id AND context_owner.to_context = 'cerberusweb.contexts.worker' AND context_owner.to_context_id IN (%s)) ",
+							implode(',', $param->value)
+						);
+					}
+					break;
+			}
+		}
+		
 		$result = array(
 			'primary_table' => 'c',
 			'select' => $select_sql,
@@ -369,6 +388,8 @@ class SearchFields_ContactOrg {
 	const WEBSITE = 'c_website';
 	const CREATED = 'c_created';
 
+	const VIRTUAL_WORKERS = '*_workers';
+	
 	const CONTEXT_LINK = 'cl_context_from';
 	const CONTEXT_LINK_ID = 'cl_context_from_id';
 	
@@ -389,6 +410,8 @@ class SearchFields_ContactOrg {
 			self::PHONE => new DevblocksSearchField(self::PHONE, 'c', 'phone', $translate->_('contact_org.phone')),
 			self::WEBSITE => new DevblocksSearchField(self::WEBSITE, 'c', 'website', $translate->_('contact_org.website')),
 			self::CREATED => new DevblocksSearchField(self::CREATED, 'c', 'created', $translate->_('contact_org.created')),
+
+			self::VIRTUAL_WORKERS => new DevblocksSearchField(self::VIRTUAL_WORKERS, '*', 'workers', $translate->_('common.owners')),
 			
 			self::CONTEXT_LINK => new DevblocksSearchField(self::CONTEXT_LINK, 'context_link', 'from_context', null),
 			self::CONTEXT_LINK_ID => new DevblocksSearchField(self::CONTEXT_LINK_ID, 'context_link', 'from_context_id', null),
@@ -444,6 +467,7 @@ class View_ContactOrg extends C4_AbstractView {
 		$this->addColumnsHidden(array(
 			SearchFields_ContactOrg::CONTEXT_LINK,
 			SearchFields_ContactOrg::CONTEXT_LINK_ID,
+			SearchFields_ContactOrg::VIRTUAL_WORKERS,
 		));
 		
 		$this->addParamsHidden(array(
@@ -482,6 +506,9 @@ class View_ContactOrg extends C4_AbstractView {
 		$org_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ORG);
 		$tpl->assign('custom_fields', $org_fields);
 		
+		$workers = DAO_Worker::getAll();
+		$tpl->assign('workers', $workers);
+		
 		switch($this->renderTemplate) {
 			case 'contextlinks_chooser':
 				$tpl->display('devblocks:cerberusweb.core::contacts/orgs/view_contextlinks_chooser.tpl');
@@ -510,6 +537,9 @@ class View_ContactOrg extends C4_AbstractView {
 			case SearchFields_ContactOrg::CREATED:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__date.tpl');
 				break;
+			case SearchFields_ContactOrg::VIRTUAL_WORKERS:
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context_worker.tpl');
+				break;
 			default:
 				// Custom Fields
 				if('cf_' == substr($field,0,3)) {
@@ -521,6 +551,29 @@ class View_ContactOrg extends C4_AbstractView {
 		}
 	}
 
+	function renderVirtualCriteria($param) {
+		$key = $param->field;
+		
+		switch($key) {
+			case SearchFields_ContactOrg::VIRTUAL_WORKERS:
+				if(empty($param->value)) {
+					echo "Owners <b>are not assigned</b>";
+					
+				} elseif(is_array($param->value)) {
+					$workers = DAO_Worker::getAll();
+					$strings = array();
+					
+					foreach($param->value as $worker_id) {
+						if(isset($workers[$worker_id]))
+							$strings[] = '<b>'.$workers[$worker_id]->getName().'</b>';
+					}
+					
+					echo sprintf("Owner is %s", implode(' or ', $strings));
+				}
+				break;
+		}
+	}	
+	
 	function renderCriteriaParam($param) {
 		$field = $param->field;
 		$values = !is_array($param->value) ? array($param->value) : $param->value;
@@ -555,6 +608,7 @@ class View_ContactOrg extends C4_AbstractView {
 				}
 				$criteria = new DevblocksSearchCriteria($field, $oper, $value);
 				break;
+				
 			case SearchFields_ContactOrg::CREATED:
 				@$from = DevblocksPlatform::importGPC($_REQUEST['from'],'string','');
 				@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string','');
@@ -564,6 +618,12 @@ class View_ContactOrg extends C4_AbstractView {
 
 				$criteria = new DevblocksSearchCriteria($field,$oper,array($from,$to));
 				break;
+				
+			case SearchFields_ContactOrg::VIRTUAL_WORKERS:
+				@$worker_ids = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',array());
+				$criteria = new DevblocksSearchCriteria($field,'in', $worker_ids);
+				break;
+				
 			default:
 				// Custom Fields
 				if(substr($field,0,3)=='cf_') {
