@@ -111,6 +111,7 @@ class Context_TimeTracking extends Extension_DevblocksContext {
 			$token_values['created'] = $timeentry[SearchFields_TimeTrackingEntry::LOG_DATE];
 			$token_values['id'] = $timeentry[SearchFields_TimeTrackingEntry::ID];
 			$token_values['mins'] = $timeentry[SearchFields_TimeTrackingEntry::TIME_ACTUAL_MINS];
+			$token_values['activity_id'] = $timeentry[SearchFields_TimeTrackingEntry::ACTIVITY_ID];
 			$token_values['custom'] = array();
 			
 			$field_values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_TIMETRACKING, $timeentry[SearchFields_TimeTrackingEntry::ID]));
