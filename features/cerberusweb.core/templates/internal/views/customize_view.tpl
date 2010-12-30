@@ -24,7 +24,7 @@
 {$columnsAvailable = $view->getColumnsAvailable()}
 {section start=0 step=1 loop=15 name=columns}
 {assign var=index value=$smarty.section.columns.index}
-{math equation="x+1" x=$index format="%02d"}: 
+<div class="column"> 
 <select name="columns[]">
 	<option value=""></option>
 	
@@ -50,7 +50,8 @@
 	</optgroup>
 	{/if}
 </select>
-<br>
+<span class="ui-icon ui-icon-arrowthick-2-n-s" style="display:inline-block;vertical-align:middle;"></span>
+</div>
 {/section}
 <br>
 <b>{$translate->_('dashboard.num_rows')|capitalize}:</b> <input type="text" name="num_rows" size="3" maxlength="3" value="{$view->renderLimit}"><br>
@@ -70,3 +71,7 @@
 <br>
 <br>
 </div>
+
+<script type="text/javascript">
+	$('#customize{$view->id}').sortable({ items: 'DIV.column' });
+</script>
