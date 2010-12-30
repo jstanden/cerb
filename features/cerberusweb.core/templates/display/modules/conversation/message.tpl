@@ -116,9 +116,13 @@
 	      		<button type="button" onclick="document.frmPrint.action='{devblocks_url}c=print&a=message&id={$message->id}{/devblocks_url}';document.frmPrint.submit();"><span class="cerb-sprite sprite-printer"></span> {$translate->_('common.print')|capitalize}</button>
 	      		
 	      		{if $ticket->first_message_id != $message->id && $active_worker->hasPriv('core.display.actions.split')} {* Don't allow splitting of a single message *}
-	      		<button type="button" onclick="this.form.a.value='doSplitMessage';this.form.submit();" title="Split message into new ticket"><span class="cerb-sprite sprite-documents"></span> {$translate->_('display.button.split_ticket')|capitalize}</button>
+	      		<button type="button" onclick="$frm=$(this).closest('form');$frm.find('input:hidden[name=a]').val('doSplitMessage');$frm.submit();" title="Split message into new ticket"><span class="cerb-sprite sprite-documents"></span> {$translate->_('display.button.split_ticket')|capitalize}</button>
 	      		{/if}
 	      		
+				{if $active_worker->hasPriv('core.display.message.actions.delete')}
+				<button type="button" onclick="if(!confirm('Are you sure you want to delete this message?'))return; $frm=$(this).closest('form');$frm.find('input:hidden[name=a]').val('doDeleteMessage');$frm.submit();" title="Delete this message"><span class="cerb-sprite sprite-delete"></span> {$translate->_('common.delete')|capitalize}</button>
+				{/if}
+				
 				{* Plugin Toolbar *}
 				{if !empty($message_toolbaritems)}
 					{foreach from=$message_toolbaritems item=renderer}

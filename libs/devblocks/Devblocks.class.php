@@ -2951,7 +2951,22 @@ class _DevblocksSearchEngineMysqlFulltext {
 		DevblocksPlatform::clearCache(DevblocksPlatform::CACHE_TABLES);
 		
 		return (false !== $result) ? true : false;
-	}	
+	}
+	
+	public function delete($ns, $ids) {
+		if(!is_array($ids))
+			$ids = array($ids);
+			
+		if(empty($ns) || empty($ids))
+			return;
+			
+		$result = mysql_query(sprintf("DELETE FROM fulltext_%s WHERE id IN (%s) ",
+			$this->escapeNamespace($ns),
+			implode(',', $ids)
+		), $this->_db);
+		
+		return (false !== $result) ? true : false;
+	}
 };
 
 class _DevblocksEventManager {

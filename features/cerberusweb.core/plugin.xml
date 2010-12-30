@@ -327,6 +327,8 @@
 		<priv id="core.display.actions.note" label="acl.core.display.actions.note" />
 		<priv id="core.display.actions.reply" label="acl.core.display.actions.reply" />
 		<priv id="core.display.actions.split" label="acl.core.display.actions.split" />
+		
+		<priv id="core.display.message.actions.delete" label="acl.core.display.message.actions.delete" />
 
 		<!-- Mail page -->
 		<priv id="core.mail.actions.auto_refresh" label="acl.core.mail.actions.auto_refresh" />

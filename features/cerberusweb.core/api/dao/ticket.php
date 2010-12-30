@@ -369,6 +369,44 @@ class DAO_Ticket extends C4_ORMHelper {
 		}
 	}
 	
+	static function rebuild($id) {
+		if(null == ($ticket = DAO_Ticket::get($id)))
+			return FALSE;
+
+		$messages = $ticket->getMessages();
+		$first_message = reset($messages);
+		$last_message = end($messages);
+		
+		// If no messages, delete the ticket
+		if(empty($first_message) && empty($last_message)) {
+			DAO_Ticket::update($id, array(
+				DAO_Ticket::IS_WAITING => 0,
+				DAO_Ticket::IS_CLOSED => 1,
+				DAO_Ticket::IS_DELETED => 1,
+			));
+			
+			return FALSE;
+		}
+			
+		// Reindex the first message
+		if($first_message) {
+			DAO_Ticket::update($id, array(
+				DAO_Ticket::FIRST_MESSAGE_ID => $first_message->id,
+				DAO_Ticket::FIRST_WROTE_ID => $first_message->address_id
+			));
+		}
+		
+		// Reindex the last message
+		if($last_message) {
+			DAO_Ticket::update($id, array(
+				DAO_Ticket::LAST_MESSAGE_ID => $last_message->id,
+				DAO_Ticket::LAST_WROTE_ID => $last_message->address_id
+			));
+		}
+		
+		return TRUE;
+	}
+	
 	/**
 	 * Enter description here...
 	 *

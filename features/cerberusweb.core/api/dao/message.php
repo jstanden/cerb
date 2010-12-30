@@ -152,6 +152,49 @@ class DAO_Message extends DevblocksORMHelper {
 		));
 	}
 
+	static function delete($ids) {
+    	$db = DevblocksPlatform::getDatabaseService();
+    	
+		if(!is_array($ids))
+			$ids = array($ids);
+		
+		if(empty($ids))
+			return array();
+			
+		$ids_list = implode(',', $ids);
+		
+    	$messages = DAO_Message::getWhere(sprintf("%s IN (%s)",
+    		DAO_Message::ID,
+    		$ids_list
+    	));
+		
+    	// Message Headers
+    	DAO_MessageHeader::deleteById($ids);
+    	
+    	// Message Content
+    	Storage_MessageContent::delete($ids);
+    	
+    	// Search indexes
+    	Search_MessageContent::delete($ids);
+    	
+    	// Attachments
+    	DAO_AttachmentLink::removeAllByContext(CerberusContexts::CONTEXT_MESSAGE, $ids);
+    	
+    	// Context links
+    	DAO_ContextLink::delete(CerberusContexts::CONTEXT_MESSAGE, $ids);
+
+    	// Messages
+    	$sql = sprintf("DELETE FROM message WHERE id IN (%s)",
+    		$ids_list
+    	);
+    	$db->Execute($sql);
+    	
+    	// Remap first/last on ticket
+    	foreach($messages as $message_id => $message) {
+    		DAO_Ticket::rebuild($message->ticket_id);
+    	}
+	}
+	
     static function maint() {
     	$db = DevblocksPlatform::getDatabaseService();
     	$logger = DevblocksPlatform::getConsoleLog();
@@ -486,6 +529,16 @@ class Search_MessageContent {
 		
 		if(!empty($id))
 			DAO_DevblocksExtensionPropertyStore::put(self::ID, 'last_indexed_id', $id);
+	}
+	
+	public static function delete($ids) {
+		if(false == ($search = DevblocksPlatform::getSearchService())) {
+			$logger->error("[Search] The search engine is misconfigured.");
+			return;
+		}
+		
+		$ns = 'message_content';
+		return $search->delete($ns, $ids);
 	}
 };
 
@@ -877,6 +930,21 @@ class DAO_MessageHeader {
         sort($headers);
         
         return $headers;
+    }
+    
+    static function deleteById($ids) {
+    	if(!is_array($ids))
+    		$ids = array($ids);
+    	
+    	if(empty($ids))
+    		return;
+    		
+        $db = DevblocksPlatform::getDatabaseService();
+    	
+        $sql = sprintf("DELETE FROM message_header WHERE message_id IN (%s)",
+        	implode(',', $ids)
+        );
+        $db->Execute($sql);
     }
 };
 

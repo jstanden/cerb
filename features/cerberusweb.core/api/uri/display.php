@@ -835,6 +835,25 @@ class ChDisplayPage extends CerberusPageExtension {
 		$tpl->display('devblocks:cerberusweb.core::display/modules/conversation/index.tpl');
 	}
 	
+	function doDeleteMessageAction() {
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
+		
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!$active_worker->hasPriv('core.display.message.actions.delete'))
+			return;
+		
+		if(null == ($message = DAO_Message::get($id)))
+			return;
+			
+		if(null == ($ticket = DAO_Ticket::get($message->ticket_id)))
+			return;
+			
+		DAO_Message::delete($id);
+		
+		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('display', $ticket->mask)));
+	}
+	
 	function doSplitMessageAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
 		
@@ -869,8 +888,6 @@ class ChDisplayPage extends CerberusPageExtension {
 			DAO_Ticket::TEAM_ID => $orig_ticket->team_id,
 		));
 
-		// [TODO] SLA?
-		
 		// Copy all the original tickets requesters
 		$orig_requesters = DAO_Ticket::getRequestersByTicket($orig_ticket->id);
 		foreach($orig_requesters as $orig_req_addy) {
