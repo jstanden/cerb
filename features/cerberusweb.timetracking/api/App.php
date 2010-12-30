@@ -851,9 +851,9 @@ class View_TimeTracking extends C4_AbstractView {
 		if(is_array($do))
 		foreach($do as $k => $v) {
 			switch($k) {
-//				case 'xxxx':
-//					$change_fields[DAO_TimeTrackingEntry::XXX] = $v;
-//					break;
+				case 'is_closed':
+					$change_fields[DAO_TimeTrackingEntry::IS_CLOSED] = $v;
+					break;
 				default:
 					// Custom fields
 					if(substr($k,0,3)=="cf_") {
@@ -1468,13 +1468,13 @@ class ChTimeTrackingPage extends CerberusPageExtension {
 		$view = C4_AbstractViewLoader::getView($view_id);
 		
 		// Time Tracking fields
-//		@$list_id = trim(DevblocksPlatform::importGPC($_POST['list_id'],'integer',0));
+		@$is_closed = DevblocksPlatform::importGPC($_POST['is_closed'],'string','');
 
 		$do = array();
 		
 		// Do: ...
-//		if(0 != strlen($list_id))
-//			$do['list_id'] = $list_id;
+		if(0 != strlen($is_closed))
+			$do['is_closed'] = !empty($is_closed) ? 1 : 0;
 
 		// Owners
 		$owner_options = array();

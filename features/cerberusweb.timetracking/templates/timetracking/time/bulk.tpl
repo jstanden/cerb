@@ -18,6 +18,17 @@
 	<legend>Set Fields</legend>
 	<table cellspacing="0" cellpadding="2" width="100%">
 		<tr>
+			<td width="0%" nowrap="nowrap" valign="top">{'common.status'|devblocks_translate|capitalize}:</td>
+			<td width="100%"><select name="is_closed">
+					<option value=""></option>
+					<option value="0">{'status.open'|devblocks_translate}</option>
+					<option value="1">{'status.closed'|devblocks_translate}</option>
+		      	</select>
+				<button type="button" onclick="$(this).siblings('select').val('0');">{'status.open'|devblocks_translate|lower}</button>
+				<button type="button" onclick="$(this).siblings('select').val('1');">{'status.closed'|devblocks_translate|lower}</button>
+			</td>
+		</tr>
+		<tr>
 			<td width="0%" nowrap="nowrap" valign="top">{'common.owners'|devblocks_translate|capitalize}:</td>
 			<td width="100%">
 				<button type="button" class="chooser-worker add"><span class="cerb-sprite sprite-view"></span></button>
