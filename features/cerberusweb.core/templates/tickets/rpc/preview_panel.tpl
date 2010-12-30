@@ -6,26 +6,26 @@
 
 <div id="peekTabs">
 	<ul>
-		{if !$edit_mode}<li><a href="#ticketPeekMessage">Message</a></li>{/if}
-		<li><a href="#ticketPeekProps">Properties</a></li>
+		{if !$edit_mode}<li><a href="#ticketPeekMessage">{'common.messages'|devblocks_translate|capitalize}</a></li>{/if}
+		<li><a href="#ticketPeekProps">{'common.properties'|devblocks_translate|capitalize}</a></li>
 	</ul>
 		
 	{if !$edit_mode}
     <div id="ticketPeekMessage">
 			{assign var=headers value=$message->getHeaders()}
-			<b>To:</b> {$headers.to}<br>
-			<b>From:</b> {$headers.from}<br>
+			<b>{'message.header.to'|devblocks_translate|capitalize}:</b> {$headers.to}<br>
+			<b>{'message.header.from'|devblocks_translate|capitalize}:</b> {$headers.from}<br>
 			<div id="ticketPeekContent" style="width:400;height:250px;overflow:auto;border:1px solid rgb(180,180,180);margin:2px;padding:3px;background-color:rgb(255,255,255);" ondblclick="genericAjaxPopupClose('peek');">
 				<pre class="emailbody">{$content|trim|devblocks_hyperlinks|devblocks_hideemailquotes}</pre>
 			</div>
 			
-			<b>URL:</b> <a href="{devblocks_url}c=display&id={$ticket->mask}{/devblocks_url}">{devblocks_url full=true}c=display&id={$ticket->mask}{/devblocks_url}</a>
+			<b>{'common.url'|devblocks_translate}:</b> <a href="{devblocks_url}c=display&id={$ticket->mask}{/devblocks_url}">{devblocks_url full=true}c=display&id={$ticket->mask}{/devblocks_url}</a>
     </div>
 	{/if}
 	
     <div id="ticketPeekProps" style="display:none;">
 		<fieldset>
-			<legend>Properties</legend>
+			<legend>{'common.properties'|devblocks_translate|capitalize}</legend>
 			
 			<table cellpadding="0" cellspacing="2" border="0" width="98%">
 				<tr>

@@ -288,6 +288,9 @@
 		<tu tuid='common.password'>
 			<tuv xml:lang="en_US"><seg>password</seg></tuv>
 		</tu>
+		<tu tuid='common.permalink'>
+			<tuv xml:lang="en_US"><seg>permalink</seg></tuv>
+		</tu>
 		<tu tuid='common.previous_short'>
 			<tuv xml:lang="en_US"><seg>prev</seg></tuv>
 		</tu>
