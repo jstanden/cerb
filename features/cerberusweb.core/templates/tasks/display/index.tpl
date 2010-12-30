@@ -3,8 +3,11 @@
 <table cellspacing="0" cellpadding="0" border="0" width="100%" style="padding-bottom:5px;">
 <tr>
 	<td valign="top" style="padding-right:5px;">
-		<h1>{$task->title}</h1> 
-		<form action="{devblocks_url}{/devblocks_url}" onsubmit="return false;">
+		<h1>{if $task->is_completed}<span class="cerb-sprite sprite-check"></span>{/if} {$task->title}</h1> 
+		<form action="{devblocks_url}{/devblocks_url}" method="post">
+		<input type="hidden" name="c" value="tasks">
+		<input type="hidden" name="a" value="">
+		<input type="hidden" name="id" value="{$task->id}">
 		<b>{'task.is_completed'|devblocks_translate|capitalize}:</b> {if $task->is_completed}{'common.yes'|devblocks_translate|capitalize}{else}{'common.no'|devblocks_translate|capitalize}{/if} &nbsp;
 		{if !empty($task->updated_date)}
 		<b>{'task.updated_date'|devblocks_translate|capitalize}:</b> <abbr title="{$task->updated_date|devblocks_date}">{$task->updated_date|devblocks_prettytime}</abbr> &nbsp;
@@ -19,6 +22,10 @@
 		<br>
 		
 		<!-- Toolbar -->
+		{if !$task->is_completed}
+		<button type="button" onclick="$frm=$(this).closest('form');$frm.find('input:hidden[name=a]').val('doDisplayTaskComplete');$frm.submit();"><span class="cerb-sprite sprite-check"></span> Complete</button>
+		{/if}
+		
 		<button type="button" id="btnDisplayTaskEdit"><span class="cerb-sprite sprite-document_edit"></span> Edit</button>
 		{$toolbar_extensions = DevblocksPlatform::getExtensions('cerberusweb.task.toolbaritem',true)}
 		{foreach from=$toolbar_extensions item=toolbar_extension}
