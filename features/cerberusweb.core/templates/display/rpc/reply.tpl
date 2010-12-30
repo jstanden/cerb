@@ -26,6 +26,15 @@
 				</tr>
 				{/if}
 				
+				{if isset($teams.{$ticket->team_id})}
+				<tr>
+					<td width="1%" nowrap="nowrap">{$translate->_('message.header.from')|capitalize}: </td>
+					<td width="99%" align="left">
+						{$teams.{$ticket->team_id}->name}
+					</td>
+				</tr>
+				{/if}
+				
 				<tr>
 					<td width="1%" nowrap="nowrap"><b>{$translate->_('message.header.to')|capitalize}:</b> </td>
 					<td width="99%" align="left">
@@ -54,7 +63,7 @@
 			</table>
 
 			<div id="divDraftStatus{$message->id}"></div>
-			{assign var=ticket_team_id value=$ticket->team_id}
+			
 			{assign var=headers value=$message->getHeaders()}
 			<button name="saveDraft" type="button" onclick="if($(this).attr('disabled'))return;$(this).attr('disabled','disabled');genericAjaxPost('reply{$message->id}_part2',null,'c=display&a=saveDraftReply&is_ajax=1',function(json, ui) { var obj = $.parseJSON(json); $('#divDraftStatus{$message->id}').html(obj.html); $('#reply{$message->id}_part2 input[name=draft_id]').val(obj.draft_id); $('#reply{$message->id}_part1 button[name=saveDraft]').removeAttr('disabled'); } );"><span class="cerb-sprite sprite-check"></span> Save Draft</button>
 			<button name="showSnippets" type="button" onclick="openSnippetsChooser(this);"><span class="cerb-sprite sprite-text_rich"></span> {$translate->_('common.snippets')|capitalize}</button>
