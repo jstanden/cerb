@@ -4234,9 +4234,6 @@ class _DevblocksTemplateManager {
 		
 		// The past
 		if($diffsecs >= 0) {
-			if(!$is_delta)
-				$whole .= '-';
-			
 			if($diffsecs >= 31557600) { // years
 				$whole .= floor($diffsecs/31557600).' year';
 			} elseif($diffsecs >= 2592000) { // mo
@@ -4269,6 +4266,9 @@ class _DevblocksTemplateManager {
 
 		// Pluralize
 		$whole .= (1 == abs(intval($whole))) ? '' : 's';
+
+		if($diffsecs > 0 && !$is_delta)
+			$whole .= ' ago';
 		
 		return $whole;
 	}	
