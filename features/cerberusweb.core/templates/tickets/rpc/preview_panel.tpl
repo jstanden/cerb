@@ -15,11 +15,26 @@
 			{assign var=headers value=$message->getHeaders()}
 			<b>{'message.header.to'|devblocks_translate|capitalize}:</b> {$headers.to}<br>
 			<b>{'message.header.from'|devblocks_translate|capitalize}:</b> {$headers.from}<br>
+			<b>{'message.header.date'|devblocks_translate|capitalize}:</b> {$headers.date}<br>
 			<div id="ticketPeekContent" style="width:400;height:250px;overflow:auto;border:1px solid rgb(180,180,180);margin:2px;padding:3px;background-color:rgb(255,255,255);" ondblclick="genericAjaxPopupClose('peek');">
 				<pre class="emailbody">{$content|trim|devblocks_hyperlinks|devblocks_hideemailquotes}</pre>
 			</div>
 			
-			<b>{'common.url'|devblocks_translate}:</b> <a href="{devblocks_url}c=display&id={$ticket->mask}{/devblocks_url}">{devblocks_url full=true}c=display&id={$ticket->mask}{/devblocks_url}</a>
+			<div style="float:left;">
+				<b>{'common.url'|devblocks_translate}:</b> <a href="{devblocks_url}c=display&id={$ticket->mask}{/devblocks_url}">{devblocks_url full=true}c=display&id={$ticket->mask}{/devblocks_url}</a>
+			</div>
+			
+			{if !is_null($p) && !is_null($p_count)}
+			<div style="float:right;">
+				{if 0 != $p}<a href="javascript:;" onclick="genericAjaxPopup('peek','c=tickets&a=showPreview&view_id={$view_id}&tid={$ticket->id}&msgid={$ticket->first_message_id}', null, false, '650');">&lt;&lt;</a>{/if}
+				{if $p_prev}<a href="javascript:;" onclick="genericAjaxPopup('peek','c=tickets&a=showPreview&view_id={$view_id}&tid={$ticket->id}&msgid={$p_prev}', null, false, '650');">&lt;{'common.previous_short'|devblocks_translate|capitalize}</a>{/if}
+				({$p+1} of {$p_count})
+				{if $p_next}<a href="javascript:;" onclick="genericAjaxPopup('peek','c=tickets&a=showPreview&view_id={$view_id}&tid={$ticket->id}&msgid={$p_next}', null, false, '650');">{'common.next'|devblocks_translate|capitalize}&gt;</a>{/if}
+				{if $p+1 != $p_count}<a href="javascript:;" onclick="genericAjaxPopup('peek','c=tickets&a=showPreview&view_id={$view_id}&tid={$ticket->id}&msgid={$ticket->last_message_id}', null, false, '650');">&gt;&gt;</a>{/if}
+			</div>
+			{/if}
+			
+			<br clear="all" style="clear:all;">
     </div>
 	{/if}
 	

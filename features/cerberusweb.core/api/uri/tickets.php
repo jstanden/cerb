@@ -1162,11 +1162,14 @@ class ChTicketsPage extends CerberusPageExtension {
 		    $tpl->assign('ticket', $ticket);
 		}
 		
+		$messages = $ticket->getMessages();
+		
 		// Do we have a specific message to look at?
-		if(!empty($msgid) && null != ($message = DAO_Message::get($msgid)) && $message->ticket_id == $tid) {
+		if(!empty($msgid) && null != (@$message = $messages[$msgid])) {
 			 // Good
 		} else {
-			$message = $ticket->getLastMessage();
+			$message = end($messages);
+			$msgid = $message->id;
 		}
 
 		if(!empty($message)) {
@@ -1174,6 +1177,20 @@ class ChTicketsPage extends CerberusPageExtension {
 			$tpl->assign('content', $message->getContent());
 		}
 		
+		// Paging
+		$message_ids = array_keys($messages);
+		$tpl->assign('p_count', count($message_ids));
+		if(false !== ($pos = array_search($msgid, $message_ids))) {
+			$tpl->assign('p', $pos);
+			// Prev
+			if($pos > 0)
+				$tpl->assign('p_prev', $message_ids[$pos-1]);
+			// Next
+			if($pos+1 < count($message_ids))
+				$tpl->assign('p_next', $message_ids[$pos+1]);
+		}
+		
+		// Props
 		$teams = DAO_Group::getAll();
 		$tpl->assign('teams', $teams);
 		
