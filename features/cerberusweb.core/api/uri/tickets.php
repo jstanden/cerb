@@ -695,6 +695,17 @@ class ChTicketsPage extends CerberusPageExtension {
 				break;
 		}
 			
+		// Custom fields
+		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_SNIPPET); 
+		$tpl->assign('custom_fields', $custom_fields);
+
+		$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_SNIPPET, $snippet_id);
+		if(isset($custom_field_values[$snippet_id]))
+			$tpl->assign('custom_field_values', $custom_field_values[$snippet_id]);
+		
+		$types = Model_CustomField::getTypes();
+		$tpl->assign('types', $types);
+		
 		$tpl->display('devblocks:cerberusweb.core::mail/snippets/peek.tpl');
 	}
 	
@@ -716,28 +727,41 @@ class ChTicketsPage extends CerberusPageExtension {
 			DAO_Snippet::LAST_UPDATED_BY => $active_worker->id,
 		);
 
-		if(empty($id)) {
-			$fields[DAO_Snippet::CREATED_BY] = $active_worker->id;
-			$fields[DAO_Snippet::CONTEXT] = $context;
-			$fields[DAO_Snippet::IS_PRIVATE] = 0;
-			
-			$id = DAO_Snippet::create($fields);
-			
-		} else {
-			// Make sure we have permission
+		if($do_delete) {
 			if($active_worker->is_superuser || null != DAO_Snippet::getWhere(sprintf("%s = %d AND %s = %d",
 				DAO_Snippet::ID,
 				$id,
 				DAO_Snippet::CREATED_BY,
 				$active_worker->id
 			))) {
-				if($do_delete) {
-					DAO_Snippet::delete($id);
-				} else {
+				DAO_Snippet::delete($id);
+			}
+			
+		} else { // Create || Update
+			if(empty($id)) {
+				$fields[DAO_Snippet::CREATED_BY] = $active_worker->id;
+				$fields[DAO_Snippet::CONTEXT] = $context;
+				$fields[DAO_Snippet::IS_PRIVATE] = 0;
+				
+				$id = DAO_Snippet::create($fields);
+				
+			} else {
+				// Make sure we have permission
+				if($active_worker->is_superuser || null != DAO_Snippet::getWhere(sprintf("%s = %d AND %s = %d",
+					DAO_Snippet::ID,
+					$id,
+					DAO_Snippet::CREATED_BY,
+					$active_worker->id
+				))) {
 					DAO_Snippet::update($id, $fields);
 				}
 			}
+			
+			// Custom field saves
+			@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', array());
+			DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_SNIPPET, $id, $field_ids);
 		}
+		
 		
 		if(null !== ($view = C4_AbstractViewLoader::getView($view_id))) {
 			$view->render();

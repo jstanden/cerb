@@ -47,7 +47,7 @@
  * 		and Jerry Kanoholani. 
  *	 WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
-class DAO_Snippet extends DevblocksORMHelper {
+class DAO_Snippet extends C4_ORMHelper {
 	const ID = 'id';
 	const TITLE = 'title';
 	const CONTEXT = 'context';
@@ -229,13 +229,13 @@ class DAO_Snippet extends DevblocksORMHelper {
 		;
 		
 		// Custom field joins
-		//list($select_sql, $join_sql, $has_multiple_values) = self::_appendSelectJoinSqlForCustomFieldTables(
-		//	$tables,
-		//	$params,
-		//	'snippet.id',
-		//	$select_sql,
-		//	$join_sql
-		//);
+		list($select_sql, $join_sql, $has_multiple_values) = self::_appendSelectJoinSqlForCustomFieldTables(
+			$tables,
+			$params,
+			'snippet.id',
+			$select_sql,
+			$join_sql
+		);
 				
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
@@ -355,13 +355,12 @@ class SearchFields_Snippet implements IDevblocksSearchFields {
 		);
 		
 		// Custom Fields
-		//$fields = DAO_CustomField::getByContext(CerberusContexts::XXX);
-
-		//if(is_array($fields))
-		//foreach($fields as $field_id => $field) {
-		//	$key = 'cf_'.$field_id;
-		//	$columns[$key] = new DevblocksSearchField($key,$key,'field_value',$field->name);
-		//}
+		$fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_SNIPPET);
+		if(is_array($fields))
+		foreach($fields as $field_id => $field) {
+			$key = 'cf_'.$field_id;
+			$columns[$key] = new DevblocksSearchField($key,$key,'field_value',$field->name);
+		}
 		
 		// Sort by label (translation-conscious)
 		uasort($columns, create_function('$a, $b', "return strcasecmp(\$a->db_label,\$b->db_label);\n"));
@@ -392,7 +391,6 @@ class View_Snippet extends C4_AbstractView {
 		$translate = DevblocksPlatform::getTranslationService();
 	
 		$this->id = self::DEFAULT_ID;
-		// [TODO] Name the worklist view
 		$this->name = $translate->_('Snippet');
 		$this->renderLimit = 25;
 		$this->renderSortBy = SearchFields_Snippet::ID;
@@ -420,7 +418,7 @@ class View_Snippet extends C4_AbstractView {
 
 	function getData() {
 		$objects = DAO_Snippet::search(
-			array(),
+			$this->view_columns,
 			$this->getParams(),
 			$this->renderLimit,
 			$this->renderPage,
@@ -442,9 +440,6 @@ class View_Snippet extends C4_AbstractView {
 			case 'contextlinks_chooser':
 				$tpl->display('devblocks:cerberusweb.core::mail/snippets/views/view_contextlinks_chooser.tpl');
 				break;
-//			case 'context':
-//				$tpl->display('devblocks:cerberusweb.core::mail/snippets/views/.tpl');
-//				break;
 			default:
 				$tpl->display('devblocks:cerberusweb.core::mail/snippets/views/default.tpl');
 				break;
@@ -456,7 +451,6 @@ class View_Snippet extends C4_AbstractView {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('id', $this->id);
 
-		// [TODO] Move the fields into the proper data type
 		switch($field) {
 			case SearchFields_Snippet::ID:
 			case SearchFields_Snippet::TITLE:
@@ -478,7 +472,12 @@ class View_Snippet extends C4_AbstractView {
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__date.tpl');
 				break;
 			default:
-				echo '';
+				// Custom Fields
+				if('cf_' == substr($field,0,3)) {
+					$this->_renderCriteriaCustomField($tpl, substr($field,3));
+				} else {
+					echo ' ';
+				}
 				break;
 		}
 	}
@@ -501,7 +500,6 @@ class View_Snippet extends C4_AbstractView {
 	function doSetCriteria($field, $oper, $value) {
 		$criteria = null;
 
-		// [TODO] Move fields into the right data type
 		switch($field) {
 			case SearchFields_Snippet::ID:
 			case SearchFields_Snippet::TITLE:
@@ -535,6 +533,13 @@ class View_Snippet extends C4_AbstractView {
 			case 'placeholder_bool':
 				@$bool = DevblocksPlatform::importGPC($_REQUEST['bool'],'integer',1);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
+				break;
+				
+			default:
+				// Custom Fields
+				if(substr($field,0,3)=='cf_') {
+					$criteria = $this->_doSetCriteriaCustomField($field, substr($field,3));
+				}
 				break;
 		}
 
@@ -594,7 +599,7 @@ class View_Snippet extends C4_AbstractView {
 			DAO_Snippet::update($batch_ids, $change_fields);
 
 			// Custom Fields
-			//self::_doBulkSetCustomFields(ChCustomFieldSource_Snippet::ID, $custom_fields, $batch_ids);
+			self::_doBulkSetCustomFields(CerberusContexts::CONTEXT_SNIPPET, $custom_fields, $batch_ids);
 			
 			unset($batch_ids);
 		}

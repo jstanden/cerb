@@ -31,6 +31,13 @@
 	{/if}
 </fieldset>
 
+{if !empty($custom_fields)}
+<fieldset>
+	<legend>{'common.custom_fields'|devblocks_translate}</legend>
+	{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false}
+</fieldset>
+{/if}
+
 <button type="button" onclick="genericAjaxPopupClose('peek');genericAjaxPost('formSnippetsPeek', 'view{$view_id}')"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')}</button>
 {if !empty($snippet->id) && ($active_worker->is_superuser || $snippet->created_by==$active_worker->id)}<button type="button" onclick="if(confirm('Are you sure you want to permanently delete this snippet?')) { this.form.do_delete.value='1';genericAjaxPopupClose('peek');genericAjaxPost('formSnippetsPeek', 'view{$view_id}'); } "><span class="cerb-sprite sprite-delete2"></span> {$translate->_('common.delete')|capitalize}</button>{/if}
 <br>
