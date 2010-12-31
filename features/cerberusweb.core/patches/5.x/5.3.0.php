@@ -50,9 +50,15 @@ if(isset($columns['message_id'])) { // ~2.56s
 }
 
 // ===========================================================================
-// worker
- 
-// [TODO] Salt worker passwords
+// view_filters_preset
 
+if(!isset($tables['view_filters_preset']))
+	return FALSE;
+	
+list($columns, $indexes) = $db->metaTable('view_filters_preset');
+
+if(!isset($columns['sort_json'])) {
+	$db->Execute("ALTER TABLE view_filters_preset ADD COLUMN sort_json TEXT");
+}
 
 return TRUE;

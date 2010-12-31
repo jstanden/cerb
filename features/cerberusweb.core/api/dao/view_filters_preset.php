@@ -5,6 +5,7 @@ class DAO_ViewFiltersPreset extends DevblocksORMHelper {
 	const VIEW_CLASS = 'view_class';
 	const WORKER_ID = 'worker_id';
 	const PARAMS_JSON = 'params_json';
+	const SORT_JSON = 'sort_json';
 
 	static function create($fields) {
 		$db = DevblocksPlatform::getDatabaseService();
@@ -41,7 +42,7 @@ class DAO_ViewFiltersPreset extends DevblocksORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, name, view_class, worker_id, params_json ".
+		$sql = "SELECT id, name, view_class, worker_id, params_json, sort_json ".
 			"FROM view_filters_preset ".
 			$where_sql.
 			$sort_sql.
@@ -81,6 +82,16 @@ class DAO_ViewFiltersPreset extends DevblocksORMHelper {
 			$object->view_class = $row['view_class'];
 			$object->worker_id = $row['worker_id'];
 			$object->params = DAO_WorkerViewModel::decodeParamsJson($row['params_json']);
+			
+			// Sorting
+			if(!empty($row['sort_json'])) {
+				$sort_json = json_decode($row['sort_json'], true);
+				if(isset($sort_json['by']))
+					$object->sort_by = $sort_json['by']; 
+				if(isset($sort_json['asc']))
+					$object->sort_asc = $sort_json['asc']; 
+			}
+			
 			$objects[$object->id] = $object;
 		}
 		
@@ -224,6 +235,8 @@ class Model_ViewFiltersPreset {
 	public $view_class;
 	public $worker_id;
 	public $params;
+	public $sort_by;
+	public $sort_asc;
 };
 
 class SearchFields_ViewFiltersPreset implements IDevblocksSearchFields {

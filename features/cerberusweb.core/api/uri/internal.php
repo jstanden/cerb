@@ -522,8 +522,13 @@ class ChInternalController extends DevblocksControllerExtension {
 
 		$view->removeAllParams();
 		
-		if(null != ($preset = DAO_ViewFiltersPreset::get($preset_id)))
+		if(null != ($preset = DAO_ViewFiltersPreset::get($preset_id))) {
 			$view->addParams($preset->params);
+			if(!is_null($preset->sort_by)) {
+				$view->renderSortBy = $preset->sort_by;
+				$view->renderSortAsc = !empty($preset->sort_asc);
+			}
+		}
 		
 		C4_AbstractViewLoader::setView($view->id, $view);
 		
@@ -544,6 +549,10 @@ class ChInternalController extends DevblocksControllerExtension {
 			$fields = array(
 				DAO_ViewFiltersPreset::NAME => !empty($preset_name) ? $preset_name : 'New Preset',
 				DAO_ViewFiltersPreset::PARAMS_JSON => $params_json,
+				DAO_ViewFiltersPreset::SORT_JSON => json_encode(array(
+					'by' => $view->renderSortBy,
+					'asc' => !empty($view->renderSortAsc),
+				)),
 			);
 			
 			DAO_ViewFiltersPreset::update($preset_replace_id, $fields);
@@ -554,6 +563,10 @@ class ChInternalController extends DevblocksControllerExtension {
 				DAO_ViewFiltersPreset::VIEW_CLASS => get_class($view),
 				DAO_ViewFiltersPreset::WORKER_ID => $active_worker->id,
 				DAO_ViewFiltersPreset::PARAMS_JSON => $params_json,
+				DAO_ViewFiltersPreset::SORT_JSON => json_encode(array(
+					'by' => $view->renderSortBy,
+					'asc' => !empty($view->renderSortAsc),
+				)),
 			);
 			
 			DAO_ViewFiltersPreset::create($fields);
