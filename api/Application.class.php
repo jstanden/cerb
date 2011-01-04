@@ -2,7 +2,7 @@
 /***********************************************************************
 | Cerberus Helpdesk(tm) developed by WebGroup Media, LLC.
 |-----------------------------------------------------------------------
-| All source code & content (c) Copyright 2010, WebGroup Media LLC
+| All source code & content (c) Copyright 2011, WebGroup Media LLC
 |   unless specifically noted otherwise.
 |
 | This source code is released under the Cerberus Public License.
@@ -47,8 +47,9 @@
  * 		and Jerry Kanoholani. 
  *	 WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
-define("APP_BUILD", 2010123001);
+define("APP_BUILD", 2011010301);
 define("APP_VERSION", '5.3.0-dev');
+
 define("APP_MAIL_PATH", APP_STORAGE_PATH . '/mail/');
 
 require_once(APP_PATH . "/api/DAO.class.php");
@@ -1371,6 +1372,28 @@ class CerberusLicense {
 				'seats' => (list($k,$v)=explode(":",$lines[5]))?trim($v):null
 			)
 			: array();
+	}
+	
+	public static function getReleases() {
+		/**																																																																																																																															*/return array('5.0.0'=>1271894400,'5.1.0'=>1281830400,'5.2.0'=>1288569600,'5.3.0'=>1294617600);/*
+		 * Major releases by date in GMT
+		 */
+		return array(
+			'5.0.0' => gmmktime(0,0,0,4,22,2010),
+			'5.1.0' => gmmktime(0,0,0,8,15,2010),
+			'5.2.0' => gmmktime(0,0,0,11,1,2010),
+			'5.3.0' => gmmktime(0,0,0,1,10,2011),
+		);
+	}
+	
+	public static function getReleaseDate($version) {
+		$latest_licensed = 0;
+		$version = array_shift(explode("-",$version,2));
+		foreach(self::getReleases() as $release => $release_date) {
+			if(version_compare($release, $version) <= 0)
+				$latest_licensed = $release_date;
+		}
+		return $latest_licensed;
 	}
 };
 

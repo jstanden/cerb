@@ -4,7 +4,7 @@
     <tr>
       <td nowrap="nowrap" valign="top">
       	{$fair_pay=CerberusLicense::getInstance()}
-      	<b>Cerberus Helpdesk</b>&trade; &copy; 2002-2010, WebGroup Media&trade; LLC - Version {$smarty.const.APP_VERSION} (Build {$smarty.const.APP_BUILD}) 
+      	<b>Cerberus Helpdesk</b>&trade; &copy; 2002-2011, WebGroup Media&trade; LLC - Version {$smarty.const.APP_VERSION} (Build {$smarty.const.APP_BUILD}) 
       	<br>
       	{if (1 || $debug) && !empty($render_time)}
 		<span style="color:rgb(180,180,180);font-size:90%;">

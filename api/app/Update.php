@@ -2,7 +2,7 @@
 /***********************************************************************
 | Cerberus Helpdesk(tm) developed by WebGroup Media, LLC.
 |-----------------------------------------------------------------------
-| All source code & content (c) Copyright 2010, WebGroup Media LLC
+| All source code & content (c) Copyright 2011, WebGroup Media LLC
 |   unless specifically noted otherwise.
 |
 | This source code is released under the Cerberus Public License.
@@ -111,14 +111,7 @@ class ChUpdateController extends DevblocksControllerExtension {
 			    // Potential errors
 			    $errors = array();
 
-			    // Release dates
-			    $r = array(
-			    	'5.0' => gmmktime(0,0,0,4,22,2010),
-			    	'5.1' => gmmktime(0,0,0,8,15,2010),
-			    	'5.2' => gmmktime(0,0,0,11,1,2010),
-			    );
-			    
-			    /*																																																																																																																																																																																																																			*/$r = array('5.0'=>1271894400,'5.1'=>1281873600,'5.2'=>1288569600);/*
+			    /*
 			     * This well-designed software is the result of over 8 years of R&D.
 			     * We're sharing every resulting byte of that hard work with you.
 			     * You're free to make changes for your own use, but we ask that you 
@@ -127,23 +120,14 @@ class ChUpdateController extends DevblocksControllerExtension {
 			    $remuneration = CerberusLicense::getInstance();
 				@$u = $remuneration->upgrades;
 				
-			    $version = null;
-				foreach(array_keys($r) as $v) {
-					if($u>=$r[$v])
-						$version = array($v => $r[$v]);
-				}
-				
-				end($r);
-				
-			    if(!is_null($u) && $u < end($r)) {
-			    	$errors[] = sprintf("Your Cerb5 license is valid for %s software updates.  Your coverage for major software updates expired on %s, and %s is not included.  Please <a href='%s' target='_blank'>renew your license</a>%s, <a href='%s'>remove your license</a> and enter Evaluation Mode (1 simultaneous worker), or <a href='%s' target='_blank'>download</a> an earlier version.",
-			    		is_array($version)?(key($version).'.x'):('earlier'),
+			    if(!is_null($u) && $u < CerberusLicense::getReleaseDate(APP_VERSION)) {
+			    	$errors[] = sprintf("Your Cerb5 license coverage for major software updates expired on %s, and %s is not included.  Please <a href='%s' target='_blank'>renew your license</a>%s, <a href='%s'>remove your license</a> and enter Evaluation Mode (1 simultaneous worker), or <a href='%s' target='_blank'>download</a> an earlier version.",
 			    		gmdate("F d, Y",$u),
 			    		APP_VERSION,
 			    		'http://www.cerberusweb.com/buy',
 			    		!is_null($remuneration->key) ? sprintf(" (%s)",$remuneration->key) : '',
 			    		$url->write('c=update&a=unlicense'),
-			    		'http://www.cerberusweb.com/download'
+			    		'http://www.cerberusweb.com/download/archives'
 			    	);
 			    }
 			    

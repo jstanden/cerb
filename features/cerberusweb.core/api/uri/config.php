@@ -2,7 +2,7 @@
 /***********************************************************************
 | Cerberus Helpdesk(tm) developed by WebGroup Media, LLC.
 |-----------------------------------------------------------------------
-| All source code & content (c) Copyright 2010, WebGroup Media LLC
+| All source code & content (c) Copyright 2011, WebGroup Media LLC
 |   unless specifically noted otherwise.
 |
 | This source code is released under the Cerberus Public License.
@@ -1621,7 +1621,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		}
 
 		// Our prices are very reasonable.
-		if(intval(gmdate("Ymd99",@$valid['upgrades'])) < APP_BUILD) {
+		if($valid['upgrades'] < CerberusLicense::getReleaseDate(APP_VERSION)) {
 			$tpl->assign('error', sprintf("The provided license is expired and does not activate version %s.", APP_VERSION));
 			$valid = null;
 			$tpl->display('devblocks:cerberusweb.core::configuration/tabs/settings/license.tpl');
