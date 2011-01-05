@@ -24,15 +24,13 @@
  *            - options    (required if no values supplied) - associative array
  *            - selected   (optional) - string default not set
  *            - output     (required if not options supplied) - array
- * @param object $smarty Smarty object
  * @param object $template template object
  * @return string 
  * @uses smarty_function_escape_special_chars()
  */
-function smarty_function_html_options($params, $smarty, $template)
+function smarty_function_html_options($params, $template)
 {
     require_once(SMARTY_PLUGINS_DIR . 'shared.escape_special_chars.php');
-    //$smarty->loadPlugin('Smarty_shared_escape_special_chars');
 
     $name = null;
     $values = null;

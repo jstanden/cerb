@@ -4158,19 +4158,22 @@ class _DevblocksTemplateManager {
 			$instance->cache_lifetime = 0;
 			$instance->compile_check = (defined('DEVELOPMENT_MODE') && DEVELOPMENT_MODE) ? true : false;
 			
+			$instance->error_unassigned = false;
+			$instance->error_reporting = E_ERROR & ~E_NOTICE;
+			
 			// Auto-escape HTML output
 			$instance->loadFilter('variable','htmlspecialchars');
 			//$instance->register->variableFilter(array('_DevblocksTemplateManager','variable_filter_esc'));
 			
 			// Devblocks plugins
-			$instance->register->block('devblocks_url', array('_DevblocksTemplateManager', 'block_devblocks_url'));
-			$instance->register->modifier('devblocks_date', array('_DevblocksTemplateManager', 'modifier_devblocks_date'));
-			$instance->register->modifier('devblocks_hyperlinks', array('_DevblocksTemplateManager', 'modifier_devblocks_hyperlinks'));
-			$instance->register->modifier('devblocks_hideemailquotes', array('_DevblocksTemplateManager', 'modifier_devblocks_hide_email_quotes'));
-			$instance->register->modifier('devblocks_prettytime', array('_DevblocksTemplateManager', 'modifier_devblocks_prettytime'));
-			$instance->register->modifier('devblocks_prettybytes', array('_DevblocksTemplateManager', 'modifier_devblocks_prettybytes'));
-			$instance->register->modifier('devblocks_translate', array('_DevblocksTemplateManager', 'modifier_devblocks_translate'));
-			$instance->register->resource('devblocks', array(
+			$instance->registerPlugin('block','devblocks_url', array('_DevblocksTemplateManager', 'block_devblocks_url'));
+			$instance->registerPlugin('modifier','devblocks_date', array('_DevblocksTemplateManager', 'modifier_devblocks_date'));
+			$instance->registerPlugin('modifier','devblocks_hyperlinks', array('_DevblocksTemplateManager', 'modifier_devblocks_hyperlinks'));
+			$instance->registerPlugin('modifier','devblocks_hideemailquotes', array('_DevblocksTemplateManager', 'modifier_devblocks_hide_email_quotes'));
+			$instance->registerPlugin('modifier','devblocks_prettytime', array('_DevblocksTemplateManager', 'modifier_devblocks_prettytime'));
+			$instance->registerPlugin('modifier','devblocks_prettybytes', array('_DevblocksTemplateManager', 'modifier_devblocks_prettybytes'));
+			$instance->registerPlugin('modifier','devblocks_translate', array('_DevblocksTemplateManager', 'modifier_devblocks_translate'));
+			$instance->registerResource('devblocks', array(
 				array('_DevblocksSmartyTemplateResource', 'get_template'),
 				array('_DevblocksSmartyTemplateResource', 'get_timestamp'),
 				array('_DevblocksSmartyTemplateResource', 'get_secure'),
@@ -4192,7 +4195,7 @@ class _DevblocksTemplateManager {
 		return $translated;
 	}
 	
-	static function block_devblocks_url($params, $content, $smarty, $repeat, $smarty_tpl) {
+	static function block_devblocks_url($params, $content, $smarty, $repeat) {
 		$url = DevblocksPlatform::getUrlService();
 		
 		$contents = $url->write($content, !empty($params['full']) ? true : false);
@@ -4316,6 +4319,8 @@ class _DevblocksTemplateManager {
 		$last_line = count($lines) - 1;
 		
 		foreach($lines as $idx => $line) {
+			$quote_ended = false;
+			
 			// Check if the line starts with a > before any content
 			if(preg_match("/^\s*\>/", $line)) {
 				if(false === $quote_started)

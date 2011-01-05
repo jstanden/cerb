@@ -16,11 +16,10 @@
  *          (Smarty online manual)
  * @author   Monte Ohrt <monte at ohrt dot com>
  * @param array $params parameters
- * @param object $smarty Smarty object
  * @param object $template template object
  * @return string
  */
-function smarty_function_popup($params, $smarty, $template)
+function smarty_function_popup($params, $template)
 {
     $append = '';
     foreach ($params as $_key=>$_value) {

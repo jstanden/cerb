@@ -39,12 +39,11 @@
  * @author credit to Jason Sweat <jsweat_php@yahoo.com>
  * @version  1.3
  * @param array
- * @param object $smarty Smarty object
  * @param object $template template object
  * @return string|null
  */
 
-function smarty_function_cycle($params, $smarty, $template)
+function smarty_function_cycle($params, $template)
 {
     static $cycle_vars;
     
@@ -55,7 +54,7 @@ function smarty_function_cycle($params, $smarty, $template)
             
     if (!in_array('values', array_keys($params))) {
         if(!isset($cycle_vars[$name]['values'])) {
-            $smarty->trigger_error("cycle: missing 'values' parameter");
+            trigger_error("cycle: missing 'values' parameter");
             return;
         }
     } else {

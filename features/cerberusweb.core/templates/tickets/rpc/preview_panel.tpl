@@ -27,9 +27,9 @@
 			{if !is_null($p) && !is_null($p_count)}
 			<div style="float:right;">
 				{if 0 != $p}<a href="javascript:;" onclick="genericAjaxPopup('peek','c=tickets&a=showPreview&view_id={$view_id}&tid={$ticket->id}&msgid={$ticket->first_message_id}', null, false, '650');">&lt;&lt;</a>{/if}
-				{if $p_prev}<a href="javascript:;" onclick="genericAjaxPopup('peek','c=tickets&a=showPreview&view_id={$view_id}&tid={$ticket->id}&msgid={$p_prev}', null, false, '650');">&lt;{'common.previous_short'|devblocks_translate|capitalize}</a>{/if}
+				{if isset($p_prev) && $p_prev}<a href="javascript:;" onclick="genericAjaxPopup('peek','c=tickets&a=showPreview&view_id={$view_id}&tid={$ticket->id}&msgid={$p_prev}', null, false, '650');">&lt;{'common.previous_short'|devblocks_translate|capitalize}</a>{/if}
 				({$p+1} of {$p_count})
-				{if $p_next}<a href="javascript:;" onclick="genericAjaxPopup('peek','c=tickets&a=showPreview&view_id={$view_id}&tid={$ticket->id}&msgid={$p_next}', null, false, '650');">{'common.next'|devblocks_translate|capitalize}&gt;</a>{/if}
+				{if isset($p_next) && $p_next}<a href="javascript:;" onclick="genericAjaxPopup('peek','c=tickets&a=showPreview&view_id={$view_id}&tid={$ticket->id}&msgid={$p_next}', null, false, '650');">{'common.next'|devblocks_translate|capitalize}&gt;</a>{/if}
 				{if $p+1 != $p_count}<a href="javascript:;" onclick="genericAjaxPopup('peek','c=tickets&a=showPreview&view_id={$view_id}&tid={$ticket->id}&msgid={$ticket->last_message_id}', null, false, '650');">&gt;&gt;</a>{/if}
 			</div>
 			{/if}

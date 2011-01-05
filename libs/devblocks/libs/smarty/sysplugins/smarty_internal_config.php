@@ -12,9 +12,9 @@
 class Smarty_Internal_Config {
     static $config_objects = array();
 
-    public function __construct($config_resource, $smarty, $template = null)
+    public function __construct($config_resource, $smarty, $data = null)
     {
-        $this->template = $template;
+        $this->data = $data;
         $this->smarty = $smarty;
         $this->config_resource = $config_resource;
         $this->config_resource_type = null;
@@ -135,6 +135,7 @@ class Smarty_Internal_Config {
     } 
     public function buildCompiledFilepath()
     {
+        $_compile_id = isset($this->smarty->compile_id) ? preg_replace('![^\w\|]+!', '_', $this->smarty->compile_id) : null;
         $_flag = (int)$this->smarty->config_read_hidden + (int)$this->smarty->config_booleanize * 2 +
         (int)$this->smarty->config_overwrite * 4;
         $_filepath = sha1($this->config_resource_name . $_flag); 
@@ -144,6 +145,10 @@ class Smarty_Internal_Config {
              . substr($_filepath, 2, 2) . DS
              . substr($_filepath, 4, 2) . DS
              . $_filepath;
+        } 
+        $_compile_dir_sep = $this->smarty->use_sub_dirs ? DS : '^';
+        if (isset($_compile_id)) {
+            $_filepath = $_compile_id . $_compile_dir_sep . $_filepath;
         } 
         $_compile_dir = $this->smarty->compile_dir;
         if (substr($_compile_dir, -1) != DS) {
@@ -233,39 +238,51 @@ class Smarty_Internal_Config {
     * @param mixed $sections array of section names, single section or null
     * @param object $scope global,parent or local
     */
-    public function loadConfigVars ($sections = null, $scope)
+    public function loadConfigVars ($sections = null, $scope = 'local')
     {
-        if (isset($this->template)) {
-            $this->template->properties['file_dependency'][sha1($this->getConfigFilepath())] = array($this->getConfigFilepath(), $this->getTimestamp());
-        } else {
-            $this->smarty->properties['file_dependency'][sha1($this->getConfigFilepath())] = array($this->getConfigFilepath(), $this->getTimestamp());
+        if ($this->data instanceof Smarty_Internal_Template) {
+            $this->data->properties['file_dependency'][sha1($this->getConfigFilepath())] = array($this->getConfigFilepath(), $this->getTimestamp(),'file');
         } 
         if ($this->mustCompile()) {
             $this->compileConfigSource();
-        } 
+        }
+        // pointer to scope
+        if ($scope == 'local') {
+        	$scope_ptr = $this->data;
+        } elseif ($scope == 'parent') {
+        	if (isset($this->data->parent)) {
+        		$scope_ptr = $this->data->parent;
+        	} else {
+        		$scope_ptr = $this->data;
+        	}        		
+        } elseif ($scope == 'root' || $scope == 'global') {
+        	$scope_ptr = $this->data;
+        	while (isset($scope_ptr->parent)) {
+        		$scope_ptr = $scope_ptr->parent;
+        	} 
+        }
         $_config_vars = array();
-        include($this->getCompiledFilepath ()); 
+        include($this->getCompiledFilepath ());
         // copy global config vars
         foreach ($_config_vars['vars'] as $variable => $value) {
-            if ($this->smarty->config_overwrite || !isset($scope->config_vars[$variable])) {
-                $scope->config_vars[$variable] = $value;
+            if ($this->smarty->config_overwrite || !isset($scope_ptr->config_vars[$variable])) {
+                $scope_ptr->config_vars[$variable] = $value;
             } else {
-                $scope->config_vars[$variable] = array_merge((array)$scope->config_vars[$variable], (array)$value);
+                $scope_ptr->config_vars[$variable] = array_merge((array)$scope_ptr->config_vars[$variable], (array)$value);
             } 
         } 
         // scan sections
         foreach ($_config_vars['sections'] as $this_section => $dummy) {
             if ($sections == null || in_array($this_section, (array)$sections)) {
                 foreach ($_config_vars['sections'][$this_section]['vars'] as $variable => $value) {
-                    if ($this->smarty->config_overwrite || !isset($scope->config_vars[$variable])) {
-                        $scope->config_vars[$variable] = $value;
+                    if ($this->smarty->config_overwrite || !isset($scope_ptr->config_vars[$variable])) {
+                        $scope_ptr->config_vars[$variable] = $value;
                     } else {
-                        $scope->config_vars[$variable] = array_merge((array)$scope->config_vars[$variable], (array)$value);
+                        $scope_ptr->config_vars[$variable] = array_merge((array)$scope_ptr->config_vars[$variable], (array)$value);
                     } 
                 } 
             } 
-        } 
+        }
     } 
 } 
-
 ?>
