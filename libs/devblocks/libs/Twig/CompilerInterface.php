@@ -14,23 +14,22 @@
  *
  * @package    twig
  * @author     Fabien Potencier <fabien.potencier@symfony-project.com>
- * @version    SVN: $Id$
  */
 interface Twig_CompilerInterface
 {
-  /**
-   * Compiles a node.
-   *
-   * @param  Twig_Node $node The node to compile
-   *
-   * @return Twig_Compiler The current compiler instance
-   */
-  public function compile(Twig_Node $node);
+    /**
+     * Compiles a node.
+     *
+     * @param  Twig_NodeInterface $node The node to compile
+     *
+     * @return Twig_Compiler The current compiler instance
+     */
+    function compile(Twig_NodeInterface $node);
 
-  /**
-   * Gets the current PHP code after compilation.
-   *
-   * @return string The PHP code
-   */
-  public function getSource();
+    /**
+     * Gets the current PHP code after compilation.
+     *
+     * @return string The PHP code
+     */
+    function getSource();
 }

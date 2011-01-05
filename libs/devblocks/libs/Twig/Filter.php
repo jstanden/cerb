@@ -14,29 +14,39 @@
  *
  * @package    twig
  * @author     Fabien Potencier <fabien.potencier@symfony-project.com>
- * @version    SVN: $Id$
  */
-abstract class Twig_Filter
+abstract class Twig_Filter implements Twig_FilterInterface
 {
-  protected $options;
+    protected $options;
 
-  public function __construct(array $options = array())
-  {
-    $this->options = array_merge(array(
-      'needs_environment' => false,
-      'is_escaper'        => false,
-    ), $options);
-  }
+    public function __construct(array $options = array())
+    {
+        $this->options = array_merge(array(
+            'needs_environment' => false,
+            'pre_escape'        => null,
+        ), $options);
+    }
 
-  abstract public function compile();
+    public function needsEnvironment()
+    {
+        return $this->options['needs_environment'];
+    }
 
-  public function needsEnvironment()
-  {
-    return $this->options['needs_environment'];
-  }
+    public function getSafe(Twig_Node $filterArgs)
+    {
+        if (isset($this->options['is_safe'])) {
+            return $this->options['is_safe'];
+        }
 
-  public function isEscaper()
-  {
-    return $this->options['is_escaper'];
-  }
+        if (isset($this->options['is_safe_callback'])) {
+            return call_user_func($this->options['is_safe_callback'], $filterArgs);
+        }
+
+        return array();
+    }
+
+    public function getPreEscape()
+    {
+        return $this->options['pre_escape'];
+    }
 }

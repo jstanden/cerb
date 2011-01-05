@@ -3,20 +3,24 @@
 /*
  * This file is part of Twig.
  *
- * (c) 2009 Fabien Potencier
- * (c) 2009 Armin Ronacher
+ * (c) 2010 Fabien Potencier
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
 
 /**
- * Exception thrown when an error occurs at runtime.
+ * Represents a template test.
  *
  * @package    twig
  * @author     Fabien Potencier <fabien.potencier@symfony-project.com>
- * @version    SVN: $Id$
  */
-class Twig_RuntimeError extends Twig_Error
+interface Twig_TestInterface
 {
+    /**
+     * Compiles a test.
+     *
+     * @return string The PHP code for the test
+     */
+    function compile();
 }

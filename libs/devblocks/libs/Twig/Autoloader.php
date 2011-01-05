@@ -12,37 +12,35 @@
 /**
  * Autoloads Twig classes.
  *
- * @package    twig
- * @author     Fabien Potencier <fabien.potencier@symfony-project.com>
- * @version    SVN: $Id$
+ * @package twig
+ * @author  Fabien Potencier <fabien.potencier@symfony-project.com>
  */
 class Twig_Autoloader
 {
-  /**
-   * Registers Twig_Autoloader as an SPL autoloader.
-   */
-  static public function register()
-  {
-    ini_set('unserialize_callback_func', 'spl_autoload_call');
-    spl_autoload_register(array(new self, 'autoload'));
-  }
-
-  /**
-   * Handles autoloading of classes.
-   *
-   * @param  string  $class  A class name.
-   *
-   * @return boolean Returns true if the class has been loaded
-   */
-  static public function autoload($class)
-  {
-    if (0 !== strpos($class, 'Twig'))
+    /**
+     * Registers Twig_Autoloader as an SPL autoloader.
+     */
+    static public function register()
     {
-      return false;
+        ini_set('unserialize_callback_func', 'spl_autoload_call');
+        spl_autoload_register(array(new self, 'autoload'));
     }
 
-    require dirname(__FILE__).'/../'.str_replace('_', '/', $class).'.php';
+    /**
+     * Handles autoloading of classes.
+     *
+     * @param  string  $class  A class name.
+     *
+     * @return boolean Returns true if the class has been loaded
+     */
+    static public function autoload($class)
+    {
+        if (0 !== strpos($class, 'Twig')) {
+            return;
+        }
 
-    return true;
-  }
+        if (file_exists($file = dirname(__FILE__).'/../'.str_replace('_', '/', $class).'.php')) {
+            require $file;
+        }
+    }
 }

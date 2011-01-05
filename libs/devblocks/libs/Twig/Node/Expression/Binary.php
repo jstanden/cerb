@@ -11,51 +11,30 @@
  */
 abstract class Twig_Node_Expression_Binary extends Twig_Node_Expression
 {
-  protected $left;
-  protected $right;
-
-  public function __construct(Twig_Node $left, Twig_Node $right, $lineno)
-  {
-    parent::__construct($lineno);
-    $this->left = $left;
-    $this->right = $right;
-  }
-
-  public function __toString()
-  {
-    $repr = array(get_class($this).'(');
-
-    foreach (explode("\n", $this->left->__toString()) as $line)
+    public function __construct(Twig_NodeInterface $left, Twig_NodeInterface $right, $lineno)
     {
-      $repr[] = '  '.$line;
+        parent::__construct(array('left' => $left, 'right' => $right), array(), $lineno);
     }
 
-    $repr[] = ', ';
-
-    foreach (explode("\n", $this->right->__toString()) as $line)
+    /**
+     * Compiles the node to PHP.
+     *
+     * @param Twig_Compiler A Twig_Compiler instance
+     */
+    public function compile(Twig_Compiler $compiler)
     {
-      $repr[] = '  '.$line;
+        $compiler
+            ->raw('(')
+            ->subcompile($this->getNode('left'))
+            ->raw(' ')
+        ;
+        $this->operator($compiler);
+        $compiler
+            ->raw(' ')
+            ->subcompile($this->getNode('right'))
+            ->raw(')')
+        ;
     }
 
-    $repr[] = ')';
-
-    return implode("\n", $repr);
-  }
-
-  public function compile($compiler)
-  {
-    $compiler
-      ->raw('(')
-      ->subcompile($this->left)
-      ->raw(') ')
-    ;
-    $this->operator($compiler);
-    $compiler
-      ->raw(' (')
-      ->subcompile($this->right)
-      ->raw(')')
-    ;
-  }
-
-  abstract public function operator($compiler);
+    abstract public function operator(Twig_Compiler $compiler);
 }

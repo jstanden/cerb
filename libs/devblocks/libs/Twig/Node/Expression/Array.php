@@ -8,65 +8,34 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-class Twig_Node_Expression_Array extends Twig_Node_Expression implements Twig_NodeListInterface
+class Twig_Node_Expression_Array extends Twig_Node_Expression
 {
-  protected $elements;
-
-  public function __construct($elements, $lineno)
-  {
-    parent::__construct($lineno);
-
-    $this->elements = $elements;
-  }
-
-  public function __toString()
-  {
-    $repr = array(get_class($this).'(');
-    foreach ($this->elements as $name => $node)
+    public function __construct(array $elements, $lineno)
     {
-      foreach (explode("\n", '  '.$name.' => '.$node) as $line)
-      {
-        $repr[] = '    '.$line;
-      }
+        parent::__construct($elements, array(), $lineno);
     }
-    $repr[] = ')';
 
-    return implode("\n", $repr);
-  }
-
-  public function getNodes()
-  {
-    return $this->elements;
-  }
-
-  public function setNodes(array $nodes)
-  {
-    $this->elements = $nodes;
-  }
-
-  public function compile($compiler)
-  {
-    $compiler->raw('array(');
-    $first = true;
-    foreach ($this->elements as $name => $node)
+    /**
+     * Compiles the node to PHP.
+     *
+     * @param Twig_Compiler A Twig_Compiler instance
+     */
+    public function compile(Twig_Compiler $compiler)
     {
-      if (!$first)
-      {
-        $compiler->raw(', ');
-      }
-      $first = false;
+        $compiler->raw('array(');
+        $first = true;
+        foreach ($this->nodes as $name => $node) {
+            if (!$first) {
+                $compiler->raw(', ');
+            }
+            $first = false;
 
-      $compiler
-        ->repr($name)
-        ->raw(' => ')
-        ->subcompile($node)
-      ;
+            $compiler
+                ->repr($name)
+                ->raw(' => ')
+                ->subcompile($node)
+            ;
+        }
+        $compiler->raw(')');
     }
-    $compiler->raw(')');
-  }
-
-  public function getElements()
-  {
-    return $this->elements;
-  }
 }

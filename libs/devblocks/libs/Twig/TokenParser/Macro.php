@@ -10,29 +10,43 @@
  */
 class Twig_TokenParser_Macro extends Twig_TokenParser
 {
-  public function parse(Twig_Token $token)
-  {
-    $lineno = $token->getLine();
-    $name = $this->parser->getStream()->expect(Twig_Token::NAME_TYPE)->getValue();
+    /**
+     * Parses a token and returns a node.
+     *
+     * @param Twig_Token $token A Twig_Token instance
+     *
+     * @return Twig_NodeInterface A Twig_NodeInterface instance
+     */
+    public function parse(Twig_Token $token)
+    {
+        $lineno = $token->getLine();
+        $name = $this->parser->getStream()->expect(Twig_Token::NAME_TYPE)->getValue();
 
-    $arguments = $this->parser->getExpressionParser()->parseArguments();
+        $arguments = $this->parser->getExpressionParser()->parseArguments();
 
-    $this->parser->getStream()->expect(Twig_Token::BLOCK_END_TYPE);
-    $body = $this->parser->subparse(array($this, 'decideBlockEnd'), true);
-    $this->parser->getStream()->expect(Twig_Token::BLOCK_END_TYPE);
+        $this->parser->getStream()->expect(Twig_Token::BLOCK_END_TYPE);
+        $this->parser->pushLocalScope();
+        $body = $this->parser->subparse(array($this, 'decideBlockEnd'), true);
+        $this->parser->popLocalScope();
+        $this->parser->getStream()->expect(Twig_Token::BLOCK_END_TYPE);
 
-    $this->parser->setMacro($name, new Twig_Node_Macro($name, $body, $arguments, $lineno, $this->getTag()));
+        $this->parser->setMacro($name, new Twig_Node_Macro($name, $body, $arguments, $lineno, $this->getTag()));
 
-    return null;
-  }
+        return null;
+    }
 
-  public function decideBlockEnd($token)
-  {
-    return $token->test('endmacro');
-  }
+    public function decideBlockEnd($token)
+    {
+        return $token->test('endmacro');
+    }
 
-  public function getTag()
-  {
-    return 'macro';
-  }
+    /**
+     * Gets the tag name associated with this token parser.
+     *
+     * @param string The tag name
+     */
+    public function getTag()
+    {
+        return 'macro';
+    }
 }

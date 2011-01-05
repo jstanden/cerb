@@ -8,28 +8,35 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+
+/**
+ * Interface implemented by all compiled templates.
+ *
+ * @package twig
+ * @author  Fabien Potencier <fabien.potencier@symfony-project.com>
+ */
 interface Twig_TemplateInterface
 {
-  /**
-   * Renders the template with the given context and returns it as string.
-   *
-   * @param array $context An array of parameters to pass to the template
-   *
-   * @return string The rendered template
-   */
-  public function render(array $context);
+    /**
+     * Renders the template with the given context and returns it as string.
+     *
+     * @param array $context An array of parameters to pass to the template
+     *
+     * @return string The rendered template
+     */
+    function render(array $context);
 
-  /**
-   * Displays the template with the given context.
-   *
-   * @param array $context An array of parameters to pass to the template
-   */
-  public function display(array $context);
+    /**
+     * Displays the template with the given context.
+     *
+     * @param array $context An array of parameters to pass to the template
+     */
+    function display(array $context);
 
-  /**
-   * Returns the bound environment for this template.
-   *
-   * @return Twig_Environment The current environment
-   */
-  public function getEnvironment();
+    /**
+     * Returns the bound environment for this template.
+     *
+     * @return Twig_Environment The current environment
+     */
+    function getEnvironment();
 }

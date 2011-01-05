@@ -14,17 +14,16 @@
  *
  * @package    twig
  * @author     Fabien Potencier <fabien.potencier@symfony-project.com>
- * @version    SVN: $Id$
  */
 interface Twig_LexerInterface
 {
-  /**
-   * Tokenizes a source code.
-   *
-   * @param  string $code     The source code
-   * @param  string $filename A unique identifier for the source code
-   *
-   * @return Twig_TokenStream A token stream instance
-   */
-  public function tokenize($code, $filename = 'n/a');
+    /**
+     * Tokenizes a source code.
+     *
+     * @param  string $code     The source code
+     * @param  string $filename A unique identifier for the source code
+     *
+     * @return Twig_TokenStream A token stream instance
+     */
+    function tokenize($code, $filename = null);
 }

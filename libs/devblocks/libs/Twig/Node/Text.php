@@ -15,35 +15,26 @@
  *
  * @package    twig
  * @author     Fabien Potencier <fabien.potencier@symfony-project.com>
- * @version    SVN: $Id$
  */
-class Twig_Node_Text extends Twig_Node
+class Twig_Node_Text extends Twig_Node implements Twig_NodeOutputInterface
 {
-  protected $data;
+    public function __construct($data, $lineno)
+    {
+        parent::__construct(array(), array('data' => $data), $lineno);
+    }
 
-  public function __construct($data, $lineno)
-  {
-    parent::__construct($lineno);
-    $this->data = $data;
-  }
-
-  public function __toString()
-  {
-    return get_class($this).'('.$this->data.')';
-  }
-
-  public function compile($compiler)
-  {
-    $compiler
-      ->addDebugInfo($this)
-      ->write('echo ')
-      ->string($this->data)
-      ->raw(";\n")
-    ;
-  }
-
-  public function getData()
-  {
-    return $this->data;
-  }
+    /**
+     * Compiles the node to PHP.
+     *
+     * @param Twig_Compiler A Twig_Compiler instance
+     */
+    public function compile(Twig_Compiler $compiler)
+    {
+        $compiler
+            ->addDebugInfo($this)
+            ->write('echo ')
+            ->string($this->getAttribute('data'))
+            ->raw(";\n")
+        ;
+    }
 }

@@ -1,109 +1,79 @@
 <?php
 
-class Twig_Node_Set extends Twig_Node implements Twig_NodeListInterface
+/*
+ * This file is part of Twig.
+ *
+ * (c) 2010 Fabien Potencier
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+/**
+ * Represents a set node.
+ *
+ * @package    twig
+ * @author     Fabien Potencier <fabien.potencier@symfony-project.com>
+ */
+class Twig_Node_Set extends Twig_Node
 {
-  protected $names;
-  protected $values;
-  protected $isMultitarget;
-
-  public function __construct($isMultitarget, $names, $values, $lineno, $tag = null)
-  {
-    parent::__construct($lineno, $tag);
-
-    $this->isMultitarget = $isMultitarget;
-    $this->names = $names;
-    $this->values = $values;
-  }
-
-  public function __toString()
-  {
-    $repr = array(get_class($this).'('.($this->isMultitarget ? implode(', ', $this->names) : $this->names).',');
-    foreach ($this->isMultitarget ? $this->values : array($this->values) as $node)
+    public function __construct($capture, Twig_NodeInterface $names, Twig_NodeInterface $values, $lineno, $tag = null)
     {
-      foreach (explode("\n", $node->__toString()) as $line)
-      {
-        $repr[] = '  '.$line;
-      }
+        parent::__construct(array('names' => $names, 'values' => $values), array('capture' => $capture), $lineno, $tag);
     }
-    $repr[] = ')';
 
-    return implode("\n", $repr);
-  }
-
-  public function getNodes()
-  {
-    if ($this->isMultitarget)
+    /**
+     * Compiles the node to PHP.
+     *
+     * @param Twig_Compiler A Twig_Compiler instance
+     */
+    public function compile(Twig_Compiler $compiler)
     {
-      return $this->values;
-    }
-    else
-    {
-      return array($this->values);
-    }
-  }
+        $compiler->addDebugInfo($this);
 
-  public function setNodes(array $nodes)
-  {
-    $this->values = $this->isMultitarget ? $nodes : $nodes[0];
-  }
+        if (count($this->getNode('names')) > 1) {
+            $compiler->write('list(');
+            foreach ($this->getNode('names') as $idx => $node) {
+                if ($idx) {
+                    $compiler->raw(', ');
+                }
 
-  public function compile($compiler)
-  {
-    $compiler->addDebugInfo($this);
+                $compiler->subcompile($node);
+            }
+            $compiler->raw(')');
+        } else {
+            if ($this->getAttribute('capture')) {
+                $compiler
+                    ->write("ob_start();\n")
+                    ->subcompile($this->getNode('values'))
+                ;
+            }
 
-    if ($this->isMultitarget)
-    {
-      $compiler->write('list(');
-      foreach ($this->names as $idx => $node)
-      {
-        if ($idx)
-        {
-          $compiler->raw(', ');
+            $compiler->subcompile($this->getNode('names'), false);
+
+            if ($this->getAttribute('capture')) {
+                $compiler->raw(" = ob_get_clean()");
+            }
         }
 
-        $compiler
-          ->raw('$context[')
-          ->string($node->getName())
-          ->raw(']')
-        ;
-      }
-      $compiler->raw(')');
-    }
-    else
-    {
-      $compiler
-        ->write('$context[')
-        ->string($this->names->getName())
-        ->raw(']')
-      ;
-    }
+        if (!$this->getAttribute('capture')) {
+            $compiler->raw(' = ');
 
-    $compiler->raw(' = ');
+            if (count($this->getNode('names')) > 1) {
+                $compiler->write('array(');
+                foreach ($this->getNode('values') as $idx => $value) {
+                    if ($idx) {
+                        $compiler->raw(', ');
+                    }
 
-    if ($this->isMultitarget)
-    {
-      $compiler->write('array(');
-      foreach ($this->values as $idx => $value)
-      {
-        if ($idx)
-        {
-          $compiler->raw(', ');
+                    $compiler->subcompile($value);
+                }
+                $compiler->raw(')');
+            } else {
+                $compiler->subcompile($this->getNode('values'));
+            }
         }
 
-        $compiler->subcompile($value);
-      }
-      $compiler->raw(')');
+        $compiler->raw(";\n");
     }
-    else
-    {
-      $compiler->subcompile($this->values);
-    }
-
-    $compiler->raw(";\n");
-  }
-
-  public function getNames()
-  {
-    return $this->names;
-  }
 }
