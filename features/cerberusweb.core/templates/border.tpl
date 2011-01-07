@@ -27,7 +27,7 @@
 			{/if}
 			
 			{assign var=worker_name value=''|cat:'<b>'|cat:$active_worker->getName()|cat:'</b>'}
-			{'header.signed_in'|devblocks_translate:$worker_name}
+			{'header.signed_in'|devblocks_translate:$worker_name nofilter}
 			(<a href="{devblocks_url}c=login&a=signout{/devblocks_url}">{$translate->_('header.signoff')|lower}</a>)
 		{/if}
 		</td>
