@@ -306,6 +306,7 @@ class CerberusApplication extends DevblocksApplication {
 		
 		// Clean up missing plugins
 		DAO_Platform::cleanupPluginTables();
+		DAO_Platform::maint();
 		
 		// Registry
 		$plugins = DevblocksPlatform::getPluginRegistry();

@@ -223,6 +223,30 @@ class DAO_Platform {
 		DevblocksPlatform::clearCache();
     }
     
+    static function maint() {
+    	$db = DevblocksPlatform::getDatabaseService();
+    	$logger = DevblocksPlatform::getConsoleLog();
+    	
+    	$prefix = (APP_DB_PREFIX != '') ? APP_DB_PREFIX.'_' : ''; // [TODO] Cleanup
+    	
+    	$sql = sprintf("DELETE %1\$sextension FROM %1\$sextension ".
+    		"LEFT JOIN %1\$splugin ON (%1\$sextension.plugin_id=%1\$splugin.id) ".
+    		"WHERE %1\$splugin.id IS NULL",
+    		$prefix
+    	);
+    	$db->Execute($sql);
+    	$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' orphaned extensions.');
+    	
+    	$sql = sprintf("DELETE %1\$sproperty_store FROM %1\$sproperty_store ".
+    		"LEFT JOIN %1\$sextension ON (%1\$sproperty_store.extension_id=%1\$sextension.id) ".
+    		"LEFT JOIN %1\$splugin ON (%1\$sextension.plugin_id=%1\$splugin.id) ".
+    		"WHERE %1\$sextension.id IS NULL",
+    		$prefix
+    	);
+    	$db->Execute($sql);
+		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' orphaned extension properties.');
+    }
+    
 	static function updatePlugin($id, $fields) {
 		$db = DevblocksPlatform::getDatabaseService();
 		$prefix = (APP_DB_PREFIX != '') ? APP_DB_PREFIX.'_' : ''; // [TODO] Cleanup

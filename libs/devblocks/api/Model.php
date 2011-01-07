@@ -346,13 +346,14 @@ class DevblocksPluginManifest {
             $prefix,
             $db->qstr($this->id)
         ));
-        $db->Execute(sprintf("DELETE FROM %sextension WHERE id = %s",
+        $db->Execute(sprintf("DELETE FROM %sextension WHERE plugin_id = %s",
             $prefix,
             $db->qstr($this->id)
         ));
-        $db->Execute(sprintf("DELETE FROM %sproperty_store WHERE id = %s",
-            $prefix,
-            $db->qstr($this->id)
+        $db->Execute(sprintf("DELETE %1\$sproperty_store FROM %1\$sproperty_store ".
+        	"LEFT JOIN %1\$sextension ON (%1\$sproperty_store.extension_id=%1\$sextension.id) ".
+        	"WHERE %1\$sextension.id IS NULL",
+        	$prefix
         ));
 	}
 };

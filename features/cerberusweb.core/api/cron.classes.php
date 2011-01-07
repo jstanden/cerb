@@ -175,6 +175,9 @@ class MaintCron extends CerberusCronPageExtension {
 		
 		$db = DevblocksPlatform::getDatabaseService();
 
+		// Platform
+		DAO_Platform::maint();
+		
 		// Purge Deleted Content
 		$purge_waitdays = intval($this->getParam('purge_waitdays', 7));
 		$purge_waitsecs = time() - (intval($purge_waitdays) * 86400);
