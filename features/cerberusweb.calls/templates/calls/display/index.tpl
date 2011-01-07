@@ -6,6 +6,7 @@
 		<h1>{$call->subject}</h1> 
 		<form action="{devblocks_url}{/devblocks_url}" onsubmit="return false;">
 
+		<b>{'common.updated'|devblocks_translate|capitalize}:</b> <abbr title="{$call->updated_date|devblocks_date}">{$call->updated_date|devblocks_prettytime}</abbr> &nbsp;
 		<b>{'call_entry.model.phone'|devblocks_translate}:</b> {$call->phone} &nbsp; 
 		<b>{'call_entry.model.is_closed'|devblocks_translate}:</b> {if $call->is_closed}{'common.yes'|devblocks_translate}{else}{'common.no'|devblocks_translate}{/if} &nbsp; 
 		<b>{'call_entry.model.is_outgoing'|devblocks_translate}:</b> {if $call->is_outgoing}{'common.yes'|devblocks_translate}{else}{'common.no'|devblocks_translate}{/if} &nbsp; 
