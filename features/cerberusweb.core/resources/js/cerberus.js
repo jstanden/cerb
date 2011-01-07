@@ -477,7 +477,7 @@ var cAjaxCalls = function() {
 		if(null != options.autocomplete && true == options.autocomplete) {
 			
 			if(null == options.autocomplete_class) {
-				options.autocomplete_class = 'input_search';
+				options.autocomplete_class = ''; //'input_search';
 			}
 			
 			$autocomplete = $('<input type="text" class="'+options.autocomplete_class+'" size="45">');
