@@ -290,7 +290,6 @@ class DevblocksPlatform extends DevblocksEngine {
 		if(null == (@$xml = simplexml_load_string($data)))
 			return false;
 			
-		// [TODO] Better detection of RDF/RSS/Atom + versions 
 		$root_tag = strtolower(dom_import_simplexml($xml)->tagName);
 		
 		if('feed'==$root_tag && count($xml->entry)) { // Atom
@@ -309,7 +308,13 @@ class DevblocksPlatform extends DevblocksEngine {
 				$title = (string) $entry->title;
 				$content = (string) $entry->summary;
 				$link = '';
-				
+
+				// Fallbacks
+				if(empty($date))
+					$date = (string) $entry->updated;
+
+				$date_timestamp = strtotime($date);
+					
 				// Link as the <id> element
 				if(preg_match("/^(.*)\:\/\/(.*$)/i", $id, $matches)) {
 					$link = $id;
@@ -324,7 +329,7 @@ class DevblocksPlatform extends DevblocksEngine {
 				}
 				 
 				$feed['items'][] = array(
-					'date' => strtotime($date),
+					'date' => empty($date_timestamp) ? time() : $date_timestamp,
 					'link' => $link,
 					'title' => $title,
 					'content' => $content,
@@ -347,8 +352,10 @@ class DevblocksPlatform extends DevblocksEngine {
 				$title = (string) $item->title;
 				$content = (string) $item->description;
 				
+				$date_timestamp = strtotime($date);
+				
 				$feed['items'][] = array(
-					'date' => strtotime($date),
+					'date' => empty($date_timestamp) ? time() : $date_timestamp,
 					'link' => $link,
 					'title' => $title,
 					'content' => $content,
@@ -370,9 +377,11 @@ class DevblocksPlatform extends DevblocksEngine {
 				$link = (string) $item->link; 
 				$title = (string) $item->title;
 				$content = (string) $item->description;
+
+				$date_timestamp = strtotime($date);
 				
 				$feed['items'][] = array(
-					'date' => strtotime($date),
+					'date' => empty($date_timestamp) ? time() : $date_timestamp,
 					'link' => $link,
 					'title' => $title,
 					'content' => $content,
