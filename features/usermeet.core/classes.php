@@ -308,8 +308,8 @@ class UmCommunityPage extends CerberusPageExtension {
 
 		// Clear compiled templates
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->utility->clearCompiledTemplate();
-		$tpl->cache->clearAll();
+		$tpl->clearCompiledTemplate();
+		$tpl->clearAllCache();
 		
 		if(null != ($view = C4_AbstractViewLoader::getView($view_id)))
 			$view->render();
@@ -410,8 +410,8 @@ class UmCommunityPage extends CerberusPageExtension {
 		
 		// Clear compiled templates
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->utility->clearCompiledTemplate();
-		$tpl->cache->clearAll();
+		$tpl->clearCompiledTemplate();
+		$tpl->clearAllCache();
 		
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('community',$portal,'templates')));
 	}

@@ -891,8 +891,8 @@ class View_DevblocksTemplate extends C4_AbstractView {
 		if($deleted) {
 			// Clear compiled templates
 			$tpl = DevblocksPlatform::getTemplateService();
-			$tpl->utility->clearCompiledTemplate();
-			$tpl->cache->clearAll();
+			$tpl->clearCompiledTemplate();
+			$tpl->clearCache();
 		}
 
 		unset($ids);

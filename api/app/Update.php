@@ -175,8 +175,8 @@ class ChUpdateController extends DevblocksControllerExtension {
 						
 						// Clear compiled templates
 						$tpl = DevblocksPlatform::getTemplateService();
-						$tpl->utility->clearCompiledTemplate();
-						$tpl->cache->clearAll();
+						$tpl->clearCompiledTemplate();
+						$tpl->clearAllCache();
 
 						// Reload plugin translations
 						DAO_Translation::reloadPluginStrings();
