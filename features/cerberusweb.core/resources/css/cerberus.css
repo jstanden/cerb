@@ -473,6 +473,7 @@ DIV.badge-lightgray {
 	background-repeat:no-repeat;
 	background-position:top left;
 	display:inline-block;
+	vertical-align:middle;
 }
 button span.cerb-sprite { display:inline-block; }
 
