@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE tmx SYSTEM "tmx14.dtd">
+<tmx version="1.4">
+	<header datatype="winres" segtype="sentence" adminlang="en-us"
+		srclang="en-us" o-tmf="abc" />
+	<body>
+
+		<!-- Common Strings -->
+
+		<tu tuid='feeds.common'>
+			<tuv xml:lang="en_US"><seg>Feeds</seg></tuv>
+		</tu>
+		
+		<tu tuid='feeds.item'>
+			<tuv xml:lang="en_US"><seg>Feed Item</seg></tuv>
+		</tu>
+		<tu tuid='feeds.manage'>
+			<tuv xml:lang="en_US"><seg>Manage Feeds</seg></tuv>
+		</tu>
+
+		<!-- Contexts -->
+		
+		<tu tuid='context.feed.assigned'>
+			<tuv xml:lang="en_US"><seg>%s assigned a feed to you.</seg></tuv>
+		</tu>
+		<tu tuid='context.feed.commented'>
+			<tuv xml:lang="en_US"><seg>%s commented on a feed.</seg></tuv>
+		</tu>
+		
+		<tu tuid='context.feed.item.assigned'>
+			<tuv xml:lang="en_US"><seg>%s assigned a feed item to you.</seg></tuv>
+		</tu>
+		<tu tuid='context.feed.item.commented'>
+			<tuv xml:lang="en_US"><seg>%s commented on a feed item.</seg></tuv>
+		</tu>
+
+		<!-- Feed_Item -->
+		
+		<tu tuid='dao.feed_item.feed_id'>
+			<tuv xml:lang="en_US"><seg>Feed</seg></tuv>
+		</tu>
+		<tu tuid='dao.feed_item.guid'>
+			<tuv xml:lang="en_US"><seg>GUID</seg></tuv>
+		</tu>
+		<tu tuid='dao.feed_item.is_closed'>
+			<tuv xml:lang="en_US"><seg>Is Closed</seg></tuv>
+		</tu>
+
+	</body>
+</tmx>
