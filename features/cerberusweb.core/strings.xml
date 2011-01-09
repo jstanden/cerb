@@ -66,6 +66,9 @@
 		<tu tuid='common.assigned'>
 			<tuv xml:lang="en_US"><seg>Assigned</seg></tuv>
 		</tu>
+		<tu tuid='common.attachments'>
+			<tuv xml:lang="en_US"><seg>Attachments</seg></tuv>
+		</tu>
 		<tu tuid='common.available'>
 			<tuv xml:lang="en_US"><seg>Available</seg></tuv>
 		</tu>
@@ -1009,9 +1012,6 @@
 		
 		<!-- Display: Conversation -->
 		
-		<tu tuid='display.convo.attachments_label'>
-			<tuv xml:lang="en_US"><seg>Attachments:</seg></tuv>
-		</tu>
 		<tu tuid='display.convo.brief_headers'>
 			<tuv xml:lang="en_US"><seg>brief headers</seg></tuv>
 		</tu>

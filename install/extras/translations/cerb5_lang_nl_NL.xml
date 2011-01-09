@@ -501,6 +501,11 @@
         <seg>Toegewezen</seg>
       </tuv>
     </tu>
+    <tu tuid="common.attachments">
+      <tuv xml:lang="nl_NL">
+        <seg>Bijlagen</seg>
+      </tuv>
+    </tu>
     <tu tuid="common.available">
       <tuv xml:lang="nl_NL">
         <seg>Beschikbaar</seg>
@@ -1244,11 +1249,6 @@
     <tu tuid="display.button.split_ticket">
       <tuv xml:lang="nl_NL">
         <seg>Splits Ticket</seg>
-      </tuv>
-    </tu>
-    <tu tuid="display.convo.attachments_label">
-      <tuv xml:lang="nl_NL">
-        <seg>Bijlagen:</seg>
       </tuv>
     </tu>
     <tu tuid="display.convo.full_headers">

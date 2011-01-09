@@ -351,6 +351,11 @@
         <seg>Atribuído</seg>
       </tuv>
     </tu>
+    <tu tuid="common.attachments">
+      <tuv xml:lang="pt_PT">
+        <seg>Anexos</seg>
+      </tuv>
+    </tu>
     <tu tuid="common.available">
       <tuv xml:lang="pt_PT">
         <seg>Disponível</seg>
@@ -964,11 +969,6 @@
     <tu tuid="display.button.split_ticket">
       <tuv xml:lang="pt_PT">
         <seg>Dividir Ticket</seg>
-      </tuv>
-    </tu>
-    <tu tuid="display.convo.attachments_label">
-      <tuv xml:lang="pt_PT">
-        <seg>Anexos:</seg>
       </tuv>
     </tu>
     <tu tuid="display.convo.full_headers">

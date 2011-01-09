@@ -711,6 +711,11 @@
         <seg>Zugewiesen an</seg>
       </tuv>
     </tu>
+    <tu tuid="common.attachments">
+      <tuv xml:lang="de_DE">
+        <seg>Anlagen</seg>
+      </tuv>
+    </tu>
     <tu tuid="common.available">
       <tuv xml:lang="de_DE">
         <seg>Nicht zugewiesen</seg>
@@ -1929,11 +1934,6 @@
     <tu tuid="display.button.split_ticket">
       <tuv xml:lang="de_DE">
         <seg>Ticket teilen</seg>
-      </tuv>
-    </tu>
-    <tu tuid="display.convo.attachments_label">
-      <tuv xml:lang="de_DE">
-        <seg>Anlagen:</seg>
       </tuv>
     </tu>
     <tu tuid="display.convo.brief_headers">

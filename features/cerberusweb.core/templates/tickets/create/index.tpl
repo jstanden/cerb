@@ -75,7 +75,7 @@
 			<tr>
 				<td style="background-color:rgb(0,184,4);width:10px;"></td>
 				<td style="padding-left:5px;">
-					<H2>{$translate->_('display.convo.attachments_label')|capitalize}</H2>
+					<H2>{$translate->_('common.attachments')|capitalize}:</H2>
 					{'display.reply.attachments_limit'|devblocks_translate:$upload_max_filesize}<br>
 					
 					<b>{$translate->_('display.reply.attachments_add')}</b> 

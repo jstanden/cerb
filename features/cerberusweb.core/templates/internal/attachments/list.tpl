@@ -4,7 +4,7 @@
 
 {if !empty($links) && !empty($attachments)}
 <div>
-<b>{$translate->_('display.convo.attachments_label')|capitalize}</b><br>
+<b>{$translate->_('common.attachments')|capitalize}:</b><br>
 <ul style="margin-top:0px;margin-bottom:5px;">
 	{foreach from=$links item=link name=links}
 	{$attachment = $attachments.{$link->attachment_id}}
