@@ -119,6 +119,10 @@ input[type=text].input_remove {
 	background:url('input_icons/forbidden.png') no-repeat scroll 5px 50% #ffffff;
 	padding-left:25px;
 }
+input[type=text].input_rss {
+	background:url('input_icons/rss.png') no-repeat scroll 5px 50% #ffffff;
+	padding-left:25px;
+}
 input[type=text].input_search {
 	background:url('input_icons/view.png') no-repeat scroll 5px 50% #ffffff;
 	padding-left:25px;
