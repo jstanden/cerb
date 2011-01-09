@@ -5,7 +5,6 @@
 			<input type="hidden" name="c" value="feeds">
 			<input type="hidden" name="a" value="">
 			{if 1 || $active_worker->hasPriv('...')}<button type="button" onclick="genericAjaxPopup('peek','c=feeds&a=showFeedsManagerPopup&view_id={$view->id}',null,true,'600');"><span class="cerb-sprite sprite-gear"></span> {'feeds.manage'|devblocks_translate|capitalize}</button>{/if}
-			{if 1 || $active_worker->hasPriv('...')}<button type="button" onclick="$frm=$(this.form);$frm.find('input:hidden[name=a]').val('synchronize');$frm.submit();"><span class="cerb-sprite sprite-refresh"></span> {'common.synchronize'|devblocks_translate|capitalize}</button>{/if}
 		</form>
 	</td>
 	<td width="98%" valign="middle"></td>

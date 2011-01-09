@@ -108,6 +108,18 @@
 			</params>
 		</extension>	
 	
+		<!-- Scheduled Tasks -->
+		
+		<extension point="cerberusweb.cron">
+			<id>feeds.cron</id>
+			<name>Feeds Cron</name>
+			<class>
+				<file>api/App.php</file>
+				<name>FeedsCron</name>
+			</class>
+			<params />
+		</extension>
+	
 		<!-- Page -->
 		
  		<extension point="cerberusweb.page">
@@ -121,7 +133,7 @@
 				<param key="uri" value="feeds" />
 				<param key="menutitle" value="" />
 			</params>
-		</extension>	
+		</extension>
 	
 	</extensions>
 </plugin>

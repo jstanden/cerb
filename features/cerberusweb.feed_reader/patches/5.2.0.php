@@ -2,6 +2,9 @@
 $db = DevblocksPlatform::getDatabaseService();
 $tables = $db->metaTables();
 
+// ===========================================================================
+// feed
+
 if(!isset($tables['feed'])) {
 	$sql = "
 		CREATE TABLE IF NOT EXISTS feed (
@@ -13,6 +16,9 @@ if(!isset($tables['feed'])) {
 	";
 	$db->Execute($sql);	
 }
+
+// ===========================================================================
+// feed_item
 
 if(!isset($tables['feed_item'])) {
 	$sql = "
@@ -33,5 +39,16 @@ if(!isset($tables['feed_item'])) {
 	";
 	$db->Execute($sql);	
 }
+
+// ===========================================================================
+// Enable feed reader scheduled task and give defaults
+
+if(null != ($cron = DevblocksPlatform::getExtension('feeds.cron', true, true))) {
+	$cron->setParam(CerberusCronPageExtension::PARAM_ENABLED, true);
+	$cron->setParam(CerberusCronPageExtension::PARAM_DURATION, '15');
+	$cron->setParam(CerberusCronPageExtension::PARAM_TERM, 'm');
+	$cron->setParam(CerberusCronPageExtension::PARAM_LASTRUN, strtotime('Yesterday 23:30'));
+}
+
 
 return TRUE;

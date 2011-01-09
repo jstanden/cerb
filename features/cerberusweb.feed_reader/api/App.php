@@ -1,5 +1,62 @@
 <?php
 if (class_exists('Extension_ActivityTab')):
+class FeedsCron extends CerberusCronPageExtension {
+	public function run() {
+		$logger = DevblocksPlatform::getConsoleLog();
+		$logger->info("[Feeds] Starting Feed Reader");
+			
+		$feeds = DAO_Feed::getWhere();
+		
+		if(is_array($feeds))
+		foreach($feeds as $feed_id => $feed) {
+			$rss = DevblocksPlatform::parseRss($feed->url);
+			
+			if(isset($rss['items']) && is_array($rss['items']))
+			foreach($rss['items'] as $item) {
+				$guid = md5($feed_id.$item['title'].$item['link']);
+	
+				// Look up by GUID
+				$results = DAO_FeedItem::getWhere(sprintf("%s = %s AND %s = %d",
+					DAO_FeedItem::GUID,
+					C4_ORMHelper::qstr($guid),
+					DAO_FeedItem::FEED_ID,
+					$feed_id
+				));
+				
+				// If we've already inserted this item, skip it
+				if(!empty($results))
+					continue;
+				
+				$fields = array(
+					DAO_FeedItem::FEED_ID => $feed_id,
+					DAO_FeedItem::CREATED_DATE => $item['date'],
+					DAO_FeedItem::GUID => $guid,
+					DAO_FeedItem::TITLE => $item['title'],
+					DAO_FeedItem::URL => $item['link'],
+				);
+				$item_id = DAO_FeedItem::create($fields);
+				
+				$logger->info(sprintf("[Feeds] [%s] Imported: %s", $feed->name, $item['title']));
+			}
+		}		
+		
+		$logger->info("[Feeds] Feed Reader Finished");
+	}
+	
+	public function configure($instance) {
+//		$tpl = DevblocksPlatform::getTemplateService();
+//		$tpl->cache_lifetime = "0";
+//		$tpl->display('devblocks:example.cron::cron/config.tpl');
+	}
+	
+	public function saveConfigurationAction() {
+//		@$example_waitdays = DevblocksPlatform::importGPC($_POST['example_waitdays'], 'integer');
+//		$this->setParam('example_waitdays', $example_waitdays);
+	}
+};
+endif;
+
+if (class_exists('Extension_ActivityTab')):
 class FeedsActivityTab extends Extension_ActivityTab {
 	const VIEW_ACTIVITY_FEEDS = 'activity_feeds';
 	
@@ -88,43 +145,6 @@ class Page_Feeds extends CerberusPageExtension {
 		}		
 	}
 	
-	function synchronizeAction() {
-		$feeds = DAO_Feed::getWhere();
-		
-		if(is_array($feeds))
-		foreach($feeds as $feed_id => $feed) {
-			$rss = DevblocksPlatform::parseRss($feed->url);
-			
-			if(isset($rss['items']) && is_array($rss['items']))
-			foreach($rss['items'] as $item) {
-				$guid = md5($feed_id.$item['title'].$item['link']);
-	
-				// Look up by GUID
-				$results = DAO_FeedItem::getWhere(sprintf("%s = %s AND %s = %d",
-					DAO_FeedItem::GUID,
-					C4_ORMHelper::qstr($guid),
-					DAO_FeedItem::FEED_ID,
-					$feed_id
-				));
-				
-				// If we've already inserted this item, skip it
-				if(!empty($results))
-					continue;
-				
-				$fields = array(
-					DAO_FeedItem::FEED_ID => $feed_id,
-					DAO_FeedItem::CREATED_DATE => $item['date'],
-					DAO_FeedItem::GUID => $guid,
-					DAO_FeedItem::TITLE => $item['title'],
-					DAO_FeedItem::URL => $item['link'],
-				);
-				$item_id = DAO_FeedItem::create($fields);
-			}
-		}
-		
-		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('activity','feeds')));
-	}
-	
 	// Ajax
 //	function showTabAction() {
 //		@$ext_id = DevblocksPlatform::importGPC($_REQUEST['ext_id'],'string','');
@@ -136,19 +156,6 @@ class Page_Feeds extends CerberusPageExtension {
 //		}
 //	}
 		
-	// Ajax
-//	function showServerTabAction() {
-//		@$ext_id = DevblocksPlatform::importGPC($_REQUEST['ext_id'],'string','');
-//		@$server_id = DevblocksPlatform::importGPC($_REQUEST['server_id'],'integer',0);
-//		
-//		if(null != ($tab_mft = DevblocksPlatform::getExtension($ext_id)) 
-//			&& null != ($inst = $tab_mft->createInstance()) 
-//			&& $inst instanceof Extension_ServerTab) {
-//				$server = DAO_Server::get($server_id);
-//				$inst->showTab($server);
-//		}
-//	}	
-
 	function showFeedItemPopupAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'integer', 0);
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'], 'string', '');
