@@ -84,7 +84,7 @@
       
   	{if $expanded}
       <div style="clear:both;display:block;padding-top:10px;">
-    	  	<pre class="emailbody">{$message->getContent()|trim|devblocks_hyperlinks|devblocks_hideemailquotes}</pre>
+    	  	<pre class="emailbody">{$message->getContent()|trim|escape|devblocks_hyperlinks|devblocks_hideemailquotes nofilter}</pre>
     	  	<br>
 	      	<table width="100%" cellpadding="0" cellspacing="0" border="0">
 	      		<tr>

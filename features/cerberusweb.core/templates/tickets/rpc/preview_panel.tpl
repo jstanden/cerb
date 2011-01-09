@@ -17,7 +17,7 @@
 			<b>{'message.header.from'|devblocks_translate|capitalize}:</b> {$headers.from}<br>
 			<b>{'message.header.date'|devblocks_translate|capitalize}:</b> {$headers.date}<br>
 			<div id="ticketPeekContent" style="width:400;height:250px;overflow:auto;border:1px solid rgb(180,180,180);margin:2px;padding:3px;background-color:rgb(255,255,255);" ondblclick="genericAjaxPopupClose('peek');">
-				<pre class="emailbody">{$content|trim|devblocks_hyperlinks|devblocks_hideemailquotes}</pre>
+				<pre class="emailbody">{$content|trim|escape|devblocks_hyperlinks|devblocks_hideemailquotes nofilter}</pre>
 			</div>
 			
 			<div style="float:left;">

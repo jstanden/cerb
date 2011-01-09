@@ -13,7 +13,7 @@
 		<br>
 		
 		{if isset($comment->created)}<b>{$translate->_('message.header.date')|capitalize}:</b> {$comment->created|devblocks_date}<br>{/if}
-		<pre class="emailbody" style="padding-top:10px;">{$comment->comment|trim|devblocks_hyperlinks}</pre>
+		<pre class="emailbody" style="padding-top:10px;">{$comment->comment|trim|escape|devblocks_hyperlinks nofilter}</pre>
 		<br>
 		
 		{* Attachments *}

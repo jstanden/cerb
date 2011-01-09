@@ -21,7 +21,7 @@
 		{if isset($draft->params.bcc)}<b>{$translate->_('message.header.bcc')|capitalize}:</b> {$draft->params.bcc}<br>{/if}
 		{if isset($draft->subject)}<b>{$translate->_('message.header.subject')|capitalize}:</b> {$draft->subject}<br>{/if}
 		{if isset($draft->updated)}<b>{$translate->_('message.header.date')|capitalize}:</b> {$draft->updated|devblocks_date}<br>{/if}
-		<pre class="emailbody" style="padding-top:10px;">{$draft->body|trim|devblocks_hyperlinks}</pre>
+		<pre class="emailbody" style="padding-top:10px;">{$draft->body|trim|escape|devblocks_hyperlinks nofilter}</pre>
 	</div>
 	<br>
 </div>
