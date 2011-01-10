@@ -882,6 +882,7 @@ class DAO_AttachmentLink extends C4_ORMHelper {
 	}
 	
 	/**
+	 * ...
 	 * 
 	 * @param string $guid
 	 * @return Model_AttachmentLink
@@ -901,6 +902,38 @@ class DAO_AttachmentLink extends C4_ORMHelper {
 			$db->qstr($context),
 			$context_id
 		));
+	}
+	
+	/**
+	 * ...
+	 * 
+	 * @param unknown_type $context
+	 * @param unknown_type $context_id
+	 * @param unknown_type $attachment_ids
+	 */
+	static function setLinks($context, $context_id, $attachment_ids) {
+		if(!is_array($attachment_ids))
+			$attachment_ids = array($attachment_ids);
+		
+		// Load the links for the context ID and compare the attachments
+		$a_map = self::getLinksAndAttachments($context, $context_id);
+		//$links = $a_map['links'];
+		$attachments = $a_map['attachments'];
+		
+		$deleted_ids = array_diff(array_keys($attachments), $attachment_ids);
+		$new_ids = array_diff($attachment_ids, array_keys($attachments));
+		
+		// Remove those that are missing
+		if(!empty($deleted_ids))
+		foreach($deleted_ids as $deleted_id)
+			DAO_AttachmentLink::deleteByAttachment($deleted_id);
+			
+		// Add those that are new
+		if(!empty($new_ids))
+		foreach($new_ids as $new_id)
+			DAO_AttachmentLink::create($new_id, $context, $context_id);
+			
+		return TRUE;
 	}
 	
 	static function getLinksAndAttachments($context, $context_id) {
@@ -1011,6 +1044,13 @@ class DAO_AttachmentLink extends C4_ORMHelper {
 		$db->Execute(sprintf("DELETE FROM attachment_link WHERE context = %s AND context_id IN (%s)",
 			$db->qstr($context),
 			implode(',', $context_ids)
+		));
+	}
+	
+	static function deleteByAttachment($attachment_id) {
+		$db = DevblocksPlatform::getDatabaseService();
+		$db->Execute(sprintf("DELETE FROM attachment_link WHERE attachment_id = %d",
+			$attachment_id
 		));
 	}
 	

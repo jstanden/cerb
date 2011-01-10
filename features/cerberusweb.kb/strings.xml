@@ -22,6 +22,10 @@
 
 		<!-- Common Strings -->
 
+		<tu tuid='kb.common.knowledgebase_article'>
+			<tuv xml:lang="en_US"><seg>Knowledgebase Article</seg></tuv>
+		</tu>
+		
 		<tu tuid='activity.kb'>
 			<tuv xml:lang="en_US"><seg>%s is browsing the knowledgebase</seg></tuv>
 		</tu>
@@ -31,6 +35,15 @@
 		</tu>
 		<tu tuid='display.reply.kb.search'>
 			<tuv xml:lang="en_US"><seg>Search Knowledgebase:</seg></tuv>
+		</tu>
+		
+		<!-- Contexts -->
+		
+		<tu tuid='context.kb_article.assigned'>
+			<tuv xml:lang="en_US"><seg>%s assigned a knowledgebase article to you.</seg></tuv>
+		</tu>
+		<tu tuid='context.kb_article.commented'>
+			<tuv xml:lang="en_US"><seg>%s commented on a knowledgebase article.</seg></tuv>
 		</tu>
 
 		<!-- SC -->

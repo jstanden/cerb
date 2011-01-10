@@ -43,3 +43,5 @@
 <div>
 	{$article->getContent() nofilter}
 </div>
+
+{include file="devblocks:cerberusweb.core::internal/attachments/list.tpl" context={CerberusContexts::CONTEXT_KB_ARTICLE} context_id={$article->id}}

@@ -494,6 +494,7 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 				$tpl->assign('custom_field_values', $custom_field_values[$id]);
 		}
 		
+		// Categories
 		$categories = DAO_KbCategory::getAll();
 		$tpl->assign('categories', $categories);
 		
@@ -548,11 +549,17 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 				
 			}
 			
+			// Categories
 			DAO_KbArticle::setCategories($id, $category_ids, true);
 			
 			// Custom fields
 			@$field_ids = DevblocksPlatform::importGPC($_REQUEST['field_ids'], 'array', array());
 			DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_KB_ARTICLE, $id, $field_ids);
+			
+			// Files
+			@$file_ids = DevblocksPlatform::importGPC($_REQUEST['file_ids'], 'array', array());
+			if(is_array($file_ids))
+				DAO_AttachmentLink::setLinks(CerberusContexts::CONTEXT_KB_ARTICLE, $id, $file_ids);
 		}
 		
 		// JSON
@@ -1759,4 +1766,149 @@ class Model_KbCategory {
 	public $id;
 	public $parent_id;
 	public $name;
+};
+
+class Context_KbArticle extends Extension_DevblocksContext {
+	function authorize($context_id, Model_Worker $worker) {
+		return TRUE;
+	}	
+	
+    function getPermalink($context_id) {
+    	$url_writer = DevblocksPlatform::getUrlService();
+    	return $url_writer->write('c=kb&ar=article&id='.$context_id, true);
+    }
+    
+	function getContext($item, &$token_labels, &$token_values, $prefix=null) {
+		if(is_null($prefix))
+			$prefix = 'Article:';
+		
+		$translate = DevblocksPlatform::getTranslationService();
+		$fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_KB_ARTICLE);
+		
+		// Polymorph
+		if(is_numeric($article)) {
+			$article = DAO_KbArticle::get($article);
+		} elseif($article instanceof Model_KbArticle) {
+			// It's what we want already.
+		} else {
+			$article = null;
+		}
+		/* @var $article Model_KbArticle */
+			
+		// Token labels
+		$token_labels = array(
+			'content' => $prefix.$translate->_('kb_article.content'),
+			'id' => $prefix.$translate->_('common.id'),
+			'title' => $prefix.$translate->_('kb_article.title'),
+			'updated|date' => $prefix.$translate->_('kb_article.updated'),
+			'views' => $prefix.$translate->_('kb_article.views'),
+		);
+		
+		if(is_array($fields))
+		foreach($fields as $cf_id => $field) {
+			$token_labels['custom_'.$cf_id] = $prefix.$field->name;
+		}
+
+		// Token values
+		$token_values = array();
+		
+		// Token values
+		if(null != $article) {
+			$token_values['content'] = $article->getContent();
+			$token_values['id'] = $article->id;
+			$token_values['title'] = $article->title;
+			$token_values['updated'] = $article->updated;
+			$token_values['views'] = $article->views;
+			
+			// Categories
+			if(null != ($categories = $article->getCategories()) && is_array($categories)) {
+				$token_values['categories'] = array();
+				
+				foreach($categories as $category_id => $trail) {
+					foreach($trail as $step_id => $step) {
+						if(!isset($token_values['categories'][$category_id]))
+							$token_values['categories'][$category_id] = array();
+						$token_values['categories'][$category_id][$step_id] = $step->name;
+					}
+				}
+			}
+			
+			$token_values['custom'] = array();
+			
+			$field_values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_KB_ARTICLE, $article->id));
+			if(is_array($field_values) && !empty($field_values)) {
+				foreach($field_values as $cf_id => $cf_val) {
+					if(!isset($fields[$cf_id]))
+						continue;
+					
+					// The literal value
+					if(null != $article)
+						$token_values['custom'][$cf_id] = $cf_val;
+					
+					// Stringify
+					if(is_array($cf_val))
+						$cf_val = implode(', ', $cf_val);
+						
+					if(is_string($cf_val)) {
+						if(null != $article)
+							$token_values['custom_'.$cf_id] = $cf_val;
+					}
+				}
+			}
+		}
+		
+		return TRUE;
+	}
+
+	function getChooserView() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		// View
+		$view_id = 'chooser_'.str_replace('.','_',$this->id).time().mt_rand(0,9999);
+		$defaults = new C4_AbstractViewModel();
+		$defaults->id = $view_id;
+		$defaults->is_ephemeral = true;
+		$defaults->class_name = 'View_FeedItem';
+		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
+//		$view->name = 'Headlines';
+//		$view->view_columns = array(
+//			SearchFields_CallEntry::IS_OUTGOING,
+//			SearchFields_CallEntry::PHONE,
+//			SearchFields_CallEntry::UPDATED_DATE,
+//		);
+		$view->addParams(array(
+			SearchFields_FeedItem::IS_CLOSED => new DevblocksSearchCriteria(SearchFields_FeedItem::IS_CLOSED,'=',0),
+		), true);
+		$view->renderSortBy = SearchFields_FeedItem::CREATED_DATE;
+		$view->renderSortAsc = false;
+		$view->renderLimit = 10;
+		$view->renderTemplate = 'contextlinks_chooser';
+		
+		C4_AbstractViewLoader::setView($view_id, $view);
+		return $view;
+	}
+	
+	function getView($context, $context_id, $options=array()) {
+		$view_id = str_replace('.','_',$this->id);
+		
+		$defaults = new C4_AbstractViewModel();
+		$defaults->id = $view_id; 
+		$defaults->class_name = 'View_FeedItem';
+		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
+		//$view->name = 'Calls';
+		
+		$params = array(
+			new DevblocksSearchCriteria(SearchFields_FeedItem::CONTEXT_LINK,'=',$context),
+			new DevblocksSearchCriteria(SearchFields_FeedItem::CONTEXT_LINK_ID,'=',$context_id),
+		);
+		
+		if(isset($options['filter_open']))
+			$params[] = new DevblocksSearchCriteria(SearchFields_FeedItem::IS_CLOSED,'=',0);
+		
+		$view->addParams($params, true);
+		
+		$view->renderTemplate = 'context';
+		C4_AbstractViewLoader::setView($view_id, $view);
+		return $view;
+	}
 };

@@ -170,22 +170,31 @@ class UmScAjaxController extends Extension_UmScController {
 		if(null == ($link = DAO_AttachmentLink::getByGUID($guid)))
 			return;
 
-		// Context
-		if($link->context != CerberusContexts::CONTEXT_MESSAGE)
-			return;
-
-		// Message
-		if(null == ($message = DAO_Message::get($link->context_id)))
-			return;
-
-		// Requesters		
-		if(null == ($requesters = DAO_Ticket::getRequestersByTicket($message->ticket_id)))
-			return;
-
-		// Security: Make sure the active user is a requester on the proper ticket
-		$authorized_addresses = array_intersect(array_keys($requesters), array_keys($addresses));
-		if(!is_array($authorized_addresses) || 0 == count($authorized_addresses))
-			return;
+		switch($link->context) {
+			case CerberusContexts::CONTEXT_MESSAGE:
+				// Message
+				if(null == ($message = DAO_Message::get($link->context_id)))
+					return;
+		
+				// Requesters		
+				if(null == ($requesters = DAO_Ticket::getRequestersByTicket($message->ticket_id)))
+					return;
+		
+				// Security: Make sure the active user is a requester on the proper ticket
+				$authorized_addresses = array_intersect(array_keys($requesters), array_keys($addresses));
+				if(!is_array($authorized_addresses) || 0 == count($authorized_addresses))
+					return;
+				
+				break;
+				
+			case CerberusContexts::CONTEXT_KB_ARTICLE:
+				// Allow
+				break;
+				
+			default:
+				return;
+				break;
+		}
 
 		$attachment = $link->getAttachment();
 		$contents = $attachment->getFileContents();

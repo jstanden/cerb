@@ -7,7 +7,8 @@
 <div id="kbArticleTabs">
 	<ul>
 		<li><a href="#kbArticleEditor">Editor</a></li>
-		<li><a href="#kbArticleProperties">Properties</a></li>
+		<li><a href="#kbArticleProperties">{'common.properties'|devblocks_translate|capitalize}</a></li>
+		<li><a href="#kbArticleAttachments">{'common.attachments'|devblocks_translate|capitalize}</a></li>
 	</ul>
 	
 	<div id="kbArticleEditor">
@@ -41,6 +42,32 @@
 		{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false}
 		<br>
 	</div>
+	
+	<div id="kbArticleAttachments">
+		{$a_map = DAO_AttachmentLink::getLinksAndAttachments('cerberusweb.contexts.kb_article', $article->id)}
+		{$links = $a_map.links}
+		{$attachments = $a_map.attachments}
+		
+		<b>{'common.attachments'|devblocks_translate}:</b><br>
+		<button type="button" class="chooser_file"><span class="cerb-sprite sprite-view"></span></button>
+		<ul class="chooser-container bubbles" style="display:block;">
+		{if !empty($links) && !empty($attachments)}
+			{foreach from=$links item=link name=links}
+			{$attachment = $attachments.{$link->attachment_id}}
+			{if !empty($attachment)}
+				<li>
+					{$attachment->display_name}
+					( {$attachment->storage_size|devblocks_prettybytes}	- 
+					{if !empty($attachment->mime_type)}{$attachment->mime_type}{else}{$translate->_('display.convo.unknown_format')|capitalize}{/if}
+					 )
+					<input type="hidden" name="file_ids[]" value="{$attachment->id}">
+					<a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a>
+				</li>
+			{/if}
+			{/foreach}
+		{/if}
+		</ul>
+	</div>
 </div> 
 
 {if $active_worker->hasPriv('core.kb.articles.modify')}<button type="button" id="btnKbArticleEditSave"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')|capitalize}</button>{/if} 
@@ -50,7 +77,7 @@
 <script type="text/javascript">
 	$popup = genericAjaxPopupFetch('peek');
 	$popup.one('popup_open',function(event,ui) {
-		$(this).dialog('option','title','Knowledgebase Article');
+		$(this).dialog('option','title','{'kb.common.knowledgebase_article'|devblocks_translate}');
 		$("#kbArticleTabs").tabs();
 		$('#frmKbEditPanel :input:text:first').focus().select();
 		
@@ -60,7 +87,9 @@
 		$("#content").markItUp(markitupMarkdownSettings);
 		{/if}
 
-		$('#frmKbEditPanel input[name=format]').bind('click', function(event) {
+		$frm = $('#frmKbEditPanel');	
+
+		$frm.find('input[name=format]').bind('click', function(event) {
 			$("#content").markItUpRemove();
 			if(2==$(event.target).val()) {
 				$("#content").markItUp(markitupMarkdownSettings);
@@ -79,5 +108,9 @@
 			{/if}
 			} );
 		} );
+		
+		$frm.find('button.chooser_file').each(function() {
+			ajax.chooserFile(this,'file_ids');
+		});
 	} );
 </script>

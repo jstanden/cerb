@@ -140,6 +140,10 @@ class UmScKbController extends Extension_UmScController {
 				
 				$tpl->assign('breadcrumbs',$trails);
 				
+				// Attachments
+				$attachments_map = DAO_AttachmentLink::getLinksAndAttachments(CerberusContexts::CONTEXT_KB_ARTICLE, $id);
+				$tpl->assign('attachments_map', $attachments_map);
+				
 				$tpl->display("devblocks:cerberusweb.kb:portal_".UmPortalHelper::getCode() . ":support_center/kb/article.tpl");
 				break;
 			
