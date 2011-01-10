@@ -73,10 +73,10 @@
 			<params>
 				<param key="link_options">
 					<value>
-						<!--
+					<!--
 						<data key="create" />
+					-->
 						<data key="find" />
-						-->
 					</value>
 				</param>
 				<param key="events">

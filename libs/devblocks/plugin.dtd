@@ -6,6 +6,7 @@
 <!ELEMENT author (#PCDATA)>
 <!ELEMENT revision (#PCDATA)>
 <!ELEMENT link (#PCDATA)>
+<!ELEMENT image (#PCDATA)>
 <!ELEMENT acl (priv*)>
 	<!ATTLIST priv id CDATA #REQUIRED>
 	<!ATTLIST priv label CDATA #REQUIRED>
