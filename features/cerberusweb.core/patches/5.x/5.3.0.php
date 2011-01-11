@@ -80,6 +80,23 @@ if(!isset($tables['workspace'])) {
 	$tables['workspace'] = 'workspace';
 }
 
+// Add the workspace_to_endpoint table
+if(!isset($tables['workspace_to_endpoint'])) {
+	$sql = "
+		CREATE TABLE IF NOT EXISTS workspace_to_endpoint (
+			workspace_id INT UNSIGNED NOT NULL DEFAULT 0,
+			endpoint VARCHAR(128) NOT NULL DEFAULT '',
+			pos TINYINT UNSIGNED NOT NULL DEFAULT 0,
+			PRIMARY KEY (workspace_id, endpoint),
+			INDEX workspace_id (workspace_id),
+			INDEX endpoint (endpoint)
+		) ENGINE=MyISAM;
+	";
+	$db->Execute($sql);
+
+	$tables['workspace_to_endpoint'] = 'workspace_to_endpoint';
+}
+
 // Rename worker_workspace_list -> workspace_list
 if(!isset($tables['workspace_list']) && isset($tables['worker_workspace_list'])) {
 	$db->Execute("ALTER TABLE worker_workspace_list RENAME workspace_list");

@@ -76,7 +76,6 @@ class ChKbPage extends CerberusPageExtension {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$response = DevblocksPlatform::getHttpResponse();
-		$tpl->assign('request_path', implode('/',$response->path));
 
 		$stack = $response->path;
 		array_shift($stack); // kb
@@ -209,10 +208,8 @@ class ChKbBrowseTab extends Extension_KnowledgebaseTab {
 		$tpl = DevblocksPlatform::getTemplateService();
 
 		@$request_path = DevblocksPlatform::importGPC($_REQUEST['request'],'string','');
-		$tpl->assign('request_path', $request_path);
-
-		@$stack =  explode('/', $request_path);
 		
+		@$stack =  explode('/', $request_path);
 		@array_shift($stack); // kb
 		
 		@$action = array_shift($stack);

@@ -1291,6 +1291,16 @@
         <seg>Arbeitsliste</seg>
       </tuv>
     </tu>
+    <tu tuid="common.workspace">
+      <tuv xml:lang="de_DE">
+        <seg>Arbeitsbereich</seg>
+      </tuv>
+    </tu>
+    <tu tuid="common.workspaces">
+      <tuv xml:lang="de_DE">
+        <seg>Arbeitsbereichen</seg>
+      </tuv>
+    </tu>
     <tu tuid="common.year">
       <tuv xml:lang="de_DE">
         <seg>Jahr</seg>
@@ -2789,11 +2799,6 @@
     <tu tuid="mail.workspaces.none">
       <tuv xml:lang="de_DE">
         <seg>Sie haben noch keine Arbeitslisten</seg>
-      </tuv>
-    </tu>
-    <tu tuid="mail.workspaces.workspace">
-      <tuv xml:lang="de_DE">
-        <seg>Arbeitsbereich</seg>
       </tuv>
     </tu>
     <tu tuid="mail_queue.is_queued">

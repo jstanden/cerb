@@ -996,6 +996,16 @@
         <seg>Werklijst</seg>
       </tuv>
     </tu>
+    <tu tuid="common.workspace">
+      <tuv xml:lang="nl_NL">
+        <seg>Werkblad</seg>
+      </tuv>
+    </tu>
+    <tu tuid="common.workspaces">
+      <tuv xml:lang="nl_NL">
+        <seg>Werkblads</seg>
+      </tuv>
+    </tu>
     <tu tuid="common.year">
       <tuv xml:lang="nl_NL">
         <seg>Jaar</seg>
@@ -1809,11 +1819,6 @@
     <tu tuid="mail.workspaces.none">
       <tuv xml:lang="nl_NL">
         <seg>U heeft geen aangepaste werklijsten aangemaakt</seg>
-      </tuv>
-    </tu>
-    <tu tuid="mail.workspaces.workspace">
-      <tuv xml:lang="nl_NL">
-        <seg>Werkblad</seg>
       </tuv>
     </tu>
     <tu tuid="message.content">

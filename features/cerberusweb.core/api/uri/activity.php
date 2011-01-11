@@ -67,7 +67,6 @@ class ChActivityPage extends CerberusPageExtension {
 		$tpl = DevblocksPlatform::getTemplateService();
 		
 		$response = DevblocksPlatform::getHttpResponse();
-		$tpl->assign('request_path', implode('/',$response->path));
 
 		// Remember the last tab/URL
 		$visit = CerberusApplication::getVisit();

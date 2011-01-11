@@ -476,6 +476,16 @@
         <seg></seg>
       </tuv>
     </tu>
+    <tu tuid="common.workspace">
+      <tuv xml:lang="it_IT">
+        <seg></seg>
+      </tuv>
+    </tu>
+    <tu tuid="common.workspaces">
+      <tuv xml:lang="it_IT">
+        <seg></seg>
+      </tuv>
+    </tu>
     <tu tuid="common.year">
       <tuv xml:lang="it_IT">
         <seg></seg>
@@ -1357,11 +1367,6 @@
       </tuv>
     </tu>
     <tu tuid="mail.workspaces.none">
-      <tuv xml:lang="it_IT">
-        <seg></seg>
-      </tuv>
-    </tu>
-    <tu tuid="mail.workspaces.workspace">
       <tuv xml:lang="it_IT">
         <seg></seg>
       </tuv>

@@ -97,7 +97,6 @@ class UmCommunityPage extends CerberusPageExtension {
 		$tpl = DevblocksPlatform::getTemplateService();
 		
 		$response = DevblocksPlatform::getHttpResponse();
-		$tpl->assign('request_path', implode('/',$response->path));
 		
 		$stack = $response->path;
 		array_shift($stack); // community

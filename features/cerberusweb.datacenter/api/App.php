@@ -46,7 +46,6 @@ class Page_Datacenter extends CerberusPageExtension {
 		$visit = CerberusApplication::getVisit();
 
 		$response = DevblocksPlatform::getHttpResponse();
-		$tpl->assign('request_path', implode('/',$response->path));
 
 		// Remember the last tab/URL
 		if(null == ($selected_tab = @$response->path[1])) {

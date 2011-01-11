@@ -59,6 +59,67 @@ class DAO_Workspace extends C4_ORMHelper {
 		);
 	}
 
+	static function addEndpointWorkspace($workspace_id, $endpoint) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$sql = sprintf("INSERT IGNORE INTO workspace_to_endpoint ON (workspace_id, endpoint) ".
+			"VALUES (%d, %s)",
+			$workspace_id,
+			$db->qstr($endpoint)
+		);
+		$db->Execute($sql);
+	}
+	
+	static function deleteEndpointWorkspace($workspace_id, $endpoint) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$sql = sprintf("DELETE FROM workspace_to_endpoint WHERE workspace_id = %d AND endpoint = %s",
+			$workspace_id,
+			$db->qstr($endpoint)
+		);
+		$db->Execute($sql);
+	}
+	
+	static function setEndpointWorkspaces($endpoint, $worker_id, $workspace_ids) {
+		$db = DevblocksPlatform::getDatabaseService();
+
+		// Clear existing workspaces on this endpoint for this worker
+		$db->Execute(sprintf("DELETE workspace_to_endpoint ".
+			"FROM workspace_to_endpoint ".
+			"INNER JOIN workspace ON (workspace_to_endpoint.workspace_id=workspace.id) ".
+			"WHERE workspace.worker_id = %d ".
+			"AND workspace_to_endpoint.endpoint = %s",
+			$worker_id,
+			$db->qstr($endpoint)
+		));
+		
+		// Link workspaces to endpoint
+		foreach($workspace_ids as $pos => $workspace_id) {
+			$db->Execute(sprintf("INSERT INTO workspace_to_endpoint (workspace_id, endpoint, pos) ".
+				"VALUES (%d, %s, %d)",
+				$workspace_id,
+				$db->qstr($endpoint),
+				$pos
+			));
+		}
+	}
+	
+	static function getByEndpoint($endpoint, $worker_id) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$sql = sprintf("SELECT workspace.id, workspace.name, workspace.worker_id ".
+			"FROM workspace ".
+			"INNER JOIN workspace_to_endpoint ON (workspace.id = workspace_to_endpoint.workspace_id) ".
+			"WHERE workspace_to_endpoint.endpoint = %s AND workspace.worker_id = %d ".
+			"ORDER BY workspace_to_endpoint.pos ASC ",
+			$db->qstr($endpoint),
+			$worker_id
+		);
+		$rs = $db->Execute($sql);
+		
+		return self::_getObjectsFromResult($rs);
+	}
+	
 	/**
 	 * @param integer $id
 	 * @return Model_Workspace	 */
@@ -104,6 +165,8 @@ class DAO_Workspace extends C4_ORMHelper {
 		$ids_list = implode(',', $ids);
 		
 		$db->Execute(sprintf("DELETE FROM workspace_list WHERE workspace_id IN (%s)", $ids_list));
+		
+		$db->Execute(sprintf("DELETE FROM workspace_to_endpoint WHERE workspace_id IN (%s)", $ids_list));
 		
 		$db->Execute(sprintf("DELETE FROM workspace WHERE id IN (%s)", $ids_list));
 		

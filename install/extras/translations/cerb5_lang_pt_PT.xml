@@ -711,6 +711,16 @@
         <seg>semana</seg>
       </tuv>
     </tu>
+    <tu tuid="common.workspace">
+      <tuv xml:lang="pt_PT">
+        <seg>Workspace</seg>
+      </tuv>
+    </tu>
+    <tu tuid="common.workspaces">
+      <tuv xml:lang="pt_PT">
+        <seg>Workspaces</seg>
+      </tuv>
+    </tu>
     <tu tuid="common.year">
       <tuv xml:lang="pt_PT">
         <seg>ano</seg>
@@ -1504,11 +1514,6 @@
     <tu tuid="mail.workspaces.none">
       <tuv xml:lang="pt_PT">
         <seg>Não criou nenhuma worklist pesonalizada.</seg>
-      </tuv>
-    </tu>
-    <tu tuid="mail.workspaces.workspace">
-      <tuv xml:lang="pt_PT">
-        <seg>Workspace</seg>
       </tuv>
     </tu>
     <tu tuid="message.content">

@@ -77,14 +77,6 @@ class ChHomePage extends CerberusPageExtension {
 		if(null != ($selected_tab = @$response->path[1]))
 			$tpl->assign('selected_tab', $selected_tab);
 		
-		// Tabs
-		$tab_manifests = DevblocksPlatform::getExtensions('cerberusweb.home.tab', false);
-		$tpl->assign('tab_manifests', $tab_manifests);
-		
-		// Custom workspaces
-		$workspaces = DAO_Workspace::getByWorker($active_worker->id);
-		$tpl->assign('workspaces', $workspaces);
-		
 		$tpl->display('devblocks:cerberusweb.core::home/index.tpl');
 	}
 	
