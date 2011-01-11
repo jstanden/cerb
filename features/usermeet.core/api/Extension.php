@@ -51,11 +51,6 @@
 abstract class Extension_UsermeetTool extends DevblocksExtension implements DevblocksHttpRequestHandler {
 	private $portal = '';
 	
-    function __construct($manifest) {
-        // [TODO] Refactor to __construct
-        parent::DevblocksExtension($manifest);
-    }
-    
     /*
      * Site Key
      * Site Name

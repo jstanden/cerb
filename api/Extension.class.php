@@ -49,26 +49,14 @@
  */
 
 abstract class Extension_AppPreBodyRenderer extends DevblocksExtension {
-	function __construct($manifest) {
-		$this->DevblocksExtension($manifest);
-	}
-	
 	function render() { }
 };
 
 abstract class Extension_AppPostBodyRenderer extends DevblocksExtension {
-	function __construct($manifest) {
-		$this->DevblocksExtension($manifest);
-	}
-	
 	function render() { }
 };
 
 abstract class CerberusPageExtension extends DevblocksExtension {
-	function __construct($manifest) {
-		$this->DevblocksExtension($manifest);
-	}
-	
 	function isVisible() { return true; }
 	function render() { }
 	
@@ -81,158 +69,84 @@ abstract class CerberusPageExtension extends DevblocksExtension {
 };
 
 abstract class Extension_ConfigTab extends DevblocksExtension {
-	function __construct($manifest) {
-		$this->DevblocksExtension($manifest);
-	}
-	
 	function showTab() {}
 	function saveTab() {}
 };
 
 abstract class Extension_PreferenceTab extends DevblocksExtension {
-	function __construct($manifest) {
-		$this->DevblocksExtension($manifest);
-	}
-	
 	function showTab() {}
 	function saveTab() {}
 };
 
 abstract class Extension_ActivityTab extends DevblocksExtension {
-	function __construct($manifest) {
-		$this->DevblocksExtension($manifest);
-	}
-	
 	function showTab() {}
 	function saveTab() {}
 };
 
 abstract class Extension_HomeTab extends DevblocksExtension {
-	function __construct($manifest) {
-		$this->DevblocksExtension($manifest);
-	}
-	
 	function showTab() {}
 	function saveTab() {}
 };
 
 abstract class Extension_MailTab extends DevblocksExtension {
-	function __construct($manifest) {
-		$this->DevblocksExtension($manifest);
-	}
-	
 	function showTab() {}
 	function saveTab() {}
 };
 
 abstract class Extension_TicketTab extends DevblocksExtension {
-	function __construct($manifest) {
-		$this->DevblocksExtension($manifest);
-	}
-	
 	function showTab() {}
 	function saveTab() {}
 };
 
 abstract class Extension_LogMailToolbarItem extends DevblocksExtension {
-	function __construct($manifest) {
-		$this->DevblocksExtension($manifest);
-	}
-	
 	function render() { }
 };
 
 abstract class Extension_SendMailToolbarItem extends DevblocksExtension {
-	function __construct($manifest) {
-		$this->DevblocksExtension($manifest);
-	}
-	
 	function render() { }
 };
 
 abstract class Extension_TicketToolbarItem extends DevblocksExtension {
-	function __construct($manifest) {
-		$this->DevblocksExtension($manifest);
-	}
-	
 	function render(Model_Ticket $ticket) { }
 };
 
 abstract class Extension_MessageToolbarItem extends DevblocksExtension {
-	function __construct($manifest) {
-		$this->DevblocksExtension($manifest);
-	}
-	
 	function render(Model_Message $message) { }
 };
 
 abstract class Extension_ReplyToolbarItem extends DevblocksExtension {
-	function __construct($manifest) {
-		$this->DevblocksExtension($manifest);
-	}
-	
 	function render(Model_Message $message) { }
 };
 
 abstract class Extension_TaskToolbarItem extends DevblocksExtension {
-	function __construct($manifest) {
-		$this->DevblocksExtension($manifest);
-	}
-	
 	function render(Model_Task $task) { }
 };
 
 abstract class Extension_ExplorerToolbar extends DevblocksExtension {
-	function __construct($manifest) {
-		$this->DevblocksExtension($manifest);
-	}
-	
 	function render(Model_ExplorerSet $item) { }
 };
 
 abstract class Extension_CommentBadge extends DevblocksExtension {
-	function __construct($manifest) {
-		$this->DevblocksExtension($manifest);
-	}
-	
 	function render(Model_Comment $comment) {}
 };
 
 abstract class Extension_MessageBadge extends DevblocksExtension {
-	function __construct($manifest) {
-		$this->DevblocksExtension($manifest);
-	}
-	
 	function render(Model_Message $message) {}
 };
 
 abstract class Extension_OrgTab extends DevblocksExtension {
-	function __construct($manifest) {
-		$this->DevblocksExtension($manifest);
-	}
-	
 	function showTab() {}
 	function saveTab() {}
 };
 
 abstract class Extension_MailFilterCriteria extends DevblocksExtension {
-	function __construct($manifest) {
-		$this->DevblocksExtension($manifest);
-	}
-	
 	function matches(Model_PreParseRule $filter, CerberusParserMessage $message) {}
-	
 	function renderConfig(Model_PreParseRule $filter=null) {}
 	function saveConfig() { return array(); }
 };
 
 abstract class Extension_MailFilterAction extends DevblocksExtension {
-	function __construct($manifest) {
-		$this->DevblocksExtension($manifest);
-	}
-	
 	function run(Model_PreParseRule $filter, CerberusParserMessage $message) {}
-	
 	function renderConfig(Model_PreParseRule $filter=null) {}
 	function saveConfig() { return array(); }
 };
@@ -240,18 +154,10 @@ abstract class Extension_MailFilterAction extends DevblocksExtension {
 abstract class Extension_RssSource extends DevblocksExtension {
 	const EXTENSION_POINT = 'cerberusweb.rss.source';
 	
-	function __construct($manifest) {
-		$this->DevblocksExtension($manifest);
-	}
-
 	function getFeedAsRss($feed) {}
 };
 
 abstract class Extension_LoginAuthenticator extends DevblocksExtension {
-	function __construct($manifest) {
-		$this->DevblocksExtension($manifest);
-	}
-	
 	/**
 	 * draws html form for adding necessary settings (host, port, etc) to be stored in the db
 	 */
@@ -295,10 +201,6 @@ abstract class CerberusCronPageExtension extends DevblocksExtension {
     const PARAM_TERM = 'term';
     const PARAM_LASTRUN = 'lastrun';
     
-	function __construct($manifest) {
-		$this->DevblocksExtension($manifest);
-	}
-
 	/**
 	 * runs scheduled task
 	 *

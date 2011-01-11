@@ -545,10 +545,6 @@ class Search_MessageContent {
 class Storage_MessageContent extends Extension_DevblocksStorageSchema {
 	const ID = 'cerberusweb.storage.schema.message_content';
 	
-	function __construct($manifest) {
-		$this->DevblocksExtension($manifest);
-	}
-	
 	public static function getActiveStorageProfile() {
 		return DAO_DevblocksExtensionPropertyStore::get(self::ID, 'active_storage_profile', 'devblocks.storage.engine.database');
 	}

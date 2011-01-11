@@ -49,19 +49,12 @@
  */
 
 abstract class Extension_Report extends DevblocksExtension {
-	function __construct($manifest) {
-		parent::DevblocksExtension($manifest);
-	}
-	
 	function render() {
 		// Overload 
 	}
 };
 
 abstract class Extension_ReportGroup extends DevblocksExtension {
-	function __construct($manifest) {
-		parent::DevblocksExtension($manifest);
-	}
 };
 
 class ChReportSorters {

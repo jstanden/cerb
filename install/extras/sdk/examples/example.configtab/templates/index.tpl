@@ -76,10 +76,6 @@ Several official extensions add their own tab to the Config page:
 <h2>Implementation</h2>
 <pre>
 	abstract class Extension_ConfigTab extends DevblocksExtension {
-		function __construct($manifest) {
-			$this->DevblocksExtension($manifest,1);
-		}
-
 		function showTab() {}
 		function saveTab() {}
 	};

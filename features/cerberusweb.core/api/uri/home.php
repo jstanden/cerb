@@ -377,10 +377,6 @@ class ChHomePage extends CerberusPageExtension {
 };
 
 class ChExplorerToolbarWorkerEvents extends Extension_ExplorerToolbar {
-	function __construct($manifest) {
-		$this->DevblocksExtension($manifest);
-	}
-	
 	function render(Model_ExplorerSet $item) {
 		$tpl = DevblocksPlatform::getTemplateService();
 		

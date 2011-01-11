@@ -211,10 +211,6 @@ abstract class Extension_RestController extends DevblocksExtension {
 	private $_format = 'json';
 	private $_payload = '';
 	
-	function __construct($manifest) {
-		$this->DevblocksExtension($manifest);
-	}
-	
 	/**
 	 * 
 	 * @param string $message

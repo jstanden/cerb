@@ -57,11 +57,6 @@ abstract class Extension_UmScRssController extends DevblocksExtension {
 abstract class Extension_UmScController extends DevblocksExtension implements DevblocksHttpRequestHandler {
 	private $portal = '';
 	
-    function __construct($manifest) {
-        // [TODO] Refactor to __construct
-        parent::DevblocksExtension($manifest);
-    }
-    
     /*
      * Site Key
      * Site Name
@@ -123,10 +118,6 @@ abstract class Extension_UmScController extends DevblocksExtension implements De
 };
 
 abstract class Extension_ScLoginAuthenticator extends DevblocksExtension {
-	function __construct($manifest) {
-		$this->DevblocksExtension($manifest);
-	}
-	
 	/**
 	 * draws html form for adding necessary settings (host, port, etc) to be stored in the db
 	 */
@@ -153,9 +144,5 @@ abstract class Extension_ScLoginAuthenticator extends DevblocksExtension {
 };
 
 abstract class Extension_SupportCenterMessageBadge extends DevblocksExtension {
-	function __construct($manifest) {
-		$this->DevblocksExtension($manifest);
-	}
-	
 	function render(Model_Message $message) {}
 };

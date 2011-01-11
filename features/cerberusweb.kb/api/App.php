@@ -49,10 +49,6 @@
  */
 
 abstract class Extension_KnowledgebaseTab extends DevblocksExtension {
-	function __construct($manifest) {
-		$this->DevblocksExtension($manifest);
-	}
-	
 	function showTab() {}
 	function saveTab() {}
 };

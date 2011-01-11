@@ -65,10 +65,6 @@ The <strong>cerberusweb.cron</strong> extension point allows you to create sched
 <pre>
 	abstract class CerberusCronPageExtension extends DevblocksExtension {
 
-		function __construct($manifest) {
-			$this->DevblocksExtension($manifest);
-		}
-
 		/**
 		 * runs scheduled task
 		 *

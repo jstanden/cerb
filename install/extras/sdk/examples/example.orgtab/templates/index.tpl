@@ -68,10 +68,6 @@ The <strong>cerberusweb.org.tab</strong> extension point allows you to create ne
 <h2>Implementation</h2>
 <pre>
 	abstract class Extension_OrgTab extends DevblocksExtension {
-		function __construct($manifest) {
-			$this->DevblocksExtension($manifest,1);
-		}
-
 		function showTab() {}
 		function saveTab() {}
 	};

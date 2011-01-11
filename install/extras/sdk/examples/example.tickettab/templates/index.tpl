@@ -68,10 +68,6 @@ The <strong>cerberusweb.ticket.tab</strong> extension point allows you to create
 <h2>Implementation</h2>
 <pre>
 	abstract class Extension_PreferenceTab extends DevblocksExtension {
-		function __construct($manifest) {
-			$this->DevblocksExtension($manifest,1);
-		}
-
 		function showTab() {}
 		function saveTab() {}
 	};
