@@ -220,31 +220,7 @@ class ChPageController extends DevblocksControllerExtension {
 	}
 };
 
-// Workspace Sources
-
-class ChWorkspaceSource_Address extends Extension_WorkspaceSource {
-	const ID = 'core.workspace.source.address';
-};
-
-class ChWorkspaceSource_Org extends Extension_WorkspaceSource {
-	const ID = 'core.workspace.source.org';
-};
-
-class ChWorkspaceSource_Notification extends Extension_WorkspaceSource {
-	const ID = 'core.workspace.source.notifications';
-};
-
-class ChWorkspaceSource_Task extends Extension_WorkspaceSource {
-	const ID = 'core.workspace.source.task';
-};
-
-class ChWorkspaceSource_Ticket extends Extension_WorkspaceSource {
-	const ID = 'core.workspace.source.ticket';
-};
-
-class ChWorkspaceSource_Worker extends Extension_WorkspaceSource {
-	const ID = 'core.workspace.source.worker';
-};
+// RSS Sources
 
 class ChRssSource_Notification extends Extension_RssSource {
 	function getSourceName() {

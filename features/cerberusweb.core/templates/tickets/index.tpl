@@ -48,6 +48,7 @@
 		{$tabs[] = snippets}
 		<li><a href="{devblocks_url}ajax.php?c=tickets&a=showSnippetsTab&request={$request_path|escape:'url'}{/devblocks_url}">{$translate->_('common.snippets')|capitalize}</a></li>
 		
+		{$tab_manifests = DevblocksPlatform::getExtensions('cerberusweb.mail.tab', false)}
 		{foreach from=$tab_manifests item=tab_manifest}
 			{$tabs[] = $tab_manifest->params.uri}
 			<li><a href="{devblocks_url}ajax.php?c=tickets&a=showTab&ext_id={$tab_manifest->id}&request={$request_path|escape:'url'}{/devblocks_url}"><i>{$tab_manifest->params.title|devblocks_translate}</i></a></li>

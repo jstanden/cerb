@@ -352,9 +352,3 @@ class CallsActivityTab extends Extension_ActivityTab {
 }
 endif;
 
-// Workspace Sources
-
-class ChWorkspaceSource_Call extends Extension_WorkspaceSource {
-	const ID = 'calls.workspace.source.call';
-};
-

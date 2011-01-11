@@ -35,7 +35,7 @@
 		<patch version="5.1.1" revision="898" file="patches/5.x/5.1.1.php" />
 		<patch version="5.1.2" revision="904" file="patches/5.x/5.1.2.php" />
 		<patch version="5.2.0" revision="905" file="patches/5.x/5.2.0.php" />
-		<patch version="5.3.0-dev" revision="912" file="patches/5.x/5.3.0.php" />
+		<patch version="5.3.0-dev" revision="913" file="patches/5.x/5.3.0.php" />
 	</patches>
 
 	<!-- Declared Extension Points -->
@@ -62,11 +62,6 @@
 			<class name="ChRssSource_Ticket" />
 			<class name="ChTaskSource_Org" />
 			<class name="ChTaskSource_Ticket" />
-			<class name="ChWorkspaceSource_Address" />
-			<class name="ChWorkspaceSource_Org" />
-			<class name="ChWorkspaceSource_Task" />
-			<class name="ChWorkspaceSource_Ticket" />
-			<class name="ChWorkspaceSource_Worker" />
 		</file>
 		
 		<file path="api/dao/address_to_worker.php">
@@ -233,6 +228,16 @@
 			<class name="View_WorkerEvent" />
 		</file>
 		
+		<file path="api/dao/workspace.php">
+			<class name="DAO_Workspace" />
+			<class name="DAO_WorkspaceList" />
+			<class name="Model_Workspace" />
+			<class name="Model_WorkspaceList" />
+			<class name="Model_WorkspaceListView" />
+			<class name="SearchFields_Workspace" />
+			<class name="View_Workspace" />
+		</file>
+		
 	</class_loader>
 	
 	<!-- Event Points -->
@@ -377,10 +382,12 @@
 				<name>Context_ContactPerson</name>
 			</class>
 			<params>
-				<param key="link_options">
+				<param key="view_class" value="View_ContactPerson" />
+				<param key="options">
 					<value>
 						<!--<data key="create" />-->
 						<data key="find" />
+						<data key="workspace" />
 					</value>
 				</param>
 				<param key="events">
@@ -400,10 +407,12 @@
 				<name>Context_Address</name>
 			</class>
 			<params>
-				<param key="link_options">
+				<param key="view_class" value="View_Address" />
+				<param key="options">
 					<value>
 						<data key="create" />
 						<data key="find" />
+						<data key="workspace" />
 					</value>
 				</param>
 				<param key="events">
@@ -423,8 +432,9 @@
 				<name>Context_Comment</name>
 			</class>
 			<params>
+				<param key="view_class" value="View_Comment" />
 				<!--
-				<param key="link_options">
+				<param key="options">
 					<value>
 					</value>
 				</param>
@@ -448,12 +458,13 @@
 				<name>Context_Group</name>
 			</class>
 			<params>
-				<!--
-				<param key="link_options">
+				<param key="view_class" value="View_Group" />
+				<param key="options">
 					<value>
+						<data key="find" />
+						<data key="workspace" />
 					</value>
 				</param>
-				-->
 				<param key="events">
 					<!--
 					<value>
@@ -473,12 +484,12 @@
 				<name>Context_Message</name>
 			</class>
 			<params>
-				<!--
-				<param key="link_options">
+				<param key="view_class" value="View_Message" />
+				<param key="options">
 					<value>
+						<data key="workspace" />
 					</value>
 				</param>
-				-->
 				<param key="events">
 					<!--
 					<value>
@@ -498,10 +509,12 @@
 				<name>Context_Org</name>
 			</class>
 			<params>
-				<param key="link_options">
+				<param key="view_class" value="View_ContactOrg" />
+				<param key="options">
 					<value>
 						<data key="create" />
 						<data key="find" />
+						<data key="workspace" />
 					</value>
 				</param>
 				<param key="events">
@@ -521,19 +534,21 @@
 				<name>Context_Snippet</name>
 			</class>
 			<params>
-				<param key="link_options">
-					<!--
+				<param key="view_class" value="View_Snippet" />
+				<param key="options">
 					<value>
 						<data key="create" />
 						<data key="find" />
+						<data key="workspace" />
 					</value>
-					-->
 				</param>
 				<param key="events">
+					<!--
 					<value>
-						<!--<data key="context.assigned" value="context.task.assigned" />-->
-						<!--<data key="context.commented" value="context.task.commented" />-->
+						<data key="context.assigned" value="context.task.assigned" />
+						<data key="context.commented" value="context.task.commented" />
 					</value>
+					-->
 				</param>
 			</params>
 		</extension>
@@ -546,10 +561,12 @@
 				<name>Context_Task</name>
 			</class>
 			<params>
-				<param key="link_options">
+				<param key="view_class" value="View_Task" />
+				<param key="options">
 					<value>
 						<data key="create" />
 						<data key="find" />
+						<data key="workspace" />
 					</value>
 				</param>
 				<param key="events">
@@ -569,9 +586,11 @@
 				<name>Context_Ticket</name>
 			</class>
 			<params>
-				<param key="link_options">
+				<param key="view_class" value="View_Ticket" />
+				<param key="options">
 					<value>
 						<data key="find" />
+						<data key="workspace" />
 					</value>
 				</param>
 				<param key="events">
@@ -591,9 +610,11 @@
 				<name>Context_Worker</name>
 			</class>
 			<params>
-				<param key="link_options">
+				<param key="view_class" value="View_Worker" />
+				<param key="options">
 					<value>
 						<data key="find" />
+						<data key="workspace" />
 					</value>
 				</param>
 				<param key="events">
@@ -1057,80 +1078,6 @@
 				<name>MailQueueCron</name>
 			</class>
 			<params>
-			</params>
-		</extension>
-		
-		<!-- Workspace Sources -->
-		
-		<extension point="cerberusweb.workspace.source">
-			<id>core.workspace.source.address</id>
-			<name>Addresses</name>
-			<class>
-				<file>api/plugin.classes.php</file>
-				<name>ChWorkspaceSource_Address</name>
-			</class>
-			<params>
-				<param key="view_class" value="View_Address" />
-			</params>
-		</extension>
-
-		<extension point="cerberusweb.workspace.source">
-			<id>core.workspace.source.notifications</id>
-			<name>Notifications</name>
-			<class>
-				<file>api/plugin.classes.php</file>
-				<name>ChWorkspaceSource_Notification</name>
-			</class>
-			<params>
-				<param key="view_class" value="View_WorkerEvent" />
-			</params>
-		</extension>
-		
-		<extension point="cerberusweb.workspace.source">
-			<id>core.workspace.source.org</id>
-			<name>Organizations</name>
-			<class>
-				<file>api/plugin.classes.php</file>
-				<name>ChWorkspaceSource_Org</name>
-			</class>
-			<params>
-				<param key="view_class" value="View_ContactOrg" />
-			</params>
-		</extension>
-		
-		<extension point="cerberusweb.workspace.source">
-			<id>core.workspace.source.task</id>
-			<name>Tasks</name>
-			<class>
-				<file>api/plugin.classes.php</file>
-				<name>ChWorkspaceSource_Task</name>
-			</class>
-			<params>
-				<param key="view_class" value="View_Task" />
-			</params>
-		</extension>
-		
-		<extension point="cerberusweb.workspace.source">
-			<id>core.workspace.source.ticket</id>
-			<name>Tickets</name>
-			<class>
-				<file>api/plugin.classes.php</file>
-				<name>ChWorkspaceSource_Ticket</name>
-			</class>
-			<params>
-				<param key="view_class" value="View_Ticket" />
-			</params>
-		</extension>
-		
-		<extension point="cerberusweb.workspace.source">
-			<id>core.workspace.source.worker</id>
-			<name>Workers</name>
-			<class>
-				<file>api/plugin.classes.php</file>
-				<name>ChWorkspaceSource_Worker</name>
-			</class>
-			<params>
-				<param key="view_class" value="View_Worker" />
 			</params>
 		</extension>
 		

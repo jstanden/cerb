@@ -52,12 +52,6 @@ abstract class Extension_CrmOpportunityToolbarItem extends DevblocksExtension {
 	function render(Model_CrmOpportunity $opp) { }
 };
 
-// Workspace Sources
-
-class CrmWorkspaceSource_Opportunity extends Extension_WorkspaceSource {
-	const ID = 'crm.workspace.source.opportunity';
-};
-
 if (class_exists('Extension_ActivityTab')):
 class CrmOppsActivityTab extends Extension_ActivityTab {
 	const EXTENSION_ID = 'crm.activity.tab.opps';
@@ -1964,7 +1958,7 @@ class Context_Opportunity extends Extension_DevblocksContext {
 		$defaults = new C4_AbstractViewModel();
 		$defaults->id = $view_id;
 		$defaults->is_ephemeral = true;
-		$defaults->class_name = 'View_CrmOpportunity';
+		$defaults->class_name = $this->getViewClass();
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = 'Opportunities';
 		$view->view_columns = array(
@@ -1985,19 +1979,23 @@ class Context_Opportunity extends Extension_DevblocksContext {
 		return $view;
 	}
 	
-	function getView($context, $context_id, $options=array()) {
+	function getView($context=null, $context_id=null, $options=array()) {
 		$view_id = str_replace('.','_',$this->id);
 		
 		$defaults = new C4_AbstractViewModel();
 		$defaults->id = $view_id; 
-		$defaults->class_name = 'View_CrmOpportunity';
+		$defaults->class_name = $this->getViewClass();
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = 'Opportunities';
 		
-		$params = array(
-			new DevblocksSearchCriteria(SearchFields_CrmOpportunity::CONTEXT_LINK,'=',$context),
-			new DevblocksSearchCriteria(SearchFields_CrmOpportunity::CONTEXT_LINK_ID,'=',$context_id),
-		);
+		$params = array();
+		
+		if(!empty($context) && !empty($context_id)) {
+			$params = array(
+				new DevblocksSearchCriteria(SearchFields_CrmOpportunity::CONTEXT_LINK,'=',$context),
+				new DevblocksSearchCriteria(SearchFields_CrmOpportunity::CONTEXT_LINK_ID,'=',$context_id),
+			);
+		}
 		
 		if(isset($options['filter_open']))
 			$params[] = new DevblocksSearchCriteria(SearchFields_CrmOpportunity::IS_CLOSED,'=',0);

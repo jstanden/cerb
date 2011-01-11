@@ -158,7 +158,7 @@ class Context_TimeTracking extends Extension_DevblocksContext {
 		$defaults = new C4_AbstractViewModel();
 		$defaults->id = $view_id;
 		$defaults->is_ephemeral = true;
-		$defaults->class_name = 'View_TimeTracking';
+		$defaults->class_name = $this->getViewClass();
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = 'Time Tracking';
 		$view->view_columns = array(
@@ -176,19 +176,23 @@ class Context_TimeTracking extends Extension_DevblocksContext {
 		return $view;
 	}
 	
-	function getView($context, $context_id, $options=array()) {
+	function getView($context=null, $context_id=null, $options=array()) {
 		$view_id = str_replace('.','_',$this->id);
 		
 		$defaults = new C4_AbstractViewModel();
 		$defaults->id = $view_id; 
-		$defaults->class_name = 'View_TimeTracking';
+		$defaults->class_name = $this->getViewClass();
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = 'Time Tracking';
 		
-		$params = array(
-			new DevblocksSearchCriteria(SearchFields_TimeTrackingEntry::CONTEXT_LINK,'=',$context),
-			new DevblocksSearchCriteria(SearchFields_TimeTrackingEntry::CONTEXT_LINK_ID,'=',$context_id),
-		);
+		$params = array();
+		
+		if(!empty($context) && !empty($context_id)) {
+			$params = array(
+				new DevblocksSearchCriteria(SearchFields_TimeTrackingEntry::CONTEXT_LINK,'=',$context),
+				new DevblocksSearchCriteria(SearchFields_TimeTrackingEntry::CONTEXT_LINK_ID,'=',$context_id),
+			);
+		}
 
 		if(isset($options['filter_open']))
 			$params[] = new DevblocksSearchCriteria(SearchFields_TimeTrackingEntry::IS_CLOSED,'=',0);
@@ -199,12 +203,6 @@ class Context_TimeTracking extends Extension_DevblocksContext {
 		C4_AbstractViewLoader::setView($view_id, $view);
 		return $view;
 	}    
-};
-
-// Workspace Sources
-
-class ChWorkspaceSource_TimeEntry extends Extension_WorkspaceSource {
-	const ID = 'timetracking.workspace.source.time_entry';
 };
 
 if (class_exists('Extension_AppPreBodyRenderer',true)):

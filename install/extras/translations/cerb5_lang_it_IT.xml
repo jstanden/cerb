@@ -746,11 +746,6 @@
         <seg>Remove ticket list from dashboard</seg>
       </tuv>
     </tu>
-    <tu tuid="dashboard.reorder">
-      <tuv xml:lang="it_IT">
-        <seg>arrange workspace </seg>
-      </tuv>
-    </tu>
     <tu tuid="dashboard.switch">
       <tuv xml:lang="it_IT">
         <seg> Switch </seg>

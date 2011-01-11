@@ -928,7 +928,7 @@ class Context_Group extends Extension_DevblocksContext {
 		$defaults = new C4_AbstractViewModel();
 		$defaults->id = $view_id;
 		$defaults->is_ephemeral = true;
-		$defaults->class_name = 'View_Group';
+		$defaults->class_name = $this->getViewClass();
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = 'Groups';
 		$view->view_columns = array(
@@ -948,19 +948,23 @@ class Context_Group extends Extension_DevblocksContext {
 		return $view;
 	}
 	
-	function getView($context, $context_id, $options=array()) {
+	function getView($context=null, $context_id=null, $options=array()) {
 		$view_id = str_replace('.','_',$this->id);
 		
 		$defaults = new C4_AbstractViewModel();
 		$defaults->id = $view_id; 
-		$defaults->class_name = 'View_Group';
+		$defaults->class_name = $this->getViewClass();
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = 'Groups';
 		
-		$params = array(
-			new DevblocksSearchCriteria(SearchFields_Group::CONTEXT_LINK,'=',$context),
-			new DevblocksSearchCriteria(SearchFields_Group::CONTEXT_LINK_ID,'=',$context_id),
-		);
+		$params = array();
+		
+		if(!empty($context) && !empty($context_id)) {
+			$params = array(
+				new DevblocksSearchCriteria(SearchFields_Group::CONTEXT_LINK,'=',$context),
+				new DevblocksSearchCriteria(SearchFields_Group::CONTEXT_LINK_ID,'=',$context_id),
+			);
+		}
 		
 		if(isset($options['filter_open']))
 			true; // Do nothing

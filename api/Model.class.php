@@ -1086,25 +1086,6 @@ class View_DevblocksStorageProfile extends C4_AbstractView {
 	}			
 };
 
-class Model_WorkerWorkspaceList {
-	public $id = 0;
-	public $worker_id = 0;
-	public $workspace = '';
-	public $source_extension = '';
-	public $list_view = '';
-	public $list_pos = 0;
-};
-
-class Model_WorkerWorkspaceListView {
-	public $title = 'New List';
-//	public $workspace = '';
-	public $columns = array();
-	public $num_rows = 10;
-	public $params = array();
-	public $sort_by = null;
-	public $sort_asc = 1;
-};
-
 class Model_Activity {
 	public $translation_code;
 	public $params;

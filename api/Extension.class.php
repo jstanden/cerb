@@ -247,14 +247,6 @@ abstract class Extension_RssSource extends DevblocksExtension {
 	function getFeedAsRss($feed) {}
 };
 
-abstract class Extension_WorkspaceSource extends DevblocksExtension {
-	const EXTENSION_POINT = 'cerberusweb.workspace.source';
-	
-	function __construct($manifest) {
-		$this->DevblocksExtension($manifest);
-	}
-};
-
 abstract class Extension_LoginAuthenticator extends DevblocksExtension {
 	function __construct($manifest) {
 		$this->DevblocksExtension($manifest);

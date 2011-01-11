@@ -71,12 +71,14 @@
 				<name>Context_KbArticle</name>
 			</class>
 			<params>
-				<param key="link_options">
+				<param key="view_class" value="View_KbArticle" />
+				<param key="options">
 					<value>
 					<!--
 						<data key="create" />
 					-->
 						<data key="find" />
+						<data key="workspace" />
 					</value>
 				</param>
 				<param key="events">

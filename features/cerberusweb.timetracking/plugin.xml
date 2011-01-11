@@ -25,10 +25,10 @@
 	
 	<class_loader>
 		<file path="api/App.php">
-			<class name="View_TimeTracking" />
 			<class name="DAO_TimeTrackingEntry" />
 			<class name="Model_TimeTrackingEntry" />
 			<class name="SearchFields_TimeTrackingEntry" />
+			<class name="View_TimeTracking" />
 		</file>
 	</class_loader>
 	
@@ -51,9 +51,11 @@
 				<name>Context_TimeTracking</name>
 			</class>
 			<params>
-				<param key="link_options">
+				<param key="view_class" value="View_TimeTracking" />
+				<param key="options">
 					<value>
 						<data key="find" />
+						<data key="workspace" />
 					</value>
 				</param>
 				<param key="events">
@@ -80,20 +82,6 @@
 						<data key="ticket.action.merge" />
 					</value>
 				</param>
-			</params>
-		</extension>
-
-		<!-- Workspace Sources -->
-		
-		<extension point="cerberusweb.workspace.source">
-			<id>timetracking.workspace.source.time_entry</id>
-			<name>Time Tracking Entries</name>
-			<class>
-				<file>api/App.php</file>
-				<name>ChWorkspaceSource_TimeEntry</name>
-			</class>
-			<params>
-				<param key="view_class" value="View_TimeTracking" />
 			</params>
 		</extension>
 

@@ -318,8 +318,13 @@ class DAO_Worker extends C4_ORMHelper {
 		$db->Execute($sql);
 		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' worker_to_team records.');
 		
-		$sql = "DELETE QUICK worker_workspace_list FROM worker_workspace_list LEFT JOIN worker ON worker_workspace_list.worker_id = worker.id WHERE worker.id IS NULL";
+		$sql = "DELETE QUICK workspace FROM workspace LEFT JOIN worker ON workspace.worker_id = worker.id WHERE worker.id IS NULL";
 		$db->Execute($sql);
+		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' workspace records.');
+		
+		$sql = "DELETE QUICK workspace_list FROM workspace_list LEFT JOIN worker ON workspace_list.worker_id = worker.id WHERE worker.id IS NULL";
+		$db->Execute($sql);
+		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' workspace_list records.');
 		
 		// Context Links
 		$db->Execute(sprintf("DELETE QUICK context_link FROM context_link LEFT JOIN worker ON context_link.from_context_id=worker.id WHERE context_link.from_context = %s AND worker.id IS NULL",
@@ -334,7 +339,6 @@ class DAO_Worker extends C4_ORMHelper {
 		
 		// [TODO] Clear out workers from any group_inbox_filter rows
 		
-		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' worker_workspace_list records.');
 	}
 	
 	static function delete($id) {
@@ -369,7 +373,10 @@ class DAO_Worker extends C4_ORMHelper {
 		$sql = sprintf("DELETE QUICK FROM view_rss WHERE worker_id = %d", $id);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 
-		$sql = sprintf("DELETE QUICK FROM worker_workspace_list WHERE worker_id = %d", $id);
+		$sql = sprintf("DELETE QUICK FROM workspace WHERE worker_id = %d", $id);
+		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		 
+		$sql = sprintf("DELETE QUICK FROM workspace_list WHERE worker_id = %d", $id);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 
 		// Clear roles
@@ -1209,7 +1216,7 @@ class Context_Worker extends Extension_DevblocksContext {
 		$defaults = new C4_AbstractViewModel();
 		$defaults->id = $view_id;
 		$defaults->is_ephemeral = true;
-		$defaults->class_name = 'View_Worker';
+		$defaults->class_name = $this->getViewClass();
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = 'Workers';
 		$view->view_columns = array(
@@ -1227,19 +1234,23 @@ class Context_Worker extends Extension_DevblocksContext {
 		return $view;
 	}
 	
-	function getView($context, $context_id, $options=array()) {
+	function getView($context=null, $context_id=null, $options=array()) {
 		$view_id = str_replace('.','_',$this->id);
 		
 		$defaults = new C4_AbstractViewModel();
 		$defaults->id = $view_id; 
-		$defaults->class_name = 'View_Worker';
+		$defaults->class_name = $this->getViewClass();
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = 'Workers';
 		
-		$params = array(
-			new DevblocksSearchCriteria(SearchFields_Worker::CONTEXT_LINK,'=',$context),
-			new DevblocksSearchCriteria(SearchFields_Worker::CONTEXT_LINK_ID,'=',$context_id),
-		);
+		$params = array();
+		
+		if(!empty($context) && !empty($context_id)) {
+			$params = array(
+				new DevblocksSearchCriteria(SearchFields_Worker::CONTEXT_LINK,'=',$context),
+				new DevblocksSearchCriteria(SearchFields_Worker::CONTEXT_LINK_ID,'=',$context_id),
+			);
+		}
 
 		if(isset($options['filter_open']))
 			true; // Do nothing

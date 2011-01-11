@@ -1,5 +1,5 @@
-<form action="{devblocks_url}{/devblocks_url}" method="post">
-<input type="hidden" name="c" value="home">
+<form action="{devblocks_url}{/devblocks_url}" method="post" id="frmAddWorklist">
+<input type="hidden" name="c" value="internal">
 <input type="hidden" name="a" value="doAddWorkspace">
 
 <b>{'home.workspaces.worklist.name'|devblocks_translate|capitalize}:</b><br>
@@ -7,23 +7,26 @@
 <br>
 
 <b>{'home.workspaces.worklist.type'|devblocks_translate|capitalize}:</b><br>
-<select name="source">
-	{foreach from=$sources item=mft key=mft_id}
+<select name="context">
+	{foreach from=$contexts item=mft key=mft_id}
+	{if isset($mft->params['options'][0]['workspace'])}
 	<option value="{$mft_id}">{$mft->name}</option>
+	{/if}
 	{/foreach}
 </select><br>
 <br>
 
 <b>{'home.workspaces.worklist.add.to_workspace'|devblocks_translate}:</b><br>
-{if !empty($workspaces)}
-{'home.workspaces.worklist.add.existing'|devblocks_translate|capitalize}: <select name="workspace">
+<select name="workspace_id">
+	<option value="">- new workspace: -</option>
+	{if !empty($workspaces)}
 	{foreach from=$workspaces item=workspace}
-	<option value="{$workspace}">{$workspace}</option>
+	<option value="{$workspace->id}">{$workspace->name}</option>
 	{/foreach}
-</select><br>
--{'common.or'|devblocks_translate|lower}-<br>
-{/if}
-{'home.workspaces.worklist.add.new'|devblocks_translate|capitalize}: <input type="text" name="new_workspace" size="32" maxlength="32" value=""><br>
+	{/if}
+</select>
+<input type="text" name="new_workspace" size="32" maxlength="32" value="">
+<br>
 <br>
 
 <button type="submit"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')}</button>
@@ -33,6 +36,14 @@
 	$popup = genericAjaxPopupFetch('peek');
 	$popup.one('popup_open', function(event,ui) {
 		$(this).dialog('option','title',"{$translate->_('dashboard.add_view')|capitalize}");
-	} );
+		
+		$('#frmAddWorklist SELECT[name=workspace_id]').change(function() {
+			if('' == $(this).val()) {
+				$(this).siblings('input:text[name=new_workspace]').show();
+			} else {
+				$(this).siblings('input:text[name=new_workspace]').val('').hide();
+			}
+		});
+	});
 </script>
 

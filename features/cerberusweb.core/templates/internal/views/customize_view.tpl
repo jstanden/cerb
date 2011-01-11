@@ -73,5 +73,5 @@
 </div>
 
 <script type="text/javascript">
-	$('#customize{$view->id}').sortable({ items: 'DIV.column' });
+	$('#customize{$view->id}').sortable({ items: 'DIV.column', placeholder:'ui-state-highlight' });
 </script>

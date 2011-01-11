@@ -48,12 +48,6 @@
  *	 WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
 
-// Workspace Sources
-
-class ChWorkspaceSource_FeedbackEntry extends Extension_WorkspaceSource {
-	const ID = 'feedback.workspace.source.feedback_entry';
-};
-
 if (class_exists('Extension_ActivityTab')):
 class ChFeedbackActivityTab extends Extension_ActivityTab {
 	const VIEW_ACTIVITY_FEEDBACK = 'activity_feedback';

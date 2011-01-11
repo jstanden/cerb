@@ -4,7 +4,7 @@
 <table>
 	<tr>
 		<td valign="top">
-			While you're working in Cerb5 you'll often find yourself jumping around between various lists and searches: tickets, tasks, opportunities, etc.  With version 4.1 you can now group all those lists together as a "workspace" and see that information on the same screen.  This is incredibly powerful when combined with the new custom field functionality; you can create temporary workspaces based on your daily projects, quickly build and save your worklists using searches, perform your duties, and then toss the workspace at the end of the day.  You can also keep workspaces around permanently to build your own workflow.
+			While you're working in Cerb5 you'll often find yourself jumping around between various lists and searches: tickets, tasks, opportunities, etc.  You can group all those lists together as a "workspace" and see that information on the same screen.  This is incredibly powerful when combined with custom field functionality; you can create temporary workspaces based on your daily projects, quickly build and save your worklists using searches, perform your duties, and then toss the workspace at the end of the day.  You can also keep workspaces around permanently to build your own workflow.
 			<br>
 			<br>
 			

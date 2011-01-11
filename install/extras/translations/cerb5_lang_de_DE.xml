@@ -1911,11 +1911,6 @@
         <seg>Ticketliste aus Ansicht entfernen</seg>
       </tuv>
     </tu>
-    <tu tuid="dashboard.reorder">
-      <tuv xml:lang="de_DE">
-        <seg>Ansicht anpassen</seg>
-      </tuv>
-    </tu>
     <tu tuid="dashboard.switch">
       <tuv xml:lang="de_DE">
         <seg>Wechseln</seg>
@@ -2534,16 +2529,6 @@
     <tu tuid="home.tab.workspaces_intro">
       <tuv xml:lang="de_DE">
         <seg>Arbeitsbereiche (Eigenschaften)</seg>
-      </tuv>
-    </tu>
-    <tu tuid="home.workspaces.rename">
-      <tuv xml:lang="de_DE">
-        <seg>Arbeitsbereich umbenennen</seg>
-      </tuv>
-    </tu>
-    <tu tuid="home.workspaces.worklist.add.existing">
-      <tuv xml:lang="de_DE">
-        <seg>Existent</seg>
       </tuv>
     </tu>
     <tu tuid="home.workspaces.worklist.add.new">

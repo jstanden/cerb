@@ -23,9 +23,6 @@
 	<!-- Exported Classes -->
 	
 	<class_loader>
-		<file path="api/App.php">
-			<class name="ChWorkspaceSource_Call" />
-		</file>
 		<file path="api/dao/call_entry.php">
 			<class name="DAO_CallEntry" />
 			<class name="Model_CallEntry" />
@@ -55,12 +52,14 @@
 				<name>Context_Call</name>
 			</class>
 			<params>
-				<param key="link_options">
+				<param key="view_class" value="View_CallEntry" />
+				<param key="options">
 					<value>
 						<!--
 						<data key="create" />
 						-->
 						<data key="find" />
+						<data key="workspace" />
 					</value>
 				</param>
 				<param key="events">
@@ -98,20 +97,6 @@
 			<params>
 				<param key="uri" value="calls" />
 				<param key="title" value="calls.activity.tab" />
-			</params>
-		</extension>
-		
-		<!-- Workspace Sources -->
-		
-		<extension point="cerberusweb.workspace.source">
-			<id>calls.workspace.source.call</id>
-			<name>Calls</name>
-			<class>
-				<file>api/App.php</file>
-				<name>ChWorkspaceSource_Call</name>
-			</class>
-			<params>
-				<param key="view_class" value="View_CallEntry" />
 			</params>
 		</extension>
 		

@@ -3,7 +3,7 @@
 <div style="clear:both;"></div>
 
 <form action="{devblocks_url}{/devblocks_url}" method="POST" style="margin-bottom:5px;">
-{if $active_worker->hasPriv('core.home.workspaces')}<button type="button" onclick="genericAjaxPopup('peek','c=home&a=showAddWorkspacePanel',null,false,'550');"><span class="cerb-sprite sprite-add"></span> {$translate->_('dashboard.add_view')|capitalize}</button>{/if}
+{if $active_worker->hasPriv('core.home.workspaces')}<button type="button" onclick="genericAjaxPopup('peek','c=internal&a=showAddWorkspacePanel',null,false,'550');"><span class="cerb-sprite sprite-add"></span> {$translate->_('dashboard.add_view')|capitalize}</button>{/if}
 {if $active_worker->hasPriv('core.home.auto_refresh')}<button type="button" onclick="autoRefreshTimer.start('{devblocks_url full=true}c=home{/devblocks_url}',this.form.reloadSecs.value);"><span class="cerb-sprite sprite-refresh"></span> {'common.refresh.auto'|devblocks_translate|capitalize}</button><!-- 
 --><select name="reloadSecs">
 	<option value="600">{'common.time.mins.num'|devblocks_translate:'10'}</option>
@@ -35,8 +35,8 @@
 
 		{if $active_worker->hasPriv('core.home.workspaces')}
 		{foreach from=$workspaces item=workspace}
-			{$tabs[] = "w_{$workspace}"}
-			<li><a href="{devblocks_url}ajax.php?c=home&a=showWorkspaceTab&workspace={$workspace|escape:'url'}{/devblocks_url}"><i>{$workspace}</i></a></li>
+			{$tabs[] = "workspace{$workspace->id}"}
+			<li><a href="{devblocks_url}ajax.php?c=internal&a=showWorkspaceTab&id={$workspace->id}{/devblocks_url}"><i>{$workspace->name}</i></a></li>
 		{/foreach}
 		{/if}
 	</ul>

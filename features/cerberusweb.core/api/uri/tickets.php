@@ -198,9 +198,6 @@ class ChTicketsPage extends CerberusPageExtension {
 				$quick_search_type = $visit->get('quick_search_type');
 				$tpl->assign('quick_search_type', $quick_search_type);
 
-				$tab_manifests = DevblocksPlatform::getExtensions('cerberusweb.mail.tab', false);
-				$tpl->assign('tab_manifests', $tab_manifests);
-				
 				$tpl->display('devblocks:cerberusweb.core::tickets/index.tpl');
 				break;
 		}

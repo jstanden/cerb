@@ -1611,16 +1611,6 @@
         <seg>Over Werkbladen</seg>
       </tuv>
     </tu>
-    <tu tuid="home.workspaces.rename">
-      <tuv xml:lang="nl_NL">
-        <seg>Hernoem Werkblad</seg>
-      </tuv>
-    </tu>
-    <tu tuid="home.workspaces.worklist.add.existing">
-      <tuv xml:lang="nl_NL">
-        <seg>Bestaand</seg>
-      </tuv>
-    </tu>
     <tu tuid="home.workspaces.worklist.add.new">
       <tuv xml:lang="nl_NL">
         <seg>Nieuw</seg>

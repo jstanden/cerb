@@ -687,7 +687,7 @@ class Context_Call extends Extension_DevblocksContext {
 		$defaults = new C4_AbstractViewModel();
 		$defaults->id = $view_id;
 		$defaults->is_ephemeral = true;
-		$defaults->class_name = 'View_CallEntry';
+		$defaults->class_name = $this->getViewClass();
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = 'Calls';
 		$view->view_columns = array(
@@ -707,19 +707,23 @@ class Context_Call extends Extension_DevblocksContext {
 		return $view;
 	}
 	
-	function getView($context, $context_id, $options=array()) {
+	function getView($context=null, $context_id=null, $options=array()) {
 		$view_id = str_replace('.','_',$this->id);
 		
 		$defaults = new C4_AbstractViewModel();
 		$defaults->id = $view_id; 
-		$defaults->class_name = 'View_CallEntry';
+		$defaults->class_name = $this->getViewClass();
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = 'Calls';
 		
-		$params = array(
-			new DevblocksSearchCriteria(SearchFields_CallEntry::CONTEXT_LINK,'=',$context),
-			new DevblocksSearchCriteria(SearchFields_CallEntry::CONTEXT_LINK_ID,'=',$context_id),
-		);
+		$params = array();
+		
+		if(!empty($context) && !empty($context_id)) {
+			$params = array(
+				new DevblocksSearchCriteria(SearchFields_CallEntry::CONTEXT_LINK,'=',$context),
+				new DevblocksSearchCriteria(SearchFields_CallEntry::CONTEXT_LINK_ID,'=',$context_id),
+			);
+		}
 		
 		if(isset($options['filter_open']))
 			$params[] = new DevblocksSearchCriteria(SearchFields_CallEntry::IS_CLOSED,'=',0);

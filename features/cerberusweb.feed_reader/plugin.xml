@@ -51,13 +51,14 @@
 				<name>Context_Feed</name>
 			</class>
 			<params>
-				<param key="link_options">
-					<!--
+				<param key="view_class" value="View_Feed" />
+				<param key="options">
+						<!--
 					<value>
-						<data key="create" />
 						<data key="find" />
+						<data key="workspace" />
 					</value>
-					-->
+						-->
 				</param>
 				<param key="events">
 					<value>
@@ -76,12 +77,14 @@
 				<name>Context_FeedItem</name>
 			</class>
 			<params>
-				<param key="link_options">
+				<param key="view_class" value="View_FeedItem" />
+				<param key="options">
 					<value>
 						<!--
 						<data key="create" />
 						-->
 						<data key="find" />
+						<data key="workspace" />
 					</value>
 				</param>
 				<param key="events">

@@ -65,10 +65,12 @@
 				<name>Context_Opportunity</name>
 			</class>
 			<params>
-				<param key="link_options">
+				<param key="view_class" value="View_CrmOpportunity" />
+				<param key="options">
 					<value>
 						<data key="create" />
 						<data key="find" />
+						<data key="workspace" />
 					</value>
 				</param>
 				<param key="events">
@@ -125,20 +127,6 @@
 			<params>
 				<param key="uri" value="crm" />
 				<param key="menutitle" value="" />
-			</params>
-		</extension>
-
-		<!-- Workspace Sources -->
-		
-		<extension point="cerberusweb.workspace.source">
-			<id>crm.workspace.source.opportunity</id>
-			<name>Opportunities</name>
-			<class>
-				<file>api/App.php</file>
-				<name>CrmWorkspaceSource_Opportunity</name>
-			</class>
-			<params>
-				<param key="view_class" value="View_CrmOpportunity" />
 			</params>
 		</extension>
 

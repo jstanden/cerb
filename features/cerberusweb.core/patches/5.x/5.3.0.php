@@ -61,4 +61,88 @@ if(!isset($columns['sort_json'])) {
 	$db->Execute("ALTER TABLE view_filters_preset ADD COLUMN sort_json TEXT");
 }
 
+// ===========================================================================
+// workspaces
+
+// Add the workspace table
+if(!isset($tables['workspace'])) {
+	$sql = "
+		CREATE TABLE IF NOT EXISTS workspace (
+			id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+			name VARCHAR(128) DEFAULT '' NOT NULL,
+			worker_id INT UNSIGNED NOT NULL DEFAULT 0,
+			PRIMARY KEY (id),
+			INDEX worker_id (worker_id)
+		) ENGINE=MyISAM;
+	";
+	$db->Execute($sql);
+
+	$tables['workspace'] = 'workspace';
+}
+
+// Rename worker_workspace_list -> workspace_list
+if(!isset($tables['workspace_list']) && isset($tables['worker_workspace_list'])) {
+	$db->Execute("ALTER TABLE worker_workspace_list RENAME workspace_list");
+	unset($tables['worker_workspace_list']);
+	$tables['workspace_list'] = 'workspace_list';
+	
+	$db->Execute("UPDATE workspace_list SET list_view = REPLACE(list_view, \"O:29:\\\"Model_WorkerWorkspaceListView\\\"\", \"O:23:\\\"Model_WorkspaceListView\\\"\")");
+}
+
+list($columns, $indexes) = $db->metaTable('workspace_list');
+
+// Migrate workspace -> workspace_id
+if(!isset($columns['workspace_id']) && isset($columns['workspace'])) {
+	$db->Execute("ALTER TABLE workspace_list ADD COLUMN workspace_id INT UNSIGNED NOT NULL DEFAULT 0, ADD INDEX workspace_id (workspace_id)");
+	
+	// Create workspaces and migrate worklist links
+	$sql = "SELECT workspace, worker_id FROM workspace_list GROUP BY workspace, worker_id";
+	$rows = $db->GetArray($sql);
+	
+	foreach($rows as $row) {
+		$db->Execute(sprintf("INSERT INTO workspace (name, worker_id) VALUES (%s, %d)", 
+			$db->qstr($row['workspace']),
+			$row['worker_id']
+		));
+		$id = $db->LastInsertId();
+		
+		$db->Execute(sprintf("UPDATE workspace_list SET workspace_id = %d WHERE workspace = %s AND worker_id = %d",
+			$id,
+			$db->qstr($row['workspace']),
+			$row['worker_id']
+		));
+	}
+	unset($rows);
+	
+	$db->Execute("ALTER TABLE workspace_list DROP COLUMN workspace");
+}
+
+// Migrate source_extension -> context
+if(!isset($columns['context']) && isset($columns['source_extension'])) {
+	$db->Execute("ALTER TABLE workspace_list ADD COLUMN context VARCHAR(255) NOT NULL DEFAULT '', ADD INDEX context (context)");
+
+	$map = array(
+		'core.workspace.source.address' => 'cerberusweb.contexts.address',
+		'core.workspace.source.notifications' => 'cerberusweb.contexts.notification',
+		'core.workspace.source.org' => 'cerberusweb.contexts.org',
+		'core.workspace.source.task' => 'cerberusweb.contexts.task',
+		'core.workspace.source.ticket' => 'cerberusweb.contexts.ticket',
+		'core.workspace.source.worker' => 'cerberusweb.contexts.worker',
+		'calls.workspace.source.call' => 'cerberusweb.contexts.call',
+		'crm.workspace.source.opportunity' => 'cerberusweb.contexts.opportunity',
+		'feedback.workspace.source.feedback_entry' => 'cerberusweb.contexts.feedback',
+		'timetracking.workspace.source.time_entry' => 'cerberusweb.contexts.timetracking',
+	);
+	
+	foreach($map as $source_ext => $context) {
+		$db->Execute(sprintf("UPDATE workspace_list SET context = %s WHERE source_extension = %s",
+			$db->qstr($context),
+			$db->qstr($source_ext)
+		));
+	}
+	
+	$db->Execute("DELETE FROM workspace_list WHERE context = ''");
+	$db->Execute("ALTER TABLE workspace_list DROP COLUMN source_extension");
+}
+
 return TRUE;

@@ -985,12 +985,6 @@
 		<tu tuid='home.my_tickets.view.title'>
 			<tuv xml:lang="en_US"><seg>Mail for %s</seg></tuv>
 		</tu>
-		<tu tuid='home.workspaces.rename'>
-			<tuv xml:lang="en_US"><seg>Rename Workspace</seg></tuv>
-		</tu>
-		<tu tuid='home.workspaces.worklist.add.existing'>
-			<tuv xml:lang="en_US"><seg>Existing</seg></tuv>
-		</tu>
 		<tu tuid='home.workspaces.worklist.add.new'>
 			<tuv xml:lang="en_US"><seg>New</seg></tuv>
 		</tu>
