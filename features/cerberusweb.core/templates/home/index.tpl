@@ -17,22 +17,23 @@
 
 <div id="homeTabs">
 	<ul>
+		{$point = Extension_HomeTab::POINT}
 		{$tabs = [events,links]}
 
 		<li><a href="{devblocks_url}ajax.php?c=home&a=showMyEvents{/devblocks_url}">{'home.tab.my_notifications'|devblocks_translate}</a></li>
-		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextLinks&context=cerberusweb.contexts.worker&id={$active_worker->id}&filter_open=1{/devblocks_url}">{'My Work'|devblocks_translate}</a></li>
+		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextLinks&context=cerberusweb.contexts.worker&point={$point}&id={$active_worker->id}&filter_open=1{/devblocks_url}">{'My Work'|devblocks_translate}</a></li>
 
-		{$tab_manifests = DevblocksPlatform::getExtensions('cerberusweb.home.tab', false)}
+		{$tab_manifests = DevblocksPlatform::getExtensions($point, false)}
 		{foreach from=$tab_manifests item=tab_manifest}
 			{$tabs[] = $tab_manifest->params.uri}
 			<li><a href="{devblocks_url}ajax.php?c=home&a=showTab&ext_id={$tab_manifest->id}{/devblocks_url}">{$tab_manifest->params.title|devblocks_translate}</a></li>
 		{/foreach}
 
 		{if $active_worker->hasPriv('core.home.workspaces')}
-			{$enabled_workspaces = DAO_Workspace::getByEndpoint('cerberusweb.home.tab', $active_worker->id)}
+			{$enabled_workspaces = DAO_Workspace::getByEndpoint($point, $active_worker->id)}
 			{foreach from=$enabled_workspaces item=enabled_workspace}
 				{$tabs[] = 'w_'|cat:$enabled_workspace->id}
-				<li><a href="{devblocks_url}ajax.php?c=internal&a=showWorkspaceTab&id={$enabled_workspace->id}&request={$response_uri|escape:'url'}{/devblocks_url}"><i>{$enabled_workspace->name}</i></a></li>
+				<li><a href="{devblocks_url}ajax.php?c=internal&a=showWorkspaceTab&id={$enabled_workspace->id}&point={$point}&request={$response_uri|escape:'url'}{/devblocks_url}"><i>{$enabled_workspace->name}</i></a></li>
 			{/foreach}
 			
 			{if empty($enabled_workspaces) && $active_worker->hasPriv('core.home.workspaces')}
@@ -42,7 +43,7 @@
 		{/if}
 		
 		{$tabs[] = "+"}
-		<li><a href="{devblocks_url}ajax.php?c=internal&a=showAddTab&point=cerberusweb.home.tab&request={$response_uri|escape:'url'}{/devblocks_url}"><i>+</i></a></li>
+		<li><a href="{devblocks_url}ajax.php?c=internal&a=showAddTab&point={$point}&request={$response_uri|escape:'url'}{/devblocks_url}"><i>+</i></a></li>
 	</ul>
 </div> 
 <br>

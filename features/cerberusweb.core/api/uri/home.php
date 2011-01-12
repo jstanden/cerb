@@ -73,9 +73,11 @@ class ChHomePage extends CerberusPageExtension {
 
 		$tpl = DevblocksPlatform::getTemplateService();
 
-		// Are we requesting a specific tab?
-		if(null != ($selected_tab = @$response->path[1]))
-			$tpl->assign('selected_tab', $selected_tab);
+		$visit = CerberusApplication::getVisit();
+		if(null == ($selected_tab = @$response->path[1])) {
+			$selected_tab = $visit->get(Extension_HomeTab::POINT, '');
+		}
+		$tpl->assign('selected_tab', $selected_tab);
 		
 		$tpl->display('devblocks:cerberusweb.core::home/index.tpl');
 	}
@@ -84,18 +86,24 @@ class ChHomePage extends CerberusPageExtension {
 	function showTabAction() {
 		@$ext_id = DevblocksPlatform::importGPC($_REQUEST['ext_id'],'string','');
 		
+		$visit = CerberusApplication::getVisit();
+		
 		if(null != ($tab_mft = DevblocksPlatform::getExtension($ext_id)) 
 			&& null != ($inst = $tab_mft->createInstance()) 
 			&& $inst instanceof Extension_HomeTab) {
-			$inst->showTab();
+				$visit->set(Extension_HomeTab::POINT, $inst->manifest->params['uri']);
+				$inst->showTab();
 		}
 	}
 	
 	function showMyEventsAction() {
 		$translate = DevblocksPlatform::getTranslationService();
 		$active_worker = CerberusApplication::getActiveWorker();
-		
+		$visit = CerberusApplication::getVisit();
 		$tpl = DevblocksPlatform::getTemplateService();
+
+		// Remember tab
+		$visit->set(Extension_HomeTab::POINT, 'events');
 		
 		// My Events
 		$defaults = new C4_AbstractViewModel();

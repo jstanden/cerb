@@ -106,11 +106,16 @@ class ChInternalController extends DevblocksControllerExtension {
 	function showTabContextLinksAction() {
 		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string');
 		@$context_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer');
+		@$point = DevblocksPlatform::importGPC($_REQUEST['point'],'string');
 		
 		$tpl = DevblocksPlatform::getTemplateService();
+		$visit = CerberusApplication::getVisit();
 		
 		$tpl->assign('context', $context);
 		$tpl->assign('context_id', $context_id);
+		
+		if(!empty($point))
+			$visit->set($point, 'links');
 		
 		// Options
 		$options = array();
