@@ -55,8 +55,8 @@ class ExPreferencesTab extends Extension_PreferenceTab {
 		//$translate = DevblocksPlatform::getTranslationService();
 		
 		// Remember the tab
-		//$visit = CerberusApplication::getVisit();
-		//$visit->set(CerberusVisit::KEY_ACTIVITY_TAB, 'example');
+		$visit = CerberusApplication::getVisit();
+		$visit->set('cerberusweb.preferences.tab', 'example');
 		
 		$tpl->display('devblocks:example.preferencestab::index.tpl');		
 	}

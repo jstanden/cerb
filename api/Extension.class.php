@@ -74,6 +74,8 @@ abstract class Extension_ConfigTab extends DevblocksExtension {
 };
 
 abstract class Extension_PreferenceTab extends DevblocksExtension {
+	const POINT = 'cerberusweb.preferences.tab';
+	
 	function showTab() {}
 	function saveTab() {}
 };

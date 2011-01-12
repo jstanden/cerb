@@ -62,15 +62,15 @@ class ChPreferencesPage extends CerberusPageExtension {
 	
 	function render() {
 		$translate = DevblocksPlatform::getTranslationService();
-		
 		$tpl = DevblocksPlatform::getTemplateService();
-
 		$response = DevblocksPlatform::getHttpResponse();
+		$visit = CerberusApplication::getVisit();
+		
 		$path = $response->path;
 		
 		array_shift($path); // preferences
 		
-		$tab_manifests = DevblocksPlatform::getExtensions('cerberusweb.preferences.tab', false);
+		$tab_manifests = DevblocksPlatform::getExtensions(Extension_PreferenceTab::POINT, false);
 		$tpl->assign('tab_manifests', $tab_manifests);
 		
 		@$section = array_shift($path); // section
@@ -111,6 +111,12 @@ class ChPreferencesPage extends CerberusPageExtension {
 				break;
 			
 		    default:
+				// Remember the last tab/URL
+				if(null == ($selected_tab = @$response->path[1])) {
+					$selected_tab = $visit->get(Extension_PreferenceTab::POINT, '');
+				}
+				$tpl->assign('selected_tab', $selected_tab);
+		    	
 		    	$tpl->assign('tab', $section);
 				$tpl->display('devblocks:cerberusweb.core::preferences/index.tpl');
 				break;
@@ -121,10 +127,13 @@ class ChPreferencesPage extends CerberusPageExtension {
 	function showTabAction() {
 		@$ext_id = DevblocksPlatform::importGPC($_REQUEST['ext_id'],'string','');
 		
+		$visit = CerberusApplication::getVisit();
+		
 		if(null != ($tab_mft = DevblocksPlatform::getExtension($ext_id)) 
 			&& null != ($inst = $tab_mft->createInstance()) 
 			&& $inst instanceof Extension_PreferenceTab) {
-			$inst->showTab();
+				$visit->set(Extension_PreferenceTab::POINT, $inst->manifest->params['uri']);
+				$inst->showTab();
 		}
 	}
 	
@@ -159,8 +168,10 @@ class ChPreferencesPage extends CerberusPageExtension {
 	// Ajax [TODO] This should probably turn into Extension_PreferenceTab
 	function showGeneralAction() {
 		$date_service = DevblocksPlatform::getDateService();
-		
 		$tpl = DevblocksPlatform::getTemplateService();
+		$visit = CerberusApplication::getVisit();
+		
+		$visit->set(Extension_PreferenceTab::POINT, 'general');
 		
 		$worker = CerberusApplication::getActiveWorker();
 		$tpl->assign('worker', $worker);
@@ -193,8 +204,10 @@ class ChPreferencesPage extends CerberusPageExtension {
 	// Ajax [TODO] This should probably turn into Extension_PreferenceTab
 	function showRssAction() {
 		$tpl = DevblocksPlatform::getTemplateService();
-		
 		$active_worker = CerberusApplication::getActiveWorker();
+		$visit = CerberusApplication::getVisit();
+		
+		$visit->set(Extension_PreferenceTab::POINT, 'rss');
 		
 		$feeds = DAO_ViewRss::getByWorker($active_worker->id);
 		$tpl->assign('feeds', $feeds);

@@ -74,8 +74,8 @@ class ChOpenIdPreferenceTab extends Extension_PreferenceTab {
 		//$translate = DevblocksPlatform::getTranslationService();
 		
 		// Remember the tab
-		//$visit = CerberusApplication::getVisit();
-		//$visit->set(CerberusVisit::KEY_ACTIVITY_TAB, 'example');
+		$visit = CerberusApplication::getVisit();
+		$visit->set(Extension_PreferenceTab::POINT, 'feeds');
 
 		$openids = DAO_OpenIDToWorker::getWhere(sprintf("%s = %d",
 			DAO_OpenIDToWorker::WORKER_ID, 
