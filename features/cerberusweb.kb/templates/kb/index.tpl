@@ -5,6 +5,7 @@
 <div id="kbTabs">
 	<ul>
 		{$tabs = []}
+		{$point = Extension_KnowledgebaseTab::POINT}
 
 		{foreach from=$tab_manifests item=tab_manifest}
 			{if !isset($tab_manifest->params.acl) || $worker->hasPriv($tab_manifest->params.acl)}
@@ -14,26 +15,26 @@
 		{/foreach}
 		
 		{if $active_worker->hasPriv('core.home.workspaces')}
-			{$enabled_workspaces = DAO_Workspace::getByEndpoint('cerberusweb.kb.tab', $active_worker->id)}
+			{$enabled_workspaces = DAO_Workspace::getByEndpoint($point, $active_worker->id)}
 			{foreach from=$enabled_workspaces item=enabled_workspace}
 				{$tabs[] = 'w_'|cat:$enabled_workspace->id}
-				<li><a href="{devblocks_url}ajax.php?c=internal&a=showWorkspaceTab&id={$enabled_workspace->id}&request={$response_uri|escape:'url'}{/devblocks_url}"><i>{$enabled_workspace->name}</i></a></li>
+				<li><a href="{devblocks_url}ajax.php?c=internal&a=showWorkspaceTab&id={$enabled_workspace->id}&point={$point}&request={$response_uri|escape:'url'}{/devblocks_url}"><i>{$enabled_workspace->name}</i></a></li>
 			{/foreach}
 			
 			{$tabs[] = "+"}
-			<li><a href="{devblocks_url}ajax.php?c=internal&a=showAddTab&point=cerberusweb.kb.tab&request={$response_uri|escape:'url'}{/devblocks_url}"><i>+</i></a></li>
+			<li><a href="{devblocks_url}ajax.php?c=internal&a=showAddTab&point={$point}&request={$response_uri|escape:'url'}{/devblocks_url}"><i>+</i></a></li>
 		{/if}
 	</ul>
 </div> 
 <br>
 
-{$tab_selected_idx=0}
+{$selected_tab_idx=0}
 {foreach from=$tabs item=tab_label name=tabs}
-	{if $tab_label==$tab_selected}{$tab_selected_idx = $smarty.foreach.tabs.index}{/if}
+	{if $tab_label==$selected_tab}{$selected_tab_idx = $smarty.foreach.tabs.index}{/if}
 {/foreach}
 
 <script type="text/javascript">
 	$(function() {
-		var tabs = $("#kbTabs").tabs( { selected:{$tab_selected_idx} } );
+		var tabs = $("#kbTabs").tabs( { selected:{$selected_tab_idx} } );
 	});
 </script>

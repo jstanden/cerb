@@ -55,7 +55,7 @@ class ExKnowledgebaseTab extends Extension_KnowledgebaseTab {
 		
 		// Remember the tab
 		$visit = CerberusApplication::getVisit();
-		$visit->set(CerberusVisit::KEY_ACTIVITY_TAB, 'example');
+		$visit->set(Extension_KnowledgebaseTab::POINT, 'example');
 		
 		$tpl = DevblocksPlatform::getTemplateService();		
 		$tpl->display('devblocks:example.knowledgebasetab::index.tpl');		

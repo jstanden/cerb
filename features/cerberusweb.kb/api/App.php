@@ -49,6 +49,8 @@
  */
 
 abstract class Extension_KnowledgebaseTab extends DevblocksExtension {
+	const POINT = 'cerberusweb.knowledgebase.tab';
+	
 	function showTab() {}
 	function saveTab() {}
 };
@@ -101,12 +103,15 @@ class ChKbPage extends CerberusPageExtension {
 				
 			case 'category':
 			default:
-				$tab_manifests = DevblocksPlatform::getExtensions('cerberusweb.knowledgebase.tab', false);
+				$tab_manifests = DevblocksPlatform::getExtensions(Extension_KnowledgebaseTab::POINT, false);
 				uasort($tab_manifests, create_function('$a, $b', "return strcasecmp(\$a->name,\$b->name);\n"));
 				$tpl->assign('tab_manifests', $tab_manifests);
 				
-				if(empty($tab_selected)) $tab_selected = '';
-				$tpl->assign('tab_selected', $action);
+				// Remember the last tab/URL
+				if(null == ($selected_tab = @$response->path[1])) {
+					$selected_tab = $visit->get(Extension_KnowledgebaseTab::POINT, '');
+				}
+				$tpl->assign('selected_tab', $selected_tab);
 				
 				$tpl->display('devblocks:cerberusweb.kb::kb/index.tpl');
 				break;
@@ -117,10 +122,13 @@ class ChKbPage extends CerberusPageExtension {
 	function showTabAction() {
 		@$ext_id = DevblocksPlatform::importGPC($_REQUEST['ext_id'],'string','');
 		
+		$visit = CerberusApplication::getVisit();
+		
 		if(null != ($tab_mft = DevblocksPlatform::getExtension($ext_id)) 
 			&& null != ($inst = $tab_mft->createInstance()) 
 			&& $inst instanceof Extension_KnowledgebaseTab) {
-			$inst->showTab();
+				$visit->set(Extension_KnowledgebaseTab::POINT, $inst->manifest->params['uri']);
+				$inst->showTab();
 		}
 	}
 
