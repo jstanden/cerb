@@ -146,8 +146,26 @@ class ChContactsPage extends CerberusPageExtension {
 				
 		} // switch (tab)
 		
+		$tab_manifests = DevblocksPlatform::getExtensions(Extension_AddressBookTab::POINT, false);
+		uasort($tab_manifests, create_function('$a, $b', "return strcasecmp(\$a->name,\$b->name);\n"));
+		$tpl->assign('tab_manifests', $tab_manifests);
+		
 		$tpl->display('devblocks:cerberusweb.core::contacts/index.tpl');
 		return;
+	}
+	
+	// Ajax
+	function showTabAction() {
+		@$ext_id = DevblocksPlatform::importGPC($_REQUEST['ext_id'],'string','');
+		
+		$visit = CerberusApplication::getVisit();
+
+		if(null != ($tab_mft = DevblocksPlatform::getExtension($ext_id)) 
+			&& null != ($inst = $tab_mft->createInstance()) 
+			&& $inst instanceof Extension_AddressBookTab) {
+				$visit->set(Extension_AddressBookTab::POINT, $inst->manifest->params['uri']);
+				$inst->showTab();
+		}
 	}
 	
 	function showOrgsTabAction() {
