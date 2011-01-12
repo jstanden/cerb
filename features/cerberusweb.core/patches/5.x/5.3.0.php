@@ -162,4 +162,9 @@ if(!isset($columns['context']) && isset($columns['source_extension'])) {
 	$db->Execute("ALTER TABLE workspace_list DROP COLUMN source_extension");
 }
 
+// ===========================================================================
+// Maintenance
+
+$db->Execute("DELETE FROM worker_pref WHERE setting LIKE 'team_move_counts%'");
+
 return TRUE;
