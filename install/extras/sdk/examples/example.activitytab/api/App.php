@@ -52,11 +52,6 @@ if (class_exists('Extension_ActivityTab')):
 class ExActivityTab extends Extension_ActivityTab {
 	function showTab() {
 		$translate = DevblocksPlatform::getTranslationService();
-		
-		// Remember the tab
-		$visit = CerberusApplication::getVisit();
-		$visit->set(CerberusVisit::KEY_ACTIVITY_TAB, 'example');
-		
 		$tpl = DevblocksPlatform::getTemplateService();
 		
 		$tpl->display('devblocks:example.activitytab::index.tpl');		

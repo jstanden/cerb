@@ -52,12 +52,7 @@ class ChTasksActivityTab extends Extension_ActivityTab {
 	const VIEW_ACTIVITY_TASKS = 'activity_tasks';
 	
 	function showTab() {
-		// Remember the tab
-		$visit = CerberusApplication::getVisit();
-		$visit->set(CerberusVisit::KEY_ACTIVITY_TAB, 'tasks');
-		
 		$tpl = DevblocksPlatform::getTemplateService();
-		
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		// [TODO] Convert to $defaults

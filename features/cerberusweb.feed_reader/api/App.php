@@ -67,9 +67,6 @@ class FeedsActivityTab extends Extension_ActivityTab {
 		$translate = DevblocksPlatform::getTranslationService();
 		$active_worker = CerberusApplication::getActiveWorker();
 
-		// Remember the tab
-//		$visit->set(CerberusVisit::KEY_ACTIVITY_TAB, 'opps');
-		
 		// Read original request
 		@$request_path = DevblocksPlatform::importGPC($_REQUEST['request'],'string','');
 		@$stack =  explode('/', $request_path);
@@ -109,7 +106,7 @@ class Page_Feeds extends CerberusPageExtension {
 
 		// Remember the last tab/URL
 		if(null == ($selected_tab = @$response->path[1])) {
-			//$selected_tab = $visit->get(CerberusVisit::KEY_ACTIVITY_TAB, '');
+			//$selected_tab = $visit->get('cerberusweb.feed_reader.tab', '');
 		}
 		$tpl->assign('selected_tab', $selected_tab);
 

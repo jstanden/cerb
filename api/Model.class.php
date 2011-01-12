@@ -1482,7 +1482,6 @@ class Model_MailToGroupRule {
 class CerberusVisit extends DevblocksVisit {
 	private $worker_id;
 
-	const KEY_ACTIVITY_TAB = 'activity_tab';
 	const KEY_VIEW_LAST_ACTION = 'view_last_action';
 	const KEY_MY_WORKSPACE = 'view_my_workspace';
 	const KEY_MAIL_MODE = 'mail_mode';

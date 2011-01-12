@@ -898,10 +898,14 @@ class ChInternalController extends DevblocksControllerExtension {
 	
 	function showWorkspaceTabAction() {
 		@$workspace_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer', 0);
+		@$point = DevblocksPlatform::importGPC($_REQUEST['point'],'string', '');
 		@$request = DevblocksPlatform::importGPC($_REQUEST['request'],'string', '');
 
 		$tpl = DevblocksPlatform::getTemplateService();
 		$active_worker = CerberusApplication::getActiveWorker();
+		
+		$visit = CerberusApplication::getVisit();
+		$visit->set($point, 'w_'.$workspace_id);
 		
 		if(null == ($workspace = DAO_Workspace::get($workspace_id)) 
 			|| $workspace->worker_id != $active_worker->id
