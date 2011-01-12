@@ -70,15 +70,13 @@ class ChTicketsPage extends CerberusPageExtension {
 	
 	function render() {
 		$tpl = DevblocksPlatform::getTemplateService();
-
 		$visit = CerberusApplication::getVisit();
 		$active_worker = $visit->getWorker();
-		
 		$response = DevblocksPlatform::getHttpResponse();
 		
 		// Remember the last tab/URL
 		if(null == ($selected_tab = @$response->path[1])) {
-			$selected_tab = $visit->get(CerberusVisit::KEY_MAIL_MODE, '');
+			$selected_tab = $visit->get(Extension_MailTab::POINT, '');
 		}
 		$tpl->assign('selected_tab', $selected_tab);
 		
@@ -245,14 +243,12 @@ class ChTicketsPage extends CerberusPageExtension {
 	
 	function showWorkflowTabAction() {
 		$tpl = DevblocksPlatform::getTemplateService();
-		
 		$visit = CerberusApplication::getVisit();
 		$translate = DevblocksPlatform::getTranslationService();
+		$active_worker = CerberusApplication::getActiveWorker();
 		
 		// Remember the tab
-		$visit->set(CerberusVisit::KEY_MAIL_MODE, 'workflow');
-		
-		$active_worker = CerberusApplication::getActiveWorker();
+		$visit->set(Extension_MailTab::POINT, 'workflow');
 		
 		$groups = DAO_Group::getAll();
 		$tpl->assign('groups', $groups);
@@ -322,7 +318,6 @@ class ChTicketsPage extends CerberusPageExtension {
 	
 	function showMessagesTabAction() {
 		$tpl = DevblocksPlatform::getTemplateService();
-		
 		$visit = CerberusApplication::getVisit();
 		$active_worker = CerberusApplication::getActiveWorker();
 		
@@ -334,7 +329,7 @@ class ChTicketsPage extends CerberusPageExtension {
 //		);
 		
 		// Remember the tab
-		$visit->set(CerberusVisit::KEY_MAIL_MODE, 'messages');		
+		$visit->set(Extension_MailTab::POINT, 'messages');
 		
 		$defaults = new C4_AbstractViewModel();
 		$defaults->id = CerberusApplication::VIEW_MAIL_MESSAGES;
@@ -363,7 +358,6 @@ class ChTicketsPage extends CerberusPageExtension {
 	
 	function showSearchTabAction() {
 		$tpl = DevblocksPlatform::getTemplateService();
-		
 		$visit = CerberusApplication::getVisit();
 		$active_worker = CerberusApplication::getActiveWorker();
 		$memberships = $active_worker->getMemberships();
@@ -376,7 +370,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		);
 		
 		// Remember the tab
-		$visit->set(CerberusVisit::KEY_MAIL_MODE, 'search');		
+		$visit->set(Extension_MailTab::POINT, 'search');
 		
 		// [TODO] Convert to defaults
 		
@@ -401,11 +395,10 @@ class ChTicketsPage extends CerberusPageExtension {
 	function showDraftsTabAction() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		$visit = CerberusApplication::getVisit();
-		
 		$tpl = DevblocksPlatform::getTemplateService();
 
 		// Remember the tab
-		$visit->set(CerberusVisit::KEY_MAIL_MODE, 'drafts');
+		$visit->set(Extension_MailTab::POINT, 'drafts');
 		
 		$defaults = new C4_AbstractViewModel();
 		$defaults->class_name = 'View_MailQueue';
@@ -637,11 +630,10 @@ class ChTicketsPage extends CerberusPageExtension {
 	function showSnippetsTabAction() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		$visit = CerberusApplication::getVisit();
-		
 		$tpl = DevblocksPlatform::getTemplateService();
 
 		// Remember the tab
-		$visit->set(CerberusVisit::KEY_MAIL_MODE, 'snippets');
+		$visit->set(Extension_MailTab::POINT, 'snippets');
 		
 		// [TODO] Use $defaults
 		$view = C4_AbstractViewLoader::getView('mail_snippets');

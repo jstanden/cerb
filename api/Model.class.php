@@ -1484,7 +1484,6 @@ class CerberusVisit extends DevblocksVisit {
 
 	const KEY_VIEW_LAST_ACTION = 'view_last_action';
 	const KEY_MY_WORKSPACE = 'view_my_workspace';
-	const KEY_MAIL_MODE = 'mail_mode';
 	const KEY_WORKFLOW_FILTER = 'workflow_filter';
 
 	public function __construct() {

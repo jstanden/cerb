@@ -55,7 +55,7 @@ class ExMailTab extends Extension_MailTab {
 		
 		// Remember the tab
 		$visit = CerberusApplication::getVisit();
-		$visit->set(CerberusVisit::KEY_ACTIVITY_TAB, 'example');
+		$visit->set('cerberusweb.mail.tab', 'example');
 		
 		$tpl = DevblocksPlatform::getTemplateService();
 		
