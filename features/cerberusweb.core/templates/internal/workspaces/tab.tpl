@@ -43,6 +43,9 @@
 		$container = $frm.find('UL.container').first();
 		$text = $(this).siblings('input:text');
 		
+		if(0 == $text.val().length)
+			return;
+		
 		$new_li = $('<li class="drag" style="padding-bottom:5px;"></li>');
 		$('<span class="ui-icon ui-icon-arrowthick-2-n-s" style="display:inline-block;vertical-align:middle;"></span>').appendTo($new_li);
 		$('<label><input type="checkbox" name="workspace_ids[]" value="'+$text.val()+'" checked="checked"> <b>'+$text.val()+'</b></label>').appendTo($new_li);
