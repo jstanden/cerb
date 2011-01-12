@@ -1192,8 +1192,13 @@ class ChInternalController extends DevblocksControllerExtension {
 	function showTabContextCommentsAction() {
 		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string');
 		@$context_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer');
+		@$point = DevblocksPlatform::importGPC($_REQUEST['point'],'string','');
 		
 		$tpl = DevblocksPlatform::getTemplateService();
+		$visit = CerberusApplication::getVisit();
+		
+		if(!empty($point))
+			$visit->set($point, 'comments');
 		
 		$tpl->assign('context', $context);
 		$tpl->assign('context_id', $context_id);

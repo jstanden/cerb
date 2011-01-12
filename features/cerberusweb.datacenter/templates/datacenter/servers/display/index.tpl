@@ -48,27 +48,28 @@
 
 <div id="datacenterServerTabs">
 	<ul>
-		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextComments&context=cerberusweb.contexts.datacenter.server&id={$server->id}{/devblocks_url}">{'common.comments'|devblocks_translate|capitalize}</a></li>
-		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextLinks&context=cerberusweb.contexts.datacenter.server&id={$server->id}{/devblocks_url}">{'common.links'|devblocks_translate}</a></li>
-
+		{$point = Extension_ServerTab::POINT}
 		{$tabs = [comments, links]}
+		
+		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextComments&context=cerberusweb.contexts.datacenter.server&point={$point}&id={$server->id}{/devblocks_url}">{'common.comments'|devblocks_translate|capitalize}</a></li>
+		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextLinks&context=cerberusweb.contexts.datacenter.server&point={$point}&id={$server->id}{/devblocks_url}">{'common.links'|devblocks_translate}</a></li>
 		
 		{foreach from=$tab_manifests item=tab_manifest}
 			{$tabs[] = $tab_manifest->params.uri}
-			<li><a href="{devblocks_url}ajax.php?c=datacenter&a=showServerTab&ext_id={$tab_manifest->id}&server_id={$server->id}{/devblocks_url}"><i>{$tab_manifest->params.title|devblocks_translate}</i></a></li>
+			<li><a href="{devblocks_url}ajax.php?c=datacenter&a=showServerTab&ext_id={$tab_manifest->id}&point={$point}&server_id={$server->id}{/devblocks_url}"><i>{$tab_manifest->params.title|devblocks_translate}</i></a></li>
 		{/foreach}
 	</ul>
 </div> 
 <br>
 
-{$tab_selected_idx=0}
+{$selected_tab_idx=0}
 {foreach from=$tabs item=tab_label name=tabs}
-	{if $tab_label==$tab_selected}{$tab_selected_idx = $smarty.foreach.tabs.index}{/if}
+	{if $tab_label==$selected_tab}{$selected_tab_idx = $smarty.foreach.tabs.index}{/if}
 {/foreach}
 
 <script type="text/javascript">
 	$(function() {
-		var tabs = $("#datacenterServerTabs").tabs( { selected:{$tab_selected_idx} } );
+		var tabs = $("#datacenterServerTabs").tabs( { selected:{$selected_tab_idx} } );
 		
 		$('#btnDatacenterServerEdit').bind('click', function() {
 			$popup = genericAjaxPopup('peek','c=datacenter&a=showServerPeek&id={$server->id}',null,false,'550');

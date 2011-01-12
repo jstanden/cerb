@@ -1,10 +1,14 @@
 <?php
 abstract class Extension_DatacenterTab extends DevblocksExtension {
+	const POINT = 'cerberusweb.datacenter.tab';
+	
 	function showTab() {}
 	function saveTab() {}
 };
 
 abstract class Extension_ServerTab extends DevblocksExtension {
+	const POINT = 'cerberusweb.datacenter.server.tab';
+	
 	function showTab(Model_Server $server) {}
 	function saveTab() {}
 };
@@ -44,14 +48,7 @@ class Page_Datacenter extends CerberusPageExtension {
 	function render() {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$visit = CerberusApplication::getVisit();
-
 		$response = DevblocksPlatform::getHttpResponse();
-
-		// Remember the last tab/URL
-		if(null == ($selected_tab = @$response->path[1])) {
-			//$selected_tab = $visit->get(CerberusVisit::KEY_ACTIVITY_TAB, '');
-		}
-		$tpl->assign('selected_tab', $selected_tab);
 
 		// Path
 		$stack = $response->path;
@@ -63,8 +60,14 @@ class Page_Datacenter extends CerberusPageExtension {
 				@$server_id = array_shift($stack); // id
 				if(is_numeric($server_id) && null != ($server = DAO_Server::get($server_id)))
 					$tpl->assign('server', $server);
-				
-				$tab_manifests = DevblocksPlatform::getExtensions('cerberusweb.datacenter.server.tab', false);
+
+				// Remember the last tab/URL
+				if(null == ($selected_tab = @$response->path[3])) {
+					$selected_tab = $visit->get(Extension_ServerTab::POINT, '');
+				}
+				$tpl->assign('selected_tab', $selected_tab);
+					
+				$tab_manifests = DevblocksPlatform::getExtensions(Extension_ServerTab::POINT, false);
 				uasort($tab_manifests, create_function('$a, $b', "return strcasecmp(\$a->name,\$b->name);\n"));
 				$tpl->assign('tab_manifests', $tab_manifests);
 				
@@ -72,7 +75,13 @@ class Page_Datacenter extends CerberusPageExtension {
 				break;
 				
 			default:
-				$tab_manifests = DevblocksPlatform::getExtensions('cerberusweb.datacenter.tab', false);
+				// Remember the last tab/URL
+				if(null == ($selected_tab = @$response->path[1])) {
+					$selected_tab = $visit->get(Extension_DatacenterTab::POINT, '');
+				}
+				$tpl->assign('selected_tab', $selected_tab);
+				
+				$tab_manifests = DevblocksPlatform::getExtensions(Extension_DatacenterTab::POINT, false);
 				uasort($tab_manifests, create_function('$a, $b', "return strcasecmp(\$a->name,\$b->name);\n"));
 				$tpl->assign('tab_manifests', $tab_manifests);
 				
@@ -86,10 +95,13 @@ class Page_Datacenter extends CerberusPageExtension {
 	function showTabAction() {
 		@$ext_id = DevblocksPlatform::importGPC($_REQUEST['ext_id'],'string','');
 		
+		$visit = CerberusApplication::getVisit();
+		
 		if(null != ($tab_mft = DevblocksPlatform::getExtension($ext_id)) 
 			&& null != ($inst = $tab_mft->createInstance()) 
 			&& $inst instanceof Extension_DatacenterTab) {
-			$inst->showTab();
+				$visit->set(Extension_DatacenterTab::POINT, $inst->manifest->params['uri']);
+				$inst->showTab();
 		}
 	}
 		
@@ -98,9 +110,12 @@ class Page_Datacenter extends CerberusPageExtension {
 		@$ext_id = DevblocksPlatform::importGPC($_REQUEST['ext_id'],'string','');
 		@$server_id = DevblocksPlatform::importGPC($_REQUEST['server_id'],'integer',0);
 		
+		$visit = CerberusApplication::getVisit();
+		
 		if(null != ($tab_mft = DevblocksPlatform::getExtension($ext_id)) 
 			&& null != ($inst = $tab_mft->createInstance()) 
 			&& $inst instanceof Extension_ServerTab) {
+				$visit->set(Extension_ServerTab::POINT, $inst->manifest->params['uri']);
 				$server = DAO_Server::get($server_id);
 				$inst->showTab($server);
 		}
