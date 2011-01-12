@@ -1148,6 +1148,9 @@ class ChTicketsPage extends CerberusPageExtension {
 		// Translate email to group id
 		if(is_array($group_settings))
 		foreach($group_settings as $settings_group_id => $settings) {
+			if(!is_array($settings) || !isset($settings[DAO_GroupSettings::SETTING_REPLY_FROM]))
+				continue;
+				
 			if(0==strcasecmp($settings[DAO_GroupSettings::SETTING_REPLY_FROM], $email)) {
 				$group_id = $settings_group_id;
 				break;
