@@ -879,17 +879,30 @@ class ChInternalController extends DevblocksControllerExtension {
 		@$point = DevblocksPlatform::importGPC($_REQUEST['point'],'string', '');
 		@$workspace_ids = DevblocksPlatform::importGPC($_REQUEST['workspace_ids'],'array', array());
 		@$new_workspace = DevblocksPlatform::importGPC($_REQUEST['new_workspace'],'string', '');
+		@$point = DevblocksPlatform::importGPC($_REQUEST['point'],'string', '');
 		@$request = DevblocksPlatform::importGPC($_REQUEST['request'],'string', '');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
+		$visit = CerberusApplication::getVisit();
+		$is_focused_tab = false;
 
-		// Are we adding a new workspace?
-		if(!empty($new_workspace)) {
-			$fields = array(
-				DAO_Workspace::NAME => $new_workspace,
-				DAO_Workspace::WORKER_ID => $active_worker->id,
-			);
-			$workspace_ids[] = DAO_Workspace::create($fields);
+		// Are we adding any new workspaces?
+		foreach($workspace_ids as $idx => $workspace_id) {
+			// Insert and replace the $id
+			if(!is_numeric($workspace_id)) {
+				$fields = array(
+					DAO_Workspace::NAME => $workspace_id,
+					DAO_Workspace::WORKER_ID => $active_worker->id,
+				);
+				$workspace_id = DAO_Workspace::create($fields);
+				$workspace_ids[$idx] = $workspace_id;
+			}
+			
+			// Only focus the first new tab we add
+			if(!empty($point) && !$is_focused_tab) {
+				$visit->set($point, 'w_' . $workspace_id);
+				$is_focused_tab = true;
+			}
 		}
 		
 		// Replace links for this endpoint

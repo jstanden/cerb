@@ -3,14 +3,21 @@
 <input type="hidden" name="a" value="doAddTab">
 <input type="hidden" name="point" value="{$point}">
 <input type="hidden" name="request" value="{$request}">
+
 <fieldset>
-	<legend>Add Existing Workspaces</legend>
+	<legend>Visible Workspaces</legend>
 	
-	<ul style="list-style:none;margin:0px;padding-left:0px;">
+	<div style="margin-bottom:5px;">
+		<b>Create new workspace:</b>
+		<input type="text" name="new_workspace" value="" size="45">
+		<button type="button" class="add" onclick="">+</button>
+	</div>
+	
+	<ul style="list-style:none;margin:0px;padding-left:0px;" class="container">
 	{foreach from=$workspaces item=workspace}
-		<li class="drag" style="padding-bottom:5px;">
-			<span class="ui-icon ui-icon-arrowthick-2-n-s" style="display:inline-block;vertical-align:middle;"></span>
-			<label><input type="checkbox" name="workspace_ids[]" value="{$workspace->id}" {if $enabled_workspaces.{$workspace->id}}checked="checked"{/if}> <b>{$workspace->name}</b></label>
+		<li class="drag" style="padding-bottom:5px;"><!--
+			--><span class="ui-icon ui-icon-arrowthick-2-n-s" style="display:inline-block;vertical-align:middle;"></span><!--
+			--><label><input type="checkbox" name="workspace_ids[]" value="{$workspace->id}" {if $enabled_workspaces.{$workspace->id}}checked="checked"{/if}> <b>{$workspace->name}</b></label>
 	
 			{$worklists = $workspace->getWorklists()}
 			{if !empty($worklists)}
@@ -25,16 +32,22 @@
 	</ul>
 </fieldset>
 
-<fieldset>
-	<legend>Create Workspace</legend>
-	
-	<b>{'common.name'|devblocks_translate|capitalize}:</b><br>
-	<input type="text" name="new_workspace" value="" size="45"><br>
-</fieldset>
-
 <button type="submit"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')}</button>
 </form>
 
 <script type="text/javascript">
 	$('#frmAddTabs UL').sortable({ items: 'LI.drag', placeholder:'ui-state-highlight' });
+	
+	$('#frmAddTabs button.add').click(function() {
+		$frm = $(this.form);
+		$container = $frm.find('UL.container').first();
+		$text = $(this).siblings('input:text');
+		
+		$new_li = $('<li class="drag" style="padding-bottom:5px;"></li>');
+		$('<span class="ui-icon ui-icon-arrowthick-2-n-s" style="display:inline-block;vertical-align:middle;"></span>').appendTo($new_li);
+		$('<label><input type="checkbox" name="workspace_ids[]" value="'+$text.val()+'" checked="checked"> <b>'+$text.val()+'</b></label>').appendTo($new_li);
+		
+		$new_li.prependTo($container);
+		$text.val('').focus();
+	});
 </script>
