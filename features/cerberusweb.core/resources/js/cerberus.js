@@ -371,6 +371,9 @@ var cAjaxCalls = function() {
 		if(null == options.minLength)
 			options.minLength = 2;
 		
+		if(null == options.selectFirst)
+			options.selectFirst = true;
+		
 		if(null != options.multiple && options.multiple) {
 			options.source = function (request, response) {
 				// From the last comma (if exists)
@@ -392,7 +395,6 @@ var cAjaxCalls = function() {
 					}
 				});
 			}
-			
 			options.select = function(event, ui) {
 				var value = $(this).val();
 				var pos = value.lastIndexOf(',');
@@ -423,6 +425,9 @@ var cAjaxCalls = function() {
 		
 		if(null == options.minLength)
 			options.minLength = 1;
+		
+		if(null == options.selectFirst)
+			options.selectFirst = true;
 
 		$(sel).autocomplete(options);
 	}
@@ -435,6 +440,9 @@ var cAjaxCalls = function() {
 		if(null == options.minLength)
 			options.minLength = 1;
 
+		if(null == options.selectFirst)
+			options.selectFirst = true;
+		
 		$(sel).autocomplete(options);
 	}
 
@@ -489,6 +497,7 @@ var cAjaxCalls = function() {
 				focus:function(event, ui) {
 					return false;
 				},
+				selectFirst: true,
 				select:function(event, ui) {
 					$this = $(this);
 					$label = ui.item.label;
@@ -505,7 +514,6 @@ var cAjaxCalls = function() {
 					}
 					
 					$this.val('');
-					
 					return false;
 				}
 			});
