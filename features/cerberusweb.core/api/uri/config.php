@@ -65,10 +65,10 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	
 	function render() {
 		$translate = DevblocksPlatform::getTranslationService();
-		
 		$tpl = DevblocksPlatform::getTemplateService();
-
 		$worker = CerberusApplication::getActiveWorker();
+		$visit = CerberusApplication::getVisit();
+		
 		if(!$worker || !$worker->is_superuser) {
 			echo $translate->_('common.access_denied');
 			return;
@@ -78,7 +78,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 			$tpl->assign('install_dir_warning', true);
 		}
 		
-		$tab_manifests = DevblocksPlatform::getExtensions('cerberusweb.config.tab', false);
+		$tab_manifests = DevblocksPlatform::getExtensions(Extension_ConfigTab::POINT, false);
 		uasort($tab_manifests, create_function('$a, $b', "return strcasecmp(\$a->name,\$b->name);\n"));
 		$tpl->assign('tab_manifests', $tab_manifests);
 		
@@ -86,8 +86,12 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		$response = DevblocksPlatform::getHttpResponse();
 		$stack = $response->path;
 		array_shift($stack); // config
-		$tab_selected = array_shift($stack);
-		$tpl->assign('tab_selected', $tab_selected);
+		
+		// Remember the last tab/URL
+		if(null == ($selected_tab = @$response->path[1])) {
+			$selected_tab = $visit->get(Extension_ConfigTab::POINT, '');
+		}
+		$tpl->assign('selected_tab', $selected_tab);
 		
 		// [TODO] check showTab* hooks for active_worker->is_superuser (no ajax bypass)
 		
@@ -98,10 +102,13 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	function showTabAction() {
 		@$ext_id = DevblocksPlatform::importGPC($_REQUEST['ext_id'],'string','');
 		
+		$visit = CerberusApplication::getVisit();
+		
 		if(null != ($tab_mft = DevblocksPlatform::getExtension($ext_id)) 
 			&& null != ($inst = $tab_mft->createInstance()) 
 			&& $inst instanceof Extension_ConfigTab) {
-			$inst->showTab();
+				$visit->set(Extension_ConfigTab::POINT, $inst->manifest->params['uri']);
+				$inst->showTab();
 		}
 	}
 	
@@ -112,7 +119,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		if(null != ($tab_mft = DevblocksPlatform::getExtension($ext_id)) 
 			&& null != ($inst = $tab_mft->createInstance()) 
 			&& $inst instanceof Extension_ConfigTab) {
-			$inst->saveTab();
+				$inst->saveTab();
 		}
 	}
 	
@@ -137,11 +144,18 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	// Ajax
 	function showTabSettingsAction() {
 		$tpl = DevblocksPlatform::getTemplateService();
+		$visit = CerberusApplication::getVisit();
+		
+		$visit->set(Extension_ConfigTab::POINT, 'settings');
+		
 		$tpl->display('devblocks:cerberusweb.core::configuration/tabs/settings/index.tpl');
 	}
 	
 	function showTabStorageAction() {
 		$tpl = DevblocksPlatform::getTemplateService();
+		$visit = CerberusApplication::getVisit();
+		
+		$visit->set(Extension_ConfigTab::POINT, 'storage');
 		
 		// Scope
 		
@@ -389,7 +403,10 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	// Ajax
 	function showTabAttachmentsAction() {
 		$tpl = DevblocksPlatform::getTemplateService();
-				
+		$visit = CerberusApplication::getVisit();
+		
+		$visit->set(Extension_ConfigTab::POINT, 'attachments');
+		
 		$defaults = new C4_AbstractViewModel();
 		$defaults->class_name = 'View_AttachmentLink';
 		$defaults->id = View_AttachmentLink::DEFAULT_ID;
@@ -468,6 +485,9 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	// Ajax
 	function showTabWorkersAction() {
 		$tpl = DevblocksPlatform::getTemplateService();
+		$visit = CerberusApplication::getVisit();
+		
+		$visit->set(Extension_ConfigTab::POINT, 'workers');
 				
 		$workers = DAO_Worker::getAllWithDisabled();
 		$tpl->assign('workers', $workers);
@@ -713,6 +733,9 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	// Ajax
 	function showTabGroupsAction() {
 		$tpl = DevblocksPlatform::getTemplateService();
+		$visit = CerberusApplication::getVisit();
+		
+		$visit->set(Extension_ConfigTab::POINT, 'groups');
 				
 		$workers = DAO_Worker::getAllActive();
 		$tpl->assign('workers', $workers);
@@ -726,9 +749,11 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	// Ajax
 	function showTabMailAction() {
 		$tpl = DevblocksPlatform::getTemplateService();
-				
+		$visit = CerberusApplication::getVisit();
 		$settings = DevblocksPlatform::getPluginSettingsService();
 		$mail_service = DevblocksPlatform::getMailService();
+		
+		$visit->set(Extension_ConfigTab::POINT, 'mail');
 		
 		$smtp_host = $settings->get('cerberusweb.core',CerberusSettings::SMTP_HOST,CerberusSettingsDefaults::SMTP_HOST);
 		$smtp_port = $settings->get('cerberusweb.core',CerberusSettings::SMTP_PORT,CerberusSettingsDefaults::SMTP_PORT);
@@ -933,7 +958,10 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	// Ajax
 	function showTabPreParserAction() {
 		$tpl = DevblocksPlatform::getTemplateService();
-				
+		$visit = CerberusApplication::getVisit();
+		
+		$visit->set(Extension_ConfigTab::POINT, 'preparser');
+		
 		$filters = DAO_PreParseRule::getAll(true);
 		$tpl->assign('filters', $filters);
 		
@@ -979,6 +1007,9 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	
 	function showTabQueueAction() {
 		$tpl = DevblocksPlatform::getTemplateService();
+		$visit = CerberusApplication::getVisit();
+		
+		$visit->set(Extension_ConfigTab::POINT, 'queue');
 		
 		$defaults = new C4_AbstractViewModel();
 		$defaults->id = 'config_mail_queue';
@@ -1266,6 +1297,9 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	// Ajax
 	function showTabParserAction() {
 		$tpl = DevblocksPlatform::getTemplateService();
+		$visit = CerberusApplication::getVisit();
+		
+		$visit->set(Extension_ConfigTab::POINT, 'parser');
 		
 		$rules = DAO_MailToGroupRule::getWhere();
 		$tpl->assign('rules', $rules);
@@ -1289,6 +1323,9 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	// Ajax
 	function showTabFieldsAction() {
 		$tpl = DevblocksPlatform::getTemplateService();
+		$visit = CerberusApplication::getVisit();
+		
+		$visit->set(Extension_ConfigTab::POINT, 'fields');
 				
 		$tpl->assign('context_manifests', DAO_CustomField::getContexts());
 		
@@ -1298,7 +1335,10 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	// Ajax
 	function showTabPluginsAction() {
 		$tpl = DevblocksPlatform::getTemplateService();
-				
+		$visit = CerberusApplication::getVisit();
+		
+		$visit->set(Extension_ConfigTab::POINT, 'plugins');
+		
 		// Auto synchronize when viewing Config->Extensions
         DevblocksPlatform::readPlugins();
 
@@ -1316,8 +1356,10 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	// Ajax
 	function showTabPermissionsAction() {
 		$settings = DevblocksPlatform::getPluginSettingsService();
-		
 		$tpl = DevblocksPlatform::getTemplateService();
+		$visit = CerberusApplication::getVisit();
+		
+		$visit->set(Extension_ConfigTab::POINT, 'acl');
 				
 		$plugins = DevblocksPlatform::getPluginRegistry();
 		$tpl->assign('plugins', $plugins);
@@ -1434,7 +1476,10 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	// Ajax
 	function showTabSchedulerAction() {
 		$tpl = DevblocksPlatform::getTemplateService();
-				
+		$visit = CerberusApplication::getVisit();
+		
+		$visit->set(Extension_ConfigTab::POINT, 'scheduler');
+		
 	    $jobs = DevblocksPlatform::getExtensions('cerberusweb.cron', true);
 		$tpl->assign('jobs', $jobs);
 		

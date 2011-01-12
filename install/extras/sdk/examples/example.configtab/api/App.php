@@ -55,7 +55,7 @@ class ExConfigTab extends Extension_ConfigTab {
 		
 		// Remember the tab
 		$visit = CerberusApplication::getVisit();
-		$visit->set(CerberusVisit::KEY_ACTIVITY_TAB, 'example');
+		$visit->set(Extension_ConfigTab::POINT, 'example');
 		
 		$tpl = DevblocksPlatform::getTemplateService();		
 		$tpl->display('devblocks:example.configtab::index.tpl');		
