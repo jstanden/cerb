@@ -159,6 +159,9 @@
 		<tu tuid='common.edit'>
 			<tuv xml:lang="en_US"><seg>edit</seg></tuv>
 		</tu>
+		<tu tuid='common.explore'>
+			<tuv xml:lang="en_US"><seg>explore</seg></tuv>
+		</tu>
 		<tu tuid='common.export'>
 			<tuv xml:lang="en_US"><seg>export</seg></tuv>
 		</tu>

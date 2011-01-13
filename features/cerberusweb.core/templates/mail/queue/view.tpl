@@ -6,7 +6,7 @@
 	<tr>
 		<td nowrap="nowrap"><span class="title">{$view->name}</span></td>
 		<td nowrap="nowrap" align="right">
-			 <a href="javascript:;" onclick="$('#btnExplore{$view->id}').click();">explore</a>
+			 <a href="javascript:;" onclick="$('#btnExplore{$view->id}').click();">{'common.explore'|devblocks_translate|lower}</a>
 			 | <a href="javascript:;" onclick="genericAjaxGet('customize{$view->id}','c=internal&a=viewCustomize&id={$view->id}');toggleDiv('customize{$view->id}','block');">{$translate->_('common.customize')|lower}</a>
 			 | <a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewRefresh&id={$view->id}');">{$translate->_('common.refresh')|lower}</a>
 		</td>
