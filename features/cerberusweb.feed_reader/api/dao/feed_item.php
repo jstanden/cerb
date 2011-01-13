@@ -407,7 +407,6 @@ class View_FeedItem extends C4_AbstractView {
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__string.tpl');
 				break;
 			case SearchFields_FeedItem::ID:
-			case SearchFields_FeedItem::FEED_ID:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__number.tpl');
 				break;
 			case SearchFields_FeedItem::IS_CLOSED:
@@ -418,6 +417,11 @@ class View_FeedItem extends C4_AbstractView {
 				break;
 			case SearchFields_FeedItem::VIRTUAL_WORKERS:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context_worker.tpl');
+				break;
+			case SearchFields_FeedItem::FEED_ID:
+				$feeds = DAO_Feed::getWhere();
+				$tpl->assign('feeds', $feeds);
+				$tpl->display('devblocks:cerberusweb.feed_reader::feeds/item/filter/feed.tpl');
 				break;
 			default:
 				// Custom Fields
@@ -435,6 +439,25 @@ class View_FeedItem extends C4_AbstractView {
 		$values = !is_array($param->value) ? array($param->value) : $param->value;
 
 		switch($field) {
+			case SearchFields_FeedItem::FEED_ID:
+				$feeds = DAO_Feed::getWhere();
+				$strings = array();
+
+				if(empty($values)) {
+					echo "(blank)";
+					break;
+				}
+				
+				foreach($values as $val) {
+					if(empty($val))
+						$strings[] = "";
+					elseif(!isset($feeds[$val]))
+						continue;
+					else
+						$strings[] = $feeds[$val]->name;
+				}
+				echo implode(", ", $strings);
+				break;			
 			default:
 				parent::renderCriteriaParam($param);
 				break;
@@ -461,7 +484,6 @@ class View_FeedItem extends C4_AbstractView {
 				$criteria = new DevblocksSearchCriteria($field, $oper, $value);
 				break;
 			case SearchFields_FeedItem::ID:
-			case SearchFields_FeedItem::FEED_ID:
 				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
 				break;
 				
@@ -483,6 +505,11 @@ class View_FeedItem extends C4_AbstractView {
 			case SearchFields_FeedItem::VIRTUAL_WORKERS:
 				@$worker_ids = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',array());
 				$criteria = new DevblocksSearchCriteria($field,'in', $worker_ids);
+				break;
+				
+			case SearchFields_FeedItem::FEED_ID:
+				@$feed_ids = DevblocksPlatform::importGPC($_REQUEST['feed_id'],'array',array());
+				$criteria = new DevblocksSearchCriteria($field,$oper,$feed_ids);
 				break;
 				
 			default:
