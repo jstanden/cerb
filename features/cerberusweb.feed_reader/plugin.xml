@@ -137,6 +137,19 @@
 				<param key="menutitle" value="" />
 			</params>
 		</extension>
+		
+		<!-- Explorer Toolbars -->
+		
+		<extension point="cerberusweb.explorer.toolbar">
+			<id>cerberusweb.feed_reader.item.explore.toolbar</id>
+			<name>Feed Item Toolbar</name>
+			<class>
+				<file>api/App.php</file>
+				<name>ExplorerToolbar_FeedReaderItem</name>
+			</class>
+			<params>
+			</params>
+		</extension>		
 	
 	</extensions>
 </plugin>

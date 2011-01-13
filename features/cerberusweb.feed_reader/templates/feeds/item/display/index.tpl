@@ -51,7 +51,7 @@
 		var tabs = $("#feedItemTabs").tabs( { selected:{$tab_selected_idx} } );
 		
 		$('#btnDisplayFeedItemEdit').bind('click', function() {
-			$popup = genericAjaxPopup('peek','c=feeds&a=showItemPopup&id={$item->id}',null,false,'550');
+			$popup = genericAjaxPopup('peek','c=feeds&a=showFeedItemPopup&id={$item->id}',null,false,'550');
 			$popup.one('feeditem_save', function(event) {
 				event.stopPropagation();
 				document.location.href = '{devblocks_url}c=feeds&i=item&id={$item->id}{/devblocks_url}';

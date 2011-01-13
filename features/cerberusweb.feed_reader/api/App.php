@@ -426,7 +426,7 @@ class Page_Feeds extends CerberusPageExtension {
 //					'worker_id' => $active_worker->id,
 					'total' => $total,
 					'return_url' => isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : $url_writer->write('c=activity&tab=feeds', true),
-//					'toolbar_extension_id' => 'cerberusweb.explorer.toolbar.',
+					'toolbar_extension_id' => 'cerberusweb.feed_reader.item.explore.toolbar',
 				);
 				$models[] = $model; 
 				
@@ -444,6 +444,7 @@ class Page_Feeds extends CerberusPageExtension {
 				$model->params = array(
 					'id' => $row[SearchFields_FeedItem::ID],
 					'url' => $row[SearchFields_FeedItem::URL],
+					'is_closed' => $row[SearchFields_FeedItem::IS_CLOSED],
 				);
 				$models[] = $model; 
 			}
@@ -457,6 +458,18 @@ class Page_Feeds extends CerberusPageExtension {
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('explore',$hash,$orig_pos)));
 	}	
 
+	function exploreItemStatusAction() {
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'integer', 0);
+		@$is_closed = DevblocksPlatform::importGPC($_REQUEST['is_closed'], 'integer', 0);
+		
+		if(empty($id))
+			return;
+		
+		DAO_FeedItem::update($id, array(
+			DAO_FeedItem::IS_CLOSED => ($is_closed) ? 1 : 0,
+		));
+	}
+	
 	function showFeedsManagerPopupAction() {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'], 'string', '');
 
@@ -510,5 +523,12 @@ class Page_Feeds extends CerberusPageExtension {
 			}
 		}
 	}
-	
+};
+
+class ExplorerToolbar_FeedReaderItem extends Extension_ExplorerToolbar {
+	function render(Model_ExplorerSet $item) {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('item', $item);
+		$tpl->display('devblocks:cerberusweb.feed_reader::feeds/item/explorer_toolbar.tpl');
+	}
 };
