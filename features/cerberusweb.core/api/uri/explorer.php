@@ -65,7 +65,17 @@ class ChExplorerController extends DevblocksControllerExtension {
 	 */
 	function handleRequest(DevblocksHttpRequest $request) {
 		$worker = CerberusApplication::getActiveWorker();
-		if(empty($worker)) return;
+		
+		if(empty($worker)) {
+			$query = array();
+			// Must be a valid page controller
+			if(!empty($request->path)) {
+				if(is_array($request->path) && !empty($request->path))
+					$query = array('url'=> urlencode(implode('/',$request->path)));
+			}
+			DevblocksPlatform::redirect(new DevblocksHttpRequest(array('login'),$query));
+			exit;
+		}
 		
 		$stack = $request->path;
 		array_shift($stack); // explorer
@@ -89,6 +99,12 @@ class ChExplorerController extends DevblocksControllerExtension {
 	function writeResponse(DevblocksHttpResponse $response) {
 		$tpl = DevblocksPlatform::getTemplateService();
 
+		$worker = CerberusApplication::getActiveWorker();
+		if(empty($worker)) {
+			DevblocksPlatform::redirect(new DevblocksHttpResponse(array('login')));
+			exit;
+		}
+		
 		$stack = $response->path;
 		array_shift($stack); // explorer
 		$hashset = array_shift($stack); // set

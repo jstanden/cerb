@@ -63,7 +63,7 @@ class DefaultLoginModule extends Extension_LoginAuthenticator {
 		
 		// Must be a valid page controller
 		@$redir_path = explode('/',urldecode(DevblocksPlatform::importGPC($_REQUEST["url"],"string","")));
-		if(is_array($redir_path) && isset($redir_path[0]) && CerberusApplication::getPageManifestByUri($redir_path[0]))
+		if(is_array($redir_path) && isset($redir_path[0]) && ($redir_path[0]=='explore' || CerberusApplication::getPageManifestByUri($redir_path[0])))
 			$tpl->assign('original_path', implode('/',$redir_path));
 		
 		switch(array_shift($stack)) {
