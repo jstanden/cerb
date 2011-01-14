@@ -2,7 +2,7 @@
 <plugin>
 	<id>cerberusweb.kb</id>
 	<name>[Cerb5] Knowledgebase</name>
-	<description>((Knowledgebase))</description>
+	<description>Create and categorize articles to share knowledge between workers or your community.</description>
 	<author>WebGroup Media, LLC.</author>
 	<revision>0</revision>
 	<link>http://wiki.cerb5.com/wiki/Features:Knowledgebase</link>
