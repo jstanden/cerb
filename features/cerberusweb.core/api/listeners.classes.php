@@ -597,7 +597,8 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 		@$group_id = $model[DAO_Ticket::TEAM_ID];
 
 		// Make sure the current group has an auto-close reply
-		if(!isset($group_settings[$group_id][DAO_GroupSettings::SETTING_CLOSE_REPLY_ENABLED]))
+		if(!isset($group_settings[$group_id][DAO_GroupSettings::SETTING_CLOSE_REPLY_ENABLED])
+			|| empty($group_settings[$group_id][DAO_GroupSettings::SETTING_CLOSE_REPLY_ENABLED]))
 			return;
 
 		// If the template doesn't exist or is empty
