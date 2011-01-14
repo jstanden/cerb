@@ -160,7 +160,7 @@ class ChGroupsPage extends CerberusPageExtension  {
 		$tpl->assign('workers', $workers);
 
 		// Custom Field Sources
-		$tpl->assign('context_manifests', DAO_CustomField::getContexts());
+		$tpl->assign('context_manifests', Extension_DevblocksContext::getAll());
 		
 		// Custom Fields
 		$custom_fields =  DAO_CustomField::getAll();

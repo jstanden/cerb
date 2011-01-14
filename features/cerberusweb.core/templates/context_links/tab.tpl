@@ -1,5 +1,4 @@
-{$contexts = DevblocksPlatform::getExtensions('devblocks.context', false)}
-{$null = asort($contexts)}
+{$contexts = Extension_DevblocksContext::getAll(false)}
 
 <form action="{devblocks_url}{/devblocks_url}" method="POST" style="margin-bottom:10px;">
 	<select onchange="chooserOpen(this);">

@@ -126,7 +126,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		
 		// Contexts
 		
-		$context_extensions = DevblocksPlatform::getExtensions('devblocks.context', false);
+		$context_extensions = Extension_DevblocksContext::getAll();
 		$tpl->assign('context_extensions', $context_extensions);
 		
 		// Context Links
@@ -647,7 +647,7 @@ class ChInternalController extends DevblocksControllerExtension {
 			$list_title = $translate->_('mail.workspaces.new_list');
 			
 		// Find the context
-		$contexts = DevblocksPlatform::getExtensions('devblocks.context', false);
+		$contexts = Extension_DevblocksContext::getAll();
 		$workspace_context = '';
 		$view_class = get_class($view);
 		foreach($contexts as $context_id => $context) {
@@ -1064,8 +1064,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		$tpl->assign('worklists', $worklists);
 		
 		// Contexts
-		$contexts = DevblocksPlatform::getExtensions('devblocks.context', false);
-		uasort($contexts, create_function('$a, $b', "return strcasecmp(\$a->name,\$b->name);\n"));
+		$contexts = Extension_DevblocksContext::getAll();
 		$tpl->assign('contexts', $contexts);		
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/edit_workspace_panel.tpl');

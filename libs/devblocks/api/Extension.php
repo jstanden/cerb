@@ -41,6 +41,15 @@ class DevblocksExtension {
 };
 
 abstract class Extension_DevblocksContext extends DevblocksExtension {
+	public static function getAll($as_instances=false) {
+		$contexts = DevblocksPlatform::getExtensions('devblocks.context', $as_instances);
+		if($as_instances)
+			uasort($contexts, create_function('$a, $b', "return strcasecmp(\$a->manifest->name,\$b->manifest->name);\n"));
+		else
+			uasort($contexts, create_function('$a, $b', "return strcasecmp(\$a->name,\$b->name);\n"));
+		return $contexts;
+	}
+	
    	function authorize($context_id) {
 		return true;
 	}

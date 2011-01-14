@@ -963,15 +963,6 @@ class DAO_CustomField extends DevblocksORMHelper {
 		return null;
 	}
 	
-	static function getContexts($as_instances=false) {
-		$context_manifests = DevblocksPlatform::getExtensions('devblocks.context', $as_instances);
-		if($as_instances)
-			uasort($context_manifests, create_function('$a, $b', "return strcasecmp(\$a->manifest->name,\$b->manifest->name);\n"));
-		else
-			uasort($context_manifests, create_function('$a, $b', "return strcasecmp(\$a->name,\$b->name);\n"));
-		return $context_manifests;
-	}
-	
 	static function getByContextAndGroupId($context, $group_id) {
 		$fields = self::getAll();
 

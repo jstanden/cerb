@@ -710,6 +710,10 @@ class View_AttachmentLink extends C4_AbstractView {
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
 
+		// Contexts
+		$contexts = Extension_DevblocksContext::getAll();
+		$tpl->assign('contexts', $contexts);
+		
 		// [TODO] Move
 		$tpl->display('devblocks:cerberusweb.core::configuration/tabs/attachments/view.tpl');
 	}
@@ -736,6 +740,10 @@ class View_AttachmentLink extends C4_AbstractView {
 			case SearchFields_AttachmentLink::ATTACHMENT_UPDATED:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__date.tpl');
 				break;
+			case SearchFields_AttachmentLink::LINK_CONTEXT:
+				$tpl->assign('contexts', Extension_DevblocksContext::getAll());
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context.tpl');
+				break;
 			default:
 				echo '';
 				break;
@@ -747,6 +755,17 @@ class View_AttachmentLink extends C4_AbstractView {
 		$values = !is_array($param->value) ? array($param->value) : $param->value;
 
 		switch($field) {
+			case SearchFields_AttachmentLink::LINK_CONTEXT:
+				$contexts = Extension_DevblocksContext::getAll();
+				$strings = array();
+				foreach($values as $v) {
+					if(isset($contexts[$v]))
+						$strings[] = $contexts[$v]->name;
+				}
+				if(!empty($strings))
+					echo implode(', ', $strings);
+				break;
+				
 			default:
 				parent::renderCriteriaParam($param);
 				break;
@@ -791,6 +810,11 @@ class View_AttachmentLink extends C4_AbstractView {
 			case 'placeholder_bool':
 				@$bool = DevblocksPlatform::importGPC($_REQUEST['bool'],'integer',1);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
+				break;
+				
+			case SearchFields_AttachmentLink::LINK_CONTEXT:
+				@$contexts = DevblocksPlatform::importGPC($_REQUEST['contexts'],'array',array());
+				$criteria = new DevblocksSearchCriteria($field,$oper,$contexts);
 				break;
 		}
 
