@@ -64,6 +64,12 @@
 			<td>{$result.a_storage_size|devblocks_prettybytes}&nbsp;</td>
 			{elseif $column=="a_updated"}
 			<td title="{$result.a_updated|devblocks_date}">{$result.a_updated|devblocks_prettytime}&nbsp;</td>
+			{elseif $column=="al_context"}
+			<td>
+				{if isset($contexts.{$result.$column})}
+					{$contexts.{$result.$column}->name}
+				{/if}
+			</td>
 			{else}
 			<td>{$result.$column}</td>
 			{/if}
