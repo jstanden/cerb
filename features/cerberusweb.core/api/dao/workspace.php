@@ -81,6 +81,9 @@ class DAO_Workspace extends C4_ORMHelper {
 	}
 	
 	static function setEndpointWorkspaces($endpoint, $worker_id, $workspace_ids) {
+		if(!is_array($workspace_ids))
+			$workspace_ids = array($workspace_ids);
+		
 		$db = DevblocksPlatform::getDatabaseService();
 
 		// Clear existing workspaces on this endpoint for this worker

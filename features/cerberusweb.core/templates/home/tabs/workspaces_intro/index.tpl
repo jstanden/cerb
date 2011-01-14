@@ -40,7 +40,7 @@
 				<form action="{devblocks_url}{/devblocks_url}" method="POST">
 				<input type="hidden" name="c" value="home">
 				<input type="hidden" name="a" value="doWorkspaceInit">
-				<button type="submit"><span class="cerb-sprite sprite-add"></span> Create a 'My Work' workspace</button>
+				<button type="submit"><span class="cerb-sprite sprite-add"></span> Create your first workspace</button>
 				</form>
 			</blockquote>
 		</td>
