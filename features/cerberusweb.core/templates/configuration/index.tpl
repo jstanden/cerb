@@ -2,8 +2,6 @@
 </ul>
 <div style="clear:both;"></div>
 
-<h1>{$translate->_('header.config')|capitalize}</h1>
-
 {if $install_dir_warning}
 <div class="ui-widget">
 	<div class="ui-state-error ui-corner-all" style="padding: 0 .7em; margin: 0.2em; "> 
