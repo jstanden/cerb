@@ -59,12 +59,12 @@
 			<br>
 
 			<b>Attachments:</b><br>
-			<label><input type="checkbox" name="attachments_enabled" value="1" {if $settings->get('cerberusweb.core','attachments_enabled')}checked{/if}> Allow Incoming Attachments</label><br>
+			<label><input type="checkbox" name="attachments_enabled" value="1" {if $settings->get('cerberusweb.core','attachments_enabled',CerberusSettingsDefaults::ATTACHMENTS_ENABLED)}checked{/if}> Allow Incoming Attachments</label><br>
 			<br>
 			
 			<div style="padding-left:10px;">
 				<b>Maximum Attachment Size:</b><br>
-				<input type="text" name="attachments_max_size" value="{$settings->get('cerberusweb.core','attachments_max_size')}" size="5"> MB<br>
+				<input type="text" name="attachments_max_size" value="{$settings->get('cerberusweb.core','attachments_max_size',CerberusSettingsDefaults::ATTACHMENTS_MAX_SIZE)}" size="5"> MB<br>
 				<i>(attachments larger than this will be ignored)</i><br>
 				<br>
 			</div>

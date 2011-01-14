@@ -29,7 +29,7 @@
 	<br>
 	<b>Allow remote administration tools (upgrade, cron) from these IPs:</b> (one IP per line)
 	<br>
-	<textarea name="authorized_ips" rows="5" cols="24" style="width: 400;">{$settings->get('cerberusweb.core','authorized_ips')}</textarea>	
+	<textarea name="authorized_ips" rows="5" cols="24" style="width: 400;">{$settings->get('cerberusweb.core','authorized_ips',CerberusSettingsDefaults::AUTHORIZED_IPS)}</textarea>	
 	<br>
 	(Partial IP matches OK. For example: 192.168.1.)<br>
 	<br>

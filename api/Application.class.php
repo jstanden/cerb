@@ -1348,7 +1348,7 @@ class CerberusSettingsDefaults {
 	const ATTACHMENTS_MAX_SIZE = 10; 
 	const PARSER_AUTO_REQ = 0; 
 	const PARSER_AUTO_REQ_EXCLUDE = ''; 
-	const AUTHORIZED_IPS = '';
+	const AUTHORIZED_IPS = "127.0.0.1\n::1\n";
 	const ACL_ENABLED = 0;
 };
 
