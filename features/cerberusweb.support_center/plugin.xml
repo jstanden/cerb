@@ -56,22 +56,35 @@
 		<template path="support_center/footer.tpl" />
 		<template path="support_center/style.css.tpl" />
 		<template path="support_center/user_styles.css.tpl" />
-		<template path="support_center/account/index.tpl" />
+		<template path="support_center/account/sidebar_menu.tpl" />
+		<template path="support_center/account/delete/index.tpl" />
+		<template path="support_center/account/email/confirm.tpl" />
+		<template path="support_center/account/email/display.tpl" />
+		<template path="support_center/account/email/index.tpl" />
+		<template path="support_center/account/openid/display.tpl" />
+		<template path="support_center/account/openid/index.tpl" />
+		<template path="support_center/account/password/index.tpl" />
+		<template path="support_center/account/sharing/index.tpl" />
 		<template path="support_center/announcements/index.tpl" />
 		<template path="support_center/contact/confirm.tpl" />
 		<template path="support_center/contact/step1.tpl" />
 		<template path="support_center/contact/step2.tpl" />
 		<template path="support_center/history/display.tpl" />
 		<template path="support_center/history/index.tpl" />
-		<template path="support_center/history/search_results.tpl" />
 		<template path="support_center/history/view.tpl" />
 		<template path="support_center/home/index.tpl" />
-		<template path="support_center/login/default/login_form.tpl" />
-		<template path="support_center/login/openid/login_form.tpl" />
-		<template path="support_center/register/index.tpl" />
-		<template path="support_center/register/forgot.tpl" />
-		<template path="support_center/register/forgot_confirm.tpl" />
-		<template path="support_center/register/confirm.tpl" />
+		<template path="support_center/internal/view/view_filters.tpl" />
+		<template path="support_center/login/default/forgot_confirm.tpl" />
+		<template path="support_center/login/default/forgot.tpl" />
+		<template path="support_center/login/default/login.tpl" />
+		<template path="support_center/login/default/register_confirm.tpl" />
+		<template path="support_center/login/default/register.tpl" />
+		<template path="support_center/login/openid/forgot_confirm.tpl" />
+		<template path="support_center/login/openid/forgot.tpl" />
+		<template path="support_center/login/openid/login.tpl" />
+		<template path="support_center/login/openid/register_confirm.tpl" />
+		<template path="support_center/login/openid/register.tpl" />
+		<template path="support_center/login/switcher.tpl" />
 	</templates>
 
 	<!-- Extensions -->
