@@ -25,6 +25,11 @@ if(!isset($tables['attachment_link'])) {
 	$tables['attachment_link'] = 'attachment_link';
 }
 
+list($columns, $indexes) = $db->metaTable('attachment_link');
+
+if(!isset($indexes['guid']))
+	$db->Execute("ALTER TABLE attachment_link ADD INDEX guid(guid(8))");
+
 // ===========================================================================
 // attachment
 
