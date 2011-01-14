@@ -282,7 +282,12 @@ class DevblocksPlatform extends DevblocksEngine {
 	
 	static function parseRss($url) {
 		// [TODO] curl | file_get_contents() support
-		// [TODO] rss://
+		
+		// Handle 'feed://' scheme
+		if(preg_match('/^feed\:/', $url)) {
+			$url = preg_replace("/^feed\:\/\//","http://", $url);
+			$url = preg_replace("/^feed\:/","", $url);
+		}
 		
 		if(null == (@$data = file_get_contents($url)))
 			return false;
