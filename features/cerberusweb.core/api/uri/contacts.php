@@ -72,10 +72,11 @@ class ChContactsPage extends CerberusPageExtension {
 		$stack = $response->path;
 
 		@array_shift($stack); // contacts
+		@$selected_tab = array_shift($stack);
 		
 		// Remember the last tab/URL
 		$visit = CerberusApplication::getVisit();
-		if(null == ($selected_tab = @$response->path[1])) {
+		if(null == $selected_tab) {
 			$selected_tab = $visit->get(Extension_AddressBookTab::POINT, '');
 		}
 		$tpl->assign('selected_tab', $selected_tab);
