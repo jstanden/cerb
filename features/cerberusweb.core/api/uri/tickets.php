@@ -777,7 +777,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		}
 		
 		$view->renderPage = 0;
-		$view->renderLimit = 25;
+		$view->renderLimit = 250;
 		$pos = 0;
 		
 		do {
@@ -852,7 +852,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		}
 		
 		$view->renderPage = 0;
-		$view->renderLimit = 25;
+		$view->renderLimit = 250;
 		$pos = 0;
 		
 		do {
