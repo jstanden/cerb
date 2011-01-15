@@ -1,6 +1,4 @@
-<form action="{devblocks_url}{/devblocks_url}" method="post" id="frmCopy{$view->id}">
-<input type="hidden" name="c" value="internal">
-<input type="hidden" name="a" value="viewDoCopy">
+<form action="{devblocks_url}{/devblocks_url}" method="post" id="frmCopy{$view->id}" onsubmit="return false;">
 <input type="hidden" name="view_id" value="{$view_id}">
 
 <H2>Copy Worklist</H2>
@@ -26,12 +24,13 @@ You can copy this worklist into your own workspaces, allowing you to put your fa
 <br>
 <br>
 
-<button type="submit"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')}</button>
+<button type="button" onclick="genericAjaxPost('frmCopy{$view->id}','view{$view->id}','c=internal&a=viewDoCopy');"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')}</button>
 <button type="button" onclick="toggleDiv('{$view_id}_tips','none');$('#{$view_id}_tips').html('');" style=""><span class="cerb-sprite sprite-delete"></span> Do nothing</button><br>
 </form>
 
 <script type="text/javascript">
-	$('#frmCopy{$view->id} SELECT[name=workspace_id]').change(function() {
+	$frm = $('#frmCopy{$view->id}');
+	$frm.find('SELECT[name=workspace_id]').change(function() {
 		if('' == $(this).val()) {
 			$(this).siblings('input:text[name=new_workspace]').show();
 		} else {

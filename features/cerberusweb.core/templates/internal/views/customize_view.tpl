@@ -71,7 +71,7 @@
 <br>
 {/if}
 
-<button type="button" onclick="this.form.a.value='viewSaveCustomize';genericAjaxPost('customize{$view->id}','view{$view->id}','c=internal');"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')|capitalize}</button>
+<button type="button" onclick="genericAjaxPost('customize{$view->id}','view{$view->id}','c=internal&a=viewSaveCustomize');"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')|capitalize}</button>
 <button type="button" onclick="toggleDiv('customize{$view->id}','none');"><span class="cerb-sprite sprite-delete"></span> {$translate->_('common.cancel')|capitalize}</button>
 
 <br>

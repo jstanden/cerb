@@ -610,7 +610,6 @@ class ChInternalController extends DevblocksControllerExtension {
         @$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
 
 		$active_worker = CerberusApplication::getActiveWorker();
-
 		$tpl = DevblocksPlatform::getTemplateService();
         
         $view = C4_AbstractViewLoader::getView($view_id);
@@ -624,6 +623,7 @@ class ChInternalController extends DevblocksControllerExtension {
         $tpl->display('devblocks:cerberusweb.core::internal/views/copy.tpl');
 	}
 	
+	// Ajax
 	function viewDoCopyAction() {
 		$translate = DevblocksPlatform::getTranslationService();
 		$active_worker = CerberusApplication::getActiveWorker();
@@ -679,8 +679,8 @@ class ChInternalController extends DevblocksControllerExtension {
 			DAO_WorkspaceList::LIST_POS => 99,
 		);
 		$list_id = DAO_WorkspaceList::create($fields);
-        
-		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('home')));
+		
+		$view->render();
 	}
 
 	function viewShowExportAction() {
@@ -816,7 +816,6 @@ class ChInternalController extends DevblocksControllerExtension {
 				}
 			}
 		}
-		
 		
 		$view = C4_AbstractViewLoader::getView($id);
 		$view->doCustomize($columns, $num_rows);
