@@ -63,7 +63,7 @@
 					{if isset($ticket_fields.$change_field)}
 						{$ticket_fields.$change_field->db_label|capitalize}
 					{else}
-						{$change_field}&nbsp;
+						{$translate->_($result.$column)}&nbsp;
 					{/if}
 				</td>
 			{elseif $column=="l_change_value"}
