@@ -1074,14 +1074,12 @@ class DAO_KbArticle extends C4_ORMHelper {
 			
 		$sort_sql = (!empty($sortBy) ? sprintf("ORDER BY %s %s ",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : " ");
 
-		$has_multiple_values = true;
-		
 		$result = array(
 			'primary_table' => 'kb',
 			'select' => $select_sql,
 			'join' => $join_sql,
 			'where' => $where_sql,
-			'has_multiple_values' => $has_multiple_values,
+			'has_multiple_values' => true,
 			'sort' => $sort_sql,
 		);
 		

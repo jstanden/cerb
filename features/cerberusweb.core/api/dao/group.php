@@ -415,14 +415,12 @@ class DAO_Group extends C4_ORMHelper {
 			
 		$sort_sql = (!empty($sortBy)) ? sprintf("ORDER BY %s %s ",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : " ";
 
-		$has_multiple_values = false;
-		
 		$result = array(
 			'primary_table' => 'g',
 			'select' => $select_sql,
 			'join' => $join_sql,
 			'where' => $where_sql,
-			'has_multiple_values' => $has_multiple_values,
+			'has_multiple_values' => false,
 			'sort' => $sort_sql,
 		);
 		

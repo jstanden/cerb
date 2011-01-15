@@ -121,7 +121,6 @@ class DAO_ContactList extends DevblocksORMHelper {
 		//	$select_sql,
 		//	$join_sql
 		//);
-		$has_multiple_values = false; // [TODO] Temporary when custom fields disabled
 				
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
@@ -133,7 +132,7 @@ class DAO_ContactList extends DevblocksORMHelper {
 			'select' => $select_sql,
 			'join' => $join_sql,
 			'where' => $where_sql,
-			'has_multiple_values' => $has_multiple_values,
+			'has_multiple_values' => false,
 			'sort' => $sort_sql,
 		);
 	}
