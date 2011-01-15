@@ -25,13 +25,14 @@
 {section start=0 step=1 loop=15 name=columns}
 {assign var=index value=$smarty.section.columns.index}
 <div class="column"> 
+<span class="ui-icon ui-icon-arrowthick-2-n-s" style="display:inline-block;vertical-align:middle;"></span>
 <select name="columns[]">
 	<option value=""></option>
 	
 	{foreach from=$columnsAvailable item=colAvail}
 		{if substr($colAvail->token,0,3) != "cf_"}
 			{if !empty($colAvail->db_label) && !empty($colAvail->token)}
-				<option value="{$colAvail->token}" {if $view->view_columns.$index==$colAvail->token}selected{/if}>{$colAvail->db_label}</option>
+				<option value="{$colAvail->token}" {if $view->view_columns.$index==$colAvail->token}selected{/if}>{$colAvail->db_label|capitalize}</option>
 			{/if}
 		{else}
 			{assign var=has_custom value=1}
@@ -42,15 +43,20 @@
 	<optgroup label="Custom Fields">
 	{foreach from=$columnsAvailable item=colAvail}
 		{if substr($colAvail->token,0,3) == "cf_"}
-			{if !empty($colAvail->db_label) && !empty($colAvail->token)}
-			<option value="{$colAvail->token}" {if $view->view_columns.$index==$colAvail->token}selected{/if}>{$colAvail->db_label}</option>
+			{$field_id = substr($colAvail->token,3)}
+			{if isset($custom_fields.$field_id)}
+				{$field = $custom_fields.$field_id}
+				{if empty($field->group_id) || $active_worker->isTeamMember($field->group_id)}
+					{if !empty($colAvail->db_label) && !empty($colAvail->token)}
+					<option value="{$colAvail->token}" {if $view->view_columns.$index==$colAvail->token}selected{/if}>{$colAvail->db_label|capitalize}</option>
+					{/if}
+				{/if}
 			{/if}
 		{/if}
 	{/foreach}
 	</optgroup>
 	{/if}
 </select>
-<span class="ui-icon ui-icon-arrowthick-2-n-s" style="display:inline-block;vertical-align:middle;"></span>
 </div>
 {/section}
 <br>

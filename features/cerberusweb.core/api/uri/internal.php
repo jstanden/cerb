@@ -600,6 +600,9 @@ class ChInternalController extends DevblocksControllerExtension {
 		$view = C4_AbstractViewLoader::getView($id);
 		$tpl->assign('view', $view);
 
+		$custom_fields = DAO_CustomField::getAll();
+		$tpl->assign('custom_fields', $custom_fields);
+		
 		$tpl->display('devblocks:cerberusweb.core::internal/views/customize_view.tpl');
 	}
 	
@@ -784,6 +787,7 @@ class ChInternalController extends DevblocksControllerExtension {
 	
 	function viewSaveCustomizeAction() {
 		$translate = DevblocksPlatform::getTranslationService();
+		$active_worker = CerberusApplication::getActiveWorker();
 		
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
 		@$columns = DevblocksPlatform::importGPC($_REQUEST['columns'],'array', array());
@@ -791,10 +795,31 @@ class ChInternalController extends DevblocksControllerExtension {
 		
 		$num_rows = max($num_rows, 1); // make 1 the minimum
 		
+		// [Security] Filter custom fields
+		$custom_fields = DAO_CustomField::getAll();
+		foreach($columns as $idx => $column) {
+			if(substr($column, 0, 3)=="cf_") {
+				$field_id = intval(substr($column, 3));
+				@$field = $custom_fields[$field_id]; /* @var $field Model_CustomField */
+				
+				// Is this a valid custom field?
+				if(empty($field)) {
+					unset($columns[$idx]);
+					continue;
+				}
+				
+				// Do we have permission to see it?
+				if(!empty($field->group_id) 
+					&& !$active_worker->isTeamMember($field->group_id)) {
+						unset($columns[$idx]);
+						continue;	
+				}
+			}
+		}
+		
+		
 		$view = C4_AbstractViewLoader::getView($id);
 		$view->doCustomize($columns, $num_rows);
-
-		$active_worker = CerberusApplication::getActiveWorker();
 		
 		// Handle worklists specially
 		if(substr($id,0,5)=="cust_") { // custom workspace

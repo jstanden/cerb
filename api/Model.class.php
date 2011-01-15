@@ -423,7 +423,7 @@ abstract class C4_AbstractView {
 		$viewColumns = array();
 		foreach($columns as $col) {
 			if(empty($col))
-			continue;
+				continue;
 			$viewColumns[] = $col;
 		}
 
