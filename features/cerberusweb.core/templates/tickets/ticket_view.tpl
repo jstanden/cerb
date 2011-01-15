@@ -19,8 +19,7 @@
 				<tr>
 					<td nowrap="nowrap"><span class="title">{$view->name}</span> {if $view->id == 'search'}<a href="#{$view->id}_actions">{$translate->_('views.jump_to_actions')}</a>{/if}</td>
 					<td nowrap="nowrap" align="right">
-						<a href="javascript:;" onclick="$('#btnExplore{$view->id}').click();">{'common.explore'|devblocks_translate|lower}</a>
-						 | <a href="javascript:;" id="view{$view->id}_sidebartoggle">subtotals</a>
+						<a href="javascript:;" id="view{$view->id}_sidebartoggle">subtotals</a>
 						 | <a href="javascript:;" onclick="genericAjaxGet('customize{$view->id}','c=internal&a=viewCustomize&id={$view->id}');toggleDiv('customize{$view->id}','block');">{$translate->_('common.customize')|lower}</a>
 						{if $active_worker->hasPriv('core.ticket.view.actions.pile_sort')} | <a href="javascript:;" onclick="genericAjaxGet('{$view->id}_tips','c=tickets&a=showViewAutoAssist&view_id={$view->id}');toggleDiv('{$view->id}_tips','block');">{$translate->_('mail.piles')|lower}</a>{/if}
 						{if $active_worker->hasPriv('core.mail.search')} | <a href="{devblocks_url}c=tickets&a=searchview&id={$view->id}{/devblocks_url}">{$translate->_('common.search')|lower}</a>{/if}
@@ -35,7 +34,6 @@
 			<div id="{$view->id}_tips" class="block" style="display:none;margin:10px;padding:5px;">Analyzing...</div>
 			<form id="customize{$view->id}" action="#" onsubmit="return false;" style="display:none;"></form>
 			<form id="viewForm{$view->id}" name="viewForm{$view->id}" action="{devblocks_url}{/devblocks_url}" method="post">
-			<button id="btnExplore{$view->id}" type="button" style="display:none;" onclick="this.form.explore_from.value=$(this).closest('form').find('tbody input:checkbox:checked:first').val();this.form.a.value='viewTicketsExplore';this.form.submit();"></button>
 			<input type="hidden" name="view_id" value="{$view->id}">
 			<input type="hidden" name="context_id" value="cerberusweb.contexts.ticket">
 			<input type="hidden" name="c" value="tickets">
@@ -202,6 +200,7 @@
 					<td colspan="2">
 						{if 'context'==$view->renderTemplate}<button type="button" onclick="removeSelectedContextLinks('{$view->id}');">Unlink</button>{/if}
 						{assign var=show_more value=0}
+						<button id="btnExplore{$view->id}" type="button" onclick="this.form.explore_from.value=$(this).closest('form').find('tbody input:checkbox:checked:first').val();this.form.a.value='viewTicketsExplore';this.form.submit();"><span class="cerb-sprite sprite-media_play_green"></span> {'common.explore'|devblocks_translate|lower}</button>
 						{if $active_worker->hasPriv('core.ticket.view.actions.bulk_update')}{assign var=show_more value=1}<button type="button"  id="btn{$view->id}BulkUpdate" onclick="ajax.showBatchPanel('{$view->id}',null);"><span class="cerb-sprite sprite-folder_gear"></span> {$translate->_('common.bulk_update')|lower}</button>{/if}
 						{if $active_worker->hasPriv('core.ticket.actions.close')}{assign var=show_more value=1}<button type="button" id="btn{$view->id}Close" onclick="ajax.viewCloseTickets('{$view->id}',0);"><span class="cerb-sprite sprite-folder_ok"></span> {$translate->_('common.close')|lower}</button>{/if}
 						{if $active_worker->hasPriv('core.ticket.actions.spam')}{assign var=show_more value=1}<button type="button"  id="btn{$view->id}Spam" onclick="ajax.viewCloseTickets('{$view->id}',1);"><span class="cerb-sprite sprite-spam"></span> {$translate->_('common.spam')|lower}</button>{/if}
