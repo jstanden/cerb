@@ -22,6 +22,7 @@
 <input type="hidden" name="id" value="{$view->id}">
 <input type="hidden" name="c" value="contacts">
 <input type="hidden" name="a" value="">
+<input type="hidden" name="explore_from" value="0">
 <table cellpadding="1" cellspacing="0" border="0" width="100%" class="worklistBody">
 
 	{* Column Headers *}
@@ -97,9 +98,7 @@
 	<tr>
 		<td colspan="2">
 			{if 'context'==$view->renderTemplate}<button type="button" onclick="removeSelectedContextLinks('{$view->id}');">Unlink</button>{/if}
-			{*
-			{if $active_worker->hasPriv('acl.core.addybook.person.actions.delete')}<button type="button" onclick="genericAjaxPopup('peek','c=contacts&a=showPeopleBulkUpdate&view_id={$view->id}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','row_id[]'),null,false,'500');"><span class="cerb-sprite sprite-folder_gear"></span> {$translate->_('common.bulk_update')|lower}</button>{/if}
-			*}
+			<button id="btnExplore{$view->id}" type="button" onclick="this.form.explore_from.value=$(this).closest('form').find('tbody input:checkbox:checked:first').val();this.form.a.value='viewPeopleExplore';this.form.submit();"><span class="cerb-sprite sprite-media_play_green"></span> {'common.explore'|devblocks_translate|capitalize}</button>
 		</td>
 	</tr>
 	{/if}
