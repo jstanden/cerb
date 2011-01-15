@@ -502,6 +502,31 @@
 		</extension>
 		
 		<extension point="devblocks.context">
+			<id>cerberusweb.contexts.notification</id>
+			<name>Notification</name>
+			<class>
+				<file>api/dao/worker_event.php</file>
+				<name>Context_Notification</name>
+			</class>
+			<params>
+				<param key="view_class" value="View_WorkerEvent" />
+				<param key="options">
+					<value>
+						<data key="workspace" />
+					</value>
+				</param>
+				<param key="events">
+					<!--
+					<value>
+						<data key="context.assigned" value="context.group.assigned" />
+						<data key="context.commented" value="context.group.commented" />
+					</value>
+					-->
+				</param>
+			</params>
+		</extension>		
+		
+		<extension point="devblocks.context">
 			<id>cerberusweb.contexts.org</id>
 			<name>Organization</name>
 			<class>

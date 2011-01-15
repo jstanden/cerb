@@ -677,9 +677,6 @@ class CerberusContexts {
 			case 'cerberusweb.contexts.message':
 				self::_getMessageContext($context_object, $labels, $values, $prefix);
 				break;
-			case 'cerberusweb.contexts.notification':
-				self::_getNotificationContext($context_object, $labels, $values, $prefix);
-				break;
 			default:
 				// Migrated
 				if(null != ($ctx = DevblocksPlatform::getExtension($context, true)) 
@@ -919,69 +916,6 @@ class CerberusContexts {
 		CerberusContexts::merge(
 			'sender_',
 			'Message:Sender:',
-			$merge_token_labels,
-			$merge_token_values,
-			$token_labels,
-			$token_values
-		);
-		
-		return true;
-	}	
-	
-	/**
-	 * 
-	 * @param mixed $notification
-	 * @param array $token_labels
-	 * @param array $token_values
-	 */
-	private static function _getNotificationContext($notification, &$token_labels, &$token_values, $prefix=null) {
-		if(is_null($prefix))
-			$prefix = 'Notification:';
-		
-		$translate = DevblocksPlatform::getTranslationService();
-
-		// Polymorph
-		if(is_numeric($notification)) {
-			$notification = DAO_WorkerEvent::get($notification); 
-		} elseif($notification instanceof Model_WorkerEvent) {
-			// It's what we want already.
-		} else {
-			$notification = null;
-		}
-		/* @var $notification Model_WorkerEvent */
-		
-		// Token labels
-		$token_labels = array(
-			'content' => $prefix.$translate->_('common.content'),
-			'created|date' => $prefix.$translate->_('worker_event.created'),
-			'title' => $prefix.$translate->_('worker_event.title'),
-			'url' => $prefix.$translate->_('worker_event.url'),
-			'is_read' => $prefix.$translate->_('worker_event.is_read'),
-		);
-		
-		// Token values
-		$token_values = array();
-		
-		// Notification token values
-		if($notification) {
-			$token_values['id'] = $notification->id;
-			$token_values['content'] = $notification->content;
-			$token_values['created'] = $notification->created_date;
-			$token_values['id'] = $notification->id;
-			$token_values['is_read'] = $notification->is_read;
-			$token_values['title'] = $notification->title;
-			$token_values['url'] = $notification->url;
-		}
-
-		// Worker
-		@$worker_id = $notification->worker_id;
-		$merge_token_labels = array();
-		$merge_token_values = array();
-		self::getContext(self::CONTEXT_WORKER, $worker_id, $merge_token_labels, $merge_token_values, '', true);
-
-		CerberusContexts::merge(
-			'assignee_',
-			'Assignee:',
 			$merge_token_labels,
 			$merge_token_values,
 			$token_labels,

@@ -561,3 +561,162 @@ class View_WorkerEvent extends C4_AbstractView {
 		unset($ids);
 	}
 };
+
+class Context_Notification extends Extension_DevblocksContext {
+	function authorize($context_id, Model_Worker $worker) {
+		// Security
+		try {
+			if(empty($worker))
+				throw new Exception();
+			
+			if($worker->is_superuser)
+				return TRUE;
+				
+			if(null == ($notification = DAO_WorkerEvent::get($context_id)))
+				throw new Exception();
+				
+			return $notification->worker_id == $worker->id;
+				
+		} catch (Exception $e) {
+			// Fail
+		}
+		
+		return FALSE;
+	}
+	
+    function getPermalink($context_id) {
+    	$url_writer = DevblocksPlatform::getUrlService();
+    	return $url_writer->write('c=home&action=redirectRead&id='.$context_id, true);
+    }
+
+	function getContext($notification, &$token_labels, &$token_values, $prefix=null) {
+		if(is_null($prefix))
+			$prefix = 'Notification:';
+		
+		$translate = DevblocksPlatform::getTranslationService();
+		$fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_NOTIFICATION);
+
+		// Polymorph
+		if(is_numeric($notification)) {
+			$notification = DAO_WorkerEvent::get($notification);
+		} elseif($notification instanceof Model_WorkerEvent) {
+			// It's what we want already.
+		} else {
+			$notification = null;
+		}
+		
+		// Token labels
+		$token_labels = array(
+//			'completed|date' => $prefix.$translate->_('task.completed_date'),
+		);
+		
+		if(is_array($fields))
+		foreach($fields as $cf_id => $field) {
+			$token_labels['custom_'.$cf_id] = $prefix.$field->name;
+		}
+
+		// Token values
+		$token_values = array();
+		
+		if($notification) {
+//			$token_values['completed'] = $task->completed_date;
+			
+			$token_values['custom'] = array();
+			
+			$field_values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_NOTIFICATION, $notification->id));
+			if(is_array($field_values) && !empty($field_values)) {
+				foreach($field_values as $cf_id => $cf_val) {
+					if(!isset($fields[$cf_id]))
+						continue;
+					
+					// The literal value
+					if(null != $notification)
+						$token_values['custom'][$cf_id] = $cf_val;
+					
+					// Stringify
+					if(is_array($cf_val))
+						$cf_val = implode(', ', $cf_val);
+						
+					if(is_string($cf_val)) {
+						if(null != $notification)
+							$token_values['custom_'.$cf_id] = $cf_val;
+					}
+				}
+			}
+		}
+
+		// Assignee
+		@$assignee_id = $notification->worker_id;
+		$merge_token_labels = array();
+		$merge_token_values = array();
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $assignee_id, $merge_token_labels, $merge_token_values, '', true);
+
+		CerberusContexts::merge(
+			'assignee_',
+			'Assignee:',
+			$merge_token_labels,
+			$merge_token_values,
+			$token_labels,
+			$token_values
+		);			
+		
+		return true;
+	}
+
+	function getChooserView() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		// View
+		$view_id = 'chooser_'.str_replace('.','_',$this->id).time().mt_rand(0,9999);
+		$defaults = new C4_AbstractViewModel();
+		$defaults->id = $view_id;
+		$defaults->is_ephemeral = true;
+		$defaults->class_name = $this->getViewClass();
+		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
+		$view->name = 'Notifications';
+//		$view->view_columns = array(
+//			SearchFields_Message::UPDATED_DATE,
+//			SearchFields_Message::DUE_DATE,
+//		);
+		$view->addParamsRequired(array(
+			SearchFields_WorkerEvent::WORKER_ID => new DevblocksSearchCriteria(SearchFields_WorkerEvent::WORKER_ID,'=',$active_worker->id),
+		));
+		$view->addParams(array(
+//			SearchFields_Task::IS_COMPLETED => new DevblocksSearchCriteria(SearchFields_Task::IS_COMPLETED,'=',0),
+		), true);
+		$view->renderSortBy = SearchFields_WorkerEvent::CREATED_DATE;
+		$view->renderSortAsc = false;
+		$view->renderLimit = 10;
+		$view->renderTemplate = 'contextlinks_chooser';
+		C4_AbstractViewLoader::setView($view_id, $view);
+		return $view;		
+	}
+	
+	function getView($context=null, $context_id=null, $options=array()) {
+		$view_id = str_replace('.','_',$this->id);
+		
+		$defaults = new C4_AbstractViewModel();
+		$defaults->id = $view_id; 
+		$defaults->class_name = $this->getViewClass();
+		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
+		$view->name = 'Notifications';
+		
+		$params = array();
+		
+		if(!empty($context) && !empty($context_id)) {
+			$params = array(
+				new DevblocksSearchCriteria(SearchFields_Notification::CONTEXT_LINK,'=',$context),
+				new DevblocksSearchCriteria(SearchFields_Notification::CONTEXT_LINK_ID,'=',$context_id),
+			);
+		}
+		
+//		if(isset($options['filter_open']))
+//			$params[] = new DevblocksSearchCriteria(SearchFields_Message::IS_COMPLETED,'=',0);
+		
+		$view->addParams($params, true);
+		
+		$view->renderTemplate = 'context';
+		C4_AbstractViewLoader::setView($view_id, $view);
+		return $view;
+	}
+};
