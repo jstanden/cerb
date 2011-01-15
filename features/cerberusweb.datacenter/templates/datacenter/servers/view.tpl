@@ -20,8 +20,9 @@
 <input type="hidden" name="view_id" value="{$view->id}">
 <input type="hidden" name="context_id" value="cerberusweb.contexts.datacenter.server">
 <input type="hidden" name="id" value="{$view->id}">
-<input type="hidden" name="c" value="cerberusweb.datacenter">
+<input type="hidden" name="c" value="datacenter">
 <input type="hidden" name="a" value="">
+<input type="hidden" name="explore_from" value="0">
 <table cellpadding="1" cellspacing="0" border="0" width="100%" class="worklistBody">
 
 	{* Column Headers *}
@@ -80,6 +81,7 @@
 		<td colspan="2">
 			{if 'context'==$view->renderTemplate}<button type="button" onclick="removeSelectedContextLinks('{$view->id}');">Unlink</button>{/if}
 			<button type="button" onclick="genericAjaxPopup('peek','c=datacenter&a=showServerBulkUpdate&view_id={$view->id}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','row_id[]'),null,false,'550');"><span class="cerb-sprite sprite-folder_gear"></span> {'common.bulk_update'|devblocks_translate|lower}</button>
+			<button id="btnExplore{$view->id}" type="button" onclick="this.form.explore_from.value=$(this).closest('form').find('tbody input:checkbox:checked:first').val();this.form.a.value='viewServersExplore';this.form.submit();"><span class="cerb-sprite sprite-media_play_green"></span> {'common.explore'|devblocks_translate|capitalize}</button>
 		</td>
 	</tr>
 	{/if}
