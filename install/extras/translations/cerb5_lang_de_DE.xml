@@ -3256,14 +3256,6 @@
         <seg>Fußzeile</seg>
       </tuv>
     </tu>
-    <tu tuid="portal.sc.cfg.footer_html_example">
-      <tuv xml:lang="de_DE">
-        <seg>Webgroup Media, LLC.&#13;
-451 W. Lambert Rd., Suite #201&#13;
-Brea, CA 92821 USA&#13;
-+1 714 671 9090</seg>
-      </tuv>
-    </tu>
     <tu tuid="portal.sc.cfg.footer_html_hint">
       <tuv xml:lang="de_DE">
         <seg>(z.B. Organisation, Adresse, Telefon, Fax)</seg>

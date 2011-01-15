@@ -69,7 +69,7 @@
 						<table cellpadding="0" cellspacing="0" style="border:1px dotted rgb(0,102,255);">
 							<tr>
 							<td style="padding:3px;color:rgb(0, 102, 255);font-size:10pt;">
-								{$result.tl_string_default|nl2br}
+								{$result.tl_string_default|escape|nl2br nofilter}
 							</td>
 							</tr>
 						</table>
@@ -81,7 +81,7 @@
 							<table cellpadding="0" cellspacing="0" style="margin-top:5px;margin-bottom:5px;border:1px dotted rgb(0, 102, 255);">
 							<tr>
 							<td style="padding:3px;color:rgb(0, 102, 255);font-size:10pt;">
-								{$english_string->string_default|nl2br}
+								{$english_string->string_default|escape|nl2br nofilter}
 							</td>
 							</tr>
 							</table>
@@ -97,7 +97,7 @@
 						<table cellpadding="0" cellspacing="0" style="margin-top:5px;margin-bottom:5px;border:1px dotted rgb(200,0,0);">
 						<tr>
 						<td style="padding:3px;color:rgb(50,50,50);font-size:10pt;">
-							{$english_string->string_default|nl2br}
+							{$english_string->string_default|escape|nl2br nofilter}
 						</td>
 						</tr>
 						</table>

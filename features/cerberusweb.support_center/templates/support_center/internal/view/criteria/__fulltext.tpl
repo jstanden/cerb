@@ -10,7 +10,7 @@
 	<label><input type="radio" name="scope" value="expert" onclick="$('#fulltext_expert').show();"> expert mode</label><br>
 	
 	<div id="fulltext_expert" style="display:none;padding-left:10px;padding-top:5px;">
-		{$translate->_('search.fulltext.examples')|nl2br}
+		{$translate->_('search.fulltext.examples')|nl2br nofilter}
 	</div>
 </blockquote>
 

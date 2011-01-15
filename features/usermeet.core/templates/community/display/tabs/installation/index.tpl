@@ -1,6 +1,6 @@
 <div class="block">
 <H2>{$translate->_('usermeet.ui.community.cfg.installation')}</H2>
-{$translate->_('usermeet.ui.community.cfg.installation_instructions')|nl2br}<br>
+{$translate->_('usermeet.ui.community.cfg.installation_instructions')|escape|nl2br nofilter}<br>
 <br>
 
 <form action="{devblocks_url}{/devblocks_url}" method="post">

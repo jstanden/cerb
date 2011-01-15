@@ -8,7 +8,7 @@
 {if !empty($message_headers)}
 <div id="" style="height:50px;padding:5px;overflow:auto;border:1px solid rgb(180,180,180);background-color:rgb(255,255,255);">
 	{foreach from=$message_headers item=v key=k}
-		<b>{$k|capitalize}</b>: {$v|nl2br}<br>
+		<b>{$k|capitalize}</b>: {$v|escape|nl2br nofilter}<br>
 	{/foreach}
 </div>
 <br>

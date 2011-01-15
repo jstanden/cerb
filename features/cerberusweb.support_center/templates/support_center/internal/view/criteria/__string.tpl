@@ -12,6 +12,6 @@
 <b>{$translate->_('search.value')|capitalize}:</b><br>
 <blockquote style="margin:5px;">
 	<input type="text" name="value"><br>
-	<i>{$translate->_('search.string.examples')|nl2br}</i>
+	<i>{$translate->_('search.string.examples')|escape|nl2br nofilter}</i>
 </blockquote>
 

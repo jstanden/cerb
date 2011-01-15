@@ -6,6 +6,6 @@
 	-{$translate->_('search.date.between.and')}-<br>
 	<input type="text" id="searchDateTo" name="to" size="20" value="now" style="width:98%;"><br>
 	<br>
-	{$translate->_('search.date.examples')|nl2br}
+	{$translate->_('search.date.examples')|escape|nl2br nofilter}
 </blockquote>
 

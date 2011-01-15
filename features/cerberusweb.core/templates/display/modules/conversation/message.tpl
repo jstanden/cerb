@@ -58,19 +58,19 @@
 		{/if}
 	  
 	  <div id="{$message->id}sh" style="display:block;">      
-      {if isset($headers.from)}<b>{$translate->_('message.header.from')|capitalize}:</b> {$headers.from|nl2br}<br>{/if}
-      {if isset($headers.to)}<b>{$translate->_('message.header.to')|capitalize}:</b> {$headers.to|nl2br}<br>{/if}
-      {if isset($headers.cc)}<b>{$translate->_('message.header.cc')|capitalize}:</b> {$headers.cc|nl2br}<br>{/if}
-      {if isset($headers.bcc)}<b>{$translate->_('message.header.bcc')|capitalize}:</b> {$headers.bcc|nl2br}<br>{/if}      
-      {if isset($headers.subject)}<b>{$translate->_('message.header.subject')|capitalize}:</b> {$headers.subject|nl2br}<br>{/if}
-      {if isset($headers.date)}<b>{$translate->_('message.header.date')|capitalize}:</b> {$headers.date|nl2br}<br>{/if}
+      {if isset($headers.from)}<b>{$translate->_('message.header.from')|capitalize}:</b> {$headers.from|escape|nl2br nofilter}<br>{/if}
+      {if isset($headers.to)}<b>{$translate->_('message.header.to')|capitalize}:</b> {$headers.to|escape|nl2br nofilter}<br>{/if}
+      {if isset($headers.cc)}<b>{$translate->_('message.header.cc')|capitalize}:</b> {$headers.cc|escape|nl2br nofilter}<br>{/if}
+      {if isset($headers.bcc)}<b>{$translate->_('message.header.bcc')|capitalize}:</b> {$headers.bcc|escape|nl2br nofilter}<br>{/if}      
+      {if isset($headers.subject)}<b>{$translate->_('message.header.subject')|capitalize}:</b> {$headers.subject|escape|nl2br nofilter}<br>{/if}
+      {if isset($headers.date)}<b>{$translate->_('message.header.date')|capitalize}:</b> {$headers.date|escape|nl2br nofilter}<br>{/if}
       </div>
 
 	  <div id="{$message->id}h" style="display:none;">      
       	{if is_array($headers)}
       	{foreach from=$headers item=headerValue key=headerKey}
       		<b>{$headerKey|capitalize}:</b>
-   			{$headerValue|nl2br}<br>
+   			{$headerValue|escape|nl2br nofilter}<br>
       	{/foreach}
       	{/if}
       </div>

@@ -6,7 +6,7 @@
 {elseif $field->type=='N'}
 	{$values.{$field->id}}
 {elseif $field->type=='T'}
-	{$values.{$field->id}|nl2br}
+	{$values.{$field->id}|escape|nl2br nofilter}
 {elseif $field->type=='D'}
 	{$values.{$field->id}}
 {elseif $field->type=='M'}

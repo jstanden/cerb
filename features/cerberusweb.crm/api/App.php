@@ -619,7 +619,7 @@ class CrmPage extends CerberusPageExtension {
 			}
 			
 			$tpl->assign('success', $success);
-			$tpl->assign('output', htmlentities($output, null, LANG_CHARSET_CODE));
+			$tpl->assign('output', $output);
 			
 			$tpl->display('devblocks:cerberusweb.core::internal/renderers/test_results.tpl');
 		}
