@@ -4311,18 +4311,11 @@ class _DevblocksTemplateManager {
 		return $out;
 	}
 	
-	function modifier_devblocks_hyperlinks($string, $sanitize = false, $style="") {
-		$from = array("&gt;");
-		$to = array(">");
-		
-		$string = str_replace($from,$to,$string);
-		
-		if($sanitize !== false)
-			return preg_replace("/((http|https):\/\/(.*?))(\s|\>|&lt;|&quot;|\)|$)/ie","'<a href=\"goto.php?url='.'\\1'.'\" target=\"_blank\">\\1</a>\\4'",$string);
-		else
-			return preg_replace("/((http|https):\/\/(.*?))(\s|\>|&lt;|&quot;|\)|$)/ie","'<a href=\"'.'\\1'.'\" target=\"_blank\">\\1</a>\\4'",$string);
+	function modifier_devblocks_hyperlinks($string) {
+		$regex = '@(https?://(.*?))(([>"\.\?,\)]{0,1}(\s|$))|(&\w+;))@i';
+		return preg_replace($regex,'<a href="$1" target="_blank">$1</a>$3',$string);
 	}
-	
+		
 	function modifier_devblocks_hide_email_quotes($string, $length=3) {
 		$string = str_replace("\r\n","\n",$string);
 		$string = str_replace("\r","\n",$string);
