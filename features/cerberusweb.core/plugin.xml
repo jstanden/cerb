@@ -166,7 +166,6 @@
 		</file>
 		
 		<file path="api/dao/message.php">
-			<class name="Context_Message" />
 			<class name="DAO_Message" />
 			<class name="DAO_MessageHeader" />
 			<class name="Model_Message" />
