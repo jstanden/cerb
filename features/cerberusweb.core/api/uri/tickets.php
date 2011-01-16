@@ -1185,7 +1185,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		@$group_id = DevblocksPlatform::importGPC($_REQUEST['group_id'],'integer',0);
 		
 		$settings = DevblocksPlatform::getPluginSettingsService();
-		$group = DAO_Group::getTeam($group_id);
+		$group = DAO_Group::get($group_id);
 
 		$active_worker = CerberusApplication::getActiveWorker();
 		$sig = $settings->get('cerberusweb.core',CerberusSettings::DEFAULT_SIGNATURE,CerberusSettingsDefaults::DEFAULT_SIGNATURE);
@@ -1219,7 +1219,7 @@ class ChTicketsPage extends CerberusPageExtension {
 			}
 		}
 		
-		if(!empty($group_id) && null != ($group = DAO_Group::getTeam($group_id)) && !empty($group->signature)) {
+		if(!empty($group_id) && null != ($group = DAO_Group::get($group_id)) && !empty($group->signature)) {
 			$sig = $group->signature;
 		} else {
 			$sig = DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::DEFAULT_SIGNATURE, CerberusSettingsDefaults::DEFAULT_SIGNATURE);

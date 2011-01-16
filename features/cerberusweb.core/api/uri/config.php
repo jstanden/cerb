@@ -1739,7 +1739,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		
 		if(!empty($id) && !empty($delete)) {
 			if(!empty($delete_move_id)) {
-				if(null != ($group = DAO_Group::getTeam($id))) {
+				if(null != ($group = DAO_Group::get($id))) {
 					$fields = array(
 						DAO_Ticket::TEAM_ID => $delete_move_id
 					);
