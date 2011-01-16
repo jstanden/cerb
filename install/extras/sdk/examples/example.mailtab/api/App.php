@@ -51,15 +51,8 @@
 if (class_exists('Extension_PreferenceTab')):
 class ExMailTab extends Extension_MailTab {
 	function showTab() {
-		$translate = DevblocksPlatform::getTranslationService();
-		
-		// Remember the tab
-		$visit = CerberusApplication::getVisit();
-		$visit->set('cerberusweb.mail.tab', 'example');
-		
 		$tpl = DevblocksPlatform::getTemplateService();
-		
-		$tpl->display('devblocks:example.tickettab::index.tpl');		
+		$tpl->display('devblocks:example.mailtab::index.tpl');		
 	}
 }
 endif;

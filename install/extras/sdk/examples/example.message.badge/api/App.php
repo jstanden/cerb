@@ -5,7 +5,7 @@ class ExMessageBadge extends Extension_MessageBadge {
 		if(null != ($email_address = $message->getSender())) {
 			$tpl = DevblocksPlatform::getTemplateService();
 			$tpl->assign('example_message_email', $email_address->email);
-			$tpl->display('devblocks:example.message.badge::comment_badge.tpl');
+			$tpl->display('devblocks:example.message.badge::badge.tpl');
 		}
 	}
 };

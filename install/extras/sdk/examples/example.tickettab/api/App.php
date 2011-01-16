@@ -51,14 +51,7 @@
 if (class_exists('Extension_PreferenceTab')):
 class ExTicketTab extends Extension_TicketTab {
 	function showTab() {
-		$translate = DevblocksPlatform::getTranslationService();
-		
-		// Remember the tab
-		$visit = CerberusApplication::getVisit();
-		$visit->set(CerberusVisit::KEY_ACTIVITY_TAB, 'example');
-		
 		$tpl = DevblocksPlatform::getTemplateService();
-		
 		$tpl->display('devblocks:example.tickettab::index.tpl');		
 	}
 }

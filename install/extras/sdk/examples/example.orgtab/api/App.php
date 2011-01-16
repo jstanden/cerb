@@ -51,14 +51,7 @@
 if (class_exists('Extension_OrgTab')):
 class ExOrgTab extends Extension_OrgTab {
 	function showTab() {
-		$translate = DevblocksPlatform::getTranslationService();
-		
-		// Remember the tab
-		$visit = CerberusApplication::getVisit();
-		$visit->set(CerberusVisit::KEY_ACTIVITY_TAB, 'example');
-		
 		$tpl = DevblocksPlatform::getTemplateService();
-		
 		$tpl->display('devblocks:example.orgtab::index.tpl');		
 	}
 }

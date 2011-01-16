@@ -52,12 +52,6 @@ if (class_exists('Extension_PreferenceTab')):
 class ExPreferencesTab extends Extension_PreferenceTab {
 	function showTab() {
 		$tpl = DevblocksPlatform::getTemplateService();
-		//$translate = DevblocksPlatform::getTranslationService();
-		
-		// Remember the tab
-		$visit = CerberusApplication::getVisit();
-		$visit->set('cerberusweb.preferences.tab', 'example');
-		
 		$tpl->display('devblocks:example.preferencestab::index.tpl');		
 	}
 }

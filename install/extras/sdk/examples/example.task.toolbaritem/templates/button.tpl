@@ -1,1 +1,1 @@
-<button type="button"><span class="cerb-sprite sprite-add"></span>{$translate->_('example.ticket.toolbaritem')}</button>
+<button type="button" onclick="alert('This is an example button.');"><img src="{devblocks_url}c=resource&p=example.task.toolbaritem&f=box_new.png{/devblocks_url}" align="absmiddle"> {$translate->_('example.task.toolbaritem')}</button>
