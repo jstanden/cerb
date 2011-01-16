@@ -50,7 +50,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension {
 		return $contexts;
 	}
 	
-   	function authorize($context_id) {
+   	function authorize($context_id, Model_Worker $worker) {
 		return true;
 	}
     
@@ -95,13 +95,13 @@ abstract class Extension_DevblocksStorageSchema extends DevblocksExtension {
 	abstract function renderConfig();
 	abstract function saveConfig();
 	
-	abstract public static function getActiveStorageProfile();
+	public static function getActiveStorageProfile() {}
 
-	abstract public static function get($object, &$fp=null);
-	abstract public static function put($id, $contents, $profile=null);
-	abstract public static function delete($ids);
-	abstract public static function archive($stop_time=null);
-	abstract public static function unarchive($stop_time=null);
+	public static function get($object, &$fp=null) {}
+	public static function put($id, $contents, $profile=null) {}
+	public static function delete($ids) {}
+	public static function archive($stop_time=null) {}
+	public static function unarchive($stop_time=null) {}
 	
 	protected function _stats($table_name) {
 		$db = DevblocksPlatform::getDatabaseService();

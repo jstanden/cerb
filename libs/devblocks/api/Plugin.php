@@ -2,7 +2,7 @@
 class DevblocksStorageEngineDisk extends Extension_DevblocksStorageEngine {
 	const ID = 'devblocks.storage.engine.disk'; 
 	
-	public function setOptions($options) {
+	public function setOptions($options=array()) {
 		parent::setOptions($options);
 		
 		// Default
@@ -153,7 +153,7 @@ class DevblocksStorageEngineDatabase extends Extension_DevblocksStorageEngine {
 	
 	private $_db = null;
 	
-	public function setOptions($options) {
+	public function setOptions($options=array()) {
 		parent::setOptions($options);
 		
 		// Use the existing local connection by default
@@ -406,7 +406,7 @@ class DevblocksStorageEngineS3 extends Extension_DevblocksStorageEngine {
 	
 	private $_s3 = null;
 	
-	public function setOptions($options) {
+	public function setOptions($options=array()) {
 		parent::setOptions($options);
 		
 		// Fail, this info is required.

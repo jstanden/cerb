@@ -4318,12 +4318,12 @@ class _DevblocksTemplateManager {
 		return $out;
 	}
 	
-	function modifier_devblocks_hyperlinks($string) {
+	static function modifier_devblocks_hyperlinks($string) {
 		$regex = '@(https?://(.*?))(([>"\.\?,\)]{0,1}(\s|$))|(&(quot|gt);))@i';
 		return preg_replace($regex,'<a href="$1" target="_blank">$1</a>$3',$string);
 	}
 		
-	function modifier_devblocks_hide_email_quotes($string, $length=3) {
+	static function modifier_devblocks_hide_email_quotes($string, $length=3) {
 		$string = str_replace("\r\n","\n",$string);
 		$string = str_replace("\r","\n",$string);
 		$string = preg_replace("/\n{3,99}/", "\n\n", $string);
@@ -4519,7 +4519,10 @@ class _DevblocksDatabaseManager {
 	private $_db = null;
 	static $instance = null;
 	
-	private function _DevblocksDatabaseManager() {}
+	private function __construct(){
+		$persistent = (defined('APP_DB_PCONNECT') && APP_DB_PCONNECT) ? true : false;
+		$this->Connect(APP_DB_HOST, APP_DB_USER, APP_DB_PASS, APP_DB_DATABASE, $persistent);
+	}
 	
 	static function getInstance() {
 		if(null == self::$instance) {
@@ -4531,11 +4534,6 @@ class _DevblocksDatabaseManager {
 		}
 		
 		return self::$instance;
-	}
-	
-	function __construct() {
-		$persistent = (defined('APP_DB_PCONNECT') && APP_DB_PCONNECT) ? true : false;
-		$this->Connect(APP_DB_HOST, APP_DB_USER, APP_DB_PASS, APP_DB_DATABASE, $persistent);
 	}
 	
 	function Connect($host, $user, $pass, $database, $persistent=false) {
