@@ -245,6 +245,7 @@
 						{if $pref_keyboard_shortcuts}
 						{if $view->id=='mail_workflow' || $view->id=='search'}{*Only on Workflow/Search*}
 							{$translate->_('common.keyboard')|lower}: 
+								(<b>e</b>) {$translate->_('common.explore')|lower} 
 								{if $active_worker->hasPriv('core.ticket.view.actions.bulk_update')}(<b>b</b>) {$translate->_('common.bulk_update')|lower}{/if} 
 								{if $active_worker->hasPriv('core.ticket.actions.close')}(<b>c</b>) {$translate->_('common.close')|lower}{/if} 
 								{if $active_worker->hasPriv('core.ticket.actions.spam')}(<b>s</b>) {$translate->_('common.spam')|lower}{/if} 

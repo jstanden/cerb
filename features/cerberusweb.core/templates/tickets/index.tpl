@@ -129,6 +129,11 @@
 					$('#btnmail_workflowClose').click();
 				} catch(e) { } 
 				break;
+			case 101:  // (E) explore
+				try {
+					$('#btnExploremail_workflow').click();
+				} catch(e) { } 
+				break;
 			case 109:  // (M) my tickets
 				try {
 					$('#btnMyTickets').click();
@@ -170,6 +175,11 @@
 			case 99:  // (C) close
 				try {
 					$('#btnsearchClose').click();
+				} catch(e) { } 
+				break;
+			case 101:  // (E) explore
+				try {
+					$('#btnExploresearch').click();
 				} catch(e) { } 
 				break;
 			case 115:  // (S) spam
