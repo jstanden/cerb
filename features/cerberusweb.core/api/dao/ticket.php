@@ -1310,8 +1310,23 @@ class View_Ticket extends C4_AbstractView {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('view_id', $this->id);
 		$tpl->assign('view', $this);
+
+		if($this->id == 'mail_workflow') {
+			// Save
+			$params = $this->getEditableParams();
 			
-		$counts = $this->getCounts($this->renderSubtotals);
+			// Remove the bucket filter before sorting workflow (reduce clicking)
+			$this->removeParam(SearchFields_Ticket::TICKET_CATEGORY_ID);
+			$counts = $this->getCounts($this->renderSubtotals);
+			
+			// Restore
+			if(count($params) != count($this->getEditableParams()))
+				$this->addParams($params, true);
+			
+		} else {
+			$counts = $this->getCounts($this->renderSubtotals);
+		}
+		
 		$tpl->assign('counts', $counts);
 		
 		$tpl->display('devblocks:cerberusweb.core::tickets/view_sidebar.tpl');
