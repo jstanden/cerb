@@ -342,6 +342,37 @@ var cAjaxCalls = function() {
 		$.ajax(options);
 	}
 	
+	this.viewRemoveFilter = function(view_id, fields) {
+		$view = $('#view'+view_id);
+		
+		post_str = 'c=internal' +
+			'&a=viewAddFilter' + 
+			'&id=' + view_id
+			;
+		
+		for(field in fields) {
+			post_str += '&field_deletes[]=' + encodeURIComponent(fields[field]);
+		}
+		
+		cb = function(o) {
+			$view_filters = $('#viewCustomFilters'+view_id);
+			
+			if(0 != $view_filters.length) {
+				$view_filters.html(o);
+				$view_filters.trigger('view_refresh')
+			}
+		}
+		
+		options = {};
+		options.type = 'POST';
+		options.data = post_str; //$('#'+formName).serialize();
+		options.url = DevblocksAppPath+'ajax.php';//+(null!=args?('?'+args):''),
+		options.cache = false;
+		options.success = cb;
+		
+		$.ajax(options);
+	}	
+	
 	this.postAndReloadView = function(frm,view_id) {
 		
 		$('#'+view_id).fadeTo("slow", 0.2);

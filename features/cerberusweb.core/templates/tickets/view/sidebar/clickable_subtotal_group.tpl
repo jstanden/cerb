@@ -1,4 +1,12 @@
 <table cellspacing="0" cellpadding="2" border="0" width="220" style="padding-top:5px;">
+{$editable_params = $view->getEditableParams()}
+{if isset($editable_params.t_team_id) || isset($editable_params.t_category_id)}
+	<tr>
+		<td style="padding-right:20px;" nowrap="nowrap" valign="top">
+			&laquo; <a href="javascript:;" onclick="ajax.viewRemoveFilter('{$view_id}', ['t_team_id','t_category_id']);"> all groups</a>
+		</td>
+	</tr>
+{/if}
 {foreach from=$counts item=category key=category_id}
 	<tr>
 		<td style="padding-right:20px;" nowrap="nowrap" valign="top">
