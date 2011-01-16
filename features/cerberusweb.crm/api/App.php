@@ -52,6 +52,13 @@ abstract class Extension_CrmOpportunityToolbarItem extends DevblocksExtension {
 	function render(Model_CrmOpportunity $opp) { }
 };
 
+abstract class Extension_CrmOpportunityTab extends DevblocksExtension {
+	const POINT = 'cerberusweb.crm.opportunity.tab';
+	
+	function showTab() {}
+	function saveTab() {}
+};
+
 if (class_exists('Extension_ActivityTab')):
 class CrmOppsActivityTab extends Extension_ActivityTab {
 	const EXTENSION_ID = 'crm.activity.tab.opps';
@@ -134,8 +141,6 @@ class CrmOppsActivityTab extends Extension_ActivityTab {
 endif;
 
 class CrmPage extends CerberusPageExtension {
-	const SESSION_OPP_TAB = '';
-	
 	function render() {
 		$tpl = DevblocksPlatform::getTemplateService();
 
@@ -154,15 +159,16 @@ class CrmPage extends CerberusPageExtension {
 			case 'opps':
 				@$opp_id = intval(array_shift($stack));
 				if(null == ($opp = DAO_CrmOpportunity::get($opp_id))) {
-					break; // [TODO] Not found
+					break;
 				}
 				$tpl->assign('opp', $opp);						
 
-				if(null == (@$tab_selected = $stack[0])) {
-					$tab_selected = $visit->get(self::SESSION_OPP_TAB, '');
+				// Remember the last tab/URL
+				if(null == (@$selected_tab = $stack[0])) {
+					$selected_tab = $visit->get(Extension_CrmOpportunityTab::POINT, '');
 				}
-				$tpl->assign('tab_selected', $tab_selected);
-
+				$tpl->assign('selected_tab', $selected_tab);
+				
 				$address = DAO_Address::get($opp->primary_email_id);
 				$tpl->assign('address', $address);
 				
@@ -171,6 +177,20 @@ class CrmPage extends CerberusPageExtension {
 				
 				$tpl->display('devblocks:cerberusweb.crm::crm/opps/display/index.tpl');
 				break;
+		}
+	}
+	
+	// Ajax
+	function showOppTabAction() {
+		@$ext_id = DevblocksPlatform::importGPC($_REQUEST['ext_id'],'string','');
+		
+		$visit = CerberusApplication::getVisit();
+		
+		if(null != ($tab_mft = DevblocksPlatform::getExtension($ext_id)) 
+			&& null != ($inst = $tab_mft->createInstance()) 
+			&& $inst instanceof Extension_CrmOpportunityTab) {
+				$visit->set(Extension_CrmOpportunityTab::POINT, $inst->manifest->params['uri']);
+				$inst->showTab();
 		}
 	}
 	
@@ -356,7 +376,7 @@ class CrmPage extends CerberusPageExtension {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		// Remember the selected tab
-		$visit->set(self::SESSION_OPP_TAB, 'mail');
+		$visit->set(Extension_CrmOpportunityTab::POINT, 'mail');
 		
 		// Opp
 		$opp = DAO_CrmOpportunity::get($opp_id);

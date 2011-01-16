@@ -31,29 +31,33 @@
 </table>
 
 <div id="oppTabs">
+	{$tabs = []}
+	{$point = Extension_CrmOpportunityTab::POINT}
+	
 	<ul>
-		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextComments&context=cerberusweb.contexts.opportunity&id={$opp->id}{/devblocks_url}">{$translate->_('common.comments')|capitalize}</a></li>		
-		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextLinks&context=cerberusweb.contexts.opportunity&id={$opp->id}{/devblocks_url}">{$translate->_('common.links')}</a></li>		
+		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextComments&context=cerberusweb.contexts.opportunity&point={$point}&id={$opp->id}{/devblocks_url}">{$translate->_('common.comments')|capitalize}</a></li>		
+		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextLinks&context=cerberusweb.contexts.opportunity&point={$point}&id={$opp->id}{/devblocks_url}">{$translate->_('common.links')}</a></li>		
 		<li><a href="{devblocks_url}ajax.php?c=crm&a=showOppMailTab&id={$opp->id}{/devblocks_url}">{'crm.opp.tab.mail_history'|devblocks_translate}</a></li>
 
 		{$tabs = [notes,links,mail]}
 
+		{$tab_manifests = DevblocksPlatform::getExtensions($point, false)}
 		{foreach from=$tab_manifests item=tab_manifest}
 			{$tabs[] = $tab_manifest->params.uri}
-			<li><a href="{devblocks_url}ajax.php?c=crm&a=showTab&ext_id={$tab_manifest->id}{/devblocks_url}"><i>{$tab_manifest->params.title|devblocks_translate}</i></a></li>
+			<li><a href="{devblocks_url}ajax.php?c=crm&a=showOppTab&ext_id={$tab_manifest->id}&point={$point}{/devblocks_url}"><i>{$tab_manifest->params.title|devblocks_translate}</i></a></li>
 		{/foreach}
 	</ul>
 </div> 
 <br>
 
-{$tab_selected_idx=0}
+{$selected_tab_idx=0}
 {foreach from=$tabs item=tab_label name=tabs}
-	{if $tab_label==$tab_selected}{$tab_selected_idx = $smarty.foreach.tabs.index}{/if}
+	{if $tab_label==$selected_tab}{$selected_tab_idx = $smarty.foreach.tabs.index}{/if}
 {/foreach}
 
 <script type="text/javascript">
 	$(function() {
-		var tabs = $("#oppTabs").tabs( { selected:{$tab_selected_idx} } );
+		var tabs = $("#oppTabs").tabs( { selected:{$selected_tab_idx} } );
 		
 		$('#btnDisplayOppEdit').bind('click', function() {
 			$popup = genericAjaxPopup('peek','c=crm&a=showOppPanel&id={$opp->id}',null,false,'550');

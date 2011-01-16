@@ -1,0 +1,32 @@
+<!DOCTYPE plugin SYSTEM "../../libs/devblocks/plugin.dtd">
+<plugin>
+	<id>example.crm.opportunity.tab</id>
+	<name>[Examples] Example Opportunity Tab</name>
+	<description>This example plugin adds an example tab to opportunity records</description>
+	<author>WebGroup Media, LLC.</author>
+	<revision>0</revision>
+	<link>http://wiki.cerberusweb.com/wiki/5.x/Extension:cerberusweb.crm.opportunity.tab</link>
+	
+    <!-- Plugin Dependencies -->
+	
+	<dependencies>
+		<require plugin_id="cerberusweb.core" version="5.3.0-dev" />
+	</dependencies>
+    
+    <!-- Exported Classes -->
+   
+	<extensions>
+		<extension point="cerberusweb.crm.opportunity.tab">
+			<id>example.crm.opportunity.tab</id>
+			<name>Example Opportunity Tab</name>
+			<class>
+				<file>api/App.php</file>
+				<name>ExCrmOppTab</name>
+			</class>
+			<params>
+				<param key="uri" value="example" />
+    			<param key="title" value="example.crm.opportunity.tab" />
+			</params>
+		</extension>
+	</extensions>
+</plugin>
