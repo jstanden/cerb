@@ -251,6 +251,11 @@
 			<name>Bucket Delete</name>
 			<param key="bucket_ids" />
 		</event>
+		<event id="comment.create">
+			<name>Comment Create</name>
+			<param key="comment_id" />
+			<param key="fields" />
+		</event>
 		<event id="context_link.set">
 			<name>from_context</name>
 			<name>from_context_id</name>
