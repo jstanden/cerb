@@ -917,6 +917,13 @@ class DevblocksPlatform extends DevblocksEngine {
 		return $plugins;
 	}
 	
+	static public function isPluginEnabled($plugin_id) {
+		if(null != ($plugin = self::getPlugin($plugin_id))) {
+			return $plugin->enabled;
+		};
+		return false;
+	}
+	
 	static private function _sortPluginsByDependency(&$plugins) {
 		$dependencies = array();
 		$seen = array();
