@@ -6,7 +6,10 @@
 	{else}
 		<button type="button" class="status reopen"><span class="cerb-sprite sprite-folder_out"></span> <label>{'common.reopen'|devblocks_translate|capitalize}</label></button>
 	{/if}
+	
 	<button type="button" class="edit"><span class="cerb-sprite sprite-document_edit"></span> {'common.edit'|devblocks_translate|capitalize}</button>
+	
+	<button type="button" onclick="genericAjaxPopup('peek','c=tasks&a=showTaskPeek&id=0&context={'cerberusweb.contexts.feed.item'}&context_id={$model->id}',null,true,'500')"><span class="cerb-sprite sprite-gear"></span> {'tasks.add'|devblocks_translate|capitalize}</button>
 </form>
 
 <script type="text/javascript">
