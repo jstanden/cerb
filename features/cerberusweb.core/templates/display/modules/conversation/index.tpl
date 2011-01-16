@@ -74,7 +74,8 @@
 	function displayReply(msgid, is_forward, draft_id) {
 		msgid = parseInt(msgid);
 		var div = document.getElementById('reply' + msgid);
-		if(null == div) return;
+		if(null == div)	
+			return;
 		is_forward = (null == is_forward || 0 == is_forward) ? 0 : 1;
 		draft_id = (null == draft_id) ? 0 : parseInt(draft_id);
 		
