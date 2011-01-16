@@ -4319,7 +4319,7 @@ class _DevblocksTemplateManager {
 	}
 	
 	function modifier_devblocks_hyperlinks($string) {
-		$regex = '@(https?://(.*?))(([>"\.\?,\)]{0,1}(\s|$))|(&\w+;))@i';
+		$regex = '@(https?://(.*?))(([>"\.\?,\)]{0,1}(\s|$))|(&(quot|gt);))@i';
 		return preg_replace($regex,'<a href="$1" target="_blank">$1</a>$3',$string);
 	}
 		
