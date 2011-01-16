@@ -688,13 +688,13 @@ class ChFeedbackController extends DevblocksControllerExtension {
 					$model->quote_text = $quote;
 					$model->worker_id = $active_worker->id;
 					$model->source_url = $url;
-					
-					$tpl->assign('model', $model);
 				}
 			}
 		} elseif(!empty($id)) { // Were we given a model ID to load?
-			if(null != ($model = DAO_FeedbackEntry::get($id)))
-				$tpl->assign('model', $model);
+			if(null == ($model = DAO_FeedbackEntry::get($id))) {
+				$id = null;
+				$model = new Model_Feedback();
+			}
 		}
 
 		// Author (if not anonymous)
@@ -703,6 +703,9 @@ class ChFeedbackController extends DevblocksControllerExtension {
 				$tpl->assign('address', $address);
 			}
 		}
+
+		if(empty($model->source_url) && !empty($url))
+			$model->source_url = $url;
 		
 		if(!empty($source_ext_id)) {
 			$tpl->assign('source_extension_id', $source_ext_id);
@@ -719,6 +722,8 @@ class ChFeedbackController extends DevblocksControllerExtension {
 		
 		$types = Model_CustomField::getTypes();
 		$tpl->assign('types', $types);
+		
+		$tpl->assign('model', $model);
 		
 		$tpl->display('devblocks:cerberusweb.feedback::feedback/ajax/feedback_entry_panel.tpl');
 	}
