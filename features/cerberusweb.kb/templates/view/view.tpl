@@ -98,8 +98,8 @@
 	{if $total}
 	<tr>
 		<td colspan="2">
-			{if $active_worker->hasPriv('kb.articles.actions.update_all')}<button type="button" onclick="genericAjaxPopup('peek','c=kb.ajax&a=showArticlesBulkPanel&view_id={$view->id}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','row_id[]'),null,false,'500');"><span class="cerb-sprite sprite-folder_gear"></span> {'common.bulk_update'|devblocks_translate|lower}</button>{/if}
 			<button id="btnExplore{$view->id}" type="button" onclick="this.form.explore_from.value=$(this).closest('form').find('tbody input:checkbox:checked:first').val();this.form.a.value='viewKbArticlesExplore';this.form.submit();"><span class="cerb-sprite sprite-media_play_green"></span> {'common.explore'|devblocks_translate|lower}</button>
+			{if $active_worker->hasPriv('kb.articles.actions.update_all')}<button type="button" onclick="genericAjaxPopup('peek','c=kb.ajax&a=showArticlesBulkPanel&view_id={$view->id}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','row_id[]'),null,false,'500');"><span class="cerb-sprite sprite-folder_gear"></span> {'common.bulk_update'|devblocks_translate|lower}</button>{/if}
 		</td>
 	</tr>
 	{/if}
