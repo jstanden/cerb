@@ -46,5 +46,6 @@
 	$popup = genericAjaxPopupFetch('peek');
 	$popup.one('popup_open', function(event,ui) {
 		$(this).dialog('option','title',"{'feedback.button.capture'|devblocks_translate|capitalize}");
-	} );
+		ajax.emailAutoComplete('#frmFeedbackEntry input:text[name=email]', { multiple: false } );
+	});
 </script>
