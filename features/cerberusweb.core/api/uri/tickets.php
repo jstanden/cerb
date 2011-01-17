@@ -205,10 +205,13 @@ class ChTicketsPage extends CerberusPageExtension {
 	function showTabAction() {
 		@$ext_id = DevblocksPlatform::importGPC($_REQUEST['ext_id'],'string','');
 		
+		$visit = CerberusApplication::getVisit();
+		
 		if(null != ($tab_mft = DevblocksPlatform::getExtension($ext_id)) 
 			&& null != ($inst = $tab_mft->createInstance()) 
 			&& $inst instanceof Extension_MailTab) {
-			$inst->showTab();
+				$visit->set(Extension_MailTab::POINT, $inst->manifest->params['uri']);
+				$inst->showTab();
 		}
 	}
 	
@@ -219,7 +222,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		if(null != ($tab_mft = DevblocksPlatform::getExtension($ext_id)) 
 			&& null != ($inst = $tab_mft->createInstance()) 
 			&& $inst instanceof Extension_MailTab) {
-			$inst->saveTab();
+				$inst->saveTab();
 		}
 	}
 	
