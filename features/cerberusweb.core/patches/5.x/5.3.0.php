@@ -100,6 +100,8 @@ if(!isset($tables['workspace_to_endpoint'])) {
 	$db->Execute($sql);
 
 	$tables['workspace_to_endpoint'] = 'workspace_to_endpoint';
+	
+	$db->Execute("INSERT IGNORE INTO workspace_to_endpoint (workspace_id, endpoint, pos) SELECT id, 'cerberusweb.home.tab', 0 FROM workspace");
 }
 
 // Rename worker_workspace_list -> workspace_list
