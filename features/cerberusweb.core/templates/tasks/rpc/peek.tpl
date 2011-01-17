@@ -45,14 +45,6 @@
 				</ul>
 			</td>
 		</tr>
-		{if empty($task->id)}
-		<tr>
-			<td width="0%" nowrap="nowrap" align="right" valign="top">{'common.content'|devblocks_translate|capitalize}: </td>
-			<td width="100%">
-				<textarea name="content" style="width:98%;height:100px;"></textarea>
-			</td>
-		</tr>
-		{/if}
 	</table>
 </fieldset>
 
@@ -66,8 +58,16 @@
 {* Comment *}
 {if !empty($last_comment)}
 	{include file="devblocks:cerberusweb.core::internal/comments/comment.tpl" readonly=true comment=$last_comment}
-	<br>
 {/if}
+
+<fieldset>
+	<legend>{'common.comment'|devblocks_translate|capitalize}</legend>
+	<textarea name="comment" rows="5" cols="45" style="width:98%;"></textarea><br>
+	<b>{'common.notify_workers'|devblocks_translate}:</b>
+	<button type="button" class="chooser_notify_worker"><span class="cerb-sprite sprite-view"></span></button>
+	<ul class="chooser-container bubbles" style="display:block;">
+	</ul>
+</fieldset>
 
 {if $active_worker->hasPriv('core.tasks.actions.create')}
 	<button type="button" onclick="genericAjaxPopupPostCloseReloadView('peek','formTaskPeek','{$view_id}',false,'task_save');"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')}</button>
@@ -90,5 +90,8 @@
 	});
 	$('#formTaskPeek button.chooser_worker').each(function() {
 		ajax.chooser(this,'cerberusweb.contexts.worker','worker_id', { autocomplete:true });
+	});
+	$('#formTaskPeek button.chooser_notify_worker').each(function() {
+		ajax.chooser(this,'cerberusweb.contexts.worker','notify_worker_ids', { autocomplete:true });
 	});
 </script>

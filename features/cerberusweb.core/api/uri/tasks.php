@@ -208,33 +208,21 @@ class ChTasksPage extends CerberusPageExtension {
 			@$due_date = DevblocksPlatform::importGPC($_REQUEST['due_date'],'string','');
 			@$fields[DAO_Task::DUE_DATE] = empty($due_date) ? 0 : intval(strtotime($due_date));		
 	
+			// Comment
+			@$comment = DevblocksPlatform::importGPC($_REQUEST['comment'],'string','');
+			
 			// Save
 			if(!empty($id)) {
 				DAO_Task::update($id, $fields);
 				
 			} else {
 				$id = DAO_Task::create($fields);
-				
-				// Content
-				@$content = DevblocksPlatform::importGPC($_REQUEST['content'],'string','');
 
 				// Context Link (if given)
 				@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
 				@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer','');
 				if(!empty($id) && !empty($context) && !empty($context_id)) {
 					DAO_ContextLink::setLink(CerberusContexts::CONTEXT_TASK, $id, $context, $context_id);
-				}
-				
-				// Append a note from the first content block, if provided				
-				if(!empty($content) && !empty($id)) {
-					$fields = array(
-						DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_TASK,
-						DAO_Comment::CONTEXT_ID => $id,
-						DAO_Comment::ADDRESS_ID => $active_worker->getAddress()->id,
-						DAO_Comment::CREATED => time(),
-						DAO_Comment::COMMENT => $content,
-					);
-					$note_id = DAO_Comment::create($fields);
 				}
 			}
 
@@ -245,6 +233,27 @@ class ChTasksPage extends CerberusPageExtension {
 			// Custom field saves
 			@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', array());
 			DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_TASK, $id, $field_ids);
+			
+			// Comments				
+			if(!empty($comment) && !empty($id)) {
+				$fields = array(
+					DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_TASK,
+					DAO_Comment::CONTEXT_ID => $id,
+					DAO_Comment::ADDRESS_ID => $active_worker->getAddress()->id,
+					DAO_Comment::CREATED => time(),
+					DAO_Comment::COMMENT => $comment,
+				);
+				$comment_id = DAO_Comment::create($fields);
+				
+				// Notifications
+				@$notify_worker_ids = DevblocksPlatform::importGPC($_REQUEST['notify_worker_ids'],'array',array());
+				DAO_Comment::triggerCommentNotifications(
+					CerberusContexts::CONTEXT_TASK,
+					$id,
+					$active_worker,
+					$notify_worker_ids
+				);
+			}
 		}
 		
 		if(!empty($view_id) && null != ($view = C4_AbstractViewLoader::getView($view_id))) {
