@@ -1294,6 +1294,12 @@ class ChTicketsPage extends CerberusPageExtension {
 		if(isset($custom_field_values[$ticket->id]))
 			$tpl->assign('custom_field_values', $custom_field_values[$ticket->id]);
 		
+		// Comments
+		$comments = DAO_Comment::getByContext(CerberusContexts::CONTEXT_TICKET, $ticket->id);
+		$last_comment = array_shift($comments);
+		unset($comments);
+		$tpl->assign('last_comment', $last_comment);
+			
 		// Display
 		$tpl->display('devblocks:cerberusweb.core::tickets/rpc/preview_panel.tpl');
 	}
@@ -1308,7 +1314,10 @@ class ChTicketsPage extends CerberusPageExtension {
 		@$bucket = DevblocksPlatform::importGPC($_REQUEST['bucket_id'],'string','');
 		@$spam_training = DevblocksPlatform::importGPC($_REQUEST['spam_training'],'string','');
 		@$ticket_reopen = DevblocksPlatform::importGPC(@$_REQUEST['ticket_reopen'],'string','');
+		@$comment = DevblocksPlatform::importGPC(@$_REQUEST['comment'],'string','');
 
+		$active_worker = CerberusApplication::getActiveWorker();
+		
 		$fields = array(
 			DAO_Ticket::SUBJECT => $subject,
 		);
@@ -1372,6 +1381,27 @@ class ChTicketsPage extends CerberusPageExtension {
 		// Custom field saves
 		@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', array());
 		DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_TICKET, $id, $field_ids);
+
+		// Comments
+		if(!empty($comment)) {
+			$fields = array(
+				DAO_Comment::CREATED => time(),
+				DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_TICKET,
+				DAO_Comment::CONTEXT_ID => $id,
+				DAO_Comment::COMMENT => $comment,
+				DAO_Comment::ADDRESS_ID => $active_worker->getAddress()->id,
+			);
+			$comment_id = DAO_Comment::create($fields);
+			
+			// Notifications
+			@$notify_worker_ids = DevblocksPlatform::importGPC($_REQUEST['notify_worker_ids'],'array',array());
+			DAO_Comment::triggerCommentNotifications(
+				CerberusContexts::CONTEXT_TICKET,
+				$id,
+				$active_worker,
+				$notify_worker_ids
+			);
+		}		
 		
 		$defaults = new C4_AbstractViewModel();
 		$defaults->class_name = 'View_Ticket';

@@ -192,6 +192,20 @@
 			</table>
 		</fieldset>
 		
+		{* Comment *}
+		{if !empty($last_comment)}
+			{include file="devblocks:cerberusweb.core::internal/comments/comment.tpl" readonly=true comment=$last_comment}
+		{/if}
+		
+		<fieldset>
+			<legend>{'common.comment'|devblocks_translate|capitalize}</legend>
+			<textarea name="comment" rows="5" cols="45" style="width:98%;"></textarea><br>
+			<b>{'common.notify_workers'|devblocks_translate}:</b>
+			<button type="button" class="chooser_notify_worker"><span class="cerb-sprite sprite-view"></span></button>
+			<ul class="chooser-container bubbles" style="display:block;">
+			</ul>
+		</fieldset>
+		
 		<button type="button" onclick="genericAjaxPopupPostCloseReloadView('peek','frmTicketPeek','{$view_id}',false,'ticket_save');"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')}</button>
     </div><!--tab2-->		
 </div> 
@@ -213,5 +227,8 @@
 	// Choosers
 	$('#frmTicketPeek button.chooser_worker').each(function() {
 		ajax.chooser(this, 'cerberusweb.contexts.worker', 'worker_id', { autocomplete:true })
+	});
+	$('#frmTicketPeek button.chooser_notify_worker').each(function() {
+		ajax.chooser(this,'cerberusweb.contexts.worker','notify_worker_ids', { autocomplete:true });
 	});
 </script>
