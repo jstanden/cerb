@@ -392,7 +392,7 @@ class ChTranslatorsAjaxController extends DevblocksControllerExtension {
 				
 				// If we have a valid source, copy its override or its default (in that order)
 				@$copy_string = $copy_strings[$string_id];
-				if(is_a($copy_string,'Model_Translation'))
+				if($copy_string instanceof Model_Translation)
 					$override = 
 						!empty($copy_string->string_override)
 						? $copy_string->string_override

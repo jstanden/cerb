@@ -39,7 +39,7 @@
 			<br>
 			
 			<blockquote id="divStorageEngineSettings" style="margin:5px;background-color:rgb(255,255,255);padding:5px;border:1px dotted rgb(120,120,120);display:{if 1}block{else}none{/if};">
-				{if !empty($storage_engine) && is_a($storage_engine,'Extension_DevblocksStorageEngine')}
+				{if !empty($storage_engine) && $storage_engine instanceof Extension_DevblocksStorageEngine}
 					{$storage_engine->renderConfig($profile)}
 				{/if}
 			</blockquote>

@@ -989,7 +989,7 @@ class DAO_Translation extends DevblocksORMHelper {
 		
 		if(is_array($strings))
 		foreach($strings as $string) { /* @var $string Model_Translation */
-			if(is_a($string, 'Model_Translation'))
+			if($string instanceof Model_Translation)
 				$map[$string->string_id] = $string;
 		}
 		
