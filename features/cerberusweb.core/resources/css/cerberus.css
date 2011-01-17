@@ -35,7 +35,7 @@ form {
 }
 
 fieldset {
-	background-image: url(bg_block.jpg);
+	background-image: url(bg_block.jpg?v=2011011801);
 	background-repeat: repeat-x;
 	border:1px solid rgb(230,230,230);
 	margin-bottom:10px;
@@ -72,67 +72,67 @@ input[type=text]:focus, input[type=password]:focus {
 }
 
 input[type=text].input_add {
-	background:url('input_icons/add.png') no-repeat scroll 5px 50% #ffffff;
+	background:url(input_icons/add.png?v=2011011801) no-repeat scroll 5px 50% #ffffff;
 	padding-left:25px;
 }
 input[type=text].input_color {
-	background:url('input_icons/colors.png') no-repeat scroll 5px 50% #ffffff;
+	background:url(input_icons/colors.png?v=2011011801) no-repeat scroll 5px 50% #ffffff;
 	padding-left:25px;
 }
 input[type=text].input_date {
-	background:url('input_icons/date.png') no-repeat scroll 5px 50% #ffffff;
+	background:url(input_icons/date.png?v=2011011801) no-repeat scroll 5px 50% #ffffff;
 	padding-left:25px;
 }
 input[type=text].input_email {
-	background:url('input_icons/mail.png') no-repeat scroll 5px 50% #ffffff;
+	background:url(input_icons/mail.png?v=2011011801) no-repeat scroll 5px 50% #ffffff;
 	padding-left:25px;
 }
 input[type=text].input_location {
-	background:url('input_icons/location.png') no-repeat scroll 5px 50% #ffffff;
+	background:url(input_icons/location.png?v=2011011801) no-repeat scroll 5px 50% #ffffff;
 	padding-left:25px;
 }
 input[type=text].input_money {
-	background:url('input_icons/money.png') no-repeat scroll 5px 50% #ffffff;
+	background:url(input_icons/money.png?v=2011011801) no-repeat scroll 5px 50% #ffffff;
 	padding-left:25px;
 }
 input[type=text].input_number {
-	background:url('input_icons/number.png') no-repeat scroll 5px 50% #ffffff;
+	background:url(input_icons/number.png?v=2011011801) no-repeat scroll 5px 50% #ffffff;
 	padding-left:25px;
 }
 input[type=text].input_openid {
-	background:url('input_icons/openid.gif') no-repeat scroll 5px 50% #ffffff;
+	background:url(input_icons/openid.gif?v=2011011801) no-repeat scroll 5px 50% #ffffff;
 	padding-left:25px;
 }
 input[type=text].input_password, input[type=password] {
-	background:url('input_icons/lock.png') no-repeat scroll 5px 50% #ffffff;
+	background:url(input_icons/lock.png?v=2011011801) no-repeat scroll 5px 50% #ffffff;
 	padding-left:25px;
 }
 input[type=text].input_percent {
-	background:url('input_icons/percent.png') no-repeat scroll 5px 50% #ffffff;
+	background:url(input_icons/percent.png?v=2011011801) no-repeat scroll 5px 50% #ffffff;
 	padding-left:25px;
 }
 input[type=text].input_phone {
-	background:url('input_icons/phone.png') no-repeat scroll 5px 50% #ffffff;
+	background:url(input_icons/phone.png?v=2011011801) no-repeat scroll 5px 50% #ffffff;
 	padding-left:25px;
 }
 input[type=text].input_remove {
-	background:url('input_icons/forbidden.png') no-repeat scroll 5px 50% #ffffff;
+	background:url(input_icons/forbidden.png?v=2011011801) no-repeat scroll 5px 50% #ffffff;
 	padding-left:25px;
 }
 input[type=text].input_rss {
-	background:url('input_icons/rss.png') no-repeat scroll 5px 50% #ffffff;
+	background:url(input_icons/rss.png?v=2011011801) no-repeat scroll 5px 50% #ffffff;
 	padding-left:25px;
 }
 input[type=text].input_search {
-	background:url('input_icons/view.png') no-repeat scroll 5px 50% #ffffff;
+	background:url(input_icons/view.png?v=2011011801) no-repeat scroll 5px 50% #ffffff;
 	padding-left:25px;
 }
 input[type=text].input_tags {
-	background:url('input_icons/tag.png') no-repeat scroll 5px 50% #ffffff;
+	background:url(input_icons/tag.png?v=2011011801) no-repeat scroll 5px 50% #ffffff;
 	padding-left:25px;
 }
 input[type=text].input_url {
-	background:url('input_icons/link.png') no-repeat scroll 5px 50% #ffffff;
+	background:url(input_icons/link.png?v=2011011801) no-repeat scroll 5px 50% #ffffff;
 	padding-left:25px;
 }
 
@@ -148,7 +148,7 @@ pre.emailbody {
 }
 
 button {
-	background-image: url(bg_ltgray.jpg);
+	background-image: url(bg_ltgray.jpg?v=2011011801);
 	background-repeat: repeat-x; 
 	color: rgb(30, 30, 30);
 	border: 1px solid rgb(150, 150, 150);
@@ -161,7 +161,7 @@ button {
 }
 
 button:hover {
-	background-image: url(bg_blue.jpg);
+	background-image: url(bg_blue.jpg?v=2011011801);
 	background-repeat: repeat-x;
 	background-color: rgb(160,198,254);
 	border: 1px solid rgb(36,111,223);
@@ -199,7 +199,7 @@ UL.navmenu LI A {
 }
 
 UL.navmenu LI.selected {
-	background-image: url(bg_ltblue.jpg);
+	background-image: url(bg_ltblue.jpg?v=2011011801);
 	background-repeat: repeat-x;
 	background-color: rgb(134, 169, 227);
 }
@@ -238,7 +238,7 @@ UL.submenu A {
 
 table.worklist {
 	border: 1px solid rgb(0, 102, 204);
-	background-image: url(bg_ltblue.jpg);
+	background-image: url(bg_ltblue.jpg?v=2011011801);
 	background-repeat: repeat-x;
 	background-color: rgb(140, 175, 229);
 }
@@ -302,7 +302,7 @@ table.worklistBody tr.hover {
 
 DIV.message_note {
 	padding: 5px;
-	background-image: url(bg_yellow.jpg);
+	background-image: url(bg_yellow.jpg?v=2011011801);
 	background-position: left top;
 	background-repeat: repeat-x;
 	background-color: rgb(252, 242, 191);
@@ -324,7 +324,7 @@ DIV.ticket_comment {
 
 DIV.block {
 	padding: 5px;
-	background-image: url(bg_block.jpg);
+	background-image: url(bg_block.jpg?v=2011011801);
 	background-repeat: repeat-x;
 	background-color: rgb(255, 255, 255);
 	border: 1px solid rgb(230, 230, 230);
@@ -473,7 +473,7 @@ DIV.badge-lightgray {
 /* Sprite container */
 
 .cerb-sprite { 
-	background:url(cerb_icons.png);
+	background:url(cerb_icons.png?v=2011011801);
 	background-repeat:no-repeat;
 	background-position:top left;
 	display:inline-block;
@@ -575,7 +575,7 @@ button span.cerb-sprite { display:inline-block; }
 	width:22px; height:5px;
 	margin-left:auto;
 	margin-right:auto;
-	background-image:url(markitup/handle.png);
+	background-image:url(markitup/handle.png?v=2011011801);
 	cursor:n-resize;
 }
 /***************************************************************************************/
@@ -652,69 +652,69 @@ button span.cerb-sprite { display:inline-block; }
 
 /* MarkItUp Markdown */
 .markItUp .h1 a {
-	background-image:url(markitup/toolbar/h1.png); 
+	background-image:url(markitup/toolbar/h1.png?v=2011011801); 
 }
 .markItUp .h2 a {
-	background-image:url(markitup/toolbar/h2.png); 
+	background-image:url(markitup/toolbar/h2.png?v=2011011801); 
 }
 .markItUp .h3 a {
-	background-image:url(markitup/toolbar/h3.png); 
+	background-image:url(markitup/toolbar/h3.png?v=2011011801); 
 }
 .markItUp .h4 a {
-	background-image:url(markitup/toolbar/h4.png); 
+	background-image:url(markitup/toolbar/h4.png?v=2011011801); 
 }
 .markItUp .h5 a {
-	background-image:url(markitup/toolbar/h5.png); 
+	background-image:url(markitup/toolbar/h5.png?v=2011011801); 
 }
 .markItUp .h6 a {
-	background-image:url(markitup/toolbar/h6.png); 
+	background-image:url(markitup/toolbar/h6.png?v=2011011801); 
 }
 
 .markItUp .b a {
-	background-image:url(markitup/toolbar/bold.png);
+	background-image:url(markitup/toolbar/bold.png?v=2011011801);
 }
 .markItUp .i a {
-	background-image:url(markitup/toolbar/italic.png);
+	background-image:url(markitup/toolbar/italic.png?v=2011011801);
 }
 .markItUp .strike a {
-	background-image:url(markitup/toolbar/stroke.png);
+	background-image:url(markitup/toolbar/stroke.png?v=2011011801);
 }
 
 .markItUp .ul a {
-	background-image:url(markitup/toolbar/list-bullet.png);
+	background-image:url(markitup/toolbar/list-bullet.png?v=2011011801);
 }
 .markItUp .ol a {
-	background-image:url(markitup/toolbar/list-numeric.png);
+	background-image:url(markitup/toolbar/list-numeric.png?v=2011011801);
 }
 .markItUp .li a {
-	background-image:url(markitup/toolbar/list-item.png);
+	background-image:url(markitup/toolbar/list-item.png?v=2011011801);
 }
 
 .markItUp .img a {
-	background-image:url(markitup/toolbar/picture.png); 
+	background-image:url(markitup/toolbar/picture.png?v=2011011801); 
 }
 .markItUp .a a {
-	background-image:url(markitup/toolbar/link.png);
+	background-image:url(markitup/toolbar/link.png?v=2011011801);
 }
 
 .markItUp .blockquote a	{
-	background-image:url(markitup/toolbar/quotes.png);
+	background-image:url(markitup/toolbar/quotes.png?v=2011011801);
 }
 
 .markItUp .code a	{
-	background-image:url(markitup/toolbar/code.png);
+	background-image:url(markitup/toolbar/code.png?v=2011011801);
 }
 
 .markItUp .preview a {
-	background-image:url(markitup/toolbar/document_view.png);
+	background-image:url(markitup/toolbar/document_view.png?v=2011011801);
 }
 
 .markItUp .clean a {
-	background-image:url(markitup/toolbar/clean.png);
+	background-image:url(markitup/toolbar/clean.png?v=2011011801);
 }
 
 .markItUp .p a {
-	background-image:url(markitup/toolbar/paragraph.png);
+	background-image:url(markitup/toolbar/paragraph.png?v=2011011801);
 }
 
 /* jQueryUI (Redmond theme) */
