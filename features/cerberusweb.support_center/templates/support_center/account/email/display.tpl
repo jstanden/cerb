@@ -34,7 +34,7 @@
 	
 	{if $show_fields.addy_first_name}
 	<tr>
-		<td width="1%" nowrap="nowrap" valign="top"><b>{$translate->_('contact_person.first_name')|capitalize}:</b></td>
+		<td width="1%" nowrap="nowrap" valign="top"><b>{$translate->_('address.first_name')|capitalize}:</b></td>
 		<td width="99%">
 			{if 1==$show_fields.addy_first_name}
 			{$address->first_name}
@@ -47,7 +47,7 @@
 	
 	{if $show_fields.addy_last_name}
 	<tr>
-		<td width="1%" nowrap="nowrap" valign="top"><b>{$translate->_('contact_person.last_name')|capitalize}:</b></td>
+		<td width="1%" nowrap="nowrap" valign="top"><b>{$translate->_('address.last_name')|capitalize}:</b></td>
 		<td width="99%">
 			{if 1==$show_fields.addy_last_name}
 			{$address->last_name}

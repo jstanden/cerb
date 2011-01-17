@@ -1421,19 +1421,9 @@
         <seg>Fax</seg>
       </tuv>
     </tu>
-    <tu tuid="contact_person.first_name">
-      <tuv xml:lang="de_DE">
-        <seg>Vorname</seg>
-      </tuv>
-    </tu>
     <tu tuid="contact_person.id">
       <tuv xml:lang="de_DE">
         <seg>ID</seg>
-      </tuv>
-    </tu>
-    <tu tuid="contact_person.last_name">
-      <tuv xml:lang="de_DE">
-        <seg>Nachname</seg>
       </tuv>
     </tu>
     <tu tuid="contact_person.phone">

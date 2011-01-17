@@ -596,19 +596,9 @@
         <seg>fax</seg>
       </tuv>
     </tu>
-    <tu tuid="contact_person.first_name">
-      <tuv xml:lang="it_IT">
-        <seg>nome</seg>
-      </tuv>
-    </tu>
     <tu tuid="contact_person.id">
       <tuv xml:lang="it_IT">
         <seg>id</seg>
-      </tuv>
-    </tu>
-    <tu tuid="contact_person.last_name">
-      <tuv xml:lang="it_IT">
-        <seg>cognome</seg>
       </tuv>
     </tu>
     <tu tuid="contact_person.phone">

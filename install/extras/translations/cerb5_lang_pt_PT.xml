@@ -801,19 +801,9 @@
         <seg>Email principal</seg>
       </tuv>
     </tu>
-    <tu tuid="contact_person.first_name">
-      <tuv xml:lang="pt_PT">
-        <seg>Nome</seg>
-      </tuv>
-    </tu>
     <tu tuid="contact_person.id">
       <tuv xml:lang="pt_PT">
         <seg>ID</seg>
-      </tuv>
-    </tu>
-    <tu tuid="contact_person.last_name">
-      <tuv xml:lang="pt_PT">
-        <seg>Apelido</seg>
       </tuv>
     </tu>
     <tu tuid="contact_person.title">
