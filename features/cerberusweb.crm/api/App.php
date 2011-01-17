@@ -276,10 +276,10 @@ class CrmPage extends CerberusPageExtension {
 
 		// Save
 		if($do_delete) {
-			if(null != ($opp = DAO_CrmOpportunity::get($opp_id))
-			 && $active_worker->hasPriv('crm.opp.actions.create')
-			)
+			if(null != ($opp = DAO_CrmOpportunity::get($opp_id)) && $active_worker->hasPriv('crm.opp.actions.create')) {
 				DAO_CrmOpportunity::delete($opp_id);
+				$opp_id = null;
+			}
 			
 		} elseif(empty($opp_id)) {
 			// Check privs
@@ -309,22 +309,6 @@ class CrmPage extends CerberusPageExtension {
 				DAO_ContextLink::setLink(CerberusContexts::CONTEXT_OPPORTUNITY, $opp_id, $context, $context_id);
 			}
 			
-			// Custom fields
-			@$field_ids = DevblocksPlatform::importGPC($_REQUEST['field_ids'], 'array', array());
-			DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_OPPORTUNITY, $opp_id, $field_ids);
-			
-			// If we're adding a first comment
-			if(!empty($comment)) {
-				$fields = array(
-					DAO_Comment::CREATED => time(),
-					DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_OPPORTUNITY,
-					DAO_Comment::CONTEXT_ID => $opp_id,
-					DAO_Comment::COMMENT => $comment,
-					DAO_Comment::ADDRESS_ID => $active_worker->getAddress()->id,
-				);
-				$comment_id = DAO_Comment::create($fields);
-			}
-			
 		} else {
 			if(empty($opp_id))
 				return;
@@ -344,20 +328,41 @@ class CrmPage extends CerberusPageExtension {
 			);
 			
 			// Check privs
-			if(null != ($opp = DAO_CrmOpportunity::get($opp_id))
-				&& $active_worker->hasPriv('crm.opp.actions.create')
-			) {
+			if(null != ($opp = DAO_CrmOpportunity::get($opp_id)) && $active_worker->hasPriv('crm.opp.actions.create')) {
 				DAO_CrmOpportunity::update($opp_id, $fields);
-				
-				// Custom fields
-				@$field_ids = DevblocksPlatform::importGPC($_REQUEST['field_ids'], 'array', array());
-				DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_OPPORTUNITY, $opp_id, $field_ids);
 			}
 		}
 		
-		// Workers
-		@$worker_ids = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',array());
-		CerberusContexts::setWorkers(CerberusContexts::CONTEXT_OPPORTUNITY, $opp_id, $worker_ids);
+		if(!empty($opp_id)) {
+			// Owners
+			@$worker_ids = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',array());
+			CerberusContexts::setWorkers(CerberusContexts::CONTEXT_OPPORTUNITY, $opp_id, $worker_ids);
+			
+			// Custom fields
+			@$field_ids = DevblocksPlatform::importGPC($_REQUEST['field_ids'], 'array', array());
+			DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_OPPORTUNITY, $opp_id, $field_ids);
+			
+			// If we're adding a comment
+			if(!empty($comment)) {
+				$fields = array(
+					DAO_Comment::CREATED => time(),
+					DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_OPPORTUNITY,
+					DAO_Comment::CONTEXT_ID => $opp_id,
+					DAO_Comment::COMMENT => $comment,
+					DAO_Comment::ADDRESS_ID => $active_worker->getAddress()->id,
+				);
+				$comment_id = DAO_Comment::create($fields);
+				
+				// Notifications
+				@$notify_worker_ids = DevblocksPlatform::importGPC($_REQUEST['notify_worker_ids'],'array',array());
+				DAO_Comment::triggerCommentNotifications(
+					CerberusContexts::CONTEXT_OPPORTUNITY,
+					$opp_id,
+					$active_worker,
+					$notify_worker_ids
+				);
+			}
+		}
 		
 		// Reload view (if linked)
 		if(!empty($view_id) && null != ($view = C4_AbstractViewLoader::getView($view_id))) {

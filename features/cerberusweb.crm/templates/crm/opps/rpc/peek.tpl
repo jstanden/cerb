@@ -68,14 +68,6 @@
 				<div id="dateOppClosed"></div>
 			</td>
 		</tr>
-		{if empty($opp->id)}
-		<tr>
-			<td width="0%" nowrap="nowrap" align="right" valign="top">{'common.comment'|devblocks_translate|capitalize}: </td>
-			<td width="100%">
-				<textarea name="comment" style="width:98%;height:120px;border:1px solid rgb(180,180,180);padding:2px;"></textarea><br>
-			</td>
-		</tr>
-		{/if}
 	</table>
 </fieldset>
 
@@ -89,8 +81,16 @@
 {* Comment *}
 {if !empty($last_comment)}
 	{include file="devblocks:cerberusweb.core::internal/comments/comment.tpl" readonly=true comment=$last_comment}
-	<br>
 {/if}
+
+<fieldset>
+	<legend>{'common.comment'|devblocks_translate|capitalize}</legend>
+	<textarea name="comment" rows="5" cols="45" style="width:98%;"></textarea><br>
+	<b>{'common.notify_workers'|devblocks_translate}:</b>
+	<button type="button" class="chooser_notify_worker"><span class="cerb-sprite sprite-view"></span></button>
+	<ul class="chooser-container bubbles" style="display:block;">
+	</ul>
+</fieldset>
 
 {if $active_worker->hasPriv('crm.opp.actions.create')}
 	<button type="button" onclick="if($('#formOppPeek').validate().form()) { genericAjaxPopupPostCloseReloadView('peek','formOppPeek','{$view_id}',false,'opp_save'); } "><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')}</button>
@@ -117,5 +117,8 @@
 	} );
 	$('#formOppPeek button.chooser_worker').each(function() {
 		ajax.chooser(this,'cerberusweb.contexts.worker','worker_id', { autocomplete:true });
+	});
+	$('#formOppPeek button.chooser_notify_worker').each(function() {
+		ajax.chooser(this,'cerberusweb.contexts.worker','notify_worker_ids', { autocomplete:true });
 	});
 </script>
