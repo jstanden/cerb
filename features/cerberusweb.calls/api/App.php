@@ -157,6 +157,15 @@ class CallsPage extends CerberusPageExtension {
 					DAO_Comment::ADDRESS_ID => $active_worker->getAddress()->id,
 				);
 				$comment_id = DAO_Comment::create($fields);
+				
+				// Notifications
+				@$notify_worker_ids = DevblocksPlatform::importGPC($_REQUEST['notify_worker_ids'],'array',array());
+				DAO_Comment::triggerCommentNotifications(
+					CerberusContexts::CONTEXT_CALL,
+					$id,
+					$active_worker,
+					$notify_worker_ids
+				);
 			}
 			
 			// Custom fields

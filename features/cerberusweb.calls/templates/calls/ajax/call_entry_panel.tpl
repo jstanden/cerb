@@ -47,12 +47,6 @@
 				</ul>
 			</td>
 		</tr>
-		<tr>
-			<td colspan="2">
-				<b>Comment:</b><br>
-				<textarea name="comment" rows="5" cols="45" style="width:98%;"></textarea>
-			</td>
-		</tr>
 	</table>
 </fieldset>
 
@@ -66,8 +60,16 @@
 {* Comment *}
 {if !empty($last_comment)}
 	{include file="devblocks:cerberusweb.core::internal/comments/comment.tpl" readonly=true comment=$last_comment}
-	<br>
 {/if}
+
+<fieldset>
+	<legend>{'common.comment'|devblocks_translate|capitalize}</legend>
+	<textarea name="comment" rows="5" cols="45" style="width:98%;"></textarea><br>
+	<b>{'common.notify_workers'|devblocks_translate}:</b>
+	<button type="button" class="chooser_notify_worker"><span class="cerb-sprite sprite-view"></span></button>
+	<ul class="chooser-container bubbles" style="display:block;">
+	</ul>
+</fieldset>
 
 <button type="button" onclick="genericAjaxPopupPostCloseReloadView('peek','frmCallEntry','{$view_id}');"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')|capitalize}</button>
 {if $model->id && ($active_worker->is_superuser || $active_worker->id == $model->worker_id)}<button type="button" onclick="if(confirm('Permanently delete this call entry?')) { this.form.do_delete.value='1';genericAjaxPopupPostCloseReloadView('peek','frmCallEntry','{$view_id}'); } "><span class="cerb-sprite sprite-forbidden"></span> {$translate->_('common.delete')|capitalize}</button>{/if}
@@ -88,5 +90,8 @@
 	});
 	$('#frmCallEntry button.chooser_worker').each(function() {
 		ajax.chooser(this,'cerberusweb.contexts.worker','worker_id', { autocomplete:true });
+	});
+	$('#frmCallEntry button.chooser_notify_worker').each(function() {
+		ajax.chooser(this,'cerberusweb.contexts.worker','notify_worker_ids', { autocomplete:true });
 	});
 </script>
