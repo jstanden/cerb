@@ -326,6 +326,7 @@ class View_FeedItem extends C4_AbstractView {
 		$this->addColumnsHidden(array(
 			SearchFields_FeedItem::GUID,
 			SearchFields_FeedItem::ID,
+			SearchFields_FeedItem::VIRTUAL_WORKERS,
 		));
 		
 		$this->addParamsHidden(array(
