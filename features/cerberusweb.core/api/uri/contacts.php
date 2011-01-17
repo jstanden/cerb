@@ -1030,6 +1030,12 @@ class ChContactsPage extends CerberusPageExtension {
 		$types = Model_CustomField::getTypes();
 		$tpl->assign('types', $types);
 				
+		// Comments
+		$comments = DAO_Comment::getByContext(CerberusContexts::CONTEXT_ORG, $id);
+		$last_comment = array_shift($comments);
+		unset($comments);
+		$tpl->assign('last_comment', $last_comment);
+		
 		// View
 		$tpl->assign('view_id', $view_id);
 		
@@ -1105,8 +1111,6 @@ class ChContactsPage extends CerberusPageExtension {
 	}
 	
 	function saveOrgPeekAction() {
-		$active_worker = CerberusApplication::getActiveWorker();
-		
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer', 0);
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
 		@$org_name = DevblocksPlatform::importGPC($_REQUEST['org_name'],'string','');
@@ -1117,7 +1121,10 @@ class ChContactsPage extends CerberusPageExtension {
 		@$country = DevblocksPlatform::importGPC($_REQUEST['country'],'string','');
 		@$phone = DevblocksPlatform::importGPC($_REQUEST['phone'],'string','');
 		@$website = DevblocksPlatform::importGPC($_REQUEST['website'],'string','');
+		@$comment = DevblocksPlatform::importGPC($_REQUEST['comment'],'string','');
 		@$delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'],'integer',0);
+		
+		$active_worker = CerberusApplication::getActiveWorker();
 
 		if(!empty($id) && !empty($delete)) { // delete
 			if($active_worker->hasPriv('core.addybook.org.actions.delete'))
@@ -1157,6 +1164,26 @@ class ChContactsPage extends CerberusPageExtension {
 				// Custom field saves
 				@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', array());
 				DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_ORG, $id, $field_ids);
+				
+				if(!empty($comment)) {
+					$fields = array(
+						DAO_Comment::CREATED => time(),
+						DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_ORG,
+						DAO_Comment::CONTEXT_ID => $id,
+						DAO_Comment::COMMENT => $comment,
+						DAO_Comment::ADDRESS_ID => $active_worker->getAddress()->id,
+					);
+					$comment_id = DAO_Comment::create($fields);
+					
+					// Notifications
+					@$notify_worker_ids = DevblocksPlatform::importGPC($_REQUEST['notify_worker_ids'],'array',array());
+					DAO_Comment::triggerCommentNotifications(
+						CerberusContexts::CONTEXT_ORG,
+						$id,
+						$active_worker,
+						$notify_worker_ids
+					);
+				}				
 			}
 		}
 		

@@ -71,6 +71,20 @@
 </fieldset>
 {/if}
 
+{* Comment *}
+{if !empty($last_comment)}
+	{include file="devblocks:cerberusweb.core::internal/comments/comment.tpl" readonly=true comment=$last_comment}
+{/if}
+
+<fieldset>
+	<legend>{'common.comment'|devblocks_translate|capitalize}</legend>
+	<textarea name="comment" rows="5" cols="45" style="width:98%;"></textarea><br>
+	<b>{'common.notify_workers'|devblocks_translate}:</b>
+	<button type="button" class="chooser_notify_worker"><span class="cerb-sprite sprite-view"></span></button>
+	<ul class="chooser-container bubbles" style="display:block;">
+	</ul>
+</fieldset>
+
 {if $active_worker->hasPriv('core.addybook.org.actions.update')}
 	<button type="button" onclick="if($('#formOrgPeek').validate().form()) { genericAjaxPopupPostCloseReloadView('peek','formOrgPeek', '{$view_id}', false, 'org_save'); } "><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')|capitalize}</button>
 	{if $active_worker->hasPriv('core.addybook.org.actions.delete')}{if !empty($contact->id)}<button type="button" onclick="{literal}if(confirm('Are you sure you want to permanently delete this contact?')){this.form.do_delete.value='1';genericAjaxPopupClose('peek');genericAjaxPost('formOrgPeek', 'view{/literal}{$view_id}{literal}');}{/literal}"><span class="cerb-sprite sprite-delete2"></span> {$translate->_('common.delete')|capitalize}</button>{/if}{/if}
@@ -95,5 +109,8 @@
 	});
 	$('#formOrgPeek button.chooser_worker').each(function() {
 		ajax.chooser(this,'cerberusweb.contexts.worker','worker_id', { autocomplete:true });
+	});
+	$('#formOrgPeek button.chooser_notify_worker').each(function() {
+		ajax.chooser(this,'cerberusweb.contexts.worker','notify_worker_ids', { autocomplete:true });
 	});
 </script>
