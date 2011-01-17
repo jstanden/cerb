@@ -207,7 +207,7 @@ class ChSignInPage extends CerberusPageExtension {
 			
 			if(empty($devblocks_response->path)) {
 				$tour_enabled = intval(DAO_WorkerPref::get($worker->id, 'assist_mode', 1));
-				$next_page = ($tour_enabled) ?  'welcome' : 'home';				
+				$next_page = ($tour_enabled) ?  'welcome' : 'preferences';				
 				$devblocks_response = new DevblocksHttpResponse(array($next_page));
 			}
 			

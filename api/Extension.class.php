@@ -96,13 +96,6 @@ abstract class Extension_AddressBookTab extends DevblocksExtension {
 	function saveTab() {}
 };
 
-abstract class Extension_HomeTab extends DevblocksExtension {
-	const POINT = 'cerberusweb.home.tab';
-	
-	function showTab() {}
-	function saveTab() {}
-};
-
 abstract class Extension_MailTab extends DevblocksExtension {
 	const POINT = 'cerberusweb.mail.tab';
 	
@@ -111,6 +104,8 @@ abstract class Extension_MailTab extends DevblocksExtension {
 };
 
 abstract class Extension_TicketTab extends DevblocksExtension {
+	const POINT = 'cerberusweb.ticket.tab';
+	
 	function showTab() {}
 	function saveTab() {}
 };

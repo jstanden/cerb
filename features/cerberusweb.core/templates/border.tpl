@@ -23,10 +23,11 @@
 			{$translate->_('header.not_signed_in')} <a href="{devblocks_url}c=login{/devblocks_url}">{$translate->_('header.signon')|lower}</a>
 		{elseif !empty($active_worker)}
 			{if $active_worker_notify_count}
-			<span style="padding:3px 5px 3px 5px;background-color:rgb(200,0,0);"><a href="{devblocks_url}c=home&a=events{/devblocks_url}" style="color:rgb(255,255,255);text-decoration:none;font-weight:bold;">{'header.notifications.unread'|devblocks_translate:$active_worker_notify_count}</a></span>
+			<span style="padding:3px 5px 3px 5px;background-color:rgb(200,0,0);"><a href="{devblocks_url}c=preferences&a=events{/devblocks_url}" style="color:rgb(255,255,255);text-decoration:none;font-weight:bold;">{'header.notifications.unread'|devblocks_translate:$active_worker_notify_count}</a></span>
 			{/if}
 			
-			{assign var=worker_name value=''|cat:'<b>'|cat:$active_worker->getName()|cat:'</b>'}
+			{devblocks_url assign=worker_url}c=preferences{/devblocks_url}
+			{$worker_name =''|cat:'<b><a href="'|cat:$worker_url|cat:'">'|cat:$active_worker->getName()|cat:'</a></b>'}
 			{'header.signed_in'|devblocks_translate:$worker_name nofilter}
 			(<a href="{devblocks_url}c=login&a=signout{/devblocks_url}">{$translate->_('header.signoff')|lower}</a>)
 		{/if}

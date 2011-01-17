@@ -367,7 +367,6 @@
 		<priv id="core.ticket.view.actions.pile_sort" label="acl.core.ticket.view.actions.pile_sort" />
 
 		<!-- Workspaces -->
-		<priv id="core.home.auto_refresh" label="acl.core.home.auto_refresh" />
 		<priv id="core.home.workspaces" label="acl.core.home.workspaces" />
 		
 	</acl>
@@ -863,19 +862,6 @@
 		</extension>
 
 		<extension point="cerberusweb.page">
-			<id>core.page.home</id>
-			<name>Home Page</name>
-			<class>
-				<file>api/uri/home.php</file>
-				<name>ChHomePage</name>
-			</class>
-			<params>
-				<param key="uri" value="home" />
-				<param key="menutitle" value="core.menu.home" />
-			</params>
-		</extension>
-
-		<extension point="cerberusweb.page">
 			<id>core.page.tickets</id>
 			<name>Mail Page</name>
 			<class>
@@ -1153,7 +1139,7 @@
 			<id>cerberusweb.explorer.toolbar.worker_events</id>
 			<name>Worker Events</name>
 			<class>
-				<file>api/uri/home.php</file>
+				<file>api/uri/preferences.php</file>
 				<name>ChExplorerToolbarWorkerEvents</name>
 			</class>
 			<params>

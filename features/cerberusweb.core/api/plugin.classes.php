@@ -136,7 +136,7 @@ class ChPageController extends DevblocksControllerExtension {
 
 		// Default page [TODO] This is supposed to come from framework.config.php
 		if(empty($controller)) 
-			$controller = 'home';
+			$controller = 'preferences';
 
 	    // [JAS]: Require us to always be logged in for Cerberus pages
 		if(empty($visit) && 0 != strcasecmp($controller,'login')) {
@@ -265,7 +265,7 @@ XML;
 
             if(isset($event[SearchFields_WorkerEvent::URL])) {
 //	            $link = $event[SearchFields_WorkerEvent::URL];
-	            $link = $url->write('c=home&a=redirectRead&id='.$event[SearchFields_WorkerEvent::ID], true);
+	            $link = $url->write('c=preferences&a=redirectRead&id='.$event[SearchFields_WorkerEvent::ID], true);
 	            $eLink = $eItem->addChild('link', $link);
 	            
             } else {

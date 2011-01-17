@@ -66,11 +66,6 @@
         <seg>[Mostrar Ticket] Pode dividir tickets</seg>
       </tuv>
     </tu>
-    <tu tuid="acl.core.home.auto_refresh">
-      <tuv xml:lang="pt_PT">
-        <seg>[Início] Pode activar o auto-refrescar na página inicial</seg>
-      </tuv>
-    </tu>
     <tu tuid="acl.core.home.workspaces">
       <tuv xml:lang="pt_PT">
         <seg>[Início] Pode criar workspaces e worklists</seg>
@@ -199,11 +194,6 @@
     <tu tuid="activity.display_ticket">
       <tuv xml:lang="pt_PT">
         <seg>%s está a ver o ticket número %s</seg>
-      </tuv>
-    </tu>
-    <tu tuid="activity.home">
-      <tuv xml:lang="pt_PT">
-        <seg>%s está a navegar o trabalho que lhe foi atribuído</seg>
       </tuv>
     </tu>
     <tu tuid="activity.kb">

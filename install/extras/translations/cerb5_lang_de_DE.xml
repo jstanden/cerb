@@ -76,11 +76,6 @@
         <seg>[Ticketansicht] Kann Tickets teilen</seg>
       </tuv>
     </tu>
-    <tu tuid="acl.core.home.auto_refresh">
-      <tuv xml:lang="de_DE">
-        <seg>[Übersicht] Kann die Übersicht auto-aktualisieren</seg>
-      </tuv>
-    </tu>
     <tu tuid="acl.core.home.workspaces">
       <tuv xml:lang="de_DE">
         <seg>[Übersicht] Kann private Arbeitsbereiche und -Listen erstellen</seg>
@@ -334,11 +329,6 @@
     <tu tuid="activity.display_ticket">
       <tuv xml:lang="de_DE">
         <seg>%s zeigt %s an</seg>
-      </tuv>
-    </tu>
-    <tu tuid="activity.home">
-      <tuv xml:lang="de_DE">
-        <seg>%s betrachtet die zugewiesenen Tickets</seg>
       </tuv>
     </tu>
     <tu tuid="activity.kb">

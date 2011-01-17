@@ -389,7 +389,7 @@ class View_WorkerEvent extends C4_AbstractView {
 		$workers = DAO_Worker::getAll();
 		$tpl->assign('workers', $workers);
 		
-		$tpl->display('devblocks:cerberusweb.core::home/tabs/my_events/view.tpl');
+		$tpl->display('devblocks:cerberusweb.core::preferences/tabs/my_events/view.tpl');
 	}
 
 	function renderCriteria($field) {
@@ -584,7 +584,7 @@ class Context_Notification extends Extension_DevblocksContext {
 	
     function getPermalink($context_id) {
     	$url_writer = DevblocksPlatform::getUrlService();
-    	return $url_writer->write('c=home&action=redirectRead&id='.$context_id, true);
+    	return $url_writer->write('c=preferences&action=redirectRead&id='.$context_id, true);
     }
 
 	function getContext($notification, &$token_labels, &$token_values, $prefix=null) {

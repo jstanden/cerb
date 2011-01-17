@@ -18,7 +18,7 @@
 <form id="customize{$view->id}" name="customize{$view->id}" action="#" onsubmit="return false;" style="display:none;"></form>
 <form id="viewForm{$view->id}" name="viewForm{$view->id}" action="{devblocks_url}{/devblocks_url}" method="post">
 <input type="hidden" name="view_id" value="{$view->id}">
-<input type="hidden" name="c" value="home">
+<input type="hidden" name="c" value="preferences">
 <input type="hidden" name="a" value="">
 <input type="hidden" name="explore_from" value="0">
 <table cellpadding="1" cellspacing="0" border="0" width="100%" class="worklistBody">
@@ -63,7 +63,7 @@
 				<td valign="top">{$result.we_id}&nbsp;</td>
 			{elseif $column=="we_message"}
 				<td valign="top">
-					{if $result.we_is_read}<span class="cerb-sprite sprite-check_gray"></span>{/if}<a href="{devblocks_url}c=home&a=redirectRead&id={$result.we_id}{/devblocks_url}" class="subject">{$result.we_message}</a>			
+					{if $result.we_is_read}<span class="cerb-sprite sprite-check_gray"></span>{/if}<a href="{devblocks_url}c=preferences&a=redirectRead&id={$result.we_id}{/devblocks_url}" class="subject">{$result.we_message}</a>			
 				</td>
 			{elseif $column=="we_created_date"}
 				<td valign="top"><abbr title="{$result.we_created_date|devblocks_date}">{$result.we_created_date|devblocks_prettytime}</abbr>&nbsp;</td>
@@ -78,7 +78,7 @@
 					&nbsp;
 				</td>
 			{elseif $column=="we_url"}
-				<td valign="top"><a href="{devblocks_url}c=home&a=redirectRead&id={$result.we_id}{/devblocks_url}">{$result.$column}</a>&nbsp;</td>
+				<td valign="top"><a href="{devblocks_url}c=preferences&a=redirectRead&id={$result.we_id}{/devblocks_url}">{$result.$column}</a>&nbsp;</td>
 			{elseif $column=="we_is_read"}
 				<td valign="top">{if $result.$column}<span class="cerb-sprite sprite-check_gray"></span>{/if}&nbsp;</td>
 			{else}
@@ -95,7 +95,7 @@
 	<tr>
 		<td colspan="2">
 			<button id="btnExplore{$view->id}" type="button" onclick="this.form.explore_from.value=$(this).closest('form').find('tbody input:checkbox:checked:first').val();this.form.a.value='viewEventsExplore';this.form.submit();"><span class="cerb-sprite sprite-media_play_green"></span> {'common.explore'|devblocks_translate|lower}</button>
-			<button type="button" onclick="genericAjaxPopup('peek','c=home&a=showNotificationsBulkPanel&view_id={$view->id}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','row_id[]'),null,false,'500');"><span class="cerb-sprite sprite-folder_gear"></span> {'common.bulk_update'|devblocks_translate|lower}</button>
+			<button type="button" onclick="genericAjaxPopup('peek','c=preferences&a=showNotificationsBulkPanel&view_id={$view->id}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','row_id[]'),null,false,'500');"><span class="cerb-sprite sprite-folder_gear"></span> {'common.bulk_update'|devblocks_translate|lower}</button>
 		</td>
 	</tr>
 	{/if}

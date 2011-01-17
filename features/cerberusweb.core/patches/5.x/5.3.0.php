@@ -137,7 +137,6 @@ if(!isset($columns['workspace_id']) && isset($columns['workspace'])) {
 	unset($rows);
 	
 	$db->Execute("ALTER TABLE workspace_list DROP COLUMN workspace");
-	$db->Execute("INSERT IGNORE INTO workspace_to_endpoint (workspace_id, endpoint, pos) SELECT id, 'cerberusweb.home.tab', 0 FROM workspace");
 }
 
 // Migrate source_extension -> context

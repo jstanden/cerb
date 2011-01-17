@@ -1,5 +1,5 @@
 <form action="{devblocks_url}{/devblocks_url}" method="POST" id="formBatchUpdate" name="formBatchUpdate" onsubmit="return false;">
-<input type="hidden" name="c" value="home">
+<input type="hidden" name="c" value="preferences">
 <input type="hidden" name="a" value="doNotificationsBulkUpdate">
 <input type="hidden" name="view_id" value="{$view_id}">
 <input type="hidden" name="ids" value="{$ids}">

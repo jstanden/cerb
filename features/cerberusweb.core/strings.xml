@@ -12,9 +12,6 @@
 		<tu tuid='core.menu.address_book'>
 			<tuv xml:lang="en_US"><seg>address book</seg></tuv>
 		</tu>
-		<tu tuid='core.menu.home'>
-			<tuv xml:lang="en_US"><seg>home</seg></tuv>
-		</tu>
 		<tu tuid='core.menu.mail'>
 			<tuv xml:lang="en_US"><seg>mail</seg></tuv>
 		</tu>
@@ -516,9 +513,6 @@
 		</tu>
 
 			<!-- Home -->
-		<tu tuid='acl.core.home.auto_refresh'>
-			<tuv xml:lang="en_US"><seg>[Home] Can auto-refresh on the Home page</seg></tuv>
-		</tu>
 		<tu tuid='acl.core.home.workspaces'>
 			<tuv xml:lang="en_US"><seg>[Home] Can build private workspaces and worklists</seg></tuv>
 		</tu>
@@ -858,9 +852,6 @@
 		</tu>
 		<tu tuid='activity.display_ticket'>
 			<tuv xml:lang="en_US"><seg>%s is displaying ticket %s</seg></tuv>
-		</tu>
-		<tu tuid='activity.home'>
-			<tuv xml:lang="en_US"><seg>%s is browsing their assigned work</seg></tuv>
 		</tu>
 		<tu tuid='activity.mail.search'>
 			<tuv xml:lang="en_US"><seg>%s is searching tickets</seg></tuv>

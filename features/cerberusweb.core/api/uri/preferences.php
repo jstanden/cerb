@@ -165,6 +165,288 @@ class ChPreferencesPage extends CerberusPageExtension {
 		}
 	}
 	
+	function showMyEventsAction() {
+		$translate = DevblocksPlatform::getTranslationService();
+		$active_worker = CerberusApplication::getActiveWorker();
+		$visit = CerberusApplication::getVisit();
+		$tpl = DevblocksPlatform::getTemplateService();
+
+		// Remember tab
+		$visit->set(Extension_PreferenceTab::POINT, 'events');
+		
+		// My Events
+		$defaults = new C4_AbstractViewModel();
+		$defaults->id = 'home_myevents';
+		$defaults->class_name = 'View_WorkerEvent';
+		$defaults->renderLimit = 25;
+		$defaults->renderPage = 0;
+		$defaults->renderSortBy = SearchFields_WorkerEvent::CREATED_DATE;
+		$defaults->renderSortAsc = false;
+		
+		$myEventsView = C4_AbstractViewLoader::getView('home_myevents', $defaults);
+		
+		$myEventsView->name = vsprintf($translate->_('home.my_notifications.view.title'), $active_worker->getName());
+		
+		$myEventsView->addColumnsHidden(array(
+			SearchFields_WorkerEvent::ID,
+			SearchFields_WorkerEvent::IS_READ,
+			SearchFields_WorkerEvent::WORKER_ID,
+		));
+		
+		$myEventsView->addParamsHidden(array(
+			SearchFields_WorkerEvent::ID,
+			SearchFields_WorkerEvent::IS_READ,
+			SearchFields_WorkerEvent::WORKER_ID,
+		));
+		$myEventsView->addParamsRequired(array(
+			SearchFields_WorkerEvent::IS_READ => new DevblocksSearchCriteria(SearchFields_WorkerEvent::IS_READ,'=',0),
+			SearchFields_WorkerEvent::WORKER_ID => new DevblocksSearchCriteria(SearchFields_WorkerEvent::WORKER_ID,'=',$active_worker->id),
+		));
+		
+		/*
+		 * [TODO] This doesn't need to save every display, but it was possible to 
+		 * lose the params in the saved version of the view in the DB w/o recovery.
+		 * This should be moved back into the if(null==...) check in a later build.
+		 */
+		C4_AbstractViewLoader::setView($myEventsView->id, $myEventsView);
+		
+		$tpl->assign('view', $myEventsView);
+		$tpl->display('devblocks:cerberusweb.core::preferences/tabs/my_events/index.tpl');
+	}
+	
+	function showNotificationsBulkPanelAction() {
+		@$ids = DevblocksPlatform::importGPC($_REQUEST['ids']);
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id']);
+
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('view_id', $view_id);
+
+	    if(!empty($ids)) {
+	        $id_list = DevblocksPlatform::parseCsvString($ids);
+	        $tpl->assign('ids', implode(',', $id_list));
+	    }
+		
+		// Custom Fields
+		//$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TASK);
+		//$tpl->assign('custom_fields', $custom_fields);
+		
+		$tpl->display('devblocks:cerberusweb.core::preferences/tabs/my_events/bulk.tpl');
+	}
+	
+	function doNotificationsBulkUpdateAction() {
+		// Filter: whole list or check
+	    @$filter = DevblocksPlatform::importGPC($_REQUEST['filter'],'string','');
+		$ids = array();
+	    
+	    // View
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
+		$view = C4_AbstractViewLoader::getView($view_id);
+		
+		// Task fields
+		$is_read = trim(DevblocksPlatform::importGPC($_POST['is_read'],'string',''));
+
+		$do = array();
+		
+		// Do: Mark Read
+		if(0 != strlen($is_read))
+			$do['is_read'] = $is_read;
+			
+		// Do: Custom fields
+		//$do = DAO_CustomFieldValue::handleBulkPost($do);
+
+		switch($filter) {
+			// Checked rows
+			case 'checks':
+			    @$ids_str = DevblocksPlatform::importGPC($_REQUEST['ids'],'string');
+				$ids = DevblocksPlatform::parseCsvString($ids_str);
+				break;
+			case 'sample':
+				@$sample_size = min(DevblocksPlatform::importGPC($_REQUEST['filter_sample_size'],'integer',0),9999);
+				$filter = 'checks';
+				$ids = $view->getDataSample($sample_size);
+				break;
+			default:
+				break;
+		}
+		
+		$view->doBulkUpdate($filter, $do, $ids);
+		
+		$view->render();
+		return;
+	}	
+	
+	function viewEventsExploreAction() {
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
+		
+		$active_worker = CerberusApplication::getActiveWorker();
+		$url_writer = DevblocksPlatform::getUrlService();
+		
+		// Generate hash
+		$hash = md5($view_id.$active_worker->id.time()); 
+		
+		// Loop through view and get IDs
+		$view = C4_AbstractViewLoader::getView($view_id);
+
+		// Page start
+		@$explore_from = DevblocksPlatform::importGPC($_REQUEST['explore_from'],'integer',0);
+		if(empty($explore_from)) {
+			$orig_pos = 1+($view->renderPage * $view->renderLimit);
+		} else {
+			$orig_pos = 1;
+		}
+		
+		$view->renderPage = 0;
+		$view->renderLimit = 250;
+		$pos = 0;
+		
+		do {
+			$models = array();
+			list($results, $total) = $view->getData();
+
+			// Summary row
+			if(0==$view->renderPage) {
+				$model = new Model_ExplorerSet();
+				$model->hash = $hash;
+				$model->pos = $pos++;
+				$model->params = array(
+					'title' => $view->name,
+					'created' => time(),
+					'worker_id' => $active_worker->id,
+					'total' => $total,
+					'return_url' => isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : $url_writer->write('c=preferences&tab=events', true),
+					'toolbar_extension_id' => 'cerberusweb.explorer.toolbar.worker_events',
+				);
+				$models[] = $model; 
+				
+				$view->renderTotal = false; // speed up subsequent pages
+			}
+			
+			if(is_array($results))
+			foreach($results as $event_id => $row) {
+				if($event_id==$explore_from)
+					$orig_pos = $pos;
+				
+				$model = new Model_ExplorerSet();
+				$model->hash = $hash;
+				$model->pos = $pos++;
+				$model->params = array(
+					'id' => $row[SearchFields_WorkerEvent::ID],
+					'url' => $row[SearchFields_WorkerEvent::URL],
+				);
+				$models[] = $model; 
+			}
+			
+			DAO_ExplorerSet::createFromModels($models);
+			
+			$view->renderPage++;
+			
+		} while(!empty($results));
+		
+		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('explore',$hash,$orig_pos)));
+	}	
+	
+	function explorerEventMarkReadAction() {
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'integer', 0);
+
+		$worker = CerberusApplication::getActiveWorker();
+		
+		if(!empty($id)) {
+			DAO_WorkerEvent::updateWhere(
+				array(
+					DAO_WorkerEvent::IS_READ => 1,
+				), 
+				sprintf("%s = %d AND %s = %d",
+					DAO_WorkerEvent::WORKER_ID,
+					$worker->id,
+					DAO_WorkerEvent::ID,
+					$id
+				)
+			);
+			
+			DAO_WorkerEvent::clearCountCache($worker->id);
+		}
+	}
+
+	/**
+	 * Open an event, mark it read, and redirect to its URL.
+	 * Used by Home->Notifications view.
+	 *
+	 */
+	function redirectReadAction() {
+		$worker = CerberusApplication::getActiveWorker();
+		
+		$request = DevblocksPlatform::getHttpRequest();
+		$stack = $request->path;
+		
+		array_shift($stack); // home
+		array_shift($stack); // redirectReadAction
+		@$id = array_shift($stack); // id
+		
+		if(null != ($event = DAO_WorkerEvent::get($id))) {
+			// Mark as read before we redirect
+			DAO_WorkerEvent::update($id, array(
+				DAO_WorkerEvent::IS_READ => 1
+			));
+			
+			DAO_WorkerEvent::clearCountCache($worker->id);
+
+			session_write_close();
+			header("Location: " . $event->url);
+		}
+		exit;
+	} 	
+	
+//	function showWorkspacesIntroTabAction() {
+//		$translate = DevblocksPlatform::getTranslationService();
+//		$active_worker = CerberusApplication::getActiveWorker();
+//		
+//		$tpl = DevblocksPlatform::getTemplateService();
+//		
+//		$tpl->display('devblocks:cerberusweb.core::home/tabs/workspaces_intro/index.tpl');
+//	}
+//	
+//	function doWorkspaceInitAction() {
+//		$active_worker = CerberusApplication::getActiveWorker();
+//		$visit = CerberusApplication::getVisit();
+//		
+//		$fields = array(
+//			DAO_Workspace::NAME => 'My First Workspace',
+//			DAO_Workspace::WORKER_ID => $active_worker->id,
+//		);
+//		$workspace_id = DAO_Workspace::create($fields);
+//		
+//		DAO_Workspace::setEndpointWorkspaces(Extension_PreferencesTab::POINT, $active_worker->id, $workspace_id);
+//		$visit->set(Extension_PreferencesTab::POINT, 'w_'.$workspace_id);
+//		
+//		// My Tickets
+//		
+//		$list = new Model_WorkspaceListView();
+//		$list->title = 'My Mail';
+//		$list->columns = array(
+//			SearchFields_Ticket::TICKET_LAST_ACTION_CODE,
+//			SearchFields_Ticket::TICKET_UPDATED_DATE,
+//			SearchFields_Ticket::TICKET_TEAM_ID,
+//			SearchFields_Ticket::TICKET_CATEGORY_ID,
+//		);
+//		$list->params = array(
+//			SearchFields_Ticket::TICKET_CLOSED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',0), 
+//			SearchFields_Ticket::TICKET_WAITING => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_WAITING,'=',0),
+//			SearchFields_Ticket::VIRTUAL_WORKERS => new DevblocksSearchCriteria(SearchFields_Ticket::VIRTUAL_WORKERS,null,array($active_worker->id))
+//		);
+//		$list->num_rows = 5;
+//		
+//		$fields = array(
+//			DAO_WorkspaceList::WORKER_ID => $active_worker->id,
+//			DAO_WorkspaceList::WORKSPACE_ID => $workspace_id,
+//			DAO_WorkspaceList::LIST_POS => 1,
+//			DAO_WorkspaceList::LIST_VIEW => serialize($list),
+//			DAO_WorkspaceList::CONTEXT => CerberusContexts::CONTEXT_TICKET,
+//		);
+//		DAO_WorkspaceList::create($fields);
+//		
+//		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('preferences')));
+//	}	
+	
 	// Ajax [TODO] This should probably turn into Extension_PreferenceTab
 	function showGeneralAction() {
 		$date_service = DevblocksPlatform::getDateService();
@@ -346,5 +628,15 @@ class ChPreferencesPage extends CerberusPageExtension {
 		}
 		
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('preferences','rss')));
+	}
+};
+
+class ChExplorerToolbarWorkerEvents extends Extension_ExplorerToolbar {
+	function render(Model_ExplorerSet $item) {
+		$tpl = DevblocksPlatform::getTemplateService();
+		
+		$tpl->assign('item', $item);
+		
+		$tpl->display('devblocks:cerberusweb.core::preferences/renderer/explorer_toolbar.tpl');
 	}
 };

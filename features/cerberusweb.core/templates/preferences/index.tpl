@@ -2,8 +2,6 @@
 </ul>
 <div style="clear:both;"></div>
 
-<h1>{$translate->_('header.preferences')|capitalize}</h1>
-
 {if is_array($pref_errors) && !empty($pref_errors)}
 	<div class="ui-widget">
 		<div class="ui-state-error ui-corner-all" style="padding: 0.7em; margin:0.2em; ">
@@ -22,15 +20,15 @@
 		{/foreach}
 		</div>
 	</div>
-{else}
-	<br>
 {/if}
 
 <div id="prefTabs">
 	<ul>
-		{$tabs = [general,rss]}
+		{$tabs = [events,links,general,rss]}
 		{$point = Extension_PreferenceTab::POINT}
 		
+		<li><a href="{devblocks_url}ajax.php?c=preferences&a=showMyEvents{/devblocks_url}">{'home.tab.my_notifications'|devblocks_translate}</a></li>
+		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextLinks&context=cerberusweb.contexts.worker&point={$point}&id={$active_worker->id}&filter_open=1{/devblocks_url}">{'Assignments'|devblocks_translate}</a></li>
 		<li><a href="{devblocks_url}ajax.php?c=preferences&a=showGeneral{/devblocks_url}">General</a></li>
 		<li><a href="{devblocks_url}ajax.php?c=preferences&a=showRss{/devblocks_url}">RSS Notifications</a></li>
 

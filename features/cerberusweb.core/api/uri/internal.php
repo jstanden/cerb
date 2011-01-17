@@ -98,7 +98,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		$worker = CerberusApplication::getActiveWorker();
 		DAO_WorkerPref::set($worker->id, 'assist_mode', 0);
 		
-		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('home')));
+		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('preferences')));
 	}
 	
 	// Contexts
@@ -933,7 +933,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		DAO_Workspace::setEndpointWorkspaces($point, $active_worker->id, $workspace_ids);
 		
 		if(empty($request))
-			$request = 'home';
+			$request = 'mail';
 		
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(explode('/',$request)));
 	}
@@ -1005,68 +1005,6 @@ class ChInternalController extends DevblocksControllerExtension {
 		);
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/index.tpl');
-	}	
-	
-	function doAddWorkspaceAction() {
-		@$name = DevblocksPlatform::importGPC($_REQUEST['name'], 'string', '');
-		@$context = DevblocksPlatform::importGPC($_REQUEST['context'], 'string', '');
-		@$workspace_id = DevblocksPlatform::importGPC($_REQUEST['workspace_id'], 'integer', 0);
-		@$new_workspace = DevblocksPlatform::importGPC($_REQUEST['new_workspace'], 'string', '');
-		
-		$active_worker = CerberusApplication::getActiveWorker();
-
-		// Source extension exists
-		if(null != ($context_ext = DevblocksPlatform::getExtension($context, true))) { /* @var $context_ext Extension_DevblocksContext */
-			// Class exists
-			//if(null != (@$class = $context_ext->params['view_class'])) {
-			if(null != (@$class = $context_ext->getViewClass())) {
-				if(!class_exists($class, true) || null == ($view = new $class))
-					return;
-				
-				if(empty($name))
-					$name = $context_ext->manifest->name;
-				
-				// Is this a real workspace?
-				if(null == ($workspace = DAO_Workspace::get($workspace_id)))
-					$workspace_id = 0;
-					
-				// New workspace
-				if(empty($workspace_id) && empty($new_workspace))
-					$new_workspace = 'New Workspace';
-
-				// Do we still need to make the workspace?
-				if(!empty($new_workspace)) {
-					$fields = array(
-						DAO_Workspace::NAME => $new_workspace,
-						DAO_Workspace::WORKER_ID => $active_worker->id,
-					);
-					$workspace_id = DAO_Workspace::create($fields);
-				}
-				
-				unset($new_workspace);
-					
-				// Build the list model
-				$list = new Model_WorkspaceListView();
-				$list->title = $name;
-				$list->columns = $view->view_columns;
-				$list->params = $view->getEditableParams();
-				$list->num_rows = 5;
-				$list->sort_by = $view->renderSortBy;
-				$list->sort_asc = $view->renderSortAsc;
-				
-				// Add the worklist
-				$fields = array(
-					DAO_WorkspaceList::WORKER_ID => $active_worker->id,
-					DAO_WorkspaceList::LIST_POS => 1,
-					DAO_WorkspaceList::LIST_VIEW => serialize($list),
-					DAO_WorkspaceList::WORKSPACE_ID => $workspace_id,
-					DAO_WorkspaceList::CONTEXT => $context_ext->manifest->id,
-				);
-				DAO_WorkspaceList::create($fields);
-			}
-		}
-		
-		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('home')));
 	}	
 	
 	function showEditWorkspacePanelAction() {
@@ -1185,7 +1123,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		}	
 		
 		if(empty($request))
-			$request = 'home';
+			$request = 'mail';
 		
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(explode('/', $request)));
 		return;
