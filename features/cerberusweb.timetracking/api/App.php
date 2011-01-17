@@ -1269,6 +1269,7 @@ class ChTimeTrackingPage extends CerberusPageExtension {
 							$activity = DAO_TimeTrackingActivity::get($activity_id);
 						}
 						
+						// [TODO] This comment could be added to anything context now using DAO_Comment + Context_*
 						$comment = sprintf(
 							"== %s ==\n".
 							"%s %s\n".
@@ -1345,6 +1346,10 @@ class ChTimeTrackingPage extends CerberusPageExtension {
 		@$worker_ids = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',array());
 		CerberusContexts::setWorkers(CerberusContexts::CONTEXT_TIMETRACKING, $id, $worker_ids);
 
+		// Custom field saves
+		@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', array());
+		DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_TIMETRACKING, $id, $field_ids);
+		
 		// Comments
 		@$comment = DevblocksPlatform::importGPC($_POST['comment'],'string','');
 		if(!empty($comment)) {
@@ -1356,11 +1361,16 @@ class ChTimeTrackingPage extends CerberusPageExtension {
 				DAO_Comment::CREATED => time(),
 			);		
 			$comment_id = DAO_Comment::create($fields);
+			
+			// Notifications
+			@$notify_worker_ids = DevblocksPlatform::importGPC($_REQUEST['notify_worker_ids'],'array',array());
+			DAO_Comment::triggerCommentNotifications(
+				CerberusContexts::CONTEXT_TIMETRACKING,
+				$id,
+				$active_worker,
+				$notify_worker_ids
+			);
 		}
-		
-		// Custom field saves
-		@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', array());
-		DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_TIMETRACKING, $id, $field_ids);
 	}
 	
 	function viewTimeExploreAction() {

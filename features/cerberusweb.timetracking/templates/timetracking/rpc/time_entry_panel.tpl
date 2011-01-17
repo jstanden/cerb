@@ -61,12 +61,6 @@
 			</td>
 		</tr>
 		<tr>
-			<td width="0%" nowrap="nowrap" valign="top" align="right"><b>{$translate->_('common.comment')|capitalize}</b>:</td>
-			<td width="100%">
-				<textarea name="comment" rows="4" cols="45" style="width:98%;">{$model->notes}</textarea>
-			</td>
-		</tr>
-		<tr>
 			<td width="0%" nowrap="nowrap" valign="top" align="right"><b>{'common.owners'|devblocks_translate|capitalize}</b>:</td>
 			<td width="100%">
 				<button type="button" class="chooser_worker"><span class="cerb-sprite sprite-view"></span></button>
@@ -92,8 +86,16 @@
 {* Comment *}
 {if !empty($last_comment)}
 	{include file="devblocks:cerberusweb.core::internal/comments/comment.tpl" readonly=true comment=$last_comment}
-	<br>
 {/if}
+
+<fieldset>
+	<legend>{'common.comment'|devblocks_translate|capitalize}</legend>
+	<textarea name="comment" rows="5" cols="45" style="width:98%;"></textarea><br>
+	<b>{'common.notify_workers'|devblocks_translate}:</b>
+	<button type="button" class="chooser_notify_worker"><span class="cerb-sprite sprite-view"></span></button>
+	<ul class="chooser-container bubbles" style="display:block;">
+	</ul>
+</fieldset>
 
 {if $model->context && $model->context_id}
 <input type="hidden" name="context" value="{$model->context}">
@@ -129,5 +131,8 @@
 	} );
 	$('#frmTimeEntry button.chooser_worker').each(function() {
 		ajax.chooser(this,'cerberusweb.contexts.worker','worker_id', { autocomplete:true });
+	});
+	$('#frmTimeEntry button.chooser_notify_worker').each(function() {
+		ajax.chooser(this,'cerberusweb.contexts.worker','notify_worker_ids', { autocomplete:true });
 	});
 </script>
