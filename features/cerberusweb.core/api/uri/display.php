@@ -434,7 +434,6 @@ class ChDisplayPage extends CerberusPageExtension {
 		$tpl->display('devblocks:cerberusweb.core::display/rpc/add_note.tpl');
 	}
 	
-	// [TODO] Merge w/ the new comments functionality?
 	function doAddNoteAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
 		@$ticket_id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer',0);
@@ -451,11 +450,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		);
 		$note_id = DAO_Comment::create($fields);
 		
-		// [TODO] This really should use an anchor to go back to the message (#r100)
-//		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('display',$ticket_id)));
-
 		if(null != ($ticket = DAO_Ticket::get($ticket_id))) {
-			
 			// Notifications
 			$url_writer = DevblocksPlatform::getUrlService();
 			@$notify_worker_ids = DevblocksPlatform::importGPC($_REQUEST['notify_worker_ids'],'array',array());

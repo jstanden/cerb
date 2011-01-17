@@ -115,6 +115,42 @@ class DAO_Comment extends DevblocksORMHelper {
 		return $objects;
 	}
 	
+	/**
+	 * 
+	 * @param string $context
+	 * @param integer $context_id
+	 * @param Model_Worker $active_worker
+	 * @param array $notify_worker_ids
+	 * @return bool
+	 */
+	static function triggerCommentNotifications($context, $context_id, $active_worker, $notify_worker_ids) {
+		$translate = DevblocksPlatform::getTranslationService();
+
+		if(null == ($extension = DevblocksPlatform::getExtension($context, true)))
+			return FALSE;
+		
+		if(null == (@$string = $extension->manifest->params['events'][0]['context.commented']))
+			$string = 'context.default.commented';
+			
+		// URL
+		if(null == ($url = $extension->getPermalink($context_id)))
+			return FALSE;
+			
+		// Notifications
+		if(is_array($notify_worker_ids) && !empty($notify_worker_ids))
+		foreach($notify_worker_ids as $notify_worker_id) {
+			$fields = array(
+				DAO_WorkerEvent::CREATED_DATE => time(),
+				DAO_WorkerEvent::WORKER_ID => $notify_worker_id,
+				DAO_WorkerEvent::URL => $url,
+				DAO_WorkerEvent::MESSAGE => vsprintf($translate->_($string), $active_worker->getName()),
+			);
+			DAO_WorkerEvent::create($fields);
+		}
+		
+		return TRUE;
+	}
+	
 	static function deleteByContext($context, $context_ids) {
 		if(!is_array($context_ids)) 
 			$context_ids = array($context_ids);

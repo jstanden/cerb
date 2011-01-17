@@ -1295,28 +1295,14 @@ class ChInternalController extends DevblocksControllerExtension {
 			DAO_AttachmentLink::create(intval($file_id), CerberusContexts::CONTEXT_COMMENT, $comment_id);
 		}
 		
-		if(null == ($extension = DevblocksPlatform::getExtension($context, true, true)))
-			return; 
-		
-		if(null == (@$string = $extension->manifest->params['events'][0]['context.commented']))
-			$string = 'context.default.commented';
-			
-		// URL
-		if(null == ($url = $extension->getPermalink($context_id)))
-			return;
-			
 		// Notifications
 		@$notify_worker_ids = DevblocksPlatform::importGPC($_REQUEST['notify_worker_ids'],'array',array());
-		if(is_array($notify_worker_ids) && !empty($notify_worker_ids))
-		foreach($notify_worker_ids as $notify_worker_id) {
-			$fields = array(
-				DAO_WorkerEvent::CREATED_DATE => time(),
-				DAO_WorkerEvent::WORKER_ID => $notify_worker_id,
-				DAO_WorkerEvent::URL => $url,
-				DAO_WorkerEvent::MESSAGE => vsprintf($translate->_($string), $active_worker->getName()),
-			);
-			DAO_WorkerEvent::create($fields);
-		}
+		DAO_Comment::triggerCommentNotifications(
+			$context,
+			$context_id,
+			$active_worker,
+			$notify_worker_ids
+		);
 	}
 	
 	function commentDeleteAction() {
