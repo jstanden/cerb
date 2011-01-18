@@ -2373,6 +2373,9 @@ class _DevblocksOpenIDManager {
 	public function validate($scope) {
 		$url_writer = DevblocksPlatform::getUrlService();
 		
+		if(!isset($scope['openid_identity']))
+			return false;
+		
 		$openid_identifier = $scope['openid_identity'];
 		
 		$server = $this->discover($openid_identifier);
