@@ -1188,12 +1188,15 @@ class ChInternalController extends DevblocksControllerExtension {
 		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer',0);
 		
 		$tpl = DevblocksPlatform::getTemplateService();
+		$active_worker = CerberusApplication::getActiveWorker();
 		
 		$tpl->assign('context', $context);
 		$tpl->assign('context_id', $context_id);
 		
 		// Automatically tell anybody associated with this context object
 		$workers = CerberusContexts::getWorkers($context, $context_id);
+		if(isset($workers[$active_worker->id]))
+			unset($workers[$active_worker->id]);
 		$tpl->assign('notify_workers', $workers);
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/comments/peek.tpl');
