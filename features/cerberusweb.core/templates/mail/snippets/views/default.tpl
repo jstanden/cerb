@@ -73,6 +73,16 @@
 					{$workers.{$worker_id}->getName()}
 				{/if}
 			</td>
+			{elseif $column=="s_context"}
+			<td>
+				{if 'cerberusweb.contexts.plaintext' == $result.$column}
+					Plaintext
+				{elseif isset($contexts.{$result.$column})}
+					{$contexts.{$result.$column}->name}
+				{else}
+					{$result.$column}
+				{/if}
+			</td>
 			{else}
 			<td>{$result.$column}</td>
 			{/if}

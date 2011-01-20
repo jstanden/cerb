@@ -43,13 +43,20 @@
 <br>
 </form>
 
+{if 'cerberusweb.contexts.plaintext' == $snippet->context}
+{$context_name = 'Plaintext'}
+{elseif isset($contexts.{$snippet->context})}
+{$context_name = $contexts.{$snippet->context}->name}
+{else}
+{$context_name = $snippet->context}
+{/if}
 <script type="text/javascript">
 	$popup = genericAjaxPopupFetch('peek');
 	$popup.one('popup_open',function(event,ui) {
 		{if empty($snippet->id)}
-		$(this).dialog('option','title', 'Create Snippet ({$snippet->context})');
+		$(this).dialog('option','title', 'Create Snippet ({$context_name})');
 		{else}
-		$(this).dialog('option','title', 'Modify Snippet ({$snippet->context})');
+		$(this).dialog('option','title', 'Modify Snippet ({$context_name})');
 		{/if}
 	} );
 </script>

@@ -434,6 +434,9 @@ class View_Snippet extends C4_AbstractView {
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
 
+		$contexts = Extension_DevblocksContext::getAll(false);
+		$tpl->assign('contexts', $contexts);
+		
 		switch($this->renderTemplate) {
 			case 'contextlinks_chooser':
 				$tpl->display('devblocks:cerberusweb.core::mail/snippets/views/view_contextlinks_chooser.tpl');
@@ -452,7 +455,6 @@ class View_Snippet extends C4_AbstractView {
 		switch($field) {
 			case SearchFields_Snippet::ID:
 			case SearchFields_Snippet::TITLE:
-			case SearchFields_Snippet::CONTEXT:
 			case SearchFields_Snippet::CREATED_BY:
 			case SearchFields_Snippet::LAST_UPDATED:
 			case SearchFields_Snippet::LAST_UPDATED_BY:
@@ -468,6 +470,9 @@ class View_Snippet extends C4_AbstractView {
 				break;
 			case 'placeholder_date':
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__date.tpl');
+				break;
+			case SearchFields_Snippet::CONTEXT:
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context.tpl');
 				break;
 			default:
 				// Custom Fields
@@ -501,7 +506,6 @@ class View_Snippet extends C4_AbstractView {
 		switch($field) {
 			case SearchFields_Snippet::ID:
 			case SearchFields_Snippet::TITLE:
-			case SearchFields_Snippet::CONTEXT:
 			case SearchFields_Snippet::CREATED_BY:
 			case SearchFields_Snippet::LAST_UPDATED:
 			case SearchFields_Snippet::LAST_UPDATED_BY:
@@ -531,6 +535,11 @@ class View_Snippet extends C4_AbstractView {
 			case 'placeholder_bool':
 				@$bool = DevblocksPlatform::importGPC($_REQUEST['bool'],'integer',1);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
+				break;
+				
+			case SearchFields_Snippet::CONTEXT:
+				@$in_contexts = DevblocksPlatform::importGPC($_REQUEST['contexts'],'array',array());
+				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$in_contexts);
 				break;
 				
 			default:

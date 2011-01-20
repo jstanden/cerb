@@ -1,3 +1,6 @@
+{if empty($contexts)}
+{$contexts = Extension_DevblocksContext::getAll(false)}
+{/if}
 <b>{$translate->_('search.operator')|capitalize}:</b><br>
 <blockquote style="margin:5px;">
 	<select name="oper">

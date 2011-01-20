@@ -648,7 +648,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		}
 		
 		$view->addParamsRequired(array(
-			SearchFields_Snippet::CONTEXT => new DevblocksSearchCriteria(SearchFields_Snippet::CONTEXT, DevblocksSearchCriteria::OPER_IN, array('cerberusweb.contexts.plaintext','cerberusweb.contexts.ticket','cerberusweb.contexts.worker')),
+			'tmp_contexts' => new DevblocksSearchCriteria(SearchFields_Snippet::CONTEXT, DevblocksSearchCriteria::OPER_IN, array('cerberusweb.contexts.plaintext','cerberusweb.contexts.ticket','cerberusweb.contexts.worker')),
 		));
 		
 		C4_AbstractViewLoader::setView($view->id,$view);
@@ -685,7 +685,10 @@ class ChTicketsPage extends CerberusPageExtension {
 				$tpl->assign('token_labels', $token_labels);
 				break;
 		}
-			
+		
+		$contexts = Extension_DevblocksContext::getAll(false);
+		$tpl->assign('contexts', $contexts);
+		
 		// Custom fields
 		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_SNIPPET); 
 		$tpl->assign('custom_fields', $custom_fields);
