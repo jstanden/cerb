@@ -4339,7 +4339,7 @@ class _DevblocksTemplateManager {
 			$quote_ended = false;
 			
 			// Check if the line starts with a > before any content
-			if(preg_match("/^\s*\>/", $line)) {
+			if(preg_match('#^\s*(\>|\&gt;)#', $line)) {
 				if(false === $quote_started)
 					$quote_started = $idx;
 				$quote_ended = false;
