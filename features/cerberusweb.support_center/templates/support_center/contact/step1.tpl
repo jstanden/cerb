@@ -23,7 +23,7 @@
 		<legend>{$translate->_('portal.sc.public.contact.contact_us')}</legend>
 		
 	   	{assign var=linked_default_from value="<a href=\""|cat:$default_from|cat:"\">"|cat:$default_from|cat:"</a>"}
-	   	{'portal.sc.public.contact.write_to_us'|devblocks_translate:$linked_default_from}<br>   	
+	   	{'portal.sc.public.contact.write_to_us'|devblocks_translate:$linked_default_from nofilter}<br>   	
 	</fieldset>
 {/if}
 

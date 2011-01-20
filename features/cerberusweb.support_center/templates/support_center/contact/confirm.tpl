@@ -10,7 +10,7 @@
 	      	{$translate->_('portal.sc.public.contact.message_received')}<br>
 	      	{if !empty($last_opened)}
 		      	{assign var=tagged_last_opened value="<b>"|cat:$last_opened|cat:"</b>"}
-		      	{'portal.public.your_reference_number'|devblocks_translate:$tagged_last_opened}<br>
+		      	{'portal.public.your_reference_number'|devblocks_translate:$tagged_last_opened nofilter}<br>
 	      	{/if}
       	</fieldset>
       	<h1></h1>
