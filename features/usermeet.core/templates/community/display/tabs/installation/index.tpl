@@ -21,7 +21,7 @@ define('REMOTE_URI', '{$path}'); // NO trailing slash!
 define('URL_REWRITE', file_exists('.htaccess'));
 define('LOCAL_HOST', $_SERVER['HTTP_HOST']);
 define('LOCAL_BASE', DevblocksRouter::getLocalBase()); // NO trailing slash!
-define('SCRIPT_LAST_MODIFY', 2010100601); // last change
+define('SCRIPT_LAST_MODIFY', 2011012001); // last change
 
 @session_start();
 
@@ -86,11 +86,11 @@ class DevblocksProxy {
         }
     }
 
-    function _get($local_path) {
+    function _get($local_path, $remote_path) {
         die("Subclass abstract " . __CLASS__ . "...");
     }
 
-    function _post($local_path) {
+    function _post($local_path, $remote_path) {
         die("Subclass abstract " . __CLASS__ . "...");
     }
 
@@ -433,7 +433,7 @@ class DevblocksRouter {
      * @static
      * @return string
      */
-    function getLocalBase() {
+    static function getLocalBase() {
     	$uri = $_SERVER['PHP_SELF'];
     	if(substr($uri,-1,1)=='/') // strip trailing slash
     		$uri = substr($uri,0,-1);

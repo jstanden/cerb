@@ -92,10 +92,10 @@ abstract class Extension_UsermeetTool extends DevblocksExtension implements Devb
 	/**
 	 * @param Model_CommunityTool $instance
 	 */
-	public function configure($instance) {
+	public function configure(Model_CommunityTool $instance) {
 	}
 	
-	public function saveConfiguration() {
+	public function saveConfiguration(Model_CommunityTool $instance) {
 	}
     
 };

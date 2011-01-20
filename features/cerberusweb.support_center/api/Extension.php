@@ -106,12 +106,12 @@ abstract class Extension_UmScController extends DevblocksExtension implements De
 		return true;
 	}
 	
-	public function configure() {
+	public function configure(Model_CommunityTool $instance) {
 		// [TODO] Translate
 		echo "This module has no configuration options.<br><br>";
 	}
 	
-	public function saveConfiguration() {
+	public function saveConfiguration(Model_CommunityTool $instance) {
 		/* Expect Overload */
 	}
     
