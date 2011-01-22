@@ -17,7 +17,19 @@
 					{assign var=ticket_team_category_set value=$team_categories.$ticket_team_id}
 					{assign var=ticket_category value=$ticket_team_category_set.$ticket_category_id}
 					
-					<b>{$translate->_('ticket.status')|capitalize}:</b> {if $ticket->is_deleted}{$translate->_('status.deleted')}{elseif $ticket->is_closed}{$translate->_('status.closed')}{elseif $ticket->is_waiting}{$translate->_('status.waiting')}{else}{$translate->_('status.open')}{/if} &nbsp; 
+					<b>{$translate->_('ticket.status')|capitalize}:</b> 
+					{if $ticket->is_deleted}
+						{$translate->_('status.deleted')}
+					{elseif $ticket->is_closed}
+						{$translate->_('status.closed')}
+					{elseif $ticket->is_waiting}
+						{$translate->_('status.waiting')}
+						{if !empty($ticket->due_date)}
+							(<abbr title="{$ticket->due_date|devblocks_date}">{$ticket->due_date|devblocks_prettytime}</abbr>)
+						{/if}
+					{else}
+						{$translate->_('status.open')}
+					{/if} &nbsp; 
 					<b>{$translate->_('common.group')|capitalize}:</b> {$teams.$ticket_team_id->name} &nbsp; 
 					<b>{$translate->_('common.bucket')|capitalize}:</b> {if !empty($ticket_category_id)}{$ticket_category->name}{else}{$translate->_('common.inbox')|capitalize}{/if} &nbsp; 
 					<b>{$translate->_('ticket.mask')|capitalize}:</b> {$ticket->mask} &nbsp; 
