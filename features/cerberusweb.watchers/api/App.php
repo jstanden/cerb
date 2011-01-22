@@ -337,12 +337,12 @@ class ChWatchersPreferences extends Extension_PreferenceTab {
 		
 		$view->addParamsRequired(array(
 			SearchFields_WatcherMailFilter::WORKER_ID => new DevblocksSearchCriteria(SearchFields_WatcherMailFilter::WORKER_ID,'eq',$worker->id),
-		));
+		), true);
 		
 		$view->addParamsHidden(array(
 			SearchFields_WatcherMailFilter::ID,
 			SearchFields_WatcherMailFilter::WORKER_ID,
-		));
+		), true);
 		
 		C4_AbstractViewLoader::setView($view->id, $view);
 		

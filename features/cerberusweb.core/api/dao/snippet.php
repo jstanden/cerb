@@ -706,7 +706,8 @@ class Context_Snippet extends Extension_DevblocksContext {
 				$view->addParamsRequired(
 					array(
 						SearchFields_Snippet::CONTEXT => new DevblocksSearchCriteria(SearchFields_Snippet::CONTEXT, DevblocksSearchCriteria::OPER_IN, $contexts)
-					)
+					),
+					true
 				);
 			}
 		}

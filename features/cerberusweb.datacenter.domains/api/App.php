@@ -43,10 +43,10 @@ class ChDomainsServerTab extends Extension_ServerTab {
 		
 		$view->addParamsHidden(array(
 			SearchFields_Domain::SERVER_ID,
-		));
+		), true);
 		$view->addParamsRequired(array(
 			SearchFields_Domain::SERVER_ID => new DevblocksSearchCriteria(SearchFields_Domain::SERVER_ID, '=', $server->id),
-		));
+		), true);
 		
 		C4_AbstractViewLoader::setView($view_id, $view);
 

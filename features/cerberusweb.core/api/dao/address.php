@@ -912,7 +912,7 @@ class Context_Address extends Extension_DevblocksContext {
 		
 		$view->addParamsDefault(array(
 			SearchFields_Address::IS_BANNED => new DevblocksSearchCriteria(SearchFields_Address::IS_BANNED,'=',0),
-		));
+		), true);
 		$view->addParams($view->getParamsDefault(), true);
 		
 		$view->renderSortBy = SearchFields_Address::EMAIL;

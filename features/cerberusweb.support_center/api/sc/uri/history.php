@@ -43,7 +43,7 @@ class UmScHistoryController extends Extension_UmScController {
 			$history_view->addParamsRequired(array(
 				'_acl_reqs' => new DevblocksSearchCriteria(SearchFields_Ticket::REQUESTER_ID,'in',$shared_address_ids),
 				'_acl_status' => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_DELETED,'=',0),
-			));
+			), true);
 			
 			UmScAbstractViewLoader::setView($history_view->id, $history_view);
 			$tpl->assign('view', $history_view);

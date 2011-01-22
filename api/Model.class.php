@@ -134,8 +134,11 @@ abstract class C4_AbstractView {
 		return $columnsHidden;
 	}
 	
-	function addColumnsHidden($columnsToHide) {
-		$this->_columnsHidden = array_unique(array_merge($this->getColumnsHidden(), $columnsToHide));
+	function addColumnsHidden($columnsToHide, $replace=false) {
+		if($replace)
+			$this->_columnsHidden = $columnsToHide;
+		else
+			$this->_columnsHidden = array_unique(array_merge($this->getColumnsHidden(), $columnsToHide));
 	}
 	
 	// Params Editable
@@ -188,8 +191,11 @@ abstract class C4_AbstractView {
 	
 	// Params Default
 	
-	function addParamsDefault($params) {
-		$this->_paramsDefault = array_merge($this->_paramsDefault, $params);
+	function addParamsDefault($params, $replace=false) {
+		if($replace)
+			$this->_paramsDefault = $params;
+		else
+			$this->_paramsDefault = array_merge($this->_paramsDefault, $params);
 	}
 	
 	function getParamsDefault() {
@@ -198,8 +204,11 @@ abstract class C4_AbstractView {
 	
 	// Params Required
 	
-	function addParamsRequired($params) {
-		$this->_paramsRequired = array_merge($this->_paramsRequired, $params);
+	function addParamsRequired($params, $replace=false) {
+		if($replace)
+			$this->_paramsRequired = $params;
+		else
+			$this->_paramsRequired = array_merge($this->_paramsRequired, $params);
 	}
 	
 	function getParamsRequired() {
@@ -208,8 +217,11 @@ abstract class C4_AbstractView {
 	
 	// Params Hidden
 	
-	function addParamsHidden($params) {
-		$this->_paramsHidden = array_unique(array_merge($this->_paramsHidden, $params));
+	function addParamsHidden($params, $replace=false) {
+		if($replace)
+			$this->_paramsHidden = $params;
+		else
+			$this->_paramsHidden = array_unique(array_merge($this->_paramsHidden, $params));
 	}
 	
 	function getParamsHidden() {
@@ -656,16 +668,16 @@ class C4_AbstractViewLoader {
 		if(!empty($model->view_columns))
 			$inst->view_columns = $model->view_columns;
 		if(!empty($model->columnsHidden))
-			$inst->addColumnsHidden($model->columnsHidden);
+			$inst->addColumnsHidden($model->columnsHidden, true);
 		
 		if(!empty($model->paramsEditable))
 			$inst->addParams($model->paramsEditable, true);
 		if(!empty($model->paramsDefault))
-			$inst->addParamsDefault($model->paramsDefault);
+			$inst->addParamsDefault($model->paramsDefault, true);
 		if(!empty($model->paramsRequired))
-			$inst->addParamsRequired($model->paramsRequired);
+			$inst->addParamsRequired($model->paramsRequired, true);
 		if(!empty($model->paramsHidden))
-			$inst->addParamsHidden($model->paramsHidden);
+			$inst->addParamsHidden($model->paramsHidden, true);
 
 		if(null !== $model->renderPage)
 			$inst->renderPage = $model->renderPage;

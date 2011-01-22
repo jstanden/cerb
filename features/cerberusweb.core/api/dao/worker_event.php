@@ -678,7 +678,7 @@ class Context_Notification extends Extension_DevblocksContext {
 //		);
 		$view->addParamsRequired(array(
 			SearchFields_WorkerEvent::WORKER_ID => new DevblocksSearchCriteria(SearchFields_WorkerEvent::WORKER_ID,'=',$active_worker->id),
-		));
+		), true);
 		$view->addParams(array(
 //			SearchFields_Task::IS_COMPLETED => new DevblocksSearchCriteria(SearchFields_Task::IS_COMPLETED,'=',0),
 		), true);

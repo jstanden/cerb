@@ -1111,12 +1111,12 @@ class UmScAbstractViewLoader {
 		$inst->name = $model->name;
 		
 		$inst->view_columns = $model->view_columns;
-		$inst->addColumnsHidden($model->columnsHidden);
+		$inst->addColumnsHidden($model->columnsHidden, true);
 		
 		$inst->addParams($model->paramsEditable, true);
-		$inst->addParamsDefault($model->paramsDefault);
-		$inst->addParamsHidden($model->paramsHidden);
-		$inst->addParamsRequired($model->paramsRequired);
+		$inst->addParamsDefault($model->paramsDefault, true);
+		$inst->addParamsHidden($model->paramsHidden, true);
+		$inst->addParamsRequired($model->paramsRequired, true);
 
 		$inst->renderPage = $model->renderPage;
 		$inst->renderLimit = $model->renderLimit;

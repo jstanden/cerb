@@ -197,11 +197,11 @@ class ChPreferencesPage extends CerberusPageExtension {
 			SearchFields_WorkerEvent::ID,
 			SearchFields_WorkerEvent::IS_READ,
 			SearchFields_WorkerEvent::WORKER_ID,
-		));
+		), true);
 		$myEventsView->addParamsRequired(array(
 			SearchFields_WorkerEvent::IS_READ => new DevblocksSearchCriteria(SearchFields_WorkerEvent::IS_READ,'=',0),
 			SearchFields_WorkerEvent::WORKER_ID => new DevblocksSearchCriteria(SearchFields_WorkerEvent::WORKER_ID,'=',$active_worker->id),
-		));
+		), true);
 		
 		/*
 		 * [TODO] This doesn't need to save every display, but it was possible to 

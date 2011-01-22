@@ -220,7 +220,7 @@ class ChContactsPage extends CerberusPageExtension {
 		
 		//$view->addParamsDefault(array(
 			//SearchFields_Example::PROPERTY => new DevblocksSearchCriteria(SearchFields_Example::PROPERTY,'=',1),
-		//));
+		//), true);
 		
 		$tpl->assign('view', $view);
 		$tpl->assign('contacts_page', 'people');
@@ -245,7 +245,7 @@ class ChContactsPage extends CerberusPageExtension {
 		
 		$view->addParamsDefault(array(
 			//SearchFields_Example::PROPERTY => new DevblocksSearchCriteria(SearchFields_Example::PROPERTY,'=',1),
-		));
+		), true);
 		
 		$tpl->assign('view', $view);
 		$tpl->assign('contacts_page', 'lists');
