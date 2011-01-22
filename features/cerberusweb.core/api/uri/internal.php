@@ -303,6 +303,31 @@ class ChInternalController extends DevblocksControllerExtension {
 				}
 				break;
 				
+			case CerberusContexts::CONTEXT_SNIPPET:
+				list($results, $null) = DAO_Snippet::search(
+					array(),
+					array(
+						new DevblocksSearchCriteria(SearchFields_Snippet::TITLE,DevblocksSearchCriteria::OPER_LIKE,'%'.$term.'%'),
+					),
+					25,
+					0,
+					SearchFields_Snippet::USAGE_HITS,
+					false,
+					false
+				);
+				
+				foreach($results AS $row){
+					$entry = new stdClass();
+					$entry->label = sprintf("%s -- used %s", 
+						$row[SearchFields_Snippet::TITLE],
+						((1 != $row[SearchFields_Snippet::USAGE_HITS]) ? (intval($row[SearchFields_Snippet::USAGE_HITS]) . ' times') : 'once')
+					);
+					$entry->value = $row[SearchFields_Snippet::ID];
+					$entry->context = $row[SearchFields_Snippet::CONTEXT];
+					$list[] = $entry;
+				}
+				break;
+				
 			case CerberusContexts::CONTEXT_WORKER:
 				list($results, $null) = DAO_Worker::search(
 					array(),

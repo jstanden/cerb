@@ -64,16 +64,31 @@
 
 			<div id="divDraftStatus{$message->id}"></div>
 			
-			{assign var=headers value=$message->getHeaders()}
-			<button name="saveDraft" type="button" onclick="if($(this).attr('disabled'))return;$(this).attr('disabled','disabled');genericAjaxPost('reply{$message->id}_part2',null,'c=display&a=saveDraftReply&is_ajax=1',function(json, ui) { var obj = $.parseJSON(json); $('#divDraftStatus{$message->id}').html(obj.html); $('#reply{$message->id}_part2 input[name=draft_id]').val(obj.draft_id); $('#reply{$message->id}_part1 button[name=saveDraft]').removeAttr('disabled'); } );"><span class="cerb-sprite sprite-check"></span> Save Draft</button>
-			<button name="showSnippets" type="button" onclick="openSnippetsChooser(this);"><span class="cerb-sprite sprite-text_rich"></span> {$translate->_('common.snippets')|capitalize}</button>
-			<button type="button" onclick="genericAjaxGet('','c=tickets&a=getComposeSignature&group_id={$ticket->team_id}',function(text) { insertAtCursor(document.getElementById('reply_{$message->id}'),text);document.getElementById('reply_{$message->id}').focus(); } );"><span class="cerb-sprite sprite-document_edit"></span> {$translate->_('display.reply.insert_sig')|capitalize}</button>
-			{* Plugin Toolbar *}
-			{if !empty($reply_toolbaritems)}
-				{foreach from=$reply_toolbaritems item=renderer}
-					{if !empty($renderer)}{$renderer->render($message)}{/if}
-				{/foreach}
-			{/if}
+			<div>
+				<fieldset style="display:inline-block;">
+					<legend>Actions</legend>
+					{assign var=headers value=$message->getHeaders()}
+					<button name="saveDraft" type="button" onclick="if($(this).attr('disabled'))return;$(this).attr('disabled','disabled');genericAjaxPost('reply{$message->id}_part2',null,'c=display&a=saveDraftReply&is_ajax=1',function(json, ui) { var obj = $.parseJSON(json); $('#divDraftStatus{$message->id}').html(obj.html); $('#reply{$message->id}_part2 input[name=draft_id]').val(obj.draft_id); $('#reply{$message->id}_part1 button[name=saveDraft]').removeAttr('disabled'); } );"><span class="cerb-sprite sprite-check"></span> Save Draft</button>
+					<button type="button" onclick="genericAjaxGet('','c=tickets&a=getComposeSignature&group_id={$ticket->team_id}',function(text) { insertAtCursor(document.getElementById('reply_{$message->id}'),text);document.getElementById('reply_{$message->id}').focus(); } );"><span class="cerb-sprite sprite-document_edit"></span> {$translate->_('display.reply.insert_sig')|capitalize}</button>
+					{* Plugin Toolbar *}
+					{if !empty($reply_toolbaritems)}
+						{foreach from=$reply_toolbaritems item=renderer}
+							{if !empty($renderer)}{$renderer->render($message)}{/if}
+						{/foreach}
+					{/if}
+				</fieldset>		
+				
+				<fieldset style="display:inline-block;">
+					<legend>{'common.snippets'|devblocks_translate|capitalize}</legend>
+					<div>
+						Insert: 
+						<input type="text" size="25" class="context-snippet autocomplete">
+						<button type="button" onclick="openSnippetsChooser(this);"><span class="cerb-sprite sprite-view"></span></button>
+						<button type="button" onclick="genericAjaxPopup('peek','c=tickets&a=showSnippetsPeek&id=0&context=cerberusweb.contexts.ticket&context_id={$ticket->id}',null,false,'550');"><span class="cerb-sprite sprite-add"></span></button>
+					</div>
+				</fieldset>
+			</div>
+			
 		</td>
 	</tr>
 </table>
@@ -274,6 +289,40 @@
 		$('#reply{$message->id}_part2 button.chooser_worker').each(function() {
 			ajax.chooser(this,'cerberusweb.contexts.worker','worker_id', { autocomplete:true });			
 		});
+		
+		$('#reply{$message->id}_part1 input:text.context-snippet').autocomplete({
+			source: DevblocksAppPath+'ajax.php?c=internal&a=autocomplete&context=cerberusweb.contexts.snippet',
+			minLength: 1,
+			focus:function(event, ui) {
+				return false;
+			},
+			selectFirst: true,
+			select:function(event, ui) {
+				$this = $(this);
+				$textarea = $('#reply_{$message->id}');
+				
+				$label = ui.item.label.replace("<","&lt;").replace(">","&gt;");
+				$value = ui.item.value;
+				
+				// Now we need to read in each snippet as either 'raw' or 'parsed' via Ajax
+				url = 'c=internal&a=snippetPaste&id=' + $value;
+
+				// Context-dependent arguments
+				if('cerberusweb.contexts.ticket'==ui.item.context) {
+					url += "&context_id={$ticket->id}";
+				} else if ('cerberusweb.contexts.worker'==ui.item.context) {
+					url += "&context_id={$active_worker->id}";
+				}
+
+				genericAjaxGet('',url,function(txt) {
+					$textarea.insertAtCursor(txt);
+				}, { async: false });
+
+				$this.val('');
+				return false;
+			}
+		});
+		
 	} );
 
 	function openSnippetsChooser(button) {
