@@ -289,8 +289,21 @@ class DevblocksPlatform extends DevblocksEngine {
 			$url = preg_replace("/^feed\:/","", $url);
 		}
 		
-		if(null == (@$data = file_get_contents($url)))
-			return false;
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_URL, $url);
+		curl_setopt($ch, CURLOPT_HEADER, 0);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+		$is_safemode = !(ini_get('open_basedir') == '' && ini_get('safe_mode' == 'Off'));	
+
+		// We can't use option this w/ safemode enabled
+		if(!$is_safemode)
+			curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+		
+		$data = curl_exec($ch);
+		curl_close($ch);
+		
+		if(empty($data))
+			return;
 		
 		if(null == (@$xml = simplexml_load_string($data)))
 			return false;
