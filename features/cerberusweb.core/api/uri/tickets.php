@@ -1247,20 +1247,27 @@ class ChTicketsPage extends CerberusPageExtension {
 
 		$tpl->assign('view_id', $view_id);
 		$tpl->assign('edit_mode', $edit_mode);
+
+		$messages = array();
 		
 		if(null != ($ticket = DAO_Ticket::get($tid))) {
 			/* @var $ticket Model_Ticket */
 		    $tpl->assign('ticket', $ticket);
+		    
+			$messages = $ticket->getMessages();
 		}
-		
-		$messages = $ticket->getMessages();
 		
 		// Do we have a specific message to look at?
 		if(!empty($msgid) && null != (@$message = $messages[$msgid])) {
 			 // Good
 		} else {
-			$message = end($messages);
-			$msgid = $message->id;
+			$message = null;
+			$msgid = null;
+			
+			if(is_array($messages)) {
+				if(null != ($message = end($messages)))
+					$msgid = $message->id;
+			}
 		}
 
 		if(!empty($message)) {

@@ -6,11 +6,10 @@
 
 <div id="peekTabs">
 	<ul>
-		{if !$edit_mode}<li><a href="#ticketPeekMessage">{'common.messages'|devblocks_translate|capitalize}</a></li>{/if}
+		{if !$edit_mode && !empty($message)}<li><a href="#ticketPeekMessage">{'common.messages'|devblocks_translate|capitalize}</a></li>{/if}
 		<li><a href="#ticketPeekProps">{'common.properties'|devblocks_translate|capitalize}</a></li>
 	</ul>
-		
-	{if !$edit_mode}
+	{if !$edit_mode && !empty($message)}
     <div id="ticketPeekMessage">
 			{assign var=headers value=$message->getHeaders()}
 			<b>{'message.header.to'|devblocks_translate|capitalize}:</b> {$headers.to}<br>
