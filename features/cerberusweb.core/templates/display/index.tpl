@@ -22,6 +22,9 @@
 						{$translate->_('status.deleted')}
 					{elseif $ticket->is_closed}
 						{$translate->_('status.closed')}
+						{if !empty($ticket->due_date)}
+							(<abbr title="{$ticket->due_date|devblocks_date}">{$ticket->due_date|devblocks_prettytime}</abbr>)
+						{/if}
 					{elseif $ticket->is_waiting}
 						{$translate->_('status.waiting')}
 						{if !empty($ticket->due_date)}

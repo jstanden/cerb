@@ -1360,12 +1360,6 @@ class ChTicketsPage extends CerberusPageExtension {
 					$fields[DAO_Ticket::IS_WAITING] = 1;
 					$fields[DAO_Ticket::IS_CLOSED] = 0;
 					$fields[DAO_Ticket::IS_DELETED] = 0;
-					
-					if(!empty($ticket_reopen) && false !== ($due = strtotime($ticket_reopen))) {
-						$fields[DAO_Ticket::DUE_DATE] = $due;
-					} else {
-						$fields[DAO_Ticket::DUE_DATE] = 0;
-					}
 					break;
 				case 3: // deleted
 					$fields[DAO_Ticket::IS_WAITING] = 0;
@@ -1373,6 +1367,14 @@ class ChTicketsPage extends CerberusPageExtension {
 					$fields[DAO_Ticket::IS_DELETED] = 1;
 					$fields[DAO_Ticket::DUE_DATE] = 0;
 					break;
+			}
+			
+			if(1==$closed || 2==$closed) {
+				if(!empty($ticket_reopen) && false !== ($due = strtotime($ticket_reopen))) {
+					$fields[DAO_Ticket::DUE_DATE] = $due;
+				} else {
+					$fields[DAO_Ticket::DUE_DATE] = 0;
+				}
 			}
 		}
 		
