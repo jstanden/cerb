@@ -198,6 +198,7 @@ class ChDebugController extends DevblocksControllerExtension  {
 					(extension_loaded("simplexml") ? 'YES' : 'NO'),
 					(extension_loaded("dom") ? 'YES' : 'NO'),
 					(extension_loaded("spl") ? 'YES' : 'NO'),
+					(extension_loaded("curl") ? 'YES' : 'NO'),
 					''
 				);
 				

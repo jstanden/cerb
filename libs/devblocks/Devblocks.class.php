@@ -289,21 +289,31 @@ class DevblocksPlatform extends DevblocksEngine {
 			$url = preg_replace("/^feed\:/","", $url);
 		}
 		
-		$ch = curl_init();
-		curl_setopt($ch, CURLOPT_URL, $url);
-		curl_setopt($ch, CURLOPT_HEADER, 0);
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-		$is_safemode = !(ini_get('open_basedir') == '' && ini_get('safe_mode' == 'Off'));	
-
-		// We can't use option this w/ safemode enabled
-		if(!$is_safemode)
-			curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
-		
-		$data = curl_exec($ch);
-		curl_close($ch);
+		if(extension_loaded("curl")) {
+			$ch = curl_init();
+			curl_setopt($ch, CURLOPT_URL, $url);
+			curl_setopt($ch, CURLOPT_HEADER, 0);
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+			$is_safemode = !(ini_get('open_basedir') == '' && ini_get('safe_mode' == 'Off'));	
+	
+			// We can't use option this w/ safemode enabled
+			if(!$is_safemode)
+				curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+			
+			$data = curl_exec($ch);
+			curl_close($ch);
+			
+		} elseif(ini_get('allow_url_fopen')) {
+			@$data = file_get_contents($url);
+			
+		} else {
+			$logger = DevblocksPlatform::getConsoleLog();
+			$logger->error("[Platform] 'curl' extension is not enabled and 'allow_url_fopen' is Off. Can not load a URL.");
+			return;
+		}
 		
 		if(empty($data))
-			return;
+			return true;
 		
 		if(null == (@$xml = simplexml_load_string($data)))
 			return false;
