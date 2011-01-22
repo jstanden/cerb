@@ -28,9 +28,10 @@
 	{/if}
 </div>
 
-{if isset($attachments_map) && !empty($attachments_map)}
+{if isset($attachments_map) && is_array($attachments_map)}
 	{$links = $attachments_map.links}
 	{$files = $attachments_map.attachments}
+	{if !empty($links) && !empty($files)}
 	<fieldset>
 		<legend>{'common.attachments'|devblocks_translate}</legend>
 		
@@ -48,6 +49,7 @@
 			{/foreach}
 		</ul>
 	</fieldset>
+	{/if}
 {/if}
 
 </div>
