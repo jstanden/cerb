@@ -75,7 +75,7 @@
 			</td>
 			{elseif $column=="s_context"}
 			<td>
-				{if 'cerberusweb.contexts.plaintext' == $result.$column}
+				{if '' == $result.$column}
 					Plaintext
 				{elseif isset($contexts.{$result.$column})}
 					{$contexts.{$result.$column}->name}

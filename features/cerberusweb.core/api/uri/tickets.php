@@ -655,7 +655,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		}
 		
 		$view->addParamsRequired(array(
-			'_tmp_contexts' => new DevblocksSearchCriteria(SearchFields_Snippet::CONTEXT, DevblocksSearchCriteria::OPER_IN, array('cerberusweb.contexts.plaintext','cerberusweb.contexts.ticket','cerberusweb.contexts.worker')),
+			'_tmp_contexts' => new DevblocksSearchCriteria(SearchFields_Snippet::CONTEXT, DevblocksSearchCriteria::OPER_IN, array('','cerberusweb.contexts.ticket','cerberusweb.contexts.worker')),
 		), true);
 		
 		C4_AbstractViewLoader::setView($view->id,$view);
@@ -676,12 +676,12 @@ class ChTicketsPage extends CerberusPageExtension {
 		if(null == ($snippet = DAO_Snippet::get($snippet_id))) {
 			$snippet = new Model_Snippet();
 			$snippet->id = 0;
-			$snippet->context = !empty($context) ? $context : 'cerberusweb.contexts.plaintext';
+			$snippet->context = !empty($context) ? $context : '';
 		}
 		$tpl->assign('snippet', $snippet);
 		
 		switch($snippet->context) {
-			case 'cerberusweb.contexts.plaintext':
+			case '':
 				break;
 			case 'cerberusweb.contexts.ticket':
 				CerberusContexts::getContext(CerberusContexts::CONTEXT_TICKET, null, $token_labels, $token_values);

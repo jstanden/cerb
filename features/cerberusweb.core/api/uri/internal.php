@@ -352,7 +352,7 @@ class ChInternalController extends DevblocksControllerExtension {
 				case 'cerberusweb.contexts.worker':
 					CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $context_id, $token_labels, $token_values);
 					break;
-				case 'cerberusweb.contexts.plaintext':
+				case '':
 					$token_values = array();
 					break;
 			}
@@ -387,7 +387,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		$token_value = array();
 		
 		switch($snippet_context) {
-			case 'cerberusweb.contexts.plaintext':
+			case '':
 				break;
 				
 			case 'cerberusweb.contexts.ticket':

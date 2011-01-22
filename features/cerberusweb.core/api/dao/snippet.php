@@ -472,6 +472,15 @@ class View_Snippet extends C4_AbstractView {
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__date.tpl');
 				break;
 			case SearchFields_Snippet::CONTEXT:
+				$contexts = Extension_DevblocksContext::getAll(false);
+				
+				// [TODO] [HACK!] Fake plaintext
+				$plain = new stdClass();
+				$plain->id = '';
+				$plain->name = 'Plaintext';
+				$contexts = array_merge(array(''=>$plain), $contexts);
+				$tpl->assign('contexts', $contexts);
+				
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context.tpl');
 				break;
 			default:
@@ -490,6 +499,20 @@ class View_Snippet extends C4_AbstractView {
 		$values = !is_array($param->value) ? array($param->value) : $param->value;
 
 		switch($field) {
+			case SearchFields_Snippet::CONTEXT:
+				$contexts = Extension_DevblocksContext::getAll(false);
+				$strings = array();
+				
+				foreach($param->value as $context_id) {
+					if(empty($context_id)) {
+						$strings[] = '<b>Plaintext</b>';
+					} elseif(isset($contexts[$context_id])) {
+						$strings[] = '<b>'.$contexts[$context_id]->name.'</b>';
+					}
+				}
+				
+				echo implode(', ', $strings);
+				break;
 			default:
 				parent::renderCriteriaParam($param);
 				break;
@@ -701,7 +724,7 @@ class Context_Snippet extends Extension_DevblocksContext {
 		// If we're being given contexts to filter down to
 		if(isset($_REQUEST['contexts'])) {
 			$contexts = DevblocksPlatform::parseCsvString(DevblocksPlatform::importGPC($_REQUEST['contexts'],'string',''));
-			$contexts[] = 'cerberusweb.contexts.plaintext';
+			$contexts[] = '';
 			if(is_array($contexts) && !empty($contexts)) {
 				$view->addParamsRequired(
 					array(

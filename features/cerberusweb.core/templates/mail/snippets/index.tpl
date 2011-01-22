@@ -2,7 +2,7 @@
 	<input type="hidden" name="c" value="tickets">
 	<input type="hidden" name="a" value="">
 	<select name="context">
-		<option value="cerberusweb.contexts.plaintext">Plaintext</option>
+		<option value="">Plaintext</option>
 		<option value="cerberusweb.contexts.ticket">Ticket</option>
 		<option value="cerberusweb.contexts.worker">Worker</option>
 	</select><!--

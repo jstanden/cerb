@@ -172,4 +172,9 @@ if(!isset($columns['context']) && isset($columns['source_extension'])) {
 
 $db->Execute("DELETE FROM worker_pref WHERE setting LIKE 'team_move_counts%'");
 
+// ===========================================================================
+// Snippets plaintext
+
+$db->Execute("UPDATE snippet SET context='' WHERE context='cerberusweb.contexts.plaintext'");
+
 return TRUE;

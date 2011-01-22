@@ -43,7 +43,7 @@
 <br>
 </form>
 
-{if 'cerberusweb.contexts.plaintext' == $snippet->context}
+{if '' == $snippet->context}
 {$context_name = 'Plaintext'}
 {elseif isset($contexts.{$snippet->context})}
 {$context_name = $contexts.{$snippet->context}->name}
