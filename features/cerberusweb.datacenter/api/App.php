@@ -182,6 +182,16 @@ class Page_Datacenter extends CerberusPageExtension {
 		$types = Model_CustomField::getTypes();
 		$tpl->assign('types', $types);
 		
+		// Comments
+		$comments = DAO_Comment::getByContext('cerberusweb.contexts.datacenter.server', $id);
+		$last_comment = array_shift($comments);
+		unset($comments);
+		$tpl->assign('last_comment', $last_comment);
+		
+		// Workers
+		$context_workers = CerberusContexts::getWorkers('cerberusweb.contexts.datacenter.server', $id);
+		$tpl->assign('context_workers', $context_workers);
+		
 		// Render
 		$tpl->display('devblocks:cerberusweb.datacenter::datacenter/servers/peek.tpl');
 	}
@@ -191,6 +201,7 @@ class Page_Datacenter extends CerberusPageExtension {
 		
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
 		@$name = DevblocksPlatform::importGPC($_REQUEST['name'],'string','');
+		@$comment = DevblocksPlatform::importGPC($_REQUEST['comment'], 'string', '');
 		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'],'integer',0);
 		
 		if($do_delete) { // delete
@@ -207,6 +218,27 @@ class Page_Datacenter extends CerberusPageExtension {
 				
 			} else {
 				DAO_Server::update($id, $fields);
+			}
+			
+			// If we're adding a comment
+			if(!empty($comment)) {
+				$fields = array(
+					DAO_Comment::CREATED => time(),
+					DAO_Comment::CONTEXT => 'cerberusweb.contexts.datacenter.server',
+					DAO_Comment::CONTEXT_ID => $id,
+					DAO_Comment::COMMENT => $comment,
+					DAO_Comment::ADDRESS_ID => $active_worker->getAddress()->id,
+				);
+				$comment_id = DAO_Comment::create($fields);
+				
+				// Notifications
+				@$notify_worker_ids = DevblocksPlatform::importGPC($_REQUEST['notify_worker_ids'],'array',array());
+				DAO_Comment::triggerCommentNotifications(
+					'cerberusweb.contexts.datacenter.server',
+					$id,
+					$active_worker,
+					$notify_worker_ids
+				);
 			}
 			
 			// Custom field saves

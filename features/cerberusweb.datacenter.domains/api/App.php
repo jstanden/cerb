@@ -169,6 +169,16 @@ class Page_Domains extends CerberusPageExtension {
 		$context_addresses = Context_Address::searchInboundLinks('cerberusweb.contexts.datacenter.domain', $id);
 		$tpl->assignByRef('context_addresses', $context_addresses);
 		
+		// Comments
+		$comments = DAO_Comment::getByContext('cerberusweb.contexts.datacenter.domain', $id);
+		$last_comment = array_shift($comments);
+		unset($comments);
+		$tpl->assign('last_comment', $last_comment);
+		
+		// Workers
+		$context_workers = CerberusContexts::getWorkers('cerberusweb.contexts.datacenter.domain', $id);
+		$tpl->assign('context_workers', $context_workers);
+		
 		// Render
 		$tpl->display('devblocks:cerberusweb.datacenter.domains::domain/peek.tpl');
 	}
@@ -181,6 +191,7 @@ class Page_Domains extends CerberusPageExtension {
 		@$server_id = DevblocksPlatform::importGPC($_REQUEST['server_id'],'integer',0);
 		@$created = DevblocksPlatform::importGPC($_REQUEST['created'],'string','');
 		@$contact_address_ids = DevblocksPlatform::importGPC($_REQUEST['contact_address_id'],'array',array());
+		@$comment = DevblocksPlatform::importGPC($_REQUEST['comment'], 'string', '');
 		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'],'integer',0);
 		
 		if($do_delete) { // delete
@@ -202,6 +213,27 @@ class Page_Domains extends CerberusPageExtension {
 				
 			} else {
 				DAO_Domain::update($id, $fields);
+			}
+			
+			// If we're adding a comment
+			if(!empty($comment)) {
+				$fields = array(
+					DAO_Comment::CREATED => time(),
+					DAO_Comment::CONTEXT => 'cerberusweb.contexts.datacenter.domain',
+					DAO_Comment::CONTEXT_ID => $id,
+					DAO_Comment::COMMENT => $comment,
+					DAO_Comment::ADDRESS_ID => $active_worker->getAddress()->id,
+				);
+				$comment_id = DAO_Comment::create($fields);
+				
+				// Notifications
+				@$notify_worker_ids = DevblocksPlatform::importGPC($_REQUEST['notify_worker_ids'],'array',array());
+				DAO_Comment::triggerCommentNotifications(
+					'cerberusweb.contexts.datacenter.domain',
+					$id,
+					$active_worker,
+					$notify_worker_ids
+				);
 			}
 			
 			// Custom field saves

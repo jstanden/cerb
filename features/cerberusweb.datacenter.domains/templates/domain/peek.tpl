@@ -54,6 +54,27 @@
 </fieldset>
 {/if}
 
+{* Comment *}
+{if !empty($last_comment)}
+	{include file="devblocks:cerberusweb.core::internal/comments/comment.tpl" readonly=true comment=$last_comment}
+{/if}
+
+<fieldset>
+	<legend>{'common.comment'|devblocks_translate|capitalize}</legend>
+	<textarea name="comment" rows="5" cols="45" style="width:98%;"></textarea><br>
+	<b>{'common.notify_workers'|devblocks_translate}:</b>
+	<button type="button" class="chooser_notify_worker"><span class="cerb-sprite sprite-view"></span></button>
+	<ul class="chooser-container bubbles" style="display:block;">
+		{if !empty($context_workers)}
+			{foreach from=$context_workers item=context_worker}
+			{if $context_worker->id != $active_worker->id}
+				<li>{$context_worker->getName()}<input type="hidden" name="notify_worker_ids[]" value="{$context_worker->id}"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></li>
+			{/if}
+			{/foreach}
+		{/if}
+	</ul>
+</fieldset>
+
 <button type="button" onclick="genericAjaxPopupPostCloseReloadView('peek','frmDatacenterDomain','{$view_id}');"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')|capitalize}</button>
 {if $model->id && $active_worker->is_superuser}<button type="button" onclick="if(confirm('Permanently delete this domain?')) { this.form.do_delete.value='1';genericAjaxPopupPostCloseReloadView('peek','frmDatacenterDomain','{$view_id}'); } "><span class="cerb-sprite sprite-forbidden"></span> {$translate->_('common.delete')|capitalize}</button>{/if}
 </form>
@@ -65,6 +86,9 @@
 		
 		$('#frmDatacenterDomain button.chooser_addy').each(function() {
 			ajax.chooser(this,'cerberusweb.contexts.address','contact_address_id', { autocomplete:true });
+		});
+		$('#frmDatacenterDomain button.chooser_notify_worker').each(function() {
+			ajax.chooser(this,'cerberusweb.contexts.worker','notify_worker_ids', { autocomplete:true });
 		});
 	} );
 </script>
