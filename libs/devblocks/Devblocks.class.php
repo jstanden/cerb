@@ -4287,7 +4287,7 @@ class _DevblocksTemplateManager {
 			} elseif($diffsecs <= -60) { // mins
 				$whole .= floor($diffsecs/-60).' min';
 			} elseif($diffsecs <= 0) { // secs
-				$whole .= $diffsecs.' sec';
+				$whole .= floor($diffsecs/-1).' sec';
 			}
 		}
 
