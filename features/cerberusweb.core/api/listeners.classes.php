@@ -657,18 +657,17 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 			DAO_Ticket::IS_WAITING => 0,
 			DAO_Ticket::DUE_DATE => 0
 		);
-		$where = sprintf("(%s = %d OR %s = %d) AND %s > 0 AND %s < %d",
+		$where = sprintf("(%s = %d OR %s = %d) AND %s = %d AND %s > 0 AND %s < %d",
 			DAO_Ticket::IS_WAITING,
 			1,
 			DAO_Ticket::IS_CLOSED,
 			1,
+			DAO_Ticket::IS_DELETED,
+			0,
 			DAO_Ticket::DUE_DATE,
 			DAO_Ticket::DUE_DATE,
 			time()
 		);
 		DAO_Ticket::updateWhere($fields, $where);
-
-		// Close any 'waiting' tickets past their group max wait time 
-		// [TODO]
 	}
 };
