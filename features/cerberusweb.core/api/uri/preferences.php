@@ -378,7 +378,7 @@ class ChPreferencesPage extends CerberusPageExtension {
 		$request = DevblocksPlatform::getHttpRequest();
 		$stack = $request->path;
 		
-		array_shift($stack); // home
+		array_shift($stack); // preferences
 		array_shift($stack); // redirectReadAction
 		@$id = array_shift($stack); // id
 		

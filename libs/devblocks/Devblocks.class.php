@@ -1072,8 +1072,8 @@ class DevblocksPlatform extends DevblocksEngine {
 	/**
 	 * @return _DevblocksLogManager
 	 */
-	static function getConsoleLog() {
-		return _DevblocksLogManager::getConsoleLog();
+	static function getConsoleLog($prefix='') {
+		return _DevblocksLogManager::getConsoleLog($prefix);
 	}
 	
 	/**
@@ -4800,6 +4800,7 @@ class _DevblocksClassLoadManager {
 
 class _DevblocksLogManager {
 	static $_instance = null;
+	private $_prefix = '';
 	
     // Used the ZF classifications
 	private static $_log_levels = array(
@@ -4820,10 +4821,12 @@ class _DevblocksLogManager {
 	private $_log_level = 0;
 	private $_fp = null;
 	
-	static function getConsoleLog() {
+	static function getConsoleLog($prefix='') {
 		if(null == self::$_instance) {
 			self::$_instance = new _DevblocksLogManager();
 		}
+		
+		self::$_instance->setPrefix($prefix);
 		
 		return self::$_instance;
 	}
@@ -4836,6 +4839,10 @@ class _DevblocksLogManager {
 		// Open file pointer
 		$this->_fp = fopen('php://output', 'w+');
 	}
+
+	public function setPrefix($prefix='') {
+		$this->_prefix = $prefix;
+	}
 	
 	public function __destruct() {
 		@fclose($this->_fp);	
@@ -4847,8 +4854,9 @@ class _DevblocksLogManager {
 			
 		if(isset(self::$_log_levels[$name])) {
 			if(self::$_log_levels[$name] <= $this->_log_level) {
-				$out = sprintf("[%s] %s<BR>\n",
+				$out = sprintf("[%s] %s%s<BR>\n",
 					strtoupper($name),
+					(!empty($this->_prefix) ? ('['.$this->_prefix.'] ') : ''),
 					$args[0]
 				);
 				fputs($this->_fp, $out);
