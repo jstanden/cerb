@@ -53,8 +53,6 @@ INPUT[type=text]:focus, INPUT[type=password]:focus {
 }
 
 FIELDSET {
-	background-image: url(bg_block.jpg);
-	background-repeat: repeat-x;
 	border:1px solid rgb(230,230,230);
 	margin-bottom:10px;
 }
