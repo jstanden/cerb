@@ -155,8 +155,15 @@ class ChPageController extends DevblocksControllerExtension {
 	    }
         
         if(empty($page)) {
-   		    header("Status: 404");
-        	return; // [TODO] 404
+			//header("HTTP/1.1 404 Not Found");
+			//header("Status: 404 Not Found");
+			//DevblocksPlatform::redirect(new DevblocksHttpResponse(''));
+			$tpl->assign('settings', $settings);
+			$tpl->assign('session', $_SESSION);
+			$tpl->assign('translate', $translate);
+			$tpl->assign('visit', $visit);
+			$tpl->display('devblocks:cerberusweb.core::404.tpl');
+        	return;
 		}
 	    
 		// [JAS]: Listeners (Step-by-step guided tour, etc.)
