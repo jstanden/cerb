@@ -1029,7 +1029,9 @@ class UmScAbstractViewLoader {
 	 * @return C4_AbstractView instance
 	 */
 	static function getView($class, $view_label) {
-		if(is_null(self::$views)) self::_init();
+		if(is_null(self::$views)) {
+			self::_init();
+		}
 
 		if(!self::exists($view_label)) {
 			if(empty($class) || !class_exists($class))

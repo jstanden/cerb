@@ -442,7 +442,7 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 			);
 			$id = DAO_KbCategory::create($fields);
 			
-			$return = "kb/";
+			$return = "kb";
 			
 		} else { // update
 			$fields = array(
@@ -454,10 +454,11 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 			$return = "kb/category/" . $id;
 		}
 		
-		if(!empty($return)) {
-			$return_path = explode('/', $return);
-			DevblocksPlatform::redirect(new DevblocksHttpResponse($return_path));
-		}
+		if(empty($return))
+			$return = 'kb';
+		
+		$return_path = explode('/', $return);
+		DevblocksPlatform::redirect(new DevblocksHttpResponse($return_path));
 	}	
 
 	function showArticleEditPanelAction() {
@@ -608,12 +609,10 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 		
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
 		@$root_id = DevblocksPlatform::importGPC($_REQUEST['root_id']);
-		@$return = DevblocksPlatform::importGPC($_REQUEST['return']);
 		
 		$tpl = DevblocksPlatform::getTemplateService();
 		
 		$tpl->assign('root_id', $root_id);
-		$tpl->assign('return', $return);
 		
 		if(!empty($id)) {
 			$category = DAO_KbCategory::get($id);
@@ -644,7 +643,7 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 		@$parent_id = DevblocksPlatform::importGPC($_REQUEST['parent_id'],'integer',0);
 		@$delete = DevblocksPlatform::importGPC($_REQUEST['delete_box'],'integer',0);
 
-		@$return = DevblocksPlatform::importGPC($_REQUEST['return']);
+		@$return = '';
 		
 		if(!empty($id) && !empty($delete)) {
 			$ids = DAO_KbCategory::getDescendents($id);
@@ -658,7 +657,7 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 				DAO_KbCategory::NAME => $name,
 				DAO_KbCategory::PARENT_ID => $parent_id,
 			);
-			DAO_KbCategory::create($fields);
+			$id = DAO_KbCategory::create($fields);
 			
 		} else { // update
 			$fields = array(
@@ -669,10 +668,11 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 			
 		}
 		
-		if(!empty($return)) {
-			$return_path = explode('/', $return);
-			DevblocksPlatform::redirect(new DevblocksHttpResponse($return_path));
-		}
+		if(empty($return))
+			$return = 'kb/category/' . $id;
+		
+		$return_path = explode('/', $return);
+		DevblocksPlatform::redirect(new DevblocksHttpResponse($return_path));
 	}
 	
 	// For Display->Reply toolbar button

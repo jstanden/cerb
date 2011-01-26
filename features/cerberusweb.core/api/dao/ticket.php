@@ -311,6 +311,7 @@ class DAO_Ticket extends C4_ORMHelper {
 			DAO_Ticket::update($merge_ticket_ids, array(
 				DAO_Ticket::IS_CLOSED => 1,
 				DAO_Ticket::IS_DELETED => 1,
+				DAO_Ticket::DUE_DATE => 0,
 			));
 
 			// Sort merge tickets by updated date ascending to find the latest touched

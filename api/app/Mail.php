@@ -840,8 +840,13 @@ class CerberusMail {
 				$headers->addTextHeader('References', $message->headers['references']);
 			if(isset($message->headers['from']))
 				$mail->setFrom($message->headers['from']);
-			if(isset($message->headers['return-path']))
-				$mail->setReturnPath($message->headers['return-path']);
+			if(isset($message->headers['return-path'])) {
+				$return_path = is_array($message->headers['return-path'])
+					? array_shift($message->headers['return-path'])
+					: $message->headers['return-path'];
+				$return_path = trim($return_path,'<>');
+				$mail->setReturnPath($return_path);
+			}
 			if(isset($message->headers['reply-to']))
 				$mail->setReplyTo($message->headers['reply-to']);
 				
