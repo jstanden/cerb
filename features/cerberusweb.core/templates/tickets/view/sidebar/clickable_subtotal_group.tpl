@@ -3,7 +3,7 @@
 {if isset($editable_params.t_team_id) || isset($editable_params.t_category_id)}
 	<tr>
 		<td style="padding-right:20px;" nowrap="nowrap" valign="top">
-			&laquo; <a href="javascript:;" onclick="ajax.viewRemoveFilter('{$view_id}', ['t_team_id','t_category_id']);"> all groups</a>
+			&laquo; <a href="javascript:;" onclick="ajax.viewRemoveFilter('{$view_id}', ['t_team_id','t_category_id']);"> any group</a>
 		</td>
 	</tr>
 {/if}
