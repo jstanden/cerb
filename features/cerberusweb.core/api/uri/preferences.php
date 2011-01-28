@@ -183,22 +183,22 @@ class ChPreferencesPage extends CerberusPageExtension {
 		$defaults->renderSortBy = SearchFields_Notification::CREATED_DATE;
 		$defaults->renderSortAsc = false;
 		
-		$myEventsView = C4_AbstractViewLoader::getView('my_notifications', $defaults);
+		$myNotificationsView = C4_AbstractViewLoader::getView('my_notifications', $defaults);
 		
-		$myEventsView->name = vsprintf($translate->_('home.my_notifications.view.title'), $active_worker->getName());
+		$myNotificationsView->name = vsprintf($translate->_('home.my_notifications.view.title'), $active_worker->getName());
 		
-		$myEventsView->addColumnsHidden(array(
+		$myNotificationsView->addColumnsHidden(array(
 			SearchFields_Notification::ID,
 			SearchFields_Notification::IS_READ,
 			SearchFields_Notification::WORKER_ID,
 		));
 		
-		$myEventsView->addParamsHidden(array(
+		$myNotificationsView->addParamsHidden(array(
 			SearchFields_Notification::ID,
 			SearchFields_Notification::IS_READ,
 			SearchFields_Notification::WORKER_ID,
 		), true);
-		$myEventsView->addParamsRequired(array(
+		$myNotificationsView->addParamsRequired(array(
 			SearchFields_Notification::IS_READ => new DevblocksSearchCriteria(SearchFields_Notification::IS_READ,'=',0),
 			SearchFields_Notification::WORKER_ID => new DevblocksSearchCriteria(SearchFields_Notification::WORKER_ID,'=',$active_worker->id),
 		), true);
@@ -208,9 +208,9 @@ class ChPreferencesPage extends CerberusPageExtension {
 		 * lose the params in the saved version of the view in the DB w/o recovery.
 		 * This should be moved back into the if(null==...) check in a later build.
 		 */
-		C4_AbstractViewLoader::setView($myEventsView->id, $myEventsView);
+		C4_AbstractViewLoader::setView($myNotificationsView->id, $myNotificationsView);
 		
-		$tpl->assign('view', $myEventsView);
+		$tpl->assign('view', $myNotificationsView);
 		$tpl->display('devblocks:cerberusweb.core::preferences/tabs/notifications/index.tpl');
 	}
 	
