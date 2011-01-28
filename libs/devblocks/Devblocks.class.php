@@ -4217,6 +4217,7 @@ class _DevblocksTemplateManager {
 			$instance->registerPlugin('modifier','devblocks_date', array('_DevblocksTemplateManager', 'modifier_devblocks_date'));
 			$instance->registerPlugin('modifier','devblocks_hyperlinks', array('_DevblocksTemplateManager', 'modifier_devblocks_hyperlinks'));
 			$instance->registerPlugin('modifier','devblocks_hideemailquotes', array('_DevblocksTemplateManager', 'modifier_devblocks_hide_email_quotes'));
+			$instance->registerPlugin('modifier','devblocks_permalink', array('_DevblocksTemplateManager', 'modifier_devblocks_permalink'));
 			$instance->registerPlugin('modifier','devblocks_prettytime', array('_DevblocksTemplateManager', 'modifier_devblocks_prettytime'));
 			$instance->registerPlugin('modifier','devblocks_prettybytes', array('_DevblocksTemplateManager', 'modifier_devblocks_prettybytes'));
 			$instance->registerPlugin('modifier','devblocks_translate', array('_DevblocksTemplateManager', 'modifier_devblocks_translate'));
@@ -4260,6 +4261,19 @@ class _DevblocksTemplateManager {
 	
 		$date = DevblocksPlatform::getDateService();
 		return $date->formatTime($format, $string, $gmt);
+	}
+	
+	static function modifier_devblocks_permalink($string, $is_delta=false) {
+		if(empty($string))
+			return '';
+		
+		// Strip all punctuation to underscores
+		$string = preg_replace('#[^a-zA-Z0-9\+\.\-_\(\)]#', '_', $string);
+			
+		// Collapse all underscores to singles
+		$string = preg_replace('#__+#', '_', $string);
+		
+		return rtrim($string,'_');
 	}
 	
 	static function modifier_devblocks_prettytime($string, $is_delta=false) {
