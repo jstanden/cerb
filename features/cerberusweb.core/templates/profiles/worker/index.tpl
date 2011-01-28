@@ -34,11 +34,18 @@
 
 <div id="profileTabs">
 	<ul>
-		{$tabs = [links]}
+		{$tabs = []}
 		{$point = "cerberusweb.profiles.worker.{$worker->id}"}
+		
+		{if $worker->id == $active_worker->id}
+		{$tabs[] = 'notifications'}
+		<li><a href="{devblocks_url}ajax.php?c=preferences&a=showMyNotificationsTab{/devblocks_url}">{'home.tab.my_notifications'|devblocks_translate}</a></li>
+		{/if}
 
+		{$tabs[] = 'activity'}
 		<li><a href="#activity">Activity</a></li>
 
+		{$tabs[] = 'links'}
 		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextLinks&context=cerberusweb.contexts.worker&point={$point}&id={$worker->id}&filter_open=1{/devblocks_url}">{'Assignments'|devblocks_translate}</a></li>
 
 		{*

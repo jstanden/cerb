@@ -172,7 +172,7 @@ class ChPreferencesPage extends CerberusPageExtension {
 		$tpl = DevblocksPlatform::getTemplateService();
 
 		// Remember tab
-		$visit->set(Extension_PreferenceTab::POINT, 'notifications');
+		$visit->set('cerberusweb.profiles.worker.'.$active_worker->id, 'notifications');
 		
 		// My Events
 		$defaults = new C4_AbstractViewModel();
@@ -313,7 +313,7 @@ class ChPreferencesPage extends CerberusPageExtension {
 					'created' => time(),
 					'worker_id' => $active_worker->id,
 					'total' => $total,
-					'return_url' => isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : $url_writer->write('c=preferences&tab=events', true),
+					'return_url' => isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : $url_writer->write('c=profiles&k=worker&id=me&tab=notifications', true),
 					'toolbar_extension_id' => 'cerberusweb.explorer.toolbar.notifications',
 				);
 				$models[] = $model; 
