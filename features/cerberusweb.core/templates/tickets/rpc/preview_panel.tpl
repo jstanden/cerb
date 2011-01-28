@@ -2,7 +2,6 @@
 <input type="hidden" name="c" value="tickets">
 <input type="hidden" name="a" value="savePreview">
 <input type="hidden" name="id" value="{$ticket->id}">
-<input type="hidden" name="view_id" value="{$view_id}">
 
 <div id="peekTabs">
 	<ul>
