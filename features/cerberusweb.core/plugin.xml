@@ -978,6 +978,20 @@
 			</params>
 		</extension>
 		
+		<extension point="cerberusweb.page">
+			<id>core.page.profiles</id>
+			<name>Profiles Pages</name>
+			<class>
+				<file>api/uri/profiles.php</file>
+				<name>Page_Profiles</name>
+			</class>
+			<params>
+				<param key="uri" value="profiles" />
+				<param key="menutitle" value="" />
+			</params>
+		</extension>
+		
+		
 		<!-- Activity Tabs -->
 		
 		<extension point="cerberusweb.activity.tab">

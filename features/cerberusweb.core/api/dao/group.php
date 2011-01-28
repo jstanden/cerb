@@ -523,6 +523,10 @@ class Model_Group {
 	public $name;
 	public $count;
 	public $is_default = 0;
+	
+	public function getMembers() {
+		return DAO_Group::getTeamMembers($this->id);
+	}
 };
 
 class DAO_GroupSettings {

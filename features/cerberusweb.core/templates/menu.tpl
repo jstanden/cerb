@@ -22,6 +22,12 @@
 	</li>
 	{/if}
 	
+	{if !empty($active_worker_memberships)}
+	<li class="{if $page->id=='core.page.profiles'}selected{/if}" style="float:right;">
+		<a href="{devblocks_url}c=profiles{/devblocks_url}">{$translate->_('common.profiles')|lower}</a>				
+	</li>
+	{/if}
+	
 	<li class="{if $page->id=='core.page.preferences'}selected{/if}" style="float:right;">
 		<a href="{devblocks_url}c=preferences{/devblocks_url}">{$translate->_('header.preferences')|lower}</a>				
 	</li>

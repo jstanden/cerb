@@ -26,7 +26,7 @@
 			<span style="padding:3px 5px 3px 5px;background-color:rgb(200,0,0);"><a href="{devblocks_url}c=preferences&a=events{/devblocks_url}" style="color:rgb(255,255,255);text-decoration:none;font-weight:bold;">{'header.notifications.unread'|devblocks_translate:$active_worker_notify_count}</a></span>
 			{/if}
 			
-			{devblocks_url assign=worker_url}c=preferences{/devblocks_url}
+			{devblocks_url assign=worker_url}c=profiles&k=worker&id=me{/devblocks_url}
 			{$worker_name =''|cat:'<b><a href="'|cat:$worker_url|cat:'">'|cat:$active_worker->getName()|cat:'</a></b>'}
 			{'header.signed_in'|devblocks_translate:$worker_name nofilter}
 			(<a href="{devblocks_url}c=login&a=signout{/devblocks_url}">{$translate->_('header.signoff')|lower}</a>)

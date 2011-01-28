@@ -1,28 +1,21 @@
+<form action="#" onsubmit="return false;">
+	<button type="button" onclick="genericAjaxGet('configTeam','c=config&a=getTeam&id=0');"><span class="cerb-sprite sprite-add"></span> Add Group</button>
+</form>
+
 <table cellpadding="0" cellspacing="5" border="0" width="100%">
 	<tr>
 		<td width="0%" nowrap="nowrap" valign="top">
-			<div class="block">
-			<table cellpadding="2" cellspacing="0" border="0">
-				<tr>
-					<td><h2>Groups</h2></td>
-				</tr>
-				<tr>
-					<td nowrap="nowrap">
-						[ <a href="javascript:;" onclick="genericAjaxGet('configTeam','c=config&a=getTeam&id=0');">add new group</a> ]
-					</td>
-				</tr>
-				<tr>
-					<td nowrap="nowrap">
-						{if !empty($teams)}
-							{foreach from=$teams item=team key=team_id}
-							&#187; <a href="javascript:;" onclick="genericAjaxGet('configTeam','c=config&a=getTeam&id={$team->id}');">{$team->name}</a><br>
-							{/foreach}
-						{/if}
-					</td>
-				</tr>
-			</table>
-			</div>
-			
+			<fieldset>
+				<legend>{'common.groups'|devblocks_translate|capitalize}</legend>
+				
+				<ul style="list-style:none;margin:0px;padding-left:0px;">
+				{if !empty($teams)}
+					{foreach from=$teams item=team key=team_id}
+					<li style="padding:2px;"><a href="javascript:;" onclick="genericAjaxGet('configTeam','c=config&a=getTeam&id={$team->id}');">{$team->name}</a></li>
+					{/foreach}
+				{/if}
+				</ul>
+			</fieldset>
 		</td>
 		
 		<td width="100%" valign="top">

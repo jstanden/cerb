@@ -24,11 +24,9 @@
 
 <div id="prefTabs">
 	<ul>
-		{$tabs = [events,links,general,rss]}
 		{$point = Extension_PreferenceTab::POINT}
 		
 		<li><a href="{devblocks_url}ajax.php?c=preferences&a=showMyEvents{/devblocks_url}">{'home.tab.my_notifications'|devblocks_translate}</a></li>
-		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextLinks&context=cerberusweb.contexts.worker&point={$point}&id={$active_worker->id}&filter_open=1{/devblocks_url}">{'Assignments'|devblocks_translate}</a></li>
 		<li><a href="{devblocks_url}ajax.php?c=preferences&a=showGeneral{/devblocks_url}">General</a></li>
 		<li><a href="{devblocks_url}ajax.php?c=preferences&a=showRss{/devblocks_url}">RSS Notifications</a></li>
 
@@ -36,17 +34,6 @@
 			{$tabs[] = $tab_manifest->params.uri}
 			<li><a href="{devblocks_url}ajax.php?c=preferences&a=showTab&ext_id={$tab_manifest->id}{/devblocks_url}"><i>{$tab_manifest->params.title|devblocks_translate}</i></a></li>
 		{/foreach}
-		
-		{if $active_worker->hasPriv('core.home.workspaces')}
-			{$enabled_workspaces = DAO_Workspace::getByEndpoint($point, $active_worker->id)}
-			{foreach from=$enabled_workspaces item=enabled_workspace}
-				{$tabs[] = 'w_'|cat:$enabled_workspace->id}
-				<li><a href="{devblocks_url}ajax.php?c=internal&a=showWorkspaceTab&id={$enabled_workspace->id}&point={$point}&request={$response_uri|escape:'url'}{/devblocks_url}"><i>{$enabled_workspace->name}</i></a></li>
-			{/foreach}
-			
-			{$tabs[] = "+"}
-			<li><a href="{devblocks_url}ajax.php?c=internal&a=showAddTab&point={$point}&request={$response_uri|escape:'url'}{/devblocks_url}"><i>+</i></a></li>
-		{/if}
 	</ul>
 </div> 
 <br>
