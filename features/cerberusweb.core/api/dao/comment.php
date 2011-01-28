@@ -140,12 +140,12 @@ class DAO_Comment extends DevblocksORMHelper {
 		if(is_array($notify_worker_ids) && !empty($notify_worker_ids))
 		foreach($notify_worker_ids as $notify_worker_id) {
 			$fields = array(
-				DAO_WorkerEvent::CREATED_DATE => time(),
-				DAO_WorkerEvent::WORKER_ID => $notify_worker_id,
-				DAO_WorkerEvent::URL => $url,
-				DAO_WorkerEvent::MESSAGE => vsprintf($translate->_($string), $active_worker->getName()),
+				DAO_Notification::CREATED_DATE => time(),
+				DAO_Notification::WORKER_ID => $notify_worker_id,
+				DAO_Notification::URL => $url,
+				DAO_Notification::MESSAGE => vsprintf($translate->_($string), $active_worker->getName()),
 			);
-			DAO_WorkerEvent::create($fields);
+			DAO_Notification::create($fields);
 		}
 		
 		return TRUE;

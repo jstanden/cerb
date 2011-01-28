@@ -19,7 +19,7 @@
 	<legend>Set Fields</legend>
 	<table cellspacing="0" cellpadding="2" width="100%">
 		<tr>
-			<td width="0%" nowrap="nowrap" align="right">{'worker_event.is_read'|devblocks_translate|capitalize}:</td>
+			<td width="0%" nowrap="nowrap" align="right">{'notification.is_read'|devblocks_translate|capitalize}:</td>
 			<td width="100%">
 				<select name="is_read">
 					<option value=""></option>

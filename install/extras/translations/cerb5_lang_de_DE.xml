@@ -5327,37 +5327,37 @@ login</seg>
         <seg>Titel</seg>
       </tuv>
     </tu>
-    <tu tuid="worker_event.content">
+    <tu tuid="notification.content">
       <tuv xml:lang="de_DE">
         <seg>Inhalt</seg>
       </tuv>
     </tu>
-    <tu tuid="worker_event.created_date">
+    <tu tuid="notification.created_date">
       <tuv xml:lang="de_DE">
         <seg>Erstellt</seg>
       </tuv>
     </tu>
-    <tu tuid="worker_event.id">
+    <tu tuid="notification.id">
       <tuv xml:lang="de_DE">
         <seg>ID</seg>
       </tuv>
     </tu>
-    <tu tuid="worker_event.is_read">
+    <tu tuid="notification.is_read">
       <tuv xml:lang="de_DE">
         <seg>Gelesen</seg>
       </tuv>
     </tu>
-    <tu tuid="worker_event.message">
+    <tu tuid="notification.message">
       <tuv xml:lang="de_DE">
         <seg>Nachricht</seg>
       </tuv>
     </tu>
-    <tu tuid="worker_event.title">
+    <tu tuid="notification.title">
       <tuv xml:lang="de_DE">
         <seg>Titel</seg>
       </tuv>
     </tu>
-    <tu tuid="worker_event.worker_id">
+    <tu tuid="notification.worker_id">
       <tuv xml:lang="de_DE">
         <seg>Mitarbeiter</seg>
       </tuv>

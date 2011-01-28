@@ -185,7 +185,7 @@ class ChPageController extends DevblocksControllerExtension {
 	    	$active_worker_memberships = $active_worker->getMemberships();
 	    	$tpl->assign('active_worker_memberships', $active_worker_memberships);
 			
-			$unread_notifications = DAO_WorkerEvent::getUnreadCountByWorker($active_worker->id);
+			$unread_notifications = DAO_Notification::getUnreadCountByWorker($active_worker->id);
 			$tpl->assign('active_worker_notify_count', $unread_notifications);
 			
 			DAO_Worker::logActivity($page->getActivity());
@@ -251,7 +251,7 @@ XML;
         $channel->addChild('description', '');
         
         // View
-        $view = new View_WorkerEvent();
+        $view = new View_Notification();
         $view->name = $feed->title;
         $view->addParams($feed->params['params'], true);
         $view->renderLimit = 100;
@@ -262,17 +262,17 @@ XML;
         list($results, $count) = $view->getData();
 
         foreach($results as $event) {
-        	$created = intval($event[SearchFields_WorkerEvent::CREATED_DATE]);
+        	$created = intval($event[SearchFields_Notification::CREATED_DATE]);
             if(empty($created)) $created = time();
 
             $eItem = $channel->addChild('item');
             
-            $escapedSubject = htmlspecialchars($event[SearchFields_WorkerEvent::MESSAGE],null,LANG_CHARSET_CODE);
+            $escapedSubject = htmlspecialchars($event[SearchFields_Notification::MESSAGE],null,LANG_CHARSET_CODE);
             $eDesc = $eItem->addChild('description', '');
 
-            if(isset($event[SearchFields_WorkerEvent::URL])) {
-//	            $link = $event[SearchFields_WorkerEvent::URL];
-	            $link = $url->write('c=preferences&a=redirectRead&id='.$event[SearchFields_WorkerEvent::ID], true);
+            if(isset($event[SearchFields_Notification::URL])) {
+//	            $link = $event[SearchFields_Notification::URL];
+	            $link = $url->write('c=preferences&a=redirectRead&id='.$event[SearchFields_Notification::ID], true);
 	            $eLink = $eItem->addChild('link', $link);
 	            
             } else {

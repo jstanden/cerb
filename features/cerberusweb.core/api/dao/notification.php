@@ -47,8 +47,8 @@
  * 		and Jerry Kanoholani. 
  *	 WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
-class DAO_WorkerEvent extends DevblocksORMHelper {
-	const CACHE_COUNT_PREFIX = 'workerevent_count_';
+class DAO_Notification extends DevblocksORMHelper {
+	const CACHE_COUNT_PREFIX = 'notification_count_';
 	
 	const ID = 'id';
 	const CREATED_DATE = 'created_date';
@@ -60,7 +60,7 @@ class DAO_WorkerEvent extends DevblocksORMHelper {
 	static function create($fields) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = sprintf("INSERT INTO worker_event () ".
+		$sql = sprintf("INSERT INTO notification () ".
 			"VALUES ()"
 		);
 		$db->Execute($sql);
@@ -74,26 +74,38 @@ class DAO_WorkerEvent extends DevblocksORMHelper {
 			self::clearCountCache($fields[self::WORKER_ID]);
 		}
 		
+		// [TODO] Trigger the notification.create
+		$eventMgr = DevblocksPlatform::getEventService();
+	    $eventMgr->trigger(
+	        new Model_DevblocksEvent(
+	            'notification.create',
+                array(
+                    'id' => $id,
+                    'fields' => $fields,
+                )
+            )
+	    );
+		
 		return $id;
 	}
 	
 	static function update($ids, $fields) {
-		parent::_update($ids, 'worker_event', $fields);
+		parent::_update($ids, 'notification', $fields);
 	}
 	
 	static function updateWhere($fields, $where) {
-		parent::_updateWhere('worker_event', $fields, $where);
+		parent::_updateWhere('notification', $fields, $where);
 	}
 	
 	/**
 	 * @param string $where
-	 * @return Model_WorkerEvent[]
+	 * @return Model_Notification[]
 	 */
 	static function getWhere($where=null) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
 		$sql = "SELECT id, created_date, worker_id, message, is_read, url ".
-			"FROM worker_event ".
+			"FROM notification ".
 			(!empty($where) ? sprintf("WHERE %s ",$where) : "").
 			"ORDER BY id asc";
 		$rs = $db->Execute($sql);
@@ -103,7 +115,7 @@ class DAO_WorkerEvent extends DevblocksORMHelper {
 
 	/**
 	 * @param integer $id
-	 * @return Model_WorkerEvent	 */
+	 * @return Model_Notification	 */
 	static function get($id) {
 		$objects = self::getWhere(sprintf("%s = %d",
 			self::ID,
@@ -122,7 +134,7 @@ class DAO_WorkerEvent extends DevblocksORMHelper {
 		
 	    if(null === ($count = $cache->load(self::CACHE_COUNT_PREFIX.$worker_id))) {
 			$sql = sprintf("SELECT count(*) ".
-				"FROM worker_event ".
+				"FROM notification ".
 				"WHERE worker_id = %d ".
 				"AND is_read = 0",
 				$worker_id
@@ -137,13 +149,13 @@ class DAO_WorkerEvent extends DevblocksORMHelper {
 	
 	/**
 	 * @param resource $rs
-	 * @return Model_WorkerEvent[]
+	 * @return Model_Notification[]
 	 */
 	static private function _getObjectsFromResult($rs) {
 		$objects = array();
 		
 		while($row = mysql_fetch_assoc($rs)) {
-			$object = new Model_WorkerEvent();
+			$object = new Model_Notification();
 			$object->id = $row['id'];
 			$object->created_date = $row['created_date'];
 			$object->worker_id = $row['worker_id'];
@@ -167,7 +179,7 @@ class DAO_WorkerEvent extends DevblocksORMHelper {
 		
 		$ids_list = implode(',', $ids);
 		
-		$db->Execute(sprintf("DELETE FROM worker_event WHERE id IN (%s)", $ids_list));
+		$db->Execute(sprintf("DELETE FROM notification WHERE id IN (%s)", $ids_list));
 		
 		return true;
 	}
@@ -176,9 +188,9 @@ class DAO_WorkerEvent extends DevblocksORMHelper {
 		$db = DevblocksPlatform::getDatabaseService();
 		$logger = DevblocksPlatform::getConsoleLog();
 		
-		$db->Execute("DELETE QUICK FROM worker_event WHERE is_read = 1");
+		$db->Execute("DELETE QUICK FROM notification WHERE is_read = 1");
 		
-		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' worker_event records.');
+		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' notification records.');
 	}
 	
 	static function clearCountCache($worker_id) {
@@ -187,7 +199,7 @@ class DAO_WorkerEvent extends DevblocksORMHelper {
 	}
 
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
-		$fields = SearchFields_WorkerEvent::getFields();
+		$fields = SearchFields_Notification::getFields();
 		
 		// Sanitize
 		if(!isset($fields[$sortBy]) || '*'==substr($sortBy,0,1))
@@ -202,15 +214,15 @@ class DAO_WorkerEvent extends DevblocksORMHelper {
 			"we.message as %s, ".
 			"we.is_read as %s, ".
 			"we.url as %s ",
-			    SearchFields_WorkerEvent::ID,
-			    SearchFields_WorkerEvent::CREATED_DATE,
-			    SearchFields_WorkerEvent::WORKER_ID,
-			    SearchFields_WorkerEvent::MESSAGE,
-			    SearchFields_WorkerEvent::IS_READ,
-			    SearchFields_WorkerEvent::URL
+			    SearchFields_Notification::ID,
+			    SearchFields_Notification::CREATED_DATE,
+			    SearchFields_Notification::WORKER_ID,
+			    SearchFields_Notification::MESSAGE,
+			    SearchFields_Notification::IS_READ,
+			    SearchFields_Notification::URL
 		);
 			
-		$join_sql = "FROM worker_event we "
+		$join_sql = "FROM notification we "
 //			"INNER JOIN team tm ON (tm.id = t.team_id) ".
 //			(isset($tables['ra']) ? "INNER JOIN requester r ON (r.ticket_id=t.id)" : " ").
 		;
@@ -277,7 +289,7 @@ class DAO_WorkerEvent extends DevblocksORMHelper {
 			foreach($row as $f => $v) {
 				$result[$f] = $v;
 			}
-			$ticket_id = intval($row[SearchFields_WorkerEvent::ID]);
+			$ticket_id = intval($row[SearchFields_Notification::ID]);
 			$results[$ticket_id] = $result;
 		}
 
@@ -298,7 +310,7 @@ class DAO_WorkerEvent extends DevblocksORMHelper {
 	
 };
 
-class SearchFields_WorkerEvent implements IDevblocksSearchFields {
+class SearchFields_Notification implements IDevblocksSearchFields {
 	// Worker Event
 	const ID = 'we_id';
 	const CREATED_DATE = 'we_created_date';
@@ -314,11 +326,11 @@ class SearchFields_WorkerEvent implements IDevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = array(
-			self::ID => new DevblocksSearchField(self::ID, 'we', 'id', $translate->_('worker_event.id')),
-			self::CREATED_DATE => new DevblocksSearchField(self::CREATED_DATE, 'we', 'created_date', $translate->_('worker_event.created_date')),
-			self::WORKER_ID => new DevblocksSearchField(self::WORKER_ID, 'we', 'worker_id', $translate->_('worker_event.worker_id')),
-			self::MESSAGE => new DevblocksSearchField(self::MESSAGE, 'we', 'message', $translate->_('worker_event.message')),
-			self::IS_READ => new DevblocksSearchField(self::IS_READ, 'we', 'is_read', $translate->_('worker_event.is_read')),
+			self::ID => new DevblocksSearchField(self::ID, 'we', 'id', $translate->_('notification.id')),
+			self::CREATED_DATE => new DevblocksSearchField(self::CREATED_DATE, 'we', 'created_date', $translate->_('notification.created_date')),
+			self::WORKER_ID => new DevblocksSearchField(self::WORKER_ID, 'we', 'worker_id', $translate->_('notification.worker_id')),
+			self::MESSAGE => new DevblocksSearchField(self::MESSAGE, 'we', 'message', $translate->_('notification.message')),
+			self::IS_READ => new DevblocksSearchField(self::IS_READ, 'we', 'is_read', $translate->_('notification.is_read')),
 			self::URL => new DevblocksSearchField(self::URL, 'we', 'url', $translate->_('common.url')),
 		);
 		
@@ -329,7 +341,7 @@ class SearchFields_WorkerEvent implements IDevblocksSearchFields {
 	}
 };
 
-class Model_WorkerEvent {
+class Model_Notification {
 	public $id;
 	public $created_date;
 	public $worker_id;
@@ -338,33 +350,33 @@ class Model_WorkerEvent {
 	public $url;
 };
 
-class View_WorkerEvent extends C4_AbstractView {
-	const DEFAULT_ID = 'worker_events';
+class View_Notification extends C4_AbstractView {
+	const DEFAULT_ID = 'notifications';
 
 	function __construct() {
 		$this->id = self::DEFAULT_ID;
 		$this->name = 'Worker Events';
 		$this->renderLimit = 100;
-		$this->renderSortBy = SearchFields_WorkerEvent::CREATED_DATE;
+		$this->renderSortBy = SearchFields_Notification::CREATED_DATE;
 		$this->renderSortAsc = false;
 
 		$this->view_columns = array(
-			SearchFields_WorkerEvent::MESSAGE,
-			SearchFields_WorkerEvent::CREATED_DATE,
+			SearchFields_Notification::MESSAGE,
+			SearchFields_Notification::CREATED_DATE,
 		);
 		$this->addColumnsHidden(array(
-			SearchFields_WorkerEvent::ID,
+			SearchFields_Notification::ID,
 		));
 		
 		$this->addParamsHidden(array(
-			SearchFields_WorkerEvent::ID,
+			SearchFields_Notification::ID,
 		));
 		
 		$this->doResetCriteria();
 	}
 
 	function getData() {
-		$objects = DAO_WorkerEvent::search(
+		$objects = DAO_Notification::search(
 			$this->getParams(),
 			$this->renderLimit,
 			$this->renderPage,
@@ -376,7 +388,7 @@ class View_WorkerEvent extends C4_AbstractView {
 	}
 
 	function getDataSample($size) {
-		return $this->_doGetDataSample('DAO_WorkerEvent', $size);
+		return $this->_doGetDataSample('DAO_Notification', $size);
 	}
 	
 	function render() {
@@ -389,7 +401,7 @@ class View_WorkerEvent extends C4_AbstractView {
 		$workers = DAO_Worker::getAll();
 		$tpl->assign('workers', $workers);
 		
-		$tpl->display('devblocks:cerberusweb.core::preferences/tabs/my_events/view.tpl');
+		$tpl->display('devblocks:cerberusweb.core::preferences/tabs/notifications/view.tpl');
 	}
 
 	function renderCriteria($field) {
@@ -397,22 +409,22 @@ class View_WorkerEvent extends C4_AbstractView {
 		$tpl->assign('id', $this->id);
 
 		switch($field) {
-			case SearchFields_WorkerEvent::MESSAGE:
-			case SearchFields_WorkerEvent::URL:
+			case SearchFields_Notification::MESSAGE:
+			case SearchFields_Notification::URL:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__string.tpl');
 				break;
-//			case SearchFields_WorkerEvent::ID:
-//			case SearchFields_WorkerEvent::MESSAGE_ID:
-//			case SearchFields_WorkerEvent::TICKET_ID:
+//			case SearchFields_Notification::ID:
+//			case SearchFields_Notification::MESSAGE_ID:
+//			case SearchFields_Notification::TICKET_ID:
 //				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__number.tpl');
 //				break;
-			case SearchFields_WorkerEvent::IS_READ:
+			case SearchFields_Notification::IS_READ:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__bool.tpl');
 				break;
-			case SearchFields_WorkerEvent::CREATED_DATE:
+			case SearchFields_Notification::CREATED_DATE:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__date.tpl');
 				break;
-			case SearchFields_WorkerEvent::WORKER_ID:
+			case SearchFields_Notification::WORKER_ID:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context_worker.tpl');
 				break;
 			default:
@@ -426,7 +438,7 @@ class View_WorkerEvent extends C4_AbstractView {
 		$values = !is_array($param->value) ? array($param->value) : $param->value;
 
 		switch($field) {
-			case SearchFields_WorkerEvent::WORKER_ID:
+			case SearchFields_Notification::WORKER_ID:
 				$workers = DAO_Worker::getAll();
 				$strings = array();
 
@@ -447,15 +459,15 @@ class View_WorkerEvent extends C4_AbstractView {
 	}
 
 	function getFields() {
-		return SearchFields_WorkerEvent::getFields();
+		return SearchFields_Notification::getFields();
 	}
 
 	function doSetCriteria($field, $oper, $value) {
 		$criteria = null;
 
 		switch($field) {
-			case SearchFields_WorkerEvent::MESSAGE:
-			case SearchFields_WorkerEvent::URL:
+			case SearchFields_Notification::MESSAGE:
+			case SearchFields_Notification::URL:
 				// force wildcards if none used on a LIKE
 				if(($oper == DevblocksSearchCriteria::OPER_LIKE || $oper == DevblocksSearchCriteria::OPER_NOT_LIKE)
 				&& false === (strpos($value,'*'))) {
@@ -463,12 +475,12 @@ class View_WorkerEvent extends C4_AbstractView {
 				}
 				$criteria = new DevblocksSearchCriteria($field, $oper, $value);
 				break;
-			case SearchFields_WorkerEvent::WORKER_ID:
+			case SearchFields_Notification::WORKER_ID:
 				@$worker_ids = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',array());
 				$criteria = new DevblocksSearchCriteria($field,$oper,$worker_ids);
 				break;
 				
-			case SearchFields_WorkerEvent::CREATED_DATE:
+			case SearchFields_Notification::CREATED_DATE:
 				@$from = DevblocksPlatform::importGPC($_REQUEST['from'],'string','');
 				@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string','');
 
@@ -478,7 +490,7 @@ class View_WorkerEvent extends C4_AbstractView {
 				$criteria = new DevblocksSearchCriteria($field,$oper,array($from,$to));
 				break;
 				
-			case SearchFields_WorkerEvent::IS_READ:
+			case SearchFields_Notification::IS_READ:
 				@$bool = DevblocksPlatform::importGPC($_REQUEST['bool'],'integer',1);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
 				break;
@@ -509,9 +521,9 @@ class View_WorkerEvent extends C4_AbstractView {
 			switch($k) {
 				case 'is_read':
 					if(1==intval($v)) {
-						$change_fields[DAO_WorkerEvent::IS_READ] = 1;
+						$change_fields[DAO_Notification::IS_READ] = 1;
 					} else { // active
-						$change_fields[DAO_WorkerEvent::IS_READ] = 0;
+						$change_fields[DAO_Notification::IS_READ] = 0;
 					}
 					break;
 				default:
@@ -526,12 +538,12 @@ class View_WorkerEvent extends C4_AbstractView {
 
 		if(empty($ids))
 		do {
-			list($objects,$null) = DAO_WorkerEvent::search(
+			list($objects,$null) = DAO_Notification::search(
 				//array(),
 				$this->getParams(),
 				100,
 				$pg++,
-				SearchFields_WorkerEvent::ID,
+				SearchFields_Notification::ID,
 				true,
 				false
 			);
@@ -543,7 +555,7 @@ class View_WorkerEvent extends C4_AbstractView {
 		$batch_total = count($ids);
 		for($x=0;$x<=$batch_total;$x+=100) {
 			$batch_ids = array_slice($ids,$x,100);
-			DAO_WorkerEvent::update($batch_ids, $change_fields);
+			DAO_Notification::update($batch_ids, $change_fields);
 			
 			// Custom Fields
 			//self::_doBulkSetCustomFields(CerberusContexts::CONTEXT_TASK, $custom_fields, $batch_ids);
@@ -551,9 +563,9 @@ class View_WorkerEvent extends C4_AbstractView {
 			unset($batch_ids);
 		}
 
-		if(isset($change_fields[DAO_WorkerEvent::IS_READ])) {
+		if(isset($change_fields[DAO_Notification::IS_READ])) {
 			if(null != ($active_worker = CerberusApplication::getActiveWorker()))
-				DAO_WorkerEvent::clearCountCache($active_worker->id);
+				DAO_Notification::clearCountCache($active_worker->id);
 		}
 		
 		unset($ids);
@@ -570,7 +582,7 @@ class Context_Notification extends Extension_DevblocksContext {
 			if($worker->is_superuser)
 				return TRUE;
 				
-			if(null == ($notification = DAO_WorkerEvent::get($context_id)))
+			if(null == ($notification = DAO_Notification::get($context_id)))
 				throw new Exception();
 				
 			return $notification->worker_id == $worker->id;
@@ -596,8 +608,8 @@ class Context_Notification extends Extension_DevblocksContext {
 
 		// Polymorph
 		if(is_numeric($notification)) {
-			$notification = DAO_WorkerEvent::get($notification);
-		} elseif($notification instanceof Model_WorkerEvent) {
+			$notification = DAO_Notification::get($notification);
+		} elseif($notification instanceof Model_Notification) {
 			// It's what we want already.
 		} else {
 			$notification = null;
@@ -605,7 +617,11 @@ class Context_Notification extends Extension_DevblocksContext {
 		
 		// Token labels
 		$token_labels = array(
-//			'completed|date' => $prefix.$translate->_('task.completed_date'),
+			'id' => $prefix.$translate->_('common.id'),
+			'created|date' => $prefix.$translate->_('common.created'),
+			'message' => $prefix.'message',
+			'is_read' => $prefix.'is_read',
+			'url' => $prefix.$translate->_('common.url'),
 		);
 		
 		if(is_array($fields))
@@ -617,7 +633,11 @@ class Context_Notification extends Extension_DevblocksContext {
 		$token_values = array();
 		
 		if($notification) {
-//			$token_values['completed'] = $task->completed_date;
+			$token_values['id'] = $notification->id;
+			$token_values['created'] = $notification->created_date;
+			$token_values['message'] = $notification->message;
+			$token_values['is_read'] = $notification->is_read;
+			$token_values['url'] = $notification->url;
 			
 			$token_values['custom'] = array();
 			
@@ -677,12 +697,12 @@ class Context_Notification extends Extension_DevblocksContext {
 //			SearchFields_Message::DUE_DATE,
 //		);
 		$view->addParamsRequired(array(
-			SearchFields_WorkerEvent::WORKER_ID => new DevblocksSearchCriteria(SearchFields_WorkerEvent::WORKER_ID,'=',$active_worker->id),
+			SearchFields_Notification::WORKER_ID => new DevblocksSearchCriteria(SearchFields_Notification::WORKER_ID,'=',$active_worker->id),
 		), true);
 		$view->addParams(array(
 //			SearchFields_Task::IS_COMPLETED => new DevblocksSearchCriteria(SearchFields_Task::IS_COMPLETED,'=',0),
 		), true);
-		$view->renderSortBy = SearchFields_WorkerEvent::CREATED_DATE;
+		$view->renderSortBy = SearchFields_Notification::CREATED_DATE;
 		$view->renderSortAsc = false;
 		$view->renderLimit = 10;
 		$view->renderTemplate = 'contextlinks_chooser';

@@ -773,7 +773,7 @@ class View_DevblocksTemplate extends C4_AbstractView {
 		$values = !is_array($param->value) ? array($param->value) : $param->value;
 
 		switch($field) {
-//			case SearchFields_WorkerEvent::WORKER_ID:
+//			case SearchFields_Notification::WORKER_ID:
 //				$workers = DAO_Worker::getAll();
 //				$strings = array();
 //

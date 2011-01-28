@@ -58,18 +58,18 @@ class ChRest_Notifications extends Extension_RestController implements IExtensio
 		
 		if('dao'==$type) {
 			$tokens = array(
-				'assignee_id' => DAO_WorkerEvent::WORKER_ID,
-				'message' => DAO_WorkerEvent::MESSAGE,
-				'created' => DAO_WorkerEvent::CREATED_DATE,
-				'is_read' => DAO_WorkerEvent::IS_READ,
-				'url' => DAO_WorkerEvent::URL,
+				'assignee_id' => DAO_Notification::WORKER_ID,
+				'message' => DAO_Notification::MESSAGE,
+				'created' => DAO_Notification::CREATED_DATE,
+				'is_read' => DAO_Notification::IS_READ,
+				'url' => DAO_Notification::URL,
 			);
 		} else {
 			$tokens = array(
-				'id' => SearchFields_WorkerEvent::ID,
-				'is_read' => SearchFields_WorkerEvent::IS_READ,
-				'url' => SearchFields_WorkerEvent::URL,
-				'worker_id' => SearchFields_WorkerEvent::WORKER_ID,
+				'id' => SearchFields_Notification::ID,
+				'is_read' => SearchFields_Notification::IS_READ,
+				'url' => SearchFields_Notification::URL,
+				'worker_id' => SearchFields_Notification::WORKER_ID,
 			);
 		}
 		
@@ -136,7 +136,7 @@ class ChRest_Notifications extends Extension_RestController implements IExtensio
 		// (ACL) Add worker group privs
 		if(!$worker->is_superuser) {
 			$params['tmp_worker_id'] = new DevblocksSearchCriteria(
-				SearchFields_WorkerEvent::WORKER_ID,
+				SearchFields_Notification::WORKER_ID,
 				'=',
 				$worker->id
 			);
@@ -147,7 +147,7 @@ class ChRest_Notifications extends Extension_RestController implements IExtensio
 		$sortAsc = !empty($sortAsc) ? true : false;
 		
 		// Search
-		list($results, $total) = DAO_WorkerEvent::search(
+		list($results, $total) = DAO_Notification::search(
 //			array(),
 			$params,
 			$limit,
@@ -190,7 +190,7 @@ class ChRest_Notifications extends Extension_RestController implements IExtensio
 		$worker = $this->getActiveWorker();
 		
 		// Validate the ID
-		if(null == ($event = DAO_WorkerEvent::get($id)))
+		if(null == ($event = DAO_Notification::get($id)))
 			$this->error(self::ERRNO_CUSTOM, sprintf("Invalid notification ID '%d'", $id));
 			
 		// ACL
@@ -240,7 +240,7 @@ class ChRest_Notifications extends Extension_RestController implements IExtensio
 //		$this->_handleRequiredFields($reqfields, $fields);
 
 		// Update
-		DAO_WorkerEvent::update($id, $fields);
+		DAO_Notification::update($id, $fields);
 		$this->getId($id);
 	}
 	
@@ -284,19 +284,19 @@ class ChRest_Notifications extends Extension_RestController implements IExtensio
 			$fields[$field] = $value;
 		}
 		
-		if(!isset($fields[DAO_WorkerEvent::CREATED_DATE]))
-			$fields[DAO_WorkerEvent::CREATED_DATE] = time();
+		if(!isset($fields[DAO_Notification::CREATED_DATE]))
+			$fields[DAO_Notification::CREATED_DATE] = time();
 		
 		// Check required fields
 		$reqfields = array(
-			DAO_WorkerEvent::MESSAGE, 
-			DAO_WorkerEvent::URL, 
-			DAO_WorkerEvent::WORKER_ID,
+			DAO_Notification::MESSAGE, 
+			DAO_Notification::URL, 
+			DAO_Notification::WORKER_ID,
 		);
 		$this->_handleRequiredFields($reqfields, $fields);
 		
 		// Create
-		if(false != ($id = DAO_WorkerEvent::create($fields))) {
+		if(false != ($id = DAO_Notification::create($fields))) {
 			// Handle custom fields
 //			$customfields = $this->_handleCustomFields($_POST);
 //			if(is_array($customfields))

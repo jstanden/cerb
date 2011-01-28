@@ -36,6 +36,7 @@
 		<patch version="5.1.2" revision="904" file="patches/5.x/5.1.2.php" />
 		<patch version="5.2.0" revision="905" file="patches/5.x/5.2.0.php" />
 		<patch version="5.3.0" revision="916" file="patches/5.x/5.3.0.php" />
+		<patch version="5.4.0" revision="920" file="patches/5.x/5.4.0.php" />
 	</patches>
 
 	<!-- Declared Extension Points -->
@@ -220,11 +221,11 @@
 			<class name="View_Worker" />
 		</file>
 		
-		<file path="api/dao/worker_event.php">
-			<class name="DAO_WorkerEvent" />
-			<class name="Model_WorkerEvent" />
-			<class name="SearchFields_WorkerEvent" />
-			<class name="View_WorkerEvent" />
+		<file path="api/dao/notification.php">
+			<class name="DAO_Notification" />
+			<class name="Model_Notification" />
+			<class name="SearchFields_Notification" />
+			<class name="View_Notification" />
 		</file>
 		
 		<file path="api/dao/workspace.php">
@@ -508,11 +509,11 @@
 			<id>cerberusweb.contexts.notification</id>
 			<name>Notification</name>
 			<class>
-				<file>api/dao/worker_event.php</file>
+				<file>api/dao/notification.php</file>
 				<name>Context_Notification</name>
 			</class>
 			<params>
-				<param key="view_class" value="View_WorkerEvent" />
+				<param key="view_class" value="View_Notification" />
 				<param key="options">
 					<value>
 						<data key="workspace" />
@@ -1150,11 +1151,11 @@
 		<!-- Explorer Toolbars -->
 		
 		<extension point="cerberusweb.explorer.toolbar">
-			<id>cerberusweb.explorer.toolbar.worker_events</id>
+			<id>cerberusweb.explorer.toolbar.notifications</id>
 			<name>Worker Events</name>
 			<class>
 				<file>api/uri/preferences.php</file>
-				<name>ChExplorerToolbarWorkerEvents</name>
+				<name>ChExplorerToolbarNotifications</name>
 			</class>
 			<params>
 			</params>

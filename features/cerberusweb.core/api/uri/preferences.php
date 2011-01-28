@@ -165,42 +165,42 @@ class ChPreferencesPage extends CerberusPageExtension {
 		}
 	}
 	
-	function showMyEventsAction() {
+	function showMyNotificationsTabAction() {
 		$translate = DevblocksPlatform::getTranslationService();
 		$active_worker = CerberusApplication::getActiveWorker();
 		$visit = CerberusApplication::getVisit();
 		$tpl = DevblocksPlatform::getTemplateService();
 
 		// Remember tab
-		$visit->set(Extension_PreferenceTab::POINT, 'events');
+		$visit->set(Extension_PreferenceTab::POINT, 'notifications');
 		
 		// My Events
 		$defaults = new C4_AbstractViewModel();
-		$defaults->id = 'home_myevents';
-		$defaults->class_name = 'View_WorkerEvent';
+		$defaults->id = 'my_notifications';
+		$defaults->class_name = 'View_Notification';
 		$defaults->renderLimit = 25;
 		$defaults->renderPage = 0;
-		$defaults->renderSortBy = SearchFields_WorkerEvent::CREATED_DATE;
+		$defaults->renderSortBy = SearchFields_Notification::CREATED_DATE;
 		$defaults->renderSortAsc = false;
 		
-		$myEventsView = C4_AbstractViewLoader::getView('home_myevents', $defaults);
+		$myEventsView = C4_AbstractViewLoader::getView('my_notifications', $defaults);
 		
 		$myEventsView->name = vsprintf($translate->_('home.my_notifications.view.title'), $active_worker->getName());
 		
 		$myEventsView->addColumnsHidden(array(
-			SearchFields_WorkerEvent::ID,
-			SearchFields_WorkerEvent::IS_READ,
-			SearchFields_WorkerEvent::WORKER_ID,
+			SearchFields_Notification::ID,
+			SearchFields_Notification::IS_READ,
+			SearchFields_Notification::WORKER_ID,
 		));
 		
 		$myEventsView->addParamsHidden(array(
-			SearchFields_WorkerEvent::ID,
-			SearchFields_WorkerEvent::IS_READ,
-			SearchFields_WorkerEvent::WORKER_ID,
+			SearchFields_Notification::ID,
+			SearchFields_Notification::IS_READ,
+			SearchFields_Notification::WORKER_ID,
 		), true);
 		$myEventsView->addParamsRequired(array(
-			SearchFields_WorkerEvent::IS_READ => new DevblocksSearchCriteria(SearchFields_WorkerEvent::IS_READ,'=',0),
-			SearchFields_WorkerEvent::WORKER_ID => new DevblocksSearchCriteria(SearchFields_WorkerEvent::WORKER_ID,'=',$active_worker->id),
+			SearchFields_Notification::IS_READ => new DevblocksSearchCriteria(SearchFields_Notification::IS_READ,'=',0),
+			SearchFields_Notification::WORKER_ID => new DevblocksSearchCriteria(SearchFields_Notification::WORKER_ID,'=',$active_worker->id),
 		), true);
 		
 		/*
@@ -211,7 +211,7 @@ class ChPreferencesPage extends CerberusPageExtension {
 		C4_AbstractViewLoader::setView($myEventsView->id, $myEventsView);
 		
 		$tpl->assign('view', $myEventsView);
-		$tpl->display('devblocks:cerberusweb.core::preferences/tabs/my_events/index.tpl');
+		$tpl->display('devblocks:cerberusweb.core::preferences/tabs/notifications/index.tpl');
 	}
 	
 	function showNotificationsBulkPanelAction() {
@@ -230,7 +230,7 @@ class ChPreferencesPage extends CerberusPageExtension {
 		//$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TASK);
 		//$tpl->assign('custom_fields', $custom_fields);
 		
-		$tpl->display('devblocks:cerberusweb.core::preferences/tabs/my_events/bulk.tpl');
+		$tpl->display('devblocks:cerberusweb.core::preferences/tabs/notifications/bulk.tpl');
 	}
 	
 	function doNotificationsBulkUpdateAction() {
@@ -275,7 +275,7 @@ class ChPreferencesPage extends CerberusPageExtension {
 		return;
 	}	
 	
-	function viewEventsExploreAction() {
+	function viewNotificationsExploreAction() {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
@@ -314,7 +314,7 @@ class ChPreferencesPage extends CerberusPageExtension {
 					'worker_id' => $active_worker->id,
 					'total' => $total,
 					'return_url' => isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : $url_writer->write('c=preferences&tab=events', true),
-					'toolbar_extension_id' => 'cerberusweb.explorer.toolbar.worker_events',
+					'toolbar_extension_id' => 'cerberusweb.explorer.toolbar.notifications',
 				);
 				$models[] = $model; 
 				
@@ -330,8 +330,8 @@ class ChPreferencesPage extends CerberusPageExtension {
 				$model->hash = $hash;
 				$model->pos = $pos++;
 				$model->params = array(
-					'id' => $row[SearchFields_WorkerEvent::ID],
-					'url' => $row[SearchFields_WorkerEvent::URL],
+					'id' => $row[SearchFields_Notification::ID],
+					'url' => $row[SearchFields_Notification::URL],
 				);
 				$models[] = $model; 
 			}
@@ -351,19 +351,19 @@ class ChPreferencesPage extends CerberusPageExtension {
 		$worker = CerberusApplication::getActiveWorker();
 		
 		if(!empty($id)) {
-			DAO_WorkerEvent::updateWhere(
+			DAO_Notification::updateWhere(
 				array(
-					DAO_WorkerEvent::IS_READ => 1,
+					DAO_Notification::IS_READ => 1,
 				), 
 				sprintf("%s = %d AND %s = %d",
-					DAO_WorkerEvent::WORKER_ID,
+					DAO_Notification::WORKER_ID,
 					$worker->id,
-					DAO_WorkerEvent::ID,
+					DAO_Notification::ID,
 					$id
 				)
 			);
 			
-			DAO_WorkerEvent::clearCountCache($worker->id);
+			DAO_Notification::clearCountCache($worker->id);
 		}
 	}
 
@@ -382,13 +382,13 @@ class ChPreferencesPage extends CerberusPageExtension {
 		array_shift($stack); // redirectReadAction
 		@$id = array_shift($stack); // id
 		
-		if(null != ($event = DAO_WorkerEvent::get($id))) {
+		if(null != ($event = DAO_Notification::get($id))) {
 			// Mark as read before we redirect
-			DAO_WorkerEvent::update($id, array(
-				DAO_WorkerEvent::IS_READ => 1
+			DAO_Notification::update($id, array(
+				DAO_Notification::IS_READ => 1
 			));
 			
-			DAO_WorkerEvent::clearCountCache($worker->id);
+			DAO_Notification::clearCountCache($worker->id);
 
 			session_write_close();
 			header("Location: " . $event->url);
@@ -448,7 +448,7 @@ class ChPreferencesPage extends CerberusPageExtension {
 //	}	
 	
 	// Ajax [TODO] This should probably turn into Extension_PreferenceTab
-	function showGeneralAction() {
+	function showGeneralTabAction() {
 		$date_service = DevblocksPlatform::getDateService();
 		$tpl = DevblocksPlatform::getTemplateService();
 		$visit = CerberusApplication::getVisit();
@@ -484,7 +484,7 @@ class ChPreferencesPage extends CerberusPageExtension {
 	}
 	
 	// Ajax [TODO] This should probably turn into Extension_PreferenceTab
-	function showRssAction() {
+	function showRssTabAction() {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$active_worker = CerberusApplication::getActiveWorker();
 		$visit = CerberusApplication::getVisit();
@@ -631,7 +631,7 @@ class ChPreferencesPage extends CerberusPageExtension {
 	}
 };
 
-class ChExplorerToolbarWorkerEvents extends Extension_ExplorerToolbar {
+class ChExplorerToolbarNotifications extends Extension_ExplorerToolbar {
 	function render(Model_ExplorerSet $item) {
 		$tpl = DevblocksPlatform::getTemplateService();
 		

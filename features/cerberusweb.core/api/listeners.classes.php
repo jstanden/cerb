@@ -398,12 +398,12 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 					
 				// Assignment Notification
 				$fields = array(
-					DAO_WorkerEvent::CREATED_DATE => time(),
-					DAO_WorkerEvent::WORKER_ID => $worker_id,
-					DAO_WorkerEvent::URL => $url,
-					DAO_WorkerEvent::MESSAGE => vsprintf($translate->_($string_assigned), $worker_name),
+					DAO_Notification::CREATED_DATE => time(),
+					DAO_Notification::WORKER_ID => $worker_id,
+					DAO_Notification::URL => $url,
+					DAO_Notification::MESSAGE => vsprintf($translate->_($string_assigned), $worker_name),
 				);
-				DAO_WorkerEvent::create($fields);
+				DAO_Notification::create($fields);
 			}
 		}
 		
@@ -540,12 +540,12 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 		foreach($context_owners as $owner_id => $owner) {
 			// Assignment Notification
 			$fields = array(
-				DAO_WorkerEvent::CREATED_DATE => time(),
-				DAO_WorkerEvent::WORKER_ID => $owner_id,
-				DAO_WorkerEvent::URL => $url,
-				DAO_WorkerEvent::MESSAGE => $message,
+				DAO_Notification::CREATED_DATE => time(),
+				DAO_Notification::WORKER_ID => $owner_id,
+				DAO_Notification::URL => $url,
+				DAO_Notification::MESSAGE => $message,
 			);
-			DAO_WorkerEvent::create($fields);
+			DAO_Notification::create($fields);
 		}
 	}
 	
@@ -643,7 +643,7 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 		DAO_Ticket::maint();
 		DAO_Message::maint();
 		DAO_Worker::maint();
-		DAO_WorkerEvent::maint();
+		DAO_Notification::maint();
 		DAO_Snippet::maint();
 		DAO_ContactPerson::maint();
 		DAO_OpenIdToContactPerson::maint();
