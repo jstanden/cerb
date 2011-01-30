@@ -63,7 +63,7 @@
 		<li>
 			{$translate->_('preferences.account.email.address.add')}<br>
 			<div style="padding:5px;">
-				<input type="text" name="new_email" size="45" value="" style="background:url('{devblocks_url}c=resource&p=cerberusweb.core&f=images/input_icons/mail.png{/devblocks_url}') no-repeat scroll 5px 50% #ffffff;padding-left:25px;">
+				<input type="text" name="new_email" size="45" value="" class="input_email">
 			</div>
 		</li>
 	</ul>
