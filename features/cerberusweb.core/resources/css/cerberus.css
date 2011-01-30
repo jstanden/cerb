@@ -47,6 +47,10 @@ fieldset legend {
 	font-weight:bold;
 }
 
+fieldset legend a {
+	color:rgb(0,120,0);
+}
+
 fieldset h1 {
 	font-weight:normal;
 	color: rgb(80, 80, 80);
