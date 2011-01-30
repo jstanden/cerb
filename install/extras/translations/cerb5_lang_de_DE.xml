@@ -4367,16 +4367,6 @@ login</seg>
         <seg>Priorität</seg>
       </tuv>
     </tu>
-    <tu tuid="task.source_extension">
-      <tuv xml:lang="de_DE">
-        <seg>Quelle</seg>
-      </tuv>
-    </tu>
-    <tu tuid="task.source_id">
-      <tuv xml:lang="de_DE">
-        <seg>Quell-ID</seg>
-      </tuv>
-    </tu>
     <tu tuid="task.status.active">
       <tuv xml:lang="de_DE">
         <seg>Aktiv</seg>

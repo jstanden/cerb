@@ -1591,16 +1591,6 @@
         <seg>Priorità</seg>
       </tuv>
     </tu>
-    <tu tuid="task.source_extension">
-      <tuv xml:lang="it_IT">
-        <seg>Sorgente</seg>
-      </tuv>
-    </tu>
-    <tu tuid="task.source_id">
-      <tuv xml:lang="it_IT">
-        <seg>ID Sorgente</seg>
-      </tuv>
-    </tu>
     <tu tuid="task.title">
       <tuv xml:lang="it_IT">
         <seg>Titolo</seg>

@@ -3602,16 +3602,6 @@
         <seg>Voltooid</seg>
       </tuv>
     </tu>
-    <tu tuid="task.source_extension">
-      <tuv xml:lang="nl_NL">
-        <seg>Bron</seg>
-      </tuv>
-    </tu>
-    <tu tuid="task.source_id">
-      <tuv xml:lang="nl_NL">
-        <seg>Bron ID</seg>
-      </tuv>
-    </tu>
     <tu tuid="task.status.active">
       <tuv xml:lang="nl_NL">
         <seg>Actief</seg>

@@ -2336,16 +2336,6 @@ Se não solicitou esta operação, não clique no link em cima. O pedido expira 
         <seg>Concluído</seg>
       </tuv>
     </tu>
-    <tu tuid="task.source_extension">
-      <tuv xml:lang="pt_PT">
-        <seg>Origem</seg>
-      </tuv>
-    </tu>
-    <tu tuid="task.source_id">
-      <tuv xml:lang="pt_PT">
-        <seg>ID de origem</seg>
-      </tuv>
-    </tu>
     <tu tuid="task.title">
       <tuv xml:lang="pt_PT">
         <seg>Título</seg>
