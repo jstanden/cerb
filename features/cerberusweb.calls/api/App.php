@@ -1,14 +1,10 @@
 <?php
 class CallsPage extends CerberusPageExtension {
 	function isVisible() {
-		// check login
-		$session = DevblocksPlatform::getSessionService();
-		$visit = $session->getVisit();
-		
-		if(!empty($visit))
-			return true;
-			
-		return false;
+		// The current session must be a logged-in worker to use this page.
+		if(null == ($worker = CerberusApplication::getActiveWorker()))
+			return false;
+		return true;
 	}
 	
 	function render() {

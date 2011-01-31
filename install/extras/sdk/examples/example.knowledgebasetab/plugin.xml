@@ -13,7 +13,7 @@
 		<require plugin_id="cerberusweb.core" version="5.1.0" />
 	</dependencies>
     
-    <!-- Exported Classes -->
+    <!-- Extensions -->
    
 	<extensions>
 		<extension point="cerberusweb.knowledgebase.tab">

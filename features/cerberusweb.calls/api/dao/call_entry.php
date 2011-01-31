@@ -105,10 +105,8 @@ class DAO_CallEntry extends C4_ORMHelper {
 		
 		// Context links
 		DAO_ContextLink::delete(CerberusContexts::CONTEXT_CALL, $ids);
-		
 		// Custom fields
 		DAO_CustomFieldValue::deleteByContextIds(CerberusContexts::CONTEXT_CALL, $ids);
-
 		// Comments
 		DAO_Comment::deleteByContext(CerberusContexts::CONTEXT_CALL, $ids);
 		

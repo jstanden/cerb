@@ -6,7 +6,7 @@
 	<div class="ui-widget">
 		<div class="ui-state-error ui-corner-all" style="padding: 0.7em; margin:0.2em; ">
 		<span style="float:right;">(<a href="javascript:;" onclick="$(this).closest('.ui-widget').fadeOut();">dismiss</a>)</span>
-		{foreach from=$pref_errors item=error} 
+		{foreach from=$pref_errors item=error}
 			<span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span> {$error}<br>
 		{/foreach}
 		</div>

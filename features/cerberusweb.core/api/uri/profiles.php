@@ -49,9 +49,10 @@
  */
 class Page_Profiles extends CerberusPageExtension {
 	function isVisible() {
-		// check login
-		$visit = CerberusApplication::getVisit();
-		return (empty($visit)) ? false : true;
+		// The current session must be a logged-in worker to use this page.
+		if(null == ($worker = CerberusApplication::getActiveWorker()))
+			return false;
+		return true;
 	}
 	
 	function render() {

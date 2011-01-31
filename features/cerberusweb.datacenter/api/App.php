@@ -41,8 +41,10 @@ class DatacenterServersTab extends Extension_DatacenterTab {
 
 class Page_Datacenter extends CerberusPageExtension {
 	function isVisible() {
-		$active_worker = CerberusApplication::getActiveWorker();
-		return ($active_worker) ? true : false;
+		// The current session must be a logged-in worker to use this page.
+		if(null == ($worker = CerberusApplication::getActiveWorker()))
+			return false;
+		return true;
 	}
 	
 	function render() {

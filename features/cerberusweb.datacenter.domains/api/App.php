@@ -59,8 +59,10 @@ endif;
 // Controller
 class Page_Domains extends CerberusPageExtension {
 	function isVisible() {
-		$active_worker = CerberusApplication::getActiveWorker();
-		return ($active_worker) ? true : false;
+		// The current session must be a logged-in worker to use this page.
+		if(null == ($worker = CerberusApplication::getActiveWorker()))
+			return false;
+		return true;
 	}
 	
 	function render() {

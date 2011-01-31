@@ -49,15 +49,10 @@
  */
 class ChExplorerController extends DevblocksControllerExtension {
 	function isVisible() {
-		// check login
-		$session = DevblocksPlatform::getSessionService();
-		$visit = $session->getVisit();
-		
-		if(empty($visit)) {
+		// The current session must be a logged-in worker to use this page.
+		if(null == ($worker = CerberusApplication::getActiveWorker()))
 			return false;
-		} else {
-			return true;
-		}
+		return true;
 	}
 	
 	/*

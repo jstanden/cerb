@@ -1,8 +1,10 @@
 <?php
 class ChOpenIdAjaxController extends CerberusPageExtension {
 	 function isVisible() {
-		$active_worker = CerberusApplication::getActiveWorker();
-		return !empty($active_worker);
+		// The current session must be a logged-in worker to use this page.
+		if(null == ($worker = CerberusApplication::getActiveWorker()))
+			return false;
+		return true;
 	 }
 	 
 	 function validateAddPrefAction() {

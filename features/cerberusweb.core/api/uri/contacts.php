@@ -53,14 +53,10 @@ class ChContactsPage extends CerberusPageExtension {
 	}
 	
 	function isVisible() {
-		// check login
-		$visit = CerberusApplication::getVisit();
-		
-		if(empty($visit)) {
+		// The current session must be a logged-in worker to use this page.
+		if(null == ($worker = CerberusApplication::getActiveWorker()))
 			return false;
-		} else {
-			return true;
-		}
+		return true;
 	}
 	
 	function render() {

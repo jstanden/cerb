@@ -65,7 +65,7 @@
 			$popup = genericAjaxPopup('peek','c=calls&a=showEntry&id={$call->id}',null,false,'550');
 			$popup.one('call_save', function(event) {
 				event.stopPropagation();
-				document.location.href = '{devblocks_url}c=calls&id={$call->id}{/devblocks_url}';
+				document.location.reload();
 			});
 		})
 	});

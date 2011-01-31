@@ -128,7 +128,7 @@ class DAO_Comment extends DevblocksORMHelper {
 
 		if(null == ($extension = DevblocksPlatform::getExtension($context, true)))
 			return FALSE;
-		
+			
 		if(null == (@$string = $extension->manifest->params['events'][0]['context.commented']))
 			$string = 'context.default.commented';
 			

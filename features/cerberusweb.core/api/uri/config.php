@@ -48,15 +48,13 @@
  *	 WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
 class ChConfigurationPage extends CerberusPageExtension  {
-	// [TODO] Refactor to isAuthorized
 	function isVisible() {
-		$worker = CerberusApplication::getActiveWorker();
-		
-		if(empty($worker)) {
+		// Must be logged in
+		if(null == ($worker = CerberusApplication::getActiveWorker()))
 			return false;
-		} elseif($worker->is_superuser) {
-			return true;
-		}
+		
+		// Must be a superuser
+		return !empty($worker->is_superuser);
 	}
 	
 	function getActivity() {

@@ -57,14 +57,10 @@ abstract class Extension_KnowledgebaseTab extends DevblocksExtension {
 
 class ChKbPage extends CerberusPageExtension {
 	function isVisible() {
-		// check login
-		$visit = CerberusApplication::getVisit();
-		
-		if(empty($visit)) {
+		// The current session must be a logged-in worker to use this page.
+		if(null == ($worker = CerberusApplication::getActiveWorker()))
 			return false;
-		} else {
-			return true;
-		}
+		return true;
 	}
 	
 //	function getActivity() {
@@ -343,17 +339,13 @@ if (class_exists('Extension_SendMailToolbarItem',true)):
 	};
 endif;
 
+// [TODO] This should just be merged into KbPage
 class ChKbAjaxController extends DevblocksControllerExtension {
 	function isVisible() {
-		// check login
-		$session = DevblocksPlatform::getSessionService();
-		$visit = $session->getVisit();
-		
-		if(empty($visit)) {
+		// The current session must be a logged-in worker to use this page.
+		if(null == ($worker = CerberusApplication::getActiveWorker()))
 			return false;
-		} else {
-			return true;
-		}
+		return true;
 	}
 	
 	/*
