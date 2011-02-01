@@ -1,0 +1,39 @@
+<!DOCTYPE plugin SYSTEM "../../libs/devblocks/plugin.dtd">
+<plugin>
+	<id>example.page</id>
+	<name>[Example] Example Page</name>
+	<description>This example plugins adds a new page to the helpdesk.</description>
+	<author>WebGroup Media, LLC.</author>
+	<revision>1</revision>
+	<link>http://www.cerb5.com/</link>
+	<!--<image>plugin.png</image>-->
+ 
+	<!-- Plugin Dependencies -->
+	
+	<dependencies>
+		<require plugin_id="cerberusweb.core" version="5.3.2" />
+	</dependencies>
+
+	<!-- Extensions -->
+ 
+	<extensions>
+
+		<!-- Page -->
+		
+ 		<extension point="cerberusweb.page">
+			<id>example.page</id>
+			<name>Example Page</name>
+			<class>
+				<file>api/App.php</file>
+				<name>ExamplePage</name>
+			</class>
+			<params>
+				<param key="uri" value="example" />
+				<!-- NOTE: If 'menutitle' is blank then the page won't be included in the menu 
+					but it will still be accessible by the 'uri' directly -->
+				<param key="menutitle" value="example.page.common.example" />
+			</params>
+		</extension>
+		
+    </extensions> 
+</plugin>
