@@ -1,0 +1,86 @@
+<!DOCTYPE plugin SYSTEM "../../libs/devblocks/plugin.dtd">
+<plugin>
+	<id>example.object</id>
+	<name>[Example] Example Object</name>
+	<description>This example plugin adds a new kind of object to the helpdesk, complete with all the amenities: custom fields, views, worklists, bulk update, explore, owners, links, comments, etc.</description>
+	<author>WebGroup Media, LLC.</author>
+	<revision>1</revision>
+	<link>http://www.cerb5.com/</link>
+	<!--<image>plugin.png</image>-->
+ 
+	<!-- Plugin Dependencies -->
+	
+	<dependencies>
+		<require plugin_id="cerberusweb.core" version="5.3.2" />
+	</dependencies>
+
+	<!-- Patches -->
+	
+	<patches>
+		<patch version="5.3.2" revision="1" file="patches/5.3.2.php" />
+	</patches>
+	
+	<!-- Exported Classes -->
+	
+	<class_loader>
+		<file path="api/dao/example.php">
+			<class name="Context_ExampleObject" />
+			<class name="DAO_ExampleObject" />
+			<class name="Model_ExampleObject" />
+			<class name="SearchFields_ExampleObject" />
+			<class name="View_ExampleObject" />
+		</file>
+	</class_loader>
+
+	<!-- Extensions -->
+ 
+	<extensions>
+
+		<!-- Contexts -->
+
+		<extension point="devblocks.context">
+			<id>cerberusweb.contexts.example_object</id>
+			<name>Example Object</name>
+			<class>
+				<file>api/dao/example.php</file>
+				<name>Context_ExampleObject</name>
+			</class>
+			<params>
+				<param key="view_class" value="View_ExampleObject" />
+				<param key="options">
+					<value>
+						<!--
+						<data key="create" />
+						-->
+						<data key="find" />
+						<data key="workspace" />
+					</value>
+				</param>
+				<param key="events">
+					<value>
+						<data key="context.assigned" value="context.example_object.assigned" />
+						<data key="context.commented" value="context.example_object.commented" />
+					</value>
+				</param>
+			</params>
+		</extension>
+
+		<!-- Page -->
+		
+ 		<extension point="cerberusweb.page">
+			<id>example.object.page</id>
+			<name>Example Page</name>
+			<class>
+				<file>api/App.php</file>
+				<name>Page_ExampleObjects</name>
+			</class>
+			<params>
+				<param key="uri" value="example.objects" />
+				<!-- NOTE: If 'menutitle' is blank then the page won't be included in the menu 
+					but it will still be accessible by the 'uri' directly -->
+				<param key="menutitle" value="example.object.common.objects" />
+			</params>
+		</extension>
+		
+    </extensions> 
+</plugin>
