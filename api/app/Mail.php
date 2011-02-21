@@ -541,7 +541,7 @@ class CerberusMail {
 					return;
 					
 				// Ignore bounces
-				if($first_split[0]=="postmaster" || $first_split[0] == "mailer-daemon")
+				if($first_split[0] == "postmaster" || $first_split[0] == "mailer-daemon")
 					return;
 				
 				// Ignore autoresponses to autoresponses
@@ -549,7 +549,7 @@ class CerberusMail {
 					return;
 					
 				if(isset($message_headers['precedence']) && 
-					($message_headers['precedence']=='list' || $message_headers['precedence'] == 'junk' || $message_headers['precedence'] = 'bulk'))
+					($message_headers['precedence'] == 'list' || $message_headers['precedence'] == 'junk' || $message_headers['precedence'] == 'bulk'))
 					return;
 					
 				// Set the auto-reply date for this address to right now
