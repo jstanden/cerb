@@ -1712,6 +1712,20 @@ class ChConfigurationPage extends CerberusPageExtension  {
 			$tpl->assign('members', $members);
 		}
 		
+		// Custom fields
+		
+		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_GROUP); 
+		$tpl->assign('custom_fields', $custom_fields);
+
+		$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_GROUP, $id);
+		if(isset($custom_field_values[$id]))
+			$tpl->assign('custom_field_values', $custom_field_values[$id]);
+		
+		$types = Model_CustomField::getTypes();
+		$tpl->assign('types', $types);
+		
+		// Workers
+
 		$workers = DAO_Worker::getAllActive();
 		$tpl->assign('workers', $workers);
 		
@@ -1769,6 +1783,8 @@ class ChConfigurationPage extends CerberusPageExtension  {
 			$id = DAO_Group::createTeam($fields);
 		}
 		
+		// Members
+		
 		@$worker_ids = DevblocksPlatform::importGPC($_POST['worker_ids'],'array',array());
 		@$worker_levels = DevblocksPlatform::importGPC($_POST['worker_levels'],'array',array());
 		
@@ -1784,6 +1800,10 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	    	}
 	    }
 		
+	    // Custom fields
+		@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', array());
+		DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_GROUP, $id, $field_ids);
+	    
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','groups')));
 	}
 	

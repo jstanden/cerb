@@ -1,17 +1,17 @@
 <input type="hidden" name="c" value="config">
 <input type="hidden" name="a" value="saveTeam">
 <input type="hidden" name="id" value="{$team->id}">
-<div class="block">
+
+<fieldset>
+	<legend>
+		{if empty($team->id)}
+		Add Group
+		{else}
+		Modify '{$team->name}'
+		{/if}
+	</legend>
+	
 <table cellpadding="2" cellspacing="0" border="0">
-	<tr>
-		<td colspan="2">
-			{if empty($team->id)}
-			<h2>Add Group</h2>
-			{else}
-			<h2>Modify '{$team->name}'</h2>
-			{/if}
-		</td>
-	</tr>
 	<tr>
 		<td width="0%" nowrap="nowrap" valign="top"><b>Name:</b></td>
 		<td width="100%"><input type="text" name="name" value="{$team->name}" size="45"></td>
@@ -42,6 +42,13 @@
 		</td>
 	</tr>
 	
+	<tr>
+		<td colspan="2">
+			{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false}
+		</td>
+	</tr>
+	
+	{*
 	{if !empty($team->id)}
 	<tr>
 		<td width="100%" valign="top" colspan="2">
@@ -50,6 +57,7 @@
 		</td>
 	</tr>
 	{/if}
+	*}
 
 	<tr>
 		<td colspan="2">
@@ -73,4 +81,4 @@
 		</td>
 	</tr>
 </table>
-</div>
+</fieldset>
