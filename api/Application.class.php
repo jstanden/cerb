@@ -708,6 +708,26 @@ class CerberusContexts {
 		return null;
 	}
 	
+	public static function scrubTokensWithRegexp(&$labels, &$values, $patterns=array()) {
+		foreach($patterns as $pattern) {
+			foreach(array_keys($labels) as $token) {
+				if(preg_match($pattern, $token)) {
+					unset($labels[$token]);
+				}
+			}
+			foreach(array_keys($values) as $token) {
+				if(false !== ($pos = strpos($token,'|')))
+					$token = substr($token,0,$pos);
+				
+				if(preg_match($pattern, $token)) {
+					unset($values[$token]);
+				}
+			}
+		}
+
+		return TRUE;
+	}
+	
 	/**
 	 * 
 	 * @param string $token_prefix
