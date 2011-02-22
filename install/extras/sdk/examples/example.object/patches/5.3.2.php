@@ -4,7 +4,7 @@ $logger = DevblocksPlatform::getConsoleLog();
 $tables = $db->metaTables();
 
 // ===========================================================================
-// datacenter_registrar 
+// example_object 
 
 if(!isset($tables['example_object'])) {
 	$sql = "

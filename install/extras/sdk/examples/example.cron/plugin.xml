@@ -16,6 +16,9 @@
     <!-- Exported Classes -->
    
 	<extensions>
+		
+		<!-- Scheduled Jobs -->
+		
 		<extension point="cerberusweb.cron">
 			<id>example.cron</id>
 			<name>Example Cron</name>
@@ -25,5 +28,6 @@
 			</class>
 			<params />
 		</extension>
+		
 	</extensions>
 </plugin>

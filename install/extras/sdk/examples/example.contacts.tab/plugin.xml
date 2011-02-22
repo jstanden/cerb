@@ -16,6 +16,9 @@
     <!-- Exported Classes -->
    
 	<extensions>
+		
+		<!-- Address Book Tabs -->
+		
 		<extension point="cerberusweb.contacts.tab">
 			<id>example.contacts.tab</id>
 			<name>Example Address Book Tab</name>
@@ -28,5 +31,6 @@
     			<param key="title" value="example.contacts.tab" />
 			</params>
 		</extension>
+		
 	</extensions>
 </plugin>

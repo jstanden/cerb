@@ -16,6 +16,9 @@
     <!-- Exported Classes -->
    
 	<extensions>
+		
+		<!-- Org Tabs -->
+		
 		<extension point="cerberusweb.org.tab">
 			<id>example.orgtab.tab</id>
 			<name>Example Org Tab</name>
@@ -28,5 +31,6 @@
     			<param key="title" value="example.org.tab" />
 			</params>
 		</extension>
+		
 	</extensions>
 </plugin>

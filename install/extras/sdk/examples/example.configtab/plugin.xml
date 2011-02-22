@@ -16,6 +16,9 @@
     <!-- Exported Classes -->
    
 	<extensions>
+		
+		<!-- Config Tab -->
+		
 		<extension point="cerberusweb.config.tab">
 			<id>example.configtab.tab</id>
 			<name>Example Config Tab</name>
@@ -28,5 +31,6 @@
     			<param key="title" value="example.config.tab" />
 			</params>
 		</extension>
+		
 	</extensions>
 </plugin>
