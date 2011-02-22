@@ -1,0 +1,36 @@
+<!DOCTYPE plugin SYSTEM "../../libs/devblocks/plugin.dtd">
+<plugin>
+	<id>example.controller</id>
+	<name>[Example] Example Controller</name>
+	<description>This example plugins adds a new controller to the helpdesk.</description>
+	<author>WebGroup Media, LLC.</author>
+	<revision>1</revision>
+	<link>http://www.cerb5.com/</link>
+	<!--<image>plugin.png</image>-->
+ 
+	<!-- Plugin Dependencies -->
+	
+	<dependencies>
+		<require plugin_id="cerberusweb.core" version="5.3.2" />
+	</dependencies>
+
+	<!-- Extensions -->
+ 
+	<extensions>
+
+		<!-- Controller -->
+		
+		<extension point="devblocks.controller">
+			<id>example.controller</id>
+			<name>Example Controller</name>
+			<class>
+				<file>api/App.php</file>
+				<name>ExampleController</name>
+			</class>
+			<params>
+				<param key="uri" value="example" />
+			</params>
+		</extension>
+		
+    </extensions> 
+</plugin>
