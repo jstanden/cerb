@@ -169,7 +169,7 @@ button:hover {
 	background-repeat: repeat-x;
 	background-color: rgb(160,198,254);
 	border: 1px solid rgb(36,111,223);
-	cursor: hand;
+	cursor:pointer;
 }
 
 button span {
@@ -465,6 +465,10 @@ DIV.badge {
 	border:1px solid rgb(150,150,150);
 }
 
+DIV.badge A {
+	color:rgb(255,255,255);
+}
+
 DIV.badge-lightgray {
 	background: -webkit-gradient(linear, left top, left bottom, from(rgb(240,240,240)), to(rgb(230,230,230)));
 	background: -moz-linear-gradient(top, rgb(240,240,240), rgb(230,230,230));
@@ -472,6 +476,70 @@ DIV.badge-lightgray {
 	
 	color:rgb(120,120,120);
 	border:1px solid rgb(200,200,200);
+}
+
+DIV.badge-lightgray A {
+	color:rgb(120,120,120);
+}
+
+DIV.badge-red {
+	background: -webkit-gradient(linear, left top, left bottom, from(rgb(220,0,0)), to(rgb(210,0,0)));
+	background: -moz-linear-gradient(top, rgb(220,0,0), rgb(210,0,0));
+	background-color:rgb(210,0,0);
+	
+	color:rgb(255,255,255);
+	border:1px solid rgb(200,0,0);
+}
+
+DIV.badge-green {
+	background: -webkit-gradient(linear, left top, left bottom, from(rgb(0,150,0)), to(rgb(0,120,0)));
+	background: -moz-linear-gradient(top, rgb(0,150,0), rgb(0,120,0));
+	background-color:rgb(0,150,0);
+	
+	color:rgb(255,255,255);
+	border:1px solid rgb(0,100,0);
+}
+
+UL.cerb-popupmenu {
+	min-width:200px;
+	list-style:none;
+	margin:0px;
+	padding:5px;
+}
+
+UL.cerb-popupmenu.cerb-float {
+	position:absolute;
+	z-index:9999;
+	float:left;	
+	background-color:rgb(245,245,245);
+	border:1px solid rgb(200,200,200);
+}
+
+UL.cerb-popupmenu LI {
+	padding:2px;
+	font-weight:bold;
+	cursor:pointer;
+}
+
+UL.cerb-popupmenu LI A {
+	text-decoration:none;
+}
+
+UL.cerb-popupmenu LI:hover {
+	background-color:rgb(105,140,221);
+	color:rgb(255,255,255);
+}
+
+UL.cerb-popupmenu LI:hover A {
+	color:rgb(255,255,255);
+}
+
+UL.cerb-popupmenu LI HR {
+	height:1px;
+	padding:0px;
+	margin:5px 5px;
+	border:0px;
+	border-top:1px dashed rgb(200,200,200);
 }
 
 /* Sprite container */
