@@ -899,7 +899,7 @@
 			<tuv xml:lang="en_US"><seg>%s unread notification(s)</seg></tuv>
 		</tu>
 		<tu tuid='header.preferences'>
-			<tuv xml:lang="en_US"><seg>my account</seg></tuv>
+			<tuv xml:lang="en_US"><seg>my settings</seg></tuv>
 		</tu>
 		<tu tuid='header.signed_in'>
 			<tuv xml:lang="en_US"><seg>Signed on as %s</seg></tuv>
