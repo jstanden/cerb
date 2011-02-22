@@ -176,39 +176,52 @@ class DAO_Address extends C4_ORMHelper {
         DAO_CustomFieldValue::deleteByContextIds(CerberusContexts::CONTEXT_ADDRESS, $ids);
     }
 		
-	static function getWhere($where=null) {
+	static function getWhere($where=null, $sortBy=null, $sortAsc=true, $limit=null) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$addresses = array();
+		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
-		$sql = sprintf("SELECT a.id, a.email, a.first_name, a.last_name, a.contact_person_id, a.contact_org_id, a.num_spam, a.num_nonspam, a.is_banned, a.last_autoreply ".
-			"FROM address a ".
-			((!empty($where)) ? "WHERE %s " : " ").
-			"ORDER BY a.email ",
-			$where
-		);
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+		// SQL
+		$sql = "SELECT id, email, first_name, last_name, contact_person_id, contact_org_id, num_spam, num_nonspam, is_banned, last_autoreply ".
+			"FROM address ".
+			$where_sql.
+			$sort_sql.
+			$limit_sql
+		;
+		$rs = $db->Execute($sql);
+
+		$objects = self::_getObjectsFromResult($rs);
+
+		return $objects;
+	}
+
+	/**
+	 * @param resource $rs
+	 * @return Model_Address[]
+	 */
+	static private function _getObjectsFromResult($rs) {
+		$objects = array();
 		
 		while($row = mysql_fetch_assoc($rs)) {
-			$address = new Model_Address();
-			$address->id = intval($row['id']);
-			$address->email = $row['email'];
-			$address->first_name = $row['first_name'];
-			$address->last_name = $row['last_name'];
-			$address->contact_person_id = intval($row['contact_person_id']);
-			$address->contact_org_id = intval($row['contact_org_id']);
-			$address->num_spam = intval($row['num_spam']);
-			$address->num_nonspam = intval($row['num_nonspam']);
-			$address->is_banned = intval($row['is_banned']);
-			$address->last_autoreply = intval($row['last_autoreply']);
-			$addresses[$address->id] = $address;
+			$object = new Model_Address();
+			$object->id = intval($row['id']);
+			$object->email = $row['email'];
+			$object->first_name = $row['first_name'];
+			$object->last_name = $row['last_name'];
+			$object->contact_person_id = intval($row['contact_person_id']);
+			$object->contact_org_id = intval($row['contact_org_id']);
+			$object->num_spam = intval($row['num_spam']);
+			$object->num_nonspam = intval($row['num_nonspam']);
+			$object->is_banned = intval($row['is_banned']);
+			$object->last_autoreply = intval($row['last_autoreply']);
+			$objects[$object->id] = $object;
 		}
 		
 		mysql_free_result($rs);
 		
-		return $addresses;
-	}
-
+		return $objects;
+	}	
+	
 	/**
 	 * @return Model_Address|null
 	 */
