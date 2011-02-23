@@ -668,9 +668,6 @@ class CerberusContexts {
 			case 'cerberusweb.contexts.bucket':
 				self::_getBucketContext($context_object, $labels, $values, $prefix);
 				break;
-			case 'cerberusweb.contexts.feedback':
-				self::_getFeedbackContext($context_object, $labels, $values, $prefix);
-				break;
 			default:
 				// Migrated
 				if(null != ($ctx = DevblocksPlatform::getExtension($context, true)) 
@@ -924,107 +921,6 @@ class CerberusContexts {
 
 		return true;
 	}
-	
-	private static function _getFeedbackContext($feedback, &$token_labels, &$token_values, $prefix=null) {
-		if(is_null($prefix))
-			$prefix = 'Feedback:';
-		
-		$translate = DevblocksPlatform::getTranslationService();
-		$fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_FEEDBACK);
-
-		// Polymorph
-		if(is_numeric($feedback)) {
-			$feedback = DAO_FeedbackEntry::get($feedback);
-		} elseif($feedback instanceof Model_FeedbackEntry) {
-			// It's what we want already.
-		} else {
-			$feedback = null;
-		}
-		
-		// Token labels
-		$token_labels = array(
-			'created|date' => $prefix.$translate->_('feedback_entry.log_date'),
-			'id' => $prefix.$translate->_('feedback_entry.id'),
-			'quote_mood' => $prefix.$translate->_('feedback_entry.quote_mood'),
-			'quote_text' => $prefix.$translate->_('feedback_entry.quote_text'),
-			'url' => $prefix.$translate->_('feedback_entry.source_url'),
-		);
-		
-		if(is_array($fields))
-		foreach($fields as $cf_id => $field) {
-			$token_labels['custom_'.$cf_id] = $prefix.$field->name;
-		}
-
-		// Token values
-		$token_values = array();
-		
-		if($feedback) {
-			$token_values['id'] = $feedback->id;
-			$token_values['created'] = $feedback->log_date;
-			$token_values['quote_text'] = $feedback->quote_text;
-			$token_values['url'] = $feedback->source_url;
-
-			$mood = $feedback->quote_mood;
-			$token_values['quote_mood_id'] = $mood;
-			$token_values['quote_mood'] = ($mood ? (2==$mood ? 'criticism' : 'praise' ) : 'neutral');
-			
-			$token_values['custom'] = array();
-			
-			$field_values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_FEEDBACK, $feedback->id));
-			if(is_array($field_values) && !empty($field_values)) {
-				foreach($field_values as $cf_id => $cf_val) {
-					if(!isset($fields[$cf_id]))
-						continue;
-					
-					// The literal value
-					if(null != $feedback)
-						$token_values['custom'][$cf_id] = $cf_val;
-					
-					// Stringify
-					if(is_array($cf_val))
-						$cf_val = implode(', ', $cf_val);
-						
-					if(is_string($cf_val)) {
-						if(null != $feedback)
-							$token_values['custom_'.$cf_id] = $cf_val;
-					}
-				}
-			}
-		}
-
-		// Author
-		@$address_id = $feedback->quote_address_id;
-		$merge_token_labels = array();
-		$merge_token_values = array();
-		self::getContext(self::CONTEXT_ADDRESS, $address_id, $merge_token_labels, $merge_token_values, '', true);
-
-		CerberusContexts::merge(
-			'author_',
-			'Author:',
-			$merge_token_labels,
-			$merge_token_values,
-			$token_labels,
-			$token_values
-		);			
-		
-		// Created by (Worker)
-		@$assignee_id = $feedback->worker_id;
-		$merge_token_labels = array();
-		$merge_token_values = array();
-		self::getContext(self::CONTEXT_WORKER, $assignee_id, $merge_token_labels, $merge_token_values, '', true);
-
-		CerberusContexts::merge(
-			'worker_',
-			'Worker:',
-			$merge_token_labels,
-			$merge_token_values,
-			$token_labels,
-			$token_values
-		);			
-		
-		return true;
-	}	
-	
 };
 
 class CerberusLicense {

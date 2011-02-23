@@ -209,11 +209,11 @@ class DAO_FeedbackEntry extends C4_ORMHelper {
 		
 		$join_sql = 
 			"FROM feedback_entry f ".
-			"LEFT JOIN address a ON (f.quote_address_id=a.id) "
-		;
+			"LEFT JOIN address a ON (f.quote_address_id=a.id) ".
+		
 			// [JAS]: Dynamic table joins
-//			(isset($tables['o']) ? "LEFT JOIN contact_org o ON (o.id=tt.debit_org_id)" : " ").
-//			(isset($tables['mc']) ? "INNER JOIN message_content mc ON (mc.message_id=m.id)" : " ").
+			(isset($tables['context_link']) ? "INNER JOIN context_link ON (context_link.to_context = 'cerberusweb.contexts.feedback' AND context_link.to_context_id = f.id) " : " ")
+		;
 
 		// Custom field joins
 		list($select_sql, $join_sql, $has_multiple_values) = self::_appendSelectJoinSqlForCustomFieldTables(
@@ -298,7 +298,6 @@ class DAO_FeedbackEntry extends C4_ORMHelper {
 		
 		return array($results,$total);
     }
-	
 };
 
 class Model_FeedbackEntry {
@@ -327,6 +326,9 @@ class SearchFields_FeedbackEntry {
 	
 	const ADDRESS_EMAIL = 'a_email';
 	
+	const CONTEXT_LINK = 'cl_context_from';
+	const CONTEXT_LINK_ID = 'cl_context_from_id';
+	
 	/**
 	 * @return DevblocksSearchField[]
 	 */
@@ -342,6 +344,9 @@ class SearchFields_FeedbackEntry {
 			self::SOURCE_URL => new DevblocksSearchField(self::SOURCE_URL, 'f', 'source_url', $translate->_('feedback_entry.source_url')),
 			
 			self::ADDRESS_EMAIL => new DevblocksSearchField(self::ADDRESS_EMAIL, 'a', 'email', $translate->_('feedback_entry.quote_address')),
+			
+			self::CONTEXT_LINK => new DevblocksSearchField(self::CONTEXT_LINK, 'context_link', 'from_context', null),
+			self::CONTEXT_LINK_ID => new DevblocksSearchField(self::CONTEXT_LINK_ID, 'context_link', 'from_context_id', null),
 		);
 		
 		// Custom Fields
@@ -894,5 +899,187 @@ if (class_exists('Extension_MessageToolbarItem',true)):
 	};
 endif;
 
+class Context_Feedback extends Extension_DevblocksContext {
+    static function searchInboundLinks($from_context, $from_context_id) {
+    	list($results, $null) = DAO_FeedbackEntry::search(
+    		array(
+    			SearchFields_FeedbackEntry::ID,
+    		),
+    		array(
+				new DevblocksSearchCriteria(SearchFields_FeedbackEntry::CONTEXT_LINK,'=',$from_context),
+				new DevblocksSearchCriteria(SearchFields_FeedbackEntry::CONTEXT_LINK_ID,'=',$from_context_id),
+    		),
+    		-1,
+    		0,
+    		SearchFields_FeedbackEntry::LOG_DATE,
+    		true,
+    		false
+    	);
+    	
+    	return $results;
+    }
+    
+    function getPermalink($context_id) {
+    	$url_writer = DevblocksPlatform::getUrlService();
+    	//return $url_writer->write('c=activity&tab=feedback', true);
+    	return false;
+    }
+    
+	function getContext($feedback, &$token_labels, &$token_values, $prefix=null) {
+		if(is_null($prefix))
+			$prefix = 'Feedback:';
+		
+		$translate = DevblocksPlatform::getTranslationService();
+		$fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_FEEDBACK);
 
-?>
+		// Polymorph
+		if(is_numeric($feedback)) {
+			$feedback = DAO_FeedbackEntry::get($feedback);
+		} elseif($feedback instanceof Model_FeedbackEntry) {
+			// It's what we want already.
+		} else {
+			$feedback = null;
+		}
+		
+		// Token labels
+		$token_labels = array(
+			'created|date' => $prefix.$translate->_('feedback_entry.log_date'),
+			'id' => $prefix.$translate->_('feedback_entry.id'),
+			'quote_mood' => $prefix.$translate->_('feedback_entry.quote_mood'),
+			'quote_text' => $prefix.$translate->_('feedback_entry.quote_text'),
+			'url' => $prefix.$translate->_('feedback_entry.source_url'),
+		);
+		
+		if(is_array($fields))
+		foreach($fields as $cf_id => $field) {
+			$token_labels['custom_'.$cf_id] = $prefix.$field->name;
+		}
+
+		// Token values
+		$token_values = array();
+		
+		if($feedback) {
+			$token_values['id'] = $feedback->id;
+			$token_values['created'] = $feedback->log_date;
+			$token_values['quote_text'] = $feedback->quote_text;
+			$token_values['url'] = $feedback->source_url;
+
+			$mood = $feedback->quote_mood;
+			$token_values['quote_mood_id'] = $mood;
+			$token_values['quote_mood'] = ($mood ? (2==$mood ? 'criticism' : 'praise' ) : 'neutral');
+			
+			$token_values['custom'] = array();
+			
+			$field_values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_FEEDBACK, $feedback->id));
+			if(is_array($field_values) && !empty($field_values)) {
+				foreach($field_values as $cf_id => $cf_val) {
+					if(!isset($fields[$cf_id]))
+						continue;
+					
+					// The literal value
+					if(null != $feedback)
+						$token_values['custom'][$cf_id] = $cf_val;
+					
+					// Stringify
+					if(is_array($cf_val))
+						$cf_val = implode(', ', $cf_val);
+						
+					if(is_string($cf_val)) {
+						if(null != $feedback)
+							$token_values['custom_'.$cf_id] = $cf_val;
+					}
+				}
+			}
+		}
+
+		// Author
+		@$address_id = $feedback->quote_address_id;
+		$merge_token_labels = array();
+		$merge_token_values = array();
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_ADDRESS, $address_id, $merge_token_labels, $merge_token_values, '', true);
+
+		CerberusContexts::merge(
+			'author_',
+			'Author:',
+			$merge_token_labels,
+			$merge_token_values,
+			$token_labels,
+			$token_values
+		);			
+		
+		// Created by (Worker)
+		@$assignee_id = $feedback->worker_id;
+		$merge_token_labels = array();
+		$merge_token_values = array();
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $assignee_id, $merge_token_labels, $merge_token_values, '', true);
+
+		CerberusContexts::merge(
+			'worker_',
+			'Worker:',
+			$merge_token_labels,
+			$merge_token_values,
+			$token_labels,
+			$token_values
+		);			
+		
+		return true;		
+	}
+
+	function getChooserView() {
+		// View
+		$view_id = 'chooser_'.str_replace('.','_',$this->id).time().mt_rand(0,9999);
+		$defaults = new C4_AbstractViewModel();
+		$defaults->id = $view_id;
+		$defaults->is_ephemeral = true;
+		$defaults->class_name = $this->getViewClass();
+		
+		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
+		$view->name = 'Feedback';
+		
+		$view->view_columns = array(
+			SearchFields_FeedbackEntry::LOG_DATE,
+			SearchFields_FeedbackEntry::ADDRESS_EMAIL,
+			SearchFields_FeedbackEntry::SOURCE_URL,
+		);
+		
+		$view->addParamsDefault(array(
+			//SearchFields_FeedbackEntry::IS_BANNED => new DevblocksSearchCriteria(SearchFields_FeedbackEntry::IS_BANNED,'=',0),
+		), true);
+		$view->addParams($view->getParamsDefault(), true);
+		
+		$view->renderSortBy = SearchFields_FeedbackEntry::LOG_DATE;
+		$view->renderSortAsc = false;
+		$view->renderLimit = 10;
+		$view->renderTemplate = 'contextlinks_chooser';
+		
+		C4_AbstractViewLoader::setView($view_id, $view);
+		return $view;		
+	}
+	
+	function getView($context=null, $context_id=null, $options=array()) {
+		$view_id = str_replace('.','_',$this->id);
+		
+		$defaults = new C4_AbstractViewModel();
+		$defaults->id = $view_id; 
+		$defaults->class_name = $this->getViewClass();
+		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
+		$view->name = 'Feedback';
+		
+		$params = array();
+		
+		if(!empty($context) && !empty($context_id)) {
+			$params = array(
+				new DevblocksSearchCriteria(SearchFields_FeedbackEntry::CONTEXT_LINK,'=',$context),
+				new DevblocksSearchCriteria(SearchFields_FeedbackEntry::CONTEXT_LINK_ID,'=',$context_id),
+			);
+		}
+		
+		if(isset($options['filter_open']))
+			true; // Do nothing
+		
+		$view->addParams($params, true);
+		$view->renderTemplate = 'context';
+		C4_AbstractViewLoader::setView($view_id, $view);
+		return $view;
+	}
+};
