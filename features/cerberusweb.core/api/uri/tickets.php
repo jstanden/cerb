@@ -2312,6 +2312,19 @@ class ChTicketsPage extends CerberusPageExtension {
 				'is_closed' => ((0==$status||3==$status)?0:1), // not open or waiting
 				'is_deleted' => (2==$status?1:0), // explicit deleted
 			);
+			
+			// Waiting until
+			$reopen = '';
+			switch($status) {
+				case 1: // closed
+				case 3: // waiting
+					@$reopen = DevblocksPlatform::importGPC($_REQUEST['do_reopen'],'string',null);
+					break;
+			}
+			
+			$do['reopen'] = array(
+				'date' => $reopen,
+			);
 		}
 		
 		// Broadcast: Mass Reply

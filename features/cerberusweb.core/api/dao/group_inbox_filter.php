@@ -680,6 +680,13 @@ class Model_GroupInboxFilter {
 					if(isset($params['is_deleted']))
 						$change_fields[DAO_Ticket::IS_DELETED] = intval($params['is_deleted']);
 					break;
+					
+				case 'reopen':
+					if(isset($params['date'])) {
+						@$due = strtotime($params['date']);
+						$change_fields[DAO_Ticket::DUE_DATE] = !empty($due) ? $due : 0;
+					}
+					break;
 
 				case 'owner':
 					foreach($ticket_ids as $ticket_id) {
