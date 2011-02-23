@@ -213,7 +213,13 @@ class ChSignInPage extends CerberusPageExtension {
 			
 		} else {
 			//authentication failed
-			$devblocks_response = new DevblocksHttpResponse(array('login','failed'));
+			$query = array();
+			
+			// Preserve a target page?
+			if(isset($_POST['original_path']))
+				$query['url'] = $_POST['original_path'];
+			
+			$devblocks_response = new DevblocksHttpResponse(array('login','failed'), $query);
 		}
 		
 		DevblocksPlatform::redirect($devblocks_response);
