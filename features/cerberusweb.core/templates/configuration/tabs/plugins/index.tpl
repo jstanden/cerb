@@ -5,6 +5,10 @@
 <a href="javascript:;" onclick="checkAll('frmConfigPlugins', true);">select all</a>
  | 
 <a href="javascript:;" onclick="checkAll('frmConfigPlugins', false)">select none</a>
+
+ &nbsp; &nbsp;
+  
+<div class="badge badge-lightgray"><a href="https://github.com/cerb5-plugins" target="_blank" style="font-weight:bold;">Find more plugins &raquo;</a></div>
 <br>
 <br>
  

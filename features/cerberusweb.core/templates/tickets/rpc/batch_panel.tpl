@@ -56,9 +56,9 @@
 		{/if}
 		
 		<tr>
-			<td width="0%" nowrap="nowrap">Status:</td>
-			<td width="100%">
-				<select name="do_status">
+			<td width="0%" nowrap="nowrap" valign="top">Status:</td>
+			<td width="100%" valign="top">
+				<select name="do_status" onchange="$val=$(this).val();$waiting=$('#bulk{$view_id}_waiting');if($val==3 || $val==1){ $waiting.show(); } else { $waiting.hide(); }">
 					<option value=""></option>
 					<option value="0">Open</option>
 					<option value="3">Waiting</option>
@@ -69,10 +69,21 @@
 					<option value="2">Deleted</option>
 					{/if}
 				</select>
-				<button type="button" onclick="this.form.do_status.selectedIndex = 1;">open</button>
-				<button type="button" onclick="this.form.do_status.selectedIndex = 2;">waiting</button>
-				{if $active_worker->hasPriv('core.ticket.actions.close')}<button type="button" onclick="this.form.do_status.selectedIndex = 3;">closed</button>{/if}
-				{if $active_worker->hasPriv('core.ticket.actions.delete')}<button type="button" onclick="this.form.do_status.selectedIndex = 4;">deleted</button>{/if}
+				<button type="button" onclick="$(this.form).find('select[name=do_status]').val('0').trigger('change');">open</button>
+				<button type="button" onclick="$(this.form).find('select[name=do_status]').val('3').trigger('change');">waiting</button>
+				{if $active_worker->hasPriv('core.ticket.actions.close')}<button type="button" onclick="$(this.form).find('select[name=do_status]').val('1').trigger('change');">closed</button>{/if}
+				{if $active_worker->hasPriv('core.ticket.actions.delete')}<button type="button" onclick="$(this.form).find('select[name=do_status]').val('2').trigger('change');">deleted</button>{/if}
+				
+				<div id="bulk{$view_id}_waiting" style="display:none;">
+			      	<b>{$translate->_('display.reply.next.resume')}</b>
+					<br>
+					<i>{$translate->_('display.reply.next.resume_eg')}</i>
+			      	<br> 
+			      	<input type="text" name="do_reopen" size="55" value="">
+			      	<br>
+			      	{$translate->_('display.reply.next.resume_blank')}
+			      	<br>
+				</div>
 			</td>
 		</tr>
 		

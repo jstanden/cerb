@@ -18,7 +18,7 @@
 									{foreach from=$context_workers item=worker name=workers}
 										{$worker_string = $worker_string|cat:'<b>'|cat:$worker->getName()|cat:'</b>'}{if !$smarty.foreach.workers.last}{$worker_string = $worker_string|cat:' and '}{/if}
 									{/foreach}
-									{'display.reply.warn_assigned'|devblocks_translate:$worker_string}
+									{'display.reply.warn_assigned'|devblocks_translate:$worker_string nofilter}
 								</p> 
 							</div>
 						</div>

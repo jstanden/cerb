@@ -455,20 +455,16 @@ class View_Snippet extends C4_AbstractView {
 		switch($field) {
 			case SearchFields_Snippet::ID:
 			case SearchFields_Snippet::TITLE:
-			case SearchFields_Snippet::CREATED_BY:
-			case SearchFields_Snippet::LAST_UPDATED:
-			case SearchFields_Snippet::LAST_UPDATED_BY:
-			case SearchFields_Snippet::IS_PRIVATE:
 			case SearchFields_Snippet::CONTENT:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__string.tpl');
 				break;
 			case 'placeholder_number':
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__number.tpl');
 				break;
-			case 'placeholder_bool':
+			case SearchFields_Snippet::IS_PRIVATE:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__bool.tpl');
 				break;
-			case 'placeholder_date':
+			case SearchFields_Snippet::LAST_UPDATED:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__date.tpl');
 				break;
 			case SearchFields_Snippet::CONTEXT:
@@ -482,6 +478,10 @@ class View_Snippet extends C4_AbstractView {
 				$tpl->assign('contexts', $contexts);
 				
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context.tpl');
+				break;
+			case SearchFields_Snippet::CREATED_BY:
+			case SearchFields_Snippet::LAST_UPDATED_BY:
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context_worker.tpl');
 				break;
 			default:
 				// Custom Fields
@@ -513,6 +513,23 @@ class View_Snippet extends C4_AbstractView {
 				
 				echo implode(', ', $strings);
 				break;
+				
+			case SearchFields_Snippet::CREATED_BY:
+			case SearchFields_Snippet::LAST_UPDATED_BY:
+				$workers = DAO_Worker::getAll();
+				$strings = array();
+			
+				foreach($param->value as $worker_id) {
+					if(empty($worker_id)) {
+						$strings[] = '<b>Nobody</b>';
+					} elseif(isset($workers[$worker_id])) {
+						$strings[] = '<b>'.$workers[$worker_id]->getName().'</b>';
+					}
+				}
+			
+				echo implode(', ', $strings);
+				break;
+			
 			default:
 				parent::renderCriteriaParam($param);
 				break;
@@ -529,15 +546,11 @@ class View_Snippet extends C4_AbstractView {
 		switch($field) {
 			case SearchFields_Snippet::ID:
 			case SearchFields_Snippet::TITLE:
-			case SearchFields_Snippet::CREATED_BY:
-			case SearchFields_Snippet::LAST_UPDATED:
-			case SearchFields_Snippet::LAST_UPDATED_BY:
-			case SearchFields_Snippet::IS_PRIVATE:
 			case SearchFields_Snippet::CONTENT:
 				// force wildcards if none used on a LIKE
 				if(($oper == DevblocksSearchCriteria::OPER_LIKE || $oper == DevblocksSearchCriteria::OPER_NOT_LIKE)
 				&& false === (strpos($value,'*'))) {
-					$value = $value.'*';
+					$value = '*'.$value.'*';
 				}
 				$criteria = new DevblocksSearchCriteria($field, $oper, $value);
 				break;
@@ -545,7 +558,7 @@ class View_Snippet extends C4_AbstractView {
 				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
 				break;
 				
-			case 'placeholder_date':
+			case SearchFields_Snippet::LAST_UPDATED:
 				@$from = DevblocksPlatform::importGPC($_REQUEST['from'],'string','');
 				@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string','');
 
@@ -555,7 +568,7 @@ class View_Snippet extends C4_AbstractView {
 				$criteria = new DevblocksSearchCriteria($field,$oper,array($from,$to));
 				break;
 				
-			case 'placeholder_bool':
+			case SearchFields_Snippet::IS_PRIVATE:
 				@$bool = DevblocksPlatform::importGPC($_REQUEST['bool'],'integer',1);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
 				break;
@@ -563,6 +576,12 @@ class View_Snippet extends C4_AbstractView {
 			case SearchFields_Snippet::CONTEXT:
 				@$in_contexts = DevblocksPlatform::importGPC($_REQUEST['contexts'],'array',array());
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$in_contexts);
+				break;
+				
+			case SearchFields_Snippet::CREATED_BY:
+			case SearchFields_Snippet::LAST_UPDATED_BY:
+				@$worker_ids = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',array());
+				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$worker_ids);
 				break;
 				
 			default:

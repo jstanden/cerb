@@ -41,6 +41,33 @@
 	
 	<extensions>
 	
+		<!-- Contexts -->
+		
+		<extension point="devblocks.context">
+			<id>cerberusweb.contexts.feedback</id>
+			<name>Feedback</name>
+			<class>
+				<file>api/App.php</file>
+				<name>Context_Feedback</name>
+			</class>
+			<params>
+				<param key="view_class" value="View_FeedbackEntry" />
+				<param key="options">
+					<value>
+						<!--<data key="create" />-->
+						<!--<data key="find" />-->
+						<data key="workspace" />
+					</value>
+				</param>
+				<param key="events">
+					<value>
+						<data key="context.assigned" value="context.feedback.assigned" />
+						<data key="context.commented" value="context.feedback.commented" />
+					</value>
+				</param>
+			</params>
+		</extension>
+	
 		<!-- Activity Tabs -->
 		
 		<extension point="cerberusweb.activity.tab">

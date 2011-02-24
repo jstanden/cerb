@@ -729,7 +729,7 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 			$view->renderSortBy = SearchFields_KbArticle::VIEWS;
 			$view->renderSortAsc = false;
 			$view->renderTemplate = 'chooser';
-			$view->addParams($params);
+			$view->addParams($params, true);
 			C4_AbstractViewLoader::setView($view->id, $view);
 			
 			$view->render();
