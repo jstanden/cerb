@@ -1,5 +1,7 @@
 <input type="hidden" name="c" value="config">
-<input type="hidden" name="a" value="saveTeam">
+<input type="hidden" name="a" value="handleSectionAction">
+<input type="hidden" name="section" value="groups">
+<input type="hidden" name="action" value="saveGroup">
 <input type="hidden" name="id" value="{$team->id}">
 
 <fieldset>
@@ -48,17 +50,6 @@
 		</td>
 	</tr>
 	
-	{*
-	{if !empty($team->id)}
-	<tr>
-		<td width="100%" valign="top" colspan="2">
-			<a href="{devblocks_url}c=groups&id={$team->id}{/devblocks_url}">Group Configuration</a><br>
-			<br>
-		</td>
-	</tr>
-	{/if}
-	*}
-
 	<tr>
 		<td colspan="2">
 			<input type="hidden" name="delete_box" value="0">

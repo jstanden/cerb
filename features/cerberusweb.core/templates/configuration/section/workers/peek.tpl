@@ -1,6 +1,8 @@
 <form action="{devblocks_url}{/devblocks_url}" method="POST" id="formWorkerPeek" name="formWorkerPeek" onsubmit="return false;">
 <input type="hidden" name="c" value="config">
-<input type="hidden" name="a" value="saveWorkerPeek">
+<input type="hidden" name="a" value="handleSectionAction">
+<input type="hidden" name="section" value="workers">
+<input type="hidden" name="action" value="saveWorkerPeek">
 <input type="hidden" name="id" value="{$worker->id}">
 <input type="hidden" name="view_id" value="{$view_id}">
 <input type="hidden" name="do_delete" value="0">

@@ -946,6 +946,16 @@
         <seg>Last</seg>
       </tuv>
     </tu>
+    <tu tuid="common.mail">
+      <tuv xml:lang="de_DE">
+        <seg>Emails</seg>
+      </tuv>
+    </tu>
+    <tu tuid="common.manager">
+      <tuv xml:lang="de_DE">
+        <seg>Administrator</seg>
+      </tuv>
+    </tu>
     <tu tuid="common.maximize">
       <tuv xml:lang="de_DE">
         <seg>erweitern</seg>
@@ -954,6 +964,11 @@
     <tu tuid="common.me">
       <tuv xml:lang="de_DE">
         <seg>ich</seg>
+      </tuv>
+    </tu>
+    <tu tuid="common.member">
+      <tuv xml:lang="de_DE">
+        <seg>Mitglied</seg>
       </tuv>
     </tu>
     <tu tuid="common.messages">
@@ -1549,11 +1564,6 @@
     <tu tuid="core.menu.knowledgebase">
       <tuv xml:lang="de_DE">
         <seg>Wissensdatenbank</seg>
-      </tuv>
-    </tu>
-    <tu tuid="core.menu.mail">
-      <tuv xml:lang="de_DE">
-        <seg>Emails</seg>
       </tuv>
     </tu>
     <tu tuid="core.menu.research">
@@ -2409,16 +2419,6 @@
     <tu tuid="forumsthread.worker_id">
       <tuv xml:lang="de_DE">
         <seg>Mitarbeiter</seg>
-      </tuv>
-    </tu>
-    <tu tuid="group.manager">
-      <tuv xml:lang="de_DE">
-        <seg>Administrator</seg>
-      </tuv>
-    </tu>
-    <tu tuid="group.member">
-      <tuv xml:lang="de_DE">
-        <seg>Mitglied</seg>
       </tuv>
     </tu>
     <tu tuid="header.config">

@@ -26,7 +26,7 @@ h1 {
 h2 {
 	font-weight: bold;
 	font-size: 1.5em;
-	color: rgb(102, 102, 102);
+	color:rgb(80,80,80);
 	margin:0px;
 }
 
@@ -500,6 +500,8 @@ DIV.badge-green {
 	border:1px solid rgb(0,100,0);
 }
 
+/* Popup menu */
+
 UL.cerb-popupmenu {
 	min-width:200px;
 	list-style:none;
@@ -515,31 +517,78 @@ UL.cerb-popupmenu.cerb-float {
 	border:1px solid rgb(200,200,200);
 }
 
-UL.cerb-popupmenu LI {
+UL.cerb-popupmenu > LI {
 	padding:2px;
-	font-weight:bold;
+	font-weight:normal;
 	cursor:pointer;
 }
 
-UL.cerb-popupmenu LI A {
+UL.cerb-popupmenu > LI A {
 	text-decoration:none;
 }
 
-UL.cerb-popupmenu LI:hover {
+UL.cerb-popupmenu > LI:hover {
 	background-color:rgb(105,140,221);
 	color:rgb(255,255,255);
 }
 
-UL.cerb-popupmenu LI:hover A {
+UL.cerb-popupmenu > LI:hover > A {
 	color:rgb(255,255,255);
 }
 
-UL.cerb-popupmenu LI HR {
+UL.cerb-popupmenu > LI > HR {
 	height:1px;
 	padding:0px;
 	margin:5px 5px;
 	border:0px;
 	border-top:1px dashed rgb(200,200,200);
+}
+
+/* Subpage */
+
+.cerb-subpage {
+}
+
+.cerb-subpage H2 {
+	color:rgb(74,110,158);
+	margin-bottom:5px;
+}
+
+/* Menu */
+
+DIV.cerb-menu {
+}
+
+DIV.cerb-menu > UL {
+	padding:0px;
+	margin:0px;
+	list-style:none;
+}
+
+DIV.cerb-menu > UL > LI {
+	padding:5px 10px;
+	background-color:rgb(134,169,227);
+	border-left:1px dotted white;
+	float:left;
+}
+
+DIV.cerb-menu > UL > LI:hover {
+	background-color:rgb(74,110,194);
+}
+
+DIV.cerb-menu > UL > LI > DIV {
+	cursor:pointer;
+}
+
+DIV.cerb-menu > UL > LI > DIV > A {
+	color:white;
+	text-decoration:none;
+	font-weight:normal;
+}
+
+DIV.cerb-menu .cerb-popupmenu {
+	margin-top:5px;
+	margin-left:-10px;
 }
 
 /* Sprite container */

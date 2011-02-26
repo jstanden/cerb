@@ -491,6 +491,16 @@
         <seg>Carregar</seg>
       </tuv>
     </tu>
+    <tu tuid="common.mail">
+      <tuv xml:lang="pt_PT">
+        <seg>mail</seg>
+      </tuv>
+    </tu>
+    <tu tuid="common.manager">
+      <tuv xml:lang="pt_PT">
+        <seg>gestor</seg>
+      </tuv>
+    </tu>
     <tu tuid="common.maximize">
       <tuv xml:lang="pt_PT">
         <seg>maximizar</seg>
@@ -499,6 +509,11 @@
     <tu tuid="common.me">
       <tuv xml:lang="pt_PT">
         <seg>eu</seg>
+      </tuv>
+    </tu>
+    <tu tuid="common.member">
+      <tuv xml:lang="pt_PT">
+        <seg>membro</seg>
       </tuv>
     </tu>
     <tu tuid="common.minimize">
@@ -829,11 +844,6 @@
     <tu tuid="core.menu.knowledgebase">
       <tuv xml:lang="pt_PT">
         <seg>kb</seg>
-      </tuv>
-    </tu>
-    <tu tuid="core.menu.mail">
-      <tuv xml:lang="pt_PT">
-        <seg>mail</seg>
       </tuv>
     </tu>
     <tu tuid="cron.ip_unauthorized">
@@ -1219,16 +1229,6 @@
     <tu tuid="files.not_found">
       <tuv xml:lang="pt_PT">
         <seg>Ficheiro não encontrado.</seg>
-      </tuv>
-    </tu>
-    <tu tuid="group.manager">
-      <tuv xml:lang="pt_PT">
-        <seg>gestor</seg>
-      </tuv>
-    </tu>
-    <tu tuid="group.member">
-      <tuv xml:lang="pt_PT">
-        <seg>membro</seg>
       </tuv>
     </tu>
     <tu tuid="header.config">

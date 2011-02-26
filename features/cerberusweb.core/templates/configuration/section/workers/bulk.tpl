@@ -1,6 +1,8 @@
 <form action="{devblocks_url}{/devblocks_url}" method="POST" id="formBatchUpdate" name="formBatchUpdate" onsubmit="return false;">
 <input type="hidden" name="c" value="config">
-<input type="hidden" name="a" value="doWorkersBulkUpdate">
+<input type="hidden" name="a" value="handleSectionAction">
+<input type="hidden" name="section" value="workers">
+<input type="hidden" name="action" value="doWorkersBulkUpdate">
 <input type="hidden" name="view_id" value="{$view_id}">
 <input type="hidden" name="ids" value="{$ids}">
 

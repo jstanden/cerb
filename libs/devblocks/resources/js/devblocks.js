@@ -62,6 +62,20 @@ var DevblocksClass = function() {
 			}
 		}
 	}
+	
+	this.showError = function(target, message) {
+		$html = $('<div class="ui-widget"><div class="ui-state-error ui-corner-all" style="padding:0 0.5em;margin:0.5em;display:inline-block;"><p><span class="ui-icon ui-icon-alert" style="margin-right:.3em;float:left;"></span>'+message+'</p></div></div>');
+		return $(target).html($html).show().effect('slide',{ direction:'up', mode:'show' },250);
+	}
+	
+	this.showSuccess = function(target, message, autohide) {
+		$html = $('<div class="ui-widget"><div class="ui-state-highlight ui-corner-all" style="padding:0 0.5em;margin:0.5em;display:inline-block;"><p><span class="ui-icon ui-icon-info" style="margin-right:.3em;float:left;"></span>'+message+'</p></div></div>');
+		$status = $(target).html($html).show().effect('slide',{ direction:'up', mode:'show' },250);
+		if(autohide || null == autohide)
+			$status.delay(5000).effect('slide',{ direction:'up', mode:'hide' }, 250);
+			
+		return $status;
+	}
 };
 var Devblocks = new DevblocksClass();
 

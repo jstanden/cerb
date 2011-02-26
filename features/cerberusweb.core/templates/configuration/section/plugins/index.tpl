@@ -1,15 +1,14 @@
+<h2>Manage Plugins</h2>
+
 <form id="frmConfigPlugins" action="{devblocks_url}{/devblocks_url}" method="post">
 <input type="hidden" name="c" value="config">
-<input type="hidden" name="a" value="savePlugins">
+<input type="hidden" name="a" value="handleSectionAction">
+<input type="hidden" name="section" value="plugins">
+<input type="hidden" name="action" value="save">
 
 <a href="javascript:;" onclick="checkAll('frmConfigPlugins', true);">select all</a>
  | 
 <a href="javascript:;" onclick="checkAll('frmConfigPlugins', false)">select none</a>
-
- &nbsp; &nbsp;
-  
-<div class="badge badge-lightgray"><a href="https://github.com/cerb5-plugins" target="_blank" style="font-weight:bold;">Find more plugins &raquo;</a></div>
-<br>
 <br>
  
 {foreach from=$plugins item=plugin}

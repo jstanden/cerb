@@ -12,9 +12,6 @@
 		<tu tuid='core.menu.address_book'>
 			<tuv xml:lang="en_US"><seg>address book</seg></tuv>
 		</tu>
-		<tu tuid='core.menu.mail'>
-			<tuv xml:lang="en_US"><seg>mail</seg></tuv>
-		</tu>
 		
 		<tu tuid='display.tab.comments'>
 			<tuv xml:lang="en_US"><seg>Comments (%s)</seg></tuv>
@@ -71,6 +68,9 @@
 		</tu>
 		<tu tuid='common.bucket'>
 			<tuv xml:lang="en_US"><seg>Bucket</seg></tuv>
+		</tu>
+		<tu tuid='common.buckets'>
+			<tuv xml:lang="en_US"><seg>Buckets</seg></tuv>
 		</tu>
 		<tu tuid='common.bulk_update'>
 			<tuv xml:lang="en_US"><seg>Bulk Update</seg></tuv>
@@ -207,11 +207,26 @@
 		<tu tuid='common.knowledgebase'>
 			<tuv xml:lang="en_US"><seg>Knowledgebase</seg></tuv>
 		</tu>
+		<tu tuid='common.mail'>
+			<tuv xml:lang="en_US"><seg>Mail</seg></tuv>
+		</tu>
+		<tu tuid='common.manager'>
+			<tuv xml:lang="en_US"><seg>Manager</seg></tuv>
+		</tu>
+		<tu tuid='common.managers'>
+			<tuv xml:lang="en_US"><seg>Managers</seg></tuv>
+		</tu>
 		<tu tuid='common.maximize'>
 			<tuv xml:lang="en_US"><seg>maximize</seg></tuv>
 		</tu>
 		<tu tuid='common.me'>
 			<tuv xml:lang="en_US"><seg>me</seg></tuv>
+		</tu>
+		<tu tuid='common.member'>
+			<tuv xml:lang="en_US"><seg>Member</seg></tuv>
+		</tu>
+		<tu tuid='common.members'>
+			<tuv xml:lang="en_US"><seg>Members</seg></tuv>
 		</tu>
 		<tu tuid='common.messages'>
 			<tuv xml:lang="en_US"><seg>Messages</seg></tuv>
@@ -1448,14 +1463,6 @@ For example: *receipt*</seg></tuv>
 		</tu>
 		<tu tuid='tasks.ticket.tab.view'>
 			<tuv xml:lang="en_US"><seg>Ticket Tasks</seg></tuv>
-		</tu>
-		
-		<!-- Groups -->
-		<tu tuid='group.manager'>
-			<tuv xml:lang="en_US"><seg>manager</seg></tuv>
-		</tu>
-		<tu tuid='group.member'>
-			<tuv xml:lang="en_US"><seg>member</seg></tuv>
 		</tu>
 		
 		<!-- Task -->

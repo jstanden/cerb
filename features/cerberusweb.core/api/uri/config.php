@@ -47,6 +47,7 @@
  * 		and Jerry Kanoholani. 
  *	 WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
+
 class ChConfigurationPage extends CerberusPageExtension  {
 	function isVisible() {
 		// Must be logged in
@@ -86,10 +87,17 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		array_shift($stack); // config
 		
 		// Remember the last tab/URL
-		if(null == ($selected_tab = @$response->path[1])) {
-			$selected_tab = $visit->get(Extension_ConfigTab::POINT, '');
+		if(null == ($section_uri = @$response->path[1])) {
+			if(null == ($section_uri = $visit->get(Extension_ConfigTab::POINT, '')))
+				$section_uri = 'branding';
 		}
-		$tpl->assign('selected_tab', $selected_tab);
+
+		// Subpage
+		$subpage = Extension_PageSection::getExtensionByPageUri($this->manifest->id, $section_uri, true);
+		$tpl->assign('subpage', $subpage);
+		
+		// [TODO] Search for submenu on the 'config' page.
+		//Extension_PageSubmenu::
 		
 		// [TODO] check showTab* hooks for active_worker->is_superuser (no ajax bypass)
 		
@@ -97,57 +105,60 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	}
 	
 	// Ajax
-	function showTabAction() {
-		@$ext_id = DevblocksPlatform::importGPC($_REQUEST['ext_id'],'string','');
-		
-		$visit = CerberusApplication::getVisit();
-		
-		if(null != ($tab_mft = DevblocksPlatform::getExtension($ext_id)) 
-			&& null != ($inst = $tab_mft->createInstance()) 
-			&& $inst instanceof Extension_ConfigTab) {
-				$visit->set(Extension_ConfigTab::POINT, $inst->manifest->params['uri']);
-				$inst->showTab();
-		}
-	}
+//	function showTabAction() {
+//		@$ext_id = DevblocksPlatform::importGPC($_REQUEST['ext_id'],'string','');
+//		
+//		$visit = CerberusApplication::getVisit();
+//		
+//		if(null != ($tab_mft = DevblocksPlatform::getExtension($ext_id)) 
+//			&& null != ($inst = $tab_mft->createInstance()) 
+//			&& $inst instanceof Extension_ConfigTab) {
+//				$visit->set(Extension_ConfigTab::POINT, $inst->manifest->params['uri']);
+//				$inst->showTab();
+//		}
+//	}
 	
 	// Post
-	function saveTabAction() {
-		@$ext_id = DevblocksPlatform::importGPC($_REQUEST['ext_id'],'string','');
-		
-		if(null != ($tab_mft = DevblocksPlatform::getExtension($ext_id)) 
-			&& null != ($inst = $tab_mft->createInstance()) 
-			&& $inst instanceof Extension_ConfigTab) {
-				$inst->saveTab();
-		}
-	}
+//	function saveTabAction() {
+//		@$ext_id = DevblocksPlatform::importGPC($_REQUEST['ext_id'],'string','');
+//		
+//		if(null != ($tab_mft = DevblocksPlatform::getExtension($ext_id)) 
+//			&& null != ($inst = $tab_mft->createInstance()) 
+//			&& $inst instanceof Extension_ConfigTab) {
+//				$inst->saveTab();
+//		}
+//	}
 	
 	/*
 	 * [TODO] Proxy any func requests to be handled by the tab directly, 
 	 * instead of forcing tabs to implement controllers.  This should check 
 	 * for the *Action() functions just as a handleRequest would
 	 */
-	function handleTabActionAction() {
-		@$tab = DevblocksPlatform::importGPC($_REQUEST['tab'],'string','');
+//	function handleTabActionAction() {
+//		@$tab = DevblocksPlatform::importGPC($_REQUEST['tab'],'string','');
+//		@$action = DevblocksPlatform::importGPC($_REQUEST['action'],'string','');
+//
+//		if(null != ($tab_mft = DevblocksPlatform::getExtension($tab)) 
+//			&& null != ($inst = $tab_mft->createInstance()) 
+//			&& $inst instanceof Extension_ConfigTab) {
+//				if(method_exists($inst,$action.'Action')) {
+//					call_user_func(array(&$inst, $action.'Action'));
+//				}
+//		}
+//	}
+	
+	function handleSectionActionAction() {
+		@$section_uri = DevblocksPlatform::importGPC($_REQUEST['section'],'string','');
 		@$action = DevblocksPlatform::importGPC($_REQUEST['action'],'string','');
 
-		if(null != ($tab_mft = DevblocksPlatform::getExtension($tab)) 
-			&& null != ($inst = $tab_mft->createInstance()) 
-			&& $inst instanceof Extension_ConfigTab) {
-				if(method_exists($inst,$action.'Action')) {
-					call_user_func(array(&$inst, $action.'Action'));
-				}
+		$inst = Extension_PageSection::getExtensionByPageUri($this->manifest->id, $section_uri, true);
+		
+		if($inst instanceof Extension_PageSection && method_exists($inst, $action.'Action')) {
+			call_user_func(array($inst, $action.'Action'));
 		}
 	}
 	
-	// Ajax
-	function showTabSettingsAction() {
-		$tpl = DevblocksPlatform::getTemplateService();
-		$visit = CerberusApplication::getVisit();
-		
-		$visit->set(Extension_ConfigTab::POINT, 'settings');
-		
-		$tpl->display('devblocks:cerberusweb.core::configuration/tabs/settings/index.tpl');
-	}
+	/********/
 	
 	function showTabStorageAction() {
 		$tpl = DevblocksPlatform::getTemplateService();
@@ -478,270 +489,6 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		
 		$view->render();
 		return;
-	}
-
-	// Ajax
-	function showTabWorkersAction() {
-		$tpl = DevblocksPlatform::getTemplateService();
-		$visit = CerberusApplication::getVisit();
-		
-		$visit->set(Extension_ConfigTab::POINT, 'workers');
-				
-		$workers = DAO_Worker::getAllWithDisabled();
-		$tpl->assign('workers', $workers);
-
-		$teams = DAO_Group::getAll();
-		$tpl->assign('teams', $teams);
-		
-		$defaults = new C4_AbstractViewModel();
-		$defaults->id = 'workers_cfg';
-		$defaults->class_name = 'View_Worker';
-		
-		$view = C4_AbstractViewLoader::getView($defaults->id, $defaults);
-		$tpl->assign('view', $view);
-		
-		$tpl->display('devblocks:cerberusweb.core::configuration/tabs/workers/index.tpl');
-	}
-	
-	function showWorkerPeekAction() {
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
-		
-		$tpl = DevblocksPlatform::getTemplateService();
-				
-		$tpl->assign('view_id', $view_id);
-		
-		$worker = DAO_Worker::get($id);
-		$tpl->assign('worker', $worker);
-		
-		$teams = DAO_Group::getAll();
-		$tpl->assign('teams', $teams);
-		
-		// Custom Fields
-		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_WORKER);
-		$tpl->assign('custom_fields', $custom_fields);
-		
-		$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_WORKER, $id);
-		if(isset($custom_field_values[$id]))
-			$tpl->assign('custom_field_values', $custom_field_values[$id]);
-		
-		$tpl->display('devblocks:cerberusweb.core::configuration/tabs/workers/peek.tpl');		
-	}
-	
-	function saveWorkerPeekAction() {
-		$translate = DevblocksPlatform::getTranslationService();
-		$active_worker = CerberusApplication::getActiveWorker();
-		
-		if(!$active_worker || !$active_worker->is_superuser) {
-			return;
-		}
-		
-		@$id = DevblocksPlatform::importGPC($_POST['id'],'integer');
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
-		@$first_name = DevblocksPlatform::importGPC($_POST['first_name'],'string');
-		@$last_name = DevblocksPlatform::importGPC($_POST['last_name'],'string');
-		@$title = DevblocksPlatform::importGPC($_POST['title'],'string');
-		@$email = DevblocksPlatform::importGPC($_POST['email'],'string');
-		@$password = DevblocksPlatform::importGPC($_POST['password'],'string');
-		@$is_superuser = DevblocksPlatform::importGPC($_POST['is_superuser'],'integer', 0);
-		@$disabled = DevblocksPlatform::importGPC($_POST['is_disabled'],'integer',0);
-		@$group_ids = DevblocksPlatform::importGPC($_POST['group_ids'],'array');
-		@$group_roles = DevblocksPlatform::importGPC($_POST['group_roles'],'array');
-		@$delete = DevblocksPlatform::importGPC($_POST['do_delete'],'integer',0);
-
-		// [TODO] The superuser set bit here needs to be protected by ACL
-		
-		if(empty($first_name)) $first_name = "Anonymous";
-		
-		if(!empty($id) && !empty($delete)) {
-			// Can't delete or disable self
-			if($active_worker->id != $id)
-				DAO_Worker::delete($id);
-			
-		} else {
-			if(empty($id) && null == DAO_Worker::lookupAgentEmail($email)) {
-				// Creating new worker.  If password is empty, email it to them
-			    if(empty($password)) {
-			    	$settings = DevblocksPlatform::getPluginSettingsService();
-					$replyFrom = $settings->get('cerberusweb.core',CerberusSettings::DEFAULT_REPLY_FROM,CerberusSettingsDefaults::DEFAULT_REPLY_FROM);
-					$replyPersonal = $settings->get('cerberusweb.core',CerberusSettings::DEFAULT_REPLY_PERSONAL,CerberusSettingsDefaults::DEFAULT_REPLY_PERSONAL);
-					$url = DevblocksPlatform::getUrlService();
-			    	
-					$password = CerberusApplication::generatePassword(8);
-			    	
-					try {
-				        $mail_service = DevblocksPlatform::getMailService();
-				        $mailer = $mail_service->getMailer(CerberusMail::getMailerDefaults());
-				        $mail = $mail_service->createMessage();
-				        
-						$mail->setTo(array($email => $first_name . ' ' . $last_name));
-						$mail->setFrom(array($replyFrom => $replyPersonal));
-				        $mail->setSubject('Your new helpdesk login information!');
-				        $mail->generateId();
-						
-						$headers = $mail->getHeaders();
-						
-				        $headers->addTextHeader('X-Mailer','Cerberus Helpdesk ' . APP_VERSION . ' (Build '.APP_BUILD.')');
-				        
-					    $body = sprintf("Your new helpdesk login information is below:\r\n".
-							"\r\n".
-					        "URL: %s\r\n".
-					        "Login: %s\r\n".
-					        "Password: %s\r\n".
-					        "\r\n".
-					        "You should change your password from Preferences after logging in for the first time.\r\n".
-					        "\r\n",
-						        $url->write('',true),
-						        $email,
-						        $password
-					    );
-				        
-						$mail->setBody($body);
-
-						if(!$mailer->send($mail)) {
-							throw new Exception('Password notification email failed to send.');
-						}
-					} catch (Exception $e) {
-						// [TODO] need to report to the admin when the password email doesn't send.  The try->catch
-						// will keep it from killing php, but the password will be empty and the user will never get an email.
-					}
-			    }
-				
-			    $fields = array(
-			    	DAO_Worker::EMAIL => $email,
-			    	DAO_Worker::PASSWORD => md5($password),
-			    );
-			    
-				$id = DAO_Worker::create($fields);
-			} // end create worker
-		    
-		    // Update
-			$fields = array(
-				DAO_Worker::FIRST_NAME => $first_name,
-				DAO_Worker::LAST_NAME => $last_name,
-				DAO_Worker::TITLE => $title,
-				DAO_Worker::EMAIL => $email,
-				DAO_Worker::IS_SUPERUSER => $is_superuser,
-				DAO_Worker::IS_DISABLED => $disabled,
-			);
-			
-			// if we're resetting the password
-			if(!empty($password)) {
-				$fields[DAO_Worker::PASSWORD] = md5($password);
-			}
-			
-			// Update worker
-			DAO_Worker::update($id, $fields);
-			
-			// Update group memberships
-			if(is_array($group_ids) && is_array($group_roles))
-			foreach($group_ids as $idx => $group_id) {
-				if(empty($group_roles[$idx])) {
-					DAO_Group::unsetTeamMember($group_id, $id);
-				} else {
-					DAO_Group::setTeamMember($group_id, $id, (2==$group_roles[$idx]));
-				}
-			}
-
-			// Add the worker e-mail to the addresses table
-			if(!empty($email))
-				DAO_Address::lookupAddress($email, true);
-			
-			// Addresses
-			if(null == DAO_AddressToWorker::getByAddress($email)) {
-				DAO_AddressToWorker::assign($email, $id);
-				DAO_AddressToWorker::update($email, array(
-					DAO_AddressToWorker::IS_CONFIRMED => 1
-				));
-			}
-			
-			// Custom field saves
-			@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', array());
-			DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_WORKER, $id, $field_ids);
-		}
-		
-		if(!empty($view_id)) {
-			$view = C4_AbstractViewLoader::getView($view_id);
-			$view->render();
-		}
-		
-		//DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','workers')));		
-	}
-	
-	function showWorkersBulkPanelAction() {
-		@$id_csv = DevblocksPlatform::importGPC($_REQUEST['ids']);
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id']);
-
-		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('view_id', $view_id);
-
-	    if(!empty($id_csv)) {
-	        $ids = DevblocksPlatform::parseCsvString($id_csv);
-	        $tpl->assign('ids', implode(',', $ids));
-	    }
-		
-	    // Lists
-//	    $lists = DAO_FeedbackList::getWhere();
-//	    $tpl->assign('lists', $lists);
-	    
-		// Custom Fields
-		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_WORKER);
-		$tpl->assign('custom_fields', $custom_fields);
-		
-		$tpl->display('devblocks:cerberusweb.core::configuration/tabs/workers/bulk.tpl');
-	}
-	
-	function doWorkersBulkUpdateAction() {
-		// Filter: whole list or check
-	    @$filter = DevblocksPlatform::importGPC($_REQUEST['filter'],'string','');
-	    $ids = array();
-	    
-	    // View
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
-		$view = C4_AbstractViewLoader::getView($view_id);
-		
-		// Worker fields
-		@$is_disabled = trim(DevblocksPlatform::importGPC($_POST['is_disabled'],'string',''));
-
-		$do = array();
-		
-		// Do: Disabled
-		if(0 != strlen($is_disabled))
-			$do['is_disabled'] = $is_disabled;
-			
-		// Do: Custom fields
-		$do = DAO_CustomFieldValue::handleBulkPost($do);
-		
-		switch($filter) {
-			// Checked rows
-			case 'checks':
-			    @$ids_str = DevblocksPlatform::importGPC($_REQUEST['ids'],'string');
-				$ids = DevblocksPlatform::parseCsvString($ids_str);
-				break;
-			default:
-				break;
-		}
-		
-		$view->doBulkUpdate($filter, $do, $ids);
-		
-		$view->render();
-		return;
-	}
-	
-	// Ajax
-	function showTabGroupsAction() {
-		$tpl = DevblocksPlatform::getTemplateService();
-		$visit = CerberusApplication::getVisit();
-		
-		$visit->set(Extension_ConfigTab::POINT, 'groups');
-				
-		$workers = DAO_Worker::getAllActive();
-		$tpl->assign('workers', $workers);
-
-		$teams = DAO_Group::getAll();
-		$tpl->assign('teams', $teams);
-		
-		$tpl->display('devblocks:cerberusweb.core::configuration/tabs/groups/index.tpl');
 	}
 	
 	// Ajax
@@ -1318,523 +1065,6 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		$tpl->display('devblocks:cerberusweb.core::configuration/tabs/mail/mail_routing.tpl');
 	}
 	
-	// Ajax
-	function showTabFieldsAction() {
-		$tpl = DevblocksPlatform::getTemplateService();
-		$visit = CerberusApplication::getVisit();
-		
-		$visit->set(Extension_ConfigTab::POINT, 'fields');
-				
-		$tpl->assign('context_manifests', Extension_DevblocksContext::getAll());
-		
-		$tpl->display('devblocks:cerberusweb.core::configuration/tabs/fields/index.tpl');
-	}
-	
-	// Ajax
-	function showTabPluginsAction() {
-		$tpl = DevblocksPlatform::getTemplateService();
-		$visit = CerberusApplication::getVisit();
-		
-		$visit->set(Extension_ConfigTab::POINT, 'plugins');
-		
-		// Auto synchronize when viewing Config->Extensions
-        DevblocksPlatform::readPlugins();
-
-        if(DEVELOPMENT_MODE)
-        	DAO_Platform::cleanupPluginTables();
-		
-		$plugins = DevblocksPlatform::getPluginRegistry();
-		unset($plugins['devblocks.core']);
-		unset($plugins['cerberusweb.core']);
-		$tpl->assign('plugins', $plugins);
-		
-		$tpl->display('devblocks:cerberusweb.core::configuration/tabs/plugins/index.tpl');
-	}
-	
-	// Ajax
-	function showTabPermissionsAction() {
-		$settings = DevblocksPlatform::getPluginSettingsService();
-		$tpl = DevblocksPlatform::getTemplateService();
-		$visit = CerberusApplication::getVisit();
-		
-		$visit->set(Extension_ConfigTab::POINT, 'acl');
-				
-		$plugins = DevblocksPlatform::getPluginRegistry();
-		$tpl->assign('plugins', $plugins);
-		
-		$acl = DevblocksPlatform::getAclRegistry();
-		$tpl->assign('acl', $acl);
-		
-		$roles = DAO_WorkerRole::getWhere();
-		$tpl->assign('roles', $roles);
-		
-		$workers = DAO_Worker::getAllActive();
-		$tpl->assign('workers', $workers);
-		
-		// Permissions enabled
-		$acl_enabled = $settings->get('cerberusweb.core',CerberusSettings::ACL_ENABLED,CerberusSettingsDefaults::ACL_ENABLED);
-		$tpl->assign('acl_enabled', $acl_enabled);
-		
-		$tpl->display('devblocks:cerberusweb.core::configuration/tabs/acl/index.tpl');
-	}
-	
-	function toggleACLAction() {
-		$worker = CerberusApplication::getActiveWorker();
-		$settings = DevblocksPlatform::getPluginSettingsService();
-		
-		if(!$worker || !$worker->is_superuser) {
-			return;
-		}
-		
-		@$enabled = DevblocksPlatform::importGPC($_REQUEST['enabled'],'integer',0);
-		
-		$settings->set('cerberusweb.core',CerberusSettings::ACL_ENABLED, $enabled);
-	}
-	
-	function getRoleAction() {
-		$translate = DevblocksPlatform::getTranslationService();
-		$worker = CerberusApplication::getActiveWorker();
-		
-		if(!$worker || !$worker->is_superuser) {
-			echo $translate->_('common.access_denied');
-			return;
-		}
-		
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
-
-		$tpl = DevblocksPlatform::getTemplateService();
-		
-		$plugins = DevblocksPlatform::getPluginRegistry();
-		$tpl->assign('plugins', $plugins);
-		
-		$acl = DevblocksPlatform::getAclRegistry();
-		$tpl->assign('acl', $acl);
-
-		$workers = DAO_Worker::getAllActive();
-		$tpl->assign('workers', $workers);
-		
-		$role = DAO_WorkerRole::get($id);
-		$tpl->assign('role', $role);
-		
-		$role_privs = DAO_WorkerRole::getRolePrivileges($id);
-		$tpl->assign('role_privs', $role_privs);
-		
-		$role_roster = DAO_WorkerRole::getRoleWorkers($id);
-		$tpl->assign('role_workers', $role_roster);
-		
-		$tpl->display('devblocks:cerberusweb.core::configuration/tabs/acl/edit_role.tpl');
-	}
-	
-	// Post
-	function saveRoleAction() {
-		$translate = DevblocksPlatform::getTranslationService();
-		$worker = CerberusApplication::getActiveWorker();
-		
-		if(!$worker || !$worker->is_superuser) {
-			echo $translate->_('common.access_denied');
-			return;
-		}
-		
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
-		@$name = DevblocksPlatform::importGPC($_REQUEST['name'],'string','');
-		@$worker_ids = DevblocksPlatform::importGPC($_REQUEST['worker_ids'],'array',array());
-		@$acl_privs = DevblocksPlatform::importGPC($_REQUEST['acl_privs'],'array',array());
-		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'],'integer',0);
-		
-		// Sanity checks
-		if(empty($name))
-			$name = 'New Role';
-		
-		// Delete
-		if(!empty($do_delete) && !empty($id)) {
-			DAO_WorkerRole::delete($id);
-			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','acl')));
-		}
-
-		$fields = array(
-			DAO_WorkerRole::NAME => $name,
-		);
-			
-		if(empty($id)) { // create
-			$id = DAO_WorkerRole::create($fields);
-					
-		} else { // edit
-			DAO_WorkerRole::update($id, $fields);
-		}
-
-		// Update role roster
-		DAO_WorkerRole::setRoleWorkers($id, $worker_ids);
-		
-		// Update role privs
-		DAO_WorkerRole::setRolePrivileges($id, $acl_privs, true);
-		
-		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','acl')));
-	}
-	
-	// Ajax
-	function showTabSchedulerAction() {
-		$tpl = DevblocksPlatform::getTemplateService();
-		$visit = CerberusApplication::getVisit();
-		
-		$visit->set(Extension_ConfigTab::POINT, 'scheduler');
-		
-	    $jobs = DevblocksPlatform::getExtensions('cerberusweb.cron', true);
-		$tpl->assign('jobs', $jobs);
-		
-		$tpl->display('devblocks:cerberusweb.core::configuration/tabs/scheduler/index.tpl');
-	}
-	
-	private function _getFieldSource($ext_id) {
-		$tpl = DevblocksPlatform::getTemplateService();
-		
-		$tpl->assign('ext_id', $ext_id);
-
-		// [TODO] Make sure the extension exists before continuing
-		$context_manifest = DevblocksPlatform::getExtension($ext_id, false);
-		$tpl->assign('context_manifest', $context_manifest);
-		
-		$types = Model_CustomField::getTypes();
-		$tpl->assign('types', $types);
-
-		// Look up the defined global fields by the given extension
-		$fields = DAO_CustomField::getByContextAndGroupId($ext_id, 0);
-		$tpl->assign('fields', $fields);
-		
-		$tpl->display('devblocks:cerberusweb.core::configuration/tabs/fields/edit_source.tpl');
-	}
-	
-	// Ajax
-	function getFieldSourceAction() {
-		$translate = DevblocksPlatform::getTranslationService();
-		$worker = CerberusApplication::getActiveWorker();
-		
-		if(!$worker || !$worker->is_superuser) {
-			echo $translate->_('common.access_denied');
-			return;
-		}
-		
-		@$ext_id = DevblocksPlatform::importGPC($_REQUEST['ext_id']);
-		$this->_getFieldSource($ext_id);
-	}
-		
-	// Post
-	function saveFieldsAction() {
-		$translate = DevblocksPlatform::getTranslationService();
-		
-		$worker = CerberusApplication::getActiveWorker();
-		if(!$worker || !$worker->is_superuser) {
-			echo $translate->_('common.access_denied');
-			return;
-		}
-		
-		// Type of custom fields
-		@$ext_id = DevblocksPlatform::importGPC($_POST['ext_id'],'string','');
-		
-		// Properties
-		@$ids = DevblocksPlatform::importGPC($_POST['ids'],'array',array());
-		@$names = DevblocksPlatform::importGPC($_POST['names'],'array',array());
-		@$orders = DevblocksPlatform::importGPC($_POST['orders'],'array',array());
-		@$options = DevblocksPlatform::importGPC($_POST['options'],'array',array());
-		@$deletes = DevblocksPlatform::importGPC($_POST['deletes'],'array',array());
-		
-		if(!empty($ids) && !empty($ext_id))
-		foreach($ids as $idx => $id) {
-			@$name = $names[$idx];
-			@$order = intval($orders[$idx]);
-			@$option = $options[$idx];
-			@$delete = (false !== array_search($id,$deletes) ? 1 : 0);
-			
-			if($delete) {
-				DAO_CustomField::delete($id);
-				
-			} else {
-				$fields = array(
-					DAO_CustomField::NAME => $name, 
-					DAO_CustomField::POS => $order, 
-					DAO_CustomField::OPTIONS => !is_null($option) ? $option : '', 
-				);
-				DAO_CustomField::update($id, $fields);
-			}
-		}
-		
-		// Adding
-		@$add_name = DevblocksPlatform::importGPC($_POST['add_name'],'string','');
-		@$add_type = DevblocksPlatform::importGPC($_POST['add_type'],'string','');
-		@$add_options = DevblocksPlatform::importGPC($_POST['add_options'],'string','');
-		
-		if(!empty($add_name) && !empty($add_type)) {
-			$fields = array(
-				DAO_CustomField::NAME => $add_name,
-				DAO_CustomField::TYPE => $add_type,
-				DAO_CustomField::GROUP_ID => 0,
-				DAO_CustomField::CONTEXT => $ext_id,
-				DAO_CustomField::OPTIONS => $add_options,
-			);
-			$id = DAO_CustomField::create($fields);
-		}
-
-		// Redraw the form
-		$this->_getFieldSource($ext_id);
-	}
-	
-	// Post
-	function saveJobAction() {
-		$translate = DevblocksPlatform::getTranslationService();
-		
-		if(ONDEMAND_MODE)
-			return;
-		
-		$worker = CerberusApplication::getActiveWorker();
-		if(!$worker || !$worker->is_superuser) {
-			echo $translate->_('common.access_denied');
-			return;
-		}
-		
-	    // [TODO] Save the job changes
-	    @$id = DevblocksPlatform::importGPC($_REQUEST['id'],'string','');
-	    @$enabled = DevblocksPlatform::importGPC($_REQUEST['enabled'],'integer',0);
-	    @$locked = DevblocksPlatform::importGPC($_REQUEST['locked'],'integer',0);
-	    @$duration = DevblocksPlatform::importGPC($_REQUEST['duration'],'integer',5);
-	    @$term = DevblocksPlatform::importGPC($_REQUEST['term'],'string','m');
-	    @$starting = DevblocksPlatform::importGPC($_REQUEST['starting'],'string','');
-	    	    
-	    $manifest = DevblocksPlatform::getExtension($id);
-	    $job = $manifest->createInstance(); /* @var $job CerberusCronPageExtension */
-
-	    if(!empty($starting)) {
-		    $starting_time = strtotime($starting);
-		    if(false === $starting_time) $starting_time = time();
-		    $starting_time -= CerberusCronPageExtension::getIntervalAsSeconds($duration, $term);
-    	    $job->setParam(CerberusCronPageExtension::PARAM_LASTRUN, $starting_time);
-	    }
-	    
-	    if(!$job instanceof CerberusCronPageExtension)
-	        die($translate->_('common.access_denied'));
-	    
-	    // [TODO] This is really kludgey
-	    $job->setParam(CerberusCronPageExtension::PARAM_ENABLED, $enabled);
-	    $job->setParam(CerberusCronPageExtension::PARAM_LOCKED, $locked);
-	    $job->setParam(CerberusCronPageExtension::PARAM_DURATION, $duration);
-	    $job->setParam(CerberusCronPageExtension::PARAM_TERM, $term);
-	    
-	    $job->saveConfigurationAction();
-	    	    
-	    DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','scheduler')));
-	}
-	
-	// Post
-	function saveLicenseAction() {
-		$translate = DevblocksPlatform::getTranslationService();
-		$worker = CerberusApplication::getActiveWorker();
-
-		if(ONDEMAND_MODE)
-			return;
-		
-		if(!$worker || !$worker->is_superuser) {
-			echo $translate->_('common.access_denied');
-			return;
-		}
-		
-		$tpl = DevblocksPlatform::getTemplateService();
-		
-		@$key = DevblocksPlatform::importGPC($_POST['key'],'string','');
-		@$company = DevblocksPlatform::importGPC($_POST['company'],'string','');
-		@$email = DevblocksPlatform::importGPC($_POST['email'],'string','');
-		@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'],'integer',0);
-
-		if(!empty($do_delete)) {
-			DevblocksPlatform::setPluginSetting('cerberusweb.core',CerberusSettings::LICENSE, '');
-			$tpl->assign('license', '');
-			$tpl->assign('success', "Your license has been deleted.");
-			$tpl->display('devblocks:cerberusweb.core::configuration/tabs/settings/license.tpl');
-			return;
-		}
-		
-		if(empty($key) || empty($company) || empty($email)) {
-			$tpl->assign('error', "You provided an empty license.");
-			$tpl->display('devblocks:cerberusweb.core::configuration/tabs/settings/license.tpl');
-			return;
-		}
-		
-		// It takes time, skill, and money to develop software like this.
-		if(null==($valid = CerberusLicense::validate($key,$company,$email)) || empty($valid)) {
-			$tpl->assign('error', "The provided license could not be verified.  Please double-check the company name and e-mail address and make sure they exactly match your order.");
-			$tpl->display('devblocks:cerberusweb.core::configuration/tabs/settings/license.tpl');
-			return;
-		}
-
-		// Our prices are very reasonable.
-		if($valid['upgrades'] < CerberusLicense::getReleaseDate(APP_VERSION)) {
-			$tpl->assign('error', sprintf("The provided license is expired and does not activate version %s.", APP_VERSION));
-			$valid = null;
-			$tpl->display('devblocks:cerberusweb.core::configuration/tabs/settings/license.tpl');
-			return;
-		}
-		
-		/*
-		 * [IMPORTANT -- Yes, this is simply a line in the sand.]
-		 * You're welcome to modify the code to meet your needs, but please respect 
-		 * our licensing.  Buy a legitimate copy to help support the project!
-		 * http://www.cerberusweb.com/
-		 */
-
-		// Please be honest.
-		DevblocksPlatform::setPluginSetting('cerberusweb.core', CerberusSettings::LICENSE, json_encode($valid));
-		$tpl->assign('license', $valid);
-		
-		$tpl->assign('success', "Your license has been updated!");
-		$tpl->display('devblocks:cerberusweb.core::configuration/tabs/settings/license.tpl');
-		return;
-	}
-	
-	// Ajax
-	function getTeamAction() {
-		$translate = DevblocksPlatform::getTranslationService();
-		$worker = CerberusApplication::getActiveWorker();
-		
-		if(!$worker || !$worker->is_superuser) {
-			echo $translate->_('common.access_denied');
-			return;
-		}
-		
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
-
-		$tpl = DevblocksPlatform::getTemplateService();
-
-		$teams = DAO_Group::getAll();
-		$tpl->assign('teams', $teams);
-		
-		@$team = $teams[$id];
-		$tpl->assign('team', $team);
-		
-		if(!empty($id)) {
-			@$members = DAO_Group::getTeamMembers($id);
-			$tpl->assign('members', $members);
-		}
-		
-		// Custom fields
-		
-		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_GROUP); 
-		$tpl->assign('custom_fields', $custom_fields);
-
-		$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_GROUP, $id);
-		if(isset($custom_field_values[$id]))
-			$tpl->assign('custom_field_values', $custom_field_values[$id]);
-		
-		$types = Model_CustomField::getTypes();
-		$tpl->assign('types', $types);
-		
-		// Workers
-
-		$workers = DAO_Worker::getAllActive();
-		$tpl->assign('workers', $workers);
-		
-		$tpl->display('devblocks:cerberusweb.core::configuration/tabs/groups/edit_group.tpl');
-	}
-	
-	// Post
-	function saveTeamAction() {
-		$translate = DevblocksPlatform::getTranslationService();
-		$worker = CerberusApplication::getActiveWorker();
-		
-		if(!$worker || !$worker->is_superuser) {
-			echo $translate->_('common.access_denied');
-			return;
-		}
-		
-		@$id = DevblocksPlatform::importGPC($_POST['id']);
-		@$name = DevblocksPlatform::importGPC($_POST['name']);
-		@$delete = DevblocksPlatform::importGPC($_POST['delete_box']);
-		@$delete_move_id = DevblocksPlatform::importGPC($_POST['delete_move_id'],'integer',0);
-		
-		if(empty($name)) $name = "No Name";
-		
-		if(!empty($id) && !empty($delete)) {
-			if(!empty($delete_move_id)) {
-				if(null != ($group = DAO_Group::get($id))) {
-					$fields = array(
-						DAO_Ticket::TEAM_ID => $delete_move_id
-					);
-					$where = sprintf("%s=%d",
-						DAO_Ticket::TEAM_ID,
-						$id
-					);
-					DAO_Ticket::updateWhere($fields, $where);
-					
-					// If this was the default group, move it.
-					if($group->is_default)
-						DAO_Group::setDefaultGroup($delete_move_id);
-					
-					DAO_Group::deleteTeam($group->id);
-				}
-				
-			}
-			
-		} elseif(!empty($id)) {
-			$fields = array(
-				DAO_Group::TEAM_NAME => $name,
-			);
-			DAO_Group::updateTeam($id, $fields);
-			
-		} else {
-			$fields = array(
-				DAO_Group::TEAM_NAME => $name,
-			);
-			$id = DAO_Group::createTeam($fields);
-		}
-		
-		// Members
-		
-		@$worker_ids = DevblocksPlatform::importGPC($_POST['worker_ids'],'array',array());
-		@$worker_levels = DevblocksPlatform::importGPC($_POST['worker_levels'],'array',array());
-		
-	    @$members = DAO_Group::getTeamMembers($id);
-	    
-	    if(is_array($worker_ids) && !empty($worker_ids))
-	    foreach($worker_ids as $idx => $worker_id) {
-	    	@$level = $worker_levels[$idx];
-	    	if(isset($members[$worker_id]) && empty($level)) {
-	    		DAO_Group::unsetTeamMember($id, $worker_id);
-	    	} elseif(!empty($level)) { // member|manager
-				 DAO_Group::setTeamMember($id, $worker_id, (1==$level)?false:true);
-	    	}
-	    }
-		
-	    // Custom fields
-		@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', array());
-		DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_GROUP, $id, $field_ids);
-	    
-		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','groups')));
-	}
-	
-	// Post
-	function saveSettingsAction() {
-		$translate = DevblocksPlatform::getTranslationService();
-		$worker = CerberusApplication::getActiveWorker();
-		
-		if(!$worker || !$worker->is_superuser) {
-			echo $translate->_('common.access_denied');
-			return;
-		}
-		
-	    @$title = DevblocksPlatform::importGPC($_POST['title'],'string','');
-	    @$logo = DevblocksPlatform::importGPC($_POST['logo'],'string');
-
-	    if(empty($title))
-	    	$title = 'Cerberus Helpdesk :: Team-based E-mail Management';
-	    
-	    $settings = DevblocksPlatform::getPluginSettingsService();
-	    $settings->set('cerberusweb.core',CerberusSettings::HELPDESK_TITLE, $title);
-	    $settings->set('cerberusweb.core',CerberusSettings::HELPDESK_LOGO_URL, $logo); // [TODO] Enforce some kind of max resolution?
-	    
-	    if(!ONDEMAND_MODE) {
-		    @$authorized_ips_str = DevblocksPlatform::importGPC($_POST['authorized_ips'],'string','');
-	    	$settings->set('cerberusweb.core',CerberusSettings::AUTHORIZED_IPS, $authorized_ips_str);
-	    }
-	    
-	    DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','settings')));
-	}
-	
 	function saveIncomingMailSettingsAction() {
 		$translate = DevblocksPlatform::getTranslationService();
 		$worker = CerberusApplication::getActiveWorker();
@@ -2212,48 +1442,4 @@ class ChConfigurationPage extends CerberusPageExtension  {
    		
    		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('config','parser')));
    	}	
-	
-	function savePluginsAction() {
-		$translate = DevblocksPlatform::getTranslationService();
-		$worker = CerberusApplication::getActiveWorker();
-		
-		if(!$worker || !$worker->is_superuser) {
-			echo $translate->_('common.access_denied');
-			return;
-		}
-		
-		$pluginStack = DevblocksPlatform::getPluginRegistry();
-		@$plugins_enabled = DevblocksPlatform::importGPC($_REQUEST['plugins_enabled']);
-		
-		if(is_array($pluginStack))
-		foreach($pluginStack as $plugin) { /* @var $plugin DevblocksPluginManifest */
-			switch($plugin->id) {
-				case 'devblocks.core':
-				case 'cerberusweb.core':
-					$plugin->setEnabled(true);
-					break;
-					
-				default:
-					if(null !== $plugins_enabled && false !== array_search($plugin->id, $plugins_enabled)) {
-						$plugin->setEnabled(true);
-					} else {
-						$plugin->setEnabled(false);
-					}
-					break;
-			}
-		}
-		
-		try {
-			CerberusApplication::update();
-		} catch (Exception $e) {
-			// [TODO] ...
-		}
-
-		DevblocksPlatform::clearCache();
-		
-        // Reload plugin translations
-		DAO_Translation::reloadPluginStrings();
-		
-		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('config','plugins')));
-	}
 };

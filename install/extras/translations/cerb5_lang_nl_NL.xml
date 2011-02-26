@@ -946,6 +946,16 @@
         <seg>Laden</seg>
       </tuv>
     </tu>
+    <tu tuid="common.mail">
+      <tuv xml:lang="nl_NL">
+        <seg>e-mail</seg>
+      </tuv>
+    </tu>
+    <tu tuid="common.manager">
+      <tuv xml:lang="nl_NL">
+        <seg>manager</seg>
+      </tuv>
+    </tu>
     <tu tuid="common.maximize">
       <tuv xml:lang="nl_NL">
         <seg>maximaliseer</seg>
@@ -954,6 +964,11 @@
     <tu tuid="common.me">
       <tuv xml:lang="nl_NL">
         <seg>mijzelf</seg>
+      </tuv>
+    </tu>
+    <tu tuid="common.member">
+      <tuv xml:lang="nl_NL">
+        <seg>lid</seg>
       </tuv>
     </tu>
     <tu tuid="common.messages">
@@ -1504,11 +1519,6 @@
     <tu tuid="core.menu.home">
       <tuv xml:lang="nl_NL">
         <seg>home</seg>
-      </tuv>
-    </tu>
-    <tu tuid="core.menu.mail">
-      <tuv xml:lang="nl_NL">
-        <seg>e-mail</seg>
       </tuv>
     </tu>
     <tu tuid="crm.opp.add">
@@ -2179,16 +2189,6 @@
     <tu tuid="files.not_found">
       <tuv xml:lang="nl_NL">
         <seg>Bestand niet gevonden.</seg>
-      </tuv>
-    </tu>
-    <tu tuid="group.manager">
-      <tuv xml:lang="nl_NL">
-        <seg>manager</seg>
-      </tuv>
-    </tu>
-    <tu tuid="group.member">
-      <tuv xml:lang="nl_NL">
-        <seg>lid</seg>
       </tuv>
     </tu>
     <tu tuid="header.config">
