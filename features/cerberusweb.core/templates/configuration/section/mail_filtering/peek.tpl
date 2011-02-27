@@ -1,6 +1,8 @@
 <form action="{devblocks_url}{/devblocks_url}" method="post">
 <input type="hidden" name="c" value="config">
-<input type="hidden" name="a" value="saveTabPreParser">
+<input type="hidden" name="a" value="handleSectionAction">
+<input type="hidden" name="section" value="mail_filtering">
+<input type="hidden" name="action" value="savePeek">
 <input type="hidden" name="id" value="{$filter->id}">
 
 <b>Filter Name:</b> (e.g. Spam Bounces)<br>

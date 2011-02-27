@@ -26,12 +26,12 @@
 			<div>
 				<a href="javascript:;" class="menu">Mail <span>&#x25be;</span></a>
 				<ul class="cerb-popupmenu cerb-float" style="display:none;">
-					<li><a href="{devblocks_url}c=config&a=preparser{/devblocks_url}">Filtering</a></li>
-					<li><a href="{devblocks_url}c=config&a=mail{/devblocks_url}">Incoming Mail</a></li>
-					<li><a href="{devblocks_url}c=config&a=mail{/devblocks_url}">Outgoing Mail</a></li>
-					<li><a href="{devblocks_url}c=config&a=mail{/devblocks_url}">POP3 Accounts</a></li>
-					<li><a href="{devblocks_url}c=config&a=queue{/devblocks_url}">Queue</a></li>
-					<li><a href="{devblocks_url}c=config&a=parser{/devblocks_url}">Routing</a></li>
+					<li><a href="{devblocks_url}c=config&a=mail_incoming{/devblocks_url}">Incoming Mail</a></li>
+					<li><a href="{devblocks_url}c=config&a=mail_outgoing{/devblocks_url}">Outgoing Mail</a></li>
+					<li><a href="{devblocks_url}c=config&a=mail_pop3{/devblocks_url}">POP3 Accounts</a></li>
+					<li><a href="{devblocks_url}c=config&a=mail_filtering{/devblocks_url}">Filtering</a></li>
+					<li><a href="{devblocks_url}c=config&a=mail_routing{/devblocks_url}">Routing</a></li>
+					<li><a href="{devblocks_url}c=config&a=mail_queue{/devblocks_url}">Queue</a></li>
 					<li><hr></li>
 					<li><a href="{devblocks_url}c=config&a=simulator{/devblocks_url}">Simulator</a></li>
 				</ul>
@@ -42,9 +42,9 @@
 			<div>
 				<a href="javascript:;" class="menu">Storage <span>&#x25be;</span></a>
 				<ul class="cerb-popupmenu cerb-float" style="display:none;">
-					<li><a href="{devblocks_url}c=config&a=attachments{/devblocks_url}">Content</a></li>
-					<li><a href="{devblocks_url}c=config&a=storage{/devblocks_url}">Profiles</a></li>
-					<li><a href="{devblocks_url}c=config&a=storage{/devblocks_url}">Rules</a></li>
+					<li><a href="{devblocks_url}c=config&a=storage_content{/devblocks_url}">Content</a></li>
+					<li><a href="{devblocks_url}c=config&a=storage_profiles{/devblocks_url}">Profiles</a></li>
+					<li><a href="{devblocks_url}c=config&a=storage_rules{/devblocks_url}">Rules</a></li>
 				</ul>
 			</div>
 		</li>
@@ -53,7 +53,7 @@
 			<div>
 				<a href="javascript:;" class="menu">Community Portals <span>&#x25be;</span></a>
 				<ul class="cerb-popupmenu cerb-float" style="display:none;">
-					<li><a href="{devblocks_url}c=config&a=communities{/devblocks_url}">Configure</a></li>
+					<li><a href="{devblocks_url}c=config&a=portals{/devblocks_url}">Configure</a></li>
 				</ul>
 			</div>
 		</li>
@@ -87,20 +87,13 @@
 </div>
 {/if}
 
-{if !empty($subpage)}
+{if !empty($subpage) && $subpage instanceof Extension_PageSection}
 <div class="cerb-subpage" style="margin-top:10px;">
 	{$subpage->render()}
 </div>
 {/if}
 
 {*
-<div id="tourConfigMenu"></div>
-
-<div id="configTabs">
-	<ul>
-		{$tabs = []}
-		{$point = Extension_ConfigTab::POINT}
-		
 		{if !$smarty.const.ONDEMAND_MODE}
 			{$tabs[] = 'storage'}
 			<li><a href="{devblocks_url}ajax.php?c=config&a=showTabStorage{/devblocks_url}">Storage</a></li>
@@ -108,9 +101,6 @@
 		
 		{$tabs[] = 'mail'}
 		<li><a href="{devblocks_url}ajax.php?c=config&a=showTabMail{/devblocks_url}">{'common.mail'|devblocks_translate|capitalize}</a></li>
-		
-		{$tabs[] = 'preparser'}
-		<li><a href="{devblocks_url}ajax.php?c=config&a=showTabPreParser{/devblocks_url}">Mail Filtering</a></li>
 		
 		{$tabs[] = 'parser'}
 		<li><a href="{devblocks_url}ajax.php?c=config&a=showTabParser{/devblocks_url}">Mail Routing</a></li>
@@ -120,15 +110,6 @@
 		
 		{$tabs[] = 'attachments'}
 		<li><a href="{devblocks_url}ajax.php?c=config&a=showTabAttachments{/devblocks_url}">Attachments</a></li>
-		
-		{$tabs[] = 'groups'}
-		<li><a href="{devblocks_url}ajax.php?c=config&a=showTabGroups{/devblocks_url}">Groups</a></li>
-		
-		{$tabs[] = 'workers'}
-		<li><a href="{devblocks_url}ajax.php?c=config&a=showTabWorkers{/devblocks_url}">Workers</a></li>
-		
-		{$tabs[] = 'acl'}
-		<li><a href="{devblocks_url}ajax.php?c=config&a=showTabPermissions{/devblocks_url}">Permissions</a></li>
 		
 		{foreach from=$tab_manifests item=tab_manifest}
 			{$tabs[] = $tab_manifest->params.uri}
@@ -145,8 +126,6 @@
 			{$tabs[] = "+"}
 			<li><a href="{devblocks_url}ajax.php?c=internal&a=showAddTab&point={$point}&request={$response_uri|escape:'url'}{/devblocks_url}"><i>+</i></a></li>
 		{/if}
-	</ul>
-</div> 
 *}
 
 <script type="text/javascript">

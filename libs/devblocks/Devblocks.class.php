@@ -3164,8 +3164,12 @@ class _DevblocksEmailManager {
 	}
 	
 	function testImap($server, $port, $service, $username, $password) {
-		if (!extension_loaded("imap")) die("IMAP Extension not loaded!");
+		if (!extension_loaded("imap")) 
+			throw new Exception("PHP 'imap' extension is not loaded!");
 		
+		// Clear error stack
+		imap_errors();	
+			
         switch($service) {
             default:
             case 'pop3': // 110
@@ -3197,16 +3201,21 @@ class _DevblocksEmailManager {
                 break;
         }
 		
-		@$mailbox = imap_open(
-			$connect,
-			!empty($username)?$username:"superuser",
-			!empty($password)?$password:"superuser"
-		);
-
-		if($mailbox === FALSE)
-			return FALSE;
-		
-		@imap_close($mailbox);
+        try {
+			$mailbox = @imap_open(
+				$connect,
+				!empty($username)?$username:"superuser",
+				!empty($password)?$password:"superuser"
+			);
+	
+			if($mailbox === FALSE)
+				throw new Exception(imap_last_error());
+			
+			@imap_close($mailbox);
+			
+        } catch(Exception $e) {
+        	throw new Exception($e->getMessage());
+        }
 			
 		return TRUE;
 	}
