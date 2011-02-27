@@ -1,7 +1,9 @@
-<div class="block">
-	<h3 style="display:inline;">{$schema->manifest->name}</h3>
-	(<a href="javascript:;" onclick="genericAjaxPopup('peek','c=config&a=showStorageSchemaPeek&ext_id={$schema->manifest->id}', null, false);">{$translate->_('common.edit')|lower}</a>)
-	<br>
+<fieldset>
+	<legend>
+		{$schema->manifest->name}
+		(<a href="javascript:;" onclick="genericAjaxPopup('peek','c=config&a=handleSectionAction&section=storage_content&action=showStorageSchemaPeek&ext_id={$schema->manifest->id}', null, false);">{$translate->_('common.edit')|lower}</a>)
+	</legend>
+
 	{$schema->render()}
 	
 	{$schema_stats = $schema->getStats()}
@@ -23,5 +25,4 @@
 			{/if}
 		{/foreach}
 	{/if}
-</div>
-<br>
+</fieldset>

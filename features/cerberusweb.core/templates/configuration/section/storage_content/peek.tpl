@@ -1,6 +1,8 @@
 <form action="{devblocks_url}{/devblocks_url}" method="POST" id="frmStorageSchemaPeek" name="frmStorageSchemaPeek" onsubmit="return false;">
 <input type="hidden" name="c" value="config">
-<input type="hidden" name="a" value="saveStorageSchemaPeek">
+<input type="hidden" name="a" value="handleSectionAction">
+<input type="hidden" name="section" value="storage_content">
+<input type="hidden" name="action" value="saveStorageSchemaPeek">
 <input type="hidden" name="ext_id" value="{$schema->manifest->id}">
 
 {$schema->renderConfig()}

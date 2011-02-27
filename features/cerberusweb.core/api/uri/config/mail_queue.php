@@ -4,7 +4,7 @@ class PageSection_SetupMailQueue extends Extension_PageSection {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$visit = CerberusApplication::getVisit();
 		
-		$visit->set(Extension_ConfigTab::POINT, 'queue');
+		$visit->set(Extension_ConfigTab::POINT, 'mail_queue');
 		
 		$defaults = new C4_AbstractViewModel();
 		$defaults->id = 'config_mail_queue';

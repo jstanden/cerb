@@ -958,7 +958,7 @@ class View_DevblocksStorageProfile extends C4_AbstractView {
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
 
-		$tpl->display('devblocks:cerberusweb.core::configuration/tabs/storage/profiles/view.tpl');
+		$tpl->display('devblocks:cerberusweb.core::configuration/section/storage_profiles/view.tpl');
 	}
 
 	function renderCriteria($field) {

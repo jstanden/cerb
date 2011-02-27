@@ -44,7 +44,7 @@
 				<ul class="cerb-popupmenu cerb-float" style="display:none;">
 					<li><a href="{devblocks_url}c=config&a=storage_content{/devblocks_url}">Content</a></li>
 					<li><a href="{devblocks_url}c=config&a=storage_profiles{/devblocks_url}">Profiles</a></li>
-					<li><a href="{devblocks_url}c=config&a=storage_rules{/devblocks_url}">Rules</a></li>
+					<li><a href="{devblocks_url}c=config&a=storage_attachments{/devblocks_url}">Attachments</a></li>
 				</ul>
 			</div>
 		</li>
@@ -94,23 +94,6 @@
 {/if}
 
 {*
-		{if !$smarty.const.ONDEMAND_MODE}
-			{$tabs[] = 'storage'}
-			<li><a href="{devblocks_url}ajax.php?c=config&a=showTabStorage{/devblocks_url}">Storage</a></li>
-		{/if}
-		
-		{$tabs[] = 'mail'}
-		<li><a href="{devblocks_url}ajax.php?c=config&a=showTabMail{/devblocks_url}">{'common.mail'|devblocks_translate|capitalize}</a></li>
-		
-		{$tabs[] = 'parser'}
-		<li><a href="{devblocks_url}ajax.php?c=config&a=showTabParser{/devblocks_url}">Mail Routing</a></li>
-		
-		{$tabs[] = 'queue'}
-		<li><a href="{devblocks_url}ajax.php?c=config&a=showTabQueue{/devblocks_url}">Mail Queue</a></li>
-		
-		{$tabs[] = 'attachments'}
-		<li><a href="{devblocks_url}ajax.php?c=config&a=showTabAttachments{/devblocks_url}">Attachments</a></li>
-		
 		{foreach from=$tab_manifests item=tab_manifest}
 			{$tabs[] = $tab_manifest->params.uri}
 			<li><a href="{devblocks_url}ajax.php?c=config&a=showTab&ext_id={$tab_manifest->id}{/devblocks_url}"><i>{$tab_manifest->params.title|devblocks_translate}</i></a></li>

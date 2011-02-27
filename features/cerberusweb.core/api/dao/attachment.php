@@ -362,7 +362,7 @@ class Storage_Attachments extends Extension_DevblocksStorageSchema {
 		$tpl->assign('archive_storage_profile', $this->getParam('archive_storage_profile', 'devblocks.storage.engine.disk'));
 		$tpl->assign('archive_after_days', $this->getParam('archive_after_days', 7));
 		
-		$tpl->display("devblocks:cerberusweb.core::configuration/tabs/storage/schemas/attachments/render.tpl");
+		$tpl->display("devblocks:cerberusweb.core::configuration/section/storage_profiles/schemas/attachments/render.tpl");
 	}	
 	
 	function renderConfig() {
@@ -372,7 +372,7 @@ class Storage_Attachments extends Extension_DevblocksStorageSchema {
 		$tpl->assign('archive_storage_profile', $this->getParam('archive_storage_profile', 'devblocks.storage.engine.disk'));
 		$tpl->assign('archive_after_days', $this->getParam('archive_after_days', 7));
 		
-		$tpl->display("devblocks:cerberusweb.core::configuration/tabs/storage/schemas/attachments/config.tpl");
+		$tpl->display("devblocks:cerberusweb.core::configuration/section/storage_profiles/schemas/attachments/config.tpl");
 	}
 	
 	function saveConfig() {
@@ -713,7 +713,7 @@ class View_AttachmentLink extends C4_AbstractView {
 		$tpl->assign('contexts', $contexts);
 		
 		// [TODO] Move
-		$tpl->display('devblocks:cerberusweb.core::configuration/tabs/attachments/view.tpl');
+		$tpl->display('devblocks:cerberusweb.core::configuration/section/storage_attachments/view.tpl');
 	}
 
 	function renderCriteria($field) {

@@ -1152,6 +1152,45 @@
 			</extension>
 		
 			<extension point="cerberusweb.ui.page.section">
+				<id>core.page.setup.storage_attachments</id>
+				<name>Storage Attachments Section</name>
+				<class>
+					<file>api/uri/config/storage_attachments.php</file>
+					<name>PageSection_SetupStorageAttachments</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.page.configuration" />
+					<param key="uri" value="storage_attachments" />
+				</params>
+			</extension>
+		
+			<extension point="cerberusweb.ui.page.section">
+				<id>core.page.setup.storage_content</id>
+				<name>Storage Content Section</name>
+				<class>
+					<file>api/uri/config/storage_content.php</file>
+					<name>PageSection_SetupStorageContent</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.page.configuration" />
+					<param key="uri" value="storage_content" />
+				</params>
+			</extension>
+		
+			<extension point="cerberusweb.ui.page.section">
+				<id>core.page.setup.storage_profiles</id>
+				<name>Storage Profiles Section</name>
+				<class>
+					<file>api/uri/config/storage_profiles.php</file>
+					<name>PageSection_SetupStorageProfiles</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.page.configuration" />
+					<param key="uri" value="storage_profiles" />
+				</params>
+			</extension>
+		
+			<extension point="cerberusweb.ui.page.section">
 				<id>core.page.setup.workers</id>
 				<name>Workers Section</name>
 				<class>

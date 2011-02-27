@@ -60,7 +60,7 @@
 			{if $column=="d_id"}
 			<td>{$result.d_id}&nbsp;</td>
 			{elseif $column=="d_name"}
-			<td><a href="javascript:;" onclick="genericAjaxPopup('peek','c=config&a=showStorageProfilePeek&id={$result.d_id}&view_id={$view->id|escape:'url'}',null,false,'500');" class="subject">{$result.d_name}</a></td>
+			<td style="padding:5px;"><a href="javascript:;" onclick="genericAjaxPopup('peek','c=config&a=handleSectionAction&section=storage_profiles&action=showStorageProfilePeek&id={$result.d_id}&view_id={$view->id|escape:'url'}',null,false,'500');" class="subject">{$result.d_name}</a></td>
 			{else}
 			<td>{$result.$column}</td>
 			{/if}
@@ -75,7 +75,7 @@
 	<tr>
 		<td colspan="2">
 			{if 0 && $active_worker && $active_worker->is_superuser}
-				<button type="button" onclick="genericAjaxPopup('peek','c=config&a=showStorageProfileBulkPanel&view_id={$view->id}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','row_id[]'),null,false,'500');"><span class="cerb-sprite sprite-folder_gear"></span> bulk update</button>
+				<button type="button" onclick="genericAjaxPopup('peek','c=config&a=handleSectionAction&section=storage_profiles&action=showStorageProfileBulkPanel&view_id={$view->id}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','row_id[]'),null,false,'500');"><span class="cerb-sprite sprite-folder_gear"></span> bulk update</button>
 			{/if}
 		</td>
 	</tr>
