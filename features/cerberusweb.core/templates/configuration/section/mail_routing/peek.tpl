@@ -1,6 +1,8 @@
 <form action="{devblocks_url}{/devblocks_url}" method="post">
 <input type="hidden" name="c" value="config">
-<input type="hidden" name="a" value="saveMailRoutingRuleAdd">
+<input type="hidden" name="a" value="handleSectionAction">
+<input type="hidden" name="section" value="mail_routing">
+<input type="hidden" name="action" value="saveMailRoutingRuleAdd">
 <input type="hidden" name="id" value="{$rule->id}">
 
 <b>Rule Name:</b> (e.g. ProductX Support)<br>

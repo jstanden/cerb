@@ -1100,6 +1100,32 @@
 			</extension>
 		
 			<extension point="cerberusweb.ui.page.section">
+				<id>core.page.setup.mail_queue</id>
+				<name>Mail Queue Section</name>
+				<class>
+					<file>api/uri/config/mail_queue.php</file>
+					<name>PageSection_SetupMailQueue</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.page.configuration" />
+					<param key="uri" value="mail_queue" />
+				</params>
+			</extension>		
+		
+			<extension point="cerberusweb.ui.page.section">
+				<id>core.page.setup.mail_routing</id>
+				<name>Mail Routing Section</name>
+				<class>
+					<file>api/uri/config/mail_routing.php</file>
+					<name>PageSection_SetupMailRouting</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.page.configuration" />
+					<param key="uri" value="mail_routing" />
+				</params>
+			</extension>
+			
+			<extension point="cerberusweb.ui.page.section">
 				<id>core.page.setup.scheduler</id>
 				<name>Scheduler Section</name>
 				<class>

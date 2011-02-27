@@ -29,8 +29,8 @@
 					<li><a href="{devblocks_url}c=config&a=mail_incoming{/devblocks_url}">Incoming Mail</a></li>
 					<li><a href="{devblocks_url}c=config&a=mail_outgoing{/devblocks_url}">Outgoing Mail</a></li>
 					<li><a href="{devblocks_url}c=config&a=mail_pop3{/devblocks_url}">POP3 Accounts</a></li>
-					<li><a href="{devblocks_url}c=config&a=mail_filtering{/devblocks_url}">Filtering</a></li>
 					<li><a href="{devblocks_url}c=config&a=mail_routing{/devblocks_url}">Routing</a></li>
+					<li><a href="{devblocks_url}c=config&a=mail_filtering{/devblocks_url}">Filtering</a></li>
 					<li><a href="{devblocks_url}c=config&a=mail_queue{/devblocks_url}">Queue</a></li>
 					<li><hr></li>
 					<li><a href="{devblocks_url}c=config&a=simulator{/devblocks_url}">Simulator</a></li>

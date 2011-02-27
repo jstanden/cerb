@@ -1,7 +1,7 @@
 <h2>Mail Filtering</h2>
 
 <form action="{devblocks_url}{/devblocks_url}" style="margin-bottom:5px;">
-	<button type="button" onclick="genericAjaxPopup('peek','c=config&a=handleSectionAction&section=mail_filtering&action=peek&id=0',null,false,'550');"><span class="cerb-sprite sprite-funnel"></span> Add Mail Filter</button>
+	<button type="button" onclick="genericAjaxPopup('peek','c=config&a=handleSectionAction&section=mail_filtering&action=peek&id=0',null,false,'550');"><span class="cerb-sprite sprite-add"></span> {'common.add'|devblocks_translate|capitalize}</button>
 </form>
 
 {if !empty($filters)}
