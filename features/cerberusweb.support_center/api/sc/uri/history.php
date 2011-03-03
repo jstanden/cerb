@@ -1,7 +1,7 @@
 <?php
 class UmScHistoryController extends Extension_UmScController {
 	function isVisible() {
-		$umsession = UmPortalHelper::getSession();
+		$umsession = ChPortalHelper::getSession();
 		$active_contact = $umsession->getProperty('sc_login', null);
 		return !empty($active_contact);
 	}
@@ -13,7 +13,7 @@ class UmScHistoryController extends Extension_UmScController {
 	function writeResponse(DevblocksHttpResponse $response) {
 		$tpl = DevblocksPlatform::getTemplateService();
 		
-		$umsession = UmPortalHelper::getSession();
+		$umsession = ChPortalHelper::getSession();
 		$active_contact = $umsession->getProperty('sc_login', null);
 		
 		$stack = $response->path;
@@ -48,7 +48,7 @@ class UmScHistoryController extends Extension_UmScController {
 			UmScAbstractViewLoader::setView($history_view->id, $history_view);
 			$tpl->assign('view', $history_view);
 
-			$tpl->display("devblocks:cerberusweb.support_center:portal_".UmPortalHelper::getCode() . ":support_center/history/index.tpl");
+			$tpl->display("devblocks:cerberusweb.support_center:portal_".ChPortalHelper::getCode() . ":support_center/history/index.tpl");
 			
 		} else {
 			// Secure retrieval (address + mask)
@@ -110,7 +110,7 @@ class UmScHistoryController extends Extension_UmScController {
 				$tpl->assign('messages', $messages);
 				$tpl->assign('attachments', $attachments);
 				
-				$tpl->display("devblocks:cerberusweb.support_center:portal_".UmPortalHelper::getCode() . ":support_center/history/display.tpl");
+				$tpl->display("devblocks:cerberusweb.support_center:portal_".ChPortalHelper::getCode() . ":support_center/history/display.tpl");
 			}
 		}
 				
@@ -120,7 +120,7 @@ class UmScHistoryController extends Extension_UmScController {
 		@$mask = DevblocksPlatform::importGPC($_REQUEST['mask'],'string','');
 		@$closed = DevblocksPlatform::importGPC($_REQUEST['closed'],'integer','0');
 		
-		$umsession = UmPortalHelper::getSession();
+		$umsession = ChPortalHelper::getSession();
 		$active_contact = $umsession->getProperty('sc_login', null);
 
 		$shared_address_ids = DAO_SupportCenterAddressShare::getContactAddressesWithShared($active_contact->id, true);
@@ -148,7 +148,7 @@ class UmScHistoryController extends Extension_UmScController {
 		);
 		DAO_Ticket::update($ticket_id,$fields);
 		
-		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',UmPortalHelper::getCode(),'history',$ticket[SearchFields_Ticket::TICKET_MASK])));		
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',ChPortalHelper::getCode(),'history',$ticket[SearchFields_Ticket::TICKET_MASK])));		
 	}
 	
 	function doReplyAction() {
@@ -156,7 +156,7 @@ class UmScHistoryController extends Extension_UmScController {
 		@$mask = DevblocksPlatform::importGPC($_REQUEST['mask'],'string','');
 		@$content = DevblocksPlatform::importGPC($_REQUEST['content'],'string','');
 		
-		$umsession = UmPortalHelper::getSession();
+		$umsession = ChPortalHelper::getSession();
 		$active_contact = $umsession->getProperty('sc_login', null);
 
 		// Load contact addresses
@@ -217,7 +217,7 @@ class UmScHistoryController extends Extension_UmScController {
    
 		CerberusParser::parseMessage($message,array('no_autoreply'=>true));
 		
-		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',UmPortalHelper::getCode(),'history',$ticket[SearchFields_Ticket::TICKET_MASK])));
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',ChPortalHelper::getCode(),'history',$ticket[SearchFields_Ticket::TICKET_MASK])));
 	}
 };
 
@@ -263,7 +263,7 @@ class UmSc_TicketHistoryView extends C4_AbstractView {
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
 
-		$tpl->display("devblocks:cerberusweb.support_center:portal_".UmPortalHelper::getCode() . ":support_center/history/view.tpl");
+		$tpl->display("devblocks:cerberusweb.support_center:portal_".ChPortalHelper::getCode() . ":support_center/history/view.tpl");
 	}
 
 	function getFields() {
@@ -292,7 +292,7 @@ class UmSc_TicketHistoryView extends C4_AbstractView {
 	}
 	
 	function renderCriteria($field) {
-		$umsession = UmPortalHelper::getSession();
+		$umsession = ChPortalHelper::getSession();
 		$active_contact = $umsession->getProperty('sc_login', null);
 		$tpl = DevblocksPlatform::getTemplateService();
 		
@@ -383,7 +383,7 @@ class UmSc_TicketHistoryView extends C4_AbstractView {
 	}
 	
 	function doSetCriteria($field, $oper, $value) {
-		$umsession = UmPortalHelper::getSession();
+		$umsession = ChPortalHelper::getSession();
 		$active_contact = $umsession->getProperty('sc_login', null);
 		
 		$criteria = null;

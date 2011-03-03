@@ -1,7 +1,7 @@
 <?php
 class UmScAccountController extends Extension_UmScController {
 	function isVisible() {
-		$umsession = UmPortalHelper::getSession();
+		$umsession = ChPortalHelper::getSession();
 		$active_contact = $umsession->getProperty('sc_login', null);
 		return !empty($active_contact);
 	}
@@ -9,7 +9,7 @@ class UmScAccountController extends Extension_UmScController {
 	function renderSidebar(DevblocksHttpResponse $response) {
 		$tpl = DevblocksPlatform::getTemplateService();
 		
-		$tpl->display("devblocks:cerberusweb.support_center:portal_".UmPortalHelper::getCode() . ":support_center/account/sidebar_menu.tpl");
+		$tpl->display("devblocks:cerberusweb.support_center:portal_".ChPortalHelper::getCode() . ":support_center/account/sidebar_menu.tpl");
 	}
 	
 	function writeResponse(DevblocksHttpResponse $response) {
@@ -19,14 +19,14 @@ class UmScAccountController extends Extension_UmScController {
 		@array_shift($path); // account
 		
 		// Scope
-		$umsession = UmPortalHelper::getSession();
+		$umsession = ChPortalHelper::getSession();
 		$active_contact = $umsession->getProperty('sc_login', null);
 		
 		@$module = array_shift($path);
 		
 		switch($module) {
 			case 'password':
-				$tpl->display("devblocks:cerberusweb.support_center:portal_".UmPortalHelper::getCode() . ":support_center/account/password/index.tpl");
+				$tpl->display("devblocks:cerberusweb.support_center:portal_".ChPortalHelper::getCode() . ":support_center/account/password/index.tpl");
 				break;
 				
 			case 'sharing':
@@ -41,11 +41,11 @@ class UmScAccountController extends Extension_UmScController {
 					$tpl->assign('shared_with_me', $shared_with);
 				}
 				
-				$tpl->display("devblocks:cerberusweb.support_center:portal_".UmPortalHelper::getCode() . ":support_center/account/sharing/index.tpl");
+				$tpl->display("devblocks:cerberusweb.support_center:portal_".ChPortalHelper::getCode() . ":support_center/account/sharing/index.tpl");
 				break;
 				
 			case 'delete':
-				$tpl->display("devblocks:cerberusweb.support_center:portal_".UmPortalHelper::getCode() . ":support_center/account/delete/index.tpl");
+				$tpl->display("devblocks:cerberusweb.support_center:portal_".ChPortalHelper::getCode() . ":support_center/account/delete/index.tpl");
 				break;
 				
 			default:
@@ -62,14 +62,14 @@ class UmScAccountController extends Extension_UmScController {
 					$tpl->assign('email', $email);
 					$tpl->assign('confirm', $confirm);
 					
-					$tpl->display("devblocks:cerberusweb.support_center:portal_".UmPortalHelper::getCode() . ":support_center/account/email/confirm.tpl");
+					$tpl->display("devblocks:cerberusweb.support_center:portal_".ChPortalHelper::getCode() . ":support_center/account/email/confirm.tpl");
 				
 				// Security check
 				} elseif(empty($id) || null == ($address = DAO_Address::lookupAddress(urldecode(str_replace(array('_at_','_dot_'),array('%40','.'),$id)), false)) || $address->contact_person_id != $active_contact->id) {
 					$addresses = $active_contact->getAddresses();
 					$tpl->assign('addresses', $addresses);
 					
-					$tpl->display("devblocks:cerberusweb.support_center:portal_".UmPortalHelper::getCode() . ":support_center/account/email/index.tpl");
+					$tpl->display("devblocks:cerberusweb.support_center:portal_".ChPortalHelper::getCode() . ":support_center/account/email/index.tpl");
 					
 				// Display all emails
 				} else {
@@ -96,11 +96,11 @@ class UmScAccountController extends Extension_UmScController {
 					}
 					
 					// Show fields		
-					if(null != ($show_fields = DAO_CommunityToolProperty::get(UmPortalHelper::getCode(), 'account.fields', null))) {
+					if(null != ($show_fields = DAO_CommunityToolProperty::get(ChPortalHelper::getCode(), 'account.fields', null))) {
 						$tpl->assign('show_fields', @json_decode($show_fields, true));
 					}
 					
-					$tpl->display("devblocks:cerberusweb.support_center:portal_".UmPortalHelper::getCode() . ":support_center/account/email/display.tpl");
+					$tpl->display("devblocks:cerberusweb.support_center:portal_".ChPortalHelper::getCode() . ":support_center/account/email/display.tpl");
 				}
 				
 				break;
@@ -136,21 +136,21 @@ class UmScAccountController extends Extension_UmScController {
 				// Display (Securely)
 				} elseif(!empty($id) && null != ($openid = DAO_OpenIdToContactPerson::getOpenIdByHash($id)) && $openid->contact_person_id == $active_contact->id) {
 					$tpl->assign('openid', $openid);
-					$tpl->display("devblocks:cerberusweb.support_center:portal_".UmPortalHelper::getCode() . ":support_center/account/openid/display.tpl");
+					$tpl->display("devblocks:cerberusweb.support_center:portal_".ChPortalHelper::getCode() . ":support_center/account/openid/display.tpl");
 					return;
 				}
 				
 				$openids = DAO_OpenIdToContactPerson::getOpenIdsByContact($active_contact->id);
 				$tpl->assign('openids', $openids);
 				
-				$tpl->display("devblocks:cerberusweb.support_center:portal_".UmPortalHelper::getCode() . ":support_center/account/openid/index.tpl");
+				$tpl->display("devblocks:cerberusweb.support_center:portal_".ChPortalHelper::getCode() . ":support_center/account/openid/index.tpl");
 				break;
 		}
 	}
 
 	function doEmailUpdateAction() {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$umsession = UmPortalHelper::getSession();
+		$umsession = ChPortalHelper::getSession();
 		$active_contact = $umsession->getProperty('sc_login', null);
 		
 		if(null == ($contact = DAO_ContactPerson::get($active_contact->id)))
@@ -177,7 +177,7 @@ class UmScAccountController extends Extension_UmScController {
 				
 				// Compare editable fields
 				$show_fields = array();
-				if(null != ($show_fields = DAO_CommunityToolProperty::get(UmPortalHelper::getCode(), 'account.fields', null)))
+				if(null != ($show_fields = DAO_CommunityToolProperty::get(ChPortalHelper::getCode(), 'account.fields', null)))
 					@$show_fields = json_decode($show_fields, true);
 				
 				if(!empty($address)) {
@@ -285,12 +285,12 @@ class UmScAccountController extends Extension_UmScController {
 				break;
 		}
 				
-		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',UmPortalHelper::getCode(),'account','email')));
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',ChPortalHelper::getCode(),'account','email')));
 	}
 	
 	function doShareUpdateAction() {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$umsession = UmPortalHelper::getSession();
+		$umsession = ChPortalHelper::getSession();
 		$active_contact = $umsession->getProperty('sc_login', null);
 		$contact_addresses = $active_contact->getAddresses();
 
@@ -387,14 +387,14 @@ class UmScAccountController extends Extension_UmScController {
 			
 		}
 		
-		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',UmPortalHelper::getCode(),'account','sharing')));
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',ChPortalHelper::getCode(),'account','sharing')));
 	}
 	
 	function doPasswordUpdateAction() {
 		@$change_password = DevblocksPlatform::importGPC($_REQUEST['change_password'],'string','');
 		@$change_password2 = DevblocksPlatform::importGPC($_REQUEST['change_password2'],'string','');
 		
-		$umsession = UmPortalHelper::getSession();
+		$umsession = ChPortalHelper::getSession();
 		$active_contact = $umsession->getProperty('sc_login', null);
 		$url_writer = DevblocksPlatform::getUrlService();
 		$tpl = DevblocksPlatform::getTemplateService();
@@ -425,11 +425,11 @@ class UmScAccountController extends Extension_UmScController {
 			
 		}
 		
-		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',UmPortalHelper::getCode(),'account','password')));
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',ChPortalHelper::getCode(),'account','password')));
 	}
 	
 	function doEmailAddAction() {
-		$umsession = UmPortalHelper::getSession();
+		$umsession = ChPortalHelper::getSession();
 		$active_contact = $umsession->getProperty('sc_login', null);
 		$tpl = DevblocksPlatform::getTemplateService();
 		$url_writer = DevblocksPlatform::getUrlService();
@@ -475,11 +475,11 @@ class UmScAccountController extends Extension_UmScController {
 		} catch (Exception $e) {
 			$tpl->assign('error', $e->getMessage());
 
-			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',UmPortalHelper::getCode(),'account','email')));
+			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',ChPortalHelper::getCode(),'account','email')));
 			return;
 		}
 		
-		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',UmPortalHelper::getCode(),'account','email','confirm')));
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',ChPortalHelper::getCode(),'account','email','confirm')));
 		//DevblocksPlatform::redirect(new DevblocksHttpResponse(array('account','email')));
 		//exit;
 	}
@@ -489,7 +489,7 @@ class UmScAccountController extends Extension_UmScController {
 		@$confirm = DevblocksPlatform::importGPC($_REQUEST['confirm'],'string','');
 
 		// Verify session
-		$umsession = UmPortalHelper::getSession();
+		$umsession = ChPortalHelper::getSession();
 		$active_contact = $umsession->getProperty('sc_login', null);
 
 		try {
@@ -520,22 +520,22 @@ class UmScAccountController extends Extension_UmScController {
 			
 			$address_uri = urlencode(str_replace(array('@','.'),array('_at_','_dot_'),$address->email));
 			
-			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',UmPortalHelper::getCode(),'account','email',$address_uri)));
+			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',ChPortalHelper::getCode(),'account','email',$address_uri)));
 			return;
 			
 		} catch(Exception $e) {
 			$tpl = DevblocksPlatform::getTemplateService();
 			$tpl->assign('error', $e->getMessage());
 
-			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',UmPortalHelper::getCode(),'account','email','confirm')));
+			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',ChPortalHelper::getCode(),'account','email','confirm')));
 			return;
 		}
 		
-		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',UmPortalHelper::getCode(),'account','email')));
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',ChPortalHelper::getCode(),'account','email')));
 	}
 	
 	function doOpenIdAddAction() {
-		$umsession = UmPortalHelper::getSession();
+		$umsession = ChPortalHelper::getSession();
 		$active_contact = $umsession->getProperty('sc_login', null);
 		
 		try {
@@ -569,14 +569,14 @@ class UmScAccountController extends Extension_UmScController {
 			$tpl = DevblocksPlatform::getTemplateService();
 			$tpl->assign('error', $e->getMessage());
 
-			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',UmPortalHelper::getCode(),'account','openid')));
+			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',ChPortalHelper::getCode(),'account','openid')));
 			return;
 		}
 	}
 	
 	function doOpenIdUpdateAction() {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$umsession = UmPortalHelper::getSession();
+		$umsession = ChPortalHelper::getSession();
 		$active_contact = $umsession->getProperty('sc_login', null);
 		
 		if(null == ($contact = DAO_ContactPerson::get($active_contact->id)))
@@ -595,13 +595,13 @@ class UmScAccountController extends Extension_UmScController {
 				break;
 		}
 		
-		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',UmPortalHelper::getCode(),'account','openid')));
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',ChPortalHelper::getCode(),'account','openid')));
 	}
 	
 	function doDeleteAction() {
 		@$captcha = DevblocksPlatform::importGPC($_REQUEST['captcha'], 'string', '');
 		
-		$umsession = UmPortalHelper::getSession();
+		$umsession = ChPortalHelper::getSession();
 		$active_contact = $umsession->getProperty('sc_login', null);
 		$tpl = DevblocksPlatform::getTemplateService();
 		$url_writer = DevblocksPlatform::getUrlService();
@@ -631,7 +631,7 @@ class UmScAccountController extends Extension_UmScController {
 			$tpl->assign('error', $e->getMessage());
 		}
 		
-		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',UmPortalHelper::getCode(),'account','delete')));
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',ChPortalHelper::getCode(),'account','delete')));
 	}
 	
 	function configure(Model_CommunityTool $instance) {

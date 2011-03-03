@@ -139,12 +139,6 @@
 		<tu tuid='portal.sc.cfg.reason_contacting_hint'>
 			<tuv xml:lang="en_US"><seg>(e.g. "I'd like more info on your products")</seg></tuv>
 		</tu>
-		<tu tuid='portal.sc.cfg.save_more_feeds'>
-			<tuv xml:lang="en_US"><seg>(save to add more feeds)</seg></tuv>
-		</tu>
-		<tu tuid='portal.sc.cfg.save_to_add_followups'>
-			<tuv xml:lang="en_US"><seg>(save to add more follow-ups)</seg></tuv>
-		</tu>
 
 		<tu tuid='portal.sc.public.common.source'>
 			<tuv xml:lang="en_US"><seg>Source:</seg></tuv>

@@ -5,7 +5,7 @@ class UmScKbController extends Extension_UmScController {
 	
 	function isVisible() {
 		// Disable the KB if no categories were selected
-		$sKbRoots = DAO_CommunityToolProperty::get(UmPortalHelper::getCode(),self::PARAM_KB_ROOTS, '');
+		$sKbRoots = DAO_CommunityToolProperty::get(ChPortalHelper::getCode(),self::PARAM_KB_ROOTS, '');
         $kb_roots = !empty($sKbRoots) ? unserialize($sKbRoots) : array();
         return !empty($kb_roots);
 	}
@@ -16,19 +16,19 @@ class UmScKbController extends Extension_UmScController {
 		@$q = DevblocksPlatform::importGPC($_POST['q'],'string','');
 		$tpl->assign('q', $q);
 		
-		$tpl->display("devblocks:cerberusweb.kb:portal_".UmPortalHelper::getCode() . ":support_center/kb/sidebar.tpl");
+		$tpl->display("devblocks:cerberusweb.kb:portal_".ChPortalHelper::getCode() . ":support_center/kb/sidebar.tpl");
 	}
 	
 	function writeResponse(DevblocksHttpResponse $response) {
 		$tpl = DevblocksPlatform::getTemplateService();
 		
-		$umsession = UmPortalHelper::getSession();
+		$umsession = ChPortalHelper::getSession();
 		
 		$stack = $response->path;
 		array_shift($stack); // kb
 		
 		// KB Roots
-		$sKbRoots = DAO_CommunityToolProperty::get(UmPortalHelper::getCode(),self::PARAM_KB_ROOTS, '');
+		$sKbRoots = DAO_CommunityToolProperty::get(ChPortalHelper::getCode(),self::PARAM_KB_ROOTS, '');
         $kb_roots = !empty($sKbRoots) ? unserialize($sKbRoots) : array();
 		
 		$kb_roots_str = '0';
@@ -70,7 +70,7 @@ class UmScKbController extends Extension_UmScController {
 				UmScAbstractViewLoader::setView($view->id, $view);
 				$tpl->assign('view', $view);
 				
-				$tpl->display("devblocks:cerberusweb.kb:portal_".UmPortalHelper::getCode() . ":support_center/kb/search_results.tpl");
+				$tpl->display("devblocks:cerberusweb.kb:portal_".ChPortalHelper::getCode() . ":support_center/kb/search_results.tpl");
 				break;
 				
 			case 'article':
@@ -144,7 +144,7 @@ class UmScKbController extends Extension_UmScController {
 				$attachments_map = DAO_AttachmentLink::getLinksAndAttachments(CerberusContexts::CONTEXT_KB_ARTICLE, $id);
 				$tpl->assign('attachments_map', $attachments_map);
 				
-				$tpl->display("devblocks:cerberusweb.kb:portal_".UmPortalHelper::getCode() . ":support_center/kb/article.tpl");
+				$tpl->display("devblocks:cerberusweb.kb:portal_".ChPortalHelper::getCode() . ":support_center/kb/article.tpl");
 				break;
 			
 			default:
@@ -216,7 +216,7 @@ class UmScKbController extends Extension_UmScController {
 				UmScAbstractViewLoader::setView($view->id, $view);
 				$tpl->assign('view', $view);
 				
-				$tpl->display("devblocks:cerberusweb.kb:portal_".UmPortalHelper::getCode() . ":support_center/kb/index.tpl");
+				$tpl->display("devblocks:cerberusweb.kb:portal_".ChPortalHelper::getCode() . ":support_center/kb/index.tpl");
 	    	break;
 		}
 		
@@ -293,7 +293,7 @@ class UmSc_KbArticleView extends C4_AbstractView {
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
 
-		$tpl->display("devblocks:cerberusweb.kb:portal_".UmPortalHelper::getCode() . ":support_center/kb/view.tpl");
+		$tpl->display("devblocks:cerberusweb.kb:portal_".ChPortalHelper::getCode() . ":support_center/kb/view.tpl");
 	}
 
 	function getFields() {

@@ -500,6 +500,22 @@ DIV.badge-green {
 	border:1px solid rgb(0,100,0);
 }
 
+/* Property List */
+
+DIV.cerb-properties {
+	margin:0px;
+}
+
+DIV.cerb-properties > DIV {
+	display:inline-block;
+	margin:1px 10px 1px 0px;
+}
+
+DIV.cerb-properties > DIV > LABEL {
+	font-weight:bold;
+	margin-right:1px;
+}
+
 /* Popup menu */
 
 UL.cerb-popupmenu {
@@ -549,7 +565,7 @@ UL.cerb-popupmenu > LI > HR {
 .cerb-subpage {
 }
 
-.cerb-subpage H2 {
+.cerb-subpage > H2 {
 	color:rgb(74,110,158);
 	margin-bottom:5px;
 }

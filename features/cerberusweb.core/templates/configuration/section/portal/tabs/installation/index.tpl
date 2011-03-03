@@ -1,11 +1,8 @@
-<div class="block">
-<H2>{$translate->_('usermeet.ui.community.cfg.installation')}</H2>
-{$translate->_('usermeet.ui.community.cfg.installation_instructions')|escape|nl2br nofilter}<br>
-<br>
-
 <form action="{devblocks_url}{/devblocks_url}" method="post">
-<b>index.php:</b><br>
-<textarea rows="10" cols="80" style="width:98%;margin:10px;">
+<fieldset>
+<legend>index.php</legend>
+{$translate->_('portal.cfg.installation_instructions')|escape|nl2br nofilter}<br>
+<textarea rows="10" cols="80" style="width:98%;margin:10px;font-family:Courier;">
 &lt;?php
 define('REMOTE_PROTOCOL', '{if $is_ssl}https{else}http{/if}');
 define('REMOTE_HOST', '{$host}');
@@ -447,11 +444,13 @@ class DevblocksRouter {
 
 $router = new DevblocksRouter();
 $router->connect();
-{/literal}</textarea><br>
-<br>
+{/literal}</textarea>
+</fieldset>
 
-<b>.htaccess:</b> {$translate->_('usermeet.ui.community.cfg.htaccess_hint')}<br>
-<textarea rows="10" cols="80" style="width:98%;margin:10px;">{literal}
+<fieldset>
+<legend>.htaccess</legend>
+{$translate->_('portal.cfg.htaccess_hint')}<br>
+<textarea rows="10" cols="80" style="width:98%;margin:10px;font-family:Courier;">{literal}
 &lt;IfModule mod_rewrite.c&gt;
 RewriteEngine on
 
@@ -459,7 +458,8 @@ RewriteCond %{REQUEST_FILENAME}       !-f
 RewriteCond %{REQUEST_FILENAME}       !-d
 
 RewriteRule . index.php [L]
-&lt;/IfModule&gt;{/literal}</textarea><br>
+&lt;/IfModule&gt;{/literal}</textarea>
+</fieldset>
 
 </form>
-</div>
+</fieldset>

@@ -74,10 +74,10 @@ class UmScApp extends Extension_UsermeetTool {
 		
     	// Lazy load
     	if(null == $modules) {
-	    	$umsession = UmPortalHelper::getSession();
+	    	$umsession = ChPortalHelper::getSession();
 			@$active_contact = $umsession->getProperty('sc_login',null);
     		
-			@$visible_modules = unserialize(DAO_CommunityToolProperty::get(UmPortalHelper::getCode(), self::PARAM_VISIBLE_MODULES, ''));
+			@$visible_modules = unserialize(DAO_CommunityToolProperty::get(ChPortalHelper::getCode(), self::PARAM_VISIBLE_MODULES, ''));
 			
 			if(is_array($visible_modules))
 			foreach($visible_modules as $module_id => $visibility) {
@@ -127,7 +127,7 @@ class UmScApp extends Extension_UsermeetTool {
     }
     
     public static function getLoginExtensionActive($instance_id, $as_instance=true) {
-    	$umsession = UmPortalHelper::getSession();
+    	$umsession = ChPortalHelper::getSession();
     	$enabled = self::getLoginExtensionsEnabled($instance_id);
     	
     	$login_method = $umsession->getProperty('login_method', '');
@@ -159,7 +159,7 @@ class UmScApp extends Extension_UsermeetTool {
         $module_uri = array_shift($stack);
         
 		// Set locale in scope
-        $default_locale = DAO_CommunityToolProperty::get(UmPortalHelper::getCode(), self::PARAM_DEFAULT_LOCALE, 'en_US');
+        $default_locale = DAO_CommunityToolProperty::get(ChPortalHelper::getCode(), self::PARAM_DEFAULT_LOCALE, 'en_US');
 		DevblocksPlatform::setLocale($default_locale);
 		
 		switch($module_uri) {
@@ -187,26 +187,26 @@ class UmScApp extends Extension_UsermeetTool {
     }
     
 	public function writeResponse(DevblocksHttpResponse $response) {
-        $umsession = UmPortalHelper::getSession();
+        $umsession = ChPortalHelper::getSession();
 		$stack = $response->path;
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('portal_code', UmPortalHelper::getCode());
+		$tpl->assign('portal_code', ChPortalHelper::getCode());
 		
-		$page_title = DAO_CommunityToolProperty::get(UmPortalHelper::getCode(), self::PARAM_PAGE_TITLE, 'Support Center');
+		$page_title = DAO_CommunityToolProperty::get(ChPortalHelper::getCode(), self::PARAM_PAGE_TITLE, 'Support Center');
 		$tpl->assign('page_title', $page_title);
 
-       	@$visible_modules = unserialize(DAO_CommunityToolProperty::get(UmPortalHelper::getCode(), self::PARAM_VISIBLE_MODULES, ''));
+       	@$visible_modules = unserialize(DAO_CommunityToolProperty::get(ChPortalHelper::getCode(), self::PARAM_VISIBLE_MODULES, ''));
 		$tpl->assign('visible_modules', $visible_modules);
 		
         @$active_contact = $umsession->getProperty('sc_login',null);
         $tpl->assign('active_contact', $active_contact);
 
-        $login_extensions_enabled = UmScApp::getLoginExtensionsEnabled(UmPortalHelper::getCode());
+        $login_extensions_enabled = UmScApp::getLoginExtensionsEnabled(ChPortalHelper::getCode());
         $tpl->assign('login_extensions_enabled', $login_extensions_enabled);
         
 		// Usermeet Session
-		if(null == ($fingerprint = UmPortalHelper::getFingerprint())) {
+		if(null == ($fingerprint = ChPortalHelper::getFingerprint())) {
 			die("A problem occurred.");
 		}
         $tpl->assign('fingerprint', $fingerprint);
@@ -287,7 +287,7 @@ class UmScApp extends Extension_UsermeetTool {
 				$tpl->assign('module', $controller);
 				$tpl->assign('module_response', new DevblocksHttpResponse($stack));
 				
-   				$tpl->display('devblocks:cerberusweb.support_center:portal_'.UmPortalHelper::getCode() . ":support_center/index.tpl");
+   				$tpl->display('devblocks:cerberusweb.support_center:portal_'.ChPortalHelper::getCode() . ":support_center/index.tpl");
 		    	break;
 		}
 	}
@@ -344,22 +344,15 @@ class UmScApp extends Extension_UsermeetTool {
     public function saveConfiguration(Model_CommunityTool $instance) {
         @$aVisibleModules = DevblocksPlatform::importGPC($_POST['visible_modules'],'array',array());
         @$aIdxModules = DevblocksPlatform::importGPC($_POST['idx_modules'],'array',array());
-        @$aPosModules = DevblocksPlatform::importGPC($_POST['pos_modules'],'array',array());
         @$sPageTitle = DevblocksPlatform::importGPC($_POST['page_title'],'string','Contact Us');
 
 		// Modules (toggle + sort)
-		if(is_array($aIdxModules))
-		foreach($aIdxModules as $idx => $module_id) {
-			if(0==strcmp($aVisibleModules[$idx],'2')) {
-				unset($aPosModules[$idx]);
-			}
-		}
-			
-		// Rearrange modules by sort order
 		$aEnabledModules = array();
-		asort($aPosModules); // sort enabled by order asc
-		foreach($aPosModules as $idx => $null)
-			$aEnabledModules[$aIdxModules[$idx]] = $aVisibleModules[$idx];
+		foreach($aVisibleModules as $idx => $visible) {
+			// If not hidden
+			if(0 != strcmp($aVisibleModules[$idx],'2'))
+				$aEnabledModules[$aIdxModules[$idx]] = $aVisibleModules[$idx];
+		}
 			
         DAO_CommunityToolProperty::set($instance->code, self::PARAM_VISIBLE_MODULES, serialize($aEnabledModules));
         DAO_CommunityToolProperty::set($instance->code, self::PARAM_PAGE_TITLE, $sPageTitle);
@@ -384,7 +377,7 @@ class UmScApp extends Extension_UsermeetTool {
 class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
 	function writeResponse(DevblocksHttpResponse $response) {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$umsession = UmPortalHelper::getSession();
+		$umsession = ChPortalHelper::getSession();
 		
 		$stack = $response->path;
 		@$module = array_shift($stack);
@@ -394,20 +387,20 @@ class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
 				$tpl->assign('email', $umsession->getProperty('register.email',''));
 				
 				if(isset($stack[0]) && 0==strcasecmp('confirm',$stack[0])) {
-					$tpl->display("devblocks:cerberusweb.support_center:portal_".UmPortalHelper::getCode().":support_center/login/default/register_confirm.tpl");
+					$tpl->display("devblocks:cerberusweb.support_center:portal_".ChPortalHelper::getCode().":support_center/login/default/register_confirm.tpl");
 				} else {
-					$tpl->display("devblocks:cerberusweb.support_center:portal_".UmPortalHelper::getCode().":support_center/login/default/register.tpl");
+					$tpl->display("devblocks:cerberusweb.support_center:portal_".ChPortalHelper::getCode().":support_center/login/default/register.tpl");
 				}
 				break;
 			case 'forgot':
 				if(isset($stack[0]) && 0==strcasecmp('confirm',$stack[0])) {
-					$tpl->display("devblocks:cerberusweb.support_center:portal_".UmPortalHelper::getCode().":support_center/login/default/forgot_confirm.tpl");
+					$tpl->display("devblocks:cerberusweb.support_center:portal_".ChPortalHelper::getCode().":support_center/login/default/forgot_confirm.tpl");
 				} else {
-					$tpl->display("devblocks:cerberusweb.support_center:portal_".UmPortalHelper::getCode().":support_center/login/default/forgot.tpl");
+					$tpl->display("devblocks:cerberusweb.support_center:portal_".ChPortalHelper::getCode().":support_center/login/default/forgot.tpl");
 				}
 				break;
 			default:
-				$tpl->display("devblocks:cerberusweb.support_center:portal_".UmPortalHelper::getCode().":support_center/login/default/login.tpl");
+				$tpl->display("devblocks:cerberusweb.support_center:portal_".ChPortalHelper::getCode().":support_center/login/default/login.tpl");
 				break;
 		}		
 	}
@@ -417,7 +410,7 @@ class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
 		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$url_writer = DevblocksPlatform::getUrlService();
-		$umsession = UmPortalHelper::getSession();
+		$umsession = ChPortalHelper::getSession();
 		
 		try {
 			// Validate
@@ -452,12 +445,12 @@ class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
 				
 		} catch(Exception $e) {
 			$tpl->assign('error', $e->getMessage());
-			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',UmPortalHelper::getCode(),'login','register')));
+			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',ChPortalHelper::getCode(),'login','register')));
 			return;
 			
 		}
 		
-		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',UmPortalHelper::getCode(),'login','register','confirm')));
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',ChPortalHelper::getCode(),'login','register','confirm')));
 	}
 	
 	function doRegisterConfirmAction() {
@@ -467,7 +460,7 @@ class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
 		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$url_writer = DevblocksPlatform::getUrlService();
-		$umsession = UmPortalHelper::getSession();
+		$umsession = ChPortalHelper::getSession();
 		
 		try {
 			// Load the session (OpenID + email)
@@ -535,7 +528,7 @@ class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
 			$tpl->assign('error', $e->getMessage());
 		}
 		
-		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',UmPortalHelper::getCode(),'login','register','confirm')));
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',ChPortalHelper::getCode(),'login','register','confirm')));
 	}
 	
 	function doRecoverAction() {
@@ -577,18 +570,18 @@ class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
 			
 		} catch (Exception $e) {
 			$tpl->assign('error', $e->getMessage());
-			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',UmPortalHelper::getCode(),'login','forgot')));
+			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',ChPortalHelper::getCode(),'login','forgot')));
 			return;
 		}
 		
-		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',UmPortalHelper::getCode(),'login','forgot','confirm')));
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',ChPortalHelper::getCode(),'login','forgot','confirm')));
 	}
 	
 	function recoverAccountAction() {
 		@$email = DevblocksPlatform::importGPC($_REQUEST['email'],'string','');
 		@$confirm = DevblocksPlatform::importGPC($_REQUEST['confirm'],'string','');
 		
-		$umsession = UmPortalHelper::getSession();
+		$umsession = ChPortalHelper::getSession();
 		$url_writer = DevblocksPlatform::getUrlService();
 		$tpl = DevblocksPlatform::getTemplateService();
 		
@@ -627,7 +620,7 @@ class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
 			
 		}
 		
-		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',UmPortalHelper::getCode(),'login','forgot','confirm')));
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',ChPortalHelper::getCode(),'login','forgot','confirm')));
 	}	
 	
 	/**
@@ -636,7 +629,7 @@ class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
 	 * @return boolean whether login succeeded
 	 */
 	function authenticateAction() {
-		$umsession = UmPortalHelper::getSession();
+		$umsession = ChPortalHelper::getSession();
 		$tpl = DevblocksPlatform::getTemplateService();
 		$url_writer = DevblocksPlatform::getUrlService();
 
@@ -667,14 +660,14 @@ class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
 			$tpl->assign('error', $e->getMessage());
 		}
 		
-		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',UmPortalHelper::getCode(),'login')));
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',ChPortalHelper::getCode(),'login')));
 	}
 };
 
 class ScOpenIDLoginAuthenticator extends Extension_ScLoginAuthenticator {
 	function writeResponse(DevblocksHttpResponse $response) {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$umsession = UmPortalHelper::getSession();
+		$umsession = ChPortalHelper::getSession();
 		
 		$stack = $response->path;
 		@$module = array_shift($stack);
@@ -685,20 +678,20 @@ class ScOpenIDLoginAuthenticator extends Extension_ScLoginAuthenticator {
 				$tpl->assign('email', $umsession->getProperty('register.email',''));
 				
 				if(isset($stack[0]) && 0==strcasecmp('confirm',$stack[0])) {
-					$tpl->display("devblocks:cerberusweb.support_center:portal_".UmPortalHelper::getCode().":support_center/login/openid/register_confirm.tpl");
+					$tpl->display("devblocks:cerberusweb.support_center:portal_".ChPortalHelper::getCode().":support_center/login/openid/register_confirm.tpl");
 				} else {
-					$tpl->display("devblocks:cerberusweb.support_center:portal_".UmPortalHelper::getCode().":support_center/login/openid/register.tpl");
+					$tpl->display("devblocks:cerberusweb.support_center:portal_".ChPortalHelper::getCode().":support_center/login/openid/register.tpl");
 				}
 				break;
 			case 'forgot':
 				if(isset($stack[0]) && 0==strcasecmp('confirm',$stack[0])) {
-					$tpl->display("devblocks:cerberusweb.support_center:portal_".UmPortalHelper::getCode().":support_center/login/openid/forgot_confirm.tpl");
+					$tpl->display("devblocks:cerberusweb.support_center:portal_".ChPortalHelper::getCode().":support_center/login/openid/forgot_confirm.tpl");
 				} else {
-					$tpl->display("devblocks:cerberusweb.support_center:portal_".UmPortalHelper::getCode().":support_center/login/openid/forgot.tpl");
+					$tpl->display("devblocks:cerberusweb.support_center:portal_".ChPortalHelper::getCode().":support_center/login/openid/forgot.tpl");
 				}
 				break;
 			default:
-				$tpl->display("devblocks:cerberusweb.support_center:portal_".UmPortalHelper::getCode().":support_center/login/openid/login.tpl");
+				$tpl->display("devblocks:cerberusweb.support_center:portal_".ChPortalHelper::getCode().":support_center/login/openid/login.tpl");
 				break;
 		}
 	}	
@@ -715,7 +708,7 @@ class ScOpenIDLoginAuthenticator extends Extension_ScLoginAuthenticator {
 		if(false === ($auth_url = $openid->getAuthUrl($openid_url, $return_url))) {
 			$tpl = DevblocksPlatform::getTemplateService();
 			$tpl->assign('error', 'The OpenID you provided is invalid.');
-			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',UmPortalHelper::getCode(),'login')));
+			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',ChPortalHelper::getCode(),'login')));
 			
 		} else {
 			header("Location: " . $auth_url);
@@ -728,7 +721,7 @@ class ScOpenIDLoginAuthenticator extends Extension_ScLoginAuthenticator {
 		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$url_writer = DevblocksPlatform::getUrlService();
-		$umsession = UmPortalHelper::getSession();
+		$umsession = ChPortalHelper::getSession();
 		
 		try {
 			// Validate
@@ -763,12 +756,12 @@ class ScOpenIDLoginAuthenticator extends Extension_ScLoginAuthenticator {
 				
 		} catch(Exception $e) {
 			$tpl->assign('error', $e->getMessage());
-			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',UmPortalHelper::getCode(),'login','register')));
+			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',ChPortalHelper::getCode(),'login','register')));
 			return;
 			
 		}
 		
-		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',UmPortalHelper::getCode(),'login','register','confirm')));
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',ChPortalHelper::getCode(),'login','register','confirm')));
 	}
 	
 	function doRegisterConfirmAction() {
@@ -776,7 +769,7 @@ class ScOpenIDLoginAuthenticator extends Extension_ScLoginAuthenticator {
 		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$url_writer = DevblocksPlatform::getUrlService();
-		$umsession = UmPortalHelper::getSession();
+		$umsession = ChPortalHelper::getSession();
 		
 		try {
 			// Load the session (OpenID + email)
@@ -840,7 +833,7 @@ class ScOpenIDLoginAuthenticator extends Extension_ScLoginAuthenticator {
 			$tpl->assign('error', $e->getMessage());
 		}
 		
-		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',UmPortalHelper::getCode(),'login','register','confirm')));
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',ChPortalHelper::getCode(),'login','register','confirm')));
 	}
 	
 	function doRecoverAction() {
@@ -882,18 +875,18 @@ class ScOpenIDLoginAuthenticator extends Extension_ScLoginAuthenticator {
 			
 		} catch (Exception $e) {
 			$tpl->assign('error', $e->getMessage());
-			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',UmPortalHelper::getCode(),'login','forgot')));
+			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',ChPortalHelper::getCode(),'login','forgot')));
 			return;
 		}
 		
-		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',UmPortalHelper::getCode(),'login','forgot','confirm')));
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',ChPortalHelper::getCode(),'login','forgot','confirm')));
 	}
 	
 	function recoverAccountAction() {
 		@$email = DevblocksPlatform::importGPC($_REQUEST['email'],'string','');
 		@$confirm = DevblocksPlatform::importGPC($_REQUEST['confirm'],'string','');
 		
-		$umsession = UmPortalHelper::getSession();
+		$umsession = ChPortalHelper::getSession();
 		$url_writer = DevblocksPlatform::getUrlService();
 		$tpl = DevblocksPlatform::getTemplateService();
 		
@@ -932,7 +925,7 @@ class ScOpenIDLoginAuthenticator extends Extension_ScLoginAuthenticator {
 			
 		}
 		
-		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',UmPortalHelper::getCode(),'login','forgot','confirm')));
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',ChPortalHelper::getCode(),'login','forgot','confirm')));
 	}
 	
 	/**
@@ -941,7 +934,7 @@ class ScOpenIDLoginAuthenticator extends Extension_ScLoginAuthenticator {
 	 * @return boolean whether login succeeded
 	 */
 	function authenticateAction() {
-		$umsession = UmPortalHelper::getSession();
+		$umsession = ChPortalHelper::getSession();
 		$url_writer = DevblocksPlatform::getUrlService();
 		$openid = DevblocksPlatform::getOpenIDService();
 		$tpl = DevblocksPlatform::getTemplateService();
@@ -999,7 +992,7 @@ class ScOpenIDLoginAuthenticator extends Extension_ScLoginAuthenticator {
 			$tpl->assign('error', $e->getMessage());
 		}
 		
-		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',UmPortalHelper::getCode(),'login')));
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',ChPortalHelper::getCode(),'login')));
 	}
 };
 
@@ -1008,7 +1001,7 @@ class UmScAbstractViewLoader {
 	const VISIT_ABSTRACTVIEWS = 'abstractviews_list';
 
 	static protected function _init() {
-		$umsession = UmPortalHelper::getSession();
+		$umsession = ChPortalHelper::getSession();
 		self::$views = $umsession->getProperty(self::VISIT_ABSTRACTVIEWS,array());
 	}
 
@@ -1068,7 +1061,7 @@ class UmScAbstractViewLoader {
 	
 	static protected function _save() {
 		// persist
-		$umsession = UmPortalHelper::getSession();
+		$umsession = ChPortalHelper::getSession();
 		$umsession->setProperty(self::VISIT_ABSTRACTVIEWS, self::$views);
 	}
 

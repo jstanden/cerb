@@ -1,101 +1,12 @@
 <?php
-/***********************************************************************
-| Cerberus Helpdesk(tm) developed by WebGroup Media, LLC.
-|-----------------------------------------------------------------------
-| All source code & content (c) Copyright 2011, WebGroup Media LLC
-|   unless specifically noted otherwise.
-|
-| This source code is released under the Cerberus Public License.
-| The latest version of this license can be found here:
-| http://www.cerberusweb.com/license.php
-|
-| By using this software, you acknowledge having read this license
-| and agree to be bound thereby.
-| ______________________________________________________________________
-|	http://www.cerberusweb.com	  http://www.webgroupmedia.com/
-***********************************************************************/
-/*
- * IMPORTANT LICENSING NOTE from your friends on the Cerberus Helpdesk Team
- * 
- * Sure, it would be so easy to just cheat and edit this file to use the 
- * software without paying for it.  But we trust you anyway.  In fact, we're 
- * writing this software for you! 
- * 
- * Quality software backed by a dedicated team takes money to develop.  We 
- * don't want to be out of the office bagging groceries when you call up 
- * needing a helping hand.  We'd rather spend our free time coding your 
- * feature requests than mowing the neighbors' lawns for rent money. 
- * 
- * We've never believed in hiding our source code out of paranoia over not 
- * getting paid.  We want you to have the full source code and be able to 
- * make the tweaks your organization requires to get more done -- despite 
- * having less of everything than you might need (time, people, money, 
- * energy).  We shouldn't be your bottleneck.
- * 
- * We've been building our expertise with this project since January 2002.  We 
- * promise spending a couple bucks [Euro, Yuan, Rupees, Galactic Credits] to 
- * let us take over your shared e-mail headache is a worthwhile investment.  
- * It will give you a sense of control over your inbox that you probably 
- * haven't had since spammers found you in a game of 'E-mail Battleship'. 
- * Miss. Miss. You sunk my inbox!
- * 
- * A legitimate license entitles you to support from the developers,  
- * and the warm fuzzy feeling of feeding a couple of obsessed developers 
- * who want to help you get more done.
- *
- * - Jeff Standen, Darren Sugita, Dan Hildebrandt, Scott Luther,
- * 		and Jerry Kanoholani. 
- *	 WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
- */
-
-class UmPortalHelper {
-	static private $_code = null; 
-	
-	public static function getCode() {
-		return self::$_code;
-	}	
-	
-	public static function setCode($code) {
-		self::$_code = $code;
-	}
-	
-	/**
-	 * @return Model_CommunitySession
-	 */
-	public static function getSession() {
-		$fingerprint = self::getFingerprint();
-		
-		$session_id = md5($fingerprint['ip'] . self::getCode() . $fingerprint['local_sessid']);
-		return DAO_CommunitySession::get($session_id);
-	}
-	
-	public static function getFingerprint() {
-		$sFingerPrint = DevblocksPlatform::importGPC($_COOKIE['GroupLoginPassport'],'string','');
-		$fingerprint = null;
-		if(!empty($sFingerPrint)) {
-			$fingerprint = unserialize($sFingerPrint);
-		}
-		return $fingerprint;
-	}
-};
-
-class UmCommunityPage extends CerberusPageExtension {
-	const ID = 'usermeet.page.community';
-
-	function isVisible() {
-		// The current session must be a logged-in worker to use this page.
-		if(null == ($worker = CerberusApplication::getActiveWorker()))
-			return false;
-		return true;
-	}
-
+class PageSection_SetupPortal extends Extension_PageSection {
 	function render() {
 		$tpl = DevblocksPlatform::getTemplateService();
-		
 		$response = DevblocksPlatform::getHttpResponse();
 		
 		$stack = $response->path;
-		array_shift($stack); // community
+		array_shift($stack); // config
+		array_shift($stack); // portal
 		
 		if(!empty($stack)) {
 			@$code = array_shift($stack); // code
@@ -108,39 +19,34 @@ class UmCommunityPage extends CerberusPageExtension {
 //			$tpl->assign('tab_manifests', $tab_manifests);
 
 			@$tab_selected = array_shift($stack);
-			if(empty($tab_selected)) $tab_selected = 'settings';
+			if(empty($tab_selected)) 
+				$tab_selected = 'settings';
 			$tpl->assign('tab_selected', $tab_selected);
 			
-			$tpl->display('devblocks:usermeet.core::community/display/index.tpl');
+			$tpl->display('devblocks:cerberusweb.core::configuration/section/portal/index.tpl');
 		}
-		
 	}
 	
-	function showAddPortalPeekAction() {
+	// [TODO] Move this to the SC plugin!!! (and reflect to the controller somehow)
+	function addContactSituationAction() {
+		//@$portal = DevblocksPlatform::importGPC($_REQUEST['portal'],'string','');
+
+		//ChPortalHelper::setCode($portal);
+
 		$tpl = DevblocksPlatform::getTemplateService();
 		
-		$tool_manifests = DevblocksPlatform::getExtensions('usermeet.tool', false);
-		$tpl->assign('tool_manifests', $tool_manifests);
+		$groups = DAO_Group::getAll();
+		$tpl->assign('groups', $groups);
+        
+		// Contact: Fields
+		$ticket_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TICKET);
+		$tpl->assign('ticket_fields', $ticket_fields);
+        
+		// Custom field types
+		$types = Model_CustomField::getTypes();
+		$tpl->assign('field_types', $types);		
 		
-		$tpl->display('devblocks:usermeet.core::community/config/tab/add.tpl');
-	}
-	
-	function saveAddPortalPeekAction() {
-		@$name = DevblocksPlatform::importGPC($_POST['name'],'string', '');
-		@$extension_id = DevblocksPlatform::importGPC($_POST['extension_id'],'string', '');
-		
-		$portal_code = DAO_CommunityTool::generateUniqueCode();
-		
-		// Create portal
-		$fields = array(
-			DAO_CommunityTool::NAME => $name,
-			DAO_CommunityTool::EXTENSION_ID => $extension_id,
-			DAO_CommunityTool::CODE => $portal_code,
-		);
-		$portal_id = DAO_CommunityTool::create($fields);
-		
-		// Redirect to the display page
-		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('community',$portal_code)));
+		$tpl->display('devblocks:cerberusweb.support_center::portal/sc/config/module/contact/situation.tpl');
 	}
 	
 	function showTabSettingsAction() {
@@ -154,7 +60,7 @@ class UmCommunityPage extends CerberusPageExtension {
 			$tpl->assign('instance', $instance);
 		}
 			
-		$tpl->display('devblocks:usermeet.core::community/display/tabs/settings/index.tpl');
+		$tpl->display('devblocks:cerberusweb.core::configuration/section/portal/tabs/settings/index.tpl');
 	}
 	
 	function saveTabSettingsAction() {
@@ -185,7 +91,7 @@ class UmCommunityPage extends CerberusPageExtension {
 			}
 		}
 		
-		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('community',$code,'settings')));
+		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('config','portal',$code,'settings')));
 	}
 	
 	function showTabTemplatesAction() {
@@ -208,7 +114,7 @@ class UmCommunityPage extends CerberusPageExtension {
 		
 		$tpl->assign('view', $view);
 			
-		$tpl->display('devblocks:usermeet.core::community/display/tabs/templates/index.tpl');
+		$tpl->display('devblocks:cerberusweb.core::configuration/section/portal/tabs/templates/index.tpl');
 	}
 	
 	function getTemplatePeekAction() {
@@ -221,7 +127,7 @@ class UmCommunityPage extends CerberusPageExtension {
 		if(null != ($template = DAO_DevblocksTemplate::get($id)))
 			$tpl->assign('template', $template);
 		
-		$tpl->display('devblocks:usermeet.core::community/display/tabs/templates/peek.tpl');
+		$tpl->display('devblocks:cerberusweb.core::configuration/section/portal/tabs/templates/peek.tpl');
 	}
 	
 	function showTemplatesBulkPanelAction() {
@@ -240,7 +146,7 @@ class UmCommunityPage extends CerberusPageExtension {
 //		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_FEEDBACK);
 //		$tpl->assign('custom_fields', $custom_fields);
 		
-		$tpl->display('devblocks:usermeet.core::community/display/tabs/templates/bulk.tpl');
+		$tpl->display('devblocks:cerberusweb.core::configuration/section/portal/tabs/templates/bulk.tpl');
 	}
 	
 	function doTemplatesBulkUpdateAction() {
@@ -348,7 +254,7 @@ class UmCommunityPage extends CerberusPageExtension {
 		}
 		$tpl->assign('templates', $templates);
 		
-		$tpl->display('devblocks:usermeet.core::community/display/tabs/templates/add.tpl');
+		$tpl->display('devblocks:cerberusweb.core::configuration/section/portal/tabs/templates/add.tpl');
 	}
 	
 	function saveAddTemplatePeekAction() {
@@ -382,7 +288,7 @@ class UmCommunityPage extends CerberusPageExtension {
 		$template = DAO_DevblocksTemplate::get($id);
 		$tpl->assign('template', $template); 
 		
-		$tpl->display('devblocks:usermeet.core::community/display/tabs/templates/peek.tpl');
+		$tpl->display('devblocks:cerberusweb.core::configuration/section/portal/tabs/templates/peek.tpl');
 	}
 	
 	function showImportTemplatesPeekAction() {
@@ -393,7 +299,7 @@ class UmCommunityPage extends CerberusPageExtension {
 		$tpl->assign('view_id', $view_id);
 		$tpl->assign('portal', $portal);
 		
-		$tpl->display('devblocks:usermeet.core::community/display/tabs/templates/import.tpl');
+		$tpl->display('devblocks:cerberusweb.core::configuration/section/portal/tabs/templates/import.tpl');
 	}
 	
 	function saveImportTemplatesPeekAction() {
@@ -408,7 +314,7 @@ class UmCommunityPage extends CerberusPageExtension {
 		$tpl->clearCompiledTemplate();
 		$tpl->clearAllCache();
 		
-		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('community',$portal,'templates')));
+		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('config','portal',$portal,'templates')));
 	}
 
 	function showExportTemplatesPeekAction() {
@@ -419,7 +325,7 @@ class UmCommunityPage extends CerberusPageExtension {
 		$tpl->assign('view_id', $view_id);
 		$tpl->assign('portal', $portal);
 		
-		$tpl->display('devblocks:usermeet.core::community/display/tabs/templates/export.tpl');
+		$tpl->display('devblocks:cerberusweb.core::configuration/section/portal/tabs/templates/export.tpl');
 	}
 	
 	function saveExportTemplatesPeekAction() {
@@ -482,7 +388,7 @@ class UmCommunityPage extends CerberusPageExtension {
 		
 		echo $doc->saveXML();
 		exit;
-	}
+	}	
 	
 	function showTabInstallationAction() {
 		@$tool_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
@@ -513,98 +419,6 @@ class UmCommunityPage extends CerberusPageExtension {
 		$tpl->assign('base', $base);
 		$tpl->assign('path', $path);
 			
-		$tpl->display('devblocks:usermeet.core::community/display/tabs/installation/index.tpl');
-	}
-	
-};
-
-class UmPortalController extends DevblocksControllerExtension {
-    const ID = 'usermeet.controller.portal';
-    
-	/**
-	 * @param DevblocksHttpRequest $request 
-	 * @return DevblocksHttpResponse $response 
-	 */
-	function handleRequest(DevblocksHttpRequest $request) {
-		$stack = $request->path;
-
-		$tpl = DevblocksPlatform::getTemplateService();
-
-		// Globals for Community Tool template scope
-		$translate = DevblocksPlatform::getTranslationService();
-		$tpl->assign('translate', $translate);
-		
-		array_shift($stack); // portal
-		$code = array_shift($stack); // xxxxxxxx
-
-		UmPortalHelper::setCode($code);
-
-        if(null != (@$tool = DAO_CommunityTool::getByCode($code))) {
-	        // [TODO] Don't double instance any apps (add instance registry to ::getExtension?)
-	        $manifest = DevblocksPlatform::getExtension($tool->extension_id,false,true);
-            if(null != (@$tool = $manifest->createInstance())) { /* @var $app Extension_UsermeetTool */
-	        	return $tool->handleRequest(new DevblocksHttpRequest($stack));
-            }
-        } else {
-            die("Tool not found.");
-        }
-	}
-	
-	/**
-	 * @param DevblocksHttpResponse $response
-	 */
-	function writeResponse(DevblocksHttpResponse $response) {
-		$stack = $response->path;
-
-		$tpl = DevblocksPlatform::getTemplateService();
-
-		// Globals for Community Tool template scope
-		$translate = DevblocksPlatform::getTranslationService();
-		$tpl->assign('translate', $translate);
-		
-		array_shift($stack); // portal
-		$code = array_shift($stack); // xxxxxxxx
-
-        if(null != ($tool = DAO_CommunityTool::getByCode($code))) {
-	        // [TODO] Don't double instance any apps (add instance registry to ::getExtension?)
-	        $manifest = DevblocksPlatform::getExtension($tool->extension_id,false,true);
-            if(null != ($tool = $manifest->createInstance())) { /* @var $app Extension_UsermeetTool */
-		        $tool->writeResponse(new DevblocksHttpResponse($stack));
-            }
-        } else {
-            die("Tool not found.");
-        }
-	}
-	
-};
-
-class UmConfigCommunitiesTab extends Extension_ConfigTab {
-	const ID = 'usermeet.config.tab.communities';
-	
-	function showTab() {
-		$tpl = DevblocksPlatform::getTemplateService();
-
-	    // View
-		
-		$defaults = new C4_AbstractViewModel();
-		$defaults->id = 'portals_cfg';
-		$defaults->class_name = 'View_CommunityPortal';
-		
-		$view = C4_AbstractViewLoader::getView($defaults->id, $defaults);
-		$tpl->assign('view', $view);
-	    
-		$tpl->display('devblocks:usermeet.core::community/config/tab/index.tpl');
-	}
-	
-	// [TODO] Move this to the SC plugin
-	function getContactSituationAction() {
-		@$portal = DevblocksPlatform::importGPC($_REQUEST['portal'],'string','');
-		
-		UmPortalHelper::setCode($portal);
-		
-		$module = DevblocksPlatform::getExtension('sc.controller.contact',true,true);
-		$module->getSituation();
-	}
-	
-};
-
+		$tpl->display('devblocks:cerberusweb.core::configuration/section/portal/tabs/installation/index.tpl');
+	}	
+}

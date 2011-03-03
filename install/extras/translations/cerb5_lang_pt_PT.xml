@@ -1926,16 +1926,6 @@
         <seg>(e.x. "Gostava de obter mais informações sobre os vossos produtos")</seg>
       </tuv>
     </tu>
-    <tu tuid="portal.sc.cfg.save_more_feeds">
-      <tuv xml:lang="pt_PT">
-        <seg>(Guardar para adicionar mais feeds)</seg>
-      </tuv>
-    </tu>
-    <tu tuid="portal.sc.cfg.save_to_add_followups">
-      <tuv xml:lang="pt_PT">
-        <seg>(guardar para adicionar mais seguimentos)</seg>
-      </tuv>
-    </tu>
     <tu tuid="portal.sc.cfg.theme">
       <tuv xml:lang="pt_PT">
         <seg>Tema:</seg>
@@ -2541,62 +2531,62 @@ Se não solicitou esta operação, não clique no link em cima. O pedido expira 
         <seg>Outro administrador está neste momento a actualizar, por favor aguarde...</seg>
       </tuv>
     </tu>
-    <tu tuid="usermeet.ui.community.cfg.add_community">
+    <tu tuid="portal.cfg.add_community">
       <tuv xml:lang="pt_PT">
         <seg>Adicionar Comunidade</seg>
       </tuv>
     </tu>
-    <tu tuid="usermeet.ui.community.cfg.add_tool">
+    <tu tuid="portal.cfg.add_tool">
       <tuv xml:lang="pt_PT">
         <seg>Adicionar uma nova ferramenta de comunidade:</seg>
       </tuv>
     </tu>
-    <tu tuid="usermeet.ui.community.cfg.changes_saved_date">
+    <tu tuid="portal.cfg.changes_saved_date">
       <tuv xml:lang="pt_PT">
         <seg>Alterações gravadas em %s</seg>
       </tuv>
     </tu>
-    <tu tuid="usermeet.ui.community.cfg.communities">
+    <tu tuid="portal.cfg.communities">
       <tuv xml:lang="pt_PT">
         <seg>Comunidades</seg>
       </tuv>
     </tu>
-    <tu tuid="usermeet.ui.community.cfg.community">
+    <tu tuid="portal.cfg.community">
       <tuv xml:lang="pt_PT">
         <seg>Comunidade:</seg>
       </tuv>
     </tu>
-    <tu tuid="usermeet.ui.community.cfg.community_name">
+    <tu tuid="portal.cfg.community_name">
       <tuv xml:lang="pt_PT">
         <seg>Nome da comunidade:</seg>
       </tuv>
     </tu>
-    <tu tuid="usermeet.ui.community.cfg.community_name_hint">
+    <tu tuid="portal.cfg.community_name_hint">
       <tuv xml:lang="pt_PT">
         <seg>(e.x. Site público)</seg>
       </tuv>
     </tu>
-    <tu tuid="usermeet.ui.community.cfg.confirm_delete">
+    <tu tuid="portal.cfg.confirm_delete">
       <tuv xml:lang="pt_PT">
         <seg>Tem a certeza que deseja eliminar esta comunidade?</seg>
       </tuv>
     </tu>
-    <tu tuid="usermeet.ui.community.cfg.htaccess_hint">
+    <tu tuid="portal.cfg.htaccess_hint">
       <tuv xml:lang="pt_PT">
         <seg>(opcional, URLs amigáveis para utilizadores do Web Server Apache)</seg>
       </tuv>
     </tu>
-    <tu tuid="usermeet.ui.community.cfg.installation">
+    <tu tuid="portal.cfg.installation">
       <tuv xml:lang="pt_PT">
         <seg>Instalação</seg>
       </tuv>
     </tu>
-    <tu tuid="usermeet.ui.community.cfg.installation_instructions">
+    <tu tuid="portal.cfg.installation_instructions">
       <tuv xml:lang="pt_PT">
         <seg>Coloque o ficheiro index.php num directoria do site pblico. Esta directoria pode ter qualquer nome, mas normalmente usa-se algo intuitivo como por exemplo: http://www.cerberusweb.com/suporte/</seg>
       </tuv>
     </tu>
-    <tu tuid="usermeet.ui.community.cfg.profile_id">
+    <tu tuid="portal.cfg.profile_id">
       <tuv xml:lang="pt_PT">
         <seg>ID do perfil:</seg>
       </tuv>

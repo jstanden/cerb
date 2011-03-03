@@ -5,9 +5,9 @@ class UmScLoginController extends Extension_UmScController {
 	}
 	
 	function signoutAction() {
-		$umsession = UmPortalHelper::getSession();
+		$umsession = ChPortalHelper::getSession();
 		
-		if(null != ($login_extension = UmScApp::getLoginExtensionActive(UmPortalHelper::getCode()))) {
+		if(null != ($login_extension = UmScApp::getLoginExtensionActive(ChPortalHelper::getCode()))) {
 			if($login_extension->signoff()) {
 				// ...
 			}
@@ -21,7 +21,7 @@ class UmScLoginController extends Extension_UmScController {
 	}
 	
 	function providerAction() {
-		$umsession = UmPortalHelper::getSession();
+		$umsession = ChPortalHelper::getSession();
 	    $request = DevblocksPlatform::getHttpRequest();
 	    
 	    $stack = $request->path;
@@ -42,7 +42,7 @@ class UmScLoginController extends Extension_UmScController {
 	}
 	
 	function handleRequest(DevblocksHttpRequest $request) {
-		$umsession = UmPortalHelper::getSession();
+		$umsession = ChPortalHelper::getSession();
 
 		$stack = $request->path;
 		@array_shift($stack); // login
@@ -57,7 +57,7 @@ class UmScLoginController extends Extension_UmScController {
 
 		// Login extension
         // Try the extension subcontroller first (overload)
-        if(null != ($login_extension = UmScApp::getLoginExtensionActive(UmPortalHelper::getCode())) 
+        if(null != ($login_extension = UmScApp::getLoginExtensionActive(ChPortalHelper::getCode())) 
         	&& method_exists($login_extension, $action)) {
 				call_user_func(array($login_extension, $action));
         
@@ -68,17 +68,17 @@ class UmScLoginController extends Extension_UmScController {
 	}
 	
 	function writeResponse(DevblocksHttpResponse $response) {
-		$umsession = UmPortalHelper::getSession();
+		$umsession = ChPortalHelper::getSession();
 		$tpl = DevblocksPlatform::getTemplateService();
 
 		$stack = $response->path;
 		@array_shift($stack); // login
 
-        $login_extension_active = UmScApp::getLoginExtensionActive(UmPortalHelper::getCode());
+        $login_extension_active = UmScApp::getLoginExtensionActive(ChPortalHelper::getCode());
         $tpl->assign('login_extension_active', $login_extension_active);
 		
 		// Fall back
-		if(null != ($login_extension = UmScApp::getLoginExtensionActive(UmPortalHelper::getCode()))) {
+		if(null != ($login_extension = UmScApp::getLoginExtensionActive(ChPortalHelper::getCode()))) {
 			$login_extension->writeResponse(new DevblocksHttpResponse($stack));
 		}
 	}

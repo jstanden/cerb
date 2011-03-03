@@ -138,7 +138,7 @@ abstract class Extension_ScLoginAuthenticator extends DevblocksExtension {
 	 * release any resources tied up by the authenticate process, if necessary
 	 */
 	function signoff() {
-		$umsession = UmPortalHelper::getSession();
+		$umsession = ChPortalHelper::getSession();
 		$umsession->logout();
 	}
 };

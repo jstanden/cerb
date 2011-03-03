@@ -15,7 +15,7 @@
 	{foreach from=$worklists item=worklist name=worklists key=worklist_id}
 	{assign var=worklist_view value=$worklist->list_view}
 	<div class="column">
-		<span class="ui-icon ui-icon-arrowthick-2-n-s" style="display:inline-block;vertical-align:middle;"></span><!--
+		<span class="ui-icon ui-icon-arrowthick-2-n-s" style="display:inline-block;vertical-align:middle;cursor:move;"></span><!--
 		--><a href="javascript:;" onclick="if(confirm('Are you sure you want to delete this worklist?')) { $(this).closest('div').remove(); }"><span class="ui-icon ui-icon-trash" style="display:inline-block;vertical-align:middle;"></span></a><!--
 		--><input type="hidden" name="ids[]" value="{$worklist->id}"><!--
 		--><input type="text" name="names[]" value="{$worklist_view->title}" size="45"><!--

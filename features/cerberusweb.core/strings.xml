@@ -732,6 +732,40 @@
 			<tuv xml:lang="en_US"><seg>Size (bytes)</seg></tuv>
 		</tu>
 
+		<!-- Community Portal -->
+
+		<tu tuid='community_portal.code'>
+			<tuv xml:lang="en_US"><seg>Profile ID</seg></tuv>
+		</tu>
+		<tu tuid='community_portal.extension_id'>
+			<tuv xml:lang="en_US"><seg>Extension</seg></tuv>
+		</tu>
+		<tu tuid='community_portal.name'>
+			<tuv xml:lang="en_US"><seg>Name</seg></tuv>
+		</tu>
+		
+		<!-- Community -->
+		
+		<tu tuid='portal.cfg.add_tool'>
+			<tuv xml:lang="en_US"><seg>Add a New Community Portal:</seg></tuv>
+		</tu>
+		<tu tuid='portal.cfg.confirm_delete'>
+			<tuv xml:lang="en_US"><seg>Are you sure you want to permanently delete this community portal?</seg></tuv>
+		</tu>
+		<tu tuid='portal.cfg.htaccess_hint'>
+			<tuv xml:lang="en_US"><seg>(optional, friendly URLs for Apache Web Server users)</seg></tuv>
+		</tu>
+		<tu tuid='portal.cfg.installation'>
+			<tuv xml:lang="en_US"><seg>Installation</seg></tuv>
+		</tu>
+		<tu tuid='portal.cfg.installation_instructions'>
+			<tuv xml:lang="en_US"><seg>Place the index.php file in a new directory on the appropriate public website.  This directory can be named anything but will usually describe the portal.
+For example: http://www.cerberusweb.com/support/</seg></tuv>
+		</tu>
+		<tu tuid='portal.cfg.profile_id'>
+			<tuv xml:lang="en_US"><seg>Profile ID:</seg></tuv>
+		</tu>
+
 		<!-- Configuration -->
 		
 		<tu tuid='config.mail.pop3.error_hostname'>

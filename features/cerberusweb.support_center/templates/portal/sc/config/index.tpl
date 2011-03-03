@@ -11,20 +11,21 @@
 <br>
 <br>
 
-<h2 style="color:rgb(120,120,120);">Modules</h2>
-<table cellpadding="0" cellspacing="5" border="0">
-	<tr>
-		<td><b>{$translate->_('common.order')|capitalize}</b></td>
-		<td><b>Visibility</b></td>
-		<td><b>Module</b></td>
-	</tr>
-	{counter name=pos start=0 print=false}
-	{foreach from=$modules item=module}
-		{assign var=module_id value=$module->manifest->id}
-		<tr>
-			<td align="center"><input type="text" name="pos_modules[]" size="2" value="{counter name=pos}"></td>
-			<td align="center">
-				<select name="visible_modules[]" onchange="toggleDiv('module{$module->manifest->id}','2'!=selectValue(this)?'block':'none');">
+<fieldset id="setupPortalModules">
+	<legend>Modules</legend>
+	
+	<div>
+		<div class="headings">
+			<div style="margin-left:24px;float:left;width:150px;"><b>Visibility</b></div>
+			<div style="margin-left:5px;float:left;"><b>Module</b></div>
+		</div>
+		
+		<div class="container" style="clear:both;">
+			{foreach from=$modules item=module}
+			{assign var=module_id value=$module->manifest->id}
+			<div class="drag">
+				<span class="ui-icon ui-icon-arrowthick-2-n-s" style="display:inline-block;vertical-align:middle;cursor:move;" title="Click and drag to rearrange"></span>
+				<select name="visible_modules[]" onchange="toggleDiv('module{$module->manifest->id}','2'!=selectValue(this)?'block':'none');" style="margin-right:5px;min-width:150px;max-width:150px;">
 					{if 'sc.controller.history' != $module->manifest->id && 'sc.controller.account' != $module->manifest->id}
 					<option value="0" {if isset($visible_modules.$module_id) && '0'==$visible_modules.$module_id}selected="selected"{/if}>Everyone</option>
 					{/if}
@@ -33,20 +34,30 @@
 					{/if}
 					<option value="2" {if !isset($visible_modules.$module_id) || '2'==$visible_modules.$module_id}selected="selected"{/if}>Disabled</option>
 				</select>
-			</td>
-			<td><input type="hidden" name="idx_modules[]" value="{$module->manifest->id}">{$module->manifest->name}</td>
-		</tr>
-	{/foreach}
-</table>
-<br>
+				<input type="hidden" name="idx_modules[]" value="{$module->manifest->id}">
+				{$module->manifest->name}
+			</div>
+			{/foreach}
+		</div>
+	</div>
+	
+</fieldset>
 
 {* Module config forms *}
 {foreach from=$modules item=module}
 	{assign var=module_id value=$module->manifest->id}
-	<div id="module{$module->manifest->id}" style="display:{if isset($visible_modules.$module_id)}block{else}none{/if};margin-left:10px;">
-		<div style="border-bottom:1px solid rgb(180,180,180);margin-bottom:5px;">
-		<h2 style="margin-bottom:0px;color:rgb(120,120,120);">{$module->manifest->name}</h2>
+	<div id="module{$module->manifest->id}" style="display:{if isset($visible_modules.$module_id)}block{else}none{/if};">
+		<fieldset>
+			<legend>{$module->manifest->name}</legend>
+			{if method_exists($module,'configure')}
+			{$module->configure($instance)}
+			{/if}
+		</fieldset>
 		</div>
-		{$module->configure($instance)}
 	</div>
 {/foreach}
+
+<script type="text/javascript">
+	$('FIELDSET#setupPortalModules DIV.container')
+	.sortable({ items: 'DIV.drag', placeholder:'ui-state-highlight' });
+</script>

@@ -16,7 +16,7 @@
 	<ul style="list-style:none;margin:0px;padding-left:0px;" class="container">
 	{foreach from=$workspaces item=workspace}
 		<li class="drag" style="padding-bottom:5px;"><!--
-			--><span class="ui-icon ui-icon-arrowthick-2-n-s" style="display:inline-block;vertical-align:middle;"></span><!--
+			--><span class="ui-icon ui-icon-arrowthick-2-n-s" style="display:inline-block;vertical-align:middle;cursor:move;"></span><!--
 			--><label><input type="checkbox" name="workspace_ids[]" value="{$workspace->id}" {if $enabled_workspaces.{$workspace->id}}checked="checked"{/if}> <b>{$workspace->name}</b></label>
 	
 			{$worklists = $workspace->getWorklists()}
@@ -47,7 +47,7 @@
 			return;
 		
 		$new_li = $('<li class="drag" style="padding-bottom:5px;"></li>');
-		$('<span class="ui-icon ui-icon-arrowthick-2-n-s" style="display:inline-block;vertical-align:middle;"></span>').appendTo($new_li);
+		$('<span class="ui-icon ui-icon-arrowthick-2-n-s" style="display:inline-block;vertical-align:middle;cursor:move;"></span>').appendTo($new_li);
 		$('<label><input type="checkbox" name="workspace_ids[]" value="'+$text.val()+'" checked="checked"> <b>'+$text.val()+'</b></label>').appendTo($new_li);
 		
 		$new_li.prependTo($container);

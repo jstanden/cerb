@@ -25,7 +25,7 @@
 {section start=0 step=1 loop=15 name=columns}
 {assign var=index value=$smarty.section.columns.index}
 <div class="column"> 
-<span class="ui-icon ui-icon-arrowthick-2-n-s" style="display:inline-block;vertical-align:middle;"></span>
+<span class="ui-icon ui-icon-arrowthick-2-n-s" style="display:inline-block;vertical-align:middle;cursor:move;"></span>
 <select name="columns[]">
 	<option value=""></option>
 	

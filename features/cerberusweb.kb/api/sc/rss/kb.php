@@ -12,7 +12,7 @@ class UmScKbRssController extends Extension_UmScRssController {
 		if(empty($path) || !is_array($path))
 			return;
 
-		if(null == ($portal = UmPortalHelper::getCode()))
+		if(null == ($portal = ChPortalHelper::getCode()))
 			return;
 		
 		switch(array_shift($path)) {

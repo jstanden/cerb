@@ -1,7 +1,9 @@
 <div id="divPortalAdd">
 	<form action="{devblocks_url}{/devblocks_url}" method="POST" id="frmAddPortal" name="frmAddPortal">
-	<input type="hidden" name="c" value="community">
-	<input type="hidden" name="a" value="saveAddPortalPeek">
+	<input type="hidden" name="c" value="config">
+	<input type="hidden" name="a" value="handleSectionAction">
+	<input type="hidden" name="section" value="portals">
+	<input type="hidden" name="action" value="saveAddPortalPeek">
 	
 	<b>Portal Name:</b> ("Support Portal", "Contact Form", "ProductX FAQ")<br>
 	<input type="text" name="name" value="" style="width:98%;"><br>

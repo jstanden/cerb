@@ -36,7 +36,7 @@
 		<patch version="5.1.2" revision="904" file="patches/5.x/5.1.2.php" />
 		<patch version="5.2.0" revision="905" file="patches/5.x/5.2.0.php" />
 		<patch version="5.3.0" revision="916" file="patches/5.x/5.3.0.php" />
-		<patch version="5.4.0" revision="920" file="patches/5.x/5.4.0.php" />
+		<patch version="5.4.0" revision="921" file="patches/5.x/5.4.0.php" />
 	</patches>
 
 	<!-- Declared Extension Points -->
@@ -105,6 +105,16 @@
 			<class name="Model_Comment" />
 			<class name="SearchFields_Comment" />
 			<class name="View_Comment" />
+		</file>
+		
+		<file path="api/dao/community_portal.php">
+			<class name="DAO_CommunitySession" />
+			<class name="DAO_CommunityTool" />
+			<class name="DAO_CommunityToolProperty" />
+			<class name="Model_CommunitySession" />
+			<class name="Model_CommunityTool" />
+			<class name="SearchFields_CommunityTool" />
+			<class name="View_CommunityPortal" />
 		</file>
 		
 		<file path="api/dao/confirmation_code.php">
@@ -236,6 +246,10 @@
 			<class name="Model_WorkspaceListView" />
 			<class name="SearchFields_Workspace" />
 			<class name="View_Workspace" />
+		</file>
+		
+		<file path="api/uri/portal.php">
+			<class name="ChPortalHelper" />
 		</file>
 		
 	</class_loader>
@@ -770,22 +784,23 @@
 		</extension>
 
 		<extension point="devblocks.controller">
+			<id>core.controller.portal</id>
+			<name>Portal Controller</name>
+			<class>
+				<file>api/uri/portal.php</file>
+				<name>Controller_Portal</name>
+			</class>
+			<params>
+				<param key="uri" value="portal" />
+			</params>
+		</extension>
+
+		<extension point="devblocks.controller">
 			<id>core.controller.page</id>
 			<name>Cerberus Helpdesk Controller</name>
 			<class>
 				<file>api/plugin.classes.php</file>
 				<name>ChPageController</name>
-			</class>
-			<params>
-			</params>
-		</extension>
-
-		<extension point="devblocks.controller">
-			<id>core.controller.notification</id>
-			<name>Notification Controller</name>
-			<class>
-				<file>classes.php</file>
-				<name>ChNotificationController</name>
 			</class>
 			<params>
 			</params>
@@ -1096,6 +1111,32 @@
 				<params>
 					<param key="page_id" value="core.page.configuration" />
 					<param key="uri" value="plugins" />
+				</params>
+			</extension>
+		
+			<extension point="cerberusweb.ui.page.section">
+				<id>core.page.setup.portal</id>
+				<name>Portal Section</name>
+				<class>
+					<file>api/uri/config/portal.php</file>
+					<name>PageSection_SetupPortal</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.page.configuration" />
+					<param key="uri" value="portal" />
+				</params>
+			</extension>
+			
+			<extension point="cerberusweb.ui.page.section">
+				<id>core.page.setup.portals</id>
+				<name>Portals Section</name>
+				<class>
+					<file>api/uri/config/portals.php</file>
+					<name>PageSection_SetupPortals</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.page.configuration" />
+					<param key="uri" value="portals" />
 				</params>
 			</extension>
 		

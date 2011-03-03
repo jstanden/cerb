@@ -4,13 +4,13 @@ class UmScAjaxController extends Extension_UmScController {
 		parent::__construct($manifest);
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		$umsession = UmPortalHelper::getSession();
+		$umsession = ChPortalHelper::getSession();
 		
         @$active_contact = $umsession->getProperty('sc_login',null);
         $tpl->assign('active_contact', $active_contact);
 
 		// Usermeet Session
-		if(null == ($fingerprint = UmPortalHelper::getFingerprint())) {
+		if(null == ($fingerprint = ChPortalHelper::getFingerprint())) {
 			die("A problem occurred.");
 		}
         $tpl->assign('fingerprint', $fingerprint);
@@ -144,7 +144,7 @@ class UmScAjaxController extends Extension_UmScController {
 	}	
 	
 	function downloadFileAction(DevblocksHttpRequest $request) {
-		$umsession = UmPortalHelper::getSession();
+		$umsession = ChPortalHelper::getSession();
 		$stack = $request->path;
 		
         if(null == ($active_contact = $umsession->getProperty('sc_login',null)))

@@ -2817,16 +2817,6 @@
         <seg>(bv. "Ik wil meer informatie over jullie producten")</seg>
       </tuv>
     </tu>
-    <tu tuid="portal.sc.cfg.save_more_feeds">
-      <tuv xml:lang="nl_NL">
-        <seg>(opslaan om meer feeds toe te voegen)</seg>
-      </tuv>
-    </tu>
-    <tu tuid="portal.sc.cfg.save_to_add_followups">
-      <tuv xml:lang="nl_NL">
-        <seg>(opslaan om meer opvolgingen toe te voegen)</seg>
-      </tuv>
-    </tu>
     <tu tuid="portal.sc.public.announcements">
       <tuv xml:lang="nl_NL">
         <seg>Aankondigingen</seg>
@@ -4147,32 +4137,32 @@
         <seg>Een andere administrator voert momenteel updates uit. Een moment...</seg>
       </tuv>
     </tu>
-    <tu tuid="usermeet.ui.community.cfg.add_tool">
+    <tu tuid="portal.cfg.add_tool">
       <tuv xml:lang="nl_NL">
         <seg>Voeg een nieuwe community portal toe:</seg>
       </tuv>
     </tu>
-    <tu tuid="usermeet.ui.community.cfg.confirm_delete">
+    <tu tuid="portal.cfg.confirm_delete">
       <tuv xml:lang="nl_NL">
         <seg>Weet u zeker dat u deze community portal wilt verwijderen?</seg>
       </tuv>
     </tu>
-    <tu tuid="usermeet.ui.community.cfg.htaccess_hint">
+    <tu tuid="portal.cfg.htaccess_hint">
       <tuv xml:lang="nl_NL">
         <seg>(optioneel, vriendelijke URL's voor Apache Web Server gebruikers)</seg>
       </tuv>
     </tu>
-    <tu tuid="usermeet.ui.community.cfg.installation">
+    <tu tuid="portal.cfg.installation">
       <tuv xml:lang="nl_NL">
         <seg>Installatie</seg>
       </tuv>
     </tu>
-    <tu tuid="usermeet.ui.community.cfg.installation_instructions">
+    <tu tuid="portal.cfg.installation_instructions">
       <tuv xml:lang="nl_NL">
         <seg>Plaats het index.php bestand in een nieuwe directory op een publieke website. Deze directory mag elke naam hebben maar heeft meestal een beschrijvende naam. &lt;br /&gt; Bijvoorbeeld: http://www.cerberusweb.com/support/</seg>
       </tuv>
     </tu>
-    <tu tuid="usermeet.ui.community.cfg.profile_id">
+    <tu tuid="portal.cfg.profile_id">
       <tuv xml:lang="nl_NL">
         <seg>Profiel ID:</seg>
       </tuv>

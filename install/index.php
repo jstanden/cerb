@@ -401,7 +401,6 @@ switch($step) {
 				switch ($plugin->id) {
 					case 'devblocks.core':
 					case 'cerberusweb.core':
-					case 'usermeet.core':
 					case 'cerberusweb.crm':
 					case 'cerberusweb.feedback':
 					case 'cerberusweb.kb':
