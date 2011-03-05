@@ -4,7 +4,7 @@ class PageSection_SetupScheduler extends Extension_PageSection {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$visit = CerberusApplication::getVisit();
 		
-		$visit->set(Extension_ConfigTab::POINT, 'scheduler');
+		$visit->set(ChConfigurationPage::ID, 'scheduler');
 		
 	    $jobs = DevblocksPlatform::getExtensions('cerberusweb.cron', true);
 		$tpl->assign('jobs', $jobs);

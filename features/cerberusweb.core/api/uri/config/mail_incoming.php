@@ -5,7 +5,7 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 		$visit = CerberusApplication::getVisit();
 		$settings = DevblocksPlatform::getPluginSettingsService();
 		
-		$visit->set(Extension_ConfigTab::POINT, 'mail_incoming');
+		$visit->set(ChConfigurationPage::ID, 'mail_incoming');
 		
 		// POP3
 		$pop3_accounts = DAO_Mail::getPop3Accounts();

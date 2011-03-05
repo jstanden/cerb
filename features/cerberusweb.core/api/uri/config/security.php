@@ -4,7 +4,7 @@ class PageSection_SetupSecurity extends Extension_PageSection {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$visit = CerberusApplication::getVisit();
 		
-		$visit->set(Extension_ConfigTab::POINT, 'security');
+		$visit->set(ChConfigurationPage::ID, 'security');
 		
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/security/index.tpl');
 	}

@@ -68,13 +68,6 @@ abstract class CerberusPageExtension extends DevblocksExtension {
 	}
 };
 
-abstract class Extension_ConfigTab extends DevblocksExtension {
-	const POINT = 'cerberusweb.config.tab';
-	
-	function showTab() {}
-	function saveTab() {}
-};
-
 abstract class Extension_PageSection extends DevblocksExtension {
 	const POINT = 'cerberusweb.ui.page.section';
 	

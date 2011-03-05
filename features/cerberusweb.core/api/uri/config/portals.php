@@ -4,7 +4,7 @@ class PageSection_SetupPortals extends Extension_PageSection {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$visit = CerberusApplication::getVisit();
 		
-		$visit->set(Extension_ConfigTab::POINT, 'portals');
+		$visit->set(ChConfigurationPage::ID, 'portals');
 		
 	    // View
 		

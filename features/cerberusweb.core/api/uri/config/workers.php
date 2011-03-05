@@ -4,7 +4,7 @@ class PageSection_SetupWorkers extends Extension_PageSection {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$visit = CerberusApplication::getVisit();
 		
-		$visit->set(Extension_ConfigTab::POINT, 'workers');
+		$visit->set(ChConfigurationPage::ID, 'workers');
 				
 		$workers = DAO_Worker::getAllWithDisabled();
 		$tpl->assign('workers', $workers);

@@ -4,7 +4,7 @@ class PageSection_SetupLicense extends Extension_PageSection {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$visit = CerberusApplication::getVisit();
 		
-		$visit->set(Extension_ConfigTab::POINT, 'license');
+		$visit->set(ChConfigurationPage::ID, 'license');
 		
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/license/index.tpl');
 	}

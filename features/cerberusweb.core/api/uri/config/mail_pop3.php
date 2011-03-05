@@ -4,7 +4,7 @@ class PageSection_SetupMailPop3 extends Extension_PageSection {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$visit = CerberusApplication::getVisit();
 		
-		$visit->set(Extension_ConfigTab::POINT, 'mail_pop3');
+		$visit->set(ChConfigurationPage::ID, 'mail_pop3');
 		
 		// POP3
 		$pop3_accounts = DAO_Mail::getPop3Accounts();

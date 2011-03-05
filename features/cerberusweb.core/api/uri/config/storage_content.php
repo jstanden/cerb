@@ -4,7 +4,7 @@ class PageSection_SetupStorageContent extends Extension_PageSection {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$visit = CerberusApplication::getVisit();
 		
-		$visit->set(Extension_ConfigTab::POINT, 'storage_content');
+		$visit->set(ChConfigurationPage::ID, 'storage_content');
 		
 		// Scope
 		

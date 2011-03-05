@@ -4,7 +4,7 @@ class PageSection_SetupMailRouting extends Extension_PageSection {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$visit = CerberusApplication::getVisit();
 		
-		$visit->set(Extension_ConfigTab::POINT, 'mail_routing');
+		$visit->set(ChConfigurationPage::ID, 'mail_routing');
 		
 		$rules = DAO_MailToGroupRule::getWhere();
 		$tpl->assign('rules', $rules);

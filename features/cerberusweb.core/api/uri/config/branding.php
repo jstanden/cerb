@@ -4,7 +4,7 @@ class PageSection_SetupBranding extends Extension_PageSection {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$visit = CerberusApplication::getVisit();
 		
-		$visit->set(Extension_ConfigTab::POINT, 'branding');
+		$visit->set(ChConfigurationPage::ID, 'branding');
 		
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/branding/index.tpl');
 	}

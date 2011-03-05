@@ -4,7 +4,7 @@ class PageSection_SetupGroups extends Extension_PageSection {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$visit = CerberusApplication::getVisit();
 		
-		$visit->set(Extension_ConfigTab::POINT, 'groups');
+		$visit->set(ChConfigurationPage::ID, 'groups');
 				
 		$workers = DAO_Worker::getAllActive();
 		$tpl->assign('workers', $workers);

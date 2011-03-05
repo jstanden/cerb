@@ -4,7 +4,7 @@ class PageSection_SetupMailFiltering extends Extension_PageSection {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$visit = CerberusApplication::getVisit();
 		
-		$visit->set(Extension_ConfigTab::POINT, 'mail_filtering');
+		$visit->set(ChConfigurationPage::ID, 'mail_filtering');
 		
 		$filters = DAO_PreParseRule::getAll(true);
 		$tpl->assign('filters', $filters);

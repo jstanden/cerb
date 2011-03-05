@@ -5,7 +5,7 @@ class PageSection_SetupMailOutgoing extends Extension_PageSection {
 		$visit = CerberusApplication::getVisit();
 		$settings = DevblocksPlatform::getPluginSettingsService();
 		
-		$visit->set(Extension_ConfigTab::POINT, 'mail_outgoing');
+		$visit->set(ChConfigurationPage::ID, 'mail_outgoing');
 		
 		$smtp_host = $settings->get('cerberusweb.core',CerberusSettings::SMTP_HOST,CerberusSettingsDefaults::SMTP_HOST);
 		$smtp_port = $settings->get('cerberusweb.core',CerberusSettings::SMTP_PORT,CerberusSettingsDefaults::SMTP_PORT);

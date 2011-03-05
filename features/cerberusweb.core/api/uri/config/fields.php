@@ -4,7 +4,7 @@ class PageSection_SetupCustomFields extends Extension_PageSection {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$visit = CerberusApplication::getVisit();
 		
-		$visit->set(Extension_ConfigTab::POINT, 'fields');
+		$visit->set(ChConfigurationPage::ID, 'fields');
 				
 		$tpl->assign('context_manifests', Extension_DevblocksContext::getAll());
 		

@@ -4,7 +4,7 @@ class PageSection_SetupStorageProfiles extends Extension_PageSection {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$visit = CerberusApplication::getVisit();
 		
-		$visit->set(Extension_ConfigTab::POINT, 'storage_profiles');
+		$visit->set(ChConfigurationPage::ID, 'storage_profiles');
 		
 		$defaults = new C4_AbstractViewModel();
 		$defaults->class_name = 'View_DevblocksStorageProfile';

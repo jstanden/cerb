@@ -4,7 +4,7 @@ class PageSection_SetupPlugins extends Extension_PageSection {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$visit = CerberusApplication::getVisit();
 		
-		$visit->set(Extension_ConfigTab::POINT, 'plugins');
+		$visit->set(ChConfigurationPage::ID, 'plugins');
 		
 		// Auto synchronize when viewing Config->Extensions
         DevblocksPlatform::readPlugins();
