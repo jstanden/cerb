@@ -1,0 +1,37 @@
+<!DOCTYPE plugin SYSTEM "../../libs/devblocks/plugin.dtd">
+<plugin>
+	<id>example.page.menu.item</id>
+	<name>[Example] Page Menu Item</name>
+	<description>This example adds a new menu item to the Plugins menu on the Setup page.</description>
+	<author>WebGroup Media, LLC.</author>
+	<revision>1</revision>
+	<link>http://www.cerb5.com/</link>
+	<!--<image>plugin.png</image>-->
+ 
+	<!-- Plugin Dependencies -->
+	
+	<dependencies>
+		<require plugin_id="cerberusweb.core" version="5.3.0" />
+	</dependencies>
+
+	<!-- Extensions -->
+ 
+	<extensions>
+
+		<!-- Add a new custom menu item to the Setup->Plugins menu -->
+
+		<extension point="cerberusweb.ui.page.menu.item">
+			<id>examplepagemenuitem.setup.plugins.example_item</id>
+			<name>Setup Plugins Menu Item</name>
+			<class>
+				<file>api/App.php</file>
+				<name>ExamplePageMenuItem_SetupPluginsExample</name>
+			</class>
+			<params>
+				<param key="page_id" value="core.page.configuration" />
+				<param key="menu_id" value="core.setup.menu.plugins" />
+			</params>
+		</extension>
+		
+    </extensions> 
+</plugin>

@@ -1,0 +1,1 @@
+<a href="javascript:;" onclick="alert('You clicked me!');">Example Menu Item</a>
