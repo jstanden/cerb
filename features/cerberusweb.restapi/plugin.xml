@@ -159,22 +159,5 @@
 			</params>
 		</extension>
 		
-		<!-- Config Tabs -->
-		
-		<!--
-		<extension point="cerberusweb.config.tab">
-			<id>webapi.config.tab</id>
-			<name>Web API Tab</name>
-			<class>
-				<file>api/App.php</file>
-				<name>ChWebApiConfigTab</name>
-			</class>
-			<params>
-				<param key="uri" value="webapi" />
-				<param key="title" value="Web API" />
-			</params>
-		</extension>
-		-->
-		
 	</extensions>
 </plugin>

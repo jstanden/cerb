@@ -101,21 +101,5 @@
 			</params>
 		</extension>
 		
-		<!-- Config Tabs -->
-		<!-- 
-		<extension point="cerberusweb.config.tab">
-			<id>crm.config.tab.campaigns</id>
-			<name>Campaigns Tab</name>
-			<class>
-				<file>api/App.php</file>
-				<name>CrmConfigCampaignsTab</name>
-			</class>
-			<params>
-				<param key="uri" value="crm.campaigns" />
-				<param key="title" value="Campaigns (CRM)" />
-			</params>
-		</extension>
-		-->
-		 
 	</extensions>
 </plugin>
