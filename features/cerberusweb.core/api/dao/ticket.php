@@ -199,6 +199,7 @@ class DAO_Ticket extends C4_ORMHelper {
 		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' requester records.');
 		
 		// Context Links
+		// [TODO] This can be shared from DAO_ContextLink::maintByContext();
 		$db->Execute(sprintf("DELETE QUICK context_link FROM context_link LEFT JOIN ticket ON context_link.from_context_id=ticket.id WHERE context_link.from_context = %s AND ticket.id IS NULL",
 			$db->qstr(CerberusContexts::CONTEXT_TICKET)
 		));

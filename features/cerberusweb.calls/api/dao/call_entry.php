@@ -104,6 +104,7 @@ class DAO_CallEntry extends C4_ORMHelper {
 		$ids_list = implode(',', $ids);
 		
 		// Context links
+		// [TODO] These can be grouped under a shared Context convenience method for deletion (to ensure coverage)
 		DAO_ContextLink::delete(CerberusContexts::CONTEXT_CALL, $ids);
 		// Custom fields
 		DAO_CustomFieldValue::deleteByContextIds(CerberusContexts::CONTEXT_CALL, $ids);

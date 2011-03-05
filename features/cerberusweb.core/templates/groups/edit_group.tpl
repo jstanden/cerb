@@ -1,10 +1,10 @@
 <div id="groupTabs">
 	<ul>
-		<li><a href="{devblocks_url}ajax.php?c=groups&a=showTabBuckets&id={$team->id}{/devblocks_url}">Workflow</a></li>
-		<li><a href="{devblocks_url}ajax.php?c=groups&a=showTabMail&id={$team->id}{/devblocks_url}">Mail Preferences</a></li>
-		<li><a href="{devblocks_url}ajax.php?c=groups&a=showTabInbox&id={$team->id}{/devblocks_url}">Inbox Routing</a></li>
-		<li><a href="{devblocks_url}ajax.php?c=groups&a=showTabMembers&id={$team->id}{/devblocks_url}">Members</a></li>
-		<li><a href="{devblocks_url}ajax.php?c=groups&a=showTabFields&id={$team->id}{/devblocks_url}">Ticket Fields</a></li>
+		<li><a href="{devblocks_url}ajax.php?c=groups&a=showTabBuckets&id={$team->id}{/devblocks_url}">{'common.buckets'|devblocks_translate|capitalize}</a></li>
+		<li><a href="{devblocks_url}ajax.php?c=groups&a=showTabMail&id={$team->id}{/devblocks_url}">{'common.mail'|devblocks_translate|capitalize}</a></li>
+		<li><a href="{devblocks_url}ajax.php?c=groups&a=showTabInbox&id={$team->id}{/devblocks_url}">{'common.inbox'|devblocks_translate|capitalize}</a></li>
+		<li><a href="{devblocks_url}ajax.php?c=groups&a=showTabMembers&id={$team->id}{/devblocks_url}">{'common.members'|devblocks_translate|capitalize}</a></li>
+		<li><a href="{devblocks_url}ajax.php?c=groups&a=showTabFields&id={$team->id}{/devblocks_url}">{'common.custom_fields'|devblocks_translate|capitalize}</a></li>
 
 		{$tabs = [buckets,settings,inbox,members,fields]}
 

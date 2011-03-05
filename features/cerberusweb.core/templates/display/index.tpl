@@ -17,41 +17,67 @@
 					{assign var=ticket_team_category_set value=$team_categories.$ticket_team_id}
 					{assign var=ticket_category value=$ticket_team_category_set.$ticket_category_id}
 					
-					<b>{$translate->_('ticket.status')|capitalize}:</b> 
-					{if $ticket->is_deleted}
-						{$translate->_('status.deleted')}
-					{elseif $ticket->is_closed}
-						{$translate->_('status.closed')}
-						{if !empty($ticket->due_date)}
-							(<abbr title="{$ticket->due_date|devblocks_date}">{$ticket->due_date|devblocks_prettytime}</abbr>)
-						{/if}
-					{elseif $ticket->is_waiting}
-						{$translate->_('status.waiting')}
-						{if !empty($ticket->due_date)}
-							(<abbr title="{$ticket->due_date|devblocks_date}">{$ticket->due_date|devblocks_prettytime}</abbr>)
-						{/if}
-					{else}
-						{$translate->_('status.open')}
-					{/if} &nbsp; 
-					<b>{$translate->_('common.group')|capitalize}:</b> {$teams.$ticket_team_id->name} &nbsp; 
-					<b>{$translate->_('common.bucket')|capitalize}:</b> {if !empty($ticket_category_id)}{$ticket_category->name}{else}{$translate->_('common.inbox')|capitalize}{/if} &nbsp; 
-					<b>{$translate->_('ticket.mask')|capitalize}:</b> {$ticket->mask} &nbsp; 
-					<b>{$translate->_('ticket.id')}:</b> {$ticket->id} &nbsp; 
-					<br>
+					<div class="cerb-properties">
+						<div>
+							<label>{$translate->_('ticket.status')|capitalize}:</label>
+							{if $ticket->is_deleted}
+								{$translate->_('status.deleted')}
+							{elseif $ticket->is_closed}
+								{$translate->_('status.closed')}
+								{if !empty($ticket->due_date)}
+									(<abbr title="{$ticket->due_date|devblocks_date}">{$ticket->due_date|devblocks_prettytime}</abbr>)
+								{/if}
+							{elseif $ticket->is_waiting}
+								{$translate->_('status.waiting')}
+								{if !empty($ticket->due_date)}
+									(<abbr title="{$ticket->due_date|devblocks_date}">{$ticket->due_date|devblocks_prettytime}</abbr>)
+								{/if}
+							{else}
+								{$translate->_('status.open')}
+							{/if} 
+						</div>
+						
+						<div>
+							<label>{$translate->_('common.group')|capitalize}:</label>
+							{$teams.$ticket_team_id->name}
+						</div>
+						
+						<div>
+							<label>{$translate->_('common.bucket')|capitalize}:</label>
+							{if !empty($ticket_category_id)}{$ticket_category->name}{else}{$translate->_('common.inbox')|capitalize}{/if}
+						</div>
+						
+						<div>
+							<label>{$translate->_('ticket.mask')|capitalize}:</label>
+							{$ticket->mask}
+						</div>
+						
+						<div>
+							<label>{$translate->_('ticket.id')}:</label>
+							{$ticket->id}
+						</div>
+					</div>
 					
 					{if !empty($context_workers)}
-						<b>{'common.owners'|devblocks_translate|capitalize}:</b> 
-						{foreach from=$context_workers item=context_worker name=context_workers}
-						{$context_worker->getName()}{if !$smarty.foreach.context_workers.last}, {/if}
-						{/foreach}	
-					<br>
+					<div class="cerb-properties">
+							<div>
+								<label>{'common.owners'|devblocks_translate|capitalize}:</label>
+								{foreach from=$context_workers item=context_worker name=context_workers}
+								{$context_worker->getName()}{if !$smarty.foreach.context_workers.last}, {/if}
+								{/foreach}	
+							</div>
+					</div>
 					{/if}
-					
-					<b>{$translate->_('ticket.requesters')|capitalize}:</b>
-					<span id="displayTicketRequesterBubbles">
-						{include file="devblocks:cerberusweb.core::display/rpc/requester_list.tpl" ticket_id=$ticket->id}
-					</span>
-					(<a href="javascript:;" onclick="genericAjaxPopup('peek','c=display&a=showRequestersPanel&ticket_id={$ticket->id}',null,true,'500');">{$translate->_('common.edit')|lower}</a>)
+						
+					<div class="cerb-properties">
+						<div>
+							<label>{$translate->_('ticket.requesters')|capitalize}:</label>
+							<span id="displayTicketRequesterBubbles">
+								{include file="devblocks:cerberusweb.core::display/rpc/requester_list.tpl" ticket_id=$ticket->id}
+							</span>
+							(<a href="javascript:;" onclick="genericAjaxPopup('peek','c=display&a=showRequestersPanel&ticket_id={$ticket->id}',null,true,'500');">{$translate->_('common.edit')|lower}</a>)
+						</div>
+					</div>
 				</td>
 			</tr>
 		</table>

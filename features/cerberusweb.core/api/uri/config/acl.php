@@ -5,7 +5,7 @@ class PageSection_SetupACL extends Extension_PageSection {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$visit = CerberusApplication::getVisit();
 		
-		$visit->set(Extension_ConfigTab::POINT, 'acl');
+		$visit->set(ChConfigurationPage::ID, 'acl');
 				
 		$plugins = DevblocksPlatform::getPluginRegistry();
 		$tpl->assign('plugins', $plugins);

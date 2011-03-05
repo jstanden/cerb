@@ -105,6 +105,22 @@ class DAO_FeedItem extends C4_ORMHelper {
 		return true;
 	}
 	
+	// [TODO] Listen on cron.maint
+	static function maint() {
+    	$db = DevblocksPlatform::getDatabaseService();
+    	$logger = DevblocksPlatform::getConsoleLog();
+		
+		// Purge orphaned FROM context links  
+		$sql = "DELETE QUICK context_link FROM context_link LEFT JOIN feed_item ON (context_link.from_context_id=feed_item.id) WHERE context_link.from_context = 'cerberusweb.contexts.feed.item' AND feed_item.id IS NULL";
+		$db->Execute($sql);
+		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' orphaned outbound feed_item context links.');
+
+		// Purge orphaned TO context links  
+		$sql = "DELETE QUICK context_link FROM context_link LEFT JOIN feed_item ON (context_link.to_context_id=feed_item.id) WHERE context_link.to_context = 'cerberusweb.contexts.feed.item' AND feed_item.id IS NULL";
+		$db->Execute($sql);
+		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' orphaned inbound feed_item context links.');
+	}
+	
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_FeedItem::getFields();
 		

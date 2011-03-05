@@ -3,7 +3,7 @@
 <div style="clear:both;"></div>
 
 {if !empty($team)}
-<h2>{$team->name}</h2>
+<h2 style="color:rgb(74,110,158);">{$team->name}</h2>
 {/if}
 
 <table cellpadding="0" cellspacing="5" border="0" width="100%">

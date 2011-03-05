@@ -616,6 +616,7 @@ class Context_Notification extends Extension_DevblocksContext {
 		}
 		
 		// Token labels
+		// [TODO] Needs to also return META (data type code -- like custom fields)
 		$token_labels = array(
 			'id' => $prefix.$translate->_('common.id'),
 			'created|date' => $prefix.$translate->_('common.created'),
