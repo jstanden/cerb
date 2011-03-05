@@ -126,6 +126,12 @@ abstract class Extension_PageMenu extends DevblocksExtension {
 				$results[$ext_id] = $as_instances ? $ext->createInstance() : $ext;
 		}
 		
+		// Sorting
+		if($as_instances)
+			uasort($results, create_function('$a, $b', "return strcasecmp(\$a->manifest->name,\$b->manifest->name);\n"));
+		else
+			uasort($results, create_function('$a, $b', "return strcasecmp(\$a->name,\$b->name);\n"));
+		
 		return $results;
 	}
 	
@@ -150,6 +156,12 @@ abstract class Extension_PageMenuItem extends DevblocksExtension {
 				if(empty($menu_id) || 0 == strcasecmp($menu_id, $ext->params['menu_id']))
 					$results[$ext_id] = $as_instances ? $ext->createInstance() : $ext;
 		}
+		
+		// Sorting
+		if($as_instances)
+			uasort($results, create_function('$a, $b', "return strcasecmp(\$a->manifest->name,\$b->manifest->name);\n"));
+		else
+			uasort($results, create_function('$a, $b', "return strcasecmp(\$a->name,\$b->name);\n"));
 		
 		return $results;
 	}

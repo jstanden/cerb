@@ -584,7 +584,7 @@ DIV.cerb-menu > UL {
 DIV.cerb-menu > UL > LI {
 	padding:5px 10px;
 	background-color:rgb(134,169,227);
-	border-left:1px dotted white;
+	border-left:1px solid white;
 	float:left;
 }
 
