@@ -48,14 +48,15 @@
  *	 WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
 
-class ChTranslatorsConfigTab extends Extension_ConfigTab {
-	const ID = 'translators.config.tab';
+if(class_exists('Extension_PageSection')):
+class ChTranslators_SetupPageSection extends Extension_PageSection {
+	const ID = 'translators.setup.section.translations';
 	
-	function showTab() {
+	function render() {
 		$settings = DevblocksPlatform::getPluginSettingsService();
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-
+	
 		$defaults = new C4_AbstractViewModel();
 		$defaults->class_name = 'C4_TranslationView';
 		$defaults->id = C4_TranslationView::DEFAULT_ID;
@@ -63,161 +64,13 @@ class ChTranslatorsConfigTab extends Extension_ConfigTab {
 		$view = C4_AbstractViewLoader::getView(C4_TranslationView::DEFAULT_ID, $defaults);
 		$tpl->assign('view', $view);
 		
-		$tpl->display('devblocks:cerberusweb.translators::config/translations/index.tpl');
+		$tpl->display('devblocks:cerberusweb.translators::config/section/index.tpl');
 	}
 	
-	function saveTab() {
+	function saveAction() {
 		@$plugin_id = DevblocksPlatform::importGPC($_REQUEST['plugin_id'],'string');
-
-		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('config','translators')));
+		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('config','translations')));
 		exit;
-	}
-	
-};
-
-class C4_TranslationView extends C4_AbstractView {
-	const DEFAULT_ID = 'translations';
-
-	function __construct() {
-		$this->id = self::DEFAULT_ID;
-		$this->name = 'Translations';
-		$this->renderLimit = 25;
-		$this->renderSortBy = SearchFields_Translation::STRING_ID;
-		$this->renderSortAsc = true;
-
-		$this->view_columns = array(
-			SearchFields_Translation::STRING_OVERRIDE,
-			SearchFields_Translation::STRING_ID,
-		);
-		$this->addColumnsHidden(array(
-			SearchFields_Translation::ID,
-		));
-		
-		$this->addParamsHidden(array(
-			SearchFields_Translation::ID,
-		));
-		
-		$this->doResetCriteria();
-	}
-
-	function getData() {
-		$objects = DAO_Translation::search(
-			$this->getParams(),
-			$this->renderLimit,
-			$this->renderPage,
-			$this->renderSortBy,
-			$this->renderSortAsc,
-			$this->renderTotal
-		);
-		return $objects;
-	}
-
-	function render() {
-		$this->_sanitize();
-		
-		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('id', $this->id);
-		$tpl->assign('view', $this);
-
-		// Language Names
-		$langs = DAO_Translation::getDefinedLangCodes();
-		$tpl->assign('langs', $langs);
-		
-		// For defaulting
-		$english_map = DAO_Translation::getMapByLang('en_US');
-		$tpl->assign('english_map', $english_map);
-		
-		$tpl->display('devblocks:cerberusweb.translators::config/translations/view.tpl');
-	}
-
-	function renderCriteria($field) {
-		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('id', $this->id);
-
-		switch($field) {
-			case SearchFields_Translation::STRING_ID:
-			case SearchFields_Translation::STRING_DEFAULT:
-			case SearchFields_Translation::STRING_OVERRIDE:
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__string.tpl');
-				break;
-			case SearchFields_Translation::ID:
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__number.tpl');
-				break;
-			case SearchFields_Translation::LANG_CODE:
-				$langs = DAO_Translation::getDefinedLangCodes(); // [TODO] Cache!
-				$tpl->assign('langs', $langs);
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__language.tpl');
-				break;
-			default:
-				echo '';
-				break;
-		}
-	}
-
-	function renderCriteriaParam($param) {
-		$field = $param->field;
-		$values = !is_array($param->value) ? array($param->value) : $param->value;
-
-		switch($field) {
-			case SearchFields_Translation::LANG_CODE:
-				$langs = DAO_Translation::getDefinedLangCodes(); // [TODO] Cache!
-				$strings = array();
-
-				foreach($values as $val) {
-					if(!isset($langs[$val]))
-						continue;
-					$strings[] = $langs[$val];
-				}
-				echo implode(", ", $strings);
-				
-				break;
-				
-			default:
-				parent::renderCriteriaParam($param);
-				break;
-		}
-	}
-
-	function getFields() {
-		return SearchFields_Translation::getFields();
-	}
-
-	function doSetCriteria($field, $oper, $value) {
-		$criteria = null;
-
-		switch($field) {
-			case SearchFields_Translation::STRING_ID:
-			case SearchFields_Translation::STRING_DEFAULT:
-			case SearchFields_Translation::STRING_OVERRIDE:
-				// force wildcards if none used on a LIKE
-				if(($oper == DevblocksSearchCriteria::OPER_LIKE || $oper == DevblocksSearchCriteria::OPER_NOT_LIKE)
-				&& false === (strpos($value,'*'))) {
-					$value = $value.'*';
-				}
-				$criteria = new DevblocksSearchCriteria($field, $oper, $value);
-				break;
-			case SearchFields_Translation::ID:
-				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
-				break;
-			case SearchFields_Translation::LANG_CODE:
-				@$lang_ids = DevblocksPlatform::importGPC($_REQUEST['lang_ids'],'array',array());
-				$criteria = new DevblocksSearchCriteria($field,$oper,$lang_ids);
-				break;
-		}
-
-		if(!empty($criteria)) {
-			$this->addParam($criteria);
-			$this->renderPage = 0;
-		}
-	}
-};
-
-class ChTranslatorsAjaxController extends DevblocksControllerExtension {
-	function isVisible() {
-		// The current session must be a logged-in worker to use this page.
-		if(null == ($worker = CerberusApplication::getActiveWorker()))
-			return false;
-		return true;
 	}
 	
 	private function _clearCache() {
@@ -230,37 +83,6 @@ class ChTranslatorsAjaxController extends DevblocksControllerExtension {
 	    	$cache->remove(DevblocksPlatform::CACHE_TAG_TRANSLATIONS . '_' . $lang_code);
 	    }
 	}
-	
-	/*
-	 * Request Overload
-	 */
-	function handleRequest(DevblocksHttpRequest $request) {
-		if(!$this->isVisible())
-			return;
-		
-	    $path = $request->path;
-		$controller = array_shift($path); // timetracking
-
-	    @$action = DevblocksPlatform::strAlphaNumDash(array_shift($path)) . 'Action';
-
-	    switch($action) {
-	        case NULL:
-	            // [TODO] Index/page render
-	            break;
-	            
-	        default:
-			    // Default action, call arg as a method suffixed with Action
-				if(method_exists($this,$action)) {
-					call_user_func(array(&$this, $action));
-				}
-	            break;
-	    }
-	}
-	
-//	function writeResponse(DevblocksHttpResponse $response) {
-//		if(!$this->isVisible())
-//			return;
-//	}
 
 	function showFindStringsPanelAction($model=null) {
 		$tpl = DevblocksPlatform::getTemplateService();
@@ -268,7 +90,7 @@ class ChTranslatorsAjaxController extends DevblocksControllerExtension {
 		$codes = DAO_Translation::getDefinedLangCodes();
 		$tpl->assign('codes', $codes);
 		
-		$tpl->display('devblocks:cerberusweb.translators::translators/ajax/find_strings_panel.tpl');
+		$tpl->display('devblocks:cerberusweb.translators::config/ajax/find_strings_panel.tpl');
 	}
 
 	function saveFindStringsPanelAction() {
@@ -342,7 +164,7 @@ class ChTranslatorsAjaxController extends DevblocksControllerExtension {
 		$codes = DAO_Translation::getDefinedLangCodes();
 		$tpl->assign('codes', $codes);
 		
-		$tpl->display('devblocks:cerberusweb.translators::translators/ajax/add_language_panel.tpl');
+		$tpl->display('devblocks:cerberusweb.translators::config/ajax/add_language_panel.tpl');
 	}
 
 	function saveAddLanguagePanelAction() {
@@ -441,7 +263,7 @@ class ChTranslatorsAjaxController extends DevblocksControllerExtension {
 	
 	function showImportStringsPanelAction($model=null) {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->display('devblocks:cerberusweb.translators::translators/ajax/import_strings_panel.tpl');
+		$tpl->display('devblocks:cerberusweb.translators::config/ajax/import_strings_panel.tpl');
 	}
 
 	function saveImportStringsPanelAction() {
@@ -540,8 +362,155 @@ class ChTranslatorsAjaxController extends DevblocksControllerExtension {
 		self::_clearCache();
 		
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('config','translations')));
-	}
+	}	
+}
+endif;
+
+if(class_exists('Extension_PageMenuItem')):
+class ChTranslators_SetupPluginsMenuItem extends Extension_PageMenuItem {
+	const ID = 'translators.setup.menu.plugins.translations';
 	
+	function render() {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->display('devblocks:cerberusweb.translators::config/menu_item.tpl');
+	}
+}
+endif;
+
+class C4_TranslationView extends C4_AbstractView {
+	const DEFAULT_ID = 'translations';
+
+	function __construct() {
+		$this->id = self::DEFAULT_ID;
+		$this->name = 'Translations';
+		$this->renderLimit = 25;
+		$this->renderSortBy = SearchFields_Translation::STRING_ID;
+		$this->renderSortAsc = true;
+
+		$this->view_columns = array(
+			SearchFields_Translation::STRING_OVERRIDE,
+			SearchFields_Translation::STRING_ID,
+		);
+		$this->addColumnsHidden(array(
+			SearchFields_Translation::ID,
+		));
+		
+		$this->addParamsHidden(array(
+			SearchFields_Translation::ID,
+		));
+		
+		$this->doResetCriteria();
+	}
+
+	function getData() {
+		$objects = DAO_Translation::search(
+			$this->getParams(),
+			$this->renderLimit,
+			$this->renderPage,
+			$this->renderSortBy,
+			$this->renderSortAsc,
+			$this->renderTotal
+		);
+		return $objects;
+	}
+
+	function render() {
+		$this->_sanitize();
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('id', $this->id);
+		$tpl->assign('view', $this);
+
+		// Language Names
+		$langs = DAO_Translation::getDefinedLangCodes();
+		$tpl->assign('langs', $langs);
+		
+		// For defaulting
+		$english_map = DAO_Translation::getMapByLang('en_US');
+		$tpl->assign('english_map', $english_map);
+		
+		$tpl->display('devblocks:cerberusweb.translators::config/section/view.tpl');
+	}
+
+	function renderCriteria($field) {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('id', $this->id);
+
+		switch($field) {
+			case SearchFields_Translation::STRING_ID:
+			case SearchFields_Translation::STRING_DEFAULT:
+			case SearchFields_Translation::STRING_OVERRIDE:
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__string.tpl');
+				break;
+			case SearchFields_Translation::ID:
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__number.tpl');
+				break;
+			case SearchFields_Translation::LANG_CODE:
+				$langs = DAO_Translation::getDefinedLangCodes(); // [TODO] Cache!
+				$tpl->assign('langs', $langs);
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__language.tpl');
+				break;
+			default:
+				echo '';
+				break;
+		}
+	}
+
+	function renderCriteriaParam($param) {
+		$field = $param->field;
+		$values = !is_array($param->value) ? array($param->value) : $param->value;
+
+		switch($field) {
+			case SearchFields_Translation::LANG_CODE:
+				$langs = DAO_Translation::getDefinedLangCodes(); // [TODO] Cache!
+				$strings = array();
+
+				foreach($values as $val) {
+					if(!isset($langs[$val]))
+						continue;
+					$strings[] = $langs[$val];
+				}
+				echo implode(", ", $strings);
+				
+				break;
+				
+			default:
+				parent::renderCriteriaParam($param);
+				break;
+		}
+	}
+
+	function getFields() {
+		return SearchFields_Translation::getFields();
+	}
+
+	function doSetCriteria($field, $oper, $value) {
+		$criteria = null;
+
+		switch($field) {
+			case SearchFields_Translation::STRING_ID:
+			case SearchFields_Translation::STRING_DEFAULT:
+			case SearchFields_Translation::STRING_OVERRIDE:
+				// force wildcards if none used on a LIKE
+				if(($oper == DevblocksSearchCriteria::OPER_LIKE || $oper == DevblocksSearchCriteria::OPER_NOT_LIKE)
+				&& false === (strpos($value,'*'))) {
+					$value = $value.'*';
+				}
+				$criteria = new DevblocksSearchCriteria($field, $oper, $value);
+				break;
+			case SearchFields_Translation::ID:
+				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
+				break;
+			case SearchFields_Translation::LANG_CODE:
+				@$lang_ids = DevblocksPlatform::importGPC($_REQUEST['lang_ids'],'array',array());
+				$criteria = new DevblocksSearchCriteria($field,$oper,$lang_ids);
+				break;
+		}
+
+		if(!empty($criteria)) {
+			$this->addParam($criteria);
+			$this->renderPage = 0;
+		}
+	}
 };
 
-?>

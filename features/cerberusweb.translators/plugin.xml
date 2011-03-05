@@ -24,34 +24,35 @@
 	
 	<extensions>
 	
-		<!-- Config Tabs -->
+		<!-- Setup Page Sections -->
 		
-		<extension point="cerberusweb.config.tab">
-			<id>translators.config.tab</id>
-			<name>Translators Tab</name>
+		<extension point="cerberusweb.ui.page.section">
+			<id>translators.setup.section.translations</id>
+			<name>Setup Page Translations Section</name>
 			<class>
 				<file>api/App.php</file>
-				<name>ChTranslatorsConfigTab</name>
+				<name>ChTranslators_SetupPageSection</name>
 			</class>
 			<params>
+				<param key="page_id" value="core.page.configuration" />
 				<param key="uri" value="translations" />
-				<param key="title" value="Translations" />
 			</params>
 		</extension>
 		
-		<!-- Ajax Controllers -->
+		<!-- Setup Page Menu Item -->
 		
- 		<extension point="devblocks.controller">
-			<id>translators.controller.ajax</id>
-			<name>Translators Ajax Controller</name>
+		<extension point="cerberusweb.ui.page.menu.item">
+			<id>translators.setup.menu.mail.translations</id>
+			<name>Setup Page Translations Menu Item</name>
 			<class>
 				<file>api/App.php</file>
-				<name>ChTranslatorsAjaxController</name>
+				<name>ChTranslators_SetupPluginsMenuItem</name>
 			</class>
 			<params>
-				<param key="uri" value="translators" />
+				<param key="page_id" value="core.page.configuration" />
+				<param key="menu_id" value="core.setup.menu.plugins" />
 			</params>
-		</extension>
+		</extension>	
 		 
 	</extensions>
 </plugin>

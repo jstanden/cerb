@@ -7,6 +7,10 @@
 
 		<!-- Translator Common Strings -->
 
+		<tu tuid='translators.common'>
+			<tuv xml:lang="en_US"><seg>Translation Editor</seg></tuv>
+		</tu>
+		
 		<tu tuid='translators.language'>
 			<tuv xml:lang="en_US"><seg>Language</seg></tuv>
 		</tu>

@@ -99,9 +99,6 @@
 					{/foreach}
 					{*
 					<li><a href="{devblocks_url}c=config&a=freshbooks{/devblocks_url}">Freshbooks</a></li>
-					<li><a href="{devblocks_url}{/devblocks_url}">Notifications Emailer</a></li>
-					<li><a href="{devblocks_url}c=config&a=timetracking.activities{/devblocks_url}">Time Tracking</a></li>
-					<li><a href="{devblocks_url}c=config&a=translations{/devblocks_url}">Translation Editor</a></li>
 					<li><a href="{devblocks_url}c=config&a=watchers{/devblocks_url}">Watchers</a></li>
 					*}
 				</ul>

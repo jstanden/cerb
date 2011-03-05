@@ -1,6 +1,8 @@
 <form action="{devblocks_url}{/devblocks_url}" method="post" id="frmFindStringsEntry">
-<input type="hidden" name="c" value="translators">
-<input type="hidden" name="a" value="saveFindStringsPanel">
+<input type="hidden" name="c" value="config">
+<input type="hidden" name="a" value="handleSectionAction">
+<input type="hidden" name="section" value="translations">
+<input type="hidden" name="action" value="saveFindStringsPanel">
 
 This will find text defined in U.S. English and not yet translated to other languages.  
 Leaving new text blank allows you to easily find translation work with a search.

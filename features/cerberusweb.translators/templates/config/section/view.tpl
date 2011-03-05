@@ -16,8 +16,10 @@
 <form id="customize{$view->id}" name="customize{$view->id}" action="#" onsubmit="return false;" style="display:none;"></form>
 <form id="viewForm{$view->id}" name="viewForm{$view->id}" action="{devblocks_url}{/devblocks_url}" method="POST">
 <input type="hidden" name="view_id" value="{$view->id}">
-<input type="hidden" name="c" value="translators">
-<input type="hidden" name="a" value="">
+<input type="hidden" name="c" value="config">
+<input type="hidden" name="a" value="handleSectionAction">
+<input type="hidden" name="section" value="translations">
+<input type="hidden" name="action" value="">
 
 <table cellpadding="1" cellspacing="0" border="0" width="100%" class="worklistBody">
 
@@ -137,8 +139,8 @@
 	{if $total}
 	<tr>
 		<td colspan="2">
-			<button type="button" onclick="this.form.a.value='saveView';this.form.submit();"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')|capitalize}</button>
-			<button type="button" onclick="document.location.href='{devblocks_url}c=translators&a=exportTmx{/devblocks_url}';"><img src="{devblocks_url}c=resource&p=cerberusweb.translators&f=images/16x16/document_down.png{/devblocks_url}" align="top"> {$translate->_('common.export')|capitalize}</button>
+			<button type="button" onclick="$frm=$(this.form);$frm.find('input:hidden[name=action]').val('saveView');$frm.submit();"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')|capitalize}</button>
+			<button type="button" onclick="document.location.href = '{$smarty.const.DEVBLOCKS_WEBPATH}ajax.php?c=config&a=handleSectionAction&section=translations&action=exportTmx';"><img src="{devblocks_url}c=resource&p=cerberusweb.translators&f=images/16x16/document_down.png{/devblocks_url}" align="top"> {$translate->_('common.export')|capitalize}</button>
 		</td>
 	</tr>
 	{/if}

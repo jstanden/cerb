@@ -1,6 +1,8 @@
 <form action="{devblocks_url}{/devblocks_url}" method="post" id="frmFindStringsEntry" enctype="multipart/form-data">
-<input type="hidden" name="c" value="translators">
-<input type="hidden" name="a" value="saveImportStringsPanel">
+<input type="hidden" name="c" value="config">
+<input type="hidden" name="a" value="handleSectionAction">
+<input type="hidden" name="section" value="translations">
+<input type="hidden" name="action" value="saveImportStringsPanel">
 
 <b>Language File:</b> (.xml; TMX)<br>
 <input type="file" name="import_file" size="45"><br>

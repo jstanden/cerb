@@ -1,6 +1,8 @@
 <form action="{devblocks_url}{/devblocks_url}" method="post" id="frmAddLanguage">
-<input type="hidden" name="c" value="translators">
-<input type="hidden" name="a" value="saveAddLanguagePanel">
+<input type="hidden" name="c" value="config">
+<input type="hidden" name="a" value="handleSectionAction">
+<input type="hidden" name="section" value="translations">
+<input type="hidden" name="action" value="saveAddLanguagePanel">
 
 {if is_array($codes) && count($codes) > 1}
 <table cellspacing="0" cellpadding="2" border="0">
