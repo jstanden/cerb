@@ -38,15 +38,23 @@
 			<div>
 				<a href="javascript:;" class="menu">Mail <span>&#x25be;</span></a>
 				<ul class="cerb-popupmenu cerb-float" style="display:none;">
-					<li><a href="{devblocks_url}c=config&a=mail_incoming{/devblocks_url}">Incoming Mail</a></li>
-					<li><a href="{devblocks_url}c=config&a=mail_outgoing{/devblocks_url}">Outgoing Mail</a></li>
+					<li><b>Incoming Mail</b></li>
+					<li><a href="{devblocks_url}c=config&a=mail_incoming{/devblocks_url}">Settings</a></li>
 					<li><a href="{devblocks_url}c=config&a=mail_pop3{/devblocks_url}">POP3 Accounts</a></li>
 					<li><a href="{devblocks_url}c=config&a=mail_routing{/devblocks_url}">Routing</a></li>
 					<li><a href="{devblocks_url}c=config&a=mail_filtering{/devblocks_url}">Filtering</a></li>
+					<li><hr></li>
+					
+					<li><b>Outgoing Mail</b></li>
+					<li><a href="{devblocks_url}c=config&a=mail_smtp{/devblocks_url}">SMTP Server</a></li>
+					<li><a href="{devblocks_url}c=config&a=mail_from{/devblocks_url}">Reply-To Addresses</a></li>
 					<li><a href="{devblocks_url}c=config&a=mail_queue{/devblocks_url}">Queue</a></li>
 					
 					{$exts = Extension_PageMenuItem::getExtensions(true, 'core.page.configuration','core.setup.menu.mail')}
-					{if !empty($exts)}<li><hr></li>{/if}
+					{if !empty($exts)}
+						<li><hr></li>
+						<li><b>Plugins</b></li>
+					{/if}
 					{foreach from=$exts item=menu_item}
 						{if method_exists($menu_item,'render')}<li>{$menu_item->render()}</li>{/if}
 					{/foreach}

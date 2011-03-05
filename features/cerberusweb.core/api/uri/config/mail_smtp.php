@@ -1,11 +1,11 @@
 <?php
-class PageSection_SetupMailOutgoing extends Extension_PageSection {
+class PageSection_SetupMailSmtp extends Extension_PageSection {
 	function render() {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$visit = CerberusApplication::getVisit();
 		$settings = DevblocksPlatform::getPluginSettingsService();
 		
-		$visit->set(ChConfigurationPage::ID, 'mail_outgoing');
+		$visit->set(ChConfigurationPage::ID, 'mail_smtp');
 		
 		$smtp_host = $settings->get('cerberusweb.core',CerberusSettings::SMTP_HOST,CerberusSettingsDefaults::SMTP_HOST);
 		$smtp_port = $settings->get('cerberusweb.core',CerberusSettings::SMTP_PORT,CerberusSettingsDefaults::SMTP_PORT);
@@ -22,40 +22,7 @@ class PageSection_SetupMailOutgoing extends Extension_PageSection {
 		$smtp_enc = $settings->get('cerberusweb.core',CerberusSettings::SMTP_ENCRYPTION_TYPE,CerberusSettingsDefaults::SMTP_ENCRYPTION_TYPE);
 		$smtp_max_sends = $settings->get('cerberusweb.core',CerberusSettings::SMTP_MAX_SENDS,CerberusSettingsDefaults::SMTP_MAX_SENDS);
 		
-		// Signature
-		
-		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, null, $token_labels, $token_values);
-		$tpl->assign('token_labels', $token_labels);
-		
-		$tpl->display('devblocks:cerberusweb.core::configuration/section/mail_outgoing/index.tpl');
-	}
-	
-	function saveJsonAction() {
-		try {
-			$worker = CerberusApplication::getActiveWorker();
-		
-			if(!$worker || !$worker->is_superuser)
-				throw new Exception("You are not an administrator.");
-				
-		    @$default_reply_address = DevblocksPlatform::importGPC($_REQUEST['sender_address'],'string');
-		    @$default_reply_personal = DevblocksPlatform::importGPC($_REQUEST['sender_personal'],'string');
-		    @$default_signature = DevblocksPlatform::importGPC($_POST['default_signature'],'string');
-		    @$default_signature_pos = DevblocksPlatform::importGPC($_POST['default_signature_pos'],'integer',0);
-		    
-		    $settings = DevblocksPlatform::getPluginSettingsService();
-		    $settings->set('cerberusweb.core',CerberusSettings::DEFAULT_REPLY_FROM, $default_reply_address);
-		    $settings->set('cerberusweb.core',CerberusSettings::DEFAULT_REPLY_PERSONAL, $default_reply_personal);
-		    $settings->set('cerberusweb.core',CerberusSettings::DEFAULT_SIGNATURE, $default_signature);
-		    $settings->set('cerberusweb.core',CerberusSettings::DEFAULT_SIGNATURE_POS, $default_signature_pos);
-		    
-		    echo json_encode(array('status'=>true));
-		    return;
-		    
-		} catch(Exception $e) {
-			echo json_encode(array('status'=>false,'error'=>$e->getMessage()));
-			return;
-			
-		}
+		$tpl->display('devblocks:cerberusweb.core::configuration/section/mail_smtp/index.tpl');
 	}
 	
 	function saveSmtpJsonAction() {
