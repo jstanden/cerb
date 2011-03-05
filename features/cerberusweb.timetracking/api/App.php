@@ -1542,12 +1542,12 @@ class TimeTrackingActivityTab extends Extension_ActivityTab {
 }
 endif;
 
-class ChTimeTrackingConfigActivityTab extends Extension_ConfigTab {
-	const ID = 'timetracking.config.tab.activities';
+if(class_exists('Extension_PageSection')):
+class ChTimeTracking_SetupPageSection extends Extension_PageSection {
+	const ID = 'timetracking.setup.section.timetracking';
 	
-	function showTab() {
+	function render() {
 		$settings = DevblocksPlatform::getPluginSettingsService();
-		
 		$tpl = DevblocksPlatform::getTemplateService();
 
 		$billable_activities = DAO_TimeTrackingActivity::getWhere(sprintf("%s!=0",DAO_TimeTrackingActivity::RATE));
@@ -1558,8 +1558,8 @@ class ChTimeTrackingConfigActivityTab extends Extension_ConfigTab {
 		
 		$tpl->display('devblocks:cerberusweb.timetracking::config/activities/index.tpl');
 	}
-	
-	function saveTab() {
+
+	function saveAction() {
 		$settings = DevblocksPlatform::getPluginSettingsService();
 		@$plugin_id = DevblocksPlatform::importGPC($_REQUEST['plugin_id'],'string');
 
@@ -1589,8 +1589,8 @@ class ChTimeTrackingConfigActivityTab extends Extension_ConfigTab {
 			
 		}
 		
-		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('config','timetracking.activities')));
-		exit;
+		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('config','timetracking')));
+		exit;		
 	}
 	
 	function getActivityAction() {
@@ -1603,11 +1603,23 @@ class ChTimeTrackingConfigActivityTab extends Extension_ConfigTab {
 		
 		$tpl->display('devblocks:cerberusweb.timetracking::config/activities/edit_activity.tpl');
 	}
+}
+endif;
+
+if(class_exists('Extension_PageMenuItem')):
+class ChTimeTracking_SetupPluginsMenuItem extends Extension_PageMenuItem {
+	const ID = 'timetracking.setup.menu.plugins.timetracking';
 	
-};
+	function render() {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->display('devblocks:cerberusweb.timetracking::config/menu_item.tpl');
+	}
+}
+endif;
 
 if (class_exists('Extension_ReportGroup',true)):
 class ChReportGroupTimeTracking extends Extension_ReportGroup {
+	// [TODO] This stub is pointless and should be refactored out.
 };
 endif;
 

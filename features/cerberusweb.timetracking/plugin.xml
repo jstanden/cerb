@@ -192,22 +192,37 @@
 				<param key="title" value="timetracking.activity.tab" />
 			</params>
 		</extension>
-	
-		<!-- Config Tabs -->
+
+		<!-- Setup Page Sections -->
 		
-		<extension point="cerberusweb.config.tab">
-			<id>timetracking.config.tab.activities</id>
-			<name>Categories Tab</name>
+		<extension point="cerberusweb.ui.page.section">
+			<id>timetracking.setup.section.timetracking</id>
+			<name>Setup Page Simulator Section</name>
 			<class>
 				<file>api/App.php</file>
-				<name>ChTimeTrackingConfigActivityTab</name>
+				<name>ChTimeTracking_SetupPageSection</name>
 			</class>
 			<params>
-				<param key="uri" value="timetracking.activities" />
-				<param key="title" value="Time Tracking" />
+				<param key="page_id" value="core.page.configuration" />
+				<param key="uri" value="timetracking" />
 			</params>
 		</extension>
 		
+		<!-- Setup Page Menu Item -->
+		
+		<extension point="cerberusweb.ui.page.menu.item">
+			<id>timetracking.setup.menu.plugins.timetracking</id>
+			<name>Setup Page Time Tracking Menu Item</name>
+			<class>
+				<file>api/App.php</file>
+				<name>ChTimeTracking_SetupPluginsMenuItem</name>
+			</class>
+			<params>
+				<param key="page_id" value="core.page.configuration" />
+				<param key="menu_id" value="core.setup.menu.plugins" />
+			</params>
+		</extension>
+	
 		<!-- Controllers -->
 		
  		<extension point="cerberusweb.page">
@@ -237,78 +252,61 @@
 			</params>
 		</extension>		
 		 
-		<!-- Tabs -->
-		 
-		<!--
-		<extension point="cerberusweb.ticket.tab">
-			<id>timetracking.tab.ticket</id>
-			<name>Time Tracking Tab</name>
+		<!-- Report Groups -->
+		
+		<extension point="cerberusweb.report.group">
+			<id>report.group.timetracking</id>
+			<name>Time Tracking Reports</name>
 			<class>
 				<file>api/App.php</file>
-				<name>ChTimeTrackingTab</name>
+				<name>ChReportGroupTimeTracking</name>
 			</class>
 			<params>
-				<param key="uri" value="timetracking" />
-				<param key="title" value="Time Tracking" />
+				<param key="group_name" value="timetracking.ui.reports" />
+				<param key="acl" value="timetracking.report.group.time" />
+			</params>
+		</extension>		 
+	
+		<!-- Reports -->
+	
+		<extension point="cerberusweb.report">
+			<id>report.timetracking.timespentworker</id>
+			<name>Time Spent Per Worker</name>
+			<class>
+				<file>api/reports/TimeByWorkerReport.php</file>
+				<name>ChReportTimeSpentWorker</name>
+			</class>
+			<params>
+				<param key="report_name" value="timetracking.ui.reports.time_spent_worker" />
+				<param key="report_group" value="report.group.timetracking" />
 			</params>
 		</extension>
-		 -->
-		 
-	<!-- Report Groups -->
 	
-	<extension point="cerberusweb.report.group">
-		<id>report.group.timetracking</id>
-		<name>Time Tracking Reports</name>
-		<class>
-			<file>api/App.php</file>
-			<name>ChReportGroupTimeTracking</name>
-		</class>
-		<params>
-			<param key="group_name" value="timetracking.ui.reports" />
-			<param key="acl" value="timetracking.report.group.time" />
-		</params>
-	</extension>		 
-
-	<!-- Reports -->
-
-	<extension point="cerberusweb.report">
-		<id>report.timetracking.timespentworker</id>
-		<name>Time Spent Per Worker</name>
-		<class>
-			<file>api/reports/TimeByWorkerReport.php</file>
-			<name>ChReportTimeSpentWorker</name>
-		</class>
-		<params>
-			<param key="report_name" value="timetracking.ui.reports.time_spent_worker" />
-			<param key="report_group" value="report.group.timetracking" />
-		</params>
-	</extension>
-
-	<extension point="cerberusweb.report">
-		<id>report.timetracking.timespentorg</id>
-		<name>Time Spent Per Organization</name>
-		<class>
-			<file>api/reports/TimeByOrgReport.php</file>
-			<name>ChReportTimeSpentOrg</name>
-		</class>
-		<params>
-			<param key="report_name" value="timetracking.ui.reports.time_spent_org" />
-			<param key="report_group" value="report.group.timetracking" />
-		</params>
-	</extension>
-	
-	<extension point="cerberusweb.report">
-		<id>report.timetracking.timespentactivity</id>
-		<name>Time Spent Per Activity</name>
-		<class>
-			<file>api/reports/TimeByActivityReport.php</file>
-			<name>ChReportTimeSpentActivity</name>
-		</class>
-		<params>
-			<param key="report_name" value="timetracking.ui.reports.time_spent_activity" />
-			<param key="report_group" value="report.group.timetracking" />
-		</params>
-	</extension>
+		<extension point="cerberusweb.report">
+			<id>report.timetracking.timespentorg</id>
+			<name>Time Spent Per Organization</name>
+			<class>
+				<file>api/reports/TimeByOrgReport.php</file>
+				<name>ChReportTimeSpentOrg</name>
+			</class>
+			<params>
+				<param key="report_name" value="timetracking.ui.reports.time_spent_org" />
+				<param key="report_group" value="report.group.timetracking" />
+			</params>
+		</extension>
+		
+		<extension point="cerberusweb.report">
+			<id>report.timetracking.timespentactivity</id>
+			<name>Time Spent Per Activity</name>
+			<class>
+				<file>api/reports/TimeByActivityReport.php</file>
+				<name>ChReportTimeSpentActivity</name>
+			</class>
+			<params>
+				<param key="report_name" value="timetracking.ui.reports.time_spent_activity" />
+				<param key="report_group" value="report.group.timetracking" />
+			</params>
+		</extension>
 	
 	</extensions>
 </plugin>
