@@ -81,7 +81,7 @@ $('#configMailbox BUTTON.tester')
 		$this = $(this);
 		$this.hide();
 
-		Devblocks.showSuccess('#configMailbox div.status', "Testing mailbox... please wait.", false);
+		Devblocks.showSuccess('#configMailbox div.status', "Testing mailbox... please wait.", false, false);
 		
 		$frm = $('#configMailbox');
 		$action = $frm.find('input:hidden[name=action]');

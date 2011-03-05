@@ -63,15 +63,25 @@ var DevblocksClass = function() {
 		}
 	}
 	
-	this.showError = function(target, message) {
+	this.showError = function(target, message, animate) {
 		$html = $('<div class="ui-widget"><div class="ui-state-error ui-corner-all" style="padding:0 0.5em;margin:0.5em;display:inline-block;"><p><span class="ui-icon ui-icon-alert" style="margin-right:.3em;float:left;"></span>'+message+'</p></div></div>');
-		return $(target).html($html).show().effect('slide',{ direction:'up', mode:'show' },250);
+		$status = $(target).html($html).show();
+		
+		animate = (null == animate || false != animate) ? true: false;
+		if(animate)
+			$status.effect('slide',{ direction:'up', mode:'show' },250);
+		
+		return $status;
 	}
 	
-	this.showSuccess = function(target, message, autohide) {
+	this.showSuccess = function(target, message, autohide, animate) {
 		$html = $('<div class="ui-widget"><div class="ui-state-highlight ui-corner-all" style="padding:0 0.5em;margin:0.5em;display:inline-block;"><p><span class="ui-icon ui-icon-info" style="margin-right:.3em;float:left;"></span>'+message+'</p></div></div>');
-		$status = $(target).html($html).show().effect('slide',{ direction:'up', mode:'show' },250);
-		if(autohide || null == autohide)
+		$status = $(target).html($html).show();
+		
+		animate = (null == animate || false != animate) ? true: false; 
+		if(animate)
+			$status.effect('slide',{ direction:'up', mode:'show' },250);
+		if(animate && (autohide || null == autohide))
 			$status.delay(5000).effect('slide',{ direction:'up', mode:'hide' }, 250);
 			
 		return $status;
