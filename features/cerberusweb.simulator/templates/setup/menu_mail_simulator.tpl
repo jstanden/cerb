@@ -1,0 +1,1 @@
+<a href="{devblocks_url}c=config&a=simulator{/devblocks_url}">{'simulator.common'|devblocks_translate|capitalize}</a>

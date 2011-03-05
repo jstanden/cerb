@@ -47,10 +47,20 @@
  * 		and Jerry Kanoholani. 
  *	 WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
-class ChSimulatorConfigTab extends Extension_ConfigTab {
-	const ID = 'simulator.config.tab';
+
+class PageMenuItem_SetupSimulator extends Extension_PageMenuItem {
+	const ID = 'simulator.setup.menu.mail.simulator';
 	
-	function showTab() {
+	public function render() {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->display('devblocks:cerberusweb.simulator::setup/menu_mail_simulator.tpl');
+	}
+};
+
+class PageSection_SetupSimulator extends Extension_PageSection {
+	const ID = 'simulator.setup.section.simulator';
+	
+	function render() {
 		$tpl = DevblocksPlatform::getTemplateService();
 		
 		$flavors = array(
@@ -63,79 +73,77 @@ class ChSimulatorConfigTab extends Extension_ConfigTab {
 		);
 		$tpl->assign('flavors', $flavors);
 		
-		$tpl->display('devblocks:cerberusweb.simulator::config_tab/index.tpl');
+		$tpl->display('devblocks:cerberusweb.simulator::setup/section.tpl');
 	}
 	
-	function generateTicketsAction() {
+	function generateTicketsJsonAction() {
 		require_once(dirname(__FILE__) . '/api/API.class.php');
 		
-		$tpl = DevblocksPlatform::getTemplateService();
-		
-		@$address = DevblocksPlatform::importGPC($_POST['address'],'string'); 
-		@$dataset = DevblocksPlatform::importGPC($_POST['dataset'],'string');
-		@$how_many = DevblocksPlatform::importGPC($_POST['how_many'],'integer',0);
+		try {
+			@$address = DevblocksPlatform::importGPC($_POST['address'],'string'); 
+			@$dataset = DevblocksPlatform::importGPC($_POST['dataset'],'string');
+			@$how_many = DevblocksPlatform::importGPC($_POST['how_many'],'integer',0);
+			
+			if(empty($address))
+				throw new Exception(sprintf("Oops! '%s' is not a valid e-mail address.", $address));
 
-		if(empty($address)) {
-			$tpl->assign('error', sprintf("Oops! '%s' is not a valid e-mail address.", htmlspecialchars($address)));
-			$tpl->display('devblocks:cerberusweb.simulator::config_tab/output.tpl');
+			// [JAS]: [TODO] This should probably move to an extension point later
+			switch($dataset) {
+				default:
+				case "retail":
+					$dataset = new RetailDataset();
+					break;
+				case "hosting":
+					$dataset = new HostingDataset();
+					break;
+				case "edu":
+					$dataset = new EduDataset();
+					break;
+				case "gov":
+					$dataset = new GovDataset();
+					break;
+				case "npo":
+					$dataset = new NPODataset();
+					break;
+				case "spam":
+					$dataset = new SpamDataset();
+					break;
+			}
+			
+			// Create the messages using the dataset
+			$simulator = CerberusSimulator::getInstance();
+			$emails = $simulator->generateEmails($dataset,$how_many);
+		
+			foreach($emails as $template) {
+			    if(preg_match("/\"(.*?)\" \<(.*?)\>/", $template['sender'], $matches)) {
+			        $personal = $matches[1];
+			        $from = $matches[1];
+			    } // [TODO] error checking
+			    
+		            $message = new CerberusParserMessage();
+		            $message->headers['from'] = $template['sender'];
+		            $message->headers['to'] = $address;
+		            $message->headers['subject'] = $template['subject'];
+		            $message->headers['message-id'] = CerberusApplication::generateMessageId();
+		            
+		            $message->body = sprintf(
+					"%s\r\n".
+					"\r\n".
+					"--\r\n%s\r\n",
+					$template['body'],
+					$personal
+				);
+			    
+				CerberusParser::parseMessage($message,array('no_autoreply'=>true));
+			}
+			
+			echo json_encode(array('status'=>true, 'message'=>sprintf("Success!  %d simulated tickets were generated for %s", $how_many, htmlspecialchars($address))));
 			return;
+			
+		} catch(Exception $e) {
+			echo json_encode(array('status'=>false,'error'=>$e->getMessage()));
+			return;
+			
 		}
-		
-		// [JAS]: [TODO] This should probably move to an extension point later
-		switch($dataset) {
-			default:
-			case "retail":
-				$dataset = new RetailDataset();
-				break;
-			case "hosting":
-				$dataset = new HostingDataset();
-				break;
-			case "edu":
-				$dataset = new EduDataset();
-				break;
-			case "gov":
-				$dataset = new GovDataset();
-				break;
-			case "npo":
-				$dataset = new NPODataset();
-				break;
-			case "spam":
-				$dataset = new SpamDataset();
-				break;
-		}
-		
-		$simulator = CerberusSimulator::getInstance();
-		$emails = $simulator->generateEmails($dataset,$how_many);
-
-		foreach($emails as $template) {
-		    if(preg_match("/\"(.*?)\" \<(.*?)\>/", $template['sender'], $matches)) {
-		        $personal = $matches[1];
-		        $from = $matches[1];
-		    } // [TODO] error checking
-		    
-            $message = new CerberusParserMessage();
-            $message->headers['from'] = $template['sender'];
-            $message->headers['to'] = $address;
-            $message->headers['subject'] = $template['subject'];
-            $message->headers['message-id'] = CerberusApplication::generateMessageId();
-            
-            $message->body = sprintf(
-				"%s\r\n".
-				"\r\n".
-				"--\r\n%s\r\n",
-				$template['body'],
-				$personal
-			);
-		    
-			CerberusParser::parseMessage($message,array('no_autoreply'=>true));
-		}
-		
-		$tpl->assign('output', sprintf("Success!  %d simulated tickets were generated for %s", $how_many, htmlspecialchars($address)));
-		
-		$tpl->display('devblocks:cerberusweb.simulator::config_tab/output.tpl');
 	}
-	
 };
-
-
-?>
