@@ -48,10 +48,10 @@
  *	 WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
 
-class ChWatchersConfigTab extends Extension_ConfigTab {
-	const ID = 'watchers.config.tab';
+class ChWatchers_SetupPageSection extends Extension_PageSection {
+	const ID = 'watchers.setup.section.watchers';
 	
-	function showTab() {
+	function render() {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id']);
 		
 		$settings = DevblocksPlatform::getPluginSettingsService();
@@ -71,14 +71,21 @@ class ChWatchersConfigTab extends Extension_ConfigTab {
 		$tpl->display('devblocks:cerberusweb.watchers::config/watchers/index.tpl');
 	}
 	
-	function saveTab() {
+	function saveAction() {
 		@$plugin_id = DevblocksPlatform::importGPC($_REQUEST['plugin_id'],'string');
-
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('config','watchers')));
 		exit;
 	}
+}
+
+class ChWatchers_SetupPluginsMenuItem extends Extension_PageMenuItem {
+	const ID = 'watchers.setup.menu.plugins.watchers';
 	
-};
+	function render() {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->display('devblocks:cerberusweb.watchers::config/menu_item.tpl');
+	}
+}
 
 class ChWatchersEventListener extends DevblocksEventListenerExtension {
     /**

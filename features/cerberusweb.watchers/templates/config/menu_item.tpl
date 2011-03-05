@@ -1,0 +1,1 @@
+<a href="{devblocks_url}c=config&a=watchers{/devblocks_url}">{'watchers.common'|devblocks_translate|capitalize}</a>

@@ -4,6 +4,11 @@
 	<header datatype="winres" segtype="sentence" adminlang="en-us"
 		srclang="en-us" o-tmf="abc" />
 	<body>
+		
+		<tu tuid='watchers.common'>
+			<tuv xml:lang="en_US"><seg>Watchers</seg></tuv>
+		</tu>
+		
 		<tu tuid='watcher.filter.model.hits'>
 			<tuv xml:lang="en_US"><seg># Hits</seg></tuv>
 		</tu>

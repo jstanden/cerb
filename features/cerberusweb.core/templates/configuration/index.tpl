@@ -99,7 +99,6 @@
 					{/foreach}
 					{*
 					<li><a href="{devblocks_url}c=config&a=freshbooks{/devblocks_url}">Freshbooks</a></li>
-					<li><a href="{devblocks_url}c=config&a=watchers{/devblocks_url}">Watchers</a></li>
 					*}
 				</ul>
 			</div>
