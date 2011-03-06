@@ -12,6 +12,22 @@ if(isset($tables['worker_event']) && !isset($tables['notification'])) {
 }
 
 // ===========================================================================
+// Introduce a context_merge_history table
+
+if(!isset($tables['context_merge_history'])) {
+	$sql = "
+		CREATE TABLE IF NOT EXISTS context_merge_history (
+			context VARCHAR(128) DEFAULT '' NOT NULL,
+			from_context_id INT UNSIGNED DEFAULT 0 NOT NULL,
+			to_context_id INT UNSIGNED DEFAULT 0 NOT NULL,
+			updated INT UNSIGNED DEFAULT 0 NOT NULL,
+			PRIMARY KEY (context, from_context_id)
+		) ENGINE=MyISAM;
+	";
+	$db->Execute($sql);	
+}
+
+// ===========================================================================
 // Import the 'community' tables from usermeet.core
 
 // create community_tool

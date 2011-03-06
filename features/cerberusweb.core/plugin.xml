@@ -36,7 +36,7 @@
 		<patch version="5.1.2" revision="904" file="patches/5.x/5.1.2.php" />
 		<patch version="5.2.0" revision="905" file="patches/5.x/5.2.0.php" />
 		<patch version="5.3.0" revision="916" file="patches/5.x/5.3.0.php" />
-		<patch version="5.4.0" revision="921" file="patches/5.x/5.4.0.php" />
+		<patch version="5.4.0" revision="922" file="patches/5.x/5.4.0.php" />
 	</patches>
 
 	<!-- Declared Extension Points -->
@@ -148,6 +148,10 @@
 		<file path="api/dao/context_link.php">
 			<class name="DAO_ContextLink" />
 			<class name="Model_ContextLink" />
+		</file>
+		
+		<file path="api/dao/context_merge_history.php">
+			<class name="DAO_ContextMergeHistory" />
 		</file>
 		
 		<file path="api/dao/explorer.php">
@@ -339,6 +343,7 @@
 		<priv id="core.addybook.addy.actions.update" label="acl.core.addybook.addy.actions.update" />
 		<priv id="core.addybook.addy.view.actions.broadcast" label="acl.core.addybook.addy.view.actions.broadcast" />
 		<priv id="core.addybook.addy.view.actions.export" label="acl.core.addybook.addy.view.actions.export" />
+		<priv id="core.addybook.org.actions.merge" label="acl.core.addybook.org.actions.merge" />
 		<priv id="core.addybook.org.actions.update" label="acl.core.addybook.org.actions.update" />
 		<priv id="core.addybook.org.actions.delete" label="acl.core.addybook.org.actions.delete" />
 		<priv id="core.addybook.org.view.actions.export" label="acl.core.addybook.org.view.actions.export" />

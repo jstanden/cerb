@@ -995,7 +995,315 @@ class ChContactsPage extends CerberusPageExtension {
 		
 		$tpl->display('devblocks:cerberusweb.core::contacts/orgs/org_bulk.tpl');
 	}
+	
+	function showOrgMergePeekAction() {
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
 		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('view_id', $view_id);
+		
+		$tpl->display('devblocks:cerberusweb.core::contacts/orgs/org_merge_peek.tpl');
+	}
+	
+	function showOrgMergeContinuePeekAction() {
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
+		@$org_ids = DevblocksPlatform::importGPC($_REQUEST['org_id'],'array',array());
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$translate = DevblocksPlatform::getTranslationService();
+		
+		$workers = DAO_Worker::getAll();
+		
+		$tpl->assign('view_id', $view_id);
+		$tpl->assign('org_ids', $org_ids);
+
+		// Sanitize
+		if(is_array($org_ids) && !empty($org_ids))
+		foreach($org_ids as $idx => $org_id) {
+			$org_ids[$idx] = intval($org_id);
+			if(empty($org_ids[$idx]))
+				unset($org_ids[$idx]);
+		}
+		
+		// Give the implode something to do
+		if(empty($org_ids))
+			$org_ids = array(-1);
+
+		// Retrieve orgs
+		$orgs = DAO_ContactOrg::getWhere(sprintf("%s IN (%s)",
+			DAO_ContactOrg::ID,
+			implode(',', $org_ids)
+		));
+		$tpl->assign('orgs', $orgs);
+		
+		// Index unique values
+		$properties = array(
+			'name' => 'common.name',
+			'street' => 'contact_org.street',
+			'city' => 'contact_org.city',
+			'province' => 'contact_org.province',
+			'postal' => 'contact_org.postal',
+			'country' => 'contact_org.country',
+			'phone' => 'contact_org.phone',
+			'website' => 'contact_org.website',
+		);
+		
+		// Custom fields
+		
+		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ORG);
+		$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_ORG, $org_ids);
+		$tpl->assign('custom_fields', $custom_fields);
+		
+		foreach($custom_fields as $cfield_id => $cfield) { /* @var $cfield Model_CustomField */
+			$properties['cf_' . $cfield_id] = $cfield->name;
+		}
+
+		// Combinations
+		
+		$combinations = array();
+		foreach($properties as $prop => $label) {
+			$combinations[$prop] = array(
+				'label' => $label,
+				'values' => array(),
+			);
+			$vals = array();
+			$is_multival = false;
+			
+			if('cf_' == substr($prop,0,3)) { // custom field
+				$cfield_id = substr($prop, 3);
+				if(!isset($custom_fields[$cfield_id]))
+					continue;
+				$cfield_type = $custom_fields[$cfield_id]->type;
+				
+				foreach($custom_field_values as $org_id => $cfield_keyvalues) {
+					if(!is_array($cfield_keyvalues))
+						continue;
+						
+					foreach($cfield_keyvalues as $cfield_key => $cfield_value) {
+						$val = null;
+						
+						// We're only interested in a particular field value
+						if($cfield_key != $cfield_id)
+							continue;
+	
+						if(empty($cfield_value))
+							continue;
+							
+						if(is_array($cfield_value)) { // multi-value
+							$val = $cfield_value;
+							
+						} else { // single-value
+							if('W' == $cfield_type) { // use worker name
+								if(isset($workers[$cfield_value]))
+									$val = $workers[$cfield_value]->getName();								
+							} elseif('C' == $cfield_type) { // checkbox
+								$val = !empty($cfield_value) ? 'Yes' : 'No';
+							} else {
+								$val = strtr($cfield_value,"\r\n",' '); // no newlines
+							}
+							
+						}
+						
+						if(!empty($val))
+							$vals[$org_id] = $val;
+					}
+				}
+				
+				switch($cfield_type) {
+					case 'M':
+					case 'X':
+						// Combine all the values into one array
+						$newvals = array();
+						foreach($vals as $val) {
+							if(is_array($val)) {
+								foreach($val as $v)
+									$newvals[] = $v;
+							} else {
+								$newvals[] = $val;
+							}
+						}
+						
+						// Only keep unique vlaues
+						if(!empty($newvals))
+							$vals = array(implode(', ', array_unique($newvals)));
+						else
+							$vals = array();
+							
+						break;
+				}
+				
+			} else { // record
+				foreach($orgs as $org_id => $org) {
+					$val = strtr($org->$prop,"\r\n",' '); // no newlines
+					if(empty($val))
+						continue;
+					$vals[$org_id] = $val;
+				}
+				
+			}
+			
+			if(!empty($vals))
+				$combinations[$prop]['values'] = array_unique($vals);
+		}
+		$tpl->assign('combinations', $combinations);
+		
+		$tpl->display('devblocks:cerberusweb.core::contacts/orgs/org_merge_continue_peek.tpl');
+	}
+	
+	function saveOrgMergePeekAction() {
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
+		@$org_ids = DevblocksPlatform::importGPC($_REQUEST['org_id'],'array',array());
+		@$properties = DevblocksPlatform::importGPC($_REQUEST['prop'],'array',array());
+		
+		$db = DevblocksPlatform::getDatabaseService();
+		$eventMgr = DevblocksPlatform::getEventService();
+		$date = DevblocksPlatform::getDateService();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!$active_worker->hasPriv('core.addybook.org.actions.merge'))
+			return false;		
+		
+		// Sanitize
+		if(is_array($org_ids) && !empty($org_ids))
+		foreach($org_ids as $idx => $org_id) {
+			$org_ids[$idx] = intval($org_id);
+			if(empty($org_ids[$idx]))
+				unset($org_ids[$idx]);
+		}
+
+		// We need at least two records to merge
+		if(count($org_ids) < 2)
+			return;
+		
+		// Retrieve orgs
+		$orgs = DAO_ContactOrg::getWhere(
+			sprintf("%s IN (%s)",
+				DAO_ContactOrg::ID,
+				(empty($org_ids) ? array(-1) : implode(',', $org_ids)) // handle empty
+			),
+			DAO_ContactOrg::ID,
+			true
+		);
+
+		// Create a new destination org
+		$oldest_org_id = key($orgs); /* @var $oldest_org Model_ContactOrg */
+		$merge_to_id = DAO_ContactOrg::create(array(
+			DAO_ContactOrg::NAME => $orgs[$oldest_org_id]->name,
+			DAO_ContactOrg::CREATED => $orgs[$oldest_org_id]->created,
+		));
+		unset($oldest_org_id);
+		
+		// Merge records
+		
+		$fields = array();
+		$custom_fields = array();
+		$custom_field_types = DAO_CustomField::getAll();
+		$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_ORG, array_keys($orgs));
+		
+		foreach($properties as $k => $v) {
+			$is_cfield = ('cf_' == substr($k,0,3));
+			
+			// If an empty property field, skip
+			if(!$is_cfield && (empty($v) || !isset($orgs[$v])))
+				continue;
+				
+			switch($k) {
+				case 'name':
+					$fields[DAO_ContactOrg::NAME] = $orgs[$v]->name;
+					break;
+				case 'street':
+					$fields[DAO_ContactOrg::STREET] = $orgs[$v]->street;
+					break;
+				case 'city':
+					$fields[DAO_ContactOrg::CITY] = $orgs[$v]->city;
+					break;
+				case 'province':
+					$fields[DAO_ContactOrg::PROVINCE] = $orgs[$v]->province;
+					break;
+				case 'postal':
+					$fields[DAO_ContactOrg::POSTAL] = $orgs[$v]->postal;
+					break;
+				case 'country':
+					$fields[DAO_ContactOrg::COUNTRY] = $orgs[$v]->country;
+					break;
+				case 'phone':
+					$fields[DAO_ContactOrg::PHONE] = $orgs[$v]->phone;
+					break;
+				case 'website':
+					$fields[DAO_ContactOrg::WEBSITE] = $orgs[$v]->website;
+					break;
+				// Custom fields
+				default:
+					if(!$is_cfield)
+						break;
+						
+					$cfield_id = intval(substr($k,3));
+					
+					if(!isset($custom_field_types[$cfield_id]))
+						break;
+					
+					$is_cfield_multival = $custom_field_types[$cfield_id];
+					
+					if(empty($v)) { // no org_id
+						// Handle aggregation of multi-value fields when blank
+						if($is_cfield_multival) {
+							foreach($orgs as $org_id => $org) {
+								if(isset($custom_field_values[$org_id][$cfield_id])) {
+									$custom_fields[$cfield_id] = array_merge(
+										(isset($custom_fields[$cfield_id]) ? $custom_fields[$cfield_id] : array()),
+										$custom_field_values[$org_id][$cfield_id]
+									);
+								}
+							}
+						}
+						
+					} else { // org_id exists
+						if(isset($orgs[$v]) && isset($custom_field_values[$v][$cfield_id])) {
+							$val = $custom_field_values[$v][$cfield_id];
+							
+							// Overrides
+							switch($custom_field_types[$cfield_id]->type) {
+								case Model_CustomField::TYPE_CHECKBOX:
+									$val = !empty($val) ? 1 : 0;
+									break;
+								case Model_CustomField::TYPE_DATE:
+									$val = $date->formatTime(null, $val, false);
+									break;
+							}
+							$custom_fields[$cfield_id] = $val;
+						}
+					}
+					
+					break;
+			}
+		}
+		
+		if(!empty($fields))
+			DAO_ContactOrg::update($merge_to_id, $fields);
+		
+		if(!empty($custom_fields))
+			DAO_CustomFieldValue::formatAndSetFieldValues(CerberusContexts::CONTEXT_ORG, $merge_to_id, $custom_fields, true, true, false);
+
+		// Merge connections
+		DAO_ContactOrg::mergeIds($org_ids, $merge_to_id);
+		
+		// Fire a merge event for plugins
+	    $eventMgr->trigger(
+	        new Model_DevblocksEvent(
+	            'org.merge',
+                array(
+                    'merge_to_id' => $merge_to_id,
+                    'merge_from_ids' => $org_ids,
+                )
+            )
+	    );
+	    
+	    // Nuke the source orgs
+	    DAO_ContactOrg::delete($org_ids);
+		
+	    // [TODO] Redirect
+	}
+	
 	function showOrgPeekAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer','');
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
