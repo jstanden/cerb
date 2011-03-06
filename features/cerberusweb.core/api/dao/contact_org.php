@@ -109,6 +109,47 @@ class DAO_ContactOrg extends C4_ORMHelper {
 		parent::_update($ids, 'contact_org', $fields);
 	}
 	
+	static function mergeIds($from_ids, $to_id) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		if(empty($from_ids) || empty($to_id))
+			return false;
+			
+		if(!is_numeric($to_id) || !is_array($from_ids))
+			return false;
+		
+		// Log the ID changes
+		foreach($from_ids as $from_id)
+			DAO_ContextMergeHistory::logMerge(CerberusContexts::CONTEXT_ORG, $from_id, $to_id);
+			
+		// Merge comments
+		$db->Execute(sprintf("UPDATE comment SET context_id = %d WHERE context = %s AND context_id IN (%s)",
+			$to_id,
+			$db->qstr(CerberusContexts::CONTEXT_ORG),
+			implode(',', $from_ids)
+		));
+		 
+		// Merge people
+		$db->Execute(sprintf("UPDATE address SET contact_org_id = %d WHERE contact_org_id IN (%s)",
+			$to_id,
+			implode(',', $from_ids)
+		));
+		
+		// Merge context_link
+		$db->Execute(sprintf("UPDATE IGNORE context_link SET from_context_id = %d WHERE from_context = %s AND from_context_id IN (%s)",
+			$to_id,
+			$db->qstr(CerberusContexts::CONTEXT_ORG),
+			implode(',', $from_ids)
+		));
+		$db->Execute(sprintf("UPDATE IGNORE context_link SET to_context_id = %d WHERE to_context = %s AND to_context_id IN (%s)",
+			$to_id,
+			$db->qstr(CerberusContexts::CONTEXT_ORG),
+			implode(',', $from_ids)
+		));
+		
+		return true;
+	}
+	
 	/**
 	 * @param array $ids
 	 */
@@ -145,18 +186,28 @@ class DAO_ContactOrg extends C4_ORMHelper {
 	
 	/**
 	 * @param string $where
+	 * @param string $sortBy
+	 * @param bool $sortAsc
+	 * @param integer $limit
 	 * @return Model_ContactOrg[]
 	 */
-	static function getWhere($where=null) {
+	static function getWhere($where=null, $sortBy=null, $sortAsc=true, $limit=null) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = "SELECT id,name,street,city,province,postal,country,phone,website,created ".
+		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
+		
+		// SQL
+		$sql = "SELECT id, name, street, city, province, postal, country, phone, website, created ".
 			"FROM contact_org ".
-			(!empty($where) ? sprintf("WHERE %s ", $where) : " ")
+			$where_sql.
+			$sort_sql.
+			$limit_sql
 		;
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+		$rs = $db->Execute($sql);
 
-		return self::_getObjectsFromResultSet($rs);
+		$objects = self::_getObjectsFromResultSet($rs);
+
+		return $objects;
 	}
 	
 	static private function _getObjectsFromResultSet($rs) {

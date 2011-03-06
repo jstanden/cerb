@@ -120,6 +120,9 @@
 		<tu tuid='common.context_id'>
 			<tuv xml:lang="en_US"><seg>Context ID</seg></tuv>
 		</tu>
+		<tu tuid='common.continue'>
+			<tuv xml:lang="en_US"><seg>continue</seg></tuv>
+		</tu>
 		<tu tuid='common.copy'>
 			<tuv xml:lang="en_US"><seg>copy</seg></tuv>
 		</tu>
@@ -492,6 +495,9 @@
 		</tu>
 		<tu tuid='acl.core.addybook.addy.view.actions.export'>
 			<tuv xml:lang="en_US"><seg>[Address Book] Can export email address lists to CSV/XML</seg></tuv>
+		</tu>
+		<tu tuid='acl.core.addybook.org.actions.merge'>
+			<tuv xml:lang="en_US"><seg>[Address Book] Can merge organizations</seg></tuv>
 		</tu>
 		<tu tuid='acl.core.addybook.org.actions.update'>
 			<tuv xml:lang="en_US"><seg>[Address Book] Can modify organizations</seg></tuv>
