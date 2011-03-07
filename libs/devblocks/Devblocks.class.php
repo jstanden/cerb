@@ -1842,6 +1842,9 @@ abstract class DevblocksEngine {
 	            	case 'js':
 	            		header('Content-type: text/javascript;');
 	            		break;
+	            	case 'pdf':
+	            		header('Content-type: application/pdf;');
+	            		break;
 	            	case 'png':
 	            		header('Content-type: image/png;');
 	            		break;
