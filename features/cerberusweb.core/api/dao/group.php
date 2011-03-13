@@ -65,7 +65,7 @@ class DAO_Group extends C4_ORMHelper {
 	 * @return Model_Group
 	 */
 	static function get($id) {
-		$teams = DAO_Group::getTeams(array($id));
+		$teams = DAO_Group::getAll();
 		
 		if(isset($teams[$id]))
 			return $teams[$id];
