@@ -12,30 +12,6 @@ class PageSection_SetupMailFrom extends Extension_PageSection {
 		
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/mail_from/index.tpl');
 	}
-	
-	function saveJsonAction() {
-		try {
-			$worker = CerberusApplication::getActiveWorker();
-		
-			if(!$worker || !$worker->is_superuser)
-				throw new Exception("You are not an administrator.");
-				
-		    @$default_reply_address = DevblocksPlatform::importGPC($_REQUEST['sender_address'],'string');
-		    @$default_reply_personal = DevblocksPlatform::importGPC($_REQUEST['sender_personal'],'string');
-		    
-		    $settings = DevblocksPlatform::getPluginSettingsService();
-		    $settings->set('cerberusweb.core',CerberusSettings::DEFAULT_REPLY_FROM, $default_reply_address);
-		    $settings->set('cerberusweb.core',CerberusSettings::DEFAULT_REPLY_PERSONAL, $default_reply_personal);
-		    
-		    echo json_encode(array('status'=>true));
-		    return;
-		    
-		} catch(Exception $e) {
-			echo json_encode(array('status'=>false,'error'=>$e->getMessage()));
-			return;
-			
-		}
-	}	
 
 	function peekAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'integer', 0);
@@ -61,6 +37,11 @@ class PageSection_SetupMailFrom extends Extension_PageSection {
 		@$reply_personal = DevblocksPlatform::importGPC($_REQUEST['reply_personal'], 'string', '');
 		@$reply_signature = DevblocksPlatform::importGPC($_REQUEST['reply_signature'], 'string', '');
 
+		$worker = CerberusApplication::getActiveWorker();
+	
+		if(!$worker || !$worker->is_superuser)
+			throw new Exception("You are not an administrator.");
+		
 		if(empty($id)) { // create
 			if(false === ($address = DAO_Address::lookupAddress($reply_from, true)))
 				throw new Exception();

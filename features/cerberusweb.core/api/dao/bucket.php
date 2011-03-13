@@ -54,6 +54,9 @@ class DAO_Bucket extends DevblocksORMHelper {
     const POS = 'pos';
     const NAME = 'name';
     const TEAM_ID = 'team_id';
+    const REPLY_ADDRESS_ID = 'reply_address_id';
+    const REPLY_PERSONAL = 'reply_personal';
+    const REPLY_SIGNATURE = 'reply_signature';
     const IS_ASSIGNABLE = 'is_assignable';
     
 	static function getTeams() {
@@ -100,6 +103,11 @@ class DAO_Bucket extends DevblocksORMHelper {
 	    return $buckets;
 	}
 	
+	/**
+	 * 
+	 * @param integer $id
+	 * @return Model_Bucket
+	 */
 	static function get($id) {
 		$buckets = self::getAll();
 	
@@ -123,11 +131,11 @@ class DAO_Bucket extends DevblocksORMHelper {
 	static function getList($ids=array()) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = "SELECT tc.id, tc.pos, tc.name, tc.team_id, tc.is_assignable ".
-			"FROM category tc ".
-			"INNER JOIN team t ON (tc.team_id=t.id) ".
-			(!empty($ids) ? sprintf("WHERE tc.id IN (%s) ", implode(',', $ids)) : "").
-			"ORDER BY t.name ASC, tc.pos ASC "
+		$sql = "SELECT category.id, category.pos, category.name, category.team_id, category.is_assignable, category.reply_address_id, category.reply_personal, category.reply_signature ".
+			"FROM category ".
+			"INNER JOIN team ON (category.team_id=team.id) ".
+			(!empty($ids) ? sprintf("WHERE category.id IN (%s) ", implode(',', $ids)) : "").
+			"ORDER BY team.name ASC, category.pos ASC "
 		;
 		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 		
@@ -140,6 +148,9 @@ class DAO_Bucket extends DevblocksORMHelper {
 			$category->name = $row['name'];
 			$category->team_id = intval($row['team_id']);
 			$category->is_assignable = intval($row['is_assignable']);
+			$category->reply_address_id = $row['reply_address_id'];
+			$category->reply_personal = $row['reply_personal'];
+			$category->reply_signature = $row['reply_signature'];
 			$categories[$category->id] = $category;
 		}
 		
@@ -258,4 +269,100 @@ class Model_Bucket {
 	public $name = '';
 	public $team_id = 0;
 	public $is_assignable = 1;
+	public $reply_address_id;
+	public $reply_personal;
+	public $reply_signature;
+	
+	/**
+	 * 
+	 * @param integer $bucket_id
+	 * @return Model_AddressOutgoing
+	 */
+	public function getReplyTo() {
+		$from_id = 0;
+		$froms = DAO_AddressOutgoing::getAll();
+		
+		// Cascade to bucket
+		$from_id = $this->reply_address_id;
+		
+		// Cascade to group
+		if(empty($from_id)) {
+			$group = DAO_Group::get($this->team_id);
+			$from_id = $group->reply_address_id;
+		}
+		
+		// Cascade to global
+		if(empty($from_id) || !isset($froms[$from_id])) {
+			$from = DAO_AddressOutgoing::getDefault();
+			$from_id = $from->address_id;
+		}
+			
+		// Last check
+		if(!isset($froms[$from_id]))
+			return null;
+		
+		return $froms[$from_id];
+	}
+	
+	public function getReplyFrom() {
+		$from_id = 0;
+		$froms = DAO_AddressOutgoing::getAll();
+		
+		// Cascade to bucket
+		$from_id = $this->reply_address_id;
+		
+		// Cascade to group
+		if(empty($from_id)) {
+			$group = DAO_Group::get($this->team_id);
+			$from_id = $group->reply_address_id;
+		}
+		
+		// Cascade to global
+		if(empty($from_id) || !isset($froms[$from_id])) {
+			$from = DAO_AddressOutgoing::getDefault();
+			$from_id = $from->address_id;
+		}
+			
+		return $from_id;
+	}
+	
+	public function getReplyPersonal($bucket_id=0) {
+		$froms = DAO_AddressOutgoing::getAll();
+		
+		// [TODO]
+		//$team_personal_with_worker = DAO_GroupSettings::get($team_id,DAO_GroupSettings::SETTING_REPLY_PERSONAL_WITH_WORKER,0);
+		// Prefix the worker name on the personal line?
+//		if(!empty($team_personal_with_worker) && !empty($worker)) {
+//			$personal = $worker->getName() . ', ' . $personal;
+//		}
+		
+		// Cascade to bucket
+		$personal = $this->reply_personal;
+		
+		// Cascade to bucket address
+		if(empty($personal) && !empty($this->reply_address_id) && isset($froms[$this->reply_address_id])) {
+			$from = $froms[$this->reply_address_id];
+			$personal = $from->reply_personal;
+		}
+
+		// Cascade to group
+		if(empty($personal)) {
+			$group = DAO_Group::get($this->team_id);
+			$personal = $group->reply_personal;
+			
+			// Cascade to group address
+			if(empty($personal) && !empty($group->reply_address_id) && isset($froms[$group->reply_address_id])) {
+				$from = $froms[$group->reply_address_id];
+				$personal = $from->reply_personal;
+			}
+		}
+		
+		// Cascade to global
+		if(empty($personal)) {
+			$from = DAO_AddressOutgoing::getDefault();
+			$personal = $from->reply_personal;
+		}
+			
+		return $personal;
+	}	
 };

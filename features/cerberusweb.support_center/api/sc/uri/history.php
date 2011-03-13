@@ -189,26 +189,18 @@ class UmScHistoryController extends Extension_UmScController {
 		$last_message_headers = $last_message->getHeaders();
 		unset($messages);
 
-		// Helpdesk settings
-		$settings = DevblocksPlatform::getPluginSettingsService();
-		$global_from = $settings->get('cerberusweb.core',CerberusSettings::DEFAULT_REPLY_FROM,CerberusSettingsDefaults::DEFAULT_REPLY_FROM);
-		
 		// Ticket group settings
-		$group_id = $ticket[SearchFields_Ticket::TICKET_TEAM_ID];
-		@$group_from = DAO_GroupSettings::get($group_id, DAO_GroupSettings::SETTING_REPLY_FROM, '');
+		$group = DAO_Group::get($ticket[SearchFields_Ticket::TICKET_TEAM_ID]);
+		@$group_replyto = $group->getReplyTo($ticket[SearchFields_Ticket::TICKET_CATEGORY_ID]);
 		
 		// Headers
-		$to = !empty($group_from) ? $group_from : $global_from;
-		@$in_reply_to = $last_message_headers['message-id'];
-		@$message_id = CerberusApplication::generateMessageId();
-		
 		$message = new CerberusParserMessage();
 		$message->headers['from'] = $from_address->email;
-		$message->headers['to'] = $to;
+		$message->headers['to'] = $group_replyto->email;
 		$message->headers['date'] = date('r');
 		$message->headers['subject'] = 'Re: ' . $ticket[SearchFields_Ticket::TICKET_SUBJECT];
-		$message->headers['message-id'] = $message_id;
-		$message->headers['in-reply-to'] = $in_reply_to;
+		$message->headers['message-id'] = CerberusApplication::generateMessageId();
+		$message->headers['in-reply-to'] = @$last_message_headers['message-id'];
 		
 		$message->body = sprintf(
 			"%s",

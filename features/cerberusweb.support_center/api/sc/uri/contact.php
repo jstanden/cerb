@@ -27,10 +27,6 @@ class UmScContactController extends Extension_UmScController {
         $attachments_mode = DAO_CommunityToolProperty::get(ChPortalHelper::getCode(), self::PARAM_ATTACHMENTS_MODE, 0);
 		$tpl->assign('attachments_mode', $attachments_mode);
 		
-    	$settings = DevblocksPlatform::getPluginSettingsService();
-		$default_from = $settings->get('cerberusweb.core',CerberusSettings::DEFAULT_REPLY_FROM,CerberusSettingsDefaults::DEFAULT_REPLY_FROM);
-		$tpl->assign('default_from', $default_from);
-    	
     	switch($section) {
     		case 'confirm':
     			$tpl->assign('last_opened',$umsession->getProperty('support.write.last_opened',''));
@@ -95,54 +91,8 @@ class UmScContactController extends Extension_UmScController {
     		
 	}
 
-    // Ajax
-//    public function getSituation() {
-//		@$sCode = DevblocksPlatform::importGPC($_REQUEST['portal'],'string','');
-//		@$sReason = DevblocksPlatform::importGPC($_REQUEST['reason'],'string','');
-//    	 
-//    	$tool = DAO_CommunityTool::getByCode($sCode);
-//    	 
-//        $tpl = DevblocksPlatform::getTemplateService();
-//		
-//        $settings = DevblocksPlatform::getPluginSettingsService();
-//        
-//        $default_from = $settings->get('cerberusweb.core',CerberusSettings::DEFAULT_REPLY_FROM,CerberusSettingsDefaults::DEFAULT_REPLY_FROM);
-//        $tpl->assign('default_from', $default_from);
-//        
-//        $sDispatch = DAO_CommunityToolProperty::get(ChPortalHelper::getCode(),self::PARAM_SITUATIONS, '');
-//        $dispatch = !empty($sDispatch) ? unserialize($sDispatch) : array();
-//        
-//        if(is_array($dispatch))
-//        foreach($dispatch as $reason => $params) {
-//        	if(md5($reason)==$sReason) {
-//        		$tpl->assign('situation_reason', $reason);
-//        		$tpl->assign('situation_params', $params);
-//        		break;
-//        	}
-//        }
-//        
-//		$groups = DAO_Group::getAll();
-//		$tpl->assign('groups', $groups);
-//        
-//		// Contact: Fields
-//		$ticket_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TICKET);
-//		$tpl->assign('ticket_fields', $ticket_fields);
-//        
-//		// Custom field types
-//		$types = Model_CustomField::getTypes();
-//		$tpl->assign('field_types', $types);
-//		
-//        $tpl->display("devblocks:cerberusweb.support_center::portal/sc/config/module/contact/situation.tpl");
-//		exit;
-//    }
-
 	function configure(Model_CommunityTool $instance) {
 		$tpl = DevblocksPlatform::getTemplateService();
-
-        $settings = DevblocksPlatform::getPluginSettingsService();
-        
-        $default_from = $settings->get('cerberusweb.core',CerberusSettings::DEFAULT_REPLY_FROM,CerberusSettingsDefaults::DEFAULT_REPLY_FROM);
-        $tpl->assign('default_from', $default_from);
 
         $captcha_enabled = DAO_CommunityToolProperty::get($instance->code, self::PARAM_CAPTCHA_ENABLED, 1);
 		$tpl->assign('captcha_enabled', $captcha_enabled);
@@ -182,8 +132,7 @@ class UmScContactController extends Extension_UmScController {
         DAO_CommunityToolProperty::set($instance->code, self::PARAM_ATTACHMENTS_MODE, $iAttachmentsMode);
 
 		// Contact Form
-        $settings = DevblocksPlatform::getPluginSettingsService();
-        $default_from = $settings->get('cerberusweb.core',CerberusSettings::DEFAULT_REPLY_FROM,CerberusSettingsDefaults::DEFAULT_REPLY_FROM);
+		$replyto_default = DAO_AddressOutgoing::getDefault();
         
 		// Situations
     	@$aReason = DevblocksPlatform::importGPC($_POST['contact_reason'],'array',array());
@@ -202,7 +151,7 @@ class UmScContactController extends Extension_UmScController {
         	@$followup_fields = $aFollowupField[$key];
         	
         	$part = array(
-        		'to' => !empty($to) ? $to : $default_from,
+        		'to' => !empty($to) ? $to : $replyto_default->email,
         		'followups' => array()
         	);
         	
@@ -315,9 +264,6 @@ class UmScContactController extends Extension_UmScController {
 		$active_contact = $umsession->getProperty('sc_login', null);
 		$fingerprint = ChPortalHelper::getFingerprint();
 
-        $settings = DevblocksPlatform::getPluginSettingsService();
-        $default_from = $settings->get('cerberusweb.core',CerberusSettings::DEFAULT_REPLY_FROM,CerberusSettingsDefaults::DEFAULT_REPLY_FROM);
-
 		$umsession->setProperty('support.write.last_from',$sFrom);
 		$umsession->setProperty('support.write.last_subject',$sSubject);
 		$umsession->setProperty('support.write.last_content',$sContent);
@@ -351,7 +297,8 @@ class UmScContactController extends Extension_UmScController {
 		}
 
 		// Dispatch
-		$to = $default_from;
+		$replyto_default = DAO_AddressOutgoing::getDefault();
+		$to = $replyto_default->email;
 		$subject = 'Contact me: Other';
 		
         $sDispatch = DAO_CommunityToolProperty::get(ChPortalHelper::getCode(),self::PARAM_SITUATIONS, '');

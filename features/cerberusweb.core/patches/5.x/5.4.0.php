@@ -103,9 +103,102 @@ if(!isset($tables['community_session'])) {
 	}
 }
 
-
 // community
 if(isset($tables['community']))
 	$db->Execute("DROP TABLE community");
 
+// ===========================================================================
+// Add reply_address_id/reply_personal/reply_signature fields to groups
+
+list($columns, $indexes) = $db->metaTable('team');
+
+if(!isset($columns['reply_address_id']))
+	$db->Execute("ALTER TABLE team ADD COLUMN reply_address_id INT UNSIGNED DEFAULT 0 NOT NULL");
+if(!isset($columns['reply_personal']))
+	$db->Execute("ALTER TABLE team ADD COLUMN reply_personal VARCHAR(128) DEFAULT '' NOT NULL");
+if(isset($columns['signature']) && !isset($columns['reply_signature']))
+	$db->Execute("ALTER TABLE team CHANGE COLUMN signature reply_signature TEXT");
+	
+if(!isset($column['reply_address_id'])) {
+	// Migrate from group settings (and in code)
+	$results = $db->GetArray(sprintf("SELECT group_id, setting, value FROM group_setting WHERE setting IN ('reply_from','reply_personal')"));
+	foreach($results as $row) {
+		if(empty($row['value']))
+			continue;
+		
+		switch($row['setting']) {
+			case 'reply_from':
+				if(null == ($address = DAO_Address::lookupAddress($row['value'], true)))
+					continue;
+				
+				$db->Execute(sprintf("UPDATE team SET reply_address_id = %d WHERE id = %d",
+					$address->id,
+					$row['group_id']
+				));
+				break;
+				
+			case 'reply_personal':
+				$db->Execute(sprintf("UPDATE team SET reply_personal = %s WHERE id = %d",
+					$db->qstr($row['value']),
+					$row['group_id']
+				));
+				break;
+		}
+	}
+	
+	// Remove redundant settings from DB
+	$db->Execute("DELETE FROM group_setting WHERE setting IN ('reply_from','reply_personal')");;
+}
+	
+// ===========================================================================
+// Add reply_address_id/reply_personal/reply_signature fields to buckets
+
+list($columns, $indexes) = $db->metaTable('category');
+
+if(!isset($columns['reply_address_id']))
+	$db->Execute("ALTER TABLE category ADD COLUMN reply_address_id INT UNSIGNED DEFAULT 0 NOT NULL");
+if(!isset($columns['reply_personal']))
+	$db->Execute("ALTER TABLE category ADD COLUMN reply_personal VARCHAR(128) DEFAULT '' NOT NULL");
+if(!isset($columns['reply_signature']))
+	$db->Execute("ALTER TABLE category ADD COLUMN reply_signature TEXT");
+
+// ===========================================================================
+// Add address_outgoing
+
+if(!isset($tables['address_outgoing'])) {
+	$sql = "
+		CREATE TABLE IF NOT EXISTS address_outgoing (
+			address_id INT UNSIGNED DEFAULT 0 NOT NULL,
+			is_default TINYINT(1) UNSIGNED DEFAULT 0 NOT NULL,
+			reply_personal VARCHAR(128) DEFAULT '' NOT NULL,
+			reply_signature TEXT,
+			PRIMARY KEY (address_id)
+		) ENGINE=MyISAM;
+	";
+	$db->Execute($sql);
+	
+	// Migrate the default sender address
+	
+	$default_reply_from = $db->GetOne("SELECT value FROM devblocks_setting WHERE setting = 'default_reply_from' AND plugin_id='cerberusweb.core'");
+	$default_reply_personal = $db->GetOne("SELECT value FROM devblocks_setting WHERE setting = 'default_reply_personal' AND plugin_id='cerberusweb.core'");
+	$default_reply_signature = $db->GetOne("SELECT value FROM devblocks_setting WHERE setting = 'default_signature' AND plugin_id='cerberusweb.core'");
+	
+	if(!empty($default_reply_from) && null != ($address = DAO_Address::lookupAddress($default_reply_from, true))) {
+		$db->Execute("UPDATE address_outgoing SET is_default = 0");
+		$db->Execute(sprintf("INSERT IGNORE INTO address_outgoing (address_id, is_default, reply_personal, reply_signature) ".
+			"VALUES (%d, %d, %s, %s)",
+			$address->id,
+			1,
+			$db->qstr($default_reply_personal),
+			$db->qstr($default_reply_signature)
+		));
+	}
+	
+	$db->Execute("DELETE FROM devblocks_setting WHERE plugin_id = 'cerberusweb.core' AND setting IN ('default_reply_from','default_reply_personal','default_signature')");
+	
+	// Import from group addresses
+	$db->Execute("INSERT IGNORE INTO address_outgoing (address_id,is_default) SELECT DISTINCT reply_address_id, 0 FROM team WHERE reply_address_id != 0");
+	
+}	
+	
 return TRUE;

@@ -1209,28 +1209,17 @@ class ChTicketsPage extends CerberusPageExtension {
 		@$email = DevblocksPlatform::importGPC($_REQUEST['email'],'string','');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
-		$group_settings = DAO_GroupSettings::getSettings();
+		$replyto_default = DAO_AddressOutgoing::getDefault();
 		
-		$group_id = 0;
-		
-		// Translate email to group id
-		if(is_array($group_settings))
-		foreach($group_settings as $settings_group_id => $settings) {
-			if(!is_array($settings) || !isset($settings[DAO_GroupSettings::SETTING_REPLY_FROM]))
-				continue;
-				
-			if(0==strcasecmp($settings[DAO_GroupSettings::SETTING_REPLY_FROM], $email)) {
-				$group_id = $settings_group_id;
-				break;
-			}
-		}
-		
-		if(!empty($group_id) && null != ($group = DAO_Group::get($group_id)) && !empty($group->signature)) {
-			$sig = $group->signature;
+		if(false !== ($address = DAO_Address::lookupAddress($email, false)))
+			$replyto = DAO_AddressOutgoing::get($address->id);
+			
+		if(!empty($replyto->reply_signature)) {
+			$sig = $replyto->reply_signature;
 		} else {
-			$sig = DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::DEFAULT_SIGNATURE, CerberusSettingsDefaults::DEFAULT_SIGNATURE);
+			$sig = $replyto_default->reply_signature;
 		}
-
+		
 		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $active_worker, $token_labels, $token_values);
 		echo "\r\n", $tpl_builder->build($sig, $token_values), "\r\n";

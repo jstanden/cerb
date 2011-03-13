@@ -456,26 +456,42 @@ switch($step) {
 	case STEP_CONTACT:
 		$settings = DevblocksPlatform::getPluginSettingsService();
 		
-		@$default_reply_from = DevblocksPlatform::importGPC($_POST['default_reply_from'],'string',$settings->get('cerberusweb.core',CerberusSettings::DEFAULT_REPLY_FROM,CerberusSettingsDefaults::DEFAULT_REPLY_FROM));
-		@$default_reply_personal = DevblocksPlatform::importGPC($_POST['default_reply_personal'],'string',$settings->get('cerberusweb.core',CerberusSettings::DEFAULT_REPLY_PERSONAL,CerberusSettingsDefaults::DEFAULT_REPLY_PERSONAL));
+		@$default_reply_from = DevblocksPlatform::importGPC($_POST['default_reply_from'],'string','do-not-reply@localhost');
+		@$default_reply_personal = DevblocksPlatform::importGPC($_POST['default_reply_personal'],'string','');
 		@$helpdesk_title = DevblocksPlatform::importGPC($_POST['helpdesk_title'],'string',$settings->get('cerberusweb.core',CerberusSettings::HELPDESK_TITLE,CerberusSettingsDefaults::HELPDESK_TITLE));
 		@$form_submit = DevblocksPlatform::importGPC($_POST['form_submit'],'integer');
 		
 		if(!empty($form_submit) && !empty($default_reply_from)) {
 			
 			$validate = imap_rfc822_parse_adrlist(sprintf("<%s>", $default_reply_from),"localhost");
+
+			$fields = array(
+				DAO_AddressOutgoing::REPLY_SIGNATURE => '',
+			);
 			
 			if(!empty($default_reply_from) && is_array($validate) && 1==count($validate)) {
-				$settings->set('cerberusweb.core',CerberusSettings::DEFAULT_REPLY_FROM, $default_reply_from);
+				if(null != ($address = DAO_Address::lookupAddress($default_reply_from, true))) {
+					$address_id = $address->id;
+					$fields[DAO_AddressOutgoing::ADDRESS_ID] = $address->id; 
+				}
 			}
 			
 			if(!empty($default_reply_personal)) {
-				$settings->set('cerberusweb.core',CerberusSettings::DEFAULT_REPLY_PERSONAL, $default_reply_personal);
+				$fields[DAO_AddressOutgoing::REPLY_PERSONAL] = $default_reply_personal; 
+			}
+
+			// Create or update
+			if(null == DAO_AddressOutgoing::get($address->id)) {
+				$address_id = DAO_AddressOutgoing::create($fields);
+			} else {
+				DAO_AddressOutgoing::update($address->id, $fields);
 			}
 			
-			if(!empty($helpdesk_title)) {
+			if(!empty($address_id))
+				DAO_AddressOutgoing::setDefault($address_id);
+			
+			if(!empty($helpdesk_title))
 				$settings->set('cerberusweb.core',CerberusSettings::HELPDESK_TITLE, $helpdesk_title);
-			}
 			
 			$tpl->assign('step', STEP_OUTGOING_MAIL);
 			$tpl->display('steps/redirect.tpl');
@@ -655,10 +671,12 @@ switch($step) {
 				}
 				
 				// Send a first ticket which allows people to reply for support
-				if(null !== ($default_from = $settings->get('cerberusweb.core',CerberusSettings::DEFAULT_REPLY_FROM,CerberusSettingsDefaults::DEFAULT_REPLY_FROM))) {
+				$replyto_default = DAO_AddressOutgoing::getDefault();
+				
+				if(null != $replyto_default) {
 					$message = new CerberusParserMessage();
 						$message->headers['from'] = '"WebGroup Media, LLC." <support@webgroupmedia.com>';
-						$message->headers['to'] = $default_from;
+						$message->headers['to'] = $replyto_default->email;
 						$message->headers['subject'] = "Welcome to Cerberus Helpdesk 5.x!";
 						$message->headers['date'] = date('r');
 						$message->headers['message-id'] = CerberusApplication::generateMessageId();
@@ -718,9 +736,6 @@ EOF;
 			@$contact_company = stripslashes($_REQUEST['contact_company']);
 			
 			if(empty($skip) && !empty($contact_name)) {
-				$settings = DevblocksPlatform::getPluginSettingsService();
-				@$default_from = $settings->get('cerberusweb.core',CerberusSettings::DEFAULT_REPLY_FROM,CerberusSettingsDefaults::DEFAULT_REPLY_FROM);
-				
 				@$contact_phone = stripslashes($_REQUEST['contact_phone']);
 				@$contact_refer = stripslashes($_REQUEST['contact_refer']);
 				@$q1 = stripslashes($_REQUEST['q1']);
@@ -728,12 +743,6 @@ EOF;
 				@$q3 = stripslashes($_REQUEST['q3']);
 				@$q4 = stripslashes($_REQUEST['q4']);
 				@$q5 = stripslashes($_REQUEST['q5']);
-				//@$q5_support = stripslashes($_REQUEST['q5_support']);
-				//@$q5_opensource = stripslashes($_REQUEST['q5_opensource']);
-				//@$q5_price = stripslashes($_REQUEST['q5_price']);
-				//@$q5_updates = stripslashes($_REQUEST['q5_updates']);
-				//@$q5_developers = stripslashes($_REQUEST['q5_developers']);
-				//@$q5_community = stripslashes($_REQUEST['q5_community']);
 				@$comments = stripslashes($_REQUEST['comments']);
 				
 				if(isset($_REQUEST['form_submit'])) {
@@ -748,9 +757,6 @@ EOF;
 				    "#3: Are you considering both free and commercial solutions?\r\n%s\r\n\r\n".
 				    "#4: What will be your first important milestone?\r\n%s\r\n\r\n".
 				    "#5: How many workers do you expect to use the helpdesk simultaneously?\r\n%s\r\n\r\n".
-//				    "#5: How important are the following benefits in making your decision?\r\n".
-//				    "Near-Instant Support: %d\r\nAvailable Source Code: %d\r\nCompetitive Purchase Price: %d\r\n".
-//				    "Frequent Product Updates: %d\r\nAccess to Developers: %d\r\nLarge User Community: %d\r\n".
 				    "\r\n".
 				    "Additional Comments: \r\n%s\r\n\r\n"
 				    ,
@@ -763,12 +769,6 @@ EOF;
 				    $q3,
 				    $q4,
 				    $q5,
-				    //$q5_support,
-				    //$q5_opensource,
-				    //$q5_price,
-				    //$q5_updates,
-				    //$q5_developers,
-				    //$q5_community,
 				    $comments
 				  );
 

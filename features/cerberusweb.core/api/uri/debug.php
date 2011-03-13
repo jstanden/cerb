@@ -205,16 +205,12 @@ class ChDebugController extends DevblocksControllerExtension  {
 				if(!empty($settings)) {
 					$report_output .= sprintf(
 						"[Setting] HELPDESK_TITLE: %s\n".
-						"[Setting] DEFAULT_REPLY_FROM: %s\n".
-						"[Setting] DEFAULT_REPLY_PERSONAL: %s\n".
 						"[Setting] SMTP_HOST: %s\n".
 						"[Setting] SMTP_PORT: %s\n".
 						"[Setting] SMTP_ENCRYPTION_TYPE: %s\n".
 						"\n".
 						'%s',
 						$settings->get('cerberusweb.core',CerberusSettings::HELPDESK_TITLE,''),
-						str_replace(array('@','.'),array(' at ',' dot '),$settings->get('cerberusweb.core',CerberusSettings::DEFAULT_REPLY_FROM,'')),
-						$settings->get('cerberusweb.core',CerberusSettings::DEFAULT_REPLY_PERSONAL,''),
 						$settings->get('cerberusweb.core',CerberusSettings::SMTP_HOST,''),
 						$settings->get('cerberusweb.core',CerberusSettings::SMTP_PORT,''),
 						$settings->get('cerberusweb.core',CerberusSettings::SMTP_ENCRYPTION_TYPE,''),
