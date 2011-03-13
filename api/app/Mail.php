@@ -72,12 +72,16 @@ class CerberusMail {
 	
 		    $settings = DevblocksPlatform::getPluginSettingsService();
 		    
-		    if(empty($from_addy))
-				@$from_addy = $settings->get('cerberusweb.core',CerberusSettings::DEFAULT_REPLY_FROM, CerberusSettingsDefaults::DEFAULT_REPLY_FROM);
+		    if(empty($from_addy) || empty($from_personal)) {
+		    	if(null == ($replyto_default = DAO_AddressOutgoing::getDefault()))
+		    		throw new Exception("There is no default reply-to.");
+		    	
+		    	if(empty($from_addy))
+		    		$from_addy = $replyto_default->email;
+		    	if(empty($from_personal))
+		    		$from_personal = $replyto_default->reply_personal;
+		    }
 		    
-		    if(empty($from_personal))
-				@$from_personal = $settings->get('cerberusweb.core',CerberusSettings::DEFAULT_REPLY_PERSONAL,CerberusSettingsDefaults::DEFAULT_REPLY_PERSONAL);
-			
 			$mail->setTo(array($to));
 			$mail->setFrom(array($from_addy => $from_personal));
 			$mail->setSubject($subject);
@@ -117,22 +121,10 @@ class CerberusMail {
 		@$ticket_reopen = $properties['ticket_reopen'];
 		
 		$worker = CerberusApplication::getActiveWorker();
-		
-		$settings = DevblocksPlatform::getPluginSettingsService();
-		$default_from = $settings->get('cerberusweb.core',CerberusSettings::DEFAULT_REPLY_FROM,CerberusSettingsDefaults::DEFAULT_REPLY_FROM);
-		$default_personal = $settings->get('cerberusweb.core',CerberusSettings::DEFAULT_REPLY_PERSONAL,CerberusSettingsDefaults::DEFAULT_REPLY_PERSONAL);
-		
-		$team_from = DAO_GroupSettings::get($team_id,DAO_GroupSettings::SETTING_REPLY_FROM,'');
-		$team_personal = DAO_GroupSettings::get($team_id,DAO_GroupSettings::SETTING_REPLY_PERSONAL,'');
-		$team_personal_with_worker = DAO_GroupSettings::get($team_id,DAO_GroupSettings::SETTING_REPLY_PERSONAL_WITH_WORKER,0);
-		
-		$from = !empty($team_from) ? $team_from : $default_from;
-		$personal = !empty($team_personal) ? $team_personal : $default_personal;
-		
-		// Prefix the worker name on the personal line?
-		if(!empty($team_personal_with_worker) && !empty($worker)) {
-			$personal = $worker->getName() . ', ' . $personal;
-		}
+		$group = DAO_Group::get($team_id);
+
+		$from_replyto = $group->getReplyTo();
+		$personal = $group->getReplyPersonal();
 		
 		$mask = CerberusApplication::generateTicketMask();
 
@@ -161,7 +153,7 @@ class CerberusMail {
 			$log_headers = new Swift_Message_Headers();
 			$log_headers->setCharset(LANG_CHARSET_CODE);
 			$log_headers->set('To', $toStr);
-			$log_headers->set('From', !empty($personal) ? (sprintf("%s <%s>",$personal,$from)) : (sprintf('%s',$from)));
+			$log_headers->set('From', !empty($personal) ? (sprintf("%s <%s>",$personal,$from_replyto->email)) : (sprintf('%s',$from_replyto->email)));
 			$log_headers->set('Subject', $subject_mailed);
 			$log_headers->set('Date', date('r'));
 			
@@ -191,7 +183,7 @@ class CerberusMail {
 					$email->setBcc($bccList);
 				}
 				
-				$email->setFrom(array($from => $personal));
+				$email->setFrom(array($from_replyto->email => $personal));
 				$email->setSubject($subject_mailed);
 				$email->generateId();
 				
@@ -260,7 +252,7 @@ class CerberusMail {
 			}
 		}
 		
-		$fromAddressInst = CerberusApplication::hashLookupAddress($from, true);
+		$fromAddressInst = CerberusApplication::hashLookupAddress($from_replyto->email, true);
 		$fromAddressId = $fromAddressInst->id;
 		
 		// [TODO] this is redundant with the Parser code.  Should be refactored later
@@ -391,12 +383,8 @@ class CerberusMail {
 	
 	static function sendTicketMessage($properties=array()) {
 	    $settings = DevblocksPlatform::getPluginSettingsService();
-	    $helpdesk_senders = CerberusApplication::getHelpdeskSenders();
+	    $replyto_addresses = DAO_AddressOutgoing::getAll();
 	    
-		@$from_addy = $settings->get('cerberusweb.core',CerberusSettings::DEFAULT_REPLY_FROM, CerberusSettingsDefaults::DEFAULT_REPLY_FROM);
-		@$from_personal = $settings->get('cerberusweb.core',CerberusSettings::DEFAULT_REPLY_PERSONAL,CerberusSettingsDefaults::DEFAULT_REPLY_PERSONAL);
-	    // [TODO] If we still don't have a $from_addy we need a graceful failure. 
-		
 		/*
 	    'draft_id'
 	    'message_id'
@@ -442,35 +430,28 @@ class CerberusMail {
 	        
 			if(null == ($ticket = DAO_Ticket::get($ticket_id)))
 				return;
-	
-			// [TODO] Check that message|ticket isn't NULL
+				
+			if(null == ($group = DAO_Group::get($ticket->team_id)))
+				return;
+				
+			$from_replyto = $group->getReplyTo($ticket->category_id);
+			$from_personal = $group->getReplyPersonal($ticket->category_id);
 			
 			// If this ticket isn't spam trained and our outgoing message isn't an autoreply
 			if($ticket->spam_training == CerberusTicketSpamTraining::BLANK
 				&& (!isset($properties['is_autoreply']) || !$properties['is_autoreply'])) {
 				CerberusBayes::markTicketAsNotSpam($ticket_id);
 			} 
-			
-			// Allow teams to override the default from/personal
-			@$group_reply = DAO_GroupSettings::get($ticket->team_id, DAO_GroupSettings::SETTING_REPLY_FROM, '');
-			@$group_personal = DAO_GroupSettings::get($ticket->team_id, DAO_GroupSettings::SETTING_REPLY_PERSONAL, '');
-			@$group_personal_with_worker = DAO_GroupSettings::get($ticket->team_id, DAO_GroupSettings::SETTING_REPLY_PERSONAL_WITH_WORKER, 0);
-
-			if(!empty($group_reply))
-				$from_addy = $group_reply;
 				
-			if(!empty($group_personal)) 
-				$from_personal = $group_personal;
-			
 			// Prefix the worker name on the personal line?
-			if(!empty($group_personal_with_worker)
-				&& null != ($reply_worker = DAO_Worker::get($worker_id))) {
-					$from_personal = $reply_worker->getName() .
-						(!empty($from_personal) ? (', ' . $from_personal) : "");
-			}
+//			if(!empty($group_personal_with_worker)
+//				&& null != ($reply_worker = DAO_Worker::get($worker_id))) {
+//					$from_personal = $reply_worker->getName() .
+//						(!empty($from_personal) ? (', ' . $from_personal) : "");
+//			}
 				
 			// Headers
-			$mail->setFrom(array($from_addy => $from_personal));
+			$mail->setFrom(array($from_replyto->email => $from_personal));
 			$mail->generateId();
 			
 			$headers = $mail->getHeaders();
@@ -522,7 +503,7 @@ class CerberusMail {
 					return;
 	
 				// Ourselves?
-				if(isset($helpdesk_senders[$first_address->email]))
+				if(isset($replyto_addresses[$first_address->id]))
 					return;
 					
 				// Make sure we haven't mailed this address an autoreply within 5 minutes
@@ -673,7 +654,7 @@ class CerberusMail {
 		
 		$change_fields = array();
 		
-		$fromAddressInst = CerberusApplication::hashLookupAddress($from_addy, true);
+		$fromAddressInst = CerberusApplication::hashLookupAddress($from_replyto->email, true);
 		$fromAddressId = $fromAddressInst->id;
 		
 		if((!isset($properties['dont_keep_copy']) || !$properties['dont_keep_copy'])
@@ -776,7 +757,6 @@ class CerberusMail {
 			}
 		}
 
-        // Who should handle the followup?
         if(isset($properties['context_workers'])) {
         	CerberusContexts::setWorkers(CerberusContexts::CONTEXT_TICKET, $ticket_id, $properties['context_workers']);
         }
@@ -817,10 +797,6 @@ class CerberusMail {
 			$mailer = $mail_service->getMailer(CerberusMail::getMailerDefaults());
 			$mail = $mail_service->createMessage();
 	
-		    $settings = DevblocksPlatform::getPluginSettingsService();
-			@$from_addy = $settings->get('cerberusweb.core',CerberusSettings::DEFAULT_REPLY_FROM, CerberusSettingsDefaults::DEFAULT_REPLY_FROM);
-			@$from_personal = $settings->get('cerberusweb.core',CerberusSettings::DEFAULT_REPLY_PERSONAL,CerberusSettingsDefaults::DEFAULT_REPLY_PERSONAL);
-			
 			$mail->setTo(array($to));
 
 			$headers = $mail->getHeaders();

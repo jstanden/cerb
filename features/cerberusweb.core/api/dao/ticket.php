@@ -579,7 +579,7 @@ class DAO_Ticket extends C4_ORMHelper {
 		$db = DevblocksPlatform::getDatabaseService();
 		$logger = DevblocksPlatform::getConsoleLog();
 		
-		$helpdesk_senders = CerberusApplication::getHelpdeskSenders();
+		$replyto_addresses = DAO_AddressOutgoing::getAll();
 
 		if(null == ($address = CerberusApplication::hashLookupAddress($raw_email, true))) {
 			$logger->warn(sprintf("[Parser] %s is a malformed requester e-mail address.", $raw_email));
@@ -587,7 +587,7 @@ class DAO_Ticket extends C4_ORMHelper {
 		}
 		
 		// Don't add a requester if the sender is a helpdesk address
-		if(isset($helpdesk_senders[$address->email])) {
+		if(isset($replyto_addresses[$address->id])) {
 			$logger->info(sprintf("[Parser] Not adding %s as a requester because it's a helpdesk-controlled address. ", $address->email));
 			return false;
 		}

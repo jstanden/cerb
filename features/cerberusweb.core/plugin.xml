@@ -65,17 +65,22 @@
 			<class name="ChTaskSource_Ticket" />
 		</file>
 		
-		<file path="api/dao/address_to_worker.php">
-			<class name="DAO_AddressToWorker" />
-			<class name="Model_AddressToWorker" />
-		</file>
-		
 		<file path="api/dao/address.php">
 			<class name="Context_Address" />
 			<class name="DAO_Address" />
 			<class name="Model_Address" />
 			<class name="SearchFields_Address" />
 			<class name="View_Address" />
+		</file>
+		
+		<file path="api/dao/address_outgoing.php">
+			<class name="DAO_AddressOutgoing" />
+			<class name="Model_AddressOutgoing" />
+		</file>
+		
+		<file path="api/dao/address_to_worker.php">
+			<class name="DAO_AddressToWorker" />
+			<class name="Model_AddressToWorker" />
 		</file>
 		
 		<file path="api/dao/attachment.php">
@@ -1064,6 +1069,19 @@
 				<params>
 					<param key="page_id" value="core.page.configuration" />
 					<param key="uri" value="mail_filtering" />
+				</params>
+			</extension>
+			
+			<extension point="cerberusweb.ui.page.section">
+				<id>core.page.setup.mail_from</id>
+				<name>Mail From Section</name>
+				<class>
+					<file>api/uri/config/mail_from.php</file>
+					<name>PageSection_SetupMailFrom</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.page.configuration" />
+					<param key="uri" value="mail_from" />
 				</params>
 			</extension>
 			

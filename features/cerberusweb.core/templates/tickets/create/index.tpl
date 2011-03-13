@@ -28,7 +28,7 @@
 					<td width="100%">
 						<select name="to" id="to" class="required" style="border:1px solid rgb(180,180,180);padding:2px;">
 							{foreach from=$destinations item=destination}
-							<option value="{$destination}" {if 0==strcasecmp($destination,$draft->params.to)}selected="selected"{/if}>{$destination}</option>
+							<option value="{$destination->email}" {if 0==strcasecmp($destination->email,$draft->params.to)}selected="selected"{/if}>{$destination->email}</option>
 							{/foreach}
 						</select>
 					</td>

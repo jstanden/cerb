@@ -117,7 +117,7 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
 
 	private function _getMailingListFromMatches($matches) {
 		$workers = DAO_Worker::getAllActive();
-		$helpdesk_senders = CerberusApplication::getHelpdeskSenders();
+		$replyto_addresses = DAO_AddressOutgoing::getAll();
 		
 		$notify_emails = array();
 		
@@ -134,8 +134,11 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
 			foreach($filter->actions['email']['to'] as $addy) {
 				$addy = strtolower($addy);
 				
+				if(null == ($addy_model = DAO_Address::lookupAddress($addy, true)))
+					continue;
+				
 				// Don't allow a worker to usurp a helpdesk address
-				if(isset($helpdesk_senders[$addy]))
+				if(isset($replyto_addresses[$addy_model->id]))
 					continue;
 				
 				if(!isset($notify_emails[$addy]))
@@ -186,6 +189,7 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
 		$url_writer = DevblocksPlatform::getUrlService();
 		
 		$ticket = DAO_Ticket::get($ticket_id);
+		$group = DAO_Group::get($ticket->team_id);
 
 		// Find all our matching filters
 		if(empty($ticket) || false == ($matches = Model_WatcherMailFilter::getMatches(
@@ -218,15 +222,7 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
 			
 		// The whole flipping Swift section needs wrapped to catch exceptions
 		try {
-			$settings = DevblocksPlatform::getPluginSettingsService();
-			$reply_to = $settings->get('cerberusweb.core',CerberusSettings::DEFAULT_REPLY_FROM, CerberusSettingsDefaults::DEFAULT_REPLY_FROM);
-			
-			// See if we need a group-specific reply-to
-			if(!empty($ticket->team_id)) {
-				@$group_from = DAO_GroupSettings::get($ticket->team_id, DAO_GroupSettings::SETTING_REPLY_FROM, '');
-				if(!empty($group_from))
-					$reply_to = $group_from;
-			}
+			$replyto = $group->getReplyTo($ticket->category_id);
 			
 			$sender = DAO_Address::get($message->address_id);
 	
@@ -276,8 +272,8 @@ class ChWatchersEventListener extends DevblocksEventListenerExtension {
 					$mail = $mail_service->createMessage(); /* @var $mail Swift_Message */
 					$mail->setTo(array($to));
 					$mail->setFrom(array($sender->email));
-					$mail->setReplyTo($reply_to);
-					$mail->setReturnPath($reply_to);
+					$mail->setReplyTo($replyto->email);
+					$mail->setReturnPath($replyto->email);
 					$mail->setSubject(sprintf("[%s #%s]: %s",
 						($is_inbound ? 'inbound' : 'outbound'),
 						$ticket->mask,

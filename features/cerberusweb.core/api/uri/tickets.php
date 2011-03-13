@@ -140,7 +140,7 @@ class ChTicketsPage extends CerberusPageExtension {
 				$tpl->assign('teams', $teams);
 				
 				// Destinations
-				$destinations = CerberusApplication::getHelpdeskSenders();
+				$destinations = DAO_AddressOutgoing::getAll();
 				$tpl->assign('destinations', $destinations);
 
 				// Group+Buckets				
@@ -1460,7 +1460,6 @@ class ChTicketsPage extends CerberusPageExtension {
 			'context_workers' => $owner_ids,
 			'ticket_reopen' => $ticket_reopen,
 		);
-		
 		$ticket_id = CerberusMail::compose($properties);
 		
 		if(!empty($ticket_id)) {
@@ -1472,8 +1471,9 @@ class ChTicketsPage extends CerberusPageExtension {
 			$visit = CerberusApplication::getVisit(); /* @var CerberusVisit $visit */
 			$visit->set('compose.last_ticket', $ticket->mask);
 		}
-
+		
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('tickets','compose')));
+		exit;
 	}
 	
 	function logTicketAction() {
@@ -1519,58 +1519,7 @@ class ChTicketsPage extends CerberusPageExtension {
 			$active_worker->getName()
 		);
 
-//		// Custom Fields
-//		
-//		if(!empty($aFieldIds))
-//		foreach($aFieldIds as $iIdx => $iFieldId) {
-//			if(!empty($iFieldId)) {
-//				$field =& $fields[$iFieldId]; /* @var $field Model_CustomField */
-//				$value = "";
-//				
-//				switch($field->type) {
-//					case Model_CustomField::TYPE_SINGLE_LINE:
-//					case Model_CustomField::TYPE_MULTI_LINE:
-//					case Model_CustomField::TYPE_URL:
-//						@$value = trim($aFollowUpA[$iIdx]);
-//						break;
-//					
-//					case Model_CustomField::TYPE_NUMBER:
-//						@$value = $aFollowUpA[$iIdx];
-//						if(!is_numeric($value) || 0 == strlen($value))
-//							$value = null;
-//						break;
-//						
-//					case Model_CustomField::TYPE_DATE:
-//						if(false !== ($time = strtotime($aFollowUpA[$iIdx])))
-//							@$value = intval($time);
-//						break;
-//						
-//					case Model_CustomField::TYPE_DROPDOWN:
-//						@$value = $aFollowUpA[$iIdx];
-//						break;
-//						
-//					case Model_CustomField::TYPE_MULTI_PICKLIST:
-//						@$value = DevblocksPlatform::importGPC($_POST['followup_a_'.$iIdx],'array',array());
-//						break;
-//						
-//					case Model_CustomField::TYPE_CHECKBOX:
-//						@$value = (isset($aFollowUpA[$iIdx]) && !empty($aFollowUpA[$iIdx])) ? 1 : 0;
-//						break;
-//						
-//					case Model_CustomField::TYPE_MULTI_CHECKBOX:
-//						@$value = DevblocksPlatform::importGPC($_POST['followup_a_'.$iIdx],'array',array());
-//						break;
-//						
-//					case Model_CustomField::TYPE_WORKER:
-//						@$value = DevblocksPlatform::importGPC($_POST['followup_a_'.$iIdx],'integer',0);
-//						break;
-//				}
-//				
-//				if((is_array($value) && !empty($value)) 
-//					|| (!is_array($value) && 0 != strlen($value)))
-//						$message->custom_fields[$iFieldId] = $value;
-//			}
-//		}
+		// [TODO] Custom fields
 		
 		// Parse
 		$ticket_id = CerberusParser::parseMessage($message);

@@ -88,8 +88,6 @@ class CerberusApplication extends DevblocksApplication {
 	const VIEW_MAIL_WORKFLOW = 'mail_workflow';
 	const VIEW_MAIL_MESSAGES = 'mail_messages';
 	
-	const CACHE_HELPDESK_FROMS = 'ch_helpdesk_froms';
-	
 	/**
 	 * @return CerberusVisit
 	 */
@@ -603,35 +601,6 @@ class CerberusApplication extends DevblocksApplication {
 		}
 		
 	    return $matches;
-	}
-	
-	// [TODO] This probably has a better home
-	public static function getHelpdeskSenders() {
-		$cache = DevblocksPlatform::getCacheService();
-
-		if(null === ($froms = $cache->load(self::CACHE_HELPDESK_FROMS))) {
-			$froms = array();
-			$settings = DevblocksPlatform::getPluginSettingsService();
-			$group_settings = DAO_GroupSettings::getSettings();
-			
-			// Global sender
-			$from = strtolower($settings->get('cerberusweb.core',CerberusSettings::DEFAULT_REPLY_FROM,CerberusSettingsDefaults::DEFAULT_REPLY_FROM));
-			@$froms[$from] = $from;
-			
-			// Group senders
-			if(is_array($group_settings))
-			foreach($group_settings as $group_id => $gs) {
-				@$from = strtolower($gs[DAO_GroupSettings::SETTING_REPLY_FROM]);
-				if(!empty($from))
-					@$froms[$from] = $from;
-			}
-			
-			asort($froms);
-			
-			$cache->save($froms, self::CACHE_HELPDESK_FROMS);
-		}
-		
-		return $froms;
 	}
 };
 

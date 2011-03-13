@@ -256,16 +256,14 @@ class ChSignInPage extends CerberusPageExtension {
 		    $mailer = $mail_service->getMailer(CerberusMail::getMailerDefaults());
 			$mail = $mail_service->createMessage();
 		    
+		    $replyto_default = DAO_AddressOutgoing::getDefault();
 		    $code = CerberusApplication::generatePassword(10);
 		    
 		    $_SESSION[self::KEY_FORGOT_SENTCODE] = $code;
-		    $settings = DevblocksPlatform::getPluginSettingsService();
-			$from = $settings->get('cerberusweb.core',CerberusSettings::DEFAULT_REPLY_FROM,CerberusSettingsDefaults::DEFAULT_REPLY_FROM);
-		    $personal = $settings->get('cerberusweb.core',CerberusSettings::DEFAULT_REPLY_PERSONAL,CerberusSettingsDefaults::DEFAULT_REPLY_PERSONAL);
-			
+		    
 			// Headers
 			$mail->setTo(array($email));
-			$mail->setFrom(array($from => $personal));
+			$mail->setFrom(array($replyto_default->email => $replyto_default->reply_personal));
 			$mail->setSubject($translate->_('signin.forgot.mail.subject'));
 			$mail->generateId();
 			
