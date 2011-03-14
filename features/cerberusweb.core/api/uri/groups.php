@@ -71,7 +71,7 @@ class ChGroupsPage extends CerberusPageExtension  {
     	$groups = DAO_Group::getAll();
     	$tpl->assign('groups', $groups);
     	
-    	@$team_id = array_shift($stack); // team_id
+    	@$team_id = intval(array_shift($stack)); // team_id
 
 		// Only group managers and superusers can configure
 		if(empty($team_id) || (!$active_worker->isTeamManager($team_id) && !$active_worker->is_superuser)) {

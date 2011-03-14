@@ -20,7 +20,7 @@
 					<tr>
 						<td style="padding-right:20px;">
 							{if $group_member->is_manager || $active_worker->is_superuser}
-								<a href="{devblocks_url}c=groups&gid={$group_id}{/devblocks_url}"><b>{$group->name}</b></a>
+								<a href="{devblocks_url}c=groups&gid={$group_id}-{$group->name|devblocks_permalink}{/devblocks_url}"><b>{$group->name}</b></a>
 							{else}
 								{$group->name}
 							{/if}
