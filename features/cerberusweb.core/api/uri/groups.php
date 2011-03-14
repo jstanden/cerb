@@ -696,7 +696,11 @@ class ChGroupsPage extends CerberusPageExtension  {
 		$tpl->assign('group_id', $group_id);
 		$tpl->assign('bucket_id', $bucket_id);
 		$tpl->assign('replyto_addresses', DAO_AddressOutgoing::getAll());
-			
+		
+		// All buckets
+		$buckets = DAO_Bucket::getByTeam($group_id);
+		$tpl->assign('buckets', $buckets);
+		
 		// Signature
 		$worker_token_labels = array();
 		$worker_token_values = array();
@@ -708,6 +712,7 @@ class ChGroupsPage extends CerberusPageExtension  {
 	}
 	
 	function saveBucketPeekAction() {
+		@$form_submit = DevblocksPlatform::importGPC($_REQUEST['form_submit'],'string','');
 		@$group_id = DevblocksPlatform::importGPC($_REQUEST['group_id'],'integer',0);
 		@$bucket_id = DevblocksPlatform::importGPC($_REQUEST['bucket_id'],'string',''); // Keep as string
 		@$name = DevblocksPlatform::importGPC($_REQUEST['name'],'string','');
@@ -721,30 +726,48 @@ class ChGroupsPage extends CerberusPageExtension  {
 	    if(!$active_worker->isTeamManager($group_id) && !$active_worker->is_superuser)
 	    	return;
 		
-		if('0' == $bucket_id) { // Inbox
-			$fields = array(
-				DAO_Group::REPLY_ADDRESS_ID => $reply_address_id,
-				DAO_Group::REPLY_PERSONAL => $reply_personal,
-				DAO_Group::REPLY_SIGNATURE => $reply_signature,
-			);
-			DAO_Group::updateTeam($group_id, $fields);
-			
-		} else { // Bucket
-			$fields = array(
-				DAO_Bucket::NAME => (empty($name) ? 'New Bucket' : $name),
-				DAO_Bucket::IS_ASSIGNABLE => ($is_hidden ? 0 : 1),
-				DAO_Bucket::REPLY_ADDRESS_ID => $reply_address_id,
-				DAO_Bucket::REPLY_PERSONAL => $reply_personal,
-				DAO_Bucket::REPLY_SIGNATURE => $reply_signature,
-			);
-
-			// Create?
-			if(empty($bucket_id)) {
-				$bucket_id = DAO_Bucket::create($name, $group_id);
-			}
-				
-			DAO_Bucket::update($bucket_id, $fields);
-		}
+	    switch($form_submit) {
+	    	case 'delete':
+	    		@$delete_moveto = DevblocksPlatform::importGPC($_REQUEST['delete_moveto'],'integer',0);
+	    		$buckets = DAO_Bucket::getAll();
+	    		// Bucket must exist
+	    		if(empty($bucket_id) || !isset($buckets[$bucket_id]))
+	    			break;
+	    		// Destination must be inbox or exist
+	    		if(!empty($delete_moveto) && !isset($buckets[$delete_moveto]))
+	    			break;
+	    		$where = sprintf("%s = %d",DAO_Ticket::CATEGORY_ID, $bucket_id);
+	    		DAO_Ticket::updateWhere(array(DAO_Ticket::CATEGORY_ID => $delete_moveto), $where);
+	    		DAO_Bucket::delete($bucket_id);
+	    		break;
+	    		
+	    	case 'save':
+				if('0' == $bucket_id) { // Inbox
+					$fields = array(
+						DAO_Group::REPLY_ADDRESS_ID => $reply_address_id,
+						DAO_Group::REPLY_PERSONAL => $reply_personal,
+						DAO_Group::REPLY_SIGNATURE => $reply_signature,
+					);
+					DAO_Group::updateTeam($group_id, $fields);
+					
+				} else { // Bucket
+					$fields = array(
+						DAO_Bucket::NAME => (empty($name) ? 'New Bucket' : $name),
+						DAO_Bucket::IS_ASSIGNABLE => ($is_hidden ? 0 : 1),
+						DAO_Bucket::REPLY_ADDRESS_ID => $reply_address_id,
+						DAO_Bucket::REPLY_PERSONAL => $reply_personal,
+						DAO_Bucket::REPLY_SIGNATURE => $reply_signature,
+					);
+		
+					// Create?
+					if(empty($bucket_id)) {
+						$bucket_id = DAO_Bucket::create($name, $group_id);
+					}
+						
+					DAO_Bucket::update($bucket_id, $fields);
+				}
+	    		break;
+	    }
 		
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('groups',$group_id,'buckets')));
 	}

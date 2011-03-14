@@ -72,11 +72,31 @@
 </fieldset>
 {/if}
 
-<br>
+{if !empty($bucket_id)}
+<fieldset style="display:none;" class="delete">
+	<legend>{'common.delete'|devblocks_translate|capitalize}</legend>
+	
+	Where should the tickets in this bucket be moved to?<br>
+	<select name="delete_moveto">
+		<option value="0">{'common.inbox'|devblocks_translate|capitalize}</option>
+		{foreach from=$buckets item=move_bucket key=move_bucket_id}
+		{if $move_bucket_id == $bucket_id}
+		{else}
+		<option value="{$move_bucket_id}">{$move_bucket->name}</option>
+		{/if}
+		{/foreach}
+	</select>
+	<br>
+	<button type="submit" name="form_submit" value="delete"><span class="cerb-sprite sprite-check"></span> Confirm</button>
+	<button type="button" onclick="$(this).closest('form').find('div.buttons').fadeIn();$(this).closest('fieldset.delete').fadeOut();"><span class="cerb-sprite sprite-forbidden"></span> {'common.cancel'|devblocks_translate|capitalize}</button>
+</fieldset>
+{/if}
 
-<button type="submit"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')}</button>
+<div class="buttons">
+	<button type="submit" name="form_submit" value="save"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')|capitalize}</button>
+	<button type="button" onclick="$(this).parent().siblings('fieldset.delete').fadeIn();$(this).closest('div').fadeOut();"><span class="cerb-sprite sprite-delete"></span> {$translate->_('common.delete')|capitalize}</button>
+</div>
 </form>
-<br>
 
 <script type="text/javascript">
 	$popup = genericAjaxPopupFetch('peek');

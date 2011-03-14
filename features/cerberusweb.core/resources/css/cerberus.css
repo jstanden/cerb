@@ -59,6 +59,14 @@ fieldset h1 {
 	font-size:120%;
 }
 
+fieldset.delete {
+	color:rgb(150,0,0);
+}
+
+fieldset.delete legend {
+	color:rgb(150,0,0);
+}
+
 select, textarea {
 	border:1px solid rgb(150,150,150);
 }
