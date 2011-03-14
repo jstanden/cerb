@@ -25,25 +25,22 @@
 				<b>From:</b>
 			</td>
 			<td>
-				{if !empty($address->reply_personal)}
-				{$address->reply_personal} 
-				{/if}
+				{$address->getReplyPersonal($active_worker)}  
 				&lt;{$address->email}&gt;
 			</td>
 		</tr>
 		
-		{if !empty($address->reply_signature)}
 		<tr>
 			<td valign="top">
 				<b>Signature:</b>
 			</td>
 			<td>
+				{if empty($address->reply_signature)}<i>({'common.default'|devblocks_translate|lower})</i><br>{/if}
 				<div style="display:inline-block;padding:10px;border:1px solid rgb(200,200,200);background-color:rgb(245,245,245);">
-				{$address->getSignature($active_worker)|escape:'html'|devblocks_hyperlinks|nl2br nofilter}
+				{$address->getReplySignature($active_worker)|escape:'html'|devblocks_hyperlinks|nl2br nofilter}
 				</div>
 			</td>
 		</tr>
-		{/if}
 	</table>
 </fieldset>
 {/foreach}

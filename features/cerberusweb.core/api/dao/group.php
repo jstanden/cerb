@@ -591,7 +591,7 @@ class Model_Group {
 		return $from_id;
 	}
 	
-	public function getReplyPersonal($bucket_id=0) {
+	public function getReplyPersonal($bucket_id=0, $worker_model=null) {
 		$froms = DAO_AddressOutgoing::getAll();
 		$personal = null;
 		
@@ -623,7 +623,16 @@ class Model_Group {
 			$from = DAO_AddressOutgoing::getDefault();
 			$personal = $from->reply_personal;
 		}
-			
+		
+		// If we have a worker model, convert template tokens
+		if(!empty($worker_model)) {
+			$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+			$token_labels = array();
+			$token_values = array();
+			CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $worker_model, $token_labels, $token_values);
+			$personal = $tpl_builder->build($personal, $token_values);
+		}
+		
 		return $personal;
 	}
 	

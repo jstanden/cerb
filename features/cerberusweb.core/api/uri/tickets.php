@@ -1192,12 +1192,16 @@ class ChTicketsPage extends CerberusPageExtension {
 		@$bucket_id = DevblocksPlatform::importGPC($_REQUEST['bucket_id'],'integer',0);
 		@$raw = DevblocksPlatform::importGPC($_REQUEST['raw'],'integer',0);
 		
-		$group = DAO_Group::get($group_id);
-		
 		// Parsed or raw?
 		$active_worker = !empty($raw) ? null : CerberusApplication::getActiveWorker();
 		
-		echo $group->getReplySignature($bucket_id, $active_worker);
+		if(empty($group_id) || null == ($group = DAO_Group::get($group_id))) {
+			$replyto_default = DAO_AddressOutgoing::getDefault();
+			echo $replyto_default->getReplySignature($active_worker);
+			
+		} else {
+			echo $group->getReplySignature($bucket_id, $active_worker);
+		}
 	}
 	
 	// [TODO] Refactor for group-based signatures

@@ -123,15 +123,41 @@ class Model_AddressOutgoing {
 	public $reply_personal = '';
 	public $reply_signature = '';
 	
-	function getSignature($worker_model=null) {
+	function getReplyPersonal($worker_model=null) {
 		if(empty($worker_model)) {
-			return $this->reply_signature;
+			return $this->reply_personal;
 		} else {
 			$tpl_builder = DevblocksPlatform::getTemplateBuilder();
 			$token_labels = array();
 			$token_values = array();
 			CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $worker_model, $token_labels, $token_values);
-			return $tpl_builder->build($this->reply_signature, $token_values);
+			return $tpl_builder->build($this->reply_personal, $token_values);
+		}
+	}
+	
+	function getReplySignature($worker_model=null) {
+		$sig = '';
+		
+		// Try the default reply-to
+		if(!empty($this->reply_signature)) {
+			$sig = $this->reply_signature;
+		} else {
+			if(empty($this->is_default)) { // Don't recurse
+				$replyto_default = DAO_AddressOutgoing::getDefault();
+				$sig = $replyto_default->getReplySignature($model_worker);
+			}
+		}
+		
+		if(empty($worker_model)) {
+			return $sig;
+			
+		} else {
+			// Parse template
+			$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+			$token_labels = array();
+			$token_values = array();
+			CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $worker_model, $token_labels, $token_values);
+			return $tpl_builder->build($sig, $token_values);
 		}
 	}
 };

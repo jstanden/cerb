@@ -18,7 +18,7 @@
 			</td>
 			<td>
 				{$reply_from = $group->getReplyTo()}
-				{$reply_personal = $group->getReplyPersonal()}
+				{$reply_personal = $group->getReplyPersonal(0,$active_worker)}
 				{if !empty($reply_personal)}
 				{$reply_personal} 
 				{/if}
@@ -31,7 +31,7 @@
 				<b>Signature:</b>
 			</td>
 			<td>
-				{if empty($group->reply_signature)}<b>({'common.default'|devblocks_translate|capitalize})</b><br>{/if}
+				{if empty($group->reply_signature)}<i>({'common.default'|devblocks_translate|lower})</i><br>{/if}
 				<div style="display:inline-block;padding:10px;border:1px solid rgb(200,200,200);background-color:rgb(245,245,245);">
 				{$group->getReplySignature(0,$active_worker)|escape:'html'|devblocks_hyperlinks|nl2br nofilter}
 				</div>
@@ -57,7 +57,7 @@
 			<td>
 				<input type="hidden" name="bucket_id[]" value="{$bucket_id}">
 				{$reply_from = $bucket->getReplyTo()}
-				{$reply_personal = $bucket->getReplyPersonal()}
+				{$reply_personal = $bucket->getReplyPersonal($active_worker)}
 				{if !empty($reply_personal)}
 				{$reply_personal} 
 				{/if}
@@ -83,7 +83,7 @@
 				<b>Signature:</b>
 			</td>
 			<td>
-				{if empty($bucket->reply_signature)}<b>({'common.inbox'|devblocks_translate|capitalize})</b><br>{/if}
+				{if empty($bucket->reply_signature)}<i>({'common.inbox'|devblocks_translate|lower})</i><br>{/if}
 				<div style="display:inline-block;padding:10px;border:1px solid rgb(200,200,200);background-color:rgb(245,245,245);">
 				{$bucket->getReplySignature($active_worker)|escape:'html'|devblocks_hyperlinks|nl2br nofilter}
 				</div>

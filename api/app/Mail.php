@@ -124,7 +124,7 @@ class CerberusMail {
 		$group = DAO_Group::get($team_id);
 
 		$from_replyto = $group->getReplyTo();
-		$personal = $group->getReplyPersonal();
+		$personal = $group->getReplyPersonal(0, $worker);
 		
 		$mask = CerberusApplication::generateTicketMask();
 
@@ -435,7 +435,7 @@ class CerberusMail {
 				return;
 				
 			$from_replyto = $group->getReplyTo($ticket->category_id);
-			$from_personal = $group->getReplyPersonal($ticket->category_id);
+			$from_personal = $group->getReplyPersonal($ticket->category_id, $worker_id);
 			
 			// If this ticket isn't spam trained and our outgoing message isn't an autoreply
 			if($ticket->spam_training == CerberusTicketSpamTraining::BLANK

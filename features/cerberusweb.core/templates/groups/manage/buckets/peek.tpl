@@ -47,6 +47,16 @@
 	
 	<b>Send replies as name:</b> (leave blank for default)<br>
 	<input type="text" name="reply_personal" value="{$object->reply_personal}" size="65" style="width:100%;"><br>
+	<button type="button" onclick="genericAjaxPost('frmAddyOutgoingPeek','divSnippetBucketFromTester','c=internal&a=snippetTest&snippet_context=cerberusweb.contexts.worker&snippet_field=reply_personal');">{'common.test'|devblocks_translate|capitalize}</button>
+	<select name="personal_token" onchange="insertAtCursor(this.form.reply_personal,this.options[this.selectedIndex].value);this.selectedIndex=0;this.form.reply_personal.focus();">
+		<option value="">-- insert at cursor --</option>
+		{foreach from=$worker_token_labels key=k item=v}
+		<option value="{literal}{{{/literal}{$k}{literal}}}{/literal}">{$v}</option>
+		{/foreach}
+	</select>
+	<br>
+	<div id="divSnippetBucketFromTester"></div>
+	
 	<br>
 	
 	<b>Bucket email signature:</b> (leave blank for default)<br>
@@ -59,10 +69,9 @@
 		<option value="{literal}{{{/literal}{$k}{literal}}}{/literal}">{$v}</option>
 		{/foreach}
 	</select>
-	
 	<br>
-	
 	<div id="divSnippetBucketSigTester"></div>
+	
 </fieldset>
 
 {if '0' != $bucket_id}
