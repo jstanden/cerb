@@ -141,6 +141,9 @@
 		<tu tuid='common.days'>
 			<tuv xml:lang="en_US"><seg>days</seg></tuv>
 		</tu>
+		<tu tuid='common.default'>
+			<tuv xml:lang="en_US"><seg>Default</seg></tuv>
+		</tu>
 		<tu tuid='common.delete'>
 			<tuv xml:lang="en_US"><seg>delete</seg></tuv>
 		</tu>
@@ -386,6 +389,9 @@
 		</tu>
 		<tu tuid='common.tasks'>
 			<tuv xml:lang="en_US"><seg>Tasks</seg></tuv>
+		</tu>
+		<tu tuid='common.test'>
+			<tuv xml:lang="en_US"><seg>Test</seg></tuv>
 		</tu>
 		<tu tuid='common.text'>
 			<tuv xml:lang="en_US"><seg>Text</seg></tuv>

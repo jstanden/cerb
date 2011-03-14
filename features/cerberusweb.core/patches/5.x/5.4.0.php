@@ -149,7 +149,9 @@ if(!isset($column['reply_address_id'])) {
 	// Remove redundant settings from DB
 	$db->Execute("DELETE FROM group_setting WHERE setting IN ('reply_from','reply_personal')");;
 }
-	
+
+$db->Execute("DELETE FROM group_setting WHERE setting IN ('reply_personal_with_worker')");
+
 // ===========================================================================
 // Add reply_address_id/reply_personal/reply_signature fields to buckets
 
@@ -194,7 +196,7 @@ if(!isset($tables['address_outgoing'])) {
 		));
 	}
 	
-	$db->Execute("DELETE FROM devblocks_setting WHERE plugin_id = 'cerberusweb.core' AND setting IN ('default_reply_from','default_reply_personal','default_signature')");
+	$db->Execute("DELETE FROM devblocks_setting WHERE plugin_id = 'cerberusweb.core' AND setting IN ('default_reply_from','default_reply_personal','default_signature','default_signature_pos')");
 	
 	// Import from group addresses
 	$db->Execute("INSERT IGNORE INTO address_outgoing (address_id,is_default) SELECT DISTINCT reply_address_id, 0 FROM team WHERE reply_address_id != 0");

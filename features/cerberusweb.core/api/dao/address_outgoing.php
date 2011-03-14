@@ -122,4 +122,16 @@ class Model_AddressOutgoing {
 	public $is_default = 0;
 	public $reply_personal = '';
 	public $reply_signature = '';
+	
+	function getSignature($worker_model=null) {
+		if(empty($worker_model)) {
+			return $this->reply_signature;
+		} else {
+			$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+			$token_labels = array();
+			$token_values = array();
+			CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $worker_model, $token_labels, $token_values);
+			return $tpl_builder->build($this->reply_signature, $token_values);
+		}
+	}
 };

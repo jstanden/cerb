@@ -26,18 +26,17 @@
 			</td>
 		</tr>
 		
-		{if !empty($group->reply_signature)}
 		<tr>
 			<td valign="top">
 				<b>Signature:</b>
 			</td>
 			<td>
+				{if empty($group->reply_signature)}<b>({'common.default'|devblocks_translate|capitalize})</b><br>{/if}
 				<div style="display:inline-block;padding:10px;border:1px solid rgb(200,200,200);background-color:rgb(245,245,245);">
-				{$group->reply_signature|escape:'html'|devblocks_hyperlinks|nl2br nofilter}
+				{$group->getReplySignature(0,$active_worker)|escape:'html'|devblocks_hyperlinks|nl2br nofilter}
 				</div>
 			</td>
 		</tr>
-		{/if}
 	</table>	
 </fieldset>
 
@@ -79,18 +78,17 @@
 			</td>
 		</tr>
 		
-		{if !empty($bucket->reply_signature)}
 		<tr>
 			<td valign="top">
 				<b>Signature:</b>
 			</td>
 			<td>
+				{if empty($bucket->reply_signature)}<b>({'common.inbox'|devblocks_translate|capitalize})</b><br>{/if}
 				<div style="display:inline-block;padding:10px;border:1px solid rgb(200,200,200);background-color:rgb(245,245,245);">
-				{$bucket->reply_signature|escape:'html'|devblocks_hyperlinks|nl2br nofilter}
+				{$bucket->getReplySignature($active_worker)|escape:'html'|devblocks_hyperlinks|nl2br nofilter}
 				</div>
 			</td>
 		</tr>
-		{/if}
 	</table>	
 </fieldset>
 {/foreach}

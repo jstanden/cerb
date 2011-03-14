@@ -1190,9 +1190,12 @@ class ChTicketsPage extends CerberusPageExtension {
 	function getComposeSignatureAction() {
 		@$group_id = DevblocksPlatform::importGPC($_REQUEST['group_id'],'integer',0);
 		@$bucket_id = DevblocksPlatform::importGPC($_REQUEST['bucket_id'],'integer',0);
+		@$raw = DevblocksPlatform::importGPC($_REQUEST['raw'],'integer',0);
 		
-		$active_worker = CerberusApplication::getActiveWorker();
 		$group = DAO_Group::get($group_id);
+		
+		// Parsed or raw?
+		$active_worker = !empty($raw) ? null : CerberusApplication::getActiveWorker();
 		
 		echo $group->getReplySignature($bucket_id, $active_worker);
 	}

@@ -970,7 +970,6 @@ class CerberusLicense {
 };
 
 class CerberusSettings {
-	const DEFAULT_REPLY_PERSONAL = 'default_reply_personal'; 
 	const HELPDESK_TITLE = 'helpdesk_title'; 
 	const HELPDESK_LOGO_URL = 'helpdesk_logo_url'; 
 	const SMTP_HOST = 'smtp_host'; 
@@ -991,7 +990,6 @@ class CerberusSettings {
 };
 
 class CerberusSettingsDefaults {
-	const DEFAULT_REPLY_PERSONAL = ''; 
 	const HELPDESK_TITLE = 'Cerberus Helpdesk :: Team-based E-mail Management'; 
 	const SMTP_HOST = 'localhost'; 
 	const SMTP_AUTH_ENABLED = 0; 

@@ -595,13 +595,6 @@ class Model_Group {
 		$froms = DAO_AddressOutgoing::getAll();
 		$personal = null;
 		
-		// [TODO]
-		//$team_personal_with_worker = DAO_GroupSettings::get($team_id,DAO_GroupSettings::SETTING_REPLY_PERSONAL_WITH_WORKER,0);
-		// Prefix the worker name on the personal line?
-//		if(!empty($team_personal_with_worker) && !empty($worker)) {
-//			$personal = $worker->getName() . ', ' . $personal;
-//		}
-		
 		// Cascade to bucket
 		if(!empty($bucket_id)
 			&& null != ($bucket = DAO_Bucket::get($bucket_id))) {
@@ -673,7 +666,7 @@ class Model_Group {
 			$token_labels = array();
 			$token_values = array();
 			CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $worker_model, $token_labels, $token_values);
-			$signature = "\r\n" . $tpl_builder->build($signature, $token_values) . "\r\n";
+			$signature = $tpl_builder->build($signature, $token_values);
 		}
 		
 		return $signature;
@@ -683,7 +676,6 @@ class Model_Group {
 class DAO_GroupSettings {
 	const CACHE_ALL = 'ch_group_settings';
 	
-//    const SETTING_REPLY_PERSONAL_WITH_WORKER = 'reply_personal_with_worker';
     const SETTING_SUBJECT_HAS_MASK = 'subject_has_mask';
     const SETTING_SUBJECT_PREFIX = 'subject_prefix';
     const SETTING_SPAM_THRESHOLD = 'group_spam_threshold';

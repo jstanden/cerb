@@ -39,7 +39,7 @@
 			</td>
 			<td>
 				<div style="display:inline-block;padding:10px;border:1px solid rgb(200,200,200);background-color:rgb(245,245,245);">
-				{$address->reply_signature|escape:'html'|devblocks_hyperlinks|nl2br nofilter}
+				{$address->getSignature($active_worker)|escape:'html'|devblocks_hyperlinks|nl2br nofilter}
 				</div>
 			</td>
 		</tr>

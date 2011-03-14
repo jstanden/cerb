@@ -329,13 +329,6 @@ class Model_Bucket {
 	public function getReplyPersonal() {
 		$froms = DAO_AddressOutgoing::getAll();
 		
-		// [TODO]
-		//$team_personal_with_worker = DAO_GroupSettings::get($team_id,DAO_GroupSettings::SETTING_REPLY_PERSONAL_WITH_WORKER,0);
-		// Prefix the worker name on the personal line?
-//		if(!empty($team_personal_with_worker) && !empty($worker)) {
-//			$personal = $worker->getName() . ', ' . $personal;
-//		}
-		
 		// Cascade to bucket
 		$personal = $this->reply_personal;
 		
@@ -402,7 +395,7 @@ class Model_Bucket {
 			$token_labels = array();
 			$token_values = array();
 			CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $worker_model, $token_labels, $token_values);
-			$signature = "\r\n" . $tpl_builder->build($signature, $token_values) . "\r\n";
+			$signature = $tpl_builder->build($signature, $token_values);
 		}
 		
 		return $signature;
