@@ -836,6 +836,7 @@ class Context_Address extends Extension_DevblocksContext {
 		$token_labels = array(
 			'address' => $prefix.$translate->_('common.email'),
 			'first_name' => $prefix.$translate->_('address.first_name'),
+			'full_name' => $prefix.$translate->_('address.full_name'),
 			'last_name' => $prefix.$translate->_('address.last_name'),
 			'num_spam' => $prefix.$translate->_('address.num_spam'),
 			'num_nonspam' => $prefix.$translate->_('address.num_nonspam'),
@@ -853,6 +854,7 @@ class Context_Address extends Extension_DevblocksContext {
 		// Address token values
 		if(null != $address) {
 			$token_values['id'] = $address->id;
+			$token_values['full_name'] = $address->getName();
 			if(!empty($address->email))
 				$token_values['address'] = $address->email;
 			if(!empty($address->first_name))

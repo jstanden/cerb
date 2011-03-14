@@ -623,6 +623,9 @@
 		<tu tuid='address.first_name'>
 			<tuv xml:lang="en_US"><seg>First Name</seg></tuv>
 		</tu>
+		<tu tuid='address.full_name'>
+			<tuv xml:lang="en_US"><seg>Full Name</seg></tuv>
+		</tu>
 		<tu tuid='address.num_spam'>
 			<tuv xml:lang="en_US"><seg># Spam</seg></tuv>
 		</tu>
@@ -1665,6 +1668,9 @@ For example: *receipt*</seg></tuv>
 		
 		<tu tuid='worker.first_name'>
 			<tuv xml:lang="en_US"><seg>First Name</seg></tuv>
+		</tu>
+		<tu tuid='worker.full_name'>
+			<tuv xml:lang="en_US"><seg>Full Name</seg></tuv>
 		</tu>
 		<tu tuid='worker.is_superuser'>
 			<tuv xml:lang="en_US"><seg>Administrator</seg></tuv>

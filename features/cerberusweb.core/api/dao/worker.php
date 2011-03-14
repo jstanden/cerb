@@ -1147,6 +1147,7 @@ class Context_Worker extends Extension_DevblocksContext {
 		// Token labels
 		$token_labels = array(
 			'first_name' => $prefix.$translate->_('worker.first_name'),
+			'full_name' => $prefix.$translate->_('worker.full_name'),
 			'last_name' => $prefix.$translate->_('worker.last_name'),
 			'title' => $prefix.$translate->_('worker.title'),
 		);
@@ -1162,6 +1163,7 @@ class Context_Worker extends Extension_DevblocksContext {
 		// Worker token values
 		if(null != $worker) {
 			$token_values['id'] = $worker->id;
+			$token_values['full_name'] = $worker->getName();
 			if(!empty($worker->first_name))
 				$token_values['first_name'] = $worker->first_name;
 			if(!empty($worker->last_name))
