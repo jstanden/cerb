@@ -24,7 +24,7 @@
 
 <div id="prefTabs">
 	<ul>
-		{$tabs = [events,general,rss]}
+		{$tabs = [general,rss]}
 		{$point = Extension_PreferenceTab::POINT}
 		
 		<li><a href="{devblocks_url}ajax.php?c=preferences&a=showGeneralTab{/devblocks_url}">{'common.settings'|devblocks_translate|capitalize}</a></li>
