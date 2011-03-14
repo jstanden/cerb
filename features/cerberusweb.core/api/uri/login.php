@@ -263,7 +263,7 @@ class ChSignInPage extends CerberusPageExtension {
 		    
 			// Headers
 			$mail->setTo(array($email));
-			$mail->setFrom(array($replyto_default->email => $replyto_default->reply_personal));
+			$mail->setFrom(array($replyto_default->email => $replyto_default->getReplyPersonal()));
 			$mail->setSubject($translate->_('signin.forgot.mail.subject'));
 			$mail->generateId();
 			

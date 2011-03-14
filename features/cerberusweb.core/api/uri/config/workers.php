@@ -91,7 +91,7 @@ class PageSection_SetupWorkers extends Extension_PageSection {
 				        $mail = $mail_service->createMessage();
 				        
 						$mail->setTo(array($email => $first_name . ' ' . $last_name));
-						$mail->setFrom(array($replyto_default->email => $replyto_default->reply_personal));
+						$mail->setFrom(array($replyto_default->email => $replyto_default->getReplyPersonal()));
 				        $mail->setSubject('Your new helpdesk login information!');
 				        $mail->generateId();
 						

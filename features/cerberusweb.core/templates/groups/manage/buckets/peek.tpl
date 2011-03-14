@@ -37,9 +37,11 @@
 	
 	<b>Send replies as e-mail:</b><br>
 	<select name="reply_address_id">
-		<option value="">- group default: - {$replyto_default->email} {if !empty($replyto_default->reply_personal)}({$replyto_default->reply_personal}){/if}</option>
+		<option value="">default: {$replyto_default->email} {if !empty($replyto_default->reply_personal)}({$replyto_default->getReplyPersonal($active_worker)}){/if}</option>
 		{foreach from=$replyto_addresses item=addy}
-		<option value="{$addy->address_id}" {if $object->reply_address_id == $addy->address_id}selected="selected"{/if}>{$addy->email} {if !empty($addy->reply_personal)}({$addy->reply_personal}){/if}</option>
+		<optgroup label="{$personal = $addy->getReplyPersonal($active_worker)}{if !empty($personal)}{$personal}{else}(blank){/if}">
+			<option value="{$addy->address_id}" {if $object->reply_address_id == $addy->address_id}selected="selected"{/if}>{$addy->email}</option>
+		</optgroup>
 		{/foreach}
 	</select>
 	<br>

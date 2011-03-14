@@ -79,7 +79,7 @@ class CerberusMail {
 		    	if(empty($from_addy))
 		    		$from_addy = $replyto_default->email;
 		    	if(empty($from_personal))
-		    		$from_personal = $replyto_default->reply_personal;
+		    		$from_personal = $replyto_default->getReplyPersonal();
 		    }
 		    
 			$mail->setTo(array($to));

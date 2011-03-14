@@ -125,14 +125,14 @@ class Model_AddressOutgoing {
 	
 	function getReplyPersonal($worker_model=null) {
 		if(empty($worker_model)) {
-			return $this->reply_personal;
-		} else {
-			$tpl_builder = DevblocksPlatform::getTemplateBuilder();
-			$token_labels = array();
-			$token_values = array();
-			CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $worker_model, $token_labels, $token_values);
-			return $tpl_builder->build($this->reply_personal, $token_values);
+			$worker_model = new Model_Worker();
 		}
+		
+		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+		$token_labels = array();
+		$token_values = array();
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $worker_model, $token_labels, $token_values);
+		return $tpl_builder->build($this->reply_personal, $token_values);
 	}
 	
 	function getReplySignature($worker_model=null) {

@@ -357,13 +357,14 @@ class Model_Bucket {
 		}
 		
 		// If we have a worker model, convert template tokens
-		if(!empty($worker_model)) {
-			$tpl_builder = DevblocksPlatform::getTemplateBuilder();
-			$token_labels = array();
-			$token_values = array();
-			CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $worker_model, $token_labels, $token_values);
-			$personal = $tpl_builder->build($personal, $token_values);
-		}
+		if(empty($worker_model))
+			$worker_model = new Model_Worker();
+		
+		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+		$token_labels = array();
+		$token_values = array();
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $worker_model, $token_labels, $token_values);
+		$personal = $tpl_builder->build($personal, $token_values);
 		
 		return $personal;
 	}
