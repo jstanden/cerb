@@ -539,7 +539,7 @@ class Model_Group {
 	 * @param integer $bucket_id
 	 * @return Model_AddressOutgoing
 	 */
-	public function getReplyTo($bucket_id) {
+	public function getReplyTo($bucket_id=0) {
 		$from_id = 0;
 		$froms = DAO_AddressOutgoing::getAll();
 		

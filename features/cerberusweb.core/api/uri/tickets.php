@@ -1200,7 +1200,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		echo $group->getReplySignature($bucket_id, $active_worker);
 	}
 	
-	// [TODO] Signature
+	// [TODO] Refactor for group-based signatures
 	function getLogTicketSignatureAction() {
 		@$email = DevblocksPlatform::importGPC($_REQUEST['email'],'string','');
 		
@@ -1218,7 +1218,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		
 		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $active_worker, $token_labels, $token_values);
-		echo "\r\n", $tpl_builder->build($sig, $token_values), "\r\n";
+		echo $tpl_builder->build($sig, $token_values);
 	}
 	
 	// Ajax

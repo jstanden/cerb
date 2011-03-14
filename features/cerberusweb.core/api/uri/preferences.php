@@ -462,7 +462,7 @@ class ChPreferencesPage extends CerberusPageExtension {
 		$mail_always_show_all = DAO_WorkerPref::get($worker->id,'mail_always_show_all',0);
 		$tpl->assign('mail_always_show_all', $mail_always_show_all);
 
-		$mail_signature_pos = DAO_WorkerPref::get($worker->id,'mail_signature_pos',1);
+		$mail_signature_pos = DAO_WorkerPref::get($worker->id,'mail_signature_pos',2);
 		$tpl->assign('mail_signature_pos', $mail_signature_pos);
 
 		$addresses = DAO_AddressToWorker::getByWorker($worker->id);

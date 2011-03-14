@@ -540,7 +540,7 @@ class ChDisplayPage extends CerberusPageExtension {
 				$tpl->assign('signature', $signature);
 			}
 
-			$signature_pos = DAO_WorkerPref::get($active_worker->id, 'mail_signature_pos', 1);
+			$signature_pos = DAO_WorkerPref::get($active_worker->id, 'mail_signature_pos', 2);
 			$tpl->assign('signature_pos', $signature_pos);
 		}
 		

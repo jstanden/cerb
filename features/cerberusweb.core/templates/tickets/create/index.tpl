@@ -50,7 +50,7 @@
 	<tr>
 		<td>
 		<button id="btnSaveDraft" type="button" onclick="genericAjaxPost('frmLogTicket',null,'c=tickets&a=saveDraft&type=create',function(json) { var obj = $.parseJSON(json); if(!obj || !obj.html || !obj.draft_id) return; $('#divDraftStatus').html(obj.html); $('#frmLogTicket input[name=draft_id]').val(obj.draft_id); } );"><span class="cerb-sprite sprite-check"></span> Save Draft</button>
-		<button type="button" onclick="genericAjaxGet('','c=tickets&a=getLogTicketSignature&email='+escape(selectValue(this.form.to)),function(text) { insertAtCursor(document.getElementById('content'), text); } );"><span class="cerb-sprite sprite-document_edit"></span> Insert Signature</button>
+		<button type="button" id="btnInsertSig" title="(Ctrl+Shift+G)" onclick="genericAjaxGet('','c=tickets&a=getLogTicketSignature&email='+escape(selectValue(this.form.to)),function(text) { insertAtCursor(document.getElementById('content'), text); } );"><span class="cerb-sprite sprite-document_edit"></span> Insert Signature</button>
 		<button type="button" onclick="openSnippetsChooser(this);"><span class="cerb-sprite sprite-text_rich"></span> {$translate->_('common.snippets')|capitalize}</button>
 		{* Plugin Toolbar *}
 		{if !empty($logmail_toolbaritems)}
@@ -185,7 +185,37 @@
 		
 		$('#frmLogTicket button.chooser_worker').each(function() {
 			ajax.chooser(this,'cerberusweb.contexts.worker','worker_id', { autocomplete:true });
-		});		
+		});
+
+		{if $pref_keyboard_shortcuts}
+		
+		// Reply textbox
+		$('textarea#content').keypress(function(event) {
+			if(!$(this).is(':focus'))
+				return;
+			
+			if(!event.ctrlKey) //!event.altKey && !event.ctrlKey && !event.metaKey
+				return;
+			
+			event.preventDefault();
+
+			if(event.ctrlKey && event.shiftKey) {
+				switch(event.which) {
+					case 7:  // (G) Insert Signature
+						try {
+							$('#btnInsertSig').click();
+						} catch(ex) { } 
+						break;
+//					case 9:  // (I) Insert Snippet
+//						try {
+//							$('#reply{$message->id}_part1').find('.context-snippet').focus();
+//						} catch(ex) { } 
+//						break;
+				}
+			}
+		});
+		
+		{/if}		
 	});
 	
 	function openSnippetsChooser(button) {
