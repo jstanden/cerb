@@ -132,15 +132,14 @@
 {else}
 <textarea name="content" rows="20" cols="80" id="reply_{$message->id}" class="reply" style="width:98%;border:1px solid rgb(180,180,180);padding:5px;">
 {if !empty($draft)}{$draft->body}{else}
-{if !empty($signature) && $signature_pos}
+{if !empty($signature) && 1==$signature_pos}
 
-{$signature}{*Sig above, 2 lines necessary whitespace*}
-
+{$signature}{*Sig above*}
 
 {/if}{$quote_sender=$message->getSender()}{$quote_sender_personal=$quote_sender->getName()}{if !empty($quote_sender_personal)}{$reply_personal=$quote_sender_personal}{else}{$reply_personal=$quote_sender->email}{/if}{$reply_date=$message->created_date|devblocks_date:'D, d M Y'}{'display.reply.reply_banner'|devblocks_translate:$reply_date:$reply_personal}
 {$message->getContent()|trim|indent:1:'> '}
 
-{if !empty($signature) && !$signature_pos}{$signature}{/if}{*Sig below*}
+{if !empty($signature) && 2==$signature_pos}{$signature}{/if}{*Sig below*}
 {/if}
 </textarea>
 {/if}
@@ -277,7 +276,7 @@
 		ajax.emailAutoComplete('#reply{$message->id}_part1 input[name=bcc]', { multiple: true } );
 		
 		$('#reply{$message->id}_part1 input:text').blur(function(event) {
-			var name = event.target.name;
+			name = event.target.name;
 			$('#reply{$message->id}_part2 input:hidden[name='+name+']').val(event.target.value);
 		} );
 		

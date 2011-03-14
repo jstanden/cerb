@@ -27,10 +27,23 @@
 
 	<b>{$translate->_('preferences.account.keyboard.shortcuts')|capitalize}</b><br>
 	<label><input type="checkbox" name="keyboard_shortcuts" value="1" {if $keyboard_shortcuts eq 1}checked{/if}> {$translate->_('common.enabled')|capitalize}</label><br>
-	<br>
+	
+</fieldset>
 
-	<b>{$translate->_('preferences.account.mail')|capitalize}</b><br>
-	<label><input type="checkbox" name="mail_always_show_all" value="1" {if $mail_always_show_all}checked{/if}> {$translate->_('preferences.account.mail.readall')}</label><br>
+<fieldset>
+	<legend>{'common.mail'|devblocks_translate|capitalize}</legend>
+	
+	<b>{$translate->_('common.options')|capitalize}:</b>
+	<div style="margin:0px 0px 10px 10px;">
+		<label><input type="checkbox" name="mail_always_show_all" value="1" {if $mail_always_show_all}checked{/if}> {$translate->_('preferences.account.mail.readall')}</label><br>
+	</div>
+
+	<b>Signature:</b>
+	<div style="margin:0px 0px 10px 10px;">
+		<label><input type="radio" name="mail_signature_pos" value="0" {if empty($mail_signature_pos)}checked="checked"{/if}> Don't automatically insert signature.</label><br>
+		<label><input type="radio" name="mail_signature_pos" value="1" {if 1==$mail_signature_pos}checked="checked"{/if}> Insert above quoted message.</label><br>
+		<label><input type="radio" name="mail_signature_pos" value="2" {if 2==$mail_signature_pos}checked="checked"{/if}> Insert below quoted message.</label><br>
+	</div>
 </fieldset>
 
 <fieldset>

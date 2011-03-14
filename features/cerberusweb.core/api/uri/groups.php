@@ -564,13 +564,10 @@ class ChGroupsPage extends CerberusPageExtension  {
 	    	return;
 	    	
 	    //========== GENERAL
-	    //@$signature = DevblocksPlatform::importGPC($_REQUEST['signature'],'string','');
 	    @$auto_reply_enabled = DevblocksPlatform::importGPC($_REQUEST['auto_reply_enabled'],'integer',0);
 	    @$auto_reply = DevblocksPlatform::importGPC($_REQUEST['auto_reply'],'string','');
 	    @$close_reply_enabled = DevblocksPlatform::importGPC($_REQUEST['close_reply_enabled'],'integer',0);
 	    @$close_reply = DevblocksPlatform::importGPC($_REQUEST['close_reply'],'string','');
-	    //@$reply_address_id = DevblocksPlatform::importGPC($_REQUEST['reply_address_id'],'integer',0);
-	    //@$reply_personal = DevblocksPlatform::importGPC($_REQUEST['reply_personal'],'string','');
 	    //@$sender_personal_with_worker = DevblocksPlatform::importGPC($_REQUEST['sender_personal_with_worker'],'integer',0);
 	    @$subject_has_mask = DevblocksPlatform::importGPC($_REQUEST['subject_has_mask'],'integer',0);
 	    @$subject_prefix = DevblocksPlatform::importGPC($_REQUEST['subject_prefix'],'string','');

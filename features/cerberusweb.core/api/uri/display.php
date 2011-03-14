@@ -525,28 +525,22 @@ class ChDisplayPage extends CerberusPageExtension {
 		$workers = DAO_Worker::getAllActive();
 		$tpl->assign('workers', $workers);
 		
-		$teams = DAO_Group::getAll();
-		$tpl->assign('teams', $teams);
+		$groups = DAO_Group::getAll();
+		$tpl->assign('teams', $groups);
 		
 		$team_categories = DAO_Bucket::getTeams();
 		$tpl->assign('team_categories', $team_categories);
 
-		@$ticket_team = $teams[$ticket->team_id];
-		
 		if(null != $active_worker) {
 			// Signatures
-			if(!empty($ticket_team) && !empty($ticket_team->signature)) {
-	            $signature = $ticket_team->signature;
-			} else {
-			    // [TODO] Default signature
-		        $signature = $settings->get('cerberusweb.core',CerberusSettings::DEFAULT_SIGNATURE,CerberusSettingsDefaults::DEFAULT_SIGNATURE);
+			@$ticket_group = $groups[$ticket->team_id]; /* @var $ticket_group Model_Group */
+			
+			if(!empty($ticket_group)) {
+				$signature = $ticket_group->getReplySignature($ticket->category_id, $active_worker);
+				$tpl->assign('signature', $signature);
 			}
 
-			$tpl_builder = DevblocksPlatform::getTemplateBuilder();
-			CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $active_worker, $token_labels, $token_values);
-			$tpl->assign('signature', $tpl_builder->build($signature, $token_values));
-			
-		    $signature_pos = $settings->get('cerberusweb.core',CerberusSettings::DEFAULT_SIGNATURE_POS,CerberusSettingsDefaults::DEFAULT_SIGNATURE_POS);
+			$signature_pos = DAO_WorkerPref::get($active_worker->id, 'mail_signature_pos', 1);
 			$tpl->assign('signature_pos', $signature_pos);
 		}
 		

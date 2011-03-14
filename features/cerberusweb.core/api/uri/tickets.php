@@ -1189,22 +1189,15 @@ class ChTicketsPage extends CerberusPageExtension {
 	
 	function getComposeSignatureAction() {
 		@$group_id = DevblocksPlatform::importGPC($_REQUEST['group_id'],'integer',0);
+		@$bucket_id = DevblocksPlatform::importGPC($_REQUEST['bucket_id'],'integer',0);
 		
-		$settings = DevblocksPlatform::getPluginSettingsService();
-		$group = DAO_Group::get($group_id);
-
 		$active_worker = CerberusApplication::getActiveWorker();
-		$sig = $settings->get('cerberusweb.core',CerberusSettings::DEFAULT_SIGNATURE,CerberusSettingsDefaults::DEFAULT_SIGNATURE);
-
-		if(!empty($group->signature)) {
-			$sig = $group->signature;
-		}
-
-		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
-		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $active_worker, $token_labels, $token_values);
-		echo "\r\n", $tpl_builder->build($sig, $token_values), "\r\n";
+		$group = DAO_Group::get($group_id);
+		
+		echo $group->getReplySignature($bucket_id, $active_worker);
 	}
 	
+	// [TODO] Signature
 	function getLogTicketSignatureAction() {
 		@$email = DevblocksPlatform::importGPC($_REQUEST['email'],'string','');
 		

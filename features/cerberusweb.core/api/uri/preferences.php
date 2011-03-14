@@ -400,7 +400,7 @@ class ChPreferencesPage extends CerberusPageExtension {
 //
 //		$tpl->display('devblocks:cerberusweb.core::home/tabs/workspaces_intro/index.tpl');
 //	}
-//
+
 //	function doWorkspaceInitAction() {
 //		$active_worker = CerberusApplication::getActiveWorker();
 //		$visit = CerberusApplication::getVisit();
@@ -443,7 +443,6 @@ class ChPreferencesPage extends CerberusPageExtension {
 //		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('preferences')));
 //	}
 
-	// Ajax [TODO] This should probably turn into Extension_PreferenceTab
 	function showGeneralTabAction() {
 		$date_service = DevblocksPlatform::getDateService();
 		$tpl = DevblocksPlatform::getTemplateService();
@@ -463,6 +462,9 @@ class ChPreferencesPage extends CerberusPageExtension {
 		$mail_always_show_all = DAO_WorkerPref::get($worker->id,'mail_always_show_all',0);
 		$tpl->assign('mail_always_show_all', $mail_always_show_all);
 
+		$mail_signature_pos = DAO_WorkerPref::get($worker->id,'mail_signature_pos',1);
+		$tpl->assign('mail_signature_pos', $mail_signature_pos);
+
 		$addresses = DAO_AddressToWorker::getByWorker($worker->id);
 		$tpl->assign('addresses', $addresses);
 
@@ -479,7 +481,6 @@ class ChPreferencesPage extends CerberusPageExtension {
 		$tpl->display('devblocks:cerberusweb.core::preferences/modules/general.tpl');
 	}
 
-	// Ajax [TODO] This should probably turn into Extension_PreferenceTab
 	function showRssTabAction() {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$active_worker = CerberusApplication::getActiveWorker();
@@ -493,13 +494,10 @@ class ChPreferencesPage extends CerberusPageExtension {
 		$tpl->display('devblocks:cerberusweb.core::preferences/modules/rss.tpl');
 	}
 
-	// Post [TODO] This should probably turn into Extension_PreferenceTab
 	function saveDefaultsAction() {
 		@$timezone = DevblocksPlatform::importGPC($_REQUEST['timezone'],'string');
 		@$lang_code = DevblocksPlatform::importGPC($_REQUEST['lang_code'],'string','en_US');
-		@$default_signature = DevblocksPlatform::importGPC($_REQUEST['default_signature'],'string');
-		@$default_signature_pos = DevblocksPlatform::importGPC($_REQUEST['default_signature_pos'],'integer',0);
-		@$reply_box_height = DevblocksPlatform::importGPC($_REQUEST['reply_box_height'],'integer');
+		@$mail_signature_pos = DevblocksPlatform::importGPC($_REQUEST['mail_signature_pos'],'integer',0);
 
 		$worker = CerberusApplication::getActiveWorker();
 		$translate = DevblocksPlatform::getTranslationService();
@@ -536,6 +534,9 @@ class ChPreferencesPage extends CerberusPageExtension {
 
 		@$mail_always_show_all = DevblocksPlatform::importGPC($_REQUEST['mail_always_show_all'],'integer',0);
 		DAO_WorkerPref::set($worker->id, 'mail_always_show_all', $mail_always_show_all);
+		
+		@$mail_signature_pos = DevblocksPlatform::importGPC($_REQUEST['mail_signature_pos'],'integer',0);
+		DAO_WorkerPref::set($worker->id, 'mail_signature_pos', $mail_signature_pos);
 
 		// Alternate Email Addresses
 		@$new_email = DevblocksPlatform::importGPC($_REQUEST['new_email'],'string','');

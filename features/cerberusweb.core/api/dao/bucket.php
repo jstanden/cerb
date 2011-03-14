@@ -326,7 +326,7 @@ class Model_Bucket {
 		return $from_id;
 	}
 	
-	public function getReplyPersonal($bucket_id=0) {
+	public function getReplyPersonal() {
 		$froms = DAO_AddressOutgoing::getAll();
 		
 		// [TODO]
@@ -364,5 +364,47 @@ class Model_Bucket {
 		}
 			
 		return $personal;
+	}
+	
+	public function getReplySignature($worker_model=null) {
+		$froms = DAO_AddressOutgoing::getAll();
+		
+		// Cascade to bucket
+		$signature = $this->reply_signature;
+		
+		// Cascade to bucket address
+		if(empty($signature) && !empty($this->reply_address_id) && isset($froms[$this->reply_address_id])) {
+			$from = $froms[$this->reply_address_id];
+			$signature = $from->reply_signature;
+		}
+
+		// Cascade to group
+		if(empty($signature)) {
+			$group = DAO_Group::get($this->team_id);
+			$signature = $group->reply_signature;
+			
+			// Cascade to group address
+			if(empty($signature) && !empty($group->reply_address_id) && isset($froms[$group->reply_address_id])) {
+				$from = $froms[$group->reply_address_id];
+				$signature = $from->reply_signature;
+			}
+		}
+		
+		// Cascade to global
+		if(empty($signature)) {
+			$from = DAO_AddressOutgoing::getDefault();
+			$signature = $from->reply_signature;
+		}
+		
+		// If we have a worker model, convert template tokens
+		if(!empty($worker_model)) {
+			$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+			$token_labels = array();
+			$token_values = array();
+			CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $worker_model, $token_labels, $token_values);
+			$signature = "\r\n" . $tpl_builder->build($signature, $token_values) . "\r\n";
+		}
+		
+		return $signature;
 	}	
 };
