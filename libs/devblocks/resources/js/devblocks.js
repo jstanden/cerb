@@ -13,31 +13,13 @@ var DevblocksClass = function() {
 	}
 	
 	this.getFormEnabledCheckboxValues = function(form_id,element_name) {
-		// Make sure the view form exists
-		var viewForm = document.getElementById(form_id);
-		if(null == viewForm) return;
-
-		// Make sure the element is present in the form
-
-		var elements = viewForm.elements[element_name];
-		if(null == elements) return;
-
-		var len = elements.length;
-		var ids = new Array();
-
-		if(null == len && null != elements.value) { // single element
-			if(elements.checked)
-				ids[0] = elements.value;
-
-		} else { // array
-			for(var x=len-1;x>=0;x--) {
-				if(elements[x].checked) {
-					ids[ids.length] = elements[x].value;
-				}
-			}
-		}
-
-		return ids.join(',');
+		return $("#" + form_id + " INPUT[name='" + element_name + "']:checked")
+		.map(function() {
+			return $(this).val();
+		})
+		.get()
+		.join(',')
+		;
 	}
 
 	this.resetSelectElements = function(form_id,element_name) {
