@@ -60,9 +60,6 @@ class DAO_Attachment extends DevblocksORMHelper {
 	public static function create($fields) {
 	    $db = DevblocksPlatform::getDatabaseService();
 		
-	    if(!isset($fields[self::UPDATED]))
-	    	$fields[self::UPDATED] = time();
-	    
 		$sql = "INSERT INTO attachment () VALUES ()";
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		$id = $db->LastInsertId();
@@ -73,6 +70,9 @@ class DAO_Attachment extends DevblocksORMHelper {
 	}
 	
 	public static function update($id, $fields) {
+	    if(!isset($fields[self::UPDATED]))
+	    	$fields[self::UPDATED] = time();
+		
         self::_update($id, 'attachment', $fields);
 	}
 	
