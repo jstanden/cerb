@@ -82,7 +82,7 @@ class CerberusMail {
 		    		$from_personal = $replyto_default->getReplyPersonal();
 		    }
 		    
-			$mail->setTo(array($to));
+			$mail->setTo(DevblocksPlatform::parseCsvString($to));
 			$mail->setFrom(array($from_addy => $from_personal));
 			$mail->setSubject($subject);
 			$mail->generateId();
