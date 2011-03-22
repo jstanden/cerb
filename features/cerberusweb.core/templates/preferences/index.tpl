@@ -24,10 +24,11 @@
 
 <div id="prefTabs">
 	<ul>
-		{$tabs = [general,rss]}
+		{$tabs = [general,assistant,rss]}
 		{$point = Extension_PreferenceTab::POINT}
-		
+
 		<li><a href="{devblocks_url}ajax.php?c=preferences&a=showGeneralTab{/devblocks_url}">{'common.settings'|devblocks_translate|capitalize}</a></li>
+		<li><a href="{devblocks_url}ajax.php?c=internal&a=showAssistantTab&point={$point}&context={CerberusContexts::CONTEXT_WORKER}&context_id={$active_worker->id}{/devblocks_url}">Virtual Assistant</a></li>
 		<li><a href="{devblocks_url}ajax.php?c=preferences&a=showRssTab{/devblocks_url}">RSS</a></li>
 
 		{foreach from=$tab_manifests item=tab_manifest}
@@ -35,7 +36,7 @@
 			<li><a href="{devblocks_url}ajax.php?c=preferences&a=showTab&ext_id={$tab_manifest->id}{/devblocks_url}"><i>{$tab_manifest->params.title|devblocks_translate}</i></a></li>
 		{/foreach}
 	</ul>
-</div> 
+</div>
 <br>
 
 {$selected_tab_idx=0}
