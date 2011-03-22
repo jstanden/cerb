@@ -63,6 +63,7 @@
 			<class name="ChRssSource_Ticket" />
 			<class name="ChTaskSource_Org" />
 			<class name="ChTaskSource_Ticket" />
+			<class name="Event_NotificationReceivedByOwner" />
 		</file>
 		
 		<file path="api/dao/address.php">
@@ -695,6 +696,23 @@
 			</params>
 		</extension>
 
+		<!-- Event Triggers -->
+		
+		<extension point="devblocks.event">
+			<id>event.notification.received.owner</id>
+			<name>Notification Received By Owner</name>
+			<class>
+				<file>api/plugin.classes.php</file>
+				<name>Event_NotificationReceivedByOwner</name>
+			</class>
+			<params>
+				<param key="contexts">
+					<value>
+						<data key="cerberusweb.contexts.worker" />
+					</value>
+				</param>
+			</params>
+		</extension>
 		<!-- Event Listeners -->
 		
 		<extension point="devblocks.listener.event">
