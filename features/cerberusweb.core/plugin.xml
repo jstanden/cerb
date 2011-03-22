@@ -63,6 +63,7 @@
 			<class name="ChRssSource_Ticket" />
 			<class name="ChTaskSource_Org" />
 			<class name="ChTaskSource_Ticket" />
+			<class name="Event_MailReceivedByGroup" />
 			<class name="Event_MailReceivedByOwner" />
 			<class name="Event_NotificationReceivedByOwner" />
 		</file>
@@ -731,6 +732,22 @@
 			</params>
 		</extension>
 		
+		<extension point="devblocks.event">
+			<id>event.mail.received.group</id>
+			<name>Mail Received By Group</name>
+			<class>
+				<file>api/plugin.classes.php</file>
+				<name>Event_MailReceivedByGroup</name>
+			</class>
+			<params>
+				<param key="contexts">
+					<value>
+						<data key="cerberusweb.contexts.group" />
+					</value>
+				</param>
+			</params>
+		</extension>
+
 		<!-- Event Listeners -->
 		
 		<extension point="devblocks.listener.event">
