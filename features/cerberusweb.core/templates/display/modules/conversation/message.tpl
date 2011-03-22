@@ -9,7 +9,7 @@
 			{assign var=sender value=$message_senders.$sender_id}
 			{assign var=sender_org_id value=$sender->contact_org_id}
 			{assign var=sender_org value=$message_sender_orgs.$sender_org_id}
-			{assign var=is_outgoing value=$message->worker_id}
+			{assign var=is_outgoing value=$message->is_outgoing}
 
 			<div style="float:right;">      
 	  			<button id="btnMsgMax{$message->id}" style="display:none;visibility:hidden;" onclick="genericAjaxGet('{$message->id}t','c=display&a=getMessage&id={$message->id}');"></button>
