@@ -162,6 +162,9 @@
 		<tu tuid='common.edit'>
 			<tuv xml:lang="en_US"><seg>edit</seg></tuv>
 		</tu>
+		<tu tuid='common.event'>
+			<tuv xml:lang="en_US"><seg>event</seg></tuv>
+		</tu>
 		<tu tuid='common.explore'>
 			<tuv xml:lang="en_US"><seg>explore</seg></tuv>
 		</tu>
@@ -459,7 +462,22 @@
 
 		<!-- DAO -->
 		
-			<!-- Snippets -->
+		<!-- DecisionNode -->
+		
+		<tu tuid='dao.decision_node.node_type'>
+			<tuv xml:lang="en_US"><seg>Node Type</seg></tuv>
+		</tu>
+		<tu tuid='dao.decision_node.params'>
+			<tuv xml:lang="en_US"><seg>Params</seg></tuv>
+		</tu>
+		<tu tuid='dao.decision_node.parent_id'>
+			<tuv xml:lang="en_US"><seg>Parent Id</seg></tuv>
+		</tu>
+		<tu tuid='dao.decision_node.trigger_id'>
+			<tuv xml:lang="en_US"><seg>Trigger Id</seg></tuv>
+		</tu>
+		
+		<!-- Snippets -->
 
 		<tu tuid='dao.snippet.created_by'>
 			<tuv xml:lang="en_US"><seg>Created By</seg></tuv>
@@ -476,6 +494,18 @@
 		
 		<tu tuid='dao.snippet_usage.hits'>
 			<tuv xml:lang="en_US"><seg>Hits</seg></tuv>
+		</tu>
+
+		<!-- Trigger -->
+		
+		<tu tuid='dao.trigger_event.is_disabled'>
+			<tuv xml:lang="en_US"><seg>Is Disabled</seg></tuv>
+		</tu>
+		<tu tuid='dao.trigger_event.owner_context'>
+			<tuv xml:lang="en_US"><seg>Owner Context</seg></tuv>
+		</tu>
+		<tu tuid='dao.trigger_event.owner_context_id'>
+			<tuv xml:lang="en_US"><seg>Owner Context Id</seg></tuv>
 		</tu>
 
 		<!-- Errors -->

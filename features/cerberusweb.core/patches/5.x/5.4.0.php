@@ -4,6 +4,50 @@ $logger = DevblocksPlatform::getConsoleLog();
 $tables = $db->metaTables();
 
 // ===========================================================================
+// trigger_event 
+
+if(!isset($tables['trigger_event'])) {
+	$sql = "
+	CREATE TABLE IF NOT EXISTS `trigger_event` (
+		id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+		title VARCHAR(255) NOT NULL DEFAULT '',
+		is_disabled TINYINT NOT NULL DEFAULT 0,
+		owner_context VARCHAR(255) NOT NULL DEFAULT '',
+		owner_context_id INT UNSIGNED NOT NULL DEFAULT 0,
+		event_point VARCHAR(255) NOT NULL DEFAULT '',
+		PRIMARY KEY (id),
+		INDEX event_point (event_point)
+	) ENGINE=MyISAM;
+	";
+	$db->Execute($sql);
+
+	$tables['trigger_event'] = 'trigger_event';
+}
+
+// ===========================================================================
+// decision_node
+
+if(!isset($tables['decision_node'])) {
+	$sql = "
+	CREATE TABLE IF NOT EXISTS decision_node (
+		id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+		parent_id INT UNSIGNED NOT NULL DEFAULT 0,
+		trigger_id INT UNSIGNED NOT NULL DEFAULT 0,
+		node_type ENUM('switch','outcome','action'),
+		title VARCHAR(255) NOT NULL DEFAULT '',
+		pos SMALLINT UNSIGNED NOT NULL DEFAULT 0,
+		params_json LONGTEXT,
+		PRIMARY KEY (id),
+		INDEX parent_id (parent_id),
+		INDEX trigger_id (trigger_id)
+	) ENGINE=MyISAM;
+	";
+	$db->Execute($sql);
+
+	$tables['decision_node'] = 'decision_node';
+}
+
+// ===========================================================================
 // Rename 'worker_event' to 'notification'
 
 if(isset($tables['worker_event']) && !isset($tables['notification'])) {

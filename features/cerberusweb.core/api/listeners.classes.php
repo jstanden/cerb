@@ -303,6 +303,96 @@ class ChCoreTour extends DevblocksHttpResponseListenerExtension implements IDevb
 	}
 };
 
+class EventListener_Triggers extends DevblocksEventListenerExtension {
+	/**
+	 * @param Model_DevblocksEvent $event
+	 */
+	function handleEvent(Model_DevblocksEvent $event) {
+		$logger = DevblocksPlatform::getConsoleLog("Assistant");
+		
+		$logger->info(sprintf("EVENT: %s",
+			$event->id
+		));
+		
+		// [TODO] Check if any triggers are watching this event
+		// [TODO] From cache!!! ::getAll()  ::getByEvent()
+		$where = sprintf("%s = 0 AND %s = %s",
+			DAO_TriggerEvent::IS_DISABLED,
+			DAO_TriggerEvent::EVENT_POINT,
+			C4_ORMHelper::qstr($event->id)
+		);
+		$triggers = DAO_TriggerEvent::getWhere($where);
+
+		if(empty($triggers))
+			return;
+
+		// We're restricting the scope of the event
+		if(isset($event->params['_whisper']) && is_array($event->params['_whisper'])) {
+			foreach($triggers as $trigger_id => $trigger) { /* @var $trigger Model_TriggerEvent */
+				if(
+					null != ($allowed_ids = @$event->params['_whisper'][$trigger->owner_context])
+					&& in_array($trigger->owner_context_id, !is_array($allowed_ids) ? array($allowed_ids) : $allowed_ids)
+					) {
+					// We're allowed to see this event
+				} else {
+					// We're not allowed to see this event
+					$logger->info(sprintf("Removing trigger %d (%s) since it is not in this whisper",
+						$trigger_id,
+						$trigger->title
+					));
+					unset($triggers[$trigger_id]);
+				}
+			}
+		}
+			
+		// [TODO] This could be cached in a runtime registry too
+		if(null == ($mft = DevblocksPlatform::getExtension($event->id, false))) 
+			return;
+		
+		if(null == ($event_ext = $mft->createInstance()) 
+			|| !$event_ext instanceof Extension_DevblocksEvent)  /* @var $event_ext Extension_DevblocksEvent */
+				return;
+			
+		// [TODO] Load the intermediate data ONCE!
+		// [TODO] Convert the event->params into a dictionary
+		//var_dump($values);
+		$event_ext->setEvent($event);
+		$values = $event_ext->getValues();
+			
+		foreach($triggers as $trigger) { /* @var $trigger Model_TriggerEvent */
+			$logger->info(sprintf("Running decision tree on trigger %d (%s) for %s=%d",
+				$trigger->id,
+				$trigger->title,
+				$trigger->owner_context,
+				$trigger->owner_context_id
+			));
+			
+			$trigger->runDecisionTree($values);
+		}
+		
+		return;
+		
+		// [TODO] ACTION: HTTP POST
+		/*
+		if(extension_loaded('curl')) {
+			$postfields = array(
+				'json' => json_encode($values)
+			);
+			
+			$ch = curl_init();
+			curl_setopt($ch, CURLOPT_URL, "http://localhost/website/webhooks/notify.php");
+			curl_setopt($ch, CURLOPT_HEADER, 0);
+			curl_setopt($ch, CURLOPT_POST, 1);
+			curl_setopt($ch, CURLOPT_POSTFIELDS, $postfields);
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+			$response = curl_exec($ch);
+			curl_close($ch);
+			echo($response);
+		}
+		*/	
+	}
+};
+
 class ChCoreEventListener extends DevblocksEventListenerExtension {
 	/**
 	 * @param Model_DevblocksEvent $event

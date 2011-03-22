@@ -1152,7 +1152,446 @@ class ChInternalController extends DevblocksControllerExtension {
 
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(explode('/', $request)));
 		return;
+	}
+
+	/**
+	 * Triggers
+	 */
+
+	function showAssistantTabAction() {
+		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
+		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer',0);
+		@$point = DevblocksPlatform::importGPC($_REQUEST['point'],'string','');
+		
+		$translate = DevblocksPlatform::getTranslationService();
+		$active_worker = CerberusApplication::getActiveWorker();
+		$visit = CerberusApplication::getVisit();
+		$tpl = DevblocksPlatform::getTemplateService();
+
+		if(empty($context) || empty($context_id))
+			return;
+			
+		// [TODO] Secure looking at other worker tabs (check superuser, worker_id)
+		
+		// Remember tab
+		if(!empty($point))
+			$visit->set($point, 'assistant');
+
+		$tpl->assign('context', $context);
+		$tpl->assign('context_id', $context_id);
+			
+		// Events
+		// [TODO] Filter by context
+		$events = Extension_DevblocksEvent::getByContext($context, false);
+		$tpl->assign('events', $events);
+		
+		// Triggers
+		$triggers = DAO_TriggerEvent::getWhere(sprintf("%s = %s AND %s = %d",
+			DAO_TriggerEvent::OWNER_CONTEXT,
+			C4_ORMHelper::qstr($context),
+			DAO_TriggerEvent::OWNER_CONTEXT_ID,
+			$context_id
+		));
+		$tpl->assign('triggers', $triggers);
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/decisions/assistant/tab.tpl');
+	}
+
+	function createAssistantTriggerAction() {
+		@$event_point = DevblocksPlatform::importGPC($_REQUEST['event_point'],'string', '');
+		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
+		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer',0);
+		
+		$active_worker = CerberusApplication::getActiveWorker();
+
+		// [TODO] Filter event points (sanitize)
+		
+		if(null == ($ext = DevblocksPlatform::getExtension($event_point, false)))
+			return;
+		
+		$fields = array(
+			DAO_TriggerEvent::TITLE => $ext->name,
+			DAO_TriggerEvent::IS_DISABLED => 0,
+			DAO_TriggerEvent::EVENT_POINT => $event_point,
+			DAO_TriggerEvent::OWNER_CONTEXT => $context,
+			DAO_TriggerEvent::OWNER_CONTEXT_ID => $context_id,
+		);
+		$id = DAO_TriggerEvent::create($fields);
+		
+		return;
 	}	
+	
+	function showDecisionDeletePopupAction() {
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer', 0);
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		
+		if(!empty($id) && null != ($node = DAO_DecisionNode::get($id))) {
+			$tpl->assign('node', $node);
+			
+		} elseif(isset($_REQUEST['trigger_id'])) {
+			@$trigger_id = DevblocksPlatform::importGPC($_REQUEST['trigger_id'],'integer', 0);
+			if(null != ($trigger = DAO_TriggerEvent::get($trigger_id))) {
+				$tpl->assign('trigger', $trigger);
+			}
+		}
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/decisions/editors/_delete.tpl');
+	}
+	
+	function showDecisionMovePopupAction() {
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer', 0);
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		
+		if(!empty($id) && null != ($node = DAO_DecisionNode::get($id))) {
+			$tpl->assign('node', $node);
+			
+		} elseif(isset($_REQUEST['trigger_id'])) {
+			@$trigger_id = DevblocksPlatform::importGPC($_REQUEST['trigger_id'],'integer', 0);
+			if(null != ($trigger = DAO_TriggerEvent::get($trigger_id))) {
+				$tpl->assign('trigger', $trigger);
+			}
+		}
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/decisions/editors/_move.tpl');
+	}
+	
+	function showDecisionReorderPopupAction() {
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer', 0);
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		
+		if(!empty($id) && null != ($node = DAO_DecisionNode::get($id))) {
+			$trigger_id = $node->trigger_id;
+			$tpl->assign('node', $node);
+			
+		} elseif(isset($_REQUEST['trigger_id'])) {
+			@$trigger_id = DevblocksPlatform::importGPC($_REQUEST['trigger_id'],'integer', 0);
+			if(null != ($trigger = DAO_TriggerEvent::get($trigger_id))) {
+				$tpl->assign('trigger', $trigger);
+			}
+		}
+		
+		$children = DAO_DecisionNode::getWhere(
+			sprintf("%s = %d AND %s = %d",
+				DAO_DecisionNode::TRIGGER_ID,
+				$trigger_id,			
+				DAO_DecisionNode::PARENT_ID,
+				$id			
+			),
+			DAO_DecisionNode::POS,
+			true
+		);
+		$tpl->assign('children', $children);
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/decisions/editors/_reorder.tpl');
+	}
+	
+	function saveDecisionReorderPopupAction() {
+		@$child_ids = DevblocksPlatform::importGPC($_REQUEST['child_id'],'array', array());
+		
+		if(!empty($child_ids))
+		foreach($child_ids as $pos => $child_id) {
+			DAO_DecisionNode::update($child_id, array(
+				DAO_DecisionNode::POS => $pos,
+			));
+		}
+	}
+	
+//	function showDecisionClonePopupAction() {
+//		
+//	}
+	
+	function saveDecisionDeletePopupAction() {
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer', 0);
+
+		if(!empty($id) && null != ($node = DAO_DecisionNode::get($id))) {
+			if(null != ($trigger = DAO_TriggerEvent::get($node->trigger_id))) {
+				// Load the trigger's tree so we can delete all children from this node
+				$data = $trigger->getDecisionTreeData();
+				$depths = $data['depths'];
+				
+				$ids_to_delete = array();
+
+				$found = false;
+				foreach($depths as $node_id => $depth) {
+					if($node_id == $id) {
+						$found = true;
+						$ids_to_delete[] = $id;
+						continue;
+					}
+						
+					if(!$found)
+						continue;
+						
+					// Continue deleting (queuing IDs) while depth > origin
+					if($depth > $depths[$id]) {
+						$ids_to_delete[] = $node_id;
+					} else {
+						$found = false;
+					}
+				}
+				
+				DAO_DecisionNode::delete($ids_to_delete);
+			} 
+			
+		} elseif(isset($_REQUEST['trigger_id'])) {
+			@$trigger_id = DevblocksPlatform::importGPC($_REQUEST['trigger_id'],'integer', 0);
+			DAO_TriggerEvent::delete($trigger_id);
+			
+		}
+	}
+	
+	function showDecisionPopupAction() {
+		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string', '');
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer', 0);
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		
+		if(!empty($id)) { // Edit node
+			// Model
+			if(null != ($model = DAO_DecisionNode::get($id))) {
+				$tpl->assign('id', $id);
+				$tpl->assign('model', $model);
+				$tpl->assign('trigger_id', $model->trigger_id);
+				$type = $model->node_type;
+				$trigger_id = $model->trigger_id;
+				//echo $model->params_json;
+			}
+			
+		} elseif(isset($_REQUEST['parent_id'])) { // Add child node
+			@$parent_id = DevblocksPlatform::importGPC($_REQUEST['parent_id'],'integer', 0);
+			@$type = DevblocksPlatform::importGPC($_REQUEST['type'],'string', '');
+			@$trigger_id = DevblocksPlatform::importGPC($_REQUEST['trigger_id'],'integer', 0);
+			
+			$tpl->assign('parent_id', $parent_id);
+			$tpl->assign('type', $type);
+			$tpl->assign('trigger_id', $trigger_id);
+			
+		} elseif(isset($_REQUEST['trigger_id'])) { // Add child node
+			@$trigger_id = DevblocksPlatform::importGPC($_REQUEST['trigger_id'],'integer', 0);
+			
+			if(null != ($trigger = DAO_TriggerEvent::get($trigger_id))) {
+				$tpl->assign('trigger_id', $trigger_id);
+				$type = 'trigger';
+			}
+		}
+
+		if(!isset($trigger) && !empty($trigger_id))
+			if(null == ($trigger = DAO_TriggerEvent::get($trigger_id)))
+				return;
+				
+		$tpl->assign('trigger', $trigger);
+		
+		if(!empty($trigger))
+			if(null == ($event = DevblocksPlatform::getExtension($trigger->event_point, true)))
+				return;
+				
+		$tpl->assign('event', $event);
+			
+		// Template
+		switch($type) {
+			case 'switch':
+				$tpl->display('devblocks:cerberusweb.core::internal/decisions/editors/switch.tpl');
+				break;
+				
+			case 'outcome':
+				if(null != ($ext = DevblocksPlatform::getExtension($trigger->event_point, true)))
+					$tpl->assign('conditions', $ext->getConditions());
+					
+				$tpl->display('devblocks:cerberusweb.core::internal/decisions/editors/outcome.tpl');
+				break;
+				
+			case 'action':
+				if(null != ($ext = DevblocksPlatform::getExtension($trigger->event_point, true)))
+					$tpl->assign('actions', $ext->getActions());
+					
+				// Workers
+				$tpl->assign('workers', DAO_Worker::getAll());
+					
+				$tpl->display('devblocks:cerberusweb.core::internal/decisions/editors/action.tpl');
+				break;
+				
+			case 'trigger':
+				$ext = DevblocksPlatform::getExtension($trigger->event_point, false);
+				$tpl->assign('ext', $ext);
+				$tpl->display('devblocks:cerberusweb.core::internal/decisions/editors/trigger.tpl');
+				break;
+		}
+		
+		// Free
+		$tpl->clearAssign('actions');
+		$tpl->clearAssign('conditions');
+		$tpl->clearAssign('event');
+		$tpl->clearAssign('ext');
+		$tpl->clearAssign('id');
+		$tpl->clearAssign('model');
+		$tpl->clearAssign('parent_id');
+		$tpl->clearAssign('trigger');
+		$tpl->clearAssign('trigger_id');
+		$tpl->clearAssign('type');
+		$tpl->clearAssign('workers');
+	}
+
+	function doDecisionAddConditionAction() {
+		@$condition = DevblocksPlatform::importGPC($_REQUEST['condition'],'string', '');
+		@$trigger_id = DevblocksPlatform::importGPC($_REQUEST['trigger_id'],'integer', 0);
+
+		$tpl = DevblocksPlatform::getTemplateService();
+
+		// [TODO] Cache
+		if(null == ($trigger = DAO_TriggerEvent::get($trigger_id)))
+			return;
+			
+		if(null == ($event = DevblocksPlatform::getExtension($trigger->event_point, true)))
+			return; /* @var $event Extension_DevblocksEvent */
+			
+		$event->renderCondition($condition);
+	}
+	
+	function doDecisionAddActionAction() {
+		@$action = DevblocksPlatform::importGPC($_REQUEST['action'],'string', '');
+		@$trigger_id = DevblocksPlatform::importGPC($_REQUEST['trigger_id'],'integer', 0);
+
+		$tpl = DevblocksPlatform::getTemplateService();
+
+		// [TODO] Cache
+		if(null == ($trigger = DAO_TriggerEvent::get($trigger_id)))
+			return;
+			
+		if(null == ($event = DevblocksPlatform::getExtension($trigger->event_point, true)))
+			return; /* @var $event Extension_DevblocksEvent */
+			
+		$event->renderAction($action);
+	}
+
+	function saveDecisionPopupAction() {
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer', 0);
+		@$title = DevblocksPlatform::importGPC($_REQUEST['title'],'string', '');
+
+		$fields = array();
+		
+		if(!empty($id)) { // Edit
+			if(null != ($model = DAO_DecisionNode::get($id))) {
+				$type = $model->node_type;
+				
+				// Title changed
+				if(0 != strcasecmp($model->title, $title) && !empty($title))
+					DAO_DecisionNode::update($id, array(
+						DAO_DecisionNode::TITLE => $title,
+					));
+			}
+			
+		} elseif(isset($_REQUEST['parent_id'])) { // Create
+			@$parent_id = DevblocksPlatform::importGPC($_REQUEST['parent_id'],'integer', 0);
+			@$trigger_id = DevblocksPlatform::importGPC($_REQUEST['trigger_id'],'integer', 0);
+			@$type = DevblocksPlatform::importGPC($_REQUEST['type'],'string', '');
+			
+			$id = DAO_DecisionNode::create(array(
+				DAO_DecisionNode::TITLE => $title,
+				DAO_DecisionNode::PARENT_ID => $parent_id,
+				DAO_DecisionNode::TRIGGER_ID => $trigger_id,
+				DAO_DecisionNode::NODE_TYPE => $type,
+				DAO_DecisionNode::PARAMS_JSON => '',
+			));
+			
+		} elseif(isset($_REQUEST['trigger_id'])) { // Trigger
+			@$trigger_id = DevblocksPlatform::importGPC($_REQUEST['trigger_id'],'integer', 0);
+			@$title = DevblocksPlatform::importGPC($_REQUEST['title'],'string', '');
+			@$is_disabled = DevblocksPlatform::importGPC($_REQUEST['is_disabled'],'integer', 0);
+
+			if(null != ($trigger = DAO_TriggerEvent::get($trigger_id))) {
+				$type = 'trigger';
+				
+				if(empty($title)) {
+					if(null != ($ext = DevblocksPlatform::getExtension($trigger->event_point, false)))
+						$title = $ext->name;
+				}
+				
+				DAO_TriggerEvent::update($trigger->id, array(
+					DAO_TriggerEvent::TITLE => $title,
+					DAO_TriggerEvent::IS_DISABLED => !empty($is_disabled) ? 1 : 0,
+				));
+			}
+			
+		}
+
+		// Type-specific properties
+		switch($type) {
+			case 'switch':
+				// Nothing
+				break;
+				
+			case 'outcome':
+				@$condition_ids = DevblocksPlatform::importGPC($_REQUEST['conditions'],'array',array());
+				$parsed = $this->_parseConditions($condition_ids, $_POST);
+				DAO_DecisionNode::update($id, array(
+					DAO_DecisionNode::PARAMS_JSON => json_encode($parsed), 
+				));
+				break;
+				
+			case 'action':
+				@$action_ids = DevblocksPlatform::importGPC($_REQUEST['actions'],'array',array());
+				$parsed = $this->_parseActions($action_ids, $_POST);
+				DAO_DecisionNode::update($id, array(
+					DAO_DecisionNode::PARAMS_JSON => json_encode($parsed), 
+				));
+				break;
+				
+			case 'trigger':
+				break;
+		}
+	}
+	
+	private function _parseConditions($condition_ids, $scope) {
+		$object = array();
+		
+		foreach($condition_ids as $condition_id) {
+			$object[] = $scope['condition'.$condition_id];
+		}
+		
+		return $object;
+	}
+	
+	private function _parseActions($action_ids, $scope) {
+		$object = array();
+		
+		foreach($action_ids as $action_id) {
+			$object[] = $scope['action'.$action_id];
+		}
+		
+		return $object;
+	}
+
+	function showDecisionNodeMenuAction() {
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer', 0);
+
+		$tpl = DevblocksPlatform::getTemplateService();
+		
+		if(null != ($node = DAO_DecisionNode::get($id)))
+			$tpl->assign('node', $node);
+		
+		@$trigger_id = DevblocksPlatform::importGPC($_REQUEST['trigger_id'],'integer', 0);
+		if(!empty($trigger_id))
+			$tpl->assign('trigger_id', $trigger_id);
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/decisions/menu.tpl');
+	}
+	
+	function deleteDecisionNodeAction() {
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer', 0);
+		
+		if(!empty($id)) {
+			DAO_DecisionNode::delete($id);
+			
+		} elseif(isset($_REQUEST['trigger_id'])) {
+			@$trigger_id = DevblocksPlatform::importGPC($_REQUEST['trigger_id'],'integer', 0);
+			// [TODO] Make sure this worker owns the trigger (or is group mgr)
+			if(!empty($trigger_id))
+				DAO_TriggerEvent::delete($trigger_id);
+		}
+	}
 	
 	// Utils
 

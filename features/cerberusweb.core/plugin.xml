@@ -158,6 +158,13 @@
 		<file path="api/dao/context_merge_history.php">
 			<class name="DAO_ContextMergeHistory" />
 		</file>
+
+		<file path="api/dao/decision_node.php">
+			<class name="DAO_DecisionNode" />
+			<class name="Model_DecisionNode" />
+			<class name="SearchFields_DecisionNode" />
+			<class name="View_DecisionNode" />
+		</file>
 		
 		<file path="api/dao/explorer.php">
 			<class name="DAO_ExplorerSet" />
@@ -224,6 +231,13 @@
 			<class name="Model_Ticket" />
 			<class name="SearchFields_Ticket" />
 			<class name="View_Ticket" />
+		</file>
+		
+		<file path="api/dao/trigger_event.php">
+			<class name="DAO_TriggerEvent" />
+			<class name="Model_TriggerEvent" />
+			<class name="SearchFields_TriggerEvent" />
+			<class name="View_TriggerEvent" />
 		</file>
 		
 		<file path="api/dao/view_filters_preset.php">
@@ -704,6 +718,24 @@
 						<data key="ticket.reply.outbound" />						
 					</value>
 				</param>
+			</params>
+		</extension>
+		
+		<extension point="devblocks.listener.event">
+			<id>cerberusweb.listeners.triggers</id>
+			<name>Triggers Manager</name>
+			<class>
+				<file>api/listeners.classes.php</file>
+				<name>EventListener_Triggers</name>
+			</class>
+			<params>
+				<!--
+				<param key="events">
+					<value>
+						<data key="*" />						
+					</value>
+				</param>
+				-->
 			</params>
 		</extension>
  
