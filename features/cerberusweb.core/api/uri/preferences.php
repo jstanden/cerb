@@ -391,7 +391,6 @@ class ChPreferencesPage extends CerberusPageExtension {
 		exit;
 	}
 
-
 //	function showWorkspacesIntroTabAction() {
 //		$translate = DevblocksPlatform::getTranslationService();
 //		$active_worker = CerberusApplication::getActiveWorker();

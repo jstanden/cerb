@@ -621,7 +621,7 @@ class Context_Notification extends Extension_DevblocksContext {
 			'id' => $prefix.$translate->_('common.id'),
 			'created|date' => $prefix.$translate->_('common.created'),
 			'message' => $prefix.'message',
-			'is_read' => $prefix.'is_read',
+			'is_read' => $prefix.'is read',
 			'url' => $prefix.$translate->_('common.url'),
 		);
 		

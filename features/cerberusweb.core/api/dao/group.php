@@ -1008,11 +1008,13 @@ class Context_Group extends Extension_DevblocksContext {
 		} else {
 			$group = null;
 		}
-			
+		
 		// Token labels
 		$token_labels = array(
 			'name' => $prefix.$translate->_('common.name'),
 		);
+		
+		// [TODO] Custom fields
 		
 //		if(is_array($fields))
 //		foreach($fields as $cf_id => $field) {

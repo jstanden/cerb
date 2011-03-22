@@ -2080,10 +2080,10 @@ class Context_Ticket extends Extension_DevblocksContext {
 			
 		// Token labels
 		$token_labels = array(
+			'created|date' => $prefix.$translate->_('ticket.created'),
 			'id' => $prefix.$translate->_('ticket.id'),
 			'mask' => $prefix.$translate->_('ticket.mask'),
 			'subject' => $prefix.$translate->_('ticket.subject'),
-			'created|date' => $prefix.$translate->_('ticket.created'),
 			'updated|date' => $prefix.$translate->_('ticket.updated'),
 			'url' => $prefix.$translate->_('common.url'),
 		);

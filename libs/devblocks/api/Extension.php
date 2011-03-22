@@ -66,7 +66,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension {
 abstract class DevblocksHttpResponseListenerExtension extends DevblocksExtension {
 	function run(DevblocksHttpResponse $request, Smarty $tpl) {
 	}
-}
+};
 
 abstract class Extension_DevblocksStorageEngine extends DevblocksExtension {
 	protected $_options = array();
