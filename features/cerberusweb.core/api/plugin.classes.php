@@ -588,3 +588,238 @@ class Event_NotificationReceivedByOwner extends Extension_DevblocksEvent {
 	
 };
 
+class Event_MailReceivedByOwner extends Extension_DevblocksEvent {
+	const ID = 'event.mail.received.owner';
+	
+	static function trigger($message_id) {
+		$events = DevblocksPlatform::getEventService();
+		$events->trigger(
+	        new Model_DevblocksEvent(
+	            self::ID,
+                array(
+                	'message_id' => $message_id,
+                )
+            )
+		);
+	} 
+
+	function setEvent(Model_DevblocksEvent $event_model=null) {
+		@$message_id = $event_model->params['message_id']; 
+		$labels = array();
+		$values = array();
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_MESSAGE, $message_id, $labels, $values, null, true);
+
+		@$ticket_id = $values['ticket_id']; 
+		$ticket_labels = array();
+		$ticket_values = array();
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_TICKET, $ticket_id, $ticket_labels, $ticket_values, null, true);
+
+		// Clear dupe content
+		CerberusContexts::scrubTokensWithRegexp(
+			$ticket_labels,
+			$ticket_values,
+			array(
+				"#^initial_message_#",
+				"#^latest_message_#",
+				"#^id$#",
+			)
+		);
+		
+		// Merge
+		CerberusContexts::merge(
+			'ticket_',
+			'',
+			$ticket_labels,
+			$ticket_values,
+			$labels,
+			$values
+		);
+				
+		$this->setLabels($labels);
+		$this->setValues($values);
+	}
+	
+	function getConditionExtensions() {
+		$labels = $this->getLabels();
+		
+		$types = array(
+			'content' => Model_CustomField::TYPE_MULTI_LINE,
+			'is_outgoing' => Model_CustomField::TYPE_CHECKBOX,
+			'sender_num_nonspam' => Model_CustomField::TYPE_NUMBER,
+			'sender_num_spam' => Model_CustomField::TYPE_NUMBER,
+			'sender_address' => Model_CustomField::TYPE_SINGLE_LINE,
+			'sender_full_name' => Model_CustomField::TYPE_SINGLE_LINE,
+			'sender_is_banned' => Model_CustomField::TYPE_CHECKBOX,
+			'sender_org_city' => Model_CustomField::TYPE_SINGLE_LINE,
+			'sender_org_country' => Model_CustomField::TYPE_SINGLE_LINE,
+			'sender_org_created' => Model_CustomField::TYPE_DATE,
+			'sender_org_name' => Model_CustomField::TYPE_SINGLE_LINE,
+			'sender_org_phone' => Model_CustomField::TYPE_SINGLE_LINE,
+			'sender_org_postal' => Model_CustomField::TYPE_SINGLE_LINE,
+			'sender_org_province' => Model_CustomField::TYPE_SINGLE_LINE,
+			'sender_org_street' => Model_CustomField::TYPE_SINGLE_LINE,
+			'sender_org_website' => Model_CustomField::TYPE_SINGLE_LINE,
+			'sender_first_name' => Model_CustomField::TYPE_SINGLE_LINE,
+			'sender_last_name' => Model_CustomField::TYPE_SINGLE_LINE,
+			'storage_size' => Model_CustomField::TYPE_NUMBER,
+			'created|date' => Model_CustomField::TYPE_DATE,
+		
+			"ticket_bucket_name|default('Inbox')" => Model_CustomField::TYPE_SINGLE_LINE,
+			'ticket_created|date' => Model_CustomField::TYPE_DATE,
+			'ticket_group_name' => Model_CustomField::TYPE_SINGLE_LINE,
+			'ticket_mask' => Model_CustomField::TYPE_SINGLE_LINE,
+			'ticket_subject' => Model_CustomField::TYPE_SINGLE_LINE,
+			'ticket_updated|date' => Model_CustomField::TYPE_DATE,
+			'ticket_url' => Model_CustomField::TYPE_URL,
+		);
+
+		$conditions = $this->_importLabelsTypesAsConditions($labels, $types);
+		
+		return $conditions;
+	}
+
+	function renderConditionExtension($token, $params=array(), $seq=null) {
+		return;
+		
+//		$conditions = $this->getConditions();
+		
+//		$tpl = DevblocksPlatform::getTemplateService();
+//		$tpl->assign('params', $params);
+
+//		if(!is_null($seq))
+//			$tpl->assign('namePrefix','condition'.$seq);
+		
+//		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_string.tpl');
+	}
+
+	function runConditionExtension($token, $params, $values) {
+		$pass = true;
+		
+		switch($token) {
+			default:
+				$pass = false;
+				break;
+		}
+		
+		return $pass;
+	}	
+	
+	function getActionExtensions() { // $id
+		$actions = array(
+			//'add_owners' => array('label' => 'Add owners'),
+			//'set_spam_training' => array('label' => 'Set spam training'),
+			//'set_status' => array('label' => 'Set status'),
+			'set_subject' => array('label' => 'Set subject'),
+			'send_email' => array('label' => 'Send email'),
+			'send_email_recipients' => array('label' => 'Send email to recipients'),
+			'create_comment' => array('label' =>'Create a comment'),
+			'create_notification' => array('label' =>'Create a notification'),
+			'create_task' => array('label' =>'Create a task'),
+			'create_ticket' => array('label' =>'Create a ticket'),
+		);
+		
+		// [TODO] Add set custom fields
+		
+		return $actions;
+	}
+	
+	function renderActionExtension($token, $params=array(), $seq=null) {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('params', $params);
+
+		if(!is_null($seq))
+			$tpl->assign('namePrefix','action'.$seq);
+
+		$labels = $this->getLabels();
+		$tpl->assign('token_labels', $labels);
+			
+		switch($token) {
+			case 'set_subject':
+				$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_string.tpl');
+				break;
+				
+			case 'send_email':
+				DevblocksEventHelper::renderActionSendEmail();
+				break;
+				
+			case 'send_email_recipients':
+				$tpl->assign('workers', DAO_Worker::getAll());
+				$tpl->display('devblocks:cerberusweb.core::events/mail_received_by_owner/action_send_email_recipients.tpl');
+				break;
+				
+			case 'create_comment':
+				DevblocksEventHelper::renderActionCreateComment();
+				break;
+				
+			case 'create_notification':
+				DevblocksEventHelper::renderActionCreateNotification();
+				break;
+				
+			case 'create_task':
+				DevblocksEventHelper::renderActionCreateTask();
+				break;
+				
+			case 'create_ticket':
+				DevblocksEventHelper::renderActionCreateTicket();
+				break;
+		}
+		
+		$tpl->clearAssign('params');
+		$tpl->clearAssign('namePrefix');
+		$tpl->clearAssign('token_labels');
+	}
+	
+	function runActionExtension($token, $params, $values) {
+		@$ticket_id = $values['ticket_id'];
+		@$message_id = $values['id'];
+
+		if(empty($ticket_id) || empty($message_id))
+			return;
+		
+		switch($token) {
+			case 'set_subject':
+				DAO_Ticket::update($ticket_id,array(
+					DAO_Ticket::SUBJECT => $params['value'],
+				));
+				break;
+			
+			case 'send_email':
+				DevblocksEventHelper::runActionSendEmail($params, $values);
+				break;
+				
+			case 'send_email_recipients':
+				// Translate message tokens
+				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+				$content = $tpl_builder->build($params['content'], $values);
+				
+				$properties = array(
+					'ticket_id' => $ticket_id,
+					'message_id' => $message_id,
+					'content' => $content,
+					'agent_id' => 0, //$worker_id,
+				);
+				CerberusMail::sendTicketMessage($properties);
+				break;
+				
+			case 'create_comment':
+				DevblocksEventHelper::runActionCreateComment($params, $values, CerberusContexts::CONTEXT_TICKET, $ticket_id);
+				break;
+				
+			case 'create_notification':
+				$url_writer = DevblocksPlatform::getUrlService();
+				$url = $url_writer->write('c=display&id='.$values['ticket_mask'], true);
+				
+				DevblocksEventHelper::runActionCreateNotification($params, $values, $url);
+				break;
+				
+			case 'create_task':
+				DevblocksEventHelper::runActionCreateTask($params, $values, CerberusContexts::CONTEXT_TICKET, $ticket_id);
+				break;
+
+			case 'create_ticket':
+				DevblocksEventHelper::runActionCreateTicket($params, $values, CerberusContexts::CONTEXT_TICKET, $ticket_id);
+				break;
+		}
+	}
+};
+
