@@ -2085,6 +2085,7 @@ class Context_Ticket extends Extension_DevblocksContext {
 			'subject' => $prefix.$translate->_('ticket.subject'),
 			'created|date' => $prefix.$translate->_('ticket.created'),
 			'updated|date' => $prefix.$translate->_('ticket.updated'),
+			'url' => $prefix.$translate->_('common.url'),
 		);
 		
 		if(is_array($fields))
@@ -2103,6 +2104,10 @@ class Context_Ticket extends Extension_DevblocksContext {
 			$token_values['created'] = $ticket[SearchFields_Ticket::TICKET_CREATED_DATE];
 			$token_values['updated'] = $ticket[SearchFields_Ticket::TICKET_UPDATED_DATE];
 			$token_values['custom'] = array();
+			
+			// URL
+			$url_writer = DevblocksPlatform::getUrlService();
+			$token_values['url'] = $url_writer->write('c=display&mask='.$ticket[SearchFields_Ticket::TICKET_MASK],true);
 			
 			// Custom fields
 			$field_values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_TICKET, $ticket[SearchFields_Ticket::TICKET_ID]));
