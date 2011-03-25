@@ -609,32 +609,70 @@ class Event_MailReceivedByOwner extends Extension_DevblocksEvent {
 		$values = array();
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_MESSAGE, $message_id, $labels, $values, null, true);
 
+		$values['sender_is_worker'] = (!empty($values['worker_id'])) ? 1 : 0;
+		
+		/**
+		 * Ticket
+		 */
 		@$ticket_id = $values['ticket_id']; 
 		$ticket_labels = array();
 		$ticket_values = array();
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_TICKET, $ticket_id, $ticket_labels, $ticket_values, null, true);
 
-		// Clear dupe content
-		CerberusContexts::scrubTokensWithRegexp(
-			$ticket_labels,
-			$ticket_values,
-			array(
-				"#^initial_message_#",
-				"#^latest_message_#",
-				"#^id$#",
-			)
-		);
+			// Fill some custom values
+			if(!is_null($event_model)) {
+				$values['is_first'] = ($values['id'] == $ticket_values['initial_message_id']) ? 1 : 0;
+			}
 		
-		// Merge
-		CerberusContexts::merge(
-			'ticket_',
-			'',
-			$ticket_labels,
-			$ticket_values,
-			$labels,
-			$values
-		);
+			// Clear dupe content
+			CerberusContexts::scrubTokensWithRegexp(
+				$ticket_labels,
+				$ticket_values,
+				array(
+					"#^initial_message_#",
+					"#^latest_message_#",
+					"#^id$#",
+				)
+			);
+			
+			// Merge
+			CerberusContexts::merge(
+				'ticket_',
+				'',
+				$ticket_labels,
+				$ticket_values,
+				$labels,
+				$values
+			);
 				
+			
+		/**
+		 * Sender Worker
+		 */
+		@$worker_id = $values['worker_id'];
+		$worker_labels = array();
+		$worker_values = array();
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $worker_id, $worker_labels, $worker_values, null, true);
+				
+			// Clear dupe content
+			CerberusContexts::scrubTokensWithRegexp(
+				$worker_labels,
+				$worker_values,
+				array(
+					"#^address_org_#",
+				)
+			);
+		
+			// Merge
+			CerberusContexts::merge(
+				'sender_worker_',
+				'Message sender ',
+				$worker_labels,
+				$worker_values,
+				$labels,
+				$values
+			);
+						
 		$this->setLabels($labels);
 		$this->setValues($values);
 	}
@@ -642,14 +680,22 @@ class Event_MailReceivedByOwner extends Extension_DevblocksEvent {
 	function getConditionExtensions() {
 		$labels = $this->getLabels();
 		
+		$labels['is_first'] = 'Message is first';
+		$labels['sender_is_worker'] = 'Message sender is worker';
+		
 		$types = array(
 			'content' => Model_CustomField::TYPE_MULTI_LINE,
+			'created|date' => Model_CustomField::TYPE_DATE,
+			'is_first' => Model_CustomField::TYPE_CHECKBOX,
 			'is_outgoing' => Model_CustomField::TYPE_CHECKBOX,
-			'sender_num_nonspam' => Model_CustomField::TYPE_NUMBER,
-			'sender_num_spam' => Model_CustomField::TYPE_NUMBER,
 			'sender_address' => Model_CustomField::TYPE_SINGLE_LINE,
+			'sender_first_name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'sender_full_name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'sender_is_banned' => Model_CustomField::TYPE_CHECKBOX,
+			'sender_is_worker' => Model_CustomField::TYPE_CHECKBOX,
+			'sender_last_name' => Model_CustomField::TYPE_SINGLE_LINE,
+			'sender_num_nonspam' => Model_CustomField::TYPE_NUMBER,
+			'sender_num_spam' => Model_CustomField::TYPE_NUMBER,
 			'sender_org_city' => Model_CustomField::TYPE_SINGLE_LINE,
 			'sender_org_country' => Model_CustomField::TYPE_SINGLE_LINE,
 			'sender_org_created' => Model_CustomField::TYPE_DATE,
@@ -659,10 +705,9 @@ class Event_MailReceivedByOwner extends Extension_DevblocksEvent {
 			'sender_org_province' => Model_CustomField::TYPE_SINGLE_LINE,
 			'sender_org_street' => Model_CustomField::TYPE_SINGLE_LINE,
 			'sender_org_website' => Model_CustomField::TYPE_SINGLE_LINE,
-			'sender_first_name' => Model_CustomField::TYPE_SINGLE_LINE,
-			'sender_last_name' => Model_CustomField::TYPE_SINGLE_LINE,
+			'sender_worker_address_address' => Model_CustomField::TYPE_SINGLE_LINE,
+			'sender_worker_full_name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'storage_size' => Model_CustomField::TYPE_NUMBER,
-			'created|date' => Model_CustomField::TYPE_DATE,
 		
 			"ticket_bucket_name|default('Inbox')" => Model_CustomField::TYPE_SINGLE_LINE,
 			'ticket_created|date' => Model_CustomField::TYPE_DATE,
@@ -852,6 +897,9 @@ class Event_MailReceivedByGroup extends Extension_DevblocksEvent {
 		$values = array();
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_MESSAGE, $message_id, $labels, $values, null, true);
 
+		// Fill in some custom values
+		$values['sender_is_worker'] = (!empty($values['worker_id'])) ? 1 : 0;
+		
 		/**
 		 * Ticket
 		 */
@@ -907,6 +955,33 @@ class Event_MailReceivedByGroup extends Extension_DevblocksEvent {
 			);
 		
 		/**
+		 * Sender Worker
+		 */
+		@$worker_id = $values['worker_id'];
+		$worker_labels = array();
+		$worker_values = array();
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $worker_id, $worker_labels, $worker_values, null, true);
+				
+			// Clear dupe content
+			CerberusContexts::scrubTokensWithRegexp(
+				$worker_labels,
+				$worker_values,
+				array(
+					"#^address_org_#",
+				)
+			);
+		
+			// Merge
+			CerberusContexts::merge(
+				'sender_worker_',
+				'Message sender ',
+				$worker_labels,
+				$worker_values,
+				$labels,
+				$values
+			);
+			
+		/**
 		 * Return
 		 */
 		
@@ -918,16 +993,21 @@ class Event_MailReceivedByGroup extends Extension_DevblocksEvent {
 		$labels = $this->getLabels();
 		
 		$labels['is_first'] = 'Message is first';
+		$labels['sender_is_worker'] = 'Message sender is worker';
 		
 		$types = array(
 			'content' => Model_CustomField::TYPE_MULTI_LINE,
+			'created|date' => Model_CustomField::TYPE_DATE,
 			'is_first' => Model_CustomField::TYPE_CHECKBOX,
 			'is_outgoing' => Model_CustomField::TYPE_CHECKBOX,
-			'sender_num_nonspam' => Model_CustomField::TYPE_NUMBER,
-			'sender_num_spam' => Model_CustomField::TYPE_NUMBER,
 			'sender_address' => Model_CustomField::TYPE_SINGLE_LINE,
+			'sender_first_name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'sender_full_name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'sender_is_banned' => Model_CustomField::TYPE_CHECKBOX,
+			'sender_is_worker' => Model_CustomField::TYPE_CHECKBOX,
+			'sender_last_name' => Model_CustomField::TYPE_SINGLE_LINE,
+			'sender_num_nonspam' => Model_CustomField::TYPE_NUMBER,
+			'sender_num_spam' => Model_CustomField::TYPE_NUMBER,
 			'sender_org_city' => Model_CustomField::TYPE_SINGLE_LINE,
 			'sender_org_country' => Model_CustomField::TYPE_SINGLE_LINE,
 			'sender_org_created' => Model_CustomField::TYPE_DATE,
@@ -937,10 +1017,9 @@ class Event_MailReceivedByGroup extends Extension_DevblocksEvent {
 			'sender_org_province' => Model_CustomField::TYPE_SINGLE_LINE,
 			'sender_org_street' => Model_CustomField::TYPE_SINGLE_LINE,
 			'sender_org_website' => Model_CustomField::TYPE_SINGLE_LINE,
-			'sender_first_name' => Model_CustomField::TYPE_SINGLE_LINE,
-			'sender_last_name' => Model_CustomField::TYPE_SINGLE_LINE,
+			'sender_worker_address_address' => Model_CustomField::TYPE_SINGLE_LINE,
+			'sender_worker_full_name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'storage_size' => Model_CustomField::TYPE_NUMBER,
-			'created|date' => Model_CustomField::TYPE_DATE,
 		
 			"group_name" => Model_CustomField::TYPE_SINGLE_LINE,
 		
@@ -948,6 +1027,9 @@ class Event_MailReceivedByGroup extends Extension_DevblocksEvent {
 			'ticket_created|date' => Model_CustomField::TYPE_DATE,
 			'ticket_group_name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'ticket_mask' => Model_CustomField::TYPE_SINGLE_LINE,
+			'ticket_spam_score' => null,
+			'ticket_spam_training' => null,
+			'ticket_status' => null,
 			'ticket_subject' => Model_CustomField::TYPE_SINGLE_LINE,
 			'ticket_updated|date' => Model_CustomField::TYPE_DATE,
 			'ticket_url' => Model_CustomField::TYPE_URL,
@@ -959,29 +1041,77 @@ class Event_MailReceivedByGroup extends Extension_DevblocksEvent {
 	}
 	
 	function renderConditionExtension($token, $params=array(), $seq=null) {
-		return;
-//		$conditions = $this->getConditions();
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('params', $params);
 
-//		$tpl = DevblocksPlatform::getTemplateService();
-//		$tpl->assign('params', $params);
-//
-//		if(!is_null($seq))
-//			$tpl->assign('namePrefix','condition'.$seq);
-//		
-//		switch($token) {
-//			case 'is_first':
-//				$tpl->display('devblocks:cerberusweb.core::internal/decisions/conditions/_bool.tpl');
-//				break;
-//		}
-//
-//		$tpl->clearAssign('namePrefix');
-//		$tpl->clearAssign('params');
+		if(!is_null($seq))
+			$tpl->assign('namePrefix','condition'.$seq);
+		
+		switch($token) {
+			case 'ticket_spam_score':
+				$tpl->display('devblocks:cerberusweb.core::events/mail_received_by_group/condition_spam_score.tpl');
+				break;
+			case 'ticket_spam_training':
+				$tpl->display('devblocks:cerberusweb.core::events/mail_received_by_group/condition_spam_training.tpl');
+				break;
+			case 'ticket_status':
+				$tpl->display('devblocks:cerberusweb.core::events/mail_received_by_group/condition_status.tpl');
+				break;
+		}
+
+		$tpl->clearAssign('namePrefix');
+		$tpl->clearAssign('params');
 	}
 	
 	function runConditionExtension($token, $params, $values) {
 		$pass = true;
 		
 		switch($token) {
+			case 'ticket_spam_score':
+				$not = (substr($params['oper'],0,1) == '!');
+				$oper = ltrim($params['oper'],'!');
+				@$value = intval($values[$token] * 100);
+
+				switch($oper) {
+					case 'is':
+						$pass = intval($value)==intval($params['value']);
+						break;
+					case 'gt':
+						$pass = intval($value) > intval($params['value']);
+						break;
+					case 'lt':
+						$pass = intval($value) < intval($params['value']);
+						break;
+				}
+				
+				$pass = ($not) ? !$pass : $pass;
+				break;
+				
+			case 'ticket_spam_training':
+			case 'ticket_status':
+				$not = (substr($params['oper'],0,1) == '!');
+				$oper = ltrim($params['oper'],'!');
+				@$value = $values[$token];
+				
+				if(!isset($params['values']) || !is_array($params['values'])) {
+					$pass = false;
+					break;
+				}
+				
+				switch($oper) {
+					case 'in':
+						$pass = false;
+						foreach($params['values'] as $v) {
+							if($v == $value) {
+								$pass = true;
+								break;
+							}
+						}
+						break;
+				}
+				$pass = ($not) ? !$pass : $pass;
+				break;
+				
 			default:
 				$pass = false;
 				break;
@@ -990,14 +1120,18 @@ class Event_MailReceivedByGroup extends Extension_DevblocksEvent {
 		return $pass;
 	}
 	
-	function getActionExtensions() { // $id
+	function getActionExtensions() {
 		$actions = array(
 			'create_comment' => array('label' =>'Create a comment'),
 			'create_notification' => array('label' =>'Create a notification'),
 			'create_task' => array('label' =>'Create a task'),
 			'create_ticket' => array('label' =>'Create a ticket'),
+			'move_to_bucket' => array('label' => 'Move to bucket'),
+			//'move_to_group' => array('label' => 'Move to group'),
 			'send_email' => array('label' => 'Send email'),
 			'send_email_recipients' => array('label' => 'Send email to recipients'),
+			'set_spam_training' => array('label' => 'Set spam training'),
+			'set_status' => array('label' => 'Set status'),
 		);
 		return $actions;
 	}
@@ -1038,6 +1172,24 @@ class Event_MailReceivedByGroup extends Extension_DevblocksEvent {
 			case 'create_ticket':
 				DevblocksEventHelper::renderActionCreateTicket();
 				break;
+				
+			case 'set_spam_training':
+				$tpl->display('devblocks:cerberusweb.core::events/mail_received_by_group/action_set_spam_training.tpl');
+				break;
+				
+			case 'set_status':
+				$tpl->display('devblocks:cerberusweb.core::events/mail_received_by_group/action_set_status.tpl');
+				break;
+				
+			case 'move_to_bucket':
+				// [TODO] Use trigger cache
+				if(null != ($trigger = DAO_TriggerEvent::get($trigger_id))) {
+					$buckets = DAO_Bucket::getByTeam($trigger->owner_context_id);
+					$tpl->assign('buckets', $buckets);
+				}
+				$tpl->display('devblocks:cerberusweb.core::events/mail_received_by_group/action_move_to_bucket.tpl');
+				break;
+				
 		}
 		
 		$tpl->clearAssign('params');
@@ -1088,7 +1240,92 @@ class Event_MailReceivedByGroup extends Extension_DevblocksEvent {
 
 			case 'create_ticket':
 				DevblocksEventHelper::runActionCreateTicket($params, $values, CerberusContexts::CONTEXT_TICKET, $ticket_id);
-				break;								
+				break;
+
+			case 'set_spam_training':
+				@$to_training = $params['value'];
+				@$current_training = $values['ticket_spam_training'];
+
+				if($to_training == $current_training)
+					break;
+					
+				switch($to_training) {
+					case 'S':
+						CerberusBayes::markTicketAsSpam($ticket_id);
+						$values['ticket_spam_training'] = $to_training;
+						break;
+					case 'N':
+						CerberusBayes::markTicketAsNotSpam($ticket_id);
+						$values['ticket_spam_training'] = $to_training;
+						break;
+				}
+				break;
+				
+			case 'set_status':
+				@$to_status = $params['status'];
+				@$current_status = $values['ticket_status'];
+				
+				if($to_status == $current_status)
+					break;
+					
+				// Status
+				switch($to_status) {
+					case 'open':
+						$fields = array(
+							DAO_Ticket::IS_WAITING => 0,
+							DAO_Ticket::IS_CLOSED => 0,
+							DAO_Ticket::IS_DELETED => 0,
+						);
+						break;
+					case 'waiting':
+						$fields = array(
+							DAO_Ticket::IS_WAITING => 1,
+							DAO_Ticket::IS_CLOSED => 0,
+							DAO_Ticket::IS_DELETED => 0,
+						);
+						break;
+					case 'closed':
+						$fields = array(
+							DAO_Ticket::IS_WAITING => 0,
+							DAO_Ticket::IS_CLOSED => 1,
+							DAO_Ticket::IS_DELETED => 0,
+						);
+						break;
+					case 'deleted':
+						$fields = array(
+							DAO_Ticket::IS_WAITING => 0,
+							DAO_Ticket::IS_CLOSED => 1,
+							DAO_Ticket::IS_DELETED => 1,
+						);
+						break;
+					default:
+						$fields = array();
+						break;
+				}
+				if(!empty($fields)) {
+					DAO_Ticket::update($ticket_id, $fields);
+					$values['ticket_status'] = $to_status;
+				}
+				break;
+				
+			case 'move_to_bucket':
+				@$to_bucket_id = intval($params['bucket_id']);
+				@$current_bucket_id = intval($values['ticket_bucket_id']);
+				$buckets = DAO_Bucket::getAll();
+				
+				// Don't trigger a move event into the same bucket.
+				if($to_bucket_id == $current_bucket_id)
+					break;
+				
+				if(!empty($to_bucket_id) && !isset($buckets[$to_bucket_id]))
+					break;
+					
+				// Move
+				DAO_Ticket::update($ticket_id, array(
+					DAO_Ticket::CATEGORY_ID => $to_bucket_id, 
+				));
+				$values['ticket_bucket_id'] = $to_bucket_id;
+				break;
 		}
 	}
 };
