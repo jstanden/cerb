@@ -64,8 +64,8 @@
 			<class name="ChTaskSource_Org" />
 			<class name="ChTaskSource_Ticket" />
 			<class name="Event_MailReceivedByGroup" />
-			<class name="Event_MailReceivedByOwner" />
-			<class name="Event_NotificationReceivedByOwner" />
+			<class name="Event_MailReceivedByWatcher" />
+			<class name="Event_NotificationReceivedByWorker" />
 		</file>
 		
 		<file path="api/dao/address.php">
@@ -702,10 +702,10 @@
 		
 		<extension point="devblocks.event">
 			<id>event.notification.received.owner</id>
-			<name>Notification Received By Owner</name>
+			<name>Notification sent to me</name>
 			<class>
 				<file>api/plugin.classes.php</file>
-				<name>Event_NotificationReceivedByOwner</name>
+				<name>Event_NotificationReceivedByWorker</name>
 			</class>
 			<params>
 				<param key="contexts">
@@ -718,10 +718,10 @@
 		
 		<extension point="devblocks.event">
 			<id>event.mail.received.owner</id>
-			<name>Mail Received By Owner</name>
+			<name>Mail sent to my conversation</name>
 			<class>
 				<file>api/plugin.classes.php</file>
-				<name>Event_MailReceivedByOwner</name>
+				<name>Event_MailReceivedByWatcher</name>
 			</class>
 			<params>
 				<param key="contexts">
@@ -734,7 +734,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.mail.received.group</id>
-			<name>Mail Received By Group</name>
+			<name>Mail sent to this group</name>
 			<class>
 				<file>api/plugin.classes.php</file>
 				<name>Event_MailReceivedByGroup</name>

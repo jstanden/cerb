@@ -433,7 +433,7 @@ XML;
 	}
 };
 
-class Event_NotificationReceivedByOwner extends Extension_DevblocksEvent {
+class Event_NotificationReceivedByWorker extends Extension_DevblocksEvent {
 	const ID = 'event.notification.received.owner';
 	
 	static function trigger($notification_id, $worker_id) {
@@ -588,16 +588,20 @@ class Event_NotificationReceivedByOwner extends Extension_DevblocksEvent {
 	
 };
 
-class Event_MailReceivedByOwner extends Extension_DevblocksEvent {
+class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 	const ID = 'event.mail.received.owner';
 	
-	static function trigger($message_id) {
+	static function trigger($message_id, $worker_id) {
 		$events = DevblocksPlatform::getEventService();
 		$events->trigger(
 	        new Model_DevblocksEvent(
 	            self::ID,
                 array(
                 	'message_id' => $message_id,
+                    'worker_id' => $worker_id,
+                	'_whisper' => array(
+                		CerberusContexts::CONTEXT_WORKER => array($worker_id),
+                	),
                 )
             )
 		);
