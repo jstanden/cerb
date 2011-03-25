@@ -100,7 +100,7 @@ class ChGroupsPage extends CerberusPageExtension  {
 		$active_worker = CerberusApplication::getActiveWorker();
 		$visit = CerberusApplication::getVisit();
 		
-		$visit->set('cerberusweb.group.tab', 'mail');
+		$visit->set('cerberusweb.groups.tab', 'mail');
 		
 		if(!$active_worker->isTeamManager($group_id) && !$active_worker->is_superuser) {
 			return;
@@ -148,7 +148,7 @@ class ChGroupsPage extends CerberusPageExtension  {
 		$active_worker = CerberusApplication::getActiveWorker();
 		$visit = CerberusApplication::getVisit();
 
-		$visit->set('cerberusweb.group.tab', 'inbox');
+		$visit->set('cerberusweb.groups.tab', 'inbox');
 		
 		$tpl->assign('group_id', $group_id);
 		
@@ -602,7 +602,7 @@ class ChGroupsPage extends CerberusPageExtension  {
 		$active_worker = CerberusApplication::getActiveWorker();
 		$visit = CerberusApplication::getVisit();
 		
-		$visit->set('cerberusweb.group.tab', 'members');
+		$visit->set('cerberusweb.groups.tab', 'members');
 		
 		if(!$active_worker->isTeamManager($group_id) && !$active_worker->is_superuser) {
 			return;
@@ -651,7 +651,7 @@ class ChGroupsPage extends CerberusPageExtension  {
 		$visit = CerberusApplication::getVisit();
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		$visit->set('cerberusweb.group.tab', 'buckets');		
+		$visit->set('cerberusweb.groups.tab', 'buckets');
 
 		if(!$active_worker->isTeamManager($group_id) && !$active_worker->is_superuser) {
 			return;
@@ -789,7 +789,7 @@ class ChGroupsPage extends CerberusPageExtension  {
 		$active_worker = CerberusApplication::getActiveWorker();
 		$visit = CerberusApplication::getVisit();
 		
-		$visit->set('cerberusweb.group.tab', 'fields');		
+		$visit->set('cerberusweb.groups.tab', 'fields');		
 		
 		if(!$active_worker->isTeamManager($group_id) && !$active_worker->is_superuser) {
 			return;
