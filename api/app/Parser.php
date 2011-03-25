@@ -58,6 +58,299 @@ class CerberusParserMessage {
 	public $custom_fields = array();
 };
 
+class CerberusParserModel {
+	private $_headers = array();
+	
+	private $_is_new = true;
+	private $_sender_address_model = null;
+	private $_subject = '';
+	private $_date = 0;
+	private $_ticket_id = 0;
+	private $_ticket_model = null;
+	private $_message_id = 0;
+	private $_group_id = 0;
+	
+	public function __construct($headers) {
+		$this->_headers = $headers;
+		
+		$this->_parseHeadersFrom();
+		$this->_parseHeadersSubject();
+		$this->_parseHeadersDate();
+		$this->_parseHeadersIsNew();
+	}
+	
+	public function validate() {
+		$logger = DevblocksPlatform::getConsoleLog('Parser');
+		
+		// [TODO] Try...Catch
+		
+		// Is valid sender?
+		if(null == $this->_sender_address_model) {
+			$logger->error("From address could not be created.");
+			return FALSE;
+		}
+		
+		// Is banned?
+		if($this->_sender_address_model->is_banned) {
+			$logger->info("Ignoring ticket from banned address: " . $this->_sender_address_model->email);
+			return FALSE;
+		}
+		
+		return TRUE;
+	}
+	
+	/**
+	 * @return Model_Address|null
+	 */    
+	private function _parseHeadersFrom() {
+		try {
+			$this->_sender_address_model = null;
+			
+			@$sReturnPath = $this->_headers['return-path'];
+			@$sReplyTo = $this->_headers['reply-to'];
+			@$sFrom = $this->_headers['from'];
+			
+			$from = array();
+			
+			if(!empty($sReplyTo)) {
+				$from = CerberusParser::parseRfcAddress($sReplyTo);
+			} elseif(!empty($sFrom)) {
+				$from = CerberusParser::parseRfcAddress($sFrom);
+			} elseif(!empty($sReturnPath)) {
+				$from = CerberusParser::parseRfcAddress($sReturnPath);
+			}
+			
+			if(empty($from) || !is_array($from))
+				throw new Exception('No sender headers found.');
+			
+			foreach($from as $addy) {
+				if(empty($addy->mailbox) || empty($addy->host))
+					continue;
+			
+				@$fromAddress = $addy->mailbox.'@'.$addy->host;
+				
+				if(null != ($fromInst = CerberusApplication::hashLookupAddress($fromAddress, true))) {
+					$this->_sender_address_model = $fromInst;
+					return;
+				}
+			}
+			
+		} catch (Exception $e) {
+			$this->_sender_address_model = null;
+			return false;
+			
+		}
+	} 
+	
+	/**
+	 * @return string $subject
+	 */
+	private function _parseHeadersSubject() {
+		$subject = '';
+		
+		// Handle multiple subjects
+		if(isset($this->_headers['subject']) && !empty($this->_headers['subject'])) {
+			$subject = $this->_headers['subject'];
+			if(is_array($subject))
+				$subject = array_shift($subject);
+		}
+		
+		// Remove tabs, returns, and linefeeds
+		$subject = str_replace(array("\t","\n","\r")," ",$subject);
+		
+		// The subject can still end up empty after QP decode
+		if(empty($subject))
+			$subject = "(no subject)";
+			
+		$this->_subject = $subject;
+	}
+	
+	/**
+	 * @return int $timestamp
+	 */
+	private function _parseHeadersDate() {
+		$timestamp = @strtotime($this->_headers['date']);
+		
+		// If blank, or in the future, set to the current date
+		if(empty($timestamp) || $timestamp > time())
+			$timestamp = time();
+			
+		$this->_date = $timestamp;
+	}
+	
+	/**
+	 * First we check the references and in-reply-to headers to find a 
+	 * historical match in the database. If those don't match we check 
+	 * the subject line for a mask (if one exists). If none of those
+	 * options match we return null.
+	 */
+	private function _parseHeadersIsNew() {
+		@$aSubject = $this->_headers['subject'];
+		@$sMessageId = trim($this->_headers['message-id']);
+		@$sInReplyTo = trim($this->_headers['in-reply-to']);
+		@$sReferences = trim($this->_headers['references']);
+		@$sThreadTopic = trim($this->_headers['thread-topic']);
+
+		$aReferences = array();
+		
+		// Add all References
+		if(!empty($sReferences)) {
+			if(preg_match("/(\<.*?\@.*?\>)/", $sReferences, $matches)) {
+				unset($matches[0]); // who cares about the pattern
+				foreach($matches as $ref) {
+					$ref = trim($ref);
+					if(!empty($ref) && 0 != strcasecmp($ref,$sMessageId))
+						$aReferences[$ref] = 1;
+				}
+			}
+		}
+
+		unset($matches);
+		
+		// Append first <*> from In-Reply-To
+		if(!empty($sInReplyTo)) {
+			if(preg_match("/(\<.*?\@.*?\>)/", $sInReplyTo, $matches)) {
+				if(isset($matches[1])) { // only use the first In-Reply-To
+					$ref = trim($matches[1]);
+					if(!empty($ref) && 0 != strcasecmp($ref,$sMessageId))
+						$aReferences[$ref] = 1;
+				}
+			}
+		}
+		
+		// Try matching our references or in-reply-to
+		if(is_array($aReferences) && !empty($aReferences)) {
+			foreach(array_keys($aReferences) as $ref) {
+				if(empty($ref))
+					continue;
+					
+				if(null != ($ids = DAO_Ticket::getTicketByMessageId($ref))) {
+					$this->_is_new = false;
+					$this->_ticket_id = $ids['ticket_id'];
+					$this->_ticket_model = DAO_Ticket::get($this->_ticket_id);
+					$this->_message_id = $ids['message_id'];
+					return;
+				}
+			}
+		}
+		
+		// Try matching the subject line
+		// [TODO] This should only happen if the destination has subject masks enabled
+		if(!is_array($aSubject))
+			$aSubject = array($aSubject);
+			
+		foreach($aSubject as $subject) {
+			if(preg_match("/.*\[.*?\#(.*?)\].*/", $subject, $matches)) {
+				if(isset($matches[1])) {
+					$mask = $matches[1];
+					if(null != ($ticket = DAO_Ticket::getTicketByMask($mask))) {
+						$this->_is_new = false;
+						$this->_ticket_id = $ticket->id;
+						$this->_ticket_model = $ticket;
+						$this->_message_id = $ticket->last_message_id; // [TODO] ???
+						return;
+					}
+				}
+			}
+		}
+
+		$this->_is_new = true;
+		$this->_ticket_id = 0;
+		$this->_ticket_model = null;
+		$this->_message_id = 0;
+	}
+	
+	// Getters/Setters
+	
+	public function getIsNew() {
+		return $this->_is_new;
+	}
+	
+	public function setIsNew($bool) {
+		$this->_is_new = $bool;
+	}
+	
+	public function getSenderAddressModel() {
+		return $this->_sender_address_model;
+	}
+	
+	public function setSenderAddressModel($model) {
+		$this->_sender_address_model = $model;
+	}
+	
+	public function getSubject() {
+		return $this->_subject;
+	}
+	
+	public function setSubject($subject) {
+		$this->_subject = $subject;
+	}
+	
+	public function getDate() {
+		return $this->_date;
+	}
+	
+	public function setDate($date) {
+		$this->_date = $date;
+	}
+	
+	public function setTicketId($id) {
+		$this->_ticket_id = $id;
+	}
+	
+	public function getTicketId() {
+		return $this->_ticket_id;
+	}
+	
+	/**
+	 * @return Model_Ticket
+	 */
+	public function getTicketModel() {
+		if(!empty($this->_ticket_model))
+			return $this->_ticket_model;
+
+		// Lazy-load
+		if(!empty($this->_ticket_id)) {
+			$this->_ticket_model = DAO_Ticket::get($this->_ticket_id);
+		}
+		
+		return $this->_ticket_model;
+	}
+	
+	public function setMessageId($id) {
+		$this->_message_id = $id;
+	}
+	
+	public function getMessageId() {
+		return $this->_message_id;
+	}
+	
+	public function setGroupId($id) {
+		$groups = DAO_Group::getAll();
+		
+		if(!isset($groups[$id])) {
+			$id = 0;
+		}
+		
+		$this->_group_id = $id;
+	}
+	
+	public function getGroupId() {
+		if(!empty($this->_group_id))
+			return $this->_group_id;
+		
+		$ticket_id = $this->getTicketId();
+			
+		if(!empty($ticket_id)) {
+			if(null != ($model = $this->getTicketModel())) {
+				$this->_group_id = $model->team_id;
+			}
+		}
+		
+		return $this->_group_id;
+	}
+};
+
 class ParserFile {
 	public $tmpname = null;
 	public $mime_type = '';
@@ -110,12 +403,10 @@ class ParseFileBuffer extends ParserFile {
 
 	function writeCallback($chunk) {
 		$this->file_size += fwrite($this->fp, $chunk);
-		//        echo $chunk;
 	}
 };
 
 class CerberusParser {
-    const ATTACHMENT_BUCKETS = 100; // hash
 
     /**
      * Enter description here...
@@ -298,46 +589,6 @@ class CerberusParser {
     }
 
 	/**
-	 * 
-	 * @return Model_Address 
-	 * @param array $headers
-	 */    
-	static public function getAddressFromHeaders($headers) {
-		@$sReturnPath = $headers['return-path'];
-		@$sReplyTo = $headers['reply-to'];
-		@$sFrom = $headers['from'];
-		
-		$from = array();
-		
-		if(!empty($sReplyTo)) {
-			$from = CerberusParser::parseRfcAddress($sReplyTo);
-		} elseif(!empty($sFrom)) {
-			$from = CerberusParser::parseRfcAddress($sFrom);
-		} elseif(!empty($sReturnPath)) {
-			$from = CerberusParser::parseRfcAddress($sReturnPath);
-		}
-		
-		if(empty($from) || !is_array($from)) {
-			return NULL;
-		}
-		
-		foreach($from as $addy) {
-			if(empty($addy->mailbox) || empty($addy->host))
-				continue;
-		
-			@$fromAddress = $addy->mailbox.'@'.$addy->host;
-			
-			if(null != ($fromInst = CerberusApplication::hashLookupAddress($fromAddress, true))) {
-				return $fromInst;
-			}
-		}
-		
-		return NULL;
-	} 
-	
-	/**
-	 * Enter description here...
-	 *
 	 * @param CerberusParserMessage $message
 	 * @return integer
 	 */
@@ -347,10 +598,41 @@ class CerberusParser {
 		 * 'no_autoreply'
 		 */
 		$logger = DevblocksPlatform::getConsoleLog();
-		$settings = DevblocksPlatform::getPluginSettingsService();
+		
+		$headers =& $message->headers;
+
+		/*
+		 * [mdf] Check attached files before creating the ticket because we may need to 
+		 * overwrite the message-id also store any contents of rfc822 files so we can 
+		 * include them after the body
+		 */
+		// [TODO] Refactor
+		if(is_array($message->files))		
+		foreach ($message->files as $filename => $file) { /* @var $file ParserFile */
+			switch($file->mime_type) {
+				case 'message/rfc822':
+					$full_filename = $file->tmpname;
+					$mail = mailparse_msg_parse_file($full_filename);
+					$struct = mailparse_msg_get_structure($mail);
+					$msginfo = mailparse_msg_get_part_data($mail);
+					
+					$inline_headers = $msginfo['headers'];
+					if(isset($headers['from']) && (strtolower(substr($headers['from'], 0, 11))=='postmaster@' || strtolower(substr($headers['from'], 0, 14))=='mailer-daemon@')) {
+						$headers['in-reply-to'] = $inline_headers['message-id'];
+					}
+				break;
+			}
+		}
+
+		// Parse headers into $model
+		$model = new CerberusParserModel($headers);		
+		
+		if(!$model->validate())
+			return NULL;
 		
         // Pre-parse mail filters
-		$pre_filters = Model_PreParseRule::getMatches($message);
+        // [TODO] Replace with decision trees
+		$pre_filters = Model_PreParseRule::getMatches($message, $model);
 		if(is_array($pre_filters) && !empty($pre_filters)) {
 			// Load filter action manifests for reuse
 			$ext_action_mfts = DevblocksPlatform::getExtensions('cerberusweb.mail_filter.action', false);
@@ -374,11 +656,11 @@ class CerberusParser {
 	        				
 	        			case 'bounce':
 	        				@$msg = $action['message'];
-							@$subject = 'Delivery failed: ' . self::fixQuotePrintableString($message->headers['subject']);
+							@$subject = 'Delivery failed: ' . self::fixQuotePrintableString($headers['subject']);
 							
 	        				// [TODO] Follow the RFC spec on a true bounce
-							if(null != ($fromAddressInst = CerberusParser::getAddressFromHeaders($message->headers))) {
-	        					CerberusMail::quickSend($fromAddressInst->email,$subject,$msg);
+							if(null != ($model_sender_address = $model->getSenderAddressModel())) {
+	        					CerberusMail::quickSend($model_sender_address->email,$subject,$msg);
 							}
 	        				return NULL;
 	        				break;
@@ -399,176 +681,92 @@ class CerberusParser {
 	        }
 		}
 		
-		$headers =& $message->headers;
-
-		// From
-		if(null == ($fromAddressInst = CerberusParser::getAddressFromHeaders($headers))) {
-			$logger->error("[Parser] 'From' address could not be created.");
-			return NULL;
-		}
-
-		// To/Cc/Bcc
-		$to = array();
-		$sTo = @$headers['to'];
-		$bIsNew = true;
-
-		if(!empty($sTo)) {
-		    // [TODO] Do we still need this RFC address parser?
-			$to = CerberusParser::parseRfcAddress($sTo);
-		}
-		
-		// Subject
-		// Fix quote printable subject (quoted blocks can appear anywhere in subject)
-		$sSubject = "";
-		if(isset($headers['subject']) && !empty($headers['subject'])) {
-			$sSubject = $headers['subject'];
-			if(is_array($sSubject))
-				$sSubject = array_shift($sSubject);
-		}
-		// Remove tabs, returns, and linefeeds
-		$sSubject = str_replace(array("\t","\n","\r")," ",$sSubject);
-		// The subject can still end up empty after QP decode
-		if(empty($sSubject))
-			$sSubject = "(no subject)";
-			
-		// Date
-		$iDate = @strtotime($headers['date']);
-		// If blank, or in the future, set to the current date
-		if(empty($iDate) || $iDate > time())
-			$iDate = time();
-		
-		// Is banned?
-		if(1==$fromAddressInst->is_banned) {
-			$logger->info("[Parser] Ignoring ticket from banned address: " . $fromAddressInst->email);
-			return NULL;
-		}
-		
 		// Overloadable
 		$enumSpamTraining = '';
-		
-		// Message Id / References / In-Reply-To
-		@$sMessageId = $headers['message-id'];
-        
-        $body_append_text = array();
-        $body_append_html = array();
-        // [mdf]Check attached files before creating the ticket because we may need to overwrite the message-id
-		// also store any contents of rfc822 files so we can include them after the body
-		foreach ($message->files as $filename => $file) { /* @var $file ParserFile */
-			
-			switch($file->mime_type) {
-				case 'message/rfc822':
-					$full_filename = $file->tmpname;
-					$mail = mailparse_msg_parse_file($full_filename);
-					$struct = mailparse_msg_get_structure($mail);
-					$msginfo = mailparse_msg_get_part_data($mail);
-					
-					$inline_headers = $msginfo['headers'];
-					if(isset($headers['from']) && (strtolower(substr($headers['from'], 0, 11))=='postmaster@' || strtolower(substr($headers['from'], 0, 14))=='mailer-daemon@')) {
-						$headers['in-reply-to'] = $inline_headers['message-id'];
-					}
-				break;
-			}
-		}
-        
-		// [JAS] [TODO] References header may contain multiple message-ids to find
-		if(null != ($ids = self::findParentMessage($headers))) {
-        	$bIsNew = false;
-        	$id = $ids['ticket_id'];
-        	$msgid = $ids['message_id'];
 
         	// Is it a worker reply from an external client?  If so, proxy
-        	if(null != ($worker_address = DAO_AddressToWorker::getByAddress($fromAddressInst->email))) {
-        		$logger->info("[Parser] Handling an external worker response from " . $fromAddressInst->email);
-
-        		if(!DAO_Ticket::isTicketRequester($worker_address->address, $id)) {
-					// Watcher Commands [TODO] Document on wiki/etc
-					if(0 != ($matches = preg_match_all("/\[(.*?)\]/i", $message->headers['subject'], $commands))) {
-						@$command = strtolower(array_pop($commands[1]));
-						$logger->info("[Parser] Worker command: " . $command);
-						
-						switch($command) {
-							case 'close':
-								DAO_Ticket::update($id,array(
-									DAO_Ticket::IS_CLOSED => CerberusTicketStatus::CLOSED
-								));
-								break;
-								
-							case 'take':
-								CerberusContexts::addWorkers(CerberusContexts::CONTEXT_TICKET, $id, $worker_address->worker_id);
-								break;
-								
-							case 'comment':
-								$comment_id = DAO_Comment::create(array(
-									DAO_Comment::ADDRESS_ID => $fromAddressInst->id,
-									DAO_Comment::CREATED => time(),
-									DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_TICKET,
-									DAO_Comment::CONTEXT_ID => $id,
-									DAO_Comment::COMMENT => $message->body,
-								));
-								return $id;
-								break;
-								
-							default:
-								// Typo?
-								break;
-						}
-					}
-	
-					$attachment_files = array();
-					$attachment_files['name'] = array();
-					$attachment_files['type'] = array();
-					$attachment_files['tmp_name'] = array();
-					$attachment_files['size'] = array();
-					
-					$i=0;
-					foreach($message->files as $filename => $file) {
-						$attachment_files['name'][$i] = $filename;
-						$attachment_files['type'][$i] = $file->mime_type;
-						$attachment_files['tmp_name'][$i] = $file->tmpname;
-						$attachment_files['size'][$i] = $file->file_size;
-						$i++;
-					} 				
-					
-	        		$result = CerberusMail::sendTicketMessage(array(
-						'ticket_id' => $id,
-						'message_id' => $msgid,
-						'content' => $message->body,
-						'files' => $attachment_files,
-						'agent_id' => $worker_address->worker_id,
-					));
-					
-	        		return $id;
-	        		
-        		} else {
-        			// ... worker is a requester, treat as normal
-        			$logger->info("[Parser] The external worker was a ticket requester, so we're not treating them as a watcher.");
-        		}
-        		
-        	} else { // Reply: Not sent by a worker
-	        	/*
-	        	 * [TODO] check that this sender is a requester on the matched ticket
-	        	 * Otherwise blank out the $id
-	        	 */
-        	}
-        }
+// ####### REFACTOR
+//        	if(null != ($worker_address = DAO_AddressToWorker::getByAddress($model->getSenderAddressModel()->email))) {
+//        		$logger->info("[Parser] Handling an external worker response from " . $model->getSenderAddressModel()->email);
+//
+//        		if(!DAO_Ticket::isTicketRequester($worker_address->address, $model->getTicketId())) {
+//					// Watcher Commands [TODO] Document on wiki/etc
+//					if(0 != ($matches = preg_match_all("/\[(.*?)\]/i", $message->headers['subject'], $commands))) {
+//						@$command = strtolower(array_pop($commands[1]));
+//						$logger->info("[Parser] Worker command: " . $command);
+//						
+//						switch($command) {
+//							case 'close':
+//								DAO_Ticket::update($model->getTicketId(),array(
+//									DAO_Ticket::IS_CLOSED => CerberusTicketStatus::CLOSED
+//								));
+//								break;
+//								
+//							case 'take':
+//								CerberusContexts::addWorkers(CerberusContexts::CONTEXT_TICKET, $model->getTicketId(), $worker_address->worker_id);
+//								break;
+//								
+//							case 'comment':
+//								$comment_id = DAO_Comment::create(array(
+//									DAO_Comment::ADDRESS_ID => $model->getSenderAddressModel()->id,
+//									DAO_Comment::CREATED => time(),
+//									DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_TICKET,
+//									DAO_Comment::CONTEXT_ID => $model->getTicketId(),
+//									DAO_Comment::COMMENT => $message->body,
+//								));
+//								return $model->getTicketId();
+//								break;
+//								
+//							default:
+//								// Typo?
+//								break;
+//						}
+//					}
+//	
+//					$attachment_files = array();
+//					$attachment_files['name'] = array();
+//					$attachment_files['type'] = array();
+//					$attachment_files['tmp_name'] = array();
+//					$attachment_files['size'] = array();
+//					
+//					$i=0;
+//					foreach($message->files as $filename => $file) {
+//						$attachment_files['name'][$i] = $filename;
+//						$attachment_files['type'][$i] = $file->mime_type;
+//						$attachment_files['tmp_name'][$i] = $file->tmpname;
+//						$attachment_files['size'][$i] = $file->file_size;
+//						$i++;
+//					} 				
+//					
+//	        		$result = CerberusMail::sendTicketMessage(array(
+//						'ticket_id' => $model->getTicketId(),
+//						'message_id' => $model->getMessageId(),
+//						'content' => $message->body,
+//						'files' => $attachment_files,
+//						'agent_id' => $worker_address->worker_id,
+//					));
+//					
+//	        		return $model->getTicketId();
+//	        		
+//        		} else {
+//        			// ... worker is a requester, treat as normal
+//        			$logger->info("[Parser] The external worker was a ticket requester, so we're not treating them as a watcher.");
+//        		}
+//        	}
+// ####### /REFACTOR
         
-		$group_id = 0;
-		
-		if(empty($id)) { // New Ticket
-			$sMask = CerberusApplication::generateTicketMask();
-			$groups = DAO_Group::getAll();
-		
+		// New Ticket
+		if($model->getIsNew()) {
 			// Routing new tickets
 			if(null != ($routing_rules = Model_MailToGroupRule::getMatches(
-				$fromAddressInst,
+				$model->getSenderAddressModel(),
 				$message
 			))) {
 				if(is_array($routing_rules))
 				foreach($routing_rules as $rule) {
 					// Only end up with the last 'move' action (ignore the previous)
 					if(isset($rule->actions['move'])) {
-						$group_id = intval($rule->actions['move']['group_id']);
-						
+						$model->setGroupId($rule->actions['move']['group_id']);
 						
 						// We don't need to move again when running rule actions
 						unset($rule->actions['move']);
@@ -576,99 +774,112 @@ class CerberusParser {
 				}
 			}
 			
-			// Make sure the group exists
-			if(!isset($groups[$group_id]))
-				$group_id = null;
-				
 			// Last ditch effort to check for a default group to deliver to
+			$group_id = $model->getGroupId();
 			if(empty($group_id)) {
 				if(null != ($default_team = DAO_Group::getDefaultGroup())) {
-					$group_id = $default_team->id;
-				} else {
-					// Bounce
-					return null;
+					$model->setGroupId($default_team->id);
 				}
 			}
-			
+
+			// Bounce if we can't set the group id
+			$group_id = $model->getGroupId();
+			if(empty($group_id)) {
+				return FALSE;
+			}
 			
 			// [JAS] It's important to not set the group_id on the ticket until the messages exist
 			// or inbox filters will just abort.
 			$fields = array(
-				DAO_Ticket::MASK => $sMask,
-				DAO_Ticket::SUBJECT => $sSubject,
+				DAO_Ticket::MASK => CerberusApplication::generateTicketMask(),
+				DAO_Ticket::SUBJECT => $model->getSubject(),
 				DAO_Ticket::IS_CLOSED => 0,
-				DAO_Ticket::FIRST_WROTE_ID => intval($fromAddressInst->id),
-				DAO_Ticket::LAST_WROTE_ID => intval($fromAddressInst->id),
-				DAO_Ticket::CREATED_DATE => $iDate,
+				DAO_Ticket::FIRST_WROTE_ID => intval($model->getSenderAddressModel()->id),
+				DAO_Ticket::LAST_WROTE_ID => intval($model->getSenderAddressModel()->id),
+				DAO_Ticket::CREATED_DATE => $model->getDate(),
 				DAO_Ticket::UPDATED_DATE => time(),
 				DAO_Ticket::LAST_ACTION_CODE => CerberusTicketActionCode::TICKET_OPENED,
 			);
-			$id = DAO_Ticket::createTicket($fields);
+			$model->setTicketId(DAO_Ticket::createTicket($fields));
 
+			$ticket_id = $model->getTicketId();
+			if(empty($ticket_id)) {
+				$logger->error("Problem saving ticket...");
+				return NULL;
+			}
+			
 			// [JAS]: Add requesters to the ticket
-			if(!empty($fromAddressInst->id) && !empty($id))
-				DAO_Ticket::createRequester($fromAddressInst->email, $id);
+			$sender = $model->getSenderAddressModel();
+			if(!empty($sender)) {
+				DAO_Ticket::createRequester($sender->email, $model->getTicketId());
+			}
 				
 			// Add the other TO/CC addresses to the ticket
-			if($settings->get('cerberusweb.core', CerberusSettings::PARSER_AUTO_REQ, CerberusSettingsDefaults::PARSER_AUTO_REQ)) {
+			if(DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::PARSER_AUTO_REQ, CerberusSettingsDefaults::PARSER_AUTO_REQ)) {
 				$destinations = self::getDestinations($headers);
 				
 				if(is_array($destinations))
 				foreach($destinations as $dest) {
-					DAO_Ticket::createRequester($dest, $id);
+					DAO_Ticket::createRequester($dest, $model->getTicketId());
 				}
 			}
 			
 			// Apply routing actions to our new ticket ID
 			if(isset($routing_rules) && is_array($routing_rules))
 			foreach($routing_rules as $rule) {
-				$rule->run($id);
+				$rule->run($model->getTicketId());
 			}
-		}
+
+		} // endif ($model->getIsNew())
 	    		
         $fields = array(
-            DAO_Message::TICKET_ID => $id,
-            DAO_Message::CREATED_DATE => $iDate,
-            DAO_Message::ADDRESS_ID => $fromAddressInst->id,
+            DAO_Message::TICKET_ID => $model->getTicketId(),
+            DAO_Message::CREATED_DATE => $model->getDate(),
+            DAO_Message::ADDRESS_ID => $model->getSenderAddressModel()->id,
         );
-		$email_id = DAO_Message::create($fields);
+		$model->setMessageId(DAO_Message::create($fields));
 		
-		Storage_MessageContent::put($email_id, $message->body);
+		$message_id = $model->getMessageId();
+		if(empty($message_id)) {
+			$logger->error("Problem saving message to database...");
+			return NULL;
+		}
 		
-		// Headers
+		// Save message content
+		Storage_MessageContent::put($model->getMessageId(), $message->body);
+		
+		// Save headers
 		foreach($headers as $hk => $hv) {
-		    DAO_MessageHeader::create($email_id, $hk, $hv);
+		    DAO_MessageHeader::create($model->getMessageId(), $hk, $hv);
 		}
 		
 		// [mdf] Loop through files to insert attachment records in the db, and move temporary files
-		if(!empty($email_id)) {
-			foreach ($message->files as $filename => $file) { /* @var $file ParserFile */
-				//[mdf] skip rfc822 messages since we extracted their content above
-				if($file->mime_type == 'message/rfc822') {
-					continue;
-				}
-				
-			    $fields = array(
-			        DAO_Attachment::DISPLAY_NAME => $filename,
-			        DAO_Attachment::MIME_TYPE => $file->mime_type,
-			    );
-			    $file_id = DAO_Attachment::create($fields);
-				
-			    // Link
-			    DAO_AttachmentLink::create($file_id, CerberusContexts::CONTEXT_MESSAGE, $email_id);
-			    
-			    // Content
-			    if(empty($file_id)) {
-			        @unlink($file->tmpname); // remove our temp file
-				    continue;
-				}
-
-				if(null !== ($fp = fopen($file->getTempFile(), 'rb'))) {
-					Storage_Attachments::put($file_id, $fp);
-					fclose($fp);
-					unlink($file->getTempFile());
-				}				
+		foreach ($message->files as $filename => $file) { /* @var $file ParserFile */
+			//[mdf] skip rfc822 messages since we extracted their content above
+			if($file->mime_type == 'message/rfc822') {
+				continue;
 			}
+			
+		    $fields = array(
+		        DAO_Attachment::DISPLAY_NAME => $filename,
+		        DAO_Attachment::MIME_TYPE => $file->mime_type,
+		    );
+		    $file_id = DAO_Attachment::create($fields);
+			
+		    // Link
+		    DAO_AttachmentLink::create($file_id, CerberusContexts::CONTEXT_MESSAGE, $model->getMessageId());
+		    
+		    // Content
+		    if(empty($file_id)) {
+		        @unlink($file->tmpname); // remove our temp file
+			    continue;
+			}
+
+			if(null !== ($fp = fopen($file->getTempFile(), 'rb'))) {
+				Storage_Attachments::put($file_id, $fp);
+				fclose($fp);
+				unlink($file->getTempFile());
+			}				
 		}
 		
 		// Pre-load custom fields
@@ -676,210 +887,59 @@ class CerberusParser {
 		foreach($message->custom_fields as $cf_id => $cf_val) {
 			if((is_array($cf_val) && !empty($cf_val))
 				|| (!is_array($cf_val) && 0 != strlen($cf_val)))
-				DAO_CustomFieldValue::setFieldValue(CerberusContexts::CONTEXT_TICKET,$id,$cf_id,$cf_val);
+				DAO_CustomFieldValue::setFieldValue(CerberusContexts::CONTEXT_TICKET,$model->getTicketId(),$cf_id,$cf_val);
 		}
 
 		// Finalize our new ticket details (post-message creation)
-		if($bIsNew && !empty($id) && !empty($email_id)) {
+		if($model->getIsNew()) {
 			// First thread (needed for anti-spam)
-			DAO_Ticket::update($id, array(
-				 DAO_Ticket::FIRST_MESSAGE_ID => $email_id,
-				 DAO_Ticket::LAST_MESSAGE_ID => $email_id,
+			DAO_Ticket::update($model->getTicketId(), array(
+				 DAO_Ticket::FIRST_MESSAGE_ID => $model->getMessageId(),
+				 DAO_Ticket::LAST_MESSAGE_ID => $model->getMessageId(),
 			));
 			
 			// Prime the change fields (which a few things like anti-spam might change before we commit)
 			$change_fields = array(
-			    DAO_Ticket::TEAM_ID => $group_id, // this triggers move rules
+			    DAO_Ticket::TEAM_ID => $model->getGroupId(), // this triggers move rules
 			);
 			
-		    $out = CerberusBayes::calculateTicketSpamProbability($id);
-
-		    if(!empty($group_id)) {
-		    	@$spam_threshold = DAO_GroupSettings::get($group_id, DAO_GroupSettings::SETTING_SPAM_THRESHOLD, 80);
-		        @$spam_action = DAO_GroupSettings::get($group_id, DAO_GroupSettings::SETTING_SPAM_ACTION, '');
-		        @$spam_action_param = DAO_GroupSettings::get($group_id, DAO_GroupSettings::SETTING_SPAM_ACTION_PARAM,'');
-		        
-			    if($out['probability']*100 >= $spam_threshold) {
-			    	$enumSpamTraining = CerberusTicketSpamTraining::SPAM;
-			    	
-			        switch($spam_action) {
-			            default:
-			            case 0: // do nothing
-                            break;
-							
-			            case 1: // delete
-							$change_fields[DAO_Ticket::IS_CLOSED] = 1;
-							$change_fields[DAO_Ticket::IS_DELETED] = 1;
-                            break;
-							
-			            case 2: // move
-							$buckets = DAO_Bucket::getAll();
-							
-							// Verify bucket exists
-                            if(!empty($spam_action_param) && isset($buckets[$spam_action_param])) {
-                            	$change_fields[DAO_Ticket::TEAM_ID] = $group_id;
-								$change_fields[DAO_Ticket::CATEGORY_ID] = $spam_action_param;
-                            }	                            
-			                break;
-			        }
-			    }
-			} // end spam training		
+			// [TODO] Benchmark anti-spam
+		    $out = CerberusBayes::calculateTicketSpamProbability($model->getTicketId());
 		
 			// Save properties
 			if(!empty($change_fields))
-				DAO_Ticket::update($id, $change_fields);
-		}
-
-		// Reply notifications (new messages are handled by 'move' listener)
-		if(!$bIsNew) {
-			// Inbound Reply Event
-		    $eventMgr = DevblocksPlatform::getEventService();
-		    $eventMgr->trigger(
-		        new Model_DevblocksEvent(
-		            'ticket.reply.inbound',
-	                array(
-	                    'ticket_id' => $id,
-	                    'address_model' => $fromAddressInst,
-	                )
-	            )
-		    );
-		}
-
-		// New ticket processing
-		if($bIsNew) {
-			// Auto reply
-			@$autoreply_enabled = DAO_GroupSettings::get($group_id, DAO_GroupSettings::SETTING_AUTO_REPLY_ENABLED, 0);
-			@$autoreply = DAO_GroupSettings::get($group_id, DAO_GroupSettings::SETTING_AUTO_REPLY, '');
-			
-			/*
-			 * Send the group's autoreply if one exists, as long as this ticket isn't spam
-			 */
-			if(!isset($options['no_autoreply'])
-				&& $autoreply_enabled 
-				&& !empty($autoreply) 
-				&& $enumSpamTraining != CerberusTicketSpamTraining::SPAM
-				) {
-					try {
-						$token_labels = array();
-						$token_values = array();
-						CerberusContexts::getContext(CerberusContexts::CONTEXT_TICKET, $id, $token_labels, $token_values);
-						
-						$tpl_builder = DevblocksPlatform::getTemplateBuilder();
-						if(false === ($autoreply_content = $tpl_builder->build($autoreply, $token_values)))
-							throw new Exception('Failed parsing auto-reply snippet.');
-						
-						$result = CerberusMail::sendTicketMessage(array(
-							'ticket_id' => $id,
-							'message_id' => $email_id,
-							'content' => $autoreply_content,
-							'is_autoreply' => true,
-							'dont_keep_copy' => true
-						));
-						
-					} catch (Exception $e) {
-						// [TODO] Error handling
-					}
-			}
-			
-		} // end bIsNew
+				DAO_Ticket::update($model->getTicketId(), $change_fields);
+				
+		} else { // Reply
 		
-		unset($message);
-		
-		// Re-open and update our date on new replies
-		if(!$bIsNew) {
-			DAO_Ticket::update($id,array(
+			// Re-open and update our date on new replies
+			DAO_Ticket::update($model->getTicketId(),array(
 			    DAO_Ticket::UPDATED_DATE => time(),
 			    DAO_Ticket::IS_WAITING => 0,
 			    DAO_Ticket::IS_CLOSED => 0,
 			    DAO_Ticket::IS_DELETED => 0,
-			    DAO_Ticket::LAST_MESSAGE_ID => $email_id,
-			    DAO_Ticket::LAST_WROTE_ID => $fromAddressInst->id,
+			    DAO_Ticket::LAST_MESSAGE_ID => $model->getMessageId(),
+			    DAO_Ticket::LAST_WROTE_ID => $model->getSenderAddressModel()->id,
 			    DAO_Ticket::LAST_ACTION_CODE => CerberusTicketActionCode::TICKET_CUSTOMER_REPLY,
 			));
-			
 			// [TODO] The TICKET_CUSTOMER_REPLY should be sure of this message address not being a worker
+		}
+		
+		// [TODO] Benchmark events
+		
+		// Trigger Group Mail Received
+		Event_MailReceivedByGroup::trigger($model->getMessageId(), $model->getGroupId());
+		
+		// Trigger Owner Mail Received
+		$context_owners = CerberusContexts::getWorkers(CerberusContexts::CONTEXT_TICKET, $model->getTicketId());
+		if(is_array($context_owners) && !empty($context_owners))
+		foreach($context_owners as $owner_id => $owner) {
+			Event_MailReceivedByWatcher::trigger($model->getMessageId(), $owner_id);
 		}
 		
 	    @imap_errors(); // Prevent errors from spilling out into STDOUT
 	    
-		return $id;
-	}
-
-	/**
-	 * First we check the references and in-reply-to headers to find a 
-	 * historical match in the database. If those don't match we check 
-	 * the subject line for a mask (if one exists). If none of those
-	 * options match we return null.
-	 *
-	 * @param array $headers
-	 * @return array
-	 */
-	static private function findParentMessage($headers) {
-		@$aSubject = $headers['subject'];
-		@$sMessageId = trim($headers['message-id']);
-		@$sInReplyTo = trim($headers['in-reply-to']);
-		@$sReferences = trim($headers['references']);
-		@$sThreadTopic = trim($headers['thread-topic']);
-
-		// [TODO] Could turn string comparisons into hashes here for simple equality checks
-		
-		$aReferences = array();
-		
-		// Add all References
-		if(!empty($sReferences)) {
-			if(preg_match("/(\<.*?\@.*?\>)/", $sReferences, $matches)) {
-				unset($matches[0]); // who cares about the pattern
-				foreach($matches as $ref) {
-					$ref = trim($ref);
-					if(!empty($ref) && 0 != strcasecmp($ref,$sMessageId))
-						$aReferences[$ref] = 1;
-				}
-			}
-		}
-
-		unset($matches);
-		
-		// Append first <*> from In-Reply-To
-		if(!empty($sInReplyTo)) {
-			if(preg_match("/(\<.*?\@.*?\>)/", $sInReplyTo, $matches)) {
-				if(isset($matches[1])) { // only use the first In-Reply-To
-					$ref = trim($matches[1]);
-					if(!empty($ref) && 0 != strcasecmp($ref,$sMessageId))
-						$aReferences[$ref] = 1;
-				}
-			}
-		}
-		
-		// Try matching our references or in-reply-to
-		if(is_array($aReferences) && !empty($aReferences)) {
-			foreach(array_keys($aReferences) as $ref) {
-				if(empty($ref)) continue;
-				if(null != ($ids = DAO_Ticket::getTicketByMessageId($ref))) {
-				    return $ids;
-				}
-			}
-		}
-		
-		// Try matching the subject line
-		// [TODO] This should only happen if the destination has subject masks enabled
-		if(!is_array($aSubject))
-			$aSubject = array($aSubject);
-			
-		foreach($aSubject as $sSubject) {
-			if(preg_match("/.*\[.*?\#(.*?)\].*/", $sSubject, $matches)) {
-				if(isset($matches[1])) {
-					$mask = $matches[1];
-					if(null != ($ticket = DAO_Ticket::getTicketByMask($mask))) {
-						return array(
-							'ticket_id' => intval($ticket->id),
-							'message_id' => intval($ticket->first_message_id)
-						);
-					}
-				}
-			}
-		}
-		
-		return NULL;
+		return $model->getTicketId();
 	}
 	
 	static public function getDestinations($headers) {

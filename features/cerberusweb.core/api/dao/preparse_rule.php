@@ -200,15 +200,15 @@ class Model_PreParseRule {
 	 * @param CerberusParserMessage $message
 	 * @return Model_PreParserRule[]
 	 */
-	static function getMatches(CerberusParserMessage $message) {
+	static function getMatches(CerberusParserMessage $message, CerberusParserModel $model) {
 		$filters = DAO_PreParseRule::getAll();
 		$headers = $message->headers;
 
 		// New or reply?
-		$is_new = (isset($message->headers['in-reply-to']) || isset($message->headers['references'])) ? false : true;
+		$is_new = $model->getIsNew();
 
 		// From address
-		$fromInst = CerberusParser::getAddressFromHeaders($headers);
+		$fromInst = $model->getSenderAddressModel();
 		
 		// Stackable
 		$matches = array();
