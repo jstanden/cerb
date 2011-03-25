@@ -146,108 +146,90 @@ class CerberusMail {
 		$mail_headers = array();
 		$mail_headers['X-CerberusCompose'] = '1';
 		
-		if(!empty($no_mail)) { // allow compose without sending mail
-			// Headers needed for the ticket message
-			$log_headers = new Swift_Message_Headers();
-			$log_headers->setCharset(LANG_CHARSET_CODE);
-			$log_headers->set('To', $toStr);
-			$log_headers->set('From', !empty($personal) ? (sprintf("%s <%s>",$personal,$from_replyto->email)) : (sprintf('%s',$from_replyto->email)));
-			$log_headers->set('Subject', $subject_mailed);
-			$log_headers->set('Date', date('r'));
+		try {
+			$mail_service = DevblocksPlatform::getMailService();
+			$mailer = $mail_service->getMailer(CerberusMail::getMailerDefaults());
+			$email = $mail_service->createMessage();
+	
+			$email->setTo($toList);
 			
-			foreach($log_headers->getList() as $hdr => $v) {
-				if(null != ($hdr_val = $log_headers->getEncoded($hdr))) {
+			// cc
+			$ccs = array();
+			if(!empty($cc) && null != ($ccList = DevblocksPlatform::parseCsvString(str_replace(';',',',$cc)))) {
+				$email->setCc($ccList);
+			}
+			
+			// bcc
+			if(!empty($bcc) && null != ($bccList = DevblocksPlatform::parseCsvString(str_replace(';',',',$bcc)))) {
+				$email->setBcc($bccList);
+			}
+			
+			$email->setFrom(array($from_replyto->email => $personal));
+			$email->setSubject($subject_mailed);
+			$email->generateId();
+			
+			$headers = $email->getHeaders();
+			
+			$headers->addTextHeader('X-Mailer','Cerberus Helpdesk ' . APP_VERSION . ' (Build '.APP_BUILD.')');
+			
+			$email->setBody($content);
+			
+			// Mime Attachments
+			if (is_array($files) && !empty($files)) {
+				foreach ($files['tmp_name'] as $idx => $file) {
+					if(empty($file) || empty($files['name'][$idx]))
+						continue;
+	
+					$email->attach(Swift_Attachment::fromPath($file)->setFilename($files['name'][$idx]));
+				}
+			}
+			
+		    // Headers
+			foreach($email->getHeaders()->getAll() as $hdr) {
+				if(null != ($hdr_val = $hdr->getFieldBody())) {
 					if(!empty($hdr_val))
-						$mail_headers[$hdr] = $hdr_val;
+						$mail_headers[$hdr->getFieldName()] = $hdr_val;
 				}
 			}
 			
-		} else { // regular mail sending
-			try {
-				$mail_service = DevblocksPlatform::getMailService();
-				$mailer = $mail_service->getMailer(CerberusMail::getMailerDefaults());
-				$email = $mail_service->createMessage();
-		
-				$email->setTo($toList);
-				
-				// cc
-				$ccs = array();
-				if(!empty($cc) && null != ($ccList = DevblocksPlatform::parseCsvString(str_replace(';',',',$cc)))) {
-					$email->setCc($ccList);
-				}
-				
-				// bcc
-				if(!empty($bcc) && null != ($bccList = DevblocksPlatform::parseCsvString(str_replace(';',',',$bcc)))) {
-					$email->setBcc($bccList);
-				}
-				
-				$email->setFrom(array($from_replyto->email => $personal));
-				$email->setSubject($subject_mailed);
-				$email->generateId();
-				
-				$headers = $email->getHeaders();
-				
-				$headers->addTextHeader('X-Mailer','Cerberus Helpdesk ' . APP_VERSION . ' (Build '.APP_BUILD.')');
-				
-				$email->setBody($content);
-				
-				// Mime Attachments
-				if (is_array($files) && !empty($files)) {
-					foreach ($files['tmp_name'] as $idx => $file) {
-						if(empty($file) || empty($files['name'][$idx]))
-							continue;
-		
-						$email->attach(Swift_Attachment::fromPath($file)->setFilename($files['name'][$idx]));
-					}
-				}
-				
-			    // Headers
-				foreach($email->getHeaders()->getAll() as $hdr) {
-					if(null != ($hdr_val = $hdr->getFieldBody())) {
-						if(!empty($hdr_val))
-							$mail_headers[$hdr->getFieldName()] = $hdr_val;
-					}
-				}
-				
-				// [TODO] Allow separated addresses (parseRfcAddress)
-		//		$mailer->log->enable();
-				if(!@$mailer->send($email)) {
-					throw new Exception('Mail failed to send: unknown reason');
-				}
-		//		$mailer->log->dump();
-		
-			} catch (Exception $e) {
-				@$draft_id = $properties['draft_id'];
-				
-				if(empty($draft_id)) {
-					$params = array(
-						'to' => $toStr,
-						'group_id' => $team_id,
-					);
-					
-					if(!empty($cc))
-						$params['cc'] = $cc;
-						
-					if(!empty($bcc))
-						$params['bcc'] = $bcc;
-						
-					$fields = array(
-						DAO_MailQueue::TYPE => Model_MailQueue::TYPE_COMPOSE,
-						DAO_MailQueue::TICKET_ID => 0,
-						DAO_MailQueue::WORKER_ID => !empty($worker) ? $worker->id : 0,
-						DAO_MailQueue::UPDATED => time()+5, // small offset
-						DAO_MailQueue::HINT_TO => $toStr,
-						DAO_MailQueue::SUBJECT => $subject,
-						DAO_MailQueue::BODY => $content,
-						DAO_MailQueue::PARAMS_JSON => json_encode($params),
-						DAO_MailQueue::IS_QUEUED => !empty($worker) ? 0 : 1,
-						DAO_MailQueue::QUEUE_PRIORITY => 0,
-					);
-					DAO_MailQueue::create($fields);
-				}
-				
-				return false;
+			// [TODO] Allow separated addresses (parseRfcAddress)
+	//		$mailer->log->enable();
+			if(!@$mailer->send($email)) {
+				throw new Exception('Mail failed to send: unknown reason');
 			}
+	//		$mailer->log->dump();
+	
+		} catch (Exception $e) {
+			@$draft_id = $properties['draft_id'];
+			
+			if(empty($draft_id)) {
+				$params = array(
+					'to' => $toStr,
+					'group_id' => $team_id,
+				);
+				
+				if(!empty($cc))
+					$params['cc'] = $cc;
+					
+				if(!empty($bcc))
+					$params['bcc'] = $bcc;
+					
+				$fields = array(
+					DAO_MailQueue::TYPE => Model_MailQueue::TYPE_COMPOSE,
+					DAO_MailQueue::TICKET_ID => 0,
+					DAO_MailQueue::WORKER_ID => !empty($worker) ? $worker->id : 0,
+					DAO_MailQueue::UPDATED => time()+5, // small offset
+					DAO_MailQueue::HINT_TO => $toStr,
+					DAO_MailQueue::SUBJECT => $subject,
+					DAO_MailQueue::BODY => $content,
+					DAO_MailQueue::PARAMS_JSON => json_encode($params),
+					DAO_MailQueue::IS_QUEUED => !empty($worker) ? 0 : 1,
+					DAO_MailQueue::QUEUE_PRIORITY => 0,
+				);
+				DAO_MailQueue::create($fields);
+			}
+			
+			return false;
 		}
 		
 		$fromAddressInst = CerberusApplication::hashLookupAddress($from_replyto->email, true);
@@ -349,39 +331,16 @@ class CerberusMail {
         	CerberusContexts::setWorkers(CerberusContexts::CONTEXT_TICKET, $ticket_id, $properties['context_workers']);
         }
 		
-		// Inbound/Outbound Reply Event
-		// [TODO] This pivots on $no_mail for now, but this functionality may change
-	    $eventMgr = DevblocksPlatform::getEventService();
-	    if($no_mail) { // inbound
-		    $eventMgr->trigger(
-		        new Model_DevblocksEvent(
-		            'ticket.reply.inbound',
-	                array(
-	                    'ticket_id' => $ticket_id,
-	                    'address_model' => $fromAddressInst,
-	                )
-	            )
-		    );
-	    	
-	    } else { // outbound
-	    	if(!empty($worker->id))
-		    $eventMgr->trigger(
-		        new Model_DevblocksEvent(
-		            'ticket.reply.outbound',
-	                array(
-	                    'ticket_id' => $ticket_id,
-	                    'worker_id' => $worker->id
-	                )
-	            )
-		    );
-	    }
-		
+        // Events
+        if(!empty($message_id) && !empty($team_id)) {
+        	Event_MailReceivedByGroup::trigger($message_id, $team_id);
+        }
+        
 		return $ticket_id;
 	}
 	
 	static function sendTicketMessage($properties=array()) {
 	    $settings = DevblocksPlatform::getPluginSettingsService();
-	    $replyto_addresses = DAO_AddressOutgoing::getAll();
 	    
 		/*
 	    'draft_id'
@@ -419,6 +378,8 @@ class CerberusMail {
 		    @$worker_id = $properties['agent_id'];
 		    @$subject = $properties['subject'];
 		    
+		    @$is_autoreply = $properties['is_autoreply'];
+		    
 			if(null == ($message = DAO_Message::get($reply_message_id)))
 				return;
 				
@@ -435,9 +396,14 @@ class CerberusMail {
 			$from_replyto = $group->getReplyTo($ticket->category_id);
 			$from_personal = $group->getReplyPersonal($ticket->category_id, $worker_id);
 			
-			// If this ticket isn't spam trained and our outgoing message isn't an autoreply
+			/*
+			 * If this ticket isn't spam trained 
+			 * and our outgoing message isn't an autoreply 
+			 * and a worker sent this
+			 */
 			if($ticket->spam_training == CerberusTicketSpamTraining::BLANK
-				&& (!isset($properties['is_autoreply']) || !$properties['is_autoreply'])) {
+				&& empty($is_autoreply)
+				&& !empty($worker_id)) {
 				CerberusBayes::markTicketAsNotSpam($ticket_id);
 			} 
 				
@@ -476,95 +442,71 @@ class CerberusMail {
 			    $headers->addTextHeader('In-Reply-To', $in_reply_to);
 			}
 	
-			// Auto-reply handling (RFC-3834 compliant)
-			if(isset($properties['is_autoreply']) && $properties['is_autoreply']) {
-				$headers->addTextHeader('Auto-Submitted','auto-replied');
+			// Default requester reply
+			if(empty($properties['to']) && !$is_forward) {
+				// Auto-reply handling (RFC-3834 compliant)
+				if(!empty($is_autoreply))
+					$headers->addTextHeader('Auto-Submitted','auto-replied');
 				
 			    // Recipients
 				$requesters = DAO_Ticket::getRequestersByTicket($ticket_id);
-			    if(!is_array($requesters))
-			    	return;
+				
+				if(is_array($requesters))
+			    foreach($requesters as $requester) { /* @var $requester Model_Address */
+					$first_email = strtolower($requester->email);
+					$first_split = explode('@', $first_email);
+			
+					if(!is_array($first_split) || count($first_split) != 2)
+						continue;
+			
+					// Ourselves?
+					if(DAO_AddressOutgoing::isLocalAddressId($requester->id))
+						continue;
 
-				// Is the first sender still a requester?
-				if(!isset($requesters[$ticket->first_wrote_address_id]))
-					return;
-					
-				// A legit address?
-				if(null == ($first_address = DAO_Address::get($ticket->first_wrote_address_id)))
-					return;
+					if($is_autoreply) {
+						// If return-path is blank
+						if(isset($message_headers['return-path']) && $message_headers['return-path'] == '<>')
+							continue;
+						
+						// Ignore autoresponses to autoresponses
+						if(isset($message_headers['auto-submitted']) && $message_headers['auto-submitted'] != 'no')
+							continue;
 	
-				// Ourselves?
-				if(isset($replyto_addresses[$first_address->id]))
-					return;
-					
-				// Make sure we haven't mailed this address an autoreply within 5 minutes
-				if($first_address->last_autoreply > 0 && $first_address->last_autoreply > time()-300) {
-					return;
-				}
-					
-				$first_email = strtolower($first_address->email);
-				$first_split = explode('@', $first_email);
-		
-				if(!is_array($first_split) || count($first_split) != 2)
-					return;
-		
-				// If return-path is blank
-				if(isset($message_headers['return-path']) && $message_headers['return-path'] == '<>')
-					return;
-					
-				// Ignore bounces
-				if($first_split[0] == "postmaster" || $first_split[0] == "mailer-daemon")
-					return;
-				
-				// Ignore autoresponses to autoresponses
-				if(isset($message_headers['auto-submitted']) && $message_headers['auto-submitted'] != 'no')
-					return;
-					
-				if(isset($message_headers['precedence']) && 
-					($message_headers['precedence'] == 'list' || $message_headers['precedence'] == 'junk' || $message_headers['precedence'] == 'bulk'))
-					return;
-					
-				// Set the auto-reply date for this address to right now
-				DAO_Address::update($ticket->first_wrote_address_id, array(
-					DAO_Address::LAST_AUTOREPLY => time()
-				));
-				
-				// Auto-reply just to the initial requester
-				$mail->addTo($first_address->email);
-				
-			// Not an auto-reply
-			} else {
-				// Default requester reply
-				if(empty($properties['to']) && !$is_forward) {
-				    // Recipients
-					$requesters = DAO_Ticket::getRequestersByTicket($ticket_id);
-				    if(is_array($requesters))
-				    foreach($requesters as $requester) { /* @var $requester Model_Address */
-						$mail->addTo($requester->email);
-				    }
-					
-				// Forward or overload
-				} elseif(!empty($properties['to'])) {
-				    $aTo = DevblocksPlatform::parseCsvString(str_replace(';',',',$properties['to']));
-					
-					if(is_array($aTo))
-					foreach($aTo as $to_addy) {
-						$mail->addTo($to_addy);
+						// Bulk mail?
+						if(isset($message_headers['precedence']) && 
+							($message_headers['precedence'] == 'list' || $message_headers['precedence'] == 'junk' || $message_headers['precedence'] == 'bulk'))
+							continue;
 					}
-				}
+						
+					// Ignore bounces
+					if($first_split[0] == "postmaster" || $first_split[0] == "mailer-daemon")
+						continue;
+						
+					// Auto-reply just to the initial requester
+					$mail->addTo($requester->email);
+			    }
 				
-			    // Ccs
-			    if(!empty($properties['cc'])) {
-				    $aCc = DevblocksPlatform::parseCsvString(str_replace(';',',',$properties['cc']));
-					$mail->setCc($aCc);
-			    }
-			    
-			    // Bccs
-			    if(!empty($properties['bcc'])) {
-				    $aBcc = DevblocksPlatform::parseCsvString(str_replace(';',',',$properties['bcc']));
-					$mail->setBcc($aBcc);
-			    }
+			// Forward or overload
+			} elseif(!empty($properties['to'])) {
+			    $aTo = DevblocksPlatform::parseCsvString(str_replace(';',',',$properties['to']));
+				
+				if(is_array($aTo))
+				foreach($aTo as $to_addy) {
+					$mail->addTo($to_addy);
+				}
 			}
+			
+		    // Ccs
+		    if(!empty($properties['cc'])) {
+			    $aCc = DevblocksPlatform::parseCsvString(str_replace(';',',',$properties['cc']));
+				$mail->setCc($aCc);
+		    }
+		    
+		    // Bccs
+		    if(!empty($properties['bcc'])) {
+			    $aBcc = DevblocksPlatform::parseCsvString(str_replace(';',',',$properties['bcc']));
+				$mail->setBcc($aBcc);
+		    }
 			
 			// Body
 			$mail->setBody($content);
@@ -649,7 +591,7 @@ class CerberusMail {
 		$fromAddressId = $fromAddressInst->id;
 		
 		if((!isset($properties['dont_keep_copy']) || !$properties['dont_keep_copy'])
-			&& (!isset($properties['is_autoreply']) || !$properties['is_autoreply'])) {
+			&& empty($is_autoreply)) {
 			$change_fields[DAO_Ticket::LAST_MESSAGE_ID] = $fromAddressId;
 			$change_fields[DAO_Ticket::LAST_WROTE_ID] = $fromAddressId;
 			$change_fields[DAO_Ticket::UPDATED_DATE] = time();
@@ -755,7 +697,6 @@ class CerberusMail {
 		// Move
 		if(!empty($properties['bucket_id'])) {
 		    // [TODO] Use API to move, or fire event
-	        // [TODO] Ensure team/bucket exist
 	        list($team_id, $bucket_id) = CerberusApplication::translateTeamCategoryCode($properties['bucket_id']);
 		    $change_fields[DAO_Ticket::TEAM_ID] = $team_id;
 		    $change_fields[DAO_Ticket::CATEGORY_ID] = $bucket_id;
@@ -764,19 +705,17 @@ class CerberusMail {
 		if(!empty($ticket_id) && !empty($change_fields)) {
 		    DAO_Ticket::update($ticket_id, $change_fields);
 		}
-		
-		// Outbound Reply Event (not automated reply, etc.)
-		if(!empty($worker_id)) {
-		    $eventMgr = DevblocksPlatform::getEventService();
-		    $eventMgr->trigger(
-		        new Model_DevblocksEvent(
-		            'ticket.reply.outbound',
-	                array(
-	                    'ticket_id' => $ticket_id,
-	                    'worker_id' => $worker_id
-	                )
-	            )
-		    );
+
+		// Events
+		if(!empty($message_id) && empty($no_events)) {
+			// Group
+			Event_MailReceivedByGroup::trigger($message_id, $group->id);
+			
+			// Owners
+			if(isset($properties['context_workers']) && is_array($properties['context_workers']))
+			foreach($properties['context_workers'] as $owner_id) {
+				Event_MailReceivedByWatcher::trigger($message_id, $owner_id);
+			}
 		}
 		
 		return true;

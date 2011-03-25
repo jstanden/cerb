@@ -353,9 +353,9 @@ class EventListener_Triggers extends DevblocksEventListenerExtension {
 			|| !$event_ext instanceof Extension_DevblocksEvent)  /* @var $event_ext Extension_DevblocksEvent */
 				return;
 			
+		// Load the intermediate data ONCE!
 		$event_ext->setEvent($event);
 		$values = $event_ext->getValues();
-			
 		foreach($triggers as $trigger) { /* @var $trigger Model_TriggerEvent */
 			$logger->info(sprintf("Running decision tree on trigger %d (%s) for %s=%d",
 				$trigger->id,
@@ -416,19 +416,6 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 			case 'dao.ticket.update':
 				$this->_handleDaoTicketUpdate($event);
 				break;
-				
-			case 'ticket.action.closed':
-				$this->_handleTicketClosed($event);
-				break;
-				
-			case 'ticket.action.moved':
-				$this->_handleTicketMoved($event);
-				break;
-				
-            case 'ticket.reply.inbound':
-            case 'ticket.reply.outbound':
-				$this->_handleTicketReply($event);
-            	break;
 		}
 	}
 
@@ -531,17 +518,6 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 			@$bucket_id = $changes[DAO_Ticket::CATEGORY_ID];
 			
 			if(!is_null($group_id) || !is_null($bucket_id)) {
-			    $eventMgr->trigger(
-			        new Model_DevblocksEvent(
-			            'ticket.action.moved',
-		                array(
-		                    'ticket_id' => $object_id,
-		                	'group_id' => $model[DAO_Ticket::TEAM_ID],
-		                	'bucket_id' => $model[DAO_Ticket::CATEGORY_ID],
-		                    'model' => $model,
-		                )
-		            )
-			    );
 			}
 			
 			/*
@@ -550,91 +526,10 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 			@$closed = $changes[DAO_Ticket::IS_CLOSED];
 			
 			if(!is_null($closed) && !empty($model[DAO_Ticket::IS_CLOSED])) {
-			    $eventMgr->trigger(
-			        new Model_DevblocksEvent(
-			            'ticket.action.closed',
-		                array(
-		                    'ticket_id' => $object_id,
-		                    'model' => $model,
-		                )
-		            )
-			    );
 			}	    	
     	}
 	}
 	
-	private function _handleTicketReply($event) {
-		@$ticket_id = $event->params['ticket_id'];
-		
-		$context_owners = CerberusContexts::getWorkers(CerberusContexts::CONTEXT_TICKET, $ticket_id);
-		$url_writer = DevblocksPlatform::getUrlService();
-		
-		if(empty($context_owners))
-			return;
-		
-		switch($event->id) {
-			case 'ticket.reply.inbound':
-				// Don't trigger on move events
-				if(isset($event->params['is_move']))
-					return;
-				
-				$who = 'A contact';
-					
-				// If we can resolve the address into a real name (or e-mail address)...
-				if(null != ($address = @$event->params['address_model'])) {
-					$name = $address->getName();
-					$who = sprintf("%s%s",
-						(!empty($name) ? ($name . ' ') : ''), 
-						$address->email
-					);
-				}
-				
-				$message = sprintf("%s replied to a ticket assigned to you.",
-					$who
-				);
-				break;
-				
-			case 'ticket.reply.outbound':
-				$active_worker = CerberusApplication::getActiveWorker();
-				$workers = DAO_Worker::getAll();
-
-				// Make sure we know the sending worker
-				if(null == ($worker_id = @$event->params['worker_id']))
-					return;
-				
-				$who = 'A worker';
-					
-				if(isset($workers[$worker_id]))
-					$who = $workers[$worker_id]->getName();
-					
-				// Don't tell a worker about a reply they did
-				unset($context_owners[$worker_id]);
-				
-				$message = sprintf("%s sent a reply on a ticket assigned to you.",
-					$who
-				);
-				
-				break;
-		}
-
-		// We may have fewer workers than we started with
-		if(empty($context_owners))
-			return;
-		
-		$url = $url_writer->write(sprintf("c=display&id=%s", $ticket_id));
-			
-		// Send notifications to all owners of the ticket
-		foreach($context_owners as $owner_id => $owner) {
-			// Assignment Notification
-			$fields = array(
-				DAO_Notification::CREATED_DATE => time(),
-				DAO_Notification::WORKER_ID => $owner_id,
-				DAO_Notification::URL => $url,
-				DAO_Notification::MESSAGE => $message,
-			);
-			DAO_Notification::create($fields);
-		}
-	}
 	
 	private function _handleTicketMoved($event) {
 		@$ticket_id = $event->params['ticket_id'];

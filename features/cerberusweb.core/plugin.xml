@@ -322,33 +322,10 @@
 			<param key="task_id" />
 			<param key="fields" />
 		</event>
-		<event id="ticket.action.closed">
-			<name>Ticket Closed</name>
-			<param key="ticket_id" />
-			<param key="model" />
-		</event>
 		<event id="ticket.action.merge">
 			<name>Ticket Merge</name>
 			<param key="new_ticket_id" />
 			<param key="old_ticket_ids" />
-		</event>
-		<event id="ticket.action.moved">
-			<name>Ticket Moved</name>
-			<param key="ticket_id" />
-			<param key="group_id" />
-			<param key="bucket_id" />
-			<param key="model" />
-		</event>
-		<event id="ticket.reply.inbound">
-			<name>Ticket Inbound Reply</name>
-			<param key="ticket_id" />
-			<param key="address_model" />
-			<param key="is_move" />
-		</event>
-		<event id="ticket.reply.outbound">
-			<name>Ticket Outbound Reply</name>
-			<param key="ticket_id" />
-			<param key="worker_id" />
 		</event>
 		<event id="worker.delete">
 			<name>Worker Delete</name>
@@ -765,10 +742,6 @@
 						<data key="cron.heartbeat" />
 						<data key="cron.maint" />
 						<data key="dao.ticket.update" />
-						<data key="ticket.action.closed" />
-						<data key="ticket.action.moved" />					
-						<data key="ticket.reply.inbound" />
-						<data key="ticket.reply.outbound" />						
 					</value>
 				</param>
 			</params>
