@@ -1220,6 +1220,10 @@ class Event_MailReceivedByGroup extends Extension_DevblocksEvent {
 					'content' => $content,
 					'agent_id' => 0, //$worker_id,
 				);
+				
+				if(isset($params['is_autoreply']) && !empty($params['is_autoreply']))
+					$properties['is_autoreply'] = true;
+				
 				CerberusMail::sendTicketMessage($properties);
 				break;
 				

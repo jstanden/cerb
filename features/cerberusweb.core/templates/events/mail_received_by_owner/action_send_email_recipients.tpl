@@ -14,6 +14,10 @@
 	{/foreach}
 </select>
 <br>
+<br>
+
+<label><input type="checkbox" name="{$namePrefix}[is_autoreply]" value="1" {if $params.is_autoreply}checked="checked"{/if}> Don't save a copy of this message in the conversation history.</label>
+<br>
 
 {*
 Send as: 
