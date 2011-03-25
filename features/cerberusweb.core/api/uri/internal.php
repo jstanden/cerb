@@ -1463,7 +1463,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		if(null == ($event = DevblocksPlatform::getExtension($trigger->event_point, true)))
 			return; /* @var $event Extension_DevblocksEvent */
 			
-		$event->renderAction($action);
+		$event->renderAction($action, $trigger_id);
 	}
 
 	function saveDecisionPopupAction() {

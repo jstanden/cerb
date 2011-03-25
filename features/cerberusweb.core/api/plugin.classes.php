@@ -528,7 +528,7 @@ class Event_NotificationReceivedByOwner extends Extension_DevblocksEvent {
 		return $actions;
 	}
 	
-	function renderActionExtension($token, $params=array(), $seq=null) {
+	function renderActionExtension($token, $trigger_id=null, $params=array(), $seq=null) {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('params', $params);
 
@@ -551,7 +551,7 @@ class Event_NotificationReceivedByOwner extends Extension_DevblocksEvent {
 		//$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_string.tpl');
 	}
 	
-	function runActionExtension($token, $params, $values) {
+	function runActionExtension($token, $trigger_id, $params, &$values) {
 		@$notification_id = $values['id'];
 
 		if(empty($notification_id))
@@ -723,7 +723,7 @@ class Event_MailReceivedByOwner extends Extension_DevblocksEvent {
 		return $actions;
 	}
 	
-	function renderActionExtension($token, $params=array(), $seq=null) {
+	function renderActionExtension($token, $trigger_id=null, $params=array(), $seq=null) {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('params', $params);
 
@@ -769,7 +769,7 @@ class Event_MailReceivedByOwner extends Extension_DevblocksEvent {
 		$tpl->clearAssign('token_labels');
 	}
 	
-	function runActionExtension($token, $params, $values) {
+	function runActionExtension($token, $trigger_id, $params, &$values) {
 		@$ticket_id = $values['ticket_id'];
 		@$message_id = $values['id'];
 
@@ -1014,7 +1014,7 @@ class Event_MailReceivedByGroup extends Extension_DevblocksEvent {
 		return $actions;
 	}
 	
-	function renderActionExtension($token, $params=array(), $seq=null) {
+	function renderActionExtension($token, $trigger_id=null, $params=array(), $seq=null) {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('params', $params);
 
@@ -1057,7 +1057,7 @@ class Event_MailReceivedByGroup extends Extension_DevblocksEvent {
 		$tpl->clearAssign('token_labels');		
 	}
 	
-	function runActionExtension($token, $params, $values) {
+	function runActionExtension($token, $trigger_id, $params, &$values) {
 		@$message_id = $values['id'];
 		@$ticket_id = $values['ticket_id'];
 

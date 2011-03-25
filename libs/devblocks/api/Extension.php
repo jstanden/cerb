@@ -487,10 +487,10 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 	}
 	
 	abstract function getActionExtensions();
-	abstract function renderActionExtension($token, $params=array(), $seq=null);
-	abstract function runActionExtension($token, $params, $values);
+	abstract function renderActionExtension($token, $trigger_id=null, $params=array(), $seq=null);
+	abstract function runActionExtension($token, $trigger_id=null, $params, &$values);
 	
-	function renderAction($token, $params=array(), $seq=null) {
+	function renderAction($token, $trigger_id=null, $params=array(), $seq=null) {
 		$actions = $this->getActionExtensions();
 		
 		$tpl = DevblocksPlatform::getTemplateService();
@@ -501,7 +501,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 		
 		// Is this an event-provided action?
 		if(null != (@$action = $actions[$token])) {
-			$this->renderActionExtension($token, $params, $seq);
+			$this->renderActionExtension($token, $trigger_id, $params, $seq);
 			
 		// Nope, it's a global action
 		} else {
@@ -517,14 +517,14 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 		}		
 	}
 	
-	function runAction($token, $params, $values) {
+	function runAction($token, $trigger_id, $params, &$values) {
 		$actions = $this->getActionExtensions();
 		
 		if(null != (@$action = $actions[$token])) {
 			//if(null == (@$value = $values[$token])) {
 			//	return false;
 			//}
-			$this->runActionExtension($token, $params, $values);
+			$this->runActionExtension($token, $trigger_id, $params, $values);
 			
 		} else {
 			switch($token) {
@@ -798,7 +798,7 @@ abstract class Extension_DevblocksEventAction extends DevblocksExtension {
 	}
 	
 	abstract function render(Extension_DevblocksEvent $event, $params=array(), $seq=null);
-	abstract function run($token, $params, $values);
+	abstract function run($token, $params, &$values);
 }
 
 abstract class DevblocksHttpResponseListenerExtension extends DevblocksExtension {

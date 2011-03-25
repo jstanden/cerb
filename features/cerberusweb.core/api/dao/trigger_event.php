@@ -313,7 +313,7 @@ class Model_TriggerEvent {
 		}
 	}
 	
-	public function runDecisionTree($dictionary) {
+	public function runDecisionTree(&$dictionary) {
 		$nodes = $this->_getNodes();
 		$tree = $this->_getTree();
 		$path = array();
@@ -329,7 +329,7 @@ class Model_TriggerEvent {
 		return $path;
 	}
 	
-	private function _recurseRunTree($event, $nodes, $tree, $node_id, $dictionary, &$path) {
+	private function _recurseRunTree($event, $nodes, $tree, $node_id, &$dictionary, &$path) {
 		$logger = DevblocksPlatform::getConsoleLog("Assistant");
 		// Does our current node pass?
 		$pass = true;
@@ -370,7 +370,7 @@ class Model_TriggerEvent {
 							continue;
 
 						$action = $params['action'];
-						$event->runAction($action, $params, $dictionary);
+						$event->runAction($action, $this->id, $params, $dictionary);
 					}
 					break;
 			}			

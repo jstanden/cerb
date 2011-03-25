@@ -23,7 +23,7 @@
 	<input type="hidden" name="actions[]" value="{$seq}">
 	<input type="hidden" name="action{$seq}[action]" value="{$params.action}">
 	
-	{$event->renderAction({$params.action},$params,$seq)}
+	{$event->renderAction({$params.action},$trigger_id,$params,$seq)}
 </fieldset>
 {/foreach}
 
