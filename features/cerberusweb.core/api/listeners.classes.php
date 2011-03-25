@@ -353,9 +353,6 @@ class EventListener_Triggers extends DevblocksEventListenerExtension {
 			|| !$event_ext instanceof Extension_DevblocksEvent)  /* @var $event_ext Extension_DevblocksEvent */
 				return;
 			
-		// [TODO] Load the intermediate data ONCE!
-		// [TODO] Convert the event->params into a dictionary
-		//var_dump($values);
 		$event_ext->setEvent($event);
 		$values = $event_ext->getValues();
 			

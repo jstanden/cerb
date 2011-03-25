@@ -687,7 +687,7 @@ class DevblocksEventHelper {
 		$subject = $tpl_builder->build($params['subject'], $values);
 		$content = $tpl_builder->build($params['content'], $values);
 				
-//		@$no_mail = $properties['no_mail'];
+//		@$dont_send = $properties['dont_send'];
 //		@$closed = $properties['closed'];
 //		@$move_bucket = $properties['move_bucket'];
 //		@$ticket_reopen = $properties['ticket_reopen'];

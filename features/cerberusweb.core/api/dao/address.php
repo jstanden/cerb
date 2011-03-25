@@ -834,7 +834,7 @@ class Context_Address extends Extension_DevblocksContext {
 			
 		// Token labels
 		$token_labels = array(
-			'address' => $prefix.$translate->_('common.email'),
+			'address' => $prefix.$translate->_('address.address'),
 			'first_name' => $prefix.$translate->_('address.first_name'),
 			'full_name' => $prefix.$translate->_('address.full_name'),
 			'last_name' => $prefix.$translate->_('address.last_name'),

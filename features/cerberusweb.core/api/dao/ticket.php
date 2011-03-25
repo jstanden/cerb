@@ -126,7 +126,7 @@ class DAO_Ticket extends C4_ORMHelper {
 	 * Enter description here...
 	 *
 	 * @param string $mask
-	 * return Model_Ticket
+	 * @return Model_Ticket
 	 */
 	static function getTicketByMask($mask) {
 		if(null != ($id = self::getTicketIdByMask($mask))) {
@@ -136,6 +136,11 @@ class DAO_Ticket extends C4_ORMHelper {
 		return NULL;
 	}
 	
+	/**
+	 * 
+	 * @param string $message_id
+	 * @return array
+	 */
 	static function getTicketByMessageId($message_id) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
@@ -534,6 +539,11 @@ class DAO_Ticket extends C4_ORMHelper {
     	}
 	}
 	
+	/**
+	 * 
+	 * @param integer $ticket_id
+	 * @return Model_Address[]
+	 */
 	static function getRequestersByTicket($ticket_id) {
 		$db = DevblocksPlatform::getDatabaseService();
 		$addresses = array();

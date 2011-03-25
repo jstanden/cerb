@@ -896,17 +896,6 @@ class Event_MailReceivedByGroup extends Extension_DevblocksEvent {
 		$group_values = array();
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_GROUP, $group_id, $group_labels, $group_values, null, true);
 				
-			// Clear dupe content
-//			CerberusContexts::scrubTokensWithRegexp(
-//				$group_labels,
-//				$group_values,
-//				array(
-//					"#^initial_message_#",
-//					"#^latest_message_#",
-//					"#^id$#",
-//				)
-//			);
-			
 			// Merge
 			CerberusContexts::merge(
 				'group_',
@@ -995,7 +984,6 @@ class Event_MailReceivedByGroup extends Extension_DevblocksEvent {
 		switch($token) {
 			default:
 				$pass = false;
-				//var_dump('unimplemented');
 				break;
 		}
 		

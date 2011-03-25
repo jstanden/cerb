@@ -245,12 +245,14 @@ abstract class Extension_OrgTab extends DevblocksExtension {
 	function saveTab() {}
 };
 
+// [TODO] This is on the way out in favor of triggers
 abstract class Extension_MailFilterCriteria extends DevblocksExtension {
 	function matches(Model_PreParseRule $filter, CerberusParserMessage $message) {}
 	function renderConfig(Model_PreParseRule $filter=null) {}
 	function saveConfig() { return array(); }
 };
 
+// [TODO] This is on the way out in favor of triggers
 abstract class Extension_MailFilterAction extends DevblocksExtension {
 	function run(Model_PreParseRule $filter, CerberusParserMessage $message) {}
 	function renderConfig(Model_PreParseRule $filter=null) {}

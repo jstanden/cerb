@@ -110,6 +110,26 @@ class DAO_AddressOutgoing extends DevblocksORMHelper {
 		return $objects;		
 	}
 	
+	static function isLocalAddress($address) {
+		$helpdesk_froms = DAO_AddressOutgoing::getAll();
+		foreach($helpdesk_froms as $from) {
+			if(0 == strcasecmp($from,$address))
+				return true;	
+		}
+		
+		return false;
+	}
+	
+	static function isLocalAddressId($id) {
+		$helpdesk_froms = DAO_AddressOutgoing::getAll();
+		foreach($helpdesk_froms as $from_id => $from) {
+			if(intval($from_id)==intval($id))
+				return true;
+		}
+		
+		return false;
+	}
+	
 	static function clearCache() {
 		$cache = DevblocksPlatform::getCacheService();
 		$cache->remove(self::_CACHE_ALL);

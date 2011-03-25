@@ -75,7 +75,7 @@ class DAO_Notification extends DevblocksORMHelper {
 			self::clearCountCache($fields[self::WORKER_ID]);
 			
 			// Trigger notification
-			Event_NotificationReceivedByOwner::trigger($id, $fields[self::WORKER_ID]);
+			Event_NotificationReceivedByWorker::trigger($id, $fields[self::WORKER_ID]);
 		}
 		
 		return $id;

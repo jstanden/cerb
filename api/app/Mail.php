@@ -114,8 +114,6 @@ class CerberusMail {
 		@$content = $properties['content'];
 		@$files = $properties['files'];
 
-		@$no_mail = $properties['no_mail'];
-		
 		@$closed = $properties['closed'];
 		@$move_bucket = $properties['move_bucket'];
 		@$ticket_reopen = $properties['ticket_reopen'];
@@ -442,13 +440,6 @@ class CerberusMail {
 				&& (!isset($properties['is_autoreply']) || !$properties['is_autoreply'])) {
 				CerberusBayes::markTicketAsNotSpam($ticket_id);
 			} 
-				
-			// Prefix the worker name on the personal line?
-//			if(!empty($group_personal_with_worker)
-//				&& null != ($reply_worker = DAO_Worker::get($worker_id))) {
-//					$from_personal = $reply_worker->getName() .
-//						(!empty($from_personal) ? (', ' . $from_personal) : "");
-//			}
 				
 			// Headers
 			$mail->setFrom(array($from_replyto->email => $from_personal));

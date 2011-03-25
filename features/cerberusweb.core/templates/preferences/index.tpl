@@ -28,7 +28,7 @@
 		{$point = Extension_PreferenceTab::POINT}
 
 		<li><a href="{devblocks_url}ajax.php?c=preferences&a=showGeneralTab{/devblocks_url}">{'common.settings'|devblocks_translate|capitalize}</a></li>
-		<li><a href="{devblocks_url}ajax.php?c=internal&a=showAssistantTab&point={$point}&context={CerberusContexts::CONTEXT_WORKER}&context_id={$active_worker->id}{/devblocks_url}">Virtual Assistant</a></li>
+		<li><a href="{devblocks_url}ajax.php?c=internal&a=showAssistantTab&point={$point}&context={CerberusContexts::CONTEXT_WORKER}&context_id={$active_worker->id}{/devblocks_url}">Virtual Attendant</a></li>
 		<li><a href="{devblocks_url}ajax.php?c=preferences&a=showRssTab{/devblocks_url}">RSS</a></li>
 
 		{foreach from=$tab_manifests item=tab_manifest}

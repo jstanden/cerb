@@ -644,6 +644,9 @@
 
 		<!-- Addresses -->
 		
+		<tu tuid='address.address'>
+			<tuv xml:lang="en_US"><seg>Address</seg></tuv>
+		</tu>
 		<tu tuid='address.id'>
 			<tuv xml:lang="en_US"><seg>ID</seg></tuv>
 		</tu>

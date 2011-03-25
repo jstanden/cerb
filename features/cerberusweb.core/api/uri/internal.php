@@ -1389,7 +1389,7 @@ class ChInternalController extends DevblocksControllerExtension {
 				return;
 				
 		$tpl->assign('event', $event);
-			
+		
 		// Template
 		switch($type) {
 			case 'switch':
