@@ -246,5 +246,248 @@ if(!isset($tables['address_outgoing'])) {
 	$db->Execute("INSERT IGNORE INTO address_outgoing (address_id,is_default) SELECT DISTINCT reply_address_id, 0 FROM team WHERE reply_address_id != 0");
 	
 }	
+
+// ===========================================================================
+// Migrate group settings to Virtual Attendants
+
+$todo = $db->GetOne("SELECT count(*) FROM group_setting WHERE setting IN ('auto_reply_enabled', 'auto_reply', 'close_reply_enabled', 'close_reply', 'group_spam_threshold', 'group_spam_action', 'group_spam_action_param')");
+
+if(!empty($todo)) {
+	$group_ids = $db->GetArray("SELECT id FROM team");
 	
+	foreach($group_ids as $row) {
+		$group_id = $row['id'];
+		$settings = array();
+		
+		$rows = $db->GetArray(sprintf("SELECT setting, value FROM group_setting WHERE group_id = %d", $group_id));
+		foreach($rows as $row)
+			$settings[$row['setting']] = $row['value'];
+		
+		// Migrate open auto-reply
+		if(isset($settings['auto_reply_enabled']) 
+			&& !empty($settings['auto_reply_enabled'])) {
+				@$content = $settings['auto_reply'];
+				
+				if(empty($content))
+					continue;
+					
+				// Convert tokens
+				$content = str_replace(
+					array(
+						'{{initial_message_',
+						'{{latest_message_',
+						'{{bucket_',
+						'{{custom_',
+						'{{created',
+						'{{subject}}',
+						'{{mask}}',
+						'{{id}}',
+						'{{url}}',
+						'{{updated',
+					),
+					array(
+						'{{',
+						'{{',
+						'{{ticket_bucket_',
+						'{{ticket_custom_',
+						'{{ticket_created',
+						'{{ticket_subject}}',
+						'{{ticket_mask}}',
+						'{{ticket_id}}',
+						'{{ticket_url}}',
+						'{{ticket_updated',
+					),
+					$content
+				);
+	
+				// Insert trigger_event
+				$db->Execute(sprintf("INSERT INTO trigger_event (owner_context, owner_context_id, event_point, title) ".
+					"VALUES (%s, %d, %s, %s)",
+					$db->qstr('cerberusweb.contexts.group'),
+					$group_id,
+					$db->qstr('event.mail.received.group'),
+					$db->qstr('Send New Ticket Auto-Reply')
+				));
+				$trigger_id = $db->LastInsertId();
+				
+				// Decision: Is New Ticket?
+				$db->Execute(sprintf("INSERT INTO decision_node (parent_id, trigger_id, title, params_json, node_type, pos) ".
+					"VALUES (%d, %d, %s, %s, %s, %d)",
+					0,
+					$trigger_id,
+					$db->qstr('Is it a new ticket?'),
+					$db->qstr(''),
+					$db->qstr('switch'),
+					0
+				));
+				$parent_id = $db->LastInsertId();
+				
+				// Outcome: Yes
+				$db->Execute(sprintf("INSERT INTO decision_node (parent_id, trigger_id, title, params_json, node_type, pos) ".
+					"VALUES (%d, %d, %s, %s, %s, %d)",
+					$parent_id,
+					$trigger_id,
+					$db->qstr('Yes'),
+					$db->qstr('[{"condition":"is_first","bool":"1"},{"condition":"is_outgoing","bool":"0"}]'),
+					$db->qstr('outcome'),
+					1
+				));
+				$parent_id = $db->LastInsertId();
+				
+				// Action: Send auto-reply
+				
+				$db->Execute(sprintf("INSERT INTO decision_node (parent_id, trigger_id, title, params_json, node_type, pos) ".
+					"VALUES (%d, %d, %s, %s, %s, %d)",
+					$parent_id,
+					$trigger_id,
+					$db->qstr('Send new ticket auto-reply'),
+					$db->qstr('[{"action":"send_email_recipients","content":' . json_encode($content) . ',"is_autoreply":"1"}]'),
+					$db->qstr('action'),
+					2
+				));
+				$parent_id = $db->LastInsertId();
+			}
+			
+		// Migrate close auto-reply
+		if(isset($settings['close_reply_enabled']) 
+			&& !empty($settings['close_reply_enabled'])) {
+				@$content = $settings['close_reply'];
+				
+				if(empty($content))
+					continue;
+					
+				// Convert tokens
+				$content = str_replace(
+					array(
+						'{{initial_message_',
+						'{{latest_message_',
+						'{{bucket_',
+						'{{custom_',
+						'{{created',
+						'{{subject}}',
+						'{{mask}}',
+						'{{id}}',
+						'{{url}}',
+						'{{updated',
+					),
+					array(
+						'{{',
+						'{{',
+						'{{ticket_bucket_',
+						'{{ticket_custom_',
+						'{{ticket_created',
+						'{{ticket_subject}}',
+						'{{ticket_mask}}',
+						'{{ticket_id}}',
+						'{{ticket_url}}',
+						'{{ticket_updated',
+					),
+					$content
+				);
+	
+				// Insert trigger_event
+				$db->Execute(sprintf("INSERT INTO trigger_event (owner_context, owner_context_id, event_point, title) ".
+					"VALUES (%s, %d, %s, %s)",
+					$db->qstr('cerberusweb.contexts.group'),
+					$group_id,
+					$db->qstr('event.mail.closed.group'),
+					$db->qstr('Send Closed Ticket Auto-Reply')
+				));
+				$trigger_id = $db->LastInsertId();
+				
+				// Action: Send auto-reply
+				
+				$db->Execute(sprintf("INSERT INTO decision_node (parent_id, trigger_id, title, params_json, node_type, pos) ".
+					"VALUES (%d, %d, %s, %s, %s, %d)",
+					0,
+					$trigger_id,
+					$db->qstr('Send closed ticket auto-reply'),
+					$db->qstr('[{"action":"send_email_recipients","content":' . json_encode($content) . ',"is_autoreply":"1"}]'),
+					$db->qstr('action'),
+					0
+				));
+				$parent_id = $db->LastInsertId();
+			}
+		
+		// Migrate spam quarantine
+		if(isset($settings['group_spam_threshold']) && isset($settings['group_spam_action']) && isset($settings['group_spam_action_param'])) {
+			@$spam_threshold = intval($settings['group_spam_threshold']);
+			@$spam_action = intval($settings['group_spam_action']);
+			@$spam_action_param = intval($settings['group_spam_action_param']);
+			
+			if(!empty($spam_threshold) && !empty($spam_action)) {
+			
+				// Insert trigger_event
+				$db->Execute(sprintf("INSERT INTO trigger_event (owner_context, owner_context_id, event_point, title) ".
+					"VALUES (%s, %d, %s, %s)",
+					$db->qstr('cerberusweb.contexts.group'),
+					$group_id,
+					$db->qstr('event.mail.received.group'),
+					$db->qstr('Quarantine Spam')
+				));
+				$trigger_id = $db->LastInsertId();
+				
+				// Decision: Is it a new ticket with a high spam probability?
+				$db->Execute(sprintf("INSERT INTO decision_node (parent_id, trigger_id, title, params_json, node_type, pos) ".
+					"VALUES (%d, %d, %s, %s, %s, %d)",
+					0,
+					$trigger_id,
+					$db->qstr('Is it a new ticket with a high spam probability?'),
+					$db->qstr(''),
+					$db->qstr('switch'),
+					0
+				));
+				$parent_id = $db->LastInsertId();
+				
+				// Outcome: Yes
+				$db->Execute(sprintf("INSERT INTO decision_node (parent_id, trigger_id, title, params_json, node_type, pos) ".
+					"VALUES (%d, %d, %s, %s, %s, %d)",
+					$parent_id,
+					$trigger_id,
+					$db->qstr('Yes'),
+					$db->qstr('[{"condition":"is_first","bool":"1"},{"condition":"is_outgoing","bool":"0"},{"condition":"ticket_status","oper":"in","values":["open"]},{"condition":"ticket_spam_training","oper":"!in","values":["N"]},{"condition":"ticket_spam_score","oper":"gt","value":'.json_encode($spam_threshold).'}]'),
+					$db->qstr('outcome'),
+					1
+				));
+				$parent_id = $db->LastInsertId();
+				
+				// Action: Quarantine
+				
+				switch($spam_action) {
+					// Delete
+					case 1:
+						$db->Execute(sprintf("INSERT INTO decision_node (parent_id, trigger_id, title, params_json, node_type, pos) ".
+							"VALUES (%d, %d, %s, %s, %s, %d)",
+							$parent_id,
+							$trigger_id,
+							$db->qstr('Delete ticket'),
+							$db->qstr('[{"action":"set_status","status":"deleted"}]'),
+							$db->qstr('action'),
+							2
+						));
+						$parent_id = $db->LastInsertId();				
+						break;
+						
+					// Move
+					case 2:
+						$db->Execute(sprintf("INSERT INTO decision_node (parent_id, trigger_id, title, params_json, node_type, pos) ".
+							"VALUES (%d, %d, %s, %s, %s, %d)",
+							$parent_id,
+							$trigger_id,
+							$db->qstr('Quarantine'),
+							$db->qstr('[{"action":"move_to_bucket","bucket_id":'.json_encode($spam_action_param).'}] '),
+							$db->qstr('action'),
+							2
+						));
+						$parent_id = $db->LastInsertId();				
+						break;
+				}
+			}
+		}
+	}
+	
+	// Delete
+	$db->Execute("DELETE FROM group_setting WHERE setting IN ('auto_reply_enabled', 'auto_reply', 'close_reply_enabled', 'close_reply', 'group_spam_threshold', 'group_spam_action', 'group_spam_action_param')");
+}
+
 return TRUE;

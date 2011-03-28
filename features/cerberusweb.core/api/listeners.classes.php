@@ -517,7 +517,8 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 			@$group_id = $changes[DAO_Ticket::TEAM_ID];
 			@$bucket_id = $changes[DAO_Ticket::CATEGORY_ID];
 			
-			if(!is_null($group_id) || !is_null($bucket_id)) {
+			if(!empty($group_id) || !empty($bucket_id)) {
+				Event_MailMovedToGroup::trigger($object_id, $model[DAO_Ticket::TEAM_ID]);
 			}
 			
 			/*
@@ -525,95 +526,16 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 			 */
 			@$closed = $changes[DAO_Ticket::IS_CLOSED];
 			
-			if(!is_null($closed) && !empty($model[DAO_Ticket::IS_CLOSED])) {
+			if(!empty($closed) 
+				&& !empty($model[DAO_Ticket::IS_CLOSED])
+				&& empty($model[DAO_Ticket::IS_DELETED])
+				) {
+					$logger = DevblocksPlatform::getConsoleLog();
+					$log_level = $logger->setLogLevel(7);
+					Event_MailClosedInGroup::trigger($object_id, $model[DAO_Ticket::TEAM_ID]);
+					$logger->setLogLevel($log_level);
 			}	    	
     	}
-	}
-	
-	
-	private function _handleTicketMoved($event) {
-		@$ticket_id = $event->params['ticket_id'];
-		@$group_id = $event->params['group_id'];
-		@$bucket_id = $event->params['bucket_id'];
-		
-		// If we're landing in an inbox we need to check its filters
-		if(!empty($group_id) && empty($bucket_id)) { // moving to an inbox
-			// Run the new inbox filters
-			$matches = CerberusApplication::runGroupRouting($group_id, $ticket_id);
-			
-			// If we matched no rules, we're stuck in the destination inbox.
-			if(!empty($matches)) {
-				// If more inbox rules want to move this ticket don't consider this finished
-				if(is_array($matches))
-				foreach($matches as $match) {
-	                if(isset($match->actions['move'])) // any moves
-						return;
-				}
-			}
-		}
-
-		// Trigger an inbound event
-		// [TODO] This really should be a different event to run inbox filters	
-	    $eventMgr = DevblocksPlatform::getEventService();
-	    $eventMgr->trigger(
-	        new Model_DevblocksEvent(
-	            'ticket.reply.inbound',
-                array(
-                    'ticket_id' => $ticket_id,
-                    'is_move' => true,
-                )
-            )
-	    );
-	}
-	
-	private function _handleTicketClosed($event) {
-		@$ticket_id = $event->params['ticket_id'];
-		@$model = $event->params['model'];
-
-		// If we're closing *and* deleting, abort.
-		@$is_deleted = $model[DAO_Ticket::IS_DELETED];
-		if(!is_null($is_deleted) && $is_deleted)
-			return;
-
-		$group_settings = DAO_GroupSettings::getSettings();
-		@$group_id = $model[DAO_Ticket::TEAM_ID];
-
-		// Make sure the current group has an auto-close reply
-		if(!isset($group_settings[$group_id][DAO_GroupSettings::SETTING_CLOSE_REPLY_ENABLED])
-			|| empty($group_settings[$group_id][DAO_GroupSettings::SETTING_CLOSE_REPLY_ENABLED]))
-			return;
-
-		// If the template doesn't exist or is empty
-		if(!isset($group_settings[$group_id][DAO_GroupSettings::SETTING_CLOSE_REPLY])
-			|| empty($group_settings[$group_id][DAO_GroupSettings::SETTING_CLOSE_REPLY]))
-			return;
-
-		$requesters = DAO_Ticket::getRequestersByTicket($ticket_id);
-		
-		// Don't send a close reply to a blank requesters list
-		if(empty($requesters))
-			return;
-			
-		try {
-			$token_labels = array();
-			$token_values = array();
-			CerberusContexts::getContext(CerberusContexts::CONTEXT_TICKET, $ticket_id, $token_labels, $token_values);
-			
-			$tpl_builder = DevblocksPlatform::getTemplateBuilder();
-			if(false === ($closereply_content = $tpl_builder->build($group_settings[$group_id][DAO_GroupSettings::SETTING_CLOSE_REPLY], $token_values)))
-				throw new Exception('Failed parsing close auto-reply snippet.');
-			
-			$result = CerberusMail::sendTicketMessage(array(
-				'ticket_id' => $ticket_id,
-				'message_id' => $model[DAO_Ticket::FIRST_MESSAGE_ID],
-				'content' => $closereply_content,
-				'is_autoreply' => false,
-				'dont_keep_copy' => true
-			));
-			
-		} catch (Exception $e) {
-			// [TODO] Error report
-		}
 	}
 	
 	private function _handleCronMaint($event) {

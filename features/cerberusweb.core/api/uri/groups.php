@@ -115,22 +115,6 @@ class ChGroupsPage extends CerberusPageExtension  {
 		$group_settings = DAO_GroupSettings::getSettings($group_id);
 		$tpl->assign('group_settings', $group_settings);
 		
-		@$tpl->assign('group_spam_threshold', $group_settings[DAO_GroupSettings::SETTING_SPAM_THRESHOLD]);
-		@$tpl->assign('group_spam_action', $group_settings[DAO_GroupSettings::SETTING_SPAM_ACTION]);
-		@$tpl->assign('group_spam_action_param', $group_settings[DAO_GroupSettings::SETTING_SPAM_ACTION_PARAM]);
-		
-		// Signature
-		$worker_token_labels = array();
-		$worker_token_values = array();
-		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, null, $worker_token_labels, $worker_token_values);
-		$tpl->assign('worker_token_labels', $worker_token_labels);
-		
-		// Auto-replies
-		$ticket_token_labels = array();
-		$ticket_token_values = array();
-		CerberusContexts::getContext(CerberusContexts::CONTEXT_TICKET, null, $ticket_token_labels, $ticket_token_values);
-		$tpl->assign('ticket_token_labels', $ticket_token_labels);
-		
 		// Template
 		$tpl->display('devblocks:cerberusweb.core::groups/manage/index.tpl');
 	}
@@ -566,25 +550,11 @@ class ChGroupsPage extends CerberusPageExtension  {
 	    	return;
 	    	
 	    //========== GENERAL
-	    @$auto_reply_enabled = DevblocksPlatform::importGPC($_REQUEST['auto_reply_enabled'],'integer',0);
-	    @$auto_reply = DevblocksPlatform::importGPC($_REQUEST['auto_reply'],'string','');
-	    @$close_reply_enabled = DevblocksPlatform::importGPC($_REQUEST['close_reply_enabled'],'integer',0);
-	    @$close_reply = DevblocksPlatform::importGPC($_REQUEST['close_reply'],'string','');
 	    @$subject_has_mask = DevblocksPlatform::importGPC($_REQUEST['subject_has_mask'],'integer',0);
 	    @$subject_prefix = DevblocksPlatform::importGPC($_REQUEST['subject_prefix'],'string','');
-	    @$spam_threshold = DevblocksPlatform::importGPC($_REQUEST['spam_threshold'],'integer',80);
-	    @$spam_action = DevblocksPlatform::importGPC($_REQUEST['spam_action'],'integer',0);
-	    @$spam_moveto = DevblocksPlatform::importGPC($_REQUEST['spam_action_moveto'],'integer',0);
 
 	    DAO_GroupSettings::set($team_id, DAO_GroupSettings::SETTING_SUBJECT_HAS_MASK, $subject_has_mask);
 	    DAO_GroupSettings::set($team_id, DAO_GroupSettings::SETTING_SUBJECT_PREFIX, $subject_prefix);
-	    DAO_GroupSettings::set($team_id, DAO_GroupSettings::SETTING_SPAM_THRESHOLD, $spam_threshold);
-	    DAO_GroupSettings::set($team_id, DAO_GroupSettings::SETTING_SPAM_ACTION, $spam_action);
-	    DAO_GroupSettings::set($team_id, DAO_GroupSettings::SETTING_SPAM_ACTION_PARAM, $spam_moveto);
-	    DAO_GroupSettings::set($team_id, DAO_GroupSettings::SETTING_AUTO_REPLY_ENABLED, $auto_reply_enabled);
-	    DAO_GroupSettings::set($team_id, DAO_GroupSettings::SETTING_AUTO_REPLY, $auto_reply);
-	    DAO_GroupSettings::set($team_id, DAO_GroupSettings::SETTING_CLOSE_REPLY_ENABLED, $close_reply_enabled);
-	    DAO_GroupSettings::set($team_id, DAO_GroupSettings::SETTING_CLOSE_REPLY, $close_reply);
 	       
         DevblocksPlatform::redirect(new DevblocksHttpResponse(array('groups',$team_id)));
 	}
