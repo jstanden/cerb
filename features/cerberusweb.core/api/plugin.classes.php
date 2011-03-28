@@ -609,11 +609,14 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 
 	function setEvent(Model_DevblocksEvent $event_model=null) {
 		@$message_id = $event_model->params['message_id']; 
+		@$worker_id = $event_model->params['worker_id'];
+		 
 		$labels = array();
 		$values = array();
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_MESSAGE, $message_id, $labels, $values, null, true);
 
 		$values['sender_is_worker'] = (!empty($values['worker_id'])) ? 1 : 0;
+		$values['sender_is_me'] = (!empty($worker_id) && isset($values['worker_id']) && $worker_id==$values['worker_id']) ? 1 : 0;
 		
 		/**
 		 * Ticket
@@ -686,6 +689,7 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 		
 		$labels['is_first'] = 'Message is first in conversation';
 		$labels['sender_is_worker'] = 'Message sender is a worker';
+		$labels['sender_is_me'] = 'Message sender is me';
 		
 		$types = array(
 			'content' => Model_CustomField::TYPE_MULTI_LINE,
@@ -697,6 +701,7 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 			'sender_full_name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'sender_is_banned' => Model_CustomField::TYPE_CHECKBOX,
 			'sender_is_worker' => Model_CustomField::TYPE_CHECKBOX,
+			'sender_is_me' => Model_CustomField::TYPE_CHECKBOX,
 			'sender_last_name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'sender_num_nonspam' => Model_CustomField::TYPE_NUMBER,
 			'sender_num_spam' => Model_CustomField::TYPE_NUMBER,
