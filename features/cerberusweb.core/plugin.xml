@@ -64,6 +64,7 @@
 			<class name="ChTaskSource_Org" />
 			<class name="ChTaskSource_Ticket" />
 			<class name="Event_MailClosedInGroup" />
+			<class name="Event_MailMovedToGroup" />
 			<class name="Event_MailReceivedByGroup" />
 			<class name="Event_MailReceivedByWatcher" />
 			<class name="Event_NotificationReceivedByWorker" />
@@ -726,6 +727,21 @@
 			</params>
 		</extension>
 		
+		<extension point="devblocks.event">
+			<id>event.mail.moved.group</id>
+			<name>Conversation moved in group</name>
+			<class>
+				<file>api/plugin.classes.php</file>
+				<name>Event_MailMovedToGroup</name>
+			</class>
+			<params>
+				<param key="contexts">
+					<value>
+						<data key="cerberusweb.contexts.group" />
+					</value>
+				</param>
+			</params>
+		</extension>
 		
 		<extension point="devblocks.event">
 			<id>event.mail.received.group</id>
