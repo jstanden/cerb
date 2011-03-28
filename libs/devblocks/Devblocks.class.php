@@ -4866,6 +4866,16 @@ class _DevblocksLogManager {
 		$this->_fp = fopen('php://output', 'w+');
 	}
 
+	public function getLogLevel() {
+		return $this->_log_level;
+	}
+	
+	public function setLogLevel($log_level) {
+		$old = $this->_log_level;
+		$this->_log_level = intval($log_level);
+		return $old;
+	}
+	
 	public function setPrefix($prefix='') {
 		$this->_prefix = $prefix;
 	}
