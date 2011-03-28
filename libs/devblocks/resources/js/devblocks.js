@@ -360,17 +360,25 @@ function genericAjaxPopupPostCloseReloadView($layer, frm, view_id, has_output, $
 	);
 }
 
-function genericAjaxGet(divName,args,cb,options) {
-	if(null == divName || 0 == divName.length)
-		divName = 'null';
+function genericAjaxGet(divRef,args,cb,options) {
+	div = null;
 
+	// Polymorph div
+	if(typeof divRef=="object")
+		div = divRef;
+	else if(typeof divRef=="string" && divRef.length > 0)
+		div = $('#'+divRef);
+	
 	if(null == cb) {
-		$('#'+divName).fadeTo("normal", 0.2);
+		if(null != div)
+			$(div).fadeTo("normal", 0.2);
 		
 		var cb = function(html) {
-			$('#'+divName).html(html);
-			$('#'+divName).fadeTo("normal", 1.0);
-			$('#'+divName).trigger('view_refresh');
+			if(null != div) {
+				$(div).html(html);
+				$(div).fadeTo("normal", 1.0);
+				$(div).trigger('view_refresh');
+			}
 		}
 	}
 	
@@ -386,17 +394,35 @@ function genericAjaxGet(divName,args,cb,options) {
 	$.ajax(options);
 }
 
-function genericAjaxPost(formName,divName,args,cb,options) {
-	if(null == divName || 0 == divName.length)
-		divName = 'null';
+function genericAjaxPost(formRef,divRef,args,cb,options) {
+	frm = null;
+	div = null;
+	
+	// Polymorph form
+	if(typeof formRef=="object")
+		frm = formRef;
+	else if(typeof formRef=="string" && formRef.length > 0)
+		frm = $('#'+formRef);
+	
+	// Polymorph div
+	if(typeof divRef=="object")
+		div = divRef;
+	else if(typeof divRef=="string" && divRef.length > 0)
+		div = $('#'+divRef);
+	
+	if(null == frm)
+		return;
 	
 	if(null == cb) {
-		$('#'+divName).fadeTo("normal", 0.2);
+		if(null != div)
+			$(div).fadeTo("normal", 0.2);
 		
 		var cb = function(html) {
-			$('#'+divName).html(html);
-			$('#'+divName).fadeTo("normal", 1.0);
-			$('#'+divName).trigger('view_refresh');
+			if(null != div) {
+				$(div).html(html);
+				$(div).fadeTo("normal", 1.0);
+				$(div).trigger('view_refresh');
+			}
 		};
 	}
 
@@ -405,7 +431,7 @@ function genericAjaxPost(formName,divName,args,cb,options) {
 		options = { };
 	
 	options.type = 'POST';
-	options.data = $('#'+formName).serialize();
+	options.data = $(frm).serialize();
 	options.url = DevblocksAppPath+'ajax.php'+(null!=args?('?'+args):''),
 	options.cache = false;
 	options.success = cb;
