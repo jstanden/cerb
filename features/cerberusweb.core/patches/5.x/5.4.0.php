@@ -78,7 +78,7 @@ if(!isset($tables['context_merge_history'])) {
 if(!isset($tables['community_tool'])) {
 	$sql = "
 		CREATE TABLE IF NOT EXISTS community_tool (
-			id INT UNSIGNED DEFAULT 0 NOT NULL AUTO_INCREMENT,
+			id INT UNSIGNED NOT NULL AUTO_INCREMENT,
 			name VARCHAR(128) DEFAULT '' NOT NULL,
 			code VARCHAR(8) DEFAULT '' NOT NULL,
 			extension_id VARCHAR(128) DEFAULT '' NOT NULL,
