@@ -679,7 +679,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.notification.received.owner</id>
-			<name>Notification sent to me</name>
+			<name>New notification for me</name>
 			<class>
 				<file>api/plugin.classes.php</file>
 				<name>Event_NotificationReceivedByWorker</name>
@@ -695,7 +695,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.mail.received.owner</id>
-			<name>Mail sent to my conversation</name>
+			<name>New message on a watched conversation</name>
 			<class>
 				<file>api/plugin.classes.php</file>
 				<name>Event_MailReceivedByWatcher</name>
@@ -711,7 +711,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.mail.received.group</id>
-			<name>Mail sent to this group</name>
+			<name>New message on a group conversation</name>
 			<class>
 				<file>api/plugin.classes.php</file>
 				<name>Event_MailReceivedByGroup</name>

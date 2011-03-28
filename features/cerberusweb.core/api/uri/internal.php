@@ -1299,10 +1299,6 @@ class ChInternalController extends DevblocksControllerExtension {
 		}
 	}
 	
-//	function showDecisionClonePopupAction() {
-//		
-//	}
-	
 	function saveDecisionDeletePopupAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer', 0);
 
@@ -1477,7 +1473,7 @@ class ChInternalController extends DevblocksControllerExtension {
 				$type = $model->node_type;
 				
 				// Title changed
-				if(0 != strcasecmp($model->title, $title) && !empty($title))
+				if(0 != strcmp($model->title, $title) && !empty($title))
 					DAO_DecisionNode::update($id, array(
 						DAO_DecisionNode::TITLE => $title,
 					));

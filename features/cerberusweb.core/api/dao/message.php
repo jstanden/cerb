@@ -1291,7 +1291,7 @@ class Context_Message extends Extension_DevblocksContext {
 			'content' => $prefix.$translate->_('common.content'),
 			'created|date' => $prefix.$translate->_('common.created'),
 			'is_outgoing' => $prefix.$translate->_('message.is_outgoing'),
-			'storage_size' => $prefix.$translate->_('message.storage_size'),
+			'storage_size' => $prefix.$translate->_('message.storage_size').' (bytes)',
 		);
 		
 		// Token values

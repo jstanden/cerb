@@ -522,7 +522,7 @@ class Event_NotificationReceivedByWorker extends Extension_DevblocksEvent {
 	
 	function getActionExtensions() { // $id
 		$actions = array(
-			'send_email_owner' => array('label' => 'Send email to owner'),
+			'send_email_owner' => array('label' => 'Send email to me'),
 			'create_task' => array('label' =>'Create a task'),
 		);
 		return $actions;
@@ -555,7 +555,7 @@ class Event_NotificationReceivedByWorker extends Extension_DevblocksEvent {
 		@$notification_id = $values['id'];
 
 		if(empty($notification_id))
-			break;
+			return;
 		
 		switch($token) {
 			case 'send_email_owner':
@@ -684,8 +684,8 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 	function getConditionExtensions() {
 		$labels = $this->getLabels();
 		
-		$labels['is_first'] = 'Message is first';
-		$labels['sender_is_worker'] = 'Message sender is worker';
+		$labels['is_first'] = 'Message is first in conversation';
+		$labels['sender_is_worker'] = 'Message sender is a worker';
 		
 		$types = array(
 			'content' => Model_CustomField::TYPE_MULTI_LINE,
@@ -996,8 +996,8 @@ class Event_MailReceivedByGroup extends Extension_DevblocksEvent {
 	function getConditionExtensions() {
 		$labels = $this->getLabels();
 		
-		$labels['is_first'] = 'Message is first';
-		$labels['sender_is_worker'] = 'Message sender is worker';
+		$labels['is_first'] = 'Message is first in conversation';
+		$labels['sender_is_worker'] = 'Message sender is a worker';
 		
 		$types = array(
 			'content' => Model_CustomField::TYPE_MULTI_LINE,
@@ -1205,8 +1205,8 @@ class Event_MailReceivedByGroup extends Extension_DevblocksEvent {
 		@$message_id = $values['id'];
 		@$ticket_id = $values['ticket_id'];
 
-		if(empty($message_id))
-			break;
+		if(empty($message_id) || empty($ticket_id))
+			return;
 		
 		switch($token) {
 			case 'send_email':

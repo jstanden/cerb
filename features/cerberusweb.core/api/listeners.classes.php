@@ -521,7 +521,7 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 			}
 			
 			/*
-			 * Ticket closed
+			 * Ticket closed (but not deleted)
 			 */
 			@$closed = $changes[DAO_Ticket::IS_CLOSED];
 			

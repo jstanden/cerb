@@ -5,7 +5,7 @@
 	<input type="hidden" name="context_id" value="{$context_id}">
 
 	<fieldset>
-		<legend>Create New Event Trigger</legend>
+		<legend>Create New Behavior</legend>
 	
 		<span class="cerb-sprite sprite-add"></span>
 		<select name="event_point">

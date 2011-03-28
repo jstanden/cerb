@@ -112,12 +112,6 @@ class ChGroupsPage extends CerberusPageExtension  {
 		$team_categories = DAO_Bucket::getByTeam($group_id);
 		$tpl->assign('categories', $team_categories);
 	    
-		$default_reply_to = DAO_AddressOutgoing::getDefault();
-		$tpl->assign('default_reply_to', $default_reply_to);
-		
-		$replyto_addresses = DAO_AddressOutgoing::getAll();
-		$tpl->assign('replyto_addresses', $replyto_addresses);
-		
 		$group_settings = DAO_GroupSettings::getSettings($group_id);
 		$tpl->assign('group_settings', $group_settings);
 		

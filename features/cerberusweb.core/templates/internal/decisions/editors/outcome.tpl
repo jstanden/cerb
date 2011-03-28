@@ -19,13 +19,7 @@
 			<option value="any">any</option>
 		</select>
 		*}
-		<u>all</u> of these conditions are <u>true</u>
-		{*
-		<select name="bool_test">
-			<option value="1" selected="selected">true</option>
-			<option value="0">false</option>
-		</select>
-		*}
+		<u>all</u> of these conditions are satisfied
 	</legend>
 
 	<ul class="rules" style="margin:0px;list-style:none;padding:0px;">
