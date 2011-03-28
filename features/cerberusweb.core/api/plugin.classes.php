@@ -607,6 +607,46 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 		);
 	} 
 
+	/**
+	 * 
+	 * @param integer $message_id
+	 * @param integer $worker_id
+	 * @return Model_DevblocksEvent
+	 */
+	function generateSampleEventModel($message_id=null, $worker_id=null) {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(empty($message_id)) {
+			// Pull the latest ticket
+			list($results) = DAO_Ticket::search(
+				array(),
+				array(
+					new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',0),
+				),
+				10,
+				0,
+				SearchFields_Ticket::TICKET_ID,
+				false,
+				false
+			);
+			
+			shuffle($results);
+			
+			$result = array_shift($results);
+			
+			$message_id = $result[SearchFields_Ticket::TICKET_LAST_MESSAGE_ID];
+			$worker_id = $active_worker->id;
+		}
+		
+		return new Model_DevblocksEvent(
+			self::ID,
+			array(
+				'message_id' => $message_id,
+				'worker_id' => $worker_id,
+			)
+		);
+	}	
+	
 	function setEvent(Model_DevblocksEvent $event_model=null) {
 		@$message_id = $event_model->params['message_id']; 
 		@$worker_id = $event_model->params['worker_id'];
@@ -1825,6 +1865,44 @@ class Event_MailReceivedByGroup extends Extension_DevblocksEvent {
             )
 		);
 	} 
+	
+	/**
+	 * 
+	 * @param integer $message_id
+	 * @param integer $group_id
+	 * @return Model_DevblocksEvent
+	 */
+	function generateSampleEventModel($message_id=null, $group_id=null) {
+		if(empty($message_id)) {
+			// Pull the latest ticket
+			list($results) = DAO_Ticket::search(
+				array(),
+				array(
+					new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',0),
+				),
+				10,
+				0,
+				SearchFields_Ticket::TICKET_ID,
+				false,
+				false
+			);
+			
+			shuffle($results);
+			
+			$result = array_shift($results);
+			
+			$message_id = $result[SearchFields_Ticket::TICKET_LAST_MESSAGE_ID];
+			$group_id = $result[SearchFields_Ticket::TICKET_TEAM_ID];
+		}
+		
+		return new Model_DevblocksEvent(
+			self::ID,
+			array(
+				'message_id' => $message_id,
+				'group_id' => $group_id,
+			)
+		);
+	}
 	
 	function setEvent(Model_DevblocksEvent $event_model=null) {
 		/**

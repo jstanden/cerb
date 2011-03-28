@@ -272,6 +272,17 @@ class Model_TriggerEvent {
 	
 	private $_nodes = array();
 	
+	/**
+	 * @return Extension_DevblocksEvent
+	 */
+	public function getEvent() {
+		if(null == ($event = DevblocksPlatform::getExtension($this->event_point, true))
+			|| !$event instanceof Extension_DevblocksEvent)
+			return NULL;
+		
+		return $event;
+	}
+	
 	private function _getNodes() {
 		if(empty($this->_nodes))
 			$this->_nodes = DAO_DecisionNode::getByTrigger($this->id);

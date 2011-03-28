@@ -1589,6 +1589,46 @@ class ChInternalController extends DevblocksControllerExtension {
 		}
 	}
 	
+	function testDecisionEventSnippetsAction() {
+		@$prefix = DevblocksPlatform::importGPC($_REQUEST['prefix'],'string','');
+		@$field = DevblocksPlatform::importGPC($_REQUEST['field'],'string','');
+		@$trigger_id = DevblocksPlatform::importGPC($_REQUEST['trigger_id'],'integer',0);
+		
+		@$content = DevblocksPlatform::importGPC($_REQUEST[$prefix][$field],'string','');
+
+		if(null == ($trigger = DAO_TriggerEvent::get($trigger_id)))
+			return;
+			
+		$event = $trigger->getEvent();
+		$event_model = $event->generateSampleEventModel();
+		$event->setEvent($event_model);
+		$values = $event->getValues();
+		
+		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+		$tpl = DevblocksPlatform::getTemplateService();
+		
+		$success = false;
+		$output = '';
+
+		if(isset($values)) {
+			// Try to build the template
+			if(false === ($out = $tpl_builder->build($content, $values))) {
+				// If we failed, show the compile errors
+				$errors = $tpl_builder->getErrors();
+				$success= false;
+				$output = @array_shift($errors);
+			} else {
+				// If successful, return the parsed template
+				$success = true;
+				$output = $out;
+			}
+		}
+
+		$tpl->assign('success', $success);
+		$tpl->assign('output', $output);
+		$tpl->display('devblocks:cerberusweb.core::internal/renderers/test_results.tpl');
+	}
+	
 	// Utils
 
 	function startAutoRefreshAction() {
