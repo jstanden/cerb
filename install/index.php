@@ -606,9 +606,7 @@ switch($step) {
 					
 					// Dispatch Spam Bucket
 					$dispatch_spam_bid = DAO_Bucket::create('Spam', $dispatch_gid);
-					DAO_GroupSettings::set($dispatch_gid,DAO_GroupSettings::SETTING_SPAM_ACTION,'2');
-					DAO_GroupSettings::set($dispatch_gid,DAO_GroupSettings::SETTING_SPAM_ACTION_PARAM,$dispatch_spam_bid);
-					DAO_GroupSettings::set($dispatch_gid,DAO_GroupSettings::SETTING_SPAM_THRESHOLD,'85');
+					// [TODO] Create spam quarantine behavior in Attendant
 					
 					// Support Group
 					$support_gid = DAO_Group::createTeam(array(
@@ -617,9 +615,7 @@ switch($step) {
 
 					// Support Spam Bucket
 					$support_spam_bid = DAO_Bucket::create('Spam', $support_gid);
-					DAO_GroupSettings::set($support_gid,DAO_GroupSettings::SETTING_SPAM_ACTION,'2');
-					DAO_GroupSettings::set($support_gid,DAO_GroupSettings::SETTING_SPAM_ACTION_PARAM,$support_spam_bid);
-					DAO_GroupSettings::set($support_gid,DAO_GroupSettings::SETTING_SPAM_THRESHOLD,'85');
+					// [TODO] Create spam quarantine behavior in Attendant
 					
 					// Sales Group
 					$sales_gid = DAO_Group::createTeam(array(
@@ -628,9 +624,7 @@ switch($step) {
 					
 					// Sales Spam Bucket
 					$sales_spam_bid = DAO_Bucket::create('Spam', $sales_gid);
-					DAO_GroupSettings::set($sales_gid,DAO_GroupSettings::SETTING_SPAM_ACTION,'2');
-					DAO_GroupSettings::set($sales_gid,DAO_GroupSettings::SETTING_SPAM_ACTION_PARAM,$sales_spam_bid);
-					DAO_GroupSettings::set($sales_gid,DAO_GroupSettings::SETTING_SPAM_THRESHOLD,'85');
+					// [TODO] Create spam quarantine behavior in Attendant
 					
 					// Default catchall
 					DAO_Group::updateTeam($dispatch_gid, array(
