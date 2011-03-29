@@ -2529,6 +2529,11 @@ class _DevblocksCacheManager {
 				$options['servers'] = $servers;
 				
 				self::$_cacher = new _DevblocksCacheManagerMemcached($options);
+				
+				// Test
+				if(false == (self::$_cacher->test())) {
+					self::$_cacher = null;
+				}
 		    }
 
 		    // Disk-based cache (default)
@@ -2610,6 +2615,7 @@ abstract class _DevblocksCacheManagerAbstract {
 	function save($data, $key, $tags=array(), $lifetime=0) {}
 	function load($key) {}
 	function remove($key) {}
+	function test() {}
 	function clean() {} // $mode=null
 };
 
@@ -2653,6 +2659,15 @@ class _DevblocksCacheManagerMemcached extends _DevblocksCacheManagerAbstract {
 	function remove($key) {
 		$key = $this->_options['key_prefix'] . $key;
 		$this->_driver->delete($key);
+	}
+
+	function test() {
+		try {
+			@$version = $this->_driver->getVersion();
+			return !empty($version);
+		} catch(Exception $e) {
+			return false;
+		}
 	}
 	
 	function clean() {
@@ -2700,6 +2715,10 @@ class _DevblocksCacheManagerDisk extends _DevblocksCacheManagerAbstract {
 		$file = $this->_getPath() . $this->_getFilename($key);
 		if(file_exists($file))
 			unlink($file);
+	}
+	
+	function test() {
+		return is_writeable($this->_options['cache_dir']);
 	}
 	
 	function clean() {
