@@ -363,18 +363,24 @@ class Model_TriggerEvent {
 							continue;
 							
 						$condition = $params['condition'];
+						
 						$pass = $event->runCondition($condition, $this, $params, $dictionary);
 					}
+					
+					if($pass)
+						EventListener_Triggers::logNode($node_id);
 					break;
 					
 				case 'switch':
 					$pass = true;
+					EventListener_Triggers::logNode($node_id);
 					break;
 					
 				case 'action':
 					$pass = true;
+					EventListener_Triggers::logNode($node_id);
+					
 					// Run all the actions
-					// [TODO] Update the dictionary?
 					if(is_array($nodes[$node_id]->params))
 					foreach($nodes[$node_id]->params as $params) {
 						if(!isset($params['action']))

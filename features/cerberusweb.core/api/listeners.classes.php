@@ -304,6 +304,58 @@ class ChCoreTour extends DevblocksHttpResponseListenerExtension implements IDevb
 };
 
 class EventListener_Triggers extends DevblocksEventListenerExtension {
+	static $_traversal_log = array();
+	static $_trigger_log = array();
+	static $_trigger_stack = array();
+	static $_depth = 0;
+	
+	static function increaseDepth($trigger_id) {
+		++self::$_depth;
+		
+		self::$_trigger_log[] = $trigger_id;
+		self::$_trigger_stack[] = $trigger_id;
+	}
+	
+	static function decreaseDepth() {
+		--self::$_depth;
+		array_pop(self::$_trigger_stack);
+	}
+	
+	/**
+	 * Are we currently nested inside this trigger at any depth?
+	 * @param integer $trigger_id
+	 */
+	static function inception($trigger_id) {
+		return in_array($trigger_id, self::$_trigger_stack);
+	}
+	
+	static function triggerHasSprung($trigger_id) {
+		return in_array($trigger_id, self::$_trigger_log);
+	}
+	
+	static function logNode($node_id) {
+		self::$_traversal_log[] = $node_id;
+	}
+
+	static function getDepth() {
+		return self::$_depth;
+	}
+	
+	static function getTriggerLog() {
+		return self::$_trigger_log;
+	}
+	
+	static function getNodeLog() {
+		return self::$_traversal_log;
+	}
+	
+	static function clear() {
+		self::$_traversal_log = array();
+		self::$_trigger_log = array();
+		self::$_trigger_stack = array();
+		self::$_depth = 0;
+	}
+	
 	/**
 	 * @param Model_DevblocksEvent $event
 	 */
@@ -336,10 +388,10 @@ class EventListener_Triggers extends DevblocksEventListenerExtension {
 					// We're allowed to see this event
 				} else {
 					// We're not allowed to see this event
-					$logger->info(sprintf("Removing trigger %d (%s) since it is not in this whisper",
-						$trigger_id,
-						$trigger->title
-					));
+					//$logger->info(sprintf("Removing trigger %d (%s) since it is not in this whisper",
+					//	$trigger_id,
+					//	$trigger->title
+					//));
 					unset($triggers[$trigger_id]);
 				}
 			}
@@ -357,6 +409,28 @@ class EventListener_Triggers extends DevblocksEventListenerExtension {
 		$event_ext->setEvent($event);
 		$values = $event_ext->getValues();
 		foreach($triggers as $trigger) { /* @var $trigger Model_TriggerEvent */
+			if(self::inception($trigger->id)) {
+				$logger->info(sprintf("Skipping trigger %d (%s) because we're currently inside of it.",
+					$trigger->id,
+					$trigger->title
+				));
+				continue;
+			}			
+			
+			/*
+			 * If a top level trigger already ran as a consequence of the 
+			 * event chain, don't run it again. 
+			 */
+			if(self::getDepth() == 0 && self::triggerHasSprung($trigger->id)) {
+				$logger->info(sprintf("Skipping trigger %d (%s) because it has already run this event chain.",
+					$trigger->id,
+					$trigger->title
+				));
+				continue;
+			}			
+			
+			self::increaseDepth($trigger->id);
+			
 			$logger->info(sprintf("Running decision tree on trigger %d (%s) for %s=%d",
 				$trigger->id,
 				$trigger->title,
@@ -365,6 +439,18 @@ class EventListener_Triggers extends DevblocksEventListenerExtension {
 			));
 			
 			$trigger->runDecisionTree($values);
+			
+			self::decreaseDepth();
+		}
+
+		/*
+		 * Clear our event chain when we finish all triggers and we're 
+		 * no longer nested.
+		 */
+		if(0 == self::getDepth()) {
+			//var_dump(self::getTriggerLog());
+			//var_dump(self::getNodeLog());
+			self::clear();
 		}
 		
 		return;
