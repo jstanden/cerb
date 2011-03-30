@@ -1533,7 +1533,7 @@ class Event_MailMovedToGroup extends Extension_DevblocksEvent {
 		
 			"group_name" => Model_CustomField::TYPE_SINGLE_LINE,
 		
-			"ticket_bucket_name|default('Inbox')" => Model_CustomField::TYPE_SINGLE_LINE,
+			"ticket_bucket_name|default('Inbox')" => null,
 			'ticket_created|date' => Model_CustomField::TYPE_DATE,
 			'ticket_group_name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'ticket_mask' => Model_CustomField::TYPE_SINGLE_LINE,
@@ -1558,6 +1558,11 @@ class Event_MailMovedToGroup extends Extension_DevblocksEvent {
 			$tpl->assign('namePrefix','condition'.$seq);
 		
 		switch($token) {
+			case 'ticket_bucket_name':
+				$buckets = DAO_Bucket::getByTeam($trigger->owner_context_id);
+				$tpl->assign('buckets', $buckets);
+				$tpl->display('devblocks:cerberusweb.core::events/mail_received_by_group/condition_bucket.tpl');
+				break;
 			case 'ticket_spam_score':
 				$tpl->display('devblocks:cerberusweb.core::events/mail_received_by_group/condition_spam_score.tpl');
 				break;
@@ -1577,6 +1582,30 @@ class Event_MailMovedToGroup extends Extension_DevblocksEvent {
 		$pass = true;
 		
 		switch($token) {
+			case 'ticket_bucket_name':
+				$not = (substr($params['oper'],0,1) == '!');
+				$oper = ltrim($params['oper'],'!');
+				@$value = $values['ticket_bucket_id'];
+				
+				if(!isset($params['values']) || !is_array($params['values'])) {
+					$pass = false;
+					break;
+				}
+				
+				switch($oper) {
+					case 'in':
+						$pass = false;
+						foreach($params['values'] as $v) {
+							if($v == $value) {
+								$pass = true;
+								break;
+							}
+						}
+						break;
+				}
+				$pass = ($not) ? !$pass : $pass;
+				break;
+				
 			case 'ticket_spam_score':
 				$not = (substr($params['oper'],0,1) == '!');
 				$oper = ltrim($params['oper'],'!');
