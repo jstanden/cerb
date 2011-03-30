@@ -57,12 +57,12 @@
 		$(this).dialog('option','title',"{if empty($id)}New {/if}Actions");
 
 		$popup.find('BUTTON.chooser_worker.unbound').each(function() {
-			seq = $(this).closest('li').find('input:hidden').first().val();
+			seq = $(this).closest('fieldset').find('input:hidden[name="actions[]"]').val();
 			ajax.chooser(this,'cerberusweb.contexts.worker','action'+seq+'[worker_id]', { autocomplete:true });
 			$(this).removeClass('unbound');
 		});
 		$popup.find('BUTTON.chooser_notify_workers.unbound').each(function() {
-			seq = $(this).closest('li').find('input:hidden').first().val();
+			seq = $(this).closest('fieldset').find('input:hidden[name="actions[]"]').val();
 			ajax.chooser(this,'cerberusweb.contexts.worker','action'+seq+'[notify_worker_id]', { autocomplete:true });
 			$(this).removeClass('unbound');
 		});

@@ -586,7 +586,7 @@ class DevblocksEventHelper {
 		@$notify_worker_ids = $params['notify_worker_id'];
 		
 		if(!is_array($notify_worker_ids) || empty($notify_worker_ids))
-			break;
+			return;
 		
 		// Translate message tokens
 		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
@@ -678,7 +678,7 @@ class DevblocksEventHelper {
 		@$group_id = $params['group_id'];
 		
 		if(null == ($group = DAO_Group::get($group_id)))
-			break;
+			return;
 		
 		$group_replyto = $group->getReplyTo();
 			

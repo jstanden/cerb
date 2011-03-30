@@ -1587,7 +1587,7 @@ class Event_MailMovedToGroup extends Extension_DevblocksEvent {
 				$oper = ltrim($params['oper'],'!');
 				@$value = $values['ticket_bucket_id'];
 				
-				if(!isset($params['values']) || !is_array($params['values'])) {
+				if(!isset($params['bucket_ids']) || !is_array($params['bucket_ids'])) {
 					$pass = false;
 					break;
 				}
@@ -1595,8 +1595,8 @@ class Event_MailMovedToGroup extends Extension_DevblocksEvent {
 				switch($oper) {
 					case 'in':
 						$pass = false;
-						foreach($params['values'] as $v) {
-							if($v == $value) {
+						foreach($params['bucket_ids'] as $v) {
+							if(intval($v) == intval($value)) {
 								$pass = true;
 								break;
 							}
@@ -1721,6 +1721,7 @@ class Event_MailMovedToGroup extends Extension_DevblocksEvent {
 				break;
 				
 			case 'move_to_bucket':
+				// [TODO] Share
 				$buckets = DAO_Bucket::getByTeam($trigger->owner_context_id);
 				$tpl->assign('buckets', $buckets);
 				$tpl->display('devblocks:cerberusweb.core::events/mail_received_by_group/action_move_to_bucket.tpl');

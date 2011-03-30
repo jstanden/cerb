@@ -65,7 +65,7 @@
 		$(this).dialog('option','title',"{if empty($id)}New {/if}Outcome");
 
 		$popup.find('BUTTON.chooser_worker.unbound').each(function() {
-			seq = $(this).closest('li').find('input:hidden').first().val();
+			seq = $(this).closest('fieldset').find('input:hidden[name="conditions[]"]').val();
 			ajax.chooser(this,'cerberusweb.contexts.worker','condition'+seq+'[worker_id]', { autocomplete:true });
 			$(this).removeClass('unbound');
 		});
