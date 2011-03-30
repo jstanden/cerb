@@ -1442,8 +1442,11 @@ class ChInternalController extends DevblocksControllerExtension {
 			
 		if(null == ($event = DevblocksPlatform::getExtension($trigger->event_point, true)))
 			return; /* @var $event Extension_DevblocksEvent */
+		
+		$tpl->assign('trigger', $trigger);
+		$tpl->assign('event', $event);
 			
-		$event->renderCondition($condition);
+		$event->renderCondition($condition, $trigger);
 	}
 	
 	function doDecisionAddActionAction() {
@@ -1459,7 +1462,10 @@ class ChInternalController extends DevblocksControllerExtension {
 		if(null == ($event = DevblocksPlatform::getExtension($trigger->event_point, true)))
 			return; /* @var $event Extension_DevblocksEvent */
 			
-		$event->renderAction($action, $trigger_id);
+		$tpl->assign('trigger', $trigger);
+		$tpl->assign('event', $event);
+			
+		$event->renderAction($action, $trigger);
 	}
 
 	function saveDecisionPopupAction() {

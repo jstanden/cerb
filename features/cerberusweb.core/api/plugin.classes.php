@@ -495,7 +495,7 @@ class Event_NotificationReceivedByWorker extends Extension_DevblocksEvent {
 		return $conditions;		
 	}
 	
-	function renderConditionExtension($token, $params=array(), $seq=null) {
+	function renderConditionExtension($token, $trigger, $params=array(), $seq=null) {
 		$conditions = $this->getConditions();
 		
 		$tpl = DevblocksPlatform::getTemplateService();
@@ -507,7 +507,7 @@ class Event_NotificationReceivedByWorker extends Extension_DevblocksEvent {
 		//$tpl->display('devblocks:cerberusweb.core::internal/decisions/conditions/_bool.tpl');
 	}
 	
-	function runConditionExtension($token, $params, $values) {
+	function runConditionExtension($token, $trigger, $params, $values) {
 		$pass = true;
 		
 		switch($token) {
@@ -528,7 +528,7 @@ class Event_NotificationReceivedByWorker extends Extension_DevblocksEvent {
 		return $actions;
 	}
 	
-	function renderActionExtension($token, $trigger_id=null, $params=array(), $seq=null) {
+	function renderActionExtension($token, $trigger, $params=array(), $seq=null) {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('params', $params);
 
@@ -551,7 +551,7 @@ class Event_NotificationReceivedByWorker extends Extension_DevblocksEvent {
 		//$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_string.tpl');
 	}
 	
-	function runActionExtension($token, $trigger_id, $params, &$values) {
+	function runActionExtension($token, $trigger, $params, &$values) {
 		@$notification_id = $values['id'];
 
 		if(empty($notification_id))
@@ -772,7 +772,7 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 		return $conditions;
 	}
 
-	function renderConditionExtension($token, $params=array(), $seq=null) {
+	function renderConditionExtension($token, $trigger, $params=array(), $seq=null) {
 		return;
 		
 //		$conditions = $this->getConditions();
@@ -786,7 +786,7 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 //		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_string.tpl');
 	}
 
-	function runConditionExtension($token, $params, $values) {
+	function runConditionExtension($token, $trigger, $params, $values) {
 		$pass = true;
 		
 		switch($token) {
@@ -817,7 +817,7 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 		return $actions;
 	}
 	
-	function renderActionExtension($token, $trigger_id=null, $params=array(), $seq=null) {
+	function renderActionExtension($token, $trigger, $params=array(), $seq=null) {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('params', $params);
 
@@ -863,7 +863,7 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 		$tpl->clearAssign('token_labels');
 	}
 	
-	function runActionExtension($token, $trigger_id, $params, &$values) {
+	function runActionExtension($token, $trigger, $params, &$values) {
 		@$ticket_id = $values['ticket_id'];
 		@$message_id = $values['id'];
 
@@ -1088,7 +1088,7 @@ class Event_MailClosedInGroup extends Extension_DevblocksEvent {
 		return $conditions;		
 	}
 	
-	function renderConditionExtension($token, $params=array(), $seq=null) {
+	function renderConditionExtension($token, $trigger, $params=array(), $seq=null) {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('params', $params);
 
@@ -1111,7 +1111,7 @@ class Event_MailClosedInGroup extends Extension_DevblocksEvent {
 		$tpl->clearAssign('params');
 	}
 	
-	function runConditionExtension($token, $params, $values) {
+	function runConditionExtension($token, $trigger, $params, $values) {
 		$pass = true;
 		
 		switch($token) {
@@ -1184,7 +1184,7 @@ class Event_MailClosedInGroup extends Extension_DevblocksEvent {
 		return $actions;
 	}
 	
-	function renderActionExtension($token, $trigger_id=null, $params=array(), $seq=null) {
+	function renderActionExtension($token, $trigger, $params=array(), $seq=null) {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('params', $params);
 
@@ -1230,11 +1230,8 @@ class Event_MailClosedInGroup extends Extension_DevblocksEvent {
 				break;
 				
 			case 'move_to_bucket':
-				// [TODO] Use trigger cache
-				if(null != ($trigger = DAO_TriggerEvent::get($trigger_id))) {
-					$buckets = DAO_Bucket::getByTeam($trigger->owner_context_id);
-					$tpl->assign('buckets', $buckets);
-				}
+				$buckets = DAO_Bucket::getByTeam($trigger->owner_context_id);
+				$tpl->assign('buckets', $buckets);
 				$tpl->display('devblocks:cerberusweb.core::events/mail_received_by_group/action_move_to_bucket.tpl');
 				break;
 				
@@ -1245,7 +1242,7 @@ class Event_MailClosedInGroup extends Extension_DevblocksEvent {
 		$tpl->clearAssign('token_labels');		
 	}
 	
-	function runActionExtension($token, $trigger_id, $params, &$values) {
+	function runActionExtension($token, $trigger, $params, &$values) {
 		@$ticket_id = $values['ticket_id'];
 		@$message_id = $values['ticket_latest_message_id'];
 
@@ -1553,7 +1550,7 @@ class Event_MailMovedToGroup extends Extension_DevblocksEvent {
 		return $conditions;		
 	}
 	
-	function renderConditionExtension($token, $params=array(), $seq=null) {
+	function renderConditionExtension($token, $trigger, $params=array(), $seq=null) {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('params', $params);
 
@@ -1576,7 +1573,7 @@ class Event_MailMovedToGroup extends Extension_DevblocksEvent {
 		$tpl->clearAssign('params');
 	}
 	
-	function runConditionExtension($token, $params, $values) {
+	function runConditionExtension($token, $trigger, $params, $values) {
 		$pass = true;
 		
 		switch($token) {
@@ -1649,7 +1646,7 @@ class Event_MailMovedToGroup extends Extension_DevblocksEvent {
 		return $actions;
 	}
 	
-	function renderActionExtension($token, $trigger_id=null, $params=array(), $seq=null) {
+	function renderActionExtension($token, $trigger, $params=array(), $seq=null) {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('params', $params);
 
@@ -1695,11 +1692,8 @@ class Event_MailMovedToGroup extends Extension_DevblocksEvent {
 				break;
 				
 			case 'move_to_bucket':
-				// [TODO] Use trigger cache
-				if(null != ($trigger = DAO_TriggerEvent::get($trigger_id))) {
-					$buckets = DAO_Bucket::getByTeam($trigger->owner_context_id);
-					$tpl->assign('buckets', $buckets);
-				}
+				$buckets = DAO_Bucket::getByTeam($trigger->owner_context_id);
+				$tpl->assign('buckets', $buckets);
 				$tpl->display('devblocks:cerberusweb.core::events/mail_received_by_group/action_move_to_bucket.tpl');
 				break;
 				
@@ -1710,7 +1704,7 @@ class Event_MailMovedToGroup extends Extension_DevblocksEvent {
 		$tpl->clearAssign('token_labels');		
 	}
 	
-	function runActionExtension($token, $trigger_id, $params, &$values) {
+	function runActionExtension($token, $trigger, $params, &$values) {
 		@$ticket_id = $values['ticket_id'];
 		@$message_id = $values['ticket_latest_message_id'];
 
@@ -2057,7 +2051,7 @@ class Event_MailReceivedByGroup extends Extension_DevblocksEvent {
 		return $conditions;		
 	}
 	
-	function renderConditionExtension($token, $params=array(), $seq=null) {
+	function renderConditionExtension($token, $trigger, $params=array(), $seq=null) {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('params', $params);
 
@@ -2080,7 +2074,7 @@ class Event_MailReceivedByGroup extends Extension_DevblocksEvent {
 		$tpl->clearAssign('params');
 	}
 	
-	function runConditionExtension($token, $params, $values) {
+	function runConditionExtension($token, $trigger, $params, $values) {
 		$pass = true;
 		
 		switch($token) {
@@ -2153,7 +2147,7 @@ class Event_MailReceivedByGroup extends Extension_DevblocksEvent {
 		return $actions;
 	}
 	
-	function renderActionExtension($token, $trigger_id=null, $params=array(), $seq=null) {
+	function renderActionExtension($token, $trigger, $params=array(), $seq=null) {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('params', $params);
 
@@ -2200,10 +2194,8 @@ class Event_MailReceivedByGroup extends Extension_DevblocksEvent {
 				
 			case 'move_to_bucket':
 				// [TODO] Use trigger cache
-				if(null != ($trigger = DAO_TriggerEvent::get($trigger_id))) {
-					$buckets = DAO_Bucket::getByTeam($trigger->owner_context_id);
-					$tpl->assign('buckets', $buckets);
-				}
+				$buckets = DAO_Bucket::getByTeam($trigger->owner_context_id);
+				$tpl->assign('buckets', $buckets);
 				$tpl->display('devblocks:cerberusweb.core::events/mail_received_by_group/action_move_to_bucket.tpl');
 				break;
 				
@@ -2214,7 +2206,7 @@ class Event_MailReceivedByGroup extends Extension_DevblocksEvent {
 		$tpl->clearAssign('token_labels');		
 	}
 	
-	function runActionExtension($token, $trigger_id, $params, &$values) {
+	function runActionExtension($token, $trigger, $params, &$values) {
 		@$message_id = $values['id'];
 		@$ticket_id = $values['ticket_id'];
 

@@ -189,11 +189,11 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 	}
 	
 	abstract function getConditionExtensions();
-	abstract function renderConditionExtension($token, $params=array(), $seq=null);
-	abstract function runConditionExtension($token, $params, $values);
+	abstract function renderConditionExtension($token, $trigger, $params=array(), $seq=null);
+	abstract function runConditionExtension($token, $trigger, $params, $values);
 	
 	// [TODO] These templates should move to Devblocks
-	function renderCondition($token, $params=array(), $seq=null) {
+	function renderCondition($token, $trigger, $params=array(), $seq=null) {
 		$conditions = $this->getConditionExtensions();
 		
 		$tpl = DevblocksPlatform::getTemplateService();
@@ -231,7 +231,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 					$tpl->display('devblocks:cerberusweb.core::internal/decisions/conditions/_worker.tpl');
 					break;
 				default:
-					$this->renderConditionExtension($token, $params, $seq);
+					$this->renderConditionExtension($token, $trigger, $params, $seq);
 					break;
 			}
 			
@@ -261,7 +261,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 		}
 	}
 	
-	function runCondition($token, $params, $values) {
+	function runCondition($token, $trigger, $params, $values) {
 		$logger = DevblocksPlatform::getConsoleLog('Assistant');
 		$conditions = $this->getConditionExtensions();
 		$not = false;
@@ -406,7 +406,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 					}
 					break;
 				default:
-					$pass = $this->runConditionExtension($token, $params, $values);
+					$pass = $this->runConditionExtension($token, $trigger, $params, $values);
 					break;
 			}
 			
@@ -450,7 +450,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 					// Plugins
 					if(null != ($ext = DevblocksPlatform::getExtension($token, true))
 						&& $ext instanceof Extension_DevblocksEventCondition) { /* @var $ext Extension_DevblocksEventCondition */ 
-						$pass = $ext->run($token, $params, $values);
+						$pass = $ext->run($token, $trigger, $params, $values);
 					}
 					break;
 			}
@@ -487,10 +487,10 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 	}
 	
 	abstract function getActionExtensions();
-	abstract function renderActionExtension($token, $trigger_id=null, $params=array(), $seq=null);
-	abstract function runActionExtension($token, $trigger_id=null, $params, &$values);
+	abstract function renderActionExtension($token, $trigger, $params=array(), $seq=null);
+	abstract function runActionExtension($token, $trigger, $params, &$values);
 	
-	function renderAction($token, $trigger_id=null, $params=array(), $seq=null) {
+	function renderAction($token, $trigger, $params=array(), $seq=null) {
 		$actions = $this->getActionExtensions();
 		
 		$tpl = DevblocksPlatform::getTemplateService();
@@ -501,7 +501,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 		
 		// Is this an event-provided action?
 		if(null != (@$action = $actions[$token])) {
-			$this->renderActionExtension($token, $trigger_id, $params, $seq);
+			$this->renderActionExtension($token, $trigger, $params, $seq);
 			
 		// Nope, it's a global action
 		} else {
@@ -517,14 +517,14 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 		}		
 	}
 	
-	function runAction($token, $trigger_id, $params, &$values) {
+	function runAction($token, $trigger, $params, &$values) {
 		$actions = $this->getActionExtensions();
 		
 		if(null != (@$action = $actions[$token])) {
 			//if(null == (@$value = $values[$token])) {
 			//	return false;
 			//}
-			$this->runActionExtension($token, $trigger_id, $params, $values);
+			$this->runActionExtension($token, $trigger, $params, $values);
 			
 		} else {
 			switch($token) {
@@ -532,7 +532,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 					// Plugins
 					if(null != ($ext = DevblocksPlatform::getExtension($token, true))
 						&& $ext instanceof Extension_DevblocksEventAction) { /* @var $ext Extension_DevblocksEventAction */ 
-						$ext->run($token, $params, $values);
+						$ext->run($token, $trigger, $params, $values);
 					}
 					break;
 			}

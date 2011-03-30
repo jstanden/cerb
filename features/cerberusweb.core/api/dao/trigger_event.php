@@ -363,7 +363,7 @@ class Model_TriggerEvent {
 							continue;
 							
 						$condition = $params['condition'];
-						$pass = $event->runCondition($condition, $params, $dictionary);
+						$pass = $event->runCondition($condition, $this, $params, $dictionary);
 					}
 					break;
 					
@@ -381,7 +381,7 @@ class Model_TriggerEvent {
 							continue;
 
 						$action = $params['action'];
-						$event->runAction($action, $this->id, $params, $dictionary);
+						$event->runAction($action, $this, $params, $dictionary);
 					}
 					break;
 			}			

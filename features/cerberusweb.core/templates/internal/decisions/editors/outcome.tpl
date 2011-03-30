@@ -31,7 +31,7 @@
 				<b>{$conditions.{$params.condition}.label}</b>&nbsp;
 				<a href="javascript:;" onclick="$(this).closest('li').remove();"><span class="cerb-sprite sprite-forbidden"></span></a>
 				<div style="margin-left:20px;">
-					{$event->renderCondition({$params.condition},$params,$seq)}
+					{$event->renderCondition({$params.condition},$trigger,$params,$seq)}
 				</div>
 			</li>
 		{/foreach}
