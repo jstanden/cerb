@@ -160,11 +160,14 @@ pre.emailbody {
 }
 
 button {
-	background-image: url(bg_ltgray.jpg?v=2011011801);
-	background-repeat: repeat-x; 
-	color: rgb(30, 30, 30);
-	border: 1px solid rgb(150, 150, 150);
-	background-color: rgb(209,209,209);
+	background: -webkit-gradient(linear, left top, left bottom, from(rgb(240,240,240)), to(rgb(210,210,210)));
+	background: -moz-linear-gradient(top, rgb(240,240,240), rgb(210,210,210));
+	background-color:rgb(230,230,230);
+	cursor:pointer;
+	
+	color:rgb(50,50,50);
+	border:1px solid rgb(185,185,185);
+	
 	margin-right:1px;
 	vertical-align:middle;
 	-moz-border-radius: 5px;
@@ -173,11 +176,52 @@ button {
 }
 
 button:hover {
-	background-image: url(bg_blue.jpg?v=2011011801);
-	background-repeat: repeat-x;
-	background-color: rgb(160,198,254);
-	border: 1px solid rgb(36,111,223);
+	background: -webkit-gradient(linear, left top, left bottom, from(rgb(238,242,245)), to(rgb(160,198,254)));
+	background: -moz-linear-gradient(top, rgb(238,242,245), rgb(160,198,254));
+	background-color:rgb(160,198,254);
 	cursor:pointer;
+	
+	border:1px solid rgb(130,165,226);
+	
+	margin-right:1px;
+	vertical-align:middle;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	border-radius: 5px;
+}
+
+button.green {
+	background: -webkit-gradient(linear, left top, left bottom, from(rgb(223,240,177)), to(rgb(184,211,118)));
+	background: -moz-linear-gradient(top, rgb(223,240,177), rgb(184,211,118));
+	background-color:rgb(223,240,177);
+	cursor:pointer;
+	
+	color:rgb(64,106,36);
+	border:1px solid rgb(140,179,50);
+}
+
+button.green:hover {
+	background: -webkit-gradient(linear, left top, left bottom, from(rgb(223,240,177)), to(rgb(154,180,90)));
+	background: -moz-linear-gradient(top, rgb(223,240,177), rgb(154,180,90));
+	border:1px solid rgb(16,132,19);
+	background-color:rgb(223,240,177);
+}
+
+button.red {
+	background: -webkit-gradient(linear, left top, left bottom, from(rgb(250,125,125)), to(rgb(195,45,45)));
+	background: -moz-linear-gradient(top, rgb(250,125,125), rgb(195,45,45));
+	background-color:rgb(214,63,48);
+	cursor:pointer;
+	border:1px solid rgb(170,0,0);
+	
+	color:rgb(255,255,255);
+}
+
+button.red:hover {
+	background: -webkit-gradient(linear, left top, left bottom, from(rgb(250,125,125)), to(rgb(145,15,15)));
+	background: -moz-linear-gradient(top, rgb(250,125,125), rgb(145,15,15));
+	background-color:rgb(208,55,46);
+	border:1px solid rgb(100,5,5);
 }
 
 button span {
@@ -249,10 +293,9 @@ UL.submenu A {
 /* Worklists */
 
 table.worklist {
-	border: 1px solid rgb(0, 102, 204);
-	background-image: url(bg_ltblue.jpg?v=2011011801);
-	background-repeat: repeat-x;
-	background-color: rgb(140, 175, 229);
+	background: -webkit-gradient(linear, left top, left bottom, from(rgb(134,169,227)), to(rgb(98,132,221)));
+	background: -moz-linear-gradient(top, rgb(134,169,227), rgb(98,132,221));
+	background-color:rgb(134,169,227);
 }
 
 table.worklist td {
@@ -266,6 +309,7 @@ table.worklist td a {
 }
 
 table.worklist td span.title {
+	padding:5px;
 	color: rgb(255, 255, 255);
 	font-weight:bold;
 	font-size:18px;
@@ -298,6 +342,7 @@ table.worklistBody td a.subject {
 	font-weight: bold;
 	color: rgb(80,80,80);
 }
+
 table.worklistBody tr.even {
 	background-color:rgb(254,254,254); 
 }
@@ -307,7 +352,19 @@ table.worklistBody tr.odd {
 }
 
 table.worklistBody tr.hover {
-	background-color: rgb(255, 255, 206); 
+	background-color: rgb(255,255,120); 
+}
+
+table.worklistBody tr.even.selected {
+	background-color: rgb(255,255,205); 
+}
+
+table.worklistBody tr.odd.selected {
+	background-color: rgb(255,255,205);
+}
+
+table.worklistBody tr.even.selected.hover, table.worklistBody tr.odd.selected.hover {
+	background-color: rgb(255,255,120); 
 }
 
 /* Divs */

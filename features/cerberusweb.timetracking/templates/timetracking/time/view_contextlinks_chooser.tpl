@@ -49,7 +49,7 @@
 		{assign var=worker_name value=$generic_worker}
 	{/if}
 	
-	<tbody onmouseover="$(this).find('tr').addClass('hover');" onmouseout="$(this).find('tr').removeClass('hover');">
+	<tbody style="cursor:pointer;">
 		<tr class="{$tableRowClass}">
 			{if isset($activities.$activity_id->name)}
 				{$title = 'timetracking.ui.tracked_desc'|devblocks_translate:$worker_name:$result.tt_time_actual_mins:$activities.$activity_id->name}

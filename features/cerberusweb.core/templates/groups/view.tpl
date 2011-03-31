@@ -50,7 +50,7 @@
 	{else}
 		{assign var=tableRowClass value="odd"}
 	{/if}
-	<tbody onmouseover="$(this).find('tr').addClass('hover');" onmouseout="$(this).find('tr').removeClass('hover');">
+	<tbody style="cursor:pointer;">
 		<tr class="{$tableRowClass}">
 			<td align="center"><input type="checkbox" name="row_id[]" value="{$result.g_id}"></td>
 		{foreach from=$view->view_columns item=column name=columns}

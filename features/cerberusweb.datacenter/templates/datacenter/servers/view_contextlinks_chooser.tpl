@@ -38,7 +38,7 @@
 	{else}
 		{assign var=tableRowClass value="odd"}
 	{/if}
-	<tbody onmouseover="$(this).find('tr').addClass('hover');" onmouseout="$(this).find('tr').removeClass('hover');">
+	<tbody style="cursor:pointer;">
 		<tr class="{$tableRowClass}">
 			<td align="center" rowspan="2"><input type="checkbox" name="row_id[]" title="{$result.s_name}" value="{$result.s_id}"></td>
 			<td colspan="{math equation="x" x=$smarty.foreach.headers.total}">

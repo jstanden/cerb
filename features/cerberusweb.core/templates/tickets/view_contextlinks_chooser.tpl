@@ -51,7 +51,7 @@
 	</tbody>
 	
 	{else}
-	<tbody onmouseover="$(this).find('tr').addClass('hover');" onmouseout="$(this).find('tr').removeClass('hover');">
+	<tbody style="cursor:pointer;">
 	<tr class="{$tableRowClass}">
 		<td align="center" rowspan="2"><input type="checkbox" name="ticket_id[]" title="[#{$result.t_mask}] {$result.t_subject}" value="{$result.t_id}"></td>
 		<td colspan="{math equation="x" x=$smarty.foreach.headers.total}">

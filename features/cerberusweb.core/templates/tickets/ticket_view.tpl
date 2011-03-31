@@ -44,7 +44,9 @@
 				{* Column Headers *}
 				<thead>
 				<tr>
-					<th style="text-align:center"><input type="checkbox" onclick="checkAll('viewForm{$view->id}',this.checked);this.blur();"></th>
+					<th style="text-align:center">
+						<input type="checkbox" onclick="checkAll('viewForm{$view->id}',this.checked);this.blur();$rows=$(this).closest('table').find('tbody > tr');if($(this).is(':checked')) { $rows.addClass('selected'); } else { $rows.removeClass('selected'); }">
+					</th>
 					{foreach from=$view->view_columns item=header name=headers}
 						{* start table header, insert column title and link *}
 						<th>
@@ -89,7 +91,7 @@
 				</tbody>
 				
 				{else}
-				<tbody onmouseover="$(this).find('tr').addClass('hover');" onmouseout="$(this).find('tr').removeClass('hover');">
+				<tbody style="cursor:pointer;">
 				<tr class="{$tableRowClass}">
 					<td align="center" rowspan="2"><input type="checkbox" name="ticket_id[]" value="{$result.t_id}"></td>
 					<td colspan="{math equation="x" x=$smarty.foreach.headers.total}">

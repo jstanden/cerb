@@ -38,7 +38,7 @@
 	{else}
 		{assign var=tableRowClass value="odd"}
 	{/if}
-	<tbody onmouseover="$(this).find('tr').addClass('hover');" onmouseout="$(this).find('tr').removeClass('hover');">
+	<tbody style="cursor:pointer;">
 		<tr class="{$tableRowClass}">
 			<td align="center" rowspan="2"><input type="checkbox" name="row_id[]" title="{$result.a_email}" value="{$result.a_id}"></td>
 			<td colspan="{math equation="x" x=$smarty.foreach.headers.total}">{if $result.a_is_banned}(banned) {/if}<b class="subject">{$result.a_email}</b></td>
