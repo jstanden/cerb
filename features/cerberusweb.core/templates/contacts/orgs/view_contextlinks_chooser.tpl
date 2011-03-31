@@ -31,6 +31,7 @@
 	</tr>
 
 	{* Column Data *}
+	{$object_watchers = DAO_ContextLink::getContextLinks(CerberusContexts::CONTEXT_ORG, array_keys($data), CerberusContexts::CONTEXT_WORKER)}
 	{foreach from=$data item=result key=idx name=results}
 
 	{if $smarty.foreach.results.iteration % 2}
@@ -44,7 +45,6 @@
 			<td colspan="{math equation="x" x=$smarty.foreach.headers.total}">
 				<b class="subject">{$result.c_name}</b>
 
-				{$object_watchers = DAO_ContextLink::getContextLinks(CerberusContexts::CONTEXT_ORG, array_keys($data), CerberusContexts::CONTEXT_WORKER)}
 				{if isset($object_watchers.{$result.c_id})}
 				<div style="display:inline;padding-left:5px;">
 				{foreach from=$object_watchers.{$result.c_id} key=worker_id item=worker name=workers}

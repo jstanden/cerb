@@ -45,6 +45,7 @@
 	</tr>
 
 	{* Column Data *}
+	{$object_watchers = DAO_ContextLink::getContextLinks(Context_ExampleObject::ID, array_keys($data), CerberusContexts::CONTEXT_WORKER)}
 	{foreach from=$data item=result key=idx name=results}
 
 	{if $smarty.foreach.results.iteration % 2}
@@ -59,7 +60,6 @@
 				<a href="{devblocks_url}c=example.objects&p=profile&id={$result.e_id}{/devblocks_url}" class="subject">{$result.e_name}</a> 
 				<a href="javascript:;" onclick="genericAjaxPopup('peek','c=example.objects&a=showEntryPopup&id={$result.e_id}&view_id={$view->id}',null,false,'500');"><span class="ui-icon ui-icon-newwin" style="display:inline-block;vertical-align:middle;" title="{$translate->_('views.peek')}"></span></a>
 				
-				{$object_watchers = DAO_ContextLink::getContextLinks(Context_ExampleObject::ID, array_keys($data), CerberusContexts::CONTEXT_WORKER)}
 				{if isset($object_watchers.{$result.e_id})}
 				<div style="display:inline;padding-left:5px;">
 				{foreach from=$object_watchers.{$result.e_id} key=worker_id item=worker name=workers}

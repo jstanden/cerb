@@ -31,6 +31,7 @@
 	</tr>
 
 	{* Column Data *}
+	{$object_watchers = DAO_ContextLink::getContextLinks(CerberusContexts::CONTEXT_TICKET, array_keys($data), CerberusContexts::CONTEXT_WORKER)}
 	{foreach from=$data item=result key=idx name=results}
 
 	{if $smarty.foreach.results.iteration % 2}
@@ -57,7 +58,6 @@
 		<td colspan="{math equation="x" x=$smarty.foreach.headers.total}">
 			<a href="{devblocks_url}c=display&id={$result.t_mask}{/devblocks_url}" class="subject" target="_blank">{if $result.t_is_deleted}<span class="cerb-sprite sprite-delete2_gray"></span> {elseif $result.t_is_closed}<span class="cerb-sprite sprite-check_gray" title="{$translate->_('status.closed')}"></span> {elseif $result.t_is_waiting}<span class="cerb-sprite sprite-clock"></span> {/if}{$result.t_subject}</a>
 			
-			{$object_watchers = DAO_ContextLink::getContextLinks(CerberusContexts::CONTEXT_TICKET, array_keys($data), CerberusContexts::CONTEXT_WORKER)}
 			{if isset($object_watchers.{$result.t_id})}
 			<div style="display:inline;padding-left:5px;">
 			{foreach from=$object_watchers.{$result.t_id} key=worker_id item=worker name=workers}
