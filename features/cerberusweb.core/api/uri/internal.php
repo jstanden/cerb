@@ -1700,7 +1700,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		$tpl->assign('context_id', $context_id);
 
 		// Automatically tell anybody associated with this context object
-		$workers = CerberusContexts::getWorkers($context, $context_id);
+		$workers = CerberusContexts::getWatchers($context, $context_id);
 		if(isset($workers[$active_worker->id]))
 			unset($workers[$active_worker->id]);
 		$tpl->assign('notify_workers', $workers);

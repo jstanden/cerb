@@ -61,10 +61,10 @@
 			<td colspan="{math equation="x" x=$smarty.foreach.headers.total}">
 				<a href="{devblocks_url}c=contacts&tab=orgs&page=display&id={$result.c_id}{/devblocks_url}" class="subject">{$result.c_name}</a> <a href="javascript:;" onclick="genericAjaxPopup('peek','c=contacts&a=showOrgPeek&id={$result.c_id}&view_id={$view->id}',null,false,'600');"><span class="ui-icon ui-icon-newwin" style="display:inline-block;vertical-align:middle;" title="{$translate->_('views.peek')}"></span></a>
 				
-				{$object_workers = DAO_ContextLink::getContextLinks(CerberusContexts::CONTEXT_ORG, array_keys($data), CerberusContexts::CONTEXT_WORKER)}
-				{if isset($object_workers.{$result.c_id})}
+				{$object_watchers = DAO_ContextLink::getContextLinks(CerberusContexts::CONTEXT_ORG, array_keys($data), CerberusContexts::CONTEXT_WORKER)}
+				{if isset($object_watchers.{$result.c_id})}
 				<div style="display:inline;padding-left:5px;">
-				{foreach from=$object_workers.{$result.c_id} key=worker_id item=worker name=workers}
+				{foreach from=$object_watchers.{$result.c_id} key=worker_id item=worker name=workers}
 					{if isset($workers.{$worker_id})}
 						<span style="color:rgb(150,150,150);">
 						{$workers.{$worker_id}->getName()}{if !$smarty.foreach.workers.last}, {/if}

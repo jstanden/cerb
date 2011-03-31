@@ -697,7 +697,7 @@ class Context_Comment extends Extension_DevblocksContext {
 //		);
 		$view->addParams(array(
 //			SearchFields_Task::IS_COMPLETED => new DevblocksSearchCriteria(SearchFields_Task::IS_COMPLETED,'=',0),
-			//SearchFields_Task::VIRTUAL_WORKERS => new DevblocksSearchCriteria(SearchFields_Task::VIRTUAL_WORKERS,'in',array($active_worker->id)),
+			//SearchFields_Task::VIRTUAL_WATCHERS => new DevblocksSearchCriteria(SearchFields_Task::VIRTUAL_WATCHERS,'in',array($active_worker->id)),
 		), true);
 		$view->renderSortBy = SearchFields_Comment::CREATED;
 		$view->renderSortAsc = false;

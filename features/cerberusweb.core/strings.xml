@@ -291,12 +291,6 @@
 		<tu tuid='common.order'>
 			<tuv xml:lang="en_US"><seg>order</seg></tuv>
 		</tu>		
-		<tu tuid='common.owner'>
-			<tuv xml:lang="en_US"><seg>Owner</seg></tuv>
-		</tu>		
-		<tu tuid='common.owners'>
-			<tuv xml:lang="en_US"><seg>Owners</seg></tuv>
-		</tu>		
 		<tu tuid='common.languages'>
 			<tuv xml:lang="en_US"><seg>Languages</seg></tuv>
 		</tu>
@@ -440,6 +434,12 @@
 		</tu>
 		<tu tuid='common.url'>
 			<tuv xml:lang="en_US"><seg>URL</seg></tuv>
+		</tu>
+		<tu tuid='common.watcher'>
+			<tuv xml:lang="en_US"><seg>watcher</seg></tuv>
+		</tu>
+		<tu tuid='common.watchers'>
+			<tuv xml:lang="en_US"><seg>watchers</seg></tuv>
 		</tu>
 		<tu tuid='common.week'>
 			<tuv xml:lang="en_US"><seg>week</seg></tuv>

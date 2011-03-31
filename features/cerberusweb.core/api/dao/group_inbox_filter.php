@@ -691,9 +691,9 @@ class Model_GroupInboxFilter {
 				case 'owner':
 					foreach($ticket_ids as $ticket_id) {
 						if(isset($params['add']) && is_array($params['add']))
-							CerberusContexts::addWorkers(CerberusContexts::CONTEXT_TICKET, $ticket_id, $params['add']);
+							CerberusContexts::addWatchers(CerberusContexts::CONTEXT_TICKET, $ticket_id, $params['add']);
 						if(isset($params['remove']) && is_array($params['remove']))
-							CerberusContexts::removeWorkers(CerberusContexts::CONTEXT_TICKET, $ticket_id, $params['remove']);
+							CerberusContexts::removeWatchers(CerberusContexts::CONTEXT_TICKET, $ticket_id, $params['remove']);
 					}
 					break;
 					

@@ -27,10 +27,10 @@
 <b>Mask:</b> {$ticket->mask} &nbsp; 
 <b>Internal ID:</b> {$ticket->id} &nbsp; 
 <br>
-{if !empty($context_workers)}
-	<b>{'common.owners'|devblocks_translate|capitalize}:</b> 
-	{foreach from=$context_workers item=context_worker name=context_workers}
-	{$context_worker->getName()}{if !$smarty.foreach.context_workers.last}, {/if}
+{if !empty($context_watchers)}
+	<b>{'common.watchers'|devblocks_translate|capitalize}:</b> 
+	{foreach from=$context_watchers item=context_worker name=context_watchers}
+	{$context_worker->getName()}{if !$smarty.foreach.context_watchers.last}, {/if}
 	{/foreach}	
 {/if}
 <br>

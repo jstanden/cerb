@@ -2396,11 +2396,6 @@ Se não solicitou esta operação, não clique no link em cima. O pedido expira 
         <seg>Próximo colaborador</seg>
       </tuv>
     </tu>
-    <tu tuid="ticket.owner">
-      <tuv xml:lang="pt_PT">
-        <seg>Dono</seg>
-      </tuv>
-    </tu>
     <tu tuid="ticket.requester">
       <tuv xml:lang="pt_PT">
         <seg>Requerente</seg>

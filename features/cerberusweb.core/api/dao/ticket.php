@@ -960,18 +960,18 @@ class DAO_Ticket extends C4_ORMHelper {
 			settype($param_key, 'string');
 
 			switch($param_key) {
-				case SearchFields_Ticket::VIRTUAL_WORKERS:
+				case SearchFields_Ticket::VIRTUAL_WATCHERS:
 					$has_multiple_values = true;
 					if(empty($param->value)) { // empty
 						if(DevblocksSearchCriteria::OPER_NIN == $param->operator || DevblocksSearchCriteria::OPER_NEQ == $param->operator) {
-							$join_sql .= "LEFT JOIN context_link AS context_owner ON (context_owner.from_context = 'cerberusweb.contexts.ticket' AND context_owner.from_context_id = t.id AND context_owner.to_context = 'cerberusweb.contexts.worker') ";
-							$where_sql .= "AND context_owner.to_context_id IS NOT NULL ";
+							$join_sql .= "LEFT JOIN context_link AS context_watcher ON (context_watcher.from_context = 'cerberusweb.contexts.ticket' AND context_watcher.from_context_id = t.id AND context_watcher.to_context = 'cerberusweb.contexts.worker') ";
+							$where_sql .= "AND context_watcher.to_context_id IS NOT NULL ";
 						} else {
-							$join_sql .= "LEFT JOIN context_link AS context_owner ON (context_owner.from_context = 'cerberusweb.contexts.ticket' AND context_owner.from_context_id = t.id AND context_owner.to_context = 'cerberusweb.contexts.worker') ";
-							$where_sql .= "AND context_owner.to_context_id IS NULL ";
+							$join_sql .= "LEFT JOIN context_link AS context_watcher ON (context_watcher.from_context = 'cerberusweb.contexts.ticket' AND context_watcher.from_context_id = t.id AND context_watcher.to_context = 'cerberusweb.contexts.worker') ";
+							$where_sql .= "AND context_watcher.to_context_id IS NULL ";
 						}
 					} else {
-						$join_sql .= sprintf("INNER JOIN context_link AS context_owner ON (context_owner.from_context = 'cerberusweb.contexts.ticket' AND context_owner.from_context_id = t.id AND context_owner.to_context = 'cerberusweb.contexts.worker' AND context_owner.to_context_id IN (%s)) ",
+						$join_sql .= sprintf("INNER JOIN context_link AS context_watcher ON (context_watcher.from_context = 'cerberusweb.contexts.ticket' AND context_watcher.from_context_id = t.id AND context_watcher.to_context = 'cerberusweb.contexts.worker' AND context_watcher.to_context_id IN (%s)) ",
 							implode(',', $param->value)
 						);
 					}
@@ -1135,7 +1135,7 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 	// Virtuals
 	const VIRTUAL_ASSIGNABLE = '*_assignable';
 	const VIRTUAL_STATUS = '*_status';
-	const VIRTUAL_WORKERS = '*_workers';
+	const VIRTUAL_WATCHERS = '*_workers';
 	
 	/**
 	 * @return DevblocksSearchField[]
@@ -1188,7 +1188,7 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 			
 			self::VIRTUAL_ASSIGNABLE => new DevblocksSearchField(self::VIRTUAL_ASSIGNABLE, '*', 'assignable', $translate->_('ticket.assignable')),
 			self::VIRTUAL_STATUS => new DevblocksSearchField(self::VIRTUAL_STATUS, '*', 'status', $translate->_('ticket.status')),
-			self::VIRTUAL_WORKERS => new DevblocksSearchField(self::VIRTUAL_WORKERS, '*', 'workers', $translate->_('common.owners')),
+			self::VIRTUAL_WATCHERS => new DevblocksSearchField(self::VIRTUAL_WATCHERS, '*', 'workers', $translate->_('common.watchers')),
 		);
 
 		$tables = DevblocksPlatform::getDatabaseTables();
@@ -1282,7 +1282,7 @@ class View_Ticket extends C4_AbstractView {
 			SearchFields_Ticket::CONTEXT_LINK_ID,
 			SearchFields_Ticket::VIRTUAL_ASSIGNABLE,
 			SearchFields_Ticket::VIRTUAL_STATUS,
-			SearchFields_Ticket::VIRTUAL_WORKERS,
+			SearchFields_Ticket::VIRTUAL_WATCHERS,
 		));
 		
 		$this->addParamsHidden(array(
@@ -1456,8 +1456,8 @@ class View_Ticket extends C4_AbstractView {
 			case 'worker':
 				$params = $this->getParams();
 				
-				if(!isset($params[SearchFields_Ticket::VIRTUAL_WORKERS]))
-					$params[SearchFields_Ticket::VIRTUAL_WORKERS] = new DevblocksSearchCriteria(SearchFields_Ticket::VIRTUAL_WORKERS,DevblocksSearchCriteria::OPER_NIN,array());
+				if(!isset($params[SearchFields_Ticket::VIRTUAL_WATCHERS]))
+					$params[SearchFields_Ticket::VIRTUAL_WATCHERS] = new DevblocksSearchCriteria(SearchFields_Ticket::VIRTUAL_WATCHERS,DevblocksSearchCriteria::OPER_NIN,array());
 				
 				$query_parts = DAO_Ticket::getSearchQueryComponents(
 					$this->view_columns,
@@ -1470,10 +1470,10 @@ class View_Ticket extends C4_AbstractView {
 				$where_sql = $query_parts['where'];				
 				
 				$sql = 
-					"SELECT context_owner.to_context_id as worker_id, count(t.id) as hits ".
+					"SELECT context_watcher.to_context_id as worker_id, count(t.id) as hits ".
 					$join_sql.
 					$where_sql.
-					"GROUP BY context_owner.to_context_id ";
+					"GROUP BY context_watcher.to_context_id ";
 		
 				$results = $db->GetArray($sql);
 				
@@ -1621,7 +1621,7 @@ class View_Ticket extends C4_AbstractView {
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__fulltext.tpl');
 				break;
 				
-			case SearchFields_Ticket::VIRTUAL_WORKERS:
+			case SearchFields_Ticket::VIRTUAL_WATCHERS:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context_worker.tpl');
 				break;
 				
@@ -1654,9 +1654,9 @@ class View_Ticket extends C4_AbstractView {
 				}
 				break;
 				
-			case SearchFields_Ticket::VIRTUAL_WORKERS:
+			case SearchFields_Ticket::VIRTUAL_WATCHERS:
 				if(empty($param->value)) {
-					echo "Owners <b>are not assigned</b>";
+					echo "There are no <b>watchers</b>";
 					
 				} elseif(is_array($param->value)) {
 					$workers = DAO_Worker::getAll();
@@ -1667,7 +1667,7 @@ class View_Ticket extends C4_AbstractView {
 							$strings[] = '<b>'.$workers[$worker_id]->getName().'</b>';
 					}
 					
-					echo sprintf("Owner is %s", implode(' or ', $strings));
+					echo sprintf("Watcher is %s", implode(' or ', $strings));
 				}
 				break;
 				
@@ -1868,7 +1868,7 @@ class View_Ticket extends C4_AbstractView {
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_FULLTEXT,array($value,$scope));
 				break;
 				
-			case SearchFields_Ticket::VIRTUAL_WORKERS:
+			case SearchFields_Ticket::VIRTUAL_WATCHERS:
 				@$worker_ids = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',array());
 				$criteria = new DevblocksSearchCriteria($field, 'in', $worker_ids);
 				break;
@@ -2267,7 +2267,7 @@ class Context_Ticket extends Extension_DevblocksContext {
 		);
 		$view->addParams(array(
 			SearchFields_Ticket::TICKET_CLOSED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',0),
-			SearchFields_Ticket::VIRTUAL_WORKERS => new DevblocksSearchCriteria(SearchFields_Ticket::VIRTUAL_WORKERS,null,array($active_worker->id)),
+			SearchFields_Ticket::VIRTUAL_WATCHERS => new DevblocksSearchCriteria(SearchFields_Ticket::VIRTUAL_WATCHERS,null,array($active_worker->id)),
 			SearchFields_Ticket::TICKET_TEAM_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_TEAM_ID,'in',array_keys($active_worker->getMemberships())),
 		), true);
 		$view->renderSortBy = SearchFields_Ticket::TICKET_UPDATED_DATE;

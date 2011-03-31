@@ -1071,16 +1071,6 @@
         <seg>Reihenfolge</seg>
       </tuv>
     </tu>
-    <tu tuid="common.owner">
-      <tuv xml:lang="de_DE">
-        <seg>Inhaber</seg>
-      </tuv>
-    </tu>
-    <tu tuid="common.owners">
-      <tuv xml:lang="de_DE">
-        <seg>Inhaber</seg>
-      </tuv>
-    </tu>
     <tu tuid="common.password">
       <tuv xml:lang="de_DE">
         <seg>Kennwort</seg>
@@ -4470,11 +4460,6 @@ login</seg>
     <tu tuid="ticket.next_worker">
       <tuv xml:lang="de_DE">
         <seg>Nächster Mitarbeiter</seg>
-      </tuv>
-    </tu>
-    <tu tuid="ticket.owner">
-      <tuv xml:lang="de_DE">
-        <seg>Besitzer</seg>
       </tuv>
     </tu>
     <tu tuid="ticket.priority">

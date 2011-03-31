@@ -1666,11 +1666,6 @@
         <seg>Prossimo Utente</seg>
       </tuv>
     </tu>
-    <tu tuid="ticket.owner">
-      <tuv xml:lang="it_IT">
-        <seg>Proprietario</seg>
-      </tuv>
-    </tu>
     <tu tuid="ticket.priority">
       <tuv xml:lang="it_IT">
         <seg>Priorità</seg>

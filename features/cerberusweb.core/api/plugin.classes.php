@@ -434,7 +434,7 @@ XML;
 };
 
 class Event_NotificationReceivedByWorker extends Extension_DevblocksEvent {
-	const ID = 'event.notification.received.owner';
+	const ID = 'event.notification.received.worker';
 	
 	static function trigger($notification_id, $worker_id) {
 		$events = DevblocksPlatform::getEventService();
@@ -589,7 +589,7 @@ class Event_NotificationReceivedByWorker extends Extension_DevblocksEvent {
 };
 
 class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
-	const ID = 'event.mail.received.owner';
+	const ID = 'event.mail.received.watcher';
 	
 	static function trigger($message_id, $worker_id) {
 		$events = DevblocksPlatform::getEventService();

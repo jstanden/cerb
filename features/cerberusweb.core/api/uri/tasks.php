@@ -153,8 +153,8 @@ class ChTasksPage extends CerberusPageExtension {
 		$tpl->assign('last_comment', $last_comment);
 
 		// Workers
-		$context_workers = CerberusContexts::getWorkers(CerberusContexts::CONTEXT_TASK, $id);
-		$tpl->assign('context_workers', $context_workers);
+		$context_watchers = CerberusContexts::getWatchers(CerberusContexts::CONTEXT_TASK, $id);
+		$tpl->assign('context_watchers', $context_watchers);
 		
 		// View
 		$tpl->assign('id', $id);
@@ -224,7 +224,7 @@ class ChTasksPage extends CerberusPageExtension {
 
 			// Workers
 			@$worker_ids = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',array());
-			CerberusContexts::setWorkers(CerberusContexts::CONTEXT_TASK, $id, $worker_ids);
+			CerberusContexts::setWatchers(CerberusContexts::CONTEXT_TASK, $id, $worker_ids);
 			
 			// Custom field saves
 			@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', array());
@@ -304,19 +304,19 @@ class ChTasksPage extends CerberusPageExtension {
 		if(0 != strlen($status))
 			$do['status'] = $status;
 			
-		// Owners
-		$owner_params = array();
+		// Watchers
+		$watcher_params = array();
 		
-		@$owner_add_ids = DevblocksPlatform::importGPC($_REQUEST['do_owner_add_ids'],'array',array());
-		if(!empty($owner_add_ids))
-			$owner_params['add'] = $owner_add_ids;
+		@$watcher_add_ids = DevblocksPlatform::importGPC($_REQUEST['do_watcher_add_ids'],'array',array());
+		if(!empty($watcher_add_ids))
+			$watcher_params['add'] = $watcher_add_ids;
 			
-		@$owner_remove_ids = DevblocksPlatform::importGPC($_REQUEST['do_owner_remove_ids'],'array',array());
-		if(!empty($owner_remove_ids))
-			$owner_params['remove'] = $owner_remove_ids;
+		@$watcher_remove_ids = DevblocksPlatform::importGPC($_REQUEST['do_watcher_remove_ids'],'array',array());
+		if(!empty($watcher_remove_ids))
+			$watcher_params['remove'] = $watcher_remove_ids;
 		
-		if(!empty($owner_params))
-			$do['owner'] = $owner_params;
+		if(!empty($watcher_params))
+			$do['watchers'] = $watcher_params;
 			
 		// Do: Custom fields
 		$do = DAO_CustomFieldValue::handleBulkPost($do);

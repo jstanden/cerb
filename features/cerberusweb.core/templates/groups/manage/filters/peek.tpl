@@ -228,7 +228,7 @@
 	<tr>
 		{assign var=act_owner value=$filter->actions.owner}
 		<td nowrap="nowrap" valign="top">
-			<label><input id="chkDoAssign" type="checkbox" name="do[]" value="owner" {if isset($act_owner)}checked="checked"{/if}> {'common.owners'|devblocks_translate|capitalize}:</label>
+			<label><input id="chkDoAssign" type="checkbox" name="do[]" value="owner" {if isset($act_owner)}checked="checked"{/if}> {'common.watchers'|devblocks_translate|capitalize}:</label>
 		</td>
 		<td>
 			<button type="button" class="chooser_worker"><span class="cerb-sprite sprite-view"></span></button>

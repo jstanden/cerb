@@ -168,13 +168,13 @@ class DAO_ExampleObject extends C4_ORMHelper {
 			$param_key = $param->field;
 			settype($param_key, 'string');
 			switch($param_key) {
-				case SearchFields_ExampleObject::VIRTUAL_WORKERS:
+				case SearchFields_ExampleObject::VIRTUAL_WATCHERS:
 					$has_multiple_values = true;
 					if(empty($param->value)) { // empty
-						$join_sql .= sprintf("LEFT JOIN context_link AS context_owner ON (context_owner.from_context = %s AND context_owner.from_context_id = example_object.id AND context_owner.to_context = 'cerberusweb.contexts.worker') ", C4_ORMHelper::qstr(Context_ExampleObject::ID));
-						$where_sql .= "AND context_owner.to_context_id IS NULL ";
+						$join_sql .= sprintf("LEFT JOIN context_link AS context_watcher ON (context_watcher.from_context = %s AND context_watcher.from_context_id = example_object.id AND context_watcher.to_context = 'cerberusweb.contexts.worker') ", C4_ORMHelper::qstr(Context_ExampleObject::ID));
+						$where_sql .= "AND context_watcher.to_context_id IS NULL ";
 					} else {
-						$join_sql .= sprintf("INNER JOIN context_link AS context_owner ON (context_owner.from_context = %s AND context_owner.from_context_id = example_object.id AND context_owner.to_context = 'cerberusweb.contexts.worker' AND context_owner.to_context_id IN (%s)) ",
+						$join_sql .= sprintf("INNER JOIN context_link AS context_watcher ON (context_watcher.from_context = %s AND context_watcher.from_context_id = example_object.id AND context_watcher.to_context = 'cerberusweb.contexts.worker' AND context_watcher.to_context_id IN (%s)) ",
 							C4_ORMHelper::qstr(Context_ExampleObject::ID),
 							implode(',', $param->value)
 						);
@@ -267,7 +267,7 @@ class SearchFields_ExampleObject implements IDevblocksSearchFields {
 	const CONTEXT_LINK = 'cl_context_from';
 	const CONTEXT_LINK_ID = 'cl_context_from_id';
 	
-	const VIRTUAL_WORKERS = '*_workers';
+	const VIRTUAL_WATCHERS = '*_workers';
 	
 	/**
 	 * @return DevblocksSearchField[]
@@ -283,7 +283,7 @@ class SearchFields_ExampleObject implements IDevblocksSearchFields {
 			self::CONTEXT_LINK => new DevblocksSearchField(self::CONTEXT_LINK, 'context_link', 'from_context', null),
 			self::CONTEXT_LINK_ID => new DevblocksSearchField(self::CONTEXT_LINK_ID, 'context_link', 'from_context_id', null),
 			
-			self::VIRTUAL_WORKERS => new DevblocksSearchField(self::VIRTUAL_WORKERS, '*', 'workers', $translate->_('common.owners')),
+			self::VIRTUAL_WATCHERS => new DevblocksSearchField(self::VIRTUAL_WATCHERS, '*', 'workers', $translate->_('common.watchers')),
 		);
 		
 		// Custom Fields
@@ -327,7 +327,7 @@ class View_ExampleObject extends C4_AbstractView {
 			SearchFields_ExampleObject::ID,
 			SearchFields_ExampleObject::CONTEXT_LINK,
 			SearchFields_ExampleObject::CONTEXT_LINK_ID,
-			SearchFields_ExampleObject::VIRTUAL_WORKERS,
+			SearchFields_ExampleObject::VIRTUAL_WATCHERS,
 		));
 		
 		$this->addParamsHidden(array(
@@ -380,9 +380,9 @@ class View_ExampleObject extends C4_AbstractView {
 		$key = $param->field;
 		
 		switch($key) {
-			case SearchFields_ExampleObject::VIRTUAL_WORKERS:
+			case SearchFields_ExampleObject::VIRTUAL_WATCHERS:
 				if(empty($param->value)) {
-					echo "Owners <b>are not assigned</b>";
+					echo "There are no <b>watchers</b>";
 					
 				} elseif(is_array($param->value)) {
 					$workers = DAO_Worker::getAll();
@@ -393,7 +393,7 @@ class View_ExampleObject extends C4_AbstractView {
 							$strings[] = '<b>'.$workers[$worker_id]->getName().'</b>';
 					}
 					
-					echo sprintf("Owner is %s", implode(' or ', $strings));
+					echo sprintf("Watcher is %s", implode(' or ', $strings));
 				}
 				break;
 		}
@@ -416,7 +416,7 @@ class View_ExampleObject extends C4_AbstractView {
 			case SearchFields_ExampleObject::CREATED:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__date.tpl');
 				break;
-			case SearchFields_ExampleObject::VIRTUAL_WORKERS:
+			case SearchFields_ExampleObject::VIRTUAL_WATCHERS:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context_worker.tpl');
 				break;
 			default:
@@ -477,7 +477,7 @@ class View_ExampleObject extends C4_AbstractView {
 				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
 				break;
 				
-			case SearchFields_ExampleObject::VIRTUAL_WORKERS:
+			case SearchFields_ExampleObject::VIRTUAL_WATCHERS:
 				@$worker_ids = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',array());
 				$criteria = new DevblocksSearchCriteria($field,'in', $worker_ids);
 				break;
@@ -554,14 +554,14 @@ class View_ExampleObject extends C4_AbstractView {
 			// Custom Fields
 			self::_doBulkSetCustomFields(Context_ExampleObject::ID, $custom_fields, $batch_ids);
 			
-			// Owners
-			if(isset($do['owner']) && is_array($do['owner'])) {
-				$owner_params = $do['owner'];
+			// Watchers
+			if(isset($do['watchers']) && is_array($do['watchers'])) {
+				$watcher_params = $do['watchers'];
 				foreach($batch_ids as $batch_id) {
-					if(isset($owner_params['add']) && is_array($owner_params['add']))
-						CerberusContexts::addWorkers(Context_ExampleObject::ID, $batch_id, $owner_params['add']);
-					if(isset($owner_params['remove']) && is_array($owner_params['remove']))
-						CerberusContexts::removeWorkers(Context_ExampleObject::ID, $batch_id, $owner_params['remove']);
+					if(isset($watcher_params['add']) && is_array($watcher_params['add']))
+						CerberusContexts::addWatchers(Context_ExampleObject::ID, $batch_id, $watcher_params['add']);
+					if(isset($watcher_params['remove']) && is_array($watcher_params['remove']))
+						CerberusContexts::removeWatchers(Context_ExampleObject::ID, $batch_id, $watcher_params['remove']);
 				}
 			}
 			

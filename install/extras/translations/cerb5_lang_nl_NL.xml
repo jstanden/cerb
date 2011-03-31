@@ -1071,16 +1071,6 @@
         <seg>volgorde</seg>
       </tuv>
     </tu>
-    <tu tuid="common.owner">
-      <tuv xml:lang="nl_NL">
-        <seg>Eigenaar</seg>
-      </tuv>
-    </tu>
-    <tu tuid="common.owners">
-      <tuv xml:lang="nl_NL">
-        <seg>Eigenaren</seg>
-      </tuv>
-    </tu>
     <tu tuid="common.password">
       <tuv xml:lang="nl_NL">
         <seg>wachtwoord</seg>

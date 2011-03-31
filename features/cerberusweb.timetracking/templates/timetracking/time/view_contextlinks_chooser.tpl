@@ -61,10 +61,10 @@
 				{if $result.tt_is_closed}<span class="cerb-sprite sprite-check_gray" title=""></span>{/if}
 				<a href="javascript:;" onclick="genericAjaxPopup('peek','c=timetracking&a=showEntry&id={$result.tt_id}&view_id={$view->id}',null,false,'500');" class="subject">{$title}</a>
 				
-				{$object_workers = DAO_ContextLink::getContextLinks(CerberusContexts::CONTEXT_TIMETRACKING, array_keys($data), CerberusContexts::CONTEXT_WORKER)}
-				{if isset($object_workers.{$result.tt_id})}
+				{$object_watchers = DAO_ContextLink::getContextLinks(CerberusContexts::CONTEXT_TIMETRACKING, array_keys($data), CerberusContexts::CONTEXT_WORKER)}
+				{if isset($object_watchers.{$result.tt_id})}
 				<div style="display:inline;padding-left:5px;">
-				{foreach from=$object_workers.{$result.tt_id} key=worker_id item=worker name=workers}
+				{foreach from=$object_watchers.{$result.tt_id} key=worker_id item=worker name=workers}
 					{if isset($workers.{$worker_id})}
 						<span style="color:rgb(150,150,150);">
 						{$workers.{$worker_id}->getName()}{if !$smarty.foreach.workers.last}, {/if}

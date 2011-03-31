@@ -234,8 +234,8 @@ class CrmPage extends CerberusPageExtension {
 		$tpl->assign('last_comment', $last_comment);
 		
 		// Workers
-		$context_workers = CerberusContexts::getWorkers(CerberusContexts::CONTEXT_OPPORTUNITY, $opp_id);
-		$tpl->assign('context_workers', $context_workers);
+		$context_watchers = CerberusContexts::getWatchers(CerberusContexts::CONTEXT_OPPORTUNITY, $opp_id);
+		$tpl->assign('context_watchers', $context_watchers);
 		
 		$tpl->display('devblocks:cerberusweb.crm::crm/opps/rpc/peek.tpl');
 	}
@@ -334,9 +334,9 @@ class CrmPage extends CerberusPageExtension {
 		}
 		
 		if(!empty($opp_id)) {
-			// Owners
+			// Watchers
 			@$worker_ids = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',array());
-			CerberusContexts::setWorkers(CerberusContexts::CONTEXT_OPPORTUNITY, $opp_id, $worker_ids);
+			CerberusContexts::setWatchers(CerberusContexts::CONTEXT_OPPORTUNITY, $opp_id, $worker_ids);
 			
 			// Custom fields
 			@$field_ids = DevblocksPlatform::importGPC($_REQUEST['field_ids'], 'array', array());
@@ -532,19 +532,19 @@ class CrmPage extends CerberusPageExtension {
 		if(0 != strlen($worker_id))
 			$do['worker_id'] = $worker_id;
 			
-		// Owners
-		$owner_options = array();
+		// Watchers
+		$watcher_params = array();
 		
-		@$owner_add_ids = DevblocksPlatform::importGPC($_REQUEST['do_owner_add_ids'],'array',array());
-		if(!empty($owner_add_ids))
-			$owner_params['add'] = $owner_add_ids;
+		@$watcher_add_ids = DevblocksPlatform::importGPC($_REQUEST['do_watcher_add_ids'],'array',array());
+		if(!empty($watcher_add_ids))
+			$watcher_params['add'] = $watcher_add_ids;
 			
-		@$owner_remove_ids = DevblocksPlatform::importGPC($_REQUEST['do_owner_remove_ids'],'array',array());
-		if(!empty($owner_remove_ids))
-			$owner_params['remove'] = $owner_remove_ids;
+		@$watcher_remove_ids = DevblocksPlatform::importGPC($_REQUEST['do_watcher_remove_ids'],'array',array());
+		if(!empty($watcher_remove_ids))
+			$watcher_params['remove'] = $watcher_remove_ids;
 		
-		if(!empty($owner_params))
-			$do['owner'] = $owner_params;
+		if(!empty($watcher_params))
+			$do['watchers'] = $watcher_params;
 			
 		// Broadcast: Mass Reply
 		if($active_worker->hasPriv('crm.opp.view.actions.broadcast')) {
@@ -1241,13 +1241,13 @@ class DAO_CrmOpportunity extends C4_ORMHelper {
 			$param_key = $param->field;
 			settype($param_key, 'string');
 			switch($param_key) {
-				case SearchFields_CrmOpportunity::VIRTUAL_WORKERS:
+				case SearchFields_CrmOpportunity::VIRTUAL_WATCHERS:
 					$has_multiple_values = true;
 					if(empty($param->value)) { // empty
-						$join_sql .= "LEFT JOIN context_link AS context_owner ON (context_owner.from_context = 'cerberusweb.contexts.opportunity' AND context_owner.from_context_id = o.id AND context_owner.to_context = 'cerberusweb.contexts.worker') ";
-						$where_sql .= "AND context_owner.to_context_id IS NULL ";
+						$join_sql .= "LEFT JOIN context_link AS context_watcher ON (context_watcher.from_context = 'cerberusweb.contexts.opportunity' AND context_watcher.from_context_id = o.id AND context_watcher.to_context = 'cerberusweb.contexts.worker') ";
+						$where_sql .= "AND context_watcher.to_context_id IS NULL ";
 					} else {
-						$join_sql .= sprintf("INNER JOIN context_link AS context_owner ON (context_owner.from_context = 'cerberusweb.contexts.opportunity' AND context_owner.from_context_id = o.id AND context_owner.to_context = 'cerberusweb.contexts.worker' AND context_owner.to_context_id IN (%s)) ",
+						$join_sql .= sprintf("INNER JOIN context_link AS context_watcher ON (context_watcher.from_context = 'cerberusweb.contexts.opportunity' AND context_watcher.from_context_id = o.id AND context_watcher.to_context = 'cerberusweb.contexts.worker' AND context_watcher.to_context_id IN (%s)) ",
 							implode(',', $param->value)
 						);
 					}
@@ -1350,7 +1350,7 @@ class SearchFields_CrmOpportunity implements IDevblocksSearchFields {
 	const CONTEXT_LINK = 'cl_context_from';
 	const CONTEXT_LINK_ID = 'cl_context_from_id';
 	
-	const VIRTUAL_WORKERS = '*_workers';
+	const VIRTUAL_WATCHERS = '*_workers';
 	
 	/**
 	 * @return DevblocksSearchField[]
@@ -1382,7 +1382,7 @@ class SearchFields_CrmOpportunity implements IDevblocksSearchFields {
 			self::CONTEXT_LINK => new DevblocksSearchField(self::CONTEXT_LINK, 'context_link', 'from_context', null),
 			self::CONTEXT_LINK_ID => new DevblocksSearchField(self::CONTEXT_LINK_ID, 'context_link', 'from_context_id', null),
 			
-			self::VIRTUAL_WORKERS => new DevblocksSearchField(self::VIRTUAL_WORKERS, '*', 'workers', $translate->_('common.owners')),
+			self::VIRTUAL_WATCHERS => new DevblocksSearchField(self::VIRTUAL_WATCHERS, '*', 'workers', $translate->_('common.watchers')),
 		);
 		
 		// Custom Fields
@@ -1435,7 +1435,7 @@ class View_CrmOpportunity extends C4_AbstractView {
 			SearchFields_CrmOpportunity::ORG_ID,
 			SearchFields_CrmOpportunity::CONTEXT_LINK,
 			SearchFields_CrmOpportunity::CONTEXT_LINK_ID,
-			SearchFields_CrmOpportunity::VIRTUAL_WORKERS
+			SearchFields_CrmOpportunity::VIRTUAL_WATCHERS
 		));
 		
 		$this->addParamsDefault(array(
@@ -1493,9 +1493,9 @@ class View_CrmOpportunity extends C4_AbstractView {
 		$key = $param->field;
 		
 		switch($key) {
-			case SearchFields_CrmOpportunity::VIRTUAL_WORKERS:
+			case SearchFields_CrmOpportunity::VIRTUAL_WATCHERS:
 				if(empty($param->value)) {
-					echo "Owners <b>are not assigned</b>";
+					echo "There are no <b>watchers</b>";
 					
 				} elseif(is_array($param->value)) {
 					$workers = DAO_Worker::getAll();
@@ -1506,7 +1506,7 @@ class View_CrmOpportunity extends C4_AbstractView {
 							$strings[] = '<b>'.$workers[$worker_id]->getName().'</b>';
 					}
 					
-					echo sprintf("Owner is %s", implode(' or ', $strings));
+					echo sprintf("Watcher is %s", implode(' or ', $strings));
 				}
 				break;
 		}
@@ -1542,7 +1542,7 @@ class View_CrmOpportunity extends C4_AbstractView {
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__date.tpl');
 				break;
 				
-			case SearchFields_CrmOpportunity::VIRTUAL_WORKERS:
+			case SearchFields_CrmOpportunity::VIRTUAL_WATCHERS:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context_worker.tpl');
 				break;
 				
@@ -1613,7 +1613,7 @@ class View_CrmOpportunity extends C4_AbstractView {
 				$criteria = new DevblocksSearchCriteria($field,$oper,array($from,$to));
 				break;
 				
-			case SearchFields_CrmOpportunity::VIRTUAL_WORKERS:
+			case SearchFields_CrmOpportunity::VIRTUAL_WATCHERS:
 				@$worker_ids = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',array());
 				$criteria = new DevblocksSearchCriteria($field,'in', $worker_ids);
 				break;
@@ -1761,14 +1761,14 @@ class View_CrmOpportunity extends C4_AbstractView {
 			// Custom Fields
 			self::_doBulkSetCustomFields(CerberusContexts::CONTEXT_OPPORTUNITY, $custom_fields, $batch_ids);
 			
-			// Owners
-			if(isset($do['owner']) && is_array($do['owner'])) {
-				$owner_params = $do['owner'];
+			// Watchers
+			if(isset($do['watchers']) && is_array($do['watchers'])) {
+				$watcher_params = $do['watchers'];
 				foreach($batch_ids as $batch_id) {
-					if(isset($owner_params['add']) && is_array($owner_params['add']))
-						CerberusContexts::addWorkers(CerberusContexts::CONTEXT_OPPORTUNITY, $batch_id, $owner_params['add']);
-					if(isset($owner_params['remove']) && is_array($owner_params['remove']))
-						CerberusContexts::removeWorkers(CerberusContexts::CONTEXT_OPPORTUNITY, $batch_id, $owner_params['remove']);
+					if(isset($watcher_params['add']) && is_array($watcher_params['add']))
+						CerberusContexts::addWatchers(CerberusContexts::CONTEXT_OPPORTUNITY, $batch_id, $watcher_params['add']);
+					if(isset($watcher_params['remove']) && is_array($watcher_params['remove']))
+						CerberusContexts::removeWatchers(CerberusContexts::CONTEXT_OPPORTUNITY, $batch_id, $watcher_params['remove']);
 				}
 			}
 			

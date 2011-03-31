@@ -127,8 +127,8 @@ class ChDisplayPage extends CerberusPageExtension {
 		$tpl->assign('requesters', $requesters);
 		
 		// Workers
-		$context_workers = CerberusContexts::getWorkers(CerberusContexts::CONTEXT_TICKET, $ticket->id);
-		$tpl->assign('context_workers', $context_workers);
+		$context_watchers = CerberusContexts::getWatchers(CerberusContexts::CONTEXT_TICKET, $ticket->id);
+		$tpl->assign('context_watchers', $context_watchers);
 		
 		$teams = DAO_Group::getAll();
 		$tpl->assign('teams', $teams);
@@ -302,9 +302,9 @@ class ChDisplayPage extends CerberusPageExtension {
 		
 		// Context workers
 		if($do_follow)
-			CerberusContexts::addWorkers(CerberusContexts::CONTEXT_TICKET, $id, array($active_worker->id));
+			CerberusContexts::addWatchers(CerberusContexts::CONTEXT_TICKET, $id, array($active_worker->id));
 		if($do_unfollow)
-			CerberusContexts::removeWorkers(CerberusContexts::CONTEXT_TICKET, $id, array($active_worker->id));
+			CerberusContexts::removeWatchers(CerberusContexts::CONTEXT_TICKET, $id, array($active_worker->id));
 
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('display',$ticket->mask)));
 		exit;
@@ -486,8 +486,8 @@ class ChDisplayPage extends CerberusPageExtension {
 		$tpl->assign('ticket',$ticket);
 
 		// Workers
-		$context_workers = CerberusContexts::getWorkers(CerberusContexts::CONTEXT_TICKET, $ticket->id);
-		$tpl->assign('context_workers', $context_workers);
+		$context_watchers = CerberusContexts::getWatchers(CerberusContexts::CONTEXT_TICKET, $ticket->id);
+		$tpl->assign('context_watchers', $context_watchers);
 		
 		// Are we continuing a draft?
 		@$draft_id = DevblocksPlatform::importGPC($_REQUEST['draft_id'],'integer',0);
@@ -578,7 +578,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		    'closed' => DevblocksPlatform::importGPC(@$_REQUEST['closed'],'integer',0),
 		    'bucket_id' => DevblocksPlatform::importGPC(@$_REQUEST['bucket_id'],'string',''),
 		    'ticket_reopen' => DevblocksPlatform::importGPC(@$_REQUEST['ticket_reopen'],'string',''),
-		    'context_workers' => $worker_ids,
+		    'context_watchers' => $worker_ids,
 		    'agent_id' => @$worker->id,
 		    'forward_files' => DevblocksPlatform::importGPC(@$_REQUEST['forward_files'],'array',array()),
 		);

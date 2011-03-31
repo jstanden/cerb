@@ -437,13 +437,13 @@ class DAO_TimeTrackingEntry extends C4_ORMHelper {
 			$param_key = $param->field;
 			settype($param_key, 'string');
 			switch($param_key) {
-				case SearchFields_TimeTrackingEntry::VIRTUAL_OWNERS:
+				case SearchFields_TimeTrackingEntry::VIRTUAL_WATCHERS:
 					$has_multiple_values = true;
 					if(empty($param->value)) { // empty
-						$join_sql .= "LEFT JOIN context_link AS context_owner ON (context_owner.from_context = 'cerberusweb.contexts.timetracking' AND context_owner.from_context_id = tt.id AND context_owner.to_context = 'cerberusweb.contexts.worker') ";
-						$where_sql .= "AND context_owner.to_context_id IS NULL ";
+						$join_sql .= "LEFT JOIN context_link AS context_watcher ON (context_watcher.from_context = 'cerberusweb.contexts.timetracking' AND context_watcher.from_context_id = tt.id AND context_watcher.to_context = 'cerberusweb.contexts.worker') ";
+						$where_sql .= "AND context_watcher.to_context_id IS NULL ";
 					} else {
-						$join_sql .= sprintf("INNER JOIN context_link AS context_owner ON (context_owner.from_context = 'cerberusweb.contexts.timetracking' AND context_owner.from_context_id = tt.id AND context_owner.to_context = 'cerberusweb.contexts.worker' AND context_owner.to_context_id IN (%s)) ",
+						$join_sql .= sprintf("INNER JOIN context_link AS context_watcher ON (context_watcher.from_context = 'cerberusweb.contexts.timetracking' AND context_watcher.from_context_id = tt.id AND context_watcher.to_context = 'cerberusweb.contexts.worker' AND context_watcher.to_context_id IN (%s)) ",
 							implode(',', $param->value)
 						);
 					}
@@ -543,7 +543,7 @@ class SearchFields_TimeTrackingEntry {
 	const CONTEXT_LINK = 'cl_context_from';
 	const CONTEXT_LINK_ID = 'cl_context_from_id';
 	
-	const VIRTUAL_OWNERS = '*_owners';
+	const VIRTUAL_WATCHERS = '*_owners';
 	
 	/**
 	 * @return DevblocksSearchField[]
@@ -562,7 +562,7 @@ class SearchFields_TimeTrackingEntry {
 			self::CONTEXT_LINK => new DevblocksSearchField(self::CONTEXT_LINK, 'context_link', 'from_context', null),
 			self::CONTEXT_LINK_ID => new DevblocksSearchField(self::CONTEXT_LINK_ID, 'context_link', 'from_context_id', null),
 			
-			self::VIRTUAL_OWNERS => new DevblocksSearchField(self::VIRTUAL_OWNERS, '*', 'owners', $translate->_('common.owners')),
+			self::VIRTUAL_WATCHERS => new DevblocksSearchField(self::VIRTUAL_WATCHERS, '*', 'owners', $translate->_('common.watchers')),
 		);
 		
 		// Custom Fields
@@ -599,7 +599,7 @@ class View_TimeTracking extends C4_AbstractView {
 			SearchFields_TimeTrackingEntry::ID,
 			SearchFields_TimeTrackingEntry::CONTEXT_LINK,
 			SearchFields_TimeTrackingEntry::CONTEXT_LINK_ID,
-			SearchFields_TimeTrackingEntry::VIRTUAL_OWNERS,
+			SearchFields_TimeTrackingEntry::VIRTUAL_WATCHERS,
 		));
 		
 		$this->addParamsHidden(array(
@@ -663,9 +663,9 @@ class View_TimeTracking extends C4_AbstractView {
 		$key = $param->field;
 		
 		switch($key) {
-			case SearchFields_TimeTrackingEntry::VIRTUAL_OWNERS:
+			case SearchFields_TimeTrackingEntry::VIRTUAL_WATCHERS:
 				if(empty($param->value)) {
-					echo "Owners <b>are not assigned</b>";
+					echo "There are no <b>watchers</b>";
 					
 				} elseif(is_array($param->value)) {
 					$workers = DAO_Worker::getAll();
@@ -676,7 +676,7 @@ class View_TimeTracking extends C4_AbstractView {
 							$strings[] = '<b>'.$workers[$worker_id]->getName().'</b>';
 					}
 					
-					echo sprintf("Owner is %s", implode(' or ', $strings));
+					echo sprintf("Watcher is %s", implode(' or ', $strings));
 				}
 				break;
 		}
@@ -703,7 +703,7 @@ class View_TimeTracking extends C4_AbstractView {
 			case SearchFields_TimeTrackingEntry::WORKER_ID:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context_worker.tpl');
 				break;
-			case SearchFields_TimeTrackingEntry::VIRTUAL_OWNERS:
+			case SearchFields_TimeTrackingEntry::VIRTUAL_WATCHERS:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context_worker.tpl');
 				break;
 			case SearchFields_TimeTrackingEntry::ACTIVITY_ID:
@@ -810,7 +810,7 @@ class View_TimeTracking extends C4_AbstractView {
 				@$worker_id = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',array());
 				$criteria = new DevblocksSearchCriteria($field,$oper,$worker_id);
 				break;
-			case SearchFields_TimeTrackingEntry::VIRTUAL_OWNERS:
+			case SearchFields_TimeTrackingEntry::VIRTUAL_WATCHERS:
 				@$worker_ids = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',array());
 				$criteria = new DevblocksSearchCriteria($field,'in', $worker_ids);
 				break;
@@ -884,14 +884,14 @@ class View_TimeTracking extends C4_AbstractView {
 			$batch_ids = array_slice($ids,$x,100);
 			DAO_TimeTrackingEntry::update($batch_ids, $change_fields);
 
-			// Owners
-			if(isset($do['owner']) && is_array($do['owner'])) {
-				$owner_params = $do['owner'];
+			// Watchers
+			if(isset($do['watchers']) && is_array($do['watchers'])) {
+				$watcher_params = $do['watchers'];
 				foreach($batch_ids as $batch_id) {
-					if(isset($owner_params['add']) && is_array($owner_params['add']))
-						CerberusContexts::addWorkers(CerberusContexts::CONTEXT_TIMETRACKING, $batch_id, $owner_params['add']);
-					if(isset($owner_params['remove']) && is_array($owner_params['remove']))
-						CerberusContexts::removeWorkers(CerberusContexts::CONTEXT_TIMETRACKING, $batch_id, $owner_params['remove']);
+					if(isset($watcher_params['add']) && is_array($watcher_params['add']))
+						CerberusContexts::addWatchers(CerberusContexts::CONTEXT_TIMETRACKING, $batch_id, $watcher_params['add']);
+					if(isset($watcher_params['remove']) && is_array($watcher_params['remove']))
+						CerberusContexts::removeWatchers(CerberusContexts::CONTEXT_TIMETRACKING, $batch_id, $watcher_params['remove']);
 				}
 			}
 			
@@ -1182,8 +1182,8 @@ class ChTimeTrackingPage extends CerberusPageExtension {
 		$tpl->assign('last_comment', $last_comment);
 		
 		// Workers
-		$context_workers = CerberusContexts::getWorkers(CerberusContexts::CONTEXT_TIMETRACKING, $id);
-		$tpl->assign('context_workers', $context_workers);
+		$context_watchers = CerberusContexts::getWatchers(CerberusContexts::CONTEXT_TIMETRACKING, $id);
+		$tpl->assign('context_watchers', $context_watchers);
 		
 		// Custom fields
 		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TIMETRACKING); 
@@ -1337,9 +1337,9 @@ class ChTimeTrackingPage extends CerberusPageExtension {
 			}
 		}
 		
-		// Owners
+		// Watchers
 		@$worker_ids = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',array());
-		CerberusContexts::setWorkers(CerberusContexts::CONTEXT_TIMETRACKING, $id, $worker_ids);
+		CerberusContexts::setWatchers(CerberusContexts::CONTEXT_TIMETRACKING, $id, $worker_ids);
 
 		// Custom field saves
 		@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', array());
@@ -1479,19 +1479,19 @@ class ChTimeTrackingPage extends CerberusPageExtension {
 		if(0 != strlen($is_closed))
 			$do['is_closed'] = !empty($is_closed) ? 1 : 0;
 
-		// Owners
-		$owner_options = array();
+		// Watchers
+		$watcher_params = array();
 		
-		@$owner_add_ids = DevblocksPlatform::importGPC($_REQUEST['do_owner_add_ids'],'array',array());
-		if(!empty($owner_add_ids))
-			$owner_params['add'] = $owner_add_ids;
+		@$watcher_add_ids = DevblocksPlatform::importGPC($_REQUEST['do_watcher_add_ids'],'array',array());
+		if(!empty($watcher_add_ids))
+			$watcher_params['add'] = $watcher_add_ids;
 			
-		@$owner_remove_ids = DevblocksPlatform::importGPC($_REQUEST['do_owner_remove_ids'],'array',array());
-		if(!empty($owner_remove_ids))
-			$owner_params['remove'] = $owner_remove_ids;
+		@$watcher_remove_ids = DevblocksPlatform::importGPC($_REQUEST['do_watcher_remove_ids'],'array',array());
+		if(!empty($watcher_remove_ids))
+			$watcher_params['remove'] = $watcher_remove_ids;
 		
-		if(!empty($owner_params))
-			$do['owner'] = $owner_params;
+		if(!empty($watcher_params))
+			$do['watchers'] = $watcher_params;
 		
 		// Do: Custom fields
 		$do = DAO_CustomFieldValue::handleBulkPost($do);

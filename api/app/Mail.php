@@ -326,9 +326,9 @@ class CerberusMail {
 		// Train as not spam
 		CerberusBayes::markTicketAsNotSpam($ticket_id);
 		
-        // Owners?
-        if(isset($properties['context_workers'])) {
-        	CerberusContexts::setWorkers(CerberusContexts::CONTEXT_TICKET, $ticket_id, $properties['context_workers']);
+        // Watchers?
+        if(isset($properties['context_watchers'])) {
+        	CerberusContexts::setWatchers(CerberusContexts::CONTEXT_TICKET, $ticket_id, $properties['context_watchers']);
         }
 		
         // Events
@@ -355,7 +355,7 @@ class CerberusMail {
 	    'files'
 	    'closed'
 	    'ticket_reopen'
-	    'context_workers'
+	    'context_watchers'
 	    'bucket_id'
 	    'agent_id',
 		'is_autoreply',
@@ -690,8 +690,8 @@ class CerberusMail {
 			}
 		}
 
-        if(isset($properties['context_workers'])) {
-        	CerberusContexts::setWorkers(CerberusContexts::CONTEXT_TICKET, $ticket_id, $properties['context_workers']);
+        if(isset($properties['context_watchers'])) {
+        	CerberusContexts::setWatchers(CerberusContexts::CONTEXT_TICKET, $ticket_id, $properties['context_watchers']);
         }
 		
 		// Move
@@ -711,10 +711,10 @@ class CerberusMail {
 			// Group
 			Event_MailReceivedByGroup::trigger($message_id, $group->id);
 			
-			// Owners
-			if(isset($properties['context_workers']) && is_array($properties['context_workers']))
-			foreach($properties['context_workers'] as $owner_id) {
-				Event_MailReceivedByWatcher::trigger($message_id, $owner_id);
+			// Watchers
+			if(isset($properties['context_watchers']) && is_array($properties['context_watchers']))
+			foreach($properties['context_watchers'] as $watcher_id) {
+				Event_MailReceivedByWatcher::trigger($message_id, $watcher_id);
 			}
 		}
 		

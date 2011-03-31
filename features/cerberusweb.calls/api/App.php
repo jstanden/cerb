@@ -97,8 +97,8 @@ class CallsPage extends CerberusPageExtension {
 		$tpl->assign('last_comment', $last_comment);
 		
 		// Workers
-		$context_workers = CerberusContexts::getWorkers(CerberusContexts::CONTEXT_CALL, $id);
-		$tpl->assign('context_workers', $context_workers);
+		$context_watchers = CerberusContexts::getWatchers(CerberusContexts::CONTEXT_CALL, $id);
+		$tpl->assign('context_watchers', $context_watchers);
 		
 		$tpl->display('devblocks:cerberusweb.calls::calls/ajax/call_entry_panel.tpl');
 	}
@@ -168,9 +168,9 @@ class CallsPage extends CerberusPageExtension {
 			@$field_ids = DevblocksPlatform::importGPC($_REQUEST['field_ids'], 'array', array());
 			DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_CALL, $id, $field_ids);
 			
-			// Owners
+			// Watchers
 			@$worker_ids = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',array());
-			CerberusContexts::setWorkers(CerberusContexts::CONTEXT_CALL, $id, $worker_ids);
+			CerberusContexts::setWatchers(CerberusContexts::CONTEXT_CALL, $id, $worker_ids);
 		}
 		
 		// Reload view (if linked)
@@ -216,19 +216,19 @@ class CallsPage extends CerberusPageExtension {
 		if(0 != strlen($is_closed))
 			$do['is_closed'] = !empty($is_closed) ? 1 : 0;
 			
-		// Owners
-		$owner_params = array();
+		// Watchers
+		$watcher_params = array();
 		
-		@$owner_add_ids = DevblocksPlatform::importGPC($_REQUEST['do_owner_add_ids'],'array',array());
-		if(!empty($owner_add_ids))
-			$owner_params['add'] = $owner_add_ids;
+		@$watcher_add_ids = DevblocksPlatform::importGPC($_REQUEST['do_watcher_add_ids'],'array',array());
+		if(!empty($watcher_add_ids))
+			$watcher_params['add'] = $watcher_add_ids;
 			
-		@$owner_remove_ids = DevblocksPlatform::importGPC($_REQUEST['do_owner_remove_ids'],'array',array());
-		if(!empty($owner_remove_ids))
-			$owner_params['remove'] = $owner_remove_ids;
+		@$watcher_remove_ids = DevblocksPlatform::importGPC($_REQUEST['do_watcher_remove_ids'],'array',array());
+		if(!empty($watcher_remove_ids))
+			$watcher_params['remove'] = $watcher_remove_ids;
 		
-		if(!empty($owner_params))
-			$do['owner'] = $owner_params;
+		if(!empty($watcher_params))
+			$do['watchers'] = $watcher_params;
 			
 		// Do: Custom fields
 		$do = DAO_CustomFieldValue::handleBulkPost($do);

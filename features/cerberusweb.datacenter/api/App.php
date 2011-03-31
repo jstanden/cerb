@@ -191,8 +191,8 @@ class Page_Datacenter extends CerberusPageExtension {
 		$tpl->assign('last_comment', $last_comment);
 		
 		// Workers
-		$context_workers = CerberusContexts::getWorkers('cerberusweb.contexts.datacenter.server', $id);
-		$tpl->assign('context_workers', $context_workers);
+		$context_watchers = CerberusContexts::getWatchers('cerberusweb.contexts.datacenter.server', $id);
+		$tpl->assign('context_watchers', $context_watchers);
 		
 		// Render
 		$tpl->display('devblocks:cerberusweb.datacenter::datacenter/servers/peek.tpl');
@@ -295,19 +295,19 @@ class Page_Datacenter extends CerberusPageExtension {
 //		if(0 != strlen($due))
 //			$do['due'] = $due;
 			
-//		// Owners
-//		$owner_params = array();
+//		// Watchers
+//		$watcher_params = array();
 //		
-//		@$owner_add_ids = DevblocksPlatform::importGPC($_REQUEST['do_owner_add_ids'],'array',array());
-//		if(!empty($owner_add_ids))
-//			$owner_params['add'] = $owner_add_ids;
+//		@$watcher_add_ids = DevblocksPlatform::importGPC($_REQUEST['do_watcher_add_ids'],'array',array());
+//		if(!empty($watcher_add_ids))
+//			$watcher_params['add'] = $watcher_add_ids;
 //			
-//		@$owner_remove_ids = DevblocksPlatform::importGPC($_REQUEST['do_owner_remove_ids'],'array',array());
-//		if(!empty($owner_remove_ids))
-//			$owner_params['remove'] = $owner_remove_ids;
+//		@$watcher_remove_ids = DevblocksPlatform::importGPC($_REQUEST['do_watcher_remove_ids'],'array',array());
+//		if(!empty($watcher_remove_ids))
+//			$watcher_params['remove'] = $watcher_remove_ids;
 //		
-//		if(!empty($owner_params))
-//			$do['owner'] = $owner_params;
+//		if(!empty($watcher_params))
+//			$do['watchers'] = $watcher_params;
 			
 		// Do: Custom fields
 		$do = DAO_CustomFieldValue::handleBulkPost($do);

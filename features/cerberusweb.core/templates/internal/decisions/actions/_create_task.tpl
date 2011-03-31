@@ -17,7 +17,7 @@
 	</tr>
 	<tr>
 		<td align="right" valign="top">
-			<b>{'common.owners'|devblocks_translate|capitalize}:</b>
+			<b>{'common.watchers'|devblocks_translate|capitalize}:</b>
 		</td>
 		<td>
 			<button type="button" class="chooser_worker unbound"><span class="cerb-sprite sprite-view"></span></button>

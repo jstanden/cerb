@@ -703,7 +703,7 @@ class CerberusParser {
 //								break;
 //								
 //							case 'take':
-//								CerberusContexts::addWorkers(CerberusContexts::CONTEXT_TICKET, $model->getTicketId(), $worker_address->worker_id);
+//								CerberusContexts::addWatchers(CerberusContexts::CONTEXT_TICKET, $model->getTicketId(), $worker_address->worker_id);
 //								break;
 //								
 //							case 'comment':
@@ -930,11 +930,11 @@ class CerberusParser {
 		// Trigger Group Mail Received
 		Event_MailReceivedByGroup::trigger($model->getMessageId(), $model->getGroupId());
 		
-		// Trigger Owner Mail Received
-		$context_owners = CerberusContexts::getWorkers(CerberusContexts::CONTEXT_TICKET, $model->getTicketId());
-		if(is_array($context_owners) && !empty($context_owners))
-		foreach($context_owners as $owner_id => $owner) {
-			Event_MailReceivedByWatcher::trigger($model->getMessageId(), $owner_id);
+		// Trigger Watcher Mail Received
+		$context_watchers = CerberusContexts::getWatchers(CerberusContexts::CONTEXT_TICKET, $model->getTicketId());
+		if(is_array($context_watchers) && !empty($context_watchers))
+		foreach($context_watchers as $watcher_id => $watcher) {
+			Event_MailReceivedByWatcher::trigger($model->getMessageId(), $watcher_id);
 		}
 		
 	    @imap_errors(); // Prevent errors from spilling out into STDOUT

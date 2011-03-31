@@ -60,10 +60,10 @@
 				<a href="{devblocks_url}c=feeds&m=item&id={$result.fi_id}{/devblocks_url}" class="subject">{$result.fi_title}</a> 
 				<a href="javascript:;" onclick="genericAjaxPopup('peek','c=feeds&a=showFeedItemPopup&id={$result.fi_id}&view_id={$view->id}',null,false,'550');"><span class="ui-icon ui-icon-newwin" style="display:inline-block;vertical-align:middle;" title="{$translate->_('views.peek')}"></span></a>
 				
-				{$object_workers = DAO_ContextLink::getContextLinks('cerberusweb.contexts.feed.item', array_keys($data), CerberusContexts::CONTEXT_WORKER)}
-				{if isset($object_workers.{$result.fi_id})}
+				{$object_watchers = DAO_ContextLink::getContextLinks('cerberusweb.contexts.feed.item', array_keys($data), CerberusContexts::CONTEXT_WORKER)}
+				{if isset($object_watchers.{$result.fi_id})}
 				<div style="display:inline;padding-left:5px;">
-				{foreach from=$object_workers.{$result.fi_id} key=worker_id item=worker name=workers}
+				{foreach from=$object_watchers.{$result.fi_id} key=worker_id item=worker name=workers}
 					{if isset($workers.{$worker_id})}
 						<span style="color:rgb(150,150,150);">
 						{$workers.{$worker_id}->getName()}{if !$smarty.foreach.workers.last}, {/if}

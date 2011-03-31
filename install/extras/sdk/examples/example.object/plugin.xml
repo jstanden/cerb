@@ -2,7 +2,7 @@
 <plugin>
 	<id>example.object</id>
 	<name>[Example] Example Object</name>
-	<description>This example plugin adds a new kind of object to the helpdesk, complete with all the amenities: custom fields, views, worklists, bulk update, explore, owners, links, comments, etc.</description>
+	<description>This example plugin adds a new kind of object to the helpdesk, complete with all the amenities: custom fields, views, worklists, bulk update, explore, watchers, connections, comments, etc.</description>
 	<author>WebGroup Media, LLC.</author>
 	<revision>1</revision>
 	<link>http://www.cerb5.com/</link>

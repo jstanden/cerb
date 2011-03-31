@@ -8,14 +8,14 @@
 	<tr>
 		<td width="100%">
 			<table cellpadding="1" cellspacing="0" border="0" width="100%">
-				{if !empty($context_workers) && !isset($context_workers.{$active_worker->id})}
+				{if !empty($context_watchers) && !isset($context_watchers.{$active_worker->id})}
 				<tr>
 					<td width="100%" colspan="2">
 						<div class="ui-widget">
 							<div class="ui-state-error ui-corner-all" style="padding: 0 .7em; margin: 0.2em; "> 
 								<p><span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>
 									{$worker_string = ''}
-									{foreach from=$context_workers item=worker name=workers}
+									{foreach from=$context_watchers item=worker name=workers}
 										{$worker_string = $worker_string|cat:'<b>'|cat:$worker->getName()|cat:'</b>'}{if !$smarty.foreach.workers.last}{$worker_string = $worker_string|cat:' and '}{/if}
 									{/foreach}
 									{'display.reply.warn_assigned'|devblocks_translate:$worker_string nofilter}
@@ -211,8 +211,8 @@
 								<b>{$translate->_('display.reply.next.handle_reply')}</b><br>
 								<button type="button" class="chooser_worker"><span class="cerb-sprite sprite-view"></span></button>
 								<ul class="chooser-container bubbles">
-								{if !empty($context_workers)}
-									{foreach from=$context_workers item=context_worker}
+								{if !empty($context_watchers)}
+									{foreach from=$context_watchers item=context_worker}
 									<li>{$context_worker->getName()}<input type="hidden" name="worker_id[]" value="{$context_worker->id}"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></li>
 									{/foreach}
 								{/if}
