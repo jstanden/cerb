@@ -2,7 +2,7 @@
 class ExampleEventCondition_ExampleCondition extends Extension_DevblocksEventCondition {
 	const ID = 'exampleeventcondition.condition';
 	
-	function render(Extension_DevblocksEvent $event, $params=array(), $seq=null) {
+	function render(Extension_DevblocksEvent $event, Model_TriggerEvent $trigger, $params=array(), $seq=null) {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('params', $params);
 		
@@ -12,7 +12,7 @@ class ExampleEventCondition_ExampleCondition extends Extension_DevblocksEventCon
 		$tpl->display('devblocks:example.event.condition::config.tpl');
 	}
 	
-	function run($token, $params, $values) {
+	function run($token, Model_TriggerEvent $trigger, $params, $values) {
 		//var_dump($params['oper']);
 		//var_dump($params['value']);
 		// [TODO] Run a condition and return a boolean

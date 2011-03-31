@@ -783,8 +783,8 @@ abstract class Extension_DevblocksEventCondition extends DevblocksExtension {
 		return $extensions;
 	}
 	
-	abstract function render(Extension_DevblocksEvent $event, $params=array(), $seq=null);
-	abstract function run($token, $params, $values);
+	abstract function render(Extension_DevblocksEvent $event, Model_TriggerEvent $trigger, $params=array(), $seq=null);
+	abstract function run($token, Model_TriggerEvent $trigger, $params, $values);
 }
 
 abstract class Extension_DevblocksEventAction extends DevblocksExtension {
@@ -797,8 +797,8 @@ abstract class Extension_DevblocksEventAction extends DevblocksExtension {
 		return $extensions;
 	}
 	
-	abstract function render(Extension_DevblocksEvent $event, $params=array(), $seq=null);
-	abstract function run($token, $params, &$values);
+	abstract function render(Extension_DevblocksEvent $event, Model_TriggerEvent $trigger, $params=array(), $seq=null);
+	abstract function run($token, Model_TriggerEvent $trigger, $params, &$values);
 }
 
 abstract class DevblocksHttpResponseListenerExtension extends DevblocksExtension {
