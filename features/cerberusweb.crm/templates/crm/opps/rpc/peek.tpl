@@ -111,6 +111,7 @@
 <div style="float:right;">
 	<a href="{devblocks_url}c=crm&a=opps&id={$opp->id}{/devblocks_url}">view full record</a>
 </div>
+<br clear="all">
 {/if}
 </form>
 

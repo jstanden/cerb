@@ -128,6 +128,7 @@
 <div style="float:right;">
 	<a href="{devblocks_url}c=timetracking&a=display&id={$model->id}{/devblocks_url}">view full record</a>
 </div>
+<br clear="all">
 {/if}
 </form>
 

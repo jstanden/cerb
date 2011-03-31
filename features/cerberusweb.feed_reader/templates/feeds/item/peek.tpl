@@ -78,6 +78,7 @@
 <div style="float:right;">
 	<a href="{devblocks_url}c=feeds&i=item&id={$model->id}{/devblocks_url}">view full record</a>
 </div>
+<br clear="all">
 {/if}
 </form>
 

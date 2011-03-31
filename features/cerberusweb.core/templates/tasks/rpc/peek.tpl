@@ -86,6 +86,7 @@
 <div style="float:right;">
 	<a href="{devblocks_url}c=tasks&a=display&id={$task->id}{/devblocks_url}">view full record</a>
 </div>
+<br clear="all">
 {/if}
 </form>
 
