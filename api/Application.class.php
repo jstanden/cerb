@@ -779,6 +779,9 @@ class CerberusContexts {
 	}
 	
 	static public function setWatchers($context, $context_id, $worker_ids) {
+		if(!is_array($worker_ids))
+			$worker_ids = array($worker_ids);
+		
 		$current_workers = self::getWatchers($context, $context_id);
 		
 		// Remove
@@ -796,11 +799,17 @@ class CerberusContexts {
 	}
 
 	static public function addWatchers($context, $context_id, $worker_ids) {
+		if(!is_array($worker_ids))
+			$worker_ids = array($worker_ids);
+		
 		foreach($worker_ids as $worker_id)
 			DAO_ContextLink::setLink($context, $context_id, CerberusContexts::CONTEXT_WORKER, $worker_id);
 	}
 	
 	static public function removeWatchers($context, $context_id, $worker_ids) {
+		if(!is_array($worker_ids))
+			$worker_ids = array($worker_ids);
+			
 		foreach($worker_ids as $worker_id)
 			DAO_ContextLink::deleteLink($context, $context_id, CerberusContexts::CONTEXT_WORKER, $worker_id);
 	}
