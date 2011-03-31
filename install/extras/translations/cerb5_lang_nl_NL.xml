@@ -2031,16 +2031,6 @@
         <seg>Rapporteer deze ticket als spam (S)</seg>
       </tuv>
     </tu>
-    <tu tuid="display.shortcut.surrender">
-      <tuv xml:lang="nl_NL">
-        <seg>Geef dit ticket vrij (U)</seg>
-      </tuv>
-    </tu>
-    <tu tuid="display.shortcut.take">
-      <tuv xml:lang="nl_NL">
-        <seg>Ken dit ticket aan uzelf toe (T)</seg>
-      </tuv>
-    </tu>
     <tu tuid="display.tab.comments">
       <tuv xml:lang="nl_NL">
         <seg>Commentaar (%s)</seg>
@@ -2444,16 +2434,6 @@
     <tu tuid="mail.sent">
       <tuv xml:lang="nl_NL">
         <seg>Verzonden</seg>
-      </tuv>
-    </tu>
-    <tu tuid="mail.surrender">
-      <tuv xml:lang="nl_NL">
-        <seg>Vrijgeven</seg>
-      </tuv>
-    </tu>
-    <tu tuid="mail.take">
-      <tuv xml:lang="nl_NL">
-        <seg>Aannemen</seg>
       </tuv>
     </tu>
     <tu tuid="mail.view.add_filter">
@@ -4320,26 +4300,6 @@
     <tu tuid="notification.worker_id">
       <tuv xml:lang="nl_NL">
         <seg>Werknemer</seg>
-      </tuv>
-    </tu>
-    <tu tuid="workflow.assigned">
-      <tuv xml:lang="nl_NL">
-        <seg>Toegewezen</seg>
-      </tuv>
-    </tu>
-    <tu tuid="workflow.release">
-      <tuv xml:lang="nl_NL">
-        <seg>Vrijgeven</seg>
-      </tuv>
-    </tu>
-    <tu tuid="workflow.suggested">
-      <tuv xml:lang="nl_NL">
-        <seg>Voorgesteld</seg>
-      </tuv>
-    </tu>
-    <tu tuid="workflow.take">
-      <tuv xml:lang="nl_NL">
-        <seg>Aannemen</seg>
       </tuv>
     </tu>
   </body>

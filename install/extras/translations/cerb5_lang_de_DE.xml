@@ -2136,16 +2136,6 @@
         <seg>Ticket als Spam markieren (S)</seg>
       </tuv>
     </tu>
-    <tu tuid="display.shortcut.surrender">
-      <tuv xml:lang="de_DE">
-        <seg>Ticket freigeben (U)</seg>
-      </tuv>
-    </tu>
-    <tu tuid="display.shortcut.take">
-      <tuv xml:lang="de_DE">
-        <seg>Ticket übernehmen (T)</seg>
-      </tuv>
-    </tu>
     <tu tuid="display.tab.comments">
       <tuv xml:lang="de_DE">
         <seg>Kommentare (%s)</seg>
@@ -2189,11 +2179,6 @@
     <tu tuid="display.ui.discard">
       <tuv xml:lang="de_DE">
         <seg>Verwerfen</seg>
-      </tuv>
-    </tu>
-    <tu tuid="display.ui.discard_surrender">
-      <tuv xml:lang="de_DE">
-        <seg>Verwerfen &amp; abgeben</seg>
       </tuv>
     </tu>
     <tu tuid="display.ui.forward">
@@ -2729,16 +2714,6 @@
     <tu tuid="mail.sent">
       <tuv xml:lang="de_DE">
         <seg>Gesendet</seg>
-      </tuv>
-    </tu>
-    <tu tuid="mail.surrender">
-      <tuv xml:lang="de_DE">
-        <seg>Abgeben</seg>
-      </tuv>
-    </tu>
-    <tu tuid="mail.take">
-      <tuv xml:lang="de_DE">
-        <seg>Übernehmen</seg>
       </tuv>
     </tu>
     <tu tuid="mail.view.add_filter">
@@ -5340,26 +5315,6 @@ login</seg>
     <tu tuid="notification.worker_id">
       <tuv xml:lang="de_DE">
         <seg>Mitarbeiter</seg>
-      </tuv>
-    </tu>
-    <tu tuid="workflow.assigned">
-      <tuv xml:lang="de_DE">
-        <seg>Zugewiesen</seg>
-      </tuv>
-    </tu>
-    <tu tuid="workflow.release">
-      <tuv xml:lang="de_DE">
-        <seg>Abgeben</seg>
-      </tuv>
-    </tu>
-    <tu tuid="workflow.suggested">
-      <tuv xml:lang="de_DE">
-        <seg>Vorgeschlagen</seg>
-      </tuv>
-    </tu>
-    <tu tuid="workflow.take">
-      <tuv xml:lang="de_DE">
-        <seg>Übernehmen</seg>
       </tuv>
     </tu>
   </body>

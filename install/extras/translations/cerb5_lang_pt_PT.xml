@@ -1161,16 +1161,6 @@
         <seg>Reportar este ticket como spam (S)</seg>
       </tuv>
     </tu>
-    <tu tuid="display.shortcut.surrender">
-      <tuv xml:lang="pt_PT">
-        <seg>Retirar a atribuição deste ticket a mim (U)</seg>
-      </tuv>
-    </tu>
-    <tu tuid="display.shortcut.take">
-      <tuv xml:lang="pt_PT">
-        <seg>Atribuir este ticket a mim mesmo (T)</seg>
-      </tuv>
-    </tu>
     <tu tuid="display.tab.comments">
       <tuv xml:lang="pt_PT">
         <seg>Comentários (%s)</seg>
@@ -1199,11 +1189,6 @@
     <tu tuid="display.ui.discard">
       <tuv xml:lang="pt_PT">
         <seg>Cancelar</seg>
-      </tuv>
-    </tu>
-    <tu tuid="display.ui.discard_surrender">
-      <tuv xml:lang="pt_PT">
-        <seg>Cancelar &amp; Render</seg>
       </tuv>
     </tu>
     <tu tuid="display.ui.forward">
@@ -1444,16 +1429,6 @@
     <tu tuid="mail.send_mail">
       <tuv xml:lang="pt_PT">
         <seg>Enviar email</seg>
-      </tuv>
-    </tu>
-    <tu tuid="mail.surrender">
-      <tuv xml:lang="pt_PT">
-        <seg>Libertar</seg>
-      </tuv>
-    </tu>
-    <tu tuid="mail.take">
-      <tuv xml:lang="pt_PT">
-        <seg>Obter</seg>
       </tuv>
     </tu>
     <tu tuid="mail.view.add_filter">
@@ -2719,26 +2694,6 @@ Se não solicitou esta operação, não clique no link em cima. O pedido expira 
     <tu tuid="notification.worker_id">
       <tuv xml:lang="pt_PT">
         <seg>Colaborador</seg>
-      </tuv>
-    </tu>
-    <tu tuid="workflow.assigned">
-      <tuv xml:lang="pt_PT">
-        <seg>Atribuído</seg>
-      </tuv>
-    </tu>
-    <tu tuid="workflow.release">
-      <tuv xml:lang="pt_PT">
-        <seg>Libertar</seg>
-      </tuv>
-    </tu>
-    <tu tuid="workflow.suggested">
-      <tuv xml:lang="pt_PT">
-        <seg>Sugerido</seg>
-      </tuv>
-    </tu>
-    <tu tuid="workflow.take">
-      <tuv xml:lang="pt_PT">
-        <seg>Obter</seg>
       </tuv>
     </tu>
   </body>

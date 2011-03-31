@@ -236,8 +236,8 @@
 						<div id="view{$view->id}_more" style="display:{if $show_more}none{else}block{/if};padding-top:5px;padding-bottom:5px;">
 							<button type="button" onclick="ajax.viewTicketsAction('{$view->id}','not_spam');">{$translate->_('common.notspam')|lower}</button>
 							{if $active_worker->hasPriv('core.ticket.view.actions.merge')}<button type="button" onclick="ajax.viewTicketsAction('{$view->id}','merge');">{$translate->_('mail.merge')|lower}</button>{/if}
-							<button type="button" id="btn{$view->id}Take" onclick="ajax.viewTicketsAction('{$view->id}','take');">{$translate->_('mail.take')|lower}</button>
-							<button type="button" id="btn{$view->id}Surrender" onclick="ajax.viewTicketsAction('{$view->id}','surrender');">{$translate->_('mail.surrender')|lower}</button>
+							<button type="button" id="btn{$view->id}Follow" onclick="ajax.viewTicketsAction('{$view->id}','follow');">{$translate->_('common.follow')|lower}</button>
+							<button type="button" id="btn{$view->id}Unfollow" onclick="ajax.viewTicketsAction('{$view->id}','unfollow');">{$translate->_('common.unfollow')|lower}</button>
 							<button type="button" onclick="ajax.viewTicketsAction('{$view->id}','waiting');">{$translate->_('mail.waiting')|lower}</button>
 							<button type="button" onclick="ajax.viewTicketsAction('{$view->id}','not_waiting');">{$translate->_('mail.not_waiting')|lower}</button>
 						</div>
@@ -249,8 +249,8 @@
 								{if $active_worker->hasPriv('core.ticket.view.actions.bulk_update')}(<b>b</b>) {$translate->_('common.bulk_update')|lower}{/if} 
 								{if $active_worker->hasPriv('core.ticket.actions.close')}(<b>c</b>) {$translate->_('common.close')|lower}{/if} 
 								{if $active_worker->hasPriv('core.ticket.actions.spam')}(<b>s</b>) {$translate->_('common.spam')|lower}{/if} 
-								(<b>t</b>) {$translate->_('mail.take')|lower} 
-								(<b>u</b>) {$translate->_('mail.surrender')|lower} 
+								(<b>f</b>) {$translate->_('common.follow')|lower} 
+								(<b>u</b>) {$translate->_('common.unfollow')|lower} 
 								{if $active_worker->hasPriv('core.ticket.actions.delete')}(<b>x</b>) {$translate->_('common.delete')|lower}{/if}
 								<br>
 						{/if}

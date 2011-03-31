@@ -12,10 +12,6 @@
 			deleted.
 		{elseif $last_action->action == 'close'}
 			closed.
-		{elseif $last_action->action == 'take'}
-			assigned to you.
-		{elseif $last_action->action == 'surrender'}
-			surrendered.
 		{elseif $last_action->action == 'waiting'}
 			marked waiting for reply.
 		{elseif $last_action->action == 'not_waiting'}

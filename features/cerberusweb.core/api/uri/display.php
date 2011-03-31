@@ -249,8 +249,8 @@ class ChDisplayPage extends CerberusPageExtension {
 		@$closed = DevblocksPlatform::importGPC($_REQUEST['closed'],'integer',0);
 		@$spam = DevblocksPlatform::importGPC($_REQUEST['spam'],'integer',0);
 		@$deleted = DevblocksPlatform::importGPC($_REQUEST['deleted'],'integer',0);
-		@$do_take = DevblocksPlatform::importGPC($_REQUEST['do_take'],'integer',0);
-		@$do_surrender = DevblocksPlatform::importGPC($_REQUEST['do_surrender'],'integer',0);
+		@$do_follow = DevblocksPlatform::importGPC($_REQUEST['do_follow'],'integer',0);
+		@$do_unfollow = DevblocksPlatform::importGPC($_REQUEST['do_unfollow'],'integer',0);
 		@$bucket = DevblocksPlatform::importGPC($_REQUEST['bucket_id'],'string');
 		
 		if(null == ($ticket = DAO_Ticket::get($id)))
@@ -301,9 +301,9 @@ class ChDisplayPage extends CerberusPageExtension {
 		DAO_Ticket::update($id, $properties);
 		
 		// Context workers
-		if($do_take)
+		if($do_follow)
 			CerberusContexts::addWorkers(CerberusContexts::CONTEXT_TICKET, $id, array($active_worker->id));
-		if($do_surrender)
+		if($do_unfollow)
 			CerberusContexts::removeWorkers(CerberusContexts::CONTEXT_TICKET, $id, array($active_worker->id));
 
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('display',$ticket->mask)));

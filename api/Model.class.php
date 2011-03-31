@@ -1539,8 +1539,6 @@ class Model_TicketViewLastAction {
 	const ACTION_CLOSE = 'close';
 	const ACTION_DELETE = 'delete';
 	const ACTION_MOVE = 'move';
-	const ACTION_TAKE = 'take';
-	const ACTION_SURRENDER = 'surrender';
 	const ACTION_WAITING = 'waiting';
 	const ACTION_NOT_WAITING = 'not_waiting';
 

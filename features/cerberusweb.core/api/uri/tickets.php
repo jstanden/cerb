@@ -1799,7 +1799,7 @@ class ChTicketsPage extends CerberusPageExtension {
 	    return;
 	}
 
-	function viewTakeTicketsAction() {
+	function viewFollowTicketsAction() {
 	    @$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
 	    @$ticket_ids = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'array');
 	    
@@ -1820,7 +1820,7 @@ class ChTicketsPage extends CerberusPageExtension {
 	    return;
 	}
 
-	function viewSurrenderTicketsAction() {
+	function viewUnfollowTicketsAction() {
 	    @$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
 	    @$ticket_ids = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'array');
 	    

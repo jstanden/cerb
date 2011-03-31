@@ -186,6 +186,9 @@
 		<tu tuid='common.fnr'>
 			<tuv xml:lang="en_US"><seg>fetch &amp; retrieve</seg></tuv>
 		</tu>
+		<tu tuid='common.follow'>
+			<tuv xml:lang="en_US"><seg>follow</seg></tuv>
+		</tu>
 		<tu tuid='common.group'>
 			<tuv xml:lang="en_US"><seg>Group</seg></tuv>
 		</tu>
@@ -422,6 +425,9 @@
 		</tu>
 		<tu tuid='common.undelete'>
 			<tuv xml:lang="en_US"><seg>Undelete</seg></tuv>
+		</tu>
+		<tu tuid='common.unfollow'>
+			<tuv xml:lang="en_US"><seg>unfollow</seg></tuv>
 		</tu>
 		<tu tuid='common.update'>
 			<tuv xml:lang="en_US"><seg>update</seg></tuv>
@@ -1209,11 +1215,11 @@ For example: http://www.cerberusweb.com/support/</seg></tuv>
 		<tu tuid='display.shortcut.spam'>
 			<tuv xml:lang="en_US"><seg>Report this ticket as spam (S)</seg></tuv>
 		</tu>
-		<tu tuid='display.shortcut.surrender'>
-			<tuv xml:lang="en_US"><seg>Unassign this ticket from yourself (U)</seg></tuv>
+		<tu tuid='display.shortcut.follow'>
+			<tuv xml:lang="en_US"><seg>Follow this ticket (F)</seg></tuv>
 		</tu>
-		<tu tuid='display.shortcut.take'>
-			<tuv xml:lang="en_US"><seg>Assign this ticket to yourself (T)</seg></tuv>
+		<tu tuid='display.shortcut.unfollow'>
+			<tuv xml:lang="en_US"><seg>Stop following this ticket (U)</seg></tuv>
 		</tu>
 
 		<tu tuid='display.ui.add_to_recipients'>
@@ -1303,13 +1309,6 @@ For example: http://www.cerberusweb.com/support/</seg></tuv>
 		</tu>
 		<tu tuid='mail.search.tickets'>
 			<tuv xml:lang="en_US"><seg>Search Tickets</seg></tuv>
-		</tu>
-		
-		<tu tuid='mail.surrender'>
-			<tuv xml:lang="en_US"><seg>Surrender</seg></tuv>
-		</tu>
-		<tu tuid='mail.take'>
-			<tuv xml:lang="en_US"><seg>Take</seg></tuv>
 		</tu>
 		
 		<tu tuid='mail.view.add_filter'>
@@ -1739,21 +1738,6 @@ For example: *receipt*</seg></tuv>
 			<tuv xml:lang="en_US"><seg>Worker</seg></tuv>
 		</tu>
 		
-		<!-- Workflow -->
-
-		<tu tuid='workflow.assigned'>
-			<tuv xml:lang="en_US"><seg>Assigned</seg></tuv>
-		</tu>
-		<tu tuid='workflow.release'>
-			<tuv xml:lang="en_US"><seg>Release</seg></tuv>
-		</tu>
-		<tu tuid='workflow.suggested'>
-			<tuv xml:lang="en_US"><seg>Suggested</seg></tuv>
-		</tu>
-		<tu tuid='workflow.take'>
-			<tuv xml:lang="en_US"><seg>Take</seg></tuv>
-		</tu>
-
 	    <!-- My Account Preferences -->
 		
 	    <tu tuid='preferences.account.settings'>

@@ -93,8 +93,8 @@
 			<input type="hidden" name="closed" value="{if $ticket->is_closed}1{else}0{/if}">
 			<input type="hidden" name="deleted" value="{if $ticket->is_deleted}1{else}0{/if}">
 			<input type="hidden" name="spam" value="0">
-			<input type="hidden" name="do_take" value="0">
-			<input type="hidden" name="do_surrender" value="0">
+			<input type="hidden" name="do_follow" value="0">
+			<input type="hidden" name="do_unfollow" value="0">
 			
 			<div style="padding-bottom:5px;">
 			<button type="button" id="btnDisplayTicketEdit"><span class="cerb-sprite sprite-document_edit"></span> Edit</button>
@@ -117,8 +117,8 @@
 				{if $active_worker->hasPriv('core.ticket.actions.delete')}<button title="{$translate->_('display.shortcut.delete')}" id="btnDelete" type="button" onclick="this.form.deleted.value=1;this.form.closed.value=1;this.form.submit();"><span class="cerb-sprite sprite-delete"></span> {$translate->_('common.delete')|capitalize}</button>{/if}
 			{/if}
 			
-			{if !isset($context_workers.{$active_worker->id})}<button id="btnTake" title="{$translate->_('display.shortcut.take')}" type="button" onclick="this.form.do_take.value='1';this.form.submit();"><span class="cerb-sprite sprite-hand_paper"></span> {$translate->_('mail.take')|capitalize}</button>{/if}
-			{if isset($context_workers.{$active_worker->id})}<button id="btnSurrender" title="{$translate->_('display.shortcut.surrender')}" type="button" onclick="this.form.do_surrender.value='1';this.form.submit();"><span class="cerb-sprite sprite-flag_white"></span> {$translate->_('mail.surrender')|capitalize}</button>{/if}
+			{if !isset($context_workers.{$active_worker->id})}<button id="btnFollow" title="{$translate->_('display.shortcut.follow')}" type="button" onclick="this.form.do_follow.value='1';this.form.submit();"><span class="cerb-sprite sprite-hand_paper"></span> {$translate->_('common.follow')|capitalize}</button>{/if}
+			{if isset($context_workers.{$active_worker->id})}<button id="btnUnfollow" title="{$translate->_('display.shortcut.unfollow')}" type="button" onclick="this.form.do_unfollow.value='1';this.form.submit();"><span class="cerb-sprite sprite-flag_white"></span> {$translate->_('common.unfollow')|capitalize}</button>{/if}
 			
 		   	<button id="btnPrint" title="{$translate->_('display.shortcut.print')}" type="button" onclick="document.frmPrint.action='{devblocks_url}c=print&a=ticket&id={$ticket->mask}{/devblocks_url}';document.frmPrint.submit();">&nbsp;<span class="cerb-sprite sprite-printer"></span>&nbsp;</button>
 		   	<button type="button" title="{$translate->_('display.shortcut.refresh')}" onclick="document.location='{devblocks_url}c=display&id={$ticket->mask}{/devblocks_url}';">&nbsp;<span class="cerb-sprite sprite-refresh"></span>&nbsp;</button>
@@ -169,8 +169,8 @@
 			{if !$ticket->is_closed && $active_worker->hasPriv('core.ticket.actions.close')}(<b>c</b>) {$translate->_('common.close')|lower} {/if}
 			{if !$ticket->spam_trained && $active_worker->hasPriv('core.ticket.actions.spam')}(<b>s</b>) {$translate->_('common.spam')|lower} {/if}
 			{if !$ticket->is_deleted && $active_worker->hasPriv('core.ticket.actions.delete')}(<b>x</b>) {$translate->_('common.delete')|lower} {/if}
-			{if !isset($context_workers.{$active_worker->id})}(<b>t</b>) {$translate->_('mail.take')|lower} {/if}
-			{if isset($context_workers.{$active_worker->id})}(<b>u</b>) {$translate->_('mail.surrender')|lower} {/if}
+			{if !isset($context_workers.{$active_worker->id})}(<b>f</b>) {$translate->_('common.follow')|lower} {/if}
+			{if isset($context_workers.{$active_worker->id})}(<b>u</b>) {$translate->_('common.unfollow')|lower} {/if}
 			{if !$expand_all}(<b>a</b>) {$translate->_('display.button.read_all')|lower} {/if} 
 			{if $active_worker->hasPriv('core.display.actions.reply')}(<b>r</b>) {$translate->_('display.ui.reply')|lower} {/if}  
 			(<b>p</b>) {$translate->_('common.print')|lower} 
@@ -254,6 +254,11 @@ $(document).keypress(function(event) {
 				$('#btnDisplayTicketEdit').click();
 			} catch(ex) { } 
 			break;
+		case 102:  // (F) Follow
+			try {
+				$('#btnFollow').click();
+			} catch(ex) { } 
+			break;
 		case 111:  // (O) comment
 			try {
 				$('#btnComment').click();
@@ -274,14 +279,9 @@ $(document).keypress(function(event) {
 				$('#btnSpam').click();
 			} catch(ex) { } 
 			break;
-		case 116:  // (T) take/assign
+		case 117:  // (U) Unfollow
 			try {
-				$('#btnTake').click();
-			} catch(ex) { } 
-			break;
-		case 117:  // (U) surrender/unassign
-			try {
-				$('#btnSurrender').click();
+				$('#btnUnfollow').click();
 			} catch(ex) { } 
 			break;
 		case 120:  // (X) delete

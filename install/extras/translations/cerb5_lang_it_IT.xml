@@ -971,16 +971,6 @@
         <seg>Riporta ticket come spam (S)</seg>
       </tuv>
     </tu>
-    <tu tuid="display.shortcut.surrender">
-      <tuv xml:lang="it_IT">
-        <seg>Dis-assegna questo ticket a te stesso (U)</seg>
-      </tuv>
-    </tu>
-    <tu tuid="display.shortcut.take">
-      <tuv xml:lang="it_IT">
-        <seg>Assegna questo ticket a te stesso (T)</seg>
-      </tuv>
-    </tu>
     <tu tuid="display.tab.comments">
       <tuv xml:lang="it_IT">
         <seg>Commenti (%s)</seg>
@@ -1014,11 +1004,6 @@
     <tu tuid="display.ui.discard">
       <tuv xml:lang="it_IT">
         <seg>Scarta</seg>
-      </tuv>
-    </tu>
-    <tu tuid="display.ui.discard_surrender">
-      <tuv xml:lang="it_IT">
-        <seg>Scarta &amp; Dis-assegna</seg>
       </tuv>
     </tu>
     <tu tuid="display.ui.forward">
@@ -1314,16 +1299,6 @@
     <tu tuid="mail.send_mail">
       <tuv xml:lang="it_IT">
         <seg></seg>
-      </tuv>
-    </tu>
-    <tu tuid="mail.surrender">
-      <tuv xml:lang="it_IT">
-        <seg>Dis-associa</seg>
-      </tuv>
-    </tu>
-    <tu tuid="mail.take">
-      <tuv xml:lang="it_IT">
-        <seg>Prendi</seg>
       </tuv>
     </tu>
     <tu tuid="mail.view.add_filter">
@@ -1874,26 +1849,6 @@
     <tu tuid="whos_online.heading">
       <tuv xml:lang="it_IT">
         <seg>%s Utenti Loggati:</seg>
-      </tuv>
-    </tu>
-    <tu tuid="workflow.assigned">
-      <tuv xml:lang="it_IT">
-        <seg>Assegnato</seg>
-      </tuv>
-    </tu>
-    <tu tuid="workflow.release">
-      <tuv xml:lang="it_IT">
-        <seg>Rilascia</seg>
-      </tuv>
-    </tu>
-    <tu tuid="workflow.suggested">
-      <tuv xml:lang="it_IT">
-        <seg>Suggerito</seg>
-      </tuv>
-    </tu>
-    <tu tuid="workflow.take">
-      <tuv xml:lang="it_IT">
-        <seg>Prendi</seg>
       </tuv>
     </tu>
   </body>

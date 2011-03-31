@@ -254,14 +254,14 @@ var cAjaxCalls = function() {
 					hideLoadingPanel();
 				});
 				break;
-			case 'take':
-				genericAjaxPost(formName, '', 'c=tickets&a=viewTakeTickets&view_id='+view_id, function(html) {
+			case 'follow':
+				genericAjaxPost(formName, '', 'c=tickets&a=viewFollowTickets&view_id='+view_id, function(html) {
 					$('#'+divName).html(html);
 					hideLoadingPanel();
 				});
 				break;
-			case 'surrender':
-				genericAjaxPost(formName, '', 'c=tickets&a=viewSurrenderTickets&view_id='+view_id, function(html) {
+			case 'unfollow':
+				genericAjaxPost(formName, '', 'c=tickets&a=viewUnfollowTickets&view_id='+view_id, function(html) {
 					$('#'+divName).html(html);
 					hideLoadingPanel();
 				});

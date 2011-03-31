@@ -134,6 +134,11 @@
 					$('#btnExploremail_workflow').click();
 				} catch(e) { } 
 				break;
+			case 102:  // (f) follow
+				try {
+					$('#btnmail_workflowFollow').click();
+				} catch(e) { } 
+				break;
 			case 109:  // (M) my tickets
 				try {
 					$('#btnMyTickets').click();
@@ -144,14 +149,9 @@
 					$('#btnmail_workflowSpam').click();
 				} catch(e) { } 
 				break;
-			case 116:  // (T) take
+			case 117:  // (U) unfollow
 				try {
-					$('#btnmail_workflowTake').click();
-				} catch(e) { } 
-				break;
-			case 117:  // (U) surrender
-				try {
-					$('#btnmail_workflowSurrender').click();
+					$('#btnmail_workflowUnfollow').click();
 				} catch(e) { } 
 				break;
 			case 120:  // (X) delete
@@ -182,19 +182,19 @@
 					$('#btnExploresearch').click();
 				} catch(e) { } 
 				break;
+			case 102:  // (f) follow
+				try {
+					$('#btnsearchFollow').click();
+				} catch(e) { } 
+				break;
 			case 115:  // (S) spam
 				try {
 					$('#btnsearchSpam').click();
 				} catch(e) { } 
 				break;
-			case 116:  // (T) take
+			case 117:  // (U) unfollow
 				try {
-					$('#btnsearchTake').click();
-				} catch(e) { } 
-				break;
-			case 117:  // (S) surrender
-				try {
-					$('#btnsearchSurrender').click();
+					$('#btnsearchUnfollow').click();
 				} catch(e) { } 
 				break;
 			case 120:  // (X) delete
