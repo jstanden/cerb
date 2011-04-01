@@ -21,11 +21,10 @@
 <input type="hidden" name="context_id" value="cerberusweb.contexts.group">
 <input type="hidden" name="c" value="config">
 <input type="hidden" name="a" value="">
-<table cellpadding="3" cellspacing="0" border="0" width="100%" class="worklistBody">
+<table cellpadding="5" cellspacing="0" border="0" width="100%" class="worklistBody">
 
 	{* Column Headers *}
 	<tr>
-		<th style="text-align:center;"></th>
 		{foreach from=$view->view_columns item=header name=headers}
 			{* start table header, insert column title and link *}
 			<th nowrap="nowrap">
@@ -54,14 +53,14 @@
 	{/if}
 	<tbody style="cursor:pointer;">
 		<tr class="{$tableRowClass}">
-			<td align="center"><input type="checkbox" name="row_id[]" value="{$result.g_id}" style="display:none;"></td>
 		{foreach from=$view->view_columns item=column name=columns}
 			{if substr($column,0,3)=="cf_"}
 				{include file="devblocks:cerberusweb.core::internal/custom_fields/view/cell_renderer.tpl"}
-			{*
 			{elseif $column=="g_name"}
-			<td><a href="javascript:;" onclick="genericAjaxPopup('peek','c=config&a=showWorkerPeek&id={$result.w_id}&view_id={$view->id|escape:'url'}',null,false,'550');" class="subject" style="{if $result.w_is_disabled}color:rgb(120,0,0);font-style:italic;{/if}">{$result.$column}</a>&nbsp;</td>
-			*}
+			<td>
+				<input type="checkbox" name="row_id[]" value="{$result.g_id}" style="display:none;">
+				<a href="{devblocks_url}c=profiles&g=group&id={$result.g_id}-{$result.g_name|devblocks_permalink}{/devblocks_url}" class="subject">{$result.$column}</a>
+			</td>
 			{else}
 			<td>{$result.$column}</td>
 			{/if}
