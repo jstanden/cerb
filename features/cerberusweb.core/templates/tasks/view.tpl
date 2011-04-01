@@ -10,6 +10,7 @@
 			{if $active_worker->hasPriv('core.tasks.view.actions.export')} | <a href="javascript:;" onclick="genericAjaxGet('{$view->id}_tips','c=internal&a=viewShowExport&id={$view->id}');toggleDiv('{$view->id}_tips','block');">{$translate->_('common.export')|lower}</a>{/if}
 			 | <a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewRefresh&id={$view->id}');"><span class="cerb-sprite sprite-refresh"></span></a>
 			{if $active_worker->hasPriv('core.rss')} | <a href="javascript:;" onclick="genericAjaxGet('{$view->id}_tips','c=tickets&a=showViewRss&view_id={$view->id}&source=core.rss.source.task');toggleDiv('{$view->id}_tips','block');"><span class="cerb-sprite sprite-rss"></span></a>{/if}
+			 | <input type="checkbox" onclick="checkAll('view{$view->id}',this.checked);this.blur();$rows=$('#viewForm{$view->id}').find('table.worklistBody').find('tbody > tr');if($(this).is(':checked')) { $rows.addClass('selected'); } else { $rows.removeClass('selected'); }">
 		</td>
 	</tr>
 </table>
@@ -27,9 +28,6 @@
 	{* Column Headers *}
 	<thead>
 	<tr>
-		<th style="text-align:center;">
-			<input type="checkbox" onclick="checkAll('view{$view->id}',this.checked);this.blur();$rows=$(this).closest('table').find('tbody > tr');if($(this).is(':checked')) { $rows.addClass('selected'); } else { $rows.removeClass('selected'); }">
-		</th>
 		<th style="text-align:center">
 			<a href="javascript:;">{'common.watchers'|devblocks_translate|capitalize}</a>
 		</th>
@@ -63,11 +61,11 @@
 	{/if}
 	<tbody style="cursor:pointer;">
 		<tr class="{$tableRowClass}">
-			<td align="center" rowspan="2" nowrap="nowrap" style="padding:5px;"><input type="checkbox" name="row_id[]" value="{$result.t_id}"></td>
 			<td align="center" rowspan="2" nowrap="nowrap" style="padding:5px;">
 				{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=CerberusContexts::CONTEXT_TASK context_id=$result.t_id}
 			</td>
 			<td colspan="{$smarty.foreach.headers.total}">
+				<input type="checkbox" name="row_id[]" value="{$result.t_id}" style="display:none;">
 				{if $result.t_is_completed}
 					<span class="cerb-sprite2 sprite-tick-circle-frame-gray" title="{$result.t_completed_date|devblocks_date}"></span>
 				{/if}

@@ -41,19 +41,7 @@
 				<input type="text" name="amount_cents" size="3" maxlength="2" style="border:1px solid rgb(180,180,180);padding:2px;" value="{if empty($opp->amount)}00{else}{math equation="(x-floor(x))*100" x=$opp->amount}{/if}" autocomplete="off">
 			</td>
 		</tr>
-		<tr>
-			<td width="0%" nowrap="nowrap" valign="top" align="right">{'common.watchers'|devblocks_translate|capitalize}: </td>
-			<td width="100%">
-				<button type="button" class="chooser_worker"><span class="cerb-sprite sprite-view"></span></button>
-				<ul class="chooser-container bubbles" style="display:block;">
-				{if !empty($context_watchers)}
-					{foreach from=$context_watchers item=context_worker}
-					<li>{$context_worker->getName()}<input type="hidden" name="worker_id[]" value="{$context_worker->id}"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></li>
-					{/foreach}
-				{/if}
-				</ul>
-			</td>
-		</tr>
+		
 		<tr>
 			<td width="0%" nowrap="nowrap" align="right" valign="top">{$translate->_('crm.opportunity.created_date')|capitalize}: </td>
 			<td width="100%">
@@ -68,6 +56,20 @@
 				<div id="dateOppClosed"></div>
 			</td>
 		</tr>
+		
+		{* Watchers *}
+		<tr>
+			<td width="0%" nowrap="nowrap" valign="middle" align="right">{$translate->_('common.watchers')|capitalize}: </td>
+			<td width="100%">
+				{if empty($opp->id)}
+					<label><input type="checkbox" name="is_watcher" value="1"> {'common.watchers.add_me'|devblocks_translate}</label>
+				{else}
+					{$object_watchers = DAO_ContextLink::getContextLinks(CerberusContexts::CONTEXT_OPPORTUNITY, array($opp->id), CerberusContexts::CONTEXT_WORKER)}
+					{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=CerberusContexts::CONTEXT_OPPORTUNITY context_id=$opp->id}
+				{/if}
+			</td>
+		</tr>
+		
 	</table>
 </fieldset>
 
@@ -85,18 +87,12 @@
 
 <fieldset>
 	<legend>{'common.comment'|devblocks_translate|capitalize}</legend>
-	<textarea name="comment" rows="5" cols="45" style="width:98%;"></textarea><br>
-	<b>{'common.notify_workers'|devblocks_translate}:</b>
-	<button type="button" class="chooser_notify_worker"><span class="cerb-sprite sprite-view"></span></button>
-	<ul class="chooser-container bubbles" style="display:block;">
-		{if !empty($context_watchers)}
-			{foreach from=$context_watchers item=context_worker}
-			{if $context_worker->id != $active_worker->id}
-				<li>{$context_worker->getName()}<input type="hidden" name="notify_worker_ids[]" value="{$context_worker->id}"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></li>
-			{/if}
-			{/foreach}
-		{/if}
-	</ul>
+	<textarea name="comment" rows="5" cols="45" style="width:98%;"></textarea>
+	<div class="notify" style="display:none;">
+		<b>{'common.notify_watchers_and'|devblocks_translate}:</b>
+		<button type="button" class="chooser_notify_worker"><span class="cerb-sprite sprite-view"></span></button>
+		<ul class="chooser-container bubbles" style="display:block;"></ul>
+	</div>
 </fieldset>
 
 {if $active_worker->hasPriv('crm.opp.actions.create')}
@@ -121,6 +117,13 @@
 		$(this).dialog('option','title', '{'Opportunity'|devblocks_translate}');
 		ajax.emailAutoComplete('#emailinput');
 		$("#formOppPeek").validate();
+		$(this).find('textarea[name=comment]').keyup(function() {
+			if($(this).val().length > 0) {
+				$(this).next('DIV.notify').show();
+			} else {
+				$(this).next('DIV.notify').hide();
+			}
+		});
 		$('#formOppPeek :input:text:first').focus();
 	} );
 	$('#formOppPeek button.chooser_worker').each(function() {

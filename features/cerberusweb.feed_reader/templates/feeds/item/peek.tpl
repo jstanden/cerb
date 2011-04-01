@@ -27,17 +27,18 @@
 				<label><input type="radio" name="is_closed" value="1" {if !empty($model) && $model->is_closed}checked="checked"{/if}> {'status.closed'|devblocks_translate|capitalize}</label>
 			</td>
 		</tr>
+		
+
+		{* Watchers *}
 		<tr>
-			<td width="1%" valign="top" nowrap="nowrap"><b>{'common.watchers'|devblocks_translate|capitalize}:</b></td>
-			<td width="99%" valign="top">
-				<button type="button" class="chooser_worker"><span class="cerb-sprite sprite-view"></span></button>
-				<ul class="chooser-container bubbles" style="display:block;">
-				{if !empty($context_watchers)}
-					{foreach from=$context_watchers item=context_worker}
-					<li>{$context_worker->getName()}<input type="hidden" name="worker_id[]" value="{$context_worker->id}"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></li>
-					{/foreach}
+			<td width="0%" nowrap="nowrap" valign="middle" align="right">{$translate->_('common.watchers')|capitalize}: </td>
+			<td width="100%">
+				{if empty($model->id)}
+					<label><input type="checkbox" name="is_watcher" value="1"> {'common.watchers.add_me'|devblocks_translate}</label>
+				{else}
+					{$object_watchers = DAO_ContextLink::getContextLinks('cerberusweb.contexts.feed.item', array($model->id), CerberusContexts::CONTEXT_WORKER)}
+					{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context='cerberusweb.contexts.feed.item' context_id=$model->id}
 				{/if}
-				</ul>
 			</td>
 		</tr>
 	</table>
@@ -57,18 +58,12 @@
 
 <fieldset>
 	<legend>{'common.comment'|devblocks_translate|capitalize}</legend>
-	<textarea name="comment" rows="5" cols="45" style="width:98%;"></textarea><br>
-	<b>{'common.notify_workers'|devblocks_translate}:</b>
-	<button type="button" class="chooser_notify_worker"><span class="cerb-sprite sprite-view"></span></button>
-	<ul class="chooser-container bubbles" style="display:block;">
-		{if !empty($context_watchers)}
-			{foreach from=$context_watchers item=context_worker}
-			{if $context_worker->id != $active_worker->id}
-				<li>{$context_worker->getName()}<input type="hidden" name="notify_worker_ids[]" value="{$context_worker->id}"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></li>
-			{/if}
-			{/foreach}
-		{/if}
-	</ul>
+	<textarea name="comment" rows="5" cols="45" style="width:98%;"></textarea>
+	<div class="notify" style="display:none;">
+		<b>{'common.notify_watchers_and'|devblocks_translate}:</b>
+		<button type="button" class="chooser_notify_worker"><span class="cerb-sprite sprite-view"></span></button>
+		<ul class="chooser-container bubbles" style="display:block;"></ul>
+	</div>
 </fieldset>
 
 <button type="button" onclick="genericAjaxPopupPostCloseReloadView('peek','frmFeedItemPopup','{$view_id}',false,'feeditem_save');"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {$translate->_('common.save_changes')|capitalize}</button>
@@ -86,9 +81,13 @@
 	$popup = genericAjaxPopupFetch('peek');
 	$popup.one('popup_open', function(event,ui) {
 		$(this).dialog('option','title',"{$translate->_('feeds.item')}");
-	});
-	$('#frmFeedItemPopup button.chooser_worker').each(function() {
-		ajax.chooser(this,'cerberusweb.contexts.worker','worker_id', { autocomplete:true });
+		$(this).find('textarea[name=comment]').keyup(function() {
+			if($(this).val().length > 0) {
+				$(this).next('DIV.notify').show();
+			} else {
+				$(this).next('DIV.notify').hide();
+			}
+		});
 	});
 	$('#frmFeedItemPopup button.chooser_notify_worker').each(function() {
 		ajax.chooser(this,'cerberusweb.contexts.worker','notify_worker_ids', { autocomplete:true });

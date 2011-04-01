@@ -300,6 +300,9 @@
 		<tu tuid='common.next'>
 			<tuv xml:lang="en_US"><seg>next</seg></tuv>
 		</tu>
+		<tu tuid='common.notify_watchers_and'>
+			<tuv xml:lang="en_US"><seg>Notify watchers and</seg></tuv>
+		</tu>
 		<tu tuid='common.notify_workers'>
 			<tuv xml:lang="en_US"><seg>Notify workers</seg></tuv>
 		</tu>
@@ -434,6 +437,9 @@
 		</tu>
 		<tu tuid='common.watchers'>
 			<tuv xml:lang="en_US"><seg>watchers</seg></tuv>
+		</tu>
+		<tu tuid='common.watchers.add_me'>
+			<tuv xml:lang="en_US"><seg>Notify me about new activity</seg></tuv>
 		</tu>
 		<tu tuid='common.week'>
 			<tuv xml:lang="en_US"><seg>week</seg></tuv>

@@ -328,7 +328,7 @@ class CerberusMail {
 		
         // Watchers?
         if(isset($properties['context_watchers'])) {
-        	CerberusContexts::setWatchers(CerberusContexts::CONTEXT_TICKET, $ticket_id, $properties['context_watchers']);
+        	CerberusContexts::addWatchers(CerberusContexts::CONTEXT_TICKET, $ticket_id, $properties['context_watchers']);
         }
 		
         // Events
@@ -691,7 +691,7 @@ class CerberusMail {
 		}
 
         if(isset($properties['context_watchers'])) {
-        	CerberusContexts::setWatchers(CerberusContexts::CONTEXT_TICKET, $ticket_id, $properties['context_watchers']);
+        	CerberusContexts::addWatchers(CerberusContexts::CONTEXT_TICKET, $ticket_id, $properties['context_watchers']);
         }
 		
 		// Move

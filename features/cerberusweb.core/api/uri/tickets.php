@@ -1289,9 +1289,9 @@ class ChTicketsPage extends CerberusPageExtension {
 		$team_categories = DAO_Bucket::getTeams();
 		$tpl->assign('team_categories', $team_categories);
 	    
-		// Workers
-		$context_watchers = CerberusContexts::getWatchers(CerberusContexts::CONTEXT_TICKET, $ticket->id);
-		$tpl->assign('context_watchers', $context_watchers);
+		// Watchers
+		$object_watchers = DAO_ContextLink::getContextLinks(CerberusContexts::CONTEXT_TICKET, array($ticket->id), CerberusContexts::CONTEXT_WORKER);
+		$tpl->assign('object_watchers', $object_watchers);
 		
 		// Custom fields
 		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TICKET);
@@ -1384,9 +1384,6 @@ class ChTicketsPage extends CerberusPageExtension {
 		
 		DAO_Ticket::update($id, $fields);
 		
-		// Context Workers
-		CerberusContexts::setWatchers(CerberusContexts::CONTEXT_TICKET, $id, $worker_ids);
-		
 		// Custom field saves
 		@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', array());
 		DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_TICKET, $id, $field_ids);
@@ -1404,12 +1401,24 @@ class ChTicketsPage extends CerberusPageExtension {
 			
 			// Notifications
 			@$notify_worker_ids = DevblocksPlatform::importGPC($_REQUEST['notify_worker_ids'],'array',array());
-			DAO_Comment::triggerCommentNotifications(
-				CerberusContexts::CONTEXT_TICKET,
-				$id,
-				$active_worker,
-				$notify_worker_ids
+			
+			$notify_worker_ids = array_merge(
+				$notify_worker_ids,
+				array_keys(CerberusContexts::getWatchers(CerberusContexts::CONTEXT_TICKET, $id))
 			);
+			$notify_worker_ids = array_diff( // Remove ourselves
+				$notify_worker_ids,
+				array($active_worker->id)
+			);
+
+			if(!empty($notify_worker_ids)) {
+				DAO_Comment::triggerCommentNotifications(
+					CerberusContexts::CONTEXT_TICKET,
+					$id,
+					$active_worker,
+					$notify_worker_ids
+				);
+			}
 		}		
 		exit;
 	}

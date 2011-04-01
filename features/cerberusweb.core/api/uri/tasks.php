@@ -152,10 +152,6 @@ class ChTasksPage extends CerberusPageExtension {
 		unset($comments);
 		$tpl->assign('last_comment', $last_comment);
 
-		// Workers
-		$context_watchers = CerberusContexts::getWatchers(CerberusContexts::CONTEXT_TASK, $id);
-		$tpl->assign('context_watchers', $context_watchers);
-		
 		// View
 		$tpl->assign('id', $id);
 		$tpl->assign('view_id', $view_id);
@@ -214,6 +210,10 @@ class ChTasksPage extends CerberusPageExtension {
 			} else {
 				$id = DAO_Task::create($fields);
 
+				@$is_watcher = DevblocksPlatform::importGPC($_REQUEST['is_watcher'],'integer',0);
+				if($is_watcher)
+					CerberusContexts::addWatchers(CerberusContexts::CONTEXT_TASK, $id, $active_worker->id);
+				
 				// Context Link (if given)
 				@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
 				@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer','');
@@ -222,10 +222,6 @@ class ChTasksPage extends CerberusPageExtension {
 				}
 			}
 
-			// Workers
-			@$worker_ids = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',array());
-			CerberusContexts::setWatchers(CerberusContexts::CONTEXT_TASK, $id, $worker_ids);
-			
 			// Custom field saves
 			@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', array());
 			DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_TASK, $id, $field_ids);
@@ -243,12 +239,24 @@ class ChTasksPage extends CerberusPageExtension {
 				
 				// Notifications
 				@$notify_worker_ids = DevblocksPlatform::importGPC($_REQUEST['notify_worker_ids'],'array',array());
-				DAO_Comment::triggerCommentNotifications(
-					CerberusContexts::CONTEXT_TASK,
-					$id,
-					$active_worker,
-					$notify_worker_ids
+				
+				$notify_worker_ids = array_merge(
+					$notify_worker_ids,
+					array_keys(CerberusContexts::getWatchers(CerberusContexts::CONTEXT_TASK, $id))
 				);
+				$notify_worker_ids = array_diff( // Remove ourselves
+					$notify_worker_ids,
+					array($active_worker->id)
+				);
+	
+				if(!empty($notify_worker_ids)) {
+					DAO_Comment::triggerCommentNotifications(
+						CerberusContexts::CONTEXT_TASK,
+						$id,
+						$active_worker,
+						$notify_worker_ids
+					);
+				}
 			}
 		}
 		

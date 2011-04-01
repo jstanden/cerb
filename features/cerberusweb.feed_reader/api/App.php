@@ -182,10 +182,6 @@ class Page_Feeds extends CerberusPageExtension {
 		unset($comments);
 		$tpl->assign('last_comment', $last_comment);
 		
-		// Workers
-		$context_watchers = CerberusContexts::getWatchers('cerberusweb.contexts.feed.item', $id);
-		$tpl->assign('context_watchers', $context_watchers);
-		
 		$tpl->display('devblocks:cerberusweb.feed_reader::feeds/item/peek.tpl');
 	}
 	
@@ -209,6 +205,10 @@ class Page_Feeds extends CerberusPageExtension {
 				);
 				$id = DAO_FeedItem::create($fields);
 				
+				@$is_watcher = DevblocksPlatform::importGPC($_REQUEST['is_watcher'],'integer',0);
+				if($is_watcher)
+					CerberusContexts::addWatchers('cerberusweb.contexts.feed.item', $id, $active_worker->id);
+				
 			} else { // Edit
 				$fields = array(
 					DAO_FeedItem::IS_CLOSED => $is_closed,
@@ -227,24 +227,32 @@ class Page_Feeds extends CerberusPageExtension {
 					DAO_Comment::ADDRESS_ID => $active_worker->getAddress()->id,
 				);
 				$comment_id = DAO_Comment::create($fields);
-				
+
 				// Notifications
 				@$notify_worker_ids = DevblocksPlatform::importGPC($_REQUEST['notify_worker_ids'],'array',array());
-				DAO_Comment::triggerCommentNotifications(
-					'cerberusweb.contexts.feed.item',
-					$id,
-					$active_worker,
-					$notify_worker_ids
+				
+				$notify_worker_ids = array_merge(
+					$notify_worker_ids,
+					array_keys(CerberusContexts::getWatchers('cerberusweb.contexts.feed.item', $id))
 				);
+				$notify_worker_ids = array_diff( // Remove ourselves
+					$notify_worker_ids,
+					array($active_worker->id)
+				);
+	
+				if(!empty($notify_worker_ids)) {
+					DAO_Comment::triggerCommentNotifications(
+						'cerberusweb.contexts.feed.item',
+						$id,
+						$active_worker,
+						$notify_worker_ids
+					);
+				}
 			}
 			
 			// Custom fields
 			@$field_ids = DevblocksPlatform::importGPC($_REQUEST['field_ids'], 'array', array());
 			DAO_CustomFieldValue::handleFormPost('cerberusweb.contexts.feed.item', $id, $field_ids);
-			
-			// Watchers
-			@$worker_ids = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',array());
-			CerberusContexts::setWatchers('cerberusweb.contexts.feed.item', $id, $worker_ids);
 		}
 		
 		// Reload view (if linked)

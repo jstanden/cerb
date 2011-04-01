@@ -1181,10 +1181,6 @@ class ChTimeTrackingPage extends CerberusPageExtension {
 		unset($comments);
 		$tpl->assign('last_comment', $last_comment);
 		
-		// Workers
-		$context_watchers = CerberusContexts::getWatchers(CerberusContexts::CONTEXT_TIMETRACKING, $id);
-		$tpl->assign('context_watchers', $context_watchers);
-		
 		// Custom fields
 		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TIMETRACKING); 
 		$tpl->assign('custom_fields', $custom_fields);
@@ -1248,6 +1244,10 @@ class ChTimeTrackingPage extends CerberusPageExtension {
 		
 		if(empty($id)) { // create
 			$id = DAO_TimeTrackingEntry::create($fields);
+			
+			@$is_watcher = DevblocksPlatform::importGPC($_REQUEST['is_watcher'],'integer',0);
+			if($is_watcher)
+				CerberusContexts::addWatchers(CerberusContexts::CONTEXT_TIMETRACKING, $id, $active_worker->id);
 			
 			$translate = DevblocksPlatform::getTranslationService();
 			$url_writer = DevblocksPlatform::getUrlService();
@@ -1337,10 +1337,6 @@ class ChTimeTrackingPage extends CerberusPageExtension {
 			}
 		}
 		
-		// Watchers
-		@$worker_ids = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',array());
-		CerberusContexts::setWatchers(CerberusContexts::CONTEXT_TIMETRACKING, $id, $worker_ids);
-
 		// Custom field saves
 		@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', array());
 		DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_TIMETRACKING, $id, $field_ids);
@@ -1359,12 +1355,23 @@ class ChTimeTrackingPage extends CerberusPageExtension {
 			
 			// Notifications
 			@$notify_worker_ids = DevblocksPlatform::importGPC($_REQUEST['notify_worker_ids'],'array',array());
-			DAO_Comment::triggerCommentNotifications(
-				CerberusContexts::CONTEXT_TIMETRACKING,
-				$id,
-				$active_worker,
-				$notify_worker_ids
+			$notify_worker_ids = array_merge(
+				$notify_worker_ids,
+				array_keys(CerberusContexts::getWatchers(CerberusContexts::CONTEXT_TIMETRACKING, $id))
 			);
+			$notify_worker_ids = array_diff( // Remove ourselves
+				$notify_worker_ids,
+				array($active_worker->id)
+			);
+
+			if(!empty($notify_worker_ids)) {
+				DAO_Comment::triggerCommentNotifications(
+					CerberusContexts::CONTEXT_TIMETRACKING,
+					$id,
+					$active_worker,
+					$notify_worker_ids
+				);
+			}
 		}
 	}
 	

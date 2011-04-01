@@ -32,17 +32,17 @@
 				<input id="checkTaskCompleted" type="checkbox" name="completed" value="1" {if $task->is_completed}checked{/if}>
 			</td>
 		</tr>
+		
+		{* Watchers *}
 		<tr>
-			<td width="0%" nowrap="nowrap" valign="top" align="right">{'common.watchers'|devblocks_translate|capitalize}: </td>
+			<td width="0%" nowrap="nowrap" valign="middle" align="right">{$translate->_('common.watchers')|capitalize}: </td>
 			<td width="100%">
-				<button type="button" class="chooser_worker"><span class="cerb-sprite sprite-view"></span></button>
-				<ul class="chooser-container bubbles" style="display:block;">
-				{if !empty($context_watchers)}
-					{foreach from=$context_watchers item=context_worker}
-					<li>{$context_worker->getName()}<input type="hidden" name="worker_id[]" value="{$context_worker->id}"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></li>
-					{/foreach}
+				{if empty($task->id)}
+					<label><input type="checkbox" name="is_watcher" value="1"> {'common.watchers.add_me'|devblocks_translate}</label>
+				{else}
+					{$object_watchers = DAO_ContextLink::getContextLinks(CerberusContexts::CONTEXT_TASK, array($task->id), CerberusContexts::CONTEXT_WORKER)}
+					{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=CerberusContexts::CONTEXT_TASK context_id=$task->id}
 				{/if}
-				</ul>
 			</td>
 		</tr>
 	</table>
@@ -62,18 +62,12 @@
 
 <fieldset>
 	<legend>{'common.comment'|devblocks_translate|capitalize}</legend>
-	<textarea name="comment" rows="5" cols="45" style="width:98%;"></textarea><br>
-	<b>{'common.notify_workers'|devblocks_translate}:</b>
-	<button type="button" class="chooser_notify_worker"><span class="cerb-sprite sprite-view"></span></button>
-	<ul class="chooser-container bubbles" style="display:block;">
-		{if !empty($context_watchers)}
-			{foreach from=$context_watchers item=context_worker}
-			{if $context_worker->id != $active_worker->id}
-				<li>{$context_worker->getName()}<input type="hidden" name="notify_worker_ids[]" value="{$context_worker->id}"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></li>
-			{/if}
-			{/foreach}
-		{/if}
-	</ul>
+	<textarea name="comment" rows="5" cols="45" style="width:98%;"></textarea>
+	<div class="notify" style="display:none;">
+		<b>{'common.notify_watchers_and'|devblocks_translate}:</b>
+		<button type="button" class="chooser_notify_worker"><span class="cerb-sprite sprite-view"></span></button>
+		<ul class="chooser-container bubbles" style="display:block;"></ul>
+	</div>
 </fieldset>
 
 {if $active_worker->hasPriv('core.tasks.actions.create')}
@@ -94,10 +88,14 @@
 	$popup = genericAjaxPopupFetch('peek');
 	$popup.one('popup_open',function(event,ui) {
 		$(this).dialog('option','title','Tasks');
+		$(this).find('textarea[name=comment]').keyup(function() {
+			if($(this).val().length > 0) {
+				$(this).next('DIV.notify').show();
+			} else {
+				$(this).next('DIV.notify').hide();
+			}
+		});
 		$('#formTaskPeek :input:text:first').focus().select();
-	});
-	$('#formTaskPeek button.chooser_worker').each(function() {
-		ajax.chooser(this,'cerberusweb.contexts.worker','worker_id', { autocomplete:true });
 	});
 	$('#formTaskPeek button.chooser_notify_worker').each(function() {
 		ajax.chooser(this,'cerberusweb.contexts.worker','notify_worker_ids', { autocomplete:true });

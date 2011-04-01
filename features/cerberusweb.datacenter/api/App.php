@@ -190,10 +190,6 @@ class Page_Datacenter extends CerberusPageExtension {
 		unset($comments);
 		$tpl->assign('last_comment', $last_comment);
 		
-		// Workers
-		$context_watchers = CerberusContexts::getWatchers('cerberusweb.contexts.datacenter.server', $id);
-		$tpl->assign('context_watchers', $context_watchers);
-		
 		// Render
 		$tpl->display('devblocks:cerberusweb.datacenter::datacenter/servers/peek.tpl');
 	}
@@ -218,6 +214,10 @@ class Page_Datacenter extends CerberusPageExtension {
 			if(empty($id)) {
 				$id = DAO_Server::create($fields);
 				
+				@$is_watcher = DevblocksPlatform::importGPC($_REQUEST['is_watcher'],'integer',0);
+				if($is_watcher)
+					CerberusContexts::addWatchers('cerberusweb.contexts.datacenter.server', $id, $active_worker->id);
+				
 			} else {
 				DAO_Server::update($id, $fields);
 			}
@@ -235,12 +235,24 @@ class Page_Datacenter extends CerberusPageExtension {
 				
 				// Notifications
 				@$notify_worker_ids = DevblocksPlatform::importGPC($_REQUEST['notify_worker_ids'],'array',array());
-				DAO_Comment::triggerCommentNotifications(
-					'cerberusweb.contexts.datacenter.server',
-					$id,
-					$active_worker,
-					$notify_worker_ids
+				
+				$notify_worker_ids = array_merge(
+					$notify_worker_ids,
+					array_keys(CerberusContexts::getWatchers('cerberusweb.contexts.datacenter.server', $id))
 				);
+				$notify_worker_ids = array_diff( // Remove ourselves
+					$notify_worker_ids,
+					array($active_worker->id)
+				);
+	
+				if(!empty($notify_worker_ids)) {
+					DAO_Comment::triggerCommentNotifications(
+						'cerberusweb.contexts.datacenter.server',
+						$id,
+						$active_worker,
+						$notify_worker_ids
+					);
+				}
 			}
 			
 			// Custom field saves

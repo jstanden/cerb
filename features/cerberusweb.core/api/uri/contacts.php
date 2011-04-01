@@ -1294,10 +1294,6 @@ class ChContactsPage extends CerberusPageExtension {
 		$contact = DAO_ContactOrg::get($id);
 		$tpl->assign('contact', $contact);
 
-		// Workers
-		$context_watchers = CerberusContexts::getWatchers(CerberusContexts::CONTEXT_ORG, $id);
-		$tpl->assign('context_watchers', $context_watchers);
-		
 		// Custom fields
 		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ORG); 
 		$tpl->assign('custom_fields', $custom_fields);
@@ -1353,14 +1349,18 @@ class ChContactsPage extends CerberusPageExtension {
 				$fields = $fields + array(DAO_Address::EMAIL => $email);
 				$id = DAO_Address::create($fields);
 				
+				@$is_watcher = DevblocksPlatform::importGPC($_REQUEST['is_watcher'],'integer',0);
+				if($is_watcher)
+					CerberusContexts::addWatchers(CerberusContexts::CONTEXT_ADDRESS, $id, $active_worker->id);
+				
 				// Context Link (if given)
 				@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
 				@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer','');
 				if(!empty($id) && !empty($context) && !empty($context_id)) {
 					DAO_ContextLink::setLink(CerberusContexts::CONTEXT_ADDRESS, $id, $context, $context_id);
 				}
-			}
-			else {
+				
+			} else {
 				DAO_Address::update($id, $fields);
 			}
 	
@@ -1425,6 +1425,10 @@ class ChContactsPage extends CerberusPageExtension {
 				if($id==0) {
 					$id = DAO_ContactOrg::create($fields);
 					
+					@$is_watcher = DevblocksPlatform::importGPC($_REQUEST['is_watcher'],'integer',0);
+					if($is_watcher)
+						CerberusContexts::addWatchers(CerberusContexts::CONTEXT_ORG, $id, $active_worker->id);
+					
 					// Context Link (if given)
 					@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
 					@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer','');
@@ -1435,10 +1439,6 @@ class ChContactsPage extends CerberusPageExtension {
 				else {
 					DAO_ContactOrg::update($id, $fields);	
 				}
-				
-				// Workers
-				@$worker_ids = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',array());
-				CerberusContexts::setWatchers(CerberusContexts::CONTEXT_ORG, $id, $worker_ids);
 				
 				// Custom field saves
 				@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', array());
@@ -1456,12 +1456,24 @@ class ChContactsPage extends CerberusPageExtension {
 					
 					// Notifications
 					@$notify_worker_ids = DevblocksPlatform::importGPC($_REQUEST['notify_worker_ids'],'array',array());
-					DAO_Comment::triggerCommentNotifications(
-						CerberusContexts::CONTEXT_ORG,
-						$id,
-						$active_worker,
-						$notify_worker_ids
+					
+					$notify_worker_ids = array_merge(
+						$notify_worker_ids,
+						array_keys(CerberusContexts::getWatchers(CerberusContexts::CONTEXT_ORG, $id))
 					);
+					$notify_worker_ids = array_diff( // Remove ourselves
+						$notify_worker_ids,
+						array($active_worker->id)
+					);
+
+					if(!empty($notify_worker_ids)) {
+						DAO_Comment::triggerCommentNotifications(
+							CerberusContexts::CONTEXT_ORG,
+							$id,
+							$active_worker,
+							$notify_worker_ids
+						);
+					}
 				}				
 			}
 		}

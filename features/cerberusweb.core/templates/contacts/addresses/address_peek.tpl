@@ -66,6 +66,20 @@
 				</select>
 			</td>
 		</tr>
+		
+		{* Watchers *}
+		<tr>
+			<td width="0%" nowrap="nowrap" valign="middle" align="right">{$translate->_('common.watchers')|capitalize}: </td>
+			<td width="100%">
+				{if empty($id)}
+					<label><input type="checkbox" name="is_watcher" value="1"> {'common.watchers.add_me'|devblocks_translate}</label>
+				{else}
+					{$object_watchers = DAO_ContextLink::getContextLinks(CerberusContexts::CONTEXT_ADDRESS, array($address.a_id), CerberusContexts::CONTEXT_WORKER)}
+					{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=CerberusContexts::CONTEXT_ADDRESS context_id=$address.a_id}
+				{/if}
+			</td>
+		</tr>
+		
 	</table>
 </fieldset>
 

@@ -66,16 +66,9 @@
 				
 				{* Watchers *}
 				<tr>
-					<td width="0%" nowrap="nowrap" valign="top" align="right">{$translate->_('common.watchers')|capitalize}: </td>
+					<td width="0%" nowrap="nowrap" valign="middle" align="right">{$translate->_('common.watchers')|capitalize}: </td>
 					<td width="100%">
-						<button type="button" class="chooser_worker"><span class="cerb-sprite sprite-view"></span></button>
-						<ul class="chooser-container bubbles" style="display:block;">
-						{if !empty($context_watchers)}
-							{foreach from=$context_watchers item=context_worker}
-							<li>{$context_worker->getName()}<input type="hidden" name="worker_id[]" value="{$context_worker->id}"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></li>
-							{/foreach}
-						{/if}
-						</ul>
+						{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=CerberusContexts::CONTEXT_TICKET context_id=$ticket->id}
 					</td>
 				</tr>
 				
@@ -197,21 +190,15 @@
 		
 		<fieldset>
 			<legend>{'common.comment'|devblocks_translate|capitalize}</legend>
-			<textarea name="comment" rows="5" cols="45" style="width:98%;"></textarea><br>
-			<b>{'common.notify_workers'|devblocks_translate}:</b>
-			<button type="button" class="chooser_notify_worker"><span class="cerb-sprite sprite-view"></span></button>
-			<ul class="chooser-container bubbles" style="display:block;">
-				{if !empty($context_watchers)}
-					{foreach from=$context_watchers item=context_worker}
-					{if $context_worker->id != $active_worker->id}
-						<li>{$context_worker->getName()}<input type="hidden" name="notify_worker_ids[]" value="{$context_worker->id}"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></li>
-					{/if}
-					{/foreach}
-				{/if}
-			</ul>
+			<textarea name="comment" rows="5" cols="45" style="width:98%;"></textarea>
+			<div class="notify" style="display:none;">
+				<b>{'common.notify_watchers_and'|devblocks_translate}:</b>
+				<button type="button" class="chooser_notify_worker"><span class="cerb-sprite sprite-view"></span></button>
+				<ul class="chooser-container bubbles" style="display:block;"></ul>
+			</div>
 		</fieldset>
 		
-		<button type="button" class="green" onclick="genericAjaxPopupPostCloseReloadView('peek','frmTicketPeek','{$view_id}',false,'ticket_save');"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {$translate->_('common.save_changes')}</button>
+		<button type="button" onclick="genericAjaxPopupPostCloseReloadView('peek','frmTicketPeek','{$view_id}',false,'ticket_save');"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {$translate->_('common.save_changes')}</button>
     </div><!--tab2-->		
 </div> 
 <br>
@@ -226,6 +213,13 @@
 		$("#peekTabs").tabs();
 		$("#ticketPeekContent").css('width','100%');
 		$("#ticketPeekProps").show();
+		$(this).find('textarea[name=comment]').keyup(function() {
+			if($(this).val().length > 0) {
+				$(this).next('DIV.notify').show();
+			} else {
+				$(this).next('DIV.notify').hide();
+			}
+		});
 		$(this).focus();
 	});
 	

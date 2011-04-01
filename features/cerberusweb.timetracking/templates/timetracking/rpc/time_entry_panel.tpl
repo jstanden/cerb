@@ -60,19 +60,20 @@
 				<label><input type="radio" name="is_closed" value="1" {if $model->is_closed}checked="checked"{/if}> {$translate->_('status.closed')|capitalize}</label>
 			</td>
 		</tr>
+		
+		{* Watchers *}
 		<tr>
-			<td width="0%" nowrap="nowrap" valign="top" align="right"><b>{'common.watchers'|devblocks_translate|capitalize}</b>:</td>
+			<td width="0%" nowrap="nowrap" valign="middle" align="right">{$translate->_('common.watchers')|capitalize}: </td>
 			<td width="100%">
-				<button type="button" class="chooser_worker"><span class="cerb-sprite sprite-view"></span></button>
-				<ul class="chooser-container bubbles" style="display:block;">
-				{if !empty($context_watchers)}
-					{foreach from=$context_watchers item=context_worker}
-					<li>{$context_worker->getName()}<input type="hidden" name="worker_id[]" value="{$context_worker->id}"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></li>
-					{/foreach}
+				{if empty($model->id)}
+					<label><input type="checkbox" name="is_watcher" value="1"> {'common.watchers.add_me'|devblocks_translate}</label>
+				{else}
+					{$object_watchers = DAO_ContextLink::getContextLinks(CerberusContexts::CONTEXT_TIMETRACKING, array($model->id), CerberusContexts::CONTEXT_WORKER)}
+					{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=CerberusContexts::CONTEXT_TIMETRACKING context_id=$model->id}
 				{/if}
-				</ul>
 			</td>
 		</tr>
+
 	</table>
 </fieldset>
 
@@ -90,18 +91,12 @@
 
 <fieldset>
 	<legend>{'common.comment'|devblocks_translate|capitalize}</legend>
-	<textarea name="comment" rows="5" cols="45" style="width:98%;"></textarea><br>
-	<b>{'common.notify_workers'|devblocks_translate}:</b>
-	<button type="button" class="chooser_notify_worker"><span class="cerb-sprite sprite-view"></span></button>
-	<ul class="chooser-container bubbles" style="display:block;">
-		{if !empty($context_watchers)}
-			{foreach from=$context_watchers item=context_worker}
-			{if $context_worker->id != $active_worker->id}
-				<li>{$context_worker->getName()}<input type="hidden" name="notify_worker_ids[]" value="{$context_worker->id}"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></li>
-			{/if}
-			{/foreach}
-		{/if}
-	</ul>
+	<textarea name="comment" rows="5" cols="45" style="width:98%;"></textarea>
+	<div class="notify" style="display:none;">
+		<b>{'common.notify_watchers_and'|devblocks_translate}:</b>
+		<button type="button" class="chooser_notify_worker"><span class="cerb-sprite sprite-view"></span></button>
+		<ul class="chooser-container bubbles" style="display:block;"></ul>
+	</div>
 </fieldset>
 
 {if $model->context && $model->context_id}
@@ -117,8 +112,7 @@
 		<button type="button" onclick="timeTrackingTimer.finish();"><span class="cerb-sprite sprite-media_stop_red"></span> {$translate->_('common.cancel')|capitalize}</button>
 	{else}
 		<button type="button" onclick="genericAjaxPopupPostCloseReloadView('peek','frmTimeEntry','{$view_id}',false,'timetracking_save');"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {$translate->_('common.save_changes')|capitalize}</button>
-		<button type="button" onclick="if(confirm('Permanently delete this time tracking entry?')) { this.form.do_delete.value='1'; genericAjaxPopupPostCloseReloadView('peek','frmTimeEntry','{$view_id}',true,'timetracking_delete'); } "><span class="cerb-sprite2 sprite-minus-circle-frame"></span> {$translate->_('common.delete')|capitalize}</button>
-		<button type="button" onclick="genericAjaxPopupClose('peek');"><span class="cerb-sprite2 sprite-cross-circle-frame"></span> {$translate->_('common.cancel')|capitalize}</button>
+		<button type="button" onclick="if(confirm('Permanently delete this time tracking entry?')) { this.form.do_delete.value='1'; genericAjaxPopupPostCloseReloadView('peek','frmTimeEntry','{$view_id}',true,'timetracking_delete'); } "><span class="cerb-sprite2 sprite-cross-circle-frame"></span> {$translate->_('common.delete')|capitalize}</button>
 	{/if}
 {else}
 	<div class="error">You do not have permission to modify this record.</div>
@@ -136,7 +130,14 @@
 	$popup = genericAjaxPopupFetch('peek');
 	$popup.one('popup_open',function(event,ui) {
 		$(this).dialog('option','title',"{'timetracking.ui.timetracking'|devblocks_translate}");
-	} );
+		$(this).find('textarea[name=comment]').keyup(function() {
+			if($(this).val().length > 0) {
+				$(this).next('DIV.notify').show();
+			} else {
+				$(this).next('DIV.notify').hide();
+			}
+		});
+	});
 	$('#frmTimeEntry button.chooser_worker').each(function() {
 		ajax.chooser(this,'cerberusweb.contexts.worker','worker_id', { autocomplete:true });
 	});

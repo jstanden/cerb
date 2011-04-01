@@ -648,7 +648,7 @@ class DevblocksEventHelper {
 		
 		// Watchers
 		if(isset($params['worker_id']) && !empty($params['worker_id']))
-			CerberusContexts::setWatchers(CerberusContexts::CONTEXT_TASK, $task_id, $params['worker_id']);
+			CerberusContexts::addWatchers(CerberusContexts::CONTEXT_TASK, $task_id, $params['worker_id']);
 		
 		// [TODO] Notify
 
