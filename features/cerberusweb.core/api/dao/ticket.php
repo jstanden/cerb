@@ -1559,6 +1559,18 @@ class View_Ticket extends C4_AbstractView {
 				$tpl->display('devblocks:cerberusweb.core::tickets/ticket_view.tpl');
 				break;
 		}
+		
+		$tpl->clearAssign('buckets');
+		$tpl->clearAssign('custom_fields');
+		$tpl->clearAssign('id');
+		$tpl->clearAssign('last_action');
+		$tpl->clearAssign('last_action_count');
+		$tpl->clearAssign('results');
+		$tpl->clearAssign('teams');
+		$tpl->clearAssign('team_categories');
+		$tpl->clearAssign('timestamp_now');
+		$tpl->clearAssign('view');
+		$tpl->clearAssign('workers');
 	}
 
 	function renderCriteria($field) {

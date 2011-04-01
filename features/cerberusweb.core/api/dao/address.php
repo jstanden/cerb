@@ -587,6 +587,9 @@ class View_Address extends C4_AbstractView {
 				break;
 		}
 		
+		$tpl->clearAssign('custom_fields');
+		$tpl->clearAssign('id');
+		$tpl->clearAssign('view');
 	}
 
 	function renderCriteria($field) {

@@ -223,6 +223,8 @@ if(!isset($tables['address_outgoing'])) {
 	";
 	$db->Execute($sql);
 	
+	$tables['address_outgoing'] = 'address_outgoing';
+	
 	// Migrate the default sender address
 	
 	$default_reply_from = $db->GetOne("SELECT value FROM devblocks_setting WHERE setting = 'default_reply_from' AND plugin_id='cerberusweb.core'");

@@ -568,6 +568,11 @@ class View_ContactOrg extends C4_AbstractView {
 				$tpl->display('devblocks:cerberusweb.core::contacts/orgs/contact_view.tpl');
 				break;
 		}
+		
+		$tpl->clearAssign('custom_fields');
+		$tpl->clearAssign('id');
+		$tpl->clearAssign('view');
+		$tpl->clearAssign('workers');
 	}
 
 	function renderCriteria($field) {
