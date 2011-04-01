@@ -11,7 +11,7 @@ $('FORM#viewForm{$view->id} TABLE.worklistBody TBODY')
 		
 		if (false == $target instanceof jQuery) {
 			// Not a jQuery object
-		} else if($target.is(':input,:button,a,img')) {
+		} else if($target.is(':input,:button,a,img,span.cerb-sprite,span.cerb-sprite2')) {
 			// Ignore form elements and links
 		} else {
 			e.preventDefault();
@@ -34,10 +34,16 @@ $('FORM#viewForm{$view->id} TABLE.worklistBody TBODY')
 	})
 	.hover(
 		function() {
-			$(this).find('tr').addClass('hover');
+			$(this).find('tr')
+				.addClass('hover')
+				.find('BUTTON.peek').css('visibility','visible')
+				;
 		},
 		function() {
-			$(this).find('tr').removeClass('hover');
+			$(this).find('tr').
+				removeClass('hover')
+				.find('BUTTON.peek').css('visibility','hidden')
+				;
 		}
 	)
 	;

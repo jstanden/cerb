@@ -21,9 +21,9 @@
 				<td>
 					<input type="text" name="feed_url[]" value="{$feed->url}" class="input_rss" style="width:95%;">
 				</td>
-				<td align="center" nowrap="nowrap">
-					<button type="button" class="add" style="display:none;" onclick="$table=$(this).closest('table');$tbody=$(this).closest('tbody').clone();$tbody.appendTo($table).find('input:text').val('').focus();$table.find('button.del').show().last().hide();$(this).hide();">+</button>
-					<button type="button" class="del" onclick="$table=$(this).closest('table');$(this).closest('tbody').remove();$table.find('button.add:last').show();">-</button>
+				<td align="center" nowrap="nowrap" style="padding-left:5px;">
+					<button type="button" class="add" style="display:none;" onclick="$table=$(this).closest('table');$tbody=$(this).closest('tbody').clone();$tbody.appendTo($table).find('input:text').val('').focus();$table.find('button.del').show().last().hide();$(this).hide();"><span class="cerb-sprite2 sprite-plus-circle-frame"></span></button>
+					<button type="button" class="del" onclick="$table=$(this).closest('table');$(this).closest('tbody').remove();$table.find('button.add:last').show();"><span class="cerb-sprite2 sprite-minus-circle-frame"></span></button>
 				</td>
 			</tr>
 		</tbody>
@@ -37,16 +37,16 @@
 				<td>
 					<input type="text" name="feed_url[]" value="" class="input_rss" style="width:95%;">
 				</td>
-				<td align="center" nowrap="nowrap">
-					<button type="button" class="add" onclick="$table=$(this).closest('table');$tbody=$(this).closest('tbody').clone();$tbody.appendTo($table).find('input:text').val('').focus();$table.find('button.del').show().last().hide();$(this).hide();">+</button>
-					<button type="button" class="del" onclick="$table=$(this).closest('table');$(this).closest('tbody').remove();$table.find('button.add:last').show();" style="display:none;">-</button>
+				<td align="center" nowrap="nowrap" style="padding-left:5px;">
+					<button type="button" class="add" onclick="$table=$(this).closest('table');$tbody=$(this).closest('tbody').clone();$tbody.appendTo($table).find('input:text').val('').focus();$table.find('button.del').show().last().hide();$(this).hide();"><span class="cerb-sprite2 sprite-plus-circle-frame"></span></button>
+					<button type="button" class="del" onclick="$table=$(this).closest('table');$(this).closest('tbody').remove();$table.find('button.add:last').show();" style="display:none;"><span class="cerb-sprite2 sprite-minus-circle-frame"></span></button>
 				</td>
 			</tr>
 		</tbody>
 	</table>
 </fieldset>
 
-<button type="button" onclick="genericAjaxPopupPostCloseReloadView('peek','frmFeedsManagerPopup','{$view_id}',false,'feedsmanager_save');"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {$translate->_('common.save_changes')|capitalize}</button>
+<button type="button" class="green" onclick="genericAjaxPopupPostCloseReloadView('peek','frmFeedsManagerPopup','{$view_id}',false,'feedsmanager_save');"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {$translate->_('common.save_changes')|capitalize}</button>
 
 </form>
 

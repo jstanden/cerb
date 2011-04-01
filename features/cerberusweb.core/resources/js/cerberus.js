@@ -254,18 +254,6 @@ var cAjaxCalls = function() {
 					hideLoadingPanel();
 				});
 				break;
-			case 'follow':
-				genericAjaxPost(formName, '', 'c=tickets&a=viewFollowTickets&view_id='+view_id, function(html) {
-					$('#'+divName).html(html);
-					hideLoadingPanel();
-				});
-				break;
-			case 'unfollow':
-				genericAjaxPost(formName, '', 'c=tickets&a=viewUnfollowTickets&view_id='+view_id, function(html) {
-					$('#'+divName).html(html);
-					hideLoadingPanel();
-				});
-				break;
 			case 'waiting':
 				genericAjaxPost(formName, '', 'c=tickets&a=viewWaitingTickets&view_id='+view_id, function(html) {
 					$('#'+divName).html(html);

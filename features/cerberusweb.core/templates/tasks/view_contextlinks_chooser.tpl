@@ -41,8 +41,8 @@
 	{/if}
 	<tbody style="cursor:pointer;">
 		<tr class="{$tableRowClass}">
-			<td align="center" rowspan="2"><input type="checkbox" name="row_id[]" title="{$result.t_title}" value="{$result.t_id}"></td>
-			<td colspan="{math equation="x" x=$smarty.foreach.headers.total}">
+			<td align="center" rowspan="2" nowrap="nowrap"><input type="checkbox" name="row_id[]" title="{$result.t_title}" value="{$result.t_id}"></td>
+			<td colspan="{$smarty.foreach.headers.total}">
 				{if $result.t_is_completed}
 					<span class="cerb-sprite2 sprite-tick-circle-frame-gray" title="{$result.t_completed_date|devblocks_date}"></span>
 				{/if}

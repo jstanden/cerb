@@ -50,8 +50,8 @@
 	{/if}
 	<tbody style="cursor:pointer;">
 		<tr class="{$tableRowClass}">
-			<td align="center" rowspan="2"><input type="checkbox" name="row_id[]" value="{$result.d_id}"></td>
-			<td colspan="{math equation="x" x=$smarty.foreach.headers.total}">
+			<td align="center" rowspan="2" nowrap="nowrap" style="padding:5px;"><input type="checkbox" name="row_id[]" value="{$result.d_id}"></td>
+			<td colspan="{$smarty.foreach.headers.total}">
 				<a href="javascript:;" onclick="genericAjaxPopup('peek','c=config&a=handleSectionAction&section=portal&action=getTemplatePeek&portal={$tool->code}&view_id={$view->id}&id={$result.d_id}',null,false,'600');" class="subject">{$result.d_path}</a>
 			</td>
 		</tr>

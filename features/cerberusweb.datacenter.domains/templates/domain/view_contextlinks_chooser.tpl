@@ -40,8 +40,8 @@
 	{/if}
 	<tbody style="cursor:pointer;">
 		<tr class="{$tableRowClass}">
-			<td align="center" rowspan="2"><input type="checkbox" name="row_id[]" title="{$result.w_name}" value="{$result.w_id}"></td>
-			<td colspan="{math equation="x" x=$smarty.foreach.headers.total}">
+			<td align="center" rowspan="2" nowrap="nowrap"><input type="checkbox" name="row_id[]" title="{$result.w_name}" value="{$result.w_id}"></td>
+			<td colspan="{$smarty.foreach.headers.total}">
 				<a href="{devblocks_url}c=datacenter.domains&m=domain&id={$result.w_id}{/devblocks_url}" class="subject">{$result.w_name}</a>
 			</td>
 		</tr>

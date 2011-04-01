@@ -57,8 +57,8 @@
 			{else}
 				{$title = '%s tracked %s mins'|devblocks_translate:$worker_name:$result.tt_time_actual_mins}
 			{/if}					
-			<td align="center" rowspan="2"><input type="checkbox" name="row_id[]" title="{$title}" value="{$result.tt_id}"></td>
-			<td colspan="{math equation="x" x=$smarty.foreach.headers.total}">
+			<td align="center" rowspan="2" nowrap="nowrap"><input type="checkbox" name="row_id[]" title="{$title}" value="{$result.tt_id}"></td>
+			<td colspan="{$smarty.foreach.headers.total}">
 				{if $result.tt_is_closed}<span class="cerb-sprite2 sprite-tick-circle-frame-gray" title=""></span>{/if}
 				<a href="javascript:;" onclick="genericAjaxPopup('peek','c=timetracking&a=showEntry&id={$result.tt_id}&view_id={$view->id}',null,false,'500');" class="subject">{$title}</a>
 				

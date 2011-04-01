@@ -44,7 +44,7 @@
 	<tbody>
 	<tr class="{$tableRowClass}">
 		<td>&nbsp;</td>
-		<td rowspan="2" colspan="{math equation="x" x=$smarty.foreach.headers.total}" style="color:rgb(140,140,140);font-size:10px;text-align:left;vertical-align:middle;">[Access Denied: {$teams.$ticket_group_id->name} #{$result.t_mask}]</td>
+		<td rowspan="2" colspan="{$smarty.foreach.headers.total}" style="color:rgb(140,140,140);font-size:10px;text-align:left;vertical-align:middle;">[Access Denied: {$teams.$ticket_group_id->name} #{$result.t_mask}]</td>
 	</tr>
 	<tr class="{$tableRowClass}">
 		<td>&nbsp;</td>
@@ -54,8 +54,8 @@
 	{else}
 	<tbody style="cursor:pointer;">
 	<tr class="{$tableRowClass}">
-		<td align="center" rowspan="2"><input type="checkbox" name="ticket_id[]" title="[#{$result.t_mask}] {$result.t_subject}" value="{$result.t_id}"></td>
-		<td colspan="{math equation="x" x=$smarty.foreach.headers.total}">
+		<td align="center" rowspan="2" nowrap="nowrap"><input type="checkbox" name="ticket_id[]" title="[#{$result.t_mask}] {$result.t_subject}" value="{$result.t_id}"></td>
+		<td colspan="{$smarty.foreach.headers.total}">
 			<a href="{devblocks_url}c=display&id={$result.t_mask}{/devblocks_url}" class="subject" target="_blank">{if $result.t_is_deleted}<span class="cerb-sprite2 sprite-cross-circle-frame-gray"></span> {elseif $result.t_is_closed}<span class="cerb-sprite2 sprite-tick-circle-frame-gray" title="{$translate->_('status.closed')}"></span> {elseif $result.t_is_waiting}<span class="cerb-sprite sprite-clock"></span> {/if}{$result.t_subject}</a>
 			
 			{if isset($object_watchers.{$result.t_id})}

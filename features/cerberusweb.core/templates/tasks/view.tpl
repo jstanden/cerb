@@ -30,6 +30,9 @@
 		<th style="text-align:center;">
 			<input type="checkbox" onclick="checkAll('view{$view->id}',this.checked);this.blur();$rows=$(this).closest('table').find('tbody > tr');if($(this).is(':checked')) { $rows.addClass('selected'); } else { $rows.removeClass('selected'); }">
 		</th>
+		<th style="text-align:center">
+			<a href="javascript:;">{'common.follow'|devblocks_translate|capitalize}</a>
+		</th>
 		
 		{foreach from=$view->view_columns item=header name=headers}
 			{* start table header, insert column title and link *}
@@ -60,24 +63,17 @@
 	{/if}
 	<tbody style="cursor:pointer;">
 		<tr class="{$tableRowClass}">
-			<td align="center" rowspan="2"><input type="checkbox" name="row_id[]" value="{$result.t_id}"></td>
-			<td colspan="{math equation="x" x=$smarty.foreach.headers.total}">
+			<td align="center" rowspan="2" nowrap="nowrap" style="padding:5px;"><input type="checkbox" name="row_id[]" value="{$result.t_id}"></td>
+			<td align="center" rowspan="2" nowrap="nowrap" style="padding:5px;">
+				{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=CerberusContexts::CONTEXT_TASK context_id=$result.t_id}
+			</td>
+			<td colspan="{$smarty.foreach.headers.total}">
 				{if $result.t_is_completed}
 					<span class="cerb-sprite2 sprite-tick-circle-frame-gray" title="{$result.t_completed_date|devblocks_date}"></span>
 				{/if}
-				<a href="{devblocks_url}c=tasks&d=display&id={$result.t_id}{/devblocks_url}" class="subject">{if !empty($result.t_title)}{$result.t_title}{else}New Task{/if}</a> <a href="javascript:;" onclick="genericAjaxPopup('peek','c=tasks&a=showTaskPeek&id={$result.t_id}&view_id={$view->id}',null,false,'550');"><span class="ui-icon ui-icon-newwin" style="display:inline-block;vertical-align:middle;" title="{$translate->_('views.peek')}"></span></a>
+				<a href="{devblocks_url}c=tasks&d=display&id={$result.t_id}{/devblocks_url}" class="subject">{if !empty($result.t_title)}{$result.t_title}{else}New Task{/if}</a> 
 				
-				{if isset($object_watchers.{$result.t_id})}
-				<div style="display:inline;padding-left:5px;">
-				{foreach from=$object_watchers.{$result.t_id} key=worker_id item=worker name=workers}
-					{if isset($workers.{$worker_id})}
-						<span style="color:rgb(150,150,150);">
-						{$workers.{$worker_id}->getName()}{if !$smarty.foreach.workers.last}, {/if}
-						</span>
-					{/if}
-				{/foreach}
-				</div>
-				{/if}
+				<button type="button" class="peek" style="visibility:hidden;padding:1px;margin:0px 5px;" onclick="genericAjaxPopup('peek','c=tasks&a=showTaskPeek&id={$result.t_id}&view_id={$view->id}',null,false,'550');"><span class="cerb-sprite2 sprite-document-search-result" style="margin-left:2px" title="{$translate->_('views.peek')}"></span></button>
 			</td>
 		</tr>
 		<tr class="{$tableRowClass}">

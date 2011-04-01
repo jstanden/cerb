@@ -26,7 +26,8 @@
 						{if $active_worker->hasPriv('core.home.workspaces')} | <a href="javascript:;" onclick="genericAjaxGet('{$view->id}_tips','c=internal&a=viewShowCopy&view_id={$view->id}');toggleDiv('{$view->id}_tips','block');">{$translate->_('common.copy')|lower}</a>{/if}
 						{if $active_worker->hasPriv('core.ticket.view.actions.export')} | <a href="javascript:;" onclick="genericAjaxGet('{$view->id}_tips','c=internal&a=viewShowExport&id={$view->id}');toggleDiv('{$view->id}_tips','block');">{$translate->_('common.export')|lower}</a>{/if}
 						 | <a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewRefresh&id={$view->id}');"><span class="cerb-sprite sprite-refresh"></span></a>
-						{if $active_worker->hasPriv('core.rss')} | <a href="javascript:;" onclick="genericAjaxGet('{$view->id}_tips','c=tickets&a=showViewRss&view_id={$view->id}&source=core.rss.source.ticket');toggleDiv('{$view->id}_tips','block');"><span class="cerb-sprite sprite-rss"></span></a>{/if}
+						 {if $active_worker->hasPriv('core.rss')} | <a href="javascript:;" onclick="genericAjaxGet('{$view->id}_tips','c=tickets&a=showViewRss&view_id={$view->id}&source=core.rss.source.ticket');toggleDiv('{$view->id}_tips','block');"><span class="cerb-sprite sprite-rss"></span></a>{/if}
+						 | <input type="checkbox" onclick="checkAll('view{$view->id}',this.checked);this.blur();$rows=$('#viewForm{$view->id}').find('table.worklistBody').find('tbody > tr');if($(this).is(':checked')) { $rows.addClass('selected'); } else { $rows.removeClass('selected'); }">
 					</td>
 				</tr>
 			</table>
@@ -44,8 +45,8 @@
 				{* Column Headers *}
 				<thead>
 				<tr>
-					<th style="text-align:center">
-						<input type="checkbox" onclick="checkAll('viewForm{$view->id}',this.checked);this.blur();$rows=$(this).closest('table').find('tbody > tr');if($(this).is(':checked')) { $rows.addClass('selected'); } else { $rows.removeClass('selected'); }">
+					<th style="text-align:center;">
+						<a href="javascript:;">{'common.follow'|devblocks_translate|capitalize}</a>
 					</th>
 					{foreach from=$view->view_columns item=header name=headers}
 						{* start table header, insert column title and link *}
@@ -84,7 +85,7 @@
 				<tbody>
 				<tr class="{$tableRowClass}">
 					<td>&nbsp;</td>
-					<td rowspan="2" colspan="{math equation="x" x=$smarty.foreach.headers.total}" style="color:rgb(140,140,140);font-size:10px;text-align:left;vertical-align:middle;">[Access Denied: {$teams.$ticket_group_id->name} #{$result.t_mask}]</td>
+					<td rowspan="2" colspan="{$smarty.foreach.headers.total}" style="color:rgb(140,140,140);font-size:10px;text-align:left;vertical-align:middle;">[Access Denied: {$teams.$ticket_group_id->name} #{$result.t_mask}]</td>
 				</tr>
 				<tr class="{$tableRowClass}">
 					<td>&nbsp;</td>
@@ -94,23 +95,14 @@
 				{else}
 				<tbody style="cursor:pointer;">
 				<tr class="{$tableRowClass}">
-					<td align="center" rowspan="2"><input type="checkbox" name="ticket_id[]" value="{$result.t_id}"></td>
-					<td colspan="{math equation="x" x=$smarty.foreach.headers.total}">
+					<td align="center" rowspan="2" nowrap="nowrap" style="padding:5px;">
+						{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=CerberusContexts::CONTEXT_TICKET context_id=$result.t_id}
+					</td>
+					<td colspan="{$smarty.foreach.headers.total}">
+						<input type="checkbox" name="ticket_id[]" value="{$result.t_id}" style="display:none;">
 						{if $result.t_is_deleted}<span class="cerb-sprite2 sprite-cross-circle-frame-gray"></span> {elseif $result.t_is_closed}<span class="cerb-sprite2 sprite-tick-circle-frame-gray" title="{$translate->_('status.closed')}"></span> {elseif $result.t_is_waiting}<span class="cerb-sprite sprite-clock"></span>{/if}
 						<a href="{devblocks_url}c=display&id={$result.t_mask}{/devblocks_url}" class="subject">{$result.t_subject}</a> 
-						<a href="javascript:;" onclick="genericAjaxPopup('peek','c=tickets&a=showPreview&view_id={$view->id}&tid={$result.t_id}', null, false, '650');"><span class="ui-icon ui-icon-newwin" style="display:inline-block;vertical-align:middle;" title="{$translate->_('views.peek')}"></span></a>
-						
-						{if isset($object_watchers.{$result.t_id})}
-						<div style="display:inline;padding-left:5px;">
-						{foreach from=$object_watchers.{$result.t_id} key=worker_id item=worker name=workers}
-							{if isset($workers.{$worker_id})}
-								<span style="color:rgb(150,150,150);">
-								{$workers.{$worker_id}->getName()}{if !$smarty.foreach.workers.last}, {/if}
-								</span>
-							{/if}
-						{/foreach}
-						</div>
-						{/if}
+						<button type="button" class="peek" style="visibility:hidden;padding:1px;margin:0px 5px;" onclick="genericAjaxPopup('peek','c=tickets&a=showPreview&view_id={$view->id}&tid={$result.t_id}', null, false, '650');"><span class="cerb-sprite2 sprite-document-search-result" style="margin-left:2px" title="{$translate->_('views.peek')}"></span></button>
 					</td>
 				</tr>
 				<tr class="{$tableRowClass}">
@@ -238,8 +230,6 @@
 						<div id="view{$view->id}_more" style="display:{if $show_more}none{else}block{/if};padding-top:5px;padding-bottom:5px;">
 							<button type="button" onclick="ajax.viewTicketsAction('{$view->id}','not_spam');">{$translate->_('common.notspam')|lower}</button>
 							{if $active_worker->hasPriv('core.ticket.view.actions.merge')}<button type="button" onclick="ajax.viewTicketsAction('{$view->id}','merge');">{$translate->_('mail.merge')|lower}</button>{/if}
-							<button type="button" id="btn{$view->id}Follow" onclick="ajax.viewTicketsAction('{$view->id}','follow');">{$translate->_('common.follow')|lower}</button>
-							<button type="button" id="btn{$view->id}Unfollow" onclick="ajax.viewTicketsAction('{$view->id}','unfollow');">{$translate->_('common.unfollow')|lower}</button>
 							<button type="button" onclick="ajax.viewTicketsAction('{$view->id}','waiting');">{$translate->_('mail.waiting')|lower}</button>
 							<button type="button" onclick="ajax.viewTicketsAction('{$view->id}','not_waiting');">{$translate->_('mail.not_waiting')|lower}</button>
 						</div>
@@ -251,8 +241,6 @@
 								{if $active_worker->hasPriv('core.ticket.view.actions.bulk_update')}(<b>b</b>) {$translate->_('common.bulk_update')|lower}{/if} 
 								{if $active_worker->hasPriv('core.ticket.actions.close')}(<b>c</b>) {$translate->_('common.close')|lower}{/if} 
 								{if $active_worker->hasPriv('core.ticket.actions.spam')}(<b>s</b>) {$translate->_('common.spam')|lower}{/if} 
-								(<b>f</b>) {$translate->_('common.follow')|lower} 
-								(<b>u</b>) {$translate->_('common.unfollow')|lower} 
 								{if $active_worker->hasPriv('core.ticket.actions.delete')}(<b>x</b>) {$translate->_('common.delete')|lower}{/if}
 								<br>
 						{/if}

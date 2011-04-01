@@ -52,7 +52,7 @@
 	<tbody style="cursor:pointer;">
 		{*
 		<tr class="{$tableRowClass}">
-			<td align="center" rowspan="2"><input type="checkbox" name="row_id[]" value="{$result.d_id}"></td>
+			<td align="center" rowspan="2" nowrap="nowrap" style="padding:5px;"><input type="checkbox" name="row_id[]" value="{$result.d_id}"></td>
 		</tr>
 		*}
 		<tr class="{$tableRowClass}">

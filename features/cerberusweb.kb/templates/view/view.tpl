@@ -9,6 +9,7 @@
 			 <a href="javascript:;" onclick="genericAjaxGet('customize{$view->id}','c=internal&a=viewCustomize&id={$view->id}');toggleDiv('customize{$view->id}','block');">{$translate->_('common.customize')|lower}</a>
 			 {if $active_worker->hasPriv('core.home.workspaces')} | <a href="javascript:;" onclick="genericAjaxGet('{$view->id}_tips','c=internal&a=viewShowCopy&view_id={$view->id}');toggleDiv('{$view->id}_tips','block');">{$translate->_('common.copy')|lower}</a>{/if}
 			 | <a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewRefresh&id={$view->id}');"><span class="cerb-sprite sprite-refresh"></span></a>
+			 | <input type="checkbox" onclick="checkAll('view{$view->id}',this.checked);this.blur();$rows=$('#viewForm{$view->id}').find('table.worklistBody').find('tbody > tr');if($(this).is(':checked')) { $rows.addClass('selected'); } else { $rows.removeClass('selected'); }">
 		</td>
 	</tr>
 </table>
@@ -25,7 +26,9 @@
 
 	{* Column Headers *}
 	<tr>
-		<th style="text-align:center"><input type="checkbox" onclick="checkAll('view{$view->id}',this.checked);this.blur();$rows=$(this).closest('table').find('tbody > tr');if($(this).is(':checked')) { $rows.addClass('selected'); } else { $rows.removeClass('selected'); }"></th>
+		<th style="text-align:center">
+			<a href="javascript:;">{'common.follow'|devblocks_translate|capitalize}</a>
+		</th>
 		{foreach from=$view->view_columns item=header name=headers}
 			{* start table header, insert column title and link *}
 			<th nowrap="nowrap">
@@ -44,6 +47,7 @@
 	</tr>
 
 	{* Column Data *}
+	{$object_watchers = DAO_ContextLink::getContextLinks(CerberusContexts::CONTEXT_KB_ARTICLE, array_keys($data), CerberusContexts::CONTEXT_WORKER)}
 	{foreach from=$data item=result key=idx name=results}
 
 	{if $smarty.foreach.results.iteration % 2}
@@ -53,42 +57,45 @@
 	{/if}
 	<tbody style="cursor:pointer;">
 		<tr class="{$tableRowClass}">
-			<td align="center"><input type="checkbox" name="row_id[]" value="{$result.kb_id}"></td>
-		{foreach from=$view->view_columns item=column name=columns}
-			{if $column=="kb_id"}
-			<td>{$result.kb_id}&nbsp;</td>
-			{elseif $column=="kb_title"}
-			<td>
-				<a href="{devblocks_url}c=kb&a=article&id={$result.kb_id}{/devblocks_url}" class="subject">{if !empty($result.kb_title)}{$result.kb_title}{else}(no title){/if}</a>
-				<a href="javascript:;" onclick="genericAjaxPopup('peek','c=kb.ajax&a=showArticlePeekPanel&id={$result.kb_id}&view_id={$view->id}',null,false,'700');"><span class="ui-icon ui-icon-newwin" style="display:inline-block;vertical-align:middle;" title="{$translate->_('views.peek')}"></span></a>
+			<td align="center">
+				<input type="checkbox" name="row_id[]" value="{$result.kb_id}" style="display:none;">	
+				{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=CerberusContexts::CONTEXT_KB_ARTICLE context_id=$result.kb_id}
 			</td>
-			{elseif $column=="kb_updated"}
-			<td><abbr title="{$result.kb_updated|devblocks_date}">{$result.kb_updated|devblocks_prettytime}</abbr>&nbsp;</td>
-			{elseif $column=="kb_format"}
-			<td>
-				{if 0==$result.$column}
-					Plaintext
-				{elseif 1==$result.$column}
-					HTML
-				{elseif 2==$result.$column}
-					Markdown
-				{/if}
-				&nbsp;
-			</td>
-			{elseif $column=="katc_top_category_id"}
-			<td>
-				{if !empty($result.$column)}
-					{assign var=topic_id value=$result.$column}
-					{if isset($categories.$topic_id)}
-						{$categories.$topic_id->name}
+			{foreach from=$view->view_columns item=column name=columns}
+				{if $column=="kb_id"}
+				<td>{$result.kb_id}&nbsp;</td>
+				{elseif $column=="kb_title"}
+				<td>
+					<a href="{devblocks_url}c=kb&a=article&id={$result.kb_id}{/devblocks_url}" class="subject">{if !empty($result.kb_title)}{$result.kb_title}{else}(no title){/if}</a>
+					<button type="button" class="peek" style="visibility:hidden;padding:1px;margin:0px 5px;" onclick="genericAjaxPopup('peek','c=kb.ajax&a=showArticlePeekPanel&id={$result.kb_id}&view_id={$view->id}',null,false,'700');"><span class="cerb-sprite2 sprite-document-search-result" style="margin-left:2px" title="{$translate->_('views.peek')}"></span></button>
+				</td>
+				{elseif $column=="kb_updated"}
+				<td><abbr title="{$result.kb_updated|devblocks_date}">{$result.kb_updated|devblocks_prettytime}</abbr>&nbsp;</td>
+				{elseif $column=="kb_format"}
+				<td>
+					{if 0==$result.$column}
+						Plaintext
+					{elseif 1==$result.$column}
+						HTML
+					{elseif 2==$result.$column}
+						Markdown
 					{/if}
+					&nbsp;
+				</td>
+				{elseif $column=="katc_top_category_id"}
+				<td>
+					{if !empty($result.$column)}
+						{assign var=topic_id value=$result.$column}
+						{if isset($categories.$topic_id)}
+							{$categories.$topic_id->name}
+						{/if}
+					{/if}
+					&nbsp;
+				</td>
+				{else}
+				<td>{$result.$column}</td>
 				{/if}
-				&nbsp;
-			</td>
-			{else}
-			<td>{$result.$column}</td>
-			{/if}
-		{/foreach}
+			{/foreach}
 		</tr>
 	</tbody>
 	{/foreach}

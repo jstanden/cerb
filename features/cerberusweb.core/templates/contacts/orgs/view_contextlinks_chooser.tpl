@@ -41,8 +41,8 @@
 	{/if}
 	<tbody style="cursor:pointer;">
 		<tr class="{$tableRowClass}">
-			<td align="center" rowspan="2"><input type="checkbox" name="row_id[]" title="{$result.c_name}" value="{$result.c_id}"></td>
-			<td colspan="{math equation="x" x=$smarty.foreach.headers.total}">
+			<td align="center" rowspan="2" nowrap="nowrap"><input type="checkbox" name="row_id[]" title="{$result.c_name}" value="{$result.c_id}"></td>
+			<td colspan="{$smarty.foreach.headers.total}">
 				<b class="subject">{$result.c_name}</b>
 
 				{if isset($object_watchers.{$result.c_id})}

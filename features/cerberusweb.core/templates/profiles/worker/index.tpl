@@ -46,8 +46,8 @@
 		<li><a href="#activity">Activity</a></li>
 
 		{$tabs[] = 'links'}
-		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextLinks&context=cerberusweb.contexts.worker&point={$point}&id={$worker->id}&filter_open=1{/devblocks_url}">{'Assignments'|devblocks_translate}</a></li>
-
+		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextLinks&context=cerberusweb.contexts.worker&point={$point}&id={$worker->id}&filter_open=1{/devblocks_url}">Watching (1053)</a></li>
+		
 		{*
 		{foreach from=$tab_manifests item=tab_manifest}
 			{$tabs[] = $tab_manifest->params.uri}

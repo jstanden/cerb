@@ -57,8 +57,8 @@
 				{$display_name = "Contact"}
 			{/if}
 			
-			<td align="center" rowspan="2"><input type="checkbox" name="row_id[]" title="{$display_name}" value="{$result.c_id}"></td>
-			<td colspan="{math equation="x" x=$smarty.foreach.headers.total}"><b class="subject">{$display_name}</b></td>
+			<td align="center" rowspan="2" nowrap="nowrap"><input type="checkbox" name="row_id[]" title="{$display_name}" value="{$result.c_id}"></td>
+			<td colspan="{$smarty.foreach.headers.total}"><b class="subject">{$display_name}</b></td>
 		</tr>
 		<tr class="{$tableRowClass}">
 		{foreach from=$view->view_columns item=column name=columns}

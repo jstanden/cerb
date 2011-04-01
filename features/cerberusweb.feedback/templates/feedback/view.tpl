@@ -9,7 +9,8 @@
 			<a href="javascript:;" onclick="genericAjaxGet('customize{$view->id}','c=internal&a=viewCustomize&id={$view->id}');toggleDiv('customize{$view->id}','block');">{$translate->_('common.customize')|lower}</a>
 			{if $active_worker->hasPriv('core.home.workspaces')} | <a href="javascript:;" onclick="genericAjaxGet('{$view->id}_tips','c=internal&a=viewShowCopy&view_id={$view->id}');toggleDiv('{$view->id}_tips','block');">{$translate->_('common.copy')|lower}</a>{/if}
 			{if $active_worker->hasPriv('feedback.view.actions.export')} | <a href="javascript:;" onclick="genericAjaxGet('{$view->id}_tips','c=internal&a=viewShowExport&id={$view->id}');toggleDiv('{$view->id}_tips','block');">{$translate->_('common.export')|lower}</a>{/if}
-			 | <a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewRefresh&id={$view->id}');"><span class="cerb-sprite sprite-refresh"></span></a>			
+			 | <a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewRefresh&id={$view->id}');"><span class="cerb-sprite sprite-refresh"></span></a>
+			 | <input type="checkbox" onclick="checkAll('view{$view->id}',this.checked);this.blur();$rows=$('#viewForm{$view->id}').find('table.worklistBody').find('tbody > tr');if($(this).is(':checked')) { $rows.addClass('selected'); } else { $rows.removeClass('selected'); }">
 		</td>
 	</tr>
 </table>
@@ -25,7 +26,9 @@
 
 	{* Column Headers *}
 	<tr>
-		<th style="text-align:center"><input type="checkbox" onclick="checkAll('view{$view->id}',this.checked);this.blur();$rows=$(this).closest('table').find('tbody > tr');if($(this).is(':checked')) { $rows.addClass('selected'); } else { $rows.removeClass('selected'); }"></th>
+		<th style="text-align:center;padding-right:5px;">
+			<a href="javascript:;">{'common.follow'|devblocks_translate|capitalize}</a>
+		</th>
 		{foreach from=$view->view_columns item=header name=headers}
 			{* start table header, insert column title and link *}
 			<th nowrap="nowrap">
@@ -44,6 +47,7 @@
 	</tr>
 
 	{* Column Data *}
+	{$object_watchers = DAO_ContextLink::getContextLinks(CerberusContexts::CONTEXT_FEEDBACK, array_keys($data), CerberusContexts::CONTEXT_WORKER)}
 	{foreach from=$data item=result key=idx name=results}
 
 	{if $smarty.foreach.results.iteration % 2}
@@ -56,47 +60,52 @@
 	{assign var=mood value=$result.f_quote_mood}
 	<tbody style="cursor:pointer;">
 		<tr class="{$tableRowClass}">
-			<td align="center" rowspan="2"><input type="checkbox" name="row_id[]" value="{$result.f_id}"></td>
-		{foreach from=$view->view_columns item=column name=columns}
-			{if substr($column,0,3)=="cf_"}
-				{include file="devblocks:cerberusweb.core::internal/custom_fields/view/cell_renderer.tpl"}
-			{elseif $column=="f_id"}
-				<td>{$result.f_id}&nbsp;</td>
-			{elseif $column=="a_email"}
-				<td>
-					{if !empty($result.a_email)}
-						<a href="javascript:;" onclick="genericAjaxPopup('peek','c=contacts&a=showAddressPeek&address_id={$result.f_quote_address_id}&view_id={$view->id}',null,false,'500');">{$result.a_email}</a>
-					{else}
-						<i>{'common.anonymous'|devblocks_translate|lower}</i>
-					{/if}
-				</td>
-			{elseif $column=="f_log_date"}
-				<td title="{$result.f_log_date|devblocks_date}">{$result.f_log_date|devblocks_prettytime}&nbsp;</td>
-			{elseif $column=="f_worker_id"}
-				<td>{if isset($workers.$worker_id)}{$workers.$worker_id->getName()}{/if}&nbsp;</td>
-			{elseif $column=="f_quote_mood"}
-				<td>
-					{if 1==$result.$column}
-						<span style="background-color:rgb(235, 255, 235);color:rgb(0, 180, 0);font-weight:bold;">{'feedback.mood.praise'|devblocks_translate}</span>
-					{elseif 2==$result.$column}
-						<span style="background-color: rgb(255, 235, 235);color: rgb(180, 0, 0);font-weight:bold;">{'feedback.mood.criticism'|devblocks_translate}</span>
-					{else}
-						{'feedback.mood.neutral'|devblocks_translate}
-					{/if}
-				</td>
-			{elseif $column=="f_source_url"}
-				<td><a href="{$result.f_source_url}" target="_blank" title="{$result.f_source_url}">{$result.f_source_url|truncate:35:'...':true:false}</a>&nbsp;</td>
-			{else}
-				<td>{$result.$column}</td>
-			{/if}
-		{/foreach}
+			<td align="center" valign="top" rowspan="2" nowrap="nowrap" style="padding:5px;">
+				{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=CerberusContexts::CONTEXT_FEEDBACK context_id=$result.f_id}
+			</td>
+			{foreach from=$view->view_columns item=column name=columns}
+				{if substr($column,0,3)=="cf_"}
+					{include file="devblocks:cerberusweb.core::internal/custom_fields/view/cell_renderer.tpl"}
+				{elseif $column=="f_id"}
+					<td>{$result.f_id}&nbsp;</td>
+				{elseif $column=="a_email"}
+					<td>
+						{if !empty($result.a_email)}
+							<a href="javascript:;" onclick="genericAjaxPopup('peek','c=contacts&a=showAddressPeek&address_id={$result.f_quote_address_id}&view_id={$view->id}',null,false,'500');">{$result.a_email}</a>
+						{else}
+							<i>{'common.anonymous'|devblocks_translate|lower}</i>
+						{/if}
+					</td>
+				{elseif $column=="f_log_date"}
+					<td title="{$result.f_log_date|devblocks_date}">{$result.f_log_date|devblocks_prettytime}&nbsp;</td>
+				{elseif $column=="f_worker_id"}
+					<td>{if isset($workers.$worker_id)}{$workers.$worker_id->getName()}{/if}&nbsp;</td>
+				{elseif $column=="f_quote_mood"}
+					<td>
+						{if 1==$result.$column}
+							<span style="background-color:rgb(235, 255, 235);color:rgb(0, 180, 0);font-weight:bold;">{'feedback.mood.praise'|devblocks_translate}</span>
+						{elseif 2==$result.$column}
+							<span style="background-color: rgb(255, 235, 235);color: rgb(180, 0, 0);font-weight:bold;">{'feedback.mood.criticism'|devblocks_translate}</span>
+						{else}
+							{'feedback.mood.neutral'|devblocks_translate}
+						{/if}
+					</td>
+				{elseif $column=="f_source_url"}
+					<td><a href="{$result.f_source_url}" target="_blank" title="{$result.f_source_url}">{$result.f_source_url|truncate:35:'...':true:false}</a>&nbsp;</td>
+				{else}
+					<td>{$result.$column}</td>
+				{/if}
+			{/foreach}
 		</tr>
 		<tr class="{$tableRowClass}">
-			<td colspan="{math equation="x" x=$smarty.foreach.headers.total}">
+			<td colspan="{$smarty.foreach.headers.total}">
 				<div id="subject_{$result.f_id}_{$view->id}" style="margin:5px;margin-left:10px;font-size:12px;">
+					<input type="checkbox" name="row_id[]" value="{$result.f_id}" style="display:none;">
 					<img src="{devblocks_url}c=resource&p=cerberusweb.feedback&f=images/{if 1==$mood}bullet_ball_glass_green.png{elseif 2==$mood}bullet_ball_glass_red.png{else}bullet_ball_glass_grey.png{/if}{/devblocks_url}" align="top" title="{if 1==$mood}Praise{elseif 2==$mood}Criticism{else}Neutral{/if}"> 
 					{$result.f_quote_text} 
-					{if ($active_worker->hasPriv('feedback.actions.create') && $result.f_worker_id==$active_worker->id) || $active_worker->hasPriv('feedback.actions.update_all')}<a href="javascript:;" style="color:rgb(180,180,180);font-size:90%;" onclick="genericAjaxPopup('peek','c=feedback&a=showEntry&id={$result.f_id}&view_id={$view->id}',null,false,'500');">({'common.edit'|devblocks_translate})</a>{/if}
+					{if ($active_worker->hasPriv('feedback.actions.create') && $result.f_worker_id==$active_worker->id) || $active_worker->hasPriv('feedback.actions.update_all')}
+						<button type="button" class="peek" style="visibility:hidden;padding:1px;margin:0px 5px;" onclick="genericAjaxPopup('peek','c=feedback&a=showEntry&id={$result.f_id}&view_id={$view->id}',null,false,'500');"><span class="cerb-sprite2 sprite-document-search-result" style="margin-left:2px" title="{$translate->_('views.peek')}"></span></button>
+					{/if}
 				</div>
 			</td>
 		</tr>

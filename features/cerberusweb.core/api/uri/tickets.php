@@ -282,12 +282,17 @@ class ChTicketsPage extends CerberusPageExtension {
 			SearchFields_Ticket::CONTEXT_LINK_ID,
 			SearchFields_Ticket::VIRTUAL_ASSIGNABLE,
 			SearchFields_Ticket::VIRTUAL_STATUS,
-			SearchFields_Ticket::VIRTUAL_WATCHERS,
+			//SearchFields_Ticket::VIRTUAL_WATCHERS,
+		), true);
+		$workflowView->addParamsDefault(array(
+			SearchFields_Ticket::VIRTUAL_STATUS => new DevblocksSearchCriteria(SearchFields_Ticket::VIRTUAL_STATUS,'',array('open')),
+			SearchFields_Ticket::VIRTUAL_ASSIGNABLE => new DevblocksSearchCriteria(SearchFields_Ticket::VIRTUAL_ASSIGNABLE,null,true),
+			//SearchFields_Ticket::VIRTUAL_WATCHERS => new DevblocksSearchCriteria(SearchFields_Ticket::VIRTUAL_WATCHERS,null,array()),
 		), true);
 		$workflowView->addParamsRequired(array(
 			SearchFields_Ticket::VIRTUAL_STATUS => new DevblocksSearchCriteria(SearchFields_Ticket::VIRTUAL_STATUS,'',array('open')),
 			SearchFields_Ticket::VIRTUAL_ASSIGNABLE => new DevblocksSearchCriteria(SearchFields_Ticket::VIRTUAL_ASSIGNABLE,null,true),
-			SearchFields_Ticket::VIRTUAL_WATCHERS => new DevblocksSearchCriteria(SearchFields_Ticket::VIRTUAL_WATCHERS,null,array()),
+			//SearchFields_Ticket::VIRTUAL_WATCHERS => new DevblocksSearchCriteria(SearchFields_Ticket::VIRTUAL_WATCHERS,null,array()),
 			'req_team_id' => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_TEAM_ID,'in',array_keys($active_worker->getMemberships())),
 		), true);
 		
@@ -1799,49 +1804,6 @@ class ChTicketsPage extends CerberusPageExtension {
 	    return;
 	}
 
-	function viewFollowTicketsAction() {
-	    @$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
-	    @$ticket_ids = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'array');
-	    
-	    $active_worker = CerberusApplication::getActiveWorker();
-	    
-        //====================================
-	    // Undo functionality
-	    // [TODO] Reimplement UNDO
-		//====================================
-
-	    // Set our context links
-	    foreach($ticket_ids as $ticket_id) {
-			CerberusContexts::addWatchers(CerberusContexts::CONTEXT_TICKET, $ticket_id, array($active_worker->id));	    	
-	    }
-	    
-	    $view = C4_AbstractViewLoader::getView($view_id);
-	    $view->render();
-	    return;
-	}
-
-	function viewUnfollowTicketsAction() {
-	    @$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
-	    @$ticket_ids = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'array');
-	    
-	    $active_worker = CerberusApplication::getActiveWorker();
-
-        //====================================
-	    // Undo functionality
-	    // [TODO] Reimplement
-        //====================================
-	    
-        //DAO_Ticket::update($ticket_ids, $fields);
-        
-        foreach($ticket_ids as $ticket_id) {
-        	CerberusContexts::removeWatchers(CerberusContexts::CONTEXT_TICKET, $ticket_id, array($active_worker->id));
-        }
-	    
-	    $view = C4_AbstractViewLoader::getView($view_id);
-	    $view->render();
-	    return;
-	}
-	
 	function viewMergeTicketsAction() {
 	    @$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
 	    @$ticket_ids = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'array');

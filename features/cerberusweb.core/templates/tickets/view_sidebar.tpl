@@ -2,14 +2,13 @@
 {* [TODO] HACK!! *}
 {if $view->id == 'mail_workflow'}
 	<h1>{'common.available'|devblocks_translate|capitalize}</h1>
-	{if 'group' != $view->renderSubtotals}
-	 	<a href="javascript:;" onclick="genericAjaxGet('view{$view_id}_sidebar','c=internal&a=viewSubtotal&category=group&view_id={$view_id}');">group</a>
-	{/if}
+	 {if 'group'==$view->renderSubtotals}<b>group</b>{else}<a href="javascript:;" onclick="genericAjaxGet('view{$view_id}_sidebar','c=internal&a=viewSubtotal&category=group&view_id={$view_id}');">group</a>{/if}
+	 | {if 'worker'==$view->renderSubtotals}<b>{'common.watcher'|devblocks_translate|lower}</b>{else}<a href="javascript:;" onclick="genericAjaxGet('view{$view_id}_sidebar','c=internal&a=viewSubtotal&category=worker&view_id={$view_id}');">{'common.watcher'|devblocks_translate|lower}</a>{/if}
 {else}
 	<h1>Subtotals</h1>
 	{if 'status'==$view->renderSubtotals}<b>status</b>{else}<a href="javascript:;" onclick="genericAjaxGet('view{$view_id}_sidebar','c=internal&a=viewSubtotal&category=status&view_id={$view_id}');">status</a>{/if}
 	 | {if 'group'==$view->renderSubtotals}<b>group</b>{else}<a href="javascript:;" onclick="genericAjaxGet('view{$view_id}_sidebar','c=internal&a=viewSubtotal&category=group&view_id={$view_id}');">group</a>{/if}
-	 | {if 'worker'==$view->renderSubtotals}<b>worker</b>{else}<a href="javascript:;" onclick="genericAjaxGet('view{$view_id}_sidebar','c=internal&a=viewSubtotal&category=worker&view_id={$view_id}');">worker</a>{/if}
+	 | {if 'worker'==$view->renderSubtotals}<b>{'common.watcher'|devblocks_translate|lower}</b>{else}<a href="javascript:;" onclick="genericAjaxGet('view{$view_id}_sidebar','c=internal&a=viewSubtotal&category=worker&view_id={$view_id}');">{'common.watcher'|devblocks_translate|lower}</a>{/if}
 {/if}
 
 {if empty($view->renderSubtotalsClickable)}
