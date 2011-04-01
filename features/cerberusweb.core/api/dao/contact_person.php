@@ -746,19 +746,24 @@ class Context_ContactPerson extends Extension_DevblocksContext {
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = $translate->_('addy_book.tab.people');
 		
-		$params = array();
+		$params_req = array();
 		
 		if(!empty($context) && !empty($context_id)) {
-			$params = array(
+			$params_req = array(
 				new DevblocksSearchCriteria(SearchFields_ContactPerson::CONTEXT_LINK,'=',$context),
 				new DevblocksSearchCriteria(SearchFields_ContactPerson::CONTEXT_LINK_ID,'=',$context_id),
 			);
 		}
+
+		$view->addParamsRequired($params_req, true);		
 		
-		if(isset($options['filter_open']))
-			true; // Do nothing
+//		$params = array();
+//		
+//		if(isset($options['filter_open']))
+//			true; // Do nothing
+//		
+//		$view->addParams($params, false);
 		
-		$view->addParams($params, true);
 		$view->renderTemplate = 'context';
 		C4_AbstractViewLoader::setView($view_id, $view);
 		return $view;

@@ -185,19 +185,23 @@ class Context_TimeTracking extends Extension_DevblocksContext {
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = 'Time Tracking';
 		
-		$params = array();
+		$params_req = array();
 		
 		if(!empty($context) && !empty($context_id)) {
-			$params = array(
+			$params_req = array(
 				new DevblocksSearchCriteria(SearchFields_TimeTrackingEntry::CONTEXT_LINK,'=',$context),
 				new DevblocksSearchCriteria(SearchFields_TimeTrackingEntry::CONTEXT_LINK_ID,'=',$context_id),
 			);
 		}
 
+		$view->addParamsRequired($params_req, true);
+		
+		$params = array();
+		
 		if(isset($options['filter_open']))
 			$params[] = new DevblocksSearchCriteria(SearchFields_TimeTrackingEntry::IS_CLOSED,'=',0);
 		
-		$view->addParams($params, true);
+		$view->addParams($params, false);
 		
 		$view->renderTemplate = 'context';
 		C4_AbstractViewLoader::setView($view_id, $view);

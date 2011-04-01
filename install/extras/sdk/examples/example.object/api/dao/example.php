@@ -690,19 +690,23 @@ class Context_ExampleObject extends Extension_DevblocksContext {
 		$defaults->class_name = $this->getViewClass();
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		
-		$params = array();
+		$params_req = array();
 		
 		if(!empty($context) && !empty($context_id)) {
-			$params = array(
+			$params_req = array(
 				new DevblocksSearchCriteria(SearchFields_ExampleObject::CONTEXT_LINK,'=',$context),
 				new DevblocksSearchCriteria(SearchFields_ExampleObject::CONTEXT_LINK_ID,'=',$context_id),
 			);
 		}
 		
-		//if(isset($options['filter_open']))
-		//	$params[] = new DevblocksSearchCriteria(SearchFields_ExampleObject::IS_COMPLETED,'=',0);
+		$view->addParamsRequired($params_req, true);
 		
-		$view->addParams($params, true);
+//		$params = array();
+		
+//		if(isset($options['filter_open']))
+//			$params[] = new DevblocksSearchCriteria(SearchFields_ExampleObject::IS_COMPLETED,'=',0);
+		
+//		$view->addParams($params, false);
 		
 		$view->renderTemplate = 'context';
 		C4_AbstractViewLoader::setView($view_id, $view);

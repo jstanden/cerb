@@ -107,19 +107,24 @@ class Context_Server extends Extension_DevblocksContext {
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		//$view->name = 'Sites';
 		
-		$params = array();
+		$params_req = array();
 		
 		if(!empty($context) && !empty($context_id)) {
-			$params = array(
+			$params_req = array(
 				new DevblocksSearchCriteria(SearchFields_Server::CONTEXT_LINK,'=',$context),
 				new DevblocksSearchCriteria(SearchFields_Server::CONTEXT_LINK_ID,'=',$context_id),
 			);
 		}
 		
-		if(isset($options['filter_open']))
-			true; // Do nothing
+		$view->addParamsRequired($params_req, true);
 		
-		$view->addParams($params, true);
+//		$params = array();
+//		
+//		if(isset($options['filter_open']))
+//			true; // Do nothing
+//		
+//		$view->addParams($params, false);
+
 		$view->renderTemplate = 'context';
 		C4_AbstractViewLoader::setView($view_id, $view);
 		return $view;

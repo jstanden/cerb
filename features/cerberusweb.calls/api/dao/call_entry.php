@@ -715,19 +715,23 @@ class Context_Call extends Extension_DevblocksContext {
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = 'Calls';
 		
-		$params = array();
+		$params_req = array();
 		
 		if(!empty($context) && !empty($context_id)) {
-			$params = array(
+			$params_req = array(
 				new DevblocksSearchCriteria(SearchFields_CallEntry::CONTEXT_LINK,'=',$context),
 				new DevblocksSearchCriteria(SearchFields_CallEntry::CONTEXT_LINK_ID,'=',$context_id),
 			);
 		}
 		
+		$view->addParamsRequired($params_req, true);
+		
+		$params = array();
+		
 		if(isset($options['filter_open']))
 			$params[] = new DevblocksSearchCriteria(SearchFields_CallEntry::IS_CLOSED,'=',0);
 		
-		$view->addParams($params, true);
+		$view->addParams($params, false);
 		
 		$view->renderTemplate = 'context';
 		C4_AbstractViewLoader::setView($view_id, $view);
