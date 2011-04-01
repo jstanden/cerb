@@ -66,7 +66,7 @@
 				{else}
 					<b class="subject">{if empty($result.m_subject)}(no subject){else}{$result.m_subject}{/if}</b>
 				{/if}
-				{if $active_worker->is_superuser||$result.m_worker_id==$active_worker->id}<a href="javascript:;" onclick="genericAjaxPopup('peek','c=tickets&a=showDraftsPeek&view_id={$view->id}&id={$result.m_id}', null, false, '500');"><span class="ui-icon ui-icon-newwin" style="display:inline-block;vertical-align:middle;" title="{$translate->_('views.peek')}"></span></a>{/if}
+				{if $active_worker->is_superuser||$result.m_worker_id==$active_worker->id}<button type="button" class="peek" style="visibility:hidden;padding:1px;margin:0px 5px;" onclick="genericAjaxPopup('peek','c=tickets&a=showDraftsPeek&view_id={$view->id}&id={$result.m_id}', null, false, '500');"><span class="cerb-sprite2 sprite-document-search-result" style="margin-left:2px" title="{$translate->_('views.peek')}"></span></button>{/if}
 			</td>
 		</tr>
 		<tr class="{$tableRowClass}">
@@ -110,7 +110,7 @@
 		<td>
 			{if $active_worker}
 				<button id="btnExplore{$view->id}" type="button" onclick="this.form.explore_from.value=$(this).closest('form').find('tbody input:checkbox:checked:first').val();this.form.a.value='viewDraftsExplore';this.form.submit();"><span class="cerb-sprite sprite-media_play_green"></span> {'common.explore'|devblocks_translate|lower}</button>
-				<button type="button" onclick="genericAjaxPopup('peek','c=tickets&a=showDraftsBulkPanel&view_id={$view->id}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','row_id[]'),null,false,'500');"><span class="cerb-sprite sprite-folder_gear"></span> bulk update</button>
+				<button type="button" onclick="genericAjaxPopup('peek','c=tickets&a=showDraftsBulkPanel&view_id={$view->id}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','row_id[]'),null,false,'500');"><span class="cerb-sprite2 sprite-folder-gear"></span> bulk update</button>
 			{/if}
 		</td>
 	</tr>

@@ -1,7 +1,7 @@
 <h2>{'common.groups'|devblocks_translate|capitalize}</h2>
 
 <form action="#" onsubmit="return false;">
-	<button type="button" onclick="genericAjaxGet('configTeam','c=config&a=handleSectionAction&section=groups&action=getGroup&id=0');"><span class="cerb-sprite sprite-add"></span> Add Group</button>
+	<button type="button" onclick="genericAjaxGet('configTeam','c=config&a=handleSectionAction&section=groups&action=getGroup&id=0');"><span class="cerb-sprite2 sprite-plus-circle-frame"></span> Add Group</button>
 </form>
 
 <table cellpadding="0" cellspacing="5" border="0" width="100%">

@@ -56,7 +56,7 @@
 	<tr class="{$tableRowClass}">
 		<td align="center" rowspan="2"><input type="checkbox" name="ticket_id[]" title="[#{$result.t_mask}] {$result.t_subject}" value="{$result.t_id}"></td>
 		<td colspan="{math equation="x" x=$smarty.foreach.headers.total}">
-			<a href="{devblocks_url}c=display&id={$result.t_mask}{/devblocks_url}" class="subject" target="_blank">{if $result.t_is_deleted}<span class="cerb-sprite sprite-delete2_gray"></span> {elseif $result.t_is_closed}<span class="cerb-sprite sprite-check_gray" title="{$translate->_('status.closed')}"></span> {elseif $result.t_is_waiting}<span class="cerb-sprite sprite-clock"></span> {/if}{$result.t_subject}</a>
+			<a href="{devblocks_url}c=display&id={$result.t_mask}{/devblocks_url}" class="subject" target="_blank">{if $result.t_is_deleted}<span class="cerb-sprite2 sprite-cross-circle-frame-gray"></span> {elseif $result.t_is_closed}<span class="cerb-sprite2 sprite-tick-circle-frame-gray" title="{$translate->_('status.closed')}"></span> {elseif $result.t_is_waiting}<span class="cerb-sprite sprite-clock"></span> {/if}{$result.t_subject}</a>
 			
 			{if isset($object_watchers.{$result.t_id})}
 			<div style="display:inline;padding-left:5px;">
@@ -80,9 +80,9 @@
 		{elseif $column=="t_is_waiting"}
 		<td>{if $result.t_is_waiting}<span class="cerb-sprite sprite-clock"></span>{else}{/if}</td>
 		{elseif $column=="t_is_closed"}
-		<td>{if $result.t_is_closed}<span class="cerb-sprite sprite-check_gray" title="{$translate->_('status.closed')}"></span>{else}{/if}</td>
+		<td>{if $result.t_is_closed}<span class="cerb-sprite2 sprite-tick-circle-frame-gray" title="{$translate->_('status.closed')}"></span>{else}{/if}</td>
 		{elseif $column=="t_is_deleted"}
-		<td>{if $result.t_is_deleted}<span class="cerb-sprite sprite-delete2_gray"></span>{else}{/if}</td>
+		<td>{if $result.t_is_deleted}<span class="cerb-sprite2 sprite-cross-circle-frame-gray"></span>{else}{/if}</td>
 		{elseif $column=="t_last_wrote"}
 		<td>{$result.t_last_wrote|truncate:45:'...':true:true}</td>
 		{elseif $column=="t_first_wrote"}
@@ -144,7 +144,7 @@
 <table cellpadding="2" cellspacing="0" border="0" width="100%">
 	<tr>
 		<td align="left" valign="top" id="{$view->id}_actions">
-			<button type="button" class="devblocks-chooser-add-selected"><span class="cerb-sprite sprite-add"></span> Add Selected</button>
+			<button type="button" class="devblocks-chooser-add-selected"><span class="cerb-sprite2 sprite-plus-circle-frame"></span> Add Selected</button>
 		</td>
 		<td align="right" valign="top" nowrap="nowrap">
 			{math assign=fromRow equation="(x*y)+1" x=$view->renderPage y=$view->renderLimit}

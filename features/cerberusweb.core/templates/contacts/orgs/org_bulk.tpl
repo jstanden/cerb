@@ -43,7 +43,7 @@
 </fieldset>
 {/if}
 
-{if $active_worker->hasPriv('core.addybook.org.actions.update')}<button type="button" onclick="genericAjaxPopupClose('peek');genericAjaxPost('formBatchUpdate','view{$view_id}');"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')|capitalize}</button>{/if}
+{if $active_worker->hasPriv('core.addybook.org.actions.update')}<button type="button" onclick="genericAjaxPopupClose('peek');genericAjaxPost('formBatchUpdate','view{$view_id}');"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {$translate->_('common.save_changes')|capitalize}</button>{/if}
 <br>
 </form>
 

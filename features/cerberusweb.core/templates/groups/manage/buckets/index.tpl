@@ -4,7 +4,7 @@
 <input type="hidden" name="team_id" value="{$group->id}">
 
 <div style="margin-bottom:10px;">
-	<button type="button" onclick="genericAjaxPopup('peek','c=groups&a=showBucketPeek&group_id={$group->id}',null,false,'550');"><span class="cerb-sprite sprite-add"></span> {'common.add'|devblocks_translate|capitalize}</button>
+	<button type="button" onclick="genericAjaxPopup('peek','c=groups&a=showBucketPeek&group_id={$group->id}',null,false,'550');"><span class="cerb-sprite2 sprite-plus-circle-frame"></span> {'common.add'|devblocks_translate|capitalize}</button>
 </div>
 
 {* Inbox *}

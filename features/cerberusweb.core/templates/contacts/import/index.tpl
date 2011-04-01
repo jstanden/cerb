@@ -16,7 +16,7 @@
 	<br>
 	
 	{if $active_worker->hasPriv('core.addybook.import')}
-	<button type="submit"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.upload')|capitalize}</button><br>
+	<button type="submit"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {$translate->_('common.upload')|capitalize}</button><br>
 	{/if}
 </fieldset>
 </form>

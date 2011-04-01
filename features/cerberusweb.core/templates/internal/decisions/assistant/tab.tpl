@@ -7,7 +7,7 @@
 	<fieldset>
 		<legend>Create New Behavior</legend>
 	
-		<span class="cerb-sprite sprite-add"></span>
+		<span class="cerb-sprite2 sprite-plus-circle-frame"></span>
 		<select name="event_point">
 			<option value=""> - {'common.choose'|devblocks_translate|lower} - </option>
 			{foreach from=$events item=event key=event_id}

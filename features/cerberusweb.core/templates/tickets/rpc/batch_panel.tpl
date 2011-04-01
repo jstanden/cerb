@@ -145,7 +145,7 @@
 </fieldset>
 {/if}
 	
-<button type="button" onclick="ajax.saveBatchPanel('{$view_id}');"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')|capitalize}</button>
+<button type="button" onclick="ajax.saveBatchPanel('{$view_id}');"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {$translate->_('common.save_changes')|capitalize}</button>
 <br>
 </form>
 

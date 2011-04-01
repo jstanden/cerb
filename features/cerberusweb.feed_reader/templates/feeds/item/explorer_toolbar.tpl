@@ -2,7 +2,7 @@
 <form action="{devblocks_url}{/devblocks_url}" method="post" id="frmExploreFeedItem">
 	<input type="hidden" name="c" value="feeds">
 	{if !$model->is_closed}
-		<button type="button" class="status close"><span class="cerb-sprite sprite-check"></span> <label>{'common.close'|devblocks_translate|capitalize}</label></button>
+		<button type="button" class="status close"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> <label>{'common.close'|devblocks_translate|capitalize}</label></button>
 	{else}
 		<button type="button" class="status reopen"><span class="cerb-sprite sprite-folder_out"></span> <label>{'common.reopen'|devblocks_translate|capitalize}</label></button>
 	{/if}
@@ -22,11 +22,11 @@
 		$btn = $(this);
 		if($btn.hasClass('close')) {
 			$btn.find('label').html('{'common.reopen'|devblocks_translate|capitalize}');
-			$btn.removeClass('close').addClass('reopen').find('span').removeClass('sprite-check').addClass('sprite-folder_out');
+			$btn.removeClass('close').addClass('reopen').find('span').removeClass('sprite-tick-circle-frame').addClass('sprite-folder_out');
 			genericAjaxGet('','c=feeds&a=exploreItemStatus&id={$model->id}&is_closed=1');
 		} else {
 			$btn.find('label').html('{'common.close'|devblocks_translate|capitalize}');
-			$btn.removeClass('reopen').addClass('close').find('span').removeClass('sprite-folder_out').addClass('sprite-check');
+			$btn.removeClass('reopen').addClass('close').find('span').removeClass('sprite-folder_out').addClass('sprite-tick-circle-frame');
 			genericAjaxGet('','c=feeds&a=exploreItemStatus&id={$model->id}&is_closed=0');
 		}
 	});

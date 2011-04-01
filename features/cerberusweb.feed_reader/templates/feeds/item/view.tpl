@@ -57,7 +57,7 @@
 		<tr class="{$tableRowClass}">
 			<td align="center" rowspan="2"><input type="checkbox" name="row_id[]" value="{$result.fi_id}"></td>
 			<td colspan="{math equation="x" x=$smarty.foreach.headers.total}">
-				{if $result.fi_is_closed}<span class="cerb-sprite sprite-check_gray"></span>{/if}
+				{if $result.fi_is_closed}<span class="cerb-sprite2 sprite-tick-circle-frame-gray"></span>{/if}
 				<a href="{devblocks_url}c=feeds&m=item&id={$result.fi_id}{/devblocks_url}" class="subject">{$result.fi_title}</a> 
 				<a href="javascript:;" onclick="genericAjaxPopup('peek','c=feeds&a=showFeedItemPopup&id={$result.fi_id}&view_id={$view->id}',null,false,'550');"><span class="ui-icon ui-icon-newwin" style="display:inline-block;vertical-align:middle;" title="{$translate->_('views.peek')}"></span></a>
 				
@@ -109,7 +109,7 @@
 		<td colspan="2" valign="top">
 			{if 'context'==$view->renderTemplate}<button type="button" onclick="removeSelectedContextLinks('{$view->id}');">Unlink</button>{/if}
 			<button id="btnExplore{$view->id}" type="button" onclick="this.form.explore_from.value=$(this).closest('form').find('tbody input:checkbox:checked:first').val();this.form.a.value='viewFeedItemsUrlExplore';this.form.submit();"><span class="cerb-sprite sprite-media_play_green"></span> {'common.explore'|devblocks_translate|lower}</button>
-			{if 1 || $active_worker->hasPriv('feeds.item.actions.update_all')}<button type="button" onclick="genericAjaxPopup('peek','c=feeds&a=showFeedItemBulkUpdate&view_id={$view->id}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','row_id[]'),null,false,'500');"><span class="cerb-sprite sprite-folder_gear"></span> {'common.bulk_update'|devblocks_translate|lower}</button>{/if}
+			{if 1 || $active_worker->hasPriv('feeds.item.actions.update_all')}<button type="button" onclick="genericAjaxPopup('peek','c=feeds&a=showFeedItemBulkUpdate&view_id={$view->id}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','row_id[]'),null,false,'500');"><span class="cerb-sprite2 sprite-folder-gear"></span> {'common.bulk_update'|devblocks_translate|lower}</button>{/if}
 		</td>
 	</tr>
 	{/if}

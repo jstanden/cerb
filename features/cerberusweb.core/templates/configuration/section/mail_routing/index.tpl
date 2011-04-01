@@ -1,7 +1,7 @@
 <h2>Mail Routing</h2>
 
 <form action="{devblocks_url}{/devblocks_url}" style="margin-bottom:5px;">
-	<button type="button" onclick="genericAjaxPopup('peek','c=config&a=handleSectionAction&section=mail_routing&action=showMailRoutingRulePanel&id=0',null,false,'550');"><span class="cerb-sprite sprite-add"></span> {'common.add'|devblocks_translate|capitalize}</button>
+	<button type="button" onclick="genericAjaxPopup('peek','c=config&a=handleSectionAction&section=mail_routing&action=showMailRoutingRulePanel&id=0',null,false,'550');"><span class="cerb-sprite2 sprite-plus-circle-frame"></span> {'common.add'|devblocks_translate|capitalize}</button>
 </form>
 
 <fieldset>
@@ -106,6 +106,6 @@
 	<br>	
 	{/if}
 
-	<button type="submit"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')|capitalize}</button>
+	<button type="submit"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {$translate->_('common.save_changes')|capitalize}</button>
 	</form>
 </fieldset>

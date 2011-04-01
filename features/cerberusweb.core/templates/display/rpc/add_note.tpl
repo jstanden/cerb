@@ -26,8 +26,8 @@
 	</tr>
 	<tr>
 		<td nowrap="nowrap" valign="top">
-			<button type="button" onclick="genericAjaxPost('reply{$message->id}_form','{$message->id}notes','c=display&a=doAddNote');$('#reply{$message->id}').html('');"><span class="cerb-sprite sprite-check"></span> Add Note</button>
-			<button type="button" onclick="$('#reply{$message->id}').html('');"><span class="cerb-sprite sprite-delete"></span> Cancel</button>
+			<button type="button" onclick="genericAjaxPost('reply{$message->id}_form','{$message->id}notes','c=display&a=doAddNote');$('#reply{$message->id}').html('');"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> Add Note</button>
+			<button type="button" onclick="$('#reply{$message->id}').html('');"><span class="cerb-sprite2 sprite-cross-circle-frame"></span> Cancel</button>
 		</td>
 	</tr>
 </table>

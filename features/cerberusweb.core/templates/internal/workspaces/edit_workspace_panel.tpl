@@ -38,8 +38,8 @@
 	</div>
 </fieldset>
 
-<button type="submit"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')}</button>
-<button type="button" onclick="if(!confirm('Are you sure you want to delete this workspace?')) { return false; }; $frm=$(this.form);$frm.find('input:hidden[name=do_delete]').val('1');$frm.submit();"><span class="cerb-sprite sprite-delete"></span> {'common.delete'|devblocks_translate|capitalize}</button>
+<button type="submit"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {$translate->_('common.save_changes')}</button>
+<button type="button" onclick="if(!confirm('Are you sure you want to delete this workspace?')) { return false; }; $frm=$(this.form);$frm.find('input:hidden[name=do_delete]').val('1');$frm.submit();"><span class="cerb-sprite2 sprite-cross-circle-frame"></span> {'common.delete'|devblocks_translate|capitalize}</button>
 </form>
 
 <script type="text/javascript">

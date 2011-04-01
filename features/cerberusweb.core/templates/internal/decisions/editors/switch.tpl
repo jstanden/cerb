@@ -18,7 +18,7 @@
 	time of day, day of week, service level, etc.
 </fieldset>
 
-<button type="button" onclick="genericAjaxPost('frmDecisionNodeSwitch','','',function() { window.location.reload(); });"><span class="cerb-sprite sprite-check"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+<button type="button" class="green" onclick="genericAjaxPost('frmDecisionNodeSwitch','','',function() { window.location.reload(); });"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
 </form>
 
 <script type="text/javascript">

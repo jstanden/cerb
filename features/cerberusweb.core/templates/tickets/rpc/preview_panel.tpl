@@ -211,7 +211,7 @@
 			</ul>
 		</fieldset>
 		
-		<button type="button" onclick="genericAjaxPopupPostCloseReloadView('peek','frmTicketPeek','{$view_id}',false,'ticket_save');"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')}</button>
+		<button type="button" class="green" onclick="genericAjaxPopupPostCloseReloadView('peek','frmTicketPeek','{$view_id}',false,'ticket_save');"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {$translate->_('common.save_changes')}</button>
     </div><!--tab2-->		
 </div> 
 <br>

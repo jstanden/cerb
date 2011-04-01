@@ -67,8 +67,8 @@
 				</div>
 				<br>
 			</div>
-			<button type="submit"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')|capitalize}</button>
-			{if !empty($team->id)}<button type="button" onclick="toggleDiv('deleteGroup','block');"><span class="cerb-sprite sprite-delete"></span> {$translate->_('common.remove')|capitalize}</button>{/if}
+			<button type="submit"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {$translate->_('common.save_changes')|capitalize}</button>
+			{if !empty($team->id)}<button type="button" onclick="toggleDiv('deleteGroup','block');"><span class="cerb-sprite2 sprite-cross-circle-frame"></span> {$translate->_('common.remove')|capitalize}</button>{/if}
 		</td>
 	</tr>
 </table>

@@ -68,7 +68,7 @@
 				<fieldset style="display:inline-block;">
 					<legend>Actions</legend>
 					{assign var=headers value=$message->getHeaders()}
-					<button name="saveDraft" type="button" onclick="if($(this).attr('disabled'))return;$(this).attr('disabled','disabled');genericAjaxPost('reply{$message->id}_part2',null,'c=display&a=saveDraftReply&is_ajax=1',function(json, ui) { var obj = $.parseJSON(json); $('#divDraftStatus{$message->id}').html(obj.html); $('#reply{$message->id}_part2 input[name=draft_id]').val(obj.draft_id); $('#reply{$message->id}_part1 button[name=saveDraft]').removeAttr('disabled'); } );"><span class="cerb-sprite sprite-check"></span> Save Draft</button>
+					<button name="saveDraft" type="button" onclick="if($(this).attr('disabled'))return;$(this).attr('disabled','disabled');genericAjaxPost('reply{$message->id}_part2',null,'c=display&a=saveDraftReply&is_ajax=1',function(json, ui) { var obj = $.parseJSON(json); $('#divDraftStatus{$message->id}').html(obj.html); $('#reply{$message->id}_part2 input[name=draft_id]').val(obj.draft_id); $('#reply{$message->id}_part1 button[name=saveDraft]').removeAttr('disabled'); } );"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> Save Draft</button>
 					<button id="btnInsertReplySig{$message->id}" type="button" title="(Ctrl+Shift+G)" onclick="genericAjaxGet('','c=tickets&a=getComposeSignature&group_id={$ticket->team_id}&bucket_id={$ticket->category_id}',function(txt) { $('#reply_{$message->id}').insertAtCursor(txt); } );"><span class="cerb-sprite sprite-document_edit"></span> {$translate->_('display.reply.insert_sig')|capitalize}</button>
 					{* Plugin Toolbar *}
 					{if !empty($reply_toolbaritems)}
@@ -84,7 +84,7 @@
 						Insert: 
 						<input type="text" size="25" class="context-snippet autocomplete">
 						<button type="button" onclick="openSnippetsChooser(this);"><span class="cerb-sprite sprite-view"></span></button>
-						<button type="button" onclick="genericAjaxPopup('peek','c=tickets&a=showSnippetsPeek&id=0&context=cerberusweb.contexts.ticket&context_id={$ticket->id}',null,false,'550');"><span class="cerb-sprite sprite-add"></span></button>
+						<button type="button" onclick="genericAjaxPopup('peek','c=tickets&a=showSnippetsPeek&id=0&context=cerberusweb.contexts.ticket&context_id={$ticket->id}',null,false,'550');"><span class="cerb-sprite2 sprite-plus-circle-frame"></span></button>
 					</div>
 				</fieldset>
 			</div>
@@ -258,9 +258,9 @@
 	</tr>
 	<tr>
 		<td>
-			<button type="button" onclick="if($('#reply{$message->id}_part1').validate().form()) { genericAjaxPost('reply{$message->id}_part2',null,'c=display&a=saveDraftReply&is_ajax=1',function(json) { $('#reply{$message->id}_part2').submit(); } ); } "><span class="cerb-sprite sprite-check"></span> {if $is_forward}{$translate->_('display.ui.forward')|capitalize}{else}{$translate->_('display.ui.send_message')}{/if}</button>
+			<button type="button" onclick="if($('#reply{$message->id}_part1').validate().form()) { genericAjaxPost('reply{$message->id}_part2',null,'c=display&a=saveDraftReply&is_ajax=1',function(json) { $('#reply{$message->id}_part2').submit(); } ); } "><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {if $is_forward}{$translate->_('display.ui.forward')|capitalize}{else}{$translate->_('display.ui.send_message')}{/if}</button>
 			<button type="button" onclick="if($('#reply{$message->id}_part1').validate().form()) { this.form.a.value='saveDraftReply'; this.form.submit(); } "><span class="cerb-sprite sprite-media_pause"></span> {$translate->_('display.ui.continue_later')|capitalize}</button>
-			<button type="button" onclick="if(confirm('Are you sure you want to discard this reply?')) { if(0!==this.form.draft_id.value.length) { genericAjaxGet('', 'c=tickets&a=deleteDraft&draft_id='+escape(this.form.draft_id.value)); $('#draft'+escape(this.form.draft_id.value)).remove(); } $('#reply{$message->id}').html(''); } "><span class="cerb-sprite sprite-delete"></span> {$translate->_('display.ui.discard')|capitalize}</button>
+			<button type="button" onclick="if(confirm('Are you sure you want to discard this reply?')) { if(0!==this.form.draft_id.value.length) { genericAjaxGet('', 'c=tickets&a=deleteDraft&draft_id='+escape(this.form.draft_id.value)); $('#draft'+escape(this.form.draft_id.value)).remove(); } $('#reply{$message->id}').html(''); } "><span class="cerb-sprite2 sprite-cross-circle-frame"></span> {$translate->_('display.ui.discard')|capitalize}</button>
 		</td>
 	</tr>
 </table>

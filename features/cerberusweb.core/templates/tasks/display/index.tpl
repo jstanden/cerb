@@ -3,7 +3,7 @@
 <table cellspacing="0" cellpadding="0" border="0" width="100%" style="padding-bottom:5px;">
 <tr>
 	<td valign="top" style="padding-right:5px;">
-		<h1>{if $task->is_completed}<span class="cerb-sprite sprite-check"></span>{/if} {$task->title}</h1> 
+		<h1>{if $task->is_completed}<span class="cerb-sprite2 sprite-tick-circle-frame"></span>{/if} {$task->title}</h1> 
 		<form action="{devblocks_url}{/devblocks_url}" method="post">
 		<input type="hidden" name="c" value="tasks">
 		<input type="hidden" name="a" value="">
@@ -23,7 +23,7 @@
 		
 		<!-- Toolbar -->
 		{if !$task->is_completed}
-		<button type="button" onclick="$frm=$(this).closest('form');$frm.find('input:hidden[name=a]').val('doDisplayTaskComplete');$frm.submit();"><span class="cerb-sprite sprite-check"></span> Complete</button>
+		<button type="button" onclick="$frm=$(this).closest('form');$frm.find('input:hidden[name=a]').val('doDisplayTaskComplete');$frm.submit();"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> Complete</button>
 		{/if}
 		
 		<button type="button" id="btnDisplayTaskEdit"><span class="cerb-sprite sprite-document_edit"></span> Edit</button>

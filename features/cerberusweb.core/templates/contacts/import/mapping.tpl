@@ -77,8 +77,8 @@
 <br>
 
 <br>
-<button type="submit"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.upload')|capitalize}</button>
-<button type="button" onclick="document.location='{devblocks_url}c=contacts&a=import{/devblocks_url}';"><span class="cerb-sprite sprite-delete"></span> {$translate->_('common.cancel')|capitalize}</button>
+<button type="submit"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {$translate->_('common.upload')|capitalize}</button>
+<button type="button" onclick="document.location='{devblocks_url}c=contacts&a=import{/devblocks_url}';"><span class="cerb-sprite2 sprite-cross-circle-frame"></span> {$translate->_('common.cancel')|capitalize}</button>
 <br>
 </form>
 </div>

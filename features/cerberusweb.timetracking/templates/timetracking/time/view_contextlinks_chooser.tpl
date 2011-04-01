@@ -59,7 +59,7 @@
 			{/if}					
 			<td align="center" rowspan="2"><input type="checkbox" name="row_id[]" title="{$title}" value="{$result.tt_id}"></td>
 			<td colspan="{math equation="x" x=$smarty.foreach.headers.total}">
-				{if $result.tt_is_closed}<span class="cerb-sprite sprite-check_gray" title=""></span>{/if}
+				{if $result.tt_is_closed}<span class="cerb-sprite2 sprite-tick-circle-frame-gray" title=""></span>{/if}
 				<a href="javascript:;" onclick="genericAjaxPopup('peek','c=timetracking&a=showEntry&id={$result.tt_id}&view_id={$view->id}',null,false,'500');" class="subject">{$title}</a>
 				
 				{if isset($object_watchers.{$result.tt_id})}
@@ -106,7 +106,7 @@
 <table cellpadding="2" cellspacing="0" border="0" width="100%">
 	<tr>
 		<td align="left" valign="top" id="{$view->id}_actions">
-			<button type="button" class="devblocks-chooser-add-selected"><span class="cerb-sprite sprite-add"></span> Add Selected</button>
+			<button type="button" class="devblocks-chooser-add-selected"><span class="cerb-sprite2 sprite-plus-circle-frame"></span> Add Selected</button>
 		</td>
 		<td align="right" valign="top" nowrap="nowrap">
 			{math assign=fromRow equation="(x*y)+1" x=$view->renderPage y=$view->renderLimit}

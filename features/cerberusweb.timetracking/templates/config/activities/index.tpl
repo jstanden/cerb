@@ -1,7 +1,7 @@
 <h2>{'timetracking.activity.tab'|devblocks_translate}</h2>
 
 <form>
-<button type="button" onclick="genericAjaxGet('configActivity','c=config&a=handleSectionAction&section=timetracking&action=getActivity&id=0');"><span class="cerb-sprite sprite-add"></span> {'timetracking.ui.cfg.add_new_activity'|devblocks_translate|capitalize}</button>
+<button type="button" onclick="genericAjaxGet('configActivity','c=config&a=handleSectionAction&section=timetracking&action=getActivity&id=0');"><span class="cerb-sprite2 sprite-plus-circle-frame"></span> {'timetracking.ui.cfg.add_new_activity'|devblocks_translate|capitalize}</button>
 </form>
 
 <table cellpadding="0" cellspacing="5" border="0" width="100%">

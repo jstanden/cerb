@@ -255,8 +255,8 @@ UL.navmenu LI A {
 }
 
 UL.navmenu LI.selected {
-	background-image: url(bg_ltblue.jpg?v=2011011801);
-	background-repeat: repeat-x;
+	background: -webkit-gradient(linear, left top, left bottom, from(rgb(98,132,221)), to(rgb(134, 169, 227)));
+	background: -moz-linear-gradient(top, rgb(98,132,221), rgb(134, 169, 227));
 	background-color: rgb(134, 169, 227);
 }
 
@@ -685,16 +685,9 @@ button span.cerb-sprite { display:inline-block; }
 
 /* Sprites */
 
-.sprite-add { background-position: 0 0; width: 16px; height: 16px; }
 .sprite-calendar { background-position: -66px 0; width: 16px; height: 16px; }
-.sprite-check { background-position: -132px 0; width: 16px; height: 16px; }
-.sprite-check_gray { background-position: -198px 0; width: 16px; height: 16px; }
 .sprite-clock { background-position: -264px 0; width: 16px; height: 16px; }
 .sprite-data_find { background-position: -330px 0; width: 16px; height: 16px; }
-.sprite-delete { background-position: -396px 0; width: 16px; height: 16px; }
-.sprite-delete2 { background-position: -462px 0; width: 16px; height: 16px; }
-.sprite-delete2_gray { background-position: -528px 0; width: 16px; height: 16px; }
-.sprite-delete_gray { background-position: -594px 0; width: 16px; height: 16px; }
 .sprite-document { background-position: -660px 0; width: 16px; height: 16px; }
 .sprite-document_edit { background-position: -726px 0; width: 16px; height: 16px; }
 .sprite-document_out { background-position: -792px 0; width: 16px; height: 16px; }
@@ -704,10 +697,8 @@ button span.cerb-sprite { display:inline-block; }
 .sprite-flag_white { background-position: -1056px 0; width: 16px; height: 16px; }
 .sprite-folder { background-position: -1122px 0; width: 16px; height: 16px; }
 .sprite-folder_add { background-position: -1188px 0; width: 16px; height: 16px; }
-.sprite-folder_gear { background-position: -1254px 0; width: 16px; height: 16px; }
 .sprite-folder_ok { background-position: -1320px 0; width: 16px; height: 16px; }
 .sprite-folder_out { background-position: -1386px 0; width: 16px; height: 16px; }
-.sprite-forbidden { background-position: -1452px 0; width: 16px; height: 16px; }
 .sprite-funnel { background-position: -1518px 0; width: 16px; height: 16px; }
 .sprite-gear { background-position: -1584px 0; width: 16px; height: 16px; }
 .sprite-hand_paper { background-position: -1650px 0; width: 16px; height: 16px; }
@@ -731,6 +722,26 @@ button span.cerb-sprite { display:inline-block; }
 .sprite-view { background-position: -858px -91px; width: 16px; height: 16px; }
 .sprite-warning { background-position: -924px -91px; width: 16px; height: 16px; }
 .sprite-warning_gray { background-position: -990px -91px; width: 16px; height: 16px; }
+
+.cerb-sprite2 { 
+	background:url(cerb_sprites.png?v=2011033103);
+	background-repeat:no-repeat;
+	background-position:top left;
+	display:inline-block;
+	vertical-align:middle;
+}
+button span.cerb-sprite2 { display:inline-block; }
+
+.sprite-cross-circle-frame-gray{ background-position: 0 0; width: 16px; height: 16px; } 
+.sprite-cross-circle-frame{ background-position: 0 -48px; width: 16px; height: 16px; } 
+.sprite-document-search-result{ background-position: 0 -96px; width: 16px; height: 16px; } 
+.sprite-folder-cross-circle{ background-position: 0 -144px; width: 16px; height: 16px; } 
+.sprite-folder-gear{ background-position: 0 -192px; width: 16px; height: 16px; } 
+.sprite-folder-tick-circle{ background-position: 0 -240px; width: 16px; height: 16px; } 
+.sprite-minus-circle-frame{ background-position: 0 -288px; width: 16px; height: 16px; } 
+.sprite-plus-circle-frame{ background-position: 0 -336px; width: 16px; height: 16px; } 
+.sprite-tick-circle-frame-gray{ background-position: 0 -384px; width: 16px; height: 16px; } 
+.sprite-tick-circle-frame{ background-position: 0 -432px; width: 16px; height: 16px; } 
 
 /* -------------------------------------------------------------------
 // markItUp! Universal MarkUp Engine, JQuery plugin
@@ -938,7 +949,14 @@ button span.cerb-sprite { display:inline-block; }
 .ui-tabs .ui-tabs-nav li.ui-tabs-selected { padding-bottom: 0px; background: rgb(255,255,255) none; }
 .ui-tabs .ui-tabs-nav li.ui-tabs-selected a { color: rgb(74,110,158); font-weight:bold; }
 
-.ui-dialog .ui-dialog-titlebar { background: rgb(162,198,234) url(bg_ltblue.jpg) repeat-x; border: 0px; font-size: 14px; }
+.ui-dialog .ui-dialog-titlebar { 
+	background: -webkit-gradient(linear, left top, left bottom, from(rgb(134,169,227)), to(rgb(98,132,221)));
+	background: -moz-linear-gradient(top, rgb(134,169,227), rgb(98,132,221));
+	background-color:rgb(98,132,221);
+	border: 0px; 
+	font-size: 14px;
+	font-weight:bold; 
+}
 
 /* jQuery Validation */
 

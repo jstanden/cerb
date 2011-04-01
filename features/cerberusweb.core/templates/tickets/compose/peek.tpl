@@ -66,7 +66,7 @@
 </table>
 <br>			
 
-<button type="button" onclick="genericAjaxPopupClose('peek');genericAjaxPost('formComposePeek', 'view{$view_id}')"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')}</button>
+<button type="button" onclick="genericAjaxPopupClose('peek');genericAjaxPost('formComposePeek', 'view{$view_id}')"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {$translate->_('common.save_changes')}</button>
 <br>
 </form>
 

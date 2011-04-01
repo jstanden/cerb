@@ -29,7 +29,7 @@
 				<input type="hidden" name="conditions[]" value="{$seq}">
 				<input type="hidden" name="condition{$seq}[condition]" value="{$params.condition}">
 				<b>{$conditions.{$params.condition}.label}</b>&nbsp;
-				<a href="javascript:;" onclick="$(this).closest('li').remove();"><span class="cerb-sprite sprite-forbidden"></span></a>
+				<a href="javascript:;" onclick="$(this).closest('li').remove();"><span class="cerb-sprite2 sprite-minus-circle-frame"></span></a>
 				<div style="margin-left:20px;">
 					{$event->renderCondition({$params.condition},$trigger,$params,$seq)}
 				</div>
@@ -45,7 +45,7 @@
 <fieldset>
 	<legend>Add Condition</legend>
 
-	<span class="cerb-sprite sprite-add"></span>
+	<span class="cerb-sprite2 sprite-plus-circle-frame"></span>
 	<select name="condition">
 		<option value=""></option>
 		{foreach from=$conditions item=condition key=token}
@@ -56,7 +56,7 @@
 </form>
 
 <form>
-	<button type="button" onclick="genericAjaxPost('frmDecision','','',function() { window.location.reload(); });"><span class="cerb-sprite sprite-check"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+	<button type="button" onclick="genericAjaxPost('frmDecision','','',function() { window.location.reload(); });"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
 </form>
 
 <script type="text/javascript">
@@ -98,7 +98,7 @@
 			$container.append('<input type="hidden" name="conditions[]" value="' + seq + '">');
 			$container.append('<input type="hidden" name="condition'+seq+'[condition]" value="' + $select.val() + '">');
 			$container.append('<b>' + $select.find('option:selected').text() + '</b>&nbsp;');
-			$container.append('<a href="javascript:;" onclick="$(this).closest(\'li\').remove();"><span class="cerb-sprite sprite-forbidden"></span></a>');
+			$container.append('<a href="javascript:;" onclick="$(this).closest(\'li\').remove();"><span class="cerb-sprite2 sprite-minus-circle-frame"></span></a>');
 			$container.append($html);
 			$ul.append($container);
 

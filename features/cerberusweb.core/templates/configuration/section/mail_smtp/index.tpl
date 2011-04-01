@@ -55,7 +55,7 @@
 	
 	<div class="status"></div>
 	
-	<button type="button" class="submit"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')|capitalize}</button>
+	<button type="button" class="submit"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {$translate->_('common.save_changes')|capitalize}</button>
 	</form>				
 </fieldset>
 

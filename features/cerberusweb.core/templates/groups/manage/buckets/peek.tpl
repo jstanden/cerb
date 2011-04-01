@@ -99,14 +99,14 @@
 		{/foreach}
 	</select>
 	<br>
-	<button type="submit" name="form_submit" value="delete"><span class="cerb-sprite sprite-check"></span> Confirm</button>
-	<button type="button" onclick="$(this).closest('form').find('div.buttons').fadeIn();$(this).closest('fieldset.delete').fadeOut();"><span class="cerb-sprite sprite-forbidden"></span> {'common.cancel'|devblocks_translate|capitalize}</button>
+	<button type="submit" name="form_submit" value="delete"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> Confirm</button>
+	<button type="button" onclick="$(this).closest('form').find('div.buttons').fadeIn();$(this).closest('fieldset.delete').fadeOut();"><span class="cerb-sprite2 sprite-minus-circle-frame"></span> {'common.cancel'|devblocks_translate|capitalize}</button>
 </fieldset>
 {/if}
 
 <div class="buttons">
-	<button type="submit" name="form_submit" value="save"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')|capitalize}</button>
-	<button type="button" onclick="$(this).parent().siblings('fieldset.delete').fadeIn();$(this).closest('div').fadeOut();"><span class="cerb-sprite sprite-delete"></span> {$translate->_('common.delete')|capitalize}</button>
+	<button type="submit" name="form_submit" value="save"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {$translate->_('common.save_changes')|capitalize}</button>
+	<button type="button" onclick="$(this).parent().siblings('fieldset.delete').fadeIn();$(this).closest('div').fadeOut();"><span class="cerb-sprite2 sprite-cross-circle-frame"></span> {$translate->_('common.delete')|capitalize}</button>
 </div>
 </form>
 

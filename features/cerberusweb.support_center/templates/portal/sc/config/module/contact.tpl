@@ -21,7 +21,7 @@
 </div>
 
 <div style="margin-left:10px;margin-bottom:10px;">
-	<button id="btnAddSituation" type="button" onclick=""><span class="cerb-sprite sprite-add"></span> {'portal.cfg.add_new_situation'|devblocks_translate|capitalize}</button>
+	<button id="btnAddSituation" type="button" onclick=""><span class="cerb-sprite2 sprite-plus-circle-frame"></span> {'portal.cfg.add_new_situation'|devblocks_translate|capitalize}</button>
 </div>
 
 <script type="text/javascript">

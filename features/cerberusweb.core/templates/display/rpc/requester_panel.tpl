@@ -4,7 +4,7 @@
 <input type="hidden" name="ticket_id" value="{$ticket_id}">
 
 <b>{'display.ui.add_to_recipients'|devblocks_translate}:</b><br>
-<button type="button" class="chooser_address"><span class="cerb-sprite sprite-add"></span></button>
+<button type="button" class="chooser_address"><span class="cerb-sprite2 sprite-plus-circle-frame"></span></button>
 <ul class="chooser-container bubbles">
 {if !empty($requesters)}
 {foreach from=$requesters item=requester}
@@ -20,7 +20,7 @@
 <br>
 <br>
 
-<button id="btnSaveRequestersPanel" type="button"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')|capitalize}</button>
+<button id="btnSaveRequestersPanel" type="button"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {$translate->_('common.save_changes')|capitalize}</button>
 <br>
 </form>
 

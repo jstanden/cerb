@@ -9,7 +9,7 @@
 	This {if !empty($trigger)}trigger{else}{$node->node_type}{/if} and all its children will be permanently deleted.
 </fieldset>
 
-<button type="button" onclick="genericAjaxPost('frmDecisionNodeDelete','','',function() { window.location.reload(); });"><span class="cerb-sprite sprite-forbidden"></span> Yes, permanently delete it!</button>
+<button type="button" onclick="genericAjaxPost('frmDecisionNodeDelete','','',function() { window.location.reload(); });"><span class="cerb-sprite2 sprite-minus-circle-frame"></span> Yes, permanently delete it!</button>
 </form>
 
 <script type="text/javascript">

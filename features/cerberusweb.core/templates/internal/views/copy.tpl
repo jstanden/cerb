@@ -24,8 +24,8 @@ You can copy this worklist into your own workspaces, allowing you to put your fa
 <br>
 <br>
 
-<button type="button" onclick="genericAjaxPost('frmCopy{$view->id}','view{$view->id}','c=internal&a=viewDoCopy');"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')}</button>
-<button type="button" onclick="toggleDiv('{$view_id}_tips','none');$('#{$view_id}_tips').html('');" style=""><span class="cerb-sprite sprite-delete"></span> Do nothing</button><br>
+<button type="button" onclick="genericAjaxPost('frmCopy{$view->id}','view{$view->id}','c=internal&a=viewDoCopy');"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {$translate->_('common.save_changes')}</button>
+<button type="button" onclick="toggleDiv('{$view_id}_tips','none');$('#{$view_id}_tips').html('');" style=""><span class="cerb-sprite2 sprite-cross-circle-frame"></span> Do nothing</button><br>
 </form>
 
 <script type="text/javascript">

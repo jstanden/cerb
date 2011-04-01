@@ -27,7 +27,7 @@
 *}
 
 {if 1 || $active_worker->hasPriv('core.addybook.addy.actions.update')}
-	<button name="submit" type="button" onclick="if($('#frmContactListPeek').validate().form()) { genericAjaxPopupPostCloseReloadView('peek','frmContactListPeek', '{$view_id}'); } "><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')}</button>
+	<button name="submit" type="button" onclick="if($('#frmContactListPeek').validate().form()) { genericAjaxPopupPostCloseReloadView('peek','frmContactListPeek', '{$view_id}'); } "><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {$translate->_('common.save_changes')}</button>
 {else}
 	<div class="error">{$translate->_('error.core.no_acl.edit')}</div>	
 {/if}

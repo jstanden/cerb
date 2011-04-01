@@ -103,7 +103,7 @@
 				{if $ticket->is_closed}
 					<button type="button" onclick="this.form.closed.value='0';this.form.submit();"><span class="cerb-sprite sprite-folder_out"></span> {$translate->_('common.reopen')|capitalize}</button>
 				{else}
-					{if $active_worker->hasPriv('core.ticket.actions.close')}<button title="{$translate->_('display.shortcut.close')}" id="btnClose" type="button" onclick="this.form.closed.value=1;this.form.submit();"><span class="cerb-sprite sprite-folder_ok"></span> {$translate->_('common.close')|capitalize}</button>{/if}
+					{if $active_worker->hasPriv('core.ticket.actions.close')}<button title="{$translate->_('display.shortcut.close')}" id="btnClose" type="button" onclick="this.form.closed.value=1;this.form.submit();"><span class="cerb-sprite2 sprite-folder-tick-circle"></span> {$translate->_('common.close')|capitalize}</button>{/if}
 				{/if}
 				
 				{if empty($ticket->spam_training)}
@@ -112,9 +112,9 @@
 			{/if}
 			
 			{if $ticket->is_deleted}
-				<button type="button" onclick="this.form.deleted.value='0';this.form.closed.value=0;this.form.submit();"><span class="cerb-sprite sprite-delete_gray"></span> {$translate->_('common.undelete')|capitalize}</button>
+				<button type="button" onclick="this.form.deleted.value='0';this.form.closed.value=0;this.form.submit();"><span class="cerb-sprite2 sprite-cross-circle-frame-gray"></span> {$translate->_('common.undelete')|capitalize}</button>
 			{else}
-				{if $active_worker->hasPriv('core.ticket.actions.delete')}<button title="{$translate->_('display.shortcut.delete')}" id="btnDelete" type="button" onclick="this.form.deleted.value=1;this.form.closed.value=1;this.form.submit();"><span class="cerb-sprite sprite-delete"></span> {$translate->_('common.delete')|capitalize}</button>{/if}
+				{if $active_worker->hasPriv('core.ticket.actions.delete')}<button title="{$translate->_('display.shortcut.delete')}" id="btnDelete" type="button" onclick="this.form.deleted.value=1;this.form.closed.value=1;this.form.submit();"><span class="cerb-sprite2 sprite-cross-circle-frame"></span> {$translate->_('common.delete')|capitalize}</button>{/if}
 			{/if}
 			
 			{if !isset($context_watchers.{$active_worker->id})}<button id="btnFollow" title="{$translate->_('display.shortcut.follow')}" type="button" onclick="this.form.do_follow.value='1';this.form.submit();"><span class="cerb-sprite sprite-hand_paper"></span> {$translate->_('common.follow')|capitalize}</button>{/if}
@@ -126,7 +126,7 @@
 			</div>
 			
 			<div id="divDisplayToolbarMore" style="padding-bottom:5px;display:none;">
-				{if $active_worker->hasPriv('core.ticket.view.actions.merge')}<button id="btnMerge" type="button" onclick="genericAjaxPopup('peek','c=display&a=showMergePanel&ticket_id={$ticket->id}',null,false,'500');"><span class="cerb-sprite sprite-folder_gear"></span> {$translate->_('mail.merge')|capitalize}</button>{/if}
+				{if $active_worker->hasPriv('core.ticket.view.actions.merge')}<button id="btnMerge" type="button" onclick="genericAjaxPopup('peek','c=display&a=showMergePanel&ticket_id={$ticket->id}',null,false,'500');"><span class="cerb-sprite2 sprite-folder-gear"></span> {$translate->_('mail.merge')|capitalize}</button>{/if}
 			</div>
 			
 			<div>

@@ -93,7 +93,7 @@
 						
 						{* If not requester *}
 						{if !$message->is_outgoing && !isset($requesters.{$sender_id})}
-						<button type="button" onclick="$(this).remove(); genericAjaxGet('','c=display&a=requesterAdd&ticket_id={$ticket->id}&email='+encodeURIComponent('{$sender->email}'),function(o) { genericAjaxGet('displayTicketRequesterBubbles','c=display&a=requestersRefresh&ticket_id={$ticket->id}'); } );"><span class="cerb-sprite sprite-add"></span> {$translate->_('display.ui.add_to_recipients')}</button>
+						<button type="button" onclick="$(this).remove(); genericAjaxGet('','c=display&a=requesterAdd&ticket_id={$ticket->id}&email='+encodeURIComponent('{$sender->email}'),function(o) { genericAjaxGet('displayTicketRequesterBubbles','c=display&a=requestersRefresh&ticket_id={$ticket->id}'); } );"><span class="cerb-sprite2 sprite-plus-circle-frame"></span> {$translate->_('display.ui.add_to_recipients')}</button>
 						{/if}
 						
 				      	{if $active_worker->hasPriv('core.display.actions.reply')}{if !empty($requesters)}{assign var=show_more value=1}<button type="button" class="reply" onclick="displayReply('{$message->id}',0);"><span class="cerb-sprite sprite-export"></span> {$translate->_('display.ui.reply')|capitalize}</button>{/if}{/if}
@@ -120,7 +120,7 @@
 	      		{/if}
 	      		
 				{if $active_worker->hasPriv('core.display.message.actions.delete')}
-				<button type="button" onclick="if(!confirm('Are you sure you want to delete this message?'))return; $frm=$(this).closest('form');$frm.find('input:hidden[name=a]').val('doDeleteMessage');$frm.submit();" title="Delete this message"><span class="cerb-sprite sprite-delete"></span> {$translate->_('common.delete')|capitalize}</button>
+				<button type="button" onclick="if(!confirm('Are you sure you want to delete this message?'))return; $frm=$(this).closest('form');$frm.find('input:hidden[name=a]').val('doDeleteMessage');$frm.submit();" title="Delete this message"><span class="cerb-sprite2 sprite-cross-circle-frame"></span> {$translate->_('common.delete')|capitalize}</button>
 				{/if}
 				
 				{* Plugin Toolbar *}

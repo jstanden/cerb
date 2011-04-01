@@ -3,7 +3,7 @@
 	<td width="1%" nowrap="nowrap" valign="top" style="padding-right:5px;">
 		<form action="{devblocks_url}{/devblocks_url}" style="margin-bottom:5px;">
 		{if $active_worker->hasPriv('core.addybook.addy.actions.update')}
-			<button type="button" onclick="genericAjaxPopup('peek','c=contacts&a=showAddressPeek&id=0&org_id={$contact->id}&view_id={$view->id}',null,false,'500');"><span class="cerb-sprite sprite-add"></span> {$translate->_('addy_book.address.add')}</button>
+			<button type="button" onclick="genericAjaxPopup('peek','c=contacts&a=showAddressPeek&id=0&org_id={$contact->id}&view_id={$view->id}',null,false,'500');"><span class="cerb-sprite2 sprite-plus-circle-frame"></span> {$translate->_('addy_book.address.add')}</button>
 		{/if}
 		</form>
 	</td>

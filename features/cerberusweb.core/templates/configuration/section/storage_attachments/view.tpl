@@ -84,7 +84,7 @@
 	<tr>
 		<td colspan="2">
 			{if $active_worker && $active_worker->is_superuser}
-				<button type="button" onclick="genericAjaxPopup('peek','c=config&a=handleSectionAction&section=storage_attachments&action=showAttachmentsBulkPanel&view_id={$view->id}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','row_id[]'),null,false,'500');"><span class="cerb-sprite sprite-folder_gear"></span> bulk update</button>
+				<button type="button" onclick="genericAjaxPopup('peek','c=config&a=handleSectionAction&section=storage_attachments&action=showAttachmentsBulkPanel&view_id={$view->id}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','row_id[]'),null,false,'500');"><span class="cerb-sprite2 sprite-folder-gear"></span> bulk update</button>
 			{/if}
 		</td>
 	</tr>

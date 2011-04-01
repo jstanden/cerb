@@ -9,7 +9,7 @@
 	{foreach from=$openids item=openid key=openid_id}
 	<li style="padding-bottom:10px;">
 		<input type="hidden" name="openid_claimed_ids[]" value="{$openid->openid_claimed_id}">
-		<button type="button" onclick="if(confirm('Are you sure you want to delete this OpenID identity?')) { $(this).closest('li').remove(); genericAjaxGet('','c=openid.ajax&a=deletePref&id={$openid_id}'); }"><span class="cerb-sprite sprite-forbidden"></span></button>
+		<button type="button" onclick="if(confirm('Are you sure you want to delete this OpenID identity?')) { $(this).closest('li').remove(); genericAjaxGet('','c=openid.ajax&a=deletePref&id={$openid_id}'); }"><span class="cerb-sprite2 sprite-minus-circle-frame"></span></button>
 		<img src="{devblocks_url}c=resource&p=cerberusweb.openid&f=images/openid-inputicon.gif{/devblocks_url}" align="top"> 
 		{$openid->openid_url}
 	</li>
@@ -27,6 +27,6 @@
 </ul>
 </fieldset>
 
-<button type="submit"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')}</button>
+<button type="submit"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {$translate->_('common.save_changes')}</button>
 
 </form>

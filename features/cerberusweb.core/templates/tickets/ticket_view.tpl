@@ -96,7 +96,7 @@
 				<tr class="{$tableRowClass}">
 					<td align="center" rowspan="2"><input type="checkbox" name="ticket_id[]" value="{$result.t_id}"></td>
 					<td colspan="{math equation="x" x=$smarty.foreach.headers.total}">
-						{if $result.t_is_deleted}<span class="cerb-sprite sprite-delete2_gray"></span> {elseif $result.t_is_closed}<span class="cerb-sprite sprite-check_gray" title="{$translate->_('status.closed')}"></span> {elseif $result.t_is_waiting}<span class="cerb-sprite sprite-clock"></span> {/if}
+						{if $result.t_is_deleted}<span class="cerb-sprite2 sprite-cross-circle-frame-gray"></span> {elseif $result.t_is_closed}<span class="cerb-sprite2 sprite-tick-circle-frame-gray" title="{$translate->_('status.closed')}"></span> {elseif $result.t_is_waiting}<span class="cerb-sprite sprite-clock"></span>{/if}
 						<a href="{devblocks_url}c=display&id={$result.t_mask}{/devblocks_url}" class="subject">{$result.t_subject}</a> 
 						<a href="javascript:;" onclick="genericAjaxPopup('peek','c=tickets&a=showPreview&view_id={$view->id}&tid={$result.t_id}', null, false, '650');"><span class="ui-icon ui-icon-newwin" style="display:inline-block;vertical-align:middle;" title="{$translate->_('views.peek')}"></span></a>
 						
@@ -126,9 +126,9 @@
 					{elseif $column=="t_is_waiting"}
 					<td>{if $result.t_is_waiting}<span class="cerb-sprite sprite-clock"></span>{else}{/if}</td>
 					{elseif $column=="t_is_closed"}
-					<td>{if $result.t_is_closed}<span class="cerb-sprite sprite-check_gray" title="{$translate->_('status.closed')}"></span>{else}{/if}</td>
+					<td>{if $result.t_is_closed}<span class="cerb-sprite2 sprite-tick-circle-frame-gray" title="{$translate->_('status.closed')}"></span>{else}{/if}</td>
 					{elseif $column=="t_is_deleted"}
-					<td>{if $result.t_is_deleted}<span class="cerb-sprite sprite-delete2_gray"></span>{else}{/if}</td>
+					<td>{if $result.t_is_deleted}<span class="cerb-sprite2 sprite-cross-circle-frame-gray"></span>{else}{/if}</td>
 					{elseif $column=="t_last_wrote"}
 					<td><a href="javascript:;" onclick="genericAjaxPopup('peek','c=contacts&a=showAddressPeek&email={$result.t_last_wrote|escape:'url'}&view_id={$view->id}',null,false,'500');" title="{$result.t_last_wrote}">{$result.t_last_wrote|truncate:45:'...':true:true}</a></td>
 					{elseif $column=="t_first_wrote"}
@@ -203,10 +203,10 @@
 						{if 'context'==$view->renderTemplate}<button type="button" onclick="removeSelectedContextLinks('{$view->id}');">Unlink</button>{/if}
 						{assign var=show_more value=0}
 						<button id="btnExplore{$view->id}" type="button" onclick="this.form.explore_from.value=$(this).closest('form').find('tbody input:checkbox:checked:first').val();this.form.a.value='viewTicketsExplore';this.form.submit();"><span class="cerb-sprite sprite-media_play_green"></span> {'common.explore'|devblocks_translate|lower}</button>
-						{if $active_worker->hasPriv('core.ticket.view.actions.bulk_update')}{assign var=show_more value=1}<button type="button"  id="btn{$view->id}BulkUpdate" onclick="ajax.showBatchPanel('{$view->id}',null);"><span class="cerb-sprite sprite-folder_gear"></span> {$translate->_('common.bulk_update')|lower}</button>{/if}
-						{if $active_worker->hasPriv('core.ticket.actions.close')}{assign var=show_more value=1}<button type="button" id="btn{$view->id}Close" onclick="ajax.viewCloseTickets('{$view->id}',0);"><span class="cerb-sprite sprite-folder_ok"></span> {$translate->_('common.close')|lower}</button>{/if}
+						{if $active_worker->hasPriv('core.ticket.view.actions.bulk_update')}{assign var=show_more value=1}<button type="button"  id="btn{$view->id}BulkUpdate" onclick="ajax.showBatchPanel('{$view->id}',null);"><span class="cerb-sprite2 sprite-folder-gear"></span> {$translate->_('common.bulk_update')|lower}</button>{/if}
+						{if $active_worker->hasPriv('core.ticket.actions.close')}{assign var=show_more value=1}<button type="button" id="btn{$view->id}Close" onclick="ajax.viewCloseTickets('{$view->id}',0);"><span class="cerb-sprite2 sprite-folder-tick-circle"></span> {$translate->_('common.close')|lower}</button>{/if}
 						{if $active_worker->hasPriv('core.ticket.actions.spam')}{assign var=show_more value=1}<button type="button"  id="btn{$view->id}Spam" onclick="ajax.viewCloseTickets('{$view->id}',1);"><span class="cerb-sprite sprite-spam"></span> {$translate->_('common.spam')|lower}</button>{/if}
-						{if $active_worker->hasPriv('core.ticket.actions.delete')}{assign var=show_more value=1}<button type="button"  id="btn{$view->id}Delete" onclick="ajax.viewCloseTickets('{$view->id}',2);"><span class="cerb-sprite sprite-delete"></span> {$translate->_('common.delete')|lower}</button>{/if}
+						{if $active_worker->hasPriv('core.ticket.actions.delete')}{assign var=show_more value=1}<button type="button"  id="btn{$view->id}Delete" onclick="ajax.viewCloseTickets('{$view->id}',2);"><span class="cerb-sprite2 sprite-folder-cross-circle"></span> {$translate->_('common.delete')|lower}</button>{/if}
 						
 						{if $active_worker->hasPriv('core.ticket.actions.move')}
 						{assign var=show_more value=1}

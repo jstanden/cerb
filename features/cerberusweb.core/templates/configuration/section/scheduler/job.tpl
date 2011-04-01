@@ -7,9 +7,9 @@
 	<span class="cerb-sprite sprite-lock" title="Locked"></span>
 {else}
 	{if $enabled}
-		<span class="cerb-sprite sprite-check" title="Enabled"></span>
+		<span class="cerb-sprite2 sprite-tick-circle-frame" title="Enabled"></span>
 	{else}
-		<span class="cerb-sprite sprite-forbidden" title="Disabled"></span>
+		<span class="cerb-sprite2 sprite-minus-circle-frame" title="Disabled"></span>
 	{/if}
 {/if}
 

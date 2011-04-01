@@ -32,7 +32,7 @@
 	</ul>
 </fieldset>
 
-<button type="submit"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')}</button>
+<button type="submit"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {$translate->_('common.save_changes')}</button>
 </form>
 
 <script type="text/javascript">

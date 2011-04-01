@@ -251,9 +251,9 @@
 <br>
 
 {if !empty($view_id)}
-	<button type="button" onclick="ajax.postAndReloadView('frmInboxFilter','view{$view_id}');"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')|capitalize}</button>
+	<button type="button" onclick="ajax.postAndReloadView('frmInboxFilter','view{$view_id}');"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {$translate->_('common.save_changes')|capitalize}</button>
 {else}
-	<button type="submit"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')}</button>
+	<button type="submit"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {$translate->_('common.save_changes')}</button>
 {/if}
 </form>
 <br>

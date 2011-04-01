@@ -7,7 +7,7 @@
 	<input type="file" name="file_data">
 </fieldset>
 
-<button type="submit"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.upload')|capitalize}</button>
+<button type="submit"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {$translate->_('common.upload')|capitalize}</button>
 </form>
 
 <iframe name="iframe_file_post" style="visibility:hidden;display:none;width:0px;height:0px;background-color:#ffffff;"></iframe>

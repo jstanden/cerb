@@ -63,8 +63,8 @@
 	</div>
 	<br>
 	
-	<button type="submit"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')|capitalize}</button>
-	<button type="button" onclick="this.form.allow_delete.value='1';this.form.submit();"><span class="cerb-sprite sprite-delete2"></span> {'delete checked'|capitalize}</button>
+	<button type="submit"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {$translate->_('common.save_changes')|capitalize}</button>
+	<button type="button" onclick="this.form.allow_delete.value='1';this.form.submit();"><span class="cerb-sprite2 sprite-cross-circle-frame"></span> {'delete checked'|capitalize}</button>
 </fieldset>
 
 </form>

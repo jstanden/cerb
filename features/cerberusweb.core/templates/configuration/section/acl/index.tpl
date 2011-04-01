@@ -16,7 +16,7 @@
 				<ul style="margin:0;padding:0;list-style:none;">
 					<li style="line-height:150%;">
 						<form>
-							<button type="button" onclick="genericAjaxGet('configRole','c=config&a=handleSectionAction&section=acl&action=getRole&id=0');"><span class="cerb-sprite sprite-add"></span> {'common.add'|devblocks_translate|capitalize}</button>
+							<button type="button" onclick="genericAjaxGet('configRole','c=config&a=handleSectionAction&section=acl&action=getRole&id=0');"><span class="cerb-sprite2 sprite-plus-circle-frame"></span> {'common.add'|devblocks_translate|capitalize}</button>
 						</form>
 					</li>
 				{if !empty($roles)}

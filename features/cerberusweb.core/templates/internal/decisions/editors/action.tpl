@@ -16,7 +16,7 @@
 {foreach from=$model->params item=params key=seq}
 <fieldset>
 	<legend>
-		<a href="javascript:;" onclick="$(this).closest('fieldset').remove();"><span class="cerb-sprite sprite-forbidden"></span></a>
+		<a href="javascript:;" onclick="$(this).closest('fieldset').remove();"><span class="cerb-sprite2 sprite-minus-circle-frame"></span></a>
 		{$actions.{$params.action}.label}
 	</legend>
 
@@ -37,7 +37,7 @@
 <fieldset>
 	<legend>Add Action</legend>
 
-	<span class="cerb-sprite sprite-add"></span>
+	<span class="cerb-sprite2 sprite-plus-circle-frame"></span>
 	<select name="action">
 		<option value=""></option>
 		{foreach from=$actions item=action key=token}
@@ -48,7 +48,7 @@
 </form>
 
 <form>
-	<button type="button" onclick="genericAjaxPost('frmDecisionNodeAction','','',function() { window.location.reload(); });"><span class="cerb-sprite sprite-check"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+	<button type="button" onclick="genericAjaxPost('frmDecisionNodeAction','','',function() { window.location.reload(); });"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
 </form>
 
 <script type="text/javascript">
@@ -92,7 +92,7 @@
 			});
 
 			$container = $('<fieldset></fieldset>');
-			$container.prepend('<legend><a href="javascript:;" onclick="$(this).closest(\'fieldset\').remove();"><span class="cerb-sprite sprite-forbidden"></span></a> '+$select.find('option:selected').text()+'</legend>');
+			$container.prepend('<legend><a href="javascript:;" onclick="$(this).closest(\'fieldset\').remove();"><span class="cerb-sprite2 sprite-minus-circle-frame"></span></a> '+$select.find('option:selected').text()+'</legend>');
 			$container.append('<input type="hidden" name="actions[]" value="' + seq + '">');
 			$container.append('<input type="hidden" name="action'+seq+'[action]" value="' + $select.val() + '">');
 			$container.append($html);

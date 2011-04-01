@@ -100,8 +100,8 @@
 </fieldset>
 
 {if $active_worker->hasPriv('crm.opp.actions.create')}
-	<button type="button" onclick="if($('#formOppPeek').validate().form()) { genericAjaxPopupPostCloseReloadView('peek','formOppPeek','{$view_id}',false,'opp_save'); } "><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')}</button>
-	{if !empty($opp)}<button type="button" onclick="if(confirm('Are you sure you want to permanently delete this opportunity?')) { this.form.do_delete.value='1';genericAjaxPopupClose('peek');genericAjaxPost('formOppPeek', 'view{$view_id}'); } "><span class="cerb-sprite sprite-delete2"></span> {$translate->_('common.delete')|capitalize}</button>{/if}
+	<button type="button" onclick="if($('#formOppPeek').validate().form()) { genericAjaxPopupPostCloseReloadView('peek','formOppPeek','{$view_id}',false,'opp_save'); } "><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {$translate->_('common.save_changes')}</button>
+	{if !empty($opp)}<button type="button" onclick="if(confirm('Are you sure you want to permanently delete this opportunity?')) { this.form.do_delete.value='1';genericAjaxPopupClose('peek');genericAjaxPost('formOppPeek', 'view{$view_id}'); } "><span class="cerb-sprite2 sprite-cross-circle-frame"></span> {$translate->_('common.delete')|capitalize}</button>{/if}
 {else}
 	<div class="error">You do not have permission to modify this record.</div>
 {/if}

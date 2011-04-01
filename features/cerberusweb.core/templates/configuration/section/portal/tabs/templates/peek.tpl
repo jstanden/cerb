@@ -12,7 +12,7 @@
 <br>
 
 {if $active_worker->is_superuser}
-	<button type="button" onclick="genericAjaxPopupClose('peek');genericAjaxPost('formPortalTemplatePeek', 'view{$view_id}', '');"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')}</button>
+	<button type="button" onclick="genericAjaxPopupClose('peek');genericAjaxPost('formPortalTemplatePeek', 'view{$view_id}', '');"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {$translate->_('common.save_changes')}</button>
 	{if !$disabled}
 		{if $active_worker->is_superuser}<button type="button" onclick="if(confirm('Are you sure you want to revert this template to the default?')){literal}{{/literal}this.form.do_delete.value='1';genericAjaxPopupClose('peek');genericAjaxPost('formPortalTemplatePeek', 'view{$view_id}', '');{literal}}{/literal}"><span class="cerb-sprite sprite-refresh"></span> {$translate->_('Revert')|capitalize}</button>{/if}
 	{/if}

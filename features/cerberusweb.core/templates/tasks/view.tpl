@@ -63,7 +63,7 @@
 			<td align="center" rowspan="2"><input type="checkbox" name="row_id[]" value="{$result.t_id}"></td>
 			<td colspan="{math equation="x" x=$smarty.foreach.headers.total}">
 				{if $result.t_is_completed}
-					<span class="cerb-sprite sprite-check_gray" title="{$result.t_completed_date|devblocks_date}"></span>
+					<span class="cerb-sprite2 sprite-tick-circle-frame-gray" title="{$result.t_completed_date|devblocks_date}"></span>
 				{/if}
 				<a href="{devblocks_url}c=tasks&d=display&id={$result.t_id}{/devblocks_url}" class="subject">{if !empty($result.t_title)}{$result.t_title}{else}New Task{/if}</a> <a href="javascript:;" onclick="genericAjaxPopup('peek','c=tasks&a=showTaskPeek&id={$result.t_id}&view_id={$view->id}',null,false,'550');"><span class="ui-icon ui-icon-newwin" style="display:inline-block;vertical-align:middle;" title="{$translate->_('views.peek')}"></span></a>
 				
@@ -107,7 +107,7 @@
 			{elseif $column=="t_is_completed"}
 				<td>
 					{if $result.t_is_completed}
-					<span class="cerb-sprite sprite-check_gray"></span>
+					<span class="cerb-sprite2 sprite-tick-circle-frame-gray"></span>
 					{/if}
 				</td>
 			{else}
@@ -125,7 +125,7 @@
 		<td colspan="2" valign="top">
 			{if 'context'==$view->renderTemplate}<button type="button" onclick="removeSelectedContextLinks('{$view->id}');">Unlink</button>{/if}
 			<button id="btnExplore{$view->id}" type="button" onclick="this.form.explore_from.value=$(this).closest('form').find('tbody input:checkbox:checked:first').val();this.form.a.value='viewTasksExplore';this.form.submit();"><span class="cerb-sprite sprite-media_play_green"></span> {'common.explore'|devblocks_translate|lower}</button>
-			{if $active_worker->hasPriv('core.tasks.actions.update_all')}<button type="button" onclick="genericAjaxPopup('peek','c=tasks&a=showTaskBulkPanel&view_id={$view->id}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','row_id[]'),null,false,'500');"><span class="cerb-sprite sprite-folder_gear"></span> {'common.bulk_update'|devblocks_translate|lower}</button>{/if}
+			{if $active_worker->hasPriv('core.tasks.actions.update_all')}<button type="button" onclick="genericAjaxPopup('peek','c=tasks&a=showTaskBulkPanel&view_id={$view->id}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','row_id[]'),null,false,'500');"><span class="cerb-sprite2 sprite-folder-gear"></span> {'common.bulk_update'|devblocks_translate|lower}</button>{/if}
 		</td>
 	</tr>
 	{/if}

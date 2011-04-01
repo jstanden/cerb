@@ -44,7 +44,7 @@
 			<td align="center" rowspan="2"><input type="checkbox" name="row_id[]" title="{$result.e_name}" value="{$result.e_id}"></td>
 			<td colspan="{math equation="x" x=$smarty.foreach.headers.total}">
 				{if $result.e_is_closed}
-					<span class="cerb-sprite sprite-check_gray"></span>
+					<span class="cerb-sprite2 sprite-tick-circle-frame-gray"></span>
 				{/if}
 				<b class="subject">{$result.e_name}</b> 
 				
@@ -83,7 +83,7 @@
 <table cellpadding="2" cellspacing="0" border="0" width="100%">
 	<tr>
 		<td align="left" valign="top" id="{$view->id}_actions">
-			<button type="button" class="devblocks-chooser-add-selected"><span class="cerb-sprite sprite-add"></span> Add Selected</button>
+			<button type="button" class="devblocks-chooser-add-selected"><span class="cerb-sprite2 sprite-plus-circle-frame"></span> Add Selected</button>
 		</td>
 		<td align="right" valign="top" nowrap="nowrap">
 			{math assign=fromRow equation="(x*y)+1" x=$view->renderPage y=$view->renderLimit}

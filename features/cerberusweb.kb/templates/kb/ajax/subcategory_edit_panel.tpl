@@ -38,8 +38,8 @@
 	<br>
 </div>
 
-{if $active_worker->hasPriv('core.kb.categories.modify')}<button type="submit"><span class="cerb-sprite sprite-check"></span> {$translate->_('common.save_changes')|capitalize}</button>{/if}
-{if $active_worker->hasPriv('core.kb.categories.modify') && !empty($category)}<button type="button" onclick="toggleDiv('deleteCategory','block');"><span class="cerb-sprite sprite-delete2"></span> {$translate->_('common.remove')|capitalize}</button>{/if}
+{if $active_worker->hasPriv('core.kb.categories.modify')}<button type="submit"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {$translate->_('common.save_changes')|capitalize}</button>{/if}
+{if $active_worker->hasPriv('core.kb.categories.modify') && !empty($category)}<button type="button" onclick="toggleDiv('deleteCategory','block');"><span class="cerb-sprite2 sprite-cross-circle-frame"></span> {$translate->_('common.remove')|capitalize}</button>{/if}
 
 </form>
 
