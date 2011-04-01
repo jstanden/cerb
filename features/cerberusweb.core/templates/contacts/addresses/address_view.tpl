@@ -10,6 +10,7 @@
 			{if $active_worker->hasPriv('core.home.workspaces')} | <a href="javascript:;" onclick="genericAjaxGet('{$view->id}_tips','c=internal&a=viewShowCopy&view_id={$view->id}');toggleDiv('{$view->id}_tips','block');">{$translate->_('common.copy')|lower}</a>{/if}
 			{if $active_worker->hasPriv('core.addybook.addy.view.actions.export')} | <a href="javascript:;" onclick="genericAjaxGet('{$view->id}_tips','c=internal&a=viewShowExport&id={$view->id}');toggleDiv('{$view->id}_tips','block');">{$translate->_('common.export')|lower}</a>{/if}
 			 | <a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewRefresh&id={$view->id}');"><span class="cerb-sprite sprite-refresh"></span></a>
+			 | <input type="checkbox" onclick="checkAll('view{$view->id}',this.checked);this.blur();$rows=$('#viewForm{$view->id}').find('table.worklistBody').find('tbody > tr');if($(this).is(':checked')) { $rows.addClass('selected'); } else { $rows.removeClass('selected'); }">
 		</td>
 	</tr>
 </table>
@@ -25,7 +26,6 @@
 
 	{* Column Headers *}
 	<tr>
-		<th style="text-align:center"><input type="checkbox" onclick="checkAll('view{$view->id}',this.checked);this.blur();$rows=$(this).closest('table').find('tbody > tr');if($(this).is(':checked')) { $rows.addClass('selected'); } else { $rows.removeClass('selected'); }"></th>
 		<th style="text-align:center">
 			<a href="javascript:;">{'common.follow'|devblocks_translate|capitalize}</a>
 		</th>
@@ -59,11 +59,13 @@
 	{/if}
 	<tbody style="cursor:pointer;">
 		<tr class="{$tableRowClass}">
-			<td align="center" rowspan="2" nowrap="nowrap" style="padding:5px;"><input type="checkbox" name="row_id[]" value="{$result.a_id}"></td>
 			<td align="center" rowspan="2" nowrap="nowrap" style="padding:5px;">
 				{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=CerberusContexts::CONTEXT_ADDRESS context_id=$result.a_id}
 			</td>
-			<td colspan="{$smarty.foreach.headers.total}">{if $result.a_is_banned}(banned) {/if}<a href="javascript:;" onclick="genericAjaxPopup('peek','c=contacts&a=showAddressPeek&email={$result.a_email|escape:'url'}&view_id={$view->id}',null,false,'550');" class="subject">{$result.a_email}</a></td>
+			<td colspan="{$smarty.foreach.headers.total}">
+				<input type="checkbox" name="row_id[]" value="{$result.a_id}" style="display:none;">
+				{if $result.a_is_banned}(banned) {/if}<a href="javascript:;" onclick="genericAjaxPopup('peek','c=contacts&a=showAddressPeek&email={$result.a_email|escape:'url'}&view_id={$view->id}',null,false,'550');" class="subject">{$result.a_email}</a>
+			</td>
 		</tr>
 		<tr class="{$tableRowClass}">
 		{foreach from=$view->view_columns item=column name=columns}
