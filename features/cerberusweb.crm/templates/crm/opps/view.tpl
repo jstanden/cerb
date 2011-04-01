@@ -29,7 +29,7 @@
 	{* Column Headers *}
 	<tr>
 		<th style="text-align:center">
-			<a href="javascript:;">{'common.follow'|devblocks_translate|capitalize}</a>
+			<a href="javascript:;">{'common.watchers'|devblocks_translate|capitalize}</a>
 		</th>
 		{foreach from=$view->view_columns item=header name=headers}
 			{* start table header, insert column title and link *}

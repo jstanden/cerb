@@ -31,7 +31,7 @@
 			<input type="checkbox" onclick="checkAll('view{$view->id}',this.checked);this.blur();$rows=$(this).closest('table').find('tbody > tr');if($(this).is(':checked')) { $rows.addClass('selected'); } else { $rows.removeClass('selected'); }">
 		</th>
 		<th style="text-align:center">
-			<a href="javascript:;">{'common.follow'|devblocks_translate|capitalize}</a>
+			<a href="javascript:;">{'common.watchers'|devblocks_translate|capitalize}</a>
 		</th>
 		
 		{foreach from=$view->view_columns item=header name=headers}

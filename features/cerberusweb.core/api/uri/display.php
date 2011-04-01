@@ -250,8 +250,6 @@ class ChDisplayPage extends CerberusPageExtension {
 		@$spam = DevblocksPlatform::importGPC($_REQUEST['spam'],'integer',0);
 		@$deleted = DevblocksPlatform::importGPC($_REQUEST['deleted'],'integer',0);
 		@$do_follow = DevblocksPlatform::importGPC($_REQUEST['do_follow'],'integer',0);
-		@$do_unfollow = DevblocksPlatform::importGPC($_REQUEST['do_unfollow'],'integer',0);
-		@$bucket = DevblocksPlatform::importGPC($_REQUEST['bucket_id'],'string');
 		
 		if(null == ($ticket = DAO_Ticket::get($id)))
 			return;
@@ -300,12 +298,6 @@ class ChDisplayPage extends CerberusPageExtension {
 		
 		DAO_Ticket::update($id, $properties);
 		
-		// Context workers
-		if($do_follow)
-			CerberusContexts::addWatchers(CerberusContexts::CONTEXT_TICKET, $id, array($active_worker->id));
-		if($do_unfollow)
-			CerberusContexts::removeWatchers(CerberusContexts::CONTEXT_TICKET, $id, array($active_worker->id));
-
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('display',$ticket->mask)));
 		exit;
 	}
