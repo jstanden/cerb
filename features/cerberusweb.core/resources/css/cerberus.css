@@ -352,19 +352,19 @@ table.worklistBody tr.odd {
 }
 
 table.worklistBody tr.hover {
-	background-color: rgb(251,236,136); 
-}
-
-table.worklistBody tr.even.selected {
-	background-color: rgb(255,255,200); 
-}
-
-table.worklistBody tr.odd.selected {
 	background-color: rgb(255,255,200);
 }
 
-table.worklistBody tr.even.selected.hover, table.worklistBody tr.odd.selected.hover {
+table.worklistBody tr.even.selected {
 	background-color: rgb(251,236,136); 
+}
+
+table.worklistBody tr.odd.selected {
+	background-color: rgb(251,236,136); 
+}
+
+table.worklistBody tr.even.selected.hover, table.worklistBody tr.odd.selected.hover {
+	background-color: rgb(255,255,200);
 }
 
 /* Divs */
