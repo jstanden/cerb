@@ -224,31 +224,6 @@ class ChContactsPage extends CerberusPageExtension {
 		$tpl->display('devblocks:cerberusweb.core::contacts/people/index.tpl');
 	}	
 	
-	function showListsTabAction() {
-		$tpl = DevblocksPlatform::getTemplateService();
-		$visit = CerberusApplication::getVisit();
-		
-		$visit->set(Extension_AddressBookTab::POINT, 'lists');
-		
-		$defaults = new C4_AbstractViewModel();
-		$defaults->class_name = 'View_ContactList';
-		$defaults->id = View_ContactList::DEFAULT_ID;
-		$defaults->paramsDefault = array(
-			//SearchFields_Example::PROPERTY => new DevblocksSearchCriteria(SearchFields_Example::PROPERTY,'=',1),
-		);
-		
-		$view = C4_AbstractViewLoader::getView(View_ContactList::DEFAULT_ID, $defaults);
-		
-		$view->addParamsDefault(array(
-			//SearchFields_Example::PROPERTY => new DevblocksSearchCriteria(SearchFields_Example::PROPERTY,'=',1),
-		), true);
-		
-		$tpl->assign('view', $view);
-		$tpl->assign('contacts_page', 'lists');
-		
-		$tpl->display('devblocks:cerberusweb.core::contacts/lists/index.tpl');
-	}	
-	
 	function showImportTabAction() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		$visit = CerberusApplication::getVisit();

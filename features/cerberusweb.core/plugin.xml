@@ -36,7 +36,7 @@
 		<patch version="5.1.2" revision="904" file="patches/5.x/5.1.2.php" />
 		<patch version="5.2.0" revision="905" file="patches/5.x/5.2.0.php" />
 		<patch version="5.3.0" revision="916" file="patches/5.x/5.3.0.php" />
-		<patch version="5.4.0" revision="925" file="patches/5.x/5.4.0.php" />
+		<patch version="5.4.0" revision="926" file="patches/5.x/5.4.0.php" />
 	</patches>
 
 	<!-- Declared Extension Points -->
@@ -131,13 +131,6 @@
 			<class name="DAO_ConfirmationCode" />
 			<class name="Model_ConfirmationCode" />
 			<class name="SearchFields_ConfirmationCode" />
-		</file>
-		
-		<file path="api/dao/contact_list.php">
-			<class name="DAO_ContactList" />
-			<class name="Model_ContactList" />
-			<class name="SearchFields_ContactList" />
-			<class name="View_ContactList" />
 		</file>
 		
 		<file path="api/dao/contact_person.php">

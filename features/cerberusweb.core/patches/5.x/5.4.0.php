@@ -4,6 +4,14 @@ $logger = DevblocksPlatform::getConsoleLog();
 $tables = $db->metaTables();
 
 // ===========================================================================
+// Drop contact_list
+
+if(isset($tables['trigger_event'])) {
+	$db->Execute("DROP TABLE contact_list");
+	unset($tables['trigger_event']);
+}
+
+// ===========================================================================
 // trigger_event 
 
 if(!isset($tables['trigger_event'])) {
