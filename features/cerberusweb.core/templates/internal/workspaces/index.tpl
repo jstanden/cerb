@@ -3,11 +3,3 @@
 	<input type="hidden" name="a" value="">
 	<button type="button" onclick="genericAjaxPopup('peek','c=internal&a=showEditWorkspacePanel&id={$workspace->id}&request={$request|escape:'url'}',null,true,'600');"><span class="cerb-sprite sprite-gear"></span> {$translate->_('dashboard.edit')|capitalize}</button>
 </form>
-
-{if !empty($views)}
-{foreach from=$views item=view name=views}
-<div id="view{$view->id}">
-	{$view->render()}
-</div>
-{/foreach}
-{/if}

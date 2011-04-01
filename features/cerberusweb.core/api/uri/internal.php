@@ -1014,10 +1014,16 @@ class ChInternalController extends DevblocksControllerExtension {
 			)
 			return;
 
-		$views = array();
-
+		$tpl->assign('workspace', $workspace);
+		$tpl->assign('request', $request);
+			
+		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/index.tpl');
+			
+		$tpl->clearAssign('workspace');
+		$tpl->clearAssign('request');
+		
 		$lists = $workspace->getWorklists();
-
+		
         // Loop through list schemas
 		if(is_array($lists) && !empty($lists))
 		foreach($lists as $list) { /* @var $list Model_WorkspaceList */
@@ -1046,14 +1052,19 @@ class ChInternalController extends DevblocksControllerExtension {
 				C4_AbstractViewLoader::setView($view_id, $view);
 			}
 
-			if(!empty($view))
-				$views[] = $view;
+			if(!empty($view)) {
+				$tpl->assign('view', $view);
+				$tpl->display('devblocks:cerberusweb.core::internal/workspaces/view.tpl');
+				$tpl->clearAssign('view');
+			}
+
+			unset($list_view);
+			unset($view_class);
+			unset($view);
 		}
-
-		$tpl->assign('workspace', $workspace);
-		$tpl->assign('request', $request);
-		$tpl->assign('views', $views);
-
+		
+		unset($lists);
+		
 		// Log activity
 		DAO_Worker::logActivity(
 			new Model_Activity(
@@ -1063,8 +1074,6 @@ class ChInternalController extends DevblocksControllerExtension {
 				)
 			)
 		);
-
-		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/index.tpl');
 	}
 
 	function showEditWorkspacePanelAction() {
