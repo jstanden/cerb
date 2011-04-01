@@ -20,7 +20,7 @@
 <input type="hidden" name="view_id" value="{$view->id}">
 <input type="hidden" name="c" value="tickets">
 <input type="hidden" name="a" value="">
-<table cellpadding="3" cellspacing="0" border="0" width="100%" class="worklistBody">
+<table cellpadding="5" cellspacing="0" border="0" width="100%" class="worklistBody">
 
 	{* Column Headers *}
 	<tr>
