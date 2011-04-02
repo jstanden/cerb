@@ -173,6 +173,8 @@ class DAO_ContextLink {
 			$objects[$from_context_id][$to_context_id] = $object;
 		}
 		
+		mysql_free_result($rs);
+		
 		return $objects;
 	}
 	

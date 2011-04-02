@@ -118,12 +118,6 @@ class ChInternalController extends DevblocksControllerExtension {
 		if(!empty($point))
 			$visit->set($point, 'links');
 
-		// Options
-		$options = array();
-
-		@$filter_open = DevblocksPlatform::importGPC($_REQUEST['filter_open'],'integer', 0);
-		if(!empty($filter_open))
-			$options['filter_open'] = true;
 		// Context Links
 
 		$views = array();

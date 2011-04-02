@@ -782,13 +782,6 @@ class Context_Snippet extends Extension_DevblocksContext {
 		
 		$view->addParamsRequired($params_req, true);
 		
-//		$params = array();
-		
-//		if(isset($options['filter_open']))
-//			$params[] = new DevblocksSearchCriteria(SearchFields_Task::IS_COMPLETED,'=',0);
-		
-//		$view->addParams($params, false);
-		
 		$view->renderTemplate = 'context';
 		C4_AbstractViewLoader::setView($view_id, $view);
 		return $view;

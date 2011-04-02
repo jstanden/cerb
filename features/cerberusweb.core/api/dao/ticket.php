@@ -2310,15 +2310,6 @@ class Context_Ticket extends Extension_DevblocksContext {
 		
 		$view->addParamsRequired($params_req, true);
 		
-		$params = array();
-
-		if(isset($options['filter_open'])) {
-			$params[] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',0);
-			$params[] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_WAITING,'=',0);
-		}
-		
-		$view->addParams($params, false);
-		
 		$view->renderTemplate = 'context';
 		C4_AbstractViewLoader::setView($view_id, $view);
 		return $view;

@@ -757,13 +757,6 @@ class Context_ContactPerson extends Extension_DevblocksContext {
 
 		$view->addParamsRequired($params_req, true);		
 		
-//		$params = array();
-//		
-//		if(isset($options['filter_open']))
-//			true; // Do nothing
-//		
-//		$view->addParams($params, false);
-		
 		$view->renderTemplate = 'context';
 		C4_AbstractViewLoader::setView($view_id, $view);
 		return $view;
