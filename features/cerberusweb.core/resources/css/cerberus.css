@@ -457,13 +457,13 @@ DIV.bubble {
 	padding:0 0.2em 0 0.2em;
 	margin:2px;
 	display:inline-block;
-	color:rgb(74,110,158);
+	color:rgb(49,116,165);
 	background-color:rgb(232,242,254);
 	border:1px solid rgb(197,219,236);	
 }
 
 DIV.bubble A {
-	color:rgb(74,110,158);
+	color:rgb(49,116,165);
 	text-decoration:none;
 }
 
@@ -485,34 +485,21 @@ UL.bubbles LI {
 	white-space:nowrap;
 	padding:0 0.2em 0 0.2em;
 	margin:2px;
-	color:rgb(74,110,158);
+	color:rgb(49,116,165);
 	border:1px solid rgb(197,219,236);
 	
 	border-radius: 5px;	
 	-moz-border-radius: 5px;
 	-webkit-border-radius: 5px;
 	
-	background: -webkit-gradient(linear, left top, left bottom, from(rgb(232,242,254)), to(rgb(255,255,255)));
-	background: -moz-linear-gradient(top,  rgb(232,242,254),  rgb(255,255,255));
-	background-color:rgb(232,242,254);
+	background:rgb(255,255,255) none;
+	background: -webkit-gradient(linear, left top, left bottom, from(rgb(255,255,255)), to(rgb(232,242,254)));
+	background: -moz-linear-gradient(top, rgb(255,255,255), rgb(232,242,254));
+	background: -o-linear-gradient(top, rgb(255,255,255),  rgb(232,242,254));
 }
-
-UL.bubbles LI.bubble-blue {
-	color:rgb(74,110,158);
-	background-color:rgb(232,242,254);
-	border:1px solid rgb(197,219,236);
-}
-
-/*
-UL.bubbles LI.bubble-red {
-	color:rgb(220,50,50);
-	background-color:rgb(255,230,230);
-	border:1px solid rgb(220,120,120);
-}
-*/
 
 UL.bubbles LI  A {
-	color:rgb(74,110,158);
+	color:rgb(49,116,165);
 	text-decoration:none;
 }
 
