@@ -28,6 +28,9 @@
 		<file path="api/App.php">
 			<class name="Extension_CrmOpportunityTab" />
 			<class name="Extension_CrmOpportunityToolbarItem" />
+		</file>
+		<file path="api/dao/crm_opportunity.php">
+			<class name="Context_CrmOpportunity" />
 			<class name="DAO_CrmOpportunity" />
 			<class name="Model_CrmOpportunity" />
 			<class name="SearchFields_CrmOpportunity" />
@@ -62,7 +65,7 @@
 			<id>cerberusweb.contexts.opportunity</id>
 			<name>Opportunity</name>
 			<class>
-				<file>api/App.php</file>
+				<file>api/dao/crm_opportunity.php</file>
 				<name>Context_Opportunity</name>
 			</class>
 			<params>
