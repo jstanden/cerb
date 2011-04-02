@@ -571,8 +571,6 @@ class View_ContactOrg extends C4_AbstractView {
 		
 		$tpl->clearAssign('custom_fields');
 		$tpl->clearAssign('id');
-		$tpl->clearAssign('view');
-		$tpl->clearAssign('workers');
 	}
 
 	function renderCriteria($field) {

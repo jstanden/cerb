@@ -451,7 +451,6 @@ class View_Task extends C4_AbstractView {
 		$tpl->clearAssign('custom_fields');
 		$tpl->clearAssign('id');
 		$tpl->clearAssign('results');
-		$tpl->clearAssign('view');
 	}
 
 	function renderCriteria($field) {

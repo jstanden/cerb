@@ -78,6 +78,8 @@ class DAO_ContextLink {
 			$rows[] = $row['context'];
 		}
 		
+		mysql_free_result($rs);
+		
 		return $rows;
 	}
 	
@@ -100,6 +102,8 @@ class DAO_ContextLink {
 		while($row = mysql_fetch_assoc($rs)) {
 			$objects[$row['context']] = intval($row['hits']);
 		}
+		
+		mysql_free_result($rs);
 		
 		return $objects;
 	}

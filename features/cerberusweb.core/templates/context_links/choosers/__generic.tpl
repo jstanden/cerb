@@ -1,16 +1,4 @@
-<form action="#" method="POST" id="filters{$view->id}">
-<input type="hidden" name="c" value="internal">
-<input type="hidden" name="a" value="">
-<input type="hidden" name="id" value="{$view->id}">
-
-<div id="viewCustomFilters{$view->id}" style="margin:10px;">
-{include file="devblocks:cerberusweb.core::internal/views/customize_view_criteria.tpl"}
-</div>
-</form>
-
-<div id="view{$view->id}">
-{$view->render()}
-</div>
+{include file="devblocks:cerberusweb.core::internal/views/search_and_view.tpl" view=$view}
 
 <form action="#" method="POST" id="chooser{$view->id}">
 <b>Selected:</b>
@@ -29,12 +17,7 @@
 	$popup.one('popup_open',function(event,ui) {
 		event.stopPropagation();
 		$(this).dialog('option','title','{$context->manifest->name} Chooser');
-		
-		$('#viewCustomFilters{$view->id}').bind('view_refresh', function(event) {
-			if(event.target == event.currentTarget)
-				genericAjaxGet('view{$view->id}','c=internal&a=viewRefresh&id={$view->id}');
-		});
-		
+
 		$('#view{$view->id}').delegate('button.devblocks-chooser-add-selected', 'click', function(event) {
 			event.stopPropagation();
 			$view = $('#viewForm{$view->id}');

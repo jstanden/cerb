@@ -1569,8 +1569,6 @@ class View_Ticket extends C4_AbstractView {
 		$tpl->clearAssign('teams');
 		$tpl->clearAssign('team_categories');
 		$tpl->clearAssign('timestamp_now');
-		$tpl->clearAssign('view');
-		$tpl->clearAssign('workers');
 	}
 
 	function renderCriteria($field) {

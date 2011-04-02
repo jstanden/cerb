@@ -11,7 +11,7 @@
 
 <div id="view{$view->id}">{$view->render()}</div>
 
-<script>
+<script type="text/javascript">
 	$('#viewCustomFilters{$view->id}').bind('view_refresh', function(event) {
 		if(event.target == event.currentTarget)
 			genericAjaxGet('view{$view->id}','c=internal&a=viewRefresh&id={$view->id}');
