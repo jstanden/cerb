@@ -378,6 +378,9 @@
 		<tu tuid='common.status'>
 			<tuv xml:lang="en_US"><seg>Status</seg></tuv>
 		</tu>
+		<tu tuid='common.subtotals'>
+			<tuv xml:lang="en_US"><seg>Subtotals</seg></tuv>
+		</tu>
 		<tu tuid='common.summary'>
 			<tuv xml:lang="en_US"><seg>Summary</seg></tuv>
 		</tu>
@@ -1249,7 +1252,6 @@ For example: http://www.cerberusweb.com/support/</seg></tuv>
 		<tu tuid='mail.drafts'>
 			<tuv xml:lang="en_US"><seg>Drafts</seg></tuv>
 		</tu>
-		
 		<tu tuid='mail.inbox_filter'>
 			<tuv xml:lang="en_US"><seg>Inbox Filter</seg></tuv>
 		</tu>
