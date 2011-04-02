@@ -1,5 +1,24 @@
 {$view_editable_params = $view->getEditableParams()}
 <table cellpadding="2" cellspacing="0" border="0" width="100%">
+<tbody class="summary" style="">
+<tr>
+	<td colspan="2">
+		<a href="javascript:;" onclick="$frm=$(this).closest('form');genericAjaxGet('','c=internal&a=viewToggleFilters&id={$view->id}&show=' + ($frm.find('tbody.full').toggle().is(':hidden')?'0':'1'));" style="font-weight:bold;">{'common.filters'|devblocks_translate|capitalize}:</a>
+		{include file="devblocks:cerberusweb.core::internal/views/criteria_list_params.tpl" params=$view_editable_params readonly=true}
+		<script type="text/javascript">
+		$('#viewCustomFilters{$view->id} TBODY.summary UL.bubbles LI').hover(
+			function() {
+				$(this).find('a').show();
+			},
+			function() {
+				$(this).find('a').hide();
+			}
+		);
+		</script>
+	</td>
+</tr>
+</tbody>
+<tbody class="full" style="width:100%;display:{if $view->renderFilters};{else}none;{/if}">
 <tr>
 	<td width="60%" valign="top">
 		<fieldset>
@@ -25,6 +44,7 @@
 					</optgroup>
 					{/if}
 				</select>
+				
 				<div id="divAddPreset{$view->id}" class="block" style="display:none;margin:5px;">
 					<b>Save filters as preset:</b><br>
 					{if !empty($presets)}
@@ -93,4 +113,5 @@
 		</fieldset>
 	</td>
 </tr>
+</tbody>
 </table>

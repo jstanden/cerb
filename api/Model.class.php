@@ -67,6 +67,8 @@ abstract class C4_AbstractView {
 	public $renderSortBy = '';
 	public $renderSortAsc = 1;
 
+	public $renderFilters = null;
+	
 	public $renderSubtotals = null;
 	public $renderSubtotalsClickable = 0;
 	
@@ -562,6 +564,8 @@ class C4_AbstractViewModel {
 	public $renderSortBy = '';
 	public $renderSortAsc = 1;
 	
+	public $renderFilters = null;
+	
 	public $renderSubtotals = null;
 	public $renderSubtotalsClickable = null;
 	
@@ -641,6 +645,8 @@ class C4_AbstractViewLoader {
 		$model->renderSortBy = $view->renderSortBy;
 		$model->renderSortAsc = $view->renderSortAsc;
 
+		$model->renderFilters = $view->renderFilters;
+		
 		$model->renderSubtotals = $view->renderSubtotals;
 		$model->renderSubtotalsClickable = $view->renderSubtotalsClickable;
 		
@@ -690,6 +696,8 @@ class C4_AbstractViewLoader {
 		if(null !== $model->renderSortBy)
 			$inst->renderSortAsc = $model->renderSortAsc;
 
+		$inst->renderFilters = $model->renderFilters;
+		
 		$inst->renderSubtotals = $model->renderSubtotals;
 		$inst->renderSubtotalsClickable = $model->renderSubtotalsClickable;
 			

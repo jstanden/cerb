@@ -541,6 +541,16 @@ class ChInternalController extends DevblocksControllerExtension {
 	}
 
 	// Ajax
+	
+	function viewToggleFiltersAction() {
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'string','');
+		@$show = DevblocksPlatform::importGPC($_REQUEST['show'],'integer',0);
+		
+		$view = C4_AbstractViewLoader::getView($id);
+		$view->renderFilters = !empty($show) ? 1 : 0;
+		C4_AbstractViewLoader::setView($view->id, $view);
+	}
+	
 	function viewAddFilterAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
 

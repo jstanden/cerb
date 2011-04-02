@@ -1,7 +1,9 @@
 {$view_filters = $view->getFields()}
+{if $readonly}<ul class="bubbles">{/if}
 {if !empty($params)}
 {foreach from=$params item=param key=param_key name=params}
-	{if !$nested}<label><input type="checkbox" name="field_deletes[]" value="{$param_key}"> {/if}
+	{if !$nested && !$readonly}<label><input type="checkbox" name="field_deletes[]" value="{$param_key}"> {/if}
+	{if !$nested && $readonly}<li class="bubble-white">{/if}
 		
 	{if '*_' == substr($param_key,0,2)}
 		{$view->renderVirtualCriteria($param)}
@@ -33,6 +35,8 @@
 		{/if}
 	{/if}
 		
-	{if !$nested}</label><br>{/if}
+	{if !$nested && !$readonly}</label><br>{/if}
+	{if !$nested && $readonly}<a href="javascript:;" onclick="ajax.viewRemoveFilter('{$view->id}', ['{$param_key}']);" style="position:relative;top:-10px;left:10px;margin-left:-10px;display:none;"><span class="cerb-sprite2 sprite-cross-circle-frame"></span></a></li>{/if}
 {/foreach}
+{if $readonly}</ul>{/if}
 {/if}

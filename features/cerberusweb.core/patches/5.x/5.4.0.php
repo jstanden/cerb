@@ -500,4 +500,12 @@ if(!empty($todo)) {
 	$db->Execute("DELETE FROM group_setting WHERE setting IN ('auto_reply_enabled', 'auto_reply', 'close_reply_enabled', 'close_reply', 'group_spam_threshold', 'group_spam_action', 'group_spam_action_param')");
 }
 
+// Add render_subtotals
+list($columns, $indexes) = $db->metaTable('worker_view_model');
+
+if(!isset($columns['render_filters'])) {
+	$db->Execute("ALTER TABLE worker_view_model ADD COLUMN render_filters TINYINT(1) NOT NULL DEFAULT 0");
+	$db->Execute("UPDATE worker_view_model SET render_filters = 1 WHERE view_id = 'mail_search'");
+}
+
 return TRUE;
