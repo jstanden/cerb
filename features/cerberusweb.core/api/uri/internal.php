@@ -110,6 +110,7 @@ class ChInternalController extends DevblocksControllerExtension {
 
 		$tpl = DevblocksPlatform::getTemplateService();
 		$visit = CerberusApplication::getVisit();
+		$active_worker = CerberusApplication::getActiveWorker();
 
 		$tpl->assign('context', $context);
 		$tpl->assign('context_id', $context_id);
@@ -123,17 +124,13 @@ class ChInternalController extends DevblocksControllerExtension {
 		@$filter_open = DevblocksPlatform::importGPC($_REQUEST['filter_open'],'integer', 0);
 		if(!empty($filter_open))
 			$options['filter_open'] = true;
-
-		// Contexts
-
-		$context_extensions = Extension_DevblocksContext::getAll();
-		$tpl->assign('context_extensions', $context_extensions);
-
 		// Context Links
 
 		$views = array();
 		$contexts = DAO_ContextLink::getDistinctContexts($context, $context_id);
 
+		$tpl->display('devblocks:cerberusweb.core::context_links/tab_header.tpl');
+		
 		foreach($contexts as $ctx) {
 			if(null == ($ext_context = DevblocksPlatform::getExtension($ctx, true)))
 				continue;
@@ -141,17 +138,25 @@ class ChInternalController extends DevblocksControllerExtension {
 			if(!$ext_context instanceof Extension_DevblocksContext)
 				continue;
 
-			$view = $ext_context->getView($context, $context_id, $options);
+			$view = $ext_context->getView($context, $context_id);
 
-			if(!empty($view))
-				$views[$view->id] = $view;
+			if(!empty($view)) {
+				$tpl->assign('view', $view);
+				$tpl->display('devblocks:cerberusweb.core::internal/views/search_and_view.tpl');
+				$tpl->clearAssign('view');
+			}
+
+			unset($view);
+			unset($ext_content);
 		}
-
-		ksort($views);
-
-		$tpl->assign('views', $views);
-
-		$tpl->display('devblocks:cerberusweb.core::context_links/tab.tpl');
+		
+		$tpl->display('devblocks:cerberusweb.core::context_links/tab_footer.tpl');
+		
+		$tpl->clearAssign('context');
+		$tpl->clearAssign('context_id');
+		
+		unset($contexts);
+		unset($options);
 	}
 
 	function chooserOpenAction() {
@@ -1045,7 +1050,7 @@ class ChInternalController extends DevblocksControllerExtension {
 				if(null == ($ext = DevblocksPlatform::getExtension($list->context, true))) { /* @var $ext Extension_DevblocksContext */
 					continue;
 				}
-
+				
 				$view_class = $ext->getViewClass();
 				if(!class_exists($view_class))
 					continue;
@@ -1064,10 +1069,11 @@ class ChInternalController extends DevblocksControllerExtension {
 
 			if(!empty($view)) {
 				$tpl->assign('view', $view);
-				$tpl->display('devblocks:cerberusweb.core::internal/workspaces/view.tpl');
+				$tpl->display('devblocks:cerberusweb.core::internal/views/search_and_view.tpl');
 				$tpl->clearAssign('view');
 			}
 
+			unset($lists);
 			unset($list_view);
 			unset($view_class);
 			unset($view);

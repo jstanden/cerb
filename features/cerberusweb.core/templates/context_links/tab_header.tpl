@@ -1,5 +1,6 @@
 {$contexts = Extension_DevblocksContext::getAll(false)}
 
+{if $context != CerberusContexts::CONTEXT_WORKER}
 <form action="{devblocks_url}{/devblocks_url}" method="POST" style="margin-bottom:10px;">
 	<select onchange="chooserOpen(this);">
 		<option value="">-- find &amp; link --</option>
@@ -19,16 +20,33 @@
 		{/foreach}
 	</select>
 </form>
+{/if}
 
 {if is_array($views)}
 {foreach from=$views item=view}
-<div id="view{$view->id}">
-	{$view->render()}
+<form action="#" method="POST" id="filter{$view->id}">
+<input type="hidden" name="c" value="internal">
+<input type="hidden" name="a" value="">
+<input type="hidden" name="id" value="{$view->id}">
+
+<div id="viewCustomFilters{$view->id}" style="">
+{include file="devblocks:cerberusweb.core::internal/views/customize_view_criteria.tpl"}
 </div>
+</form>
+
+<div id="view{$view->id}">{$view->render()}</div>
+
+<script>
+	$('#viewCustomFilters{$view->id}').bind('view_refresh', function(event) {
+		if(event.target == event.currentTarget)
+			genericAjaxGet('view{$view->id}','c=internal&a=viewRefresh&id={$view->id}');
+	});
+</script>
 {/foreach}
 {/if}
 
 <script type="text/javascript">
+{if $context != CerberusContexts::CONTEXT_WORKER}
 function linkAddContext(ref) {
 	$select = $(ref);
 	$form = $select.closest('form');
@@ -152,4 +170,5 @@ function removeSelectedContextLinks(view_id) {
 	
 	genericAjaxGet($view.attr('id'), 'c=internal&a=viewRefresh&id=' + view_id);
 }
+{/if}
 </script>

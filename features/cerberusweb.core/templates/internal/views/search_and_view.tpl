@@ -1,3 +1,4 @@
+{if !empty($view)}
 <form action="#" method="POST" id="filter{$view->id}">
 <input type="hidden" name="c" value="internal">
 <input type="hidden" name="a" value="">
@@ -16,3 +17,4 @@
 			genericAjaxGet('view{$view->id}','c=internal&a=viewRefresh&id={$view->id}');
 	});
 </script>
+{/if}
