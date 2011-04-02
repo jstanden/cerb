@@ -941,13 +941,58 @@ button span.cerb-sprite2 { display:inline-block; }
 .ui-state-highlight, .ui-widget-content .ui-state-highlight { background: #fbec88 none; }
 .ui-state-error, .ui-widget-content .ui-state-error { background: #fef1ec none; } 
 
-.ui-tabs { border: 0px; padding: 0px; }
-.ui-tabs .ui-tabs-panel { background: #ffffff none; padding: 0px; margin: 5px 0px; 0px; 0px; }
-.ui-tabs .ui-tabs-nav { background: #ffffff none; border: none; border-bottom: 1px solid rgb(197,219,236); }
-.ui-tabs .ui-tabs-nav li { margin: 0 0.2em 0 0; background: rgb(232,242,254) none; }
-.ui-tabs .ui-tabs-nav li.ui-state-default a { color: rgb(74,110,158); }
-.ui-tabs .ui-tabs-nav li.ui-tabs-selected { padding-bottom: 0px; background: rgb(255,255,255) none; }
-.ui-tabs .ui-tabs-nav li.ui-tabs-selected a { color: rgb(74,110,158); font-weight:bold; }
+.ui-tabs {
+	border: 0px;
+	padding: 0px;
+}
+.ui-tabs .ui-tabs-panel {
+	background: #ffffff none;
+	padding: 0px;
+	margin: 5px 0px; 0px; 0px;
+}
+.ui-tabs .ui-tabs-nav {
+	background: #ffffff none;
+	border: none;
+	border-bottom: 1px solid rgb(200,200,200);
+	-moz-border-radius:0;
+	-webkit-border-radius:0;
+	border-radius:0;
+}
+.ui-tabs .ui-tabs-nav li {
+	margin: 0 0.2em 0 0;
+	background: rgb(245,245,245) none;
+	background: -webkit-gradient(linear, left top, left bottom, from(rgb(255,255,255)), to(rgb(240,240,240)));
+	background: -moz-linear-gradient(top, rgb(255,255,255), rgb(240,240,240));
+	background: -o-linear-gradient(top, rgb(255,255,255), rgb(240,240,240));
+	border:1px solid rgb(200,200,200);
+}
+.ui-tabs .ui-tabs-nav li a {
+	padding:0.5em 0.6em;
+}
+.ui-tabs .ui-tabs-nav li.ui-state-hover {
+	background:rgb(255,255,255) none;
+	border:1px solid rgb(150,150,150);
+}
+.ui-tabs .ui-tabs-nav li.ui-state-default a {
+	color: rgb(100,100,100);
+}
+.ui-tabs .ui-tabs-nav li.ui-state-hover a {
+	color: rgb(74,110,158);
+}
+.ui-tabs .ui-tabs-nav li.ui-tabs-selected { 
+	padding-bottom: 0px;
+	background: rgb(255,255,255) none;
+	background: -webkit-gradient(linear, left top, left bottom, from(rgb(239,249,255)), to(rgb(255,255,255)));
+	background: -moz-linear-gradient(top, rgb(239,249,255), rgb(255,255,255));
+	background: -o-linear-gradient(top, rgb(239,249,255), rgb(255,255,255));
+	border:1px solid rgb(121,183,231);
+	border-bottom:none;
+}
+.ui-tabs .ui-tabs-nav li.ui-tabs-selected a { 
+	color: rgb(74,110,158);
+	font-weight:bold;
+	border-bottom:1px solid rgb(255,255,255);
+}
 
 .ui-dialog .ui-dialog-titlebar { 
 	background: -webkit-gradient(linear, left top, left bottom, from(rgb(134,169,227)), to(rgb(98,132,221)));
