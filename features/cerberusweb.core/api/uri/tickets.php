@@ -297,7 +297,6 @@ class ChTicketsPage extends CerberusPageExtension {
 		), true);
 		
 		$workflowView->renderPage = 0;
-		$workflowView->renderSubtotalsClickable = 1;
 		
 		$workflowView->name = $translate->_('mail.workflow');
 		C4_AbstractViewLoader::setView($workflowView->id, $workflowView);
@@ -390,8 +389,6 @@ class ChTicketsPage extends CerberusPageExtension {
 			SearchFields_Ticket::VIRTUAL_STATUS => new DevblocksSearchCriteria(SearchFields_Ticket::VIRTUAL_STATUS,'',array('open','waiting')),
 			SearchFields_Ticket::TICKET_TEAM_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_TEAM_ID,'in',array_keys($memberships)), // censor
 		), true);
-		
-		$view->renderSubtotalsClickable = 1;
 		
 		C4_AbstractViewLoader::setView($view->id,$view);
 		

@@ -68,9 +68,7 @@ abstract class C4_AbstractView {
 	public $renderSortAsc = 1;
 
 	public $renderFilters = null;
-	
 	public $renderSubtotals = null;
-	public $renderSubtotalsClickable = 0;
 	
 	public $renderTemplate = null;
 
@@ -565,9 +563,7 @@ class C4_AbstractViewModel {
 	public $renderSortAsc = 1;
 	
 	public $renderFilters = null;
-	
 	public $renderSubtotals = null;
-	public $renderSubtotalsClickable = null;
 	
 	public $renderTemplate = null;
 };
@@ -646,9 +642,7 @@ class C4_AbstractViewLoader {
 		$model->renderSortAsc = $view->renderSortAsc;
 
 		$model->renderFilters = $view->renderFilters;
-		
 		$model->renderSubtotals = $view->renderSubtotals;
-		$model->renderSubtotalsClickable = $view->renderSubtotalsClickable;
 		
 		$model->renderTemplate = $view->renderTemplate;
 		
@@ -697,9 +691,7 @@ class C4_AbstractViewLoader {
 			$inst->renderSortAsc = $model->renderSortAsc;
 
 		$inst->renderFilters = $model->renderFilters;
-		
 		$inst->renderSubtotals = $model->renderSubtotals;
-		$inst->renderSubtotalsClickable = $model->renderSubtotalsClickable;
 			
 		$inst->renderTemplate = $model->renderTemplate;
 		
@@ -738,7 +730,6 @@ class DAO_WorkerViewModel {
 			'render_sort_asc',
 			'render_filters',
 			'render_subtotals',
-			'render_subtotals_clickable',
 			'render_template',
 		);
 		
@@ -761,7 +752,6 @@ class DAO_WorkerViewModel {
 			$model->renderSortAsc = $row['render_sort_asc'];
 			$model->renderFilters = $row['render_filters'];
 			$model->renderSubtotals = $row['render_subtotals'];
-			$model->renderSubtotalsClickable = $row['render_subtotals_clickable'];
 			$model->renderTemplate = $row['render_template'];
 			
 			// JSON blocks
@@ -837,7 +827,6 @@ class DAO_WorkerViewModel {
 			'render_sort_asc' => !empty($model->renderSortAsc) ? 1 : 0,
 			'render_filters' => $db->qstr($model->renderFilters),
 			'render_subtotals' => $db->qstr($model->renderSubtotals),
-			'render_subtotals_clickable' => !empty($model->renderSubtotalsClickable) ? 1 : 0,
 			'render_template' => $db->qstr($model->renderTemplate),
 		);
 		
