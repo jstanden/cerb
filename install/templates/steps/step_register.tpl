@@ -180,4 +180,3 @@ personal information, or otherwise abuse your trust.</i> <br>
 <input type="submit" value="Register &gt;&gt;">
 <br>
 </form>
-<br>

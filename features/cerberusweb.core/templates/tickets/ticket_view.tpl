@@ -275,7 +275,6 @@
 				</tr>
 			</table>
 			</form>
-
 		</td>
 	</tr>
 </table>
@@ -293,6 +292,5 @@
 		}
 	});
 </script>
-<br>
 
 {include file="devblocks:cerberusweb.core::internal/views/view_common_jquery_ui.tpl"}

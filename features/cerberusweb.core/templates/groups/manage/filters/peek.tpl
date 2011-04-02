@@ -256,7 +256,6 @@
 	<button type="submit"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {$translate->_('common.save_changes')}</button>
 {/if}
 </form>
-<br>
 
 <script type="text/javascript">
 	$popup = genericAjaxPopupFetch('peek');

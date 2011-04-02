@@ -102,6 +102,5 @@
 	</tr>
 </table>
 </form>
-<br>
 
 {include file="devblocks:cerberusweb.core::internal/views/view_common_jquery_ui.tpl"}
