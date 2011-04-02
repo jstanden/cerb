@@ -25,15 +25,18 @@
 	
 	<class_loader>
 		<file path="api/App.php">
-			<class name="DAO_KbArticle" />
 			<class name="DAO_KbCategory" />
 			<class name="Extension_KnowledgebaseTab" />
-			<class name="Model_KbArticle" />
 			<class name="Model_KbCategory" />
 			<class name="Search_KbArticle" />
+		</file>
+        <file path="api/dao/kb_article.php">
+			<class name="Context_KbArticle" />
+			<class name="DAO_KbArticle" />
+			<class name="Model_KbArticle" />
 			<class name="SearchFields_KbArticle" />
 			<class name="View_KbArticle" />
-		</file>
+        </file>
         <file path="api/sc/kb.php">
 			<class name="UmSc_KbArticleView" />
 		</file>		
@@ -67,7 +70,7 @@
 			<id>cerberusweb.contexts.kb_article</id>
 			<name>Knowledgebase Article</name>
 			<class>
-				<file>api/App.php</file>
+				<file>api/dao/kb_article.php</file>
 				<name>Context_KbArticle</name>
 			</class>
 			<params>
