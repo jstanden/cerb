@@ -81,6 +81,29 @@ class DAO_ContextLink {
 		return $rows;
 	}
 	
+	static public function getContextLinkCounts($context, $context_id) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$rs = $db->Execute(sprintf("SELECT count(to_context_id) AS hits, to_context as context ".
+			"FROM context_link ".
+			"WHERE from_context = %s ".
+			"AND from_context_id = %d ".
+			"GROUP BY to_context ".
+			"ORDER BY hits desc ",
+			$db->qstr($context),
+			$context_id
+		));
+		
+		$objects = array();
+		
+		if(is_resource($rs))
+		while($row = mysql_fetch_assoc($rs)) {
+			$objects[$row['context']] = intval($row['hits']);
+		}
+		
+		return $objects;
+	}
+	
 	// [TODO] This could replace the worker specific implementations
 	static public function setContextOutboundLinks($from_context, $from_context_id, $to_context, $to_context_ids) {
 		$links = DAO_ContextLink::getContextLinks($from_context, $from_context_id, $to_context, $to_context_ids);
