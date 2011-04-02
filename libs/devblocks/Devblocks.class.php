@@ -5209,9 +5209,6 @@ function devblocks_autoload($className) {
 // Register Devblocks class loader
 spl_autoload_register('devblocks_autoload');
 
-// Register SwiftMailer
-require_once(DEVBLOCKS_PATH . 'libs/swift/swift_required.php');
-
 // Twig
 if(class_exists('Twig_Autoloader', true) && method_exists('Twig_Autoloader','register'))
 	Twig_Autoloader::register();

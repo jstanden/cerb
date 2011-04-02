@@ -26,6 +26,14 @@
 		<file path="api/dao/devblocks_template.php">
 			<class name="View_DevblocksTemplate" />
 		</file>
+		<file path="libs/swift/swift_required.php">
+			<class name="Swift" />
+			<class name="Swift_Attachment" />
+			<class name="Swift_Mailer" />
+			<class name="Swift_Message" />
+			<class name="Swift_Plugins_AntiFloodPlugin" />
+			<class name="Swift_SmtpTransport" />
+		</file>
 	</class_loader>
 	
 	<!-- Extensions -->
