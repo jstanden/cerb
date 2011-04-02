@@ -1018,7 +1018,7 @@ class Pop3Cron extends CerberusCronPageExtension {
 		
 		@set_time_limit(0); // Unlimited (if possible)
 
-		$accounts = DAO_Mail::getPop3Accounts(); /* @var $accounts Model_Pop3Account[] */
+		$accounts = DAO_Pop3Account::getPop3Accounts(); /* @var $accounts Model_Pop3Account[] */
 
 		$timeout = ini_get('max_execution_time');
 		

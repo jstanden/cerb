@@ -8,7 +8,7 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 		$visit->set(ChConfigurationPage::ID, 'mail_incoming');
 		
 		// POP3
-		$pop3_accounts = DAO_Mail::getPop3Accounts();
+		$pop3_accounts = DAO_Pop3Account::getPop3Accounts();
 		$tpl->assign('pop3_accounts', $pop3_accounts);
 		
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/mail_incoming/index.tpl');

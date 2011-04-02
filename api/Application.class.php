@@ -52,7 +52,6 @@ define("APP_VERSION", '5.4.0-dev');
 
 define("APP_MAIL_PATH", APP_STORAGE_PATH . '/mail/');
 
-require_once(APP_PATH . "/api/DAO.class.php");
 require_once(APP_PATH . "/api/Model.class.php");
 require_once(APP_PATH . "/api/Extension.class.php");
 
@@ -1056,5 +1055,118 @@ class C4_DevblocksExtensionDelegate implements DevblocksExtensionDelegate {
 		}
 		
 		return self::$_worker->hasPriv('plugin.'.$extension_manifest->plugin_id);
+	}
+};
+
+class CerberusVisit extends DevblocksVisit {
+	private $worker_id;
+
+	const KEY_VIEW_LAST_ACTION = 'view_last_action';
+	const KEY_MY_WORKSPACE = 'view_my_workspace';
+	const KEY_WORKFLOW_FILTER = 'workflow_filter';
+
+	public function __construct() {
+		$this->worker_id = null;
+	}
+
+	/**
+	 * @return Model_Worker
+	 */
+	public function getWorker() {
+		if(empty($this->worker_id))
+			return null;
+			
+		return DAO_Worker::get($this->worker_id);
+	}
+	
+	public function setWorker(Model_Worker $worker=null) {
+		$this->worker_id = $worker->id;
+	}
+};
+
+class C4_ORMHelper extends DevblocksORMHelper {
+	static public function qstr($str) {
+		$db = DevblocksPlatform::getDatabaseService();
+		return $db->qstr($str);	
+	}
+	
+	static protected function _appendSelectJoinSqlForCustomFieldTables($tables, $params, $key, $select_sql, $join_sql) {
+		$custom_fields = DAO_CustomField::getAll();
+		$field_ids = array();
+		
+		$return_multiple_values = false; // can our CF return more than one hit? (GROUP BY)
+		
+		if(is_array($tables))
+		foreach($tables as $tbl_name => $null) {
+			// Filter and sanitize
+			if(substr($tbl_name,0,3) != "cf_" // not a custom field 
+				|| 0 == ($field_id = intval(substr($tbl_name,3)))) // not a field_id
+				continue;
+
+			// Make sure the field exists for this context
+			if(!isset($custom_fields[$field_id]))
+				continue; 
+			
+			$field_table = sprintf("cf_%d", $field_id);
+			$value_table = '';
+			
+			// Join value by field data type
+			switch($custom_fields[$field_id]->type) {
+				case 'T': // multi-line CLOB
+					$value_table = 'custom_field_clobvalue';
+					break;
+				case 'C': // checkbox
+				case 'E': // date
+				case 'N': // number
+				case 'W': // worker
+					$value_table = 'custom_field_numbervalue';
+					break;
+				default:
+				case 'S': // single-line
+				case 'D': // dropdown
+				case 'U': // URL
+					$value_table = 'custom_field_stringvalue';
+					break;
+			}
+
+			$has_multiple_values = false;
+			switch($custom_fields[$field_id]->type) {
+				case Model_CustomField::TYPE_MULTI_PICKLIST:
+				case Model_CustomField::TYPE_MULTI_CHECKBOX:
+					$has_multiple_values = true;
+					break;
+			}
+
+			// If we have multiple values but we don't need to WHERE the JOIN, be efficient and don't GROUP BY
+			if(!isset($params['cf_'.$field_id])) {
+				$select_sql .= sprintf(",(SELECT field_value FROM %s WHERE %s=context_id AND field_id=%d LIMIT 0,1) AS %s ",
+					$value_table,
+					$key,
+					$field_id,
+					$field_table
+				);
+				
+			} else {
+				$select_sql .= sprintf(", %s.field_value as %s ",
+					$field_table,
+					$field_table
+				);
+				
+				$join_sql .= sprintf("LEFT JOIN %s %s ON (%s=%s.context_id AND %s.field_id=%d) ",
+					$value_table,
+					$field_table,
+					$key,
+					$field_table,
+					$field_table,
+					$field_id
+				);
+				
+				// If we do need to WHERE this JOIN, make sure we GROUP BY
+				if($has_multiple_values)
+					$return_multiple_values = true;
+			}
+		}
+		
+		return array($select_sql, $join_sql, $return_multiple_values);
 	}
 };

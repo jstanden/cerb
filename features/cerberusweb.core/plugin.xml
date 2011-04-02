@@ -70,6 +70,13 @@
 			<class name="Event_NotificationReceivedByWorker" />
 		</file>
 		
+		<file path="api/dao/abstract_view.php">
+			<class name="C4_AbstractView" />
+			<class name="C4_AbstractLoader" />
+			<class name="C4_AbstractModel" />
+			<class name="DAO_WorkerViewModel" />
+		</file>
+		
 		<file path="api/dao/address.php">
 			<class name="Context_Address" />
 			<class name="DAO_Address" />
@@ -156,6 +163,11 @@
 		<file path="api/dao/context_merge_history.php">
 			<class name="DAO_ContextMergeHistory" />
 		</file>
+		
+		<file path="api/dao/custom_field.php">
+			<class name="DAO_CustomField" />
+			<class name="Model_CustomField" />
+		</file>
 
 		<file path="api/dao/decision_node.php">
 			<class name="DAO_DecisionNode" />
@@ -175,6 +187,7 @@
 			<class name="Model_Group" />
 			<class name="SearchFields_Group" />
 			<class name="View_Group" />
+			<class name="Model_TeamMember" />
 		</file>
 		
 		<file path="api/dao/group_inbox_filter.php">
@@ -190,6 +203,11 @@
 			<class name="View_MailQueue" />
 		</file>
 		
+		<file path="api/dao/mail_to_group_rule.php">
+			<class name="DAO_MailToGroupRule" />
+			<class name="Model_MailToGroupRule" />
+		</file>
+		
 		<file path="api/dao/message.php">
 			<class name="DAO_Message" />
 			<class name="DAO_MessageHeader" />
@@ -203,6 +221,11 @@
 		<file path="api/dao/openid_to_contact_person.php">
 			<class name="DAO_OpenIdToContactPerson" />
 			<class name="Model_OpenIdToContactPerson" />
+		</file>
+		
+		<file path="api/dao/pop3_account.php">
+			<class name="DAO_Pop3Account" />
+			<class name="Model_Pop3Account" />
 		</file>
 		
 		<file path="api/dao/preparse_rule.php">
@@ -229,6 +252,10 @@
 			<class name="Model_Ticket" />
 			<class name="SearchFields_Ticket" />
 			<class name="View_Ticket" />
+			<class name="CerberusTicketActionCode" />
+			<class name="CerberusTicketSpamTraining" />
+			<class name="CerberusTicketStatus" />
+			<class name="Model_TicketViewLastAction" />
 		</file>
 		
 		<file path="api/dao/trigger_event.php">
@@ -244,12 +271,22 @@
 			<class name="SearchFields_ViewFiltersPreset" />
 		</file>
 		
+		<file path="api/dao/view_rss.php">
+			<class name="DAO_ViewRss" />
+			<class name="Model_ViewRss" />
+		</file>
+		
 		<file path="api/dao/worker.php">
 			<class name="DAO_Worker" />
 			<class name="DAO_WorkerPref" />
 			<class name="Model_Worker" />
 			<class name="SearchFields_Worker" />
 			<class name="View_Worker" />
+		</file>
+		
+		<file path="api/dao/worker_role.php">
+			<class name="DAO_WorkerRole" />
+			<class name="Model_WorkerRole" />
 		</file>
 		
 		<file path="api/dao/notification.php">

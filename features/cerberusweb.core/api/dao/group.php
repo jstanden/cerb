@@ -1123,3 +1123,9 @@ class Context_Group extends Extension_DevblocksContext {
 		return $view;
 	}
 };
+
+class Model_TeamMember {
+	public $id;
+	public $team_id;
+	public $is_manager = 0;
+};

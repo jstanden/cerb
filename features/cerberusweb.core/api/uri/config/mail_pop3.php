@@ -7,7 +7,7 @@ class PageSection_SetupMailPop3 extends Extension_PageSection {
 		$visit->set(ChConfigurationPage::ID, 'mail_pop3');
 		
 		// POP3
-		$pop3_accounts = DAO_Mail::getPop3Accounts();
+		$pop3_accounts = DAO_Pop3Account::getPop3Accounts();
 		$tpl->assign('pop3_accounts', $pop3_accounts);
 		
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/mail_pop3/index.tpl');		
@@ -19,7 +19,7 @@ class PageSection_SetupMailPop3 extends Extension_PageSection {
 		$tpl = DevblocksPlatform::getTemplateService();
 				
 		if(!empty($id)) {
-			@$pop3 = DAO_Mail::getPop3Account($id);
+			@$pop3 = DAO_Pop3Account::getPop3Account($id);
 			$tpl->assign('pop3_account', $pop3);
 		}
 		
@@ -84,14 +84,14 @@ class PageSection_SetupMailPop3 extends Extension_PageSection {
 			);
 			
 			if(!empty($id) && !empty($delete)) {
-				DAO_Mail::deletePop3Account($id);
+				DAO_Pop3Account::deletePop3Account($id);
 				
 			} elseif(!empty($id)) {
-				DAO_Mail::updatePop3Account($id, $fields);
+				DAO_Pop3Account::updatePop3Account($id, $fields);
 				
 			} else {
 	            if(!empty($host) && !empty($username)) {
-				    $id = DAO_Mail::createPop3Account($fields);
+				    $id = DAO_Pop3Account::createPop3Account($fields);
 	            }
 			}
 			

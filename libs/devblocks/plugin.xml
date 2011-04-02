@@ -17,6 +17,17 @@
 		<patch version="2.1.0" revision="306" file="patches/2.1.0.php" />
 	</patches>
 	
+	<!-- Exported Classes -->
+
+	<class_loader>
+		<file path="api/dao/devblocks_storage_profile.php">
+			<class name="View_DevblocksStorageProfile" />
+		</file>
+		<file path="api/dao/devblocks_template.php">
+			<class name="View_DevblocksTemplate" />
+		</file>
+	</class_loader>
+	
 	<!-- Extensions -->
 	
 	<extensions>
