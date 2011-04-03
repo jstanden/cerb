@@ -96,7 +96,6 @@
 	{if $total}
 	<tr>
 		<td colspan="2">
-			{if 'context'==$view->renderTemplate}<button type="button" onclick="removeSelectedContextLinks('{$view->id}');">Unlink</button>{/if}
 			{if $active_worker->hasPriv('core.addybook.addy.actions.update')}<button type="button" onclick="ajax.showAddressBatchPanel('{$view->id}',this);"><span class="cerb-sprite2 sprite-folder-gear"></span> {$translate->_('common.bulk_update')|lower}</button>{/if}
 		</td>
 	</tr>

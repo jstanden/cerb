@@ -96,7 +96,6 @@
 	{if $total}
 	<tr>
 		<td colspan="2" valign="top">
-			{if 'context'==$view->renderTemplate}<button type="button" onclick="removeSelectedContextLinks('{$view->id}');">Unlink</button>{/if}
 		</td>
 	</tr>
 	{/if}

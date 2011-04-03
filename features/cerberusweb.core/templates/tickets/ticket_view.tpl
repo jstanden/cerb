@@ -192,7 +192,6 @@
 				{if $total}
 				<tr>
 					<td colspan="2">
-						{if 'context'==$view->renderTemplate}<button type="button" onclick="removeSelectedContextLinks('{$view->id}');">Unlink</button>{/if}
 						{assign var=show_more value=0}
 						<button id="btnExplore{$view->id}" type="button" onclick="this.form.explore_from.value=$(this).closest('form').find('tbody input:checkbox:checked:first').val();this.form.a.value='viewTicketsExplore';this.form.submit();"><span class="cerb-sprite sprite-media_play_green"></span> {'common.explore'|devblocks_translate|lower}</button>
 						{if $active_worker->hasPriv('core.ticket.view.actions.bulk_update')}{assign var=show_more value=1}<button type="button"  id="btn{$view->id}BulkUpdate" onclick="ajax.showBatchPanel('{$view->id}',null);"><span class="cerb-sprite2 sprite-folder-gear"></span> {$translate->_('common.bulk_update')|lower}</button>{/if}
