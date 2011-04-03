@@ -1,5 +1,6 @@
 <script type="text/javascript">
-$('FORM#viewForm{$view->id} TABLE.worklistBody TBODY')
+$frm = $('FORM#viewForm{$view->id}');
+$frm.find('TABLE.worklistBody TBODY')
 	.click(function(e) {
 		$target = $(e.target);
 	
@@ -46,5 +47,15 @@ $('FORM#viewForm{$view->id} TABLE.worklistBody TBODY')
 				;
 		}
 	)
+	;
+$frm.find('table.worklistBody tbody th')
+	.click(function(e) {
+		$target = $(e.target);
+		if(!$target.is('th'))
+			return;
+		
+		e.stopPropagation();
+		$target.find('A').first().click();
+	})
 	;
 </script>

@@ -331,6 +331,7 @@ table.worklistBody th {
 	padding:2px 5px 2px 5px;
 	border-right:1px solid rgb(175,175,175);
 	text-align: left;
+	cursor:pointer;
 }
 
 table.worklistBody th:hover {
@@ -350,7 +351,7 @@ table.worklistBody th a {
 }
 
 table.worklistBody th:hover a {
-	text-decoration:underline;
+	text-decoration:none;
 	color:white;
 }
 	
