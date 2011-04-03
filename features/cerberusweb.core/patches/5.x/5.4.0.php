@@ -501,7 +501,7 @@ if(!empty($todo)) {
 }
 
 // ===========================================================================
-// Add render_subtotals and drop render_subtotals_clickable
+// Add render_filters and drop render_subtotals_clickable
 
 list($columns, $indexes) = $db->metaTable('worker_view_model');
 
@@ -512,6 +512,31 @@ if(!isset($columns['render_filters'])) {
 
 if(isset($columns['render_subtotals_clickable'])) {
 	$db->Execute("ALTER TABLE worker_view_model DROP COLUMN render_subtotals_clickable");
+}
+
+// ===========================================================================
+// Clean up custom field values
+
+// Find checkboxes with dupe values set (nuke dupe NO's first)
+$results = $db->GetArray("select field_id, count(context_id) as hits, context_id from custom_field_numbervalue where field_id IN (select id from custom_field where type = 'C') group by context_id having hits > 1 order by hits desc");
+if(is_array($results))
+foreach($results as $row) {
+	$db->Execute(sprintf("DELETE FROM custom_field_numbervalue WHERE field_id=%d AND context_id=%d AND field_value=0 LIMIT %d",
+		$row['field_id'],
+		$row['context_id'],
+		abs(1-intval($row['hits']))
+	));
+}
+
+// Find checkboxes with dupe values set (nuke any dupes)
+$results = $db->GetArray("select field_id, count(context_id) as hits, context_id from custom_field_numbervalue where field_id IN (select id from custom_field where type = 'C') and field_value=0 group by context_id having hits > 1 order by hits desc");
+if(is_array($results))
+foreach($results as $row) {
+	$db->Execute(sprintf("DELETE FROM custom_field_numbervalue WHERE field_id=%d AND context_id=%d LIMIT %d",
+		$row['field_id'],
+		$row['context_id'],
+		abs(1-intval($row['hits']))
+	));
 }
 
 return TRUE;
