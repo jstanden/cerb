@@ -361,7 +361,7 @@ function genericAjaxPopupPostCloseReloadView($layer, frm, view_id, has_output, $
 }
 
 function genericAjaxGet(divRef,args,cb,options) {
-	div = null;
+	var div = null;
 
 	// Polymorph div
 	if(typeof divRef=="object")
@@ -370,14 +370,14 @@ function genericAjaxGet(divRef,args,cb,options) {
 		div = $('#'+divRef);
 	
 	if(null == cb) {
-		if(null != div)
-			$(div).fadeTo("normal", 0.2);
+		if(null != $div)
+			div.fadeTo("normal", 0.2);
 		
 		var cb = function(html) {
 			if(null != div) {
-				$(div).html(html);
-				$(div).fadeTo("normal", 1.0);
-				$(div).trigger('view_refresh');
+				div.html(html);
+				div.fadeTo("normal", 1.0);
+				div.trigger('view_refresh');
 			}
 		}
 	}
@@ -395,8 +395,8 @@ function genericAjaxGet(divRef,args,cb,options) {
 }
 
 function genericAjaxPost(formRef,divRef,args,cb,options) {
-	frm = null;
-	div = null;
+	var frm = null;
+	var div = null;
 	
 	// Polymorph form
 	if(typeof formRef=="object")
