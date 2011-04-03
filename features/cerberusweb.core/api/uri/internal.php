@@ -120,39 +120,54 @@ class ChInternalController extends DevblocksControllerExtension {
 
 		// Context Links
 
-		$views = array();
 		$contexts = DAO_ContextLink::getDistinctContexts($context, $context_id);
-
-		$tpl->display('devblocks:cerberusweb.core::context_links/tab_header.tpl');
+		$all_contexts = Extension_DevblocksContext::getAll(false);
 		
-		foreach($contexts as $ctx) {
-			if(null == ($ext_context = DevblocksPlatform::getExtension($ctx, true)))
-				continue;
-
-			if(!$ext_context instanceof Extension_DevblocksContext)
-				continue;
-
-			$view = $ext_context->getView($context, $context_id);
-
-			if(!empty($view)) {
-				$tpl->assign('view', $view);
-				$tpl->display('devblocks:cerberusweb.core::internal/views/search_and_view.tpl');
-				$tpl->clearAssign('view');
-			}
-
-			unset($view);
-			unset($ext_content);
-		}
+		// Only valid extensions
+		$contexts = array_intersect($contexts, array_keys($all_contexts));
 		
-		$tpl->display('devblocks:cerberusweb.core::context_links/tab_footer.tpl');
+		$contexts = array_diff($contexts, array( // Hide workers
+			CerberusContexts::CONTEXT_WORKER,
+		));
+		
+		$tpl->assign('contexts', $contexts);
+		
+		$tpl->display('devblocks:cerberusweb.core::context_links/tab.tpl');
 		
 		$tpl->clearAssign('context');
 		$tpl->clearAssign('context_id');
+		$tpl->clearAssign('contexts');
 		
 		unset($contexts);
-		unset($options);
 	}
 
+	function initConnectionsViewAction() {
+		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string');
+		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer',0);
+		@$to_context = DevblocksPlatform::importGPC($_REQUEST['to_context'],'string');
+		
+		if(empty($context) || empty($context_id) || empty($to_context))
+			return;
+			
+		if(null == ($ext_context = DevblocksPlatform::getExtension($to_context, true)))
+			return;
+
+		if(!$ext_context instanceof Extension_DevblocksContext)
+			return;
+
+		$tpl = DevblocksPlatform::getTemplateService();
+		$active_worker = CerberusApplication::getActiveWorker();
+			
+		if(null != ($view = $ext_context->getView($context, $context_id))) {
+			$tpl->assign('view', $view);
+			$tpl->display('devblocks:cerberusweb.core::internal/views/search_and_view.tpl');
+			$tpl->clearAssign('view');
+		}
+
+		unset($view);
+		unset($ext_content);
+	}
+	
 	function chooserOpenAction() {
 		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string');
 		@$layer = DevblocksPlatform::importGPC($_REQUEST['layer'],'string');
@@ -1025,55 +1040,18 @@ class ChInternalController extends DevblocksControllerExtension {
 
 		$tpl->assign('workspace', $workspace);
 		$tpl->assign('request', $request);
-			
-		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/index.tpl');
-			
-		$tpl->clearAssign('workspace');
-		$tpl->clearAssign('request');
 		
 		$lists = $workspace->getWorklists();
-		
-        // Loop through list schemas
-		if(is_array($lists) && !empty($lists))
-		foreach($lists as $list) { /* @var $list Model_WorkspaceList */
-			$view_id = 'cust_'.$list->id;
-			if(null == ($view = C4_AbstractViewLoader::getView($view_id))) {
-				$list_view = $list->list_view; /* @var $list_view Model_WorkspaceListView */
-
-				// Make sure our workspace source has a valid renderer class
-				if(null == ($ext = DevblocksPlatform::getExtension($list->context, true))) { /* @var $ext Extension_DevblocksContext */
-					continue;
-				}
-				
-				$view_class = $ext->getViewClass();
-				if(!class_exists($view_class))
-					continue;
-
-				$view = new $view_class;
-				$view->id = $view_id;
-				$view->name = $list_view->title;
-				$view->renderLimit = $list_view->num_rows;
-				$view->renderPage = 0;
-				$view->view_columns = $list_view->columns;
-				$view->addParams($list_view->params, true);
-				$view->renderSortBy = $list_view->sort_by;
-				$view->renderSortAsc = $list_view->sort_asc;
-				C4_AbstractViewLoader::setView($view_id, $view);
-			}
-
-			if(!empty($view)) {
-				$tpl->assign('view', $view);
-				$tpl->display('devblocks:cerberusweb.core::internal/views/search_and_view.tpl');
-				$tpl->clearAssign('view');
-			}
-
-			unset($lists);
-			unset($list_view);
-			unset($view_class);
-			unset($view);
-		}
-		
+		$list_ids = array_keys($lists);
 		unset($lists);
+		
+		$tpl->assign('list_ids', $list_ids);
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/index.tpl');
+			
+		$tpl->clearAssign('request');
+		$tpl->clearAssign('workspace');
+		$tpl->clearAssign('view_ids');
 		
 		// Log activity
 		DAO_Worker::logActivity(
@@ -1086,6 +1064,64 @@ class ChInternalController extends DevblocksControllerExtension {
 		);
 	}
 
+	function initWorkspaceListAction() {
+		@$list_id = DevblocksPlatform::importGPC($_REQUEST['list_id'],'integer', 0);
+		
+		if(empty($list_id))
+			return;
+			
+		if(null == ($list = DAO_WorkspaceList::get($list_id)))
+			return;
+			
+		$tpl = DevblocksPlatform::getTemplateService();
+		$active_worker = CerberusApplication::getActiveWorker();
+
+		if(null == ($workspace = DAO_Workspace::get($list->workspace_id))
+			|| $workspace->worker_id != $active_worker->id
+			)
+			return;			
+		
+		$view_id = 'cust_' . $list->id;
+		
+		if(null == ($view = C4_AbstractViewLoader::getView($view_id))) {
+			$list_view = $list->list_view; /* @var $list_view Model_WorkspaceListView */
+
+			// Make sure our workspace source has a valid renderer class
+			if(null == ($ext = DevblocksPlatform::getExtension($list->context, true))) { /* @var $ext Extension_DevblocksContext */
+				continue;
+			}
+			
+			$view_class = $ext->getViewClass();
+			if(!class_exists($view_class))
+				continue;
+
+			$view = new $view_class;
+			$view->id = $view_id;
+			$view->name = $list_view->title;
+			$view->renderLimit = $list_view->num_rows;
+			$view->renderPage = 0;
+			$view->view_columns = $list_view->columns;
+			$view->addParams($list_view->params, true);
+			$view->renderSortBy = $list_view->sort_by;
+			$view->renderSortAsc = $list_view->sort_asc;
+			C4_AbstractViewLoader::setView($view_id, $view);
+			
+			unset($ext);
+			unset($list_view);
+			unset($view_class);
+		}
+
+		if(!empty($view)) {
+			$tpl->assign('view', $view);
+			$tpl->display('devblocks:cerberusweb.core::internal/views/search_and_view.tpl');
+			$tpl->clearAssign('view');
+		}
+		
+		unset($list);
+		unset($list_id);
+		unset($view_id);
+	}
+	
 	function showEditWorkspacePanelAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer', 0);
 		@$request = DevblocksPlatform::importGPC($_REQUEST['request'],'string', '');
