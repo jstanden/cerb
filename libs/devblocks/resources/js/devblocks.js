@@ -370,7 +370,7 @@ function genericAjaxGet(divRef,args,cb,options) {
 		div = $('#'+divRef);
 	
 	if(null == cb) {
-		if(null != $div)
+		if(null != div)
 			div.fadeTo("normal", 0.2);
 		
 		var cb = function(html) {
