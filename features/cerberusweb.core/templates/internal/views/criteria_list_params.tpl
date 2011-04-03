@@ -25,8 +25,13 @@
 		{/foreach}
 	{else}
 		{assign var=field value=$param->field} 
-		{$view_filters.$field->db_label|capitalize} 
-		{$param->operator}
+		{$view_filters.$field->db_label|capitalize}
+		{* [TODO] Add operator labels to platform *}
+		{if $param->operator=='in'}
+			is
+		{else} 
+			{$param->operator}
+		{/if}
 		<b>{$view->renderCriteriaParam($param)}</b>
 		
 		{if $nested}{if $smarty.foreach.params.first}({/if}
