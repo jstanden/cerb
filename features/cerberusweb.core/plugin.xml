@@ -166,6 +166,7 @@
 		
 		<file path="api/dao/custom_field.php">
 			<class name="DAO_CustomField" />
+			<class name="DAO_CustomFieldValue" />
 			<class name="Model_CustomField" />
 		</file>
 
