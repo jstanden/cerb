@@ -325,16 +325,35 @@ table.worklist td span.title {
 
 table.worklistBody th {
 	background-color: rgb(200,200,200);
-	padding-bottom:2px;
+	background: -webkit-gradient(linear, left top, left bottom, from(rgb(240,240,240)), to(rgb(200,200,200)));
+	background: -moz-linear-gradient(top, rgb(240,240,240), rgb(200,200,200));
+	background: -o-linear-gradient(top, rgb(240,240,240), rgb(200,200,200));
+	padding:2px 5px 2px 5px;
+	border-right:1px solid rgb(175,175,175);
 	text-align: left;
+}
+
+table.worklistBody th:hover {
+	background-color: rgb(150,150,150);
+	background: -webkit-gradient(linear, left top, left bottom, from(rgb(200,200,200)), to(rgb(150,150,150)));
+	background: -moz-linear-gradient(top, rgb(200,200,200), rgb(150,150,150));
+	background: -o-linear-gradient(top, rgb(200,200,200), rgb(150,150,150));
+	border-right:1px solid rgb(175,175,175);
 }
 
 table.worklistBody th a {
 	font-size: 12px;
+	vertical-align:middle;
 	font-weight: bold;
+	text-decoration:none;
 	color: rgb(80,80,80);
 }
 
+table.worklistBody th:hover a {
+	text-decoration:underline;
+	color:white;
+}
+	
 table.worklistBody td {
 	font-size:11px;
 }
