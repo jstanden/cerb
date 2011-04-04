@@ -945,7 +945,7 @@ class DAO_MessageHeader {
     }
 };
 
-class View_Message extends C4_AbstractView {
+class View_Message extends C4_AbstractView implements IAbstractView_Subtotals {
 	const DEFAULT_ID = 'messages';
 
 	function __construct() {
@@ -991,6 +991,82 @@ class View_Message extends C4_AbstractView {
 		);
 	}
 
+	function getSubtotalFields() {
+		$all_fields = $this->getFields();
+		
+		$fields = array();
+
+		if(is_array($all_fields))
+		foreach($all_fields as $field_key => $field_model) {
+			$pass = false;
+			
+			switch($field_key) {
+				// Booleans
+				case SearchFields_Message::ADDRESS_EMAIL:
+				case SearchFields_Message::IS_OUTGOING:
+				case SearchFields_Message::TICKET_GROUP_ID:
+				case SearchFields_Message::WORKER_ID:
+					$pass = true;
+					break;
+					
+				// Valid custom fields
+				default:
+					if('cf_' == substr($field_key,0,3))
+						$pass = $this->_canSubtotalCustomField($field_key);
+					break;
+			}
+			
+			if($pass)
+				$fields[$field_key] = $field_model;
+		}
+		
+		return $fields;
+	}
+	
+	function getSubtotalCounts($column=null) {
+		$counts = array();
+		$fields = $this->getFields();
+
+		if(!isset($fields[$column]))
+			return array();
+		
+		switch($column) {
+			case SearchFields_Message::ADDRESS_EMAIL:
+				$counts = $this->_getSubtotalCountForStringColumn('DAO_Message', $column);
+				break;
+				
+			case SearchFields_Message::TICKET_GROUP_ID:
+				$groups = DAO_Group::getAll();
+				$label_map = array();
+				foreach($groups as $group_id => $group)
+					$label_map[$group_id] = $group->name;
+				$counts = $this->_getSubtotalCountForStringColumn('DAO_Message', $column, $label_map, 'in', 'group_id[]');
+				break;
+				
+			case SearchFields_Message::WORKER_ID:
+				$workers = DAO_Worker::getAll();
+				$label_map = array();
+				foreach($workers as $worker_id => $worker)
+					$label_map[$worker_id] = $worker->getName();
+				$counts = $this->_getSubtotalCountForStringColumn('DAO_Message', $column, $label_map, 'in', 'worker_id[]');
+				break;
+
+			case SearchFields_Message::IS_OUTGOING:
+				$counts = $this->_getSubtotalCountForBooleanColumn('DAO_Message', $column);
+				break;
+			
+			default:
+				// Custom fields
+				if('cf_' == substr($column,0,3)) {
+					$counts = $this->_getSubtotalCountForCustomColumn('DAO_Message', $column, 'm.id');
+				}
+				
+				break;
+		}
+		
+		return $counts;
+	}	
+	
 	function render() {
 		$this->_sanitize();
 		
@@ -1006,7 +1082,8 @@ class View_Message extends C4_AbstractView {
 //				$tpl->display('devblocks:cerberusweb.core::workers/view_contextlinks_chooser.tpl');
 //				break;
 			default:
-				$tpl->display('devblocks:cerberusweb.core::messages/view.tpl');
+				$tpl->assign('view_template', 'devblocks:cerberusweb.core::messages/view.tpl');
+				$tpl->display('devblocks:cerberusweb.core::internal/views/subtotals_and_view.tpl');
 				break;
 		}
 	}

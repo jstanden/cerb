@@ -293,7 +293,7 @@ class ChTicketsPage extends CerberusPageExtension {
 			SearchFields_Ticket::VIRTUAL_STATUS => new DevblocksSearchCriteria(SearchFields_Ticket::VIRTUAL_STATUS,'',array('open')),
 			SearchFields_Ticket::VIRTUAL_ASSIGNABLE => new DevblocksSearchCriteria(SearchFields_Ticket::VIRTUAL_ASSIGNABLE,null,true),
 			//SearchFields_Ticket::VIRTUAL_WATCHERS => new DevblocksSearchCriteria(SearchFields_Ticket::VIRTUAL_WATCHERS,null,array()),
-			'req_team_id' => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_TEAM_ID,'in',array_keys($active_worker->getMemberships())),
+			'_req_group_id' => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_TEAM_ID,'in',array_keys($active_worker->getMemberships())),
 		), true);
 		
 		$workflowView->renderPage = 0;
@@ -341,20 +341,18 @@ class ChTicketsPage extends CerberusPageExtension {
 		$defaults = new C4_AbstractViewModel();
 		$defaults->id = CerberusApplication::VIEW_MAIL_MESSAGES;
 		$defaults->class_name = 'View_Message';
-//		$defaults->view_columns = array(
-//		);
-		$defaults->paramsDefault = array(
-			new DevblocksSearchCriteria(SearchFields_Message::IS_OUTGOING,'=',1),
-			new DevblocksSearchCriteria(SearchFields_Message::CREATED_DATE,DevblocksSearchCriteria::OPER_BETWEEN,array('-30 days', 'now')),
-		);
-		$defaults->paramsRequired = array(
-			SearchFields_Message::TICKET_GROUP_ID => new DevblocksSearchCriteria(SearchFields_Message::TICKET_GROUP_ID,'in',array_keys($active_worker->getMemberships())),
-		);
-		$defaults->paramsEditable = $defaults->paramsDefault;
 		$defaults->renderSortBy = SearchFields_Message::CREATED_DATE;
 		$defaults->renderSortAsc = false;
-		
+		$defaults->paramsEditable = $defaults->paramsDefault;
 		$view = C4_AbstractViewLoader::getView($defaults->id, $defaults);
+
+		$view->addParamsDefault(array(
+			new DevblocksSearchCriteria(SearchFields_Message::IS_OUTGOING,'=',1),
+			new DevblocksSearchCriteria(SearchFields_Message::CREATED_DATE,DevblocksSearchCriteria::OPER_BETWEEN,array('-30 days', 'now')),
+		), true);
+		$view->addParamsRequired(array(
+			'_req_group_id' => new DevblocksSearchCriteria(SearchFields_Message::TICKET_GROUP_ID,'in',array_keys($active_worker->getMemberships())),
+		), true);
 		
 		C4_AbstractViewLoader::setView($view->id,$view);
 		
@@ -389,7 +387,7 @@ class ChTicketsPage extends CerberusPageExtension {
 			SearchFields_Ticket::VIRTUAL_STATUS => new DevblocksSearchCriteria(SearchFields_Ticket::VIRTUAL_STATUS,'',array('open','waiting')),
 		), true);
 		$view->addParamsRequired(array(
-			SearchFields_Ticket::TICKET_TEAM_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_TEAM_ID,'in',array_keys($memberships)), // censor
+			'_req_group_id' => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_TEAM_ID,'in',array_keys($memberships)), // censor
 		), true);
 		
 		C4_AbstractViewLoader::setView($view->id,$view);
