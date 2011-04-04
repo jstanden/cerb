@@ -41,7 +41,7 @@
 	{/if}
 		
 	{if !$nested && !$readonly}</label><br>{/if}
-	{if !$nested && $readonly}<a href="javascript:;" onclick="ajax.viewRemoveFilter('{$view->id}', ['{$param_key}']);" style="position:relative;top:-10px;left:10px;margin-left:-10px;display:none;"><span class="cerb-sprite2 sprite-cross-circle-frame"></span></a></li>{/if}
+	{if !$nested && $readonly}<a href="javascript:;" class="delete" onclick="ajax.viewRemoveFilter('{$view->id}', ['{$param_key}']);" style="position:relative;top:-10px;left:10px;margin-left:-10px;display:none;"><span class="cerb-sprite2 sprite-cross-circle-frame"></span></a></li>{/if}
 {/foreach}
 {if $readonly}</ul>{/if}
 {else}{*empty*}
