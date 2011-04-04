@@ -31,6 +31,7 @@ class DevblocksSearchCriteria {
     const OPER_GTE = '>=';
     const OPER_LTE = '<=';
     const OPER_BETWEEN = 'between';
+    const OPER_TRUE = '1';
     
     const GROUP_OR = 'OR';
     const GROUP_AND = 'AND';
@@ -170,6 +171,10 @@ class DevblocksSearchCriteria {
 				);
 				break;
 			
+			case DevblocksSearchCriteria::OPER_TRUE:
+				$where = '1';
+				break;
+				
 			/*
 			 * [TODO] Someday we may want to call this OPER_DATE_BETWEEN so it doesn't interfere 
 			 * with the operator in other uses
