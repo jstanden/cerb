@@ -337,7 +337,7 @@ class Model_FeedItem {
 	public $is_closed;
 };
 
-class View_FeedItem extends C4_AbstractView {
+class View_FeedItem extends C4_AbstractView implements IAbstractView_Subtotals {
 	const DEFAULT_ID = 'feed_items';
 
 	function __construct() {
@@ -385,6 +385,83 @@ class View_FeedItem extends C4_AbstractView {
 		return $this->_doGetDataSample('DAO_FeedItem', $size);
 	}
 
+	function getSubtotalFields() {
+		$all_fields = $this->getFields();
+		
+		$fields = array();
+
+		if(is_array($all_fields))
+		foreach($all_fields as $field_key => $field_model) {
+			$pass = false;
+			
+			switch($field_key) {
+				// Feed
+				case SearchFields_FeedItem::FEED_ID:
+					$pass = true;
+					break;
+					
+				// Booleans
+				case SearchFields_FeedItem::IS_CLOSED:
+					$pass = true;
+					break;
+					
+				// Virtuals
+				case SearchFields_FeedItem::VIRTUAL_WATCHERS:
+					$pass = true;
+					break;
+					
+				// Valid custom fields
+				default:
+					if('cf_' == substr($field_key,0,3))
+						$pass = $this->_canSubtotalCustomField($field_key);
+					break;
+			}
+			
+			if($pass)
+				$fields[$field_key] = $field_model;
+		}
+		
+		return $fields;
+	}
+	
+	function getSubtotalCounts($column=null) {
+		$counts = array();
+		$fields = $this->getFields();
+
+		if(!isset($fields[$column]))
+			return array();
+		
+		switch($column) {
+			case SearchFields_FeedItem::FEED_ID:
+				$feeds = DAO_Feed::getWhere(); // [TODO] Cache!!
+				$label_map = array();
+				foreach($feeds as $feed_id => $feed) { /* @var $feed Model_Feed */
+					$label_map[$feed_id] = $feed->name;
+				}
+				$counts = $this->_getSubtotalCountForStringColumn('DAO_FeedItem', $column, $label_map, 'in', 'feed_id[]');
+				break;
+
+			case SearchFields_FeedItem::IS_CLOSED:
+				$counts = $this->_getSubtotalCountForBooleanColumn('DAO_FeedItem', $column);
+				break;
+				
+				
+			case SearchFields_FeedItem::VIRTUAL_WATCHERS:
+				$counts = $this->_getSubtotalCountForWatcherColumn('DAO_FeedItem', $column);
+				break;
+			
+			default:
+				// Custom fields
+				if('cf_' == substr($column,0,3)) {
+					$counts = $this->_getSubtotalCountForCustomColumn('DAO_FeedItem', $column, 'feed_item.id');
+				}
+				
+				break;
+		}
+		
+		return $counts;
+	}	
+	
 	function render() {
 		$this->_sanitize();
 		
@@ -402,7 +479,8 @@ class View_FeedItem extends C4_AbstractView {
 		//$custom_fields = DAO_CustomField::getByContext(CerberusContexts::XXX);
 		//$tpl->assign('custom_fields', $custom_fields);
 
-		$tpl->display('devblocks:cerberusweb.feed_reader::feeds/item/view.tpl');
+		$tpl->assign('view_template', 'devblocks:cerberusweb.feed_reader::feeds/item/view.tpl');
+		$tpl->display('devblocks:cerberusweb.core::internal/views/subtotals_and_view.tpl');
 	}
 
 	function renderVirtualCriteria($param) {
