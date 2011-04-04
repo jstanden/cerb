@@ -665,18 +665,18 @@ class C4_AbstractViewLoader {
 		if(!empty($model->name))
 			$inst->name = $model->name;
 		
-		if(!empty($model->view_columns))
+		if(is_array($model->view_columns))
 			$inst->view_columns = $model->view_columns;
-		if(!empty($model->columnsHidden))
+		if(is_array($model->columnsHidden))
 			$inst->addColumnsHidden($model->columnsHidden, true);
 		
-		if(!empty($model->paramsEditable))
+		if(is_array($model->paramsEditable))
 			$inst->addParams($model->paramsEditable, true);
-		if(!empty($model->paramsDefault))
+		if(is_array($model->paramsDefault))
 			$inst->addParamsDefault($model->paramsDefault, true);
-		if(!empty($model->paramsRequired))
+		if(is_array($model->paramsRequired))
 			$inst->addParamsRequired($model->paramsRequired, true);
-		if(!empty($model->paramsHidden))
+		if(is_array($model->paramsHidden))
 			$inst->addParamsHidden($model->paramsHidden, true);
 
 		if(null !== $model->renderPage)
