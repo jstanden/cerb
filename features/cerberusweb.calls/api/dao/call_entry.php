@@ -326,7 +326,7 @@ class SearchFields_CallEntry {
 	}
 };
 
-class View_CallEntry extends C4_AbstractView {
+class View_CallEntry extends C4_AbstractView implements IAbstractView_Subtotals {
 	const DEFAULT_ID = 'call_entries';
 
 	function __construct() {
@@ -372,6 +372,74 @@ class View_CallEntry extends C4_AbstractView {
 		return $objects;
 	}
 
+	function getSubtotalFields() {
+		$all_fields = $this->getFields();
+		
+		$fields = array();
+
+		if(is_array($all_fields))
+		foreach($all_fields as $field_key => $field_model) {
+			$pass = false;
+			
+			switch($field_key) {
+				// Booleans
+				case SearchFields_CallEntry::IS_CLOSED:
+				case SearchFields_CallEntry::IS_OUTGOING:
+					$pass = true;
+					break;
+					
+				// Watchers
+				case SearchFields_CallEntry::VIRTUAL_WATCHERS:
+					$pass = true;
+					break;
+					
+				// Valid custom fields
+				default:
+					if('cf_' == substr($field_key,0,3))
+						$pass = $this->_canSubtotalCustomField($field_key);
+					break;
+			}
+			
+			if($pass)
+				$fields[$field_key] = $field_model;
+		}
+		
+		return $fields;
+	}
+	
+	function getSubtotalCounts($column=null) {
+		$counts = array();
+		$fields = $this->getFields();
+
+		if(!isset($fields[$column]))
+			return array();
+		
+		switch($column) {
+//			case SearchFields_CallEntry::EXAMPLE:
+//				$counts = $this->_getSubtotalCountForStringColumn('DAO_CallEntry', $column);
+//				break;
+
+			case SearchFields_CallEntry::IS_CLOSED:
+			case SearchFields_CallEntry::IS_OUTGOING:
+				$counts = $this->_getSubtotalCountForBooleanColumn('DAO_CallEntry', $column);
+				break;
+
+			case SearchFields_CallEntry::VIRTUAL_WATCHERS:
+				$counts = $this->_getSubtotalCountForWatcherColumn('DAO_CallEntry', $column);
+				break;
+			
+			default:
+				// Custom fields
+				if('cf_' == substr($column,0,3)) {
+					$counts = $this->_getSubtotalCountForCustomColumn('DAO_CallEntry', $column, 'c.id');
+				}
+				
+				break;
+		}
+		
+		return $counts;
+	}	
+	
 	function render() {
 		$this->_sanitize();
 		
@@ -387,7 +455,8 @@ class View_CallEntry extends C4_AbstractView {
 				$tpl->display('devblocks:cerberusweb.calls::calls/view_contextlinks_chooser.tpl');
 				break;
 			default:
-				$tpl->display('devblocks:cerberusweb.calls::calls/view.tpl');
+				$tpl->assign('view_template', 'devblocks:cerberusweb.calls::calls/view.tpl');
+				$tpl->display('devblocks:cerberusweb.core::internal/views/subtotals_and_view.tpl');
 				break;
 		}
 	}
