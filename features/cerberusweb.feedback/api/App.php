@@ -364,7 +364,8 @@ class SearchFields_FeedbackEntry {
 	}
 };
 
-class C4_FeedbackEntryView extends C4_AbstractView {
+// [TODO] Rename this for consistency  -- View_
+class C4_FeedbackEntryView extends C4_AbstractView implements IAbstractView_Subtotals {
 	const DEFAULT_ID = 'feedback_entries';
 
 	function __construct() {
@@ -414,6 +415,75 @@ class C4_FeedbackEntryView extends C4_AbstractView {
 		return $this->_doGetDataSample('DAO_FeedbackEntry', $size);
 	}
 	
+
+	function getSubtotalFields() {
+		$all_fields = $this->getFields();
+		
+		$fields = array();
+
+		if(is_array($all_fields))
+		foreach($all_fields as $field_key => $field_model) {
+			$pass = false;
+			
+			switch($field_key) {
+				// Booleans
+				case SearchFields_FeedbackEntry::ADDRESS_EMAIL:
+				case SearchFields_FeedbackEntry::QUOTE_MOOD:
+					$pass = true;
+					break;
+					
+				// Valid custom fields
+				default:
+					if('cf_' == substr($field_key,0,3))
+						$pass = $this->_canSubtotalCustomField($field_key);
+					break;
+			}
+			
+			if($pass)
+				$fields[$field_key] = $field_model;
+		}
+		
+		return $fields;
+	}
+	
+	function getSubtotalCounts($column=null) {
+		$counts = array();
+		$fields = $this->getFields();
+
+		if(!isset($fields[$column]))
+			return array();
+		
+		switch($column) {
+			case SearchFields_FeedbackEntry::ADDRESS_EMAIL:
+				$counts = $this->_getSubtotalCountForStringColumn('DAO_FeedbackEntry', $column);
+				break;
+				
+			case SearchFields_FeedbackEntry::QUOTE_MOOD:
+				// [TODO] Translate
+				$label_map = array(
+					'0' => 'Neutral',
+					'1' => 'Praise',
+					'2' => 'Criticism',
+				);
+				$counts = $this->_getSubtotalCountForStringColumn('DAO_FeedbackEntry', $column, $label_map, 'in', 'moods[]');
+				break;
+
+//			case SearchFields_FeedbackEntry::EXAMPLE:
+//				$counts = $this->_getSubtotalCountForBooleanColumn('DAO_FeedbackEntry', $column);
+//				break;
+				
+			default:
+				// Custom fields
+				if('cf_' == substr($column,0,3)) {
+					$counts = $this->_getSubtotalCountForCustomColumn('DAO_FeedbackEntry', $column, 'f.id');
+				}
+				
+				break;
+		}
+		
+		return $counts;
+	}
+	
 	function render() {
 		$this->_sanitize();
 		
@@ -428,7 +498,8 @@ class C4_FeedbackEntryView extends C4_AbstractView {
 		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_FEEDBACK);
 		$tpl->assign('custom_fields', $custom_fields);
 		
-		$tpl->display('devblocks:cerberusweb.feedback::feedback/view.tpl');
+		$tpl->assign('view_template', 'devblocks:cerberusweb.feedback::feedback/view.tpl');
+		$tpl->display('devblocks:cerberusweb.core::internal/views/subtotals_and_view.tpl');
 	}
 
 	function renderCriteria($field) {
