@@ -560,7 +560,7 @@ abstract class C4_AbstractView {
 		$join_sql = $query_parts['join'];
 		$where_sql = $query_parts['where'];				
 		
-		$sql = sprintf("SELECT SQL_CALC_FOUND_ROWS %s.%s as label, count(*) as hits ",
+		$sql = sprintf("SELECT %s.%s as label, count(*) as hits ", //SQL_CALC_FOUND_ROWS
 				$fields[$field_key]->db_table,
 				$fields[$field_key]->db_column
 			).
@@ -673,7 +673,7 @@ abstract class C4_AbstractView {
 		$join_sql = $query_parts['join'];
 		$where_sql = $query_parts['where'];				
 		
-		$sql = "SELECT SQL_CALC_FOUND_ROWS context_watcher.to_context_id as watcher_id, count(*) as hits ".
+		$sql = "SELECT context_watcher.to_context_id as watcher_id, count(*) as hits ". //SQL_CALC_FOUND_ROWS
 			$join_sql.
 			$where_sql. 
 			"GROUP BY watcher_id ".
@@ -832,7 +832,7 @@ abstract class C4_AbstractView {
 			case Model_CustomField::TYPE_MULTI_CHECKBOX:
 			case Model_CustomField::TYPE_SINGLE_LINE:
 				$select = sprintf(
-					"SELECT SQL_CALC_FOUND_ROWS COUNT(*) AS hits, %s.field_value AS %s ",
+					"SELECT COUNT(*) AS hits, %s.field_value AS %s ", //SQL_CALC_FOUND_ROWS
 					$field_key,
 					$field_key
 				);
@@ -899,7 +899,7 @@ abstract class C4_AbstractView {
 				
 				$sql = 
 					sprintf(
-						"SELECT SQL_CALC_FOUND_ROWS COUNT(*) AS hits, (SELECT field_value FROM custom_field_numbervalue WHERE %s=context_id AND field_id=%d LIMIT 1) AS %s ",
+						"SELECT COUNT(*) AS hits, (SELECT field_value FROM custom_field_numbervalue WHERE %s=context_id AND field_id=%d LIMIT 1) AS %s ", //SQL_CALC_FOUND_ROWS
 						$primary_key,
 						$field_id,
 						$field_key

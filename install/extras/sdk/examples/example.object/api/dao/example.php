@@ -170,15 +170,29 @@ class DAO_ExampleObject extends C4_ORMHelper {
 			switch($param_key) {
 				case SearchFields_ExampleObject::VIRTUAL_WATCHERS:
 					$has_multiple_values = true;
-					if(empty($param->value)) { // empty
-						$join_sql .= sprintf("LEFT JOIN context_link AS context_watcher ON (context_watcher.from_context = %s AND context_watcher.from_context_id = example_object.id AND context_watcher.to_context = 'cerberusweb.contexts.worker') ", C4_ORMHelper::qstr(Context_ExampleObject::ID));
-						$where_sql .= "AND context_watcher.to_context_id IS NULL ";
+					$from_context = Context_ExampleObject::ID; // [TODO]
+					$from_index = 'example_object.id'; // [TODO]
+					
+					// Join and return anything
+					if(DevblocksSearchCriteria::OPER_TRUE == $param->operator) {
+						$join_sql .= sprintf("LEFT JOIN context_link AS context_watcher ON (context_watcher.from_context = '%s' AND context_watcher.from_context_id = %s AND context_watcher.to_context = 'cerberusweb.contexts.worker') ", $from_context, $from_index);
+					} elseif(empty($param->value)) { // empty
+						// Either any watchers (1 or more); or no watchers
+						if(DevblocksSearchCriteria::OPER_NIN == $param->operator || DevblocksSearchCriteria::OPER_NEQ == $param->operator) {
+							$join_sql .= sprintf("LEFT JOIN context_link AS context_watcher ON (context_watcher.from_context = '%s' AND context_watcher.from_context_id = %s AND context_watcher.to_context = 'cerberusweb.contexts.worker') ", $from_context, $from_index);
+							$where_sql .= "AND context_watcher.to_context_id IS NOT NULL ";
+						} else {
+							$join_sql .= sprintf("LEFT JOIN context_link AS context_watcher ON (context_watcher.from_context = '%s' AND context_watcher.from_context_id = %s AND context_watcher.to_context = 'cerberusweb.contexts.worker') ", $from_context, $from_index);
+							$where_sql .= "AND context_watcher.to_context_id IS NULL ";
+						}
+					// Specific watchers
 					} else {
-						$join_sql .= sprintf("INNER JOIN context_link AS context_watcher ON (context_watcher.from_context = %s AND context_watcher.from_context_id = example_object.id AND context_watcher.to_context = 'cerberusweb.contexts.worker' AND context_watcher.to_context_id IN (%s)) ",
-							C4_ORMHelper::qstr(Context_ExampleObject::ID),
+						$join_sql .= sprintf("INNER JOIN context_link AS context_watcher ON (context_watcher.from_context = '%s' AND context_watcher.from_context_id = %s AND context_watcher.to_context = 'cerberusweb.contexts.worker' AND context_watcher.to_context_id IN (%s)) ",
+							$from_context,
+							$from_index,
 							implode(',', $param->value)
 						);
-					}
+					}					
 					break;
 			}
 		}		
