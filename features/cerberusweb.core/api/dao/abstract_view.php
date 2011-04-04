@@ -579,7 +579,7 @@ abstract class C4_AbstractView {
 		return $results;
 	}
 	
-	protected function _getSubtotalCountForStringColumn($dao_class, $field_key) {
+	protected function _getSubtotalCountForStringColumn($dao_class, $field_key, $label_map=array(), $value_oper='=', $value_key='value') {
 		$counts = array();
 		$results = $this->_getSubtotalDataForColumn($dao_class, $field_key);
 		
@@ -587,6 +587,9 @@ abstract class C4_AbstractView {
 			$label = $result['label'];
 			$hits = $result['hits'];
 
+			if(isset($label_map[$result['label']]))
+				$label = $label_map[$result['label']];
+				
 			if(empty($label)) {
 				$label = '(none)';
 			}
@@ -598,8 +601,8 @@ abstract class C4_AbstractView {
 					'filter' => 
 						array(
 							'field' => $field_key,
-							'oper' => '=',
-							'values' => array('value' => $result['label']),
+							'oper' => $value_oper,
+							'values' => array($value_key => $result['label']),
 						),
 					'children' => array()
 				);
