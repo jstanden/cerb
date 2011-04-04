@@ -513,7 +513,7 @@ class Model_ContactOrg {
 	public $sync_id = '';
 };
 
-class View_ContactOrg extends C4_AbstractView {
+class View_ContactOrg extends C4_AbstractView implements IAbstractView_Subtotals {
 	const DEFAULT_ID = 'contact_orgs';
 
 	function __construct() {
@@ -562,6 +562,72 @@ class View_ContactOrg extends C4_AbstractView {
 		return $this->_doGetDataSample('DAO_ContactOrg', $size);
 	}
 	
+	function getSubtotalFields() {
+		$all_fields = $this->getFields();
+		
+		$fields = array();
+
+		if(is_array($all_fields))
+		foreach($all_fields as $field_key => $field_model) {
+			$pass = false;
+			
+			switch($field_key) {
+				// DAO
+				case SearchFields_ContactOrg::COUNTRY:
+				case SearchFields_ContactOrg::PROVINCE:
+				case SearchFields_ContactOrg::POSTAL:
+					$pass = true;
+					break;
+					
+				// Virtuals
+				case SearchFields_ContactOrg::VIRTUAL_WATCHERS:
+					$pass = true;
+					break;
+					
+				// Valid custom fields
+				default:
+					if('cf_' == substr($field_key,0,3))
+						$pass = $this->_canSubtotalCustomField($field_key);
+					break;
+			}
+			
+			if($pass)
+				$fields[$field_key] = $field_model;
+		}
+		
+		return $fields;
+	}
+	
+	function getSubtotalCounts($column=null) {
+		$counts = array();
+		$fields = $this->getFields();
+
+		if(!isset($fields[$column]))
+			return array();
+		
+		switch($column) {
+			case SearchFields_ContactOrg::COUNTRY:
+			case SearchFields_ContactOrg::PROVINCE:
+			case SearchFields_ContactOrg::POSTAL:
+				$counts = $this->_getSubtotalCountForStringColumn('DAO_ContactOrg', $column);
+				break;
+				
+			case SearchFields_ContactOrg::VIRTUAL_WATCHERS:
+				$counts = $this->_getSubtotalCountForWatcherColumn('DAO_ContactOrg', $column);
+				break;
+			
+			default:
+				// Custom fields
+				if('cf_' == substr($column,0,3)) {
+					$counts = $this->_getSubtotalCountForCustomColumn('DAO_ContactOrg', $column, 'c.id');
+				}
+				
+				break;
+		}
+		
+		return $counts;
+	}	
+	
 	function render() {
 		$this->_sanitize();
 		
@@ -580,7 +646,8 @@ class View_ContactOrg extends C4_AbstractView {
 				$tpl->display('devblocks:cerberusweb.core::contacts/orgs/view_contextlinks_chooser.tpl');
 				break;
 			default:
-				$tpl->display('devblocks:cerberusweb.core::contacts/orgs/contact_view.tpl');
+				$tpl->assign('view_template', 'devblocks:cerberusweb.core::contacts/orgs/contact_view.tpl');
+				$tpl->display('devblocks:cerberusweb.core::internal/views/subtotals_and_view.tpl');
 				break;
 		}
 		
