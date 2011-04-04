@@ -1093,7 +1093,7 @@ class C4_ORMHelper extends DevblocksORMHelper {
 	static protected function _appendSelectJoinSqlForCustomFieldTables($tables, $params, $key, $select_sql, $join_sql) {
 		$custom_fields = DAO_CustomField::getAll();
 		$field_ids = array();
-		
+
 		$return_multiple_values = false; // can our CF return more than one hit? (GROUP BY)
 		
 		if(is_array($tables))
@@ -1109,22 +1109,22 @@ class C4_ORMHelper extends DevblocksORMHelper {
 			
 			$field_table = sprintf("cf_%d", $field_id);
 			$value_table = '';
-			
+
 			// Join value by field data type
 			switch($custom_fields[$field_id]->type) {
-				case 'T': // multi-line CLOB
+				case Model_CustomField::TYPE_MULTI_LINE:
 					$value_table = 'custom_field_clobvalue';
 					break;
-				case 'C': // checkbox
-				case 'E': // date
-				case 'N': // number
-				case 'W': // worker
+				case Model_CustomField::TYPE_CHECKBOX:
+				case Model_CustomField::TYPE_DATE:
+				case Model_CustomField::TYPE_NUMBER:
+				case Model_CustomField::TYPE_WORKER:
 					$value_table = 'custom_field_numbervalue';
 					break;
 				default:
-				case 'S': // single-line
-				case 'D': // dropdown
-				case 'U': // URL
+				case Model_CustomField::TYPE_SINGLE_LINE:
+				case Model_CustomField::TYPE_DROPDOWN:
+				case Model_CustomField::TYPE_URL:
 					$value_table = 'custom_field_stringvalue';
 					break;
 			}
@@ -1136,7 +1136,7 @@ class C4_ORMHelper extends DevblocksORMHelper {
 					$has_multiple_values = true;
 					break;
 			}
-
+			
 			// If we have multiple values but we don't need to WHERE the JOIN, be efficient and don't GROUP BY
 			if(!isset($params['cf_'.$field_id])) {
 				$select_sql .= sprintf(",(SELECT field_value FROM %s WHERE %s=context_id AND field_id=%d LIMIT 0,1) AS %s ",

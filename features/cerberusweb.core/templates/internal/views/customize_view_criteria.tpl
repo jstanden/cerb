@@ -1,6 +1,6 @@
 {$view_editable_params = $view->getEditableParams()}
 <table cellpadding="2" cellspacing="0" border="0" width="100%">
-<tbody class="summary" style="">
+<tbody class="summary">
 <tr>
 	<td colspan="2">
 		<a href="javascript:;" onclick="$frm=$(this).closest('form');genericAjaxGet('','c=internal&a=viewToggleFilters&id={$view->id}&show=' + ($frm.find('tbody.full').toggle().is(':hidden')?'0':'1'));" style="font-weight:bold;">{'common.filters'|devblocks_translate|capitalize}:</a>

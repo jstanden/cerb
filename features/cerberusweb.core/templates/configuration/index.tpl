@@ -3,7 +3,7 @@
 		<li>
 			<div>
 				<a href="javascript:;" class="menu">Settings <span>&#x25be;</span></a>
-				<ul class="cerb-popupmenu cerb-float" style="display:none;">
+				<ul class="cerb-popupmenu cerb-float">
 					<li><a href="{devblocks_url}c=config&a=branding{/devblocks_url}">Logo &amp; Title</a></li>
 					{if !$smarty.const.ONDEMAND_MODE}<li><a href="{devblocks_url}c=config&a=security{/devblocks_url}">Security</a></li>{/if}
 					<li><a href="{devblocks_url}c=config&a=fields{/devblocks_url}">Custom Fields</a></li>
@@ -21,7 +21,7 @@
 		<li>
 			<div>
 				<a href="javascript:;" class="menu">{'common.workers'|devblocks_translate|capitalize} &amp; {'common.groups'|devblocks_translate|capitalize} <span>&#x25be;</span></a>
-				<ul class="cerb-popupmenu cerb-float" style="display:none;">
+				<ul class="cerb-popupmenu cerb-float">
 					<li><a href="{devblocks_url}c=config&a=groups{/devblocks_url}">{'common.groups'|devblocks_translate|capitalize}</a></li>
 					<li><a href="{devblocks_url}c=config&a=acl{/devblocks_url}">Permissions</a></li>
 					<li><a href="{devblocks_url}c=config&a=workers{/devblocks_url}">{'common.workers'|devblocks_translate|capitalize}</a></li>
@@ -37,7 +37,7 @@
 		<li>
 			<div>
 				<a href="javascript:;" class="menu">Mail <span>&#x25be;</span></a>
-				<ul class="cerb-popupmenu cerb-float" style="display:none;">
+				<ul class="cerb-popupmenu cerb-float">
 					<li><b>Incoming Mail</b></li>
 					<li><a href="{devblocks_url}c=config&a=mail_incoming{/devblocks_url}">Settings</a></li>
 					<li><a href="{devblocks_url}c=config&a=mail_pop3{/devblocks_url}">POP3 Accounts</a></li>
@@ -65,7 +65,7 @@
 		<li>
 			<div>
 				<a href="javascript:;" class="menu">Storage <span>&#x25be;</span></a>
-				<ul class="cerb-popupmenu cerb-float" style="display:none;">
+				<ul class="cerb-popupmenu cerb-float">
 					<li><a href="{devblocks_url}c=config&a=storage_content{/devblocks_url}">Content</a></li>
 					<li><a href="{devblocks_url}c=config&a=storage_profiles{/devblocks_url}">Profiles</a></li>
 					<li><a href="{devblocks_url}c=config&a=storage_attachments{/devblocks_url}">Attachments</a></li>
@@ -82,7 +82,7 @@
 		<li>
 			<div>
 				<a href="javascript:;" class="menu">Community Portals <span>&#x25be;</span></a>
-				<ul class="cerb-popupmenu cerb-float" style="display:none;">
+				<ul class="cerb-popupmenu cerb-float">
 					<li><a href="{devblocks_url}c=config&a=portals{/devblocks_url}">Configure</a></li>
 					
 					{$exts = Extension_PageMenuItem::getExtensions(true, 'core.page.configuration','core.setup.menu.portals')}
@@ -96,7 +96,7 @@
 		<li>
 			<div>
 				<a href="javascript:;" class="menu">Plugins <span>&#x25be;</span></a>
-				<ul class="cerb-popupmenu cerb-float" style="display:none;">
+				<ul class="cerb-popupmenu cerb-float">
 					<li><a href="{devblocks_url}c=config&a=plugins{/devblocks_url}">Manage</a></li>
 					<li><a href="https://github.com/cerb5-plugins" target="_blank">Find More Plugins...</a></li>
 					

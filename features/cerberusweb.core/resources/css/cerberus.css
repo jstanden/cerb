@@ -607,6 +607,7 @@ UL.cerb-popupmenu {
 	list-style:none;
 	margin:0px;
 	padding:5px;
+	display:none;
 }
 
 UL.cerb-popupmenu.cerb-float {

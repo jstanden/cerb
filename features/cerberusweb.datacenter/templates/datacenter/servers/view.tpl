@@ -28,7 +28,7 @@
 
 	{* Column Headers *}
 	<tr>
-		<th style="text-align:center;width:100px;">
+		<th style="text-align:center;width:75px;">
 			<a href="javascript:;">{'common.watchers'|devblocks_translate|capitalize}</a>
 		</th>
 		{foreach from=$view->view_columns item=header name=headers}
