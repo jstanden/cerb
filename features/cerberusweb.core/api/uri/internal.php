@@ -935,29 +935,52 @@ class ChInternalController extends DevblocksControllerExtension {
 
 	function viewSubtotalAction() {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
+		@$toggle = DevblocksPlatform::importGPC($_REQUEST['toggle'],'integer',0);
 		@$category = DevblocksPlatform::importGPC($_REQUEST['category'],'string','');
 
 		if(null == ($view = C4_AbstractViewLoader::getView($view_id)))
 			return;
-
-		if(!method_exists($view, 'getCounts'))
+			
+		// Check the interface
+		if(!$view instanceof IAbstractView_Subtotals)
 			return;
-
-		$view->renderSubtotals = $category;
-
-		C4_AbstractViewLoader::setView($view->id, $view);
-
-		if(empty($view->renderSubtotals))
-			return;
-
+			
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('view_id', $view_id);
 		$tpl->assign('view', $view);
 
-		$counts = $view->getCounts($view->renderSubtotals);
-		$tpl->assign('counts', $counts);
+		$fields = $view->getSubtotalFields();
+		$tpl->assign('subtotal_fields', $fields);
 
-		$tpl->display('devblocks:cerberusweb.core::tickets/view_sidebar.tpl');
+		// If we're toggling on/off, persist our preference
+		if($toggle) {
+			// hidden->shown
+			if(empty($view->renderSubtotals)) {
+				$view->renderSubtotals = key($fields);
+				
+			// hidden->shown ('__' prefix means hidden w/ pref)
+			} elseif('__'==substr($view->renderSubtotals,0,2)) {
+				$key = ltrim($view->renderSubtotals,'_');
+				// Make sure the desired key still exists
+				$view->renderSubtotals = isset($fields[$key]) ? $key : key($fields);
+				
+			} else { // shown->hidden
+				$view->renderSubtotals = '__' . $view->renderSubtotals;
+				
+			}
+			
+		} else {
+			$view->renderSubtotals = $category;
+			
+		}
+		
+		C4_AbstractViewLoader::setView($view->id, $view);
+
+		// If hidden, no need to draw template
+		if(empty($view->renderSubtotals) || '__'==substr($view->renderSubtotals,0,2))
+			return;
+
+		$view->renderSubtotals();
 	}
 
 	// Workspace

@@ -484,6 +484,479 @@ abstract class C4_AbstractView {
 		);
 	}
 	
+	function renderSubtotals() {
+		if(!$this instanceof IAbstractView_Subtotals)
+			return;
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('view_id', $this->id);
+		$tpl->assign('view', $this);
+
+		$fields = $this->getSubtotalFields();
+		$tpl->assign('subtotal_fields', $fields);
+		
+		$counts = $this->getSubtotalCounts($this->renderSubtotals);
+		$tpl->assign('subtotal_counts', $counts);
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/views/sidebar.tpl');
+	}
+	
+	protected function _canSubtotalCustomField($field_key) {
+		$custom_fields = DAO_CustomField::getAll();
+		
+		if('cf_' != substr($field_key,0,3))
+			return false;
+		
+		$cfield_id = substr($field_key,3);
+		
+		if(!isset($custom_fields[$cfield_id]))
+			return false;
+			
+		$cfield = $custom_fields[$cfield_id]; /* @var $cfield Model_CustomField */
+
+		$pass = false;
+		
+		switch($cfield->type) {
+			case Model_CustomField::TYPE_CHECKBOX:
+			case Model_CustomField::TYPE_DROPDOWN:
+			case Model_CustomField::TYPE_MULTI_CHECKBOX:
+			case Model_CustomField::TYPE_MULTI_PICKLIST:
+			case Model_CustomField::TYPE_SINGLE_LINE:
+			case Model_CustomField::TYPE_WORKER:
+				$pass = true;
+				break;
+		}
+
+		return $pass;
+	}
+	
+	protected function _getSubtotalDataForColumn($dao_class, $field_key) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$fields = $this->getFields();
+		$columns = $this->view_columns;
+		$params = $this->getParams();
+		
+		if(!isset($params[$field_key])) {
+			$new_params = array(
+				$field_key => new DevblocksSearchCriteria($field_key, DevblocksSearchCriteria::OPER_TRUE),
+			);
+			$params = array_merge($new_params, $params);
+		}
+		
+		if(!method_exists($dao_class,'getSearchQueryComponents'))
+			return array();
+		
+		$query_parts = call_user_func_array(
+			array($dao_class,'getSearchQueryComponents'),
+			array(
+				$columns,
+				$params,
+				$this->renderSortBy,
+				$this->renderSortAsc
+			)
+		);
+		
+		$join_sql = $query_parts['join'];
+		$where_sql = $query_parts['where'];				
+		
+		$sql = sprintf("SELECT SQL_CALC_FOUND_ROWS %s.%s as label, count(*) as hits ",
+				$fields[$field_key]->db_table,
+				$fields[$field_key]->db_column
+			).
+			$join_sql.
+			$where_sql. 
+			"GROUP BY label ".
+			"ORDER BY hits DESC ".
+			"LIMIT 0,20 "
+		;
+		
+		$results = $db->GetArray($sql);
+//		$total = count($results);
+//		$total = ($total < 20) ? $total : $db->GetOne("SELECT FOUND_ROWS()");
+//		var_dump($total);
+
+		return $results;
+	}
+	
+	protected function _getSubtotalCountForStringColumn($dao_class, $field_key) {
+		$counts = array();
+		$results = $this->_getSubtotalDataForColumn($dao_class, $field_key);
+		
+		foreach($results as $result) {
+			$label = $result['label'];
+			$hits = $result['hits'];
+
+			if(empty($label)) {
+				$label = '(none)';
+			}
+			
+			if(!isset($counts[$label]))
+				$counts[$label] = array(
+					'hits' => $hits,
+					'label' => $label,
+					'filter' => 
+						array(
+							'field' => $field_key,
+							'oper' => '=',
+							'values' => array('value' => $result['label']),
+						),
+					'children' => array()
+				);
+		}
+		
+		return $counts;
+	}
+	
+	protected function _getSubtotalCountForBooleanColumn($dao_class, $field_key) {
+		$translate = DevblocksPlatform::getTranslationService();
+		
+		$counts = array();
+		$results = $this->_getSubtotalDataForColumn($dao_class, $field_key);
+		
+		foreach($results as $result) {
+			$label = $result['label'];
+			$hits = $result['hits'];
+
+			if(!empty($label)) {
+				$label = $translate->_('common.yes');
+				$value = 1;
+			} else {
+				$label = $translate->_('common.no');
+				$value = 0;
+			}
+			
+			if(!isset($counts[$label]))
+				$counts[$label] = array(
+					'hits' => $hits,
+					'label' => $label,
+					'filter' => 
+						array(
+							'field' => $field_key,
+							'oper' => '=',
+							'values' => array('bool' => $value),
+						),
+					'children' => array()
+				);
+		}
+		
+		return $counts;
+	}
+	
+	protected function _getSubtotalDataForWatcherColumn($dao_class, $field_key) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$fields = $this->getFields();
+		$columns = $this->view_columns;
+		$params = $this->getParams();
+		
+		if(!isset($params[$field_key])) {
+			$new_params = array(
+				$field_key => new DevblocksSearchCriteria($field_key, DevblocksSearchCriteria::OPER_TRUE),
+			);
+			$params = array_merge($new_params, $params);
+		}
+		
+		if(!method_exists($dao_class,'getSearchQueryComponents'))
+			return array();
+		
+		$query_parts = call_user_func_array(
+			array($dao_class,'getSearchQueryComponents'),
+			array(
+				$columns,
+				$params,
+				$this->renderSortBy,
+				$this->renderSortAsc
+			)
+		);
+		
+		$join_sql = $query_parts['join'];
+		$where_sql = $query_parts['where'];				
+		
+		$sql = "SELECT SQL_CALC_FOUND_ROWS context_watcher.to_context_id as watcher_id, count(*) as hits ".
+			$join_sql.
+			$where_sql. 
+			"GROUP BY watcher_id ".
+			"ORDER BY hits DESC ".
+			"LIMIT 0,20 "
+		;
+		
+		$results = $db->GetArray($sql);
+//		$total = count($results);
+//		$total = ($total < 20) ? $total : $db->GetOne("SELECT FOUND_ROWS()");
+//		var_dump($total);
+
+		return $results;
+	}	
+	
+	protected function _getSubtotalCountForWatcherColumn($dao_class, $field_key) {
+		$workers = DAO_Worker::getAll();
+		
+		$counts = array();
+		$results = $this->_getSubtotalDataForWatcherColumn($dao_class, $field_key);
+		
+		foreach($results as $result) {
+			$watcher_id = $result['watcher_id'];
+			$hits = $result['hits'];
+			$label = '';
+
+			if(isset($workers[$watcher_id])) {
+				$label = $workers[$watcher_id]->getName();
+				$oper = DevblocksSearchCriteria::OPER_IN;
+				$values = array('worker_id[]' => $watcher_id);
+			} else {
+				$label = '(nobody)';
+				$oper = DevblocksSearchCriteria::OPER_IS_NULL;
+				$values = array('');
+			}
+			
+			if(!isset($counts[$label]))
+				$counts[$label] = array(
+					'hits' => $hits,
+					'label' => $label,
+					'filter' => 
+						array(
+							'field' => $field_key,
+							'oper' => $oper,
+							'values' => $values,
+						),
+					'children' => array()
+				);
+		}
+		
+		return $counts;
+	}	
+	
+	protected function _getSubtotalCountForCustomColumn($dao_class, $field_key, $primary_key) {
+		$db = DevblocksPlatform::getDatabaseService();
+		$translate = DevblocksPlatform::getTranslationService();
+		
+		$counts = array();
+		$fields = $this->getFields();
+		$custom_fields = DAO_CustomField::getAll();
+		$columns = $this->view_columns;
+		$params = $this->getParams();
+
+		$field_id = substr($field_key,3);
+
+		// If the custom field id is invalid, abort.
+		if(!isset($custom_fields[$field_id]))
+			return array();
+
+		// Load the custom field
+		$cfield = $custom_fields[$field_id];
+
+		// Always join the custom field so we have quick access to values
+		if(!isset($params[$field_key])) {
+			$add_param = array(
+				$field_key => new DevblocksSearchCriteria($field_key,DevblocksSearchCriteria::OPER_TRUE),
+			);
+			$params = array_merge($params, $add_param); 
+		}
+		
+		// ... and that the DAO object is valid
+		if(!method_exists($dao_class,'getSearchQueryComponents'))
+			return array();
+
+		// Construct the shared query components
+		$query_parts = call_user_func_array(
+			array($dao_class,'getSearchQueryComponents'),
+			array(
+				$columns,
+				$params,
+				$this->renderSortBy,
+				$this->renderSortAsc
+			)
+		);
+		
+		$join_sql = $query_parts['join'];
+		$where_sql = $query_parts['where'];				
+			
+		switch($cfield->type) {
+			
+			case Model_CustomField::TYPE_CHECKBOX:
+				$select = sprintf(
+					"SELECT COUNT(*) AS hits, %s.field_value AS %s ",
+					$field_key,
+					$field_key
+				);
+				
+				$sql =
+					$select. 
+					$join_sql.
+					$where_sql.
+					sprintf(
+						"GROUP BY %s ",
+						$field_key
+					).
+					"ORDER BY hits DESC "
+				;
+		
+				$results = $db->GetArray($sql);
+		
+				foreach($results as $result) {
+					$label = '';
+					$oper = DevblocksSearchCriteria::OPER_EQ;
+					$values = null;
+					
+					switch($result[$field_key]) {
+						case '':
+							$label = '(no data)';
+							$oper = DevblocksSearchCriteria::OPER_IS_NULL;
+							break;
+						case '0':
+							$label = $translate->_('common.no');
+							$values = array('value' => $result[$field_key]);
+							break;
+						case '1':
+							$label = $translate->_('common.yes');
+							$values = array('value' => $result[$field_key]);
+							break;
+					}
+					
+					$counts[$result[$field_key]] = array(
+						'hits' => $result['hits'],
+						'label' => $label,
+						'filter' =>
+							array(
+								'field' => $field_key,
+								'oper' => $oper,
+								'values' => $values,
+							),
+					);
+				}
+				break;
+				
+			case Model_CustomField::TYPE_DROPDOWN:
+			case Model_CustomField::TYPE_MULTI_PICKLIST:
+			case Model_CustomField::TYPE_MULTI_CHECKBOX:
+			case Model_CustomField::TYPE_SINGLE_LINE:
+				$select = sprintf(
+					"SELECT SQL_CALC_FOUND_ROWS COUNT(*) AS hits, %s.field_value AS %s ",
+					$field_key,
+					$field_key
+				);
+				
+				$sql = 
+					$select.
+					$join_sql.
+					$where_sql.
+					sprintf(
+						"GROUP BY %s ",
+						$field_key
+					).
+					"ORDER BY hits DESC ".
+					"LIMIT 20 "
+				;
+				
+				$results = $db->GetArray($sql);
+//				$total = count($results);
+//				$total = ($total < 20) ? $total : $db->GetOne("SELECT FOUND_ROWS()");
+//				var_dump($total);
+				
+				foreach($results as $result) {
+					$label = '';
+					$oper = DevblocksSearchCriteria::OPER_IN;
+					$values = '';
+
+					if(!empty($result[$field_key])) {
+						$label = $result[$field_key];
+						switch($cfield->type) {
+							case Model_CustomField::TYPE_SINGLE_LINE:
+								$oper = DevblocksSearchCriteria::OPER_EQ;
+								$values = array('value' => $label);
+								break;
+							case Model_CustomField::TYPE_DROPDOWN:
+							case Model_CustomField::TYPE_MULTI_CHECKBOX:
+							case Model_CustomField::TYPE_MULTI_PICKLIST:
+								$oper = DevblocksSearchCriteria::OPER_IN;
+								$values = array('options[]' => $label);
+								break;
+						}
+					}
+					
+					if(empty($label)) {
+						$label = '(no data)';
+						$oper = DevblocksSearchCriteria::OPER_EQ_OR_NULL;
+						$values = array('value' => '');
+					}
+					
+					$counts[$result[$field_key]] = array(
+						'hits' => $result['hits'],
+						'label' => $label,
+						'filter' =>
+							array(
+								'field' => $field_key,
+								'oper' => $oper,
+								'values' => $values,
+							),
+					);
+				}				
+				break;
+				
+			case Model_CustomField::TYPE_WORKER:
+				$workers = DAO_Worker::getAll();
+				
+				$sql = 
+					sprintf(
+						"SELECT SQL_CALC_FOUND_ROWS COUNT(*) AS hits, (SELECT field_value FROM custom_field_numbervalue WHERE %s=context_id AND field_id=%d LIMIT 1) AS %s ",
+						$primary_key,
+						$field_id,
+						$field_key
+					).
+					$join_sql.
+					$where_sql.
+					sprintf(
+						"GROUP BY %s ",
+						$field_key
+					).
+					"ORDER BY hits DESC ".
+					"LIMIT 20 "
+				;
+				
+				$results = $db->GetArray($sql);
+//				$total = count($results);
+//				$total = ($total < 20) ? $total : $db->GetOne("SELECT FOUND_ROWS()");
+//				var_dump($total);
+		
+				foreach($results as $result) {
+					$label = '';
+					$oper = DevblocksSearchCriteria::OPER_EQ;
+					$values = '';
+
+					if(!empty($result[$field_key])) {
+						$worker_id = $result[$field_key];
+						if(isset($workers[$worker_id])) {
+							$label = $workers[$worker_id]->getName();
+							$oper = DevblocksSearchCriteria::OPER_IN;
+							$values = array('worker_id[]' => $worker_id);
+						}
+					}
+					
+					if(empty($label)) {
+						$label = '(nobody)';
+						$oper = DevblocksSearchCriteria::OPER_IS_NULL;
+						$values = '';
+					}
+					
+					$counts[$result[$field_key]] = array(
+						'hits' => $result['hits'],
+						'label' => $label,
+						'filter' =>
+							array(
+								'field' => $field_key,
+								'oper' => $oper,
+								'values' => $values,
+							),
+					);
+				}				
+				break;
+				
+		}
+		
+		return $counts;
+	}
+	
 	public static function _doBulkSetCustomFields($context,$custom_fields, $ids) {
 		$fields = DAO_CustomField::getAll();
 		
@@ -534,6 +1007,11 @@ abstract class C4_AbstractView {
 			}
 		}
 	}
+};
+
+interface IAbstractView_Subtotals {
+	function getSubtotalCounts($column);
+	function getSubtotalFields();
 };
 
 /**

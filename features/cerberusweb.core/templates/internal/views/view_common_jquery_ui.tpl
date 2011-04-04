@@ -1,6 +1,9 @@
 <script type="text/javascript">
-$frm = $('FORM#viewForm{$view->id}');
-$frm.find('TABLE.worklistBody TBODY')
+$view = $('div#view{$view->id}');
+$view_frm = $('form#viewForm{$view->id}');
+
+// Row selection and hover effect
+$view_frm.find('TABLE.worklistBody TBODY')
 	.click(function(e) {
 		$target = $(e.target);
 	
@@ -48,7 +51,9 @@ $frm.find('TABLE.worklistBody TBODY')
 		}
 	)
 	;
-$frm.find('table.worklistBody tbody th')
+
+// Header clicks
+$view_frm.find('table.worklistBody tbody th')
 	.click(function(e) {
 		$target = $(e.target);
 		if(!$target.is('th'))
@@ -58,4 +63,16 @@ $frm.find('table.worklistBody tbody th')
 		$target.find('A').first().click();
 	})
 	;
+
+// Subtotals
+$view.find('table.worklist A.subtotals').click(function(event) {
+	genericAjaxGet('view{$view->id}_sidebar','c=internal&a=viewSubtotal&view_id={$view->id}&toggle=1');
+	
+	$sidebar = $('#view{$view->id}_sidebar');
+	if(0 == $sidebar.html().length) {
+		$sidebar.css('padding-right','5px');
+	} else {
+		$sidebar.css('padding-right','0px');
+	}
+});
 </script>
