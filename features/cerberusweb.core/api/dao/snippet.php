@@ -382,7 +382,7 @@ class Model_Snippet {
 	}
 };
 
-class View_Snippet extends C4_AbstractView {
+class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals {
 	const DEFAULT_ID = 'snippet';
 
 	function __construct() {
@@ -427,6 +427,65 @@ class View_Snippet extends C4_AbstractView {
 		return $objects;
 	}
 
+	function getSubtotalFields() {
+		$all_fields = $this->getFields();
+		
+		$fields = array();
+
+		if(is_array($all_fields))
+		foreach($all_fields as $field_key => $field_model) {
+			$pass = false;
+			
+			switch($field_key) {
+				// DAO
+				case SearchFields_Snippet::CREATED_BY:
+				case SearchFields_Snippet::LAST_UPDATED_BY:
+					$pass = true;
+					break;
+					
+				// Valid custom fields
+				default:
+					if('cf_' == substr($field_key,0,3))
+						$pass = $this->_canSubtotalCustomField($field_key);
+					break;
+			}
+			
+			if($pass)
+				$fields[$field_key] = $field_model;
+		}
+		
+		return $fields;
+	}
+	
+	function getSubtotalCounts($column=null) {
+		$counts = array();
+		$fields = $this->getFields();
+
+		if(!isset($fields[$column]))
+			return array();
+		
+		switch($column) {
+			case SearchFields_Snippet::CREATED_BY:
+			case SearchFields_Snippet::LAST_UPDATED_BY:
+				$workers = DAO_Worker::getAll();
+				$label_map = array();
+				foreach($workers as $worker_id => $worker)
+					$label_map[$worker_id] = $worker->getName();
+				$counts = $this->_getSubtotalCountForStringColumn('DAO_Snippet', $column, $label_map, 'in', 'worker_id[]');
+				break;
+			
+			default:
+				// Custom fields
+				if('cf_' == substr($column,0,3)) {
+					$counts = $this->_getSubtotalCountForCustomColumn('DAO_Snippet', $column, 's.id');
+				}
+				
+				break;
+		}
+		
+		return $counts;
+	}
+	
 	function render() {
 		$this->_sanitize();
 		
@@ -442,7 +501,8 @@ class View_Snippet extends C4_AbstractView {
 				$tpl->display('devblocks:cerberusweb.core::mail/snippets/views/view_contextlinks_chooser.tpl');
 				break;
 			default:
-				$tpl->display('devblocks:cerberusweb.core::mail/snippets/views/default.tpl');
+				$tpl->assign('view_template', 'devblocks:cerberusweb.core::mail/snippets/views/default.tpl');
+				$tpl->display('devblocks:cerberusweb.core::internal/views/subtotals_and_view.tpl');
 				break;
 		}
 		
