@@ -53,7 +53,7 @@ $view_frm.find('TABLE.worklistBody TBODY')
 	;
 
 // Header clicks
-$view_frm.find('table.worklistBody tbody th')
+$view_frm.find('table.worklistBody thead th')
 	.click(function(e) {
 		$target = $(e.target);
 		if(!$target.is('th'))
