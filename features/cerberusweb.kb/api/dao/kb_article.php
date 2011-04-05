@@ -802,7 +802,11 @@ class View_KbArticle extends C4_AbstractView implements IAbstractView_Subtotals 
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__fulltext.tpl');
 				break;
 			default:
-				echo '';
+				if('cf_' == substr($field,0,3)) {
+					$this->_renderCriteriaCustomField($tpl, substr($field,3));
+				} else {
+					echo ' ';
+				}
 				break;
 		}
 	}
@@ -899,6 +903,13 @@ class View_KbArticle extends C4_AbstractView implements IAbstractView_Subtotals 
 			case SearchFields_KbArticle::FULLTEXT_ARTICLE_CONTENT:
 				@$scope = DevblocksPlatform::importGPC($_REQUEST['scope'],'string','expert');
 				$criteria = new DevblocksSearchCriteria($field, $oper, array($value,$scope));
+				break;
+				
+			default:
+				// Custom Fields
+				if(substr($field,0,3)=='cf_') {
+					$criteria = $this->_doSetCriteriaCustomField($field, substr($field,3));
+				}
 				break;
 		}
 
