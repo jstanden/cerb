@@ -242,6 +242,7 @@ class ChInternalController extends DevblocksControllerExtension {
 	// Autocomplete
 
 	function autocompleteAction() {
+		@$callback = DevblocksPlatform::importGPC($_REQUEST['callback'],'string','');
 		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
 		@$term = DevblocksPlatform::importGPC($_REQUEST['term'],'string','');
 
@@ -368,7 +369,11 @@ class ChInternalController extends DevblocksControllerExtension {
 				break;
 		}
 
-		echo json_encode($list);
+		echo sprintf("%s%s%s",
+			!empty($callback) ? ($callback.'(') : '',
+			json_encode($list),
+			!empty($callback) ? (')') : ''
+		);
 		exit;
 	}
 

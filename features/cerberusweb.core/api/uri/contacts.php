@@ -1741,6 +1741,7 @@ class ChContactsPage extends CerberusPageExtension {
 	
 	function getOrgsAutoCompletionsAction() {
 		@$starts_with = DevblocksPlatform::importGPC($_REQUEST['term'],'string','');
+		@$callback = DevblocksPlatform::importGPC($_REQUEST['callback'],'string','');		
 		
 		list($orgs,$null) = DAO_ContactOrg::search(
 			array(),
@@ -1760,13 +1761,18 @@ class ChContactsPage extends CerberusPageExtension {
 			$list[] = $val[SearchFields_ContactOrg::NAME];
 		}
 		
-		echo json_encode($list);
+		echo sprintf("%s%s%s",
+			!empty($callback) ? ($callback.'(') : '',
+			json_encode($list),
+			!empty($callback) ? (')') : ''
+		);
 		exit;
 	}
 	
 	function getEmailAutoCompletionsAction() {
 		$db = DevblocksPlatform::getDatabaseService();
 		@$query = DevblocksPlatform::importGPC($_REQUEST['term'],'string','');
+		@$callback = DevblocksPlatform::importGPC($_REQUEST['callback'],'string','');		
 		
 		if(false !== (strpos($query,'@'))) { // email search
 			$sql = sprintf("SELECT first_name, last_name, email, num_nonspam ".
@@ -1832,12 +1838,17 @@ class ChContactsPage extends CerberusPageExtension {
 		
 		mysql_free_result($rs);
 
-		echo json_encode($list);
+		echo sprintf("%s%s%s",
+			!empty($callback) ? ($callback.'(') : '',
+			json_encode($list),
+			!empty($callback) ? (')') : ''
+		);
 		exit;
 	}
 	
 	function getCountryAutoCompletionsAction() {
 		@$starts_with = DevblocksPlatform::importGPC($_REQUEST['term'],'string','');
+		@$callback = DevblocksPlatform::importGPC($_REQUEST['callback'],'string','');
 		
 		$db = DevblocksPlatform::getDatabaseService();
 		
@@ -1859,7 +1870,11 @@ class ChContactsPage extends CerberusPageExtension {
 		
 		mysql_free_result($rs);
 		
-		echo json_encode($list);
+		echo sprintf("%s%s%s",
+			!empty($callback) ? ($callback.'(') : '',
+			json_encode($list),
+			!empty($callback) ? (')') : ''
+		);
 		exit;
 	}
 };
