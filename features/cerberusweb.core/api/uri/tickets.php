@@ -418,6 +418,7 @@ class ChTicketsPage extends CerberusPageExtension {
 			SearchFields_MailQueue::QUEUE_FAILS,
 			SearchFields_MailQueue::QUEUE_PRIORITY,
 			SearchFields_MailQueue::TICKET_ID,
+			SearchFields_MailQueue::WORKER_ID,
 		), true);
 		
 		$view->addParamsRequired(array(
@@ -430,6 +431,7 @@ class ChTicketsPage extends CerberusPageExtension {
 			SearchFields_MailQueue::QUEUE_FAILS,
 			SearchFields_MailQueue::QUEUE_PRIORITY,
 			SearchFields_MailQueue::TICKET_ID,
+			SearchFields_MailQueue::WORKER_ID,
 		), true);
 		
 		C4_AbstractViewLoader::setView($view->id,$view);

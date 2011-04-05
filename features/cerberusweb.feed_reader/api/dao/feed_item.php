@@ -386,7 +386,7 @@ class View_FeedItem extends C4_AbstractView implements IAbstractView_Subtotals {
 	}
 
 	function getSubtotalFields() {
-		$all_fields = $this->getFields();
+		$all_fields = $this->getParamsAvailable();
 		
 		$fields = array();
 

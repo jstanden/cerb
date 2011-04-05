@@ -644,7 +644,7 @@ class View_TimeTracking extends C4_AbstractView implements IAbstractView_Subtota
 	}
 
 	function getSubtotalFields() {
-		$all_fields = $this->getFields();
+		$all_fields = $this->getParamsAvailable();
 		
 		$fields = array();
 

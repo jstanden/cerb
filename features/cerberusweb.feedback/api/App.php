@@ -417,7 +417,7 @@ class C4_FeedbackEntryView extends C4_AbstractView implements IAbstractView_Subt
 	
 
 	function getSubtotalFields() {
-		$all_fields = $this->getFields();
+		$all_fields = $this->getParamsAvailable();
 		
 		$fields = array();
 

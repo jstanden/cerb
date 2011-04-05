@@ -371,7 +371,7 @@ class View_ExampleObject extends C4_AbstractView implements IAbstractView_Subtot
 	}
 
 	function getSubtotalFields() {
-		$all_fields = $this->getFields();
+		$all_fields = $this->getParamsAvailable();
 		
 		$fields = array();
 
