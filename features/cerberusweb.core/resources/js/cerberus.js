@@ -390,8 +390,8 @@ var cAjaxCalls = function() {
 		if(null == options.minLength)
 			options.minLength = 2;
 		
-		if(null == options.selectFirst)
-			options.selectFirst = true;
+		if(null == options.autoFocus)
+			options.autoFocus = true;
 		
 		if(null != options.multiple && options.multiple) {
 			options.source = function (request, response) {
@@ -445,8 +445,8 @@ var cAjaxCalls = function() {
 		if(null == options.minLength)
 			options.minLength = 1;
 		
-		if(null == options.selectFirst)
-			options.selectFirst = true;
+		if(null == options.autoFocus)
+			options.autoFocus = true;
 
 		$(sel).autocomplete(options);
 	}
@@ -459,8 +459,8 @@ var cAjaxCalls = function() {
 		if(null == options.minLength)
 			options.minLength = 1;
 
-		if(null == options.selectFirst)
-			options.selectFirst = true;
+		if(null == options.autoFocus)
+			options.autoFocus = true;
 		
 		$(sel).autocomplete(options);
 	}
@@ -516,7 +516,7 @@ var cAjaxCalls = function() {
 				focus:function(event, ui) {
 					return false;
 				},
-				selectFirst: true,
+				autoFocus:true,
 				select:function(event, ui) {
 					$this = $(this);
 					$label = ui.item.label;
