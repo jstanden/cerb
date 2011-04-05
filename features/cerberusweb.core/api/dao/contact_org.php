@@ -848,6 +848,8 @@ class View_ContactOrg extends C4_AbstractView implements IAbstractView_Subtotals
 };
 
 class Context_Org extends Extension_DevblocksContext {
+	const ID = 'cerberusweb.contexts.org';
+	
     function getPermalink($context_id) {
     	$url_writer = DevblocksPlatform::getUrlService();
     	return $url_writer->write('c=contacts&tab=orgs&action=display&id='.$context_id, true);

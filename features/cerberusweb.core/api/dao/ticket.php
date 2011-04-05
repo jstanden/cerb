@@ -940,11 +940,18 @@ class DAO_Ticket extends C4_ORMHelper {
 			$join_sql .= "LEFT JOIN contact_org o ON (a1.contact_org_id=o.id) ";
 		}
 		
+		// Map custom fields to indexes
+		
+		$cfield_index_map = array(
+			CerberusContexts::CONTEXT_TICKET => 't.id',
+			CerberusContexts::CONTEXT_ORG => 'a1.contact_org_id',
+		);
+		
 		// Custom field joins
 		list($select_sql, $join_sql, $has_multiple_values) = self::_appendSelectJoinSqlForCustomFieldTables(
 			$tables,
 			$params,
-			't.id',
+			$cfield_index_map,
 			$select_sql,
 			$join_sql
 		);
@@ -1206,9 +1213,12 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 			$columns[self::FULLTEXT_MESSAGE_CONTENT] = new DevblocksSearchField(self::FULLTEXT_MESSAGE_CONTENT, 'ftmc', 'content', $translate->_('message.content'));
 		}
 		
-		// Custom Fields
-		$fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TICKET);
-
+		// Custom Fields: ticket + org
+		$fields = 
+			DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TICKET) + 
+			DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ORG)
+		;
+		
 		if(is_array($fields))
 		foreach($fields as $field_id => $field) {
 			$key = 'cf_'.$field_id;
@@ -1657,7 +1667,10 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals {
 		$team_categories = DAO_Bucket::getTeams();
 		$tpl->assign('team_categories', $team_categories);
 
-		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TICKET);
+		$custom_fields = 
+			DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TICKET) + 
+			DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ORG)
+			; 
 		$tpl->assign('custom_fields', $custom_fields);
 		
 		// Undo?
@@ -2157,6 +2170,8 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals {
 };
 
 class Context_Ticket extends Extension_DevblocksContext {
+	const ID = 'cerberusweb.contexts.ticket';
+	
 	function authorize($context_id, Model_Worker $worker) {
 		// Security
 		try {

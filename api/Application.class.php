@@ -1106,10 +1106,18 @@ class C4_ORMHelper extends DevblocksORMHelper {
 			// Make sure the field exists for this context
 			if(!isset($custom_fields[$field_id]))
 				continue; 
-			
+
 			$field_table = sprintf("cf_%d", $field_id);
 			$value_table = '';
-
+			$field_key = $key;
+			
+			if(is_array($key)) {
+				if(isset($key[$custom_fields[$field_id]->context]))
+					$field_key = $key[$custom_fields[$field_id]->context];
+				else
+					continue;
+			}
+			
 			// Join value by field data type
 			switch($custom_fields[$field_id]->type) {
 				case Model_CustomField::TYPE_MULTI_LINE:
@@ -1141,7 +1149,7 @@ class C4_ORMHelper extends DevblocksORMHelper {
 			if(!isset($params['cf_'.$field_id])) {
 				$select_sql .= sprintf(",(SELECT field_value FROM %s WHERE %s=context_id AND field_id=%d LIMIT 0,1) AS %s ",
 					$value_table,
-					$key,
+					$field_key,
 					$field_id,
 					$field_table
 				);
@@ -1155,7 +1163,7 @@ class C4_ORMHelper extends DevblocksORMHelper {
 				$join_sql .= sprintf("LEFT JOIN %s %s ON (%s=%s.context_id AND %s.field_id=%d) ",
 					$value_table,
 					$field_table,
-					$key,
+					$field_key,
 					$field_table,
 					$field_table,
 					$field_id
