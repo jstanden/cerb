@@ -413,7 +413,7 @@ class View_Notification extends C4_AbstractView implements IAbstractView_Subtota
 		return $fields;
 	}
 	
-	function getSubtotalCounts($column=null) {
+	function getSubtotalCounts($column) {
 		$counts = array();
 		$fields = $this->getFields();
 

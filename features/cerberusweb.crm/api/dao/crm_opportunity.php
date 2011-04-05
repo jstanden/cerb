@@ -541,7 +541,7 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 		return $fields;
 	}
 	
-	function getSubtotalCounts($column=null) {
+	function getSubtotalCounts($column) {
 		$counts = array();
 		$fields = $this->getFields();
 

@@ -427,7 +427,7 @@ class View_ContactPerson extends C4_AbstractView implements IAbstractView_Subtot
 		return $fields;
 	}
 	
-	function getSubtotalCounts($column=null) {
+	function getSubtotalCounts($column) {
 		$counts = array();
 		$fields = $this->getFields();
 

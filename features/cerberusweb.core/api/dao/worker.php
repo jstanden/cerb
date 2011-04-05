@@ -862,7 +862,7 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals {
 		return $fields;
 	}
 	
-	function getSubtotalCounts($column=null) {
+	function getSubtotalCounts($column) {
 		$counts = array();
 		$fields = $this->getFields();
 
