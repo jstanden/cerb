@@ -405,13 +405,13 @@ class DAO_Group extends C4_ORMHelper {
 		;
 		
 		// Custom field joins
-//		list($select_sql, $join_sql, $has_multiple_values) = self::_appendSelectJoinSqlForCustomFieldTables(
-//			$tables,
-//			$params,
-//			'g.id',
-//			$select_sql,
-//			$join_sql
-//		);
+		list($select_sql, $join_sql, $has_multiple_values) = self::_appendSelectJoinSqlForCustomFieldTables(
+			$tables,
+			$params,
+			'g.id',
+			$select_sql,
+			$join_sql
+		);
 				
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
@@ -506,13 +506,13 @@ class SearchFields_Group implements IDevblocksSearchFields {
 		);
 		
 		// Custom Fields
-		//$fields = DAO_CustomField::getByContext(ChCustomFieldSource_Group::ID);
+		$fields = DAO_CustomField::getByContext(Context_Group::ID);
 
-//		if(is_array($fields))
-//		foreach($fields as $field_id => $field) {
-//			$key = 'cf_'.$field_id;
-//			$columns[$key] = new DevblocksSearchField($key,$key,'field_value',$field->name);
-//		}
+		if(is_array($fields))
+		foreach($fields as $field_id => $field) {
+			$key = 'cf_'.$field_id;
+			$columns[$key] = new DevblocksSearchField($key,$key,'field_value',$field->name);
+		}
 		
 		// Sort by label (translation-conscious)
 		uasort($columns, create_function('$a, $b', "return strcasecmp(\$a->db_label,\$b->db_label);\n"));
@@ -759,7 +759,7 @@ class DAO_GroupSettings {
 	}
 };
 
-class View_Group extends C4_AbstractView {
+class View_Group extends C4_AbstractView implements IAbstractView_Subtotals {
 	const DEFAULT_ID = 'groups';
 
 	function __construct() {
@@ -795,6 +795,59 @@ class View_Group extends C4_AbstractView {
 		);
 	}
 
+	function getSubtotalFields() {
+		$all_fields = $this->getFields();
+		
+		$fields = array();
+
+		if(is_array($all_fields))
+		foreach($all_fields as $field_key => $field_model) {
+			$pass = false;
+			
+			switch($field_key) {
+				// Booleans
+//				case SearchFields_Group::IS_COMPLETED:
+//					$pass = true;
+//					break;
+					
+				// Valid custom fields
+				default:
+					if('cf_' == substr($field_key,0,3))
+						$pass = $this->_canSubtotalCustomField($field_key);
+					break;
+			}
+			
+			if($pass)
+				$fields[$field_key] = $field_model;
+		}
+		
+		return $fields;
+	}
+	
+	function getSubtotalCounts($column=null) {
+		$counts = array();
+		$fields = $this->getFields();
+
+		if(!isset($fields[$column]))
+			return array();
+		
+		switch($column) {
+//			case SearchFields_Group::EXAMPLE:
+//				$counts = $this->_getSubtotalCountForStringColumn('DAO_Group', $column);
+//				break;
+
+			default:
+				// Custom fields
+				if('cf_' == substr($column,0,3)) {
+					$counts = $this->_getSubtotalCountForCustomColumn('DAO_Group', $column, 'g.id');
+				}
+				
+				break;
+		}
+		
+		return $counts;
+	}	
+	
 	function render() {
 		$this->_sanitize();
 		
@@ -802,15 +855,16 @@ class View_Group extends C4_AbstractView {
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
 
-		//$custom_fields = DAO_CustomField::getByContext(ChCustomFieldSource_Group::ID);
-		//$tpl->assign('custom_fields', $custom_fields);
+		$custom_fields = DAO_CustomField::getByContext(Context_Group::ID);
+		$tpl->assign('custom_fields', $custom_fields);
 
 		switch($this->renderTemplate) {
 			case 'contextlinks_chooser':
 				$tpl->display('devblocks:cerberusweb.core::groups/view_contextlinks_chooser.tpl');
 				break;
 			default:
-				$tpl->display('devblocks:cerberusweb.core::groups/view.tpl');
+				$tpl->assign('view_template', 'devblocks:cerberusweb.core::groups/view.tpl');
+				$tpl->display('devblocks:cerberusweb.core::internal/views/subtotals_and_view.tpl');
 				break;
 		}
 	}
@@ -834,11 +888,11 @@ class View_Group extends C4_AbstractView {
 				
 			default:
 				// Custom Fields
-//				if('cf_' == substr($field,0,3)) {
-//					$this->_renderCriteriaCustomField($tpl, substr($field,3));
-//				} else {
-//					echo ' ';
-//				}
+				if('cf_' == substr($field,0,3)) {
+					$this->_renderCriteriaCustomField($tpl, substr($field,3));
+				} else {
+					echo ' ';
+				}
 				break;
 		}
 	}
@@ -902,9 +956,9 @@ class View_Group extends C4_AbstractView {
 				
 			default:
 				// Custom Fields
-//				if(substr($field,0,3)=='cf_') {
-//					$criteria = $this->_doSetCriteriaCustomField($field, substr($field,3));
-//				}
+				if(substr($field,0,3)=='cf_') {
+					$criteria = $this->_doSetCriteriaCustomField($field, substr($field,3));
+				}
 				break;
 		}
 
@@ -938,9 +992,9 @@ class View_Group extends C4_AbstractView {
 //					break;
 				default:
 					// Custom fields
-//					if(substr($k,0,3)=="cf_") {
-//						$custom_fields[substr($k,3)] = $v;
-//					}
+					if(substr($k,0,3)=="cf_") {
+						$custom_fields[substr($k,3)] = $v;
+					}
 					break;
 
 			}
@@ -969,7 +1023,7 @@ class View_Group extends C4_AbstractView {
 			DAO_Worker::update($batch_ids, $change_fields);
 			
 			// Custom Fields
-			//self::_doBulkSetCustomFields(CerberusContexts::CONTEXT_WORKER, $custom_fields, $batch_ids);
+			self::_doBulkSetCustomFields(CerberusContexts::CONTEXT_GROUP, $custom_fields, $batch_ids);
 			
 			unset($batch_ids);
 		}
@@ -979,6 +1033,8 @@ class View_Group extends C4_AbstractView {
 };
 
 class Context_Group extends Extension_DevblocksContext {
+	const ID = 'cerberusweb.contexts.group';
+	
     function getPermalink($context_id) {
     	// [TODO] Profiles
     	$url_writer = DevblocksPlatform::getUrlService();
