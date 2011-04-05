@@ -1,12 +1,12 @@
 <fieldset>
 	<legend class="cerb-menu">
 		<a href="javascript:;" class="menu">{if isset($subtotal_fields.{$view->renderSubtotals})}{$subtotal_fields.{$view->renderSubtotals}->db_label|capitalize}{else}{'common.subtotals'|devblocks_translate|capitalize}{/if}</a> &#x25be;
-		<ul class="cerb-popupmenu cerb-float">
-			{foreach from=$subtotal_fields item=field_model key=field_key}
-			<li><a href="javascript:;" onclick="genericAjaxGet('view{$view_id}_sidebar','c=internal&a=viewSubtotal&category={$field_key}&view_id={$view_id}');">{$field_model->db_label|capitalize}</a></li>
-			{/foreach}
-		</ul>
 	</legend>
+	<ul class="cerb-popupmenu cerb-float cerb-menu-green" style="margin-top:-5px;">
+		{foreach from=$subtotal_fields item=field_model key=field_key}
+		<li><a href="javascript:;" onclick="genericAjaxGet('view{$view_id}_sidebar','c=internal&a=viewSubtotal&category={$field_key}&view_id={$view_id}');">{$field_model->db_label|capitalize}</a></li>
+		{/foreach}
+	</ul>
 
 	<table cellspacing="0" cellpadding="2" border="0">
 	{foreach from=$subtotal_counts item=category}
@@ -40,16 +40,22 @@
 </fieldset>
 
 <script type="text/javascript">
-	$('#view{$view_id} FIELDSET LEGEND.cerb-menu A.menu')
-		.closest('legend')
+	$('#view{$view_id}_sidebar fieldset:first legend') //.cerb-menu A.menu
+		//.closest('legend')
 		.hover(
 			function(e) {
-				$(this).find('ul:first').show();
-			},
-			function(e) {
-				$(this).find('ul:first').hide();
+				//alert($(this)[0]);
+				//alert($(this).html());
+				$(this).next('ul:first').show();
 			}
 		)
+		.closest('fieldset')
+			.hover(
+				function(e) {},
+				function(e) {
+					$(this).find('ul:first').hide();
+				}
+			)
 		.find('ul:first > li')
 			.click(function(e) {
 				e.stopPropagation();

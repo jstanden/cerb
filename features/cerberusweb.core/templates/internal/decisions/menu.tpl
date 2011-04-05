@@ -1,4 +1,4 @@
-<ul class="cerb-popupmenu cerb-float">
+<ul class="cerb-popupmenu cerb-float" style="display:block;">
 	{if empty($node)}
 		<li><a href="javascript:;" onclick="genericAjaxPopup('peek','c=internal&a=showDecisionPopup&trigger_id={$trigger_id}',null,false,'500');">Edit Behavior</a></li>
 		<li><a href="javascript:;" onclick="genericAjaxPopup('peek','c=internal&a=showDecisionDeletePopup&trigger_id={$trigger_id}',null,false,'500');">Delete Behavior</a></li>
