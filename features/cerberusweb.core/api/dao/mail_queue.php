@@ -582,7 +582,7 @@ class Model_MailQueue {
 	}
 };
 
-class View_MailQueue extends C4_AbstractView {
+class View_MailQueue extends C4_AbstractView implements IAbstractView_Subtotals {
 	const DEFAULT_ID = 'mail_queue';
 
 	function __construct() {
@@ -628,6 +628,78 @@ class View_MailQueue extends C4_AbstractView {
 		return $this->_doGetDataSample('DAO_MailQueue', $size);
 	}
 
+	function getSubtotalFields() {
+		$all_fields = $this->getParamsAvailable();
+		
+		$fields = array();
+
+		if(is_array($all_fields))
+		foreach($all_fields as $field_key => $field_model) {
+			$pass = false;
+			
+			switch($field_key) {
+				// DAO
+				case SearchFields_MailQueue::QUEUE_PRIORITY:
+				case SearchFields_MailQueue::TYPE:
+				case SearchFields_MailQueue::WORKER_ID:
+					$pass = true;
+					break;
+					
+				// Valid custom fields
+				default:
+					if('cf_' == substr($field_key,0,3))
+						$pass = $this->_canSubtotalCustomField($field_key);
+					break;
+			}
+			
+			if($pass)
+				$fields[$field_key] = $field_model;
+		}
+		
+		return $fields;
+	}
+	
+	function getSubtotalCounts($column=null) {
+		$counts = array();
+		$fields = $this->getFields();
+
+		if(!isset($fields[$column]))
+			return array();
+		
+		switch($column) {
+			case SearchFields_MailQueue::QUEUE_PRIORITY:
+				$counts = $this->_getSubtotalCountForStringColumn('DAO_MailQueue', $column);
+				break;
+				
+			case SearchFields_MailQueue::TYPE:
+				$label_map = array(
+					'mail.compose' => 'Compose',
+					'mail.open_ticket' => 'New Ticket',
+					'ticket.reply' => 'Reply',
+				);
+				$counts = $this->_getSubtotalCountForStringColumn('DAO_MailQueue', $column, $label_map);
+				break;
+
+			case SearchFields_MailQueue::WORKER_ID:
+				$label_map = array();
+				$workers = DAO_Worker::getAll();
+				foreach($workers as $worker_id => $worker)
+					$label_map[$worker_id] = $worker->getName();
+				$counts = $this->_getSubtotalCountForStringColumn('DAO_MailQueue', $column, $label_map, 'in', 'worker_id[]');
+				break;
+			
+			default:
+				// Custom fields
+				if('cf_' == substr($column,0,3)) {
+					$counts = $this->_getSubtotalCountForCustomColumn('DAO_MailQueue', $column, 'm.id');
+				}
+				
+				break;
+		}
+		
+		return $counts;
+	}	
+	
 	function render() {
 		$this->_sanitize();
 		
@@ -636,7 +708,8 @@ class View_MailQueue extends C4_AbstractView {
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
 
-		$tpl->display('devblocks:cerberusweb.core::mail/queue/view.tpl');
+		$tpl->assign('view_template', 'devblocks:cerberusweb.core::mail/queue/view.tpl');
+		$tpl->display('devblocks:cerberusweb.core::internal/views/subtotals_and_view.tpl');
 	}
 
 	function renderCriteria($field) {
