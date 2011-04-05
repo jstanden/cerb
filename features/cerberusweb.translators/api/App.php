@@ -377,7 +377,8 @@ class ChTranslators_SetupPluginsMenuItem extends Extension_PageMenuItem {
 }
 endif;
 
-class C4_TranslationView extends C4_AbstractView {
+// [TODO] Rename View_*
+class C4_TranslationView extends C4_AbstractView implements IAbstractView_Subtotals {
 	const DEFAULT_ID = 'translations';
 
 	function __construct() {
@@ -414,6 +415,60 @@ class C4_TranslationView extends C4_AbstractView {
 		return $objects;
 	}
 
+	function getSubtotalFields() {
+		$all_fields = $this->getFields();
+		
+		$fields = array();
+
+		if(is_array($all_fields))
+		foreach($all_fields as $field_key => $field_model) {
+			$pass = false;
+			
+			switch($field_key) {
+				// DAO
+				case SearchFields_Translation::LANG_CODE:
+					$pass = true;
+					break;
+					
+				// Valid custom fields
+				default:
+					if('cf_' == substr($field_key,0,3))
+						$pass = $this->_canSubtotalCustomField($field_key);
+					break;
+			}
+			
+			if($pass)
+				$fields[$field_key] = $field_model;
+		}
+		
+		return $fields;
+	}
+	
+	function getSubtotalCounts($column=null) {
+		$counts = array();
+		$fields = $this->getFields();
+
+		if(!isset($fields[$column]))
+			return array();
+		
+		switch($column) {
+			case SearchFields_Translation::LANG_CODE:
+				$codes = DAO_Translation::getDefinedLangCodes();
+				$counts = $this->_getSubtotalCountForStringColumn('DAO_Translation', $column, $codes, 'in', 'lang_ids[]');
+				break;
+
+			default:
+				// Custom fields
+				if('cf_' == substr($column,0,3)) {
+					$counts = $this->_getSubtotalCountForCustomColumn('DAO_Translation', $column, 't.id');
+				}
+				
+				break;
+		}
+		
+		return $counts;
+	}	
+	
 	function render() {
 		$this->_sanitize();
 		
@@ -429,7 +484,8 @@ class C4_TranslationView extends C4_AbstractView {
 		$english_map = DAO_Translation::getMapByLang('en_US');
 		$tpl->assign('english_map', $english_map);
 		
-		$tpl->display('devblocks:cerberusweb.translators::config/section/view.tpl');
+		$tpl->assign('view_template', 'devblocks:cerberusweb.translators::config/section/view.tpl');
+		$tpl->display('devblocks:cerberusweb.core::internal/views/subtotals_and_view.tpl');
 	}
 
 	function renderCriteria($field) {
