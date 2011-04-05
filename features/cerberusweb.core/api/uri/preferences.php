@@ -184,17 +184,17 @@ class ChPreferencesPage extends CerberusPageExtension {
 
 		$myNotificationsView->addColumnsHidden(array(
 			SearchFields_Notification::ID,
-			SearchFields_Notification::IS_READ,
 			SearchFields_Notification::WORKER_ID,
 		));
 
 		$myNotificationsView->addParamsHidden(array(
 			SearchFields_Notification::ID,
-			SearchFields_Notification::IS_READ,
 			SearchFields_Notification::WORKER_ID,
 		), true);
-		$myNotificationsView->addParamsRequired(array(
+		$myNotificationsView->addParamsDefault(array(
 			SearchFields_Notification::IS_READ => new DevblocksSearchCriteria(SearchFields_Notification::IS_READ,'=',0),
+		), true);
+		$myNotificationsView->addParamsRequired(array(
 			SearchFields_Notification::WORKER_ID => new DevblocksSearchCriteria(SearchFields_Notification::WORKER_ID,'=',$active_worker->id),
 		), true);
 
