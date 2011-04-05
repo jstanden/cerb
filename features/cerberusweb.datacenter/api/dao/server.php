@@ -396,7 +396,7 @@ class Model_Server {
 	public $name;
 };
 
-class View_Server extends C4_AbstractView {
+class View_Server extends C4_AbstractView implements IAbstractView_Subtotals {
 	const DEFAULT_ID = 'server';
 
 	function __construct() {
@@ -439,6 +439,59 @@ class View_Server extends C4_AbstractView {
 		return $this->_doGetDataSample('DAO_Server', $size);
 	}
 	
+	function getSubtotalFields() {
+		$all_fields = $this->getFields();
+		
+		$fields = array();
+
+		if(is_array($all_fields))
+		foreach($all_fields as $field_key => $field_model) {
+			$pass = false;
+			
+			switch($field_key) {
+				// DAO
+//				case SearchFields_Server::EXAMPLE:
+//					$pass = true;
+//					break;
+					
+				// Valid custom fields
+				default:
+					if('cf_' == substr($field_key,0,3))
+						$pass = $this->_canSubtotalCustomField($field_key);
+					break;
+			}
+			
+			if($pass)
+				$fields[$field_key] = $field_model;
+		}
+		
+		return $fields;
+	}
+	
+	function getSubtotalCounts($column=null) {
+		$counts = array();
+		$fields = $this->getFields();
+
+		if(!isset($fields[$column]))
+			return array();
+		
+		switch($column) {
+//			case SearchFields_Server::EXAMPLE:
+//				$counts = $this->_getSubtotalCountForStringColumn('DAO_Server', $column);
+//				break;
+			
+			default:
+				// Custom fields
+				if('cf_' == substr($column,0,3)) {
+					$counts = $this->_getSubtotalCountForCustomColumn('DAO_Server', $column, 's.id');
+				}
+				
+				break;
+		}
+		
+		return $counts;
+	}	
+	
 	function render() {
 		$this->_sanitize();
 		
@@ -455,7 +508,8 @@ class View_Server extends C4_AbstractView {
 				$tpl->display('devblocks:cerberusweb.datacenter::datacenter/servers/view_contextlinks_chooser.tpl');
 				break;
 			default:
-				$tpl->display('devblocks:cerberusweb.datacenter::datacenter/servers/view.tpl');
+				$tpl->assign('view_template', 'devblocks:cerberusweb.datacenter::datacenter/servers/view.tpl');
+				$tpl->display('devblocks:cerberusweb.core::internal/views/subtotals_and_view.tpl');
 				break;
 		}
 	}
