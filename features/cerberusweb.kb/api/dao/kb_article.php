@@ -632,7 +632,7 @@ class Context_KbArticle extends Extension_DevblocksContext {
 	}
 };
 
-class View_KbArticle extends C4_AbstractView {
+class View_KbArticle extends C4_AbstractView implements IAbstractView_Subtotals {
 	const DEFAULT_ID = 'kb_overview';
 	
 	function __construct() {
@@ -677,6 +677,80 @@ class View_KbArticle extends C4_AbstractView {
 		return $this->_doGetDataSample('DAO_KbArticle', $size);
 	}
 
+	function getSubtotalFields() {
+		$all_fields = $this->getFields();
+		
+		$fields = array();
+
+		if(is_array($all_fields))
+		foreach($all_fields as $field_key => $field_model) {
+			$pass = false;
+			
+			switch($field_key) {
+				// DAO
+				case SearchFields_KbArticle::TOP_CATEGORY_ID:
+				case SearchFields_KbArticle::FORMAT:
+					$pass = true;
+					break;
+					
+				// Valid custom fields
+				default:
+					if('cf_' == substr($field_key,0,3))
+						$pass = $this->_canSubtotalCustomField($field_key);
+					break;
+			}
+			
+			if($pass)
+				$fields[$field_key] = $field_model;
+		}
+		
+		return $fields;
+	}
+	
+	function getSubtotalCounts($column=null) {
+		$counts = array();
+		$fields = $this->getFields();
+
+		if(!isset($fields[$column]))
+			return array();
+		
+		switch($column) {
+			case SearchFields_KbArticle::TOP_CATEGORY_ID:
+				$topics = DAO_KbCategory::getAll();
+				$label_map = array('0' => '(none)');
+				foreach($topics as $topic_id => $topic) {
+					if(!empty($topic->parent_id))
+						continue;
+					$label_map[$topic_id] = $topic->name;
+				}
+				$counts = $this->_getSubtotalCountForStringColumn('DAO_KbArticle', $column, $label_map, 'in', 'topic_id[]');
+				break;
+				
+			case SearchFields_KbArticle::FORMAT:
+				$label_map = array(
+					'0' => 'Plaintext',
+					'1' => 'HTML',
+					'2' => 'Markdown',
+				);
+				$counts = $this->_getSubtotalCountForStringColumn('DAO_KbArticle', $column, $label_map, '=', 'value');
+				break;
+
+//			case SearchFields_KbArticle::IS_COMPLETED:
+//				$counts = $this->_getSubtotalCountForBooleanColumn('DAO_KbArticle', $column);
+//				break;
+			
+			default:
+				// Custom fields
+				if('cf_' == substr($column,0,3)) {
+					$counts = $this->_getSubtotalCountForCustomColumn('DAO_KbArticle', $column, 'kb.id');
+				}
+				
+				break;
+		}
+		
+		return $counts;
+	}	
+	
 	function render() {
 		$this->_sanitize();
 		
@@ -692,7 +766,8 @@ class View_KbArticle extends C4_AbstractView {
 				$tpl->display('devblocks:cerberusweb.kb::view/chooser.tpl');
 				break;
 			default:
-				$tpl->display('devblocks:cerberusweb.kb::view/view.tpl');
+				$tpl->assign('view_template', 'devblocks:cerberusweb.kb::view/view.tpl');
+				$tpl->display('devblocks:cerberusweb.core::internal/views/subtotals_and_view.tpl');
 				break;
 		}
 	}
@@ -708,6 +783,9 @@ class View_KbArticle extends C4_AbstractView {
 			case SearchFields_KbArticle::UPDATED:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__date.tpl');
 				break;
+//			case SearchFields_KbArticle::FORMAT:
+//				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__number.tpl');
+//				break;
 			case SearchFields_KbArticle::VIEWS:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__number.tpl');
 				break;
@@ -752,6 +830,25 @@ class View_KbArticle extends C4_AbstractView {
 				}
 				echo implode(", ", $strings);
 				break;
+				
+			case SearchFields_KbArticle::FORMAT:
+				$strings = array();
+
+				foreach($values as $val) {
+					switch($val) {
+						case 0:
+							$strings[] = "Plaintext";
+							break;
+						case 1:
+							$strings[] = "HTML";
+							break;
+						case 2:
+							$strings[] = "Markdown";
+							break;
+					}
+				}
+				echo implode(", ", $strings);
+				break;
 
 			default:
 				parent::renderCriteriaParam($param);
@@ -784,6 +881,10 @@ class View_KbArticle extends C4_AbstractView {
 				if(empty($to)) $to = 'today';
 
 				$criteria = new DevblocksSearchCriteria($field,$oper,array($from,$to));
+				break;
+				
+			case SearchFields_KbArticle::FORMAT:
+				$criteria = new DevblocksSearchCriteria($field, $oper, $value);
 				break;
 				
 			case SearchFields_KbArticle::VIEWS:
