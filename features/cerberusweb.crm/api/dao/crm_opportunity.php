@@ -245,11 +245,17 @@ class DAO_CrmOpportunity extends C4_ORMHelper {
 			(isset($tables['context_link']) ? "INNER JOIN context_link ON (context_link.to_context = 'cerberusweb.contexts.opportunity' AND context_link.to_context_id = o.id) " : " ")
 			;
 			
+		$cfield_index_map = array(
+			CerberusContexts::CONTEXT_OPPORTUNITY => 'o.id',
+			CerberusContexts::CONTEXT_ADDRESS => 'a.id',
+			CerberusContexts::CONTEXT_ORG => 'a.contact_org_id',
+		);
+			
 		// Custom field joins
 		list($select_sql, $join_sql, $has_multiple_values) = self::_appendSelectJoinSqlForCustomFieldTables(
 			$tables,
 			$params,
-			'o.id',
+			$cfield_index_map,
 			$select_sql,
 			$join_sql
 		);
@@ -423,8 +429,13 @@ class SearchFields_CrmOpportunity implements IDevblocksSearchFields {
 			self::VIRTUAL_WATCHERS => new DevblocksSearchField(self::VIRTUAL_WATCHERS, '*', 'workers', $translate->_('common.watchers')),
 		);
 		
-		// Custom Fields
-		$fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_OPPORTUNITY);
+		// Custom Fields: opp + addy + org
+		$fields = 
+			DAO_CustomField::getByContext(CerberusContexts::CONTEXT_OPPORTUNITY) + 
+			DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ADDRESS) + 
+			DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ORG)
+		;
+		
 		if(is_array($fields))
 		foreach($fields as $field_id => $field) {
 			$key = 'cf_'.$field_id;
@@ -582,6 +593,13 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 
 		$workers = DAO_Worker::getAll();
 		$tpl->assign('workers', $workers);
+		
+		$custom_fields = 
+			DAO_CustomField::getByContext(CerberusContexts::CONTEXT_OPPORTUNITY) + 
+			DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ADDRESS) + 
+			DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ORG)
+			; 
+		$tpl->assign('custom_fields', $custom_fields);
 		
 		switch($this->renderTemplate) {
 			case 'contextlinks_chooser':
