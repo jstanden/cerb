@@ -14,13 +14,13 @@
 		
 		{$memberships = $worker->getMemberships()}
 		{if !empty($memberships)}
-		<div style="margin:5px 0px;">
-			Member of: 
+		Member of: 
+		<ul class="bubbles">
 			{foreach from=$memberships item=member key=group_id name=groups}
 				{$group = $groups.{$group_id}}
-				<a href="{devblocks_url}c=profiles&k=group&id={$group->id}-{$group->name|devblocks_permalink}{/devblocks_url}" style="{if $member->is_manager}font-weight:bold;{/if}">{$group->name}</a>{if !$smarty.foreach.groups.last}, {/if}
+				<li><a href="{devblocks_url}c=profiles&k=group&id={$group->id}-{$group->name|devblocks_permalink}{/devblocks_url}" style="{if $member->is_manager}font-weight:bold;{/if}">{$group->name}</a></li>
 			{/foreach}
-		</div>
+		</ul>
 		{/if}
 		
 	</div>
@@ -40,6 +40,12 @@
 		{if $worker->id == $active_worker->id}
 		{$tabs[] = 'notifications'}
 		<li><a href="{devblocks_url}ajax.php?c=preferences&a=showMyNotificationsTab{/devblocks_url}">{'home.tab.my_notifications'|devblocks_translate}</a></li>
+		{/if}
+		
+		{* [TODO] Show read-only for all others *}
+		{if $worker->id == $active_worker->id}
+		{$tabs[] = 'attendant'}
+		<li><a href="{devblocks_url}ajax.php?c=internal&a=showAttendantTab&point={$point}&context={CerberusContexts::CONTEXT_WORKER}&context_id={$active_worker->id}{/devblocks_url}">Virtual Attendant</a></li>
 		{/if}
 
 		{$tabs[] = 'activity'}

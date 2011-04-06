@@ -16,7 +16,7 @@
 
 <br>
 
-<button type="submit" class="green"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {$translate->_('common.save_changes')|capitalize}</button>
+<button type="submit"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {$translate->_('common.save_changes')|capitalize}</button>
 {if !empty($instance)}<button type="button" class="red" onclick="if(confirm('{$translate->_('portal.cfg.confirm_delete')}')){literal}{this.form.do_delete.value='1';this.form.submit();}{/literal}"><span class="cerb-sprite2 sprite-cross-circle-frame"></span> {$translate->_('common.delete')|capitalize}</button>{/if}
 
 </form>
