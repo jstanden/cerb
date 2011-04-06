@@ -616,10 +616,10 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 				&& !empty($model[DAO_Ticket::IS_CLOSED])
 				&& empty($model[DAO_Ticket::IS_DELETED])
 				) {
-					$logger = DevblocksPlatform::getConsoleLog();
-					$log_level = $logger->setLogLevel(7);
+					//$logger = DevblocksPlatform::getConsoleLog();
+					//$log_level = $logger->setLogLevel(7);
 					Event_MailClosedInGroup::trigger($object_id, $model[DAO_Ticket::TEAM_ID]);
-					$logger->setLogLevel($log_level);
+					//$logger->setLogLevel($log_level);
 			}	    	
     	}
 	}
