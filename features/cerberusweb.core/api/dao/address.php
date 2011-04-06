@@ -352,11 +352,16 @@ class DAO_Address extends C4_ORMHelper {
 			(isset($tables['context_link']) ? "INNER JOIN context_link ON (context_link.to_context = 'cerberusweb.contexts.address' AND context_link.to_context_id = a.id) " : " ")
 			;
 
+		$cfield_index_map = array(
+			CerberusContexts::CONTEXT_TICKET => 'a.id',
+			CerberusContexts::CONTEXT_ORG => 'a.contact_org_id',
+		);
+			
 		// Custom field joins
 		list($select_sql, $join_sql, $has_multiple_values) = self::_appendSelectJoinSqlForCustomFieldTables(
 			$tables,
 			$params,
-			'a.id',
+			$cfield_index_map,
 			$select_sql,
 			$join_sql
 		);
@@ -477,8 +482,12 @@ class SearchFields_Address implements IDevblocksSearchFields {
 			self::CONTEXT_LINK_ID => new DevblocksSearchField(self::CONTEXT_LINK_ID, 'context_link', 'from_context_id', null),
 		);
 		
-		// Custom Fields
-		$fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ADDRESS);
+		// Custom Fields: addy + org
+		$fields = 
+			DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ADDRESS) + 
+			DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ORG)
+		;
+		
 		if(is_array($fields))
 		foreach($fields as $field_id => $field) {
 			$key = 'cf_'.$field_id;
@@ -632,8 +641,11 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals {
 		
 		$tpl->assign('view', $this);
 
-		$address_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ADDRESS);
-		$tpl->assign('custom_fields', $address_fields);
+		$custom_fields = 
+			DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ADDRESS) + 
+			DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ORG)
+			; 
+		$tpl->assign('custom_fields', $custom_fields);
 		
 		switch($this->renderTemplate) {
 			case 'contextlinks_chooser':
