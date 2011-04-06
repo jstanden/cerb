@@ -28,8 +28,9 @@
 			
 			{devblocks_url assign=worker_url}c=profiles&k=worker&id=me{/devblocks_url}
 			{$worker_name =''|cat:'<b><a href="'|cat:$worker_url|cat:'">'|cat:$active_worker->getName()|cat:'</a></b>'}
-			{'header.signed_in'|devblocks_translate:$worker_name nofilter}
-			(<a href="{devblocks_url}c=login&a=signout{/devblocks_url}">{$translate->_('header.signoff')|lower}</a>)
+			<span style="margin-right:10px;">{'header.signed_in'|devblocks_translate:$worker_name nofilter}</span>
+			<a href="{devblocks_url}c=profiles&w=worker&me=me{/devblocks_url}">my profile</a>
+			 | <a href="{devblocks_url}c=login&a=signout{/devblocks_url}">{$translate->_('header.signoff')|lower}</a>
 		{/if}
 		</td>
 	</tr>
