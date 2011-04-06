@@ -301,8 +301,15 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 						case 'is':
 							$pass = (0==strcasecmp($value,$params['value']));
 							break;
+						case 'like':
+							$regexp = DevblocksPlatform::strToRegExp($params['value']);
+							$pass = @preg_match($regexp, $value);
+							break;
 						case 'contains':
 							$pass = (false !== stripos($value, $params['value'])) ? true : false;
+							break;
+						case 'regexp':
+							$pass = @preg_match($params['value'], $value);
 							break;
 						//case 'words_all':
 						//	break;
