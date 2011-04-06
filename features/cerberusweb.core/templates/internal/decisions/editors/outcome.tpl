@@ -103,7 +103,7 @@
 			$ul.append($container);
 
 			$html.find('BUTTON.chooser_worker.unbound').each(function() {
-				ajax.chooser(this,'cerberusweb.contexts.worker','action'+seq+'[worker_id]', { autocomplete:true });
+				ajax.chooser(this,'cerberusweb.contexts.worker','condition'+seq+'[worker_id]', { autocomplete:true });
 				$(this).removeClass('unbound');
 			});
 			
