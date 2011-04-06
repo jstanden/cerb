@@ -14,7 +14,6 @@
 		
 		{$memberships = $worker->getMemberships()}
 		{if !empty($memberships)}
-		Member of: 
 		<ul class="bubbles">
 			{foreach from=$memberships item=member key=group_id name=groups}
 				{$group = $groups.{$group_id}}

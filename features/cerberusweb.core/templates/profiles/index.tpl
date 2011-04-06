@@ -14,13 +14,12 @@
 		
 		{$memberships = $worker->getMemberships()}
 		{if !empty($memberships)}
-		<div style="margin:5px 0px;">
-			Member of: 
-			{foreach from=$memberships item=member key=group_id name=groups}
-				{$group = $groups.{$group_id}}
-				<a href="{devblocks_url}c=profiles&k=group&id={$group->id}-{$group->name|devblocks_permalink}{/devblocks_url}" style="{if $member->is_manager}font-weight:bold;{/if}">{$group->name}</a>{if !$smarty.foreach.groups.last}, {/if}
-			{/foreach}
-		</div>
+		<ul class="bubbles">
+		{foreach from=$memberships item=member key=group_id name=groups}
+			{$group = $groups.{$group_id}}
+			<li><a href="{devblocks_url}c=profiles&k=group&id={$group->id}-{$group->name|devblocks_permalink}{/devblocks_url}" style="{if $member->is_manager}font-weight:bold;{/if}">{$group->name}</a></li>
+		{/foreach}
+		</ul>
 		{/if}
 		
 	</div>
