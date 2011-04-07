@@ -1276,7 +1276,7 @@ class ChInternalController extends DevblocksControllerExtension {
 	 * Triggers
 	 */
 
-	function showAssistantTabAction() {
+	function showAttendantTabAction() {
 		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
 		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer',0);
 		@$point = DevblocksPlatform::importGPC($_REQUEST['point'],'string','');
@@ -1293,7 +1293,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		
 		// Remember tab
 		if(!empty($point))
-			$visit->set($point, 'assistant');
+			$visit->set($point, 'attendant');
 
 		$tpl->assign('context', $context);
 		$tpl->assign('context_id', $context_id);

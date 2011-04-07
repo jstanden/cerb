@@ -92,5 +92,6 @@
 		});
 	}
 	
-	//$('DIV.branch').sortable({ items:'DIV', placeholder:'ui-state-highlight' });
+	//$('#triggers fieldset div.branch.switch').sortable({ items:'> DIV.outcome', placeholder:'ui-state-highlight', distance: 15, handle:'span.handle', connectWith:'DIV.branch.switch' });
+	//$('#triggers fieldset div.branch').sortable({ items:'> DIV.action', placeholder:'ui-state-highlight', distance: 15, handle:'span.handle', connectWith:'DIV.branch.outcome' });
 </script>

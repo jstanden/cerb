@@ -10,11 +10,11 @@
 	{* [TODO] Show a tree excluding the current branch *}
 	<div class="container">
 		{foreach from=$children item=child}
-		<div class="item">
+		<div class="item" style="margin:2px;">
+			<span class="ui-icon ui-icon-arrowthick-2-n-s" style="display:inline-block;vertical-align:middle;"></span>
 			<div class="badge badge-lightgray">
 				<input type="hidden" name="child_id[]" value="{$child->id}">
-				<span class="ui-icon ui-icon-arrowthick-2-n-s" style="display:inline-block;vertical-align:middle;"></span> 
-				{$child->title} 
+				<b>{$child->title}</b> 
 			</div>
 		</div>
 		{/foreach}
