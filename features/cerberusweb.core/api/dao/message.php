@@ -911,6 +911,19 @@ class DAO_MessageHeader {
         return $headers;
     }
     
+    static function getOne($message_id, $header_name) {
+        $db = DevblocksPlatform::getDatabaseService();
+        
+        $sql = sprintf("SELECT header_value ".
+            "FROM message_header ".
+            "WHERE message_id = %d ".
+            "AND header_name = %s ",
+        	$message_id,
+        	$db->qstr($header_name)
+        );
+        return $db->GetOne($sql); 
+    }
+    
     static function getUnique() {
         $db = DevblocksPlatform::getDatabaseService();
         $headers = array();
