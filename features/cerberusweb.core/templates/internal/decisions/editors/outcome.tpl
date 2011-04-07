@@ -5,6 +5,7 @@
 {if isset($parent_id)}<input type="hidden" name="parent_id" value="{$parent_id}">{/if}
 {if isset($type)}<input type="hidden" name="type" value="{$type}">{/if}
 {if isset($trigger_id)}<input type="hidden" name="trigger_id" value="{$trigger_id}">{/if}
+<input type="hidden" name="match_any" value="{$model->params.match_any}">
 
 <b>{'common.title'|devblocks_translate|capitalize}:</b><br>
 <input type="text" name="title" value="{$model->title}" style="width:100%;"><br>
@@ -12,15 +13,12 @@
 
 <fieldset>
 	<legend>
-		If
-		{*
-		<select name="scope">
-			<option value="all" selected="selected">all</option>
-			<option value="any">any</option>
-		</select>
-		*}
-		<u>all</u> of these conditions are satisfied
+		If <u>{if $model->params.match_any}any{else}all{/if}&#x25be;</u> of these conditions are satisfied
 	</legend>
+	<ul class="cerb-popupmenu cerb-float" style="margin-top:-5px;">
+		<li><a href="javascript:;" class="all">all</a></li>
+		<li><a href="javascript:;" class="any">any</a></li>
+	</ul>
 
 	<ul class="rules" style="margin:0px;list-style:none;padding:0px;">
 		{$seq = null}
@@ -66,6 +64,43 @@
 	$popup.one('popup_open', function(event,ui) {
 		$(this).dialog('option','title',"{if empty($id)}New {/if}Outcome");
 
+		var $frm = $popup.find('form#frmDecision');
+		var $legend = $popup.find('fieldset legend');
+		var $menu = $popup.find('fieldset ul.cerb-popupmenu:first'); 
+
+		$menu.hover(
+			function(e) {
+			},
+			function(e) {
+				$menu.hide();
+			}
+		);
+		
+		$menu.find('> li').click(function(e) {
+			e.stopPropagation();
+			if(!$(e.target).is('li'))
+				return;
+
+			$(this).find('a').trigger('click');
+		});
+		
+		$menu.find('> li > a.any').click(function() {
+			$legend.find('u').html('any&#x25be;');
+			$frm.find('input:hidden[name=match_any]').val('1');
+			$menu.hide();
+		});
+		$menu.find('> li > a.all').click(function() {
+			$legend.find('u').html('all&#x25be;');
+			$frm.find('input:hidden[name=match_any]').val('0');
+			$menu.hide();
+		});
+		
+		$legend.find('u').hover(
+			function(e) {
+				$menu.show();
+			}
+		);
+		
 		$popup.find('BUTTON.chooser_worker.unbound').each(function() {
 			seq = $(this).closest('fieldset').find('input:hidden[name="conditions[]"]').val();
 			ajax.chooser(this,'cerberusweb.contexts.worker','condition'+seq+'[worker_id]', { autocomplete:true });

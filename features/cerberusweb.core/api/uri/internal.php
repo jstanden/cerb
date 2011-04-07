@@ -1645,6 +1645,10 @@ class ChInternalController extends DevblocksControllerExtension {
 				
 			case 'outcome':
 				@$condition_ids = DevblocksPlatform::importGPC($_REQUEST['conditions'],'array',array());
+				@$match_any = DevblocksPlatform::importGPC($_REQUEST['match_any'],'integer',0);
+				$params = array(
+					'match_any' => !empty($match_any) ? 1 : 0,
+				);
 				$params['conditions'] = $this->_parseConditions($condition_ids, $_POST);
 				DAO_DecisionNode::update($id, array(
 					DAO_DecisionNode::PARAMS_JSON => json_encode($params), 

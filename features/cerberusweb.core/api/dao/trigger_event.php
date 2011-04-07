@@ -348,15 +348,18 @@ class Model_TriggerEvent {
 		// If these conditions match...
 		if(!empty($node_id)) {
 			$logger->info($nodes[$node_id]->node_type . ' :: ' . $nodes[$node_id]->title . ' (' . $node_id . ')');
-			//var_dump($nodes[$node_id]->node_type);
-			//var_dump($nodes[$node_id]->params);
+//			var_dump($nodes[$node_id]->node_type);
+//			var_dump($nodes[$node_id]->params);
 			
 			// Handle the node type
 			switch($nodes[$node_id]->node_type) {
 				case 'outcome':
-						if(!$pass) // skip once false [TODO] for 'ALL' scope
+					@$match_any = intval(@$nodes[$node_id]->params['match_any']);
+					
 					if(is_array(@$nodes[$node_id]->params['conditions']))
 					foreach($nodes[$node_id]->params['conditions'] as $params) {
+						// All
+						if(!$pass && empty($match_any))
 							continue;
 							
 						if(!isset($params['condition']))
@@ -365,6 +368,10 @@ class Model_TriggerEvent {
 						$condition = $params['condition'];
 						
 						$pass = $event->runCondition($condition, $this, $params, $dictionary);
+						
+						// Any
+						if($pass && !empty($match_any))
+							break;
 					}
 					
 					if($pass)
@@ -390,10 +397,13 @@ class Model_TriggerEvent {
 						$event->runAction($action, $this, $params, $dictionary);
 					}
 					break;
-			}			
+			}
+			
+			if($nodes[$node_id]->node_type == 'outcome') {
+				$logger->info($pass ? '...PASS' : '...FAIL');
+			}
+			$logger->info('');
 		}
-		
-		//$logger->info($pass ? 'true' : 'false');
 		
 		if($pass)
 			$path[$node_id] = $pass;
