@@ -1708,7 +1708,7 @@ class Event_MailMovedToGroup extends Extension_DevblocksEvent {
 			'create_task' => array('label' =>'Create a task'),
 			'create_ticket' => array('label' =>'Create a ticket'),
 			'move_to_bucket' => array('label' => 'Move to bucket'),
-			//'move_to_group' => array('label' => 'Move to group'),
+			'move_to_group' => array('label' => 'Move to group'),
 			'send_email' => array('label' => 'Send email'),
 			'send_email_recipients' => array('label' => 'Send email to recipients'),
 			'set_spam_training' => array('label' => 'Set spam training'),
@@ -1767,6 +1767,13 @@ class Event_MailMovedToGroup extends Extension_DevblocksEvent {
 				$buckets = DAO_Bucket::getByTeam($trigger->owner_context_id);
 				$tpl->assign('buckets', $buckets);
 				$tpl->display('devblocks:cerberusweb.core::events/mail_received_by_group/action_move_to_bucket.tpl');
+				break;
+				
+			case 'move_to_group':
+				// [TODO] Share
+				$groups = DAO_Group::getAll();
+				$tpl->assign('groups', $groups);
+				$tpl->display('devblocks:cerberusweb.core::events/mail_received_by_group/action_move_to_group.tpl');
 				break;
 				
 		}
@@ -2210,7 +2217,7 @@ class Event_MailReceivedByGroup extends Extension_DevblocksEvent {
 			'create_task' => array('label' =>'Create a task'),
 			'create_ticket' => array('label' =>'Create a ticket'),
 			'move_to_bucket' => array('label' => 'Move to bucket'),
-			//'move_to_group' => array('label' => 'Move to group'),
+			'move_to_group' => array('label' => 'Move to group'),
 			'send_email' => array('label' => 'Send email'),
 			'send_email_recipients' => array('label' => 'Send email to recipients'),
 			'set_spam_training' => array('label' => 'Set spam training'),
@@ -2265,10 +2272,17 @@ class Event_MailReceivedByGroup extends Extension_DevblocksEvent {
 				break;
 				
 			case 'move_to_bucket':
-				// [TODO] Use trigger cache
+				// [TODO] Share
 				$buckets = DAO_Bucket::getByTeam($trigger->owner_context_id);
 				$tpl->assign('buckets', $buckets);
 				$tpl->display('devblocks:cerberusweb.core::events/mail_received_by_group/action_move_to_bucket.tpl');
+				break;
+				
+			case 'move_to_group':
+				// [TODO] Use trigger cache
+				$groups = DAO_Group::getAll();
+				$tpl->assign('groups', $groups);
+				$tpl->display('devblocks:cerberusweb.core::events/mail_received_by_group/action_move_to_group.tpl');
 				break;
 				
 		}
