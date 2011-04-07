@@ -24,7 +24,8 @@
 
 	<ul class="rules" style="margin:0px;list-style:none;padding:0px;">
 		{$seq = null}
-		{foreach from=$model->params item=params key=seq}
+		{if isset($model->params.conditions) && is_array($model->params.conditions)}
+		{foreach from=$model->params.conditions item=params key=seq}
 			<li style="padding-bottom:5px;">
 				<input type="hidden" name="conditions[]" value="{$seq}">
 				<input type="hidden" name="condition{$seq}[condition]" value="{$params.condition}">
@@ -35,6 +36,7 @@
 				</div>
 			</li>
 		{/foreach}
+		{/if}
 	</ul>
 </fieldset>
 </form>

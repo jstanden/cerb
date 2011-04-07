@@ -13,7 +13,8 @@
 <div class="actions">
 
 {$seq = null}
-{foreach from=$model->params item=params key=seq}
+{if isset($model->params.actions) && is_array($model->params.actions)}
+{foreach from=$model->params.actions item=params key=seq}
 <fieldset>
 	<legend>
 		<a href="javascript:;" onclick="$(this).closest('fieldset').remove();"><span class="cerb-sprite2 sprite-minus-circle-frame"></span></a>
@@ -26,6 +27,7 @@
 	{$event->renderAction({$params.action},$trigger,$params,$seq)}
 </fieldset>
 {/foreach}
+{/if}
 
 </div>
 

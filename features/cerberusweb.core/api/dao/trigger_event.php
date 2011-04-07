@@ -354,9 +354,9 @@ class Model_TriggerEvent {
 			// Handle the node type
 			switch($nodes[$node_id]->node_type) {
 				case 'outcome':
-					if(is_array($nodes[$node_id]->params))
-					foreach($nodes[$node_id]->params as $params) {
 						if(!$pass) // skip once false [TODO] for 'ALL' scope
+					if(is_array(@$nodes[$node_id]->params['conditions']))
+					foreach($nodes[$node_id]->params['conditions'] as $params) {
 							continue;
 							
 						if(!isset($params['condition']))
@@ -381,8 +381,8 @@ class Model_TriggerEvent {
 					EventListener_Triggers::logNode($node_id);
 					
 					// Run all the actions
-					if(is_array($nodes[$node_id]->params))
-					foreach($nodes[$node_id]->params as $params) {
+					if(is_array(@$nodes[$node_id]->params['actions']))
+					foreach($nodes[$node_id]->params['actions'] as $params) {
 						if(!isset($params['action']))
 							continue;
 

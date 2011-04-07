@@ -338,7 +338,7 @@ if(!empty($todo)) {
 					$parent_id,
 					$trigger_id,
 					$db->qstr('Yes'),
-					$db->qstr('[{"condition":"is_first","bool":"1"},{"condition":"is_outgoing","bool":"0"}]'),
+					$db->qstr('{"match_any":0,"conditions":[{"condition":"is_first","bool":"1"},{"condition":"is_outgoing","bool":"0"}]}'),
 					$db->qstr('outcome'),
 					1
 				));
@@ -351,7 +351,7 @@ if(!empty($todo)) {
 					$parent_id,
 					$trigger_id,
 					$db->qstr('Send new ticket auto-reply'),
-					$db->qstr('[{"action":"send_email_recipients","content":' . json_encode($content) . ',"is_autoreply":"1"}]'),
+					$db->qstr('{"actions":[{"action":"send_email_recipients","content":' . json_encode($content) . ',"is_autoreply":"1"}]}'),
 					$db->qstr('action'),
 					2
 				));
@@ -412,7 +412,7 @@ if(!empty($todo)) {
 					0,
 					$trigger_id,
 					$db->qstr('Send closed ticket auto-reply'),
-					$db->qstr('[{"action":"send_email_recipients","content":' . json_encode($content) . ',"is_autoreply":"1"}]'),
+					$db->qstr('{"actions":[{"action":"send_email_recipients","content":' . json_encode($content) . ',"is_autoreply":"1"}]}'),
 					$db->qstr('action'),
 					0
 				));
@@ -455,7 +455,7 @@ if(!empty($todo)) {
 					$parent_id,
 					$trigger_id,
 					$db->qstr('Yes'),
-					$db->qstr('[{"condition":"is_first","bool":"1"},{"condition":"is_outgoing","bool":"0"},{"condition":"ticket_status","oper":"in","values":["open"]},{"condition":"ticket_spam_training","oper":"!in","values":["N"]},{"condition":"ticket_spam_score","oper":"gt","value":'.json_encode($spam_threshold).'}]'),
+					$db->qstr('{"match_any":0,"conditions":[{"condition":"is_first","bool":"1"},{"condition":"is_outgoing","bool":"0"},{"condition":"ticket_status","oper":"in","values":["open"]},{"condition":"ticket_spam_training","oper":"!in","values":["N"]},{"condition":"ticket_spam_score","oper":"gt","value":'.json_encode($spam_threshold).'}]}'),
 					$db->qstr('outcome'),
 					1
 				));
@@ -471,7 +471,7 @@ if(!empty($todo)) {
 							$parent_id,
 							$trigger_id,
 							$db->qstr('Delete ticket'),
-							$db->qstr('[{"action":"set_status","status":"deleted"}]'),
+							$db->qstr('{"actions":[{"action":"set_status","status":"deleted"}]}'),
 							$db->qstr('action'),
 							2
 						));
@@ -485,7 +485,7 @@ if(!empty($todo)) {
 							$parent_id,
 							$trigger_id,
 							$db->qstr('Quarantine'),
-							$db->qstr('[{"action":"move_to_bucket","bucket_id":'.json_encode($spam_action_param).'}] '),
+							$db->qstr('{"actions":[{"action":"move_to_bucket","bucket_id":'.json_encode($spam_action_param).'}]} '),
 							$db->qstr('action'),
 							2
 						));

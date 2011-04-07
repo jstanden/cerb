@@ -1645,17 +1645,18 @@ class ChInternalController extends DevblocksControllerExtension {
 				
 			case 'outcome':
 				@$condition_ids = DevblocksPlatform::importGPC($_REQUEST['conditions'],'array',array());
-				$parsed = $this->_parseConditions($condition_ids, $_POST);
+				$params['conditions'] = $this->_parseConditions($condition_ids, $_POST);
 				DAO_DecisionNode::update($id, array(
-					DAO_DecisionNode::PARAMS_JSON => json_encode($parsed), 
+					DAO_DecisionNode::PARAMS_JSON => json_encode($params), 
 				));
 				break;
 				
 			case 'action':
 				@$action_ids = DevblocksPlatform::importGPC($_REQUEST['actions'],'array',array());
-				$parsed = $this->_parseActions($action_ids, $_POST);
+				$params = array();
+				$params['actions'] = $this->_parseActions($action_ids, $_POST);
 				DAO_DecisionNode::update($id, array(
-					DAO_DecisionNode::PARAMS_JSON => json_encode($parsed), 
+					DAO_DecisionNode::PARAMS_JSON => json_encode($params), 
 				));
 				break;
 				
@@ -1665,23 +1666,23 @@ class ChInternalController extends DevblocksControllerExtension {
 	}
 	
 	private function _parseConditions($condition_ids, $scope) {
-		$object = array();
+		$objects = array();
 		
 		foreach($condition_ids as $condition_id) {
-			$object[] = $scope['condition'.$condition_id];
+			$objects[] = $scope['condition'.$condition_id];
 		}
 		
-		return $object;
+		return $objects;
 	}
 	
 	private function _parseActions($action_ids, $scope) {
-		$object = array();
+		$objects = array();
 		
 		foreach($action_ids as $action_id) {
-			$object[] = $scope['action'.$action_id];
+			$objects[] = $scope['action'.$action_id];
 		}
 		
-		return $object;
+		return $objects;
 	}
 
 	function showDecisionNodeMenuAction() {
