@@ -612,10 +612,13 @@ UL.cerb-popupmenu {
 
 UL.cerb-popupmenu.cerb-float {
 	position:absolute;
-	z-index:9999;
-	float:left;	
-	background-color:rgb(245,245,245);
-	border:1px solid rgb(200,200,200);
+	z-index:1500;
+	float:left;
+	background-color:rgb(232,242,254);
+	background: -webkit-gradient(linear, left top, left bottom, from(rgb(232,242,254)), to(rgb(255,255,255)));
+	background: -moz-linear-gradient(top, rgb(232,242,254), rgb(255,255,255));
+	background: -o-linear-gradient(top, rgb(232,242,254),  rgb(255,255,255));
+	border:1px solid rgb(152,162,200);
 }
 
 UL.cerb-popupmenu > LI {
@@ -626,6 +629,8 @@ UL.cerb-popupmenu > LI {
 
 UL.cerb-popupmenu > LI A {
 	text-decoration:none;
+	color:rgb(74,110,158);
+	font-weight:bold;
 }
 
 UL.cerb-popupmenu > LI:hover {
@@ -969,6 +974,28 @@ button span.cerb-sprite2 { display:inline-block; }
 
 .ui-state-highlight, .ui-widget-content .ui-state-highlight { background: #fbec88 none; }
 .ui-state-error, .ui-widget-content .ui-state-error { background: #fef1ec none; } 
+
+/* Autocomplete */
+
+UL.ui-autocomplete.ui-menu {
+	background-color:rgb(232,242,254);
+	background: -webkit-gradient(linear, left top, left bottom, from(rgb(232,242,254)), to(rgb(255,255,255)));
+	background: -moz-linear-gradient(top, rgb(232,242,254), rgb(255,255,255));
+	background: -o-linear-gradient(top, rgb(232,242,254),  rgb(255,255,255));
+	border:1px solid rgb(152,162,200);
+}
+
+UL.ui-autocomplete.ui-menu .ui-menu-item a {
+	color:rgb(74,110,158);
+	font-weight:bold;
+}
+
+UL.ui-autocomplete.ui-menu .ui-menu-item a.ui-state-hover {
+	background-color:rgb(105,140,221);
+	color:rgb(255,255,255);
+}
+
+/* Tabs */
 
 .ui-tabs {
 	border: 0px;
