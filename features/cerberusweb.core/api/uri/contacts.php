@@ -1085,7 +1085,6 @@ class ChContactsPage extends CerberusPageExtension {
 				}
 				
 				switch($cfield_type) {
-					case 'M':
 					case 'X':
 						// Combine all the values into one array
 						$newvals = array();

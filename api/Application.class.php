@@ -1139,7 +1139,6 @@ class C4_ORMHelper extends DevblocksORMHelper {
 
 			$has_multiple_values = false;
 			switch($custom_fields[$field_id]->type) {
-				case Model_CustomField::TYPE_MULTI_PICKLIST:
 				case Model_CustomField::TYPE_MULTI_CHECKBOX:
 					$has_multiple_values = true;
 					break;

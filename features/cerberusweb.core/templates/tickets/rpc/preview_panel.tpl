@@ -154,13 +154,6 @@
 									<option value="{$opt}" {if $opt==$custom_field_values.$f_id}selected{/if}>{$opt}</option>
 									{/foreach}
 								</select><br>
-							{elseif $f->type=='M'}
-								<select name="field_{$f_id}[]" size="5" multiple="multiple">
-									{foreach from=$f->options item=opt}
-									<option value="{$opt}" {if isset($custom_field_values.$f_id.$opt)}selected="selected"{/if}>{$opt}</option>
-									{/foreach}
-								</select><br>
-								<i><small>{$translate->_('common.tips.multi_select')}</small></i>
 							{elseif $f->type=='E'}
 								<input type="text" name="field_{$f_id}" size="35" maxlength="255" value="{if !empty($custom_field_values.$f_id)}{$custom_field_values.$f_id|devblocks_date}{/if}"><button type="button" onclick="devblocksAjaxDateChooser(this.form.field_{$f_id},'#dateCustom{$f_id}');">&nbsp;<span class="cerb-sprite sprite-calendar"></span>&nbsp;</button>
 								<div id="dateCustom{$f_id}"></div>

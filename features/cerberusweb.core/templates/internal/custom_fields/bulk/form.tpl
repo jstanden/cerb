@@ -50,25 +50,6 @@
 						<option value="{$opt}" {if $opt==$custom_field_values.$f_id}selected="selected"{/if}>{$opt}</option>
 						{/foreach}
 					</select>
-				{elseif $f->type=='M'}
-					{if $bulk}
-						{foreach from=$f->options item=opt}
-							<select name="field_{$f_id}[]">
-								<option value=""></option>
-								<option value="+{$opt}">set</option>
-								<option value="-{$opt}">unset</option>
-							</select>
-							{$opt}
-							<br>
-						{/foreach}
-					{else}
-						<select name="field_{$f_id}[]" size="5" multiple="multiple">
-							{foreach from=$f->options item=opt}
-							<option value="{$opt}" {if isset($custom_field_values.$f_id.$opt)}selected="selected"{/if}>{$opt}</option>
-							{/foreach}
-						</select><br>
-						<i><small>{$translate->_('common.tips.multi_select')}</small></i>
-					{/if}
 				{elseif $f->type=='W'}
 					{if empty($workers)}
 						{$workers = DAO_Worker::getAllActive()}

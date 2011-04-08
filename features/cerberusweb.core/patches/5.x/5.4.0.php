@@ -539,4 +539,9 @@ foreach($results as $row) {
 	));
 }
 
+// ===========================================================================
+// Convert multi-picklist to multi-checkbox
+
+$db->Execute("UPDATE custom_field SET type = 'X' where type = 'M'");
+
 return TRUE;

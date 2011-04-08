@@ -9,12 +9,6 @@
 	{$values.{$field->id}|escape|nl2br nofilter}
 {elseif $field->type=='D'}
 	{$values.{$field->id}}
-{elseif $field->type=='M'}
-	{if is_array($values.{$field->id})}
-	{foreach from=$values.{$field->id} item=row name=rows}
-	{$row}<br>
-	{/foreach}
-	{/if}
 {elseif $field->type=='W'}
 	{if empty($workers)}
 		{$workers = DAO_Worker::getAllActive()}

@@ -340,7 +340,6 @@ class ChGroupsPage extends CerberusPageExtension  {
 								$criteria['oper'] = $oper;
 								break;
 							case 'D': // dropdown
-							case 'M': // multi-dropdown
 							case 'X': // multi-checkbox
 							case 'W': // worker
 								$in_array = DevblocksPlatform::importGPC($_REQUEST['value_cf_'.$field_id],'array',array());
@@ -446,7 +445,6 @@ class ChGroupsPage extends CerberusPageExtension  {
 								$value = DevblocksPlatform::importGPC($_REQUEST['do_cf_'.$field_id],'string','');
 								$action['value'] = $value;
 								break;
-							case 'M': // multi-dropdown
 							case 'X': // multi-checkbox
 								$in_array = DevblocksPlatform::importGPC($_REQUEST['do_cf_'.$field_id],'array',array());
 								$out_array = array();

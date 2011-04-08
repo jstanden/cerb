@@ -1221,11 +1221,6 @@
         <seg>%s Sek.</seg>
       </tuv>
     </tu>
-    <tu tuid="common.tips.multi_select">
-      <tuv xml:lang="de_DE">
-        <seg>(STRG gedrückt halten, um mehrere Optionen auszuwählen)</seg>
-      </tuv>
-    </tu>
     <tu tuid="common.title">
       <tuv xml:lang="de_DE">
         <seg>Titel</seg>

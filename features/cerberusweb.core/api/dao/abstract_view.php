@@ -243,7 +243,6 @@ abstract class C4_AbstractView {
 		
 		switch($field->type) {
 			case Model_CustomField::TYPE_DROPDOWN:
-			case Model_CustomField::TYPE_MULTI_PICKLIST:
 			case Model_CustomField::TYPE_MULTI_CHECKBOX:
 				$tpl->assign('field', $field);
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__cfield_picklist.tpl');
@@ -287,7 +286,6 @@ abstract class C4_AbstractView {
 		
 		switch($field->type) {
 			case Model_CustomField::TYPE_DROPDOWN:
-			case Model_CustomField::TYPE_MULTI_PICKLIST:
 			case Model_CustomField::TYPE_MULTI_CHECKBOX:
 				@$options = DevblocksPlatform::importGPC($_POST['options'],'array',array());
 				if(!empty($options)) {
@@ -520,7 +518,6 @@ abstract class C4_AbstractView {
 			case Model_CustomField::TYPE_CHECKBOX:
 			case Model_CustomField::TYPE_DROPDOWN:
 			case Model_CustomField::TYPE_MULTI_CHECKBOX:
-			case Model_CustomField::TYPE_MULTI_PICKLIST:
 			case Model_CustomField::TYPE_SINGLE_LINE:
 			case Model_CustomField::TYPE_WORKER:
 				$pass = true;
@@ -831,7 +828,6 @@ abstract class C4_AbstractView {
 				break;
 				
 			case Model_CustomField::TYPE_DROPDOWN:
-			case Model_CustomField::TYPE_MULTI_PICKLIST:
 			case Model_CustomField::TYPE_MULTI_CHECKBOX:
 			case Model_CustomField::TYPE_SINGLE_LINE:
 				$select = sprintf(
@@ -871,7 +867,6 @@ abstract class C4_AbstractView {
 								break;
 							case Model_CustomField::TYPE_DROPDOWN:
 							case Model_CustomField::TYPE_MULTI_CHECKBOX:
-							case Model_CustomField::TYPE_MULTI_PICKLIST:
 								$oper = DevblocksSearchCriteria::OPER_IN;
 								$values = array('options[]' => $label);
 								break;
@@ -982,8 +977,7 @@ abstract class C4_AbstractView {
 			}
 
 			// If multi-selection types, handle delta changes
-			if(Model_CustomField::TYPE_MULTI_PICKLIST==$fields[$cf_id]->type 
-				|| Model_CustomField::TYPE_MULTI_CHECKBOX==$fields[$cf_id]->type) {
+			if(Model_CustomField::TYPE_MULTI_CHECKBOX==$fields[$cf_id]->type) {
 				if(is_array($cf_val))
 				foreach($cf_val as $val) {
 					$op = substr($val,0,1);

@@ -13,13 +13,6 @@
 		<option value="{$opt}" {if $opt==$values.{$field->id}}selected="selected"{/if}>{$opt}
 		{/foreach}
 	</select>
-{elseif $field->type=='M'}
-	<select name="{$field_prefix}_{$field->id}[]" size="5" multiple="multiple">
-		{foreach from=$field->options item=opt}
-		<option value="{$opt}" {if is_array($values.{$field->id}) && in_array($opt,$values.{$field->id})}selected="selected"{/if}>{$opt}
-		{/foreach}
-	</select><br>
-	<i><small>{$translate->_('common.tips.multi_select')}</small></i>
 {elseif $field->type=='W'}
 	{if empty($workers)}
 		{$workers = DAO_Worker::getAllActive()}

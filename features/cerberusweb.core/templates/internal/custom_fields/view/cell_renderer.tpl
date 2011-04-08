@@ -13,8 +13,6 @@
 	<td title="{$result.$column}">{$result.$column|truncate:32}</td>
 {elseif $col->type=='D'}
 	<td>{$result.$column}</td>
-{elseif $col->type=='M'}
-	<td>{$result.$column}</td>
 {elseif $col->type=='X'}
 	<td>{$result.$column}</td>
 {elseif $col->type=='E'}

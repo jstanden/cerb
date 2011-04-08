@@ -168,7 +168,6 @@ class PageSection_SetupMailFiltering extends Extension_PageSection {
 								$criteria['oper'] = $oper;
 								break;
 							case 'D': // dropdown
-							case 'M': // multi-dropdown
 							case 'X': // multi-checkbox
 							case 'W': // worker
 								$in_array = DevblocksPlatform::importGPC($_REQUEST['value_cf_'.$field_id],'array',array());

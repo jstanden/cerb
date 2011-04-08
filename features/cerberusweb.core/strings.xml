@@ -411,9 +411,6 @@
 		<tu tuid='common.time.secs.num'>
 			<tuv xml:lang="en_US"><seg>%s sec</seg></tuv>
 		</tu>
-		<tu tuid='common.tips.multi_select'>
-			<tuv xml:lang="en_US"><seg>(hold CTRL or COMMAND to select multiple options)</seg></tuv>
-		</tu>
 		<tu tuid='common.title'>
 			<tuv xml:lang="en_US"><seg>Title</seg></tuv>
 		</tu>

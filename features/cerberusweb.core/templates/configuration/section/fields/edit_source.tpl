@@ -24,14 +24,14 @@
 			<td valign="middle">
 				<input type="hidden" name="ids[]" value="{$field_id}">
 				<input type="text" name="names[]" value="{$f->name}" size="35" style="width:300;">
-				{if $type_code != 'D' && $type_code != 'M' && $type_code != 'X'}
+				{if $type_code != 'D' && $type_code != 'X'}
 					<input type="hidden" name="options[]" value="">
 				{/if}
 			</td>
 			<td valign="middle">{$field_id}</td>
 			<td valign="top" align="center"><input type="checkbox" name="deletes[]" value="{$field_id}"></td>
 		</tr>
-		{if $type_code=='D' || $type_code=='M' || $type_code=='X'}
+		{if $type_code=='D' || $type_code=='X'}
 		<tr>
 			<td></td>
 			<td></td>
@@ -52,7 +52,7 @@
 	<!-- Add Custom Field -->
 	<div style="margin-left:10px;">
 		<b>Add new custom field:</b><br>
-		<select name="add_type" onchange="toggleDiv('addCustomFieldDropdown',(selectValue(this)=='D'||selectValue(this)=='M'||selectValue(this)=='X')?'block':'none');">
+		<select name="add_type" onchange="toggleDiv('addCustomFieldDropdown',(selectValue(this)=='D'||selectValue(this)=='X')?'block':'none');">
 			{foreach from=$types item=type key=type_code}
 			<option value="{$type_code}">{$type}</option>
 			{/foreach}

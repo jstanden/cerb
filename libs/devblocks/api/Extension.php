@@ -129,7 +129,6 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 				
 				switch($cfield->type) {
 					case Model_CustomField::TYPE_DROPDOWN:
-					case Model_CustomField::TYPE_MULTI_PICKLIST:
 					case Model_CustomField::TYPE_MULTI_CHECKBOX:
 						$conditions[$token]['options'] = $cfield->options;
 						break;
@@ -222,7 +221,6 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 					break;
 				case Model_CustomField::TYPE_DROPDOWN:
 				case Model_CustomField::TYPE_MULTI_CHECKBOX:
-				case Model_CustomField::TYPE_MULTI_PICKLIST:
 					$tpl->assign('condition', $condition);
 					$tpl->display('devblocks:cerberusweb.core::internal/decisions/conditions/_dropdown.tpl');
 					break;
@@ -356,7 +354,6 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 					}
 					break;
 				case Model_CustomField::TYPE_MULTI_CHECKBOX:
-				case Model_CustomField::TYPE_MULTI_PICKLIST:
 					$not = (substr($params['oper'],0,1) == '!');
 					$oper = ltrim($params['oper'],'!');
 					

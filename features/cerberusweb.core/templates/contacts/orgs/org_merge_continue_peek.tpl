@@ -25,7 +25,7 @@
 					{$cfield_id = substr($property,3)}
 					{$cfield_type = $custom_fields.{$cfield_id}->type}
 					
-					{if $cfield_type == 'M' || $cfield_type == 'X'}
+					{if $cfield_type == 'X'}
 						[auto]
 					{else} {* $cfield_type == 'S' || $cfield_type == 'T' || $cfield_type == 'D' || $cfield_type == 'E' || $cfield_type == 'N' || $cfield_type == 'U' || $cfield_type == 'C' || $cfield_type == 'W' *}
 						<select name="prop[{$property}]">

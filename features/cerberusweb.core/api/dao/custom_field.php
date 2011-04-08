@@ -204,7 +204,6 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 			case Model_CustomField::TYPE_SINGLE_LINE:
 			case Model_CustomField::TYPE_DROPDOWN:	
 			case Model_CustomField::TYPE_MULTI_CHECKBOX:	
-			case Model_CustomField::TYPE_MULTI_PICKLIST:
 			case Model_CustomField::TYPE_URL:
 				$table = 'custom_field_stringvalue';	
 				break;
@@ -242,7 +241,7 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 				continue;
 
 			$field =& $fields[$field_id]; /* @var $field Model_CustomField */
-			$is_delta = ($field->type==Model_CustomField::TYPE_MULTI_CHECKBOX || $field->type==Model_CustomField::TYPE_MULTI_PICKLIST) 
+			$is_delta = ($field->type==Model_CustomField::TYPE_MULTI_CHECKBOX) 
 					? $delta 
 					: false
 					;
@@ -285,7 +284,6 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 					
 					break;
 					
-				case Model_CustomField::TYPE_MULTI_PICKLIST:
 				case Model_CustomField::TYPE_MULTI_CHECKBOX:
 					if(!is_array($value))
 						$value = array($value);
@@ -445,11 +443,6 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 					$do['cf_'.$field_id] = array('value' => $field_value);
 					break;
 					
-				case Model_CustomField::TYPE_MULTI_PICKLIST:
-					@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id],'array',array());
-					$do['cf_'.$field_id] = array('value' => $field_value);
-					break;
-					
 				case Model_CustomField::TYPE_CHECKBOX:
 					@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id],'integer',0);
 					$do['cf_'.$field_id] = array('value' => !empty($field_value) ? 1 : 0);
@@ -499,15 +492,6 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 				case Model_CustomField::TYPE_DROPDOWN:
 					@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id],'string','');
 					if(0 != strlen($field_value)) {
-						DAO_CustomFieldValue::setFieldValue($context, $context_id, $field_id, $field_value);
-					} else {
-						DAO_CustomFieldValue::unsetFieldValue($context, $context_id, $field_id);
-					}
-					break;
-					
-				case Model_CustomField::TYPE_MULTI_PICKLIST:
-					@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id],'array',array());
-					if(!empty($field_value)) {
 						DAO_CustomFieldValue::setFieldValue($context, $context_id, $field_id, $field_value);
 					} else {
 						DAO_CustomFieldValue::unsetFieldValue($context, $context_id, $field_id);
@@ -590,8 +574,8 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 				
 			$ptr =& $results[$context_id];
 			
-			// If multiple value type (multi-picklist, multi-checkbox)
-			if($fields[$field_id]->type=='M' || $fields[$field_id]->type=='X') {
+			// If multiple value type (multi-checkbox)
+			if($fields[$field_id]->type=='X') {
 				if(!isset($ptr[$field_id]))
 					$ptr[$field_id] = array();
 					
@@ -694,7 +678,6 @@ class Model_CustomField {
 	const TYPE_CHECKBOX = 'C';
 	const TYPE_DROPDOWN = 'D';
 	const TYPE_DATE = 'E';
-	const TYPE_MULTI_PICKLIST = 'M';
 	const TYPE_NUMBER = 'N';
 	const TYPE_SINGLE_LINE = 'S';
 	const TYPE_MULTI_LINE = 'T';
@@ -717,7 +700,6 @@ class Model_CustomField {
 			self::TYPE_NUMBER => 'Number',
 			self::TYPE_DATE => 'Date',
 			self::TYPE_DROPDOWN => 'Picklist',
-			self::TYPE_MULTI_PICKLIST => 'Multi-Picklist',
 			self::TYPE_CHECKBOX => 'Checkbox',
 			self::TYPE_MULTI_CHECKBOX => 'Multi-Checkbox',
 			self::TYPE_WORKER => 'Worker',

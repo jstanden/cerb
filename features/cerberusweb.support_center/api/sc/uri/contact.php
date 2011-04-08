@@ -403,10 +403,6 @@ class UmScContactController extends Extension_UmScController {
 						@$value = $aFollowUpA[$iIdx];
 						break;
 						
-					case Model_CustomField::TYPE_MULTI_PICKLIST:
-						@$value = DevblocksPlatform::importGPC($_POST['followup_a_'.$iIdx],'array',array());
-						break;
-						
 					case Model_CustomField::TYPE_CHECKBOX:
 						@$value = (isset($aFollowUpA[$iIdx]) && !empty($aFollowUpA[$iIdx])) ? 1 : 0;
 						break;

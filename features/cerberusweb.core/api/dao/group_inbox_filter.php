@@ -610,7 +610,6 @@ class Model_GroupInboxFilter {
 									break;
 								case 'D': // dropdown
 								case 'X': // multi-checkbox
-								case 'M': // multi-picklist
 								case 'W': // worker
 									$field_val = isset($field_values[$field_id]) ? $field_values[$field_id] : array();
 									if(!is_array($value)) $value = array($value);

@@ -1221,11 +1221,6 @@
         <seg>%s seconden</seg>
       </tuv>
     </tu>
-    <tu tuid="common.tips.multi_select">
-      <tuv xml:lang="nl_NL">
-        <seg>(hou CTRL of COMMAND ingedrukt om meerdere opties te selecteren)</seg>
-      </tuv>
-    </tu>
     <tu tuid="common.title">
       <tuv xml:lang="nl_NL">
         <seg>Titel</seg>

@@ -458,7 +458,6 @@ class Model_PreParseRule {
 										$passed++;
 									break;
 								case 'D': // dropdown
-								case 'M': // multi-picklist
 								case 'X': // multi-checkbox
 								case 'W': // worker
 									$field_val = isset($field_values[$field_id]) ? $field_values[$field_id] : array();

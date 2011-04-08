@@ -41,7 +41,7 @@
 					<option value="{$worker_id}" {if 0==strcasecmp($worker_id,$action_field.value)}selected="selected"{/if}}> {$worker->getName()}</option>
 				{/foreach}
 				</select>
-			{elseif 'M'==$field->type || 'X'==$field->type}
+			{elseif 'X'==$field->type}
 				{foreach from=$field->options item=raw_option}
 					{assign var=option value='+'|cat:$raw_option}
 					<label><input type="checkbox" name="do_cf_{$field_id}[]" value="{$option}" {if isset($action_field.value.$option)}checked="checked"{/if}> {$raw_option}</label><br>

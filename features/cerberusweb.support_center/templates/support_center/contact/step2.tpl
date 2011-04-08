@@ -75,13 +75,6 @@
 		      				<option value="{$opt}" {if $last_followup_a.$idx==$opt}selected="selected"{/if}>{$opt}
 		      				{/foreach}
 		      			</select>
-					{elseif $field->type=='M'}
-						<select name="followup_a_{$idx}[]" size="5" multiple="multiple">
-							{foreach from=$field->options item=opt}
-							<option value="{$opt}">{$opt}</option>
-							{/foreach}
-						</select><br>
-						<i><small>{$translate->_('common.tips.multi_select')}</small></i>
 		      		{elseif $field->type=='W'}
 						{if empty($workers)}
 							{$workers = DAO_Worker::getAllActive()}

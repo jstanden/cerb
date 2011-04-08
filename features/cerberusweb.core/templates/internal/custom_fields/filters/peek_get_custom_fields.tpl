@@ -42,7 +42,7 @@
 				<i>and:</i><br>
 				<input type="text" name="value_cf_{$field_id}_to" size="20" value="{$crit_field.to}" onchange="document.getElementById('chkGetField{$field_id}').checked=((0==this.value.length)?false:true);" style="width:95%;"><br>
 				<i>(+2 hours, now, next Friday 5pm, 2pm, Jan 25)</i>
-			{elseif 'D'==$field->type || 'M'==$field->type || 'X'==$field->type}
+			{elseif 'D'==$field->type || 'X'==$field->type}
 				<i>is any of these:</i><br>
 				{foreach from=$field->options item=option}
 					<label><input type="checkbox" name="value_cf_{$field_id}[]" value="{$option}" {if isset($crit_field.value.$option)}checked="checked"{/if}> {$option}</label><br>
