@@ -190,7 +190,7 @@
 		
 		<fieldset>
 			<legend>{'common.comment'|devblocks_translate|capitalize}</legend>
-			<textarea name="comment" rows="5" cols="45" style="width:98%;"></textarea>
+			<textarea name="comment" rows="5" cols="60" style="width:98%;"></textarea>
 			<div class="notify" style="display:none;">
 				<b>{'common.notify_watchers_and'|devblocks_translate}:</b>
 				<button type="button" class="chooser_notify_worker"><span class="cerb-sprite sprite-view"></span></button>
@@ -213,13 +213,16 @@
 		$("#peekTabs").tabs();
 		$("#ticketPeekContent").css('width','100%');
 		$("#ticketPeekProps").show();
-		$(this).find('textarea[name=comment]').keyup(function() {
-			if($(this).val().length > 0) {
-				$(this).next('DIV.notify').show();
-			} else {
-				$(this).next('DIV.notify').hide();
-			}
-		});
+		$(this).find('textarea[name=comment]')
+			.elastic()
+			.keyup(function() {
+				if($(this).val().length > 0) {
+					$(this).next('DIV.notify').show();
+				} else {
+					$(this).next('DIV.notify').hide();
+				}
+			})
+			;
 		$(this).focus();
 	});
 	
