@@ -1169,18 +1169,23 @@ class Event_MailClosedInGroup extends Extension_DevblocksEvent {
 	}
 	
 	function getActionExtensions() {
-		$actions = array(
-			'create_comment' => array('label' =>'Create a comment'),
-			'create_notification' => array('label' =>'Create a notification'),
-			'create_task' => array('label' =>'Create a task'),
-			'create_ticket' => array('label' =>'Create a ticket'),
-			'move_to_bucket' => array('label' => 'Move to bucket'),
-			//'move_to_group' => array('label' => 'Move to group'),
-			'send_email' => array('label' => 'Send email'),
-			'send_email_recipients' => array('label' => 'Send email to recipients'),
-			'set_spam_training' => array('label' => 'Set spam training'),
-			'set_status' => array('label' => 'Set status'),
-		);
+		$actions = 
+			array(
+				'add_watchers' => array('label' =>'Add watchers'),
+				'create_comment' => array('label' =>'Create a comment'),
+				'create_notification' => array('label' =>'Create a notification'),
+				'create_task' => array('label' =>'Create a task'),
+				'create_ticket' => array('label' =>'Create a ticket'),
+				'move_to_bucket' => array('label' => 'Move to bucket'),
+				//'move_to_group' => array('label' => 'Move to group'),
+				'send_email' => array('label' => 'Send email'),
+				'send_email_recipients' => array('label' => 'Send email to recipients'),
+				'set_spam_training' => array('label' => 'Set spam training'),
+				'set_status' => array('label' => 'Set status'),
+			)
+			+ DevblocksEventHelper::getActionCustomFields(CerberusContexts::CONTEXT_TICKET)
+			;
+			
 		return $actions;
 	}
 	
@@ -1710,18 +1715,23 @@ class Event_MailMovedToGroup extends Extension_DevblocksEvent {
 	}
 	
 	function getActionExtensions() {
-		$actions = array(
-			'create_comment' => array('label' =>'Create a comment'),
-			'create_notification' => array('label' =>'Create a notification'),
-			'create_task' => array('label' =>'Create a task'),
-			'create_ticket' => array('label' =>'Create a ticket'),
-			'move_to_bucket' => array('label' => 'Move to bucket'),
-			'move_to_group' => array('label' => 'Move to group'),
-			'send_email' => array('label' => 'Send email'),
-			'send_email_recipients' => array('label' => 'Send email to recipients'),
-			'set_spam_training' => array('label' => 'Set spam training'),
-			'set_status' => array('label' => 'Set status'),
-		);
+		$actions = 
+			array(
+				'add_watchers' => array('label' =>'Add watchers'),
+				'create_comment' => array('label' =>'Create a comment'),
+				'create_notification' => array('label' =>'Create a notification'),
+				'create_task' => array('label' =>'Create a task'),
+				'create_ticket' => array('label' =>'Create a ticket'),
+				'move_to_bucket' => array('label' => 'Move to bucket'),
+				'move_to_group' => array('label' => 'Move to group'),
+				'send_email' => array('label' => 'Send email'),
+				'send_email_recipients' => array('label' => 'Send email to recipients'),
+				'set_spam_training' => array('label' => 'Set spam training'),
+				'set_status' => array('label' => 'Set status'),
+			)
+			+ DevblocksEventHelper::getActionCustomFields(CerberusContexts::CONTEXT_TICKET)
+			;
+		
 		return $actions;
 	}
 	
@@ -2226,18 +2236,23 @@ class Event_MailReceivedByGroup extends Extension_DevblocksEvent {
 	}
 	
 	function getActionExtensions() {
-		$actions = array(
-			'create_comment' => array('label' =>'Create a comment'),
-			'create_notification' => array('label' =>'Create a notification'),
-			'create_task' => array('label' =>'Create a task'),
-			'create_ticket' => array('label' =>'Create a ticket'),
-			'move_to_bucket' => array('label' => 'Move to bucket'),
-			'move_to_group' => array('label' => 'Move to group'),
-			'send_email' => array('label' => 'Send email'),
-			'send_email_recipients' => array('label' => 'Send email to recipients'),
-			'set_spam_training' => array('label' => 'Set spam training'),
-			'set_status' => array('label' => 'Set status'),
-		);
+		$actions = 
+			array(
+				'add_watchers' => array('label' =>'Add watchers'),
+				'create_comment' => array('label' =>'Create a comment'),
+				'create_notification' => array('label' =>'Create a notification'),
+				'create_task' => array('label' =>'Create a task'),
+				'create_ticket' => array('label' =>'Create a ticket'),
+				'move_to_bucket' => array('label' => 'Move to bucket'),
+				'move_to_group' => array('label' => 'Move to group'),
+				'send_email' => array('label' => 'Send email'),
+				'send_email_recipients' => array('label' => 'Send email to recipients'),
+				'set_spam_training' => array('label' => 'Set spam training'),
+				'set_status' => array('label' => 'Set status'),
+			)
+			+ DevblocksEventHelper::getActionCustomFields(CerberusContexts::CONTEXT_TICKET)
+			;
+		
 		return $actions;
 	}
 	
