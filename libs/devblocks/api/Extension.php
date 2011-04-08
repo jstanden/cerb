@@ -576,6 +576,24 @@ class DevblocksEventHelper {
 		return $comment_id;
 	}
 	
+	static function renderActionAddWatchers() {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('workers', DAO_Worker::getAll());
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_add_watchers.tpl');
+		
+		$tpl->clearAssign('workers');
+	}
+	
+	static function runActionAddWatchers($params, $values, $context, $context_id) {
+		@$worker_ids = $params['worker_id'];
+		
+		if(!is_array($worker_ids) || empty($worker_ids))
+			return;
+
+		CerberusContexts::addWatchers($context, $context_id, $worker_ids);
+	}
+	
 	/*
 	 * Action: Create Notification
 	 */

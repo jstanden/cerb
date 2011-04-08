@@ -800,7 +800,7 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 	
 	function getActionExtensions() { // $id
 		$actions = array(
-			//'add_owners' => array('label' => 'Add owners'),
+			'add_watchers' => array('label' =>'Add watchers'),
 			//'set_spam_training' => array('label' => 'Set spam training'),
 			//'set_status' => array('label' => 'Set status'),
 			'set_subject' => array('label' => 'Set subject'),
@@ -1195,6 +1195,10 @@ class Event_MailClosedInGroup extends Extension_DevblocksEvent {
 		$tpl->assign('token_labels', $labels);
 			
 		switch($token) {
+			case 'add_watchers':
+				DevblocksEventHelper::renderActionAddWatchers();
+				break;
+			
 			case 'send_email':
 				DevblocksEventHelper::renderActionSendEmail();
 				break;
@@ -1250,6 +1254,10 @@ class Event_MailClosedInGroup extends Extension_DevblocksEvent {
 			return;
 		
 		switch($token) {
+			case 'add_watchers':
+				DevblocksEventHelper::runActionAddWatchers($params, $values, CerberusContexts::CONTEXT_TICKET, $ticket_id);
+				break;
+			
 			case 'send_email':
 				DevblocksEventHelper::runActionSendEmail($params, $values);
 				break;
@@ -1728,6 +1736,10 @@ class Event_MailMovedToGroup extends Extension_DevblocksEvent {
 		$tpl->assign('token_labels', $labels);
 			
 		switch($token) {
+			case 'add_watchers':
+				DevblocksEventHelper::renderActionAddWatchers();
+				break;
+			
 			case 'send_email':
 				DevblocksEventHelper::renderActionSendEmail();
 				break;
@@ -1775,7 +1787,6 @@ class Event_MailMovedToGroup extends Extension_DevblocksEvent {
 				$tpl->assign('groups', $groups);
 				$tpl->display('devblocks:cerberusweb.core::events/mail_received_by_group/action_move_to_group.tpl');
 				break;
-				
 		}
 		
 		$tpl->clearAssign('params');
@@ -1791,6 +1802,10 @@ class Event_MailMovedToGroup extends Extension_DevblocksEvent {
 			return;
 		
 		switch($token) {
+			case 'add_watchers':
+				DevblocksEventHelper::runActionAddWatchers($params, $values, CerberusContexts::CONTEXT_TICKET, $ticket_id);
+				break;
+			
 			case 'send_email':
 				DevblocksEventHelper::runActionSendEmail($params, $values);
 				break;
@@ -2237,6 +2252,10 @@ class Event_MailReceivedByGroup extends Extension_DevblocksEvent {
 		$tpl->assign('token_labels', $labels);
 			
 		switch($token) {
+			case 'add_watchers':
+				DevblocksEventHelper::renderActionAddWatchers();
+				break;
+				
 			case 'send_email':
 				DevblocksEventHelper::renderActionSendEmail();
 				break;
@@ -2300,6 +2319,10 @@ class Event_MailReceivedByGroup extends Extension_DevblocksEvent {
 			return;
 		
 		switch($token) {
+			case 'add_watchers':
+				DevblocksEventHelper::runActionAddWatchers($params, $values, CerberusContexts::CONTEXT_TICKET, $ticket_id);
+				break;
+			
 			case 'send_email':
 				DevblocksEventHelper::runActionSendEmail($params, $values);
 				break;
