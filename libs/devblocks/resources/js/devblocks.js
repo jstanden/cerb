@@ -303,9 +303,6 @@ function genericAjaxPopup($layer,request,target,modal,width,cb) {
 			// Persist
 			genericAjaxPopupRegister($layer, $popup);
 			
-			// Set the content
-			$popup.html(html);
-			
 			// Target
 			if(null != target) {
 				var offset = $(target).offset();
@@ -320,6 +317,10 @@ function genericAjaxPopup($layer,request,target,modal,width,cb) {
 			// Render
 			$popup.dialog(options);
 			$popup.dialog('open');
+			
+			// Set the content
+			$popup.html(html);
+			
 			$popup.trigger('popup_open');
 			
 			// Callback
