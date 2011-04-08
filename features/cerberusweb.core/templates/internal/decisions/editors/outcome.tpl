@@ -24,11 +24,11 @@
 		{$seq = null}
 		{if isset($model->params.conditions) && is_array($model->params.conditions)}
 		{foreach from=$model->params.conditions item=params key=seq}
-			<li style="padding-bottom:5px;">
+			<li style="padding-bottom:5px;" id="condition{$seq}">
 				<input type="hidden" name="conditions[]" value="{$seq}">
 				<input type="hidden" name="condition{$seq}[condition]" value="{$params.condition}">
+				<a href="javascript:;" onclick="$(this).closest('li').remove();" class="delete" style="display:none;"><span class="cerb-sprite2 sprite-minus-circle-frame"></span></a>
 				<b>{$conditions.{$params.condition}.label}</b>&nbsp;
-				<a href="javascript:;" onclick="$(this).closest('li').remove();"><span class="cerb-sprite2 sprite-minus-circle-frame"></span></a>
 				<div style="margin-left:20px;">
 					{$event->renderCondition({$params.condition},$trigger,$params,$seq)}
 				</div>
@@ -100,12 +100,23 @@
 				$menu.show();
 			}
 		);
-		
+
 		$popup.find('BUTTON.chooser_worker.unbound').each(function() {
 			seq = $(this).closest('fieldset').find('input:hidden[name="conditions[]"]').val();
 			ajax.chooser(this,'cerberusweb.contexts.worker','condition'+seq+'[worker_id]', { autocomplete:true });
 			$(this).removeClass('unbound');
 		});
+		
+		$frm.find('ul.rules > li')
+			.hover(
+				function(e) {
+					$(this).find('a.delete').show();
+				},
+				function(e) {
+					$(this).find('a.delete').hide();
+				}
+			)
+			;
 	});
 
 	$popup.find('#frmDecisionAddCondition SELECT').first().change(function() {
@@ -113,8 +124,6 @@
 		$val=$select.val();
 
 		if(''==$val) {
-			//$select.siblings('#divAddCondition').html('');
-			//$select.siblings('div').hide();
 			return;
 		}
 
@@ -131,11 +140,11 @@
 				$(this).attr('name', 'condition' + seq + name); // condition0...condition99
 			});
 
-			$container = $('<li style="padding-bottom:5px;"></li>');
+			$container = $('<li style="padding-bottom:5px;" id="condition'+seq+'"></li>');
 			$container.append('<input type="hidden" name="conditions[]" value="' + seq + '">');
 			$container.append('<input type="hidden" name="condition'+seq+'[condition]" value="' + $select.val() + '">');
+			$container.append('<a href="javascript:;" onclick="$(this).closest(\'li\').remove();"><span class="cerb-sprite2 sprite-minus-circle-frame"></span></a> ');
 			$container.append('<b>' + $select.find('option:selected').text() + '</b>&nbsp;');
-			$container.append('<a href="javascript:;" onclick="$(this).closest(\'li\').remove();"><span class="cerb-sprite2 sprite-minus-circle-frame"></span></a>');
 			$container.append($html);
 			$ul.append($container);
 

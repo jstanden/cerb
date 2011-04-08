@@ -15,9 +15,9 @@
 {$seq = null}
 {if isset($model->params.actions) && is_array($model->params.actions)}
 {foreach from=$model->params.actions item=params key=seq}
-<fieldset>
+<fieldset id="action{$seq}">
 	<legend>
-		<a href="javascript:;" onclick="$(this).closest('fieldset').remove();"><span class="cerb-sprite2 sprite-minus-circle-frame"></span></a>
+		<a href="javascript:;" onclick="$(this).closest('fieldset').remove();" class="delete" style="display:none;"><span class="cerb-sprite2 sprite-minus-circle-frame"></span></a>
 		{$actions.{$params.action}.label}
 	</legend>
 
@@ -68,50 +68,56 @@
 			ajax.chooser(this,'cerberusweb.contexts.worker','action'+seq+'[notify_worker_id]', { autocomplete:true });
 			$(this).removeClass('unbound');
 		});
-	});
 
-	$popup.find('#frmDecisionNodeActionAdd SELECT').first().change(function() {
-		$select = $(this);
-		$val=$select.val();
-
-		if(''==$val) {
-			//$select.siblings('#divAddCondition').html('');
-			//$select.siblings('div').hide();
-			return;
-		}
-
-		genericAjaxPost('frmDecisionNodeActionAdd','','c=internal&a=doDecisionAddAction',function(html) {
-			$ul = $('#frmDecisionNodeAction DIV.actions');
-			
-			seq = parseInt($('#frmDecisionNodeActionAdd').find('input[name=seq]').val());
-			if(null == seq)
-				seq = 0;
-
-			$html = $('<div>' + html + '</div>');
-			$html.find('[name]').each(function() {
-				name = $(this).attr('name');
-				$(this).attr('name', 'action' + seq + name); // action0...action99
+		$popup.find('div.actions fieldset')
+			.hover(
+				function(e) {
+					$(this).find('legend a.delete').show();
+				},
+				function(e) {
+					$(this).find('legend a.delete').hide();
+				}
+			)
+			;
+		
+		$popup.find('#frmDecisionNodeActionAdd SELECT').first().change(function() {
+			$select = $(this);
+			$val=$select.val();
+	
+			if(''==$val) {
+				return;
+			}
+	
+			genericAjaxPost('frmDecisionNodeActionAdd','','c=internal&a=doDecisionAddAction',function(html) {
+				$ul = $('#frmDecisionNodeAction DIV.actions');
+				
+				seq = parseInt($('#frmDecisionNodeActionAdd').find('input[name=seq]').val());
+				if(null == seq)
+					seq = 0;
+	
+				$container = $('<fieldset id="action' + seq + '"></fieldset>');
+				$container.prepend('<legend><a href="javascript:;" onclick="$(this).closest(\'fieldset\').remove();"><span class="cerb-sprite2 sprite-minus-circle-frame"></span></a> ' + $select.find('option:selected').text() + '</legend>');
+				$container.append('<input type="hidden" name="actions[]" value="' + seq + '">');
+				$container.append('<input type="hidden" name="action'+seq+'[action]" value="' + $select.val() + '">');
+				$ul.append($container);
+	
+				$html = $('<div>' + html + '</div>');
+				$container.append($html);
+				
+				$html.find('BUTTON.chooser_worker.unbound').each(function() {
+					ajax.chooser(this,'cerberusweb.contexts.worker','action'+seq+'[worker_id]', { autocomplete:true });
+					$(this).removeClass('unbound');
+				});
+				$html.find('BUTTON.chooser_notify_workers.unbound').each(function() {
+					ajax.chooser(this,'cerberusweb.contexts.worker','action'+seq+'[notify_worker_id]', { autocomplete:true });
+					$(this).removeClass('unbound');
+				});
+				
+				$select.val(0);
+	
+				$('#frmDecisionNodeActionAdd').find('input[name=seq]').val(1+seq);
 			});
-
-			$container = $('<fieldset></fieldset>');
-			$container.prepend('<legend><a href="javascript:;" onclick="$(this).closest(\'fieldset\').remove();"><span class="cerb-sprite2 sprite-minus-circle-frame"></span></a> '+$select.find('option:selected').text()+'</legend>');
-			$container.append('<input type="hidden" name="actions[]" value="' + seq + '">');
-			$container.append('<input type="hidden" name="action'+seq+'[action]" value="' + $select.val() + '">');
-			$container.append($html);
-			$ul.append($container);
-
-			$html.find('BUTTON.chooser_worker.unbound').each(function() {
-				ajax.chooser(this,'cerberusweb.contexts.worker','action'+seq+'[worker_id]', { autocomplete:true });
-				$(this).removeClass('unbound');
-			});
-			$html.find('BUTTON.chooser_notify_workers.unbound').each(function() {
-				ajax.chooser(this,'cerberusweb.contexts.worker','action'+seq+'[notify_worker_id]', { autocomplete:true });
-				$(this).removeClass('unbound');
-			});
-			
-			$select.val(0);
-
-			$('#frmDecisionNodeActionAdd').find('input[name=seq]').val(1+seq);
 		});
-	});
+
+	}); // popup_open
 </script>

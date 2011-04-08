@@ -1570,6 +1570,7 @@ class ChInternalController extends DevblocksControllerExtension {
 	function doDecisionAddActionAction() {
 		@$action = DevblocksPlatform::importGPC($_REQUEST['action'],'string', '');
 		@$trigger_id = DevblocksPlatform::importGPC($_REQUEST['trigger_id'],'integer', 0);
+		@$seq = DevblocksPlatform::importGPC($_REQUEST['seq'],'integer', 0);
 
 		$tpl = DevblocksPlatform::getTemplateService();
 
@@ -1582,8 +1583,9 @@ class ChInternalController extends DevblocksControllerExtension {
 			
 		$tpl->assign('trigger', $trigger);
 		$tpl->assign('event', $event);
+		$tpl->assign('seq', $seq);
 			
-		$event->renderAction($action, $trigger);
+		$event->renderAction($action, $trigger, null, $seq);
 	}
 
 	function saveDecisionPopupAction() {
