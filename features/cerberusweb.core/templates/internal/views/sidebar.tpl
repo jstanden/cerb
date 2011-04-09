@@ -2,7 +2,7 @@
 	<legend class="cerb-menu">
 		<a href="javascript:;" class="menu">{if isset($subtotal_fields.{$view->renderSubtotals})}{$subtotal_fields.{$view->renderSubtotals}->db_label|capitalize}{else}{'common.subtotals'|devblocks_translate|capitalize}{/if}</a> &#x25be;
 	</legend>
-	<ul class="cerb-popupmenu cerb-float cerb-menu-green" style="margin-top:-5px;">
+	<ul class="cerb-popupmenu cerb-float" style="margin-top:-5px;">
 		{foreach from=$subtotal_fields item=field_model key=field_key}
 		<li><a href="javascript:;" onclick="genericAjaxGet('view{$view_id}_sidebar','c=internal&a=viewSubtotal&category={$field_key}&view_id={$view_id}');">{$field_model->db_label|capitalize}</a></li>
 		{/foreach}
@@ -41,11 +41,8 @@
 
 <script type="text/javascript">
 	$('#view{$view_id}_sidebar fieldset:first legend') //.cerb-menu A.menu
-		//.closest('legend')
 		.hover(
 			function(e) {
-				//alert($(this)[0]);
-				//alert($(this).html());
 				$(this).next('ul:first').show();
 			}
 		)

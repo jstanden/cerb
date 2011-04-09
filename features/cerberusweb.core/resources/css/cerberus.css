@@ -650,15 +650,6 @@ UL.cerb-popupmenu > LI > HR {
 	border-top:1px dashed rgb(200,200,200);
 }
 
-UL.cerb-popupmenu.cerb-menu-green A {
-	color:rgb(0,120,0);
-	font-size:120%;
-}
-
-UL.cerb-popupmenu.cerb-menu-green A:hover {
-	color:rgb(255,255,255);
-}
-
 /* Subpage */
 
 .cerb-subpage {
