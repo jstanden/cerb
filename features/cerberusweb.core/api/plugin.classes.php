@@ -1704,6 +1704,8 @@ class Event_MailMovedToGroup extends Extension_DevblocksEvent {
 						$pass = false;
 						break;
 				}
+				
+				$pass = ($not) ? !$pass : $pass;
 				break;
 				
 			default:

@@ -385,6 +385,9 @@ class DAO_Worker extends C4_ORMHelper {
 		// Context links
 		DAO_ContextLink::delete(CerberusContexts::CONTEXT_WORKER, $id);
 		
+		// Virtual Attendants
+		DAO_TriggerEvent::deleteByOwner(CerberusContexts::CONTEXT_WORKER, $id);		
+		
 		// Invalidate caches
 		self::clearCache();
 		$cache = DevblocksPlatform::getCacheService();

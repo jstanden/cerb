@@ -274,6 +274,8 @@ class DAO_Group extends C4_ORMHelper {
 
 //        DAO_GroupInboxFilter::deleteByMoveCodes(array('t'.$id));
 
+		DAO_TriggerEvent::deleteByOwner(CerberusContexts::CONTEXT_GROUP, $id);
+		
 		self::clearCache();
 		DAO_Bucket::clearCache();
 	}

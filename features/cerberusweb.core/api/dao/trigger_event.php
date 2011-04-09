@@ -106,6 +106,22 @@ class DAO_TriggerEvent extends C4_ORMHelper {
 		return true;
 	}
 	
+	static function deleteByOwner($context, $context_id) {
+		$results = self::getWhere(sprintf("%s = %s AND %s = %d",
+			self::OWNER_CONTEXT,
+			$context,
+			self::OWNER_CONTEXT_ID,
+			$context_id
+		));
+		
+		if(is_array($results))
+		foreach($results as $result) {
+			self::delete($result->id);
+		}
+		
+		return TRUE;
+	}
+	
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_TriggerEvent::getFields();
 		
@@ -354,23 +370,37 @@ class Model_TriggerEvent {
 			// Handle the node type
 			switch($nodes[$node_id]->node_type) {
 				case 'outcome':
-					@$match_any = intval(@$nodes[$node_id]->params['match_any']);
+					@$cond_groups = $nodes[$node_id]->params['groups'];
 					
-					if(is_array(@$nodes[$node_id]->params['conditions']))
-					foreach($nodes[$node_id]->params['conditions'] as $params) {
-						// All
-						if(!$pass && empty($match_any))
-							continue;
-							
-						if(!isset($params['condition']))
-							continue;
-							
-						$condition = $params['condition'];
+					if(is_array($cond_groups))
+					foreach($cond_groups as $cond_group) {
+						@$any = intval($cond_group['any']);
+						@$conditions = $cond_group['conditions'];
+						$group_pass = true;
+						$logger->info(sprintf("Conditions are in '%s' group.", ($any ? 'any' : 'all')));
 						
-						$pass = $event->runCondition($condition, $this, $params, $dictionary);
+						if(!empty($conditions) && is_array($conditions))
+						foreach($conditions as $condition_data) {
+							// If something failed and we require all to pass
+							if(!$group_pass && empty($any))
+								continue;
+								
+							if(!isset($condition_data['condition']))
+								continue;
+								
+							$condition = $condition_data['condition'];
+							
+							$group_pass = $event->runCondition($condition, $this, $condition_data, $dictionary);
+							
+							// Any
+							if($group_pass && !empty($any))
+								break;
+						}
 						
-						// Any
-						if($pass && !empty($match_any))
+						$pass = $group_pass;
+						
+						// Any condition group failing is enough to stop
+						if(empty($pass))
 							break;
 					}
 					

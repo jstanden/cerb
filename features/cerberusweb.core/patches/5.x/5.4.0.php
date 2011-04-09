@@ -338,7 +338,7 @@ if(!empty($todo)) {
 					$parent_id,
 					$trigger_id,
 					$db->qstr('Yes'),
-					$db->qstr('{"match_any":0,"conditions":[{"condition":"is_first","bool":"1"},{"condition":"is_outgoing","bool":"0"}]}'),
+					$db->qstr('{"groups":[{"any":0,"conditions":[{"condition":"is_first","bool":"1"},{"condition":"is_outgoing","bool":"0"}]}]}'),
 					$db->qstr('outcome'),
 					1
 				));
@@ -455,7 +455,7 @@ if(!empty($todo)) {
 					$parent_id,
 					$trigger_id,
 					$db->qstr('Yes'),
-					$db->qstr('{"match_any":0,"conditions":[{"condition":"is_first","bool":"1"},{"condition":"is_outgoing","bool":"0"},{"condition":"ticket_status","oper":"in","values":["open"]},{"condition":"ticket_spam_training","oper":"!in","values":["N"]},{"condition":"ticket_spam_score","oper":"gt","value":'.json_encode($spam_threshold).'}]}'),
+					$db->qstr('{"groups":[{"any":0,"conditions":[{"condition":"is_first","bool":"1"},{"condition":"is_outgoing","bool":"0"},{"condition":"ticket_status","oper":"in","values":["open"]},{"condition":"ticket_spam_training","oper":"!in","values":["N"]},{"condition":"ticket_spam_score","oper":"gt","value":'.json_encode($spam_threshold).'}]}]}'),
 					$db->qstr('outcome'),
 					1
 				));

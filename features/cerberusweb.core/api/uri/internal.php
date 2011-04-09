@@ -1551,6 +1551,7 @@ class ChInternalController extends DevblocksControllerExtension {
 	function doDecisionAddConditionAction() {
 		@$condition = DevblocksPlatform::importGPC($_REQUEST['condition'],'string', '');
 		@$trigger_id = DevblocksPlatform::importGPC($_REQUEST['trigger_id'],'integer', 0);
+		@$seq = DevblocksPlatform::importGPC($_REQUEST['seq'],'integer', 0);
 
 		$tpl = DevblocksPlatform::getTemplateService();
 
@@ -1647,14 +1648,36 @@ class ChInternalController extends DevblocksControllerExtension {
 				break;
 				
 			case 'outcome':
-				@$condition_ids = DevblocksPlatform::importGPC($_REQUEST['conditions'],'array',array());
-				@$match_any = DevblocksPlatform::importGPC($_REQUEST['match_any'],'integer',0);
-				$params = array(
-					'match_any' => !empty($match_any) ? 1 : 0,
-				);
-				$params['conditions'] = $this->_parseConditions($condition_ids, $_POST);
+				@$nodes = DevblocksPlatform::importGPC($_REQUEST['nodes'],'array',array());
+
+				$groups = array();
+				$group_key = null;
+				
+				foreach($nodes as $k) {
+					switch($k) {
+						case 'any':
+						case 'all':
+							$groups[] = array(
+								'any' => ($k=='any'?1:0),
+								'conditions' => array(),
+							);
+							end($groups);
+							$group_key = key($groups);
+							break;
+							
+						default:
+							if(!is_numeric($k))
+								continue;
+							
+							// [TODO] Sanitize
+							$condition = $_POST['condition'.$k];
+							$groups[$group_key]['conditions'][] = $condition;
+							break;
+					}
+				}
+				
 				DAO_DecisionNode::update($id, array(
-					DAO_DecisionNode::PARAMS_JSON => json_encode($params), 
+					DAO_DecisionNode::PARAMS_JSON => json_encode(array('groups'=>$groups)), 
 				));
 				break;
 				
@@ -1670,16 +1693,6 @@ class ChInternalController extends DevblocksControllerExtension {
 			case 'trigger':
 				break;
 		}
-	}
-	
-	private function _parseConditions($condition_ids, $scope) {
-		$objects = array();
-		
-		foreach($condition_ids as $condition_id) {
-			$objects[] = $scope['condition'.$condition_id];
-		}
-		
-		return $objects;
 	}
 	
 	private function _parseActions($action_ids, $scope) {
