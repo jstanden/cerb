@@ -262,17 +262,11 @@ class DAO_Group extends C4_ORMHelper {
 		$sql = sprintf("DELETE QUICK FROM category WHERE team_id = %d", $id);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 		
-		// [TODO] DAO_GroupSettings::deleteById();
 		$sql = sprintf("DELETE QUICK FROM group_setting WHERE group_id = %d", $id);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 		
-		$sql = sprintf("DELETE QUICK FROM worker_to_team WHERE team_id = %d",	$id);
+		$sql = sprintf("DELETE QUICK FROM worker_to_team WHERE team_id = %d", $id);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
-
-		$sql = sprintf("DELETE QUICK FROM group_inbox_filter WHERE group_id = %d", $id);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
-
-//        DAO_GroupInboxFilter::deleteByMoveCodes(array('t'.$id));
 
 		DAO_TriggerEvent::deleteByOwner(CerberusContexts::CONTEXT_GROUP, $id);
 		

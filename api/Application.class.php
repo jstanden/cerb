@@ -555,52 +555,6 @@ class CerberusApplication extends DevblocksApplication {
 	    }
 	    return $ticket_id;
 	}
-	
-	/**
-	 * Enter description here...
-	 * [TODO] Move this into a better API holding place
-	 *
-	 * @param integer $group_id
-	 * @param integer $ticket_id
-	 * @param integer $only_rule_id
-	 * @return Model_GroupInboxFilter[]|false
-	 */
-	static public function runGroupRouting($group_id, $ticket_id, $only_rule_id=0) {
-		static $moveMap = array();
-		$dont_move = false;
-		
-		if(false != ($matches = Model_GroupInboxFilter::getMatches($group_id, $ticket_id, $only_rule_id))) { /* @var $match Model_GroupInboxFilter */
-			if(is_array($matches))
-			foreach($matches as $idx => $match) {
-				/* =============== Prevent recursive assignments =============
-				* If we ever get into a situation where many rules are sending a ticket
-				* back and forth between them, ignore the last move action in the chain  
-				* which is trying to start over.
-				*/
-				if(isset($match->actions['move'])) { 
-					if(!isset($moveMap[$ticket_id])) {
-						$moveMap[$ticket_id] = array();
-					} else {
-						if(isset($moveMap[$ticket_id][$group_id])) {
-							$dont_move = true;
-						}
-					}
-					
-					$moveMap[$ticket_id][$group_id] = $match->id;
-				}
-	
-				// Stop any move actions if we're going to loop again
-				if($dont_move) {
-					unset($matches[$idx]->actions['move']);
-				}
-				
-				// Run filter actions
-				$match->run(array($ticket_id));
-			}
-		}
-		
-	    return $matches;
-	}
 };
 
 interface IContextToken {

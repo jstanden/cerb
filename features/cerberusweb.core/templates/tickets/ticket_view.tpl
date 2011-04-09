@@ -137,9 +137,7 @@
 			{assign var=ticket_category_id value=$result.t_category_id}
 			<td>
 				{if 0 == $ticket_category_id}
-					{if (isset($active_worker_memberships.$ticket_team_id)) && $active_worker_memberships.$ticket_team_id->is_manager || $active_worker->is_superuser}
-						<a href="javascript:;" onclick="genericAjaxPopup('peek','c=groups&a=showInboxFilterPanel&id=0&group_id={$ticket_team_id}&ticket_id={$result.t_id}&view_id={$view->id}',null,false,'600');">{$translate->_('mail.view.add_filter')}</a>
-					{/if}
+					{'common.inbox'|devblocks_translate|capitalize}
 				{else}
 					{$buckets.$ticket_category_id->name}
 				{/if}

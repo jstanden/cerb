@@ -544,4 +544,623 @@ foreach($results as $row) {
 
 $db->Execute("UPDATE custom_field SET type = 'X' where type = 'M'");
 
+// ===========================================================================
+// Migrate group inbox filters to Virtual Attendants
+
+if(isset($tables['group_inbox_filter'])) {
+
+	// Look up group labels
+	$group_labels = array();
+	$sql = "SELECT id, name FROM team";
+	$results = $db->GetArray($sql);
+	
+	if(!empty($results))
+	foreach($results as $result)
+		$group_labels[$result['id']] = $result['name'];
+
+	// Look up bucket labels
+	$bucket_labels = array();
+	$sql = "SELECT id, name FROM category";
+	$results = $db->GetArray($sql);
+	
+	if(!empty($results))
+	foreach($results as $result)
+		$bucket_labels[$result['id']] = $result['name'];
+	
+	// Look up custom fields for types
+	$sql = "SELECT id, name, context, type FROM custom_field";
+	$results = $db->GetArray($sql);
+	$custom_fields = array();
+	
+	if(!empty($results))
+	foreach($results as $result) {
+		$custom_fields[$result['id']] = array(
+			'label' => $result['name'],
+			'context' => $result['context'],
+			'type' => $result['type'],
+		);
+	}
+
+	// Find groups with filters
+	$sql = "SELECT DISTINCT group_id FROM group_inbox_filter";
+	$results = $db->GetArray($sql);
+	
+	if(!empty($results))
+	foreach($results as $result) {
+		$group_id = $result['group_id'];
+		
+		// Insert trigger_event
+		$db->Execute(sprintf("INSERT INTO trigger_event (owner_context, owner_context_id, event_point, title) ".
+			"VALUES (%s, %d, %s, %s)",
+			$db->qstr('cerberusweb.contexts.group'),
+			$group_id,
+			$db->qstr('event.mail.moved.group'),
+			$db->qstr('Inbox Routing')
+		));
+		$trigger_id = $db->LastInsertId();
+		
+		// Decision: Delivered to inbox?
+		$db->Execute(sprintf("INSERT INTO decision_node (parent_id, trigger_id, title, params_json, node_type, pos) ".
+			"VALUES (%d, %d, %s, %s, %s, %d)",
+			0,
+			$trigger_id,
+			$db->qstr('Delivered to inbox?'),
+			$db->qstr(''),
+			$db->qstr('switch'),
+			0
+		));
+		$parent_id = $db->LastInsertId();
+		
+		// Outcome: Yes
+		$db->Execute(sprintf("INSERT INTO decision_node (parent_id, trigger_id, title, params_json, node_type, pos) ".
+			"VALUES (%d, %d, %s, %s, %s, %d)",
+			$parent_id,
+			$trigger_id,
+			$db->qstr('Yes'),
+			$db->qstr('{"groups":[{"any":0,"conditions":[{"condition":"ticket_bucket_name","oper":"in","bucket_ids":["0"]}]}]}'),
+			$db->qstr('outcome'),
+			0
+		));
+		$parent_id = $db->LastInsertId();
+
+		// Decision: Delivered to inbox?
+		$db->Execute(sprintf("INSERT INTO decision_node (parent_id, trigger_id, title, params_json, node_type, pos) ".
+			"VALUES (%d, %d, %s, %s, %s, %d)",
+			$parent_id,
+			$trigger_id,
+			$db->qstr('First match:'),
+			$db->qstr(''),
+			$db->qstr('switch'),
+			0
+		));
+		$parent_id = $db->LastInsertId();
+		
+		$group_filters_node_id = $parent_id;
+	
+		// Rules
+			
+		$sql = sprintf("SELECT group_id, name, criteria_ser, actions_ser ".
+			"FROM group_inbox_filter ".
+			"WHERE group_id = %d ".
+			"ORDER BY is_sticky DESC, sticky_order ASC, pos DESC ",
+			$group_id
+		);
+		$results = $db->GetArray($sql);
+
+		$pos = 0;
+		
+		if(is_array($results))
+		foreach($results as $result) {
+			$group_id = $result['group_id'];
+			$conditions = array();
+
+			if(false === (@$criterion = unserialize($result['criteria_ser'])))
+				continue;
+				
+			if(!is_array($criterion) || empty($criterion))
+				continue;
+			
+			// Loop through and add outcomes
+			
+			if(is_array($criterion))
+			foreach($criterion as $key => $data) {
+				
+				switch($key) {
+					case 'dayofweek':
+						$map = array(
+							'sun' => '0',
+							'mon' => '1',
+							'tue' => '2',
+							'wed' => '3',
+							'thu' => '4',
+							'fri' => '5',
+							'sat' => '6',
+						);
+						$days = array();
+						
+						if(is_array($data))
+						foreach($data as $day => $null) {
+							if(isset($map[$day]))
+								$days[] = $map[$day];
+						}
+						
+						$condition = array(
+							'condition' => '_day_of_week',
+							'oper' => 'is',
+							'day' => $days,
+						);
+						
+						$conditions[] = $condition;
+						break;
+						
+					case 'timeofday':
+						$from = isset($data['from']) ? $data['from'] : null;
+						$to = isset($data['to']) ? $data['to'] : null;
+
+						if(is_null($from) || is_null($to))
+							break;
+						
+						if(false === ($from = strtotime($from))
+							|| false === ($to = strtotime($to))) {
+								break;
+							}
+							
+						$condition = array(
+							'condition' => '_time_of_day',
+							'oper' => 'between',
+							'from' => date('h:ia',$from),
+							'to' => date('h:ia', $to),
+						);
+						
+						$conditions[] = $condition;
+						break;
+						
+					case 'subject':
+						@$val = $data['value'];
+						
+						if(empty($val))
+							break;
+						
+						$condition = array(
+							'condition' => 'ticket_subject',
+							'oper' => 'like',
+							'value' => $val,
+						);
+							
+						$conditions[] = $condition;
+						break;
+						
+					case 'from':
+						@$val = $data['value'];
+						
+						if(empty($val))
+							break;
+						
+						$condition = array(
+							'condition' => 'ticket_latest_message_sender_address',
+							'oper' => 'like',
+							'value' => $val,
+						);
+							
+						$conditions[] = $condition;
+						break;
+						
+					case 'body':
+						@$val = $data['value'];
+						
+						if(empty($val))
+							break;
+						
+						$condition = array(
+							'condition' => 'ticket_latest_message_content',
+							'oper' => 'regexp',
+							'value' => $val,
+						);
+							
+						$conditions[] = $condition;
+						break;
+						
+					default:
+						// Headers
+						if('header' == substr($key,0,6)) {
+							@$header = $data['header'];
+							@$val = $data['value'];
+							
+							if(empty($val))
+								break;
+							
+							$condition = array(
+								'condition' => 'ticket_latest_message_header',
+								'header' => $header,
+								'oper' => 'like',
+								'value' => $val,
+							);
+								
+							$conditions[] = $condition;
+							break;
+						}
+						
+						// Custom fields
+						if('cf_' != substr($key,0,3))
+							break;
+
+						$cfield_id = substr($key,3);
+						
+						if(!isset($custom_fields[$cfield_id]))
+							break;
+							
+						$cfield = $custom_fields[$cfield_id];
+						$cfield_prefix = '';
+						$condition = null;
+							
+						switch($cfield['context']) {
+							case 'cerberusweb.contexts.address':
+								$cfield_prefix = 'ticket_latest_message_sender_custom_';
+								break;
+							case 'cerberusweb.contexts.org':
+								$cfield_prefix = 'ticket_latest_message_sender_org_custom_';
+								break;
+							case 'cerberusweb.contexts.ticket':
+								$cfield_prefix = 'ticket_custom_';
+								break;
+						}
+						
+						$condition_key = $cfield_prefix.$cfield_id;
+						
+						switch($cfield['type']) {
+							case 'C': // Checkbox
+								$condition = array(
+									'condition' => $condition_key,
+									'bool' => !empty($data['value']) ? 1 : 0,
+								);
+								break;
+							case 'S': // Single text
+							case 'T': // Multi text
+							case 'U': // URL
+								$oper = ('!=' == @$data['oper']) ? '!like' : 'like';
+								$condition = array(
+									'condition' => $condition_key,
+									'oper' => $oper,
+									'value' => $data['value'],
+								);
+								break;
+							case 'D': // Dropdown
+							case 'X': // Multi-Check
+								$values = is_array($data['value']) ? array_values($data['value']) : array();
+								$condition = array(
+									'condition' => $condition_key,
+									'oper' => 'in',
+									'values' => $values,
+								);
+								break;
+							case 'N': // Number
+								$oper = null;
+								switch(@$data['oper']) {
+									case '=':
+										$oper = 'is';
+										break;
+									case '!=':
+										$oper = '!is';
+										break;
+									case '<':
+										$oper = 'lt';
+										break;
+									case '>':
+										$oper = 'gt';
+										break;
+								}
+								
+								$condition = array(
+									'condition' => $condition_key,
+									'oper' => $oper,
+									'value' => $data['value'],
+								);
+								break;
+							case 'E': // Date
+								@$from = $data['from'];
+								@$to = $data['to'];
+								
+								$condition = array(
+									'condition' => $condition_key,
+									'oper' => 'is',
+									'from' => $from,
+									'to' => $to,
+								);
+								break;
+							case 'W': // Worker
+								$values = is_array($data['value']) ? array_values($data['value']) : array();
+								$condition = array(
+									'condition' => $condition_key,
+									'oper' => 'in',
+									'worker_id' => $values,
+								);
+								break;
+							default:
+								break;
+						}
+
+						if(!empty($condition))
+							$conditions[] = $condition;
+						
+						break;
+				}
+				
+			} // end criterion
+			
+			if(!empty($conditions)) {
+				$parent_id = $group_filters_node_id;
+				
+				$extra_group = null;
+				
+				// Nest decision if multiple addresses
+				if(isset($criterion['tocc'])) {
+					$data = $criterion['tocc'];
+					@$val = $data['value'];
+					
+					if(!empty($val)) {
+						$vals = DevblocksPlatform::parseCsvString($val);
+						$conds = array();
+						
+						foreach($vals as $email) {
+							$email = trim($email, '*'); // strip leading or trailing wild
+							
+							$conds[] = array(
+								'condition' => 'ticket_latest_message_header',
+								'header' => 'to',
+								'oper' => 'contains',
+								'value' => $email,
+							);
+						}
+						
+						if(!empty($conds)) {
+							$extra_group = array(
+								'any' => 1,
+								'conditions' => $conds,
+							);
+						}
+					}
+				} // end tocc nest check					
+				
+				$groups = array();
+				
+				if(!empty($extra_group))
+					$groups[] = $extra_group;
+				
+				$groups[] = array(
+					'any' => 0,
+					'conditions' => $conditions,
+				);
+				
+				// Outcome: Rule
+				$db->Execute(sprintf("INSERT INTO decision_node (parent_id, trigger_id, title, params_json, node_type, pos) ".
+					"VALUES (%d, %d, %s, %s, %s, %d)",
+					$parent_id,
+					$trigger_id,
+					$db->qstr($result['name']),
+					$db->qstr(json_encode(array(
+						'groups' => $groups
+					))),
+					$db->qstr('outcome'),
+					$pos++
+				));
+				$parent_id = $db->LastInsertId();
+				
+			} // finish condition nodes
+			
+			$do = array();
+			$pos = 0;
+			
+			if(false !== ($actions = unserialize($result['actions_ser']))) {
+				$action_labels = array();
+				
+				if(is_array($actions))
+				foreach($actions as $key => $data) {
+					$action = null;
+					
+					switch($key) {
+						case 'move':
+							@$move_group_id = $data['group_id'];
+							@$move_bucket_id = $data['bucket_id'];
+							
+							// Intra-group move
+							if($move_group_id == $group_id) {
+								// Don't re-deliver to inbox
+								if(empty($move_bucket_id))
+									break;
+									
+								if(!isset($bucket_labels[$move_bucket_id]))
+									break;
+
+								$action_labels[] = 'move to ' . $bucket_labels[$move_bucket_id] . ' bucket';
+									
+								$action = array(
+									'action' => 'move_to_bucket',
+									'bucket_id' => $move_bucket_id,
+								);
+								
+							// If other group_id, only drop to their inbox
+							} else {
+								if(!isset($group_labels[$move_group_id]))
+									break;
+
+								$action_labels[] = 'move to ' . $group_labels[$move_group_id] . ' group';
+								
+								$action = array(
+									'action' => 'move_to_group',
+									'group_id' => $move_group_id,
+								);
+								
+							}
+							
+							if(!empty($action))
+								$do[] = $action;
+							break;
+							
+						case 'status':
+							@$is_waiting = $data['is_waiting'];
+							@$is_closed = $data['is_closed'];
+							@$is_deleted = $data['is_deleted'];
+							
+							$status = 'open';
+							
+							if($is_deleted) {
+								$status = 'deleted';
+								$action_labels[] = 'delete';
+							} elseif($is_closed) {
+								$status = 'closed';
+								$action_labels[] = 'close';
+							} elseif($is_waiting) {
+								$status = 'waiting';
+								$action_labels[] = 'waiting';
+							} else {
+								$action_labels[] = 'open';
+							}
+							
+							$action = array(
+								'action' => 'set_status',
+								'status' => $status,
+							);
+							
+							$do[] = $action;
+							break;
+							
+						case 'spam':
+							@$is_spam = $data['is_spam'];
+							
+							$training = 'N';
+							
+							if(!empty($is_spam)) {
+								$training = 'S';
+								$action_labels[] = 'spam';
+								
+							} else {
+								$action_labels[] = 'not spam';
+							}
+							
+							$action = array(
+								'action' => 'set_spam_training',
+								'value' => $training,
+							);
+							
+							$do[] = $action;
+							break;
+							
+						case 'owner':
+							@$add_workers = $data['add'];
+							
+							if(empty($add_workers) || !is_array($data['add']))
+								break;
+								
+							$action = array(
+								'action' => 'add_watchers',
+								'worker_id' => $add_workers,
+							);
+							
+							$do[] = $action;
+							
+							$action_labels[] = 'assign watchers';
+							break;
+							
+						default:
+							// Custom fields							
+							if('cf_' != substr($key,0,3))
+								break;
+							
+							$cfield_id = substr($key,3);
+
+							if(!isset($custom_fields[$cfield_id]))
+								break;
+								
+							$cfield = $custom_fields[$cfield_id];
+							$action = array();
+							
+							switch($cfield['type']) {
+								case 'C':
+								case 'D':
+								case 'E':
+								case 'N':
+								case 'S':
+								case 'T':
+								case 'U':
+									@$value = $data['value'];
+									if(empty($value))
+										break;
+									
+									$action = array(
+										'action' => 'set_cf_'.$cfield_id,
+										'value' => $value, 
+									);
+									break;
+								case 'W':
+									@$value = $data['value'];
+									if(empty($value))
+										break;
+									
+									$action = array(
+										'action' => 'set_cf_'.$cfield_id,
+										'worker_id' => $value, 
+									);
+									break;
+								case 'X':
+									@$value = $data['value'];
+									
+									if(empty($value) || !is_array($value))
+										break;
+									
+									foreach($value as $k => $v)
+										$value[$k] = ltrim($v, '+-');
+										
+									$action = array(
+										'action' => 'set_cf_'.$cfield_id,
+										'values' => $value, 
+									);
+									break;
+							}
+								
+							if(!empty($action)) {
+								$do[] = $action;
+								$action_labels[] = 'set ticket:' . $cfield['label'];
+							}
+							break;
+					}
+				}
+				
+			} // finish action nodes
+
+			if(!empty($do)) {
+				$label = 'Perform actions';
+				
+				if(!empty($action_labels))
+					$label = ucfirst(implode(', ', $action_labels));
+				
+				// Actions: Perform these actions
+				$db->Execute(sprintf("INSERT INTO decision_node (parent_id, trigger_id, title, params_json, node_type, pos) ".
+					"VALUES (%d, %d, %s, %s, %s, %d)",
+					$parent_id,
+					$trigger_id,
+					$db->qstr($label),
+					$db->qstr(json_encode(
+						array(
+							'actions' => $do,
+						)
+					)),
+					$db->qstr('action'),
+					$pos++
+				));
+				$db->LastInsertId();
+				
+			}
+			
+		} // end outcome nodes per group
+	}
+}
+
+// ===========================================================================
+// Drop group inbox filters (replaced by Virtual Attendants)
+
+if(isset($tables['group_inbox_filter'])) {
+	$db->Execue('DROP TABLE IF EXISTS group_inbox_filter');
+}
+
+
 return TRUE;

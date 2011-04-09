@@ -36,7 +36,7 @@
 		<patch version="5.1.2" revision="904" file="patches/5.x/5.1.2.php" />
 		<patch version="5.2.0" revision="905" file="patches/5.x/5.2.0.php" />
 		<patch version="5.3.0" revision="916" file="patches/5.x/5.3.0.php" />
-		<patch version="5.4.0" revision="930" file="patches/5.x/5.4.0.php" />
+		<patch version="5.4.0" revision="931" file="patches/5.x/5.4.0.php" />
 	</patches>
 
 	<!-- Declared Extension Points -->
@@ -189,12 +189,6 @@
 			<class name="SearchFields_Group" />
 			<class name="View_Group" />
 			<class name="Model_TeamMember" />
-		</file>
-		
-		<file path="api/dao/group_inbox_filter.php">
-			<class name="DAO_GroupInboxFilter" />
-			<class name="Model_GroupInboxFilter" />
-			<class name="SearchFields_GroupInboxFilter" />
 		</file>
 		
 		<file path="api/dao/mail_queue.php">
