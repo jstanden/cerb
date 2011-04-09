@@ -1159,7 +1159,7 @@ if(isset($tables['group_inbox_filter'])) {
 // Drop group inbox filters (replaced by Virtual Attendants)
 
 if(isset($tables['group_inbox_filter'])) {
-	$db->Execue('DROP TABLE IF EXISTS group_inbox_filter');
+	$db->Execute('DROP TABLE IF EXISTS group_inbox_filter');
 }
 
 
