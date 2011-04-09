@@ -1350,6 +1350,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals {
 				case SearchFields_Ticket::TICKET_FIRST_WROTE:
 				case SearchFields_Ticket::TICKET_LAST_WROTE:
 				case SearchFields_Ticket::TICKET_SPAM_TRAINING:
+				case SearchFields_Ticket::TICKET_SUBJECT:
 				case SearchFields_Ticket::TICKET_TEAM_ID:
 					$pass = true;
 					break;
@@ -1388,6 +1389,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals {
 			case SearchFields_Ticket::ORG_NAME:
 			case SearchFields_Ticket::TICKET_FIRST_WROTE:
 			case SearchFields_Ticket::TICKET_LAST_WROTE:
+			case SearchFields_Ticket::TICKET_SUBJECT:
 				$counts = $this->_getSubtotalCountForStringColumn('DAO_Ticket', $column);
 				break;
 				
