@@ -17,7 +17,7 @@
 {foreach from=$model->params.actions item=params key=seq}
 <fieldset id="action{$seq}">
 	<legend>
-		<a href="javascript:;" onclick="$(this).closest('fieldset').remove();" class="delete" style="display:none;"><span class="cerb-sprite2 sprite-minus-circle-frame"></span></a>
+		<a href="javascript:;" onclick="$(this).closest('fieldset').remove();"><span class="cerb-sprite2 sprite-minus-circle-frame"></span></a>
 		{$actions.{$params.action}.label}
 	</legend>
 
@@ -69,17 +69,6 @@
 			$(this).removeClass('unbound');
 		});
 
-		$popup.find('div.actions fieldset')
-			.hover(
-				function(e) {
-					$(this).find('legend a.delete').show();
-				},
-				function(e) {
-					$(this).find('legend a.delete').hide();
-				}
-			)
-			;
-		
 		$popup.find('#frmDecisionNodeActionAdd SELECT').first().change(function() {
 			$select = $(this);
 			$val=$select.val();

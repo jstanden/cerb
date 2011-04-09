@@ -608,17 +608,17 @@ UL.cerb-popupmenu {
 	margin:0px;
 	padding:5px;
 	display:none;
+	background-color:rgb(232,242,254);
+	background: -webkit-gradient(linear, left top, left bottom, from(rgb(232,242,254)), to(rgb(255,255,255)));
+	background: -moz-linear-gradient(top, rgb(232,242,254), rgb(255,255,255));
+	background: -o-linear-gradient(top, rgb(232,242,254),  rgb(255,255,255));
+	border:1px solid rgb(152,162,200);
 }
 
 UL.cerb-popupmenu.cerb-float {
 	position:absolute;
 	z-index:1500;
 	float:left;
-	background-color:rgb(232,242,254);
-	background: -webkit-gradient(linear, left top, left bottom, from(rgb(232,242,254)), to(rgb(255,255,255)));
-	background: -moz-linear-gradient(top, rgb(232,242,254), rgb(255,255,255));
-	background: -o-linear-gradient(top, rgb(232,242,254),  rgb(255,255,255));
-	border:1px solid rgb(152,162,200);
 }
 
 UL.cerb-popupmenu > LI {

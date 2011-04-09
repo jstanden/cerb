@@ -1563,8 +1563,9 @@ class ChInternalController extends DevblocksControllerExtension {
 		
 		$tpl->assign('trigger', $trigger);
 		$tpl->assign('event', $event);
+		$tpl->assign('seq', $seq);
 			
-		$event->renderCondition($condition, $trigger);
+		$event->renderCondition($condition, $trigger, null, $seq);
 	}
 	
 	function doDecisionAddActionAction() {

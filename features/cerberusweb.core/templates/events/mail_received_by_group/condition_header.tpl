@@ -13,5 +13,5 @@
 </select>
 <br>
 
-<input type="text" name="{$namePrefix}[value]" value="{$params.value}" size="24">
+<input type="text" name="{$namePrefix}[value]" value="{$params.value}" size="45">
 <br>
