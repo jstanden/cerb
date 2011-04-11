@@ -20,9 +20,9 @@
 				{if $f->type=='S'}
 					<input type="text" name="field_{$f_id}" size="45" style="width:98%;" maxlength="255" value="{$custom_field_values.$f_id}">
 				{elseif $f->type=='U'}
-					<input type="text" name="field_{$f_id}" size="45" style="width:98%;" maxlength="255" value="{$custom_field_values.$f_id}" class="url input_url">
+					<input type="text" name="field_{$f_id}" size="45" style="width:98%;" maxlength="255" value="{$custom_field_values.$f_id}" class="url">
 				{elseif $f->type=='N'}
-					<input type="text" name="field_{$f_id}" size="45" style="width:98%;" maxlength="255" value="{$custom_field_values.$f_id}" class="number input_number">
+					<input type="text" name="field_{$f_id}" size="45" style="width:98%;" maxlength="255" value="{$custom_field_values.$f_id}" class="number">
 				{elseif $f->type=='T'}
 					<textarea name="field_{$f_id}" rows="4" cols="50" style="width:98%;">{$custom_field_values.$f_id}</textarea>
 				{elseif $f->type=='C'}

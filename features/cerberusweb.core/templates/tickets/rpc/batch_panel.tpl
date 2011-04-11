@@ -106,8 +106,10 @@
 			<td width="0%" nowrap="nowrap" valign="top">{'common.watchers'|devblocks_translate|capitalize}:</td>
 			<td width="100%">
 				<button type="button" class="chooser-worker add"><span class="cerb-sprite sprite-view"></span></button>
-				<br>
-				</span><button type="button" class="chooser-worker remove"><span class="cerb-sprite sprite-view"></span></button>
+				<ul class="bubbles chooser-container" style="display:block;"></ul>
+
+				<button type="button" class="chooser-worker remove"><span class="cerb-sprite sprite-view"></span></button>
+				<ul class="bubbles chooser-container" style="display:block;"></ul>
 			</td>
 		</tr>
 		{/if}

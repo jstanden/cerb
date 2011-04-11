@@ -2041,16 +2041,44 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals {
 	 * @param array
 	 * @return boolean
 	 */
-	function doBulkUpdate($filter, $filter_param, $data, $do, $ticket_ids=array()) {
+	function doBulkUpdate($filter, $filter_param, $data, $do, $ids=array()) {
 		@set_time_limit(600);
 	  
-		// Make sure we have checked items if we want a checked list
-		if(0 == strcasecmp($filter,"checks") && empty($ticket_ids))
+		$change_fields = array();
+		$custom_fields = array();
+
+		// Make sure we have actions
+		if(empty($do))
 			return;
 		
-		$rule = new Model_GroupInboxFilter();
-		$rule->actions = $do;
-	  
+		// Make sure we have checked items if we want a checked list
+		if(0 == strcasecmp($filter,"checks") && empty($ids))
+			return;
+		
+		if(is_array($do))
+		foreach($do as $k => $v) {
+			switch($k) {
+				case 'move':
+					$change_fields[DAO_Ticket::TEAM_ID] = $v['group_id'];
+					$change_fields[DAO_Ticket::CATEGORY_ID] = $v['bucket_id'];
+					break;
+				case 'status':
+					$change_fields[DAO_Ticket::IS_WAITING] = !empty($v['is_waiting']) ? 1 : 0;
+					$change_fields[DAO_Ticket::IS_CLOSED] = !empty($v['is_closed']) ? 1 : 0;
+					$change_fields[DAO_Ticket::IS_DELETED] = !empty($v['is_deleted']) ? 1 : 0;
+					break;
+				case 'reopen':
+					@$date = strtotime($v['date']);
+					$change_fields[DAO_Ticket::DUE_DATE] = intval($date);
+					break;
+				default:
+					// Custom fields
+					if(substr($k,0,3)=="cf_") {
+						$custom_fields[substr($k,3)] = $v;
+					}
+			}
+		}
+			
 		$params = $this->getParams();
 
 		if(empty($filter)) {
@@ -2068,14 +2096,14 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals {
 						new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_SUBJECT,DevblocksSearchCriteria::OPER_LIKE,$v)
 					);
 					$do_header = 'subject';
-					$ticket_ids = array();
+					$ids = array();
 					break;
 				case 'sender':
 					$new_params = array(
 						new DevblocksSearchCriteria(SearchFields_Ticket::SENDER_ADDRESS,DevblocksSearchCriteria::OPER_LIKE,$v)
 					);
 					$do_header = 'from';
-					$ticket_ids = array();
+					$ids = array();
 					break;
 				case 'header':
 					$new_params = array(
@@ -2083,14 +2111,14 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals {
 						new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_MESSAGE_HEADER,DevblocksSearchCriteria::OPER_EQ,$filter_param),
 						new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_MESSAGE_HEADER_VALUE,DevblocksSearchCriteria::OPER_EQ,$v)
 					);
-					$ticket_ids = array();
+					$ids = array();
 					break;
 			}
 
 			$new_params = array_merge($new_params, $params);
 			$pg = 0;
 
-			if(empty($ticket_ids)) {
+			if(empty($ids)) {
 				do {
 					list($tickets,$null) = DAO_Ticket::search(
 						array(),
@@ -2102,20 +2130,49 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals {
 						false
 					);
 					 
-					$ticket_ids = array_merge($ticket_ids, array_keys($tickets));
+					$ids = array_merge($ids, array_keys($tickets));
 					 
 				} while(!empty($tickets));
 			}
 	   
-			$batch_total = count($ticket_ids);
+			$batch_total = count($ids);
 			for($x=0;$x<=$batch_total;$x+=200) {
-				$batch_ids = array_slice($ticket_ids,$x,200);
-				$rule->run($batch_ids);
+				$batch_ids = array_slice($ids,$x,200);
+				
+				// Fields
+				if(!empty($change_fields))
+					DAO_Ticket::update($batch_ids, $change_fields);
+				
+				// Custom Fields
+				self::_doBulkSetCustomFields(CerberusContexts::CONTEXT_TICKET, $custom_fields, $batch_ids);
+				
+				// Spam
+				if(isset($do['spam'])) {
+					if(!empty($do['spam']['is_spam'])) {
+						foreach($batch_ids as $batch_id)
+							CerberusBayes::markTicketAsSpam($batch_id);
+					} else {
+						foreach($batch_ids as $batch_id)
+							CerberusBayes::markTicketAsNotSpam($batch_id);
+					}
+				}
+				
+				// Watchers
+				if(isset($do['watchers']) && is_array($do['watchers'])) {
+					$watcher_params = $do['watchers'];
+					foreach($batch_ids as $batch_id) {
+						if(isset($watcher_params['add']) && is_array($watcher_params['add']))
+							CerberusContexts::addWatchers(CerberusContexts::CONTEXT_TICKET, $batch_id, $watcher_params['add']);
+						if(isset($watcher_params['remove']) && is_array($watcher_params['remove']))
+							CerberusContexts::removeWatchers(CerberusContexts::CONTEXT_TICKET, $batch_id, $watcher_params['remove']);
+					}
+				}
+				
 				unset($batch_ids);
 			}
 		}
 
-		unset($ticket_ids);
+		unset($ids);
 	}
 
 	static function createSearchView() {

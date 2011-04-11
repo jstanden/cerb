@@ -1552,7 +1552,7 @@ class ChTicketsPage extends CerberusPageExtension {
 			'dont_send' => (false==$send_to_requesters),
 		);
 		
-		// Don't reset owners to 'blank', but allow overrides from GUI log ticket form
+		// Don't reset watchers to 'blank', but allow overrides from GUI log ticket form
 		if(!empty($watcher_ids))
 	    	$properties['context_watchers'] = $watcher_ids;
 		
@@ -1714,7 +1714,7 @@ class ChTicketsPage extends CerberusPageExtension {
             		
             		if(!empty($w_id))
 	            	$doActions = array(
-	            		'owner' => array(
+	            		'watchers' => array(
 	            			'add' => array($w_id),
 	            		)
 	            	);
@@ -2187,7 +2187,7 @@ class ChTicketsPage extends CerberusPageExtension {
 			$watcher_params['remove'] = $watcher_remove_ids;
 		
 		if(!empty($watcher_params))
-			$do['owner'] = $watcher_params;
+			$do['watchers'] = $watcher_params;
 			
 		// Spam training
 		@$is_spam = DevblocksPlatform::importGPC($_REQUEST['do_spam'],'string',null);
