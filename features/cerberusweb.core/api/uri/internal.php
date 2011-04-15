@@ -381,6 +381,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
 		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer',0);
 		@$follow = DevblocksPlatform::importGPC($_REQUEST['follow'],'integer',0);
+		@$full = DevblocksPlatform::importGPC($_REQUEST['full'],'integer',0);
 		
 		// [TODO] Verify context + context_id
 		
@@ -389,6 +390,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		
 		$tpl->assign('context', $context);
 		$tpl->assign('context_id', $context_id);
+		$tpl->assign('full', $full);
 		
 		// Add or remove watcher as current worker
 		if($follow) {
