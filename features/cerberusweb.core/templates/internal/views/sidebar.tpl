@@ -41,11 +41,13 @@
 
 <script type="text/javascript">
 	$('#view{$view_id}_sidebar fieldset:first legend') //.cerb-menu A.menu
-		.hover(
-			function(e) {
+		.hoverIntent({
+			over:function(e) {
 				$(this).next('ul:first').show();
-			}
-		)
+			},
+			timeout:0,
+			out:function(e){}
+		})
 		.closest('fieldset')
 			.hover(
 				function(e) {},
