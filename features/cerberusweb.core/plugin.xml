@@ -56,6 +56,10 @@
 	<!-- Exported Classes -->
 	
 	<class_loader>
+		<file path="api/listeners.classes.php">
+			<class name="EventListener_Triggers" />
+		</file>
+		
 		<file path="api/plugin.classes.php">
 			<class name="ChPageController" />
 			<class name="ChRssSource_Notification" />
