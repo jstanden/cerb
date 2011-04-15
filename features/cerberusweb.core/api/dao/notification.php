@@ -194,7 +194,7 @@ class DAO_Notification extends DevblocksORMHelper {
 		$fields = SearchFields_Notification::getFields();
 		
 		// Sanitize
-		if(!isset($fields[$sortBy]) || '*'==substr($sortBy,0,1) || !in_array($sortBy,$columns))
+		if(!isset($fields[$sortBy]) || '*'==substr($sortBy,0,1)) // || !in_array($sortBy,$columns))
 			$sortBy=null;
 
         list($tables,$wheres) = parent::_parseSearchParams($params, array(),$fields,$sortBy);
@@ -353,8 +353,8 @@ class View_Notification extends C4_AbstractView implements IAbstractView_Subtota
 		$this->renderSortAsc = false;
 
 		$this->view_columns = array(
-			SearchFields_Notification::MESSAGE,
 			SearchFields_Notification::CREATED_DATE,
+			SearchFields_Notification::MESSAGE,
 		);
 		$this->addColumnsHidden(array(
 			SearchFields_Notification::ID,
