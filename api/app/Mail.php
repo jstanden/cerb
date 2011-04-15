@@ -244,16 +244,9 @@ class CerberusMail {
 			DAO_Ticket::FIRST_WROTE_ID => $fromAddressId,
 			DAO_Ticket::LAST_WROTE_ID => $fromAddressId,
 			DAO_Ticket::LAST_ACTION_CODE => CerberusTicketActionCode::TICKET_WORKER_REPLY,
-			DAO_Ticket::TEAM_ID => $team_id,
 		);
 		
 		// "Next:" [TODO] This is highly redundant with CerberusMail::reply
-		
-		if(!empty($move_bucket)) {
-	        list($team_id, $bucket_id) = CerberusApplication::translateTeamCategoryCode($move_bucket);
-		    $fields[DAO_Ticket::TEAM_ID] = $team_id;
-		    $fields[DAO_Ticket::CATEGORY_ID] = $bucket_id;
-		}
 		
 		if(isset($ticket_reopen) && !empty($ticket_reopen)) {
 			$due = strtotime($ticket_reopen);
@@ -321,6 +314,15 @@ class CerberusMail {
 		if(isset($closed) && 2==$closed)
 			$fields[DAO_Ticket::IS_WAITING] = 1;
 		
+		// Move last, so the event triggers properly
+	    $fields[DAO_Ticket::TEAM_ID] = $team_id;
+	    
+		if(!empty($move_bucket)) {
+	        list($team_id, $bucket_id) = CerberusApplication::translateTeamCategoryCode($move_bucket);
+		    $fields[DAO_Ticket::TEAM_ID] = $team_id;
+		    $fields[DAO_Ticket::CATEGORY_ID] = $bucket_id;
+		}
+			
 		DAO_Ticket::update($ticket_id, $fields);
 		
 		// Train as not spam
