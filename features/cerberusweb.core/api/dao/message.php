@@ -1353,13 +1353,17 @@ class Context_Message extends Extension_DevblocksContext {
 		return FALSE;
 	}
 	
-    function getPermalink($context_id) {
-    	// [TODO] Load ticket from message
-    	return null;
-    	//$url_writer = DevblocksPlatform::getUrlService();
-    	//return $url_writer->write('c=tasks&action=display&id='.$context_id, true);
-    }
-
+	function getMeta($context_id) {
+		$message = DAO_Message::get($context_id);
+		$url_writer = DevblocksPlatform::getUrlService();
+		
+		return array(
+			'id' => $message->id,
+			'name' => '', //$message->title,
+			'permalink' => '', // [TODO]
+		);
+	}
+	
 	function getContext($message, &$token_labels, &$token_values, $prefix=null) {
 		if(is_null($prefix))
 			$prefix = 'Message:';

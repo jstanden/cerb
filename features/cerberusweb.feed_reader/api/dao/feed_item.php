@@ -711,11 +711,17 @@ class View_FeedItem extends C4_AbstractView implements IAbstractView_Subtotals {
 };
 
 class Context_FeedItem extends Extension_DevblocksContext {
-    function getPermalink($context_id) {
-    	$url_writer = DevblocksPlatform::getUrlService();
-    	return $url_writer->write('c=feeds&i=item&id='.$context_id, true);
-    }
-    
+	function getMeta($context_id) {
+		$item = DAO_FeedItem::get($context_id);
+		$url_writer = DevblocksPlatform::getUrlService();
+		
+		return array(
+			'id' => $item->id,
+			'name' => $item->title,
+			'permalink' => $url_writer->write('c=feeds&i=item&id='.$context_id, true),
+		);
+	}
+	
 	function getContext($item, &$token_labels, &$token_values, $prefix=null) {
 		if(is_null($prefix))
 			$prefix = 'Feed:Item:';

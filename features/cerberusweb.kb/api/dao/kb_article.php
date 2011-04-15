@@ -491,11 +491,17 @@ class Context_KbArticle extends Extension_DevblocksContext {
 		return TRUE;
 	}	
 	
-    function getPermalink($context_id) {
-    	$url_writer = DevblocksPlatform::getUrlService();
-    	return $url_writer->write('c=kb&ar=article&id='.$context_id, true);
-    }
-    
+	function getMeta($context_id) {
+		$article = DAO_KbArticle::get($context_id);
+		$url_writer = DevblocksPlatform::getUrlService();
+		
+		return array(
+			'id' => $article->id,
+			'name' => $article->title,
+			'permalink' => $url_writer->write('c=kb&ar=article&id='.$context_id, true),
+		);
+	}
+	
 	function getContext($item, &$token_labels, &$token_values, $prefix=null) {
 		if(is_null($prefix))
 			$prefix = 'Article:';

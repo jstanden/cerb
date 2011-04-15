@@ -1186,13 +1186,24 @@ class DAO_WorkerPref extends DevblocksORMHelper {
 };
 
 class Context_Worker extends Extension_DevblocksContext {
-    function getPermalink($context_id) {
-    	// [TODO] Profiles
-    	$url_writer = DevblocksPlatform::getUrlService();
-    	return null;
-    	//return $url_writer->write('c=home&tab=orgs&action=display&id='.$context_id, true);
-    }
-    
+	function getMeta($context_id) {
+		$worker = DAO_Worker::get($context_id);
+		$url_writer = DevblocksPlatform::getUrlService();
+		
+		$worker_name = $worker->getName();
+		
+		$who = sprintf("%d-%s",
+			$worker->id,
+			DevblocksPlatform::strToPermalink($worker_name)
+		); 
+		
+		return array(
+			'id' => $worker->id,
+			'name' => $worker_name,
+			'permalink' => $url_writer->write('c=profiles&type=worker&who='.$who, true),
+		);
+	}
+	
 	function getContext($worker, &$token_labels, &$token_values, $prefix=null) {
 		if(is_null($prefix))
 			$prefix = 'Worker:';

@@ -49,11 +49,17 @@
  */
 
 class Context_TimeTracking extends Extension_DevblocksContext {
-    function getPermalink($context_id) {
-    	$url_writer = DevblocksPlatform::getUrlService();
-    	return $url_writer->write('c=timetracking&tab=display&id='.$context_id, true);
-    }
-    
+	function getMeta($context_id) {
+		$time_entry = DAO_TimeTrackingEntry::get($context_id);
+		$url_writer = DevblocksPlatform::getUrlService();
+		
+		return array(
+			'id' => $time_entry->id,
+			'name' => '', // [TODO] model->getName()
+			'permalink' => $url_writer->write('c=timetracking&tab=display&id='.$context_id, true),
+		);
+	}
+	
     function getContext($timeentry, &$token_labels, &$token_values, $prefix=null) {
 		if(is_null($prefix))
 			$prefix = 'TimeEntry:';

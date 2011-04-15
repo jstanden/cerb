@@ -651,11 +651,17 @@ class View_ExampleObject extends C4_AbstractView implements IAbstractView_Subtot
 class Context_ExampleObject extends Extension_DevblocksContext {
 	const ID = 'cerberusweb.contexts.example_object';
 	
-    function getPermalink($context_id) {
-    	$url_writer = DevblocksPlatform::getUrlService();
-    	return $url_writer->write('c=example.objects&action=profile&id='.$context_id, true);
-    }
-
+	function getMeta($context_id) {
+		$example = DAO_ExampleObject::get($context_id);
+		$url_writer = DevblocksPlatform::getUrlService();
+		
+		return array(
+			'id' => $example->id,
+			'name' => $example->name,
+			'permalink' => $url_writer->write('c=example.objects&action=profile&id='.$context_id, true),
+		);
+	}
+	
 	function getContext($object, &$token_labels, &$token_values, $prefix=null) {
 		if(is_null($prefix))
 			$prefix = 'Example:';

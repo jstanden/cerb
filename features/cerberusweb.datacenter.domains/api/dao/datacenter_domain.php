@@ -1,9 +1,15 @@
 <?php
 class Context_Domain extends Extension_DevblocksContext {
-    function getPermalink($context_id) {
-    	$url_writer = DevblocksPlatform::getUrlService();
-    	return $url_writer->write(sprintf("c=datacenter.domains&tab=domain&id=%d",$context_id), true);
-    }
+	function getMeta($context_id) {
+		$domain = DAO_Domain::get($context_id);
+		$url_writer = DevblocksPlatform::getUrlService();
+		
+		return array(
+			'id' => $domain->id,
+			'name' => $domain->name,
+			'permalink' => $url_writer->write(sprintf("c=datacenter.domains&tab=domain&id=%d",$context_id), true),
+		);
+	}
     
 	function getContext($id_map, &$token_labels, &$token_values, $prefix=null) {
 		if(is_array($id_map)) {

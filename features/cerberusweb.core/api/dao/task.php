@@ -731,11 +731,17 @@ class View_Task extends C4_AbstractView implements IAbstractView_Subtotals {
 };
 
 class Context_Task extends Extension_DevblocksContext {
-    function getPermalink($context_id) {
-    	$url_writer = DevblocksPlatform::getUrlService();
-    	return $url_writer->write('c=tasks&action=display&id='.$context_id, true);
-    }
-
+	function getMeta($context_id) {
+		$task = DAO_Task::get($context_id);
+		$url_writer = DevblocksPlatform::getUrlService();
+		
+		return array(
+			'id' => $task->id,
+			'name' => $task->title,
+			'permalink' => $url_writer->write('c=tasks&action=display&id='.$task->id, true),
+		);
+	}
+	
 	function getContext($task, &$token_labels, &$token_values, $prefix=null) {
 		if(is_null($prefix))
 			$prefix = 'Task:';

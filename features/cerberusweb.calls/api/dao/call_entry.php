@@ -671,11 +671,17 @@ class View_CallEntry extends C4_AbstractView implements IAbstractView_Subtotals 
 };
 
 class Context_Call extends Extension_DevblocksContext {
-    function getPermalink($context_id) {
-    	$url_writer = DevblocksPlatform::getUrlService();
-    	return $url_writer->write('c=calls&id='.$context_id, true);
-    }
-    
+	function getMeta($context_id) {
+		$call = DAO_CallEntry::get($context_id);
+		$url_writer = DevblocksPlatform::getUrlService();
+		
+		return array(
+			'id' => $call->id,
+			'name' => $call->subject,
+			'permalink' => $url_writer->write('c=calls&id='.$context_id, true),
+		);
+	}
+	
 	function getContext($call, &$token_labels, &$token_values, $prefix=null) {
 		if(is_null($prefix))
 			$prefix = 'Call:';

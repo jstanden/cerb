@@ -985,11 +985,16 @@ class Context_Feedback extends Extension_DevblocksContext {
     	return $results;
     }
     
-    function getPermalink($context_id) {
-    	$url_writer = DevblocksPlatform::getUrlService();
-    	//return $url_writer->write('c=activity&tab=feedback', true);
-    	return false;
-    }
+	function getMeta($context_id) {
+		$feedback = DAO_FeedbackEntry::get($context_id);
+		$url_writer = DevblocksPlatform::getUrlService();
+		
+		return array(
+			'id' => $feedback->id,
+			'name' => '', //$feedback->title, // [TODO]
+			'permalink' => '', //$url_writer->write('c=tasks&action=display&id='.$task->id, true),
+		);
+	}
     
 	function getContext($feedback, &$token_labels, &$token_values, $prefix=null) {
 		if(is_null($prefix))

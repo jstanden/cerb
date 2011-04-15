@@ -1031,13 +1031,22 @@ class View_Group extends C4_AbstractView implements IAbstractView_Subtotals {
 class Context_Group extends Extension_DevblocksContext {
 	const ID = 'cerberusweb.contexts.group';
 	
-    function getPermalink($context_id) {
-    	// [TODO] Profiles
-    	$url_writer = DevblocksPlatform::getUrlService();
-    	return null;
-    	//return $url_writer->write('c=home&tab=orgs&action=display&id='.$context_id, true);
-    }
-    
+	function getMeta($context_id) {
+		$group = DAO_Group::get($context_id);
+		$url_writer = DevblocksPlatform::getUrlService();
+		
+		$who = sprintf("%d-%s",
+			$group->id,
+			DevblocksPlatform::strToPermalink($group->name)
+		);
+		
+		return array(
+			'id' => $group->id,
+			'name' => $group->name,
+			'permalink' => $url_writer->write('c=profiles&type=group&who='.$who, true),
+		);
+	}
+	
 	function getContext($group, &$token_labels, &$token_values, $prefix=null) {
 		if(is_null($prefix))
 			$prefix = 'Group:';

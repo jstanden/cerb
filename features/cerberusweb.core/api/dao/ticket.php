@@ -2251,11 +2251,17 @@ class Context_Ticket extends Extension_DevblocksContext {
 		return FALSE;
 	}
 		
-    function getPermalink($context_id) {
-    	$url_writer = DevblocksPlatform::getUrlService();
-    	return $url_writer->write('c=display&id='.$context_id, true);
-    }
-
+	function getMeta($context_id) {
+		$ticket = DAO_Ticket::get($context_id);
+		$url_writer = DevblocksPlatform::getUrlService();
+		
+		return array(
+			'id' => $ticket->id,
+			'name' => sprintf("[%s] %s", $ticket->mask, $ticket->subject),
+			'permalink' => $url_writer->write('c=display&mask='.$ticket->mask, true),
+		);
+	}
+	
 	function getContext($ticket, &$token_labels, &$token_values, $prefix=null) {
 		if(is_null($prefix))
 			$prefix = 'Ticket:';

@@ -850,11 +850,17 @@ class View_ContactOrg extends C4_AbstractView implements IAbstractView_Subtotals
 class Context_Org extends Extension_DevblocksContext {
 	const ID = 'cerberusweb.contexts.org';
 	
-    function getPermalink($context_id) {
-    	$url_writer = DevblocksPlatform::getUrlService();
-    	return $url_writer->write('c=contacts&tab=orgs&action=display&id='.$context_id, true);
-    }
-    
+	function getMeta($context_id) {
+		$org = DAO_ContactOrg::get($context_id);
+		$url_writer = DevblocksPlatform::getUrlService();
+		
+		return array(
+			'id' => $context_id,
+			'name' => $org->name,
+			'permalink' => $url_writer->write('c=contacts&tab=orgs&action=display&id='.$context_id, true),
+		);
+	}
+	
 	function getContext($org, &$token_labels, &$token_values, $prefix=null) {
 		if(is_null($prefix))
 			$prefix = 'Org:';

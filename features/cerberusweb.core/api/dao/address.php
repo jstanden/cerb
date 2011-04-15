@@ -881,10 +881,16 @@ class Context_Address extends Extension_DevblocksContext {
     	return $results;
     }
     
-    function getPermalink($context_id) {
-    	$url_writer = DevblocksPlatform::getUrlService();
-    	return $url_writer->write('c=contacts&tab=addresses', true);
-    }
+	function getMeta($context_id) {
+		$address = DAO_Address::get($context_id);
+		$url_writer = DevblocksPlatform::getUrlService();
+		
+		return array(
+			'id' => $address->id,
+			'name' => $address->email,
+			'permalink' => $url_writer->write('c=contacts&tab=addresses', true), // [TODO] Display page
+		);
+	}
     
 	function getContext($address, &$token_labels, &$token_values, $prefix=null) {
 		if(is_null($prefix))

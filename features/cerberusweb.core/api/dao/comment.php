@@ -599,12 +599,16 @@ class Context_Comment extends Extension_DevblocksContext {
 		return FALSE;
 	}
 	
-    function getPermalink($context_id) {
-    	// [TODO] Defer to link
-    	return null;
-    	//$url_writer = DevblocksPlatform::getUrlService();
-    	//return $url_writer->write('c=tasks&action=display&id='.$context_id, true);
-    }
+	function getMeta($context_id) {
+		//$comment = DAO_Comment::get($context_id);
+		$url_writer = DevblocksPlatform::getUrlService();
+		
+		return array(
+			'id' => $context_id,
+			'name' => '',
+			'permalink' => '',
+		);
+	}
 
 	function getContext($comment, &$token_labels, &$token_values, $prefix=null) {
 		if(is_null($prefix))

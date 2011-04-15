@@ -334,6 +334,9 @@ class Model_ContactPerson {
 		return $this->_addresses;
 	}
 
+	/**
+	 * @return Model_Address
+	 */
 	public function getPrimaryAddress() {
 		$addresses = $this->getAddresses();
 		if(isset($addresses[$this->email_id]))
@@ -670,10 +673,25 @@ class Context_ContactPerson extends Extension_DevblocksContext {
     	return $results;
     }
     
-    function getPermalink($context_id) {
-    	$url_writer = DevblocksPlatform::getUrlService();
-    	return $url_writer->write('c=contacts&tab=people&id='.$context_id, true);
-    }
+	function getMeta($context_id) {
+		$contact = DAO_ContactPerson::get($context_id);
+		$url_writer = DevblocksPlatform::getUrlService();
+		
+		$address = $contact->getPrimaryAddress();
+
+		$name = $address->getName();
+		
+		if(!empty($name))
+			$name .= ' <' . $address->email . '>';
+		else
+			$name = $address->email;
+		
+		return array(
+			'id' => $contact->id,
+			'name' => $name,
+			'permalink' => $url_writer->write('c=contacts&tab=people&id='.$context_id, true),
+		);
+	}
     
 	function getContext($person, &$token_labels, &$token_values, $prefix=null) {
 		if(is_null($prefix))

@@ -649,11 +649,17 @@ class Context_Notification extends Extension_DevblocksContext {
 		return FALSE;
 	}
 	
-    function getPermalink($context_id) {
-    	$url_writer = DevblocksPlatform::getUrlService();
-    	return $url_writer->write('c=preferences&action=redirectRead&id='.$context_id, true);
-    }
-
+	function getMeta($context_id) {
+		$notification = DAO_Notification::get($context_id);
+		$url_writer = DevblocksPlatform::getUrlService();
+		
+		return array(
+			'id' => $notification->id,
+			'name' => $notification->message,
+			'permalink' => $url_writer->write('c=preferences&action=redirectRead&id='.$context_id, true),
+		);
+	}
+	
 	function getContext($notification, &$token_labels, &$token_values, $prefix=null) {
 		if(is_null($prefix))
 			$prefix = 'Notification:';

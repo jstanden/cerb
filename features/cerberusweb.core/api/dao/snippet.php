@@ -718,11 +718,17 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals {
 };
 
 class Context_Snippet extends Extension_DevblocksContext {
-    function getPermalink($context_id) {
-    	$url_writer = DevblocksPlatform::getUrlService();
-    	return NULL;
-    }
-
+	function getMeta($context_id) {
+		$snippet = DAO_Snippet::get($context_id);
+		$url_writer = DevblocksPlatform::getUrlService();
+		
+		return array(
+			'id' => $context_id,
+			'name' => $snippet->title,
+			'permalink' => '', //$url_writer->write('c=tasks&action=display&id='.$task->id, true),
+		);
+	}
+	
 	function getContext($snippet, &$token_labels, &$token_values, $prefix=null) {
 		if(is_null($prefix))
 			$prefix = 'Snippet:';

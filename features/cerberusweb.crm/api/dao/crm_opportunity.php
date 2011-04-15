@@ -903,10 +903,16 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 };
 
 class Context_Opportunity extends Extension_DevblocksContext {
-    function getPermalink($context_id) {
-    	$url_writer = DevblocksPlatform::getUrlService();
-    	return $url_writer->write('c=crm&tab=opps&id='.$context_id, true);
-    }
+	function getMeta($context_id) {
+		$opp = DAO_CrmOpportunity::get($context_id);
+		$url_writer = DevblocksPlatform::getUrlService();
+		
+		return array(
+			'id' => $opp->id,
+			'name' => $opp->name,
+			'permalink' => $url_writer->write('c=crm&tab=opps&id='.$context_id, true),
+		);
+	}
     
 	function getContext($opp, &$token_labels, &$token_values, $prefix=null) {
 		if(is_null($prefix))

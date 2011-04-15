@@ -1,9 +1,15 @@
 <?php
 class Context_Server extends Extension_DevblocksContext {
-    function getPermalink($context_id) {
-    	$url_writer = DevblocksPlatform::getUrlService();
-    	return $url_writer->write(sprintf("c=datacenter&tab=server&id=%d",$context_id), true);
-    }
+	function getMeta($context_id) {
+		$server = DAO_Server::get($context_id);
+		$url_writer = DevblocksPlatform::getUrlService();
+		
+		return array(
+			'id' => $server->id,
+			'name' => $server->name,
+			'permalink' => $url_writer->write(sprintf("c=datacenter&tab=server&id=%d",$context_id), true),
+		);
+	}
     
 	function getContext($server, &$token_labels, &$token_values, $prefix=null) {
 		if(is_null($prefix))
