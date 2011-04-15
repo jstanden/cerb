@@ -1839,10 +1839,10 @@ class ChInternalController extends DevblocksControllerExtension {
 		$tpl->assign('context_id', $context_id);
 
 		// Automatically tell anybody associated with this context object
-		$workers = CerberusContexts::getWatchers($context, $context_id);
-		if(isset($workers[$active_worker->id]))
-			unset($workers[$active_worker->id]);
-		$tpl->assign('notify_workers', $workers);
+//		$workers = CerberusContexts::getWatchers($context, $context_id);
+//		if(isset($workers[$active_worker->id]))
+//			unset($workers[$active_worker->id]);
+//		$tpl->assign('notify_workers', $workers);
 
 		$tpl->display('devblocks:cerberusweb.core::internal/comments/peek.tpl');
 	}
@@ -1866,6 +1866,8 @@ class ChInternalController extends DevblocksControllerExtension {
 		if(empty($context) || empty($context_id) || empty($comment))
 			return;
 
+		@$also_notify_worker_ids = DevblocksPlatform::importGPC($_REQUEST['notify_worker_ids'],'array',array());
+		
 		$fields = array(
 			DAO_Comment::CONTEXT => $context,
 			DAO_Comment::CONTEXT_ID => $context_id,
@@ -1873,22 +1875,13 @@ class ChInternalController extends DevblocksControllerExtension {
 			DAO_Comment::COMMENT => $comment,
 			DAO_Comment::CREATED => time(),
 		);
-		$comment_id = DAO_Comment::create($fields);
+		$comment_id = DAO_Comment::create($fields, $also_notify_worker_ids);
 
 		// Attachments
 		if(!empty($file_ids))
 		foreach($file_ids as $file_id) {
 			DAO_AttachmentLink::create(intval($file_id), CerberusContexts::CONTEXT_COMMENT, $comment_id);
 		}
-
-		// Notifications
-		@$notify_worker_ids = DevblocksPlatform::importGPC($_REQUEST['notify_worker_ids'],'array',array());
-		DAO_Comment::triggerCommentNotifications(
-			$context,
-			$context_id,
-			$active_worker,
-			$notify_worker_ids
-		);
 	}
 
 	function commentDeleteAction() {

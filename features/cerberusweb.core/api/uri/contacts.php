@@ -1444,6 +1444,8 @@ class ChContactsPage extends CerberusPageExtension {
 				DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_ORG, $id, $field_ids);
 				
 				if(!empty($comment)) {
+					@$also_notify_worker_ids = DevblocksPlatform::importGPC($_REQUEST['notify_worker_ids'],'array',array());
+					
 					$fields = array(
 						DAO_Comment::CREATED => time(),
 						DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_ORG,
@@ -1451,28 +1453,7 @@ class ChContactsPage extends CerberusPageExtension {
 						DAO_Comment::COMMENT => $comment,
 						DAO_Comment::ADDRESS_ID => $active_worker->getAddress()->id,
 					);
-					$comment_id = DAO_Comment::create($fields);
-					
-					// Notifications
-					@$notify_worker_ids = DevblocksPlatform::importGPC($_REQUEST['notify_worker_ids'],'array',array());
-					
-					$notify_worker_ids = array_merge(
-						$notify_worker_ids,
-						array_keys(CerberusContexts::getWatchers(CerberusContexts::CONTEXT_ORG, $id))
-					);
-					$notify_worker_ids = array_diff( // Remove ourselves
-						$notify_worker_ids,
-						array($active_worker->id)
-					);
-
-					if(!empty($notify_worker_ids)) {
-						DAO_Comment::triggerCommentNotifications(
-							CerberusContexts::CONTEXT_ORG,
-							$id,
-							$active_worker,
-							$notify_worker_ids
-						);
-					}
+					$comment_id = DAO_Comment::create($fields, $also_notify_worker_ids);
 				}				
 			}
 		}

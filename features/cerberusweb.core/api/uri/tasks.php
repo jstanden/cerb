@@ -228,6 +228,8 @@ class ChTasksPage extends CerberusPageExtension {
 			
 			// Comments				
 			if(!empty($comment) && !empty($id)) {
+				@$also_notify_worker_ids = DevblocksPlatform::importGPC($_REQUEST['notify_worker_ids'],'array',array());
+				
 				$fields = array(
 					DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_TASK,
 					DAO_Comment::CONTEXT_ID => $id,
@@ -235,28 +237,7 @@ class ChTasksPage extends CerberusPageExtension {
 					DAO_Comment::CREATED => time(),
 					DAO_Comment::COMMENT => $comment,
 				);
-				$comment_id = DAO_Comment::create($fields);
-				
-				// Notifications
-				@$notify_worker_ids = DevblocksPlatform::importGPC($_REQUEST['notify_worker_ids'],'array',array());
-				
-				$notify_worker_ids = array_merge(
-					$notify_worker_ids,
-					array_keys(CerberusContexts::getWatchers(CerberusContexts::CONTEXT_TASK, $id))
-				);
-				$notify_worker_ids = array_diff( // Remove ourselves
-					$notify_worker_ids,
-					array($active_worker->id)
-				);
-	
-				if(!empty($notify_worker_ids)) {
-					DAO_Comment::triggerCommentNotifications(
-						CerberusContexts::CONTEXT_TASK,
-						$id,
-						$active_worker,
-						$notify_worker_ids
-					);
-				}
+				$comment_id = DAO_Comment::create($fields, $also_notify_worker_ids);
 			}
 		}
 		
