@@ -128,30 +128,6 @@
 							      	<br>
 							      	<br>
 								{/if}
-						      	
-								{if $active_worker->hasPriv('core.ticket.actions.move')}
-								<b>{$translate->_('display.reply.next.move')}</b><br>  
-						      	<select name="bucket_id">
-						      		<option value="">-- {$translate->_('display.reply.next.move.no_thanks')|lower} --</option>
-						      		<optgroup label="{$translate->_('common.inboxes')|capitalize}">
-						      		{foreach from=$teams item=team}
-						      			<option value="t{$team->id}">{$team->name}</option>
-						      		{/foreach}
-						      		</optgroup>
-						      		{foreach from=$team_categories item=categories key=teamId}
-										{if !empty($active_worker_memberships.$teamId)}
-							      			{assign var=team value=$teams.$teamId}
-							      			<optgroup label="-- {$team->name} --">
-							      			{foreach from=$categories item=category}
-							    				<option value="c{$category->id}">{$category->name}</option>
-							    			{/foreach}
-							    			</optgroup>
-										{/if}
-						     		{/foreach}
-						      	</select><br>
-						      	<br>
-								{/if}
-						      	
 							</td>
 						</tr>
 					</table>
