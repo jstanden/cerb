@@ -87,7 +87,7 @@
 		
 		{if $active_worker->is_superuser}
 		$('#btnProfileWorkerEdit').bind('click', function() {
-			$popup = genericAjaxPopup('peek','c=config&a=showWorkerPeek&id={$worker->id}',null,false,'550');
+			$popup = genericAjaxPopup('peek','c=config&a=handleSectionAction&section=workers&action=showWorkerPeek&id={$worker->id}',null,false,'550');
 			$popup.one('worker_save', function(event) {
 				event.stopPropagation();
 				document.location.href = '{devblocks_url}c=profiles&k=worker&id={$worker->id}-{$worker->getName()|devblocks_permalink}{/devblocks_url}';
