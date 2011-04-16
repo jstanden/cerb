@@ -13,6 +13,11 @@
 		<br>
 			
 		<!-- Toolbar -->
+		<span>
+		{$object_watchers = DAO_ContextLink::getContextLinks('cerberusweb.contexts.feed.item', array($item->id), CerberusContexts::CONTEXT_WORKER)}
+		{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context='cerberusweb.contexts.feed.item' context_id=$item->id full=true}
+		</span>		
+		
 		<button type="button" id="btnDisplayFeedItemEdit"><span class="cerb-sprite sprite-document_edit"></span> Edit</button>
 		
 		{$toolbar_exts = DevblocksPlatform::getExtensions('cerberusweb.feed_reader.item.toolbaritem', true)}

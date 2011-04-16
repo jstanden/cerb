@@ -64,7 +64,7 @@
 		<div id="divDraftStatus"></div>
 		
 		<textarea name="content" id="content" rows="15" cols="80" class="reply required" style="width:98%;border:1px solid rgb(180,180,180);padding:2px;">{$draft->body}</textarea><br>
-		<label><input type="checkbox" name="send_to_requesters" value="1" {if $draft->params.send_to_reqs}checked="checked"{/if}> {'mail.log_message.send_to_requesters'|devblocks_translate}</label>
+		{*<label><input type="checkbox" name="send_to_requesters" value="1" {if $draft->params.send_to_reqs}checked="checked"{/if}> {'mail.log_message.send_to_requesters'|devblocks_translate}</label>*}
 		</td>
 	</tr>
 				

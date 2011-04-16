@@ -13,11 +13,15 @@
 	{if !empty($person->created)}<b>Created:</b> {$person->created|devblocks_date} ({$person->created|devblocks_prettytime})<br>{/if} 
 	<b>Last Login:</b> {if empty($person->last_login)}{'common.never'|devblocks_translate|lower}{else}{$person->last_login|devblocks_date} ({$person->last_login|devblocks_prettytime}){/if}<br> 
 	
-	{*
 	<form>
 		<!-- Toolbar -->
-		<button type="button" id="btnDisplayOrgEdit"><span class="cerb-sprite sprite-document_edit"></span> Edit</button>
+		<span>
+		{$object_watchers = DAO_ContextLink::getContextLinks(CerberusContexts::CONTEXT_CONTACT_PERSON, array($person->id), CerberusContexts::CONTEXT_WORKER)}
+		{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=CerberusContexts::CONTEXT_CONTACT_PERSON context_id=$person->id full=true}
+		</span>		
 	</form>
+	{*
+		<button type="button" id="btnDisplayOrgEdit"><span class="cerb-sprite sprite-document_edit"></span> Edit</button>
 	*}
 </fieldset>
 

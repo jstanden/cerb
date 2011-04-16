@@ -21,6 +21,11 @@
 		*}
 		
 		<!-- Toolbar -->
+		<span>
+		{$object_watchers = DAO_ContextLink::getContextLinks('cerberusweb.contexts.datacenter.server', array($server->id), CerberusContexts::CONTEXT_WORKER)}
+		{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context='cerberusweb.contexts.datacenter.server' context_id=$server->id full=true}
+		</span>		
+		
 		<button type="button" id="btnDatacenterServerEdit"><span class="cerb-sprite sprite-document_edit"></span> Edit</button>
 		{*
 		{$toolbar_extensions = DevblocksPlatform::getExtensions('cerberusweb.task.toolbaritem',true)}

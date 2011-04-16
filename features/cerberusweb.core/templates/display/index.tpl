@@ -57,18 +57,7 @@
 							{$ticket->id}
 						</div>
 					</div>
-					
-					{if !empty($context_watchers)}
-					<div class="cerb-properties">
-							<div>
-								<label>{'common.watchers'|devblocks_translate|capitalize}:</label>
-								{foreach from=$context_watchers item=context_worker name=context_watchers}
-								{$context_worker->getName()}{if !$smarty.foreach.context_watchers.last}, {/if}
-								{/foreach}	
-							</div>
-					</div>
-					{/if}
-						
+
 					<div class="cerb-properties">
 						<div>
 							<label>{$translate->_('ticket.requesters')|capitalize}:</label>
@@ -95,6 +84,12 @@
 			<input type="hidden" name="spam" value="0">
 			
 			<div style="padding-bottom:5px;">
+			
+			<span>
+			{$object_watchers = DAO_ContextLink::getContextLinks(CerberusContexts::CONTEXT_TICKET, array($ticket->id), CerberusContexts::CONTEXT_WORKER)}
+			{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=CerberusContexts::CONTEXT_TICKET context_id=$ticket->id full=true}
+			</span>		
+			
 			<button type="button" id="btnDisplayTicketEdit"><span class="cerb-sprite sprite-document_edit"></span> Edit</button>
 			
 			{if !$ticket->is_deleted}
