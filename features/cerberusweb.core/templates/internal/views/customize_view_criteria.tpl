@@ -12,13 +12,15 @@
 			<li><hr></li>
 			<li><b>Presets</b></li>
 			{foreach from=$presets item=preset key=preset_id}
-			<li><a href="javascript:;" onclick="$('#viewCustomFilters{$view->id}').find('select[name=_preset]').val('{$preset_id}').trigger('change');">{$preset->name|capitalize}</a></li>
+			<li><a href="javascript:;" onclick="$('#viewCustomFilters{$view->id}').find('select[name=_preset]').val('{$preset_id}').trigger('change');">{$preset->name}</a></li>
 			{/foreach}
 			{/if}
 		</ul>
 		<script type="text/javascript">
 		$('#viewCustomFilters{$view->id} TBODY.summary > TR > TD:first > div.filters')
 			.hoverIntent({
+				sensitivity:10,
+				interval:300,
 				over:function(e) {
 					$(this).next('ul.cerb-popupmenu').show();
 				},

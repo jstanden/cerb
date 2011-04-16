@@ -43,6 +43,8 @@
 $legend = $('#view{$view_id}_sidebar fieldset:first legend');
 	$legend
 		.hoverIntent({
+			sensitivity:10,
+			interval:300,
 			over:function(e) {
 				$(this).next('ul:first').show();
 			},
