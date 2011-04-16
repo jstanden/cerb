@@ -3,18 +3,16 @@
 </ul>
 <div style="clear:both;"></div>
 
-{*
 <div style="float:right;">
 <form action="{devblocks_url}{/devblocks_url}" method="post">
 <input type="hidden" name="c" value="contacts">
 <input type="hidden" name="a" value="doAddressQuickSearch">
 <span><b>{$translate->_('common.quick_search')|capitalize}:</b></span> <select name="type">
-	<option value="name">{$translate->_('contact_org.name')|capitalize}</option>
-	<option value="phone">{$translate->_('contact_org.phone')|capitalize}</option>
+	<option value="email">{$translate->_('address.email')|capitalize}</option>
+	<option value="org">{$translate->_('contact_org.name')|capitalize}</option>
 </select><input type="text" name="query" class="input_search" size="24"><button type="submit">{$translate->_('common.search_go')|lower}</button>
 </form>
 </div>
-*}
 
 <fieldset style="float:left;min-width:400px;">
 	{$addy_name = $address->getName()} 
@@ -27,6 +25,11 @@
 	</legend>
 	
 	<form>
+		<span>
+		{$object_watchers = DAO_ContextLink::getContextLinks(CerberusContexts::CONTEXT_ADDRESS, array($address->id), CerberusContexts::CONTEXT_WORKER)}
+		{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=CerberusContexts::CONTEXT_ADDRESS context_id=$address->id full=true}
+		</span>		
+	
 		<!-- Toolbar -->
 		<button type="button" id="btnDisplayAddyEdit"><span class="cerb-sprite sprite-document_edit"></span> Edit</button>
 	</form>
