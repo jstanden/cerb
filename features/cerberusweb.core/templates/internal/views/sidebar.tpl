@@ -40,7 +40,8 @@
 </fieldset>
 
 <script type="text/javascript">
-	$('#view{$view_id}_sidebar fieldset:first legend') //.cerb-menu A.menu
+$legend = $('#view{$view_id}_sidebar fieldset:first legend');
+	$legend
 		.hoverIntent({
 			over:function(e) {
 				$(this).next('ul:first').show();
@@ -63,5 +64,25 @@
 
 				$(this).find('a').trigger('click');
 			})
+		;
+	$legend
+		.closest('fieldset')
+		.find('TBODY > TR')
+		.css('cursor','pointer')
+		.hover(
+			function(e) {
+				$(this).css('background-color','rgb(255,255,200)');
+			},
+			function(e) {
+				$(this).css('background','none');
+			}
+		)
+		.click(function(e) {
+			e.stopPropagation();
+			if($(e.target).is('a'))
+				return;
+
+			$(this).find('a').trigger('click');
+		})
 		;
 </script>
