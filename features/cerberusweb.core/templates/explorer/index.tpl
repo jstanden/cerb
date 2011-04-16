@@ -41,12 +41,17 @@
 								<a href="{if !empty($return_url)}{$return_url}{else}{devblocks_url}{/devblocks_url}{/if}"><span class="cerb-sprite sprite-logo_small"></span></a>
 							</td>
 							<td align="left" width="98%;" valign="top">
-								<h2 style="display:inline;">{$title}</h2> &nbsp; 
-								<a href="{$url}" target="_blank">{$url|truncate:128:'...':false}</a>
-								<br>
+								<h2>{$title}</h2> &nbsp;
+								{if !empty($content)}
+									<a href="{$url}" target="_blank">{$content}</a>
+								{else} 
+									<a href="{$url}" target="_blank">{$url}</a>
+								{/if} 
+								<div style="margin-top:5px;">
 								{if !empty($toolbar_extension) && !empty($item) && method_exists($toolbar_extension, 'render')}
 									{$toolbar_extension->render($item)}
 								{/if}
+								</div>
 							</td>
 							<td width="1%" nowrap="nowrap" align="right" valign="top" style="padding-right:10px;padding-top:10px;">
 								{if !empty($count)}

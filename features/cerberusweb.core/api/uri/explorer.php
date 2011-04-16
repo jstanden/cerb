@@ -147,6 +147,9 @@ class ChExplorerController extends DevblocksControllerExtension {
 			$tpl->assign('p', $p);
 			$tpl->assign('url', $item->params['url']);
 			
+			if(isset($item->params['content']))
+				$tpl->assign('content', $item->params['content']);
+			
 			// Next
 			if($total > $p)
 				$tpl->assign('next', $p+1);

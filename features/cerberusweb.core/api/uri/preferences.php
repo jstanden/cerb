@@ -326,6 +326,7 @@ class ChPreferencesPage extends CerberusPageExtension {
 				$model->pos = $pos++;
 				$model->params = array(
 					'id' => $row[SearchFields_Notification::ID],
+					'content' => $row[SearchFields_Notification::MESSAGE],
 					'url' => $row[SearchFields_Notification::URL],
 				);
 				$models[] = $model;
