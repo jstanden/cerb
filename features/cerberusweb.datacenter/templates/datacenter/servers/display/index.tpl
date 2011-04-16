@@ -49,8 +49,9 @@
 <div id="datacenterServerTabs">
 	<ul>
 		{$point = Extension_ServerTab::POINT}
-		{$tabs = [comments, links]}
+		{$tabs = [activity, comments, links]}
 		
+		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabActivityLog&scope=target&point={$point}&context=cerberusweb.contexts.datacenter.server&context_id={$server->id}{/devblocks_url}">{'common.activity_log'|devblocks_translate|capitalize}</a></li>   
 		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextComments&context=cerberusweb.contexts.datacenter.server&point={$point}&id={$server->id}{/devblocks_url}">{'common.comments'|devblocks_translate|capitalize}</a></li>
 		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextLinks&context=cerberusweb.contexts.datacenter.server&point={$point}&id={$server->id}{/devblocks_url}">{'common.links'|devblocks_translate}</a></li>
 		

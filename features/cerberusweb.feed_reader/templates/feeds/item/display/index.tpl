@@ -28,10 +28,11 @@
 
 <div id="feedItemTabs">
 	<ul>
+		{$tabs = [activity,notes,links]}
+		
+		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabActivityLog&scope=target&point={$point}&context=cerberusweb.contexts.feed.item&context_id={$item->id}{/devblocks_url}">{'common.activity_log'|devblocks_translate|capitalize}</a></li>
 		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextComments&context=cerberusweb.contexts.feed.item&id={$item->id}{/devblocks_url}">{$translate->_('common.comments')|capitalize}</a></li>		
 		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextLinks&context=cerberusweb.contexts.feed.item&id={$item->id}{/devblocks_url}">{$translate->_('common.links')}</a></li>		
-
-		{$tabs = [notes,links]}
 
 		{foreach from=$tab_manifests item=tab_manifest}
 			{$tabs[] = $tab_manifest->params.uri}

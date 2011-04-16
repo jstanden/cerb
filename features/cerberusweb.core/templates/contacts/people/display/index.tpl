@@ -23,12 +23,14 @@
 
 <div style="clear:both;" id="contactPersonTabs">
 	<ul>
+		{$tabs = [activity,notes,links,history]}
+		{$point = ''}
+
+		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabActivityLog&scope=target&point={$point}&context={CerberusContexts::CONTEXT_CONTACT_PERSON}&context_id={$person->id}{/devblocks_url}">{'common.activity_log'|devblocks_translate|capitalize}</a></li>		
 		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextComments&context=cerberusweb.contexts.contact_person&id={$person->id}{/devblocks_url}">{$translate->_('common.comments')|capitalize}</a></li>
 		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextLinks&context=cerberusweb.contexts.contact_person&id={$person->id}{/devblocks_url}">{$translate->_('common.links')}</a></li>
 		<li><a href="{devblocks_url}ajax.php?c=contacts&a=showTabPeopleAddresses&id={$person->id}{/devblocks_url}">{'Email Addresses'}</a></li>
 		<li><a href="{devblocks_url}ajax.php?c=contacts&a=showTabPeopleHistory&id={$person->id}{/devblocks_url}">{$translate->_('addy_book.org.tabs.mail_history')}</a></li>
-
-		{$tabs = [notes,links,history]}
 
 		{foreach from=$tab_manifests item=tab_manifest}
 			{$tabs[] = $tab_manifest->params.uri}
