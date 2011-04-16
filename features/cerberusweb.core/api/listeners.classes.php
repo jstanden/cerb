@@ -523,17 +523,59 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 			/*
 			 * Ticket closed (but not deleted)
 			 */
-			@$closed = $changes[DAO_Ticket::IS_CLOSED];
-			
-			if(!empty($closed) 
-				&& !empty($model[DAO_Ticket::IS_CLOSED])
-				&& empty($model[DAO_Ticket::IS_DELETED])
-				) {
+			if(
+				isset($changes[DAO_Ticket::IS_WAITING])
+				|| isset($changes[DAO_Ticket::IS_CLOSED]) 
+				|| isset($changes[DAO_Ticket::IS_DELETED])
+			) {
+				@$waiting = $changes[DAO_Ticket::IS_WAITING];
+				@$closed = $changes[DAO_Ticket::IS_CLOSED];
+				@$deleted = $changes[DAO_Ticket::IS_DELETED];
+
+				$status_to = null;
+				$activity_point = null;
+				
+				if(!empty($model[DAO_Ticket::IS_DELETED])) {
+					$status_to = 'deleted';
+					$activity_point = 'ticket.status.deleted';
+					
+				} else if(!empty($model[DAO_Ticket::IS_CLOSED])) {
+					$status_to = 'closed';
+					$activity_point = 'ticket.status.closed';
+					
 					//$logger = DevblocksPlatform::getConsoleLog();
 					//$log_level = $logger->setLogLevel(7);
 					Event_MailClosedInGroup::trigger($object_id, $model[DAO_Ticket::TEAM_ID]);
 					//$logger->setLogLevel($log_level);
-			}	    	
+					
+				} else if(!empty($model[DAO_Ticket::IS_WAITING])) {
+					$status_to = 'waiting';
+					$activity_point = 'ticket.status.waiting';
+					
+				} else {
+					$status_to = 'open';
+					$activity_point = 'ticket.status.open';
+					
+				}
+				
+				if(!empty($status_to) && !empty($activity_point)) {
+					/*
+					 * Log activity (ticket.status)
+					 */
+					$entry = array(
+						'message' => '{{actor}} changed ticket {{target}} to status {{status}}',
+						'variables' => array(
+							'target' => sprintf("[%s] %s", $model[DAO_Ticket::MASK], $model[DAO_Ticket::SUBJECT]),
+							'status' => $status_to,
+							),
+						'urls' => array(
+							'target' => 'c=display&mask='.$model[DAO_Ticket::MASK],
+							)
+					);
+					CerberusContexts::logActivity($activity_point, CerberusContexts::CONTEXT_TICKET, $object_id, $entry);
+				}
+				
+			} //foreach
     	}
 	}
 	
