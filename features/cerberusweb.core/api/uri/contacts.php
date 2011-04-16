@@ -105,14 +105,31 @@ class ChContactsPage extends CerberusPageExtension {
 				}
 				break;
 			
-			// [TODO] The org display page should probably move to its own controller
+			case 'addresses':
+				switch(@array_shift($stack)) {
+					case 'display':
+						$tab_manifests = DevblocksPlatform::getExtensions('cerberusweb.address.tab', false);
+						$tpl->assign('tab_manifests', $tab_manifests);
+						
+						$id = intval(array_shift($stack));
+						
+						$address = DAO_Address::get($id);
+						$tpl->assign('address', $address);
+						
+						$tpl->display('devblocks:cerberusweb.core::contacts/addresses/display/index.tpl');
+						return;
+						break;
+						
+				} // switch (action)
+				break;
+				
 			case 'orgs':
 				switch(@array_shift($stack)) {
 					case 'display':
 						$tab_manifests = DevblocksPlatform::getExtensions('cerberusweb.org.tab', false);
 						$tpl->assign('tab_manifests', $tab_manifests);
 						
-						$id = array_shift($stack);
+						$id = intval(array_shift($stack));
 						
 						$contact = DAO_ContactOrg::get($id);
 						$tpl->assign('contact', $contact);
@@ -124,7 +141,7 @@ class ChContactsPage extends CerberusPageExtension {
 						
 						$tpl->display('devblocks:cerberusweb.core::contacts/orgs/display.tpl');
 						return;
-						break; // case 'orgs/display'
+						break;
 						
 				} // switch (action)
 				break;

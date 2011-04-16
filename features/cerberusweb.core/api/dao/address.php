@@ -885,10 +885,17 @@ class Context_Address extends Extension_DevblocksContext {
 		$address = DAO_Address::get($context_id);
 		$url_writer = DevblocksPlatform::getUrlService();
 		
+		$addy_name = $address->getName();
+		if(!empty($addy_name)) {
+			$addy_name = sprintf("%s <%s>", $addy_name, $address->email);
+		} else {
+			$addy_name = $address->email;
+		}
+		
 		return array(
 			'id' => $address->id,
-			'name' => $address->email,
-			'permalink' => $url_writer->write('c=contacts&tab=addresses', true), // [TODO] Display page
+			'name' => $addy_name,
+			'permalink' => $url_writer->write('c=contacts&tab=addresses&page=display&id=' . $context_id . '-' . DevblocksPlatform::strToPermalink($address->email), true),
 		);
 	}
     
