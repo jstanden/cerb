@@ -306,6 +306,20 @@ class DAO_Ticket extends C4_ORMHelper {
 				implode(',', $merge_ticket_ids)
 			));
 			
+			// Activity log
+			
+			$db->Execute(sprintf("UPDATE IGNORE context_activity_log ".
+				"SET target_context_id = %d ".
+				"WHERE target_context = 'cerberusweb.contexts.ticket' AND target_context_id IN (%s) ",
+				$oldest_id,
+				implode(',', $merge_ticket_ids)
+			));
+			
+			$db->Execute(sprintf("DELETE FROM context_activity_log ".
+				"WHERE target_context = 'cerberusweb.contexts.ticket' AND target_context_id IN (%s) ",
+				implode(',', $merge_ticket_ids)
+			));
+			
 			// Comments
 			$sql = sprintf("UPDATE comment SET context_id = %d WHERE context = %s AND context_id IN (%s)",
 				$oldest_id,
@@ -356,6 +370,25 @@ class DAO_Ticket extends C4_ORMHelper {
 					$db->qstr($ticket[SearchFields_Ticket::TICKET_MASK])
 				);
 				$db->Execute($sql);
+			}
+			
+			if(is_array($merged_tickets))
+			foreach($merged_tickets as $ticket) {
+				/*
+				 * Log activity (ticket.merge)
+				 */
+				$entry = array(
+					'message' => '{{actor}} merged ticket {{source}} with ticket {{target}}',
+					'variables' => array(
+						'source' => sprintf("[%s] %s", $ticket[SearchFields_Ticket::TICKET_MASK], $ticket[SearchFields_Ticket::TICKET_SUBJECT]),
+						'target' => sprintf("[%s] %s", $oldest_ticket[SearchFields_Ticket::TICKET_MASK], $oldest_ticket[SearchFields_Ticket::TICKET_SUBJECT]),
+						),
+					'urls' => array(
+						'source' => 'c=display&mask='.$ticket[SearchFields_Ticket::TICKET_MASK],
+						'target' => 'c=display&mask='.$oldest_ticket[SearchFields_Ticket::TICKET_MASK],
+						)
+				);
+				CerberusContexts::logActivity('ticket.merge', CerberusContexts::CONTEXT_TICKET, $oldest_id, $entry);
 			}
 			
 			/*
