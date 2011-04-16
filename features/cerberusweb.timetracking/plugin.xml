@@ -24,8 +24,11 @@
 	<!-- Exported Classes -->
 	
 	<class_loader>
-		<file path="api/App.php">
+		<file path="api/dao/timetracking_entry.php">
+			<class name="Context_TimeTrackingEntry" />
+			<class name="DAO_TimeTrackingActivity" />
 			<class name="DAO_TimeTrackingEntry" />
+			<class name="Model_TimeTrackingActivity" />
 			<class name="Model_TimeTrackingEntry" />
 			<class name="SearchFields_TimeTrackingEntry" />
 			<class name="View_TimeTracking" />
@@ -47,7 +50,7 @@
 			<id>cerberusweb.contexts.timetracking</id>
 			<name>Time Tracking</name>
 			<class>
-				<file>api/App.php</file>
+				<file>api/dao/timetracking_entry.php</file>
 				<name>Context_TimeTracking</name>
 			</class>
 			<params>
