@@ -1187,7 +1187,7 @@ class ChInternalController extends DevblocksControllerExtension {
 			if(!class_exists($view_class))
 				continue;
 
-			$view = new $view_class;
+			$view = new $view_class; /* @var $view C4_AbstractView */
 			$view->id = $view_id;
 			$view->name = $list_view->title;
 			$view->renderLimit = $list_view->num_rows;

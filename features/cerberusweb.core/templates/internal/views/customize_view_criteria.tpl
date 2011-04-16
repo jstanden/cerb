@@ -1,9 +1,46 @@
 {$view_editable_params = $view->getEditableParams()}
+{$presets = $view->getPresets()}
 <table cellpadding="2" cellspacing="0" border="0" width="100%">
 <tbody class="summary">
 <tr>
 	<td colspan="2">
-		<a href="javascript:;" onclick="$frm=$(this).closest('form');genericAjaxGet('','c=internal&a=viewToggleFilters&id={$view->id}&show=' + ($frm.find('tbody.full').toggle().is(':hidden')?'0':'1'));" style="font-weight:bold;">{'common.filters'|devblocks_translate|capitalize}:</a>
+		<div class="badge badge-lightgray filters" style="font-weight:bold;color:rgb(80,80,80);cursor:pointer;" onclick="$menu=$(this).next('ul.cerb-popupmenu');$menu.find('li:first a').click();$menu.hide();">{'common.filters'|devblocks_translate|capitalize}: &#x25be;</div>
+		<ul class="cerb-popupmenu cerb-float" style="margin-top:-2px;">
+			<li><a href="javascript:;" onclick="$frm=$(this).closest('form');genericAjaxGet('','c=internal&a=viewToggleFilters&id={$view->id}&show=' + ($frm.find('tbody.full').toggle().is(':hidden')?'0':'1'));$(this).closest('ul.cerb-popupmenu').hide();">Toggle Advanced</a></li>
+			<li><a href="javascript:;" onclick="$('#viewCustomFilters{$view->id}').find('select[name=_preset]').val('reset').trigger('change');">{'common.reset'|devblocks_translate|capitalize}</a></li>
+			{if !empty($presets)}
+			<li><hr></li>
+			<li><b>Presets</b></li>
+			{foreach from=$presets item=preset key=preset_id}
+			<li><a href="javascript:;" onclick="$('#viewCustomFilters{$view->id}').find('select[name=_preset]').val('{$preset_id}').trigger('change');">{$preset->name|capitalize}</a></li>
+			{/foreach}
+			{/if}
+		</ul>
+		<script type="text/javascript">
+		$('#viewCustomFilters{$view->id} TBODY.summary > TR > TD:first > div.filters')
+			.hoverIntent({
+				over:function(e) {
+					$(this).next('ul.cerb-popupmenu').show();
+				},
+				timeout:0,
+				out:function(e) {
+				}
+			})
+			.next('ul.cerb-popupmenu')
+			.hover(function(e){},
+				function(e) {
+					$(this).hide();
+				}
+			)
+			.find('li')
+			.click(function(e) {
+				if($(e.target).is('a'))
+					return;
+				$(this).find('a').click();
+			})
+			;
+		</script>
+		
 		{include file="devblocks:cerberusweb.core::internal/views/criteria_list_params.tpl" params=$view_editable_params readonly=true}
 		<script type="text/javascript">
 		$('#viewCustomFilters{$view->id} TBODY.summary TD:first').hover(
@@ -18,6 +55,7 @@
 	</td>
 </tr>
 </tbody>
+
 <tbody class="full" style="width:100%;display:{if $view->renderFilters};{else}none;{/if}">
 <tr>
 	<td width="60%" valign="top">
@@ -34,7 +72,7 @@
 						<option value="reset">Reset filters</option>
 						{if !empty($view_editable_params)}<option value="add">Save filters as preset</option>{/if}
 					</optgroup>
-					{$presets = $view->getPresets()}
+					
 					{if !empty($presets)}
 					<optgroup label="All Presets">
 						{foreach from=$presets item=preset key=preset_id}
