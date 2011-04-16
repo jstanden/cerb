@@ -896,14 +896,37 @@ class CerberusContexts {
 		));
 		
 		// Tell target watchers about the activity
-		$watchers = CerberusContexts::getWatchers($target_context, $target_context_id);
+		
+		$watchers = array();
+		
+		// Merge in watchers of the actor (if not a worker)
+		if(CerberusContexts::CONTEXT_WORKER != $actor_context) {
+			$watchers = array_merge(
+				$watchers,
+				array_keys(CerberusContexts::getWatchers($actor_context, $actor_context_id))
+			);
+		}
+		
+		// And watchers of the target (if not a worker)
+		if(CerberusContexts::CONTEXT_WORKER != $target_context) {
+			$watchers = array_merge(
+				$watchers,
+				array_keys(CerberusContexts::getWatchers($target_context, $target_context_id))
+			);
+		}
 		
 		// Include the 'also notify' list
-		$watcher_ids = array_merge(
-			array_keys($watchers),
+		$watchers = array_merge(
+			$watchers,
 			$also_notify_worker_ids
 		);
 		
+		// Remove dupe watchers
+		$watcher_ids = array_unique($watchers);
+		
+		$url_writer = DevblocksPlatform::getUrlService();
+		
+		// Fire off notifications
 		if(is_array($watcher_ids)) {
 			$message = CerberusContexts::formatActivityLogEntry($entry_array, 'plaintext');
 			@$url = reset($entry_array['urls']); 
