@@ -23,18 +23,76 @@
 			{$translate->_('header.not_signed_in')} <a href="{devblocks_url}c=login{/devblocks_url}">{$translate->_('header.signon')|lower}</a>
 		{elseif !empty($active_worker)}
 			{if $active_worker_notify_count}
-			<span style="padding:3px 5px 3px 5px;background-color:rgb(200,0,0);"><a href="{devblocks_url}c=profiles&k=worker&id=me&tab=notifications{/devblocks_url}" style="color:rgb(255,255,255);text-decoration:none;font-weight:bold;">{'header.notifications.unread'|devblocks_translate:$active_worker_notify_count}</a></span>
+			{*<span style="padding:3px 5px 3px 5px;background-color:rgb(200,0,0);"><a href="{devblocks_url}c=profiles&k=worker&id=me&tab=notifications{/devblocks_url}" style="color:rgb(255,255,255);text-decoration:none;font-weight:bold;">{'header.notifications.unread'|devblocks_translate:$active_worker_notify_count}</a></span>*}
+			<span style="padding:3px 5px 3px 5px;background-color:rgb(200,0,0);"><a href="{devblocks_url}c=preferences&k=viewNotificationsExplore{/devblocks_url}?view_id=my_notifications" style="color:rgb(255,255,255);text-decoration:none;font-weight:bold;">{'header.notifications.unread'|devblocks_translate:$active_worker_notify_count}</a></span>
 			{/if}
 			
 			{devblocks_url assign=worker_url}c=profiles&k=worker&id=me{/devblocks_url}
-			{$worker_name =''|cat:'<b><a href="'|cat:$worker_url|cat:'">'|cat:$active_worker->getName()|cat:'</a></b>'}
-			<span style="margin-right:10px;">{'header.signed_in'|devblocks_translate:$worker_name nofilter}</span>
-			<a href="{devblocks_url}c=profiles&w=worker&me=me{/devblocks_url}">my profile</a>
-			 | <a href="{devblocks_url}c=login&a=signout{/devblocks_url}">{$translate->_('header.signoff')|lower}</a>
+			{$worker_name =''|cat:'<b><a href="'|cat:$worker_url|cat:'" id="lnkSignedIn">'|cat:$active_worker->getName()|cat:' &#x25be;</a></b>'}
+			{'header.signed_in'|devblocks_translate:$worker_name nofilter}
+			<ul id="menuSignedIn" class="cerb-popupmenu cerb-float">
+				<li><a href="{devblocks_url}c=profiles&w=worker&me=me{/devblocks_url}">{'header.my_profile'|devblocks_translate|lower}</a></li>
+				<li><a href="{devblocks_url}c=preferences{/devblocks_url}">{'common.settings'|devblocks_translate|lower}</a></li>
+				<li><a href="{devblocks_url}c=profiles&w=worker&me=me&tab=notifications{/devblocks_url}">{'home.tab.my_notifications'|devblocks_translate|lower}</a></li>
+				<li><a href="{devblocks_url}c=profiles&w=worker&me=me&tab=attendant{/devblocks_url}">{'virtual attendant'|devblocks_translate|lower}</a></li>
+				<li><a href="{devblocks_url}c=profiles&w=worker&me=me&tab=links{/devblocks_url}">{'watchlist'|devblocks_translate|lower}</a></li>
+				<li><a href="{devblocks_url}c=profiles&w=worker&me=me&tab=activity{/devblocks_url}">{'header.history'|devblocks_translate|lower}</a></li>
+				<li><a href="{devblocks_url}c=login&a=signout{/devblocks_url}">{'header.signoff'|devblocks_translate|lower}</a></li>
+			</ul>
 		{/if}
 		</td>
 	</tr>
 </table>
+
+<script type="text/javascript">
+$().ready(function(e) {
+	$menu = $('#menuSignedIn');
+	$menu.appendTo('body');
+	$menu.find('> li')
+		.click(function(e) {
+			e.stopPropagation();
+			if(!$(e.target).is('li'))
+				return;
+
+			$link = $(this).find('a:first');
+			
+			if($link.length > 0)
+				window.location.href = $link.attr('href');
+		})
+		;
+	
+	$('#lnkSignedIn')
+		.hoverIntent({
+			over:function(e) {
+				$menu = $('#menuSignedIn');
+
+				if($menu.is(':visible'))
+					return;
+				
+				$menu
+					.show()
+					.css('position','absolute')
+					.css('top',$(this).offset().top+($(this).height())+'px')
+					.css('left',$(this).offset().left-(10+$menu.width()-$(this).width())+'px')
+					.show()
+				;
+			},
+			timeout:0,
+			out:function(){}	
+		});
+
+	$menu
+		.hover(
+			function(e) {},
+			function(e) {
+				$('#menuSignedIn')
+					.hide()
+				;
+			}
+		)
+		;
+});
+</script>
 
 {include file="devblocks:cerberusweb.core::menu.tpl"}
 

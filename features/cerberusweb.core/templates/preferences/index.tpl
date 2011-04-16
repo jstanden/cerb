@@ -2,6 +2,8 @@
 </ul>
 <div style="clear:both;"></div>
 
+<h2>{'header.preferences'|devblocks_translate|capitalize}</h2>
+
 {if is_array($pref_errors) && !empty($pref_errors)}
 	<div class="ui-widget">
 		<div class="ui-state-error ui-corner-all" style="padding: 0.7em; margin:0.2em; ">

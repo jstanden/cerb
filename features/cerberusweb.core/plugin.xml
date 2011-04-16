@@ -1336,6 +1336,7 @@
 			</class>
 			<params>
 				<param key="uri" value="preferences" />
+				<param key="menutitle" value="" />
 			</params>
 		</extension>
 		

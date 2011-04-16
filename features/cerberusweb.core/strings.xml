@@ -974,6 +974,9 @@ For example: http://www.cerberusweb.com/support/</seg></tuv>
 		<tu tuid='header.last_viewed'>
 			<tuv xml:lang="en_US"><seg>last viewed</seg></tuv>
 		</tu>
+		<tu tuid='header.my_profile'>
+			<tuv xml:lang="en_US"><seg>my profile</seg></tuv>
+		</tu>
 		<tu tuid='header.no_page'>
 			<tuv xml:lang="en_US"><seg>No page selected.</seg></tuv>
 		</tu>
