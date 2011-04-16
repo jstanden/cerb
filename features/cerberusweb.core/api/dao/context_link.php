@@ -336,31 +336,31 @@ class DAO_ContextLink {
 		// Disconnect
 		} else {
 			$entry = array(
-				'message' => '{{actor}} disconnected {{source_object}} {{source}} from {{target_object}} {{target}}',
+				'message' => '{{actor}} disconnected {{target_object}} {{target}} from {{link_object}} {{link}}',
 				'variables' => array(
-					'source_object' => mb_convert_case($ext_src_context->manifest->name, MB_CASE_LOWER),
-					'source' => $meta_src_context['name'],
-					'target_object' => mb_convert_case($ext_dst_context->manifest->name, MB_CASE_LOWER),
-					'target' => $meta_dst_context['name'],
+					'target_object' => mb_convert_case($ext_src_context->manifest->name, MB_CASE_LOWER),
+					'target' => $meta_src_context['name'],
+					'link_object' => mb_convert_case($ext_dst_context->manifest->name, MB_CASE_LOWER),
+					'link' => $meta_dst_context['name'],
 					),
 				'urls' => array(
-					'source' => $meta_src_context['permalink'],
-					'target' => $meta_dst_context['permalink'],
+					'target' => $meta_src_context['permalink'],
+					'link' => $meta_dst_context['permalink'],
 					)
 			);
 			CerberusContexts::logActivity('connection.unlink', $src_context, $src_context_id, $entry);		
 			
 			$entry = array(
-				'message' => '{{actor}} disconnected {{source_object}} {{source}} from {{target_object}} {{target}}',
+				'message' => '{{actor}} disconnected {{target_object}} {{target}} from {{link_object}} {{link}}',
 				'variables' => array(
-					'source_object' => mb_convert_case($ext_dst_context->manifest->name, MB_CASE_LOWER),
-					'source' => $meta_dst_context['name'],
-					'target_object' => mb_convert_case($ext_src_context->manifest->name, MB_CASE_LOWER),
-					'target' => $meta_src_context['name'],
+					'target_object' => mb_convert_case($ext_dst_context->manifest->name, MB_CASE_LOWER),
+					'target' => $meta_dst_context['name'],
+					'link_object' => mb_convert_case($ext_src_context->manifest->name, MB_CASE_LOWER),
+					'link' => $meta_src_context['name'],
 					),
 				'urls' => array(
-					'source' => $meta_dst_context['permalink'],
-					'target' => $meta_src_context['permalink'],
+					'target' => $meta_dst_context['permalink'],
+					'link' => $meta_src_context['permalink'],
 					)
 			);
 			CerberusContexts::logActivity('connection.unlink', $dst_context, $dst_context_id, $entry);
