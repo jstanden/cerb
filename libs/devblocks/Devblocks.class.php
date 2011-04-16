@@ -422,7 +422,7 @@ class DevblocksPlatform extends DevblocksEngine {
 		
 		return $feed;
 	}
-	
+
 	/**
 	 * Returns a string as alphanumerics delimited by underscores.
 	 * For example: "Devs: 1000 Ways to Improve Sales" becomes 
@@ -432,22 +432,104 @@ class DevblocksPlatform extends DevblocksEngine {
 	 * @param string $str
 	 * @return string
 	 */
-	static function getStringAsURI($str) {
-		$str = strtolower($str);
+	static function strToPermalink($string) {
+		if(empty($string))
+			return '';
 		
-		// turn non [a-z, 0-9, _] into whitespace
-		$str = preg_replace("/[^0-9a-z]/",' ',$str);
+		// Strip all punctuation to underscores
+		$string = preg_replace('#[^a-zA-Z0-9\+\.\-_\(\)]#', '_', $string);
+			
+		// Collapse all underscores to singles
+		$string = preg_replace('#__+#', '_', $string);
 		
-		// condense whitespace to a single underscore
-		$str = preg_replace('/\s\s+/', ' ', $str);
+		return rtrim($string,'_');
+	}
+	
+	static function strToHyperlinks($string) {
+		$regex = '@(https?://(.*?))(([>"\.\?,\)]{0,1}(\s|$))|(&(quot|gt);))@i';
+		return preg_replace($regex,'<a href="$1" target="_blank">$1</a>$3',$string);
+	}
+	
+	static function strPrettyTime($string, $is_delta=false) {
+		if(empty($string) || !is_numeric($string))
+			return '';
+		
+		if(!$is_delta) {
+			$diffsecs = time() - intval($string);
+		} else {
+			$diffsecs = intval($string);
+		}
+		
+		$whole = '';
 
-		// replace spaces with underscore
-		$str = str_replace(' ','_',$str);
-
-		// remove a leading/trailing underscores
-		$str = trim($str, '_');
+		// Prefix
+		if($is_delta) {
+			if($diffsecs > 0)
+				$whole .= '+';
+			elseif($diffsecs < 0)
+				$whole .= '-';
+		}
 		
-		return $str;
+		// The past
+		if($diffsecs >= 0) {
+			if($diffsecs >= 31557600) { // years
+				$whole .= floor($diffsecs/31557600).' year';
+			} elseif($diffsecs >= 2592000) { // mo
+				$whole .= floor($diffsecs/2592000).' month';
+			} elseif($diffsecs >= 86400) { // days
+				$whole .= floor($diffsecs/86400).' day';
+			} elseif($diffsecs >= 3600) { // hours
+				$whole .= floor($diffsecs/3600).' hour';
+			} elseif($diffsecs >= 60) { // mins
+				$whole .= floor($diffsecs/60).' min';
+			} elseif($diffsecs >= 0) { // secs
+				$whole .= $diffsecs.' sec';
+			}
+			
+		} else { // The future
+			if($diffsecs <= -31557600) { // years
+				$whole .= floor($diffsecs/-31557600).' year';
+			} elseif($diffsecs <= -2592000) { // mo
+				$whole .= floor($diffsecs/-2592000).' month';
+			} elseif($diffsecs <= -86400) { // days
+				$whole .= floor($diffsecs/-86400).' day';
+			} elseif($diffsecs <= -3600) { // hours
+				$whole .= floor($diffsecs/-3600).' hour';
+			} elseif($diffsecs <= -60) { // mins
+				$whole .= floor($diffsecs/-60).' min';
+			} elseif($diffsecs <= 0) { // secs
+				$whole .= floor($diffsecs/-1).' sec';
+			}
+		}
+
+		// Pluralize
+		$whole .= (1 == abs(intval($whole))) ? '' : 's';
+
+		if($diffsecs > 0 && !$is_delta)
+			$whole .= ' ago';
+		
+		return $whole;		
+	}
+	
+	static function strPrettyBytes($string, $precision='0') {
+		if(!is_numeric($string))
+			return '';
+			
+		$bytes = floatval($string);
+		$precision = floatval($precision);
+		$out = '';
+		
+		if($bytes >= 1000000000) {
+			$out = number_format($bytes/1000000000,$precision) . ' GB';
+		} elseif ($bytes >= 1000000) {
+			$out = number_format($bytes/1000000,$precision) . ' MB';
+		} elseif ($bytes >= 1000) {
+			$out = number_format($bytes/1000,$precision) . ' KB';
+		} else {
+			$out = $bytes . ' bytes';
+		}
+		
+		return $out;		
 	}
 	
 	/**
@@ -4294,104 +4376,20 @@ class _DevblocksTemplateManager {
 		return $date->formatTime($format, $string, $gmt);
 	}
 	
-	static function modifier_devblocks_permalink($string, $is_delta=false) {
-		if(empty($string))
-			return '';
-		
-		// Strip all punctuation to underscores
-		$string = preg_replace('#[^a-zA-Z0-9\+\.\-_\(\)]#', '_', $string);
-			
-		// Collapse all underscores to singles
-		$string = preg_replace('#__+#', '_', $string);
-		
-		return rtrim($string,'_');
+	static function modifier_devblocks_permalink($string) {
+		return DevblocksPlatform::strToPermalink($string);
 	}
 	
 	static function modifier_devblocks_prettytime($string, $is_delta=false) {
-		if(empty($string) || !is_numeric($string))
-			return '';
-		
-		if(!$is_delta) {
-			$diffsecs = time() - intval($string);
-		} else {
-			$diffsecs = intval($string);
-		}
-		
-		$whole = '';
-
-		// Prefix
-		if($is_delta) {
-			if($diffsecs > 0)
-				$whole .= '+';
-			elseif($diffsecs < 0)
-				$whole .= '-';
-		}
-		
-		// The past
-		if($diffsecs >= 0) {
-			if($diffsecs >= 31557600) { // years
-				$whole .= floor($diffsecs/31557600).' year';
-			} elseif($diffsecs >= 2592000) { // mo
-				$whole .= floor($diffsecs/2592000).' month';
-			} elseif($diffsecs >= 86400) { // days
-				$whole .= floor($diffsecs/86400).' day';
-			} elseif($diffsecs >= 3600) { // hours
-				$whole .= floor($diffsecs/3600).' hour';
-			} elseif($diffsecs >= 60) { // mins
-				$whole .= floor($diffsecs/60).' min';
-			} elseif($diffsecs >= 0) { // secs
-				$whole .= $diffsecs.' sec';
-			}
-			
-		} else { // The future
-			if($diffsecs <= -31557600) { // years
-				$whole .= floor($diffsecs/-31557600).' year';
-			} elseif($diffsecs <= -2592000) { // mo
-				$whole .= floor($diffsecs/-2592000).' month';
-			} elseif($diffsecs <= -86400) { // days
-				$whole .= floor($diffsecs/-86400).' day';
-			} elseif($diffsecs <= -3600) { // hours
-				$whole .= floor($diffsecs/-3600).' hour';
-			} elseif($diffsecs <= -60) { // mins
-				$whole .= floor($diffsecs/-60).' min';
-			} elseif($diffsecs <= 0) { // secs
-				$whole .= floor($diffsecs/-1).' sec';
-			}
-		}
-
-		// Pluralize
-		$whole .= (1 == abs(intval($whole))) ? '' : 's';
-
-		if($diffsecs > 0 && !$is_delta)
-			$whole .= ' ago';
-		
-		return $whole;
+		return DevblocksPlatform::strPrettyTime($string, $is_delta);
 	}	
 
 	static function modifier_devblocks_prettybytes($string, $precision='0') {
-		if(!is_numeric($string))
-			return '';
-			
-		$bytes = floatval($string);
-		$precision = floatval($precision);
-		$out = '';
-		
-		if($bytes >= 1000000000) {
-			$out = number_format($bytes/1000000000,$precision) . ' GB';
-		} elseif ($bytes >= 1000000) {
-			$out = number_format($bytes/1000000,$precision) . ' MB';
-		} elseif ($bytes >= 1000) {
-			$out = number_format($bytes/1000,$precision) . ' KB';
-		} else {
-			$out = $bytes . ' bytes';
-		}
-		
-		return $out;
+		return DevblocksPlatform::strPrettyBytes($string, $precision);
 	}
 	
 	static function modifier_devblocks_hyperlinks($string) {
-		$regex = '@(https?://(.*?))(([>"\.\?,\)]{0,1}(\s|$))|(&(quot|gt);))@i';
-		return preg_replace($regex,'<a href="$1" target="_blank">$1</a>$3',$string);
+		return DevblocksPlatform::strToHyperlinks($string);
 	}
 		
 	static function modifier_devblocks_hide_email_quotes($string, $length=3) {
