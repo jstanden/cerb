@@ -120,7 +120,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 		}
 		
 		foreach($labels as $token => $label) {
-			if(preg_match("#.*?_custom_(\d+)#", $token, $matches)) {
+			if(preg_match("#.*?_{0,1}custom_(\d+)#", $token, $matches)) {
 				
 				if(null == ($cfield = DAO_CustomField::get($matches[1])))
 					continue;
