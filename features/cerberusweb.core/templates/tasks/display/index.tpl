@@ -16,18 +16,26 @@
 		{if !empty($task->due_date)}
 		<b>{'task.due_date'|devblocks_translate|capitalize}:</b> <abbr title="{$task->due_date|devblocks_date}">{$task->due_date|devblocks_prettytime}</abbr> &nbsp;
 		{/if}
-		{assign var=task_worker_id value=$task->worker_id}
-		{if !empty($task_worker_id) && isset($workers.$task_worker_id)}
-			<b>{'common.worker'|devblocks_translate|capitalize}:</b> {$workers.$task_worker_id->getName()} &nbsp;
-		{/if}
+
 		<br>
 		
 		<!-- Toolbar -->
-		{if !$task->is_completed}
-		<button type="button" onclick="$frm=$(this).closest('form');$frm.find('input:hidden[name=a]').val('doDisplayTaskComplete');$frm.submit();"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> Complete</button>
-		{/if}
+
+		<span>
+		{$object_watchers = DAO_ContextLink::getContextLinks(CerberusContexts::CONTEXT_TASK, array($task->id), CerberusContexts::CONTEXT_WORKER)}
+		{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=CerberusContexts::CONTEXT_TASK context_id=$task->id full=true}
+		</span>		
+
+		<div style="display:inline-block;">
+			<button type="button" id="btnDisplayTaskActions"><span class="cerb-sprite sprite-gear"></span> Actions &#x25be;</button>
+			<ul class="cerb-popupmenu cerb-float" id="menuDisplayTaskActions">
+				<li><a href="javascript:;" class="edit">Edit</a></li>
+				{if !$task->is_completed}
+				<li><a href="javascript:;" onclick="$frm=$(this).closest('form');$frm.find('input:hidden[name=a]').val('doDisplayTaskComplete');$frm.submit();">Mark Completed</a></li>
+				{/if}
+			</ul>
+		</div>
 		
-		<button type="button" id="btnDisplayTaskEdit"><span class="cerb-sprite sprite-document_edit"></span> Edit</button>
 		{$toolbar_extensions = DevblocksPlatform::getExtensions('cerberusweb.task.toolbaritem',true)}
 		{foreach from=$toolbar_extensions item=toolbar_extension}
 			{$toolbar_extension->render($task)}
@@ -71,8 +79,38 @@
 <script type="text/javascript">
 	$(function() {
 		var tabs = $("#tasksTabs").tabs( { selected:{$tab_selected_idx} } );
+
+		var $menu = $('#menuDisplayTaskActions');
+		$menu
+			.closest('div')
+			.hover(
+				function(e) {},
+				function(e) {
+					$menu.slideUp('fast');
+				}
+			)
+		;
+		$menu
+			.find('> li')
+			.click(function(e) {
+				e.stopPropagation();
+				if(!$(e.target).is('li'))
+					return;
+	
+				$(this).find('a').trigger('click');
+				$menu.slideUp('fast');
+			})
+		;
 		
-		$('#btnDisplayTaskEdit').bind('click', function() {
+		$('#btnDisplayTaskActions').click(function() {
+			$menu
+				.css('position','absolute')
+				.css('top',($(this).offset().top+20)+'px')
+				.css('left',$(this).offset().left+'px')
+				.slideDown('fast');
+		});
+		
+		$menu.find('> LI > A.edit').bind('click', function() {
 			$popup = genericAjaxPopup('peek','c=tasks&a=showTaskPeek&id={$task->id}',null,false,'550');
 			$popup.one('task_save', function(event) {
 				event.stopPropagation();
