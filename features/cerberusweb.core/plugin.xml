@@ -347,10 +347,6 @@
 		<event id="cron.maint">
 			<name>Maintenance</name>
 		</event>
-		<event id="dao.ticket.update">
-			<name>Ticket Properties Updated</name>
-			<param key="objects" />
-		</event>
 		<event id="group.delete">
 			<name>Group Delete</name>
 			<param key="group_ids" />
@@ -735,7 +731,6 @@
 					<value>
 						<data key="cron.heartbeat" />
 						<data key="cron.maint" />
-						<data key="dao.ticket.update" />
 					</value>
 				</param>
 			</params>
