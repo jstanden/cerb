@@ -5,10 +5,16 @@ class DAO_ContextLink {
 	const TO_CONTEXT = 'to_context';
 	const TO_CONTEXT_ID = 'to_context_id';
 
-	// [TODO] setLinks
 	static public function setLink($src_context, $src_context_id, $dst_context, $dst_context_id) {
 		$db = DevblocksPlatform::getDatabaseService();
 		$event = DevblocksPlatform::getEventService();
+		
+		$ext_src_context = DevblocksPlatform::getExtension($src_context, true); /* @var $context Extension_DevblocksContext */
+		$ext_dst_context = DevblocksPlatform::getExtension($dst_context, true); /* @var $context Extension_DevblocksContext */
+		$meta_src_context = $ext_src_context->getMeta($src_context_id);
+		$meta_dst_context = $ext_dst_context->getMeta($dst_context_id);
+		
+		// [TODO] Verify contexts on both sides prior to linking, or return false
 		
 		$sql = sprintf("INSERT IGNORE INTO context_link (from_context, from_context_id, to_context, to_context_id) ".
 			"VALUES (%s, %d, %s, %d) ",
@@ -59,6 +65,58 @@ class DAO_ContextLink {
                 )
             )
 		);
+		
+		/*
+		 * Log activity (connection.link)
+		 */
+		
+		// Are we following something?
+		if($dst_context == CerberusContexts::CONTEXT_WORKER) {
+			$entry = array(
+				'message' => '{{actor}} started watching {{target_object}} {{target}}',
+				'variables' => array(
+					'target_object' => mb_convert_case($ext_src_context->manifest->name, MB_CASE_LOWER),
+					'target' => $meta_src_context['name'],
+					),
+				'urls' => array(
+					'target' => $meta_src_context['permalink'],
+					)
+			);
+			CerberusContexts::logActivity('watcher.follow', $src_context, $src_context_id, $entry);
+			
+		// Otherwise, do the connection
+		} else {
+			$entry = array(
+				'message' => '{{actor}} connected {{target_object}} {{target}} to {{link_object}} {{link}}',
+				'variables' => array(
+					'target_object' => mb_convert_case($ext_src_context->manifest->name, MB_CASE_LOWER),
+					'target' => $meta_src_context['name'],
+					'link_object' => mb_convert_case($ext_dst_context->manifest->name, MB_CASE_LOWER),
+					'link' => $meta_dst_context['name'],
+					),
+				'urls' => array(
+					'target' => $meta_src_context['permalink'],
+					'link' => $meta_dst_context['permalink'],
+					)
+			);
+			CerberusContexts::logActivity('connection.link', $src_context, $src_context_id, $entry);
+			
+			$entry = array(
+				'message' => '{{actor}} connected {{target_object}} {{target}} to {{link_object}} {{link}}',
+				'variables' => array(
+					'target_object' => mb_convert_case($ext_dst_context->manifest->name, MB_CASE_LOWER),
+					'target' => $meta_dst_context['name'],
+					'link_object' => mb_convert_case($ext_src_context->manifest->name, MB_CASE_LOWER),
+					'link' => $meta_src_context['name'],
+					),
+				'urls' => array(
+					'target' => $meta_dst_context['permalink'],
+					'link' => $meta_src_context['permalink'],
+					)
+			);
+			CerberusContexts::logActivity('connection.link', $dst_context, $dst_context_id, $entry);			
+			
+		}
 		
 		return true;
 	}
@@ -228,6 +286,15 @@ class DAO_ContextLink {
 	static public function deleteLink($src_context, $src_context_id, $dst_context, $dst_context_id) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
+		$ext_src_context = DevblocksPlatform::getExtension($src_context, true); /* @var $context Extension_DevblocksContext */
+		$ext_dst_context = DevblocksPlatform::getExtension($dst_context, true); /* @var $context Extension_DevblocksContext */
+		$meta_src_context = $ext_src_context->getMeta($src_context_id);
+		$meta_dst_context = $ext_dst_context->getMeta($dst_context_id);
+		
+		/*
+		 * Delete from source side
+		 */
+		
 		$sql = sprintf("DELETE FROM context_link WHERE from_context = %s AND from_context_id = %d AND to_context = %s AND to_context_id = %d",
 			$db->qstr($src_context),
 			$src_context_id,
@@ -236,7 +303,10 @@ class DAO_ContextLink {
 		);
 		$db->Execute($sql);
 
-		// Reciprocal
+		/*
+		 * Delete from destination side
+		 */
+		
 		$sql = sprintf("DELETE FROM context_link WHERE from_context = %s AND from_context_id = %d AND to_context = %s AND to_context_id = %d",
 			$db->qstr($dst_context),
 			$dst_context_id,
@@ -244,6 +314,57 @@ class DAO_ContextLink {
 			$src_context_id
 		);
 		$db->Execute($sql);
+		
+		/*
+		 * Activities
+		 */
+
+		// Unfollow?
+		if($dst_context == CerberusContexts::CONTEXT_WORKER) {
+			$entry = array(
+				'message' => '{{actor}} stopped watching {{target_object}} {{target}}',
+				'variables' => array(
+					'target_object' => mb_convert_case($ext_src_context->manifest->name, MB_CASE_LOWER),
+					'target' => $meta_src_context['name'],
+					),
+				'urls' => array(
+					'target' => $meta_src_context['permalink'],
+					)
+			);
+			CerberusContexts::logActivity('watcher.unfollow', $src_context, $src_context_id, $entry);
+		
+		// Disconnect
+		} else {
+			$entry = array(
+				'message' => '{{actor}} disconnected {{source_object}} {{source}} from {{target_object}} {{target}}',
+				'variables' => array(
+					'source_object' => mb_convert_case($ext_src_context->manifest->name, MB_CASE_LOWER),
+					'source' => $meta_src_context['name'],
+					'target_object' => mb_convert_case($ext_dst_context->manifest->name, MB_CASE_LOWER),
+					'target' => $meta_dst_context['name'],
+					),
+				'urls' => array(
+					'source' => $meta_src_context['permalink'],
+					'target' => $meta_dst_context['permalink'],
+					)
+			);
+			CerberusContexts::logActivity('connection.unlink', $src_context, $src_context_id, $entry);		
+			
+			$entry = array(
+				'message' => '{{actor}} disconnected {{source_object}} {{source}} from {{target_object}} {{target}}',
+				'variables' => array(
+					'source_object' => mb_convert_case($ext_dst_context->manifest->name, MB_CASE_LOWER),
+					'source' => $meta_dst_context['name'],
+					'target_object' => mb_convert_case($ext_src_context->manifest->name, MB_CASE_LOWER),
+					'target' => $meta_src_context['name'],
+					),
+				'urls' => array(
+					'source' => $meta_dst_context['permalink'],
+					'target' => $meta_src_context['permalink'],
+					)
+			);
+			CerberusContexts::logActivity('connection.unlink', $dst_context, $dst_context_id, $entry);
+		}		
 		
 		return true;
 	}
