@@ -5,11 +5,20 @@
 {$members = $group->getMembers()}
 
 <fieldset>
+	<div style="float:left;">
 	{*
 	<img src="{if $is_ssl}https://secure.{else}http://www.{/if}gravatar.com/avatar/{$worker->email|trim|lower|md5}?s=64&d=mm" border="0" style="margin:0px 5px 5px 0px;">
 	*}
 	<h1 style="color:rgb(0,120,0);font-weight:bold;font-size:150%;">{$group->name}</h1>
-	[[ charts for open vs waiting vs closed tickets ]]<br>
+	{*[[ charts for open vs waiting vs closed tickets ]]<br>*}
+	</div>
+	{*
+	{if $active_worker->is_superuser}
+	<div style="float:right;">
+		<button type="button" id="btnProfileGroupEdit"><span class="cerb-sprite sprite-document_edit"></span> {'common.edit'|devblocks_translate|capitalize}</button>
+	</div>
+	{/if}
+	*}
 </fieldset>
 
 <div id="profileTabs">
@@ -17,10 +26,7 @@
 		{$tabs = [links]}
 		{$point = "cerberusweb.profiles.group.{$group->id}"}
 		
-		{* [TODO] Members tab *}
-		<li><a href="#workflow">Workflow</a></li>
 		<li><a href="#members">Members</a></li>
-		{* [TODO] Manage tab *}
 		
 		{*
 		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextLinks&context=cerberusweb.contexts.worker&point={$point}&id={$worker->id}{/devblocks_url}">{'Assignments'|devblocks_translate}</a></li>
@@ -47,10 +53,6 @@
 		*}
 	</ul>
 	
-	<div id="workflow">
-		[[ nothing here yet ]]
-	</div>
-	
 	<div id="members">
 		{foreach from=$members item=member}
 		{if isset($workers.{$member->id})}
@@ -63,20 +65,12 @@
 					<a href="{devblocks_url}c=profiles&k=worker&id={$worker->id}-{$worker->getName()|devblocks_permalink}{/devblocks_url}" style="color:rgb(0,120,0);font-weight:bold;font-size:150%;margin:0px;">{$worker->getName()}</a><br>
 					{if !empty($worker->title)}{$worker->title}<br>{/if}
 					{if !empty($worker->email)}{$worker->email}<br>{/if}
-					
-					{*
-					{$memberships = $worker->getMemberships()}
-					{if !empty($memberships)}
-					<div style="margin:5px 0px;">
-						Member of: 
-						{foreach from=$memberships item=member key=group_id name=groups}
-							{$group = $groups.{$group_id}}
-							<a href="{devblocks_url}c=profiles&k=group&id={$group->id}-{$group->name|devblocks_permalink}{/devblocks_url}" style="{if $member->is_manager}font-weight:bold;{/if}">{$group->name}</a>{if !$smarty.foreach.groups.last}, {/if}
-						{/foreach}
-					</div>
+
+					{if $member->is_manager}
+					<ul class="bubbles">
+						<li style="font-weight:bold;">Manager</li>
+					</ul>
 					{/if}
-					*}
-					
 				</div>
 				{*
 				{if $active_worker->is_superuser}
@@ -98,7 +92,19 @@
 {/foreach}
 
 <script type="text/javascript">
-	$(function() {
-		var tabs = $("#profileTabs").tabs( { selected:{$selected_tab_idx} } );
+$(function() {
+	var tabs = $("#profileTabs").tabs( { selected:{$selected_tab_idx} } );
+
+	{*
+	{if $active_worker->is_superuser}
+	$('#btnProfileGroupEdit').bind('click', function() {
+		$popup = genericAjaxPopup('peek','c=config&a=handleSectionAction&section=workers&action=showWorkerPeek&id={$worker->id}',null,false,'550');
+		$popup.one('group_save', function(event) {
+			event.stopPropagation();
+			document.location.href = '{devblocks_url}c=profiles&k=worker&id={$worker->id}-{$worker->getName()|devblocks_permalink}{/devblocks_url}';
+		});
 	});
+	{/if}
+	*}
+});
 </script>

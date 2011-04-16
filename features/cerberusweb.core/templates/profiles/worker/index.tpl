@@ -25,7 +25,7 @@
 	</div>
 	{if $active_worker->is_superuser}
 	<div style="float:right;">
-		<button type="button" id="btnProfileWorkerEdit"><span class="cerb-sprite sprite-document_edit"></span> Edit</button>
+		<button type="button" id="btnProfileWorkerEdit"><span class="cerb-sprite sprite-document_edit"></span> {'common.edit'|devblocks_translate|capitalize}</button>
 	</div>
 	{/if}
 </fieldset>
@@ -51,7 +51,7 @@
 		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabActivityLog&scope=actor&point={$point}&context={CerberusContexts::CONTEXT_WORKER}&context_id={$worker->id}{/devblocks_url}">{'common.activity_log'|devblocks_translate|capitalize}</a></li>
 
 		{$tabs[] = 'links'}
-		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextLinks&context=cerberusweb.contexts.worker&point={$point}&id={$worker->id}{/devblocks_url}">Watching ({$watching_total})</a></li>
+		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextLinks&context=cerberusweb.contexts.worker&point={$point}&id={$worker->id}{/devblocks_url}">Watchlist ({$watching_total})</a></li>
 		
 		{*
 		{foreach from=$tab_manifests item=tab_manifest}
