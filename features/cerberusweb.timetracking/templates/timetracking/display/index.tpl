@@ -3,16 +3,7 @@
 <table cellspacing="0" cellpadding="0" border="0" width="100%" style="padding-bottom:5px;">
 <tr>
 	<td valign="top" style="padding-right:5px;">
-		{$activities = DAO_TimeTrackingActivity::getWhere()}
-		{$worker = DAO_Worker::get({$time_entry->worker_id})}
-	
-		{if isset($activities.{$time_entry->activity_id}->name)}
-		{$title = 'timetracking.ui.tracked_desc'|devblocks_translate:$worker->getName():$time_entry->time_actual_mins:$activities.{$time_entry->activity_id}->name}
-		{else}
-		{$title = '%s tracked %s mins'|devblocks_translate:{$worker->getName()}:{$time_entry->time_actual_mins}}
-		{/if}
-	
-		<h1>{$title}</h1>
+		<h1>{$time_entry->getSummary()}</h1>
 		<b>{'timetracking_entry.log_date'|devblocks_translate}:</b>
 		{$time_entry->log_date|devblocks_prettytime}
 		 &nbsp; 

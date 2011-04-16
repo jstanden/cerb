@@ -408,6 +408,36 @@ class Model_TimeTrackingEntry {
 	public $worker_id;
 	public $activity_id;
 	public $is_closed;
+	
+	function getSummary() {
+		$translate = DevblocksPlatform::getTranslationService();
+		$out = '';
+		
+		$activity = '';
+		if(!empty($this->activity_id))
+			$activity = DAO_TimeTrackingActivity::get($this->activity_id); // [TODO] Cache?
+		
+		$who = 'A worker';
+		if(null != ($worker = DAO_Worker::get($this->worker_id)))
+			$who = $worker->getName();
+
+		if(!empty($activity)) {
+			$out = vsprintf($translate->_('timetracking.ui.tracked_desc'), array(
+				$who,
+				$this->time_actual_mins,
+				$activity->name
+			));
+			
+		} else {
+			$out = vsprintf("%s tracked %s mins", array(
+				$who,
+				$this->time_actual_mins
+			));
+			
+		}
+
+		return $out;
+	}
 };
 
 class SearchFields_TimeTrackingEntry {
@@ -858,7 +888,7 @@ class Context_TimeTracking extends Extension_DevblocksContext {
 		
 		return array(
 			'id' => $time_entry->id,
-			'name' => '', // [TODO] model->getName()
+			'name' => $time_entry->getSummary(),
 			'permalink' => $url_writer->write('c=timetracking&tab=display&id='.$context_id, true),
 		);
 	}
