@@ -15,7 +15,30 @@ class DAO_Comment extends DevblocksORMHelper {
 		
 		self::update($id, $fields);
 		
-		// New comment
+		/*
+		 * Log the activity of a new comment being created
+		 */
+		
+		$context = DevblocksPlatform::getExtension($fields[self::CONTEXT], true); /* @var $context Extension_DevblocksContext */
+		$meta = $context->getMeta($fields[self::CONTEXT_ID]);
+		
+		$entry = array(
+			'message' => '{{actor}} commented on {{object}} {{target}}: {{content}}',
+			'variables' => array(
+				'object' => mb_convert_case($context->manifest->name, MB_CASE_LOWER),
+				'target' => $meta['name'],
+				'content' => $fields[self::COMMENT],
+				),
+			'urls' => array(
+				'target' => $meta['permalink'] . '/comments#'.$id,
+				)
+		);
+		CerberusContexts::logActivity('comment.create', $fields[self::CONTEXT], $fields[self::CONTEXT_ID], $entry, null, null, $also_notify_worker_ids);		
+		
+		/*
+		 * Send a new comment event
+		 */
+		
 	    $eventMgr = DevblocksPlatform::getEventService();
 	    $eventMgr->trigger(
 	        new Model_DevblocksEvent(
