@@ -5,15 +5,6 @@
 		srclang="en-us" o-tmf="abc" />
 	<body>
 	
-		<!-- Contexts -->
-		
-		<tu tuid='context.timetracking.assigned'>
-			<tuv xml:lang="en_US"><seg>%s assigned a time slip to you.</seg></tuv>
-		</tu>
-		<tu tuid='context.timetracking.commented'>
-			<tuv xml:lang="en_US"><seg>%s commented on a time slip.</seg></tuv>
-		</tu>
-
 		<!-- Manifest -->
 
 		<tu tuid='timetracking.activity.tab'>

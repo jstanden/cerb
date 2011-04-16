@@ -77,12 +77,6 @@
 						<data key="workspace" />
 					</value>
 				</param>
-				<param key="events">
-					<value>
-						<data key="context.assigned" value="context.opportunity.assigned" />
-						<data key="context.commented" value="context.opportunity.commented" />
-					</value>
-				</param>
 			</params>
 		</extension>
 	

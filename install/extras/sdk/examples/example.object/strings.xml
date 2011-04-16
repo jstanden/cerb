@@ -13,14 +13,5 @@
 			<tuv xml:lang="en_US"><seg>Example Objects</seg></tuv>
 		</tu>
 
-		<!-- Contexts -->
-		
-		<tu tuid='context.example_object.assigned'>
-			<tuv xml:lang="en_US"><seg>%s assigned an example object to you.</seg></tuv>
-		</tu>
-		<tu tuid='context.example_object.commented'>
-			<tuv xml:lang="en_US"><seg>%s commented on an example object.</seg></tuv>
-		</tu>
-		
 	</body>
 </tmx>

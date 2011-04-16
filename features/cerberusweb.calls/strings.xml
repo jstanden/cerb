@@ -21,15 +21,6 @@
 			<tuv xml:lang="en_US"><seg>[Call Logging] Can export call lists to CSV/XML</seg></tuv>
 		</tu>
 		
-		<!-- Contexts -->
-		
-		<tu tuid='context.call.assigned'>
-			<tuv xml:lang="en_US"><seg>%s assigned a call to you.</seg></tuv>
-		</tu>
-		<tu tuid='context.call.commented'>
-			<tuv xml:lang="en_US"><seg>%s commented on a call.</seg></tuv>
-		</tu>
-		
 		<!-- Call Logging -->
 
 		<tu tuid='calls.activity.tab'>

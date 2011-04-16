@@ -17,14 +17,5 @@
 			<tuv xml:lang="en_US"><seg>Add Domain</seg></tuv>
 		</tu>
 		
-		<!-- Contexts -->
-		
-		<tu tuid='context.datacenter.domain.assigned'>
-			<tuv xml:lang="en_US"><seg>%s assigned a domain to you.</seg></tuv>
-		</tu>
-		<tu tuid='context.datacenter.domain.commented'>
-			<tuv xml:lang="en_US"><seg>%s commented on a domain.</seg></tuv>
-		</tu>
-
 	</body>
 </tmx>

@@ -443,12 +443,6 @@
 						<data key="workspace" />
 					</value>
 				</param>
-				<param key="events">
-					<value>
-						<data key="context.assigned" value="context.contact_person.assigned" />
-						<data key="context.commented" value="context.contact_person.commented" />
-					</value>
-				</param>
 			</params>
 		</extension>
 		
@@ -466,12 +460,6 @@
 						<data key="create" />
 						<data key="find" />
 						<data key="workspace" />
-					</value>
-				</param>
-				<param key="events">
-					<value>
-						<data key="context.assigned" value="context.address.assigned" />
-						<data key="context.commented" value="context.address.commented" />
 					</value>
 				</param>
 			</params>
@@ -492,14 +480,6 @@
 					</value>
 				</param>
 				-->
-				<param key="events">
-					<!--
-					<value>
-						<data key="context.assigned" value="context.group.assigned" />
-						<data key="context.commented" value="context.group.commented" />
-					</value>
-					-->
-				</param>
 			</params>
 		</extension>
 		
@@ -518,14 +498,6 @@
 						<data key="workspace" />
 					</value>
 				</param>
-				<param key="events">
-					<!--
-					<value>
-						<data key="context.assigned" value="context.group.assigned" />
-						<data key="context.commented" value="context.group.commented" />
-					</value>
-					-->
-				</param>
 			</params>
 		</extension>
 		
@@ -542,14 +514,6 @@
 					<value>
 						<data key="workspace" />
 					</value>
-				</param>
-				<param key="events">
-					<!--
-					<value>
-						<data key="context.assigned" value="context.group.assigned" />
-						<data key="context.commented" value="context.group.commented" />
-					</value>
-					-->
 				</param>
 			</params>
 		</extension>
@@ -568,14 +532,6 @@
 						<data key="workspace" />
 					</value>
 				</param>
-				<param key="events">
-					<!--
-					<value>
-						<data key="context.assigned" value="context.group.assigned" />
-						<data key="context.commented" value="context.group.commented" />
-					</value>
-					-->
-				</param>
 			</params>
 		</extension>		
 		
@@ -593,12 +549,6 @@
 						<data key="create" />
 						<data key="find" />
 						<data key="workspace" />
-					</value>
-				</param>
-				<param key="events">
-					<value>
-						<data key="context.assigned" value="context.org.assigned" />
-						<data key="context.commented" value="context.org.commented" />
 					</value>
 				</param>
 			</params>
@@ -622,14 +572,6 @@
 						<data key="workspace" />
 					</value>
 				</param>
-				<param key="events">
-					<!--
-					<value>
-						<data key="context.assigned" value="context.task.assigned" />
-						<data key="context.commented" value="context.task.commented" />
-					</value>
-					-->
-				</param>
 			</params>
 		</extension>
 		
@@ -649,12 +591,6 @@
 						<data key="workspace" />
 					</value>
 				</param>
-				<param key="events">
-					<value>
-						<data key="context.assigned" value="context.task.assigned" />
-						<data key="context.commented" value="context.task.commented" />
-					</value>
-				</param>
 			</params>
 		</extension>
 
@@ -671,12 +607,6 @@
 					<value>
 						<data key="find" />
 						<data key="workspace" />
-					</value>
-				</param>
-				<param key="events">
-					<value>
-						<data key="context.assigned" value="context.ticket.assigned" />
-						<data key="context.commented" value="context.ticket.commented" />
 					</value>
 				</param>
 			</params>
@@ -698,14 +628,6 @@
 						-->
 						<data key="workspace" />
 					</value>
-				</param>
-				<param key="events">
-					<!--
-					<value>
-						<data key="context.assigned" value="context.worker.assigned" />
-						<data key="context.commented" value="context.worker.commented" />
-					</value>
-					-->
 				</param>
 			</params>
 		</extension>
@@ -804,8 +726,6 @@
 			<params>
 				<param key="events">
 					<value>
-						<data key="context_link.assigned" />
-						<data key="context_link.set" />
 						<data key="cron.heartbeat" />
 						<data key="cron.maint" />
 						<data key="dao.ticket.update" />

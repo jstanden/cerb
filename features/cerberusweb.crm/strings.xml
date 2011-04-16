@@ -8,15 +8,6 @@
 			<tuv xml:lang="en_US"><seg>Opportunities</seg></tuv>
 		</tu>
 		
-		<!-- Contexts -->
-		
-		<tu tuid='context.opportunity.assigned'>
-			<tuv xml:lang="en_US"><seg>%s assigned an opportunity to you.</seg></tuv>
-		</tu>
-		<tu tuid='context.opportunity.commented'>
-			<tuv xml:lang="en_US"><seg>%s commented on an opportunity.</seg></tuv>
-		</tu>
-
 		<!-- ACL -->
 		
 		<tu tuid='acl.crm.opp.actions.create'>

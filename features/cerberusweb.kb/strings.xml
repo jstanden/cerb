@@ -37,15 +37,6 @@
 			<tuv xml:lang="en_US"><seg>Search Knowledgebase:</seg></tuv>
 		</tu>
 		
-		<!-- Contexts -->
-		
-		<tu tuid='context.kb_article.assigned'>
-			<tuv xml:lang="en_US"><seg>%s assigned a knowledgebase article to you.</seg></tuv>
-		</tu>
-		<tu tuid='context.kb_article.commented'>
-			<tuv xml:lang="en_US"><seg>%s commented on a knowledgebase article.</seg></tuv>
-		</tu>
-
 		<!-- SC -->
 		
 		<tu tuid='portal.kb.public.no_content'>

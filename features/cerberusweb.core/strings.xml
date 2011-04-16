@@ -891,49 +891,11 @@ For example: http://www.cerberusweb.com/support/</seg></tuv>
 
 		<!-- Contexts -->
 		
-		<tu tuid='context.default.assigned'>
-			<tuv xml:lang="en_US"><seg>%s assigned something to you.</seg></tuv>
 		</tu>
-		<tu tuid='context.default.commented'>
-			<tuv xml:lang="en_US"><seg>%s left a comment for you.</seg></tuv>
 		</tu>
-		<tu tuid='context.address.assigned'>
-			<tuv xml:lang="en_US"><seg>%s assigned a contact to you.</seg></tuv>
 		</tu>
-		<tu tuid='context.address.commented'>
-			<tuv xml:lang="en_US"><seg>%s commented on a contact.</seg></tuv>
 		</tu>
-		<!--
-		<tu tuid='context.group.assigned'>
-			<tuv xml:lang="en_US"><seg>%s assigned a group to you.</seg></tuv>
 		</tu>
-		<tu tuid='context.group.commented'>
-			<tuv xml:lang="en_US"><seg>%s commented on a group.</seg></tuv>
-		</tu>
-		-->
-		<tu tuid='context.org.assigned'>
-			<tuv xml:lang="en_US"><seg>%s assigned an organization to you.</seg></tuv>
-		</tu>
-		<tu tuid='context.org.commented'>
-			<tuv xml:lang="en_US"><seg>%s commented on an organization.</seg></tuv>
-		</tu>
-		<tu tuid='context.task.assigned'>
-			<tuv xml:lang="en_US"><seg>%s assigned a task to you.</seg></tuv>
-		</tu>
-		<tu tuid='context.task.commented'>
-			<tuv xml:lang="en_US"><seg>%s commented on a task.</seg></tuv>
-		</tu>
-		<tu tuid='context.ticket.assigned'>
-			<tuv xml:lang="en_US"><seg>%s assigned a ticket to you.</seg></tuv>
-		</tu>
-		<tu tuid='context.ticket.commented'>
-			<tuv xml:lang="en_US"><seg>%s commented on a ticket.</seg></tuv>
-		</tu>
-		<tu tuid='context.worker.assigned'>
-			<tuv xml:lang="en_US"><seg>%s assigned a worker to you.</seg></tuv>
-		</tu>
-		<tu tuid='context.worker.commented'>
-			<tuv xml:lang="en_US"><seg>%s commented on another worker.</seg></tuv>
 		</tu>
 
 		<!-- Cron -->

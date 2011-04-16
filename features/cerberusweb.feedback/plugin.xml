@@ -59,12 +59,6 @@
 						<data key="workspace" />
 					</value>
 				</param>
-				<param key="events">
-					<value>
-						<data key="context.assigned" value="context.feedback.assigned" />
-						<data key="context.commented" value="context.feedback.commented" />
-					</value>
-				</param>
 			</params>
 		</extension>
 	

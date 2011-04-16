@@ -18,22 +18,6 @@
 			<tuv xml:lang="en_US"><seg>Manage Feeds</seg></tuv>
 		</tu>
 
-		<!-- Contexts -->
-		
-		<tu tuid='context.feed.assigned'>
-			<tuv xml:lang="en_US"><seg>%s assigned a feed to you.</seg></tuv>
-		</tu>
-		<tu tuid='context.feed.commented'>
-			<tuv xml:lang="en_US"><seg>%s commented on a feed.</seg></tuv>
-		</tu>
-		
-		<tu tuid='context.feed.item.assigned'>
-			<tuv xml:lang="en_US"><seg>%s assigned a feed item to you.</seg></tuv>
-		</tu>
-		<tu tuid='context.feed.item.commented'>
-			<tuv xml:lang="en_US"><seg>%s commented on a feed item.</seg></tuv>
-		</tu>
-
 		<!-- Feed_Item -->
 		
 		<tu tuid='dao.feed_item.feed_id'>

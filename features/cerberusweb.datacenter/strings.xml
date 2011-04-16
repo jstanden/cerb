@@ -21,14 +21,5 @@
 			<tuv xml:lang="en_US"><seg>Add Server</seg></tuv>
 		</tu>
 		
-		<!-- Contexts -->
-		
-		<tu tuid='context.datacenter.server.assigned'>
-			<tuv xml:lang="en_US"><seg>%s assigned a server to you.</seg></tuv>
-		</tu>
-		<tu tuid='context.datacenter.server.commented'>
-			<tuv xml:lang="en_US"><seg>%s commented on a server.</seg></tuv>
-		</tu>
-		
 	</body>
 </tmx>
