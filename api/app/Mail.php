@@ -720,6 +720,20 @@ class CerberusMail {
 			}
 		}
 		
+		/*
+		 * Log activity (ticket.message.outbound)
+		 */
+		$entry = array(
+			'message' => '{{actor}} responded to ticket {{target}}',
+			'variables' => array(
+				'target' => sprintf("[%s] %s", $ticket->mask, $ticket->subject),
+				),
+			'urls' => array(
+				'target' => ('c=display&mask=' . $ticket->mask),
+				)
+		);
+		CerberusContexts::logActivity('ticket.message.outbound', CerberusContexts::CONTEXT_TICKET, $ticket_id, $entry);		
+		
 		return true;
 	}
 	
