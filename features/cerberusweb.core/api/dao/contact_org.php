@@ -146,6 +146,13 @@ class DAO_ContactOrg extends C4_ORMHelper {
 			$db->qstr(CerberusContexts::CONTEXT_ORG),
 			implode(',', $from_ids)
 		));
+
+		// Merge context_activity_log
+		$db->Execute(sprintf("UPDATE IGNORE context_activity_log SET target_context_id = %d WHERE target_context = %s AND target_context_id IN (%s)",
+			$to_id,
+			$db->qstr(CerberusContexts::CONTEXT_ORG),
+			implode(',', $from_ids)
+		));
 		
 		return true;
 	}

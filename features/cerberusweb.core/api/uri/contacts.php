@@ -1182,7 +1182,6 @@ class ChContactsPage extends CerberusPageExtension {
 			DAO_ContactOrg::NAME => $orgs[$oldest_org_id]->name,
 			DAO_ContactOrg::CREATED => $orgs[$oldest_org_id]->created,
 		));
-		unset($oldest_org_id);
 		
 		// Merge records
 		
@@ -1277,6 +1276,27 @@ class ChContactsPage extends CerberusPageExtension {
 
 		// Merge connections
 		DAO_ContactOrg::mergeIds($org_ids, $merge_to_id);
+		
+		foreach($org_ids as $from_org_id) {
+			if($from_org_id == $properties['name'])
+				continue;
+			
+			/*
+			 * Log activity (org.merge)
+			 */
+			$entry = array(
+				'message' => '{{actor}} merged organization {{source}} with organization {{target}}',
+				'variables' => array(
+					'source' => sprintf("%s", $orgs[$from_org_id]->name),
+					'target' => sprintf("%s", $fields[DAO_ContactOrg::NAME]),
+					),
+				'urls' => array(
+					'source' => sprintf("c=contacts&tab=orgs&p=display&id=%d-%s",$from_org_id,DevblocksPlatform::strToPermalink($orgs[$from_org_id]->name)),
+					'target' => sprintf("c=display&tab=orgs&p=display&id=%d-%s",$merge_to_id,DevblocksPlatform::strToPermalink($fields[DAO_ContactOrg::NAME])),
+					)
+			);
+			CerberusContexts::logActivity('org.merge', CerberusContexts::CONTEXT_ORG, $merge_to_id, $entry);
+		}
 		
 		// Fire a merge event for plugins
 	    $eventMgr->trigger(
