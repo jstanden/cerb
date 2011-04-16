@@ -925,6 +925,20 @@ class CerberusParser {
 			// [TODO] The TICKET_CUSTOMER_REPLY should be sure of this message address not being a worker
 		}
 		
+		/*
+		 * Log activity (ticket.message.inbound)
+		 */
+		$entry = array(
+			'message' => '{{actor}} replied to ticket {{target}}',
+			'variables' => array(
+				'target' => $model->getSubject(),
+				),
+			'urls' => array(
+				'target' => 'c=display&mask='.$model->getTicketId(),
+				)
+		);
+		CerberusContexts::logActivity('ticket.message.inbound', CerberusContexts::CONTEXT_TICKET, $model->getTicketId(), $entry, CerberusContexts::CONTEXT_ADDRESS, $model->getSenderAddressModel()->id);
+
 		// [TODO] Benchmark events
 		
 		// Trigger Group Mail Received
