@@ -86,7 +86,104 @@ class DAO_CrmOpportunity extends C4_ORMHelper {
 	}
 	
 	static function update($ids, $fields) {
-		parent::_update($ids, 'crm_opportunity', $fields);
+		if(!is_array($ids))
+			$ids = array($ids);
+		
+		/*
+		 * Make a diff for the requested objects in batches
+		 */
+    	$chunks = array_chunk($ids, 25, true);
+    	while($batch_ids = array_shift($chunks)) {
+	    	$objects = DAO_CrmOpportunity::getWhere(sprintf("id IN (%s)", implode(',', $batch_ids)));
+	    	$object_changes = array();
+	    	
+	    	foreach($objects as $object_id => $object) {
+	    		$pre_fields = get_object_vars($object);
+	    		$changes = array();
+	    		
+	    		foreach($fields as $field_key => $field_val) {
+	    			// Make sure the value of the field actually changed
+	    			if($pre_fields[$field_key] != $field_val) {
+	    				$changes[$field_key] = array('from' => $pre_fields[$field_key], 'to' => $field_val);
+	    			}
+	    		}
+	    		
+	    		// If we had changes
+	    		if(!empty($changes)) {
+	    			$object_changes[$object_id] = array(
+	    				'model' => array_merge($pre_fields, $fields),
+	    				'changes' => $changes,
+	    			);
+	    		}
+	    	}
+	    	
+	    	parent::_update($ids, 'crm_opportunity', $fields);
+
+	    	// Handle local events
+	    	self::_processUpdateEvents($object_changes);
+	    	
+	        /*
+	         * Trigger an event about the changes
+	         */
+	    	if(!empty($object_changes)) {
+			    $eventMgr = DevblocksPlatform::getEventService();
+			    $eventMgr->trigger(
+			        new Model_DevblocksEvent(
+			            'dao.crm_opportunity.update',
+		                array(
+		                    'objects' => $object_changes,
+		                )
+		            )
+			    );
+	    	}
+    	}
+    	
+	}	
+	
+	static function _processUpdateEvents($objects) {
+    	if(is_array($objects))
+    	foreach($objects as $object_id => $object) {
+    		@$model = $object['model'];
+    		@$changes = $object['changes'];
+    		
+    		if(empty($model) || empty($changes))
+    			continue;
+    			
+    		if(!empty($changes[DAO_CrmOpportunity::IS_CLOSED]) 
+    			|| !empty($changes[DAO_CrmOpportunity::IS_WON])) {
+    			
+    			// We only care about things that are closed.
+    			if(empty($model[DAO_CrmOpportunity::IS_CLOSED])) {
+    				$activity_point = 'opp.status.open';
+    				$status_to = 'open';
+    				
+    			} else {
+	    			if(!empty($model[DAO_CrmOpportunity::IS_WON])) {
+	    				$activity_point = 'opp.status.closed_won';
+	    				$status_to = 'closed/won';
+	    				
+	    			} else { // closed_lost
+	    				$activity_point = 'opp.status.closed_lost';
+	    				$status_to = 'closed/lost';
+	    			}
+    			}
+    			
+				/*
+				 * Log activity (opp.status.*)
+				 */
+				$entry = array(
+					'message' => '{{actor}} changed opportunity {{target}} to status {{status}}',
+					'variables' => array(
+						'target' => sprintf("%s", $model[DAO_CrmOpportunity::NAME]),
+						'status' => $status_to,
+						),
+					'urls' => array(
+						'target' => 'c=crm&p=opps&id='.$model[DAO_CrmOpportunity::ID],
+						)
+				);
+				CerberusContexts::logActivity($activity_point, CerberusContexts::CONTEXT_OPPORTUNITY, $object_id, $entry);
+    		}
+    	}
 	}
 	
 	static function updateWhere($fields, $where) {
