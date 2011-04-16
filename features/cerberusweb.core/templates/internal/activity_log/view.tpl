@@ -58,7 +58,7 @@
 				{$entry = json_decode($result.c_entry_json, true)}
 				{$params_req = $view->getParamsRequired()}
 				{if isset($params_req.{SearchFields_ContextActivityLog::TARGET_CONTEXT})}
-				{$entry.variables.target = ''}
+				{$entry.message = $entry.message|replace:' {{target}}':''}
 				{/if}
 				{CerberusContexts::formatActivityLogEntry($entry,'html') nofilter}
 			</td>
