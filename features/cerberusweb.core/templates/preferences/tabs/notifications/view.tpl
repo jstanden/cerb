@@ -27,7 +27,7 @@
 
 	{* Column Headers *}
 	<tr>
-		<th style="text-align:center"></th>
+		<th style="text-align:center;width:10px;max-width:10px;"></th>
 		{foreach from=$view->view_columns item=header name=headers}
 			{* start table header, insert column title and link *}
 			<th nowrap="nowrap">

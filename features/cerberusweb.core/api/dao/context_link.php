@@ -8,6 +8,7 @@ class DAO_ContextLink {
 	static public function setLink($src_context, $src_context_id, $dst_context, $dst_context_id) {
 		$db = DevblocksPlatform::getDatabaseService();
 		$event = DevblocksPlatform::getEventService();
+		$active_worker = CerberusApplication::getActiveWorker();
 		
 		$ext_src_context = DevblocksPlatform::getExtension($src_context, true); /* @var $context Extension_DevblocksContext */
 		$ext_dst_context = DevblocksPlatform::getExtension($dst_context, true); /* @var $context Extension_DevblocksContext */
@@ -72,17 +73,35 @@ class DAO_ContextLink {
 		
 		// Are we following something?
 		if($dst_context == CerberusContexts::CONTEXT_WORKER) {
-			$entry = array(
-				'message' => '{{actor}} started watching {{target_object}} {{target}}',
-				'variables' => array(
-					'target_object' => mb_convert_case($ext_src_context->manifest->name, MB_CASE_LOWER),
-					'target' => $meta_src_context['name'],
-					),
-				'urls' => array(
-					'target' => $meta_src_context['permalink'],
-					)
-			);
-			CerberusContexts::logActivity('watcher.follow', $src_context, $src_context_id, $entry);
+			if($active_worker && $active_worker->id == $dst_context_id) {
+				$entry = array(
+					'message' => '{{actor}} started watching {{target_object}} {{target}}',
+					'variables' => array(
+						'target_object' => mb_convert_case($ext_src_context->manifest->name, MB_CASE_LOWER),
+						'target' => $meta_src_context['name'],
+						),
+					'urls' => array(
+						'target' => $meta_src_context['permalink'],
+						)
+				);
+				CerberusContexts::logActivity('watcher.follow', $src_context, $src_context_id, $entry);
+			} else {
+				$watcher_worker = DAO_Worker::get($dst_context_id);
+				
+				$entry = array(
+					'message' => '{{actor}} added {{watcher}} as a watcher to {{target_object}} {{target}}',
+					'variables' => array(
+						'watcher' => $watcher_worker->getName(),
+						'target_object' => mb_convert_case($ext_src_context->manifest->name, MB_CASE_LOWER),
+						'target' => $meta_src_context['name'],
+						),
+					'urls' => array(
+						'target' => $meta_src_context['permalink'],
+						'watcher' => sprintf("c=profiles&type=worker&id=%d-%s", $watcher_worker->id, DevblocksPlatform::strToPermalink($watcher_worker->getName())),
+						)
+				);
+				CerberusContexts::logActivity('watcher.assigned', $src_context, $src_context_id, $entry);
+			}
 			
 		// Otherwise, do the connection
 		} else {
@@ -285,6 +304,7 @@ class DAO_ContextLink {
 	
 	static public function deleteLink($src_context, $src_context_id, $dst_context, $dst_context_id) {
 		$db = DevblocksPlatform::getDatabaseService();
+		$active_worker = CerberusApplication::getActiveWorker();
 		
 		$ext_src_context = DevblocksPlatform::getExtension($src_context, true); /* @var $context Extension_DevblocksContext */
 		$ext_dst_context = DevblocksPlatform::getExtension($dst_context, true); /* @var $context Extension_DevblocksContext */
@@ -321,17 +341,35 @@ class DAO_ContextLink {
 
 		// Unfollow?
 		if($dst_context == CerberusContexts::CONTEXT_WORKER) {
-			$entry = array(
-				'message' => '{{actor}} stopped watching {{target_object}} {{target}}',
-				'variables' => array(
-					'target_object' => mb_convert_case($ext_src_context->manifest->name, MB_CASE_LOWER),
-					'target' => $meta_src_context['name'],
-					),
-				'urls' => array(
-					'target' => $meta_src_context['permalink'],
-					)
-			);
-			CerberusContexts::logActivity('watcher.unfollow', $src_context, $src_context_id, $entry);
+			if($active_worker && $active_worker->id == $dst_context_id) {
+				$entry = array(
+					'message' => '{{actor}} stopped watching {{target_object}} {{target}}',
+					'variables' => array(
+						'target_object' => mb_convert_case($ext_src_context->manifest->name, MB_CASE_LOWER),
+						'target' => $meta_src_context['name'],
+						),
+					'urls' => array(
+						'target' => $meta_src_context['permalink'],
+						)
+				);
+				CerberusContexts::logActivity('watcher.unfollow', $src_context, $src_context_id, $entry);
+			} else {
+				$watcher_worker = DAO_Worker::get($dst_context_id);
+				
+				$entry = array(
+					'message' => '{{actor}} removed {{watcher}} as a watcher from {{target_object}} {{target}}',
+					'variables' => array(
+						'watcher' => $watcher_worker->getName(),
+						'target_object' => mb_convert_case($ext_src_context->manifest->name, MB_CASE_LOWER),
+						'target' => $meta_src_context['name'],
+						),
+					'urls' => array(
+						'target' => $meta_src_context['permalink'],
+						'watcher' => sprintf("c=profiles&type=worker&id=%d-%s", $watcher_worker->id, DevblocksPlatform::strToPermalink($watcher_worker->getName())),
+						)
+				);
+				CerberusContexts::logActivity('watcher.unassigned', $src_context, $src_context_id, $entry);
+			}
 		
 		// Disconnect
 		} else {
