@@ -1162,5 +1162,30 @@ if(isset($tables['group_inbox_filter'])) {
 	$db->Execute('DROP TABLE IF EXISTS group_inbox_filter');
 }
 
+// ===========================================================================
+// context_activity_log 
+
+if(!isset($tables['context_activity_log'])) {
+	$sql = "
+	CREATE TABLE IF NOT EXISTS `context_activity_log` (
+		id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+		activity_point VARCHAR(128) NOT NULL DEFAULT '',
+		actor_context VARCHAR(255) NOT NULL DEFAULT '',
+		actor_context_id INT UNSIGNED NOT NULL DEFAULT 0,
+		target_context VARCHAR(255) NOT NULL DEFAULT '',
+		target_context_id INT UNSIGNED NOT NULL DEFAULT 0,
+		created INT UNSIGNED NOT NULL DEFAULT 0,
+		entry_json TEXT,
+		PRIMARY KEY (id),
+		INDEX activity_point (activity_point),
+		INDEX actor (actor_context, actor_context_id),
+		INDEX target (target_context, target_context_id),
+		INDEX created (created)
+	) ENGINE=MyISAM;
+	";
+	$db->Execute($sql);
+
+	$tables['context_activity_log'] = 'context_activity_log';
+}
 
 return TRUE;

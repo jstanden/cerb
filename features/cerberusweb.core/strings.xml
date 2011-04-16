@@ -42,6 +42,9 @@
 		<tu tuid='common.access_denied'>
 			<tuv xml:lang="en_US"><seg>Access denied.</seg></tuv>
 		</tu>
+		<tu tuid='common.activity_log'>
+			<tuv xml:lang="en_US"><seg>Activity Log</seg></tuv>
+		</tu>
 		<tu tuid='common.add'>
 			<tuv xml:lang="en_US"><seg>add</seg></tuv>
 		</tu>
@@ -891,11 +894,25 @@ For example: http://www.cerberusweb.com/support/</seg></tuv>
 
 		<!-- Contexts -->
 		
+		<!-- ContextActivityLog -->
+		
+		<tu tuid='dao.context_activity_log.activity_point'>
+			<tuv xml:lang="en_US"><seg>Activity</seg></tuv>
 		</tu>
+		<tu tuid='dao.context_activity_log.actor_context'>
+			<tuv xml:lang="en_US"><seg>Actor Context</seg></tuv>
 		</tu>
+		<tu tuid='dao.context_activity_log.actor_context_id'>
+			<tuv xml:lang="en_US"><seg>Actor Context ID</seg></tuv>
 		</tu>
+		<tu tuid='dao.context_activity_log.entry'>
+			<tuv xml:lang="en_US"><seg>Entry</seg></tuv>
 		</tu>
+		<tu tuid='dao.context_activity_log.target_context'>
+			<tuv xml:lang="en_US"><seg>Target Context</seg></tuv>
 		</tu>
+		<tu tuid='dao.context_activity_log.target_context_id'>
+			<tuv xml:lang="en_US"><seg>Target Context ID</seg></tuv>
 		</tu>
 
 		<!-- Cron -->
