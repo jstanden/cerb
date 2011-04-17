@@ -617,9 +617,13 @@ class ChInternalController extends DevblocksControllerExtension {
 		$view->renderCriteria($field);
 	}
 
-	private function _viewRenderInlineFilters($view) {
+	private function _viewRenderInlineFilters($view, $is_custom=false) {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('view', $view);
+		
+		if($is_custom)
+			$tpl->assign('is_custom', true);
+			
 		$tpl->display('devblocks:cerberusweb.core::internal/views/customize_view_criteria.tpl');
 	}
 
@@ -636,6 +640,7 @@ class ChInternalController extends DevblocksControllerExtension {
 	
 	function viewAddFilterAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
+		@$is_custom = DevblocksPlatform::importGPC($_REQUEST['is_custom'],'integer',0);
 
 		@$field = DevblocksPlatform::importGPC($_REQUEST['field']);
 		@$oper = DevblocksPlatform::importGPC($_REQUEST['oper']);
@@ -644,20 +649,36 @@ class ChInternalController extends DevblocksControllerExtension {
 
 		$view = C4_AbstractViewLoader::getView($id);
 
+		if($is_custom && 0 != strcasecmp('cust_',substr($id,0,5)))
+			$is_custom = 0;
+		
+		// If this is a custom worklist we want to swap the req+editable params
+		if($is_custom) {
+			$original_params = $view->getEditableParams();
+			$view->addParams($view->getParamsRequired(), true);
+		}
+			
 		// Nuke criteria
 		if(is_array($field_deletes) && !empty($field_deletes)) {
 			foreach($field_deletes as $field_delete) {
 				$view->doRemoveCriteria($field_delete);
 			}
 		}
-
+		
+		// Add
 		if(!empty($field)) {
 			$view->doSetCriteria($field, $oper, $value);
 		}
 
+		// If this is a custom worklist we want to swap the req+editable params back
+		if($is_custom) {
+			$view->addParamsRequired($view->getEditableParams(), true);
+			$view->addParams($original_params, true);
+		}
+		
 		C4_AbstractViewLoader::setView($view->id, $view);
 
-		$this->_viewRenderInlineFilters($view);
+		$this->_viewRenderInlineFilters($view, $is_custom);
 	}
 
 	function viewResetFiltersAction() {

@@ -63,15 +63,13 @@
 <b>{$translate->_('dashboard.num_rows')|capitalize}:</b> <input type="text" name="num_rows" size="3" maxlength="3" value="{$view->renderLimit}"><br>
 <br>
 
-{*
 {if $is_custom}
 <b>Always apply these filters to this worklist:</b><br>
-<div id="viewCustomFilters{$view->id}" style="margin:10px;">
+<div id="viewCustom{if $is_custom}Req{/if}Filters{$view->id}" style="margin:10px;">
 {include file="devblocks:cerberusweb.core::internal/views/customize_view_criteria.tpl" is_custom=true}
 </div>
 <br>
 {/if}
-*}
 
 <button type="button" onclick="genericAjaxPost('customize{$view->id}','view{$view->id}','c=internal&a=viewSaveCustomize');"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {$translate->_('common.save_changes')|capitalize}</button>
 <button type="button" onclick="toggleDiv('customize{$view->id}','none');"><span class="cerb-sprite2 sprite-cross-circle-frame"></span> {$translate->_('common.cancel')|capitalize}</button>
