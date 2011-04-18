@@ -133,6 +133,8 @@ function checkAll(divName, state) {
 		if(null != boxes[x].name) {
 			if(state == null) state = !boxes[x].checked;
 			boxes[x].checked = (state) ? true : false;
+			// This may not be needed when we convert to jQuery
+			$(boxes[x]).trigger('change');
 		}
 	}
 }
