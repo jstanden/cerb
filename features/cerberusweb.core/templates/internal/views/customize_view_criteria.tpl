@@ -95,7 +95,7 @@
 					{/if}
 				</select>
 				
-				{if $is_custom}
+				{if !$is_custom}
 				<div id="divAddPreset{$view->id}" class="block" style="display:none;margin:5px;">
 					<b>Save filters as preset:</b><br>
 					{if !empty($presets)}
