@@ -270,6 +270,8 @@ class ChInternalController extends DevblocksControllerExtension {
 		}
 
 		$defaults = new C4_AbstractViewModel();
+		$defaults->id = 'context_activity_log_'.str_replace('.','_',$context.'_'.$context_id);
+		$defaults->is_ephemeral = true;
 		$defaults->class_name = 'View_ContextActivityLog';
 		$defaults->view_columns = array(
 			SearchFields_ContextActivityLog::CREATED
@@ -278,7 +280,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		$defaults->renderSortBy = SearchFields_ContextActivityLog::CREATED;
 		$defaults->renderSortAsc = false;
 		
-		if(null != ($view = C4_AbstractViewLoader::getView(View_ContextActivityLog::DEFAULT_ID, $defaults))) {
+		if(null != ($view = C4_AbstractViewLoader::getView($defaults->id, $defaults))) {
 			$view->addColumnsHidden(array(
 				SearchFields_ContextActivityLog::ACTOR_CONTEXT_ID,
 				SearchFields_ContextActivityLog::TARGET_CONTEXT_ID,
