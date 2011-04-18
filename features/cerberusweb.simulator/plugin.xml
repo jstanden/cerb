@@ -57,7 +57,7 @@
 			</class>
 			<params>
 				<param key="page_id" value="core.page.configuration" />
-				<param key="menu_id" value="core.setup.menu.mail" />
+				<param key="menu_id" value="core.setup.menu.plugins" />
 			</params>
 		</extension>
 	
