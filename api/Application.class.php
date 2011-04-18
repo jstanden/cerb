@@ -956,8 +956,12 @@ class CerberusContexts {
 					&& $actor_context_id == $watcher_id)
 						continue;
 				
-				// [TODO] Filter by worker watcher prefs
-						
+				// Does the worker want this kind of notification?
+				$dont_notify_on_activities = WorkerPrefs::getDontNotifyOnActivities($watcher_id);
+				if(in_array($activity_point, $dont_notify_on_activities))
+					continue;
+					
+				// If yes, send it						
 				DAO_Notification::create(array(
 					DAO_Notification::CREATED_DATE => time(),
 					DAO_Notification::IS_READ => 0,

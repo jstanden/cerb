@@ -159,6 +159,36 @@ class ChPreferencesPage extends CerberusPageExtension {
 				}
 		}
 	}
+	
+	function showWatcherTabAction() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		$visit = CerberusApplication::getVisit();
+		$tpl = DevblocksPlatform::getTemplateService();
+		
+		// Remember tab
+		$visit->set(Extension_PreferenceTab::POINT, 'watcher');
+		
+		// Activities
+		$activities = DevblocksPlatform::getActivityPointRegistry();
+		$tpl->assign('activities', $activities);
+
+		$dont_notify_on_activities = WorkerPrefs::getDontNotifyOnActivities($active_worker->id);
+		$tpl->assign('dont_notify_on_activities', $dont_notify_on_activities);
+		
+		$tpl->display('devblocks:cerberusweb.core::preferences/tabs/watcher/index.tpl');
+	}
+	
+	function saveWatcherTabAction() {
+		@$activity_points = DevblocksPlatform::importGPC($_REQUEST['activity_point'],'array',array());
+		@$activity_points_enabled = DevblocksPlatform::importGPC($_REQUEST['activity_enable'],'array',array());
+		
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		$dont_notify_on_activities = array_diff($activity_points, $activity_points_enabled);
+		WorkerPrefs::setDontNotifyOnActivities($active_worker->id, $dont_notify_on_activities);
+		
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('preferences','watcher')));
+	}
 
 	function showMyNotificationsTabAction() {
 		$translate = DevblocksPlatform::getTranslationService();

@@ -782,6 +782,23 @@ class Model_Worker {
 	}
 };
 
+class WorkerPrefs {
+	static function setDontNotifyOnActivities($worker_id, $array) {
+		if(empty($worker_id) || !is_array($array))
+			return;
+		
+		DAO_WorkerPref::set($worker_id, 'dont_notify_on_activities_json', json_encode($array));
+	}
+	
+	static function getDontNotifyOnActivities($worker_id) {
+		$dont_notify_on_activities = DAO_WorkerPref::get($worker_id, 'dont_notify_on_activities_json', null);
+		if(empty($dont_notify_on_activities) || false == ($dont_notify_on_activities = @json_decode($dont_notify_on_activities, true))) {
+			$dont_notify_on_activities = array();
+		}
+		return $dont_notify_on_activities;
+	}
+};
+
 class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals {
 	const DEFAULT_ID = 'workers';
 
@@ -1170,7 +1187,6 @@ class DAO_WorkerPref extends DevblocksORMHelper {
 			$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 			
 			$objects = array();
-			
 			
 			while($row = mysql_fetch_assoc($rs)) {
 			    $objects[$row['setting']] = $row['value'];

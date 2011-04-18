@@ -283,6 +283,7 @@
 			<class name="Model_Worker" />
 			<class name="SearchFields_Worker" />
 			<class name="View_Worker" />
+			<class name="WorkerPrefs" />
 		</file>
 		
 		<file path="api/dao/worker_role.php">

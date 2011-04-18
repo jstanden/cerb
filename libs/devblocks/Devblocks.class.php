@@ -880,7 +880,9 @@ class DevblocksPlatform extends DevblocksEngine {
 				$activities[$point] = $data;
 			}
 		}
-
+		
+		ksort($activities);
+		
 		$cache->save($activities, self::CACHE_ACTIVITY_POINTS);
 		return $activities;
 	}
