@@ -47,6 +47,20 @@
 		<priv id="crm.opp.view.actions.export" label="acl.crm.opp.view.actions.export" />
 	</acl>
 	
+	<!-- Activity Points -->
+	
+	<activity_points>
+		<activity point="opp.status.closed_lost">
+			<param key="label_key" value="Opportunity Closed/Lost" />
+		</activity>
+		<activity point="opp.status.closed_won">
+			<param key="label_key" value="Opportunity Closed/Won" />
+		</activity>
+		<activity point="opp.status.open">
+			<param key="label_key" value="Opportunity Opened" />
+		</activity>
+	</activity_points>
+	
 	<!-- Events -->
 	
 	<event_points>

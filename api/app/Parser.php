@@ -929,7 +929,8 @@ class CerberusParser {
 		 * Log activity (ticket.message.inbound)
 		 */
 		$entry = array(
-			'message' => '{{actor}} replied to ticket {{target}}',
+			//{{actor}} replied to ticket {{target}}
+			'message' => 'activities.ticket.message.inbound',
 			'variables' => array(
 				'target' => $model->getSubject(),
 				),

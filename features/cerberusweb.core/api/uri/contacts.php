@@ -1285,7 +1285,8 @@ class ChContactsPage extends CerberusPageExtension {
 			 * Log activity (org.merge)
 			 */
 			$entry = array(
-				'message' => '{{actor}} merged organization {{source}} with organization {{target}}',
+				//{{actor}} merged organization {{source}} with organization {{target}}
+				'message' => 'activities.org.merge',
 				'variables' => array(
 					'source' => sprintf("%s", $orgs[$from_org_id]->name),
 					'target' => sprintf("%s", $fields[DAO_ContactOrg::NAME]),

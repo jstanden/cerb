@@ -372,9 +372,30 @@ class View_ContextActivityLog extends C4_AbstractView implements IAbstractView_S
 		
 		switch($column) {
 			case SearchFields_ContextActivityLog::ACTIVITY_POINT:
+				$label_map = array();
+				$translate = DevblocksPlatform::getTranslationService();
+				
+				$activities = DevblocksPlatform::getActivityPointRegistry();
+				if(is_array($activities))
+				foreach($activities as $k => $data) {
+					@$string_id = $data['params']['label_key'];
+					if(!empty($string_id)) {
+						$label_map[$k] = $translate->_($string_id);
+					}
+				}
+				$counts = $this->_getSubtotalCountForStringColumn('DAO_ContextActivityLog', $column, $label_map);
+				break;
+				
 			case SearchFields_ContextActivityLog::ACTOR_CONTEXT:
 			case SearchFields_ContextActivityLog::TARGET_CONTEXT:
-				$counts = $this->_getSubtotalCountForStringColumn('DAO_ContextActivityLog', $column);
+				$label_map = array();
+				$contexts = Extension_DevblocksContext::getAll(false);
+				
+				foreach($contexts as $k => $mft) {
+					$label_map[$k] = $mft->name;
+				}
+				
+				$counts = $this->_getSubtotalCountForStringColumn('DAO_ContextActivityLog', $column, $label_map);
 				break;
 
 //			case SearchFields_ContextActivityLog::IS_COMPLETED:
@@ -448,6 +469,46 @@ class View_ContextActivityLog extends C4_AbstractView implements IAbstractView_S
 		$values = !is_array($param->value) ? array($param->value) : $param->value;
 
 		switch($field) {
+			case SearchFields_ContextActivityLog::ACTOR_CONTEXT:
+			case SearchFields_ContextActivityLog::TARGET_CONTEXT:
+				$strings = array();
+				$contexts = Extension_DevblocksContext::getAll(false);
+				
+				if(is_array($values))
+				foreach($values as $v) {
+					$string = $v;
+					if(isset($contexts[$v])) {
+						if(isset($contexts[$v]->name))
+							$string = $contexts[$v]->name;
+					}
+					
+					$strings[] = $string;
+				}
+				
+				return implode(' or ', $strings);
+				break;
+				
+			case SearchFields_ContextActivityLog::ACTIVITY_POINT:
+				$strings = array();
+				
+				$activities = DevblocksPlatform::getActivityPointRegistry();
+				$translate = DevblocksPlatform::getTranslationService();
+				
+				if(is_array($values))
+				foreach($values as $v) {
+					$string = $v;
+					if(isset($activities[$v])) {
+						@$string_id = $activities[$v]['params']['label_key'];
+						if(!empty($string_id))
+							$string = $translate->_($string_id);
+					}
+					
+					$strings[] = $string;
+				}
+				
+				return implode(' or ', $strings);
+				break;
+				
 			default:
 				parent::renderCriteriaParam($param);
 				break;

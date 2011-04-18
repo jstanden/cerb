@@ -724,7 +724,8 @@ class CerberusMail {
 		 * Log activity (ticket.message.outbound)
 		 */
 		$entry = array(
-			'message' => '{{actor}} responded to ticket {{target}}',
+			//{{actor}} responded to ticket {{target}}
+			'message' => 'activities.ticket.message.outbound',
 			'variables' => array(
 				'target' => sprintf("[%s] %s", $ticket->mask, $ticket->subject),
 				),

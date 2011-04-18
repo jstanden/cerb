@@ -75,7 +75,8 @@ class DAO_ContextLink {
 		if($dst_context == CerberusContexts::CONTEXT_WORKER) {
 			if($active_worker && $active_worker->id == $dst_context_id) {
 				$entry = array(
-					'message' => '{{actor}} started watching {{target_object}} {{target}}',
+					//{{actor}} started watching {{target_object}} {{target}}
+					'message' => 'activities.watcher.follow',
 					'variables' => array(
 						'target_object' => mb_convert_case($ext_src_context->manifest->name, MB_CASE_LOWER),
 						'target' => $meta_src_context['name'],
@@ -89,7 +90,8 @@ class DAO_ContextLink {
 				$watcher_worker = DAO_Worker::get($dst_context_id);
 				
 				$entry = array(
-					'message' => '{{actor}} added {{watcher}} as a watcher to {{target_object}} {{target}}',
+					//{{actor}} added {{watcher}} as a watcher to {{target_object}} {{target}}
+					'message' => 'activities.watcher.assigned',
 					'variables' => array(
 						'watcher' => $watcher_worker->getName(),
 						'target_object' => mb_convert_case($ext_src_context->manifest->name, MB_CASE_LOWER),
@@ -106,7 +108,8 @@ class DAO_ContextLink {
 		// Otherwise, do the connection
 		} else {
 			$entry = array(
-				'message' => '{{actor}} connected {{target_object}} {{target}} to {{link_object}} {{link}}',
+				//{{actor}} connected {{target_object}} {{target}} to {{link_object}} {{link}}
+				'message' => 'activities.connection.link',
 				'variables' => array(
 					'target_object' => mb_convert_case($ext_src_context->manifest->name, MB_CASE_LOWER),
 					'target' => $meta_src_context['name'],
@@ -121,7 +124,8 @@ class DAO_ContextLink {
 			CerberusContexts::logActivity('connection.link', $src_context, $src_context_id, $entry);
 			
 			$entry = array(
-				'message' => '{{actor}} connected {{target_object}} {{target}} to {{link_object}} {{link}}',
+				//{{actor}} connected {{target_object}} {{target}} to {{link_object}} {{link}}
+				'message' => 'activities.connection.link',
 				'variables' => array(
 					'target_object' => mb_convert_case($ext_dst_context->manifest->name, MB_CASE_LOWER),
 					'target' => $meta_dst_context['name'],
@@ -343,7 +347,8 @@ class DAO_ContextLink {
 		if($dst_context == CerberusContexts::CONTEXT_WORKER) {
 			if($active_worker && $active_worker->id == $dst_context_id) {
 				$entry = array(
-					'message' => '{{actor}} stopped watching {{target_object}} {{target}}',
+					//{{actor}} stopped watching {{target_object}} {{target}}
+					'message' => 'activities.watcher.unfollow',
 					'variables' => array(
 						'target_object' => mb_convert_case($ext_src_context->manifest->name, MB_CASE_LOWER),
 						'target' => $meta_src_context['name'],
@@ -357,7 +362,8 @@ class DAO_ContextLink {
 				$watcher_worker = DAO_Worker::get($dst_context_id);
 				
 				$entry = array(
-					'message' => '{{actor}} removed {{watcher}} as a watcher from {{target_object}} {{target}}',
+					//{{actor}} removed {{watcher}} as a watcher from {{target_object}} {{target}}
+					'message' => 'activities.watcher.unassigned',
 					'variables' => array(
 						'watcher' => $watcher_worker->getName(),
 						'target_object' => mb_convert_case($ext_src_context->manifest->name, MB_CASE_LOWER),
@@ -374,7 +380,8 @@ class DAO_ContextLink {
 		// Disconnect
 		} else {
 			$entry = array(
-				'message' => '{{actor}} disconnected {{target_object}} {{target}} from {{link_object}} {{link}}',
+				//{{actor}} disconnected {{target_object}} {{target}} from {{link_object}} {{link}}
+				'message' => 'activities.connection.unlink',
 				'variables' => array(
 					'target_object' => mb_convert_case($ext_src_context->manifest->name, MB_CASE_LOWER),
 					'target' => $meta_src_context['name'],
@@ -389,7 +396,8 @@ class DAO_ContextLink {
 			CerberusContexts::logActivity('connection.unlink', $src_context, $src_context_id, $entry);		
 			
 			$entry = array(
-				'message' => '{{actor}} disconnected {{target_object}} {{target}} from {{link_object}} {{link}}',
+				//{{actor}} disconnected {{target_object}} {{target}} from {{link_object}} {{link}}
+				'message' => 'activities.connection.unlink',
 				'variables' => array(
 					'target_object' => mb_convert_case($ext_dst_context->manifest->name, MB_CASE_LOWER),
 					'target' => $meta_dst_context['name'],

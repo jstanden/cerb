@@ -155,7 +155,8 @@ class DAO_Task extends C4_ORMHelper {
 				 * Log activity (task.status.*)
 				 */
 				$entry = array(
-					'message' => '{{actor}} completed task {{target}}',
+					//{{actor}} completed task {{target}}
+					'message' => 'activities.task.status.completed',
 					'variables' => array(
 						'target' => sprintf("%s", $model[DAO_Task::TITLE]),
 						),

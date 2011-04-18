@@ -12,6 +12,7 @@ define('PLATFORM_BUILD',2011012401);
  */
 class DevblocksPlatform extends DevblocksEngine {
     const CACHE_ACL = 'devblocks_acl';
+    const CACHE_ACTIVITY_POINTS = 'devblocks_activity_points';
     const CACHE_EVENT_POINTS = 'devblocks_event_points';
     const CACHE_EVENTS = 'devblocks_events';
     const CACHE_EXTENSIONS = 'devblocks_extensions';
@@ -567,6 +568,7 @@ class DevblocksPlatform extends DevblocksEngine {
 	    } else { // All
 		    $cache->remove(self::CACHE_ACL);
 		    $cache->remove(self::CACHE_PLUGINS);
+		    $cache->remove(self::CACHE_ACTIVITY_POINTS);
 		    $cache->remove(self::CACHE_EVENT_POINTS);
 		    $cache->remove(self::CACHE_EVENTS);
 		    $cache->remove(self::CACHE_EXTENSIONS);
@@ -860,6 +862,29 @@ class DevblocksPlatform extends DevblocksEngine {
 		return $extensions;
 	}
 
+	static function getActivityPointRegistry() {
+	    $cache = self::getCacheService();
+		$plugins = DevblocksPlatform::getPluginRegistry();
+		
+		if(empty($plugins))
+			return array();
+			
+	    if(null !== ($activities = $cache->load(self::CACHE_ACTIVITY_POINTS)))
+    	    return $activities;
+			
+		$activities = array();
+			
+		foreach($plugins as $plugin) { /* @var $plugin DevblocksPluginManifest */
+			if($plugin->enabled)
+			foreach($plugin->getActivityPoints() as $point => $data) {
+				$activities[$point] = $data;
+			}
+		}
+
+		$cache->save($activities, self::CACHE_ACTIVITY_POINTS);
+		return $activities;
+	}
+	
 	/**
 	 * @return DevblocksEventPoint[]
 	 */
@@ -1557,6 +1582,24 @@ abstract class DevblocksEngine {
 		// Image
 		if(isset($plugin->image)) {
 			$manifest->manifest_cache['plugin_image'] = (string) $plugin->image;
+		}
+		
+		// Activity points
+		$manifest->manifest_cache['activity_points'] = array();
+		if(isset($plugin->activity_points->activity))
+		foreach($plugin->activity_points->activity as $eActivity) {
+			$activity_point = (string) $eActivity['point'];
+			$params = array();
+			if(isset($eActivity->param))
+			foreach($eActivity->param as $eParam) {
+				$key = (string) $eParam['key'];
+				$value = (string) $eParam['value'];
+				$params[$key] = $value;
+			}
+			$manifest->manifest_cache['activity_points'][$activity_point] = array(
+				'point' => $activity_point,
+				'params' => $params,
+			);
 		}
 			
 		if(!$persist)

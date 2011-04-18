@@ -23,7 +23,8 @@ class DAO_Comment extends DevblocksORMHelper {
 		$meta = $context->getMeta($fields[self::CONTEXT_ID]);
 		
 		$entry = array(
-			'message' => '{{actor}} commented on {{object}} {{target}}: {{content}}',
+			//{{actor}} commented on {{object}} {{target}}: {{content}}
+			'message' => 'activities.comment.create',
 			'variables' => array(
 				'object' => mb_convert_case($context->manifest->name, MB_CASE_LOWER),
 				'target' => $meta['name'],

@@ -55,12 +55,15 @@
 			<td rowspan="2"></td>
 			<td colspan="{$smarty.foreach.headers.total}" style="font-size:12px;color:rgb(80,80,80);padding:2px 0px;">
 				<input type="checkbox" name="row_id[]" value="{$result.c_id}" style="display:none;">
+				{* If we're looking at the target context, hide the text in the entry *}
 				{$entry = json_decode($result.c_entry_json, true)}
 				{$params_req = $view->getParamsRequired()}
 				{if isset($params_req.{SearchFields_ContextActivityLog::TARGET_CONTEXT})}
-				{$entry.message = $entry.message|replace:' {{target}}':''}
+					{$scrub = ['target']}
+					{CerberusContexts::formatActivityLogEntry($entry,'html',$scrub) nofilter}
+				{else}
+					{CerberusContexts::formatActivityLogEntry($entry,'html') nofilter}
 				{/if}
-				{CerberusContexts::formatActivityLogEntry($entry,'html') nofilter}
 			</td>
 		</tr>
 		

@@ -378,7 +378,8 @@ class DAO_Ticket extends C4_ORMHelper {
 				 * Log activity (ticket.merge)
 				 */
 				$entry = array(
-					'message' => '{{actor}} merged ticket {{source}} with ticket {{target}}',
+					//{{actor}} merged ticket {{source}} with ticket {{target}}
+					'message' => 'activities.ticket.merge',
 					'variables' => array(
 						'source' => sprintf("[%s] %s", $ticket[SearchFields_Ticket::TICKET_MASK], $ticket[SearchFields_Ticket::TICKET_SUBJECT]),
 						'target' => sprintf("[%s] %s", $oldest_ticket[SearchFields_Ticket::TICKET_MASK], $oldest_ticket[SearchFields_Ticket::TICKET_SUBJECT]),
@@ -635,7 +636,8 @@ class DAO_Ticket extends C4_ORMHelper {
 					 * Log activity (ticket.status.*)
 					 */
 					$entry = array(
-						'message' => '{{actor}} changed ticket {{target}} to status {{status}}',
+						//{{actor}} changed ticket {{target}} to status {{status}}
+						'message' => 'activities.ticket.status',
 						'variables' => array(
 							'target' => sprintf("[%s] %s", $model[DAO_Ticket::MASK], $model[DAO_Ticket::SUBJECT]),
 							'status' => $status_to,

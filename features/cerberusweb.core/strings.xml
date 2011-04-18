@@ -36,6 +36,48 @@
 		<tu tuid='activity.tab.tasks'>
 			<tuv xml:lang="en_US"><seg>Tasks</seg></tuv>
 		</tu>
+		
+		<!-- Activity points -->
+		
+		<tu tuid='activities.comment.create'>
+			<tuv xml:lang="en_US"><seg>{{actor}} commented on {{object}} {{target}}: {{content}}</seg></tuv>
+		</tu>
+		<tu tuid='activities.connection.link'>
+			<tuv xml:lang="en_US"><seg>{{actor}} connected {{target_object}} {{target}} to {{link_object}} {{link}}</seg></tuv>
+		</tu>
+		<tu tuid='activities.connection.unlink'>
+			<tuv xml:lang="en_US"><seg>{{actor}} disconnected {{target_object}} {{target}} from {{link_object}} {{link}}</seg></tuv>
+		</tu>
+		<tu tuid='activities.org.merge'>
+			<tuv xml:lang="en_US"><seg>{{actor}} merged organization {{source}} with organization {{target}}</seg></tuv>
+		</tu>
+		<tu tuid='activities.task.status.completed'>
+			<tuv xml:lang="en_US"><seg>{{actor}} completed task {{target}}</seg></tuv>
+		</tu>
+		<tu tuid='activities.ticket.merge'>
+			<tuv xml:lang="en_US"><seg>{{actor}} merged ticket {{source}} with ticket {{target}}</seg></tuv>
+		</tu>
+		<tu tuid='activities.ticket.message.inbound'>
+			<tuv xml:lang="en_US"><seg>{{actor}} replied to ticket {{target}}</seg></tuv>
+		</tu>
+		<tu tuid='activities.ticket.message.outbound'>
+			<tuv xml:lang="en_US"><seg>{{actor}} responded to ticket {{target}}</seg></tuv>
+		</tu>
+		<tu tuid='activities.ticket.status'>
+			<tuv xml:lang="en_US"><seg>{{actor}} changed ticket {{target}} to status {{status}}</seg></tuv>
+		</tu>
+		<tu tuid='activities.watcher.assigned'>
+			<tuv xml:lang="en_US"><seg>{{actor}} added {{watcher}} as a watcher to {{target_object}} {{target}}</seg></tuv>
+		</tu>
+		<tu tuid='activities.watcher.follow'>
+			<tuv xml:lang="en_US"><seg>{{actor}} started watching {{target_object}} {{target}}</seg></tuv>
+		</tu>
+		<tu tuid='activities.watcher.unassigned'>
+			<tuv xml:lang="en_US"><seg>{{actor}} removed {{watcher}} as a watcher from {{target_object}} {{target}}</seg></tuv>
+		</tu>
+		<tu tuid='activities.watcher.unfollow'>
+			<tuv xml:lang="en_US"><seg>{{actor}} stopped watching {{target_object}} {{target}}</seg></tuv>
+		</tu>
 
 		<!-- Common Strings -->
 

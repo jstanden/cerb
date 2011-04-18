@@ -172,7 +172,8 @@ class DAO_CrmOpportunity extends C4_ORMHelper {
 				 * Log activity (opp.status.*)
 				 */
 				$entry = array(
-					'message' => '{{actor}} changed opportunity {{target}} to status {{status}}',
+					//{{actor}} changed opportunity {{target}} to status {{status}}
+					'message' => 'activities.opp.status',
 					'variables' => array(
 						'target' => sprintf("%s", $model[DAO_CrmOpportunity::NAME]),
 						'status' => $status_to,

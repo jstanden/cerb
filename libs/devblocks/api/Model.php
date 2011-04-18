@@ -329,6 +329,20 @@ class DevblocksPluginManifest {
 	}
 	
 	/**
+	 * 
+	 */
+	function getActivityPoints() {
+		$points = array();
+
+		if(isset($this->manifest_cache['activity_points']))
+		foreach($this->manifest_cache['activity_points'] as $point=> $data) {
+			$points[$point] = $data;
+		}
+		
+		return $points;
+	}
+	
+	/**
 	 * return DevblocksPatch[]
 	 */
 	function getPatches() {

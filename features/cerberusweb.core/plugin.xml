@@ -318,6 +318,59 @@
 		
 	</class_loader>
 	
+	<!-- Activity Points -->
+	
+	<activity_points>
+		<activity point="comment.create">
+			<param key="label_key" value="Comment Created" />
+		</activity>
+		<activity point="connection.link">
+			<param key="label_key" value="Connection Linked" />
+		</activity>
+		<activity point="connection.unlink">
+			<param key="label_key" value="Connection Unlinked" />
+		</activity>
+		<activity point="org.merge">
+			<param key="label_key" value="Organization Merged" />
+		</activity>
+		<activity point="task.status.completed">
+			<param key="label_key" value="Task Completed" />
+		</activity>
+		<activity point="ticket.merge">
+			<param key="label_key" value="Ticket Merged" />
+		</activity>
+		<activity point="ticket.message.inbound">
+			<param key="label_key" value="Ticket Message Inbound" />
+		</activity>
+		<activity point="ticket.message.outbound">
+			<param key="label_key" value="Ticket Message Outbound" />
+		</activity>
+		<activity point="ticket.status.closed">
+			<param key="label_key" value="Ticket Closed" />
+		</activity>
+		<activity point="ticket.status.deleted">
+			<param key="label_key" value="Ticket Deleted" />
+		</activity>
+		<activity point="ticket.status.open">
+			<param key="label_key" value="Ticket Opened" />
+		</activity>
+		<activity point="ticket.status.waiting">
+			<param key="label_key" value="Ticket Waiting" />
+		</activity>
+		<activity point="watcher.assigned">
+			<param key="label_key" value="Watcher Assigned" />
+		</activity>
+		<activity point="watcher.follow">
+			<param key="label_key" value="Watcher Followed" />
+		</activity>
+		<activity point="watcher.unassigned">
+			<param key="label_key" value="Watcher Unassigned" />
+		</activity>
+		<activity point="watcher.unfollow">
+			<param key="label_key" value="Watcher Unfollowed" />
+		</activity>
+	</activity_points>
+	
 	<!-- Event Points -->
 
 	<event_points>

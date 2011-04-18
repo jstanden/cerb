@@ -29,6 +29,12 @@
 			<tuv xml:lang="en_US"><seg>[Opportunities] Can export opportunity lists to CSV/XML</seg></tuv>
 		</tu>
 
+		<!-- Activities -->
+		
+		<tu tuid='activities.opp.status'>
+			<tuv xml:lang="en_US"><seg>{{actor}} changed opportunity {{target}} to status {{status}}</seg></tuv>
+		</tu>
+
 		<!-- Common Strings -->
 
 		<tu tuid='crm.opp.add'>
