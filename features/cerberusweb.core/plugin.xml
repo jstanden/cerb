@@ -67,11 +67,6 @@
 			<class name="ChRssSource_Ticket" />
 			<class name="ChTaskSource_Org" />
 			<class name="ChTaskSource_Ticket" />
-			<class name="Event_MailClosedInGroup" />
-			<class name="Event_MailMovedToGroup" />
-			<class name="Event_MailReceivedByGroup" />
-			<class name="Event_MailReceivedByWatcher" />
-			<class name="Event_NotificationReceivedByWorker" />
 		</file>
 		
 		<file path="api/dao/abstract_view.php">
@@ -310,6 +305,26 @@
 			<class name="Model_WorkspaceListView" />
 			<class name="SearchFields_Workspace" />
 			<class name="View_Workspace" />
+		</file>
+		
+		<file path="api/events/mail_closed_in_group.php">
+			<class name="Event_MailClosedInGroup" />
+		</file>
+		
+		<file path="api/events/mail_moved_to_group.php">
+			<class name="Event_MailMovedToGroup" />
+		</file>
+		
+		<file path="api/events/mail_received_by_group.php">
+			<class name="Event_MailReceivedByGroup" />
+		</file>
+		
+		<file path="api/events/mail_received_by_watcher.php">
+			<class name="Event_MailReceivedByWatcher" />
+		</file>
+		
+		<file path="api/events/notification_received_by_worker.php">
+			<class name="Event_NotificationReceivedByWorker" />
 		</file>
 		
 		<file path="api/uri/portal.php">
