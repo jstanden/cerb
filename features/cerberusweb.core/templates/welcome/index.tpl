@@ -2,41 +2,58 @@
 </ul>
 <div style="clear:both;"></div>
 
-<H1>Welcome to Cerberus Helpdesk (Cerb5)!</H1>
+<h2>Welcome to Cerberus Helpdesk (Cerb5)!</h2>
 
-<div style="width:650px;margin:5px;padding:5px;border:2px solid rgb(200,200,200);">
-<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/wgm/c4_overview.jpg{/devblocks_url}"><br>
-<i>The inbox may look an empty warehouse right now, but here's a peek at how things will look once you've settled in.</i><br>
-</div>
-<br>
+<fieldset>
+	<legend>The Basics in 60 Seconds</legend>
+	
+	You only need to understand a few concepts to get started:
+	<ul style="list-style:square;">
+		<li><p>A <b>ticket</b> is a specific e-mail conversation and all the related data about a question or issue.  Each ticket has a unique identifier for future reference by anyone involved.</p></li>
+		<li><p>The people on the originating end of tickets are called <b>requesters</b>.  A ticket can have multiple requesters.</p></li>
+		<li><p>The people on the answering end of tickets are called <b>workers</b>.</p></li>
+		<li><p>A <b>watcher</b> is a worker who receives copies of messages.  For example, a supervisor may be a watcher to monitor the quality of the messages workers are writing back to requesters.</p></li>
+		<li><p>The <b>helpdesk</b> is a software hub for centrally managing and archiving tickets, and routing messages between workers and requesters.  This allows several workers to receive and share e-mail without requesters writing to any of them individually.</p></li>
+		<li><p>A <b>bucket</b> is a container for storing similar tickets.  Common buckets are: Leads, Receipts, Newsletters, Refunds and Spam.</p></li>
+		<li><p>A <b>group</b> is several workers who share responsibility for the same tickets and buckets.  Common groups are: Sales, Support, Development, Billing and Corporate.  These examples are departments, but groups can be related by anything.</p></li>
+		<li><p>A worker in a group is called a <b>member</b>.  A member with the authority to modify the group is called a <b>manager</b>.  Groups can have any number of managers.</p></li>
+		<li><p>Each group has an <b>inbox</b> where new tickets are delivered by default.  These tickets are then moved into buckets either automatically by the helpdesk or by workers.</p></li>
+	</ul>
+</fieldset>
 
-<h2>The Basics in 60 Seconds</h2>
+<fieldset>
+	<legend>Become a Cerb5 master</legend>
+	
+	Cerb5 is an incredibly flexible tool that you can use every day for several years and still find yourself coming across 
+	new tricks to make you more efficient.  For a regular dose of project news, sneak peeks at new development, 
+	handy tips &amp; tricks, best practices, and highlights from community discussion: 
 
-<p>You only need to understand a few concepts to get started:</p>
-<ul style="list-style:square;">
-	<li><p>A <b>ticket</b> is a specific e-mail conversation and all the related data about a question or issue.  Each ticket has a unique identifier for future reference by anyone involved.</p></li>
-	<li><p>The people on the originating end of tickets are called <b>requesters</b>.  A ticket can have multiple requesters.</p></li>
-	<li><p>The people on the answering end of tickets are called <b>workers</b>.</p></li>
-	<li><p>A <b>watcher</b> is a worker who receives copies of messages.  For example, a supervisor may be a watcher to monitor the quality of the messages workers are writing back to requesters.</p></li>
-	<li><p>The <b>helpdesk</b> is a software hub for centrally managing and archiving tickets, and routing messages between workers and requesters.  This allows several workers to receive and share e-mail without requesters writing to any of them individually.</p></li>
-	<li><p>A <b>bucket</b> is a container for storing similar tickets.  Common buckets are: Leads, Receipts, Newsletters, Refunds and Spam.</p></li>
-	<li><p>A <b>group</b> is several workers who share responsibility for the same tickets and buckets.  Common groups are: Sales, Support, Development, Billing and Corporate.  These examples are departments, but groups can be related by anything.</p></li>
-	<li><p>A worker in a group is called a <b>member</b>.  A member with the authority to modify the group is called a <b>manager</b>.  Groups can have any number of managers.</p></li>
-	<li><p>Each group has an <b>inbox</b> where new tickets are delivered by default.  These tickets are then moved into buckets either automatically by the helpdesk or by workers.</p></li>
-</ul>
-<br>
-
-<h2>Become a helpdesk master</h2>
-
-<p>Cerb5 is an incredibly flexible tool that you can use daily for months and still come across 
-new tricks to make you more efficient.  To get the most out of your helpdesk, 
-subscribe to the Cerb5 Blog for a regular dose of project news, sneak peeks at new development, 
-handy tips &amp; tricks, and highlights from community discussion:</p>
-
-<p>
-	<a href="http://www.cerb4.com/blog/" target="_blank" style="margin:5px;padding:5px;border: 1px dotted rgb(120,120,120);font-size:14pt;">http://www.cerb4.com/blog/</a>
-</p>
-<br>
+	<ul style="list-style:none;margin:10px;">
+		{* Manual *}
+	
+		<li>
+			<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/komodomedia/facebook_32.png{/devblocks_url}" align="middle">
+			<a href="http://www.facebook.com/cerb5" target="_blank">Become a fan on Facebook</a>
+		</li>
+		<li>
+			<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/komodomedia/twitter_32.png{/devblocks_url}" align="middle">
+			<a href="http://www.linkedin.com/groups/Cerberus-Helpdesk-3317589?mostPopular=&gid=3317589" target="_blank">Join our group on LinkedIn</a>
+		</li>
+		<li>
+			<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/komodomedia/linkedin_32.png{/devblocks_url}" align="middle">
+			<a href="http://twitter.com/cerb5" target="_blank">Follow our Twitter feed</a>
+		</li>
+		<li>
+			<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/komodomedia/delicious_32.png{/devblocks_url}" align="middle">
+			<a href="http://www.delicious.com/url/87392aa502c3ca59cff488666c63bc12" target="_blank">Bookmark our website</a>
+		</li>
+		<li>
+			<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/komodomedia/rss_32.png{/devblocks_url}" align="middle">
+			<a href="http://www.cerb4.com/blog/" target="_blank">Subscribe to the Cerb5 blog</a>
+		</li>
+	</ul>
+	</div>
+</fieldset>
 
 <form>
 	<button type="button" onclick="document.location.href='{devblocks_url}c=preferences{/devblocks_url}';"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> Let's set up your account!</button>
