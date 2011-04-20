@@ -6,7 +6,7 @@ $tables = $db->metaTables();
 // Add a new 'mail_to_group_routing' for more complex routing rules
 
 if(!isset($tables['mail_to_group_rule'])) {
-	$sql = "
+	$sql = sprintf("
 		CREATE TABLE IF NOT EXISTS mail_to_group_rule (
 			id INT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE,
 			pos SMALLINT UNSIGNED DEFAULT 0 NOT NULL,
@@ -17,8 +17,8 @@ if(!isset($tables['mail_to_group_rule'])) {
 			is_sticky TINYINT(1) UNSIGNED DEFAULT 0 NOT NULL,
 			sticky_order TINYINT(1) UNSIGNED DEFAULT 0 NOT NULL,
 			PRIMARY KEY (id)
-		) ENGINE=MyISAM;
-	";
+		) ENGINE=%s;
+	", APP_DB_ENGINE);
 	$db->Execute($sql);	
 }
 

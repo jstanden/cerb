@@ -7,7 +7,7 @@ $tables = $db->metaTables();
 // Contact 
 
 if(!isset($tables['contact_person'])) {
-	$sql = "
+	$sql = sprintf("
 		CREATE TABLE IF NOT EXISTS contact_person (
 			id INT UNSIGNED NOT NULL AUTO_INCREMENT,
 			email_id INT UNSIGNED DEFAULT 0 NOT NULL,
@@ -16,8 +16,8 @@ if(!isset($tables['contact_person'])) {
 			created INT UNSIGNED DEFAULT 0 NOT NULL,
 			last_login INT UNSIGNED DEFAULT 0 NOT NULL,
 			PRIMARY KEY (id)
-		) ENGINE=MyISAM;
-	";
+		) ENGINE=%s;
+	", APP_DB_ENGINE);
 	$db->Execute($sql);
 
 	$tables['contact_person'] = 'contact_person';
@@ -27,7 +27,7 @@ if(!isset($tables['contact_person'])) {
 // OpenID to Contact Person 
 
 if(!isset($tables['openid_to_contact_person'])) {
-	$sql = "
+	$sql = sprintf("
 		CREATE TABLE IF NOT EXISTS openid_to_contact_person (
 			openid_claimed_id VARCHAR(255) DEFAULT '' NOT NULL,
 			contact_person_id INT UNSIGNED DEFAULT 0 NOT NULL,
@@ -35,8 +35,8 @@ if(!isset($tables['openid_to_contact_person'])) {
 			PRIMARY KEY (openid_claimed_id),
 			INDEX contact_person_id (contact_person_id),
 			INDEX hash_key (hash_key(4))
-		) ENGINE=MyISAM;
-	";
+		) ENGINE=%s;
+	", APP_DB_ENGINE);
 	$db->Execute($sql);
 
 	$tables['openid_to_contact_person'] = 'openid_to_contact_person';
@@ -198,7 +198,7 @@ if(isset($columns['source_extension'])) {
 // Confirmation registry
 
 if(!isset($tables['confirmation_code'])) {
-	$sql = "
+	$sql = sprintf("
 		CREATE TABLE IF NOT EXISTS confirmation_code (
 			id INT UNSIGNED AUTO_INCREMENT,
 			namespace_key VARCHAR(255) DEFAULT '',
@@ -209,8 +209,8 @@ if(!isset($tables['confirmation_code'])) {
 			INDEX namespace_key (namespace_key),
 			INDEX created (created),
 			INDEX confirmation_code (confirmation_code)
-		) ENGINE=MyISAM;
-	";
+		) ENGINE=%s;
+	", APP_DB_ENGINE);
 	$db->Execute($sql);
 
 	$tables['confirmation_code'] = 'confirmation_code';

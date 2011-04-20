@@ -4,7 +4,7 @@ $tables = $db->metaTables();
 
 // call
 if(!isset($tables['call_entry'])) {
-	$sql = "
+	$sql = sprintf("
 		CREATE TABLE IF NOT EXISTS call_entry (
 			id INT UNSIGNED DEFAULT 0 NOT NULL,
 			phone VARCHAR(128) DEFAULT '' NOT NULL,
@@ -13,8 +13,8 @@ if(!isset($tables['call_entry'])) {
 			is_outgoing TINYINT(1) UNSIGNED DEFAULT 0 NOT NULL,
 			is_closed TINYINT(1) UNSIGNED DEFAULT 0 NOT NULL,
 			PRIMARY KEY (id)
-		) ENGINE=MyISAM;
-	";
+		) ENGINE=%s;
+	", APP_DB_ENGINE);
 	$db->Execute($sql);	
 }
 

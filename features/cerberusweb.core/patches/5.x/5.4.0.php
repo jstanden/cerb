@@ -15,7 +15,7 @@ if(isset($tables['trigger_event'])) {
 // trigger_event 
 
 if(!isset($tables['trigger_event'])) {
-	$sql = "
+	$sql = sprintf("
 	CREATE TABLE IF NOT EXISTS `trigger_event` (
 		id INT UNSIGNED NOT NULL AUTO_INCREMENT,
 		title VARCHAR(255) NOT NULL DEFAULT '',
@@ -25,8 +25,8 @@ if(!isset($tables['trigger_event'])) {
 		event_point VARCHAR(255) NOT NULL DEFAULT '',
 		PRIMARY KEY (id),
 		INDEX event_point (event_point)
-	) ENGINE=MyISAM;
-	";
+	) ENGINE=%s;
+	", APP_DB_ENGINE);
 	$db->Execute($sql);
 
 	$tables['trigger_event'] = 'trigger_event';
@@ -36,7 +36,7 @@ if(!isset($tables['trigger_event'])) {
 // decision_node
 
 if(!isset($tables['decision_node'])) {
-	$sql = "
+	$sql = sprintf("
 	CREATE TABLE IF NOT EXISTS decision_node (
 		id INT UNSIGNED NOT NULL AUTO_INCREMENT,
 		parent_id INT UNSIGNED NOT NULL DEFAULT 0,
@@ -48,8 +48,8 @@ if(!isset($tables['decision_node'])) {
 		PRIMARY KEY (id),
 		INDEX parent_id (parent_id),
 		INDEX trigger_id (trigger_id)
-	) ENGINE=MyISAM;
-	";
+	) ENGINE=%s;
+	", APP_DB_ENGINE);
 	$db->Execute($sql);
 
 	$tables['decision_node'] = 'decision_node';
@@ -67,15 +67,15 @@ if(isset($tables['worker_event']) && !isset($tables['notification'])) {
 // Introduce a context_merge_history table
 
 if(!isset($tables['context_merge_history'])) {
-	$sql = "
+	$sql = sprintf("
 		CREATE TABLE IF NOT EXISTS context_merge_history (
 			context VARCHAR(128) DEFAULT '' NOT NULL,
 			from_context_id INT UNSIGNED DEFAULT 0 NOT NULL,
 			to_context_id INT UNSIGNED DEFAULT 0 NOT NULL,
 			updated INT UNSIGNED DEFAULT 0 NOT NULL,
 			PRIMARY KEY (context, from_context_id)
-		) ENGINE=MyISAM;
-	";
+		) ENGINE=%s;
+	", APP_DB_ENGINE);
 	$db->Execute($sql);	
 }
 
@@ -84,44 +84,46 @@ if(!isset($tables['context_merge_history'])) {
 
 // create community_tool
 if(!isset($tables['community_tool'])) {
-	$sql = "
+	$sql = sprintf("
 		CREATE TABLE IF NOT EXISTS community_tool (
 			id INT UNSIGNED NOT NULL AUTO_INCREMENT,
 			name VARCHAR(128) DEFAULT '' NOT NULL,
 			code VARCHAR(8) DEFAULT '' NOT NULL,
 			extension_id VARCHAR(128) DEFAULT '' NOT NULL,
 			PRIMARY KEY (id)
-		) ENGINE=MyISAM;
-	";
+		) ENGINE=%s;
+	", APP_DB_ENGINE);
 	$db->Execute($sql);	
 	
 } else { // update community_tool
-	list($columns, $indexes) = $db->metaTable('community_tool');
-	
-	if(isset($columns['id']) 
-		&& ('int(10) unsigned' != $columns['id']['type'] 
-		|| 'auto_increment' != $columns['id']['extra']))	
-			$db->Execute("ALTER TABLE community_tool MODIFY COLUMN id INT UNSIGNED NOT NULL AUTO_INCREMENT");	
-	
-	if(isset($columns['community_id']))
-		$db->Execute("ALTER TABLE community_tool DROP COLUMN community_id");
+	if($tables['community_tool']) {
+		list($columns, $indexes) = $db->metaTable('community_tool');
 		
-	if(!isset($columns['name'])) {
-	    $db->Execute("ALTER TABLE community_tool ADD COLUMN name VARCHAR(128) DEFAULT '' NOT NULL");
-		$db->Execute("UPDATE community_tool SET name = 'Support Center' WHERE name = '' AND extension_id = 'sc.tool'");
+		if(isset($columns['id']) 
+			&& ('int(10) unsigned' != $columns['id']['type'] 
+			|| 'auto_increment' != $columns['id']['extra']))	
+				$db->Execute("ALTER TABLE community_tool MODIFY COLUMN id INT UNSIGNED NOT NULL AUTO_INCREMENT");	
+		
+		if(isset($columns['community_id']))
+			$db->Execute("ALTER TABLE community_tool DROP COLUMN community_id");
+			
+		if(!isset($columns['name'])) {
+		    $db->Execute("ALTER TABLE community_tool ADD COLUMN name VARCHAR(128) DEFAULT '' NOT NULL");
+			$db->Execute("UPDATE community_tool SET name = 'Support Center' WHERE name = '' AND extension_id = 'sc.tool'");
+		}
 	}
 }
 
 // create community_tool_property
 if(!isset($tables['community_tool_property'])) {
-	$sql = "
+	$sql = sprintf("
 		CREATE TABLE IF NOT EXISTS community_tool_property (
 			tool_code VARCHAR(8) DEFAULT '' NOT NULL,
 			property_key VARCHAR(64) DEFAULT '' NOT NULL,
 			property_value TEXT,
 			PRIMARY KEY (tool_code, property_key)
-		) ENGINE=MyISAM;
-	";
+		) ENGINE=%s;
+	", APP_DB_ENGINE);
 	$db->Execute($sql);	
 	
 } else { // update community_tool_property
@@ -135,15 +137,15 @@ if(!isset($tables['community_tool_property'])) {
 
 // create community_session
 if(!isset($tables['community_session'])) {
-	$sql = "
+	$sql = sprintf("
 		CREATE TABLE IF NOT EXISTS community_session (
 			session_id VARCHAR(32) DEFAULT '' NOT NULL,
 			created INT UNSIGNED DEFAULT 0 NOT NULL,
 			updated INT UNSIGNED DEFAULT 0 NOT NULL,
 			properties MEDIUMTEXT,
 			PRIMARY KEY (session_id)
-		) ENGINE=MyISAM;
-	";
+		) ENGINE=%s;
+	", APP_DB_ENGINE);
 	$db->Execute($sql);	
 	
 } else { // update community_session
@@ -220,15 +222,15 @@ if(!isset($columns['reply_signature']))
 // Add address_outgoing
 
 if(!isset($tables['address_outgoing'])) {
-	$sql = "
+	$sql = sprintf("
 		CREATE TABLE IF NOT EXISTS address_outgoing (
 			address_id INT UNSIGNED DEFAULT 0 NOT NULL,
 			is_default TINYINT(1) UNSIGNED DEFAULT 0 NOT NULL,
 			reply_personal VARCHAR(128) DEFAULT '' NOT NULL,
 			reply_signature TEXT,
 			PRIMARY KEY (address_id)
-		) ENGINE=MyISAM;
-	";
+		) ENGINE=%s;
+	", APP_DB_ENGINE);
 	$db->Execute($sql);
 	
 	$tables['address_outgoing'] = 'address_outgoing';
@@ -1166,7 +1168,7 @@ if(isset($tables['group_inbox_filter'])) {
 // context_activity_log 
 
 if(!isset($tables['context_activity_log'])) {
-	$sql = "
+	$sql = sprintf("
 	CREATE TABLE IF NOT EXISTS `context_activity_log` (
 		id INT UNSIGNED NOT NULL AUTO_INCREMENT,
 		activity_point VARCHAR(128) NOT NULL DEFAULT '',
@@ -1181,8 +1183,8 @@ if(!isset($tables['context_activity_log'])) {
 		INDEX actor (actor_context, actor_context_id),
 		INDEX target (target_context, target_context_id),
 		INDEX created (created)
-	) ENGINE=MyISAM;
-	";
+	) ENGINE=%s;
+	", APP_DB_ENGINE);
 	$db->Execute($sql);
 
 	$tables['context_activity_log'] = 'context_activity_log';

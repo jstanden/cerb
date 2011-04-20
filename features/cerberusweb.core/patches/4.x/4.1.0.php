@@ -84,15 +84,15 @@ if(isset($tables['custom_field_value'])) {
 	
 	// Custom field number values: (C) Checkbox, (E) Date
 	if(!isset($tables['custom_field_numbervalue'])) {
-		$sql = "
+		$sql = sprintf("
 			CREATE TABLE IF NOT EXISTS custom_field_numbervalue (
 				field_id INT UNSIGNED DEFAULT 0 NOT NULL,
 				source_id INT UNSIGNED DEFAULT 0 NOT NULL,
 				field_value INT UNSIGNED DEFAULT 0 NOT NULL,
 				source_extension VARCHAR(255) DEFAULT '' NOT NULL,
 				PRIMARY KEY (field_id, source_id)
-			) ENGINE=MyISAM;
-		";
+			) ENGINE=%s;
+		", APP_DB_ENGINE);
 		$res = $db->Execute($sql);	
 		
 	    if($res) {
@@ -112,15 +112,15 @@ if(isset($tables['custom_field_value'])) {
 
 	// Custom field string values: (S) Single, (D) Dropdown
 	if(!isset($tables['custom_field_stringvalue'])) {
-		$sql = "
+		$sql = sprintf("
 			CREATE TABLE IF NOT EXISTS custom_field_stringvalue (
 				field_id INT UNSIGNED DEFAULT 0 NOT NULL,
 				source_id INT UNSIGNED DEFAULT 0 NOT NULL,
 				field_value VARCHAR(255) DEFAULT '' NOT NULL,
 				source_extension VARCHAR(255) DEFAULT '' NOT NULL,
 				PRIMARY KEY (field_id, source_id)
-			) ENGINE=MyISAM;
-		";
+			) ENGINE=%s;
+		", APP_DB_ENGINE);
 		$res = $db->Execute($sql);	
 		
 	    if($res) {
@@ -140,15 +140,15 @@ if(isset($tables['custom_field_value'])) {
 
 	// Custom field text/clob values: (T) Multi-line
 	if(!isset($tables['custom_field_clobvalue'])) {
-		$sql = "
+		$sql = sprintf("
 			CREATE TABLE IF NOT EXISTS custom_field_clobvalue (
 				field_id INT UNSIGNED DEFAULT 0 NOT NULL,
 				source_id INT UNSIGNED DEFAULT 0 NOT NULL,
 				field_value MEDIUMTEXT,
 				source_extension VARCHAR(255) DEFAULT '' NOT NULL,
 				PRIMARY KEY (field_id, source_id)
-			) ENGINE=MyISAM;
-		";
+			) ENGINE=%s;
+		", APP_DB_ENGINE);
 		$res = $db->Execute($sql);	
 		
 	    if($res) {
@@ -174,14 +174,14 @@ if(isset($tables['custom_field_value'])) {
 
 // Add a merge table to track when older ticket masks should point to a new ticket
 if(!isset($tables['ticket_mask_forward'])) {
-	$sql = "
+	$sql = sprintf("
 		CREATE TABLE IF NOT EXISTS ticket_mask_forward (
 			old_mask VARCHAR(32) DEFAULT '' NOT NULL,
 			new_mask VARCHAR(32) DEFAULT '' NOT NULL,
 			new_ticket_id INT UNSIGNED DEFAULT 0 NOT NULL,
 			PRIMARY KEY (old_mask)
-		) ENGINE=MyISAM;
-	";
+		) ENGINE=%s;
+	", APP_DB_ENGINE);
 	$db->Execute($sql);	
 }
 
@@ -580,24 +580,24 @@ if(isset($tables['team'])) {
 
 // Roles
 if(!isset($tables['worker_role'])) {
-	$sql = "
+	$sql = sprintf("
 		CREATE TABLE IF NOT EXISTS worker_role (
 			id INT UNSIGNED DEFAULT 0 NOT NULL,
 			name VARCHAR(128) DEFAULT '' NOT NULL,
 			PRIMARY KEY (id)
-		) ENGINE=MyISAM;
-	";
+		) ENGINE=%s;
+	", APP_DB_ENGINE);
 	$db->Execute($sql);	
 }
 
 // n:m table for linking workers to roles
 if(!isset($tables['worker_to_role'])) {
-	$sql = "
+	$sql = sprintf("
 		CREATE TABLE IF NOT EXISTS worker_to_role (
 			worker_id INT UNSIGNED DEFAULT 0 NOT NULL,
 			role_id INT UNSIGNED DEFAULT 0 NOT NULL
-		) ENGINE=MyISAM;
-	";
+		) ENGINE=%s;
+	", APP_DB_ENGINE);
 	$db->Execute($sql);	
 }
 
@@ -613,13 +613,13 @@ if(!isset($indexes['role_id'])) {
 
 // n:m table for linking roles to ACL
 if(!isset($tables['worker_role_acl'])) {
-	$sql = "
+	$sql = sprintf("
 		CREATE TABLE IF NOT EXISTS worker_role_acl (
 			role_id INT UNSIGNED DEFAULT 0 NOT NULL,
 			priv_id VARCHAR(255) DEFAULT '' NOT NULL,
 			has_priv INT UNSIGNED DEFAULT 0 NOT NULL
-		) ENGINE=MyISAM;
-	";
+		) ENGINE=%s;
+	", APP_DB_ENGINE);
 	$db->Execute($sql);	
 }
 
@@ -655,6 +655,21 @@ if(isset($columns['can_export'])) {
 
 if(isset($columns['can_delete'])) {
     $db->Execute("ALTER TABLE worker DROP COLUMN can_delete");
+}
+
+// ===========================================================================
+// community_tool_property
+
+if(!isset($tables['community_tool_property'])) {
+	$sql = sprintf("
+		CREATE TABLE IF NOT EXISTS community_tool_property (
+			tool_code VARCHAR(8) DEFAULT '' NOT NULL,
+			property_key VARCHAR(64) DEFAULT '' NOT NULL,
+			property_value TEXT,
+			PRIMARY KEY (tool_code, property_key)
+		) ENGINE=%s;
+	", APP_DB_ENGINE);
+	$db->Execute($sql);	
 }
 
 return TRUE;

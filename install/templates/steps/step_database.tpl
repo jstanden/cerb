@@ -8,7 +8,7 @@
 <br>
 {/if}
 
-<b>Database Driver:</b> (from PHP environment)<br>
+<b>Driver:</b><br>
 <select name="db_driver">
 	{foreach from=$drivers item=driver key=k}
 	<option value="{$k}" {if $k==$db_driver}selected{/if}>{$driver}

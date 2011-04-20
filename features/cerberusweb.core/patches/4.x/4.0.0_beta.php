@@ -107,20 +107,20 @@ if(!isset($indexes['last_autoreply'])) {
 
 // `address_auth` =============================
 if(!isset($tables['address_auth'])) {
-	$sql = "
+	$sql = sprintf("
 		CREATE TABLE IF NOT EXISTS address_auth (
 			address_id INT UNSIGNED DEFAULT 0 NOT NULL,
 			confirm VARCHAR(16) DEFAULT '' NOT NULL,
 			pass VARCHAR(32) DEFAULT '' NOT NULL,
 			PRIMARY KEY (address_id)
-		) ENGINE=MyISAM;
-	";
+		) ENGINE=%s;
+	", APP_DB_ENGINE);
 	$db->Execute($sql);	
 }
 
 // `address_to_worker` =============================
 if(!isset($tables['address_to_worker'])) {
-	$sql = "
+	$sql = sprintf("
 		CREATE TABLE IF NOT EXISTS address_to_worker (
 			address VARCHAR(128) DEFAULT '' NOT NULL,
 			worker_id INT UNSIGNED DEFAULT 0 NOT NULL,
@@ -128,8 +128,8 @@ if(!isset($tables['address_to_worker'])) {
 			code VARCHAR(32) DEFAULT '' NOT NULL,
 			code_expire INT UNSIGNED DEFAULT 0 NOT NULL,
 			PRIMARY KEY (address)
-		) ENGINE=MyISAM;
-	";
+		) ENGINE=%s;
+	", APP_DB_ENGINE);
 	$db->Execute($sql);	
 	
     // Migrate any existing workers
@@ -148,7 +148,7 @@ if(!isset($tables['address_to_worker'])) {
 
 // `contact_org` =============================
 if(!isset($tables['contact_org'])) {
-	$sql = "
+	$sql = sprintf("
 		CREATE TABLE IF NOT EXISTS contact_org (
 			id INT UNSIGNED DEFAULT 0 NOT NULL,
 			account_number VARCHAR(32) DEFAULT '' NOT NULL,
@@ -168,8 +168,8 @@ if(!isset($tables['contact_org'])) {
 			INDEX name (name),
 			INDEX account_number (account_number),
 			INDEX sla_id (sla_id)
-		) ENGINE=MyISAM;
-	";
+		) ENGINE=%s;
+	", APP_DB_ENGINE);
 	$db->Execute($sql);	
 }
 
@@ -184,33 +184,33 @@ if(isset($tables['contact_person_seq'])) {
 
 // `fnr_external_resource` =======================
 if(!isset($tables['fnr_external_resource'])) {
-	$sql = "
+	$sql = sprintf("
 		CREATE TABLE IF NOT EXISTS fnr_external_resource (
 			id INT UNSIGNED DEFAULT 0 NOT NULL,
 			name VARCHAR(64) DEFAULT '' NOT NULL,
 			url VARCHAR(255) DEFAULT '' NOT NULL,
 			topic_id INT UNSIGNED DEFAULT 0 NOT NULL,
 			PRIMARY KEY (id)
-		) ENGINE=MyISAM;
-	";
+		) ENGINE=%s;
+	", APP_DB_ENGINE);
 	$db->Execute($sql);	
 }
 
 // `fnr_topic` =======================
 if(!isset($tables['fnr_topic'])) {
-	$sql = "
+	$sql = sprintf("
 		CREATE TABLE IF NOT EXISTS fnr_topic (
 			id INT UNSIGNED DEFAULT 0 NOT NULL,
 			name VARCHAR(64) DEFAULT '' NOT NULL,
 			PRIMARY KEY (id)
-		) ENGINE=MyISAM;
-	";
+		) ENGINE=%s;
+	", APP_DB_ENGINE);
 	$db->Execute($sql);	
 }
 
 // `fnr_query` =======================
 if(!isset($tables['fnr_query'])) {
-	$sql = "
+	$sql = sprintf("
 		CREATE TABLE IF NOT EXISTS fnr_query (
 			id INT UNSIGNED DEFAULT 0 NOT NULL,
 			query VARCHAR(255) DEFAULT '' NOT NULL,
@@ -218,8 +218,8 @@ if(!isset($tables['fnr_query'])) {
 			source VARCHAR(32) DEFAULT '' NOT NULL,
 			no_match TINYINT(1) UNSIGNED DEFAULT 0 NOT NULL,
 			PRIMARY KEY (id)
-		) ENGINE=MyISAM;
-	";
+		) ENGINE=%s;
+	", APP_DB_ENGINE);
 	$db->Execute($sql);	
 }
 
@@ -232,20 +232,20 @@ if(!isset($columns['response_hrs'])) {
 
 // `group_setting` =======================
 if(!isset($tables['group_setting'])) {
-	$sql = "
+	$sql = sprintf("
 		CREATE TABLE IF NOT EXISTS group_setting (
 			group_id INT UNSIGNED DEFAULT 0 NOT NULL,
 			setting VARCHAR(64) DEFAULT '' NOT NULL,
 			value BLOB,
 			PRIMARY KEY (group_id, setting)
-		) ENGINE=MyISAM;
-	";
+		) ENGINE=%s;
+	", APP_DB_ENGINE);
 	$db->Execute($sql);	
 }
 
 // `mail_template` =======================
 if(!isset($tables['mail_template'])) {
-	$sql = "
+	$sql = sprintf("
 		CREATE TABLE IF NOT EXISTS mail_template (
 			id INT UNSIGNED DEFAULT 0 NOT NULL,
 			title VARCHAR(64) DEFAULT '' NOT NULL,
@@ -255,8 +255,8 @@ if(!isset($tables['mail_template'])) {
 			owner_id INT UNSIGNED DEFAULT 0 NOT NULL,
 			content MEDIUMTEXT,
 			PRIMARY KEY (id)
-		) ENGINE=MyISAM;
-	";
+		) ENGINE=%s;
+	", APP_DB_ENGINE);
 	$db->Execute($sql);	
 }
 
@@ -284,27 +284,27 @@ if(isset($tables['mail_template_reply'])) {
 
 // `message_content` =====================
 if(!isset($tables['message_content'])) {
-	$sql = "
+	$sql = sprintf("
 		CREATE TABLE IF NOT EXISTS message_content (
 			message_id INT UNSIGNED DEFAULT 0 NOT NULL,
 			content MEDIUMBLOB,
 			PRIMARY KEY (message_id)
-		) ENGINE=MyISAM;
-	";
+		) ENGINE=%s;
+	", APP_DB_ENGINE);
 	$db->Execute($sql);	
 }
 
 // `message_header` =====================
 if(!isset($tables['message_header'])) {
-	$sql = "
+	$sql = sprintf("
 		CREATE TABLE IF NOT EXISTS message_header (
 			message_id INT UNSIGNED DEFAULT 0 NOT NULL,
 			header_name VARCHAR(64) DEFAULT '' NOT NULL,
 			ticket_id INT UNSIGNED DEFAULT 0 NOT NULL,
 			header_value BLOB,
 			PRIMARY KEY (message_id, header_name)
-		) ENGINE=MyISAM;
-	";
+		) ENGINE=%s;
+	", APP_DB_ENGINE);
 	$db->Execute($sql);	
 }
 
@@ -320,7 +320,7 @@ if(!isset($indexes['ticket_id'])) {
 
 // `message_note` ==================
 if(!isset($tables['message_note'])) {
-	$sql = "
+	$sql = sprintf("
 		CREATE TABLE IF NOT EXISTS message_note (
 			id INT UNSIGNED DEFAULT 0 NOT NULL,
 			message_id INT UNSIGNED DEFAULT 0 NOT NULL,
@@ -328,8 +328,8 @@ if(!isset($tables['message_note'])) {
 			created INT UNSIGNED DEFAULT 0 NOT NULL,
 			content BLOB,
 			PRIMARY KEY (id)
-		) ENGINE=MyISAM;
-	";
+		) ENGINE=%s;
+	", APP_DB_ENGINE);
 	$db->Execute($sql);	
 }
 
@@ -479,20 +479,20 @@ if(0 != strcasecmp(@$columns['value']['type'],'blob')) {
 
 // `sla` ========================
 if(!isset($tables['sla'])) {
-	$sql = "
+	$sql = sprintf("
 		CREATE TABLE IF NOT EXISTS sla (
 			id INT UNSIGNED DEFAULT 0 NOT NULL,
 			name VARCHAR(64) DEFAULT '' NOT NULL,
 			priority TINYINT(1) UNSIGNED DEFAULT 0 NOT NULL,
 			PRIMARY KEY (id)
-		) ENGINE=MyISAM;
-	";
+		) ENGINE=%s;
+	", APP_DB_ENGINE);
 	$db->Execute($sql);	
 }
 
 // `task` =============================
 if(!isset($tables['task'])) {
-	$sql = "
+	$sql = sprintf("
 		CREATE TABLE IF NOT EXISTS task (
 			id INT UNSIGNED DEFAULT 0 NOT NULL,
 			title VARCHAR(255) DEFAULT '' NOT NULL,
@@ -505,8 +505,8 @@ if(!isset($tables['task'])) {
 			source_id INT UNSIGNED DEFAULT 0 NOT NULL,
 			content TEXT,
 			PRIMARY KEY (id)
-		) ENGINE=MyISAM;
-	";
+		) ENGINE=%s;
+	", APP_DB_ENGINE);
 	$db->Execute($sql);	
 }
 
@@ -675,7 +675,7 @@ if(!isset($indexes['next_worker_id'])) {
 
 // `ticket_comment` =============================
 if(!isset($tables['ticket_comment'])) {
-	$sql = "
+	$sql = sprintf("
 		CREATE TABLE IF NOT EXISTS ticket_comment (
 			id INT UNSIGNED DEFAULT 0 NOT NULL,
 			ticket_id INT UNSIGNED DEFAULT 0 NOT NULL,
@@ -683,14 +683,14 @@ if(!isset($tables['ticket_comment'])) {
 			created INT UNSIGNED DEFAULT 0 NOT NULL,
 			comment MEDIUMTEXT,
 			PRIMARY KEY (id)
-		) ENGINE=MyISAM;
-	";
+		) ENGINE=%s;
+	", APP_DB_ENGINE);
 	$db->Execute($sql);	
 }
 
 // `ticket_field` ==================
 if(!isset($tables['ticket_field'])) {
-	$sql = "
+	$sql = sprintf("
 		CREATE TABLE IF NOT EXISTS ticket_field (
 			id INT UNSIGNED DEFAULT 0 NOT NULL,
 			name VARCHAR(32) DEFAULT '' NOT NULL,
@@ -699,8 +699,8 @@ if(!isset($tables['ticket_field'])) {
 			pos SMALLINT UNSIGNED DEFAULT 0 NOT NULL,
 			options TEXT,
 			PRIMARY KEY (id)
-		) ENGINE=MyISAM;
-	";
+		) ENGINE=%s;
+	", APP_DB_ENGINE);
 	$db->Execute($sql);	
 }
 
@@ -712,14 +712,14 @@ if(!isset($indexes['group_id'])) {
 
 // `ticket_field_value` ==================
 if(!isset($tables['ticket_field_value'])) {
-	$sql = "
+	$sql = sprintf("
 		CREATE TABLE IF NOT EXISTS ticket_field_value (
 			field_id INT UNSIGNED DEFAULT 0 NOT NULL,
 			ticket_id INT UNSIGNED DEFAULT 0 NOT NULL,
 			field_value MEDIUMTEXT,
 			PRIMARY KEY (field_id, ticket_id)
-		) ENGINE=MyISAM;
-	";
+		) ENGINE=%s;
+	", APP_DB_ENGINE);
 	$db->Execute($sql);	
 }
 
@@ -731,7 +731,7 @@ if(!isset($indexes['ticket_id'])) {
 
 // `ticket_rss` ========================
 if(!isset($tables['ticket_rss'])) {
-	$sql = "
+	$sql = sprintf("
 		CREATE TABLE IF NOT EXISTS ticket_rss (
 			id INT UNSIGNED DEFAULT 0 NOT NULL,
 			hash VARCHAR(32) DEFAULT '' NOT NULL,
@@ -740,8 +740,8 @@ if(!isset($tables['ticket_rss'])) {
 			created INT UNSIGNED DEFAULT 0 NOT NULL,
 			params BLOB,
 			PRIMARY KEY (id)
-		) ENGINE=MyISAM;
-	";
+		) ENGINE=%s;
+	", APP_DB_ENGINE);
 	$db->Execute($sql);	
 }
 
@@ -761,15 +761,15 @@ if(!isset($columns['is_manager'])) {
 
 // `worker_workspace_list` =============================
 if(!isset($tables['worker_workspace_list'])) {
-	$sql = "
+	$sql = sprintf("
 		CREATE TABLE IF NOT EXISTS worker_workspace_list (
 			id INT UNSIGNED DEFAULT 0 NOT NULL,
 			worker_id INT UNSIGNED DEFAULT 0 NOT NULL,
 			workspace VARCHAR(32) DEFAULT '' NOT NULL,
 			list_view TEXT,
 			PRIMARY KEY (id)
-		) ENGINE=MyISAM;
-	";
+		) ENGINE=%s;
+	", APP_DB_ENGINE);
 	$db->Execute($sql);	
 }
 
@@ -790,36 +790,36 @@ if(!isset($indexes['workspace'])) {
 // ***** CloudGlue
 
 if(!isset($tables['tag_to_content'])) {
-	$sql = "
+	$sql = sprintf("
 		CREATE TABLE IF NOT EXISTS tag_to_content (
 			index_id SMALLINT UNSIGNED DEFAULT 0 NOT NULL,
 			tag_id INT UNSIGNED DEFAULT 0 NOT NULL,
 			content_id INT UNSIGNED DEFAULT 0 NOT NULL,
 			PRIMARY KEY (index_id, tag_id, content_id)
-		) ENGINE=MyISAM;
-	";
+		) ENGINE=%s;
+	", APP_DB_ENGINE);
 	$db->Execute($sql);	
 }
 
 if(!isset($tables['tag_index'])) {
-	$sql = "
+	$sql = sprintf("
 		CREATE TABLE IF NOT EXISTS tag_index (
 			id SMALLINT UNSIGNED DEFAULT 0 NOT NULL,
 			name VARCHAR(64) DEFAULT '' NOT NULL, 
 			PRIMARY KEY (id)
-		) ENGINE=MyISAM;
-	";
+		) ENGINE=%s;
+	", APP_DB_ENGINE);
 	$db->Execute($sql);	
 }
 
 if(!isset($tables['tag'])) {
-	$sql = "
+	$sql = sprintf("
 		CREATE TABLE IF NOT EXISTS tag (
 			id INT UNSIGNED DEFAULT 0 NOT NULL,
 			name VARCHAR(32) DEFAULT '' NOT NULL, 
 			PRIMARY KEY (id)
-		) ENGINE=MyISAM;
-	";
+		) ENGINE=%s;
+	", APP_DB_ENGINE);
 	$db->Execute($sql);	
 }
 

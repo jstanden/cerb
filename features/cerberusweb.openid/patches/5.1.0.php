@@ -7,7 +7,7 @@ $tables = $db->metaTables();
 // Create initial tables
 
 if(!isset($tables['openid_to_worker'])) {
-	$sql = "
+	$sql = sprintf("
 		CREATE TABLE IF NOT EXISTS openid_to_worker (
 			id INT UNSIGNED NOT NULL AUTO_INCREMENT,
 			openid_url VARCHAR(255) DEFAULT '',
@@ -15,8 +15,8 @@ if(!isset($tables['openid_to_worker'])) {
 			worker_id INT UNSIGNED DEFAULT 0 NOT NULL,
 			PRIMARY KEY (id),
 			UNIQUE openid_claimed_id (openid_claimed_id)
-		) ENGINE=MyISAM;
-	";
+		) ENGINE=%s;
+	", APP_DB_ENGINE);
 	$db->Execute($sql);
 
 	$tables['openid_to_worker'] = 'openid_to_worker';

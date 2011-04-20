@@ -1,5 +1,6 @@
 <?php
 define('APP_DB_DRIVER','');
+define('APP_DB_ENGINE','MyISAM');
 define('APP_DB_HOST','');
 define('APP_DB_DATABASE','');
 define('APP_DB_USER','');

@@ -290,19 +290,44 @@ switch($step) {
 		
 		$drivers = array();
 		
-		if(extension_loaded('mysql')) {
-			$drivers['mysql'] = 'MySQL 3.23/4.x/5.x';
-		}
+		if(extension_loaded('mysqli'))
+			$drivers['mysqli'] = 'MySQLi (Recommended)';
+		if(extension_loaded('mysql'))
+			$drivers['mysql'] = 'MySQL';
 		
 		$tpl->assign('drivers', $drivers);
 		
 		if(!empty($db_driver) && !empty($db_server) && !empty($db_name) && !empty($db_user)) {
 			$db_passed = false;
+			$db_engine = 'InnoDB';
 			
 			if(false != ($_db = mysql_connect($db_server, $db_user, $db_pass))) {
 				if(false !== mysql_select_db($db_name, $_db)) {
 					$db_passed = true;
 				}
+				
+				// Check if the engine we want exists, otherwise default
+				$rs = mysql_query("SHOW ENGINES", $_db);
+				$discovered_engines = array();
+				while($row = mysql_fetch_assoc($rs)) {
+					$discovered_engines[] = strtolower($row['Engine']);
+				}
+				mysql_free_result($rs);
+
+				// Default to InnoDB
+				if(in_array('innodb', $discovered_engines)) {
+					$db_engine = 'InnoDB';
+				} else {
+					$db_engine = 'MyISAM';
+				}
+
+				// We need this for fulltext indexing
+				if(!in_array('myisam', $discovered_engines)) {
+					$db_engine = null;
+					$db_passed = false;
+				}
+				
+				unset($discovered_engines);
 			}
 			
 			$tpl->assign('db_driver', $db_driver);
@@ -317,7 +342,7 @@ switch($step) {
 				$encoding = (is_array($row) && 0==strcasecmp($row[1],'utf8')) ? 'utf8' : 'latin1';
 				
 				// Write database settings to framework.config.php
-				$result = CerberusInstaller::saveFrameworkConfig($db_driver, $encoding, $db_server, $db_name, $db_user, $db_pass);
+				$result = CerberusInstaller::saveFrameworkConfig($db_driver, $db_engine, $encoding, $db_server, $db_name, $db_user, $db_pass);
 				
 				// [JAS]: If we didn't save directly to the config file, user action required
 				if(0 != strcasecmp($result,'config')) {

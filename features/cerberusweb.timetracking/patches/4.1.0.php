@@ -4,7 +4,7 @@ $tables = $db->metaTables();
 
 // `timetracking_entry` ========================
 if(!isset($tables['timetracking_entry'])) {
-	$sql = "
+	$sql = sprintf("
 		CREATE TABLE IF NOT EXISTS timetracking_entry (
 			id INT UNSIGNED DEFAULT 0 NOT NULL,
 			time_actual_mins SMALLINT UNSIGNED DEFAULT 0 NOT NULL,
@@ -16,8 +16,8 @@ if(!isset($tables['timetracking_entry'])) {
 			source_extension_id VARCHAR(255) DEFAULT '' NOT NULL,
 			source_id INT UNSIGNED DEFAULT 0 NOT NULL,
 			PRIMARY KEY (id)
-		) ENGINE=MyISAM;
-	";
+		) ENGINE=%s;
+	", APP_DB_ENGINE);
 	$db->Execute($sql);	
 }
 
@@ -53,14 +53,14 @@ if(!isset($indexes['debit_org_id'])) {
 
 // `timetracking_activity` ========================
 if(!isset($tables['timetracking_activity'])) {
-	$sql = "
+	$sql = sprintf("
 		CREATE TABLE IF NOT EXISTS timetracking_activity (
 			id INT UNSIGNED DEFAULT 0 NOT NULL,
 			name VARCHAR(255) DEFAULT '' NOT NULL,
 			rate DECIMAL(8,2) DEFAULT 0 NOT NULL,
 			PRIMARY KEY (id)
-		) ENGINE=MyISAM;
-	";
+		) ENGINE=%s;
+	", APP_DB_ENGINE);
 	$db->Execute($sql);	
 }
 

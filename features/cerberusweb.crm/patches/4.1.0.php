@@ -53,7 +53,7 @@ if(isset($tables['crm_opportunity'])) {
 			$db->qstr('crm.fields.source.opportunity')
 		);
 		$db->Execute($sql);
-		$field = $db->LastInsertId();
+		$field_id = $db->LastInsertId();
 		
 		// Populate the custom field from opp records
 		$sql = sprintf("INSERT INTO custom_field_stringvalue (field_id, source_id, field_value, source_extension) ".

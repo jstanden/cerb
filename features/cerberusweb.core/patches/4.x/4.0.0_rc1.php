@@ -11,14 +11,14 @@ if(!isset($indexes['message_id'])) {
 
 // `kb_category` =============================
 if(!isset($tables['kb_category'])) {
-	$sql = "
+	$sql = sprintf("
 		CREATE TABLE IF NOT EXISTS kb_category (
 			id INT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE,
 			parent_id INT UNSIGNED DEFAULT 0 NOT NULL,
 			name VARCHAR(64) DEFAULT '' NOT NULL,
 			PRIMARY KEY (id)
-		) ENGINE=MyISAM;
-	";
+		) ENGINE=%s;
+	", APP_DB_ENGINE);
 	$db->Execute($sql);	
     
 }
@@ -38,14 +38,14 @@ if(isset($columns['id'])
 
 // `kb_article_to_category` =============================
 if(!isset($tables['kb_article_to_category'])) {
-	$sql = "
+	$sql = sprintf("
 		CREATE TABLE IF NOT EXISTS kb_article_to_category (
 			kb_article_id INT UNSIGNED DEFAULT 0 NOT NULL,
 			kb_category_id INT UNSIGNED DEFAULT 0 NOT NULL,
 			kb_top_category_id INT UNSIGNED DEFAULT 0 NOT NULL,
 			PRIMARY KEY (kb_article_id, kb_category_id)
-		) ENGINE=MyISAM;
-	";
+		) ENGINE=%s;
+	", APP_DB_ENGINE);
 	$db->Execute($sql);	
 	
 	if(!isset($indexes['kb_article_id'])) {
@@ -63,7 +63,7 @@ if(!isset($tables['kb_article_to_category'])) {
 
 // `kb_article` ========================
 if(!isset($tables['kb_article'])) {
-	$sql = "
+	$sql = sprintf("
 		CREATE TABLE IF NOT EXISTS kb_article (
 			id INT UNSIGNED DEFAULT 0 NOT NULL,
 			title VARCHAR(128) DEFAULT '' NOT NULL,
@@ -71,8 +71,8 @@ if(!isset($tables['kb_article'])) {
 			views INT UNSIGNED DEFAULT 0 NOT NULL,
 			content MEDIUMTEXT,
 			PRIMARY KEY (id)
-		) ENGINE=MyISAM;
-	";
+		) ENGINE=%s;
+	", APP_DB_ENGINE);
 	$db->Execute($sql);	
 }
 
@@ -99,14 +99,6 @@ if(!isset($columns['format'])) {
 if(!isset($columns['content_raw'])) {
     $db->Execute('ALTER TABLE kb_article ADD COLUMN content_raw MEDIUMTEXT');
     $db->Execute("UPDATE kb_article SET content_raw=content");
-}
-
-if(!isset($indexes['title'])) {
-	$db->Execute('ALTER TABLE kb_article ADD FULLTEXT title (title)');
-}
-
-if(!isset($indexes['content'])) {
-	$db->Execute('ALTER TABLE kb_article ADD FULLTEXT content (content)');
 }
 
 if(isset($columns['code'])) {
@@ -160,10 +152,6 @@ if(isset($columns['content'])) {
 	if(0 != strcasecmp('mediumtext',$columns['content']['type'])) {
 		$db->Execute("ALTER TABLE message_content CHANGE COLUMN content content MEDIUMTEXT");
 	}
-	
-	if(!isset($indexes['content'])) {
-		$db->Execute('ALTER TABLE message_content ADD FULLTEXT content (content)');
-	}
 }
 
 // `message_header` ========================
@@ -192,7 +180,7 @@ if(!isset($indexes['message_id'])) {
 
 // `note` =============================
 if(!isset($tables['note'])) {
-	$sql = "
+	$sql = sprintf("
 		CREATE TABLE IF NOT EXISTS note (
 			id INT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE,
 			source_extension_id VARCHAR(128) DEFAULT '' NOT NULL,
@@ -201,8 +189,8 @@ if(!isset($tables['note'])) {
 			worker_id INT UNSIGNED DEFAULT 0 NOT NULL,
 			content TEXT,
 			PRIMARY KEY (id)
-		) ENGINE=MyISAM;
-	";
+		) ENGINE=%s;
+	", APP_DB_ENGINE);
 	$db->Execute($sql);	
 }
 
@@ -233,7 +221,7 @@ if(!isset($indexes['worker_id'])) {
 
 // `preparse_rule` =============================
 if(!isset($tables['preparse_rule'])) {
-	$sql = "
+	$sql = sprintf("
 		CREATE TABLE IF NOT EXISTS preparse_rule (
 			id INT UNSIGNED DEFAULT 0 NOT NULL,
 			name VARCHAR(64) DEFAULT '' NOT NULL,
@@ -242,8 +230,8 @@ if(!isset($tables['preparse_rule'])) {
 			pos INT UNSIGNED DEFAULT 0 NOT NULL,
 			PRIMARY KEY (id),
 			INDEX pos (pos)
-		) ENGINE=MyISAM;
-	";
+		) ENGINE=%s;
+	", APP_DB_ENGINE);
 	$db->Execute($sql);	
 }
 
@@ -540,7 +528,7 @@ if(null != ($cron_mf = DevblocksPlatform::getExtension('cron.import'))) {
 
 // `worker_event` =============================
 if(!isset($tables['worker_event'])) {
-	$sql = "
+	$sql = sprintf("
 		CREATE TABLE IF NOT EXISTS worker_event (
 			id INT UNSIGNED DEFAULT 0 NOT NULL,
 			created_date INT UNSIGNED DEFAULT 0 NOT NULL,
@@ -553,8 +541,8 @@ if(!isset($tables['worker_event'])) {
 			INDEX created_date (created_date),
 			INDEX worker_id (worker_id),
 			INDEX is_read (is_read)
-		) ENGINE=MyISAM;
-	";
+		) ENGINE=%s;
+	", APP_DB_ENGINE);
 	$db->Execute($sql);	
 }
 

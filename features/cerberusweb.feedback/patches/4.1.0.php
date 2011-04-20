@@ -4,7 +4,7 @@ $tables = $db->metaTables();
 
 // `feedback_entry` ========================
 if(!isset($tables['feedback_entry'])) {
-	$sql = "
+	$sql = sprintf("
 		CREATE TABLE IF NOT EXISTS feedback_entry (
 			id INT UNSIGNED DEFAULT 0 NOT NULL,
 			log_date INT UNSIGNED DEFAULT 0 NOT NULL,
@@ -14,8 +14,8 @@ if(!isset($tables['feedback_entry'])) {
 			quote_mood TINYINT(1) UNSIGNED DEFAULT 0 NOT NULL, 
 			quote_address_id INT UNSIGNED DEFAULT 0 NOT NULL, 
 			PRIMARY KEY (id)
-		) ENGINE=MyISAM;
-	";
+		) ENGINE=%s;
+	", APP_DB_ENGINE);
 	$db->Execute($sql);
 	
 	$tables['feedback_entry'] = 'feedback_entry';
@@ -48,13 +48,13 @@ if(!isset($indexes['quote_mood'])) {
 
 // `feedback_list` ========================
 if(!isset($tables['feedback_list'])) {
-	$sql = "
+	$sql = sprintf("
 		CREATE TABLE IF NOT EXISTS feedback_list (
 			id INT UNSIGNED DEFAULT 0 NOT NULL,
 			name VARCHAR(255) DEFAULT '' NOT NULL,
 			PRIMARY KEY (id)
-		) ENGINE=MyISAM;
-	";
+		) ENGINE=%s;
+	", APP_DB_ENGINE);
 	$db->Execute($sql);
 	
 	$tables['feedback_list'] = 'feedback_list';

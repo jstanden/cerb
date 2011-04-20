@@ -246,8 +246,9 @@ class DevblocksStorageEngineDatabase extends Extension_DevblocksStorageEngine {
 				chunk SMALLINT UNSIGNED DEFAULT 1,
 				INDEX id (id),
 				INDEX chunk (chunk)
-			) ENGINE=MyISAM;",
-			$this->escapeNamespace($namespace)
+			) ENGINE=%s;",
+			$this->escapeNamespace($namespace),
+			APP_DB_ENGINE
 		), $this->_db);
 		
 		DevblocksPlatform::clearCache(DevblocksPlatform::CACHE_TABLES);

@@ -5,7 +5,7 @@ $tables = $db->metaTables();
 // ***** Application
 
 if(!isset($tables['crm_opportunity'])) {
-	$sql = "
+	$sql = sprintf("
 		CREATE TABLE IF NOT EXISTS crm_opportunity (
 			id INT UNSIGNED DEFAULT 0 NOT NULL,
 			campaign_id INT UNSIGNED DEFAULT 0 NOT NULL,
@@ -19,8 +19,8 @@ if(!isset($tables['crm_opportunity'])) {
 			is_closed TINYINT(1) UNSIGNED DEFAULT 0 NOT NULL,
 			worker_id INT UNSIGNED DEFAULT 0 NOT NULL,
 			PRIMARY KEY (id)
-		) ENGINE=MyISAM;
-	";
+		) ENGINE=%s;
+	", APP_DB_ENGINE);
 	$db->Execute($sql);	
 }
 
@@ -59,7 +59,7 @@ if(!isset($indexes['is_closed'])) {
 }
 
 if(!isset($tables['crm_opp_comment'])) {
-	$sql = "
+	$sql = sprintf("
 		CREATE TABLE IF NOT EXISTS crm_opp_comment (
 			id INT UNSIGNED DEFAULT 0 NOT NULL,
 			opportunity_id INT UNSIGNED DEFAULT 0 NOT NULL,
@@ -67,8 +67,8 @@ if(!isset($tables['crm_opp_comment'])) {
 			worker_id INT UNSIGNED DEFAULT 0 NOT NULL,
 			content TEXT,
 			PRIMARY KEY (id)
-		) ENGINE=MyISAM;
-	";
+		) ENGINE=%s;
+	", APP_DB_ENGINE);
 	$db->Execute($sql);	
 }
 
@@ -77,25 +77,25 @@ if(!isset($indexes['opportunity_id'])) {
 }
 
 if(!isset($tables['crm_campaign'])) {
-	$sql = "
+	$sql = sprintf("
 		CREATE TABLE IF NOT EXISTS crm_campaign (
 			id INT UNSIGNED DEFAULT 0 NOT NULL,
 			name VARCHAR(128) DEFAULT '' NOT NULL,
 			PRIMARY KEY (id)
-		) ENGINE=MyISAM;
-	";
+		) ENGINE=%s;
+	", APP_DB_ENGINE);
 	$db->Execute($sql);	
 }
 
 if(!isset($tables['crm_campaign_bucket'])) {
-	$sql = "
+	$sql = sprintf("
 		CREATE TABLE IF NOT EXISTS crm_campaign_bucket (
 			id INT UNSIGNED DEFAULT 0 NOT NULL,
 			campaign_id INT UNSIGNED DEFAULT 0 NOT NULL,
 			name VARCHAR(64) DEFAULT '' NOT NULL,
 			PRIMARY KEY (id)
-		) ENGINE=MyISAM;
-	";
+		) ENGINE=%s;
+	", APP_DB_ENGINE);
 	$db->Execute($sql);	
 }
 

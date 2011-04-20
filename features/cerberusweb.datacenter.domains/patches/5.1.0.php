@@ -7,7 +7,7 @@ $tables = $db->metaTables();
 // Create initial tables
 
 if(!isset($tables['datacenter_domain'])) {
-	$sql = "
+	$sql = sprintf("
 		CREATE TABLE IF NOT EXISTS datacenter_domain (
 			id INT UNSIGNED NOT NULL AUTO_INCREMENT,
 			name VARCHAR(255) DEFAULT '',
@@ -16,8 +16,8 @@ if(!isset($tables['datacenter_domain'])) {
 			PRIMARY KEY (id),
 			INDEX created (created),
 			INDEX server_id (server_id)
-		) ENGINE=MyISAM;
-	";
+		) ENGINE=%s;
+	", APP_DB_ENGINE);
 	$db->Execute($sql);
 
 	$tables['datacenter_domain'] = 'datacenter_domain';

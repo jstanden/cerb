@@ -56,7 +56,7 @@ if(isset($columns['value']) && 0==strcasecmp('varchar',substr($columns['value'][
 
 // `translation` ========================
 if(!isset($tables['translation'])) {
-	$sql = "
+	$sql = sprintf("
 		CREATE TABLE IF NOT EXISTS translation (
 			id INT UNSIGNED DEFAULT 0 NOT NULL,
 			string_id VARCHAR(255) DEFAULT '' NOT NULL,
@@ -66,8 +66,8 @@ if(!isset($tables['translation'])) {
 			PRIMARY KEY (id),
 			INDEX string_id (string_id),
 			INDEX lang_code (lang_code)
-		) ENGINE=MyISAM;
-	";
+		) ENGINE=%s;
+	", APP_DB_ENGINE);
 	$db->Execute($sql);
 }
 
@@ -75,14 +75,14 @@ if(!isset($tables['translation'])) {
 // ACL privileges from plugins
 
 if(!isset($tables[$prefix.'acl'])) {
-	$sql = "
+	$sql = sprintf("
 		CREATE TABLE IF NOT EXISTS ${prefix}acl (
 			id VARCHAR(255) DEFAULT '' NOT NULL,
 			plugin_id VARCHAR(255) DEFAULT '' NOT NULL,
 			label VARCHAR(255) DEFAULT '' NOT NULL,
 			PRIMARY KEY (id)
-		) ENGINE=MyISAM;
-	";
+		) ENGINE=%s;
+	", APP_DB_ENGINE);
 	$db->Execute($sql);	
 }	
 

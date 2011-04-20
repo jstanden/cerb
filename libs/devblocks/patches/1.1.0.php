@@ -17,14 +17,14 @@ if(isset($columns['is_default'])) {
 // Classloading cache from plugin manifests
 
 if(!isset($tables[$prefix.'class_loader'])) {
-	$sql = "
+	$sql = sprintf("
 		CREATE TABLE IF NOT EXISTS ${prefix}class_loader (
 			class VARCHAR(255) DEFAULT '' NOT NULL,
 			plugin_id VARCHAR(255) DEFAULT '' NOT NULL,
 			rel_path VARCHAR(255) DEFAULT '' NOT NULL,
 			PRIMARY KEY (class)
-		) ENGINE=MyISAM;
-	";
+		) ENGINE=%s;
+	", APP_DB_ENGINE);
 	$db->Execute($sql);	
 }
 
@@ -32,14 +32,14 @@ if(!isset($tables[$prefix.'class_loader'])) {
 // Front controller cache from plugin manifests
 
 if(!isset($tables[$prefix.'uri_routing'])) {
-	$sql = "
+	$sql = sprintf("
 		CREATE TABLE IF NOT EXISTS ${prefix}uri_routing (
 			uri VARCHAR(255) DEFAULT '' NOT NULL,
 			plugin_id VARCHAR(255) DEFAULT '' NOT NULL,
 			controller_id VARCHAR(255) DEFAULT '' NOT NULL,
 			PRIMARY KEY (uri)
-		) ENGINE=MyISAM;
-	";
+		) ENGINE=%s;
+	", APP_DB_ENGINE);
 	$db->Execute($sql);
 }
 

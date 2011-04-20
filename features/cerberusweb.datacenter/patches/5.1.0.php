@@ -7,13 +7,13 @@ $tables = $db->metaTables();
 // Create initial tables
 
 if(!isset($tables['server'])) {
-	$sql = "
+	$sql = sprintf("
 		CREATE TABLE IF NOT EXISTS server (
 			id INT UNSIGNED NOT NULL AUTO_INCREMENT,
 			name VARCHAR(255) DEFAULT '',
 			PRIMARY KEY (id)
-		) ENGINE=MyISAM;
-	";
+		) ENGINE=%s;
+	", APP_DB_ENGINE);
 	$db->Execute($sql);
 
 	$tables['server'] = 'server';

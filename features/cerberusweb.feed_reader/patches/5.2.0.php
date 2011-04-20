@@ -6,14 +6,14 @@ $tables = $db->metaTables();
 // feed
 
 if(!isset($tables['feed'])) {
-	$sql = "
+	$sql = sprintf("
 		CREATE TABLE IF NOT EXISTS feed (
 			id INT UNSIGNED NOT NULL AUTO_INCREMENT,
 			name VARCHAR(255) DEFAULT '',
 			url VARCHAR(255) DEFAULT '',
 			PRIMARY KEY (id)
-		) ENGINE=MyISAM;
-	";
+		) ENGINE=%s;
+	", APP_DB_ENGINE);
 	$db->Execute($sql);	
 }
 
@@ -21,7 +21,7 @@ if(!isset($tables['feed'])) {
 // feed_item
 
 if(!isset($tables['feed_item'])) {
-	$sql = "
+	$sql = sprintf("
 		CREATE TABLE IF NOT EXISTS feed_item (
 			id INT UNSIGNED NOT NULL AUTO_INCREMENT,
 			feed_id INT UNSIGNED NOT NULL,
@@ -35,8 +35,8 @@ if(!isset($tables['feed_item'])) {
 			INDEX guid (guid(4)),
 			INDEX created_date (created_date),
 			INDEX is_closed (is_closed)
-		) ENGINE=MyISAM;
-	";
+		) ENGINE=%s;
+	", APP_DB_ENGINE);
 	$db->Execute($sql);	
 }
 

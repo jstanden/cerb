@@ -7,7 +7,7 @@ $tables = $db->metaTables();
 // attachment_link 
 
 if(!isset($tables['attachment_link'])) {
-	$sql = "
+	$sql = sprintf("
 		CREATE TABLE IF NOT EXISTS attachment_link (
 			guid VARCHAR(64) NOT NULL DEFAULT '',
 			attachment_id INT UNSIGNED NOT NULL,
@@ -18,8 +18,8 @@ if(!isset($tables['attachment_link'])) {
 			INDEX attachment_id (attachment_id),
 			INDEX context (context),
 			INDEX context_id (context_id)
-		) ENGINE=MyISAM;
-	";
+		) ENGINE=%s;
+	", APP_DB_ENGINE);
 	$db->Execute($sql);
 
 	$tables['attachment_link'] = 'attachment_link';
@@ -71,15 +71,15 @@ if(!isset($columns['sort_json'])) {
 
 // Add the workspace table
 if(!isset($tables['workspace'])) {
-	$sql = "
+	$sql = sprintf("
 		CREATE TABLE IF NOT EXISTS workspace (
 			id INT UNSIGNED NOT NULL AUTO_INCREMENT,
 			name VARCHAR(128) DEFAULT '' NOT NULL,
 			worker_id INT UNSIGNED NOT NULL DEFAULT 0,
 			PRIMARY KEY (id),
 			INDEX worker_id (worker_id)
-		) ENGINE=MyISAM;
-	";
+		) ENGINE=%s;
+	", APP_DB_ENGINE);
 	$db->Execute($sql);
 
 	$tables['workspace'] = 'workspace';
@@ -87,7 +87,7 @@ if(!isset($tables['workspace'])) {
 
 // Add the workspace_to_endpoint table
 if(!isset($tables['workspace_to_endpoint'])) {
-	$sql = "
+	$sql = sprintf("
 		CREATE TABLE IF NOT EXISTS workspace_to_endpoint (
 			workspace_id INT UNSIGNED NOT NULL DEFAULT 0,
 			endpoint VARCHAR(128) NOT NULL DEFAULT '',
@@ -95,8 +95,8 @@ if(!isset($tables['workspace_to_endpoint'])) {
 			PRIMARY KEY (workspace_id, endpoint),
 			INDEX workspace_id (workspace_id),
 			INDEX endpoint (endpoint)
-		) ENGINE=MyISAM;
-	";
+		) ENGINE=%s;
+	", APP_DB_ENGINE);
 	$db->Execute($sql);
 
 	$tables['workspace_to_endpoint'] = 'workspace_to_endpoint';

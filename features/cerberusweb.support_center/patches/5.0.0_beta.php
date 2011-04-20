@@ -4,33 +4,34 @@ $tables = $db->metaTables();
 
 // ===========================================================================
 // Migrate community_tool properties to user-editable templates
-
-$sql = "SELECT ctp.tool_code, ctp.property_key, ctp.property_value FROM community_tool_property ctp INNER JOIN community_tool ct ON (ct.code=ctp.tool_code) WHERE ct.extension_id='sc.tool'";
-$rs = $db->Execute($sql);
-
 $portals = array();
 
-while($row = mysql_fetch_assoc($rs)) {
-	$code = $row['tool_code'];
-	$key = $row['property_key'];
-	$value = $row['property_value'];
+if(isset($tables['community_tool_property']) && isset($tables['community_tool'])) {
+	$sql = "SELECT ctp.tool_code, ctp.property_key, ctp.property_value FROM community_tool_property ctp INNER JOIN community_tool ct ON (ct.code=ctp.tool_code) WHERE ct.extension_id='sc.tool'";
+	$rs = $db->Execute($sql);
 	
-	if(!isset($portals[$code]))
-		$portals[$code] = array();
-	
-	switch($key) {
-		case 'common.header_html':
-		case 'common.footer_html':
-		case 'common.style_css':
-		case 'home.html':
-			$portals[$code][$key] = $value;
-			break;
-		default:
-			break;
+	while($row = mysql_fetch_assoc($rs)) {
+		$code = $row['tool_code'];
+		$key = $row['property_key'];
+		$value = $row['property_value'];
+		
+		if(!isset($portals[$code]))
+			$portals[$code] = array();
+		
+		switch($key) {
+			case 'common.header_html':
+			case 'common.footer_html':
+			case 'common.style_css':
+			case 'home.html':
+				$portals[$code][$key] = $value;
+				break;
+			default:
+				break;
+		}
 	}
+	
+	mysql_free_result($rs);
 }
-
-mysql_free_result($rs);
 
 if(!empty($portals))
 foreach($portals as $portal_code => $props) {

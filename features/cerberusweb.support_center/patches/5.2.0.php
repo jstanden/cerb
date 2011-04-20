@@ -28,7 +28,7 @@ $db->Execute("DELETE FROM community_tool_property WHERE property_key = 'common.l
 // contact_person_address_share
  
 if(!isset($tables['supportcenter_address_share'])) {
-	$sql = "
+	$sql = sprintf("
 		CREATE TABLE IF NOT EXISTS supportcenter_address_share (
 			share_address_id INT UNSIGNED NOT NULL,
 			with_address_id INT UNSIGNED NOT NULL,
@@ -37,8 +37,8 @@ if(!isset($tables['supportcenter_address_share'])) {
 			INDEX share_address_id (share_address_id),
 			INDEX with_address_id (with_address_id),
 			INDEX is_enabled (is_enabled)
-		) ENGINE=MyISAM;
-	";
+		) ENGINE=%s;
+	", APP_DB_ENGINE);
 	$db->Execute($sql);
 
 	$tables['supportcenter_address_share'] = 'supportcenter_address_share';

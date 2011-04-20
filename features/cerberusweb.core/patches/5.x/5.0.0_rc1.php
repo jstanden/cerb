@@ -13,7 +13,7 @@ list($columns, $indexes) = $db->metaTable('ticket');
 
 if(!isset($columns['last_message_id'])) {
 	$db->Execute("ALTER TABLE ticket ADD COLUMN last_message_id INT UNSIGNED DEFAULT 0 NOT NULL"); // ~3.37s
-	$db->Execute("CREATE TABLE tmp_patch_lastmsgid (ticket_id INT UNSIGNED, max_msg_id INT UNSIGNED) ENGINE=MyISAM SELECT ticket_id, MAX(id) as max_msg_id FROM message GROUP BY ticket_id"); // ~0.32s
+	$db->Execute(sprintf("CREATE TABLE tmp_patch_lastmsgid (ticket_id INT UNSIGNED, max_msg_id INT UNSIGNED) ENGINE=%s SELECT ticket_id, MAX(id) as max_msg_id FROM message GROUP BY ticket_id", APP_DB_ENGINE)); // ~0.32s
 	$db->Execute("UPDATE ticket INNER JOIN tmp_patch_lastmsgid ON (ticket.id=tmp_patch_lastmsgid.ticket_id) SET ticket.last_message_id=tmp_patch_lastmsgid.max_msg_id"); // ~0.74s 
 	$db->Execute("DROP TABLE tmp_patch_lastmsgid"); // ~0s
 	$db->Execute("ALTER TABLE ticket ADD INDEX last_message_id (last_message_id)"); // ~2.48s
@@ -84,7 +84,7 @@ if(!isset($columns['queue_fails'])) {
 // Snippet Worker Uses
 
 if(!isset($tables['snippet_usage'])) {
-	$sql = "
+	$sql = sprintf("
 		CREATE TABLE IF NOT EXISTS snippet_usage (
 			snippet_id INT UNSIGNED NOT NULL DEFAULT 0,
 			worker_id INT UNSIGNED NOT NULL DEFAULT 0,
@@ -93,8 +93,8 @@ if(!isset($tables['snippet_usage'])) {
 			INDEX snippet_id (snippet_id),
 			INDEX worker_id (worker_id),
 			INDEX hits (hits)
-		) ENGINE=MyISAM;
-	";
+		) ENGINE=%s;
+	", APP_DB_ENGINE);
 	$db->Execute($sql);
 
 	$tables['snippet_usage'] = 'snippet_usage';

@@ -7,15 +7,15 @@ $tables = $db->metaTables();
 // example_object 
 
 if(!isset($tables['example_object'])) {
-	$sql = "
+	$sql = sprintf("
 		CREATE TABLE IF NOT EXISTS example_object (
 			id INT UNSIGNED NOT NULL AUTO_INCREMENT,
 			name VARCHAR(255) DEFAULT '',
 			created INT UNSIGNED NOT NULL DEFAULT 0,
 			PRIMARY KEY (id),
 			INDEX created (created)
-		) ENGINE=MyISAM;
-	";
+		) ENGINE=%s;
+	", APP_DB_ENGINE);
 	$db->Execute($sql);
 
 	$tables['example_object'] = 'example_object';

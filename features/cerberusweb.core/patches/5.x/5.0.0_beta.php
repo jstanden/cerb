@@ -25,9 +25,13 @@ if(!isset($columns['storage_extension'])) {
 // Migrate message content to storage service
 
 if(isset($tables['message_content'])) {
+	list($columns, $indexes) = $db->metaTable('message_content');
+	
 	$db->Execute("RENAME TABLE message_content TO storage_message_content");
-	$db->Execute("ALTER TABLE storage_message_content DROP INDEX content");
 	$db->Execute("ALTER TABLE storage_message_content CHANGE COLUMN message_id id int unsigned default '0' not null");
+	
+	if(isset($indexes['content']))
+		$db->Execute("ALTER TABLE storage_message_content DROP INDEX content");
 	/**
 	 * [TODO] Slow (27.31s)
 	 */
@@ -39,46 +43,50 @@ if(isset($tables['message_content'])) {
 
 // storage_attachments to 64KB blob
 
-list($columns, $indexes) = $db->metaTable('storage_attachments');
-
-if(isset($columns['data'])
-	&& 0 != strcasecmp('blob',$columns['data']['type'])) {
-		$db->Execute('ALTER TABLE storage_attachments MODIFY COLUMN data BLOB');
-}
-
-if(!isset($columns['chunk'])) {
-	$db->Execute("ALTER TABLE storage_attachments ADD COLUMN chunk smallint unsigned default 1");
-	$db->Execute("ALTER TABLE storage_attachments ADD INDEX chunk (chunk)");
-}
-
-if(isset($indexes['PRIMARY'])) {
-	$db->Execute("ALTER TABLE storage_attachments DROP PRIMARY KEY");
-}
-
-if(!isset($indexes['id'])) {
-	$db->Execute("ALTER TABLE storage_attachments ADD INDEX id (id)");
+if(isset($tables['storage_attachments'])) {
+	list($columns, $indexes) = $db->metaTable('storage_attachments');
+	
+	if(isset($columns['data'])
+		&& 0 != strcasecmp('blob',$columns['data']['type'])) {
+			$db->Execute('ALTER TABLE storage_attachments MODIFY COLUMN data BLOB');
+	}
+	
+	if(!isset($columns['chunk'])) {
+		$db->Execute("ALTER TABLE storage_attachments ADD COLUMN chunk smallint unsigned default 1");
+		$db->Execute("ALTER TABLE storage_attachments ADD INDEX chunk (chunk)");
+	}
+	
+	if(isset($indexes['PRIMARY'])) {
+		$db->Execute("ALTER TABLE storage_attachments DROP PRIMARY KEY");
+	}
+	
+	if(!isset($indexes['id'])) {
+		$db->Execute("ALTER TABLE storage_attachments ADD INDEX id (id)");
+	}
 }
 
 // storage_message_content to 64KB blob
 
-list($columns, $indexes) = $db->metaTable('storage_message_content');
-
-if(isset($columns['data'])
-	&& 0 != strcasecmp('blob',$columns['data']['type'])) {
-		$db->Execute('ALTER TABLE storage_message_content MODIFY COLUMN data BLOB');
-}
-
-if(!isset($columns['chunk'])) {
-	$db->Execute("ALTER TABLE storage_message_content ADD COLUMN chunk smallint unsigned default 1");
-	$db->Execute("ALTER TABLE storage_message_content ADD INDEX chunk (chunk)");
-}
-
-if(isset($indexes['PRIMARY'])) {
-	$db->Execute("ALTER TABLE storage_message_content DROP PRIMARY KEY");
-}
-
-if(!isset($indexes['id'])) {
-	$db->Execute("ALTER TABLE storage_message_content ADD INDEX id (id)");
+if(isset($tables['storage_message_content'])) {
+	list($columns, $indexes) = $db->metaTable('storage_message_content');
+	
+	if(isset($columns['data'])
+		&& 0 != strcasecmp('blob',$columns['data']['type'])) {
+			$db->Execute('ALTER TABLE storage_message_content MODIFY COLUMN data BLOB');
+	}
+	
+	if(!isset($columns['chunk'])) {
+		$db->Execute("ALTER TABLE storage_message_content ADD COLUMN chunk smallint unsigned default 1");
+		$db->Execute("ALTER TABLE storage_message_content ADD INDEX chunk (chunk)");
+	}
+	
+	if(isset($indexes['PRIMARY'])) {
+		$db->Execute("ALTER TABLE storage_message_content DROP PRIMARY KEY");
+	}
+	
+	if(!isset($indexes['id'])) {
+		$db->Execute("ALTER TABLE storage_message_content ADD INDEX id (id)");
+	}
 }
 
 // Add storage columns to 'message'
@@ -201,7 +209,7 @@ if(isset($tables['mail_draft_seq'])) {
 // Add the 'mail_queue' table
 
 if(!isset($tables['mail_queue'])) {
-	$sql = "
+	$sql = sprintf("
 		CREATE TABLE IF NOT EXISTS mail_queue (
 			id INT UNSIGNED NOT NULL DEFAULT 0,
 			worker_id INT UNSIGNED NOT NULL DEFAULT 0,
@@ -216,8 +224,8 @@ if(!isset($tables['mail_queue'])) {
 			INDEX worker_id (worker_id),
 			INDEX ticket_id (ticket_id),
 			INDEX updated (updated)
-		) ENGINE=MyISAM;
-	";
+		) ENGINE=%s;
+	", APP_DB_ENGINE);
 	$db->Execute($sql);
 
 	$tables['mail_queue'] = 'mail_queue';
@@ -252,15 +260,15 @@ if(!isset($columns['priority'])) {
 // Add the 'explorer_set' table
 
 if(!isset($tables['explorer_set'])) {
-	$sql = "
+	$sql = sprintf("
 		CREATE TABLE IF NOT EXISTS explorer_set (
 			hash VARCHAR(32) NOT NULL DEFAULT '',
 			pos INT UNSIGNED NOT NULL DEFAULT 0,
 			params_json LONGTEXT,
 			INDEX hash (hash(4)),
 			INDEX pos (pos)
-		) ENGINE=MyISAM;
-	";
+		) ENGINE=%s;
+	", APP_DB_ENGINE);
 	$db->Execute($sql);
 
 	$tables['explorer_set'] = 'explorer_set';
@@ -275,7 +283,7 @@ $db->Execute("DELETE FROM devblocks_setting WHERE plugin_id='cerberusweb.core' A
 // Add the 'snippet' table
 
 if(!isset($tables['snippet'])) {
-	$sql = "
+	$sql = sprintf("
 		CREATE TABLE IF NOT EXISTS snippet (
 			id INT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE,
 			title VARCHAR(255) NOT NULL DEFAULT '',
@@ -287,8 +295,8 @@ if(!isset($tables['snippet'])) {
 			content LONGTEXT,
 			PRIMARY KEY (id),
 			INDEX is_private (is_private)
-		) ENGINE=MyISAM;
-	";
+		) ENGINE=%s;
+	", APP_DB_ENGINE);
 	$db->Execute($sql);
 
 	$tables['snippet'] = 'snippet';
