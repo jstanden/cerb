@@ -1,16 +1,21 @@
 <?php
-interface IDevblocksTourListener {
-    function registerCallouts();
-}
 class DevblocksTourCallout {
-    public $id = '';
+    public $selector = '';
     public $title = '';
     public $body = '';
+    public $tipCorner = '';
+    public $targetCorner = '';
+    public $xOffset = 0;
+    public $yOffset = 0;
     
-    function __construct($id,$title='Callout',$body='...') {
-        $this->id = $id;
+    function __construct($selector='',$title='Callout',$body='...',$tipCorner='topLeft',$targetCorner='topLeft',$xOffset=0,$yOffset=0) {
+        $this->selector = $selector;
         $this->title = $title;
         $this->body = $body;
+        $this->tipCorner = $tipCorner;
+        $this->targetCorner = $targetCorner;
+        $this->xOffset = $xOffset;
+        $this->yOffset = $yOffset;
     }
 };
 interface IDevblocksSearchFields {

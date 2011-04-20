@@ -372,29 +372,6 @@ class CerberusApplication extends DevblocksApplication {
 		return $password;		
 	}
 	
-	// [JAS]: [TODO] Cleanup + move (platform, diff ext point, DAO?)
-	/**
-	 * @return DevblocksTourCallout[]
-	 */
-	static function getTourCallouts() {
-	    static $callouts = null;
-	    
-	    if(!is_null($callouts))
-	        return $callouts;
-	    
-	    $callouts = array();
-	        
-	    $listenerManifests = DevblocksPlatform::getExtensions('devblocks.listener.http');
-	    foreach($listenerManifests as $listenerManifest) { /* @var $listenerManifest DevblocksExtensionManifest */
-	         $inst = $listenerManifest->createInstance(); /* @var $inst IDevblocksTourListener */
-	         
-	         if($inst instanceof IDevblocksTourListener)
-	             $callouts += $inst->registerCallouts();
-	    }
-	    
-	    return $callouts;
-	}
-	    
 	/**
 	 * Enter description here...
 	 *

@@ -76,23 +76,6 @@ class ChInternalController extends DevblocksControllerExtension {
 	    }
 	}
 
-	// Ajax
-	function showCalloutAction() {
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'string');
-
-		$tpl = DevblocksPlatform::getTemplateService();
-
-		$callouts = CerberusApplication::getTourCallouts();
-
-	    $callout = array();
-	    if(isset($callouts[$id]))
-	        $callout = $callouts[$id];
-
-	    $tpl->assign('callout',$callout);
-
-		$tpl->display('devblocks:cerberusweb.core::internal/tour/callout.tpl');
-	}
-
 	// Post
 	function doStopTourAction() {
 		$worker = CerberusApplication::getActiveWorker();

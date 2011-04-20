@@ -47,16 +47,7 @@
  * 		and Jerry Kanoholani. 
  *	 WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
-class ChSimulatorTour extends DevblocksHttpResponseListenerExtension implements IDevblocksTourListener {
-    /**
-     * @return DevblocksTourCallout[]
-     */
-    function registerCallouts() {
-        return array(
-            '' => new DevblocksTourCallout('',''),
-        );
-    }
-    
+class ChSimulatorTour extends DevblocksHttpResponseListenerExtension {
     function run(DevblocksHttpResponse $response, Smarty $tpl) {
         $path = $response->path;
 
@@ -73,5 +64,4 @@ class ChSimulatorTour extends DevblocksHttpResponseListenerExtension implements 
         if(!empty($tour))
             $tpl->assign('tour', $tour);
     }
-}
-?>
+};

@@ -47,38 +47,28 @@
  * 		and Jerry Kanoholani. 
  *	 WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
-class ChCoreTour extends DevblocksHttpResponseListenerExtension implements IDevblocksTourListener {
-	/**
-	 * @return DevblocksTourCallout[]
-	 */
-	function registerCallouts() {
+class ChCoreTour extends DevblocksHttpResponseListenerExtension {
+	/*
 		return array(
-        'tourHeaderMenu' => new DevblocksTourCallout('tourHeaderMenu','Helpdesk Menu','This is where you can change between major helpdesk sections.'),
-        'tourHeaderMyTasks' => new DevblocksTourCallout('tourHeaderMyTasks','My Tasks','Here you can quickly jump to a summary of your current tasks.'),
-        'tourHeaderTeamLoads' => new DevblocksTourCallout('tourHeaderTeamLoads','My Team Loads','Here you can quickly display the workload of any of your teams.  You can display a team\'s dashboard by clicking them.'),
-        'tourHeaderGetTickets' => new DevblocksTourCallout('tourHeaderGetTickets','Get Tickets',"The 'Get Tickets' link will assign you available tickets from your desired teams."),
-        'tourHeaderQuickLookup' => new DevblocksTourCallout('tourHeaderQuickLookup','Quick Lookup','Here you can quickly search for tickets from anywhere in the helpdesk.  This is generally most useful when someone calls up and you need to promptly locate their ticket.'),
-        'tourOverviewSummaries' => new DevblocksTourCallout('tourOverviewSummaries','Groups &amp; Buckets','Tickets that need worker replies are organized into buckets and shared by groups.'),
-        'tourOverviewWaiting' => new DevblocksTourCallout('tourOverviewWaiting','Waiting For Reply','Tickets that are waiting for requester replies are kept out of the way. After a requester replies, the appropriate ticket is moved back to the list of available work.'),
-        'overview_all_actions' => new DevblocksTourCallout('overview_all_actions','List Actions','Each list of tickets provides a toolbar of possible actions. Actions may be applied to specific tickets or to the entire list. The "Move to:" shortcuts adapt to your most-used buckets and groups.  Bulk Update allows you to apply several actions at once to any tickets in a list that match your criteria.'),
-        'viewoverview_all' => new DevblocksTourCallout('viewoverview_all','Peek',"You can preview the content of any ticket in a list by clicking the \"(peek)\" link next to its subject. Peek is especially helpful when confirming tickets are spam if they have an ambiguous subject. This saves you a lot of time that would otherwise be wasted clicking into each ticket and losing your place in the list."),
-        'tourDashboardViews' => new DevblocksTourCallout('tourDashboardViews','Ticket Lists','This is where your customized lists of tickets are displayed.'),
-        'tourDisplayConversation' => new DevblocksTourCallout('tourDisplayConversation','Conversation','This is where all e-mail replies will be displayed for this ticket.  Your responses will be sent to all requesters.'),
-        'btnReplyFirst' => new DevblocksTourCallout('btnReplyFirst','Replying',"Clicking the Reply button while displaying a ticket will allow you to write a response, as you would in any e-mail client, without leaving the ticket's page. This allows you to reference the ticket's information and history as you write."),
-        'tourDisplayPaging' => new DevblocksTourCallout('tourDisplayPaging','Paging',"If you clicked on a ticket from a list, the detailed ticket page will show your progress from that list in the top right. You can also use the keyboard shortcuts to advance through the list with the bracket keys: ' [ ' and ' ] '."),
-        'displayOptions' => new DevblocksTourCallout('displayOptions','Pluggable Tabs',"With Cerberus Helpdesk's pluggable architecture, new capabilities can be added to your ticket management. For example, you could display all the CRM opportunities or billing invoices associated with the ticket's requesters."),
-        'tourConfigMaintPurge' => new DevblocksTourCallout('tourConfigMaintPurge','Purge Deleted','Here you may purge any deleted tickets from the database.'),
-        'tourDashboardSearchCriteria' => new DevblocksTourCallout('tourDashboardSearchCriteria','Search Criteria','Here you can change the criteria of the current search.'),
-        'tourConfigMenu' => new DevblocksTourCallout('tourConfigMenu','Menu','This is where you may choose to configure various components of the helpdesk.'),
-        'tourConfigMailRouting' => new DevblocksTourCallout('tourConfigMailRouting','Mail Routing','This is where you instruct the helpdesk how to deliver new messages.'),
-        '' => new DevblocksTourCallout('',''),
+        'tourHeaderMyTasks' => new DevblocksTourCallout('tourHeaderMyTasks','','My Tasks','Here you can quickly jump to a summary of your current tasks.'),
+        'tourHeaderTeamLoads' => new DevblocksTourCallout('tourHeaderTeamLoads','','My Team Loads','Here you can quickly display the workload of any of your teams.  You can display a team\'s dashboard by clicking them.'),
+        'tourHeaderGetTickets' => new DevblocksTourCallout('tourHeaderGetTickets','','Get Tickets',"The 'Get Tickets' link will assign you available tickets from your desired teams."),
+        'tourHeaderQuickLookup' => new DevblocksTourCallout('tourHeaderQuickLookup','','Quick Lookup','Here you can quickly search for tickets from anywhere in the helpdesk.  This is generally most useful when someone calls up and you need to promptly locate their ticket.'),
+        
+        'tourDashboardViews' => new DevblocksTourCallout('tourDashboardViews','','Ticket Lists','This is where your customized lists of tickets are displayed.'),
+        'tourDisplayConversation' => new DevblocksTourCallout('tourDisplayConversation','','Conversation','This is where all e-mail replies will be displayed for this ticket.  Your responses will be sent to all requesters.'),
+        'btnReplyFirst' => new DevblocksTourCallout('btnReplyFirst','','Replying',"Clicking the Reply button while displaying a ticket will allow you to write a response, as you would in any e-mail client, without leaving the ticket's page. This allows you to reference the ticket's information and history as you write."),
+        'tourDisplayPaging' => new DevblocksTourCallout('tourDisplayPaging','','Paging',"If you clicked on a ticket from a list, the detailed ticket page will show your progress from that list in the top right. You can also use the keyboard shortcuts to advance through the list with the bracket keys: ' [ ' and ' ] '."),
+        'displayTabs' => new DevblocksTourCallout('displayTabs','','Pluggable Tabs',"With Cerberus Helpdesk's pluggable architecture, new capabilities can be added to your ticket management. For example, you could display all the CRM opportunities or billing invoices associated with the ticket's requesters."),
+        'tourConfigMaintPurge' => new DevblocksTourCallout('tourConfigMaintPurge','','Purge Deleted','Here you may purge any deleted tickets from the database.'),
+        'tourDashboardSearchCriteria' => new DevblocksTourCallout('tourDashboardSearchCriteria','','Search Criteria','Here you can change the criteria of the current search.'),
+        'tourConfigMenu' => new DevblocksTourCallout('tourConfigMenu','','Menu','This is where you may choose to configure various components of the helpdesk.'),
+        'tourConfigMailRouting' => new DevblocksTourCallout('tourConfigMailRouting','','Mail Routing','This is where you instruct the helpdesk how to deliver new messages.'),
+        //'' => new DevblocksTourCallout('','',''),
 		);
-	}
-
+	*/
 	function run(DevblocksHttpResponse $response, Smarty $tpl) {
 		$path = $response->path;
-
-		$callouts = CerberusApplication::getTourCallouts();
 
 		switch(array_shift($path)) {
 			case 'welcome':
@@ -86,20 +76,46 @@ class ChCoreTour extends DevblocksHttpResponseListenerExtension implements IDevb
 	                'title' => 'Welcome!',
 	                'body' => "This assistant will help you become familiar with the helpdesk by following along and providing information about the current page.  You may follow the 'Points of Interest' links highlighted below to read tips about nearby functionality.",
 	                'callouts' => array(
-					$callouts['tourHeaderMenu'],
-					)
-				);
+							new DevblocksTourCallout(
+								'body > ul.navmenu',
+								'Navigation Menu',
+								'This global navigation menu divides the application into major sections.',
+								'topLeft',
+								'bottomLeft',
+								10,
+								20
+							),
+							new DevblocksTourCallout(
+								'body > table:first td:nth(1) a',
+								'Quick Links',
+								'Hovering over your name provides a menu with useful shortcuts. Clicking on it takes you to your profile.',
+								'topRight',
+								'bottomLeft',
+								0,
+								0
+							),
+							new DevblocksTourCallout(
+								'body fieldset:nth(1)',
+								'Social',
+								'Practice makes perfect.',
+								'bottomLeft',
+								'topLeft',
+								20,
+								0
+							),
+						),
+					);
 				break;
 
 			case "display":
 				$tour = array(
 	                'title' => 'Display Ticket',
-	                'body' => "This screen displays the currently selected ticket.  Here you can modify the ticket or send a new reply to all requesters.<br><br>Clicking the Requester History tab will show all the past and present tickets from the ticket's requesters. This is an easy way to find and merge duplicate tickets from the same requester, or from several requesters from the same organization.<br><br>Often, a ticket may require action from several workers before it's complete. You can create tasks for each worker to track the progress of these actions. In Cerberus Helpdesk, workers don't \"own\" tickets. Each ticket has a \"next worker\" who is responsible for moving the ticket forward.<br><br>A detailed walkthrough of the display ticket page is available here: <a href=\"http://www.cerberusweb.com/tour/display\" target=\"_blank\">http://www.cerberusweb.com/tour/display</a>",
+	                'body' => "This screen displays the currently selected ticket.  Here you can modify the ticket or send a new reply to all requesters.<br><br>Clicking the Requester History tab will show all the past and present tickets from the ticket's requesters. This is an easy way to find and merge duplicate tickets from the same requester, or from several requesters from the same organization.<br><br>Often, a ticket may require action from several workers before it's complete. You can create tasks for each worker to track the progress of these actions. In Cerberus Helpdesk, workers don't \"own\" tickets. Each ticket has a \"next worker\" who is responsible for moving the ticket forward.<br>",
 	                'callouts' => array(
-						$callouts['tourDisplayConversation'],
-						$callouts['btnReplyFirst'],
-						$callouts['tourDisplayPaging'],
-						$callouts['displayOptions'],
+						//$callouts['tourDisplayConversation'],
+						//$callouts['btnReplyFirst'],
+						//$callouts['tourDisplayPaging'],
+						//$callouts['displayTabs'],
 					)
 				);
 				break;
@@ -124,8 +140,8 @@ class ChCoreTour extends DevblocksHttpResponseListenerExtension implements IDevb
 					case NULL:
 					case "general":
 						$tour = array(
-	                        'title' => 'General Settings',
-    	                    'body' => 'These settings control the overall behavior of the helpdesk.',
+	                        'title' => 'Setup',
+    	                    'body' => 'This is where you configure the application.',
 						);
 						break;
 
@@ -148,8 +164,8 @@ class ChCoreTour extends DevblocksHttpResponseListenerExtension implements IDevb
 	                        'title' => 'Mail Configuration',
 	                        'body' => "This section controls the heart of your helpdesk: e-mail.  Here you may define the routing rules that determine what to do with new messages.  This is also where you set your preferences for sending mail out of the helpdesk.  To configure the POP3 downloader, click 'helpdesk config'->'scheduler'->'POP3 Mail Checker'",
 	                        'callouts' => array(
-							$callouts['tourConfigMailRouting']
-						)
+								//$callouts['tourConfigMailRouting']
+							)
 						);
 						break;
 
@@ -158,15 +174,15 @@ class ChCoreTour extends DevblocksHttpResponseListenerExtension implements IDevb
 	                        'title' => 'Maintenance',
 	                        'body' => 'This section is dedicated to ensuring your helpdesk continues to operate lightly and quickly.',
 	                        'callouts' => array(
-							$callouts['tourConfigMaintPurge'],
-						)
+								//$callouts['tourConfigMaintPurge'],
+							)
 						);
 						break;
 
-					case "extensions":
+					case "plugins":
 						$tour = array(
-	                        'title' => 'Extensions',
-	                        'body' => "This is where you may extend Cerberus Helpdesk by installing new functionality through plug-ins.",
+	                        'title' => 'Features & Plugins',
+	                        'body' => "This is where you can extend Cerb5 by installing new functionality through plugins.",
 	                        'callouts' => array(
 							)
 						);
@@ -190,13 +206,63 @@ class ChCoreTour extends DevblocksHttpResponseListenerExtension implements IDevb
 					case 'overview':
 						$tour = array(
 	                        'title' => 'Mail Overview',
-	                        'body' => "The Mail tab provides the ability to compose outgoing email as well as view lists of tickets, either here in the general overview, in specific search result lists, or in your personalized ticket lists in 'my workspaces'.  A detailed walkthrough of the mail page is available here: <a href=\"http://www.cerberusweb.com/tour/overview\" target=\"_blank\">http://www.cerberusweb.com/tour/overview</a>",
+	                        'body' => "The Mail tab provides the ability to compose outgoing email as well as view lists of tickets, either here in the general overview, in specific search result lists, or in your personalized ticket lists in 'my workspaces'.",
 	                        'callouts' => array(
-							$callouts['tourOverviewSummaries'],
-							$callouts['tourOverviewWaiting'],
-							$callouts['overview_all_actions'],
-							$callouts['viewoverview_all'],
-							)
+								new DevblocksTourCallout(
+									'#mailTabs',
+									'Tabs',
+									'You can switch between several perspectives from the tabs.',
+									'bottomLeft',
+									'topLeft',
+									10,
+									10
+								),
+								new DevblocksTourCallout(
+									'#viewmail_workflow_sidebar',
+									'Subtotals',
+									'You can display subtotals for any worklist on a wide variety of properties, including your own custom fields.',
+									'bottomLeft',
+									'topLeft',
+									25,
+									0
+								),
+								new DevblocksTourCallout(
+									'#tourHeaderQuickLookup',
+									'Quick Search',
+									"You can use this search box to quickly find particular conversations.",
+									'topRight',
+									'bottomLeft',
+									10,
+									0
+								),
+								new DevblocksTourCallout(
+									'#viewmail_workflow TABLE.worklistBody TH:first',
+									'Watchers',
+									"Click the green plus button next to any object to add yourself as a watcher.  You will receive a notification any time there is activity.",
+									'bottomLeft',
+									'topMiddle',
+									0,
+									5
+								),
+								new DevblocksTourCallout(
+									'#viewmail_workflow TABLE.worklist:first',
+									'Peek',
+									"You can preview the content of any mail conversation in the worklist by hovering over the row and clicking the peek button that pops up to the right of the subject. Peek is especially helpful when confirming tickets are spam if they have an ambiguous subject. This saves you a lot of time that would otherwise be wasted clicking into each ticket and losing your place in the list.",
+									'bottomLeft',
+									'topMiddle',
+									0,
+									20
+								),
+								new DevblocksTourCallout(
+									'#mail_workflow_actions',
+									'List Actions',
+									'Each list of tickets provides a toolbar of possible actions. Actions may be applied to specific tickets or to the entire list. Bulk Update allows you to apply several actions at once to any tickets in a list that match your criteria.',
+									'topLeft',
+									'topLeft',
+									10,
+									15
+								),
+							),					
 						);
 						break;
 						
@@ -205,7 +271,7 @@ class ChCoreTour extends DevblocksHttpResponseListenerExtension implements IDevb
 	                        'title' => 'My Workspaces',
 	                        'body' => 'Here is where you set up personalized lists of tickets.  Any Overview or Search results list can be copied here by clicking the "copy" link in the list title bar.',
 	                        'callouts' => array(
-							$callouts['tourDashboardViews'],
+								//$callouts['tourDashboardViews'],
 							)
 						);
 						break;
@@ -215,7 +281,7 @@ class ChCoreTour extends DevblocksHttpResponseListenerExtension implements IDevb
 	                        'title' => 'Searching Tickets',
 	                        'body' => '',
 	                        'callouts' => array(
-							$callouts['tourDashboardSearchCriteria']
+								//$callouts['tourDashboardSearchCriteria']
 							)
 						);
 						break;
