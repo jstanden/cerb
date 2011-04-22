@@ -710,7 +710,7 @@
 			<id>event.notification.received.worker</id>
 			<name>New notification for me</name>
 			<class>
-				<file>api/plugin.classes.php</file>
+				<file>api/events/notification_received_by_worker.php</file>
 				<name>Event_NotificationReceivedByWorker</name>
 			</class>
 			<params>
@@ -726,7 +726,7 @@
 			<id>event.mail.received.watcher</id>
 			<name>New message on a watched conversation</name>
 			<class>
-				<file>api/plugin.classes.php</file>
+				<file>api/events/mail_received_by_watcher.php</file>
 				<name>Event_MailReceivedByWatcher</name>
 			</class>
 			<params>
@@ -742,7 +742,7 @@
 			<id>event.mail.closed.group</id>
 			<name>Conversation closed in group</name>
 			<class>
-				<file>api/plugin.classes.php</file>
+				<file>api/events/mail_closed_in_group.php</file>
 				<name>Event_MailClosedInGroup</name>
 			</class>
 			<params>
@@ -758,7 +758,7 @@
 			<id>event.mail.moved.group</id>
 			<name>Conversation moved in group</name>
 			<class>
-				<file>api/plugin.classes.php</file>
+				<file>api/events/mail_moved_to_group.php</file>
 				<name>Event_MailMovedToGroup</name>
 			</class>
 			<params>
@@ -774,7 +774,7 @@
 			<id>event.mail.received.group</id>
 			<name>New message on a group conversation</name>
 			<class>
-				<file>api/plugin.classes.php</file>
+				<file>api/events/mail_received_by_group.php</file>
 				<name>Event_MailReceivedByGroup</name>
 			</class>
 			<params>
