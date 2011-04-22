@@ -1,7 +1,6 @@
 /* Elements */
 
 body, td, form {
-	/*color: rgb(80, 80, 80);*/
 	font-family: Arial, Helvetica, sans-serif;
 	font-size: 12px;
 }
@@ -161,9 +160,11 @@ pre.emailbody {
 
 button {
 	background-color:rgb(230,230,230);
+	background: linear-gradient(top, rgb(240,240,240), rgb(210,210,210));
 	background: -webkit-gradient(linear, left top, left bottom, from(rgb(240,240,240)), to(rgb(210,210,210)));
 	background: -moz-linear-gradient(top, rgb(240,240,240), rgb(210,210,210));
 	background: -o-linear-gradient(top, rgb(240,240,240), rgb(210,210,210));
+	background: -ms-linear-gradient(top, rgb(240,240,240), rgb(210,210,210));
 	cursor:pointer;
 	
 	color:rgb(50,50,50);
@@ -178,9 +179,11 @@ button {
 
 button:hover {
 	background-color:rgb(160,198,254);
+	background: linear-gradient(top, rgb(238,242,245), rgb(160,198,254));
 	background: -webkit-gradient(linear, left top, left bottom, from(rgb(238,242,245)), to(rgb(160,198,254)));
 	background: -moz-linear-gradient(top, rgb(238,242,245), rgb(160,198,254));
 	background: -o-linear-gradient(top, rgb(238,242,245), rgb(160,198,254));
+	background: -ms-linear-gradient(top, rgb(238,242,245), rgb(160,198,254));
 	cursor:pointer;
 	
 	border:1px solid rgb(130,165,226);
@@ -194,9 +197,11 @@ button:hover {
 
 button.green {
 	background-color:rgb(223,240,177);
+	background: linear-gradient(top, rgb(223,240,177), rgb(184,211,118));
 	background: -webkit-gradient(linear, left top, left bottom, from(rgb(223,240,177)), to(rgb(184,211,118)));
 	background: -moz-linear-gradient(top, rgb(223,240,177), rgb(184,211,118));
 	background: -o-linear-gradient(top, rgb(223,240,177), rgb(184,211,118));
+	background: -ms-linear-gradient(top, rgb(223,240,177), rgb(184,211,118));
 	cursor:pointer;
 	
 	color:rgb(64,106,36);
@@ -205,17 +210,21 @@ button.green {
 
 button.green:hover {
 	background-color:rgb(223,240,177);
+	background: linear-gradient(top, rgb(223,240,177), rgb(154,180,90));
 	background: -webkit-gradient(linear, left top, left bottom, from(rgb(223,240,177)), to(rgb(154,180,90)));
 	background: -moz-linear-gradient(top, rgb(223,240,177), rgb(154,180,90));
 	background: -o-linear-gradient(top, rgb(223,240,177), rgb(154,180,90));
+	background: -ms-linear-gradient(top, rgb(223,240,177), rgb(154,180,90));
 	border:1px solid rgb(16,132,19);
 }
 
 button.red {
 	background-color:rgb(214,63,48);
+	background: linear-gradient(top, rgb(250,125,125), rgb(195,45,45));
 	background: -webkit-gradient(linear, left top, left bottom, from(rgb(250,125,125)), to(rgb(195,45,45)));
 	background: -moz-linear-gradient(top, rgb(250,125,125), rgb(195,45,45));
 	background: -o-linear-gradient(top, rgb(250,125,125), rgb(195,45,45));
+	background: -ms-linear-gradient(top, rgb(250,125,125), rgb(195,45,45));
 	cursor:pointer;
 	border:1px solid rgb(170,0,0);
 	
@@ -224,9 +233,11 @@ button.red {
 
 button.red:hover {
 	background-color:rgb(208,55,46);
+	background: linear-gradient(top, rgb(250,125,125), rgb(145,15,15));
 	background: -webkit-gradient(linear, left top, left bottom, from(rgb(250,125,125)), to(rgb(145,15,15)));
 	background: -moz-linear-gradient(top, rgb(250,125,125), rgb(145,15,15));
 	background: -o-linear-gradient(top, rgb(250,125,125), rgb(145,15,15));
+	background: -ms-linear-gradient(top, rgb(250,125,125), rgb(145,15,15));
 	border:1px solid rgb(100,5,5);
 }
 
@@ -262,9 +273,11 @@ UL.navmenu LI A {
 
 UL.navmenu LI.selected {
 	background-color: rgb(134, 169, 227);
+	background: linear-gradient(top, rgb(98,132,221), rgb(134, 169, 227));
 	background: -webkit-gradient(linear, left top, left bottom, from(rgb(98,132,221)), to(rgb(134, 169, 227)));
 	background: -moz-linear-gradient(top, rgb(98,132,221), rgb(134, 169, 227));
 	background: -o-linear-gradient(top, rgb(98,132,221), rgb(134, 169, 227));
+	background: -ms-linear-gradient(top, rgb(98,132,221), rgb(134, 169, 227));
 }
 
 UL.navmenu LI.selected A {
@@ -301,9 +314,11 @@ UL.submenu A {
 
 table.worklist {
 	background-color:rgb(134,169,227);
+	background: linear-gradient(top, rgb(134,169,227), rgb(98,132,221));
 	background: -webkit-gradient(linear, left top, left bottom, from(rgb(134,169,227)), to(rgb(98,132,221)));
 	background: -moz-linear-gradient(top, rgb(134,169,227), rgb(98,132,221));
 	background: -o-linear-gradient(top, rgb(134,169,227), rgb(98,132,221));
+	background: -ms-linear-gradient(top, rgb(134,169,227), rgb(98,132,221));
 }
 
 table.worklist td {
@@ -325,9 +340,11 @@ table.worklist td span.title {
 
 table.worklistBody th {
 	background-color: rgb(200,200,200);
+	background: linear-gradient(top, rgb(240,240,240), rgb(200,200,200));
 	background: -webkit-gradient(linear, left top, left bottom, from(rgb(240,240,240)), to(rgb(200,200,200)));
 	background: -moz-linear-gradient(top, rgb(240,240,240), rgb(200,200,200));
 	background: -o-linear-gradient(top, rgb(240,240,240), rgb(200,200,200));
+	background: -ms-linear-gradient(top, rgb(240,240,240), rgb(200,200,200));
 	padding:2px 5px 2px 5px;
 	border-right:1px solid rgb(175,175,175);
 	text-align: left;
@@ -336,9 +353,11 @@ table.worklistBody th {
 
 table.worklistBody th:hover {
 	background-color: rgb(150,150,150);
+	background: linear-gradient(top, rgb(200,200,200), rgb(150,150,150));
 	background: -webkit-gradient(linear, left top, left bottom, from(rgb(200,200,200)), to(rgb(150,150,150)));
 	background: -moz-linear-gradient(top, rgb(200,200,200), rgb(150,150,150));
 	background: -o-linear-gradient(top, rgb(200,200,200), rgb(150,150,150));
+	background: -ms-linear-gradient(top, rgb(200,200,200), rgb(150,150,150));
 	border-right:1px solid rgb(175,175,175);
 }
 
@@ -399,9 +418,11 @@ table.worklistBody tr.even.selected.hover, table.worklistBody tr.odd.selected.ho
 
 DIV#tourDiv {
 	background-color:rgb(255,255,200);
+	background: linear-gradient(top, rgb(251,236,136), rgb(255,255,200));
 	background: -webkit-gradient(linear, left top, left bottom, from(rgb(251,236,136)), to(rgb(255,255,200)));
 	background: -moz-linear-gradient(top, rgb(251,236,136), rgb(255,255,200));
 	background: -o-linear-gradient(top, rgb(251,236,136), rgb(255,255,200));
+	background: -ms-linear-gradient(top, rgb(251,236,136), rgb(255,255,200));
 	border:1px solid rgb(215,115,15);
 	margin-bottom:10px;
 }
@@ -533,9 +554,11 @@ UL.bubbles LI {
 	-webkit-border-radius: 5px;
 	
 	background:rgb(255,255,255) none;
+	background: linear-gradient(top, rgb(255,255,255),  rgb(232,242,254));
 	background: -webkit-gradient(linear, left top, left bottom, from(rgb(255,255,255)), to(rgb(232,242,254)));
 	background: -moz-linear-gradient(top, rgb(255,255,255), rgb(232,242,254));
 	background: -o-linear-gradient(top, rgb(255,255,255),  rgb(232,242,254));
+	background: -ms-linear-gradient(top, rgb(255,255,255),  rgb(232,242,254));
 }
 
 UL.bubbles LI  A {
@@ -558,9 +581,11 @@ DIV.badge {
 	-webkit-border-radius:5px;
 	
 	background-color:rgb(175,175,175);
+	background: linear-gradient(top, rgb(185,185,185), rgb(165,165,165));
 	background: -webkit-gradient(linear, left top, left bottom, from(rgb(185,185,185)), to(rgb(165,165,165)));
 	background: -moz-linear-gradient(top, rgb(185,185,185), rgb(165,165,165));
 	background: -o-linear-gradient(top, rgb(185,185,185), rgb(165,165,165));
+	background: -ms-linear-gradient(top, rgb(185,185,185), rgb(165,165,165));
 
 	color:rgb(255,255,255);
 	border:1px solid rgb(150,150,150);
@@ -572,9 +597,11 @@ DIV.badge A {
 
 DIV.badge-lightgray {
 	background-color:rgb(230,230,230);
+	background: linear-gradient(top, rgb(240,240,240), rgb(230,230,230));
 	background: -webkit-gradient(linear, left top, left bottom, from(rgb(240,240,240)), to(rgb(230,230,230)));
 	background: -moz-linear-gradient(top, rgb(240,240,240), rgb(230,230,230));
 	background: -o-linear-gradient(top, rgb(240,240,240), rgb(230,230,230));
+	background: -ms-linear-gradient(top, rgb(240,240,240), rgb(230,230,230));
 	
 	color:rgb(120,120,120);
 	border:1px solid rgb(200,200,200);
@@ -585,9 +612,11 @@ DIV.badge-lightgray A {
 }
 
 DIV.badge-red {
+	background: linear-gradient(top, rgb(220,0,0), rgb(210,0,0));
 	background: -webkit-gradient(linear, left top, left bottom, from(rgb(220,0,0)), to(rgb(210,0,0)));
 	background: -moz-linear-gradient(top, rgb(220,0,0), rgb(210,0,0));
 	background: -o-linear-gradient(top, rgb(220,0,0), rgb(210,0,0));
+	background: -ms-linear-gradient(top, rgb(220,0,0), rgb(210,0,0));
 	background-color:rgb(210,0,0);
 	
 	color:rgb(255,255,255);
@@ -596,9 +625,11 @@ DIV.badge-red {
 
 DIV.badge-green {
 	background-color:rgb(0,150,0);
+	background: linear-gradient(top, rgb(0,150,0), rgb(0,120,0));
 	background: -webkit-gradient(linear, left top, left bottom, from(rgb(0,150,0)), to(rgb(0,120,0)));
 	background: -moz-linear-gradient(top, rgb(0,150,0), rgb(0,120,0));
 	background: -o-linear-gradient(top, rgb(0,150,0), rgb(0,120,0));
+	background: -ms-linear-gradient(top, rgb(0,150,0), rgb(0,120,0));
 	
 	color:rgb(255,255,255);
 	border:1px solid rgb(0,100,0);
@@ -629,9 +660,11 @@ UL.cerb-popupmenu {
 	padding:5px;
 	display:none;
 	background-color:rgb(232,242,254);
+	background: linear-gradient(top, rgb(232,242,254),  rgb(255,255,255));
 	background: -webkit-gradient(linear, left top, left bottom, from(rgb(232,242,254)), to(rgb(255,255,255)));
 	background: -moz-linear-gradient(top, rgb(232,242,254), rgb(255,255,255));
 	background: -o-linear-gradient(top, rgb(232,242,254),  rgb(255,255,255));
+	background: -ms-linear-gradient(top, rgb(232,242,254),  rgb(255,255,255));
 	border:1px solid rgb(152,162,200);
 }
 
@@ -990,9 +1023,11 @@ button span.cerb-sprite2 { display:inline-block; }
 
 UL.ui-autocomplete.ui-menu {
 	background-color:rgb(232,242,254);
+	background: linear-gradient(top, rgb(232,242,254),  rgb(255,255,255));
 	background: -webkit-gradient(linear, left top, left bottom, from(rgb(232,242,254)), to(rgb(255,255,255)));
 	background: -moz-linear-gradient(top, rgb(232,242,254), rgb(255,255,255));
 	background: -o-linear-gradient(top, rgb(232,242,254),  rgb(255,255,255));
+	background: -ms-linear-gradient(top, rgb(232,242,254),  rgb(255,255,255));
 	border:1px solid rgb(152,162,200);
 }
 
@@ -1028,9 +1063,11 @@ UL.ui-autocomplete.ui-menu .ui-menu-item a.ui-state-hover {
 .ui-tabs .ui-tabs-nav li {
 	margin: 0 0.2em 0 0;
 	background: rgb(245,245,245) none;
+	background: linear-gradient(top, rgb(255,255,255), rgb(240,240,240));
 	background: -webkit-gradient(linear, left top, left bottom, from(rgb(255,255,255)), to(rgb(240,240,240)));
 	background: -moz-linear-gradient(top, rgb(255,255,255), rgb(240,240,240));
 	background: -o-linear-gradient(top, rgb(255,255,255), rgb(240,240,240));
+	background: -ms-linear-gradient(top, rgb(255,255,255), rgb(240,240,240));
 	border:1px solid rgb(200,200,200);
 }
 .ui-tabs .ui-tabs-nav li a {
@@ -1049,9 +1086,11 @@ UL.ui-autocomplete.ui-menu .ui-menu-item a.ui-state-hover {
 .ui-tabs .ui-tabs-nav li.ui-tabs-selected { 
 	padding-bottom: 0px;
 	background: rgb(255,255,255) none;
+	background: linear-gradient(top, rgb(239,249,255), rgb(255,255,255));
 	background: -webkit-gradient(linear, left top, left bottom, from(rgb(239,249,255)), to(rgb(255,255,255)));
 	background: -moz-linear-gradient(top, rgb(239,249,255), rgb(255,255,255));
 	background: -o-linear-gradient(top, rgb(239,249,255), rgb(255,255,255));
+	background: -ms-linear-gradient(top, rgb(239,249,255), rgb(255,255,255));
 	border:1px solid rgb(121,183,231);
 	border-bottom:none;
 }
@@ -1063,9 +1102,11 @@ UL.ui-autocomplete.ui-menu .ui-menu-item a.ui-state-hover {
 
 .ui-dialog .ui-dialog-titlebar { 
 	background-color:rgb(98,132,221);
+	background: linear-gradient(top, rgb(134,169,227), rgb(98,132,221));
 	background: -webkit-gradient(linear, left top, left bottom, from(rgb(134,169,227)), to(rgb(98,132,221)));
 	background: -moz-linear-gradient(top, rgb(134,169,227), rgb(98,132,221));
 	background: -o-linear-gradient(top, rgb(134,169,227), rgb(98,132,221));
+	background: -ms-linear-gradient(top, rgb(134,169,227), rgb(98,132,221));
 	border: 0px; 
 	font-size: 14px;
 	font-weight:bold; 

@@ -20,7 +20,7 @@
 		</span>
       </td>
       <td  valign="top" align="right">
-      	<a href="http://www.cerberusweb.com/" target="_blank"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/wgm/powered_by_cerb5.png{/devblocks_url}?v={$smarty.const.APP_BUILD}"></span></a>
+      	<a href="http://www.cerberusweb.com/" target="_blank"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/wgm/powered_by_cerb5.png{/devblocks_url}?v={$smarty.const.APP_BUILD}" border="0"></span></a>
       </td>
     </tr>
 </table>
