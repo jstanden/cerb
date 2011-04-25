@@ -2,7 +2,7 @@
 
 <table align="center" border="0" cellpadding="2" cellspacing="0" width="100%">
     <tr>
-      <td nowrap="nowrap" valign="top">
+      <td valign="top">
       	{$fair_pay=CerberusLicense::getInstance()}
       	<b>Cerb5</b>&trade;, Cerberus Helpdesk&trade;, Devblocks&trade;, Apptendant&trade; &copy; 2002-2011, WebGroup Media LLC - Version {$smarty.const.APP_VERSION} (Build {$smarty.const.APP_BUILD}) 
       	<br>

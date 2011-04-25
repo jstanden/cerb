@@ -37,11 +37,11 @@
 		</li>
 		<li>
 			<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/komodomedia/twitter_32.png{/devblocks_url}" align="middle">
-			<a href="http://www.linkedin.com/groups/Cerberus-Helpdesk-3317589?mostPopular=&gid=3317589" target="_blank">Join our group on LinkedIn</a>
+			<a href="http://twitter.com/cerb5" target="_blank">Follow our Twitter feed</a>
 		</li>
 		<li>
 			<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/komodomedia/linkedin_32.png{/devblocks_url}" align="middle">
-			<a href="http://twitter.com/cerb5" target="_blank">Follow our Twitter feed</a>
+			<a href="http://www.linkedin.com/groups/Cerberus-Helpdesk-3317589?mostPopular=&gid=3317589" target="_blank">Join our group on LinkedIn</a>
 		</li>
 		<li>
 			<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/komodomedia/delicious_32.png{/devblocks_url}" align="middle">
@@ -49,7 +49,7 @@
 		</li>
 		<li>
 			<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/komodomedia/rss_32.png{/devblocks_url}" align="middle">
-			<a href="http://www.cerb4.com/blog/" target="_blank">Subscribe to the Cerb5 blog</a>
+			<a href="http://blog.cerberusweb.com/" target="_blank">Subscribe to the Cerb5 blog</a>
 		</li>
 	</ul>
 	</div>
