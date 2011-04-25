@@ -48,25 +48,6 @@
  *	 WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
 class ChCoreTour extends DevblocksHttpResponseListenerExtension {
-	/*
-		return array(
-        'tourHeaderMyTasks' => new DevblocksTourCallout('tourHeaderMyTasks','','My Tasks','Here you can quickly jump to a summary of your current tasks.'),
-        'tourHeaderTeamLoads' => new DevblocksTourCallout('tourHeaderTeamLoads','','My Team Loads','Here you can quickly display the workload of any of your teams.  You can display a team\'s dashboard by clicking them.'),
-        'tourHeaderGetTickets' => new DevblocksTourCallout('tourHeaderGetTickets','','Get Tickets',"The 'Get Tickets' link will assign you available tickets from your desired teams."),
-        'tourHeaderQuickLookup' => new DevblocksTourCallout('tourHeaderQuickLookup','','Quick Lookup','Here you can quickly search for tickets from anywhere in the helpdesk.  This is generally most useful when someone calls up and you need to promptly locate their ticket.'),
-        
-        'tourDashboardViews' => new DevblocksTourCallout('tourDashboardViews','','Ticket Lists','This is where your customized lists of tickets are displayed.'),
-        'tourDisplayConversation' => new DevblocksTourCallout('tourDisplayConversation','','Conversation','This is where all e-mail replies will be displayed for this ticket.  Your responses will be sent to all requesters.'),
-        'btnReplyFirst' => new DevblocksTourCallout('btnReplyFirst','','Replying',"Clicking the Reply button while displaying a ticket will allow you to write a response, as you would in any e-mail client, without leaving the ticket's page. This allows you to reference the ticket's information and history as you write."),
-        'tourDisplayPaging' => new DevblocksTourCallout('tourDisplayPaging','','Paging',"If you clicked on a ticket from a list, the detailed ticket page will show your progress from that list in the top right. You can also use the keyboard shortcuts to advance through the list with the bracket keys: ' [ ' and ' ] '."),
-        'displayTabs' => new DevblocksTourCallout('displayTabs','','Pluggable Tabs',"With Cerberus Helpdesk's pluggable architecture, new capabilities can be added to your ticket management. For example, you could display all the CRM opportunities or billing invoices associated with the ticket's requesters."),
-        'tourConfigMaintPurge' => new DevblocksTourCallout('tourConfigMaintPurge','','Purge Deleted','Here you may purge any deleted tickets from the database.'),
-        'tourDashboardSearchCriteria' => new DevblocksTourCallout('tourDashboardSearchCriteria','','Search Criteria','Here you can change the criteria of the current search.'),
-        'tourConfigMenu' => new DevblocksTourCallout('tourConfigMenu','','Menu','This is where you may choose to configure various components of the helpdesk.'),
-        'tourConfigMailRouting' => new DevblocksTourCallout('tourConfigMailRouting','','Mail Routing','This is where you instruct the helpdesk how to deliver new messages.'),
-        //'' => new DevblocksTourCallout('','',''),
-		);
-	*/
 	function run(DevblocksHttpResponse $response, Smarty $tpl) {
 		$path = $response->path;
 
@@ -79,7 +60,7 @@ class ChCoreTour extends DevblocksHttpResponseListenerExtension {
 							new DevblocksTourCallout(
 								'body > ul.navmenu',
 								'Navigation Menu',
-								'This global navigation menu divides the application into major sections.',
+								'This global navigation menu divides the application by perspective.',
 								'topLeft',
 								'bottomLeft',
 								10,
@@ -97,7 +78,7 @@ class ChCoreTour extends DevblocksHttpResponseListenerExtension {
 							new DevblocksTourCallout(
 								'body fieldset:nth(1)',
 								'Social',
-								'Practice makes perfect.',
+								'This resources will help you get the most out of Cerb5.',
 								'bottomLeft',
 								'topLeft',
 								20,
@@ -107,111 +88,295 @@ class ChCoreTour extends DevblocksHttpResponseListenerExtension {
 					);
 				break;
 
-			case "display":
+			case 'activity':
 				$tour = array(
-	                'title' => 'Display Ticket',
-	                'body' => "This screen displays the currently selected ticket.  Here you can modify the ticket or send a new reply to all requesters.<br><br>Clicking the Requester History tab will show all the past and present tickets from the ticket's requesters. This is an easy way to find and merge duplicate tickets from the same requester, or from several requesters from the same organization.<br><br>Often, a ticket may require action from several workers before it's complete. You can create tasks for each worker to track the progress of these actions. In Cerberus Helpdesk, workers don't \"own\" tickets. Each ticket has a \"next worker\" who is responsible for moving the ticket forward.<br>",
+	                'title' => 'Activity Workspaces',
+	                'body' =>
+<<< EOF
+This page provides a default workspace for each of the activity-driven record types: feedback, opportunities, tasks, time tracking, etc.
+EOF
+					,
 	                'callouts' => array(
-						//$callouts['tourDisplayConversation'],
-						//$callouts['btnReplyFirst'],
-						//$callouts['tourDisplayPaging'],
-						//$callouts['displayTabs'],
+						new DevblocksTourCallout(
+							'#activityTabs',
+							'Tabs',
+							'Each tab provides a workspace for a different type of record.',
+							'bottomLeft',
+							'topLeft',
+							20,
+							10
+						),
+					),
+				);
+				break;
+				
+			case 'display':
+				$tour = array(
+	                'title' => 'Conversation Profile Page',
+	                'body' => 
+<<< EOF
+This is a detailed profile page for an email conversation.
+EOF
+					,
+	                'callouts' => array(
+						new DevblocksTourCallout(
+							'#displayProperties DIV.cerb-properties:first > DIV:nth(3)',
+							'Mask',
+							'Each conversation is identified by a "mask" that may be used as a reference number in future conversations, or over the phone.',
+							'topRight',
+							'bottomLeft',
+							10,
+							0
+							),
+						new DevblocksTourCallout(
+							'#displayProperties DIV.cerb-properties:nth(1) SPAN#displayTicketRequesterBubbles',
+							'Recipients',
+							'Your replies to this conversation will automatically be sent to all these recipients.',
+							'topLeft',
+							'bottomLeft',
+							0,
+							0
+							),
+						new DevblocksTourCallout(
+							'#displayTabs',
+							'Conversation History',
+							'This is where all email replies will be displayed for this ticket. Your responses will be sent to all requesters.',
+							'bottomLeft',
+							'topLeft',
+							10,
+							10
+							),
+						new DevblocksTourCallout(
+							'#displayTabs DIV#ui-tabs-1 BUTTON#btnComment:first',
+							'Comments',
+							'Comments are a private way to leave messages for other workers regarding this conversation.  They are not visible to recipients.',
+							'bottomLeft',
+							'topMiddle',
+							0,
+							0
+							),
+						new DevblocksTourCallout(
+							'#displayTabs > UL > li:nth(1)',
+							'Activity Log',
+							'This tab displays everything that has happened to this conversation: worker replies, customer replies, status changes, merges, and more.',
+							'bottomLeft',
+							'topMiddle',
+							0,
+							0
+							),
+						new DevblocksTourCallout(
+							'#displayTabs > UL > li:nth(2)',
+							'Links',
+							'You can connect this conversation to any other record in the system: tasks, organizations, opportunities, time tracking, servers, domains, etc.',
+							'bottomLeft',
+							'topMiddle',
+							0,
+							0
+							),
 					)
 				);
 				break;
 
-			case "preferences":
+			case 'preferences':
 				$tour = array(
              	   'title' => 'Preferences',
             	    'body' => 'This screen allows you to change the personal preferences on your helpdesk account.',
 				);
 				break;
 
-			case "groups":
+			case 'groups':
 				$tour = array(
-             	   'title' => 'My Groups',
+             	   'title' => 'Group Setup',
               	  'body' => 'This screen allows you to administer and configure groups for which you are a manager.  This includes members, buckets, mail routing rules, and other group-specific preferences.',
 				);
 				break;
 
-			case "config":
+			case 'config':
 				switch(array_shift($path)) {
 					default:
-					case NULL:
-					case "general":
 						$tour = array(
 	                        'title' => 'Setup',
-    	                    'body' => 'This is where you configure the application.',
+    	                    'body' => 'This page is where you configure and customize Cerb5.',
+							'callouts' => array(
+								new DevblocksTourCallout(
+									'DIV.cerb-menu',
+									'Menu',
+									'Use the menu to access different configuration sections.',
+									'bottomLeft',
+									'topLeft',
+									20,
+									10
+									),
+								new DevblocksTourCallout(
+									'DIV.cerb-menu > UL > LI:nth(5)',
+									'Plugins',
+									'Use this menu to install and configure optional plugins that enhance Cerb5 functionality. You can also download third-party plugins from the community.',
+									'bottomLeft',
+									'topLeft',
+									20,
+									10
+									),
+							),
+						);
+						break;
+						
+					case 'branding':
+						$tour = array(
+	                        'title' => 'Logo & Title',
+    	                    'body' => 'This setup page provides options for personalizing your copy of Cerb5 with your own logo and browser title.',
 						);
 						break;
 
-					case "workflow":
+					case 'security':
 						$tour = array(
-	                        'title' => 'Team Configuration',
-    	                    'body' => "Here you may create new helpdesk workers and organize them into teams.  Common teams often include departments (such as: Support, Sales, Development, Marketing, Billing, etc.) or various projects that warrant their own workloads.",
+	                        'title' => 'Security',
+    	                    'body' => 'Security is IP-based.  On this page you should enter the IPs that are allowed to access the /cron and /update URLs.',
+						);
+						break;
+						
+					case 'fields':
+						$tour = array(
+	                        'title' => 'Custom Fields',
+    	                    'body' => 'Custom fields allow you to track any kind of information that is important to your team for each record type.',
+						);
+						break;
+						
+					case 'license':
+						$tour = array(
+	                        'title' => 'License',
+    	                    'body' => "This setup page manages your Cerb5 license.  If you don't have a license, one can be <a href='http://www.cerberusweb.com/buy' target='_blank'>purchased from the project website</a>.",
+						);
+						break;
+						
+					case 'scheduler':
+						$tour = array(
+	                        'title' => 'Scheduler',
+    	                    'body' => 'The scheduler is where you can set up tasks that will periodically run behind-the-scenes.',
 						);
 						break;
 
-					case "fnr":
+					case 'groups':
 						$tour = array(
-	                        'title' => 'Fetch & Retrieve',
-	                        'body' => "The Fetch & Retrieve config allows you to define a wide variety of sources for pulling support data from (wikis, blogs, kbs, faqs, etc).  Any source that returns RSS-style XML results to a search can be used.",
+	                        'title' => 'Groups',
+    	                    'body' => "Here you may organize workers into groups.  Common groups often include departments (such as: Support, Sales, Development, Marketing, Billing, etc.) or various projects that warrant their own workloads.",
+						);
+						break;
+						
+					case 'acl':
+						$tour = array(
+	                        'title' => 'Worker Permissions',
+    	                    'body' => "This setup page provides a way to restrict the access rights of workers by role.",
+						);
+						break;
+						
+					case 'workers':
+						$tour = array(
+	                        'title' => 'Worker',
+    	                    'body' => "Here you may create, manage, or remove worker accounts.",
+						);
+						break;
+						
+					case 'mail_incoming':
+						$tour = array(
+	                        'title' => 'Incoming Mail',
+    	                    'body' => "This page configures incoming mail preferences.",
+						);
+						break;
+						
+					case 'mail_pop3':
+						$tour = array(
+	                        'title' => 'POP3 Accounts',
+    	                    'body' => "Here is where you specify the mailboxes that should be checked for new mail to import into Cerb5.",
+						);
+						break;
+						
+					case 'mail_routing':
+						$tour = array(
+	                        'title' => 'Mail Routing',
+    	                    'body' => "Mail routing determines which group should receive a new message.",
 						);
 						break;
 
-					case "mail":
+					case 'mail_filtering':
 						$tour = array(
-	                        'title' => 'Mail Configuration',
-	                        'body' => "This section controls the heart of your helpdesk: e-mail.  Here you may define the routing rules that determine what to do with new messages.  This is also where you set your preferences for sending mail out of the helpdesk.  To configure the POP3 downloader, click 'helpdesk config'->'scheduler'->'POP3 Mail Checker'",
-	                        'callouts' => array(
-								//$callouts['tourConfigMailRouting']
-							)
+	                        'title' => 'Mail Filtering',
+    	                    'body' => "Mail filtering provides a way to remove unwanted mail before it is processed or stored by the system.",
+						);
+						break;
+						
+					case 'mail_smtp':
+						$tour = array(
+	                        'title' => 'SMTP Server',
+    	                    'body' => "This is where you configure your outgoing mail server.",
 						);
 						break;
 
-					case "maintenance":
+					case 'mail_from':
 						$tour = array(
-	                        'title' => 'Maintenance',
-	                        'body' => 'This section is dedicated to ensuring your helpdesk continues to operate lightly and quickly.',
-	                        'callouts' => array(
-								//$callouts['tourConfigMaintPurge'],
-							)
+	                        'title' => 'Reply-To Addresses',
+    	                    'body' => "Each group or bucket can specify a reply-to address.  This is where you configure all the available reply-to email addresses.  It is <b>very important</b> that these addresses deliver to one of the mailboxes that Cerb5 checks for new mail, otherwise you won't receive correspondence from your audience.",
 						);
 						break;
 
-					case "plugins":
+					case 'mail_queue':
 						$tour = array(
-	                        'title' => 'Features & Plugins',
+	                        'title' => 'Mail Queue',
+    	                    'body' => "This page displays the mail delivery queue.",
+						);
+						break;
+
+					case 'storage_content':
+						$tour = array(
+	                        'title' => 'Storage Content',
+    	                    'body' => "This page provides a summary of the content stored by the system.  You can also configure when and where each kind of content is archived for long-term storage.",
+						);
+						break;
+
+					case 'storage_profiles':
+						$tour = array(
+	                        'title' => 'Storage Profiles',
+    	                    'body' => "Storage profiles allow you to create new archival locations for storing content; for example, in Amazon's durable S3 storage service.",
+						);
+						break;
+
+					case 'storage_attachments':
+						$tour = array(
+	                        'title' => 'Attachments',
+    	                    'body' => "This page displays email attachments as a subset of stored content.  This can be used to purge inactive or unusually large content.",
+						);
+						break;
+						
+					case 'portals':
+						$tour = array(
+	                        'title' => 'Community Portals',
+    	                    'body' => "Here you can create public, community-facing interfaces -- knowledgebases, contact forms, and Support Centers.",
+						);
+						break;
+						
+					case 'plugins':
+						$tour = array(
+	                        'title' => 'Manage Plugins',
 	                        'body' => "This is where you can extend Cerb5 by installing new functionality through plugins.",
 	                        'callouts' => array(
 							)
 						);
 						break;
-					case "jobs":
-						$tour = array(
-	                        'title' => 'Scheduler',
-	                        'body' => "The scheduler is where you can set up tasks that will periodically run behind-the-scenes.",
-	                        'callouts' => array(
-							)
-						);
-						break;
+						
 				}
 				break;
 
 			case NULL:
-			case "tickets":
+			case 'tickets':
 				switch(array_shift($path)) {
 					default:
-					case NULL:
-					case 'overview':
 						$tour = array(
-	                        'title' => 'Mail Overview',
-	                        'body' => "The Mail tab provides the ability to compose outgoing email as well as view lists of tickets, either here in the general overview, in specific search result lists, or in your personalized ticket lists in 'my workspaces'.",
+	                        'title' => 'Mail Workspaces',
+	                        'body' => "This page is where you manage mail conversations.  You can compose new mail, search, watch conversations, manage your drafts, reply to requesters, and more.",
 	                        'callouts' => array(
 								new DevblocksTourCallout(
 									'#mailTabs',
 									'Tabs',
-									'You can switch between several perspectives from the tabs.',
+									'You can switch between several workspaces using these tabs. Workflow lists conversations that need immediate attention.',
 									'bottomLeft',
 									'topLeft',
 									10,
@@ -266,16 +431,6 @@ class ChCoreTour extends DevblocksHttpResponseListenerExtension {
 						);
 						break;
 						
-					case 'lists':
-						$tour = array(
-	                        'title' => 'My Workspaces',
-	                        'body' => 'Here is where you set up personalized lists of tickets.  Any Overview or Search results list can be copied here by clicking the "copy" link in the list title bar.',
-	                        'callouts' => array(
-								//$callouts['tourDashboardViews'],
-							)
-						);
-						break;
-						
 					case 'search':
 						$tour = array(
 	                        'title' => 'Searching Tickets',
@@ -306,30 +461,42 @@ class ChCoreTour extends DevblocksHttpResponseListenerExtension {
 				switch(array_shift($path)) {
 					default:
 					case NULL:
-					case 'orgs':
 						$tour = array(
-	                        'title' => 'Organizations',
-	                        'body' => '',
-	                        'callouts' => array(
-							)
-						);
-						break;
-						
-					case 'addresses':
-						$tour = array(
-	                        'title' => 'Addresses',
-	                        'body' => '',
-	                        'callouts' => array(
-							)
-						);
-						break;
-						
-					case 'import':
-						$tour = array(
-	                        'title' => 'Importing Orgs and Addresses',
-	                        'body' => 'Use this screen to import Organizational and Address info.  The import allows comparison checking to do incremental imports and not duplicate data.',
-	                        'callouts' => array(
-							)
+			                'title' => 'Address Book',
+			                'body' =>
+<<< EOF
+The address book is a repository of information about your contacts and their organizations.
+EOF
+							,
+			                'callouts' => array(
+								new DevblocksTourCallout(
+									'#addyBookTabs > UL > LI:nth(0)',
+									'Organizations',
+									'This tab displays the default workspace for organizations.',
+									'bottomLeft',
+									'topMiddle',
+									0,
+									0
+								),
+								new DevblocksTourCallout(
+									'#addyBookTabs > UL > LI:nth(1)',
+									'Registered Contacts',
+									'This tab displays the default workspace for registered contacts -- addresses with logins who can use community portals and self-support functionality.',
+									'bottomLeft',
+									'topMiddle',
+									0,
+									0
+								),
+								new DevblocksTourCallout(
+									'#addyBookTabs > UL > LI:nth(2)',
+									'Addresses',
+									'This tab displays the default workspace for contact email addresses.',
+									'bottomLeft',
+									'topMiddle',
+									0,
+									0
+								),
+							),
 						);
 						break;
 				}
@@ -338,27 +505,55 @@ class ChCoreTour extends DevblocksHttpResponseListenerExtension {
 			case 'kb':
 				$tour = array(
 	                'title' => 'Knowledgebase',
-	                'body' => "",
+	                'body' =>
+<<< EOF
+The knowledgebase is a collection of informative articles organized into categories.  Categories can be based on anything: product lines, languages, etc.
+EOF
+					,
 	                'callouts' => array(
-					)
+					),
 				);
 				break;
 				
-			case 'tasks':
-				$tour = array(
-	                'title' => 'Tasks',
-	                'body' => "Often, a ticket may require action from several workers before it's complete. You can create tasks for each worker to track the progress of these actions. In Cerberus Helpdesk, workers don't \"own\" tickets. Each ticket has a \"next worker\" who is responsible for moving the ticket forward.",
-	                'callouts' => array(
-					)
-				);
+			case 'profiles':
+				switch(array_shift($path)) {
+					default:
+						$tour = array(
+			                'title' => 'Profiles',
+			                'body' =>
+<<< EOF
+Profiles make it easy to view the activity and watchlists of other workers.
+EOF
+							,
+			                'callouts' => array(
+							),
+						);
+						break;
+					case 'worker':
+						$tour = array(
+			                'title' => 'My Profile',
+			                'body' =>
+<<< EOF
+Your profile is like your homepage within Cerb5.  It provides quick access to your notifications, activity history, virtual attendant, and watchlist.  You can also create your own custom workspaces.
+EOF
+							,
+			                'callouts' => array(
+							),
+						);
+						break;
+				}
 				break;
 				
-			case 'community':
+			case 'reports':
 				$tour = array(
-	                'title' => 'Communities',
-	                'body' => 'Here you can create Public Community interfaces to Cerberus, including Knowledgebases, Contact Forms, and Support Centers.',
+	                'title' => 'Reports',
+	                'body' =>
+<<< EOF
+This page helps you to run detailed reports about the metrics collected by Cerb5.
+EOF
+					,
 	                'callouts' => array(
-					)
+					),
 				);
 				break;
 				

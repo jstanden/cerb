@@ -1,6 +1,6 @@
 {include file="devblocks:cerberusweb.core::tickets/submenu.tpl"}
 
-<table cellpadding="0" cellspacing="0" width="100%" border="0">
+<table cellpadding="0" cellspacing="0" width="100%" border="0" id="displayProperties">
 <tr>
 	<td valign="top">
 		<table cellpadding="0" cellspacing="0" width="100%">
