@@ -11,7 +11,7 @@
 <tbody class="summary">
 <tr>
 	<td colspan="2">
-		<div class="badge badge-lightgray filters" style="font-weight:bold;color:rgb(80,80,80);cursor:pointer;" onclick="$menu=$(this).next('ul.cerb-popupmenu');$menu.find('li:first a').click();$menu.hide();">{'common.filters'|devblocks_translate|capitalize}: &#x25be;</div>
+		<div class="badge badge-lightgray filters" style="font-weight:bold;color:rgb(80,80,80);cursor:pointer;">{'common.filters'|devblocks_translate|capitalize}: &#x25be;</div>
 		<ul class="cerb-popupmenu cerb-float" style="margin-top:-2px;">
 			<li><a href="javascript:;" onclick="$frm=$(this).closest('form');genericAjaxGet('','c=internal&a=viewToggleFilters&id={$view->id}&show=' + ($frm.find('tbody.full').toggle().is(':hidden')?'0':'1'));$(this).closest('ul.cerb-popupmenu').hide();">Toggle Advanced</a></li>
 			<li><a href="javascript:;" onclick="$('#{$parent_div}').find('select[name=_preset]').val('reset').trigger('change');">{'common.reset'|devblocks_translate|capitalize}</a></li>
@@ -25,23 +25,16 @@
 		</ul>
 		<script type="text/javascript">
 		$('#{$parent_div} TBODY.summary > TR > TD:first > div.filters')
-			.hoverIntent({
-				sensitivity:10,
-				interval:300,
-				over:function(e) {
-					$(this).next('ul.cerb-popupmenu').show();
-				},
-				timeout:0,
-				out:function(e) {
-				}
+			.click(function(e) {
+				$(this).next('ul.cerb-popupmenu').show();
 			})
-			.next('ul.cerb-popupmenu')
+			.closest('td')
 			.hover(function(e){},
 				function(e) {
-					$(this).hide();
+					$(this).find('ul.cerb-popupmenu').hide();
 				}
 			)
-			.find('li')
+			.find('ul.cerb-popupmenu li')
 			.click(function(e) {
 				if($(e.target).is('a'))
 					return;
