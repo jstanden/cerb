@@ -130,9 +130,37 @@ class DAO_AddressOutgoing extends DevblocksORMHelper {
 		return false;
 	}
 	
+	static function delete($ids) {
+		if(!is_array($ids))
+			$ids = array($ids);
+			
+		if(empty($ids))
+			return;
+		
+		$ids_list = implode(',', $ids);
+		
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		// Delete this address_outgoing row
+		$db->Execute(sprintf("DELETE FROM address_outgoing WHERE address_id IN (%s)", $ids_list));
+		
+		// Reset groups
+		$db->Execute(sprintf("UPDATE team SET reply_address_id=0 WHERE reply_address_id IN (%s)", $ids_list));
+		
+		// Reset buckets
+		$db->Execute(sprintf("UPDATE category SET reply_address_id=0 WHERE reply_address_id IN (%s)", $ids_list));
+		
+		self::clearCache();
+		
+		return TRUE;
+	}
+	
 	static function clearCache() {
 		$cache = DevblocksPlatform::getCacheService();
 		$cache->remove(self::_CACHE_ALL);
+		
+		DAO_Group::clearCache();
+		DAO_Bucket::clearCache();
 	}
 };
 

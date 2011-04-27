@@ -58,6 +58,11 @@ fieldset h1 {
 	font-size:120%;
 }
 
+fieldset p {
+	padding:0px;
+	margin:5px 2px;
+}
+
 fieldset.delete {
 	color:rgb(150,0,0);
 }

@@ -58,7 +58,18 @@
 <br>
 <br>
 
-<button type="submit"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {$translate->_('common.save_changes')}</button>
+<fieldset class="delete" style="display:none;">
+	<legend>Are you sure you want to delete this reply-to address?</legend>
+	<p>Any groups or buckets using this reply-to address will be reverted to defaults.</p>
+	<button name="form_action" type="submit" value="delete" class="green"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {'common.yes'|devblocks_translate|capitalize}</button>
+	<button name="form_action" type="button" class="red" onclick="$(this).closest('fieldset').nextAll('.toolbar').show();$(this).closest('fieldset').hide();"><span class="cerb-sprite2 sprite-cross-circle-frame"></span> {'common.no'|devblocks_translate|capitalize}</button>
+</fieldset>
+
+<div class="toolbar">
+<button type="submit" value="submit"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {$translate->_('common.save_changes')}</button>
+{if !$address->is_default}<button type="button" onclick="$(this).closest('.toolbar').hide();$(this).closest('form').find('fieldset.delete').show();"><span class="cerb-sprite2 sprite-cross-circle-frame"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+</div>
+
 </form>
 
 <script type="text/javascript">

@@ -32,6 +32,7 @@ class PageSection_SetupMailFrom extends Extension_PageSection {
 	
 	function savePeekAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'integer', 0);
+		@$form_action = DevblocksPlatform::importGPC($_REQUEST['form_action'], 'string', '');
 		@$is_default = DevblocksPlatform::importGPC($_REQUEST['is_default'], 'integer', 0);
 		@$reply_from = DevblocksPlatform::importGPC($_REQUEST['reply_from'], 'string', '');
 		@$reply_personal = DevblocksPlatform::importGPC($_REQUEST['reply_personal'], 'string', '');
@@ -42,30 +43,39 @@ class PageSection_SetupMailFrom extends Extension_PageSection {
 		if(!$worker || !$worker->is_superuser)
 			throw new Exception("You are not an administrator.");
 		
-		if(empty($id)) { // create
-			if(false === ($address = DAO_Address::lookupAddress($reply_from, true)))
-				throw new Exception();
+		switch($form_action) {
+			case 'delete':
+				DAO_AddressOutgoing::delete($id);
+				break;
 				
-			$id = $address->id;
-			
-			$fields = array(
-				DAO_AddressOutgoing::ADDRESS_ID => $id,
-				DAO_AddressOutgoing::REPLY_PERSONAL => $reply_personal,
-				DAO_AddressOutgoing::REPLY_SIGNATURE => $reply_signature,
-			);
-			DAO_AddressOutgoing::create($fields);
-			
-		} else { // update
-			$fields = array(
-				DAO_AddressOutgoing::REPLY_PERSONAL => $reply_personal,
-				DAO_AddressOutgoing::REPLY_SIGNATURE => $reply_signature,
-			);
-			DAO_AddressOutgoing::update($id, $fields);
-			
+			default:
+				if(empty($id)) { // create
+					if(false === ($address = DAO_Address::lookupAddress($reply_from, true)))
+						throw new Exception();
+						
+					$id = $address->id;
+					
+					$fields = array(
+						DAO_AddressOutgoing::ADDRESS_ID => $id,
+						DAO_AddressOutgoing::REPLY_PERSONAL => $reply_personal,
+						DAO_AddressOutgoing::REPLY_SIGNATURE => $reply_signature,
+					);
+					DAO_AddressOutgoing::create($fields);
+					
+				} else { // update
+					$fields = array(
+						DAO_AddressOutgoing::REPLY_PERSONAL => $reply_personal,
+						DAO_AddressOutgoing::REPLY_SIGNATURE => $reply_signature,
+					);
+					DAO_AddressOutgoing::update($id, $fields);
+					
+				}
+				
+				if(!empty($is_default))
+					DAO_AddressOutgoing::setDefault($id);
+				
+				break;
 		}
-		
-		if(!empty($is_default))
-			DAO_AddressOutgoing::setDefault($id);
 		
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('config','mail_from')));
 		exit;
