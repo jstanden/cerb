@@ -252,7 +252,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 					// Plugins
 					if(null != ($ext = DevblocksPlatform::getExtension($token, true))
 						&& $ext instanceof Extension_DevblocksEventCondition) { /* @var $ext Extension_DevblocksEventCondition */ 
-						$ext->render($this, $params, $seq);
+						$ext->render($this, $trigger, $params, $seq);
 					}
 					break;
 			}
@@ -567,7 +567,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 					// Plugins
 					if(null != ($ext = DevblocksPlatform::getExtension($token, true))
 						&& $ext instanceof Extension_DevblocksEventAction) { /* @var $ext Extension_DevblocksEventAction */ 
-						$ext->render($this, $params, $seq);
+						$ext->render($this, $trigger, $params, $seq);
 					}
 					break;
 			}
