@@ -42,6 +42,6 @@ class PageSection_SetupPortals extends Extension_PageSection {
 		$portal_id = DAO_CommunityTool::create($fields);
 		
 		// Redirect to the display page
-		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('community',$portal_code)));
+		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('config','portal',$portal_code)));
 	}	
 }

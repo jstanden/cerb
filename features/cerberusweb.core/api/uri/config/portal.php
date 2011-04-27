@@ -73,7 +73,7 @@ class PageSection_SetupPortal extends Extension_PageSection {
 			if(!empty($iDelete)) {
 				$tool = DAO_CommunityTool::getByCode($code); /* @var $tool Model_CommunityTool */
 				DAO_CommunityTool::delete($tool->id);
-				DevblocksPlatform::redirect(new DevblocksHttpResponse(array('config','communities')));
+				DevblocksPlatform::redirect(new DevblocksHttpResponse(array('config','portals')));
 				return;
 				
 			} else {
