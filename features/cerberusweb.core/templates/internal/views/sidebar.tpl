@@ -12,7 +12,7 @@
 	{foreach from=$subtotal_counts item=category}
 		<tr>
 			<td style="padding-right:10px;" nowrap="nowrap" valign="top">
-				{if !empty($category.filter)}<a href="javascript:;" onclick="ajax.viewAddFilter('{$view_id}', '{$category.filter.field}', '{$category.filter.oper}', { {foreach from=$category.filter.values name=values item=value key=key}'{$key}':'{$value}'{if !$smarty.foreach.values.last},{/if}{/foreach} } );">{/if}
+				{if !empty($category.filter)}<a href="javascript:;" onclick="ajax.viewAddFilter('{$view_id}', '{$category.filter.field}', '{$category.filter.oper}', { {foreach from=$category.filter.values name=values item=value key=key}'{$key}':'{$value|escape:'quotes'}'{if !$smarty.foreach.values.last},{/if}{/foreach} } );">{/if}
 				<span style="font-weight:bold;" title="{$category.label}">{$category.label|truncate:25}</span>
 				{if !empty($category.filter)}</a>{/if}
 			</td>
@@ -24,7 +24,7 @@
 		{foreach from=$category.children item=subcategory}
 		<tr>
 			<td style="padding-left:10px;padding-right:10px;" nowrap="nowrap" valign="top">
-				{if !empty($subcategory.filter)}<a href="javascript:;" onclick="ajax.viewAddFilter('{$view_id}', '{$subcategory.filter.field}', '{$subcategory.filter.oper}', { {foreach from=$subcategory.filter.values name=values item=value key=key}'{$key}':'{$value}'{if !$smarty.foreach.values.last},{/if}{/foreach} } );">{/if}
+				{if !empty($subcategory.filter)}<a href="javascript:;" onclick="ajax.viewAddFilter('{$view_id}', '{$subcategory.filter.field}', '{$subcategory.filter.oper}', { {foreach from=$subcategory.filter.values name=values item=value key=key}'{$key}':'{$value|escape:'quotes'}'{if !$smarty.foreach.values.last},{/if}{/foreach} } );">{/if}
 				<span>{$subcategory.label}</span>
 				{if !empty($subcategory.filter)}</a>{/if}
 			</td>
