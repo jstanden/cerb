@@ -414,6 +414,12 @@ abstract class C4_AbstractView {
 			}
 		}
 		
+		// HTML escape
+		if(is_array($vals))
+		foreach($vals as $k => $v) {
+			$vals[$k] = htmlspecialchars($v, ENT_QUOTES, LANG_CODE);
+		}
+		
 		echo implode(', ', $vals);
 	}
 
