@@ -110,13 +110,53 @@
 	}
 
 	function doWorkflowKeys(event) {
-		if(event.altKey || event.ctrlKey || event.shiftKey || event.metaKey)
-			return;
+		// Allow these special keys
+		switch(event.which) {
+			case 42: // (*)
+			case 126: // (~)
+				break;
+			default:
+				if(event.altKey || event.ctrlKey || event.shiftKey || event.metaKey)
+					return;
+				break;
+		}
 
 		switch(event.which) {
-			case 97:  // (A) list all
+			case 42: // (*) reset filters
+				$('#viewCustomFiltersmail_workflow TABLE TBODY.full TD:first FIELDSET SELECT[name=_preset]').val('reset').trigger('change');
+				break;
+			case 45: // (-) remove last filter
+				$('#viewCustomFiltersmail_workflow TABLE TBODY.summary UL.bubbles LI:last A.delete').click();
+				break;
+//			case 49: // 1
+//			case 50: // 2
+//			case 51: // 3
+//			case 52: // 4
+//			case 53: // 5
+//			case 54: // 6
+//			case 55: // 7
+//			case 56: // 8
+//			case 57: // 9
+//				digit = parseInt(event.which)-49;
+//				$('#viewmail_workflow_sidebar FIELDSET TABLE:first TR:nth('+digit+') TD:first A').click();
+//				break;
+			case 96: // (`)
+				$('#viewmail_workflow_sidebar FIELDSET:first TABLE:first TD:first A:first').focus();
+				break;
+			case 97:  // (A) select all
 				try {
-					$('#btnWorkflowListAll').click();
+					$('#viewmail_workflow TABLE.worklist input:checkbox').each(function(e) {
+						is_checked = !this.checked;
+						checkAll('viewFormmail_workflow',is_checked);
+						$rows=$('#viewFormmail_workflow').find('table.worklistBody').find('tbody > tr');
+						if(is_checked) { 
+							$rows.addClass('selected'); 
+							$(this).attr('checked','checked');
+						} else { 
+							$rows.removeClass('selected');
+							$(this).removeAttr('checked');
+						}
+					});
 				} catch(e) { } 
 				break;
 			case 98:  // (B) bulk update
@@ -159,14 +199,33 @@
 					$('#btnmail_workflowDelete').click();
 				} catch(e) { } 
 				break;
+			case 126: // (~)
+				$('#viewmail_workflow_sidebar FIELDSET UL.cerb-popupmenu').toggle().find('a:first').focus();
+				break;
 		}
 	}
 	
 	function doSearchKeys(event) {
-		if(event.altKey || event.ctrlKey || event.shiftKey)
+		if(event.altKey || event.ctrlKey || event.shiftKey || event.metaKey)
 			return;
-
+		
 		switch(event.which) {
+			case 97:  // (A) select all
+				try {
+					$('#viewsearch TABLE.worklist input:checkbox').each(function(e) {
+						is_checked = !this.checked;
+						checkAll('viewFormsearch',is_checked);
+						$rows=$('#viewFormsearch').find('table.worklistBody').find('tbody > tr');
+						if(is_checked) { 
+							$rows.addClass('selected'); 
+							$(this).attr('checked','checked');
+						} else { 
+							$rows.removeClass('selected');
+							$(this).removeAttr('checked');
+						}
+					});
+				} catch(e) { } 
+				break;		
 			case 98:  // (B) bulk update
 				try {
 					$('#btnsearchBulkUpdate').click();

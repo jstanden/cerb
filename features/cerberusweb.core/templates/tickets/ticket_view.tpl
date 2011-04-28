@@ -125,8 +125,6 @@
 			<td title="{$result.t_updated_date|devblocks_date}">{$result.t_updated_date|devblocks_prettytime}</td>
 		{elseif $column=="t_due_date"}
 		<td title="{if $result.t_due_date}{$result.t_due_date|devblocks_date}{/if}">{if $result.t_due_date}{$result.t_due_date|devblocks_prettytime}{/if}</td>
-		{*{elseif $column=="t_tasks"}
-		<td align='center'>{if !empty($result.t_tasks)}{$result.t_tasks}{/if}</td>*}
 		{elseif $column=="t_team_id"}
 		<td>
 			{assign var=ticket_team_id value=$result.t_team_id}
@@ -224,12 +222,21 @@
 			{if $pref_keyboard_shortcuts}
 			{if $view->id=='mail_workflow' || $view->id=='search'}{*Only on Workflow/Search*}
 				{$translate->_('common.keyboard')|lower}: 
+					(<b>a</b>) {$translate->_('common.all')|lower} 
 					(<b>e</b>) {$translate->_('common.explore')|lower} 
 					{if $active_worker->hasPriv('core.ticket.view.actions.bulk_update')}(<b>b</b>) {$translate->_('common.bulk_update')|lower}{/if} 
 					{if $active_worker->hasPriv('core.ticket.actions.close')}(<b>c</b>) {$translate->_('common.close')|lower}{/if} 
 					{if $active_worker->hasPriv('core.ticket.actions.spam')}(<b>s</b>) {$translate->_('common.spam')|lower}{/if} 
 					{if $active_worker->hasPriv('core.ticket.actions.delete')}(<b>x</b>) {$translate->_('common.delete')|lower}{/if}
-					<br>
+					{if $view->id=='mail_workflow'}
+					<div style="margin-left:25px;">
+						workflow: 
+						(<b>-</b>) undo last filter 
+						(<b>*</b>) reset filters
+						(<b>~</b>) change subtotals
+						(<b>`</b>) focus subtotals
+					</div>
+					{/if}
 			{/if}
 			{/if}
 		</td>
