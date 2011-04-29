@@ -92,9 +92,12 @@ class ChKbPage extends CerberusPageExtension {
 					
 					$breadcrumbs = $article->getCategories();
 					$tpl->assign('breadcrumbs', $breadcrumbs);
+					$tpl->display('devblocks:cerberusweb.kb::kb/display/index.tpl');
+					
+				} else {
+					DevblocksPlatform::redirect(new DevblocksHttpResponse(array('kb','browse')));
+					exit;
 				}
-				
-				$tpl->display('devblocks:cerberusweb.kb::kb/display/index.tpl');
 				break;
 				
 			case 'category':
