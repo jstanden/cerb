@@ -1190,4 +1190,11 @@ if(!isset($tables['context_activity_log'])) {
 	$tables['context_activity_log'] = 'context_activity_log';
 }
 
+// ===========================================================================
+// clean up worklists
+
+$db->Execute("DELETE FROM worker_view_model WHERE view_id LIKE 'cerberusweb_contexts_%%'");
+$db->Execute("UPDATE worker_view_model SET render_subtotals='t_team_id' WHERE view_id IN ('mail_workflow','search')");
+$db->Execute("UPDATE worker_view_model SET params_editable_json='{\"we_is_read\":{\"field\":\"we_is_read\",\"operator\":\"=\",\"value\":0}}', render_subtotals='we_url' WHERE view_id IN ('my_notifications')");
+
 return TRUE;
