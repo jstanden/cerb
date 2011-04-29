@@ -4484,24 +4484,32 @@ class _DevblocksSmartyTemplateResource {
 			return false;
 			
 		$plugins = DevblocksPlatform::getPluginRegistry();
-		$db = DevblocksPlatform::getDatabaseService();
 			
 		if(null == ($plugin = @$plugins[$plugin_id])) /* @var $plugin DevblocksPluginManifest */
 			return false;
-			
-		// Check if template is overloaded in DB/cache
-		$matches = DAO_DevblocksTemplate::getWhere(sprintf("plugin_id = %s AND path = %s %s",
-			$db->qstr($plugin_id),
-			$db->qstr($tpl_path),
-			(!empty($tag) ? sprintf("AND tag = %s ",$db->qstr($tag)) : "")
-		));
-			
-		if(!empty($matches)) {
-			$match = array_shift($matches); /* @var $match Model_DevblocksTemplate */
-			$tpl_source = $match->content;
-			return true;
+
+		// Only check the DB if the template may be overridden
+		// [TODO] Alternatively, keep a cache of override paths
+		if(isset($plugin->manifest_cache['templates'])) {
+			foreach($plugin->manifest_cache['templates'] as $k => $v) {
+				if(0 == strcasecmp($v['path'], $tpl_path)) {
+					// [TODO] Use cache
+					// Check if template is overloaded in DB/cache
+					$matches = DAO_DevblocksTemplate::getWhere(sprintf("plugin_id = %s AND path = %s %s",
+						C4_ORMHelper::qstr($plugin_id),
+						C4_ORMHelper::qstr($tpl_path),
+						(!empty($tag) ? sprintf("AND tag = %s ",C4_ORMHelper::qstr($tag)) : "")
+					));
+						
+					if(!empty($matches)) {
+						$match = array_shift($matches); /* @var $match Model_DevblocksTemplate */
+						$tpl_source = $match->content;
+						return true;
+					}
+				}
+			}
 		}
-		
+			
 		// If not in DB, check plugin's relative path on disk
 		$path = APP_PATH . '/' . $plugin->dir . '/templates/' . $tpl_path;
 		
@@ -4519,23 +4527,30 @@ class _DevblocksSmartyTemplateResource {
 			return false;
 		
 		$plugins = DevblocksPlatform::getPluginRegistry();
-		$db = DevblocksPlatform::getDatabaseService();
 			
 		if(null == ($plugin = @$plugins[$plugin_id])) /* @var $plugin DevblocksPluginManifest */
 			return false;
 			
-		// Check if template is overloaded in DB/cache
-		$matches = DAO_DevblocksTemplate::getWhere(sprintf("plugin_id = %s AND path = %s %s",
-			$db->qstr($plugin_id),
-			$db->qstr($tpl_path),
-			(!empty($tag) ? sprintf("AND tag = %s ",$db->qstr($tag)) : "")
-		));
-
-		if(!empty($matches)) {
-			$match = array_shift($matches); /* @var $match Model_DevblocksTemplate */
-//			echo time(),"==(DB)",$match->last_updated,"<BR>";
-			$tpl_timestamp = $match->last_updated;
-			return true; 
+		// Only check the DB if the template may be overridden
+		// [TODO] Alternatively, keep a cache of override paths
+		if(isset($plugin->manifest_cache['templates'])) {
+			foreach($plugin->manifest_cache['templates'] as $k => $v) {
+				if(0 == strcasecmp($v['path'], $tpl_path)) {
+					// Check if template is overloaded in DB/cache
+					$matches = DAO_DevblocksTemplate::getWhere(sprintf("plugin_id = %s AND path = %s %s",
+						C4_ORMHelper::qstr($plugin_id),
+						C4_ORMHelper::qstr($tpl_path),
+						(!empty($tag) ? sprintf("AND tag = %s ",C4_ORMHelper::qstr($tag)) : "")
+					));
+			
+					if(!empty($matches)) {
+						$match = array_shift($matches); /* @var $match Model_DevblocksTemplate */
+						//echo time(),"==(DB)",$match->last_updated,"<BR>";
+						$tpl_timestamp = $match->last_updated;
+						return true; 
+					}
+				}
+			}
 		}
 			
 		// If not in DB, check plugin's relative path on disk
