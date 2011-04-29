@@ -1,32 +1,38 @@
 <div id="kb">
 	
-<div class="header"><h1>{$article->title}</h1></div>
+<h1 class="title">{$article->title}</h1>
 
-<fieldset>
-	<legend>{'common.properties'|devblocks_translate|capitalize}</legend>
-		
-	<b>{'common.id'|devblocks_translate}:</b> {$article->id|string_format:"%06d"}<br>
-	
-	{if !empty($breadcrumbs)}
-	<b>Filed under:</b>
-	<div style="padding-left:10px;">
-	{foreach from=$breadcrumbs item=trail}
-		{foreach from=$trail item=step name=trail}
-			<a href="{devblocks_url}c=kb&a=browse&id={$step|string_format:"%06d"}{/devblocks_url}">{$categories.$step->name}</a>{if !$smarty.foreach.trail.last} &raquo; {/if}
-		{/foreach}
-		<br>
-	{/foreach}
-	</div>
-	{/if}
-</fieldset>
-
-<div style="padding:10px;">
+<div class="content">
 	{if !empty($article->content)}
 		{$article->getContent() nofilter}<br>
 	{else}
 		<i>[[ {$translate->_('portal.kb.public.no_content')} ]]</i><br>
 	{/if}
 </div>
+
+<fieldset>
+	<legend>{'common.properties'|devblocks_translate|capitalize}</legend>
+		
+	<b>{'common.id'|devblocks_translate}:</b> {$article->id|string_format:"%06d"}
+	 &nbsp; 
+	<b>{'kb_article.views'|devblocks_translate}:</b> {$article->views}
+	 &nbsp; 
+	<b>{'kb_article.updated'|devblocks_translate}:</b> {$article->updated|devblocks_prettytime}
+	
+	{if !empty($breadcrumbs)}
+	<div style="margin-top:5px;">
+	<b>Filed under:</b>
+		<div style="padding-left:10px;">
+		{foreach from=$breadcrumbs item=trail}
+			{foreach from=$trail item=step name=trail}
+				<a href="{devblocks_url}c=kb&a=browse&id={$step|string_format:"%06d"}{/devblocks_url}">{$categories.$step->name}</a>{if !$smarty.foreach.trail.last} &raquo; {/if}
+			{/foreach}
+			<br>
+		{/foreach}
+		</div>
+	</div>
+	{/if}
+</fieldset>
 
 {if isset($attachments_map) && is_array($attachments_map)}
 	{$links = $attachments_map.links}

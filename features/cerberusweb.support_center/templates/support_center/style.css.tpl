@@ -201,6 +201,95 @@ TABLE.sidebar TD INPUT {
 #history DIV.reply TEXTAREA {
 }
 
+/* KB */
+
+#kb h1.title {
+	font-size: 200%;
+	color: rgb(50,50,50);
+	font-weight: bold;
+	text-align: left;
+	border: none;
+	margin:0px 0px 20px 0px;
+}
+
+#kb div.content {
+}
+
+#kb div.content { 
+	color: rgb(50,50,50);
+    font-family: Arial, Helvetica, Verdana, sans-serif;
+    font-size: 100%;
+    line-height: 140%;
+}
+
+#kb div.content h1, #kb div.content h2, #kb div.content h3, #kb div.content h4, #kb div.content h5, #kb div.content h6 { 
+	font-weight: bold;
+	color: rgb(0,120,0);
+	margin:10px 0px;
+}
+
+#kb div.content h1 {
+	font-size: 190%;
+	color: rgb(0,120,0);
+	border-bottom: 1px solid rgb(180,180,180);
+}
+
+#kb div.content h2 {
+	font-size: 170%;
+	color: rgb(50,50,50);
+}
+
+#kb div.content h3 {
+	font-size: 145%;
+	color: rgb(74,110,158);
+	border-bottom: 1px solid rgb(180,180,180);
+}
+
+#kb div.content h4 {
+	font-size: 130%;
+	color: rgb(50,50,50);
+}
+
+#kb div.content h5 {
+	font-size: 110%;
+	font-style: italic;
+	color: rgb(50,50,50);
+}
+
+#kb div.content h6 {
+	font-size: 100%;
+	font-style: italic;
+	color: rgb(50,50,50);
+}
+
+#kb div.content pre {
+	border-top: 1px solid rgb(200,200,200);
+	border-right: 1px solid rgb(200,200,200);
+	border-left: 3px solid rgb(150,150,150);
+	border-bottom: 3px solid rgb(150,150,150);
+    background-color: rgb(240,240,240);
+    color: #1111111;
+    padding: 0.5em;
+}
+
+#kb div.content code {
+	background-color:rgb(240,240,240);
+	color:rgb(0,0,0);
+	padding:0px 3px;
+	font-weight:bold;
+}
+
+#kb div.content blockquote {
+	font-style:italic;
+	color:rgb(50,50,50);
+	padding:0px 3px;
+	margin-left:20px;
+	border-left:solid 5px rgb(240,240,240);
+	padding-left:5px;
+}
+
+/* Labels */
+
 LABEL.error {
 	background-color:rgb(255,235,235);
 	color:rgb(180,0,0);
