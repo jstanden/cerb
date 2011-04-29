@@ -394,6 +394,7 @@ class ChInternalController extends DevblocksControllerExtension {
 				list($results, $null) = DAO_Worker::search(
 					array(),
 					array(
+						new DevblocksSearchCriteria(SearchFields_Worker::IS_DISABLED,DevblocksSearchCriteria::OPER_EQ,0),
 						array(
 							DevblocksSearchCriteria::GROUP_OR,
 							new DevblocksSearchCriteria(SearchFields_Worker::LAST_NAME,DevblocksSearchCriteria::OPER_LIKE,$term.'%'),
