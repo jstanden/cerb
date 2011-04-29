@@ -15,8 +15,6 @@
 
 <fieldset style="float:left;min-width:400px;">
 	<legend>Knowledgebase Article</legend>
-	<h1><b>{$article->title}</b></h1>
-		
 	<b>{$translate->_('kb_article.updated')|capitalize}:</b> <abbr title="{$article->updated|devblocks_date}">{$article->updated|devblocks_prettytime}</abbr> &nbsp;
 	<b>{$translate->_('kb_article.views')|capitalize}:</b> {$article->views} &nbsp;
 	<b>{$translate->_('common.id')|upper}:</b> {$article->id} &nbsp; 
@@ -40,7 +38,9 @@
 
 <div style="clear:both;"></div>
 
-<div>
+<div id="kbArticleContent">
+	<h1 class="title"><b>{$article->title}</b></h1>
+
 	{$article->getContent() nofilter}
 </div>
 
