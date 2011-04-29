@@ -680,6 +680,10 @@ class ChTimeTracking_SetupPageSection extends Extension_PageSection {
 		@$rate = floatval(DevblocksPlatform::importGPC($_REQUEST['rate'],'string',''));
 		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'],'integer',0);
 
+		if(empty($name)) {
+			$name = "(no name)";
+		}
+		
 		if(empty($id)) { // Add
 			$fields = array(
 				DAO_TimeTrackingActivity::NAME => $name,
