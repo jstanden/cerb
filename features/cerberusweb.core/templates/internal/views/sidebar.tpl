@@ -4,7 +4,7 @@
 	</legend>
 	<ul class="cerb-popupmenu cerb-float" style="margin-top:-5px;">
 		{foreach from=$subtotal_fields item=field_model key=field_key}
-		<li><a href="javascript:;" onclick="$('#view{$view_id}_sidebar').fadeOut();genericAjaxGet('','c=internal&a=viewSubtotal&category={$field_key}&view_id={$view_id}',function(html) { $('#view{$view_id}_sidebar').html(html).fadeIn().find('FIELDSET:first TABLE:first TD:first A:first').focus(); });">{$field_model->db_label|capitalize}</a></li>
+		<li><a href="javascript:;" onclick="$('#view{$view_id}_sidebar').fadeTo('normal', 0.2);genericAjaxGet('','c=internal&a=viewSubtotal&category={$field_key}&view_id={$view_id}',function(html) { $('#view{$view_id}_sidebar').html(html).fadeTo('normal',1.0).find('FIELDSET:first TABLE:first TD:first A:first').focus(); });">{$field_model->db_label|capitalize}</a></li>
 		{/foreach}
 	</ul>
 
