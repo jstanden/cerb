@@ -1,4 +1,4 @@
-<form id="frmDecisionNodeAction" onsubmit="return false;">
+<form id="frmDecisionAction{$id}Action" onsubmit="return false;">
 <input type="hidden" name="c" value="internal">
 <input type="hidden" name="a" value="">
 {if isset($id)}<input type="hidden" name="id" value="{$id}">{/if}
@@ -33,7 +33,7 @@
 
 </form>
 
-<form id="frmDecisionNodeActionAdd">
+<form id="frmDecisionActionAdd{$id}">
 <input type="hidden" name="seq" value="{if !is_null($seq)}{$seq+1}{else}0{/if}">
 {if isset($trigger_id)}<input type="hidden" name="trigger_id" value="{$trigger_id}">{/if}
 <fieldset>
@@ -53,18 +53,18 @@
 <fieldset class="delete" style="display:none;">
 	<legend>Delete this action?</legend>
 	<p>Are you sure you want to permanently delete this action?</p>
-	<button type="button" class="green" onclick="genericAjaxPost('frmDecisionNodeAction','','c=internal&a=saveDecisionDeletePopup',function() { window.location.reload(); });"> {'common.yes'|devblocks_translate|capitalize}</button>
+	<button type="button" class="green" onclick="genericAjaxPost('frmDecisionAction{$id}Action','','c=internal&a=saveDecisionDeletePopup',function() { genericAjaxPopupDestroy('node_action{$id}'); genericAjaxGet('decisionTree{$trigger_id}','c=internal&a=showDecisionTree&id={$trigger_id}'); });"> {'common.yes'|devblocks_translate|capitalize}</button>
 	<button type="button" class="red" onclick="$(this).closest('fieldset').hide().next('form.toolbar').show();"> {'common.no'|devblocks_translate|capitalize}</button>
 </fieldset>
 {/if}
 
 <form class="toolbar">
-	<button type="button" onclick="genericAjaxPost('frmDecisionNodeAction','','c=internal&a=saveDecisionPopup',function() { window.location.reload(); });"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+	<button type="button" onclick="genericAjaxPost('frmDecisionAction{$id}Action','','c=internal&a=saveDecisionPopup',function() { genericAjaxPopupDestroy('node_action{$id}'); genericAjaxGet('decisionTree{$trigger_id}','c=internal&a=showDecisionTree&id={$trigger_id}'); });"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
 	{if isset($id)}<button type="button" onclick="$(this).closest('form').hide().prev('fieldset.delete').show();"><span class="cerb-sprite2 sprite-cross-circle-frame"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 </form>
 
 <script type="text/javascript">
-	$popup = genericAjaxPopupFetch('peek');
+	$popup = genericAjaxPopupFetch('node_action{$id}');
 	$popup.one('popup_open', function(event,ui) {
 		$(this).dialog('option','title',"{if empty($id)}New {/if}Actions");
 
@@ -79,7 +79,7 @@
 			$(this).removeClass('unbound');
 		});
 
-		$popup.find('#frmDecisionNodeActionAdd SELECT').first().change(function() {
+		$popup.find('#frmDecisionActionAdd{$id} SELECT').first().change(function() {
 			$select = $(this);
 			$val=$select.val();
 	
@@ -87,10 +87,10 @@
 				return;
 			}
 	
-			genericAjaxPost('frmDecisionNodeActionAdd','','c=internal&a=doDecisionAddAction',function(html) {
-				$ul = $('#frmDecisionNodeAction DIV.actions');
+			genericAjaxPost('frmDecisionActionAdd{$id}','','c=internal&a=doDecisionAddAction',function(html) {
+				$ul = $('#frmDecisionAction{$id}Action DIV.actions');
 				
-				seq = parseInt($('#frmDecisionNodeActionAdd').find('input[name=seq]').val());
+				seq = parseInt($('#frmDecisionActionAdd{$id}').find('input[name=seq]').val());
 				if(null == seq)
 					seq = 0;
 	
@@ -114,7 +114,7 @@
 				
 				$select.val(0);
 	
-				$('#frmDecisionNodeActionAdd').find('input[name=seq]').val(1+seq);
+				$('#frmDecisionActionAdd{$id}').find('input[name=seq]').val(1+seq);
 			});
 		});
 

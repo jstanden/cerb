@@ -19,32 +19,14 @@
 
 <div id="triggers">
 {foreach from=$triggers item=trigger key=trigger_id}
-<fieldset>
-	<legend style="{if $trigger->is_disabled}color:rgb(150,150,150);{/if}">{$trigger->title} {if $trigger->is_disabled}({'common.disabled'|devblocks_translate|capitalize}){/if}</legend>
-	
+<div id="decisionTree{$trigger_id}">
 	{$event = $events.{$trigger->event_point}}
-	
-	{* [TODO] Use cache!! *}
-	{$tree_data = $trigger->getDecisionTreeData()}
-	{$tree_nodes = $tree_data.nodes}
-	{$tree_hier = $tree_data.tree}
-	{$tree_depths = $tree_data.depths}
-	
-	<div class="badge badge-lightgray">
-		<a href="javascript:;" onclick="decisionNodeMenu(this,'0','{$trigger_id}');" style="font-weight:bold;color:rgb(0,0,0);text-decoration:none;">
-			{$event->name} &#x25be;
-		</a>
-	</div>
-	<div style="margin-left:10px;">
-		{foreach from=$tree_hier[0] item=child_id}
-			{include file="devblocks:cerberusweb.core::internal/decisions/branch.tpl" node_id=$child_id trigger_id=$trigger_id data=$tree_data nodes=$tree_nodes tree=$tree_hier depths=$tree_depths}
-		{/foreach}
-	</div>
-</fieldset>
+	{include file="devblocks:cerberusweb.core::internal/decisions/tree.tpl" trigger=$trigger event=$event}
+</div>
 {/foreach}
 </div>
 
-<div id="nodeMenu" style="display:none;"></div>
+<div id="nodeMenu" style="display:none;position:absolute;z-index:5;"></div>
 
 <script type="text/javascript">
 	$('#frmTrigger SELECT[name=event_point]').change(function() {
@@ -57,28 +39,26 @@
 	
 	function decisionNodeMenu(element, node_id, trigger_id) {
 		genericAjaxGet('', 'c=internal&a=showDecisionNodeMenu&id='+node_id+'&trigger_id='+trigger_id, function(html) {
+			$position = $(element).position();
 			$('#nodeMenu')
 				.unbind()
 				.hide()
 				.html('')
-				.appendTo($(element).parent())
+				.css('top',$position.top+($(element).height()*0.75))
+				.css('left',$position.left)
 				.html(html)
 				.fadeIn('fast')
-				.parent()
-				.hover(
-					function() { },
-					function() { 
-						$(this).find('#nodeMenu').fadeOut('fast'); 
-					}
-				)
-				.click(
-					function(e) {
-						$(this).find('#nodeMenu').fadeOut('fast');
-						//e.preventDefault();
-					}
-				)
-			;
+				;
 			$('#nodeMenu')
+				.hover(
+					function() {},
+					function() {
+						$(this).hide(); 
+					}
+				)
+				.click(function(e) {
+					$(this).hide();
+				})
 				.find('UL LI')
 				.click(function(e) {
 					$target = $(e.target);

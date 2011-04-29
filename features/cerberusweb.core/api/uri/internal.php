@@ -1642,6 +1642,24 @@ class ChInternalController extends DevblocksControllerExtension {
 		$event->renderAction($action, $trigger, null, $seq);
 	}
 
+	function showDecisionTreeAction() {
+		@$trigger_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer', 0);
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+
+		// [TODO] Cache
+		if(null == ($trigger = DAO_TriggerEvent::get($trigger_id)))
+			return;
+		
+		if(null == ($event = DevblocksPlatform::getExtension($trigger->event_point, false)))
+			return; /* @var $event Extension_DevblocksEvent */
+			
+		$tpl->assign('trigger', $trigger);
+		$tpl->assign('event', $event);
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/decisions/tree.tpl');
+	}
+	
 	function saveDecisionPopupAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer', 0);
 		@$title = DevblocksPlatform::importGPC($_REQUEST['title'],'string', '');

@@ -1,4 +1,4 @@
-<form id="frmDecision" onsubmit="return false;">
+<form id="frmDecisionOutcome{$id}" onsubmit="return false;">
 <input type="hidden" name="c" value="internal">
 <input type="hidden" name="a" value="">
 {if isset($id)}<input type="hidden" name="id" value="{$id}">{/if}
@@ -54,7 +54,7 @@
 
 </form>
 
-<form id="frmDecisionAdd">
+<form id="frmDecisionOutcomeAdd{$id}">
 <input type="hidden" name="seq" value="{$seq}">
 <input type="hidden" name="condition" value="">
 {if isset($trigger_id)}<input type="hidden" name="trigger_id" value="{$trigger_id}">{/if}
@@ -79,28 +79,28 @@
 <fieldset class="delete" style="display:none;">
 	<legend>Delete this outcome?</legend>
 	<p>Are you sure you want to permanently delete this outcome and its children?</p>
-	<button type="button" class="green" onclick="genericAjaxPost('frmDecision','','c=internal&a=saveDecisionDeletePopup',function() { window.location.reload(); });"> {'common.yes'|devblocks_translate|capitalize}</button>
+	<button type="button" class="green" onclick="genericAjaxPost('frmDecisionOutcome{$id}','','c=internal&a=saveDecisionDeletePopup',function() { genericAjaxPopupDestroy('node_outcome{$id}'); genericAjaxGet('decisionTree{$trigger_id}','c=internal&a=showDecisionTree&id={$trigger_id}'); });"> {'common.yes'|devblocks_translate|capitalize}</button>
 	<button type="button" class="red" onclick="$(this).closest('fieldset').hide().next('form.toolbar').show();"> {'common.no'|devblocks_translate|capitalize}</button>
 </fieldset>
 {/if}
 
 <form class="toolbar">
-	<button type="button" onclick="genericAjaxPost('frmDecision','','c=internal&a=saveDecisionPopup',function() { window.location.reload(); });"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+	<button type="button" onclick="genericAjaxPost('frmDecisionOutcome{$id}','','c=internal&a=saveDecisionPopup',function() { genericAjaxPopupDestroy('node_outcome{$id}'); genericAjaxGet('decisionTree{$trigger_id}','c=internal&a=showDecisionTree&id={$trigger_id}'); });"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
 	{if isset($id)}<button type="button" onclick="$(this).closest('form').hide().prev('fieldset.delete').show();"><span class="cerb-sprite2 sprite-cross-circle-frame"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 </form>
 
 <script type="text/javascript">
-	$popup = genericAjaxPopupFetch('peek');
+	$popup = genericAjaxPopupFetch('node_outcome{$id}');
 	$popup.one('popup_open', function(event,ui) {
 		$(this).dialog('option','title',"{if empty($id)}New {/if}Outcome");
 
-		var $frm = $popup.find('form#frmDecision');
+		var $frm = $popup.find('form#frmDecisionOutcome{$id}');
 		var $legend = $popup.find('fieldset legend');
 		var $menu = $popup.find('fieldset ul.cerb-popupmenu:first'); 
 
 		$frm
 			.find('fieldset ul.rules')
-			.sortable({ 'items':'li', 'placeholder':'ui-state-highlight', 'connectWith':'fieldset ul.rules' })
+			.sortable({ 'items':'li', 'placeholder':'ui-state-highlight', 'connectWith':'frmDecisionOutcome{$id} fieldset ul.rules' })
 			;
 
 		var $funcGroupAnyToggle = function(e) {
@@ -123,7 +123,7 @@
 			$(this).removeClass('unbound');
 		});
 
-		$frmAdd = $popup.find('#frmDecisionAdd');
+		$frmAdd = $popup.find('#frmDecisionOutcomeAdd{$id}');
 
 		$frmAdd.find('button.group')
 			.click(function(e) {
@@ -191,12 +191,12 @@
 
 		$menu.find('> li > a').click(function() {
 			token = $(this).attr('token');
-			$frmDecAdd = $('#frmDecisionAdd');
+			$frmDecAdd = $('#frmDecisionOutcomeAdd{$id}');
 			$frmDecAdd.find('input[name=condition]').val(token);
 			$this = $(this);
 			
-			genericAjaxPost('frmDecisionAdd','','c=internal&a=doDecisionAddCondition',function(html) {
-				$ul = $('#frmDecision UL.rules:last');
+			genericAjaxPost('frmDecisionOutcomeAdd{$id}','','c=internal&a=doDecisionAddCondition',function(html) {
+				$ul = $('#frmDecisionOutcome{$id} UL.rules:last');
 				
 				seq = parseInt($frmDecAdd.find('input[name=seq]').val());
 				if(null == seq)
