@@ -122,7 +122,7 @@
 			<div>
 			{if !$ticket->is_deleted}
 			{if $active_worker->hasPriv('core.ticket.actions.move')}
-		   	<select name="bucket_id" onchange="this.form.submit();">
+		   	<select name="bucket" onchange="this.form.submit();">
 		   		<option value="">-- {$translate->_('common.move_to')|lower} --</option>
 		   		{if empty($ticket->category_id)}{assign var=t_or_c value="t"}{else}{assign var=t_or_c value="c"}{/if}
 		   		<optgroup label="{$translate->_('common.inboxes')|capitalize}">

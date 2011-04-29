@@ -249,7 +249,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		@$closed = DevblocksPlatform::importGPC($_REQUEST['closed'],'integer',0);
 		@$spam = DevblocksPlatform::importGPC($_REQUEST['spam'],'integer',0);
 		@$deleted = DevblocksPlatform::importGPC($_REQUEST['deleted'],'integer',0);
-		@$do_follow = DevblocksPlatform::importGPC($_REQUEST['do_follow'],'integer',0);
+		@$bucket = DevblocksPlatform::importGPC($_REQUEST['bucket'],'string','');		
 		
 		if(null == ($ticket = DAO_Ticket::get($id)))
 			return;
@@ -284,7 +284,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		
 		// Team/Category
 		if(!empty($bucket)) {
-			list($team_id,$bucket_id) = CerberusApplication::translateTeamCategoryCode($bucket);
+			list($team_id, $bucket_id) = CerberusApplication::translateTeamCategoryCode($bucket);
 
 			if(!empty($team_id)) {
 			    $properties[DAO_Ticket::TEAM_ID] = $team_id;
