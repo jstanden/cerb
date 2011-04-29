@@ -21,8 +21,8 @@
 	</div>
 	
 </fieldset>
-
-<button type="button" onclick="genericAjaxPost('frmDecisionNodeReorder','','',function() { window.location.reload(); });"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+{if !empty($node)}{$trigger_id = $node->trigger_id}{elseif !empty($trigger)}{$trigger_id = $trigger->id}{/if}
+<button type="button" onclick="genericAjaxPost('frmDecisionNodeReorder','','',function() { genericAjaxPopupDestroy('peek');genericAjaxGet('decisionTree{$trigger_id}','c=internal&a=showDecisionTree&id={$trigger_id}'); });"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
 </form>
 
 <script type="text/javascript">
