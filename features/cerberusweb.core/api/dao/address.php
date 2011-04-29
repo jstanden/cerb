@@ -353,10 +353,10 @@ class DAO_Address extends C4_ORMHelper {
 			;
 
 		$cfield_index_map = array(
-			CerberusContexts::CONTEXT_TICKET => 'a.id',
+			CerberusContexts::CONTEXT_ADDRESS => 'a.id',
 			CerberusContexts::CONTEXT_ORG => 'a.contact_org_id',
 		);
-			
+		
 		// Custom field joins
 		list($select_sql, $join_sql, $has_multiple_values) = self::_appendSelectJoinSqlForCustomFieldTables(
 			$tables,
