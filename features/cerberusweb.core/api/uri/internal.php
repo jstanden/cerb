@@ -391,27 +391,13 @@ class ChInternalController extends DevblocksControllerExtension {
 				break;
 
 			case CerberusContexts::CONTEXT_WORKER:
-				list($results, $null) = DAO_Worker::search(
-					array(),
-					array(
-						new DevblocksSearchCriteria(SearchFields_Worker::IS_DISABLED,DevblocksSearchCriteria::OPER_EQ,0),
-						array(
-							DevblocksSearchCriteria::GROUP_OR,
-							new DevblocksSearchCriteria(SearchFields_Worker::LAST_NAME,DevblocksSearchCriteria::OPER_LIKE,$term.'%'),
-							new DevblocksSearchCriteria(SearchFields_Worker::FIRST_NAME,DevblocksSearchCriteria::OPER_LIKE,$term.'%'),
-						),
-					),
-					25,
-					0,
-					SearchFields_Worker::FIRST_NAME,
-					true,
-					false
-				);
+				$results = DAO_Worker::autocomplete($term);
 
-				foreach($results AS $row){
+				if(is_array($results))
+				foreach($results as $worker_id => $worker){
 					$entry = new stdClass();
-					$entry->label = $row[SearchFields_Worker::FIRST_NAME] . ' ' . $row[SearchFields_Worker::LAST_NAME];
-					$entry->value = $row[SearchFields_Worker::ID];
+					$entry->label = $worker->getName();
+					$entry->value = sprintf("%d", $worker_id);
 					$list[] = $entry;
 				}
 				break;

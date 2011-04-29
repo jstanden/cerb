@@ -563,6 +563,39 @@ class DAO_Worker extends C4_ORMHelper {
 		return $result;
 	}	
 	
+	static function autocomplete($term) {
+		$db = DevblocksPlatform::getDatabaseService();
+		$workers = DAO_Worker::getAll();
+		$objects = array();
+		
+		$results = $db->GetArray(sprintf("SELECT id ".
+			"FROM worker ".
+			"WHERE is_disabled = 0 ".
+			"AND (".
+			"first_name LIKE %s ".
+			"OR last_name LIKE %s ".
+			"%s".
+			")",
+			$db->qstr($term.'%'),
+			$db->qstr($term.'%'),
+			(false != strpos($term,' ') 
+				? sprintf("OR concat(first_name,' ',last_name) LIKE %s ", $db->qstr($term.'%')) 
+				: '')
+		));
+		
+		if(is_array($results))
+		foreach($results as $row) {
+			$worker_id = $row['id'];
+			
+			if(!isset($workers[$worker_id]))
+				continue;
+				
+			$objects[$worker_id] = $workers[$worker_id];
+		}
+		
+		return $objects;
+	}
+	
     /**
      * Enter description here...
      *
