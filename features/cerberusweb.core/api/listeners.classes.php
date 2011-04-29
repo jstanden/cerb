@@ -627,14 +627,7 @@ class EventListener_Triggers extends DevblocksEventListenerExtension {
 			$event->id
 		));
 		
-		// [TODO] Check if any triggers are watching this event
-		// [TODO] From cache!!! ::getAll()  ::getByEvent()
-		$where = sprintf("%s = 0 AND %s = %s",
-			DAO_TriggerEvent::IS_DISABLED,
-			DAO_TriggerEvent::EVENT_POINT,
-			C4_ORMHelper::qstr($event->id)
-		);
-		$triggers = DAO_TriggerEvent::getWhere($where);
+		$triggers = DAO_TriggerEvent::getByEvent($event->id, false);
 
 		if(empty($triggers))
 			return;

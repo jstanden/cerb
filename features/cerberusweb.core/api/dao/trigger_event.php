@@ -1,5 +1,7 @@
 <?php
 class DAO_TriggerEvent extends C4_ORMHelper {
+	const CACHE_ALL = 'cerberus_cache_behavior_all';
+	
 	const ID = 'id';
 	const TITLE = 'title';
 	const IS_DISABLED = 'is_disabled';
@@ -21,10 +23,76 @@ class DAO_TriggerEvent extends C4_ORMHelper {
 	
 	static function update($ids, $fields) {
 		parent::_update($ids, 'trigger_event', $fields);
+		self::clearCache();
 	}
 	
 	static function updateWhere($fields, $where) {
 		parent::_updateWhere('trigger_event', $fields, $where);
+		self::clearCache();
+	}
+	
+	/**
+	 * 
+	 * @param bool $nocache
+	 * @return Model_TriggerEvent[]
+	 */
+	static function getAll($nocache=false) {
+	    $cache = DevblocksPlatform::getCacheService();
+	    if($nocache || null === ($behaviors = $cache->load(self::CACHE_ALL))) {
+    	    $behaviors = self::getWhere();
+    	    $cache->save($behaviors, self::CACHE_ALL);
+	    }
+	    
+	    return $behaviors;
+	}
+	
+	/**
+	 * 
+	 * @param string $context
+	 * @param integer $context_id
+	 * @return Model_TriggerEvent[]
+	 */
+	static function getByOwner($context, $context_id) {
+		$behaviors = self::getAll();
+		$results = array();
+
+		foreach($behaviors as $behavior_id => $behavior) {
+			if($behavior->owner_context == $context
+				&& $behavior->owner_context_id == $context_id)
+					$results[$behavior_id] = $behavior;
+		}
+		
+		return $results;
+	}
+	
+	static function getByEvent($event_id, $with_disabled=false) {
+		$behaviors = self::getAll();
+		$results = array();
+		
+		foreach($behaviors as $behavior_id => $behavior) {
+			/* @var $behavior Model_TriggerEvent */
+			if($behavior->event_point == $event_id) {
+				if(!$with_disabled && $behavior->is_disabled)
+					continue;
+				
+				$results[$behavior_id] = $behavior;
+			}
+		}
+		
+		return $results;
+	}
+	
+	/**
+	 * @param integer $id
+	 * @return Model_TriggerEvent
+	 */
+	static function get($id) {
+		$behaviors = self::getAll();
+		
+		if(isset($behaviors[$id]))
+			return $behaviors[$id];
+		
+		return null;
 	}
 	
 	/**
@@ -49,21 +117,6 @@ class DAO_TriggerEvent extends C4_ORMHelper {
 		$rs = $db->Execute($sql);
 		
 		return self::_getObjectsFromResult($rs);
-	}
-
-	/**
-	 * @param integer $id
-	 * @return Model_TriggerEvent	 */
-	static function get($id) {
-		$objects = self::getWhere(sprintf("%s = %d",
-			self::ID,
-			$id
-		));
-		
-		if(isset($objects[$id]))
-			return $objects[$id];
-		
-		return null;
 	}
 	
 	/**
@@ -103,6 +156,7 @@ class DAO_TriggerEvent extends C4_ORMHelper {
 		
 		$db->Execute(sprintf("DELETE FROM trigger_event WHERE id IN (%s)", $ids_list));
 		
+		self::clearCache();
 		return true;
 	}
 	
@@ -237,6 +291,10 @@ class DAO_TriggerEvent extends C4_ORMHelper {
 		return array($results,$total);
 	}
 
+	static public function clearCache() {
+		$cache = DevblocksPlatform::getCacheService();
+		$cache->remove(self::CACHE_ALL);
+	}
 };
 
 class SearchFields_TriggerEvent implements IDevblocksSearchFields {
@@ -301,7 +359,7 @@ class Model_TriggerEvent {
 	
 	private function _getNodes() {
 		if(empty($this->_nodes))
-			$this->_nodes = DAO_DecisionNode::getByTrigger($this->id);
+			$this->_nodes = DAO_DecisionNode::getByTriggerParent($this->id);
 		
 		return $this->_nodes;
 	}

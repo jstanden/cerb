@@ -1,5 +1,7 @@
 <?php
 class DAO_DecisionNode extends C4_ORMHelper {
+	const CACHE_ALL = 'cerberus_cache_decision_nodes_all';
+	
 	const ID = 'id';
 	const PARENT_ID = 'parent_id';
 	const TRIGGER_ID = 'trigger_id';
@@ -34,15 +36,61 @@ class DAO_DecisionNode extends C4_ORMHelper {
 	
 	static function update($ids, $fields) {
 		parent::_update($ids, 'decision_node', $fields);
+		self::clearCache();
 	}
 	
 	static function updateWhere($fields, $where) {
 		parent::_updateWhere('decision_node', $fields, $where);
+		self::clearCache();
 	}
 	
-	static function getByTrigger($trigger_id) {
-		$nodes = self::getWhere(sprintf("%s = %d", self::TRIGGER_ID, $trigger_id));
-		return $nodes;
+	/**
+	 * 
+	 * @param bool $nocache
+	 * @return Model_DecisionNode[]
+	 */
+	static function getAll($nocache=false) {
+	    $cache = DevblocksPlatform::getCacheService();
+	    if($nocache || null === ($nodes = $cache->load(self::CACHE_ALL))) {
+    	    $nodes = self::getWhere(
+    	    	array(),
+    	    	DAO_DecisionNode::POS,
+    	    	true
+    	    );
+    	    $cache->save($nodes, self::CACHE_ALL);
+	    }
+	    
+	    return $nodes;
+	}
+	
+	static function getByTriggerParent($trigger_id, $parent_id=null) {
+		$nodes = self::getAll();
+		$results = array();
+		
+		foreach($nodes as $node_id => $node) {
+			/* @var $node Model_DecisionNode */
+			if($node->trigger_id == $trigger_id) {
+				if(!is_null($parent_id) && $node->parent_id != $parent_id)
+					continue;
+					
+				$results[$node_id] = $node;
+			}
+		}
+		
+		return $results;
+	}
+	
+	/**
+	 * @param integer $id
+	 * @return Model_DecisionNode
+	 */
+	static function get($id) {
+		$nodes = self::getAll();
+
+		if(isset($nodes[$id]))
+			return $nodes[$id];
+			
+		return null;
 	}
 	
 	/**
@@ -72,21 +120,6 @@ class DAO_DecisionNode extends C4_ORMHelper {
 		$rs = $db->Execute($sql);
 		
 		return self::_getObjectsFromResult($rs);
-	}
-
-	/**
-	 * @param integer $id
-	 * @return Model_DecisionNode	 */
-	static function get($id) {
-		$objects = self::getWhere(sprintf("%s = %d",
-			self::ID,
-			$id
-		));
-		
-		if(isset($objects[$id]))
-			return $objects[$id];
-		
-		return null;
 	}
 	
 	/**
@@ -128,6 +161,7 @@ class DAO_DecisionNode extends C4_ORMHelper {
 		
 		$db->Execute(sprintf("DELETE FROM decision_node WHERE id IN (%s)", $ids_list));
 		
+		self::clearCache();
 		return true;
 	}
 	
@@ -248,6 +282,10 @@ class DAO_DecisionNode extends C4_ORMHelper {
 		return array($results,$total);
 	}
 
+	static public function clearCache() {
+		$cache = DevblocksPlatform::getCacheService();
+		$cache->remove(self::CACHE_ALL);
+	}
 };
 
 class SearchFields_DecisionNode implements IDevblocksSearchFields {

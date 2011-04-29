@@ -837,7 +837,7 @@ class CerberusContexts {
 			if(EventListener_Triggers::getDepth() > 0
 				&& null != ($trigger_id = end(EventListener_Triggers::getTriggerLog())) 
 				&& !empty($trigger_id) 
-				&& null != ($trigger = DAO_TriggerEvent::get($trigger_id)) // [TODO] Use cache!! 
+				&& null != ($trigger = DAO_TriggerEvent::get($trigger_id)) 
 			) {
 				/* @var $trigger Model_TriggerEvent */
 				
