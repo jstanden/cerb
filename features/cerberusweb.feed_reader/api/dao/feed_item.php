@@ -509,6 +509,7 @@ class View_FeedItem extends C4_AbstractView implements IAbstractView_Subtotals {
 	function renderCriteria($field) {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('id', $this->id);
+		$tpl->assign('view', $this);
 
 		switch($field) {
 			case SearchFields_FeedItem::GUID:

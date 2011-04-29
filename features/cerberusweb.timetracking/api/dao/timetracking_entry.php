@@ -661,6 +661,7 @@ class View_TimeTracking extends C4_AbstractView implements IAbstractView_Subtota
 	function renderCriteria($field) {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('id', $this->id);
+		$tpl->assign('view', $this);
 
 		switch($field) {
 			case 'placeholder_string':

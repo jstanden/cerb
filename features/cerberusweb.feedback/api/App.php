@@ -505,6 +505,7 @@ class C4_FeedbackEntryView extends C4_AbstractView implements IAbstractView_Subt
 	function renderCriteria($field) {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('id', $this->id);
+		$tpl->assign('view', $this);
 
 		switch($field) {
 			case SearchFields_FeedbackEntry::QUOTE_TEXT:
