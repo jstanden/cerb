@@ -1,11 +1,9 @@
 <ul class="cerb-popupmenu cerb-float" style="display:block;">
 	{if empty($node)}
 		<li><a href="javascript:;" onclick="genericAjaxPopup('peek','c=internal&a=showDecisionPopup&trigger_id={$trigger_id}',null,false,'500');">Edit Behavior</a></li>
-		<li><a href="javascript:;" onclick="genericAjaxPopup('peek','c=internal&a=showDecisionDeletePopup&trigger_id={$trigger_id}',null,false,'500');">Delete Behavior</a></li>
 		<li><a href="javascript:;" onclick="genericAjaxPopup('peek','c=internal&a=showDecisionReorderPopup&trigger_id={$trigger_id}',null,false,'500');">Reorder</a></li>
 	{else}
 		<li><a href="javascript:;" onclick="genericAjaxPopup('peek','c=internal&a=showDecisionPopup&id={$node->id}',null,false,'500');">Edit</a></li>
-		<li><a href="javascript:;" onclick="genericAjaxPopup('peek','c=internal&a=showDecisionDeletePopup&id={$node->id}',null,false,'500');">Delete</a></li>
 		{if $node->node_type != 'action'}<li><a href="javascript:;" onclick="genericAjaxPopup('peek','c=internal&a=showDecisionReorderPopup&id={$node->id}',null,false,'500');">Reorder</a></li>{/if}
 		{*<li><a href="javascript:;" onclick="genericAjaxPopup('peek','c=internal&a=showDecisionMovePopup&id={$node->id}',null,true,'500');">Move</a></li>*}
 	{/if}

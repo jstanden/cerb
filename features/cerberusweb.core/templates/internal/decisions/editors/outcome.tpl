@@ -1,6 +1,6 @@
 <form id="frmDecision" onsubmit="return false;">
 <input type="hidden" name="c" value="internal">
-<input type="hidden" name="a" value="saveDecisionPopup">
+<input type="hidden" name="a" value="">
 {if isset($id)}<input type="hidden" name="id" value="{$id}">{/if}
 {if isset($parent_id)}<input type="hidden" name="parent_id" value="{$parent_id}">{/if}
 {if isset($type)}<input type="hidden" name="type" value="{$type}">{/if}
@@ -75,8 +75,18 @@
 </fieldset>
 </form>
 
-<form>
-	<button type="button" onclick="genericAjaxPost('frmDecision','','',function() { window.location.reload(); });"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+{if isset($id)}
+<fieldset class="delete" style="display:none;">
+	<legend>Delete this outcome?</legend>
+	<p>Are you sure you want to permanently delete this outcome and its children?</p>
+	<button type="button" class="green" onclick="genericAjaxPost('frmDecision','','c=internal&a=saveDecisionDeletePopup',function() { window.location.reload(); });"> {'common.yes'|devblocks_translate|capitalize}</button>
+	<button type="button" class="red" onclick="$(this).closest('fieldset').hide().next('form.toolbar').show();"> {'common.no'|devblocks_translate|capitalize}</button>
+</fieldset>
+{/if}
+
+<form class="toolbar">
+	<button type="button" onclick="genericAjaxPost('frmDecision','','c=internal&a=saveDecisionPopup',function() { window.location.reload(); });"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+	{if isset($id)}<button type="button" onclick="$(this).closest('form').hide().prev('fieldset.delete').show();"><span class="cerb-sprite2 sprite-cross-circle-frame"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 </form>
 
 <script type="text/javascript">

@@ -1,6 +1,6 @@
-<form id="frmDecisionNodeSwitch" onsubmit="return false;">
+<form id="frmDecisionBehavior" onsubmit="return false;">
 <input type="hidden" name="c" value="internal">
-<input type="hidden" name="a" value="saveDecisionPopup">
+<input type="hidden" name="a" value="">
 {if isset($trigger->id)}<input type="hidden" name="trigger_id" value="{$trigger->id}">{/if}
 
 <b>{'common.title'|devblocks_translate|capitalize}:</b><br>
@@ -16,18 +16,20 @@
 <label><input type="radio" name="is_disabled" value="1" {if !empty($trigger->is_disabled)}checked="checked"{/if}> {'common.disabled'|devblocks_translate|capitalize}</label>
 <br>
 <br>
+</form>
 
-{*
-<fieldset>
-	<legend>Determine an outcome based on multiple choices</legend>
-	
-	A switch-based decision will evaluate multiple choices and choose the first outcome that satisfies all conditions. 
-	Each outcome may use different conditions.  For example, you can use a switch to choose from a list: language, 
-	time of day, day of week, service level, etc.
+{if isset($trigger->id)}
+<fieldset class="delete" style="display:none;">
+	<legend>Delete this action?</legend>
+	<p>Are you sure you want to permanently delete this action?</p>
+	<button type="button" class="green" onclick="genericAjaxPost('frmDecisionBehavior','','c=internal&a=saveDecisionDeletePopup',function() { window.location.reload(); });"> {'common.yes'|devblocks_translate|capitalize}</button>
+	<button type="button" class="red" onclick="$(this).closest('fieldset').hide().next('form.toolbar').show();"> {'common.no'|devblocks_translate|capitalize}</button>
 </fieldset>
-*}
+{/if}
 
-<button type="button" onclick="genericAjaxPost('frmDecisionNodeSwitch','','',function() { window.location.reload(); });"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+<form class="toolbar">
+	<button type="button" onclick="genericAjaxPost('frmDecisionBehavior','','c=internal&a=saveDecisionPopup',function() { window.location.reload(); });"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+	{if isset($trigger->id)}<button type="button" onclick="$(this).closest('form').hide().prev('fieldset.delete').show();"><span class="cerb-sprite2 sprite-cross-circle-frame"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 </form>
 
 <script type="text/javascript">
