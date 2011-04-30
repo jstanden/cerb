@@ -586,6 +586,7 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals {
 			SearchFields_Address::CONTACT_ORG_ID,
 			SearchFields_Address::CONTEXT_LINK,
 			SearchFields_Address::CONTEXT_LINK_ID,
+			SearchFields_Address::VIRTUAL_WATCHERS,
 		));
 		
 		$this->addParamsHidden(array(

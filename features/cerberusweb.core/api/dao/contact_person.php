@@ -172,6 +172,40 @@ class DAO_ContactPerson extends DevblocksORMHelper {
 			
 		$sort_sql = (!empty($sortBy)) ? sprintf("ORDER BY %s %s ",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : " ";
 	
+		// Virtuals
+		foreach($params as $param) {
+			$param_key = $param->field;
+			settype($param_key, 'string');
+			switch($param_key) {
+				case SearchFields_Task::VIRTUAL_WATCHERS:
+					$has_multiple_values = true;
+					$from_context = CerberusContexts::CONTEXT_CONTACT_PERSON;
+					$from_index = 'contact_person.id';
+					
+					// Join and return anything
+					if(DevblocksSearchCriteria::OPER_TRUE == $param->operator) {
+						$join_sql .= sprintf("LEFT JOIN context_link AS context_watcher ON (context_watcher.from_context = '%s' AND context_watcher.from_context_id = %s AND context_watcher.to_context = 'cerberusweb.contexts.worker') ", $from_context, $from_index);
+					} elseif(empty($param->value)) { // empty
+						// Either any watchers (1 or more); or no watchers
+						if(DevblocksSearchCriteria::OPER_NIN == $param->operator || DevblocksSearchCriteria::OPER_NEQ == $param->operator) {
+							$join_sql .= sprintf("LEFT JOIN context_link AS context_watcher ON (context_watcher.from_context = '%s' AND context_watcher.from_context_id = %s AND context_watcher.to_context = 'cerberusweb.contexts.worker') ", $from_context, $from_index);
+							$where_sql .= "AND context_watcher.to_context_id IS NOT NULL ";
+						} else {
+							$join_sql .= sprintf("LEFT JOIN context_link AS context_watcher ON (context_watcher.from_context = '%s' AND context_watcher.from_context_id = %s AND context_watcher.to_context = 'cerberusweb.contexts.worker') ", $from_context, $from_index);
+							$where_sql .= "AND context_watcher.to_context_id IS NULL ";
+						}
+					// Specific watchers
+					} else {
+						$join_sql .= sprintf("INNER JOIN context_link AS context_watcher ON (context_watcher.from_context = '%s' AND context_watcher.from_context_id = %s AND context_watcher.to_context = 'cerberusweb.contexts.worker' AND context_watcher.to_context_id IN (%s)) ",
+							$from_context,
+							$from_index,
+							implode(',', $param->value)
+						);
+					}
+					break;
+			}
+		}
+		
 		return array(
 			'primary_table' => 'contact_person',
 			'select' => $select_sql,
@@ -272,6 +306,8 @@ class SearchFields_ContactPerson implements IDevblocksSearchFields {
 	const ADDRESS_FIRST_NAME = 'a_first_name';
 	const ADDRESS_LAST_NAME = 'a_last_name';
 	
+	const VIRTUAL_WATCHERS = '*_workers';
+	
 	const CONTEXT_LINK = 'cl_context_from';
 	const CONTEXT_LINK_ID = 'cl_context_from_id';
 	
@@ -292,6 +328,8 @@ class SearchFields_ContactPerson implements IDevblocksSearchFields {
 			self::ADDRESS_EMAIL => new DevblocksSearchField(self::ADDRESS_EMAIL, 'address', 'email', $translate->_('common.email')),
 			self::ADDRESS_FIRST_NAME => new DevblocksSearchField(self::ADDRESS_FIRST_NAME, 'address', 'first_name', $translate->_('address.first_name')),
 			self::ADDRESS_LAST_NAME => new DevblocksSearchField(self::ADDRESS_LAST_NAME, 'address', 'last_name', $translate->_('address.last_name')),
+			
+			self::VIRTUAL_WATCHERS => new DevblocksSearchField(self::VIRTUAL_WATCHERS, '*', 'workers', $translate->_('common.watchers')),
 			
 			self::CONTEXT_LINK => new DevblocksSearchField(self::CONTEXT_LINK, 'context_link', 'from_context', null),
 			self::CONTEXT_LINK_ID => new DevblocksSearchField(self::CONTEXT_LINK_ID, 'context_link', 'from_context_id', null),
@@ -370,6 +408,7 @@ class View_ContactPerson extends C4_AbstractView implements IAbstractView_Subtot
 			SearchFields_ContactPerson::EMAIL_ID,
 			SearchFields_ContactPerson::AUTH_PASSWORD,
 			SearchFields_ContactPerson::AUTH_SALT,
+			SearchFields_ContactPerson::VIRTUAL_WATCHERS,
 		));
 		
 		// Filter fields
@@ -416,6 +455,10 @@ class View_ContactPerson extends C4_AbstractView implements IAbstractView_Subtot
 					$pass = true;
 					break;
 					
+				case SearchFields_ContactPerson::VIRTUAL_WATCHERS:
+					$pass = true;
+					break;
+					
 				// Valid custom fields
 				default:
 					if('cf_' == substr($field_key,0,3))
@@ -442,6 +485,10 @@ class View_ContactPerson extends C4_AbstractView implements IAbstractView_Subtot
 			case SearchFields_ContactPerson::ADDRESS_FIRST_NAME:
 			case SearchFields_ContactPerson::ADDRESS_LAST_NAME:
 				$counts = $this->_getSubtotalCountForStringColumn('DAO_ContactPerson', $column);
+				break;
+				
+			case SearchFields_ContactPerson::VIRTUAL_WATCHERS:
+				$counts = $this->_getSubtotalCountForWatcherColumn('DAO_ContactPerson', $column);
 				break;
 
 			default:
@@ -500,6 +547,9 @@ class View_ContactPerson extends C4_AbstractView implements IAbstractView_Subtot
 			case 'placeholder_date':
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__date.tpl');
 				break;
+			case SearchFields_ContactPerson::VIRTUAL_WATCHERS:
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context_worker.tpl');
+				break;
 			/*
 			default:
 				// Custom Fields
@@ -513,6 +563,29 @@ class View_ContactPerson extends C4_AbstractView implements IAbstractView_Subtot
 		}
 	}
 
+	function renderVirtualCriteria($param) {
+		$key = $param->field;
+		
+		switch($key) {
+			case SearchFields_ContactPerson::VIRTUAL_WATCHERS:
+				if(empty($param->value)) {
+					echo "There are no <b>watchers</b>";
+					
+				} elseif(is_array($param->value)) {
+					$workers = DAO_Worker::getAll();
+					$strings = array();
+					
+					foreach($param->value as $worker_id) {
+						if(isset($workers[$worker_id]))
+							$strings[] = '<b>'.$workers[$worker_id]->getName().'</b>';
+					}
+					
+					echo sprintf("Watcher is %s", implode(' or ', $strings));
+				}
+				break;
+		}
+	}	
+	
 	function renderCriteriaParam($param) {
 		$field = $param->field;
 		$values = !is_array($param->value) ? array($param->value) : $param->value;
@@ -561,6 +634,11 @@ class View_ContactPerson extends C4_AbstractView implements IAbstractView_Subtot
 			case 'placeholder_bool':
 				@$bool = DevblocksPlatform::importGPC($_REQUEST['bool'],'integer',1);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
+				break;
+				
+			case SearchFields_ContactPerson::VIRTUAL_WATCHERS:
+				@$worker_ids = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',array());
+				$criteria = new DevblocksSearchCriteria($field,'in', $worker_ids);
 				break;
 				
 			/*
