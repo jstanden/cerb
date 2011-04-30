@@ -636,6 +636,10 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 					$pass = true;
 					break;
 					
+				case SearchFields_CrmOpportunity::VIRTUAL_WATCHERS:
+					$pass = true;
+					break;
+					
 				// Valid custom fields
 				default:
 					if('cf_' == substr($field_key,0,3))
@@ -670,6 +674,10 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 				$counts = $this->_getSubtotalCountForBooleanColumn('DAO_CrmOpportunity', $column);
 				break;
 			
+			case SearchFields_CrmOpportunity::VIRTUAL_WATCHERS:
+				$counts = $this->_getSubtotalCountForWatcherColumn('DAO_CrmOpportunity', $column);
+				break;
+				
 			default:
 				// Custom fields
 				if('cf_' == substr($column,0,3)) {
