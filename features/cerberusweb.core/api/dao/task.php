@@ -534,6 +534,11 @@ class View_Task extends C4_AbstractView implements IAbstractView_Subtotals {
 					$pass = true;
 					break;
 					
+				// Virtuals
+				case SearchFields_Task::VIRTUAL_WATCHERS:
+					$pass = true;
+					break;
+					
 				// Valid custom fields
 				default:
 					if('cf_' == substr($field_key,0,3))
@@ -562,6 +567,10 @@ class View_Task extends C4_AbstractView implements IAbstractView_Subtotals {
 
 			case SearchFields_Task::IS_COMPLETED:
 				$counts = $this->_getSubtotalCountForBooleanColumn('DAO_Task', $column);
+				break;
+				
+			case SearchFields_Task::VIRTUAL_WATCHERS:
+				$counts = $this->_getSubtotalCountForWatcherColumn('DAO_Task', $column);
 				break;
 			
 			default:
