@@ -206,10 +206,27 @@
 	}
 	
 	function doSearchKeys(event) {
-		if(event.altKey || event.ctrlKey || event.shiftKey || event.metaKey)
-			return;
+		// Allow these special keys
+		switch(event.which) {
+			case 42: // (*)
+			case 126: // (~)
+				break;
+			default:
+				if(event.altKey || event.ctrlKey || event.shiftKey || event.metaKey)
+					return;
+				break;
+		}
 		
 		switch(event.which) {
+			case 42: // (*) reset filters
+				$('#viewCustomFilterssearch TABLE TBODY.full TD:first FIELDSET SELECT[name=_preset]').val('reset').trigger('change');
+				break;
+			case 45: // (-) remove last filter
+				$('#viewCustomFilterssearch TABLE TBODY.summary UL.bubbles LI:last A.delete').click();
+				break;
+			case 96: // (`)
+				$('#viewsearch_sidebar FIELDSET:first TABLE:first TD:first A:first').focus();
+				break;
 			case 97:  // (A) select all
 				try {
 					$('#viewsearch TABLE.worklist input:checkbox').each(function(e) {
@@ -260,6 +277,9 @@
 				try {
 					$('#btnsearchDelete').click();
 				} catch(e) { } 
+				break;
+			case 126: // (~)
+				$('#viewsearch_sidebar FIELDSET UL.cerb-popupmenu').toggle().find('a:first').focus();
 				break;
 		}
 	}	
