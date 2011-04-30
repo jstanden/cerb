@@ -93,6 +93,7 @@
 	$popup = genericAjaxPopupFetch('node_outcome{$id}');
 	$popup.one('popup_open', function(event,ui) {
 		$(this).dialog('option','title',"{if empty($id)}New {/if}Outcome");
+		$(this).find('input:text').first().focus();
 
 		var $frm = $popup.find('form#frmDecisionOutcome{$id}');
 		var $legend = $popup.find('fieldset legend');

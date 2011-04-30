@@ -37,5 +37,6 @@
 	$popup = genericAjaxPopupFetch('node_switch{$id}');
 	$popup.one('popup_open', function(event,ui) {
 		$(this).dialog('option','title',"{if empty($id)}New {/if}Decision");
+		$(this).find('input:text').first().focus();
 	});
 </script>

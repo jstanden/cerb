@@ -67,6 +67,7 @@
 	$popup = genericAjaxPopupFetch('node_action{$id}');
 	$popup.one('popup_open', function(event,ui) {
 		$(this).dialog('option','title',"{if empty($id)}New {/if}Actions");
+		$(this).find('input:text').first().focus();
 
 		$popup.find('BUTTON.chooser_worker.unbound').each(function() {
 			seq = $(this).closest('fieldset').find('input:hidden[name="actions[]"]').val();

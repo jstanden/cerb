@@ -36,5 +36,6 @@
 	$popup = genericAjaxPopupFetch('node_trigger{$trigger->id}');
 	$popup.one('popup_open', function(event,ui) {
 		$(this).dialog('option','title',"{if empty($trigger->id)}New {/if}Behavior");
+		$(this).find('input:text').first().focus();
 	});
 </script>
