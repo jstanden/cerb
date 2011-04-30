@@ -292,6 +292,40 @@ class DAO_Domain extends C4_ORMHelper {
 			
 		$sort_sql = (!empty($sortBy)) ? sprintf("ORDER BY %s %s ",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : " ";
 		
+		// Virtuals
+		foreach($params as $param) {
+			$param_key = $param->field;
+			settype($param_key, 'string');
+			switch($param_key) {
+				case SearchFields_Domain::VIRTUAL_WATCHERS:
+					$has_multiple_values = true;
+					$from_context = 'cerberusweb.contexts.datacenter.domain';
+					$from_index = 'datacenter_domain.id';
+					
+					// Join and return anything
+					if(DevblocksSearchCriteria::OPER_TRUE == $param->operator) {
+						$join_sql .= sprintf("LEFT JOIN context_link AS context_watcher ON (context_watcher.from_context = '%s' AND context_watcher.from_context_id = %s AND context_watcher.to_context = 'cerberusweb.contexts.worker') ", $from_context, $from_index);
+					} elseif(empty($param->value)) { // empty
+						// Either any watchers (1 or more); or no watchers
+						if(DevblocksSearchCriteria::OPER_NIN == $param->operator || DevblocksSearchCriteria::OPER_NEQ == $param->operator) {
+							$join_sql .= sprintf("LEFT JOIN context_link AS context_watcher ON (context_watcher.from_context = '%s' AND context_watcher.from_context_id = %s AND context_watcher.to_context = 'cerberusweb.contexts.worker') ", $from_context, $from_index);
+							$where_sql .= "AND context_watcher.to_context_id IS NOT NULL ";
+						} else {
+							$join_sql .= sprintf("LEFT JOIN context_link AS context_watcher ON (context_watcher.from_context = '%s' AND context_watcher.from_context_id = %s AND context_watcher.to_context = 'cerberusweb.contexts.worker') ", $from_context, $from_index);
+							$where_sql .= "AND context_watcher.to_context_id IS NULL ";
+						}
+					// Specific watchers
+					} else {
+						$join_sql .= sprintf("INNER JOIN context_link AS context_watcher ON (context_watcher.from_context = '%s' AND context_watcher.from_context_id = %s AND context_watcher.to_context = 'cerberusweb.contexts.worker' AND context_watcher.to_context_id IN (%s)) ",
+							$from_context,
+							$from_index,
+							implode(',', $param->value)
+						);
+					}
+					break;
+			}
+		}
+		
 		$result = array(
 			'primary_table' => 'datacenter_domain',
 			'select' => $select_sql,
@@ -377,6 +411,8 @@ class SearchFields_Domain implements IDevblocksSearchFields {
 	const SERVER_ID = 'w_server_id';
 	const CREATED = 'w_created';
 	
+	const VIRTUAL_WATCHERS = '*_workers';
+	
 	const CONTEXT_LINK = 'cl_context_from';
 	const CONTEXT_LINK_ID = 'cl_context_from_id';
 	
@@ -391,6 +427,8 @@ class SearchFields_Domain implements IDevblocksSearchFields {
 			self::NAME => new DevblocksSearchField(self::NAME, 'datacenter_domain', 'name', $translate->_('common.name')),
 			self::SERVER_ID => new DevblocksSearchField(self::SERVER_ID, 'datacenter_domain', 'server_id', $translate->_('cerberusweb.datacenter.common.server')),
 			self::CREATED => new DevblocksSearchField(self::CREATED, 'datacenter_domain', 'created', $translate->_('common.created')),
+			
+			self::VIRTUAL_WATCHERS => new DevblocksSearchField(self::VIRTUAL_WATCHERS, '*', 'workers', $translate->_('common.watchers')),
 			
 			self::CONTEXT_LINK => new DevblocksSearchField(self::CONTEXT_LINK, 'context_link', 'from_context', null),
 			self::CONTEXT_LINK_ID => new DevblocksSearchField(self::CONTEXT_LINK_ID, 'context_link', 'from_context_id', null),
@@ -437,8 +475,9 @@ class View_Domain extends C4_AbstractView implements IAbstractView_Subtotals {
 		);
 		
 		// Filter columns
-		//$this->addColumnsHidden(array(
-		//));
+		$this->addColumnsHidden(array(
+			SearchFields_Domain::VIRTUAL_WATCHERS,
+		));
 		
 		// Filter params
 		//$this->addParamsHidden(array(
@@ -479,6 +518,11 @@ class View_Domain extends C4_AbstractView implements IAbstractView_Subtotals {
 					$pass = true;
 					break;
 					
+				// Booleans
+				case SearchFields_Domain::VIRTUAL_WATCHERS:
+					$pass = true;
+					break;
+					
 				// Valid custom fields
 				default:
 					if('cf_' == substr($field_key,0,3))
@@ -509,6 +553,10 @@ class View_Domain extends C4_AbstractView implements IAbstractView_Subtotals {
 				$counts = $this->_getSubtotalCountForStringColumn('DAO_Domain', $column, $label_map, 'in', 'server_id[]');
 				break;
 
+			case SearchFields_Domain::VIRTUAL_WATCHERS:
+				$counts = $this->_getSubtotalCountForWatcherColumn('DAO_Domain', $column);
+				break;
+				
 			default:
 				// Custom fields
 				if('cf_' == substr($column,0,3)) {
@@ -567,6 +615,9 @@ class View_Domain extends C4_AbstractView implements IAbstractView_Subtotals {
 				
 				$tpl->display('devblocks:cerberusweb.datacenter.domains::domain/filter/server.tpl');
 				break;
+			case SearchFields_Domain::VIRTUAL_WATCHERS:
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context_worker.tpl');
+				break;
 			default:
 				// Custom Fields
 				if('cf_' == substr($field,0,3)) {
@@ -578,6 +629,29 @@ class View_Domain extends C4_AbstractView implements IAbstractView_Subtotals {
 		}
 	}
 
+	function renderVirtualCriteria($param) {
+		$key = $param->field;
+		
+		switch($key) {
+			case SearchFields_Domain::VIRTUAL_WATCHERS:
+				if(empty($param->value)) {
+					echo "There are no <b>watchers</b>";
+					
+				} elseif(is_array($param->value)) {
+					$workers = DAO_Worker::getAll();
+					$strings = array();
+					
+					foreach($param->value as $worker_id) {
+						if(isset($workers[$worker_id]))
+							$strings[] = '<b>'.$workers[$worker_id]->getName().'</b>';
+					}
+					
+					echo sprintf("Watcher is %s", implode(' or ', $strings));
+				}
+				break;
+		}
+	}	
+	
 	function renderCriteriaParam($param) {
 		$field = $param->field;
 		$values = !is_array($param->value) ? array($param->value) : $param->value;
@@ -646,6 +720,11 @@ class View_Domain extends C4_AbstractView implements IAbstractView_Subtotals {
 			case SearchFields_Domain::SERVER_ID:
 				@$server_ids = DevblocksPlatform::importGPC($_REQUEST['server_id'],'array',array());
 				$criteria = new DevblocksSearchCriteria($field,$oper,$server_ids);
+				break;
+				
+			case SearchFields_Domain::VIRTUAL_WATCHERS:
+				@$worker_ids = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',array());
+				$criteria = new DevblocksSearchCriteria($field,'in', $worker_ids);
 				break;
 				
 			default:

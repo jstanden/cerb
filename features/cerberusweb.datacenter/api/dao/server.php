@@ -457,6 +457,7 @@ class View_Server extends C4_AbstractView implements IAbstractView_Subtotals {
 		);
 		// Filter cols
 		$this->addColumnsHidden(array(
+			SearchFields_Server::VIRTUAL_WATCHERS,
 		));
 		
 		// Filter params
