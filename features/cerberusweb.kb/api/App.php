@@ -255,13 +255,13 @@ class ChKbBrowseTab extends Extension_KnowledgebaseTab {
 				
 				// Articles
 				if(empty($root_id)) {
-					$view->addParams(array(
+					$view->addParamsRequired(array(
 						new DevblocksSearchCriteria(SearchFields_KbArticle::CATEGORY_ID,DevblocksSearchCriteria::OPER_IS_NULL,true),
 					), true);
 					$view->name = $translate->_('kb.view.uncategorized');
 					
 				} else {
-					$view->addParams(array(
+					$view->addParamsRequired(array(
 						new DevblocksSearchCriteria(SearchFields_KbArticle::CATEGORY_ID,'=',$root_id),
 					), true);
 					$view->name = vsprintf($translate->_('kb.view.articles'), $categories[$root_id]->name);
