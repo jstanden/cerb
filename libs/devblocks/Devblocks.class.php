@@ -1067,13 +1067,18 @@ class DevblocksPlatform extends DevblocksEngine {
 			$dependencies[$plugin->id] = is_array($deps) ? $deps : array();
 		}
 		
+		if(is_array($plugins))
 		foreach($plugins as $plugin)
 			self::_recursiveDependency($plugin->id, $dependencies, $seen, $order);
 
 		$original = $plugins;
 		$plugins = array();
 			
+		if(is_array($order))
 		foreach($order as $order_id) {
+			if(!isset($original[$order_id]))
+				continue;
+			
 			$plugins[$order_id] = $original[$order_id];
 		}
 	}
