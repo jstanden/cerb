@@ -310,7 +310,7 @@ class DAO_Task extends C4_ORMHelper {
 			switch($param_key) {
 				case SearchFields_Task::VIRTUAL_WATCHERS:
 					$has_multiple_values = true;
-					$from_context = 'cerberusweb.contexts.task';
+					$from_context = CerberusContexts::CONTEXT_TASK;
 					$from_index = 't.id';
 					
 					// Join and return anything

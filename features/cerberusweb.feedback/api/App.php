@@ -229,6 +229,40 @@ class DAO_FeedbackEntry extends C4_ORMHelper {
 			
 		$sort_sql = (!empty($sortBy) ? sprintf("ORDER BY %s %s ",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : " ");
 		
+		// Virtuals
+		foreach($params as $param) {
+			$param_key = $param->field;
+			settype($param_key, 'string');
+			switch($param_key) {
+				case SearchFields_FeedbackEntry::VIRTUAL_WATCHERS:
+					$has_multiple_values = true;
+					$from_context = CerberusContexts::CONTEXT_FEEDBACK;
+					$from_index = 'f.id';
+					
+					// Join and return anything
+					if(DevblocksSearchCriteria::OPER_TRUE == $param->operator) {
+						$join_sql .= sprintf("LEFT JOIN context_link AS context_watcher ON (context_watcher.from_context = '%s' AND context_watcher.from_context_id = %s AND context_watcher.to_context = 'cerberusweb.contexts.worker') ", $from_context, $from_index);
+					} elseif(empty($param->value)) { // empty
+						// Either any watchers (1 or more); or no watchers
+						if(DevblocksSearchCriteria::OPER_NIN == $param->operator || DevblocksSearchCriteria::OPER_NEQ == $param->operator) {
+							$join_sql .= sprintf("LEFT JOIN context_link AS context_watcher ON (context_watcher.from_context = '%s' AND context_watcher.from_context_id = %s AND context_watcher.to_context = 'cerberusweb.contexts.worker') ", $from_context, $from_index);
+							$where_sql .= "AND context_watcher.to_context_id IS NOT NULL ";
+						} else {
+							$join_sql .= sprintf("LEFT JOIN context_link AS context_watcher ON (context_watcher.from_context = '%s' AND context_watcher.from_context_id = %s AND context_watcher.to_context = 'cerberusweb.contexts.worker') ", $from_context, $from_index);
+							$where_sql .= "AND context_watcher.to_context_id IS NULL ";
+						}
+					// Specific watchers
+					} else {
+						$join_sql .= sprintf("INNER JOIN context_link AS context_watcher ON (context_watcher.from_context = '%s' AND context_watcher.from_context_id = %s AND context_watcher.to_context = 'cerberusweb.contexts.worker' AND context_watcher.to_context_id IN (%s)) ",
+							$from_context,
+							$from_index,
+							implode(',', $param->value)
+						);
+					}
+					break;
+			}
+		}
+		
 		$result = array(
 			'primary_table' => 'f',
 			'select' => $select_sql,
@@ -326,6 +360,8 @@ class SearchFields_FeedbackEntry {
 	
 	const ADDRESS_EMAIL = 'a_email';
 	
+	const VIRTUAL_WATCHERS = '*_workers';
+	
 	const CONTEXT_LINK = 'cl_context_from';
 	const CONTEXT_LINK_ID = 'cl_context_from_id';
 	
@@ -344,6 +380,8 @@ class SearchFields_FeedbackEntry {
 			self::SOURCE_URL => new DevblocksSearchField(self::SOURCE_URL, 'f', 'source_url', $translate->_('feedback_entry.source_url')),
 			
 			self::ADDRESS_EMAIL => new DevblocksSearchField(self::ADDRESS_EMAIL, 'a', 'email', $translate->_('feedback_entry.quote_address')),
+
+			self::VIRTUAL_WATCHERS => new DevblocksSearchField(self::VIRTUAL_WATCHERS, '*', 'workers', $translate->_('common.watchers')),
 			
 			self::CONTEXT_LINK => new DevblocksSearchField(self::CONTEXT_LINK, 'context_link', 'from_context', null),
 			self::CONTEXT_LINK_ID => new DevblocksSearchField(self::CONTEXT_LINK_ID, 'context_link', 'from_context_id', null),
@@ -432,6 +470,11 @@ class C4_FeedbackEntryView extends C4_AbstractView implements IAbstractView_Subt
 					$pass = true;
 					break;
 					
+				// Virtuals
+				case SearchFields_FeedbackEntry::VIRTUAL_WATCHERS:
+					$pass = true;
+					break;
+					
 				// Valid custom fields
 				default:
 					if('cf_' == substr($field_key,0,3))
@@ -456,6 +499,10 @@ class C4_FeedbackEntryView extends C4_AbstractView implements IAbstractView_Subt
 		switch($column) {
 			case SearchFields_FeedbackEntry::ADDRESS_EMAIL:
 				$counts = $this->_getSubtotalCountForStringColumn('DAO_FeedbackEntry', $column);
+				break;
+				
+			case SearchFields_FeedbackEntry::VIRTUAL_WATCHERS:
+				$counts = $this->_getSubtotalCountForWatcherColumn('DAO_FeedbackEntry', $column);
 				break;
 				
 			case SearchFields_FeedbackEntry::QUOTE_MOOD:
@@ -526,6 +573,9 @@ class C4_FeedbackEntryView extends C4_AbstractView implements IAbstractView_Subt
 				// [TODO] Translations
 				$tpl->display('devblocks:cerberusweb.feedback::feedback/criteria/quote_mood.tpl');
 				break;
+			case SearchFields_FeedbackEntry::VIRTUAL_WATCHERS:
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context_worker.tpl');
+				break;
 			default:
 				// Custom Fields
 				if('cf_' == substr($field,0,3)) {
@@ -537,6 +587,29 @@ class C4_FeedbackEntryView extends C4_AbstractView implements IAbstractView_Subt
 		}
 	}
 
+	function renderVirtualCriteria($param) {
+		$key = $param->field;
+		
+		switch($key) {
+			case SearchFields_FeedbackEntry::VIRTUAL_WATCHERS:
+				if(empty($param->value)) {
+					echo "There are no <b>watchers</b>";
+					
+				} elseif(is_array($param->value)) {
+					$workers = DAO_Worker::getAll();
+					$strings = array();
+					
+					foreach($param->value as $worker_id) {
+						if(isset($workers[$worker_id]))
+							$strings[] = '<b>'.$workers[$worker_id]->getName().'</b>';
+					}
+					
+					echo sprintf("Watcher is %s", implode(' or ', $strings));
+				}
+				break;
+		}
+	}	
+	
 	function renderCriteriaParam($param) {
 		$field = $param->field;
 		$values = !is_array($param->value) ? array($param->value) : $param->value;
@@ -622,6 +695,10 @@ class C4_FeedbackEntryView extends C4_AbstractView implements IAbstractView_Subt
 			case SearchFields_FeedbackEntry::QUOTE_MOOD:
 				@$moods = DevblocksPlatform::importGPC($_REQUEST['moods'],'array',array());
 				$criteria = new DevblocksSearchCriteria($field,$oper,$moods);
+				break;
+			case SearchFields_FeedbackEntry::VIRTUAL_WATCHERS:
+				@$worker_ids = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',array());
+				$criteria = new DevblocksSearchCriteria($field,'in', $worker_ids);
 				break;
 			default:
 				// Custom Fields
