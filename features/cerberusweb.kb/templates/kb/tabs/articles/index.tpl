@@ -48,7 +48,7 @@
 	<a href="{devblocks_url}c=kb{/devblocks_url}">Top</a> ::
 	{if !empty($breadcrumb)}
 		{foreach from=$breadcrumb item=bread_id}
-			<a href="{devblocks_url}c=kb&a=category&id={$bread_id}{/devblocks_url}">{$categories.$bread_id->name}</a> :
+			<a href="{devblocks_url}c=kb&a=category&id={$bread_id}-{$categories.$bread_id->name|devblocks_permalink}{/devblocks_url}">{$categories.$bread_id->name}</a> :
 		{/foreach} 
 	{/if}
 	</div>
@@ -60,12 +60,12 @@
 		<td width="50%" valign="top">
 		{foreach from=$tree.$root_id item=count key=cat_id name=kbcats}
 			<span class="cerb-sprite sprite-folder"></span>
-			<a href="{devblocks_url}c=kb&a=category&id={$cat_id}{/devblocks_url}" style="font-weight:bold;">{$categories.$cat_id->name}</a> ({$count|string_format:"%d"})<br>
+			<a href="{devblocks_url}c=kb&a=category&id={$cat_id}-{$categories.$cat_id->name|devblocks_permalink}{/devblocks_url}" style="font-weight:bold;">{$categories.$cat_id->name}</a> ({$count|string_format:"%d"})<br>
 		
 			{if !empty($tree.$cat_id)}
 				&nbsp; &nbsp; 
 				{foreach from=$tree.$cat_id item=count key=child_id name=subcats}
-					 <a href="{devblocks_url}c=kb&a=category&id={$child_id}{/devblocks_url}">{$categories.$child_id->name}</a>{if !$smarty.foreach.subcats.last}, {/if}
+					 <a href="{devblocks_url}c=kb&a=category&id={$child_id}-{$categories.$child_id->name|devblocks_permalink}{/devblocks_url}">{$categories.$child_id->name}</a>{if !$smarty.foreach.subcats.last}, {/if}
 				{/foreach}
 				<br>
 			{/if}

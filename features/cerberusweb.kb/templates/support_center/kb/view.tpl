@@ -45,7 +45,7 @@
 			<td>
 				{if !empty($result.kb_title)}
 				<img src="{devblocks_url}c=resource&p=cerberusweb.support_center&f=images/document.gif{/devblocks_url}" align="absmiddle">
-				<a href="{devblocks_url}c=kb&a=article&id={$result.kb_id|string_format:"%06d"}{/devblocks_url}"><span id="subject_{$result.kb_id}_{$view->id}">{$result.kb_title}</span></a>				
+				<a href="{devblocks_url}c=kb&a=article&id={$result.kb_id}-{$result.kb_title|devblocks_permalink}{/devblocks_url}"><span id="subject_{$result.kb_id}_{$view->id}">{$result.kb_title}</span></a>				
 				{/if}
 			</td>
 			{elseif $column=="kb_updated"}

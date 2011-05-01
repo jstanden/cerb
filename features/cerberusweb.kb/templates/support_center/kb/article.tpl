@@ -25,7 +25,7 @@
 		<div style="padding-left:10px;">
 		{foreach from=$breadcrumbs item=trail}
 			{foreach from=$trail item=step name=trail}
-				<a href="{devblocks_url}c=kb&a=browse&id={$step|string_format:"%06d"}{/devblocks_url}">{$categories.$step->name}</a>{if !$smarty.foreach.trail.last} &raquo; {/if}
+				<a href="{devblocks_url}c=kb&a=browse&id={$step}-{$categories.$step->name|devblocks_permalink}{/devblocks_url}">{$categories.$step->name}</a>{if !$smarty.foreach.trail.last} &raquo; {/if}
 			{/foreach}
 			<br>
 		{/foreach}

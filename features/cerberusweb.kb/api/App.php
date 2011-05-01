@@ -82,7 +82,7 @@ class ChKbPage extends CerberusPageExtension {
 		
 		switch($action) {
 			case 'article':
-				@$article_id = array_shift($stack);
+				@$article_id = intval(array_shift($stack));
 				
 				$categories = DAO_KbCategory::getAll();
 				$tpl->assign('categories', $categories);
@@ -734,7 +734,6 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 			$view->renderTemplate = 'chooser';
 			$view->addParams($params, true);
 			C4_AbstractViewLoader::setView($view->id, $view);
-			
 			$view->render();
 		}
 	}
