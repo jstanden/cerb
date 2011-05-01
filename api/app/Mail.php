@@ -362,7 +362,7 @@ class CerberusMail {
 	    'agent_id',
 		'is_autoreply',
 		'dont_send',
-		'dont_save_copy'
+		'dont_keep_copy'
 		*/
 
 		try {

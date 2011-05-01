@@ -921,6 +921,102 @@ class DevblocksEventHelper {
 			$content
 		);
 	}
+	
+	/*
+	 * Action: Relay Email
+	 */
+	
+	function renderActionRelayEmail($filter_to_worker_ids=array()) {
+		$tpl = DevblocksPlatform::getTemplateService();
+		
+		$workers = DAO_Worker::getAll();
+		$tpl->assign('workers', $workers);
+		
+		$addresses = DAO_AddressToWorker::getAll();
+
+		// Filter?
+		if(!empty($filter_to_worker_ids)) {
+			foreach($addresses as $k => $v) {
+				if(!in_array($v->worker_id, $filter_to_worker_ids))
+					unset($addresses[$k]);
+			}
+		}
+		$tpl->assign('addresses', $addresses);
+		
+		$tpl->assign('default_content',
+<<< EOL
+## Relayed from {{ticket_url}}
+## Your reply to this message will be broadcast to the requesters. 
+## Instructions: http://wiki.cerb5.com/wiki/Email_Relay
+##
+{{content}}
+EOL
+		);
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_relay_email.tpl');
+	}
+	
+	function runActionRelayEmail($params, $values, $context, $context_id) {
+		$replyto_default = DAO_AddressOutgoing::getDefault();
+		$relay_list = $params['to'];
+		
+		if(is_array($relay_list))
+		foreach($relay_list as $to) {
+			try {
+				// [TODO] Cache
+				if(null == ($worker_address = DAO_AddressToWorker::getByAddress($to)))
+					continue;
+					
+				if(null == ($worker = DAO_Worker::get($worker_address->worker_id)))
+					continue;
+				
+				$mail_service = DevblocksPlatform::getMailService();
+				$mailer = $mail_service->getMailer(CerberusMail::getMailerDefaults());
+				$mail = $mail_service->createMessage();
+				
+				$mail->setTo(array($worker_address->address));
+	
+				$headers = $mail->getHeaders(); /* @var $headers Swift_Mime_Header */
+	
+				$mail->setFrom($values['sender_address'], $values['sender_full_name']);
+				$mail->setReplyTo($replyto_default->email);
+				$mail->setSubject($values['ticket_subject']);
+	
+				// Find the owner of this address and sign it.
+				$sign = substr(md5($context.$context_id.$worker->pass),8,8);
+				
+				$headers->removeAll('message-id');
+				$headers->addTextHeader('Message-Id', sprintf("<cerb5:%s:%d@%s>", $context, $context_id, $sign));
+				$headers->addTextHeader('X-CerberusRedirect','1');
+	
+				$content = 
+<<< EOF
+## Relayed from ${values['ticket_url']}
+## Your reply to this message will be broadcast to the requesters. 
+## Instructions: http://wiki.cerb5.com/wiki/Email_Relay
+##
+${values['content']}
+EOF;
+				
+				$mail->setBody($content);
+				
+				// Files
+				//if(is_array($message->files))
+				//foreach($message->files as $file_name => $file) { /* @var $file ParserFile */
+				//	$mail->attach(Swift_Attachment::fromPath($file->tmpname)->setFilename($file_name));
+				//}
+			
+				$result = $mailer->send($mail);
+				
+				if(!$result) {
+					return false;
+				}			
+				
+			} catch (Exception $e) {
+				
+			}
+		}
+	}
 };
 
 abstract class Extension_DevblocksEventCondition extends DevblocksExtension {

@@ -216,7 +216,8 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 			//'set_status' => array('label' => 'Set status'),
 			'set_subject' => array('label' => 'Set subject'),
 			'send_email' => array('label' => 'Send email'),
-			'send_email_recipients' => array('label' => 'Send email to recipients'),
+			'relay_email' => array('label' => 'Relay to external email'),
+			'send_email_recipients' => array('label' => 'Reply to recipients'),
 			'create_comment' => array('label' =>'Create a comment'),
 			'create_notification' => array('label' =>'Create a notification'),
 			'create_task' => array('label' =>'Create a task'),
@@ -245,6 +246,11 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 				
 			case 'send_email':
 				DevblocksEventHelper::renderActionSendEmail();
+				break;
+				
+			case 'relay_email':
+				// Filter to trigger owner
+				DevblocksEventHelper::renderActionRelayEmail(array($trigger->owner_context_id));
 				break;
 				
 			case 'send_email_recipients':
@@ -290,6 +296,10 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 			
 			case 'send_email':
 				DevblocksEventHelper::runActionSendEmail($params, $values);
+				break;
+				
+			case 'relay_email':
+				DevblocksEventHelper::runActionRelayEmail($params, $values, CerberusContexts::CONTEXT_TICKET, $ticket_id);
 				break;
 				
 			case 'send_email_recipients':

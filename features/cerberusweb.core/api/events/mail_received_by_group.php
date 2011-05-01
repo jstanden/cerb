@@ -299,8 +299,9 @@ class Event_MailReceivedByGroup extends Extension_DevblocksEvent {
 				'create_ticket' => array('label' =>'Create a ticket'),
 				'move_to_bucket' => array('label' => 'Move to bucket'),
 				'move_to_group' => array('label' => 'Move to group'),
+				'relay_email' => array('label' => 'Relay to external email'),
 				'send_email' => array('label' => 'Send email'),
-				'send_email_recipients' => array('label' => 'Send email to recipients'),
+				'send_email_recipients' => array('label' => 'Reply to recipients'),
 				'set_spam_training' => array('label' => 'Set spam training'),
 				'set_status' => array('label' => 'Set status'),
 			)
@@ -323,6 +324,12 @@ class Event_MailReceivedByGroup extends Extension_DevblocksEvent {
 		switch($token) {
 			case 'add_watchers':
 				DevblocksEventHelper::renderActionAddWatchers();
+				break;
+				
+			case 'relay_email':
+				// [TODO] Filter to group members
+				$group = DAO_Group::get($trigger->owner_context_id);
+				DevblocksEventHelper::renderActionRelayEmail(array_keys($group->getMembers()));
 				break;
 				
 			case 'send_email':
@@ -394,6 +401,10 @@ class Event_MailReceivedByGroup extends Extension_DevblocksEvent {
 			
 			case 'send_email':
 				DevblocksEventHelper::runActionSendEmail($params, $values);
+				break;
+				
+			case 'relay_email':
+				DevblocksEventHelper::runActionRelayEmail($params, $values, CerberusContexts::CONTEXT_TICKET, $ticket_id);
 				break;
 				
 			case 'send_email_recipients':

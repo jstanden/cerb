@@ -149,13 +149,13 @@ class DevblocksPlatform extends DevblocksEngine {
 	    return FALSE;
 	}
 	
-	static function parseCrlfString($string) {
+	static function parseCrlfString($string, $keep_blanks=false) {
 		$parts = preg_split("/[\r\n]/", $string);
 		
 		// Remove any empty tokens
 		foreach($parts as $idx => $part) {
 			$parts[$idx] = trim($part);
-			if(0 == strlen($parts[$idx])) 
+			if(!$keep_blanks && 0 == strlen($parts[$idx])) 
 				unset($parts[$idx]);
 		}
 		
