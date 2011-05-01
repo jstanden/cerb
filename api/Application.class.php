@@ -539,6 +539,9 @@ interface IContextToken {
 };
 
 class CerberusContexts {
+	private static $_default_actor_context = null;
+	private static $_default_actor_context_id = null;
+	
 	const CONTEXT_ADDRESS = 'cerberusweb.contexts.address';
 	const CONTEXT_ATTACHMENT = 'cerberusweb.contexts.attachment';
 	const CONTEXT_BUCKET = 'cerberusweb.contexts.bucket';
@@ -815,6 +818,16 @@ class CerberusContexts {
 		return $tpl_builder->build($entry['message'], $vars);
 	}
 	
+	static public function setActivityDefaultActor($context, $context_id=null) {
+		if(empty($context) || empty($context_id)) {
+			self::$_default_actor_context = null;
+			self::$_default_actor_context_id = null;
+		} else {
+			self::$_default_actor_context = $context;
+			self::$_default_actor_context_id = $context_id;
+		}
+	}
+	
 	static public function logActivity($activity_point, $target_context, $target_context_id, $entry_array, $actor_context=null, $actor_context_id=null, $also_notify_worker_ids=array()) {
 		// Forced actor
 		if(!empty($actor_context) && !empty($actor_context_id)) {
@@ -860,12 +873,28 @@ class CerberusContexts {
 				}
 				
 			// Otherwise see if we have an active session
-			} elseif(null != ($active_worker = CerberusApplication::getActiveWorker())) {
-				$actor_name = $active_worker->getName();
-				$actor_context = CerberusContexts::CONTEXT_WORKER;
-				$actor_context_id = $active_worker->id;
-				$actor_url = sprintf("c=profiles&type=worker&who=%d", $actor_context_id);
-			}
+			} else {
+				// If we have a default, use it instead of the current session
+				if(empty($actor_context) && !empty(self::$_default_actor_context)) {
+					$actor_context = self::$_default_actor_context;
+					$actor_context_id = self::$_default_actor_context_id;
+					if(null != ($ctx = DevblocksPlatform::getExtension($actor_context, true))
+						&& $ctx instanceof Extension_DevblocksContext) {
+						$meta = $ctx->getMeta($actor_context_id);
+						$actor_name = $meta['name'];
+						$actor_url = $meta['permalink'];
+					}
+				}
+
+				// Try using current session 
+				if(empty($actor_context) && null != ($active_worker = CerberusApplication::getActiveWorker())) {
+					$actor_name = $active_worker->getName();
+					$actor_context = CerberusContexts::CONTEXT_WORKER;
+					$actor_context_id = $active_worker->id;
+					$actor_url = sprintf("c=profiles&type=worker&who=%d", $actor_context_id);
+				}				
+				
+			} 
 		}
 		
 		if(empty($actor_context)) {
@@ -1219,7 +1248,11 @@ class CerberusVisit extends DevblocksVisit {
 	}
 	
 	public function setWorker(Model_Worker $worker=null) {
-		$this->worker_id = $worker->id;
+		if(is_null($worker)) {
+			$this->worker_id = null;
+		} else {
+			$this->worker_id = $worker->id;
+		}
 	}
 };
 
