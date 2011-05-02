@@ -866,26 +866,6 @@
         <seg>Search Knowledgebase: </seg>
       </tuv>
     </tu>
-    <tu tuid="display.reply.next.handle_reply">
-      <tuv xml:lang="it_IT">
-        <seg>Chi dovrebbe gestire la risposta?</seg>
-      </tuv>
-    </tu>
-    <tu tuid="display.reply.next.handle_reply_after">
-      <tuv xml:lang="it_IT">
-        <seg>Consenti a tutti di gestire la risposta dopo:</seg>
-      </tuv>
-    </tu>
-    <tu tuid="display.reply.next.handle_reply_after_2hrs">
-      <tuv xml:lang="it_IT">
-        <seg>+2 ore</seg>
-      </tuv>
-    </tu>
-    <tu tuid="display.reply.next.handle_reply_after_eg">
-      <tuv xml:lang="it_IT">
-        <seg>(e.g. "2 hours", "5pm", or leave blank to keep assigned) </seg>
-      </tuv>
-    </tu>
     <tu tuid="display.reply.next.move">
       <tuv xml:lang="it_IT">
         <seg>Vuoi muovere questa conversazione?</seg>

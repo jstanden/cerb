@@ -1133,12 +1133,6 @@ class ChTicketsPage extends CerberusPageExtension {
 		$closed = intval($visit->get('compose.defaults.closed', ''));
 		$tpl->assign('default_closed', $closed);
 		
-		$context_worker_ids = $visit->get('compose.defaults.context_worker_ids', '');
-		if(is_array($context_worker_ids) && !empty($context_worker_ids)) {
-			$context_watchers = DAO_Worker::getList($context_worker_ids);
-			$tpl->assign('context_watchers', $context_watchers);
-		}
-		
 		$tpl->display('devblocks:cerberusweb.core::tickets/compose/peek.tpl');
 	}
 	
@@ -1152,7 +1146,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		@$content = DevblocksPlatform::importGPC($_POST['content'],'string');
 		@$files = $_FILES['attachment'];
 		@$closed = DevblocksPlatform::importGPC($_POST['closed'],'integer',0);
-		@$context_worker_ids = DevblocksPlatform::importGPC($_POST['worker_id'],'array',array());
+		@$add_me_as_watcher = DevblocksPlatform::importGPC($_POST['add_me_as_watcher'],'integer',0);
 
 		$visit = CerberusApplication::getVisit();
 
@@ -1160,7 +1154,6 @@ class ChTicketsPage extends CerberusPageExtension {
 		$visit->set('compose.defaults.from', $team_id);
 		$visit->set('compose.defaults.subject', $subject);
 		$visit->set('compose.defaults.closed', $closed);
-		$visit->set('compose.defaults.context_worker_ids', $context_worker_ids);
 		
 		// Send
 		$properties = array(
@@ -1172,11 +1165,15 @@ class ChTicketsPage extends CerberusPageExtension {
 			'content' => $content,
 			'files' => $files,
 			'closed' => $closed,
-			'context_watchers' => $context_worker_ids,
 		);
 		
 		$ticket_id = CerberusMail::compose($properties);
 
+		if($add_me_as_watcher) {
+			$active_worker = CerberusApplication::getActiveWorker();
+			CerberusContexts::addWatchers(CerberusContexts::CONTEXT_TICKET, $ticket_id, $active_worker->id);
+		}
+		
 		if(!empty($view_id)) {
 			$defaults = new C4_AbstractViewModel();
 			$defaults->class_name = 'View_Ticket';
@@ -1418,8 +1415,8 @@ class ChTicketsPage extends CerberusPageExtension {
 		
 		@$closed = DevblocksPlatform::importGPC($_POST['closed'],'integer',0);
 		@$move_bucket = DevblocksPlatform::importGPC($_POST['bucket_id'],'string','');
-		@$watcher_ids = DevblocksPlatform::importGPC($_POST['worker_id'],'array',array());
 		@$ticket_reopen = DevblocksPlatform::importGPC($_POST['ticket_reopen'],'string','');
+		@$add_me_as_watcher = DevblocksPlatform::importGPC($_POST['add_me_as_watcher'],'integer',0);
 		
 		if(empty($to)) {
 			DevblocksPlatform::redirect(new DevblocksHttpResponse(array('tickets','compose')));
@@ -1437,7 +1434,6 @@ class ChTicketsPage extends CerberusPageExtension {
 			'files' => $files,
 			'closed' => $closed,
 			'move_bucket' => $move_bucket,
-			'context_watchers' => $watcher_ids,
 			'ticket_reopen' => $ticket_reopen,
 		);
 		$ticket_id = CerberusMail::compose($properties);
@@ -1445,6 +1441,11 @@ class ChTicketsPage extends CerberusPageExtension {
 		if(!empty($ticket_id)) {
 			if(!empty($draft_id))
 				DAO_MailQueue::delete($draft_id);
+				
+			if($add_me_as_watcher) {
+				$worker = CerberusApplication::getActiveWorker();
+				CerberusContexts::addWatchers(CerberusContexts::CONTEXT_TICKET, $ticket_id, $active_worker->id);
+			}
 				
 			$ticket = DAO_Ticket::get($ticket_id);
 			

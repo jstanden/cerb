@@ -1941,21 +1941,6 @@
         <seg>Wer soll die nächste Antwort bearbeiten?</seg>
       </tuv>
     </tu>
-    <tu tuid="display.reply.next.handle_reply_after">
-      <tuv xml:lang="de_DE">
-        <seg>Jeder soll die nächste Antwort bearbeiten nach:</seg>
-      </tuv>
-    </tu>
-    <tu tuid="display.reply.next.handle_reply_after_2hrs">
-      <tuv xml:lang="de_DE">
-        <seg>+2 Stunden</seg>
-      </tuv>
-    </tu>
-    <tu tuid="display.reply.next.handle_reply_after_eg">
-      <tuv xml:lang="de_DE">
-        <seg>(z.B. "2 Stunden", "17", oder leer = Zuweisung behalten</seg>
-      </tuv>
-    </tu>
     <tu tuid="display.reply.next.move">
       <tuv xml:lang="de_DE">
         <seg>Möchten Sie die Konversation verschieben?</seg>

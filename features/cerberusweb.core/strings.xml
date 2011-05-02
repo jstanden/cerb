@@ -1195,9 +1195,6 @@ For example: http://www.cerberusweb.com/support/</seg></tuv>
 		<tu tuid='display.reply.next_label'>
 			<tuv xml:lang="en_US"><seg>Next:</seg></tuv>
 		</tu>
-		<tu tuid='display.reply.next.handle_reply'>
-			<tuv xml:lang="en_US"><seg>Who should handle the next reply?</seg></tuv>
-		</tu>
 		<tu tuid='display.reply.next.move'>
 			<tuv xml:lang="en_US"><seg>Would you like to move this conversation?</seg></tuv>
 		</tu>

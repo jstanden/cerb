@@ -890,10 +890,6 @@ class DevblocksEventHelper {
 			//'dont_send' => (false==$send_to_requesters),
 		);
 		
-		// Don't reset owners to 'blank', but allow overrides from GUI log ticket form
-		//if(!empty($watcher_ids))
-	    	//$properties['context_watchers'] = $watcher_ids;
-		
 		CerberusMail::sendTicketMessage($properties);
 		
 		return $ticket_id;

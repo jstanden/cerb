@@ -1826,11 +1826,6 @@
         <seg>Zoeken in kennisbank:</seg>
       </tuv>
     </tu>
-    <tu tuid="display.reply.next.handle_reply">
-      <tuv xml:lang="nl_NL">
-        <seg>Wie moet het volgende antwoord behandelen?</seg>
-      </tuv>
-    </tu>
     <tu tuid="display.reply.next.move">
       <tuv xml:lang="nl_NL">
         <seg>Wilt u deze conversatie verplaatsen?</seg>

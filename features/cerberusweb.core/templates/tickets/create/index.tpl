@@ -122,12 +122,10 @@
 								<br>
 								</div>
 		
-								{if $active_worker->hasPriv('core.ticket.actions.assign')}
-									<b>{$translate->_('display.reply.next.handle_reply')}</b><br>
-									<button type="button" class="chooser_worker"><span class="cerb-sprite sprite-view"></span></button>
-							      	<br>
-							      	<br>
-								{/if}
+								<label>
+								<input type="checkbox" name="add_me_as_watcher" value="1"> 
+								{'common.watchers.add_me'|devblocks_translate|capitalize}
+								</label>
 							</td>
 						</tr>
 					</table>

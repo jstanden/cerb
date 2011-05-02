@@ -50,17 +50,12 @@
 			<br>
 			<br>
 
-			{if $active_worker->hasPriv('core.ticket.actions.assign')}
-				<b>Who should handle the follow-up?</b><br>
-				<button type="button" class="chooser_worker"><span class="cerb-sprite sprite-view"></span></button>
-				<ul class="chooser-container bubbles" style="display:block;">
-				{if !empty($context_watchers)}
-					{foreach from=$context_watchers item=context_worker}
-					<li>{$context_worker->getName()}<input type="hidden" name="worker_id[]" value="{$context_worker->id}"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></li>
-					{/foreach}
-				{/if}
-				</ul>
-			{/if}
+			<div>
+				<label>
+				<input type="checkbox" name="add_me_as_watcher" value="1"> 
+				{'common.watchers.add_me'|devblocks_translate}
+				</label>
+			</div>
 		</td>
 	</tr>
 </table>

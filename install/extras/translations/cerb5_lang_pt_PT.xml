@@ -1066,26 +1066,6 @@
         <seg>Pesquisar na Knowledgebase:</seg>
       </tuv>
     </tu>
-    <tu tuid="display.reply.next.handle_reply">
-      <tuv xml:lang="pt_PT">
-        <seg>Quem deve tratar da próxima resposta?</seg>
-      </tuv>
-    </tu>
-    <tu tuid="display.reply.next.handle_reply_after">
-      <tuv xml:lang="pt_PT">
-        <seg>Permitir que qualquer um possa tratar da próxima resposta depois de:</seg>
-      </tuv>
-    </tu>
-    <tu tuid="display.reply.next.handle_reply_after_2hrs">
-      <tuv xml:lang="pt_PT">
-        <seg>+2 horas</seg>
-      </tuv>
-    </tu>
-    <tu tuid="display.reply.next.handle_reply_after_eg">
-      <tuv xml:lang="pt_PT">
-        <seg>(e.x. "2 horas", "5pm", ou deixar em branco para permanecer atribuído)</seg>
-      </tuv>
-    </tu>
     <tu tuid="display.reply.next.move">
       <tuv xml:lang="pt_PT">
         <seg>Desejar mover esta conversa?</seg>

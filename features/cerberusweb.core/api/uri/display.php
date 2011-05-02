@@ -461,8 +461,8 @@ class ChDisplayPage extends CerberusPageExtension {
 		$tpl->assign('ticket',$ticket);
 
 		// Workers
-		$context_watchers = CerberusContexts::getWatchers(CerberusContexts::CONTEXT_TICKET, $ticket->id);
-		$tpl->assign('context_watchers', $context_watchers);
+		$object_watchers = DAO_ContextLink::getContextLinks(CerberusContexts::CONTEXT_TICKET, array($ticket->id), CerberusContexts::CONTEXT_WORKER);
+		$tpl->assign('object_watchers', $object_watchers);
 		
 		// Are we continuing a draft?
 		@$draft_id = DevblocksPlatform::importGPC($_REQUEST['draft_id'],'integer',0);
@@ -535,7 +535,6 @@ class ChDisplayPage extends CerberusPageExtension {
 	    @$ticket_mask = DevblocksPlatform::importGPC($_REQUEST['ticket_mask'],'string');
 	    @$draft_id = DevblocksPlatform::importGPC($_REQUEST['draft_id'],'integer');
 	    @$is_forward = DevblocksPlatform::importGPC($_REQUEST['is_forward'],'integer',0);
-	    @$worker_ids = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',array());
 	    
 	    $worker = CerberusApplication::getActiveWorker();
 	    
@@ -553,7 +552,6 @@ class ChDisplayPage extends CerberusPageExtension {
 		    'closed' => DevblocksPlatform::importGPC(@$_REQUEST['closed'],'integer',0),
 		    'bucket_id' => DevblocksPlatform::importGPC(@$_REQUEST['bucket_id'],'string',''),
 		    'ticket_reopen' => DevblocksPlatform::importGPC(@$_REQUEST['ticket_reopen'],'string',''),
-		    'context_watchers' => $worker_ids,
 		    'agent_id' => @$worker->id,
 		    'forward_files' => DevblocksPlatform::importGPC(@$_REQUEST['forward_files'],'array',array()),
 		);

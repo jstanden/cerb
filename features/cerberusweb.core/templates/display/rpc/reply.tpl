@@ -176,32 +176,22 @@
 					<table cellpadding="2" cellspacing="0" border="0">
 						<tr>
 							<td nowrap="nowrap" valign="top" colspan="2">
+								<div style="margin-bottom:10px;">
+									{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" object_watchers=$object_watchers context=CerberusContexts::CONTEXT_TICKET context_id=$ticket->id full=true}
+								</div>
+
 								<label><input type="radio" name="closed" value="0" onclick="toggleDiv('replyOpen{$message->id}','block');toggleDiv('replyClosed{$message->id}','none');">{$translate->_('status.open')|capitalize}</label>
 								<label><input type="radio" name="closed" value="2" onclick="toggleDiv('replyOpen{$message->id}','block');toggleDiv('replyClosed{$message->id}','block');" {if !$ticket->is_closed}checked{/if}>{$translate->_('status.waiting')|capitalize}</label>
 								{if $active_worker->hasPriv('core.ticket.actions.close') || ($ticket->is_closed && !$ticket->is_deleted)}<label><input type="radio" name="closed" value="1" onclick="toggleDiv('replyOpen{$message->id}','none');toggleDiv('replyClosed{$message->id}','block');" {if $ticket->is_closed}checked{/if}>{$translate->_('status.closed')|capitalize}</label>{/if}
 								<br>
 								<br>
 								
-						      	<div id="replyClosed{$message->id}" style="display:block;margin-left:10px;">
+						      	<div id="replyClosed{$message->id}" style="display:block;margin-left:10px;margin-bottom:10px;">
 						      	<b>{$translate->_('display.reply.next.resume')}</b> {$translate->_('display.reply.next.resume_eg')}<br> 
 						      	<input type="text" name="ticket_reopen" size="55" value="{if !empty($ticket->due_date)}{$ticket->due_date|devblocks_date}{/if}"><br>
 						      	{$translate->_('display.reply.next.resume_blank')}<br>
-						      	<br>
 						      	</div>
 		
-								<div style="margin-left:10px;">
-								<b>{$translate->_('display.reply.next.handle_reply')}</b><br>
-								<button type="button" class="chooser_worker"><span class="cerb-sprite sprite-view"></span></button>
-								<ul class="chooser-container bubbles">
-								{if !empty($context_watchers)}
-									{foreach from=$context_watchers item=context_worker}
-									<li>{$context_worker->getName()}<input type="hidden" name="worker_id[]" value="{$context_worker->id}"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></li>
-									{/foreach}
-								{/if}
-								</ul>
-						      	<br>
-						      	<br>
-						      	
 								{if $active_worker->hasPriv('core.ticket.actions.move')}
 								<b>{$translate->_('display.reply.next.move')}</b><br>  
 						      	<select name="bucket_id">
@@ -266,10 +256,6 @@
 		
 		$('#reply{$message->id}_part1 button[name=saveDraft]').click(); // save now
 		setInterval("$('#reply{$message->id}_part1 button[name=saveDraft]').click();", 30000); // and every 30 sec
-		
-		$('#reply{$message->id}_part2 button.chooser_worker').each(function() {
-			ajax.chooser(this,'cerberusweb.contexts.worker','worker_id', { autocomplete:true });			
-		});
 		
 		$('#reply{$message->id}_part1 input:text.context-snippet').autocomplete({
 			source: DevblocksAppPath+'ajax.php?c=internal&a=autocomplete&context=cerberusweb.contexts.snippet',
