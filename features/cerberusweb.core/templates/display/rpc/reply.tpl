@@ -8,24 +8,6 @@
 	<tr>
 		<td width="100%">
 			<table cellpadding="1" cellspacing="0" border="0" width="100%">
-				{if !empty($context_watchers) && !isset($context_watchers.{$active_worker->id})}
-				<tr>
-					<td width="100%" colspan="2">
-						<div class="ui-widget">
-							<div class="ui-state-error ui-corner-all" style="padding: 0 .7em; margin: 0.2em; "> 
-								<p><span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>
-									{$worker_string = ''}
-									{foreach from=$context_watchers item=worker name=workers}
-										{$worker_string = $worker_string|cat:'<b>'|cat:$worker->getName()|cat:'</b>'}{if !$smarty.foreach.workers.last}{$worker_string = $worker_string|cat:' and '}{/if}
-									{/foreach}
-									{'display.reply.warn_assigned'|devblocks_translate:$worker_string nofilter}
-								</p> 
-							</div>
-						</div>
-					</td>
-				</tr>
-				{/if}
-				
 				{if isset($teams.{$ticket->team_id})}
 				<tr>
 					<td width="1%" nowrap="nowrap">{$translate->_('message.header.from')|capitalize}: </td>

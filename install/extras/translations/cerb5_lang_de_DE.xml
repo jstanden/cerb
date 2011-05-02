@@ -2006,11 +2006,6 @@
         <seg>Am %s, %s schrieb:</seg>
       </tuv>
     </tu>
-    <tu tuid="display.reply.warn_assigned">
-      <tuv xml:lang="de_DE">
-        <seg>Warnung: Sie beantworten ein %s zugewiesenes Ticket</seg>
-      </tuv>
-    </tu>
     <tu tuid="display.shortcut.close">
       <tuv xml:lang="de_DE">
         <seg>Ticket schliessen (C)</seg>

@@ -1220,9 +1220,6 @@ For example: http://www.cerberusweb.com/support/</seg></tuv>
 		<tu tuid='display.reply.reply_banner'>
 			<tuv xml:lang="en_US"><seg>On %s, %s wrote:</seg></tuv>
 		</tu>
-		<tu tuid='display.reply.warn_assigned'>
-			<tuv xml:lang="en_US"><seg>Warning: You are replying to a ticket assigned to %s</seg></tuv>
-		</tu>
 		
 		<tu tuid='display.shortcut.close'>
 			<tuv xml:lang="en_US"><seg>Close this ticket (C)</seg></tuv>

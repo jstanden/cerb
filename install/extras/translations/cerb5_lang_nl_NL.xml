@@ -1871,11 +1871,6 @@
         <seg>Op %s schreef %s:</seg>
       </tuv>
     </tu>
-    <tu tuid="display.reply.warn_assigned">
-      <tuv xml:lang="nl_NL">
-        <seg>Waarschuwing: U beantwoord een bericht dat al is toegewezen aan: %s</seg>
-      </tuv>
-    </tu>
     <tu tuid="display.shortcut.close">
       <tuv xml:lang="nl_NL">
         <seg>Sluit dit ticket (C)</seg>

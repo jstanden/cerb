@@ -1126,11 +1126,6 @@
         <seg>Em %s, %s escreveu:</seg>
       </tuv>
     </tu>
-    <tu tuid="display.reply.warn_assigned">
-      <tuv xml:lang="pt_PT">
-        <seg>Aviso: Está a responder a um ticket atribuído a %s</seg>
-      </tuv>
-    </tu>
     <tu tuid="display.shortcut.close">
       <tuv xml:lang="pt_PT">
         <seg>Fechar este ticket (C)</seg>

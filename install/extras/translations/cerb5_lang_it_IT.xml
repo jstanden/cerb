@@ -936,11 +936,6 @@
         <seg>Il %s, %s scrisse: </seg>
       </tuv>
     </tu>
-    <tu tuid="display.reply.warn_assigned">
-      <tuv xml:lang="it_IT">
-        <seg>Warning: You are replying to a ticket assigned to %s </seg>
-      </tuv>
-    </tu>
     <tu tuid="display.shortcut.close">
       <tuv xml:lang="it_IT">
         <seg>Chiudi ticket (C)</seg>
