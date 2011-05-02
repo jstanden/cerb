@@ -1,25 +1,3 @@
-FIELDSET {
-	position:relative;
-	margin:0 0 1em 0;
-	padding:1em 0.5em 0.5em 0.5em;
-}
-
-FIELDSET LEGEND {
-	position:absolute;
-	top:-.5em;
-	left:.2em;
-}
-
-DIV.badge {
-	display:inline;
-	font-weight:bold;
-	zoom:1;
-}
-
-UL.bubbles {
-	display:inline-block;
-}
-
-UL.bubbles LI {
-	float:left;
+fieldset {
+	background:none;
 }
