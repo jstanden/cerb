@@ -230,9 +230,9 @@
 	</tr>
 	<tr>
 		<td>
-			<button type="button" onclick="if($('#reply{$message->id}_part1').validate().form()) { genericAjaxPost('reply{$message->id}_part2',null,'c=display&a=saveDraftReply&is_ajax=1',function(json) { $('#reply{$message->id}_part2').submit(); } ); } "><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {if $is_forward}{$translate->_('display.ui.forward')|capitalize}{else}{$translate->_('display.ui.send_message')}{/if}</button>
-			<button type="button" onclick="if($('#reply{$message->id}_part1').validate().form()) { this.form.a.value='saveDraftReply'; this.form.submit(); } "><span class="cerb-sprite sprite-media_pause"></span> {$translate->_('display.ui.continue_later')|capitalize}</button>
-			<button type="button" onclick="if(confirm('Are you sure you want to discard this reply?')) { if(null != draftAutoSaveInterval) { clearTimeout(draftAutoSaveInterval); draftAutoSaveInterval = null; } if(0!==this.form.draft_id.value.length) { genericAjaxGet('', 'c=tickets&a=deleteDraft&draft_id='+escape(this.form.draft_id.value)); $('#draft'+escape(this.form.draft_id.value)).remove(); } $('#reply{$message->id}').html(''); } "><span class="cerb-sprite2 sprite-cross-circle-frame"></span> {$translate->_('display.ui.discard')|capitalize}</button>
+			<button type="button" onclick="window.onbeforeunload=null;if($('#reply{$message->id}_part1').validate().form()) { genericAjaxPost('reply{$message->id}_part2',null,'c=display&a=saveDraftReply&is_ajax=1',function(json) { $('#reply{$message->id}_part2').submit(); } ); } "><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {if $is_forward}{$translate->_('display.ui.forward')|capitalize}{else}{$translate->_('display.ui.send_message')}{/if}</button>
+			<button type="button" onclick="window.onbeforeunload=null;if($('#reply{$message->id}_part1').validate().form()) { this.form.a.value='saveDraftReply'; this.form.submit(); } "><span class="cerb-sprite sprite-media_pause"></span> {$translate->_('display.ui.continue_later')|capitalize}</button>
+			<button type="button" onclick="window.onbeforeunload=null;if(confirm('Are you sure you want to discard this reply?')) { if(null != draftAutoSaveInterval) { clearTimeout(draftAutoSaveInterval); draftAutoSaveInterval = null; } if(0!==this.form.draft_id.value.length) { genericAjaxGet('', 'c=tickets&a=deleteDraft&draft_id='+escape(this.form.draft_id.value)); $('#draft'+escape(this.form.draft_id.value)).remove(); } $('#reply{$message->id}').html(''); } "><span class="cerb-sprite2 sprite-cross-circle-frame"></span> {$translate->_('display.ui.discard')|capitalize}</button>
 		</td>
 	</tr>
 </table>
@@ -245,6 +245,10 @@
 		var draftAutoSaveInterval = null;
 	
 	$(function() {
+		window.onbeforeunload = function() {
+			return "You are currently composing an email message.  Are you sure you want to abandon it?";
+		}
+		
 		// Autocompletes
 		ajax.emailAutoComplete('#reply{$message->id}_part1 input[name=to]', { multiple: true } );
 		ajax.emailAutoComplete('#reply{$message->id}_part1 input[name=cc]', { multiple: true } );
@@ -263,7 +267,7 @@
 			draftAutoSaveInterval = null;
 		}
 		draftAutoSaveInterval = setInterval("$('#reply{$message->id}_part1 button[name=saveDraft]').click();", 30000); // and every 30 sec
-		
+
 		$('#reply{$message->id}_part1 input:text.context-snippet').autocomplete({
 			source: DevblocksAppPath+'ajax.php?c=internal&a=autocomplete&context=cerberusweb.contexts.snippet',
 			minLength: 1,
