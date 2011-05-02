@@ -318,6 +318,7 @@ abstract class CerberusCronPageExtension extends DevblocksExtension {
 	}
 	
 	function _run() {
+		$this->setParam(self::PARAM_LOCKED,time());
 	    $this->run();
 	    
 		$duration = $this->getParam(self::PARAM_DURATION, 5);

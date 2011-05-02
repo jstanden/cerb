@@ -148,7 +148,6 @@ class ChCronController extends DevblocksControllerExtension {
 	    
 		if(!empty($jobs)) {
 		    foreach($jobs as $nextjob) {
-		        $nextjob->setParam(CerberusCronPageExtension::PARAM_LOCKED, time());
 	    	    $nextjob->_run();
 	        }
 		} elseif($reload) {
