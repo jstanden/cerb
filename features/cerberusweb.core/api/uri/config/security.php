@@ -1,6 +1,9 @@
 <?php
 class PageSection_SetupSecurity extends Extension_PageSection {
 	function render() {
+		if(ONDEMAND_MODE)
+			return;
+		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$visit = CerberusApplication::getVisit();
 		
