@@ -71,6 +71,10 @@ fieldset.delete legend {
 	color:rgb(150,0,0);
 }
 
+abbr {
+	border-bottom:dotted 1px rgb(175,175,175);
+}
+
 select, textarea {
 	border:1px solid rgb(150,150,150);
 }

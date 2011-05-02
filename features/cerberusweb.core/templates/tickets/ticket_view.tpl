@@ -122,9 +122,9 @@
 				{assign var=ticket_category_id value=$result.t_category_id}
 				{assign var=bucket value=$buckets.$ticket_category_id}
 			{/if}
-			<td title="{$result.t_updated_date|devblocks_date}">{$result.t_updated_date|devblocks_prettytime}</td>
+			<td><abbr title="{$result.t_updated_date|devblocks_date}">{$result.t_updated_date|devblocks_prettytime}</abbr></td>
 		{elseif $column=="t_due_date"}
-		<td title="{if $result.t_due_date}{$result.t_due_date|devblocks_date}{/if}">{if $result.t_due_date}{$result.t_due_date|devblocks_prettytime}{/if}</td>
+		<td><abbr title="{if $result.t_due_date}{$result.t_due_date|devblocks_date}{/if}">{if $result.t_due_date}{$result.t_due_date|devblocks_prettytime}{/if}</abbr></td>
 		{elseif $column=="t_team_id"}
 		<td>
 			{assign var=ticket_team_id value=$result.t_team_id}
