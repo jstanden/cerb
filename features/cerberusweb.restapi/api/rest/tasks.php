@@ -58,7 +58,15 @@ class ChRest_Tasks extends Extension_RestController implements IExtensionRestCon
 	}
 	
 	function deleteAction($stack) {
-		$this->error(self::ERRNO_NOT_IMPLEMENTED);
+		$id = array_shift($stack);
+
+		if(null == ($task = DAO_Task::get($id)))
+			$this->error(self::ERRNO_CUSTOM, sprintf("Invalid task ID %d", $id));
+
+		DAO_Task::delete($id);
+
+		$result = array('id' => $id);
+		$this->success($result);		
 	}
 
 	function translateToken($token, $type='dao') {
@@ -121,18 +129,10 @@ class ChRest_Tasks extends Extension_RestController implements IExtensionRestCon
 	function search($filters=array(), $sortToken='id', $sortAsc=1, $page=1, $limit=10) {
 		$worker = $this->getActiveWorker();
 
+		$custom_field_params = $this->_handleSearchBuildParamsCustomFields($filters, CerberusContexts::CONTEXT_TASK);
 		$params = $this->_handleSearchBuildParams($filters);
-		
-		// (ACL) Add worker group privs
-//		if(!$worker->is_superuser) {
-//			$memberships = $worker->getMemberships();
-//			$params['tmp_worker_memberships'] = new DevblocksSearchCriteria(
-//				SearchFields_Ticket::TICKET_TEAM_ID,
-//				'in',
-//				(!empty($memberships) ? array_keys($memberships) : array(0))
-//			);
-//		}
-		
+		$params = array_merge($params, $custom_field_params);
+				
 		// Sort
 		$sortBy = $this->translateToken($sortToken, 'search');
 		$sortAsc = !empty($sortAsc) ? true : false;
