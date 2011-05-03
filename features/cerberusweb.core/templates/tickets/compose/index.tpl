@@ -272,7 +272,7 @@
 	});
 	
 	function openSnippetsChooser(button) {
-		$chooser=genericAjaxPopup('chooser','c=internal&a=chooserOpen&context=cerberusweb.contexts.snippet&contexts=cerberusweb.contexts.worker',null,true,'750');
+		$chooser=genericAjaxPopup('chooser','c=internal&a=chooserOpen&context=cerberusweb.contexts.snippet&contexts[]=cerberusweb.contexts.worker',null,true,'750');
 		$chooser.one('chooser_save', function(event) {
 			event.stopPropagation();
 			$button = $(button);
