@@ -35,6 +35,12 @@ class ChRest_Attachments extends Extension_RestController implements IExtensionR
 	}
 	
 	function deleteAction($stack) {
+		// not implemented for parity with web interface
+//		$id = array_shift($stack);
+//
+//		if(null == ($attachment = DAO_Attachment::get($id)))
+//			$this->error(self::ERRNO_CUSTOM, sprintf("Invalid attachment ID %d", $id));
+//		DAO_Attachment::delete($id);
 		$this->error(self::ERRNO_NOT_IMPLEMENTED);
 	}
 	

@@ -301,7 +301,10 @@ abstract class Extension_RestController extends DevblocksExtension {
 		$stack = $request->path;
 		
 		// Figure out our format by looking at the last path argument
-		@list($command, $format) = explode('.', array_pop($stack));
+		$command = explode('.', array_pop($stack));
+		$format = array_pop($command);
+		$command = implode('.', $command);
+		
 		array_push($stack, $command);
 		if(null != $format)
 			$this->_format = $format;
@@ -349,6 +352,30 @@ abstract class Extension_RestController extends DevblocksExtension {
 // [TODO] Overload
 //	}
 
+	protected function _handleSearchBuildParamsCustomFields(&$filters, $context) {
+		$params = array();
+		// Handle custom fields
+		if(is_array($filters))
+		foreach($filters as $key => $filter) {
+
+			$parts = explode("_",$filter[0],2);
+			if(2==count($parts) && 'custom'==$parts[0] && is_numeric($parts[1])) {
+				// Custom Fields
+				$fields = DAO_CustomField::getByContext($context);
+
+				if(is_array($fields))
+				foreach($fields as $field_id => $fieldData) {
+					if($field_id === intval($parts[1])) {
+						$field = 'cf_'.$field_id;
+						unset($filters[$key]);
+					}
+				}
+				$params[$field] = new DevblocksSearchCriteria($field, $filter[1], $filter[2]);
+			}
+		}
+		return $params;
+	}
+	
 	protected function _handleSearchBuildParams($filters) {
 		// Criteria
 		$params = array();
