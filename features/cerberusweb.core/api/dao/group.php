@@ -1052,7 +1052,7 @@ class Context_Group extends Extension_DevblocksContext {
 			$prefix = 'Group:';
 			
 		$translate = DevblocksPlatform::getTranslationService();
-		//$fields = DAO_CustomField::getByContext(ChCustomFieldSource_Group::ID);
+		$fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_GROUP);
 		
 		// Polymorph
 		if(is_numeric($group)) {
@@ -1068,12 +1068,12 @@ class Context_Group extends Extension_DevblocksContext {
 			'name' => $prefix.$translate->_('common.name'),
 		);
 		
-		// [TODO] Custom fields
+		// Custom fields
 		
-//		if(is_array($fields))
-//		foreach($fields as $cf_id => $field) {
-//			$token_labels['worker_custom_'.$cf_id] = $prefix.$field->name;
-//		}
+		if(is_array($fields))
+		foreach($fields as $cf_id => $field) {
+			$token_labels['worker_custom_'.$cf_id] = $prefix.$field->name;
+		}
 
 		// Token values
 		$token_values = array();
@@ -1082,30 +1082,28 @@ class Context_Group extends Extension_DevblocksContext {
 		if(null != $group) {
 			$token_values['id'] = $group->id;
 			$token_values['name'] = $group->name;
-//			if(!empty($worker->title))
-//				$token_values['title'] = $worker->title;
-//			$token_values['custom'] = array();
+			$token_values['custom'] = array();
 			
-//			$field_values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_WORKER, $worker->id));
-//			if(is_array($field_values) && !empty($field_values)) {
-//				foreach($field_values as $cf_id => $cf_val) {
-//					if(!isset($fields[$cf_id]))
-//						continue;
-//					
-//					// The literal value
-//					if(null != $worker)
-//						$token_values['custom'][$cf_id] = $cf_val;
-//					
-//					// Stringify
-//					if(is_array($cf_val))
-//						$cf_val = implode(', ', $cf_val);
-//						
-//					if(is_string($cf_val)) {
-//						if(null != $worker)
-//							$token_values['custom_'.$cf_id] = $cf_val;
-//					}
-//				}
-//			}
+			$field_values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_GROUP, $group->id));
+			if(is_array($field_values) && !empty($field_values)) {
+				foreach($field_values as $cf_id => $cf_val) {
+					if(!isset($fields[$cf_id]))
+						continue;
+					
+					// The literal value
+					if(null != $group)
+						$token_values['custom'][$cf_id] = $cf_val;
+					
+					// Stringify
+					if(is_array($cf_val))
+						$cf_val = implode(', ', $cf_val);
+						
+					if(is_string($cf_val)) {
+						if(null != $group)
+							$token_values['custom_'.$cf_id] = $cf_val;
+					}
+				}
+			}
 		}
 		
 //		// Worker email
