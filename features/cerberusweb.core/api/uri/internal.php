@@ -366,14 +366,32 @@ class ChInternalController extends DevblocksControllerExtension {
 				break;
 
 			case CerberusContexts::CONTEXT_SNIPPET:
+				$contexts = DevblocksPlatform::getExtensions('devblocks.context', false);
+				
+				$params = array(
+					new DevblocksSearchCriteria(SearchFields_Snippet::TITLE,DevblocksSearchCriteria::OPER_LIKE,'%'.$term.'%'),
+				);
+				
+				@$context_list = DevblocksPlatform::importGPC($_REQUEST['contexts'],'array',array());
+				if(is_array($context_list))
+				foreach($context_list as $k => $v) {
+					if(!isset($contexts[$v]))
+						unset($context_list[$k]);
+				}
+
+				$context_list[] = ''; // plaintext
+				
+				// Filter contexts
+				$params[SearchFields_Snippet::CONTEXT] = 
+					new DevblocksSearchCriteria(SearchFields_Snippet::CONTEXT,DevblocksSearchCriteria::OPER_IN,$context_list)
+					;
+				
 				list($results, $null) = DAO_Snippet::search(
 					array(
 						SearchFields_Snippet::TITLE,
 						SearchFields_Snippet::USAGE_HITS,
 					),
-					array(
-						new DevblocksSearchCriteria(SearchFields_Snippet::TITLE,DevblocksSearchCriteria::OPER_LIKE,'%'.$term.'%'),
-					),
+					$params,
 					25,
 					0,
 					SearchFields_Snippet::USAGE_HITS,
