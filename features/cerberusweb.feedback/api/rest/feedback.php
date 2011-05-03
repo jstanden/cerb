@@ -46,7 +46,20 @@ class ChRest_Feedback extends Extension_RestController implements IExtensionRest
 	}
 	
 	function deleteAction($stack) {
-		$this->error(self::ERRNO_NOT_IMPLEMENTED);
+		$worker = $this->getActiveWorker();
+
+		if(!$worker->hasPriv('feedback.actions.delete_all'))
+			$this->error(self::ERRNO_ACL);
+
+		$id = array_shift($stack);
+		
+		if(null == ($feedbackEntry = DAO_FeedbackEntry::get($id)))
+			$this->error(self::ERRNO_CUSTOM, sprintf("Invalid feedback id %d", $id));
+
+		DAO_FeedbackEntry::delete($id);
+
+		$result = array('id' => $id);
+		$this->success($result);
 	}
 
 	function translateToken($token, $type='dao') {
@@ -84,7 +97,7 @@ class ChRest_Feedback extends Extension_RestController implements IExtensionRest
 		$values = array();
 		$context = CerberusContexts::getContext(CerberusContexts::CONTEXT_FEEDBACK, $id, $labels, $values, null, true);
 
-//		unset($values['initial_message_content']);
+		unset($values['quote_mood_id']);
 
 		return $values;
 	}
@@ -110,6 +123,28 @@ class ChRest_Feedback extends Extension_RestController implements IExtensionRest
 	function search($filters=array(), $sortToken='id', $sortAsc=1, $page=1, $limit=10) {
 		$worker = $this->getActiveWorker();
 
+		foreach($filters as $k => $filter) {
+			switch($k) {
+				case 'quote_mood':
+					switch(strtolower($filter[2])) {
+						case 'praise':
+							$filter[0] = 'quote_mood_id';
+							$filter[2] = 1;
+							break;
+						case 'neutral':
+							$filter[0] = 'quote_mood_id';
+							$filter[2] = 0;
+							break;
+						case 'criticism':
+							$filter[0] = 'quote_mood_id';
+							$filter[2] = 2;
+							break;
+					}
+					$filters[$k] = $filter;
+					break;
+			}
+		}
+		
 		$params = $this->_handleSearchBuildParams($filters);
 		
 		// Sort
@@ -190,7 +225,7 @@ class ChRest_Feedback extends Extension_RestController implements IExtensionRest
 			switch($putfield) {
 				case 'author_address':
 					if(null != ($lookup = DAO_Address::lookupAddress($value, true))) {
-						unset($putfields['author_id']);
+						unset($putfields['author_address']);
 						$putfield = 'author_id';
 						$value = $lookup->id;
 					}
@@ -253,6 +288,7 @@ class ChRest_Feedback extends Extension_RestController implements IExtensionRest
 		
 		$postfields = array(
 			'author_address' => 'string',
+			'author_id' => 'integer',
 			'created' => 'timestamp',
 			'quote_mood' => 'string',
 			'quote_text' => 'string',
@@ -274,7 +310,7 @@ class ChRest_Feedback extends Extension_RestController implements IExtensionRest
 			switch($postfield) {
 				case 'author_address':
 					if(null != ($lookup = DAO_Address::lookupAddress($value, true))) {
-						unset($postfields['author_id']);
+						unset($postfields['author_address']);
 						$postfield = 'author_id';
 						$value = $lookup->id;
 					}
