@@ -838,9 +838,7 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 	}
 };
 
-
-
-class DAO_KbCategory extends DevblocksORMHelper {
+class DAO_KbCategory extends C4_ORMHelper {
 	const CACHE_ALL = 'ch_cache_kbcategories_all';
 	
 	const ID = 'id';
@@ -1019,71 +1017,275 @@ class DAO_KbCategory extends DevblocksORMHelper {
 		return true;
 	}
 	
+	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
+		$fields = SearchFields_KbCategory::getFields();
+		
+		// Sanitize
+		if('*'==substr($sortBy,0,1) || !isset($fields[$sortBy]) || !in_array($sortBy,$columns))
+			$sortBy=null;
+
+        list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy);
+		
+		$select_sql = sprintf("SELECT ".
+			"kbc.id as %s, ".
+			"kbc.name as %s, ".
+			"kbc.parent_id as %s ",
+			    SearchFields_KbCategory::ID,
+			    SearchFields_KbCategory::NAME,
+			    SearchFields_KbCategory::PARENT_ID
+			);
+			
+		$join_sql = "FROM kb_category kbc ";
+
+		// [JAS]: Dynamic table joins
+//		if(isset($tables['context_link'])) 
+//			$join_sql .= "INNER JOIN context_link ON (context_link.to_context = 'cerberusweb.contexts.kb_article' AND context_link.to_context_id = kb.id) ";
+		
+		// Custom field joins
+		list($select_sql, $join_sql, $has_multiple_values) = self::_appendSelectJoinSqlForCustomFieldTables(
+			$tables,
+			$params,
+			'kbc.id',
+			$select_sql,
+			$join_sql
+		);
+		
+		$where_sql = "".
+			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
+			
+		$sort_sql = (!empty($sortBy) ? sprintf("ORDER BY %s %s ",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : " ");
+		
+		$result = array(
+			'primary_table' => 'kbc',
+			'select' => $select_sql,
+			'join' => $join_sql,
+			'where' => $where_sql,
+			'has_multiple_values' => true,
+			'sort' => $sort_sql,
+		);
+		
+		return $result;
+	}	
+	
+    static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
+		$db = DevblocksPlatform::getDatabaseService();
+
+		// Build search queries
+		$query_parts = self::getSearchQueryComponents($columns,$params,$sortBy,$sortAsc);
+
+		$select_sql = $query_parts['select'];
+		$join_sql = $query_parts['join'];
+		$where_sql = $query_parts['where'];
+		$has_multiple_values = $query_parts['has_multiple_values'];
+		$sort_sql = $query_parts['sort'];
+		
+		$sql = 
+			$select_sql.
+			$join_sql.
+			$where_sql.
+			($has_multiple_values ? 'GROUP BY kbc.id ' : '').
+			$sort_sql;
+		
+		$rs = $db->SelectLimit($sql,$limit,$page*$limit) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+		
+		$results = array();
+		
+		while($row = mysql_fetch_assoc($rs)) {
+			$result = array();
+			foreach($row as $f => $v) {
+				$result[$f] = $v;
+			}
+			$id = intval($row[SearchFields_KbCategory::ID]);
+			$results[$id] = $result;
+		}
+
+		// [JAS]: Count all
+		$total = -1;
+		if($withCounts) {
+			$count_sql = 
+				($has_multiple_values ? "SELECT COUNT(DISTINCT kbc.id) " : "SELECT COUNT(kbc.id) ").
+				$join_sql.
+				$where_sql;
+			$total = $db->GetOne($count_sql);
+		}
+		
+		mysql_free_result($rs);
+		
+		return array($results,$total);
+    }	
+	
 	static public function clearCache() {
 		$cache = DevblocksPlatform::getCacheService();
 		$cache->remove(self::CACHE_ALL);
 	}
 };
 
-class Search_KbArticle {
-	const ID = 'cerberusweb.search.schema.kb_article';
+class SearchFields_KbCategory implements IDevblocksSearchFields {
+	// Table
+	const ID = 'kbc_id';
+	const PARENT_ID = 'kbc_parent_id';
+	const NAME = 'kbc_name';
 	
-	public static function index($stop_time=null) {
-		$logger = DevblocksPlatform::getConsoleLog();
+	/**
+	 * @return DevblocksSearchField[]
+	 */
+	static function getFields() {
+		$translate = DevblocksPlatform::getTranslationService();
 		
-		if(false == ($search = DevblocksPlatform::getSearchService())) {
-			$logger->error("[Search] The search engine is misconfigured.");
-			return;
+		$columns = array(
+			self::ID => new DevblocksSearchField(self::ID, 'kbc', 'id', $translate->_('kb_category.id')),
+			self::PARENT_ID => new DevblocksSearchField(self::PARENT_ID, 'kbc', 'parent_id', $translate->_('kb_category.parent_id')),
+			self::NAME => new DevblocksSearchField(self::NAME, 'kbc', 'name', $translate->_('kb_category.name')),
+
+		);
+		
+		// Custom Fields
+		$fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_KB_CATEGORY);
+		if(is_array($fields))
+		foreach($fields as $field_id => $field) {
+			$key = 'cf_'.$field_id;
+			$columns[$key] = new DevblocksSearchField($key,$key,'field_value',$field->name);
 		}
 		
-		$ns = 'kb_article';
-		$id = DAO_DevblocksExtensionPropertyStore::get(self::ID, 'last_indexed_id', 0);
-		$ptr_time = DAO_DevblocksExtensionPropertyStore::get(self::ID, 'last_indexed_time', 0);
-		$ptr_id = $id;
-		$done = false;
+		// Sort by label (translation-conscious)
+		uasort($columns, create_function('$a, $b', "return strcasecmp(\$a->db_label,\$b->db_label);\n"));
 
-		while(!$done && time() < $stop_time) {
-			$where = sprintf("%s >= %d AND %s > %d", 
-				DAO_KbArticle::UPDATED,
-				$ptr_time,
-				DAO_KbArticle::ID,
-				$id
+		return $columns;		
+	}
+};	
+
+class Context_KbCategory extends Extension_DevblocksContext {
+	function authorize($context_id, Model_Worker $worker) {
+		return TRUE;
+	}	
+	
+	function getMeta($context_id) {
+		$category = DAO_KbCategory::get($context_id);
+		$url_writer = DevblocksPlatform::getUrlService();
+		
+		return array(
+			'id' => $category->id,
+			'name' => $category->name,
+			'permalink' => $url_writer->write(sprintf("c=kb&br=browse&id=%d-%s", $category->id, DevblocksPlatform::strToPermalink($category->name), true)),
+		);
+	}
+	
+	function getContext($category, &$token_labels, &$token_values, $prefix=null) {
+		if(is_null($prefix))
+			$prefix = 'Category:';
+		
+		$translate = DevblocksPlatform::getTranslationService();
+		$fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_KB_CATEGORY);
+		
+		// Polymorph
+		if(is_numeric($category)) {
+			$category = DAO_KbCategory::get($category);
+		} elseif($category instanceof Model_KbCategory) {
+			// It's what we want already.
+		} else {
+			$category = null;
+		}
+		/* @var $category Model_KbCategory */
+			
+		// Token labels
+		$token_labels = array(
+			'id' => $prefix.$translate->_('common.id'),
+			'name' => $prefix.$translate->_('kb_category.name'),
+			'parent_id' => $prefix.$translate->_('kb_category.parent_id'),
+		);
+		
+		if(is_array($fields))
+		foreach($fields as $cf_id => $field) {
+			$token_labels['custom_'.$cf_id] = $prefix.$field->name;
+		}
+
+		// Token values
+		$token_values = array();
+		
+		// Token values
+		if(null != $category) {
+			$token_values['id'] = $category->id;
+			$token_values['name'] = $category->name;
+			$token_values['parent_id'] = $category->parent_id;
+			
+			$token_values['custom'] = array();
+			
+			$field_values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_KB_CATEGORY, $category->id));
+			if(is_array($field_values) && !empty($field_values)) {
+				foreach($field_values as $cf_id => $cf_val) {
+					if(!isset($fields[$cf_id]))
+						continue;
+					
+					// The literal value
+					if(null != $category)
+						$token_values['custom'][$cf_id] = $cf_val;
+					
+					// Stringify
+					if(is_array($cf_val))
+						$cf_val = implode(', ', $cf_val);
+						
+					if(is_string($cf_val)) {
+						if(null != $category)
+							$token_values['custom_'.$cf_id] = $cf_val;
+					}
+				}
+			}
+		}
+		
+		return TRUE;
+	}
+
+	function getChooserView() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		// View
+		$view_id = 'chooser_'.str_replace('.','_',$this->id).time().mt_rand(0,9999);
+		$defaults = new C4_AbstractViewModel();
+		$defaults->id = $view_id;
+		$defaults->is_ephemeral = true;
+		$defaults->class_name = $this->getViewClass();
+		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
+//		$view->name = 'Headlines';
+//		$view->view_columns = array(
+//			SearchFields_CallEntry::IS_OUTGOING,
+//			SearchFields_CallEntry::PHONE,
+//			SearchFields_CallEntry::UPDATED_DATE,
+//		);
+		$view->addParams(array(
+			//SearchFields_KbArticle::IS_CLOSED => new DevblocksSearchCriteria(SearchFields_KbArticle::IS_CLOSED,'=',0),
+		), true);
+		$view->renderSortBy = SearchFields_KbCategory::NAME;
+		$view->renderSortAsc = false;
+		$view->renderLimit = 10;
+		$view->renderTemplate = 'contextlinks_chooser';
+		
+		C4_AbstractViewLoader::setView($view_id, $view);
+		return $view;
+	}
+	
+	function getView($context=null, $context_id=null, $options=array()) {
+		$view_id = str_replace('.','_',$this->id);
+		
+		$defaults = new C4_AbstractViewModel();
+		$defaults->id = $view_id; 
+		$defaults->class_name = $this->getViewClass();
+		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
+		//$view->name = 'Calls';
+		
+		$params_req = array();
+		
+		if(!empty($context) && !empty($context_id)) {
+			$params_req = array(
+				//new DevblocksSearchCriteria(SearchFields_KbCategory::CONTEXT_LINK,'=',$context),
+				//new DevblocksSearchCriteria(SearchFields_KbCategory::CONTEXT_LINK_ID,'=',$context_id),
 			);
-			$articles = DAO_KbArticle::getWhere($where, array(DAO_KbArticle::UPDATED, DAO_KbArticle::ID), array(true, true), 100);
-
-			if(empty($articles)) {
-				$done = true;
-				continue;
-			}
-			
-			$last_time = $ptr_time;
-			
-			foreach($articles as $article) { /* @var $article Model_KbArticle */
-				$id = $article->id;
-				$ptr_time = $article->updated;
-
-				// If we're not inside a block of the same timestamp, reset the seek pointer
-				$ptr_id = ($last_time == $ptr_time) ? $id : 0;
-
-				$logger->info(sprintf("[Search] Indexing %s %d...", 
-					$ns,
-					$id
-				));
-				
-				$search->index($ns, $id, $article->title . ' ' . strip_tags($article->content));
-				
-				flush();
-			}
 		}
 		
-		// If we ran out of articles, always reset the ID and use the current time
-		if($done) {
-			$ptr_id = 0;
-			$ptr_time = time();
-		}
+		$view->addParamsRequired($params_req, true);
 		
-		DAO_DevblocksExtensionPropertyStore::put(self::ID, 'last_indexed_id', $ptr_id);
-		DAO_DevblocksExtensionPropertyStore::put(self::ID, 'last_indexed_time', $ptr_time);
+		$view->renderTemplate = 'context';
+		C4_AbstractViewLoader::setView($view_id, $view);
+		return $view;
 	}
 };
 

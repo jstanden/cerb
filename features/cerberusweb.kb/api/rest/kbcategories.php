@@ -1,5 +1,5 @@
 <?php
-class ChRest_KbArticles extends Extension_RestController implements IExtensionRestController {
+class ChRest_KbCategories extends Extension_RestController implements IExtensionRestController {
 	function getAction($stack) {
 		@$action = array_shift($stack);
 		
@@ -9,6 +9,7 @@ class ChRest_KbArticles extends Extension_RestController implements IExtensionRe
 			
 		} else { // actions
 			switch($action) {
+	
 			}
 		}
 		
@@ -47,18 +48,19 @@ class ChRest_KbArticles extends Extension_RestController implements IExtensionRe
 	
 	function deleteAction($stack) {
 		$worker = $this->getActiveWorker();
-		if(!$worker->hasPriv('core.kb.articles.modify'))
+
+		if(!$worker->hasPriv('core.kb.topics.modify'))
 			$this->error(self::ERRNO_ACL);
 
 		$id = array_shift($stack);
+		
+		if(null == ($category = DAO_KbCategory::get($id)))
+			$this->error(self::ERRNO_CUSTOM, sprintf("Invalid Knowledgebase category id %d", $id));
 
-		if(null == ($kbarticle = DAO_KbArticle::get($id)))
-			$this->error(self::ERRNO_CUSTOM, sprintf("Invalid Knowledgebase article ID %d", $id));
-
-		DAO_KbArticle::delete($id);
+		DAO_KbCategory::delete($id);
 
 		$result = array('id' => $id);
-		$this->success($result);		
+		$this->success($result);
 	}
 	
 	private function getId($id) {
@@ -71,12 +73,12 @@ class ChRest_KbArticles extends Extension_RestController implements IExtensionRe
 		$container = $this->search(array(
 			array('id', '=', $id),
 		));
-		
+
 		if(is_array($container) && isset($container['results']) && isset($container['results'][$id]))
 			$this->success($container['results'][$id]);
 
 		// Error
-		$this->error(self::ERRNO_CUSTOM, sprintf("Invalid article id '%d'", $id));
+		$this->error(self::ERRNO_CUSTOM, sprintf("Invalid category id '%d'", $id));
 	}
 
 	function translateToken($token, $type='dao') {
@@ -84,22 +86,15 @@ class ChRest_KbArticles extends Extension_RestController implements IExtensionRe
 		
 		if('dao'==$type) {
 			$tokens = array(
-				'content' => DAO_KbArticle::CONTENT,
-				'id' => DAO_KbArticle::ID,
-				'format' => DAO_KbArticle::FORMAT,
-				'title' => DAO_KbArticle::TITLE,
-				'updated' => DAO_KbArticle::UPDATED,
-				'views' => DAO_KbArticle::VIEWS,
+				'id' => DAO_KbCategory::ID,
+				'parent_id' => DAO_KbCategory::PARENT_ID,
+				'name' => DAO_KbCategory::NAME,
 			);
 		} else {
 			$tokens = array(
-				'category_id' => SearchFields_KbArticle::CATEGORY_ID,
-				'content' => SearchFields_KbArticle::FULLTEXT_ARTICLE_CONTENT,
-				'id' => SearchFields_KbArticle::ID,
-				'format' => SearchFields_KbArticle::FORMAT,
-				'title' => SearchFields_KbArticle::TITLE,
-				'updated' => SearchFields_KbArticle::UPDATED,
-				'views' => SearchFields_KbArticle::VIEWS,
+				'id' => SearchFields_KbCategory::ID,
+				'parent_id' => SearchFields_KbCategory::PARENT_ID,
+				'name' => SearchFields_KbCategory::NAME,
 			);
 		}
 		
@@ -112,7 +107,7 @@ class ChRest_KbArticles extends Extension_RestController implements IExtensionRe
 	function getContext($id) {
 		$labels = array();
 		$values = array();
-		$context = CerberusContexts::getContext(CerberusContexts::CONTEXT_KB_ARTICLE, $id, $labels, $values, null, true);
+		$context = CerberusContexts::getContext(CerberusContexts::CONTEXT_KB_CATEGORY, $id, $labels, $values, null, true);
 
 		return $values;
 	}
@@ -120,16 +115,14 @@ class ChRest_KbArticles extends Extension_RestController implements IExtensionRe
 	function search($filters=array(), $sortToken='id', $sortAsc=1, $page=1, $limit=10) {
 		$worker = $this->getActiveWorker();
 
-		$custom_field_params = $this->_handleSearchBuildParamsCustomFields($filters, CerberusContexts::CONTEXT_KB_ARTICLE);
 		$params = $this->_handleSearchBuildParams($filters);
-		$params = array_merge($params, $custom_field_params);
 		
 		// Sort
 		$sortBy = $this->translateToken($sortToken, 'search');
 		$sortAsc = !empty($sortAsc) ? true : false;
 		
 		// Search
-		list($results, $total) = DAO_KbArticle::search(
+		list($results, $total) = DAO_KbCategory::search(
 			array(),
 			$params,
 			$limit,
@@ -172,19 +165,16 @@ class ChRest_KbArticles extends Extension_RestController implements IExtensionRe
 		$worker = $this->getActiveWorker();
 		
 		// Validate the ID
-		if(null == ($article = DAO_KbArticle::get($id)))
-			$this->error(self::ERRNO_CUSTOM, sprintf("Invalid article ID '%d'", $id));
+		if(null == ($category = DAO_KbCategory::get($id)))
+			$this->error(self::ERRNO_CUSTOM, sprintf("Invalid category ID '%d'", $id));
 			
 		// ACL
-		if(!($worker->hasPriv('core.kb.articles.modify')))
+		if(!($worker->hasPriv('core.kb.categories.modify')))
 			$this->error(self::ERRNO_ACL);
 			
 		$putfields = array(
-			'content' => 'string',
-			'format' => 'integer',
-			'title' => 'string',
-			'updated' => 'timestamp',
-			'views' => 'integer',
+			'name' => 'string',
+			'parent_id' => 'integer',
 		);
 
 		$fields = array();
@@ -211,27 +201,18 @@ class ChRest_KbArticles extends Extension_RestController implements IExtensionRe
 			$fields[$field] = $value;
 		}
 		
-		if(!isset($fields[DAO_KbArticle::UPDATED]))
-			$fields[DAO_KbArticle::UPDATED] = time();
-		
 		// Handle custom fields
 		$customfields = $this->_handleCustomFields($_POST);
 		if(is_array($customfields))
-			DAO_CustomFieldValue::formatAndSetFieldValues(CerberusContexts::CONTEXT_KB_ARTICLE, $id, $customfields, true, true, true);
+			DAO_CustomFieldValue::formatAndSetFieldValues(CerberusContexts::CONTEXT_KB_CATEGORY, $id, $customfields, true, true, true);
 		
 		// Check required fields
 //		$reqfields = array(DAO_Address::EMAIL);
 //		$this->_handleRequiredFields($reqfields, $fields);
 
 		// Update
-		DAO_KbArticle::update($id, $fields);
-		
-		// Handle delta categories
-		if(isset($_POST['category_id'])) {
-			$category_ids = !is_array($_POST['category_id']) ? array($_POST['category_id']) : $_POST['category_id'];
-			DAO_KbArticle::setCategories($id, $category_ids, false);
-		}
-		
+		DAO_KbCategory::update($id, $fields);
+
 		$this->getId($id);
 	}
 	
@@ -239,18 +220,16 @@ class ChRest_KbArticles extends Extension_RestController implements IExtensionRe
 		$worker = $this->getActiveWorker();
 		
 		// ACL
-		if(!$worker->hasPriv('core.kb.articles.modify'))
+		if(!$worker->hasPriv('core.kb.categories.modify'))
 			$this->error(self::ERRNO_ACL);
 		
 		$postfields = array(
-			'content' => 'string',
-			'format' => 'integer',
-			'title' => 'string',
-			'updated' => 'timestamp',
-			'views' => 'integer',
+			'name' => 'string',
+			'parent_id' => 'integer',
 		);
 
 		$fields = array();
+
 		
 		foreach($postfields as $postfield => $type) {
 			if(!isset($_POST[$postfield]))
@@ -261,7 +240,7 @@ class ChRest_KbArticles extends Extension_RestController implements IExtensionRe
 			if(null == ($field = self::translateToken($postfield, 'dao'))) {
 				$this->error(self::ERRNO_CUSTOM, sprintf("'%s' is not a valid field.", $postfield));
 			}
-
+			
 			// Sanitize
 			$value = DevblocksPlatform::importVar($value, $type);
 			
@@ -273,34 +252,28 @@ class ChRest_KbArticles extends Extension_RestController implements IExtensionRe
 			
 			$fields[$field] = $value;
 		}
-
+		
 		// Defaults
-		if(!isset($fields[DAO_KbArticle::UPDATED]))
-			$fields[DAO_KbArticle::UPDATED] = time();
-		if(!isset($fields[DAO_KbArticle::FORMAT]))
-			$fields[DAO_KbArticle::FORMAT] = Model_KbArticle::FORMAT_HTML;
+		if(!isset($fields[DAO_KbCategory::PARENT_ID]))
+			$fields[DAO_KbCategory::PARENT_ID] = '0';
+
 			
 		// Check required fields
 		$reqfields = array(
-			DAO_KbArticle::TITLE, 
-			DAO_KbArticle::CONTENT, 
+			DAO_KbCategory::NAME,  
 		);
+
 		$this->_handleRequiredFields($reqfields, $fields);
 		
 		// Create
-		if(false != ($id = DAO_KbArticle::create($fields))) {
+		if(false != ($id = DAO_KbCategory::create($fields))) {
 			// Handle custom fields
 			$customfields = $this->_handleCustomFields($_POST);
 			if(is_array($customfields))
-				DAO_CustomFieldValue::formatAndSetFieldValues(CerberusContexts::CONTEXT_KB_ARTICLE, $id, $customfields, true, true, true);
-			
-			// Handle delta categories
-			if(isset($_POST['category_id'])) {
-				$category_ids = !is_array($_POST['category_id']) ? array($_POST['category_id']) : $_POST['category_id'];
-				DAO_KbArticle::setCategories($id, $category_ids, false);
-			}
+				DAO_CustomFieldValue::formatAndSetFieldValues(CerberusContexts::CONTEXT_KB_CATEGORY, $id, $customfields, true, true, true);
 				
 			$this->getId($id);
 		}
 	}	
+
 };

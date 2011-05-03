@@ -25,15 +25,17 @@
 	
 	<class_loader>
 		<file path="api/App.php">
+			<class name="Context_KbCategory" />
 			<class name="DAO_KbCategory" />
 			<class name="Extension_KnowledgebaseTab" />
 			<class name="Model_KbCategory" />
-			<class name="Search_KbArticle" />
+			<class name="SearchFields_KbCategory" />
 		</file>
         <file path="api/dao/kb_article.php">
 			<class name="Context_KbArticle" />
 			<class name="DAO_KbArticle" />
 			<class name="Model_KbArticle" />
+			<class name="Search_KbArticle" />
 			<class name="SearchFields_KbArticle" />
 			<class name="View_KbArticle" />
         </file>
@@ -82,6 +84,27 @@
 					-->
 						<data key="find" />
 						<data key="workspace" />
+					</value>
+				</param>
+			</params>
+		</extension>
+			
+		<extension point="devblocks.context">
+			<id>cerberusweb.contexts.kb_category</id>
+			<name>Knowledgebase Category</name>
+			<class>
+				<file>api/dao/kb_category.php</file>
+				<name>Context_KbCategory</name>
+			</class>
+			<params>
+				<param key="view_class" value="View_KbCategory" />
+				<param key="options">
+					<value>
+					<!--
+						<data key="create" />
+						<data key="find" />
+						<data key="workspace" />
+					-->
 					</value>
 				</param>
 			</params>
@@ -220,7 +243,7 @@
 			<id>cerberusweb.search.schema.kb_article</id>
 			<name>Knowledgebase Articles</name>
 			<class>
-				<file>api/App.php</file>
+				<file>api/dao/kb_article.php</file>
 				<name>Search_KbArticle</name>
 			</class>
 			<params>
@@ -239,7 +262,19 @@
 			<params>
 				<param key="uri" value="kbarticles" />
 			</params>
-		</extension>		
+		</extension>
+		
+		<extension point="cerberusweb.rest.controller">
+			<id>cerberusweb.rest.controller.kbcategories</id>
+			<name>KB Categories</name>
+			<class>
+				<file>api/rest/kbcategories.php</file>
+				<name>ChRest_KbCategories</name>
+			</class>
+			<params>
+				<param key="uri" value="kbcategories" />
+			</params>
+		</extension>	
 		
 	</extensions>
 </plugin>
