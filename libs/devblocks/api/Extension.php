@@ -948,8 +948,11 @@ EOL
 		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_relay_email.tpl');
 	}
 	
+	// [TODO] Eventually for reuse we'll need to change this
 	function runActionRelayEmail($params, $values, $context, $context_id) {
-		$replyto_default = DAO_AddressOutgoing::getDefault();
+		$bucket_id = intval(@$values['ticket_bucket_id']);
+		$group = DAO_Group::get($values['group_id']);
+		$replyto = $group->getReplyTo($bucket_id);
 		$relay_list = $params['to'];
 		
 		if(is_array($relay_list))
@@ -971,7 +974,7 @@ EOL
 				$headers = $mail->getHeaders(); /* @var $headers Swift_Mime_Header */
 	
 				$mail->setFrom($values['sender_address'], $values['sender_full_name']);
-				$mail->setReplyTo($replyto_default->email);
+				$mail->setReplyTo($replyto->email, $replyto->getReplyPersonal($worker));
 				$mail->setSubject($values['ticket_subject']);
 	
 				// Find the owner of this address and sign it.
