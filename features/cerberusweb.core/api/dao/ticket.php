@@ -2492,7 +2492,7 @@ class Context_Ticket extends Extension_DevblocksContext {
 
 		CerberusContexts::merge(
 			'group_',
-			'Ticket:Group:',
+			'Group:',
 			$merge_token_labels,
 			$merge_token_values,
 			$token_labels,
@@ -2506,7 +2506,7 @@ class Context_Ticket extends Extension_DevblocksContext {
 
 		CerberusContexts::merge(
 			'bucket_',
-			'Ticket:Bucket:',
+			'Bucket:',
 			$merge_token_labels,
 			$merge_token_values,
 			$token_labels,
@@ -2537,7 +2537,7 @@ class Context_Ticket extends Extension_DevblocksContext {
 		
 		CerberusContexts::merge(
 			'latest_message_',
-			'Latest:',
+			'Ticket:Latest:',
 			$merge_token_labels,
 			$merge_token_values,
 			$token_labels,

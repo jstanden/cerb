@@ -636,6 +636,14 @@ class CerberusContexts {
 			}
 		}
 		
+		
+		// Rename labels
+		foreach($labels as $idx => $label) {
+			// [TODO] mb_*
+			$labels[$idx] = ucfirst(strtolower(strtr($label,':',' ')));
+		}
+		
+		// Alphabetize
 		asort($labels);
 		
 		return null;

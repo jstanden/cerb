@@ -96,10 +96,6 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 	}
 	
 	private function _importLabels($labels) {
-		foreach($labels as $token => $label) {
-		 	$labels[$token] = ucfirst(strtolower(strtr($label,':',' ')));
-		}
-		
 		uasort($labels, create_function('$a, $b', "return strcasecmp(\$a,\$b);\n"));
 		return $labels;
 	}
