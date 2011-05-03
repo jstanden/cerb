@@ -1146,6 +1146,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		@$content = DevblocksPlatform::importGPC($_POST['content'],'string');
 		@$files = $_FILES['attachment'];
 		@$closed = DevblocksPlatform::importGPC($_POST['closed'],'integer',0);
+		@$ticket_reopen = DevblocksPlatform::importGPC($_POST['ticket_reopen'],'string','');
 		@$add_me_as_watcher = DevblocksPlatform::importGPC($_POST['add_me_as_watcher'],'integer',0);
 
 		$visit = CerberusApplication::getVisit();
@@ -1165,6 +1166,7 @@ class ChTicketsPage extends CerberusPageExtension {
 			'content' => $content,
 			'files' => $files,
 			'closed' => $closed,
+			'ticket_reopen' => $ticket_reopen,
 		);
 		
 		$ticket_id = CerberusMail::compose($properties);
