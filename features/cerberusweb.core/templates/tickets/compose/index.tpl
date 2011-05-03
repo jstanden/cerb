@@ -36,7 +36,7 @@
 				<tr>
 					<td width="0%" nowrap="nowrap" valign="middle" align="right"><b>To:</b>&nbsp;</td>
 					<td width="100%">
-						<input type="text" name="to" value="{$draft->params.to}" class="required" style="border:1px solid rgb(180,180,180);padding:2px;width:98%;">
+						<input type="text" name="to" value="{if !empty($draft)}{$draft->params.to}{else}{$defaults_to}{/if}" class="required" style="border:1px solid rgb(180,180,180);padding:2px;width:98%;">
 					</td>
 				</tr>
 				<tr>

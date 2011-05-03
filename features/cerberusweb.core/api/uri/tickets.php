@@ -81,6 +81,9 @@ class ChTicketsPage extends CerberusPageExtension {
 				
 				$settings = DevblocksPlatform::getPluginSettingsService();
 				
+				@$defaults_to = DevblocksPlatform::importGPC($_REQUEST['to'],'string','');
+				$tpl->assign('defaults_to', $defaults_to);
+				
 				// Workers
 				$workers = DAO_Worker::getAllActive();
 				$tpl->assign('workers', $workers);
