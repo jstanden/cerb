@@ -237,7 +237,7 @@
 		<file path="api/dao/snippet.php">
 			<class name="DAO_Snippet" />
 			<class name="Model_Snippet" />
-			<class name="SearchField_Snippet" />
+			<class name="SearchFields_Snippet" />
 			<class name="View_Snippet" />
 		</file>
 		

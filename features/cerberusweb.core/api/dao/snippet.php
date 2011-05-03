@@ -195,7 +195,7 @@ class DAO_Snippet extends C4_ORMHelper {
 		if(!isset($fields[$sortBy]) || '*'==substr($sortBy,0,1) || !in_array($sortBy,$columns))
 			$sortBy=null;
 
-        list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy);
+        list($tables, $wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
 			"snippet.id as %s, ".
@@ -223,7 +223,7 @@ class DAO_Snippet extends C4_ORMHelper {
 				SearchFields_Snippet::USAGE_HITS
 			);
 		}
-			
+		
 		$join_sql = " FROM snippet ".
 		((isset($tables['snippet_usage']) && !empty($active_worker)) ? sprintf("LEFT JOIN snippet_usage ON (snippet_usage.snippet_id=snippet.id AND snippet_usage.worker_id=%d) ",$active_worker->id) : " ")
 		;

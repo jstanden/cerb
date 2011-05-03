@@ -367,7 +367,10 @@ class ChInternalController extends DevblocksControllerExtension {
 
 			case CerberusContexts::CONTEXT_SNIPPET:
 				list($results, $null) = DAO_Snippet::search(
-					array(),
+					array(
+						SearchFields_Snippet::TITLE,
+						SearchFields_Snippet::USAGE_HITS,
+					),
 					array(
 						new DevblocksSearchCriteria(SearchFields_Snippet::TITLE,DevblocksSearchCriteria::OPER_LIKE,'%'.$term.'%'),
 					),
