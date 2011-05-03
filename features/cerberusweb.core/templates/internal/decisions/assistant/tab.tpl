@@ -1,6 +1,6 @@
 <form action="javascript:;" style="margin-bottom:5px;" id="frmTrigger" onsubmit="return false;">
 	<input type="hidden" name="c" value="internal">
-	<input type="hidden" name="a" value="createAssistantTrigger">
+	<input type="hidden" name="a" value="createAssistantTriggerJson">
 	<input type="hidden" name="context" value="{$context}">
 	<input type="hidden" name="context_id" value="{$context_id}">
 
@@ -30,9 +30,15 @@
 
 <script type="text/javascript">
 	$('#frmTrigger SELECT[name=event_point]').change(function() {
-		genericAjaxPost('frmTrigger',null,null,function(o) { 
-			document.location.reload(); 
+		genericAjaxPost('frmTrigger',null,null,function(json_text) {
+			json = $.parseJSON(json_text);
+			if(json.status == 'success' && json.id != null) {
+				$('div#triggers').append($('<div id="decisionTree'+json.id+'"></div>'));
+				genericAjaxGet('decisionTree'+json.id,'c=internal&a=showDecisionTree&id='+json.id);
+			}
 		});
+		
+		$(this).val('');
 	});
 
 	//$('#triggers DIV.branch').sortable({ items:'DIV.node', placeholder:'ui-state-highlight' });

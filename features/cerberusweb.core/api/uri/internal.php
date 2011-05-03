@@ -1366,7 +1366,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		$tpl->display('devblocks:cerberusweb.core::internal/decisions/assistant/tab.tpl');
 	}
 
-	function createAssistantTriggerAction() {
+	function createAssistantTriggerJsonAction() {
 		@$event_point = DevblocksPlatform::importGPC($_REQUEST['event_point'],'string', '');
 		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
 		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer',0);
@@ -1375,19 +1375,31 @@ class ChInternalController extends DevblocksControllerExtension {
 
 		// [TODO] Filter event points (sanitize)
 		
-		if(null == ($ext = DevblocksPlatform::getExtension($event_point, false)))
-			return;
+		header("Context-Type: text/json;");
 		
-		$fields = array(
-			DAO_TriggerEvent::TITLE => $ext->name,
-			DAO_TriggerEvent::IS_DISABLED => 0,
-			DAO_TriggerEvent::EVENT_POINT => $event_point,
-			DAO_TriggerEvent::OWNER_CONTEXT => $context,
-			DAO_TriggerEvent::OWNER_CONTEXT_ID => $context_id,
-		);
-		$id = DAO_TriggerEvent::create($fields);
+		try {
+			if(null == ($ext = DevblocksPlatform::getExtension($event_point, false)))
+				throw new Exception("Can't load behavior.");
+				
+			$fields = array(
+				DAO_TriggerEvent::TITLE => $ext->name,
+				DAO_TriggerEvent::IS_DISABLED => 0,
+				DAO_TriggerEvent::EVENT_POINT => $event_point,
+				DAO_TriggerEvent::OWNER_CONTEXT => $context,
+				DAO_TriggerEvent::OWNER_CONTEXT_ID => $context_id,
+			);
+			$id = DAO_TriggerEvent::create($fields);
+			
+			if(empty($id))
+				throw new Exception("Can't save new behavior.");
+			
+			echo json_encode(array('status'=>'success', 'id' => $id));
+			
+		} catch(Exception $e) {
+			echo json_encode(array('status'=>'error', 'message'=>$e->getMessage()));
+		}
 		
-		return;
+		exit;
 	}	
 	
 	function showDecisionMovePopupAction() {
