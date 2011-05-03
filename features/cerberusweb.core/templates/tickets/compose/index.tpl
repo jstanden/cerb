@@ -258,11 +258,11 @@
 							$('#btnInsertSig').click();
 						} catch(ex) { } 
 						break;
-//					case 9:  // (I) Insert Snippet
-//						try {
-//							$('#reply{$message->id}_part1').find('.context-snippet').focus();
-//						} catch(ex) { } 
-//						break;
+					case 9:  // (I) Insert Snippet
+						try {
+							$(this).closest('td').find('.context-snippet').focus();
+						} catch(ex) { } 
+						break;
 				}
 			}
 		});

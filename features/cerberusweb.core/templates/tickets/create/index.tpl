@@ -49,22 +49,36 @@
 	
 	<tr>
 		<td>
-		<button id="btnSaveDraft" type="button" onclick="genericAjaxPost('frmLogTicket',null,'c=tickets&a=saveDraft&type=create',function(json) { var obj = $.parseJSON(json); if(!obj || !obj.html || !obj.draft_id) return; $('#divDraftStatus').html(obj.html); $('#frmLogTicket input[name=draft_id]').val(obj.draft_id); } );"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> Save Draft</button>
-		<button type="button" id="btnInsertSig" title="(Ctrl+Shift+G)" onclick="genericAjaxGet('','c=tickets&a=getLogTicketSignature&email='+escape(selectValue(this.form.to)),function(text) { insertAtCursor(document.getElementById('content'), text); } );"><span class="cerb-sprite sprite-document_edit"></span> Insert Signature</button>
-		<button type="button" onclick="openSnippetsChooser(this);"><span class="cerb-sprite sprite-text_rich"></span> {$translate->_('common.snippets')|capitalize}</button>
-		{* Plugin Toolbar *}
-		{if !empty($logmail_toolbaritems)}
-			{foreach from=$logmail_toolbaritems item=renderer}
-				{if !empty($renderer)}{$renderer->render($message)}{/if}
-			{/foreach}
-		{/if}
-		<br>
-		
-		<div id="logTicketToolbarOptions"></div>
-		<div id="divDraftStatus"></div>
-		
-		<textarea name="content" id="content" rows="15" cols="80" class="reply required" style="width:98%;border:1px solid rgb(180,180,180);padding:2px;">{$draft->body}</textarea><br>
-		{*<label><input type="checkbox" name="send_to_requesters" value="1" {if $draft->params.send_to_reqs}checked="checked"{/if}> {'mail.log_message.send_to_requesters'|devblocks_translate}</label>*}
+			<div>
+				<fieldset style="display:inline-block;">
+					<legend>Actions</legend>
+					
+					<button id="btnSaveDraft" type="button" onclick="genericAjaxPost('frmLogTicket',null,'c=tickets&a=saveDraft&type=create',function(json) { var obj = $.parseJSON(json); if(!obj || !obj.html || !obj.draft_id) return; $('#divDraftStatus').html(obj.html); $('#frmLogTicket input[name=draft_id]').val(obj.draft_id); } );"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> Save Draft</button>
+					<button type="button" id="btnInsertSig" title="(Ctrl+Shift+G)" onclick="genericAjaxGet('','c=tickets&a=getLogTicketSignature&email='+escape(selectValue(this.form.to)),function(text) { insertAtCursor(document.getElementById('content'), text); } );"><span class="cerb-sprite sprite-document_edit"></span> Insert Signature</button>
+					{* Plugin Toolbar *}
+					{if !empty($logmail_toolbaritems)}
+						{foreach from=$logmail_toolbaritems item=renderer}
+							{if !empty($renderer)}{$renderer->render($message)}{/if}
+						{/foreach}
+					{/if}
+				</fieldset>
+				
+				<fieldset style="display:inline-block;">
+					<legend>{'common.snippets'|devblocks_translate|capitalize}</legend>
+					
+					<div>
+						Insert: 
+						<input type="text" size="25" class="context-snippet autocomplete">
+						<button type="button" onclick="openSnippetsChooser(this);"><span class="cerb-sprite sprite-view"></span></button>
+						<button type="button" onclick="genericAjaxPopup('peek','c=tickets&a=showSnippetsPeek&id=0&context=cerberusweb.contexts.worker&context_id={$active_worker->id}',null,false,'550');"><span class="cerb-sprite2 sprite-plus-circle-frame"></span></button>
+					</div>
+				</fieldset>
+			</div>
+			
+			<div id="logTicketToolbarOptions"></div>
+			<div id="divDraftStatus"></div>
+			
+			<textarea name="content" id="content" rows="15" cols="80" class="reply required" style="width:98%;border:1px solid rgb(180,180,180);padding:2px;">{$draft->body}</textarea><br>
 		</td>
 	</tr>
 				
@@ -161,6 +175,37 @@
 			ajax.chooser(this,'cerberusweb.contexts.worker','worker_id', { autocomplete:true });
 		});
 
+		$('#frmLogTicket input:text.context-snippet').autocomplete({
+			source: DevblocksAppPath+'ajax.php?c=internal&a=autocomplete&context=cerberusweb.contexts.snippet&contexts=&contexts=cerberusweb.contexts.worker',
+			minLength: 1,
+			focus:function(event, ui) {
+				return false;
+			},
+			autoFocus:true,
+			select:function(event, ui) {
+				$this = $(this);
+				$textarea = $('#frmLogTicket textarea#content');
+				
+				$label = ui.item.label.replace("<","&lt;").replace(">","&gt;");
+				$value = ui.item.value;
+				
+				// Now we need to read in each snippet as either 'raw' or 'parsed' via Ajax
+				url = 'c=internal&a=snippetPaste&id=' + $value;
+
+				// Context-dependent arguments
+				if ('cerberusweb.contexts.worker'==ui.item.context) {
+					url += "&context_id={$active_worker->id}";
+				}
+
+				genericAjaxGet('',url,function(txt) {
+					$textarea.insertAtCursor(txt);
+				}, { async: false });
+
+				$this.val('');
+				return false;
+			}
+		});
+		
 		{if $pref_keyboard_shortcuts}
 		
 		// Reply textbox
@@ -180,11 +225,11 @@
 							$('#btnInsertSig').click();
 						} catch(ex) { } 
 						break;
-//					case 9:  // (I) Insert Snippet
-//						try {
-//							$('#reply{$message->id}_part1').find('.context-snippet').focus();
-//						} catch(ex) { } 
-//						break;
+					case 9:  // (I) Insert Snippet
+						try {
+							$(this).closest('td').find('.context-snippet').focus();
+						} catch(ex) { } 
+						break;
 				}
 			}
 		});
