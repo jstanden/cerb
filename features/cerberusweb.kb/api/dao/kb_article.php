@@ -540,7 +540,7 @@ class Context_KbArticle extends Extension_DevblocksContext {
 		);
 	}
 	
-	function getContext($item, &$token_labels, &$token_values, $prefix=null) {
+	function getContext($article, &$token_labels, &$token_values, $prefix=null) {
 		if(is_null($prefix))
 			$prefix = 'Article:';
 		
