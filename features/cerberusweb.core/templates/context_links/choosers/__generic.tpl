@@ -33,9 +33,12 @@
 						$buffer.append($li);
 					}
 				}
-					
-				$(this).removeAttr('checked');
 			});
+
+			// Clear checkboxes
+			checkAll('view{$view->id}',false);
+			$rows=$('#viewForm{$view->id}').find('table.worklistBody').find('tbody > tr');
+			$rows.removeClass('selected');			
 		});
 		
 		$("form#chooser{$view->id} button.submit").click(function(event) {
