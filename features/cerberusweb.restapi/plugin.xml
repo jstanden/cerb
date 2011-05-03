@@ -86,6 +86,19 @@
 				<param key="uri" value="comments" />
 			</params>
 		</extension>
+
+        <extension point="cerberusweb.rest.controller">
+			<id>cerberusweb.rest.controller.custom_fields</id>
+			<name>Custom Fields</name>
+			<class>
+				<file>api/rest/custom_fields.php</file>
+				<name>ChRest_CustomFields</name>
+			</class>
+			<params>
+				<param key="uri" value="customfields" />
+			</params>
+		</extension>		
+		
 		<extension point="cerberusweb.rest.controller">
 			<id>cerberusweb.rest.controller.messages</id>
 			<name>Messages</name>
