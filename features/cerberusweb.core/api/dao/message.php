@@ -250,7 +250,7 @@ class DAO_Message extends DevblocksORMHelper {
 		$fields = SearchFields_Message::getFields();
 		
 		// Sanitize
-		if(!isset($fields[$sortBy]) || '*'==substr($sortBy,0,1)) // || !in_array($sortBy,$columns))
+		if('*'==substr($sortBy,0,1) || !isset($fields[$sortBy]))
 			$sortBy=null;
 
         list($tables,$wheres,$selects) = parent::_parseSearchParams($params, array(),$fields,$sortBy);

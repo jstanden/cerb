@@ -103,7 +103,7 @@ class DAO_OpenIDToWorker extends DevblocksORMHelper {
 		$fields = SearchFields_OpenIDToWorker::getFields();
 		
 		// Sanitize
-		if(!isset($fields[$sortBy]))
+		if('*'==substr($sortBy,0,1) || !isset($fields[$sortBy]))
 			$sortBy=null;
 
         list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy);

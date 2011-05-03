@@ -141,7 +141,7 @@ class DAO_ConfirmationCode extends DevblocksORMHelper {
 		$fields = SearchFields_ConfirmationCode::getFields();
 		
 		// Sanitize
-		if(!isset($fields[$sortBy]))
+		if('*'==substr($sortBy,0,1) || !isset($fields[$sortBy]))
 			$sortBy=null;
 
         list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy);

@@ -515,7 +515,9 @@ class ChInternalController extends DevblocksControllerExtension {
 	
 				case 'cerberusweb.contexts.ticket':
 					list($result, $count) = DAO_Ticket::search(
-						array(),
+						array(
+							SearchFields_Ticket::TICKET_UPDATED_DATE,
+						),
 						array(
 						),
 						25,

@@ -129,7 +129,7 @@ class DAO_ExampleObject extends C4_ORMHelper {
 		$fields = SearchFields_ExampleObject::getFields();
 		
 		// Sanitize
-		if(!isset($fields[$sortBy]))
+		if('*'==substr($sortBy,0,1) || !isset($fields[$sortBy]) || !in_array($sortBy,$columns))
 			$sortBy=null;
 
         list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy);
