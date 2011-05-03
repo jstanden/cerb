@@ -75,6 +75,17 @@
 			</params>
 		</extension>		
 		
+        <extension point="cerberusweb.rest.controller">
+			<id>cerberusweb.rest.controller.comments</id>
+			<name>Comments</name>
+			<class>
+				<file>api/rest/comments.php</file>
+				<name>ChRest_Comments</name>
+			</class>
+			<params>
+				<param key="uri" value="comments" />
+			</params>
+		</extension>
 		<extension point="cerberusweb.rest.controller">
 			<id>cerberusweb.rest.controller.messages</id>
 			<name>Messages</name>
