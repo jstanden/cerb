@@ -48,7 +48,22 @@ class ChRest_Addresses extends Extension_RestController implements IExtensionRes
 	}
 	
 	function deleteAction($stack) {
+		// Consistency with the Web-UI
 		$this->error(self::ERRNO_NOT_IMPLEMENTED);
+		
+//		$worker = $this->getActiveWorker();
+//		if(!$worker->hasPriv('core.addybook.person.actions.delete'))
+//			$this->error(self::ERRNO_ACL);
+//
+//		$id = array_shift($stack);
+//
+//		if(null == ($task = DAO_Address::get($id)))
+//			$this->error(self::ERRNO_CUSTOM, sprintf("Invalid address ID %d", $id));
+//
+//		DAO_Address::delete($id);
+//
+//		$result = array('id' => $id);
+//		$this->success($result);		
 	}
 	
 	private function getId($id) {
@@ -113,7 +128,9 @@ class ChRest_Addresses extends Extension_RestController implements IExtensionRes
 	function search($filters=array(), $sortToken='email', $sortAsc=1, $page=1, $limit=10) {
 		$worker = $this->getActiveWorker();
 
+		$custom_field_params = $this->_handleSearchBuildParamsCustomFields($filters, CerberusContexts::CONTEXT_ADDRESS);
 		$params = $this->_handleSearchBuildParams($filters);
+		$params = array_merge($params, $custom_field_params);
 		
 		// (ACL) Add worker group privs
 		if(!$worker->is_superuser) {
