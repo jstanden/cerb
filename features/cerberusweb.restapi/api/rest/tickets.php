@@ -220,7 +220,9 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 	function search($filters=array(), $sortToken='updated', $sortAsc=0, $page=1, $limit=10) {
 		$worker = $this->getActiveWorker();
 
+		$custom_field_params = $this->_handleSearchBuildParamsCustomFields($filters, CerberusContexts::CONTEXT_TICKET);
 		$params = $this->_handleSearchBuildParams($filters);
+		$params = array_merge($params, $custom_field_params);
 		
 		// (ACL) Add worker group privs
 		if(!$worker->is_superuser) {
