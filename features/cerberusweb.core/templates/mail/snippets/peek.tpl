@@ -19,7 +19,7 @@
 	<br>
 	
 	{if !empty($token_labels)}
-	<button type="button" onclick="genericAjaxPost('formSnippetsPeek','peekTemplateTest','c=internal&a=snippetTest&snippet_context={$snippet->context}&snippet_field=content');"><span class="cerb-sprite sprite-gear"></span> Test</button>
+	<button type="button" onclick="genericAjaxPost('formSnippetsPeek','peekTemplateTest','c=internal&a=snippetTest&snippet_context={$snippet->context}{if !empty($context_id)}&snippet_context_id={$context_id}{/if}&snippet_field=content');"><span class="cerb-sprite sprite-gear"></span> Test</button>
 	<select onchange="insertAtCursor(this.form.content,this.options[this.selectedIndex].value);this.selectedIndex=0;this.form.content.focus();">
 		<option value="">-- insert at cursor --</option>
 		{foreach from=$token_labels key=k item=v}

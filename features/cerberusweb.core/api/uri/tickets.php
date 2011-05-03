@@ -663,12 +663,14 @@ class ChTicketsPage extends CerberusPageExtension {
 	
 	function showSnippetsPeekAction() {
 		@$snippet_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
-		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
+		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
+		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer',null);
 		
 		$tpl = DevblocksPlatform::getTemplateService();
 		
 		$tpl->assign('view_id', $view_id);
+		$tpl->assign('context_id', $context_id);
 		
 		if(null == ($snippet = DAO_Snippet::get($snippet_id))) {
 			$snippet = new Model_Snippet();

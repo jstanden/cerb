@@ -490,7 +490,7 @@ class ChInternalController extends DevblocksControllerExtension {
 
 	function snippetTestAction() {
 		@$snippet_context = DevblocksPlatform::importGPC($_REQUEST['snippet_context'],'string','');
-		//@$snippet_context_id = DevblocksPlatform::importGPC($_REQUEST['snippet_context_id'],'integer',0);
+		@$snippet_context_id = DevblocksPlatform::importGPC($_REQUEST['snippet_context_id'],'integer',0);
 		@$snippet_field = DevblocksPlatform::importGPC($_REQUEST['snippet_field'],'string','');
 
 		$content = '';
@@ -498,38 +498,43 @@ class ChInternalController extends DevblocksControllerExtension {
 			$content = DevblocksPlatform::importGPC($_REQUEST[$snippet_field]);
 
 		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
-
 		$tpl = DevblocksPlatform::getTemplateService();
 
 		$token_labels = array();
 		$token_value = array();
 
-		switch($snippet_context) {
-			case '':
-				break;
-
-			case 'cerberusweb.contexts.ticket':
-				// [TODO] Randomize
-				list($result, $count) = DAO_Ticket::search(
-					array(),
-					array(
-					),
-					10,
-					0,
-					SearchFields_Ticket::TICKET_UPDATED_DATE,
-					false,
-					false
-				);
-
-				shuffle($result);
-
-				CerberusContexts::getContext(CerberusContexts::CONTEXT_TICKET, array_shift($result), $token_labels, $token_values);
-				break;
-
-			case 'cerberusweb.contexts.worker':
-				$active_worker = CerberusApplication::getActiveWorker();
-				CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $active_worker, $token_labels, $token_values);
-				break;
+		if(!empty($snippet_context_id)) {
+			CerberusContexts::getContext($snippet_context, $snippet_context_id, $token_labels, $token_values);
+		}
+		
+		// [TODO] Randomize
+		if(empty($token_values)) {
+			switch($snippet_context) {
+				case '':
+					break;
+	
+				case 'cerberusweb.contexts.ticket':
+					list($result, $count) = DAO_Ticket::search(
+						array(),
+						array(
+						),
+						25,
+						0,
+						SearchFields_Ticket::TICKET_UPDATED_DATE,
+						false,
+						false
+					);
+	
+					shuffle($result);
+	
+					CerberusContexts::getContext(CerberusContexts::CONTEXT_TICKET, array_shift($result), $token_labels, $token_values);
+					break;
+	
+				case 'cerberusweb.contexts.worker':
+					$active_worker = CerberusApplication::getActiveWorker();
+					CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $active_worker, $token_labels, $token_values);
+					break;
+			}
 		}
 
 		$success = false;
