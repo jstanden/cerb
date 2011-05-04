@@ -112,6 +112,7 @@
 			</table>
 		</fieldset>
 		
+		{if !empty($custom_fields)}
 		<fieldset>
 			<legend>{'common.custom_fields'|devblocks_translate}</legend>
 			
@@ -175,6 +176,7 @@
 			{/foreach}
 			</table>
 		</fieldset>
+		{/if}
 		
 		{* Comment *}
 		{if !empty($last_comment)}
