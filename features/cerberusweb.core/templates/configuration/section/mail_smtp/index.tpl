@@ -6,7 +6,7 @@
 	<form action="{devblocks_url}{/devblocks_url}" method="post" id="frmSetupMailOutgoingSmtp" onsubmit="return false;">
 	<input type="hidden" name="c" value="config">
 	<input type="hidden" name="a" value="handleSectionAction">
-	<input type="hidden" name="section" value="mail_outgoing">
+	<input type="hidden" name="section" value="mail_smtp">
 	<input type="hidden" name="action" value="saveSmtpJson">
 
 	<b>SMTP Server:</b><br>
