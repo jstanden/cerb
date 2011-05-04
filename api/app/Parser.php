@@ -688,10 +688,11 @@ class CerberusParser {
         	if(null != ($worker_address = DAO_AddressToWorker::getByAddress($model->getSenderAddressModel()->email))) {
         		$logger->info("[Worker Relay] Handling an external worker relay for " . $model->getSenderAddressModel()->email);
         		
-        		$in_reply_to = $message->headers['in-reply-to'];
-        		$subject = $message->headers['subject'];
+        		@$in_reply_to = $message->headers['in-reply-to'];
+        		@$subject = $message->headers['subject'];
         		$proxy_worker = DAO_Worker::get($worker_address->worker_id);
         		
+        		// If it's a watcher reply
         		if(preg_match('#\<cerb5:(.*)\:(.*)@(.*)\>#', $in_reply_to, $hits)) {
         			$context = $hits[1];
         			$context_id = $hits[2];
@@ -801,7 +802,6 @@ class CerberusParser {
         			
         		}
         		
-        		return;
         	}
 		
 //					$attachment_files = array();
