@@ -3106,35 +3106,19 @@ class _DevblocksSearchEngineMysqlFulltext {
 	}
 	
 	public function prepareText($text) {
-		// Encode apostrophes/etc
-		$tokens = array(
-			'__apos__' => '\''
-		);
-
-		$text = str_replace(array_values($tokens), array_keys($tokens), $text);
+		$text = DevblocksPlatform::strUnidecode($text);
 		
-		// Force lowercase and strip non-word punctuation (a-z, 0-9, _)
-		if(function_exists('mb_ereg_replace'))
-			$text = mb_ereg_replace('[^a-z0-9_]+', ' ', mb_convert_case($text, MB_CASE_LOWER));
-		else
-			$text = preg_replace('/[^a-z0-9_]+/', ' ', mb_convert_case($text, MB_CASE_LOWER));
-
-		// Decode apostrophes/etc
-		$text = str_replace(array_keys($tokens), array_values($tokens), $text);
+		//$string = preg_replace("/[^\p{Greek}\p{N}]/u", ' ', $string);
+		
+		$text = mb_ereg_replace("[^[:alnum:]]", ' ', mb_convert_case($text, MB_CASE_LOWER));		
 		
 		$words = explode(' ', $text);
-		
+
 		// Remove common words
 		$stop_words = $this->_getStopWords();
 
-		// Toss anything over/under the word length bounds
-		// [TODO] Make these configurable
+		// Filter
 		foreach($words as $k => $v) {
-			//$len = mb_strlen($v);
-//			if($len < 3 || $len > 255) { // || is_numeric($k)
-//				unset($words[$k]); // toss
-//			} elseif(isset($stop_words[$v])) {
-
 			if(isset($stop_words[$v])) {
 				unset($words[$k]); // toss
 			}
