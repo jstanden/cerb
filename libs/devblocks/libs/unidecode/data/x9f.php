@@ -1,3 +1,259 @@
 <?php
 $glyphs = array(
-"Cu ","Qu ","Chao ","Wa ","Zhu ","Zhi ","Mang ","Ao ","Bie ","Tuo ","Bi ","Yuan ","Chao ","Tuo ","Ding ","Mi ","Nai ","Ding ","Zi ","Gu ","Gu ","Dong ","Fen ","Tao ","Yuan ","Pi ","Chang ","Gao ","Qi ","Yuan ","Tang ","Teng ","Shu ","Shu ","Fen ","Fei ","Wen ","Ba ","Diao ","Tuo ","Tong ","Qu ","Sheng ","Shi ","You ","Shi ","Ting ","Wu ","Nian ","Jing ","Hun ","Ju ","Yan ","Tu ","Ti ","Xi ","Xian ","Yan ","Lei ","Bi ","Yao ","Qiu ","Han ","Wu ","Wu ","Hou ","Xi ","Ge ","Zha ","Xiu ","Weng ","Zha ","Nong ","Nang ","Qi ","Zhai ","Ji ","Zi ","Ji ","Ji ","Qi ","Ji ","Chi ","Chen ","Chen ","He ","Ya ","Ken ","Xie ","Pao ","Cuo ","Shi ","Zi ","Chi ","Nian ","Ju ","Tiao ","Ling ","Ling ","Chu ","Quan ","Xie ","Ken ","Nie ","Jiu ","Yao ","Chuo ","Kun ","Yu ","Chu ","Yi ","Ni ","Cuo ","Zou ","Qu ","Nen ","Xian ","Ou ","E ","Wo ","Yi ","Chuo ","Zou ","Dian ","Chu ","Jin ","Ya ","Chi ","Chen ","He ","Ken ","Ju ","Ling ","Pao ","Tiao ","Zi ","Ken ","Yu ","Chuo ","Qu ","Wo ","Long ","Pang ","Gong ","Pang ","Yan ","Long ","Long ","Gong ","Kan ","Ta ","Ling ","Ta ","Long ","Gong ","Kan ","Gui ","Qiu ","Bie ","Gui ","Yue ","Chui ","He ","Jue ","Xie ","Yu ","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","");
+"Cu ", // 0x9f00  鼀
+"Qu ", // 0x9f01  鼁
+"Chao ", // 0x9f02  鼂
+"Wa ", // 0x9f03  鼃
+"Zhu ", // 0x9f04  鼄
+"Zhi ", // 0x9f05  鼅
+"Mang ", // 0x9f06  鼆
+"Ao ", // 0x9f07  鼇
+"Bie ", // 0x9f08  鼈
+"Tuo ", // 0x9f09  鼉
+"Bi ", // 0x9f0a  鼊
+"Yuan ", // 0x9f0b  鼋
+"Chao ", // 0x9f0c  鼌
+"Tuo ", // 0x9f0d  鼍
+"Ding ", // 0x9f0e  鼎
+"Mi ", // 0x9f0f  鼏
+"Nai ", // 0x9f10  鼐
+"Ding ", // 0x9f11  鼑
+"Zi ", // 0x9f12  鼒
+"Gu ", // 0x9f13  鼓
+"Gu ", // 0x9f14  鼔
+"Dong ", // 0x9f15  鼕
+"Fen ", // 0x9f16  鼖
+"Tao ", // 0x9f17  鼗
+"Yuan ", // 0x9f18  鼘
+"Pi ", // 0x9f19  鼙
+"Chang ", // 0x9f1a  鼚
+"Gao ", // 0x9f1b  鼛
+"Qi ", // 0x9f1c  鼜
+"Yuan ", // 0x9f1d  鼝
+"Tang ", // 0x9f1e  鼞
+"Teng ", // 0x9f1f  鼟
+"Shu ", // 0x9f20  鼠
+"Shu ", // 0x9f21  鼡
+"Fen ", // 0x9f22  鼢
+"Fei ", // 0x9f23  鼣
+"Wen ", // 0x9f24  鼤
+"Ba ", // 0x9f25  鼥
+"Diao ", // 0x9f26  鼦
+"Tuo ", // 0x9f27  鼧
+"Tong ", // 0x9f28  鼨
+"Qu ", // 0x9f29  鼩
+"Sheng ", // 0x9f2a  鼪
+"Shi ", // 0x9f2b  鼫
+"You ", // 0x9f2c  鼬
+"Shi ", // 0x9f2d  鼭
+"Ting ", // 0x9f2e  鼮
+"Wu ", // 0x9f2f  鼯
+"Nian ", // 0x9f30  鼰
+"Jing ", // 0x9f31  鼱
+"Hun ", // 0x9f32  鼲
+"Ju ", // 0x9f33  鼳
+"Yan ", // 0x9f34  鼴
+"Tu ", // 0x9f35  鼵
+"Ti ", // 0x9f36  鼶
+"Xi ", // 0x9f37  鼷
+"Xian ", // 0x9f38  鼸
+"Yan ", // 0x9f39  鼹
+"Lei ", // 0x9f3a  鼺
+"Bi ", // 0x9f3b  鼻
+"Yao ", // 0x9f3c  鼼
+"Qiu ", // 0x9f3d  鼽
+"Han ", // 0x9f3e  鼾
+"Wu ", // 0x9f3f  鼿
+"Wu ", // 0x9f40  齀
+"Hou ", // 0x9f41  齁
+"Xi ", // 0x9f42  齂
+"Ge ", // 0x9f43  齃
+"Zha ", // 0x9f44  齄
+"Xiu ", // 0x9f45  齅
+"Weng ", // 0x9f46  齆
+"Zha ", // 0x9f47  齇
+"Nong ", // 0x9f48  齈
+"Nang ", // 0x9f49  齉
+"Qi ", // 0x9f4a  齊
+"Zhai ", // 0x9f4b  齋
+"Ji ", // 0x9f4c  齌
+"Zi ", // 0x9f4d  齍
+"Ji ", // 0x9f4e  齎
+"Ji ", // 0x9f4f  齏
+"Qi ", // 0x9f50  齐
+"Ji ", // 0x9f51  齑
+"Chi ", // 0x9f52  齒
+"Chen ", // 0x9f53  齓
+"Chen ", // 0x9f54  齔
+"He ", // 0x9f55  齕
+"Ya ", // 0x9f56  齖
+"Ken ", // 0x9f57  齗
+"Xie ", // 0x9f58  齘
+"Pao ", // 0x9f59  齙
+"Cuo ", // 0x9f5a  齚
+"Shi ", // 0x9f5b  齛
+"Zi ", // 0x9f5c  齜
+"Chi ", // 0x9f5d  齝
+"Nian ", // 0x9f5e  齞
+"Ju ", // 0x9f5f  齟
+"Tiao ", // 0x9f60  齠
+"Ling ", // 0x9f61  齡
+"Ling ", // 0x9f62  齢
+"Chu ", // 0x9f63  齣
+"Quan ", // 0x9f64  齤
+"Xie ", // 0x9f65  齥
+"Ken ", // 0x9f66  齦
+"Nie ", // 0x9f67  齧
+"Jiu ", // 0x9f68  齨
+"Yao ", // 0x9f69  齩
+"Chuo ", // 0x9f6a  齪
+"Kun ", // 0x9f6b  齫
+"Yu ", // 0x9f6c  齬
+"Chu ", // 0x9f6d  齭
+"Yi ", // 0x9f6e  齮
+"Ni ", // 0x9f6f  齯
+"Cuo ", // 0x9f70  齰
+"Zou ", // 0x9f71  齱
+"Qu ", // 0x9f72  齲
+"Nen ", // 0x9f73  齳
+"Xian ", // 0x9f74  齴
+"Ou ", // 0x9f75  齵
+"E ", // 0x9f76  齶
+"Wo ", // 0x9f77  齷
+"Yi ", // 0x9f78  齸
+"Chuo ", // 0x9f79  齹
+"Zou ", // 0x9f7a  齺
+"Dian ", // 0x9f7b  齻
+"Chu ", // 0x9f7c  齼
+"Jin ", // 0x9f7d  齽
+"Ya ", // 0x9f7e  齾
+"Chi ", // 0x9f7f  齿
+"Chen ", // 0x9f80  龀
+"He ", // 0x9f81  龁
+"Ken ", // 0x9f82  龂
+"Ju ", // 0x9f83  龃
+"Ling ", // 0x9f84  龄
+"Pao ", // 0x9f85  龅
+"Tiao ", // 0x9f86  龆
+"Zi ", // 0x9f87  龇
+"Ken ", // 0x9f88  龈
+"Yu ", // 0x9f89  龉
+"Chuo ", // 0x9f8a  龊
+"Qu ", // 0x9f8b  龋
+"Wo ", // 0x9f8c  龌
+"Long ", // 0x9f8d  龍
+"Pang ", // 0x9f8e  龎
+"Gong ", // 0x9f8f  龏
+"Pang ", // 0x9f90  龐
+"Yan ", // 0x9f91  龑
+"Long ", // 0x9f92  龒
+"Long ", // 0x9f93  龓
+"Gong ", // 0x9f94  龔
+"Kan ", // 0x9f95  龕
+"Ta ", // 0x9f96  龖
+"Ling ", // 0x9f97  龗
+"Ta ", // 0x9f98  龘
+"Long ", // 0x9f99  龙
+"Gong ", // 0x9f9a  龚
+"Kan ", // 0x9f9b  龛
+"Gui ", // 0x9f9c  龜
+"Qiu ", // 0x9f9d  龝
+"Bie ", // 0x9f9e  龞
+"Gui ", // 0x9f9f  龟
+"Yue ", // 0x9fa0  龠
+"Chui ", // 0x9fa1  龡
+"He ", // 0x9fa2  龢
+"Jue ", // 0x9fa3  龣
+"Xie ", // 0x9fa4  龤
+"Yu ", // 0x9fa5  龥
+"", // 0x9fa6  龦
+"", // 0x9fa7  龧
+"", // 0x9fa8  龨
+"", // 0x9fa9  龩
+"", // 0x9faa  龪
+"", // 0x9fab  龫
+"", // 0x9fac  龬
+"", // 0x9fad  龭
+"", // 0x9fae  龮
+"", // 0x9faf  龯
+"", // 0x9fb0  龰
+"", // 0x9fb1  龱
+"", // 0x9fb2  龲
+"", // 0x9fb3  龳
+"", // 0x9fb4  龴
+"", // 0x9fb5  龵
+"", // 0x9fb6  龶
+"", // 0x9fb7  龷
+"", // 0x9fb8  龸
+"", // 0x9fb9  龹
+"", // 0x9fba  龺
+"", // 0x9fbb  龻
+"", // 0x9fbc  龼
+"", // 0x9fbd  龽
+"", // 0x9fbe  龾
+"", // 0x9fbf  龿
+"", // 0x9fc0  鿀
+"", // 0x9fc1  鿁
+"", // 0x9fc2  鿂
+"", // 0x9fc3  鿃
+"", // 0x9fc4  鿄
+"", // 0x9fc5  鿅
+"", // 0x9fc6  鿆
+"", // 0x9fc7  鿇
+"", // 0x9fc8  鿈
+"", // 0x9fc9  鿉
+"", // 0x9fca  鿊
+"", // 0x9fcb  鿋
+"", // 0x9fcc  鿌
+"", // 0x9fcd  鿍
+"", // 0x9fce  鿎
+"", // 0x9fcf  鿏
+"", // 0x9fd0  鿐
+"", // 0x9fd1  鿑
+"", // 0x9fd2  鿒
+"", // 0x9fd3  鿓
+"", // 0x9fd4  鿔
+"", // 0x9fd5  鿕
+"", // 0x9fd6  鿖
+"", // 0x9fd7  鿗
+"", // 0x9fd8  鿘
+"", // 0x9fd9  鿙
+"", // 0x9fda  鿚
+"", // 0x9fdb  鿛
+"", // 0x9fdc  鿜
+"", // 0x9fdd  鿝
+"", // 0x9fde  鿞
+"", // 0x9fdf  鿟
+"", // 0x9fe0  鿠
+"", // 0x9fe1  鿡
+"", // 0x9fe2  鿢
+"", // 0x9fe3  鿣
+"", // 0x9fe4  鿤
+"", // 0x9fe5  鿥
+"", // 0x9fe6  鿦
+"", // 0x9fe7  鿧
+"", // 0x9fe8  鿨
+"", // 0x9fe9  鿩
+"", // 0x9fea  鿪
+"", // 0x9feb  鿫
+"", // 0x9fec  鿬
+"", // 0x9fed  鿭
+"", // 0x9fee  鿮
+"", // 0x9fef  鿯
+"", // 0x9ff0  鿰
+"", // 0x9ff1  鿱
+"", // 0x9ff2  鿲
+"", // 0x9ff3  鿳
+"", // 0x9ff4  鿴
+"", // 0x9ff5  鿵
+"", // 0x9ff6  鿶
+"", // 0x9ff7  鿷
+"", // 0x9ff8  鿸
+"", // 0x9ff9  鿹
+"", // 0x9ffa  鿺
+"", // 0x9ffb  鿻
+"", // 0x9ffc  鿼
+"", // 0x9ffd  鿽
+"", // 0x9ffe  鿾
+"" // 0x9fff  鿿
+);
