@@ -1,0 +1,27 @@
+# Devblocks #
+<http://www.cerberusweb.com/>
+
+The raw data for the Devblocks implementation of Unidecode came from  
+the Text::Unidecode Perl Module.
+
+The inspiration for accent folding and Unicode decoding came from 
+the following blog post:
+<http://www.gyro-php.org/posts/16/>
+
+# Text::Unidecode #
+<http://search.cpan.org/~sburke/Text-Unidecode-0.04/lib/Text/Unidecode.pm>
+
+Copyright (c) 2001 Sean M. Burke. All rights reserved.
+
+This library is free software; you can redistribute it and/or modify it 
+under the same terms as Perl itself.
+
+This program is distributed in the hope that it will be useful, but without 
+any warranty; without even the implied warranty of merchantability or 
+fitness for a particular purpose.
+
+Much of Text::Unidecode's internal data is based on data from The Unicode 
+Consortium, with which I am unafiliated.
+
+# Unicode Consortium #
+<http://www.unicode.org/>

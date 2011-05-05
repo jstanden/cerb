@@ -209,6 +209,52 @@ class DevblocksPlatform extends DevblocksEngine {
 		return preg_replace("/[^A-Z0-9_]/i","", $arg);
 	}	
 	
+	// [TODO] Move to a service
+	private static function _strUnidecodeLookup($chr) {
+		static $_pages = array();
+		
+		// 7-bit ASCII
+		if($chr >= 0x00 && $chr <= 0x7f)
+			return chr($chr);
+			
+		$high = $chr >> 8; // page
+		$low = $chr % 256; // page chr
+		
+		$page = str_pad(dechex($high),2,'0',STR_PAD_LEFT);
+		
+		if(!isset($_pages[$page])) {
+			$glyphs = array();
+			$file_path = DEVBLOCKS_PATH . 'libs/unidecode/data/x'.$page.'.php';
+			if(file_exists($file_path)) {
+				require_once($file_path);
+				if(!empty($glyphs))
+					$_pages[$page] = $glyphs;
+				unset($glyphs);
+			}
+		}
+		
+		if(isset($_pages[$page]) && isset($_pages[$page][$low]))
+			return $_pages[$page][$low];
+	}
+	
+	static function strUnidecode($string, $from_encoding = 'utf-8') {
+		if(empty($string))
+			return $string;
+		
+	    if(is_array($string))
+	        $string = implode("", $string);
+	
+		$unpack = unpack("N*",
+            (is_null($from_encoding))
+            ? mb_convert_encoding($string, "UCS-4BE")
+            : mb_convert_encoding($string, "UCS-4BE", $from_encoding));
+	            
+	    return implode("",
+			array_map(array('DevblocksPlatform',"_strUnidecodeLookup"),
+			$unpack
+		));
+	}
+	
 	static function stripHTML($str) {
 		// Strip all CRLF and tabs, spacify </TD>
 		$str = str_ireplace(
@@ -1462,6 +1508,7 @@ class DevblocksPlatform extends DevblocksEngine {
 		
 		// Encoding (mbstring)
 		mb_internal_encoding(LANG_CHARSET_CODE);
+		mb_regex_encoding(LANG_CHARSET_CODE);
 		
 	    // [JAS] [MDF]: Automatically determine the relative webpath to Devblocks files
 	    @$proxyhost = $_SERVER['HTTP_DEVBLOCKSPROXYHOST'];
