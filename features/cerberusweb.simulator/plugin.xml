@@ -1,5 +1,5 @@
-<!DOCTYPE plugin SYSTEM "../../libs/devblocks/plugin.dtd">
-<plugin>
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.devblocks.com/schema/plugin.xsd">
 	<id>cerberusweb.simulator</id>
 	<name>[Cerb5] Ticket Simulator</name>
 	<description>A tool that makes it easy to create batches of realistic sample tickets; useful for evaluations, plugin development, and testing.  This adds a Simulator tab in Configuration.</description>

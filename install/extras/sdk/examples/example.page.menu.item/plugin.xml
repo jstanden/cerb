@@ -1,5 +1,5 @@
-<!DOCTYPE plugin SYSTEM "../../libs/devblocks/plugin.dtd">
-<plugin>
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.devblocks.com/schema/plugin.xsd">
 	<id>example.page.menu.item</id>
 	<name>[Example] Page Menu Item</name>
 	<description>This example adds a new menu item to the Plugins menu on the Setup page.</description>

@@ -294,7 +294,7 @@ class ChTranslators_SetupPageSection extends Extension_PageSection {
 		// Build TMX outline
 		$xml = simplexml_load_string(
 			'<?xml version="1.0" encoding="' . LANG_CHARSET_CODE . '"?>'.
-			'<!DOCTYPE tmx SYSTEM "tmx14.dtd">'.
+			'<!DOCTYPE tmx>'.
 			'<tmx version="1.4">'.
 			'<body></body>'.
 			'</tmx>'

@@ -1,5 +1,5 @@
-<!DOCTYPE plugin SYSTEM "../../libs/devblocks/plugin.dtd">
-<plugin>
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.devblocks.com/schema/plugin.xsd">
 	<id>cerberusweb.core</id>
 	<name>[Cerb5] Core</name>
 	<description>The core functionality of Cerberus Helpdesk.</description>
@@ -405,10 +405,11 @@
 			<param key="fields" />
 		</event>
 		<event id="context_link.set">
-			<name>from_context</name>
-			<name>from_context_id</name>
-			<name>to_context</name>
-			<name>to_context_id</name>
+			<name>Context Link Set</name>
+			<param key="from_context" />
+			<param key="from_context_id" />
+			<param key="to_context" />
+			<param key="to_context_id" />
 		</event>
 		<event id="cron.heartbeat">
 			<name>Heartbeat</name>

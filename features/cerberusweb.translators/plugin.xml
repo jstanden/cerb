@@ -1,5 +1,5 @@
-<!DOCTYPE plugin SYSTEM "../../libs/devblocks/plugin.dtd">
-<plugin>
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.devblocks.com/schema/plugin.xsd">
 	<id>cerberusweb.translators</id>
 	<name>[Cerb5] Translation Editor</name>
 	<description>A GUI for translating the Cerberus Helpdesk interface into other languages.  This adds a 'Translations' tab to Configuration.</description>

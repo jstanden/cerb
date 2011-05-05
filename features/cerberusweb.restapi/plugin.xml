@@ -1,5 +1,5 @@
-<!DOCTYPE plugin SYSTEM "../../libs/devblocks/plugin.dtd">
-<plugin>
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.devblocks.com/schema/plugin.xsd">
 	<id>cerberusweb.restapi</id>
 	<name>[Cerb5] Web Services API (JSON/XML) *EXPERIMENTAL*</name>
 	<description>A RESTful JSON/XML interface for integrating Cerb5 with other applications and tools.</description>

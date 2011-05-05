@@ -1,5 +1,5 @@
-<!DOCTYPE plugin SYSTEM "../../libs/devblocks/plugin.dtd">
-<plugin>
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.devblocks.com/schema/plugin.xsd">
 	<id>example.object</id>
 	<name>[Example] Example Object</name>
 	<description>This example plugin adds a new kind of object to the helpdesk, complete with all the amenities: custom fields, views, worklists, bulk update, explore, watchers, connections, comments, etc.</description>

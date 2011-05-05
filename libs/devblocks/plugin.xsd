@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	<xs:element name="plugin">
+		<xs:complexType>
+			<xs:all>
+				<xs:element name="id" type="xs:string" />
+    			<xs:element name="name" type="xs:string" />
+    			<xs:element name="description" type="xs:string" />
+    			<xs:element name="author" type="xs:string" />
+    			<xs:element name="revision" type="xs:string" />
+    			<xs:element name="link" type="xs:string" />
+    			<xs:element name="image" type="xs:string" minOccurs="0" />
+    			
+    			<xs:element name="acl" minOccurs="0">
+    				<xs:complexType>
+    					<xs:sequence>
+    						<xs:element name="priv" minOccurs="0" maxOccurs="unbounded">
+    							<xs:complexType>
+    								<xs:attribute name="id" type="xs:string" use="required" />
+    								<xs:attribute name="label" type="xs:string" use="required" />
+    							</xs:complexType>
+    						</xs:element>
+    					</xs:sequence>
+    				</xs:complexType>
+    			</xs:element>
+
+    			<xs:element name="uri_routing" minOccurs="0">
+    			</xs:element>
+    			
+    			<xs:element name="dependencies" minOccurs="0">
+    				<xs:complexType>
+    					<xs:sequence>
+    						<xs:element name="require" minOccurs="0" maxOccurs="unbounded">
+    							<xs:complexType>
+    								<xs:attribute name="plugin_id" type="xs:string" use="required" />
+    								<xs:attribute name="version" type="xs:string" use="required" />
+    							</xs:complexType>
+    						</xs:element>
+    					</xs:sequence>
+    				</xs:complexType>
+    			</xs:element>
+
+    			<xs:element name="patches" minOccurs="0">
+    				<xs:complexType>
+    					<xs:sequence>
+    						<xs:element name="patch" minOccurs="0" maxOccurs="unbounded">
+    							<xs:complexType>
+    								<xs:attribute name="version" type="xs:string" use="required" />
+    								<xs:attribute name="revision" type="xs:integer" use="required" />
+    								<xs:attribute name="file" type="xs:string" use="required" />
+    							</xs:complexType>
+    						</xs:element>
+    					</xs:sequence>
+    				</xs:complexType>
+    			</xs:element>
+    			
+    			<xs:element name="class_loader" minOccurs="0">
+    				<xs:complexType>
+    					<xs:sequence>
+    						<xs:element name="file" minOccurs="0" maxOccurs="unbounded">
+    							<xs:complexType>
+    								<xs:sequence>
+			    						<xs:element name="class" minOccurs="0" maxOccurs="unbounded">
+			    							<xs:complexType>
+			    								<xs:attribute name="name" type="xs:string" use="required" />
+			    							</xs:complexType>
+			    						</xs:element>
+    								</xs:sequence>
+    								
+    								<xs:attribute name="path" type="xs:string" use="required" />
+    							</xs:complexType>
+    						</xs:element>
+    					</xs:sequence>
+    				</xs:complexType>
+    			</xs:element>
+
+    			<xs:element name="activity_points" minOccurs="0">
+    				<xs:complexType>
+    					<xs:sequence>
+    						<xs:element name="activity" minOccurs="0" maxOccurs="unbounded">
+    							<xs:complexType>
+			    					<xs:sequence>
+			    						<xs:element name="param" minOccurs="0" maxOccurs="unbounded">
+			    							<xs:complexType>
+												<xs:attribute name="key" type="xs:string" use="required" />
+												<xs:attribute name="value" type="xs:string" use="required" />
+			    							</xs:complexType>
+			    						</xs:element>
+			    					</xs:sequence>
+			    					
+									<xs:attribute name="point" type="xs:string" use="required" />
+    							</xs:complexType>
+    						</xs:element>
+    					</xs:sequence>
+    				</xs:complexType>
+    			</xs:element>
+    			
+    			<xs:element name="event_points" minOccurs="0">
+    				<xs:complexType>
+    					<xs:sequence>
+    						<xs:element name="event" minOccurs="0" maxOccurs="unbounded">
+    							<xs:complexType>
+			    					<xs:sequence>
+			    						<xs:element name="name" type="xs:string" />
+			    						<xs:element name="param" minOccurs="0" maxOccurs="unbounded">
+			    							<xs:complexType>
+												<xs:attribute name="key" type="xs:string" use="required" />
+												<xs:attribute name="value" type="xs:string" use="optional" />
+			    							</xs:complexType>
+			    						</xs:element>
+			    					</xs:sequence>
+			    					
+									<xs:attribute name="id" type="xs:string" use="required" />
+    							</xs:complexType>
+    						</xs:element>
+    					</xs:sequence>
+    				</xs:complexType>
+    			</xs:element>
+
+    			<xs:element name="templates" minOccurs="0">
+    				<xs:complexType>
+    					<xs:sequence>
+    						<xs:element name="template" minOccurs="0" maxOccurs="unbounded">
+    							<xs:complexType>
+									<xs:attribute name="path" type="xs:string" use="required" />
+    							</xs:complexType>
+    						</xs:element>
+    					</xs:sequence>
+    					
+						<xs:attribute name="set" type="xs:string" use="required" />
+    				</xs:complexType>
+    			</xs:element>
+
+    			<xs:element name="extensions" minOccurs="0">
+    				<xs:complexType>
+    					<xs:sequence>
+    						<xs:element name="extension" minOccurs="0" maxOccurs="unbounded">
+    							<xs:complexType>
+    								<xs:sequence>
+			    						<xs:element name="id" type="xs:string" />
+			    						<xs:element name="name" type="xs:string" />
+			    						<xs:element name="class">
+			    							<xs:complexType>
+			    								<xs:sequence>
+						    						<xs:element name="file" type="xs:string" />
+						    						<xs:element name="name" type="xs:string" />
+			    								</xs:sequence>
+			    							</xs:complexType>
+			    						</xs:element>
+			    						<xs:element name="params" minOccurs="0" maxOccurs="1">
+			    							<xs:complexType>
+			    								<xs:sequence>
+						    						<xs:element name="param" minOccurs="0" maxOccurs="unbounded">
+						    							<xs:complexType>
+						    								<xs:sequence>
+									    						<xs:element name="value" minOccurs="0" maxOccurs="1">
+									    							<xs:complexType>
+									    								<xs:sequence>
+												    						<xs:element name="data" minOccurs="0" maxOccurs="unbounded">
+												    							<xs:complexType>
+												    								<xs:attribute name="key" type="xs:string" use="required" />
+												    							</xs:complexType>
+												    						</xs:element>
+												    					</xs:sequence>
+												    				</xs:complexType>
+									    						</xs:element>
+						    								</xs:sequence>
+						    								
+						    								<xs:attribute name="key" type="xs:string" use="required" />
+						    								<xs:attribute name="value" type="xs:string" use="optional" />
+						    							</xs:complexType>
+						    						</xs:element>
+			    								</xs:sequence>
+			    								
+			    							</xs:complexType>
+			    						</xs:element>
+    								</xs:sequence>
+    								
+    								<xs:attribute name="point" type="xs:string" use="required" />
+    							</xs:complexType>
+    						</xs:element>
+    					</xs:sequence>
+    				</xs:complexType>
+    			</xs:element>
+    			
+			</xs:all>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>
