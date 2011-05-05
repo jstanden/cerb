@@ -429,10 +429,10 @@ class CerberusParser {
 		foreach($message->headers as $header_name => $header_val) {
 			if(is_array($header_val)) {
 				foreach($header_val as $idx => $val) {
-					$message->headers[$header_name][$idx] = self::fixQuotePrintableString($val);	
+					$message->headers[$header_name][$idx] = self::fixQuotePrintableString($val, $message->body_encoding);	
 				}
 			} else {
-				$message->headers[$header_name] = self::fixQuotePrintableString($header_val);
+				$message->headers[$header_name] = self::fixQuotePrintableString($header_val, $message->body_encoding);
 			}
 		}
 		
@@ -445,6 +445,13 @@ class CerberusParser {
 
 		    $section = mailparse_msg_get_part($mime, $st);
 		    $info = mailparse_msg_get_part_data($section);
+		    
+			// Overrides
+			switch(strtolower($info['charset'])) {
+				case 'gb2312':
+					$info['charset'] = 'gbk';
+					break;
+			}
 		    
 		    // handle parts that shouldn't have a content-name, don't handle twice
 		    $handled = 0;
@@ -535,7 +542,7 @@ class CerberusParser {
 				    }
 				    
 				    // filenames can be quoted-printable strings, too...
-				    $info['content-name'] = self::fixQuotePrintableString($info['content-name']);
+				    $info['content-name'] = self::fixQuotePrintableString($info['content-name'], $info['charset']);
 
 				    // content-name is not necessarily unique...
 					if (isset($message->files[$info['content-name']])) {
@@ -1066,13 +1073,14 @@ class CerberusParser {
 		return CerberusUtils::parseRfcAddressList($address_string);
 	}
 	
-	static function fixQuotePrintableString($input) {
+	static function fixQuotePrintableString($input, $encoding=null) {
 		$out = '';
-
+		
 		// Make a single element array from any !array input
 		if(!is_array($input))
 			$input = array($input);
 
+		if(is_array($input))
 		foreach($input as $str) {
 			$out .= !empty($out) ? ' ' : '';
 			
@@ -1080,7 +1088,9 @@ class CerberusParser {
 			if(is_array($parts))
 			foreach($parts as $part) {
 				try {
-					$charset = ($part->charset != 'default') ? $part->charset : 'auto';
+					$charset = ($part->charset != 'default') ? $part->charset : $encoding;
+					if(empty($charset))
+						$charset = 'auto';
 					@$out .= mb_convert_encoding($part->text,LANG_CHARSET_CODE,$charset);
 				} catch(Exception $e) {}
 			}

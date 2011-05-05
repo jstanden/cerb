@@ -275,7 +275,7 @@ class CerberusMail {
 		
 		// Headers
 		foreach($mail_headers as $hdr => $hdr_val) {
-			DAO_MessageHeader::create($message_id, $hdr, CerberusParser::fixQuotePrintableString($hdr_val));
+			DAO_MessageHeader::create($message_id, $hdr, CerberusParser::fixQuotePrintableString($hdr_val, LANG_CHARSET_CODE));
 		}
 		
 		// add files to ticket
@@ -622,7 +622,7 @@ class CerberusMail {
 			foreach($headers->getAll() as $hdr) {
 				if(null != ($hdr_val = $hdr->getFieldBody())) {
 					if(!empty($hdr_val))
-		    			DAO_MessageHeader::create($message_id, $hdr->getFieldName(), CerberusParser::fixQuotePrintableString($hdr_val));
+		    			DAO_MessageHeader::create($message_id, $hdr->getFieldName(), CerberusParser::fixQuotePrintableString($hdr_val, LANG_CHARSET_CODE));
 				}
 			}
 		    
