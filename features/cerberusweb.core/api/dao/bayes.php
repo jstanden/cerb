@@ -188,9 +188,6 @@ class CerberusBayes {
 	 * @return array An array with unique words as keys
 	 */
 	static function parseUniqueWords($text,$min=3,$max=24) {
-		$chars = array('\'');
-		$tokens = array('__apos__');
-		
 // ** REFACTOR BEGIN
 		// Encode apostrophes/etc
 //		$tokens = array(
@@ -234,27 +231,17 @@ class CerberusBayes {
 		
 // ** REFACTOR END		
 		
-		// Encode apostrophes/etc
-		$text = str_replace($chars,$tokens,$text);
+		//$string = preg_replace("/[^\p{Greek}\p{N}]/u", ' ', $string);
 		
 		// Force lowercase and strip non-word punctuation (a-z, 0-9, _)
-		if(function_exists('mb_ereg_replace'))
-			$text = mb_ereg_replace('[^a-z0-9_]+', ' ', mb_convert_case($text, MB_CASE_LOWER));
-		else
-			$text = preg_replace('/[^a-z0-9_]+/', ' ', mb_convert_case($text, MB_CASE_LOWER));
-
-		// Decode apostrophes/etc
-		$text = str_replace($tokens,$chars,$text);
+		$text = mb_ereg_replace("[^[:alnum:]]", ' ', mb_convert_case($text, MB_CASE_LOWER));
 
 		// Sort unique words w/ condensed spaces
-		if(function_exists('mb_ereg_replace'))
-			$words = array_flip(explode(' ', mb_ereg_replace('\s+', ' ', $text)));
-		else 
-			$words = array_flip(explode(' ', preg_replace('/\s+/', ' ', $text)));
+		$words = array_flip(explode(' ', mb_ereg_replace('\s+', ' ', $text)));
 
 		// Toss words that are too common
 	    $words = self::_removeCommonWords($words);
-		
+	    
 		// Toss anything over/under the word length bounds
 		foreach($words as $k => $v) {
 			$len = mb_strlen($k);
@@ -262,7 +249,7 @@ class CerberusBayes {
 				unset($words[$k]); // toss
 			}
 		}
-
+		
 		return $words;
 	}
 	
@@ -351,22 +338,12 @@ class CerberusBayes {
 	    return $words;
 	}
 	
-	static function unaccentUtf8Text($text) {
-		if(0 == strcasecmp(LANG_CHARSET_CODE,'utf-8')) {
-			$from = array('À','Á','Â','Ã','Ä','Å','Æ','à','á','â','ã','ä','å','æ','Ò','Ó','Ô','Õ','Õ','Ö','Ø','ò','ó','ô','õ','ö','ø','È','É','Ê','Ë','è','é','ê','ë','ð','Ç','ç','Ð','Ì','Í','Î','Ï','ì','í','î','ï','Ù','Ú','Û','Ü','ù','ú','û','ü','Ñ','ñ','Þ','ß','ÿ','ý');
-			$to = array('A','A','A','A','A','A','a','a','a','a','a','a','a','a','O','O','O','O','O','O','O','o','o','o','o','o','o','E','E','E','E','e','e','e','e','e','C','c','e','I','I','I','I','i','i','i','i','U','U','U','U','u','u','u','u','N','n','t','ss','y','y');
-			$text = str_replace($from, $to, $text);
-		}
-		
-		return $text;
-	}
-	
 	/**
 	 * @param string $text A string of text to run through spam scoring
 	 * @return array Analyzed statistics
 	 */
 	static function processText($text) {
-		$text = self::unaccentUtf8Text($text);
+		$text = DevblocksPlatform::strUnidecode($text);
 		$words = self::parseUniqueWords($text);
 		$words = self::_lookupWordIds($words);
 		$words = self::_analyze($words);
