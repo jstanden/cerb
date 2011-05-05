@@ -417,7 +417,7 @@ abstract class C4_AbstractView {
 		// HTML escape
 		if(is_array($vals))
 		foreach($vals as $k => $v) {
-			$vals[$k] = htmlspecialchars($v, ENT_QUOTES, LANG_CODE);
+			$vals[$k] = htmlspecialchars($v, ENT_QUOTES, LANG_CHARSET_CODE);
 		}
 		
 		echo implode(', ', $vals);

@@ -1,6 +1,6 @@
 /* Elements */
 
-body {
+body, form, td {
 	font-family: Arial, Helvetica, sans-serif;
 	font-size: 12px;
 }
