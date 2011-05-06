@@ -3,9 +3,12 @@
 <form action="index.php" method="POST">
 <input type="hidden" name="step" value="{$smarty.const.STEP_DATABASE}">
 
-{if $failed}
-<span class='bad'>Database Connection Failed!  Please check your settings and try again.</span><br>
-<br>
+{if $failed && !empty($errors)}
+<ul>
+{foreach from=$errors item=error}
+<li style="font-weight:bold;color:rgb(220,0,0);">{$error}</li>
+{/foreach}
+</ul>
 {/if}
 
 <b>Driver:</b><br>
