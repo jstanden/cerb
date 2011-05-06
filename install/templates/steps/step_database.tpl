@@ -16,6 +16,14 @@
 </select><br>
 <br>
 
+<b>Engine:</b><br>
+<select name="db_engine">
+	{foreach from=$engines item=engine key=k}
+	<option value="{$k}" {if $k==$db_engine}selected{/if}>{$engine}
+	{/foreach}
+</select><br>
+<br>
+
 <b>Host:</b><br>
 <input type="text" name="db_server" value="{$db_server}"><br>
 <br>

@@ -272,6 +272,7 @@ switch($step) {
 	case STEP_DATABASE:
 		// Import scope (if post)
 		@$db_driver = DevblocksPlatform::importGPC($_POST['db_driver'],'string');
+		@$db_engine = DevblocksPlatform::importGPC($_POST['db_engine'],'string');
 		@$db_server = DevblocksPlatform::importGPC($_POST['db_server'],'string');
 		@$db_name = DevblocksPlatform::importGPC($_POST['db_name'],'string');
 		@$db_user = DevblocksPlatform::importGPC($_POST['db_user'],'string');
@@ -297,11 +298,19 @@ switch($step) {
 		
 		$tpl->assign('drivers', $drivers);
 		
-		if(!empty($db_driver) && !empty($db_server) && !empty($db_name) && !empty($db_user)) {
+		// [JAS]: Possible storage engines
+		
+		$engines = array(
+			'innodb' => 'InnoDB (Recommended)',
+			'myisam' => 'MyISAM',
+		);
+		
+		$tpl->assign('engines', $engines);
+		
+		if(!empty($db_driver) && !empty($db_engine) && !empty($db_server) && !empty($db_name) && !empty($db_user)) {
 			$db_passed = false;
-			$db_engine = 'InnoDB';
 			
-			if(false != ($_db = mysql_connect($db_server, $db_user, $db_pass))) {
+			if(false !== (@$_db = mysql_connect($db_server, $db_user, $db_pass))) {
 				if(false !== mysql_select_db($db_name, $_db)) {
 					$db_passed = true;
 				}
@@ -314,23 +323,23 @@ switch($step) {
 				}
 				mysql_free_result($rs);
 
-				// Default to InnoDB
-				if(in_array('innodb', $discovered_engines)) {
-					$db_engine = 'InnoDB';
-				} else {
-					$db_engine = 'MyISAM';
+				// Check the preferred DB engine
+				if(!in_array($db_engine, $discovered_engines)) {
+					$db_passed = false;
+					$errors[] = sprintf("The '%s' storage engine is not enabled.", $db_engine);
 				}
 
 				// We need this for fulltext indexing
 				if(!in_array('myisam', $discovered_engines)) {
-					$db_engine = null;
 					$db_passed = false;
+					$errors[] = "The 'MyISAM' storage engine is not enabled and is required for fulltext search.";
 				}
 				
 				unset($discovered_engines);
 			}
 			
 			$tpl->assign('db_driver', $db_driver);
+			$tpl->assign('db_engine', $db_engine);
 			$tpl->assign('db_server', $db_server);
 			$tpl->assign('db_name', $db_name);
 			$tpl->assign('db_user', $db_user);
@@ -370,6 +379,7 @@ switch($step) {
 	// [JAS]: If we didn't save directly to the config file, user action required		
 	case STEP_SAVE_CONFIG_FILE:
 		@$db_driver = DevblocksPlatform::importGPC($_POST['db_driver'],'string');
+		@$db_engine = DevblocksPlatform::importGPC($_POST['db_engine'],'string');
 		@$db_server = DevblocksPlatform::importGPC($_POST['db_server'],'string');
 		@$db_name = DevblocksPlatform::importGPC($_POST['db_name'],'string');
 		@$db_user = DevblocksPlatform::importGPC($_POST['db_user'],'string');
@@ -379,6 +389,7 @@ switch($step) {
 		// Check to make sure our constants match our input
 		if(
 			0 == strcasecmp($db_driver,APP_DB_DRIVER) &&
+			0 == strcasecmp($db_engine,APP_DB_ENGINE) &&
 			0 == strcasecmp($db_server,APP_DB_HOST) &&
 			0 == strcasecmp($db_name,APP_DB_DATABASE) &&
 			0 == strcasecmp($db_user,APP_DB_USER) &&
@@ -390,6 +401,7 @@ switch($step) {
 			
 		} else { // oops!
 			$tpl->assign('db_driver', $db_driver);
+			$tpl->assign('db_engine', $db_engine);
 			$tpl->assign('db_server', $db_server);
 			$tpl->assign('db_name', $db_name);
 			$tpl->assign('db_user', $db_user);

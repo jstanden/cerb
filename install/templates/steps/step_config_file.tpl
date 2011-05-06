@@ -4,6 +4,7 @@
 <input type="hidden" name="step" value="{$smarty.const.STEP_SAVE_CONFIG_FILE}">
 <input type="hidden" name="overwrite" value="1">
 <input type="hidden" name="db_driver" value="{$db_driver}">
+<input type="hidden" name="db_engine" value="{$db_engine}">
 <input type="hidden" name="db_server" value="{$db_server}">
 <input type="hidden" name="db_name" value="{$db_name}">
 <input type="hidden" name="db_user" value="{$db_user}">
