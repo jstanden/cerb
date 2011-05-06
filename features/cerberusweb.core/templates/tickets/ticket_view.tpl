@@ -228,7 +228,6 @@
 					{if $active_worker->hasPriv('core.ticket.actions.close')}(<b>c</b>) {$translate->_('common.close')|lower}{/if} 
 					{if $active_worker->hasPriv('core.ticket.actions.spam')}(<b>s</b>) {$translate->_('common.spam')|lower}{/if} 
 					{if $active_worker->hasPriv('core.ticket.actions.delete')}(<b>x</b>) {$translate->_('common.delete')|lower}{/if}
-					{if $view->id=='mail_workflow'}
 					<div style="margin-left:25px;">
 						workflow: 
 						(<b>-</b>) undo last filter 
@@ -236,7 +235,6 @@
 						(<b>~</b>) change subtotals
 						(<b>`</b>) focus subtotals
 					</div>
-					{/if}
 			{/if}
 			{/if}
 		</td>

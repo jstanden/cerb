@@ -27,6 +27,7 @@
 
 	{* Column Headers *}
 	<tr>
+		<th style="text-align:center;width:10px;max-width:10px;"></th>
 		{foreach from=$view->view_columns item=header name=headers}
 			{* start table header, insert column title and link *}
 			<th nowrap="nowrap">
@@ -54,13 +55,15 @@
 	{/if}
 	<tbody style="cursor:pointer;">
 		<tr class="{$tableRowClass}">
-			<td colspan="{$smarty.foreach.headers.total}">
-				<input type="checkbox" name="row_id[]" value="{$result.w_id}" style="display:none;">
+			<td colspan="{$smarty.foreach.headers.total}" style="padding-left:10px;">
 				<a href="{devblocks_url}c=display&id={$result.t_mask}{/devblocks_url}" class="subject">{if !empty($result.t_subject)}{$result.t_subject}{else}(no subject){/if}</a>
 				<button type="button" class="peek" style="visibility:hidden;padding:1px;margin:0px 5px;" onclick="genericAjaxPopup('peek','c=tickets&a=showPreview&view_id={$view->id}&tid={$result.m_ticket_id}&msgid={$result.m_id}', null, false, '550');"><span class="cerb-sprite2 sprite-document-search-result" style="margin-left:2px" title="{$translate->_('views.peek')}"></span></button> 
 			</td>
 		</tr>
 		<tr class="{$tableRowClass}">
+			<td align="center">		
+				<input type="checkbox" name="row_id[]" value="{$result.m_id}" style="display:none;">
+			</td>
 		{foreach from=$view->view_columns item=column name=columns}
 			{if substr($column,0,3)=="cf_"}
 				{include file="devblocks:cerberusweb.core::internal/custom_fields/view/cell_renderer.tpl"}

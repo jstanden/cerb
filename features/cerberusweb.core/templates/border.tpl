@@ -27,8 +27,7 @@
 			<span style="padding:3px 5px 3px 5px;background-color:rgb(200,0,0);"><a href="{devblocks_url}c=preferences&k=viewNotificationsExplore{/devblocks_url}?view_id=my_notifications" style="color:rgb(255,255,255);text-decoration:none;font-weight:bold;">{'header.notifications.unread'|devblocks_translate:$active_worker_notify_count}</a></span>
 			{/if}
 			
-			{devblocks_url assign=worker_url}c=profiles&k=worker&id=me{/devblocks_url}
-			{$worker_name =''|cat:'<b><a href="'|cat:$worker_url|cat:'" id="lnkSignedIn">'|cat:$active_worker->getName()|cat:' &#x25be;</a></b>'}
+			{$worker_name =''|cat:'<b><a href="javascript:;" id="lnkSignedIn">'|cat:$active_worker->getName()|cat:' &#x25be;</a></b>'}
 			{'header.signed_in'|devblocks_translate:$worker_name nofilter}
 			<ul id="menuSignedIn" class="cerb-popupmenu cerb-float">
 				<li><a href="{devblocks_url}c=profiles&w=worker&me=me{/devblocks_url}">{'header.my_profile'|devblocks_translate|lower}</a></li>
@@ -62,23 +61,19 @@ $().ready(function(e) {
 		;
 	
 	$('#lnkSignedIn')
-		.hoverIntent({
-			over:function(e) {
-				$menu = $('#menuSignedIn');
+		.click(function(e) {
+			$menu = $('#menuSignedIn');
 
-				if($menu.is(':visible'))
-					return;
-				
-				$menu
-					.show()
-					.css('position','absolute')
-					.css('top',$(this).offset().top+($(this).height())+'px')
-					.css('left',$(this).offset().left-(10+$menu.width()-$(this).width())+'px')
-					.show()
-				;
-			},
-			timeout:0,
-			out:function(){}	
+			if($menu.is(':visible'))
+				return;
+			
+			$menu
+				.show()
+				.css('position','absolute')
+				.css('top',$(this).offset().top+($(this).height())+'px')
+				.css('left',$(this).offset().left-(10+$menu.width()-$(this).width())+'px')
+				.show()
+			;
 		});
 
 	$menu
