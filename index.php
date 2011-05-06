@@ -58,7 +58,6 @@ require(DEVBLOCKS_PATH . 'Devblocks.class.php');
 if('' == APP_DB_DRIVER 
 	|| '' == APP_DB_HOST 
 	|| '' == APP_DB_DATABASE 
-	|| null == ($db = DevblocksPlatform::getDatabaseService())
 	|| DevblocksPlatform::isDatabaseEmpty()) {
 		DevblocksPlatform::init();
 		$url_writer = DevblocksPlatform::getUrlService();
