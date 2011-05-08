@@ -728,38 +728,41 @@ class ChTicketsPage extends CerberusPageExtension {
 		);
 
 		if($do_delete) {
-			if($active_worker->is_superuser || null != DAO_Snippet::getWhere(sprintf("%s = %d AND %s = %d",
-				DAO_Snippet::ID,
-				$id,
-				DAO_Snippet::CREATED_BY,
-				$active_worker->id
-			))) {
-				DAO_Snippet::delete($id);
+			if(null != ($snippet = DAO_Snippet::get($id))) { /* @var $snippet Model_Snippet */
+				if($active_worker->hasPriv('core.snippets.actions.update_all') 
+					|| $snippet->created_by == $active_worker->id
+				) {
+					DAO_Snippet::delete($id);
+				}
 			}
 			
 		} else { // Create || Update
 			if(empty($id)) {
-				$fields[DAO_Snippet::CREATED_BY] = $active_worker->id;
-				$fields[DAO_Snippet::CONTEXT] = $context;
-				$fields[DAO_Snippet::IS_PRIVATE] = 0;
-				
-				$id = DAO_Snippet::create($fields);
+				if($active_worker->hasPriv('core.snippets.actions.create')) {
+					$fields[DAO_Snippet::CREATED_BY] = $active_worker->id;
+					$fields[DAO_Snippet::CONTEXT] = $context;
+					$fields[DAO_Snippet::IS_PRIVATE] = 0;
+					
+					$id = DAO_Snippet::create($fields);
+					
+					// Custom field saves
+					@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', array());
+					DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_SNIPPET, $id, $field_ids);
+				} 
 				
 			} else {
-				// Make sure we have permission
-				if($active_worker->is_superuser || null != DAO_Snippet::getWhere(sprintf("%s = %d AND %s = %d",
-					DAO_Snippet::ID,
-					$id,
-					DAO_Snippet::CREATED_BY,
-					$active_worker->id
-				))) {
-					DAO_Snippet::update($id, $fields);
+				if(null != ($snippet = DAO_Snippet::get($id))) { /* @var $snippet Model_Snippet */
+					if($active_worker->hasPriv('core.snippets.actions.update_all') 
+						|| $snippet->created_by == $active_worker->id
+					) {
+						DAO_Snippet::update($id, $fields);
+						
+						// Custom field saves
+						@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', array());
+						DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_SNIPPET, $id, $field_ids);
+					}
 				}
 			}
-			
-			// Custom field saves
-			@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', array());
-			DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_SNIPPET, $id, $field_ids);
 		}
 		
 		

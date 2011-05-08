@@ -124,7 +124,8 @@ class DAO_Snippet extends C4_ORMHelper {
 
 	/**
 	 * @param integer $id
-	 * @return Model_Snippet	 */
+	 * @return Model_Snippet
+	 */
 	static function get($id) {
 		$objects = self::getWhere(sprintf("%s = %d",
 			self::ID,

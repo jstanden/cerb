@@ -40,8 +40,18 @@
 </fieldset>
 {/if}
 
-<button type="button" onclick="genericAjaxPopupClose('peek');genericAjaxPost('formSnippetsPeek', 'view{$view_id}')"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {$translate->_('common.save_changes')}</button>
-{if !empty($snippet->id) && ($active_worker->is_superuser || $snippet->created_by==$active_worker->id)}<button type="button" onclick="if(confirm('Are you sure you want to permanently delete this snippet?')) { this.form.do_delete.value='1';genericAjaxPopupClose('peek');genericAjaxPost('formSnippetsPeek', 'view{$view_id}'); } "><span class="cerb-sprite2 sprite-cross-circle-frame"></span> {$translate->_('common.delete')|capitalize}</button>{/if}
+{if $active_worker->hasPriv('core.snippets.actions.create')}
+	<button type="button" onclick="genericAjaxPopupClose('peek');genericAjaxPost('formSnippetsPeek', 'view{$view_id}')"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {$translate->_('common.save_changes')}</button>
+{else}
+	<fieldset class="delete" style="font-weight:bold;">
+		{'error.core.no_acl.edit'|devblocks_translate}
+	</fieldset>
+{/if}
+{if !empty($snippet->id)}
+	{if $snippet->created_by==$active_worker->id || $active_worker->hasPriv('core.snippets.actions.update_all')}
+	<button type="button" onclick="if(confirm('Are you sure you want to permanently delete this snippet?')) { this.form.do_delete.value='1';genericAjaxPopupClose('peek');genericAjaxPost('formSnippetsPeek', 'view{$view_id}'); } "><span class="cerb-sprite2 sprite-cross-circle-frame"></span> {$translate->_('common.delete')|capitalize}</button>
+	{/if}
+{/if}
 <br>
 </form>
 

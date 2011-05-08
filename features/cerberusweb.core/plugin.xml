@@ -470,6 +470,10 @@
 
 		<!-- RSS -->
 		<priv id="core.rss" label="acl.core.rss" />
+		
+		<!-- Snippets -->
+		<priv id="core.snippets.actions.create" label="acl.core.snippets.actions.create" />
+		<priv id="core.snippets.actions.update_all" label="acl.core.snippets.actions.update_all" />
 
 		<!-- Tasks -->
 		<priv id="core.tasks.actions.create" label="acl.core.tasks.actions.create" />
