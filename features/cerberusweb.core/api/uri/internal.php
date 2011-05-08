@@ -1130,7 +1130,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		DAO_Workspace::setEndpointWorkspaces($point, $active_worker->id, $workspace_ids);
 
 		if(empty($request))
-			$request = 'mail';
+			$request = 'tickets';
 
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(explode('/',$request)));
 	}
@@ -1351,7 +1351,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		}
 
 		if(empty($request))
-			$request = 'mail';
+			$request = 'tickets';
 
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(explode('/', $request)));
 		return;
