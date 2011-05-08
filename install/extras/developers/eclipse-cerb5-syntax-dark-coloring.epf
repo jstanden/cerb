@@ -1,4 +1,4 @@
-#Sat May 07 13:30:38 PDT 2011
+#Sun May 08 12:40:39 PDT 2011
 @org.eclipse.ui.editors=3.6.1.r361_v20100825-0800
 /instance/org.eclipse.wst.css.ui/NORMAL=\#DCDCCC | null | false | false | false | false
 @org.eclipse.debug.ui=3.6.3.v20101201_r362
@@ -47,11 +47,11 @@
 /instance/org.eclipse.ui.editors/overviewRuler_migration=migrated_3.1
 @org.eclipse.mylyn.context.core=3.4.1.v20100909-0100-e3x
 /instance/org.eclipse.wst.html.ui/xmlContent=\#fcffff | null | false | false | false | false
-/instance/org.eclipse.wst.jsdt.ui/java_multi_line_comment=127,159,127
+/instance/org.eclipse.wst.jsdt.ui/java_multi_line_comment=167,167,167
 /instance/org.eclipse.php.ui/useQuickDiffPrefPage=true
 /instance/org.eclipse.wst.jsdt.ui/java_doc_default_underline=false
 /instance/org.eclipse.dltk.ui/org.eclipse.php.ui.explorer.UseStatementFilter=false
-/instance/org.eclipse.wst.jsdt.ui/java_single_line_comment=127,159,127
+/instance/org.eclipse.wst.jsdt.ui/java_single_line_comment=156,156,156
 /instance/org.eclipse.wst.jsdt.ui/java_keyword_bold=true
 /instance/org.eclipse.wst.jsdt.ui/java_string_italic=false
 /instance/org.eclipse.wst.jsdt.ui/java_doc_link_italic=false
@@ -89,6 +89,7 @@
 /instance/org.eclipse.ui.editors/printMarginColor=220,220,204
 /instance/org.eclipse.ui.ide/platformState=1304664104565
 /instance/org.eclipse.wst.css.ui/URI=\#80D4AA | null | false | false | false | false
+/instance/org.eclipse.wst.jsdt.ui/sourceHoverBackgroundColor=255,255,225
 /instance/org.eclipse.wst.html.ui/doctypeName=\#C0BED1 | null | false | false | false | false
 /instance/org.eclipse.wst.jsdt.ui/java_single_line_comment_strikethrough=false
 /instance/org.eclipse.wst.jsdt.ui/semanticHighlighting.parameterVariable.strikethrough=false
@@ -99,7 +100,7 @@
 /instance/org.eclipse.dltk.ui/CustomFiltersActionGroup.org.eclipse.php.ui.explorer.userDefinedPatterns=.git, .gitignore, .settings-aptana, .DS_Store, .project, .buildpath
 /instance/org.eclipse.wst.xml.ui/commentBorder=\#999999 | null | false | false | false | false
 /instance/org.eclipse.jdt.ui/proposalOrderMigrated=true
-/instance/org.eclipse.wst.jsdt.ui/java_keyword=223,175,143
+/instance/org.eclipse.wst.jsdt.ui/java_keyword=131,206,255
 /instance/org.eclipse.php.ui/semanticHighlighting.org.eclipse.php.internal.ui.editor.highlighters.StaticFieldHighlighting.color=\#EFEFAF | null | false | false | false | false
 /instance/org.eclipse.wst.html.ui/entityReference=\#CBECD0 | null | false | false | false | false
 /instance/org.eclipse.wst.xml.ui/tagAttributeName=\#aeb0b0 | null | false | false | false | false
@@ -124,6 +125,7 @@
 /instance/org.eclipse.php.ui/semanticHighlighting.org.eclipse.php.internal.ui.editor.highlighters.ConstantHighlighting.color=\#ffffff
 @org.eclipse.dltk.ui=2.0.0.v20100909-1720
 /configuration/org.eclipse.core.net/org.eclipse.core.net.hasMigrated=true
+/instance/org.eclipse.wst.jsdt.ui/java_keyword_return=68,152,255
 /instance/org.eclipse.ui.editors/AbstractTextEditor.Color.Background=33,33,33
 /instance/org.eclipse.wst.validation/vals/org.eclipse.php.ui.HTMLValidatorForPHP/groups=0107include01111contentType130org.eclipse.php.core.phpsourceT0107exclude0107fileext03tplF
 @org.eclipse.ui.ide=3.6.2.M20101201-0800
@@ -147,7 +149,7 @@
 /instance/org.eclipse.php.server.core/phpServers=<server><name>Default PHP Web Server</name><hostname>localhost</hostname><base_url>http\://localhost</base_url><document_root></document_root></server>
 /instance/org.eclipse.ui.ide/org.eclipse.ui.internal.views.markers.CachedMarkerBuilderorg.eclipse.ui.views.ProblemView=<?xml version\="1.0" encoding\="UTF-8"?>\n<filterGroups andFilters\="false">\n<filterGroup IMemento.internal.id\="All Errors" enabled\="false" scope\="0" workingSet\="Aggregate for window 1304632810865">\n<fieldFilter IMemento.internal.id\="org.eclipse.ui.ide.severityAndDescriptionField" containsModifier\="CONTAINS" containsText\="" selectedSeverities\="4"/>\n<fieldFilter IMemento.internal.id\="org.eclipse.ui.ide.markerType"/>\n</filterGroup>\n<filterGroup IMemento.internal.id\="Warnings on Selection" enabled\="false" scope\="2" workingSet\="Aggregate for window 1304632810865">\n<fieldFilter IMemento.internal.id\="org.eclipse.ui.ide.severityAndDescriptionField" containsModifier\="CONTAINS" containsText\="" selectedSeverities\="2"/>\n<fieldFilter IMemento.internal.id\="org.eclipse.ui.ide.markerType"/>\n</filterGroup>\n<filterGroup IMemento.internal.id\="Errors/Warnings on Selection" enabled\="false" scope\="2" workingSet\="Aggregate for window 1304632810865">\n<fieldFilter IMemento.internal.id\="org.eclipse.ui.ide.severityAndDescriptionField" containsModifier\="CONTAINS" containsText\="" selectedSeverities\="6"/>\n<fieldFilter IMemento.internal.id\="org.eclipse.ui.ide.markerType"/>\n</filterGroup>\n<filterGroup IMemento.internal.id\="Errors/Warnings on Project" enabled\="false" scope\="3" workingSet\="Aggregate for window 1304632810865">\n<fieldFilter IMemento.internal.id\="org.eclipse.ui.ide.severityAndDescriptionField" containsModifier\="CONTAINS" containsText\="" selectedSeverities\="6"/>\n<fieldFilter IMemento.internal.id\="org.eclipse.ui.ide.markerType"/>\n</filterGroup>\n</filterGroups>
 /instance/org.eclipse.dltk.ui/useAnnotationsPrefPage=true
-/instance/org.eclipse.wst.jsdt.ui/java_operator=240,239,208
+/instance/org.eclipse.wst.jsdt.ui/java_operator=237,223,0
 /instance/org.eclipse.wst.css.ui/ERROR=\#DCA3A3 | null | false | false | false | false
 /instance/org.eclipse.wst.xml.ui/lastActivePage=1
 /instance/org.eclipse.wst.jsdt.ui/org.eclipse.wst.jsdt.ui.editor.tab.width=
@@ -215,7 +217,7 @@
 /instance/org.eclipse.wst.html.ui/commentBorder=\#7F9F7F | null | false | false | false | false
 /instance/org.eclipse.wst.validation/stateTS=0
 /instance/org.eclipse.wst.xsd.ui/org.eclipse.wst.xmlschema.xsdQualify=true
-/instance/org.eclipse.wst.jsdt.ui/java_string=204,147,147
+/instance/org.eclipse.wst.jsdt.ui/java_string=74,254,0
 /instance/org.eclipse.dltk.ui/lastRecentlyUsedFilters=org.eclipse.php.ui.explorer.LibraryFilter,org.eclipse.php.ui.explorer.DotFilesFilter,org.eclipse.php.ui.explorer.ContainedLibraryFilter,
 @org.eclipse.jdt.ui=3.6.2.r362_v20110203
 /instance/org.eclipse.php.ui/semanticHighlighting.org.eclipse.php.internal.ui.editor.highlighters.ClassHighlighting.color=\#ff8103
@@ -238,10 +240,10 @@
 /instance/org.eclipse.ui.browser/browsers=<?xml version\="1.0" encoding\="UTF-8"?>\n<web-browsers current\="0">\n<system/>\n<external location\="/Applications/Firefox.app/Contents/MacOS/firefox-bin" name\="Firefox"/>\n</web-browsers>
 file_export_version=3.0
 /instance/org.eclipse.wst.html.ui/doctypeExternalId=\#8F8F8F | null | false | false | false | false
-/instance/org.eclipse.wst.jsdt.ui/semanticHighlighting.parameterVariable.color=207,191,175
+/instance/org.eclipse.wst.jsdt.ui/semanticHighlighting.parameterVariable.color=198,186,0
 @org.eclipse.jdt.launching=3.5.200.v20110105_r362
 /instance/org.eclipse.wst.jsdt.ui/semanticHighlighting.localVariable.strikethrough=false
-/instance/org.eclipse.wst.jsdt.ui/java_default=195,191,159
+/instance/org.eclipse.wst.jsdt.ui/java_default=206,208,208
 /instance/org.eclipse.wst.css.ui/COMMENT=\#a3a3a3 | null | false | false | false | false
 /instance/org.eclipse.php.ui/semanticHighlighting.org.eclipse.php.internal.ui.editor.highlighters.ClassHighlighting.enabled=true
 /instance/org.eclipse.php.ui/semanticHighlighting.org.eclipse.php.internal.ui.editor.highlighters.StaticMethodHighlighting.color=\#e5e5e5
@@ -286,7 +288,7 @@ file_export_version=3.0
 /instance/org.eclipse.wst.jsdt.ui/java_comment_task_tag=192,190,209
 @org.eclipse.egit.ui=0.12.1
 /instance/org.eclipse.ui.editors/AbstractTextEditor.Color.Foreground.SystemDefault=false
-/instance/org.eclipse.wst.jsdt.ui/java_bracket=223,175,143
+/instance/org.eclipse.wst.jsdt.ui/java_bracket=190,190,190
 /instance/org.eclipse.php.ui/editorColorKeyword=\#ffd21d | \#331e00 | false | false | false | false
 /instance/org.eclipse.wst.jsdt.ui/semanticHighlighting.parameterVariable.underline=false
 /instance/org.eclipse.dltk.core.index.sql.h2/schemaVersion=0.7
