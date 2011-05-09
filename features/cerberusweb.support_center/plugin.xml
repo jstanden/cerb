@@ -85,4 +85,150 @@
 		<template path="support_center/login/openid/register.tpl" />
 		<template path="support_center/login/switcher.tpl" />
 	</templates>
+	
+	<!-- Extensions -->
+ 
+	<extensions>
+
+		<!-- Event Listeners -->
+		
+		<extension point="devblocks.listener.event">
+			<id>sc.listeners.core</id>
+			<name>Support Center Event Listener</name>
+			<class>
+				<file>api/UmScApp.php</file>
+				<name>UmScEventListener</name>
+			</class>
+			<params>
+				<param key="events">
+					<value>
+						<data key="cron.maint" />						
+					</value>
+				</param>
+			</params>
+		</extension>
+
+		<!-- Usermeet Tools -->
+		
+		<extension point="usermeet.tool">
+			<id>sc.tool</id>
+			<name>Support Center</name>
+			<class>
+				<file>api/UmScApp.php</file>
+				<name>UmScApp</name>
+			</class>
+			<params>
+				<param key="template_set" value="cerberusweb.support_center" />
+			</params>
+		</extension>
+		
+		<!-- Login Authenticators -->
+		
+		<extension point="usermeet.login.authenticator">
+			<id>sc.login.auth.default</id>
+			<name>Cerb5 (Default)</name>
+			<class>
+				<file>api/UmScApp.php</file>
+				<name>UmScLoginAuthenticator</name>
+			</class>
+			<params>
+				<param key="switcher_icon" value="images/mail.png" />
+				<param key="switcher_label" value="Log in with email and password" />
+			</params>
+		</extension>
+		
+		<extension point="usermeet.login.authenticator">
+			<id>sc.login.auth.openid</id>
+			<name>OpenID (Recommended)</name>
+			<class>
+				<file>api/UmScApp.php</file>
+				<name>ScOpenIDLoginAuthenticator</name>
+			</class>
+			<params>
+				<param key="switcher_icon" value="images/openid.gif" />
+				<param key="switcher_label" value="Log in with OpenID" />
+			</params>
+		</extension>
+		
+		<!-- Support Center Modules -->
+
+		<extension point="usermeet.sc.controller">
+			<id>sc.controller.home</id>
+			<name>Home</name>
+			<class>
+				<file>api/sc/uri/home.php</file>
+				<name>UmScHomeController</name>
+			</class>
+			<params>
+				<param key="uri" value="home" />
+				<param key="menu_title" value="portal.sc.public.home" />
+			</params>
+		</extension>
+		
+		<extension point="usermeet.sc.controller">
+			<id>sc.controller.announcements</id>
+			<name>Announcements</name>
+			<class>
+				<file>api/sc/uri/announcements.php</file>
+				<name>UmScAnnouncementsController</name>
+			</class>
+			<params>
+				<param key="uri" value="announcements" />
+				<param key="menu_title" value="portal.sc.public.announcements" />
+			</params>
+		</extension>
+
+		<extension point="usermeet.sc.controller">
+			<id>sc.controller.contact</id>
+			<name>Contact Us</name>
+			<class>
+				<file>api/sc/uri/contact.php</file>
+				<name>UmScContactController</name>
+			</class>
+			<params>
+				<param key="uri" value="contact" />
+				<param key="menu_title" value="portal.common.open_ticket" />
+			</params>
+		</extension>
+		
+		<extension point="usermeet.sc.controller">
+			<id>sc.controller.history</id>
+			<name>Ticket History</name>
+			<class>
+				<file>api/sc/uri/history.php</file>
+				<name>UmScHistoryController</name>
+			</class>
+			<params>
+				<param key="uri" value="history" />
+				<param key="menu_title" value="portal.sc.public.history.ticket_history" />
+			</params>
+		</extension>
+
+		<extension point="usermeet.sc.controller">
+			<id>sc.controller.account</id>
+			<name>My Account</name>
+			<class>
+				<file>api/sc/uri/account.php</file>
+				<name>UmScAccountController</name>
+			</class>
+			<params>
+				<param key="uri" value="account" />
+				<param key="menu_title" value="portal.sc.public.my_account" />
+			</params>
+		</extension>
+
+		<extension point="usermeet.sc.controller">
+			<id>sc.controller.login</id>
+			<name>Login</name>
+			<class>
+				<file>api/sc/uri/login.php</file>
+				<name>UmScLoginController</name>
+			</class>
+			<params>
+				<param key="uri" value="login" />
+				<param key="menu_title" value="portal.sc.public.themes.sign_in" />
+			</params>
+		</extension>
+		
+    </extensions> 	
 </plugin>
