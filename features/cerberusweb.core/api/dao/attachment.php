@@ -654,7 +654,7 @@ class Storage_Attachments extends Extension_DevblocksStorageSchema {
 	}
 };
 
-class View_AttachmentLink extends C4_AbstractView {
+class View_AttachmentLink extends C4_AbstractView implements IAbstractView_Subtotals {
 	const DEFAULT_ID = 'attachment_links';
 
 	function __construct() {
@@ -701,6 +701,76 @@ class View_AttachmentLink extends C4_AbstractView {
 		return $this->_doGetDataSample('DAO_AttachmentLink', $size);
 	}
 
+	function getSubtotalFields() {
+		$all_fields = $this->getParamsAvailable();
+		
+		$fields = array();
+
+		if(is_array($all_fields))
+		foreach($all_fields as $field_key => $field_model) {
+			$pass = false;
+			
+			switch($field_key) {
+				// Strings
+				case SearchFields_AttachmentLink::ATTACHMENT_DISPLAY_NAME:
+				case SearchFields_AttachmentLink::ATTACHMENT_MIME_TYPE:
+				case SearchFields_AttachmentLink::ATTACHMENT_STORAGE_EXTENSION:
+//				case SearchFields_AttachmentLink::ATTACHMENT_STORAGE_PROFILE_ID:
+				case SearchFields_AttachmentLink::LINK_CONTEXT:
+					$pass = true;
+					break;
+			}
+			
+			if($pass)
+				$fields[$field_key] = $field_model;
+		}
+		
+		return $fields;
+	}
+	
+	function getSubtotalCounts($column) {
+		$counts = array();
+		$fields = $this->getFields();
+
+		if(!isset($fields[$column]))
+			return array();
+		
+		switch($column) {
+			case SearchFields_AttachmentLink::ATTACHMENT_DISPLAY_NAME:
+			case SearchFields_AttachmentLink::ATTACHMENT_MIME_TYPE:
+				$counts = $this->_getSubtotalCountForStringColumn('DAO_Attachment', $column);
+				break;
+
+			case SearchFields_AttachmentLink::ATTACHMENT_STORAGE_EXTENSION:
+				$label_map = array();
+				$manifests = DevblocksPlatform::getExtensions('devblocks.storage.engine', false);
+				if(is_array($manifests))
+				foreach($manifests as $k => $mft) {
+					$label_map[$k] = $mft->name;
+				}
+				
+				$counts = $this->_getSubtotalCountForStringColumn('DAO_Attachment', $column, $label_map);
+				break;
+				
+			case SearchFields_AttachmentLink::LINK_CONTEXT:
+				$label_map = array();
+				$manifests = Extension_DevblocksContext::getAll(false);
+				if(is_array($manifests))
+				foreach($manifests as $k => $mft) {
+					$label_map[$k] = $mft->name;
+				}
+				
+				$counts = $this->_getSubtotalCountForStringColumn('DAO_Attachment', $column, $label_map, 'in', 'contexts[]');
+				break;
+
+//			case SearchFields_AttachmentLink::ATTACHMENT_STORAGE_PROFILE_ID:
+//				$counts = $this->_getSubtotalCountForStringColumn('DAO_Attachment', $column);
+//				break;
+		}
+		
+		return $counts;
+	}	
+	
 	function render() {
 		$this->_sanitize();
 		
@@ -713,7 +783,8 @@ class View_AttachmentLink extends C4_AbstractView {
 		$tpl->assign('contexts', $contexts);
 		
 		// [TODO] Move
-		$tpl->display('devblocks:cerberusweb.core::configuration/section/storage_attachments/view.tpl');
+		$tpl->assign('view_template', 'devblocks:cerberusweb.core::configuration/section/storage_attachments/view.tpl');
+		$tpl->display('devblocks:cerberusweb.core::internal/views/subtotals_and_view.tpl');
 	}
 
 	function renderCriteria($field) {
@@ -753,6 +824,20 @@ class View_AttachmentLink extends C4_AbstractView {
 		$values = !is_array($param->value) ? array($param->value) : $param->value;
 
 		switch($field) {
+			case SearchFields_AttachmentLink::ATTACHMENT_STORAGE_EXTENSION:
+				$label_map = array();
+				$manifests = DevblocksPlatform::getExtensions('devblocks.storage.engine', false);
+
+				$strings = array();
+				foreach($values as $v) {
+					if(isset($manifests[$v]))
+						$strings[] = $manifests[$v]->name;
+				}
+				if(!empty($strings))
+					echo implode(', ', $strings);
+				
+				break;
+				
 			case SearchFields_AttachmentLink::LINK_CONTEXT:
 				$contexts = Extension_DevblocksContext::getAll();
 				$strings = array();
