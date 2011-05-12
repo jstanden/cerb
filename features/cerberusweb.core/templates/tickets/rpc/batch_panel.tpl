@@ -101,15 +101,19 @@
 		</tr>
 		{/if}
 		
-		{if $active_worker->hasPriv('core.ticket.actions.assign')}
+		{if $active_worker->hasPriv('core.watchers.assign') || $active_worker->hasPriv('core.watchers.unassign')}
 		<tr>
 			<td width="0%" nowrap="nowrap" valign="top">{'common.watchers'|devblocks_translate|capitalize}:</td>
 			<td width="100%">
+				{if $active_worker->hasPriv('core.watchers.assign')}
 				<button type="button" class="chooser-worker add"><span class="cerb-sprite sprite-view"></span></button>
 				<ul class="bubbles chooser-container" style="display:block;"></ul>
+				{/if}
 
+				{if $active_worker->hasPriv('core.watchers.unassign')}
 				<button type="button" class="chooser-worker remove"><span class="cerb-sprite sprite-view"></span></button>
 				<ul class="bubbles chooser-container" style="display:block;"></ul>
+				{/if}
 			</td>
 		</tr>
 		{/if}

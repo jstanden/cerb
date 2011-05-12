@@ -30,14 +30,21 @@
 			<button type="button" onclick="this.form.status.selectedIndex = 3;">{'crm.opp.status.closed.lost'|devblocks_translate|lower}</button>
 	      	</td>
 		</tr>
+		{if $active_worker->hasPriv('core.watchers.assign') || $active_worker->hasPriv('core.watchers.unassign')}
 		<tr>
 			<td width="0%" nowrap="nowrap" align="right" valign="top">{'common.watchers'|devblocks_translate|capitalize}:</td>
 			<td width="100%">
+				{if $active_worker->hasPriv('core.watchers.assign')}
 				<button type="button" class="chooser-worker add"><span class="cerb-sprite sprite-view"></span></button>
 				<br>
+				{/if}
+				
+				{if $active_worker->hasPriv('core.watchers.unassign')}
 				<button type="button" class="chooser-worker remove"><span class="cerb-sprite sprite-view"></span></button>
+				{/if}
 			</td>
 		</tr>
+		{/if}
 		<tr>
 			<td width="0%" nowrap="nowrap" align="right">{'crm.opportunity.closed_date'|devblocks_translate|capitalize}:</td>
 			<td width="100%">
