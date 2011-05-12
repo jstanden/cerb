@@ -222,9 +222,6 @@
 	});
 	
 	// Choosers
-	$('#frmTicketPeek button.chooser_worker').each(function() {
-		ajax.chooser(this, 'cerberusweb.contexts.worker', 'worker_id', { autocomplete:true })
-	});
 	$('#frmTicketPeek button.chooser_notify_worker').each(function() {
 		ajax.chooser(this,'cerberusweb.contexts.worker','notify_worker_ids', { autocomplete:true });
 	});

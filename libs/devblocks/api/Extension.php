@@ -546,7 +546,6 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 					$workers = DAO_Worker::getAllActive();
 					$tpl->assign('workers', $workers);
 					$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_worker.tpl');
-					$tpl->clearAssign('workers');
 					break;
 					
 				default:
@@ -702,8 +701,6 @@ class DevblocksEventHelper {
 		$tpl->assign('workers', DAO_Worker::getAll());
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_add_watchers.tpl');
-		
-		$tpl->clearAssign('workers');
 	}
 	
 	static function runActionAddWatchers($params, $values, $context, $context_id) {
@@ -724,8 +721,6 @@ class DevblocksEventHelper {
 		$tpl->assign('workers', DAO_Worker::getAll());
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_create_notification.tpl');
-		
-		$tpl->clearAssign('workers');
 	}
 	
 	static function runActionCreateNotification($params, $values, $url) {
@@ -762,8 +757,6 @@ class DevblocksEventHelper {
 		$tpl->assign('workers', DAO_Worker::getAll());
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_create_task.tpl');
-		
-		$tpl->clearAssign('workers');
 	}
 	
 	static function runActionCreateTask($params, $values, $context=null, $context_id=null) {
@@ -815,9 +808,6 @@ class DevblocksEventHelper {
 		$tpl->assign('workers', DAO_Worker::getAll());
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_create_ticket.tpl');
-		
-		$tpl->clearAssign('groups', $groups);
-		$tpl->clearAssign('workers', $workers);
 	}
 	
 	static function runActionCreateTicket($params, $values) {

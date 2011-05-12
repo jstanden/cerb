@@ -15,7 +15,7 @@ $view_frm.find('TABLE.worklistBody TBODY')
 		
 		if (false == $target instanceof jQuery) {
 			// Not a jQuery object
-		} else if($target.is(':input,:button,a,img,span.cerb-sprite,span.cerb-sprite2')) {
+		} else if($target.is(':input,:button,a,img,span.cerb-sprite,span.cerb-sprite2,span.cerb-label')) {
 			// Ignore form elements and links
 		} else {
 			e.preventDefault();

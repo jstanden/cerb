@@ -493,6 +493,10 @@
 		<priv id="core.ticket.view.actions.merge" label="acl.core.ticket.view.actions.merge" />
 		<priv id="core.ticket.view.actions.pile_sort" label="acl.core.ticket.view.actions.pile_sort" />
 
+		<!-- Watchers -->
+		<priv id="core.watchers.assign" label="acl.core.watchers.assign" />
+		<priv id="core.watchers.unassign" label="acl.core.watchers.unassign" />
+		
 		<!-- Workspaces -->
 		<priv id="core.home.workspaces" label="acl.core.home.workspaces" />
 		

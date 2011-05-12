@@ -466,7 +466,71 @@ class ChInternalController extends DevblocksControllerExtension {
 		$tpl->clearAssign('context');
 		$tpl->clearAssign('context_id');
 		$tpl->clearAssign('object_watchers');
-		$tpl->clearAssign('workers');
+	}
+	
+	function showContextWatchersAction() {
+		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
+		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer',0);
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$active_worker = CerberusApplication::getActiveWorker();
+
+		if(null != ($extension = DevblocksPlatform::getExtension($context, true))) { /* @var $extension Extension_DevblocksContext */
+			$tpl->assign('extension', $extension);
+			$meta = $extension->getMeta($context_id);
+			$tpl->assign('meta', $meta);
+		}
+		
+		$tpl->assign('context', $context);
+		$tpl->assign('context_id', $context_id);
+		
+		// Watchers
+		$object_watchers = DAO_ContextLink::getContextLinks($context, array($context_id), CerberusContexts::CONTEXT_WORKER);
+		$tpl->assign('object_watchers', $object_watchers);
+		
+		// Workers
+		$tpl->assign('workers', DAO_Worker::getAll());
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/watchers/context_follow_popup.tpl');
+	}
+	
+	function addContextWatchersAction() {
+		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
+		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer',0);
+		@$add_worker_ids_str = DevblocksPlatform::importGPC($_REQUEST['add_worker_ids'],'string','');
+		@$delete_worker_ids_str = DevblocksPlatform::importGPC($_REQUEST['delete_worker_ids'],'string','');
+		@$full = DevblocksPlatform::importGPC($_REQUEST['full'],'integer',0);
+		
+		$add_worker_ids = DevblocksPlatform::parseCsvString($add_worker_ids_str, false, 'integer');
+		$delete_worker_ids = DevblocksPlatform::parseCsvString($delete_worker_ids_str, false, 'integer');
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$active_worker = CerberusApplication::getActiveWorker();
+
+		$tpl->assign('context', $context);
+		$tpl->assign('context_id', $context_id);
+		$tpl->assign('full', $full);
+		
+		// Add
+		if(!empty($add_worker_ids) && $active_worker->hasPriv('core.watchers.assign'))
+			CerberusContexts::addWatchers($context, $context_id, $add_worker_ids);
+			
+		// Remove
+		if(!empty($delete_worker_ids) && $active_worker->hasPriv('core.watchers.unassign'))
+			CerberusContexts::removeWatchers($context, $context_id, $delete_worker_ids);
+		
+		// Watchers
+		$object_watchers = DAO_ContextLink::getContextLinks($context, array($context_id), CerberusContexts::CONTEXT_WORKER);
+		$tpl->assign('object_watchers', $object_watchers);
+		
+		// Workers
+		$tpl->assign('workers', DAO_Worker::getAll());
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl');
+		
+		$tpl->clearAssign('context');
+		$tpl->clearAssign('context_id');
+		$tpl->clearAssign('object_watchers');		
 	}
 	
 	// Snippets
@@ -1609,7 +1673,6 @@ class ChInternalController extends DevblocksControllerExtension {
 		$tpl->clearAssign('trigger');
 		$tpl->clearAssign('trigger_id');
 		$tpl->clearAssign('type');
-		$tpl->clearAssign('workers');
 	}
 
 	function doDecisionAddConditionAction() {

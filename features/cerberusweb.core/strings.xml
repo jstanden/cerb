@@ -703,6 +703,12 @@
 		<tu tuid='acl.core.ticket.view.actions.pile_sort'>
 			<tuv xml:lang="en_US"><seg>[Tickets] Can use the pile sorter on lists</seg></tuv>
 		</tu>
+		<tu tuid='acl.core.watchers.assign'>
+			<tuv xml:lang="en_US"><seg>[Watchers] Can add other workers as watchers</seg></tuv>
+		</tu>
+		<tu tuid='acl.core.watchers.unassign'>
+			<tuv xml:lang="en_US"><seg>[Watchers] Can remove other workers as watchers</seg></tuv>
+		</tu>
 
 		<!-- Addresses -->
 		
