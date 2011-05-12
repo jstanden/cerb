@@ -3,10 +3,18 @@
 {if !empty($reason)}
 	<legend style="color:rgb(74,110,158);cursor:pointer;">{$reason} &#x25be;</legend>
 {else}
-	<legend style="color:rgb(74,110,158);cursor:pointer;">{$translate->_('portal.sc.cfg.add_contact_situation')} &#x25be;</legend>
+	<legend style="color:rgb(74,110,158);cursor:pointer;">{$translate->_('portal.sc.cfg.add_contact_situation')}</legend>
 {/if}
 
 <div style="padding-left:20px;">
+	<b>Status:</b>
+	<select name="status[{$uniq_id}]">
+		<option value="" {if empty($params.is_hidden)}selected="selected"{/if}>{'portal.sc.cfg.situation.visible'|devblocks_translate|capitalize}</option>
+		<option value="deleted">{'portal.sc.cfg.situation.deleted'|devblocks_translate|capitalize}</option>
+	</select>
+	<br>
+	<br>
+
 	<b>{$translate->_('portal.sc.cfg.reason_contacting')}</b> {$translate->_('portal.sc.cfg.reason_contacting_hint')}<br>
 	<input type="text" name="contact_reason[{$uniq_id}]" size="65" value="{$reason}"><br>
 	<br>

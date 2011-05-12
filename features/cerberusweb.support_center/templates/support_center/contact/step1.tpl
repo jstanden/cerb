@@ -10,7 +10,7 @@
 	<fieldset>
 		<legend>{$translate->_('portal.sc.public.contact.how_can_we_help')}</legend>
 		
-		{foreach from=$dispatch item=to key=reason}
+		{foreach from=$dispatch item=params key=reason}
 			{assign var=dispatchKey value=$reason|md5}
 			<label><input type="radio" name="nature" value="{$dispatchKey}" onclick="this.form.submit();"> {$reason}</label><br>
 		{/foreach}

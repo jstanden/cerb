@@ -137,6 +137,7 @@ class UmScContactController extends Extension_UmScController {
 		// Situations
     	@$aReason = DevblocksPlatform::importGPC($_POST['contact_reason'],'array',array());
         @$aTo = DevblocksPlatform::importGPC($_POST['contact_to'],'array',array());
+        @$aStatus = DevblocksPlatform::importGPC($_POST['status'],'array',array());
         @$aFollowup = DevblocksPlatform::importGPC($_POST['contact_followup'],'array',array());
         @$aFollowupField = DevblocksPlatform::importGPC($_POST['contact_followup_fields'],'array',array());
         
@@ -149,6 +150,10 @@ class UmScContactController extends Extension_UmScController {
         	@$to = $aTo[$key];
         	@$followups = $aFollowup[$key];
         	@$followup_fields = $aFollowupField[$key];
+        	@$status = $aStatus[$key];
+
+        	if('deleted' == $status)
+        		continue;
         	
         	$part = array(
         		'to' => !empty($to) ? $to : $replyto_default->email,
