@@ -270,6 +270,13 @@ class DAO_Ticket extends C4_ORMHelper {
 			);
 			$db->Execute($sql);
 			
+			// Mail queue
+			$sql = sprintf("UPDATE mail_queue SET ticket_id = %d WHERE ticket_id IN (%s)",
+				$oldest_id,
+				implode(',', $merge_ticket_ids)
+			);
+			$db->Execute($sql);
+			
 			// Requesters (merge)
 			$sql = sprintf("INSERT IGNORE INTO requester (address_id, ticket_id) ".
 				"SELECT address_id, %d FROM requester WHERE ticket_id IN (%s)",
