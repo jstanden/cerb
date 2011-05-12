@@ -586,15 +586,23 @@ class DevblocksPlatform extends DevblocksEngine {
 	 * @param string $string
 	 * @return array
 	 */
-	static function parseCsvString($string) {
+	static function parseCsvString($string, $keep_blanks=false, $typecast=null) {
+		if(empty($string))
+			return array();
+		
 		$tokens = explode(',', $string);
 
 		if(!is_array($tokens))
 			return array();
 		
 		foreach($tokens as $k => $v) {
+			if(!is_null($typecast)) {
+				settype($v, $typecast);
+			}
+			
 			$tokens[$k] = trim($v);
-			if(0==strlen($tokens[$k]))
+			
+			if(!$keep_blanks && 0==strlen($tokens[$k]))
 				unset($tokens[$k]);
 		}
 		
