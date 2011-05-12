@@ -256,6 +256,38 @@ button span {
 	vertical-align:top;
 }
 
+button.split-left {
+	margin-right:0px;
+	border-right:1px solid rgb(175,175,175);
+	-moz-border-radius: 5px 0px 0px 5px;
+	-webkit-border-radius: 5px 0px 0px 5px;
+	border-radius: 5px 0px 0px 5px;
+}
+
+button.split-right {
+	margin-left:0px;
+	padding-left:3px;
+	padding-right:3px;
+	-moz-border-radius: 0px 5px 5px 0px;
+	-webkit-border-radius: 0px 5px 5px 0px;
+	border-radius: 0px 5px 5px 0px;
+
+	background:none;
+	border-left:0px;
+	background-color:rgb(175,175,175);
+	background: linear-gradient(top, rgb(180,180,180), rgb(125,125,125));
+	background: -webkit-gradient(linear, left top, left bottom, from(rgb(180,180,180)), to(rgb(125,125,125)));
+	background: -moz-linear-gradient(top, rgb(180,180,180), rgb(125,125,125));
+	background: -o-linear-gradient(top, rgb(180,180,180), rgb(125,125,125));
+	background: -ms-linear-gradient(top, rgb(180,180,180), rgb(125,125,125));
+	color:rgb(255,255,255);
+}
+
+button.split-right:hover {
+	background:none;
+	background-color:rgb(160,198,254);
+}
+
 /* Menu */
 
 UL.navmenu {
