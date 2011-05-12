@@ -142,6 +142,9 @@
 		<tu tuid='portal.sc.cfg.situation.deleted'>
 			<tuv xml:lang="en_US"><seg>deleted</seg></tuv>
 		</tu>
+		<tu tuid='portal.sc.cfg.situation.hidden'>
+			<tuv xml:lang="en_US"><seg>hidden</seg></tuv>
+		</tu>
 		<tu tuid='portal.sc.cfg.situation.visible'>
 			<tuv xml:lang="en_US"><seg>visible</seg></tuv>
 		</tu>

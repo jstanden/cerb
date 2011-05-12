@@ -54,6 +54,14 @@ class UmScContactController extends Extension_UmScController {
 				
    				$sDispatch = DAO_CommunityToolProperty::get(ChPortalHelper::getCode(),self::PARAM_SITUATIONS, '');
     			$dispatch = !empty($sDispatch) ? unserialize($sDispatch) : array();
+    			
+    			// Remove hidden contact situations
+    			if(is_array($dispatch))
+    			foreach($dispatch as $k => $params) {
+    				if(isset($params['is_hidden']) && !empty($params['is_hidden']))
+    					unset($dispatch[$k]);
+    			}
+    			
 		        $tpl->assign('dispatch', $dispatch);
 		        
 		        switch($section) {
@@ -157,6 +165,7 @@ class UmScContactController extends Extension_UmScController {
         	
         	$part = array(
         		'to' => !empty($to) ? $to : $replyto_default->email,
+        		'is_hidden' => ('hidden' == $status) ? true : false,
         		'followups' => array()
         	);
         	
