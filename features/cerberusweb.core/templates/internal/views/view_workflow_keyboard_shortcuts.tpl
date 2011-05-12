@@ -16,6 +16,8 @@ $(document).keypress(function(event) {
 				return;
 			break;
 	}
+
+	hotkey_activated = true;
 	
 	switch(event.which) {
 		case 42: // (*) reset filters
@@ -46,7 +48,13 @@ $(document).keypress(function(event) {
 		case 126: // (~)
 			$('#view{$view->id}_sidebar FIELDSET UL.cerb-popupmenu').toggle().find('a:first').focus();
 			break;
+		default:
+			hotkey_activated = false;
+			break;
 	}
+
+	if(hotkey_activated)
+		event.preventDefault();
 });
 
 {/if}
