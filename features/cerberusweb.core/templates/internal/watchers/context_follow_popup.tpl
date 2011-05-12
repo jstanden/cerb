@@ -55,6 +55,7 @@
 			});
 	
 			$(this).find('button.submit').click(function(e) {
+				$popup = genericAjaxPopupFetch('watchers');
 				$frm = $(this).closest('form');
 	
 				add_worker_ids = $frm
