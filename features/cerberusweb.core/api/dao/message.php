@@ -466,6 +466,11 @@ class Model_Message {
 		return DAO_MessageHeader::getAll($this->id);
 	}
 
+	/**
+	 * 
+	 * Enter description here ...
+	 * @return Model_Address
+	 */
 	function getSender() {
 		// Lazy load + cache
 		if(null == $this->_sender_object) {
@@ -1355,13 +1360,18 @@ class Context_Message extends Extension_DevblocksContext {
 	}
 	
 	function getMeta($context_id) {
-		$message = DAO_Message::get($context_id);
 		$url_writer = DevblocksPlatform::getUrlService();
-		
+
+		if(null == ($message = DAO_Message::get($context_id)))
+			return FALSE;
+			
+		if(null == ($ticket = DAO_Ticket::get($message->ticket_id)))
+			return FALSE;
+			
 		return array(
-			'id' => $message->id,
-			'name' => '', //$message->title,
-			'permalink' => '', // [TODO]
+			'id' => $context_id,
+			'name' => sprintf("[%s] %s", $ticket->mask, $ticket->subject),
+			'permalink' => $url_writer->write('c=display&mask='.$ticket->mask, true),
 		);
 	}
 	
