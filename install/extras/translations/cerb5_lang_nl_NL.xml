@@ -231,11 +231,6 @@
         <seg>[Opportunities] Kan de opportunities van iedereen beheren</seg>
       </tuv>
     </tu>
-    <tu tuid="acl.crm.opp.actions.update_nobody">
-      <tuv xml:lang="nl_NL">
-        <seg>[Opportunities] Kan niet toegewezen opportunities beheren</seg>
-      </tuv>
-    </tu>
     <tu tuid="acl.crm.opp.view.actions.broadcast">
       <tuv xml:lang="nl_NL">
         <seg>[Opportunities] Kan broadcast e-mail naar opportunity lijsten sturen</seg>

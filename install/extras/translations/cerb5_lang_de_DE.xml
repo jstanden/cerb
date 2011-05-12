@@ -211,11 +211,6 @@
         <seg>[Absatzchancen] Kann Absatzchancen jeden Benutzers verwalten</seg>
       </tuv>
     </tu>
-    <tu tuid="acl.crm.opp.actions.update_nobody">
-      <tuv xml:lang="de_DE">
-        <seg>[Absatzchancen] Kann nicht zugewiesene Absatzchancen verwalten</seg>
-      </tuv>
-    </tu>
     <tu tuid="acl.crm.opp.view.actions.broadcast">
       <tuv xml:lang="de_DE">
         <seg>[Absatzchancen] Kann E-Mail an Listen der Absatzchancen senden</seg>

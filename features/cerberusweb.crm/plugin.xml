@@ -41,8 +41,8 @@
 	<acl>
 		<priv id="crm.opp.actions.create" label="acl.crm.opp.actions.create" />
 		<priv id="crm.opp.actions.import" label="acl.crm.opp.actions.import" />
-		<priv id="crm.opp.actions.update_nobody" label="acl.crm.opp.actions.update_nobody" />
 		<priv id="crm.opp.actions.update_all" label="acl.crm.opp.actions.update_all" />
+		<priv id="crm.opp.actions.delete" label="acl.crm.opp.actions.delete" />
 		<priv id="crm.opp.view.actions.broadcast" label="acl.crm.opp.view.actions.broadcast" />
 		<priv id="crm.opp.view.actions.export" label="acl.crm.opp.view.actions.export" />
 	</acl>
