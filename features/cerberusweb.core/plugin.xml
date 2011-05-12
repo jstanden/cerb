@@ -477,8 +477,8 @@
 
 		<!-- Tasks -->
 		<priv id="core.tasks.actions.create" label="acl.core.tasks.actions.create" />
-		<priv id="core.tasks.actions.update_nobody" label="acl.core.tasks.actions.update_nobody" />
 		<priv id="core.tasks.actions.update_all" label="acl.core.tasks.actions.update_all" />
+		<priv id="core.tasks.actions.delete" label="acl.core.tasks.actions.delete" />
 		<priv id="core.tasks.view.actions.export" label="acl.core.tasks.view.actions.export" />
 		
 		<!-- Tickets -->

@@ -161,11 +161,6 @@
         <seg>[Taken] Kan de taken van iedereen beheren</seg>
       </tuv>
     </tu>
-    <tu tuid="acl.core.tasks.actions.update_nobody">
-      <tuv xml:lang="nl_NL">
-        <seg>[Taken] Kan niet toegewezen taken beheren</seg>
-      </tuv>
-    </tu>
     <tu tuid="acl.core.tasks.view.actions.export">
       <tuv xml:lang="nl_NL">
         <seg>[Taken] Kan lijsten exporteren als CVS/XML</seg>

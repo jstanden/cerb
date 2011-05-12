@@ -116,11 +116,6 @@
         <seg>[Tarefas] Pode gerir as tarefas de todos</seg>
       </tuv>
     </tu>
-    <tu tuid="acl.core.tasks.actions.update_nobody">
-      <tuv xml:lang="pt_PT">
-        <seg>[Tarefas] Pode gerir tarefas no atribuídas</seg>
-      </tuv>
-    </tu>
     <tu tuid="acl.core.tasks.view.actions.export">
       <tuv xml:lang="pt_PT">
         <seg>[Tarefas] Pode exportar listas de tarefas para CSV/XML</seg>

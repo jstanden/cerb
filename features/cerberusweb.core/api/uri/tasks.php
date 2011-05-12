@@ -169,11 +169,8 @@ class ChTasksPage extends CerberusPageExtension {
 			$task = DAO_Task::get($id);
 
 			// Check privs
-			// [TODO] Workers on task
-			if(($active_worker->hasPriv('core.tasks.actions.create') /*&& $active_worker->id==$task->worker_id*/)
-				|| ($active_worker->hasPriv('core.tasks.actions.update_nobody') /*&& empty($task->worker_id)*/) 
-				|| $active_worker->hasPriv('core.tasks.actions.update_all'))
-					DAO_Task::delete($id);
+			if($active_worker->hasPriv('core.tasks.actions.delete'))
+				DAO_Task::delete($id);
 			
 		} else { // create|update
 			$fields = array();
