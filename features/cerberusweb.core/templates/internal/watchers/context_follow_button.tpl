@@ -14,7 +14,7 @@
 		{$num_watchers}
 	{/if}
 </button><!--
---><button type="button" class="{if $full}split-right{/if}" id="{$expand_btnid}" {if !$full}style="display:none;"{/if}><span class="cerb-label" style="display:inline-block;height:16px;">&#x25be;</span></button>
+--><button type="button" class="split-right" id="{$expand_btnid}" {if !$full}style="display:none;"{/if}><span class="cerb-sprite sprite-arrow-down-white"></span></button>
 {if empty($workers)}{$workers = DAO_Worker::getAllActive()}{/if}
 
 <script type="text/javascript">
@@ -22,11 +22,11 @@
 $('#{$expand_btnid}').parent().hover(
 		function(e) {
 			$('#{$expand_btnid}').prev('button').addClass('split-left');
-			$('#{$expand_btnid}').css('display','inline').addClass('split-right');
+			$('#{$expand_btnid}').css('display','inline');
 		},
 		function(e) {
 			$('#{$expand_btnid}').prev('button').removeClass('split-left');
-			$('#{$expand_btnid}').css('display','none').removeClass('split-right');
+			$('#{$expand_btnid}').css('display','none');
 		}
 	)
 	;
