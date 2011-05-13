@@ -282,6 +282,9 @@ if(!isset($tables['worker_view_model'])) {
 		$view_id = $row['view_id'];
 		
 		if(false !== (@$model = unserialize($row['model']))) {
+			if(empty($model->class_name))
+				continue;
+			
 			$fields = array(
 				'worker_id' => $worker_id,
 				'view_id' => $db->qstr($view_id),

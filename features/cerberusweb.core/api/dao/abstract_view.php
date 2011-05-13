@@ -1248,6 +1248,10 @@ class DAO_WorkerViewModel {
 			$model->paramsDefault = self::decodeParamsJson($row['params_default_json']);
 			$model->paramsHidden = json_decode($row['params_hidden_json'], true);
 			
+			// Make sure it's a well-formed view
+			if(empty($model->class_name))
+				return false;
+			
 			return $model;
 		}
 			
