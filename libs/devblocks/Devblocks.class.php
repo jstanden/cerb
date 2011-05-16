@@ -89,13 +89,14 @@ class DevblocksPlatform extends DevblocksEngine {
 	 * @return mixed
 	 */
 	static function importGPC($var,$cast=null,$default=null) {
-	    if(!is_null($var)) {
+		@$magic_quotes = (function_exists('get_magic_quotes_gpc') && get_magic_quotes_gpc()) ? true : false;
+
+		if(!is_null($var)) {
 	        if(is_string($var)) {
-	            $var = get_magic_quotes_gpc() ? stripslashes($var) : $var;
+	            $var = $magic_quotes ? stripslashes($var) : $var;
 	        } elseif(is_array($var)) {
-                foreach($var as $k => $v) {
-                    $var[$k] = get_magic_quotes_gpc() ? stripslashes($v) : $v;
-                }
+	        	if($magic_quotes)
+	        		array_walk_recursive($var, create_function('&$item, $key','if(!is_array($item)) $item = stripslashes($item);'));
 	        }
 	        
 	    } elseif (is_null($var) && !is_null($default)) {
