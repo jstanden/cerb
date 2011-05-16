@@ -168,13 +168,6 @@ class UmScContactController extends Extension_UmScController {
         		'is_hidden' => ('hidden' == $status) ? true : false,
         		'followups' => array()
         	);
-        	
-        	// Process follow-up fields
-        	if(is_array($followup_fields))
-        	foreach($followup_fields as $followup_fkey => $followup_field) {
-        		if(empty($followup_field)) // clear blanks
-        			unset($followup_fields[$followup_fkey]);
-        	}
 
         	// Process followups
         	if(is_array($followups))

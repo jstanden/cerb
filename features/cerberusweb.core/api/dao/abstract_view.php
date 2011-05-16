@@ -1249,7 +1249,7 @@ class DAO_WorkerViewModel {
 			$model->paramsHidden = json_decode($row['params_hidden_json'], true);
 			
 			// Make sure it's a well-formed view
-			if(empty($model->class_name))
+			if(empty($model->class_name) || !class_exists($model->class_name, true))
 				return false;
 			
 			return $model;
