@@ -865,8 +865,11 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 	function doBulkUpdate($filter, $do, $ids=array()) {
 		@set_time_limit(600); // [TODO] Temp!
 	  
+		$active_worker = CerberusApplication::getActiveWorker();
+		
 		$change_fields = array();
 		$custom_fields = array();
+		$deleted = false;
 
 		// Make sure we have actions
 		if(empty($do))
@@ -895,6 +898,10 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 							$change_fields[DAO_CrmOpportunity::IS_CLOSED] = 1;
 							$change_fields[DAO_CrmOpportunity::IS_WON] = 0;
 							$change_fields[DAO_CrmOpportunity::CLOSED_DATE] = time();
+							break;
+						case 'deleted':
+							if($active_worker->hasPriv('crm.opp.actions.delete'))
+								$deleted = true;
 							break;
 					}
 					break;
@@ -986,20 +993,26 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 		$batch_total = count($ids);
 		for($x=0;$x<=$batch_total;$x+=100) {
 			$batch_ids = array_slice($ids,$x,100);
-			DAO_CrmOpportunity::update($batch_ids, $change_fields);
 			
-			// Custom Fields
-			self::_doBulkSetCustomFields(CerberusContexts::CONTEXT_OPPORTUNITY, $custom_fields, $batch_ids);
-			
-			// Watchers
-			if(isset($do['watchers']) && is_array($do['watchers'])) {
-				$watcher_params = $do['watchers'];
-				foreach($batch_ids as $batch_id) {
-					if(isset($watcher_params['add']) && is_array($watcher_params['add']))
-						CerberusContexts::addWatchers(CerberusContexts::CONTEXT_OPPORTUNITY, $batch_id, $watcher_params['add']);
-					if(isset($watcher_params['remove']) && is_array($watcher_params['remove']))
-						CerberusContexts::removeWatchers(CerberusContexts::CONTEXT_OPPORTUNITY, $batch_id, $watcher_params['remove']);
+			if(!$deleted) {
+				DAO_CrmOpportunity::update($batch_ids, $change_fields);
+				
+				// Custom Fields
+				self::_doBulkSetCustomFields(CerberusContexts::CONTEXT_OPPORTUNITY, $custom_fields, $batch_ids);
+				
+				// Watchers
+				if(isset($do['watchers']) && is_array($do['watchers'])) {
+					$watcher_params = $do['watchers'];
+					foreach($batch_ids as $batch_id) {
+						if(isset($watcher_params['add']) && is_array($watcher_params['add']))
+							CerberusContexts::addWatchers(CerberusContexts::CONTEXT_OPPORTUNITY, $batch_id, $watcher_params['add']);
+						if(isset($watcher_params['remove']) && is_array($watcher_params['remove']))
+							CerberusContexts::removeWatchers(CerberusContexts::CONTEXT_OPPORTUNITY, $batch_id, $watcher_params['remove']);
+					}
 				}
+				
+			} else {
+				DAO_CrmOpportunity::delete($batch_ids);
 			}
 			
 			unset($batch_ids);
