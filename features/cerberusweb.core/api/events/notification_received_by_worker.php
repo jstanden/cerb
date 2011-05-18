@@ -146,6 +146,12 @@ class Event_NotificationReceivedByWorker extends Extension_DevblocksEvent {
 			
 		switch($token) {
 			case 'send_email_owner':
+				$workers = DAO_Worker::getAll();
+				$tpl->assign('workers', $workers);
+				
+				$addresses = DAO_AddressToWorker::getByWorker($trigger->owner_context_id);
+				$tpl->assign('addresses', $addresses);
+				
 				$tpl->display('devblocks:cerberusweb.core::events/notification_received_by_owner/action_send_email_owner.tpl');
 				break;
 				
@@ -165,7 +171,15 @@ class Event_NotificationReceivedByWorker extends Extension_DevblocksEvent {
 		
 		switch($token) {
 			case 'send_email_owner':
-				@$to = $values['assignee_address_address'];
+				$to = array();
+				
+				if(isset($params['to'])) {
+					$to = $params['to'];
+					
+				} else {
+					// Default to worker email address
+					@$to = array($values['assignee_address_address']);
+				}
 				
 				if(
 					empty($to)
@@ -173,17 +187,20 @@ class Event_NotificationReceivedByWorker extends Extension_DevblocksEvent {
 					|| !isset($params['content'])
 				)
 					break;
-					
+				
 				// Translate message tokens
 				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
 				$subject = strtr($tpl_builder->build($params['subject'], $values), "\r\n", ' '); // no CRLF
 				$content = $tpl_builder->build($params['content'], $values);
 
-				CerberusMail::quickSend(
-					$to,
-					$subject,
-					$content
-				);
+				if(is_array($to))
+				foreach($to as $to_addy) {
+					CerberusMail::quickSend(
+						$to_addy,
+						$subject,
+						$content
+					);
+				}
 				break;
 				
 			case 'create_task':
