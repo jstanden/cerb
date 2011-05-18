@@ -9,7 +9,7 @@ if(!defined('APP_DB_DATABASE'))
 define('APP_DB_DATABASE','');
 
 if(!defined('APP_DB_ENGINE'))
-define('APP_DB_ENGINE','');
+define('APP_DB_ENGINE','MyISAM');
 
 if(!defined('APP_DB_USER'))
 define('APP_DB_USER','');
