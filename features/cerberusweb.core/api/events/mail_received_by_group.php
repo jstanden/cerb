@@ -195,7 +195,6 @@ class Event_MailReceivedByGroup extends Extension_DevblocksEvent {
 		
 			"ticket_bucket_name|default('Inbox')" => Model_CustomField::TYPE_SINGLE_LINE,
 			'ticket_created|date' => Model_CustomField::TYPE_DATE,
-			'ticket_group_name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'ticket_mask' => Model_CustomField::TYPE_SINGLE_LINE,
 			'ticket_spam_score' => null,
 			'ticket_spam_training' => null,

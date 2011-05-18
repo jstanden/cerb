@@ -940,8 +940,15 @@ EOL
 	
 	// [TODO] Eventually for reuse we'll need to change this
 	function runActionRelayEmail($params, $values, $context, $context_id) {
+		$logger = DevblocksPlatform::getConsoleLog('Attendant');
+		
 		$bucket_id = intval(@$values['ticket_bucket_id']);
-		$group = DAO_Group::get($values['group_id']);
+		
+		if(!isset($values['group_id']) || null == ($group = DAO_Group::get($values['group_id']))) {
+			$logger->error("Can't load the ticket's group. Aborting action.");
+			return;
+		}
+		
 		$replyto = $group->getReplyTo($bucket_id);
 		$relay_list = $params['to'];
 		

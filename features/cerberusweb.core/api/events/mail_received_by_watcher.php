@@ -81,7 +81,9 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 			if(!is_null($event_model)) {
 				$values['is_first'] = ($values['id'] == $ticket_values['initial_message_id']) ? 1 : 0;
 			}
-		
+
+			@$group_id = $ticket_values['group_id'];
+			
 			// Clear dupe content
 			CerberusContexts::scrubTokensWithRegexp(
 				$ticket_labels,
@@ -89,6 +91,7 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 				array(
 					"#^initial_message_#",
 					"#^latest_message_#",
+					"#^group_#",
 					"#^id$#",
 				)
 			);
@@ -103,6 +106,24 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 				$values
 			);
 				
+			
+		/**
+		 * Group
+		 */
+		$group_labels = array();
+		$group_values = array();
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_GROUP, $group_id, $group_labels, $group_values, null, true);
+				
+			// Merge
+			CerberusContexts::merge(
+				'group_',
+				'',
+				$group_labels,
+				$group_values,
+				$labels,
+				$values
+			);
+			
 			
 		/**
 		 * Sender Worker
@@ -169,9 +190,10 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 			'sender_worker_full_name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'storage_size' => Model_CustomField::TYPE_NUMBER,
 		
+			'group_name' => Model_CustomField::TYPE_SINGLE_LINE,
+		
 			"ticket_bucket_name|default('Inbox')" => Model_CustomField::TYPE_SINGLE_LINE,
 			'ticket_created|date' => Model_CustomField::TYPE_DATE,
-			'ticket_group_name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'ticket_mask' => Model_CustomField::TYPE_SINGLE_LINE,
 			'ticket_subject' => Model_CustomField::TYPE_SINGLE_LINE,
 			'ticket_updated|date' => Model_CustomField::TYPE_DATE,
