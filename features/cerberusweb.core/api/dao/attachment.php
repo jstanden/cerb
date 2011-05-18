@@ -1189,7 +1189,7 @@ class DAO_AttachmentLink extends C4_ORMHelper {
 		$fields = SearchFields_AttachmentLink::getFields();
 		
 		// Sanitize
-		if('*'==substr($sortBy,0,1) || !isset($fields[$sortBy]) || !in_array($sortBy,$columns))
+		if('*'==substr($sortBy,0,1) || !isset($fields[$sortBy])) // || !in_array($sortBy,$columns)
 			$sortBy=null;
 
         list($tables,$wheres) = parent::_parseSearchParams($params, array(),$fields,$sortBy);
