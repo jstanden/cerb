@@ -182,11 +182,13 @@ if(!isset($column['reply_address_id'])) {
 		
 		switch($row['setting']) {
 			case 'reply_from':
-				if(null == ($address = DAO_Address::lookupAddress($row['value'], true)))
+				$address_id = $db->GetOne(sprintf("SELECT id FROM address WHERE email = %s", $db->qstr($row['value'])));
+				
+				if(empty($address_id))
 					continue;
 				
 				$db->Execute(sprintf("UPDATE team SET reply_address_id = %d WHERE id = %d",
-					$address->id,
+					$address_id,
 					$row['group_id']
 				));
 				break;
@@ -241,15 +243,19 @@ if(!isset($tables['address_outgoing'])) {
 	$default_reply_personal = $db->GetOne("SELECT value FROM devblocks_setting WHERE setting = 'default_reply_personal' AND plugin_id='cerberusweb.core'");
 	$default_reply_signature = $db->GetOne("SELECT value FROM devblocks_setting WHERE setting = 'default_signature' AND plugin_id='cerberusweb.core'");
 	
-	if(!empty($default_reply_from) && null != ($address = DAO_Address::lookupAddress($default_reply_from, true))) {
-		$db->Execute("UPDATE address_outgoing SET is_default = 0");
-		$db->Execute(sprintf("INSERT IGNORE INTO address_outgoing (address_id, is_default, reply_personal, reply_signature) ".
-			"VALUES (%d, %d, %s, %s)",
-			$address->id,
-			1,
-			$db->qstr($default_reply_personal),
-			$db->qstr($default_reply_signature)
-		));
+	if(!empty($default_reply_from)) {
+		$address_id = $db->GetOne(sprintf("SELECT id FROM address WHERE email = %s", $db->qstr($default_reply_from)));
+		
+		if(!empty($address_id)) {
+			$db->Execute("UPDATE address_outgoing SET is_default = 0");
+			$db->Execute(sprintf("INSERT IGNORE INTO address_outgoing (address_id, is_default, reply_personal, reply_signature) ".
+				"VALUES (%d, %d, %s, %s)",
+				$address_id,
+				1,
+				$db->qstr($default_reply_personal),
+				$db->qstr($default_reply_signature)
+			));
+		}
 	}
 	
 	$db->Execute("DELETE FROM devblocks_setting WHERE plugin_id = 'cerberusweb.core' AND setting IN ('default_reply_from','default_reply_personal','default_signature','default_signature_pos')");
