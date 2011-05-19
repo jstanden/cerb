@@ -4631,6 +4631,10 @@ class _DevblocksTemplateBuilder {
 			'trim_blocks' => true,
 			'autoescape' => false,
 		));
+		
+		if(class_exists('_DevblocksTwigExtensions', true)) {
+			$this->_twig->addExtension(new _DevblocksTwigExtensions());
+		}
 	}
 	
 	/**
@@ -4932,7 +4936,7 @@ class _DevblocksClassLoadManager {
 			'S3'
 		));
 		$this->registerClasses(DEVBLOCKS_PATH . 'libs/Twig/Autoloader.php', array(
-			'Twig_Autoloader'
+			'Twig_Autoloader',
 		));
 	}
 	
@@ -5320,6 +5324,45 @@ function devblocks_autoload($className) {
 // Register Devblocks class loader
 spl_autoload_register('devblocks_autoload');
 
-// Twig
-if(class_exists('Twig_Autoloader', true) && method_exists('Twig_Autoloader','register'))
+/*
+ * Twig Extensions
+ * This must come after devblocks_autoload
+ */ 
+if(class_exists('Twig_Autoloader', true) && method_exists('Twig_Autoloader','register')) {
 	Twig_Autoloader::register();
+}
+
+if(class_exists('Twig_Extension', true)):
+class _DevblocksTwigExtensions extends Twig_Extension {
+	public function getName() {
+		return 'devblocks_twig';
+	}
+	
+	public function getFilters() {
+		return array(
+			'truncate' => new Twig_Filter_Method($this, 'filter_truncate'),
+		);
+	}
+	
+	/**
+	 * https://github.com/fabpot/Twig-extensions/blob/master/lib/Twig/Extensions/Extension/Text.php
+	 *  
+	 * @param string $value
+	 * @param integer $length
+	 * @param boolean $preserve
+	 * @param string $separator
+	 * 
+	 */
+	function filter_truncate($value, $length = 30, $preserve = false, $separator = '...') {
+		if (mb_strlen($value, LANG_CHARSET_CODE) > $length) {
+			if ($preserve) {
+				if (false !== ($breakpoint = mb_strpos($value, ' ', $length, LANG_CHARSET_CODE))) {
+					$length = $breakpoint;
+				}
+			}
+			return mb_substr($value, 0, $length, LANG_CHARSET_CODE) . $separator;
+		}
+		return $value;
+	}	
+};
+endif;
