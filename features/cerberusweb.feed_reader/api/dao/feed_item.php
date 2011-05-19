@@ -719,7 +719,7 @@ class Context_FeedItem extends Extension_DevblocksContext {
 		return array(
 			'id' => $item->id,
 			'name' => $item->title,
-			'permalink' => $url_writer->write('c=feeds&i=item&id='.$context_id, true),
+			'permalink' => $url_writer->writeNoProxy('c=feeds&i=item&id='.$context_id, true),
 		);
 	}
 	

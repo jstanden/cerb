@@ -727,7 +727,7 @@ class Context_Snippet extends Extension_DevblocksContext {
 		return array(
 			'id' => $context_id,
 			'name' => $snippet->title,
-			'permalink' => '', //$url_writer->write('c=tasks&action=display&id='.$task->id, true),
+			'permalink' => '', //$url_writer->writeNoProxy('c=tasks&action=display&id='.$task->id, true),
 		);
 	}
 	

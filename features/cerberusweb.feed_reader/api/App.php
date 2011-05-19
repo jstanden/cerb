@@ -355,7 +355,7 @@ class Page_Feeds extends CerberusPageExtension {
 					'created' => time(),
 					//'worker_id' => $active_worker->id,
 					'total' => $total,
-					'return_url' => isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : $url_writer->write('c=activity&tab=tasks', true),
+					'return_url' => isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : $url_writer->writeNoProxy('c=activity&tab=tasks', true),
 //					'toolbar_extension_id' => 'cerberusweb.explorer.toolbar.',
 				);
 				$models[] = $model; 
@@ -373,7 +373,7 @@ class Page_Feeds extends CerberusPageExtension {
 				$model->pos = $pos++;
 				$model->params = array(
 					'id' => $id,
-					'url' => $url_writer->write(sprintf("c=feeds&i=item&id=%d", $row[SearchFields_FeedItem::ID]), true),
+					'url' => $url_writer->writeNoProxy(sprintf("c=feeds&i=item&id=%d", $row[SearchFields_FeedItem::ID]), true),
 				);
 				$models[] = $model; 
 			}
@@ -425,7 +425,7 @@ class Page_Feeds extends CerberusPageExtension {
 					'created' => time(),
 //					'worker_id' => $active_worker->id,
 					'total' => $total,
-					'return_url' => isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : $url_writer->write('c=activity&tab=feeds', true),
+					'return_url' => isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : $url_writer->writeNoProxy('c=activity&tab=feeds', true),
 					'toolbar_extension_id' => 'cerberusweb.feed_reader.item.explore.toolbar',
 				);
 				$models[] = $model; 

@@ -90,7 +90,7 @@ class ChOpenIdPreferenceTab extends Extension_PreferenceTab {
 		
 		if(!empty($openid_url)) {
 			// Verify the OpenID url
-			$auth_url = $openid->getAuthUrl($openid_url, $url_writer->write('c=openid.ajax&a=validateAddPref', true));
+			$auth_url = $openid->getAuthUrl($openid_url, $url_writer->writeNoProxy('c=openid.ajax&a=validateAddPref', true));
 			header("Location: " . $auth_url);
 			exit;
 		}
@@ -139,7 +139,7 @@ class ChOpenIdLoginModule extends Extension_LoginAuthenticator {
 		$openid = DevblocksPlatform::getOpenIDService();
 		$url_writer = DevblocksPlatform::getUrlService();
 		
-		$return_url = $url_writer->write('c=login&a=authenticate', true);
+		$return_url = $url_writer->writeNoProxy('c=login&a=authenticate', true);
 		
 		// [TODO] Handle invalid URLs
 		$auth_url = $openid->getAuthUrl($openid_url, $return_url);
@@ -155,7 +155,7 @@ class ChOpenIdLoginModule extends Extension_LoginAuthenticator {
 		if(isset($_GET['openid_mode']))
 		switch($_GET['openid_mode']) {
 			case 'cancel':
-				header("Location: " . $url_writer->write('c=login', true));
+				header("Location: " . $url_writer->writeNoProxy('c=login', true));
 				break;
 				
 			default:

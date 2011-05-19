@@ -1070,7 +1070,7 @@ class Context_Feedback extends Extension_DevblocksContext {
 		return array(
 			'id' => $feedback->id,
 			'name' => '', //$feedback->title, // [TODO]
-			'permalink' => '', //$url_writer->write('c=tasks&action=display&id='.$task->id, true),
+			'permalink' => '', //$url_writer->writeNoProxy('c=tasks&action=display&id='.$task->id, true),
 		);
 	}
     

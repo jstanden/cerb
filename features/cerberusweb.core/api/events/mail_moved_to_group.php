@@ -453,7 +453,7 @@ class Event_MailMovedToGroup extends Extension_DevblocksEvent {
 				
 			case 'create_notification':
 				$url_writer = DevblocksPlatform::getUrlService();
-				$url = $url_writer->write('c=display&id='.$values['ticket_mask'], true);
+				$url = $url_writer->writeNoProxy('c=display&id='.$values['ticket_mask'], true);
 				
 				DevblocksEventHelper::runActionCreateNotification($params, $values, $url);
 				break;

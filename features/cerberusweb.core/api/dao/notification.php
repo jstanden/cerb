@@ -423,7 +423,7 @@ class View_Notification extends C4_AbstractView implements IAbstractView_Subtota
 		switch($column) {
 			case SearchFields_Notification::URL:
 				$url_writer = DevblocksPlatform::getUrlService();
-				$base_url = $url_writer->write('',true);
+				$base_url = $url_writer->writeNoProxy('',true);
 				$counts = $this->_getSubtotalCountForStringColumn('DAO_Notification', $column);
 				foreach($counts as $k => $v)
 					$counts[$k]['label'] = str_replace($base_url, '', $v['label']);
@@ -657,7 +657,7 @@ class Context_Notification extends Extension_DevblocksContext {
 		return array(
 			'id' => $notification->id,
 			'name' => $notification->message,
-			'permalink' => $url_writer->write('c=preferences&action=redirectRead&id='.$context_id, true),
+			'permalink' => $url_writer->writeNoProxy('c=preferences&action=redirectRead&id='.$context_id, true),
 		);
 	}
 	

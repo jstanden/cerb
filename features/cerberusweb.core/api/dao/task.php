@@ -833,7 +833,7 @@ class Context_Task extends Extension_DevblocksContext {
 		return array(
 			'id' => $task->id,
 			'name' => $task->title,
-			'permalink' => $url_writer->write('c=tasks&action=display&id='.$task->id, true),
+			'permalink' => $url_writer->writeNoProxy('c=tasks&action=display&id='.$task->id, true),
 		);
 	}
 	

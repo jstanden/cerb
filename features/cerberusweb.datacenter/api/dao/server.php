@@ -7,7 +7,7 @@ class Context_Server extends Extension_DevblocksContext {
 		return array(
 			'id' => $server->id,
 			'name' => $server->name,
-			'permalink' => $url_writer->write(sprintf("c=datacenter&tab=server&id=%d",$context_id), true),
+			'permalink' => $url_writer->writeNoProxy(sprintf("c=datacenter&tab=server&id=%d",$context_id), true),
 		);
 	}
     

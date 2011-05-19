@@ -5089,10 +5089,18 @@ class _DevblocksUrlManager {
 		return $parts;
 	}
 	
+	function writeNoProxy($sQuery='',$full=false) {
+		return $this->write($sQuery, $full, false);
+	}
+	
 	function write($sQuery='',$full=false,$check_proxy=true) {
 		$args = $this->parseQueryString($sQuery);
 		$c = @$args['c'];
 		
+		$proxyssl = null;
+		$proxyhost = null;
+		$proxybase = null;		
+	
 		// Allow proxy override
 		if($check_proxy) {
     		@$proxyssl = $_SERVER['HTTP_DEVBLOCKSPROXYSSL'];

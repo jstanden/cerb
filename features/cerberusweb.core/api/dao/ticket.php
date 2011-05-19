@@ -2380,7 +2380,7 @@ class Context_Ticket extends Extension_DevblocksContext {
 		return array(
 			'id' => $ticket->id,
 			'name' => sprintf("[%s] %s", $ticket->mask, $ticket->subject),
-			'permalink' => $url_writer->write('c=display&mask='.$ticket->mask, true),
+			'permalink' => $url_writer->writeNoProxy('c=display&mask='.$ticket->mask, true),
 		);
 	}
 	
@@ -2467,7 +2467,7 @@ class Context_Ticket extends Extension_DevblocksContext {
 			
 			// URL
 			$url_writer = DevblocksPlatform::getUrlService();
-			$token_values['url'] = $url_writer->write('c=display&mask='.$ticket[SearchFields_Ticket::TICKET_MASK],true);
+			$token_values['url'] = $url_writer->writeNoProxy('c=display&mask='.$ticket[SearchFields_Ticket::TICKET_MASK],true);
 			
 			// Custom fields
 			$field_values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_TICKET, $ticket[SearchFields_Ticket::TICKET_ID]));

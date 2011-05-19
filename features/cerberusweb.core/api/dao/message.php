@@ -1371,7 +1371,7 @@ class Context_Message extends Extension_DevblocksContext {
 		return array(
 			'id' => $context_id,
 			'name' => sprintf("[%s] %s", $ticket->mask, $ticket->subject),
-			'permalink' => $url_writer->write('c=display&mask='.$ticket->mask, true),
+			'permalink' => $url_writer->writeNoProxy('c=display&mask='.$ticket->mask, true),
 		);
 	}
 	

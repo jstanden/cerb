@@ -809,7 +809,7 @@ class ChTicketsPage extends CerberusPageExtension {
 					'created' => time(),
 					'worker_id' => $active_worker->id,
 					'total' => $total,
-					'return_url' => isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : $url_writer->write('c=tickets&tab=drafts', true),
+					'return_url' => isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : $url_writer->writeNoProxy('c=tickets&tab=drafts', true),
 				);
 				$models[] = $model; 
 				
@@ -822,9 +822,9 @@ class ChTicketsPage extends CerberusPageExtension {
 					$orig_pos = $pos;
 				
 				if($row[SearchFields_MailQueue::TYPE]==Model_MailQueue::TYPE_COMPOSE) {
-					$url = $url_writer->write(sprintf("c=tickets&a=compose&id=%d", $draft_id), true);
+					$url = $url_writer->writeNoProxy(sprintf("c=tickets&a=compose&id=%d", $draft_id), true);
 				} elseif($row[SearchFields_MailQueue::TYPE]==Model_MailQueue::TYPE_TICKET_REPLY) {
-					$url = $url_writer->write(sprintf("c=display&id=%d", $row[SearchFields_MailQueue::TICKET_ID]), true) . sprintf("#draft%d", $draft_id);
+					$url = $url_writer->writeNoProxy(sprintf("c=display&id=%d", $row[SearchFields_MailQueue::TICKET_ID]), true) . sprintf("#draft%d", $draft_id);
 				}
 
 				$model = new Model_ExplorerSet();
@@ -884,7 +884,7 @@ class ChTicketsPage extends CerberusPageExtension {
 					'created' => time(),
 					'worker_id' => $active_worker->id,
 					'total' => $total,
-					'return_url' => isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : $url_writer->write('c=tickets', true),
+					'return_url' => isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : $url_writer->writeNoProxy('c=tickets', true),
 				);
 				$models[] = $model; 
 				
@@ -896,7 +896,7 @@ class ChTicketsPage extends CerberusPageExtension {
 				if($ticket_id==$explore_from)
 					$orig_pos = $pos;
 				
-				$url = $url_writer->write(sprintf("c=display&mask=%s", $row[SearchFields_Ticket::TICKET_MASK]), true);
+				$url = $url_writer->writeNoProxy(sprintf("c=display&mask=%s", $row[SearchFields_Ticket::TICKET_MASK]), true);
 
 				$model = new Model_ExplorerSet();
 				$model->hash = $hash;
@@ -955,7 +955,7 @@ class ChTicketsPage extends CerberusPageExtension {
 					'created' => time(),
 					//'worker_id' => $active_worker->id,
 					'total' => $total,
-					'return_url' => isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : $url_writer->write('c=tickets&tab=messages', true),
+					'return_url' => isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : $url_writer->writeNoProxy('c=tickets&tab=messages', true),
 //					'toolbar_extension_id' => 'cerberusweb.explorer.toolbar.',
 				);
 				$models[] = $model; 
@@ -973,7 +973,7 @@ class ChTicketsPage extends CerberusPageExtension {
 				$model->pos = $pos++;
 				$model->params = array(
 					'id' => $id,
-					'url' => $url_writer->write(sprintf("c=display&id=%s", $row[SearchFields_Message::TICKET_MASK]), true),
+					'url' => $url_writer->writeNoProxy(sprintf("c=display&id=%s", $row[SearchFields_Message::TICKET_MASK]), true),
 				);
 				$models[] = $model; 
 			}

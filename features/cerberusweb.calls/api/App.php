@@ -281,7 +281,7 @@ class CallsPage extends CerberusPageExtension {
 					'created' => time(),
 					//'worker_id' => $active_worker->id,
 					'total' => $total,
-					'return_url' => isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : $url_writer->write('c=activity&tab=tasks', true),
+					'return_url' => isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : $url_writer->writeNoProxy('c=activity&tab=tasks', true),
 //					'toolbar_extension_id' => 'cerberusweb.explorer.toolbar.',
 				);
 				$models[] = $model; 
@@ -299,7 +299,7 @@ class CallsPage extends CerberusPageExtension {
 				$model->pos = $pos++;
 				$model->params = array(
 					'id' => $id,
-					'url' => $url_writer->write(sprintf("c=calls&id=%d", $row[SearchFields_CallEntry::ID]), true),
+					'url' => $url_writer->writeNoProxy(sprintf("c=calls&id=%d", $row[SearchFields_CallEntry::ID]), true),
 				);
 				$models[] = $model; 
 			}

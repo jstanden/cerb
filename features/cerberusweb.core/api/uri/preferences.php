@@ -338,7 +338,7 @@ class ChPreferencesPage extends CerberusPageExtension {
 					'created' => time(),
 					'worker_id' => $active_worker->id,
 					'total' => $total,
-					'return_url' => isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : $url_writer->write('c=profiles&k=worker&id=me&tab=notifications', true),
+					'return_url' => isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : $url_writer->writeNoProxy('c=profiles&k=worker&id=me&tab=notifications', true),
 					'toolbar_extension_id' => 'cerberusweb.explorer.toolbar.notifications',
 				);
 				$models[] = $model;
@@ -636,7 +636,7 @@ class ChPreferencesPage extends CerberusPageExtension {
 			vsprintf($translate->_('prefs.address.confirm.mail.body'),
 				array(
 					$worker->getName(),
-					$url_writer->write('c=preferences&a=confirm_email&code='.$code,true)
+					$url_writer->writeNoProxy('c=preferences&a=confirm_email&code='.$code,true)
 				)
 			)
 		);

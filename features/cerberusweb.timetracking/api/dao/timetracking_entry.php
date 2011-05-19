@@ -890,7 +890,7 @@ class Context_TimeTracking extends Extension_DevblocksContext {
 		return array(
 			'id' => $time_entry->id,
 			'name' => $time_entry->getSummary(),
-			'permalink' => $url_writer->write('c=timetracking&tab=display&id='.$context_id, true),
+			'permalink' => $url_writer->writeNoProxy('c=timetracking&tab=display&id='.$context_id, true),
 		);
 	}
 	

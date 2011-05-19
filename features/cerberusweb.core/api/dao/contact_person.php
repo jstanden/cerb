@@ -767,7 +767,7 @@ class Context_ContactPerson extends Extension_DevblocksContext {
 		return array(
 			'id' => $contact->id,
 			'name' => $name,
-			'permalink' => $url_writer->write('c=contacts&tab=people&id='.$context_id, true),
+			'permalink' => $url_writer->writeNoProxy('c=contacts&tab=people&id='.$context_id, true),
 		);
 	}
     

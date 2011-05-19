@@ -170,7 +170,7 @@ class ChKbPage extends CerberusPageExtension {
 					'created' => time(),
 					'worker_id' => $active_worker->id,
 					'total' => $total,
-					'return_url' => isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : $url_writer->write('c=kb&tab=articles', true),
+					'return_url' => isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : $url_writer->writeNoProxy('c=kb&tab=articles', true),
 //					'toolbar_extension_id' => 'cerberusweb.explorer.toolbar.',
 				);
 				$models[] = $model; 
@@ -188,7 +188,7 @@ class ChKbPage extends CerberusPageExtension {
 				$model->pos = $pos++;
 				$model->params = array(
 					'id' => $row[SearchFields_KbArticle::ID],
-					'url' => $url_writer->write(sprintf("c=kb&tab=article&id=%d", $row[SearchFields_KbArticle::ID]), true),
+					'url' => $url_writer->writeNoProxy(sprintf("c=kb&tab=article&id=%d", $row[SearchFields_KbArticle::ID]), true),
 				);
 				$models[] = $model; 
 			}
@@ -1166,7 +1166,7 @@ class Context_KbCategory extends Extension_DevblocksContext {
 		return array(
 			'id' => $category->id,
 			'name' => $category->name,
-			'permalink' => $url_writer->write(sprintf("c=kb&br=browse&id=%d-%s", $category->id, DevblocksPlatform::strToPermalink($category->name), true)),
+			'permalink' => $url_writer->writeNoProxy(sprintf("c=kb&br=browse&id=%d-%s", $category->id, DevblocksPlatform::strToPermalink($category->name), true)),
 		);
 	}
 	

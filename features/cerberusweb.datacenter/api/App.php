@@ -364,7 +364,7 @@ class Page_Datacenter extends CerberusPageExtension {
 					'created' => time(),
 					//'worker_id' => $active_worker->id,
 					'total' => $total,
-					'return_url' => isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : $url_writer->write('c=datacenter&tab=servers', true),
+					'return_url' => isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : $url_writer->writeNoProxy('c=datacenter&tab=servers', true),
 //					'toolbar_extension_id' => 'cerberusweb.explorer.toolbar.',
 				);
 				$models[] = $model; 
@@ -382,7 +382,7 @@ class Page_Datacenter extends CerberusPageExtension {
 				$model->pos = $pos++;
 				$model->params = array(
 					'id' => $id,
-					'url' => $url_writer->write(sprintf("c=datacenter&tab=server&id=%d", $id), true),
+					'url' => $url_writer->writeNoProxy(sprintf("c=datacenter&tab=server&id=%d", $id), true),
 				);
 				$models[] = $model; 
 			}

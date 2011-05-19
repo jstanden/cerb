@@ -400,7 +400,7 @@ class PageSection_SetupPortal extends Extension_PageSection {
 			
         // Install
         $url_writer = DevblocksPlatform::getUrlService();
-        $url = $url_writer->write('c=portal&a='.$tool->code,true);
+        $url = $url_writer->writeNoProxy('c=portal&a='.$tool->code,true);
         $url_parts = parse_url($url);
         
         $host = $url_parts['host'];

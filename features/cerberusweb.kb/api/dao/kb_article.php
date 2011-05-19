@@ -598,7 +598,7 @@ class Context_KbArticle extends Extension_DevblocksContext {
 		return array(
 			'id' => $article->id,
 			'name' => $article->title,
-			'permalink' => $url_writer->write(sprintf("c=kb&ar=article&id=%d-%s", $article->id, DevblocksPlatform::strToPermalink($article->title), true)),
+			'permalink' => $url_writer->writeNoProxy(sprintf("c=kb&ar=article&id=%d-%s", $article->id, DevblocksPlatform::strToPermalink($article->title), true)),
 		);
 	}
 	

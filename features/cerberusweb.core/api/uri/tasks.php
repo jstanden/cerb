@@ -366,7 +366,7 @@ class ChTasksPage extends CerberusPageExtension {
 					'created' => time(),
 					//'worker_id' => $active_worker->id,
 					'total' => $total,
-					'return_url' => isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : $url_writer->write('c=activity&tab=tasks', true),
+					'return_url' => isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : $url_writer->writeNoProxy('c=activity&tab=tasks', true),
 //					'toolbar_extension_id' => 'cerberusweb.explorer.toolbar.',
 				);
 				$models[] = $model; 
@@ -384,7 +384,7 @@ class ChTasksPage extends CerberusPageExtension {
 				$model->pos = $pos++;
 				$model->params = array(
 					'id' => $row[SearchFields_Task::ID],
-					'url' => $url_writer->write(sprintf("c=tasks&tab=display&id=%d", $row[SearchFields_Task::ID]), true),
+					'url' => $url_writer->writeNoProxy(sprintf("c=tasks&tab=display&id=%d", $row[SearchFields_Task::ID]), true),
 				);
 				$models[] = $model; 
 			}

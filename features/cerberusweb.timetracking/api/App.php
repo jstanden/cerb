@@ -404,7 +404,7 @@ class ChTimeTrackingPage extends CerberusPageExtension {
 							$translate->_('timetracking.ui.comment.activity'),
 							(!empty($activity) ? $activity->name : ''),
 							((!empty($activity) && $activity->rate > 0.00) ? $translate->_('timetracking.ui.billable') : $translate->_('timetracking.ui.non_billable')),
-							$url_writer->write(sprintf("c=timetracking&a=display&id=%d", $id), true)
+							$url_writer->writeNoProxy(sprintf("c=timetracking&a=display&id=%d", $id), true)
 						);
 						$fields = array(
 							DAO_Comment::ADDRESS_ID => intval($worker_address->id),
@@ -518,7 +518,7 @@ class ChTimeTrackingPage extends CerberusPageExtension {
 					'created' => time(),
 //					'worker_id' => $active_worker->id,
 					'total' => $total,
-					'return_url' => isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : $url_writer->write('c=activity&tab=timetracking', true),
+					'return_url' => isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : $url_writer->writeNoProxy('c=activity&tab=timetracking', true),
 //					'toolbar_extension_id' => 'cerberusweb.explorer.toolbar.',
 				);
 				$models[] = $model; 
@@ -536,7 +536,7 @@ class ChTimeTrackingPage extends CerberusPageExtension {
 				$model->pos = $pos++;
 				$model->params = array(
 					'id' => $row[SearchFields_TimeTrackingEntry::ID],
-					'url' => $url_writer->write(sprintf("c=timetracking&a=display&id=%d", $row[SearchFields_TimeTrackingEntry::ID]), true),
+					'url' => $url_writer->writeNoProxy(sprintf("c=timetracking&a=display&id=%d", $row[SearchFields_TimeTrackingEntry::ID]), true),
 				);
 				$models[] = $model; 
 			}

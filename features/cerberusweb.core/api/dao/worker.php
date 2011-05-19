@@ -1249,7 +1249,7 @@ class Context_Worker extends Extension_DevblocksContext {
 		return array(
 			'id' => $worker->id,
 			'name' => $worker_name,
-			'permalink' => $url_writer->write('c=profiles&type=worker&who='.$who, true),
+			'permalink' => $url_writer->writeNoProxy('c=profiles&type=worker&who='.$who, true),
 		);
 	}
 	

@@ -7,7 +7,7 @@ class Context_Domain extends Extension_DevblocksContext {
 		return array(
 			'id' => $domain->id,
 			'name' => $domain->name,
-			'permalink' => $url_writer->write(sprintf("c=datacenter.domains&tab=domain&id=%d",$context_id), true),
+			'permalink' => $url_writer->writeNoProxy(sprintf("c=datacenter.domains&tab=domain&id=%d",$context_id), true),
 		);
 	}
     
