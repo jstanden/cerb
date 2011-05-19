@@ -794,6 +794,7 @@ class CerberusParser {
 				        			$properties['content'] = $body;
 	        						
 				        			$result = CerberusMail::sendTicketMessage($properties);
+				        			return;
 	        					}
 	        					break;
 	        			}
