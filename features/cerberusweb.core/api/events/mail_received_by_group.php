@@ -548,6 +548,40 @@ class Event_MailReceivedByGroup extends Extension_DevblocksEvent {
 				}
 				break;
 				
+			case 'move_to_group':
+				@$to_group_id = intval($params['group_id']);
+				@$current_group_id = intval($values['group_id']);
+				$groups = DAO_Group::getAll();
+				
+				// Don't trigger a move event into the same bucket.
+				if($to_group_id == $current_group_id)
+					break;
+				
+				if(!empty($to_group_id) && !isset($groups[$to_group_id]))
+					break;
+					
+				// Move
+				DAO_Ticket::update($ticket_id, array(
+					DAO_Ticket::TEAM_ID => $to_group_id, 
+					DAO_Ticket::CATEGORY_ID => 0, 
+				));
+				
+				// Pull group context + merge
+				$merge_token_labels = array();
+				$merge_token_values = array();
+				$labels = $this->getLabels();
+				CerberusContexts::getContext(CerberusContexts::CONTEXT_GROUP, $to_group_id, $merge_token_labels, $merge_token_values, '', true);
+		
+				CerberusContexts::merge(
+					'group_',
+					'Group:',
+					$merge_token_labels,
+					$merge_token_values,
+					$labels,
+					$values
+				);
+				break;				
+				
 			case 'move_to_bucket':
 				@$to_bucket_id = intval($params['bucket_id']);
 				@$current_bucket_id = intval($values['ticket_bucket_id']);
