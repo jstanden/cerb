@@ -715,7 +715,7 @@ class C4_FeedbackEntryView extends C4_AbstractView implements IAbstractView_Subt
 	}
 	
 	function doBulkUpdate($filter, $do, $ids=array()) {
-		@set_time_limit(1200); // 20m
+		@set_time_limit(600); // 10m
 		
 		$change_fields = array();
 		$custom_fields = array();
@@ -988,7 +988,7 @@ class ChFeedbackController extends DevblocksControllerExtension {
 	}
 	
 	function doBulkUpdateAction() {
-		@set_time_limit(1200); // 20m
+		@set_time_limit(600); // 10m
 		
 		// Filter: whole list or check
 	    @$filter = DevblocksPlatform::importGPC($_REQUEST['filter'],'string','');
