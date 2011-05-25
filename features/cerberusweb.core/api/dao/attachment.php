@@ -908,8 +908,8 @@ class View_AttachmentLink extends C4_AbstractView implements IAbstractView_Subto
 	}
 		
 	function doBulkUpdate($filter, $do, $ids=array()) {
-		@set_time_limit(0);
-	  
+		@set_time_limit(1200); // 20m
+		
 		$change_fields = array();
 		$deleted = false;
 

@@ -811,24 +811,6 @@ class CerberusParser {
         		}
         		
         	}
-		
-//					$attachment_files = array();
-//					$attachment_files['name'] = array();
-//					$attachment_files['type'] = array();
-//					$attachment_files['tmp_name'] = array();
-//					$attachment_files['size'] = array();
-//					
-//					$i=0;
-//					foreach($message->files as $filename => $file) {
-//						$attachment_files['name'][$i] = $filename;
-//						$attachment_files['type'][$i] = $file->mime_type;
-//						$attachment_files['tmp_name'][$i] = $file->tmpname;
-//						$attachment_files['size'][$i] = $file->file_size;
-//						$i++;
-//					} 				
-//        			// ... worker is a requester, treat as normal
-//        			$logger->info("[Parser] The external worker was a ticket requester, so we're not treating them as a watcher.");
-
 
 		// New Ticket
 		if($model->getIsNew()) {

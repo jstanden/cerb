@@ -52,8 +52,6 @@ class ChDebugController extends DevblocksControllerExtension  {
 	 * Request Overload
 	 */
 	function handleRequest(DevblocksHttpRequest $request) {
-	    @set_time_limit(0); // no timelimit (when possible)
-
 	    $stack = $request->path;
 	    array_shift($stack); // update
 

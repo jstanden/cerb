@@ -1104,8 +1104,8 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals {
 	}
 
 	function doBulkUpdate($filter, $do, $ids=array()) {
-		@set_time_limit(600); // [TODO] Temp!
-	  
+		@set_time_limit(1200); // 20m
+		
 		$change_fields = array();
 		$custom_fields = array();
 

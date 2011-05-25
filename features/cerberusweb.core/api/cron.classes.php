@@ -279,7 +279,7 @@ class ImportCron extends CerberusCronPageExtension {
 		
 		$logger->info("[Importer] Starting Import Task");
 		
-		@set_time_limit(0); // Unlimited (if possible)
+		@set_time_limit(1200); // 20m
 		 
 		$importNewDir = APP_STORAGE_PATH . '/import/new/';
 		$importFailDir = APP_STORAGE_PATH . '/import/fail/';
@@ -1016,7 +1016,7 @@ class Pop3Cron extends CerberusCronPageExtension {
 			return false;
 		}
 		
-		@set_time_limit(0); // Unlimited (if possible)
+		@set_time_limit(1200); // 20m
 
 		$accounts = DAO_Pop3Account::getPop3Accounts(); /* @var $accounts Model_Pop3Account[] */
 

@@ -508,8 +508,8 @@ foreach($fields as $field_name => $field_type) {
 	}
 		
 	function doBulkUpdate($filter, $do, $ids=array()) {
-		@set_time_limit(0);
-	  
+		@set_time_limit(1200); // 20m
+	
 		$change_fields = array();
 		$custom_fields = array();
 

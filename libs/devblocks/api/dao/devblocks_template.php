@@ -188,8 +188,8 @@ class View_DevblocksTemplate extends C4_AbstractView {
 	}
 
 	function doBulkUpdate($filter, $do, $ids=array()) {
-		@set_time_limit(600); // [TODO] Temp!
-	  
+		@set_time_limit(1200); // 20m
+		
 		$change_fields = array();
 		$deleted = false;
 		$custom_fields = array();

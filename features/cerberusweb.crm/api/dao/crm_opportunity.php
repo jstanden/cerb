@@ -863,8 +863,8 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 	}
 	
 	function doBulkUpdate($filter, $do, $ids=array()) {
-		@set_time_limit(600); // [TODO] Temp!
-	  
+		@set_time_limit(1200); // 20m
+		
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		$change_fields = array();
