@@ -242,18 +242,27 @@ class DevblocksPlatform extends DevblocksEngine {
 		if(empty($string))
 			return $string;
 		
-	    if(is_array($string))
-	        $string = implode("", $string);
-	
-		$unpack = unpack("N*",
-            (is_null($from_encoding))
+		$len = strlen($string);
+		$out = '';
+	        
+		$string = (is_null($from_encoding))
             ? mb_convert_encoding($string, "UCS-4BE")
-            : mb_convert_encoding($string, "UCS-4BE", $from_encoding));
-	            
-	    return implode("",
-			array_map(array('DevblocksPlatform',"_strUnidecodeLookup"),
-			$unpack
-		));
+            : mb_convert_encoding($string, "UCS-4BE", $from_encoding)
+            ;		
+		
+		while(false !== ($part = mb_substr($string, 0, 25000)) && 0 !== mb_strlen($part)) {
+			$string = mb_substr($string, mb_strlen($part));
+			
+			$unpack = unpack("N*", $part);
+	        
+			foreach($unpack as $k => $v) {
+				$out .= self::_strUnidecodeLookup($v);
+			}
+			
+			unset($unpack);			
+		}
+
+		return $out;
 	}
 	
 	static function stripHTML($str) {
@@ -3116,23 +3125,19 @@ class _DevblocksSearchEngineMysqlFulltext {
 	
 	public function prepareText($text) {
 		$text = DevblocksPlatform::strUnidecode($text);
-		
+
 		//$string = preg_replace("/[^\p{Greek}\p{N}]/u", ' ', $string);
 		
 		$text = mb_ereg_replace("[^[:alnum:]]", ' ', mb_convert_case($text, MB_CASE_LOWER));		
 		
 		$words = explode(' ', $text);
+		unset($text);
 
 		// Remove common words
 		$stop_words = $this->_getStopWords();
+		$words = array_diff($words, array_keys($stop_words));
 
-		// Filter
-		foreach($words as $k => $v) {
-			if(isset($stop_words[$v])) {
-				unset($words[$k]); // toss
-			}
-		}
-		
+		// Reassemble
 		$text = implode(' ', $words);
 		unset($words);
 		
@@ -3142,23 +3147,32 @@ class _DevblocksSearchEngineMysqlFulltext {
 		return $text;
 	}
 	
-	private function _index($ns, $id, $content) {
+	private function _index($ns, $id, $content, $replace=true) {
 		$content = $this->prepareText($content);
 		
-		$result = mysql_query(sprintf("REPLACE INTO fulltext_%s VALUES (%d, '%s') ",
-			$this->escapeNamespace($ns),
-			$id,
-			mysql_real_escape_string($content)
-		), $this->_db);
+		if($replace) {
+			$result = mysql_query(sprintf("REPLACE INTO fulltext_%s VALUES (%d, '%s') ",
+				$this->escapeNamespace($ns),
+				$id,
+				mysql_real_escape_string($content)
+			), $this->_db);
+			
+		} else {
+			$result = mysql_query(sprintf("UPDATE fulltext_%s SET content=CONCAT(content,' %s') WHERE id = %d",
+				$this->escapeNamespace($ns),
+				mysql_real_escape_string($content),
+				$id
+			), $this->_db);
+		}
 		
 		return (false !== $result) ? true : false;
 	}
 	
-	public function index($ns, $id, $content) {
-		if(false === ($ids = $this->_index($ns, $id, $content))) {
+	public function index($ns, $id, $content, $append=false) {
+		if(false === ($ids = $this->_index($ns, $id, $content, $append))) {
 			// Create the table dynamically
 			if($this->_createTable($ns)) {
-				return $this->_index($ns, $id, $content);
+				return $this->_index($ns, $id, $content, $append);
 			}
 			return false;
 		}

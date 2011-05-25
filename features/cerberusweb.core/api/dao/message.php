@@ -518,23 +518,63 @@ class Search_MessageContent {
 				continue;
 			}
 			
+			$count = 0;
+			
+			if(is_array($messages))
 			foreach($messages as $message) { /* @var $message Model_Message */
 				$id = $message->id;
+				
 				$logger->info(sprintf("[Search] Indexing %s %d...", 
 					$ns,
 					$id
 				));
 				
 				if(false !== ($content = Storage_MessageContent::get($message))) {
-					$search->index($ns, $id, $content);
+					$start = 0;
+					$chunklen = 50000; //[TODO] Configurable?
+					$replace = true;
+					$len = mb_strlen($content);
+
+					// 25K character chunks
+					do {
+						$end = $start + $chunklen;
+						
+						// If our offset is past EOS, use the last pos
+						if($end > $len) {
+							$next_ws = $len;
+							
+						} else {
+							if(false === ($next_ws = mb_strpos($content, ' ', $end)))
+								if(false === ($next_ws = mb_strpos($content, "\n", $end)))
+									$next_ws = $end;
+							
+						}							
+							
+						$chunk = mb_substr($content, $start, $next_ws-$start);
+						
+						if(!empty($chunk)) {
+							$start += mb_strlen($chunk);
+							
+							$search->index($ns, $id, $chunk, $replace);
+							$replace = false;
+						}
+						
+					} while(0 != mb_strlen($chunk));
 				}
-				
-				flush();
+
+				// Record our progress every 10th index
+				if(++$count % 10 == 0) {
+					if(!empty($id))
+						DAO_DevblocksExtensionPropertyStore::put(self::ID, 'last_indexed_id', $id);
+				}
 			}
+			
+			flush();
+			
+			// Record our index every batch
+			if(!empty($id))
+				DAO_DevblocksExtensionPropertyStore::put(self::ID, 'last_indexed_id', $id);
 		}
-		
-		if(!empty($id))
-			DAO_DevblocksExtensionPropertyStore::put(self::ID, 'last_indexed_id', $id);
 	}
 	
 	public static function delete($ids) {
