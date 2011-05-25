@@ -73,7 +73,8 @@ class DAO_ContextLink {
 		
 		// Are we following something?
 		if($dst_context == CerberusContexts::CONTEXT_WORKER) {
-			if($active_worker && $active_worker->id == $dst_context_id) {
+			// If worker is actor and target, and we're not inside a Virtual Attendant
+			if($active_worker && $active_worker->id == $dst_context_id && 0 == EventListener_Triggers::getDepth()) {
 				$entry = array(
 					//{{actor}} started watching {{target_object}} {{target}}
 					'message' => 'activities.watcher.follow',

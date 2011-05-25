@@ -602,6 +602,10 @@ class EventListener_Triggers extends DevblocksEventListenerExtension {
 		return self::$_depth;
 	}
 	
+	static function getTriggerStack() {
+		return self::$_trigger_stack;
+	}
+	
 	static function getTriggerLog() {
 		return self::$_trigger_log;
 	}
