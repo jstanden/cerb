@@ -188,6 +188,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		@$hide = DevblocksPlatform::importGPC($_REQUEST['hide'],'integer',0);
 		
 		$tpl = DevblocksPlatform::getTemplateService();
+		$active_worker = CerberusApplication::getActiveWorker();
 		
 		$message = DAO_Message::get($id);
 		$tpl->assign('message', $message);
@@ -235,8 +236,10 @@ class ChDisplayPage extends CerberusPageExtension {
 		if(!empty($messageToolbarItems))
 			$tpl->assign('message_toolbaritems', $messageToolbarItems);
 		
-		// [TODO] Workers?
-		
+		// Prefs
+		$mail_reply_button = DAO_WorkerPref::get($active_worker->id, 'mail_reply_button', 0);
+		$tpl->assign('mail_reply_button', $mail_reply_button);
+			
 		$tpl->assign('expanded', (empty($hide) ? true : false));
 		
 		$tpl->display('devblocks:cerberusweb.core::display/modules/conversation/message.tpl');
@@ -446,6 +449,7 @@ class ChDisplayPage extends CerberusPageExtension {
 	function replyAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
 		@$is_forward = DevblocksPlatform::importGPC($_REQUEST['forward'],'integer',0);
+		@$is_quoted = DevblocksPlatform::importGPC($_REQUEST['is_quoted'],'integer',1);
 
 		$settings = DevblocksPlatform::getPluginSettingsService();
 		$active_worker = CerberusApplication::getActiveWorker();  /* @var $active_worker Model_Worker */
@@ -453,6 +457,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('id',$id);
 		$tpl->assign('is_forward',$is_forward);
+		$tpl->assign('is_quoted',$is_quoted);
 		
 		$message = DAO_Message::get($id);
 		$tpl->assign('message',$message);
@@ -792,6 +797,10 @@ class ChDisplayPage extends CerberusPageExtension {
 		// Workers
 		$workers = DAO_Worker::getAll();
 		$tpl->assign('workers', $workers);
+		
+		// Prefs
+		$mail_reply_button = DAO_WorkerPref::get($active_worker->id, 'mail_reply_button', 0);
+		$tpl->assign('mail_reply_button', $mail_reply_button);
 		
 		$tpl->display('devblocks:cerberusweb.core::display/modules/conversation/index.tpl');
 	}

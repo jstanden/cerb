@@ -1227,6 +1227,12 @@ For example: http://www.cerberusweb.com/support/</seg></tuv>
 		<tu tuid='display.reply.next.resume_eg'>
 			<tuv xml:lang="en_US"><seg>(e.g. "Friday", "7 days", "Tomorrow 11:15AM", "Dec 31")</seg></tuv>
 		</tu>
+		<tu tuid='display.reply.no_quote'>
+			<tuv xml:lang="en_US"><seg>Reply without quoting</seg></tuv>
+		</tu>
+		<tu tuid='display.reply.quote'>
+			<tuv xml:lang="en_US"><seg>Quote and reply</seg></tuv>
+		</tu>
 		
 		<tu tuid='display.reply.reply_banner'>
 			<tuv xml:lang="en_US"><seg>On %s, %s wrote:</seg></tuv>
@@ -1830,6 +1836,9 @@ For example: *receipt*</seg></tuv>
 	    </tu>
 	    <tu tuid='preferences.account.mail.readall'>
 			<tuv xml:lang="en_US"><seg>Always use 'read all' mode (expand messages and sort chronologically)</seg></tuv>
+	    </tu>
+	    <tu tuid='preferences.account.mail.reply_button'>
+			<tuv xml:lang="en_US"><seg>When I click the reply button:</seg></tuv>
 	    </tu>
 	    <tu tuid='preferences.account.mail.no_discard_warning'>
 			<tuv xml:lang="en_US"><seg>Don't warn me about losing unsaved changes if I click links while composing mail</seg></tuv>

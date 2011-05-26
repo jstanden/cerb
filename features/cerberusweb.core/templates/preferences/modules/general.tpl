@@ -39,6 +39,12 @@
 		<label><input type="checkbox" name="mail_no_discard_warning" value="1" {if $mail_no_discard_warning}checked{/if}> {$translate->_('preferences.account.mail.no_discard_warning')}</label>
 	</div>
 
+	<b>{'preferences.account.mail.reply_button'|devblocks_translate}</b>
+	<div style="margin:0px 0px 10px 10px;">
+		<label><input type="radio" name="mail_reply_button" value="0" {if empty($mail_reply_button)}checked="checked"{/if}> {'display.reply.quote'|devblocks_translate}</label><br>
+		<label><input type="radio" name="mail_reply_button" value="1" {if 1==$mail_reply_button}checked="checked"{/if}> {'display.reply.no_quote'|devblocks_translate}</label><br>
+	</div>
+
 	<b>Signature:</b>
 	<div style="margin:0px 0px 10px 10px;">
 		<label><input type="radio" name="mail_signature_pos" value="0" {if empty($mail_signature_pos)}checked="checked"{/if}> Don't automatically insert signature.</label><br>

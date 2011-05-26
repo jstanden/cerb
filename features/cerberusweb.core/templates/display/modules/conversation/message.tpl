@@ -96,8 +96,16 @@
 						<button type="button" onclick="$(this).remove(); genericAjaxGet('','c=display&a=requesterAdd&ticket_id={$ticket->id}&email='+encodeURIComponent('{$sender->email}'),function(o) { genericAjaxGet('displayTicketRequesterBubbles','c=display&a=requestersRefresh&ticket_id={$ticket->id}'); } );"><span class="cerb-sprite2 sprite-plus-circle-frame"></span> {$translate->_('display.ui.add_to_recipients')}</button>
 						{/if}
 						
-				      	{if $active_worker->hasPriv('core.display.actions.reply')}{if !empty($requesters)}{assign var=show_more value=1}<button type="button" class="reply" onclick="displayReply('{$message->id}',0);"><span class="cerb-sprite sprite-export"></span> {$translate->_('display.ui.reply')|capitalize}</button>{/if}{/if}
-				      	{if $active_worker->hasPriv('core.display.actions.forward')}{assign var=show_more value=1}<button type="button" onclick="displayReply('{$message->id}',1);"><span class="cerb-sprite sprite-document_out"></span> {$translate->_('display.ui.forward')|capitalize}</button>{/if}
+				      	{if $active_worker->hasPriv('core.display.actions.reply')}{if !empty($requesters)}{assign var=show_more value=1}
+				      		<button type="button" class="reply split-left" onclick="displayReply('{$message->id}',0,0,{if empty($mail_reply_button)}1{else}0{/if});" title="{if empty($mail_reply_button)}{'display.reply.quote'|devblocks_translate}{else}{'display.reply.no_quote'|devblocks_translate}{/if}"><span class="cerb-sprite sprite-export"></span> {$translate->_('display.ui.reply')|capitalize}</button><!--
+				      		--><button type="button" class="split-right" onclick="$(this).next('ul').toggle();"><span class="cerb-sprite sprite-arrow-down-white"></span></button>
+				      		<ul class="cerb-popupmenu cerb-float" style="margin-top:-5px;">
+				      			<li><a href="javascript:;" onclick="displayReply('{$message->id}',0,0,1);">{'display.reply.quote'|devblocks_translate}</a></li>
+				      			<li><a href="javascript:;" onclick="displayReply('{$message->id}',0,0,0);">{'display.reply.no_quote'|devblocks_translate}</a></li>
+				      			{if $active_worker->hasPriv('core.display.actions.forward')}<li><a href="javascript:;" onclick="displayReply('{$message->id}',1);">{$translate->_('display.ui.forward')|capitalize}</a></li>{/if}
+				      		</ul>
+				      	{/if}{/if}
+				      	
 				      	{if $active_worker->hasPriv('core.display.actions.note')}{assign var=show_more value=1}<button type="button" onclick="displayAddNote('{$message->id}');"><span class="cerb-sprite sprite-document_plain_yellow"></span> {$translate->_('display.ui.sticky_note')|capitalize}</button>{/if}
 				      	
 				      	{if $show_more} {* Only show more if we showed one of the built-in buttons first *}
@@ -147,6 +155,28 @@
 </div>
 <div id="reply{$message->id}"></div>
 <br>
+
+{if $active_worker->hasPriv('core.display.actions.reply')}
+<script type="text/javascript">
+$('#{$message->id}act')
+	.find('ul.cerb-popupmenu')
+	.hover(
+		function(e) { }, 
+		function(e) { $(this).hide(); }
+	)
+	.find('> li')
+	.click(function(e) {
+		$(this).closest('ul.cerb-popupmenu').hide();
+
+		e.stopPropagation();
+		if(!$(e.target).is('li'))
+		return;
+
+		$(this).find('a').trigger('click');
+	})
+;
+</script>
+{/if}
 
 <script type="text/javascript">
 	function C4_ReloadMessageOnSave(msgid, expanded) {

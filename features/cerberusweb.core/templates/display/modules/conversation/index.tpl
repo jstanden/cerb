@@ -71,15 +71,16 @@
 		});
 	});
 	
-	function displayReply(msgid, is_forward, draft_id) {
+	function displayReply(msgid, is_forward, draft_id, is_quoted) {
 		msgid = parseInt(msgid);
 		var div = document.getElementById('reply' + msgid);
 		if(null == div)	
 			return;
 		is_forward = (null == is_forward || 0 == is_forward) ? 0 : 1;
 		draft_id = (null == draft_id) ? 0 : parseInt(draft_id);
+		is_quoted = (null == is_quoted) ? 1 : parseInt(is_quoted);
 		
-		genericAjaxGet('', 'c=display&a=reply&forward='+is_forward+'&draft_id='+draft_id+'&id=' + msgid,
+		genericAjaxGet('', 'c=display&a=reply&forward='+is_forward+'&draft_id='+draft_id+'&is_quoted='+is_quoted+'&id=' + msgid,
 			function(html) {
 				var div = document.getElementById('reply' + msgid);
 				if(null == div) return;
