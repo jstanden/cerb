@@ -517,6 +517,9 @@ class ChDisplayPage extends CerberusPageExtension {
 
 			$signature_pos = DAO_WorkerPref::get($active_worker->id, 'mail_signature_pos', 2);
 			$tpl->assign('signature_pos', $signature_pos);
+			
+			$mail_no_discard_warning = DAO_WorkerPref::get($active_worker->id, 'mail_no_discard_warning', 0);
+			$tpl->assign('mail_no_discard_warning', $mail_no_discard_warning);
 		}
 		
 		$tpl->assign('upload_max_filesize', ini_get('upload_max_filesize'));

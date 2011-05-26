@@ -245,9 +245,11 @@
 		var draftAutoSaveInterval = null;
 	
 	$(function() {
+		{if !$mail_no_discard_warning}
 		window.onbeforeunload = function() {
 			return "You are currently composing an email message.  Are you sure you want to abandon it?";
 		}
+		{/if}
 		
 		// Autocompletes
 		ajax.emailAutoComplete('#reply{$message->id}_part1 input[name=to]', { multiple: true } );
