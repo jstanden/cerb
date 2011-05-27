@@ -86,7 +86,7 @@ class ChCronController extends DevblocksControllerExtension {
 		array_shift($stack); // cron
 		$job_id = array_shift($stack);
 
-        @set_time_limit(1200); // 20m
+        @set_time_limit(0); // no limit
 		
 		$url = DevblocksPlatform::getUrlService();
         $timelimit = intval(ini_get('max_execution_time'));
