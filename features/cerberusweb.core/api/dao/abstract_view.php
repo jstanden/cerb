@@ -265,6 +265,50 @@ abstract class C4_AbstractView {
 		}
 	}
 	
+	protected function _renderVirtualWatchers($param) {
+		$workers = DAO_Worker::getAll();
+		$strings = array();
+		
+		foreach($param->value as $worker_id) {
+			if(isset($workers[$worker_id]))
+				$strings[] = '<b>'.$workers[$worker_id]->getName().'</b>';
+		}
+		
+		if(empty($param->value)) {
+			switch($param->operator) {
+				case DevblocksSearchCriteria::OPER_IN:
+				case DevblocksSearchCriteria::OPER_IN_OR_NULL:
+				case DevblocksSearchCriteria::OPER_NIN_OR_NULL:
+					$param->operator = DevblocksSearchCriteria::OPER_IS_NULL;
+					break;
+				case DevblocksSearchCriteria::OPER_NIN:
+					$param->operator = DevblocksSearchCriteria::OPER_IS_NOT_NULL;
+					break;
+			}
+		}
+		
+		switch($param->operator) {
+			case DevblocksSearchCriteria::OPER_IS_NULL:
+				echo "There are no <b>watchers</b>";
+				break;
+			case DevblocksSearchCriteria::OPER_IS_NOT_NULL:
+				echo "There are <b>watchers</b>";
+				break;
+			case DevblocksSearchCriteria::OPER_IN:
+				echo sprintf("Watcher is %s", implode(' or ', $strings));
+				break;
+			case DevblocksSearchCriteria::OPER_IN_OR_NULL:
+				echo sprintf("Watcher is blank or %s", implode(' or ', $strings));
+				break;
+			case DevblocksSearchCriteria::OPER_NIN:
+				echo sprintf("Watcher is not %s", implode(' or ', $strings));
+				break;
+			case DevblocksSearchCriteria::OPER_NIN_OR_NULL:
+				echo sprintf("Watcher is blank or not %s", implode(' or ', $strings));
+				break;
+		}		
+	}
+	
 	/**
 	 * Enter description here...
 	 *

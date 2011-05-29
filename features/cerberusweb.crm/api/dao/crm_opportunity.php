@@ -373,26 +373,7 @@ class DAO_CrmOpportunity extends C4_ORMHelper {
 					$from_context = 'cerberusweb.contexts.opportunity';
 					$from_index = 'o.id';
 					
-					// Join and return anything
-					if(DevblocksSearchCriteria::OPER_TRUE == $param->operator) {
-						$join_sql .= sprintf("LEFT JOIN context_link AS context_watcher ON (context_watcher.from_context = '%s' AND context_watcher.from_context_id = %s AND context_watcher.to_context = 'cerberusweb.contexts.worker') ", $from_context, $from_index);
-					} elseif(empty($param->value)) { // empty
-						// Either any watchers (1 or more); or no watchers
-						if(DevblocksSearchCriteria::OPER_NIN == $param->operator || DevblocksSearchCriteria::OPER_NEQ == $param->operator) {
-							$join_sql .= sprintf("LEFT JOIN context_link AS context_watcher ON (context_watcher.from_context = '%s' AND context_watcher.from_context_id = %s AND context_watcher.to_context = 'cerberusweb.contexts.worker') ", $from_context, $from_index);
-							$where_sql .= "AND context_watcher.to_context_id IS NOT NULL ";
-						} else {
-							$join_sql .= sprintf("LEFT JOIN context_link AS context_watcher ON (context_watcher.from_context = '%s' AND context_watcher.from_context_id = %s AND context_watcher.to_context = 'cerberusweb.contexts.worker') ", $from_context, $from_index);
-							$where_sql .= "AND context_watcher.to_context_id IS NULL ";
-						}
-					// Specific watchers
-					} else {
-						$join_sql .= sprintf("INNER JOIN context_link AS context_watcher ON (context_watcher.from_context = '%s' AND context_watcher.from_context_id = %s AND context_watcher.to_context = 'cerberusweb.contexts.worker' AND context_watcher.to_context_id IN (%s)) ",
-							$from_context,
-							$from_index,
-							implode(',', $param->value)
-						);
-					}					
+					self::_searchComponentsVirtualWatchers($param, $from_context, $from_index, $join_sql, $where_sql);
 					break;
 			}
 		}
@@ -723,20 +704,7 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 		
 		switch($key) {
 			case SearchFields_CrmOpportunity::VIRTUAL_WATCHERS:
-				if(empty($param->value)) {
-					echo "There are no <b>watchers</b>";
-					
-				} elseif(is_array($param->value)) {
-					$workers = DAO_Worker::getAll();
-					$strings = array();
-					
-					foreach($param->value as $worker_id) {
-						if(isset($workers[$worker_id]))
-							$strings[] = '<b>'.$workers[$worker_id]->getName().'</b>';
-					}
-					
-					echo sprintf("Watcher is %s", implode(' or ', $strings));
-				}
+				$this->_renderVirtualWatchers($param);
 				break;
 		}
 	}	
