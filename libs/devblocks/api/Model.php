@@ -102,7 +102,7 @@ class DevblocksSearchCriteria {
 				
 				// Escape quotes
 				foreach($this->value as $idx=>$val) {
-					$vals[$idx] = addslashes($val); // [TODO] Test
+					$vals[$idx] = addslashes($val);
 				}
 				
 				$where = sprintf("%s IN ('%s')",

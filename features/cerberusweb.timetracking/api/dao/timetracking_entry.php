@@ -789,7 +789,7 @@ class View_TimeTracking extends C4_AbstractView implements IAbstractView_Subtota
 				break;
 			case SearchFields_TimeTrackingEntry::VIRTUAL_WATCHERS:
 				@$worker_ids = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',array());
-				$criteria = new DevblocksSearchCriteria($field,'in', $worker_ids);
+				$criteria = new DevblocksSearchCriteria($field,$oper,$worker_ids);
 				break;
 			case SearchFields_TimeTrackingEntry::ACTIVITY_ID:
 				@$activity_ids = DevblocksPlatform::importGPC($_REQUEST['activity_ids'],'array',array());

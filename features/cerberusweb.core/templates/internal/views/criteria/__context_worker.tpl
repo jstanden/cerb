@@ -3,9 +3,9 @@
 
 <b>{$translate->_('common.workers')|capitalize}:</b><br>
 
-<div style="margin:0px 0px 10px 10px;">
-<button type="button" class="chooser_worker" id="{$btnId}"><span class="cerb-sprite sprite-view"></span></button>
-</div>
+<blockquote style="margin:5px;">
+	<button type="button" class="chooser_worker" id="{$btnId}"><span class="cerb-sprite sprite-view"></span></button>
+</blockquote>
 
 <script type="text/javascript">
 	$('#{$btnId}').each(function() {

@@ -638,7 +638,7 @@ class View_ContactPerson extends C4_AbstractView implements IAbstractView_Subtot
 				
 			case SearchFields_ContactPerson::VIRTUAL_WATCHERS:
 				@$worker_ids = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',array());
-				$criteria = new DevblocksSearchCriteria($field,'in', $worker_ids);
+				$criteria = new DevblocksSearchCriteria($field,$oper,$worker_ids);
 				break;
 				
 			/*

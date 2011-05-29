@@ -698,7 +698,7 @@ class C4_FeedbackEntryView extends C4_AbstractView implements IAbstractView_Subt
 				break;
 			case SearchFields_FeedbackEntry::VIRTUAL_WATCHERS:
 				@$worker_ids = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',array());
-				$criteria = new DevblocksSearchCriteria($field,'in', $worker_ids);
+				$criteria = new DevblocksSearchCriteria($field,$oper,$worker_ids);
 				break;
 			default:
 				// Custom Fields

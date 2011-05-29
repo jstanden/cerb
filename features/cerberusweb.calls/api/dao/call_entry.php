@@ -579,7 +579,7 @@ class View_CallEntry extends C4_AbstractView implements IAbstractView_Subtotals 
 				break;
 			case SearchFields_CallEntry::VIRTUAL_WATCHERS:
 				@$worker_ids = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',array());
-				$criteria = new DevblocksSearchCriteria($field,'in', $worker_ids);
+				$criteria = new DevblocksSearchCriteria($field,$oper,$worker_ids);
 				break;
 			default:
 				// Custom Fields

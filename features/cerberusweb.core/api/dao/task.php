@@ -726,7 +726,7 @@ class View_Task extends C4_AbstractView implements IAbstractView_Subtotals {
 				
 			case SearchFields_Task::VIRTUAL_WATCHERS:
 				@$worker_ids = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',array());
-				$criteria = new DevblocksSearchCriteria($field,'in', $worker_ids);
+				$criteria = new DevblocksSearchCriteria($field,$oper,$worker_ids);
 				break;
 				
 			default:
