@@ -30,9 +30,7 @@
 						'c=internal&a=initWorkspaceList&list_id={$list_id}',
 						function(html) {
 							$this
-								.fadeTo("normal", 0.2)
 								.html(html)
-								.fadeTo("normal", 1.0)
 								;
 							$this.find('DIV[id^=view]:first').trigger('view_refresh');
 							next();
@@ -48,9 +46,7 @@
 				'c=internal&a=initWorkspaceList&list_id={$list_id}',
 				function(html){
 					$div
-						.fadeTo("normal", 0.2)
 						.html(html)
-						.fadeTo("normal", 1.0)
 						;
 					$div.find('DIV[id^=view]:first').trigger('view_refresh');
 					next();

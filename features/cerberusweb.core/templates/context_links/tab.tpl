@@ -187,9 +187,7 @@ $forms = $('#divConnections').delegate('DIV[id^=view]','view_refresh',function()
 						'c=internal&a=initConnectionsView&context={$context}&context_id={$context_id}&to_context={$to_context}',
 						function(html) {
 							$this
-								.fadeTo("normal", 0.2)
 								.html(html)
-								.fadeTo("normal", 1.0)
 								;
 							$this.find('DIV[id^=view]:first').trigger('view_refresh');
 							next();
@@ -205,9 +203,7 @@ $forms = $('#divConnections').delegate('DIV[id^=view]','view_refresh',function()
 				'c=internal&a=initConnectionsView&context={$context}&context_id={$context_id}&to_context={$to_context}',
 				function(html){
 					$div
-						.fadeTo("normal", 0.2)
 						.html(html)
-						.fadeTo("normal", 1.0)
 						;
 					$div.find('DIV[id^=view]:first').trigger('view_refresh');
 					next();
