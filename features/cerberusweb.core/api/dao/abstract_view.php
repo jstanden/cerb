@@ -314,8 +314,16 @@ abstract class C4_AbstractView {
 				@$worker_ids = DevblocksPlatform::importGPC($_POST['worker_id'],'array',array());
 				
 				if(empty($worker_ids)) {
-					$oper = DevblocksSearchCriteria::OPER_IS_NULL;
-					$worker_ids = null;
+					switch($oper) {
+						case DevblocksSearchCriteria::OPER_IN:
+							$oper = DevblocksSearchCriteria::OPER_IS_NULL;
+							$worker_ids = null;
+							break;
+						case DevblocksSearchCriteria::OPER_NIN:
+							$oper = DevblocksSearchCriteria::OPER_IS_NOT_NULL;
+							$worker_ids = null;
+							break;
+					}
 				}
 				
 				$criteria = new DevblocksSearchCriteria($token,$oper,$worker_ids);
