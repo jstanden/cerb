@@ -332,12 +332,12 @@ class CerberusApplication extends DevblocksApplication {
 		 */
 		foreach($core_patches as $patch) { /* @var $patch DevblocksPatch */
 			if(!file_exists($patch->getFilename()))
-				throw new Exception("Missing application patch: ".$path);
+				throw new Exception("Missing application patch: ".$patch->getFilename());
 			
 			$version = $patch->getVersion();
 			
 			if(!$patch->run())
-				throw new Exception("Application patch failed to apply: ".$path);
+				throw new Exception("Application patch failed to apply: ".$patch->getFilename());
 			
 			// Patch this version and then patch plugins up to this version
 			foreach($plugin_patches as $plugin_id => $patches) {
