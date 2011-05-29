@@ -602,6 +602,17 @@ abstract class C4_AbstractView {
 				$field_key => new DevblocksSearchCriteria($field_key, DevblocksSearchCriteria::OPER_TRUE),
 			);
 			$params = array_merge($new_params, $params);
+		} else {
+			switch($params[$field_key]->operator) {
+				case DevblocksSearchCriteria::OPER_EQ:
+				case DevblocksSearchCriteria::OPER_IS_NULL:
+					$params[$field_key] = new DevblocksSearchCriteria($field_key, DevblocksSearchCriteria::OPER_TRUE);
+					break;
+				case DevblocksSearchCriteria::OPER_IN:
+					if(is_array($params[$field_key]->value) && count($params[$field_key]->value) < 2)
+						$params[$field_key] = new DevblocksSearchCriteria($field_key, DevblocksSearchCriteria::OPER_TRUE);
+					break;
+			}
 		}
 		
 		if(!method_exists($dao_class,'getSearchQueryComponents'))
@@ -718,6 +729,17 @@ abstract class C4_AbstractView {
 				$field_key => new DevblocksSearchCriteria($field_key, DevblocksSearchCriteria::OPER_TRUE),
 			);
 			$params = array_merge($new_params, $params);
+		} else {
+			switch($params[$field_key]->operator) {
+				case DevblocksSearchCriteria::OPER_EQ:
+				case DevblocksSearchCriteria::OPER_IS_NULL:
+					$params[$field_key] = new DevblocksSearchCriteria($field_key, DevblocksSearchCriteria::OPER_TRUE);
+					break;
+				case DevblocksSearchCriteria::OPER_IN:
+					if(is_array($params[$field_key]->value) && count($params[$field_key]->value) < 2)
+						$params[$field_key] = new DevblocksSearchCriteria($field_key, DevblocksSearchCriteria::OPER_TRUE);
+					break;
+			}
 		}
 		
 		if(!method_exists($dao_class,'getSearchQueryComponents'))
@@ -815,6 +837,17 @@ abstract class C4_AbstractView {
 				$field_key => new DevblocksSearchCriteria($field_key,DevblocksSearchCriteria::OPER_TRUE),
 			);
 			$params = array_merge($params, $add_param); 
+		} else {
+			switch($params[$field_key]->operator) {
+				case DevblocksSearchCriteria::OPER_EQ:
+				case DevblocksSearchCriteria::OPER_IS_NULL:
+					$params[$field_key] = new DevblocksSearchCriteria($field_key, DevblocksSearchCriteria::OPER_TRUE);
+					break;
+				case DevblocksSearchCriteria::OPER_IN:
+					if(is_array($params[$field_key]->value) && count($params[$field_key]->value) < 2)
+						$params[$field_key] = new DevblocksSearchCriteria($field_key, DevblocksSearchCriteria::OPER_TRUE);
+					break;
+			}
 		}
 		
 		// ... and that the DAO object is valid

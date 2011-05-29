@@ -1542,7 +1542,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals {
 				&& isset($params[SearchFields_Ticket::TICKET_CATEGORY_ID]->value)) {
 					// Allow single drill-down
 			 } else {
-					unset($params[SearchFields_Ticket::TICKET_CATEGORY_ID]);
+				unset($params[SearchFields_Ticket::TICKET_CATEGORY_ID]);
 			 }
 		}
 		
