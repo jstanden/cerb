@@ -2258,6 +2258,56 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals {
 					}
 				}
 				
+				if(isset($do['broadcast'])) {
+					$broadcast_params = $do['broadcast'];
+					
+					if(
+						!isset($broadcast_params['worker_id']) || empty($broadcast_params['worker_id'])
+						|| !isset($broadcast_params['message']) || empty($broadcast_params['message'])
+						)
+						break;
+						
+					list($tickets, $null) = DAO_Ticket::search(
+						array(),
+						array(
+							SearchFields_Ticket::TICKET_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_ID,DevblocksSearchCriteria::OPER_IN,$batch_ids),
+						),
+						-1,
+						0,
+						null,
+						true,
+						false
+					);
+					$is_queued = (isset($broadcast_params['is_queued']) && $broadcast_params['is_queued']) ? true : false; 
+					
+					$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+					
+					if(is_array($tickets))
+					foreach($tickets as $ticket_id => $row) {
+						CerberusContexts::getContext(CerberusContexts::CONTEXT_TICKET, $row, $tpl_labels, $tpl_tokens);
+						$body = $tpl_builder->build($broadcast_params['message'], $tpl_tokens);
+						
+						$fields = array(
+							DAO_MailQueue::TYPE => Model_MailQueue::TYPE_TICKET_REPLY,
+							DAO_MailQueue::TICKET_ID => $ticket_id,
+							DAO_MailQueue::WORKER_ID => $broadcast_params['worker_id'],
+							DAO_MailQueue::UPDATED => time(),
+							DAO_MailQueue::HINT_TO => $row[SearchFields_Ticket::TICKET_FIRST_WROTE],
+							DAO_MailQueue::SUBJECT => $row[SearchFields_Ticket::TICKET_SUBJECT],
+							DAO_MailQueue::BODY => $body,
+							DAO_MailQueue::PARAMS_JSON => json_encode(array(
+								'in_reply_message_id' => $row[SearchFields_Ticket::TICKET_FIRST_MESSAGE_ID],
+							)),
+						);
+						
+						if($is_queued) {
+							$fields[DAO_MailQueue::IS_QUEUED] = 1;
+						}
+						
+						$draft_id = DAO_MailQueue::create($fields);
+					}
+				}				
+				
 				unset($batch_ids);
 			}
 		}
