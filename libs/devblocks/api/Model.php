@@ -25,9 +25,12 @@ class DevblocksSearchCriteria {
     const OPER_EQ = '=';
     const OPER_EQ_OR_NULL = 'equals or null';
     const OPER_NEQ = '!=';
-    const OPER_IN = 'in';
     const OPER_IS_NULL = 'is null';
+    const OPER_IS_NOT_NULL = 'is not null';
+    const OPER_IN = 'in';
+    const OPER_IN_OR_NULL = 'in or null';
     const OPER_NIN = 'not in';
+    const OPER_NIN_OR_NULL = 'not in or null';
     const OPER_FULLTEXT = 'fulltext';
     const OPER_LIKE = 'like';
     const OPER_NOT_LIKE = 'not like';
@@ -110,13 +113,72 @@ class DevblocksSearchCriteria {
 					implode("','",$vals)
 				);
 				break;
+				
+			case DevblocksSearchCriteria::OPER_IN_OR_NULL:
+				if(!is_array($this->value)) break;
+				$value = (!empty($this->value)) ? $this->value : array(-1);
+				$vals = array();
+				
+				// Escape quotes
+				foreach($this->value as $idx=>$val) {
+					$vals[$idx] = addslashes($val);
+				}
+				
+				if(empty($vals)) {
+					$where_in = '';
+					
+				} else {
+					$where_in = sprintf("%s IN ('%s') OR ",
+						$db_field_name,
+						implode("','",$vals)
+					);
+				}
+				
+				$where = sprintf("(%s%s IS NULL)",
+					$where_in,
+					$db_field_name
+				);
+				break;
 
 			case DevblocksSearchCriteria::OPER_NIN: // 'not in'
 				if(!is_array($this->value)) break;
 				$value = (!empty($this->value)) ? $this->value : array(-1);
+				$vals = array();
+				
+				// Escape quotes
+				foreach($this->value as $idx=>$val) {
+					$vals[$idx] = addslashes($val);
+				}
+				
 				$where = sprintf("%s NOT IN ('%s')",
 					$db_field_name,
-					implode("','",$value)
+					implode("','",$vals)
+				);
+				break;
+				
+			case DevblocksSearchCriteria::OPER_NIN_OR_NULL:
+				if(!is_array($this->value)) break;
+				$value = (!empty($this->value)) ? $this->value : array(-1);
+				$vals = array();
+				
+				// Escape quotes
+				foreach($this->value as $idx=>$val) {
+					$vals[$idx] = addslashes($val);
+				}
+				
+				if(empty($vals)) {
+					$where_in = '';
+					
+				} else {
+					$where_in = sprintf("%s NOT IN ('%s') OR ",
+						$db_field_name,
+						implode("','",$vals)
+					);
+				}
+				
+				$where = sprintf("(%s%s IS NULL)",
+					$where_in,
+					$db_field_name
 				);
 				break;
 				
@@ -172,6 +234,12 @@ class DevblocksSearchCriteria {
 			
 			case DevblocksSearchCriteria::OPER_IS_NULL: // 'is null'
 				$where = sprintf("%s IS NULL",
+					$db_field_name
+				);
+				break;
+				
+			case DevblocksSearchCriteria::OPER_IS_NOT_NULL:
+				$where = sprintf("%s IS NOT NULL",
 					$db_field_name
 				);
 				break;
