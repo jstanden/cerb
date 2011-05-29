@@ -72,6 +72,22 @@
 					</td>
 				</tr>
 				
+				<tr>
+					<td width="0%" nowrap="nowrap" valign="middle" align="right">{$translate->_('common.owner')|capitalize}: </td>
+					<td width="100%">
+						<select name="owner_id">
+							<option value="0"></option>
+							{foreach from=$workers item=owner key=owner_id}
+							{if $owner->isTeamMember($ticket->team_id)}
+							<option value="{$owner_id}" {if $ticket->owner_id==$owner_id}selected="selected"{/if}>{$owner->getName()}</option>
+							{/if}
+							{/foreach}
+						</select>
+				      	<button type="button" onclick="$(this).prev('select[name=owner_id]').val('{$active_worker->id}');">{'common.me'|devblocks_translate|lower}</button>
+				      	<button type="button" onclick="$(this).prevAll('select[name=owner_id]').first().val('');">{'common.nobody'|devblocks_translate|lower}</button>
+					</td>
+				</tr>
+				
 				{if $active_worker->hasPriv('core.ticket.actions.move')}
 				<tr>
 					<td width="0%" nowrap="nowrap" align="right">Bucket: </td>

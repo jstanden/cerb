@@ -127,6 +127,8 @@ class ChDisplayPage extends CerberusPageExtension {
 		$tpl->assign('requesters', $requesters);
 		
 		// Workers
+		$tpl->assign('workers', DAO_Worker::getAll());
+		
 		$context_watchers = CerberusContexts::getWatchers(CerberusContexts::CONTEXT_TICKET, $ticket->id);
 		$tpl->assign('context_watchers', $context_watchers);
 		
@@ -559,6 +561,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		    'files' => @$_FILES['attachment'],
 		    'closed' => DevblocksPlatform::importGPC(@$_REQUEST['closed'],'integer',0),
 		    'bucket_id' => DevblocksPlatform::importGPC(@$_REQUEST['bucket_id'],'string',''),
+		    'owner_id' => DevblocksPlatform::importGPC(@$_REQUEST['owner_id'],'integer',0),
 		    'ticket_reopen' => DevblocksPlatform::importGPC(@$_REQUEST['ticket_reopen'],'string',''),
 		    'agent_id' => @$worker->id,
 		    'forward_files' => DevblocksPlatform::importGPC(@$_REQUEST['forward_files'],'array',array()),

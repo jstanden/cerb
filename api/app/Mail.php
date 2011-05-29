@@ -353,6 +353,7 @@ class CerberusMail {
 	    'closed'
 	    'ticket_reopen'
 	    'bucket_id'
+	    'owner_id'
 	    'agent_id',
 		'is_autoreply',
 		'dont_send',
@@ -651,6 +652,11 @@ class CerberusMail {
 					}
 				}
 			}
+		}
+		
+		if(isset($properties['owner_id'])) {
+			if(empty($properties['owner_id']) || null != (DAO_Worker::get($properties['owner_id'])))
+				$change_fields[DAO_Ticket::OWNER_ID] = intval($properties['owner_id']);
 		}
 		
 		// Post-Reply Change Properties

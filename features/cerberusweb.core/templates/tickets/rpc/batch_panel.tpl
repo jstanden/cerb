@@ -101,6 +101,22 @@
 		</tr>
 		{/if}
 		
+		{if 1}
+		<tr>
+			<td width="0%" nowrap="nowrap" valign="top">{'common.owner'|devblocks_translate|capitalize}:</td>
+			<td width="100%"><select name="do_owner">
+				<option value=""></option>
+				<option value="0">{'common.nobody'|devblocks_translate|lower}</option>
+				{foreach from=$workers item=owner key=owner_id}
+				<option value="{$owner_id}">{$owner->getName()}</option>
+				{/foreach}
+			</select>
+			<button type="button" onclick="$(this).prev('select[name=do_owner]').val('{$active_worker->id}');">me</button>
+			<button type="button" onclick="$(this).prevAll('select[name=do_owner]').val('0');">nobody</button>
+			</td>
+		</tr>
+		{/if}
+		
 		{if $active_worker->hasPriv('core.watchers.assign') || $active_worker->hasPriv('core.watchers.unassign')}
 		<tr>
 			<td width="0%" nowrap="nowrap" valign="top">{'common.watchers'|devblocks_translate|capitalize}:</td>

@@ -37,6 +37,7 @@
 		<patch version="5.2.0" revision="905" file="patches/5.x/5.2.0.php" />
 		<patch version="5.3.0" revision="916" file="patches/5.x/5.3.0.php" />
 		<patch version="5.4.0" revision="934" file="patches/5.x/5.4.0.php" />
+		<patch version="5.4.3" revision="935" file="patches/5.x/5.4.3.php" />
 	</patches>
 
 	<!-- Declared Extension Points -->
@@ -360,6 +361,12 @@
 		</activity>
 		<activity point="ticket.message.outbound">
 			<param key="label_key" value="Ticket Message Outbound" />
+		</activity>
+		<activity point="ticket.owner.assigned">
+			<param key="label_key" value="Ticket Assigned" />
+		</activity>
+		<activity point="ticket.owner.unassigned">
+			<param key="label_key" value="Ticket Unassigned" />
 		</activity>
 		<activity point="ticket.status.closed">
 			<param key="label_key" value="Ticket Closed" />

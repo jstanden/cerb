@@ -54,6 +54,9 @@
 		<tu tuid='activities.task.status.completed'>
 			<tuv xml:lang="en_US"><seg>{{actor}} completed task {{target}}</seg></tuv>
 		</tu>
+		<tu tuid='activities.ticket.assigned'>
+			<tuv xml:lang="en_US"><seg>{{actor}} assigned ticket {{target}} to worker {{worker}}</seg></tuv>
+		</tu>
 		<tu tuid='activities.ticket.merge'>
 			<tuv xml:lang="en_US"><seg>{{actor}} merged ticket {{source}} with ticket {{target}}</seg></tuv>
 		</tu>
@@ -65,6 +68,9 @@
 		</tu>
 		<tu tuid='activities.ticket.status'>
 			<tuv xml:lang="en_US"><seg>{{actor}} changed ticket {{target}} to status {{status}}</seg></tuv>
+		</tu>
+		<tu tuid='activities.ticket.unassigned'>
+			<tuv xml:lang="en_US"><seg>{{actor}} unassigned ticket {{target}}</seg></tuv>
 		</tu>
 		<tu tuid='activities.watcher.assigned'>
 			<tuv xml:lang="en_US"><seg>{{actor}} added {{watcher}} as a watcher to {{target_object}} {{target}}</seg></tuv>
@@ -1217,6 +1223,9 @@ For example: http://www.cerberusweb.com/support/</seg></tuv>
 		</tu>
 		<tu tuid='display.reply.next.move.no_thanks'>
 			<tuv xml:lang="en_US"><seg>no thanks!</seg></tuv>
+		</tu>
+		<tu tuid='display.reply.next.owner'>
+			<tuv xml:lang="en_US"><seg>Who should this be assigned to?</seg></tuv>
 		</tu>
 		<tu tuid='display.reply.next.resume'>
 			<tuv xml:lang="en_US"><seg>When would you like to resume this conversation?</seg></tuv>

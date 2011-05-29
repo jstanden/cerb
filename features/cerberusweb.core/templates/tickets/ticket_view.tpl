@@ -125,6 +125,13 @@
 			<td><abbr title="{$result.t_updated_date|devblocks_date}">{$result.t_updated_date|devblocks_prettytime}</abbr></td>
 		{elseif $column=="t_due_date"}
 		<td><abbr title="{if $result.t_due_date}{$result.t_due_date|devblocks_date}{/if}">{if $result.t_due_date}{$result.t_due_date|devblocks_prettytime}{/if}</abbr></td>
+		{elseif $column=="t_owner_id"}
+		<td>
+			{if isset($workers.{$result.t_owner_id})}
+				{$workers.{$result.t_owner_id}->getName()}
+			{else}
+			{/if}
+		</td>
 		{elseif $column=="t_team_id"}
 		<td>
 			{assign var=ticket_team_id value=$result.t_team_id}

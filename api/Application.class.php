@@ -838,6 +838,14 @@ class CerberusContexts {
 	}
 	
 	static public function logActivity($activity_point, $target_context, $target_context_id, $entry_array, $actor_context=null, $actor_context_id=null, $also_notify_worker_ids=array()) {
+		// Target meta
+		if(!isset($target_meta)) {
+			if(null != ($target_ctx = DevblocksPlatform::getExtension($target_context, true))
+				&& $target_ctx instanceof Extension_DevblocksContext) {
+					$target_meta = $target_ctx->getMeta($target_context_id);
+			}
+		}
+		
 		// Forced actor
 		if(!empty($actor_context) && !empty($actor_context_id)) {
 			if(null != ($ctx = DevblocksPlatform::getExtension($actor_context, true))
@@ -929,6 +937,14 @@ class CerberusContexts {
 		// Tell target watchers about the activity
 		
 		$watchers = array();
+		
+		// Merge in the record owner if defined
+		if(isset($target_meta) && isset($target_meta['owner_id']) && !empty($target_meta['owner_id'])) {
+			$watchers = array_merge(
+				$watchers,
+				array($target_meta['owner_id'])
+			);
+		}
 		
 		// Merge in watchers of the actor (if not a worker)
 		if(CerberusContexts::CONTEXT_WORKER != $actor_context) {

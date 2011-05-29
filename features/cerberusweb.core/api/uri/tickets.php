@@ -1286,6 +1286,9 @@ class ChTicketsPage extends CerberusPageExtension {
 		}
 		
 		// Props
+		$workers = DAO_Worker::getAllActive();
+		$tpl->assign('workers', $workers);
+		
 		$teams = DAO_Group::getAll();
 		$tpl->assign('teams', $teams);
 		
@@ -1319,7 +1322,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
 		@$subject = DevblocksPlatform::importGPC($_REQUEST['subject'],'string','');
 		@$closed = DevblocksPlatform::importGPC($_REQUEST['closed'],'integer',0);
-		@$worker_ids = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',array());
+		@$owner_id = DevblocksPlatform::importGPC($_REQUEST['owner_id'],'integer',0);
 		@$bucket = DevblocksPlatform::importGPC($_REQUEST['bucket_id'],'string','');
 		@$spam_training = DevblocksPlatform::importGPC($_REQUEST['spam_training'],'string','');
 		@$ticket_reopen = DevblocksPlatform::importGPC(@$_REQUEST['ticket_reopen'],'string','');
@@ -1329,6 +1332,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		
 		$fields = array(
 			DAO_Ticket::SUBJECT => $subject,
+			DAO_Ticket::OWNER_ID => $owner_id,
 		);
 		
 		// Status
@@ -2203,6 +2207,14 @@ class ChTicketsPage extends CerberusPageExtension {
 		if(0 != strlen($is_spam)) {
 			$do['spam'] = array(
 				'is_spam' => (!$is_spam?0:1)
+			);
+		}
+		
+		// Owner
+		@$owner_id = DevblocksPlatform::importGPC($_REQUEST['do_owner'],'string',null);
+		if(0 != strlen($owner_id)) {
+			$do['owner'] = array(
+				'worker_id' => intval($owner_id),
 			);
 		}
 		

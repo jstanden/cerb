@@ -11,6 +11,9 @@
 					</div>
 					
 					<h1>{$ticket->subject}</h1>
+				</td>
+			<tr>
+				<td valign="top">
 					{assign var=ticket_team_id value=$ticket->team_id}
 					{assign var=ticket_team value=$teams.$ticket_team_id}
 					{assign var=ticket_category_id value=$ticket->category_id}
@@ -18,6 +21,14 @@
 					{assign var=ticket_category value=$ticket_team_category_set.$ticket_category_id}
 					
 					<div class="cerb-properties">
+						{if !empty($ticket->owner_id) && isset($workers.{$ticket->owner_id})}
+						{$owner = $workers.{$ticket->owner_id}}
+						<div>
+							<label>{$translate->_('common.owner')|capitalize}:</label>
+							<a href="{devblocks_url}c=profiles&p=worker&id={$owner->id}-{$owner->getName()|devblocks_permalink}{/devblocks_url}" target="_blank">{$owner->getName()}</a>
+						</div>
+						{/if}
+					
 						<div>
 							<label>{$translate->_('ticket.status')|capitalize}:</label>
 							{if $ticket->is_deleted}
@@ -38,12 +49,8 @@
 						</div>
 						
 						<div>
-							<label>{$translate->_('common.group')|capitalize}:</label>
-							{$teams.$ticket_team_id->name}
-						</div>
-						
-						<div>
 							<label>{$translate->_('common.bucket')|capitalize}:</label>
+							{$teams.$ticket_team_id->name}: 
 							{if !empty($ticket_category_id)}{$ticket_category->name}{else}{$translate->_('common.inbox')|capitalize}{/if}
 						</div>
 						
@@ -120,31 +127,6 @@
 			</div>
 			
 			<div>
-			{if !$ticket->is_deleted}
-			{if $active_worker->hasPriv('core.ticket.actions.move')}
-		   	<select name="bucket" onchange="this.form.submit();">
-		   		<option value="">-- {$translate->_('common.move_to')|lower} --</option>
-		   		{if empty($ticket->category_id)}{assign var=t_or_c value="t"}{else}{assign var=t_or_c value="c"}{/if}
-		   		<optgroup label="{$translate->_('common.inboxes')|capitalize}">
-		   		{foreach from=$teams item=team}
-		   			<option value="t{$team->id}">{$team->name}{if $t_or_c=='t' && $ticket->team_id==$team->id} (*){/if}</option>
-		   		{/foreach}
-		   		</optgroup>
-		   		
-		   		{foreach from=$team_categories item=categories key=teamId}
-		   			{assign var=team value=$teams.$teamId}
-		   			{if !empty($active_worker_memberships.$teamId)}
-			   			<optgroup label="-- {$team->name} --">
-			   			{foreach from=$categories item=category}
-			 				<option value="c{$category->id}">{$category->name}{if $t_or_c=='c' && $ticket->category_id==$category->id} (current bucket){/if}</option>
-			 			{/foreach}
-			 			</optgroup>
-			 		{/if}
-		  		{/foreach}
-		   	</select>
-		   	{/if}
-		   	{/if}			
-			
 			{* Plugin Toolbar *}
 			{if !empty($ticket_toolbaritems)}
 				{foreach from=$ticket_toolbaritems item=renderer}
@@ -155,6 +137,7 @@
 			
 			{if $pref_keyboard_shortcuts}
 			{$translate->_('common.keyboard')|lower}:
+			(<b>e</b>) {'common.edit'|devblocks_translate|lower} 
 			{if $active_worker->hasPriv('core.display.actions.comment')}(<b>o</b>) {$translate->_('common.comment')} {/if}
 			{if !$ticket->is_closed && $active_worker->hasPriv('core.ticket.actions.close')}(<b>c</b>) {$translate->_('common.close')|lower} {/if}
 			{if !$ticket->spam_trained && $active_worker->hasPriv('core.ticket.actions.spam')}(<b>s</b>) {$translate->_('common.spam')|lower} {/if}

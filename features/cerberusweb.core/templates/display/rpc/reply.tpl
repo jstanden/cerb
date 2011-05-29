@@ -223,6 +223,18 @@
 						      	<br>
 						      	{/if}
 						      	
+						      	<b>{'display.reply.next.owner'|devblocks_translate}</b><br>
+						      	<select name="owner_id">
+						      		<option value="">-- {'common.nobody'|devblocks_translate|lower} --</option>
+						      		{foreach from=$workers item=owner key=owner_id}
+						      		<option value="{$owner_id}" {if $ticket->owner_id==$owner_id}selected="selected"{/if}>{$owner->getName()}</option>
+						      		{/foreach}
+						      	</select>
+						      	<button type="button" onclick="$(this).prev('select[name=owner_id]').val('{$active_worker->id}');">{'common.me'|devblocks_translate|lower}</button>
+						      	<button type="button" onclick="$(this).prevAll('select[name=owner_id]').first().val('');">{'common.nobody'|devblocks_translate|lower}</button>
+						      	<br>
+						      	<br>
+						      	
 								<div id="replyOpen{$message->id}" style="display:{if $ticket->is_closed}none{else}block{/if};">
 						      	</div>
 		
