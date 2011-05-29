@@ -126,6 +126,9 @@ class DAO_TriggerEvent extends C4_ORMHelper {
 	static private function _getObjectsFromResult($rs) {
 		$objects = array();
 		
+		if(!is_resource($rs))
+			return $objects;
+		
 		while($row = mysql_fetch_assoc($rs)) {
 			$object = new Model_TriggerEvent();
 			$object->id = intval($row['id']);
@@ -163,7 +166,7 @@ class DAO_TriggerEvent extends C4_ORMHelper {
 	static function deleteByOwner($context, $context_id) {
 		$results = self::getWhere(sprintf("%s = %s AND %s = %d",
 			self::OWNER_CONTEXT,
-			$context,
+			C4_ORMHelper::qstr($context),
 			self::OWNER_CONTEXT_ID,
 			$context_id
 		));
