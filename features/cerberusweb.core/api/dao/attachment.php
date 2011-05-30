@@ -955,9 +955,7 @@ class View_AttachmentLink extends C4_AbstractView implements IAbstractView_Subto
 			if(!$deleted) { 
 				//DAO_AttachmentLink::update($batch_ids, $change_fields);
 			} else {
-				if(!empty($batch_ids))
-				foreach($batch_ids as $batch_id)
-					DAO_AttachmentLink::deleteByGUID($batch_id);
+				DAO_Attachment::delete($batch_ids);
 			}
 			
 			unset($batch_ids);
