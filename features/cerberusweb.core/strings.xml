@@ -342,6 +342,9 @@
 		<tu tuid='common.order'>
 			<tuv xml:lang="en_US"><seg>order</seg></tuv>
 		</tu>		
+		<tu tuid='common.owner'>
+			<tuv xml:lang="en_US"><seg>owner</seg></tuv>
+		</tu>		
 		<tu tuid='common.languages'>
 			<tuv xml:lang="en_US"><seg>Languages</seg></tuv>
 		</tu>
