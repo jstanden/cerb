@@ -187,13 +187,13 @@
 									{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" object_watchers=$object_watchers context=CerberusContexts::CONTEXT_TICKET context_id=$ticket->id full=true}
 								</div>
 
-								<label><input type="radio" name="closed" value="0" onclick="toggleDiv('replyOpen{$message->id}','block');toggleDiv('replyClosed{$message->id}','none');">{$translate->_('status.open')|capitalize}</label>
-								<label><input type="radio" name="closed" value="2" onclick="toggleDiv('replyOpen{$message->id}','block');toggleDiv('replyClosed{$message->id}','block');" {if !$ticket->is_closed}checked{/if}>{$translate->_('status.waiting')|capitalize}</label>
-								{if $active_worker->hasPriv('core.ticket.actions.close') || ($ticket->is_closed && !$ticket->is_deleted)}<label><input type="radio" name="closed" value="1" onclick="toggleDiv('replyOpen{$message->id}','none');toggleDiv('replyClosed{$message->id}','block');" {if $ticket->is_closed}checked{/if}>{$translate->_('status.closed')|capitalize}</label>{/if}
+								<label><input type="radio" name="closed" value="0" onclick="toggleDiv('replyOpen{$message->id}','block');toggleDiv('replyClosed{$message->id}','none');" {if 'open'==$mail_status_reply}checked="checked"{/if}>{$translate->_('status.open')|capitalize}</label>
+								<label><input type="radio" name="closed" value="2" onclick="toggleDiv('replyOpen{$message->id}','block');toggleDiv('replyClosed{$message->id}','block');" {if 'waiting'==$mail_status_reply}checked="checked"{/if}>{$translate->_('status.waiting')|capitalize}</label>
+								{if $active_worker->hasPriv('core.ticket.actions.close') || ($ticket->is_closed && !$ticket->is_deleted)}<label><input type="radio" name="closed" value="1" onclick="toggleDiv('replyOpen{$message->id}','none');toggleDiv('replyClosed{$message->id}','block');" {if 'closed'==$mail_status_reply}checked="checked"{/if}>{$translate->_('status.closed')|capitalize}</label>{/if}
 								<br>
 								<br>
 								
-						      	<div id="replyClosed{$message->id}" style="display:block;margin-left:10px;margin-bottom:10px;">
+						      	<div id="replyClosed{$message->id}" style="display:{if 'open'==$mail_status_reply}none{else}block{/if};margin-left:10px;margin-bottom:10px;">
 						      	<b>{$translate->_('display.reply.next.resume')}</b> {$translate->_('display.reply.next.resume_eg')}<br> 
 						      	<input type="text" name="ticket_reopen" size="55" value="{if !empty($ticket->due_date)}{$ticket->due_date|devblocks_date}{/if}"><br>
 						      	{$translate->_('display.reply.next.resume_blank')}<br>
@@ -234,10 +234,6 @@
 						      	<button type="button" onclick="$(this).prevAll('select[name=owner_id]').first().val('');">{'common.nobody'|devblocks_translate|lower}</button>
 						      	<br>
 						      	<br>
-						      	
-								<div id="replyOpen{$message->id}" style="display:{if $ticket->is_closed}none{else}block{/if};">
-						      	</div>
-		
 							</td>
 						</tr>
 					</table>

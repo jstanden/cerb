@@ -44,13 +44,13 @@
 	<tr>
 		<td colspan="2">
 			<b>Next:</b> 
-			<label><input type="radio" name="closed" value="0" {if 0==$default_closed}checked="checked"{/if} onclick="toggleDiv('divComposeClosed','none');">Open</label>
-			<label><input type="radio" name="closed" value="2" {if 2==$default_closed}checked="checked"{/if} onclick="toggleDiv('divComposeClosed','block');">Waiting for reply</label>
-			{if $active_worker->hasPriv('core.ticket.actions.close')}<label><input type="radio" name="closed" value="1" {if 1==$default_closed}checked="checked"{/if} onclick="toggleDiv('divComposeClosed','block');">Closed</label>{/if}
+			<label><input type="radio" name="closed" value="0" {if 'open'==$mail_status_compose}checked="checked"{/if} onclick="toggleDiv('divComposeClosed','none');">{'status.open'|devblocks_translate}</label>
+			<label><input type="radio" name="closed" value="2" {if 'waiting'==$mail_status_compose}checked="checked"{/if} onclick="toggleDiv('divComposeClosed','block');">{'status.waiting'|devblocks_translate}</label>
+			{if $active_worker->hasPriv('core.ticket.actions.close')}<label><input type="radio" name="closed" value="1" {if 'closed'==$mail_status_compose}checked="checked"{/if} onclick="toggleDiv('divComposeClosed','block');">{'status.closed'|devblocks_translate}</label>{/if}
 			<br>
 			<br>
 			
-			<div id="divComposeClosed" style="display:{if $default_closed}block{else}none{/if};margin-left:10px;margin-bottom:10px;">
+			<div id="divComposeClosed" style="display:{if 'open'==$mail_status_compose}none{else}block{/if};margin-left:10px;margin-bottom:10px;">
 			<b>{$translate->_('display.reply.next.resume')}</b><br>
 			{$translate->_('display.reply.next.resume_eg')}<br> 
 			<input type="text" name="ticket_reopen" size="55" value=""><br>

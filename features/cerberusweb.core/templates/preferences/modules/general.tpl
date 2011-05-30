@@ -52,6 +52,26 @@
 		<label><input type="radio" name="mail_signature_pos" value="2" {if 2==$prefs.mail_signature_pos}checked="checked"{/if}> {'preferences.account.mail.signature.below'|devblocks_translate}</label><br>
 	</div>
 
+	<b>{'preferences.account.mail.status.compose'|devblocks_translate}</b>
+	<div style="margin:0px 0px 10px 10px;">
+		<label><input type="radio" name="mail_status_compose" value="open" {if 'open'==$prefs.mail_status_compose}checked="checked"{/if}> {'status.open'|devblocks_translate}</label>
+		<label><input type="radio" name="mail_status_compose" value="waiting" {if empty($prefs.mail_status_compose) || 'waiting'==$prefs.mail_status_compose}checked="checked"{/if}> {'status.waiting'|devblocks_translate}</label>
+		<label><input type="radio" name="mail_status_compose" value="closed" {if 'closed'==$prefs.mail_status_compose}checked="checked"{/if}> {'status.closed'|devblocks_translate}</label>
+	</div>
+
+	<b>{'preferences.account.mail.status.create'|devblocks_translate}</b>
+	<div style="margin:0px 0px 10px 10px;">
+		<label><input type="radio" name="mail_status_create" value="open" {if 'open'==$prefs.mail_status_create}checked="checked"{/if}> {'status.open'|devblocks_translate}</label>
+		<label><input type="radio" name="mail_status_create" value="waiting" {if empty($prefs.mail_status_create) || 'waiting'==$prefs.mail_status_create}checked="checked"{/if}> {'status.waiting'|devblocks_translate}</label>
+		<label><input type="radio" name="mail_status_create" value="closed" {if 'closed'==$prefs.mail_status_create}checked="checked"{/if}> {'status.closed'|devblocks_translate}</label>
+	</div>
+	
+	<b>{'preferences.account.mail.status.reply'|devblocks_translate}</b>
+	<div style="margin:0px 0px 10px 10px;">
+		<label><input type="radio" name="mail_status_reply" value="open" {if 'open'==$prefs.mail_status_reply}checked="checked"{/if}> {'status.open'|devblocks_translate}</label>
+		<label><input type="radio" name="mail_status_reply" value="waiting" {if empty($prefs.mail_status_reply) || 'waiting'==$prefs.mail_status_reply}checked="checked"{/if}> {'status.waiting'|devblocks_translate}</label>
+		<label><input type="radio" name="mail_status_reply" value="closed" {if 'closed'==$prefs.mail_status_reply}checked="checked"{/if}> {'status.closed'|devblocks_translate}</label>
+	</div>
 </fieldset>
 
 <fieldset>
