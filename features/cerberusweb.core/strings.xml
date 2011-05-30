@@ -1852,6 +1852,18 @@ For example: *receipt*</seg></tuv>
 	    <tu tuid='preferences.account.mail.reply_button'>
 			<tuv xml:lang="en_US"><seg>When I click the reply button:</seg></tuv>
 	    </tu>
+	    <tu tuid='preferences.account.mail.signature'>
+			<tuv xml:lang="en_US"><seg>Insert my signature:</seg></tuv>
+	    </tu>
+	    <tu tuid='preferences.account.mail.signature.above'>
+			<tuv xml:lang="en_US"><seg>Above the quoted message</seg></tuv>
+	    </tu>
+	    <tu tuid='preferences.account.mail.signature.below'>
+			<tuv xml:lang="en_US"><seg>Below the quoted message</seg></tuv>
+	    </tu>
+	    <tu tuid='preferences.account.mail.signature.none'>
+			<tuv xml:lang="en_US"><seg>Don't automatically insert my signature</seg></tuv>
+	    </tu>
 	    <tu tuid='preferences.account.mail.no_discard_warning'>
 			<tuv xml:lang="en_US"><seg>Don't warn me about losing unsaved changes if I click links while composing mail</seg></tuv>
 	    </tu>

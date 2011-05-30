@@ -483,27 +483,20 @@ class ChPreferencesPage extends CerberusPageExtension {
 		$worker = CerberusApplication::getActiveWorker();
 		$tpl->assign('worker', $worker);
 
-		$tour_enabled = intval(DAO_WorkerPref::get($worker->id, 'assist_mode', 1));
-		$tpl->assign('assist_mode', $tour_enabled);
-
-		$keyboard_shortcuts = intval(DAO_WorkerPref::get($worker->id, 'keyboard_shortcuts', 1));
-		$tpl->assign('keyboard_shortcuts', $keyboard_shortcuts);
-
-		$mail_always_show_all = DAO_WorkerPref::get($worker->id,'mail_always_show_all',0);
-		$tpl->assign('mail_always_show_all', $mail_always_show_all);
-
-		$mail_reply_button = DAO_WorkerPref::get($worker->id,'mail_reply_button',0);
-		$tpl->assign('mail_reply_button', $mail_reply_button);
+		// [TODO] WorkerPrefs_*?
+		$prefs = array();
+		$prefs['assist_mode'] = intval(DAO_WorkerPref::get($worker->id, 'assist_mode', 1)); 
+		$prefs['keyboard_shortcuts'] = intval(DAO_WorkerPref::get($worker->id, 'keyboard_shortcuts', 1)); 
+		$prefs['mail_always_show_all'] = DAO_WorkerPref::get($worker->id,'mail_always_show_all',0);
+		$prefs['mail_reply_button'] = DAO_WorkerPref::get($worker->id,'mail_reply_button',0);
+		$prefs['mail_no_discard_warning'] = DAO_WorkerPref::get($worker->id,'mail_no_discard_warning',0);
+		$prefs['mail_signature_pos'] = DAO_WorkerPref::get($worker->id,'mail_signature_pos',2);
+		$tpl->assign('prefs', $prefs);
 		
-		$mail_no_discard_warning = DAO_WorkerPref::get($worker->id,'mail_no_discard_warning',0);
-		$tpl->assign('mail_no_discard_warning', $mail_no_discard_warning);
-
-		$mail_signature_pos = DAO_WorkerPref::get($worker->id,'mail_signature_pos',2);
-		$tpl->assign('mail_signature_pos', $mail_signature_pos);
-
+		// Alternate addresses
 		$addresses = DAO_AddressToWorker::getByWorker($worker->id);
 		$tpl->assign('addresses', $addresses);
-
+		
 		// Timezones
 		$tpl->assign('timezones', $date_service->getTimezones());
 		@$server_timezone = date_default_timezone_get();
