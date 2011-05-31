@@ -816,6 +816,7 @@
 					<value>
 						<data key="cron.heartbeat" />
 						<data key="cron.maint" />
+						<data key="comment.create" />
 					</value>
 				</param>
 			</params>

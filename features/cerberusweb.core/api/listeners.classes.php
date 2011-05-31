@@ -748,6 +748,10 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 			case 'cron.maint':
 				$this->_handleCronMaint($event);
 				break;
+				
+			case 'comment.create':
+				$this->_handleCommentCreate($event);
+				break;
 		}
 	}
 
@@ -787,4 +791,26 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 		);
 		DAO_Ticket::updateWhere($fields, $where);
 	}
+	
+	private function _handleCommentCreate($event) { /* @var $event Model_DevblocksEvent */
+		@$fields = $event->params['fields'];
+		
+		if(!isset($fields[DAO_Comment::CONTEXT]) || !isset($fields[DAO_Comment::CONTEXT_ID]))
+			return;
+			
+		// Context-specific behavior for comments
+		switch($fields[DAO_Comment::CONTEXT]) {
+			case CerberusContexts::CONTEXT_TASK:
+				DAO_Task::update($fields[DAO_Comment::CONTEXT_ID], array(
+					DAO_Task::UPDATED_DATE => time(),
+				));
+				break;
+			case CerberusContexts::CONTEXT_TICKET:
+				DAO_Ticket::update($fields[DAO_Comment::CONTEXT_ID], array(
+					DAO_Ticket::UPDATED_DATE => time(),
+				));
+				break;
+		}
+	}
+	
 };
