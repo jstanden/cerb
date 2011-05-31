@@ -108,6 +108,7 @@ class Event_MailClosedInGroup extends Extension_DevblocksEvent {
 	function getConditionExtensions() {
 		$labels = $this->getLabels();
 		
+		$labels['ticket_has_owner'] = 'Ticket has owner';
 		$labels['ticket_watcher_count'] = 'Ticket watcher count';
 		
 		$types = array(
@@ -155,6 +156,12 @@ class Event_MailClosedInGroup extends Extension_DevblocksEvent {
 		
 			"group_name" => Model_CustomField::TYPE_SINGLE_LINE,
 		
+			'ticket_owner_address_address' => Model_CustomField::TYPE_SINGLE_LINE,
+			'ticket_owner_first_name' => Model_CustomField::TYPE_SINGLE_LINE,
+			'ticket_owner_full_name' => Model_CustomField::TYPE_SINGLE_LINE,
+			'ticket_owner_last_name' => Model_CustomField::TYPE_SINGLE_LINE,
+			'ticket_owner_title' => Model_CustomField::TYPE_SINGLE_LINE,
+		
 			"ticket_bucket_name|default('Inbox')" => Model_CustomField::TYPE_SINGLE_LINE,
 			'ticket_created|date' => Model_CustomField::TYPE_DATE,
 			'ticket_group_name' => Model_CustomField::TYPE_SINGLE_LINE,
@@ -166,6 +173,7 @@ class Event_MailClosedInGroup extends Extension_DevblocksEvent {
 			'ticket_updated|date' => Model_CustomField::TYPE_DATE,
 			'ticket_url' => Model_CustomField::TYPE_URL,
 		
+			'ticket_has_owner' => null,
 			'ticket_watcher_count' => null,
 		);
 
@@ -182,6 +190,9 @@ class Event_MailClosedInGroup extends Extension_DevblocksEvent {
 			$tpl->assign('namePrefix','condition'.$seq);
 		
 		switch($token) {
+			case 'ticket_has_owner':
+				$tpl->display('devblocks:cerberusweb.core::internal/decisions/conditions/_bool.tpl');
+				break;
 			case 'ticket_watcher_count':
 				$tpl->display('devblocks:cerberusweb.core::internal/decisions/conditions/_number.tpl');
 				break;
@@ -204,6 +215,12 @@ class Event_MailClosedInGroup extends Extension_DevblocksEvent {
 		$pass = true;
 		
 		switch($token) {
+			case 'ticket_has_owner':
+				$bool = $params['bool'];
+				@$value = $values['ticket_owner_id'];
+				$pass = ($bool == !empty($value));
+				break;
+				
 			case 'ticket_watcher_count':
 				$not = (substr($params['oper'],0,1) == '!');
 				$oper = ltrim($params['oper'],'!');
