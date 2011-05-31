@@ -309,6 +309,7 @@ class Event_MailClosedInGroup extends Extension_DevblocksEvent {
 				//'move_to_group' => array('label' => 'Move to group'),
 				'send_email' => array('label' => 'Send email'),
 				'send_email_recipients' => array('label' => 'Send email to recipients'),
+				'set_owner' => array('label' =>'Set owner'),
 				'set_spam_training' => array('label' => 'Set spam training'),
 				'set_status' => array('label' => 'Set status'),
 			)
@@ -329,6 +330,10 @@ class Event_MailClosedInGroup extends Extension_DevblocksEvent {
 		$tpl->assign('token_labels', $labels);
 			
 		switch($token) {
+			case 'set_owner':
+				DevblocksEventHelper::renderActionSetTicketOwner();
+				break;
+			
 			case 'add_watchers':
 				DevblocksEventHelper::renderActionAddWatchers();
 				break;
@@ -388,6 +393,10 @@ class Event_MailClosedInGroup extends Extension_DevblocksEvent {
 			return;
 		
 		switch($token) {
+			case 'set_owner':
+				DevblocksEventHelper::runActionSetTicketOwner($params, $values, $ticket_id);
+				break;
+			
 			case 'add_watchers':
 				DevblocksEventHelper::runActionAddWatchers($params, $values, CerberusContexts::CONTEXT_TICKET, $ticket_id);
 				break;

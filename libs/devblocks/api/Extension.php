@@ -696,6 +696,21 @@ class DevblocksEventHelper {
 		return $comment_id;
 	}
 	
+	static function renderActionSetTicketOwner() {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('workers', DAO_Worker::getAllActive());
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_worker.tpl');
+	}
+	
+	static function runActionSetTicketOwner($params, $values, $ticket_id) {
+		@$owner_id = intval($params['worker_id']);
+		$fields = array(
+			DAO_Ticket::OWNER_ID => $owner_id,
+		);
+		DAO_Ticket::update($ticket_id, $fields);
+	}
+	
 	static function renderActionAddWatchers() {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('workers', DAO_Worker::getAll());
