@@ -2673,7 +2673,7 @@ class Context_Ticket extends Extension_DevblocksContext {
 		
 		CerberusContexts::merge(
 			'initial_message_',
-			'Initial:',
+			'Ticket:Initial:',
 			$merge_token_labels,
 			$merge_token_values,
 			$token_labels,

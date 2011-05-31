@@ -254,7 +254,6 @@ class ChDisplayPage extends CerberusPageExtension {
 		@$closed = DevblocksPlatform::importGPC($_REQUEST['closed'],'integer',0);
 		@$spam = DevblocksPlatform::importGPC($_REQUEST['spam'],'integer',0);
 		@$deleted = DevblocksPlatform::importGPC($_REQUEST['deleted'],'integer',0);
-		@$bucket = DevblocksPlatform::importGPC($_REQUEST['bucket'],'string','');		
 		
 		if(null == ($ticket = DAO_Ticket::get($id)))
 			return;
@@ -285,16 +284,6 @@ class ChDisplayPage extends CerberusPageExtension {
 				$score = CerberusBayes::calculateTicketSpamProbability($id);
 				$properties[DAO_Ticket::SPAM_SCORE] = $score['probability']; 
 				$properties[DAO_Ticket::SPAM_TRAINING] = CerberusTicketSpamTraining::BLANK;
-		}
-		
-		// Team/Category
-		if(!empty($bucket)) {
-			list($team_id, $bucket_id) = CerberusApplication::translateTeamCategoryCode($bucket);
-
-			if(!empty($team_id)) {
-			    $properties[DAO_Ticket::TEAM_ID] = $team_id;
-			    $properties[DAO_Ticket::CATEGORY_ID] = $bucket_id;
-			}
 		}
 		
 		// Don't double set the closed property (auto-close replies)

@@ -161,7 +161,7 @@ class Event_MailReceivedByGroup extends Extension_DevblocksEvent {
 	function getConditionExtensions() {
 		$labels = $this->getLabels();
 		
-		$labels['header'] = 'Header';
+		$labels['header'] = 'Message header';
 		$labels['is_first'] = 'Message is first in conversation';
 		$labels['sender_is_worker'] = 'Message sender is a worker';
 		

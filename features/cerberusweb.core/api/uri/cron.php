@@ -124,6 +124,7 @@ class ChCronController extends DevblocksControllerExtension {
 			    if($instance->isReadyToRun($is_ignoring_wait)) {
 			        if($timelimit) {
 			            if($lastrun < $nexttime) {
+			            	// [TODO] This should run more than one thing at a time (e.g. safe_mode)
 			                $jobs[0] = $cron_manifests[$idx];
 	    		            $nexttime = $lastrun;
 			            }
