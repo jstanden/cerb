@@ -20,7 +20,7 @@
 		</legend>
 		<input type="hidden" name="nodes[]" value="all">
 		
-		<ul class="rules" style="margin:0px;list-style:none;padding:0px;"></ul>
+		<ul class="rules" style="margin:0px;list-style:none;padding:0px 0px 2px 0px;"></ul>
 	</fieldset>
 
 {else}
@@ -32,7 +32,7 @@
 		</legend>
 		<input type="hidden" name="nodes[]" value="{if !empty($group_data.any)}any{else}all{/if}">
 		
-		<ul class="rules" style="margin:0px;list-style:none;padding:0px;">
+		<ul class="rules" style="margin:0px;list-style:none;padding:0px 0px 2px 0px;">
 			{if isset($group_data.conditions) && is_array($group_data.conditions)}
 			{foreach from=$group_data.conditions item=params}
 				<li style="padding-bottom:5px;" id="condition{$seq}">
@@ -99,9 +99,9 @@
 		var $legend = $popup.find('fieldset legend');
 		var $menu = $popup.find('fieldset ul.cerb-popupmenu:first'); 
 
-		$frm
-			.find('fieldset ul.rules')
-			.sortable({ 'items':'li', 'placeholder':'ui-state-highlight', 'connectWith':'frmDecisionOutcome{$id} fieldset ul.rules' })
+
+		$frm.find('fieldset UL.rules')
+			.sortable({ 'items':'li', 'placeholder':'ui-state-highlight', 'connectWith':'#frmDecisionOutcome{$id} fieldset ul.rules' })
 			;
 
 		var $funcGroupAnyToggle = function(e) {
@@ -133,11 +133,10 @@
 				$group.append('<input type="hidden" name="nodes[]" value="all">');
 				$group.append('<ul class="rules" style="margin:0px;list-style:none;padding:0px;padding-bottom:5px;"></ul>');
 				$group.find('legend > a').click($funcGroupAnyToggle);
-				$group.sortable({ 'items':'li', 'placeholder':'ui-state-highlight', 'connectWith':'fieldset ul.rules' });
 				$frm.append($group);
 
 				$frm.find('fieldset UL.rules')
-					.sortable({ 'items':'li', 'placeholder':'ui-state-highlight', 'connectWith':'fieldset ul.rules' });
+					.sortable({ 'items':'li', 'placeholder':'ui-state-highlight', 'connectWith':'#frmDecisionOutcome{$id} fieldset ul.rules' })
 					;
 			})
 			;
