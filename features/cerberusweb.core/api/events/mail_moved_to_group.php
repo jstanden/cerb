@@ -110,6 +110,7 @@ class Event_MailMovedToGroup extends Extension_DevblocksEvent {
 		
 		$labels['ticket_initial_message_header'] = 'Initial message email header';
 		$labels['ticket_latest_message_header'] = 'Latest message email header';
+		$labels['ticket_watcher_count'] = 'Ticket watcher count';
 		
 		$types = array(
 			'ticket_initial_message_content' => Model_CustomField::TYPE_MULTI_LINE,
@@ -169,6 +170,7 @@ class Event_MailMovedToGroup extends Extension_DevblocksEvent {
 		
 			'ticket_initial_message_header' => null,
 			'ticket_latest_message_header' => null,
+			'ticket_watcher_count' => null,
 		);
 
 		$conditions = $this->_importLabelsTypesAsConditions($labels, $types);
@@ -184,6 +186,9 @@ class Event_MailMovedToGroup extends Extension_DevblocksEvent {
 			$tpl->assign('namePrefix','condition'.$seq);
 		
 		switch($token) {
+			case 'ticket_watcher_count':
+				$tpl->display('devblocks:cerberusweb.core::internal/decisions/conditions/_number.tpl');
+				break;
 			case 'ticket_bucket_name':
 				$buckets = DAO_Bucket::getByTeam($trigger->owner_context_id);
 				$tpl->assign('buckets', $buckets);
@@ -212,6 +217,35 @@ class Event_MailMovedToGroup extends Extension_DevblocksEvent {
 		$pass = true;
 		
 		switch($token) {
+			case 'ticket_has_owner':
+				$bool = $params['bool'];
+				@$value = $values['ticket_owner_id'];
+				$pass = ($bool == !empty($value));
+				break;
+				
+			case 'ticket_watcher_count':
+				$not = (substr($params['oper'],0,1) == '!');
+				$oper = ltrim($params['oper'],'!');
+				@$ticket_id = $values['ticket_id'];
+
+				$watchers = CerberusContexts::getWatchers(CerberusContexts::CONTEXT_TICKET, $ticket_id);
+				$value = count($watchers);
+				
+				switch($oper) {
+					case 'is':
+						$pass = intval($value)==intval($params['value']);
+						break;
+					case 'gt':
+						$pass = intval($value) > intval($params['value']);
+						break;
+					case 'lt':
+						$pass = intval($value) < intval($params['value']);
+						break;
+				}
+				
+				$pass = ($not) ? !$pass : $pass;
+				break;
+							
 			case 'ticket_bucket_name':
 				$not = (substr($params['oper'],0,1) == '!');
 				$oper = ltrim($params['oper'],'!');

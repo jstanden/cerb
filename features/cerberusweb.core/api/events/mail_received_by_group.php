@@ -164,6 +164,7 @@ class Event_MailReceivedByGroup extends Extension_DevblocksEvent {
 		$labels['header'] = 'Message header';
 		$labels['is_first'] = 'Message is first in conversation';
 		$labels['sender_is_worker'] = 'Message sender is a worker';
+		$labels['ticket_watcher_count'] = 'Ticket watcher count';
 		
 		$types = array(
 			'content' => Model_CustomField::TYPE_MULTI_LINE,
@@ -203,6 +204,8 @@ class Event_MailReceivedByGroup extends Extension_DevblocksEvent {
 			'ticket_updated|date' => Model_CustomField::TYPE_DATE,
 			'ticket_url' => Model_CustomField::TYPE_URL,
 		
+			'ticket_watcher_count' => null,
+		
 			'header' => null,
 		);
 
@@ -219,6 +222,9 @@ class Event_MailReceivedByGroup extends Extension_DevblocksEvent {
 			$tpl->assign('namePrefix','condition'.$seq);
 		
 		switch($token) {
+			case 'ticket_watcher_count':
+				$tpl->display('devblocks:cerberusweb.core::internal/decisions/conditions/_number.tpl');
+				break;
 			case 'ticket_spam_score':
 				$tpl->display('devblocks:cerberusweb.core::events/mail_received_by_group/condition_spam_score.tpl');
 				break;
@@ -242,6 +248,29 @@ class Event_MailReceivedByGroup extends Extension_DevblocksEvent {
 		$pass = true;
 		
 		switch($token) {
+			case 'ticket_watcher_count':
+				$not = (substr($params['oper'],0,1) == '!');
+				$oper = ltrim($params['oper'],'!');
+				@$ticket_id = $values['ticket_id'];
+
+				$watchers = CerberusContexts::getWatchers(CerberusContexts::CONTEXT_TICKET, $ticket_id);
+				$value = count($watchers);
+				
+				switch($oper) {
+					case 'is':
+						$pass = intval($value)==intval($params['value']);
+						break;
+					case 'gt':
+						$pass = intval($value) > intval($params['value']);
+						break;
+					case 'lt':
+						$pass = intval($value) < intval($params['value']);
+						break;
+				}
+				
+				$pass = ($not) ? !$pass : $pass;
+				break;
+			
 			case 'ticket_spam_score':
 				$not = (substr($params['oper'],0,1) == '!');
 				$oper = ltrim($params['oper'],'!');
