@@ -109,9 +109,8 @@ $(document).ready(function(e) {
 	$('#explorerFrame').load(function() {
 		try {
 			$('#explorerFrame').contents().find('body').parent().keypress(keys);
+			$('#explorerFrame').focus();
 		} catch(e) { }
 	});
-	
-	$('#explorerFrame').focus();
 });
 </script>
