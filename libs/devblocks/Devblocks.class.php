@@ -2774,6 +2774,8 @@ class _DevblocksCacheManager {
 	}
 	
 	public function remove($key) {
+		if(empty($key))
+			return;
 		unset($this->_registry[$key]);
 		unset($this->_statistics[$key]);
 		self::$_cacher->remove($key);
@@ -2854,6 +2856,9 @@ class _DevblocksCacheManagerMemcached extends _DevblocksCacheManagerAbstract {
 	}
 	
 	function remove($key) {
+		if(empty($key))
+			return;
+		
 		$key = $this->_options['key_prefix'] . $key;
 		$this->_driver->delete($key);
 	}
