@@ -1878,11 +1878,24 @@ class ChInternalController extends DevblocksControllerExtension {
 	
 	function testDecisionEventSnippetsAction() {
 		@$prefix = DevblocksPlatform::importGPC($_REQUEST['prefix'],'string','');
-		@$field = DevblocksPlatform::importGPC($_REQUEST['field'],'string','');
 		@$trigger_id = DevblocksPlatform::importGPC($_REQUEST['trigger_id'],'integer',0);
-		
-		@$content = DevblocksPlatform::importGPC($_REQUEST[$prefix][$field],'string','');
 
+		$content = '';
+		
+		if(is_array($_REQUEST['field'])) {
+			@$fields = DevblocksPlatform::importGPC($_REQUEST['field'],'array',array());
+		
+			if(is_array($fields))
+			foreach($fields as $field) {
+				@$append = DevblocksPlatform::importGPC($_REQUEST[$prefix][$field],'string','');
+				$content .= !empty($append) ? ('[' . $field . ']: ' . PHP_EOL . $append . PHP_EOL . PHP_EOL) : '';
+			}
+			
+		} else {
+			@$field = DevblocksPlatform::importGPC($_REQUEST['field'],'string','');
+			@$content = DevblocksPlatform::importGPC($_REQUEST[$prefix][$field],'string','');
+		}
+		
 		if(null == ($trigger = DAO_TriggerEvent::get($trigger_id)))
 			return;
 			
