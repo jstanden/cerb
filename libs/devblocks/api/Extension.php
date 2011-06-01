@@ -956,6 +956,7 @@ EOL
 	// [TODO] Eventually for reuse we'll need to change this
 	function runActionRelayEmail($params, $values, $context, $context_id) {
 		$logger = DevblocksPlatform::getConsoleLog('Attendant');
+		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
 		
 		$bucket_id = intval(@$values['ticket_bucket_id']);
 		
@@ -996,14 +997,7 @@ EOL
 				$headers->addTextHeader('Message-Id', sprintf("<cerb5:%s:%d@%s>", $context, $context_id, $sign));
 				$headers->addTextHeader('X-CerberusRedirect','1');
 	
-				$content = 
-<<< EOF
-## Relayed from ${values['ticket_url']}
-## Your reply to this message will be broadcast to the requesters. 
-## Instructions: http://wiki.cerb5.com/wiki/Email_Relay
-##
-${values['content']}
-EOF;
+				$content = $tpl_builder->build($params['content'], $values);
 				
 				$mail->setBody($content);
 				
