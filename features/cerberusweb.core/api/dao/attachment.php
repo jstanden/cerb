@@ -944,8 +944,10 @@ class View_AttachmentLink extends C4_AbstractView implements IAbstractView_Subto
 				true,
 				false
 			);
-			$ids = array_merge($ids, array_keys($objects));
-			 
+			
+			foreach($objects as $o)
+				$ids[] = $o[SearchFields_AttachmentLink::GUID];
+			
 		} while(!empty($objects));
 
 		$batch_total = count($ids);
@@ -955,7 +957,8 @@ class View_AttachmentLink extends C4_AbstractView implements IAbstractView_Subto
 			if(!$deleted) { 
 				//DAO_AttachmentLink::update($batch_ids, $change_fields);
 			} else {
-				DAO_Attachment::delete($batch_ids);
+				foreach($batch_ids as $batch_id)
+					DAO_AttachmentLink::deleteByGUID($batch_id);
 			}
 			
 			unset($batch_ids);
