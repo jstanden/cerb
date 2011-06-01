@@ -988,7 +988,13 @@ EOL
 	
 				$mail->setFrom($values['sender_address'], $values['sender_full_name']);
 				$mail->setReplyTo($replyto->email, $replyto->getReplyPersonal($worker));
-				$mail->setSubject($values['ticket_subject']);
+				
+				if(!isset($params['subject']) || empty($params['subject'])) {
+					$mail->setSubject($values['ticket_subject']);
+				} else {
+					$subject = $tpl_builder->build($params['subject'], $values);
+					$mail->setSubject($subject);
+				}
 	
 				// Find the owner of this address and sign it.
 				$sign = substr(md5($context.$context_id.$worker->pass),8,8);
