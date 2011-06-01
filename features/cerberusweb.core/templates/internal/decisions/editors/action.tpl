@@ -80,6 +80,10 @@
 			$(this).removeClass('unbound');
 		});
 
+		$popup.find('#frmDecisionAction{$id}Action DIV.actions')
+			.sortable({ 'items':'FIELDSET', 'placeholder':'ui-state-highlight' })
+		;
+		
 		$popup.find('#frmDecisionActionAdd{$id} SELECT').first().change(function() {
 			$select = $(this);
 			$val=$select.val();
