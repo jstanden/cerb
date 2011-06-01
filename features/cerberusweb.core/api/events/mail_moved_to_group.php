@@ -383,6 +383,7 @@ class Event_MailMovedToGroup extends Extension_DevblocksEvent {
 				'set_owner' => array('label' =>'Set owner'),
 				'set_spam_training' => array('label' => 'Set spam training'),
 				'set_status' => array('label' => 'Set status'),
+				'set_subject' => array('label' => 'Set subject'),
 			)
 			+ DevblocksEventHelper::getActionCustomFields(CerberusContexts::CONTEXT_TICKET)
 			;
@@ -441,6 +442,10 @@ class Event_MailMovedToGroup extends Extension_DevblocksEvent {
 				
 			case 'set_status':
 				$tpl->display('devblocks:cerberusweb.core::events/mail_received_by_group/action_set_status.tpl');
+				break;
+				
+			case 'set_subject':
+				$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_string.tpl');
 				break;
 				
 			case 'move_to_bucket':
@@ -584,6 +589,13 @@ class Event_MailMovedToGroup extends Extension_DevblocksEvent {
 					DAO_Ticket::update($ticket_id, $fields);
 					$values['ticket_status'] = $to_status;
 				}
+				break;
+				
+			case 'set_subject':
+				DAO_Ticket::update($ticket_id,array(
+					DAO_Ticket::SUBJECT => $params['value'],
+				));
+				$values['ticket_subject'] = $params['value'];
 				break;
 				
 			case 'move_to_group':

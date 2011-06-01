@@ -236,7 +236,6 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 			'add_watchers' => array('label' =>'Add watchers'),
 			//'set_spam_training' => array('label' => 'Set spam training'),
 			//'set_status' => array('label' => 'Set status'),
-			'set_subject' => array('label' => 'Set subject'),
 			'send_email' => array('label' => 'Send email'),
 			'relay_email' => array('label' => 'Relay to external email'),
 			'send_email_recipients' => array('label' => 'Reply to recipients'),
@@ -262,10 +261,6 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 		$tpl->assign('token_labels', $labels);
 			
 		switch($token) {
-			case 'set_subject':
-				$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_string.tpl');
-				break;
-				
 			case 'send_email':
 				DevblocksEventHelper::renderActionSendEmail();
 				break;
@@ -310,12 +305,6 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 			return;
 		
 		switch($token) {
-			case 'set_subject':
-				DAO_Ticket::update($ticket_id,array(
-					DAO_Ticket::SUBJECT => $params['value'],
-				));
-				break;
-			
 			case 'send_email':
 				DevblocksEventHelper::runActionSendEmail($params, $values);
 				break;
