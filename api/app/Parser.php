@@ -739,7 +739,7 @@ class CerberusParser {
 				        				if(preg_match('/^#sig/', $line, $matches)) {
 				        					$group = DAO_Group::get($ticket->team_id);
 				        					$sig = $group->getReplySignature($ticket->category_id, $proxy_worker);
-				        					$body .= $sig . "\n";
+				        					$body .= $sig . PHP_EOL;
 				        					
 				        				} elseif(preg_match('/^#cut/', $line, $matches)) {
 				        					$is_cut = true;
@@ -787,7 +787,7 @@ class CerberusParser {
 				        					
 				        				} else {
 				        					if(!$is_cut)
-					        					$body .= $line . "\n";
+					        					$body .= $line . PHP_EOL;
 				        				}
 				        			}
 				        			
