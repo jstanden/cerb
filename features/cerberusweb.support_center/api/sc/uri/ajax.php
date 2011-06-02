@@ -147,18 +147,6 @@ class UmScAjaxController extends Extension_UmScController {
 		$umsession = ChPortalHelper::getSession();
 		$stack = $request->path;
 		
-        if(null == ($active_contact = $umsession->getProperty('sc_login',null)))
-			return;
-
-		// [TODO] API/model ::getAddresses()
-		$addresses = array();
-		if(!empty($active_contact) && !empty($active_contact->id)) {
-			$addresses = DAO_Address::getWhere(sprintf("%s = %d",
-				DAO_Address::CONTACT_PERSON_ID,
-				$active_contact->id
-			));
-		}
-			
 		// Attachment ID + display name
 		@$guid = array_shift($stack);
 		@$display_name = array_shift($stack);
@@ -172,6 +160,18 @@ class UmScAjaxController extends Extension_UmScController {
 
 		switch($link->context) {
 			case CerberusContexts::CONTEXT_MESSAGE:
+		        if(null == ($active_contact = $umsession->getProperty('sc_login',null)))
+					return;
+		
+				// [TODO] API/model ::getAddresses()
+				$addresses = array();
+				if(!empty($active_contact) && !empty($active_contact->id)) {
+					$addresses = DAO_Address::getWhere(sprintf("%s = %d",
+						DAO_Address::CONTACT_PERSON_ID,
+						$active_contact->id
+					));
+				}
+				
 				// Message
 				if(null == ($message = DAO_Message::get($link->context_id)))
 					return;
