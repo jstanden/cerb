@@ -3173,11 +3173,11 @@ class _DevblocksSearchEngineMysqlFulltext {
 		return (false !== $result) ? true : false;
 	}
 	
-	public function index($ns, $id, $content, $append=false) {
-		if(false === ($ids = $this->_index($ns, $id, $content, $append))) {
+	public function index($ns, $id, $content, $replace=true) {
+		if(false === ($ids = $this->_index($ns, $id, $content, $replace))) {
 			// Create the table dynamically
 			if($this->_createTable($ns)) {
-				return $this->_index($ns, $id, $content, $append);
+				return $this->_index($ns, $id, $content, $replace);
 			}
 			return false;
 		}
