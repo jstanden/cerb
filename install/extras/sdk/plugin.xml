@@ -11,14 +11,14 @@
 	<!-- Plugin Dependencies -->
 	
 	<dependencies>
-		<require plugin_id="cerberusweb.core" version="5.3.0" />
+		<require plugin_id="cerberusweb.core" version="5.4.0" />
 	</dependencies>
 
 	<!-- Patches -->
 	
 	<patches>
 		<!--
-		<patch version="5.3.0" revision="1" file="patches/5.3.0.php" />
+		<patch version="5.4.0" revision="1" file="patches/5.4.0.php" />
 		-->
 	</patches>
 	
