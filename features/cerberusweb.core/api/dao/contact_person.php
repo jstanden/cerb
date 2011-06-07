@@ -10,6 +10,9 @@ class DAO_ContactPerson extends DevblocksORMHelper {
 	static function create($fields) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
+		if(!isset($fields[self::CREATED]))
+			$fields[self::CREATED] = time();
+		
 		$sql = "INSERT INTO contact_person () VALUES ()";
 		$db->Execute($sql);
 		$id = $db->LastInsertId();
@@ -757,7 +760,9 @@ class Context_ContactPerson extends Extension_DevblocksContext {
 			
 		// Token labels
 		$token_labels = array(
+			'created' => $prefix.$translate->_('common.created'),
 			'id' => $prefix.$translate->_('common.id'),
+			'last_login' => $prefix.$translate->_('dao.contact_person.last_login'),
 		);
 		
 //		if(is_array($fields))
@@ -770,40 +775,50 @@ class Context_ContactPerson extends Extension_DevblocksContext {
 		
 		// Address token values
 		if(null != $person) {
-			$token_values['id'] = $address->id;
-//			if(!empty($address->email))
-//				$token_values['address'] = $address->email;
-//			if(!empty($address->first_name))
-//				$token_values['first_name'] = $address->first_name;
-//			if(!empty($address->last_name))
-//				$token_values['last_name'] = $address->last_name;
-//			$token_values['num_spam'] = $address->num_spam;
-//			$token_values['num_nonspam'] = $address->num_nonspam;
-//			$token_values['is_banned'] = $address->is_banned;
-//			$token_values['custom'] = array();
+			$token_values['id'] = $person->id;
+			if(!empty($person->created))
+				$token_values['created'] = $person->created;
+			if(!empty($person->last_login))
+				$token_values['last_login'] = $person->last_login;
+			$token_values['custom'] = array();
 			
-//			$field_values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_ADDRESS, $address->id));
-//			if(is_array($field_values) && !empty($field_values)) {
-//				foreach($field_values as $cf_id => $cf_val) {
-//					if(!isset($fields[$cf_id]))
-//						continue;
-//					
-//					// The literal value
-//					if(null != $address)
-//						$token_values['custom'][$cf_id] = $cf_val;
-//					
-//					// Stringify
-//					if(is_array($cf_val))
-//						$cf_val = implode(', ', $cf_val);
-//						
-//					if(is_string($cf_val)) {
-//						if(null != $address)
-//							$token_values['custom_'.$cf_id] = $cf_val;
-//					}
-//				}
-//			}
+			$field_values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_CONTACT_PERSON, $person->id));
+			if(is_array($field_values) && !empty($field_values)) {
+				foreach($field_values as $cf_id => $cf_val) {
+					if(!isset($fields[$cf_id]))
+						continue;
+					
+					// The literal value
+					if(null != $person)
+						$token_values['custom'][$cf_id] = $cf_val;
+					
+					// Stringify
+					if(is_array($cf_val))
+						$cf_val = implode(', ', $cf_val);
+						
+					if(is_string($cf_val)) {
+						if(null != $person)
+							$token_values['custom_'.$cf_id] = $cf_val;
+					}
+				}
+			}
 		}
 		
+		// Primary Email
+		$email_id = (null != $person && !empty($person->email_id)) ? $person->email_id : null;
+		$merge_token_labels = array();
+		$merge_token_values = array();
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_ADDRESS, $email_id, $merge_token_labels, $merge_token_values, null, true);
+
+		CerberusContexts::merge(
+			'email_',
+			'',
+			$merge_token_labels,
+			$merge_token_values,
+			$token_labels,
+			$token_values
+		);		
+
 		// Email Org
 //		$org_id = (null != $address && !empty($address->contact_org_id)) ? $address->contact_org_id : null;
 //		$merge_token_labels = array();

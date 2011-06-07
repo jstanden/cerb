@@ -989,10 +989,8 @@ class Context_Address extends Extension_DevblocksContext {
 			$token_values['full_name'] = $address->getName();
 			if(!empty($address->email))
 				$token_values['address'] = $address->email;
-			if(!empty($address->first_name))
-				$token_values['first_name'] = $address->first_name;
-			if(!empty($address->last_name))
-				$token_values['last_name'] = $address->last_name;
+			$token_values['first_name'] = $address->first_name;
+			$token_values['last_name'] = $address->last_name;
 			$token_values['num_spam'] = $address->num_spam;
 			$token_values['num_nonspam'] = $address->num_nonspam;
 			$token_values['is_banned'] = $address->is_banned;
