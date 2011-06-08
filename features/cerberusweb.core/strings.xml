@@ -1299,6 +1299,10 @@ For example: http://www.cerberusweb.com/support/</seg></tuv>
 		
 		<!-- Mail -->
 		
+		<tu tuid='mail.create.on_behalf'>
+			<tuv xml:lang="en_US"><seg>#### This message was created by %s on your behalf.</seg></tuv>
+		</tu>
+		
 		<tu tuid='mail.drafts'>
 			<tuv xml:lang="en_US"><seg>Drafts</seg></tuv>
 		</tu>

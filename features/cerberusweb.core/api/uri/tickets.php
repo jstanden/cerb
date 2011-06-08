@@ -1480,6 +1480,8 @@ class ChTicketsPage extends CerberusPageExtension {
 		
 		if(!$active_worker->hasPriv('core.mail.log_ticket'))
 			return;
+			
+		$translate = DevblocksPlatform::getTranslationService();
 		
 		@$to = DevblocksPlatform::importGPC($_POST['to'],'string');
 		@$reqs = DevblocksPlatform::importGPC($_POST['reqs'],'string');
@@ -1511,12 +1513,12 @@ class ChTicketsPage extends CerberusPageExtension {
 		$from_address = $from->mailbox . '@' . $from->host;
 		$message->headers['from'] = $from_address;
 
-		$message->body = sprintf(
-				"#### This message was logged by %s on behalf of the requesters\n".
-				"\n",
-				$active_worker->getName()
-			).
-			$content;
+		$message->body =
+			vsprintf($translate->_('mail.create.on_behalf'), $active_worker->getName()). 
+			"\n".
+			"\n".
+			$content
+			;
 		
 		// Files
 		if(isset($_FILES['attachment']))
