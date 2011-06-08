@@ -53,7 +53,6 @@
 			{$module->configure($instance)}
 			{/if}
 		</fieldset>
-		</div>
 	</div>
 {/foreach}
 
