@@ -339,7 +339,6 @@ class View_Workspace extends C4_AbstractView {
 		$translate = DevblocksPlatform::getTranslationService();
 	
 		$this->id = self::DEFAULT_ID;
-		// [TODO] Name the worklist view
 		$this->name = $translate->_('Workspace');
 		$this->renderLimit = 25;
 		$this->renderSortBy = SearchFields_Workspace::ID;
@@ -350,11 +349,9 @@ class View_Workspace extends C4_AbstractView {
 			SearchFields_Workspace::NAME,
 			SearchFields_Workspace::WORKER_ID,
 		);
-		// [TODO] Filter fields
 		$this->addColumnsHidden(array(
 		));
 		
-		// [TODO] Filter fields
 		$this->addParamsHidden(array(
 		));
 		

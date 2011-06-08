@@ -291,14 +291,12 @@ class ChTicketsPage extends CerberusPageExtension {
 			SearchFields_Ticket::CONTEXT_LINK_ID,
 			SearchFields_Ticket::VIRTUAL_ASSIGNABLE,
 			SearchFields_Ticket::VIRTUAL_STATUS,
-			//SearchFields_Ticket::VIRTUAL_WATCHERS,
 		), true);
 		$workflowView->addParamsDefault(array(
 		), true);
 		$workflowView->addParamsRequired(array(
 			SearchFields_Ticket::VIRTUAL_STATUS => new DevblocksSearchCriteria(SearchFields_Ticket::VIRTUAL_STATUS,'',array('open')),
 			SearchFields_Ticket::VIRTUAL_ASSIGNABLE => new DevblocksSearchCriteria(SearchFields_Ticket::VIRTUAL_ASSIGNABLE,null,true),
-			//SearchFields_Ticket::VIRTUAL_WATCHERS => new DevblocksSearchCriteria(SearchFields_Ticket::VIRTUAL_WATCHERS,null,array()),
 			'_req_group_id' => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_TEAM_ID,'in',array_keys($active_worker->getMemberships())),
 		), true);
 		

@@ -404,6 +404,7 @@ class C4_FeedbackEntryView extends C4_AbstractView implements IAbstractView_Subt
 		$this->addColumnsHidden(array(
 			SearchFields_FeedbackEntry::ID,
 			SearchFields_FeedbackEntry::QUOTE_ADDRESS_ID,
+			SearchFields_FeedbackEntry::VIRTUAL_WATCHERS,
 		));
 		
 		$this->addParamsHidden(array(

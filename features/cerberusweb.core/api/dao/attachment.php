@@ -672,13 +672,11 @@ class View_AttachmentLink extends C4_AbstractView implements IAbstractView_Subto
 		);
 		$this->addColumnsHidden(array(
 			SearchFields_AttachmentLink::ID,
-//			SearchFields_AttachmentLink::LINK_CONTEXT,
 			SearchFields_AttachmentLink::LINK_CONTEXT_ID,
 		));
 		
 		$this->addParamsHidden(array(
 			SearchFields_AttachmentLink::ID,
-//			SearchFields_AttachmentLink::LINK_CONTEXT,
 			SearchFields_AttachmentLink::LINK_CONTEXT_ID,
 		));
 		

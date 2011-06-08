@@ -275,11 +275,9 @@ class View_OpenIDToWorker extends C4_AbstractView {
 			SearchFields_OpenIDToWorker::OPENID_CLAIMED_ID,
 			SearchFields_OpenIDToWorker::WORKER_ID,
 		);
-		// [TODO] Filter fields
 		$this->addColumnsHidden(array(
 		));
 		
-		// [TODO] Filter fields
 		$this->addParamsHidden(array(
 		));
 		

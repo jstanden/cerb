@@ -1266,6 +1266,12 @@ class C4_AbstractViewLoader {
 			
 		$inst->renderTemplate = $model->renderTemplate;
 		
+		// Enforce class restrictions
+		$parent = new $model->class_name;
+		$inst->addColumnsHidden($parent->getColumnsHidden());
+		$inst->addParamsHidden($parent->getParamsHidden());
+		$inst->addParamsRequired($parent->getParamsRequired());
+		
 		return $inst;
 	}
 };

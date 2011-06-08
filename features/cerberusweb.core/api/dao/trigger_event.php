@@ -545,7 +545,6 @@ class View_TriggerEvent extends C4_AbstractView {
 		$translate = DevblocksPlatform::getTranslationService();
 	
 		$this->id = self::DEFAULT_ID;
-		// [TODO] Name the worklist view
 		$this->name = $translate->_('Trigger');
 		$this->renderLimit = 25;
 		$this->renderSortBy = SearchFields_TriggerEvent::ID;
@@ -559,11 +558,9 @@ class View_TriggerEvent extends C4_AbstractView {
 			SearchFields_TriggerEvent::OWNER_CONTEXT_ID,
 			SearchFields_TriggerEvent::EVENT_POINT,
 		);
-		// [TODO] Filter fields
 		$this->addColumnsHidden(array(
 		));
 		
-		// [TODO] Filter fields
 		$this->addParamsHidden(array(
 		));
 		
