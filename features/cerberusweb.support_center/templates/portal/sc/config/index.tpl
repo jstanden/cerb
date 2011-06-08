@@ -23,7 +23,7 @@
 		<div class="container" style="clear:both;">
 			{foreach from=$modules item=module}
 			{assign var=module_id value=$module->manifest->id}
-			<div class="drag">
+			<div class="drag" style="margin:5px;">
 				<span class="ui-icon ui-icon-arrowthick-2-n-s" style="display:inline-block;vertical-align:middle;cursor:move;" title="Click and drag to rearrange"></span>
 				<select name="visible_modules[]" onchange="toggleDiv('module{$module->manifest->id}','2'!=selectValue(this)?'block':'none');" style="margin-right:5px;min-width:150px;max-width:150px;">
 					{if 'sc.controller.history' != $module->manifest->id && 'sc.controller.account' != $module->manifest->id}

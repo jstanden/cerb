@@ -12,7 +12,7 @@
 		</td>
 	</tr>
 
-	<tbody class="template" style="display:none;">
+	<tbody class="template" style="display:none;margin:5px;">
 	<tr>
 		<td><span class="ui-icon ui-icon-arrowthick-2-n-s" style="display:inline-block;vertical-align:middle;cursor:move;" title="Click and drag to rearrange"></span></td>
 		<td>
@@ -28,7 +28,7 @@
 	</tbody>
 	
 	{foreach from=$news_rss item=news_rss_url key=news_rss_title}
-	<tbody class="drag" style="cursor:move;">
+	<tbody class="drag" style="cursor:move;margin:5px;">
 	<tr>
 		<td><span class="ui-icon ui-icon-arrowthick-2-n-s" style="display:inline-block;vertical-align:middle;cursor:move;" title="Click and drag to rearrange"></span></td>
 		<td>
