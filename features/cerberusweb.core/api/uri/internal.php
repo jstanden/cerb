@@ -1811,8 +1811,7 @@ class ChInternalController extends DevblocksControllerExtension {
 							if(!is_numeric($k))
 								continue;
 							
-							// [TODO] Sanitize
-							$condition = $_POST['condition'.$k];
+							$condition = DevblocksPlatform::importGPC($_POST['condition'.$k],'array',array());
 							$groups[$group_key]['conditions'][] = $condition;
 							break;
 					}
@@ -1841,7 +1840,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		$objects = array();
 		
 		foreach($action_ids as $action_id) {
-			$objects[] = $scope['action'.$action_id];
+			$objects[] = DevblocksPlatform::importGPC($scope['action'.$action_id],'array',array());
 		}
 		
 		return $objects;
