@@ -1000,7 +1000,7 @@ EOL
 				$sign = substr(md5($context.$context_id.$worker->pass),8,8);
 				
 				$headers->removeAll('message-id');
-				$headers->addTextHeader('Message-Id', sprintf("<cerb5:%s:%d@%s>", $context, $context_id, $sign));
+				$headers->addTextHeader('Message-Id', sprintf("<cerb5:%s:%d@%s@%d>", $context, $context_id, $sign, time()));
 				$headers->addTextHeader('X-CerberusRedirect','1');
 	
 				$content = $tpl_builder->build($params['content'], $values);
