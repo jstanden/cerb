@@ -257,13 +257,20 @@ class ChSignInPage extends CerberusPageExtension {
 			$mail = $mail_service->createMessage();
 		    
 		    $replyto_default = DAO_AddressOutgoing::getDefault();
+		    $replyto_personal = $replyto_default->getReplyPersonal();
 		    $code = CerberusApplication::generatePassword(10);
 		    
 		    $_SESSION[self::KEY_FORGOT_SENTCODE] = $code;
 		    
 			// Headers
 			$mail->setTo(array($email));
-			$mail->setFrom(array($replyto_default->email => $replyto_default->getReplyPersonal()));
+			
+			if(!empty($replyto_personal)) {
+				$mail->setFrom($replyto_default->email, $replyto_personal);
+			} else {
+				$mail->setFrom($replyto_default->email);
+			}
+			
 			$mail->setSubject($translate->_('signin.forgot.mail.subject'));
 			$mail->generateId();
 			

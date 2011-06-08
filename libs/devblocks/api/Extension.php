@@ -985,9 +985,19 @@ EOL
 				$mail->setTo(array($worker_address->address));
 	
 				$headers = $mail->getHeaders(); /* @var $headers Swift_Mime_Header */
-	
-				$mail->setFrom($values['sender_address'], $values['sender_full_name']);
-				$mail->setReplyTo($replyto->email, $replyto->getReplyPersonal($worker));
+
+				if(isset($values['sender_full_name']) && !empty($values['sender_full_name'])) {
+					$mail->setFrom($values['sender_address'], $values['sender_full_name']);
+				} else {
+					$mail->setFrom($values['sender_address']);
+				}
+				
+				$replyto_personal = $replyto->getReplyPersonal($worker);
+				if(!empty($replyto_personal)) {
+					$mail->setReplyTo($replyto->email, $replyto_personal);
+				} else {
+					$mail->setReplyTo($replyto->email);
+				}
 				
 				if(!isset($params['subject']) || empty($params['subject'])) {
 					$mail->setSubject($values['ticket_subject']);

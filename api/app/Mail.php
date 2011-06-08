@@ -83,7 +83,13 @@ class CerberusMail {
 		    }
 		    
 			$mail->setTo(DevblocksPlatform::parseCsvString($to));
-			$mail->setFrom(array($from_addy => $from_personal));
+			
+			if(!empty($from_personal)) {
+				$mail->setFrom($from_addy, $from_personal);
+			} else {
+				$mail->setFrom($from_addy);
+			}
+			
 			$mail->setSubject($subject);
 			$mail->generateId();
 			
@@ -405,7 +411,12 @@ class CerberusMail {
 			} 
 				
 			// Headers
-			$mail->setFrom(array($from_replyto->email => $from_personal));
+			if(!empty($from_personal)) {
+				$mail->setFrom($from_replyto->email, $from_personal);
+			} else {
+				$mail->setFrom($from_replyto->email);
+			}
+			
 			$mail->generateId();
 			
 			$headers = $mail->getHeaders();

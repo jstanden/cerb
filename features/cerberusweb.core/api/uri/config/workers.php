@@ -82,6 +82,7 @@ class PageSection_SetupWorkers extends Extension_PageSection {
 				// Creating new worker.  If password is empty, email it to them
 			    if(empty($password)) {
 			    	$replyto_default = DAO_AddressOutgoing::getDefault();
+					$replyto_personal = $replyto_default->getReplyPersonal();
 					$url = DevblocksPlatform::getUrlService();
 					$password = CerberusApplication::generatePassword(8);
 			    	
@@ -89,10 +90,16 @@ class PageSection_SetupWorkers extends Extension_PageSection {
 				        $mail_service = DevblocksPlatform::getMailService();
 				        $mailer = $mail_service->getMailer(CerberusMail::getMailerDefaults());
 				        $mail = $mail_service->createMessage();
-				        
+						
 						$mail->setTo(array($email => $first_name . ' ' . $last_name));
-						$mail->setFrom(array($replyto_default->email => $replyto_default->getReplyPersonal()));
-				        $mail->setSubject('Your new helpdesk login information!');
+						
+						if(!empty($replyto_personal)) {
+							$mail->setFrom($replyto_default->email, $replyto_personal);
+						} else {
+							$mail->setFrom($replyto_default->email);
+						}
+				        
+						$mail->setSubject('Your new helpdesk login information!');
 				        $mail->generateId();
 						
 						$headers = $mail->getHeaders();
