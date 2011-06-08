@@ -121,15 +121,17 @@
 {if !empty($signature) && 1==$signature_pos}
 
 
-{$signature}{*Sig above*}
+{$signature}{if $is_quoted}{*Sig above*}
 
+
+{/if}
 {/if}{if $is_quoted}{$quote_sender=$message->getSender()}{$quote_sender_personal=$quote_sender->getName()}{if !empty($quote_sender_personal)}{$reply_personal=$quote_sender_personal}{else}{$reply_personal=$quote_sender->email}{/if}{$reply_date=$message->created_date|devblocks_date:'D, d M Y'}{'display.reply.reply_banner'|devblocks_translate:$reply_date:$reply_personal}
 {/if}{if $is_quoted}{$message->getContent()|trim|indent:1:'> '}
-{/if}
+{/if}{if !empty($signature) && 2==$signature_pos}
 
 
-{if !empty($signature) && 2==$signature_pos}{$signature}{/if}{*Sig below*}
-{/if}
+{$signature}
+{/if}{*Sig below*}{/if}
 </textarea>
 {/if}
 		</td>
