@@ -154,8 +154,14 @@ abstract class C4_AbstractView {
 	}
 	
 	function getParams() {
-		// Required should override editable
-		return array_merge($this->_paramsEditable, $this->_paramsRequired);
+		$params = $this->_paramsEditable;
+		
+		// Required should supersede editable
+		if(is_array($this->_paramsRequired))
+		foreach($this->_paramsRequired as $key => $param)
+			$params['req_'.$key] = $param;
+		
+		return $params;
 	}
 	
 	function getEditableParams() {
