@@ -667,6 +667,7 @@ class Context_Notification extends Extension_DevblocksContext {
 		
 		$translate = DevblocksPlatform::getTranslationService();
 		$fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_NOTIFICATION);
+		$url_writer = DevblocksPLatform::getUrlService();
 
 		// Polymorph
 		if(is_numeric($notification)) {
@@ -685,6 +686,7 @@ class Context_Notification extends Extension_DevblocksContext {
 			'message' => $prefix.'message',
 			'is_read' => $prefix.'is read',
 			'url' => $prefix.$translate->_('common.url'),
+			'url_markread' => $prefix.'URL (Mark read)',
 		);
 		
 		if(is_array($fields))
@@ -701,6 +703,7 @@ class Context_Notification extends Extension_DevblocksContext {
 			$token_values['message'] = $notification->message;
 			$token_values['is_read'] = $notification->is_read;
 			$token_values['url'] = $notification->url;
+			$token_values['url_markread'] = $url_writer->writeNoProxy(sprintf("c=preferences&a=redirectRead&id=%d", $notification->id), true);
 			
 			$token_values['custom'] = array();
 			
