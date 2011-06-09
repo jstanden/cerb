@@ -1279,6 +1279,8 @@ class ChInternalController extends DevblocksControllerExtension {
 			$view->renderPage = 0;
 			$view->view_columns = $list_view->columns;
 			$view->addParams($list_view->params, true);
+			if(property_exists($list_view, 'params_required'))
+				$view->addParamsRequired($list_view->params_required, true);
 			$view->renderSortBy = $list_view->sort_by;
 			$view->renderSortAsc = $list_view->sort_asc;
 			C4_AbstractViewLoader::setView($view_id, $view);
@@ -1361,11 +1363,21 @@ class ChInternalController extends DevblocksControllerExtension {
 					if(!class_exists($class, true) || null == ($view = new $class))
 						continue;
 
+					// Context-specific defaults
+					switch($context_ext->manifest->id) {
+						case CerberusContexts::CONTEXT_TICKET:
+							$view->addParamsRequired(array(
+								SearchFields_Ticket::VIRTUAL_GROUPS_OF_WORKER => new DevblocksSearchCriteria(SearchFields_Ticket::VIRTUAL_GROUPS_OF_WORKER,'=',$active_worker->id),
+							));
+							break;
+					}
+						
 					// Build the list model
 					$list = new Model_WorkspaceListView();
 					$list->title = $names[$idx];
 					$list->columns = $view->view_columns;
 					$list->params = $view->getEditableParams();
+					$list->params_required = $view->getParamsRequired();
 					$list->num_rows = 5;
 					$list->sort_by = $view->renderSortBy;
 					$list->sort_asc = $view->renderSortAsc;

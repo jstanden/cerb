@@ -671,6 +671,7 @@ class Model_WorkspaceListView {
 	public $columns = array();
 	public $num_rows = 10;
 	public $params = array();
+	public $params_required = array();
 	public $sort_by = null;
 	public $sort_asc = 1;
 };
