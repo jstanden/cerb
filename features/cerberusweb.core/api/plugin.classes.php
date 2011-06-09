@@ -267,22 +267,19 @@ XML;
 
             $eItem = $channel->addChild('item');
             
-            $escapedSubject = htmlspecialchars($event[SearchFields_Notification::MESSAGE],null,LANG_CHARSET_CODE);
-            $eDesc = $eItem->addChild('description', '');
 
             if(isset($event[SearchFields_Notification::URL])) {
-//	            $link = $event[SearchFields_Notification::URL];
 	            $link = $url->write('c=preferences&a=redirectRead&id='.$event[SearchFields_Notification::ID], true);
-	            $eLink = $eItem->addChild('link', $link);
-	            
             } else {
 	            $link = $url->write('c=activity&tab=events', true);
-	            $eLink = $eItem->addChild('link', $link);
-            	
             }
-            	
-            $eDate = $eItem->addChild('pubDate', gmdate('D, d M Y H:i:s T', $created));
             
+            $escapedSubject = htmlspecialchars($event[SearchFields_Notification::MESSAGE],null,LANG_CHARSET_CODE);
+            $eTitle = $eItem->addChild('title', $escapedSubject);
+            $eDesc = $eItem->addChild('description', '');
+            $eLink = $eItem->addChild('link', $link);
+
+            $eDate = $eItem->addChild('pubDate', gmdate('D, d M Y H:i:s T', $created));
             $eGuid = $eItem->addChild('guid', md5($escapedSubject . $link . $created));
             $eGuid->addAttribute('isPermaLink', "false");
         }
