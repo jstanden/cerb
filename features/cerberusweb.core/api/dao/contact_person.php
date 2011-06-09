@@ -110,7 +110,10 @@ class DAO_ContactPerson extends DevblocksORMHelper {
 			
 			// Remove shares
 			// [TODO] A listener should really be handling this
-			$db->Execute(sprintf("DELETE FROM supportcenter_address_share WHERE share_address_id IN (%s) OR with_address_id IN (%s)", $address_ids, $address_ids));
+			if(is_array($address_ids) && !empty($address_ids)) {
+				$address_ids_str = implode(',', $address_ids);
+				$db->Execute(sprintf("DELETE FROM supportcenter_address_share WHERE share_address_id IN (%s) OR with_address_id IN (%s)", $address_ids_str, $address_ids_str));
+			}
 			
 			// Release OpenIDs
 			if(class_exists('DAO_OpenIdToContactPerson', true))
