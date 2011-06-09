@@ -1160,6 +1160,14 @@ class DAO_Ticket extends C4_ORMHelper {
 					}
 					break;
 					
+				case SearchFields_Ticket::VIRTUAL_GROUPS_OF_WORKER:
+					$member = DAO_Worker::get($param->value);
+					$roster = $member->getMemberships();
+					if(empty($roster))
+						break;
+					$where_sql .= sprintf("AND t.team_id IN (%s) ", implode(',', array_keys($roster)));
+					break;
+					
 				case SearchFields_Ticket::VIRTUAL_STATUS:
 					$values = $param->value;
 					if(!is_array($values))
@@ -1307,6 +1315,7 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 	
 	// Virtuals
 	const VIRTUAL_ASSIGNABLE = '*_assignable';
+	const VIRTUAL_GROUPS_OF_WORKER = '*_groups_of_worker';
 	const VIRTUAL_STATUS = '*_status';
 	const VIRTUAL_WATCHERS = '*_workers';
 	
@@ -1361,6 +1370,7 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 			self::CONTEXT_LINK_ID => new DevblocksSearchField(self::CONTEXT_LINK_ID, 'context_link', 'from_context_id', null),
 			
 			self::VIRTUAL_ASSIGNABLE => new DevblocksSearchField(self::VIRTUAL_ASSIGNABLE, '*', 'assignable', $translate->_('ticket.assignable')),
+			self::VIRTUAL_GROUPS_OF_WORKER => new DevblocksSearchField(self::VIRTUAL_GROUPS_OF_WORKER, '*', 'groups_of_worker', $translate->_('ticket.groups_of_worker')),
 			self::VIRTUAL_STATUS => new DevblocksSearchField(self::VIRTUAL_STATUS, '*', 'status', $translate->_('ticket.status')),
 			self::VIRTUAL_WATCHERS => new DevblocksSearchField(self::VIRTUAL_WATCHERS, '*', 'workers', $translate->_('common.watchers')),
 		);
@@ -1460,6 +1470,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals {
 			SearchFields_Ticket::CONTEXT_LINK,
 			SearchFields_Ticket::CONTEXT_LINK_ID,
 			SearchFields_Ticket::VIRTUAL_ASSIGNABLE,
+			SearchFields_Ticket::VIRTUAL_GROUPS_OF_WORKER,
 			SearchFields_Ticket::VIRTUAL_STATUS,
 			SearchFields_Ticket::VIRTUAL_WATCHERS,
 		));
@@ -1944,6 +1955,11 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals {
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__fulltext.tpl');
 				break;
 				
+			case SearchFields_Ticket::VIRTUAL_GROUPS_OF_WORKER:
+				$tpl->assign('workers', DAO_Worker::getAllActive());
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__worker.tpl');
+				break;
+				
 			case SearchFields_Ticket::VIRTUAL_WATCHERS:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context_worker.tpl');
 				break;
@@ -1979,6 +1995,13 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals {
 				
 			case SearchFields_Ticket::VIRTUAL_WATCHERS:
 				$this->_renderVirtualWatchers($param);
+				break;
+				
+			case SearchFields_Ticket::VIRTUAL_GROUPS_OF_WORKER:
+				if(null == ($worker = DAO_Worker::get($param->value)))
+					break;
+					
+				echo sprintf("In <b>%s</b>'s groups", $worker->getName());
 				break;
 				
 			case SearchFields_Ticket::VIRTUAL_STATUS:
@@ -2228,6 +2251,11 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals {
 			case SearchFields_Ticket::VIRTUAL_WATCHERS:
 				@$worker_ids = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',array());
 				$criteria = new DevblocksSearchCriteria($field, $oper, $worker_ids);
+				break;
+				
+			case SearchFields_Ticket::VIRTUAL_GROUPS_OF_WORKER:
+				@$worker_id = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'integer',0);
+				$criteria = new DevblocksSearchCriteria($field, '=', $worker_id);
 				break;
 				
 			case SearchFields_Ticket::VIRTUAL_STATUS:
