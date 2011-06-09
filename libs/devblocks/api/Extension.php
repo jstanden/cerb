@@ -957,6 +957,9 @@ EOL
 	function runActionRelayEmail($params, $values, $context, $context_id) {
 		$logger = DevblocksPlatform::getConsoleLog('Attendant');
 		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+
+		$mail_service = DevblocksPlatform::getMailService();
+		$mailer = $mail_service->getMailer(CerberusMail::getMailerDefaults());
 		
 		$bucket_id = intval(@$values['ticket_bucket_id']);
 		
@@ -968,6 +971,14 @@ EOL
 		$replyto = $group->getReplyTo($bucket_id);
 		$relay_list = $params['to'];
 		
+		// Attachments
+		$attachment_data = array();
+		if(isset($values['id']) && !empty($values['id'])) {
+			if(isset($params['include_attachments']) && !empty($params['include_attachments'])) {
+				$attachment_data = DAO_AttachmentLink::getLinksAndAttachments(CerberusContexts::CONTEXT_MESSAGE, $values['id']);
+			}
+		}
+		
 		if(is_array($relay_list))
 		foreach($relay_list as $to) {
 			try {
@@ -978,8 +989,6 @@ EOL
 				if(null == ($worker = DAO_Worker::get($worker_address->worker_id)))
 					continue;
 				
-				$mail_service = DevblocksPlatform::getMailService();
-				$mailer = $mail_service->getMailer(CerberusMail::getMailerDefaults());
 				$mail = $mail_service->createMessage();
 				
 				$mail->setTo(array($worker_address->address));
@@ -1018,12 +1027,22 @@ EOL
 				$mail->setBody($content);
 				
 				// Files
-				//if(is_array($message->files))
-				//foreach($message->files as $file_name => $file) { /* @var $file ParserFile */
-				//	$mail->attach(Swift_Attachment::fromPath($file->tmpname)->setFilename($file_name));
-				//}
-			
+				if(!empty($attachment_data) && isset($attachment_data['attachments']) && !empty($attachment_data['attachments'])) {
+					foreach($attachment_data['attachments'] as $file_id => $file) { /* @var $file Model_Attachment */
+						if(false !== ($fp = DevblocksPlatform::getTempFile())) {
+							if(false !== $file->getFileContents($fp)) {
+								$attach = Swift_Attachment::fromPath(DevblocksPlatform::getTempFileInfo($fp), $file->mime_type);
+								$attach->setFilename($file->display_name);
+								$mail->attach($attach);
+								fclose($fp);
+							}
+						}
+					}
+					
+				}
+				
 				$result = $mailer->send($mail);
+				unset($mail);
 				
 				if(!$result) {
 					return false;
