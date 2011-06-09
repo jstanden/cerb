@@ -202,10 +202,13 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 			$tokens = array(
 				'content' => SearchFields_Ticket::FULLTEXT_MESSAGE_CONTENT,
 				'created' => SearchFields_Ticket::TICKET_CREATED_DATE,
+				'first_wrote' => SearchFields_Ticket::TICKET_FIRST_WROTE,
 				'id' => SearchFields_Ticket::TICKET_ID,
 				'is_closed' => SearchFields_Ticket::TICKET_CLOSED,
 				'is_deleted' => SearchFields_Ticket::TICKET_DELETED,
+				'last_wrote' => SearchFields_Ticket::TICKET_LAST_WROTE,			
 				'mask' => SearchFields_Ticket::TICKET_MASK,
+				'requester' => SearchFields_Ticket::REQUESTER_ADDRESS,			
 				'subject' => SearchFields_Ticket::TICKET_SUBJECT,
 				'updated' => SearchFields_Ticket::TICKET_UPDATED_DATE,
 			);
