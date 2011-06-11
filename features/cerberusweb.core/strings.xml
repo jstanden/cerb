@@ -945,6 +945,12 @@ For example: http://www.cerberusweb.com/support/</seg></tuv>
 			<tuv xml:lang="en_US"><seg>Website</seg></tuv>
 		</tu>
 
+		<!-- Comment -->
+
+		<tu tuid='comment.filters.content'>
+			<tuv xml:lang="en_US"><seg>Comment Content</seg></tuv>
+		</tu>
+
 		<!-- Contact People -->
 		
 		<tu tuid='dao.contact_person.auth_salt'>
@@ -1343,6 +1349,12 @@ For example: http://www.cerberusweb.com/support/</seg></tuv>
 		
 		<tu tuid='mail.piles'>
 			<tuv xml:lang="en_US"><seg>Piles</seg></tuv>
+		</tu>
+		<tu tuid='mail.quick_search.comments_all'>
+			<tuv xml:lang="en_US"><seg>Comments (all words)</seg></tuv>
+		</tu>
+		<tu tuid='mail.quick_search.comments_phrase'>
+			<tuv xml:lang="en_US"><seg>Comments (phrase)</seg></tuv>
 		</tu>
 		<tu tuid='mail.quick_search.messages_all'>
 			<tuv xml:lang="en_US"><seg>Messages (all words)</seg></tuv>
