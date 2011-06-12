@@ -22,12 +22,27 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 		    @$parser_autoreq_exclude = DevblocksPlatform::importGPC($_POST['parser_autoreq_exclude'],'string','');
 		    @$attachments_enabled = DevblocksPlatform::importGPC($_POST['attachments_enabled'],'integer',0);
 		    @$attachments_max_size = DevblocksPlatform::importGPC($_POST['attachments_max_size'],'integer',10);
+		    @$ticket_mask_format = DevblocksPlatform::importGPC($_POST['ticket_mask_format'],'string','');
 			
+		    if(empty($ticket_mask_format))
+		    	$ticket_mask_format = 'LLL-NNNNN-NNN';
+		    	
+		    // Count the number of combinations in ticket mask pattern
+		    
+			$cardinality = CerberusApplication::generateTicketMaskCardinality($ticket_mask_format);
+			if($cardinality < 10000000)
+				throw new Exception(sprintf("<b>Error!</b> There are only %0.0f ticket mask combinations.",
+					$cardinality
+				));
+			
+			// Save
+		    
 		    $settings = DevblocksPlatform::getPluginSettingsService();
 		    $settings->set('cerberusweb.core',CerberusSettings::PARSER_AUTO_REQ, $parser_autoreq);
 		    $settings->set('cerberusweb.core',CerberusSettings::PARSER_AUTO_REQ_EXCLUDE, $parser_autoreq_exclude);
 		    $settings->set('cerberusweb.core',CerberusSettings::ATTACHMENTS_ENABLED, $attachments_enabled);
 		    $settings->set('cerberusweb.core',CerberusSettings::ATTACHMENTS_MAX_SIZE, $attachments_max_size);
+		    $settings->set('cerberusweb.core',CerberusSettings::TICKET_MASK_FORMAT, $ticket_mask_format);
 		    
 		    echo json_encode(array('status'=>true));
 		    return;
@@ -39,4 +54,29 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 		}
 		
 	}
+	
+	function testMaskAction() {
+		@$ticket_mask_format = DevblocksPlatform::importGPC($_POST['ticket_mask_format'],'string','');
+		
+		try {
+			$cardinality = CerberusApplication::generateTicketMaskCardinality($ticket_mask_format);
+			if($cardinality < 10000000)
+				throw new Exception(sprintf("<b>Error!</b> There are only %0.0f ticket mask combinations.",
+					$cardinality
+				));
+			
+			$sample_mask = CerberusApplication::generateTicketMask($ticket_mask_format);
+			$output = sprintf("<b>%s</b> &nbsp; There are %0.0f possible ticket mask combinations.",
+				$sample_mask,
+				$cardinality
+			);
+			echo json_encode(array('status'=>true,'message'=>$output));
+			
+		} catch (Exception $e) {
+			echo json_encode(array('status'=>false,'error'=>$e->getMessage()));
+			return;
+		}
+		
+	}
+	
 }

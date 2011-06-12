@@ -377,49 +377,116 @@ class CerberusApplication extends DevblocksApplication {
 	 *
 	 * @return a unique ticket mask as a string
 	 */
-	static function generateTicketMask($pattern = "LLL-NNNNN-NNN") {
+	static function generateTicketMask($pattern = null) {
+		if(empty($pattern))
+			$pattern = DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::TICKET_MASK_FORMAT);
+		if(empty($pattern))
+			$pattern = CerberusSettingsDefaults::TICKET_MASK_FORMAT; 
+
 		$letters = "ABCDEFGHIJKLMNPQRSTUVWXYZ";
 		$numbers = "123456789";
 
 		do {		
 			$mask = "";
 			$bytes = preg_split('//', $pattern, -1, PREG_SPLIT_NO_EMPTY);
+			$literal = false;
 			
 			if(is_array($bytes))
 			foreach($bytes as $byte) {
+				$append = '';
+				
 				switch(strtoupper($byte)) {
+					case '{':
+						$literal = true;
+						$byte = '';
+						break;
+					case '}':
+						$literal = false;
+						$append = '';
+						break;
 					case 'L':
-						$mask .= substr($letters,mt_rand(0,strlen($letters)-1),1);
+						$append .= substr($letters,mt_rand(0,strlen($letters)-1),1);
 						break;
 					case 'N':
-						$mask .= substr($numbers,mt_rand(0,strlen($numbers)-1),1);
+						$append .= substr($numbers,mt_rand(0,strlen($numbers)-1),1);
 						break;
 					case 'C': // L or N
 						if(mt_rand(0,100) >= 50) { // L
-							$mask .= substr($letters,mt_rand(0,strlen($letters)-1),1);	
+							$append .= substr($letters,mt_rand(0,strlen($letters)-1),1);	
 						} else { // N
-							$mask .= substr($numbers,mt_rand(0,strlen($numbers)-1),1);	
+							$append .= substr($numbers,mt_rand(0,strlen($numbers)-1),1);	
 						}
 						break;
 					case 'Y':
-						$mask .= date('Y');
+						$append .= date('Y');
 						break;
 					case 'M':
-						$mask .= date('m');
+						$append .= date('m');
 						break;
 					case 'D':
-						$mask .= date('d');
+						$append .= date('d');
 						break;
 					default:
-						$mask .= $byte;
+						$append .= $byte;
 						break;
 				}
+				
+				if($literal) {
+					$mask .= $byte;
+				} else {
+					$mask .= $append;
+				}
+				
+				$mask = strtoupper(DevblocksPlatform::strAlphaNumDash($mask));
 			}
 		} while(null != DAO_Ticket::getTicketIdByMask($mask));
 		
 //		echo "Generated unique mask: ",$mask,"<BR>";
 		
 		return $mask;
+	}
+	
+	static function generateTicketMaskCardinality($pattern = null) {
+		if(empty($pattern))
+			$pattern = DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::TICKET_MASK_FORMAT);
+		if(empty($pattern))
+			$pattern = CerberusSettingsDefaults::TICKET_MASK_FORMAT; 
+		
+		$combinations = 1;
+		$bytes = preg_split('//', $pattern, -1, PREG_SPLIT_NO_EMPTY);
+		$literal = false;
+		
+		if(is_array($bytes))
+		foreach($bytes as $byte) {
+			$mul = 1;
+			switch(strtoupper($byte)) {
+				case '{':
+					$literal = true;
+					break;
+				case '}':
+					$literal = false;
+					break;
+				case 'L':
+					$mul *= 25;
+					break;
+				case 'N':
+					$mul *= 9;
+					break;
+				case 'C': // L or N
+					$mul *= 34;
+					break;
+				case 'Y':
+				case 'M':
+				case 'D':
+				default:
+					break;
+			}
+			
+			if(!$literal)
+				$combinations = round($combinations*$mul,0);
+		}
+		
+		return $combinations;
 	}
 	
 	/**
@@ -1205,6 +1272,7 @@ class CerberusSettings {
 	const ATTACHMENTS_MAX_SIZE = 'attachments_max_size'; 
 	const PARSER_AUTO_REQ = 'parser_autoreq'; 
 	const PARSER_AUTO_REQ_EXCLUDE = 'parser_autoreq_exclude'; 
+	const TICKET_MASK_FORMAT = 'ticket_mask_format';
 	const AUTHORIZED_IPS = 'authorized_ips';
 	const LICENSE = 'license_json';
 	const ACL_ENABLED = 'acl_enabled';
@@ -1224,6 +1292,7 @@ class CerberusSettingsDefaults {
 	const ATTACHMENTS_MAX_SIZE = 10; 
 	const PARSER_AUTO_REQ = 0; 
 	const PARSER_AUTO_REQ_EXCLUDE = ''; 
+	const TICKET_MASK_FORMAT = 'LLL-NNNNN-NNN';
 	const AUTHORIZED_IPS = "127.0.0.1\n::1\n";
 	const ACL_ENABLED = 0;
 };
