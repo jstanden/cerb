@@ -2753,15 +2753,27 @@ class Context_Ticket extends Extension_DevblocksContext {
 		$merge_token_labels = array();
 		$merge_token_values = array();
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $owner_id, $merge_token_labels, $merge_token_values, '', true);
+
+			// Clear dupe content
+			CerberusContexts::scrubTokensWithRegexp(
+				$merge_token_labels,
+				$merge_token_values,
+				array(
+					"#^address_first_name$#",
+					"#^address_full_name$#",
+					"#^address_last_name$#",
+					"#^address_org_#",
+				)
+			);
 		
-		CerberusContexts::merge(
-			'owner_',
-			'Owner:',
-			$merge_token_labels,
-			$merge_token_values,
-			$token_labels,
-			$token_values
-		);
+			CerberusContexts::merge(
+				'owner_',
+				'Ticket:Owner:',
+				$merge_token_labels,
+				$merge_token_values,
+				$token_labels,
+				$token_values
+			);
 		
 		// Plugin-provided tokens
 		$token_extension_mfts = DevblocksPlatform::getExtensions('cerberusweb.template.token', false);

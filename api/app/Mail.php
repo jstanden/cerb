@@ -372,8 +372,23 @@ class CerberusMail {
 		    $mailer = $mail_service->getMailer(CerberusMail::getMailerDefaults());
 			$mail = $mail_service->createMessage();
 	        
-		    // properties
 		    @$reply_message_id = $properties['message_id'];
+		    
+		    if(null == ($message = DAO_Message::get($reply_message_id)))
+				return;
+				
+			$ticket_id = $message->ticket_id;
+	        
+			if(null == ($ticket = DAO_Ticket::get($ticket_id)))
+				return;
+				
+			if(null == ($group = DAO_Group::get($ticket->team_id)))
+				return;
+		    
+		    // Changing the outgoing message through a VA
+		    Event_MailSentByGroup::trigger($properties, $message, $ticket, $group);
+		    
+		    // Re-read properties
 		    @$content = $properties['content'];
 		    @$files = $properties['files'];
 		    @$is_forward = $properties['is_forward']; 
@@ -383,19 +398,8 @@ class CerberusMail {
 		    
 		    @$is_autoreply = $properties['is_autoreply'];
 		    
-			if(null == ($message = DAO_Message::get($reply_message_id)))
-				return;
-				
 	        $message_headers = DAO_MessageHeader::getAll($reply_message_id);
 
-			$ticket_id = $message->ticket_id;
-	        
-			if(null == ($ticket = DAO_Ticket::get($ticket_id)))
-				return;
-				
-			if(null == ($group = DAO_Group::get($ticket->team_id)))
-				return;
-				
 			$from_replyto = $group->getReplyTo($ticket->category_id);
 			$from_personal = $group->getReplyPersonal($ticket->category_id, $worker_id);
 			

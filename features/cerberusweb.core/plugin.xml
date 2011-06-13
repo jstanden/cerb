@@ -327,6 +327,10 @@
 			<class name="Event_MailReceivedByWatcher" />
 		</file>
 		
+		<file path="api/events/group/mail_sent_by_group.php">
+			<class name="Event_MailSentByGroup" />
+		</file>
+		
 		<file path="api/events/notification_received_by_worker.php">
 			<class name="Event_NotificationReceivedByWorker" />
 		</file>
@@ -794,6 +798,22 @@
 			<class>
 				<file>api/events/mail_received_by_group.php</file>
 				<name>Event_MailReceivedByGroup</name>
+			</class>
+			<params>
+				<param key="contexts">
+					<value>
+						<data key="cerberusweb.contexts.group" />
+					</value>
+				</param>
+			</params>
+		</extension>
+		
+		<extension point="devblocks.event">
+			<id>event.mail.sent.group</id>
+			<name>Worker message is ready to send to a group conversation</name>
+			<class>
+				<file>api/events/group/mail_sent_by_group.php</file>
+				<name>Event_MailSentByGroup</name>
 			</class>
 			<params>
 				<param key="contexts">
