@@ -65,27 +65,34 @@ XML;
 			false
 		);
 
-        foreach($results as $article) {
-        	$created = intval($article[SearchFields_KbArticle::UPDATED]);
+		$articles = DAO_KbArticle::getWhere(sprintf("%s IN (%s)",
+			DAO_KbArticle::ID,
+			implode(',', array_keys($results))
+		));
+		
+        foreach($articles as $article) { /* @var $article Model_KbArticle */
+        	$created = intval($article->updated);
             if(empty($created)) $created = time();
 
             $eItem = $channel->addChild('item');
             
-            $escapedSubject = htmlspecialchars($article[SearchFields_KbArticle::TITLE],null,LANG_CHARSET_CODE);
+            $escapedSubject = htmlspecialchars($article->title,null,LANG_CHARSET_CODE);
             //filter out a couple non-UTF-8 characters (0xC and ESC)
-            $escapedSubject = preg_replace("/[]/", '', $escapedSubject);
+            $escapedSubject = mb_convert_encoding($escapedSubject, 'utf-8', LANG_CHARSET_CODE);
             $eTitle = $eItem->addChild('title', $escapedSubject);
 
-            $eDesc = $eItem->addChild('description', htmlspecialchars($article[SearchFields_KbArticle::CONTENT],null,LANG_CHARSET_CODE));
+            $escapedDesc = htmlspecialchars($article->getContent(),null,LANG_CHARSET_CODE);
+            $escapedDesc = mb_convert_encoding($escapedDesc, 'utf-8', LANG_CHARSET_CODE);
+            $eDesc = $eItem->addChild('description', $escapedDesc);
 
-            $link = $url->write('c=kb&a=article&id='.$article[SearchFields_KbArticle::ID], true);
+            $link = $url->write('c=kb&a=article&id='.$article->id, true);
             $eLink = $eItem->addChild('link', $link);
 	            
             $eDate = $eItem->addChild('pubDate', gmdate('D, d M Y H:i:s T', $created));
             
             $eGuid = $eItem->addChild('guid', md5($escapedSubject . $link . $created));
             $eGuid->addAttribute('isPermaLink', "false");
-        }
+        }		
 
         echo $xml->asXML();		
 	}
@@ -129,20 +136,32 @@ XML;
 			false
 		);
 
-        foreach($results as $article) {
-        	$created = intval($article[SearchFields_KbArticle::UPDATED]);
+		if(empty($results)) {
+			echo $xml->asXML();
+			return;
+		}
+		
+		$articles = DAO_KbArticle::getWhere(sprintf("%s IN (%s)",
+			DAO_KbArticle::ID,
+			implode(',', array_keys($results))
+		));
+		
+        foreach($articles as $article) { /* @var $article Model_KbArticle */
+        	$created = intval($article->updated);
             if(empty($created)) $created = time();
 
             $eItem = $channel->addChild('item');
             
-            $escapedSubject = htmlspecialchars($article[SearchFields_KbArticle::TITLE],null,LANG_CHARSET_CODE);
+            $escapedSubject = htmlspecialchars($article->title,null,LANG_CHARSET_CODE);
             //filter out a couple non-UTF-8 characters (0xC and ESC)
-            $escapedSubject = preg_replace("/[]/", '', $escapedSubject);
+            $escapedSubject = mb_convert_encoding($escapedSubject, 'utf-8', LANG_CHARSET_CODE);
             $eTitle = $eItem->addChild('title', $escapedSubject);
 
-            $eDesc = $eItem->addChild('description', htmlspecialchars($article[SearchFields_KbArticle::CONTENT],null,LANG_CHARSET_CODE));
+            $escapedDesc = htmlspecialchars($article->getContent(),null,LANG_CHARSET_CODE);
+            $escapedDesc = mb_convert_encoding($escapedDesc, 'utf-8', LANG_CHARSET_CODE);
+            $eDesc = $eItem->addChild('description', $escapedDesc);
 
-            $link = $url->write('c=kb&a=article&id='.$article[SearchFields_KbArticle::ID], true);
+            $link = $url->write('c=kb&a=article&id='.$article->id, true);
             $eLink = $eItem->addChild('link', $link);
 	            
             $eDate = $eItem->addChild('pubDate', gmdate('D, d M Y H:i:s T', $created));
