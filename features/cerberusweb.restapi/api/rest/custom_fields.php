@@ -37,11 +37,34 @@ class ChRest_CustomFields extends Extension_RestController implements IExtension
 			
 		}
 		
-		$fields = array();
-		if(null != ($context_fields = DAO_CustomField::getByContext($context)) && !empty($context_fields))
-			foreach($context_fields as $field)
-				$fields['custom_' . $field->id] = array($field->name, $field->type, $field->options);
-			
+		switch($context) {
+			case CerberusContexts::CONTEXT_TICKET:
+				$fields = array();
+				if(null != ($context_fields = DAO_CustomField::getByContext($context)) && !empty($context_fields))
+					foreach($context_fields as $field)
+						$fields['custom_' . $field->id] = array(
+							'id' => $field->id,
+							'name' => $field->name,
+							'type' => $field->type,
+							'context' => $field->context,
+							'group_id' => $field->group_id,
+							'options' => $field->options,
+						);
+				break;
+				
+			default:
+				$fields = array();
+				if(null != ($context_fields = DAO_CustomField::getByContext($context)) && !empty($context_fields))
+					foreach($context_fields as $field)
+						$fields['custom_' . $field->id] = array(
+							'id' => $field->id,
+							'name' => $field->name,
+							'type' => $field->type,
+							'context' => $field->context,
+							'options' => $field->options,
+						);
+				break;
+		}
 		
 		$this->success($fields);
 		
