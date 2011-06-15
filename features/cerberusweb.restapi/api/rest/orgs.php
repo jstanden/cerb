@@ -148,7 +148,7 @@ class ChRest_Orgs extends Extension_RestController implements IExtensionRestCont
 		
 		// Search
 		list($results, $total) = DAO_ContactOrg::search(
-			array(),
+			array($sortBy),
 			$params,
 			$limit,
 			max(0,$page-1),

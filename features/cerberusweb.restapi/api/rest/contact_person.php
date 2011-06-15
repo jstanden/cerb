@@ -129,7 +129,7 @@ class ChRest_ContactPerson extends Extension_RestController implements IExtensio
 		
 		// Search
 		list($results, $total) = DAO_ContactPerson::search(
-			array(),
+			array($sortBy),
 			$params,
 			$limit,
 			max(0,$page-1),

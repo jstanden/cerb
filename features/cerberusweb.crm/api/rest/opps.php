@@ -183,7 +183,7 @@ class ChRest_Opps extends Extension_RestController implements IExtensionRestCont
 		
 		// Search
 		list($results, $total) = DAO_CrmOpportunity::search(
-			array(),
+			array($sortBy),
 			$params,
 			$limit,
 			max(0,$page-1),

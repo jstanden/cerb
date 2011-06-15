@@ -148,7 +148,7 @@ class ChRest_Addresses extends Extension_RestController implements IExtensionRes
 		
 		// Search
 		list($results, $total) = DAO_Address::search(
-			array(),
+			array($sortBy),
 			$params,
 			$limit,
 			max(0,$page-1),

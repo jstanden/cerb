@@ -114,7 +114,7 @@ class ChRest_Groups extends Extension_RestController implements IExtensionRestCo
 		
 		// Search
 		list($results, $total) = DAO_Group::search(
-			array(),
+			array($sortBy),
 			$params,
 			$limit,
 			max(0,$page-1),

@@ -106,7 +106,7 @@ class ChRest_Comments extends Extension_RestController implements IExtensionRest
 		
 		// Search
 		list($results, $total) = DAO_Comment::search(
-			array(),
+			array($sortBy),
 			$params,
 			$limit,
 			max(0,$page-1),

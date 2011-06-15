@@ -153,7 +153,7 @@ class ChRest_Feedback extends Extension_RestController implements IExtensionRest
 		
 		// Search
 		list($results, $total) = DAO_FeedbackEntry::search(
-			array(),
+			array($sortBy),
 			$params,
 			$limit,
 			max(0,$page-1),
