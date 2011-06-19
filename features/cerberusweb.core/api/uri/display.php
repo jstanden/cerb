@@ -532,6 +532,7 @@ class ChDisplayPage extends CerberusPageExtension {
 	    @$ticket_mask = DevblocksPlatform::importGPC($_REQUEST['ticket_mask'],'string');
 	    @$draft_id = DevblocksPlatform::importGPC($_REQUEST['draft_id'],'integer');
 	    @$is_forward = DevblocksPlatform::importGPC($_REQUEST['is_forward'],'integer',0);
+		@$reply_mode = DevblocksPlatform::importGPC($_REQUEST['reply_mode'],'string','');
 	    
 	    $worker = CerberusApplication::getActiveWorker();
 	    
@@ -554,6 +555,9 @@ class ChDisplayPage extends CerberusPageExtension {
 		    'forward_files' => DevblocksPlatform::importGPC(@$_REQUEST['forward_files'],'array',array()),
 		);
 		
+		if('save' == $reply_mode)
+			$properties['dont_send'] = true;
+
 		if(CerberusMail::sendTicketMessage($properties)) {
 			if(!empty($draft_id))
 				DAO_MailQueue::delete($draft_id);

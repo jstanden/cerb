@@ -1285,7 +1285,7 @@ For example: http://www.cerberusweb.com/support/</seg></tuv>
 			<tuv xml:lang="en_US"><seg>Add to Recipients</seg></tuv>
 		</tu>
 		<tu tuid='display.ui.continue_later'>
-			<tuv xml:lang="en_US"><seg>Continue Later</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Save as draft</seg></tuv>
 		</tu>
 		<tu tuid='display.ui.discard'>
 			<tuv xml:lang="en_US"><seg>Discard</seg></tuv>
@@ -1296,8 +1296,11 @@ For example: http://www.cerberusweb.com/support/</seg></tuv>
 		<tu tuid='display.ui.reply'>
 			<tuv xml:lang="en_US"><seg>Reply</seg></tuv>
 		</tu>
+		<tu tuid='display.ui.save_nosend'>
+			<tuv xml:lang="en_US"><seg>Save without sending</seg></tuv>
+		</tu>
 		<tu tuid='display.ui.send_message'>
-			<tuv xml:lang="en_US"><seg>Send Message</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Send message</seg></tuv>
 		</tu>
 		<tu tuid='display.ui.sticky_note'>
 			<tuv xml:lang="en_US"><seg>Sticky Note</seg></tuv>
