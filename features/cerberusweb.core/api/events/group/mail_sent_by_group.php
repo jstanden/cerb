@@ -31,27 +31,28 @@ class Event_MailSentByGroup extends Extension_DevblocksEvent {
 	function generateSampleEventModel($properties=null, Model_Message $message=null, Model_Ticket $ticket=null, Model_Group $group=null) {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-//		if(empty($message)) {
-//			// Pull the latest ticket
-//			list($results) = DAO_Ticket::search(
-//				array(),
-//				array(
-//					new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',0),
-//				),
-//				10,
-//				0,
-//				SearchFields_Ticket::TICKET_ID,
-//				false,
-//				false
-//			);
-//			
-//			shuffle($results);
-//			
-//			$result = array_shift($results);
-//			
-//			$message_id = $result[SearchFields_Ticket::TICKET_LAST_MESSAGE_ID];
-//			$group_id = $result[SearchFields_Ticket::TICKET_TEAM_ID];
-//		}
+		if(empty($message)) {
+			// Pull the latest ticket
+			list($results) = DAO_Ticket::search(
+				array(),
+				array(
+					new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',0),
+				),
+				10,
+				0,
+				SearchFields_Ticket::TICKET_ID,
+				false,
+				false
+			);
+			
+			shuffle($results);
+			
+			$result = array_shift($results);
+			
+			$message = DAO_Message::get($result[SearchFields_Ticket::TICKET_LAST_MESSAGE_ID]);
+			$ticket = DAO_Ticket::get($result[SearchFields_Ticket::TICKET_ID]);
+			$group = DAO_Group::get($result[SearchFields_Ticket::TICKET_TEAM_ID]);
+		}
 		
 		$properties = array(
 			'to' => 'customer@example.com',
@@ -144,7 +145,7 @@ class Event_MailSentByGroup extends Extension_DevblocksEvent {
 		 * Ticket
 		 */
 		
-		@$ticket = $event_model->params['ticket'];
+		@$ticket = $event_model->params['ticket']; /* @var $ticket Model_Ticket */
 		@$ticket_id = $ticket->id;
 		
 		$ticket_labels = array();
@@ -178,7 +179,7 @@ class Event_MailSentByGroup extends Extension_DevblocksEvent {
 		/**
 		 * Group
 		 */
-		@$group = $event_model->params['group'];
+		@$group = $event_model->params['group']; /* @var $group Model_Group */
 		$group_labels = array();
 		$group_values = array();
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_GROUP, $group, $group_labels, $group_values, null, true);
@@ -219,6 +220,15 @@ class Event_MailSentByGroup extends Extension_DevblocksEvent {
 				$labels,
 				$values
 			);
+
+		/**
+		 * Signature
+		 */
+		$labels['group_sig'] = 'Group signature';
+		if(!empty($group) && !empty($ticket)) {
+			if(null != ($worker = DAO_Worker::get($worker_id)))
+				$values['group_sig'] = $group->getReplySignature($ticket->category_id, $worker);
+		}
 			
 		/**
 		 * Return
