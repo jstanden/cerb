@@ -112,6 +112,18 @@
 		</extension>		
 		
 		<extension point="cerberusweb.rest.controller">
+			<id>cerberusweb.rest.controller.groups</id>
+			<name>Groups</name>
+			<class>
+				<file>api/rest/groups.php</file>
+				<name>ChRest_Groups</name>
+			</class>
+			<params>
+				<param key="uri" value="groups" />
+			</params>
+		</extension>
+		
+		<extension point="cerberusweb.rest.controller">
 			<id>cerberusweb.rest.controller.messages</id>
 			<name>Messages</name>
 			<class>
