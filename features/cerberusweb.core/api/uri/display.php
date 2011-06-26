@@ -147,7 +147,8 @@ class ChDisplayPage extends CerberusPageExtension {
 		    		htmlspecialchars($ticket->subject, ENT_QUOTES, LANG_CHARSET_CODE),
 		    		$ticket->mask
 		    	)
-			))
+			)),
+			true
 		);
 		
 		$tpl->display('devblocks:cerberusweb.core::display/index.tpl');

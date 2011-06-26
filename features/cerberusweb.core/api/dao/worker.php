@@ -462,7 +462,7 @@ class DAO_Worker extends C4_ORMHelper {
 	 * @param integer $worker_id
 	 * @param Model_Activity $activity
 	 */
-	static function logActivity(Model_Activity $activity) {
+	static function logActivity(Model_Activity $activity, $ignore_wait=false) {
 		if(null === ($worker = CerberusApplication::getActiveWorker()))
 			return;
 			
@@ -471,7 +471,7 @@ class DAO_Worker extends C4_ORMHelper {
 			$ip = '127.0.0.1';
 
 		// Update activity once per 30 seconds
-		if($worker->last_activity_date < (time()-30)) {
+		if($ignore_wait || $worker->last_activity_date < (time()-30)) {
 		    DAO_Worker::update($worker->id,array(
 		        DAO_Worker::LAST_ACTIVITY_DATE => time(),
 		        DAO_Worker::LAST_ACTIVITY => serialize($activity),
