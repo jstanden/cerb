@@ -55,6 +55,8 @@
 		<template path="support_center/footer.tpl" />
 		<template path="support_center/style.css.tpl" />
 		<template path="support_center/user_styles.css.tpl" />
+		<template path="support_center/account/customfields_readonly.tpl" />
+		<template path="support_center/account/customfields_writeable.tpl" />
 		<template path="support_center/account/sidebar_menu.tpl" />
 		<template path="support_center/account/delete/index.tpl" />
 		<template path="support_center/account/email/confirm.tpl" />
