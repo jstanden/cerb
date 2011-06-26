@@ -542,6 +542,10 @@ class Model_MailQueue {
 		if($type == Model_MailQueue::TYPE_TICKET_FORWARD)
 			$properties['is_forward'] = 1;
 			
+		// Auto-reply
+		if(isset($this->params['is_autoreply']) && !empty($this->params['is_autoreply']))
+			$properties['is_autoreply'] = true;
+			
 		// To
 		if(isset($this->params['to']))
 			$properties['to'] = $this->params['to'];
@@ -563,9 +567,7 @@ class Model_MailQueue {
 		$properties['content'] = $this->body;
 
 		// Worker
-		if(empty($this->worker_id))
-			return false;
-		$properties['agent_id'] = $this->worker_id;
+		$properties['agent_id'] = empty($this->worker_id) ? $this->worker_id : 0;
 		
 		// Attachments
 		// 'files' => $attachment_files,

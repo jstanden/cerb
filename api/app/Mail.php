@@ -570,7 +570,9 @@ class CerberusMail {
 					
 				if(isset($properties['bcc']))
 					$params['bcc'] = $properties['bcc'];
-				
+					
+				if(!empty($is_autoreply))
+					$params['is_autoreply'] = true;
 				
 				if(empty($to)) {
 					$hint_to = '(requesters)';
