@@ -700,10 +700,10 @@ class CerberusParser {
         		$proxy_worker = DAO_Worker::get($worker_address->worker_id);
         		
         		// If it's a watcher reply
-        		if(preg_match('#\<cerb5:(.*)\:(.*)@([a-z0-9]{8})(@\d*)*\>#', $in_reply_to, $hits)) {
+        		if(preg_match('#\<(.*)\_(\d*)\_(\d*)\_([a-f0-9]{8})\@cerb5\>#', $in_reply_to, $hits)) {
         			$context = $hits[1];
         			$context_id = $hits[2];
-        			$signed = $hits[3];
+        			$signed = $hits[4];
         			
         			$signed_compare = substr(md5($context.$context_id.$proxy_worker->pass),8,8);        			
 
