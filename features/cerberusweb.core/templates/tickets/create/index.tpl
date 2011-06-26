@@ -216,17 +216,19 @@
 			if(!event.ctrlKey) //!event.altKey && !event.ctrlKey && !event.metaKey
 				return;
 			
-			event.preventDefault();
-
 			if(event.ctrlKey && event.shiftKey) {
 				switch(event.which) {
-					case 7:  // (G) Insert Signature
+					case 7:
+					case 71: // (G) Insert Signature
 						try {
+							event.preventDefault();
 							$('#btnInsertSig').click();
 						} catch(ex) { } 
 						break;
-					case 9:  // (I) Insert Snippet
+					case 9:
+					case 73: // (I) Insert Snippet
 						try {
+							event.preventDefault();
 							$(this).closest('td').find('.context-snippet').focus();
 						} catch(ex) { } 
 						break;
