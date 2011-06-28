@@ -2664,6 +2664,20 @@ class Context_Ticket extends Extension_DevblocksContext {
 				}
 			}
 		}
+		
+		// Requesters
+		$token_values['requesters'] = array();
+		$reqs = DAO_Ticket::getRequestersByTicket($ticket[SearchFields_Ticket::TICKET_ID]);
+		if(is_array($reqs))
+		foreach($reqs as $req) { /* @var $req Model_Address */
+			$token_values['requesters'][$req->id] = array(
+				'email' => $req->email,
+				'first_name' => $req->first_name,
+				'last_name' => $req->last_name,
+				'full_name' => $req->getName(),
+				'org_id' => $req->contact_org_id,
+			);
+		}
 
 		// Group
 		$merge_token_labels = array();
