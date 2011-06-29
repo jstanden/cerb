@@ -55,7 +55,7 @@ class ChRest_Attachments extends Extension_RestController implements IExtensionR
 		));
 		
 		if(is_array($container) && isset($container['results']) && isset($container['results'][$id]))
-			$this->success($container['results'][$id]);
+			$this->success($container);
 
 		// Error
 		$this->error(self::ERRNO_CUSTOM, sprintf("Invalid attachment id '%d'", $id));
@@ -162,7 +162,7 @@ class ChRest_Attachments extends Extension_RestController implements IExtensionR
 		$objects = array();
 		
 		foreach($results as $id => $result) {
-			$values = $this->getContext($result);
+			$values = $this->getContext($id);
 			$objects[$id] = $values;
 		}
 		
