@@ -109,8 +109,9 @@ class ChRest_Attachments extends Extension_RestController implements IExtensionR
 			);
 		} else {
 			$tokens = array(
-				'id' => SearchFields_Attachment::ID,
-				//'updated' => SearchFields_Attachment::MESSAGE_CREATED_DATE,
+				'id' => SearchFields_AttachmentLink::ID,
+				'context' => SearchFields_AttachmentLink::LINK_CONTEXT,
+				'context_id' => SearchFields_AttachmentLink::LINK_CONTEXT_ID,
 			);
 		}
 		
@@ -150,7 +151,7 @@ class ChRest_Attachments extends Extension_RestController implements IExtensionR
 		$sortAsc = !empty($sortAsc) ? true : false;
 		
 		// Search
-		list($results, $total) = DAO_Attachment::search(
+		list($results, $total) = DAO_AttachmentLink::search(
 			$params,
 			$limit,
 			max(0,$page-1),
