@@ -151,6 +151,7 @@ class DevblocksPlatform extends DevblocksEngine {
 	}
 	
 	static function parseCrlfString($string, $keep_blanks=false) {
+		$string = str_replace("\r\n","\n",$string);
 		$parts = preg_split("/[\r\n]/", $string);
 		
 		// Remove any empty tokens
