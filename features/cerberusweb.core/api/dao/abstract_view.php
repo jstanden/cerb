@@ -1412,7 +1412,7 @@ class DAO_WorkerViewModel {
 			'render_limit' => intval($model->renderLimit),
 			'render_sort_by' => $db->qstr($model->renderSortBy),
 			'render_sort_asc' => !empty($model->renderSortAsc) ? 1 : 0,
-			'render_filters' => $db->qstr($model->renderFilters),
+			'render_filters' => !empty($model->renderFilters) ? 1 : 0,
 			'render_subtotals' => $db->qstr($model->renderSubtotals),
 			'render_template' => $db->qstr($model->renderTemplate),
 		);
