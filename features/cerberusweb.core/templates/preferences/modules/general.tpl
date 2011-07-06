@@ -36,7 +36,6 @@
 	<b>{$translate->_('common.options')|capitalize}:</b>
 	<div style="margin:0px 0px 10px 10px;">
 		<label><input type="checkbox" name="mail_always_show_all" value="1" {if $prefs.mail_always_show_all}checked{/if}> {$translate->_('preferences.account.mail.readall')}</label><br>
-		<label><input type="checkbox" name="mail_no_discard_warning" value="1" {if $prefs.mail_no_discard_warning}checked{/if}> {$translate->_('preferences.account.mail.no_discard_warning')}</label>
 	</div>
 
 	<b>{'preferences.account.mail.reply_button'|devblocks_translate}</b>

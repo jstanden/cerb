@@ -513,7 +513,6 @@ class ChDisplayPage extends CerberusPageExtension {
 			}
 
 			$tpl->assign('signature_pos', DAO_WorkerPref::get($active_worker->id, 'mail_signature_pos', 2));
-			$tpl->assign('mail_no_discard_warning', DAO_WorkerPref::get($active_worker->id, 'mail_no_discard_warning', 0));
 			$tpl->assign('mail_status_reply', DAO_WorkerPref::get($active_worker->id,'mail_status_reply','waiting'));			
 		}
 		
