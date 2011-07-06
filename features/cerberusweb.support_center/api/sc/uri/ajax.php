@@ -200,13 +200,13 @@ class UmScAjaxController extends Extension_UmScController {
 		$contents = $attachment->getFileContents();
 			
 		// Set headers
-		header("Expires: Mon, 26 Nov 1962 00:00:00 GMT\n");
-		header("Last-Modified: " . gmdate("D,d M YH:i:s") . " GMT\n");
-		header("Cache-control: private\n");
-		header("Pragma: no-cache\n");
-		header("Content-Type: " . $attachment->mime_type . "\n");
-		header("Content-transfer-encoding: binary\n"); 
-		header("Content-Length: " . strlen($contents) . "\n");
+		header("Expires: Mon, 26 Nov 1962 00:00:00 GMT");
+		header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
+		header("Accept-Ranges: bytes");
+//		header("Keep-Alive: timeout=5, max=100");
+//		header("Connection: Keep-Alive");
+		header("Content-Type: " . $attachment->mime_type);
+		header("Content-Length: " . strlen($contents));
 		
 		// Dump contents
 		echo $contents;
