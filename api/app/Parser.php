@@ -59,7 +59,9 @@ class CerberusParserMessage {
 };
 
 class CerberusParserModel {
-	private $_headers = array();
+	private $_message = null;
+	
+	private $_pre_actions = array();
 	
 	private $_is_new = true;
 	private $_sender_address_model = null;
@@ -70,8 +72,8 @@ class CerberusParserModel {
 	private $_message_id = 0;
 	private $_group_id = 0;
 	
-	public function __construct($headers) {
-		$this->_headers = $headers;
+	public function __construct(CerberusParserMessage $message) {
+		$this->setMessage($message);
 		
 		$this->_parseHeadersFrom();
 		$this->_parseHeadersSubject();
@@ -106,9 +108,9 @@ class CerberusParserModel {
 		try {
 			$this->_sender_address_model = null;
 			
-			@$sReturnPath = $this->_headers['return-path'];
-			@$sReplyTo = $this->_headers['reply-to'];
-			@$sFrom = $this->_headers['from'];
+			@$sReturnPath = $this->_message->headers['return-path'];
+			@$sReplyTo = $this->_message->headers['reply-to'];
+			@$sFrom = $this->_message->headers['from'];
 			
 			$from = array();
 			
@@ -149,8 +151,8 @@ class CerberusParserModel {
 		$subject = '';
 		
 		// Handle multiple subjects
-		if(isset($this->_headers['subject']) && !empty($this->_headers['subject'])) {
-			$subject = $this->_headers['subject'];
+		if(isset($this->_message->headers['subject']) && !empty($this->_message->headers['subject'])) {
+			$subject = $this->_message->headers['subject'];
 			if(is_array($subject))
 				$subject = array_shift($subject);
 		}
@@ -169,7 +171,7 @@ class CerberusParserModel {
 	 * @return int $timestamp
 	 */
 	private function _parseHeadersDate() {
-		$timestamp = @strtotime($this->_headers['date']);
+		$timestamp = @strtotime($this->_message->headers['date']);
 		
 		// If blank, or in the future, set to the current date
 		if(empty($timestamp) || $timestamp > time())
@@ -185,11 +187,11 @@ class CerberusParserModel {
 	 * options match we return null.
 	 */
 	private function _parseHeadersIsNew() {
-		@$aSubject = $this->_headers['subject'];
-		@$sMessageId = trim($this->_headers['message-id']);
-		@$sInReplyTo = trim($this->_headers['in-reply-to']);
-		@$sReferences = trim($this->_headers['references']);
-		@$sThreadTopic = trim($this->_headers['thread-topic']);
+		@$aSubject = $this->_message->headers['subject'];
+		@$sMessageId = trim($this->_message->headers['message-id']);
+		@$sInReplyTo = trim($this->_message->headers['in-reply-to']);
+		@$sReferences = trim($this->_message->headers['references']);
+		@$sThreadTopic = trim($this->_message->headers['thread-topic']);
 
 		$aReferences = array();
 		
@@ -260,9 +262,70 @@ class CerberusParserModel {
 		$this->_message_id = 0;
 	}
 	
+	public function getRecipients() {
+		$headers =& $this->_message->headers;
+		$sources = array();
+		
+		if(isset($headers['to']))
+			$sources = array_merge($sources, is_array($headers['to']) ? $headers['to'] : array($headers['to']));
+
+		if(isset($headers['cc']))
+			$sources = array_merge($sources, is_array($headers['cc']) ? $headers['cc'] : array($headers['cc'])); 
+		
+		if(isset($headers['envelope-to']))
+			$sources = array_merge($sources, is_array($headers['envelope-to']) ? $headers['envelope-to'] : array($headers['envelope-to'])); 
+		
+		if(isset($headers['x-envelope-to']))
+			$sources = array_merge($sources, is_array($headers['x-envelope-to']) ? $headers['x-envelope-to'] : array($headers['x-envelope-to']));
+		
+		if(isset($headers['delivered-to']))
+			$sources = array_merge($sources, is_array($headers['delivered-to']) ? $headers['delivered-to'] : array($headers['delivered-to']));
+		
+		$destinations = array();
+		foreach($sources as $source) {
+			@$parsed = imap_rfc822_parse_adrlist($source,'localhost');
+			$destinations = array_merge($destinations, is_array($parsed) ? $parsed : array($parsed));
+		}
+		
+		$addresses = array();
+		foreach($destinations as $destination) {
+			if(empty($destination->mailbox) || empty($destination->host))
+				continue;
+			
+			$addresses[] = $destination->mailbox.'@'.$destination->host;
+		}
+		
+		@imap_errors(); // Prevent errors from spilling out into STDOUT
+
+		return $addresses;
+	} 		
+	
 	// Getters/Setters
 	
-	public function getIsNew() {
+	/**
+	 * @return CerberusParserMessage
+	 */
+	public function &getMessage() {
+		return $this->_message;
+	}
+	
+	public function setMessage(CerberusParserMessage $message) {
+		$this->_message = $message;
+	}
+	
+	public function &getHeaders() {
+		return $this->_message->headers;
+	}
+	
+	public function &getPreActions() {
+		return $this->_pre_actions;
+	}
+	
+	public function addPreAction($action, $params=array()) {
+		$this->_pre_actions[$action] = $params;
+	}
+	
+	public function &getIsNew() {
 		return $this->_is_new;
 	}
 	
@@ -270,7 +333,7 @@ class CerberusParserModel {
 		$this->_is_new = $bool;
 	}
 	
-	public function getSenderAddressModel() {
+	public function &getSenderAddressModel() {
 		return $this->_sender_address_model;
 	}
 	
@@ -278,7 +341,7 @@ class CerberusParserModel {
 		$this->_sender_address_model = $model;
 	}
 	
-	public function getSubject() {
+	public function &getSubject() {
 		return $this->_subject;
 	}
 	
@@ -286,7 +349,7 @@ class CerberusParserModel {
 		$this->_subject = $subject;
 	}
 	
-	public function getDate() {
+	public function &getDate() {
 		return $this->_date;
 	}
 	
@@ -298,7 +361,7 @@ class CerberusParserModel {
 		$this->_ticket_id = $id;
 	}
 	
-	public function getTicketId() {
+	public function &getTicketId() {
 		return $this->_ticket_id;
 	}
 	
@@ -632,60 +695,21 @@ class CerberusParser {
 		}
 
 		// Parse headers into $model
-		$model = new CerberusParserModel($headers);		
+		$model = new CerberusParserModel($message);		
 		
 		if(!$model->validate())
 			return NULL;
 		
         // Pre-parse mail filters
-        // [TODO] Replace with decision trees
-		$pre_filters = Model_PreParseRule::getMatches($message, $model);
-		if(is_array($pre_filters) && !empty($pre_filters)) {
-			// Load filter action manifests for reuse
-			$ext_action_mfts = DevblocksPlatform::getExtensions('cerberusweb.mail_filter.action', false);
-
-			// Loop through all matching filters
-			foreach($pre_filters as $pre_filter) {
-				
-	        	// Do something with matching filter's actions
-	        	foreach($pre_filter->actions as $action_key => $action) {
-	        		
-	        		switch($action_key) {
-	        			case 'blackhole':
-	        				return NULL;
-	        				break;
-	        				
-	        			case 'redirect':
-	        				@$to = $action['to'];
-	        				CerberusMail::reflect($message, $to);
-	        				return NULL;
-	        				break;
-	        				
-	        			case 'bounce':
-	        				@$msg = $action['message'];
-							@$subject = 'Delivery failed: ' . self::fixQuotePrintableString($headers['subject']);
-							
-	        				// [TODO] Follow the RFC spec on a true bounce
-							if(null != ($model_sender_address = $model->getSenderAddressModel())) {
-	        					CerberusMail::quickSend($model_sender_address->email,$subject,$msg);
-							}
-	        				return NULL;
-	        				break;
-						
-						default:
-							// Plugin pre-parser filter actions
-							if(isset($ext_action_mfts[$action_key])) {
-								if(null != (@$ext_action = $ext_action_mfts[$action_key]->createInstance())) {
-									try { 
-										/* @var $ext_action Extension_MailFilterAction */
-										$ext_action->run($pre_filter, $message);
-									} catch(Exception $e) {	}
-								}
-							}
-							break;
-	        		}
-	        	}
-	        }
+		// Changing the incoming message through a VA
+		Event_MailReceivedByApp::trigger($model);
+		
+		$pre_actions = $model->getPreActions();
+		
+		// Reject?
+		if(isset($pre_actions['reject'])) {
+			$logger->info('Rejecting based on Virtual Attendant behavioral action.');
+			return NULL;
 		}
 		
 		// Overloadable
@@ -873,7 +897,7 @@ class CerberusParser {
 				
 			// Add the other TO/CC addresses to the ticket
 			if(DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::PARSER_AUTO_REQ, CerberusSettingsDefaults::PARSER_AUTO_REQ)) {
-				$destinations = self::getDestinations($headers);
+				$destinations = $model->getRecipients();
 				
 				if(is_array($destinations))
 				foreach($destinations as $dest) {
@@ -1013,43 +1037,6 @@ class CerberusParser {
 	    
 		return $model->getTicketId();
 	}
-	
-	static public function getDestinations($headers) {
-		$sources = array();
-		
-		if(isset($headers['to']))
-			$sources = array_merge($sources, is_array($headers['to']) ? $headers['to'] : array($headers['to']));
-
-		if(isset($headers['cc']))
-			$sources = array_merge($sources, is_array($headers['cc']) ? $headers['cc'] : array($headers['cc'])); 
-		
-		if(isset($headers['envelope-to']))
-			$sources = array_merge($sources, is_array($headers['envelope-to']) ? $headers['envelope-to'] : array($headers['envelope-to'])); 
-		
-		if(isset($headers['x-envelope-to']))
-			$sources = array_merge($sources, is_array($headers['x-envelope-to']) ? $headers['x-envelope-to'] : array($headers['x-envelope-to']));
-		
-		if(isset($headers['delivered-to']))
-			$sources = array_merge($sources, is_array($headers['delivered-to']) ? $headers['delivered-to'] : array($headers['delivered-to']));
-		
-		$destinations = array();
-		foreach($sources as $source) {
-			@$parsed = imap_rfc822_parse_adrlist($source,'localhost');
-			$destinations = array_merge($destinations, is_array($parsed) ? $parsed : array($parsed));
-		}
-		
-		$addresses = array();
-		foreach($destinations as $destination) {
-			if(empty($destination->mailbox) || empty($destination->host))
-				continue;
-			
-			$addresses[] = $destination->mailbox.'@'.$destination->host;
-		}
-		
-		@imap_errors(); // Prevent errors from spilling out into STDOUT
-
-		return $addresses;
-	} 		
 	
 	// [TODO] Phase out in favor of the CerberusUtils class
 	static function parseRfcAddress($address_string) {

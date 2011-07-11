@@ -39,6 +39,7 @@
 		<patch version="5.4.0" revision="934" file="patches/5.x/5.4.0.php" />
 		<patch version="5.4.3" revision="935" file="patches/5.x/5.4.3.php" />
 		<patch version="5.4.4" revision="936" file="patches/5.x/5.4.4.php" />
+		<patch version="5.5.0" revision="940" file="patches/5.x/5.5.0.php" />
 	</patches>
 
 	<!-- Declared Extension Points -->
@@ -232,11 +233,6 @@
 			<class name="Model_Pop3Account" />
 		</file>
 		
-		<file path="api/dao/preparse_rule.php">
-			<class name="DAO_PreParseRule" />
-			<class name="Model_PreParseRule" />
-		</file>
-		
 		<file path="api/dao/snippet.php">
 			<class name="DAO_Snippet" />
 			<class name="Model_Snippet" />
@@ -313,6 +309,10 @@
 		
 		<file path="api/events/mail_closed_in_group.php">
 			<class name="Event_MailClosedInGroup" />
+		</file>
+		
+		<file path="api/events/app/mail_received_by_app.php">
+			<class name="Event_MailReceivedByApp" />
 		</file>
 		
 		<file path="api/events/mail_moved_to_group.php">
@@ -727,6 +727,22 @@
 		</extension>
 
 		<!-- Event Triggers -->
+		
+		<extension point="devblocks.event">
+			<id>event.mail.received.app</id>
+			<name>New mail received</name>
+			<class>
+				<file>api/events/app/mail_received_by_app.php</file>
+				<name>Event_MailReceivedByApp</name>
+			</class>
+			<params>
+				<param key="contexts">
+					<value>
+						<data key="cerberusweb.contexts.app" />
+					</value>
+				</param>
+			</params>
+		</extension>
 		
 		<extension point="devblocks.event">
 			<id>event.notification.received.worker</id>

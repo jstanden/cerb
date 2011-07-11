@@ -676,7 +676,7 @@ if(isset($tables['group_inbox_filter'])) {
 				switch($key) {
 					case 'dayofweek':
 						$map = array(
-							'sun' => '0',
+							'sun' => '7',
 							'mon' => '1',
 							'tue' => '2',
 							'wed' => '3',

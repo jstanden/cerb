@@ -755,10 +755,12 @@ class CerberusMail {
 		return true;
 	}
 	
-	static function reflect(CerberusParserMessage $message, $to) {
+	static function reflect(CerberusParserModel $model, $to) {
 		try {
+			$message = $model->getMessage(); /* @var $message CerberusParserMessage */
+			
 			$mail_service = DevblocksPlatform::getMailService();
-			$mailer = $mail_service->getMailer(CerberusMail::getMailerDefaults());
+			$mailer = $mail_service->getMailer(CerberusMail::getMailerDefaults()); /* @var $mailer Swift_Mailer */
 			$mail = $mail_service->createMessage();
 	
 			$mail->setTo(array($to));
