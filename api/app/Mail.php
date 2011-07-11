@@ -780,8 +780,11 @@ class CerberusMail {
 				$headers->addTextHeader('In-Reply-To', $message->headers['in-reply-to']);
 			if(isset($message->headers['references']))
 				$headers->addTextHeader('References', $message->headers['references']);
-			if(isset($message->headers['from']))
-				$mail->setFrom($message->headers['from']);
+			if(isset($message->headers['from'])) {
+				$sender_addy = $model->getSenderAddressModel(); /* @var $sender_addy Model_Address */
+				$sender_name = $sender_addy->getName();
+				$mail->setFrom($sender_addy->email, empty($sender_name) ? null : $sender_name);
+			}
 			if(isset($message->headers['return-path'])) {
 				$return_path = is_array($message->headers['return-path'])
 					? array_shift($message->headers['return-path'])
