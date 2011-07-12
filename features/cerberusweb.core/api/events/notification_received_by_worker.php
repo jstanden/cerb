@@ -130,6 +130,7 @@ class Event_NotificationReceivedByWorker extends Extension_DevblocksEvent {
 		$actions = array(
 			'send_email_owner' => array('label' => 'Send email to me'),
 			'create_task' => array('label' =>'Create a task'),
+			'mark_read' => array('label' =>'Mark read'),
 		);
 		return $actions;
 	}
@@ -157,6 +158,9 @@ class Event_NotificationReceivedByWorker extends Extension_DevblocksEvent {
 				
 			case 'create_task':
 				DevblocksEventHelper::renderActionCreateTask();
+				break;
+				
+			case 'mark_read':
 				break;
 		}
 			
@@ -201,6 +205,13 @@ class Event_NotificationReceivedByWorker extends Extension_DevblocksEvent {
 						$content
 					);
 				}
+				break;
+				
+			case 'mark_read':
+				DAO_Notification::update($notification_id, array(
+					DAO_Notification::IS_READ => 1,
+				));
+				$values['is_read'] = 1;
 				break;
 				
 			case 'create_task':
