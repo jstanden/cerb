@@ -630,16 +630,27 @@ class EventListener_Triggers extends DevblocksEventListenerExtension {
 		$logger->info(sprintf("EVENT: %s",
 			$event->id
 		));
-		
-		$triggers = DAO_TriggerEvent::getByEvent($event->id, false);
 
+		// Are we limited to only one trigger on this event, or all of them?
+		
+		if(isset($event->params['_whisper']['_trigger_id'][0])) {
+			if(null != ($trigger = DAO_TriggerEvent::get($event->params['_whisper']['_trigger_id'][0]))) {
+				$triggers[$trigger->id] = $trigger;
+			}
+			unset($event->params['_whisper']['_trigger_id']);
+		} else {
+			$triggers = DAO_TriggerEvent::getByEvent($event->id, false);
+		}
+
+		// Allowed
+		
 		if(empty($triggers))
 			return;
 
 		// We're restricting the scope of the event
-		if(isset($event->params['_whisper']) && is_array($event->params['_whisper'])) {
+		if(isset($event->params['_whisper']) && is_array($event->params['_whisper']) && !empty($event->params['_whisper'])) {
 			foreach($triggers as $trigger_id => $trigger) { /* @var $trigger Model_TriggerEvent */
-				if(
+				if (
 					null != ($allowed_ids = @$event->params['_whisper'][$trigger->owner_context])
 					&& in_array($trigger->owner_context_id, !is_array($allowed_ids) ? array($allowed_ids) : $allowed_ids)
 					) {
