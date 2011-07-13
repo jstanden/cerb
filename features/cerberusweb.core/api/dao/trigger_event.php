@@ -50,17 +50,23 @@ class DAO_TriggerEvent extends C4_ORMHelper {
 	 * 
 	 * @param string $context
 	 * @param integer $context_id
+	 * @param string $event_point
 	 * @return Model_TriggerEvent[]
 	 */
-	static function getByOwner($context, $context_id) {
+	static function getByOwner($context, $context_id, $event_point=null) {
 		$behaviors = self::getAll();
 		$results = array();
 
-		foreach($behaviors as $behavior_id => $behavior) {
+		foreach($behaviors as $behavior_id => $behavior) { /* @var $behavior Model_TriggerEvent */
 			if($behavior->owner_context == $context
-				&& $behavior->owner_context_id == $context_id)
-					$results[$behavior_id] = $behavior;
+				&& $behavior->owner_context_id == $context_id) {
+					if(is_null($event_point) || 0==strcasecmp($event_point,$behavior->event_point)) {
+						$results[$behavior_id] = $behavior;
+					}
+				}
 		}
+		
+		uasort($results, create_function('$a, $b', "return strcasecmp(\$a->title,\$b->title);\n"));
 		
 		return $results;
 	}

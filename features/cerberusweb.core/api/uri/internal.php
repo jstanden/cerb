@@ -1437,6 +1437,53 @@ class ChInternalController extends DevblocksControllerExtension {
 	 * Triggers
 	 */
 
+	function applyMacroAction() {
+		@$macro_id = DevblocksPlatform::importGPC($_REQUEST['macro'],'integer',0);
+		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
+		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer',0);
+		@$return_url = DevblocksPlatform::importGPC($_REQUEST['return_url'],'string','');
+
+		$active_worker = CerberusApplication::getActiveWorker();
+
+		if(empty($return_url) && isset($_SERVER['http_referer']))
+			$return_url = $_SERVER['http_referer'];
+		
+		try {
+			if(empty($context) || empty($context_id) || empty($macro_id))
+				return;
+	
+			// Load context
+			if(null == ($context_ext = DevblocksPlatform::getExtension($context, true)))
+				throw new Exception("Invalid context.");
+	
+			// ACL: Ensure access to the context object
+			if(!$context_ext->authorize($context_id, $active_worker))
+				throw new Exception("Access denied to context.");
+			
+			// Load macro
+			if(null == ($macro = DAO_TriggerEvent::get($macro_id))) /* @var $macro Model_TriggerEvent */
+				throw new Exception("Invalid macro.");
+			
+			// ACL: Ensure the worker owns the macro ([TODO] or is a group member)
+			if(false == ($macro->owner_context == CerberusContexts::CONTEXT_WORKER && $macro->owner_context_id == $active_worker->id))
+				throw new Exception("Access denied to macro.");
+				
+			// Load event manifest
+			if(null == ($ext = DevblocksPlatform::getExtension($macro->event_point, false))) /* @var $ext DevblocksExtensionManifest */
+				throw new Exception("Invalid event.");
+	
+			// Execute
+			call_user_func(array($ext->class, 'trigger'), $macro->id, $context_id);
+			
+		} catch (Exception $e) {
+			// System log error?
+		}
+		
+		// Redirect
+		DevblocksPlatform::redirectURL($return_url);
+		exit;
+	}
+	
 	function showAttendantTabAction() {
 		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
 		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer',0);

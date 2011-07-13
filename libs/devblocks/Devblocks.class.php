@@ -1580,6 +1580,16 @@ class DevblocksPlatform extends DevblocksEngine {
 		header('Location: '.$url);
 		exit;
 	}
+	
+	static function redirectURL($url) {
+		if(empty($url)) {
+			$url_service = self::getUrlService();
+			$url = $url_service->writeNoProxy('', true);
+		}
+		session_write_close();
+		header('Location: '.$url);
+		exit;
+	}
 };
 
 abstract class DevblocksEngine {

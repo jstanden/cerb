@@ -267,6 +267,12 @@
 		<tu tuid='common.knowledgebase'>
 			<tuv xml:lang="en_US"><seg>Knowledgebase</seg></tuv>
 		</tu>
+		<tu tuid='common.macro'>
+			<tuv xml:lang="en_US"><seg>Macro</seg></tuv>
+		</tu>
+		<tu tuid='common.macros'>
+			<tuv xml:lang="en_US"><seg>Macros</seg></tuv>
+		</tu>
 		<tu tuid='common.mail'>
 			<tuv xml:lang="en_US"><seg>Mail</seg></tuv>
 		</tu>
