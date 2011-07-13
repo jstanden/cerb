@@ -696,6 +696,39 @@ class DevblocksEventHelper {
 		return $comment_id;
 	}
 	
+	static function renderActionScheduleTicketReply() {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->display('devblocks:cerberusweb.core::events/model/ticket/action_schedule_email_recipients.tpl');
+	}
+	
+	static function runActionScheduleTicketReply($params, $values, $ticket_id, $message_id) {
+		@$delivery_date_relative = $params['delivery_date'];
+		
+		if(false == ($delivery_date = strtotime($delivery_date_relative)))
+			$delivery_date = time();
+		
+		// Translate message tokens
+		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+		$content = $tpl_builder->build($params['content'], $values);
+		
+		$fields = array(
+			DAO_MailQueue::TYPE => Model_MailQueue::TYPE_TICKET_REPLY,
+			DAO_MailQueue::IS_QUEUED => 1,
+			//DAO_MailQueue::HINT_TO => implode($values['recipients']),
+			DAO_MailQueue::HINT_TO => '(recipients)',
+			DAO_MailQueue::SUBJECT => $values['ticket_subject'],
+			DAO_MailQueue::BODY => $content,
+			DAO_MailQueue::PARAMS_JSON => json_encode(array(
+				'in_reply_message_id' => $message_id,				
+			)),
+			DAO_MailQueue::TICKET_ID => $ticket_id,
+			DAO_MailQueue::WORKER_ID => 0,
+			DAO_MailQueue::UPDATED => time(),
+			DAO_MailQueue::QUEUE_DELIVERY_DATE => $delivery_date,
+		);
+		$queue_id = DAO_MailQueue::create($fields);
+	}
+	
 	static function renderActionSetTicketOwner() {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('workers', DAO_Worker::getAllActive());

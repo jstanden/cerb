@@ -384,8 +384,9 @@ class Event_MailReceivedByGroup extends Extension_DevblocksEvent {
 				'move_to_bucket' => array('label' => 'Move to bucket'),
 				'move_to_group' => array('label' => 'Move to group'),
 				'relay_email' => array('label' => 'Relay to external email'),
+				'schedule_email_recipients' => array('label' => 'Schedule email to recipients'),
 				'send_email' => array('label' => 'Send email'),
-				'send_email_recipients' => array('label' => 'Reply to recipients'),
+				'send_email_recipients' => array('label' => 'Send email to recipients'),
 				'set_owner' => array('label' =>'Set owner'),
 				'set_spam_training' => array('label' => 'Set spam training'),
 				'set_status' => array('label' => 'Set status'),
@@ -420,6 +421,10 @@ class Event_MailReceivedByGroup extends Extension_DevblocksEvent {
 				// [TODO] Filter to group members
 				$group = DAO_Group::get($trigger->owner_context_id);
 				DevblocksEventHelper::renderActionRelayEmail(array_keys($group->getMembers()));
+				break;
+				
+			case 'schedule_email_recipients':
+				DevblocksEventHelper::renderActionScheduleTicketReply();
 				break;
 				
 			case 'send_email':
@@ -503,6 +508,10 @@ class Event_MailReceivedByGroup extends Extension_DevblocksEvent {
 				
 			case 'relay_email':
 				DevblocksEventHelper::runActionRelayEmail($params, $values, CerberusContexts::CONTEXT_TICKET, $ticket_id);
+				break;
+				
+			case 'schedule_email_recipients':
+				DevblocksEventHelper::runActionScheduleTicketReply($params, $values, $ticket_id, $message_id);
 				break;
 				
 			case 'send_email_recipients':
