@@ -2646,11 +2646,6 @@
         <seg># Fehlschläge</seg>
       </tuv>
     </tu>
-    <tu tuid="mail_queue.queue_priority">
-      <tuv xml:lang="de_DE">
-        <seg>Priorität</seg>
-      </tuv>
-    </tu>
     <tu tuid="mail_queue.ticket_id">
       <tuv xml:lang="de_DE">
         <seg>Ticket-ID</seg>

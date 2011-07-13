@@ -1220,16 +1220,18 @@ class MailQueueCron extends CerberusCronPageExtension {
 		
 		do {
 			$messages = DAO_MailQueue::getWhere(
-				sprintf("%s = %d AND %s > %d AND %s < %d",
+				sprintf("%s = %d AND %s <= %d AND %s > %d AND %s < %d",
 					DAO_MailQueue::IS_QUEUED,
 					1,
+					DAO_MailQueue::QUEUE_DELIVERY_DATE,
+					time(),
 					DAO_MailQueue::ID,
 					$last_id,
 					DAO_MailQueue::QUEUE_FAILS,
 					10
 				),
-				array(DAO_MailQueue::QUEUE_PRIORITY, DAO_MailQueue::UPDATED),
-				array(false, true),
+				array(DAO_MailQueue::QUEUE_DELIVERY_DATE, DAO_MailQueue::UPDATED),
+				array(true, true),
 				25
 			);
 	
@@ -1241,6 +1243,7 @@ class MailQueueCron extends CerberusCronPageExtension {
 						$logger->error(sprintf("[Mail Queue] Failed sending message %d", $message->id));
 						DAO_MailQueue::update($message->id, array(
 							DAO_MailQueue::QUEUE_FAILS => min($message->queue_fails+1,255),
+							DAO_MailQueue::QUEUE_DELIVERY_DATE => time() + 900, // retry in 15 min
 						));
 					} else {
 						$logger->info(sprintf("[Mail Queue] Sent message %d", $message->id));

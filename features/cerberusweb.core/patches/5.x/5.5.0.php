@@ -476,4 +476,24 @@ if(isset($tables['preparse_rule'])) {
 	$db->Execute('DROP TABLE IF EXISTS preparse_rule');
 }
 
+// ===========================================================================
+// Add 'queue_delivery_date' to 'mail_queue'
+
+if(!isset($tables['mail_queue'])) {
+	$logger->error("The 'mail_queue' table is required");
+	return FALSE;
+}
+
+list($columns, $indexes) = $db->metaTable('mail_queue');
+
+if(!isset($columns['queue_delivery_date'])) {
+	$db->Execute("ALTER TABLE mail_queue ADD COLUMN queue_delivery_date INT UNSIGNED NOT NULL DEFAULT 0, ADD INDEX queue_delivery_date (queue_delivery_date)");
+}
+
+if(isset($columns['queue_priority'])) {
+	$db->Execute("ALTER TABLE mail_queue DROP COLUMN queue_priority");
+	unset($columns['queue_priority']);
+}
+
+
 return TRUE;

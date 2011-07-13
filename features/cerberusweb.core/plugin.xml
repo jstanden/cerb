@@ -39,7 +39,7 @@
 		<patch version="5.4.0" revision="934" file="patches/5.x/5.4.0.php" />
 		<patch version="5.4.3" revision="935" file="patches/5.x/5.4.3.php" />
 		<patch version="5.4.4" revision="936" file="patches/5.x/5.4.4.php" />
-		<patch version="5.5.0" revision="940" file="patches/5.x/5.5.0.php" />
+		<patch version="5.5.0" revision="941" file="patches/5.x/5.5.0.php" />
 	</patches>
 
 	<!-- Declared Extension Points -->

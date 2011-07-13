@@ -1417,11 +1417,11 @@ For example: http://www.cerberusweb.com/support/</seg></tuv>
 		<tu tuid='mail_queue.params_json'>
 			<tuv xml:lang="en_US"><seg>Parameters</seg></tuv>
 		</tu>
+		<tu tuid='mail_queue.queue_delivery_date'>
+			<tuv xml:lang="en_US"><seg>Delivery Date</seg></tuv>
+		</tu>
 		<tu tuid='mail_queue.queue_fails'>
 			<tuv xml:lang="en_US"><seg># Fails</seg></tuv>
-		</tu>
-		<tu tuid='mail_queue.queue_priority'>
-			<tuv xml:lang="en_US"><seg>Priority</seg></tuv>
 		</tu>
 		<tu tuid='mail_queue.ticket_id'>
 			<tuv xml:lang="en_US"><seg>Ticket ID</seg></tuv>
@@ -1449,6 +1449,13 @@ For example: http://www.cerberusweb.com/support/</seg></tuv>
 		</tu>
 		<tu tuid='message.header.to'>
 			<tuv xml:lang="en_US"><seg>To</seg></tuv>
+		</tu>
+
+		<tu tuid='message.queued.delivery_immediate'>
+			<tuv xml:lang="en_US"><seg>scheduled for immediate delivery</seg></tuv>
+		</tu>
+		<tu tuid='message.queued.deliver_in'>
+			<tuv xml:lang="en_US"><seg>scheduled for delivery in %s</seg></tuv>
 		</tu>
 		
 		<tu tuid='message.content'>

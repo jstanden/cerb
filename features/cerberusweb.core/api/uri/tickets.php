@@ -420,7 +420,7 @@ class ChTicketsPage extends CerberusPageExtension {
 			SearchFields_MailQueue::ID,
 			SearchFields_MailQueue::IS_QUEUED,
 			SearchFields_MailQueue::QUEUE_FAILS,
-			SearchFields_MailQueue::QUEUE_PRIORITY,
+			SearchFields_MailQueue::QUEUE_DELIVERY_DATE,
 			SearchFields_MailQueue::TICKET_ID,
 			SearchFields_MailQueue::WORKER_ID,
 		), true);
@@ -433,7 +433,7 @@ class ChTicketsPage extends CerberusPageExtension {
 			SearchFields_MailQueue::ID,
 			SearchFields_MailQueue::IS_QUEUED,
 			SearchFields_MailQueue::QUEUE_FAILS,
-			SearchFields_MailQueue::QUEUE_PRIORITY,
+			SearchFields_MailQueue::QUEUE_DELIVERY_DATE,
 			SearchFields_MailQueue::TICKET_ID,
 			SearchFields_MailQueue::WORKER_ID,
 		), true);
@@ -515,7 +515,7 @@ class ChTicketsPage extends CerberusPageExtension {
 			DAO_MailQueue::BODY => $content,
 			DAO_MailQueue::PARAMS_JSON => json_encode($params),
 			DAO_MailQueue::IS_QUEUED => 0,
-			DAO_MailQueue::QUEUE_PRIORITY => 0,
+			DAO_MailQueue::QUEUE_DELIVERY_DATE => time(),
 		);
 		
 		// Make sure the current worker is the draft author

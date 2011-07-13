@@ -75,7 +75,7 @@
 		{foreach from=$view->view_columns item=column name=columns}
 			{if substr($column,0,3)=="cf_"}
 				{include file="devblocks:cerberusweb.core::internal/custom_fields/view/cell_renderer.tpl"}
-			{elseif $column=="m_updated"}
+			{elseif $column=="m_updated" || $column=="m_queue_delivery_date"}
 			<td>
 				<abbr title="{$result.$column|devblocks_date}">{$result.$column|devblocks_prettytime}</abbr>
 			</td>
@@ -85,8 +85,8 @@
 					{$workers = DAO_Worker::getAll()}
 				{/if}
 				{if isset($workers.{$result.$column})}
-				{$worker = $workers.{$result.$column}}
-				{$worker->getName()}
+					{$worker = $workers.{$result.$column}}
+					{$worker->getName()}
 				{/if}
 			</td>
 			{elseif $column=="m_is_queued"}

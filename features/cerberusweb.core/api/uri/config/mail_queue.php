@@ -15,7 +15,7 @@ class PageSection_SetupMailQueue extends Extension_PageSection {
 			SearchFields_MailQueue::UPDATED,
 			SearchFields_MailQueue::WORKER_ID,
 			SearchFields_MailQueue::QUEUE_FAILS,
-			SearchFields_MailQueue::QUEUE_PRIORITY,
+			SearchFields_MailQueue::QUEUE_DELIVERY_DATE,
 		);
 		
 		if(null != ($view = C4_AbstractViewLoader::getView($defaults->id, $defaults))) {

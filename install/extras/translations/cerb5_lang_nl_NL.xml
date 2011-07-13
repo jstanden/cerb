@@ -2351,11 +2351,6 @@
         <seg># Mislukt</seg>
       </tuv>
     </tu>
-    <tu tuid="mail_queue.queue_priority">
-      <tuv xml:lang="nl_NL">
-        <seg>Prioriteit</seg>
-      </tuv>
-    </tu>
     <tu tuid="mail_queue.ticket_id">
       <tuv xml:lang="nl_NL">
         <seg>Ticket ID</seg>
