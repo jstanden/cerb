@@ -163,8 +163,6 @@ class Event_NotificationReceivedByWorker extends Extension_DevblocksEvent {
 			case 'mark_read':
 				break;
 		}
-			
-		//$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_string.tpl');
 	}
 	
 	function runActionExtension($token, $trigger, $params, &$values) {

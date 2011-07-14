@@ -554,6 +554,14 @@ class Event_MailSentByGroup extends Extension_DevblocksEvent {
 //				$tpl->assign('groups', $groups);
 //				$tpl->display('devblocks:cerberusweb.core::events/mail_received_by_group/action_move_to_group.tpl');
 //				break;
+
+			default:
+				if('set_cf_' == substr($token,0,7)) {
+					$field_id = substr($token,7);
+					$custom_field = DAO_CustomField::get($field_id);
+					DevblocksEventHelper::renderActionSetCustomField($custom_field);
+				}
+				break;
 		}
 		
 		$tpl->clearAssign('params');
@@ -562,12 +570,10 @@ class Event_MailSentByGroup extends Extension_DevblocksEvent {
 	}
 	
 	function runActionExtension($token, $trigger, $params, &$values) {
-		//var_dump($values);
-		//@$message_id = $values['id'];
-		//@$ticket_id = $values['ticket_id'];
+		@$ticket_id = $values['ticket_id'];
 
-		//if(empty($message_id) || empty($ticket_id))
-		//	return;
+		if(empty($ticket_id))
+			return;
 		
 		switch($token) {
 			case 'append_to_content':
@@ -764,6 +770,26 @@ class Event_MailSentByGroup extends Extension_DevblocksEvent {
 //				));
 //				$values['ticket_bucket_id'] = $to_bucket_id;
 //				break;
+
+			default:
+				if('set_cf_' == substr($token,0,7)) {
+					$field_id = substr($token,7);
+					$custom_field = DAO_CustomField::get($field_id);
+					$context = null;
+					$context_id = null;
+					
+					// If different types of custom fields, need to find the proper context_id
+					switch($custom_field->context) {
+						case CerberusContexts::CONTEXT_TICKET:
+							$context = $custom_field->context;
+							$context_id = $ticket_id;
+							break;
+					}
+					
+					if(!empty($context) && !empty($context_id))
+						DevblocksEventHelper::runActionSetCustomField($custom_field, 'ticket_custom', $params, $values, $context, $context_id);
+				}
+				break;				
 		}
 	}
 };

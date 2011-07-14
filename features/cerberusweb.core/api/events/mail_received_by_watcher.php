@@ -290,6 +290,14 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 			case 'create_ticket':
 				DevblocksEventHelper::renderActionCreateTicket();
 				break;
+				
+//			default:
+//				if('set_cf_' == substr($token,0,7)) {
+//					$field_id = substr($token,7);
+//					$custom_field = DAO_CustomField::get($field_id);
+//					DevblocksEventHelper::renderActionSetCustomField($custom_field);
+//				}
+//				break;
 		}
 		
 		$tpl->clearAssign('params');
@@ -345,6 +353,26 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 			case 'create_ticket':
 				DevblocksEventHelper::runActionCreateTicket($params, $values, CerberusContexts::CONTEXT_TICKET, $ticket_id);
 				break;
+				
+//			default:
+//				if('set_cf_' == substr($token,0,7)) {
+//					$field_id = substr($token,7);
+//					$custom_field = DAO_CustomField::get($field_id);
+//					$context = null;
+//					$context_id = null;
+//					
+//					// If different types of custom fields, need to find the proper context_id
+//					switch($custom_field->context) {
+//						case CerberusContexts::CONTEXT_TICKET:
+//							$context = $custom_field->context;
+//							$context_id = $ticket_id;
+//							break;
+//					}
+//					
+//					if(!empty($context) && !empty($context_id))
+//						DevblocksEventHelper::runActionSetCustomField($custom_field, 'ticket_custom', $params, $values, $context, $context_id);
+//				}
+//				break;				
 		}
 	}
 };

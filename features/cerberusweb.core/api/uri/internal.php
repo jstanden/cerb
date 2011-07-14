@@ -1464,7 +1464,7 @@ class ChInternalController extends DevblocksControllerExtension {
 			if(null == ($macro = DAO_TriggerEvent::get($macro_id))) /* @var $macro Model_TriggerEvent */
 				throw new Exception("Invalid macro.");
 			
-			// ACL: Ensure the worker owns the macro ([TODO] or is a group member)
+			// ACL: Ensure the worker owns the macro
 			if(false == ($macro->owner_context == CerberusContexts::CONTEXT_WORKER && $macro->owner_context_id == $active_worker->id))
 				throw new Exception("Access denied to macro.");
 				
