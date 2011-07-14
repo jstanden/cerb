@@ -827,6 +827,7 @@ class Context_Task extends Extension_DevblocksContext {
 			'due|date' => $prefix.$translate->_('task.due_date'),
 			'id' => $prefix.$translate->_('common.id'),
 			'is_completed' => $prefix.$translate->_('task.is_completed'),
+			'status' => $prefix.$translate->_('common.status'),
 			'title' => $prefix.$translate->_('common.title'),
 			'updated|date' => $prefix.$translate->_('task.updated_date'),
 		);
@@ -846,6 +847,13 @@ class Context_Task extends Extension_DevblocksContext {
 			$token_values['is_completed'] = $task->is_completed;
 			$token_values['title'] = $task->title;
 			$token_values['updated'] = $task->updated_date;
+			
+			// Status
+			if($task->is_completed) {
+				$token_values['status'] = 'completed';
+			} else {
+				$token_values['status'] = 'active';
+			}
 			
 			$token_values['custom'] = array();
 			
@@ -871,21 +879,6 @@ class Context_Task extends Extension_DevblocksContext {
 			}
 		}
 
-		// Assignee
-//		@$assignee_id = $task->worker_id;
-//		$merge_token_labels = array();
-//		$merge_token_values = array();
-//		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $assignee_id, $merge_token_labels, $merge_token_values, '', true);
-//
-//		CerberusContexts::merge(
-//			'assignee_',
-//			'Assignee:',
-//			$merge_token_labels,
-//			$merge_token_values,
-//			$token_labels,
-//			$token_values
-//		);			
-		
 		return true;
 	}
 

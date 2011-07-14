@@ -81,6 +81,7 @@ class ChTasksPage extends CerberusPageExtension {
 
 		$visit = CerberusApplication::getVisit();
 		$translate = DevblocksPlatform::getTranslationService();
+		$active_worker = CerberusApplication::getActiveWorker();
 		
 		$response = DevblocksPlatform::getHttpResponse();
 		$stack = $response->path;
@@ -105,6 +106,10 @@ class ChTasksPage extends CerberusPageExtension {
 
 				$workers = DAO_Worker::getAll();
 				$tpl->assign('workers', $workers);
+				
+				// Macros
+				$macros = DAO_TriggerEvent::getByOwner(CerberusContexts::CONTEXT_WORKER, $active_worker->id, 'event.macro.task');
+				$tpl->assign('macros', $macros);
 				
 				$tpl->display('devblocks:cerberusweb.core::tasks/display/index.tpl');
 				break;
@@ -396,19 +401,5 @@ class ChTasksPage extends CerberusPageExtension {
 		} while(!empty($results));
 		
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('explore',$hash,$orig_pos)));
-	}
-
-	function doDisplayTaskCompleteAction() {
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
-		
-		if(empty($id))
-			return;
-			
-		DAO_Task::update($id, array(
-			DAO_Task::IS_COMPLETED => 1,
-			DAO_Task::COMPLETED_DATE => time(),
-		));
-		
-		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('tasks','display',$id)));
 	}
 };
