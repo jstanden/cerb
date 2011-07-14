@@ -353,16 +353,22 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 
 		// Data formating
 		switch($field->type) {
+			case 'E': // date
+				if(is_numeric($value))
+					$value = intval($value);
+				else 
+					$value = @strtotime($value);
+				break;
 			case 'D': // dropdown
 			case 'S': // string
 			case 'U': // URL
 				if(255 < strlen($value))
 					$value = substr($value,0,255);
 				break;
-			case 'E': // date
 			case 'N': // number
 			case 'W': // worker
 				$value = intval($value);
+				break;
 		}
 		
 		// Clear existing values (beats replace logic)

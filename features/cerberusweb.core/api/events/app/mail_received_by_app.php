@@ -358,7 +358,7 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 				'send_email_sender' => array('label' => 'Reply to sender'),
 				'set_header' => array('label' => 'Set message header'),
 			)
-			//+ DevblocksEventHelper::getActionCustomFields(CerberusContexts::CONTEXT_TICKET)
+			+ DevblocksEventHelper::getActionCustomFields(CerberusContexts::CONTEXT_TICKET)
 			;
 		
 		return $actions;
@@ -398,6 +398,15 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 				
 			case 'set_header':
 				$tpl->display('devblocks:cerberusweb.core::events/mail_received_by_app/action_set_header.tpl');
+				break;
+				
+			default:
+				if('set_cf_' == substr($token,0,7)) {
+					$field_id = substr($token,7);
+					$custom_field = DAO_CustomField::get($field_id);
+		
+					DevblocksEventHelper::renderActionSetCustomField($custom_field);
+				}
 				break;
 		}
 		
@@ -474,6 +483,31 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
    				}
    					
 				break;
+				
+			default:
+				if('set_cf_' == substr($token,0,7)) {
+					@$parser_model = $values['_parser_model'];
+					
+					$field_id = substr($token,7);
+					$custom_field = DAO_CustomField::get($field_id);
+					$context = null;
+					$context_id = null;
+					
+					switch($custom_field->type) {
+						case Model_CustomField::TYPE_MULTI_CHECKBOX:
+							$value = $params['values'];
+							break;
+						case Model_CustomField::TYPE_WORKER:
+							$value = $params['worker_id'];
+							break;
+						default:
+							$value = $params['value'];
+							break;
+					}
+					
+					$parser_model->getMessage()->custom_fields[$field_id] = $value; 
+				}
+				break;				
 		}
 	}
 };
