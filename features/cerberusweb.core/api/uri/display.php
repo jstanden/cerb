@@ -115,6 +115,10 @@ class ChDisplayPage extends CerberusPageExtension {
 		
 		$tpl->assign('ticket', $ticket);
 
+		// Macros
+		$macros = DAO_TriggerEvent::getByOwner(CerberusContexts::CONTEXT_WORKER, $active_worker->id, 'event.macro.ticket');
+		$tpl->assign('macros', $macros);
+		
 		// TicketToolbarItem Extensions
 		$ticketToolbarItems = DevblocksPlatform::getExtensions('cerberusweb.ticket.toolbaritem', true);
 		if(!empty($ticketToolbarItems))

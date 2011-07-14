@@ -97,6 +97,20 @@
 			{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=CerberusContexts::CONTEXT_TICKET context_id=$ticket->id full=true}
 			</span>		
 			
+			{if !empty($macros)}
+			<button type="button" class="split-left" onclick="$(this).next('button').click();"><span class="cerb-sprite sprite-gear"></span> Macros</button><!--  
+			--><button type="button" class="split-right" id="btnDisplayMacros"><span class="cerb-sprite sprite-arrow-down-white"></span></button>
+			<ul class="cerb-popupmenu cerb-float" id="menuDisplayMacros">
+				<li style="background:none;">
+					<input type="text" size="16" class="input_search filter">
+				</li>
+				{devblocks_url assign=return_url full=true}c=display&mask={$ticket->mask}{/devblocks_url}
+				{foreach from=$macros item=macro key=macro_id}
+				<li><a href="{devblocks_url}c=internal&a=applyMacro{/devblocks_url}?macro={$macro->id}&context={CerberusContexts::CONTEXT_TICKET}&context_id={$ticket->id}&return_url={$return_url|escape:'url'}">{$macro->title}</a></li>
+				{/foreach}
+			</ul>
+			{/if}
+			
 			<button type="button" id="btnDisplayTicketEdit"><span class="cerb-sprite sprite-document_edit"></span> Edit</button>
 			
 			{if !$ticket->is_deleted}
@@ -139,6 +153,7 @@
 			{$translate->_('common.keyboard')|lower}:
 			(<b>e</b>) {'common.edit'|devblocks_translate|lower} 
 			{if $active_worker->hasPriv('core.display.actions.comment')}(<b>o</b>) {$translate->_('common.comment')} {/if}
+			{if !empty($macros)}(<b>m</b>) {'common.macros'|devblocks_translate|lower} {/if}
 			{if !$ticket->is_closed && $active_worker->hasPriv('core.ticket.actions.close')}(<b>c</b>) {$translate->_('common.close')|lower} {/if}
 			{if !$ticket->spam_trained && $active_worker->hasPriv('core.ticket.actions.spam')}(<b>s</b>) {$translate->_('common.spam')|lower} {/if}
 			{if !$ticket->is_deleted && $active_worker->hasPriv('core.ticket.actions.delete')}(<b>x</b>) {$translate->_('common.delete')|lower} {/if}
@@ -197,6 +212,74 @@
 			});
 		})
 	});
+
+	$menu = $('#menuDisplayMacros');
+	$menu.appendTo('body');
+	$menu.find('> li')
+		.click(function(e) {
+			e.stopPropagation();
+			if(!$(e.target).is('li'))
+				return;
+
+			$link = $(this).find('a:first');
+			
+			if($link.length > 0)
+				window.location.href = $link.attr('href');
+		})
+		;
+
+	$menu.find('> li > input.filter').keyup(
+		function(e) {
+			$menu = $(this).closest('ul.cerb-popupmenu');
+			
+			if(27 == e.keyCode) {
+				$(this).val('');
+				$menu.hide();
+				$(this).blur();
+				return;
+			}
+			
+			term = $(this).val().toLowerCase();
+			$menu.find('> li a').each(function(e) {
+				if(-1 != $(this).html().toLowerCase().indexOf(term)) {
+					$(this).parent().show();
+				} else {
+					$(this).parent().hide();
+				}
+			});
+		})
+		;
+	
+	$('#btnDisplayMacros')
+		.click(function(e) {
+			$menu = $('#menuDisplayMacros');
+
+			if($menu.is(':visible')) {
+				$menu.hide();
+				return;
+			}
+			
+			$menu
+				.css('position','absolute')
+				.css('top',$(this).offset().top+($(this).height())+'px')
+				.css('left',$(this).prev('button').offset().left+'px')
+				.show()
+				.find('> li input:text')
+				.focus()
+				.select()
+			;
+		});
+
+	$menu
+		.hover(
+			function(e) {},
+			function(e) {
+				$('#menuDisplayMacros')
+					.hide()
+				;
+			}
+		)
+		;	
 </script>
 
 <script type="text/javascript">
@@ -224,6 +307,11 @@ $(document).keypress(function(event) {
 		case 101:  // (E) edit
 			try {
 				$('#btnDisplayTicketEdit').click();
+			} catch(ex) { } 
+			break;
+		case 109:  // (M) macros
+			try {
+				$('#btnDisplayMacros').click();
 			} catch(ex) { } 
 			break;
 		case 111:  // (O) comment
