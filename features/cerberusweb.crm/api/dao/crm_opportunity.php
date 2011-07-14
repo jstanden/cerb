@@ -1024,6 +1024,7 @@ class Context_Opportunity extends Extension_DevblocksContext {
 			'created|date' => $prefix.$translate->_('crm.opportunity.created_date'),
 			'is_closed' => $prefix.$translate->_('crm.opportunity.is_closed'),
 			'is_won' => $prefix.$translate->_('crm.opportunity.is_won'),
+			'status' => $prefix.$translate->_('common.status'),
 			'title' => $prefix.$translate->_('crm.opportunity.name'),
 			'updated|date' => $prefix.$translate->_('crm.opportunity.updated_date'),
 		);
@@ -1045,9 +1046,14 @@ class Context_Opportunity extends Extension_DevblocksContext {
 			$token_values['is_won'] = $opp->is_won;
 			$token_values['title'] = $opp->name;
 			$token_values['updated'] = $opp->updated_date;
-//			if(!empty($org->city))
-//				$token_values['city'] = $org->city;
-
+			
+			// Status
+			if($opp->is_closed) {
+				$token_values['status'] = ($opp->is_won) ? 'closed_won' : 'closed_lost';
+			} else {
+				$token_values['status'] = 'open';
+			}
+			
 			$token_values['custom'] = array();
 			
 			$field_values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_OPPORTUNITY, $opp->id));

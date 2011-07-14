@@ -36,6 +36,9 @@
 			<class name="SearchFields_CrmOpportunity" />
 			<class name="View_CrmOpportunity" />
 		</file>
+		<file path="api/events/crm_opportunity_macro.php">
+			<class name="Event_CrmOpportunityMacro" />
+		</file>
 	</class_loader>
 	
 	<acl>
@@ -124,6 +127,24 @@
 			<params>
 				<param key="uri" value="opps" />
 				<param key="title" value="crm.tab.title" />
+			</params>
+		</extension>
+		
+		<!-- Event Triggers -->
+		
+		<extension point="devblocks.event">
+			<id>event.macro.crm.opportunity</id>
+			<name>Opportunity macro</name>
+			<class>
+				<file>api/events/crm_opportunity_macro.php</file>
+				<name>Event_CrmOpportunityMacro</name>
+			</class>
+			<params>
+				<param key="contexts">
+					<value>
+						<data key="cerberusweb.contexts.worker" />
+					</value>
+				</param>
 			</params>
 		</extension>
 		

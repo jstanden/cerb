@@ -146,6 +146,7 @@ class CrmPage extends CerberusPageExtension {
 
 		$visit = CerberusApplication::getVisit();
 		$translate = DevblocksPlatform::getTranslationService();
+		$active_worker = CerberusApplication::getActiveWorker();
 		
 		$response = DevblocksPlatform::getHttpResponse();
 		$stack = $response->path;
@@ -174,6 +175,10 @@ class CrmPage extends CerberusPageExtension {
 				
 				$workers = DAO_Worker::getAll();
 				$tpl->assign('workers', $workers);
+				
+				// Macros
+				$macros = DAO_TriggerEvent::getByOwner(CerberusContexts::CONTEXT_WORKER, $active_worker->id, 'event.macro.crm.opportunity');
+				$tpl->assign('macros', $macros);
 				
 				$tpl->display('devblocks:cerberusweb.crm::crm/opps/display/index.tpl');
 				break;

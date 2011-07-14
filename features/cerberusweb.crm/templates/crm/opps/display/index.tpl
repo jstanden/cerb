@@ -7,20 +7,35 @@
 		<form action="{devblocks_url}{/devblocks_url}" onsubmit="return false;">
 		{assign var=opp_worker_id value=$opp->worker_id}
 		
-		<b>{'common.status'|devblocks_translate|capitalize}:</b> {if $opp->is_closed}{if $opp->is_won}{'crm.opp.status.closed.won'|devblocks_translate|capitalize}{else}{'crm.opp.status.closed.lost'|devblocks_translate|capitalize}{/if}{else}{'crm.opp.status.open'|devblocks_translate|capitalize}{/if} &nbsp;
-		<button id="btnOppAddyPeek" type="button" onclick="genericAjaxPopup('peek','c=contacts&a=showAddressPeek&email={$address->email|escape:'url'}&view_id=',null,false,'500');" style="visibility:false;display:none;"></button>
-		<b>{'common.email'|devblocks_translate|capitalize}:</b> {$address->first_name} {$address->last_name} &lt;<a href="javascript:;" onclick="$('#btnOppAddyPeek').click();">{$address->email}</a>&gt; &nbsp;
-		<b>{'crm.opportunity.created_date'|devblocks_translate|capitalize}:</b> <abbr title="{$opp->created_date|devblocks_date}">{$opp->created_date|devblocks_prettytime}</abbr> &nbsp;
-		{if !empty($opp_worker_id) && isset($workers.$opp_worker_id)}
-			<b>{'common.worker'|devblocks_translate|capitalize}:</b> {$workers.$opp_worker_id->getName()} &nbsp;
-		{/if}
-		<br>
+		<div style="margin-bottom:5px;">
+			<b>{'common.status'|devblocks_translate|capitalize}:</b> {if $opp->is_closed}{if $opp->is_won}{'crm.opp.status.closed.won'|devblocks_translate|capitalize}{else}{'crm.opp.status.closed.lost'|devblocks_translate|capitalize}{/if}{else}{'crm.opp.status.open'|devblocks_translate|capitalize}{/if} &nbsp;
+			<button id="btnOppAddyPeek" type="button" onclick="genericAjaxPopup('peek','c=contacts&a=showAddressPeek&email={$address->email|escape:'url'}&view_id=',null,false,'500');" style="visibility:false;display:none;"></button>
+			<b>{'common.email'|devblocks_translate|capitalize}:</b> {$address->first_name} {$address->last_name} &lt;<a href="javascript:;" onclick="$('#btnOppAddyPeek').click();">{$address->email}</a>&gt; &nbsp;
+			<b>{'crm.opportunity.created_date'|devblocks_translate|capitalize}:</b> <abbr title="{$opp->created_date|devblocks_date}">{$opp->created_date|devblocks_prettytime}</abbr> &nbsp;
+			{if !empty($opp_worker_id) && isset($workers.$opp_worker_id)}
+				<b>{'common.worker'|devblocks_translate|capitalize}:</b> {$workers.$opp_worker_id->getName()} &nbsp;
+			{/if}
+		</div>
 		
 		<!-- Toolbar -->
 		<span>
 		{$object_watchers = DAO_ContextLink::getContextLinks(CerberusContexts::CONTEXT_OPPORTUNITY, array($opp->id), CerberusContexts::CONTEXT_WORKER)}
 		{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=CerberusContexts::CONTEXT_OPPORTUNITY context_id=$opp->id full=true}
 		</span>		
+		
+		{if !empty($macros)}
+		<button type="button" class="split-left" onclick="$(this).next('button').click();"><span class="cerb-sprite sprite-gear"></span> Macros</button><!--  
+		--><button type="button" class="split-right" id="btnDisplayMacros"><span class="cerb-sprite sprite-arrow-down-white"></span></button>
+		<ul class="cerb-popupmenu cerb-float" id="menuDisplayMacros">
+			<li style="background:none;">
+				<input type="text" size="16" class="input_search filter">
+			</li>
+			{devblocks_url assign=return_url full=true}c=crm&tab=opps&id={$opp->id}{/devblocks_url}
+			{foreach from=$macros item=macro key=macro_id}
+			<li><a href="{devblocks_url}c=internal&a=applyMacro{/devblocks_url}?macro={$macro->id}&context={CerberusContexts::CONTEXT_OPPORTUNITY}&context_id={$opp->id}&return_url={$return_url|escape:'url'}">{$macro->title}</a></li>
+			{/foreach}
+		</ul>
+		{/if}
 		
 		<button type="button" id="btnDisplayOppEdit"><span class="cerb-sprite sprite-document_edit"></span> Edit</button>
 		
@@ -73,6 +88,74 @@
 			});
 		})
 	});
+
+	$menu = $('#menuDisplayMacros');
+	$menu.appendTo('body');
+	$menu.find('> li')
+		.click(function(e) {
+			e.stopPropagation();
+			if(!$(e.target).is('li'))
+				return;
+
+			$link = $(this).find('a:first');
+			
+			if($link.length > 0)
+				window.location.href = $link.attr('href');
+		})
+		;
+
+	$menu.find('> li > input.filter').keyup(
+		function(e) {
+			$menu = $(this).closest('ul.cerb-popupmenu');
+			
+			if(27 == e.keyCode) {
+				$(this).val('');
+				$menu.hide();
+				$(this).blur();
+				return;
+			}
+			
+			term = $(this).val().toLowerCase();
+			$menu.find('> li a').each(function(e) {
+				if(-1 != $(this).html().toLowerCase().indexOf(term)) {
+					$(this).parent().show();
+				} else {
+					$(this).parent().hide();
+				}
+			});
+		})
+		;
+	
+	$('#btnDisplayMacros')
+		.click(function(e) {
+			$menu = $('#menuDisplayMacros');
+
+			if($menu.is(':visible')) {
+				$menu.hide();
+				return;
+			}
+			
+			$menu
+				.css('position','absolute')
+				.css('top',$(this).offset().top+($(this).height())+'px')
+				.css('left',$(this).prev('button').offset().left+'px')
+				.show()
+				.find('> li input:text')
+				.focus()
+				.select()
+			;
+		});
+
+	$menu
+		.hover(
+			function(e) {},
+			function(e) {
+				$('#menuDisplayMacros')
+					.hide()
+				;
+			}
+		)
+		;		
 </script>
 
 <script type="text/javascript">
