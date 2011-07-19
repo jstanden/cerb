@@ -1985,7 +1985,7 @@ abstract class DevblocksEngine {
 			} elseif (isset($_POST['c'])) {
 				@$uri = DevblocksPlatform::importGPC($_POST['c']); // extension
 			}
-			if(!empty($uri)) $parts[] = DevblocksPlatform::strAlphaNum($uri);
+			if(!empty($uri)) $parts[] = DevblocksPlatform::strAlphaNumUnder($uri);
 
 			// Action (GET has precedence over POST)
 			if(isset($_GET['a'])) {
@@ -1993,14 +1993,14 @@ abstract class DevblocksEngine {
 			} elseif (isset($_POST['a'])) {
 				@$listener = DevblocksPlatform::importGPC($_POST['a']); // listener
 			}
-			if(!empty($listener)) $parts[] = DevblocksPlatform::strAlphaNum($listener);
+			if(!empty($listener)) $parts[] = DevblocksPlatform::strAlphaNumUnder($listener);
 		}
 		
-		// Controller XSS security (alphanum only)
+		// Controller XSS security (alphanum+under only)
 		if(isset($parts[0])) {
-			$parts[0] = DevblocksPlatform::strAlphaNum($parts[0]);
+			$parts[0] = DevblocksPlatform::strAlphaNumUnder($parts[0]);
 		}
-		
+
 		// Resource / Proxy
 	    /*
 	     * [TODO] Run this code through another audit.  Is it worth a tiny hit per resource 
