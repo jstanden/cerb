@@ -10,7 +10,7 @@
 					{include file="devblocks:cerberusweb.core::tickets/quick_search_box.tpl"}
 					</div>
 					
-					<h1>{$ticket->subject}</h1>
+					<h2>{'common.conversation'|devblocks_translate|capitalize}</h2>
 				</td>
 			<tr>
 				<td valign="top">
@@ -20,151 +20,146 @@
 					{assign var=ticket_team_category_set value=$team_categories.$ticket_team_id}
 					{assign var=ticket_category value=$ticket_team_category_set.$ticket_category_id}
 					
-					<div class="cerb-properties">
-						{if !empty($ticket->owner_id) && isset($workers.{$ticket->owner_id})}
-						{$owner = $workers.{$ticket->owner_id}}
-						<div>
-							<label>{$translate->_('common.owner')|capitalize}:</label>
-							<a href="{devblocks_url}c=profiles&p=worker&id={$owner->id}-{$owner->getName()|devblocks_permalink}{/devblocks_url}" target="_blank">{$owner->getName()}</a>
-						</div>
-						{/if}
+					<fieldset class="properties">
+						<legend>{$ticket->subject|truncate:128}</legend>
 					
-						<div>
-							<label>{$translate->_('ticket.status')|capitalize}:</label>
-							{if $ticket->is_deleted}
-								{$translate->_('status.deleted')}
-							{elseif $ticket->is_closed}
-								{$translate->_('status.closed')}
-								{if !empty($ticket->due_date)}
-									(<abbr title="{$ticket->due_date|devblocks_date}">{$ticket->due_date|devblocks_prettytime}</abbr>)
+						{foreach from=$properties item=v key=k name=props}
+							<div class="property">
+								{if $k == 'mask'}
+									<b>{$translate->_('ticket.mask')|capitalize}:</b>
+									{$ticket->mask} 
+									(#{$ticket->id})
+								{elseif $k == 'status'}
+									<b>{$translate->_('ticket.status')|capitalize}:</b>
+									{if $ticket->is_deleted}
+										<span style="font-weight:bold;color:rgb(150,0,0);">{$translate->_('status.deleted')}</span>
+									{elseif $ticket->is_closed}
+										<span style="font-weight:bold;color:rgb(50,115,185);">{$translate->_('status.closed')}</span>
+										{if !empty($ticket->due_date)}
+											(<abbr title="{$ticket->due_date|devblocks_date}">{$ticket->due_date|devblocks_prettytime}</abbr>)
+										{/if}
+									{elseif $ticket->is_waiting}
+										<span style="font-weight:bold;color:rgb(50,115,185);">{$translate->_('status.waiting')}</span>
+										{if !empty($ticket->due_date)}
+											(<abbr title="{$ticket->due_date|devblocks_date}">{$ticket->due_date|devblocks_prettytime}</abbr>)
+										{/if}
+									{else}
+										{$translate->_('status.open')}
+									{/if} 
+								{elseif $k == 'bucket'}
+									<b>{$translate->_('common.bucket')|capitalize}:</b>
+									[{$teams.$ticket_team_id->name}]  
+									{if !empty($ticket_category_id)}
+										{$ticket_category->name}
+									{else}
+										{$translate->_('common.inbox')|capitalize}
+									{/if}
+								{elseif $k == 'owner'}
+									{if !empty($ticket->owner_id) && isset($workers.{$ticket->owner_id})}
+										{$owner = $workers.{$ticket->owner_id}}
+										<b>{$translate->_('common.owner')|capitalize}:</b>
+										<a href="{devblocks_url}c=profiles&p=worker&id={$owner->id}-{$owner->getName()|devblocks_permalink}{/devblocks_url}" target="_blank">{$owner->getName()}</a>
+									{/if}
+								{else}
+									{include file="devblocks:cerberusweb.core::internal/custom_fields/profile_cell_renderer.tpl"}
 								{/if}
-							{elseif $ticket->is_waiting}
-								{$translate->_('status.waiting')}
-								{if !empty($ticket->due_date)}
-									(<abbr title="{$ticket->due_date|devblocks_date}">{$ticket->due_date|devblocks_prettytime}</abbr>)
-								{/if}
-							{else}
-								{$translate->_('status.open')}
-							{/if} 
-						</div>
+							</div>
+							{if $smarty.foreach.props.iteration % 3 == 0 && !$smarty.foreach.props.last}
+								<br clear="all">
+							{/if}
+						{/foreach}
+						<br clear="all">
 						
-						<div>
-							<label>{$translate->_('common.bucket')|capitalize}:</label>
-							{$teams.$ticket_team_id->name}: 
-							{if !empty($ticket_category_id)}{$ticket_category->name}{else}{$translate->_('common.inbox')|capitalize}{/if}
-						</div>
-						
-						<div>
-							<label>{$translate->_('ticket.mask')|capitalize}:</label>
-							{$ticket->mask}
-						</div>
-						
-						<div>
-							<label>{$translate->_('ticket.id')}:</label>
-							{$ticket->id}
-						</div>
-					</div>
+						<a style="color:black;font-weight:bold;" href="javascript:;" onclick="genericAjaxPopup('peek','c=display&a=showRequestersPanel&ticket_id={$ticket->id}',null,true,'500');">{'ticket.requesters'|devblocks_translate|capitalize}</a>:
+						<span id="displayTicketRequesterBubbles">
+							{include file="devblocks:cerberusweb.core::display/rpc/requester_list.tpl" ticket_id=$ticket->id}
+						</span>
+						<br clear="all">
 
-					<div class="cerb-properties">
-						<div>
-							<label>{$translate->_('ticket.requesters')|capitalize}:</label>
-							<span id="displayTicketRequesterBubbles">
-								{include file="devblocks:cerberusweb.core::display/rpc/requester_list.tpl" ticket_id=$ticket->id}
-							</span>
-							(<a href="javascript:;" onclick="genericAjaxPopup('peek','c=display&a=showRequestersPanel&ticket_id={$ticket->id}',null,true,'500');">{$translate->_('common.edit')|lower}</a>)
-						</div>
-					</div>
+						<form action="{devblocks_url}{/devblocks_url}" method="post" style="margin-top:5px;">
+							<input type="hidden" name="c" value="display">
+							<input type="hidden" name="a" value="updateProperties">
+							<input type="hidden" name="id" value="{$ticket->id}">
+							<input type="hidden" name="closed" value="{if $ticket->is_closed}1{else}0{/if}">
+							<input type="hidden" name="deleted" value="{if $ticket->is_deleted}1{else}0{/if}">
+							<input type="hidden" name="spam" value="0">
+							
+							<div style="padding-bottom:5px;">
+								<span>
+								{$object_watchers = DAO_ContextLink::getContextLinks(CerberusContexts::CONTEXT_TICKET, array($ticket->id), CerberusContexts::CONTEXT_WORKER)}
+								{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=CerberusContexts::CONTEXT_TICKET context_id=$ticket->id full=true}
+								</span>		
+								
+								{if !empty($macros)}
+								<button type="button" class="split-left" onclick="$(this).next('button').click();"><span class="cerb-sprite sprite-gear"></span> Macros</button><!--  
+								--><button type="button" class="split-right" id="btnDisplayMacros"><span class="cerb-sprite sprite-arrow-down-white"></span></button>
+								<ul class="cerb-popupmenu cerb-float" id="menuDisplayMacros">
+									<li style="background:none;">
+										<input type="text" size="16" class="input_search filter">
+									</li>
+									{devblocks_url assign=return_url full=true}c=display&mask={$ticket->mask}{/devblocks_url}
+									{foreach from=$macros item=macro key=macro_id}
+									<li><a href="{devblocks_url}c=internal&a=applyMacro{/devblocks_url}?macro={$macro->id}&context={CerberusContexts::CONTEXT_TICKET}&context_id={$ticket->id}&return_url={$return_url|escape:'url'}">{$macro->title}</a></li>
+									{/foreach}
+								</ul>
+								{/if}
+								
+								<button type="button" id="btnDisplayTicketEdit"><span class="cerb-sprite sprite-document_edit"></span> Edit</button>
+								
+								{if $active_worker->hasPriv('core.ticket.view.actions.merge')}<button id="btnMerge" type="button" onclick="genericAjaxPopup('peek','c=display&a=showMergePanel&ticket_id={$ticket->id}',null,false,'500');"><span class="cerb-sprite2 sprite-folder-gear"></span> {$translate->_('mail.merge')|capitalize}</button>{/if}
+								
+								{* Plugin Toolbar *}
+								{if !empty($ticket_toolbaritems)}
+									{foreach from=$ticket_toolbaritems item=renderer}
+										{if !empty($renderer)}{$renderer->render($ticket)}{/if}
+									{/foreach}
+								{/if}
+								
+								{if !$ticket->is_deleted}
+									{if $ticket->is_closed}
+										<button ="button" onclick="this.form.closed.value='0';this.form.submit();"><span class="cerb-sprite sprite-folder_out"></span> {$translate->_('common.reopen')|capitalize}</button>
+									{else}
+										{if $active_worker->hasPriv('core.ticket.actions.close')}<button title="{$translate->_('display.shortcut.close')}" id="btnClose" type="button" onclick="this.form.closed.value=1;this.form.submit();">&nbsp;<span class="cerb-sprite2 sprite-folder-tick-circle"></span>&nbsp;</button>{/if}
+									{/if}
+									
+									{if empty($ticket->spam_training)}
+										{if $active_worker->hasPriv('core.ticket.actions.spam')}<button title="{$translate->_('display.shortcut.spam')}" id="btnSpam" type="button" onclick="this.form.spam.value='1';this.form.submit();">&nbsp;<span class="cerb-sprite sprite-spam"></span>&nbsp;</button>{/if}
+									{/if}
+								{/if}
+								
+								{if $ticket->is_deleted}
+									<button type="button" onclick="this.form.deleted.value='0';this.form.closed.value=0;this.form.submit();"><span class="cerb-sprite2 sprite-cross-circle-frame-gray"></span> {$translate->_('common.undelete')|capitalize}</button>
+								{else}
+									{if $active_worker->hasPriv('core.ticket.actions.delete')}<button title="{$translate->_('display.shortcut.delete')}" id="btnDelete" type="button" onclick="this.form.deleted.value=1;this.form.closed.value=1;this.form.submit();">&nbsp;<span class="cerb-sprite2 sprite-cross-circle-frame"></span>&nbsp;</button>{/if}
+								{/if}
+								
+							   	<button id="btnPrint" title="{$translate->_('display.shortcut.print')}" type="button" onclick="document.frmPrint.action='{devblocks_url}c=print&a=ticket&id={$ticket->mask}{/devblocks_url}';document.frmPrint.submit();">&nbsp;<span class="cerb-sprite sprite-printer"></span>&nbsp;</button>
+							   	<button type="button" title="{$translate->_('display.shortcut.refresh')}" onclick="document.location='{devblocks_url}c=display&id={$ticket->mask}{/devblocks_url}';">&nbsp;<span class="cerb-sprite sprite-refresh"></span>&nbsp;</button>
+							</div>
+							
+						</form>
+						<form action="{devblocks_url}{/devblocks_url}" method="post" name="frmPrint" id="frmPrint" target="_blank" style="display:none;"></form>
+										
+						{if $pref_keyboard_shortcuts}
+						<small>
+							{$translate->_('common.keyboard')|lower}:
+							(<b>e</b>) {'common.edit'|devblocks_translate|lower} 
+							{if $active_worker->hasPriv('core.display.actions.comment')}(<b>o</b>) {$translate->_('common.comment')} {/if}
+							{if !empty($macros)}(<b>m</b>) {'common.macros'|devblocks_translate|lower} {/if}
+							{if !$ticket->is_closed && $active_worker->hasPriv('core.ticket.actions.close')}(<b>c</b>) {$translate->_('common.close')|lower} {/if}
+							{if !$ticket->spam_trained && $active_worker->hasPriv('core.ticket.actions.spam')}(<b>s</b>) {$translate->_('common.spam')|lower} {/if}
+							{if !$ticket->is_deleted && $active_worker->hasPriv('core.ticket.actions.delete')}(<b>x</b>) {$translate->_('common.delete')|lower} {/if}
+							{if !$expand_all}(<b>a</b>) {$translate->_('display.button.read_all')|lower} {/if} 
+							{if $active_worker->hasPriv('core.display.actions.reply')}(<b>r</b>) {$translate->_('display.ui.reply')|lower} {/if}  
+							(<b>p</b>) {$translate->_('common.print')|lower} 
+						</small>
+						{/if}
+										
+					</fieldset>
+					
 				</td>
 			</tr>
 		</table>
-	</td>
-</tr>
-<tr>
-	<td valign="top">
-		<div id="tourDisplayProperties"></div>
-		<form action="{devblocks_url}{/devblocks_url}" method="post" style="margin-bottom:10px;margin-top:5px;">
-			<input type="hidden" name="c" value="display">
-			<input type="hidden" name="a" value="updateProperties">
-			<input type="hidden" name="id" value="{$ticket->id}">
-			<input type="hidden" name="closed" value="{if $ticket->is_closed}1{else}0{/if}">
-			<input type="hidden" name="deleted" value="{if $ticket->is_deleted}1{else}0{/if}">
-			<input type="hidden" name="spam" value="0">
-			
-			<div style="padding-bottom:5px;">
-			
-			<span>
-			{$object_watchers = DAO_ContextLink::getContextLinks(CerberusContexts::CONTEXT_TICKET, array($ticket->id), CerberusContexts::CONTEXT_WORKER)}
-			{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=CerberusContexts::CONTEXT_TICKET context_id=$ticket->id full=true}
-			</span>		
-			
-			{if !empty($macros)}
-			<button type="button" class="split-left" onclick="$(this).next('button').click();"><span class="cerb-sprite sprite-gear"></span> Macros</button><!--  
-			--><button type="button" class="split-right" id="btnDisplayMacros"><span class="cerb-sprite sprite-arrow-down-white"></span></button>
-			<ul class="cerb-popupmenu cerb-float" id="menuDisplayMacros">
-				<li style="background:none;">
-					<input type="text" size="16" class="input_search filter">
-				</li>
-				{devblocks_url assign=return_url full=true}c=display&mask={$ticket->mask}{/devblocks_url}
-				{foreach from=$macros item=macro key=macro_id}
-				<li><a href="{devblocks_url}c=internal&a=applyMacro{/devblocks_url}?macro={$macro->id}&context={CerberusContexts::CONTEXT_TICKET}&context_id={$ticket->id}&return_url={$return_url|escape:'url'}">{$macro->title}</a></li>
-				{/foreach}
-			</ul>
-			{/if}
-			
-			<button type="button" id="btnDisplayTicketEdit"><span class="cerb-sprite sprite-document_edit"></span> Edit</button>
-			
-			{if !$ticket->is_deleted}
-				{if $ticket->is_closed}
-					<button type="button" onclick="this.form.closed.value='0';this.form.submit();"><span class="cerb-sprite sprite-folder_out"></span> {$translate->_('common.reopen')|capitalize}</button>
-				{else}
-					{if $active_worker->hasPriv('core.ticket.actions.close')}<button title="{$translate->_('display.shortcut.close')}" id="btnClose" type="button" onclick="this.form.closed.value=1;this.form.submit();"><span class="cerb-sprite2 sprite-folder-tick-circle"></span> {$translate->_('common.close')|capitalize}</button>{/if}
-				{/if}
-				
-				{if empty($ticket->spam_training)}
-					{if $active_worker->hasPriv('core.ticket.actions.spam')}<button title="{$translate->_('display.shortcut.spam')}" id="btnSpam" type="button" onclick="this.form.spam.value='1';this.form.submit();"><span class="cerb-sprite sprite-spam"></span> {$translate->_('common.spam')|capitalize}</button>{/if}
-				{/if}
-			{/if}
-			
-			{if $ticket->is_deleted}
-				<button type="button" onclick="this.form.deleted.value='0';this.form.closed.value=0;this.form.submit();"><span class="cerb-sprite2 sprite-cross-circle-frame-gray"></span> {$translate->_('common.undelete')|capitalize}</button>
-			{else}
-				{if $active_worker->hasPriv('core.ticket.actions.delete')}<button title="{$translate->_('display.shortcut.delete')}" id="btnDelete" type="button" onclick="this.form.deleted.value=1;this.form.closed.value=1;this.form.submit();"><span class="cerb-sprite2 sprite-cross-circle-frame"></span> {$translate->_('common.delete')|capitalize}</button>{/if}
-			{/if}
-			
-		   	<button id="btnPrint" title="{$translate->_('display.shortcut.print')}" type="button" onclick="document.frmPrint.action='{devblocks_url}c=print&a=ticket&id={$ticket->mask}{/devblocks_url}';document.frmPrint.submit();">&nbsp;<span class="cerb-sprite sprite-printer"></span>&nbsp;</button>
-		   	<button type="button" title="{$translate->_('display.shortcut.refresh')}" onclick="document.location='{devblocks_url}c=display&id={$ticket->mask}{/devblocks_url}';">&nbsp;<span class="cerb-sprite sprite-refresh"></span>&nbsp;</button>
-		   	<button type="button" onclick="$('#divDisplayToolbarMore').toggle();">{$translate->_('common.more')|lower} &raquo;</button>
-			</div>
-			
-			<div id="divDisplayToolbarMore" style="padding-bottom:5px;display:none;">
-				{if $active_worker->hasPriv('core.ticket.view.actions.merge')}<button id="btnMerge" type="button" onclick="genericAjaxPopup('peek','c=display&a=showMergePanel&ticket_id={$ticket->id}',null,false,'500');"><span class="cerb-sprite2 sprite-folder-gear"></span> {$translate->_('mail.merge')|capitalize}</button>{/if}
-			</div>
-			
-			<div>
-			{* Plugin Toolbar *}
-			{if !empty($ticket_toolbaritems)}
-				{foreach from=$ticket_toolbaritems item=renderer}
-					{if !empty($renderer)}{$renderer->render($ticket)}{/if}
-				{/foreach}
-			{/if}
-			</div>
-			
-			{if $pref_keyboard_shortcuts}
-			{$translate->_('common.keyboard')|lower}:
-			(<b>e</b>) {'common.edit'|devblocks_translate|lower} 
-			{if $active_worker->hasPriv('core.display.actions.comment')}(<b>o</b>) {$translate->_('common.comment')} {/if}
-			{if !empty($macros)}(<b>m</b>) {'common.macros'|devblocks_translate|lower} {/if}
-			{if !$ticket->is_closed && $active_worker->hasPriv('core.ticket.actions.close')}(<b>c</b>) {$translate->_('common.close')|lower} {/if}
-			{if !$ticket->spam_trained && $active_worker->hasPriv('core.ticket.actions.spam')}(<b>s</b>) {$translate->_('common.spam')|lower} {/if}
-			{if !$ticket->is_deleted && $active_worker->hasPriv('core.ticket.actions.delete')}(<b>x</b>) {$translate->_('common.delete')|lower} {/if}
-			{if !$expand_all}(<b>a</b>) {$translate->_('display.button.read_all')|lower} {/if} 
-			{if $active_worker->hasPriv('core.display.actions.reply')}(<b>r</b>) {$translate->_('display.ui.reply')|lower} {/if}  
-			(<b>p</b>) {$translate->_('common.print')|lower} 
-			<br>
-			{/if}
-			 
-		</form>
-		<form action="{devblocks_url}{/devblocks_url}" method="post" name="frmPrint" id="frmPrint" target="_blank" style="display:none;"></form>
 	</td>
 </tr>
 </table>
@@ -182,7 +177,7 @@
 	<ul>
 		{$tabs = [conversation,activity,links,history]}
 
-		<li><a href="{devblocks_url}ajax.php?c=display&a=showConversation&ticket_id={$ticket->id}{if $expand_all}&expand_all=1{/if}{/devblocks_url}">{$translate->_('display.tab.conversation')}</a></li>
+		<li><a href="{devblocks_url}ajax.php?c=display&a=showConversation&ticket_id={$ticket->id}{if $expand_all}&expand_all=1{/if}{/devblocks_url}">{$translate->_('display.tab.timeline')|capitalize}</a></li>
 		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabActivityLog&scope=target&point={$point}&context={CerberusContexts::CONTEXT_TICKET}&context_id={$ticket->id}{/devblocks_url}">{'common.activity_log'|devblocks_translate|capitalize}</a></li>		
 		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextLinks&context=cerberusweb.contexts.ticket&id={$ticket->id}{/devblocks_url}">{$translate->_('common.links')}</a></li>
 		<li><a href="{devblocks_url}ajax.php?c=display&a=showContactHistory&ticket_id={$ticket->id}{/devblocks_url}">{'display.tab.history'|devblocks_translate}</a></li>

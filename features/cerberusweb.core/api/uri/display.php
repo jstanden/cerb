@@ -79,6 +79,40 @@ class ChDisplayPage extends CerberusPageExtension {
 			echo "<H1>".$translate->_('display.invalid_ticket')."</H1>";
 			return;
 		}
+
+		// Custom fields
+		
+		$custom_fields = DAO_CustomField::getAll();
+		$tpl->assign('custom_fields', $custom_fields);
+		
+		// Properties
+		
+		$properties = array(
+			'status' => null,
+			'mask' => null,
+			'bucket' => null,
+		);
+		
+		if(!empty($ticket->owner_id))
+			$properties['owner'] = null;
+
+		@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_TICKET, $ticket->id)) or array();
+
+		foreach($custom_fields as $cf_id => $cfield) {
+			if(!isset($values[$cf_id]))
+				continue;
+				
+			if(!empty($cfield->group_id) && $cfield->group_id != $ticket->team_id)
+				continue;
+				
+			$properties['cf_' . $cf_id] = array(
+				'label' => $cfield->name,
+				'type' => $cfield->type,
+				'value' => $values[$cf_id],
+			);
+		}
+		
+		$tpl->assign('properties', $properties);
 		
 		// Tabs
 		
