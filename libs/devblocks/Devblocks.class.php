@@ -313,9 +313,9 @@ class DevblocksPlatform extends DevblocksEngine {
 		static $parser = null;
 		
 		if(is_null($parser))
-			$parser = new Markdown_Parser();
+			$parser = new markdown();
 			
-		return $parser->transform($text);
+		return $parser->parse($text);
 	}
 	
 	static function parseRss($url) {
@@ -4940,7 +4940,7 @@ class _DevblocksClassLoadManager {
 	
 	private function _initLibs() {
 		$this->registerClasses(DEVBLOCKS_PATH . 'libs/markdown/markdown.php', array(
-			'Markdown_Parser'
+			'markdown'
 		));
 		$this->registerClasses(DEVBLOCKS_PATH . 'libs/s3/S3.php', array(
 			'S3'
