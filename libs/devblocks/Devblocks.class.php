@@ -474,6 +474,9 @@ class DevblocksPlatform extends DevblocksEngine {
 		if(empty($string))
 			return '';
 		
+		// Remove certain marks
+		$string = preg_replace('#[\'\"]#', '', $string);
+		
 		// Strip all punctuation to underscores
 		$string = preg_replace('#[^a-zA-Z0-9\+\.\-_\(\)]#', '_', $string);
 			
