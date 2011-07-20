@@ -187,29 +187,9 @@ class DevblocksPlatform extends DevblocksEngine {
 	 * @param string $arg
 	 * @return string
 	 */
-	static function strAlphaNum($arg) {
-		return preg_replace("/[^A-Z0-9\.]/i","", $arg);
+	static function strAlphaNum($arg, $also=null) {
+		return preg_replace("/[^A-Z0-9" . preg_quote($also) . "]/i","", $arg);
 	}
-	
-	/**
-	 * Return a string with only its alphanumeric characters or punctuation
-	 *
-	 * @param string $arg
-	 * @return string
-	 */
-	static function strAlphaNumDash($arg) {
-		return preg_replace("/[^A-Z0-9_\-\.]/i","", $arg);
-	}	
-
-	/**
-	 * Return a string with only its alphanumeric characters or underscore
-	 *
-	 * @param string $arg
-	 * @return string
-	 */
-	static function strAlphaNumUnder($arg) {
-		return preg_replace("/[^A-Z0-9_]/i","", $arg);
-	}	
 	
 	// [TODO] Move to a service
 	private static function _strUnidecodeLookup($chr) {
@@ -1985,7 +1965,7 @@ abstract class DevblocksEngine {
 			} elseif (isset($_POST['c'])) {
 				@$uri = DevblocksPlatform::importGPC($_POST['c']); // extension
 			}
-			if(!empty($uri)) $parts[] = DevblocksPlatform::strAlphaNumUnder($uri);
+			if(!empty($uri)) $parts[] = DevblocksPlatform::strAlphaNum($uri, '_-.');
 
 			// Action (GET has precedence over POST)
 			if(isset($_GET['a'])) {
@@ -1993,12 +1973,12 @@ abstract class DevblocksEngine {
 			} elseif (isset($_POST['a'])) {
 				@$listener = DevblocksPlatform::importGPC($_POST['a']); // listener
 			}
-			if(!empty($listener)) $parts[] = DevblocksPlatform::strAlphaNumUnder($listener);
+			if(!empty($listener)) $parts[] = DevblocksPlatform::strAlphaNum($listener, '_');
 		}
 		
 		// Controller XSS security (alphanum+under only)
 		if(isset($parts[0])) {
-			$parts[0] = DevblocksPlatform::strAlphaNumUnder($parts[0]);
+			$parts[0] = DevblocksPlatform::strAlphaNum($parts[0], '_-.');
 		}
 
 		// Resource / Proxy
@@ -3003,7 +2983,7 @@ class _DevblocksSearchEngineMysqlFulltext {
 	}
 	
 	protected function escapeNamespace($namespace) {
-		return strtolower(DevblocksPlatform::strAlphaNumUnder($namespace));
+		return strtolower(DevblocksPlatform::strAlphaNum($namespace, '_'));
 	}
 	
 	public function query($ns, $query, $limit=25, $boolean_mode=true) {

@@ -437,7 +437,7 @@ class CerberusApplication extends DevblocksApplication {
 					$mask .= $append;
 				}
 				
-				$mask = strtoupper(DevblocksPlatform::strAlphaNumDash($mask));
+				$mask = strtoupper(DevblocksPlatform::strAlphaNum($mask,'-'));
 			}
 		} while(null != DAO_Ticket::getTicketIdByMask($mask));
 		

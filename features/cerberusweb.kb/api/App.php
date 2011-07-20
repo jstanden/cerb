@@ -361,7 +361,7 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 	    $path = $request->path;
 		$controller = array_shift($path); // timetracking
 
-	    @$action = DevblocksPlatform::strAlphaNumDash(array_shift($path)) . 'Action';
+	    @$action = DevblocksPlatform::strAlphaNum(array_shift($path), '_') . 'Action';
 
 	    switch($action) {
 	        case NULL:

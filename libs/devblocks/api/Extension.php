@@ -1142,7 +1142,7 @@ abstract class Extension_DevblocksStorageEngine extends DevblocksExtension {
 	}
 
 	protected function escapeNamespace($namespace) {
-		return strtolower(DevblocksPlatform::strAlphaNumUnder($namespace));
+		return strtolower(DevblocksPlatform::strAlphaNum($namespace, '_'));
 	}
 };
 

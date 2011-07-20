@@ -94,7 +94,7 @@ class ChPageController extends DevblocksControllerExtension {
 	        }
         }
 
-	    @$action = DevblocksPlatform::strAlphaNumDash(array_shift($path)) . 'Action';
+	    @$action = DevblocksPlatform::strAlphaNum(array_shift($path), '_') . 'Action';
 
 	    switch($action) {
 	        case NULL:
