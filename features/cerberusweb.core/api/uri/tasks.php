@@ -104,6 +104,56 @@ class ChTasksPage extends CerberusPageExtension {
 				}
 				$tpl->assign('tab_selected', $tab_selected);
 
+				// Custom fields
+				
+				$custom_fields = DAO_CustomField::getAll();
+				$tpl->assign('custom_fields', $custom_fields);
+				
+				// Properties
+				
+				$properties = array();
+				
+				$properties['is_completed'] = array(
+					'label' => ucfirst($translate->_('task.is_completed')),
+					'type' => Model_CustomField::TYPE_CHECKBOX,
+					'value' => $task->is_completed,
+				);
+				
+				if(!$task->is_completed) {
+					$properties['due_date'] = array(
+						'label' => ucfirst($translate->_('task.due_date')),
+						'type' => Model_CustomField::TYPE_DATE,
+						'value' => $task->due_date,
+					);
+				} else {
+					$properties['completed_date'] = array(
+						'label' => ucfirst($translate->_('task.completed_date')),
+						'type' => Model_CustomField::TYPE_DATE,
+						'value' => $task->completed_date,
+					);
+				}
+				
+				$properties['updated_date'] = array(
+					'label' => ucfirst($translate->_('common.updated')),
+					'type' => Model_CustomField::TYPE_DATE,
+					'value' => $task->updated_date,
+				);
+				
+				@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_TASK, $task->id)) or array();
+		
+				foreach($custom_fields as $cf_id => $cfield) {
+					if(!isset($values[$cf_id]))
+						continue;
+						
+					$properties['cf_' . $cf_id] = array(
+						'label' => $cfield->name,
+						'type' => $cfield->type,
+						'value' => $values[$cf_id],
+					);
+				}
+				
+				$tpl->assign('properties', $properties);				
+				
 				$workers = DAO_Worker::getAll();
 				$tpl->assign('workers', $workers);
 				

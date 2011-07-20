@@ -1,54 +1,70 @@
 {include file="devblocks:cerberusweb.core::tasks/display/submenu.tpl"}
 
-<table cellspacing="0" cellpadding="0" border="0" width="100%" style="padding-bottom:5px;">
+<table cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-bottom:5px;">
 <tr>
 	<td valign="top" style="padding-right:5px;">
-		<h1>{if $task->is_completed}<span class="cerb-sprite2 sprite-tick-circle-frame"></span>{/if} {$task->title}</h1> 
-		<form action="{devblocks_url}{/devblocks_url}" method="post">
-		<input type="hidden" name="c" value="tasks">
-		<input type="hidden" name="a" value="">
-		<input type="hidden" name="id" value="{$task->id}">
+		<h2>Task</h2>
+		 
+		<fieldset class="properties">
+			<legend>{$task->title|truncate:128}</legend>
+			
+			<form action="{devblocks_url}{/devblocks_url}" method="post">
+			<input type="hidden" name="c" value="tasks">
+			<input type="hidden" name="a" value="">
+			<input type="hidden" name="id" value="{$task->id}">
 		
-		<div style="margin-bottom:5px;">
-			<b>{'task.is_completed'|devblocks_translate|capitalize}:</b> {if $task->is_completed}{'common.yes'|devblocks_translate|capitalize}{else}{'common.no'|devblocks_translate|capitalize}{/if} &nbsp;
-			{if !empty($task->updated_date)}
-			<b>{'task.updated_date'|devblocks_translate|capitalize}:</b> <abbr title="{$task->updated_date|devblocks_date}">{$task->updated_date|devblocks_prettytime}</abbr> &nbsp;
-			{/if}
-			{if !empty($task->due_date)}
-			<b>{'task.due_date'|devblocks_translate|capitalize}:</b> <abbr title="{$task->due_date|devblocks_date}">{$task->due_date|devblocks_prettytime}</abbr> &nbsp;
-			{/if}
-		</div>
-		
-		<!-- Toolbar -->
-
-		<span>
-		{$object_watchers = DAO_ContextLink::getContextLinks(CerberusContexts::CONTEXT_TASK, array($task->id), CerberusContexts::CONTEXT_WORKER)}
-		{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=CerberusContexts::CONTEXT_TASK context_id=$task->id full=true}
-		</span>		
-
-		{if !empty($macros)}
-		<button type="button" class="split-left" onclick="$(this).next('button').click();"><span class="cerb-sprite sprite-gear"></span> Macros</button><!--  
-		--><button type="button" class="split-right" id="btnDisplayMacros"><span class="cerb-sprite sprite-arrow-down-white"></span></button>
-		<ul class="cerb-popupmenu cerb-float" id="menuDisplayMacros">
-			<li style="background:none;">
-				<input type="text" size="16" class="input_search filter">
-			</li>
-			{devblocks_url assign=return_url full=true}c=tasks&tab=display&id={$task->id}{/devblocks_url}
-			{foreach from=$macros item=macro key=macro_id}
-			<li><a href="{devblocks_url}c=internal&a=applyMacro{/devblocks_url}?macro={$macro->id}&context={CerberusContexts::CONTEXT_TASK}&context_id={$task->id}&return_url={$return_url|escape:'url'}">{$macro->title}</a></li>
+			{foreach from=$properties item=v key=k name=props}
+				<div class="property">
+					{if $k == '...'}
+						<b>{$translate->_('...')|capitalize}:</b>
+						...
+					{elseif $k == 'due_date'}
+						<b>{$translate->_('task.due_date')|capitalize}:</b>
+						<abbr title="{$task->due_date|devblocks_date}" style="{if !$task->is_completed && $task->due_date < time()}font-weight:bold;color:rgb(150,0,0);{/if}">{$task->due_date|devblocks_prettytime}</abbr>
+					{else}
+						{include file="devblocks:cerberusweb.core::internal/custom_fields/profile_cell_renderer.tpl"}
+					{/if}
+				</div>
+				{if $smarty.foreach.props.iteration % 3 == 0 && !$smarty.foreach.props.last}
+					<br clear="all">
+				{/if}
 			{/foreach}
-		</ul>
-		{/if}
-
-		<button type="button" id="btnDisplayTaskEdit"><span class="cerb-sprite sprite-document_edit"></span> Edit</button>
-
-		{$toolbar_extensions = DevblocksPlatform::getExtensions('cerberusweb.task.toolbaritem',true)}
-		{foreach from=$toolbar_extensions item=toolbar_extension}
-			{$toolbar_extension->render($task)}
-		{/foreach}
+			<br clear="all">
+			
+			<!-- Toolbar -->
+	
+			<span>
+			{$object_watchers = DAO_ContextLink::getContextLinks(CerberusContexts::CONTEXT_TASK, array($task->id), CerberusContexts::CONTEXT_WORKER)}
+			{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=CerberusContexts::CONTEXT_TASK context_id=$task->id full=true}
+			</span>		
+	
+			{if !empty($macros)}
+			<button type="button" class="split-left" onclick="$(this).next('button').click();"><span class="cerb-sprite sprite-gear"></span> Macros</button><!--  
+			--><button type="button" class="split-right" id="btnDisplayMacros"><span class="cerb-sprite sprite-arrow-down-white"></span></button>
+			<ul class="cerb-popupmenu cerb-float" id="menuDisplayMacros">
+				<li style="background:none;">
+					<input type="text" size="16" class="input_search filter">
+				</li>
+				{devblocks_url assign=return_url full=true}c=tasks&tab=display&id={$task->id}{/devblocks_url}
+				{foreach from=$macros item=macro key=macro_id}
+				<li><a href="{devblocks_url}c=internal&a=applyMacro{/devblocks_url}?macro={$macro->id}&context={CerberusContexts::CONTEXT_TASK}&context_id={$task->id}&return_url={$return_url|escape:'url'}">{$macro->title}</a></li>
+				{/foreach}
+			</ul>
+			{/if}
+	
+			<button type="button" id="btnDisplayTaskEdit"><span class="cerb-sprite sprite-document_edit"></span> Edit</button>
+	
+			{$toolbar_extensions = DevblocksPlatform::getExtensions('cerberusweb.task.toolbaritem',true)}
+			{foreach from=$toolbar_extensions item=toolbar_extension}
+				{$toolbar_extension->render($task)}
+			{/foreach}
+			
+			<button type="button" title="{$translate->_('display.shortcut.refresh')}" onclick="document.location='{devblocks_url}c=tasks&tab=display&id={$task->id}-{$task->title|devblocks_permalink}{/devblocks_url}';">&nbsp;<span class="cerb-sprite sprite-refresh"></span>&nbsp;</button>
+			
+			</form>
+			
+		</fieldset>		
 		
-		</form>
-		<br>
 	</td>
 	<td align="right" valign="top">
 		{*
@@ -88,7 +104,7 @@ $(function() {
 
 	$('#btnDisplayTaskEdit').bind('click', function() {
 		$popup = genericAjaxPopup('peek','c=tasks&a=showTaskPeek&id={$task->id}',null,false,'550');
-		$popup.one('opp_save', function(event) {
+		$popup.one('task_save', function(event) {
 			event.stopPropagation();
 			document.location.href = '{devblocks_url}c=tasks&a=display&id={$task->id}{/devblocks_url}';
 		});

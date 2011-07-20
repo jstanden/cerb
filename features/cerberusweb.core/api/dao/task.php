@@ -443,7 +443,6 @@ class SearchFields_Task implements IDevblocksSearchFields {
 class Model_Task {
 	public $id;
 	public $title;
-	public $created;
 	public $due_date;
 	public $is_completed;
 	public $completed_date;
