@@ -181,6 +181,11 @@
         <seg>commenta</seg>
       </tuv>
     </tu>
+    <tu tuid="common.conversation">
+      <tuv xml:lang="it_IT">
+        <seg>Conversazione</seg>
+      </tuv>
+    </tu>
     <tu tuid="common.copy">
       <tuv xml:lang="it_IT">
         <seg>copia</seg>
@@ -949,11 +954,6 @@
     <tu tuid="display.tab.comments">
       <tuv xml:lang="it_IT">
         <seg>Commenti (%s)</seg>
-      </tuv>
-    </tu>
-    <tu tuid="display.tab.conversation">
-      <tuv xml:lang="it_IT">
-        <seg>Conversazione</seg>
       </tuv>
     </tu>
     <tu tuid="display.tab.custom_fields">

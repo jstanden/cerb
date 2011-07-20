@@ -786,6 +786,11 @@
         <seg>Zusammenhang ID</seg>
       </tuv>
     </tu>
+    <tu tuid="common.conversation">
+      <tuv xml:lang="de_DE">
+        <seg>Schriftwechsel</seg>
+      </tuv>
+    </tu>
     <tu tuid="common.copy">
       <tuv xml:lang="de_DE">
         <seg>kopieren</seg>
@@ -2014,11 +2019,6 @@
     <tu tuid="display.tab.comments">
       <tuv xml:lang="de_DE">
         <seg>Kommentare (%s)</seg>
-      </tuv>
-    </tu>
-    <tu tuid="display.tab.conversation">
-      <tuv xml:lang="de_DE">
-        <seg>Schriftwechsel</seg>
       </tuv>
     </tu>
     <tu tuid="display.tab.custom_fields">

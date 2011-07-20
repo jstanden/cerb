@@ -569,13 +569,13 @@ DIV.bubble {
 	padding:0 0.2em 0 0.2em;
 	margin:2px;
 	display:inline-block;
-	color:rgb(49,116,165);
+	color:rgb(50,115,185);
 	background-color:rgb(232,242,254);
 	border:1px solid rgb(197,219,236);	
 }
 
 DIV.bubble A {
-	color:rgb(49,116,165);
+	color:rgb(50,115,185);
 	text-decoration:none;
 }
 
@@ -597,7 +597,7 @@ UL.bubbles LI {
 	white-space:nowrap;
 	padding:0 0.2em 0 0.2em;
 	margin:2px;
-	color:rgb(49,116,165);
+	color:rgb(50,115,185);
 	border:1px solid rgb(197,219,236);
 	
 	border-radius: 5px;	
@@ -700,6 +700,27 @@ DIV.cerb-properties > DIV {
 DIV.cerb-properties > DIV > LABEL {
 	font-weight:bold;
 	margin-right:1px;
+}
+
+FIELDSET.properties {
+	margin:0px 10px 0px 10px;
+	border-width:2px 0px 0px 0px;
+}
+
+FIELDSET.properties LEGEND {
+}
+
+FIELDSET.properties DIV.property {
+	width:32%;
+	padding-right:1%;
+	margin-bottom:0.25em;
+	display:inline;
+	float:left;
+}
+
+FIELDSET.properties SMALL {
+	font-size:90%;
+	color:rgb(100,100,100);
 }
 
 /* Popup menu */

@@ -776,6 +776,11 @@
         <seg>Context ID</seg>
       </tuv>
     </tu>
+    <tu tuid="common.conversation">
+      <tuv xml:lang="nl_NL">
+        <seg>Conversatie</seg>
+      </tuv>
+    </tu>
     <tu tuid="common.copy">
       <tuv xml:lang="nl_NL">
         <seg>kopieer</seg>
@@ -1889,11 +1894,6 @@
     <tu tuid="display.tab.comments">
       <tuv xml:lang="nl_NL">
         <seg>Commentaar (%s)</seg>
-      </tuv>
-    </tu>
-    <tu tuid="display.tab.conversation">
-      <tuv xml:lang="nl_NL">
-        <seg>Conversatie</seg>
       </tuv>
     </tu>
     <tu tuid="display.tab.history">

@@ -16,14 +16,14 @@
 		<tu tuid='display.tab.comments'>
 			<tuv xml:lang="en_US"><seg>Comments (%s)</seg></tuv>
 		</tu>
-		<tu tuid='display.tab.conversation'>
-			<tuv xml:lang="en_US"><seg>Conversation</seg></tuv>
-		</tu>
 		<tu tuid='display.tab.history'>
 			<tuv xml:lang="en_US"><seg>Recipient History</seg></tuv>
 		</tu>
 		<tu tuid='display.tab.tasks'>
 			<tuv xml:lang="en_US"><seg>Tasks</seg></tuv>
+		</tu>
+		<tu tuid='display.tab.timeline'>
+			<tuv xml:lang="en_US"><seg>Timeline</seg></tuv>
 		</tu>
 
 		<tu tuid='home.tab.my_notifications'>
@@ -173,6 +173,9 @@
 		</tu>
 		<tu tuid='common.continue'>
 			<tuv xml:lang="en_US"><seg>continue</seg></tuv>
+		</tu>
+		<tu tuid='common.conversation'>
+			<tuv xml:lang="en_US"><seg>conversation</seg></tuv>
 		</tu>
 		<tu tuid='common.copy'>
 			<tuv xml:lang="en_US"><seg>copy</seg></tuv>
