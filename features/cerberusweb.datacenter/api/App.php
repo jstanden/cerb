@@ -73,6 +73,36 @@ class Page_Datacenter extends CerberusPageExtension {
 				uasort($tab_manifests, create_function('$a, $b', "return strcasecmp(\$a->name,\$b->name);\n"));
 				$tpl->assign('tab_manifests', $tab_manifests);
 				
+				// Custom fields
+				
+				$custom_fields = DAO_CustomField::getAll();
+				$tpl->assign('custom_fields', $custom_fields);
+				
+				// Properties
+				
+				$properties = array();
+				
+//				$properties['created'] = array(
+//					'label' => ucfirst($translate->_('common.created')),
+//					'type' => Model_CustomField::TYPE_DATE,
+//					'value' => $server->created,
+//				);
+				
+				@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds('cerberusweb.contexts.datacenter.server', $server->id)) or array();
+		
+				foreach($custom_fields as $cf_id => $cfield) {
+					if(!isset($values[$cf_id]))
+						continue;
+						
+					$properties['cf_' . $cf_id] = array(
+						'label' => $cfield->name,
+						'type' => $cfield->type,
+						'value' => $values[$cf_id],
+					);
+				}
+				
+				$tpl->assign('properties', $properties);
+				
 				$tpl->display('devblocks:cerberusweb.datacenter::datacenter/servers/display/index.tpl');
 				break;
 				

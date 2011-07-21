@@ -1,25 +1,30 @@
 {include file="devblocks:cerberusweb.datacenter::datacenter/servers/display/submenu.tpl"}
 
-<table cellspacing="0" cellpadding="0" border="0" width="100%" style="padding-bottom:5px;">
-<tr>
-	<td valign="top" style="padding-right:5px;">
-		<h1 style="margin-bottom:5px;">{$server->name}</h1> 
-		<form action="{devblocks_url}{/devblocks_url}" onsubmit="return false;">
-		{*
-		<b>{'task.is_completed'|devblocks_translate|capitalize}:</b> {if $task->is_completed}{'common.yes'|devblocks_translate|capitalize}{else}{'common.no'|devblocks_translate|capitalize}{/if} &nbsp;
-		{if !empty($task->updated_date)}
-		<b>{'task.updated_date'|devblocks_translate|capitalize}:</b> <abbr title="{$task->updated_date|devblocks_date}">{$task->updated_date|devblocks_prettytime}</abbr> &nbsp;
-		{/if}
-		{if !empty($task->due_date)}
-		<b>{'task.due_date'|devblocks_translate|capitalize}:</b> <abbr title="{$task->due_date|devblocks_date}">{$task->due_date|devblocks_prettytime}</abbr> &nbsp;
-		{/if}
-		{assign var=task_worker_id value=$task->worker_id}
-		{if !empty($task_worker_id) && isset($workers.$task_worker_id)}
-			<b>{'common.worker'|devblocks_translate|capitalize}:</b> {$workers.$task_worker_id->getName()} &nbsp;
-		{/if}
-		<br>
-		*}
+<h2>{'cerberusweb.datacenter.common.server'|devblocks_translate|capitalize}</h2>
+
+<fieldset class="properties">
+	<legend>{$server->name|truncate:128}</legend>
+	
+	<form action="{devblocks_url}{/devblocks_url}" method="post">
+
+		{foreach from=$properties item=v key=k name=props}
+			<div class="property">
+				{if $k == '...'}
+					<b>{$translate->_('...')|capitalize}:</b>
+					...
+				{else}
+					{include file="devblocks:cerberusweb.core::internal/custom_fields/profile_cell_renderer.tpl"}
+				{/if}
+			</div>
+			{if $smarty.foreach.props.iteration % 3 == 0 && !$smarty.foreach.props.last}
+				<br clear="all">
+			{/if}
+		{/foreach}
 		
+		{if !empty($properties)}
+		<br clear="all">
+		{/if}
+	
 		<!-- Toolbar -->
 		<span>
 		{$object_watchers = DAO_ContextLink::getContextLinks('cerberusweb.contexts.datacenter.server', array($server->id), CerberusContexts::CONTEXT_WORKER)}
@@ -27,29 +32,9 @@
 		</span>		
 		
 		<button type="button" id="btnDatacenterServerEdit"><span class="cerb-sprite sprite-document_edit"></span> Edit</button>
-		{*
-		{$toolbar_extensions = DevblocksPlatform::getExtensions('cerberusweb.task.toolbaritem',true)}
-		{foreach from=$toolbar_extensions item=toolbar_extension}
-			{$toolbar_extension->render($task)}
-		{/foreach}
-		*}
-		
-		</form>
-	</td>
-	<td align="right" valign="top">
-		{*
-		<form action="{devblocks_url}{/devblocks_url}" method="post">
-		<input type="hidden" name="c" value="contacts">
-		<input type="hidden" name="a" value="doOrgQuickSearch">
-		<span><b>{$translate->_('common.quick_search')|capitalize}:</b></span> <select name="type">
-			<option value="name">{$translate->_('contact_org.name')|capitalize}</option>
-			<option value="phone">{$translate->_('contact_org.phone')|capitalize}</option>
-		</select><input type="text" name="query" class="input_search" size="24"><button type="submit">{$translate->_('common.search_go')|lower}</button>
-		</form>
-		*}
-	</td>
-</tr>
-</table>
+	
+	</form>
+</fieldset>
 
 <div id="datacenterServerTabs">
 	<ul>
@@ -79,7 +64,7 @@
 		
 		$('#btnDatacenterServerEdit').bind('click', function() {
 			$popup = genericAjaxPopup('peek','c=datacenter&a=showServerPeek&id={$server->id}',null,false,'550');
-			$popup.one('datacenter_server', function(event) {
+			$popup.one('datacenter_server_save', function(event) {
 				event.stopPropagation();
 				document.location.href = '{devblocks_url}c=datacenter&a=server&id={$server->id}{/devblocks_url}';
 			});
