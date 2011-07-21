@@ -107,7 +107,7 @@ class Page_Feeds extends CerberusPageExtension {
 	function render() {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$visit = CerberusApplication::getVisit();
-
+		$translate = DevblocksPlatform::getTranslationService();
 		$response = DevblocksPlatform::getHttpResponse();
 
 		// Remember the last tab/URL
@@ -131,6 +131,52 @@ class Page_Feeds extends CerberusPageExtension {
 				$tab_manifests = DevblocksPlatform::getExtensions('cerberusweb.feeds.item.tab', false);
 				uasort($tab_manifests, create_function('$a, $b', "return strcasecmp(\$a->name,\$b->name);\n"));
 				$tpl->assign('tab_manifests', $tab_manifests);
+				
+				// Custom fields
+				
+				$custom_fields = DAO_CustomField::getAll();
+				$tpl->assign('custom_fields', $custom_fields);
+				
+				// Properties
+				
+				$properties = array();
+
+				if(!empty($item->feed_id)) {
+					if(null != ($feed = DAO_Feed::get($item->feed_id))) {
+						$properties['feed'] = array(
+							'label' => ucfirst($translate->_('dao.feed_item.feed_id')),
+							'type' => null,
+							'feed' => $feed,
+						);
+					}
+				}
+				
+				$properties['is_closed'] = array(
+					'label' => ucfirst($translate->_('dao.feed_item.is_closed')),
+					'type' => Model_CustomField::TYPE_CHECKBOX,
+					'value' => $item->is_closed,
+				);
+				
+				$properties['created_date'] = array(
+					'label' => ucfirst($translate->_('common.created')),
+					'type' => Model_CustomField::TYPE_DATE,
+					'value' => $item->created_date,
+				);
+				
+				@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds('cerberusweb.contexts.feed.item', $item->id)) or array();
+		
+				foreach($custom_fields as $cf_id => $cfield) {
+					if(!isset($values[$cf_id]))
+						continue;
+						
+					$properties['cf_' . $cf_id] = array(
+						'label' => $cfield->name,
+						'type' => $cfield->type,
+						'value' => $values[$cf_id],
+					);
+				}
+				
+				$tpl->assign('properties', $properties);				
 				
 				$tpl->display('devblocks:cerberusweb.feed_reader::feeds/item/display/index.tpl');
 				break;
