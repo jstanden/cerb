@@ -131,7 +131,7 @@ class PageSection_SetupMailRouting extends Extension_PageSection {
 		// Criteria
 		if(is_array($rules))
 		foreach($rules as $rule) {
-			$rule = DevblocksPlatform::strAlphaNum($rule, '_.-');
+			$rule = DevblocksPlatform::strAlphaNum($rule, '\_\.\-');
 			@$value = DevblocksPlatform::importGPC($_POST['value_'.$rule],'string','');
 			
 			// [JAS]: Allow empty $value (null/blank checking)

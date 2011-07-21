@@ -924,7 +924,7 @@ class ChContactsPage extends CerberusPageExtension {
 		@$address_ids_str = DevblocksPlatform::importGPC($_REQUEST['address_ids'],'string','');
 		@$org_id = DevblocksPlatform::importGPC($_REQUEST['org_id'],'integer',0);
 	
-		$view_id = DevblocksPlatform::strAlphaNum($point, '_');
+		$view_id = DevblocksPlatform::strAlphaNum($point, '\_');
 		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$view = C4_AbstractViewLoader::getView($view_id);

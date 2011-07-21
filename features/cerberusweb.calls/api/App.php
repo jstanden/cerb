@@ -109,7 +109,7 @@ class CallsPage extends CerberusPageExtension {
 	    $path = $request->path;
 		$controller = array_shift($path); // calls
 
-	    @$action = DevblocksPlatform::strAlphaNum(array_shift($path), '_') . 'Action';
+	    @$action = DevblocksPlatform::strAlphaNum(array_shift($path), '\_') . 'Action';
 
 	    switch($action) {
 	        case NULL:

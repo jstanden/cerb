@@ -422,7 +422,7 @@ abstract class DevblocksEngine {
 			} elseif (isset($_POST['c'])) {
 				@$uri = DevblocksPlatform::importGPC($_POST['c']); // extension
 			}
-			if(!empty($uri)) $parts[] = DevblocksPlatform::strAlphaNum($uri, '_-.');
+			if(!empty($uri)) $parts[] = DevblocksPlatform::strAlphaNum($uri, '\_\-\.');
 
 			// Action (GET has precedence over POST)
 			if(isset($_GET['a'])) {
@@ -430,12 +430,12 @@ abstract class DevblocksEngine {
 			} elseif (isset($_POST['a'])) {
 				@$listener = DevblocksPlatform::importGPC($_POST['a']); // listener
 			}
-			if(!empty($listener)) $parts[] = DevblocksPlatform::strAlphaNum($listener, '_');
+			if(!empty($listener)) $parts[] = DevblocksPlatform::strAlphaNum($listener, '\_');
 		}
 		
 		// Controller XSS security (alphanum+under only)
 		if(isset($parts[0])) {
-			$parts[0] = DevblocksPlatform::strAlphaNum($parts[0], '_-.');
+			$parts[0] = DevblocksPlatform::strAlphaNum($parts[0], '\_\-\.');
 		}
 
 		// Resource / Proxy

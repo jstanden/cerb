@@ -114,7 +114,7 @@ class ChReportsPage extends CerberusPageExtension {
 	 */
 	function actionAction() {
 		@$extid = DevblocksPlatform::importGPC($_REQUEST['extid']);
-		@$extid_a = DevblocksPlatform::strAlphaNum($_REQUEST['extid_a'], '_');
+		@$extid_a = DevblocksPlatform::strAlphaNum($_REQUEST['extid_a'], '\_');
 		
 		$action = $extid_a.'Action';
 		

@@ -168,7 +168,7 @@ class DevblocksPlatform extends DevblocksEngine {
 	 * @return string
 	 */
 	static function strAlphaNum($arg, $also=null) {
-		return preg_replace("/[^A-Z0-9" . preg_quote($also) . "]/i","", $arg);
+		return preg_replace("/[^A-Z0-9" . $also . "]/i","", $arg);
 	}
 	
 	static function strUnidecode($string, $from_encoding = 'utf-8') {

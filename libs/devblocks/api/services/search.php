@@ -24,7 +24,7 @@ class _DevblocksSearchEngineMysqlFulltext {
 	}
 	
 	protected function escapeNamespace($namespace) {
-		return strtolower(DevblocksPlatform::strAlphaNum($namespace, '_'));
+		return strtolower(DevblocksPlatform::strAlphaNum($namespace, '\_'));
 	}
 	
 	public function query($ns, $query, $limit=25, $boolean_mode=true) {
