@@ -5,7 +5,7 @@
 <fieldset class="properties">
 	<legend>{$domain->name}</legend>
 	
-	<form action="{devblocks_url}{/devblocks_url}" method="post">
+	<form action="{devblocks_url}{/devblocks_url}" method="post" style="margin-bottom:5px;">
 
 		{foreach from=$properties item=v key=k name=props}
 			<div class="property">
@@ -33,6 +33,13 @@
 		</div>
 	
 	</form>
+	
+	{if $pref_keyboard_shortcuts}
+	<small>
+		{$translate->_('common.keyboard')|lower}:
+		(<b>e</b>) {'common.edit'|devblocks_translate|lower}
+	</small> 
+	{/if}
 </fieldset>
 
 <div id="datacenterDomainTabs">
@@ -62,4 +69,33 @@
 			});
 		})
 	});
+</script>
+
+<script type="text/javascript">
+{if $pref_keyboard_shortcuts}
+$(document).keypress(function(event) {
+	if(event.altKey || event.ctrlKey || event.shiftKey || event.metaKey)
+		return;
+	
+	if($(event.target).is(':input'))
+		return;
+
+	hotkey_activated = true;
+	
+	switch(event.which) {
+		case 101:  // (E) edit
+			try {
+				$('#btnDatacenterDomainEdit').click();
+			} catch(ex) { } 
+			break;
+		default:
+			// We didn't find any obvious keys, try other codes
+			hotkey_activated = false;
+			break;
+	}
+	
+	if(hotkey_activated)
+		event.preventDefault();
+});
+{/if}
 </script>

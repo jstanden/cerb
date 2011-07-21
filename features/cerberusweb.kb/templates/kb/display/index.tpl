@@ -22,7 +22,7 @@
 <fieldset class="properties">
 	<legend>{'common.properties'|devblocks_translate|capitalize}</legend>
 	
-	<form action="{devblocks_url}{/devblocks_url}" method="post">
+	<form action="{devblocks_url}{/devblocks_url}" method="post" style="margin-bottom:5px;">
 		{foreach from=$properties item=v key=k name=props}
 			<div class="property">
 				{if $k == '...'}
@@ -50,8 +50,15 @@
 		<br clear="all">
 		{/if}
 		
-		{if $active_worker->hasPriv('core.kb.articles.modify')}<button type="button" onclick="genericAjaxPopup('peek','c=kb.ajax&a=showArticleEditPanel&id={$article->id}&return_uri={"kb/article/{$article->id}"}',null,false,'725');"><span class="cerb-sprite sprite-document_edit"></span> {$translate->_('common.edit')|capitalize}</button>{/if}
+		{if $active_worker->hasPriv('core.kb.articles.modify')}<button id="btnDisplayKbEdit" type="button" onclick="genericAjaxPopup('peek','c=kb.ajax&a=showArticleEditPanel&id={$article->id}&return_uri={"kb/article/{$article->id}"}',null,false,'725');"><span class="cerb-sprite sprite-document_edit"></span> {$translate->_('common.edit')|capitalize}</button>{/if}
 	</form>
+	
+	{if $pref_keyboard_shortcuts}
+	<small>
+		{$translate->_('common.keyboard')|lower}:
+		{if $active_worker->hasPriv('core.kb.articles.modify')}(<b>e</b>) {'common.edit'|devblocks_translate|lower}{/if}
+	</small> 
+	{/if}
 </fieldset>
 <br clear="all">
 
@@ -62,3 +69,34 @@
 </div>
 
 {include file="devblocks:cerberusweb.core::internal/attachments/list.tpl" context={CerberusContexts::CONTEXT_KB_ARTICLE} context_id={$article->id}}
+
+<script type="text/javascript">
+{if $pref_keyboard_shortcuts}
+$(document).keypress(function(event) {
+	if(event.altKey || event.ctrlKey || event.shiftKey || event.metaKey)
+		return;
+	
+	if($(event.target).is(':input'))
+		return;
+
+	hotkey_activated = true;
+	
+	switch(event.which) {
+		{if $active_worker->hasPriv('core.kb.articles.modify')}
+		case 101:  // (E) edit
+			try {
+				$('#btnDisplayKbEdit').click();
+			} catch(ex) { } 
+			break;
+		{/if}
+		default:
+			// We didn't find any obvious keys, try other codes
+			hotkey_activated = false;
+			break;
+	}
+	
+	if(hotkey_activated)
+		event.preventDefault();
+});
+{/if}
+</script>

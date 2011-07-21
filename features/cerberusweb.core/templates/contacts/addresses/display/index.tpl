@@ -30,7 +30,7 @@
 		{/if}
 	</legend>
 	
-	<form action="{devblocks_url}{/devblocks_url}" method="post">
+	<form action="{devblocks_url}{/devblocks_url}" method="post" style="margin-bottom:5px;">
 	<input type="hidden" name="c" value="tasks">
 	<input type="hidden" name="a" value="">
 	<input type="hidden" name="id" value="{$task->id}">
@@ -58,6 +58,13 @@
 		<!-- Toolbar -->
 		<button type="button" id="btnDisplayAddyEdit"><span class="cerb-sprite sprite-document_edit"></span> Edit</button>
 	</form>
+	
+	{if $pref_keyboard_shortcuts}
+	<small>
+		{$translate->_('common.keyboard')|lower}:
+		(<b>e</b>) {'common.edit'|devblocks_translate|lower}
+	</small> 
+	{/if}
 </fieldset>
 
 <div style="clear:both;" id="contactTabs">
@@ -100,4 +107,33 @@
 			});
 		})
 	});
+</script>
+
+<script type="text/javascript">
+{if $pref_keyboard_shortcuts}
+$(document).keypress(function(event) {
+	if(event.altKey || event.ctrlKey || event.shiftKey || event.metaKey)
+		return;
+	
+	if($(event.target).is(':input'))
+		return;
+
+	hotkey_activated = true;
+	
+	switch(event.which) {
+		case 101:  // (E) edit
+			try {
+				$('#btnDisplayAddyEdit').click();
+			} catch(ex) { } 
+			break;
+		default:
+			// We didn't find any obvious keys, try other codes
+			hotkey_activated = false;
+			break;
+	}
+	
+	if(hotkey_activated)
+		event.preventDefault();
+});
+{/if}
 </script>

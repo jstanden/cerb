@@ -5,7 +5,7 @@
 <fieldset class="properties">
 	<legend>{$opp->name|truncate:128}</legend>
 	
-	<form action="{devblocks_url}{/devblocks_url}" onsubmit="return false;">
+	<form action="{devblocks_url}{/devblocks_url}" onsubmit="return false;" style="margin-bottom:5px;">
 
 		{foreach from=$properties item=v key=k name=props}
 			<div class="property">
@@ -62,6 +62,14 @@
 			{$ext->render($opp)}
 		{/foreach}
 	</form>
+	
+	{if $pref_keyboard_shortcuts}
+	<small>
+		{$translate->_('common.keyboard')|lower}:
+		(<b>e</b>) {'common.edit'|devblocks_translate|lower}
+		{if !empty($macros)}(<b>m</b>) {'common.macros'|devblocks_translate|lower} {/if}
+	</small> 
+	{/if}
 </fieldset>
 
 <div id="oppTabs">
@@ -181,23 +189,37 @@ $(document).keypress(function(event) {
 	if($(event.target).is(':input'))
 		return;
 
+	hotkey_activated = true;
+	
 	switch(event.which) {
 		case 97:  // (A) E-mail Peek
 			try {
-				event.preventDefault();
 				$('#btnOppAddyPeek').click();
 			} catch(e) { } 
 			break;
+		case 101:  // (E) edit
+			try {
+				$('#btnDisplayOppEdit').click();
+			} catch(ex) { } 
+			break;
+		case 109:  // (M) macros
+			try {
+				$('#btnDisplayMacros').click();
+			} catch(ex) { } 
+			break;
 		case 113:  // (Q) quick compose
 			try {
-				event.preventDefault();
 				$('#btnQuickCompose').click();
 			} catch(e) { } 
 			break;
 		default:
 			// We didn't find any obvious keys, try other codes
+			hotkey_activated = false;
 			break;
 	}
+	
+	if(hotkey_activated)
+		event.preventDefault();
 });
 {/if}
 </script>

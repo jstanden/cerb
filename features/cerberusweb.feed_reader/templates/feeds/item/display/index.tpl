@@ -5,7 +5,7 @@
 <fieldset class="properties">
 	<legend>{$item->title}</legend>
 	
-	<form action="{devblocks_url}{/devblocks_url}" method="post">
+	<form action="{devblocks_url}{/devblocks_url}" method="post" style="margin-bottom:5px;">
 
 		<div style="margin-bottom:0.25em;">
 			<b>{'common.url'|devblocks_translate}:</b>
@@ -40,6 +40,13 @@
 			{$ext->render($opp)}
 		{/foreach}
 	</form>
+	
+	{if $pref_keyboard_shortcuts}
+	<small>
+		{$translate->_('common.keyboard')|lower}:
+		(<b>e</b>) {'common.edit'|devblocks_translate|lower}
+	</small> 
+	{/if}
 </fieldset>
 
 <div id="feedItemTabs">
@@ -86,16 +93,22 @@ $(document).keypress(function(event) {
 	if($(event.target).is(':input'))
 		return;
 
+	hotkey_activated = true;
+	
 	switch(event.which) {
-//		case 97:  // (A) E-mail Peek
-//			try {
-//				$('#btnOppAddyPeek').click();
-//			} catch(e) { } 
-//			break;
+		case 101:  // (E) edit
+			try {
+				$('#btnDisplayFeedItemEdit').click();
+			} catch(ex) { } 
+			break;
 		default:
 			// We didn't find any obvious keys, try other codes
+			hotkey_activated = false;
 			break;
 	}
+	
+	if(hotkey_activated)
+		event.preventDefault();
 });
 {/if}
 </script>

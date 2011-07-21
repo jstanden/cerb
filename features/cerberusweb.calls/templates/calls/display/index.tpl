@@ -8,38 +8,45 @@
 		<fieldset class="properties">
 			<legend>{$call->subject|truncate:128}</legend>
 			
-			<form action="{devblocks_url}{/devblocks_url}" onsubmit="return false;">
+			<form action="{devblocks_url}{/devblocks_url}" onsubmit="return false;" style="margin-bottom:5px;">
 		
-			{foreach from=$properties item=v key=k name=props}
-				<div class="property">
-					{if $k == '...'}
-						<b>{$translate->_('...')|capitalize}:</b>
-						...
-					{else}
-						{include file="devblocks:cerberusweb.core::internal/custom_fields/profile_cell_renderer.tpl"}
+				{foreach from=$properties item=v key=k name=props}
+					<div class="property">
+						{if $k == '...'}
+							<b>{$translate->_('...')|capitalize}:</b>
+							...
+						{else}
+							{include file="devblocks:cerberusweb.core::internal/custom_fields/profile_cell_renderer.tpl"}
+						{/if}
+					</div>
+					{if $smarty.foreach.props.iteration % 3 == 0 && !$smarty.foreach.props.last}
+						<br clear="all">
 					{/if}
-				</div>
-				{if $smarty.foreach.props.iteration % 3 == 0 && !$smarty.foreach.props.last}
-					<br clear="all">
-				{/if}
-			{/foreach}
-			<br clear="all">
-			
-			<!-- Toolbar -->
-			
-			<span>
-			{$object_watchers = DAO_ContextLink::getContextLinks(CerberusContexts::CONTEXT_CALL, array($call->id), CerberusContexts::CONTEXT_WORKER)}
-			{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=CerberusContexts::CONTEXT_CALL context_id=$call->id full=true}
-			</span>		
-			
-			<button type="button" id="btnDisplayCallEdit"><span class="cerb-sprite sprite-document_edit"></span> Edit</button>
-			
-			{$toolbar_exts = DevblocksPlatform::getExtensions('cerberusweb.calls.call.toolbaritem', true)}
-			{foreach from=$toolbar_exts item=ext}
-				{$ext->render($opp)}
-			{/foreach}
-			
+				{/foreach}
+				<br clear="all">
+				
+				<!-- Toolbar -->
+				
+				<span>
+				{$object_watchers = DAO_ContextLink::getContextLinks(CerberusContexts::CONTEXT_CALL, array($call->id), CerberusContexts::CONTEXT_WORKER)}
+				{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=CerberusContexts::CONTEXT_CALL context_id=$call->id full=true}
+				</span>		
+				
+				<button type="button" id="btnDisplayCallEdit"><span class="cerb-sprite sprite-document_edit"></span> Edit</button>
+				
+				{$toolbar_exts = DevblocksPlatform::getExtensions('cerberusweb.calls.call.toolbaritem', true)}
+				{foreach from=$toolbar_exts item=ext}
+					{$ext->render($opp)}
+				{/foreach}
+				
 			</form>
+			
+			{if $pref_keyboard_shortcuts}
+			<small>
+				{$translate->_('common.keyboard')|lower}:
+				(<b>e</b>) {'common.edit'|devblocks_translate|lower}
+			</small> 
+			{/if}
 		</fieldset>
 	</td>
 </tr>
@@ -89,16 +96,22 @@ $(document).keypress(function(event) {
 	if($(event.target).is(':input'))
 		return;
 
+	hotkey_activated = true;
+	
 	switch(event.which) {
-//		case 97:  // (A) E-mail Peek
-//			try {
-//				$('#btnOppAddyPeek').click();
-//			} catch(e) { } 
-//			break;
+		case 101:  // (E) edit
+			try {
+				$('#btnDisplayCallEdit').click();
+			} catch(ex) { } 
+			break;
 		default:
 			// We didn't find any obvious keys, try other codes
+			hotkey_activated = false;
 			break;
 	}
+	
+	if(hotkey_activated)
+		event.preventDefault();
 });
 {/if}
 </script>
