@@ -284,8 +284,8 @@ function genericAjaxPopup($layer,request,target,modal,width,cb) {
 		modal : false,
 		stack: true,
 		width : '300px',
-		close: function(event, ui) { 
-			$(this).unbind();
+		close: function(event, ui) {
+			$(this).unbind().find(':focus').blur();
 		}
 	};
 	
