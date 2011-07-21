@@ -1451,11 +1451,6 @@
         <seg>Open</seg>
       </tuv>
     </tu>
-    <tu tuid="crm.opp.tab.mail_history">
-      <tuv xml:lang="nl_NL">
-        <seg>E-mailgeschiedenis</seg>
-      </tuv>
-    </tu>
     <tu tuid="crm.opp.tab.properties">
       <tuv xml:lang="nl_NL">
         <seg>Eigenschappen</seg>

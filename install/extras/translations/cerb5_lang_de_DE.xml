@@ -1536,11 +1536,6 @@
         <seg>Offen</seg>
       </tuv>
     </tu>
-    <tu tuid="crm.opp.tab.mail_history">
-      <tuv xml:lang="de_DE">
-        <seg>Mail-Historie</seg>
-      </tuv>
-    </tu>
     <tu tuid="crm.opp.tab.properties">
       <tuv xml:lang="de_DE">
         <seg>Eigenschaften</seg>

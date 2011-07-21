@@ -82,9 +82,6 @@
 			<tuv xml:lang="en_US"><seg>Open</seg></tuv>
 		</tu>
 
-		<tu tuid='crm.opp.tab.mail_history'>
-			<tuv xml:lang="en_US"><seg>Mail History</seg></tuv>
-		</tu>
 		<tu tuid='crm.opp.tab.properties'>
 			<tuv xml:lang="en_US"><seg>Properties</seg></tuv>
 		</tu>

@@ -63,12 +63,12 @@
 <div style="clear:both;" id="contactTabs">
 	<ul>
 		{$tabs = [activity,notes,links,history,people]}
-		{$point = ''}
+		{$point = 'cerberusweb.org.tab'}
 		
 		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabActivityLog&scope=target&point={$point}&context={CerberusContexts::CONTEXT_ORG}&context_id={$contact->id}{/devblocks_url}">{'common.activity_log'|devblocks_translate|capitalize}</a></li>
 		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextComments&context=cerberusweb.contexts.org&id={$contact->id}{/devblocks_url}">{$translate->_('common.comments')|capitalize}</a></li>
 		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextLinks&context=cerberusweb.contexts.org&id={$contact->id}{/devblocks_url}">{$translate->_('common.links')}</a></li>
-		<li><a href="{devblocks_url}ajax.php?c=contacts&a=showTabHistory&org={$contact->id}{/devblocks_url}">{$translate->_('addy_book.org.tabs.mail_history')}</a></li>
+		<li><a href="{devblocks_url}ajax.php?c=contacts&a=showTabMailHistory&point={$point}&org_id={$contact->id}{/devblocks_url}">{$translate->_('addy_book.org.tabs.mail_history')}</a></li>
 		<li><a href="{devblocks_url}ajax.php?c=contacts&a=showTabPeople&org={$contact->id}{/devblocks_url}">{'addy_book.org.tabs.people'|devblocks_translate:$people_total}</a></li>
 
 		{foreach from=$tab_manifests item=tab_manifest}

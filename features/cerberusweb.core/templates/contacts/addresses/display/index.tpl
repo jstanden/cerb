@@ -70,23 +70,13 @@
 
 <div style="clear:both;" id="contactTabs">
 	<ul>
-		{$tabs = [activity,notes,links]}
+		{$tabs = [activity,notes,links,mail]}
 		{$point = 'cerberusweb.address.tab'}
 		
 		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabActivityLog&scope=target&point={$point}&context={CerberusContexts::CONTEXT_ADDRESS}&context_id={$address->id}{/devblocks_url}">{'common.activity_log'|devblocks_translate|capitalize}</a></li>
 		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextComments&context={CerberusContexts::CONTEXT_ADDRESS}&id={$address->id}{/devblocks_url}">{$translate->_('common.comments')|capitalize}</a></li>
 		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextLinks&context={CerberusContexts::CONTEXT_ADDRESS}&id={$address->id}{/devblocks_url}">{$translate->_('common.links')}</a></li>
-		
-		{*
-		<li><a href="{devblocks_url}ajax.php?c=contacts&a=showTabHistory&org={$address->id}{/devblocks_url}">{$translate->_('addy_book.org.tabs.mail_history')}</a></li>
-		*}
-
-		{*
-		{foreach from=$tab_manifests item=tab_manifest}
-			{$tabs[] = $tab_manifest->params.uri}
-			<li><a href="{devblocks_url}ajax.php?c=contacts&a=showAddressTab&ext_id={$tab_manifest->id}&org_id={$address->id}{/devblocks_url}"><i>{$tab_manifest->params.title|devblocks_translate}</i></a></li>
-		{/foreach}
-		*}
+		<li><a href="{devblocks_url}ajax.php?c=contacts&a=showTabMailHistory&point={$point}&address_ids={$address->id}{/devblocks_url}">{$translate->_('addy_book.org.tabs.mail_history')}</a></li>
 	</ul>
 </div> 
 <br>

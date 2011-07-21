@@ -74,16 +74,14 @@
 </fieldset>
 
 <div id="oppTabs">
-	{$tabs = []}
-	{$point = Extension_CrmOpportunityTab::POINT}
-	
 	<ul>
+		{$point = Extension_CrmOpportunityTab::POINT}
 		{$tabs = [activity,notes,links,mail]}
 		
 		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabActivityLog&scope=target&point={$point}&context={CerberusContexts::CONTEXT_OPPORTUNITY}&context_id={$opp->id}{/devblocks_url}">{'common.activity_log'|devblocks_translate|capitalize}</a></li>
 		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextComments&context={CerberusContexts::CONTEXT_OPPORTUNITY}&point={$point}&id={$opp->id}{/devblocks_url}">{$translate->_('common.comments')|capitalize}</a></li>		
-		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextLinks&context={CerberusContexts::CONTEXT_OPPORTUNITY}&point={$point}&id={$opp->id}{/devblocks_url}">{$translate->_('common.links')}</a></li>		
-		<li><a href="{devblocks_url}ajax.php?c=crm&a=showOppMailTab&id={$opp->id}{/devblocks_url}">{'crm.opp.tab.mail_history'|devblocks_translate}</a></li>
+		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextLinks&context={CerberusContexts::CONTEXT_OPPORTUNITY}&point={$point}&id={$opp->id}{/devblocks_url}">{$translate->_('common.links')}</a></li>
+		<li><a href="{devblocks_url}ajax.php?c=contacts&a=showTabMailHistory&point={$point}&address_ids={$opp->primary_email_id}{/devblocks_url}">{$translate->_('addy_book.org.tabs.mail_history')}</a></li>
 
 		{$tab_manifests = DevblocksPlatform::getExtensions($point, false)}
 		{foreach from=$tab_manifests item=tab_manifest}

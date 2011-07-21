@@ -915,27 +915,46 @@ class ChContactsPage extends CerberusPageExtension {
 		exit;
 	}	
 	
-	function showTabPeopleHistoryAction() {
+	function showTabMailHistoryAction() {
+		$visit = CerberusApplication::getVisit(); /* @var $visit CerberusVisit */
 		$translate = DevblocksPlatform::getTranslationService();
-		
-		@$contact_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
+	
+		@$point = DevblocksPlatform::importGPC($_REQUEST['point'],'string','contact.history');
+		@$ephemeral = DevblocksPlatform::importGPC($_REQUEST['point'],'integer',0);
+		@$address_ids_str = DevblocksPlatform::importGPC($_REQUEST['address_ids'],'string','');
+		@$org_id = DevblocksPlatform::importGPC($_REQUEST['org_id'],'integer',0);
+	
+		$view_id = DevblocksPlatform::strAlphaNum($point, '_');
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-				
-		$person = DAO_ContactPerson::get($contact_id);
-		$tpl->assign('person', $person);
+		$view = C4_AbstractViewLoader::getView($view_id);
+		$ids = array();
 		
-		$visit = CerberusApplication::getVisit(); /* @var $visit CerberusVisit */
-
-		$view = C4_AbstractViewLoader::getView('contact_person_history');
+		// Set the active tab
 		
-		// All contact addresses
-		$contact_addresses = $person->getAddresses();
+		if(!empty($point))
+			$visit->set($point, 'mail');
+		
+		// Determine the address scope
+		
+		if(empty($ids) && !empty($address_ids_str)) {
+			$ids = DevblocksPlatform::parseCsvString($address_ids_str, false, 'integer');
+		}
+		
+		if(empty($ids) && !empty($org_id)) {
+			// All org contacts
+			$people = DAO_Address::getWhere(sprintf("%s = %d",
+				DAO_Address::CONTACT_ORG_ID,
+				$org_id
+			));
+			$ids = array_keys($people);
+		}
+		
+		// Build the view
 		
 		if(null == $view) {
 			$view = new View_Ticket();
-			$view->id = 'contact_person_history';
-			$view->name = $translate->_('addy_book.history.view_title');
+			$view->id = $view_id;
 			$view->view_columns = array(
 				SearchFields_Ticket::TICKET_LAST_ACTION_CODE,
 				SearchFields_Ticket::TICKET_CREATED_DATE,
@@ -947,68 +966,20 @@ class ChContactsPage extends CerberusPageExtension {
 			$view->renderSortBy = SearchFields_Ticket::TICKET_CREATED_DATE;
 			$view->renderSortAsc = false;
 		}
-
-		@$view->name = $translate->_('ticket.requesters') . ": " . intval(count($contact_addresses)) . ' address(es)';
+	
+		@$view->name = $translate->_('ticket.requesters') . ": " . intval(count($ids)) . ' contact(s)';
+		
 		$view->addParams(array(
-			SearchFields_Ticket::REQUESTER_ID => new DevblocksSearchCriteria(SearchFields_Ticket::REQUESTER_ID,'in',array_keys($contact_addresses)),
+			SearchFields_Ticket::REQUESTER_ID => new DevblocksSearchCriteria(SearchFields_Ticket::REQUESTER_ID,'in',$ids),
 			SearchFields_Ticket::TICKET_DELETED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_DELETED,DevblocksSearchCriteria::OPER_EQ,0)
 		), true);
 		$tpl->assign('view', $view);
-		
+	
 		C4_AbstractViewLoader::setView($view->id, $view);
-		
-		$tpl->display('devblocks:cerberusweb.core::contacts/people/display/history_tab.tpl');
+	
+		$tpl->display('devblocks:cerberusweb.core::contacts/tab_mail_history.tpl');
 		exit;
 	}	
-	
-	function showTabHistoryAction() {
-		$translate = DevblocksPlatform::getTranslationService();
-		
-		@$org = DevblocksPlatform::importGPC($_REQUEST['org']);
-		
-		$tpl = DevblocksPlatform::getTemplateService();
-				
-		$contact = DAO_ContactOrg::get($org);
-		$tpl->assign('contact', $contact);
-		
-		$visit = CerberusApplication::getVisit(); /* @var $visit CerberusVisit */
-
-		$tickets_view = C4_AbstractViewLoader::getView('contact_history');
-		
-		// All org contacts
-		$people = DAO_Address::getWhere(sprintf("%s = %d",
-			DAO_Address::CONTACT_ORG_ID,
-			$contact->id
-		));
-		
-		if(null == $tickets_view) {
-			$tickets_view = new View_Ticket();
-			$tickets_view->id = 'contact_history';
-			$tickets_view->name = $translate->_('addy_book.history.view_title');
-			$tickets_view->view_columns = array(
-				SearchFields_Ticket::TICKET_LAST_ACTION_CODE,
-				SearchFields_Ticket::TICKET_CREATED_DATE,
-				SearchFields_Ticket::TICKET_TEAM_ID,
-				SearchFields_Ticket::TICKET_CATEGORY_ID,
-			);
-			$tickets_view->renderLimit = 10;
-			$tickets_view->renderPage = 0;
-			$tickets_view->renderSortBy = SearchFields_Ticket::TICKET_CREATED_DATE;
-			$tickets_view->renderSortAsc = false;
-		}
-
-		@$tickets_view->name = $translate->_('ticket.requesters') . ": " . htmlspecialchars($contact->name) . ' - ' . intval(count($people)) . ' contact(s)';
-		$tickets_view->addParams(array(
-			SearchFields_Ticket::REQUESTER_ID => new DevblocksSearchCriteria(SearchFields_Ticket::REQUESTER_ID,'in',array_keys($people)),
-			SearchFields_Ticket::TICKET_DELETED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_DELETED,DevblocksSearchCriteria::OPER_EQ,0)
-		), true);
-		$tpl->assign('contact_history', $tickets_view);
-		
-		C4_AbstractViewLoader::setView($tickets_view->id,$tickets_view);
-		
-		$tpl->display('devblocks:cerberusweb.core::contacts/orgs/tabs/history.tpl');
-		exit;
-	}
 	
 	function showAddressPeekAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer','');
