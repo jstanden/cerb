@@ -3,26 +3,37 @@
 </ul>
 <div style="clear:both;"></div>
 
+<h2>Contact</h2>
+
 {$primary_email = $person->getPrimaryAddress()}
 
-<fieldset style="float:left;min-width:400px;">
-	<legend>
-		{$primary_email->getName()} &lt;{$primary_email->email}&gt;
-	</legend>
+<fieldset class="properties">
+	<legend>{$primary_email->getName()} &lt;{$primary_email->email}&gt;</legend>
 	
-	{if !empty($person->created)}<b>Created:</b> {$person->created|devblocks_date} ({$person->created|devblocks_prettytime})<br>{/if} 
-	<b>Last Login:</b> {if empty($person->last_login)}{'common.never'|devblocks_translate|lower}{else}{$person->last_login|devblocks_date} ({$person->last_login|devblocks_prettytime}){/if}<br> 
-	
-	<form>
+	<form action="{devblocks_url}{/devblocks_url}" method="post">
+
+		{foreach from=$properties item=v key=k name=props}
+			<div class="property">
+				{if $k == 'primary_email'}
+					<b>{$v.label|capitalize}:</b>
+					<a href="javascript:;" onclick="genericAjaxPopup('peek','c=contacts&a=showAddressPeek&email={$v.address->email}',null,false,'500');">{$v.address->email}</a>
+				{else}
+					{include file="devblocks:cerberusweb.core::internal/custom_fields/profile_cell_renderer.tpl"}
+				{/if}
+			</div>
+			{if $smarty.foreach.props.iteration % 3 == 0 && !$smarty.foreach.props.last}
+				<br clear="all">
+			{/if}
+		{/foreach}
+		<br clear="all">
+
 		<!-- Toolbar -->
 		<span>
 		{$object_watchers = DAO_ContextLink::getContextLinks(CerberusContexts::CONTEXT_CONTACT_PERSON, array($person->id), CerberusContexts::CONTEXT_WORKER)}
 		{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=CerberusContexts::CONTEXT_CONTACT_PERSON context_id=$person->id full=true}
 		</span>		
+
 	</form>
-	{*
-		<button type="button" id="btnDisplayOrgEdit"><span class="cerb-sprite sprite-document_edit"></span> Edit</button>
-	*}
 </fieldset>
 
 <div style="clear:both;" id="contactPersonTabs">

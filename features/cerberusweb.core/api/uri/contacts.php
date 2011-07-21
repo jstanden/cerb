@@ -61,10 +61,10 @@ class ChContactsPage extends CerberusPageExtension {
 	
 	function render() {
 		$tpl = DevblocksPlatform::getTemplateService();
-		
+		$translate = DevblocksPlatform::getTranslationService();
 		$visit = CerberusApplication::getVisit();		
-		
 		$response = DevblocksPlatform::getHttpResponse();
+		
 		$stack = $response->path;
 
 		@array_shift($stack); // contacts
@@ -108,8 +108,6 @@ class ChContactsPage extends CerberusPageExtension {
 			case 'addresses':
 				switch(@array_shift($stack)) {
 					case 'display':
-						$translate = DevblocksPlatform::getTranslationService();
-						
 						$tab_manifests = DevblocksPlatform::getExtensions('cerberusweb.address.tab', false);
 						$tpl->assign('tab_manifests', $tab_manifests);
 						
@@ -181,8 +179,6 @@ class ChContactsPage extends CerberusPageExtension {
 			case 'orgs':
 				switch(@array_shift($stack)) {
 					case 'display':
-						$translate = DevblocksPlatform::getTranslationService();
-						
 						$tab_manifests = DevblocksPlatform::getExtensions('cerberusweb.org.tab', false);
 						$tpl->assign('tab_manifests', $tab_manifests);
 						
@@ -288,6 +284,52 @@ class ChContactsPage extends CerberusPageExtension {
 				if(!empty($id) && is_numeric($id)) {
 					$person = DAO_ContactPerson::get($id);
 					$tpl->assign('person', $person);
+					
+					// Custom fields
+					
+					$custom_fields = DAO_CustomField::getAll();
+					$tpl->assign('custom_fields', $custom_fields);
+					
+					// Properties
+					
+					$properties = array();
+					
+					if($person->email_id) {
+						if(null != ($address = $person->getPrimaryAddress())) {
+							$properties['primary_email'] = array(
+								'label' => ucfirst($translate->_('common.email')),
+								'type' => null,
+								'address' => $address,
+							);
+						}
+					}
+					
+					$properties['created'] = array(
+						'label' => ucfirst($translate->_('common.created')),
+						'type' => Model_CustomField::TYPE_DATE,
+						'value' => $person->created,
+					);
+					
+					$properties['last_login'] = array(
+						'label' => ucfirst($translate->_('dao.contact_person.last_login')),
+						'type' => Model_CustomField::TYPE_DATE,
+						'value' => $person->last_login,
+					);
+					
+					@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_CONTACT_PERSON, $person->id)) or array();
+			
+					foreach($custom_fields as $cf_id => $cfield) {
+						if(!isset($values[$cf_id]))
+							continue;
+							
+						$properties['cf_' . $cf_id] = array(
+							'label' => $cfield->name,
+							'type' => $cfield->type,
+							'value' => $values[$cf_id],
+						);
+					}
+					
+					$tpl->assign('properties', $properties);						
 					
 					$tpl->display('devblocks:cerberusweb.core::contacts/people/display/index.tpl');
 					return;
