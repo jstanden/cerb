@@ -68,7 +68,7 @@ class Page_Domains extends CerberusPageExtension {
 	function render() {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$visit = CerberusApplication::getVisit();
-
+		$translate = DevblocksPlatform::getTranslationService();
 		$response = DevblocksPlatform::getHttpResponse();
 
 		// Remember the last tab/URL
@@ -91,8 +91,47 @@ class Page_Domains extends CerberusPageExtension {
 				$tab_manifests = DevblocksPlatform::getExtensions('cerberusweb.datacenter.domain.tab', false);
 				uasort($tab_manifests, create_function('$a, $b', "return strcasecmp(\$a->name,\$b->name);\n"));
 				$tpl->assign('tab_manifests', $tab_manifests);
+
+				// Custom fields
 				
-				// [TODO] Comments
+				$custom_fields = DAO_CustomField::getAll();
+				$tpl->assign('custom_fields', $custom_fields);
+				
+				// Properties
+				
+				$properties = array();
+
+				if(!empty($domain->server_id)) {
+					if(null != ($server = DAO_Server::get($domain->server_id))) {
+						$properties['server'] = array(
+							'label' => ucfirst($translate->_('cerberusweb.datacenter.common.server')),
+							'type' => null,
+							'server' => $server,
+						);
+					}
+				}
+				
+				$properties['created'] = array(
+					'label' => ucfirst($translate->_('common.created')),
+					'type' => Model_CustomField::TYPE_DATE,
+					'value' => $domain->created,
+				);
+				
+				@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds('cerberusweb.contexts.datacenter.domain', $domain->id)) or array();
+		
+				foreach($custom_fields as $cf_id => $cfield) {
+					if(!isset($values[$cf_id]))
+						continue;
+						
+					$properties['cf_' . $cf_id] = array(
+						'label' => $cfield->name,
+						'type' => $cfield->type,
+						'value' => $values[$cf_id],
+					);
+				}
+				
+				$tpl->assign('properties', $properties);
+				
 				
 				$tpl->display('devblocks:cerberusweb.datacenter.domains::domain/display/index.tpl');		
 				break;

@@ -1,20 +1,27 @@
 {include file="devblocks:cerberusweb.datacenter.domains::domain/display/submenu.tpl"}
 
-<table cellspacing="0" cellpadding="0" border="0" width="100%" style="padding-bottom:5px;">
-<tr>
-	<td valign="top" style="padding-right:5px;">
-		<h1 style="margin-bottom:5px;">{$domain->name}</h1> 
-		<form action="{devblocks_url}{/devblocks_url}" onsubmit="return false;" style="margin-bottom:5px;">
-		<div style="margin-bottom:5px;">
-		{if !empty($domain->server_id)}
-			{$servers = DAO_Server::getAll()}
-			{if isset($servers.{$domain->server_id})}
-			<b>{'cerberusweb.datacenter.common.server'|devblocks_translate}:</b> 
-			<a href="javascript:;" onclick="genericAjaxPopup('peek','c=datacenter&a=showServerPeek&view_id=&id={$domain->server_id}', null, false, '500');">{$servers.{$domain->server_id}->name}</a>
+<h2>{'cerberusweb.datacenter.domain'|devblocks_translate|capitalize}</h2>
+
+<fieldset class="properties">
+	<legend>{$domain->name}</legend>
+	
+	<form action="{devblocks_url}{/devblocks_url}" method="post">
+
+		{foreach from=$properties item=v key=k name=props}
+			<div class="property">
+				{if $k == 'server'}
+					<b>{$v.label|capitalize}:</b>
+					<a href="javascript:;" onclick="genericAjaxPopup('peek','c=datacenter&a=showServerPeek&view_id=&id={$server->id}', null, false, '500');">{$v.server->name}</a>
+				{else}
+					{include file="devblocks:cerberusweb.core::internal/custom_fields/profile_cell_renderer.tpl"}
+				{/if}
+			</div>
+			{if $smarty.foreach.props.iteration % 3 == 0 && !$smarty.foreach.props.last}
+				<br clear="all">
 			{/if}
-		{/if}
-		</div>
-		
+		{/foreach}
+		<br clear="all">
+	
 		<!-- Toolbar -->
 		<div>
 			<span>
@@ -23,31 +30,10 @@
 			</span>		
 		
 			<button type="button" id="btnDatacenterDomainEdit"><span class="cerb-sprite sprite-document_edit"></span> Edit</button>
-			
-			{*
-			{$toolbar_extensions = DevblocksPlatform::getExtensions('cerberusweb.task.toolbaritem',true)}
-			{foreach from=$toolbar_extensions item=toolbar_extension}
-				{$toolbar_extension->render($task)}
-			{/foreach}
-			*}
 		</div>
-		
-		</form>
-	</td>
-	<td align="right" valign="top">
-		{*
-		<form action="{devblocks_url}{/devblocks_url}" method="post">
-		<input type="hidden" name="c" value="contacts">
-		<input type="hidden" name="a" value="doOrgQuickSearch">
-		<span><b>{$translate->_('common.quick_search')|capitalize}:</b></span> <select name="type">
-			<option value="name">{$translate->_('contact_org.name')|capitalize}</option>
-			<option value="phone">{$translate->_('contact_org.phone')|capitalize}</option>
-		</select><input type="text" name="query" class="input_search" size="24"><button type="submit">{$translate->_('common.search_go')|lower}</button>
-		</form>
-		*}
-	</td>
-</tr>
-</table>
+	
+	</form>
+</fieldset>
 
 <div id="datacenterDomainTabs">
 	<ul>

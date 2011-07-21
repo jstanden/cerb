@@ -83,7 +83,7 @@
 	</div>
 </fieldset>
 
-<button type="button" onclick="genericAjaxPopupPostCloseReloadView('peek','frmDatacenterDomain','{$view_id}');"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {$translate->_('common.save_changes')|capitalize}</button>
+<button type="button" onclick="genericAjaxPopupPostCloseReloadView('peek','frmDatacenterDomain','{$view_id}', false, 'datacenter_domain_save');"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {$translate->_('common.save_changes')|capitalize}</button>
 {if $model->id && $active_worker->is_superuser}<button type="button" onclick="if(confirm('Permanently delete this domain?')) { this.form.do_delete.value='1';genericAjaxPopupPostCloseReloadView('peek','frmDatacenterDomain','{$view_id}'); } "><span class="cerb-sprite2 sprite-minus-circle-frame"></span> {$translate->_('common.delete')|capitalize}</button>{/if}
 </form>
 
