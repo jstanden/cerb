@@ -71,17 +71,17 @@ require(APP_PATH . '/api/Application.class.php');
 DevblocksPlatform::init();
 DevblocksPlatform::setExtensionDelegate('C4_DevblocksExtensionDelegate');
 
-// Request
-$request = DevblocksPlatform::readRequest();
-
-// Patches (if not on the patch page)
-if(0 != strcasecmp(@$request->path[0],"update") 
-	&& !DevblocksPlatform::versionConsistencyCheck()) {
+// Do we need an update first?
+if(!DevblocksPlatform::versionConsistencyCheck()) {
+	$request = DevblocksPlatform::readRequest();
+	if(0 != strcasecmp(@$request->path[0],"update")) {
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('update','locked')));
 		exit;
+	}
 }
 
-//DevblocksPlatform::readPlugins();
+// Request
+$request = DevblocksPlatform::readRequest();
 $session = DevblocksPlatform::getSessionService();
 
 // Localization
