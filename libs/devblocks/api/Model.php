@@ -541,7 +541,6 @@ abstract class DevblocksVisit {
 	}
 };
 
-
 /**
  * 
  */

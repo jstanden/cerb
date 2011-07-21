@@ -1,4 +1,31 @@
 <?php
+class _DevblocksStorageManager {
+	static $_connections = array();
+	
+	/**
+	 * 
+	 * @param string $extension_id
+	 * @param array $options
+	 * @return Extension_DevblocksStorageEngine
+	 */
+	static public function getEngine($extension_id, $options=array()) {
+		$hash = sha1($extension_id.json_encode($options));
+		
+		if(isset(self::$_connections[$hash])) {
+			return self::$_connections[$hash];
+		}
+		
+		if(null !== ($engine = DevblocksPlatform::getExtension($extension_id, true, true))) {
+			/* @var $engine Extension_DevblocksStorageEngine */
+			$engine->setOptions($options);
+			self::$_connections[$hash] = $engine;
+			return self::$_connections[$hash];
+		}
+		
+		return false;
+	}
+};
+
 class DevblocksStorageEngineDisk extends Extension_DevblocksStorageEngine {
 	const ID = 'devblocks.storage.engine.disk'; 
 	
