@@ -150,6 +150,7 @@
 							{if !$expand_all}(<b>a</b>) {$translate->_('display.button.read_all')|lower} {/if} 
 							{if $active_worker->hasPriv('core.display.actions.reply')}(<b>r</b>) {$translate->_('display.ui.reply')|lower} {/if}  
 							(<b>p</b>) {$translate->_('common.print')|lower} 
+							(<b>1-9</b>) change tab 
 						</small>
 						{/if}
 										
@@ -287,6 +288,22 @@ $(document).keypress(function(event) {
 	hotkey_activated = true;
 	
 	switch(event.which) {
+		case 49:  // (1) tab cycle
+		case 50:  // (2) tab cycle
+		case 51:  // (3) tab cycle
+		case 52:  // (4) tab cycle
+		case 53:  // (5) tab cycle
+		case 54:  // (6) tab cycle
+		case 55:  // (7) tab cycle
+		case 56:  // (8) tab cycle
+		case 57:  // (9) tab cycle
+		case 58:  // (0) tab cycle
+			try {
+				idx = event.which-49;
+				$tabs = $("#displayTabs").tabs();
+				$tabs.tabs('select', idx);
+			} catch(ex) { } 
+			break;
 		case 97:  // (A) read all
 			try {
 				$('#btnReadAll').click();

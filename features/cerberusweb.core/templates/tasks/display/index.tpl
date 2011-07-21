@@ -68,6 +68,7 @@
 				{$translate->_('common.keyboard')|lower}:
 				(<b>e</b>) {'common.edit'|devblocks_translate|lower}
 				{if !empty($macros)}(<b>m</b>) {'common.macros'|devblocks_translate|lower} {/if}
+				(<b>1-9</b>) change tab
 			</small> 
 			{/if}
 			
@@ -200,6 +201,22 @@ $(document).keypress(function(event) {
 	hotkey_activated = true;
 	
 	switch(event.which) {
+		case 49:  // (1) tab cycle
+		case 50:  // (2) tab cycle
+		case 51:  // (3) tab cycle
+		case 52:  // (4) tab cycle
+		case 53:  // (5) tab cycle
+		case 54:  // (6) tab cycle
+		case 55:  // (7) tab cycle
+		case 56:  // (8) tab cycle
+		case 57:  // (9) tab cycle
+		case 58:  // (0) tab cycle
+			try {
+				idx = event.which-49;
+				$tabs = $("#tasksTabs").tabs();
+				$tabs.tabs('select', idx);
+			} catch(ex) { } 
+			break;
 		case 101:  // (E) edit
 			try {
 				$('#btnDisplayTaskEdit').click();
