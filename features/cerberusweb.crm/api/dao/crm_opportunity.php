@@ -209,7 +209,8 @@ class DAO_CrmOpportunity extends C4_ORMHelper {
 
 	/**
 	 * @param integer $id
-	 * @return Model_CrmOpportunity	 */
+	 * @return Model_CrmOpportunity
+	 */
 	static function get($id) {
 		$objects = self::getWhere(sprintf("%s = %d",
 			self::ID,

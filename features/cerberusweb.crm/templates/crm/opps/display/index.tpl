@@ -1,22 +1,40 @@
 {include file="devblocks:cerberusweb.crm::crm/submenu.tpl"}
 
-<table cellspacing="0" cellpadding="0" border="0" width="100%" style="padding-bottom:5px;">
-<tr>
-	<td valign="top" style="padding-right:5px;">
-		<h1>{$opp->name}</h1> 
-		<form action="{devblocks_url}{/devblocks_url}" onsubmit="return false;">
-		{assign var=opp_worker_id value=$opp->worker_id}
-		
-		<div style="margin-bottom:5px;">
-			<b>{'common.status'|devblocks_translate|capitalize}:</b> {if $opp->is_closed}{if $opp->is_won}{'crm.opp.status.closed.won'|devblocks_translate|capitalize}{else}{'crm.opp.status.closed.lost'|devblocks_translate|capitalize}{/if}{else}{'crm.opp.status.open'|devblocks_translate|capitalize}{/if} &nbsp;
-			<button id="btnOppAddyPeek" type="button" onclick="genericAjaxPopup('peek','c=contacts&a=showAddressPeek&email={$address->email|escape:'url'}&view_id=',null,false,'500');" style="visibility:false;display:none;"></button>
-			<b>{'common.email'|devblocks_translate|capitalize}:</b> {$address->first_name} {$address->last_name} &lt;<a href="javascript:;" onclick="$('#btnOppAddyPeek').click();">{$address->email}</a>&gt; &nbsp;
-			<b>{'crm.opportunity.created_date'|devblocks_translate|capitalize}:</b> <abbr title="{$opp->created_date|devblocks_date}">{$opp->created_date|devblocks_prettytime}</abbr> &nbsp;
-			{if !empty($opp_worker_id) && isset($workers.$opp_worker_id)}
-				<b>{'common.worker'|devblocks_translate|capitalize}:</b> {$workers.$opp_worker_id->getName()} &nbsp;
+<h2>{'crm.common.opportunity'|devblocks_translate|capitalize}</h2>
+
+<fieldset class="properties">
+	<legend>{$opp->name|truncate:128}</legend>
+	
+	<form action="{devblocks_url}{/devblocks_url}" onsubmit="return false;">
+
+		{foreach from=$properties item=v key=k name=props}
+			<div class="property">
+				{if $k == 'status'}
+					<b>{$v.label|capitalize}:</b>
+					{if $v.is_closed}
+						{if $v.is_won}
+							<img src="{devblocks_url}c=resource&p=cerberusweb.crm&f=images/up_plus_gray.gif{/devblocks_url}" align="top" title="Won"> {'crm.opp.status.closed.won'|devblocks_translate}
+						{else}
+							<img src="{devblocks_url}c=resource&p=cerberusweb.crm&f=images/down_minus_gray.gif{/devblocks_url}" align="top" title="Won"> {'crm.opp.status.closed.lost'|devblocks_translate}
+						{/if}
+					{else}
+						{'crm.opp.status.open'|devblocks_translate}
+					{/if}
+				{elseif $k == 'lead'}
+					<b>{$v.label|capitalize}:</b>
+					{$v.address->getName()}
+					&lt;<a href="javascript:;" onclick="genericAjaxPopup('peek','c=contacts&a=showAddressPeek&email={$v.address->email|escape:'url'}',null,false,'500');">{$v.address->email}</a>&gt;
+					<button id="btnOppAddyPeek" type="button" onclick="genericAjaxPopup('peek','c=contacts&a=showAddressPeek&email={$v.address->email|escape:'url'}&view_id=',null,false,'500');" style="visibility:false;display:none;"></button>
+				{else}
+					{include file="devblocks:cerberusweb.core::internal/custom_fields/profile_cell_renderer.tpl"}
+				{/if}
+			</div>
+			{if $smarty.foreach.props.iteration % 3 == 0 && !$smarty.foreach.props.last}
+				<br clear="all">
 			{/if}
-		</div>
-		
+		{/foreach}
+		<br clear="all">
+	
 		<!-- Toolbar -->
 		<span>
 		{$object_watchers = DAO_ContextLink::getContextLinks(CerberusContexts::CONTEXT_OPPORTUNITY, array($opp->id), CerberusContexts::CONTEXT_WORKER)}
@@ -43,12 +61,8 @@
 		{foreach from=$toolbar_exts item=ext}
 			{$ext->render($opp)}
 		{/foreach}
-		
-		</form>
-		<br>
-	</td>
-</tr>
-</table>
+	</form>
+</fieldset>
 
 <div id="oppTabs">
 	{$tabs = []}
@@ -170,11 +184,13 @@ $(document).keypress(function(event) {
 	switch(event.which) {
 		case 97:  // (A) E-mail Peek
 			try {
+				event.preventDefault();
 				$('#btnOppAddyPeek').click();
 			} catch(e) { } 
 			break;
 		case 113:  // (Q) quick compose
 			try {
+				event.preventDefault();
 				$('#btnQuickCompose').click();
 			} catch(e) { } 
 			break;

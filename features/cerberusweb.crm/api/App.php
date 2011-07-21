@@ -162,16 +162,83 @@ class CrmPage extends CerberusPageExtension {
 				if(null == ($opp = DAO_CrmOpportunity::get($opp_id))) {
 					break;
 				}
-				$tpl->assign('opp', $opp);						
+				$tpl->assign('opp', $opp);	/* @var $opp Model_CrmOpportunity */					
 
 				// Remember the last tab/URL
 				if(null == (@$selected_tab = $stack[0])) {
 					$selected_tab = $visit->get(Extension_CrmOpportunityTab::POINT, '');
 				}
 				$tpl->assign('selected_tab', $selected_tab);
+
+				// Custom fields
 				
-				$address = DAO_Address::get($opp->primary_email_id);
-				$tpl->assign('address', $address);
+				$custom_fields = DAO_CustomField::getAll();
+				$tpl->assign('custom_fields', $custom_fields);
+				
+				// Properties
+				
+				$properties = array();
+				
+				$properties['status'] = array(
+					'label' => ucfirst($translate->_('common.status')),
+					'type' => null,
+					'is_closed' => $opp->is_closed,
+					'is_won' => $opp->is_won,
+				);
+				
+				if(!empty($opp->primary_email_id)) {
+					if(null != ($address = DAO_Address::get($opp->primary_email_id))) {
+						$properties['lead'] = array(
+							'label' => ucfirst($translate->_('common.email')),
+							'type' => null,
+							'address' => $address,
+						);
+					}
+				}
+				
+				if(!empty($opp->is_closed))
+					if(!empty($opp->closed_date))
+						$properties['closed_date'] = array(
+							'label' => ucfirst($translate->_('crm.opportunity.closed_date')),
+							'type' => Model_CustomField::TYPE_DATE,
+							'value' => $opp->closed_date,
+						);
+					
+				if(!empty($opp->amount))
+					$properties['amount'] = array(
+						'label' => ucfirst($translate->_('crm.opportunity.amount')),
+						'type' => Model_CustomField::TYPE_NUMBER,
+						'value' => $opp->amount,
+					);
+					
+				$properties['created_date'] = array(
+					'label' => ucfirst($translate->_('common.created')),
+					'type' => Model_CustomField::TYPE_DATE,
+					'value' => $opp->created_date,
+				);
+				
+				$properties['updated_date'] = array(
+					'label' => ucfirst($translate->_('common.updated')),
+					'type' => Model_CustomField::TYPE_DATE,
+					'value' => $opp->updated_date,
+				);
+				
+				@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_OPPORTUNITY, $opp->id)) or array();
+		
+				foreach($custom_fields as $cf_id => $cfield) {
+					if(!isset($values[$cf_id]))
+						continue;
+						
+					$properties['cf_' . $cf_id] = array(
+						'label' => $cfield->name,
+						'type' => $cfield->type,
+						'value' => $values[$cf_id],
+					);
+				}
+				
+				$tpl->assign('properties', $properties);
+
+				// Workers
 				
 				$workers = DAO_Worker::getAll();
 				$tpl->assign('workers', $workers);
