@@ -3,6 +3,10 @@
 </ul>
 <div style="clear:both;"></div>
 
+<div style="float:left;">
+	<h2>{'contact_org.name'|devblocks_translate|capitalize}</h2>
+</div>
+
 <div style="float:right;">
 <form action="{devblocks_url}{/devblocks_url}" method="post">
 <input type="hidden" name="c" value="contacts">
@@ -14,23 +18,28 @@
 </form>
 </div>
 
-<fieldset style="float:left;min-width:400px;">
-	<legend>{$contact->name}</legend>
-	{if !empty($contact->street) || !empty($contact->country)}
-		{if !empty($contact->street)}{$contact->street}, {/if}
-		{if !empty($contact->city)}{$contact->city}, {/if}
-		{if !empty($contact->province)}{$contact->province}, {/if}
-		{if !empty($contact->postal)}{$contact->postal} {/if}
-		{if !empty($contact->country)}{$contact->country}{/if}
-		<br>
-	{/if}
-	{if !empty($contact->phone)}
-		{$translate->_('contact_org.phone')|capitalize}: {$contact->phone}
-		<br>
-	{/if}
-	{if !empty($contact->website)}<a href="{$contact->website}" target="_blank">{$contact->website}</a><br>{/if}
+<div style="clear:both;"></div>
+
+<fieldset class="properties">
+	<legend>{$contact->name|truncate:128}</legend>
 	
-	<form>
+	<form action="{devblocks_url}{/devblocks_url}" method="post">
+
+		{foreach from=$properties item=v key=k name=props}
+			<div class="property">
+				{if $k == '...'}
+					<b>{$translate->_('...')|capitalize}:</b>
+					...
+				{else}
+					{include file="devblocks:cerberusweb.core::internal/custom_fields/profile_cell_renderer.tpl"}
+				{/if}
+			</div>
+			{if $smarty.foreach.props.iteration % 3 == 0 && !$smarty.foreach.props.last}
+				<br clear="all">
+			{/if}
+		{/foreach}
+		<br clear="all">
+	
 		<!-- Toolbar -->
 		<span>
 		{$object_watchers = DAO_ContextLink::getContextLinks(CerberusContexts::CONTEXT_ORG, array($contact->id), CerberusContexts::CONTEXT_WORKER)}
@@ -38,6 +47,7 @@
 		</span>		
 		
 		<button type="button" id="btnDisplayOrgEdit"><span class="cerb-sprite sprite-document_edit"></span> Edit</button>
+	
 	</form>
 </fieldset>
 

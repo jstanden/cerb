@@ -181,6 +181,8 @@ class ChContactsPage extends CerberusPageExtension {
 			case 'orgs':
 				switch(@array_shift($stack)) {
 					case 'display':
+						$translate = DevblocksPlatform::getTranslationService();
+						
 						$tab_manifests = DevblocksPlatform::getExtensions('cerberusweb.org.tab', false);
 						$tpl->assign('tab_manifests', $tab_manifests);
 						
@@ -188,6 +190,85 @@ class ChContactsPage extends CerberusPageExtension {
 						
 						$contact = DAO_ContactOrg::get($id);
 						$tpl->assign('contact', $contact);
+						
+						// Custom fields
+						
+						$custom_fields = DAO_CustomField::getAll();
+						$tpl->assign('custom_fields', $custom_fields);
+						
+						// Properties
+						
+						$properties = array();
+						
+						if(!empty($contact->street))
+							$properties['street'] = array(
+								'label' => ucfirst($translate->_('contact_org.street')),
+								'type' => Model_CustomField::TYPE_SINGLE_LINE,
+								'value' => $contact->street,
+							);
+						
+						if(!empty($contact->city))
+							$properties['city'] = array(
+								'label' => ucfirst($translate->_('contact_org.city')),
+								'type' => Model_CustomField::TYPE_SINGLE_LINE,
+								'value' => $contact->city,
+							);
+						
+						if(!empty($contact->province))
+							$properties['province'] = array(
+								'label' => ucfirst($translate->_('contact_org.province')),
+								'type' => Model_CustomField::TYPE_SINGLE_LINE,
+								'value' => $contact->province,
+							);
+						
+						if(!empty($contact->postal))
+							$properties['postal'] = array(
+								'label' => ucfirst($translate->_('contact_org.postal')),
+								'type' => Model_CustomField::TYPE_SINGLE_LINE,
+								'value' => $contact->postal,
+							);
+						
+						if(!empty($contact->country))
+							$properties['country'] = array(
+								'label' => ucfirst($translate->_('contact_org.country')),
+								'type' => Model_CustomField::TYPE_SINGLE_LINE,
+								'value' => $contact->country,
+							);
+						
+						if(!empty($contact->phone))
+							$properties['phone'] = array(
+								'label' => ucfirst($translate->_('contact_org.phone')),
+								'type' => Model_CustomField::TYPE_SINGLE_LINE,
+								'value' => $contact->phone,
+							);
+						
+						if(!empty($contact->website))
+							$properties['website'] = array(
+								'label' => ucfirst($translate->_('contact_org.website')),
+								'type' => Model_CustomField::TYPE_URL,
+								'value' => $contact->website,
+							);
+						
+						$properties['created'] = array(
+							'label' => ucfirst($translate->_('common.created')),
+							'type' => Model_CustomField::TYPE_DATE,
+							'value' => $contact->created,
+						);
+						
+						@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_ORG, $contact->id)) or array();
+				
+						foreach($custom_fields as $cf_id => $cfield) {
+							if(!isset($values[$cf_id]))
+								continue;
+								
+							$properties['cf_' . $cf_id] = array(
+								'label' => $cfield->name,
+								'type' => $cfield->type,
+								'value' => $values[$cf_id],
+							);
+						}
+						
+						$tpl->assign('properties', $properties);
 						
 						// Tabs
 						
