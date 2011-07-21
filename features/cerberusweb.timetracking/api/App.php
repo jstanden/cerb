@@ -48,8 +48,6 @@
  *	 WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
 
-
-
 if (class_exists('Extension_AppPreBodyRenderer',true)):
 	class ChTimeTrackingPreBodyRenderer extends Extension_AppPreBodyRenderer {
 		function render() {
@@ -185,11 +183,49 @@ class ChTimeTrackingPage extends CerberusPageExtension {
 //				}
 //				$tpl->assign('tab_selected', $tab_selected);
 
-//				$address = DAO_Address::get($opp->primary_email_id);
-//				$tpl->assign('address', $address);
+				// Custom fields
 				
-//				$workers = DAO_Worker::getAll();
-//				$tpl->assign('workers', $workers);
+				$custom_fields = DAO_CustomField::getAll();
+				$tpl->assign('custom_fields', $custom_fields);
+				
+				// Properties
+				
+				$properties = array();
+				
+				$properties['status'] = array(
+					'label' => ucfirst($translate->_('common.status')),
+					'type' => Model_CustomField::TYPE_SINGLE_LINE,
+					'value' => ($time_entry->is_closed) ? $translate->_('status.closed') : $translate->_('status.open'),
+				);
+				
+				$properties['log_date'] = array(
+					'label' => ucfirst($translate->_('timetracking_entry.log_date')),
+					'type' => Model_CustomField::TYPE_DATE,
+					'value' => $time_entry->log_date,
+				);
+				
+				$properties['time_actual_mins'] = array(
+					'label' => ucfirst($translate->_('timetracking_entry.time_actual_mins')),
+					'type' => Model_CustomField::TYPE_NUMBER,
+					'value' => $time_entry->time_actual_mins,
+				);
+				
+				// [TODO] Worker?
+				
+				@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_TIMETRACKING, $time_entry->id)) or array();
+		
+				foreach($custom_fields as $cf_id => $cfield) {
+					if(!isset($values[$cf_id]))
+						continue;
+						
+					$properties['cf_' . $cf_id] = array(
+						'label' => $cfield->name,
+						'type' => $cfield->type,
+						'value' => $values[$cf_id],
+					);
+				}
+				
+				$tpl->assign('properties', $properties);
 				
 				$tpl->display('devblocks:cerberusweb.timetracking::timetracking/display/index.tpl');
 				break;

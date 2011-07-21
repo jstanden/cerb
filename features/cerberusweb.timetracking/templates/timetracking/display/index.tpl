@@ -1,16 +1,25 @@
 {include file="devblocks:cerberusweb.timetracking::timetracking/display/submenu.tpl"}
 
-<table cellspacing="0" cellpadding="0" border="0" width="100%" style="padding-bottom:5px;">
-<tr>
-	<td valign="top" style="padding-right:5px;">
-		<h1>{$time_entry->getSummary()}</h1>
-		<b>{'timetracking_entry.log_date'|devblocks_translate}:</b>
-		{$time_entry->log_date|devblocks_prettytime}
-		 &nbsp; 
-		<b>{'common.status'|devblocks_translate|capitalize}:</b>
-		{if !empty($time_entry->is_closed)}{'status.closed'|devblocks_translate|capitalize}{else}{'status.open'|devblocks_translate|capitalize}{/if}
-		
-		<form action="{devblocks_url}{/devblocks_url}" onsubmit="return false;">
+<h2>{'timetracking.activity.tab'|devblocks_translate|capitalize}</h2>
+
+<fieldset class="properties">
+	<legend>{$time_entry->getSummary()}</legend>
+	
+	<form action="{devblocks_url}{/devblocks_url}" method="post">
+		{foreach from=$properties item=v key=k name=props}
+			<div class="property">
+				{if $k == 'status'}
+					<b>{$v.label}:</b>
+					{$v.value}
+				{else}
+					{include file="devblocks:cerberusweb.core::internal/custom_fields/profile_cell_renderer.tpl"}
+				{/if}
+			</div>
+			{if $smarty.foreach.props.iteration % 3 == 0 && !$smarty.foreach.props.last}
+				<br clear="all">
+			{/if}
+		{/foreach}
+		<br clear="all">
 		
 		<!-- Toolbar -->
 		<span>
@@ -20,10 +29,8 @@
 		
 		<button type="button" id="btnDisplayTimeEdit"><span class="cerb-sprite sprite-document_edit"></span> Edit</button>
 		
-		</form>
-	</td>
-</tr>
-</table>
+	</form>	
+</fieldset>
 
 <div id="timeTabs">
 	<ul>
