@@ -92,6 +92,50 @@ class ChKbPage extends CerberusPageExtension {
 					
 					$breadcrumbs = $article->getCategories();
 					$tpl->assign('breadcrumbs', $breadcrumbs);
+					
+					// Custom fields
+					
+					$custom_fields = DAO_CustomField::getAll();
+					$tpl->assign('custom_fields', $custom_fields);
+					
+					// Properties
+					
+					$properties = array();
+					
+					$properties['updated'] = array(
+						'label' => ucfirst($translate->_('common.updated')),
+						'type' => Model_CustomField::TYPE_DATE,
+						'value' => $article->updated,
+					);
+					
+					$properties['views'] = array(
+						'label' => ucfirst($translate->_('kb_article.views')),
+						'type' => Model_CustomField::TYPE_NUMBER,
+						'value' => $article->views,
+					);
+					
+					$properties['id'] = array(
+						'label' => ucfirst($translate->_('common.id')),
+						'type' => Model_CustomField::TYPE_NUMBER,
+						'value' => $article->id,
+					);
+					
+					@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_KB_ARTICLE, $article->id)) or array();
+			
+					foreach($custom_fields as $cf_id => $cfield) {
+						if(!isset($values[$cf_id]))
+							continue;
+							
+						$properties['cf_' . $cf_id] = array(
+							'label' => $cfield->name,
+							'type' => $cfield->type,
+							'value' => $values[$cf_id],
+						);
+					}
+					
+					$tpl->assign('properties', $properties);
+					
+					
 					$tpl->display('devblocks:cerberusweb.kb::kb/display/index.tpl');
 					
 				} else {

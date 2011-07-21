@@ -2,6 +2,10 @@
 </ul>
 <div style="clear:both;"></div>
 
+<div style="float:left;">
+	<h2>Knowledgebase Article</h2>
+</div>
+
 <div style="float:right;">
 	<form action="{devblocks_url}{/devblocks_url}" method="post">
 	<input type="hidden" name="c" value="kb.ajax">
@@ -13,30 +17,43 @@
 	</form>
 </div>
 
-<fieldset style="float:left;min-width:400px;">
-	<legend>Knowledgebase Article</legend>
-	<b>{$translate->_('kb_article.updated')|capitalize}:</b> <abbr title="{$article->updated|devblocks_date}">{$article->updated|devblocks_prettytime}</abbr> &nbsp;
-	<b>{$translate->_('kb_article.views')|capitalize}:</b> {$article->views} &nbsp;
-	<b>{$translate->_('common.id')|upper}:</b> {$article->id} &nbsp; 
-	<br>
+<br clear="all">
+
+<fieldset class="properties">
+	<legend>{'common.properties'|devblocks_translate|capitalize}</legend>
 	
-	{if !empty($breadcrumbs)}
-	<b>Filed under:</b> 
-	{foreach from=$breadcrumbs item=trail name=trail}
-		{foreach from=$trail item=step key=cat_id name=cats}
-		<a href="{devblocks_url}c=kb&a=category&id={$cat_id}-{$categories.{$cat_id}->name|devblocks_permalink}{/devblocks_url}">{$categories.{$cat_id}->name}</a>
-		{if !$smarty.foreach.cats.last} &raquo; {/if}
+	<form action="{devblocks_url}{/devblocks_url}" method="post">
+		{foreach from=$properties item=v key=k name=props}
+			<div class="property">
+				{if $k == '...'}
+					<b>{$translate->_('...')|capitalize}:</b>
+					...
+				{else}
+					{include file="devblocks:cerberusweb.core::internal/custom_fields/profile_cell_renderer.tpl"}
+				{/if}
+			</div>
+			{if $smarty.foreach.props.iteration % 3 == 0 && !$smarty.foreach.props.last}
+				<br clear="all">
+			{/if}
 		{/foreach}
-		{if !$smarty.foreach.trail.last}; {/if}
-	{/foreach}
-	{/if}
-	
-	<form style="margin:5px;">
-	{if $active_worker->hasPriv('core.kb.articles.modify')}<button type="button" onclick="genericAjaxPopup('peek','c=kb.ajax&a=showArticleEditPanel&id={$article->id}&return_uri={"kb/article/{$article->id}"}',null,false,'725');"><span class="cerb-sprite sprite-document_edit"></span> {$translate->_('common.edit')|capitalize}</button>{/if}	
+		<br clear="all">
+		
+		{if !empty($breadcrumbs)}
+		<b>Filed under:</b> 
+		{foreach from=$breadcrumbs item=trail name=trail}
+			{foreach from=$trail item=step key=cat_id name=cats}
+			<a href="{devblocks_url}c=kb&a=category&id={$cat_id}-{$categories.{$cat_id}->name|devblocks_permalink}{/devblocks_url}">{$categories.{$cat_id}->name}</a>
+			{if !$smarty.foreach.cats.last} &raquo; {/if}
+			{/foreach}
+			{if !$smarty.foreach.trail.last}; {/if}
+		{/foreach}
+		<br clear="all">
+		{/if}
+		
+		{if $active_worker->hasPriv('core.kb.articles.modify')}<button type="button" onclick="genericAjaxPopup('peek','c=kb.ajax&a=showArticleEditPanel&id={$article->id}&return_uri={"kb/article/{$article->id}"}',null,false,'725');"><span class="cerb-sprite sprite-document_edit"></span> {$translate->_('common.edit')|capitalize}</button>{/if}
 	</form>
 </fieldset>
-
-<div style="clear:both;"></div>
+<br clear="all">
 
 <div id="kbArticleContent">
 	<h1 class="title"><b>{$article->title}</b></h1>
