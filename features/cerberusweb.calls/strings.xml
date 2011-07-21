@@ -27,6 +27,10 @@
 			<tuv xml:lang="en_US"><seg>Calls</seg></tuv>
 		</tu>
 		
+		<tu tuid='calls.common.call'>
+			<tuv xml:lang="en_US"><seg>Call</seg></tuv>
+		</tu>
+		
 		<tu tuid='calls.ui.log_call'>
 			<tuv xml:lang="en_US"><seg>Log Call</seg></tuv>
 		</tu>

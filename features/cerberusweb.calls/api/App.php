@@ -20,8 +20,9 @@ class CallsPage extends CerberusPageExtension {
 		
 		$module = array_shift($stack); // 123
 		
-		if(is_numeric($module)) {
-			@$id = intval($module);
+		@$id = intval($module);
+		
+		if(is_numeric($id)) {
 			if(null == ($call = DAO_CallEntry::get($id))) {
 				break; // [TODO] Not found
 			}
@@ -32,6 +33,60 @@ class CallsPage extends CerberusPageExtension {
 //			}
 //			$tpl->assign('tab_selected', $tab_selected);
 
+			// Custom fields
+			
+			$custom_fields = DAO_CustomField::getAll();
+			$tpl->assign('custom_fields', $custom_fields);
+			
+			// Properties
+			
+			$properties = array();
+			
+			$properties['is_closed'] = array(
+				'label' => ucfirst($translate->_('call_entry.model.is_closed')),
+				'type' => Model_CustomField::TYPE_CHECKBOX,
+				'value' => $call->is_closed,
+			);
+			
+			$properties['is_outgoing'] = array(
+				'label' => ucfirst($translate->_('call_entry.model.is_outgoing')),
+				'type' => Model_CustomField::TYPE_CHECKBOX,
+				'value' => $call->is_outgoing,
+			);
+			
+			$properties['phone'] = array(
+				'label' => ucfirst($translate->_('call_entry.model.phone')),
+				'type' => Model_CustomField::TYPE_SINGLE_LINE,
+				'value' => $call->phone,
+			);
+			
+			$properties['created'] = array(
+				'label' => ucfirst($translate->_('common.created')),
+				'type' => Model_CustomField::TYPE_DATE,
+				'value' => $call->created_date,
+			);
+			
+			$properties['updated'] = array(
+				'label' => ucfirst($translate->_('common.updated')),
+				'type' => Model_CustomField::TYPE_DATE,
+				'value' => $call->updated_date,
+			);
+			
+			@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_CALL, $call->id)) or array();
+	
+			foreach($custom_fields as $cf_id => $cfield) {
+				if(!isset($values[$cf_id]))
+					continue;
+					
+				$properties['cf_' . $cf_id] = array(
+					'label' => $cfield->name,
+					'type' => $cfield->type,
+					'value' => $values[$cf_id],
+				);
+			}
+			
+			$tpl->assign('properties', $properties);				
+			
 			$tpl->display('devblocks:cerberusweb.calls::calls/display/index.tpl');
 			
 		} else {

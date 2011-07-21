@@ -3,42 +3,44 @@
 <table cellspacing="0" cellpadding="0" border="0" width="100%" style="padding-bottom:5px;">
 <tr>
 	<td valign="top" style="padding-right:5px;">
-		<h1>{$call->subject}</h1> 
-		<form action="{devblocks_url}{/devblocks_url}" onsubmit="return false;">
+		<h2>{'calls.common.call'|devblocks_translate|capitalize}</h2> 
 
-		<b>{'common.updated'|devblocks_translate|capitalize}:</b> <abbr title="{$call->updated_date|devblocks_date}">{$call->updated_date|devblocks_prettytime}</abbr> &nbsp;
-		<b>{'call_entry.model.phone'|devblocks_translate}:</b> {$call->phone} &nbsp; 
-		<b>{'call_entry.model.is_closed'|devblocks_translate}:</b> {if $call->is_closed}{'common.yes'|devblocks_translate}{else}{'common.no'|devblocks_translate}{/if} &nbsp; 
-		<b>{'call_entry.model.is_outgoing'|devblocks_translate}:</b> {if $call->is_outgoing}{'common.yes'|devblocks_translate}{else}{'common.no'|devblocks_translate}{/if} &nbsp; 
-		<br>
+		<fieldset class="properties">
+			<legend>{$call->subject|truncate:128}</legend>
 			
-		{*
-		{assign var=opp_worker_id value=$opp->worker_id}
-		<b>{'common.status'|devblocks_translate|capitalize}:</b> {if $opp->is_closed}{if $opp->is_won}{'crm.opp.status.closed.won'|devblocks_translate|capitalize}{else}{'crm.opp.status.closed.lost'|devblocks_translate|capitalize}{/if}{else}{'crm.opp.status.open'|devblocks_translate|capitalize}{/if} &nbsp;
-		<b>{'common.email'|devblocks_translate|capitalize}:</b> {$address->first_name} {$address->last_name} &lt;<a href="javascript:;" onclick="$('#btnOppAddyPeek').click();">{$address->email}</a>&gt; &nbsp;
-		<b>{'crm.opportunity.created_date'|devblocks_translate|capitalize}:</b> <abbr title="{$opp->created_date|devblocks_date}">{$opp->created_date|devblocks_prettytime}</abbr> &nbsp;
-		{if !empty($opp_worker_id) && isset($workers.$opp_worker_id)}
-			<b>{'common.worker'|devblocks_translate|capitalize}:</b> {$workers.$opp_worker_id->getName()} &nbsp;
-		{/if}
-		<br>
-		*}
+			<form action="{devblocks_url}{/devblocks_url}" onsubmit="return false;">
 		
-		<!-- Toolbar -->
-		
-		<span>
-		{$object_watchers = DAO_ContextLink::getContextLinks(CerberusContexts::CONTEXT_CALL, array($call->id), CerberusContexts::CONTEXT_WORKER)}
-		{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=CerberusContexts::CONTEXT_CALL context_id=$call->id full=true}
-		</span>		
-		
-		<button type="button" id="btnDisplayCallEdit"><span class="cerb-sprite sprite-document_edit"></span> Edit</button>
-		
-		{$toolbar_exts = DevblocksPlatform::getExtensions('cerberusweb.calls.call.toolbaritem', true)}
-		{foreach from=$toolbar_exts item=ext}
-			{$ext->render($opp)}
-		{/foreach}
-		
-		</form>
-		<br>
+			{foreach from=$properties item=v key=k name=props}
+				<div class="property">
+					{if $k == '...'}
+						<b>{$translate->_('...')|capitalize}:</b>
+						...
+					{else}
+						{include file="devblocks:cerberusweb.core::internal/custom_fields/profile_cell_renderer.tpl"}
+					{/if}
+				</div>
+				{if $smarty.foreach.props.iteration % 3 == 0 && !$smarty.foreach.props.last}
+					<br clear="all">
+				{/if}
+			{/foreach}
+			<br clear="all">
+			
+			<!-- Toolbar -->
+			
+			<span>
+			{$object_watchers = DAO_ContextLink::getContextLinks(CerberusContexts::CONTEXT_CALL, array($call->id), CerberusContexts::CONTEXT_WORKER)}
+			{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=CerberusContexts::CONTEXT_CALL context_id=$call->id full=true}
+			</span>		
+			
+			<button type="button" id="btnDisplayCallEdit"><span class="cerb-sprite sprite-document_edit"></span> Edit</button>
+			
+			{$toolbar_exts = DevblocksPlatform::getExtensions('cerberusweb.calls.call.toolbaritem', true)}
+			{foreach from=$toolbar_exts item=ext}
+				{$ext->render($opp)}
+			{/foreach}
+			
+			</form>
+		</fieldset>
 	</td>
 </tr>
 </table>

@@ -68,7 +68,7 @@
 				{if $result.c_is_closed}
 					<span class="cerb-sprite2 sprite-tick-circle-frame-gray"></span>
 				{/if}
-				<a href="{devblocks_url}c=calls&id={$result.c_id}{/devblocks_url}" class="subject">{$result.c_subject}</a> 
+				<a href="{devblocks_url}c=calls&id={$result.c_id}-{$result.c_subject|devblocks_permalink}{/devblocks_url}" class="subject">{$result.c_subject}</a> 
 				<button type="button" class="peek" style="visibility:hidden;padding:1px;margin:0px 5px;" onclick="genericAjaxPopup('peek','c=calls&a=showEntry&id={$result.c_id}&view_id={$view->id}',null,false,'550');"><span class="cerb-sprite2 sprite-document-search-result" style="margin-left:2px" title="{$translate->_('views.peek')}"></span></button>
 			</td>
 		</tr>
