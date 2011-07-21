@@ -3,6 +3,10 @@
 </ul>
 <div style="clear:both;"></div>
 
+<div style="float:left;">
+	<h2>{'address.address'|devblocks_translate|capitalize}</h2>
+</div>
+
 <div style="float:right;">
 <form action="{devblocks_url}{/devblocks_url}" method="post">
 <input type="hidden" name="c" value="contacts">
@@ -14,7 +18,9 @@
 </form>
 </div>
 
-<fieldset style="float:left;min-width:400px;">
+<br clear="all">
+
+<fieldset class="properties">
 	{$addy_name = $address->getName()} 
 	<legend>
 		{if !empty($addy_name)}
@@ -24,7 +30,26 @@
 		{/if}
 	</legend>
 	
-	<form>
+	<form action="{devblocks_url}{/devblocks_url}" method="post">
+	<input type="hidden" name="c" value="tasks">
+	<input type="hidden" name="a" value="">
+	<input type="hidden" name="id" value="{$task->id}">
+
+		{foreach from=$properties item=v key=k name=props}
+			<div class="property">
+				{if $k == 'org'}
+					<b>{$v.label|capitalize}:</b>
+					<a href="javascript:;" onclick="genericAjaxPopup('peek','c=contacts&a=showOrgPeek&id={$v.org_id}',null,false,'600');">{$v.org->name}</a>
+				{else}
+					{include file="devblocks:cerberusweb.core::internal/custom_fields/profile_cell_renderer.tpl"}
+				{/if}
+			</div>
+			{if $smarty.foreach.props.iteration % 3 == 0 && !$smarty.foreach.props.last}
+				<br clear="all">
+			{/if}
+		{/foreach}
+		<br clear="all">
+	
 		<span>
 		{$object_watchers = DAO_ContextLink::getContextLinks(CerberusContexts::CONTEXT_ADDRESS, array($address->id), CerberusContexts::CONTEXT_WORKER)}
 		{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=CerberusContexts::CONTEXT_ADDRESS context_id=$address->id full=true}
