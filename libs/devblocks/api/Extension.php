@@ -959,8 +959,12 @@ class DevblocksEventHelper {
 	 * Action: Relay Email
 	 */
 	
-	function renderActionRelayEmail($filter_to_worker_ids=array()) {
+	// [TODO] Move this to an event parent so we can presume values
+	
+	function renderActionRelayEmail($filter_to_worker_ids=array(), $show=array('owner','watchers','workers'), $content_token='content') {
 		$tpl = DevblocksPlatform::getTemplateService();
+		
+		$tpl->assign('show', $show);
 		
 		$workers = DAO_Worker::getAll();
 		$tpl->assign('workers', $workers);
@@ -982,59 +986,83 @@ class DevblocksEventHelper {
 ## Your reply to this message will be broadcast to the requesters. 
 ## Instructions: http://wiki.cerb5.com/wiki/Email_Relay
 ##
-{{content}}
+{{{$content_token}}}
 EOL
 		);
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_relay_email.tpl');
 	}
 	
-	// [TODO] Eventually for reuse we'll need to change this
-	function runActionRelayEmail($params, $values, $context, $context_id) {
+	// [TODO] Move this to an event parent so we can presume values
+	
+	function runActionRelayEmail($params, $values, $context, $context_id, $group_id, $bucket_id, $message_id, $owner_id, $sender_email, $sender_name, $subject) {
 		$logger = DevblocksPlatform::getConsoleLog('Attendant');
 		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
-
 		$mail_service = DevblocksPlatform::getMailService();
 		$mailer = $mail_service->getMailer(CerberusMail::getMailerDefaults());
 		
-		$bucket_id = intval(@$values['ticket_bucket_id']);
-		
-		if(!isset($values['group_id']) || null == ($group = DAO_Group::get($values['group_id']))) {
+		if(empty($group_id) || null == ($group = DAO_Group::get($group_id))) {
 			$logger->error("Can't load the ticket's group. Aborting action.");
 			return;
 		}
 		
 		$replyto = $group->getReplyTo($bucket_id);
-		$relay_list = $params['to'];
+		$relay_list = @$params['to'] or array();
 		
 		// Attachments
 		$attachment_data = array();
-		if(isset($values['id']) && !empty($values['id'])) {
+		if(!empty($message_id)) {
 			if(isset($params['include_attachments']) && !empty($params['include_attachments'])) {
-				$attachment_data = DAO_AttachmentLink::getLinksAndAttachments(CerberusContexts::CONTEXT_MESSAGE, $values['id']);
+				$attachment_data = DAO_AttachmentLink::getLinksAndAttachments(CerberusContexts::CONTEXT_MESSAGE, $message_id);
 			}
 		}
+
+		// Owner
+		if(isset($params['to_owner']) && !empty($params['to_owner'])) {
+			if(!empty($owner_id)) {
+				$relay_list[] = DAO_Worker::get($owner_id);
+			}
+		}
+		
+		// Watchers
+		if(isset($params['to_watchers']) && !empty($params['to_watchers'])) {
+			$watchers = CerberusContexts::getWatchers($context, $context_id);
+			foreach($watchers as $watcher) { /* @var $watcher Model_Worker */
+				$relay_list[] = $watcher;
+			}
+			unset($watchers);
+		}
+		
+		// [TODO] Remove dupes
 		
 		if(is_array($relay_list))
 		foreach($relay_list as $to) {
 			try {
-				// [TODO] Cache
-				if(null == ($worker_address = DAO_AddressToWorker::getByAddress($to)))
-					continue;
+				if($to instanceof Model_Worker) {
+					$worker = $to;
+					$to_address = $worker->email;
 					
-				if(null == ($worker = DAO_Worker::get($worker_address->worker_id)))
-					continue;
+				} else {
+					// [TODO] Cache
+					if(null == ($worker_address = DAO_AddressToWorker::getByAddress($to)))
+						continue;
+						
+					if(null == ($worker = DAO_Worker::get($worker_address->worker_id)))
+						continue;
+					
+					$to_address = $worker_address->address;
+				}
 				
 				$mail = $mail_service->createMessage();
 				
-				$mail->setTo(array($worker_address->address));
+				$mail->setTo(array($to_address));
 	
 				$headers = $mail->getHeaders(); /* @var $headers Swift_Mime_Header */
 
-				if(isset($values['sender_full_name']) && !empty($values['sender_full_name'])) {
-					$mail->setFrom($values['sender_address'], $values['sender_full_name']);
+				if(!empty($sender_name)) {
+					$mail->setFrom($sender_email, $sender_name);
 				} else {
-					$mail->setFrom($values['sender_address']);
+					$mail->setFrom($sender_email);
 				}
 				
 				$replyto_personal = $replyto->getReplyPersonal($worker);
@@ -1045,7 +1073,7 @@ EOL
 				}
 				
 				if(!isset($params['subject']) || empty($params['subject'])) {
-					$mail->setSubject($values['ticket_subject']);
+					$mail->setSubject($subject);
 				} else {
 					$subject = $tpl_builder->build($params['subject'], $values);
 					$mail->setSubject($subject);

@@ -1,13 +1,18 @@
 <b>Relay to:</b><br>
 <ul style="margin:0px 0px 10px 15px;padding:0;list-style:none;max-height:150px;overflow:auto;">
-{foreach from=$addresses item=address key=address_key}
-<li>
-	<label>
-	<input type="checkbox" name="{$namePrefix}[to][]" value="{$address_key}" {if in_array($address_key,$params.to)}checked="checked"{/if}>
-	{$address->address} ({$workers.{$address->worker_id}->getName()})
-	</label>
-</li>
-{/foreach}
+	{if in_array('owner',$show)}<li><label><input type="checkbox" name="{$namePrefix}[to_owner][]" value="owner" {if $params.to_owner}checked="checked"{/if}> {'common.owner'|devblocks_translate|capitalize}</label></li>{/if}
+	{if in_array('watchers',$show)}<li><label><input type="checkbox" name="{$namePrefix}[to_watchers][]" value="watchers" {if $params.to_watchers}checked="checked"{/if}> {'common.watchers'|devblocks_translate|capitalize}</label></li>{/if}
+	
+	{if in_array('workers',$show)}
+	{foreach from=$addresses item=address key=address_key}
+	<li>
+		<label>
+		<input type="checkbox" name="{$namePrefix}[to][]" value="{$address_key}" {if in_array($address_key,$params.to)}checked="checked"{/if}>
+		{$address->address} ({$workers.{$address->worker_id}->getName()})
+		</label>
+	</li>
+	{/foreach}
+	{/if}
 </ul>
 
 <b>{'message.header.subject'|devblocks_translate|capitalize}:</b> (use {literal}{{ticket_subject}}{/literal} for default)<br>

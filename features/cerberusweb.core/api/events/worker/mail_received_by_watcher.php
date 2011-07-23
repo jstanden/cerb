@@ -207,16 +207,6 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 
 	function renderConditionExtension($token, $trigger, $params=array(), $seq=null) {
 		return;
-		
-//		$conditions = $this->getConditions();
-		
-//		$tpl = DevblocksPlatform::getTemplateService();
-//		$tpl->assign('params', $params);
-
-//		if(!is_null($seq))
-//			$tpl->assign('namePrefix','condition'.$seq);
-		
-//		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_string.tpl');
 	}
 
 	function runConditionExtension($token, $trigger, $params, $values) {
@@ -267,7 +257,11 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 				
 			case 'relay_email':
 				// Filter to trigger owner
-				DevblocksEventHelper::renderActionRelayEmail(array($trigger->owner_context_id));
+				DevblocksEventHelper::renderActionRelayEmail(
+					array($trigger->owner_context_id),
+					array('workers'),
+					'content'
+				);
 				break;
 				
 			case 'send_email_recipients':
@@ -318,7 +312,19 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 				break;
 				
 			case 'relay_email':
-				DevblocksEventHelper::runActionRelayEmail($params, $values, CerberusContexts::CONTEXT_TICKET, $ticket_id);
+				DevblocksEventHelper::runActionRelayEmail(
+					$params,
+					$values,
+					CerberusContexts::CONTEXT_TICKET,
+					$ticket_id,
+					$values['group_id'],
+					@$values['ticket_bucket_id'] or 0,
+					$message_id,
+					@$values['ticket_owner_id'] or 0,
+					$values['sender_address'],
+					$values['sender_full_name'],
+					$values['ticket_subject']
+				);
 				break;
 				
 			case 'send_email_recipients':
