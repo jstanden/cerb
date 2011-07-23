@@ -599,6 +599,11 @@ class DAO_Ticket extends C4_ORMHelper {
     		if(isset($changes[DAO_Ticket::OWNER_ID])) {
 	    		@$owner_id = $changes[DAO_Ticket::OWNER_ID];
 	    		
+	    		/*
+	    		* Mail assigned in group
+	    		*/
+	    		Event_MailAssignedInGroup::trigger($object_id, $model[DAO_Ticket::TEAM_ID]);
+	    		
 				/*
 				 * Log activity (ticket.unassigned)
 				 */

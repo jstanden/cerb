@@ -1,22 +1,6 @@
 <?php
-class Event_MailMovedToGroup extends Extension_DevblocksEvent {
-	const ID = 'event.mail.moved.group';
-	
-	static function trigger($ticket_id, $group_id) {
-		$events = DevblocksPlatform::getEventService();
-		$events->trigger(
-	        new Model_DevblocksEvent(
-	            self::ID,
-                array(
-                    'ticket_id' => $ticket_id,
-                    'group_id' => $group_id,
-                	'_whisper' => array(
-                		CerberusContexts::CONTEXT_GROUP => array($group_id),
-                	),
-                )
-            )
-		);
-	}
+abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
+	protected $_event_id = null; // override
 	
 	/**
 	 * 
@@ -44,14 +28,14 @@ class Event_MailMovedToGroup extends Extension_DevblocksEvent {
 			$result = array_shift($results);
 			
 			$ticket_id = $result[SearchFields_Ticket::TICKET_ID];
-			$group_id = $result[SearchFields_Ticket::TICKET_TEAM_ID];
+			//$group_id = $result[SearchFields_Ticket::TICKET_TEAM_ID];
 		}
 		
 		return new Model_DevblocksEvent(
-			self::ID,
+			$this->_event_id,
 			array(
 				'ticket_id' => $ticket_id,
-				'group_id' => $group_id,
+				//'group_id' => $group_id,
 			)
 		);
 	}	
@@ -59,22 +43,35 @@ class Event_MailMovedToGroup extends Extension_DevblocksEvent {
 	function setEvent(Model_DevblocksEvent $event_model=null) {
 		$labels = array();
 		$values = array();
+		$blank = array();
 
+		@$ticket_id = $event_model->params['ticket_id']; 
+		
 		/**
 		 * Ticket
 		 */
-		
-		@$ticket_id = $event_model->params['ticket_id']; 
-		$ticket_labels = array();
-		$ticket_values = array();
-		CerberusContexts::getContext(CerberusContexts::CONTEXT_TICKET, $ticket_id, $ticket_labels, $ticket_values, null, true);
+		$merge_token_labels = array();
+		$merge_token_values = array();
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_TICKET, $ticket_id, $merge_token_labels, $merge_token_values, null, true);
 
+			@$group_id = $values['group_id'];
+
+			// Clear dupe labels
+			CerberusContexts::scrubTokensWithRegexp(
+				$merge_token_labels,
+				$blank, // ignore
+				array(
+					"#^group_#",
+					"#^bucket_id$#",
+				)
+			);
+			
 			// Merge
 			CerberusContexts::merge(
 				'ticket_',
 				'',
-				$ticket_labels,
-				$ticket_values,
+				$merge_token_labels,
+				$merge_token_values,
 				$labels,
 				$values
 			);
@@ -82,7 +79,7 @@ class Event_MailMovedToGroup extends Extension_DevblocksEvent {
 		/**
 		 * Group
 		 */
-		@$group_id = $values['group_id'];
+		
 		$group_labels = array();
 		$group_values = array();
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_GROUP, $group_id, $group_labels, $group_values, null, true);
@@ -166,7 +163,6 @@ class Event_MailMovedToGroup extends Extension_DevblocksEvent {
 		
 			"ticket_bucket_name|default('Inbox')" => null,
 			'ticket_created|date' => Model_CustomField::TYPE_DATE,
-			'ticket_group_name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'ticket_mask' => Model_CustomField::TYPE_SINGLE_LINE,
 			'ticket_spam_score' => null,
 			'ticket_spam_training' => null,
@@ -180,10 +176,8 @@ class Event_MailMovedToGroup extends Extension_DevblocksEvent {
 			'ticket_has_owner' => null,
 			'ticket_watcher_count' => null,
 		);
-
-		$conditions = $this->_importLabelsTypesAsConditions($labels, $types);
 		
-		return $conditions;		
+		return $this->_importLabelsTypesAsConditions($labels, $types);		
 	}
 	
 	function renderConditionExtension($token, $trigger, $params=array(), $seq=null) {
@@ -378,6 +372,9 @@ class Event_MailMovedToGroup extends Extension_DevblocksEvent {
 				'create_ticket' => array('label' =>'Create a ticket'),
 				'move_to_bucket' => array('label' => 'Move to bucket'),
 				'move_to_group' => array('label' => 'Move to group'),
+				'relay_email' => array('label' => 'Relay to worker email'),
+				'schedule_behavior' => array('label' => 'Schedule behavior'),
+				'schedule_email_recipients' => array('label' => 'Schedule email to recipients'),
 				'send_email' => array('label' => 'Send email'),
 				'send_email_recipients' => array('label' => 'Send email to recipients'),
 				'set_owner' => array('label' =>'Set owner'),
@@ -409,7 +406,34 @@ class Event_MailMovedToGroup extends Extension_DevblocksEvent {
 			case 'add_watchers':
 				DevblocksEventHelper::renderActionAddWatchers();
 				break;
+
+			case 'relay_email':
+				// Filter to group members
+				$group = DAO_Group::get($trigger->owner_context_id);
+				
+				DevblocksEventHelper::renderActionRelayEmail(
+					array_keys($group->getMembers()),
+					array('owner','watchers'),
+					'ticket_latest_message_content'
+				);
+				break;
+				
+			case 'schedule_behavior':
+				$dates = array();
+				$conditions = $this->getConditions();
+				foreach($conditions as $key => $data) {
+					if($data['type'] == Model_CustomField::TYPE_DATE)
+					$dates[$key] = $data['label'];
+				}
+				$tpl->assign('dates', $dates);
 			
+				DevblocksEventHelper::renderActionScheduleBehavior($trigger->owner_context, $trigger->owner_context_id);
+				break;
+				
+			case 'schedule_email_recipients':
+				DevblocksEventHelper::renderActionScheduleTicketReply();
+				break;
+				
 			case 'send_email':
 				DevblocksEventHelper::renderActionSendEmail();
 				break;
@@ -492,6 +516,30 @@ class Event_MailMovedToGroup extends Extension_DevblocksEvent {
 				DevblocksEventHelper::runActionAddWatchers($params, $values, CerberusContexts::CONTEXT_TICKET, $ticket_id);
 				break;
 			
+			case 'relay_email':
+				DevblocksEventHelper::runActionRelayEmail(
+					$params,
+					$values,
+					CerberusContexts::CONTEXT_TICKET,
+					$ticket_id,
+					$values['ticket_group_id'],
+					@$values['ticket_bucket_id'] or 0,
+					$values['ticket_latest_message_id'],
+					@$values['ticket_owner_id'] or 0,
+					$values['ticket_latest_message_sender_address'],
+					$values['ticket_latest_message_sender_full_name'],
+					$values['ticket_subject']
+				);
+				break;
+				
+			case 'schedule_behavior':
+				DevblocksEventHelper::runActionScheduleBehavior($params, $values, CerberusContexts::CONTEXT_TICKET, $ticket_id);
+				break;
+				
+			case 'schedule_email_recipients':
+				DevblocksEventHelper::runActionScheduleTicketReply($params, $values, $ticket_id, $message_id);
+				break;
+				
 			case 'send_email':
 				DevblocksEventHelper::runActionSendEmail($params, $values);
 				break;
@@ -681,5 +729,5 @@ class Event_MailMovedToGroup extends Extension_DevblocksEvent {
 				}
 				break;				
 		}
-	}	
+	}		
 };

@@ -1,20 +1,20 @@
 <?php
-class Event_TaskMacro extends AbstractEvent_Task {
-	const ID = 'event.macro.task';
+class Event_MailMovedToGroup extends AbstractEvent_Ticket {
+	const ID = 'event.mail.moved.group';
 	
 	function __construct() {
 		$this->_event_id = self::ID;
 	}
 	
-	static function trigger($trigger_id, $task_id) {
+	static function trigger($ticket_id, $group_id) {
 		$events = DevblocksPlatform::getEventService();
 		$events->trigger(
 	        new Model_DevblocksEvent(
 	            self::ID,
                 array(
-                    'task_id' => $task_id,
+                    'ticket_id' => $ticket_id,
                 	'_whisper' => array(
-                		'_trigger_id' => array($trigger_id),
+                		CerberusContexts::CONTEXT_GROUP => array($group_id),
                 	),
                 )
             )

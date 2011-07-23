@@ -1,22 +1,6 @@
 <?php
-class Event_MailReceivedByGroup extends Extension_DevblocksEvent {
-	const ID = 'event.mail.received.group';
-	
-	static function trigger($message_id, $group_id) {
-		$events = DevblocksPlatform::getEventService();
-		$events->trigger(
-	        new Model_DevblocksEvent(
-	            self::ID,
-                array(
-                    'message_id' => $message_id,
-                    'group_id' => $group_id,
-                	'_whisper' => array(
-                		CerberusContexts::CONTEXT_GROUP => array($group_id),
-                	),
-                )
-            )
-		);
-	} 
+abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
+	protected $_event_id = null; // override
 	
 	/**
 	 * 
@@ -48,7 +32,7 @@ class Event_MailReceivedByGroup extends Extension_DevblocksEvent {
 		}
 		
 		return new Model_DevblocksEvent(
-			self::ID,
+			$this->_event_id,
 			array(
 				'message_id' => $message_id,
 				'group_id' => $group_id,
@@ -378,13 +362,14 @@ class Event_MailReceivedByGroup extends Extension_DevblocksEvent {
 			array(
 				'add_watchers' => array('label' =>'Add watchers'),
 				'create_comment' => array('label' =>'Create a comment'),
-				'create_notification' => array('label' =>'Create a notification'),
+				'create_notification' => array('label' =>'Send a notification'),
 				'create_task' => array('label' =>'Create a task'),
 				'create_ticket' => array('label' =>'Create a ticket'),
 				'move_to_bucket' => array('label' => 'Move to bucket'),
 				'move_to_group' => array('label' => 'Move to group'),
 				'relay_email' => array('label' => 'Relay to external email'),
 				'schedule_email_recipients' => array('label' => 'Schedule email to recipients'),
+				'schedule_behavior' => array('label' => 'Schedule behavior'),
 				'send_email' => array('label' => 'Send email'),
 				'send_email_recipients' => array('label' => 'Send email to recipients'),
 				'set_owner' => array('label' =>'Set owner'),
@@ -418,13 +403,30 @@ class Event_MailReceivedByGroup extends Extension_DevblocksEvent {
 				break;
 				
 			case 'relay_email':
-				// [TODO] Filter to group members
+				// Filter to group members
 				$group = DAO_Group::get($trigger->owner_context_id);
-				DevblocksEventHelper::renderActionRelayEmail(array_keys($group->getMembers()));
+				
+				DevblocksEventHelper::renderActionRelayEmail(
+					array_keys($group->getMembers()),
+					array('owner','watchers','workers'),
+					'ticket_latest_message_content'
+				);
 				break;
 				
 			case 'schedule_email_recipients':
 				DevblocksEventHelper::renderActionScheduleTicketReply();
+				break;
+				
+			case 'schedule_behavior':
+				$dates = array();
+				$conditions = $this->getConditions();
+				foreach($conditions as $key => $data) {
+					if($data['type'] == Model_CustomField::TYPE_DATE)
+						$dates[$key] = $data['label'];
+				}
+				$tpl->assign('dates', $dates);
+				
+				DevblocksEventHelper::renderActionScheduleBehavior($trigger->owner_context, $trigger->owner_context_id);
 				break;
 				
 			case 'send_email':
@@ -514,11 +516,27 @@ class Event_MailReceivedByGroup extends Extension_DevblocksEvent {
 				break;
 				
 			case 'relay_email':
-				DevblocksEventHelper::runActionRelayEmail($params, $values, CerberusContexts::CONTEXT_TICKET, $ticket_id);
+				DevblocksEventHelper::runActionRelayEmail(
+					$params,
+					$values,
+					CerberusContexts::CONTEXT_TICKET,
+					$ticket_id,
+					$values['group_id'],
+					@$values['ticket_bucket_id'] or 0,
+					$values['id'],
+					@$values['ticket_owner_id'] or 0,
+					$values['sender_address'],
+					$values['sender_full_name'],
+					$values['ticket_subject']
+				);
 				break;
 				
 			case 'schedule_email_recipients':
 				DevblocksEventHelper::runActionScheduleTicketReply($params, $values, $ticket_id, $message_id);
+				break;
+				
+			case 'schedule_behavior':
+				DevblocksEventHelper::runActionScheduleBehavior($params, $values, CerberusContexts::CONTEXT_TICKET, $ticket_id);
 				break;
 				
 			case 'send_email_recipients':
@@ -705,4 +723,4 @@ class Event_MailReceivedByGroup extends Extension_DevblocksEvent {
 				break;				
 		}
 	}
-};
+};	

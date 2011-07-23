@@ -307,24 +307,36 @@
 			<class name="View_Workspace" />
 		</file>
 		
-		<file path="api/events/mail_closed_in_group.php">
-			<class name="Event_MailClosedInGroup" />
+		<file path="api/events/abstract/abstract_event_message.php">
+			<class name="AbstractEvent_Message" />
+		</file>
+		
+		<file path="api/events/abstract/abstract_event_task.php">
+			<class name="AbstractEvent_Task" />
+		</file>
+		
+		<file path="api/events/abstract/abstract_event_ticket.php">
+			<class name="AbstractEvent_Ticket" />
 		</file>
 		
 		<file path="api/events/app/mail_received_by_app.php">
 			<class name="Event_MailReceivedByApp" />
 		</file>
 		
-		<file path="api/events/mail_moved_to_group.php">
+		<file path="api/events/group/mail_assigned_in_group.php">
+			<class name="Event_MailAssignedInGroup" />
+		</file>
+		
+		<file path="api/events/group/mail_closed_in_group.php">
+			<class name="Event_MailClosedInGroup" />
+		</file>
+		
+		<file path="api/events/group/mail_moved_to_group.php">
 			<class name="Event_MailMovedToGroup" />
 		</file>
 		
-		<file path="api/events/mail_received_by_group.php">
+		<file path="api/events/group/mail_received_by_group.php">
 			<class name="Event_MailReceivedByGroup" />
-		</file>
-		
-		<file path="api/events/mail_received_by_watcher.php">
-			<class name="Event_MailReceivedByWatcher" />
 		</file>
 		
 		<file path="api/events/group/mail_sent_by_group.php">
@@ -339,7 +351,11 @@
 			<class name="Event_TicketMacro" />
 		</file>
 		
-		<file path="api/events/notification_received_by_worker.php">
+		<file path="api/events/worker/mail_received_by_watcher.php">
+			<class name="Event_MailReceivedByWatcher" />
+		</file>
+		
+		<file path="api/events/worker/notification_received_by_worker.php">
 			<class name="Event_NotificationReceivedByWorker" />
 		</file>
 		
@@ -753,32 +769,16 @@
 		</extension>
 		
 		<extension point="devblocks.event">
-			<id>event.notification.received.worker</id>
-			<name>New notification for me</name>
+			<id>event.mail.assigned.group</id>
+			<name>Conversation assigned in group</name>
 			<class>
-				<file>api/events/notification_received_by_worker.php</file>
-				<name>Event_NotificationReceivedByWorker</name>
+				<file>api/events/group/mail_assigned_in_group.php</file>
+				<name>Event_MailAssignedInGroup</name>
 			</class>
 			<params>
 				<param key="contexts">
 					<value>
-						<data key="cerberusweb.contexts.worker" />
-					</value>
-				</param>
-			</params>
-		</extension>
-		
-		<extension point="devblocks.event">
-			<id>event.mail.received.watcher</id>
-			<name>New message on a watched conversation</name>
-			<class>
-				<file>api/events/mail_received_by_watcher.php</file>
-				<name>Event_MailReceivedByWatcher</name>
-			</class>
-			<params>
-				<param key="contexts">
-					<value>
-						<data key="cerberusweb.contexts.worker" />
+						<data key="cerberusweb.contexts.group" />
 					</value>
 				</param>
 			</params>
@@ -788,7 +788,7 @@
 			<id>event.mail.closed.group</id>
 			<name>Conversation closed in group</name>
 			<class>
-				<file>api/events/mail_closed_in_group.php</file>
+				<file>api/events/group/mail_closed_in_group.php</file>
 				<name>Event_MailClosedInGroup</name>
 			</class>
 			<params>
@@ -804,7 +804,7 @@
 			<id>event.mail.moved.group</id>
 			<name>Conversation moved in group</name>
 			<class>
-				<file>api/events/mail_moved_to_group.php</file>
+				<file>api/events/group/mail_moved_to_group.php</file>
 				<name>Event_MailMovedToGroup</name>
 			</class>
 			<params>
@@ -820,7 +820,7 @@
 			<id>event.mail.received.group</id>
 			<name>New message on a group conversation</name>
 			<class>
-				<file>api/events/mail_received_by_group.php</file>
+				<file>api/events/group/mail_received_by_group.php</file>
 				<name>Event_MailReceivedByGroup</name>
 			</class>
 			<params>
@@ -870,6 +870,39 @@
 			<class>
 				<file>api/events/macro/ticket_macro.php</file>
 				<name>Event_TicketMacro</name>
+			</class>
+			<params>
+				<param key="contexts">
+					<value>
+						<data key="cerberusweb.contexts.group" />
+						<data key="cerberusweb.contexts.worker" />
+					</value>
+				</param>
+			</params>
+		</extension>
+		
+		<extension point="devblocks.event">
+			<id>event.mail.received.watcher</id>
+			<name>New message on a watched conversation</name>
+			<class>
+				<file>api/events/worker/mail_received_by_watcher.php</file>
+				<name>Event_MailReceivedByWatcher</name>
+			</class>
+			<params>
+				<param key="contexts">
+					<value>
+						<data key="cerberusweb.contexts.worker" />
+					</value>
+				</param>
+			</params>
+		</extension>
+		
+		<extension point="devblocks.event">
+			<id>event.notification.received.worker</id>
+			<name>New notification for me</name>
+			<class>
+				<file>api/events/worker/notification_received_by_worker.php</file>
+				<name>Event_NotificationReceivedByWorker</name>
 			</class>
 			<params>
 				<param key="contexts">
