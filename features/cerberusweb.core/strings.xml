@@ -117,6 +117,9 @@
 		<tu tuid='common.available'>
 			<tuv xml:lang="en_US"><seg>Available</seg></tuv>
 		</tu>
+		<tu tuid='common.behavior'>
+			<tuv xml:lang="en_US"><seg>Behavior</seg></tuv>
+		</tu>
 		<tu tuid='common.bucket'>
 			<tuv xml:lang="en_US"><seg>Bucket</seg></tuv>
 		</tu>
@@ -993,6 +996,12 @@ For example: http://www.cerberusweb.com/support/</seg></tuv>
 		</tu>
 		<tu tuid='dao.context_activity_log.target_context_id'>
 			<tuv xml:lang="en_US"><seg>Target Context ID</seg></tuv>
+		</tu>
+
+		<!-- ContextScheduledBehavior -->
+		
+		<tu tuid='dao.context_scheduled_behavior.run_date'>
+			<tuv xml:lang="en_US"><seg>Run Date</seg></tuv>
 		</tu>
 
 		<!-- Cron -->

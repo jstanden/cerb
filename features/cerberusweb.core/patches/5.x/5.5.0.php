@@ -495,5 +495,36 @@ if(isset($columns['queue_priority'])) {
 	unset($columns['queue_priority']);
 }
 
+// ===========================================================================
+// Add the 'context_scheduled_behavior' table
+
+if(!isset($tables['context_scheduled_behavior'])) {
+	$sql = sprintf("
+		CREATE TABLE IF NOT EXISTS `context_scheduled_behavior` (
+			id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+			context VARCHAR(255) NOT NULL DEFAULT '',
+			context_id INT UNSIGNED NOT NULL DEFAULT 0,
+			behavior_id INT UNSIGNED NOT NULL DEFAULT 0,
+			run_date INT UNSIGNED NOT NULL DEFAULT 0,
+			PRIMARY KEY (id),
+			INDEX context (context),
+			INDEX behavior_id (behavior_id),
+			INDEX run_date (run_date)
+		) ENGINE=%s;
+		", APP_DB_ENGINE);
+	$db->Execute($sql);
+	
+	$tables['context_scheduled_behavior'] = 'context_scheduled_behavior';
+}
+
+// ===========================================================================
+// Enable Virtual Attendant scheduled behavior cronjob
+
+if(null != ($cron = DevblocksPlatform::getExtension('cron.virtual_attendant.scheduled_behavior', true, true))) {
+	$cron->setParam(CerberusCronPageExtension::PARAM_ENABLED, true);
+	$cron->setParam(CerberusCronPageExtension::PARAM_DURATION, '1');
+	$cron->setParam(CerberusCronPageExtension::PARAM_TERM, 'm');
+	$cron->setParam(CerberusCronPageExtension::PARAM_LASTRUN, strtotime('Yesterday 23:00'));
+}
 
 return TRUE;

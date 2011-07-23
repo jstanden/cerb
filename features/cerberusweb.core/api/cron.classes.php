@@ -1256,9 +1256,78 @@ class MailQueueCron extends CerberusCronPageExtension {
 	}
 
 	function configure($instance) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		//$tpl = DevblocksPlatform::getTemplateService();
+		//$tpl->display('devblocks:cerberusweb.core::cron/mail_queue/config.tpl');
+	}
+};
 
-		$tpl->display('devblocks:cerberusweb.core::cron/mail_queue/config.tpl');
+class Cron_VirtualAttendantScheduledBehavior extends CerberusCronPageExtension {
+	function run() {
+		$logger = DevblocksPlatform::getConsoleLog('Virtual Attendant Scheduler');
+		$runtime = microtime(true);
+
+		$stop_time = time() + 20; // [TODO] Make configurable
+
+		$logger->info("Starting...");
+
+		do {
+			$behaviors = DAO_ContextScheduledBehavior::getWhere(
+				sprintf("%s < %d",
+					DAO_ContextScheduledBehavior::RUN_DATE,
+					time()
+				),
+				array(DAO_ContextScheduledBehavior::RUN_DATE),
+				array(true),
+				25
+			);
+
+			if(!empty($behaviors)) {
+				foreach($behaviors as $behavior) {
+					/* @var $behavior Model_ContextScheduledBehavior */
+					try {
+						if(empty($behavior->context) || empty($behavior->context_id) || empty($behavior->behavior_id))
+							throw new Exception("Incomplete macro.");
+					
+						// Load context
+						if(null == ($context_ext = DevblocksPlatform::getExtension($behavior->context, true)))
+							throw new Exception("Invalid context.");
+					
+						// ACL: Ensure access to the context object
+						//if(!$context_ext->authorize($context_id, $active_worker))
+						//	throw new Exception("Access denied to context.");
+							
+						// Load macro
+						if(null == ($macro = DAO_TriggerEvent::get($behavior->behavior_id))) /* @var $macro Model_TriggerEvent */
+							throw new Exception("Invalid macro.");
+							
+						// ACL: Ensure the worker owns the macro
+						//if(false == ($macro->owner_context == CerberusContexts::CONTEXT_WORKER && $macro->owner_context_id == $active_worker->id))
+						//	 new Exception("Access denied to macro.");
+					
+						// Load event manifest
+						if(null == ($ext = DevblocksPlatform::getExtension($macro->event_point, false))) /* @var $ext DevblocksExtensionManifest */
+							throw new Exception("Invalid event.");
+					
+						// Execute
+						call_user_func(array($ext->class, 'trigger'), $macro->id, $behavior->context_id);
+							
+						$logger->info(sprintf("Executed behavior %d", $behavior->id));
+						
+					} catch (Exception $e) {
+						$logger->error(sprintf("Failed executing behavior %d: %s", $behavior->id, $e->getMessage()));
+					}
+
+					DAO_ContextScheduledBehavior::delete($behavior->id);
+				}
+			}
+		} while(!empty($behaviors) && $stop_time > time());
+
+		$logger->info("Total Runtime: ".number_format((microtime(true)-$runtime)*1000,2)." ms");
+	}
+
+	function configure($instance) {
+		//$tpl = DevblocksPlatform::getTemplateService();
+		//$tpl->display('devblocks:cerberusweb.core::cron/scheduled_behavior/config.tpl');
 	}
 };
 

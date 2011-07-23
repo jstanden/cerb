@@ -674,6 +674,38 @@ class DevblocksEventHelper {
 	}
 	
 	/*
+	 * Action: Schedule Macro
+	 */
+	
+	static function renderActionScheduleBehavior($context, $context_id) {
+		$tpl = DevblocksPlatform::getTemplateService();
+		
+		$macros = DAO_TriggerEvent::getByOwner($context, $context_id, 'event.macro.ticket');
+		$tpl->assign('macros', $macros);
+		
+		$tpl->display('devblocks:cerberusweb.core::events/action_schedule_behavior.tpl');
+	}
+	
+	static function runActionScheduleBehavior($params, $values, $context, $context_id) {
+		@$behavior_id = $params['behavior_id'];
+		@$run_date = $params['run_date'];
+		
+		// [TODO] Relative dates
+		@$run_timestamp = strtotime($run_date);
+		
+		if(empty($behavior_id))
+			return FALSE;
+		
+		$fields = array(
+			DAO_ContextScheduledBehavior::CONTEXT => $context,
+			DAO_ContextScheduledBehavior::CONTEXT_ID => $context_id,
+			DAO_ContextScheduledBehavior::BEHAVIOR_ID => $behavior_id,
+			DAO_ContextScheduledBehavior::RUN_DATE => intval($run_timestamp),
+		);
+		return DAO_ContextScheduledBehavior::create($fields);
+	}
+	
+	/*
 	 * Action: Create Comment
 	 */
 	
