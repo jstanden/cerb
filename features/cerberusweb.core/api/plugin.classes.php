@@ -185,9 +185,6 @@ class ChPageController extends DevblocksControllerExtension {
 	    	$active_worker_memberships = $active_worker->getMemberships();
 	    	$tpl->assign('active_worker_memberships', $active_worker_memberships);
 			
-			$unread_notifications = DAO_Notification::getUnreadCountByWorker($active_worker->id);
-			$tpl->assign('active_worker_notify_count', $unread_notifications);
-			
 			DAO_Worker::logActivity($page->getActivity());
 		}
 		$tpl->assign('tour_enabled', $tour_enabled);
@@ -221,6 +218,12 @@ class ChPageController extends DevblocksControllerExtension {
 		}
 		
 		$tpl->display('devblocks:cerberusweb.core::border.tpl');
+		
+		if(!empty($active_worker)) {
+			$unread_notifications = DAO_Notification::getUnreadCountByWorker($active_worker->id);
+			$tpl->assign('active_worker_notify_count', $unread_notifications);
+			$tpl->display('devblocks:cerberusweb.core::badge_notifications_script.tpl');
+		}
 		
 //		$cache = DevblocksPlatform::getCacheService();
 //		$cache->printStatistics();

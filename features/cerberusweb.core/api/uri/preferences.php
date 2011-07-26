@@ -323,74 +323,99 @@ class ChPreferencesPage extends CerberusPageExtension {
 		$view->renderPage = 0;
 		$view->renderLimit = 250;
 		$pos = 0;
-
+		$keys = array();
+		$contexts = array();
+		
+		$view->renderTotal = false;
+		
 		do {
 			$models = array();
 			list($results, $total) = $view->getData();
-
-			// Summary row
-			if(0==$view->renderPage) {
-				$model = new Model_ExplorerSet();
-				$model->hash = $hash;
-				$model->pos = $pos++;
-				$model->params = array(
-					'title' => $view->name,
-					'created' => time(),
-					'worker_id' => $active_worker->id,
-					'total' => $total,
-					'return_url' => isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : $url_writer->writeNoProxy('c=profiles&k=worker&id=me&tab=notifications', true),
-					'toolbar_extension_id' => 'cerberusweb.explorer.toolbar.notifications',
-				);
-				$models[] = $model;
-
-				$view->renderTotal = false; // speed up subsequent pages
-			}
 
 			if(is_array($results))
 			foreach($results as $event_id => $row) {
 				if($event_id==$explore_from)
 					$orig_pos = $pos;
 
+				$content = $row[SearchFields_Notification::MESSAGE];
+				$context = $row[SearchFields_Notification::CONTEXT];
+				$context_id = $row[SearchFields_Notification::CONTEXT_ID];
+				$url = $row[SearchFields_Notification::URL];
+				
+				// Composite key
+				$key = $row[SearchFields_Notification::WORKER_ID]
+					. '_' . $context
+					. '_' . $context_id
+					;
+
+				if(empty($url) && !empty($context)) {
+					if(!isset($contexts[$context])) {
+						if(null != ($ctx = DevblocksPlatform::getExtension($context, true, false))) {
+						 	$contexts[$context] = $ctx;
+						}
+					}
+					
+					@$ctx = $contexts[$context]; /* @var $ctx Extension_DevblocksContext */
+					
+					if(!empty($ctx) && null != ($meta = $ctx->getMeta($context_id))) {
+						if(isset($meta['name']) && !empty($meta['name']))
+							$content = $meta['name'];
+						if(isset($meta['permalink']))
+							$url = $meta['permalink'];
+					}
+					
+				} else {
+					$url = $url_writer->write(sprintf("c=preferences&a=redirectRead&id=%d", $row[SearchFields_Notification::ID]));
+					
+				}
+				
+				if(empty($url))
+					continue;				
+				
+				if(!empty($context) && !empty($context_id)) {
+					// Is this a dupe?
+					if(isset($keys[$key])) {
+						continue;
+					} else {
+						$keys[$key] = ++$pos;
+					}
+				} else {
+					++$pos;
+				}
+				
 				$model = new Model_ExplorerSet();
 				$model->hash = $hash;
-				$model->pos = $pos++;
+				$model->pos = $pos;
 				$model->params = array(
 					'id' => $row[SearchFields_Notification::ID],
-					'content' => $row[SearchFields_Notification::MESSAGE],
-					'url' => $row[SearchFields_Notification::URL],
+					'content' => $content,
+					'url' => $url,
 				);
 				$models[] = $model;
 			}
-
+			
 			DAO_ExplorerSet::createFromModels($models);
 
 			$view->renderPage++;
 
 		} while(!empty($results));
 
+		// Add the manifest row
+		
+		DAO_ExplorerSet::set(
+			$hash,
+			array(
+				'title' => $view->name,
+				'created' => time(),
+				'worker_id' => $active_worker->id,
+				'total' => $pos,
+				'return_url' => isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : $url_writer->writeNoProxy('c=profiles&k=worker&id=me&tab=notifications', true),
+				//'toolbar_extension_id' => '',
+			),
+			0
+		);
+		
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('explore',$hash,$orig_pos)));
-	}
-
-	function explorerEventMarkReadAction() {
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'integer', 0);
-
-		$worker = CerberusApplication::getActiveWorker();
-
-		if(!empty($id)) {
-			DAO_Notification::updateWhere(
-				array(
-					DAO_Notification::IS_READ => 1,
-				),
-				sprintf("%s = %d AND %s = %d",
-					DAO_Notification::WORKER_ID,
-					$worker->id,
-					DAO_Notification::ID,
-					$id
-				)
-			);
-
-			DAO_Notification::clearCountCache($worker->id);
-		}
 	}
 
 	/**
@@ -408,16 +433,18 @@ class ChPreferencesPage extends CerberusPageExtension {
 		array_shift($stack); // redirectReadAction
 		@$id = array_shift($stack); // id
 
-		if(null != ($event = DAO_Notification::get($id))) {
-			// Mark as read before we redirect
-			DAO_Notification::update($id, array(
-				DAO_Notification::IS_READ => 1
-			));
-
-			DAO_Notification::clearCountCache($worker->id);
+		if(null != ($notification = DAO_Notification::get($id))) {
+			if(empty($notification->context)) {
+				// Mark as read before we redirect
+				DAO_Notification::update($id, array(
+					DAO_Notification::IS_READ => 1
+				));
+				
+				DAO_Notification::clearCountCache($worker->id);
+			}
 
 			session_write_close();
-			header("Location: " . $event->url);
+			header("Location: " . $notification->getURL());
 		}
 		exit;
 	}
@@ -668,15 +695,5 @@ class ChPreferencesPage extends CerberusPageExtension {
 		}
 
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('preferences','rss')));
-	}
-};
-
-class ChExplorerToolbarNotifications extends Extension_ExplorerToolbar {
-	function render(Model_ExplorerSet $item) {
-		$tpl = DevblocksPlatform::getTemplateService();
-
-		$tpl->assign('item', $item);
-
-		$tpl->display('devblocks:cerberusweb.core::preferences/renderer/explorer_toolbar.tpl');
 	}
 };

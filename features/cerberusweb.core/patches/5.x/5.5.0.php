@@ -527,4 +527,86 @@ if(null != ($cron = DevblocksPlatform::getExtension('cron.virtual_attendant.sche
 	$cron->setParam(CerberusCronPageExtension::PARAM_LASTRUN, strtotime('Yesterday 23:00'));
 }
 
+// ===========================================================================
+// Refactor 'notification'
+
+if(!isset($tables['notification'])) {
+	$logger->error("The 'notification' table is required");
+	return FALSE;
+}
+
+list($columns, $indexes) = $db->metaTable('notification');
+
+if(!isset($columns['context'])) {
+	$db->Execute("ALTER TABLE notification ADD COLUMN context VARCHAR(255) NOT NULL DEFAULT '', ADD INDEX context (context)");
+}
+
+if(!isset($columns['context_id'])) {
+	$db->Execute("ALTER TABLE notification ADD COLUMN context_id INT UNSIGNED NOT NULL DEFAULT 0, ADD INDEX context_id (context_id)");
+	
+	// Base URL
+	$url_writer = DevblocksPlatform::getUrlService();
+	$base_url = $url_writer->write('', true, false);
+	$base_url_noprotocol = preg_replace('#^(http|https)://#','',$base_url);
+	
+	// Convert existing notifications to contexts
+	$rs = $db->Execute(sprintf("SELECT id, url FROM notification WHERE url REGEXP '^(http|https)://%s';",
+		$base_url_noprotocol
+	));
+	
+	if(is_resource($rs))
+	while($row = mysql_fetch_array($rs)) {
+		$url = preg_replace(sprintf("#^(http|https)://%s#", $base_url_noprotocol),'',$row['url']);
+		$stack = explode('/', $url);
+		
+		$context = null;
+		$context_id = 0;
+		
+		switch(@array_shift($stack)) {
+			case 'display':
+				@$id = array_shift($stack);
+				if(is_numeric($id)) {
+					$context = 'cerberusweb.contexts.ticket';
+					$context_id = $id;
+				} else {
+					$mask = $id;
+					// Lookup mask
+					if(null != ($id = $db->GetOne(sprintf("SELECT id FROM ticket WHERE mask=%s", $db->qstr($mask))))) {
+						$context = 'cerberusweb.contexts.ticket';
+						$context_id = $id;
+					} else {
+						if(null != ($id = $db->GetOne(sprintf("SELECT new_ticket_id FROM ticket_mask_forward WHERE old_mask=%s", $db->qstr($mask))))) {
+							$context = 'cerberusweb.contexts.ticket';
+							$context_id = $id;
+						} else {
+							// Delete if we can't find it (points to something that moved or was deleted)
+							$db->Execute(sprintf("DELETE FROM notification WHERE id = %d", $row['id']));
+						}
+					}
+				}
+				break;
+				
+			case 'tasks':
+				switch(@array_shift($stack)) {
+					case 'display':
+						@$id = intval(array_shift($stack));
+						if(!empty($id)) {
+							$context = 'cerberusweb.contexts.task';
+							$context_id = $id;
+						}
+						break;
+				}
+				break;
+		}
+		
+		if(!empty($context) || !empty($context_id)) {
+			$db->Execute(sprintf("UPDATE notification SET context=%s, context_id=%d, url='' WHERE id=%d",
+				$db->qstr($context),
+				$context_id,
+				$row['id']
+			));
+		}
+	}
+}
+
 return TRUE;

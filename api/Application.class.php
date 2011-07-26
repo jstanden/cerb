@@ -1061,6 +1061,8 @@ class CerberusContexts {
 					
 				// If yes, send it						
 				DAO_Notification::create(array(
+					DAO_Notification::CONTEXT => $target_context,
+					DAO_Notification::CONTEXT_ID => $target_context_id,
 					DAO_Notification::CREATED_DATE => time(),
 					DAO_Notification::IS_READ => 0,
 					DAO_Notification::WORKER_ID => $watcher_id,

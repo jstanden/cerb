@@ -27,7 +27,7 @@ abstract class AbstractEvent_Task extends Extension_DevblocksEvent {
 			
 			$result = array_shift($results);
 			
-			$opp_id = $result[SearchFields_Task::ID];
+			$task_id = $result[SearchFields_Task::ID];
 		}
 		
 		return new Model_DevblocksEvent(
@@ -212,10 +212,7 @@ abstract class AbstractEvent_Task extends Extension_DevblocksEvent {
 				break;
 				
 			case 'create_notification':
-				$url_writer = DevblocksPlatform::getUrlService();
-				$url = $url_writer->writeNoProxy('c=tasks&tab=display&id='.$values['task_id'], true);
-				
-				DevblocksEventHelper::runActionCreateNotification($params, $values, $url);
+				DevblocksEventHelper::runActionCreateNotification($params, $values, CerberusContexts::CONTEXT_TASK, $task_id);
 				break;
 				
 			case 'create_task':

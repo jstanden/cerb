@@ -118,8 +118,6 @@ class ChExplorerController extends DevblocksControllerExtension {
 			$total = $meta->params['total'];
 			$title = isset($meta->params['title']) ? $meta->params['title'] : '';
 			$return_url = isset($meta->params['return_url']) ? $meta->params['return_url'] : '';
-//			$created = $meta->params['created'];
-//			$worker_id = $meta->params['worker_id'];
 			
 			$tpl->assign('title', $title);
 			$tpl->assign('count', $total);

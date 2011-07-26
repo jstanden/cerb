@@ -39,7 +39,7 @@
 		<patch version="5.4.0" revision="934" file="patches/5.x/5.4.0.php" />
 		<patch version="5.4.3" revision="935" file="patches/5.x/5.4.3.php" />
 		<patch version="5.4.4" revision="936" file="patches/5.x/5.4.4.php" />
-		<patch version="5.5.0" revision="943" file="patches/5.x/5.5.0.php" />
+		<patch version="5.5.0" revision="944" file="patches/5.x/5.5.0.php" />
 	</patches>
 
 	<!-- Declared Extension Points -->
@@ -1729,19 +1729,6 @@
 			<class>
 				<file>api/plugin.classes.php</file>
 				<name>ChRssSource_Ticket</name>
-			</class>
-			<params>
-			</params>
-		</extension>		
-		
-		<!-- Explorer Toolbars -->
-		
-		<extension point="cerberusweb.explorer.toolbar">
-			<id>cerberusweb.explorer.toolbar.notifications</id>
-			<name>Worker Events</name>
-			<class>
-				<file>api/uri/preferences.php</file>
-				<name>ChExplorerToolbarNotifications</name>
 			</class>
 			<params>
 			</params>

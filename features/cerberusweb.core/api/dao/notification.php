@@ -51,6 +51,8 @@ class DAO_Notification extends DevblocksORMHelper {
 	const CACHE_COUNT_PREFIX = 'notification_count_';
 	
 	const ID = 'id';
+	const CONTEXT = 'context';
+	const CONTEXT_ID = 'context_id';
 	const CREATED_DATE = 'created_date';
 	const WORKER_ID = 'worker_id';
 	const MESSAGE = 'message';
@@ -96,10 +98,10 @@ class DAO_Notification extends DevblocksORMHelper {
 	static function getWhere($where=null) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = "SELECT id, created_date, worker_id, message, is_read, url ".
+		$sql = "SELECT id, context, context_id, created_date, worker_id, message, is_read, url ".
 			"FROM notification ".
 			(!empty($where) ? sprintf("WHERE %s ",$where) : "").
-			"ORDER BY id asc";
+			"ORDER BY id desc";
 		$rs = $db->Execute($sql);
 		
 		return self::_getObjectsFromResult($rs);
@@ -118,6 +120,35 @@ class DAO_Notification extends DevblocksORMHelper {
 			return $objects[$id];
 		
 		return null;
+	}
+	
+	static function getUnreadByContextAndWorker($context, $context_id, $worker_id=0, $mark_read=false) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		// [TODO] This could come from cache
+		
+		$notifications = self::getWhere(
+			sprintf("%s = %s AND %s = %d AND %s = %d %s",
+				self::CONTEXT,
+				$db->qstr($context),
+				self::CONTEXT_ID,
+				$context_id,
+				DAO_Notification::IS_READ,
+				0,
+				($worker_id ? sprintf(" AND %s = %d", DAO_Notification::WORKER_ID, $worker_id) : '')
+			)
+		);
+		
+		// Auto mark-read?
+		if($mark_read && $worker_id) {
+			DAO_Notification::update(array_keys($notifications), array(
+				DAO_Notification::IS_READ => 1,
+			));
+			
+			self::clearCountCache($worker_id);
+		}
+		
+		return $notifications;
 	}
 	
 	static function getUnreadCountByWorker($worker_id) {
@@ -149,6 +180,8 @@ class DAO_Notification extends DevblocksORMHelper {
 		while($row = mysql_fetch_assoc($rs)) {
 			$object = new Model_Notification();
 			$object->id = $row['id'];
+			$object->context = $row['context'];
+			$object->context_id = $row['context_id'];
 			$object->created_date = $row['created_date'];
 			$object->worker_id = $row['worker_id'];
 			$object->message = $row['message'];
@@ -201,12 +234,16 @@ class DAO_Notification extends DevblocksORMHelper {
 		
 		$select_sql = sprintf("SELECT ".
 			"we.id as %s, ".
+			"we.context as %s, ".
+			"we.context_id as %s, ".
 			"we.created_date as %s, ".
 			"we.worker_id as %s, ".
 			"we.message as %s, ".
 			"we.is_read as %s, ".
 			"we.url as %s ",
 			    SearchFields_Notification::ID,
+			    SearchFields_Notification::CONTEXT,
+			    SearchFields_Notification::CONTEXT_ID,
 			    SearchFields_Notification::CREATED_DATE,
 			    SearchFields_Notification::WORKER_ID,
 			    SearchFields_Notification::MESSAGE,
@@ -305,6 +342,8 @@ class DAO_Notification extends DevblocksORMHelper {
 class SearchFields_Notification implements IDevblocksSearchFields {
 	// Worker Event
 	const ID = 'we_id';
+	const CONTEXT = 'we_context';
+	const CONTEXT_ID = 'we_context_id';
 	const CREATED_DATE = 'we_created_date';
 	const WORKER_ID = 'we_worker_id';
 	const MESSAGE = 'we_message';
@@ -319,6 +358,8 @@ class SearchFields_Notification implements IDevblocksSearchFields {
 		
 		$columns = array(
 			self::ID => new DevblocksSearchField(self::ID, 'we', 'id', $translate->_('notification.id')),
+			self::CONTEXT => new DevblocksSearchField(self::CONTEXT, 'we', 'context', $translate->_('common.context')),
+			self::CONTEXT_ID => new DevblocksSearchField(self::CONTEXT_ID, 'we', 'context_id', $translate->_('common.context_id')),
 			self::CREATED_DATE => new DevblocksSearchField(self::CREATED_DATE, 'we', 'created_date', $translate->_('notification.created_date')),
 			self::WORKER_ID => new DevblocksSearchField(self::WORKER_ID, 'we', 'worker_id', $translate->_('notification.worker_id')),
 			self::MESSAGE => new DevblocksSearchField(self::MESSAGE, 'we', 'message', $translate->_('notification.message')),
@@ -335,11 +376,26 @@ class SearchFields_Notification implements IDevblocksSearchFields {
 
 class Model_Notification {
 	public $id;
+	public $context;
+	public $context_id;
 	public $created_date;
 	public $worker_id;
 	public $message;
 	public $is_read;
 	public $url;
+	
+	public function getURL() {
+		// Check if we have a context link, otherwise use raw URL
+		if(!empty($this->context)) {
+			// Invoke context class
+			if(null != ($ctx = DevblocksPlatform::getExtension($this->context, true))) { /* @var $ctx Extension_DevblocksContext */
+				$meta = $ctx->getMeta($this->context_id);
+				if(isset($meta['permalink']) && !empty($meta['permalink']))
+					return $meta['permalink'];
+			}
+		} 
+		return $this->url;
+	}
 };
 
 class View_Notification extends C4_AbstractView implements IAbstractView_Subtotals {
@@ -357,10 +413,14 @@ class View_Notification extends C4_AbstractView implements IAbstractView_Subtota
 			SearchFields_Notification::MESSAGE,
 		);
 		$this->addColumnsHidden(array(
+			SearchFields_Notification::CONTEXT,
+			SearchFields_Notification::CONTEXT_ID,
 			SearchFields_Notification::ID,
 		));
 		
 		$this->addParamsHidden(array(
+			SearchFields_Notification::CONTEXT,
+			SearchFields_Notification::CONTEXT_ID,
 			SearchFields_Notification::ID,
 		));
 		
@@ -682,6 +742,8 @@ class Context_Notification extends Extension_DevblocksContext {
 		// [TODO] Needs to also return META (data type code -- like custom fields)
 		$token_labels = array(
 			'id' => $prefix.$translate->_('common.id'),
+			'context' => $prefix.$translate->_('common.context'),
+			'context_id' => $prefix.$translate->_('common.context_id'),
 			'created|date' => $prefix.$translate->_('common.created'),
 			'message' => $prefix.'message',
 			'is_read' => $prefix.'is read',
@@ -699,6 +761,8 @@ class Context_Notification extends Extension_DevblocksContext {
 		
 		if($notification) {
 			$token_values['id'] = $notification->id;
+			$token_values['context'] = $notification->context;
+			$token_values['context_id'] = $notification->context_id;
 			$token_values['created'] = $notification->created_date;
 			$token_values['message'] = $notification->message;
 			$token_values['is_read'] = $notification->is_read;

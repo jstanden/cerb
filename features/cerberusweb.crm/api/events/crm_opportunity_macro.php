@@ -244,10 +244,7 @@ class Event_CrmOpportunityMacro extends Extension_DevblocksEvent {
 				break;
 				
 			case 'create_notification':
-				$url_writer = DevblocksPlatform::getUrlService();
-				$url = $url_writer->writeNoProxy('c=crm&tab=opps&id='.$values['opp_id'], true);
-				
-				DevblocksEventHelper::runActionCreateNotification($params, $values, $url);
+				DevblocksEventHelper::runActionCreateNotification($params, $values, CerberusContexts::CONTEXT_OPPORTUNITY, $opp_id);
 				break;
 				
 			case 'create_task':

@@ -346,10 +346,7 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 				break;
 				
 			case 'create_notification':
-				$url_writer = DevblocksPlatform::getUrlService();
-				$url = $url_writer->writeNoProxy('c=display&id='.$values['ticket_mask'], true);
-				
-				DevblocksEventHelper::runActionCreateNotification($params, $values, $url);
+				DevblocksEventHelper::runActionCreateNotification($params, $values, CerberusContexts::CONTEXT_TICKET, $ticket_id);
 				break;
 				
 			case 'create_task':

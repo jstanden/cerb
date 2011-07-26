@@ -107,7 +107,7 @@ class DAO_ExplorerSet {
 	static function set($hash, $params, $pos) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$db->Execute(sprintf("UPDATE explorer_set SET params_json = %s WHERE hash = %s AND pos = %d",
+		$db->Execute(sprintf("REPLACE INTO explorer_set (params_json, hash, pos) VALUES (%s,%s,%d)",
 			$db->qstr(json_encode($params)),
 			$db->qstr($hash),
 			$pos
