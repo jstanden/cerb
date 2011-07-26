@@ -169,11 +169,17 @@ class DAO_Address extends C4_ORMHelper {
         $sql = sprintf("DELETE QUICK FROM address WHERE id IN (%s)", $address_ids);
         $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
        
-		// Context links
-		DAO_ContextLink::delete(CerberusContexts::CONTEXT_ADDRESS, $ids);
-        
-        // Custom fields
-        DAO_CustomFieldValue::deleteByContextIds(CerberusContexts::CONTEXT_ADDRESS, $ids);
+		// Fire event
+	    $eventMgr = DevblocksPlatform::getEventService();
+	    $eventMgr->trigger(
+	        new Model_DevblocksEvent(
+	            'context.delete',
+                array(
+                	'context' => CerberusContexts::CONTEXT_ADDRESS,
+                	'context_ids' => $ids
+                )
+            )
+	    );
     }
 		
 	static function getWhere($where=null, $sortBy=null, $sortAsc=true, $limit=null) {

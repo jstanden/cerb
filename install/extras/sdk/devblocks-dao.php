@@ -139,6 +139,20 @@ foreach($fields as $field_name => $field_type) {
 		
 		$db->Execute(sprintf("DELETE FROM <?php echo $table_name; ?> WHERE id IN (%s)", $ids_list));
 		
+		// Fire event
+		/*
+	    $eventMgr = DevblocksPlatform::getEventService();
+	    $eventMgr->trigger(
+	        new Model_DevblocksEvent(
+	            'context.delete',
+                array(
+                	'context' => 'cerberusweb.contexts.',
+                	'context_ids' => $ids
+                )
+            )
+	    );
+	    */
+		
 		return true;
 	}
 	

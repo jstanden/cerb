@@ -126,6 +126,18 @@ class DAO_ContactPerson extends DevblocksORMHelper {
 		// Remove records
 		$db->Execute(sprintf("DELETE FROM contact_person WHERE id IN (%s)", $ids_list));
 		
+		// Fire event
+	    $eventMgr = DevblocksPlatform::getEventService();
+	    $eventMgr->trigger(
+	        new Model_DevblocksEvent(
+	            'context.delete',
+                array(
+                	'context' => CerberusContexts::CONTEXT_CONTACT_PERSON,
+                	'context_ids' => $ids
+                )
+            )
+	    );
+		
 		return true;
 	}
 	

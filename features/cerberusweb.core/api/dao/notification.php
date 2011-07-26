@@ -206,6 +206,35 @@ class DAO_Notification extends DevblocksORMHelper {
 		
 		$db->Execute(sprintf("DELETE FROM notification WHERE id IN (%s)", $ids_list));
 		
+		// Fire event
+	    $eventMgr = DevblocksPlatform::getEventService();
+	    $eventMgr->trigger(
+	        new Model_DevblocksEvent(
+	            'context.delete',
+                array(
+                	'context' => CerberusContexts::CONTEXT_NOTIFICATION,
+                	'context_ids' => $ids
+                )
+            )
+	    );
+		
+		return true;
+	}
+	
+	static function deleteByContext($context, $context_ids) {
+		if(!is_array($context_ids)) 
+			$context_ids = array($context_ids);
+		
+		if(empty($context_ids))
+			return;
+			
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$db->Execute(sprintf("DELETE FROM notification WHERE context = %s AND context_id IN (%s) ", 
+			$db->qstr($context),
+			implode(',', $context_ids)
+		));
+		
 		return true;
 	}
 

@@ -102,6 +102,18 @@ class DAO_FeedItem extends C4_ORMHelper {
 		
 		$db->Execute(sprintf("DELETE FROM feed_item WHERE id IN (%s)", $ids_list));
 		
+		// Fire event
+	    $eventMgr = DevblocksPlatform::getEventService();
+	    $eventMgr->trigger(
+	        new Model_DevblocksEvent(
+	            'context.delete',
+                array(
+                	'context' => 'cerberusweb.contexts.feed.item',
+                	'context_ids' => $ids
+                )
+            )
+	    );
+		
 		return true;
 	}
 	

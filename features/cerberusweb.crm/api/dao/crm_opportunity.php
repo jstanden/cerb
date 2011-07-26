@@ -279,14 +279,17 @@ class DAO_CrmOpportunity extends C4_ORMHelper {
 		// Opps
 		$db->Execute(sprintf("DELETE QUICK FROM crm_opportunity WHERE id IN (%s)", $ids_list));
 
-		// Context links
-		DAO_ContextLink::delete(CerberusContexts::CONTEXT_OPPORTUNITY, $ids);
-		
-		// Custom fields
-		DAO_CustomFieldValue::deleteByContextIds(CerberusContexts::CONTEXT_OPPORTUNITY, $ids);
-		
-		// Notes
-		DAO_Comment::deleteByContext(CerberusContexts::CONTEXT_OPPORTUNITY, $ids);
+		// Fire event
+	    $eventMgr = DevblocksPlatform::getEventService();
+	    $eventMgr->trigger(
+	        new Model_DevblocksEvent(
+	            'context.delete',
+                array(
+                	'context' => CerberusContexts::CONTEXT_OPPORTUNITY,
+                	'context_ids' => $ids
+                )
+            )
+	    );
 		
 		return true;
 	}

@@ -173,8 +173,17 @@ class DAO_FeedbackEntry extends C4_ORMHelper {
 		// Entries
 		$db->Execute(sprintf("DELETE FROM feedback_entry WHERE id IN (%s)", $ids_list));
 		
-		// Custom fields
-		DAO_CustomFieldValue::deleteByContextIds(CerberusContexts::CONTEXT_FEEDBACK, $ids);
+		// Fire event
+	    $eventMgr = DevblocksPlatform::getEventService();
+	    $eventMgr->trigger(
+	        new Model_DevblocksEvent(
+	            'context.delete',
+                array(
+                	'context' => CerberusContexts::CONTEXT_FEEDBACK,
+                	'context_ids' => $ids
+                )
+            )
+	    );
 		
 		return true;
 	}

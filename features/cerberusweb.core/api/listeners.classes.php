@@ -752,6 +752,14 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 	function handleEvent(Model_DevblocksEvent $event) {
 		// Cerberus Helpdesk Workflow
 		switch($event->id) {
+			case 'comment.create':
+				$this->_handleCommentCreate($event);
+				break;
+				
+			case 'context.delete':
+				$this->_handleContextDelete($event);
+				break;
+				
 			case 'cron.heartbeat':
 				$this->_handleCronHeartbeat($event);
 				break;
@@ -759,13 +767,23 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 			case 'cron.maint':
 				$this->_handleCronMaint($event);
 				break;
-				
-			case 'comment.create':
-				$this->_handleCommentCreate($event);
-				break;
 		}
 	}
 
+	private function _handleContextDelete($event) {
+		@$context = $event->params['context'];
+		@$context_ids = $event->params['context_ids'];
+		
+		// Core
+    	DAO_AttachmentLink::removeAllByContext($context, $context_ids);
+		DAO_Comment::deleteByContext($context, $context_ids);
+		DAO_ContextActivityLog::deleteByContext($context, $context_ids);
+		DAO_ContextLink::delete($context, $context_ids);
+		DAO_CustomFieldValue::deleteByContextIds($context, $context_ids);
+		DAO_Notification::deleteByContext($context, $context_ids);
+		DAO_TriggerEvent::deleteByOwner($context, $context_ids);
+	}
+	
 	private function _handleCronMaint($event) {
 		DAO_Address::maint();
 		DAO_Comment::maint();

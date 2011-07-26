@@ -103,15 +103,19 @@ class DAO_CallEntry extends C4_ORMHelper {
 		
 		$ids_list = implode(',', $ids);
 		
-		// Context links
-		// [TODO] These can be grouped under a shared Context convenience method for deletion (to ensure coverage)
-		DAO_ContextLink::delete(CerberusContexts::CONTEXT_CALL, $ids);
-		// Custom fields
-		DAO_CustomFieldValue::deleteByContextIds(CerberusContexts::CONTEXT_CALL, $ids);
-		// Comments
-		DAO_Comment::deleteByContext(CerberusContexts::CONTEXT_CALL, $ids);
-		
 		$db->Execute(sprintf("DELETE FROM call_entry WHERE id IN (%s)", $ids_list));
+		
+		// Fire event
+	    $eventMgr = DevblocksPlatform::getEventService();
+	    $eventMgr->trigger(
+	        new Model_DevblocksEvent(
+	            'context.delete',
+                array(
+                	'context' => CerberusContexts::CONTEXT_CALL,
+                	'context_ids' => $ids
+                )
+            )
+	    );
 		
 		return true;
 	}

@@ -237,6 +237,18 @@ class DAO_Server extends C4_ORMHelper {
 		
 		$db->Execute(sprintf("DELETE FROM server WHERE id IN (%s)", $ids_list));
 		
+		// Fire event
+	    $eventMgr = DevblocksPlatform::getEventService();
+	    $eventMgr->trigger(
+	        new Model_DevblocksEvent(
+	            'context.delete',
+                array(
+                	'context' => 'cerberusweb.contexts.datacenter.server',
+                	'context_ids' => $ids
+                )
+            )
+	    );
+		
 		self::clearCache();
 		
 		return true;

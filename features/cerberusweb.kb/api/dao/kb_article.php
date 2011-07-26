@@ -146,6 +146,18 @@ class DAO_KbArticle extends C4_ORMHelper {
 		
 		// Search indexes
 		$db->Execute(sprintf("DELETE QUICK FROM fulltext_kb_article WHERE id IN (%s)", $id_string));
+		
+		// Fire event
+	    $eventMgr = DevblocksPlatform::getEventService();
+	    $eventMgr->trigger(
+	        new Model_DevblocksEvent(
+	            'context.delete',
+                array(
+                	'context' => CerberusContexts::CONTEXT_KB_ARTICLE,
+                	'context_ids' => $ids
+                )
+            )
+	    );
 	}
 
 	static function getCategoriesByArticleId($article_id) {

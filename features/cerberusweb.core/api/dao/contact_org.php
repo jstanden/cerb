@@ -188,14 +188,17 @@ class DAO_ContactOrg extends C4_ORMHelper {
 		);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 		
-		// Context links
-		DAO_ContextLink::delete(CerberusContexts::CONTEXT_ORG, $ids);
-        
-        // Custom fields
-        DAO_CustomFieldValue::deleteByContextIds(CerberusContexts::CONTEXT_ORG, $ids);
-
-        // Notes
-        DAO_Comment::deleteByContext(CerberusContexts::CONTEXT_ORG, $ids);
+		// Fire event
+	    $eventMgr = DevblocksPlatform::getEventService();
+	    $eventMgr->trigger(
+	        new Model_DevblocksEvent(
+	            'context.delete',
+                array(
+                	'context' => CerberusContexts::CONTEXT_ORG,
+                	'context_ids' => $ids
+                )
+            )
+	    );
 	}
 	
 	/**

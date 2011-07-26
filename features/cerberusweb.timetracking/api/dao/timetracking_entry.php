@@ -245,8 +245,17 @@ class DAO_TimeTrackingEntry extends C4_ORMHelper {
 		// Entries
 		$db->Execute(sprintf("DELETE FROM timetracking_entry WHERE id IN (%s)", $ids_list));
 		
-		// Custom fields
-		DAO_CustomFieldValue::deleteByContextIds(CerberusContexts::CONTEXT_TIMETRACKING, $ids);
+		// Fire event
+	    $eventMgr = DevblocksPlatform::getEventService();
+	    $eventMgr->trigger(
+	        new Model_DevblocksEvent(
+	            'context.delete',
+                array(
+                	'context' => CerberusContexts::CONTEXT_TIMETRACKING,
+                	'context_ids' => $ids
+                )
+            )
+	    );
 		
 		return true;
 	}

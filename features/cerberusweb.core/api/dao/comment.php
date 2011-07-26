@@ -168,11 +168,20 @@ class DAO_Comment extends DevblocksORMHelper {
 		// Comments
 		$db->Execute(sprintf("DELETE FROM comment WHERE id IN (%s)", $ids_list));
 		
-		// Attachments
-		DAO_AttachmentLink::removeAllByContext(CerberusContexts::CONTEXT_COMMENT, $ids);
-		
 		// Search index
 		Search_CommentContent::delete($ids);
+		
+		// Fire event
+	    $eventMgr = DevblocksPlatform::getEventService();
+	    $eventMgr->trigger(
+	        new Model_DevblocksEvent(
+	            'context.delete',
+                array(
+                	'context' => CerberusContexts::CONTEXT_COMMENT,
+                	'context_ids' => $ids
+                )
+            )
+	    );
 		
 		return true;
 	}

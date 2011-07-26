@@ -379,11 +379,17 @@ class DAO_Worker extends C4_ORMHelper {
 		// Clear roles
 		$db->Execute(sprintf("DELETE FROM worker_to_role WHERE worker_id = %d", $id));
 		
-		// Context links
-		DAO_ContextLink::delete(CerberusContexts::CONTEXT_WORKER, $id);
-		
-		// Virtual Attendants
-		DAO_TriggerEvent::deleteByOwner(CerberusContexts::CONTEXT_WORKER, $id);		
+		// Fire event
+	    $eventMgr = DevblocksPlatform::getEventService();
+	    $eventMgr->trigger(
+	        new Model_DevblocksEvent(
+	            'context.delete',
+                array(
+                	'context' => CerberusContexts::CONTEXT_WORKER,
+                	'context_ids' => array($id)
+                )
+            )
+	    );
 		
 		// Invalidate caches
 		self::clearCache();

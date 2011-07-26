@@ -250,6 +250,18 @@ class DAO_Domain extends C4_ORMHelper {
 		
 		$db->Execute(sprintf("DELETE FROM datacenter_domain WHERE id IN (%s)", $ids_list));
 		
+		// Fire event
+	    $eventMgr = DevblocksPlatform::getEventService();
+	    $eventMgr->trigger(
+	        new Model_DevblocksEvent(
+	            'context.delete',
+                array(
+                	'context' => 'cerberusweb.contexts.datacenter.domain',
+                	'context_ids' => $ids
+                )
+            )
+	    );
+		
 		return true;
 	}
 	

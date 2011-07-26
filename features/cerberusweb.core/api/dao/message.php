@@ -177,12 +177,6 @@ class DAO_Message extends DevblocksORMHelper {
     	// Search indexes
     	Search_MessageContent::delete($ids);
     	
-    	// Attachments
-    	DAO_AttachmentLink::removeAllByContext(CerberusContexts::CONTEXT_MESSAGE, $ids);
-    	
-    	// Context links
-    	DAO_ContextLink::delete(CerberusContexts::CONTEXT_MESSAGE, $ids);
-
     	// Messages
     	$sql = sprintf("DELETE FROM message WHERE id IN (%s)",
     		$ids_list
@@ -193,6 +187,18 @@ class DAO_Message extends DevblocksORMHelper {
     	foreach($messages as $message_id => $message) {
     		DAO_Ticket::rebuild($message->ticket_id);
     	}
+    	
+		// Fire event
+	    $eventMgr = DevblocksPlatform::getEventService();
+	    $eventMgr->trigger(
+	        new Model_DevblocksEvent(
+	            'context.delete',
+                array(
+                	'context' => CerberusContexts::CONTEXT_MESSAGE,
+                	'context_ids' => $ids
+                )
+            )
+	    );
 	}
 	
     static function maint() {

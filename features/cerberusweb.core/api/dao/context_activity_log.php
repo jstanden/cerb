@@ -107,6 +107,23 @@ class DAO_ContextActivityLog extends C4_ORMHelper {
 		return true;
 	}
 	
+	static function deleteByContext($context, $context_ids) {
+		if(!is_array($context_ids)) 
+			$context_ids = array($context_ids);
+		
+		if(empty($context_ids))
+			return;
+			
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$db->Execute(sprintf("DELETE FROM context_log_activity WHERE target_context = %s AND target_context_id IN (%s) ", 
+			$db->qstr($context),
+			implode(',', $context_ids)
+		));
+		
+		return true;
+	}
+	
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_ContextActivityLog::getFields();
 		

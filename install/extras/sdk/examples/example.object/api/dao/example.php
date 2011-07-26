@@ -111,14 +111,17 @@ class DAO_ExampleObject extends C4_ORMHelper {
 		
 		$ids_list = implode(',', $ids);
 		
-		// Context links
-		DAO_ContextLink::delete(Context_ExampleObject::ID, $ids);
-		
-		// Custom fields
-		DAO_CustomFieldValue::deleteByContextIds(Context_ExampleObject::ID, $ids);
-
-		// Comments
-		DAO_Comment::deleteByContext(Context_ExampleObject::ID, $ids);
+		// Fire event
+	    $eventMgr = DevblocksPlatform::getEventService();
+	    $eventMgr->trigger(
+	        new Model_DevblocksEvent(
+	            'context.delete',
+                array(
+                	'context' => Context_ExampleObject::ID,
+                	'context_ids' => $ids
+                )
+            )
+	    );
 		
 		$db->Execute(sprintf("DELETE FROM example_object WHERE id IN (%s)", $ids_list));
 		

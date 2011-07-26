@@ -268,7 +268,17 @@ class DAO_Group extends C4_ORMHelper {
 		$sql = sprintf("DELETE QUICK FROM worker_to_team WHERE team_id = %d", $id);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 
-		DAO_TriggerEvent::deleteByOwner(CerberusContexts::CONTEXT_GROUP, $id);
+		// Fire event
+	    $eventMgr = DevblocksPlatform::getEventService();
+	    $eventMgr->trigger(
+	        new Model_DevblocksEvent(
+	            'context.delete',
+                array(
+                	'context' => CerberusContexts::CONTEXT_GROUP,
+                	'context_ids' => array($id)
+                )
+            )
+	    );
 		
 		self::clearCache();
 		DAO_Bucket::clearCache();

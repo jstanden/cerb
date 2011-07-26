@@ -448,6 +448,11 @@
 			<param key="comment_id" />
 			<param key="fields" />
 		</event>
+		<event id="context.delete">
+			<name>Context Delete</name>
+			<param key="context" />
+			<param key="context_ids" />
+		</event>
 		<event id="context_link.set">
 			<name>Context Link Set</name>
 			<param key="from_context" />
@@ -932,9 +937,10 @@
 			<params>
 				<param key="events">
 					<value>
+						<data key="comment.create" />
+						<data key="context.delete" />
 						<data key="cron.heartbeat" />
 						<data key="cron.maint" />
-						<data key="comment.create" />
 					</value>
 				</param>
 			</params>

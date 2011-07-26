@@ -185,6 +185,18 @@ class DAO_Snippet extends C4_ORMHelper {
 		$db->Execute(sprintf("DELETE FROM snippet WHERE id IN (%s)", $ids_list));
 		$db->Execute(sprintf("DELETE FROM snippet_usage WHERE snippet_id IN (%s)", $ids_list));
 		
+		// Fire event
+	    $eventMgr = DevblocksPlatform::getEventService();
+	    $eventMgr->trigger(
+	        new Model_DevblocksEvent(
+	            'context.delete',
+                array(
+                	'context' => CerberusContexts::CONTEXT_SNIPPET,
+                	'context_ids' => $ids
+                )
+            )
+	    );
+		
 		return true;
 	}
 	
