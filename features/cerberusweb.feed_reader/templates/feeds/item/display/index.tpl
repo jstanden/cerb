@@ -50,6 +50,8 @@
 	{/if}
 </fieldset>
 
+{include file="devblocks:cerberusweb.core::internal/notifications/context_profile.tpl" context='cerberusweb.contexts.feed.item' context_id=$item->id}
+
 <div id="feedItemTabs">
 	<ul>
 		{$tabs = [activity,notes,links]}

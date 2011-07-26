@@ -1,57 +1,53 @@
 {include file="devblocks:cerberusweb.calls::calls/submenu.tpl"}
 
-<table cellspacing="0" cellpadding="0" border="0" width="100%" style="padding-bottom:5px;">
-<tr>
-	<td valign="top" style="padding-right:5px;">
-		<h2>{'calls.common.call'|devblocks_translate|capitalize}</h2> 
+<h2>{'calls.common.call'|devblocks_translate|capitalize}</h2> 
 
-		<fieldset class="properties">
-			<legend>{$call->subject|truncate:128}</legend>
-			
-			<form action="{devblocks_url}{/devblocks_url}" onsubmit="return false;" style="margin-bottom:5px;">
-		
-				{foreach from=$properties item=v key=k name=props}
-					<div class="property">
-						{if $k == '...'}
-							<b>{$translate->_('...')|capitalize}:</b>
-							...
-						{else}
-							{include file="devblocks:cerberusweb.core::internal/custom_fields/profile_cell_renderer.tpl"}
-						{/if}
-					</div>
-					{if $smarty.foreach.props.iteration % 3 == 0 && !$smarty.foreach.props.last}
-						<br clear="all">
-					{/if}
-				{/foreach}
+<fieldset class="properties">
+	<legend>{$call->subject|truncate:128}</legend>
+	
+	<form action="{devblocks_url}{/devblocks_url}" onsubmit="return false;" style="margin-bottom:5px;">
+
+		{foreach from=$properties item=v key=k name=props}
+			<div class="property">
+				{if $k == '...'}
+					<b>{$translate->_('...')|capitalize}:</b>
+					...
+				{else}
+					{include file="devblocks:cerberusweb.core::internal/custom_fields/profile_cell_renderer.tpl"}
+				{/if}
+			</div>
+			{if $smarty.foreach.props.iteration % 3 == 0 && !$smarty.foreach.props.last}
 				<br clear="all">
-				
-				<!-- Toolbar -->
-				
-				<span>
-				{$object_watchers = DAO_ContextLink::getContextLinks(CerberusContexts::CONTEXT_CALL, array($call->id), CerberusContexts::CONTEXT_WORKER)}
-				{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=CerberusContexts::CONTEXT_CALL context_id=$call->id full=true}
-				</span>		
-				
-				<button type="button" id="btnDisplayCallEdit"><span class="cerb-sprite sprite-document_edit"></span> Edit</button>
-				
-				{$toolbar_exts = DevblocksPlatform::getExtensions('cerberusweb.calls.call.toolbaritem', true)}
-				{foreach from=$toolbar_exts item=ext}
-					{$ext->render($opp)}
-				{/foreach}
-				
-			</form>
-			
-			{if $pref_keyboard_shortcuts}
-			<small>
-				{$translate->_('common.keyboard')|lower}:
-				(<b>e</b>) {'common.edit'|devblocks_translate|lower}
-				(<b>1-9</b>) change tab
-			</small> 
 			{/if}
-		</fieldset>
-	</td>
-</tr>
-</table>
+		{/foreach}
+		<br clear="all">
+		
+		<!-- Toolbar -->
+		
+		<span>
+		{$object_watchers = DAO_ContextLink::getContextLinks(CerberusContexts::CONTEXT_CALL, array($call->id), CerberusContexts::CONTEXT_WORKER)}
+		{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=CerberusContexts::CONTEXT_CALL context_id=$call->id full=true}
+		</span>		
+		
+		<button type="button" id="btnDisplayCallEdit"><span class="cerb-sprite sprite-document_edit"></span> Edit</button>
+		
+		{$toolbar_exts = DevblocksPlatform::getExtensions('cerberusweb.calls.call.toolbaritem', true)}
+		{foreach from=$toolbar_exts item=ext}
+			{$ext->render($opp)}
+		{/foreach}
+		
+	</form>
+	
+	{if $pref_keyboard_shortcuts}
+	<small>
+		{$translate->_('common.keyboard')|lower}:
+		(<b>e</b>) {'common.edit'|devblocks_translate|lower}
+		(<b>1-9</b>) change tab
+	</small> 
+	{/if}
+</fieldset>
+
+{include file="devblocks:cerberusweb.core::internal/notifications/context_profile.tpl" context=CerberusContexts::CONTEXT_CALL context_id=$call->id}
 
 <div id="callTabs">
 	<ul>

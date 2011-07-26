@@ -43,6 +43,8 @@
 	{/if}
 </fieldset>
 
+{include file="devblocks:cerberusweb.core::internal/notifications/context_profile.tpl" context='cerberusweb.contexts.datacenter.domain' context_id=$domain->id}
+
 <div id="datacenterDomainTabs">
 	<ul>
 		{$tabs = [activity, comments, links]}

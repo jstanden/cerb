@@ -60,7 +60,10 @@
 	</small> 
 	{/if}
 </fieldset>
-<br clear="all">
+
+{include file="devblocks:cerberusweb.core::internal/notifications/context_profile.tpl" context=CerberusContexts::CONTEXT_KB_ARTICLE context_id=$article->id}
+
+<br>
 
 <div id="kbArticleContent">
 	<h1 class="title"><b>{$article->title}</b></h1>

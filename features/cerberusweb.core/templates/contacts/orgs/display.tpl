@@ -60,6 +60,8 @@
 	
 </fieldset>
 
+{include file="devblocks:cerberusweb.core::internal/notifications/context_profile.tpl" context=CerberusContexts::CONTEXT_ORG context_id=$contact->id}
+
 <div style="clear:both;" id="contactTabs">
 	<ul>
 		{$tabs = [activity,notes,links,history,people]}

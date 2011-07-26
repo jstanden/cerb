@@ -44,6 +44,8 @@
 	{/if}
 </fieldset>
 
+{include file="devblocks:cerberusweb.core::internal/notifications/context_profile.tpl" context=CerberusContexts::CONTEXT_CONTACT_PERSON context_id=$person->id}
+
 <div style="clear:both;" id="contactPersonTabs">
 	<ul>
 		{$tabs = [activity,notes,links,addresses,mail]}

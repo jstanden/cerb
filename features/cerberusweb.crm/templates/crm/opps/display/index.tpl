@@ -73,6 +73,8 @@
 	{/if}
 </fieldset>
 
+{include file="devblocks:cerberusweb.core::internal/notifications/context_profile.tpl" context=CerberusContexts::CONTEXT_OPPORTUNITY context_id=$opp->id}
+
 <div id="oppTabs">
 	<ul>
 		{$point = Extension_CrmOpportunityTab::POINT}

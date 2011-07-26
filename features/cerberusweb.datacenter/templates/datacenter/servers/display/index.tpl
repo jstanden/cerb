@@ -44,6 +44,8 @@
 	{/if}
 </fieldset>
 
+{include file="devblocks:cerberusweb.core::internal/notifications/context_profile.tpl" context='cerberusweb.contexts.datacenter.server' context_id=$server->id}
+
 <div id="datacenterServerTabs">
 	<ul>
 		{$point = Extension_ServerTab::POINT}

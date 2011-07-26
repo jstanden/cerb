@@ -72,7 +72,9 @@
 			</small> 
 			{/if}
 			
-		</fieldset>		
+		</fieldset>
+		
+		{include file="devblocks:cerberusweb.core::internal/notifications/context_profile.tpl" context=CerberusContexts::CONTEXT_TASK context_id=$task->id}		
 		
 	</td>
 	<td align="right" valign="top">

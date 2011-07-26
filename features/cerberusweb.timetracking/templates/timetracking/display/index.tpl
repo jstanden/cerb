@@ -38,8 +38,9 @@
 		(<b>1-9</b>) change tab
 	</small> 
 	{/if}
-		
 </fieldset>
+
+{include file="devblocks:cerberusweb.core::internal/notifications/context_profile.tpl" context=CerberusContexts::CONTEXT_TIMETRACKING context_id=$time_entry->id}
 
 <div id="timeTabs">
 	<ul>
