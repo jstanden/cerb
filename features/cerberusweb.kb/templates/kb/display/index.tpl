@@ -50,13 +50,30 @@
 		<br clear="all">
 		{/if}
 		
-		{if $active_worker->hasPriv('core.kb.articles.modify')}<button id="btnDisplayKbEdit" type="button" onclick="genericAjaxPopup('peek','c=kb.ajax&a=showArticleEditPanel&id={$article->id}&return_uri={"kb/article/{$article->id}"}',null,false,'725');"><span class="cerb-sprite sprite-document_edit"></span> {$translate->_('common.edit')|capitalize}</button>{/if}
+		<div style="margin-top:5px;">
+			{if !empty($macros)}
+			<button type="button" class="split-left" onclick="$(this).next('button').click();"><span class="cerb-sprite sprite-gear"></span> Macros</button><!--  
+			--><button type="button" class="split-right" id="btnDisplayMacros"><span class="cerb-sprite sprite-arrow-down-white"></span></button>
+			<ul class="cerb-popupmenu cerb-float" id="menuDisplayMacros">
+				<li style="background:none;">
+					<input type="text" size="16" class="input_search filter">
+				</li>
+				{devblocks_url assign=return_url full=true}c=kb&tab=article&id={$article->id}-{$article->title|devblocks_permalink}{/devblocks_url}
+				{foreach from=$macros item=macro key=macro_id}
+				<li><a href="{devblocks_url}c=internal&a=applyMacro{/devblocks_url}?macro={$macro->id}&context={CerberusContexts::CONTEXT_KB_ARTICLE}&context_id={$article->id}&return_url={$return_url|escape:'url'}">{$macro->title}</a></li>
+				{/foreach}
+			</ul>
+			{/if}
+			
+			{if $active_worker->hasPriv('core.kb.articles.modify')}<button id="btnDisplayKbEdit" type="button" onclick="genericAjaxPopup('peek','c=kb.ajax&a=showArticleEditPanel&id={$article->id}&return_uri={"kb/article/{$article->id}"}',null,false,'725');"><span class="cerb-sprite sprite-document_edit"></span> {$translate->_('common.edit')|capitalize}</button>{/if}
+		</div>
 	</form>
 	
 	{if $pref_keyboard_shortcuts}
 	<small>
 		{$translate->_('common.keyboard')|lower}:
 		{if $active_worker->hasPriv('core.kb.articles.modify')}(<b>e</b>) {'common.edit'|devblocks_translate|lower}{/if}
+		{if !empty($macros)}(<b>m</b>) {'common.macros'|devblocks_translate|lower} {/if}
 	</small> 
 	{/if}
 </fieldset>
@@ -72,6 +89,76 @@
 </div>
 
 {include file="devblocks:cerberusweb.core::internal/attachments/list.tpl" context={CerberusContexts::CONTEXT_KB_ARTICLE} context_id={$article->id}}
+
+<script type="text/javascript">
+$menu = $('#menuDisplayMacros');
+$menu.appendTo('body');
+$menu.find('> li')
+	.click(function(e) {
+		e.stopPropagation();
+		if(!$(e.target).is('li'))
+			return;
+
+		$link = $(this).find('a:first');
+		
+		if($link.length > 0)
+			window.location.href = $link.attr('href');
+	})
+	;
+
+$menu.find('> li > input.filter').keyup(
+	function(e) {
+		$menu = $(this).closest('ul.cerb-popupmenu');
+		
+		if(27 == e.keyCode) {
+			$(this).val('');
+			$menu.hide();
+			$(this).blur();
+			return;
+		}
+		
+		term = $(this).val().toLowerCase();
+		$menu.find('> li a').each(function(e) {
+			if(-1 != $(this).html().toLowerCase().indexOf(term)) {
+				$(this).parent().show();
+			} else {
+				$(this).parent().hide();
+			}
+		});
+	})
+	;
+
+$('#btnDisplayMacros')
+	.click(function(e) {
+		$menu = $('#menuDisplayMacros');
+
+		if($menu.is(':visible')) {
+			$menu.hide();
+			return;
+		}
+		
+		$menu
+			.css('position','absolute')
+			.css('top',$(this).offset().top+($(this).height())+'px')
+			.css('left',$(this).prev('button').offset().left+'px')
+			.show()
+			.find('> li input:text')
+			.focus()
+			.select()
+		;
+	});
+
+$menu
+	.hover(
+		function(e) {},
+		function(e) {
+			$('#menuDisplayMacros')
+				.hide()
+			;
+		}
+	)
+	;
+</script>
 
 <script type="text/javascript">
 {if $pref_keyboard_shortcuts}
@@ -92,6 +179,11 @@ $(document).keypress(function(event) {
 			} catch(ex) { } 
 			break;
 		{/if}
+		case 109:  // (M) macros
+			try {
+				$('#btnDisplayMacros').click();
+			} catch(ex) { } 
+			break;
 		default:
 			// We didn't find any obvious keys, try other codes
 			hotkey_activated = false;

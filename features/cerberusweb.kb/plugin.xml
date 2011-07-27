@@ -39,6 +39,12 @@
 			<class name="SearchFields_KbArticle" />
 			<class name="View_KbArticle" />
         </file>
+        <file path="api/events/abstract/abstract_event_kbarticle.php">
+			<class name="AbstractEvent_KbArticle" />
+		</file>
+        <file path="api/events/macro/kbarticle_macro.php">
+			<class name="Event_KbArticleMacro" />
+		</file>
         <file path="api/sc/kb.php">
 			<class name="UmSc_KbArticleView" />
 		</file>		
@@ -127,6 +133,24 @@
 				</param>
 			</params>
 		</extension>	
+	
+		<!-- Event Triggers -->
+		
+		<extension point="devblocks.event">
+			<id>event.macro.kb_article</id>
+			<name>Custom knowledgebase article behavior</name>
+			<class>
+				<file>api/events/macro/kbarticle_macro.php</file>
+				<name>Event_KbArticleMacro</name>
+			</class>
+			<params>
+				<param key="contexts">
+					<value>
+						<data key="cerberusweb.contexts.worker" />
+					</value>
+				</param>
+			</params>
+		</extension>
 	
 		<!-- Pages -->
 	

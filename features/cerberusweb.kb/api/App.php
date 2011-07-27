@@ -69,10 +69,9 @@ class ChKbPage extends CerberusPageExtension {
 	
 	function render() {
 		$tpl = DevblocksPlatform::getTemplateService();
-		
 		$visit = CerberusApplication::getVisit();
 		$translate = DevblocksPlatform::getTranslationService();
-		
+		$active_worker = CerberusApplication::getActiveWorker();
 		$response = DevblocksPlatform::getHttpResponse();
 
 		$stack = $response->path;
@@ -135,6 +134,11 @@ class ChKbPage extends CerberusPageExtension {
 					
 					$tpl->assign('properties', $properties);
 					
+					// Macros
+					$macros = DAO_TriggerEvent::getByOwner(CerberusContexts::CONTEXT_WORKER, $active_worker->id, 'event.macro.kb_article');
+					$tpl->assign('macros', $macros);
+					
+					// Template
 					
 					$tpl->display('devblocks:cerberusweb.kb::kb/display/index.tpl');
 					
