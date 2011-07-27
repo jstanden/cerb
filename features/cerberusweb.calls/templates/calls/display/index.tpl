@@ -29,6 +29,20 @@
 		{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=CerberusContexts::CONTEXT_CALL context_id=$call->id full=true}
 		</span>		
 		
+		{if !empty($macros)}
+		<button type="button" class="split-left" onclick="$(this).next('button').click();"><span class="cerb-sprite sprite-gear"></span> Macros</button><!--  
+		--><button type="button" class="split-right" id="btnDisplayMacros"><span class="cerb-sprite sprite-arrow-down-white"></span></button>
+		<ul class="cerb-popupmenu cerb-float" id="menuDisplayMacros">
+			<li style="background:none;">
+				<input type="text" size="16" class="input_search filter">
+			</li>
+			{devblocks_url assign=return_url full=true}c=calls&id={$call->id}-{$call->subject|devblocks_permalink}{/devblocks_url}
+			{foreach from=$macros item=macro key=macro_id}
+			<li><a href="{devblocks_url}c=internal&a=applyMacro{/devblocks_url}?macro={$macro->id}&context={CerberusContexts::CONTEXT_CALL}&context_id={$call->id}&return_url={$return_url|escape:'url'}">{$macro->title}</a></li>
+			{/foreach}
+		</ul>
+		{/if}
+		
 		<button type="button" id="btnDisplayCallEdit"><span class="cerb-sprite sprite-document_edit"></span> Edit</button>
 		
 		{$toolbar_exts = DevblocksPlatform::getExtensions('cerberusweb.calls.call.toolbaritem', true)}
@@ -42,6 +56,7 @@
 	<small>
 		{$translate->_('common.keyboard')|lower}:
 		(<b>e</b>) {'common.edit'|devblocks_translate|lower}
+		{if !empty($macros)}(<b>m</b>) {'common.macros'|devblocks_translate|lower} {/if}
 		(<b>1-9</b>) change tab
 	</small> 
 	{/if}
@@ -80,7 +95,75 @@
 				event.stopPropagation();
 				document.location.reload();
 			});
-		})
+		});
+		
+		$menu = $('#menuDisplayMacros');
+		$menu.appendTo('body');
+		$menu.find('> li')
+			.click(function(e) {
+				e.stopPropagation();
+				if(!$(e.target).is('li'))
+					return;
+	
+				$link = $(this).find('a:first');
+				
+				if($link.length > 0)
+					window.location.href = $link.attr('href');
+			})
+			;
+	
+		$menu.find('> li > input.filter').keyup(
+			function(e) {
+				$menu = $(this).closest('ul.cerb-popupmenu');
+				
+				if(27 == e.keyCode) {
+					$(this).val('');
+					$menu.hide();
+					$(this).blur();
+					return;
+				}
+				
+				term = $(this).val().toLowerCase();
+				$menu.find('> li a').each(function(e) {
+					if(-1 != $(this).html().toLowerCase().indexOf(term)) {
+						$(this).parent().show();
+					} else {
+						$(this).parent().hide();
+					}
+				});
+			})
+			;
+		
+		$('#btnDisplayMacros')
+			.click(function(e) {
+				$menu = $('#menuDisplayMacros');
+	
+				if($menu.is(':visible')) {
+					$menu.hide();
+					return;
+				}
+				
+				$menu
+					.css('position','absolute')
+					.css('top',$(this).offset().top+($(this).height())+'px')
+					.css('left',$(this).prev('button').offset().left+'px')
+					.show()
+					.find('> li input:text')
+					.focus()
+					.select()
+				;
+			});
+	
+		$menu
+			.hover(
+				function(e) {},
+				function(e) {
+					$('#menuDisplayMacros')
+						.hide()
+					;
+				}
+			)
+			;		
 	});
 </script>
 
@@ -115,6 +198,11 @@ $(document).keypress(function(event) {
 		case 101:  // (E) edit
 			try {
 				$('#btnDisplayCallEdit').click();
+			} catch(ex) { } 
+			break;
+		case 109:  // (M) macros
+			try {
+				$('#btnDisplayMacros').click();
 			} catch(ex) { } 
 			break;
 		default:

@@ -30,6 +30,12 @@
 			<class name="SearchFields_CallEntry" />
 			<class name="View_CallEntry" />
 		</file>
+		<file path="api/events/abstract/abstract_event_call.php">
+			<class name="AbstractEvent_Call" />
+		</file>
+		<file path="api/events/macro/call_macro.php">
+			<class name="Event_CallMacro" />
+		</file>
 	</class_loader>
 
 	<!-- Privileges -->
@@ -83,6 +89,24 @@
 				</param>
 			</params>
 		</extension>	
+	
+		<!-- Event Triggers -->
+		
+		<extension point="devblocks.event">
+			<id>event.macro.call</id>
+			<name>Custom call behavior</name>
+			<class>
+				<file>api/events/macro/call_macro.php</file>
+				<name>Event_CallMacro</name>
+			</class>
+			<params>
+				<param key="contexts">
+					<value>
+						<data key="cerberusweb.contexts.worker" />
+					</value>
+				</param>
+			</params>
+		</extension>
 	
 		<!-- Page -->
 		
