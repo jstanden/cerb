@@ -130,6 +130,7 @@ abstract class AbstractEvent_Task extends Extension_DevblocksEvent {
 				'create_notification' => array('label' =>'Create a notification'),
 				'create_task' => array('label' =>'Create a task'),
 				'create_ticket' => array('label' =>'Create a ticket'),
+				'schedule_behavior' => array('label' => 'Schedule behavior'),
 				'send_email' => array('label' => 'Send email'),
 				'set_status' => array('label' => 'Set status'),
 			)
@@ -172,6 +173,18 @@ abstract class AbstractEvent_Task extends Extension_DevblocksEvent {
 				
 			case 'create_ticket':
 				DevblocksEventHelper::renderActionCreateTicket();
+				break;
+				
+			case 'schedule_behavior':
+				$dates = array();
+				$conditions = $this->getConditions();
+				foreach($conditions as $key => $data) {
+					if($data['type'] == Model_CustomField::TYPE_DATE)
+					$dates[$key] = $data['label'];
+				}
+				$tpl->assign('dates', $dates);
+			
+				DevblocksEventHelper::renderActionScheduleBehavior($trigger->owner_context, $trigger->owner_context_id, $this->_event_id);
 				break;
 				
 			case 'set_status':
@@ -221,6 +234,10 @@ abstract class AbstractEvent_Task extends Extension_DevblocksEvent {
 
 			case 'create_ticket':
 				DevblocksEventHelper::runActionCreateTicket($params, $values, CerberusContexts::CONTEXT_TASK, $task_id);
+				break;
+				
+			case 'schedule_behavior':
+				DevblocksEventHelper::runActionScheduleBehavior($params, $values, CerberusContexts::CONTEXT_TASK, $task_id);
 				break;
 				
 			case 'set_status':

@@ -677,10 +677,10 @@ class DevblocksEventHelper {
 	 * Action: Schedule Macro
 	 */
 	
-	static function renderActionScheduleBehavior($context, $context_id) {
+	static function renderActionScheduleBehavior($context, $context_id, $event_point) {
 		$tpl = DevblocksPlatform::getTemplateService();
 		
-		$macros = DAO_TriggerEvent::getByOwner($context, $context_id, 'event.macro.ticket');
+		$macros = DAO_TriggerEvent::getByOwner($context, $context_id, $event_point);
 		$tpl->assign('macros', $macros);
 		
 		$tpl->display('devblocks:cerberusweb.core::events/action_schedule_behavior.tpl');

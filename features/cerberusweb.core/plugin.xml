@@ -866,7 +866,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.macro.task</id>
-			<name>Task macro</name>
+			<name>Custom task behavior</name>
 			<class>
 				<file>api/events/macro/task_macro.php</file>
 				<name>Event_TaskMacro</name>
@@ -882,7 +882,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.macro.ticket</id>
-			<name>Ticket macro</name>
+			<name>Custom ticket behavior</name>
 			<class>
 				<file>api/events/macro/ticket_macro.php</file>
 				<name>Event_TicketMacro</name>

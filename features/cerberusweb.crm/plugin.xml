@@ -134,7 +134,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.macro.crm.opportunity</id>
-			<name>Opportunity macro</name>
+			<name>Custom opportunity behavior</name>
 			<class>
 				<file>api/events/crm_opportunity_macro.php</file>
 				<name>Event_CrmOpportunityMacro</name>
