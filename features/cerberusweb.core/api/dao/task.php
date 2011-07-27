@@ -260,6 +260,21 @@ class DAO_Task extends C4_ORMHelper {
 		return true;
 	}
 	
+	public static function maint() {
+		// Fire event
+	    $eventMgr = DevblocksPlatform::getEventService();
+	    $eventMgr->trigger(
+	        new Model_DevblocksEvent(
+	            'context.maint',
+                array(
+                	'context' => CerberusContexts::CONTEXT_TASK,
+                	'context_table' => 'task',
+                	'context_key' => 'id',
+                )
+            )
+	    );
+	}
+	
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_Task::getFields();
 		

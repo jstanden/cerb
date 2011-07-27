@@ -250,6 +250,19 @@ class DAO_Message extends DevblocksORMHelper {
 		$sql = "DELETE QUICK fulltext_message_content FROM fulltext_message_content LEFT JOIN message ON fulltext_message_content.id = message.id WHERE message.id IS NULL";
 		$db->Execute($sql);
 		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' fulltext_message_content records.');
+		
+		// Fire event
+	    $eventMgr = DevblocksPlatform::getEventService();
+	    $eventMgr->trigger(
+	        new Model_DevblocksEvent(
+	            'context.maint',
+                array(
+                	'context' => CerberusContexts::CONTEXT_MESSAGE,
+                	'context_table' => 'message',
+                	'context_key' => 'id',
+                )
+            )
+	    );
     }
     
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {

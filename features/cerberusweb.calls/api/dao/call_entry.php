@@ -82,19 +82,18 @@ class DAO_CallEntry extends C4_ORMHelper {
 	}
 
 	static function maint() {
-		$db = DevblocksPlatform::getDatabaseService();
-		$logger = DevblocksPlatform::getConsoleLog();
-
-		// Context Links
-		$db->Execute(sprintf("DELETE QUICK context_link FROM context_link LEFT JOIN call_entry ON context_link.from_context_id=call_entry.id WHERE context_link.from_context = %s AND call_entry.id IS NULL",
-			$db->qstr(CerberusContexts::CONTEXT_OPPORTUNITY)
-		));
-		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' call_entry context link sources.');
-		
-		$db->Execute(sprintf("DELETE QUICK context_link FROM context_link LEFT JOIN call_entry ON context_link.to_context_id=call_entry.id WHERE context_link.to_context = %s AND call_entry.id IS NULL",
-			$db->qstr(CerberusContexts::CONTEXT_OPPORTUNITY)
-		));
-		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' call_entry context link targets.');
+		// Fire event
+	    $eventMgr = DevblocksPlatform::getEventService();
+	    $eventMgr->trigger(
+	        new Model_DevblocksEvent(
+	            'context.maint',
+                array(
+                	'context' => CerberusContexts::CONTEXT_CALL,
+                	'context_table' => 'call_entry',
+                	'context_key' => 'id',
+                )
+            )
+	    );
 	}
 	
 	static function delete($ids) {

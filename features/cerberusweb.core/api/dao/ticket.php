@@ -205,35 +205,23 @@ class DAO_Ticket extends C4_ORMHelper {
 		$db->Execute($sql);
 		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' requester records.');
 		
-		// Context Links
-		// [TODO] This can be shared from DAO_ContextLink::maintByContext();
-		$db->Execute(sprintf("DELETE QUICK context_link FROM context_link LEFT JOIN ticket ON context_link.from_context_id=ticket.id WHERE context_link.from_context = %s AND ticket.id IS NULL",
-			$db->qstr(CerberusContexts::CONTEXT_TICKET)
-		));
-		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' ticket context link sources.');
-		
-		$db->Execute(sprintf("DELETE QUICK context_link FROM context_link LEFT JOIN ticket ON context_link.to_context_id=ticket.id WHERE context_link.to_context = %s AND ticket.id IS NULL",
-			$db->qstr(CerberusContexts::CONTEXT_TICKET)
-		));
-		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' ticket context link targets.');
-		
-		
 		// Recover any tickets assigned to a NULL bucket
 		$sql = "UPDATE ticket LEFT JOIN category ON ticket.category_id = category.id SET ticket.category_id = 0 WHERE ticket.category_id > 0 AND category.id IS NULL";
 		$db->Execute($sql);
 		$logger->info('[Maint] Fixed ' . $db->Affected_Rows() . ' tickets in missing buckets.');
 		
-		// ===========================================================================
-		// Ophaned ticket custom fields
-		$db->Execute(sprintf("DELETE QUICK custom_field_stringvalue FROM custom_field_stringvalue LEFT JOIN ticket ON (ticket.id=custom_field_stringvalue.context_id) WHERE custom_field_stringvalue.context = %s AND ticket.id IS NULL",
-			$db->qstr(CerberusContexts::CONTEXT_TICKET)
-		));
-		$db->Execute(sprintf("DELETE QUICK custom_field_numbervalue FROM custom_field_numbervalue LEFT JOIN ticket ON (ticket.id=custom_field_numbervalue.context_id) WHERE custom_field_numbervalue.context = %s AND ticket.id IS NULL",
-			$db->qstr(CerberusContexts::CONTEXT_TICKET)
-		));
-		$db->Execute(sprintf("DELETE QUICK custom_field_clobvalue FROM custom_field_clobvalue LEFT JOIN ticket ON (ticket.id=custom_field_clobvalue.context_id) WHERE custom_field_clobvalue.context = %s AND ticket.id IS NULL",
-			$db->qstr(CerberusContexts::CONTEXT_TICKET)
-		));
+		// Fire event
+	    $eventMgr = DevblocksPlatform::getEventService();
+	    $eventMgr->trigger(
+	        new Model_DevblocksEvent(
+	            'context.maint',
+                array(
+                	'context' => CerberusContexts::CONTEXT_TICKET,
+                	'context_table' => 'ticket',
+                	'context_key' => 'id',
+                )
+            )
+	    );
 	}
 	
 	static function merge($ids=array()) {

@@ -135,7 +135,6 @@ class DAO_TimeTrackingActivity extends DevblocksORMHelper {
 		
 		return true;
 	}
-
 };
 
 class Model_TimeTrackingActivity {
@@ -260,6 +259,21 @@ class DAO_TimeTrackingEntry extends C4_ORMHelper {
 		return true;
 	}
 
+	static function maint() {
+		// Fire event
+	    $eventMgr = DevblocksPlatform::getEventService();
+	    $eventMgr->trigger(
+	        new Model_DevblocksEvent(
+	            'context.maint',
+                array(
+                	'context' => CerberusContexts::CONTEXT_TIMETRACKING,
+                	'context_table' => 'timetracking_entry',
+                	'context_key' => 'id',
+                )
+            )
+	    );
+	}
+	
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 			$fields = SearchFields_TimeTrackingEntry::getFields();
 		

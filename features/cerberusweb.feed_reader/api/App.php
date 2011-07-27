@@ -578,3 +578,19 @@ class ExplorerToolbar_FeedReaderItem extends Extension_ExplorerToolbar {
 		$tpl->display('devblocks:cerberusweb.feed_reader::feeds/item/explorer_toolbar.tpl');
 	}
 };
+
+if (class_exists('DevblocksEventListenerExtension')):
+class EventListener_FeedReader extends DevblocksEventListenerExtension {
+	/**
+	 * @param Model_DevblocksEvent $event
+	 */
+	function handleEvent(Model_DevblocksEvent $event) {
+		switch($event->id) {
+			case 'cron.maint':
+				//DAO_Feed::maint();
+				DAO_FeedItem::maint();
+				break;
+		}
+	}
+};
+endif;

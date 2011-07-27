@@ -255,19 +255,18 @@ class DAO_CrmOpportunity extends C4_ORMHelper {
 	}
 	
 	static function maint() {
-		$db = DevblocksPlatform::getDatabaseService();
-		$logger = DevblocksPlatform::getConsoleLog();
-
-		// Context Links
-		$db->Execute(sprintf("DELETE QUICK context_link FROM context_link LEFT JOIN crm_opportunity ON context_link.from_context_id=crm_opportunity.id WHERE context_link.from_context = %s AND crm_opportunity.id IS NULL",
-			$db->qstr(CerberusContexts::CONTEXT_OPPORTUNITY)
-		));
-		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' opportunity context link sources.');
-		
-		$db->Execute(sprintf("DELETE QUICK context_link FROM context_link LEFT JOIN crm_opportunity ON context_link.to_context_id=crm_opportunity.id WHERE context_link.to_context = %s AND crm_opportunity.id IS NULL",
-			$db->qstr(CerberusContexts::CONTEXT_OPPORTUNITY)
-		));
-		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' opportunity context link targets.');
+		// Fire event
+	    $eventMgr = DevblocksPlatform::getEventService();
+	    $eventMgr->trigger(
+	        new Model_DevblocksEvent(
+	            'context.maint',
+                array(
+                	'context' => CerberusContexts::CONTEXT_OPPORTUNITY,
+                	'context_table' => 'crm_opportunity',
+                	'context_key' => 'id',
+                )
+            )
+	    );
 	}
 	
 	static function delete($ids) {

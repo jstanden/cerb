@@ -1069,6 +1069,3 @@ class CrmTicketOppTab extends Extension_TicketTab {
 	function saveTab() {
 	}
 };
-
-
-

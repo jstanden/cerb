@@ -43,6 +43,24 @@
 	
 	<extensions>
 	
+		<!-- Event Listeners -->
+		
+		<extension point="devblocks.listener.event">
+			<id>calls.listener</id>
+			<name>Event Listener</name>
+			<class>
+				<file>api/App.php</file>
+				<name>CallsEventListener</name>
+			</class>
+			<params>
+				<param key="events">
+					<value>
+						<data key="cron.maint" />
+					</value>
+				</param>
+			</params>
+		</extension>
+	
 		<!-- Contexts -->
 		
 		<extension point="devblocks.context">

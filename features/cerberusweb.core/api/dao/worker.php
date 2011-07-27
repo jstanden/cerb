@@ -326,16 +326,18 @@ class DAO_Worker extends C4_ORMHelper {
 		$db->Execute($sql);
 		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' workspace_list records.');
 		
-		// Context Links
-		$db->Execute(sprintf("DELETE QUICK context_link FROM context_link LEFT JOIN worker ON context_link.from_context_id=worker.id WHERE context_link.from_context = %s AND worker.id IS NULL",
-			$db->qstr(CerberusContexts::CONTEXT_WORKER)
-		));
-		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' worker context link sources.');
-		
-		$db->Execute(sprintf("DELETE QUICK context_link FROM context_link LEFT JOIN worker ON context_link.to_context_id=worker.id WHERE context_link.to_context = %s AND worker.id IS NULL",
-			$db->qstr(CerberusContexts::CONTEXT_WORKER)
-		));
-		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' worker context link targets.');
+		// Fire event
+	    $eventMgr = DevblocksPlatform::getEventService();
+	    $eventMgr->trigger(
+	        new Model_DevblocksEvent(
+	            'context.maint',
+                array(
+                	'context' => CerberusContexts::CONTEXT_WORKER,
+                	'context_table' => 'worker',
+                	'context_key' => 'id',
+                )
+            )
+	    );
 	}
 	
 	static function delete($id) {

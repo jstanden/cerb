@@ -42,6 +42,24 @@
 	
 	<extensions>
 	
+		<!-- Event Listeners -->
+		
+		<extension point="devblocks.listener.event">
+			<id>cerberusweb.feed_reader.listener</id>
+			<name>Event Listener</name>
+			<class>
+				<file>api/App.php</file>
+				<name>EventListener_FeedReader</name>
+			</class>
+			<params>
+				<param key="events">
+					<value>
+						<data key="cron.maint" />
+					</value>
+				</param>
+			</params>
+		</extension>
+	
 		<!-- Contexts -->
 		
 		<extension point="devblocks.context">

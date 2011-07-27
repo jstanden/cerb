@@ -254,6 +254,21 @@ class DAO_Server extends C4_ORMHelper {
 		return true;
 	}
 	
+	public static function maint() {
+		// Fire event
+	    $eventMgr = DevblocksPlatform::getEventService();
+	    $eventMgr->trigger(
+	        new Model_DevblocksEvent(
+	            'context.maint',
+                array(
+                	'context' => 'cerberusweb.contexts.datacenter.server',
+                	'context_table' => 'server',
+                	'context_key' => 'id',
+                )
+            )
+	    );
+	}
+	
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_Server::getFields();
 		

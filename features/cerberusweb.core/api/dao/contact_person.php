@@ -288,7 +288,20 @@ class DAO_ContactPerson extends DevblocksORMHelper {
 			"WHERE address.contact_person_id != 0 ".
 			"AND contact_person.id IS NULL"
 		;
-		$db->Execute($sql);		
+		$db->Execute($sql);
+
+		// Fire event
+	    $eventMgr = DevblocksPlatform::getEventService();
+	    $eventMgr->trigger(
+	        new Model_DevblocksEvent(
+	            'context.maint',
+                array(
+                	'context' => CerberusContexts::CONTEXT_CONTACT_PERSON,
+                	'context_table' => 'contact_person',
+                	'context_key' => 'id',
+                )
+            )
+	    );
 	}
 
 };

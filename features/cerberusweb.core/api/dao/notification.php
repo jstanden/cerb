@@ -243,8 +243,20 @@ class DAO_Notification extends DevblocksORMHelper {
 		$logger = DevblocksPlatform::getConsoleLog();
 		
 		$db->Execute("DELETE QUICK FROM notification WHERE is_read = 1");
-		
 		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' notification records.');
+		
+		// Fire event
+	    $eventMgr = DevblocksPlatform::getEventService();
+	    $eventMgr->trigger(
+	        new Model_DevblocksEvent(
+	            'context.maint',
+                array(
+                	'context' => CerberusContexts::CONTEXT_NOTIFICATION,
+                	'context_table' => 'notification',
+                	'context_key' => 'id',
+                )
+            )
+	    );
 	}
 	
 	static function clearCountCache($worker_id) {

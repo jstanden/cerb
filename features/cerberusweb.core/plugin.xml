@@ -453,6 +453,10 @@
 			<param key="context" />
 			<param key="context_ids" />
 		</event>
+		<event id="context.maint">
+			<name>Context Maint</name>
+			<param key="context" />
+		</event>
 		<event id="context_link.set">
 			<name>Context Link Set</name>
 			<param key="from_context" />
@@ -939,6 +943,7 @@
 					<value>
 						<data key="comment.create" />
 						<data key="context.delete" />
+						<data key="context.maint" />
 						<data key="cron.heartbeat" />
 						<data key="cron.maint" />
 					</value>

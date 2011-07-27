@@ -201,6 +201,21 @@ class DAO_ContactOrg extends C4_ORMHelper {
 	    );
 	}
 	
+	static function maint() {
+		// Fire event
+	    $eventMgr = DevblocksPlatform::getEventService();
+	    $eventMgr->trigger(
+	        new Model_DevblocksEvent(
+	            'context.maint',
+                array(
+                	'context' => CerberusContexts::CONTEXT_ORG,
+                	'context_table' => 'contact_org',
+                	'context_key' => 'id',
+                )
+            )
+	    );
+	}
+	
 	/**
 	 * @param string $where
 	 * @param string $sortBy

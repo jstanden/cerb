@@ -394,6 +394,20 @@ class CallsActivityTab extends Extension_ActivityTab {
 		
 		$tpl->display('devblocks:cerberusweb.calls::activity_tab/index.tpl');		
 	}
-}
+};
 endif;
 
+if (class_exists('DevblocksEventListenerExtension')):
+class CallsEventListener extends DevblocksEventListenerExtension {
+	/**
+	 * @param Model_DevblocksEvent $event
+	 */
+	function handleEvent(Model_DevblocksEvent $event) {
+		switch($event->id) {
+			case 'cron.maint':
+				DAO_CallEntry::maint();
+				break;
+		}
+	}
+};
+endif;

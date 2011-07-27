@@ -265,6 +265,21 @@ class DAO_Domain extends C4_ORMHelper {
 		return true;
 	}
 	
+	public static function maint() {
+		// Fire event
+	    $eventMgr = DevblocksPlatform::getEventService();
+	    $eventMgr->trigger(
+	        new Model_DevblocksEvent(
+	            'context.maint',
+                array(
+                	'context' => 'cerberusweb.contexts.datacenter.domain',
+                	'context_table' => 'datacenter_domain',
+                	'context_key' => 'id',
+                )
+            )
+	    );
+	}
+	
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_Domain::getFields();
 		

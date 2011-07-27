@@ -256,6 +256,21 @@ class DAO_Bucket extends DevblocksORMHelper {
 		self::clearCache();
 	}
 	
+	static public function maint() {
+		// Fire event
+	    $eventMgr = DevblocksPlatform::getEventService();
+	    $eventMgr->trigger(
+	        new Model_DevblocksEvent(
+	            'context.maint',
+                array(
+                	'context' => CerberusContexts::CONTEXT_BUCKET,
+                	'context_table' => 'category',
+                	'context_key' => 'id',
+                )
+            )
+	    );
+	}
+	
 	static public function clearCache() {
 		$cache = DevblocksPlatform::getCacheService();
 		$cache->remove(self::CACHE_ALL);

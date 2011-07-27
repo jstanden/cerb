@@ -1339,3 +1339,18 @@ class Model_KbCategory {
 	public $name;
 };
 
+if (class_exists('DevblocksEventListenerExtension')):
+class EventListener_Kb extends DevblocksEventListenerExtension {
+	/**
+	 * @param Model_DevblocksEvent $event
+	 */
+	function handleEvent(Model_DevblocksEvent $event) {
+		switch($event->id) {
+			case 'cron.maint':
+				//DAO_KbCategory::maint();
+				DAO_KbArticle::maint();
+				break;
+		}
+	}
+};
+endif;

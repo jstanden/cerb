@@ -527,3 +527,18 @@ class Page_Domains extends CerberusPageExtension {
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('explore',$hash,$orig_pos)));
 	}	
 };
+
+if (class_exists('DevblocksEventListenerExtension')):
+class EventListener_DatacenterDomains extends DevblocksEventListenerExtension {
+	/**
+	 * @param Model_DevblocksEvent $event
+	 */
+	function handleEvent(Model_DevblocksEvent $event) {
+		switch($event->id) {
+			case 'cron.maint':
+				DAO_Domain::maint();
+				break;
+		}
+	}
+};
+endif;
