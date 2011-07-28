@@ -465,3 +465,133 @@ class View_Feed extends C4_AbstractView {
 	}			
 };
 
+class Context_Feed extends Extension_DevblocksContext {
+	function getMeta($context_id) {
+		$feed = DAO_Feed::get($context_id);
+		$url_writer = DevblocksPlatform::getUrlService();
+		
+		return array(
+			'id' => $feed->id,
+			'name' => $feed->name,
+			'permalink' => null, //$url_writer->writeNoProxy('c=feeds&i=item&id='.$context_id, true),
+		);
+	}
+	
+	function getContext($feed, &$token_labels, &$token_values, $prefix=null) {
+		if(is_null($prefix))
+			$prefix = 'Feed:';
+		
+		$translate = DevblocksPlatform::getTranslationService();
+		$fields = DAO_CustomField::getByContext('cerberusweb.contexts.feed');
+
+		// Polymorph
+		if(is_numeric($feed)) {
+			$feed = DAO_Feed::get($feed);
+		} elseif($feed instanceof Model_Feed) {
+			// It's what we want already.
+		} else {
+			$feed = null;
+		}
+		
+		/* @var $feed Model_Feed */
+		
+		// Token labels
+		$token_labels = array(
+			'name' => $prefix.$translate->_('common.name'),
+			'url' => $prefix.$translate->_('common.url'),
+		);
+		
+		if(is_array($fields))
+		foreach($fields as $cf_id => $field) {
+			$token_labels['custom_'.$cf_id] = $prefix.$field->name;
+		}
+
+		// Token values
+		$token_values = array();
+		
+		// Feed item token values
+		if($feed) {
+			$token_values['id'] = $feed->id;
+			$token_values['name'] = $feed->name;
+			$token_values['url'] = $feed->url;
+
+			$token_values['custom'] = array();
+			
+			$field_values = array_shift(DAO_CustomFieldValue::getValuesByContextIds('cerberusweb.contexts.feed', $feed->id));
+			if(is_array($field_values) && !empty($field_values)) {
+				foreach($field_values as $cf_id => $cf_val) {
+					if(!isset($fields[$cf_id]))
+						continue;
+					
+					// The literal value
+					if(null != $feed)
+						$token_values['custom'][$cf_id] = $cf_val;
+					
+					// Stringify
+					if(is_array($cf_val))
+						$cf_val = implode(', ', $cf_val);
+						
+					if(is_string($cf_val)) {
+						if(null != $feed)
+							$token_values['custom_'.$cf_id] = $cf_val;
+					}
+				}
+			}
+		}
+		
+		return true;
+	}
+
+	function getChooserView() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		// View
+		$view_id = 'chooser_'.str_replace('.','_',$this->id).time().mt_rand(0,9999);
+		$defaults = new C4_AbstractViewModel();
+		$defaults->id = $view_id;
+		$defaults->is_ephemeral = true;
+		$defaults->class_name = $this->getViewClass();
+		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
+//		$view->name = 'Headlines';
+//		$view->view_columns = array(
+//			SearchFields_CallEntry::IS_OUTGOING,
+//			SearchFields_CallEntry::PHONE,
+//			SearchFields_CallEntry::UPDATED_DATE,
+//		);
+		$view->addParams(array(
+			//SearchFields_FeedItem::IS_CLOSED => new DevblocksSearchCriteria(SearchFields_FeedItem::IS_CLOSED,'=',0),
+		), true);
+		$view->renderSortBy = SearchFields_Feed::ID;
+		$view->renderSortAsc = false;
+		$view->renderLimit = 10;
+		$view->renderTemplate = 'contextlinks_chooser';
+		
+		C4_AbstractViewLoader::setView($view_id, $view);
+		return $view;
+	}
+	
+	function getView($context=null, $context_id=null, $options=array()) {
+		$view_id = str_replace('.','_',$this->id);
+		
+		$defaults = new C4_AbstractViewModel();
+		$defaults->id = $view_id; 
+		$defaults->class_name = $this->getViewClass();
+		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
+		//$view->name = 'Calls';
+		
+		$params_req = array();
+		
+		if(!empty($context) && !empty($context_id)) {
+			$params_req = array(
+				new DevblocksSearchCriteria(SearchFields_Feed::CONTEXT_LINK,'=',$context),
+				new DevblocksSearchCriteria(SearchFields_Feed::CONTEXT_LINK_ID,'=',$context_id),
+			);
+		}
+		
+		$view->addParamsRequired($params_req, true);
+		
+		$view->renderTemplate = 'context';
+		C4_AbstractViewLoader::setView($view_id, $view);
+		return $view;
+	}
+};

@@ -720,12 +720,11 @@ class Context_FeedItem extends Extension_DevblocksContext {
 		
 		// Token labels
 		$token_labels = array(
-//			'created|date' => $prefix.$translate->_('common.created'),
-//			'is_closed' => $prefix.$translate->_('call_entry.model.is_closed'),
-//			'is_outgoing' => $prefix.$translate->_('call_entry.model.is_outgoing'),
-//			'phone' => $prefix.$translate->_('call_entry.model.phone'),
-//			'subject' => $prefix.$translate->_('message.header.subject'),
-//			'updated|date' => $prefix.$translate->_('common.updated'),
+			'created_date|date' => $prefix.$translate->_('common.created'),
+			'guid' => $prefix.$translate->_('dao.feed_item.guid'),
+			'is_closed' => $prefix.$translate->_('dao.feed_item.is_closed'),
+			'title' => $prefix.$translate->_('common.title'),
+			'url' => $prefix.$translate->_('common.url'),
 		);
 		
 		if(is_array($fields))
@@ -736,15 +735,14 @@ class Context_FeedItem extends Extension_DevblocksContext {
 		// Token values
 		$token_values = array();
 		
-		// Call token values
+		// Feed item token values
 		if($item) {
 			$token_values['id'] = $item->id;
-//			$token_values['created'] = $item->created_date;
-//			$token_values['is_closed'] = $item->is_closed;
-//			$token_values['is_outgoing'] = $item->is_outgoing;
-//			$token_values['phone'] = $item->phone;
-//			$token_values['subject'] = $item->subject;
-//			$token_values['updated'] = $item->updated_date;
+			$token_values['created_date'] = $item->created_date;
+			$token_values['guid'] = $item->guid;
+			$token_values['is_closed'] = $item->is_closed;
+			$token_values['title'] = $item->title;
+			$token_values['url'] = $item->url;
 
 			$token_values['custom'] = array();
 			
@@ -770,22 +768,20 @@ class Context_FeedItem extends Extension_DevblocksContext {
 			}
 		}
 		
-		// [TODO] Feed
-		
-		// Person
-//		@$address_id = $item->primary_email_id;
-//		$merge_token_labels = array();
-//		$merge_token_values = array();
-//		CerberusContexts::getContext(CerberusContexts::CONTEXT_ADDRESS, $address_id, $merge_token_labels, $merge_token_values, '', true);
-//
-//		CerberusContexts::merge(
-//			'email_',
-//			'Lead:',
-//			$merge_token_labels,
-//			$merge_token_values,
-//			$token_labels,
-//			$token_values
-//		);
+		// Feed
+		@$feed_id = $item->feed_id;
+		$merge_token_labels = array();
+		$merge_token_values = array();
+		CerberusContexts::getContext('cerberusweb.contexts.feed', $feed_id, $merge_token_labels, $merge_token_values, '', true);
+
+		CerberusContexts::merge(
+			'feed_',
+			'Feed:',
+			$merge_token_labels,
+			$merge_token_values,
+			$token_labels,
+			$token_values
+		);
 
 		return true;
 	}

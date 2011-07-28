@@ -109,6 +109,7 @@ class Page_Feeds extends CerberusPageExtension {
 		$visit = CerberusApplication::getVisit();
 		$translate = DevblocksPlatform::getTranslationService();
 		$response = DevblocksPlatform::getHttpResponse();
+		$active_worker = CerberusApplication::getActiveWorker();
 
 		// Remember the last tab/URL
 		if(null == ($selected_tab = @$response->path[1])) {
@@ -123,7 +124,7 @@ class Page_Feeds extends CerberusPageExtension {
 		
 		switch($module) {
 			case 'item':
-				@$id = array_shift($stack); // id
+				@$id = intval(array_shift($stack)); // id
 
 				if(null != ($item = DAO_FeedItem::get($id)))
 					$tpl->assign('item', $item);
@@ -177,6 +178,10 @@ class Page_Feeds extends CerberusPageExtension {
 				}
 				
 				$tpl->assign('properties', $properties);				
+				
+				// Macros
+				$macros = DAO_TriggerEvent::getByOwner(CerberusContexts::CONTEXT_WORKER, $active_worker->id, 'event.macro.feeditem');
+				$tpl->assign('macros', $macros);
 				
 				$tpl->display('devblocks:cerberusweb.feed_reader::feeds/item/display/index.tpl');
 				break;

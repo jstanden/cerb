@@ -27,16 +27,24 @@
 			<class name="Extension_FeedTab" />
 		</file>
 		<file path="api/dao/feed.php">
+			<class name="Context_Feed" />
 			<class name="DAO_Feed" />
 			<class name="Model_Feed" />
 			<class name="SearchFields_Feed" />
 			<class name="View_Feed" />
 		</file>
 		<file path="api/dao/feed_item.php">
+			<class name="Context_FeedItem" />
 			<class name="DAO_FeedItem" />
 			<class name="Model_FeedItem" />
 			<class name="SearchFields_FeedItem" />
 			<class name="View_FeedItem" />
+		</file>
+		<file path="api/events/abstract_event_feeditem.php">
+			<class name="AbstractEvent_FeedItem" />
+		</file>
+		<file path="api/events/feeditem_macro.php">
+			<class name="Event_FeedItemMacro" />
 		</file>
 	</class_loader>
 	
@@ -102,6 +110,24 @@
 				</param>
 			</params>
 		</extension>	
+	
+		<!-- Events -->
+		
+		<extension point="devblocks.event">
+			<id>event.macro.feeditem</id>
+			<name>Custom feed item behavior</name>
+			<class>
+				<file>api/events/feeditem_macro.php</file>
+				<name>Event_FeedItemMacro</name>
+			</class>
+			<params>
+				<param key="contexts">
+					<value>
+						<data key="cerberusweb.contexts.worker" />
+					</value>
+				</param>
+			</params>
+		</extension>
 	
 		<!-- Activity Tabs -->
 		
