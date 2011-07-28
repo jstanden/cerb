@@ -64,6 +64,7 @@ class ChContactsPage extends CerberusPageExtension {
 		$translate = DevblocksPlatform::getTranslationService();
 		$visit = CerberusApplication::getVisit();		
 		$response = DevblocksPlatform::getHttpResponse();
+		$active_worker = CerberusApplication::getActiveWorker();
 		
 		$stack = $response->path;
 
@@ -168,6 +169,10 @@ class ChContactsPage extends CerberusPageExtension {
 						}
 						
 						$tpl->assign('properties', $properties);						
+						
+						// Macros
+						$macros = DAO_TriggerEvent::getByOwner(CerberusContexts::CONTEXT_WORKER, $active_worker->id, 'event.macro.address');
+						$tpl->assign('macros', $macros);
 						
 						$tpl->display('devblocks:cerberusweb.core::contacts/addresses/display/index.tpl');
 						return;
