@@ -1553,6 +1553,37 @@ class ChInternalController extends DevblocksControllerExtension {
 		exit;
 	}	
 	
+	function reparentNodeAction() {
+		@$child_id = DevblocksPlatform::importGPC($_REQUEST['child_id'],'integer', 0);
+		@$parent_id = DevblocksPlatform::importGPC($_REQUEST['parent_id'],'integer', 0);
+		
+		if(null == ($child_node = DAO_DecisionNode::get($child_id)))
+			exit;
+		
+		$nodes = DAO_DecisionNode::getByTriggerParent($child_node->trigger_id, $parent_id);
+		
+		// Remove current node if exists
+		unset($nodes[$child_node->id]);
+		
+		$pos = 0;
+		
+		// Insert child at top of parent
+		DAO_DecisionNode::update($child_id, array(
+			DAO_DecisionNode::PARENT_ID => $parent_id,
+			DAO_DecisionNode::POS => $pos++,
+		));
+		
+		// Renumber children
+		foreach($nodes as $node_id => $node) {
+			DAO_DecisionNode::update($node_id, array(
+				DAO_DecisionNode::PARENT_ID => $parent_id,
+				DAO_DecisionNode::POS => $pos++,
+			));
+		}
+		
+		exit;
+	}
+	
 	function showDecisionMovePopupAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer', 0);
 		

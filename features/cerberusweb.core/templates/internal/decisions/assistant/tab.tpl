@@ -19,16 +19,18 @@
 
 <div id="triggers">
 {foreach from=$triggers item=trigger key=trigger_id}
-<div id="decisionTree{$trigger_id}">
+<form id="decisionTree{$trigger_id}" action="javascript:;" onsubmit="return false;">
 	{$event = $events.{$trigger->event_point}}
 	{include file="devblocks:cerberusweb.core::internal/decisions/tree.tpl" trigger=$trigger event=$event}
-</div>
+</form>
 {/foreach}
 </div>
 
 <div id="nodeMenu" style="display:none;position:absolute;z-index:5;"></div>
 
 <script type="text/javascript">
+	$('#nodeMenu').appendTo('body');
+
 	$('#frmTrigger SELECT[name=event_point]').change(function() {
 		genericAjaxPost('frmTrigger',null,null,function(json_text) {
 			json = $.parseJSON(json_text);
@@ -44,13 +46,18 @@
 	//$('#triggers DIV.branch').sortable({ items:'DIV.node', placeholder:'ui-state-highlight' });
 	
 	function decisionNodeMenu(element, node_id, trigger_id) {
+		if($(element).closest('div.node').hasClass('dragged'))
+			return;
+		
 		genericAjaxGet('', 'c=internal&a=showDecisionNodeMenu&id='+node_id+'&trigger_id='+trigger_id, function(html) {
-			$position = $(element).position();
+			$position = $(element).offset();
 			$('#nodeMenu')
+				.appendTo('body')
 				.unbind()
 				.hide()
 				.html('')
-				.css('top',$position.top+($(element).height()*0.75))
+				.css('position','absolute')
+				.css('top',$position.top+$(element).height())
 				.css('left',$position.left)
 				.html(html)
 				.fadeIn('fast')

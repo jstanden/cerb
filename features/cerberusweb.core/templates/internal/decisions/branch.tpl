@@ -2,6 +2,7 @@
 
 {* Label *}
 <div class="node {$node->node_type}">
+	<input type="hidden" name="node_id" value="{$node_id}">
 	{*<span class="ui-icon ui-icon-arrowthick-2-n-s handle" style="display:inline-block;vertical-align:middle;"></span>*}
 
 	{if $node->node_type == 'switch'}
