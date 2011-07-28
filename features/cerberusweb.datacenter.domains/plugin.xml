@@ -32,6 +32,12 @@
 			<class name="SearchFields_Domain" />
 			<class name="View_Domain" />
 		</file>
+		<file path="api/events/abstract_event_domain.php">
+			<class name="AbstractEvent_Domain" />
+		</file>
+		<file path="api/events/domain_macro.php">
+			<class name="Event_DomainMacro" />
+		</file>
 	</class_loader>
 
 	<!-- Extensions -->
@@ -75,6 +81,24 @@
 					<!--
 						<data key="create" />
 					-->
+				</param>
+			</params>
+		</extension>
+
+		<!-- Events -->
+		
+		<extension point="devblocks.event">
+			<id>event.macro.domain</id>
+			<name>Custom domain behavior</name>
+			<class>
+				<file>api/events/domain_macro.php</file>
+				<name>Event_DomainMacro</name>
+			</class>
+			<params>
+				<param key="contexts">
+					<value>
+						<data key="cerberusweb.contexts.worker" />
+					</value>
 				</param>
 			</params>
 		</extension>

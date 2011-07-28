@@ -28,7 +28,12 @@
 			{$object_watchers = DAO_ContextLink::getContextLinks('cerberusweb.contexts.datacenter.domain', array($domain->id), CerberusContexts::CONTEXT_WORKER)}
 			{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context='cerberusweb.contexts.datacenter.domain' context_id=$domain->id full=true}
 			</span>		
+
+			<!-- Macros -->
+			{devblocks_url assign=return_url full=true}c=datacenter.domains&tab=domain&id={$domain->id}-{$domain->name|devblocks_permalink}{/devblocks_url}
+			{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context='cerberusweb.contexts.datacenter.domain' context_id=$domain->id macros=$macros return_url=$return_url}		
 		
+			<!-- Edit -->
 			<button type="button" id="btnDatacenterDomainEdit"><span class="cerb-sprite sprite-document_edit"></span> Edit</button>
 		</div>
 	
@@ -38,6 +43,7 @@
 	<small>
 		{$translate->_('common.keyboard')|lower}:
 		(<b>e</b>) {'common.edit'|devblocks_translate|lower}
+		{if !empty($macros)}(<b>m</b>) {'common.macros'|devblocks_translate|lower} {/if}
 		(<b>1-9</b>) change tab
 	</small> 
 	{/if}
@@ -70,7 +76,9 @@
 				event.stopPropagation();
 				document.location.href = '{devblocks_url}c=datacenter.domains&a=domain&id={$domain->id}{/devblocks_url}';
 			});
-		})
+		});
+		
+		{include file="devblocks:cerberusweb.core::internal/macros/display/menu_script.tpl"}
 	});
 </script>
 
@@ -105,6 +113,11 @@ $(document).keypress(function(event) {
 		case 101:  // (E) edit
 			try {
 				$('#btnDatacenterDomainEdit').click();
+			} catch(ex) { } 
+			break;
+		case 109:  // (M) macros
+			try {
+				$('#btnDisplayMacros').click();
 			} catch(ex) { } 
 			break;
 		default:

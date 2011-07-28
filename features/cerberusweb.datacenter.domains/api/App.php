@@ -70,6 +70,7 @@ class Page_Domains extends CerberusPageExtension {
 		$visit = CerberusApplication::getVisit();
 		$translate = DevblocksPlatform::getTranslationService();
 		$response = DevblocksPlatform::getHttpResponse();
+		$active_worker = CerberusApplication::getActiveWorker();
 
 		// Remember the last tab/URL
 		if(null == ($selected_tab = @$response->path[1])) {
@@ -84,7 +85,7 @@ class Page_Domains extends CerberusPageExtension {
 
 		switch($module) {
 			case 'domain':
-				@$domain_id = array_shift($stack); // id
+				@$domain_id = intval(array_shift($stack)); // id
 				if(is_numeric($domain_id) && null != ($domain = DAO_Domain::get($domain_id)))
 					$tpl->assign('domain', $domain);
 				
@@ -132,6 +133,9 @@ class Page_Domains extends CerberusPageExtension {
 				
 				$tpl->assign('properties', $properties);
 				
+				// Macros
+				$macros = DAO_TriggerEvent::getByOwner(CerberusContexts::CONTEXT_WORKER, $active_worker->id, 'event.macro.domain');
+				$tpl->assign('macros', $macros);
 				
 				$tpl->display('devblocks:cerberusweb.datacenter.domains::domain/display/index.tpl');		
 				break;
