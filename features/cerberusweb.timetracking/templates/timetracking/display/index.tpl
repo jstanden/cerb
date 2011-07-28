@@ -27,6 +27,11 @@
 		{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=CerberusContexts::CONTEXT_TIMETRACKING context_id=$time_entry->id full=true}
 		</span>		
 		
+		<!-- Macros -->
+		{devblocks_url assign=return_url full=true}c=timetracking&d=display&id={$time_entry->id}-{$time_entry->getSummary()|devblocks_permalink}{/devblocks_url}
+		{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context=CerberusContexts::CONTEXT_TIMETRACKING context_id=$time_entry->id macros=$macros return_url=$return_url}		
+		
+		<!-- Edit -->
 		<button type="button" id="btnDisplayTimeEdit"><span class="cerb-sprite sprite-document_edit"></span> Edit</button>
 		
 	</form>
@@ -35,6 +40,7 @@
 	<small>
 		{$translate->_('common.keyboard')|lower}:
 		(<b>e</b>) {'common.edit'|devblocks_translate|lower}
+		{if !empty($macros)}(<b>m</b>) {'common.macros'|devblocks_translate|lower} {/if}
 		(<b>1-9</b>) change tab
 	</small> 
 	{/if}
@@ -77,7 +83,9 @@
 				event.stopPropagation();
 				document.location.href = '{devblocks_url}c=activity&a=timetracking{/devblocks_url}';
 			});
-		})
+		});
+		
+		{include file="devblocks:cerberusweb.core::internal/macros/display/menu_script.tpl"}
 	});
 </script>
 
@@ -112,6 +120,11 @@ $(document).keypress(function(event) {
 		case 101:  // (E) edit
 			try {
 				$('#btnDisplayTimeEdit').click();
+			} catch(ex) { } 
+			break;
+		case 109:  // (M) macros
+			try {
+				$('#btnDisplayMacros').click();
 			} catch(ex) { } 
 			break;
 		default:

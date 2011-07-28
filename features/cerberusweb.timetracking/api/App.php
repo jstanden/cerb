@@ -163,9 +163,9 @@ class ChTimeTrackingPage extends CerberusPageExtension {
 	
 	function render() {
 		$tpl = DevblocksPlatform::getTemplateService();
-
 		$visit = CerberusApplication::getVisit();
 		$translate = DevblocksPlatform::getTranslationService();
+		$active_worker = CerberusApplication::getActiveWorker();
 		
 		$response = DevblocksPlatform::getHttpResponse();
 		$stack = $response->path;
@@ -231,6 +231,10 @@ class ChTimeTrackingPage extends CerberusPageExtension {
 				}
 				
 				$tpl->assign('properties', $properties);
+				
+				// Macros
+				$macros = DAO_TriggerEvent::getByOwner(CerberusContexts::CONTEXT_WORKER, $active_worker->id, 'event.macro.timetracking');
+				$tpl->assign('macros', $macros);
 				
 				$tpl->display('devblocks:cerberusweb.timetracking::timetracking/display/index.tpl');
 				break;

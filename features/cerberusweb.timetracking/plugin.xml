@@ -33,6 +33,12 @@
 			<class name="SearchFields_TimeTrackingEntry" />
 			<class name="View_TimeTracking" />
 		</file>
+		<file path="api/events/abstract_event_timetracking.php">
+			<class name="AbstractEvent_TimeTracking" />
+		</file>
+		<file path="api/events/timetracking_macro.php">
+			<class name="Event_TimeTrackingMacro" />
+		</file>
 	</class_loader>
 	
 	<acl>
@@ -59,6 +65,24 @@
 					<value>
 						<data key="find" />
 						<data key="workspace" />
+					</value>
+				</param>
+			</params>
+		</extension>
+	
+		<!-- Events -->
+		
+		<extension point="devblocks.event">
+			<id>event.macro.timetracking</id>
+			<name>Custom time tracking behavior</name>
+			<class>
+				<file>api/events/timetracking_macro.php</file>
+				<name>Event_TimeTrackingMacro</name>
+			</class>
+			<params>
+				<param key="contexts">
+					<value>
+						<data key="cerberusweb.contexts.worker" />
 					</value>
 				</param>
 			</params>

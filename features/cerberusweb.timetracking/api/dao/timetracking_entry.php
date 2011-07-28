@@ -887,33 +887,15 @@ class Context_TimeTracking extends Extension_DevblocksContext {
 	
     function getContext($timeentry, &$token_labels, &$token_values, $prefix=null) {
 		if(is_null($prefix))
-			$prefix = 'TimeEntry:';
+			$prefix = 'Time Entry:';
 		
 		$translate = DevblocksPlatform::getTranslationService();
 		$fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TIMETRACKING);
 		
-		// Polymorph
-		if(is_numeric($timeentry) || $timeentry instanceof Model_TimeTrackingEntry) {
-			@$id = is_object($timeentry) ? $timeentry->id : intval($timeentry);
-			
-			list($results, $null) = DAO_TimeTrackingEntry::search(
-				array(),
-				array(
-					SearchFields_TimeTrackingEntry::ID => new DevblocksSearchCriteria(SearchFields_TimeTrackingEntry::ID,'=',$id),
-				),
-				1,
-				0,
-				null,
-				null,
-				false
-			);
-			
-			if(isset($results[$id]))
-				$timeentry = $results[$id];
-			else
-				$timeentry = null;
-			
-		} elseif(is_array($timeentry)) {
+   		// Polymorph
+		if(is_numeric($timeentry)) {
+			$timeentry = DAO_TimeTrackingEntry::get($timeentry);
+		} elseif($timeentry instanceof Model_TimeTrackingEntry) {
 			// It's what we want already.
 		} else {
 			$timeentry = null;
@@ -921,8 +903,8 @@ class Context_TimeTracking extends Extension_DevblocksContext {
 			
 		// Token labels
 		$token_labels = array(
-			'created|date' => $prefix.$translate->_('timetracking_entry.log_date'),
-			'id' => $prefix.$translate->_('common.id'),
+			'log_date|date' => $prefix.$translate->_('timetracking_entry.log_date'),
+			'summary' => $prefix.$translate->_('common.summary'),
 			'mins' => $prefix.$translate->_('timetracking_entry.time_actual_mins'),
 		);
 		
@@ -933,22 +915,24 @@ class Context_TimeTracking extends Extension_DevblocksContext {
 
 		// Token values
 		$token_values = array();
+		$blank = array();
 		
 		if(null != $timeentry) {
-			$token_values['created'] = $timeentry[SearchFields_TimeTrackingEntry::LOG_DATE];
-			$token_values['id'] = $timeentry[SearchFields_TimeTrackingEntry::ID];
-			$token_values['mins'] = $timeentry[SearchFields_TimeTrackingEntry::TIME_ACTUAL_MINS];
-			$token_values['activity_id'] = $timeentry[SearchFields_TimeTrackingEntry::ACTIVITY_ID];
+			$token_values['log_date'] = $timeentry->log_date;
+			$token_values['id'] = $timeentry->id;
+			$token_values['mins'] = $timeentry->time_actual_mins;
+			$token_values['summary'] = $timeentry->getSummary();
+			$token_values['activity_id'] = $timeentry->activity_id;
 			$token_values['custom'] = array();
 			
-			$field_values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_TIMETRACKING, $timeentry[SearchFields_TimeTrackingEntry::ID]));
+			$field_values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_TIMETRACKING, $timeentry->id));
 			if(is_array($field_values) && !empty($field_values)) {
 				foreach($field_values as $cf_id => $cf_val) {
 					if(!isset($fields[$cf_id]))
 						continue;
 					
 					// The literal value
-					if(null != $address)
+					if(null != $timeentry)
 						$token_values['custom'][$cf_id] = $cf_val;
 					
 					// Stringify
@@ -956,7 +940,7 @@ class Context_TimeTracking extends Extension_DevblocksContext {
 						$cf_val = implode(', ', $cf_val);
 						
 					if(is_string($cf_val)) {
-						if(null != $address)
+						if(null != $timeentry)
 							$token_values['custom_'.$cf_id] = $cf_val;
 					}
 				}
@@ -964,19 +948,30 @@ class Context_TimeTracking extends Extension_DevblocksContext {
 		}
 		
 		// Worker
-		@$worker_id = $timeentry[SearchFields_TimeTrackingEntry::WORKER_ID];
+		@$worker_id = $timeentry->worker_id;
 		$merge_token_labels = array();
 		$merge_token_values = array();
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $worker_id, $merge_token_labels, $merge_token_values, null, true);
 
-		CerberusContexts::merge(
-			'worker_',
-			'Worker:',
-			$merge_token_labels,
-			$merge_token_values,
-			$token_labels,
-			$token_values
-		);		
+			// Clear dupe labels
+			CerberusContexts::scrubTokensWithRegexp(
+				$merge_token_labels,
+				$blank, // ignore
+				array(
+					"#^address_first_name$#",
+					"#^address_full_name$#",
+					"#^address_last_name$#",
+				)
+			);
+		
+			CerberusContexts::merge(
+				'worker_',
+				'',
+				$merge_token_labels,
+				$merge_token_values,
+				$token_labels,
+				$token_values
+			);		
 		
 		return true;    
     }
