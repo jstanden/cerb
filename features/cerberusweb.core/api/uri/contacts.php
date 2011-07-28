@@ -276,6 +276,10 @@ class ChContactsPage extends CerberusPageExtension {
 						$people_count = DAO_Address::getCountByOrgId($contact->id);
 						$tpl->assign('people_total', $people_count);
 						
+						// Macros
+						$macros = DAO_TriggerEvent::getByOwner(CerberusContexts::CONTEXT_WORKER, $active_worker->id, 'event.macro.org');
+						$tpl->assign('macros', $macros);
+						
 						$tpl->display('devblocks:cerberusweb.core::contacts/orgs/display.tpl');
 						return;
 						break;

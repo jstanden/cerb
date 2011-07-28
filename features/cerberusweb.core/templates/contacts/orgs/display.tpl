@@ -44,8 +44,13 @@
 		<span>
 		{$object_watchers = DAO_ContextLink::getContextLinks(CerberusContexts::CONTEXT_ORG, array($contact->id), CerberusContexts::CONTEXT_WORKER)}
 		{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=CerberusContexts::CONTEXT_ORG context_id=$contact->id full=true}
-		</span>		
+		</span>
 		
+		<!-- Macros -->
+		{devblocks_url assign=return_url full=true}c=contacts&s=orgs&d=display&id={$contact->id}-{$contact->name|devblocks_permalink}{/devblocks_url}
+		{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context=CerberusContexts::CONTEXT_ORG context_id=$contact->id macros=$macros return_url=$return_url}		
+		
+		<!-- Edit -->
 		<button type="button" id="btnDisplayOrgEdit"><span class="cerb-sprite sprite-document_edit"></span> Edit</button>
 	
 	</form>
@@ -54,6 +59,7 @@
 	<small>
 		{$translate->_('common.keyboard')|lower}:
 		(<b>e</b>) {'common.edit'|devblocks_translate|lower}
+		{if !empty($macros)}(<b>m</b>) {'common.macros'|devblocks_translate|lower} {/if}
 		(<b>1-9</b>) change tab
 	</small> 
 	{/if}
@@ -98,6 +104,8 @@
 			});
 		})
 	});
+	
+	{include file="devblocks:cerberusweb.core::internal/macros/display/menu_script.tpl"}
 </script>
 
 <script type="text/javascript">
@@ -131,6 +139,11 @@ $(document).keypress(function(event) {
 		case 101:  // (E) edit
 			try {
 				$('#btnDisplayOrgEdit').click();
+			} catch(ex) { } 
+			break;
+		case 109:  // (M) macros
+			try {
+				$('#btnDisplayMacros').click();
 			} catch(ex) { } 
 			break;
 		default:
