@@ -33,6 +33,12 @@
 			<class name="SearchFields_Server" />
 			<class name="View_Server" />
 		</file>
+		<file path="api/events/abstract_event_server.php">
+			<class name="AbstractEvent_Server" />
+		</file>
+		<file path="api/events/server_macro.php">
+			<class name="Event_ServerMacro" />
+		</file>
 	</class_loader>
 
 	<!-- Extensions -->
@@ -75,6 +81,24 @@
 						-->
 						<data key="find" />
 						<data key="workspace" />
+					</value>
+				</param>
+			</params>
+		</extension>
+
+		<!-- Events -->
+
+		<extension point="devblocks.event">
+			<id>event.macro.server</id>
+			<name>Custom server behavior</name>
+			<class>
+				<file>api/events/server_macro.php</file>
+				<name>Event_ServerMacro</name>
+			</class>
+			<params>
+				<param key="contexts">
+					<value>
+						<data key="cerberusweb.contexts.worker" />
 					</value>
 				</param>
 			</params>

@@ -51,6 +51,7 @@ class Page_Datacenter extends CerberusPageExtension {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$visit = CerberusApplication::getVisit();
 		$response = DevblocksPlatform::getHttpResponse();
+		$active_worker = CerberusApplication::getActiveWorker();
 
 		// Path
 		$stack = $response->path;
@@ -59,7 +60,7 @@ class Page_Datacenter extends CerberusPageExtension {
 		
 		switch($module) {
 			case 'server':
-				@$server_id = array_shift($stack); // id
+				@$server_id = intval(array_shift($stack)); // id
 				if(is_numeric($server_id) && null != ($server = DAO_Server::get($server_id)))
 					$tpl->assign('server', $server);
 
@@ -102,6 +103,10 @@ class Page_Datacenter extends CerberusPageExtension {
 				}
 				
 				$tpl->assign('properties', $properties);
+				
+				// Macros
+				$macros = DAO_TriggerEvent::getByOwner(CerberusContexts::CONTEXT_WORKER, $active_worker->id, 'event.macro.server');
+				$tpl->assign('macros', $macros);
 				
 				$tpl->display('devblocks:cerberusweb.datacenter::datacenter/servers/display/index.tpl');
 				break;

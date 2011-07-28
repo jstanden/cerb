@@ -29,8 +29,13 @@
 		<span>
 		{$object_watchers = DAO_ContextLink::getContextLinks('cerberusweb.contexts.datacenter.server', array($server->id), CerberusContexts::CONTEXT_WORKER)}
 		{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context='cerberusweb.contexts.datacenter.server' context_id=$server->id full=true}
-		</span>		
+		</span>
 		
+		<!-- Macros -->
+		{devblocks_url assign=return_url full=true}c=datacenter&tab=server&id={$server->id}-{$server->name|devblocks_permalink}{/devblocks_url}
+		{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context='cerberusweb.contexts.datacenter.server' context_id=$server->id macros=$macros return_url=$return_url}		
+		
+		<!-- Edit -->
 		<button type="button" id="btnDatacenterServerEdit"><span class="cerb-sprite sprite-document_edit"></span> Edit</button>
 	
 	</form>
@@ -39,6 +44,7 @@
 	<small>
 		{$translate->_('common.keyboard')|lower}:
 		(<b>e</b>) {'common.edit'|devblocks_translate|lower}
+		{if !empty($macros)}(<b>m</b>) {'common.macros'|devblocks_translate|lower} {/if}
 		(<b>1-9</b>) change tab
 	</small> 
 	{/if}
@@ -80,6 +86,8 @@
 			});
 		})
 	});
+	
+	{include file="devblocks:cerberusweb.core::internal/macros/display/menu_script.tpl"}
 </script>
 
 <script type="text/javascript">
@@ -113,6 +121,11 @@ $(document).keypress(function(event) {
 		case 101:  // (E) edit
 			try {
 				$('#btnDatacenterServerEdit').click();
+			} catch(ex) { } 
+			break;
+		case 109:  // (M) macros
+			try {
+				$('#btnDisplayMacros').click();
 			} catch(ex) { } 
 			break;
 		default:
