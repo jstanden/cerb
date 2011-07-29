@@ -23,7 +23,7 @@ class PageSection_SetupMailFiltering extends Extension_PageSection {
 		$tpl->assign('events', $events);
 		
 		// Triggers
-		$triggers = DAO_TriggerEvent::getByOwner($context, $context_id);
+		$triggers = DAO_TriggerEvent::getByOwner($context, $context_id, null, true);
 		$tpl->assign('triggers', $triggers);
 		
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/mail_filtering/index.tpl');

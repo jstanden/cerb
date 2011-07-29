@@ -1511,7 +1511,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		$tpl->assign('events', $events);
 		
 		// Triggers
-		$triggers = DAO_TriggerEvent::getByOwner($context, $context_id);
+		$triggers = DAO_TriggerEvent::getByOwner($context, $context_id, null, true);
 		$tpl->assign('triggers', $triggers);
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/decisions/assistant/tab.tpl');
@@ -1801,7 +1801,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		if(empty($event_point))
 			$event_point = null;
 		
-		$triggers = DAO_TriggerEvent::getByOwner($context, $context_id, $event_point);
+		$triggers = DAO_TriggerEvent::getByOwner($context, $context_id, $event_point, true);
 		$tpl->assign('triggers', $triggers);
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/decisions/assistant/behavior.tpl');
