@@ -64,6 +64,8 @@ abstract class Extension_DevblocksContext extends DevblocksExtension {
 };
 
 abstract class Extension_DevblocksEvent extends DevblocksExtension {
+	const POINT = 'devblocks.event'; 
+	
 	private $_labels = array();
 	private $_values = array();
 	

@@ -1,14 +1,27 @@
 <form id="frmDecisionBehavior{$trigger->id}" onsubmit="return false;">
 <input type="hidden" name="c" value="internal">
 <input type="hidden" name="a" value="">
-{if isset($trigger->id)}<input type="hidden" name="trigger_id" value="{$trigger->id}">{/if}
+<input type="hidden" name="trigger_id" value="{if isset($trigger->id)}{$trigger->id}{else}0{/if}">
+{if empty($trigger->id)}
+<input type="hidden" name="context" value="{$context}">
+<input type="hidden" name="context_id" value="{$context_id}">
+{/if}
 
 <b>{'common.title'|devblocks_translate|capitalize}:</b><br>
 <input type="text" name="title" value="{$trigger->title}" style="width:100%;"><br>
 <br>
 
 <b>{'common.event'|devblocks_translate|capitalize}:</b><br>
-{$ext->name}<br>
+{if empty($ext)}
+	<select name="event_point">
+		{foreach from=$events item=event key=event_id}
+		<option value="{$event_id}">{$event->name}</option>
+		{/foreach}
+	</select>
+	<br>
+{else}
+	{$ext->name}<br>
+{/if}
 <br>
 
 <b>{'common.status'|devblocks_translate|capitalize}:</b><br>
@@ -28,7 +41,11 @@
 {/if}
 
 <form class="toolbar">
-	<button type="button" onclick="genericAjaxPost('frmDecisionBehavior{$trigger->id}','','c=internal&a=saveDecisionPopup',function() { genericAjaxPopupDestroy('node_trigger{$trigger->id}'); genericAjaxGet('decisionTree{$trigger->id}','c=internal&a=showDecisionTree&id={$trigger->id}'); });"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+	{if !empty($trigger->id)}
+		<button type="button" onclick="genericAjaxPost('frmDecisionBehavior{$trigger->id}','','c=internal&a=saveDecisionPopup',function() { genericAjaxPopupDestroy('node_trigger{$trigger->id}'); genericAjaxGet('decisionTree{$trigger->id}','c=internal&a=showDecisionTree&id={$trigger->id}'); });"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+	{else}
+		<button type="button" onclick="genericAjaxPost('frmDecisionBehavior','','c=internal&a=saveDecisionPopup&json=1',function(json_raw) { json = $.parseJSON(json_raw); $popup = genericAjaxPopupFetch('node_trigger'); event = jQuery.Event('trigger_create'); event.trigger_id = json.trigger_id; $popup.trigger(event); genericAjaxPopupDestroy('node_trigger');  });"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+	{/if}
 	{if isset($trigger->id)}<button type="button" onclick="$(this).closest('form').hide().prev('fieldset.delete').show();"><span class="cerb-sprite2 sprite-cross-circle-frame"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 </form>
 

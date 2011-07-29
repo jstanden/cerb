@@ -1,29 +1,25 @@
-<form action="javascript:;" style="margin-bottom:5px;" id="frmTrigger" onsubmit="return false;">
-	<input type="hidden" name="c" value="internal">
-	<input type="hidden" name="a" value="createAssistantTriggerJson">
-	<input type="hidden" name="context" value="{$context}">
-	<input type="hidden" name="context_id" value="{$context_id}">
+<form action="javascript:;" id="frmTrigger" onsubmit="return false;">
 
-	<fieldset>
-		<legend>Create New Behavior</legend>
-	
-		<span class="cerb-sprite2 sprite-plus-circle-frame"></span>
-		<select name="event_point">
-			<option value=""> - {'common.choose'|devblocks_translate|lower} - </option>
-			{foreach from=$events item=event key=event_id}
-			<option value="{$event_id}">{$event->name}</option>
-			{/foreach}
-		</select>
-	</fieldset>
-</form>
+<div style="float:left;">
+	<button type="button" class="add"><span class="cerb-sprite2 sprite-plus-circle-frame"></span> Create Behavior</button>
+</div>
 
-<div id="triggers">
-{foreach from=$triggers item=trigger key=trigger_id}
-<form id="decisionTree{$trigger_id}" action="javascript:;" onsubmit="return false;">
-	{$event = $events.{$trigger->event_point}}
-	{include file="devblocks:cerberusweb.core::internal/decisions/tree.tpl" trigger=$trigger event=$event}
+<div style="float:right;">
+	<b>{'common.filter'|devblocks_translate|capitalize}:</b>
+	<select name="event_point">
+		<option value=""></option>
+		<option value=""> - {'common.all'|devblocks_translate|lower} - </option>
+		{foreach from=$events item=event key=event_id}
+		<option value="{$event_id}">{$event->name}</option>
+		{/foreach}
+	</select>
+</div>
+
 </form>
-{/foreach}
+<br clear="all">
+
+<div id="triggers" style="margin-top:10px;">
+{include file="devblocks:cerberusweb.core::internal/decisions/assistant/behavior.tpl" triggers=$triggers event=$event}
 </div>
 
 <div id="nodeMenu" style="display:none;position:absolute;z-index:5;"></div>
@@ -32,18 +28,21 @@
 	$('#nodeMenu').appendTo('body');
 
 	$('#frmTrigger SELECT[name=event_point]').change(function() {
-		genericAjaxPost('frmTrigger',null,null,function(json_text) {
-			json = $.parseJSON(json_text);
-			if(json.status == 'success' && json.id != null) {
-				$('div#triggers').append($('<div id="decisionTree'+json.id+'"></div>'));
-				genericAjaxGet('decisionTree'+json.id,'c=internal&a=showDecisionTree&id='+json.id);
-			}
-		});
-		
-		$(this).val('');
+		genericAjaxGet('triggers','c=internal&a=showDecisionEventBehavior&context={$context}&context_id={$context_id}&event_point=' + $(this).val());
+		$(this).blur();
 	});
-
-	//$('#triggers DIV.branch').sortable({ items:'DIV.node', placeholder:'ui-state-highlight' });
+	
+	$('#frmTrigger BUTTON.add').click(function() {
+		$popup = genericAjaxPopup('node_trigger','c=internal&a=showDecisionPopup&trigger_id=0&context={$context}&context_id={$context_id}',null,false,'500');
+		
+		$popup.one('trigger_create',function(event) {
+			if(null == event.trigger_id)
+				return;
+			$('#frmTrigger SELECT[name=event_point]').val(0);
+			$('#triggers').html('').append($('<form id="decisionTree'+event.trigger_id+'"></form>'));
+			genericAjaxGet('decisionTree'+event.trigger_id, 'c=internal&a=showDecisionTree&id='+event.trigger_id);
+		});
+	});
 	
 	function decisionNodeMenu(element, node_id, trigger_id) {
 		if($(element).closest('div.node').hasClass('dragged'))

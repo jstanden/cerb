@@ -1517,42 +1517,6 @@ class ChInternalController extends DevblocksControllerExtension {
 		$tpl->display('devblocks:cerberusweb.core::internal/decisions/assistant/tab.tpl');
 	}
 
-	function createAssistantTriggerJsonAction() {
-		@$event_point = DevblocksPlatform::importGPC($_REQUEST['event_point'],'string', '');
-		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
-		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer',0);
-		
-		$active_worker = CerberusApplication::getActiveWorker();
-
-		// [TODO] Filter event points (sanitize)
-		
-		header("Context-Type: text/json;");
-		
-		try {
-			if(null == ($ext = DevblocksPlatform::getExtension($event_point, false)))
-				throw new Exception("Can't load behavior.");
-				
-			$fields = array(
-				DAO_TriggerEvent::TITLE => $ext->name,
-				DAO_TriggerEvent::IS_DISABLED => 0,
-				DAO_TriggerEvent::EVENT_POINT => $event_point,
-				DAO_TriggerEvent::OWNER_CONTEXT => $context,
-				DAO_TriggerEvent::OWNER_CONTEXT_ID => $context_id,
-			);
-			$id = DAO_TriggerEvent::create($fields);
-			
-			if(empty($id))
-				throw new Exception("Can't save new behavior.");
-			
-			echo json_encode(array('status'=>'success', 'id' => $id));
-			
-		} catch(Exception $e) {
-			echo json_encode(array('status'=>'error', 'message'=>$e->getMessage()));
-		}
-		
-		exit;
-	}	
-	
 	function reparentNodeAction() {
 		@$child_id = DevblocksPlatform::importGPC($_REQUEST['child_id'],'integer', 0);
 		@$parent_id = DevblocksPlatform::importGPC($_REQUEST['parent_id'],'integer', 0);
@@ -1704,10 +1668,24 @@ class ChInternalController extends DevblocksControllerExtension {
 		} elseif(isset($_REQUEST['trigger_id'])) { // Add child node
 			@$trigger_id = DevblocksPlatform::importGPC($_REQUEST['trigger_id'],'integer', 0);
 			
-			if(null != ($trigger = DAO_TriggerEvent::get($trigger_id))) {
-				$tpl->assign('trigger_id', $trigger_id);
-				$type = 'trigger';
+			$tpl->assign('trigger_id', $trigger_id);
+			$type = 'trigger';
+			
+			if(empty($trigger_id)) {
+				@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer', 0);
+				
+				$trigger = null;
+				$tpl->assign('context', $context);
+				$tpl->assign('context_id', $context_id);
+				
+				$events = Extension_DevblocksEvent::getByContext($context, false);
+				$tpl->assign('events', $events);
+				
+			} else {
+				if(null != ($trigger = DAO_TriggerEvent::get($trigger_id))) {
+				}
 			}
+			
 		}
 
 		if(!isset($trigger) && !empty($trigger_id))
@@ -1716,6 +1694,7 @@ class ChInternalController extends DevblocksControllerExtension {
 				
 		$tpl->assign('trigger', $trigger);
 		
+		$event = null;
 		if(!empty($trigger))
 			if(null == ($event = DevblocksPlatform::getExtension($trigger->event_point, true)))
 				return;
@@ -1746,8 +1725,10 @@ class ChInternalController extends DevblocksControllerExtension {
 				break;
 				
 			case 'trigger':
-				$ext = DevblocksPlatform::getExtension($trigger->event_point, false);
-				$tpl->assign('ext', $ext);
+				if(!empty($trigger)) {
+					$ext = DevblocksPlatform::getExtension($trigger->event_point, false);
+					$tpl->assign('ext', $ext);
+				}
 				$tpl->display('devblocks:cerberusweb.core::internal/decisions/editors/trigger.tpl');
 				break;
 		}
@@ -1805,6 +1786,27 @@ class ChInternalController extends DevblocksControllerExtension {
 		$event->renderAction($action, $trigger, null, $seq);
 	}
 
+	function showDecisionEventBehaviorAction() {
+		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string', '');
+		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer', 0);
+		@$event_point = DevblocksPlatform::importGPC($_REQUEST['event_point'],'string', '');
+
+		// [TODO] Verify context
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		
+		$events = DevblocksPlatform::getExtensions(Extension_DevblocksEvent::POINT, false);
+		$tpl->assign('events', $events);
+
+		if(empty($event_point))
+			$event_point = null;
+		
+		$triggers = DAO_TriggerEvent::getByOwner($context, $context_id, $event_point);
+		$tpl->assign('triggers', $triggers);
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/decisions/assistant/behavior.tpl');
+	}
+	
 	function showDecisionTreeAction() {
 		@$trigger_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer', 0);
 		
@@ -1856,19 +1858,48 @@ class ChInternalController extends DevblocksControllerExtension {
 			@$trigger_id = DevblocksPlatform::importGPC($_REQUEST['trigger_id'],'integer', 0);
 			@$title = DevblocksPlatform::importGPC($_REQUEST['title'],'string', '');
 			@$is_disabled = DevblocksPlatform::importGPC($_REQUEST['is_disabled'],'integer', 0);
+			@$json = DevblocksPlatform::importGPC($_REQUEST['json'],'integer', 0);
 
-			if(null != ($trigger = DAO_TriggerEvent::get($trigger_id))) {
+			// Create trigger
+			if(empty($trigger_id)) {
+				@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string', '');
+				@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer', 0);
+				@$event_point = DevblocksPlatform::importGPC($_REQUEST['event_point'],'string', '');
+				
 				$type = 'trigger';
 				
-				if(empty($title)) {
-					if(null != ($ext = DevblocksPlatform::getExtension($trigger->event_point, false)))
-						$title = $ext->name;
-				}
-				
-				DAO_TriggerEvent::update($trigger->id, array(
+				$trigger_id = DAO_TriggerEvent::create(array(
+					DAO_TriggerEvent::OWNER_CONTEXT => $context,
+					DAO_TriggerEvent::OWNER_CONTEXT_ID => $context_id,
+					DAO_TriggerEvent::EVENT_POINT => $event_point,
 					DAO_TriggerEvent::TITLE => $title,
 					DAO_TriggerEvent::IS_DISABLED => !empty($is_disabled) ? 1 : 0,
 				));
+				
+				if($json) {
+					header("Content-Type: text/json;");
+					echo json_encode(array(
+						'trigger_id' => $trigger_id,
+						'event_point' => $event_point,
+					));
+					exit;
+				}
+				
+			// Update trigger
+			} else {
+				if(null != ($trigger = DAO_TriggerEvent::get($trigger_id))) {
+					$type = 'trigger';
+
+					if(empty($title)) {
+						if(null != ($ext = DevblocksPlatform::getExtension($trigger->event_point, false)))
+							$title = $ext->name;
+					}
+					
+					DAO_TriggerEvent::update($trigger->id, array(
+						DAO_TriggerEvent::TITLE => $title,
+						DAO_TriggerEvent::IS_DISABLED => !empty($is_disabled) ? 1 : 0,
+					));
+				}
 			}
 			
 		}
