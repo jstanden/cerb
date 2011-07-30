@@ -17,11 +17,11 @@
 	
 	<table cellpadding="0" cellspacing="2">
 	<tr>
-		<td align="right" valign="middle">E-mail:</td>
+		<td align="right" valign="middle">{'common.email'|devblocks_translate|capitalize}:</td>
 		<td><input type="text" name="email" size="45" id="loginForm_email" class="input_email"></td>
 	</tr>
 	<tr>
-		<td align="right" valign="middle">Password:</td>
+		<td align="right" valign="middle">{'common.password'|devblocks_translate|capitalize}:</td>
 		<td nowrap="nowrap">
 			<input type="password" name="password" size="16" id="loginForm_password" autocomplete="off">
 			 &nbsp; 

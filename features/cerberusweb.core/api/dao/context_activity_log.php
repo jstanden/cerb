@@ -116,7 +116,7 @@ class DAO_ContextActivityLog extends C4_ORMHelper {
 			
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$db->Execute(sprintf("DELETE FROM context_log_activity WHERE target_context = %s AND target_context_id IN (%s) ", 
+		$db->Execute(sprintf("DELETE FROM context_activity_log WHERE target_context = %s AND target_context_id IN (%s) ", 
 			$db->qstr($context),
 			implode(',', $context_ids)
 		));

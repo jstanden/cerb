@@ -2,7 +2,7 @@
 <plugin xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.devblocks.com/schema/plugin.xsd">
 	<id>cerberusweb.openid</id>
 	<name>[Cerb5] OpenID Integration</name>
-	<description>Allow worker logins via OpenID.</description>
+	<description>Authenticate worker logins via OpenID.</description>
 	<author>WebGroup Media, LLC.</author>
 	<revision>1</revision>
 	<link>http://www.cerb5.com/</link>
@@ -31,14 +31,6 @@
 			<class name="View_OpenIDToWorker" />
 		</file>
 	</class_loader>
-
-	<!-- Templates -->
-	
-	<!--
-	<templates set="example.template.namespace">
-		<template path="path/to/template.tpl" />
-	</templates>
-	-->	
 
 	<!-- Extensions -->
  
