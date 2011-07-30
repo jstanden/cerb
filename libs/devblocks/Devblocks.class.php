@@ -466,32 +466,32 @@ class DevblocksPlatform extends DevblocksEngine {
 		// The past
 		if($diffsecs >= 0) {
 			if($diffsecs >= 31557600) { // years
-				$whole .= floor($diffsecs/31557600).' year';
+				$whole .= round($diffsecs/31557600).' year';
 			} elseif($diffsecs >= 2592000) { // mo
-				$whole .= floor($diffsecs/2592000).' month';
+				$whole .= round($diffsecs/2592000).' month';
 			} elseif($diffsecs >= 86400) { // days
-				$whole .= floor($diffsecs/86400).' day';
+				$whole .= round($diffsecs/86400).' day';
 			} elseif($diffsecs >= 3600) { // hours
-				$whole .= floor($diffsecs/3600).' hour';
+				$whole .= round($diffsecs/3600).' hour';
 			} elseif($diffsecs >= 60) { // mins
-				$whole .= floor($diffsecs/60).' min';
+				$whole .= round($diffsecs/60).' min';
 			} elseif($diffsecs >= 0) { // secs
 				$whole .= $diffsecs.' sec';
 			}
 			
 		} else { // The future
 			if($diffsecs <= -31557600) { // years
-				$whole .= floor($diffsecs/-31557600).' year';
+				$whole .= round($diffsecs/-31557600).' year';
 			} elseif($diffsecs <= -2592000) { // mo
-				$whole .= floor($diffsecs/-2592000).' month';
+				$whole .= round($diffsecs/-2592000).' month';
 			} elseif($diffsecs <= -86400) { // days
-				$whole .= floor($diffsecs/-86400).' day';
+				$whole .= round($diffsecs/-86400).' day';
 			} elseif($diffsecs <= -3600) { // hours
-				$whole .= floor($diffsecs/-3600).' hour';
+				$whole .= round($diffsecs/-3600).' hour';
 			} elseif($diffsecs <= -60) { // mins
-				$whole .= floor($diffsecs/-60).' min';
+				$whole .= round($diffsecs/-60).' min';
 			} elseif($diffsecs <= 0) { // secs
-				$whole .= floor($diffsecs/-1).' sec';
+				$whole .= round($diffsecs/-1).' sec';
 			}
 		}
 
