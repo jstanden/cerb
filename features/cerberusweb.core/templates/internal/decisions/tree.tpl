@@ -31,8 +31,8 @@ $('#decisionTree{$trigger->id} DIV.node').draggable({
 	opacity:0.50,
 	cursorAt: { 
 		cursor:"crosshair",
-		top:-5,
-		left:-5 
+		top:0,
+		left:0 
 	},
 	start:function(e,ui) {
 		$(this).addClass('dragged');
@@ -65,6 +65,7 @@ $('#decisionTree{$trigger->id} DIV.node.trigger').droppable({
 		child_id = $(ui.draggable).find('> input:hidden[name=node_id]').val();
 		parent_id = $(this).find('> input:hidden[name=node_id]').val();
 		genericAjaxGet('','c=internal&a=reparentNode&child_id=' + child_id + '&parent_id=' + parent_id);
+		return true;
 	}
 });
 
@@ -88,6 +89,7 @@ $('#decisionTree{$trigger->id} DIV.node.switch').droppable({
 		child_id = $(ui.draggable).find('> input:hidden[name=node_id]').val();
 		parent_id = $(this).find('> input:hidden[name=node_id]').val();
 		genericAjaxGet('','c=internal&a=reparentNode&child_id=' + child_id + '&parent_id=' + parent_id);
+		return true;
 	}
 });
 
@@ -111,6 +113,7 @@ $('#decisionTree{$trigger->id} DIV.node.outcome').droppable({
 		child_id = $(ui.draggable).find('> input:hidden[name=node_id]').val();
 		parent_id = $(this).find('> input:hidden[name=node_id]').val();
 		genericAjaxGet('','c=internal&a=reparentNode&child_id=' + child_id + '&parent_id=' + parent_id);
+		return true;
 	}
 });
 </script>

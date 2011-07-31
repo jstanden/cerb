@@ -29,13 +29,13 @@
 	{/if}
 	
 	{* Recurse Children *}
+	<div class="branch {$node->node_type}" style="padding-bottom:2px;margin-left:10px;padding-left:10px;{if $node->node_type == 'outcome'}border-left:1px solid rgb(200,200,200);{/if}">
 	{if is_array($tree[$node_id]) && !empty($tree[$node_id])}
-		<div class="branch {$node->node_type}" style="padding-bottom:2px;margin-left:10px;padding-left:10px;{if $node->node_type == 'outcome'}border-left:1px solid rgb(200,200,200);{/if}">
 		{foreach from=$tree[$node_id] item=child_id}
 			{include file="devblocks:cerberusweb.core::internal/decisions/branch.tpl" node_id=$child_id trigger_id=$trigger_id data=$data nodes=$nodes tree=$tree depths=$depths}
 		{/foreach}
-		</div>
 	{/if}
+	</div>
 </div>
 
 
