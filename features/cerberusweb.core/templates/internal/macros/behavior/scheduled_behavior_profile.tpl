@@ -20,6 +20,13 @@
 					{/if}
 				</div>
 			</td>
+			<td valign="top" align="right" width="1%" nowrap="nowrap">
+				{$ext = Extension_DevblocksContext::get($behavior_context)}
+				{if !empty($ext)}
+					{$meta = $ext->getMeta($behavior_context_id)}
+					{$meta.name}
+				{/if}
+			</td>
 			<td valign="top" width="99%">
 				<a href="javascript:;" onclick="$popup=genericAjaxPopup('peek','c=internal&a=showMacroSchedulerPopup&job_id={$k}',this,true,'350');var $container=$(this).closest('fieldset').parent();$popup.one('behavior_save',function(e) { genericAjaxGet($container, 'c=internal&a=renderContextScheduledBehavior&context={$context}&context_id={$context_id}'); });">{$trigger_events.{$v->behavior_id}->title}</a>
 			</td>

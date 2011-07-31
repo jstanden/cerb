@@ -50,6 +50,28 @@ abstract class Extension_DevblocksContext extends DevblocksExtension {
 		return $contexts;
 	}
 	
+	/*
+	 * Lazy loader + cache
+	 */
+	public static function get($context) {
+		static $contexts = null;
+		
+		/*
+		 * Lazy load
+		 */
+
+		if(isset($contexts[$context]))
+			return $contexts[$context];
+		
+		if(!isset($contexts[$context])) {
+			if(null == ($ext = DevblocksPlatform::getExtension($context, true)))
+				return;
+			
+			$contexts[$context] = $ext;
+			return $ext;
+		}
+	}
+	
    	function authorize($context_id, Model_Worker $worker) {
 		return true;
 	}
