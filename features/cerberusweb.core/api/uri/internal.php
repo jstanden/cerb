@@ -1441,6 +1441,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		@$macro_id = DevblocksPlatform::importGPC($_REQUEST['macro'],'integer',0);
 		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
 		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer',0);
+		@$run_date = DevblocksPlatform::importGPC($_REQUEST['run_date'],'string','');
 		@$return_url = DevblocksPlatform::importGPC($_REQUEST['return_url'],'string','');
 
 		$active_worker = CerberusApplication::getActiveWorker();
@@ -1471,9 +1472,23 @@ class ChInternalController extends DevblocksControllerExtension {
 			// Load event manifest
 			if(null == ($ext = DevblocksPlatform::getExtension($macro->event_point, false))) /* @var $ext DevblocksExtensionManifest */
 				throw new Exception("Invalid event.");
-	
-			// Execute
-			call_user_func(array($ext->class, 'trigger'), $macro->id, $context_id);
+
+			$run_timestamp = @strtotime($run_date) or time();
+
+			if($run_timestamp > time()) {
+				DAO_ContextScheduledBehavior::create(array(
+					DAO_ContextScheduledBehavior::BEHAVIOR_ID => $macro->id,
+					DAO_ContextScheduledBehavior::CONTEXT => $context,
+					DAO_ContextScheduledBehavior::CONTEXT_ID => $context_id,
+					DAO_ContextScheduledBehavior::RUN_DATE => $run_timestamp,
+				));
+				
+			} else {
+				// Execute now
+				call_user_func(array($ext->class, 'trigger'), $macro->id, $context_id);
+				
+			}
+			
 			
 		} catch (Exception $e) {
 			// System log error?
@@ -1481,6 +1496,109 @@ class ChInternalController extends DevblocksControllerExtension {
 		
 		// Redirect
 		DevblocksPlatform::redirectURL($return_url);
+		exit;
+	}
+	
+	function renderContextScheduledBehaviorAction() {
+		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
+		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer',0);
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		
+		$tpl->assign('context', $context);
+		$tpl->assign('context_id', $context_id);
+		$tpl->assign('expanded', true);
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/macros/behavior/scheduled_behavior_profile.tpl');
+	}
+	
+	function showMacroSchedulerPopupAction() {
+		@$job_id = DevblocksPlatform::importGPC($_REQUEST['job_id'],'integer',0);
+		@$macro_id = DevblocksPlatform::importGPC($_REQUEST['macro'],'integer',0);
+		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
+		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer',0);
+		@$return_url = DevblocksPlatform::importGPC($_REQUEST['return_url'],'string','');
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(empty($job_id)) {
+			$tpl->assign('context', $context);
+			$tpl->assign('context_id', $context_id);
+			$tpl->assign('return_url', $return_url);
+			
+			try {
+				if(null == ($macro = DAO_TriggerEvent::get($macro_id)))
+					throw new Exception("Missing macro.");
+				
+				$tpl->assign('macro', $macro);
+				
+				// Verify permission
+				
+				if(null == ($ctx = DevblocksPlatform::getExtension($context, true))) /* @var $ctx Extension_DevblocksContext */
+					throw new Exception("Permission denied.");
+				
+				// Verify permission
+				if(!$ctx->authorize($context_id, $active_worker))
+					throw new Exception("Permission denied.");
+				
+				$tpl->assign('ctx', $ctx);
+				
+			} catch(Exception $e) {
+				DevblocksPlatform::redirectURL($return_url);
+				exit;
+			}
+			
+		} else { // Update
+			$job = DAO_ContextScheduledBehavior::get($job_id);
+			$tpl->assign('job', $job);
+
+			// Verify permission
+			
+			if(null == ($ctx = DevblocksPlatform::getExtension($job->context, true))) /* @var $ctx Extension_DevblocksContext */
+				return;
+			
+			// Verify permission
+			$editable = $ctx->authorize($job->context_id, $active_worker);
+			$tpl->assign('editable', $editable);
+			
+			$macro = DAO_TriggerEvent::get($job->behavior_id);
+			$tpl->assign('macro', $macro);
+			
+		}
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/macros/display/scheduler_popup.tpl');
+	}
+	
+	function saveMacroSchedulerPopupAction() {
+		@$job_id = DevblocksPlatform::importGPC($_REQUEST['job_id'],'integer',0);
+		@$run_date = DevblocksPlatform::importGPC($_REQUEST['run_date'],'string','');
+		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'],'integer',0);
+		
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(null == ($job = DAO_ContextScheduledBehavior::get($job_id)))
+			return;
+		
+		if(null == ($ctx = DevblocksPlatform::getExtension($job->context, true))) /* @var $ctx Extension_DevblocksContext */
+			return;
+		
+		// Verify permission
+		if(!$ctx->authorize($job->context_id, $active_worker))
+			return;
+		
+		if($do_delete) {
+			DAO_ContextScheduledBehavior::delete($job->id);
+			
+		} else {
+			$run_timestamp = @strtotime($run_date) or time();
+			
+			DAO_ContextScheduledBehavior::update($job->id, array(
+				DAO_ContextScheduledBehavior::RUN_DATE => $run_timestamp, 
+			));
+			
+		}
+		
 		exit;
 	}
 	

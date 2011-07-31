@@ -7,10 +7,7 @@ $menu.find('> li')
 		if(!$(e.target).is('li'))
 			return;
 
-		$link = $(this).find('a:first');
-		
-		if($link.length > 0)
-			window.location.href = $link.attr('href');
+		$link = $(this).find('a:first').click();
 	})
 	;
 

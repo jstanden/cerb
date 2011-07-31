@@ -65,6 +65,21 @@ class DAO_ContextScheduledBehavior extends C4_ORMHelper {
 		return null;
 	}
 
+	static public function getByContext($context, $context_id) {
+		$objects = self::getWhere(
+			sprintf("%s = %s AND %s = %d",
+				self::CONTEXT,
+				C4_ORMHelper::qstr($context),
+				self::CONTEXT_ID,
+				$context_id
+			),
+			self::RUN_DATE,
+			true
+		);
+
+		return $objects;
+	}
+	
 	/**
 	 * @param resource $rs
 	 * @return Model_ContextScheduledBehavior[]
