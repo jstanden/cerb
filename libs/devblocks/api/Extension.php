@@ -303,6 +303,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 					$not = (substr($params['oper'],0,1) == '!');
 					$oper = ltrim($params['oper'],'!');
 					switch($oper) {
+						case 'is':
 						case 'between':
 							$from = strtotime($params['from']);
 							$to = strtotime($params['to']);
