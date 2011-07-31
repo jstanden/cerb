@@ -627,10 +627,12 @@ class Context_ExampleObject extends Extension_DevblocksContext {
 		$example = DAO_ExampleObject::get($context_id);
 		$url_writer = DevblocksPlatform::getUrlService();
 		
+		//$friendly = DevblocksPlatform::strToPermalink($example->name);
+		
 		return array(
 			'id' => $example->id,
 			'name' => $example->name,
-			'permalink' => $url_writer->writeNoProxy('c=example.objects&action=profile&id='.$context_id, true),
+			'permalink' => $url_writer->writeNoProxy(sprintf("c=example.objects&action=profile&id=%d",$context_id), true),
 		);
 	}
 	

@@ -998,10 +998,12 @@ class Context_Opportunity extends Extension_DevblocksContext {
 		$opp = DAO_CrmOpportunity::get($context_id);
 		$url_writer = DevblocksPlatform::getUrlService();
 		
+		$friendly = DevblocksPlatform::strToPermalink($opp->name);
+		
 		return array(
 			'id' => $opp->id,
 			'name' => $opp->name,
-			'permalink' => $url_writer->write('c=crm&tab=opps&id='.$context_id, true),
+			'permalink' => $url_writer->write(sprintf("c=crm&tab=opps&id=%d-%s",$context_id,$friendly), true),
 		);
 	}
     

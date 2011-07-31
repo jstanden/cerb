@@ -4,10 +4,12 @@ class Context_Domain extends Extension_DevblocksContext {
 		$domain = DAO_Domain::get($context_id);
 		$url_writer = DevblocksPlatform::getUrlService();
 		
+		$friendly = DevblocksPlatform::strToPermalink($domain->name);
+		
 		return array(
 			'id' => $domain->id,
 			'name' => $domain->name,
-			'permalink' => $url_writer->writeNoProxy(sprintf("c=datacenter.domains&tab=domain&id=%d",$context_id), true),
+			'permalink' => $url_writer->writeNoProxy(sprintf("c=datacenter.domains&tab=domain&id=%d-%s",$context_id, $friendly), true),
 		);
 	}
     

@@ -603,10 +603,12 @@ class Context_KbArticle extends Extension_DevblocksContext {
 		$article = DAO_KbArticle::get($context_id);
 		$url_writer = DevblocksPlatform::getUrlService();
 		
+		$friendly = DevblocksPlatform::strToPermalink($article->title);
+		
 		return array(
 			'id' => $article->id,
 			'name' => $article->title,
-			'permalink' => $url_writer->writeNoProxy(sprintf("c=kb&ar=article&id=%d-%s", $article->id, DevblocksPlatform::strToPermalink($article->title), true)),
+			'permalink' => $url_writer->writeNoProxy(sprintf("c=kb&ar=article&id=%d-%s", $article->id, $friendly, true)),
 		);
 	}
 	

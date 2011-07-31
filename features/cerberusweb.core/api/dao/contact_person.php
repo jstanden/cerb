@@ -763,10 +763,12 @@ class Context_ContactPerson extends Extension_DevblocksContext {
 		else
 			$name = $address->email;
 		
+		$friendly = DevblocksPlatform::strToPermalink($address->email);
+		
 		return array(
 			'id' => $contact->id,
 			'name' => $name,
-			'permalink' => $url_writer->writeNoProxy('c=contacts&tab=people&id='.$context_id, true),
+			'permalink' => $url_writer->writeNoProxy(sprintf("c=contacts&tab=people&id=%d-%s",$context_id, $friendly), true),
 		);
 	}
     

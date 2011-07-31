@@ -855,10 +855,12 @@ class Context_Org extends Extension_DevblocksContext {
 		$org = DAO_ContactOrg::get($context_id);
 		$url_writer = DevblocksPlatform::getUrlService();
 		
+		$friendly = DevblocksPlatform::strToPermalink($org->name);
+		
 		return array(
 			'id' => $context_id,
 			'name' => $org->name,
-			'permalink' => $url_writer->write('c=contacts&tab=orgs&action=display&id='.$context_id, true),
+			'permalink' => $url_writer->write(sprintf("c=contacts&tab=orgs&action=display&id=%d-%s", $context_id, $friendly), true),
 		);
 	}
 	

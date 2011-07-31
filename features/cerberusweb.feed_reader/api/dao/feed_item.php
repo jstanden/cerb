@@ -695,10 +695,12 @@ class Context_FeedItem extends Extension_DevblocksContext {
 		$item = DAO_FeedItem::get($context_id);
 		$url_writer = DevblocksPlatform::getUrlService();
 		
+		$friendly = DevblocksPlatform::strToPermalink($item->title);
+		
 		return array(
 			'id' => $item->id,
 			'name' => $item->title,
-			'permalink' => $url_writer->writeNoProxy('c=feeds&i=item&id='.$context_id, true),
+			'permalink' => $url_writer->writeNoProxy(sprintf("c=feeds&i=item&id=%d-%s",$context_id, $friendly), true),
 		);
 	}
 	

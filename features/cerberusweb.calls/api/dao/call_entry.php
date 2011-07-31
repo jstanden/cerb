@@ -647,10 +647,12 @@ class Context_Call extends Extension_DevblocksContext {
 		$call = DAO_CallEntry::get($context_id);
 		$url_writer = DevblocksPlatform::getUrlService();
 		
+		$friendly = DevblocksPlatform::strToPermalink($call->subject);
+		
 		return array(
 			'id' => $call->id,
 			'name' => $call->subject,
-			'permalink' => $url_writer->write('c=calls&id='.$context_id, true),
+			'permalink' => $url_writer->write(sprintf("c=calls&id=%d-%s",$context_id, $friendly), true),
 		);
 	}
 	

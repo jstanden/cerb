@@ -4,10 +4,12 @@ class Context_Server extends Extension_DevblocksContext {
 		$server = DAO_Server::get($context_id);
 		$url_writer = DevblocksPlatform::getUrlService();
 		
+		$friendly = DevblocksPlatform::strToPermalink($server->name);
+		
 		return array(
 			'id' => $server->id,
 			'name' => $server->name,
-			'permalink' => $url_writer->writeNoProxy(sprintf("c=datacenter&tab=server&id=%d",$context_id), true),
+			'permalink' => $url_writer->writeNoProxy(sprintf("c=datacenter&tab=server&id=%d-%s",$context_id, $friendly), true),
 		);
 	}
     

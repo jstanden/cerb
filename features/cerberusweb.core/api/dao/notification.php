@@ -429,7 +429,7 @@ class Model_Notification {
 		// Check if we have a context link, otherwise use raw URL
 		if(!empty($this->context)) {
 			// Invoke context class
-			if(null != ($ctx = DevblocksPlatform::getExtension($this->context, true))) { /* @var $ctx Extension_DevblocksContext */
+			if(null != ($ctx = Extension_DevblocksContext::get($this->context))) { /* @var $ctx Extension_DevblocksContext */
 				$meta = $ctx->getMeta($this->context_id);
 				if(isset($meta['permalink']) && !empty($meta['permalink']))
 					return $meta['permalink'];
@@ -755,10 +755,20 @@ class Context_Notification extends Extension_DevblocksContext {
 		$notification = DAO_Notification::get($context_id);
 		$url_writer = DevblocksPlatform::getUrlService();
 		
+		$url = null;
+		
+		if(!empty($notification->context)) {
+			$url = $notification->getURL();
+		}
+		
+		if(empty($url)) {
+			$url = $url_writer->writeNoProxy('c=preferences&action=redirectRead&id='.$context_id, true);
+		}
+		
 		return array(
 			'id' => $notification->id,
 			'name' => $notification->message,
-			'permalink' => $url_writer->writeNoProxy('c=preferences&action=redirectRead&id='.$context_id, true),
+			'permalink' => $url,
 		);
 	}
 	
@@ -789,7 +799,7 @@ class Context_Notification extends Extension_DevblocksContext {
 			'message' => $prefix.'message',
 			'is_read' => $prefix.'is read',
 			'url' => $prefix.$translate->_('common.url'),
-			'url_markread' => $prefix.'URL (Mark read)',
+			'url_markread' => $prefix.'URL (Mark read)', // [TODO] This isn't needed anymore
 		);
 		
 		if(is_array($fields))
@@ -801,14 +811,16 @@ class Context_Notification extends Extension_DevblocksContext {
 		$token_values = array();
 		
 		if($notification) {
+			$redirect_url = $url_writer->writeNoProxy(sprintf("c=preferences&a=redirectRead&id=%d", $notification->id), true);
+			
 			$token_values['id'] = $notification->id;
 			$token_values['context'] = $notification->context;
 			$token_values['context_id'] = $notification->context_id;
 			$token_values['created'] = $notification->created_date;
 			$token_values['message'] = $notification->message;
 			$token_values['is_read'] = $notification->is_read;
-			$token_values['url'] = $notification->url;
-			$token_values['url_markread'] = $url_writer->writeNoProxy(sprintf("c=preferences&a=redirectRead&id=%d", $notification->id), true);
+			$token_values['url'] = $notification->getURL();
+			$token_values['url_markread'] = $redirect_url;
 			
 			$token_values['custom'] = array();
 			

@@ -815,10 +815,12 @@ class Context_Task extends Extension_DevblocksContext {
 		$task = DAO_Task::get($context_id);
 		$url_writer = DevblocksPlatform::getUrlService();
 		
+		$friendly = DevblocksPlatform::strToPermalink($task->title);
+		
 		return array(
 			'id' => $task->id,
 			'name' => $task->title,
-			'permalink' => $url_writer->writeNoProxy('c=tasks&action=display&id='.$task->id, true),
+			'permalink' => $url_writer->writeNoProxy(sprintf("c=tasks&action=display&id=%d-%s",$task->id, $friendly), true),
 		);
 	}
 	

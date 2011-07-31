@@ -946,10 +946,12 @@ class Context_Address extends Extension_DevblocksContext {
 			$addy_name = $address->email;
 		}
 		
+		$friendly = DevblocksPlatform::strToPermalink($address->email);
+		
 		return array(
 			'id' => $address->id,
 			'name' => $addy_name,
-			'permalink' => $url_writer->writeNoProxy('c=contacts&tab=addresses&page=display&id=' . $context_id . '-' . DevblocksPlatform::strToPermalink($address->email), true),
+			'permalink' => $url_writer->writeNoProxy(sprintf("c=contacts&tab=addresses&page=display&id=%d-%s", $context_id, $friendly), true),
 		);
 	}
     

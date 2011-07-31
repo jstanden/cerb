@@ -878,10 +878,14 @@ class Context_TimeTracking extends Extension_DevblocksContext {
 		$time_entry = DAO_TimeTrackingEntry::get($context_id);
 		$url_writer = DevblocksPlatform::getUrlService();
 		
+		$summary = $time_entry->getSummary();
+		
+		$friendly = DevblocksPlatform::strToPermalink($summary);
+		
 		return array(
 			'id' => $time_entry->id,
-			'name' => $time_entry->getSummary(),
-			'permalink' => $url_writer->writeNoProxy('c=timetracking&tab=display&id='.$context_id, true),
+			'name' => $summary,
+			'permalink' => $url_writer->writeNoProxy(sprintf("c=timetracking&tab=display&id=%d-%s",$context_id,$friendly), true),
 		);
 	}
 	
