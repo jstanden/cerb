@@ -1615,7 +1615,14 @@ class ChInternalController extends DevblocksControllerExtension {
 		if(empty($context) || empty($context_id))
 			return;
 			
-		// [TODO] Secure looking at other worker tabs (check superuser, worker_id)
+		/*
+		 * Secure looking at other worker tabs (check superuser, worker_id)
+		 */
+		if(null == ($ctx = Extension_DevblocksContext::get($context)))
+			return;
+		
+		if(!$ctx->authorize($context_id, $active_worker))
+			return;
 		
 		// Remember tab
 		if(!empty($point))

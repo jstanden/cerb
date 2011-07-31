@@ -1243,6 +1243,25 @@ class DAO_WorkerPref extends DevblocksORMHelper {
 };
 
 class Context_Worker extends Extension_DevblocksContext {
+	function authorize($context_id, Model_Worker $worker) {
+		// Security
+		try {
+			if(empty($worker))
+				throw new Exception();
+			
+			if($worker->is_superuser)
+				return TRUE;
+				
+			if($context_id == $worker->id)
+				return TRUE;			
+				
+		} catch (Exception $e) {
+			// Fail
+		}
+		
+		return FALSE;
+	}
+	
 	function getMeta($context_id) {
 		$worker = DAO_Worker::get($context_id);
 		$url_writer = DevblocksPlatform::getUrlService();

@@ -24,14 +24,15 @@ class Event_NotificationReceivedByWorker extends Extension_DevblocksEvent {
 	 * @return Model_DevblocksEvent
 	 */
 	function generateSampleEventModel($notification_id=null, $worker_id=null) {
-		$active_worker = CerberusApplication::getActiveWorker();
+		if(empty($worker_id) || null == ($worker = DAO_Worker::get($worker_id)))
+			$worker = CerberusApplication::getActiveWorker();
 		
 		if(empty($notification_id)) {
 			// Pull the latest ticket
 			list($results) = DAO_Notification::search(
 				//array(),
 				array(
-					new DevblocksSearchCriteria(SearchFields_Notification::WORKER_ID,'=',$active_worker->id),
+					new DevblocksSearchCriteria(SearchFields_Notification::WORKER_ID,'=',$worker->id),
 				),
 				10,
 				0,
@@ -45,7 +46,7 @@ class Event_NotificationReceivedByWorker extends Extension_DevblocksEvent {
 			$result = array_shift($results);
 			
 			$notification_id = $result[SearchFields_Notification::ID];
-			$worker_id = $active_worker->id;
+			$worker_id = $worker->id;
 		}
 		
 		return new Model_DevblocksEvent(
