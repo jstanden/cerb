@@ -1,3 +1,6 @@
+{$page_context = CerberusContexts::CONTEXT_TASK}
+{$page_context_id = $task->id}
+
 {include file="devblocks:cerberusweb.core::tasks/display/submenu.tpl"}
 
 <table cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-bottom:5px;">
@@ -11,7 +14,7 @@
 			<form action="{devblocks_url}{/devblocks_url}" method="post" style="margin-bottom:5px;">
 				<input type="hidden" name="c" value="tasks">
 				<input type="hidden" name="a" value="">
-				<input type="hidden" name="id" value="{$task->id}">
+				<input type="hidden" name="id" value="{$page_context_id}">
 			
 				{foreach from=$properties item=v key=k name=props}
 					<div class="property">
@@ -34,13 +37,13 @@
 				<!-- Toolbar -->
 		
 				<span>
-				{$object_watchers = DAO_ContextLink::getContextLinks(CerberusContexts::CONTEXT_TASK, array($task->id), CerberusContexts::CONTEXT_WORKER)}
-				{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=CerberusContexts::CONTEXT_TASK context_id=$task->id full=true}
+				{$object_watchers = DAO_ContextLink::getContextLinks($page_context, array($page_context_id), CerberusContexts::CONTEXT_WORKER)}
+				{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$page_context context_id=$page_context_id full=true}
 				</span>		
 
 				<!-- Macros -->
-				{devblocks_url assign=return_url full=true}c=tasks&tab=display&id={$task->id}-{$task->title|devblocks_permalink}{/devblocks_url}
-				{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context=CerberusContexts::CONTEXT_TASK context_id=$task->id macros=$macros return_url=$return_url}		
+				{devblocks_url assign=return_url full=true}c=tasks&tab=display&id={$page_context_id}-{$task->title|devblocks_permalink}{/devblocks_url}
+				{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context=$page_context context_id=$page_context_id macros=$macros return_url=$return_url}		
 		
 				<!-- Edit -->
 				<button type="button" id="btnDisplayTaskEdit"><span class="cerb-sprite sprite-document_edit"></span> Edit</button>
@@ -50,7 +53,7 @@
 					{$toolbar_extension->render($task)}
 				{/foreach}
 				
-				<button type="button" title="{$translate->_('display.shortcut.refresh')}" onclick="document.location='{devblocks_url}c=tasks&tab=display&id={$task->id}-{$task->title|devblocks_permalink}{/devblocks_url}';">&nbsp;<span class="cerb-sprite sprite-refresh"></span>&nbsp;</button>
+				<button type="button" title="{$translate->_('display.shortcut.refresh')}" onclick="document.location='{devblocks_url}c=tasks&tab=display&id={$page_context_id}-{$task->title|devblocks_permalink}{/devblocks_url}';">&nbsp;<span class="cerb-sprite sprite-refresh"></span>&nbsp;</button>
 			
 			</form>
 			
@@ -65,7 +68,13 @@
 			
 		</fieldset>
 		
-		{include file="devblocks:cerberusweb.core::internal/notifications/context_profile.tpl" context=CerberusContexts::CONTEXT_TASK context_id=$task->id}		
+		<div>
+		{include file="devblocks:cerberusweb.core::internal/notifications/context_profile.tpl" context=$page_context context_id=$page_context_id}
+		</div>
+		
+		<div>
+		{include file="devblocks:cerberusweb.core::internal/macros/behavior/scheduled_behavior_profile.tpl" context=$page_context context_id=$page_context_id}
+		</div>
 		
 	</td>
 	<td align="right" valign="top">
@@ -88,9 +97,9 @@
 		{$tabs = [activity, comments, links]}
 		{$point = 'core.page.tasks'}
 
-		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabActivityLog&scope=target&point={$point}&context={CerberusContexts::CONTEXT_TASK}&context_id={$task->id}{/devblocks_url}">{'common.activity_log'|devblocks_translate|capitalize}</a></li>
-		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextComments&context={CerberusContexts::CONTEXT_TASK}&id={$task->id}{/devblocks_url}">{'common.comments'|devblocks_translate|capitalize}</a></li>
-		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextLinks&context={CerberusContexts::CONTEXT_TASK}&id={$task->id}{/devblocks_url}">{'common.links'|devblocks_translate}</a></li>
+		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabActivityLog&scope=target&point={$point}&context={$page_context}&context_id={$page_context_id}{/devblocks_url}">{'common.activity_log'|devblocks_translate|capitalize}</a></li>
+		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextComments&context={$page_context}&id={$page_context_id}{/devblocks_url}">{'common.comments'|devblocks_translate|capitalize}</a></li>
+		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextLinks&context={$page_context}&id={$page_context_id}{/devblocks_url}">{'common.links'|devblocks_translate}</a></li>
 	</ul>
 </div> 
 <br>
@@ -105,10 +114,10 @@ $(function() {
 	var tabs = $("#tasksTabs").tabs( { selected:{$tab_selected_idx} } );
 
 	$('#btnDisplayTaskEdit').bind('click', function() {
-		$popup = genericAjaxPopup('peek','c=tasks&a=showTaskPeek&id={$task->id}',null,false,'550');
+		$popup = genericAjaxPopup('peek','c=tasks&a=showTaskPeek&id={$page_context_id}',null,false,'550');
 		$popup.one('task_save', function(event) {
 			event.stopPropagation();
-			document.location.href = '{devblocks_url}c=tasks&a=display&id={$task->id}{/devblocks_url}';
+			document.location.href = '{devblocks_url}c=tasks&a=display&id={$page_context_id}{/devblocks_url}';
 		});
 	});
 	

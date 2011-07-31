@@ -1,3 +1,6 @@
+{$page_context = CerberusContexts::CONTEXT_TIMETRACKING}
+{$page_context_id = $time_entry->id}
+
 {include file="devblocks:cerberusweb.timetracking::timetracking/display/submenu.tpl"}
 
 <h2>{'timetracking.activity.tab'|devblocks_translate|capitalize}</h2>
@@ -23,13 +26,13 @@
 		
 		<!-- Toolbar -->
 		<span>
-		{$object_watchers = DAO_ContextLink::getContextLinks(CerberusContexts::CONTEXT_TIMETRACKING, array($time_entry->id), CerberusContexts::CONTEXT_WORKER)}
-		{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=CerberusContexts::CONTEXT_TIMETRACKING context_id=$time_entry->id full=true}
+		{$object_watchers = DAO_ContextLink::getContextLinks($page_context, array($page_context_id), CerberusContexts::CONTEXT_WORKER)}
+		{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$page_context context_id=$page_context_id full=true}
 		</span>		
 		
 		<!-- Macros -->
-		{devblocks_url assign=return_url full=true}c=timetracking&d=display&id={$time_entry->id}-{$time_entry->getSummary()|devblocks_permalink}{/devblocks_url}
-		{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context=CerberusContexts::CONTEXT_TIMETRACKING context_id=$time_entry->id macros=$macros return_url=$return_url}		
+		{devblocks_url assign=return_url full=true}c=timetracking&d=display&id={$page_context_id}-{$time_entry->getSummary()|devblocks_permalink}{/devblocks_url}
+		{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context=$page_context context_id=$page_context_id macros=$macros return_url=$return_url}		
 		
 		<!-- Edit -->
 		<button type="button" id="btnDisplayTimeEdit"><span class="cerb-sprite sprite-document_edit"></span> Edit</button>
@@ -46,15 +49,21 @@
 	{/if}
 </fieldset>
 
-{include file="devblocks:cerberusweb.core::internal/notifications/context_profile.tpl" context=CerberusContexts::CONTEXT_TIMETRACKING context_id=$time_entry->id}
+<div>
+{include file="devblocks:cerberusweb.core::internal/notifications/context_profile.tpl" context=$page_context context_id=$page_context_id}
+</div>
+
+<div>
+{include file="devblocks:cerberusweb.core::internal/macros/behavior/scheduled_behavior_profile.tpl" context=$page_context context_id=$page_context_id}
+</div>
 
 <div id="timeTabs">
 	<ul>
 		{$tabs = [activity,comments,links]}
 		
-		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabActivityLog&scope=target&point={$point}&context={CerberusContexts::CONTEXT_TIMETRACKING}&context_id={$time_entry->id}{/devblocks_url}">{'common.activity_log'|devblocks_translate|capitalize}</a></li>
-		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextComments&context=cerberusweb.contexts.timetracking&id={$time_entry->id}{/devblocks_url}">{$translate->_('common.comments')|capitalize}</a></li>		
-		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextLinks&context=cerberusweb.contexts.timetracking&id={$time_entry->id}{/devblocks_url}">{$translate->_('common.links')}</a></li>		
+		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabActivityLog&scope=target&point={$point}&context={$page_context}&context_id={$page_context_id}{/devblocks_url}">{'common.activity_log'|devblocks_translate|capitalize}</a></li>
+		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextComments&context=cerberusweb.contexts.timetracking&id={$page_context_id}{/devblocks_url}">{$translate->_('common.comments')|capitalize}</a></li>		
+		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextLinks&context=cerberusweb.contexts.timetracking&id={$page_context_id}{/devblocks_url}">{$translate->_('common.links')}</a></li>		
 
 		{foreach from=$tab_manifests item=tab_manifest}
 			{$tabs[] = $tab_manifest->params.uri}
@@ -74,10 +83,10 @@
 		var tabs = $("#timeTabs").tabs( { selected:{$tab_selected_idx} } );
 		
 		$('#btnDisplayTimeEdit').bind('click', function() {
-			$popup = genericAjaxPopup('peek','c=timetracking&a=showEntry&id={$time_entry->id}',null,false,'550');
+			$popup = genericAjaxPopup('peek','c=timetracking&a=showEntry&id={$page_context_id}',null,false,'550');
 			$popup.one('timetracking_save', function(event) {
 				event.stopPropagation();
-				document.location.href = '{devblocks_url}c=timetracking&a=display&id={$time_entry->id}{/devblocks_url}';
+				document.location.href = '{devblocks_url}c=timetracking&a=display&id={$page_context_id}{/devblocks_url}';
 			});
 			$popup.one('timetracking_delete', function(event) {
 				event.stopPropagation();

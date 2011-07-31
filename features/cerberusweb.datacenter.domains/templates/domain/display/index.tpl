@@ -1,3 +1,6 @@
+{$page_context = 'cerberusweb.contexts.datacenter.domain'}
+{$page_context_id = $domain->id}
+
 {include file="devblocks:cerberusweb.datacenter.domains::domain/display/submenu.tpl"}
 
 <h2>{'cerberusweb.datacenter.domain'|devblocks_translate|capitalize}</h2>
@@ -25,13 +28,13 @@
 		<!-- Toolbar -->
 		<div>
 			<span>
-			{$object_watchers = DAO_ContextLink::getContextLinks('cerberusweb.contexts.datacenter.domain', array($domain->id), CerberusContexts::CONTEXT_WORKER)}
-			{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context='cerberusweb.contexts.datacenter.domain' context_id=$domain->id full=true}
+			{$object_watchers = DAO_ContextLink::getContextLinks($page_context, array($page_context_id), CerberusContexts::CONTEXT_WORKER)}
+			{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$page_context context_id=$page_context_id full=true}
 			</span>		
 
 			<!-- Macros -->
-			{devblocks_url assign=return_url full=true}c=datacenter.domains&tab=domain&id={$domain->id}-{$domain->name|devblocks_permalink}{/devblocks_url}
-			{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context='cerberusweb.contexts.datacenter.domain' context_id=$domain->id macros=$macros return_url=$return_url}		
+			{devblocks_url assign=return_url full=true}c=datacenter.domains&tab=domain&id={$page_context_id}-{$domain->name|devblocks_permalink}{/devblocks_url}
+			{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context=$page_context context_id=$page_context_id macros=$macros return_url=$return_url}		
 		
 			<!-- Edit -->
 			<button type="button" id="btnDatacenterDomainEdit"><span class="cerb-sprite sprite-document_edit"></span> Edit</button>
@@ -49,14 +52,20 @@
 	{/if}
 </fieldset>
 
-{include file="devblocks:cerberusweb.core::internal/notifications/context_profile.tpl" context='cerberusweb.contexts.datacenter.domain' context_id=$domain->id}
+<div>
+{include file="devblocks:cerberusweb.core::internal/notifications/context_profile.tpl" context=$page_context context_id=$page_context_id}
+</div>
+
+<div>
+{include file="devblocks:cerberusweb.core::internal/macros/behavior/scheduled_behavior_profile.tpl" context=$page_context context_id=$page_context_id}
+</div>
 
 <div id="datacenterDomainTabs">
 	<ul>
 		{$tabs = [activity, comments, links]}
-		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabActivityLog&scope=target&point={$point}&context=cerberusweb.contexts.datacenter.domain&context_id={$domain->id}{/devblocks_url}">{'common.activity_log'|devblocks_translate|capitalize}</a></li>		
-		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextComments&context=cerberusweb.contexts.datacenter.domain&id={$domain->id}{/devblocks_url}">{'common.comments'|devblocks_translate|capitalize}</a></li>
-		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextLinks&context=cerberusweb.contexts.datacenter.domain&id={$domain->id}{/devblocks_url}">{'common.links'|devblocks_translate}</a></li>
+		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabActivityLog&scope=target&point={$point}&context=cerberusweb.contexts.datacenter.domain&context_id={$page_context_id}{/devblocks_url}">{'common.activity_log'|devblocks_translate|capitalize}</a></li>		
+		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextComments&context=cerberusweb.contexts.datacenter.domain&id={$page_context_id}{/devblocks_url}">{'common.comments'|devblocks_translate|capitalize}</a></li>
+		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextLinks&context=cerberusweb.contexts.datacenter.domain&id={$page_context_id}{/devblocks_url}">{'common.links'|devblocks_translate}</a></li>
 	</ul>
 </div> 
 <br>
@@ -71,10 +80,10 @@
 		var tabs = $("#datacenterDomainTabs").tabs( { selected:{$tab_selected_idx} } );
 		
 		$('#btnDatacenterDomainEdit').bind('click', function() {
-			$popup = genericAjaxPopup('peek','c=datacenter.domains&a=showDomainPeek&id={$domain->id}',null,false,'550');
+			$popup = genericAjaxPopup('peek','c=datacenter.domains&a=showDomainPeek&id={$page_context_id}',null,false,'550');
 			$popup.one('datacenter_domain_save', function(event) {
 				event.stopPropagation();
-				document.location.href = '{devblocks_url}c=datacenter.domains&a=domain&id={$domain->id}{/devblocks_url}';
+				document.location.href = '{devblocks_url}c=datacenter.domains&a=domain&id={$page_context_id}{/devblocks_url}';
 			});
 		});
 		

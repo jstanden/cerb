@@ -1,3 +1,6 @@
+{$page_context = CerberusContexts::CONTEXT_ADDRESS}
+{$page_context_id = $address->id}
+
 <ul class="submenu">
 	<li><a href="{devblocks_url}c=contacts&a=addresses{/devblocks_url}">{$translate->_('addy_book.tab.addresses')|lower}</a></li>
 </ul>
@@ -51,13 +54,13 @@
 		<br clear="all">
 	
 		<span>
-		{$object_watchers = DAO_ContextLink::getContextLinks(CerberusContexts::CONTEXT_ADDRESS, array($address->id), CerberusContexts::CONTEXT_WORKER)}
-		{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=CerberusContexts::CONTEXT_ADDRESS context_id=$address->id full=true}
+		{$object_watchers = DAO_ContextLink::getContextLinks($page_context, array($page_context_id), CerberusContexts::CONTEXT_WORKER)}
+		{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$page_context context_id=$page_context_id full=true}
 		</span>		
 	
 		<!-- Macros -->
-		{devblocks_url assign=return_url full=true}c=contacts&tab=addresses&m=display&id={$address->id}-{$address->email|devblocks_permalink}{/devblocks_url}
-		{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context=CerberusContexts::CONTEXT_ADDRESS context_id=$address->id macros=$macros return_url=$return_url}		
+		{devblocks_url assign=return_url full=true}c=contacts&tab=addresses&m=display&id={$page_context_id}-{$address->email|devblocks_permalink}{/devblocks_url}
+		{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context=$page_context context_id=$page_context_id macros=$macros return_url=$return_url}		
 	
 		<!-- Toolbar -->
 		<button type="button" id="btnDisplayAddyEdit"><span class="cerb-sprite sprite-document_edit"></span> Edit</button>
@@ -73,17 +76,23 @@
 	{/if}
 </fieldset>
 
-{include file="devblocks:cerberusweb.core::internal/notifications/context_profile.tpl" context=CerberusContexts::CONTEXT_ADDRESS context_id=$address->id}
+<div>
+{include file="devblocks:cerberusweb.core::internal/notifications/context_profile.tpl" context=$page_context context_id=$page_context_id}
+</div>
+
+<div>
+{include file="devblocks:cerberusweb.core::internal/macros/behavior/scheduled_behavior_profile.tpl" context=$page_context context_id=$page_context_id}
+</div>
 
 <div style="clear:both;" id="contactTabs">
 	<ul>
 		{$tabs = [activity,notes,links,mail]}
 		{$point = 'cerberusweb.address.tab'}
 		
-		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabActivityLog&scope=target&point={$point}&context={CerberusContexts::CONTEXT_ADDRESS}&context_id={$address->id}{/devblocks_url}">{'common.activity_log'|devblocks_translate|capitalize}</a></li>
-		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextComments&context={CerberusContexts::CONTEXT_ADDRESS}&id={$address->id}{/devblocks_url}">{$translate->_('common.comments')|capitalize}</a></li>
-		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextLinks&context={CerberusContexts::CONTEXT_ADDRESS}&id={$address->id}{/devblocks_url}">{$translate->_('common.links')}</a></li>
-		<li><a href="{devblocks_url}ajax.php?c=contacts&a=showTabMailHistory&point={$point}&address_ids={$address->id}{/devblocks_url}">{$translate->_('addy_book.org.tabs.mail_history')}</a></li>
+		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabActivityLog&scope=target&point={$point}&context={$page_context}&context_id={$page_context_id}{/devblocks_url}">{'common.activity_log'|devblocks_translate|capitalize}</a></li>
+		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextComments&context={$page_context}&id={$page_context_id}{/devblocks_url}">{$translate->_('common.comments')|capitalize}</a></li>
+		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextLinks&context={$page_context}&id={$page_context_id}{/devblocks_url}">{$translate->_('common.links')}</a></li>
+		<li><a href="{devblocks_url}ajax.php?c=contacts&a=showTabMailHistory&point={$point}&address_ids={$page_context_id}{/devblocks_url}">{$translate->_('addy_book.org.tabs.mail_history')}</a></li>
 	</ul>
 </div> 
 <br>
@@ -98,10 +107,10 @@
 		var tabs = $("#contactTabs").tabs( { selected:{$tab_selected_idx} } );
 	
 		$('#btnDisplayAddyEdit').bind('click', function() {
-			$popup = genericAjaxPopup('peek','c=contacts&a=showAddressPeek&address_id={$address->id}',null,false,'550');
+			$popup = genericAjaxPopup('peek','c=contacts&a=showAddressPeek&address_id={$page_context_id}',null,false,'550');
 			$popup.one('address_save', function(event) {
 				event.stopPropagation();
-				document.location.href = '{devblocks_url}c=contacts&a=addresses&m=display&id={$address->id}-{$address->email|devblocks_permalink}{/devblocks_url}';
+				document.location.href = '{devblocks_url}c=contacts&a=addresses&m=display&id={$page_context_id}-{$address->email|devblocks_permalink}{/devblocks_url}';
 			});
 		});
 		

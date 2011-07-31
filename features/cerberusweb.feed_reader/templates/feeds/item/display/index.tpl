@@ -1,3 +1,6 @@
+{$page_context = 'cerberusweb.contexts.feed.item'}
+{$page_context_id = $item->id}
+
 {include file="devblocks:cerberusweb.feed_reader::feeds/item/display/submenu.tpl"}
 
 <h2>{'feeds.item'|devblocks_translate|capitalize}</h2>
@@ -29,13 +32,13 @@
 
 		<!-- Toolbar -->
 		<span>
-		{$object_watchers = DAO_ContextLink::getContextLinks('cerberusweb.contexts.feed.item', array($item->id), CerberusContexts::CONTEXT_WORKER)}
-		{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context='cerberusweb.contexts.feed.item' context_id=$item->id full=true}
+		{$object_watchers = DAO_ContextLink::getContextLinks($page_context, array($page_context_id), CerberusContexts::CONTEXT_WORKER)}
+		{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$page_context context_id=$page_context_id full=true}
 		</span>		
 		
 		<!-- Macros -->
-		{devblocks_url assign=return_url full=true}c=feeds&i=item&id={$item->id}-{$item->title|devblocks_permalink}{/devblocks_url}
-		{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context="cerberusweb.contexts.feed.item" context_id=$item->id macros=$macros return_url=$return_url}		
+		{devblocks_url assign=return_url full=true}c=feeds&i=item&id={$page_context_id}-{$item->title|devblocks_permalink}{/devblocks_url}
+		{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context="cerberusweb.contexts.feed.item" context_id=$page_context_id macros=$macros return_url=$return_url}		
 		
 		<!-- Edit -->
 		<button type="button" id="btnDisplayFeedItemEdit"><span class="cerb-sprite sprite-document_edit"></span> Edit</button>
@@ -56,15 +59,21 @@
 	{/if}
 </fieldset>
 
-{include file="devblocks:cerberusweb.core::internal/notifications/context_profile.tpl" context='cerberusweb.contexts.feed.item' context_id=$item->id}
+<div>
+{include file="devblocks:cerberusweb.core::internal/notifications/context_profile.tpl" context=$page_context context_id=$page_context_id}
+</div>
+
+<div>
+{include file="devblocks:cerberusweb.core::internal/macros/behavior/scheduled_behavior_profile.tpl" context=$page_context context_id=$page_context_id}
+</div>
 
 <div id="feedItemTabs">
 	<ul>
 		{$tabs = [activity,notes,links]}
 		
-		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabActivityLog&scope=target&point={$point}&context=cerberusweb.contexts.feed.item&context_id={$item->id}{/devblocks_url}">{'common.activity_log'|devblocks_translate|capitalize}</a></li>
-		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextComments&context=cerberusweb.contexts.feed.item&id={$item->id}{/devblocks_url}">{$translate->_('common.comments')|capitalize}</a></li>		
-		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextLinks&context=cerberusweb.contexts.feed.item&id={$item->id}{/devblocks_url}">{$translate->_('common.links')}</a></li>		
+		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabActivityLog&scope=target&point={$point}&context=cerberusweb.contexts.feed.item&context_id={$page_context_id}{/devblocks_url}">{'common.activity_log'|devblocks_translate|capitalize}</a></li>
+		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextComments&context=cerberusweb.contexts.feed.item&id={$page_context_id}{/devblocks_url}">{$translate->_('common.comments')|capitalize}</a></li>		
+		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextLinks&context=cerberusweb.contexts.feed.item&id={$page_context_id}{/devblocks_url}">{$translate->_('common.links')}</a></li>		
 
 		{foreach from=$tab_manifests item=tab_manifest}
 			{$tabs[] = $tab_manifest->params.uri}
@@ -84,10 +93,10 @@
 		var tabs = $("#feedItemTabs").tabs( { selected:{$tab_selected_idx} } );
 		
 		$('#btnDisplayFeedItemEdit').bind('click', function() {
-			$popup = genericAjaxPopup('peek','c=feeds&a=showFeedItemPopup&id={$item->id}',null,false,'550');
+			$popup = genericAjaxPopup('peek','c=feeds&a=showFeedItemPopup&id={$page_context_id}',null,false,'550');
 			$popup.one('feeditem_save', function(event) {
 				event.stopPropagation();
-				document.location.href = '{devblocks_url}c=feeds&i=item&id={$item->id}{/devblocks_url}';
+				document.location.href = '{devblocks_url}c=feeds&i=item&id={$page_context_id}{/devblocks_url}';
 			});
 		});
 		

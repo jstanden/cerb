@@ -1,5 +1,7 @@
-<ul class="submenu">
-</ul>
+{$page_context = CerberusContexts::CONTEXT_KB_ARTICLE}
+{$page_context_id = $article->id}
+
+<ul class="submenu"></ul>
 <div style="clear:both;"></div>
 
 <div style="float:left;">
@@ -52,11 +54,11 @@
 		
 		<div style="margin-top:5px;">
 			<!-- Macros -->
-			{devblocks_url assign=return_url full=true}c=kb&tab=article&id={$article->id}-{$article->title|devblocks_permalink}{/devblocks_url}
-			{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context=CerberusContexts::CONTEXT_KB_ARTICLE context_id=$article->id macros=$macros return_url=$return_url}		
+			{devblocks_url assign=return_url full=true}c=kb&tab=article&id={$page_context_id}-{$article->title|devblocks_permalink}{/devblocks_url}
+			{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context=$page_context context_id=$page_context_id macros=$macros return_url=$return_url}		
 
 			<!-- Edit -->					
-			{if $active_worker->hasPriv('core.kb.articles.modify')}<button id="btnDisplayKbEdit" type="button" onclick="genericAjaxPopup('peek','c=kb.ajax&a=showArticleEditPanel&id={$article->id}&return_uri={"kb/article/{$article->id}"}',null,false,'725');"><span class="cerb-sprite sprite-document_edit"></span> {$translate->_('common.edit')|capitalize}</button>{/if}
+			{if $active_worker->hasPriv('core.kb.articles.modify')}<button id="btnDisplayKbEdit" type="button" onclick="genericAjaxPopup('peek','c=kb.ajax&a=showArticleEditPanel&id={$page_context_id}&return_uri={"kb/article/{$page_context_id}"}',null,false,'725');"><span class="cerb-sprite sprite-document_edit"></span> {$translate->_('common.edit')|capitalize}</button>{/if}
 		</div>
 	</form>
 	
@@ -69,7 +71,13 @@
 	{/if}
 </fieldset>
 
-{include file="devblocks:cerberusweb.core::internal/notifications/context_profile.tpl" context=CerberusContexts::CONTEXT_KB_ARTICLE context_id=$article->id}
+<div>
+{include file="devblocks:cerberusweb.core::internal/notifications/context_profile.tpl" context=$page_context context_id=$page_context_id}
+</div>
+
+<div>
+{include file="devblocks:cerberusweb.core::internal/macros/behavior/scheduled_behavior_profile.tpl" context=$page_context context_id=$page_context_id}
+</div>
 
 <br>
 
@@ -79,7 +87,7 @@
 	{$article->getContent() nofilter}
 </div>
 
-{include file="devblocks:cerberusweb.core::internal/attachments/list.tpl" context={CerberusContexts::CONTEXT_KB_ARTICLE} context_id={$article->id}}
+{include file="devblocks:cerberusweb.core::internal/attachments/list.tpl" context={$page_context} context_id={$page_context_id}}
 
 <script type="text/javascript">
 	{include file="devblocks:cerberusweb.core::internal/macros/display/menu_script.tpl"}

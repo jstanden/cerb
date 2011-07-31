@@ -1,3 +1,6 @@
+{$page_context = CerberusContexts::CONTEXT_OPPORTUNITY}
+{$page_context_id = $opp->id}
+
 {include file="devblocks:cerberusweb.crm::crm/submenu.tpl"}
 
 <h2>{'crm.common.opportunity'|devblocks_translate|capitalize}</h2>
@@ -37,13 +40,13 @@
 	
 		<!-- Toolbar -->
 		<span>
-		{$object_watchers = DAO_ContextLink::getContextLinks(CerberusContexts::CONTEXT_OPPORTUNITY, array($opp->id), CerberusContexts::CONTEXT_WORKER)}
-		{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=CerberusContexts::CONTEXT_OPPORTUNITY context_id=$opp->id full=true}
+		{$object_watchers = DAO_ContextLink::getContextLinks($page_context, array($page_context_id), CerberusContexts::CONTEXT_WORKER)}
+		{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$page_context context_id=$page_context_id full=true}
 		</span>		
 		
 		<!-- Macros -->
-		{devblocks_url assign=return_url full=true}c=crm&tab=opps&id={$opp->id}{/devblocks_url}
-		{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context=CerberusContexts::CONTEXT_OPPORTUNITY context_id=$opp->id macros=$macros return_url=$return_url}		
+		{devblocks_url assign=return_url full=true}c=crm&tab=opps&id={$page_context_id}{/devblocks_url}
+		{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context=$page_context context_id=$page_context_id macros=$macros return_url=$return_url}		
 		
 		<!-- Edit -->		
 		<button type="button" id="btnDisplayOppEdit"><span class="cerb-sprite sprite-document_edit"></span> Edit</button>
@@ -64,16 +67,22 @@
 	{/if}
 </fieldset>
 
-{include file="devblocks:cerberusweb.core::internal/notifications/context_profile.tpl" context=CerberusContexts::CONTEXT_OPPORTUNITY context_id=$opp->id}
+<div>
+{include file="devblocks:cerberusweb.core::internal/notifications/context_profile.tpl" context=$page_context context_id=$page_context_id}
+</div>
+
+<div>
+{include file="devblocks:cerberusweb.core::internal/macros/behavior/scheduled_behavior_profile.tpl" context=$page_context context_id=$page_context_id}
+</div>
 
 <div id="oppTabs">
 	<ul>
 		{$point = Extension_CrmOpportunityTab::POINT}
 		{$tabs = [activity,notes,links,mail]}
 		
-		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabActivityLog&scope=target&point={$point}&context={CerberusContexts::CONTEXT_OPPORTUNITY}&context_id={$opp->id}{/devblocks_url}">{'common.activity_log'|devblocks_translate|capitalize}</a></li>
-		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextComments&context={CerberusContexts::CONTEXT_OPPORTUNITY}&point={$point}&id={$opp->id}{/devblocks_url}">{$translate->_('common.comments')|capitalize}</a></li>		
-		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextLinks&context={CerberusContexts::CONTEXT_OPPORTUNITY}&point={$point}&id={$opp->id}{/devblocks_url}">{$translate->_('common.links')}</a></li>
+		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabActivityLog&scope=target&point={$point}&context={$page_context}&context_id={$page_context_id}{/devblocks_url}">{'common.activity_log'|devblocks_translate|capitalize}</a></li>
+		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextComments&context={$page_context}&point={$point}&id={$page_context_id}{/devblocks_url}">{$translate->_('common.comments')|capitalize}</a></li>		
+		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextLinks&context={$page_context}&point={$point}&id={$page_context_id}{/devblocks_url}">{$translate->_('common.links')}</a></li>
 		<li><a href="{devblocks_url}ajax.php?c=contacts&a=showTabMailHistory&point={$point}&address_ids={$opp->primary_email_id}{/devblocks_url}">{$translate->_('addy_book.org.tabs.mail_history')}</a></li>
 
 		{$tab_manifests = DevblocksPlatform::getExtensions($point, false)}
@@ -95,10 +104,10 @@
 		var tabs = $("#oppTabs").tabs( { selected:{$selected_tab_idx} } );
 		
 		$('#btnDisplayOppEdit').bind('click', function() {
-			$popup = genericAjaxPopup('peek','c=crm&a=showOppPanel&id={$opp->id}',null,false,'550');
+			$popup = genericAjaxPopup('peek','c=crm&a=showOppPanel&id={$page_context_id}',null,false,'550');
 			$popup.one('opp_save', function(event) {
 				event.stopPropagation();
-				document.location.href = '{devblocks_url}c=crm&a=display&id={$opp->id}{/devblocks_url}';
+				document.location.href = '{devblocks_url}c=crm&a=display&id={$page_context_id}{/devblocks_url}';
 			});
 		})
 	});
