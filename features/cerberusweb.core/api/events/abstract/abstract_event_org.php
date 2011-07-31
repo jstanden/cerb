@@ -72,8 +72,6 @@ abstract class AbstractEvent_Org extends Extension_DevblocksEvent {
 	function getConditionExtensions() {
 		$labels = $this->getLabels();
 		
-//		$labels['ticket_has_owner'] = 'Ticket has owner';
-		
 		$types = array(
 			'org_city' => Model_CustomField::TYPE_SINGLE_LINE,
 			'org_country' => Model_CustomField::TYPE_SINGLE_LINE,
@@ -84,8 +82,6 @@ abstract class AbstractEvent_Org extends Extension_DevblocksEvent {
 			'org_province' => Model_CustomField::TYPE_SINGLE_LINE,
 			'org_street' => Model_CustomField::TYPE_SINGLE_LINE,
 			'org_website' => Model_CustomField::TYPE_URL,
-		
-//			'ticket_has_owner' => null,
 		);
 
 		$conditions = $this->_importLabelsTypesAsConditions($labels, $types);
@@ -111,12 +107,6 @@ abstract class AbstractEvent_Org extends Extension_DevblocksEvent {
 		$pass = true;
 		
 		switch($token) {
-//			case 'ticket_has_owner':
-//				$bool = $params['bool'];
-//				@$value = $values['ticket_owner_id'];
-//				$pass = ($bool == !empty($value));
-//				break;
-				
 			default:
 				$pass = false;
 				break;
@@ -134,8 +124,6 @@ abstract class AbstractEvent_Org extends Extension_DevblocksEvent {
 				'create_task' => array('label' =>'Create a task'),
 				'create_ticket' => array('label' =>'Create a ticket'),
 				'schedule_behavior' => array('label' => 'Schedule behavior'),
-// 				'send_email' => array('label' => 'Send email'),
-// 				'set_status' => array('label' => 'Set status'),
 			)
 			+ DevblocksEventHelper::getActionCustomFields(CerberusContexts::CONTEXT_ORG)
 			;
@@ -158,10 +146,6 @@ abstract class AbstractEvent_Org extends Extension_DevblocksEvent {
 				DevblocksEventHelper::renderActionAddWatchers();
 				break;
 			
-// 			case 'send_email':
-// 				DevblocksEventHelper::renderActionSendEmail();
-// 				break;
-				
 			case 'create_comment':
 				DevblocksEventHelper::renderActionCreateComment();
 				break;
@@ -190,10 +174,6 @@ abstract class AbstractEvent_Org extends Extension_DevblocksEvent {
 				DevblocksEventHelper::renderActionScheduleBehavior($trigger->owner_context, $trigger->owner_context_id, $this->_event_id);
 				break;
 				
-// 			case 'set_status':
-// 				$tpl->display('devblocks:cerberusweb.core::events/model/task/action_set_status.tpl');
-// 				break;
-				
 			default:
 				if('set_cf_' == substr($token,0,7)) {
 					$field_id = substr($token,7);
@@ -219,10 +199,6 @@ abstract class AbstractEvent_Org extends Extension_DevblocksEvent {
 				DevblocksEventHelper::runActionAddWatchers($params, $values, CerberusContexts::CONTEXT_ORG, $org_id);
 				break;
 			
-// 			case 'send_email':
-// 				DevblocksEventHelper::runActionSendEmail($params, $values);
-// 				break;
-				
 			case 'create_comment':
 				DevblocksEventHelper::runActionCreateComment($params, $values, CerberusContexts::CONTEXT_ORG, $org_id);
 				break;
@@ -242,37 +218,6 @@ abstract class AbstractEvent_Org extends Extension_DevblocksEvent {
 			case 'schedule_behavior':
 				DevblocksEventHelper::runActionScheduleBehavior($params, $values, CerberusContexts::CONTEXT_ORG, $org_id);
 				break;
-				
-// 			case 'set_status':
-// 				@$to_status = $params['status'];
-// 				@$current_status = $values['task_status'];
-				
-// 				if($to_status == $current_status)
-// 					break;
-				
-// 				$fields = array();
-					
-// 				switch($to_status) {
-// 					case 'active':
-// 						$fields = array(
-// 							DAO_ContactOrg::IS_COMPLETED => 0,
-// 							DAO_ContactOrg::COMPLETED_DATE => 0,
-// 						);
-// 						break;
-// 					case 'completed':
-// 						$fields = array(
-// 							DAO_ContactOrg::IS_COMPLETED => 1,
-// 							DAO_ContactOrg::COMPLETED_DATE => time(),
-// 						);
-// 						break;
-// 				}
-				
-// 				if(!empty($fields)) {
-// 					$values['status'] = $to_status;
-// 					DAO_ContactOrg::update($org_id, $fields);
-// 				}
-				
-// 				break;
 				
 			default:
 				if('set_cf_' == substr($token,0,7)) {

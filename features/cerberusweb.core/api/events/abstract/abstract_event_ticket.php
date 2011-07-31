@@ -8,7 +8,7 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 	 * @param integer $group_id
 	 * @return Model_DevblocksEvent
 	 */
-	function generateSampleEventModel($ticket_id=null, $group_id=null) {
+	function generateSampleEventModel($ticket_id=null) {
 		if(empty($ticket_id)) {
 			// Pull the latest ticket
 			list($results) = DAO_Ticket::search(
@@ -28,14 +28,12 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 			$result = array_shift($results);
 			
 			$ticket_id = $result[SearchFields_Ticket::TICKET_ID];
-			//$group_id = $result[SearchFields_Ticket::TICKET_TEAM_ID];
 		}
 		
 		return new Model_DevblocksEvent(
 			$this->_event_id,
 			array(
 				'ticket_id' => $ticket_id,
-				//'group_id' => $group_id,
 			)
 		);
 	}	

@@ -72,8 +72,6 @@ abstract class AbstractEvent_Task extends Extension_DevblocksEvent {
 	function getConditionExtensions() {
 		$labels = $this->getLabels();
 		
-//		$labels['ticket_has_owner'] = 'Ticket has owner';
-		
 		$types = array(
 			'task_is_completed' => Model_CustomField::TYPE_CHECKBOX,
 			'task_completed|date' => Model_CustomField::TYPE_DATE,
@@ -81,8 +79,6 @@ abstract class AbstractEvent_Task extends Extension_DevblocksEvent {
 			'task_updated|date' => Model_CustomField::TYPE_DATE,
 			'task_status' => Model_CustomField::TYPE_SINGLE_LINE,
 			'task_title' => Model_CustomField::TYPE_SINGLE_LINE,
-		
-//			'ticket_has_owner' => null,
 		);
 
 		$conditions = $this->_importLabelsTypesAsConditions($labels, $types);
@@ -108,12 +104,6 @@ abstract class AbstractEvent_Task extends Extension_DevblocksEvent {
 		$pass = true;
 		
 		switch($token) {
-//			case 'ticket_has_owner':
-//				$bool = $params['bool'];
-//				@$value = $values['ticket_owner_id'];
-//				$pass = ($bool == !empty($value));
-//				break;
-				
 			default:
 				$pass = false;
 				break;

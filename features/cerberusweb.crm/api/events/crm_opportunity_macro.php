@@ -87,8 +87,6 @@ class Event_CrmOpportunityMacro extends Extension_DevblocksEvent {
 	function getConditionExtensions() {
 		$labels = $this->getLabels();
 		
-//		$labels['ticket_has_owner'] = 'Ticket has owner';
-		
 		$types = array(
 			'opp_email_num_nonspam' => Model_CustomField::TYPE_NUMBER,
 			'opp_email_num_spam' => Model_CustomField::TYPE_NUMBER,
@@ -113,8 +111,6 @@ class Event_CrmOpportunityMacro extends Extension_DevblocksEvent {
 			'opp_title' => Model_CustomField::TYPE_SINGLE_LINE,
 			'opp_updated|date' => Model_CustomField::TYPE_DATE,
 			'opp_is_won' => Model_CustomField::TYPE_CHECKBOX,
-		
-//			'ticket_has_owner' => null,
 		);
 
 		$conditions = $this->_importLabelsTypesAsConditions($labels, $types);
@@ -140,12 +136,6 @@ class Event_CrmOpportunityMacro extends Extension_DevblocksEvent {
 		$pass = true;
 		
 		switch($token) {
-//			case 'ticket_has_owner':
-//				$bool = $params['bool'];
-//				@$value = $values['ticket_owner_id'];
-//				$pass = ($bool == !empty($value));
-//				break;
-				
 			default:
 				$pass = false;
 				break;
