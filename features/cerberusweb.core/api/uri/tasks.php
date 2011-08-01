@@ -304,6 +304,8 @@ class ChTasksPage extends CerberusPageExtension {
 		@$ids = DevblocksPlatform::importGPC($_REQUEST['ids']);
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id']);
 
+		$active_worker = CerberusApplication::getActiveWorker();
+		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('view_id', $view_id);
 
@@ -319,6 +321,10 @@ class ChTasksPage extends CerberusPageExtension {
 		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TASK);
 		$tpl->assign('custom_fields', $custom_fields);
 		
+		// Macros
+		$macros = DAO_TriggerEvent::getByOwner(CerberusContexts::CONTEXT_WORKER, $active_worker->id, 'event.macro.task');
+		$tpl->assign('macros', $macros);
+		
 		$tpl->display('devblocks:cerberusweb.core::tasks/rpc/bulk.tpl');
 	}
 	
@@ -332,9 +338,13 @@ class ChTasksPage extends CerberusPageExtension {
 		$view = C4_AbstractViewLoader::getView($view_id);
 		
 		// Task fields
-		$due = trim(DevblocksPlatform::importGPC($_POST['due'],'string',''));
-		$status = trim(DevblocksPlatform::importGPC($_POST['status'],'string',''));
+		@$due = trim(DevblocksPlatform::importGPC($_POST['due'],'string',''));
+		@$status = trim(DevblocksPlatform::importGPC($_POST['status'],'string',''));
 
+		// Scheduled behavior
+		@$behavior_id = DevblocksPlatform::importGPC($_POST['behavior_id'],'string','');
+		@$behavior_when = DevblocksPlatform::importGPC($_POST['behavior_when'],'string','');
+		
 		$do = array();
 		
 		// Do: Due
@@ -345,6 +355,14 @@ class ChTasksPage extends CerberusPageExtension {
 		if(0 != strlen($status))
 			$do['status'] = $status;
 			
+		// Do: Scheduled Behavior
+		if(0 != strlen($behavior_id)) {
+			$do['behavior'] = array(
+				'id' => $behavior_id,
+				'when' => $behavior_when,
+			);
+		}
+		
 		// Watchers
 		$watcher_params = array();
 		
