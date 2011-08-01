@@ -297,6 +297,8 @@ class Page_Feeds extends CerberusPageExtension {
 		@$ids = DevblocksPlatform::importGPC($_REQUEST['ids']);
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id']);
 
+		$active_worker = CerberusApplication::getActiveWorker();
+		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('view_id', $view_id);
 
@@ -308,6 +310,10 @@ class Page_Feeds extends CerberusPageExtension {
 		// Custom Fields
 		$custom_fields = DAO_CustomField::getByContext('cerberusweb.contexts.feed.item');
 		$tpl->assign('custom_fields', $custom_fields);
+		
+		// Macros
+		$macros = DAO_TriggerEvent::getByOwner(CerberusContexts::CONTEXT_WORKER, $active_worker->id, 'event.macro.feeditem');
+		$tpl->assign('macros', $macros);
 		
 		$tpl->display('devblocks:cerberusweb.feed_reader::feeds/item/bulk.tpl');
 	}
@@ -324,12 +330,24 @@ class Page_Feeds extends CerberusPageExtension {
 		// Call fields
 		$is_closed = trim(DevblocksPlatform::importGPC($_POST['is_closed'],'string',''));
 
+		// Scheduled behavior
+		@$behavior_id = DevblocksPlatform::importGPC($_POST['behavior_id'],'string','');
+		@$behavior_when = DevblocksPlatform::importGPC($_POST['behavior_when'],'string','');
+		
 		$do = array();
 		
 		// Do: Due
 		if(0 != strlen($is_closed))
 			$do['is_closed'] = !empty($is_closed) ? 1 : 0;
-			
+
+		// Do: Scheduled Behavior
+		if(0 != strlen($behavior_id)) {
+			$do['behavior'] = array(
+				'id' => $behavior_id,
+				'when' => $behavior_when,
+			);
+		}
+		
 		// Watchers
 		$watcher_params = array();
 		
