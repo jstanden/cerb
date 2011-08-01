@@ -437,6 +437,8 @@ class CrmPage extends CerberusPageExtension {
 		@$ids = DevblocksPlatform::importGPC($_REQUEST['ids']);
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id']);
 
+		$active_worker = CerberusApplication::getActiveWorker();
+		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('path', dirname(__FILE__) . '/templates/');
 		$tpl->assign('view_id', $view_id);
@@ -457,6 +459,10 @@ class CrmPage extends CerberusPageExtension {
 		// Groups
 		$groups = DAO_Group::getAll();
 		$tpl->assign('groups', $groups);
+		
+		// Macros
+		$macros = DAO_TriggerEvent::getByOwner(CerberusContexts::CONTEXT_WORKER, $active_worker->id, 'event.macro.crm.opportunity');
+		$tpl->assign('macros', $macros);
 		
 		// Broadcast
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_OPPORTUNITY, null, $token_labels, $token_values);
@@ -481,6 +487,10 @@ class CrmPage extends CerberusPageExtension {
 		@$closed_date = trim(DevblocksPlatform::importGPC($_POST['closed_date'],'string',''));
 		@$worker_id = trim(DevblocksPlatform::importGPC($_POST['worker_id'],'string',''));
 
+		// Scheduled behavior
+		@$behavior_id = DevblocksPlatform::importGPC($_POST['behavior_id'],'string','');
+		@$behavior_when = DevblocksPlatform::importGPC($_POST['behavior_when'],'string','');
+		
 		$do = array();
 		
 		// Do: Status
@@ -492,7 +502,15 @@ class CrmPage extends CerberusPageExtension {
 		// Do: Worker
 		if(0 != strlen($worker_id))
 			$do['worker_id'] = $worker_id;
-			
+
+		// Do: Scheduled Behavior
+		if(0 != strlen($behavior_id)) {
+			$do['behavior'] = array(
+				'id' => $behavior_id,
+				'when' => $behavior_when,
+			);
+		}
+		
 		// Watchers
 		$watcher_params = array();
 		

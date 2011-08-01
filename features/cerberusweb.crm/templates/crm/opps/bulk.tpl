@@ -69,6 +69,8 @@
 </fieldset>
 {/if}
 
+{include file="devblocks:cerberusweb.core::internal/macros/behavior/bulk.tpl" macros=$macros}
+
 {if $active_worker->hasPriv('crm.opp.view.actions.broadcast')}
 <fieldset>
 	<legend>Send Broadcast</legend>
