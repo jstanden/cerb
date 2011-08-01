@@ -229,6 +229,7 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 			'send_email' => array('label' => 'Send email'),
 			'relay_email' => array('label' => 'Relay to external email'),
 			'send_email_recipients' => array('label' => 'Reply to recipients'),
+			'schedule_behavior' => array('label' => 'Schedule behavior'),
 			'create_comment' => array('label' =>'Create a comment'),
 			'create_notification' => array('label' =>'Create a notification'),
 			'create_task' => array('label' =>'Create a task'),
@@ -267,6 +268,18 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 			case 'send_email_recipients':
 				$tpl->assign('workers', DAO_Worker::getAll());
 				$tpl->display('devblocks:cerberusweb.core::events/mail_received_by_owner/action_send_email_recipients.tpl');
+				break;
+				
+			case 'schedule_behavior':
+				$dates = array();
+				$conditions = $this->getConditions();
+				foreach($conditions as $key => $data) {
+					if($data['type'] == Model_CustomField::TYPE_DATE)
+					$dates[$key] = $data['label'];
+				}
+				$tpl->assign('dates', $dates);
+			
+				DevblocksEventHelper::renderActionScheduleBehavior($trigger->owner_context, $trigger->owner_context_id, 'event.macro.ticket');
 				break;
 				
 			case 'create_comment':
@@ -339,6 +352,10 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 					'agent_id' => 0, //$worker_id,
 				);
 				CerberusMail::sendTicketMessage($properties);
+				break;
+				
+			case 'schedule_behavior':
+				DevblocksEventHelper::runActionScheduleBehavior($params, $values, CerberusContexts::CONTEXT_TICKET, $ticket_id);
 				break;
 				
 			case 'create_comment':
