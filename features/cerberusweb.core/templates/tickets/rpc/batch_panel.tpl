@@ -143,6 +143,8 @@
 </fieldset>
 {/if}
 
+{include file="devblocks:cerberusweb.core::internal/macros/behavior/bulk.tpl" macros=$macros}
+
 {if $active_worker->hasPriv('core.ticket.view.actions.broadcast_reply')}
 <fieldset>
 	<legend>Send Broadcast Reply</legend>

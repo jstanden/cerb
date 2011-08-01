@@ -2106,6 +2106,8 @@ class ChTicketsPage extends CerberusPageExtension {
 		@$ids = DevblocksPlatform::importGPC($_REQUEST['ids']);
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id']);
 
+		$active_worker = CerberusApplication::getActiveWorker();
+		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('view_id', $view_id);
 
@@ -2165,6 +2167,10 @@ class ChTicketsPage extends CerberusPageExtension {
 		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TICKET);
 		$tpl->assign('custom_fields', $custom_fields);
 		
+		// Macros
+		$macros = DAO_TriggerEvent::getByOwner(CerberusContexts::CONTEXT_WORKER, $active_worker->id, 'event.macro.ticket');
+		$tpl->assign('macros', $macros);
+		
 		// Broadcast
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_TICKET, null, $token_labels, $token_values);
 		$tpl->assign('token_labels', $token_labels);
@@ -2189,6 +2195,10 @@ class ChTicketsPage extends CerberusPageExtension {
         $subjects = DevblocksPlatform::parseCrlfString($subjects);
         $senders = DevblocksPlatform::parseCrlfString($senders);
 		
+		// Scheduled behavior
+		@$behavior_id = DevblocksPlatform::importGPC($_POST['behavior_id'],'string','');
+		@$behavior_when = DevblocksPlatform::importGPC($_POST['behavior_when'],'string','');
+        
 		$do = array();
 		
 		// Move to Group/Bucket
@@ -2252,6 +2262,14 @@ class ChTicketsPage extends CerberusPageExtension {
 			
 			$do['reopen'] = array(
 				'date' => $reopen,
+			);
+		}
+		
+		// Do: Scheduled Behavior
+		if(0 != strlen($behavior_id)) {
+			$do['behavior'] = array(
+				'id' => $behavior_id,
+				'when' => $behavior_when,
 			);
 		}
 		
