@@ -1104,8 +1104,10 @@ class ChContactsPage extends CerberusPageExtension {
 		@$ids = DevblocksPlatform::importGPC($_REQUEST['ids']);
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id']);
 
+		$active_worker = CerberusApplication::getActiveWorker();		
+		
 		$tpl = DevblocksPlatform::getTemplateService();
-				$tpl->assign('view_id', $view_id);
+		$tpl->assign('view_id', $view_id);
 
 	    if(!empty($ids)) {
 	        $address_ids = DevblocksPlatform::parseCsvString($ids);
@@ -1124,6 +1126,10 @@ class ChContactsPage extends CerberusPageExtension {
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_ADDRESS, null, $token_labels, $token_values);
 		$tpl->assign('token_labels', $token_labels);
 	    
+		// Macros
+		$macros = DAO_TriggerEvent::getByOwner(CerberusContexts::CONTEXT_WORKER, $active_worker->id, 'event.macro.address');
+		$tpl->assign('macros', $macros);
+		
 		$tpl->display('devblocks:cerberusweb.core::contacts/addresses/address_bulk.tpl');
 	}
 	
@@ -1131,8 +1137,10 @@ class ChContactsPage extends CerberusPageExtension {
 		@$ids = DevblocksPlatform::importGPC($_REQUEST['ids']);
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id']);
 
+		$active_worker = CerberusApplication::getActiveWorker();
+		
 		$tpl = DevblocksPlatform::getTemplateService();
-				$tpl->assign('view_id', $view_id);
+		$tpl->assign('view_id', $view_id);
 
 	    if(!empty($ids)) {
 	        $org_ids = DevblocksPlatform::parseCsvString($ids);
@@ -1142,6 +1150,10 @@ class ChContactsPage extends CerberusPageExtension {
 		// Custom Fields
 		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ORG);
 		$tpl->assign('custom_fields', $custom_fields);
+		
+		// Macros
+		$macros = DAO_TriggerEvent::getByOwner(CerberusContexts::CONTEXT_WORKER, $active_worker->id, 'event.macro.org');
+		$tpl->assign('macros', $macros);
 		
 		$tpl->display('devblocks:cerberusweb.core::contacts/orgs/org_bulk.tpl');
 	}
@@ -1671,6 +1683,10 @@ class ChContactsPage extends CerberusPageExtension {
 		@$sla = DevblocksPlatform::importGPC($_POST['sla'],'string','');
 		@$is_banned = DevblocksPlatform::importGPC($_POST['is_banned'],'integer',0);
 
+		// Scheduled behavior
+		@$behavior_id = DevblocksPlatform::importGPC($_POST['behavior_id'],'string','');
+		@$behavior_when = DevblocksPlatform::importGPC($_POST['behavior_when'],'string','');
+		
 		$do = array();
 		
 		// Do: Organization
@@ -1678,12 +1694,22 @@ class ChContactsPage extends CerberusPageExtension {
 			if(null != ($org_id = DAO_ContactOrg::lookup($org_name, true)))
 				$do['org_id'] = $org_id;
 		}
+		
 		// Do: SLA
 		if('' != $sla)
 			$do['sla'] = $sla;
+		
 		// Do: Banned
 		if(0 != strlen($is_banned))
 			$do['banned'] = $is_banned;
+		
+		// Do: Scheduled Behavior
+		if(0 != strlen($behavior_id)) {
+			$do['behavior'] = array(
+				'id' => $behavior_id,
+				'when' => $behavior_when,
+			);
+		}
 		
 		// Broadcast: Compose
 		if($active_worker->hasPriv('core.addybook.addy.view.actions.broadcast')) {
@@ -1801,12 +1827,24 @@ class ChContactsPage extends CerberusPageExtension {
 		// Org fields
 		@$country = trim(DevblocksPlatform::importGPC($_POST['country'],'string',''));
 
+		// Scheduled behavior
+		@$behavior_id = DevblocksPlatform::importGPC($_POST['behavior_id'],'string','');
+		@$behavior_when = DevblocksPlatform::importGPC($_POST['behavior_when'],'string','');
+		
 		$do = array();
 		
 		// Do: Country
 		if(0 != strlen($country))
 			$do['country'] = $country;
 			
+		// Do: Scheduled Behavior
+		if(0 != strlen($behavior_id)) {
+			$do['behavior'] = array(
+				'id' => $behavior_id,
+				'when' => $behavior_when,
+			);
+		}
+		
 		// Watchers
 		$watcher_params = array();
 		

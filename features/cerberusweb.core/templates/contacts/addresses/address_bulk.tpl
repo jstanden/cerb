@@ -43,7 +43,9 @@
 	{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=true}	
 </fieldset>
 {/if}
-	
+
+{include file="devblocks:cerberusweb.core::internal/macros/behavior/bulk.tpl" macros=$macros}
+
 {if $active_worker->hasPriv('core.addybook.addy.view.actions.broadcast')}
 <fieldset>
 	<legend>Send Broadcast</legend>
