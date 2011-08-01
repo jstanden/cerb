@@ -794,6 +794,8 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 		@$id_csv = DevblocksPlatform::importGPC($_REQUEST['ids']);
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id']);
 
+		$active_worker = CerberusApplication::getActiveWorker();
+		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('view_id', $view_id);
 
@@ -812,6 +814,10 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 		// Custom Fields
 //		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_FEEDBACK);
 //		$tpl->assign('custom_fields', $custom_fields);
+
+		// Macros
+		$macros = DAO_TriggerEvent::getByOwner(CerberusContexts::CONTEXT_WORKER, $active_worker->id, 'event.macro.kb_article');
+		$tpl->assign('macros', $macros);
 		
 		$tpl->display('devblocks:cerberusweb.kb::kb/ajax/articles_bulk_panel.tpl');
 	}
@@ -824,6 +830,10 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 	    // View
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
 		$view = C4_AbstractViewLoader::getView($view_id);
+		
+		// Scheduled behavior
+		@$behavior_id = DevblocksPlatform::importGPC($_POST['behavior_id'],'string','');
+		@$behavior_when = DevblocksPlatform::importGPC($_POST['behavior_when'],'string','');
 		
 		$do = array();
 
@@ -849,6 +859,14 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 			
 		// Do: Custom fields
 //		$do = DAO_CustomFieldValue::handleBulkPost($do);
+
+		// Do: Scheduled Behavior
+		if(0 != strlen($behavior_id)) {
+			$do['behavior'] = array(
+				'id' => $behavior_id,
+				'when' => $behavior_when,
+			);
+		}
 		
 		switch($filter) {
 			// Checked rows
