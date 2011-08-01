@@ -284,6 +284,8 @@ class Page_Datacenter extends CerberusPageExtension {
 		@$ids = DevblocksPlatform::importGPC($_REQUEST['ids']);
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id']);
 
+		$active_worker = CerberusApplication::getActiveWorker();
+		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('view_id', $view_id);
 
@@ -304,6 +306,10 @@ class Page_Datacenter extends CerberusPageExtension {
 		$custom_fields = DAO_CustomField::getByContext('cerberusweb.contexts.datacenter.server');
 		$tpl->assign('custom_fields', $custom_fields);
 		
+		// Macros
+		$macros = DAO_TriggerEvent::getByOwner(CerberusContexts::CONTEXT_WORKER, $active_worker->id, 'event.macro.server');
+		$tpl->assign('macros', $macros);
+		
 		$tpl->display('devblocks:cerberusweb.datacenter::datacenter/servers/bulk.tpl');
 	}
 	
@@ -315,6 +321,10 @@ class Page_Datacenter extends CerberusPageExtension {
 	    // View
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
 		$view = C4_AbstractViewLoader::getView($view_id);
+		
+		// Scheduled behavior
+		@$behavior_id = DevblocksPlatform::importGPC($_POST['behavior_id'],'string','');
+		@$behavior_when = DevblocksPlatform::importGPC($_POST['behavior_when'],'string','');
 		
 		$do = array();
 		
@@ -340,6 +350,14 @@ class Page_Datacenter extends CerberusPageExtension {
 		// Do: Custom fields
 		$do = DAO_CustomFieldValue::handleBulkPost($do);
 
+		// Do: Scheduled Behavior
+		if(0 != strlen($behavior_id)) {
+			$do['behavior'] = array(
+				'id' => $behavior_id,
+				'when' => $behavior_when,
+			);
+		}
+		
 		switch($filter) {
 			// Checked rows
 			case 'checks':
