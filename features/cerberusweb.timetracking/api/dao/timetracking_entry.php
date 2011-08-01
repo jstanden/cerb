@@ -866,6 +866,22 @@ class View_TimeTracking extends C4_AbstractView implements IAbstractView_Subtota
 			// Custom Fields
 			self::_doBulkSetCustomFields(CerberusContexts::CONTEXT_TIMETRACKING, $custom_fields, $batch_ids);
 			
+			// Scheduled behavior
+			if(isset($do['behavior']) && is_array($do['behavior'])) {
+				$behavior_id = $do['behavior']['id'];
+				@$behavior_when = strtotime($do['behavior']['when']) or time();
+				
+				if(!empty($batch_ids) && !empty($behavior_id))
+				foreach($batch_ids as $batch_id) {
+					DAO_ContextScheduledBehavior::create(array(
+						DAO_ContextScheduledBehavior::BEHAVIOR_ID => $behavior_id,
+						DAO_ContextScheduledBehavior::CONTEXT => CerberusContexts::CONTEXT_TIMETRACKING,
+						DAO_ContextScheduledBehavior::CONTEXT_ID => $batch_id,
+						DAO_ContextScheduledBehavior::RUN_DATE => $behavior_when,
+					));
+				}
+			}
+			
 			unset($batch_ids);
 		}
 
