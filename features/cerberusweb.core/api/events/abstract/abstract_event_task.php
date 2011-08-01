@@ -122,6 +122,7 @@ abstract class AbstractEvent_Task extends Extension_DevblocksEvent {
 				'create_ticket' => array('label' =>'Create a ticket'),
 				'schedule_behavior' => array('label' => 'Schedule behavior'),
 				'send_email' => array('label' => 'Send email'),
+				'set_due_date' => array('label' => 'Set due date'),
 				'set_status' => array('label' => 'Set status'),
 			)
 			+ DevblocksEventHelper::getActionCustomFields(CerberusContexts::CONTEXT_TASK)
@@ -177,6 +178,10 @@ abstract class AbstractEvent_Task extends Extension_DevblocksEvent {
 				DevblocksEventHelper::renderActionScheduleBehavior($trigger->owner_context, $trigger->owner_context_id, $this->_event_id);
 				break;
 				
+			case 'set_due_date':
+				$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_date.tpl');
+				break;
+				
 			case 'set_status':
 				$tpl->display('devblocks:cerberusweb.core::events/model/task/action_set_status.tpl');
 				break;
@@ -230,6 +235,16 @@ abstract class AbstractEvent_Task extends Extension_DevblocksEvent {
 				DevblocksEventHelper::runActionScheduleBehavior($params, $values, CerberusContexts::CONTEXT_TASK, $task_id);
 				break;
 				
+			case 'set_due_date':
+				@$to_date = strtotime($params['value']) or 0;
+				
+				DAO_Task::update($task_id, array(
+					DAO_Task::DUE_DATE => $to_date,
+				));
+				
+				$values['task_due'] = $to_date;
+				break;
+				
 			case 'set_status':
 				@$to_status = $params['status'];
 				@$current_status = $values['task_status'];
@@ -255,7 +270,7 @@ abstract class AbstractEvent_Task extends Extension_DevblocksEvent {
 				}
 				
 				if(!empty($fields)) {
-					$values['status'] = $to_status;
+					$values['task_status'] = $to_status;
 					DAO_Task::update($task_id, $fields);
 				}
 				
