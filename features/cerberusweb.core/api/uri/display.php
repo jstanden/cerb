@@ -91,6 +91,22 @@ class ChDisplayPage extends CerberusPageExtension {
 			'status' => null,
 			'mask' => null,
 			'bucket' => null,
+			'created' => array(
+				'label' => ucfirst($translate->_('common.created')),
+				'type' => Model_CustomField::TYPE_DATE,
+				'value' => $ticket->created_date,
+			),
+			'updated' => array(
+				'label' => ucfirst($translate->_('common.updated')),
+				'type' => Model_CustomField::TYPE_DATE,
+				'value' => $ticket->updated_date,
+			),
+			// [TODO] If trained or not
+			'spam_score' => array(
+				'label' => ucfirst($translate->_('ticket.spam_score')),
+				'type' => Model_CustomField::TYPE_SINGLE_LINE,
+				'value' => (100*$ticket->spam_score) . '%',
+			),
 		);
 		
 		if(!empty($ticket->owner_id))

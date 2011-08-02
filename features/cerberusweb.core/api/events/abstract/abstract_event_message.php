@@ -426,7 +426,7 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 				}
 				$tpl->assign('dates', $dates);
 				
-				DevblocksEventHelper::renderActionScheduleBehavior($trigger->owner_context, $trigger->owner_context_id, $this->_event_id);
+				DevblocksEventHelper::renderActionScheduleBehavior($trigger->owner_context, $trigger->owner_context_id, 'event.macro.ticket');
 				break;
 				
 			case 'send_email':
