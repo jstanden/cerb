@@ -13,14 +13,7 @@
 	<td width="98%" valign="middle">
 	</td>
 	<td width="1%" nowrap="nowrap" valign="middle" align="right">
-		<form action="{devblocks_url}{/devblocks_url}" method="post">
-		<input type="hidden" name="c" value="contacts">
-		<input type="hidden" name="a" value="doOrgQuickSearch">
-		<span><b>{$translate->_('common.quick_search')|capitalize}:</b></span> <select name="type">
-			<option value="name">{$translate->_('contact_org.name')|capitalize}</option>
-			<option value="phone">{$translate->_('contact_org.phone')|capitalize}</option>
-		</select><input type="text" name="query" class="input_search" size="24"><button type="submit">{$translate->_('common.search_go')|lower}</button>
-		</form>
+		{include file="devblocks:cerberusweb.core::contacts/orgs/quick_search.tpl"}
 	</td>
 </tr>
 </table>

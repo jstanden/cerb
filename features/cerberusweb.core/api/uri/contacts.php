@@ -2009,8 +2009,17 @@ class ChContactsPage extends CerberusPageExtension {
             case "name":
                 $params[SearchFields_ContactOrg::NAME] = new DevblocksSearchCriteria(SearchFields_ContactOrg::NAME,DevblocksSearchCriteria::OPER_LIKE,strtolower($query));               
                 break;
+                
             case "phone":
                 $params[SearchFields_ContactOrg::PHONE] = new DevblocksSearchCriteria(SearchFields_ContactOrg::PHONE,DevblocksSearchCriteria::OPER_LIKE,strtolower($query));               
+                break;
+                
+            case "comments_all":
+            	$params[SearchFields_ContactOrg::FULLTEXT_COMMENT_CONTENT] = new DevblocksSearchCriteria(SearchFields_ContactOrg::FULLTEXT_COMMENT_CONTENT,DevblocksSearchCriteria::OPER_FULLTEXT,array($query,'all'));               
+                break;
+                
+            case "comments_phrase":
+            	$params[SearchFields_ContactOrg::FULLTEXT_COMMENT_CONTENT] = new DevblocksSearchCriteria(SearchFields_ContactOrg::FULLTEXT_COMMENT_CONTENT,DevblocksSearchCriteria::OPER_FULLTEXT,array($query,'phrase'));               
                 break;
         }
         
