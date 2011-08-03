@@ -161,7 +161,9 @@ class DAO_FeedItem extends C4_ORMHelper {
 		$join_sql = "FROM feed_item ".
 		
 		// [JAS]: Dynamic table joins
-			(isset($tables['context_link']) ? "INNER JOIN context_link ON (context_link.to_context = 'cerberusweb.contexts.feed.item' AND context_link.to_context_id = feed_item.id) " : " ")
+			(isset($tables['context_link']) ? "INNER JOIN context_link ON (context_link.to_context = 'cerberusweb.contexts.feed.item' AND context_link.to_context_id = feed_item.id) " : " ").
+			(isset($tables['ftcc']) ? "INNER JOIN comment ON (comment.context = 'cerberusweb.contexts.feed.item' AND comment.context_id = feed_item.id) " : " ").
+			(isset($tables['ftcc']) ? "INNER JOIN fulltext_comment_content ftcc ON (ftcc.id=comment.id) " : " ")
 			;
 		
 		// Custom field joins
@@ -277,9 +279,14 @@ class SearchFields_FeedItem implements IDevblocksSearchFields {
 	const CREATED_DATE = 'fi_created_date';
 	const IS_CLOSED = 'fi_is_closed';
 	
+	// Context links
 	const CONTEXT_LINK = 'cl_context_from';
 	const CONTEXT_LINK_ID = 'cl_context_from_id';
 	
+	// Comment Content
+	const FULLTEXT_COMMENT_CONTENT = 'ftcc_content';
+
+	// Virtuals
 	const VIRTUAL_WATCHERS = '*_workers';
 	
 	/**
@@ -302,6 +309,11 @@ class SearchFields_FeedItem implements IDevblocksSearchFields {
 			
 			self::VIRTUAL_WATCHERS => new DevblocksSearchField(self::VIRTUAL_WATCHERS, '*', 'workers', $translate->_('common.watchers')),
 		);
+		
+		$tables = DevblocksPlatform::getDatabaseTables();
+		if(isset($tables['fulltext_comment_content'])) {
+			$columns[self::FULLTEXT_COMMENT_CONTENT] = new DevblocksSearchField(self::FULLTEXT_COMMENT_CONTENT, 'ftcc', 'content', $translate->_('comment.filters.content'));
+		}
 		
 		// Custom Fields
 		$fields = DAO_CustomField::getByContext('cerberusweb.contexts.feed.item');
@@ -349,6 +361,7 @@ class View_FeedItem extends C4_AbstractView implements IAbstractView_Subtotals {
 		$this->addColumnsHidden(array(
 			SearchFields_FeedItem::GUID,
 			SearchFields_FeedItem::ID,
+			SearchFields_FeedItem::FULLTEXT_COMMENT_CONTENT,
 			SearchFields_FeedItem::VIRTUAL_WATCHERS,
 		));
 		
@@ -513,6 +526,9 @@ class View_FeedItem extends C4_AbstractView implements IAbstractView_Subtotals {
 				$tpl->assign('feeds', $feeds);
 				$tpl->display('devblocks:cerberusweb.feed_reader::feeds/item/filter/feed.tpl');
 				break;
+			case SearchFields_FeedItem::FULLTEXT_COMMENT_CONTENT:
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__fulltext.tpl');
+				break;
 			default:
 				// Custom Fields
 				if('cf_' == substr($field,0,3)) {
@@ -600,6 +616,11 @@ class View_FeedItem extends C4_AbstractView implements IAbstractView_Subtotals {
 			case SearchFields_FeedItem::FEED_ID:
 				@$feed_ids = DevblocksPlatform::importGPC($_REQUEST['feed_id'],'array',array());
 				$criteria = new DevblocksSearchCriteria($field,$oper,$feed_ids);
+				break;
+				
+			case SearchFields_FeedItem::FULLTEXT_COMMENT_CONTENT:
+				@$scope = DevblocksPlatform::importGPC($_REQUEST['scope'],'string','expert');
+				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_FULLTEXT,array($value,$scope));
 				break;
 				
 			default:
