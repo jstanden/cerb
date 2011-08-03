@@ -11,10 +11,12 @@
 <div class="tester"></div>
 <br>
 
-<b>{'common.notify_workers'|devblocks_translate|capitalize}</b>:
-<div>
+<b>Notify:</b>  
+<label><input type="checkbox" name="{$namePrefix}[notify_watchers]" value="1" {if $params.notify_watchers}checked="checked"{/if}> Watchers</label>
+<br>
+<div style="margin-left:10px;">
 	<button type="button" class="chooser_notify_workers unbound"><span class="cerb-sprite sprite-view"></span></button>
-	<ul class="chooser-container bubbles">
+	<ul class="chooser-container bubbles" style="display:block;">
 		{if isset($params.notify_worker_id)}
 		{foreach from=$params.notify_worker_id item=worker_id}
 			{$context_worker = $workers.$worker_id}

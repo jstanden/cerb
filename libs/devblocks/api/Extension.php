@@ -832,8 +832,15 @@ class DevblocksEventHelper {
 	}
 	
 	static function runActionCreateNotification($params, $values, $context, $context_id) {
-		@$notify_worker_ids = $params['notify_worker_id'];
-		
+		$notify_worker_ids = isset($params['notify_worker_id']) ? $params['notify_worker_id'] : array();
+
+		// Watchers?
+		if(isset($params['notify_watchers']) && !empty($params['notify_watchers'])) {
+			// [TODO] Lazy load from values (and set back to)
+			$watchers = CerberusContexts::getWatchers($context, $context_id);
+			$notify_worker_ids = array_merge($notify_worker_ids, array_keys($watchers));
+		}
+
 		if(!is_array($notify_worker_ids) || empty($notify_worker_ids))
 			return;
 		
