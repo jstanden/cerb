@@ -511,6 +511,76 @@ class ChContactsPage extends CerberusPageExtension {
 		return;		
 	}
 	
+	function viewAddysExploreAction() {
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
+		
+		$active_worker = CerberusApplication::getActiveWorker();
+		$url_writer = DevblocksPlatform::getUrlService();
+		
+		// Generate hash
+		$hash = md5($view_id.$active_worker->id.time()); 
+		
+		// Loop through view and get IDs
+		$view = C4_AbstractViewLoader::getView($view_id);
+
+		// Page start
+		@$explore_from = DevblocksPlatform::importGPC($_REQUEST['explore_from'],'integer',0);
+		if(empty($explore_from)) {
+			$orig_pos = 1+($view->renderPage * $view->renderLimit);
+		} else {
+			$orig_pos = 1;
+		}
+		
+		$view->renderPage = 0;
+		$view->renderLimit = 250;
+		$pos = 0;
+		
+		do {
+			$models = array();
+			list($results, $total) = $view->getData();
+
+			// Summary row
+			if(0==$view->renderPage) {
+				$model = new Model_ExplorerSet();
+				$model->hash = $hash;
+				$model->pos = $pos++;
+				$model->params = array(
+					'title' => $view->name,
+					'created' => time(),
+					'worker_id' => $active_worker->id,
+					'total' => $total,
+					'return_url' => isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : $url_writer->writeNoProxy('c=contacts&tab=addresses', true),
+//					'toolbar_extension_id' => '',
+				);
+				$models[] = $model; 
+				
+				$view->renderTotal = false; // speed up subsequent pages
+			}
+			
+			if(is_array($results))
+			foreach($results as $org_id => $row) {
+				if($org_id==$explore_from)
+					$orig_pos = $pos;
+				
+				$model = new Model_ExplorerSet();
+				$model->hash = $hash;
+				$model->pos = $pos++;
+				$model->params = array(
+					'id' => $row[SearchFields_Address::ID],
+					'url' => $url_writer->writeNoProxy(sprintf("c=contacts&tab=addresses&mode=display&id=%d-%s", $row[SearchFields_Address::ID], $row[SearchFields_Address::EMAIL]), true),
+				);
+				$models[] = $model; 
+			}
+			
+			DAO_ExplorerSet::createFromModels($models);
+			
+			$view->renderPage++;
+			
+		} while(!empty($results));
+		
+		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('explore',$hash,$orig_pos)));
+	}
+	
 	function viewOrgsExploreAction() {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
 		

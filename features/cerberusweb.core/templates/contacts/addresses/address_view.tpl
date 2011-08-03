@@ -19,11 +19,12 @@
 
 <div id="{$view->id}_tips" class="block" style="display:none;margin:10px;padding:5px;">Analyzing...</div>
 <form id="customize{$view->id}" name="customize{$view->id}" action="#" onsubmit="return false;" style="display:none;"></form>
-<form id="viewForm{$view->id}" name="viewForm{$view->id}" action="#">
-<input type="hidden" name="id" value="{$view->id}">
+<form id="viewForm{$view->id}" name="viewForm{$view->id}" action="{devblocks_url}{/devblocks_url}" method="post">
+<input type="hidden" name="view_id" value="{$view->id}">
 <input type="hidden" name="context_id" value="cerberusweb.contexts.address">
 <input type="hidden" name="c" value="contacts">
 <input type="hidden" name="a" value="">
+<input type="hidden" name="explore_from" value="0">
 <table cellpadding="1" cellspacing="0" border="0" width="100%" class="worklistBody">
 
 	{* Column Headers *}
@@ -99,6 +100,7 @@
 	{if $total}
 	<tr>
 		<td colspan="2">
+			<button id="btnExplore{$view->id}" type="button" onclick="this.form.explore_from.value=$(this).closest('form').find('tbody input:checkbox:checked:first').val();this.form.a.value='viewAddysExplore';this.form.submit();"><span class="cerb-sprite sprite-media_play_green"></span> {'common.explore'|devblocks_translate|lower}</button>
 			{if $active_worker->hasPriv('core.addybook.addy.actions.update')}<button type="button" onclick="ajax.showAddressBatchPanel('{$view->id}',this);"><span class="cerb-sprite2 sprite-folder-gear"></span> {$translate->_('common.bulk_update')|lower}</button>{/if}
 		</td>
 	</tr>
