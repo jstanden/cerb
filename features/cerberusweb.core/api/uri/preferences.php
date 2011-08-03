@@ -300,6 +300,42 @@ class ChPreferencesPage extends CerberusPageExtension {
 		return;
 	}
 
+	function viewNotificationsMarkReadAction() {
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
+		@$row_ids = DevblocksPlatform::importGPC($_REQUEST['row_id'],'array',array());
+
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+
+		try {
+			if(is_array($row_ids))
+			foreach($row_ids as $row_id) {
+				$row_id = intval($row_id);
+				
+				// Only close notifications if the current worker owns them
+				if(null != ($notification = DAO_Notification::get($row_id))) {
+					if($notification->worker_id == $active_worker->id) {
+						
+						DAO_Notification::update($notification->id, array(
+							DAO_Notification::IS_READ => 1,
+						));
+					}
+				}
+				
+			}
+			
+			DAO_Notification::clearCountCache($active_worker->id);
+			
+		} catch (Exception $e) {
+			//
+		}
+		
+		$view = C4_AbstractViewLoader::getView($view_id);
+		$view->render();
+		
+		exit;
+	}	
+	
 	function viewNotificationsExploreAction() {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
 

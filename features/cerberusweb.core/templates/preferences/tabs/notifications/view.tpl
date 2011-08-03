@@ -99,6 +99,7 @@
 		<td colspan="2">
 			<button id="btnExplore{$view->id}" type="button" onclick="this.form.explore_from.value=$(this).closest('form').find('tbody input:checkbox:checked:first').val();this.form.a.value='viewNotificationsExplore';this.form.submit();"><span class="cerb-sprite sprite-media_play_green"></span> {'common.explore'|devblocks_translate|lower}</button>
 			<button type="button" onclick="genericAjaxPopup('peek','c=preferences&a=showNotificationsBulkPanel&view_id={$view->id}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','row_id[]'),null,false,'500');"><span class="cerb-sprite2 sprite-folder-gear"></span> {'common.bulk_update'|devblocks_translate|lower}</button>
+			<button type="button" id="btn{$view->id}Close" onclick="genericAjaxPost($(this).closest('form'),'view{$view->id}','c=preferences&a=viewNotificationsMarkRead');"><span class="cerb-sprite2 sprite-folder-tick-circle"></span> {$translate->_('home.my_notifications.button.mark_read')|lower}</button>
 		</td>
 	</tr>
 	{/if}
