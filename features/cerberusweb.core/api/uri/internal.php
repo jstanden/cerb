@@ -905,6 +905,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		$list_view->num_rows = $view->renderLimit;
 		$list_view->columns = $view->view_columns;
 		$list_view->params = $view->getEditableParams();
+		$list_view->params_required = $view->getParamsRequired();
 		$list_view->sort_by = $view->renderSortBy;
 		$list_view->sort_asc = $view->renderSortAsc;
 
