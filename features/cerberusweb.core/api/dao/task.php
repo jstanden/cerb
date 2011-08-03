@@ -304,7 +304,9 @@ class DAO_Task extends C4_ORMHelper {
 			"FROM task t ".
 
 			// [JAS]: Dynamic table joins
-			(isset($tables['context_link']) ? "INNER JOIN context_link ON (context_link.to_context = 'cerberusweb.contexts.task' AND context_link.to_context_id = t.id) " : " ")
+			(isset($tables['context_link']) ? "INNER JOIN context_link ON (context_link.to_context = 'cerberusweb.contexts.task' AND context_link.to_context_id = t.id) " : " ").
+			(isset($tables['ftcc']) ? "INNER JOIN comment ON (comment.context = 'cerberusweb.contexts.task' AND comment.context_id = t.id) " : " ").
+			(isset($tables['ftcc']) ? "INNER JOIN fulltext_comment_content ftcc ON (ftcc.id=comment.id) " : " ")
 			;
 
 		// Custom field joins
@@ -423,6 +425,9 @@ class SearchFields_Task implements IDevblocksSearchFields {
 	const CONTEXT_LINK = 'cl_context_from';
 	const CONTEXT_LINK_ID = 'cl_context_from_id';
 	
+	// Comment Content
+	const FULLTEXT_COMMENT_CONTENT = 'ftcc_content';
+	
 	/**
 	 * @return DevblocksSearchField[]
 	 */
@@ -442,6 +447,11 @@ class SearchFields_Task implements IDevblocksSearchFields {
 			self::CONTEXT_LINK => new DevblocksSearchField(self::CONTEXT_LINK, 'context_link', 'from_context', null),
 			self::CONTEXT_LINK_ID => new DevblocksSearchField(self::CONTEXT_LINK_ID, 'context_link', 'from_context_id', null),
 		);
+		
+		$tables = DevblocksPlatform::getDatabaseTables();
+		if(isset($tables['fulltext_comment_content'])) {
+			$columns[self::FULLTEXT_COMMENT_CONTENT] = new DevblocksSearchField(self::FULLTEXT_COMMENT_CONTENT, 'ftcc', 'content', $translate->_('comment.filters.content'));
+		}
 		
 		// Custom Fields
 		$fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TASK);
@@ -486,6 +496,7 @@ class View_Task extends C4_AbstractView implements IAbstractView_Subtotals {
 			SearchFields_Task::ID,
 			SearchFields_Task::CONTEXT_LINK,
 			SearchFields_Task::CONTEXT_LINK_ID,
+			SearchFields_Task::FULLTEXT_COMMENT_CONTENT,
 			SearchFields_Task::VIRTUAL_WATCHERS,
 		));
 		
@@ -638,6 +649,10 @@ class View_Task extends C4_AbstractView implements IAbstractView_Subtotals {
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__date.tpl');
 				break;
 				
+			case SearchFields_Task::FULLTEXT_COMMENT_CONTENT:
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__fulltext.tpl');
+				break;
+				
 			case SearchFields_Task::VIRTUAL_WATCHERS:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context_worker.tpl');
 				break;
@@ -712,6 +727,11 @@ class View_Task extends C4_AbstractView implements IAbstractView_Subtotals {
 			case SearchFields_Task::VIRTUAL_WATCHERS:
 				@$worker_ids = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',array());
 				$criteria = new DevblocksSearchCriteria($field,$oper,$worker_ids);
+				break;
+				
+			case SearchFields_Task::FULLTEXT_COMMENT_CONTENT:
+				@$scope = DevblocksPlatform::importGPC($_REQUEST['scope'],'string','expert');
+				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_FULLTEXT,array($value,$scope));
 				break;
 				
 			default:
