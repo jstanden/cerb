@@ -10,15 +10,7 @@
 	</td>
 	<td width="98%" valign="middle"></td>
 	<td width="1%" nowrap="nowrap" valign="middle" align="right">
-		<form action="{devblocks_url}{/devblocks_url}" method="post">
-		<input type="hidden" name="c" value="crm">
-		<input type="hidden" name="a" value="doQuickSearch">
-		<b>{$translate->_('common.quick_search')}</b> <select name="type">
-			<option value="email"{if $quick_search_type eq 'email'}selected{/if}>{$translate->_('crm.opportunity.email_address')|capitalize}</option>
-			<option value="org"{if $quick_search_type eq 'org'}selected{/if}>{$translate->_('crm.opportunity.org_name')|capitalize}</option>
-			<option value="title"{if $quick_search_type eq 'title'}selected{/if}>{$translate->_('crm.opportunity.name')|capitalize}</option>
-		</select><input type="text" name="query" class="input_search" size="16"><button type="submit">{$translate->_('common.search_go')|lower}</button>
-		</form>
+		{include file="devblocks:cerberusweb.crm::crm/quick_search.tpl"}
 	</td>
 </tr>
 </table>

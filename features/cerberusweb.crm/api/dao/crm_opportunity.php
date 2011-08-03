@@ -343,7 +343,9 @@ class DAO_CrmOpportunity extends C4_ORMHelper {
 			"LEFT JOIN contact_org org ON (org.id = a.contact_org_id) ".
 			
 			// [JAS]: Dynamic table joins
-			(isset($tables['context_link']) ? "INNER JOIN context_link ON (context_link.to_context = 'cerberusweb.contexts.opportunity' AND context_link.to_context_id = o.id) " : " ")
+			(isset($tables['context_link']) ? "INNER JOIN context_link ON (context_link.to_context = 'cerberusweb.contexts.opportunity' AND context_link.to_context_id = o.id) " : " ").
+			(isset($tables['ftcc']) ? "INNER JOIN comment ON (comment.context = 'cerberusweb.contexts.opportunity' AND comment.context_id = o.id) " : " ").
+			(isset($tables['ftcc']) ? "INNER JOIN fulltext_comment_content ftcc ON (ftcc.id=comment.id) " : " ")
 			;
 			
 		$cfield_index_map = array(
@@ -473,9 +475,14 @@ class SearchFields_CrmOpportunity implements IDevblocksSearchFields {
 	const EMAIL_NUM_SPAM = 'a_num_spam';
 	const EMAIL_NUM_NONSPAM = 'a_num_nonspam';
 
+	// Context Links
 	const CONTEXT_LINK = 'cl_context_from';
 	const CONTEXT_LINK_ID = 'cl_context_from_id';
 	
+	// Comment Content
+	const FULLTEXT_COMMENT_CONTENT = 'ftcc_content';
+
+	// Virtuals
 	const VIRTUAL_WATCHERS = '*_workers';
 	
 	/**
@@ -510,6 +517,11 @@ class SearchFields_CrmOpportunity implements IDevblocksSearchFields {
 			
 			self::VIRTUAL_WATCHERS => new DevblocksSearchField(self::VIRTUAL_WATCHERS, '*', 'workers', $translate->_('common.watchers')),
 		);
+		
+		$tables = DevblocksPlatform::getDatabaseTables();
+		if(isset($tables['fulltext_comment_content'])) {
+			$columns[self::FULLTEXT_COMMENT_CONTENT] = new DevblocksSearchField(self::FULLTEXT_COMMENT_CONTENT, 'ftcc', 'content', $translate->_('comment.filters.content'));
+		}
 		
 		// Custom Fields: opp + addy + org
 		$fields = 
@@ -566,6 +578,7 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 			SearchFields_CrmOpportunity::ORG_ID,
 			SearchFields_CrmOpportunity::CONTEXT_LINK,
 			SearchFields_CrmOpportunity::CONTEXT_LINK_ID,
+			SearchFields_CrmOpportunity::FULLTEXT_COMMENT_CONTENT,
 			SearchFields_CrmOpportunity::VIRTUAL_WATCHERS
 		));
 		
@@ -743,6 +756,10 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__date.tpl');
 				break;
 				
+			case SearchFields_CrmOpportunity::FULLTEXT_COMMENT_CONTENT:
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__fulltext.tpl');
+				break;
+				
 			case SearchFields_CrmOpportunity::VIRTUAL_WATCHERS:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context_worker.tpl');
 				break;
@@ -817,6 +834,11 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 			case SearchFields_CrmOpportunity::VIRTUAL_WATCHERS:
 				@$worker_ids = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',array());
 				$criteria = new DevblocksSearchCriteria($field,$oper,$worker_ids);
+				break;
+				
+			case SearchFields_CrmOpportunity::FULLTEXT_COMMENT_CONTENT:
+				@$scope = DevblocksPlatform::importGPC($_REQUEST['scope'],'string','expert');
+				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_FULLTEXT,array($value,$scope));
 				break;
 				
 			default:

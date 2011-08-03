@@ -3,7 +3,15 @@
 
 {include file="devblocks:cerberusweb.crm::crm/submenu.tpl"}
 
-<h2>{'crm.common.opportunity'|devblocks_translate|capitalize}</h2>
+<div style="float:left;">
+	<h2>{'crm.common.opportunity'|devblocks_translate|capitalize}</h2>
+</div>
+
+<div style="float:right;">
+	{include file="devblocks:cerberusweb.crm::crm/quick_search.tpl"}
+</div>
+
+<br clear="all">
 
 <fieldset class="properties">
 	<legend>{$opp->name|truncate:128}</legend>

@@ -665,6 +665,14 @@ class CrmPage extends CerberusPageExtension {
 		            $query = '*' . $query . '*';
             	$params[SearchFields_CrmOpportunity::ORG_NAME] = new DevblocksSearchCriteria(SearchFields_CrmOpportunity::ORG_NAME,DevblocksSearchCriteria::OPER_LIKE,$query);      
                 break;
+                
+            case "comments_all":
+            	$params[SearchFields_CrmOpportunity::FULLTEXT_COMMENT_CONTENT] = new DevblocksSearchCriteria(SearchFields_CrmOpportunity::FULLTEXT_COMMENT_CONTENT,DevblocksSearchCriteria::OPER_FULLTEXT,array($query,'all'));               
+                break;
+                
+            case "comments_phrase":
+            	$params[SearchFields_CrmOpportunity::FULLTEXT_COMMENT_CONTENT] = new DevblocksSearchCriteria(SearchFields_CrmOpportunity::FULLTEXT_COMMENT_CONTENT,DevblocksSearchCriteria::OPER_FULLTEXT,array($query,'phrase'));               
+                break;
         }
         
         $searchView->addParams($params, true);
