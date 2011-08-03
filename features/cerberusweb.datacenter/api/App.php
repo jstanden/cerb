@@ -184,6 +184,13 @@ class Page_Datacenter extends CerberusPageExtension {
 		            $query = $query . '*';
                 $params[SearchFields_Server::NAME] = new DevblocksSearchCriteria(SearchFields_Server::NAME,DevblocksSearchCriteria::OPER_LIKE,strtolower($query));               
                 break;
+            case "comments_all":
+            	$params[SearchFields_Server::FULLTEXT_COMMENT_CONTENT] = new DevblocksSearchCriteria(SearchFields_Server::FULLTEXT_COMMENT_CONTENT,DevblocksSearchCriteria::OPER_FULLTEXT,array($query,'all'));               
+                break;
+                
+            case "comments_phrase":
+            	$params[SearchFields_Server::FULLTEXT_COMMENT_CONTENT] = new DevblocksSearchCriteria(SearchFields_Server::FULLTEXT_COMMENT_CONTENT,DevblocksSearchCriteria::OPER_FULLTEXT,array($query,'phrase'));               
+                break;
         }
         
         $view->addParams($params, true);
