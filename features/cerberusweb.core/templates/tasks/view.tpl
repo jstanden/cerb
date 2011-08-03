@@ -121,6 +121,7 @@
 		<td colspan="2" valign="top">
 			<button id="btnExplore{$view->id}" type="button" onclick="this.form.explore_from.value=$(this).closest('form').find('tbody input:checkbox:checked:first').val();this.form.a.value='viewTasksExplore';this.form.submit();"><span class="cerb-sprite sprite-media_play_green"></span> {'common.explore'|devblocks_translate|lower}</button>
 			{if $active_worker->hasPriv('core.tasks.actions.update_all')}<button type="button" onclick="genericAjaxPopup('peek','c=tasks&a=showTaskBulkPanel&view_id={$view->id}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','row_id[]'),null,false,'500');"><span class="cerb-sprite2 sprite-folder-gear"></span> {'common.bulk_update'|devblocks_translate|lower}</button>{/if}
+			<button type="button" id="btn{$view->id}Close" onclick="genericAjaxPost($(this).closest('form'),'view{$view->id}','c=tasks&a=viewMarkCompleted');"><span class="cerb-sprite2 sprite-folder-tick-circle"></span> {$translate->_('task.is_completed')|lower}</button>
 		</td>
 	</tr>
 	{/if}

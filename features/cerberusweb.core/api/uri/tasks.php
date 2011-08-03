@@ -401,6 +401,31 @@ class ChTasksPage extends CerberusPageExtension {
 		return;
 	}
 	
+	function viewMarkCompletedAction() {
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
+		@$row_ids = DevblocksPlatform::importGPC($_REQUEST['row_id'],'array',array());
+
+		try {
+			if(is_array($row_ids))
+			foreach($row_ids as $row_id) {
+				$row_id = intval($row_id);
+				
+				if(!empty($row_id))
+					DAO_Task::update($row_id, array(
+						DAO_Task::IS_COMPLETED => 1,
+						DAO_Task::COMPLETED_DATE => time(),
+					));
+			}
+		} catch (Exception $e) {
+			//
+		}
+		
+		$view = C4_AbstractViewLoader::getView($view_id);
+		$view->render();
+		
+		exit;
+	}
+	
 	function viewTasksExploreAction() {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
 		
