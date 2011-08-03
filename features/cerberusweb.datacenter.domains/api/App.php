@@ -171,6 +171,14 @@ class Page_Domains extends CerberusPageExtension {
 		            $query = $query . '*';
                 $params[SearchFields_Domain::NAME] = new DevblocksSearchCriteria(SearchFields_Domain::NAME,DevblocksSearchCriteria::OPER_LIKE,strtolower($query));               
                 break;
+                
+            case "comments_all":
+            	$params[SearchFields_Domain::FULLTEXT_COMMENT_CONTENT] = new DevblocksSearchCriteria(SearchFields_Domain::FULLTEXT_COMMENT_CONTENT,DevblocksSearchCriteria::OPER_FULLTEXT,array($query,'all'));               
+                break;
+                
+            case "comments_phrase":
+            	$params[SearchFields_Domain::FULLTEXT_COMMENT_CONTENT] = new DevblocksSearchCriteria(SearchFields_Domain::FULLTEXT_COMMENT_CONTENT,DevblocksSearchCriteria::OPER_FULLTEXT,array($query,'phrase'));               
+                break;
         }
         
         $view->addParams($params, true);
