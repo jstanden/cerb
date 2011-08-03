@@ -356,7 +356,9 @@ class DAO_Address extends C4_ORMHelper {
 			"LEFT JOIN contact_org o ON (o.id=a.contact_org_id) ".
 		
 			// [JAS]: Dynamic table joins
-			(isset($tables['context_link']) ? "INNER JOIN context_link ON (context_link.to_context = 'cerberusweb.contexts.address' AND context_link.to_context_id = a.id) " : " ")
+			(isset($tables['context_link']) ? "INNER JOIN context_link ON (context_link.to_context = 'cerberusweb.contexts.address' AND context_link.to_context_id = a.id) " : " ").
+			(isset($tables['ftcc']) ? "INNER JOIN comment ON (comment.context = 'cerberusweb.contexts.address' AND comment.context_id = a.id) " : " ").
+			(isset($tables['ftcc']) ? "INNER JOIN fulltext_comment_content ftcc ON (ftcc.id=comment.id) " : " ")
 			;
 
 		$cfield_index_map = array(
@@ -477,9 +479,14 @@ class SearchFields_Address implements IDevblocksSearchFields {
 	const IS_BANNED = 'a_is_banned';
 	
 	const ORG_NAME = 'o_name';
-	
+
+	// Virtuals
 	const VIRTUAL_WATCHERS = '*_workers';
 	
+	// Comment Content
+	const FULLTEXT_COMMENT_CONTENT = 'ftcc_content';
+
+	// Context Links
 	const CONTEXT_LINK = 'cl_context_from';
 	const CONTEXT_LINK_ID = 'cl_context_from_id';
 	
@@ -507,6 +514,11 @@ class SearchFields_Address implements IDevblocksSearchFields {
 			self::CONTEXT_LINK => new DevblocksSearchField(self::CONTEXT_LINK, 'context_link', 'from_context', null),
 			self::CONTEXT_LINK_ID => new DevblocksSearchField(self::CONTEXT_LINK_ID, 'context_link', 'from_context_id', null),
 		);
+		
+		$tables = DevblocksPlatform::getDatabaseTables();
+		if(isset($tables['fulltext_comment_content'])) {
+			$columns[self::FULLTEXT_COMMENT_CONTENT] = new DevblocksSearchField(self::FULLTEXT_COMMENT_CONTENT, 'ftcc', 'content', $translate->_('comment.filters.content'));
+		}
 		
 		// Custom Fields: addy + org
 		$fields = 
@@ -574,6 +586,7 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals {
 			SearchFields_Address::CONTACT_ORG_ID,
 			SearchFields_Address::CONTEXT_LINK,
 			SearchFields_Address::CONTEXT_LINK_ID,
+			SearchFields_Address::FULLTEXT_COMMENT_CONTENT,
 			SearchFields_Address::VIRTUAL_WATCHERS,
 		));
 		
@@ -719,6 +732,9 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals {
 			case SearchFields_Address::VIRTUAL_WATCHERS:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context_worker.tpl');
 				break;
+			case SearchFields_Address::FULLTEXT_COMMENT_CONTENT:
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__fulltext.tpl');
+				break;
 			default:
 				// Custom Fields
 				if('cf_' == substr($field,0,3)) {
@@ -782,6 +798,10 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals {
 			case SearchFields_Address::VIRTUAL_WATCHERS:
 				@$worker_ids = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',array());
 				$criteria = new DevblocksSearchCriteria($field,$oper,$worker_ids);
+				break;
+			case SearchFields_Address::FULLTEXT_COMMENT_CONTENT:
+				@$scope = DevblocksPlatform::importGPC($_REQUEST['scope'],'string','expert');
+				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_FULLTEXT,array($value,$scope));
 				break;
 			default:
 				// Custom Fields
