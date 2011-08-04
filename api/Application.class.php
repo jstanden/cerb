@@ -476,8 +476,14 @@ class CerberusApplication extends DevblocksApplication {
 					$mul *= 34;
 					break;
 				case 'Y':
+					$mul *= 1;
+					break;
 				case 'M':
+					$mul *= 12;
+					break;
 				case 'D':
+					$mul *= 30;
+					break;
 				default:
 					break;
 			}
