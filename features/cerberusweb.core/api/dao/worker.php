@@ -1302,6 +1302,7 @@ class Context_Worker extends Extension_DevblocksContext {
 			'full_name' => $prefix.$translate->_('worker.full_name'),
 			'last_name' => $prefix.$translate->_('worker.last_name'),
 			'title' => $prefix.$translate->_('worker.title'),
+			'record_url' => $prefix.$translate->_('common.url.record'),			
 		);
 		
 		if(is_array($fields))
@@ -1322,6 +1323,11 @@ class Context_Worker extends Extension_DevblocksContext {
 				$token_values['last_name'] = $worker->last_name;
 			if(!empty($worker->title))
 				$token_values['title'] = $worker->title;
+			
+			// URL
+			$url_writer = DevblocksPlatform::getUrlService();
+			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=profiles&type=worker&id=%d-%s",$worker->id, DevblocksPlatform::strToPermalink($worker->getName())), true);
+			
 			$token_values['custom'] = array();
 			
 			$field_values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_WORKER, $worker->id));

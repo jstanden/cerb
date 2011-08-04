@@ -636,6 +636,7 @@ class Context_KbArticle extends Extension_DevblocksContext {
 			'title' => $prefix.$translate->_('kb_article.title'),
 			'updated|date' => $prefix.$translate->_('kb_article.updated'),
 			'views' => $prefix.$translate->_('kb_article.views'),
+			'record_url' => $prefix.$translate->_('common.url.record'),
 		);
 		
 		if(is_array($fields))
@@ -666,6 +667,10 @@ class Context_KbArticle extends Extension_DevblocksContext {
 					}
 				}
 			}
+			
+			// URL
+			$url_writer = DevblocksPlatform::getUrlService();
+			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=kb&ar=article&id=%d-%s",$article->id, DevblocksPlatform::strToPermalink($article->title)), true);
 			
 			$token_values['custom'] = array();
 			

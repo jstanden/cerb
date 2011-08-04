@@ -32,6 +32,7 @@ class Context_Server extends Extension_DevblocksContext {
 		// Token labels
 		$token_labels = array(
 			'name' => $prefix.$translate->_('common.name'),
+			'record_url' => $prefix.$translate->_('common.url.record'),
 		);
 		
 		if(is_array($fields))
@@ -46,6 +47,11 @@ class Context_Server extends Extension_DevblocksContext {
 		if(null != $server) {
 			$token_values['id'] = $server->id;
 			$token_values['name'] = $server->name;
+			
+			// URL
+			$url_writer = DevblocksPlatform::getUrlService();
+			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=datacenter&tab=server&id=%d-%s",$server->id, DevblocksPlatform::strToPermalink($server->name)), true);
+			
 			$token_values['custom'] = array();
 			
 			$field_values = array_shift(DAO_CustomFieldValue::getValuesByContextIds('cerberusweb.contexts.datacenter.server', $server->id));

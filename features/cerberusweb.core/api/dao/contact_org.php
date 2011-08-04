@@ -929,6 +929,7 @@ class Context_Org extends Extension_DevblocksContext {
 			'province' => $prefix.$translate->_('contact_org.province'),
 			'street' => $prefix.$translate->_('contact_org.street'),
 			'website' => $prefix.$translate->_('contact_org.website'),
+			'record_url' => $prefix.$translate->_('common.url.record'),
 		);
 		
 		if(is_array($fields))
@@ -958,6 +959,11 @@ class Context_Org extends Extension_DevblocksContext {
 				$token_values['street'] = $org->street;
 			if(!empty($org->website))
 				$token_values['website'] = $org->website;
+			
+			// URL
+			$url_writer = DevblocksPlatform::getUrlService();
+			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=contacts&tab=orgs&action=display&id=%d-%s",$org->id, DevblocksPlatform::strToPermalink($org->name)), true);
+			
 			$token_values['custom'] = array();
 			
 			$field_values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_ORG, $org->id));

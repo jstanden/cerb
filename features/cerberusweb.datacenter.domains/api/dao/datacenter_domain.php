@@ -39,6 +39,7 @@ class Context_Domain extends Extension_DevblocksContext {
 		$token_labels = array(
 			'created|date' => $prefix.$translate->_('common.created'),
 			'name' => $prefix.$translate->_('common.name'),
+			'record_url' => $prefix.$translate->_('common.url.record'),
 		);
 		
 		if(is_array($fields))
@@ -55,6 +56,11 @@ class Context_Domain extends Extension_DevblocksContext {
 			$token_values['created'] = $domain->created;
 			if(!empty($domain->name))
 				$token_values['name'] = $domain->name;
+			
+			// URL
+			$url_writer = DevblocksPlatform::getUrlService();
+			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=datacenter.domains&tab=domain&id=%d-%s",$domain->id, DevblocksPlatform::strToPermalink($domain->name)), true);
+			
 			$token_values['custom'] = array();
 			
 			$field_values = array_shift(DAO_CustomFieldValue::getValuesByContextIds('cerberusweb.contexts.datacenter.domain', $domain->id));

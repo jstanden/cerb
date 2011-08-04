@@ -657,6 +657,7 @@ class Context_ExampleObject extends Extension_DevblocksContext {
 			'created|date' => $prefix.$translate->_('common.created'),
 			'id' => $prefix.$translate->_('common.id'),
 			'name' => $prefix.$translate->_('common.name'),
+			//'record_url' => $prefix.$translate->_('common.url.record'),
 		);
 		
 		if(is_array($fields))
@@ -671,6 +672,10 @@ class Context_ExampleObject extends Extension_DevblocksContext {
 			$token_values['created'] = $object->created;
 			$token_values['id'] = $object->id;
 			$token_values['name'] = $object->name;
+			
+			// URL
+			$url_writer = DevblocksPlatform::getUrlService();
+			//$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=example.object&id=%d-%s",$object->id, DevblocksPlatform::strToPermalink($object->name)), true);
 			
 			$token_values['custom'] = array();
 			

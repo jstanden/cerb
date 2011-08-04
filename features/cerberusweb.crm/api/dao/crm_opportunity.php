@@ -1070,6 +1070,7 @@ class Context_Opportunity extends Extension_DevblocksContext {
 			'status' => $prefix.$translate->_('common.status'),
 			'title' => $prefix.$translate->_('crm.opportunity.name'),
 			'updated|date' => $prefix.$translate->_('crm.opportunity.updated_date'),
+			'record_url' => $prefix.$translate->_('common.url.record'),
 		);
 		
 		if(is_array($fields))
@@ -1096,6 +1097,10 @@ class Context_Opportunity extends Extension_DevblocksContext {
 			} else {
 				$token_values['status'] = 'open';
 			}
+			
+			// URL
+			$url_writer = DevblocksPlatform::getUrlService();
+			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=crm&tab=opps&id=%d-%s",$opp->id, DevblocksPlatform::strToPermalink($opp->name)), true);
 			
 			$token_values['custom'] = array();
 			

@@ -764,6 +764,7 @@ class Context_FeedItem extends Extension_DevblocksContext {
 			'is_closed' => $prefix.$translate->_('dao.feed_item.is_closed'),
 			'title' => $prefix.$translate->_('common.title'),
 			'url' => $prefix.$translate->_('common.url'),
+			'record_url' => $prefix.$translate->_('common.url.record'),			
 		);
 		
 		if(is_array($fields))
@@ -782,6 +783,10 @@ class Context_FeedItem extends Extension_DevblocksContext {
 			$token_values['is_closed'] = $item->is_closed;
 			$token_values['title'] = $item->title;
 			$token_values['url'] = $item->url;
+
+			// URL
+			$url_writer = DevblocksPlatform::getUrlService();
+			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=feeds&i=item&id=%d-%s",$item->id, DevblocksPlatform::strToPermalink($item->title)), true);
 
 			$token_values['custom'] = array();
 			

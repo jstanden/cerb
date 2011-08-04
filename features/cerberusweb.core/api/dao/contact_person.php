@@ -793,6 +793,7 @@ class Context_ContactPerson extends Extension_DevblocksContext {
 			'created' => $prefix.$translate->_('common.created'),
 			'id' => $prefix.$translate->_('common.id'),
 			'last_login' => $prefix.$translate->_('dao.contact_person.last_login'),
+			'record_url' => $prefix.$translate->_('common.url.record'),
 		);
 		
 //		if(is_array($fields))
@@ -810,6 +811,11 @@ class Context_ContactPerson extends Extension_DevblocksContext {
 				$token_values['created'] = $person->created;
 			if(!empty($person->last_login))
 				$token_values['last_login'] = $person->last_login;
+			
+			// URL
+			$url_writer = DevblocksPlatform::getUrlService();
+			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=contacts&tab=people&id=%d",$person->id), true);
+			
 			$token_values['custom'] = array();
 			
 			$field_values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_CONTACT_PERSON, $person->id));

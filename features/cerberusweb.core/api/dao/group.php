@@ -1086,6 +1086,7 @@ class Context_Group extends Extension_DevblocksContext {
 		// Token labels
 		$token_labels = array(
 			'name' => $prefix.$translate->_('common.name'),
+			'record_url' => $prefix.$translate->_('common.url.record'),
 		);
 		
 		// Custom fields
@@ -1102,6 +1103,11 @@ class Context_Group extends Extension_DevblocksContext {
 		if(null != $group) {
 			$token_values['id'] = $group->id;
 			$token_values['name'] = $group->name;
+			
+			// URL
+			$url_writer = DevblocksPlatform::getUrlService();
+			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=profiles&type=group&id=%d-%s",$group->id, DevblocksPlatform::strToPermalink($group->name)), true);
+			
 			$token_values['custom'] = array();
 			
 			$field_values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_GROUP, $group->id));

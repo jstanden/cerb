@@ -716,6 +716,7 @@ class Context_Call extends Extension_DevblocksContext {
 			'phone' => $prefix.$translate->_('call_entry.model.phone'),
 			'subject' => $prefix.$translate->_('message.header.subject'),
 			'updated|date' => $prefix.$translate->_('common.updated'),
+			'record_url' => $prefix.$translate->_('common.url.record'),
 		);
 		
 		if(is_array($fields))
@@ -735,6 +736,10 @@ class Context_Call extends Extension_DevblocksContext {
 			$token_values['phone'] = $call->phone;
 			$token_values['subject'] = $call->subject;
 			$token_values['updated'] = $call->updated_date;
+			
+			// URL
+			$url_writer = DevblocksPlatform::getUrlService();
+			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=calls&id=%d-%s",$call->id, DevblocksPlatform::strToPermalink($call->subject)), true);
 
 			$token_values['custom'] = array();
 			

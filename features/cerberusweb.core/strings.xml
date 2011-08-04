@@ -501,6 +501,9 @@
 		<tu tuid='common.url'>
 			<tuv xml:lang="en_US"><seg>URL</seg></tuv>
 		</tu>
+		<tu tuid='common.url.record'>
+			<tuv xml:lang="en_US"><seg>Record URL</seg></tuv>
+		</tu>
 		<tu tuid='common.watcher'>
 			<tuv xml:lang="en_US"><seg>watcher</seg></tuv>
 		</tu>

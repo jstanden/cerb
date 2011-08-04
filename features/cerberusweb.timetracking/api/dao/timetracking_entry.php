@@ -946,6 +946,7 @@ class Context_TimeTracking extends Extension_DevblocksContext {
 			'log_date|date' => $prefix.$translate->_('timetracking_entry.log_date'),
 			'summary' => $prefix.$translate->_('common.summary'),
 			'mins' => $prefix.$translate->_('timetracking_entry.time_actual_mins'),
+			'record_url' => $prefix.$translate->_('common.url.record'),
 		);
 		
 		if(is_array($fields))
@@ -963,6 +964,11 @@ class Context_TimeTracking extends Extension_DevblocksContext {
 			$token_values['mins'] = $timeentry->time_actual_mins;
 			$token_values['summary'] = $timeentry->getSummary();
 			$token_values['activity_id'] = $timeentry->activity_id;
+			
+			// URL
+			$url_writer = DevblocksPlatform::getUrlService();
+			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=timetracking&tab=display&id=%d-%s",$timeentry->id, DevblocksPlatform::strToPermalink($timeentry->getSummary())), true);
+			
 			$token_values['custom'] = array();
 			
 			$field_values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_TIMETRACKING, $timeentry->id));

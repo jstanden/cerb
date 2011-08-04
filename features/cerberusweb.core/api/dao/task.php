@@ -885,6 +885,7 @@ class Context_Task extends Extension_DevblocksContext {
 			'status' => $prefix.$translate->_('common.status'),
 			'title' => $prefix.$translate->_('common.title'),
 			'updated|date' => $prefix.$translate->_('task.updated_date'),
+			'record_url' => $prefix.$translate->_('common.url.record'),
 		);
 		
 		if(is_array($fields))
@@ -909,6 +910,10 @@ class Context_Task extends Extension_DevblocksContext {
 			} else {
 				$token_values['status'] = 'active';
 			}
+			
+			// URL
+			$url_writer = DevblocksPlatform::getUrlService();
+			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=tasks&action=display&id=%d-%s",$task->id, DevblocksPlatform::strToPermalink($task->title)), true);
 			
 			$token_values['custom'] = array();
 			
