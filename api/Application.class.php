@@ -7,7 +7,7 @@
 |
 | This source code is released under the Devblocks Public License.
 | The latest version of this license can be found here:
-| http://www.cerberusweb.com/license.php
+| http://cerberusweb.com/license
 |
 | By using this software, you acknowledge having read this license
 | and agree to be bound thereby.
@@ -43,11 +43,10 @@
  * and the warm fuzzy feeling of feeding a couple of obsessed developers 
  * who want to help you get more done.
  *
- * - Jeff Standen, Darren Sugita, Dan Hildebrandt, Scott Luther,
- * 		and Jerry Kanoholani. 
+ * - Jeff Standen, Darren Sugita, Dan Hildebrandt, Scott Luther
  *	 WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
-define("APP_BUILD", 2011080402);
+define("APP_BUILD", 2011080403);
 define("APP_VERSION", '5.5.0');
 
 define("APP_MAIL_PATH", APP_STORAGE_PATH . '/mail/');
@@ -1249,7 +1248,7 @@ class CerberusLicense {
 	}
 	
 	public static function getReleases() {
-		/**																																																																																																																														*/return array('5.0.0'=>1271894400,'5.1.0'=>1281830400,'5.2.0'=>1288569600,'5.3.0'=>1295049600,'5.4.0'=>1303862400);/*
+		/*																																																																																																																														*/return array('5.0.0'=>1271894400,'5.1.0'=>1281830400,'5.2.0'=>1288569600,'5.3.0'=>1295049600,'5.4.0'=>1303862400,'5.5.0'=>1312416000);/*
 		 * Major releases by date in GMT
 		 */
 		return array(
@@ -1258,6 +1257,7 @@ class CerberusLicense {
 			'5.2.0' => gmmktime(0,0,0,11,1,2010),
 			'5.3.0' => gmmktime(0,0,0,1,15,2011),
 			'5.4.0' => gmmktime(0,0,0,4,27,2011),
+			'5.5.0' => gmmktime(0,0,0,8,4,2011),
 		);
 	}
 	
