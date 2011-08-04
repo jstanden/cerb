@@ -124,6 +124,7 @@ abstract class AbstractEvent_Task extends Extension_DevblocksEvent {
 				'send_email' => array('label' => 'Send email'),
 				'set_due_date' => array('label' => 'Set due date'),
 				'set_status' => array('label' => 'Set status'),
+				'unschedule_behavior' => array('label' => 'Unschedule behavior'),
 			)
 			+ DevblocksEventHelper::getActionCustomFields(CerberusContexts::CONTEXT_TASK)
 			;
@@ -176,6 +177,10 @@ abstract class AbstractEvent_Task extends Extension_DevblocksEvent {
 				$tpl->assign('dates', $dates);
 			
 				DevblocksEventHelper::renderActionScheduleBehavior($trigger->owner_context, $trigger->owner_context_id, $this->_event_id);
+				break;
+				
+			case 'unschedule_behavior':
+				DevblocksEventHelper::renderActionUnscheduleBehavior($trigger->owner_context, $trigger->owner_context_id, $this->_event_id);
 				break;
 				
 			case 'set_due_date':
@@ -233,6 +238,10 @@ abstract class AbstractEvent_Task extends Extension_DevblocksEvent {
 				
 			case 'schedule_behavior':
 				DevblocksEventHelper::runActionScheduleBehavior($params, $values, CerberusContexts::CONTEXT_TASK, $task_id);
+				break;
+				
+			case 'unschedule_behavior':
+				DevblocksEventHelper::runActionUnscheduleBehavior($params, $values, CerberusContexts::CONTEXT_TASK, $task_id);
 				break;
 				
 			case 'set_due_date':

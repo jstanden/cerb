@@ -234,6 +234,7 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 			'create_notification' => array('label' =>'Create a notification'),
 			'create_task' => array('label' =>'Create a task'),
 			'create_ticket' => array('label' =>'Create a ticket'),
+			'unschedule_behavior' => array('label' => 'Unschedule behavior'),
 		);
 		
 		// [TODO] Add set custom fields
@@ -280,6 +281,10 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 				$tpl->assign('dates', $dates);
 			
 				DevblocksEventHelper::renderActionScheduleBehavior($trigger->owner_context, $trigger->owner_context_id, 'event.macro.ticket');
+				break;
+				
+			case 'unschedule_behavior':
+				DevblocksEventHelper::renderActionUnscheduleBehavior($trigger->owner_context, $trigger->owner_context_id, 'event.macro.ticket');
 				break;
 				
 			case 'create_comment':
@@ -356,6 +361,10 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 				
 			case 'schedule_behavior':
 				DevblocksEventHelper::runActionScheduleBehavior($params, $values, CerberusContexts::CONTEXT_TICKET, $ticket_id);
+				break;
+				
+			case 'unschedule_behavior':
+				DevblocksEventHelper::runActionUnscheduleBehavior($params, $values, CerberusContexts::CONTEXT_TICKET, $ticket_id);
 				break;
 				
 			case 'create_comment':

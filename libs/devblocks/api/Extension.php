@@ -699,7 +699,7 @@ class DevblocksEventHelper {
 	}
 	
 	/*
-	 * Action: Schedule Macro
+	 * Action: Schedule Behavior
 	 */
 	
 	static function renderActionScheduleBehavior($context, $context_id, $event_point) {
@@ -714,12 +714,46 @@ class DevblocksEventHelper {
 	static function runActionScheduleBehavior($params, $values, $context, $context_id) {
 		@$behavior_id = $params['behavior_id'];
 		@$run_date = $params['run_date'];
+		@$on_dupe = $params['on_dupe'];
 		
 		// [TODO] Relative dates
 		@$run_timestamp = strtotime($run_date);
 		
 		if(empty($behavior_id))
 			return FALSE;
+		
+		switch($on_dupe) {
+			// Only keep first
+			case 'first':
+				// Keep the first, delete everything else, and don't add a new one
+				$behaviors = DAO_ContextScheduledBehavior::getByContext($context, $context_id);
+				$found_first = false;
+				foreach($behaviors as $k => $behavior) { /* @var $behavior Model_ContextScheduledBehavior */
+					if($behavior->behavior_id == $behavior_id) {
+						if($found_first) {
+							DAO_ContextScheduledBehavior::delete($k);
+						}
+						$found_first = $k;
+					}
+				}
+				
+				// If we already have one, don't make a new one.
+				if($found_first)
+					return $found_first;
+				
+				break;
+
+			// Only keep latest
+			case 'last':
+				// Delete everything prior so we only have the new one below
+				DAO_ContextScheduledBehavior::deleteByBehavior($behavior_id);
+				break;
+			
+			// Allow dupes
+			default:
+				// Do nothing
+				break;
+		}
 		
 		$fields = array(
 			DAO_ContextScheduledBehavior::CONTEXT => $context,
@@ -728,6 +762,28 @@ class DevblocksEventHelper {
 			DAO_ContextScheduledBehavior::RUN_DATE => intval($run_timestamp),
 		);
 		return DAO_ContextScheduledBehavior::create($fields);
+	}
+	
+	/*
+	 * Action: Unschedule Behavior
+	 */
+	
+	static function renderActionUnscheduleBehavior($context, $context_id, $event_point) {
+		$tpl = DevblocksPlatform::getTemplateService();
+		
+		$macros = DAO_TriggerEvent::getByOwner($context, $context_id, $event_point);
+		$tpl->assign('macros', $macros);
+		
+		$tpl->display('devblocks:cerberusweb.core::events/action_unschedule_behavior.tpl');
+	}
+	
+	static function runActionUnscheduleBehavior($params, $values, $context, $context_id) {
+		@$behavior_id = $params['behavior_id'];
+		
+		if(empty($behavior_id))
+			return FALSE;
+		
+		return DAO_ContextScheduledBehavior::deleteByBehavior($behavior_id);
 	}
 	
 	/*
