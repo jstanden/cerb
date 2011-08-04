@@ -49,6 +49,35 @@ class _DevblocksTemplateBuilder {
 	
 	private function _tearDown() {
 	}
+
+	function tokenize($templates) {
+		$tokens = array();
+		
+		if(!is_array($templates))
+			$templates = array($templates);
+
+		foreach($templates as $template) {
+			try {
+				$token_stream = $this->_twig->tokenize($template); /* @var $token_stream Twig_TokenStream */
+				$node_stream = $this->_twig->parse($token_stream); /* @var $node_stream Twig_Node_Module */
+	
+				$visitor = new _DevblocksTwigExpressionVisitor();
+				$traverser = new Twig_NodeTraverser($this->_twig);
+				$traverser->addVisitor($visitor);
+				$traverser->traverse($node_stream);
+				
+				//var_dump($visitor->getFoundTokens());
+				$tokens = array_merge($tokens, $visitor->getFoundTokens());
+				
+			} catch(Exception $e) {
+				//var_dump($e->getMessage());
+			}
+		}
+		
+		$tokens = array_unique($tokens); 
+		
+		return $tokens;
+	}
 	
 	/**
 	 * 
@@ -59,7 +88,7 @@ class _DevblocksTemplateBuilder {
 	function build($template, $vars) {
 		$this->_setUp();
 		try {
-			$template = $this->_twig->loadTemplate($template);
+			$template = $this->_twig->loadTemplate($template); /* @var $template Twig_Template */
 			$out = $template->render($vars);
 		} catch(Exception $e) {
 			$this->_errors[] = $e->getMessage();
@@ -71,6 +100,29 @@ class _DevblocksTemplateBuilder {
 		
 		return $out;
 	} 
+};
+
+class _DevblocksTwigExpressionVisitor implements Twig_NodeVisitorInterface {
+	protected $_tokens = array();
+	
+	public function enterNode(Twig_NodeInterface $node, Twig_Environment $env) {
+		if($node instanceof Twig_Node_Expression_Name) {
+			$this->_tokens[$node->getAttribute('name')] = true;
+		}
+		return $node;
+	}
+	
+	public function leaveNode(Twig_NodeInterface $node, Twig_Environment $env) {
+		return $node;
+	}
+	
+ 	function getPriority() {
+ 		return 0;
+ 	}
+ 	
+ 	function getFoundTokens() {
+ 		return array_keys($this->_tokens);
+ 	}
 };
 
 if(class_exists('Twig_Extension', true)):
