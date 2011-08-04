@@ -892,25 +892,26 @@ class DevblocksEventHelper {
 			DAO_Task::DUE_DATE => $due_date,
 		);
 		$task_id = DAO_Task::create($fields);
+
+		// Watchers
+		if(isset($params['worker_id']) && !empty($params['worker_id']))
+			CerberusContexts::addWatchers(CerberusContexts::CONTEXT_TASK, $task_id, $params['worker_id']);
 		
 		// Comment content
 		if(!empty($comment)) {
 			$fields = array(
-				DAO_Comment::ADDRESS_ID => 0, // [TODO] ???
+				DAO_Comment::ADDRESS_ID => 0,
 				DAO_Comment::COMMENT => $comment,
 				DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_TASK,
 				DAO_Comment::CONTEXT_ID => $task_id,
 				DAO_Comment::CREATED => time(),
 			);
-			DAO_Comment::create($fields);
+			
+			// Notify
+			@$notify_worker_ids = $params['notify_worker_id'];
+			DAO_Comment::create($fields, $notify_worker_ids);
 		}
 		
-		// Watchers
-		if(isset($params['worker_id']) && !empty($params['worker_id']))
-			CerberusContexts::addWatchers(CerberusContexts::CONTEXT_TASK, $task_id, $params['worker_id']);
-		
-		// [TODO] Notify
-
 		// Connection
 		if(!empty($context) && !empty($context_id))
 			DAO_ContextLink::setLink(CerberusContexts::CONTEXT_TASK, $task_id, $context, $context_id);
