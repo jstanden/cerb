@@ -542,9 +542,15 @@ class ChInternalController extends DevblocksControllerExtension {
 		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
 		$active_worker = CerberusApplication::getActiveWorker();
 
-		// [TODO] Make sure the worker is allowed to view this context+ID
-
 		if(null != ($snippet = DAO_Snippet::get($id))) {
+			// Make sure the worker is allowed to view this context+ID
+			if(!empty($snippet->context)) {
+				if(null == ($context = Extension_DevblocksContext::get($snippet->context))) /* @var $context Extension_DevblocksContext */
+					exit;
+				if(!$context->authorize($context_id, $active_worker))
+					exit;
+			}
+			
 			switch($snippet->context) {
 				case 'cerberusweb.contexts.ticket':
 					CerberusContexts::getContext(CerberusContexts::CONTEXT_TICKET, $context_id, $token_labels, $token_values);
@@ -567,7 +573,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		}
 
 		if(!empty($output))
-			echo rtrim($output,"\r\n"),"\n\n";
+			echo rtrim($output,"\r\n"),"\n";
 	}
 
 	function snippetTestAction() {
