@@ -1055,10 +1055,17 @@ class CerberusContexts {
 				$url = $url_writer->writeNoProxy($url, true);
 			
 			foreach($watcher_ids as $watcher_id) {
-				// Skip a watcher if they are the actor
-				if($actor_context == CerberusContexts::CONTEXT_WORKER
-					&& $actor_context_id == $watcher_id)
-						continue;
+				// If not inside a VA
+				if(0 == EventListener_Triggers::getDepth()) {
+					// Skip a watcher if they are the actor
+					if($actor_context == CerberusContexts::CONTEXT_WORKER
+						&& $actor_context_id == $watcher_id) {
+							// If they explicitly added themselves to the notify, allow it.
+							// Otherwise, don't tell them what they just did.
+							if(!in_array($watcher_id, $also_notify_worker_ids))
+								continue;
+					}
+				}
 				
 				// Does the worker want this kind of notification?
 				$dont_notify_on_activities = WorkerPrefs::getDontNotifyOnActivities($watcher_id);
