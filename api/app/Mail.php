@@ -386,7 +386,7 @@ class CerberusMail {
 				return;
 		    
 		    // Changing the outgoing message through a VA
-		    Event_MailSentByGroup::trigger($properties, $message, $ticket, $group);
+		    Event_MailBeforeSentByGroup::trigger($properties, $message, $ticket, $group);
 		    
 		    // Re-read properties
 		    @$content = $properties['content'];
@@ -726,7 +726,10 @@ class CerberusMail {
 
 		// Events
 		if(!empty($message_id) && empty($no_events)) {
-			// Group
+			// After message sent in group
+			Event_MailAfterSentByGroup::trigger($message_id, $group->id);			
+			
+			// New message for group
 			Event_MailReceivedByGroup::trigger($message_id, $group->id);
 
 			// Watchers

@@ -1,5 +1,5 @@
 <?php
-class Event_MailSentByGroup extends Extension_DevblocksEvent {
+class Event_MailBeforeSentByGroup extends Extension_DevblocksEvent {
 	const ID = 'event.mail.sent.group';
 	
 	static function trigger(&$properties, Model_Message $message, Model_Ticket $ticket, Model_Group $group) {

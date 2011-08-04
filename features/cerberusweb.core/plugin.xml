@@ -354,8 +354,12 @@
 			<class name="Event_MailReceivedByGroup" />
 		</file>
 		
-		<file path="api/events/group/mail_sent_by_group.php">
-			<class name="Event_MailSentByGroup" />
+		<file path="api/events/group/mail_after_sent_by_group.php">
+			<class name="Event_MailAfterSentByGroup" />
+		</file>
+		
+		<file path="api/events/group/mail_before_sent_by_group.php">
+			<class name="Event_MailBeforeSentByGroup" />
 		</file>
 
 		<file path="api/events/macro/address_macro.php">
@@ -869,11 +873,27 @@
 		</extension>
 		
 		<extension point="devblocks.event">
-			<id>event.mail.sent.group</id>
-			<name>Worker message is ready to send to a group conversation</name>
+			<id>event.mail.after.sent.group</id>
+			<name>After sending worker message</name>
 			<class>
-				<file>api/events/group/mail_sent_by_group.php</file>
-				<name>Event_MailSentByGroup</name>
+				<file>api/events/group/mail_after_sent_by_group.php</file>
+				<name>Event_MailAfterSentByGroup</name>
+			</class>
+			<params>
+				<param key="contexts">
+					<value>
+						<data key="cerberusweb.contexts.group" />
+					</value>
+				</param>
+			</params>
+		</extension>
+		
+		<extension point="devblocks.event">
+			<id>event.mail.sent.group</id>
+			<name>Before sending worker message</name>
+			<class>
+				<file>api/events/group/mail_before_sent_by_group.php</file>
+				<name>Event_MailBeforeSentByGroup</name>
 			</class>
 			<params>
 				<param key="contexts">

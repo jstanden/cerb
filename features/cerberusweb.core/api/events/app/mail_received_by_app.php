@@ -377,11 +377,11 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 		switch($token) {
 			case 'append_to_content':
 			case 'prepend_to_content':
-				$tpl->display('devblocks:cerberusweb.core::events/mail_sent_by_group/action_add_content.tpl');
+				$tpl->display('devblocks:cerberusweb.core::events/mail_before_sent_by_group/action_add_content.tpl');
 				break;
 				
 			case 'replace_content':
-				$tpl->display('devblocks:cerberusweb.core::events/mail_sent_by_group/action_replace_content.tpl');
+				$tpl->display('devblocks:cerberusweb.core::events/mail_before_sent_by_group/action_replace_content.tpl');
 				break;
 				
 			case 'reject':
