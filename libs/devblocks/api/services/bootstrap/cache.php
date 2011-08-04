@@ -170,7 +170,8 @@ class _DevblocksCacheManagerMemcached extends _DevblocksCacheManagerAbstract {
 	
 	function load($key) {
 		$key = $this->_options['key_prefix'] . $key;
-		return $this->_driver->get($key);
+		@$val = $this->_driver->get($key);
+		return $val;
 	}
 	
 	function remove($key) {
