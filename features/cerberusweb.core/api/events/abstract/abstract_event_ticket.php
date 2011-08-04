@@ -103,9 +103,11 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 	function getConditionExtensions() {
 		$labels = $this->getLabels();
 		
-		$labels['ticket_initial_message_header'] = 'Initial message email header';
-		$labels['ticket_latest_message_header'] = 'Latest message email header';
 		$labels['ticket_has_owner'] = 'Ticket has owner';
+		$labels['ticket_initial_message_header'] = 'Ticket initial message email header';
+		$labels['ticket_latest_message_header'] = 'Ticket latest message email header';
+		$labels['ticket_latest_incoming_activity'] = 'Ticket latest incoming activity';
+		$labels['ticket_latest_outgoing_activity'] = 'Ticket latest outgoing activity';
 		$labels['ticket_watcher_count'] = 'Ticket watcher count';
 		
 		$types = array(
@@ -169,13 +171,16 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 			'ticket_updated|date' => Model_CustomField::TYPE_DATE,
 			'ticket_url' => Model_CustomField::TYPE_URL,
 		
+			'ticket_has_owner' => null,
 			'ticket_initial_message_header' => null,
 			'ticket_latest_message_header' => null,
-			'ticket_has_owner' => null,
+			'ticket_latest_incoming_activity' => null,
+			'ticket_latest_outgoing_activity' => null,
 			'ticket_watcher_count' => null,
 		);
 		
-		return $this->_importLabelsTypesAsConditions($labels, $types);		
+		$conditions = $this->_importLabelsTypesAsConditions($labels, $types);
+		return $conditions;		
 	}
 	
 	function renderConditionExtension($token, $trigger, $params=array(), $seq=null) {
@@ -209,6 +214,10 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 			case 'ticket_initial_message_header':
 			case 'ticket_latest_message_header':
 				$tpl->display('devblocks:cerberusweb.core::events/mail_received_by_group/condition_header.tpl');
+				break;
+			case 'ticket_latest_incoming_activity':
+			case 'ticket_latest_outgoing_activity':
+				$tpl->display('devblocks:cerberusweb.core::internal/decisions/conditions/_date.tpl');
 				break;
 		}
 
@@ -349,6 +358,22 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 						break;
 				}
 				
+				$pass = ($not) ? !$pass : $pass;
+				break;
+				
+			case 'ticket_latest_incoming_activity':
+			case 'ticket_latest_outgoing_activity':
+				$not = (substr($params['oper'],0,1) == '!');
+				$oper = ltrim($params['oper'],'!');
+				@$from = $params['from'];
+				@$to = $params['to'];
+
+				$value = $this->_lazyLoadToken($token, $values);
+				
+				@$from = intval(strtotime($from));
+				@$to = intval(strtotime($to));
+				
+				$pass = ($value > $from && $value < $to);
 				$pass = ($not) ? !$pass : $pass;
 				break;
 				
@@ -724,5 +749,74 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 				}
 				break;				
 		}
-	}		
+	}
+
+	function _lazyLoadToken($token, &$values) {
+		if(isset($values[$token]))
+			return $values[$token];
+		
+		switch($token) {
+			case '_messages':
+				if(isset($values['_messages'])) {
+					return $values['_messages'];
+				} else {
+					$messages = DAO_Message::getMessagesByTicket($values['ticket_id']);
+					$values['_messages'] = $messages;
+					return $messages;
+				}
+				break;
+			
+			case 'ticket_latest_incoming_activity':
+			case 'ticket_latest_outgoing_activity':
+				// We have some hints about the latest message
+				// It'll either be incoming or outgoing
+				@$latest_created = $values['ticket_latest_message_created'];
+				@$latest_is_outgoing = !empty($values['ticket_latest_message_is_outgoing']);
+				
+				switch($token) {
+					case 'ticket_latest_incoming_activity':
+						// Can we just use the info we have already?
+						if(!$latest_is_outgoing) {
+							// Yes, cache it.
+							$values[$token] = $latest_created;
+							return $latest_created;
+						} else {
+							// No, find it.
+							$messages = $this->_lazyLoadToken('_messages', $values);
+							$value = null;
+							foreach($messages as $message) { /* @var $message Model_Message */
+								if(empty($message->is_outgoing))
+									$value = $message->created_date;
+							}
+							$values[$token] = $value;
+							return $value;
+						}
+						break;
+						
+					case 'ticket_latest_outgoing_activity':
+						// Can we just use the info we have already?
+						if($latest_is_outgoing) {
+							// Yes, cache it.
+							$values[$token] = $latest_created;
+							return $latest_created;
+						} else {
+							// No, find it.
+							$messages = $this->_lazyLoadToken('_messages', $values);
+							$value = null;
+							foreach($messages as $message) { /* @var $message Model_Message */
+								if(!empty($message->is_outgoing))
+									$value = $message->created_date;
+							}
+							$values[$token] = $value;
+							return $value;
+						}
+						break;
+				}
+				break;
+		}
+		
+		// No match
+		return NULL;
+	}
+	
 };

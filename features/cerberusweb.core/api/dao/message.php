@@ -146,10 +146,14 @@ class DAO_Message extends DevblocksORMHelper {
 	 * @return Model_Message[]
 	 */
 	static function getMessagesByTicket($ticket_id) {
-		return self::getWhere(sprintf("%s = %d",
-			self::TICKET_ID,
-			$ticket_id
-		));
+		return self::getWhere(
+			sprintf("%s = %d",
+				self::TICKET_ID,
+				$ticket_id
+			),
+			DAO_Message::CREATED_DATE,
+			true
+		);
 	}
 
 	static function delete($ids) {
