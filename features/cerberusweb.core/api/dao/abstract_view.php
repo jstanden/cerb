@@ -460,7 +460,7 @@ abstract class C4_AbstractView {
 
 		if(!is_array($vals))
 			$vals = array($vals);
-
+		
 		// Do we need to do anything special on custom fields?
 		if('cf_'==substr($field,0,3)) {
 			$field_id = intval(substr($field,3));
@@ -666,23 +666,40 @@ abstract class C4_AbstractView {
 
 			if(isset($label_map[$result['label']]))
 				$label = $label_map[$result['label']];
-				
+			
+			// Null strings
 			if(empty($label)) {
 				$label = '(none)';
+				if(!isset($counts[$label]))
+					$counts[$label] = array(
+						'hits' => $hits,
+						'label' => $label,
+						'filter' => 
+							array(
+								'field' => $field_key,
+								'oper' => DevblocksSearchCriteria::OPER_IS_NULL,
+								'values' => null,
+							),
+						'children' => array()
+					);
+				
+			// Anything else
+			} else {
+				if(!isset($counts[$label]))
+					$counts[$label] = array(
+						'hits' => $hits,
+						'label' => $label,
+						'filter' => 
+							array(
+								'field' => $field_key,
+								'oper' => $value_oper,
+								'values' => array($value_key => $result['label']),
+							),
+						'children' => array()
+					);
+				
 			}
 			
-			if(!isset($counts[$label]))
-				$counts[$label] = array(
-					'hits' => $hits,
-					'label' => $label,
-					'filter' => 
-						array(
-							'field' => $field_key,
-							'oper' => $value_oper,
-							'values' => array($value_key => $result['label']),
-						),
-					'children' => array()
-				);
 		}
 		
 		return $counts;
