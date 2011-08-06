@@ -19,7 +19,7 @@
 	</form>
 </div>
 
-<br clear="all">
+<div style="clear:both;"></div>
 
 <fieldset class="properties">
 	<legend>{'common.properties'|devblocks_translate|capitalize}</legend>
@@ -78,8 +78,6 @@
 <div>
 {include file="devblocks:cerberusweb.core::internal/macros/behavior/scheduled_behavior_profile.tpl" context=$page_context context_id=$page_context_id}
 </div>
-
-<br>
 
 <div id="kbArticleContent">
 	<h1 class="title"><b>{$article->title}</b></h1>

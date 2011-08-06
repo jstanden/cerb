@@ -801,6 +801,7 @@ UL.cerb-popupmenu > LI > HR {
 	font-weight: bold;
 	color: rgb(0,120,0);
 	margin:10px 0px;
+	line-height: normal;
 }
 
 #kbArticleContent h1 {
@@ -843,7 +844,6 @@ UL.cerb-popupmenu > LI > HR {
 	font-weight: bold;
 	text-align: left;
 	border: none;
-	margin:0px 0px 20px 0px;
 }
 
 #kbArticleContent pre {
