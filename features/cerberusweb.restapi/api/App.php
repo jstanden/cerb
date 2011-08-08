@@ -401,7 +401,7 @@ abstract class Extension_RestController extends DevblocksExtension {
 		@$page = DevblocksPlatform::importGPC($_REQUEST['page'],'integer',1);
 		@$limit = DevblocksPlatform::importGPC($_REQUEST['limit'],'integer',10);
 		
-		@$sortToken = DevblocksPlatform::importGPC($_REQUEST['sortBy'],'string','updated');
+		@$sortToken = DevblocksPlatform::importGPC($_REQUEST['sortBy'],'string',null);
 		@$sortAsc = DevblocksPlatform::importGPC($_REQUEST['sortAsc'],'integer',1);
 
 		if(count($criteria) != count($opers) || count($criteria) != count($values))

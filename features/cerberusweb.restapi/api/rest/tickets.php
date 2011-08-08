@@ -308,7 +308,7 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 		// Search
 		
 		list($results, $total) = DAO_Ticket::search(
-			array($sortBy),
+			!empty($sortBy) ? array($sortBy) : array(),
 			$params,
 			$limit,
 			max(0,$page-1),

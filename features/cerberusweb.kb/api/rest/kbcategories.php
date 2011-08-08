@@ -123,7 +123,7 @@ class ChRest_KbCategories extends Extension_RestController implements IExtension
 		
 		// Search
 		list($results, $total) = DAO_KbCategory::search(
-			array($sortBy),
+			!empty($sortBy) ? array($sortBy) : array(),
 			$params,
 			$limit,
 			max(0,$page-1),

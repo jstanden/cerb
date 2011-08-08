@@ -130,7 +130,7 @@ class ChRest_KbArticles extends Extension_RestController implements IExtensionRe
 		
 		// Search
 		list($results, $total) = DAO_KbArticle::search(
-			array($sortBy),
+			!empty($sortBy) ? array($sortBy) : array(),
 			$params,
 			$limit,
 			max(0,$page-1),

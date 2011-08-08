@@ -152,7 +152,7 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 		
 		// Search
 		list($results, $total) = DAO_Worker::search(
-			array($sortBy),
+			!empty($sortBy) ? array($sortBy) : array(),
 			$params,
 			$limit,
 			max(0,$page-1),

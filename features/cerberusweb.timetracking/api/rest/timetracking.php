@@ -96,7 +96,7 @@ class ChRest_TimeTracking extends Extension_RestController implements IExtension
 		
 		// Search
 		list($results, $total) = DAO_TimeTrackingEntry::search(
-			array($sortBy),
+			!empty($sortBy) ? array($sortBy) : array(),
 			$params,
 			$limit,
 			max(0,$page-1),

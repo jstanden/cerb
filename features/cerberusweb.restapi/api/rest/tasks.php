@@ -139,7 +139,7 @@ class ChRest_Tasks extends Extension_RestController implements IExtensionRestCon
 		
 		// Search
 		list($results, $total) = DAO_Task::search(
-			array($sortBy),
+			!empty($sortBy) ? array($sortBy) : array(),
 			$params,
 			$limit,
 			max(0,$page-1),
