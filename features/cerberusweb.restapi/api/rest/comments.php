@@ -34,6 +34,7 @@ class ChRest_Comments extends Extension_RestController implements IExtensionRest
 	
 	function deleteAction($stack) {
 		$id = array_shift($stack);
+		
 		$container = $this->search(array(
 			array('id', '=', $id),			
 		));
@@ -47,17 +48,15 @@ class ChRest_Comments extends Extension_RestController implements IExtensionRest
 	}
 	
 	private function getId($id) {
-		$worker = $this->getActiveWorker();
+		$container = $this->search(array(
+			array('id', '=', $id),
+		));
+		
+		if(is_array($container) && isset($container['results']) && isset($container['results'][$id]))
+			$this->success($container['results'][$id]);
 
-		$id = array_shift($stack);
-
-		if(null == ($comment = DAO_Comment::get($id)))
-			$this->error(self::ERRNO_CUSTOM, sprintf("Invalid comment id %d", $id));
-
-		DAO_Comment::delete($id);
-
-		$result = array('id' => $id);
-		$this->success($result);
+		// Error
+		$this->error(self::ERRNO_CUSTOM, sprintf("Invalid comment id '%d'", $id));
 	}
 
 	function translateToken($token, $type='dao') {
