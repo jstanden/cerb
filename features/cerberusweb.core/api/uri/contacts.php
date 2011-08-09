@@ -1440,16 +1440,19 @@ class ChContactsPage extends CerberusPageExtension {
 					if(!isset($custom_field_types[$cfield_id]))
 						break;
 					
-					$is_cfield_multival = $custom_field_types[$cfield_id];
+					$is_cfield_multival = $custom_field_types[$cfield_id]->type == Model_CustomField::TYPE_MULTI_CHECKBOX;
 					
 					if(empty($v)) { // no org_id
 						// Handle aggregation of multi-value fields when blank
 						if($is_cfield_multival) {
 							foreach($orgs as $org_id => $org) {
 								if(isset($custom_field_values[$org_id][$cfield_id])) {
+									$existing_field_values = isset($custom_fields[$cfield_id]) ? $custom_fields[$cfield_id] : array();
+									$new_field_values = is_array($custom_field_values[$org_id][$cfield_id]) ? $custom_field_values[$org_id][$cfield_id] : array();
+									
 									$custom_fields[$cfield_id] = array_merge(
-										(isset($custom_fields[$cfield_id]) ? $custom_fields[$cfield_id] : array()),
-										$custom_field_values[$org_id][$cfield_id]
+										$existing_field_values,
+										$new_field_values
 									);
 								}
 							}
