@@ -1,5 +1,9 @@
 <?php
 class Context_Domain extends Extension_DevblocksContext {
+	function getRandom() {
+		return DAO_Domain::random();
+	}
+	
 	function getMeta($context_id) {
 		$domain = DAO_Domain::get($context_id);
 		$url_writer = DevblocksPlatform::getUrlService();
@@ -286,6 +290,10 @@ class DAO_Domain extends C4_ORMHelper {
                 )
             )
 	    );
+	}
+	
+	public static function random() {
+		return self::_getRandom('datacenter_domain');
 	}
 	
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {

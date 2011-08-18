@@ -260,6 +260,10 @@ class DAO_CrmOpportunity extends C4_ORMHelper {
 		return true;
 	}
 
+	public static function random() {
+		return self::_getRandom('crm_opportunity');
+	}
+	
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_CrmOpportunity::getFields();
 		
@@ -999,6 +1003,10 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 };
 
 class Context_Opportunity extends Extension_DevblocksContext {
+	function getRandom() {
+		return DAO_CrmOpportunity::random();
+	}
+	
 	function getMeta($context_id) {
 		$opp = DAO_CrmOpportunity::get($context_id);
 		$url_writer = DevblocksPlatform::getUrlService();

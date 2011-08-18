@@ -168,6 +168,10 @@ class DAO_Snippet extends C4_ORMHelper {
 		return true;
 	}
 	
+	public static function random() {
+		return self::_getRandom('snippet');
+	}
+	
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_Snippet::getFields();
 		$active_worker = CerberusApplication::getActiveWorker();
@@ -700,6 +704,10 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals {
 };
 
 class Context_Snippet extends Extension_DevblocksContext {
+	function getRandom() {
+		return DAO_Snippet::random();
+	}
+	
 	function getMeta($context_id) {
 		$snippet = DAO_Snippet::get($context_id);
 		$url_writer = DevblocksPlatform::getUrlService();

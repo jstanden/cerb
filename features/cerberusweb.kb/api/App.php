@@ -1082,6 +1082,10 @@ class DAO_KbCategory extends C4_ORMHelper {
 		return true;
 	}
 	
+	public static function random() {
+		return self::_getRandom('kb_category');
+	}
+	
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_KbCategory::getFields();
 		
@@ -1222,7 +1226,11 @@ class SearchFields_KbCategory implements IDevblocksSearchFields {
 class Context_KbCategory extends Extension_DevblocksContext {
 	function authorize($context_id, Model_Worker $worker) {
 		return TRUE;
-	}	
+	}
+	
+	function getRandom() {
+		return DAO_KbCategory::random();
+	}
 	
 	function getMeta($context_id) {
 		$category = DAO_KbCategory::get($context_id);

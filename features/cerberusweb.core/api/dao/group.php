@@ -366,6 +366,10 @@ class DAO_Group extends C4_ORMHelper {
 		$cache->remove(self::CACHE_ROSTERS);
 	}
 	
+	public static function random() {
+		return self::_getRandom('team');
+	}
+	
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_Group::getFields();
 
@@ -1018,6 +1022,10 @@ class View_Group extends C4_AbstractView implements IAbstractView_Subtotals {
 
 class Context_Group extends Extension_DevblocksContext {
 	const ID = 'cerberusweb.contexts.group';
+	
+	function getRandom() {
+		return DAO_Group::random();
+	}
 	
 	function getMeta($context_id) {
 		$group = DAO_Group::get($context_id);

@@ -1,5 +1,9 @@
 <?php
 class Context_Server extends Extension_DevblocksContext {
+	function getRandom() {
+		return DAO_Server::random();
+	}
+	
 	function getMeta($context_id) {
 		$server = DAO_Server::get($context_id);
 		$url_writer = DevblocksPlatform::getUrlService();
@@ -275,6 +279,10 @@ class DAO_Server extends C4_ORMHelper {
                 )
             )
 	    );
+	}
+	
+	public static function random() {
+		return self::_getRandom('server');
 	}
 	
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {

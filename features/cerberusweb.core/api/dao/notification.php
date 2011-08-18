@@ -232,6 +232,10 @@ class DAO_Notification extends DevblocksORMHelper {
 		$cache->remove(self::CACHE_COUNT_PREFIX.$worker_id);
 	}
 
+	public static function random() {
+		return self::_getRandom('notification');
+	}
+	
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_Notification::getFields();
 		
@@ -717,6 +721,10 @@ class Context_Notification extends Extension_DevblocksContext {
 		}
 		
 		return FALSE;
+	}
+	
+	function getRandom() {
+		return DAO_Notification::random();
 	}
 	
 	function getMeta($context_id) {

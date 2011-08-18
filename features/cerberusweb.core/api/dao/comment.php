@@ -15,7 +15,7 @@
 |	http://www.cerberusweb.com	  http://www.webgroupmedia.com/
 ***********************************************************************/
 
-class DAO_Comment extends DevblocksORMHelper {
+class DAO_Comment extends C4_ORMHelper {
 	const ID = 'id';
 	const CONTEXT = 'context';
 	const CONTEXT_ID = 'context_id';
@@ -200,6 +200,10 @@ class DAO_Comment extends DevblocksORMHelper {
 	    );
 		
 		return true;
+	}
+	
+	public static function random() {
+		return self::_getRandom('comment');
 	}
 	
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
@@ -727,6 +731,10 @@ class Context_Comment extends Extension_DevblocksContext {
 		}
 		
 		return FALSE;
+	}
+	
+	function getRandom() {
+		return DAO_Comment::random();
 	}
 	
 	function getMeta($context_id) {

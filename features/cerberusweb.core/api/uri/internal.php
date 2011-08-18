@@ -559,42 +559,14 @@ class ChInternalController extends DevblocksControllerExtension {
 		$token_labels = array();
 		$token_value = array();
 
-		if(!empty($snippet_context_id)) {
-			CerberusContexts::getContext($snippet_context, $snippet_context_id, $token_labels, $token_values);
-		}
-		
-		// [TODO] Randomize
-		if(empty($token_values)) {
-			switch($snippet_context) {
-				case '':
-					break;
-	
-				case 'cerberusweb.contexts.ticket':
-					list($result, $count) = DAO_Ticket::search(
-						array(
-							SearchFields_Ticket::TICKET_UPDATED_DATE,
-						),
-						array(
-						),
-						25,
-						0,
-						SearchFields_Ticket::TICKET_UPDATED_DATE,
-						false,
-						false
-					);
-	
-					shuffle($result);
-	
-					CerberusContexts::getContext(CerberusContexts::CONTEXT_TICKET, array_shift($result), $token_labels, $token_values);
-					break;
-	
-				case 'cerberusweb.contexts.worker':
-					$active_worker = CerberusApplication::getActiveWorker();
-					CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $active_worker, $token_labels, $token_values);
-					break;
-			}
-		}
+		$ctx = Extension_DevblocksContext::get($snippet_context);
 
+		// If no ID is given, randomize one
+		if(empty($snippet_context_id) && method_exists($ctx, 'getRandom'))
+			$snippet_context_id = $ctx->getRandom();
+		
+		CerberusContexts::getContext($snippet_context, $snippet_context_id, $token_labels, $token_values);
+		
 		$success = false;
 		$output = '';
 

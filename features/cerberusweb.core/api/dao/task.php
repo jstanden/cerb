@@ -243,6 +243,10 @@ class DAO_Task extends C4_ORMHelper {
 	    );
 	}
 	
+	public static function random() {
+		return self::_getRandom('task');
+	}
+	
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_Task::getFields();
 		
@@ -826,6 +830,10 @@ class Context_Task extends Extension_DevblocksContext {
 			'name' => $task->title,
 			'permalink' => $url_writer->writeNoProxy(sprintf("c=tasks&action=display&id=%d-%s",$task->id, $friendly), true),
 		);
+	}
+	
+	function getRandom() {
+		return DAO_Task::random();
 	}
 	
 	function getContext($task, &$token_labels, &$token_values, $prefix=null) {

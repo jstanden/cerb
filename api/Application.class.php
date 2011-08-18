@@ -1380,6 +1380,12 @@ class C4_ORMHelper extends DevblocksORMHelper {
 		return false;
 	}
 	
+	static protected function _getRandom($table) {
+		$db = DevblocksPlatform::getDatabaseService();
+		$offset = $db->GetOne(sprintf("SELECT ROUND(RAND()*(SELECT COUNT(*)-1 FROM %s))", $table));
+		return $db->GetOne(sprintf("SELECT id FROM %s LIMIT %d,1", $table, $offset));
+	}
+	
 	static protected function _appendSelectJoinSqlForCustomFieldTables($tables, $params, $key, $select_sql, $join_sql) {
 		$custom_fields = DAO_CustomField::getAll();
 		$field_ids = array();

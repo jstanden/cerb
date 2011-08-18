@@ -456,6 +456,10 @@ class DAO_Worker extends C4_ORMHelper {
 		}
 	}
 
+	public static function random() {
+		return self::_getRandom('worker');
+	}
+	
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_Worker::getFields();
 		
@@ -1228,6 +1232,10 @@ class Context_Worker extends Extension_DevblocksContext {
 		}
 		
 		return FALSE;
+	}
+	
+	function getRandom() {
+		return DAO_Worker::random();
 	}
 	
 	function getMeta($context_id) {

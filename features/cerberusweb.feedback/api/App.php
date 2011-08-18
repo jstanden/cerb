@@ -186,6 +186,10 @@ class DAO_FeedbackEntry extends C4_ORMHelper {
 		
 		return true;
 	}
+	
+	public static function random() {
+		return self::_getRandom('feedback_entry');
+	}
 
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_FeedbackEntry::getFields();
@@ -1041,6 +1045,10 @@ class Context_Feedback extends Extension_DevblocksContext {
     	
     	return $results;
     }
+    
+	function getRandom() {
+		return DAO_FeedbackEntry::random();
+	}
     
 	function getMeta($context_id) {
 		$feedback = DAO_FeedbackEntry::get($context_id);

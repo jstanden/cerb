@@ -76,6 +76,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension {
 		return true;
 	}
     
+	abstract function getRandom();
     abstract function getMeta($context_id);
     abstract function getContext($object, &$token_labels, &$token_values, $prefix=null);
     abstract function getChooserView();

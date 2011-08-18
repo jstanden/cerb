@@ -132,6 +132,10 @@ class DAO_FeedItem extends C4_ORMHelper {
 	    );
 	}
 	
+	public static function random() {
+		return self::_getRandom('feed_item');
+	}
+	
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_FeedItem::getFields();
 		
@@ -728,6 +732,10 @@ class View_FeedItem extends C4_AbstractView implements IAbstractView_Subtotals {
 };
 
 class Context_FeedItem extends Extension_DevblocksContext {
+	function getRandom() {
+		return DAO_FeedItem::random();
+	}
+	
 	function getMeta($context_id) {
 		$item = DAO_FeedItem::get($context_id);
 		$url_writer = DevblocksPlatform::getUrlService();

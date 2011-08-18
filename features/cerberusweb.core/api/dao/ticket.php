@@ -1006,6 +1006,10 @@ class DAO_Ticket extends C4_ORMHelper {
 		return ($asize>$bsize)?-1:1;
 	}
 	
+	public static function random() {
+		return self::_getRandom('ticket');
+	}
+	
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_Ticket::getFields();
 		
@@ -2542,6 +2546,10 @@ class Context_Ticket extends Extension_DevblocksContext {
 		}
 		
 		return FALSE;
+	}
+	
+	function getRandom() {
+		return DAO_Ticket::random();
 	}
 		
 	function getMeta($context_id) {

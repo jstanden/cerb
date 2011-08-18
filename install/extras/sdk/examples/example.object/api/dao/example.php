@@ -128,6 +128,10 @@ class DAO_ExampleObject extends C4_ORMHelper {
 		return true;
 	}
 	
+	public static function random() {
+		return self::_getRandom('example_object');
+	}
+	
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_ExampleObject::getFields();
 		
@@ -622,6 +626,10 @@ class View_ExampleObject extends C4_AbstractView implements IAbstractView_Subtot
 
 class Context_ExampleObject extends Extension_DevblocksContext {
 	const ID = 'cerberusweb.contexts.example_object';
+	
+	function getRandom() {
+		return DAO_ExampleObject::random();
+	}
 	
 	function getMeta($context_id) {
 		$example = DAO_ExampleObject::get($context_id);

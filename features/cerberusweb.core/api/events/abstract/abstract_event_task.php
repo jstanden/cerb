@@ -26,24 +26,7 @@ abstract class AbstractEvent_Task extends Extension_DevblocksEvent {
 	function generateSampleEventModel($task_id=null) {
 		
 		if(empty($task_id)) {
-			// Pull the latest record
-			list($results) = DAO_Task::search(
-				array(),
-				array(
-					//new DevblocksSearchCriteria(SearchFields_Task::IS_CLOSED,'=',0),
-				),
-				10,
-				0,
-				SearchFields_Task::ID,
-				false,
-				false
-			);
-			
-			shuffle($results);
-			
-			$result = array_shift($results);
-			
-			$task_id = $result[SearchFields_Task::ID];
+			$task_id = DAO_Task::random();
 		}
 		
 		return new Model_DevblocksEvent(

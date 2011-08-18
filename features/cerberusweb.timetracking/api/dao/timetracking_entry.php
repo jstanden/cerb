@@ -273,6 +273,10 @@ class DAO_TimeTrackingEntry extends C4_ORMHelper {
 	    );
 	}
 	
+	public static function random() {
+		return self::_getRandom('timetracking_entry');
+	}
+	
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 			$fields = SearchFields_TimeTrackingEntry::getFields();
 		
@@ -909,6 +913,10 @@ class View_TimeTracking extends C4_AbstractView implements IAbstractView_Subtota
 };
 
 class Context_TimeTracking extends Extension_DevblocksContext {
+	function getRandom() {
+		return DAO_TimeTrackingEntry::random();
+	}
+	
 	function getMeta($context_id) {
 		$time_entry = DAO_TimeTrackingEntry::get($context_id);
 		$url_writer = DevblocksPlatform::getUrlService();

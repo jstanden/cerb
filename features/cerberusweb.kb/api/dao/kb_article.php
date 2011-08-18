@@ -256,6 +256,10 @@ class DAO_KbArticle extends C4_ORMHelper {
 		return TRUE;
 	}
 	
+	public static function random() {
+		return self::_getRandom('kb_article');
+	}
+	
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_KbArticle::getFields();
 		
@@ -596,7 +600,11 @@ class Model_KbArticle {
 class Context_KbArticle extends Extension_DevblocksContext {
 	function authorize($context_id, Model_Worker $worker) {
 		return TRUE;
-	}	
+	}
+	
+	function getRandom() {
+		return DAO_KbArticle::random();
+	}
 	
 	function getMeta($context_id) {
 		$article = DAO_KbArticle::get($context_id);

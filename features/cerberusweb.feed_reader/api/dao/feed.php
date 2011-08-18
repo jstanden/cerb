@@ -101,6 +101,10 @@ class DAO_Feed extends DevblocksORMHelper {
 		return true;
 	}
 	
+	public static function random() {
+		return self::_getRandom('feed');
+	}
+	
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_Feed::getFields();
 		
@@ -466,6 +470,10 @@ class View_Feed extends C4_AbstractView {
 };
 
 class Context_Feed extends Extension_DevblocksContext {
+	function getRandom() {
+		return DAO_Feed::random();
+	}
+	
 	function getMeta($context_id) {
 		$feed = DAO_Feed::get($context_id);
 		$url_writer = DevblocksPlatform::getUrlService();

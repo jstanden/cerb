@@ -135,6 +135,10 @@ class DAO_CallEntry extends C4_ORMHelper {
 		return true;
 	}
 
+	public static function random() {
+		return self::_getRandom('call_entry');
+	}
+	
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_CallEntry::getFields();
 		
@@ -695,6 +699,10 @@ class View_CallEntry extends C4_AbstractView implements IAbstractView_Subtotals 
 };
 
 class Context_Call extends Extension_DevblocksContext {
+	function getRandom() {
+		return DAO_CallEntry::random();
+	}
+	
 	function getMeta($context_id) {
 		$call = DAO_CallEntry::get($context_id);
 		$url_writer = DevblocksPlatform::getUrlService();

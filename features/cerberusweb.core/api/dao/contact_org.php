@@ -278,6 +278,10 @@ class DAO_ContactOrg extends C4_ORMHelper {
 		return NULL;
 	}
 	
+	public static function random() {
+		return self::_getRandom('contact_org');
+	}
+	
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_ContactOrg::getFields();
 		
@@ -868,6 +872,10 @@ class Context_Org extends Extension_DevblocksContext {
 			'name' => $org->name,
 			'permalink' => $url_writer->write(sprintf("c=contacts&tab=orgs&action=display&id=%d-%s", $context_id, $friendly), true),
 		);
+	}
+	
+	function getRandom() {
+		return DAO_ContactOrg::random();		
 	}
 	
 	function getContext($org, &$token_labels, &$token_values, $prefix=null) {
