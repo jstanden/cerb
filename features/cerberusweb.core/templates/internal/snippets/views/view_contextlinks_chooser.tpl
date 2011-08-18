@@ -48,18 +48,14 @@
 			<td>
 				<b class="subject">{if empty($result.$column)}(no title){else}{$result.$column}{/if}</b> 
 			</td>
-			{elseif $column=="s_last_updated"}
+			{elseif $column=="s_context"}
 			<td>
-				<abbr title="{$result.$column|devblocks_date}">{$result.$column|devblocks_prettytime}</abbr>
-			</td>
-			{elseif $column=="s_last_updated_by" || $column=="s_created_by"}
-			<td>
-				{if empty($workers)}
-					{$workers = DAO_Worker::getAll()}
-				{/if}
-				{$worker_id = $result.$column}
-				{if $workers.$worker_id}
-					{$workers.{$worker_id}->getName()}
+				{if '' == $result.$column}
+					Plaintext
+				{elseif isset($contexts.{$result.$column})}
+					{$contexts.{$result.$column}->name}
+				{else}
+					{$result.$column}
 				{/if}
 			</td>
 			{elseif $column=="su_hits"}

@@ -91,6 +91,7 @@
 					<value>
 						<data key="create" />
 						<data key="find" />
+						<data key="snippets" />
 						<data key="workspace" />
 					</value>
 				</param>

@@ -80,12 +80,11 @@
 			<params>
 				<param key="view_class" value="View_Feed" />
 				<param key="options">
-						<!--
 					<value>
-						<data key="find" />
-						<data key="workspace" />
+						<!--<data key="find" />-->
+						<!--<data key="snippets" />-->
+						<!--<data key="workspace" />-->
 					</value>
-						-->
 				</param>
 			</params>
 		</extension>	
@@ -101,10 +100,9 @@
 				<param key="view_class" value="View_FeedItem" />
 				<param key="options">
 					<value>
-						<!--
-						<data key="create" />
-						-->
+						<!--<data key="create" />-->
 						<data key="find" />
+						<data key="snippets" />
 						<data key="workspace" />
 					</value>
 				</param>

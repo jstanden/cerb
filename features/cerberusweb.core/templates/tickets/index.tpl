@@ -46,9 +46,6 @@
 		{$tabs[] = drafts}
 		<li><a href="{devblocks_url}ajax.php?c=tickets&a=showDraftsTab&request={$response_uri|escape:'url'}{/devblocks_url}">{$translate->_('mail.drafts')|capitalize}</a></li>
 
-		{$tabs[] = snippets}
-		<li><a href="{devblocks_url}ajax.php?c=tickets&a=showSnippetsTab&request={$response_uri|escape:'url'}{/devblocks_url}">{$translate->_('common.snippets')|capitalize}</a></li>
-		
 		{$tab_manifests = DevblocksPlatform::getExtensions($point, false)}
 		{foreach from=$tab_manifests item=tab_manifest}
 			{$tabs[] = $tab_manifest->params.uri}

@@ -63,7 +63,9 @@
 				<param key="view_class" value="View_TimeTracking" />
 				<param key="options">
 					<value>
+						<!--<data key="create" />-->
 						<data key="find" />
+						<data key="snippets" />
 						<data key="workspace" />
 					</value>
 				</param>

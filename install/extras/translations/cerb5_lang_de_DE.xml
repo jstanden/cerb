@@ -1686,26 +1686,6 @@
         <seg>Letzter Login</seg>
       </tuv>
     </tu>
-    <tu tuid="dao.snippet.created_by">
-      <tuv xml:lang="de_DE">
-        <seg>Erstellt von</seg>
-      </tuv>
-    </tu>
-    <tu tuid="dao.snippet.is_private">
-      <tuv xml:lang="de_DE">
-        <seg>ist privat</seg>
-      </tuv>
-    </tu>
-    <tu tuid="dao.snippet.last_updated">
-      <tuv xml:lang="de_DE">
-        <seg>Aktualisiert</seg>
-      </tuv>
-    </tu>
-    <tu tuid="dao.snippet.last_updated_by">
-      <tuv xml:lang="de_DE">
-        <seg>Aktualisiert von</seg>
-      </tuv>
-    </tu>
     <tu tuid="dao.snippet_usage.hits">
       <tuv xml:lang="de_DE">
         <seg>Aufrufe</seg>

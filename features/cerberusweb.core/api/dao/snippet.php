@@ -18,11 +18,9 @@
 class DAO_Snippet extends C4_ORMHelper {
 	const ID = 'id';
 	const TITLE = 'title';
+	const OWNER_CONTEXT = 'owner_context';
+	const OWNER_CONTEXT_ID = 'owner_context_id';
 	const CONTEXT = 'context';
-	const CREATED_BY = 'created_by';
-	const LAST_UPDATED = 'last_updated';
-	const LAST_UPDATED_BY = 'last_updated_by';
-	const IS_PRIVATE = 'is_private';
 	const CONTENT = 'content';
 
 	static function create($fields) {
@@ -79,7 +77,7 @@ class DAO_Snippet extends C4_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, title, context, created_by, last_updated, last_updated_by, is_private, content ".
+		$sql = "SELECT id, title, context, owner_context, owner_context_id, content ".
 			"FROM snippet ".
 			$where_sql.
 			$sort_sql.
@@ -118,10 +116,8 @@ class DAO_Snippet extends C4_ORMHelper {
 			$object->id = $row['id'];
 			$object->title = $row['title'];
 			$object->context = $row['context'];
-			$object->created_by = $row['created_by'];
-			$object->last_updated = $row['last_updated'];
-			$object->last_updated_by = $row['last_updated_by'];
-			$object->is_private = $row['is_private'];
+			$object->owner_context = $row['owner_context'];
+			$object->owner_context_id = $row['owner_context_id'];
 			$object->content = $row['content'];
 			$objects[$object->id] = $object;
 		}
@@ -186,18 +182,14 @@ class DAO_Snippet extends C4_ORMHelper {
 			"snippet.id as %s, ".
 			"snippet.title as %s, ".
 			"snippet.context as %s, ".
-			"snippet.created_by as %s, ".
-			"snippet.last_updated as %s, ".
-			"snippet.last_updated_by as %s, ".
-			"snippet.is_private as %s, ".
+			"snippet.owner_context as %s, ".
+			"snippet.owner_context_id as %s, ".
 			"snippet.content as %s",
 				SearchFields_Snippet::ID,
 				SearchFields_Snippet::TITLE,
 				SearchFields_Snippet::CONTEXT,
-				SearchFields_Snippet::CREATED_BY,
-				SearchFields_Snippet::LAST_UPDATED,
-				SearchFields_Snippet::LAST_UPDATED_BY,
-				SearchFields_Snippet::IS_PRIVATE,
+				SearchFields_Snippet::OWNER_CONTEXT,
+				SearchFields_Snippet::OWNER_CONTEXT_ID,
 				SearchFields_Snippet::CONTENT
 			);
 			
@@ -310,10 +302,8 @@ class SearchFields_Snippet implements IDevblocksSearchFields {
 	const ID = 's_id';
 	const TITLE = 's_title';
 	const CONTEXT = 's_context';
-	const CREATED_BY = 's_created_by';
-	const LAST_UPDATED = 's_last_updated';
-	const LAST_UPDATED_BY = 's_last_updated_by';
-	const IS_PRIVATE = 's_is_private';
+	const OWNER_CONTEXT = 's_owner_context';
+	const OWNER_CONTEXT_ID = 's_owner_context_id';
 	const CONTENT = 's_content';
 	
 	const USAGE_HITS = 'su_hits';
@@ -328,10 +318,8 @@ class SearchFields_Snippet implements IDevblocksSearchFields {
 			self::ID => new DevblocksSearchField(self::ID, 'snippet', 'id', $translate->_('common.id')),
 			self::TITLE => new DevblocksSearchField(self::TITLE, 'snippet', 'title', $translate->_('common.title')),
 			self::CONTEXT => new DevblocksSearchField(self::CONTEXT, 'snippet', 'context', $translate->_('common.context')),
-			self::CREATED_BY => new DevblocksSearchField(self::CREATED_BY, 'snippet', 'created_by', $translate->_('dao.snippet.created_by')),
-			self::LAST_UPDATED => new DevblocksSearchField(self::LAST_UPDATED, 'snippet', 'last_updated', $translate->_('dao.snippet.last_updated')),
-			self::LAST_UPDATED_BY => new DevblocksSearchField(self::LAST_UPDATED_BY, 'snippet', 'last_updated_by', $translate->_('dao.snippet.last_updated_by')),
-			self::IS_PRIVATE => new DevblocksSearchField(self::IS_PRIVATE, 'snippet', 'is_private', $translate->_('dao.snippet.is_private')),
+			self::OWNER_CONTEXT => new DevblocksSearchField(self::OWNER_CONTEXT, 'snippet', 'owner_context', $translate->_('dao.snippet.owner_context')),
+			self::OWNER_CONTEXT_ID => new DevblocksSearchField(self::OWNER_CONTEXT_ID, 'snippet', 'owner_context_id', $translate->_('dao.snippet.owner_context_id')),
 			self::CONTENT => new DevblocksSearchField(self::CONTENT, 'snippet', 'content', $translate->_('common.content')),
 			
 			self::USAGE_HITS => new DevblocksSearchField(self::USAGE_HITS, 'snippet_usage', 'hits', $translate->_('dao.snippet_usage.hits')),
@@ -356,10 +344,8 @@ class Model_Snippet {
 	public $id;
 	public $title;
 	public $context;
-	public $created_by;
-	public $last_updated;
-	public $last_updated_by;
-	public $is_private;
+	public $owner_context;
+	public $owner_context_id;
 	public $content;
 	
 	public function incrementUse($worker_id) {
@@ -381,19 +367,20 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals {
 
 		$this->view_columns = array(
 			SearchFields_Snippet::TITLE,
-			SearchFields_Snippet::LAST_UPDATED,
-			SearchFields_Snippet::LAST_UPDATED_BY,
+			SearchFields_Snippet::CONTEXT,
 		);
 		$this->addColumnsHidden(array(
 			SearchFields_Snippet::ID,
-			SearchFields_Snippet::IS_PRIVATE,
 			SearchFields_Snippet::CONTENT,
+			SearchFields_Snippet::OWNER_CONTEXT,
+			SearchFields_Snippet::OWNER_CONTEXT_ID,
 		));
 		
 		$this->addParamsHidden(array(
 			SearchFields_Snippet::ID,
-			SearchFields_Snippet::IS_PRIVATE,
 			SearchFields_Snippet::USAGE_HITS,
+			SearchFields_Snippet::OWNER_CONTEXT,
+			SearchFields_Snippet::OWNER_CONTEXT_ID,
 		));
 		
 		$this->doResetCriteria();
@@ -422,12 +409,6 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals {
 			$pass = false;
 			
 			switch($field_key) {
-				// DAO
-				case SearchFields_Snippet::CREATED_BY:
-				case SearchFields_Snippet::LAST_UPDATED_BY:
-					$pass = true;
-					break;
-					
 				// Valid custom fields
 				default:
 					if('cf_' == substr($field_key,0,3))
@@ -450,15 +431,6 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals {
 			return array();
 		
 		switch($column) {
-			case SearchFields_Snippet::CREATED_BY:
-			case SearchFields_Snippet::LAST_UPDATED_BY:
-				$workers = DAO_Worker::getAll();
-				$label_map = array();
-				foreach($workers as $worker_id => $worker)
-					$label_map[$worker_id] = $worker->getName();
-				$counts = $this->_getSubtotalCountForStringColumn('DAO_Snippet', $column, $label_map, 'in', 'worker_id[]');
-				break;
-			
 			default:
 				// Custom fields
 				if('cf_' == substr($column,0,3)) {
@@ -483,10 +455,10 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals {
 		
 		switch($this->renderTemplate) {
 			case 'contextlinks_chooser':
-				$tpl->display('devblocks:cerberusweb.core::mail/snippets/views/view_contextlinks_chooser.tpl');
+				$tpl->display('devblocks:cerberusweb.core::internal/snippets/views/view_contextlinks_chooser.tpl');
 				break;
 			default:
-				$tpl->assign('view_template', 'devblocks:cerberusweb.core::mail/snippets/views/default.tpl');
+				$tpl->assign('view_template', 'devblocks:cerberusweb.core::internal/snippets/views/default.tpl');
 				$tpl->display('devblocks:cerberusweb.core::internal/views/subtotals_and_view.tpl');
 				break;
 		}
@@ -507,12 +479,6 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals {
 			case 'placeholder_number':
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__number.tpl');
 				break;
-			case SearchFields_Snippet::IS_PRIVATE:
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__bool.tpl');
-				break;
-			case SearchFields_Snippet::LAST_UPDATED:
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__date.tpl');
-				break;
 			case SearchFields_Snippet::CONTEXT:
 				$contexts = Extension_DevblocksContext::getAll(false);
 				
@@ -524,10 +490,6 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals {
 				$tpl->assign('contexts', $contexts);
 				
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context.tpl');
-				break;
-			case SearchFields_Snippet::CREATED_BY:
-			case SearchFields_Snippet::LAST_UPDATED_BY:
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context_worker.tpl');
 				break;
 			default:
 				// Custom Fields
@@ -560,22 +522,6 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals {
 				echo implode(', ', $strings);
 				break;
 				
-			case SearchFields_Snippet::CREATED_BY:
-			case SearchFields_Snippet::LAST_UPDATED_BY:
-				$workers = DAO_Worker::getAll();
-				$strings = array();
-			
-				foreach($param->value as $worker_id) {
-					if(empty($worker_id)) {
-						$strings[] = '<b>Nobody</b>';
-					} elseif(isset($workers[$worker_id])) {
-						$strings[] = '<b>'.$workers[$worker_id]->getName().'</b>';
-					}
-				}
-			
-				echo implode(', ', $strings);
-				break;
-			
 			default:
 				parent::renderCriteriaParam($param);
 				break;
@@ -604,30 +550,9 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals {
 				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
 				break;
 				
-			case SearchFields_Snippet::LAST_UPDATED:
-				@$from = DevblocksPlatform::importGPC($_REQUEST['from'],'string','');
-				@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string','');
-
-				if(empty($from)) $from = 0;
-				if(empty($to)) $to = 'today';
-
-				$criteria = new DevblocksSearchCriteria($field,$oper,array($from,$to));
-				break;
-				
-			case SearchFields_Snippet::IS_PRIVATE:
-				@$bool = DevblocksPlatform::importGPC($_REQUEST['bool'],'integer',1);
-				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
-				break;
-				
 			case SearchFields_Snippet::CONTEXT:
 				@$in_contexts = DevblocksPlatform::importGPC($_REQUEST['contexts'],'array',array());
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$in_contexts);
-				break;
-				
-			case SearchFields_Snippet::CREATED_BY:
-			case SearchFields_Snippet::LAST_UPDATED_BY:
-				@$worker_ids = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',array());
-				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$worker_ids);
 				break;
 				
 			default:
@@ -791,24 +716,38 @@ class Context_Snippet extends Extension_DevblocksContext {
 		$view->name = 'Snippets';
 		$view->view_columns = array(
 			SearchFields_Snippet::TITLE,
-			SearchFields_Snippet::LAST_UPDATED,
-			SearchFields_Snippet::LAST_UPDATED_BY,
+			SearchFields_Snippet::CONTEXT,
 			SearchFields_Snippet::USAGE_HITS,
 		);
+		
+		$params_required = array();
+		
+		// Restrict owners
+		$param_ownership = array(
+			DevblocksSearchCriteria::GROUP_OR,
+			array(
+				DevblocksSearchCriteria::GROUP_AND,
+				SearchFields_Snippet::OWNER_CONTEXT => new DevblocksSearchCriteria(SearchFields_Snippet::OWNER_CONTEXT,DevblocksSearchCriteria::OPER_EQ,CerberusContexts::CONTEXT_WORKER),
+				SearchFields_Snippet::OWNER_CONTEXT_ID => new DevblocksSearchCriteria(SearchFields_Snippet::OWNER_CONTEXT_ID,DevblocksSearchCriteria::OPER_EQ,$active_worker->id),
+			),
+			array(
+				DevblocksSearchCriteria::GROUP_AND,
+				SearchFields_Snippet::OWNER_CONTEXT => new DevblocksSearchCriteria(SearchFields_Snippet::OWNER_CONTEXT,DevblocksSearchCriteria::OPER_EQ,CerberusContexts::CONTEXT_GROUP),
+				SearchFields_Snippet::OWNER_CONTEXT_ID => new DevblocksSearchCriteria(SearchFields_Snippet::OWNER_CONTEXT_ID,DevblocksSearchCriteria::OPER_IN,array_keys($active_worker->getMemberships())),
+			),
+		);
+		$params_required['_ownership'] = $param_ownership;
 		
 		// If we're being given contexts to filter down to
 		if(isset($_REQUEST['contexts'])) {
 			$contexts = DevblocksPlatform::parseCsvString(DevblocksPlatform::importGPC($_REQUEST['contexts'],'string',''));
 			$contexts[] = '';
 			if(is_array($contexts) && !empty($contexts)) {
-				$view->addParamsRequired(
-					array(
-						SearchFields_Snippet::CONTEXT => new DevblocksSearchCriteria(SearchFields_Snippet::CONTEXT, DevblocksSearchCriteria::OPER_IN, $contexts)
-					),
-					true
-				);
+				$params_required[SearchFields_Snippet::CONTEXT] = new DevblocksSearchCriteria(SearchFields_Snippet::CONTEXT, DevblocksSearchCriteria::OPER_IN, $contexts);
 			}
 		}
+		
+		$view->addParamsRequired($params_required, true);
 		
 		$view->renderSortBy = SearchFields_Snippet::USAGE_HITS;
 		$view->renderSortAsc = false;

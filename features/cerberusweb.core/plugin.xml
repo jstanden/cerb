@@ -40,6 +40,7 @@
 		<patch version="5.4.3" revision="935" file="patches/5.x/5.4.3.php" />
 		<patch version="5.4.4" revision="936" file="patches/5.x/5.4.4.php" />
 		<patch version="5.5.0" revision="944" file="patches/5.x/5.5.0.php" />
+		<patch version="5.6.0" revision="950" file="patches/5.x/5.6.0.php" />
 	</patches>
 
 	<!-- Declared Extension Points -->
@@ -598,6 +599,7 @@
 					<value>
 						<!--<data key="create" />-->
 						<data key="find" />
+						<!--<data key="snippets" />-->
 						<data key="workspace" />
 					</value>
 				</param>
@@ -617,6 +619,7 @@
 					<value>
 						<data key="create" />
 						<data key="find" />
+						<data key="snippets" />
 						<data key="workspace" />
 					</value>
 				</param>
@@ -653,6 +656,7 @@
 				<param key="options">
 					<value>
 						<data key="find" />
+						<data key="snippets" />
 						<data key="workspace" />
 					</value>
 				</param>
@@ -670,6 +674,7 @@
 				<param key="view_class" value="View_Message" />
 				<param key="options">
 					<value>
+						<!--<data key="snippets" />-->
 						<data key="workspace" />
 					</value>
 				</param>
@@ -687,6 +692,7 @@
 				<param key="view_class" value="View_Notification" />
 				<param key="options">
 					<value>
+						<!--<data key="snippets" />-->
 						<data key="workspace" />
 					</value>
 				</param>
@@ -706,6 +712,7 @@
 					<value>
 						<data key="create" />
 						<data key="find" />
+						<data key="snippets" />
 						<data key="workspace" />
 					</value>
 				</param>
@@ -723,10 +730,9 @@
 				<param key="view_class" value="View_Snippet" />
 				<param key="options">
 					<value>
-						<!--
-						<data key="create" />
-						-->
+						<!--<data key="create" />-->
 						<data key="find" />
+						<!--<data key="snippets" />-->
 						<data key="workspace" />
 					</value>
 				</param>
@@ -746,6 +752,7 @@
 					<value>
 						<data key="create" />
 						<data key="find" />
+						<data key="snippets" />
 						<data key="workspace" />
 					</value>
 				</param>
@@ -764,6 +771,7 @@
 				<param key="options">
 					<value>
 						<data key="find" />
+						<data key="snippets" />
 						<data key="workspace" />
 					</value>
 				</param>
@@ -781,9 +789,8 @@
 				<param key="view_class" value="View_Worker" />
 				<param key="options">
 					<value>
-						<!--
-						<data key="find" />
-						-->
+						<!--<data key="find" />-->
+						<data key="snippets" />
 						<data key="workspace" />
 					</value>
 				</param>

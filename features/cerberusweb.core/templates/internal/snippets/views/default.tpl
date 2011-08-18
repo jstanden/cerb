@@ -59,21 +59,7 @@
 				{include file="devblocks:cerberusweb.core::internal/custom_fields/view/cell_renderer.tpl"}
 			{elseif $column=="s_title"}
 			<td>
-				<a href="javascript:;" onclick="genericAjaxPopup('peek','c=tickets&a=showSnippetsPeek&view_id={$view->id}&id={$result.s_id}', null, false, '550');" class="subject">{if empty($result.$column)}(no title){else}{$result.$column}{/if}</a>
-			</td>
-			{elseif $column=="s_last_updated"}
-			<td>
-				<abbr title="{$result.$column|devblocks_date}">{$result.$column|devblocks_prettytime}</abbr>
-			</td>
-			{elseif $column=="s_last_updated_by" || $column=="s_created_by"}
-			<td>
-				{if empty($workers)}
-					{$workers = DAO_Worker::getAll()}
-				{/if}
-				{$worker_id = $result.$column}
-				{if $workers.$worker_id}
-					{$workers.{$worker_id}->getName()}
-				{/if}
+				<a href="javascript:;" onclick="genericAjaxPopup('peek','c=internal&a=showSnippetsPeek&view_id={$view->id}&id={$result.s_id}', null, false, '550');" class="subject">{if empty($result.$column)}(no title){else}{$result.$column}{/if}</a>
 			</td>
 			{elseif $column=="s_context"}
 			<td>

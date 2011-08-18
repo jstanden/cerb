@@ -1586,26 +1586,6 @@
         <seg>Is gesloten</seg>
       </tuv>
     </tu>
-    <tu tuid="dao.snippet.created_by">
-      <tuv xml:lang="nl_NL">
-        <seg>Aangemaakt door</seg>
-      </tuv>
-    </tu>
-    <tu tuid="dao.snippet.is_private">
-      <tuv xml:lang="nl_NL">
-        <seg>Is privé</seg>
-      </tuv>
-    </tu>
-    <tu tuid="dao.snippet.last_updated">
-      <tuv xml:lang="nl_NL">
-        <seg>Bijgewerkt</seg>
-      </tuv>
-    </tu>
-    <tu tuid="dao.snippet.last_updated_by">
-      <tuv xml:lang="nl_NL">
-        <seg>Bijgewerkt door</seg>
-      </tuv>
-    </tu>
     <tu tuid="dao.snippet_usage.hits">
       <tuv xml:lang="nl_NL">
         <seg>Hits</seg>
