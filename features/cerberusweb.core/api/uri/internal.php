@@ -742,16 +742,30 @@ class ChInternalController extends DevblocksControllerExtension {
 		$output = '';
 
 		if(!empty($token_values)) {
-			// Try to build the template
-			if(false === ($out = $tpl_builder->build($content, $token_values))) {
-				// If we failed, show the compile errors
-				$errors = $tpl_builder->getErrors();
-				$success= false;
-				$output = @array_shift($errors);
+			// Tokenize
+			$tokens = $tpl_builder->tokenize($content);
+			
+			// Test legal values
+			$unknown_tokens = array_diff($tokens,array_keys($token_labels));
+			$valid_tokens = array_intersect($tokens,array_keys($token_labels));
+			
+			if(!empty($unknown_tokens)) {
+				$success = false;
+				$output = "The following placeholders are unknown: ".
+					implode(', ', $unknown_tokens);
+				
 			} else {
-				// If successful, return the parsed template
-				$success = true;
-				$output = $out;
+				// Try to build the template
+				if(false === ($out = $tpl_builder->build($content, $token_values))) {
+					// If we failed, show the compile errors
+					$errors = $tpl_builder->getErrors();
+					$success= false;
+					$output = @array_shift($errors);
+				} else {
+					// If successful, return the parsed template
+					$success = true;
+					$output = $out;
+				}
 			}
 		}
 
