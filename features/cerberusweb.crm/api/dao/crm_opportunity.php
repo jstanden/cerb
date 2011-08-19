@@ -341,6 +341,9 @@ class DAO_CrmOpportunity extends C4_ORMHelper {
 		
 		// Virtuals
 		foreach($params as $param) {
+			if(!is_a($param, 'DevblocksSearchCriteria'))
+				continue;
+			
 			$param_key = $param->field;
 			settype($param_key, 'string');
 			switch($param_key) {

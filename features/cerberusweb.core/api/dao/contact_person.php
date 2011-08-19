@@ -15,7 +15,7 @@
 |	http://www.cerberusweb.com	  http://www.webgroupmedia.com/
 ***********************************************************************/
 
-class DAO_ContactPerson extends DevblocksORMHelper {
+class DAO_ContactPerson extends C4_ORMHelper {
 	const ID = 'id';
 	const EMAIL_ID = 'email_id';
 	const CREATED = 'created';
@@ -157,6 +157,10 @@ class DAO_ContactPerson extends DevblocksORMHelper {
 		return true;
 	}
 	
+	public static function random() {
+		return self::_getRandom('contact_person');
+	}
+	
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_ContactPerson::getFields();
 		
@@ -208,6 +212,9 @@ class DAO_ContactPerson extends DevblocksORMHelper {
 	
 		// Virtuals
 		foreach($params as $param) {
+			if(!is_a($param, 'DevblocksSearchCriteria'))
+				continue;
+			
 			$param_key = $param->field;
 			settype($param_key, 'string');
 			switch($param_key) {
@@ -764,6 +771,10 @@ class Context_ContactPerson extends Extension_DevblocksContext {
     	);
     	
     	return $results;
+    }
+    
+    function getRandom() {
+    	return DAO_ContactPerson::random();
     }
     
 	function getMeta($context_id) {

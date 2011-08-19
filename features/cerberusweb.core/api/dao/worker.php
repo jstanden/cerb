@@ -510,8 +510,7 @@ class DAO_Worker extends C4_ORMHelper {
 		
 		// Virtuals
 		foreach($params as $param) {
-			// [TODO] This needs to be handled better (GROUP_AND/GROUP_OR)
-			if(is_array($param))
+			if(!is_a($param, 'DevblocksSearchCriteria'))
 				continue;
 			
 			$param_key = $param->field;
