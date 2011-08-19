@@ -3,6 +3,7 @@
 <input type="hidden" name="a" value="doAddNote">
 <input type="hidden" name="id" value="{$message->id}">
 <input type="hidden" name="ticket_id" value="{$message->ticket_id}">
+
 <div class="block" style="width:98%;margin:10px;">
 <table cellpadding="2" cellspacing="0" border="0" width="100%">
 	<tr>
@@ -14,10 +15,13 @@
 	<tr>
 		<td>
 			<textarea name="content" rows="8" cols="80" id="note_content" class="reply" style="width:98%;border:1px solid rgb(180,180,180);padding:5px;"></textarea>
+			<div>
+				<button type="button" onclick="ajax.chooserSnippet('snippets',$('#note_content'), { '{CerberusContexts::CONTEXT_TICKET}':'{$message->ticket_id}', '{CerberusContexts::CONTEXT_MESSAGE}':'{$message->id}', '{CerberusContexts::CONTEXT_WORKER}':'{$active_worker->id}' });">{'common.snippets'|devblocks_translate|capitalize}</button>
+			</div>
 		</td>
 	</tr>
 	<tr>
-		<td>
+		<td style="padding-top:5px;">
 			<b>Notify workers</b>:<br>
 			<div style="margin-left:20px;margin-bottom:1em;">
 				<button type="button" class="chooser_worker"><span class="cerb-sprite sprite-view"></span></button>
