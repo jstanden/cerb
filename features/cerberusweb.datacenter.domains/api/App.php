@@ -446,37 +446,43 @@ class Page_Domains extends CerberusPageExtension {
 				$output = "There aren't any rows in this view!";
 				
 			} else {
-				// Pull one of the addresses on this row
-				$addresses = Context_Address::searchInboundLinks('cerberusweb.contexts.datacenter.domain', current($results));
-				
-				if(empty($addresses)) {
-					echo "This row has no associated addresses. Try again.";
-					return;
-				}
-
-				// Randomize the address
-				@$addy = DAO_Address::get(array_rand($addresses, 1));
-
-				// Try to build the template
-				CerberusContexts::getContext('cerberusweb.contexts.datacenter.domain', array('id'=>current($results),'address_id'=>$addy->id), $token_labels, $token_values);
-
-				if(empty($broadcast_subject)) {
-					$success = false;
-					$output = "Subject is blank.";
-				
-				} else {
-					$template = "Subject: $broadcast_subject\n\n$broadcast_message";
+				try {
+					// Pull one of the addresses on this row
+					$addresses = Context_Address::searchInboundLinks('cerberusweb.contexts.datacenter.domain', current($results));
 					
-					if(false === ($out = $tpl_builder->build($template, $token_values))) {
-						// If we failed, show the compile errors
-						$errors = $tpl_builder->getErrors();
-						$success= false;
-						$output = @array_shift($errors);
-					} else {
-						// If successful, return the parsed template
-						$success = true;
-						$output = $out;
+					if(empty($addresses)) {
+						$success = false;
+						$output = "This row has no associated addresses. Try again.";
+						throw new Exception();
 					}
+	
+					// Randomize the address
+					@$addy = DAO_Address::get(array_rand($addresses, 1));
+	
+					// Try to build the template
+					CerberusContexts::getContext('cerberusweb.contexts.datacenter.domain', array('id'=>current($results),'address_id'=>$addy->id), $token_labels, $token_values);
+	
+					if(empty($broadcast_subject)) {
+						$success = false;
+						$output = "Subject is blank.";
+					
+					} else {
+						$template = "Subject: $broadcast_subject\n\n$broadcast_message";
+						
+						if(false === ($out = $tpl_builder->build($template, $token_values))) {
+							// If we failed, show the compile errors
+							$errors = $tpl_builder->getErrors();
+							$success= false;
+							$output = @array_shift($errors);
+						} else {
+							// If successful, return the parsed template
+							$success = true;
+							$output = $out;
+						}
+					}
+					
+				} catch(Exception $e) {
+					// nothing
 				}
 			}
 			
