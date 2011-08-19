@@ -154,6 +154,7 @@
 		<b>Reply:</b><br>
 		<textarea name="broadcast_message" style="width:100%;height:200px;border:1px solid rgb(180,180,180);padding:2px;"></textarea>
 		<br>
+		<button type="button" onclick="ajax.chooserSnippet('snippets',$('#bulkTicketBroadcast textarea[name=broadcast_message]'), { '{CerberusContexts::CONTEXT_TICKET}':'', '{CerberusContexts::CONTEXT_WORKER}':'{$active_worker->id}' });">{'common.snippets'|devblocks_translate|capitalize}</button>
 		<button type="button" onclick="genericAjaxPost('formBatchUpdate','bulkTicketBroadcastTest','c=tickets&a=doBatchUpdateBroadcastTest');"><span class="cerb-sprite sprite-gear"></span> Test</button><!--
 		--><select onchange="insertAtCursor(this.form.broadcast_message,this.options[this.selectedIndex].value);this.selectedIndex=0;this.form.broadcast_message.focus();">
 			<option value="">-- insert at cursor --</option>
