@@ -4,8 +4,13 @@
 <input type="hidden" name="context" value="{$context}">
 <input type="hidden" name="context_id" value="{$context_id}">
 
-<b>Author:</b> {$active_worker->getName()}<br>
-<textarea name="comment" rows="5" cols="60" style="width:98%;"></textarea><br>
+<b>Author:</b> {$active_worker->getName()}
+<div>
+	<textarea name="comment" rows="5" cols="60" style="width:98%;"></textarea>
+</div>
+<div>
+	<button type="button" onclick="ajax.chooserSnippet('snippets',$('#internalCommentPopup textarea[name=comment]'), { '{$context}':'{$context_id}', '{CerberusContexts::CONTEXT_WORKER}':'{$active_worker->id}' });">{'common.snippets'|devblocks_translate|capitalize}</button>
+</div>
 <br>
 
 <b>Attachments:</b><br>
