@@ -15,16 +15,16 @@
 		<b>Title:</b><br>
 		<input type="text" name="title" value="{$article->title}" style="width:99%;border:solid 1px rgb(180,180,180);"><br>
 		
-		<textarea id="content" name="content" style="width:99%;height:200px;border:solid 1px rgb(180,180,180);">{$article->content}</textarea>
-		<br>
+		<div>
+			<textarea id="content" name="content" style="width:99%;height:200px;border:solid 1px rgb(180,180,180);">{$article->content}</textarea>
+		</div>
 		
-		Format:
-		<label><input type="radio" name="format" value="2" {if 2==$article->format || empty($article->format)}checked{/if}> <b>Markdown</b> (recommended)</label> [<a href="http://en.wikipedia.org/wiki/Markdown" target="_blank">?</a>] 
-		<label><input type="radio" name="format" value="1" {if 1==$article->format}checked{/if}> <b>HTML</b></label> 
-		<br>
-		<br>
-		
-		<div id="kbEditPreview"></div>		
+		<div>
+			<button type="button" onclick="ajax.chooserSnippet('snippets',$('#kbArticleEditor textarea[name=content]'),{ '{CerberusContexts::CONTEXT_KB_ARTICLE}':'{$article->id}' } );">{'common.snippets'|devblocks_translate|capitalize}</button>
+			 &nbsp; 
+			<label><input type="radio" name="format" value="2" {if 2==$article->format || empty($article->format)}checked{/if}> <b>Markdown</b> (recommended)</label> [<a href="http://en.wikipedia.org/wiki/Markdown" target="_blank">?</a>] 
+			<label><input type="radio" name="format" value="1" {if 1==$article->format}checked{/if}> <b>HTML</b></label> 
+		</div>
 	</div>
 	
 	<div id="kbArticleProperties">
@@ -70,8 +70,10 @@
 	</div>
 </div> 
 
-{if $active_worker->hasPriv('core.kb.articles.modify')}<button type="button" id="btnKbArticleEditSave"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {$translate->_('common.save_changes')|capitalize}</button>{/if} 
-{if !empty($article) && $active_worker->hasPriv('core.kb.articles.modify')}<button type="button" onclick="if(confirm('Are you sure you want to permanently delete this article?')) { this.form.do_delete.value='1';$('#btnKbArticleEditSave').click(); } "><span class="cerb-sprite2 sprite-cross-circle-frame"></span> {$translate->_('common.delete')|capitalize}</button>{/if}
+<div style="margin-top:10px;">
+	{if $active_worker->hasPriv('core.kb.articles.modify')}<button type="button" id="btnKbArticleEditSave"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {$translate->_('common.save_changes')|capitalize}</button>{/if} 
+	{if !empty($article) && $active_worker->hasPriv('core.kb.articles.modify')}<button type="button" onclick="if(confirm('Are you sure you want to permanently delete this article?')) { this.form.do_delete.value='1';$('#btnKbArticleEditSave').click(); } "><span class="cerb-sprite2 sprite-cross-circle-frame"></span> {$translate->_('common.delete')|capitalize}</button>{/if}
+</div>
 </form>
 
 <script type="text/javascript">
