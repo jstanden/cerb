@@ -598,7 +598,7 @@
 				<param key="options">
 					<value>
 						<!--<data key="create" />-->
-						<data key="find" />
+						<!--<data key="find" />-->
 						<!--<data key="snippets" />-->
 						<data key="workspace" />
 					</value>

@@ -131,6 +131,19 @@ class ChInternalController extends DevblocksControllerExtension {
 			$tpl->display('devblocks:cerberusweb.core::context_links/choosers/__generic.tpl');
 		}
 	}
+	
+	function chooserOpenSnippetAction() {
+		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string');
+		@$layer = DevblocksPlatform::importGPC($_REQUEST['layer'],'string');
+
+		if(null != ($context_extension = DevblocksPlatform::getExtension($context, true))) {
+			$tpl = DevblocksPlatform::getTemplateService();
+			$tpl->assign('context', $context_extension);
+			$tpl->assign('layer', $layer);
+			$tpl->assign('view', $context_extension->getChooserView());
+			$tpl->display('devblocks:cerberusweb.core::context_links/choosers/__snippet.tpl');
+		}
+	}
 
 	function chooserOpenFileAction() {
 		@$layer = DevblocksPlatform::importGPC($_REQUEST['layer'],'string');
@@ -690,17 +703,7 @@ class ChInternalController extends DevblocksControllerExtension {
 					exit;
 			}
 			
-			switch($snippet->context) {
-				case 'cerberusweb.contexts.ticket':
-					CerberusContexts::getContext(CerberusContexts::CONTEXT_TICKET, $context_id, $token_labels, $token_values);
-					break;
-				case 'cerberusweb.contexts.worker':
-					CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $context_id, $token_labels, $token_values);
-					break;
-				case '':
-					$token_values = array();
-					break;
-			}
+			CerberusContexts::getContext($snippet->context, $context_id, $token_labels, $token_values);
 
 			$snippet->incrementUse($active_worker->id);
 		}

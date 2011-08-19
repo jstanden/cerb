@@ -539,6 +539,35 @@ var cAjaxCalls = function() {
 		}
 	}
 	
+	this.chooserSnippet = function(layer, $textarea, contexts) {
+		ctx = [];
+		for(x in contexts)
+			ctx.push(x);
+		
+		$chooser=genericAjaxPopup(layer,'c=internal&a=chooserOpenSnippet&context=cerberusweb.contexts.snippet&contexts=' + ctx.join(','),null,false,'650');
+		$chooser.bind('snippet_select', function(event) {
+			event.stopPropagation();
+			
+			snippet_id = event.snippet_id;
+			context = event.context;
+
+			if(null == snippet_id || null == context)
+				return;
+			
+			// Now we need to read in each snippet as either 'raw' or 'parsed' via Ajax
+			url = 'c=internal&a=snippetPaste&id='+snippet_id;
+			
+			// Context-dependent arguments
+			if(null != contexts[context])
+				url += "&context_id=" + contexts[context];
+			
+			// Ajax the content (synchronously)
+			genericAjaxGet('',url,function(txt) {
+				$textarea.insertAtCursor(txt);
+			}, { async: false });
+		});
+	}
+	
 	this.chooserFile = function(button, field_name, options) {
 		if(null == field_name)
 			field_name = 'context_id';

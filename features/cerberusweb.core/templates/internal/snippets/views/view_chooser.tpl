@@ -8,11 +8,10 @@
 <input type="hidden" name="c" value="display">
 <input type="hidden" name="a" value="">
 
-<table cellpadding="1" cellspacing="0" border="0" width="100%" class="worklistBody">
+<table cellpadding="5" cellspacing="0" border="0" width="100%" class="worklistBody">
 
 	{* Column Headers *}
 	<tr>
-		<th style="text-align:center;"><input type="checkbox" onclick="checkAll('view{$view->id}',this.checked);this.blur();$rows=$('#viewForm{$view->id}').find('table.worklistBody').find('tbody > tr');if($(this).is(':checked')) { $rows.addClass('selected'); } else { $rows.removeClass('selected'); }"></th>
 		{foreach from=$view->view_columns item=header name=headers}
 			{* start table header, insert column title and link *}
 			<th nowrap="nowrap">
@@ -40,13 +39,12 @@
 	{/if}
 	<tbody style="cursor:pointer;">
 		<tr class="{$tableRowClass}">
-		<td align="center"><input type="checkbox" name="row_id[]" title="{$result.s_title}" value="{$result.s_id}::{$result.s_context}"></td>
 		{foreach from=$view->view_columns item=column name=columns}
 			{if substr($column,0,3)=="cf_"}
 				{include file="devblocks:cerberusweb.core::internal/custom_fields/view/cell_renderer.tpl"}
 			{elseif $column=="s_title"}
 			<td>
-				<b class="subject">{if empty($result.$column)}(no title){else}{$result.$column}{/if}</b> 
+				<a href="javascript:;" class="subject" onclick="$popup=genericAjaxPopupFind('#chooser{$view->id}');event=jQuery.Event('snippet_select');event.snippet_id={$result.s_id};event.context='{$result.s_context}';$popup.trigger(event);">{if empty($result.$column)}(no title){else}{$result.$column}{/if}</a> 
 			</td>
 			{elseif $column=="s_context"}
 			<td>
@@ -72,7 +70,6 @@
 <table cellpadding="2" cellspacing="0" border="0" width="100%">
 	<tr>
 		<td align="left" valign="top" id="{$view->id}_actions">
-			<button type="button" class="devblocks-chooser-add-selected"><span class="cerb-sprite2 sprite-plus-circle-frame"></span> Add Selected</button>
 		</td>
 		<td align="right" valign="top" nowrap="nowrap">
 			{math assign=fromRow equation="(x*y)+1" x=$view->renderPage y=$view->renderLimit}

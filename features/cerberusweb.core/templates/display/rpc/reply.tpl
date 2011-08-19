@@ -66,7 +66,7 @@
 					<div>
 						Insert: 
 						<input type="text" size="25" class="context-snippet autocomplete">
-						<button type="button" onclick="openSnippetsChooser(this);"><span class="cerb-sprite sprite-view"></span></button>
+						<button type="button" onclick="ajax.chooserSnippet('chooser{$message->id}',$('#reply_{$message->id}'), { '{CerberusContexts::CONTEXT_TICKET}':'{$ticket->id}', '{CerberusContexts::CONTEXT_WORKER}':'{$active_worker->id}' });"><span class="cerb-sprite sprite-view"></span></button>
 						<button type="button" onclick="genericAjaxPopup('peek','c=internal&a=showSnippetsPeek&id=0&owner_context={CerberusContexts::CONTEXT_WORKER}&owner_context_id={$active_worker->id}&context={CerberusContexts::CONTEXT_TICKET}&context_id={$ticket->id}',null,false,'550');"><span class="cerb-sprite2 sprite-plus-circle-frame"></span></button>
 					</div>
 				</fieldset>
@@ -373,38 +373,5 @@
 		});
 		
 		{/if}
-		
 	});
-
-	function openSnippetsChooser(button) {
-		$chooser=genericAjaxPopup('chooser{$message->id}','c=internal&a=chooserOpen&context=cerberusweb.contexts.snippet&contexts=cerberusweb.contexts.ticket,cerberusweb.contexts.worker',null,false,'750');
-		$chooser.one('chooser_save', function(event) {
-			event.stopPropagation();
-			$button = $(button);
-			$textarea = $('#reply_{$message->id}');
-			
-			for(idx in event.labels) {
-				value = event.values[idx];
-				valueParts = value.split('::');
-				
-				if(null == valueParts || null == valueParts[0] || null == valueParts[1])
-					continue;
-				
-				// Now we need to read in each snippet as either 'raw' or 'parsed' via Ajax
-				url = 'c=internal&a=snippetPaste&id='+valueParts[0];
-				
-				// Context-dependent arguments
-				if('cerberusweb.contexts.ticket'==valueParts[1]) {
-					url += "&context_id={$ticket->id}";
-				} else if ('cerberusweb.contexts.worker'==valueParts[1]) {
-					url += "&context_id={$active_worker->id}";
-				}
-				
-				// Ajax the content (synchronously)
-				genericAjaxGet('',url,function(txt) {
-					$textarea.insertAtCursor(txt);
-				}, { async: false });
-			}
-		});
-	}
 </script>
