@@ -7,10 +7,10 @@
 <fieldset>
 	<legend>{$translate->_('header.signon')}</legend>
 	
-	<b>Email:</b><br>
+	<b>{'common.email'|devblocks_translate|capitalize}:</b><br>
 	<input type="text" name="email" size="45"><br>
 	
-	<b>Password:</b><br>
+	<b>{'common.password'|devblocks_translate|capitalize}:</b><br>
 	<input type="password" name="password" size="45" autocomplete="off"><br>
 	
 	<br>
@@ -18,8 +18,8 @@
 </fieldset>
 </form>
 
-<a href="{devblocks_url}c=login&a=register{/devblocks_url}">Don't have an account? Create one for free.</a><br>
-<a href="{devblocks_url}c=login&a=forgot{/devblocks_url}">Forgot your password? Click here to recover it.</a><br>
+<a href="{devblocks_url}c=login&a=register{/devblocks_url}">{'portal.sc.public.login.register'|devblocks_translate}</a><br>
+<a href="{devblocks_url}c=login&a=forgot{/devblocks_url}">{'portal.sc.public.login.forgot'|devblocks_translate}</a><br>
 
 {include file="devblocks:cerberusweb.support_center::support_center/login/switcher.tpl"}
 
