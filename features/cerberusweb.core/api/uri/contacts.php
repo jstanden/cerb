@@ -24,7 +24,8 @@ class ChContactsPage extends CerberusPageExtension {
 		// The current session must be a logged-in worker to use this page.
 		if(null == ($worker = CerberusApplication::getActiveWorker()))
 			return false;
-		return true;
+		
+		return $worker->hasPriv('core.addybook');
 	}
 	
 	function render() {
