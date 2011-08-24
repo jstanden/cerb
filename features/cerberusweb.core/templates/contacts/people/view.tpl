@@ -83,6 +83,8 @@
 					{$display_name = "Contact"}
 				{/if}
 				<a href="{devblocks_url}c=contacts&a=people&id={$result.c_id}{/devblocks_url}" class="subject">{$display_name}</a>
+				
+				<button type="button" class="peek" style="visibility:hidden;padding:1px;margin:0px 5px;" onclick="genericAjaxPopup('peek','c=contacts&a=showContactPeek&id={$result.c_id}&view_id={$view->id}',null,false,'600');"><span class="cerb-sprite2 sprite-document-search-result" style="margin-left:2px" title="{$translate->_('views.peek')}"></span></button>				
 			</td>
 		</tr>
 		<tr class="{$tableRowClass}">

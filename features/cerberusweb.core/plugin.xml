@@ -528,6 +528,7 @@
 		<priv id="core.addybook.org.actions.delete" label="acl.core.addybook.org.actions.delete" />
 		<priv id="core.addybook.org.view.actions.export" label="acl.core.addybook.org.view.actions.export" />
 		<priv id="core.addybook.person.actions.delete" label="acl.core.addybook.person.actions.delete" />
+		<priv id="core.addybook.person.actions.update" label="acl.core.addybook.person.actions.update" />
 
 		<!-- Display Ticket -->
 		<priv id="core.display.actions.attachments.download" label="acl.core.display.actions.attachments.download" />

@@ -1,3 +1,6 @@
+{$page_context = CerberusContexts::CONTEXT_CONTACT_PERSON}
+{$page_context_id = $person->id}
+
 <ul class="submenu">
 	<li><a href="{devblocks_url}c=contacts&a=people{/devblocks_url}">{$translate->_('addy_book.tab.people')|lower}</a></li>
 </ul>
@@ -30,28 +33,31 @@
 
 		<!-- Toolbar -->
 		<div style="margin-top:5px;">
-		{$object_watchers = DAO_ContextLink::getContextLinks(CerberusContexts::CONTEXT_CONTACT_PERSON, array($person->id), CerberusContexts::CONTEXT_WORKER)}
-		{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=CerberusContexts::CONTEXT_CONTACT_PERSON context_id=$person->id full=true}
-		</div>		
+			{$object_watchers = DAO_ContextLink::getContextLinks($page_context, array($person->id), CerberusContexts::CONTEXT_WORKER)}
+			{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$page_context context_id=$person->id full=true}
+			
+			<button type="button" id="btnDisplayContactEdit"><span class="cerb-sprite sprite-document_edit"></span> Edit</button>
+		</div>
 
 	</form>
 	
 	{if $pref_keyboard_shortcuts}
 	<small>
 		{$translate->_('common.keyboard')|lower}:
+		(<b>e</b>) {'common.edit'|devblocks_translate|lower}
 		(<b>1-9</b>) change tab
 	</small> 
 	{/if}
 </fieldset>
 
-{include file="devblocks:cerberusweb.core::internal/notifications/context_profile.tpl" context=CerberusContexts::CONTEXT_CONTACT_PERSON context_id=$person->id}
+{include file="devblocks:cerberusweb.core::internal/notifications/context_profile.tpl" context=$page_context context_id=$person->id}
 
 <div style="clear:both;" id="contactPersonTabs">
 	<ul>
 		{$tabs = [activity,notes,links,addresses,mail]}
 		{$point = 'cerberusweb.contact_person.tab'}
 
-		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabActivityLog&scope=target&point={$point}&context={CerberusContexts::CONTEXT_CONTACT_PERSON}&context_id={$person->id}{/devblocks_url}">{'common.activity_log'|devblocks_translate|capitalize}</a></li>		
+		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabActivityLog&scope=target&point={$point}&context={$page_context}&context_id={$person->id}{/devblocks_url}">{'common.activity_log'|devblocks_translate|capitalize}</a></li>		
 		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextComments&context=cerberusweb.contexts.contact_person&id={$person->id}{/devblocks_url}">{$translate->_('common.comments')|capitalize}</a></li>
 		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextLinks&context=cerberusweb.contexts.contact_person&id={$person->id}{/devblocks_url}">{$translate->_('common.links')}</a></li>
 		<li><a href="{devblocks_url}ajax.php?c=contacts&a=showTabPeopleAddresses&id={$person->id}{/devblocks_url}">{'Email Addresses'}</a></li>
@@ -73,6 +79,15 @@
 <script type="text/javascript">
 	$(function() {
 		var tabs = $("#contactPersonTabs").tabs( { selected:{$tab_selected_idx} } );
+		
+		$('#btnDisplayContactEdit').bind('click', function() {
+			$popup = genericAjaxPopup('peek','c=contacts&a=showContactPeek&id={$page_context_id}',null,false,'550');
+			$popup.one('contact_save', function(event) {
+				event.stopPropagation();
+				document.location.href = '{devblocks_url}c=contacts&a=people&id={$page_context_id}{/devblocks_url}';
+			});
+		});
+		
 	});
 </script>
 
@@ -102,6 +117,11 @@ $(document).keypress(function(event) {
 				idx = event.which-49;
 				$tabs = $("#contactPersonTabs").tabs();
 				$tabs.tabs('select', idx);
+			} catch(ex) { } 
+			break;
+		case 101:  // (E) edit
+			try {
+				$('#btnDisplayContactEdit').click();
 			} catch(ex) { } 
 			break;
 		default:
