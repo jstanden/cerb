@@ -518,6 +518,9 @@
 	<!-- Permissions -->
 
 	<acl>
+		<!-- Activity -->
+		<priv id="core.activity" label="acl.core.activity" />
+	
 		<!-- Addy Book -->
 		<priv id="core.addybook" label="acl.core.addybook" />
 		<priv id="core.addybook.actions.import" label="acl.core.addybook.actions.import" />
@@ -529,6 +532,7 @@
 		<priv id="core.addybook.org.actions.delete" label="acl.core.addybook.org.actions.delete" />
 		<priv id="core.addybook.org.view.actions.export" label="acl.core.addybook.org.view.actions.export" />
 		<priv id="core.addybook.person.actions.delete" label="acl.core.addybook.person.actions.delete" />
+		<priv id="core.addybook.person.actions.update" label="acl.core.addybook.person.actions.update" />
 
 		<!-- Display Ticket -->
 		<priv id="core.display.actions.attachments.download" label="acl.core.display.actions.attachments.download" />
@@ -541,6 +545,7 @@
 		<priv id="core.display.message.actions.delete" label="acl.core.display.message.actions.delete" />
 
 		<!-- Mail page -->
+		<priv id="core.mail" label="acl.core.mail" />
 		<priv id="core.mail.actions.auto_refresh" label="acl.core.mail.actions.auto_refresh" />
 		<priv id="core.mail.log_ticket" label="acl.core.mail.log_ticket" />
 		<priv id="core.mail.search" label="acl.core.mail.search" />
@@ -551,7 +556,6 @@
 		
 		<!-- Snippets -->
 		<priv id="core.snippets.actions.create" label="acl.core.snippets.actions.create" />
-		<priv id="core.snippets.actions.update_all" label="acl.core.snippets.actions.update_all" />
 
 		<!-- Tasks -->
 		<priv id="core.tasks.actions.create" label="acl.core.tasks.actions.create" />
@@ -1249,6 +1253,7 @@
 			<params>
 				<param key="uri" value="tickets" />
 				<param key="menutitle" value="common.mail" />
+				<param key="acl" value="core.mail" />
 			</params>
 		</extension>
 
@@ -1262,6 +1267,7 @@
 			<params>
 				<param key="uri" value="activity" />
 				<param key="menutitle" value="core.menu.activity" />
+				<param key="acl" value="core.activity" />
 			</params>
 		</extension>
 
@@ -1315,6 +1321,7 @@
 			<params>
 				<param key="uri" value="display" />
 				<param key="menutitle" value="" />
+				<param key="acl" value="core.mail" />
 			</params>
 		</extension>
 

@@ -20,7 +20,8 @@ class ChTicketsPage extends CerberusPageExtension {
 		// The current session must be a logged-in worker to use this page.
 		if(null == ($worker = CerberusApplication::getActiveWorker()))
 			return false;
-		return true;
+		
+		return $worker->hasPriv('core.mail');
 	}
 	
 	function getActivity() {
@@ -1299,10 +1300,8 @@ class ChTicketsPage extends CerberusPageExtension {
 			if(!empty($draft_id))
 				DAO_MailQueue::delete($draft_id);
 				
-			if($add_me_as_watcher) {
-				$worker = CerberusApplication::getActiveWorker();
+			if($add_me_as_watcher)
 				CerberusContexts::addWatchers(CerberusContexts::CONTEXT_TICKET, $ticket_id, $active_worker->id);
-			}
 				
 			$ticket = DAO_Ticket::get($ticket_id);
 			
@@ -1332,6 +1331,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		@$closed = DevblocksPlatform::importGPC($_POST['closed'],'integer',0);
 		@$ticket_reopen = DevblocksPlatform::importGPC($_POST['ticket_reopen'],'string','');
 		@$watcher_ids = DevblocksPlatform::importGPC($_POST['worker_id'],'array',array());
+		@$add_me_as_watcher = DevblocksPlatform::importGPC($_POST['add_me_as_watcher'],'integer',0);
 		
 		// ********
 		
@@ -1410,12 +1410,12 @@ class ChTicketsPage extends CerberusPageExtension {
 				$fields[DAO_Ticket::DUE_DATE] = $ticket_reopen; 
 		}
 		
-		// Watchers
-		if(!empty($watcher_ids))
-			CerberusContexts::addWatchers(CerberusContexts::CONTEXT_TICKET, $ticket_id, $watcher_ids);
-		
 		if(!empty($fields))
 			DAO_Ticket::update($ticket_id, $fields);
+		
+		// Watchers
+		if($add_me_as_watcher)
+			CerberusContexts::addWatchers(CerberusContexts::CONTEXT_TICKET, $ticket_id, $active_worker->id);
 		
 		$ticket = DAO_Ticket::get($ticket_id);			
 		

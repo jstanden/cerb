@@ -1,6 +1,6 @@
 <form action="#" method="POST" id="formAddressPeek" name="formAddressPeek" onsubmit="return false;">
 <input type="hidden" name="c" value="contacts">
-<input type="hidden" name="a" value="saveContact">
+<input type="hidden" name="a" value="saveAddress">
 <input type="hidden" name="id" value="{$address.a_id}">
 {if empty($id) && !empty($context)}
 <input type="hidden" name="context" value="{$context}">

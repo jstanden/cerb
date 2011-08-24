@@ -12,7 +12,7 @@
 	<div style="margin-bottom:10px;">
 		{assign var=logo_url value=$settings->get('cerberusweb.core','helpdesk_logo_url','')}
 		{if empty($logo_url)}
-		<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/wgm/logo.gif{/devblocks_url}?v={$smarty.const.APP_BUILD}">
+		<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/wgm/cerb5_logo.png{/devblocks_url}?v={$smarty.const.APP_BUILD}">
 		{else}
 		<img src="{$logo_url}">
 		{/if}

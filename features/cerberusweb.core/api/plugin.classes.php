@@ -102,9 +102,14 @@ class ChPageController extends DevblocksControllerExtension {
 		$controller = array_shift($path);
 
 		// Default page [TODO] This is supposed to come from framework.config.php
-		if(empty($controller)) 
-			$controller = 'tickets';
-
+		if(empty($controller)) {
+			if($active_worker->hasPriv('core.mail')) { 
+				$controller = 'tickets';
+			} else {
+				$controller = 'profiles';
+			}
+		}
+		
 	    // [JAS]: Require us to always be logged in for Cerberus pages
 		if(empty($visit) && 0 != strcasecmp($controller,'login')) {
 			$query = array();

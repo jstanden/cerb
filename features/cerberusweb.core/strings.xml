@@ -581,6 +581,11 @@
 
 		<!-- ACL -->
 		
+			<!-- Activity -->
+		<tu tuid='acl.core.activity'>
+			<tuv xml:lang="en_US"><seg>[Activity] Can view activity page</seg></tuv>
+		</tu>
+		
 			<!-- Address Book -->
 		<tu tuid='acl.core.addybook'>
 			<tuv xml:lang="en_US"><seg>[Address Book] Can browse the address book</seg></tuv>
@@ -611,6 +616,9 @@
 		</tu>
 		<tu tuid='acl.core.addybook.person.actions.delete'>
 			<tuv xml:lang="en_US"><seg>[Address Book] Can delete registered contacts</seg></tuv>
+		</tu>
+		<tu tuid='acl.core.addybook.person.actions.update'>
+			<tuv xml:lang="en_US"><seg>[Address Book] Can modify registered contacts</seg></tuv>
 		</tu>
 
 			<!-- Display Ticket -->
@@ -643,14 +651,17 @@
 		</tu>
 
 			<!-- Mail page -->
+		<tu tuid='acl.core.mail'>
+			<tuv xml:lang="en_US"><seg>[Mail] Can view the mail page</seg></tuv>
+		</tu>
 		<tu tuid='acl.core.mail.actions.auto_refresh'>
-			<tuv xml:lang="en_US"><seg>[Mail] Can auto-refresh the Mail page</seg></tuv>
+			<tuv xml:lang="en_US"><seg>[Mail] Can auto-refresh the mail page</seg></tuv>
 		</tu>
 		<tu tuid='acl.core.mail.log_ticket'>
 			<tuv xml:lang="en_US"><seg>[Mail] Can open tickets on behalf of customers</seg></tuv>
 		</tu>
 		<tu tuid='acl.core.mail.search'>
-			<tuv xml:lang="en_US"><seg>[Mail] Can use the Search tab on the Mail page</seg></tuv>
+			<tuv xml:lang="en_US"><seg>[Mail] Can use the Search tab on the mail page</seg></tuv>
 		</tu>
 		<tu tuid='acl.core.mail.send'>
 			<tuv xml:lang="en_US"><seg>[Mail] Can compose new messages from the helpdesk</seg></tuv>
@@ -664,9 +675,6 @@
 			<!-- Snippets -->
 		<tu tuid='acl.core.snippets.actions.create'>
 			<tuv xml:lang="en_US"><seg>[Snippets] Can create snippets</seg></tuv>
-		</tu>
-		<tu tuid='acl.core.snippets.actions.update_all'>
-			<tuv xml:lang="en_US"><seg>[Snippets] Can modify any snippet</seg></tuv>
 		</tu>
 
 			<!-- Tasks -->

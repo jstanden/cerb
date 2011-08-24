@@ -201,6 +201,13 @@
 			<tuv xml:lang="en_US"><seg>Home</seg></tuv>
 		</tu>
 		
+		<tu tuid='portal.sc.public.login.register'>
+			<tuv xml:lang="en_US"><seg>Don't have an account? Create one for free.</seg></tuv>
+		</tu>
+		<tu tuid='portal.sc.public.login.forgot'>
+			<tuv xml:lang="en_US"><seg>Forgot your password? Click here to recover it.</seg></tuv>
+		</tu>
+
 		<tu tuid='portal.sc.public.my_account'>
 			<tuv xml:lang="en_US"><seg>My Account</seg></tuv>
 		</tu>

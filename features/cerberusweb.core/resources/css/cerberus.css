@@ -945,7 +945,6 @@ button span.cerb-sprite { display:inline-block; }
 .sprite-help{ background-position: 0 -1320px; width: 16px; height: 16px; } 
 .sprite-import{ background-position: 0 -1386px; width: 16px; height: 16px; } 
 .sprite-lock{ background-position: 0 -1452px; width: 16px; height: 16px; } 
-.sprite-logo_small{ background-position: 0 -1518px; width: 100px; height: 41px; } 
 .sprite-media_pause{ background-position: 0 -1609px; width: 16px; height: 16px; } 
 .sprite-media_play_green{ background-position: 0 -1675px; width: 16px; height: 16px; } 
 .sprite-media_stop_red{ background-position: 0 -1741px; width: 16px; height: 16px; } 
