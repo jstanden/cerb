@@ -60,7 +60,7 @@
 <script type="text/javascript">
 	$popup = genericAjaxPopupFetch('peek');
 	$popup.one('popup_open', function(event,ui) {
-		$(this).dialog('option','title',"{'Server'}");
+		$(this).dialog('option','title',"{'cerberusweb.datacenter.common.server'|devblocks_translate|capitalize}");
 		$(this).find('textarea[name=comment]').keyup(function() {
 			if($(this).val().length > 0) {
 				$(this).next('DIV.notify').show();
@@ -71,5 +71,7 @@
 		$('#frmServer button.chooser_notify_worker').each(function() {
 			ajax.chooser(this,'cerberusweb.contexts.worker','notify_worker_ids', { autocomplete:true });
 		});
+		
+		$(this).find('input:text:first').focus();
 	} );
 </script>
