@@ -258,7 +258,7 @@ $(document).keypress(function(event) {
 			break;
 		case 114:  // (R) reply to first message
 			try {
-				{if $expand_all}$('BUTTON.reply').last().click();{else}$('BUTTON.reply').first().click();{/if}
+				{if $expand_all}$('BUTTON.reply').last().next('BUTTON.split-right').click();{else}$('BUTTON.reply').first().next('BUTTON.split-right').click();{/if}
 			} catch(ex) { } 
 			break;
 		case 115:  // (S) spam
