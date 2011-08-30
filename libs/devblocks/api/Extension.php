@@ -367,11 +367,8 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 					switch($oper) {
 						case 'in':
 							$pass = false;
-							foreach($params['values'] as $v) {
-								if(isset($value[$v])) {
-									$pass = true;
-									break;
-								}
+							if(in_array($value, $params['values'])) {
+								$pass = true;
 							}
 							break;
 					}
