@@ -208,7 +208,7 @@ class UmScKbController extends Extension_UmScController {
 				}
 
 				$view->name = "";
-				$view->renderSortBy = SearchFields_KbArticle::VIEWS;
+				$view->renderSortBy = SearchFields_KbArticle::UPDATED;
 				$view->renderSortAsc = false;
 				$view->renderPage = 0;
 				$view->renderLimit = 10;

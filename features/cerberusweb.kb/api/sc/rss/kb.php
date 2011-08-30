@@ -203,7 +203,7 @@ XML;
         // Channel
         $channel = $xml->addChild('channel');
 		$channel->addChild('title', (!empty($portal_name) ? ('['.$portal_name.'] ') : '') . "Recently Added Articles");
-        $channel->addChild('link', $url->write(sprintf('c=rss&kb=kb&a=recent_changes', $portal),true));
+        $channel->addChild('link', $url->write(sprintf('c=rss&kb=kb&a=new_articles', $portal),true));
         $channel->addChild('description', '');
         
 		// Limit topics to portal config
