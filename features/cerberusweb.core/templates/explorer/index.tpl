@@ -4,10 +4,6 @@
 		<meta http-equiv="Content-Type" content="text/html; charset={$smarty.const.LANG_CHARSET_CODE}">
 		<meta http-equiv="Cache-Control" content="no-cache">
 		
-		{*
-		<!-- [TODO] Title -->
-		<title>{$settings->get('cerberusweb.core','helpdesk_title')}</title>
-		*}
 		<title>{$title}</title>
 		<link type="image/x-icon" rel="shortcut icon" href="{devblocks_url}favicon.ico{/devblocks_url}">
 		
@@ -37,8 +33,8 @@
 					<div class="block">
 					<table cellpadding="0" cellspacing="0" border="0" width="100%">
 						<tr>
-							<td width="1%" nowrap="nowrap" align="left" style="padding-right:20px;padding-bottom:5px;">
-								<a href="{if !empty($return_url)}{$return_url}{else}{devblocks_url}{/devblocks_url}{/if}"><span class="cerb-sprite sprite-logo_small"></span></a>
+							<td width="1%" nowrap="nowrap" align="left" style="padding-right:10px;padding-bottom:5px;">
+								<a href="{if !empty($return_url)}{$return_url}{else}{devblocks_url}{/devblocks_url}{/if}"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/wgm/powered_by_cerb5.png{/devblocks_url}?v={$smarty.const.APP_BUILD}" border="0"></span></a>
 							</td>
 							<td align="left" width="98%;" valign="top">
 								<h2>{$title}</h2> &nbsp;
