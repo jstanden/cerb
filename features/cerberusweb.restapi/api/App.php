@@ -120,11 +120,11 @@ class Ch_RestFrontController implements DevblocksHttpRequestHandler {
 
 		// Worker-level auth
 		if(null == ($workers = DAO_Worker::getWhere(sprintf("%s = %s", DAO_Worker::EMAIL, $db->qstr($auth_access_key))))) {
-			Plugin_RestAPI::render(array('__status'=>'error', 'message'=>"Access denied! (Invalid credentials)"));
+			Plugin_RestAPI::render(array('__status'=>'error', 'message'=>"Access denied! (Invalid credentials: access key)"));
 		}
 		
 		if(null == (@$worker = array_shift($workers))) {
-			Plugin_RestAPI::render(array('__status'=>'error', 'message'=>"Access denied! (Invalid credentials)"));
+			Plugin_RestAPI::render(array('__status'=>'error', 'message'=>"Access denied! (Invalid credentials: no match)"));
 		}
 
 		$secret = strtolower($worker->pass);
@@ -133,8 +133,8 @@ class Ch_RestFrontController implements DevblocksHttpRequestHandler {
 		
 		$compare_hash = md5($string_to_sign); //base64_encode(sha1(
 
-		if(0 != strcmp($auth_signature,$compare_hash)) {
-			Plugin_RestAPI::render(array('__status'=>'error', 'message'=>"Access denied! (Invalid credentials)"));
+		if(0 != strcmp($auth_signature, $compare_hash)) {
+			Plugin_RestAPI::render(array('__status'=>'error', 'message'=>"Access denied! (Invalid credentials: checksum)"));
 		}
 		
 		// REST extensions
@@ -282,6 +282,10 @@ abstract class Extension_RestController extends DevblocksExtension {
 	 */
 	public function getActiveWorker() {
 		return($this->_activeWorker);
+	}
+	
+	public function getPayload() {
+		return $this->_payload;
 	}
 	
 	public function setPayload($payload) {
