@@ -40,7 +40,9 @@
 					genericAjaxGet('displayTicketRequesterBubbles', 'c=display&a=requestersRefresh&ticket_id={$ticket_id}');
 				}
 			);
-		} );
+		});
+		
+		$(this).find('input:text:first').focus();
 	});
 	$('#formDisplayReq button.chooser_address').each(function() {
 		ajax.chooser(this,'cerberusweb.contexts.address','address_id');

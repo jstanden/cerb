@@ -65,7 +65,7 @@
 	{/foreach}
 	<br clear="all">
 	
-	<a style="color:black;font-weight:bold;" href="javascript:;" onclick="genericAjaxPopup('peek','c=display&a=showRequestersPanel&ticket_id={$ticket->id}',null,true,'500');">{'ticket.requesters'|devblocks_translate|capitalize}</a>:
+	<a style="color:black;font-weight:bold;" href="javascript:;" id="aRecipients" onclick="genericAjaxPopup('peek','c=display&a=showRequestersPanel&ticket_id={$ticket->id}',null,true,'500');">{'ticket.requesters'|devblocks_translate|capitalize}</a>:
 	<span id="displayTicketRequesterBubbles">
 		{include file="devblocks:cerberusweb.core::display/rpc/requester_list.tpl" ticket_id=$ticket->id}
 	</span>
@@ -128,6 +128,7 @@
 	<small>
 		{$translate->_('common.keyboard')|lower}:
 		(<b>e</b>) {'common.edit'|devblocks_translate|lower} 
+		(<b>i</b>) {'ticket.requesters'|devblocks_translate|lower} 
 		{if $active_worker->hasPriv('core.display.actions.comment')}(<b>o</b>) {$translate->_('common.comment')} {/if}
 		{if !empty($macros)}(<b>m</b>) {'common.macros'|devblocks_translate|lower} {/if}
 		{if !$ticket->is_closed && $active_worker->hasPriv('core.ticket.actions.close')}(<b>c</b>) {$translate->_('common.close')|lower} {/if}
@@ -241,6 +242,11 @@ $(document).keypress(function(event) {
 				$('#btnDisplayTicketEdit').click();
 			} catch(ex) { } 
 			break;
+		case 105:  // (I) recipients
+			try {
+				$('#aRecipients').click();
+			} catch(ex) { } 
+			break;
 		case 109:  // (M) macros
 			try {
 				$('#btnDisplayMacros').click();
@@ -258,7 +264,7 @@ $(document).keypress(function(event) {
 			break;
 		case 114:  // (R) reply to first message
 			try {
-				{if $expand_all}$('BUTTON.reply').last().click();{else}$('BUTTON.reply').first().click();{/if}
+				{if $expand_all}$('BUTTON.reply').last().next('BUTTON.split-right').click();{else}$('BUTTON.reply').first().next('BUTTON.split-right').click();{/if}
 			} catch(ex) { } 
 			break;
 		case 115:  // (S) spam

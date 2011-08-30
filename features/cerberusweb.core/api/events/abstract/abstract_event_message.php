@@ -129,7 +129,7 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 		@$worker_id = $values['worker_id'];
 		$worker_labels = array();
 		$worker_values = array();
-		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $worker_id, $worker_labels, $worker_values, null, true);
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $worker_id, $worker_labels, $worker_values, 'Message worker:', true);
 				
 			// Clear dupe content
 			CerberusContexts::scrubTokensWithRegexp(
@@ -143,7 +143,7 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 			// Merge
 			CerberusContexts::merge(
 				'sender_worker_',
-				'Message sender ',
+				'',
 				$worker_labels,
 				$worker_values,
 				$labels,
@@ -153,7 +153,7 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 		/**
 		 * Return
 		 */
-		
+			
 		$this->setLabels($labels);
 		$this->setValues($values);		
 	}
