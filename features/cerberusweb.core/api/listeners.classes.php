@@ -944,8 +944,11 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 					SearchFields_Ticket::TICKET_WAITING => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_WAITING,'=',1),
 				),
 				SearchFields_Ticket::TICKET_DELETED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_DELETED,'=',0),
-				SearchFields_Ticket::TICKET_DUE_DATE => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_DUE_DATE,DevblocksSearchCriteria::OPER_GT,0),
-				SearchFields_Ticket::TICKET_DUE_DATE => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_DUE_DATE,DevblocksSearchCriteria::OPER_LT,time()),
+				array(
+					DevblocksSearchCriteria::GROUP_AND,
+					new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_DUE_DATE,DevblocksSearchCriteria::OPER_GT,0),
+					new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_DUE_DATE,DevblocksSearchCriteria::OPER_LT,time()),
+				),
 			),
 			100,
 			0,
