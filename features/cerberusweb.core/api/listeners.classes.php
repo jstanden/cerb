@@ -935,23 +935,33 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 	
 	private function _handleCronHeartbeat($event) {
 		// Re-open any conversations past their reopen date
-		$fields = array(
-			DAO_Ticket::IS_CLOSED => 0,
-			DAO_Ticket::IS_WAITING => 0,
-			DAO_Ticket::DUE_DATE => 0
-		);
-		$where = sprintf("(%s = %d OR %s = %d) AND %s = %d AND %s > 0 AND %s < %d",
-			DAO_Ticket::IS_WAITING,
-			1,
-			DAO_Ticket::IS_CLOSED,
-			1,
-			DAO_Ticket::IS_DELETED,
+		list($results, $null) = DAO_Ticket::search(
+			array(),
+			array(
+				array(
+					DevblocksSearchCriteria::GROUP_OR,
+					SearchFields_Ticket::TICKET_CLOSED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',1),
+					SearchFields_Ticket::TICKET_WAITING => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_WAITING,'=',1),
+				),
+				SearchFields_Ticket::TICKET_DELETED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_DELETED,'=',0),
+				SearchFields_Ticket::TICKET_DUE_DATE => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_DUE_DATE,DevblocksSearchCriteria::OPER_GT,0),
+				SearchFields_Ticket::TICKET_DUE_DATE => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_DUE_DATE,DevblocksSearchCriteria::OPER_LT,time()),
+			),
+			100,
 			0,
-			DAO_Ticket::DUE_DATE,
-			DAO_Ticket::DUE_DATE,
-			time()
+			DAO_Ticket::ID,
+			true,
+			false
 		);
-		DAO_Ticket::updateWhere($fields, $where);
+		
+		if(!empty($results)) {
+			$fields = array(
+				DAO_Ticket::IS_CLOSED => 0,
+				DAO_Ticket::IS_WAITING => 0,
+				DAO_Ticket::DUE_DATE => 0
+			);
+			DAO_Ticket::update(array_keys($results), $fields);
+		}
 	}
 	
 	private function _handleCommentCreate($event) { /* @var $event Model_DevblocksEvent */
