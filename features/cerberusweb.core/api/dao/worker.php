@@ -1328,7 +1328,7 @@ class Context_Worker extends Extension_DevblocksContext {
 
 		CerberusContexts::merge(
 			'address_',
-			'',
+			$prefix,
 			$merge_token_labels,
 			$merge_token_values,
 			$token_labels,
