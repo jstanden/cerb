@@ -971,16 +971,17 @@ button span.cerb-sprite { display:inline-block; }
 }
 button span.cerb-sprite2 { display:inline-block; }
 
-.sprite-cross-circle-frame-gray{ background-position: 0 0; width: 16px; height: 16px; } 
-.sprite-cross-circle-frame{ background-position: 0 -48px; width: 16px; height: 16px; } 
-.sprite-document-search-result{ background-position: 0 -96px; width: 16px; height: 16px; } 
-.sprite-folder-cross-circle{ background-position: 0 -144px; width: 16px; height: 16px; } 
-.sprite-folder-gear{ background-position: 0 -192px; width: 16px; height: 16px; } 
-.sprite-folder-tick-circle{ background-position: 0 -240px; width: 16px; height: 16px; } 
-.sprite-minus-circle-frame{ background-position: 0 -288px; width: 16px; height: 16px; } 
-.sprite-plus-circle-frame{ background-position: 0 -336px; width: 16px; height: 16px; } 
-.sprite-tick-circle-frame-gray{ background-position: 0 -384px; width: 16px; height: 16px; } 
-.sprite-tick-circle-frame{ background-position: 0 -432px; width: 16px; height: 16px; } 
+.sprite-cross-circle-frame-gray{ background-position: 0 0; width: 16px; height: 16px; }
+.sprite-cross-circle-frame{ background-position: 0 -66px; width: 16px; height: 16px; }
+.sprite-document-search-result{ background-position: 0 -132px; width: 16px; height: 16px; }
+.sprite-folder-cross-circle{ background-position: 0 -198px; width: 16px; height: 16px; }
+.sprite-folder-gear{ background-position: 0 -264px; width: 16px; height: 16px; }
+.sprite-folder-tick-circle{ background-position: 0 -330px; width: 16px; height: 16px; }
+.sprite-minus-circle-frame{ background-position: 0 -396px; width: 16px; height: 16px; }
+.sprite-plus-circle-frame{ background-position: 0 -462px; width: 16px; height: 16px; }
+.sprite-tick-circle-frame-gray{ background-position: 0 -528px; width: 16px; height: 16px; }
+.sprite-tick-circle-frame{ background-position: 0 -594px; width: 16px; height: 16px; }
+.sprite-user-silhouette{ background-position: 0 -660px; width: 16px; height: 16px; }
 
 /* -------------------------------------------------------------------
 // markItUp! Universal MarkUp Engine, JQuery plugin

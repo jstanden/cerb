@@ -76,7 +76,7 @@
 </fieldset>
 
 <fieldset>
-	<legend>Memberships</legend>
+	<legend>{'common.groups'|devblocks_translate|capitalize}</legend>
 	
 	{if $worker->id}{assign var=workerTeams value=$worker->getMemberships()}{/if}
 	{foreach from=$teams item=team key=team_id}

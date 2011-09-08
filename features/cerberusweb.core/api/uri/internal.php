@@ -52,6 +52,47 @@ class ChInternalController extends DevblocksControllerExtension {
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('preferences')));
 	}
 
+	// Imposter mode
+	
+	function suAction() {
+		@$worker_id = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'string');
+		
+		$active_worker = CerberusApplication::getActiveWorker();
+		$visit = CerberusApplication::getVisit();
+		
+		if(!$active_worker->is_superuser)
+			return;
+		
+		if($active_worker->id == $worker_id)
+			return;
+		
+		if(null != ($switch_worker = DAO_Worker::get($worker_id))) {
+			// Imposter
+			if($visit->isImposter() && $imposter = $visit->getImposter()) {
+				if($worker_id == $imposter->id) {
+					$visit->setImposter(null);
+				}
+			} else if(!$visit->isImposter()) {
+				$visit->setImposter($active_worker);
+			}
+			
+			$visit->setWorker($switch_worker);
+		}
+	}
+	
+	function suRevertAction() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		$visit = CerberusApplication::getVisit();
+		
+		if($visit->isImposter()) {
+			if(null != ($imposter = $visit->getImposter())) {
+				$visit->setWorker($imposter);
+				$visit->setImposter(null);
+			}
+		}
+		
+	}
+	
 	// Contexts
 
 	function showTabContextLinksAction() {

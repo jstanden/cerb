@@ -26,6 +26,9 @@
 			
 			{$worker_name =''|cat:'<b><a href="javascript:;" id="lnkSignedIn">'|cat:$active_worker->getName()|cat:' &#x25be;</a></b>'}
 			{'header.signed_in'|devblocks_translate:$worker_name nofilter}
+			{if $visit->isImposter()}
+				[ <a href="javascript:;" id="aImposter">{$visit->getImposter()->getName()}</a> ]
+			{/if}
 			<ul id="menuSignedIn" class="cerb-popupmenu cerb-float">
 				<li><a href="{devblocks_url}c=profiles&w=worker&me=me{/devblocks_url}">{'header.my_profile'|devblocks_translate|lower}</a></li>
 				<li><a href="{devblocks_url}c=preferences{/devblocks_url}">{'common.settings'|devblocks_translate|lower}</a></li>
@@ -43,6 +46,14 @@
 
 <script type="text/javascript">
 $().ready(function(e) {
+	{if !empty($visit) && $visit->isImposter()}
+	$('#aImposter').click(function(e) {
+		genericAjaxGet('','c=internal&a=suRevert',function(o) {
+			window.location.reload();
+		});
+	});
+	{/if}
+	
 	$menu = $('#menuSignedIn');
 	$menu.appendTo('body');
 	$menu.find('> li')

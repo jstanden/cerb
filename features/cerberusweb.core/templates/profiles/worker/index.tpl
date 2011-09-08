@@ -25,6 +25,7 @@
 	</div>
 	{if $active_worker->is_superuser}
 	<div style="float:right;">
+		{if $worker->id != $active_worker->id}<button type="button" id="btnProfileWorkerPossess"><span class="cerb-sprite2 sprite-user-silhouette"></span> Impersonate</button>{/if}
 		<button type="button" id="btnProfileWorkerEdit"><span class="cerb-sprite sprite-document_edit"></span> {'common.edit'|devblocks_translate|capitalize}</button>
 	</div>
 	{/if}
@@ -94,7 +95,12 @@
 			$popup = genericAjaxPopup('peek','c=config&a=handleSectionAction&section=workers&action=showWorkerPeek&id={$worker->id}',null,false,'550');
 			$popup.one('worker_save', function(event) {
 				event.stopPropagation();
-				document.location.href = '{devblocks_url}c=profiles&k=worker&id={$worker->id}-{$worker->getName()|devblocks_permalink}{/devblocks_url}';
+				window.location.reload();
+			});
+		});
+		$('#btnProfileWorkerPossess').bind('click', function() {
+			genericAjaxGet('','c=internal&a=su&worker_id={$worker->id}',function(o) {
+				window.location.reload();
 			});
 		});
 		{/if}

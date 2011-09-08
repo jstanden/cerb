@@ -1337,6 +1337,7 @@ class C4_DevblocksExtensionDelegate implements DevblocksExtensionDelegate {
 
 class CerberusVisit extends DevblocksVisit {
 	private $worker_id;
+	private $imposter_id;
 
 	const KEY_VIEW_LAST_ACTION = 'view_last_action';
 	const KEY_MY_WORKSPACE = 'view_my_workspace';
@@ -1344,6 +1345,7 @@ class CerberusVisit extends DevblocksVisit {
 
 	public function __construct() {
 		$this->worker_id = null;
+		$this->imposter_id = null;
 	}
 
 	/**
@@ -1363,6 +1365,30 @@ class CerberusVisit extends DevblocksVisit {
 			$this->worker_id = $worker->id;
 		}
 	}
+	
+	public function isImposter() {
+		return !empty($this->imposter_id);
+	}
+	
+	/**
+	 * @return Model_Worker
+	 */
+	public function getImposter() {
+		if(empty($this->imposter_id))
+			return null;
+			
+		return DAO_Worker::get($this->imposter_id);
+	}
+	
+	public function setImposter(Model_Worker $worker=null) {
+		if(is_null($worker)) {
+			$this->imposter_id = null;
+		} else {
+			$this->imposter_id = $worker->id;
+		}
+	}
+	
+	
 };
 
 class C4_ORMHelper extends DevblocksORMHelper {
