@@ -352,6 +352,10 @@ class CrmPage extends CerberusPageExtension {
 			if(empty($opp_id))
 				return;
 			
+			// Check privs
+			if(!$active_worker->hasPriv('crm.opp.actions.update_all'))
+				return;
+			
 			if(null == ($address = DAO_Address::lookupAddress($email, true)))
 				return;
 

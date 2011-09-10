@@ -56,8 +56,10 @@
 		{devblocks_url assign=return_url full=true}c=crm&tab=opps&id={$page_context_id}{/devblocks_url}
 		{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context=$page_context context_id=$page_context_id macros=$macros return_url=$return_url}		
 		
-		<!-- Edit -->		
+		<!-- Edit -->
+		{if $active_worker->hasPriv('crm.opp.actions.update_all')}	
 		<button type="button" id="btnDisplayOppEdit"><span class="cerb-sprite sprite-document_edit"></span> Edit</button>
+		{/if}
 		
 		{$toolbar_exts = DevblocksPlatform::getExtensions('cerberusweb.crm.opp.toolbaritem', true)}
 		{foreach from=$toolbar_exts item=ext}
