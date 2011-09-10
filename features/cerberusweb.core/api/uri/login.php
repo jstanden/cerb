@@ -173,6 +173,9 @@ class ChSignInPage extends CerberusPageExtension {
 			// Flush views
 			DAO_WorkerViewModel::flush($worker->id);
 			
+			// Flush caches
+			DAO_WorkerRole::clearWorkerCache($worker->id);
+			
 			if(empty($devblocks_response->path)) {
 				$tour_enabled = intval(DAO_WorkerPref::get($worker->id, 'assist_mode', 1));
 				$next_page = ($tour_enabled) ?  array('welcome') : array('profiles','worker','me');				

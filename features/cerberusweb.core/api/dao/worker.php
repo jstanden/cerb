@@ -346,9 +346,6 @@ class DAO_Worker extends C4_ORMHelper {
 		$sql = sprintf("DELETE QUICK FROM workspace_list WHERE worker_id = %d", $id);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 
-		// Clear roles
-		$db->Execute(sprintf("DELETE FROM worker_to_role WHERE worker_id = %d", $id));
-		
 		// Fire event
 	    $eventMgr = DevblocksPlatform::getEventService();
 	    $eventMgr->trigger(
@@ -731,20 +728,17 @@ class Model_Worker {
 		// We don't need to do much work if we're a superuser
 		if($this->is_superuser)
 			return true;
-		
-		$settings = DevblocksPlatform::getPluginSettingsService();
-		$acl_enabled = $settings->get('cerberusweb.core',CerberusSettings::ACL_ENABLED,CerberusSettingsDefaults::ACL_ENABLED);
-			
-		if(!$acl_enabled)
-			return ("core.config"==substr($priv_id,0,11)) ? false : true;
-			
+
 		// Check the aggregated worker privs from roles
-		$acl = DAO_WorkerRole::getACL();
-		$privs_by_worker = $acl[DAO_WorkerRole::CACHE_KEY_PRIVS_BY_WORKER];
+		$privs = DAO_WorkerRole::getCumulativePrivsByWorker($this->id);
 		
-		if(!empty($priv_id) && isset($privs_by_worker[$this->id][$priv_id]))
+		// If they have the 'everything' privilege, or no roles, permit non-config ACL
+		if(isset($privs['*']))
+			return ("core.config"==substr($priv_id,0,11)) ? false : true;
+		
+		if(!empty($priv_id) && isset($privs[$priv_id]))
 			return true;
-			
+		
 		return false;
 	}
 	

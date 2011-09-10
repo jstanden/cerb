@@ -32,27 +32,13 @@ class PageSection_SetupACL extends Extension_PageSection {
 		$roles = DAO_WorkerRole::getWhere();
 		$tpl->assign('roles', $roles);
 		
+		$groups = DAO_Group::getAll();
+		$tpl->assign('groups', $groups);
+		
 		$workers = DAO_Worker::getAllActive();
 		$tpl->assign('workers', $workers);
 		
-		// Permissions enabled
-		$acl_enabled = $settings->get('cerberusweb.core',CerberusSettings::ACL_ENABLED,CerberusSettingsDefaults::ACL_ENABLED);
-		$tpl->assign('acl_enabled', $acl_enabled);
-		
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/acl/index.tpl');
-	}
-	
-	function toggleACLAction() {
-		$worker = CerberusApplication::getActiveWorker();
-		$settings = DevblocksPlatform::getPluginSettingsService();
-		
-		if(!$worker || !$worker->is_superuser) {
-			return;
-		}
-		
-		@$enabled = DevblocksPlatform::importGPC($_REQUEST['enabled'],'integer',0);
-		
-		$settings->set('cerberusweb.core',CerberusSettings::ACL_ENABLED, $enabled);
 	}
 	
 	function getRoleAction() {
@@ -74,6 +60,9 @@ class PageSection_SetupACL extends Extension_PageSection {
 		$acl = DevblocksPlatform::getAclRegistry();
 		$tpl->assign('acl', $acl);
 
+		$groups = DAO_Group::getAll();
+		$tpl->assign('groups', $groups);
+		
 		$workers = DAO_Worker::getAllActive();
 		$tpl->assign('workers', $workers);
 		
@@ -82,9 +71,6 @@ class PageSection_SetupACL extends Extension_PageSection {
 		
 		$role_privs = DAO_WorkerRole::getRolePrivileges($id);
 		$tpl->assign('role_privs', $role_privs);
-		
-		$role_roster = DAO_WorkerRole::getRoleWorkers($id);
-		$tpl->assign('role_workers', $role_roster);
 		
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/acl/edit_role.tpl');
 	}
@@ -101,7 +87,8 @@ class PageSection_SetupACL extends Extension_PageSection {
 		
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
 		@$name = DevblocksPlatform::importGPC($_REQUEST['name'],'string','');
-		@$worker_ids = DevblocksPlatform::importGPC($_REQUEST['worker_ids'],'array',array());
+		@$who = DevblocksPlatform::importGPC($_REQUEST['who'],'string','');
+		@$what = DevblocksPlatform::importGPC($_REQUEST['what'],'string','');
 		@$acl_privs = DevblocksPlatform::importGPC($_REQUEST['acl_privs'],'array',array());
 		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'],'integer',0);
 		
@@ -114,9 +101,62 @@ class PageSection_SetupACL extends Extension_PageSection {
 			DAO_WorkerRole::delete($id);
 			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','acl')));
 		}
-
+		
+		$params = array();
+		
+		// Apply to
+		switch($who) {
+			case 'all':
+				$params['who'] = $who;
+				break;
+				
+			case 'groups':
+				$params['who'] = $who;
+				@$who_ids = DevblocksPlatform::importGPC($_REQUEST['group_ids'],'array',array());
+				$params['who_list'] = DevblocksPlatform::sanitizeArray($who_ids, 'integer');
+				break;
+				
+			case 'workers':
+				$params['who'] = $who;
+				@$who_ids = DevblocksPlatform::importGPC($_REQUEST['worker_ids'],'array',array());
+				$params['who_list'] = DevblocksPlatform::sanitizeArray($who_ids, 'integer');
+				break;
+				
+			default:
+				$who = null;
+				break;
+		}
+		
+		// Privs
+		switch($what) {
+			case 'all': // all
+				$params['what'] = $what;
+				$acl_privs = array();
+				break;
+				
+			case 'none': // none
+				$params['what'] = $what;
+				$acl_privs = array();
+				break;
+				
+			case 'itemized': // itemized
+				$params['what'] = $what;
+				break;
+				
+			default: // itemized
+				$what = null;
+				break;
+		}
+		
+		// Abort if incomplete or invalid
+		if(empty($who) || empty($what)) {
+			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','acl')));
+			return;
+		}
+		
 		$fields = array(
 			DAO_WorkerRole::NAME => $name,
+			DAO_WorkerRole::PARAMS_JSON => json_encode($params),
 		);
 			
 		if(empty($id)) { // create
@@ -126,11 +166,12 @@ class PageSection_SetupACL extends Extension_PageSection {
 			DAO_WorkerRole::update($id, $fields);
 		}
 
-		// Update role roster
-		DAO_WorkerRole::setRoleWorkers($id, $worker_ids);
-		
 		// Update role privs
 		DAO_WorkerRole::setRolePrivileges($id, $acl_privs, true);
+		
+		// Clear cache
+		DAO_WorkerRole::clearCache();
+		DAO_WorkerRole::clearWorkerCache();
 		
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','acl')));
 	}	

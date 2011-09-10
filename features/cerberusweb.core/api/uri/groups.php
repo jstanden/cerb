@@ -144,10 +144,17 @@ class ChGroupsPage extends CerberusPageExtension  {
 	    if(is_array($worker_ids) && !empty($worker_ids))
 	    foreach($worker_ids as $idx => $worker_id) {
 	    	@$level = $worker_levels[$idx];
+	    	
 	    	if(isset($members[$worker_id]) && empty($level)) {
 	    		DAO_Group::unsetTeamMember($team_id, $worker_id);
+	    		DAO_WorkerRole::clearWorkerCache($worker_id);
+	    		
 	    	} elseif(!empty($level)) { // member|manager
-				 DAO_Group::setTeamMember($team_id, $worker_id, (1==$level)?false:true);
+				DAO_Group::setTeamMember($team_id, $worker_id, (1==$level)?false:true);
+				
+				// If this is a new addition
+				if(!isset($members[$worker_id]))
+					DAO_WorkerRole::clearWorkerCache($worker_id);
 	    	}
 	    }
 	    

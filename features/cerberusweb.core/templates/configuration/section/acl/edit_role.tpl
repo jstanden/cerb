@@ -21,28 +21,49 @@
 			</td>
 		</tr>
 		
-		{if !empty($workers)}
 		<tr>
 			<td colspan="2" style="padding-top:5px;">
-				<b>{'common.workers'|devblocks_translate|capitalize}:</b><br>
+				<b>Apply to:</b><br>
 				
 				<div style="margin-left:10px;">
-				{foreach from=$workers item=worker key=worker_id}
-					<label><input type="checkbox" name="worker_ids[]" value="{$worker_id}" {if isset($role_workers.$worker_id)}checked="checked"{/if}> {$worker->getName()}{if !empty($worker->title)} (<span style="color:rgb(0,120,0);">{$worker->title}</span>){/if}</label><br>
-				{/foreach}
+					<label><input type="radio" name="who" value="all" {if empty($role) || $role->params.who=='all'}checked="checked"{/if}> Everyone</label><br>
+					
+					{if !empty($groups)}
+						{$role_is_groups = $role->params.who=='groups'}
+						<label><input type="radio" name="who" value="groups" {if $role_is_groups}checked="checked"{/if}> These groups:</label><br>
+						<div class="who_list" style="margin-left:10px;display:{if $role_is_groups}block{else}none{/if};" id="configAclWhoGroups">
+						{foreach from=$groups item=group key=group_id}
+							<label><input type="checkbox" name="group_ids[]" value="{$group_id}" {if $role_is_groups && in_array($group_id,$role->params.who_list)}checked="checked"{/if}> {$group->name}</label><br>
+						{/foreach}
+						</div>
+					{/if}
+					
+					{if !empty($workers)}
+						{$role_is_workers = $role->params.who=='workers'}
+						<label><input type="radio" name="who" value="workers" {if $role_is_workers}checked="checked"{/if}> These workers:</label><br>
+						<div class="who_list" style="margin-left:10px;display:{if $role_is_workers}block{else}none{/if};" id="configAclWhoWorkers">
+						{foreach from=$workers item=worker key=worker_id}
+							<label><input type="checkbox" name="worker_ids[]" value="{$worker_id}" {if $role_is_workers && in_array($worker_id,$role->params.who_list)}checked="checked"{/if}> {$worker->getName()}{if !empty($worker->title)} (<span style="color:rgb(0,120,0);">{$worker->title}</span>){/if}</label><br>
+						{/foreach}
+						</div>
+					{/if}
 				</div>
 			</td>
 		</tr>
-		{/if}
 	
 		<tr>
 			<td colspan="2" style="padding-top:5px;">
-				<b>Permissions:</b><br>
+				<b>Grant Permissions:</b><br>
 			</td>
 		</tr>
 		
 		<tr>
 			<td width="100%" valign="top" colspan="2">
+				<label><input type="radio" name="what" value="all" {if $role->params.what=='all'}checked="checked"{/if} onclick="$('#configAclItemized').hide();"> {'common.all'|devblocks_translate|capitalize}</label>
+				<label><input type="radio" name="what" value="none" {if empty($role) || $role->params.what=='none'}checked="checked"{/if} onclick="$('#configAclItemized').hide();"> {'common.none'|devblocks_translate|capitalize}</label>
+				<label><input type="radio" name="what" value="itemized" {if $role->params.what=='itemized'}checked="checked"{/if} onclick="$('#configAclItemized').show();"> Itemized:</label>
+			
+				<div id="configAclItemized" style="display:block;padding-top:5px;{if $role->params.what != 'itemized'}display:none;{/if}">
 				{foreach from=$plugins item=plugin key=plugin_id}
 					{if $plugin->enabled}
 						{assign var=plugin_priv value="plugin."|cat:$plugin_id}
@@ -67,14 +88,31 @@
 						</div>
 					{/if}
 				{/foreach}
+				</div>
 			</td>
 		</tr>
 		
 		<tr>
 			<td colspan="2">
+				<br>
 				<button type="submit"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {$translate->_('common.save_changes')|capitalize}</button>
-				{if $active_worker->is_superuser}<button type="button" class="red" onclick="if(confirm('Are you sure you want to delete this role?')){literal}{{/literal}this.form.do_delete.value='1';this.form.submit();{literal}}{/literal}"><span class="cerb-sprite2 sprite-cross-circle-frame"></span> {$translate->_('common.delete')|capitalize}</button>{/if}
+				{if $active_worker->is_superuser}<button type="button" onclick="if(confirm('Are you sure you want to delete this role?')){literal}{{/literal}this.form.do_delete.value='1';this.form.submit();{literal}}{/literal}"><span class="cerb-sprite2 sprite-cross-circle-frame"></span> {$translate->_('common.delete')|capitalize}</button>{/if}
 			</td>
 		</tr>
 	</table>
 </fieldset>
+
+<script type="text/javascript">
+$('#configRole INPUT:radio[name=who]').click(function(e) {
+	$('#configRole DIV.who_list').hide();
+	
+	$val = $(this).val();
+	
+	if($val == 'groups') {
+		$(this).closest('td').find('DIV.who_list:nth(0)').show();
+	} else if($val == 'workers') {
+		$(this).closest('td').find('DIV.who_list:nth(1)').show();
+	}
+	
+});
+</script>

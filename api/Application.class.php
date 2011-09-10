@@ -1290,7 +1290,6 @@ class CerberusSettings {
 	const TICKET_MASK_FORMAT = 'ticket_mask_format';
 	const AUTHORIZED_IPS = 'authorized_ips';
 	const LICENSE = 'license_json';
-	const ACL_ENABLED = 'acl_enabled';
 };
 
 class CerberusSettingsDefaults {
@@ -1309,12 +1308,11 @@ class CerberusSettingsDefaults {
 	const PARSER_AUTO_REQ_EXCLUDE = ''; 
 	const TICKET_MASK_FORMAT = 'LLL-NNNNN-NNN';
 	const AUTHORIZED_IPS = "127.0.0.1\n::1\n";
-	const ACL_ENABLED = 0;
 };
 
-// [TODO] This gets called a lot when it happens after the registry cache
 class C4_DevblocksExtensionDelegate implements DevblocksExtensionDelegate {
 	static $_worker = null;
+	static $_plugin_cache = array();
 	
 	static function shouldLoadExtension(DevblocksExtensionManifest $extension_manifest) {
 		// Always allow core
@@ -1331,7 +1329,17 @@ class C4_DevblocksExtensionDelegate implements DevblocksExtensionDelegate {
 				return true;
 		}
 		
-		return self::$_worker->hasPriv('plugin.'.$extension_manifest->plugin_id);
+		// Use plugin cache if exists
+		if(isset(self::$_plugin_cache[$extension_manifest->plugin_id]))
+			return self::$_plugin_cache[$extension_manifest->plugin_id];
+		
+		// ... Otherwise, check it
+		$has_priv = self::$_worker->hasPriv('plugin.'.$extension_manifest->plugin_id);
+		
+		// ... Then cache it
+		self::$_plugin_cache[$extension_manifest->plugin_id] = $has_priv;
+		
+		return $has_priv;
 	}
 };
 

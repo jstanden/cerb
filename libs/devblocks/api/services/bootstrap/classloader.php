@@ -87,6 +87,9 @@ class _DevblocksClassLoadManager {
 			'_DevblocksProxy_Curl',
 			'_DevblocksProxy_Socket',
 		));
+		$this->registerClasses(DEVBLOCKS_PATH . 'api/services/sanitization.php', array(
+			'_DevblocksSanitizationManager',
+		));
 		$this->registerClasses(DEVBLOCKS_PATH . 'api/services/search.php', array(
 			'_DevblocksSearchManager',
 			'_DevblocksSearchEngineMysqlFulltext',

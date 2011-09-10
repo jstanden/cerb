@@ -1229,6 +1229,18 @@ class DevblocksPlatform extends DevblocksEngine {
 		return _DevblocksOpenIDManager::getInstance();
 	}
 	
+	static function sanitizeArray($array, $type) {
+		switch($type) {
+			case 'integer':
+				return _DevblocksSanitizationManager::arrayAs($array, 'integer');
+				break;
+			default:
+				break;
+		}
+		
+		return false;
+	}
+	
 	/**
 	 * @return _DevblocksSearchEngineMysqlFulltext
 	 */

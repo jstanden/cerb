@@ -420,6 +420,12 @@
 		<tu tuid='common.reset'>
 			<tuv xml:lang="en_US"><seg>reset</seg></tuv>
 		</tu>
+		<tu tuid='common.roles'>
+			<tuv xml:lang="en_US"><seg>roles</seg></tuv>
+		</tu>
+		<tu tuid='common.role'>
+			<tuv xml:lang="en_US"><seg>role</seg></tuv>
+		</tu>
 		<tu tuid='common.save'>
 			<tuv xml:lang="en_US"><seg>Save</seg></tuv>
 		</tu>

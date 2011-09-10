@@ -197,6 +197,9 @@ class PageSection_SetupWorkers extends Extension_PageSection {
 			// Custom field saves
 			@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', array());
 			DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_WORKER, $id, $field_ids);
+			
+			// Flush caches
+			DAO_WorkerRole::clearWorkerCache($id);
 		}
 		
 		if(!empty($view_id)) {
