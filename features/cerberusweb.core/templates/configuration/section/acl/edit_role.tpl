@@ -4,6 +4,16 @@
 <input type="hidden" name="action" value="saveRole">
 <input type="hidden" name="id" value="{if !empty($role->id)}{$role->id}{else}0{/if}">
 <input type="hidden" name="do_delete" value="0">
+
+{if $saved}
+<div class="ui-widget">
+	<div class="ui-state-highlight ui-corner-all" style="padding: 0.7em; margin: 0.2em; "> 
+	<strong>Saved!</strong>
+	<span style="float:right;">(<a href="javascript:;" onclick="$(this).closest('DIV.ui-widget').remove();">close</a>)</span>
+	</div>
+</div>
+{/if}
+
 <fieldset>
 	<legend>
 		{if empty($role->id)}

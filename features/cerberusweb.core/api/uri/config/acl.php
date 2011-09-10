@@ -20,6 +20,11 @@ class PageSection_SetupACL extends Extension_PageSection {
 		$settings = DevblocksPlatform::getPluginSettingsService();
 		$tpl = DevblocksPlatform::getTemplateService();
 		$visit = CerberusApplication::getVisit();
+		$request = DevblocksPlatform::getHttpRequest();
+		
+		$stack = $request->path;
+		@array_shift($stack); // config
+		@array_shift($stack); // acl
 		
 		$visit->set(ChConfigurationPage::ID, 'acl');
 				
@@ -29,7 +34,7 @@ class PageSection_SetupACL extends Extension_PageSection {
 		$acl = DevblocksPlatform::getAclRegistry();
 		$tpl->assign('acl', $acl);
 		
-		$roles = DAO_WorkerRole::getWhere();
+		$roles = DAO_WorkerRole::getAll();
 		$tpl->assign('roles', $roles);
 		
 		$groups = DAO_Group::getAll();
@@ -37,6 +42,17 @@ class PageSection_SetupACL extends Extension_PageSection {
 		
 		$workers = DAO_Worker::getAllActive();
 		$tpl->assign('workers', $workers);
+
+		// Specific role?
+		if(!empty($stack)) {
+			@$role_id = intval(array_shift($stack));
+			if(isset($roles[$role_id])) {
+				$tpl->assign('role', $roles[$role_id]);
+				
+				if(isset($request->query['saved']))
+					$tpl->assign('saved', true);
+			}
+		}
 		
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/acl/index.tpl');
 	}
@@ -173,6 +189,11 @@ class PageSection_SetupACL extends Extension_PageSection {
 		DAO_WorkerRole::clearCache();
 		DAO_WorkerRole::clearWorkerCache();
 		
-		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','acl')));
+		$friendly = sprintf("%d-%s",
+			$id,
+			DevblocksPlatform::strToPermalink($name)
+		);
+		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('config','acl',$friendly),array('saved'=>'')));
+		exit;
 	}	
 };

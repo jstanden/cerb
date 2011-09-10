@@ -14,8 +14,8 @@
 				
 				<ul style="margin:0;padding:0;list-style:none;">
 				{if !empty($roles)}
-					{foreach from=$roles item=role key=role_id}
-					<li style="line-height:150%;"><a href="javascript:;" onclick="genericAjaxGet('configRole','c=config&a=handleSectionAction&section=acl&action=getRole&id={$role_id}');">{$role->name}</a></li>
+					{foreach from=$roles item=list_role key=list_role_id}
+					<li style="line-height:150%;"><a href="javascript:;" onclick="genericAjaxGet('configRole','c=config&a=handleSectionAction&section=acl&action=getRole&id={$list_role_id}');">{$list_role->name}</a></li>
 					{/foreach}
 				{/if}
 				</ul>
@@ -24,7 +24,7 @@
 		
 		<td width="100%" valign="top">
 			<form action="{devblocks_url}{/devblocks_url}" method="post" id="configRole">
-				{include file="devblocks:cerberusweb.core::configuration/section/acl/edit_role.tpl" role=null}
+				{include file="devblocks:cerberusweb.core::configuration/section/acl/edit_role.tpl" role=$role}
 			</form>
 		</td>
 		
