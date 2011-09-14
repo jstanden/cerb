@@ -18,7 +18,8 @@
 class DAO_Workspace extends C4_ORMHelper {
 	const ID = 'id';
 	const NAME = 'name';
-	const WORKER_ID = 'worker_id';
+	const OWNER_CONTEXT = 'owner_context';
+	const OWNER_CONTEXT_ID = 'owner_context_id';
 
 	static function create($fields) {
 		$db = DevblocksPlatform::getDatabaseService();
@@ -53,7 +54,7 @@ class DAO_Workspace extends C4_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, name, worker_id ".
+		$sql = "SELECT id, name, owner_context, owner_context_id ".
 			"FROM workspace ".
 			$where_sql.
 			$sort_sql.
@@ -64,17 +65,19 @@ class DAO_Workspace extends C4_ORMHelper {
 		return self::_getObjectsFromResult($rs);
 	}
 	
-	static function getByWorker($worker_id, $sortBy=null, $sortAsc=true, $limit=null) {
-		return self::getWhere(sprintf("%s = %d",
-				self::WORKER_ID,
-				$worker_id
+	static function getByOwner($context, $context_id, $sortBy=null, $sortAsc=true, $limit=null) {
+		return self::getWhere(sprintf("%s = %s AND %s = %d",
+				self::OWNER_CONTEXT,
+				C4_ORMHelper::qstr($context),
+				self::OWNER_CONTEXT_ID,
+				$context_id
 			),
 			$sortBy,
 			$sortAsc,
 			$limit
 		);
 	}
-
+	
 	static function addEndpointWorkspace($workspace_id, $endpoint) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
@@ -96,7 +99,7 @@ class DAO_Workspace extends C4_ORMHelper {
 		$db->Execute($sql);
 	}
 	
-	static function setEndpointWorkspaces($endpoint, $worker_id, $workspace_ids) {
+	static function setEndpointWorkspaces($endpoint, $owner_context, $owner_context_id, $workspace_ids) {
 		if(!is_array($workspace_ids))
 			$workspace_ids = array($workspace_ids);
 		
@@ -106,9 +109,11 @@ class DAO_Workspace extends C4_ORMHelper {
 		$db->Execute(sprintf("DELETE workspace_to_endpoint ".
 			"FROM workspace_to_endpoint ".
 			"INNER JOIN workspace ON (workspace_to_endpoint.workspace_id=workspace.id) ".
-			"WHERE workspace.worker_id = %d ".
+			"WHERE workspace.owner_context = %s ".
+			"AND workspace.owner_context_id = %d ".
 			"AND workspace_to_endpoint.endpoint = %s",
-			$worker_id,
+			$db->qstr($owner_context),
+			$owner_context_id,
 			$db->qstr($endpoint)
 		));
 		
@@ -123,16 +128,19 @@ class DAO_Workspace extends C4_ORMHelper {
 		}
 	}
 	
-	static function getByEndpoint($endpoint, $worker_id) {
+	static function getByEndpoint($endpoint, $owner_context, $owner_context_id) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = sprintf("SELECT workspace.id, workspace.name, workspace.worker_id ".
+		$sql = sprintf("SELECT workspace.id, workspace.name, workspace.owner_context, workspace.owner_context_id ".
 			"FROM workspace ".
 			"INNER JOIN workspace_to_endpoint ON (workspace.id = workspace_to_endpoint.workspace_id) ".
-			"WHERE workspace_to_endpoint.endpoint = %s AND workspace.worker_id = %d ".
+			"WHERE workspace_to_endpoint.endpoint = %s ".
+			"AND workspace.owner_context = %s ".
+			"AND workspace.owner_context_id = %d ".
 			"ORDER BY workspace_to_endpoint.pos ASC ",
 			$db->qstr($endpoint),
-			$worker_id
+			$db->qstr($owner_context),
+			$owner_context_id
 		);
 		$rs = $db->Execute($sql);
 		
@@ -165,7 +173,8 @@ class DAO_Workspace extends C4_ORMHelper {
 			$object = new Model_Workspace();
 			$object->id = $row['id'];
 			$object->name = $row['name'];
-			$object->worker_id = $row['worker_id'];
+			$object->owner_context = $row['owner_context'];
+			$object->owner_context_id = $row['owner_context_id'];
 			$objects[$object->id] = $object;
 		}
 		
@@ -204,10 +213,12 @@ class DAO_Workspace extends C4_ORMHelper {
 		$select_sql = sprintf("SELECT ".
 			"workspace.id as %s, ".
 			"workspace.name as %s, ".
-			"workspace.worker_id as %s ",
+			"workspace.owner_context as %s, ".
+			"workspace.owner_context_id as %s ",
 				SearchFields_Workspace::ID,
 				SearchFields_Workspace::NAME,
-				SearchFields_Workspace::WORKER_ID
+				SearchFields_Workspace::OWNER_CONTEXT,
+				SearchFields_Workspace::OWNER_CONTEXT_ID
 			);
 			
 		$join_sql = "FROM workspace ";
@@ -305,7 +316,8 @@ class DAO_Workspace extends C4_ORMHelper {
 class SearchFields_Workspace implements IDevblocksSearchFields {
 	const ID = 'w_id';
 	const NAME = 'w_name';
-	const WORKER_ID = 'w_worker_id';
+	const OWNER_CONTEXT = 'w_owner_context';
+	const OWNER_CONTEXT_ID = 'w_owner_context_id';
 	
 	/**
 	 * @return DevblocksSearchField[]
@@ -316,7 +328,8 @@ class SearchFields_Workspace implements IDevblocksSearchFields {
 		$columns = array(
 			self::ID => new DevblocksSearchField(self::ID, 'workspace', 'id', $translate->_('common.id')),
 			self::NAME => new DevblocksSearchField(self::NAME, 'workspace', 'name', $translate->_('common.name')),
-			self::WORKER_ID => new DevblocksSearchField(self::WORKER_ID, 'workspace', 'worker_id', $translate->_('common.worker')),
+			self::OWNER_CONTEXT => new DevblocksSearchField(self::OWNER_CONTEXT, 'workspace', 'owner_context', null),
+			self::OWNER_CONTEXT_ID => new DevblocksSearchField(self::OWNER_CONTEXT_ID, 'workspace', 'owner_context_id', null),
 		);
 		
 		// Custom Fields
@@ -338,7 +351,8 @@ class SearchFields_Workspace implements IDevblocksSearchFields {
 class Model_Workspace {
 	public $id;
 	public $name;
-	public $worker_id;
+	public $owner_context;
+	public $owner_context_id;
 	
 	function getWorklists() {
 		return DAO_WorkspaceList::getWhere(sprintf("%s = %d",
@@ -363,7 +377,6 @@ class View_Workspace extends C4_AbstractView {
 		$this->view_columns = array(
 			SearchFields_Workspace::ID,
 			SearchFields_Workspace::NAME,
-			SearchFields_Workspace::WORKER_ID,
 		);
 		$this->addColumnsHidden(array(
 		));
@@ -414,7 +427,6 @@ class View_Workspace extends C4_AbstractView {
 		switch($field) {
 			case SearchFields_Workspace::ID:
 			case SearchFields_Workspace::NAME:
-			case SearchFields_Workspace::WORKER_ID:
 			case 'placeholder_string':
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__string.tpl');
 				break;
@@ -462,7 +474,6 @@ class View_Workspace extends C4_AbstractView {
 		switch($field) {
 			case SearchFields_Workspace::ID:
 			case SearchFields_Workspace::NAME:
-			case SearchFields_Workspace::WORKER_ID:
 			case 'placeholder_string':
 				// force wildcards if none used on a LIKE
 				if(($oper == DevblocksSearchCriteria::OPER_LIKE || $oper == DevblocksSearchCriteria::OPER_NOT_LIKE)
@@ -573,7 +584,6 @@ class View_Workspace extends C4_AbstractView {
 
 class DAO_WorkspaceList extends DevblocksORMHelper {
 	const ID = 'id';
-	const WORKER_ID = 'worker_id';
 	const WORKSPACE_ID = 'workspace_id';
 	const CONTEXT = 'context';
 	const LIST_VIEW = 'list_view';
@@ -623,7 +633,7 @@ class DAO_WorkspaceList extends DevblocksORMHelper {
 	static function getWhere($where) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = "SELECT id, worker_id, workspace_id, context, list_view, list_pos ".
+		$sql = "SELECT id, workspace_id, context, list_view, list_pos ".
 			"FROM workspace_list ".
 			(!empty($where) ? sprintf("WHERE %s ",$where) : " ").
 			"ORDER BY list_pos ASC";
@@ -634,7 +644,6 @@ class DAO_WorkspaceList extends DevblocksORMHelper {
 		while($row = mysql_fetch_assoc($rs)) {
 			$object = new Model_WorkspaceList();
 			$object->id = intval($row['id']);
-			$object->worker_id = intval($row['worker_id']);
 			$object->workspace_id = intval($row['workspace_id']);
 			$object->context = $row['context'];
 			$object->list_pos = intval($row['list_pos']);
@@ -675,7 +684,6 @@ class DAO_WorkspaceList extends DevblocksORMHelper {
 
 class Model_WorkspaceList {
 	public $id = 0;
-	public $worker_id = 0;
 	public $workspace_id = 0;
 	public $context = '';
 	public $list_view = '';

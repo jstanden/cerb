@@ -67,7 +67,7 @@
 		
 		{if $worker->id == $active_worker->id}
 		{if $active_worker->hasPriv('core.home.workspaces')}
-			{$enabled_workspaces = DAO_Workspace::getByEndpoint($point, $active_worker->id)}
+			{$enabled_workspaces = DAO_Workspace::getByEndpoint($point, $active_worker)}
 			{foreach from=$enabled_workspaces item=enabled_workspace}
 				{$tabs[] = 'w_'|cat:$enabled_workspace->id}
 				<li><a href="{devblocks_url}ajax.php?c=internal&a=showWorkspaceTab&id={$enabled_workspace->id}&point={$point}&request={$response_uri|escape:'url'}{/devblocks_url}"><i>{$enabled_workspace->name}</i></a></li>

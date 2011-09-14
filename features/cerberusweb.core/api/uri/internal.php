@@ -1027,7 +1027,7 @@ class ChInternalController extends DevblocksControllerExtension {
 
         $view = C4_AbstractViewLoader::getView($view_id);
 
-		$workspaces = DAO_Workspace::getByWorker($active_worker->id);
+		$workspaces = DAO_Workspace::getByOwner(CerberusContexts::CONTEXT_WORKER, $active_worker->id);
 		$tpl->assign('workspaces', $workspaces);
 
         $tpl->assign('view_id', $view_id);
@@ -1051,7 +1051,8 @@ class ChInternalController extends DevblocksControllerExtension {
 		if(empty($workspace_id)) {
 			$fields = array(
 				DAO_Workspace::NAME => (!empty($new_workspace) ? $new_workspace : $translate->_('mail.workspaces.new')),
-				DAO_Workspace::WORKER_ID => $active_worker->id,
+				DAO_Workspace::OWNER_CONTEXT => CerberusContexts::CONTEXT_WORKER,
+				DAO_Workspace::OWNER_CONTEXT_ID => $active_worker->id,
 			);
 			$workspace_id = DAO_Workspace::create($fields);
 		}
@@ -1086,7 +1087,6 @@ class ChInternalController extends DevblocksControllerExtension {
 
 		// Save the new worklist
 		$fields = array(
-			DAO_WorkspaceList::WORKER_ID => $active_worker->id,
 			DAO_WorkspaceList::WORKSPACE_ID => $workspace_id,
 			DAO_WorkspaceList::CONTEXT => $workspace_context,
 			DAO_WorkspaceList::LIST_VIEW => serialize($list_view),
@@ -1327,8 +1327,8 @@ class ChInternalController extends DevblocksControllerExtension {
 		$tpl->assign('request', $request);
 
 		// Workspaces
-		$enabled_workspaces = DAO_Workspace::getByEndpoint($point, $active_worker->id);
-		$workspaces = $enabled_workspaces + array_diff_key(DAO_Workspace::getByWorker($active_worker->id), $enabled_workspaces);
+		$enabled_workspaces = DAO_Workspace::getByEndpoint($point, CerberusContexts::CONTEXT_WORKER, $active_worker->id);
+		$workspaces = $enabled_workspaces + array_diff_key(DAO_Workspace::getByOwner(CerberusContexts::CONTEXT_WORKER, $active_worker->id), $enabled_workspaces);
 
 		$tpl->assign('enabled_workspaces', $enabled_workspaces);
 		$tpl->assign('workspaces', $workspaces);
@@ -1353,7 +1353,8 @@ class ChInternalController extends DevblocksControllerExtension {
 			if(!is_numeric($workspace_id)) {
 				$fields = array(
 					DAO_Workspace::NAME => $workspace_id,
-					DAO_Workspace::WORKER_ID => $active_worker->id,
+					DAO_Workspace::OWNER_CONTEXT => CerberusContexts::CONTEXT_WORKER,
+					DAO_Workspace::OWNER_CONTEXT_ID => $active_worker->id,
 				);
 				$workspace_id = DAO_Workspace::create($fields);
 				$workspace_ids[$idx] = $workspace_id;
@@ -1367,7 +1368,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		}
 
 		// Replace links for this endpoint
-		DAO_Workspace::setEndpointWorkspaces($point, $active_worker->id, $workspace_ids);
+		DAO_Workspace::setEndpointWorkspaces($point, CerberusContexts::CONTEXT_WORKER, $active_worker->id, $workspace_ids);
 
 		if(empty($request))
 			$request = 'tickets';
@@ -1387,7 +1388,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		$visit->set($point, 'w_'.$workspace_id);
 
 		if(null == ($workspace = DAO_Workspace::get($workspace_id))
-			|| $workspace->worker_id != $active_worker->id
+			|| !$workspace->isReadableByWorker($active_worker)
 			)
 			return;
 
@@ -1430,7 +1431,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		$active_worker = CerberusApplication::getActiveWorker();
 
 		if(null == ($workspace = DAO_Workspace::get($list->workspace_id))
-			|| $workspace->worker_id != $active_worker->id
+			|| !$workspace->isReadableByWorker($active_worker)
 			)
 			return;			
 		
@@ -1513,7 +1514,10 @@ class ChInternalController extends DevblocksControllerExtension {
 
 		$active_worker = CerberusApplication::getActiveWorker();
 
-		if(null == ($workspace = DAO_Workspace::get($workspace_id)) || $workspace->worker_id != $active_worker->id)
+		if(!empty($workspace_id) && 
+			(null == ($workspace = DAO_Workspace::get($workspace_id)) 
+			|| !$workspace->isWriteableByWorker($active_worker)
+			))
 			return;
 
 		if($do_delete) { // Delete
@@ -1560,7 +1564,6 @@ class ChInternalController extends DevblocksControllerExtension {
 
 					// Add the worklist
 					$fields = array(
-						DAO_WorkspaceList::WORKER_ID => $active_worker->id,
 						DAO_WorkspaceList::LIST_POS => $idx,
 						DAO_WorkspaceList::LIST_VIEW => serialize($list),
 						DAO_WorkspaceList::WORKSPACE_ID => $workspace_id,
