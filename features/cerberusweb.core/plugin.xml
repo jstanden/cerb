@@ -294,6 +294,7 @@
 		</file>
 		
 		<file path="api/dao/worker_role.php">
+			<class name="Context_WorkerRole" />
 			<class name="DAO_WorkerRole" />
 			<class name="Model_WorkerRole" />
 		</file>
@@ -796,6 +797,25 @@
 						<!--<data key="find" />-->
 						<data key="snippets" />
 						<data key="workspace" />
+					</value>
+				</param>
+			</params>
+		</extension>
+
+		<extension point="devblocks.context">
+			<id>cerberusweb.contexts.role</id>
+			<name>Role</name>
+			<class>
+				<file>api/dao/worker_role.php</file>
+				<name>Context_WorkerRole</name>
+			</class>
+			<params>
+				<param key="view_class" value="View_WorkerRole" />
+				<param key="options">
+					<value>
+						<!--<data key="find" />-->
+						<!--<data key="snippets" />-->
+						<!--<data key="workspace" />-->
 					</value>
 				</param>
 			</params>

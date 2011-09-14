@@ -241,3 +241,154 @@ class Model_WorkerRole {
 	public $name;
 	public $params = array();
 };
+
+class Context_WorkerRole extends Extension_DevblocksContext {
+	function authorize($context_id, Model_Worker $worker) {
+		// Security
+		try {
+			if(empty($worker))
+				throw new Exception();
+			
+			if($worker->is_superuser)
+				return TRUE;
+				
+		} catch (Exception $e) {
+			// Fail
+		}
+		
+		return FALSE;
+	}
+	
+	function getRandom() {
+		//return DAO_WorkerRole::random();
+	}
+	
+	function getMeta($context_id) {
+		$worker_role = DAO_WorkerRole::get($context_id);
+		$url_writer = DevblocksPlatform::getUrlService();
+		
+		$who = sprintf("%d-%s",
+			$worker_role->id,
+			DevblocksPlatform::strToPermalink($worker_role->name)
+		); 
+		
+		return array(
+			'id' => $worker_role->id,
+			'name' => $worker_role->name,
+			'permalink' => $url_writer->writeNoProxy('c=profiles&type=role&who='.$who, true),
+		);
+	}
+	
+	function getContext($role, &$token_labels, &$token_values, $prefix=null) {
+		if(is_null($prefix))
+			$prefix = 'Role:';
+			
+		$translate = DevblocksPlatform::getTranslationService();
+		$fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ROLE);
+		
+		// Polymorph
+		if(is_numeric($role)) {
+			$role = DAO_WorkerRole::get($role);
+		} elseif($role instanceof Model_WorkerRole) {
+			// It's what we want already.
+		} else {
+			$role = null;
+		}
+			
+		// Token labels
+		$token_labels = array(
+			'name' => $prefix.$translate->_('common.name'),
+			//'record_url' => $prefix.$translate->_('common.url.record'),			
+		);
+		
+		if(is_array($fields))
+		foreach($fields as $cf_id => $field) {
+			$token_labels['custom_'.$cf_id] = $prefix.$field->name;
+		}
+
+		// Token values
+		$token_values = array();
+		
+		// Worker token values
+		if(null != $role) {
+			$token_values['id'] = $role->id;
+			$token_values['name'] = $role->name;
+			
+			// URL
+// 			$url_writer = DevblocksPlatform::getUrlService();
+// 			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=profiles&type=worker&id=%d-%s",$worker->id, DevblocksPlatform::strToPermalink($worker->getName())), true);
+			
+			$token_values['custom'] = array();
+			
+			$field_values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_ROLE, $role->id));
+			if(is_array($field_values) && !empty($field_values)) {
+				foreach($field_values as $cf_id => $cf_val) {
+					if(!isset($fields[$cf_id]))
+						continue;
+					
+					// The literal value
+					if(null != $role)
+						$token_values['custom'][$cf_id] = $cf_val;
+					
+					// Stringify
+					if(is_array($cf_val))
+						$cf_val = implode(', ', $cf_val);
+						
+					if(is_string($cf_val)) {
+						if(null != $role)
+							$token_values['custom_'.$cf_id] = $cf_val;
+					}
+				}
+			}
+		}
+		
+		return true;		
+	}
+	
+	function getChooserView() {
+		// View
+		$view_id = 'chooser_'.str_replace('.','_',$this->id).time().mt_rand(0,9999);
+		$defaults = new C4_AbstractViewModel();
+		$defaults->id = $view_id;
+		$defaults->is_ephemeral = true;
+		$defaults->class_name = $this->getViewClass();
+		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
+		$view->name = 'Roles';
+		$view->view_columns = array(
+			SearchFields_WorkerRole::NAME,
+		);
+		$view->addParams(array(
+			//SearchFields_Worker::IS_DISABLED => new DevblocksSearchCriteria(SearchFields_Worker::IS_DISABLED,'=',0),
+		), true);
+		$view->renderLimit = 10;
+		$view->renderTemplate = 'contextlinks_chooser';
+		C4_AbstractViewLoader::setView($view_id, $view);
+		
+		return $view;
+	}
+	
+	function getView($context=null, $context_id=null, $options=array()) {
+		$view_id = str_replace('.','_',$this->id);
+		
+		$defaults = new C4_AbstractViewModel();
+		$defaults->id = $view_id; 
+		$defaults->class_name = $this->getViewClass();
+		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
+		$view->name = 'Roles';
+		
+		$params_req = array();
+		
+		if(!empty($context) && !empty($context_id)) {
+			$params_req = array(
+				new DevblocksSearchCriteria(SearchFields_Worker::CONTEXT_LINK,'=',$context),
+				new DevblocksSearchCriteria(SearchFields_Worker::CONTEXT_LINK_ID,'=',$context_id),
+			);
+		}
+
+		$view->addParamsRequired($params_req, true);
+		
+		$view->renderTemplate = 'context';
+		C4_AbstractViewLoader::setView($view_id, $view);
+		return $view;
+	}
+}
