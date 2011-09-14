@@ -1007,15 +1007,43 @@ class ChInternalController extends DevblocksControllerExtension {
 	function viewCustomizeAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
 
+		$active_worker = CerberusApplication::getActiveWorker();
+		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('id', $id);
 
 		$view = C4_AbstractViewLoader::getView($id);
-		$tpl->assign('view', $view);
+		
+		// Custom worklists
+		if('cust_' == substr($view->id,0,5)) {
+			try {
+				$worklist_id = substr($view->id,5);
+				
+				if(!is_numeric($worklist_id))
+					throw new Exception("Invalid worklist ID.");
+				
+				if(null == ($worklist = DAO_WorkspaceList::get($worklist_id)))
+					throw new Exception("Can't load worklist.");
+				
+				if(null == ($workspace = DAO_Workspace::get($worklist->workspace_id)))
+					throw new Exception("Can't load workspace.");
+				
+				if(!$workspace->isWriteableByWorker($active_worker)) {
+					$tpl->display('devblocks:cerberusweb.core::internal/workspaces/customize_no_acl.tpl');
+					return;
+				}
+				
+			} catch(Exception $e) {
+				// [TODO] Logger
+				return;
+			}
+		}
 
 		$custom_fields = DAO_CustomField::getAll();
 		$tpl->assign('custom_fields', $custom_fields);
 
+		$tpl->assign('view', $view);
+		
 		$tpl->display('devblocks:cerberusweb.core::internal/views/customize_view.tpl');
 	}
 
@@ -1236,15 +1264,35 @@ class ChInternalController extends DevblocksControllerExtension {
 
 		// Handle worklists specially
 		if(substr($id,0,5)=="cust_") { // custom workspace
-			$list_view_id = intval(substr($id,5));
+			// Check the custom workspace
 
+			try {
+				$list_view_id = intval(substr($id,5));
+				
+				if(empty($list_view_id))
+					throw new Exception("Invalid worklist ID.");
+				
+				if(null == ($list_model = DAO_WorkspaceList::get($list_view_id)))
+					throw new Exception("Can't load worklist.");
+				
+				if(null == ($workspace = DAO_Workspace::get($list_model->workspace_id)))
+					throw new Exception("Can't load workspace.");
+				
+				if(!$workspace->isWriteableByWorker($active_worker)) {
+					throw new Exception("Permission denied to edit workspace.");
+				}
+				
+			} catch(Exception $e) {
+				// [TODO] Logger
+				$view->render();
+				return;
+			}
+			
 			// Special custom view fields
 			@$title = DevblocksPlatform::importGPC($_REQUEST['title'],'string', $translate->_('views.new_list'));
-
 			$view->name = $title;
 
 			// Persist Object
-			// [TODO] The list view can auto-persist in the 'worker_view_model' table
 			$list_view = new Model_WorkspaceListView();
 			$list_view->title = $title;
 			$list_view->columns = $view->view_columns;
@@ -1256,6 +1304,26 @@ class ChInternalController extends DevblocksControllerExtension {
 			DAO_WorkspaceList::update($list_view_id, array(
 				DAO_WorkspaceList::LIST_VIEW => serialize($list_view)
 			));
+			
+			// If this is a group workspace
+			switch($workspace->owner_context) {
+				case CerberusContexts::CONTEXT_GROUP:
+					break;
+
+				// Anything other than a worker-owned worklist
+				default:
+					$worker_views = DAO_WorkerViewModel::getWhere(sprintf("view_id = %s", C4_ORMHelper::qstr($id)));
+	
+					// Update any instances of this view with the new required columns + params
+					foreach($worker_views as $worker_view) { /* @var $worker_view C4_AbstractViewModel */
+						$worker_view->name = $view->name;
+						$worker_view->view_columns = $view->view_columns;
+						$worker_view->paramsRequired = $view->getParamsRequired();
+						$worker_view->renderLimit = $view->renderLimit;
+						DAO_WorkerViewModel::setView($worker_view->worker_id, $worker_view->id, $worker_view);
+					}
+					break;
+			}
 		}
 
 		C4_AbstractViewLoader::setView($id, $view);
@@ -1317,18 +1385,23 @@ class ChInternalController extends DevblocksControllerExtension {
 
 	function showAddTabAction() {
 		@$point = DevblocksPlatform::importGPC($_REQUEST['point'],'string', '');
-		@$request = DevblocksPlatform::importGPC($_REQUEST['request'],'string', '');
 
 		$tpl = DevblocksPlatform::getTemplateService();
 		$active_worker = CerberusApplication::getActiveWorker();
 
+		// Groups
+		$tpl->assign('groups', DAO_Group::getAll());
+		
+		// Roles
+		$tpl->assign('roles', DAO_WorkerRole::getAll());
+		
 		// Endpoint
 		$tpl->assign('point', $point);
-		$tpl->assign('request', $request);
 
 		// Workspaces
-		$enabled_workspaces = DAO_Workspace::getByEndpoint($point, CerberusContexts::CONTEXT_WORKER, $active_worker->id);
-		$workspaces = $enabled_workspaces + array_diff_key(DAO_Workspace::getByOwner(CerberusContexts::CONTEXT_WORKER, $active_worker->id), $enabled_workspaces);
+		$enabled_workspaces = DAO_Workspace::getByEndpoint($point, $active_worker);
+		$available_workspaces = DAO_Workspace::getByWorker($active_worker);
+		$workspaces = $enabled_workspaces + array_diff_key($available_workspaces, $enabled_workspaces);
 
 		$tpl->assign('enabled_workspaces', $enabled_workspaces);
 		$tpl->assign('workspaces', $workspaces);
@@ -1341,7 +1414,6 @@ class ChInternalController extends DevblocksControllerExtension {
 		@$workspace_ids = DevblocksPlatform::importGPC($_REQUEST['workspace_ids'],'array', array());
 		@$new_workspace = DevblocksPlatform::importGPC($_REQUEST['new_workspace'],'string', '');
 		@$point = DevblocksPlatform::importGPC($_REQUEST['point'],'string', '');
-		@$request = DevblocksPlatform::importGPC($_REQUEST['request'],'string', '');
 
 		$active_worker = CerberusApplication::getActiveWorker();
 		$visit = CerberusApplication::getVisit();
@@ -1349,17 +1421,6 @@ class ChInternalController extends DevblocksControllerExtension {
 
 		// Are we adding any new workspaces?
 		foreach($workspace_ids as $idx => $workspace_id) {
-			// Insert and replace the $id
-			if(!is_numeric($workspace_id)) {
-				$fields = array(
-					DAO_Workspace::NAME => $workspace_id,
-					DAO_Workspace::OWNER_CONTEXT => CerberusContexts::CONTEXT_WORKER,
-					DAO_Workspace::OWNER_CONTEXT_ID => $active_worker->id,
-				);
-				$workspace_id = DAO_Workspace::create($fields);
-				$workspace_ids[$idx] = $workspace_id;
-			}
-
 			// Only focus the first new tab we add
 			if(!empty($point) && !$is_focused_tab) {
 				$visit->set($point, 'w_' . $workspace_id);
@@ -1368,12 +1429,9 @@ class ChInternalController extends DevblocksControllerExtension {
 		}
 
 		// Replace links for this endpoint
-		DAO_Workspace::setEndpointWorkspaces($point, CerberusContexts::CONTEXT_WORKER, $active_worker->id, $workspace_ids);
-
-		if(empty($request))
-			$request = 'tickets';
-
-		DevblocksPlatform::redirect(new DevblocksHttpResponse(explode('/',$request)));
+		DAO_Workspace::setEndpointWorkspaces($point, $active_worker->id, $workspace_ids);
+		
+		exit;
 	}
 
 	function showWorkspaceTabAction() {
@@ -1480,22 +1538,36 @@ class ChInternalController extends DevblocksControllerExtension {
 	
 	function showEditWorkspacePanelAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer', 0);
-		@$request = DevblocksPlatform::importGPC($_REQUEST['request'],'string', '');
 
 		$tpl = DevblocksPlatform::getTemplateService();
 		$active_worker = CerberusApplication::getActiveWorker();
 
-		// Workspace
-		if(null == ($workspace = DAO_Workspace::get($id)))
-			return;
+		if(!empty($id)) { // Edit
+			// Workspace
+			if(null == ($workspace = DAO_Workspace::get($id)))
+				return;
+	
+			$tpl->assign('workspace', $workspace);
+			
+			// Worklist
+			$worklists = $workspace->getWorklists();
+			$tpl->assign('worklists', $worklists);
+			
+		} else { // Create
+			$groups = DAO_Group::getAll(); 
+			foreach($groups as $k => $v) {
+				if(!$active_worker->is_superuser && !$active_worker->isTeamManager($k))
+					unset($groups[$k]);
+			}
+			
+			$tpl->assign('owner_groups', $groups);
 
-		$tpl->assign('workspace', $workspace);
-		$tpl->assign('request', $request);
-
-		// Worklist
-		$worklists = $workspace->getWorklists();
-		$tpl->assign('worklists', $worklists);
-
+			if($active_worker->is_superuser) {
+				$roles = DAO_WorkerRole::getAll();
+				$tpl->assign('owner_roles', $roles);
+			}
+		}
+		
 		// Contexts
 		$contexts = Extension_DevblocksContext::getAll();
 		$tpl->assign('contexts', $contexts);
@@ -1510,8 +1582,6 @@ class ChInternalController extends DevblocksControllerExtension {
 		@$names = DevblocksPlatform::importGPC($_POST['names'],'array', array());
 		@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'],'integer', '0');
 
-		@$request = DevblocksPlatform::importGPC($_REQUEST['request'],'string', '');
-
 		$active_worker = CerberusApplication::getActiveWorker();
 
 		if(!empty($workspace_id) && 
@@ -1523,13 +1593,44 @@ class ChInternalController extends DevblocksControllerExtension {
 		if($do_delete) { // Delete
 			DAO_Workspace::delete($workspace_id);
 
-		} else { // Edit
-			// Rename workspace
-			if(0 != strcmp($workspace->name, $rename_workspace)) {
+		} else { // Create/Edit
+			if(empty($workspace_id)) {
+				@list($owner_type, $owner_id) = explode('_', DevblocksPlatform::importGPC($_REQUEST['owner'],'string',''));
+				
+				switch($owner_type) {
+					// Group
+					case 'g':
+						$owner_context = CerberusContexts::CONTEXT_GROUP;
+						$owner_context_id = $owner_id;
+						break;
+					// Role
+					case 'r':
+						$owner_context = CerberusContexts::CONTEXT_ROLE;
+						$owner_context_id = $owner_id;
+						break;
+					// Me
+					default:
+						$owner_context = CerberusContexts::CONTEXT_WORKER;
+						$owner_context_id = $active_worker->id;
+						break;
+				}
+				
 				$fields = array(
-					DAO_Workspace::NAME => $rename_workspace
+					DAO_Workspace::NAME => $rename_workspace,
+					DAO_Workspace::OWNER_CONTEXT => $owner_context, 
+					DAO_Workspace::OWNER_CONTEXT_ID => $owner_context_id,
 				);
-				DAO_Workspace::update($workspace->id, $fields);
+				$workspace_id = DAO_Workspace::create($fields);
+				$workspace = DAO_Workspace::get($workspace_id);
+				
+			} else {
+				// Rename workspace
+				if(0 != strcmp($workspace->name, $rename_workspace)) {
+					$fields = array(
+						DAO_Workspace::NAME => $rename_workspace
+					);
+					DAO_Workspace::update($workspace->id, $fields);
+				}
 			}
 
 			// Create any new worklists
@@ -1605,11 +1706,7 @@ class ChInternalController extends DevblocksControllerExtension {
 			}
 		}
 
-		if(empty($request))
-			$request = 'tickets';
-
-		DevblocksPlatform::redirect(new DevblocksHttpResponse(explode('/', $request)));
-		return;
+		exit;
 	}
 
 	/**

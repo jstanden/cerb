@@ -78,69 +78,93 @@ class DAO_Workspace extends C4_ORMHelper {
 		);
 	}
 	
-	static function addEndpointWorkspace($workspace_id, $endpoint) {
-		$db = DevblocksPlatform::getDatabaseService();
-		
-		$sql = sprintf("INSERT IGNORE INTO workspace_to_endpoint ON (workspace_id, endpoint) ".
-			"VALUES (%d, %s)",
-			$workspace_id,
-			$db->qstr($endpoint)
-		);
-		$db->Execute($sql);
-	}
-	
-	static function deleteEndpointWorkspace($workspace_id, $endpoint) {
-		$db = DevblocksPlatform::getDatabaseService();
-		
-		$sql = sprintf("DELETE FROM workspace_to_endpoint WHERE workspace_id = %d AND endpoint = %s",
-			$workspace_id,
-			$db->qstr($endpoint)
-		);
-		$db->Execute($sql);
-	}
-	
-	static function setEndpointWorkspaces($endpoint, $owner_context, $owner_context_id, $workspace_ids) {
+	static function setEndpointWorkspaces($endpoint, $worker_id, $workspace_ids) {
 		if(!is_array($workspace_ids))
 			$workspace_ids = array($workspace_ids);
 		
 		$db = DevblocksPlatform::getDatabaseService();
 
 		// Clear existing workspaces on this endpoint for this worker
-		$db->Execute(sprintf("DELETE workspace_to_endpoint ".
-			"FROM workspace_to_endpoint ".
-			"INNER JOIN workspace ON (workspace_to_endpoint.workspace_id=workspace.id) ".
-			"WHERE workspace.owner_context = %s ".
-			"AND workspace.owner_context_id = %d ".
-			"AND workspace_to_endpoint.endpoint = %s",
-			$db->qstr($owner_context),
-			$owner_context_id,
+		$db->Execute(sprintf("DELETE FROM workspace_to_endpoint ".
+			"WHERE worker_id = %d ".
+			"AND endpoint = %s",
+			$worker_id,
 			$db->qstr($endpoint)
 		));
 		
 		// Link workspaces to endpoint
 		foreach($workspace_ids as $pos => $workspace_id) {
-			$db->Execute(sprintf("INSERT INTO workspace_to_endpoint (workspace_id, endpoint, pos) ".
-				"VALUES (%d, %s, %d)",
+			$db->Execute(sprintf("INSERT INTO workspace_to_endpoint (workspace_id, worker_id, endpoint, pos) ".
+				"VALUES (%d, %d, %s, %d)",
 				$workspace_id,
+				$worker_id,
 				$db->qstr($endpoint),
 				$pos
 			));
 		}
 	}
 	
-	static function getByEndpoint($endpoint, $owner_context, $owner_context_id) {
+	static function getByWorker($worker) {
+		if(is_a($worker,'Model_Worker')) {
+			// This is what we want
+		} elseif(is_numeric($worker)) {
+			$worker = DAO_Worker::get($worker);
+		} else {
+			return array();
+		}
+		
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$where_scope = sprintf("(workspace.owner_context = %s AND workspace.owner_context_id = %d) ",
+			$db->qstr(CerberusContexts::CONTEXT_WORKER),
+			$worker->id
+		);
+		
+		$memberships = $worker->getMemberships();
+		if(!empty($memberships))
+			$where_scope .= sprintf("OR (workspace.owner_context = %s AND workspace.owner_context_id IN (%s)) ",
+				$db->qstr(CerberusContexts::CONTEXT_GROUP),
+				implode(',', array_keys($memberships))
+			);
+		
+		$roles = $worker->getRoles();
+		if(!empty($roles))
+			$where_scope .= sprintf("OR (workspace.owner_context = %s AND workspace.owner_context_id IN (%s)) ",
+				$db->qstr(CerberusContexts::CONTEXT_ROLE),
+				implode(',', array_keys($worker->getRoles()))
+			);
+		
+		$sql = sprintf("SELECT workspace.id, workspace.name, workspace.owner_context, workspace.owner_context_id ".
+			"FROM workspace ".
+			"WHERE %s ".
+			"ORDER BY workspace.name ASC ",
+			$where_scope
+		);
+		
+		$rs = $db->Execute($sql);
+		
+		return self::_getObjectsFromResult($rs);
+	}
+	
+	static function getByEndpoint($endpoint, $worker) {
+		if(is_a($worker,'Model_Worker')) {
+			// This is what we want
+		} elseif(is_numeric($worker)) {
+			$worker = DAO_Worker::get($worker);
+		} else {
+			return array();
+		}
+		
 		$db = DevblocksPlatform::getDatabaseService();
 		
 		$sql = sprintf("SELECT workspace.id, workspace.name, workspace.owner_context, workspace.owner_context_id ".
 			"FROM workspace ".
 			"INNER JOIN workspace_to_endpoint ON (workspace.id = workspace_to_endpoint.workspace_id) ".
 			"WHERE workspace_to_endpoint.endpoint = %s ".
-			"AND workspace.owner_context = %s ".
-			"AND workspace.owner_context_id = %d ".
+			"AND workspace_to_endpoint.worker_id = %d ".
 			"ORDER BY workspace_to_endpoint.pos ASC ",
 			$db->qstr($endpoint),
-			$db->qstr($owner_context),
-			$owner_context_id
+			$worker->id
 		);
 		$rs = $db->Execute($sql);
 		
@@ -359,6 +383,67 @@ class Model_Workspace {
 			DAO_WorkspaceList::WORKSPACE_ID,
 			$this->id
 		));
+	}
+	
+	function isReadableByWorker($worker) {
+		if(is_a($worker, 'Model_Worker')) {
+			// This is what we want
+		} elseif (is_numeric($worker)) {
+			if(null == ($worker = DAO_Worker::get($worker)))
+				return false;
+		} else {
+			return false;
+		}
+		
+		switch($this->owner_context) {
+			case CerberusContexts::CONTEXT_GROUP:
+				if(in_array($this->owner_context_id, array_keys($worker->getMemberships())))
+					return true;
+				break;
+				
+			case CerberusContexts::CONTEXT_ROLE:
+				if(in_array($this->owner_context_id, array_keys($worker->getRoles())))
+					return true;
+				break;
+				
+			case CerberusContexts::CONTEXT_WORKER:
+				if($worker->id == $this->owner_context_id)
+					return true;
+				break;
+		}
+		
+		return false;
+	}
+	
+	function isWriteableByWorker($worker) {
+		if(is_a($worker, 'Model_Worker')) {
+			// This is what we want
+		} elseif (is_numeric($worker)) {
+			if(null == ($worker = DAO_Worker::get($worker)))
+				return false;
+		} else {
+			return false;
+		}
+		
+		switch($this->owner_context) {
+			case CerberusContexts::CONTEXT_GROUP:
+				if(in_array($this->owner_context_id, array_keys($worker->getMemberships())))
+					if($worker->isTeamManager($this->owner_context_id))
+						return true;
+				break;
+				
+			case CerberusContexts::CONTEXT_ROLE:
+				if($worker->is_superuser)
+					return true;
+				break;
+				
+			case CerberusContexts::CONTEXT_WORKER:
+				if($worker->id == $this->owner_context_id)
+					return true;
+				break;
+		}
+		
+		return false;
 	}
 };
 

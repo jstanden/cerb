@@ -717,6 +717,10 @@ class Model_Worker {
 		return DAO_Worker::getWorkerGroups($this->id); 
 	}
 
+	function getRoles() {
+		return DAO_WorkerRole::getRolesByWorker($this->id);
+	}
+	
 	/**
 	 * @return Model_Address
 	 */

@@ -1268,15 +1268,16 @@ class C4_AbstractViewLoader {
 
 class DAO_WorkerViewModel {
 	// [TODO] Add an 'ephemeral' bit to clear record on login
-	
+
 	/**
 	 * 
-	 * @param integer $worker_id
-	 * @param string $view_id
-	 * @return C4_AbstractViewModel or false
+	 * @param string $where
+	 * @return C4_AbstractViewModel[]
 	 */
-	static public function getView($worker_id, $view_id) {
+	static public function getWhere($where=null) {
 		$db = DevblocksPlatform::getDatabaseService();
+		
+		$objects = array();
 		
 		$fields = array(
 			'worker_id',
@@ -1300,15 +1301,16 @@ class DAO_WorkerViewModel {
 			'render_template',
 		);
 		
-		$row = $db->GetRow(sprintf("SELECT %s FROM worker_view_model WHERE worker_id = %d AND view_id = %s",
+		$rs = $db->Execute(sprintf("SELECT %s FROM worker_view_model %s",
 			implode(',', $fields),
-			$worker_id,
-			$db->qstr($view_id)
+			(!empty($where) ? ('WHERE ' . $where) : '')
 		));
 		
-		if(!empty($row)) {
+		if(is_resource($rs))
+		while($row = mysql_fetch_array($rs)) {
 			$model = new C4_AbstractViewModel();
 			$model->id = $row['view_id'];
+			$model->worker_id = $row['worker_id'];
 			$model->is_ephemeral = $row['is_ephemeral'];
 			$model->class_name = $row['class_name'];
 			$model->name = $row['title'];
@@ -1333,10 +1335,32 @@ class DAO_WorkerViewModel {
 			if(empty($model->class_name) || !class_exists($model->class_name, true))
 				return false;
 			
-			return $model;
+			$objects[] = $model;
 		}
 			
-		return false; 
+		return $objects;
+	}
+	
+	/**
+	 * 
+	 * @param integer $worker_id
+	 * @param string $view_id
+	 * @return C4_AbstractViewModel|false
+	 */
+	static public function getView($worker_id, $view_id) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$results = DAO_WorkerViewModel::getWhere(sprintf("worker_id = %d AND view_id = %s",
+			$worker_id,
+			$db->qstr($view_id)
+		));
+		
+		if(empty($results) || !is_array($results))
+			return false;
+
+		@$model = array_shift($results);
+		
+		return $model;
 	}
 
 	static public function decodeParamsJson($json) {

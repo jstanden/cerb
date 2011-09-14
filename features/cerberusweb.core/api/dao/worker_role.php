@@ -17,7 +17,8 @@
 
 class DAO_WorkerRole extends DevblocksORMHelper {
 	const _CACHE_ROLES_ALL = 'ch_roles_all';
-	const _CACHE_WORKER_PREFIX = 'ch_roles_worker_';
+	const _CACHE_WORKER_PRIVS_PREFIX = 'ch_privs_worker_';
+	const _CACHE_WORKER_ROLES_PREFIX = 'ch_roles_worker_';
 	
 	const ID = 'id';
 	const NAME = 'name';
@@ -43,16 +44,16 @@ class DAO_WorkerRole extends DevblocksORMHelper {
 		self::clearCache();
 	}
 	
-	static function getCumulativePrivsByWorker($worker_id, $nocache=false) {
+	static function getRolesByWorker($worker_id, $nocache=false) {
 		$cache = DevblocksPlatform::getCacheService();
-
-		if($nocache || null === ($privs = $cache->load(self::_CACHE_WORKER_PREFIX.$worker_id))) {
+		
+		if($nocache || null === ($roles = $cache->load(self::_CACHE_WORKER_ROLES_PREFIX.$worker_id))) {
 			$worker = DAO_Worker::get($worker_id);
 			$memberships = $worker->getMemberships();
-			$roles = DAO_WorkerRole::getAll();
-			$privs = array();
+			$all_roles = DAO_WorkerRole::getAll();
+			$roles = array();
 			
-			foreach($roles as $role_id => $role) {
+			foreach($all_roles as $role_id => $role) {
 				if('none' == $role->params['what'])
 					continue;
 				
@@ -71,21 +72,40 @@ class DAO_WorkerRole extends DevblocksORMHelper {
 						in_array($worker_id, $role->params['who_list'])
 					) 
 				) {
-					switch($role->params['what']) {
-						case 'all':
-							$privs = array('*' => array());
-							$cache->save($privs, self::_CACHE_WORKER_PREFIX.$worker_id);
-							return;
-							break;
-							
-						case 'itemized':
-							$privs = array_merge($privs, DAO_WorkerRole::getRolePrivileges($role_id));
-							break;
-					}
+					$roles[$role_id] = $role;
+				}
+			}
+
+			$cache->save($roles, self::_CACHE_WORKER_ROLES_PREFIX.$worker_id);
+		}
+		
+		return $roles;
+	}
+	
+	static function getCumulativePrivsByWorker($worker_id, $nocache=false) {
+		$cache = DevblocksPlatform::getCacheService();
+
+		if($nocache || null === ($privs = $cache->load(self::_CACHE_WORKER_PRIVS_PREFIX.$worker_id))) {
+			$worker = DAO_Worker::get($worker_id);
+			$memberships = $worker->getMemberships();
+			$roles = DAO_WorkerRole::getRolesByWorker($worker_id);
+			$privs = array();
+			
+			foreach($roles as $role_id => $role) {
+				switch($role->params['what']) {
+					case 'all':
+						$privs = array('*' => array());
+						$cache->save($privs, self::_CACHE_WORKER_PRIVS_PREFIX.$worker_id);
+						return;
+						break;
+						
+					case 'itemized':
+						$privs = array_merge($privs, DAO_WorkerRole::getRolePrivileges($role_id));
+						break;
 				}
 			}
 			
-			$cache->save($privs, self::_CACHE_WORKER_PREFIX.$worker_id);
+			$cache->save($privs, self::_CACHE_WORKER_PRIVS_PREFIX.$worker_id);
 		}
 		
 		return $privs;
@@ -227,11 +247,14 @@ class DAO_WorkerRole extends DevblocksORMHelper {
 		$cache = DevblocksPlatform::getCacheService();
 		
 		if(!empty($worker_id)) {
-			$cache->remove(self::_CACHE_WORKER_PREFIX.$worker_id);
+			$cache->remove(self::_CACHE_WORKER_PRIVS_PREFIX.$worker_id);
+			$cache->remove(self::_CACHE_WORKER_ROLES_PREFIX.$worker_id);
 		} else {
 			$workers = DAO_Worker::getAll();
-			foreach($workers as $worker_id => $worker)
-				$cache->remove(self::_CACHE_WORKER_PREFIX.$worker_id);
+			foreach($workers as $worker_id => $worker) {
+				$cache->remove(self::_CACHE_WORKER_PRIVS_PREFIX.$worker_id);
+				$cache->remove(self::_CACHE_WORKER_ROLES_PREFIX.$worker_id);
+			}
 		}
 	}
 };

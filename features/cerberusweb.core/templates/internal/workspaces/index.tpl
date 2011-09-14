@@ -1,12 +1,44 @@
-<form action="{devblocks_url}{/devblocks_url}" method="POST" style="margin:5px;">
+<form action="{devblocks_url}{/devblocks_url}" id="frmWorkspace{$workspace->id}" method="POST" style="margin:5px;">
 	<input type="hidden" name="c" value="internal">
 	<input type="hidden" name="a" value="">
-	<button type="button" onclick="genericAjaxPopup('peek','c=internal&a=showEditWorkspacePanel&id={$workspace->id}&request={$request|escape:'url'}',null,true,'600');"><span class="cerb-sprite sprite-gear"></span> {$translate->_('dashboard.edit')|capitalize}</button>
+
+	{if $workspace->isWriteableByWorker($active_worker)}
+		<button type="button" class="edit"><span class="cerb-sprite sprite-gear"></span> {$translate->_('dashboard.edit')|capitalize}</button>
+		&nbsp;
+	{/if}
+	
+	{if !($workspace->owner_context == CerberusContexts::CONTEXT_WORKER && $workspace->owner_context_id == $active_worker->id)}
+		{$context = Extension_DevblocksContext::get($workspace->owner_context)}
+		{if !empty($context)}
+			{$meta = $context->getMeta({$workspace->owner_context_id})}
+			Owned by <b>{$meta.name}</b> ({$context->manifest->name})
+		{/if}
+	{/if}
 </form>
 
 <div id="divWorkspace{$workspace->id}"></div>
 
 <script type="text/javascript">
+	
+	// Edit workspace actions
+	$workspace = $('#frmWorkspace{$workspace->id}');
+	$workspace.find('button.edit').click(function(e) {
+		$popup = genericAjaxPopup('peek','c=internal&a=showEditWorkspacePanel&id={$workspace->id}',null,true,'600');
+		$popup.one('workspace_save',function(e) {
+			$tabs = $('#frmWorkspace{$workspace->id}').closest('div.ui-tabs');
+			if(0 != $tabs) {
+				$tabs.tabs('load', $tabs.tabs('option','selected'));
+			}
+		});
+		$popup.one('workspace_delete',function(e) {
+			$tabs = $('#frmWorkspace{$workspace->id}').closest('div.ui-tabs');
+			if(0 != $tabs) {
+				$tabs.tabs('remove', $tabs.tabs('option','selected'));
+			}
+		});
+	});
+	
+	// Lazy loading
 	$workspace = $('#divWorkspace{$workspace->id}');
 	$ajaxQueue = $({});
 	

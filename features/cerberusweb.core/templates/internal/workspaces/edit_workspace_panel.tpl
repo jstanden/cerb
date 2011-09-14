@@ -1,13 +1,44 @@
-<form action="{devblocks_url}{/devblocks_url}" method="post" id="frmEditWorkspace">
+<form action="#" method="post" id="frmEditWorkspace" onsubmit="return false;">
 <input type="hidden" name="c" value="internal">
 <input type="hidden" name="a" value="doEditWorkspace">
 <input type="hidden" name="id" value="{$workspace->id}">
-<input type="hidden" name="request" value="{$request}">
-<input type="hidden" name="do_delete" value="0">
+{if !empty($workspace)}<input type="hidden" name="do_delete" value="0">{/if}
 
-<b>{'common.name'|devblocks_translate|capitalize}:</b><br>
-<input type="text" name="rename_workspace" value="{$workspace->name}" size="35" style="width:100%;"><br>
-<br>
+<table cellpadding="2" cellspacing="0" border="0" width="100%" style="margin-bottom:5px;">
+	<tr>
+		<td width="1%" nowrap="nowrap" align="right">
+			<b>{'common.name'|devblocks_translate|capitalize}:</b>
+		</td>
+		<td width="99%">
+			<input type="text" name="rename_workspace" value="{$workspace->name}" size="35" style="width:100%;">
+		</td>
+	</tr>
+	
+	{if empty($workspace)}
+	<tr>
+		<td width="1%" nowrap="nowrap" align="right">
+			<b>{'common.owner'|devblocks_translate|capitalize}:</b>
+		</td>
+		<td width="99%">
+			<select name="owner">
+				<option value="">me</option>
+				
+				{if !empty($owner_groups)}
+				{foreach from=$owner_groups item=group key=group_id}
+					<option value="g_{$group_id}">Group: {$group->name}</option>
+				{/foreach}
+				{/if}
+				
+				{if !empty($owner_roles)}
+				{foreach from=$owner_roles item=role key=role_id}
+					<option value="r_{$role_id}">Role: {$role->name}</option>
+				{/foreach}
+				{/if}
+			</select>
+		</td>
+	</tr>
+	{/if}
+</table>
 
 <fieldset>
 	<legend>Worklists</legend>
@@ -38,14 +69,14 @@
 	</div>
 </fieldset>
 
-<button type="submit"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {$translate->_('common.save_changes')}</button>
-<button type="button" onclick="if(!confirm('Are you sure you want to delete this workspace?')) { return false; }; $frm=$(this.form);$frm.find('input:hidden[name=do_delete]').val('1');$frm.submit();"><span class="cerb-sprite2 sprite-cross-circle-frame"></span> {'common.delete'|devblocks_translate|capitalize}</button>
+<button type="button" onclick="genericAjaxPopupPostCloseReloadView('peek','frmEditWorkspace','',false,'workspace_save');"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {$translate->_('common.save_changes')}</button>
+{if !empty($workspace)}<button type="button" onclick="if(!confirm('Are you sure you want to delete this workspace?')) { return false; }; $('#frmEditWorkspace').find('input:hidden[name=do_delete]').val('1');genericAjaxPopupPostCloseReloadView('peek','frmEditWorkspace','',false,'workspace_delete');"><span class="cerb-sprite2 sprite-cross-circle-frame"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 </form>
 
 <script type="text/javascript">
 	$popup = genericAjaxPopupFetch('peek');
 	$popup.one('popup_open', function(event,ui) {
-		$(this).dialog('option','title',"{'dashboard.edit'|devblocks_translate|capitalize}");
+		$(this).dialog('option','title',"{if !empty($workspace)}{'dashboard.edit'|devblocks_translate|capitalize}{else}Create Workspace{/if}");
 		$('#frmEditWorkspace').sortable({ items: 'DIV.column', placeholder:'ui-state-highlight' });
 		
 		$frm = $('#frmEditWorkspace');
@@ -64,5 +95,7 @@
 			
 			$new_column.appendTo($columns);;
 		});
+		
+		$frm.find('input:text:first').focus().select();
 	});
 </script>
