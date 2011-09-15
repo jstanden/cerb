@@ -18,26 +18,28 @@ $view_frm.find('TABLE.worklistBody TBODY')
 		} else if($target.is(':input,:button,a,img,span.cerb-sprite,span.cerb-sprite2,span.cerb-label')) {
 			// Ignore form elements and links
 		} else {
+			e.stopPropagation();
+			
+			$this = $(this);
+			
 			e.preventDefault();
 			
-			$chk=$(this).find('input:checkbox:first');
+			$chk=$this.find('input:checkbox:first');
 			if(!$chk)
 				return;
-	
+			
 			is_checked = !$chk.is(':checked');
 			
 			$chk.attr('checked', is_checked);
 	
 			if(is_checked) {
-				$(this).find('tr').addClass('selected').removeClass('hover');
+				$this.find('tr').addClass('selected').removeClass('hover');
 			} else {
-				$(this).find('tr').removeClass('selected');
+				$this.find('tr').removeClass('selected');
 			}
 			
 			e.disableSelection();
 		}
-		
-		e.stopPropagation();
 	})
 	.hover(
 		function() {
