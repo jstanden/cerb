@@ -129,7 +129,7 @@ class DAO_AddressOutgoing extends DevblocksORMHelper {
 	static function isLocalAddress($address) {
 		$helpdesk_froms = DAO_AddressOutgoing::getAll();
 		foreach($helpdesk_froms as $from) {
-			if(0 == strcasecmp($from,$address))
+			if(0 == strcasecmp($from->email, $address))
 				return true;	
 		}
 		

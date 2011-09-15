@@ -713,19 +713,58 @@ class DAO_Ticket extends C4_ORMHelper {
 		return $addresses;
 	}
 	
-	static function isTicketRequester($email, $ticket_id) {
-		$db = DevblocksPlatform::getDatabaseService();
+	static function findMissingRequestersInHeaders($headers, $current_requesters=array()) {
+		$results = array();
+		$addys = array();
+
+		@$from = imap_rfc822_parse_adrlist($headers['from'], '');
+		if(!empty($from))
+			$addys = array_merge($addys, !is_array($from) ? array($from) : $from);
 		
-		$sql = sprintf("SELECT a.id ".
-			"FROM address a ".
-			"INNER JOIN requester r ON (r.ticket_id = %d AND a.id=r.address_id) ".
-			"WHERE a.email = %s ".
-			"ORDER BY a.email ASC ",
-			$ticket_id,
-			$db->qstr($email)
-		);
-		$result = $db->GetOne($sql);
-		return !empty($result);
+		@$to = imap_rfc822_parse_adrlist($headers['to'], '');
+		if(!empty($to))
+			$addys = array_merge($addys, !is_array($to) ? array($to) : $to);
+		
+		@$cc = imap_rfc822_parse_adrlist($headers['cc'], '');
+		if(!empty($cc))
+			$addys = array_merge($addys, !is_array($cc) ? array($cc) : $cc);
+
+		$exclude_list = DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::PARSER_AUTO_REQ_EXCLUDE, CerberusSettingsDefaults::PARSER_AUTO_REQ_EXCLUDE);
+		@$excludes = DevblocksPlatform::parseCrlfString($exclude_list);		
+		
+		foreach($addys as $to_addy) {
+			if(empty($to_addy->host))
+				continue;
+
+			try {
+				$addy = $to_addy->mailbox . '@' . $to_addy->host;
+	
+				// Filter out our own addresses
+				if(DAO_AddressOutgoing::isLocalAddress($addy))
+					continue;
+				
+				// Filter explicit excludes
+				if(is_array($excludes) && !empty($excludes))
+				foreach($excludes as $excl_pattern) {
+					if(@preg_match(DevblocksPlatform::parseStringAsRegExp($excl_pattern), $addy)) {
+						throw new Exception();
+					}
+				}
+				
+				$results[$addy] = true;
+				
+			} catch(Exception $e) {
+			}
+		}
+
+		// Filter existing requesters
+		if(is_array($current_requesters))
+		foreach($current_requesters as $current_requester)
+			unset($results[$current_requester->email]);
+		
+		$results = array_keys($results);
+		
+		return $results;
 	}
 	
 	static function createRequester($raw_email, $ticket_id) {

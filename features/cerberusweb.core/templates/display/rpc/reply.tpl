@@ -10,7 +10,7 @@
 			<table cellpadding="1" cellspacing="0" border="0" width="100%">
 				{if isset($teams.{$ticket->team_id})}
 				<tr>
-					<td width="1%" nowrap="nowrap">{$translate->_('message.header.from')|capitalize}: </td>
+					<td width="1%" nowrap="nowrap" valign="top">{$translate->_('message.header.from')|capitalize}: </td>
 					<td width="99%" align="left">
 						{$teams.{$ticket->team_id}->name}
 					</td>
@@ -18,31 +18,56 @@
 				{/if}
 				
 				<tr>
-					<td width="1%" nowrap="nowrap"><b>{$translate->_('message.header.to')|capitalize}:</b> </td>
+					<td width="1%" nowrap="nowrap" valign="top"><b>{$translate->_('message.header.to')|capitalize}:</b> </td>
 					<td width="99%" align="left">
-						<input type="text" size="45" name="to" value="{if !empty($draft)}{$draft->params.to}{else}{if $is_forward}{else}{foreach from=$ticket->getRequesters() item=req_addy name=reqs}{$req_addy->email}{if !$smarty.foreach.reqs.last}, {/if}{/foreach}{/if}{/if}" {if $is_forward}class="required"{/if} style="width:100%;border:1px solid rgb(180,180,180);padding:2px;">
+						<input type="text" size="45" name="to" value="{if !empty($draft)}{$draft->params.to}{else}{if $is_forward}{else}{foreach from=$requesters item=req_addy name=reqs}{$req_addy->email}{if !$smarty.foreach.reqs.last}, {/if}{/foreach}{/if}{/if}" {if $is_forward}class="required"{/if} style="width:100%;border:1px solid rgb(180,180,180);padding:2px;">
+						<div class="instructions" style="display:none;">
+							These recipients will automatically be included in all future correspondence
+						</div>
+						
+						{if !$is_forward}
+							{if !empty($suggested_recipients)}
+								<div id="reply{$message->id}_suggested">
+									<a href="javascript:;" onclick="$(this).closest('div').remove();">x</a>
+									<b>Consider adding these recipients:</b>
+									<ul class="bubbles">
+									{foreach from=$suggested_recipients item=sug name=sugs}
+										<li><a href="javascript:;" onclick="$to=$(this).closest('td').find('input:text:first');$len = $to.val().length;if(0==$len)$to.val('{$sug}');else $to.val($to.val() + ', {$sug}');$to.focus();$ul=$(this).closest('ul');$(this).closest('li').remove();if(0==$ul.find('li').length) $ul.closest('div').remove();">{$sug}</a></li>
+									{/foreach}
+									</ul> 
+								</div>
+							{/if}
+						{/if}
 					</td>
 				</tr>
 				
 				<tr>
-					<td width="1%" nowrap="nowrap">{$translate->_('message.header.cc')|capitalize}: </td>
+					<td width="1%" nowrap="nowrap" valign="top">{$translate->_('message.header.cc')|capitalize}: </td>
 					<td width="99%" align="left">
-						<input type="text" size="45" name="cc" value="{$draft->params.cc}" style="width:100%;border:1px solid rgb(180,180,180);padding:2px;">					
+						<input type="text" size="45" name="cc" value="{$draft->params.cc}" style="width:100%;border:1px solid rgb(180,180,180);padding:2px;">
+						<div class="instructions" style="display:none;">
+							These recipients will publicly receive a copy of this message	
+						</div>
 					</td>
 				</tr>
+
 				<tr>
-					<td width="1%" nowrap="nowrap">{$translate->_('message.header.bcc')|capitalize}: </td>
+					<td width="1%" nowrap="nowrap" valign="top">{$translate->_('message.header.bcc')|capitalize}: </td>
 					<td width="99%" align="left">
 						<input type="text" size="45" name="bcc" value="{$draft->params.bcc}" style="width:100%;border:1px solid rgb(180,180,180);padding:2px;">					
+						<div class="instructions" style="display:none;">
+							These recipients will secretly receive a copy of this message			
+						</div>
 					</td>
 				</tr>
 				
 				<tr>
-					<td width="1%" nowrap="nowrap">{$translate->_('message.header.subject')|capitalize}: </td>
+					<td width="1%" nowrap="nowrap" valign="top">{$translate->_('message.header.subject')|capitalize}: </td>
 					<td width="99%" align="left">
 						<input type="text" size="45" name="subject" value="{if !empty($draft)}{$draft->subject}{else}{if $is_forward}Fwd: {/if}{$ticket->subject}{/if}" style="width:100%;border:1px solid rgb(180,180,180);padding:2px;" class="required">					
 					</td>
 				</tr>
+				
 			</table>
 
 			<div id="divDraftStatus{$message->id}"></div>
@@ -94,7 +119,7 @@
 {if $is_forward}<input type="hidden" name="is_forward" value="1">{/if}
 
 <!-- {* Copy these dynamically so a plugin dev doesn't need to conflict with the reply <form> *} -->
-<input type="hidden" name="to" value="{if !empty($draft)}{$draft->params.to}{else}{if $is_forward}{else}{foreach from=$ticket->getRequesters() item=req_addy name=reqs}{$req_addy->email}{if !$smarty.foreach.reqs.last}, {/if}{/foreach}{/if}{/if}">
+<input type="hidden" name="to" value="{if !empty($draft)}{$draft->params.to}{else}{if $is_forward}{else}{foreach from=$requesters item=req_addy name=reqs}{$req_addy->email}{if !$smarty.foreach.reqs.last}, {/if}{/foreach}{/if}{/if}">
 <input type="hidden" name="cc" value="{$draft->params.cc}">
 <input type="hidden" name="bcc" value="{$draft->params.bcc}">
 <input type="hidden" name="subject" value="{if !empty($draft)}{$draft->subject}{else}{if $is_forward}Fwd: {/if}{$ticket->subject}{/if}">
@@ -274,10 +299,19 @@
 		ajax.emailAutoComplete('#reply{$message->id}_part1 input[name=cc]', { multiple: true } );
 		ajax.emailAutoComplete('#reply{$message->id}_part1 input[name=bcc]', { multiple: true } );
 		
+		$('#reply{$message->id}_part1 input:text').focus(function(event) {
+			$(this).nextAll('div.instructions').fadeIn();
+		});
+		
 		$('#reply{$message->id}_part1 input:text').blur(function(event) {
+			$(this).nextAll('div.instructions').fadeOut();
 			name = event.target.name;
 			$('#reply{$message->id}_part2 input:hidden[name='+name+']').val(event.target.value);
 		} );
+		
+		$('#reply{$message->id}_part1 input:text[name=to], #reply{$message->id}_part1 input:text[name=cc], #reply{$message->id}_part1 input:text[name=bcc]').focus(function(event) {
+			$('#reply{$message->id}_suggested').appendTo($(this).closest('td'));
+		});
 		
 		$('#reply{$message->id}_part1').validate();
 		

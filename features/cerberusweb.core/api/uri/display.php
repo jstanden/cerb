@@ -242,8 +242,12 @@ class ChDisplayPage extends CerberusPageExtension {
 		// Ticket
 		$ticket = DAO_Ticket::get($message->ticket_id);
 		$tpl->assign('ticket', $ticket);
-		$tpl->assign('requesters', $ticket->getRequesters());
 		
+		// Requesters
+		$requesters = $ticket->getRequesters();
+		$tpl->assign('requesters', $requesters);
+		
+		// Expanded/Collapsed
 		if(empty($hide)) {
 			$notes = DAO_Comment::getByContext(CerberusContexts::CONTEXT_TICKET, $message->ticket_id);
 			$message_notes = array();
@@ -267,7 +271,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		$tpl->assign('mail_reply_button', $mail_reply_button);
 			
 		$tpl->assign('expanded', (empty($hide) ? true : false));
-		
+
 		$tpl->display('devblocks:cerberusweb.core::display/modules/conversation/message.tpl');
 	}
 
@@ -505,6 +509,16 @@ class ChDisplayPage extends CerberusPageExtension {
 				$tpl->assign('draft', $drafts[$draft_id]);
 			}
 		}
+
+		// Suggested recipients
+		if(!$is_forward) {
+			$requesters = $ticket->getRequesters();
+			$tpl->assign('requesters', $requesters);
+			
+			$message_headers = $message->getHeaders();
+			$suggested_recipients = DAO_Ticket::findMissingRequestersInHeaders($message_headers, $requesters);
+			$tpl->assign('suggested_recipients', $suggested_recipients);
+		}
 		
 		// ReplyToolbarItem Extensions
 		$replyToolbarItems = DevblocksPlatform::getExtensions('cerberusweb.reply.toolbaritem', true);
@@ -541,12 +555,6 @@ class ChDisplayPage extends CerberusPageExtension {
 		
 		$tpl->assign('upload_max_filesize', ini_get('upload_max_filesize'));
 		
-		$kb_topics = DAO_KbCategory::getWhere(sprintf("%s = %d",
-			DAO_KbCategory::PARENT_ID,
-			0
-		));
-		$tpl->assign('kb_topics', $kb_topics);
-		
 		$tpl->display('devblocks:cerberusweb.core::display/rpc/reply.tpl');
 	}
 	
@@ -556,7 +564,9 @@ class ChDisplayPage extends CerberusPageExtension {
 	    @$draft_id = DevblocksPlatform::importGPC($_REQUEST['draft_id'],'integer');
 	    @$is_forward = DevblocksPlatform::importGPC($_REQUEST['is_forward'],'integer',0);
 		@$reply_mode = DevblocksPlatform::importGPC($_REQUEST['reply_mode'],'string','');
-	    
+
+		@$to = DevblocksPlatform::importGPC(@$_REQUEST['to']);
+		
 	    $worker = CerberusApplication::getActiveWorker();
 	    
 		$properties = array(
@@ -564,7 +574,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		    'message_id' => DevblocksPlatform::importGPC(@$_REQUEST['id']),
 		    'ticket_id' => $ticket_id,
 		    'is_forward' => $is_forward,
-		    'to' => DevblocksPlatform::importGPC(@$_REQUEST['to']),
+		    'to' => $to,
 		    'cc' => DevblocksPlatform::importGPC(@$_REQUEST['cc']),
 		    'bcc' => DevblocksPlatform::importGPC(@$_REQUEST['bcc']),
 		    'subject' => DevblocksPlatform::importGPC(@$_REQUEST['subject'],'string'),
@@ -586,6 +596,19 @@ class ChDisplayPage extends CerberusPageExtension {
 				DAO_MailQueue::delete($draft_id);
 		}
 
+		// Automatically add new 'To:' recipients?
+		if(!$is_forward) {
+			try {
+				$to_addys = DevblocksPlatform::parseCsvString($to);
+				if(empty($to_addys))
+					throw new Exception("Blank recipients list.");
+
+				foreach($to_addys as $to_addy)
+					DAO_Ticket::createRequester($to_addy, $ticket_id);
+				
+			} catch(Exception $e) {}
+		}
+		
 		$ticket_uri = !empty($ticket_mask) ? $ticket_mask : $ticket_id;
 		
         DevblocksPlatform::redirect(new DevblocksHttpResponse(array('display',$ticket_uri)));
