@@ -19,6 +19,7 @@ $view_frm.find('TABLE.worklistBody TBODY')
 			// Ignore form elements and links
 		} else {
 			e.preventDefault();
+			
 			$chk=$(this).find('input:checkbox:first');
 			if(!$chk)
 				return;
@@ -32,8 +33,10 @@ $view_frm.find('TABLE.worklistBody TBODY')
 			} else {
 				$(this).find('tr').removeClass('selected');
 			}
-				
+			
+			e.disableSelection();
 		}
+		
 		e.stopPropagation();
 	})
 	.hover(

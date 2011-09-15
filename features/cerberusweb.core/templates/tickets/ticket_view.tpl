@@ -31,7 +31,7 @@
 <input type="hidden" name="a" value="">
 <input type="hidden" name="id" value="{$view->id}">
 <input type="hidden" name="explore_from" value="0">
-<table cellpadding="1" cellspacing="0" border="0" width="100%" class="worklistBody">
+<table cellpadding="0" cellspacing="0" border="0" width="100%" class="worklistBody">
 	{* Column Headers *}
 	<thead>
 	<tr>
