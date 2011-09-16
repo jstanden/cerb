@@ -32,7 +32,7 @@
 									<b>Consider adding these recipients:</b>
 									<ul class="bubbles">
 									{foreach from=$suggested_recipients item=sug name=sugs}
-										<li><a href="javascript:;" onclick="$to=$(this).closest('td').find('input:text:first');$len = $to.val().length;if(0==$len)$to.val('{$sug}');else $to.val($to.val() + ', {$sug}');$to.focus();$ul=$(this).closest('ul');$(this).closest('li').remove();if(0==$ul.find('li').length) $ul.closest('div').remove();">{$sug}</a></li>
+										<li><a href="javascript:;" class="suggested">{$sug}</a></li>
 									{/foreach}
 									</ul> 
 								</div>
@@ -311,6 +311,32 @@
 		
 		$('#reply{$message->id}_part1 input:text[name=to], #reply{$message->id}_part1 input:text[name=cc], #reply{$message->id}_part1 input:text[name=bcc]').focus(function(event) {
 			$('#reply{$message->id}_suggested').appendTo($(this).closest('td'));
+		});
+		
+		// Insert suggested on click
+		$('#reply{$message->id}_suggested').find('a.suggested').click(function(e) {
+			$this = $(this);
+			$sug = $this.text();
+			
+			$to=$this.closest('td').find('input:text:first');
+			$val=$to.val();
+			$len=$val.length;
+			
+			$last = null;
+			if($len>0)
+				$last=$val.substring($len-1);
+			
+			if(0==$len || $last==' ')
+				$to.val($val+$sug);
+			else if($last==',')
+				$to.val($val + ' '+$sug);
+			else $to.val($val + ', '+$sug);
+				$to.focus();
+			
+			$ul=$this.closest('ul');
+			$this.closest('li').remove();
+			if(0==$ul.find('li').length)
+				$ul.closest('div').remove();
 		});
 		
 		$('#reply{$message->id}_part1').validate();
