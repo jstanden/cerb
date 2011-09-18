@@ -2,8 +2,8 @@
 </ul>
 <div style="clear:both;"></div>
 
-{if !empty($team)}
-<h2 style="color:rgb(74,110,158);">{$team->name}</h2>
+{if !empty($group)}
+<h2 style="color:rgb(74,110,158);">{$group->name}</h2>
 {/if}
 
 <table cellpadding="0" cellspacing="5" border="0" width="100%">
@@ -40,8 +40,8 @@
 		</td>
 		
 		<td width="99%" valign="top">
-			{if !empty($team)}
-				{include file="devblocks:cerberusweb.core::groups/edit_group.tpl" group=$team}
+			{if !empty($group)}
+				{include file="devblocks:cerberusweb.core::groups/edit_group.tpl" group=$group}
 			{/if}
 		</td>
 		

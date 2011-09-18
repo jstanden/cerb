@@ -428,7 +428,7 @@ class Model_Workspace {
 		switch($this->owner_context) {
 			case CerberusContexts::CONTEXT_GROUP:
 				if(in_array($this->owner_context_id, array_keys($worker->getMemberships())))
-					if($worker->isTeamManager($this->owner_context_id))
+					if($worker->isGroupManager($this->owner_context_id))
 						return true;
 				break;
 				

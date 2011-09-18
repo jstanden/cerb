@@ -26,9 +26,9 @@
 				<tr>
 					<td width="0%" nowrap="nowrap" valign="middle" align="right"><b>From:</b>&nbsp;</td>
 					<td width="100%">
-						<select name="team_id" id="team_id" class="required" style="border:1px solid rgb(180,180,180);padding:2px;">
+						<select name="group_id" id="group_id" class="required" style="border:1px solid rgb(180,180,180);padding:2px;">
 							{foreach from=$active_worker_memberships item=membership key=group_id}
-							<option value="{$group_id}" {if $group_id==$draft->params.group_id}selected{/if}>{$teams.$group_id->name}</option>
+							<option value="{$group_id}" {if $group_id==$draft->params.group_id}selected{/if}>{$groups.$group_id->name}</option>
 							{/foreach}
 						</select>
 					</td>
@@ -66,7 +66,7 @@
 				<fieldset style="display:inline-block;">
 					<legend>Actions</legend>
 					<button id="btnSaveDraft" type="button" onclick="genericAjaxPost('frmCompose',null,'c=tickets&a=saveDraft&type=compose',function(json) { var obj = $.parseJSON(json); if(!obj || !obj.html || !obj.draft_id) return; $('#divDraftStatus').html(obj.html); $('#frmCompose input[name=draft_id]').val(obj.draft_id); } );"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> Save Draft</button>
-					<button type="button" id="btnInsertSig" title="(Ctrl+Shift+G)" onclick="genericAjaxGet('','c=tickets&a=getComposeSignature&group_id='+selectValue(this.form.team_id),function(text) { insertAtCursor(document.getElementById('content'),text); } );"><span class="cerb-sprite sprite-document_edit"></span> Insert Signature</button>
+					<button type="button" id="btnInsertSig" title="(Ctrl+Shift+G)" onclick="genericAjaxGet('','c=tickets&a=getComposeSignature&group_id='+selectValue(this.form.group_id),function(text) { insertAtCursor(document.getElementById('content'),text); } );"><span class="cerb-sprite sprite-document_edit"></span> Insert Signature</button>
 					{* Plugin Toolbar *}
 					{if !empty($sendmail_toolbaritems)}
 						{foreach from=$sendmail_toolbaritems item=renderer}
@@ -158,16 +158,16 @@
 						      	<select name="bucket_id">
 						      		<option value="">-- {$translate->_('display.reply.next.move.no_thanks')|lower} --</option>
 						      		<optgroup label="{$translate->_('common.inboxes')|capitalize}">
-						      		{foreach from=$teams item=team}
-						      			<option value="t{$team->id}">{$team->name}</option>
+						      		{foreach from=$groups item=group}
+						      			<option value="t{$group->id}">{$group->name}</option>
 						      		{/foreach}
 						      		</optgroup>
-						      		{foreach from=$team_categories item=categories key=teamId}
-										{if !empty($active_worker_memberships.$teamId)}
-							      			{assign var=team value=$teams.$teamId}
-							      			<optgroup label="-- {$team->name} --">
-							      			{foreach from=$categories item=category}
-							    				<option value="c{$category->id}">{$category->name}</option>
+						      		{foreach from=$group_buckets item=buckets key=groupId}
+										{if !empty($active_worker_memberships.$groupId)}
+							      			{assign var=group value=$groups.$groupId}
+							      			<optgroup label="-- {$group->name} --">
+							      			{foreach from=$buckets item=bucket}
+							    				<option value="c{$bucket->id}">{$bucket->name}</option>
 							    			{/foreach}
 							    			</optgroup>
 										{/if}

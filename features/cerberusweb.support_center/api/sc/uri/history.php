@@ -190,8 +190,8 @@ class UmScHistoryController extends Extension_UmScController {
 		unset($messages);
 
 		// Ticket group settings
-		$group = DAO_Group::get($ticket[SearchFields_Ticket::TICKET_TEAM_ID]);
-		@$group_replyto = $group->getReplyTo($ticket[SearchFields_Ticket::TICKET_CATEGORY_ID]);
+		$group = DAO_Group::get($ticket[SearchFields_Ticket::TICKET_GROUP_ID]);
+		@$group_replyto = $group->getReplyTo($ticket[SearchFields_Ticket::TICKET_BUCKET_ID]);
 		
 		// Headers
 		$message = new CerberusParserMessage();

@@ -44,7 +44,7 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 			$result = array_shift($results);
 			
 			$message_id = $result[SearchFields_Ticket::TICKET_LAST_MESSAGE_ID];
-			$group_id = $result[SearchFields_Ticket::TICKET_TEAM_ID];
+			$group_id = $result[SearchFields_Ticket::TICKET_GROUP_ID];
 		}
 		
 		return new Model_DevblocksEvent(
@@ -490,7 +490,7 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 				
 			case 'move_to_bucket':
 				// [TODO] Share
-				$buckets = DAO_Bucket::getByTeam($trigger->owner_context_id);
+				$buckets = DAO_Bucket::getByGroup($trigger->owner_context_id);
 				$tpl->assign('buckets', $buckets);
 				$tpl->display('devblocks:cerberusweb.core::events/mail_received_by_group/action_move_to_bucket.tpl');
 				break;
@@ -573,7 +573,7 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 					'ticket_id' => $ticket_id,
 					'message_id' => $message_id,
 					'content' => $content,
-					'agent_id' => 0, //$worker_id,
+					'worker_id' => 0,
 				);
 				
 				if(isset($params['is_autoreply']) && !empty($params['is_autoreply']))
@@ -685,8 +685,8 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 					
 				// Move
 				DAO_Ticket::update($ticket_id, array(
-					DAO_Ticket::TEAM_ID => $to_group_id, 
-					DAO_Ticket::CATEGORY_ID => 0, 
+					DAO_Ticket::GROUP_ID => $to_group_id, 
+					DAO_Ticket::BUCKET_ID => 0, 
 				));
 				
 				// Pull group context + merge
@@ -719,7 +719,7 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 					
 				// Move
 				DAO_Ticket::update($ticket_id, array(
-					DAO_Ticket::CATEGORY_ID => $to_bucket_id, 
+					DAO_Ticket::BUCKET_ID => $to_bucket_id, 
 				));
 				$values['ticket_bucket_id'] = $to_bucket_id;
 				break;

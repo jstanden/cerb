@@ -1139,9 +1139,6 @@ For example: http://www.cerberusweb.com/support/</seg></tuv>
 		<tu tuid='dashboard.modify'>
 			<tuv xml:lang="en_US"><seg>Modify Dashboard</seg></tuv>
 		</tu>
-		<tu tuid='dashboard.no_teams'>
-			<tuv xml:lang="en_US"><seg>No visible teams.</seg></tuv>
-		</tu>
 		<tu tuid='dashboard.num_rows'>
 			<tuv xml:lang="en_US"><seg>Rows per page</seg></tuv>
 		</tu>
@@ -1150,9 +1147,6 @@ For example: http://www.cerberusweb.com/support/</seg></tuv>
 		</tu>
 		<tu tuid='dashboard.switch'>
 			<tuv xml:lang="en_US"><seg>Switch</seg></tuv>
-		</tu>
-		<tu tuid='dashboard.teamwork'>
-			<tuv xml:lang="en_US"><seg>Teamwork</seg></tuv>
 		</tu>
 
 		<!-- Home -->
@@ -1669,24 +1663,6 @@ For example: *receipt*</seg></tuv>
 		</tu>
 		<tu tuid='task.status.completed'>
 			<tuv xml:lang="en_US"><seg>Completed</seg></tuv>
-		</tu>
-
-		<!-- Teamwork -->
-
-		<tu tuid='teamwork.assign_work'>
-			<tuv xml:lang="en_US"><seg>Get Tickets</seg></tuv>
-		</tu>
-
-		<tu tuid='teamwork.my_team_loads'>
-			<tuv xml:lang="en_US"><seg>My Team Loads</seg></tuv>
-		</tu>
-
-		<tu tuid='teamwork.categories'>
-			<tuv xml:lang="en_US"><seg>Team Categories</seg></tuv>
-		</tu>
-
-		<tu tuid='teamwork.group_management'>
-			<tuv xml:lang="en_US"><seg>Control Panel</seg></tuv>
 		</tu>
 
 		<!-- Tickets -->

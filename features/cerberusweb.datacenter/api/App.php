@@ -319,13 +319,9 @@ class Page_Datacenter extends CerberusPageExtension {
 	        $tpl->assign('ids', implode(',', $id_list));
 	    }
 		
-   		// Teams
+   		// Groups
 		$groups = DAO_Group::getAll();
 		$tpl->assign('groups', $groups);
-		
-		// Categories
-		//$team_categories = DAO_Bucket::getTeams(); // [TODO] Cache these
-		//$tpl->assign('team_categories', $team_categories);
 		
 		// Custom Fields
 		$custom_fields = DAO_CustomField::getByContext('cerberusweb.contexts.datacenter.server');
@@ -353,25 +349,6 @@ class Page_Datacenter extends CerberusPageExtension {
 		
 		$do = array();
 		
-		// Do: Due
-//		$due = trim(DevblocksPlatform::importGPC($_POST['due'],'string',''));
-//		if(0 != strlen($due))
-//			$do['due'] = $due;
-			
-//		// Watchers
-//		$watcher_params = array();
-//		
-//		@$watcher_add_ids = DevblocksPlatform::importGPC($_REQUEST['do_watcher_add_ids'],'array',array());
-//		if(!empty($watcher_add_ids))
-//			$watcher_params['add'] = $watcher_add_ids;
-//			
-//		@$watcher_remove_ids = DevblocksPlatform::importGPC($_REQUEST['do_watcher_remove_ids'],'array',array());
-//		if(!empty($watcher_remove_ids))
-//			$watcher_params['remove'] = $watcher_remove_ids;
-//		
-//		if(!empty($watcher_params))
-//			$do['watchers'] = $watcher_params;
-			
 		// Do: Custom fields
 		$do = DAO_CustomFieldValue::handleBulkPost($do);
 

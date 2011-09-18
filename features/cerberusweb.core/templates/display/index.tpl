@@ -9,11 +9,11 @@
 
 <h2>{'common.conversation'|devblocks_translate|capitalize}</h2>
 
-{assign var=ticket_team_id value=$ticket->team_id}
-{assign var=ticket_team value=$teams.$ticket_team_id}
-{assign var=ticket_category_id value=$ticket->category_id}
-{assign var=ticket_team_category_set value=$team_categories.$ticket_team_id}
-{assign var=ticket_category value=$ticket_team_category_set.$ticket_category_id}
+{assign var=ticket_group_id value=$ticket->group_id}
+{assign var=ticket_group value=$groups.$ticket_group_id}
+{assign var=ticket_bucket_id value=$ticket->bucket_id}
+{assign var=ticket_group_bucket_set value=$group_buckets.$ticket_group_id}
+{assign var=ticket_bucket value=$ticket_group_bucket_set.$ticket_bucket_id}
 
 <fieldset class="properties">
 	<legend>{$ticket->subject|truncate:128}</legend>
@@ -43,9 +43,9 @@
 				{/if} 
 			{elseif $k == 'bucket'}
 				<b>{$translate->_('common.bucket')|capitalize}:</b>
-				[{$teams.$ticket_team_id->name}]  
-				{if !empty($ticket_category_id)}
-					{$ticket_category->name}
+				[{$groups.$ticket_group_id->name}]  
+				{if !empty($ticket_bucket_id)}
+					{$ticket_bucket->name}
 				{else}
 					{$translate->_('common.inbox')|capitalize}
 				{/if}

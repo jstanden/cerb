@@ -998,11 +998,6 @@ class DevblocksEventHelper {
 		$subject = $tpl_builder->build($params['subject'], $values);
 		$content = $tpl_builder->build($params['content'], $values);
 				
-//		@$dont_send = $properties['dont_send'];
-//		@$closed = $properties['closed'];
-//		@$move_bucket = $properties['move_bucket'];
-//		@$ticket_reopen = $properties['ticket_reopen'];
-
 		$message = new CerberusParserMessage();
 		$message->headers['date'] = date('r'); 
 		$message->headers['to'] = $group_replyto->email;
@@ -1044,11 +1039,7 @@ class DevblocksEventHelper {
 		    'ticket_id' => $ticket_id,
 		    'subject' => $subject,
 		    'content' => $content,
-		    //'closed' => $closed,
-		    //'bucket_id' => $move_bucket,
-		    //'ticket_reopen' => $ticket_reopen,
-		    'agent_id' => 0, //$active_worker->id,
-			//'dont_send' => (false==$send_to_requesters),
+		    'worker_id' => 0, //$active_worker->id,
 		);
 		
 		CerberusMail::sendTicketMessage($properties);

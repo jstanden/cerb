@@ -131,7 +131,7 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 			
 		// Check group memberships
 		$memberships = $worker->getMemberships();
-		if(!$worker->is_superuser && !isset($memberships[$ticket->team_id]))
+		if(!$worker->is_superuser && !isset($memberships[$ticket->group_id]))
 			$this->error(self::ERRNO_ACL, 'Access denied to modify tickets in this group.');
 		
 		$fields = array(
@@ -191,7 +191,7 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 			
 		// Check group memberships
 		$memberships = $worker->getMemberships();
-		if(!$worker->is_superuser && !isset($memberships[$ticket->team_id]))
+		if(!$worker->is_superuser && !isset($memberships[$ticket->group_id]))
 			$this->error(self::ERRNO_ACL, 'Access denied to modify tickets in this group.');
 
 		@$email = DevblocksPlatform::importGPC($_REQUEST['email'],'string','');
@@ -214,7 +214,7 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 			
 		// Check group memberships
 		$memberships = $worker->getMemberships();
-		if(!$worker->is_superuser && !isset($memberships[$ticket->team_id]))
+		if(!$worker->is_superuser && !isset($memberships[$ticket->group_id]))
 			$this->error(self::ERRNO_ACL, 'Access denied to delete tickets in this group.');
 			
 		DAO_Ticket::update($ticket->id, array(
@@ -235,7 +235,7 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 			
 		// Check group memberships
 		$memberships = $worker->getMemberships();
-		if(!$worker->is_superuser && !isset($memberships[$ticket->team_id]))
+		if(!$worker->is_superuser && !isset($memberships[$ticket->group_id]))
 			$this->error(self::ERRNO_ACL, 'Access denied to modify tickets in this group.');
 
 		@$email = DevblocksPlatform::importGPC($_REQUEST['email'],'string','');
@@ -295,7 +295,7 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 		if(!$worker->is_superuser) {
 			$memberships = $worker->getMemberships();
 			$params['tmp_worker_memberships'] = new DevblocksSearchCriteria(
-				SearchFields_Ticket::TICKET_TEAM_ID,
+				SearchFields_Ticket::TICKET_GROUP_ID,
 				'in',
 				(!empty($memberships) ? array_keys($memberships) : array(0))
 			);
@@ -356,7 +356,7 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 			
 		// Check group memberships
 		$memberships = $worker->getMemberships();
-		if(!$worker->is_superuser && !isset($memberships[$ticket->team_id]))
+		if(!$worker->is_superuser && !isset($memberships[$ticket->group_id]))
 			$this->error(self::ERRNO_ACL, 'Access denied to delete tickets in this group.');
 		
 		// Worker address exists

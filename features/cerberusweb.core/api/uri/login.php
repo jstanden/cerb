@@ -215,7 +215,7 @@ class ChSignInPage extends CerberusPageExtension {
 		
 	    @$email = DevblocksPlatform::importGPC($_REQUEST['email'],'string');
 	    
-	    $worker = DAO_Worker::lookupAgentEmail($email);
+	    $worker = DAO_Worker::getByEmail($email);
 	    
 	    if(empty($email) || empty($worker))
 	        return;
@@ -269,7 +269,7 @@ class ChSignInPage extends CerberusPageExtension {
         $sentcode = $_SESSION[self::KEY_FORGOT_SENTCODE];
         $_SESSION[self::KEY_FORGOT_CODE] = $code;
         
-	    $worker_id = DAO_Worker::lookupAgentEmail($email);
+	    $worker_id = DAO_Worker::getByEmail($email);
 	    
 	    if(empty($email) || empty($worker_id) || empty($code))
 	        return;
@@ -289,7 +289,7 @@ class ChSignInPage extends CerberusPageExtension {
         $sentcode = $_SESSION[self::KEY_FORGOT_SENTCODE];
         $code = $_SESSION[self::KEY_FORGOT_CODE];
         
-	    $worker_id = DAO_Worker::lookupAgentEmail($email);
+	    $worker_id = DAO_Worker::getByEmail($email);
 	    
 	    if(empty($email) || empty($code) || empty($worker_id))
 	        return;

@@ -44,7 +44,7 @@ class ChReportOldestOpenTickets extends Extension_Report {
 		$groups = DAO_Group::getAll();
 		$tpl->assign('groups', $groups);
 		
-		$group_buckets = DAO_Bucket::getTeams();
+		$group_buckets = DAO_Bucket::getGroups();
 		$tpl->assign('group_buckets', $group_buckets);
 
 		// Table
@@ -59,7 +59,7 @@ class ChReportOldestOpenTickets extends Extension_Report {
 				"AND spam_score < 0.9000 ".
 				"AND spam_training != 'S' ".
 				"AND is_waiting != 1 " .
-				"AND team_id = %d " .
+				"AND group_id = %d " .
 				"ORDER BY created_date LIMIT 10",
 				$start_time,
 				$end_time,

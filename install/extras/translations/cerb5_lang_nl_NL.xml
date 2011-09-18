@@ -1666,11 +1666,6 @@
         <seg>Dashboard aanpassen</seg>
       </tuv>
     </tu>
-    <tu tuid="dashboard.no_teams">
-      <tuv xml:lang="nl_NL">
-        <seg>Geen teams zichtbaar.</seg>
-      </tuv>
-    </tu>
     <tu tuid="dashboard.num_rows">
       <tuv xml:lang="nl_NL">
         <seg>Rijen per pagina</seg>
@@ -1684,11 +1679,6 @@
     <tu tuid="dashboard.switch">
       <tuv xml:lang="nl_NL">
         <seg>Ander dashboard</seg>
-      </tuv>
-    </tu>
-    <tu tuid="dashboard.teamwork">
-      <tuv xml:lang="nl_NL">
-        <seg>Teamwork</seg>
       </tuv>
     </tu>
     <tu tuid="display.button.read_all">
@@ -3435,26 +3425,6 @@
     <tu tuid="tasks.ticket.tab.view">
       <tuv xml:lang="nl_NL">
         <seg>Ticket taken</seg>
-      </tuv>
-    </tu>
-    <tu tuid="teamwork.assign_work">
-      <tuv xml:lang="nl_NL">
-        <seg>Tickets ophalen</seg>
-      </tuv>
-    </tu>
-    <tu tuid="teamwork.categories">
-      <tuv xml:lang="nl_NL">
-        <seg>Team categorieën</seg>
-      </tuv>
-    </tu>
-    <tu tuid="teamwork.group_management">
-      <tuv xml:lang="nl_NL">
-        <seg>Configuratiescherm</seg>
-      </tuv>
-    </tu>
-    <tu tuid="teamwork.my_team_loads">
-      <tuv xml:lang="nl_NL">
-        <seg>Werkdruk van mijn team</seg>
       </tuv>
     </tu>
     <tu tuid="ticket.assignable">

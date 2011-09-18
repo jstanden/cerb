@@ -111,7 +111,7 @@ class CerberusMail {
 	}
 
 	static function compose($properties) {
-		@$team_id = $properties['team_id'];
+		@$group_id = $properties['group_id'];
 		@$toStr = $properties['to'];
 		@$cc = $properties['cc'];
 		@$bcc = $properties['bcc'];
@@ -124,7 +124,7 @@ class CerberusMail {
 		@$ticket_reopen = $properties['ticket_reopen'];
 		
 		$worker = CerberusApplication::getActiveWorker();
-		$group = DAO_Group::get($team_id);
+		$group = DAO_Group::get($group_id);
 
 		$from_replyto = $group->getReplyTo();
 		$personal = $group->getReplyPersonal(0, $worker);
@@ -134,8 +134,8 @@ class CerberusMail {
 		if(empty($subject)) $subject = '(no subject)';
 		
 		// add mask to subject if group setting calls for it
-		@$group_has_subject = intval(DAO_GroupSettings::get($team_id,DAO_GroupSettings::SETTING_SUBJECT_HAS_MASK,0));
-		@$group_subject_prefix = DAO_GroupSettings::get($team_id,DAO_GroupSettings::SETTING_SUBJECT_PREFIX,'');
+		@$group_has_subject = intval(DAO_GroupSettings::get($group_id,DAO_GroupSettings::SETTING_SUBJECT_HAS_MASK,0));
+		@$group_subject_prefix = DAO_GroupSettings::get($group_id,DAO_GroupSettings::SETTING_SUBJECT_PREFIX,'');
 		$prefix = sprintf("[%s#%s] ",
 			!empty($group_subject_prefix) ? ($group_subject_prefix.' ') : '',
 			$mask
@@ -210,7 +210,7 @@ class CerberusMail {
 			if(empty($draft_id)) {
 				$params = array(
 					'to' => $toStr,
-					'group_id' => $team_id,
+					'group_id' => $group_id,
 				);
 				
 				if(!empty($cc))
@@ -259,7 +259,7 @@ class CerberusMail {
 		}
 		// End "Next:"
 		
-		$ticket_id = DAO_Ticket::createTicket($fields);
+		$ticket_id = DAO_Ticket::create($fields);
 
 	    $fields = array(
 	        DAO_Message::TICKET_ID => $ticket_id,
@@ -320,12 +320,12 @@ class CerberusMail {
 			$fields[DAO_Ticket::IS_WAITING] = 1;
 		
 		// Move last, so the event triggers properly
-	    $fields[DAO_Ticket::TEAM_ID] = $team_id;
+	    $fields[DAO_Ticket::GROUP_ID] = $group_id;
 	    
 		if(!empty($move_bucket)) {
-	        list($team_id, $bucket_id) = CerberusApplication::translateTeamCategoryCode($move_bucket);
-		    $fields[DAO_Ticket::TEAM_ID] = $team_id;
-		    $fields[DAO_Ticket::CATEGORY_ID] = $bucket_id;
+	        list($group_id, $bucket_id) = CerberusApplication::translateGroupBucketCode($move_bucket);
+		    $fields[DAO_Ticket::GROUP_ID] = $group_id;
+		    $fields[DAO_Ticket::BUCKET_ID] = $bucket_id;
 		}
 			
 		DAO_Ticket::update($ticket_id, $fields);
@@ -334,8 +334,8 @@ class CerberusMail {
 		CerberusBayes::markTicketAsNotSpam($ticket_id);
 		
         // Events
-        if(!empty($message_id) && !empty($team_id)) {
-        	Event_MailReceivedByGroup::trigger($message_id, $team_id);
+        if(!empty($message_id) && !empty($group_id)) {
+        	Event_MailReceivedByGroup::trigger($message_id, $group_id);
         }
         
 		return $ticket_id;
@@ -359,7 +359,7 @@ class CerberusMail {
 	    'ticket_reopen'
 	    'bucket_id'
 	    'owner_id'
-	    'agent_id',
+	    'worker_id',
 		'is_autoreply',
 		'dont_send',
 		'dont_keep_copy'
@@ -381,7 +381,7 @@ class CerberusMail {
 			if(null == ($ticket = DAO_Ticket::get($ticket_id)))
 				return;
 				
-			if(null == ($group = DAO_Group::get($ticket->team_id)))
+			if(null == ($group = DAO_Group::get($ticket->group_id)))
 				return;
 		    
 		    // Changing the outgoing message through a VA
@@ -392,15 +392,15 @@ class CerberusMail {
 		    @$files = $properties['files'];
 		    @$is_forward = $properties['is_forward']; 
 		    @$forward_files = $properties['forward_files'];
-		    @$worker_id = $properties['agent_id'];
+		    @$worker_id = $properties['worker_id'];
 		    @$subject = $properties['subject'];
 		    
 		    @$is_autoreply = $properties['is_autoreply'];
 		    
 	        $message_headers = DAO_MessageHeader::getAll($reply_message_id);
 
-			$from_replyto = $group->getReplyTo($ticket->category_id);
-			$from_personal = $group->getReplyPersonal($ticket->category_id, $worker_id);
+			$from_replyto = $group->getReplyTo($ticket->bucket_id);
+			$from_personal = $group->getReplyPersonal($ticket->bucket_id, $worker_id);
 			
 			/*
 			 * If this ticket isn't spam trained 
@@ -433,8 +433,8 @@ class CerberusMail {
 				$mail->setSubject($subject);
 				
 			} else { // reply
-				@$group_has_subject = intval(DAO_GroupSettings::get($ticket->team_id, DAO_GroupSettings::SETTING_SUBJECT_HAS_MASK,0));
-				@$group_subject_prefix = DAO_GroupSettings::get($ticket->team_id, DAO_GroupSettings::SETTING_SUBJECT_PREFIX,'');
+				@$group_has_subject = intval(DAO_GroupSettings::get($ticket->group_id, DAO_GroupSettings::SETTING_SUBJECT_HAS_MASK,0));
+				@$group_subject_prefix = DAO_GroupSettings::get($ticket->group_id, DAO_GroupSettings::SETTING_SUBJECT_PREFIX,'');
 				
 				$prefix = sprintf("[%s#%s] ",
 					!empty($group_subject_prefix) ? ($group_subject_prefix.' ') : '',
@@ -714,9 +714,9 @@ class CerberusMail {
 		// Move
 		if(!empty($properties['bucket_id'])) {
 		    // [TODO] Use API to move, or fire event
-	        list($team_id, $bucket_id) = CerberusApplication::translateTeamCategoryCode($properties['bucket_id']);
-		    $change_fields[DAO_Ticket::TEAM_ID] = $team_id;
-		    $change_fields[DAO_Ticket::CATEGORY_ID] = $bucket_id;
+	        list($group_id, $bucket_id) = CerberusApplication::translateGroupBucketCode($properties['bucket_id']);
+		    $change_fields[DAO_Ticket::GROUP_ID] = $group_id;
+		    $change_fields[DAO_Ticket::BUCKET_ID] = $bucket_id;
 		}
 			
 		if(!empty($ticket_id) && !empty($change_fields)) {

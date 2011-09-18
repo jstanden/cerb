@@ -741,11 +741,6 @@
         <seg>Modifica Dashboard</seg>
       </tuv>
     </tu>
-    <tu tuid="dashboard.no_teams">
-      <tuv xml:lang="it_IT">
-        <seg>No visible teams. </seg>
-      </tuv>
-    </tu>
     <tu tuid="dashboard.num_rows">
       <tuv xml:lang="it_IT">
         <seg>Linee per pagina</seg>
@@ -764,11 +759,6 @@
     <tu tuid="dashboard.switch">
       <tuv xml:lang="it_IT">
         <seg> Switch </seg>
-      </tuv>
-    </tu>
-    <tu tuid="dashboard.teamwork">
-      <tuv xml:lang="it_IT">
-        <seg> Teamwork </seg>
       </tuv>
     </tu>
     <tu tuid="display.button.read_all">
@@ -1564,26 +1554,6 @@
     <tu tuid="tasks.ticket.tab.view">
       <tuv xml:lang="it_IT">
         <seg></seg>
-      </tuv>
-    </tu>
-    <tu tuid="teamwork.assign_work">
-      <tuv xml:lang="it_IT">
-        <seg>Prendi Ticket</seg>
-      </tuv>
-    </tu>
-    <tu tuid="teamwork.categories">
-      <tuv xml:lang="it_IT">
-        <seg>Categorie Team</seg>
-      </tuv>
-    </tu>
-    <tu tuid="teamwork.group_management">
-      <tuv xml:lang="it_IT">
-        <seg>Pannello di Controllo</seg>
-      </tuv>
-    </tu>
-    <tu tuid="teamwork.my_team_loads">
-      <tuv xml:lang="it_IT">
-        <seg>Carichi Miei Team</seg>
       </tuv>
     </tu>
     <tu tuid="ticket.created">

@@ -450,8 +450,8 @@ class Model_MailToGroupRule {
 						$g_id = intval($params['group_id']);
 						$b_id = intval($params['bucket_id']);
 						if(isset($groups[$g_id]) && (0==$b_id || isset($buckets[$b_id]))) {
-							$fields[DAO_Ticket::TEAM_ID] = $g_id;
-							$fields[DAO_Ticket::CATEGORY_ID] = $b_id;
+							$fields[DAO_Ticket::GROUP_ID] = $g_id;
+							$fields[DAO_Ticket::BUCKET_ID] = $b_id;
 						}
 					}
 					break;

@@ -1,11 +1,11 @@
 <form action="{devblocks_url}{/devblocks_url}" method="post">
 <input type="hidden" name="c" value="groups">
 <input type="hidden" name="a" value="saveTabFields">
-<input type="hidden" name="team_id" value="{$team->id}">
+<input type="hidden" name="group_id" value="{$group->id}">
 <input type="hidden" name="allow_delete" value="0">
 
 <fieldset>
-	<legend>Ticket Fields ({$team->name})</legend>
+	<legend>Ticket Fields ({$group->name})</legend>
 	
 	<table cellspacing="2" cellpadding="1" border="0">
 		<tr style="background-color:rgb(230,230,230);">

@@ -264,10 +264,7 @@ class DAO_Notification extends DevblocksORMHelper {
 			    SearchFields_Notification::URL
 		);
 			
-		$join_sql = "FROM notification we "
-//			"INNER JOIN team tm ON (tm.id = t.team_id) ".
-//			(isset($tables['ra']) ? "INNER JOIN requester r ON (r.ticket_id=t.id)" : " ").
-		;
+		$join_sql = "FROM notification we ";
 			
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");

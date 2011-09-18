@@ -35,8 +35,9 @@ class PageSection_SetupBranding extends Extension_PageSection {
 		    @$title = DevblocksPlatform::importGPC($_POST['title'],'string','');
 		    @$logo = DevblocksPlatform::importGPC($_POST['logo'],'string');
 	
+		    // [TODO] New branding
 		    if(empty($title))
-		    	$title = 'Cerberus Helpdesk :: Team-based E-mail Management';
+		    	$title = 'Cerberus Helpdesk :: Group-based Email Management';
 		    	
 		    $settings = DevblocksPlatform::getPluginSettingsService();
 		    $settings->set('cerberusweb.core',CerberusSettings::HELPDESK_TITLE, $title);

@@ -2,21 +2,21 @@
 <input type="hidden" name="a" value="handleSectionAction">
 <input type="hidden" name="section" value="groups">
 <input type="hidden" name="action" value="saveGroup">
-<input type="hidden" name="id" value="{$team->id}">
+<input type="hidden" name="id" value="{$group->id}">
 
 <fieldset>
 	<legend>
-		{if empty($team->id)}
+		{if empty($group->id)}
 		Add Group
 		{else}
-		Modify '{$team->name}'
+		Modify '{$group->name}'
 		{/if}
 	</legend>
 	
 <table cellpadding="2" cellspacing="0" border="0">
 	<tr>
 		<td width="0%" nowrap="nowrap" valign="top"><b>Name:</b></td>
-		<td width="100%"><input type="text" name="name" value="{$team->name}" size="45"></td>
+		<td width="100%"><input type="text" name="name" value="{$group->name}" size="45"></td>
 	</tr>
 	
 	<tr>
@@ -58,8 +58,8 @@
 					<h3>Delete Group</h3>
 					<b>Move tickets to:</b><br>
 					<select name="delete_move_id">
-						{foreach from=$teams item=move_team key=move_team_id}
-							{if $move_team_id != $team->id}<option value="{$move_team_id}">{$move_team->name}</option>{/if}
+						{foreach from=$groups item=move_group key=move_group_id}
+							{if $move_group_id != $group->id}<option value="{$move_group_id}">{$move_group->name}</option>{/if}
 						{/foreach}
 					</select>
 					<button type="button" onclick="this.form.delete_box.value='1';this.form.submit();">Delete</button>
@@ -68,7 +68,7 @@
 				<br>
 			</div>
 			<button type="submit"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {$translate->_('common.save_changes')|capitalize}</button>
-			{if !empty($team->id)}<button type="button" onclick="toggleDiv('deleteGroup','block');"><span class="cerb-sprite2 sprite-cross-circle-frame"></span> {$translate->_('common.remove')|capitalize}</button>{/if}
+			{if !empty($group->id)}<button type="button" onclick="toggleDiv('deleteGroup','block');"><span class="cerb-sprite2 sprite-cross-circle-frame"></span> {$translate->_('common.remove')|capitalize}</button>{/if}
 		</td>
 	</tr>
 </table>

@@ -28,7 +28,7 @@ you'll want to personalize this, such as "Acme Widgets Helpdesk".<br>
 When a worker responds to e-mail in the helpdesk this e-mail address will be 
 used as the sender by default.  This proxy protects your workers' direct email 
 addresses and ensures all replies are routed back to the helpdesk.  Each 
-team may override their sender information (e.g., sales@yourcompany, 
+group may override their sender information (e.g., sales@yourcompany, 
 support@yourcompany, marketing@yourcompany).<br>
 <br>
 The sender <b>absolutely must</b> be an e-mail address that routes back into 

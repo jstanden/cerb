@@ -158,7 +158,7 @@ class ChReportWorkerHistory extends Extension_Report {
 			$start_time,
 			$end_time,
 			(is_array($filter_worker_ids) && !empty($filter_worker_ids) ? sprintf("AND m.worker_id IN (%s)", implode(',', $filter_worker_ids)) : ""),
-			(is_array($filter_group_ids) && !empty($filter_group_ids) ? sprintf("AND t.team_id IN (%s)", implode(',', $filter_group_ids)) : "")
+			(is_array($filter_group_ids) && !empty($filter_group_ids) ? sprintf("AND t.group_id IN (%s)", implode(',', $filter_group_ids)) : "")
 		);
 		$rs = $db->Execute($sql);
 		

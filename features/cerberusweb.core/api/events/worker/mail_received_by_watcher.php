@@ -370,7 +370,7 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 					'ticket_id' => $ticket_id,
 					'message_id' => $message_id,
 					'content' => $content,
-					'agent_id' => 0, //$worker_id,
+					'worker_id' => 0,
 				);
 				CerberusMail::sendTicketMessage($properties);
 				break;
@@ -398,26 +398,6 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 			case 'create_ticket':
 				DevblocksEventHelper::runActionCreateTicket($params, $values, CerberusContexts::CONTEXT_TICKET, $ticket_id);
 				break;
-				
-//			default:
-//				if('set_cf_' == substr($token,0,7)) {
-//					$field_id = substr($token,7);
-//					$custom_field = DAO_CustomField::get($field_id);
-//					$context = null;
-//					$context_id = null;
-//					
-//					// If different types of custom fields, need to find the proper context_id
-//					switch($custom_field->context) {
-//						case CerberusContexts::CONTEXT_TICKET:
-//							$context = $custom_field->context;
-//							$context_id = $ticket_id;
-//							break;
-//					}
-//					
-//					if(!empty($context) && !empty($context_id))
-//						DevblocksEventHelper::runActionSetCustomField($custom_field, 'ticket_custom', $params, $values, $context, $context_id);
-//				}
-//				break;				
 		}
 	}
 };

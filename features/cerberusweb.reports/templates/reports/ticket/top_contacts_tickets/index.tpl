@@ -182,8 +182,8 @@ var plot1 = $.jqplot('reportChart', chartData, chartOptions);
 			<td colspan="3" style="border-bottom:1px solid rgb(200,200,200);padding-right:20px;"><h2>{$group_counts.$org_id.name}</h2></td>
 		</tr>
 		{foreach from=$groups key=group_id item=group}
-			{assign var=count_group_total value=$group_counts.$org_id.teams.$group_id.total}
-			{assign var=count_group_buckets value=$group_counts.$org_id.teams.$group_id.buckets}
+			{assign var=count_group_total value=$group_counts.$org_id.groups.$group_id.total}
+			{assign var=count_group_buckets value=$group_counts.$org_id.groups.$group_id.buckets}
 			
 			{if !empty($count_group_total)}
 				<tr>

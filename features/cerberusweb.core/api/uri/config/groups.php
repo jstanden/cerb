@@ -25,8 +25,8 @@ class PageSection_SetupGroups extends Extension_PageSection {
 		$workers = DAO_Worker::getAllActive();
 		$tpl->assign('workers', $workers);
 
-		$teams = DAO_Group::getAll();
-		$tpl->assign('teams', $teams);
+		$groups = DAO_Group::getAll();
+		$tpl->assign('groups', $groups);
 		
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/groups/index.tpl');
 	}
@@ -44,14 +44,14 @@ class PageSection_SetupGroups extends Extension_PageSection {
 
 		$tpl = DevblocksPlatform::getTemplateService();
 
-		$teams = DAO_Group::getAll();
-		$tpl->assign('teams', $teams);
+		$groups = DAO_Group::getAll();
+		$tpl->assign('groups', $groups);
 		
-		@$team = $teams[$id];
-		$tpl->assign('team', $team);
+		@$group = $groups[$id];
+		$tpl->assign('group', $group);
 		
 		if(!empty($id)) {
-			@$members = DAO_Group::getTeamMembers($id);
+			@$members = DAO_Group::getGroupMembers($id);
 			$tpl->assign('members', $members);
 		}
 		
@@ -95,10 +95,10 @@ class PageSection_SetupGroups extends Extension_PageSection {
 			if(!empty($delete_move_id)) {
 				if(null != ($group = DAO_Group::get($id))) {
 					$fields = array(
-						DAO_Ticket::TEAM_ID => $delete_move_id
+						DAO_Ticket::GROUP_ID => $delete_move_id
 					);
 					$where = sprintf("%s=%d",
-						DAO_Ticket::TEAM_ID,
+						DAO_Ticket::GROUP_ID,
 						$id
 					);
 					DAO_Ticket::updateWhere($fields, $where);
@@ -107,22 +107,22 @@ class PageSection_SetupGroups extends Extension_PageSection {
 					if($group->is_default)
 						DAO_Group::setDefaultGroup($delete_move_id);
 					
-					DAO_Group::deleteTeam($group->id);
+					DAO_Group::delete($group->id);
 				}
 				
 			}
 			
 		} elseif(!empty($id)) {
 			$fields = array(
-				DAO_Group::TEAM_NAME => $name,
+				DAO_Group::NAME => $name,
 			);
-			DAO_Group::updateTeam($id, $fields);
+			DAO_Group::update($id, $fields);
 			
 		} else {
 			$fields = array(
-				DAO_Group::TEAM_NAME => $name,
+				DAO_Group::NAME => $name,
 			);
-			$id = DAO_Group::createTeam($fields);
+			$id = DAO_Group::create($fields);
 		}
 		
 		// Members
@@ -130,15 +130,15 @@ class PageSection_SetupGroups extends Extension_PageSection {
 		@$worker_ids = DevblocksPlatform::importGPC($_POST['worker_ids'],'array',array());
 		@$worker_levels = DevblocksPlatform::importGPC($_POST['worker_levels'],'array',array());
 		
-	    @$members = DAO_Group::getTeamMembers($id);
+	    @$members = DAO_Group::getGroupMembers($id);
 	    
 	    if(is_array($worker_ids) && !empty($worker_ids))
 	    foreach($worker_ids as $idx => $worker_id) {
 	    	@$level = $worker_levels[$idx];
 	    	if(isset($members[$worker_id]) && empty($level)) {
-	    		DAO_Group::unsetTeamMember($id, $worker_id);
+	    		DAO_Group::unsetGroupMember($id, $worker_id);
 	    	} elseif(!empty($level)) { // member|manager
-				 DAO_Group::setTeamMember($id, $worker_id, (1==$level)?false:true);
+				 DAO_Group::setGroupMember($id, $worker_id, (1==$level)?false:true);
 	    	}
 	    }
 		

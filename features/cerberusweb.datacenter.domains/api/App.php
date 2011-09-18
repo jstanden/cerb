@@ -306,13 +306,9 @@ class Page_Domains extends CerberusPageExtension {
 	        $tpl->assign('ids', implode(',', $id_list));
 	    }
 		
-   		// Teams
+   		// Groups
 		$groups = DAO_Group::getAll();
 		$tpl->assign('groups', $groups);
-		
-		// Categories
-		//$team_categories = DAO_Bucket::getTeams(); // [TODO] Cache these
-		//$tpl->assign('team_categories', $team_categories);
 		
 		// Custom Fields
 		$custom_fields = DAO_CustomField::getByContext('cerberusweb.contexts.datacenter.domain');

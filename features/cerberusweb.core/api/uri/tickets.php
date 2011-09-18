@@ -58,12 +58,12 @@ class ChTicketsPage extends CerberusPageExtension {
 				$tpl->assign('workers', $workers);
 				
 				// Groups
-				$teams = DAO_Group::getAll();
-				$tpl->assign('teams', $teams);
+				$groups = DAO_Group::getAll();
+				$tpl->assign('groups', $groups);
 				
 				// Groups+Buckets
-				$team_categories = DAO_Bucket::getTeams();
-				$tpl->assign('team_categories', $team_categories);
+				$group_buckets = DAO_Bucket::getGroups();
+				$tpl->assign('group_buckets', $group_buckets);
 				
 				// SendMailToolbarItem Extensions
 				$sendMailToolbarItems = DevblocksPlatform::getExtensions('cerberusweb.mail.send.toolbaritem', true);
@@ -111,16 +111,16 @@ class ChTicketsPage extends CerberusPageExtension {
 				$tpl->assign('workers', $workers);
 				
 				// Groups
-				$teams = DAO_Group::getAll();
-				$tpl->assign('teams', $teams);
+				$groups = DAO_Group::getAll();
+				$tpl->assign('groups', $groups);
 				
 				// Destinations
 				$destinations = DAO_AddressOutgoing::getAll();
 				$tpl->assign('destinations', $destinations);
 
 				// Group+Buckets				
-				$team_categories = DAO_Bucket::getTeams();
-				$tpl->assign('team_categories', $team_categories);
+				$group_buckets = DAO_Bucket::getGroups();
+				$tpl->assign('group_buckets', $group_buckets);
 				
 				// LogMailToolbarItem Extensions
 				$logMailToolbarItems = DevblocksPlatform::getExtensions('cerberusweb.mail.log.toolbaritem', true);
@@ -227,7 +227,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		$groups = DAO_Group::getAll();
 		$tpl->assign('groups', $groups);
 		
-		$group_buckets = DAO_Bucket::getTeams();
+		$group_buckets = DAO_Bucket::getGroups();
 		$tpl->assign('group_buckets', $group_buckets);
 		
 		$workers = DAO_Worker::getAll();
@@ -240,13 +240,13 @@ class ChTicketsPage extends CerberusPageExtension {
 		$defaults->view_columns = array(
 			SearchFields_Ticket::TICKET_LAST_ACTION_CODE,
 			SearchFields_Ticket::TICKET_UPDATED_DATE,
-			SearchFields_Ticket::TICKET_TEAM_ID,
-			SearchFields_Ticket::TICKET_CATEGORY_ID,
+			SearchFields_Ticket::TICKET_GROUP_ID,
+			SearchFields_Ticket::TICKET_BUCKET_ID,
 		);
 		$defaults->renderLimit = 10;
 		$defaults->renderSortBy = SearchFields_Ticket::TICKET_UPDATED_DATE;
 		$defaults->renderSortAsc = 0;
-		$defaults->renderSubtotals = SearchFields_Ticket::TICKET_TEAM_ID;
+		$defaults->renderSubtotals = SearchFields_Ticket::TICKET_GROUP_ID;
 		
 		$workflowView = C4_AbstractViewLoader::getView(CerberusApplication::VIEW_MAIL_WORKFLOW, $defaults);
 		
@@ -255,7 +255,7 @@ class ChTicketsPage extends CerberusPageExtension {
 			SearchFields_Ticket::TICKET_CLOSED,
 			SearchFields_Ticket::TICKET_DELETED,
 			SearchFields_Ticket::TICKET_WAITING,
-			SearchFields_Ticket::TICKET_CATEGORY_ID,
+			SearchFields_Ticket::TICKET_BUCKET_ID,
 			SearchFields_Ticket::CONTEXT_LINK,
 			SearchFields_Ticket::CONTEXT_LINK_ID,
 			SearchFields_Ticket::VIRTUAL_ASSIGNABLE,
@@ -423,7 +423,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		@$content = DevblocksPlatform::importGPC($_REQUEST['content'],'string','');
 
 		// Compose
-		@$group_id = DevblocksPlatform::importGPC($_REQUEST['team_id'],'integer',0); 
+		@$group_id = DevblocksPlatform::importGPC($_REQUEST['group_id'],'integer',0); 
 		@$cc = DevblocksPlatform::importGPC($_REQUEST['cc'],'string',''); 
 		@$bcc = DevblocksPlatform::importGPC($_REQUEST['bcc'],'string',''); 
 		
@@ -854,7 +854,7 @@ class ChTicketsPage extends CerberusPageExtension {
 	    
 	    CerberusBayes::markTicketAsSpam($id);
 	    
-	    // [TODO] Move categories (according to config)
+	    // [TODO] Move buckets (according to config)
 	    $fields = array(
 	        DAO_Ticket::IS_DELETED => 1,
 	        DAO_Ticket::IS_CLOSED => CerberusTicketStatus::CLOSED
@@ -948,7 +948,7 @@ class ChTicketsPage extends CerberusPageExtension {
         
 		// Force group ACL
 		if(!$active_worker->is_superuser)
-        	$params[SearchFields_Ticket::TICKET_TEAM_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_TEAM_ID, 'in', array_keys($active_worker->getMemberships()));
+        	$params[SearchFields_Ticket::TICKET_GROUP_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_GROUP_ID, 'in', array_keys($active_worker->getMemberships()));
         
         $searchView->addParams($params, true);
         $searchView->renderPage = 0;
@@ -970,15 +970,15 @@ class ChTicketsPage extends CerberusPageExtension {
 		$tpl->assign('view_id', $view_id);
 		$tpl->assign('to', $to);
 		
-		$teams = DAO_Group::getAll();
-		$tpl->assign('teams', $teams);
+		$groups = DAO_Group::getAll();
+		$tpl->assign('groups', $groups);
 		
 		$workers = DAO_Worker::getAll();
 		$tpl->assign('workers', $workers);
 		
 		// Load Defaults
-		$team_id = intval($visit->get('compose.defaults.from', ''));
-		$tpl->assign('default_group_id', $team_id);
+		$group_id = intval($visit->get('compose.defaults.from', ''));
+		$tpl->assign('default_group_id', $group_id);
 		
 		$subject = $visit->get('compose.defaults.subject', '');
 		$tpl->assign('default_subject', $subject);
@@ -991,7 +991,7 @@ class ChTicketsPage extends CerberusPageExtension {
 	
 	function saveComposePeekAction() {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
-		@$team_id = DevblocksPlatform::importGPC($_POST['team_id'],'integer'); 
+		@$group_id = DevblocksPlatform::importGPC($_POST['group_id'],'integer'); 
 		@$to = DevblocksPlatform::importGPC($_POST['to'],'string');
 		@$cc = DevblocksPlatform::importGPC($_POST['cc'],'string','');
 		@$bcc = DevblocksPlatform::importGPC($_POST['bcc'],'string','');
@@ -1005,12 +1005,12 @@ class ChTicketsPage extends CerberusPageExtension {
 		$visit = CerberusApplication::getVisit();
 
 		// Save Defaults
-		$visit->set('compose.defaults.from', $team_id);
+		$visit->set('compose.defaults.from', $group_id);
 		$visit->set('compose.defaults.subject', $subject);
 		
 		// Send
 		$properties = array(
-			'team_id' => $team_id,
+			'group_id' => $group_id,
 			'to' => $to,
 //			'cc' => $cc,
 //			'bcc' => $bcc,
@@ -1133,11 +1133,11 @@ class ChTicketsPage extends CerberusPageExtension {
 		$workers = DAO_Worker::getAllActive();
 		$tpl->assign('workers', $workers);
 		
-		$teams = DAO_Group::getAll();
-		$tpl->assign('teams', $teams);
+		$groups = DAO_Group::getAll();
+		$tpl->assign('groups', $groups);
 		
-		$team_categories = DAO_Bucket::getTeams();
-		$tpl->assign('team_categories', $team_categories);
+		$group_buckets = DAO_Bucket::getGroups();
+		$tpl->assign('group_buckets', $group_buckets);
 	    
 		// Watchers
 		$object_watchers = DAO_ContextLink::getContextLinks(CerberusContexts::CONTEXT_TICKET, array($ticket->id), CerberusContexts::CONTEXT_WORKER);
@@ -1215,13 +1215,13 @@ class ChTicketsPage extends CerberusPageExtension {
 			}
 		}
 		
-		// Team/Category
+		// Group/Bucket
 		if(!empty($bucket)) {
-			list($team_id,$bucket_id) = CerberusApplication::translateTeamCategoryCode($bucket);
+			list($group_id, $bucket_id) = CerberusApplication::translateGroupBucketCode($bucket);
 
-			if(!empty($team_id)) {
-			    $fields[DAO_Ticket::TEAM_ID] = $team_id;
-			    $fields[DAO_Ticket::CATEGORY_ID] = $bucket_id;
+			if(!empty($group_id)) {
+			    $fields[DAO_Ticket::GROUP_ID] = $group_id;
+			    $fields[DAO_Ticket::BUCKET_ID] = $bucket_id;
 			}
 		}
 		
@@ -1263,7 +1263,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		
 		@$draft_id = DevblocksPlatform::importGPC($_POST['draft_id'],'integer');
 		 
-		@$team_id = DevblocksPlatform::importGPC($_POST['team_id'],'integer'); 
+		@$group_id = DevblocksPlatform::importGPC($_POST['group_id'],'integer'); 
 		@$to = DevblocksPlatform::importGPC($_POST['to'],'string');
 		@$cc = DevblocksPlatform::importGPC($_POST['cc'],'string','');
 		@$bcc = DevblocksPlatform::importGPC($_POST['bcc'],'string','');
@@ -1283,7 +1283,7 @@ class ChTicketsPage extends CerberusPageExtension {
 
 		$properties = array(
 			'draft_id' => $draft_id,
-			'team_id' => $team_id,
+			'group_id' => $group_id,
 			'to' => $to,
 			'cc' => $cc,
 			'bcc' => $bcc,
@@ -1445,15 +1445,12 @@ class ChTicketsPage extends CerberusPageExtension {
 	        $tpl->display('devblocks:cerberusweb.core::tickets/rpc/ticket_view_assist_headers.tpl');
 	        
         } else {
-			$teams = DAO_Group::getAll();
-			$tpl->assign('teams', $teams);
+			$groups = DAO_Group::getAll();
+			$tpl->assign('groups', $groups);
 			
-			$team_categories = DAO_Bucket::getTeams();
-			$tpl->assign('team_categories', $team_categories);
+			$group_buckets = DAO_Bucket::getGroups();
+			$tpl->assign('group_buckets', $group_buckets);
 			
-			$category_name_hash = DAO_Bucket::getCategoryNameHash();
-			$tpl->assign('category_name_hash', $category_name_hash);
-	        
 			$workers = DAO_Worker::getAllActive();
 			$tpl->assign('workers', $workers);
 			
@@ -1462,7 +1459,7 @@ class ChTicketsPage extends CerberusPageExtension {
 			$memberships = $active_worker->getMemberships();
 			
 			$params = $view->getParams();
-			$params[] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_TEAM_ID, 'in', array_keys($memberships)); 
+			$params[] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_GROUP_ID, 'in', array_keys($memberships)); 
 			
 	        // [JAS]: Calculate statistics about the current view (top unique senders/subjects/domains)
 	        
@@ -1493,7 +1490,7 @@ class ChTicketsPage extends CerberusPageExtension {
 	    // Enforce worker memberships
 		$active_worker = CerberusApplication::getActiveWorker();
 		$memberships = $active_worker->getMemberships();
-		$view->addParam(new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_TEAM_ID, 'in', array_keys($memberships)), 'tmpMemberships'); 
+		$view->addParam(new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_GROUP_ID, 'in', array_keys($memberships)), 'tmpMemberships'); 
 	    
 	    foreach($piles_hash as $idx => $hash) {
 	        @$moveto = $piles_moveto[$idx];
@@ -1509,7 +1506,7 @@ class ChTicketsPage extends CerberusPageExtension {
 	            continue;
 	        
 	        switch(strtolower(substr($moveto,0,1))) {
-	            // Team/Bucket Move
+	            // Group/Bucket Move
 	            case 't':
 	            	$g_id = intval(substr($moveto,1));
 	            	$doActions = array(
@@ -1522,7 +1519,7 @@ class ChTicketsPage extends CerberusPageExtension {
 	            	
 	            case 'c':
             		$b_id = intval(substr($moveto,1));
-            		@$g_id = intval($buckets[$b_id]->team_id);
+            		@$g_id = intval($buckets[$b_id]->group_id);
             		
             		if(!empty($g_id))
 	            	$doActions = array(
@@ -1632,11 +1629,11 @@ class ChTicketsPage extends CerberusPageExtension {
 	    
         $visit = CerberusApplication::getVisit(); /* @var $visit CerberusVisit */
 	    
-	    list($team_id,$category_id) = CerberusApplication::translateTeamCategoryCode($move_to);
+	    list($group_id, $bucket_id) = CerberusApplication::translateGroupBucketCode($move_to);
 
         $fields = array(
-            DAO_Ticket::TEAM_ID => $team_id,
-            DAO_Ticket::CATEGORY_ID => $category_id,
+            DAO_Ticket::GROUP_ID => $group_id,
+            DAO_Ticket::BUCKET_ID => $bucket_id,
         );
 	    
         //====================================
@@ -1650,18 +1647,18 @@ class ChTicketsPage extends CerberusPageExtension {
         if(is_array($orig_tickets))
         foreach($orig_tickets as $orig_ticket_idx => $orig_ticket) { /* @var $orig_ticket Model_Ticket */
             $last_action->ticket_ids[$orig_ticket_idx] = array(
-                DAO_Ticket::TEAM_ID => $orig_ticket->team_id,
-                DAO_Ticket::CATEGORY_ID => $orig_ticket->category_id
+                DAO_Ticket::GROUP_ID => $orig_ticket->group_id,
+                DAO_Ticket::BUCKET_ID => $orig_ticket->bucket_id
             );
-            $orig_ticket->team_id = $team_id;
-            $orig_ticket->category_id = $category_id;
+            $orig_ticket->group_id = $group_id;
+            $orig_ticket->bucket_id = $bucket_id;
             $orig_tickets[$orig_ticket_idx] = $orig_ticket;
         }
         
         View_Ticket::setLastAction($view_id,$last_action);
 	    
 	    // Make our changes to the entire list of tickets
-	    if(!empty($ticket_ids) && !empty($team_id)) {
+	    if(!empty($ticket_ids) && !empty($group_id)) {
 	        DAO_Ticket::update($ticket_ids, $fields);
 	    }
 	    
@@ -1983,13 +1980,13 @@ class ChTicketsPage extends CerberusPageExtension {
 	        @$tpl->assign('unique_subjects', $unique_subjects);
 	    }
 		
-		// Teams
-		$teams = DAO_Group::getAll();
-		$tpl->assign('teams', $teams);
+		// Groups
+		$groups = DAO_Group::getAll();
+		$tpl->assign('groups', $groups);
 		
-		// Categories
-		$team_categories = DAO_Bucket::getTeams(); // [TODO] Cache these
-		$tpl->assign('team_categories', $team_categories);
+		// Buckets
+		$group_buckets = DAO_Bucket::getGroups(); // [TODO] Cache these
+		$tpl->assign('group_buckets', $group_buckets);
 		
 		$workers = DAO_Worker::getAllActive();
 		$tpl->assign('workers', $workers);
@@ -2036,7 +2033,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		// [TODO] This logic is repeated in several places -- try to condense (like custom field form handlers)
 		@$move_code = DevblocksPlatform::importGPC($_REQUEST['do_move'],'string',null);
 		if(0 != strlen($move_code)) {
-			list($g_id, $b_id) = CerberusApplication::translateTeamCategoryCode($move_code);
+			list($g_id, $b_id) = CerberusApplication::translateGroupBucketCode($move_code);
 			$do['move'] = array(
 				'group_id' => intval($g_id),
 				'bucket_id' => intval($b_id),
@@ -2143,7 +2140,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		
 	    // Restrict to current worker groups
 		$memberships = $active_worker->getMemberships();
-		$view->addParam(new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_TEAM_ID, 'in', array_keys($memberships)), 'tmp'); 
+		$view->addParam(new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_GROUP_ID, 'in', array_keys($memberships)), 'tmp'); 
 	    
 		// Do: Custom fields
 		$do = DAO_CustomFieldValue::handleBulkPost($do);

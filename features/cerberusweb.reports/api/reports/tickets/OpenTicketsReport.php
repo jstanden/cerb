@@ -8,20 +8,20 @@ class ChReportOpenTickets extends Extension_Report {
 		// DAO
 		$groups = DAO_Group::getAll();
 		$tpl->assign('groups', $groups);
-		$group_buckets = DAO_Bucket::getTeams();
+		$group_buckets = DAO_Bucket::getGroups();
 		$tpl->assign('group_buckets', $group_buckets);
 		
 		// Chart
-		$sql = sprintf("SELECT team.id as group_id, ".
+		$sql = sprintf("SELECT worker_group.id as group_id, ".
 			"count(*) as hits ".
-			"FROM ticket t inner join team on t.team_id = team.id ".
+			"FROM ticket t INNER JOIN worker_group ON t.group_id = worker_group.id ".
 			"WHERE 1 ".
 			"AND t.is_deleted = 0 ".
 			"AND t.is_closed = 0 ".
 			"AND t.spam_score < 0.9000 ".
 			"AND t.spam_training != 'S' ".
 			"AND is_waiting != 1 " .				
-			"GROUP BY group_id ORDER by team.name desc "
+			"GROUP BY group_id ORDER by worker_group.name desc "
 			);
 		$rs = $db->Execute($sql);
 		
@@ -43,7 +43,7 @@ class ChReportOpenTickets extends Extension_Report {
 		
 		// Table
 		
-		$sql = sprintf("SELECT count(*) AS hits, team_id, category_id ".
+		$sql = sprintf("SELECT count(*) AS hits, group_id, bucket_id ".
 			"FROM ticket ".
 			"WHERE 1 ".			
 			"AND is_deleted = 0 ".
@@ -51,21 +51,21 @@ class ChReportOpenTickets extends Extension_Report {
 			"AND spam_score < 0.9000 ".
 			"AND spam_training != 'S' ".
 			"AND is_waiting != 1 " .
-			"GROUP BY team_id, category_id "
+			"GROUP BY group_id, bucket_id "
 			);
 		$rs = $db->Execute($sql);
 	
 		$group_counts = array();
 		while($row = mysql_fetch_assoc($rs)) {
-			$team_id = intval($row['team_id']);
-			$category_id = intval($row['category_id']);
+			$group_id = intval($row['group_id']);
+			$bucket_id = intval($row['bucket_id']);
 			$hits = intval($row['hits']);
 			
-			if(!isset($group_counts[$team_id]))
-				$group_counts[$team_id] = array();
+			if(!isset($group_counts[$group_id]))
+				$group_counts[$group_id] = array();
 				
-			$group_counts[$team_id][$category_id] = $hits;
-			@$group_counts[$team_id]['total'] = intval($group_counts[$team_id]['total']) + $hits;
+			$group_counts[$group_id][$bucket_id] = $hits;
+			@$group_counts[$group_id]['total'] = intval($group_counts[$group_id]['total']) + $hits;
 		}
 		$tpl->assign('group_counts', $group_counts);
 

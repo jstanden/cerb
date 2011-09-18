@@ -63,7 +63,7 @@ options</a>.<br>
 <h3>#1: Briefly, what does your organization do?</h3>
 <textarea cols="65" rows="3" name="q1"></textarea><br>
 
-<h3>#2: How is your team currently handling e-mail management?</h3>
+<h3>#2: How is your team currently handling email management?</h3>
 <textarea cols="65" rows="3" name="q2"></textarea><br>
 
 <h3>#3: Are you considering both free and commercial solutions?</h3>

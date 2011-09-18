@@ -7,9 +7,9 @@
 	<tr>
 		<td width="0%" nowrap="nowrap" align="right">From:</td>
 		<td width="100%">
-			<select name="team_id" style="border:1px solid rgb(180,180,180);padding:2px;">
+			<select name="group_id" style="border:1px solid rgb(180,180,180);padding:2px;">
 				{foreach from=$active_worker_memberships item=membership key=group_id}
-				<option value="{$group_id}" {if $default_group_id==$group_id}selected="selected"{/if}>{$teams.$group_id->name}</option>
+				<option value="{$group_id}" {if $default_group_id==$group_id}selected="selected"{/if}>{$groups.$group_id->name}</option>
 				{/foreach}
 			</select>
 		</td>
@@ -40,7 +40,7 @@
 			<textarea id="divComposeContent" name="content" style="width:98%;height:150px;border:1px solid rgb(180,180,180);padding:2px;"></textarea>
 			<div>
 				<button type="button" onclick="ajax.chooserSnippet('snippets',$('#divComposeContent'), { '{CerberusContexts::CONTEXT_WORKER}':'{$active_worker->id}' });">{'common.snippets'|devblocks_translate|capitalize}</button>
-				<button type="button" onclick="genericAjaxGet('','c=tickets&a=getComposeSignature&group_id='+selectValue(this.form.team_id),function(text) { insertAtCursor(document.getElementById('divComposeContent'), text); } );"><span class="cerb-sprite sprite-document_edit"></span> Insert Signature</button>
+				<button type="button" onclick="genericAjaxGet('','c=tickets&a=getComposeSignature&group_id='+selectValue(this.form.group_id),function(text) { insertAtCursor(document.getElementById('divComposeContent'), text); } );"><span class="cerb-sprite sprite-document_edit"></span> Insert Signature</button>
 			</div>
 		</td>
 	</tr>

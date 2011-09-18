@@ -46,7 +46,7 @@
 			{$field_id = substr($colAvail->token,3)}
 			{if isset($custom_fields.$field_id)}
 				{$field = $custom_fields.$field_id}
-				{if empty($field->group_id) || $active_worker->isTeamMember($field->group_id)}
+				{if empty($field->group_id) || $active_worker->isGroupMember($field->group_id)}
 					{if !empty($colAvail->db_label) && !empty($colAvail->token)}
 					<option value="{$colAvail->token}" {if $view->view_columns.$index==$colAvail->token}selected{/if}>{$colAvail->db_label|capitalize}</option>
 					{/if}

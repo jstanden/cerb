@@ -67,7 +67,7 @@ class Event_MailBeforeSentByGroup extends Extension_DevblocksEvent {
 			
 			$message = DAO_Message::get($result[SearchFields_Ticket::TICKET_LAST_MESSAGE_ID]);
 			$ticket = DAO_Ticket::get($result[SearchFields_Ticket::TICKET_ID]);
-			$group = DAO_Group::get($result[SearchFields_Ticket::TICKET_TEAM_ID]);
+			$group = DAO_Group::get($result[SearchFields_Ticket::TICKET_GROUP_ID]);
 		}
 		
 		$properties = array(
@@ -78,7 +78,7 @@ class Event_MailBeforeSentByGroup extends Extension_DevblocksEvent {
 			'ticket_reopen' => "+2 hours",
 			'closed' => 2,
 			'content' => "This is the message body\r\nOn more than one line.\r\n",
-			'agent_id' => $active_worker->id,
+			'worker_id' => $active_worker->id,
 		);
 		
 		$values['content'] =& $properties['content'];
@@ -88,7 +88,7 @@ class Event_MailBeforeSentByGroup extends Extension_DevblocksEvent {
 		$values['subject'] =& $properties['subject'];
 		$values['waiting_until'] =& $properties['ticket_reopen'];
 		$values['closed'] =& $properties['closed'];
-		$values['worker_id'] =& $properties['agent_id'];
+		$values['worker_id'] =& $properties['worker_id'];
 		
 		return new Model_DevblocksEvent(
 			self::ID,
@@ -133,7 +133,7 @@ class Event_MailBeforeSentByGroup extends Extension_DevblocksEvent {
 		$values['closed'] =& $properties['closed'];
 		
 		//$labels['worker_id'] = $prefix.'worker id';
-		$values['worker_id'] =& $properties['agent_id'];
+		$values['worker_id'] =& $properties['worker_id'];
 		
 		/**
 		 * Ticket
@@ -221,7 +221,7 @@ class Event_MailBeforeSentByGroup extends Extension_DevblocksEvent {
 		$labels['group_sig'] = 'Group signature';
 		if(!empty($group) && !empty($ticket)) {
 			if(null != ($worker = DAO_Worker::get($worker_id)))
-				$values['group_sig'] = $group->getReplySignature($ticket->category_id, $worker);
+				$values['group_sig'] = $group->getReplySignature($ticket->bucket_id, $worker);
 		}
 			
 		/**

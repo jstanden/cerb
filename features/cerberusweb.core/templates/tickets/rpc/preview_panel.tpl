@@ -78,7 +78,7 @@
 						<select name="owner_id">
 							<option value="0"></option>
 							{foreach from=$workers item=owner key=owner_id}
-							{if $owner->isTeamMember($ticket->team_id)}
+							{if $owner->isGroupMember($ticket->group_id)}
 							<option value="{$owner_id}" {if $ticket->owner_id==$owner_id}selected="selected"{/if}>{$owner->getName()}</option>
 							{/if}
 							{/foreach}
@@ -94,18 +94,18 @@
 					<td width="100%">
 						<select name="bucket_id">
 						<option value="">-- move to --</option>
-						{if empty($ticket->category_id)}{assign var=t_or_c value="t"}{else}{assign var=t_or_c value="c"}{/if}
+						{if empty($ticket->bucket_id)}{assign var=t_or_c value="t"}{else}{assign var=t_or_c value="c"}{/if}
 						<optgroup label="Inboxes">
-						{foreach from=$teams item=team}
-							<option value="t{$team->id}">{$team->name}{if $t_or_c=='t' && $ticket->team_id==$team->id} (*){/if}</option>
+						{foreach from=$groups item=group}
+							<option value="t{$group->id}">{$group->name}{if $t_or_c=='t' && $ticket->group_id==$group->id} (*){/if}</option>
 						{/foreach}
 						</optgroup>
-						{foreach from=$team_categories item=categories key=teamId}
-							{assign var=team value=$teams.$teamId}
-							{if !empty($active_worker_memberships.$teamId)}
-								<optgroup label="-- {$team->name} --">
-								{foreach from=$categories item=category}
-								<option value="c{$category->id}">{$category->name}{if $t_or_c=='c' && $ticket->category_id==$category->id} (current bucket){/if}</option>
+						{foreach from=$group_buckets item=buckets key=groupId}
+							{assign var=group value=$groups.$groupId}
+							{if !empty($active_worker_memberships.$groupId)}
+								<optgroup label="-- {$group->name} --">
+								{foreach from=$buckets item=bucket}
+								<option value="c{$bucket->id}">{$bucket->name}{if $t_or_c=='c' && $ticket->bucket_id==$bucket->id} (current bucket){/if}</option>
 								{/foreach}
 								</optgroup>
 							{/if}
@@ -136,7 +136,7 @@
 			{assign var=last_group_id value=-1}
 			{foreach from=$custom_fields item=f key=f_id}
 			{assign var=field_group_id value=$f->group_id}
-			{if $field_group_id == 0 || $field_group_id == $ticket->team_id}
+			{if $field_group_id == 0 || $field_group_id == $ticket->group_id}
 				{assign var=show_submit value=1}
 				{if $field_group_id && $field_group_id != $last_group_id}
 					<tr>

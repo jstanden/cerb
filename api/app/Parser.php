@@ -405,7 +405,7 @@ class CerberusParserModel {
 			
 		if(!empty($ticket_id)) {
 			if(null != ($model = $this->getTicketModel())) {
-				$this->_group_id = $model->team_id;
+				$this->_group_id = $model->group_id;
 			}
 		}
 		
@@ -746,7 +746,7 @@ class CerberusParser {
 										'ticket_id' => $ticket->id,
 										'message_id' => $ticket->last_message_id,
 										//'files' => $attachment_files,
-										'agent_id' => $proxy_worker->id,
+										'worker_id' => $proxy_worker->id,
 									);
 	        						
 				        			// Clean the reply body
@@ -760,8 +760,8 @@ class CerberusParser {
 			
 			        					// Insert worker sig for this bucket
 				        				if(preg_match('/^#sig/', $line, $matches)) {
-				        					$group = DAO_Group::get($ticket->team_id);
-				        					$sig = $group->getReplySignature($ticket->category_id, $proxy_worker);
+				        					$group = DAO_Group::get($ticket->group_id);
+				        					$sig = $group->getReplySignature($ticket->bucket_id, $proxy_worker);
 				        					$body .= $sig . PHP_EOL;
 				        					
 				        				} elseif(preg_match('/^#cut/', $line, $matches)) {
@@ -857,8 +857,8 @@ class CerberusParser {
 			// Last ditch effort to check for a default group to deliver to
 			$group_id = $model->getGroupId();
 			if(empty($group_id)) {
-				if(null != ($default_team = DAO_Group::getDefaultGroup())) {
-					$model->setGroupId($default_team->id);
+				if(null != ($default_group = DAO_Group::getDefaultGroup())) {
+					$model->setGroupId($default_group->id);
 				}
 			}
 
@@ -880,7 +880,7 @@ class CerberusParser {
 				DAO_Ticket::UPDATED_DATE => time(),
 				DAO_Ticket::LAST_ACTION_CODE => CerberusTicketActionCode::TICKET_OPENED,
 			);
-			$model->setTicketId(DAO_Ticket::createTicket($fields));
+			$model->setTicketId(DAO_Ticket::create($fields));
 
 			$ticket_id = $model->getTicketId();
 			if(empty($ticket_id)) {
@@ -980,7 +980,7 @@ class CerberusParser {
 			
 			// Prime the change fields (which a few things like anti-spam might change before we commit)
 			$change_fields = array(
-			    DAO_Ticket::TEAM_ID => $model->getGroupId(), // this triggers move rules
+			    DAO_Ticket::GROUP_ID => $model->getGroupId(), // this triggers move rules
 			);
 			
 			// [TODO] Benchmark anti-spam

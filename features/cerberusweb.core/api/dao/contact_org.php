@@ -304,7 +304,6 @@ class DAO_ContactOrg extends C4_ORMHelper {
 			"c.phone as %s, ".
 			"c.website as %s, ".
 			"c.created as %s ",
-//			"INNER JOIN team tm ON (tm.id = t.team_id) ".
 			    SearchFields_ContactOrg::ID,
 			    SearchFields_ContactOrg::NAME,
 			    SearchFields_ContactOrg::STREET,

@@ -1,7 +1,7 @@
 <form action="{devblocks_url}{/devblocks_url}" method="post" id="frmGroupEdit">
 <input type="hidden" name="c" value="groups">
 <input type="hidden" name="a" value="saveTabMail">
-<input type="hidden" name="team_id" value="{$group->id}">
+<input type="hidden" name="group_id" value="{$group->id}">
 
 <fieldset>
 	<legend>Outgoing Mail Preferences</legend>

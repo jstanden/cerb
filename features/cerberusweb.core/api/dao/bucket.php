@@ -21,39 +21,21 @@ class DAO_Bucket extends DevblocksORMHelper {
     const ID = 'id';
     const POS = 'pos';
     const NAME = 'name';
-    const TEAM_ID = 'team_id';
+    const GROUP_ID = 'group_id';
     const REPLY_ADDRESS_ID = 'reply_address_id';
     const REPLY_PERSONAL = 'reply_personal';
     const REPLY_SIGNATURE = 'reply_signature';
     const IS_ASSIGNABLE = 'is_assignable';
     
-	static function getTeams() {
-		$categories = self::getAll();
-		$team_categories = array();
+	static function getGroups() {
+		$buckets = self::getAll();
+		$group_buckets = array();
 		
-		foreach($categories as $cat) {
-			$team_categories[$cat->team_id][$cat->id] = $cat;
+		foreach($buckets as $bucket) {
+			$group_buckets[$bucket->group_id][$bucket->id] = $bucket;
 		}
 		
-		return $team_categories;
-	}
-	
-	// [JAS]: This belongs in API, not DAO
-	static function getCategoryNameHash() {
-	    $category_name_hash = array();
-	    $teams = DAO_Group::getAll();
-	    $team_categories = self::getTeams();
-	
-	    foreach($teams as $team_id => $team) {
-	        $category_name_hash['t'.$team_id] = $team->name;
-	        
-	        if(@is_array($team_categories[$team_id]))
-	        foreach($team_categories[$team_id] as $category) {
-	            $category_name_hash['c'.$category->id] = $team->name . ':' .$category->name;
-	        }
-	    }
-	    
-	    return $category_name_hash;
+		return $group_buckets;
 	}
 	
 	/**
@@ -90,7 +72,7 @@ class DAO_Bucket extends DevblocksORMHelper {
 			return 0;
 		
 		$db = DevblocksPlatform::getDatabaseService();
-		if(null != ($next_pos = $db->GetOne(sprintf("SELECT MAX(pos)+1 FROM category WHERE team_id = %d", $group_id))))
+		if(null != ($next_pos = $db->GetOne(sprintf("SELECT MAX(pos)+1 FROM bucket WHERE group_id = %d", $group_id))))
 			return $next_pos;
 			
 		return 0;
@@ -99,45 +81,47 @@ class DAO_Bucket extends DevblocksORMHelper {
 	static function getList($ids=array()) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = "SELECT category.id, category.pos, category.name, category.team_id, category.is_assignable, category.reply_address_id, category.reply_personal, category.reply_signature ".
-			"FROM category ".
-			"INNER JOIN team ON (category.team_id=team.id) ".
-			(!empty($ids) ? sprintf("WHERE category.id IN (%s) ", implode(',', $ids)) : "").
-			"ORDER BY team.name ASC, category.pos ASC "
+		$sql = "SELECT bucket.id, bucket.pos, bucket.name, bucket.group_id, bucket.is_assignable, bucket.reply_address_id, bucket.reply_personal, bucket.reply_signature ".
+			"FROM bucket ".
+			"INNER JOIN worker_group ON (bucket.group_id=worker_group.id) ".
+			(!empty($ids) ? sprintf("WHERE bucket.id IN (%s) ", implode(',', $ids)) : "").
+			"ORDER BY worker_group.name ASC, bucket.pos ASC "
 		;
 		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 		
-		$categories = array();
+		$buckets = array();
 		
 		while($row = mysql_fetch_assoc($rs)) {
-			$category = new Model_Bucket();
-			$category->id = intval($row['id']);
-			$category->pos = intval($row['pos']);
-			$category->name = $row['name'];
-			$category->team_id = intval($row['team_id']);
-			$category->is_assignable = intval($row['is_assignable']);
-			$category->reply_address_id = $row['reply_address_id'];
-			$category->reply_personal = $row['reply_personal'];
-			$category->reply_signature = $row['reply_signature'];
-			$categories[$category->id] = $category;
+			$bucket = new Model_Bucket();
+			$bucket->id = intval($row['id']);
+			$bucket->pos = intval($row['pos']);
+			$bucket->name = $row['name'];
+			$bucket->group_id = intval($row['group_id']);
+			$bucket->is_assignable = intval($row['is_assignable']);
+			$bucket->reply_address_id = $row['reply_address_id'];
+			$bucket->reply_personal = $row['reply_personal'];
+			$bucket->reply_signature = $row['reply_signature'];
+			$buckets[$bucket->id] = $bucket;
 		}
 		
 		mysql_free_result($rs);
 		
-		return $categories;
+		return $buckets;
 	}
 	
-	static function getByTeam($team_ids) {
-		if(!is_array($team_ids)) $team_ids = array($team_ids);
-		$team_buckets = array();
+	static function getByGroup($group_ids) {
+		if(!is_array($group_ids))
+			$group_ids = array($group_ids);
+		
+		$group_buckets = array();
 		
 		$buckets = self::getAll();
 		foreach($buckets as $bucket) {
-			if(false !== array_search($bucket->team_id, $team_ids)) {
-				$team_buckets[$bucket->id] = $bucket;
+			if(false !== array_search($bucket->group_id, $group_ids)) {
+				$group_buckets[$bucket->id] = $bucket;
 			}
 		}
-		return $team_buckets;
+		return $group_buckets;
 	}
 	
 	static function getAssignableBuckets($group_ids=null) {
@@ -147,7 +131,7 @@ class DAO_Bucket extends DevblocksORMHelper {
 		if(empty($group_ids)) {
 			$buckets = self::getAll();
 		} else {
-			$buckets = self::getByTeam($group_ids);
+			$buckets = self::getByGroup($group_ids);
 		}
 		
 		// Remove buckets that aren't assignable
@@ -160,25 +144,25 @@ class DAO_Bucket extends DevblocksORMHelper {
 		return $buckets;
 	}
 	
-	static function create($name, $team_id) {
+	static function create($name, $group_id) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
 		// Check for dupes
 		$buckets = self::getAll();
 		if(is_array($buckets))
 		foreach($buckets as $bucket) {
-			if(0==strcasecmp($name,$bucket->name) && $team_id==$bucket->team_id) {
+			if(0==strcasecmp($name, $bucket->name) && $group_id == $bucket->group_id) {
 				return $bucket->id;
 			}
 		}
 
-		$next_pos = self::getNextPos($team_id);
+		$next_pos = self::getNextPos($group_id);
 		
-		$sql = sprintf("INSERT INTO category (pos,name,team_id,is_assignable) ".
+		$sql = sprintf("INSERT INTO bucket (pos,name,group_id,is_assignable) ".
 			"VALUES (%d,%s,%d,1)",
 			$next_pos,
 			$db->qstr($name),
-			$team_id
+			$group_id
 		);
 		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		$id = $db->LastInsertId(); 
@@ -189,7 +173,7 @@ class DAO_Bucket extends DevblocksORMHelper {
 	}
 	
 	static function update($id,$fields) {
-		parent::_update($id,'category',$fields);
+		parent::_update($id,'bucket',$fields);
 
 		self::clearCache();
 	}
@@ -214,11 +198,11 @@ class DAO_Bucket extends DevblocksORMHelper {
             )
 	    );
 		
-		$sql = sprintf("DELETE QUICK FROM category WHERE id IN (%s)", implode(',',$ids));
+		$sql = sprintf("DELETE QUICK FROM bucket WHERE id IN (%s)", implode(',',$ids));
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 		
-		// Reset any tickets using this category
-		$sql = sprintf("UPDATE ticket SET category_id = 0 WHERE category_id IN (%s)", implode(',',$ids));
+		// Reset any tickets using this bucket
+		$sql = sprintf("UPDATE ticket SET bucket_id = 0 WHERE bucket_id IN (%s)", implode(',',$ids));
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 
 		self::clearCache();
@@ -232,7 +216,7 @@ class DAO_Bucket extends DevblocksORMHelper {
 	            'context.maint',
                 array(
                 	'context' => CerberusContexts::CONTEXT_BUCKET,
-                	'context_table' => 'category',
+                	'context_table' => 'bucket',
                 	'context_key' => 'id',
                 )
             )
@@ -250,7 +234,7 @@ class Model_Bucket {
 	public $id;
 	public $pos=0;
 	public $name = '';
-	public $team_id = 0;
+	public $group_id = 0;
 	public $is_assignable = 1;
 	public $reply_address_id;
 	public $reply_personal;
@@ -270,7 +254,7 @@ class Model_Bucket {
 		
 		// Cascade to group
 		if(empty($from_id)) {
-			$group = DAO_Group::get($this->team_id);
+			$group = DAO_Group::get($this->group_id);
 			$from_id = $group->reply_address_id;
 		}
 		
@@ -296,7 +280,7 @@ class Model_Bucket {
 		
 		// Cascade to group
 		if(empty($from_id)) {
-			$group = DAO_Group::get($this->team_id);
+			$group = DAO_Group::get($this->group_id);
 			$from_id = $group->reply_address_id;
 		}
 		
@@ -323,7 +307,7 @@ class Model_Bucket {
 
 		// Cascade to group
 		if(empty($personal)) {
-			$group = DAO_Group::get($this->team_id);
+			$group = DAO_Group::get($this->group_id);
 			$personal = $group->reply_personal;
 			
 			// Cascade to group address
@@ -366,7 +350,7 @@ class Model_Bucket {
 
 		// Cascade to group
 		if(empty($signature)) {
-			$group = DAO_Group::get($this->team_id);
+			$group = DAO_Group::get($this->group_id);
 			$signature = $group->reply_signature;
 			
 			// Cascade to group address

@@ -8,11 +8,11 @@
 	<tr>
 		<td width="100%">
 			<table cellpadding="1" cellspacing="0" border="0" width="100%">
-				{if isset($teams.{$ticket->team_id})}
+				{if isset($groups.{$ticket->group_id})}
 				<tr>
 					<td width="1%" nowrap="nowrap" valign="top">{$translate->_('message.header.from')|capitalize}: </td>
 					<td width="99%" align="left">
-						{$teams.{$ticket->team_id}->name}
+						{$groups.{$ticket->group_id}->name}
 					</td>
 				</tr>
 				{/if}
@@ -77,7 +77,7 @@
 					<legend>Actions</legend>
 					{assign var=headers value=$message->getHeaders()}
 					<button name="saveDraft" type="button" onclick="if($(this).attr('disabled'))return;$(this).attr('disabled','disabled');genericAjaxPost('reply{$message->id}_part2',null,'c=display&a=saveDraftReply&is_ajax=1',function(json, ui) { var obj = $.parseJSON(json); $('#divDraftStatus{$message->id}').html(obj.html); $('#reply{$message->id}_part2 input[name=draft_id]').val(obj.draft_id); $('#reply{$message->id}_part1 button[name=saveDraft]').removeAttr('disabled'); } );"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> Save Draft</button>
-					<button id="btnInsertReplySig{$message->id}" type="button" title="(Ctrl+Shift+G)" onclick="genericAjaxGet('','c=tickets&a=getComposeSignature&group_id={$ticket->team_id}&bucket_id={$ticket->category_id}',function(txt) { $('#reply_{$message->id}').insertAtCursor(txt); } );"><span class="cerb-sprite sprite-document_edit"></span> {$translate->_('display.reply.insert_sig')|capitalize}</button>
+					<button id="btnInsertReplySig{$message->id}" type="button" title="(Ctrl+Shift+G)" onclick="genericAjaxGet('','c=tickets&a=getComposeSignature&group_id={$ticket->group_id}&bucket_id={$ticket->bucket_id}',function(txt) { $('#reply_{$message->id}').insertAtCursor(txt); } );"><span class="cerb-sprite sprite-document_edit"></span> {$translate->_('display.reply.insert_sig')|capitalize}</button>
 					{* Plugin Toolbar *}
 					{if !empty($reply_toolbaritems)}
 						{foreach from=$reply_toolbaritems item=renderer}
@@ -232,18 +232,18 @@
 								<b>{$translate->_('display.reply.next.move')}</b><br>  
 						      	<select name="bucket_id">
 						      		<option value="">-- {$translate->_('display.reply.next.move.no_thanks')|lower} --</option>
-						      		{if empty($ticket->category_id)}{assign var=t_or_c value="t"}{else}{assign var=t_or_c value="c"}{/if}
+						      		{if empty($ticket->bucket_id)}{assign var=t_or_c value="t"}{else}{assign var=t_or_c value="c"}{/if}
 						      		<optgroup label="{$translate->_('common.inboxes')|capitalize}">
-						      		{foreach from=$teams item=team}
-						      			<option value="t{$team->id}">{$team->name}{if $t_or_c=='t' && $ticket->team_id==$team->id} {$translate->_('display.reply.next.move.current')}{/if}</option>
+						      		{foreach from=$groups item=group}
+						      			<option value="t{$group->id}">{$group->name}{if $t_or_c=='t' && $ticket->group_id==$group->id} {$translate->_('display.reply.next.move.current')}{/if}</option>
 						      		{/foreach}
 						      		</optgroup>
-						      		{foreach from=$team_categories item=categories key=teamId}
-						      			{assign var=team value=$teams.$teamId}
-						      			{if !empty($active_worker_memberships.$teamId)}
-							      			<optgroup label="-- {$team->name} --">
-							      			{foreach from=$categories item=category}
-							    				<option value="c{$category->id}">{$category->name}{if $t_or_c=='c' && $ticket->category_id==$category->id} {$translate->_('display.reply.next.move.current')}{/if}</option>
+						      		{foreach from=$group_buckets item=buckets key=groupId}
+						      			{assign var=group value=$groups.$groupId}
+						      			{if !empty($active_worker_memberships.$groupId)}
+							      			<optgroup label="-- {$group->name} --">
+							      			{foreach from=$buckets item=bucket}
+							    				<option value="c{$bucket->id}">{$bucket->name}{if $t_or_c=='c' && $ticket->bucket_id==$bucket->id} {$translate->_('display.reply.next.move.current')}{/if}</option>
 							    			{/foreach}
 							    			</optgroup>
 							    		{/if}

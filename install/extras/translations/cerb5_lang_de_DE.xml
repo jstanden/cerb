@@ -1766,11 +1766,6 @@
         <seg>Ansicht ändern</seg>
       </tuv>
     </tu>
-    <tu tuid="dashboard.no_teams">
-      <tuv xml:lang="de_DE">
-        <seg>Keine sichtbaren Teams</seg>
-      </tuv>
-    </tu>
     <tu tuid="dashboard.num_rows">
       <tuv xml:lang="de_DE">
         <seg>Zeilen pro Seite</seg>
@@ -1789,11 +1784,6 @@
     <tu tuid="dashboard.switch">
       <tuv xml:lang="de_DE">
         <seg>Wechseln</seg>
-      </tuv>
-    </tu>
-    <tu tuid="dashboard.teamwork">
-      <tuv xml:lang="de_DE">
-        <seg>Teamwork</seg>
       </tuv>
     </tu>
     <tu tuid="display.button.read_all">
@@ -4220,26 +4210,6 @@ login</seg>
     <tu tuid="tasks.ticket.tab.view">
       <tuv xml:lang="de_DE">
         <seg>Ticket-Aufgaben</seg>
-      </tuv>
-    </tu>
-    <tu tuid="teamwork.assign_work">
-      <tuv xml:lang="de_DE">
-        <seg>Tickets übernehmen</seg>
-      </tuv>
-    </tu>
-    <tu tuid="teamwork.categories">
-      <tuv xml:lang="de_DE">
-        <seg>Team-Kategorien</seg>
-      </tuv>
-    </tu>
-    <tu tuid="teamwork.group_management">
-      <tuv xml:lang="de_DE">
-        <seg>Steuerpult</seg>
-      </tuv>
-    </tu>
-    <tu tuid="teamwork.my_team_loads">
-      <tuv xml:lang="de_DE">
-        <seg>Meine Team-Loads</seg>
       </tuv>
     </tu>
     <tu tuid="ticket.assignable">

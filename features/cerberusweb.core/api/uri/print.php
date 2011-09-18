@@ -37,8 +37,8 @@ class ChPrintController extends DevblocksControllerExtension {
 		$translate = DevblocksPlatform::getTranslationService();
 		$tpl->assign('translate', $translate);
 		
-		$teams = DAO_Group::getAll();
-		$tpl->assign('teams', $teams);
+		$groups = DAO_Group::getAll();
+		$tpl->assign('groups', $groups);
 		
 		$buckets = DAO_Bucket::getAll();
 		$tpl->assign('buckets', $buckets);
@@ -104,7 +104,7 @@ class ChPrintController extends DevblocksControllerExtension {
 				
 				
 				// Make sure we're allowed to view this ticket or message
-				if(!isset($active_worker_memberships[$ticket->team_id])) {
+				if(!isset($active_worker_memberships[$ticket->group_id])) {
 					echo "<H1>" . $translate->_('common.access_denied') . "</H1>";
 					return;
 				}
@@ -124,7 +124,7 @@ class ChPrintController extends DevblocksControllerExtension {
 				@$ticket = DAO_Ticket::get($message->ticket_id);
 				
 				// Make sure we're allowed to view this ticket or message
-				if(!isset($active_worker_memberships[$ticket->team_id])) {
+				if(!isset($active_worker_memberships[$ticket->group_id])) {
 					echo "<H1>" . $translate->_('common.access_denied') . "</H1>";
 					return;
 				}

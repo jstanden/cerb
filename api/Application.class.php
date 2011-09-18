@@ -508,20 +508,20 @@ class CerberusApplication extends DevblocksApplication {
 	 * 
 	 * @todo This needs a better name and home
 	 */
-	static function translateTeamCategoryCode($code) {
+	static function translateGroupBucketCode($code) {
 		$t_or_c = substr($code,0,1);
 		$t_or_c_id = intval(substr($code,1));
 		
 		if($t_or_c=='c') {
-			$categories = DAO_Bucket::getAll();
-			$team_id = $categories[$t_or_c_id]->team_id;
-			$category_id = $t_or_c_id; 
+			$buckets = DAO_Bucket::getAll();
+			$group_id = $buckets[$t_or_c_id]->group_id;
+			$bucket_id = $t_or_c_id; 
 		} else {
-			$team_id = $t_or_c_id;
-			$category_id = 0;
+			$group_id = $t_or_c_id;
+			$bucket_id = 0;
 		}
 		
-		return array($team_id, $category_id);
+		return array($group_id, $bucket_id);
 	}
 	
 	/**
@@ -1294,7 +1294,7 @@ class CerberusSettings {
 };
 
 class CerberusSettingsDefaults {
-	const HELPDESK_TITLE = 'Cerberus Helpdesk :: Team-based E-mail Management'; 
+	const HELPDESK_TITLE = 'Cerberus Helpdesk :: Group-based Email Management'; // [TODO] Change 
 	const SMTP_HOST = 'localhost'; 
 	const SMTP_AUTH_ENABLED = 0; 
 	const SMTP_AUTH_USER = ''; 

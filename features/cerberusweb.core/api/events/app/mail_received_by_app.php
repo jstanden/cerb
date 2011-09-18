@@ -54,7 +54,7 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 			'ticket_reopen' => "+2 hours",
 			'closed' => 2,
 			'content' => "This is the message body\r\nOn more than one line.\r\n",
-			'agent_id' => $active_worker->id,
+			'worker_id' => $active_worker->id,
 		);
 		
 		$values['content'] =& $parser_message['content'];
@@ -64,7 +64,7 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 		$values['subject'] =& $parser_message['subject'];
 		$values['waiting_until'] =& $parser_message['ticket_reopen'];
 		$values['closed'] =& $parser_message['closed'];
-		$values['worker_id'] =& $parser_message['agent_id'];
+		$values['worker_id'] =& $parser_message['worker_id'];
 		
 		return new Model_DevblocksEvent(
 			self::ID,

@@ -697,8 +697,8 @@ switch($step) {
 				$groups = DAO_Group::getAll(true);
 				if(empty($groups)) {
 					// Dispatch Group
-					$dispatch_gid = DAO_Group::createTeam(array(
-						DAO_Group::TEAM_NAME => 'Dispatch',
+					$dispatch_gid = DAO_Group::create(array(
+						DAO_Group::NAME => 'Dispatch',
 					));
 					
 					// Dispatch Spam Bucket
@@ -706,8 +706,8 @@ switch($step) {
 					// [TODO] Create spam quarantine behavior in Attendant
 					
 					// Support Group
-					$support_gid = DAO_Group::createTeam(array(
-						DAO_Group::TEAM_NAME => 'Support',
+					$support_gid = DAO_Group::create(array(
+						DAO_Group::NAME => 'Support',
 					));
 
 					// Support Spam Bucket
@@ -715,8 +715,8 @@ switch($step) {
 					// [TODO] Create spam quarantine behavior in Attendant
 					
 					// Sales Group
-					$sales_gid = DAO_Group::createTeam(array(
-						DAO_Group::TEAM_NAME => 'Sales',
+					$sales_gid = DAO_Group::create(array(
+						DAO_Group::NAME => 'Sales',
 					));
 					
 					// Sales Spam Bucket
@@ -724,13 +724,13 @@ switch($step) {
 					// [TODO] Create spam quarantine behavior in Attendant
 					
 					// Default catchall
-					DAO_Group::updateTeam($dispatch_gid, array(
+					DAO_Group::update($dispatch_gid, array(
 						DAO_Group::IS_DEFAULT => 1
 					));
 				}
 				
 				// If this worker doesn't exist, create them
-				if(null === ($lookup = DAO_Worker::lookupAgentEmail($worker_email))) {
+				if(null === ($lookup = DAO_Worker::getByEmail($worker_email))) {
 					$fields = array(
 						DAO_Worker::EMAIL => $worker_email,
 						DAO_Worker::PASSWORD => md5($worker_pass),
@@ -754,11 +754,11 @@ switch($step) {
 					
 					// Default group memberships
 					if(!empty($dispatch_gid))
-						DAO_Group::setTeamMember($dispatch_gid,$worker_id,true);			
+						DAO_Group::setGroupMember($dispatch_gid,$worker_id,true);			
 					if(!empty($support_gid))
-						DAO_Group::setTeamMember($support_gid,$worker_id,true);			
+						DAO_Group::setGroupMember($support_gid,$worker_id,true);			
 					if(!empty($sales_gid))
-						DAO_Group::setTeamMember($sales_gid,$worker_id,true);			
+						DAO_Group::setGroupMember($sales_gid,$worker_id,true);			
 				}
 				
 				// Send a first ticket which allows people to reply for support

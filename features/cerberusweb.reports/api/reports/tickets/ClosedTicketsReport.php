@@ -117,7 +117,7 @@ class ChReportClosedTickets extends Extension_Report {
 			$view->addParam(new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_SPAM_TRAINING,DevblocksSearchCriteria::OPER_NEQ, 'S'));
 			
 			if(!empty($filter_group_ids)) {
-				$view->addParam(new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_TEAM_ID,DevblocksSearchCriteria::OPER_IN, $filter_group_ids));
+				$view->addParam(new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_GROUP_ID,DevblocksSearchCriteria::OPER_IN, $filter_group_ids));
 			}
 			
 			$view->renderPage = 0;
@@ -131,7 +131,7 @@ class ChReportClosedTickets extends Extension_Report {
 		
 		// Chart
 		
-		$sql = sprintf("SELECT t.team_id as group_id, DATE_FORMAT(FROM_UNIXTIME(t.updated_date),'%s') as date_plot, ".
+		$sql = sprintf("SELECT t.group_id as group_id, DATE_FORMAT(FROM_UNIXTIME(t.updated_date),'%s') as date_plot, ".
 			"count(*) AS hits ".
 			"FROM ticket t ".
 			"WHERE t.updated_date > %d AND t.updated_date <= %d ".
@@ -144,7 +144,7 @@ class ChReportClosedTickets extends Extension_Report {
 			$date_group,
 			$start_time,
 			$end_time,
-			(is_array($filter_group_ids) && !empty($filter_group_ids) ? sprintf("AND t.team_id IN (%s)", implode(',', $filter_group_ids)) : "")
+			(is_array($filter_group_ids) && !empty($filter_group_ids) ? sprintf("AND t.group_id IN (%s)", implode(',', $filter_group_ids)) : "")
 		);
 		$rs = $db->Execute($sql);
 		

@@ -143,7 +143,7 @@ class ChReportGroupReplies extends Extension_Report {
 		}		
 		
 		// Chart
-		$sql = sprintf("SELECT t.team_id as group_id, DATE_FORMAT(FROM_UNIXTIME(m.created_date),'%s') as date_plot, ".
+		$sql = sprintf("SELECT t.group_id as group_id, DATE_FORMAT(FROM_UNIXTIME(m.created_date),'%s') as date_plot, ".
 			"count(m.id) AS hits ".
 			"FROM message m ".
 			"INNER JOIN ticket t ON (m.ticket_id=t.id) ".
@@ -151,12 +151,12 @@ class ChReportGroupReplies extends Extension_Report {
 			"%s ".
 			"AND m.worker_id != 0 ".
 			"AND m.is_outgoing = 1 ".
-			"AND t.team_id != 0 " .			
+			"AND t.group_id != 0 " .			
 			"GROUP BY group_id, date_plot ",
 			$date_group,
 			$start_time,
 			$end_time,
-			(is_array($filter_group_ids) && !empty($filter_group_ids) ? sprintf("AND t.team_id IN (%s)", implode(',', $filter_group_ids)) : "")
+			(is_array($filter_group_ids) && !empty($filter_group_ids) ? sprintf("AND t.group_id IN (%s)", implode(',', $filter_group_ids)) : "")
 		);
 		$rs = $db->Execute($sql);
 		

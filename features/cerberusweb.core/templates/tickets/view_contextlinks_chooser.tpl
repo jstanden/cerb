@@ -39,12 +39,12 @@
 	{else}
 		{assign var=tableRowClass value="odd"}
 	{/if}
-	{assign var=ticket_group_id value=$result.t_team_id}
+	{assign var=ticket_group_id value=$result.t_group_id}
 	{if !isset($active_worker_memberships.$ticket_group_id)}{*censor*}
 	<tbody>
 	<tr class="{$tableRowClass}">
 		<td>&nbsp;</td>
-		<td rowspan="2" colspan="{$smarty.foreach.headers.total}" style="color:rgb(140,140,140);font-size:10px;text-align:left;vertical-align:middle;">[Access Denied: {$teams.$ticket_group_id->name} #{$result.t_mask}]</td>
+		<td rowspan="2" colspan="{$smarty.foreach.headers.total}" style="color:rgb(140,140,140);font-size:10px;text-align:left;vertical-align:middle;">[Access Denied: {$groups.$ticket_group_id->name} #{$result.t_mask}]</td>
 	</tr>
 	<tr class="{$tableRowClass}">
 		<td>&nbsp;</td>
@@ -90,25 +90,21 @@
 		{elseif $column=="t_created_date"}
 		<td title="{$result.t_created_date|devblocks_date}">{$result.t_created_date|devblocks_prettytime}</td>
 		{elseif $column=="t_updated_date"}
-			{if $result.t_category_id}
-				{assign var=ticket_category_id value=$result.t_category_id}
-				{assign var=bucket value=$buckets.$ticket_category_id}
-			{/if}
-			<td title="{$result.t_updated_date|devblocks_date}">{$result.t_updated_date|devblocks_prettytime}</td>
+		<td title="{$result.t_updated_date|devblocks_date}">{$result.t_updated_date|devblocks_prettytime}</td>
 		{elseif $column=="t_due_date"}
 		<td title="{if $result.t_due_date}{$result.t_due_date|devblocks_date}{/if}">{if $result.t_due_date}{$result.t_due_date|devblocks_prettytime}{/if}</td>
-		{elseif $column=="t_team_id"}
+		{elseif $column=="t_group_id"}
 		<td>
-			{assign var=ticket_team_id value=$result.t_team_id}
-			{$teams.$ticket_team_id->name}
+			{assign var=ticket_group_id value=$result.t_group_id}
+			{$groups.$ticket_group_id->name}
 		</td>
-		{elseif $column=="t_category_id"}
-			{assign var=ticket_team_id value=$result.t_team_id}
-			{assign var=ticket_category_id value=$result.t_category_id}
+		{elseif $column=="t_bucket_id"}
+			{assign var=ticket_group_id value=$result.t_group_id}
+			{assign var=ticket_bucket_id value=$result.t_bucket_id}
 			<td>
-				{if 0 == $ticket_category_id}
+				{if 0 == $ticket_bucket_id}
 				{else}
-					{$buckets.$ticket_category_id->name}
+					{$buckets.$ticket_bucket_id->name}
 				{/if}
 			</td>
 		{elseif $column=="t_last_action_code"}

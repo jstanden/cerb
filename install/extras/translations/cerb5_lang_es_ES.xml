@@ -1411,11 +1411,6 @@
         <seg>Modificar Panel de Control</seg>
       </tuv>
     </tu>
-    <tu tuid="dashboard.no_teams">
-      <tuv xml:lang="es_ES">
-        <seg>Equipos no visibles.</seg>
-      </tuv>
-    </tu>
     <tu tuid="dashboard.num_rows">
       <tuv xml:lang="es_ES">
         <seg>Filas por página</seg>
@@ -1429,11 +1424,6 @@
     <tu tuid="dashboard.switch">
       <tuv xml:lang="es_ES">
         <seg>Cambiar</seg>
-      </tuv>
-    </tu>
-    <tu tuid="dashboard.teamwork">
-      <tuv xml:lang="es_ES">
-        <seg>Trabajo de Equipo</seg>
       </tuv>
     </tu>
     <tu tuid="display.button.read_all">
@@ -3365,26 +3355,6 @@ Por ejemplo: *recibo*</seg>
     <tu tuid="tasks.ticket.tab.view">
       <tuv xml:lang="es_ES">
         <seg>Tareas del Ticket</seg>
-      </tuv>
-    </tu>
-    <tu tuid="teamwork.assign_work">
-      <tuv xml:lang="es_ES">
-        <seg>Obtener Tickets</seg>
-      </tuv>
-    </tu>
-    <tu tuid="teamwork.categories">
-      <tuv xml:lang="es_ES">
-        <seg>Categorías de Equipo</seg>
-      </tuv>
-    </tu>
-    <tu tuid="teamwork.group_management">
-      <tuv xml:lang="es_ES">
-        <seg>Panel de Control</seg>
-      </tuv>
-    </tu>
-    <tu tuid="teamwork.my_team_loads">
-      <tuv xml:lang="es_ES">
-        <seg>Cargas de Mi Equipo</seg>
       </tuv>
     </tu>
     <tu tuid="ticket.created">

@@ -494,8 +494,8 @@ class ImportCron extends CerberusCronPageExtension {
 
 			if(is_array($buckets))
 			foreach($buckets as $bucket) { /* @var $bucket Model_Bucket */
-				// Hash by team ID and bucket name
-				$hash = md5($bucket->team_id . strtolower($bucket->name));
+				// Hash by group ID and bucket name
+				$hash = md5($bucket->group_id . strtolower($bucket->name));
 				$bucket_to_id[$hash] = intval($bucket->id);
 			}
 		}
@@ -521,15 +521,15 @@ class ImportCron extends CerberusCronPageExtension {
 				$iDestGroupId = $iDestGroup->id;
 			
 		} elseif(null == ($iDestGroupId = @$group_name_to_id[strtolower($sGroup)])) {
-			$iDestGroupId = DAO_Group::createTeam(array(
-				DAO_Group::TEAM_NAME => $sGroup,				
+			$iDestGroupId = DAO_Group::create(array(
+				DAO_Group::NAME => $sGroup,				
 			));
 			
 			// Give all superusers manager access to this new group
 			if(is_array($workers))
 			foreach($workers as $worker) {
 				if($worker->is_superuser)
-					DAO_Group::setTeamMember($iDestGroupId,$worker->id,true);
+					DAO_Group::setGroupMember($iDestGroupId,$worker->id,true);
 			}
 			
 			// Rehash
@@ -625,11 +625,11 @@ class ImportCron extends CerberusCronPageExtension {
 			DAO_Ticket::LAST_WROTE_ID => intval($lastWroteInst->id),
 			DAO_Ticket::CREATED_DATE => $iCreatedDate,
 			DAO_Ticket::UPDATED_DATE => $iUpdatedDate,
-			DAO_Ticket::TEAM_ID => intval($iDestGroupId),
-			DAO_Ticket::CATEGORY_ID => intval($iDestBucketId),
+			DAO_Ticket::GROUP_ID => intval($iDestGroupId),
+			DAO_Ticket::BUCKET_ID => intval($iDestBucketId),
 			DAO_Ticket::LAST_ACTION_CODE => $sLastActionCode,
 		);
-		$ticket_id = DAO_Ticket::createTicket($fields);
+		$ticket_id = DAO_Ticket::create($fields);
 
 //		echo "Ticket: ",$ticket_id,"<BR>";
 //		print_r($fields);
@@ -811,7 +811,7 @@ class ImportCron extends CerberusCronPageExtension {
 		$isSuperuser = (integer) $xml->is_superuser;
 		
 		// Dupe check worker email
-		if(null != ($worker_id = DAO_Worker::lookupAgentEmail($sEmail))) {
+		if(null != ($worker_id = DAO_Worker::getByEmail($sEmail))) {
 			$logger->info('[Importer] Avoiding creating duplicate worker #'.$worker_id.' ('.$sEmail.')');
 			return true;
 		}

@@ -225,7 +225,7 @@ class DAO_Worker extends C4_ORMHelper {
 	 * @param string $email
 	 * @return integer $id
 	 */
-	static function lookupAgentEmail($email) {
+	static function getByEmail($email) {
 		if(empty($email)) return null;
 		$db = DevblocksPlatform::getDatabaseService();
 		
@@ -282,9 +282,9 @@ class DAO_Worker extends C4_ORMHelper {
 		$db->Execute($sql);
 		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' worker_view_model records.');
 		
-		$sql = "DELETE QUICK worker_to_team FROM worker_to_team LEFT JOIN worker ON worker_to_team.agent_id = worker.id WHERE worker.id IS NULL";
+		$sql = "DELETE QUICK worker_to_group FROM worker_to_group LEFT JOIN worker ON worker_to_group.worker_id = worker.id WHERE worker.id IS NULL";
 		$db->Execute($sql);
-		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' worker_to_team records.');
+		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' worker_to_group records.');
 		
 		$sql = "DELETE QUICK workspace FROM workspace LEFT JOIN worker ON workspace.worker_id = worker.id WHERE worker.id IS NULL";
 		$db->Execute($sql);
@@ -334,7 +334,7 @@ class DAO_Worker extends C4_ORMHelper {
 		$sql = sprintf("DELETE QUICK FROM address_to_worker WHERE worker_id = %d", $id);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 		
-		$sql = sprintf("DELETE QUICK FROM worker_to_team WHERE agent_id = %d", $id);
+		$sql = sprintf("DELETE QUICK FROM worker_to_group WHERE worker_id = %d", $id);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 
 		$sql = sprintf("DELETE QUICK FROM view_rss WHERE worker_id = %d", $id);
@@ -385,32 +385,8 @@ class DAO_Worker extends C4_ORMHelper {
 		return null;
 	}
 	
-	static function setAgentTeams($agent_id, $team_ids) {
-		if(!is_array($team_ids)) $team_ids = array($team_ids);
-		if(empty($agent_id)) return;
-		$db = DevblocksPlatform::getDatabaseService();
-
-		$sql = sprintf("DELETE QUICK FROM worker_to_team WHERE agent_id = %d",
-			$agent_id
-		);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
-		
-		foreach($team_ids as $team_id) {
-			$sql = sprintf("INSERT INTO worker_to_team (agent_id, team_id) ".
-				"VALUES (%d,%d)",
-				$agent_id,
-				$team_id
-			);
-			$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
-		}
-		
-		// Invalidate caches
-		$cache = DevblocksPlatform::getCacheService();
-		$cache->remove(DAO_Group::CACHE_ROSTERS);
-	}
-	
 	/**
-	 * @return Model_TeamMember[]
+	 * @return Model_GroupMember[]
 	 */
 	static function getWorkerGroups($worker_id) {
 		// Get the cache
@@ -516,10 +492,10 @@ class DAO_Worker extends C4_ORMHelper {
 				case SearchFields_Worker::VIRTUAL_GROUPS:
 					$has_multiple_values = true;
 					if(empty($param->value)) { // empty
-						$join_sql .= "LEFT JOIN worker_to_team ON (worker_to_team.agent_id = w.id) ";
-						$where_sql .= "AND worker_to_team.agent_id IS NULL ";
+						$join_sql .= "LEFT JOIN worker_to_group ON (worker_to_group.worker_id = w.id) ";
+						$where_sql .= "AND worker_to_group.worker_id IS NULL ";
 					} else {
-						$join_sql .= sprintf("INNER JOIN worker_to_team ON (worker_to_team.agent_id = w.id AND worker_to_team.team_id IN (%s)) ",
+						$join_sql .= sprintf("INNER JOIN worker_to_group ON (worker_to_group.worker_id = w.id AND worker_to_group.group_id IN (%s)) ",
 							implode(',', $param->value)
 						);
 					}
@@ -711,7 +687,7 @@ class Model_Worker {
 	public $last_activity_ip;
 
 	/**
-	 * @return Model_TeamMember[]
+	 * @return Model_GroupMember[]
 	 */
 	function getMemberships() {
 		return DAO_Worker::getWorkerGroups($this->id); 
@@ -746,27 +722,27 @@ class Model_Worker {
 		return false;
 	}
 	
-	function isTeamManager($team_id) {
+	function isGroupManager($group_id) {
 		@$memberships = $this->getMemberships();
-		$teams = DAO_Group::getAll();
+		$groups = DAO_Group::getAll();
 		if(
-			empty($team_id) // null
-			|| !isset($teams[$team_id]) // doesn't exist
-			|| !isset($memberships[$team_id])  // not a member
-			|| (!$memberships[$team_id]->is_manager && !$this->is_superuser) // not a manager or superuser
+			empty($group_id) // null
+			|| !isset($groups[$group_id]) // doesn't exist
+			|| !isset($memberships[$group_id])  // not a member
+			|| (!$memberships[$group_id]->is_manager && !$this->is_superuser) // not a manager or superuser
 		){
 			return false;
 		}
 		return true;
 	}
 
-	function isTeamMember($team_id) {
+	function isGroupMember($group_id) {
 		@$memberships = $this->getMemberships();
-		$teams = DAO_Group::getAll();
+		$groups = DAO_Group::getAll();
 		if(
-			empty($team_id) // null
-			|| !isset($teams[$team_id]) // not a team
-			|| !isset($memberships[$team_id]) // not a member
+			empty($group_id) // null
+			|| !isset($groups[$group_id]) // not a group
+			|| !isset($memberships[$group_id]) // not a member
 		) {
 			return false;
 		}

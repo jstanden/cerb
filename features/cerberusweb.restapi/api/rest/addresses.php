@@ -136,7 +136,7 @@ class ChRest_Addresses extends Extension_RestController implements IExtensionRes
 		if(!$worker->is_superuser) {
 			$memberships = $worker->getMemberships();
 			$params['tmp_worker_memberships'] = new DevblocksSearchCriteria(
-				SearchFields_Ticket::TICKET_TEAM_ID,
+				SearchFields_Ticket::TICKET_GROUP_ID,
 				'in',
 				(!empty($memberships) ? array_keys($memberships) : array(0))
 			);

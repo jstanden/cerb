@@ -25,8 +25,8 @@ class PageSection_SetupWorkers extends Extension_PageSection {
 		$workers = DAO_Worker::getAllWithDisabled();
 		$tpl->assign('workers', $workers);
 
-		$teams = DAO_Group::getAll();
-		$tpl->assign('teams', $teams);
+		$groups = DAO_Group::getAll();
+		$tpl->assign('groups', $groups);
 		
 		$defaults = new C4_AbstractViewModel();
 		$defaults->id = 'workers_cfg';
@@ -49,8 +49,8 @@ class PageSection_SetupWorkers extends Extension_PageSection {
 		$worker = DAO_Worker::get($id);
 		$tpl->assign('worker', $worker);
 		
-		$teams = DAO_Group::getAll();
-		$tpl->assign('teams', $teams);
+		$groups = DAO_Group::getAll();
+		$tpl->assign('groups', $groups);
 		
 		// Custom Fields
 		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_WORKER);
@@ -94,7 +94,7 @@ class PageSection_SetupWorkers extends Extension_PageSection {
 				DAO_Worker::delete($id);
 			
 		} else {
-			if(empty($id) && null == DAO_Worker::lookupAgentEmail($email)) {
+			if(empty($id) && null == DAO_Worker::getByEmail($email)) {
 				// Creating new worker.  If password is empty, email it to them
 			    if(empty($password)) {
 			    	$replyto_default = DAO_AddressOutgoing::getDefault();
@@ -176,9 +176,9 @@ class PageSection_SetupWorkers extends Extension_PageSection {
 			if(is_array($group_ids) && is_array($group_roles))
 			foreach($group_ids as $idx => $group_id) {
 				if(empty($group_roles[$idx])) {
-					DAO_Group::unsetTeamMember($group_id, $id);
+					DAO_Group::unsetGroupMember($group_id, $id);
 				} else {
-					DAO_Group::setTeamMember($group_id, $id, (2==$group_roles[$idx]));
+					DAO_Group::setGroupMember($group_id, $id, (2==$group_roles[$idx]));
 				}
 			}
 

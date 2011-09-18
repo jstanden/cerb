@@ -370,7 +370,7 @@ class Model_MailQueue {
 		// From
 		if(!isset($this->params['group_id']))
 			return false;
-		$properties['team_id'] = $this->params['group_id'];
+		$properties['group_id'] = $this->params['group_id'];
 
 		// To+Cc+Bcc
 		if(!isset($this->params['to']))
@@ -482,7 +482,7 @@ class Model_MailQueue {
 //		    'closed' => $closed,
 //		    'bucket_id' => $move_bucket,
 //		    'ticket_reopen' => $ticket_reopen,
-		    'agent_id' => $worker->id,
+		    'worker_id' => $worker->id,
 			'dont_send' => (false==$send_to_reqs),
 		);
 		
@@ -531,7 +531,7 @@ class Model_MailQueue {
 		$properties['content'] = $this->body;
 
 		// Worker
-		$properties['agent_id'] = empty($this->worker_id) ? $this->worker_id : 0;
+		$properties['worker_id'] = empty($this->worker_id) ? $this->worker_id : 0;
 		
 		// Attachments
 		// 'files' => $attachment_files,

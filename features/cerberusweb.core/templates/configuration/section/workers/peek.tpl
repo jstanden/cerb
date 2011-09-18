@@ -78,16 +78,16 @@
 <fieldset>
 	<legend>{'common.groups'|devblocks_translate|capitalize}</legend>
 	
-	{if $worker->id}{assign var=workerTeams value=$worker->getMemberships()}{/if}
-	{foreach from=$teams item=team key=team_id}
-	{assign var=member value=$workerTeams.$team_id}
-	<input type="hidden" name="group_ids[]" value="{$team->id}">
+	{if $worker->id}{assign var=workerGroups value=$worker->getMemberships()}{/if}
+	{foreach from=$groups item=group key=group_id}
+	{assign var=member value=$workerGroups.$group_id}
+	<input type="hidden" name="group_ids[]" value="{$group->id}">
 	<select name="group_roles[]" {if $disabled} disabled="disabled"{/if}>
 		<option value="">&nbsp;</option>
 		<option value="1" {if $member && !$member->is_manager}selected{/if}>Member</option>
 		<option value="2" {if $member && $member->is_manager}selected{/if}>Manager</option>
 	</select>
-	{$team->name}<br>
+	{$group->name}<br>
 	{/foreach}
 </fieldset>
 

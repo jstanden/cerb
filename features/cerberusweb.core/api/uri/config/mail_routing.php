@@ -94,7 +94,7 @@ class PageSection_SetupMailRouting extends Extension_PageSection {
 		}
 
 		// Make sure we're allowed to change this group's setup
-		if(!$active_worker->isTeamManager($group_id) && !$active_worker->is_superuser) {
+		if(!$active_worker->isGroupManager($group_id) && !$active_worker->is_superuser) {
 			return;
 		}
 		
@@ -261,7 +261,7 @@ class PageSection_SetupMailRouting extends Extension_PageSection {
 				case 'move':
 					@$move_code = DevblocksPlatform::importGPC($_REQUEST['do_move'],'string',null);
 					if(0 != strlen($move_code)) {
-						list($g_id, $b_id) = CerberusApplication::translateTeamCategoryCode($move_code);
+						list($g_id, $b_id) = CerberusApplication::translateGroupBucketCode($move_code);
 						$action = array(
 							'group_id' => intval($g_id),
 							'bucket_id' => intval($b_id),

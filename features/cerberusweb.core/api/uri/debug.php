@@ -195,7 +195,7 @@ class ChDebugController extends DevblocksControllerExtension  {
 						"\n".
 						'%s',
 						intval($db->getOne('SELECT count(id) FROM worker')),
-						intval($db->getOne('SELECT count(id) FROM team')),
+						intval($db->getOne('SELECT count(id) FROM worker_group')),
 						intval($db->getOne('SELECT count(id) FROM ticket')),
 						intval($db->getOne('SELECT count(id) FROM message')),
 						implode("\n * ",array_values($tables)),

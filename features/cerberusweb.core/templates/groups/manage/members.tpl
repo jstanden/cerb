@@ -1,7 +1,7 @@
 <form action="{devblocks_url}{/devblocks_url}" method="post">
 <input type="hidden" name="c" value="groups">
 <input type="hidden" name="a" value="saveTabMembers">
-<input type="hidden" name="team_id" value="{$team->id}">
+<input type="hidden" name="group_id" value="{$group->id}">
 
 <fieldset>
 	<legend>{'common.workers'|devblocks_translate|capitalize}</legend>

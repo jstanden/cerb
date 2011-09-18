@@ -16,17 +16,17 @@
 ***********************************************************************/
 
 class DAO_Group extends C4_ORMHelper {
-    const CACHE_ALL = 'cerberus_cache_teams_all';
+    const CACHE_ALL = 'cerberus_cache_groups_all';
 	const CACHE_ROSTERS = 'ch_group_rosters';
     
-    const TEAM_ID = 'id';
-    const TEAM_NAME = 'name';
+    const ID = 'id';
+    const NAME = 'name';
     const REPLY_ADDRESS_ID = 'reply_address_id';
     const REPLY_PERSONAL = 'reply_personal';
     const REPLY_SIGNATURE = 'reply_signature';
     const IS_DEFAULT = 'is_default';
     
-	// Teams
+	// Groups
 	
 	/**
 	 * Enter description here...
@@ -35,10 +35,10 @@ class DAO_Group extends C4_ORMHelper {
 	 * @return Model_Group
 	 */
 	static function get($id) {
-		$teams = DAO_Group::getAll();
+		$groups = DAO_Group::getAll();
 		
-		if(isset($teams[$id]))
-			return $teams[$id];
+		if(isset($groups[$id]))
+			return $groups[$id];
 			
 		return null;
 	}
@@ -49,48 +49,48 @@ class DAO_Group extends C4_ORMHelper {
 	 * @param array $ids
 	 * @return Model_Group[]
 	 */
-	static function getTeams($ids=array()) {
+	static function getGroups($ids=array()) {
 		if(!is_array($ids)) $ids = array($ids);
 		$db = DevblocksPlatform::getDatabaseService();
 
-		$teams = array();
+		$groups = array();
 		
-		$sql = sprintf("SELECT id , name, is_default, reply_address_id, reply_personal, reply_signature ".
-			"FROM team ".
+		$sql = sprintf("SELECT id, name, is_default, reply_address_id, reply_personal, reply_signature ".
+			"FROM worker_group ".
 			((is_array($ids) && !empty($ids)) ? sprintf("WHERE id IN (%s) ",implode(',',$ids)) : " ").
 			"ORDER BY name ASC"
 		);
 		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 		
 		while($row = mysql_fetch_assoc($rs)) {
-			$team = new Model_Group();
-			$team->id = intval($row['id']);
-			$team->name = $row['name'];
-			$team->is_default = intval($row['is_default']);
-			$team->reply_address_id = $row['reply_address_id'];
-			$team->reply_personal = $row['reply_personal'];
-			$team->reply_signature = $row['reply_signature'];
-			$teams[$team->id] = $team;
+			$group = new Model_Group();
+			$group->id = intval($row['id']);
+			$group->name = $row['name'];
+			$group->is_default = intval($row['is_default']);
+			$group->reply_address_id = $row['reply_address_id'];
+			$group->reply_personal = $row['reply_personal'];
+			$group->reply_signature = $row['reply_signature'];
+			$groups[$group->id] = $group;
 		}
 		
 		mysql_free_result($rs);
 		
-		return $teams;
+		return $groups;
 	}
 	
 	static function getAll($nocache=false) {
 	    $cache = DevblocksPlatform::getCacheService();
-	    if($nocache || null === ($teams = $cache->load(self::CACHE_ALL))) {
-    	    $teams = self::getTeams();
-    	    $cache->save($teams, self::CACHE_ALL);
+	    if($nocache || null === ($groups = $cache->load(self::CACHE_ALL))) {
+    	    $groups = DAO_Group::getGroups();
+    	    $cache->save($groups, self::CACHE_ALL);
 	    }
 	    
-	    return $teams;
+	    return $groups;
 	}
 	
 	/**
 	 * 
-	 * @return Model_Team|null
+	 * @return Model_Group|null
 	 */
 	static function getDefaultGroup() {
 		$groups = self::getAll();
@@ -107,66 +107,26 @@ class DAO_Group extends C4_ORMHelper {
 	static function setDefaultGroup($group_id) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$db->Execute("UPDATE team SET is_default = 0");
-		$db->Execute(sprintf("UPDATE team SET is_default = 1 WHERE id = %d", $group_id));
+		$db->Execute("UPDATE worker_group SET is_default = 0");
+		$db->Execute(sprintf("UPDATE worker_group SET is_default = 1 WHERE id = %d", $group_id));
 		
 		self::clearCache();
 	}
 	
-	/**
-	 * Returns an array of team ticket and task counts, indexed by team id.
-	 *
-	 * @param array $ids Team IDs to summarize
-	 * @return array
-	 */
-	static function getTeamCounts($ids=array(),$with_tickets=true) { // ,$with_tasks=true,$with_unassigned=false
-		if(!is_array($ids)) $ids = array($ids);
-		$db = DevblocksPlatform::getDatabaseService();
-
-		$team_totals = array('0' => array('tickets'=>0));
-
-		if($with_tickets) {
-			$sql = "SELECT count(*) as hits, t.team_id ".
-			    "FROM ticket t ".
-			    "WHERE t.category_id = 0 ".
-			    "AND t.is_closed = 0 ".
-			    (!empty($ids) ? sprintf("AND t.team_id IN (%s) ", implode(',', $ids)) : " ").
-			    "GROUP BY t.team_id "
-			;
-			$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
-			
-			while($row = mysql_fetch_assoc($rs)) {
-			    $team_id = intval($row['team_id']);
-			    $hits = intval($row['hits']);
-			    
-			    if(!isset($team_totals[$team_id])) {
-	                $team_totals[$team_id] = array('tickets'=>0);
-			    }
-			    
-			    $team_totals[$team_id]['tickets'] = $hits;
-			    $team_totals[0]['tickets'] += $hits;
-			}
-			
-			mysql_free_result($rs);
-		}
-		
-		return $team_totals;
-	}
-
 	/**
 	 * Enter description here...
 	 *
 	 * @param string $name
 	 * @return integer
 	 */
-	static function createTeam($fields) {
+	static function create($fields) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = "INSERT INTO team () VALUES ()";
+		$sql = "INSERT INTO worker_group () VALUES ()";
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		$id = $db->LastInsertId(); 
 		
-		self::updateTeam($id, $fields);
+		self::update($id, $fields);
 
 		self::clearCache();
 		
@@ -179,7 +139,7 @@ class DAO_Group extends C4_ORMHelper {
 	 * @param integer $id
 	 * @param array $fields
 	 */
-	static function updateTeam($id, $fields) {
+	static function update($id, $fields) {
 		$db = DevblocksPlatform::getDatabaseService();
 		$sets = array();
 		
@@ -193,7 +153,7 @@ class DAO_Group extends C4_ORMHelper {
 			);
 		}
 			
-		$sql = sprintf("UPDATE team SET %s WHERE id = %d",
+		$sql = sprintf("UPDATE worker_group SET %s WHERE id = %d",
 			implode(', ', $sets),
 			$id
 		);
@@ -207,7 +167,7 @@ class DAO_Group extends C4_ORMHelper {
 	 *
 	 * @param integer $id
 	 */
-	static function deleteTeam($id) {
+	static function delete($id) {
 		if(empty($id)) return;
 		$db = DevblocksPlatform::getDatabaseService();
 		
@@ -224,16 +184,16 @@ class DAO_Group extends C4_ORMHelper {
             )
 	    );
 		
-		$sql = sprintf("DELETE QUICK FROM team WHERE id = %d", $id);
+		$sql = sprintf("DELETE QUICK FROM worker_group WHERE id = %d", $id);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 
-		$sql = sprintf("DELETE QUICK FROM category WHERE team_id = %d", $id);
+		$sql = sprintf("DELETE QUICK FROM bucket WHERE group_id = %d", $id);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 		
 		$sql = sprintf("DELETE QUICK FROM group_setting WHERE group_id = %d", $id);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 		
-		$sql = sprintf("DELETE QUICK FROM worker_to_team WHERE team_id = %d", $id);
+		$sql = sprintf("DELETE QUICK FROM worker_to_group WHERE group_id = %d", $id);
 		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 
 		// Fire event
@@ -256,15 +216,15 @@ class DAO_Group extends C4_ORMHelper {
 		$db = DevblocksPlatform::getDatabaseService();
 		$logger = DevblocksPlatform::getConsoleLog();
 		
-		$sql = "DELETE QUICK category FROM category LEFT JOIN team ON category.team_id=team.id WHERE team.id IS NULL";
+		$sql = "DELETE QUICK bucket FROM bucket LEFT JOIN worker_group ON bucket.group_id = worker_group.id WHERE worker_group.id IS NULL";
 		$db->Execute($sql);
-		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' category records.');
+		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' bucket records.');
 		
-		$sql = "DELETE QUICK group_setting FROM group_setting LEFT JOIN team ON group_setting.group_id=team.id WHERE team.id IS NULL";
+		$sql = "DELETE QUICK group_setting FROM group_setting LEFT JOIN worker_group ON group_setting.group_id = worker_group.id WHERE worker_group.id IS NULL";
 		$db->Execute($sql);
 		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' group_setting records.');
 		
-		$sql = "DELETE QUICK custom_field FROM custom_field LEFT JOIN team ON custom_field.group_id=team.id WHERE custom_field.group_id > 0 AND team.id IS NULL";
+		$sql = "DELETE QUICK custom_field FROM custom_field LEFT JOIN worker_group ON custom_field.group_id = worker_group.id WHERE custom_field.group_id > 0 AND worker_group.id IS NULL";
 		$db->Execute($sql);
 		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' custom_field records.');
 		
@@ -275,37 +235,37 @@ class DAO_Group extends C4_ORMHelper {
 	            'context.maint',
                 array(
                 	'context' => CerberusContexts::CONTEXT_GROUP,
-                	'context_table' => 'team',
+                	'context_table' => 'worker_group',
                 	'context_key' => 'id',
                 )
             )
 	    );
 	}
 	
-	static function setTeamMember($team_id, $worker_id, $is_manager=false) {
-        if(empty($worker_id) || empty($team_id))
+	static function setGroupMember($group_id, $worker_id, $is_manager=false) {
+        if(empty($worker_id) || empty($group_id))
             return FALSE;
 		
         $db = DevblocksPlatform::getDatabaseService();
         
-        $db->Execute(sprintf("REPLACE INTO worker_to_team (agent_id, team_id, is_manager) ".
+        $db->Execute(sprintf("REPLACE INTO worker_to_group (worker_id, group_id, is_manager) ".
         	"VALUES (%d, %d, %d)",
         	$worker_id,
-        	$team_id,
+        	$group_id,
         	($is_manager?1:0)
        	));
         
         self::clearCache();
 	}
 	
-	static function unsetTeamMember($team_id, $worker_id) {
-        if(empty($worker_id) || empty($team_id))
+	static function unsetGroupMember($group_id, $worker_id) {
+        if(empty($worker_id) || empty($group_id))
             return FALSE;
             
         $db = DevblocksPlatform::getDatabaseService();
         
-		$sql = sprintf("DELETE QUICK FROM worker_to_team WHERE team_id = %d AND agent_id IN (%d)",
-		    $team_id,
+		$sql = sprintf("DELETE QUICK FROM worker_to_group WHERE group_id = %d AND worker_id IN (%d)",
+		    $group_id,
 		    $worker_id
 		);
 		$db->Execute($sql);
@@ -318,29 +278,29 @@ class DAO_Group extends C4_ORMHelper {
 		
 		if(null === ($objects = $cache->load(self::CACHE_ROSTERS))) {
 			$db = DevblocksPlatform::getDatabaseService();
-			$sql = sprintf("SELECT wt.agent_id, wt.team_id, wt.is_manager ".
-				"FROM worker_to_team wt ".
-				"INNER JOIN team t ON (wt.team_id=t.id) ".
-				"INNER JOIN worker w ON (w.id=wt.agent_id) ".
-				"ORDER BY t.name ASC, w.first_name ASC "
+			$sql = sprintf("SELECT wt.worker_id, wt.group_id, wt.is_manager ".
+				"FROM worker_to_group wt ".
+				"INNER JOIN worker_group g ON (wt.group_id=g.id) ".
+				"INNER JOIN worker w ON (w.id=wt.worker_id) ".
+				"ORDER BY g.name ASC, w.first_name ASC "
 			);
 			$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
 			
 			$objects = array();
 			
 			while($row = mysql_fetch_assoc($rs)) {
-				$agent_id = intval($row['agent_id']); 
-				$team_id = intval($row['team_id']); 
+				$worker_id = intval($row['worker_id']); 
+				$group_id = intval($row['group_id']); 
 				$is_manager = intval($row['is_manager']);
 				
-				if(!isset($objects[$team_id]))
-					$objects[$team_id] = array();
+				if(!isset($objects[$group_id]))
+					$objects[$group_id] = array();
 				
-				$member = new Model_TeamMember();
-				$member->id = $agent_id;
-				$member->team_id = $team_id;
+				$member = new Model_GroupMember();
+				$member->id = $worker_id;
+				$member->group_id = $group_id;
 				$member->is_manager = $is_manager;
-				$objects[$team_id][$agent_id] = $member;
+				$objects[$group_id][$worker_id] = $member;
 			}
 			
 			mysql_free_result($rs);
@@ -351,11 +311,11 @@ class DAO_Group extends C4_ORMHelper {
 		return $objects;
 	}
 	
-	static function getTeamMembers($team_id) {
+	static function getGroupMembers($group_id) {
 		$rosters = self::getRosters();
 		
-		if(isset($rosters[$team_id]))
-			return $rosters[$team_id];
+		if(isset($rosters[$group_id]))
+			return $rosters[$group_id];
 		
 		return null;
 	}
@@ -367,7 +327,7 @@ class DAO_Group extends C4_ORMHelper {
 	}
 	
 	public static function random() {
-		return self::_getRandom('team');
+		return self::_getRandom('worker_group');
 	}
 	
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
@@ -386,7 +346,7 @@ class DAO_Group extends C4_ORMHelper {
 			    SearchFields_Group::NAME
 			);
 			
-		$join_sql = "FROM team g ".
+		$join_sql = "FROM worker_group g ".
 
 		// Dynamic joins
 		(isset($tables['context_link']) ? "INNER JOIN context_link ON (context_link.to_context = 'cerberusweb.contexts.group' AND context_link.to_context_id = g.id) " : " ")
@@ -519,7 +479,7 @@ class Model_Group {
 	public $reply_signature;
 	
 	public function getMembers() {
-		return DAO_Group::getTeamMembers($this->id);
+		return DAO_Group::getGroupMembers($this->id);
 	}
 	
 	/**
@@ -1178,8 +1138,8 @@ class Context_Group extends Extension_DevblocksContext {
 	}
 };
 
-class Model_TeamMember {
+class Model_GroupMember {
 	public $id;
-	public $team_id;
+	public $group_id;
 	public $is_manager = 0;
 };

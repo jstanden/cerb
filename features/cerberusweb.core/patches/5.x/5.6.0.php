@@ -173,4 +173,97 @@ if(isset($columns['worker_id'])) {
 	$db->Execute("ALTER TABLE workspace_list DROP COLUMN worker_id");
 }
 
+// ===========================================================================
+// Ticket table refactor
+
+if(!isset($tables['ticket'])) {
+ 	$logger->error("The 'ticket' table does not exist.");
+ 	return FALSE;
+}
+
+list($columns, $indexes) = $db->metaTable('ticket');
+
+$diffs = array();
+$do_migrate_orgs = false;
+
+if(isset($columns['team_id']))
+	$diffs[] = "CHANGE COLUMN team_id group_id INT UNSIGNED NOT NULL DEFAULT 0";
+
+if(isset($columns['category_id']))
+	$diffs[] = "CHANGE COLUMN category_id bucket_id INT UNSIGNED NOT NULL DEFAULT 0";
+
+if(!isset($columns['org_id'])) {
+	$do_migrate_orgs = true;
+	$diffs[] = "ADD COLUMN org_id INT UNSIGNED NOT NULL DEFAULT 0";
+	$diffs[] = "ADD INDEX org_id (org_id)";
+}
+
+if(!empty($diffs)) {
+	$db->Execute(sprintf("ALTER TABLE ticket %s",
+		implode(',', $diffs)
+	));
+	
+	if($do_migrate_orgs) {
+		$db->Execute("UPDATE ticket INNER JOIN address ON (ticket.first_wrote_address_id=address.id AND address.contact_org_id > 0) SET ticket.org_id=address.contact_org_id");
+	}
+}
+
+// ===========================================================================
+// team -> worker_group table refactor
+
+if(isset($tables['team']) && !isset($tables['worker_group'])) {
+	$db->Execute("RENAME TABLE team TO worker_group");
+	unset($tables['team']);
+	$tables['worker_group'] = 'worker_group';
+}
+
+// ===========================================================================
+// category -> bucket table refactor
+
+if(isset($tables['category']) && !isset($tables['bucket'])) {
+	$db->Execute("RENAME TABLE category TO bucket");
+	unset($tables['category']);
+	$tables['bucket'] = 'bucket';
+}
+
+list($columns, $indexes) = $db->metaTable('bucket');
+
+if(isset($columns['team_id'])) {
+	$db->Execute("ALTER TABLE bucket CHANGE COLUMN team_id group_id int unsigned not null default 0");
+}
+
+// ===========================================================================
+// worker_to_team -> worker_to_group table refactor
+
+if(isset($tables['worker_to_team']) && !isset($tables['worker_to_group'])) {
+	$db->Execute("RENAME TABLE worker_to_team TO worker_to_group");
+	unset($tables['worker_to_team']);
+	$tables['worker_to_group'] = 'worker_to_group';
+}
+
+list($columns, $indexes) = $db->metaTable('worker_to_group');
+
+if(isset($columns['agent_id']))
+	$db->Execute("ALTER TABLE worker_to_group CHANGE COLUMN agent_id worker_id int unsigned not null default 0");
+
+if(isset($columns['team_id']))
+	$db->Execute("ALTER TABLE worker_to_group CHANGE COLUMN team_id group_id int unsigned not null default 0");
+
+// ===========================================================================
+// Update references in worker_view_model
+
+$replacements = array(
+	't_team_id' => 't_group_id',
+	't_category_id' => 't_bucket_id',
+);
+
+foreach($replacements as $replace_from => $replace_to) {
+	$db->Execute(sprintf("UPDATE worker_view_model ".
+		"SET columns_json=REPLACE(columns_json,'\"%1\$s\"','\"%2\$s\"'), columns_hidden_json=REPLACE(columns_hidden_json,'\"%1\$s\"','\"%2\$s\"'), params_editable_json=REPLACE(params_editable_json,'\"%1\$s\"','\"%2\$s\"'), params_default_json=REPLACE(params_default_json,'\"%1\$s\"','\"%2\$s\"'), params_required_json=REPLACE(params_required_json,'\"%1\$s\"','\"%2\$s\"'), params_hidden_json=REPLACE(params_hidden_json,'\"%1\$s\"','\"%2\$s\"') ".
+		"WHERE class_name IN ('View_Ticket','View_Message')",
+		$replace_from,
+		$replace_to
+	));
+}
+
 return TRUE;

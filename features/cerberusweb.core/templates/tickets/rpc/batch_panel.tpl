@@ -36,17 +36,17 @@
 			<td width="100%"><select name="do_move">
 				<option value=""></option>
 	      		<optgroup label="Move to Group">
-	      		{foreach from=$teams item=team}
-	      			<option value="t{$team->id}">{$team->name}</option>
+	      		{foreach from=$groups item=group}
+	      			<option value="t{$group->id}">{$group->name}</option>
 	      		{/foreach}
 	      		</optgroup>
 	      		
-	      		{foreach from=$team_categories item=categories key=teamId}
-	      			{assign var=team value=$teams.$teamId}
-	      			{if !empty($active_worker_memberships.$teamId)}
-		      			<optgroup label="{$team->name}">
-		      			{foreach from=$categories item=category}
-		    				<option value="c{$category->id}">{$category->name}</option>
+	      		{foreach from=$group_buckets item=buckets key=groupId}
+	      			{assign var=group value=$groups.$groupId}
+	      			{if !empty($active_worker_memberships.$groupId)}
+		      			<optgroup label="{$group->name}">
+		      			{foreach from=$buckets item=bucket}
+		    				<option value="c{$bucket->id}">{$bucket->name}</option>
 		    			{/foreach}
 		    			</optgroup>
 	    			{/if}
