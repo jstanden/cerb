@@ -5,16 +5,6 @@
 	<td width="1%" nowrap="nowrap" valign="top" style="padding-right:5px;">
 		<form action="{devblocks_url}{/devblocks_url}" method="POST">
 			{if $active_worker->hasPriv('core.mail.send')}<button type="button" onclick="document.location.href='{devblocks_url}c=tickets&a=compose{/devblocks_url}';"><span class="cerb-sprite sprite-export"></span> {$translate->_('mail.send_mail')|capitalize}</button>{/if}
-			{if $active_worker->hasPriv('core.mail.actions.auto_refresh')}<button type="button" onclick="autoRefreshTimer.start('{devblocks_url full=true}c=tickets{/devblocks_url}',this.form.reloadSecs.value);"><span class="cerb-sprite sprite-refresh"></span> {'common.refresh.auto'|devblocks_translate|capitalize}</button>
-			<select name="reloadSecs">
-				<option value="600">{'common.time.mins.num'|devblocks_translate:'10'}</option>
-				<option value="300" selected="selected">{'common.time.mins.num'|devblocks_translate:'5'}</option>
-				<option value="240">{'common.time.mins.num'|devblocks_translate:'4'}</option>
-				<option value="180">{'common.time.mins.num'|devblocks_translate:'3'}</option>
-				<option value="120">{'common.time.mins.num'|devblocks_translate:'2'}</option>
-				<option value="60">{'common.time.mins.num'|devblocks_translate:'1'}</option>
-				<option value="30">{'common.time.secs.num'|devblocks_translate:'30'}</option>
-			</select>{/if}
 		</form>
 	</td>
 	<td width="98%" valign="middle">

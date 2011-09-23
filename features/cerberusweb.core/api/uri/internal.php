@@ -2452,21 +2452,6 @@ class ChInternalController extends DevblocksControllerExtension {
 	
 	// Utils
 
-	function startAutoRefreshAction() {
-		$url = DevblocksPlatform::importGPC($_REQUEST['url'],'string', '');
-		$secs = DevblocksPlatform::importGPC($_REQUEST['secs'],'integer', 300);
-
-		$_SESSION['autorefresh'] = array(
-			'url' => $url,
-			'started' => time(),
-			'secs' => $secs,
-		);
-	}
-
-	function stopAutoRefreshAction() {
-		unset($_SESSION['autorefresh']);
-	}
-
 	function transformMarkupToHTMLAction() {
 		$format = DevblocksPlatform::importGPC($_REQUEST['format'],'string', '');
 		$data = DevblocksPlatform::importGPC($_REQUEST['data'],'string', '');

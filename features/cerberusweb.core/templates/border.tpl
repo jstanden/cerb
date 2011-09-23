@@ -1,5 +1,4 @@
 {include file="devblocks:cerberusweb.core::header.tpl"}
-{include file="devblocks:cerberusweb.core::internal/renderers/prebody_autoreload.tpl"}
 
 {if !empty($prebody_renderers)}
 	{foreach from=$prebody_renderers item=renderer}
