@@ -128,6 +128,10 @@
 			{else}
 			{/if}
 		</td>
+		{elseif $column=="o_name"}
+		<td>
+			<a href="javascript:;" onclick="genericAjaxPopup('peek','c=contacts&a=showOrgPeek&id={$result.t_org_id}&view_id={$view->id}',null,false,'500');">{$result.o_name}</a>
+		</td>
 		{elseif $column=="t_group_id"}
 		<td>
 			{assign var=ticket_group_id value=$result.t_group_id}

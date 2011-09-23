@@ -4,7 +4,7 @@
 <tr>
 	<td width="1%" nowrap="nowrap" valign="top" style="padding-right:5px;">
 		<form action="{devblocks_url}{/devblocks_url}" method="POST">
-			{if $active_worker->hasPriv('core.mail.send')}<button type="button" onclick="document.location.href='{devblocks_url}c=tickets&a=compose{/devblocks_url}';"><span class="cerb-sprite sprite-export"></span> {$translate->_('mail.send_mail')|capitalize}</button>{/if}
+			{if $active_worker->hasPriv('core.mail.send')}<button type="button" onclick="document.location.href='{devblocks_url}c=tickets&a=compose{/devblocks_url}';"><span class="cerb-sprite2 sprite-mail-send"></span> {$translate->_('mail.send_mail')|capitalize}</button>{/if}
 		</form>
 	</td>
 	<td width="98%" valign="middle">

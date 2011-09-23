@@ -1094,6 +1094,8 @@ class ChTicketsPage extends CerberusPageExtension {
 	function savePreviewAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
 		@$subject = DevblocksPlatform::importGPC($_REQUEST['subject'],'string','');
+		@$org_id = DevblocksPlatform::importGPC($_REQUEST['org_id'],'integer',0);
+		@$org_name = DevblocksPlatform::importGPC($_REQUEST['org_name'],'string','');
 		@$closed = DevblocksPlatform::importGPC($_REQUEST['closed'],'integer',0);
 		@$owner_id = DevblocksPlatform::importGPC($_REQUEST['owner_id'],'integer',0);
 		@$bucket = DevblocksPlatform::importGPC($_REQUEST['bucket_id'],'string','');
@@ -1154,6 +1156,15 @@ class ChTicketsPage extends CerberusPageExtension {
 			}
 		}
 		
+		// Org
+		if(!empty($org_id) && empty($org_name)) {
+			$fields[DAO_Ticket::ORG_ID] = 0;
+		} elseif(!empty($org_name)) {
+			if(null !== ($org_lookup_id = DAO_ContactOrg::lookup($org_name, true))) {
+				$fields[DAO_Ticket::ORG_ID] = $org_lookup_id;
+			}
+		}
+		
 		// Spam Training
 		if(!empty($spam_training)) {
 			if('S'==$spam_training)
@@ -1193,6 +1204,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		@$draft_id = DevblocksPlatform::importGPC($_POST['draft_id'],'integer');
 		 
 		@$group_id = DevblocksPlatform::importGPC($_POST['group_id'],'integer'); 
+		@$org_name = DevblocksPlatform::importGPC($_POST['org_name'],'string');
 		@$to = DevblocksPlatform::importGPC($_POST['to'],'string');
 		@$cc = DevblocksPlatform::importGPC($_POST['cc'],'string','');
 		@$bcc = DevblocksPlatform::importGPC($_POST['bcc'],'string','');
@@ -1209,10 +1221,17 @@ class ChTicketsPage extends CerberusPageExtension {
 			DevblocksPlatform::redirect(new DevblocksHttpResponse(array('tickets','compose')));
 			return;
 		}
+		
+		// Org
+		$org_id = 0;
+		if(!empty($org_name)) {
+			$org_id = DAO_ContactOrg::lookup($org_name, true);
+		}
 
 		$properties = array(
 			'draft_id' => $draft_id,
 			'group_id' => $group_id,
+			'org_id' => $org_id,
 			'to' => $to,
 			'cc' => $cc,
 			'bcc' => $bcc,

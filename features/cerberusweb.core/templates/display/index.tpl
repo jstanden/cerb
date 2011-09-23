@@ -41,6 +41,12 @@
 				{else}
 					{$translate->_('status.open')}
 				{/if} 
+			{elseif $k == 'org'}
+				{$ticket_org = $ticket->getOrg()}
+				<b>{'contact_org.name'|devblocks_translate|capitalize}:</b>
+				{if !empty($ticket_org)}
+				<a href="javascript:;" onclick="genericAjaxPopup('peek','c=contacts&a=showOrgPeek&id={$ticket->org_id}',null,false,'500');">{$ticket_org->name}</a>
+				{/if}
 			{elseif $k == 'bucket'}
 				<b>{$translate->_('common.bucket')|capitalize}:</b>
 				[{$groups.$ticket_group_id->name}]  

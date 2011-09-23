@@ -112,6 +112,7 @@ class CerberusMail {
 
 	static function compose($properties) {
 		@$group_id = $properties['group_id'];
+		@$org_id = $properties['org_id'];
 		@$toStr = $properties['to'];
 		@$cc = $properties['cc'];
 		@$bcc = $properties['bcc'];
@@ -248,6 +249,7 @@ class CerberusMail {
 			DAO_Ticket::CREATED_DATE => time(),
 			DAO_Ticket::FIRST_WROTE_ID => $fromAddressId,
 			DAO_Ticket::LAST_WROTE_ID => $fromAddressId,
+			DAO_Ticket::ORG_ID => !empty($org_id) ? $org_id : $fromAddressInst->contact_org_id,
 			DAO_Ticket::LAST_ACTION_CODE => CerberusTicketActionCode::TICKET_WORKER_REPLY,
 		);
 		

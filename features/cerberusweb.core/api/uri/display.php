@@ -60,6 +60,7 @@ class ChDisplayPage extends CerberusPageExtension {
 			'status' => null,
 			'mask' => null,
 			'bucket' => null,
+			'org' => null,
 			'created' => array(
 				'label' => ucfirst($translate->_('common.created')),
 				'type' => Model_CustomField::TYPE_DATE,

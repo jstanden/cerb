@@ -963,7 +963,7 @@ button span.cerb-sprite { display:inline-block; }
 .sprite-warning_gray{ background-position: -150px -583px; width: 16px; height: 16px; } 
 
 .cerb-sprite2 { 
-	background:url(cerb_sprites.png?v=2011033103);
+	background:url(cerb_sprites.png?v=2011092201);
 	background-repeat:no-repeat;
 	background-position:top left;
 	display:inline-block;
@@ -971,17 +971,18 @@ button span.cerb-sprite { display:inline-block; }
 }
 button span.cerb-sprite2 { display:inline-block; }
 
-.sprite-cross-circle-frame-gray{ background-position: 0 0; width: 16px; height: 16px; }
-.sprite-cross-circle-frame{ background-position: 0 -66px; width: 16px; height: 16px; }
-.sprite-document-search-result{ background-position: 0 -132px; width: 16px; height: 16px; }
-.sprite-folder-cross-circle{ background-position: 0 -198px; width: 16px; height: 16px; }
-.sprite-folder-gear{ background-position: 0 -264px; width: 16px; height: 16px; }
-.sprite-folder-tick-circle{ background-position: 0 -330px; width: 16px; height: 16px; }
-.sprite-minus-circle-frame{ background-position: 0 -396px; width: 16px; height: 16px; }
-.sprite-plus-circle-frame{ background-position: 0 -462px; width: 16px; height: 16px; }
-.sprite-tick-circle-frame-gray{ background-position: 0 -528px; width: 16px; height: 16px; }
-.sprite-tick-circle-frame{ background-position: 0 -594px; width: 16px; height: 16px; }
-.sprite-user-silhouette{ background-position: 0 -660px; width: 16px; height: 16px; }
+.sprite-cross-circle-frame-gray{ background-position: 0 0; width: 16px; height: 16px; } 
+.sprite-cross-circle-frame{ background-position: 0 -66px; width: 16px; height: 16px; } 
+.sprite-document-search-result{ background-position: 0 -132px; width: 16px; height: 16px; } 
+.sprite-folder-cross-circle{ background-position: 0 -198px; width: 16px; height: 16px; } 
+.sprite-folder-gear{ background-position: 0 -264px; width: 16px; height: 16px; } 
+.sprite-folder-tick-circle{ background-position: 0 -330px; width: 16px; height: 16px; } 
+.sprite-mail-send{ background-position: 0 -396px; width: 16px; height: 16px; } 
+.sprite-minus-circle-frame{ background-position: 0 -462px; width: 16px; height: 16px; } 
+.sprite-plus-circle-frame{ background-position: 0 -528px; width: 16px; height: 16px; } 
+.sprite-tick-circle-frame-gray{ background-position: 0 -594px; width: 16px; height: 16px; } 
+.sprite-tick-circle-frame{ background-position: 0 -660px; width: 16px; height: 16px; } 
+.sprite-user-silhouette{ background-position: 0 -726px; width: 16px; height: 16px; } 
 
 /* -------------------------------------------------------------------
 // markItUp! Universal MarkUp Engine, JQuery plugin

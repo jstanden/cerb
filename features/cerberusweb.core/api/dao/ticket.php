@@ -1131,14 +1131,14 @@ class DAO_Ticket extends C4_ORMHelper {
 		// Org joins
 		if(isset($tables['o'])) {
 			$select_sql .= ", o.name as o_name ";
-			$join_sql .= "LEFT JOIN contact_org o ON (a1.contact_org_id=o.id) ";
+			$join_sql .= "LEFT JOIN contact_org o ON (t.org_id=o.id) ";
 		}
 		
 		// Map custom fields to indexes
 		
 		$cfield_index_map = array(
 			CerberusContexts::CONTEXT_TICKET => 't.id',
-			CerberusContexts::CONTEXT_ORG => 'a1.contact_org_id',
+			CerberusContexts::CONTEXT_ORG => 't.org_id',
 		);
 		
 		// Custom field joins
@@ -1451,6 +1451,8 @@ class Model_Ticket {
 	public $spam_training;
 	public $interesting_words;
 	public $last_action_code;
+	
+	private $_org = null;
 
 	function Model_Ticket() {}
 
@@ -1470,6 +1472,18 @@ class Model_Ticket {
 	function getRequesters() {
 		$requesters = DAO_Ticket::getRequestersByTicket($this->id);
 		return $requesters;
+	}
+	
+	// Lazy load
+	function getOrg() {
+		if(empty($this->org_id))
+			return null;
+		
+		if(is_null($this->_org)) {
+			$this->_org = DAO_ContactOrg::get($this->org_id);
+		}
+		
+		return $this->_org;
 	}
 };
 

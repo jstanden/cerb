@@ -12,7 +12,7 @@
 {/if}
 
 <div class="block">
-<h2>Outgoing Message</h2>
+<h2>{'mail.send_mail'|devblocks_translate|capitalize}</h2>
 <form id="frmCompose" name="compose" enctype="multipart/form-data" method="POST" action="{devblocks_url}{/devblocks_url}">
 <input type="hidden" name="c" value="tickets">
 <input type="hidden" name="a" value="composeMail">
@@ -24,7 +24,7 @@
 		<td>
 			<table cellpadding="1" cellspacing="0" border="0" width="100%">
 				<tr>
-					<td width="0%" nowrap="nowrap" valign="middle" align="right"><b>From:</b>&nbsp;</td>
+					<td width="0%" nowrap="nowrap" valign="top" align="right"><b>From:</b>&nbsp;</td>
 					<td width="100%">
 						<select name="group_id" id="group_id" class="required" style="border:1px solid rgb(180,180,180);padding:2px;">
 							{foreach from=$active_worker_memberships item=membership key=group_id}
@@ -34,25 +34,52 @@
 					</td>
 				</tr>
 				<tr>
-					<td width="0%" nowrap="nowrap" valign="middle" align="right"><b>To:</b>&nbsp;</td>
+					<td width="0%" nowrap="nowrap" valign="top" align="right"><b>{'contact_org.name'|devblocks_translate}:</b>&nbsp;</td>
+					<td width="100%">
+						<input type="text" name="org_name" value="{$draft->params.org_name}" style="border:1px solid rgb(180,180,180);padding:2px;width:98%;">
+						<div class="instructions" style="display:none;">
+						(optional) Link this ticket to an organization and automatically suggest recipients
+						</div>
+					</td>
+				</tr>
+				<tr>
+					<td width="0%" nowrap="nowrap" valign="top" align="right"><b>To:</b>&nbsp;</td>
 					<td width="100%">
 						<input type="text" name="to" value="{if !empty($draft)}{$draft->params.to}{else}{$defaults_to}{/if}" class="required" style="border:1px solid rgb(180,180,180);padding:2px;width:98%;">
+						
+						<div class="instructions" style="display:none;">
+							These recipients will automatically be included in all future correspondence
+						</div>
+						
+						<div id="compose_suggested" style="display:none;">
+							<a href="javascript:;" onclick="$(this).closest('div').hide();">x</a>
+							<b>Consider adding these recipients:</b>
+							<ul class="bubbles"></ul> 
+						</div>
 					</td>
 				</tr>
 				<tr>
-					<td width="0%" nowrap="nowrap" valign="middle" align="right">Cc:&nbsp;</td>
+					<td width="0%" nowrap="nowrap" valign="top" align="right">Cc:&nbsp;</td>
 					<td width="100%">
 						<input type="text" size="100" name="cc" value="{$draft->params.cc}" style="width:98%;border:1px solid rgb(180,180,180);padding:2px;">
+						
+						<div class="instructions" style="display:none;">
+							These recipients will publicly receive a copy of this message	
+						</div>
 					</td>
 				</tr>
 				<tr>
-					<td width="0%" nowrap="nowrap" valign="middle" align="right">Bcc:&nbsp;</td>
+					<td width="0%" nowrap="nowrap" valign="top" align="right">Bcc:&nbsp;</td>
 					<td width="100%">
 						<input type="text" size="100" name="bcc" value="{$draft->params.bcc}" style="width:98%;border:1px solid rgb(180,180,180);padding:2px;">
+						
+						<div class="instructions" style="display:none;">
+							These recipients will privately receive a copy of this message	
+						</div>
 					</td>
 				</tr>
 				<tr>
-					<td width="0%" nowrap="nowrap" valign="middle" align="right"><b>Subject:</b>&nbsp;</td>
+					<td width="0%" nowrap="nowrap" valign="top" align="right"><b>Subject:</b>&nbsp;</td>
 					<td width="100%"><input type="text" size="100" name="subject" value="{$draft->subject}" class="required" style="width:98%;border:1px solid rgb(180,180,180);padding:2px;"></td>
 				</tr>
 
@@ -204,7 +231,68 @@
 		ajax.emailAutoComplete('#frmCompose input[name=cc]', { multiple: true } );
 		ajax.emailAutoComplete('#frmCompose input[name=bcc]', { multiple: true } );
 		
-		$('#frmCompose').validate();
+		$frm = $('#frmCompose');
+		
+		$frm.validate();
+		
+		$frm.find('input:text').focus(function(event) {
+			$(this).nextAll('div.instructions').fadeIn();
+		});
+		
+		$frm.find('input:text').blur(function(event) {
+			$(this).nextAll('div.instructions').fadeOut();
+		});
+
+		ajax.orgAutoComplete('#frmCompose input:text[name=org_name]');
+		
+		$frm.find('input:text[name=to], input:text[name=cc], input:text[name=bcc]').focus(function(event) {
+			$('#compose_suggested').appendTo($(this).closest('td'));
+		});
+		
+		$frm.find('input:text[name=org_name]').bind('autocompletechange',function(event, ui) {
+			genericAjaxGet('', 'c=contacts&a=getTopContactsByOrgJson&org_name=' + $(this).val(), function(json) {
+				$sug = $('#compose_suggested');
+				
+				$sug.find('ul.bubbles li').remove();
+				
+				if(0 == json.length) {
+					$sug.hide();
+					return;
+				}
+				
+				for(i in json) {
+					$sug.find('ul.bubbles').append($("<li><a href=\"javascript:;\" class=\"suggested\">" + json[i].email + "</a></li>"));
+				}
+				
+				// Insert suggested on click
+				$sug.find('a.suggested').click(function(e) {
+					$this = $(this);
+					$sug = $this.text();
+					
+					$to=$this.closest('td').find('input:text:first');
+					$val=$to.val();
+					$len=$val.length;
+					
+					$last = null;
+					if($len>0)
+						$last=$val.substring($len-1);
+					
+					if(0==$len || $last==' ')
+						$to.val($val+$sug);
+					else if($last==',')
+						$to.val($val + ' '+$sug);
+					else $to.val($val + ', '+$sug);
+						$to.focus();
+					
+					$ul=$this.closest('ul');
+					$this.closest('li').remove();
+					if(0==$ul.find('li').length)
+						$ul.closest('div').remove();
+				});
+				
+				$sug.show();
+			});
+		});		
 		
 		setInterval("$('#btnSaveDraft').click();", 30000);
 

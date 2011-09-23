@@ -623,6 +623,7 @@ class ImportCron extends CerberusCronPageExtension {
 			DAO_Ticket::IS_CLOSED => $isClosed,
 			DAO_Ticket::FIRST_WROTE_ID => intval($firstWroteInst->id),
 			DAO_Ticket::LAST_WROTE_ID => intval($lastWroteInst->id),
+			DAO_Ticket::ORG_ID => intval($firstWroteInst->contact_org_id),
 			DAO_Ticket::CREATED_DATE => $iCreatedDate,
 			DAO_Ticket::UPDATED_DATE => $iUpdatedDate,
 			DAO_Ticket::GROUP_ID => intval($iDestGroupId),
