@@ -1098,8 +1098,8 @@ class ChDisplayPage extends CerberusPageExtension {
 		
 		// Perform lookups
 		if(!empty($lookup_str)) {
-			$lookups = DevblocksPlatform::parseCsvString($lookup_str);
-			foreach($lookups as $lookup) {
+			$lookups = CerberusMail::parseRfcAddresses($lookup_str);
+			foreach($lookups as $lookup => $lookup_data) {
 				// Create if a valid email and we haven't heard of them
 				if(null != ($address = DAO_Address::lookupAddress($lookup, true)))
 					DAO_Ticket::createRequester($address->email, $ticket_id);

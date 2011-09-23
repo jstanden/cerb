@@ -385,12 +385,16 @@ class ChTicketsPage extends CerberusPageExtension {
 		
 		switch($type) {
 			case 'compose':
+				@$org_name = DevblocksPlatform::importGPC($_REQUEST['org_name'],'string','');
+				
 				if(!empty($cc))
 					$params['cc'] = $cc;
 				if(!empty($bcc))
 					$params['bcc'] = $bcc;
 				if(!empty($group_id))
 					$params['group_id'] = $group_id;
+				if(!is_null($org_name))
+					$params['org_name'] = $org_name;
 					
 				$type = 'mail.compose';
 				$hint_to = $to;
@@ -1205,9 +1209,9 @@ class ChTicketsPage extends CerberusPageExtension {
 		 
 		@$group_id = DevblocksPlatform::importGPC($_POST['group_id'],'integer'); 
 		@$org_name = DevblocksPlatform::importGPC($_POST['org_name'],'string');
-		@$to = DevblocksPlatform::importGPC($_POST['to'],'string');
-		@$cc = DevblocksPlatform::importGPC($_POST['cc'],'string','');
-		@$bcc = DevblocksPlatform::importGPC($_POST['bcc'],'string','');
+		@$to = rtrim(DevblocksPlatform::importGPC($_POST['to'],'string'),' ,');
+		@$cc = rtrim(DevblocksPlatform::importGPC($_POST['cc'],'string',''),' ,;');
+		@$bcc = rtrim(DevblocksPlatform::importGPC($_POST['bcc'],'string',''),' ,;');
 		@$subject = DevblocksPlatform::importGPC($_POST['subject'],'string','(no subject)');
 		@$content = DevblocksPlatform::importGPC($_POST['content'],'string');
 		@$files = $_FILES['attachment'];

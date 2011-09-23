@@ -576,7 +576,7 @@ class ChContactsPage extends CerberusPageExtension {
 			$list[] = array(
 				'id' => $result->id,
 				'email' => $result->email,
-				'name' => $result->getName(),
+				'name' => htmlentities($result->getName()),
 			);
 		}
 		

@@ -719,28 +719,23 @@ class DAO_Ticket extends C4_ORMHelper {
 		$results = array();
 		$addys = array();
 
-		@$from = imap_rfc822_parse_adrlist($headers['from'], '');
+		@$from = CerberusMail::parseRfcAddresses($headers['from']);
 		if(!empty($from))
 			$addys = array_merge($addys, !is_array($from) ? array($from) : $from);
 		
-		@$to = imap_rfc822_parse_adrlist($headers['to'], '');
+		@$to = CerberusMail::parseRfcAddresses($headers['to']);
 		if(!empty($to))
 			$addys = array_merge($addys, !is_array($to) ? array($to) : $to);
 		
-		@$cc = imap_rfc822_parse_adrlist($headers['cc'], '');
+		@$cc = CerberusMail::parseRfcAddresses($headers['cc']);
 		if(!empty($cc))
 			$addys = array_merge($addys, !is_array($cc) ? array($cc) : $cc);
 
 		$exclude_list = DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::PARSER_AUTO_REQ_EXCLUDE, CerberusSettingsDefaults::PARSER_AUTO_REQ_EXCLUDE);
 		@$excludes = DevblocksPlatform::parseCrlfString($exclude_list);		
 		
-		foreach($addys as $to_addy) {
-			if(empty($to_addy->host))
-				continue;
-
+		foreach($addys as $addy => $addy_data) {
 			try {
-				$addy = $to_addy->mailbox . '@' . $to_addy->host;
-	
 				// Filter out our own addresses
 				if(DAO_AddressOutgoing::isLocalAddress($addy))
 					continue;
@@ -753,7 +748,18 @@ class DAO_Ticket extends C4_ORMHelper {
 					}
 				}
 				
-				$results[$addy] = true;
+				// If we aren't given a personal name, attempt to look them up
+				if(empty($addy_data['personal'])) {
+					if(null != ($addy_lookup = DAO_Address::lookupAddress($addy))) {
+						$addy_fullname = $addy_lookup->getName();
+						if(!empty($addy_fullname)) {
+							$addy_data['personal'] = $addy_fullname;
+							$addy_data['full_email'] = imap_rfc822_write_address($addy_data['mailbox'], $addy_data['host'], $addy_fullname);
+						}
+					}
+				}
+				
+				$results[$addy] = $addy_data;
 				
 			} catch(Exception $e) {
 			}
@@ -763,8 +769,6 @@ class DAO_Ticket extends C4_ORMHelper {
 		if(is_array($current_requesters))
 		foreach($current_requesters as $current_requester)
 			unset($results[$current_requester->email]);
-		
-		$results = array_keys($results);
 		
 		return $results;
 	}

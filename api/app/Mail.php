@@ -63,6 +63,34 @@ class CerberusMail {
 		);
 	}
 	
+	static function parseRfcAddresses($string) {
+		$results = array();
+		$string = rtrim(str_replace(';',',',$string),' ,');
+		$parsed = imap_rfc822_parse_adrlist($string, 'localhost');
+		
+		if(is_array($parsed))
+		foreach($parsed as $parsed_addy) {
+			@$mailbox = $parsed_addy->mailbox;
+			@$host = $parsed_addy->host;
+			@$personal = isset($parsed_addy->personal) ? $parsed_addy->personal : null;
+			
+			if(empty($mailbox) || empty($host))
+				continue;
+			if($mailbox == 'INVALID_ADDRESS')
+				continue;
+			
+			$results[$mailbox . '@' . $host] = array(
+				'full_email' => !empty($personal) ? imap_rfc822_write_address($mailbox, $host, $personal) : imap_rfc822_write_address($mailbox, $host, null),
+				'email' => $mailbox . '@' . $host,
+				'mailbox' => $mailbox,
+				'host' => $host,
+				'personal' => $personal,
+			);
+		}
+		
+		return $results;
+	}
+	
 	static function quickSend($to, $subject, $body, $from_addy=null, $from_personal=null) {
 		try {
 			$mail_service = DevblocksPlatform::getMailService();
@@ -147,7 +175,7 @@ class CerberusMail {
 		));
 		
 		// [JAS]: Replace any semi-colons with commas (people like using either)
-		$toList = DevblocksPlatform::parseCsvString(str_replace(';', ',', $toStr));
+		$toList = CerberusMail::parseRfcAddresses($toStr);
 		
 		$mail_headers = array();
 		$mail_headers['X-CerberusCompose'] = '1';
@@ -156,21 +184,47 @@ class CerberusMail {
 			$mail_service = DevblocksPlatform::getMailService();
 			$mailer = $mail_service->getMailer(CerberusMail::getMailerDefaults());
 			$email = $mail_service->createMessage();
-	
-			$email->setTo($toList);
-			
-			// cc
-			$ccs = array();
-			if(!empty($cc) && null != ($ccList = DevblocksPlatform::parseCsvString(str_replace(';',',',$cc)))) {
-				$email->setCc($ccList);
+
+			// To
+			if(is_array($toList))
+			foreach($toList as $k => $v) {
+				if(!empty($v['personal'])) {
+					$email->addTo($k, $v['personal']);
+				} else {
+					$email->addTo($k);
+				}
 			}
 			
-			// bcc
-			if(!empty($bcc) && null != ($bccList = DevblocksPlatform::parseCsvString(str_replace(';',',',$bcc)))) {
-				$email->setBcc($bccList);
+			// Cc
+			$ccList = CerberusMail::parseRfcAddresses($cc);
+			if(is_array($ccList) && !empty($ccList)) {
+				foreach($ccList as $k => $v) {
+					if(!empty($v['personal'])) {
+						$email->addCc($k, $v['personal']);
+					} else {
+						$email->addCc($k);
+					}
+				}
 			}
 			
-			$email->setFrom(array($from_replyto->email => $personal));
+			// Bcc
+			$bccList = CerberusMail::parseRfcAddresses($bcc);
+			if(is_array($bccList) && !empty($bccList)) {
+				foreach($bccList as $k => $v) {
+					if(!empty($v['personal'])) {
+						$email->addBcc($k, $v['personal']);
+					} else {
+						$email->addBcc($k);
+					}
+				}
+			}
+			
+			if(!empty($personal)) {
+				$email->setFrom($from_replyto->email, $personal);
+			} else {
+				$email->setFrom($from_replyto->email);
+			}
+			
 			$email->setSubject($subject_mailed);
 			$email->generateId();
 			
@@ -276,8 +330,8 @@ class CerberusMail {
 		Storage_MessageContent::put($message_id, $content);
 
 		// Set recipients to requesters
-		foreach($toList as $to) {
-			DAO_Ticket::createRequester($to, $ticket_id);
+		foreach($toList as $to_addy => $to_data) {
+			DAO_Ticket::createRequester($to_addy, $ticket_id);
 		}
 		
 		// Headers
@@ -501,24 +555,42 @@ class CerberusMail {
 				
 			// Forward or overload
 			} elseif(!empty($properties['to'])) {
-			    $aTo = DevblocksPlatform::parseCsvString(str_replace(';',',',$properties['to']));
-				
+				// To
+				$aTo = CerberusMail::parseRfcAddresses($properties['to']);
 				if(is_array($aTo))
-				foreach($aTo as $to_addy) {
-					$mail->addTo($to_addy);
+				foreach($aTo as $k => $v) {
+					if(!empty($v['personal'])) {
+						$mail->addTo($k, $v['personal']);
+					} else {
+						$mail->addTo($k);
+					}
 				}
 			}
 			
 		    // Ccs
 		    if(!empty($properties['cc'])) {
-			    $aCc = DevblocksPlatform::parseCsvString(str_replace(';',',',$properties['cc']));
-				$mail->setCc($aCc);
+				$aCc = CerberusMail::parseRfcAddresses($properties['cc']);
+				if(is_array($aCc))
+				foreach($aCc as $k => $v) {
+					if(!empty($v['personal'])) {
+						$mail->addCc($k, $v['personal']);
+					} else {
+						$mail->addCc($k);
+					}
+				}
 		    }
 		    
 		    // Bccs
 		    if(!empty($properties['bcc'])) {
-			    $aBcc = DevblocksPlatform::parseCsvString(str_replace(';',',',$properties['bcc']));
-				$mail->setBcc($aBcc);
+				$aBcc = CerberusMail::parseRfcAddresses($properties['bcc']);
+				if(is_array($aBcc))
+				foreach($aBcc as $k => $v) {
+					if(!empty($v['personal'])) {
+						$mail->addBcc($k, $v['personal']);
+					} else {
+						$mail->addBcc($k);
+					}
+				}
 		    }
 			
 			// Body

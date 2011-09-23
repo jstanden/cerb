@@ -261,7 +261,11 @@
 				}
 				
 				for(i in json) {
-					$sug.find('ul.bubbles').append($("<li><a href=\"javascript:;\" class=\"suggested\">" + json[i].email + "</a></li>"));
+					label = '';
+					if(json[i].name.length > 0)
+						label += "&quot;" + json[i].name + "&quot; ";
+					label += "&lt;" + json[i].email + '&gt;';
+					$sug.find('ul.bubbles').append($("<li><a href=\"javascript:;\" class=\"suggested\">" + label + "</a></li>"));
 				}
 				
 				// Insert suggested on click
