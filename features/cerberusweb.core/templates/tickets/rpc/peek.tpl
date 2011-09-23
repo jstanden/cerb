@@ -11,9 +11,9 @@
 	{if !$edit_mode && !empty($message)}
     <div id="ticketPeekMessage">
 			{assign var=headers value=$message->getHeaders()}
-			<b>{'message.header.to'|devblocks_translate|capitalize}:</b> {$headers.to}<br>
-			<b>{'message.header.from'|devblocks_translate|capitalize}:</b> {$headers.from}<br>
-			<b>{'message.header.date'|devblocks_translate|capitalize}:</b> {$headers.date}<br>
+			{if !empty($headers.to)}<b>{'message.header.to'|devblocks_translate|capitalize}:</b> {$headers.to}<br>{/if}
+			{if !empty($headers.from)}<b>{'message.header.from'|devblocks_translate|capitalize}:</b> {$headers.from}<br>{/if}
+			{if !empty($headers.date)}<b>{'message.header.date'|devblocks_translate|capitalize}:</b> {$headers.date}<br>{/if}
 			<div id="ticketPeekContent" style="width:400;height:250px;overflow:auto;border:1px solid rgb(180,180,180);margin:2px;padding:3px;background-color:rgb(255,255,255);" ondblclick="genericAjaxPopupClose('peek');">
 				<pre class="emailbody">{$content|trim|escape|devblocks_hyperlinks|devblocks_hideemailquotes nofilter}</pre>
 			</div>
@@ -57,10 +57,28 @@
 						</div>
 					</td>
 				</tr>
+				
 				<tr>
 					<td width="0%" nowrap="nowrap" align="right">Subject: </td>
 					<td width="100%">
 						<input type="text" name="subject" size="45" maxlength="255" style="width:98%;" value="{$ticket->subject}">
+					</td>
+				</tr>
+				
+				<tr>
+					<td width="0%" nowrap="nowrap" align="right">{'contact_org.name'|devblocks_translate|capitalize}: </td>
+					<td width="100%">
+						<input type="hidden" name="org_id" value="{$ticket->org_id}">
+						{$ticket_org = $ticket->getOrg()}
+						{if !empty($ticket_org)}
+						<div>
+							<b>{$ticket_org->name}</b>
+							(<a href="javascript:;" onclick="$p=$(this).closest('div');$p.next('div').show();$p.remove();">change</a>)
+						</div>
+						{/if}
+						<div style="display:{if !empty($ticket_org)}none{else}block{/if};">
+							<input type="text" name="org_name" size="45" maxlength="255" style="width:98%;" value="{if !empty($ticket)}{$ticket_org->name}{/if}">
+						</div>
 					</td>
 				</tr>
 				
@@ -224,6 +242,7 @@
 		$("#peekTabs").tabs();
 		$("#ticketPeekContent").css('width','100%');
 		$("#ticketPeekProps").show();
+		ajax.orgAutoComplete('#ticketPeekProps input:text[name=org_name]');
 		$(this).find('textarea[name=comment]')
 			.elastic()
 			.keyup(function() {

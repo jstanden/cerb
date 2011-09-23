@@ -1087,7 +1087,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		$tpl->assign('last_comment', $last_comment);
 			
 		// Display
-		$tpl->display('devblocks:cerberusweb.core::tickets/rpc/preview_panel.tpl');
+		$tpl->display('devblocks:cerberusweb.core::tickets/rpc/peek.tpl');
 	}
 	
 	// Ajax
@@ -1818,7 +1818,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_TICKET, null, $token_labels, $token_values);
 		$tpl->assign('token_labels', $token_labels);
 		
-		$tpl->display('devblocks:cerberusweb.core::tickets/rpc/batch_panel.tpl');
+		$tpl->display('devblocks:cerberusweb.core::tickets/rpc/bulk.tpl');
 	}
 	
 	// Ajax
