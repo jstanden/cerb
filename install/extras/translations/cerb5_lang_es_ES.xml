@@ -101,11 +101,6 @@
         <seg>[Correo] Puede auto-refrescar la página de correo</seg>
       </tuv>
     </tu>
-    <tu tuid="acl.core.mail.log_ticket">
-      <tuv xml:lang="es_ES">
-        <seg>[Correo] Puede abrir tickets en nombre de los clientes</seg>
-      </tuv>
-    </tu>
     <tu tuid="acl.core.mail.overview">
       <tuv xml:lang="es_ES">
         <seg>[Correo] Puede usar la pestaña Descripción General en la página Correo</seg>

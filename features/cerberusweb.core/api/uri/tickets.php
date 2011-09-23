@@ -102,63 +102,6 @@ class ChTicketsPage extends CerberusPageExtension {
 				$tpl->display('devblocks:cerberusweb.core::tickets/compose/index.tpl');
 				break;
 				
-			case 'create':
-				if(!$active_worker->hasPriv('core.mail.log_ticket'))
-					break;
-				
-				// Workers
-				$workers = DAO_Worker::getAllActive();
-				$tpl->assign('workers', $workers);
-				
-				// Groups
-				$groups = DAO_Group::getAll();
-				$tpl->assign('groups', $groups);
-				
-				// Destinations
-				$destinations = DAO_AddressOutgoing::getAll();
-				$tpl->assign('destinations', $destinations);
-
-				// Group+Buckets				
-				$group_buckets = DAO_Bucket::getGroups();
-				$tpl->assign('group_buckets', $group_buckets);
-				
-				// LogMailToolbarItem Extensions
-				$logMailToolbarItems = DevblocksPlatform::getExtensions('cerberusweb.mail.log.toolbaritem', true);
-				if(!empty($logMailToolbarItems))
-					$tpl->assign('logmail_toolbaritems', $logMailToolbarItems);
-				
-				// Attachments
-				$tpl->assign('upload_max_filesize', ini_get('upload_max_filesize'));
-
-				// Preferences
-				$tpl->assign('mail_status_create', DAO_WorkerPref::get($active_worker->id,'mail_status_create','open'));
-				
-				// Continue a draft?
-				// [TODO] We could also display "you have xxx unsent drafts, would you like to continue one?"
-				if(null != ($draft_id = @$response->path[2])) {
-					$drafts = DAO_MailQueue::getWhere(sprintf("%s = %d AND %s = %d AND %s = %s",
-						DAO_MailQueue::ID,
-						$draft_id,
-						DAO_MailQueue::WORKER_ID,
-						$active_worker->id,
-						DAO_MailQueue::TYPE,
-						C4_ORMHelper::qstr(Model_MailQueue::TYPE_OPEN_TICKET)
-					));
-					
-					if(isset($drafts[$draft_id]))
-						$tpl->assign('draft', $drafts[$draft_id]);
-				}
-				
-				// Link to last created ticket
-				if($visit->exists('compose.last_ticket')) {
-					$ticket_mask = $visit->get('compose.last_ticket');
-					$tpl->assign('last_ticket_mask', $ticket_mask);
-					$visit->set('compose.last_ticket',null); // clear
-				}
-				
-				$tpl->display('devblocks:cerberusweb.core::tickets/create/index.tpl');
-				break;
-				
 			default:
 				// Clear all undo actions on reload
 			    View_Ticket::clearLastActions();
@@ -427,10 +370,6 @@ class ChTicketsPage extends CerberusPageExtension {
 		@$cc = DevblocksPlatform::importGPC($_REQUEST['cc'],'string',''); 
 		@$bcc = DevblocksPlatform::importGPC($_REQUEST['bcc'],'string',''); 
 		
-		// Open Ticket
-		@$requesters = DevblocksPlatform::importGPC($_REQUEST['reqs'],'string',''); 
-		@$send_to_reqs = DevblocksPlatform::importGPC($_REQUEST['send_to_requesters'],'integer',0); 
-		
 		$params = array();
 		
 		$hint_to = null;
@@ -455,16 +394,6 @@ class ChTicketsPage extends CerberusPageExtension {
 					
 				$type = 'mail.compose';
 				$hint_to = $to;
-				break;
-				
-			case 'create':
-				if(!empty($requesters))
-					$params['requesters'] = $requesters;
-				if(!empty($send_to_reqs))
-					$params['send_to_reqs'] = $send_to_reqs;
-					
-				$type = 'mail.open_ticket';
-				$hint_to = $requesters;
 				break;
 				
 			default:
@@ -1312,121 +1241,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('tickets','compose')));
 		exit;
 	}
-	
-	function logTicketAction() {
-		$active_worker = CerberusApplication::getActiveWorker();
 		
-		if(!$active_worker->hasPriv('core.mail.log_ticket'))
-			return;
-			
-		$translate = DevblocksPlatform::getTranslationService();
-		
-		@$to = DevblocksPlatform::importGPC($_POST['to'],'string');
-		@$reqs = DevblocksPlatform::importGPC($_POST['reqs'],'string');
-		@$subject = DevblocksPlatform::importGPC($_POST['subject'],'string');
-		@$content = DevblocksPlatform::importGPC($_POST['content'],'string');
-		
-		@$draft_id = DevblocksPlatform::importGPC($_POST['draft_id'],'integer');		
-		
-		@$closed = DevblocksPlatform::importGPC($_POST['closed'],'integer',0);
-		@$ticket_reopen = DevblocksPlatform::importGPC($_POST['ticket_reopen'],'string','');
-		@$watcher_ids = DevblocksPlatform::importGPC($_POST['worker_id'],'array',array());
-		@$add_me_as_watcher = DevblocksPlatform::importGPC($_POST['add_me_as_watcher'],'integer',0);
-		
-		// ********
-		
-		$message = new CerberusParserMessage();
-		$message->headers['date'] = date('r'); 
-		$message->headers['to'] = $to;
-		$message->headers['subject'] = $subject;
-		$message->headers['message-id'] = CerberusApplication::generateMessageId();
-		//$message->headers['x-cerberus-portal'] = 1; 
-		
-		// Sender
-		$fromList = imap_rfc822_parse_adrlist(rtrim($reqs,', '),'');
-		
-		if(empty($fromList) || !is_array($fromList)) {
-			return; // abort with message
-		}
-		$from = array_shift($fromList);
-		$from_address = $from->mailbox . '@' . $from->host;
-		$message->headers['from'] = $from_address;
-
-		$message->body =
-			vsprintf($translate->_('mail.create.on_behalf'), $active_worker->getName()). 
-			"\n".
-			"\n".
-			$content
-			;
-		
-		// Files
-		if(isset($_FILES['attachment']))
-		foreach($_FILES['attachment']['name'] as $idx => $tmp_name) {
-			@$tmp_file = $_FILES['attachment']['tmp_name'][$idx];
-			if(empty($tmp_file))
-				continue;
-			$file = new ParserFile();
-			$file->setTempFile($tmp_file, $_FILES['attachment']['type'][$idx]);
-			$file->file_size = $_FILES['attachment']['size'][$idx];
-			$message->files[$tmp_name] = $file;
-		}
-			
-		// [TODO] Custom fields
-		
-		// Parse
-		// [TODO] Parser override not spam
-		$ticket_id = CerberusParser::parseMessage($message);
-		
-		if(!empty($draft_id))
-			DAO_MailQueue::delete($draft_id);
-			
-		// Add additional requesters to ticket
-		if(is_array($fromList) && !empty($fromList))
-		foreach($fromList as $requester) {
-			if(empty($requester))
-				continue;
-			$host = empty($requester->host) ? 'localhost' : $requester->host;
-			DAO_Ticket::createRequester($requester->mailbox . '@' . $host, $ticket_id);
-		}
-		
-		$fields = array();
-
-		// Status
-		if(!empty($closed)) {
-			switch($closed) {
-				case 1:
-					$fields[DAO_Ticket::IS_WAITING] = 0;
-					$fields[DAO_Ticket::IS_CLOSED] = 1;
-					$fields[DAO_Ticket::IS_DELETED] = 0;
-					break;
-				case 2:
-					$fields[DAO_Ticket::IS_WAITING] = 1;
-					$fields[DAO_Ticket::IS_CLOSED] = 0;
-					$fields[DAO_Ticket::IS_DELETED] = 0;
-					break;
-			}
-			
-			if(false !== (@$ticket_reopen = strtotime($ticket_reopen)))
-				$fields[DAO_Ticket::DUE_DATE] = $ticket_reopen; 
-		}
-		
-		if(!empty($fields))
-			DAO_Ticket::update($ticket_id, $fields);
-		
-		// Watchers
-		if($add_me_as_watcher)
-			CerberusContexts::addWatchers(CerberusContexts::CONTEXT_TICKET, $ticket_id, $active_worker->id);
-		
-		$ticket = DAO_Ticket::get($ticket_id);			
-		
-		// ********
-
-		$visit = CerberusApplication::getVisit(); /* @var CerberusVisit $visit */
-		$visit->set('compose.last_ticket', $ticket->mask);
-		
-		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('tickets','create')));
-	}
-	
 	function showViewAutoAssistAction() {
         @$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
         @$mode = DevblocksPlatform::importGPC($_REQUEST['mode'],'string','senders');

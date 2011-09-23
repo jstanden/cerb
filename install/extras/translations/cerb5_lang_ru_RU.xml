@@ -96,11 +96,6 @@
         <seg>[Почта] Может использовать автообновление страницы Почта</seg>
       </tuv>
     </tu>
-    <tu tuid="acl.core.mail.log_ticket">
-      <tuv xml:lang="ru_RU">
-        <seg>[Почта] Может открывать заявки от имени пользователей</seg>
-      </tuv>
-    </tu>
     <tu tuid="acl.core.mail.overview">
       <tuv xml:lang="ru_RU">
         <seg>[Почта] Может использовать вкладку Обзор на странице Почта</seg>
@@ -5346,11 +5341,6 @@ remote control of your helpdesk.</seg>
       </tuv>
     </tu>
     <tu tuid="preferences.account.mail.status.compose">
-      <tuv xml:lang="ru_RU">
-        <seg></seg>
-      </tuv>
-    </tu>
-    <tu tuid="preferences.account.mail.status.create">
       <tuv xml:lang="ru_RU">
         <seg></seg>
       </tuv>

@@ -470,7 +470,6 @@ class ChPreferencesPage extends CerberusPageExtension {
 		$prefs['mail_always_show_all'] = DAO_WorkerPref::get($worker->id,'mail_always_show_all',0);
 		$prefs['mail_reply_button'] = DAO_WorkerPref::get($worker->id,'mail_reply_button',0);
 		$prefs['mail_status_compose'] = DAO_WorkerPref::get($worker->id,'mail_status_compose','waiting');
-		$prefs['mail_status_create'] = DAO_WorkerPref::get($worker->id,'mail_status_create','open');
 		$prefs['mail_status_reply'] = DAO_WorkerPref::get($worker->id,'mail_status_reply','waiting');
 		$prefs['mail_signature_pos'] = DAO_WorkerPref::get($worker->id,'mail_signature_pos',2);
 		$tpl->assign('prefs', $prefs);
@@ -555,9 +554,6 @@ class ChPreferencesPage extends CerberusPageExtension {
 		@$mail_status_compose = DevblocksPlatform::importGPC($_REQUEST['mail_status_compose'],'string','waiting');
 		DAO_WorkerPref::set($worker->id, 'mail_status_compose', $mail_status_compose);
 		
-		@$mail_status_create = DevblocksPlatform::importGPC($_REQUEST['mail_status_create'],'string','waiting');
-		DAO_WorkerPref::set($worker->id, 'mail_status_create', $mail_status_create);
-
 		@$mail_status_reply = DevblocksPlatform::importGPC($_REQUEST['mail_status_reply'],'string','waiting');
 		DAO_WorkerPref::set($worker->id, 'mail_status_reply', $mail_status_reply);
 		

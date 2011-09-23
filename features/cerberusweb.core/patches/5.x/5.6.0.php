@@ -266,4 +266,9 @@ foreach($replacements as $replace_from => $replace_to) {
 	));
 }
 
+// ===========================================================================
+// Pref cleanup
+
+$db->Execute("DELETE FROM worker_pref WHERE setting = 'mail_status_create'");
+
 return TRUE;

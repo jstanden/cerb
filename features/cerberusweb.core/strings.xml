@@ -663,9 +663,6 @@
 		<tu tuid='acl.core.mail.actions.auto_refresh'>
 			<tuv xml:lang="en_US"><seg>[Mail] Can auto-refresh the mail page</seg></tuv>
 		</tu>
-		<tu tuid='acl.core.mail.log_ticket'>
-			<tuv xml:lang="en_US"><seg>[Mail] Can open tickets on behalf of customers</seg></tuv>
-		</tu>
 		<tu tuid='acl.core.mail.search'>
 			<tuv xml:lang="en_US"><seg>[Mail] Can use the Search tab on the mail page</seg></tuv>
 		</tu>
@@ -1893,9 +1890,6 @@ For example: *receipt*</seg></tuv>
 	    </tu>
 	    <tu tuid='preferences.account.mail.status.compose'>
 			<tuv xml:lang="en_US"><seg>When composing a new outgoing message, default the status to:</seg></tuv>
-	    </tu>
-	    <tu tuid='preferences.account.mail.status.create'>
-			<tuv xml:lang="en_US"><seg>When opening a new ticket, default the status to:</seg></tuv>
 	    </tu>
 	    <tu tuid='preferences.account.mail.status.reply'>
 			<tuv xml:lang="en_US"><seg>When replying to mail, default the status to:</seg></tuv>

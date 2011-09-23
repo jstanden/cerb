@@ -101,11 +101,6 @@
         <seg>[Email] Kann die email-Seite auto-aktualisieren</seg>
       </tuv>
     </tu>
-    <tu tuid="acl.core.mail.log_ticket">
-      <tuv xml:lang="de_DE">
-        <seg>[Email] Kann Tickets im Namen von Kunden eröffnen</seg>
-      </tuv>
-    </tu>
     <tu tuid="acl.core.mail.overview">
       <tuv xml:lang="de_DE">
         <seg>[Email] Kann die Übersicht auf der email-Seite nutzen</seg>

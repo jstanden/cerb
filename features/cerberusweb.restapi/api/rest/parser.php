@@ -27,7 +27,7 @@ class ChRest_Parser extends Extension_RestController { //implements IExtensionRe
 	private function postParse() {
 		$worker = $this->getActiveWorker();
 		
-		if(!$worker->hasPriv('core.mail.log_ticket'))
+		if(!$worker->hasPriv('acl.core.mail.send'))
 			$this->error(self::ERRNO_ACL);
 		
 		@$content = DevblocksPlatform::importGPC($_POST['message'],'string','');

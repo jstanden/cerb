@@ -81,11 +81,6 @@
         <seg>[Mail] Pode auto-refrescar a página de Email</seg>
       </tuv>
     </tu>
-    <tu tuid="acl.core.mail.log_ticket">
-      <tuv xml:lang="pt_PT">
-        <seg>[Mail] Pode abrir tickets em nome dos clientes</seg>
-      </tuv>
-    </tu>
     <tu tuid="acl.core.mail.overview">
       <tuv xml:lang="pt_PT">
         <seg>[Mail] Pode usar o tab visão global na página de Mail</seg>

@@ -58,8 +58,6 @@
 				{if !$result.m_is_queued}
 					{if $result.m_type=="mail.compose"}
 						<a href="{devblocks_url}c=tickets&a=compose&id={$result.m_id}{/devblocks_url}" class="subject">{if empty($result.m_subject)}(no subject){else}{$result.m_subject}{/if}</a>
-					{elseif $result.m_type=="mail.open_ticket"}
-						<a href="{devblocks_url}c=tickets&a=create&id={$result.m_id}{/devblocks_url}" class="subject">{if empty($result.m_subject)}(no subject){else}{$result.m_subject}{/if}</a>
 					{elseif $result.m_type=="ticket.reply"}
 						<a href="{devblocks_url}c=display&id={$result.m_ticket_id}{/devblocks_url}#draft{$result.m_id}" class="subject">{if empty($result.m_subject)}(no subject){else}{$result.m_subject}{/if}</a>
 					{elseif $result.m_type=="ticket.forward"}

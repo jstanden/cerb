@@ -131,11 +131,6 @@
         <seg>[Mail] Kan auto-refresh op de Mail pagina gebruiken</seg>
       </tuv>
     </tu>
-    <tu tuid="acl.core.mail.log_ticket">
-      <tuv xml:lang="nl_NL">
-        <seg>[Mail] Kan tickets in naam van klanten openen</seg>
-      </tuv>
-    </tu>
     <tu tuid="acl.core.mail.search">
       <tuv xml:lang="nl_NL">
         <seg>[Mail] Kan het tabblad Zoeken gebruiken op de Mail pagina</seg>
