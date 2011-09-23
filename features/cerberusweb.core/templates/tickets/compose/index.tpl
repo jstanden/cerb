@@ -167,7 +167,7 @@
 									{'common.watchers.add_me'|devblocks_translate}
 									</label>
 								</div>
-							
+								
 								<label><input type="radio" name="closed" value="0" onclick="toggleDiv('ticketClosed','none');" {if 'open'==$mail_status_compose}checked="checked"{/if}>{$translate->_('status.open')|capitalize}</label>
 								<label><input type="radio" name="closed" value="2" onclick="toggleDiv('ticketClosed','block');" {if 'waiting'==$mail_status_compose}checked="checked"{/if}>{$translate->_('status.waiting')|capitalize}</label>
 								{if $active_worker->hasPriv('core.ticket.actions.close')}<label><input type="radio" name="closed" value="1" onclick="toggleDiv('ticketClosed','block');" {if 'closed'==$mail_status_compose}checked="checked"{/if}>{$translate->_('status.closed')|capitalize}</label>{/if}
@@ -181,31 +181,43 @@
 								</div>
 		
 								{if $active_worker->hasPriv('core.ticket.actions.move')}
-								<b>{$translate->_('display.reply.next.move')}</b><br>  
-						      	<select name="bucket_id">
-						      		<option value="">-- {$translate->_('display.reply.next.move.no_thanks')|lower} --</option>
-						      		<optgroup label="{$translate->_('common.inboxes')|capitalize}">
-						      		{foreach from=$groups item=group}
-						      			<option value="t{$group->id}">{$group->name}</option>
-						      		{/foreach}
-						      		</optgroup>
-						      		{foreach from=$group_buckets item=buckets key=groupId}
-										{if !empty($active_worker_memberships.$groupId)}
-							      			{assign var=group value=$groups.$groupId}
-							      			<optgroup label="-- {$group->name} --">
-							      			{foreach from=$buckets item=bucket}
-							    				<option value="c{$bucket->id}">{$bucket->name}</option>
-							    			{/foreach}
-							    			</optgroup>
-										{/if}
-						     		{/foreach}
-						      	</select><br>
+								<b>{$translate->_('display.reply.next.move')}</b>
+								<div style="margin-left:10px;">
+							      	<select name="bucket_id">
+							      		<option value="">-- {$translate->_('display.reply.next.move.no_thanks')|lower} --</option>
+							      		<optgroup label="{$translate->_('common.inboxes')|capitalize}">
+							      		{foreach from=$groups item=group}
+							      			<option value="t{$group->id}">{$group->name}</option>
+							      		{/foreach}
+							      		</optgroup>
+							      		{foreach from=$group_buckets item=buckets key=groupId}
+											{if !empty($active_worker_memberships.$groupId)}
+								      			{assign var=group value=$groups.$groupId}
+								      			<optgroup label="-- {$group->name} --">
+								      			{foreach from=$buckets item=bucket}
+								    				<option value="c{$bucket->id}">{$bucket->name}</option>
+								    			{/foreach}
+								    			</optgroup>
+											{/if}
+							     		{/foreach}
+							      	</select>
+							    </div>
 						      	<br>
 								{/if}
-						      	
 							</td>
 						</tr>
 					</table>
+					
+					<b>{'common.custom_fields'|devblocks_translate|capitalize}:</b>
+					<div id="compose_cfields" style="margin:5px 0px 0px 10px;">
+						<div class="global">
+							{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false}
+						</div>
+						<div class="group">
+							{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" custom_fields=$group_fields bulk=false}
+						</div>
+					</div>
+					
 				</td>
 			</tr>
 		</table>
@@ -245,6 +257,14 @@
 
 		ajax.orgAutoComplete('#frmCompose input:text[name=org_name]');
 		
+		$frm.find('select[name=group_id]').change(function(e) {
+			$div = $('#compose_cfields');
+			$div.find('td.group').html('');
+			genericAjaxGet($div, 'c=tickets&a=getCustomFieldEntry&group_id=' + $(this).val(), function(html) {
+				$('#compose_cfields').find('div.group').html(html);
+			});
+		});
+		
 		$frm.find('input:text[name=to], input:text[name=cc], input:text[name=bcc]').focus(function(event) {
 			$('#compose_suggested').appendTo($(this).closest('td'));
 		});
@@ -262,9 +282,13 @@
 				
 				for(i in json) {
 					label = '';
-					if(json[i].name.length > 0)
-						label += "&quot;" + json[i].name + "&quot; ";
-					label += "&lt;" + json[i].email + '&gt;';
+					if(json[i].name.length > 0) {
+						label += json[i].name + " ";
+						label += "&lt;" + json[i].email + '&gt;';
+					} else {
+						label += json[i].email;
+					}
+					
 					$sug.find('ul.bubbles').append($("<li><a href=\"javascript:;\" class=\"suggested\">" + label + "</a></li>"));
 				}
 				

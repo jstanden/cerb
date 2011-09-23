@@ -157,9 +157,7 @@
 			{if $field_group_id == 0 || $field_group_id == $ticket->group_id}
 				{assign var=show_submit value=1}
 				{if $field_group_id && $field_group_id != $last_group_id}
-					<tr>
-						<td colspan="2" align="center"><b>{$groups.$field_group_id->name}</b></td>
-					</tr>
+				{* ... *}
 				{/if}
 					<tr>
 						<td valign="top" width="1%" align="right" nowrap="nowrap">

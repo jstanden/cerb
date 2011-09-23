@@ -14,15 +14,15 @@
 				<legend>{'common.groups'|devblocks_translate|capitalize}</legend>
 				
 				<table cellpadding="2" cellspacing="2" border="0">
-				{foreach from=$groups item=group name=groups key=group_id}
+				{foreach from=$groups item=model name=groups key=group_id}
 					{assign var=group_member value=$active_worker_memberships.$group_id}
 					{if $group_member || $active_worker->is_superuser}
 					<tr>
 						<td style="padding-right:20px;">
 							{if $group_member->is_manager || $active_worker->is_superuser}
-								<a href="{devblocks_url}c=groups&gid={$group_id}-{$group->name|devblocks_permalink}{/devblocks_url}"><b>{$group->name}</b></a>
+								<a href="{devblocks_url}c=groups&gid={$group_id}-{$model->name|devblocks_permalink}{/devblocks_url}"><b>{$model->name}</b></a>
 							{else}
-								{$group->name}
+								{$model->name}
 							{/if}
 						</td>
 						<td style="padding-right:20px;">

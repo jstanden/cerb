@@ -50,9 +50,6 @@ class ChTicketsPage extends CerberusPageExtension {
 				
 				$settings = DevblocksPlatform::getPluginSettingsService();
 				
-				@$defaults_to = DevblocksPlatform::importGPC($_REQUEST['to'],'string','');
-				$tpl->assign('defaults_to', $defaults_to);
-				
 				// Workers
 				$workers = DAO_Worker::getAllActive();
 				$tpl->assign('workers', $workers);
@@ -91,6 +88,14 @@ class ChTicketsPage extends CerberusPageExtension {
 					if(isset($drafts[$draft_id]))
 						$tpl->assign('draft', $drafts[$draft_id]);
 				}
+				
+				// Custom fields
+				$custom_fields = DAO_CustomField::getByContextAndGroupId(CerberusContexts::CONTEXT_TICKET, 0);
+				$tpl->assign('custom_fields', $custom_fields);
+
+				$default_group_id = (!empty($draft_id) && isset($drafts[$draft_id]) && isset($drafts[$draft_id]->params['group_id'])) ? $drafts[$draft_id]->params['group_id']: key($groups);
+				$group_fields = DAO_CustomField::getByContextAndGroupId(CerberusContexts::CONTEXT_TICKET, $default_group_id);
+				$tpl->assign('group_fields', $group_fields);
 				
 				// Link to last created ticket
 				if($visit->exists('compose.last_ticket')) {
@@ -1255,6 +1260,13 @@ class ChTicketsPage extends CerberusPageExtension {
 			if($add_me_as_watcher)
 				CerberusContexts::addWatchers(CerberusContexts::CONTEXT_TICKET, $ticket_id, $active_worker->id);
 				
+			// Custom fields
+			
+			@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', array());
+			DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_TICKET, $ticket_id, $field_ids);
+			
+			// Redirect 
+			
 			$ticket = DAO_Ticket::get($ticket_id);
 			
 			$visit = CerberusApplication::getVisit(); /* @var CerberusVisit $visit */
@@ -2118,5 +2130,17 @@ class ChTicketsPage extends CerberusPageExtension {
 		C4_AbstractViewLoader::setView($search_view->id,$search_view);
 
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','search')));
+	}
+	
+	function getCustomFieldEntryAction() {
+		@$group_id = DevblocksPlatform::importGPC($_REQUEST['group_id'],'integer',0);
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		
+		$group_fields = DAO_CustomField::getByContextAndGroupId(CerberusContexts::CONTEXT_TICKET, $group_id);
+		$tpl->assign('custom_fields', $group_fields);
+		$tpl->assign('bulk', false);
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl');
 	}
 };
