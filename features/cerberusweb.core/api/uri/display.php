@@ -519,6 +519,17 @@ class ChDisplayPage extends CerberusPageExtension {
 			$tpl->assign('suggested_recipients', $suggested_recipients);
 		}
 		
+		// Custom fields
+		$custom_fields = DAO_CustomField::getByContextAndGroupId(CerberusContexts::CONTEXT_TICKET, 0);
+		$tpl->assign('custom_fields', $custom_fields);
+
+		$group_fields = DAO_CustomField::getByContextAndGroupId(CerberusContexts::CONTEXT_TICKET, $ticket->group_id);
+		$tpl->assign('group_fields', $group_fields);
+		
+		$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_TICKET, $ticket->id);
+		if(isset($custom_field_values[$ticket->id]))
+			$tpl->assign('custom_field_values', $custom_field_values[$ticket->id]);
+		
 		// ReplyToolbarItem Extensions
 		$replyToolbarItems = DevblocksPlatform::getExtensions('cerberusweb.reply.toolbaritem', true);
 		if(!empty($replyToolbarItems))
@@ -590,6 +601,11 @@ class ChDisplayPage extends CerberusPageExtension {
 		if('save' == $reply_mode)
 			$properties['dont_send'] = true;
 
+		// Custom fields
+		@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', array());
+		DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_TICKET, $ticket_id, $field_ids);
+
+		// Send
 		if(CerberusMail::sendTicketMessage($properties)) {
 			if(!empty($draft_id))
 				DAO_MailQueue::delete($draft_id);
