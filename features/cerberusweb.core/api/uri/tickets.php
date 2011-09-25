@@ -1225,6 +1225,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		@$move_bucket = DevblocksPlatform::importGPC($_POST['bucket_id'],'string','');
 		@$ticket_reopen = DevblocksPlatform::importGPC($_POST['ticket_reopen'],'string','');
 		@$add_me_as_watcher = DevblocksPlatform::importGPC($_POST['add_me_as_watcher'],'integer',0);
+		@$options_dont_send = DevblocksPlatform::importGPC($_POST['options_dont_send'],'integer',0);
 		
 		if(empty($to)) {
 			DevblocksPlatform::redirect(new DevblocksHttpResponse(array('tickets','compose')));
@@ -1251,6 +1252,10 @@ class ChTicketsPage extends CerberusPageExtension {
 			'move_bucket' => $move_bucket,
 			'ticket_reopen' => $ticket_reopen,
 		);
+		
+		if(!empty($options_dont_send))
+			$properties['dont_send'] = 1;
+		
 		$ticket_id = CerberusMail::compose($properties);
 		
 		if(!empty($ticket_id)) {

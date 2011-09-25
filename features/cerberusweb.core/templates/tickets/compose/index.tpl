@@ -166,6 +166,13 @@
 									<input type="checkbox" name="add_me_as_watcher" value="1"> 
 									{'common.watchers.add_me'|devblocks_translate}
 									</label>
+									<br>
+									
+									<label>
+									<input type="checkbox" name="options_dont_send" value="1"> 
+									Start a new conversation without sending a copy of this message to the recipients
+									</label>
+									<br>
 								</div>
 								
 								<label><input type="radio" name="closed" value="0" onclick="toggleDiv('ticketClosed','none');" {if 'open'==$mail_status_compose}checked="checked"{/if}>{$translate->_('status.open')|capitalize}</label>

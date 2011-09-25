@@ -152,6 +152,8 @@ class CerberusMail {
 		@$move_bucket = $properties['move_bucket'];
 		@$ticket_reopen = $properties['ticket_reopen'];
 		
+		@$dont_send = $properties['dont_send'];
+		
 		$worker = CerberusApplication::getActiveWorker();
 		$group = DAO_Group::get($group_id);
 
@@ -252,12 +254,11 @@ class CerberusMail {
 				}
 			}
 			
-			// [TODO] Allow separated addresses (parseRfcAddress)
-	//		$mailer->log->enable();
-			if(!@$mailer->send($email)) {
-				throw new Exception('Mail failed to send: unknown reason');
+			if(empty($dont_send)) {
+				if(!@$mailer->send($email)) {
+					throw new Exception('Mail failed to send: unknown reason');
+				}
 			}
-	//		$mailer->log->dump();
 	
 		} catch (Exception $e) {
 			@$draft_id = $properties['draft_id'];
