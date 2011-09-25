@@ -72,6 +72,10 @@ abstract class AbstractEvent_Domain extends Extension_DevblocksEvent {
 	function getConditionExtensions() {
 		$labels = $this->getLabels();
 		
+		$labels['domain_link'] = 'Domain is linked';
+		//$labels['domain_contact_link'] = 'Domain is linked';
+		//$labels['domain_contact_org_link'] = 'Domain is linked';
+		
 		$types = array(
 			'domain_name' => Model_CustomField::TYPE_SINGLE_LINE,
 			
@@ -94,6 +98,10 @@ abstract class AbstractEvent_Domain extends Extension_DevblocksEvent {
 			'domain_contact_org_province' => Model_CustomField::TYPE_SINGLE_LINE,
 			'domain_contact_org_street' => Model_CustomField::TYPE_SINGLE_LINE,
 			'domain_contact_org_website' => Model_CustomField::TYPE_URL,
+			
+			'domain_link' => null,
+			//'domain_contact_link' => null,
+			//'domain_contact_org_link' => null,
 		);
 
 		$conditions = $this->_importLabelsTypesAsConditions($labels, $types);
@@ -109,6 +117,11 @@ abstract class AbstractEvent_Domain extends Extension_DevblocksEvent {
 			$tpl->assign('namePrefix','condition'.$seq);
 		
 		switch($token) {
+			case 'domain_link':
+				$contexts = Extension_DevblocksContext::getAll(false);
+				$tpl->assign('contexts', $contexts);
+				$tpl->display('devblocks:cerberusweb.core::events/condition_link.tpl');
+				break;
 		}
 
 		$tpl->clearAssign('namePrefix');
@@ -119,6 +132,49 @@ abstract class AbstractEvent_Domain extends Extension_DevblocksEvent {
 		$pass = true;
 		
 		switch($token) {
+			case 'domain_link':
+				$not = (substr($params['oper'],0,1) == '!');
+				$oper = ltrim($params['oper'],'!');
+				
+				$from_context = null;
+				$from_context_id = null;
+				
+				switch($token) {
+					case 'domain_link':
+						$from_context = CerberusContexts::CONTEXT_DOMAIN;
+						@$from_context_id = $values['domain_id'];
+						break;
+					default:
+						$pass = false;
+				}
+				
+				// Get links by context+id
+
+				if(!empty($from_context) && !empty($from_context_id)) {
+					@$context_strings = $params['context_objects'];
+					$links = DAO_ContextLink::intersect($from_context, $from_context_id, $context_strings);
+					
+					// OPER: any, !any, all
+	
+					switch($oper) {
+						case 'in':
+							$pass = (is_array($links) && !empty($links));
+							break;
+						case 'all':
+							$pass = (is_array($links) && count($links) == count($context_strings));
+							break;
+						default:
+							$pass = false;
+							break;
+					}
+					
+					$pass = ($not) ? !$pass : $pass;
+					
+				} else {
+					$pass = false;
+				}
+				
+				break;
 			default:
 				$pass = false;
 				break;

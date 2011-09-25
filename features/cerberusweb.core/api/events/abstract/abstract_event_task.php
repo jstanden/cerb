@@ -71,6 +71,8 @@ abstract class AbstractEvent_Task extends Extension_DevblocksEvent {
 	function getConditionExtensions() {
 		$labels = $this->getLabels();
 		
+		$labels['task_link'] = 'Task is linked';
+		
 		$types = array(
 			'task_is_completed' => Model_CustomField::TYPE_CHECKBOX,
 			'task_completed|date' => Model_CustomField::TYPE_DATE,
@@ -78,6 +80,8 @@ abstract class AbstractEvent_Task extends Extension_DevblocksEvent {
 			'task_updated|date' => Model_CustomField::TYPE_DATE,
 			'task_status' => Model_CustomField::TYPE_SINGLE_LINE,
 			'task_title' => Model_CustomField::TYPE_SINGLE_LINE,
+			
+			'task_link' => null,
 		);
 
 		$conditions = $this->_importLabelsTypesAsConditions($labels, $types);
@@ -93,6 +97,11 @@ abstract class AbstractEvent_Task extends Extension_DevblocksEvent {
 			$tpl->assign('namePrefix','condition'.$seq);
 		
 		switch($token) {
+			case 'task_link':
+				$contexts = Extension_DevblocksContext::getAll(false);
+				$tpl->assign('contexts', $contexts);
+				$tpl->display('devblocks:cerberusweb.core::events/condition_link.tpl');
+				break;
 		}
 
 		$tpl->clearAssign('namePrefix');
@@ -103,6 +112,49 @@ abstract class AbstractEvent_Task extends Extension_DevblocksEvent {
 		$pass = true;
 		
 		switch($token) {
+			case 'task_link':
+				$not = (substr($params['oper'],0,1) == '!');
+				$oper = ltrim($params['oper'],'!');
+				
+				$from_context = null;
+				$from_context_id = null;
+				
+				switch($token) {
+					case 'task_link':
+						$from_context = CerberusContexts::CONTEXT_TASK;
+						@$from_context_id = $values['task_id'];
+						break;
+					default:
+						$pass = false;
+				}
+				
+				// Get links by context+id
+
+				if(!empty($from_context) && !empty($from_context_id)) {
+					@$context_strings = $params['context_objects'];
+					$links = DAO_ContextLink::intersect($from_context, $from_context_id, $context_strings);
+					
+					// OPER: any, !any, all
+	
+					switch($oper) {
+						case 'in':
+							$pass = (is_array($links) && !empty($links));
+							break;
+						case 'all':
+							$pass = (is_array($links) && count($links) == count($context_strings));
+							break;
+						default:
+							$pass = false;
+							break;
+					}
+					
+					$pass = ($not) ? !$pass : $pass;
+					
+				} else {
+					$pass = false;
+				}
+				break;
+							
 			default:
 				$pass = false;
 				break;

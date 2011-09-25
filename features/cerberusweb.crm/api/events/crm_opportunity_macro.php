@@ -15,6 +15,7 @@
 |	http://www.cerberusweb.com	  http://www.webgroupmedia.com/
 ***********************************************************************/
 
+// [TODO] Abstract
 class Event_CrmOpportunityMacro extends Extension_DevblocksEvent {
 	const ID = 'event.macro.crm.opportunity';
 	
@@ -103,6 +104,10 @@ class Event_CrmOpportunityMacro extends Extension_DevblocksEvent {
 	function getConditionExtensions() {
 		$labels = $this->getLabels();
 		
+		$labels['opp_link'] = 'Opportunity is linked';
+		$labels['opp_email_link'] = 'Lead is linked';
+		$labels['opp_email_org_link'] = 'Lead org is linked';
+		
 		$types = array(
 			'opp_email_num_nonspam' => Model_CustomField::TYPE_NUMBER,
 			'opp_email_num_spam' => Model_CustomField::TYPE_NUMBER,
@@ -127,6 +132,10 @@ class Event_CrmOpportunityMacro extends Extension_DevblocksEvent {
 			'opp_title' => Model_CustomField::TYPE_SINGLE_LINE,
 			'opp_updated|date' => Model_CustomField::TYPE_DATE,
 			'opp_is_won' => Model_CustomField::TYPE_CHECKBOX,
+			
+			'opp_link' => null,
+			'opp_email_link' => null,
+			'opp_email_org_link' => null,
 		);
 
 		$conditions = $this->_importLabelsTypesAsConditions($labels, $types);
@@ -142,6 +151,13 @@ class Event_CrmOpportunityMacro extends Extension_DevblocksEvent {
 			$tpl->assign('namePrefix','condition'.$seq);
 		
 		switch($token) {
+			case 'opp_link':
+			case 'opp_email_link':
+			case 'opp_email_org_link':
+				$contexts = Extension_DevblocksContext::getAll(false);
+				$tpl->assign('contexts', $contexts);
+				$tpl->display('devblocks:cerberusweb.core::events/condition_link.tpl');
+				break;
 		}
 
 		$tpl->clearAssign('namePrefix');
@@ -152,6 +168,59 @@ class Event_CrmOpportunityMacro extends Extension_DevblocksEvent {
 		$pass = true;
 		
 		switch($token) {
+			case 'opp_link':
+			case 'opp_email_link':
+			case 'opp_email_org_link':
+				$not = (substr($params['oper'],0,1) == '!');
+				$oper = ltrim($params['oper'],'!');
+				
+				$from_context = null;
+				$from_context_id = null;
+				
+				switch($token) {
+					case 'opp_link':
+						$from_context = CerberusContexts::CONTEXT_OPPORTUNITY;
+						@$from_context_id = $values['opp_id'];
+						break;
+					case 'opp_email_link':
+						$from_context = CerberusContexts::CONTEXT_ADDRESS;
+						@$from_context_id = $values['opp_email_id'];
+						break;
+					case 'opp_email_org_link':
+						$from_context = CerberusContexts::CONTEXT_ORG;
+						@$from_context_id = $values['opp_email_org_id'];
+						break;
+					default:
+						$pass = false;
+				}
+				
+				// Get links by context+id
+
+				if(!empty($from_context) && !empty($from_context_id)) {
+					@$context_strings = $params['context_objects'];
+					$links = DAO_ContextLink::intersect($from_context, $from_context_id, $context_strings);
+					
+					// OPER: any, !any, all
+	
+					switch($oper) {
+						case 'in':
+							$pass = (is_array($links) && !empty($links));
+							break;
+						case 'all':
+							$pass = (is_array($links) && count($links) == count($context_strings));
+							break;
+						default:
+							$pass = false;
+							break;
+					}
+					
+					$pass = ($not) ? !$pass : $pass;
+					
+				} else {
+					$pass = false;
+				}
+				break;
+							
 			default:
 				$pass = false;
 				break;

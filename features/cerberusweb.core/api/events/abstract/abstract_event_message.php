@@ -167,6 +167,10 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 		$labels['ticket_has_owner'] = 'Ticket has owner';
 		$labels['ticket_watcher_count'] = 'Ticket watcher count';
 		
+		$labels['sender_link'] = 'Message sender is linked';
+		$labels['sender_org_link'] = 'Message sender org is linked';
+		$labels['ticket_link'] = 'Ticket is linked';
+		
 		$types = array(
 			'content' => Model_CustomField::TYPE_MULTI_LINE,
 			'created|date' => Model_CustomField::TYPE_DATE,
@@ -214,6 +218,10 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 			'ticket_has_owner' => null,
 			'ticket_watcher_count' => null,
 		
+			'sender_link' => null,
+			'sender_org_link' => null,
+			'ticket_link' => null,
+			
 			'header' => null,
 		);
 
@@ -244,6 +252,13 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 				break;
 			case 'ticket_status':
 				$tpl->display('devblocks:cerberusweb.core::events/mail_received_by_group/condition_status.tpl');
+				break;
+			case 'sender_link':
+			case 'sender_org_link':
+			case 'ticket_link':
+				$contexts = Extension_DevblocksContext::getAll(false);
+				$tpl->assign('contexts', $contexts);
+				$tpl->display('devblocks:cerberusweb.core::events/condition_link.tpl');
 				break;
 			// [TODO] Internalize
 			case 'header':
@@ -364,6 +379,59 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 				
 				$pass = ($not) ? !$pass : $pass;
 				break;				
+				
+			case 'sender_link':
+			case 'sender_org_link':
+			case 'ticket_link':
+				$not = (substr($params['oper'],0,1) == '!');
+				$oper = ltrim($params['oper'],'!');
+				
+				$from_context = null;
+				$from_context_id = null;
+				
+				switch($token) {
+					case 'sender_link':
+						$from_context = CerberusContexts::CONTEXT_ADDRESS;
+						@$from_context_id = $values['sender_id'];
+						break;
+					case 'sender_org_link':
+						$from_context = CerberusContexts::CONTEXT_ORG;
+						@$from_context_id = $values['sender_org_id'];
+						break;
+					case 'ticket_link':
+						$from_context = CerberusContexts::CONTEXT_TICKET;
+						@$from_context_id = $values['ticket_id'];
+						break;
+					// [TODO] Worker, ticket org, group
+					default:
+						$pass = false;
+				}
+				
+				// Get links by context+id
+				
+				if(!empty($from_context) && !empty($from_context_id)) {
+					@$context_strings = $params['context_objects'];
+					$links = DAO_ContextLink::intersect($from_context, $from_context_id, $context_strings);
+					
+					// OPER: any, !any, all
+					switch($oper) {
+						case 'in':
+							$pass = (is_array($links) && !empty($links));
+							break;
+						case 'all':
+							$pass = (is_array($links) && count($links) == count($context_strings));
+							break;
+						default:
+							$pass = false;
+							break;
+					}
+					
+				} else {
+					$pass = false;
+				}				
+				
+				$pass = ($not) ? !$pass : $pass;
+				break;
 				
 			default:
 				$pass = false;

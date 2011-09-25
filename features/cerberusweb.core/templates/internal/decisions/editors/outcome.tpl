@@ -209,8 +209,9 @@
 				$container.append('<input type="hidden" name="condition'+seq+'[condition]" value="' + token + '">');
 				$container.append('<a href="javascript:;" onclick="$(this).closest(\'li\').remove();"><span class="cerb-sprite2 sprite-minus-circle-frame"></span></a> ');
 				$container.append('<b>' + $this.text() + '</b>&nbsp;');
-				$container.append($html);
+
 				$ul.append($container);
+				$container.append($html);
 
 				$html.find('BUTTON.chooser_worker.unbound').each(function() {
 					ajax.chooser(this,'cerberusweb.contexts.worker','condition'+seq+'[worker_id]', { autocomplete:true });

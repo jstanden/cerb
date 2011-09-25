@@ -262,6 +262,34 @@ class DAO_ContextLink {
 //		return $objects;
 //	}
 	
+	static public function getAllContextLinks($from_context, $from_context_id) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$sql = sprintf("SELECT to_context, to_context_id ".
+			"FROM context_link ".
+			"WHERE (%s = %s AND %s IN (%s)) ",
+			self::FROM_CONTEXT,
+			$db->qstr($from_context),
+			self::FROM_CONTEXT_ID,
+			$from_context_id
+		);
+		$rs = $db->Execute($sql);
+		
+		$objects = array();
+		
+		if(is_resource($rs))
+		while($row = mysql_fetch_assoc($rs)) {
+			$to_context = $row['to_context'];
+			$to_context_id = $row['to_context_id'];
+			$object = new Model_ContextLink($row['to_context'], $row['to_context_id']);
+			$objects[$to_context.':'.$to_context_id] = $object;
+		}
+		
+		mysql_free_result($rs);
+		
+		return $objects;
+	}
+	
 	static public function getContextLinks($from_context, $from_context_ids, $to_context) {
 		if(!is_array($from_context_ids))
 			$from_context_ids = array($from_context_ids);
@@ -301,6 +329,107 @@ class DAO_ContextLink {
 		mysql_free_result($rs);
 		
 		return $objects;
+	}
+	
+	static public function count($from_context, $from_context_id) {
+		$db = DevblocksPlatform::getDatabaseService();
+		return $db->GetOne(sprintf("SELECT count(*) FROM context_link ".
+			"WHERE from_context = %s AND from_context_id = %d",
+			$db->qstr($from_context),
+			$from_context_id
+		));
+	}
+	
+	static public function intersect($from_context, $from_context_id, $context_strings) {
+		$db = DevblocksPlatform::getDatabaseService();
+		$wheres = array();
+		
+		if(!is_array($context_strings) || empty($context_strings))
+			return array();
+		
+		/*
+		 * Performance optimization. Use one of two strategies: (1) source context 
+		 * has lots of links; (2) source context has few links
+		 */
+		$link_count = DAO_ContextLink::count($from_context, $from_context_id);
+		
+		// Strategy 1: Lots of links
+		// Let the database figure it out since our $context_objects list is smaller
+		
+		if($link_count > 100) {
+			
+			$context_objects = array();
+		
+			if(is_array($context_strings))
+			foreach($context_strings as $context_string) {
+				$context_data = explode(':', $context_string);
+				
+				if(!isset($context_objects[$context_data[0]]))
+					$context_objects[$context_data[0]] = array();
+				
+				$context_objects[$context_data[0]][] = $context_data[1];
+			}
+			
+			// Build a query
+			foreach($context_objects as $context => $context_ids) {
+				if(empty($context) || !is_array($context_ids))
+					continue;
+				
+				// Security time
+				$context_ids = DevblocksPlatform::sanitizeArray($context_ids, 'integer');
+				
+				if(empty($context_ids))
+					continue;
+				
+				$wheres[] = sprintf("(to_context = %s AND to_context_id IN (%s))",
+					$db->qstr($context),
+					implode(',', $context_ids)
+				);
+			}
+			
+			// If empty
+			if(empty($wheres))
+				return array();
+			
+			$sql = sprintf("SELECT to_context, to_context_id ".
+				"FROM context_link ".
+				"WHERE from_context = %s AND from_context_id = %d ".
+				"AND (%s)",
+				$db->qstr($from_context),
+				$from_context_id,
+				implode(' OR ', $wheres)
+			);
+			
+			$results = $db->GetArray($sql);
+			
+			$out = array();
+			
+			foreach($results as $row) {
+				$to_context = $row['to_context'];
+				$to_context_id = $row['to_context_id'];
+				
+				$object = new Model_ContextLink($to_context, $to_context_id);
+				$out[] = $object;
+			}
+			
+			return $out;
+		
+		// Strategy 2: Few links
+		// Pull all links from source and compare manually to $context_objects
+		
+		} else {
+			$links = DAO_ContextLink::getAllContextLinks($from_context, $from_context_id);
+			$out = array();
+			
+			foreach($links as $key => $link) {
+				if(in_array($key, $context_strings))
+					$out[$key] = $link;
+			}
+			
+			return $out;
+		}
+		
+		return false;
 	}
 	
 	static public function delete($context, $context_ids) {

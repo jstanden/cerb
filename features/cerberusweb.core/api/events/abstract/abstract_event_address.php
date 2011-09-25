@@ -88,6 +88,9 @@ abstract class AbstractEvent_Address extends Extension_DevblocksEvent {
 	function getConditionExtensions() {
 		$labels = $this->getLabels();
 		
+		$labels['email_link'] = 'Email is linked';
+		$labels['email_org_link'] = 'Org is linked';
+		
 		$types = array(
 			'email_address' => Model_CustomField::TYPE_SINGLE_LINE,
 			'email_is_banned' => Model_CustomField::TYPE_CHECKBOX,
@@ -106,6 +109,9 @@ abstract class AbstractEvent_Address extends Extension_DevblocksEvent {
 			'email_org_province' => Model_CustomField::TYPE_SINGLE_LINE,
 			'email_org_street' => Model_CustomField::TYPE_SINGLE_LINE,
 			'email_org_website' => Model_CustomField::TYPE_URL,
+			
+			'email_link' => null,
+			'email_org_link' => null,
 		);
 
 		$conditions = $this->_importLabelsTypesAsConditions($labels, $types);
@@ -121,6 +127,12 @@ abstract class AbstractEvent_Address extends Extension_DevblocksEvent {
 			$tpl->assign('namePrefix','condition'.$seq);
 		
 		switch($token) {
+			case 'email_link':
+			case 'email_org_link':
+				$contexts = Extension_DevblocksContext::getAll(false);
+				$tpl->assign('contexts', $contexts);
+				$tpl->display('devblocks:cerberusweb.core::events/condition_link.tpl');
+				break;
 		}
 
 		$tpl->clearAssign('namePrefix');
@@ -131,6 +143,53 @@ abstract class AbstractEvent_Address extends Extension_DevblocksEvent {
 		$pass = true;
 		
 		switch($token) {
+			case 'email_link':
+			case 'email_org_link':
+				$not = (substr($params['oper'],0,1) == '!');
+				$oper = ltrim($params['oper'],'!');
+				
+				$from_context = null;
+				$from_context_id = null;
+
+				switch($token) {
+					case 'email_link':
+						$from_context = CerberusContexts::CONTEXT_ADDRESS;
+						@$from_context_id = $values['email_id'];
+						break;
+					case 'email_org_link':
+						$from_context = CerberusContexts::CONTEXT_ORG;
+						@$from_context_id = $values['email_org_id'];
+						break;
+					default:
+						$pass = false;
+				}
+				
+				// Get links by context+id
+				
+				if(!empty($from_context) && !empty($from_context_id)) {
+					@$context_strings = $params['context_objects'];
+					$links = DAO_ContextLink::intersect($from_context, $from_context_id, $context_strings);
+					
+					// OPER: any, !any, all
+					switch($oper) {
+						case 'in':
+							$pass = (is_array($links) && !empty($links));
+							break;
+						case 'all':
+							$pass = (is_array($links) && count($links) == count($context_strings));
+							break;
+						default:
+							$pass = false;
+							break;
+					}
+					
+				} else {
+					$pass = false;
+				}
+				
+				$pass = ($not) ? !$pass : $pass;				
+				break;
+				
 			default:
 				$pass = false;
 				break;

@@ -7,7 +7,13 @@
 	</li>
 	{foreach from=$macros item=macro key=macro_id}
 	<li>
-		<a href="javascript:;" onclick="genericAjaxPopup('peek','c=internal&a=showMacroSchedulerPopup&context={$context}&context_id={$context_id}&macro={$macro->id}&return_url={$return_url|escape:'url'}',$(this).closest('ul').get(),true,'400');$(this).closest('ul.cerb-popupmenu').hide();">{$macro->title}</a>
+		<a href="javascript:;" onclick="genericAjaxPopup('peek','c=internal&a=showMacroSchedulerPopup&context={$context}&context_id={$context_id}&macro={$macro->id}&return_url={$return_url|escape:'url'}',$(this).closest('ul').get(),true,'400');$(this).closest('ul.cerb-popupmenu').hide();">
+			{if !empty($macro->title)}
+				{$macro->title}
+			{else}
+				{$macro->event_point}
+			{/if}
+		</a>
 	</li>
 	{/foreach}
 </ul>

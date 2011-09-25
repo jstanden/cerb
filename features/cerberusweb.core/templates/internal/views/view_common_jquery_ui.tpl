@@ -23,6 +23,7 @@ $view_frm.find('TABLE.worklistBody TBODY')
 			$this = $(this);
 			
 			e.preventDefault();
+			$this.disableSelection();
 			
 			$chk=$this.find('input:checkbox:first');
 			if(!$chk)
@@ -37,8 +38,6 @@ $view_frm.find('TABLE.worklistBody TBODY')
 			} else {
 				$this.find('tr').removeClass('selected');
 			}
-			
-			e.disableSelection();
 		}
 	})
 	.hover(

@@ -72,11 +72,15 @@ abstract class AbstractEvent_KbArticle extends Extension_DevblocksEvent {
 	function getConditionExtensions() {
 		$labels = $this->getLabels();
 		
+		$labels['article_link'] = 'Article is linked';
+		
 		$types = array(
 			'article_content' => Model_CustomField::TYPE_MULTI_LINE,
 			'article_title' => Model_CustomField::TYPE_SINGLE_LINE,
 			'article_updated|date' => Model_CustomField::TYPE_DATE,
 			'article_views' => Model_CustomField::TYPE_NUMBER,
+			
+			'article_link' => null,
 		);
 
 		$conditions = $this->_importLabelsTypesAsConditions($labels, $types);
@@ -92,6 +96,11 @@ abstract class AbstractEvent_KbArticle extends Extension_DevblocksEvent {
 			$tpl->assign('namePrefix','condition'.$seq);
 		
 		switch($token) {
+			case 'article_link':
+				$contexts = Extension_DevblocksContext::getAll(false);
+				$tpl->assign('contexts', $contexts);
+				$tpl->display('devblocks:cerberusweb.core::events/condition_link.tpl');
+				break;
 		}
 
 		$tpl->clearAssign('namePrefix');
@@ -102,6 +111,49 @@ abstract class AbstractEvent_KbArticle extends Extension_DevblocksEvent {
 		$pass = true;
 		
 		switch($token) {
+			case 'article_link':
+				$not = (substr($params['oper'],0,1) == '!');
+				$oper = ltrim($params['oper'],'!');
+				
+				$from_context = null;
+				$from_context_id = null;
+				
+				switch($token) {
+					case 'call_link':
+						$from_context = CerberusContexts::CONTEXT_KB_ARTICLE;
+						@$from_context_id = $values['article_id'];
+						break;
+					default:
+						$pass = false;
+				}
+				
+				// Get links by context+id
+
+				if(!empty($from_context) && !empty($from_context_id)) {
+					@$context_strings = $params['context_objects'];
+					$links = DAO_ContextLink::intersect($from_context, $from_context_id, $context_strings);
+					
+					// OPER: any, !any, all
+	
+					switch($oper) {
+						case 'in':
+							$pass = (is_array($links) && !empty($links));
+							break;
+						case 'all':
+							$pass = (is_array($links) && count($links) == count($context_strings));
+							break;
+						default:
+							$pass = false;
+							break;
+					}
+					
+					$pass = ($not) ? !$pass : $pass;
+					
+				} else {
+					$pass = false;
+				}
+				break;
+							
 			default:
 				$pass = false;
 				break;

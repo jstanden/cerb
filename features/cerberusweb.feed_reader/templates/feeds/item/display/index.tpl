@@ -38,7 +38,7 @@
 		
 		<!-- Macros -->
 		{devblocks_url assign=return_url full=true}c=feeds&i=item&id={$page_context_id}-{$item->title|devblocks_permalink}{/devblocks_url}
-		{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context="cerberusweb.contexts.feed.item" context_id=$page_context_id macros=$macros return_url=$return_url}		
+		{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context=$page_context context_id=$page_context_id macros=$macros return_url=$return_url}		
 		
 		<!-- Edit -->
 		<button type="button" id="btnDisplayFeedItemEdit"><span class="cerb-sprite sprite-document_edit"></span> Edit</button>
