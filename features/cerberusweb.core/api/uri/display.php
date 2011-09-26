@@ -614,11 +614,11 @@ class ChDisplayPage extends CerberusPageExtension {
 		// Automatically add new 'To:' recipients?
 		if(!$is_forward) {
 			try {
-				$to_addys = DevblocksPlatform::parseCsvString($to);
+				$to_addys = CerberusMail::parseRfcAddresses($to);
 				if(empty($to_addys))
 					throw new Exception("Blank recipients list.");
 
-				foreach($to_addys as $to_addy)
+				foreach($to_addys as $to_addy => $to_data)
 					DAO_Ticket::createRequester($to_addy, $ticket_id);
 				
 			} catch(Exception $e) {}
