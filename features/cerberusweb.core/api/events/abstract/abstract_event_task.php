@@ -175,6 +175,7 @@ abstract class AbstractEvent_Task extends Extension_DevblocksEvent {
 				'send_email' => array('label' => 'Send email'),
 				'set_due_date' => array('label' => 'Set due date'),
 				'set_status' => array('label' => 'Set status'),
+				'set_task_links' => array('label' => 'Set links on task'),
 				'unschedule_behavior' => array('label' => 'Unschedule behavior'),
 			)
 			+ DevblocksEventHelper::getActionCustomFields(CerberusContexts::CONTEXT_TASK)
@@ -240,6 +241,12 @@ abstract class AbstractEvent_Task extends Extension_DevblocksEvent {
 				
 			case 'set_status':
 				$tpl->display('devblocks:cerberusweb.core::events/model/task/action_set_status.tpl');
+				break;
+				
+			case 'set_task_links':
+				$contexts = Extension_DevblocksContext::getAll(false);
+				$tpl->assign('contexts', $contexts);
+				$tpl->display('devblocks:cerberusweb.core::events/action_set_links.tpl');
 				break;
 				
 			default:
@@ -333,7 +340,35 @@ abstract class AbstractEvent_Task extends Extension_DevblocksEvent {
 					$values['task_status'] = $to_status;
 					DAO_Task::update($task_id, $fields);
 				}
+				break;
 				
+			case 'set_task_links':
+				@$to_context_strings = $params['context_objects'];
+
+				if(!is_array($to_context_strings) || empty($to_context_strings))
+					break;
+
+				$from_context = null;
+				$from_context_id = null;
+				
+				switch($token) {
+					case 'set_task_links':
+						$from_context = CerberusContexts::CONTEXT_TASK;
+						@$from_context_id = $values['task_id'];
+						break;
+				}
+				
+				if(empty($from_context) || empty($from_context_id))
+					break;
+				
+				foreach($to_context_strings as $to_context_string) {
+					@list($to_context, $to_context_id) = explode(':', $to_context_string);
+					
+					if(empty($to_context) || empty($to_context_id))
+						continue;
+					
+					DAO_ContextLink::setLink($from_context, $from_context_id, $to_context, $to_context_id);
+				}				
 				break;
 				
 			default:

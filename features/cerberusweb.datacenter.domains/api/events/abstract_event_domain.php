@@ -73,6 +73,7 @@ abstract class AbstractEvent_Domain extends Extension_DevblocksEvent {
 		$labels = $this->getLabels();
 		
 		$labels['domain_link'] = 'Domain is linked';
+		$labels['domain_server_link'] = 'Server is linked';
 		//$labels['domain_contact_link'] = 'Domain is linked';
 		//$labels['domain_contact_org_link'] = 'Domain is linked';
 		
@@ -100,7 +101,7 @@ abstract class AbstractEvent_Domain extends Extension_DevblocksEvent {
 			'domain_contact_org_website' => Model_CustomField::TYPE_URL,
 			
 			'domain_link' => null,
-			//'domain_contact_link' => null,
+			'domain_server_link' => null,
 			//'domain_contact_org_link' => null,
 		);
 
@@ -118,6 +119,7 @@ abstract class AbstractEvent_Domain extends Extension_DevblocksEvent {
 		
 		switch($token) {
 			case 'domain_link':
+			case 'domain_server_link':
 				$contexts = Extension_DevblocksContext::getAll(false);
 				$tpl->assign('contexts', $contexts);
 				$tpl->display('devblocks:cerberusweb.core::events/condition_link.tpl');
@@ -133,6 +135,7 @@ abstract class AbstractEvent_Domain extends Extension_DevblocksEvent {
 		
 		switch($token) {
 			case 'domain_link':
+			case 'domain_server_link':
 				$not = (substr($params['oper'],0,1) == '!');
 				$oper = ltrim($params['oper'],'!');
 				
@@ -143,6 +146,10 @@ abstract class AbstractEvent_Domain extends Extension_DevblocksEvent {
 					case 'domain_link':
 						$from_context = CerberusContexts::CONTEXT_DOMAIN;
 						@$from_context_id = $values['domain_id'];
+						break;
+					case 'domain_server_link':
+						$from_context = CerberusContexts::CONTEXT_SERVER;
+						@$from_context_id = $values['domain_server_id'];
 						break;
 					default:
 						$pass = false;
@@ -192,6 +199,8 @@ abstract class AbstractEvent_Domain extends Extension_DevblocksEvent {
 				'create_task' => array('label' =>'Create a task'),
 				'create_ticket' => array('label' =>'Create a ticket'),
 				'schedule_behavior' => array('label' => 'Schedule behavior'),
+				'set_domain_links' => array('label' => 'Set links on domain'),
+				'set_domain_server_links' => array('label' => 'Set links on server'),
 				'unschedule_behavior' => array('label' => 'Unschedule behavior'),
 			)
 			+ DevblocksEventHelper::getActionCustomFields('cerberusweb.contexts.datacenter.domain')
@@ -247,6 +256,13 @@ abstract class AbstractEvent_Domain extends Extension_DevblocksEvent {
 				DevblocksEventHelper::renderActionUnscheduleBehavior($trigger->owner_context, $trigger->owner_context_id, $this->_event_id);
 				break;
 				
+			case 'set_domain_links':
+			case 'set_domain_server_links':
+				$contexts = Extension_DevblocksContext::getAll(false);
+				$tpl->assign('contexts', $contexts);
+				$tpl->display('devblocks:cerberusweb.core::events/action_set_links.tpl');
+				break;
+				
 			default:
 				if('set_cf_' == substr($token,0,7)) {
 					$field_id = substr($token,7);
@@ -294,6 +310,40 @@ abstract class AbstractEvent_Domain extends Extension_DevblocksEvent {
 				
 			case 'unschedule_behavior':
 				DevblocksEventHelper::runActionUnscheduleBehavior($params, $values, 'cerberusweb.contexts.datacenter.domain', $domain_id);
+				break;
+				
+			case 'set_domain_links':
+			case 'set_domain_server_links':
+				@$to_context_strings = $params['context_objects'];
+
+				if(!is_array($to_context_strings) || empty($to_context_strings))
+					break;
+
+				$from_context = null;
+				$from_context_id = null;
+				
+				switch($token) {
+					case 'set_domain_links':
+						$from_context = CerberusContexts::CONTEXT_DOMAIN;
+						@$from_context_id = $values['domain_id'];
+						break;
+					case 'set_domain_server_links':
+						$from_context = CerberusContexts::CONTEXT_SERVER;
+						@$from_context_id = $values['domain_server_id'];
+						break;
+				}
+				
+				if(empty($from_context) || empty($from_context_id))
+					break;
+				
+				foreach($to_context_strings as $to_context_string) {
+					@list($to_context, $to_context_id) = explode(':', $to_context_string);
+					
+					if(empty($to_context) || empty($to_context_id))
+						continue;
+					
+					DAO_ContextLink::setLink($from_context, $from_context_id, $to_context, $to_context_id);
+				}				
 				break;
 				
 			default:

@@ -25,6 +25,11 @@ class DAO_ContextLink {
 		$db = DevblocksPlatform::getDatabaseService();
 		$event = DevblocksPlatform::getEventService();
 		$active_worker = CerberusApplication::getActiveWorker();
+
+		// Don't link something to itself.
+		if(0 == strcasecmp($src_context, $dst_context)
+			&& intval($src_context_id) == intval($dst_context_id))
+				return false;
 		
 		$ext_src_context = DevblocksPlatform::getExtension($src_context, true); /* @var $context Extension_DevblocksContext */
 		$ext_dst_context = DevblocksPlatform::getExtension($dst_context, true); /* @var $context Extension_DevblocksContext */

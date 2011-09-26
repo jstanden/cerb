@@ -460,6 +460,9 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 				'set_spam_training' => array('label' => 'Set spam training'),
 				'set_status' => array('label' => 'Set status'),
 				'set_subject' => array('label' => 'Set subject'),
+				'set_sender_links' => array('label' => 'Set links on sender'),
+				'set_sender_org_links' => array('label' => 'Set links on sender org'),
+				'set_ticket_links' => array('label' => 'Set links on ticket'),
 				'unschedule_behavior' => array('label' => 'Unschedule behavior'),
 			)
 			+ DevblocksEventHelper::getActionCustomFields(CerberusContexts::CONTEXT_TICKET)
@@ -568,6 +571,14 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 				$groups = DAO_Group::getAll();
 				$tpl->assign('groups', $groups);
 				$tpl->display('devblocks:cerberusweb.core::events/mail_received_by_group/action_move_to_group.tpl');
+				break;
+				
+			case 'set_sender_links':
+			case 'set_sender_org_links':
+			case 'set_ticket_links':
+				$contexts = Extension_DevblocksContext::getAll(false);
+				$tpl->assign('contexts', $contexts);
+				$tpl->display('devblocks:cerberusweb.core::events/action_set_links.tpl');
 				break;
 				
 			default:
@@ -790,6 +801,45 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 					DAO_Ticket::BUCKET_ID => $to_bucket_id, 
 				));
 				$values['ticket_bucket_id'] = $to_bucket_id;
+				break;
+				
+			case 'set_sender_links':
+			case 'set_sender_org_links':
+			case 'set_ticket_links':
+				@$to_context_strings = $params['context_objects'];
+
+				if(!is_array($to_context_strings) || empty($to_context_strings))
+					break;
+
+				$from_context = null;
+				$from_context_id = null;
+				
+				switch($token) {
+					case 'set_sender_links':
+						$from_context = CerberusContexts::CONTEXT_ADDRESS;
+						@$from_context_id = $values['sender_id'];
+						break;
+					case 'set_sender_org_links':
+						$from_context = CerberusContexts::CONTEXT_ORG;
+						@$from_context_id = $values['sender_org_id'];
+						break;
+					case 'set_ticket_links':
+						$from_context = CerberusContexts::CONTEXT_TICKET;
+						@$from_context_id = $values['ticket_id'];
+						break;
+				}
+				
+				if(empty($from_context) || empty($from_context_id))
+					break;
+				
+				foreach($to_context_strings as $to_context_string) {
+					@list($to_context, $to_context_id) = explode(':', $to_context_string);
+					
+					if(empty($to_context) || empty($to_context_id))
+						continue;
+					
+					DAO_ContextLink::setLink($from_context, $from_context_id, $to_context, $to_context_id);
+				}				
 				break;
 				
 			default:

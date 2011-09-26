@@ -119,7 +119,7 @@ abstract class AbstractEvent_KbArticle extends Extension_DevblocksEvent {
 				$from_context_id = null;
 				
 				switch($token) {
-					case 'call_link':
+					case 'article_link':
 						$from_context = CerberusContexts::CONTEXT_KB_ARTICLE;
 						@$from_context_id = $values['article_id'];
 						break;
@@ -171,6 +171,7 @@ abstract class AbstractEvent_KbArticle extends Extension_DevblocksEvent {
 				'create_task' => array('label' =>'Create a task'),
 				'create_ticket' => array('label' =>'Create a ticket'),
 				'schedule_behavior' => array('label' => 'Schedule behavior'),
+				'set_article_links' => array('label' => 'Set links on article'),
 				'unschedule_behavior' => array('label' => 'Unschedule behavior'),
 			)
 			+ DevblocksEventHelper::getActionCustomFields(CerberusContexts::CONTEXT_KB_ARTICLE)
@@ -226,6 +227,12 @@ abstract class AbstractEvent_KbArticle extends Extension_DevblocksEvent {
 				DevblocksEventHelper::renderActionUnscheduleBehavior($trigger->owner_context, $trigger->owner_context_id, $this->_event_id);
 				break;
 				
+			case 'set_article_links':
+				$contexts = Extension_DevblocksContext::getAll(false);
+				$tpl->assign('contexts', $contexts);
+				$tpl->display('devblocks:cerberusweb.core::events/action_set_links.tpl');
+				break;
+				
 			default:
 				if('set_cf_' == substr($token,0,7)) {
 					$field_id = substr($token,7);
@@ -273,6 +280,35 @@ abstract class AbstractEvent_KbArticle extends Extension_DevblocksEvent {
 				
 			case 'unschedule_behavior':
 				DevblocksEventHelper::runActionUnscheduleBehavior($params, $values, CerberusContexts::CONTEXT_KB_ARTICLE, $article_id);
+				break;
+				
+			case 'set_article_links':
+				@$to_context_strings = $params['context_objects'];
+
+				if(!is_array($to_context_strings) || empty($to_context_strings))
+					break;
+
+				$from_context = null;
+				$from_context_id = null;
+				
+				switch($token) {
+					case 'set_article_links':
+						$from_context = CerberusContexts::CONTEXT_KB_ARTICLE;
+						@$from_context_id = $values['set_article_links'];
+						break;
+				}
+				
+				if(empty($from_context) || empty($from_context_id))
+					break;
+				
+				foreach($to_context_strings as $to_context_string) {
+					@list($to_context, $to_context_id) = explode(':', $to_context_string);
+					
+					if(empty($to_context) || empty($to_context_id))
+						continue;
+					
+					DAO_ContextLink::setLink($from_context, $from_context_id, $to_context, $to_context_id);
+				}				
 				break;
 				
 			default:
