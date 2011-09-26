@@ -70,8 +70,8 @@ class CerberusMail {
 		
 		if(is_array($parsed))
 		foreach($parsed as $parsed_addy) {
-			@$mailbox = $parsed_addy->mailbox;
-			@$host = $parsed_addy->host;
+			@$mailbox = strtolower($parsed_addy->mailbox);
+			@$host = strtolower($parsed_addy->host);
 			@$personal = isset($parsed_addy->personal) ? $parsed_addy->personal : null;
 			
 			if(empty($mailbox) || empty($host))
