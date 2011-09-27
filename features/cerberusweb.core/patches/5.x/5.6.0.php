@@ -159,6 +159,13 @@ if(!isset($columns['worker_id'])) {
 	$db->Execute("DELETE FROM workspace_to_endpoint WHERE worker_id = 0");
 }
 
+// If the primary key is compounding 2 fields instead of 3
+$diff = array_diff(array('workspace_id','endpoint'), array_keys($indexes['PRIMARY']['columns'])); 
+if(empty($diff)) {
+	$db->Execute('ALTER TABLE workspace_to_endpoint DROP PRIMARY KEY');
+	$db->Execute('ALTER TABLE workspace_to_endpoint ADD PRIMARY KEY (workspace_id, worker_id, endpoint)');
+}
+
 // ===========================================================================
 // Workspace list refactor
 
