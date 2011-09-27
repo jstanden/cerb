@@ -157,15 +157,6 @@
 {include file="devblocks:cerberusweb.core::internal/macros/behavior/scheduled_behavior_profile.tpl" context=$page_context context_id=$page_context_id}
 </div>
 
-{if empty($requesters)}
-<div class="ui-widget">
-	<div class="ui-state-error ui-corner-all" style="padding: 0 .7em; margin: 0.2em; "> 
-		<p><span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span> 
-		<strong>Warning:</strong> {$translate->_('ticket.recipients.empty')}</p>
-	</div>
-</div>
-{/if}
-
 <div id="displayTabs">
 	<ul>
 		{$tabs = [conversation,activity,links,history]}

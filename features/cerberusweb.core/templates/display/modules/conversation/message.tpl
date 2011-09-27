@@ -89,14 +89,12 @@
 	      	<table width="100%" cellpadding="0" cellspacing="0" border="0">
 	      		<tr>
 	      			<td align="left" id="{$message->id}act">
-	      				{assign var=show_more value=0}
-						
 						{* If not requester *}
 						{if !$message->is_outgoing && !isset($requesters.{$sender_id})}
 						<button type="button" onclick="$(this).remove(); genericAjaxGet('','c=display&a=requesterAdd&ticket_id={$ticket->id}&email='+encodeURIComponent('{$sender->email}'),function(o) { genericAjaxGet('displayTicketRequesterBubbles','c=display&a=requestersRefresh&ticket_id={$ticket->id}'); } );"><span class="cerb-sprite2 sprite-plus-circle-frame"></span> {$translate->_('display.ui.add_to_recipients')}</button>
 						{/if}
 						
-				      	{if $active_worker->hasPriv('core.display.actions.reply')}{if !empty($requesters)}{assign var=show_more value=1}
+				      	{if $active_worker->hasPriv('core.display.actions.reply')}
 				      		<button type="button" class="reply split-left" onclick="displayReply('{$message->id}',0,0,{if empty($mail_reply_button)}1{else}0{/if});" title="{if empty($mail_reply_button)}{'display.reply.quote'|devblocks_translate}{else}{'display.reply.no_quote'|devblocks_translate}{/if}"><span class="cerb-sprite sprite-export"></span> {$translate->_('display.ui.reply')|capitalize}</button><!--
 				      		--><button type="button" class="split-right" onclick="$ul=$(this).next('ul');$ul.toggle();if($ul.is(':hidden')) { $ul.blur(); } else { $ul.find('a:first').focus(); }"><span class="cerb-sprite sprite-arrow-down-white"></span></button>
 				      		<ul class="cerb-popupmenu cerb-float" style="margin-top:-5px;">
@@ -104,19 +102,17 @@
 				      			<li><a href="javascript:;" onclick="displayReply('{$message->id}',0,0,0);">{'display.reply.no_quote'|devblocks_translate}</a></li>
 				      			{if $active_worker->hasPriv('core.display.actions.forward')}<li><a href="javascript:;" onclick="displayReply('{$message->id}',1);">{$translate->_('display.ui.forward')|capitalize}</a></li>{/if}
 				      		</ul>
-				      	{/if}{/if}
+				      	{/if}
 				      	
-				      	{if $active_worker->hasPriv('core.display.actions.note')}{assign var=show_more value=1}<button type="button" onclick="displayAddNote('{$message->id}');"><span class="cerb-sprite sprite-document_plain_yellow"></span> {$translate->_('display.ui.sticky_note')|capitalize}</button>{/if}
+				      	{if $active_worker->hasPriv('core.display.actions.note')}<button type="button" onclick="displayAddNote('{$message->id}');"><span class="cerb-sprite sprite-document_plain_yellow"></span> {$translate->_('display.ui.sticky_note')|capitalize}</button>{/if}
 				      	
-				      	{if $show_more} {* Only show more if we showed one of the built-in buttons first *}
 				      	 &nbsp; 
 			      		<button type="button" onclick="toggleDiv('{$message->id}options');">{$translate->_('common.more')|lower} &raquo;</button>
-			      		{/if}
 	      			</td>
 	      		</tr>
 	      	</table>
 	      	
-	      	<form id="{$message->id}options" style="padding-top:10px;display:{if $show_more}none{else}block{/if};" method="post" action="{devblocks_url}{/devblocks_url}">
+	      	<form id="{$message->id}options" style="padding-top:10px;display:none;" method="post" action="{devblocks_url}{/devblocks_url}">
 	      		<input type="hidden" name="c" value="display">
 	      		<input type="hidden" name="a" value="">
 	      		<input type="hidden" name="id" value="{$message->id}">
