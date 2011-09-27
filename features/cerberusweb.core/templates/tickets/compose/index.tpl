@@ -214,14 +214,18 @@
 							</td>
 						</tr>
 					</table>
-					
-					<b>{'common.custom_fields'|devblocks_translate|capitalize}:</b>
-					<div id="compose_cfields" style="margin:5px 0px 0px 10px;">
-						<div class="global">
-							{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false}
-						</div>
-						<div class="group">
-							{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" custom_fields=$group_fields bulk=false}
+
+					<div style="{if empty($custom_fields) && empty($group_fields)}display:none;{/if}" id="compose_cfields">
+						<b>{'common.custom_fields'|devblocks_translate|capitalize}:</b>
+						<div style="margin:5px 0px 0px 10px;">
+							{if !empty($custom_fields)}
+							<div class="global">
+								{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false}
+							</div>
+							{/if}
+							<div class="group">
+								{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" custom_fields=$group_fields bulk=false}
+							</div>
 						</div>
 					</div>
 					
@@ -266,9 +270,15 @@
 		
 		$frm.find('select[name=group_id]').change(function(e) {
 			$div = $('#compose_cfields');
-			$div.find('td.group').html('');
+			$div.find('div.group').html('');
 			genericAjaxGet($div, 'c=tickets&a=getCustomFieldEntry&group_id=' + $(this).val(), function(html) {
-				$('#compose_cfields').find('div.group').html(html);
+				$cfields = $('#compose_cfields');
+				if(html.length > 0) {
+					$cfields.show().find('div.group').html(html);
+				} else {
+					if(0 == $cfields.find('div.global').length)
+						$cfields.hide();
+				}
 			});
 		});
 		
