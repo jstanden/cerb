@@ -11,7 +11,8 @@
 			{if !empty($macro->title)}
 				{$macro->title}
 			{else}
-				{$macro->event_point}
+				{$event = DevblocksPlatform::getExtension($macro->event_point, false)}
+				{$event->name}
 			{/if}
 		</a>
 	</li>

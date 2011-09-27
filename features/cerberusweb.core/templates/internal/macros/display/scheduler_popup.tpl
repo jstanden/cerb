@@ -14,7 +14,13 @@
 {/if}
 
 <b>Behavior:</b><br>
-{$macro->title}<br>
+{if !empty($macro->title)}
+	{$macro->title}
+{else}
+	{$event = DevblocksPlatform::getExtension($macro->event_point, false)}
+	{$event->name}
+{/if}	
+<br>
 <br>
 
 <b>When should this behavior happen?</b><br>
