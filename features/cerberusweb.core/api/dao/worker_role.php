@@ -182,9 +182,21 @@ class DAO_WorkerRole extends DevblocksORMHelper {
 		
 		$db->Execute(sprintf("DELETE FROM worker_role WHERE id IN (%s)", $ids_list));
 		$db->Execute(sprintf("DELETE FROM worker_role_acl WHERE role_id IN (%s)", $ids_list));
-		
+
 		self::clearCache();
 		self::clearWorkerCache();
+		
+		// Fire event
+	    $eventMgr = DevblocksPlatform::getEventService();
+	    $eventMgr->trigger(
+	        new Model_DevblocksEvent(
+	            'context.delete',
+                array(
+                	'context' => CerberusContexts::CONTEXT_ROLE,
+                	'context_ids' => $ids
+                )
+            )
+	    );
 		
 		return true;
 	}

@@ -207,6 +207,19 @@ class DAO_Workspace extends C4_ORMHelper {
 		return $objects;
 	}
 	
+	static function deleteByOwner($owner_context, $owner_context_ids) {
+		if(!is_array($owner_context_ids))
+			$owner_context_ids = array($owner_context_ids);
+		
+		foreach($owner_context_ids as $owner_context_id) {
+			$workspaces = DAO_Workspace::getByOwner($owner_context, $owner_context_id);
+			
+			foreach($workspaces as $workspace_id => $workspace) {
+				DAO_Workspace::delete($workspace_id);
+			}
+		}
+	}
+	
 	static function delete($ids) {
 		if(!is_array($ids)) $ids = array($ids);
 		$db = DevblocksPlatform::getDatabaseService();
