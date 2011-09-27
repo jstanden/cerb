@@ -1236,6 +1236,15 @@ class ChTicketsPage extends CerberusPageExtension {
 		$org_id = 0;
 		if(!empty($org_name)) {
 			$org_id = DAO_ContactOrg::lookup($org_name, true);
+		} else {
+			// If we weren't given an organization, use the first recipient
+			$to_addys = CerberusMail::parseRfcAddresses($to);
+			if(is_array($to_addys) && !empty($to_addys)) {
+				if(null != ($to_addy = DAO_Address::lookupAddress(key($to_addys), true))) {
+					if(!empty($to_addy->contact_org_id))
+						$org_id = $to_addy->contact_org_id;
+				}
+			}
 		}
 
 		$properties = array(
