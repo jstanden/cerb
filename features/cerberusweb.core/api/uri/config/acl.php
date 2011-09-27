@@ -116,6 +116,7 @@ class PageSection_SetupACL extends Extension_PageSection {
 		if(!empty($do_delete) && !empty($id)) {
 			DAO_WorkerRole::delete($id);
 			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','acl')));
+			return;
 		}
 		
 		$params = array();

@@ -52,11 +52,8 @@ class DAO_WorkerRole extends DevblocksORMHelper {
 			$memberships = $worker->getMemberships();
 			$all_roles = DAO_WorkerRole::getAll();
 			$roles = array();
-			
+
 			foreach($all_roles as $role_id => $role) {
-				if('none' == $role->params['what'])
-					continue;
-				
 				if(
 					// If this applies to everyone
 					'all' == $role->params['who'] ||
@@ -187,6 +184,7 @@ class DAO_WorkerRole extends DevblocksORMHelper {
 		$db->Execute(sprintf("DELETE FROM worker_role_acl WHERE role_id IN (%s)", $ids_list));
 		
 		self::clearCache();
+		self::clearWorkerCache();
 		
 		return true;
 	}
