@@ -491,14 +491,27 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 				break;
 				
 			case 'relay_email':
-				// Filter to group members
-				$group = DAO_Group::get($trigger->owner_context_id);
-				
-				DevblocksEventHelper::renderActionRelayEmail(
-					array_keys($group->getMembers()),
-					array('owner','watchers','workers'),
-					'ticket_latest_message_content'
-				);
+					switch($trigger->owner_context) {
+					case CerberusContexts::CONTEXT_GROUP:
+						// Filter to group members
+						$group = DAO_Group::get($trigger->owner_context_id);
+						DevblocksEventHelper::renderActionRelayEmail(
+							array_keys($group->getMembers()),
+							array('owner','watchers','workers'),
+							'content'
+						);
+						break;
+						
+					case CerberusContexts::CONTEXT_WORKER:
+					default:
+						$active_worker = CerberusApplication::getActiveWorker();
+						DevblocksEventHelper::renderActionRelayEmail(
+							array($active_worker->id),
+							array('workers'),
+							'content'
+						);
+						break;
+				}
 				break;
 				
 			case 'schedule_email_recipients':
