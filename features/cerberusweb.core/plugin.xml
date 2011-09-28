@@ -774,6 +774,7 @@
 				<param key="view_class" value="View_Ticket" />
 				<param key="options">
 					<value>
+					<!--<data key="create" />-->
 						<data key="find" />
 						<data key="snippets" />
 						<data key="workspace" />
@@ -793,6 +794,7 @@
 				<param key="view_class" value="View_Worker" />
 				<param key="options">
 					<value>
+						<!--<data key="create" />-->
 						<!--<data key="find" />-->
 						<data key="snippets" />
 						<data key="workspace" />
@@ -811,11 +813,14 @@
 			<params>
 				<param key="view_class" value="View_WorkerRole" />
 				<param key="options">
+					<!--
 					<value>
-						<!--<data key="find" />-->
-						<!--<data key="snippets" />-->
-						<!--<data key="workspace" />-->
+						<data key="create" />
+						<data key="find" />
+						<data key="snippets" />
+						<data key="workspace" />
 					</value>
+					-->
 				</param>
 			</params>
 		</extension>
