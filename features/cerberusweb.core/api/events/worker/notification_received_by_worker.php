@@ -136,7 +136,6 @@ class Event_NotificationReceivedByWorker extends Extension_DevblocksEvent {
 		switch($token) {
 			default:
 				$pass = false;
-				//var_dump('unimplemented');
 				break;
 		}
 		

@@ -618,7 +618,6 @@ abstract class C4_AbstractView {
 		$results = $db->GetArray($sql);
 //		$total = count($results);
 //		$total = ($total < 20) ? $total : $db->GetOne("SELECT FOUND_ROWS()");
-//		var_dump($total);
 
 		return $results;
 	}
@@ -759,7 +758,6 @@ abstract class C4_AbstractView {
 		$results = $db->GetArray($sql);
 //		$total = count($results);
 //		$total = ($total < 20) ? $total : $db->GetOne("SELECT FOUND_ROWS()");
-//		var_dump($total);
 
 		return $results;
 	}	
@@ -937,7 +935,6 @@ abstract class C4_AbstractView {
 				$results = $db->GetArray($sql);
 //				$total = count($results);
 //				$total = ($total < 20) ? $total : $db->GetOne("SELECT FOUND_ROWS()");
-//				var_dump($total);
 				
 				foreach($results as $result) {
 					$label = '';
@@ -1001,7 +998,6 @@ abstract class C4_AbstractView {
 				$results = $db->GetArray($sql);
 //				$total = count($results);
 //				$total = ($total < 20) ? $total : $db->GetOne("SELECT FOUND_ROWS()");
-//				var_dump($total);
 		
 				foreach($results as $result) {
 					$label = '';

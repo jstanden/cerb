@@ -768,8 +768,6 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 				$groups = DAO_Group::getAll();
 				$buckets = DAO_Bucket::getAll();
 				
-				var_dump($values);
-				
 				// Don't trigger a move event into the same group+bucket.
 				if(
 					($to_group_id == $current_group_id)
