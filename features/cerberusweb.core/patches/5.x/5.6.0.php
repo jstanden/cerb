@@ -278,4 +278,103 @@ foreach($replacements as $replace_from => $replace_to) {
 
 $db->Execute("DELETE FROM worker_pref WHERE setting = 'mail_status_create'");
 
+// ===========================================================================
+// Modify VA actions to combine move_to_group and move_to_bucket into a single move_to action
+
+$results = $db->GetArray("SELECT decision_node.id, decision_node.params_json, trigger_event.owner_context, trigger_event.owner_context_id ".
+	"FROM decision_node ".
+	"INNER JOIN trigger_event ON (decision_node.trigger_id=trigger_event.id) ".
+	"WHERE params_json LIKE '%move\\_to\\_%'"
+);
+
+if(is_array($results) && !empty($results)) {
+	foreach($results as $row) {
+		$id = $row['id'];
+		$owner_context = $row['owner_context'];
+		$owner_context_id = $row['owner_context_id'];
+		@$params = json_decode($row['params_json'], true);
+		
+		if(!is_array($params))
+			continue;
+		
+		if(!isset($params['actions']) || !is_array($params['actions']))
+			continue;
+
+		$is_move_group = false;
+		$is_move_bucket = false;
+		
+		// Pre-scan
+		foreach($params['actions'] as $k => $param) {
+			switch($param['action']) {
+				case 'move_to_group':
+					$is_move_group = true;
+					break;
+				case 'move_to_bucket':
+					$is_move_bucket = true;
+					break;
+			}
+		}
+		
+		// Changes
+		foreach($params['actions'] as $k => $param) {
+			switch($param['action']) {
+				case 'move_to_group':
+					$group_id = intval($param['group_id']);
+					
+					if(!empty($group_id)) {
+						$params['actions'][$k] = array(
+							'action' => 'move_to',
+							'group_id' => $group_id,
+							'bucket_id' => 0,
+						);
+					} else {
+						unset($params['actions'][$k]);
+					}
+					
+					break;
+					
+				case 'move_to_bucket':
+					// If we're already moving groups, favor that action instead.
+					if($is_move_group) {
+						unset($params['actions'][$k]);
+						break;
+					}
+					
+					$group_id = 0;
+					$bucket_id = intval($param['bucket_id']);
+					
+					switch($owner_context) {
+						case CerberusContexts::CONTEXT_GROUP:
+							$group_id = intval($owner_context_id);
+							break;
+						default:
+							if(!empty($bucket_id)) {
+								$group_id = intval($db->GetOne(sprintf("SELECT group_id FROM bucket WHERE id = %d", $bucket_id)));
+							}
+							break;
+					}
+					
+					if(!empty($group_id)) {
+						$params['actions'][$k] = array(
+							'action' => 'move_to',
+							'group_id' => $group_id,
+							'bucket_id' => $bucket_id,
+						);
+					} else {
+						unset($params['actions'][$k]);
+					}
+					
+					break;
+			}
+		}
+		
+		$db->Execute(sprintf("UPDATE decision_node SET params_json = %s WHERE id = %d",
+			$db->qstr(json_encode($params)),
+			$id
+		));
+	}	
+}
+
+unset($results);
+
 return TRUE;

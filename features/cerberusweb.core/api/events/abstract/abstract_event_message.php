@@ -449,8 +449,7 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 				'create_notification' => array('label' =>'Send a notification'),
 				'create_task' => array('label' =>'Create a task'),
 				'create_ticket' => array('label' =>'Create a ticket'),
-				'move_to_bucket' => array('label' => 'Move to bucket'),
-				'move_to_group' => array('label' => 'Move to group'),
+				'move_to' => array('label' => 'Move to'),
 				'relay_email' => array('label' => 'Relay to external email'),
 				'schedule_email_recipients' => array('label' => 'Schedule email to recipients'),
 				'schedule_behavior' => array('label' => 'Schedule behavior'),
@@ -572,18 +571,14 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 				$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_string.tpl');
 				break;
 				
-			case 'move_to_bucket':
-				// [TODO] Share
-				$buckets = DAO_Bucket::getByGroup($trigger->owner_context_id);
-				$tpl->assign('buckets', $buckets);
-				$tpl->display('devblocks:cerberusweb.core::events/mail_received_by_group/action_move_to_bucket.tpl');
-				break;
-				
-			case 'move_to_group':
-				// [TODO] Use trigger cache
+			case 'move_to':
 				$groups = DAO_Group::getAll();
 				$tpl->assign('groups', $groups);
-				$tpl->display('devblocks:cerberusweb.core::events/mail_received_by_group/action_move_to_group.tpl');
+
+				$group_buckets = DAO_Bucket::getGroups();
+				$tpl->assign('group_buckets', $group_buckets);
+				
+				$tpl->display('devblocks:cerberusweb.core::events/model/ticket/action_move_to.tpl');
 				break;
 				
 			case 'set_sender_links':
@@ -762,60 +757,77 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 				));
 				$values['ticket_subject'] = $params['value'];
 				break;
-				
-			case 'move_to_group':
+			
+			case 'move_to':
 				@$to_group_id = intval($params['group_id']);
-				@$current_group_id = intval($values['group_id']);
-				$groups = DAO_Group::getAll();
+				@$current_group_id = intval($values['ticket_group_id']);
 				
-				// Don't trigger a move event into the same bucket.
-				if($to_group_id == $current_group_id)
-					break;
-				
-				if(!empty($to_group_id) && !isset($groups[$to_group_id]))
-					break;
-					
-				// Move
-				DAO_Ticket::update($ticket_id, array(
-					DAO_Ticket::GROUP_ID => $to_group_id, 
-					DAO_Ticket::BUCKET_ID => 0, 
-				));
-				
-				// Pull group context + merge
-				$merge_token_labels = array();
-				$merge_token_values = array();
-				$labels = $this->getLabels();
-				CerberusContexts::getContext(CerberusContexts::CONTEXT_GROUP, $to_group_id, $merge_token_labels, $merge_token_values, '', true);
-		
-				CerberusContexts::merge(
-					'group_',
-					'Group:',
-					$merge_token_labels,
-					$merge_token_values,
-					$labels,
-					$values
-				);
-				break;				
-				
-			case 'move_to_bucket':
 				@$to_bucket_id = intval($params['bucket_id']);
 				@$current_bucket_id = intval($values['ticket_bucket_id']);
+
+				$groups = DAO_Group::getAll();
 				$buckets = DAO_Bucket::getAll();
 				
-				// Don't trigger a move event into the same bucket.
-				if($to_bucket_id == $current_bucket_id)
+				var_dump($values);
+				
+				// Don't trigger a move event into the same group+bucket.
+				if(
+					($to_group_id == $current_group_id)
+					&& ($to_bucket_id == $current_bucket_id)
+					)
 					break;
 				
+				// Don't move into non-existent groups
+				if(empty($to_group_id) || !isset($groups[$to_group_id]))
+					break;
+				
+				// ... or non-existent buckets
 				if(!empty($to_bucket_id) && !isset($buckets[$to_bucket_id]))
 					break;
-					
+				
 				// Move
 				DAO_Ticket::update($ticket_id, array(
-					DAO_Ticket::BUCKET_ID => $to_bucket_id, 
+					DAO_Ticket::GROUP_ID => $to_group_id,
+					DAO_Ticket::BUCKET_ID => $to_bucket_id,
 				));
-				$values['ticket_bucket_id'] = $to_bucket_id;
-				break;
 				
+				$values['ticket_group_id'] = $to_group_id;
+				$values['ticket_bucket_id'] = $to_bucket_id;
+				
+				// Pull group context + merge
+				if($to_group_id != $current_group_id) {
+					$merge_token_labels = array();
+					$merge_token_values = array();
+					$labels = $this->getLabels();
+					CerberusContexts::getContext(CerberusContexts::CONTEXT_GROUP, $to_group_id, $merge_token_labels, $merge_token_values, '', true);
+			
+					CerberusContexts::merge(
+						'ticket_group_',
+						'Group:',
+						$merge_token_labels,
+						$merge_token_values,
+						$labels,
+						$values
+					);
+				}
+				
+				if(!empty($to_bucket_id)) {
+					$merge_token_labels = array();
+					$merge_token_values = array();
+					$labels = $this->getLabels();
+					CerberusContexts::getContext(CerberusContexts::CONTEXT_BUCKET, $to_bucket_id, $merge_token_labels, $merge_token_values, '', true);
+			
+					CerberusContexts::merge(
+						'ticket_bucket_',
+						'Bucket:',
+						$merge_token_labels,
+						$merge_token_values,
+						$labels,
+						$values
+					);
+				}
+				break;	
+
 			case 'set_sender_links':
 			case 'set_sender_org_links':
 			case 'set_ticket_links':
