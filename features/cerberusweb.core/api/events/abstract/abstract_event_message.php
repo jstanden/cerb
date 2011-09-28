@@ -168,6 +168,8 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 		$labels['ticket_watcher_count'] = 'Ticket watcher count';
 		
 		$labels['group_id'] = 'Group';
+		$labels['group_and_bucket'] = 'Group and bucket';
+		
 		$labels['sender_link'] = 'Message sender is linked';
 		$labels['sender_org_link'] = 'Message sender org is linked';
 		$labels['ticket_link'] = 'Ticket is linked';
@@ -200,6 +202,7 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 		
 			'group_id' => null,
 			"group_name" => Model_CustomField::TYPE_SINGLE_LINE,
+			'group_and_bucket' => null,
 		
 			'ticket_owner_address_address' => Model_CustomField::TYPE_SINGLE_LINE,
 			'ticket_owner_first_name' => Model_CustomField::TYPE_SINGLE_LINE,
@@ -260,6 +263,26 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 				$tpl->assign('groups', $groups);
 				
 				$tpl->display('devblocks:cerberusweb.core::events/model/ticket/condition_group.tpl');
+				break;
+			case 'group_and_bucket':
+				$groups = DAO_Group::getAll();
+				
+				switch($trigger->owner_context) {
+					// If the owner of the behavior is a group
+					case CerberusContexts::CONTEXT_GROUP:
+						foreach($groups as $group_id => $group) {
+							if($group_id != $trigger->owner_context_id)
+								unset($groups[$group_id]);
+						}
+						break;
+				}
+				
+				$tpl->assign('groups', $groups);
+				
+				$group_buckets = DAO_Bucket::getGroups();
+				$tpl->assign('buckets_by_group', $group_buckets);
+				
+				$tpl->display('devblocks:cerberusweb.core::events/model/ticket/condition_group_and_bucket.tpl');
 				break;
 			case 'sender_link':
 			case 'sender_org_link':
@@ -386,7 +409,8 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 				}
 				
 				$pass = ($not) ? !$pass : $pass;
-				break;				
+				break;
+
 			case 'group_id':
 				$not = (substr($params['oper'],0,1) == '!');
 				$oper = ltrim($params['oper'],'!');
@@ -398,6 +422,19 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 				$pass = ($not) ? !$pass : $pass;
 				break;
 				
+			case 'group_and_bucket':
+				$not = (substr($params['oper'],0,1) == '!');
+				$oper = ltrim($params['oper'],'!');
+				
+				@$in_group_id = $params['group_id'];
+				@$in_bucket_ids = $params['bucket_id'];
+				
+				@$group_id = intval($values['group_id']);
+				@$bucket_id = intval($values['ticket_bucket_id']);
+				
+				$pass = ($group_id==$in_group_id) && in_array($bucket_id, $in_bucket_ids);
+				$pass = ($not) ? !$pass : $pass;
+				break;
 				
 			case 'sender_link':
 			case 'sender_org_link':

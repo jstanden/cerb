@@ -127,6 +127,8 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 		$labels['ticket_watcher_count'] = 'Ticket watcher count';
 		
 		$labels['group_id'] = 'Group';
+		$labels['group_and_bucket'] = 'Group and bucket';
+		
 		$labels['group_link'] = 'Group is linked';
 		$labels['owner_link'] = 'Ticket owner is linked';
 		$labels['ticket_initial_message_sender_link'] = 'Ticket initial message sender is linked';
@@ -180,6 +182,7 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 		
 			'group_id' => null,
 			"group_name" => Model_CustomField::TYPE_SINGLE_LINE,
+			'group_and_bucket' => null,
 		
 			'ticket_owner_address_address' => Model_CustomField::TYPE_SINGLE_LINE,
 			'ticket_owner_first_name' => Model_CustomField::TYPE_SINGLE_LINE,
@@ -187,7 +190,7 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 			'ticket_owner_last_name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'ticket_owner_title' => Model_CustomField::TYPE_SINGLE_LINE,
 		
-			"ticket_bucket_name|default('Inbox')" => null,
+			"ticket_bucket_name|default('Inbox')" => Model_CustomField::TYPE_SINGLE_LINE,
 			'ticket_created|date' => Model_CustomField::TYPE_DATE,
 			'ticket_mask' => Model_CustomField::TYPE_SINGLE_LINE,
 			'ticket_spam_score' => null,
@@ -231,11 +234,6 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 			case 'ticket_watcher_count':
 				$tpl->display('devblocks:cerberusweb.core::internal/decisions/conditions/_number.tpl');
 				break;
-			case 'ticket_bucket_name':
-				$buckets = DAO_Bucket::getByGroup($trigger->owner_context_id);
-				$tpl->assign('buckets', $buckets);
-				$tpl->display('devblocks:cerberusweb.core::events/mail_received_by_group/condition_bucket.tpl');
-				break;
 			case 'ticket_spam_score':
 				$tpl->display('devblocks:cerberusweb.core::events/mail_received_by_group/condition_spam_score.tpl');
 				break;
@@ -258,6 +256,26 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 				$tpl->assign('groups', $groups);
 				
 				$tpl->display('devblocks:cerberusweb.core::events/model/ticket/condition_group.tpl');
+				break;
+			case 'group_and_bucket':
+				$groups = DAO_Group::getAll();
+				
+				switch($trigger->owner_context) {
+					// If the owner of the behavior is a group
+					case CerberusContexts::CONTEXT_GROUP:
+						foreach($groups as $group_id => $group) {
+							if($group_id != $trigger->owner_context_id)
+								unset($groups[$group_id]);
+						}
+						break;
+				}
+				
+				$tpl->assign('groups', $groups);
+				
+				$group_buckets = DAO_Bucket::getGroups();
+				$tpl->assign('buckets_by_group', $group_buckets);
+				
+				$tpl->display('devblocks:cerberusweb.core::events/model/ticket/condition_group_and_bucket.tpl');
 				break;
 			case 'group_link':
 			case 'owner_link':
@@ -309,30 +327,6 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 				$pass = ($not) ? !$pass : $pass;
 				break;
 							
-			case 'ticket_bucket_name':
-				$not = (substr($params['oper'],0,1) == '!');
-				$oper = ltrim($params['oper'],'!');
-				@$value = $values['ticket_bucket_id'];
-				
-				if(!isset($params['bucket_ids']) || !is_array($params['bucket_ids'])) {
-					$pass = false;
-					break;
-				}
-				
-				switch($oper) {
-					case 'in':
-						$pass = false;
-						foreach($params['bucket_ids'] as $v) {
-							if(intval($v) == intval($value)) {
-								$pass = true;
-								break;
-							}
-						}
-						break;
-				}
-				$pass = ($not) ? !$pass : $pass;
-				break;
-				
 			case 'ticket_spam_score':
 				$not = (substr($params['oper'],0,1) == '!');
 				$oper = ltrim($params['oper'],'!');
@@ -436,6 +430,20 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 				@$group_id = intval($values['ticket_group_id']);
 				
 				$pass = in_array($group_id, $in_group_ids);
+				$pass = ($not) ? !$pass : $pass;
+				break;
+				
+			case 'group_and_bucket':
+				$not = (substr($params['oper'],0,1) == '!');
+				$oper = ltrim($params['oper'],'!');
+				
+				@$in_group_id = $params['group_id'];
+				@$in_bucket_ids = $params['bucket_id'];
+				
+				@$group_id = intval($values['ticket_group_id']);
+				@$bucket_id = intval($values['ticket_bucket_id']);
+				
+				$pass = ($group_id==$in_group_id) && in_array($bucket_id, $in_bucket_ids);
 				$pass = ($not) ? !$pass : $pass;
 				break;
 				
