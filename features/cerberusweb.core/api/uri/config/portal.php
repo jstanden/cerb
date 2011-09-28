@@ -46,7 +46,6 @@ class PageSection_SetupPortal extends Extension_PageSection {
 	// [TODO] Move this to the SC plugin!!! (and reflect to the controller somehow)
 	function addContactSituationAction() {
 		//@$portal = DevblocksPlatform::importGPC($_REQUEST['portal'],'string','');
-
 		//ChPortalHelper::setCode($portal);
 
 		$tpl = DevblocksPlatform::getTemplateService();
@@ -61,6 +60,10 @@ class PageSection_SetupPortal extends Extension_PageSection {
 		// Custom field types
 		$types = Model_CustomField::getTypes();
 		$tpl->assign('field_types', $types);		
+		
+		// Default reply-to
+		$replyto_default = DAO_AddressOutgoing::getDefault();
+		$tpl->assign('replyto_default', $replyto_default);
 		
 		$tpl->display('devblocks:cerberusweb.support_center::portal/sc/config/module/contact/situation.tpl');
 	}

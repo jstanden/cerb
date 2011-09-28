@@ -118,6 +118,10 @@ class UmScContactController extends Extension_UmScController {
 		$groups = DAO_Group::getAll();
 		$tpl->assign('groups', $groups);
 		
+		// Default reply-to
+		$replyto_default = DAO_AddressOutgoing::getDefault();
+		$tpl->assign('replyto_default', $replyto_default);
+		
 		// Contact: Fields
 		$ticket_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TICKET);
 		$tpl->assign('ticket_fields', $ticket_fields);

@@ -20,7 +20,7 @@
 	<input type="text" name="contact_reason[{$uniq_id}]" size="65" value="{$reason}"><br>
 	<br>
 	
-	<b>{$translate->_('portal.cfg.deliver_to')}</b> {'portal.cfg.deliver_to_hint'|devblocks_translate:$default_from}<br>
+	<b>{$translate->_('portal.cfg.deliver_to')}</b> {'portal.cfg.deliver_to_hint'|devblocks_translate:$replyto_default->email}<br>
 	<input type="text" name="contact_to[{$uniq_id}]" size="65" value="{$params.to}"><br>
 	<br>
 	
