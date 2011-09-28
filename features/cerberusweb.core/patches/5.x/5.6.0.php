@@ -101,6 +101,20 @@ if(!is_null($acl_enabled)) {
 				'what' => 'all',
 			)))
 		));
+	} else {
+		// Otherwise, if ACL was enabled, add default privs for mail + activity
+		$results = $db->GetArray("SELECT id FROM worker_role");
+		
+		foreach($results as $row) {
+			$db->Execute(sprintf("INSERT INTO worker_role_acl (role_id, priv_id) VALUES (%d, %s)",
+				$row['id'],
+				$db->qstr('core.mail')
+			));
+			$db->Execute(sprintf("INSERT INTO worker_role_acl (role_id, priv_id) VALUES (%d, %s)",
+				$row['id'],
+				$db->qstr('core.activity')
+			));
+		}
 	}
 	
 	$db->Execute("DELETE FROM devblocks_setting WHERE setting = 'acl_enabled'");
