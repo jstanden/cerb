@@ -284,7 +284,7 @@ $db->Execute("DELETE FROM worker_pref WHERE setting = 'mail_status_create'");
 $results = $db->GetArray("SELECT decision_node.id, decision_node.params_json, trigger_event.owner_context, trigger_event.owner_context_id ".
 	"FROM decision_node ".
 	"INNER JOIN trigger_event ON (decision_node.trigger_id=trigger_event.id) ".
-	"WHERE params_json LIKE '%move\\_to\\_%'"
+	"WHERE node_type = 'action' AND params_json LIKE '%move\\_to\\_%'"
 );
 
 if(is_array($results) && !empty($results)) {
@@ -378,3 +378,4 @@ if(is_array($results) && !empty($results)) {
 unset($results);
 
 return TRUE;
+

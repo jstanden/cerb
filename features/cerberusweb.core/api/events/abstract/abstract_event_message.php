@@ -167,6 +167,7 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 		$labels['ticket_has_owner'] = 'Ticket has owner';
 		$labels['ticket_watcher_count'] = 'Ticket watcher count';
 		
+		$labels['group_id'] = 'Group';
 		$labels['sender_link'] = 'Message sender is linked';
 		$labels['sender_org_link'] = 'Message sender org is linked';
 		$labels['ticket_link'] = 'Ticket is linked';
@@ -197,6 +198,7 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 			'sender_worker_full_name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'storage_size' => Model_CustomField::TYPE_NUMBER,
 		
+			'group_id' => null,
 			"group_name" => Model_CustomField::TYPE_SINGLE_LINE,
 		
 			'ticket_owner_address_address' => Model_CustomField::TYPE_SINGLE_LINE,
@@ -252,6 +254,12 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 				break;
 			case 'ticket_status':
 				$tpl->display('devblocks:cerberusweb.core::events/mail_received_by_group/condition_status.tpl');
+				break;
+			case 'group_id':
+				$groups = DAO_Group::getAll();
+				$tpl->assign('groups', $groups);
+				
+				$tpl->display('devblocks:cerberusweb.core::events/model/ticket/condition_group.tpl');
 				break;
 			case 'sender_link':
 			case 'sender_org_link':
@@ -379,6 +387,17 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 				
 				$pass = ($not) ? !$pass : $pass;
 				break;				
+			case 'group_id':
+				$not = (substr($params['oper'],0,1) == '!');
+				$oper = ltrim($params['oper'],'!');
+				
+				@$in_group_ids = $params['group_id'];
+				$group_id = intval($values['group_id']);
+				
+				$pass = in_array($group_id, $in_group_ids);
+				$pass = ($not) ? !$pass : $pass;
+				break;
+				
 				
 			case 'sender_link':
 			case 'sender_org_link':

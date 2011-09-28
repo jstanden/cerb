@@ -126,6 +126,7 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 		$labels['ticket_latest_outgoing_activity'] = 'Ticket latest outgoing activity';
 		$labels['ticket_watcher_count'] = 'Ticket watcher count';
 		
+		$labels['group_id'] = 'Group';
 		$labels['group_link'] = 'Group is linked';
 		$labels['owner_link'] = 'Ticket owner is linked';
 		$labels['ticket_initial_message_sender_link'] = 'Ticket initial message sender is linked';
@@ -177,6 +178,7 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 			'ticket_latest_message_sender_org_website' => Model_CustomField::TYPE_SINGLE_LINE,
 			'ticket_latest_message_storage_size' => Model_CustomField::TYPE_NUMBER,
 		
+			'group_id' => null,
 			"group_name" => Model_CustomField::TYPE_SINGLE_LINE,
 		
 			'ticket_owner_address_address' => Model_CustomField::TYPE_SINGLE_LINE,
@@ -250,6 +252,12 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 			case 'ticket_latest_incoming_activity':
 			case 'ticket_latest_outgoing_activity':
 				$tpl->display('devblocks:cerberusweb.core::internal/decisions/conditions/_date.tpl');
+				break;
+			case 'group_id':
+				$groups = DAO_Group::getAll();
+				$tpl->assign('groups', $groups);
+				
+				$tpl->display('devblocks:cerberusweb.core::events/model/ticket/condition_group.tpl');
 				break;
 			case 'group_link':
 			case 'owner_link':
@@ -417,6 +425,17 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 				@$to = intval(strtotime($to));
 				
 				$pass = ($value > $from && $value < $to);
+				$pass = ($not) ? !$pass : $pass;
+				break;
+				
+			case 'group_id':
+				$not = (substr($params['oper'],0,1) == '!');
+				$oper = ltrim($params['oper'],'!');
+				
+				@$in_group_ids = $params['group_id'];
+				@$group_id = intval($values['ticket_group_id']);
+				
+				$pass = in_array($group_id, $in_group_ids);
 				$pass = ($not) ? !$pass : $pass;
 				break;
 				
