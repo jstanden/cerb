@@ -1,14 +1,18 @@
 {$random = time()|cat:mt_rand(1000,9999)}
+{$selected_group_id = $params.group_id}
+{if empty($selected_group_id)}
+	{$selected_group_id = key($groups)}
+{/if}
 
 <div id="{$random}_moveto">
 <select name="{$namePrefix}[group_id]">
 	{foreach from=$groups item=group key=group_id}
-	<option value="{$group_id}" {if $group_id==$params.group_id}selected="selected"{/if}>{$group->name}</option>
+	<option value="{$group_id}" {if $group_id==$selected_group_id}selected="selected"{/if}>{$group->name}</option>
 	{/foreach}
 </select><!-- 
 --><select name="{$namePrefix}[bucket_id]">
 <option value="0">{'common.inbox'|devblocks_translate|capitalize}</option>
-{foreach from=$group_buckets.{$params.group_id} item=bucket key=bucket_id name=buckets}
+{foreach from=$group_buckets.{$selected_group_id} item=bucket key=bucket_id name=buckets}
 	<option value="{$bucket_id}" {if $params.bucket_id==$bucket_id}selected="selected"{/if}>{$bucket->name}</option>
 {/foreach}
 </select>
