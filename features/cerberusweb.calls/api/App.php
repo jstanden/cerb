@@ -155,6 +155,12 @@ class CallsPage extends CerberusPageExtension {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('view_id', $view_id);
 		
+		// Handle context links ([TODO] as an optional array)
+		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
+		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer','');
+		$tpl->assign('context', $context);
+		$tpl->assign('context_id', $context_id);
+		
 		if(!empty($id) && null != ($call = DAO_CallEntry::get($id))) {
 			$tpl->assign('model', $call);
 		}
@@ -208,6 +214,13 @@ class CallsPage extends CerberusPageExtension {
 				@$is_watcher = DevblocksPlatform::importGPC($_REQUEST['is_watcher'],'integer',0);
 				if($is_watcher)
 					CerberusContexts::addWatchers(CerberusContexts::CONTEXT_CALL, $id, $active_worker->id);
+				
+				// Context Link (if given)
+				@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
+				@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer','');
+				if(!empty($id) && !empty($context) && !empty($context_id)) {
+					DAO_ContextLink::setLink(CerberusContexts::CONTEXT_CALL, $id, $context, $context_id);
+				}
 				
 			} else { // Edit
 				$fields = array(

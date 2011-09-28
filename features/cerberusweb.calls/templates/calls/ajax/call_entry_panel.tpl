@@ -2,6 +2,10 @@
 <input type="hidden" name="c" value="calls">
 <input type="hidden" name="a" value="saveEntry">
 {if !empty($model) && !empty($model->id)}<input type="hidden" name="id" value="{$model->id}">{/if}
+{if empty($id) && !empty($context)}
+<input type="hidden" name="context" value="{$context}">
+<input type="hidden" name="context_id" value="{$context_id}">
+{/if}
 <input type="hidden" name="do_delete" value="0">
 
 <fieldset>

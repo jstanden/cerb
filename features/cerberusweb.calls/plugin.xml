@@ -80,7 +80,7 @@
 				<param key="view_class" value="View_CallEntry" />
 				<param key="options">
 					<value>
-						<!--<data key="create" />-->
+						<data key="create" />
 						<data key="find" />
 						<data key="snippets" />
 						<data key="workspace" />

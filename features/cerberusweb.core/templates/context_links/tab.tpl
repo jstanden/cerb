@@ -66,6 +66,9 @@ function linkAddContext(ref) {
 	} else if($context == 'cerberusweb.contexts.opportunity') {
 		$popup = genericAjaxPopup('peek','c=crm&a=showOppPanel&id=0&context={$context}&context_id={$context_id}',null,false,'500');
 		$popup.one('dialogclose', reload_action);
+	} else if($context == 'cerberusweb.contexts.call') {
+		$popup = genericAjaxPopup('peek','c=calls&a=showEntry&id=0&context={$context}&context_id={$context_id}',null,false,'500');
+		$popup.one('dialogclose', reload_action);
 	}
 	
 	$select.val('');
