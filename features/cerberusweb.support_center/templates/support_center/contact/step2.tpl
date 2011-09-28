@@ -124,8 +124,10 @@
 		<b>{$translate->_('portal.public.logged_ip')}</b> {$fingerprint.ip}<br>
 		<br>
 		
-		<button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.support_center&f=images/check.gif{/devblocks_url}" align="top" border="0"> {$translate->_('portal.public.send_message')}</button>
-		<button type="button" onclick="document.location='{devblocks_url}{/devblocks_url}';"><img src="{devblocks_url}c=resource&p=cerberusweb.support_center&f=images/delete.gif{/devblocks_url}" align="top" border="0"> {$translate->_('common.discard')|capitalize}</button>
+		<div class="buttons">
+			<button type="submit"><img src="{devblocks_url}c=resource&p=cerberusweb.support_center&f=images/check.gif{/devblocks_url}" align="top" border="0"> {$translate->_('portal.public.send_message')}</button>
+			<button type="button" onclick="document.location='{devblocks_url}{/devblocks_url}';"><img src="{devblocks_url}c=resource&p=cerberusweb.support_center&f=images/delete.gif{/devblocks_url}" align="top" border="0"> {$translate->_('common.discard')|capitalize}</button>
+		</div>
       </td>
     </tr>
     
@@ -136,7 +138,11 @@
 {literal}
 <script type="text/javascript">
   $(document).ready(function(){
-    $("#openTicketForm").validate({
+	$frm = $("#openTicketForm");
+	$frm.submit(function(e) {
+		$(this).find('div.buttons').hide();
+	});
+    $frm.validate({
 		rules: {
 			captcha: {
 				required: true,
