@@ -139,7 +139,17 @@ class CerberusMail {
 	}
 
 	static function compose($properties) {
+		$worker = CerberusApplication::getActiveWorker();
+		
 		@$group_id = $properties['group_id'];
+		$properties['worker_id'] = $worker->id;
+	
+		if(null == ($group = DAO_Group::get($group_id)))
+			return;
+		
+	    // Changing the outgoing message through a VA
+	    Event_MailBeforeSentByGroup::trigger($properties, null, null, $group);
+		
 		@$org_id = $properties['org_id'];
 		@$toStr = $properties['to'];
 		@$cc = $properties['cc'];
@@ -154,9 +164,6 @@ class CerberusMail {
 		
 		@$dont_send = $properties['dont_send'];
 		
-		$worker = CerberusApplication::getActiveWorker();
-		$group = DAO_Group::get($group_id);
-
 		$from_replyto = $group->getReplyTo();
 		$personal = $group->getReplyPersonal(0, $worker);
 		
@@ -392,6 +399,10 @@ class CerberusMail {
 		
         // Events
         if(!empty($message_id) && !empty($group_id)) {
+			// After message sent in group
+			Event_MailAfterSentByGroup::trigger($message_id, $group_id);			
+
+			// Mail received by group
         	Event_MailReceivedByGroup::trigger($message_id, $group_id);
         }
         
