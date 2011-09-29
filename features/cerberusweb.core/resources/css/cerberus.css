@@ -1224,14 +1224,13 @@ UL.ui-autocomplete.ui-menu .ui-menu-item a.ui-state-hover {
 	border-radius:0;
 }
 .ui-tabs .ui-tabs-nav li {
-	margin: 0 0.2em 0 0;
 	background: rgb(245,245,245) none;
 	background: linear-gradient(top, rgb(255,255,255), rgb(240,240,240));
 	background: -webkit-gradient(linear, left top, left bottom, from(rgb(255,255,255)), to(rgb(240,240,240)));
 	background: -moz-linear-gradient(top, rgb(255,255,255), rgb(240,240,240));
 	background: -o-linear-gradient(top, rgb(255,255,255), rgb(240,240,240));
 	background: -ms-linear-gradient(top, rgb(255,255,255), rgb(240,240,240));
-	border:1px solid rgb(200,200,200);
+	border-color:rgb(200,200,200);
 }
 .ui-tabs .ui-tabs-nav li a {
 	padding:0.5em 0.6em;
@@ -1254,7 +1253,7 @@ UL.ui-autocomplete.ui-menu .ui-menu-item a.ui-state-hover {
 	background: -moz-linear-gradient(top, rgb(239,249,255), rgb(255,255,255));
 	background: -o-linear-gradient(top, rgb(239,249,255), rgb(255,255,255));
 	background: -ms-linear-gradient(top, rgb(239,249,255), rgb(255,255,255));
-	border:1px solid rgb(121,183,231);
+	border-color:rgb(121,183,231);
 	border-bottom:none;
 }
 .ui-tabs .ui-tabs-nav li.ui-tabs-selected a { 
