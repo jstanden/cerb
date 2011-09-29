@@ -800,6 +800,11 @@ class DAO_WorkspaceList extends DevblocksORMHelper {
 		$ids_list = implode(',', $ids);
 		
 		$db->Execute(sprintf("DELETE QUICK FROM workspace_list WHERE id IN (%s)", $ids_list)) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		
+		// Delete worker view prefs
+		foreach($ids as $id) {
+			$db->Execute(sprintf("DELETE FROM worker_view_model WHERE view_id = 'cust_%d'", $id));
+		}
 	}
 };
 

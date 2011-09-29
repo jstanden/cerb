@@ -391,5 +391,22 @@ if(is_array($results) && !empty($results)) {
 
 unset($results);
 
+// ===========================================================================
+// Nuke abandoned worker_view_model rows
+
+$results = $db->GetArray("SELECT DISTINCT worker_view_model.view_id, workspace_list.id ".
+	"FROM worker_view_model ".
+	"LEFT JOIN workspace_list ON (worker_view_model.view_id=concat('cust_',workspace_list.id)) ".
+	"HAVING worker_view_model.view_id LIKE 'cust_%' ".
+	"AND workspace_list.id IS NULL"
+);
+
+if(is_array($results))
+foreach($results as $row) {
+	$db->Execute(sprintf("DELETE FROM worker_view_model WHERE view_id = %s",
+		$db->qstr($row['view_id'])
+	));
+}
+
 return TRUE;
 
