@@ -1550,7 +1550,7 @@ class ChInternalController extends DevblocksControllerExtension {
 			$tpl->assign('worklists', $worklists);
 		}
 		
-		$workers = DAO_Worker::getAllActive();
+		$workers = DAO_Worker::getAll();
 		$tpl->assign('workers', $workers);
 		
 		$groups = DAO_Group::getAll();
