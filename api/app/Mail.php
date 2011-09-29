@@ -257,7 +257,7 @@ class CerberusMail {
 			foreach($email->getHeaders()->getAll() as $hdr) {
 				if(null != ($hdr_val = $hdr->getFieldBody())) {
 					if(!empty($hdr_val))
-						$mail_headers[$hdr->getFieldName()] = $hdr_val;
+						$mail_headers[$hdr->getFieldName()] = CerberusParser::fixQuotePrintableString($hdr_val, LANG_CHARSET_CODE);
 				}
 			}
 			
@@ -343,8 +343,8 @@ class CerberusMail {
 		}
 		
 		// Headers
-		foreach($mail_headers as $hdr => $hdr_val) {
-			DAO_MessageHeader::create($message_id, $hdr, CerberusParser::fixQuotePrintableString($hdr_val, LANG_CHARSET_CODE));
+		foreach($mail_headers as $hdr_key => $hdr_val) {
+			DAO_MessageHeader::create($message_id, $hdr_key, $hdr_val);
 		}
 		
 		// add files to ticket
@@ -635,6 +635,15 @@ class CerberusMail {
 
 			// Send
 			$recipients = $mail->getTo();
+			$send_headers = array();
+			
+		    // Save headers before sending
+			foreach($headers->getAll() as $hdr) {
+				if(null != ($hdr_val = $hdr->getFieldBody())) {
+					if(!empty($hdr_val))
+						$send_headers[$hdr->getFieldName()] = CerberusParser::fixQuotePrintableString($hdr_val, LANG_CHARSET_CODE);
+				}
+			}
 			
 			// If blank recipients or we're not supposed to send
 			if(empty($recipients) || (isset($properties['dont_send']) && $properties['dont_send'])) {
@@ -721,15 +730,12 @@ class CerberusMail {
 			
 			// Content
 			Storage_MessageContent::put($message_id, $content);
-		    
-			$headers = $mail->getHeaders();
-			
-		    // Headers
-			foreach($headers->getAll() as $hdr) {
-				if(null != ($hdr_val = $hdr->getFieldBody())) {
-					if(!empty($hdr_val))
-		    			DAO_MessageHeader::create($message_id, $hdr->getFieldName(), CerberusParser::fixQuotePrintableString($hdr_val, LANG_CHARSET_CODE));
-				}
+
+			// Save cached headers
+			foreach($send_headers as $hdr_key => $hdr_val) {
+				if(empty($hdr_key) || empty($hdr_val))
+					continue;
+    			DAO_MessageHeader::create($message_id, $hdr_key, $hdr_val);
 			}
 		    
 			// Attachments
