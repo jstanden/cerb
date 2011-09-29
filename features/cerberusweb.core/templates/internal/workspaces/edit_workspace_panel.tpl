@@ -6,7 +6,7 @@
 
 <table cellpadding="2" cellspacing="0" border="0" width="100%" style="margin-bottom:5px;">
 	<tr>
-		<td width="1%" nowrap="nowrap" align="right">
+		<td width="1%" nowrap="nowrap" align="right" valign="top">
 			<b>{'common.name'|devblocks_translate|capitalize}:</b>
 		</td>
 		<td width="99%">
@@ -14,14 +14,35 @@
 		</td>
 	</tr>
 	
-	{if empty($workspace)}
 	<tr>
-		<td width="1%" nowrap="nowrap" align="right">
+		<td width="1%" nowrap="nowrap" align="right" valign="top">
 			<b>{'common.owner'|devblocks_translate|capitalize}:</b>
 		</td>
 		<td width="99%">
+			{if !empty($workspace)}
+			<ul class="bubbles">
+				<li>
+				{if $workspace->owner_context==CerberusContexts::CONTEXT_GROUP}
+				<b>{$groups.{$workspace->owner_context_id}->name}</b> (Group)
+				{/if}
+				
+				{if $workspace->owner_context==CerberusContexts::CONTEXT_ROLE}
+				<b>{$roles.{$workspace->owner_context_id}->name}</b> (Role)
+				{/if}
+				
+				{if $workspace->owner_context==CerberusContexts::CONTEXT_WORKER}
+				<b>{$workers.{$workspace->owner_context_id}->getName()}</b> (Worker)
+				{/if}
+				</li>
+			</ul>
+			{/if}
+		
 			<select name="owner">
-				<option value="">me</option>
+				{if !empty($workspace)}
+					<option value=""> - transfer - </option>
+				{/if}
+				
+				<option value="w_{$active_worker->id}">me</option>
 				
 				{if !empty($owner_groups)}
 				{foreach from=$owner_groups item=group key=group_id}
@@ -34,10 +55,15 @@
 					<option value="r_{$role_id}">Role: {$role->name}</option>
 				{/foreach}
 				{/if}
+				
+				{if $active_worker->is_superuser}
+				{foreach from=$workers item=worker key=worker_id}
+					<option value="w_{$worker_id}">Worker: {$worker->getName()}</option>
+				{/foreach}
+				{/if}
 			</select>
 		</td>
 	</tr>
-	{/if}
 </table>
 
 <fieldset>

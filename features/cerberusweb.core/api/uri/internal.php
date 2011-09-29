@@ -1395,6 +1395,9 @@ class ChInternalController extends DevblocksControllerExtension {
 		// Roles
 		$tpl->assign('roles', DAO_WorkerRole::getAll());
 		
+		// Workers
+		$tpl->assign('workers', DAO_Worker::getAll());
+		
 		// Endpoint
 		$tpl->assign('point', $point);
 
@@ -1552,20 +1555,26 @@ class ChInternalController extends DevblocksControllerExtension {
 			// Worklist
 			$worklists = $workspace->getWorklists();
 			$tpl->assign('worklists', $worklists);
-			
-		} else { // Create
-			$groups = DAO_Group::getAll(); 
-			foreach($groups as $k => $v) {
-				if(!$active_worker->is_superuser && !$active_worker->isGroupManager($k))
-					unset($groups[$k]);
-			}
-			
-			$tpl->assign('owner_groups', $groups);
+		}
+		
+		$workers = DAO_Worker::getAllActive();
+		$tpl->assign('workers', $workers);
+		
+		$groups = DAO_Group::getAll();
+		$tpl->assign('groups', $groups);
 
-			if($active_worker->is_superuser) {
-				$roles = DAO_WorkerRole::getAll();
-				$tpl->assign('owner_roles', $roles);
-			}
+		$roles = DAO_WorkerRole::getAll();
+		$tpl->assign('roles', $roles);
+		
+		$owner_groups = $groups;
+		foreach($groups as $k => $v) {
+			if($active_worker->is_superuser || $active_worker->isGroupManager($k))
+				$owner_groups[$k] = $v;
+		}
+		$tpl->assign('owner_groups', $owner_groups);
+		
+		if($active_worker->is_superuser) {
+			$tpl->assign('owner_roles', $roles);
 		}
 		
 		// Contexts
@@ -1594,25 +1603,35 @@ class ChInternalController extends DevblocksControllerExtension {
 			DAO_Workspace::delete($workspace_id);
 
 		} else { // Create/Edit
+			@list($owner_type, $owner_id) = explode('_', DevblocksPlatform::importGPC($_REQUEST['owner'],'string',''));
+			
+			switch($owner_type) {
+				// Group
+				case 'g':
+					$owner_context = CerberusContexts::CONTEXT_GROUP;
+					$owner_context_id = $owner_id;
+					break;
+				// Role
+				case 'r':
+					$owner_context = CerberusContexts::CONTEXT_ROLE;
+					$owner_context_id = $owner_id;
+					break;
+				// Worker
+				case 'w':
+					$owner_context = CerberusContexts::CONTEXT_WORKER;
+					$owner_context_id = $owner_id;
+					break;
+				// Default
+				default:
+					$owner_context = null;
+					$owner_context_id = null;
+					break;
+			}
+					
 			if(empty($workspace_id)) {
-				@list($owner_type, $owner_id) = explode('_', DevblocksPlatform::importGPC($_REQUEST['owner'],'string',''));
-				
-				switch($owner_type) {
-					// Group
-					case 'g':
-						$owner_context = CerberusContexts::CONTEXT_GROUP;
-						$owner_context_id = $owner_id;
-						break;
-					// Role
-					case 'r':
-						$owner_context = CerberusContexts::CONTEXT_ROLE;
-						$owner_context_id = $owner_id;
-						break;
-					// Me
-					default:
-						$owner_context = CerberusContexts::CONTEXT_WORKER;
-						$owner_context_id = $active_worker->id;
-						break;
+				if(empty($owner_context) || empty($owner_context_id)) {
+					$owner_context = CerberusContexts::CONTEXT_WORKER;
+					$owner_context_id = $active_worker->id;
 				}
 				
 				$fields = array(
@@ -1624,13 +1643,20 @@ class ChInternalController extends DevblocksControllerExtension {
 				$workspace = DAO_Workspace::get($workspace_id);
 				
 			} else {
+				$fields = array();
+				
 				// Rename workspace
 				if(0 != strcmp($workspace->name, $rename_workspace)) {
-					$fields = array(
-						DAO_Workspace::NAME => $rename_workspace
-					);
-					DAO_Workspace::update($workspace->id, $fields);
+					$fields[DAO_Workspace::NAME] = $rename_workspace;
 				}
+				
+				if(!empty($owner_context)) {
+					$fields[DAO_Workspace::OWNER_CONTEXT] = $owner_context;
+					$fields[DAO_Workspace::OWNER_CONTEXT_ID] = $owner_context_id;
+				}
+
+				if(!empty($fields))
+					DAO_Workspace::update($workspace->id, $fields);
 			}
 
 			// Create any new worklists

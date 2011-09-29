@@ -115,24 +115,30 @@ class DAO_Workspace extends C4_ORMHelper {
 		
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$where_scope = sprintf("(workspace.owner_context = %s AND workspace.owner_context_id = %d) ",
-			$db->qstr(CerberusContexts::CONTEXT_WORKER),
-			$worker->id
-		);
-		
-		$memberships = $worker->getMemberships();
-		if(!empty($memberships))
-			$where_scope .= sprintf("OR (workspace.owner_context = %s AND workspace.owner_context_id IN (%s)) ",
-				$db->qstr(CerberusContexts::CONTEXT_GROUP),
-				implode(',', array_keys($memberships))
+		if($worker->is_superuser) {
+			$where_scope = sprintf("1 ");
+			
+		} else {
+			$where_scope = sprintf("(workspace.owner_context = %s AND workspace.owner_context_id = %d) ",
+				$db->qstr(CerberusContexts::CONTEXT_WORKER),
+				$worker->id
 			);
+			
+			$memberships = $worker->getMemberships();
+			if(!empty($memberships))
+				$where_scope .= sprintf("OR (workspace.owner_context = %s AND workspace.owner_context_id IN (%s)) ",
+					$db->qstr(CerberusContexts::CONTEXT_GROUP),
+					implode(',', array_keys($memberships))
+				);
+			
+			$roles = $worker->getRoles();
+			if(!empty($roles))
+				$where_scope .= sprintf("OR (workspace.owner_context = %s AND workspace.owner_context_id IN (%s)) ",
+					$db->qstr(CerberusContexts::CONTEXT_ROLE),
+					implode(',', array_keys($worker->getRoles()))
+				);
+		}
 		
-		$roles = $worker->getRoles();
-		if(!empty($roles))
-			$where_scope .= sprintf("OR (workspace.owner_context = %s AND workspace.owner_context_id IN (%s)) ",
-				$db->qstr(CerberusContexts::CONTEXT_ROLE),
-				implode(',', array_keys($worker->getRoles()))
-			);
 		
 		$sql = sprintf("SELECT workspace.id, workspace.name, workspace.owner_context, workspace.owner_context_id ".
 			"FROM workspace ".
@@ -168,7 +174,16 @@ class DAO_Workspace extends C4_ORMHelper {
 		);
 		$rs = $db->Execute($sql);
 		
-		return self::_getObjectsFromResult($rs);
+		$workspaces = self::_getObjectsFromResult($rs);
+		
+		if(is_array($workspaces))
+		foreach($workspaces as $workspace_id => $workspace) {
+			if(!$workspace->isReadableByWorker($worker)) {
+				unset($workspaces[$workspace_id]);
+			}
+		}
+		
+		return $workspaces;
 	}
 	
 	/**
@@ -408,6 +423,10 @@ class Model_Workspace {
 			return false;
 		}
 		
+		// Superusers can do anything
+		if($worker->is_superuser)
+			return true;
+		
 		switch($this->owner_context) {
 			case CerberusContexts::CONTEXT_GROUP:
 				if(in_array($this->owner_context_id, array_keys($worker->getMemberships())))
@@ -437,6 +456,10 @@ class Model_Workspace {
 		} else {
 			return false;
 		}
+		
+		// Superusers can do anything
+		if($worker->is_superuser)
+			return true;
 		
 		switch($this->owner_context) {
 			case CerberusContexts::CONTEXT_GROUP:
