@@ -58,7 +58,10 @@ XML;
 		
         // Search Results
 		list($results, $null) = DAO_KbArticle::search(
-			array(),
+			array(
+				SearchFields_KbArticle::ID,
+				SearchFields_KbArticle::UPDATED,
+			),
 			array(
 				SearchFields_KbArticle::TOP_CATEGORY_ID => new DevblocksSearchCriteria(SearchFields_KbArticle::TOP_CATEGORY_ID,'in',array_keys($topics)),
 			),
@@ -133,7 +136,10 @@ XML;
 		
         // Search Results
 		list($results, $null) = DAO_KbArticle::search(
-			array(),
+			array(
+				SearchFields_KbArticle::ID,
+				SearchFields_KbArticle::UPDATED,
+			),
 			array(
 				SearchFields_KbArticle::TOP_CATEGORY_ID => new DevblocksSearchCriteria(SearchFields_KbArticle::TOP_CATEGORY_ID,'in',array_keys($topics)),
 			),
@@ -181,7 +187,7 @@ XML;
             $eGuid = $eItem->addChild('guid', md5($escapedSubject . $link . $created));
             $eGuid->addAttribute('isPermaLink', "false");
         }
-
+        
         echo $xml->asXML();		
 	}
 	
@@ -213,7 +219,10 @@ XML;
 		
         // Search Results
 		list($results, $null) = DAO_KbArticle::search(
-			array(),
+			array(
+				SearchFields_KbArticle::ID,
+				SearchFields_KbArticle::UPDATED,
+			),
 			array(
 				SearchFields_KbArticle::TOP_CATEGORY_ID => new DevblocksSearchCriteria(SearchFields_KbArticle::TOP_CATEGORY_ID,'in',array_keys($topics)),
 			),
