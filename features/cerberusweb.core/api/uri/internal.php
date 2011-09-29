@@ -1297,32 +1297,25 @@ class ChInternalController extends DevblocksControllerExtension {
 			$list_view->title = $title;
 			$list_view->columns = $view->view_columns;
 			$list_view->num_rows = $view->renderLimit;
-			$list_view->params = $view->getEditableParams();
+			$list_view->params = array();
+			$list_view->params_required = $view->getParamsRequired();
 			$list_view->sort_by = $view->renderSortBy;
 			$list_view->sort_asc = $view->renderSortAsc;
 
 			DAO_WorkspaceList::update($list_view_id, array(
 				DAO_WorkspaceList::LIST_VIEW => serialize($list_view)
 			));
-			
-			// If this is a group workspace
-			switch($workspace->owner_context) {
-				case CerberusContexts::CONTEXT_GROUP:
-					break;
 
-				// Anything other than a worker-owned worklist
-				default:
-					$worker_views = DAO_WorkerViewModel::getWhere(sprintf("view_id = %s", C4_ORMHelper::qstr($id)));
-	
-					// Update any instances of this view with the new required columns + params
-					foreach($worker_views as $worker_view) { /* @var $worker_view C4_AbstractViewModel */
-						$worker_view->name = $view->name;
-						$worker_view->view_columns = $view->view_columns;
-						$worker_view->paramsRequired = $view->getParamsRequired();
-						$worker_view->renderLimit = $view->renderLimit;
-						DAO_WorkerViewModel::setView($worker_view->worker_id, $worker_view->id, $worker_view);
-					}
-					break;
+			// Syndicate
+			$worker_views = DAO_WorkerViewModel::getWhere(sprintf("view_id = %s", C4_ORMHelper::qstr($id)));
+
+			// Update any instances of this view with the new required columns + params
+			foreach($worker_views as $worker_view) { /* @var $worker_view C4_AbstractViewModel */
+				$worker_view->name = $view->name;
+				$worker_view->view_columns = $view->view_columns;
+				$worker_view->paramsRequired = $view->getParamsRequired();
+				$worker_view->renderLimit = $view->renderLimit;
+				DAO_WorkerViewModel::setView($worker_view->worker_id, $worker_view->id, $worker_view);
 			}
 		}
 
