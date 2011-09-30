@@ -23,13 +23,12 @@
 		{/if}
 		
 	</div>
-	{*
 	{if $active_worker->is_superuser}
 	<div style="float:right;">
-		<button type="button" id="btnProfileWorkerEdit"><span class="cerb-sprite sprite-document_edit"></span> Edit</button>
+		{if $worker->id != $active_worker->id}<button type="button" onclick="genericAjaxGet('','c=internal&a=su&worker_id={$worker->id}',function(o) { window.location.reload(); });"><span class="cerb-sprite2 sprite-user-silhouette"></span> Impersonate</button>{/if}
+		<button type="button" onclick="$popup = genericAjaxPopup('peek','c=config&a=handleSectionAction&section=workers&action=showWorkerPeek&id={$worker->id}',null,false,'550');	$popup.one('worker_save', function(event) {	event.stopPropagation(); window.location.reload(); });"><span class="cerb-sprite sprite-document_edit"></span> {'common.edit'|devblocks_translate|capitalize}</button>
 	</div>
 	{/if}
-	*}
 </fieldset>
 {/foreach}
 
