@@ -728,6 +728,20 @@ switch($step) {
 						DAO_Group::IS_DEFAULT => 1
 					));
 				}
+
+				// Default role
+				$roles = DAO_WorkerRole::getAll();
+				
+				if(empty($roles)) {
+					$fields = array(
+						DAO_WorkerRole::NAME => 'Default',
+						DAO_WorkerRole::PARAMS_JSON => json_encode(array(
+							'who' => 'all',
+							'what' => 'all',
+						)),
+					);
+					DAO_WorkerRole::create($fields);
+				}
 				
 				// If this worker doesn't exist, create them
 				if(null === ($lookup = DAO_Worker::getByEmail($worker_email))) {
