@@ -615,6 +615,8 @@ class ChInternalController extends DevblocksControllerExtension {
 		@$snippet_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
 		
+		$active_worker = CerberusApplication::getActiveWorker();
+		
 		$tpl = DevblocksPlatform::getTemplateService();
 		
 		$tpl->assign('view_id', $view_id);
@@ -638,12 +640,28 @@ class ChInternalController extends DevblocksControllerExtension {
 		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_SNIPPET); 
 		$tpl->assign('custom_fields', $custom_fields);
 
-		$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_SNIPPET, $snippet_id);
-		if(isset($custom_field_values[$snippet_id]))
-			$tpl->assign('custom_field_values', $custom_field_values[$snippet_id]);
+		if(!empty($custom_fields)) {
+			$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_SNIPPET, $snippet_id);
+			if(isset($custom_field_values[$snippet_id]))
+				$tpl->assign('custom_field_values', $custom_field_values[$snippet_id]);
+		}
 		
 		$types = Model_CustomField::getTypes();
 		$tpl->assign('types', $types);
+		
+		// Owners
+		$workers = DAO_Worker::getAll();
+		$tpl->assign('workers', $workers);
+		
+		$groups = DAO_Group::getAll();
+		$tpl->assign('groups', $groups);
+
+		$owner_groups = $groups;
+		foreach($groups as $k => $v) {
+			if($active_worker->is_superuser || $active_worker->isGroupManager($k))
+				$owner_groups[$k] = $v;
+		}
+		$tpl->assign('owner_groups', $owner_groups);
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/snippets/peek.tpl');
 	}
@@ -671,8 +689,6 @@ class ChInternalController extends DevblocksControllerExtension {
 		
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
 		@$title = DevblocksPlatform::importGPC($_REQUEST['title'],'string','');
-		@$owner_context = DevblocksPlatform::importGPC($_REQUEST['owner_context'],'string','');
-		@$owner_context_id = DevblocksPlatform::importGPC($_REQUEST['owner_context_id'],'integer',0);
 		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
 		@$content = DevblocksPlatform::importGPC($_REQUEST['content'],'string','');
 		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'],'integer',0);
@@ -692,14 +708,40 @@ class ChInternalController extends DevblocksControllerExtension {
 // 				) {
 					DAO_Snippet::delete($id);
 // 				}
+				DAO_Snippet::delete($id);
 			}
 			
 		} else { // Create || Update
+			@list($owner_type, $owner_id) = explode('_', DevblocksPlatform::importGPC($_REQUEST['owner'],'string',''));
+		
+			switch($owner_type) {
+				// Group
+				case 'g':
+					$owner_context = CerberusContexts::CONTEXT_GROUP;
+					$owner_context_id = $owner_id;
+					break;
+				// Worker
+				case 'w':
+					$owner_context = CerberusContexts::CONTEXT_WORKER;
+					$owner_context_id = $owner_id;
+					break;
+				// Default
+				default:
+					$owner_context = null;
+					$owner_context_id = null;
+					break;
+			}
+			
+			if(empty($owner_context) || empty($owner_context_id)) {
+				$owner_context = CerberusContexts::CONTEXT_WORKER;
+				$owner_context_id = $active_worker->id;
+			}
+			
+			$fields[DAO_Snippet::OWNER_CONTEXT] = $owner_context;
+			$fields[DAO_Snippet::OWNER_CONTEXT_ID] = $owner_context_id;
+			
 			if(empty($id)) {
 				if($active_worker->hasPriv('core.snippets.actions.create')) {
-					$fields[DAO_Snippet::OWNER_CONTEXT] = $owner_context;
-					$fields[DAO_Snippet::OWNER_CONTEXT_ID] = $owner_context_id;
-					
 					$id = DAO_Snippet::create($fields);
 					
 					// Custom field saves
@@ -712,12 +754,12 @@ class ChInternalController extends DevblocksControllerExtension {
 // 					if($active_worker->hasPriv('core.snippets.actions.update_all') 
 // 						|| $snippet->created_by == $active_worker->id
 // 					) {
-						DAO_Snippet::update($id, $fields);
-						
-						// Custom field saves
-						@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', array());
-						DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_SNIPPET, $id, $field_ids);
 // 					}
+					DAO_Snippet::update($id, $fields);
+					
+					// Custom field saves
+					@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', array());
+					DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_SNIPPET, $id, $field_ids);
 				}
 			}
 		}
