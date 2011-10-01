@@ -446,8 +446,18 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 				
 			case 'replace_content':
 				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+				$replace = $tpl_builder->build($params['replace'], $values);
 				$with = $tpl_builder->build($params['with'], $values);
-				$values['body'] = str_replace($params['replace'], $with, $values['body']);
+				
+				if(isset($params['is_regexp']) && !empty($params['is_regexp'])) {
+					@$value = preg_replace($replace, $with, $values['body']);
+				} else {
+					$value = str_replace($replace, $with, $values['body']);
+				}
+				
+				if(!empty($value)) {
+					$values['body'] = trim($value,"\r\n");
+				}
 				break;
 				
 			case 'reject':
