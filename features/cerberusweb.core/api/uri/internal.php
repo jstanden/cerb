@@ -704,10 +704,6 @@ class ChInternalController extends DevblocksControllerExtension {
 		if($do_delete) {
 			if(null != ($snippet = DAO_Snippet::get($id))) { /* @var $snippet Model_Snippet */
 // 				if($active_worker->hasPriv('core.snippets.actions.update_all') 
-// 					|| $snippet->created_by == $active_worker->id
-// 				) {
-					DAO_Snippet::delete($id);
-// 				}
 				DAO_Snippet::delete($id);
 			}
 			
@@ -752,9 +748,6 @@ class ChInternalController extends DevblocksControllerExtension {
 			} else {
 				if(null != ($snippet = DAO_Snippet::get($id))) { /* @var $snippet Model_Snippet */
 // 					if($active_worker->hasPriv('core.snippets.actions.update_all') 
-// 						|| $snippet->created_by == $active_worker->id
-// 					) {
-// 					}
 					DAO_Snippet::update($id, $fields);
 					
 					// Custom field saves

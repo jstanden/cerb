@@ -46,8 +46,8 @@
  * - Jeff Standen, Darren Sugita, Dan Hildebrandt, Scott Luther
  *	 WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
-define("APP_BUILD", 2011093001);
-define("APP_VERSION", '5.6.0-dev');
+define("APP_BUILD", 2011100101);
+define("APP_VERSION", '5.6.0-rc1');
 
 define("APP_MAIL_PATH", APP_STORAGE_PATH . '/mail/');
 
@@ -1251,8 +1251,8 @@ class CerberusLicense {
 	}
 	
 	public static function getReleases() {
-		/*																																																																																																																														*/return array('5.0.0'=>1271894400,'5.1.0'=>1281830400,'5.2.0'=>1288569600,'5.3.0'=>1295049600,'5.4.0'=>1303862400,'5.5.0'=>1312416000);/*
-		 * Major releases by date in GMT
+		/*																																																																																																																														*/return array('5.0.0'=>1271894400,'5.1.0'=>1281830400,'5.2.0'=>1288569600,'5.3.0'=>1295049600,'5.4.0'=>1303862400,'5.5.0'=>1312416000,'5.6.0'=>1317686400);/*
+		 * Major versions by release date in GMT
 		 */
 		return array(
 			'5.0.0' => gmmktime(0,0,0,4,22,2010),
@@ -1261,6 +1261,7 @@ class CerberusLicense {
 			'5.3.0' => gmmktime(0,0,0,1,15,2011),
 			'5.4.0' => gmmktime(0,0,0,4,27,2011),
 			'5.5.0' => gmmktime(0,0,0,8,4,2011),
+			'5.6.0' => gmmktime(0,0,0,10,4,2011),
 		);
 	}
 	
