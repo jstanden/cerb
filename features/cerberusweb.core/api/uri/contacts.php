@@ -338,6 +338,24 @@ class ChContactsPage extends CerberusPageExtension {
 		}
 	}
 	
+	/*
+	 * Proxy any func requests to be handled by the tab directly, 
+	 * instead of forcing tabs to implement controllers.  This should check 
+	 * for the *Action() functions just as a handleRequest would
+	 */
+	// [TODO] Do this everywhere that showTab() exists
+	function handleTabActionAction() {
+		@$tab = DevblocksPlatform::importGPC($_REQUEST['tab'],'string','');
+		@$action = DevblocksPlatform::importGPC($_REQUEST['action'],'string','');
+
+		if(null != ($inst = DevblocksPlatform::getExtension($tab, true)) 
+			&& $inst instanceof Extension_AddressBookTab) {
+				if(method_exists($inst,$action.'Action')) {
+					call_user_func(array(&$inst, $action.'Action'));
+				}
+		}
+	}	
+	
 	function showOrgsTabAction() {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$visit = CerberusApplication::getVisit();
@@ -1560,7 +1578,12 @@ class ChContactsPage extends CerberusPageExtension {
 	    // Nuke the source orgs
 	    DAO_ContactOrg::delete($org_ids);
 		
-	    // [TODO] Redirect
+	    if(!empty($view_id)) {
+	    	if(null != ($view = C4_AbstractViewLoader::getView($view_id)))
+	    		$view->render();	
+	    }
+	    
+	    exit;
 	}
 	
 	function showOrgPeekAction() {

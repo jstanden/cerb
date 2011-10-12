@@ -53,7 +53,7 @@
 <br>
 
 {*if $active_worker->hasPriv('core.addybook.org.actions.update')*}
-	<button type="submit"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {$translate->_('common.continue')|capitalize}</button>
+	<button type="button" onclick="genericAjaxPopupPostCloseReloadView('peek','formOrgMerge','{$view_id}',false,'org_merge');"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {$translate->_('common.continue')|capitalize}</button>
 {*/if*}
 </form>
 
@@ -62,7 +62,7 @@
 	$popup.one('popup_open',function(event,ui) {
 		$(this).dialog('option','title', "Merge Organizations");
 		
-		$('#formOrgMerge :input:text:first').focus();
+		$(this).find("select:first").focus();
 	});
 	// Autocomplete
 	$('#formOrgMerge button.chooser_orgs').each(function() {
