@@ -129,6 +129,12 @@ class DAO_ContactOrg extends C4_ORMHelper {
 			implode(',', $from_ids)
 		));
 		
+		// Merge tickets
+		$db->Execute(sprintf("UPDATE ticket SET org_id = %d WHERE org_id IN (%s)",
+			$to_id,
+			implode(',', $from_ids)
+		));
+		
 		return true;
 	}
 	
