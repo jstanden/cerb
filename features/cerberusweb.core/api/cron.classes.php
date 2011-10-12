@@ -885,23 +885,42 @@ class ImportCron extends CerberusCronPageExtension {
 		$sPassword = (string) $xml->password;
 		$sOrganization = (string) $xml->organization;
 		
+		$addy_exists = false;
 		// Dupe check org
 		if(null != ($address = DAO_Address::lookupAddress($sEmail))) {
 			$logger->info('[Importer] Avoiding creating duplicate contact #'.$address->id.' ('.$sEmail.')');
-			// [TODO] Still associate with org if local blank?
-			// [TODO] Still associate password if local blank?
-			return true;
+			$addy_exists = true;
+			$address_id = $address->id;
 		}
 		
-		$fields = array(
-			DAO_Address::FIRST_NAME => $sFirstName,
-			DAO_Address::LAST_NAME => $sLastName,
-			DAO_Address::EMAIL => $sEmail,
-		);
-
-		// [TODO] Associate SC password
+		if(!$addy_exists) {
+			$fields = array(
+				DAO_Address::FIRST_NAME => $sFirstName,
+				DAO_Address::LAST_NAME => $sLastName,
+				DAO_Address::EMAIL => $sEmail,
+			);
+			$address_id = DAO_Address::create($fields);
+		}
 		
-		$address_id = DAO_Address::create($fields);
+		if(!empty($sPassword)) {
+			if(null != ($contact = DAO_ContactPerson::getWhere(sprintf("%s = %d", self::EMAIL_ID, $address_id)))) {
+				$salt = CerberusApplication::generatePassword(8);
+				$fields = array(
+					DAO_ContactPerson::EMAIL_ID => $address_id,
+					DAO_ContactPerson::LAST_LOGIN => time(),
+					DAO_ContactPerson::CREATED => time(),
+					DAO_ContactPerson::AUTH_SALT => $salt,
+					DAO_ContactPerson::AUTH_PASSWORD => md5($salt.$sPassword)
+				);
+				
+				$contact_person_id = DAO_ContactPerson::create($fields);
+				
+				DAO_Address::update($address_id, array(
+					DAO_Address::CONTACT_PERSON_ID => $contact_person_id
+				));
+				$logger->info('[Importer] Imported contact '. $sEmail);
+			}
+		}
 		
 		// Associate with organization
 		if(!empty($sOrganization)) {
@@ -909,6 +928,7 @@ class ImportCron extends CerberusCronPageExtension {
 				DAO_Address::update($address_id, array(
 					DAO_Address::CONTACT_ORG_ID => $org_id
 				));
+				$logger->info('[Importer] Associated address '.$sEmail.' with org '.$sOrganization);
 			}
 		}
 		
