@@ -129,6 +129,13 @@ class DAO_ContactOrg extends C4_ORMHelper {
 			implode(',', $from_ids)
 		));
 		
+		// Merge context_scheduled_behavior
+		$db->Execute(sprintf("UPDATE IGNORE context_scheduled_behavior SET context_id = %d WHERE context = %s AND context_id IN (%s)",
+			$to_id,
+			$db->qstr(CerberusContexts::CONTEXT_ORG),
+			implode(',', $from_ids)
+		));
+		
 		// Merge tickets
 		$db->Execute(sprintf("UPDATE ticket SET org_id = %d WHERE org_id IN (%s)",
 			$to_id,
