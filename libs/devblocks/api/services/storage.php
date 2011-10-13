@@ -445,7 +445,7 @@ class DevblocksStorageEngineS3 extends Extension_DevblocksStorageEngine {
 		if(!isset($this->_options['bucket']))
 			return false;
 		
-		$this->_s3 = new S3($this->_options['access_key'], $this->_options['secret_key']);
+		$this->_s3 = new S3($this->_options['access_key'], $this->_options['secret_key'], true, $this->_options['host']);
 			
 		if(false === @$this->_s3->getBucket($this->_options['bucket'])) {
 			if(false === @$this->_s3->putBucket($this->_options['bucket'], S3::ACL_PRIVATE)) {
@@ -459,9 +459,9 @@ class DevblocksStorageEngineS3 extends Extension_DevblocksStorageEngine {
 		@$access_key = DevblocksPlatform::importGPC($_POST['access_key'],'string','');
 		@$secret_key = DevblocksPlatform::importGPC($_POST['secret_key'],'string','');
 		@$bucket = DevblocksPlatform::importGPC($_POST['bucket'],'string','');
-		
+		@$host = DevblocksPlatform::importGPC($_POST['host'], 'string', '');
 		try {
-			$s3 = new S3($access_key, $secret_key);
+			$s3 = new S3($access_key, $secret_key, true, $host);
 			if(@!$s3->listBuckets())
 				return false;	
 		} catch(Exception $e) {
@@ -482,11 +482,13 @@ class DevblocksStorageEngineS3 extends Extension_DevblocksStorageEngine {
 		@$access_key = DevblocksPlatform::importGPC($_POST['access_key'],'string','');
 		@$secret_key = DevblocksPlatform::importGPC($_POST['secret_key'],'string','');
 		@$bucket = DevblocksPlatform::importGPC($_POST['bucket'],'string','');
+		@$host = DevblocksPlatform::importGPC($_POST['host'], 'string', '');
 		
 		$fields = array(
 			DAO_DevblocksStorageProfile::PARAMS_JSON => json_encode(array(
 				'access_key' => $access_key,
 				'secret_key' => $secret_key,
+				'host' => $host,
 				'bucket' => $bucket,
 			)),
 		);

@@ -10,3 +10,5 @@ This engine stores content in Amazon's S3 cloud storage service.<br>
 <b>Bucket:</b><br>
 <input type="text" name="bucket" size="16" value="{$profile->params.bucket}"><br>
 
+<b>Host:</b>(optional; defaults to s3.amazonaws.com)<br>
+<input type="text" name="host" size="16" value="{$profile->params.host}"><br>

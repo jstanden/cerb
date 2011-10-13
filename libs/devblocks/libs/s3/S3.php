@@ -42,7 +42,8 @@ class S3 {
 	const ACL_AUTHENTICATED_READ = 'authenticated-read';
 
 	public static $useSSL = true;
-
+	public static $host = 's3.amazonaws.com';
+	
 	private static $__accessKey; // AWS Access key
 	private static $__secretKey; // AWS Secret key
 
@@ -55,10 +56,13 @@ class S3 {
 	* @param boolean $useSSL Enable SSL
 	* @return void
 	*/
-	public function __construct($accessKey = null, $secretKey = null, $useSSL = true) {
+	public function __construct($accessKey = null, $secretKey = null, $useSSL = true, $host = 's3.amazonaws.com') {
 		if ($accessKey !== null && $secretKey !== null)
 			self::setAuth($accessKey, $secretKey);
 		self::$useSSL = $useSSL;
+		if($host != '') {
+			self::$host = $host;
+		}
 	}
 
 
@@ -82,7 +86,7 @@ class S3 {
 	* @return array | false
 	*/
 	public static function listBuckets($detailed = false) {
-		$rest = new S3Request('GET', '', '');
+		$rest = new S3Request('GET', '', '', self::$host);
 		$rest = $rest->getResponse();
 		if ($rest->error === false && $rest->code !== 200)
 			$rest->error = array('code' => $rest->code, 'message' => 'Unexpected HTTP status');
@@ -124,7 +128,7 @@ class S3 {
 	* @return array | false
 	*/
 	public static function getBucket($bucket, $prefix = null, $marker = null, $maxKeys = null, $delimiter = null, $returnCommonPrefixes = false) {
-		$rest = new S3Request('GET', $bucket, '');
+		$rest = new S3Request('GET', $bucket, '', self::$host);
 		if ($prefix !== null && $prefix !== '') $rest->setParameter('prefix', $prefix);
 		if ($marker !== null && $marker !== '') $rest->setParameter('marker', $marker);
 		if ($maxKeys !== null && $maxKeys !== '') $rest->setParameter('max-keys', $maxKeys);
@@ -164,7 +168,7 @@ class S3 {
 		// Loop through truncated results if maxKeys isn't specified
 		if ($maxKeys == null && $nextMarker !== null && (string)$response->body->IsTruncated == 'true')
 		do {
-			$rest = new S3Request('GET', $bucket, '');
+			$rest = new S3Request('GET', $bucket, '', self::$host);
 			if ($prefix !== null && $prefix !== '') $rest->setParameter('prefix', $prefix);
 			$rest->setParameter('marker', $nextMarker);
 			if ($delimiter !== null && $delimiter !== '') $rest->setParameter('delimiter', $delimiter);
@@ -204,7 +208,7 @@ class S3 {
 	* @return boolean
 	*/
 	public static function putBucket($bucket, $acl = self::ACL_PRIVATE, $location = false) {
-		$rest = new S3Request('PUT', $bucket, '');
+		$rest = new S3Request('PUT', $bucket, '', self::$host);
 		$rest->setAmzHeader('x-amz-acl', $acl);
 
 		if ($location !== false) {
@@ -237,7 +241,7 @@ class S3 {
 	* @return boolean
 	*/
 	public static function deleteBucket($bucket) {
-		$rest = new S3Request('DELETE', $bucket);
+		$rest = new S3Request('DELETE', $bucket, ''. self::$host);
 		$rest = $rest->getResponse();
 		if ($rest->error === false && $rest->code !== 204)
 			$rest->error = array('code' => $rest->code, 'message' => 'Unexpected HTTP status');
@@ -300,7 +304,7 @@ class S3 {
 	*/
 	public static function putObject($input, $bucket, $uri, $acl = self::ACL_PRIVATE, $metaHeaders = array(), $requestHeaders = array()) {
 		if ($input === false) return false;
-		$rest = new S3Request('PUT', $bucket, $uri);
+		$rest = new S3Request('PUT', $bucket, $uri, self::$host);
 
 		if (is_string($input)) $input = array(
 			'data' => $input, 'size' => strlen($input),
@@ -403,7 +407,7 @@ class S3 {
 	* @return mixed
 	*/
 	public static function getObject($bucket, $uri, $saveTo = false) {
-		$rest = new S3Request('GET', $bucket, $uri);
+		$rest = new S3Request('GET', $bucket, $uri, self::$host);
 		if ($saveTo !== false) {
 			if (is_resource($saveTo))
 				$rest->fp =& $saveTo;
@@ -461,7 +465,7 @@ class S3 {
 	* @return mixed | false
 	*/
 	public static function copyObject($srcBucket, $srcUri, $bucket, $uri, $acl = self::ACL_PRIVATE, $metaHeaders = array(), $requestHeaders = array()) {
-		$rest = new S3Request('PUT', $bucket, $uri);
+		$rest = new S3Request('PUT', $bucket, $uri, self::$host);
 		$rest->setHeader('Content-Length', 0);
 		foreach ($requestHeaders as $h => $v) $rest->setHeader($h, $v);
 		foreach ($metaHeaders as $h => $v) $rest->setAmzHeader('x-amz-meta-'.$h, $v);
@@ -525,7 +529,7 @@ class S3 {
 		}
 		$dom->appendChild($bucketLoggingStatus);
 
-		$rest = new S3Request('PUT', $bucket, '');
+		$rest = new S3Request('PUT', $bucket, '', self::$host);
 		$rest->setParameter('logging', null);
 		$rest->data = $dom->saveXML();
 		$rest->size = strlen($rest->data);
@@ -552,7 +556,7 @@ class S3 {
 	* @return array | false
 	*/
 	public static function getBucketLogging($bucket) {
-		$rest = new S3Request('GET', $bucket, '');
+		$rest = new S3Request('GET', $bucket, '', self::$host);
 		$rest->setParameter('logging', null);
 		$rest = $rest->getResponse();
 		if ($rest->error === false && $rest->code !== 200)
@@ -588,7 +592,7 @@ class S3 {
 	* @return string | false
 	*/
 	public static function getBucketLocation($bucket) {
-		$rest = new S3Request('GET', $bucket, '');
+		$rest = new S3Request('GET', $bucket, '', self::$host);
 		$rest->setParameter('location', null);
 		$rest = $rest->getResponse();
 		if ($rest->error === false && $rest->code !== 200)
@@ -644,7 +648,7 @@ class S3 {
 		$accessControlPolicy->appendChild($accessControlList);
 		$dom->appendChild($accessControlPolicy);
 
-		$rest = new S3Request('PUT', $bucket, $uri);
+		$rest = new S3Request('PUT', $bucket, $uri, self::$host);
 		$rest->setParameter('acl', null);
 		$rest->data = $dom->saveXML();
 		$rest->size = strlen($rest->data);
@@ -669,7 +673,7 @@ class S3 {
 	* @return mixed | false
 	*/
 	public static function getAccessControlPolicy($bucket, $uri = '') {
-		$rest = new S3Request('GET', $bucket, $uri);
+		$rest = new S3Request('GET', $bucket, $uri, self::$host);
 		$rest->setParameter('acl', null);
 		$rest = $rest->getResponse();
 		if ($rest->error === false && $rest->code !== 200)
@@ -725,7 +729,7 @@ class S3 {
 	* @return boolean
 	*/
 	public static function deleteObject($bucket, $uri) {
-		$rest = new S3Request('DELETE', $bucket, $uri);
+		$rest = new S3Request('DELETE', $bucket, $uri, self::$host);
 		$rest = $rest->getResponse();
 		if ($rest->error === false && $rest->code !== 204)
 			$rest->error = array('code' => $rest->code, 'message' => 'Unexpected HTTP status');
