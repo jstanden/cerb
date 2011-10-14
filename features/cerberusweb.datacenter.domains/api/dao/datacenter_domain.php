@@ -781,6 +781,7 @@ class View_Domain extends C4_AbstractView implements IAbstractView_Subtotals {
 		
 		$change_fields = array();
 		$custom_fields = array();
+		$deleted = false;
 
 		// Make sure we have actions
 		if(empty($do))
@@ -796,6 +797,9 @@ class View_Domain extends C4_AbstractView implements IAbstractView_Subtotals {
 				// [TODO] Implement actions
 				case 'example':
 					//$change_fields[DAO_Domain::EXAMPLE] = 'some value';
+					break;
+				case 'delete':
+					$deleted = true;
 					break;
 				default:
 					// Custom fields
@@ -884,26 +888,29 @@ class View_Domain extends C4_AbstractView implements IAbstractView_Subtotals {
 		$batch_total = count($ids);
 		for($x=0;$x<=$batch_total;$x+=100) {
 			$batch_ids = array_slice($ids,$x,100);
-			
-			DAO_Domain::update($batch_ids, $change_fields);
-
-			// Custom Fields
-			self::_doBulkSetCustomFields('cerberusweb.contexts.datacenter.domain', $custom_fields, $batch_ids);
-			
-			// Scheduled behavior
-			if(isset($do['behavior']) && is_array($do['behavior'])) {
-				$behavior_id = $do['behavior']['id'];
-				@$behavior_when = strtotime($do['behavior']['when']) or time();
+			if(!$deleted) {
+				DAO_Domain::update($batch_ids, $change_fields);
+	
+				// Custom Fields
+				self::_doBulkSetCustomFields('cerberusweb.contexts.datacenter.domain', $custom_fields, $batch_ids);
 				
-				if(!empty($batch_ids) && !empty($behavior_id))
-				foreach($batch_ids as $batch_id) {
-					DAO_ContextScheduledBehavior::create(array(
-						DAO_ContextScheduledBehavior::BEHAVIOR_ID => $behavior_id,
-						DAO_ContextScheduledBehavior::CONTEXT => 'cerberusweb.contexts.datacenter.domain',
-						DAO_ContextScheduledBehavior::CONTEXT_ID => $batch_id,
-						DAO_ContextScheduledBehavior::RUN_DATE => $behavior_when,
-					));
+				// Scheduled behavior
+				if(isset($do['behavior']) && is_array($do['behavior'])) {
+					$behavior_id = $do['behavior']['id'];
+					@$behavior_when = strtotime($do['behavior']['when']) or time();
+					
+					if(!empty($batch_ids) && !empty($behavior_id))
+					foreach($batch_ids as $batch_id) {
+						DAO_ContextScheduledBehavior::create(array(
+							DAO_ContextScheduledBehavior::BEHAVIOR_ID => $behavior_id,
+							DAO_ContextScheduledBehavior::CONTEXT => 'cerberusweb.contexts.datacenter.domain',
+							DAO_ContextScheduledBehavior::CONTEXT_ID => $batch_id,
+							DAO_ContextScheduledBehavior::RUN_DATE => $behavior_when,
+						));
+					}
 				}
+			} else {
+				DAO_Domain::delete($batch_ids);
 			}
 			
 			unset($batch_ids);

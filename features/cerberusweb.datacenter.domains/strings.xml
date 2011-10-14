@@ -17,5 +17,11 @@
 			<tuv xml:lang="en_US"><seg>Add Domain</seg></tuv>
 		</tu>
 		
+		<!-- ACL -->
+		
+		<tu tuid='acl.datacenter.domains.actions.delete'>
+			<tuv xml:lang="en_US"><seg>[Datacenter] Can delete domains</seg></tuv>
+		</tu>
+		
 	</body>
 </tmx>

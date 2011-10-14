@@ -361,6 +361,19 @@ class Page_Domains extends CerberusPageExtension {
 //		if(!empty($watcher_params))
 //			$do['watchers'] = $watcher_params;
 		
+		$status = DevblocksPlatform::importGPC($_POST['status'],'string','');
+		
+		// Delete
+		if(strlen($status) > 0) {
+			switch($status) {
+				case 'deleted':
+					if($active_worker->hasPriv('datacenter.domains.actions.delete')) {
+						$do['delete'] = true;
+					}
+					break;
+			}
+		}
+		
 		// Broadcast: Mass Reply
 		if(1 || $active_worker->hasPriv('fill.in.the.acl.string')) {
 			@$do_broadcast = DevblocksPlatform::importGPC($_REQUEST['do_broadcast'],'string',null);

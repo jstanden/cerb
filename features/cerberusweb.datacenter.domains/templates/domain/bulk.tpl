@@ -14,11 +14,24 @@
 	{/if}
 </fieldset>
 
-{*
 <fieldset>
 	<legend>Set Fields</legend>
+	<table cellspacing="0" cellpadding="2" width="100%">
+		<tr>
+			<td width="0%" nowrap="nowrap" valign="top" align="right">{'common.status'|devblocks_translate|capitalize}:</td>
+			<td width="100%"><select name="status">
+				<option value=""></option>
+				{if $active_worker->hasPriv('datacenter.domains.actions.delete')}
+				<option value="deleted">{'status.deleted'|devblocks_translate|capitalize}</option>
+				{/if}
+	      	</select>
+			{if $active_worker->hasPriv('datacenter.domains.actions.delete')}
+			<button type="button" onclick="this.form.status.selectedIndex = 1;">{'status.deleted'|devblocks_translate|lower}</button>
+			{/if}
+	      	</td>
+		</tr>
+	</table>
 </fieldset>
-*}
 
 {if !empty($custom_fields)}
 <fieldset>
@@ -29,11 +42,11 @@
 
 {include file="devblocks:cerberusweb.core::internal/macros/behavior/bulk.tpl" macros=$macros}
 
-{*if $active_worker->hasPriv('crm.opp.view.actions.broadcast')*}
 <fieldset>
-	<legend>Send Broadcast</legend>
-	
-	<label><input type="checkbox" name="do_broadcast" id="chkMassReply" onclick="$('#bulkDatacenterDomainBroadcast').toggle();">{'common.enabled'|devblocks_translate|capitalize}</label>
+	<legend>Actions</legend>
+	{*if $active_worker->hasPriv('crm.opp.view.actions.broadcast')*}
+
+	<label><input type="checkbox" name="do_broadcast" id="chkMassReply" onclick="$('#bulkDatacenterDomainBroadcast').toggle();">Send Broadcast</label>
 	<blockquote id="bulkDatacenterDomainBroadcast" style="display:none;margin:10px;">
 		<b>From:</b> <br>
 		<select name="broadcast_group_id">
@@ -67,9 +80,10 @@
 		<label><input type="radio" name="broadcast_next_is_closed" value="0"> {$translate->_('status.open')|capitalize}</label>
 		<label><input type="radio" name="broadcast_next_is_closed" value="2" checked="checked"> {$translate->_('status.waiting')|capitalize}</label>
 		<label><input type="radio" name="broadcast_next_is_closed" value="1"> {$translate->_('status.closed')|capitalize}</label>
-	</blockquote>
+	</blockquote><br>
+	{*/if*}
 </fieldset>
-{*/if*}
+
 
 <button type="button" onclick="genericAjaxPopupClose('peek');genericAjaxPost('formBatchUpdate','view{$view_id}');"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {$translate->_('common.save_changes')|capitalize}</button>
 </form>

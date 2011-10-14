@@ -40,6 +40,12 @@
 		</file>
 	</class_loader>
 
+	<!-- ACL -->
+
+	<acl>
+		<priv id="datacenter.domains.actions.delete" label="acl.datacenter.domains.actions.delete" />
+	</acl>
+
 	<!-- Extensions -->
  
 	<extensions>
