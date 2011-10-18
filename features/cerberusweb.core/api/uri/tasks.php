@@ -314,14 +314,24 @@ class ChTasksPage extends CerberusPageExtension {
 		@$behavior_when = DevblocksPlatform::importGPC($_POST['behavior_when'],'string','');
 		
 		$do = array();
+		$active_worker = CerberusApplication::getActiveWorker();
 		
 		// Do: Due
 		if(0 != strlen($due))
 			$do['due'] = $due;
 			
 		// Do: Status
-		if(0 != strlen($status))
-			$do['status'] = $status;
+		if(0 != strlen($status)) {
+			switch($status) {
+				case 2: // deleted
+					if($active_worker->hasPriv('core.tasks.actions.delete'))
+						$do['delete'] = true;
+					break;
+				default:
+					$do['status'] = $status;
+					break;
+			}
+		}
 			
 		// Do: Scheduled Behavior
 		if(0 != strlen($behavior_id)) {

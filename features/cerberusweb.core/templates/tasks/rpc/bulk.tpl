@@ -31,9 +31,15 @@
 					<option value=""></option>
 					<option value="0">{'task.status.active'|devblocks_translate}</option>
 					<option value="1">{'task.status.completed'|devblocks_translate}</option>
+					{if $active_worker->hasPriv('core.tasks.actions.delete')}
+					<option value="2">{'status.deleted'|devblocks_translate}</option>
+					{/if}
 				</select>
 				<button type="button" onclick="this.form.status.selectedIndex = 1;">{'task.status.active'|devblocks_translate|lower}</button>
 				<button type="button" onclick="this.form.status.selectedIndex = 2;">{'task.status.completed'|devblocks_translate|lower}</button>
+				{if $active_worker->hasPriv('core.tasks.actions.delete')}
+				<button type="button" onclick="this.form.status.selectedIndex = 3;">{'status.deleted'|devblocks_translate|lower}</button>
+				{/if}
 			</td>
 		</tr>
 		
