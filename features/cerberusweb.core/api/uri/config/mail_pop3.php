@@ -88,15 +88,15 @@ class PageSection_SetupMailPop3 extends Extension_PageSection {
 			    }
 			}
 	
-		    // [JAS]: [TODO] convert to field constants
 			$fields = array(
-			    'enabled' => $enabled,
-				'nickname' => $nickname,
-				'protocol' => $protocol,
-				'host' => $host,
-				'username' => $username,
-				'password' => $password,
-				'port' => $port
+			    DAO_Pop3Account::ENABLED => $enabled,
+				DAO_Pop3Account::NICKNAME => $nickname,
+				DAO_Pop3Account::PROTOCOL => $protocol,
+				DAO_Pop3Account::HOST => $host,
+				DAO_Pop3Account::USERNAME => $username,
+				DAO_Pop3Account::PASSWORD => $password,
+				DAO_Pop3Account::PORT => $port,
+				DAO_Pop3Account::NUM_FAILS => 0,
 			);
 			
 			if(!empty($id) && !empty($delete)) {

@@ -1045,6 +1045,41 @@ class Pop3Cron extends CerberusCronPageExtension {
 			!empty($account->username)?$account->username:"",
 			!empty($account->password)?$account->password:""))) {
 				$logger->error("[POP3] Failed with error: ".imap_last_error());
+				
+				// Increment fails
+				$num_fails = $account->num_fails + 1;
+				$fields = array(
+					DAO_Pop3Account::NUM_FAILS => $num_fails,
+				);
+				
+				// Automatically disable POP3s that fail 5+ times
+				if($num_fails >= 5) {
+					$fields[DAO_Pop3Account::ENABLED] = 0;
+					
+					$url_writer = DevblocksPlatform::getUrlService();
+					$workers = DAO_Worker::getAll();
+					
+					foreach($workers as $worker) {
+						// Only admins
+						if(!$worker->is_superuser)
+							continue;
+						
+						$notify_fields = array(
+							DAO_Notification::CONTEXT => null,
+							DAO_Notification::CONTEXT_ID => null,
+							DAO_Notification::CREATED_DATE => time(),
+							DAO_Notification::MESSAGE => sprintf("Mailbox '%s' had more than 5 connection errors and was automatically disabled: %s",
+								$account->nickname,
+								imap_last_error()
+							),
+							DAO_Notification::URL => $url_writer->write('c=config&a=mail_pop3', true),
+							DAO_Notification::WORKER_ID => $worker->id,
+						);
+						DAO_Notification::create($notify_fields);
+					}
+				}
+				
+				DAO_Pop3Account::updatePop3Account($account->id, $fields);
 				continue;
 			}
 			 
@@ -1103,12 +1138,15 @@ class Pop3Cron extends CerberusCronPageExtension {
 				$logger->info("[POP3] Downloaded message ".$msgno." (".sprintf("%d",($time*1000))." ms)");
 				
 				imap_delete($mailbox, $msgno);
-				continue;
 			}
-			 
+			
+			DAO_Pop3Account::updatePop3Account($account->id, array(
+				DAO_Pop3Account::NUM_FAILS => 0,
+			));
+			
 			imap_expunge($mailbox);
 			imap_close($mailbox);
-			imap_errors();
+			@imap_errors();
 			 
 			$logger->info("[POP3] Total Runtime: ".number_format((microtime(true)-$runtime)*1000,2)." ms");
 		}
