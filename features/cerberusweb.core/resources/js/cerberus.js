@@ -138,7 +138,7 @@ var cAjaxCalls = function() {
 
 		showLoadingPanel();
 
-		genericAjaxPost('formBatchUpdate', '', 'c=tickets&a=doBatchUpdate', function(html) {
+		genericAjaxPost('formBatchUpdate', '', 'c=tickets&a=doBulkUpdate', function(html) {
 			$('#'+divName).html(html);
 
 			genericAjaxPopupClose('peek');

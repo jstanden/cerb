@@ -305,13 +305,22 @@ class CerberusMail {
 		
 		// [TODO] this is redundant with the Parser code.  Should be refactored later
 		
+		// Organization ID from first requester
+		if(empty($org_id)) {
+			reset($toList);
+			if(null != ($first_req = DAO_Address::lookupAddress(key($toList),true))) {
+				if(!empty($first_req->contact_org_id))
+					$org_id = $first_req->contact_org_id;
+			}
+		}
+		
 		$fields = array(
 			DAO_Ticket::MASK => $mask,
 			DAO_Ticket::SUBJECT => $subject,
 			DAO_Ticket::CREATED_DATE => time(),
 			DAO_Ticket::FIRST_WROTE_ID => $fromAddressId,
 			DAO_Ticket::LAST_WROTE_ID => $fromAddressId,
-			DAO_Ticket::ORG_ID => !empty($org_id) ? $org_id : $fromAddressInst->contact_org_id,
+			DAO_Ticket::ORG_ID => intval($org_id),
 			DAO_Ticket::LAST_ACTION_CODE => CerberusTicketActionCode::TICKET_WORKER_REPLY,
 		);
 		

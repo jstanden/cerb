@@ -1871,7 +1871,7 @@ class ChTicketsPage extends CerberusPageExtension {
 	}
 	
 	// Ajax
-	function doBatchUpdateAction() {
+	function doBulkUpdateAction() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		@$ticket_id_str = DevblocksPlatform::importGPC($_REQUEST['ticket_ids'],'string');
@@ -2018,7 +2018,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		return;
 	}
 
-	function doBatchUpdateBroadcastTestAction() {
+	function doBulkUpdateBroadcastTestAction() {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
 		
 		$active_worker = CerberusApplication::getActiveWorker();

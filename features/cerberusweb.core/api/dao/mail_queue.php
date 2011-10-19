@@ -390,6 +390,11 @@ class Model_MailQueue {
 
 		// Next action
 		$properties['closed'] = isset($this->params['next_is_closed']) ? intval($this->params['next_is_closed']) : 0; 
+
+		// Org
+		if(isset($this->params['org_id'])) {
+			$properties['org_id'] = intval($this->params['org_id']);
+		}
 		
 		// Files + Next step
 		//'files' => $files,
