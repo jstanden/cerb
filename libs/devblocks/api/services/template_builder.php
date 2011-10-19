@@ -49,7 +49,7 @@ class _DevblocksTemplateBuilder {
 	
 	private function _tearDown() {
 	}
-
+	
 	function tokenize($templates) {
 		$tokens = array();
 		
@@ -77,6 +77,17 @@ class _DevblocksTemplateBuilder {
 		$tokens = array_unique($tokens); 
 		
 		return $tokens;
+	}
+	
+	function stripModifiers($array) {
+		array_walk($array, array($this,'_stripModifiers'));
+		return $array;
+	}
+	
+	function _stripModifiers(&$item, $key) {
+		if(false != ($pos = strpos($item, '|'))) {
+			$item = substr($item, 0, $pos);
+		}
 	}
 	
 	/**
