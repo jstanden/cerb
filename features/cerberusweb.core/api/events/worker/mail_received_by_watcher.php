@@ -179,6 +179,9 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 		$labels['sender_is_worker'] = 'Message sender is a worker';
 		$labels['sender_is_me'] = 'Message sender is me';
 		
+		$labels['group_id'] = 'Group';
+		$labels['group_and_bucket'] = 'Group and bucket';
+		
 		$types = array(
 			'content' => Model_CustomField::TYPE_MULTI_LINE,
 			'created|date' => Model_CustomField::TYPE_DATE,
@@ -205,8 +208,10 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 			'sender_worker_address_address' => Model_CustomField::TYPE_SINGLE_LINE,
 			'sender_worker_full_name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'storage_size' => Model_CustomField::TYPE_NUMBER,
-		
+			
+			'group_id' => null,
 			'group_name' => Model_CustomField::TYPE_SINGLE_LINE,
+			'group_and_bucket' => null,
 		
 			"ticket_bucket_name|default('Inbox')" => Model_CustomField::TYPE_SINGLE_LINE,
 			'ticket_created|date' => Model_CustomField::TYPE_DATE,
@@ -222,6 +227,41 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 	}
 
 	function renderConditionExtension($token, $trigger, $params=array(), $seq=null) {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('params', $params);
+
+		if(!is_null($seq))
+			$tpl->assign('namePrefix','condition'.$seq);
+		
+		switch($token) {
+			case 'group_id':
+				$groups = DAO_Group::getAll();
+				$tpl->assign('groups', $groups);
+				
+				$tpl->display('devblocks:cerberusweb.core::events/model/ticket/condition_group.tpl');
+				break;
+				
+			case 'group_and_bucket':
+				$groups = DAO_Group::getAll();
+				
+				switch($trigger->owner_context) {
+					// If the owner of the behavior is a group
+					case CerberusContexts::CONTEXT_GROUP:
+						foreach($groups as $group_id => $group) {
+							if($group_id != $trigger->owner_context_id)
+								unset($groups[$group_id]);
+						}
+						break;
+				}
+				
+				$tpl->assign('groups', $groups);
+				
+				$group_buckets = DAO_Bucket::getGroups();
+				$tpl->assign('buckets_by_group', $group_buckets);
+				
+				$tpl->display('devblocks:cerberusweb.core::events/model/ticket/condition_group_and_bucket.tpl');
+				break;
+		}
 		return;
 	}
 
@@ -229,6 +269,31 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 		$pass = true;
 		
 		switch($token) {
+			case 'group_id':
+				$not = (substr($params['oper'],0,1) == '!');
+				$oper = ltrim($params['oper'],'!');
+				
+				@$in_group_ids = $params['group_id'];
+				@$group_id = intval($values['group_id']);
+				
+				$pass = in_array($group_id, $in_group_ids);
+				$pass = ($not) ? !$pass : $pass;
+				break;
+				
+			case 'group_and_bucket':
+				$not = (substr($params['oper'],0,1) == '!');
+				$oper = ltrim($params['oper'],'!');
+				
+				@$in_group_id = $params['group_id'];
+				@$in_bucket_ids = $params['bucket_id'];
+				
+				@$group_id = intval($values['group_id']);
+				@$bucket_id = intval($values['ticket_bucket_id']);
+				
+				$pass = ($group_id==$in_group_id) && in_array($bucket_id, $in_bucket_ids);
+				$pass = ($not) ? !$pass : $pass;
+				break;
+			
 			default:
 				$pass = false;
 				break;
