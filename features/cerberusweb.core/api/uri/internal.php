@@ -261,7 +261,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		// Remember tab
 		if(!empty($point))
 			$visit->set($point, 'activity');
-		
+
 		if(0 == strcasecmp('target',$scope)) {
 			$params = array(
 				SearchFields_ContextActivityLog::TARGET_CONTEXT => new DevblocksSearchCriteria(SearchFields_ContextActivityLog::TARGET_CONTEXT,'=',$context),

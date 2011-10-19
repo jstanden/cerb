@@ -296,7 +296,7 @@ class SearchFields_ContextActivityLog implements IDevblocksSearchFields {
 		//	$key = 'cf_'.$field_id;
 		//	$columns[$key] = new DevblocksSearchField($key,$key,'field_value',$field->name);
 		//}
-		
+
 		// Sort by label (translation-conscious)
 		uasort($columns, create_function('$a, $b', "return strcasecmp(\$a->db_label,\$b->db_label);\n"));
 
@@ -340,7 +340,6 @@ class View_ContextActivityLog extends C4_AbstractView implements IAbstractView_S
 		
 		$this->addParamsHidden(array(
 			SearchFields_ContextActivityLog::ACTOR_CONTEXT_ID,
-			SearchFields_ContextActivityLog::TARGET_CONTEXT,
 			SearchFields_ContextActivityLog::TARGET_CONTEXT_ID,
 			SearchFields_ContextActivityLog::ID,
 		));
@@ -367,7 +366,7 @@ class View_ContextActivityLog extends C4_AbstractView implements IAbstractView_S
 
 	function getSubtotalFields() {
 		$all_fields = $this->getParamsAvailable();
-		
+
 		$fields = array();
 
 		if(is_array($all_fields))
