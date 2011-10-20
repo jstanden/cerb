@@ -42,12 +42,17 @@ Sort biggest piles by:
 					</optgroup>
 				{/if}
 			{/foreach}
-			<optgroup label="Actions" style="font-weight:bold;">
+			<optgroup label="Set Status" style="font-weight:bold;">
 				{if $active_worker->hasPriv('core.ticket.actions.close')}<option value="ac">Close</option>{/if}
 				{if $active_worker->hasPriv('core.ticket.actions.spam')}<option value="as">Report Spam</option>{/if}
 				{if $active_worker->hasPriv('core.ticket.actions.delete')}<option value="ad">Delete</option>{/if}
 			</optgroup>
-			<optgroup label="Assign" style="font-weight:bold;">
+			<optgroup label="Set Owner" style="font-weight:bold;">
+				{foreach from=$workers item=worker key=worker_id}
+					<option value="o{$worker_id}">{$worker->getName()}</option>
+				{/foreach}
+			</optgroup>
+			<optgroup label="Add Watcher" style="font-weight:bold;">
 				{foreach from=$workers item=worker key=worker_id}
 					<option value="w{$worker_id}">{$worker->getName()}</option>
 				{/foreach}
@@ -86,12 +91,17 @@ Sort biggest piles by:
 						</optgroup>
 					{/if}
 				{/foreach}
-				<optgroup label="Actions" style="font-weight:bold;">
+				<optgroup label="Set Status" style="font-weight:bold;">
 					{if $active_worker->hasPriv('core.ticket.actions.close')}<option value="ac">Close</option>{/if}
 					{if $active_worker->hasPriv('core.ticket.actions.spam')}<option value="as">Report Spam</option>{/if}
 					{if $active_worker->hasPriv('core.ticket.actions.delete')}<option value="ad">Delete</option>{/if}
 				</optgroup>
-				<optgroup label="Assign" style="font-weight:bold;">
+				<optgroup label="Set Owner" style="font-weight:bold;">
+					{foreach from=$workers item=worker key=worker_id}
+						<option value="o{$worker_id}">{$worker->getName()}</option>
+					{/foreach}
+				</optgroup>
+				<optgroup label="Add Watcher" style="font-weight:bold;">
 					{foreach from=$workers item=worker key=worker_id}
 						<option value="w{$worker_id}">{$worker->getName()}</option>
 					{/foreach}

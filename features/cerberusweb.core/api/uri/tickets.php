@@ -1427,7 +1427,19 @@ class ChTicketsPage extends CerberusPageExtension {
 	                }
 	                break;
 	                
-				// Worker
+				// Owners
+	            case 'o':
+            		$w_id = intval(substr($moveto,1));
+            		
+            		if(!empty($w_id))
+	            	$doActions = array(
+	            		'owner' => array(
+	            			'worker_id' => $w_id,
+	            		),
+	            	);
+	                break;
+	                
+				// Watchers
 	            case 'w':
             		$w_id = intval(substr($moveto,1));
             		
