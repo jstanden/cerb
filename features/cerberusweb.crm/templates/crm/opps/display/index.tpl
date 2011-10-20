@@ -74,8 +74,10 @@
 	{if $pref_keyboard_shortcuts}
 	<small>
 		{$translate->_('common.keyboard')|lower}:
+		(<b>a</b>) show contact
 		(<b>e</b>) {'common.edit'|devblocks_translate|lower}
 		{if !empty($macros)}(<b>m</b>) {'common.macros'|devblocks_translate|lower} {/if}
+		(<b>o</b>) show organization
 		(<b>1-9</b>) change tab
 	</small> 
 	{/if}
@@ -158,7 +160,7 @@ $(document).keypress(function(event) {
 				$tabs.tabs('select', idx);
 			} catch(ex) { } 
 			break;
-		case 97:  // (A) E-mail Peek
+		case 97:  // (A) Email Peek
 			try {
 				$('#btnOppAddyPeek').click();
 			} catch(e) { } 
@@ -172,6 +174,11 @@ $(document).keypress(function(event) {
 			try {
 				$('#btnDisplayMacros').click();
 			} catch(ex) { } 
+			break;
+		case 111:  // (O) Org peek
+			try {
+				$('#btnOppOrgPeek').click();
+			} catch(e) { } 
 			break;
 		case 113:  // (Q) quick compose
 			try {
