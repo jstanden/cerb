@@ -49,6 +49,9 @@ class PageSection_SetupACL extends Extension_PageSection {
 			if(isset($roles[$role_id])) {
 				$tpl->assign('role', $roles[$role_id]);
 				
+				$role_privs = DAO_WorkerRole::getRolePrivileges($role_id);
+				$tpl->assign('role_privs', $role_privs);
+				
 				if(isset($request->query['saved']))
 					$tpl->assign('saved', true);
 			}
