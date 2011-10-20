@@ -71,11 +71,6 @@
         <seg>[Mostrar Ticket] Puede dividir tickets</seg>
       </tuv>
     </tu>
-    <tu tuid="acl.core.home.auto_refresh">
-      <tuv xml:lang="es_ES">
-        <seg>[Inicio] Puede auto-refrescar en la página de inicio</seg>
-      </tuv>
-    </tu>
     <tu tuid="acl.core.home.workspaces">
       <tuv xml:lang="es_ES">
         <seg>[Inicio] Puede construir áreas de trabajo y listas de trabajo privadas</seg>
@@ -94,11 +89,6 @@
     <tu tuid="acl.core.kb.topics.modify">
       <tuv xml:lang="es_ES">
         <seg>[Base de conocimientos] Puede gestionar temas de nivel superior</seg>
-      </tuv>
-    </tu>
-    <tu tuid="acl.core.mail.actions.auto_refresh">
-      <tuv xml:lang="es_ES">
-        <seg>[Correo] Puede auto-refrescar la página de correo</seg>
       </tuv>
     </tu>
     <tu tuid="acl.core.mail.overview">
@@ -974,11 +964,6 @@
     <tu tuid="common.refresh">
       <tuv xml:lang="es_ES">
         <seg>refrescar</seg>
-      </tuv>
-    </tu>
-    <tu tuid="common.refresh.auto">
-      <tuv xml:lang="es_ES">
-        <seg>Auto-Refrescar</seg>
       </tuv>
     </tu>
     <tu tuid="common.remove">

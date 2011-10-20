@@ -101,11 +101,6 @@
         <seg>[Toon ticket] Kan berichten in tickets permanent verwijderen</seg>
       </tuv>
     </tu>
-    <tu tuid="acl.core.home.auto_refresh">
-      <tuv xml:lang="nl_NL">
-        <seg>[Home] Kan auto-refresh op de homepage gebruiken</seg>
-      </tuv>
-    </tu>
     <tu tuid="acl.core.home.workspaces">
       <tuv xml:lang="nl_NL">
         <seg>[Home] Kan privé werkbladen en lijsten maken</seg>
@@ -124,11 +119,6 @@
     <tu tuid="acl.core.kb.topics.modify">
       <tuv xml:lang="nl_NL">
         <seg>[Kennisdatabase] Kan top-level onderwerpen beheren</seg>
-      </tuv>
-    </tu>
-    <tu tuid="acl.core.mail.actions.auto_refresh">
-      <tuv xml:lang="nl_NL">
-        <seg>[Mail] Kan auto-refresh op de Mail pagina gebruiken</seg>
       </tuv>
     </tu>
     <tu tuid="acl.core.mail.search">
@@ -1104,11 +1094,6 @@
     <tu tuid="common.refresh">
       <tuv xml:lang="nl_NL">
         <seg>ververs</seg>
-      </tuv>
-    </tu>
-    <tu tuid="common.refresh.auto">
-      <tuv xml:lang="nl_NL">
-        <seg>Automatisch Verversen</seg>
       </tuv>
     </tu>
     <tu tuid="common.remove">

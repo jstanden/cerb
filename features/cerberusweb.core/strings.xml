@@ -408,9 +408,6 @@
 		<tu tuid='common.refresh'>
 			<tuv xml:lang="en_US"><seg>refresh</seg></tuv>
 		</tu>
-		<tu tuid='common.refresh.auto'>
-			<tuv xml:lang="en_US"><seg>Auto-Refresh</seg></tuv>
-		</tu>
 		<tu tuid='common.remove'>
 			<tuv xml:lang="en_US"><seg>remove</seg></tuv>
 		</tu>
@@ -659,9 +656,6 @@
 			<!-- Mail page -->
 		<tu tuid='acl.core.mail'>
 			<tuv xml:lang="en_US"><seg>[Mail] Can view the mail page</seg></tuv>
-		</tu>
-		<tu tuid='acl.core.mail.actions.auto_refresh'>
-			<tuv xml:lang="en_US"><seg>[Mail] Can auto-refresh the mail page</seg></tuv>
 		</tu>
 		<tu tuid='acl.core.mail.search'>
 			<tuv xml:lang="en_US"><seg>[Mail] Can use the Search tab on the mail page</seg></tuv>

@@ -66,11 +66,6 @@
         <seg>[Показ заявки] Может делить заявки</seg>
       </tuv>
     </tu>
-    <tu tuid="acl.core.home.auto_refresh">
-      <tuv xml:lang="ru_RU">
-        <seg>[Дом] Может использовать автобновление домашней страницы</seg>
-      </tuv>
-    </tu>
     <tu tuid="acl.core.home.workspaces">
       <tuv xml:lang="ru_RU">
         <seg>[Дом] Может создавать частные рабочие пространства и рабочие списки</seg>
@@ -89,11 +84,6 @@
     <tu tuid="acl.core.kb.topics.modify">
       <tuv xml:lang="ru_RU">
         <seg>[База знаний] Может управлять темами верхнего уровня</seg>
-      </tuv>
-    </tu>
-    <tu tuid="acl.core.mail.actions.auto_refresh">
-      <tuv xml:lang="ru_RU">
-        <seg>[Почта] Может использовать автообновление страницы Почта</seg>
       </tuv>
     </tu>
     <tu tuid="acl.core.mail.overview">
@@ -984,11 +974,6 @@
     <tu tuid="common.refresh">
       <tuv xml:lang="ru_RU">
         <seg>Обновить</seg>
-      </tuv>
-    </tu>
-    <tu tuid="common.refresh.auto">
-      <tuv xml:lang="ru_RU">
-        <seg>Авто обновление</seg>
       </tuv>
     </tu>
     <tu tuid="common.remove">

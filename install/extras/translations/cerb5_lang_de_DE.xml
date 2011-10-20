@@ -96,11 +96,6 @@
         <seg>[Hilfedatenbank] Kann Top-Level Übberschriften verfassen/bearbeiten</seg>
       </tuv>
     </tu>
-    <tu tuid="acl.core.mail.actions.auto_refresh">
-      <tuv xml:lang="de_DE">
-        <seg>[Email] Kann die email-Seite auto-aktualisieren</seg>
-      </tuv>
-    </tu>
     <tu tuid="acl.core.mail.overview">
       <tuv xml:lang="de_DE">
         <seg>[Email] Kann die Übersicht auf der email-Seite nutzen</seg>
@@ -1104,11 +1099,6 @@
     <tu tuid="common.refresh">
       <tuv xml:lang="de_DE">
         <seg>aktualisieren</seg>
-      </tuv>
-    </tu>
-    <tu tuid="common.refresh.auto">
-      <tuv xml:lang="de_DE">
-        <seg>Auto-Aktualisierung</seg>
       </tuv>
     </tu>
     <tu tuid="common.remove">
