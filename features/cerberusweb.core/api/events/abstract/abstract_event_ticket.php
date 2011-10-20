@@ -68,7 +68,7 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 		$merge_token_values = array();
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_TICKET, $ticket_id, $merge_token_labels, $merge_token_values, null, true);
 
-			@$group_id = $values['group_id'];
+			@$group_id = $merge_token_values['group_id'];
 
 			// Clear dupe labels
 			CerberusContexts::scrubTokensWithRegexp(
