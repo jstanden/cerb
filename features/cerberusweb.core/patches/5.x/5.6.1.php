@@ -20,8 +20,8 @@ if(!isset($columns['num_fails'])) {
 // ===========================================================================
 // Clean ACL
 
-$db->Execute("DELETE FROM worker_role_acl WHERE priv_id = %s",
+$db->Execute(sprintf("DELETE FROM worker_role_acl WHERE priv_id = %s",
 	$db->qstr('core.mail.actions.auto_refresh')
-);
+));
 
 return TRUE;
