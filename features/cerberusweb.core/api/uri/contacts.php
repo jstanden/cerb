@@ -1618,6 +1618,13 @@ class ChContactsPage extends CerberusPageExtension {
 		unset($comments);
 		$tpl->assign('last_comment', $last_comment);
 		
+		// Counts
+		$counts = array(
+			'people' => DAO_Address::getCountByOrgId($id),
+			//'links' => DAO_ContextLink::getContextLinkCounts(CerberusContexts::CONTEXT_ORG, $id),
+		);
+		$tpl->assign('counts', $counts);
+		
 		// View
 		$tpl->assign('view_id', $view_id);
 		

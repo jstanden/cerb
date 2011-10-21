@@ -34,12 +34,12 @@
 				{elseif $k == 'lead'}
 					<b>{$v.label|capitalize}:</b>
 					{$v.address->getName()}
-					&lt;<a href="javascript:;" onclick="genericAjaxPopup('peek','c=contacts&a=showAddressPeek&email={$v.address->email|escape:'url'}',null,false,'500');">{$v.address->email}</a>&gt;
-					<button id="btnOppAddyPeek" type="button" onclick="genericAjaxPopup('peek','c=contacts&a=showAddressPeek&email={$v.address->email|escape:'url'}&view_id=',null,false,'500');" style="visibility:false;display:none;"></button>
+					&lt;<a href="javascript:;" onclick="genericAjaxPopup('peek2','c=contacts&a=showAddressPeek&email={$v.address->email|escape:'url'}',null,false,'600');">{$v.address->email}</a>&gt;
+					<button id="btnOppAddyPeek" type="button" onclick="genericAjaxPopup('peek2','c=contacts&a=showAddressPeek&email={$v.address->email|escape:'url'}&view_id=',null,false,'600');" style="visibility:false;display:none;"></button>
 				{elseif $k == 'org'}
 					<b>{$v.label|capitalize}:</b>
-					<a href="javascript:;" onclick="genericAjaxPopup('peek','c=contacts&a=showOrgPeek&id={$v.org->id}',null,false,'500');">{$v.org->name}</a>
-					<button id="btnOppOrgPeek" type="button" onclick="genericAjaxPopup('peek','c=contacts&a=showOrgPeek&id={$v.org->id}&view_id=',null,false,'500');" style="visibility:false;display:none;"></button>
+					<a href="javascript:;" onclick="genericAjaxPopup('peek2','c=contacts&a=showOrgPeek&id={$v.org->id}',null,false,'600');">{$v.org->name}</a>
+					<button id="btnOppOrgPeek" type="button" onclick="genericAjaxPopup('peek2','c=contacts&a=showOrgPeek&id={$v.org->id}&view_id=',null,false,'600');" style="visibility:false;display:none;"></button>
 				{else}
 					{include file="devblocks:cerberusweb.core::internal/custom_fields/profile_cell_renderer.tpl"}
 				{/if}
