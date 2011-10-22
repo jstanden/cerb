@@ -643,7 +643,7 @@ abstract class C4_AbstractView {
 						'filter' => 
 							array(
 								'field' => $field_key,
-								'oper' => DevblocksSearchCriteria::OPER_IS_NULL,
+								'oper' => DevblocksSearchCriteria::OPER_IN_OR_NULL,
 								'values' => null,
 							),
 						'children' => array()
