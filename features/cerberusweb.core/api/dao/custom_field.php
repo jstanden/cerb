@@ -316,7 +316,11 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 					break;
 
 				case Model_CustomField::TYPE_DATE:
-					@$value = strtotime($value);
+					if(is_numeric($value)) {
+						$value = intval($value);
+					} else {
+						@$value = strtotime($value);
+					}
 					self::setFieldValue($context, $context_id, $field_id, $value);
 					break;
 
