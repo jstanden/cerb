@@ -53,7 +53,7 @@
 <br>
 
 {*if $active_worker->hasPriv('core.addybook.org.actions.update')*}
-	<button type="button" onclick="genericAjaxPopupPostCloseReloadView('peek','formOrgMerge','{$view_id}',false,'org_merge');"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {$translate->_('common.continue')|capitalize}</button>
+	<button type="button" onclick="genericAjaxPopupPostCloseReloadView(null,'formOrgMerge','{$view_id}',false,'org_merge');"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {$translate->_('common.continue')|capitalize}</button>
 {*/if*}
 </form>
 

@@ -71,7 +71,7 @@
 </fieldset>
 
 {if $active_worker->hasPriv('core.tasks.actions.create')}
-	<button type="button" onclick="genericAjaxPopupPostCloseReloadView('peek','formTaskPeek','{$view_id}',false,'task_save');"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {$translate->_('common.save_changes')}</button>
+	<button type="button" onclick="genericAjaxPopupPostCloseReloadView(null,'formTaskPeek','{$view_id}',false,'task_save');"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {$translate->_('common.save_changes')}</button>
 	{if $active_worker->hasPriv('core.tasks.actions.delete') && !empty($task)}<button type="button" onclick="if(confirm('Are you sure you want to permanently delete this task?')) { $('#formTaskPeek input[name=do_delete]').val('1'); genericAjaxPost('formTaskPeek', 'view{$view_id}'); genericAjaxPopupClose('peek'); } "><span class="cerb-sprite2 sprite-cross-circle-frame"></span> {$translate->_('common.delete')|capitalize}</button>{/if}
 {else}
 	<fieldset class="delete">

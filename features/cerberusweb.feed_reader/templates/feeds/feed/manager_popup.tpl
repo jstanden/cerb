@@ -46,7 +46,7 @@
 	</table>
 </fieldset>
 
-<button type="button" onclick="genericAjaxPopupPostCloseReloadView('peek','frmFeedsManagerPopup','{$view_id}',false,'feedsmanager_save');"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {$translate->_('common.save_changes')|capitalize}</button>
+<button type="button" onclick="genericAjaxPopupPostCloseReloadView(null,'frmFeedsManagerPopup','{$view_id}',false,'feedsmanager_save');"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {$translate->_('common.save_changes')|capitalize}</button>
 
 </form>
 

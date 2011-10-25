@@ -53,7 +53,7 @@
 {/if}
 
 {if $active_worker->hasPriv('core.addybook.person.actions.delete')}
-	<button type="button" onclick="genericAjaxPopupPostCloseReloadView('peek','formContactPeek', '{$view_id}', false, 'contact_save');"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {$translate->_('common.save_changes')}</button>
+	<button type="button" onclick="genericAjaxPopupPostCloseReloadView(null,'formContactPeek', '{$view_id}', false, 'contact_save');"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {$translate->_('common.save_changes')}</button>
 {else}
 	<div class="error">{$translate->_('error.core.no_acl.edit')}</div>	
 {/if}

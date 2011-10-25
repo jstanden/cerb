@@ -358,7 +358,14 @@ function genericAjaxPopupPostCloseReloadView($layer, frm, view_id, has_output, $
 			if(has_view)
 				$('#view'+view_id).fadeTo("normal", 1.0);
 
-			$popup = genericAjaxPopupFetch($layer);
+			if(null == $layer) {
+				$popup = genericAjaxPopupFind('#'+frm);
+				if(null != $popup)
+					$layer = $popup.attr('id').substring(5);
+			} else {
+				$popup = genericAjaxPopupFetch($layer);
+			}
+			
 			if(null != $popup) {
 				$popup.trigger('popup_saved');
 				genericAjaxPopupClose($layer, $event);

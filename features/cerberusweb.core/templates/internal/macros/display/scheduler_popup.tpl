@@ -52,7 +52,7 @@
 	<button type="submit"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {'common.ok'|devblocks_translate}</button>
 	{else}
 		{if $editable}
-			<button type="button" class="save" onclick="genericAjaxPopupPostCloseReloadView('peek','frmScheduledBehaviorPeek', null, false, 'behavior_save');"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {'common.ok'|devblocks_translate}</button>
+			<button type="button" class="save" onclick="genericAjaxPopupPostCloseReloadView(null,'frmScheduledBehaviorPeek', null, false, 'behavior_save');"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {'common.ok'|devblocks_translate}</button>
 			<button type="button" class="delete" onclick="$(this).closest('div').hide().prev('fieldset.delete').show();"><span class="cerb-sprite2 sprite-cross-circle-frame"></span> {'common.delete'|devblocks_translate|capitalize}</button>
 		{else}
 			<button type="button" onclick="genericAjaxPopupDestroy('peek');"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {'common.ok'|devblocks_translate}</button>
