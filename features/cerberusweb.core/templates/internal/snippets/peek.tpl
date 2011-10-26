@@ -97,7 +97,7 @@
 	</fieldset>
 {/if}
 {if !empty($snippet->id)}
-	{if $snippet->created_by==$active_worker->id || $active_worker->hasPriv('core.snippets.actions.update_all')}
+	{if $snippet->isWriteableByWorker($active_worker)}
 	<button type="button" onclick="if(confirm('Are you sure you want to permanently delete this snippet?')) { this.form.do_delete.value='1';genericAjaxPopupClose('peek');genericAjaxPost('formSnippetsPeek', 'view{$view_id}'); } "><span class="cerb-sprite2 sprite-cross-circle-frame"></span> {$translate->_('common.delete')|capitalize}</button>
 	{/if}
 {/if}

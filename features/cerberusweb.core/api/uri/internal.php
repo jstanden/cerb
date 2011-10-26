@@ -703,8 +703,9 @@ class ChInternalController extends DevblocksControllerExtension {
 
 		if($do_delete) {
 			if(null != ($snippet = DAO_Snippet::get($id))) { /* @var $snippet Model_Snippet */
-// 				if($active_worker->hasPriv('core.snippets.actions.update_all') 
-				DAO_Snippet::delete($id);
+				if($snippet->isWriteableByWorker($active_worker)) {
+					DAO_Snippet::delete($id);
+				}
 			}
 			
 		} else { // Create || Update
@@ -747,12 +748,13 @@ class ChInternalController extends DevblocksControllerExtension {
 				
 			} else {
 				if(null != ($snippet = DAO_Snippet::get($id))) { /* @var $snippet Model_Snippet */
-// 					if($active_worker->hasPriv('core.snippets.actions.update_all') 
-					DAO_Snippet::update($id, $fields);
-					
-					// Custom field saves
-					@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', array());
-					DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_SNIPPET, $id, $field_ids);
+					if($snippet->isWriteableByWorker($active_worker)) {
+						DAO_Snippet::update($id, $fields);
+						
+						// Custom field saves
+						@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', array());
+						DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_SNIPPET, $id, $field_ids);
+					}
 				}
 			}
 		}
