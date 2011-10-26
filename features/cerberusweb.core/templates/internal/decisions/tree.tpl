@@ -27,6 +27,7 @@ $('#decisionTree{$trigger->id} DIV.node').draggable({
 	revert:"invalid",
 	revertDuration:250,
 	cursor:'pointer',
+	handle:'> div.badge',
 	distance:15,
 	opacity:0.50,
 	cursorAt: { 
