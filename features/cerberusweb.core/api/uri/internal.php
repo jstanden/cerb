@@ -656,7 +656,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		$groups = DAO_Group::getAll();
 		$tpl->assign('groups', $groups);
 
-		$owner_groups = $groups;
+		$owner_groups = array();
 		foreach($groups as $k => $v) {
 			if($active_worker->is_superuser || $active_worker->isGroupManager($k))
 				$owner_groups[$k] = $v;
