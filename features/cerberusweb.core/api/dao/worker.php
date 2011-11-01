@@ -286,13 +286,9 @@ class DAO_Worker extends C4_ORMHelper {
 		$db->Execute($sql);
 		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' worker_to_group records.');
 		
-		$sql = "DELETE QUICK workspace FROM workspace LEFT JOIN worker ON workspace.worker_id = worker.id WHERE worker.id IS NULL";
+		$sql = "DELETE QUICK workspace FROM workspace LEFT JOIN worker ON (workspace.owner_context_id = worker.id) WHERE workspace.owner_context = 'cerberusweb.contexts.worker' AND worker.id IS NULL";
 		$db->Execute($sql);
 		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' workspace records.');
-		
-		$sql = "DELETE QUICK workspace_list FROM workspace_list LEFT JOIN worker ON workspace_list.worker_id = worker.id WHERE worker.id IS NULL";
-		$db->Execute($sql);
-		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' workspace_list records.');
 		
 		// Fire event
 	    $eventMgr = DevblocksPlatform::getEventService();

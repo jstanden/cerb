@@ -362,6 +362,15 @@ class DAO_Workspace extends C4_ORMHelper {
 		
 		return array($results,$total);
 	}
+	
+	public static function maint() {
+		$db = DevblocksPlatform::getDatabaseService();
+		$logger = DevblocksPlatform::getConsoleLog();
+		
+		$sql = "DELETE QUICK workspace_list FROM workspace_list LEFT JOIN workspace ON (workspace_list.workspace_id = workspace.id) WHERE workspace.id IS NULL";
+		$db->Execute($sql);
+		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' workspace_list records.');
+	}
 
 };
 
