@@ -18,7 +18,7 @@ define('REMOTE_URI', '{$path}'); // NO trailing slash!
 define('URL_REWRITE', file_exists('.htaccess'));
 define('LOCAL_HOST', $_SERVER['HTTP_HOST']);
 define('LOCAL_BASE', DevblocksRouter::getLocalBase()); // NO trailing slash!
-define('SCRIPT_LAST_MODIFY', 2011012001); // last change
+define('SCRIPT_LAST_MODIFY', 2011110101); // last change
 
 @session_start();
 
@@ -230,7 +230,7 @@ class DevblocksProxy {
 		    $cookie = get_magic_quotes_gpc() ? stripslashes($_COOKIE['GroupLoginPassport']) : $_COOKIE['GroupLoginPassport'];
 		    $fingerprint = unserialize($cookie);
         } else {
-		    $fingerprint = array('browser'=>$_SERVER['HTTP_USER_AGENT'], 'ip'=>$_SERVER['REMOTE_ADDR'], 'local_sessid' => session_id(), 'started' => time());
+		    $fingerprint = array('browser'=>@$_SERVER['HTTP_USER_AGENT'], 'ip'=>@$_SERVER['REMOTE_ADDR'], 'local_sessid' => session_id(), 'started' => time());
 			setcookie(
 			    'GroupLoginPassport',
 			    serialize($fingerprint),
