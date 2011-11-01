@@ -24,6 +24,7 @@ class DAO_TriggerEvent extends C4_ORMHelper {
 	const OWNER_CONTEXT = 'owner_context';
 	const OWNER_CONTEXT_ID = 'owner_context_id';
 	const EVENT_POINT = 'event_point';
+	const POS = 'pos';
 
 	static function create($fields) {
 		$db = DevblocksPlatform::getDatabaseService();
@@ -85,8 +86,6 @@ class DAO_TriggerEvent extends C4_ORMHelper {
 				}
 		}
 		
-		uasort($results, create_function('$a, $b', "return strcasecmp(\$a->title,\$b->title);\n"));
-		
 		return $results;
 	}
 	
@@ -127,13 +126,13 @@ class DAO_TriggerEvent extends C4_ORMHelper {
 	 * @param integer $limit
 	 * @return Model_TriggerEvent[]
 	 */
-	static function getWhere($where=null, $sortBy=null, $sortAsc=true, $limit=null) {
+	static function getWhere($where=null, $sortBy=DAO_TriggerEvent::POS, $sortAsc=true, $limit=null) {
 		$db = DevblocksPlatform::getDatabaseService();
 
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, title, is_disabled, owner_context, owner_context_id, event_point ".
+		$sql = "SELECT id, title, is_disabled, owner_context, owner_context_id, event_point, pos ".
 			"FROM trigger_event ".
 			$where_sql.
 			$sort_sql.
@@ -162,6 +161,7 @@ class DAO_TriggerEvent extends C4_ORMHelper {
 			$object->owner_context = $row['owner_context'];
 			$object->owner_context_id = intval($row['owner_context_id']);
 			$object->event_point = $row['event_point'];
+			$object->pos = intval($row['pos']);
 			$objects[$object->id] = $object;
 		}
 		
@@ -323,6 +323,42 @@ class DAO_TriggerEvent extends C4_ORMHelper {
 		$cache = DevblocksPlatform::getCacheService();
 		$cache->remove(self::CACHE_ALL);
 	}
+	
+	static public function setTriggersOrder($trigger_ids) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		// No point in sorting fewer than two triggers
+		if(count($trigger_ids) < 2)
+			return;
+		
+		foreach($trigger_ids as $pos => $trigger_id) {
+			if(empty($trigger_id))
+				continue;
+			
+			$db->Execute(sprintf("UPDATE trigger_event SET pos = %d WHERE id = %d",
+				$pos,
+				$trigger_id
+			));
+		}
+		
+		self::clearCache();
+	}
+	
+	static public function getNextPosByOwnerAndEvent($owner_context, $owner_context_id, $event_point) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$count = $db->GetOne(sprintf("SELECT MAX(pos) FROM trigger_event ".
+			"WHERE owner_context = %s AND owner_context_id = %d AND event_point = %s",
+			$db->qstr($owner_context),
+			$owner_context_id,
+			$db->qstr($event_point)
+		));
+		
+		if(is_null($count))
+			return 0;
+		
+		return intval($count) + 1;
+	}
 };
 
 class SearchFields_TriggerEvent implements IDevblocksSearchFields {
@@ -371,6 +407,7 @@ class Model_TriggerEvent {
 	public $owner_context;
 	public $owner_context_id;
 	public $event_point;
+	public $pos;
 	
 	private $_nodes = array();
 	

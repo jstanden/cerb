@@ -1971,6 +1971,17 @@ class ChInternalController extends DevblocksControllerExtension {
 		// Triggers
 		$triggers = DAO_TriggerEvent::getByOwner($context, $context_id, null, true);
 		$tpl->assign('triggers', $triggers);
+
+		$triggers_by_event = array();
+		
+		foreach($triggers as $trigger) {
+			if(!isset($triggers_by_event[$trigger->event_point]))
+				$triggers_by_event[$trigger->event_point] = array();
+			
+			$triggers_by_event[$trigger->event_point][$trigger->id] = $trigger;
+		}
+		
+		$tpl->assign('triggers_by_event', $triggers_by_event);
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/decisions/assistant/tab.tpl');
 	}
@@ -2002,6 +2013,16 @@ class ChInternalController extends DevblocksControllerExtension {
 				DAO_DecisionNode::POS => $pos++,
 			));
 		}
+		
+		exit;
+	}
+	
+	function reorderTriggersAction() {
+		@$trigger_ids = DevblocksPlatform::importGPC($_REQUEST['trigger_id'], 'array', array());
+		
+		$trigger_ids = DevblocksPlatform::sanitizeArray($trigger_ids, 'integer');
+
+		DAO_TriggerEvent::setTriggersOrder($trigger_ids);
 		
 		exit;
 	}
@@ -2244,27 +2265,6 @@ class ChInternalController extends DevblocksControllerExtension {
 		$event->renderAction($action, $trigger, null, $seq);
 	}
 
-	function showDecisionEventBehaviorAction() {
-		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string', '');
-		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer', 0);
-		@$event_point = DevblocksPlatform::importGPC($_REQUEST['event_point'],'string', '');
-
-		// [TODO] Verify context
-		
-		$tpl = DevblocksPlatform::getTemplateService();
-		
-		$events = DevblocksPlatform::getExtensions(Extension_DevblocksEvent::POINT, false);
-		$tpl->assign('events', $events);
-
-		if(empty($event_point))
-			$event_point = null;
-		
-		$triggers = DAO_TriggerEvent::getByOwner($context, $context_id, $event_point, true);
-		$tpl->assign('triggers', $triggers);
-		
-		$tpl->display('devblocks:cerberusweb.core::internal/decisions/assistant/behavior.tpl');
-	}
-	
 	function showDecisionTreeAction() {
 		@$trigger_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer', 0);
 		
@@ -2326,12 +2326,15 @@ class ChInternalController extends DevblocksControllerExtension {
 				
 				$type = 'trigger';
 				
+				$pos = DAO_TriggerEvent::getNextPosByOwnerAndEvent($context, $context_id, $event_point);
+				
 				$trigger_id = DAO_TriggerEvent::create(array(
 					DAO_TriggerEvent::OWNER_CONTEXT => $context,
 					DAO_TriggerEvent::OWNER_CONTEXT_ID => $context_id,
 					DAO_TriggerEvent::EVENT_POINT => $event_point,
 					DAO_TriggerEvent::TITLE => $title,
 					DAO_TriggerEvent::IS_DISABLED => !empty($is_disabled) ? 1 : 0,
+					DAO_TriggerEvent::POS => $pos,
 				));
 				
 				if($json) {

@@ -4,42 +4,40 @@
 	<button type="button" class="add"><span class="cerb-sprite2 sprite-plus-circle-frame"></span> Create Behavior</button>
 </div>
 
-<div style="float:right;">
-	<b>{'common.filter'|devblocks_translate|capitalize}:</b>
-	<select name="event_point">
-		<option value=""></option>
-		<option value=""> - {'common.all'|devblocks_translate|lower} - </option>
-		{foreach from=$events item=event key=event_id}
-		<option value="{$event_id}">{$event->name}</option>
-		{/foreach}
-	</select>
-</div>
-
 </form>
 <br clear="all">
 
-<div id="triggers" style="margin-top:10px;">
-{include file="devblocks:cerberusweb.core::internal/decisions/assistant/behavior.tpl" triggers=$triggers event=$event}
+<div id="triggers_by_event">
+	{foreach from=$events key=event_point item=event}
+	<div id="event_{$event_point|replace:'.':'_'}" style="margin-left:15px;{if !isset($triggers_by_event.$event_point)}display:none;{/if}">
+		<h3 style="margin-left:-15px;">{$event->name}</h3>
+		{foreach from=$triggers_by_event.$event_point key=trigger_id item=trigger}
+		<form id="decisionTree{$trigger_id}" action="javascript:;" onsubmit="return false;">
+			<input type="hidden" name="trigger_id[]" value="{$trigger_id}">
+			{include file="devblocks:cerberusweb.core::internal/decisions/tree.tpl" trigger=$trigger event=$event}
+		</form>
+		{/foreach}
+	</div>
+	{/foreach}
 </div>
 
 <div id="nodeMenu" style="display:none;position:absolute;z-index:5;"></div>
 
 <script type="text/javascript">
 	$('#nodeMenu').appendTo('body');
-
-	$('#frmTrigger SELECT[name=event_point]').change(function() {
-		genericAjaxGet('triggers','c=internal&a=showDecisionEventBehavior&context={$context}&context_id={$context_id}&event_point=' + $(this).val());
-		$(this).blur();
-	});
 	
 	$('#frmTrigger BUTTON.add').click(function() {
 		$popup = genericAjaxPopup('node_trigger','c=internal&a=showDecisionPopup&trigger_id=0&context={$context}&context_id={$context_id}',null,false,'500');
 		
 		$popup.one('trigger_create',function(event) {
-			if(null == event.trigger_id)
+			if(null == event.event_point || null == event.trigger_id)
 				return;
-			$('#frmTrigger SELECT[name=event_point]').val(0);
-			$('#triggers').html('').append($('<form id="decisionTree'+event.trigger_id+'"></form>'));
+			
+			$event = $('#event_' + event.event_point.replace(/\./g,'_'));
+			$tree = $('<form id="decisionTree'+event.trigger_id+'"></form>');
+			$event.show().append($tree);
+			$(window).scrollTop($tree.position().top);
+			
 			genericAjaxGet('decisionTree'+event.trigger_id, 'c=internal&a=showDecisionTree&id='+event.trigger_id);
 		});
 	});
@@ -84,6 +82,21 @@
 		});
 	}
 	
-	//$('#triggers fieldset div.branch.switch').sortable({ items:'> DIV.outcome', placeholder:'ui-state-highlight', distance: 15, handle:'span.handle', connectWith:'DIV.branch.switch' });
-	//$('#triggers fieldset div.branch').sortable({ items:'> DIV.action', placeholder:'ui-state-highlight', distance: 15, handle:'span.handle', connectWith:'DIV.branch.outcome' });
+	$('#triggers_by_event').find('> DIV')
+		.sortable({
+			items: '> FORM',
+			handle: 'legend',
+			placeholder:'ui-state-highlight',
+			distance: 15,
+			stop:function(event, ui) {
+				$container = $(this);
+				triggers = $container.find("> form > input:hidden[name='trigger_id[]']").map(function() {
+					return "trigger_id[]=" + $(this).val();
+				}).get().join('&');
+				
+				genericAjaxGet('','c=internal&a=reorderTriggers&' + triggers);
+			}
+		})
+		;
+	
 </script>
