@@ -529,7 +529,7 @@ class DAO_Ticket extends C4_ORMHelper {
 	    		}
 	    	}
 	    	
-	    	parent::_update($ids, 'ticket', $fields);
+	    	parent::_update($batch_ids, 'ticket', $fields);
 	    	
 	    	// Local events
 	    	self::_processUpdateEvents($object_changes);
