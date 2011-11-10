@@ -58,7 +58,7 @@ abstract class C4_AbstractView {
 			)
 		);
 		
-		$select_sql = sprintf("SELECT %s.id ", $query_parts['primary_table']);
+		$select_sql = sprintf("SELECT %s.guid ", $query_parts['primary_table']);
 		$join_sql = $query_parts['join'];
 		$where_sql = $query_parts['where'];
 		$has_multiple_values = $query_parts['has_multiple_values'];
