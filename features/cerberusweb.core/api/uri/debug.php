@@ -120,7 +120,6 @@ class ChDebugController extends DevblocksControllerExtension  {
 					"[php.ini] post_max_size: %s\n".
 					"\n".
 					"[PHP:Extension] MySQL: %s\n".
-					"[PHP:Extension] PostgreSQL: %s\n".
 					"[PHP:Extension] MailParse: %s\n".
 					"[PHP:Extension] IMAP: %s\n".
 					"[PHP:Extension] Session: %s\n".
@@ -131,8 +130,8 @@ class ChDebugController extends DevblocksControllerExtension  {
 					"[PHP:Extension] SimpleXML: %s\n".
 					"[PHP:Extension] DOM: %s\n".
 					"[PHP:Extension] SPL: %s\n".
-					"\n".
-					'%s',
+					"[PHP:Extension] cURL: %s\n".
+					"\n",
 					APP_VERSION,
 					APP_BUILD,
 					PLATFORM_BUILD,
@@ -153,7 +152,6 @@ class ChDebugController extends DevblocksControllerExtension  {
 					ini_get('upload_max_filesize'),
 					ini_get('post_max_size'),
 					(extension_loaded("mysql") ? 'YES' : 'NO'),
-					(extension_loaded("pgsql") ? 'YES' : 'NO'),
 					(extension_loaded("mailparse") ? 'YES' : 'NO'),
 					(extension_loaded("imap") ? 'YES' : 'NO'),
 					(extension_loaded("session") ? 'YES' : 'NO'),
@@ -164,8 +162,7 @@ class ChDebugController extends DevblocksControllerExtension  {
 					(extension_loaded("simplexml") ? 'YES' : 'NO'),
 					(extension_loaded("dom") ? 'YES' : 'NO'),
 					(extension_loaded("spl") ? 'YES' : 'NO'),
-					(extension_loaded("curl") ? 'YES' : 'NO'),
-					''
+					(extension_loaded("curl") ? 'YES' : 'NO')
 				);
 				
 				if(!empty($settings)) {
@@ -228,6 +225,172 @@ class ChDebugController extends DevblocksControllerExtension  {
 	    		
 				break;
 				
+	    	case 'export_attendants':
+   	    		$event_mfts = DevblocksPlatform::getExtensions('devblocks.event', false, true);
+
+   	    		header("Content-type: text/xml");
+   	    		$doc = new DOMDocument("1.0", "UTF-8");
+   	    		$eAttendants =& $doc->createElement('attendants');
+   	    		$doc->appendChild($eAttendants);   	    		
+
+	    		foreach($event_mfts as $event_id => $event_mft) {
+	    			$triggers = DAO_TriggerEvent::getByEvent($event_id);
+	    			
+	    			if(empty($triggers))
+	    				continue;
+	    			
+	    			// New event element
+	    			$eEvent =& $doc->createElement("event");
+	    			$eEvent->setAttribute("point", $event_id);
+	    			$eEvent->setAttribute("label", $event_mft->name);
+	    			$eAttendants->appendChild($eEvent);
+	    			
+	    			// Behaviors
+		    		foreach($triggers as $trigger) { /* @var $trigger Model_TriggerEvent */
+		    			$eBehavior =& $doc->createElement("behavior");
+		    			$eBehavior->setAttribute("label", $trigger->title);
+		    			$eEvent->appendChild($eBehavior);
+		    			
+		    			// Owner
+		    			$eBehaviorOwner =& $doc->createElement("owner");
+		    			$eBehaviorOwner->setAttribute("context", $trigger->owner_context);
+		    			$eBehaviorOwner->setAttribute("context_id", $trigger->owner_context_id);
+		    			$eBehavior->appendChild($eBehaviorOwner);
+
+		    			$context = Extension_DevblocksContext::get($trigger->owner_context); /* @var $context Extension_DevblocksContext */
+		    			if(!empty($context)) {
+			    			$meta = $context->getMeta($trigger->owner_context_id);
+			    			$txt = $doc->createTextNode(sprintf("%s (%s)",
+			    				$meta['name'],
+			    				$context->manifest->name
+			    			));
+			    			$eBehaviorOwner->appendChild($txt);
+		    			}
+		    			
+		    			$data = $trigger->getDecisionTreeData();
+	    				$nodes = $data['nodes'];
+	    				$tree = $data['tree'];
+	    				$depths = $data['depths'];
+		    			
+	    				if(empty($nodes))
+	    					continue;
+	    				
+	    				$index = array();
+		    			foreach($nodes as $idx => $node) { /* @var $node Model_DecisionNode */
+		    				$node_type = $node->node_type;
+		    				
+		    				switch($node_type) {
+		    					case 'action':
+		    						$node_type = 'actions';
+		    						break;
+		    				}
+		    				
+							$eNode =& $doc->createElement($node_type);
+							$eNode->setAttribute('label', $node->title);
+							
+		    				$params = $node->params;
+
+		    				switch($node->node_type) {
+		    					case 'switch':
+		    						break;
+		    						
+		    					case 'outcome':
+		    						// Groups
+		    						if(isset($params['groups']))
+		    						foreach($params['groups'] as $group) {
+	    								$is_any = $group['any'];
+	    								
+	    								$eConditions =& $doc->createElement("conditions");
+	    								$eConditions->setAttribute("scope", ($is_any?"any":"all"));
+	    								$eNode->appendChild($eConditions);
+	    								
+	    								$conditions = $group['conditions'];
+	    								
+		    							foreach($conditions as $values) {
+		    								$eCondition =& $doc->createElement("condition");
+		    								$eConditions->appendChild($eCondition);
+		    								
+		    								if(isset($values['condition'])) {
+		    									$condition_key = $values['condition'];
+		    									unset($values['condition']);
+		    									$eCondition->setAttribute("key", $condition_key);
+		    								}
+		    								
+			    							foreach($values as $k => $v) {
+			    								$eParam =& $doc->createElement("param");
+			    								$eParam->setAttribute("key", $k);
+			    								
+			    								if(!is_array($v))
+			    									$v = array($v);
+			    								
+		    									foreach($v as $iter_v) {
+		    										$eValue =& $doc->createElement("value");
+			    									$eValue->appendChild($doc->createTextNode($iter_v));
+			    									$eParam->appendChild($eValue);
+		    									}
+			    									
+			    								$eCondition->appendChild($eParam);
+			    							}
+		    							}
+		    						}
+		    						break;
+		    						
+		    					case 'action':
+		    						if(isset($params['actions'])) {
+			    						foreach($params['actions'] as $values) {
+		    								$eAction =& $doc->createElement("action");
+		    								$eNode->appendChild($eAction);
+		    								
+			    							if(isset($values['action'])) {
+		    									$action_key = $values['action'];
+		    									unset($values['action']);
+		    									$eAction->setAttribute("key", $action_key);
+		    								}
+		    								
+			    							foreach($values as $k => $v) {
+			    								$eParam =& $doc->createElement("param");
+			    								$eParam->setAttribute("key", $k);
+			    								
+			    								if(!is_array($v))
+			    									$v = array($v);
+			    								
+		    									foreach($v as $iter_v) {
+		    										$eValue =& $doc->createElement("value");
+			    									$eValue->appendChild($doc->createTextNode($iter_v));
+			    									$eParam->appendChild($eValue);
+		    									}
+			    								
+			    								$eAction->appendChild($eParam);
+			    							}
+			    						}
+		    						}
+		    						break;
+		    				}
+		    				
+							$index[$idx] = $eNode;
+							
+		    			} // end nodes
+		    			
+		    			foreach($tree as $parent_id => $children) {
+		    				foreach($children as $child_id) {
+		    					$eChild =& $index[$child_id];
+		    					
+		    					if(empty($parent_id)) {
+		    						$eBehavior->appendChild($eChild);
+		    					} else {
+		    						$eParent = $index[$parent_id];
+		    						$eParent->appendChild($eChild);
+		    					}
+		    				}
+		    			}	    			
+		    			
+		    		} // end behaviors
+		    		
+	    		} // end events
+
+   	    		echo $doc->saveXML();
+	    		break;
+				
 	    	default:
 	    		$url_service = DevblocksPlatform::getUrlService();
 	    		
@@ -248,6 +411,7 @@ class ChDebugController extends DevblocksControllerExtension  {
 								<li><a href='%s'>Requirements Checker</a></li>
 								<li><a href='%s'>Debug Report (for technical support)</a></li>
 								<li><a href='%s'>phpinfo()</a></li>
+								<li><a href='%s'>Export Virtual Attendants</a></li>
 							</ul>
 						</form>	
 					</body>
@@ -256,7 +420,8 @@ class ChDebugController extends DevblocksControllerExtension  {
 					,
 					$url_service->write('c=debug&a=check'),
 					$url_service->write('c=debug&a=report'),
-					$url_service->write('c=debug&a=phpinfo')
+					$url_service->write('c=debug&a=phpinfo'),
+					$url_service->write('c=debug&a=export_attendants')
 				);
 	    		break;
 	    }
