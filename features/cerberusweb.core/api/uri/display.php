@@ -937,21 +937,6 @@ class ChDisplayPage extends CerberusPageExtension {
 			DAO_Ticket::LAST_MESSAGE_ID => $last_message->id,
 			DAO_Ticket::LAST_WROTE_ID => $last_message->address_id
 		));
-		
-		// Remove requester if they don't still have messages on the original ticket
-		reset($messages);
-		$found = false;
-		
-		if(is_array($messages))
-		foreach($messages as $msgid => $msg) {
-			if($msg->address_id == $orig_message->address_id) {
-				$found = true;	
-				break;
-			}
-		}
-		
-		if(!$found)
-			DAO_Ticket::deleteRequester($orig_ticket->id,$orig_message->address_id);		
 			
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('display',$new_ticket_mask)));
 	}
