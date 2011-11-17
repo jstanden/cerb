@@ -1452,7 +1452,8 @@ class DevblocksPlatform extends DevblocksEngine {
 		
 		// Encoding (mbstring)
 		mb_internal_encoding(LANG_CHARSET_CODE);
-		mb_regex_encoding(LANG_CHARSET_CODE);
+		if(function_exists('mb_regex_encoding'))
+			mb_regex_encoding(LANG_CHARSET_CODE);
 		
 	    // [JAS] [MDF]: Automatically determine the relative webpath to Devblocks files
 	    @$proxyhost = $_SERVER['HTTP_DEVBLOCKSPROXYHOST'];

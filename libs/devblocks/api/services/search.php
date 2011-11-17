@@ -165,7 +165,11 @@ class _DevblocksSearchEngineMysqlFulltext {
 
 		//$string = preg_replace("/[^\p{Greek}\p{N}]/u", ' ', $string);
 		
-		$text = mb_ereg_replace("[^[:alnum:]]", ' ', mb_convert_case($text, MB_CASE_LOWER));		
+		if(function_exists('mb_ereg_replace')) {
+			$text = mb_ereg_replace("[^[:alnum:]]", ' ', mb_convert_case($text, MB_CASE_LOWER));
+		} else {
+			$text = preg_replace("/[^[:alnum:]]/u", ' ', mb_convert_case($text, MB_CASE_LOWER));
+		}		
 		
 		$words = explode(' ', $text);
 		unset($text);

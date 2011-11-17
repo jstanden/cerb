@@ -201,10 +201,18 @@ class CerberusBayes {
 		//$string = preg_replace("/[^\p{Greek}\p{N}]/u", ' ', $string);
 		
 		// Force lowercase and strip non-word punctuation (a-z, 0-9, _)
-		$text = mb_ereg_replace("[^[:alnum:]]", ' ', mb_convert_case($text, MB_CASE_LOWER));
-
-		// Sort unique words w/ condensed spaces
-		$words = array_flip(explode(' ', mb_ereg_replace('\s+', ' ', $text)));
+		if(function_exists('mb_ereg_replace')) {
+			$text = mb_ereg_replace("[^[:alnum:]]", ' ', mb_convert_case($text, MB_CASE_LOWER));
+			
+			// Sort unique words w/ condensed spaces
+			$words = array_flip(explode(' ', mb_ereg_replace('\s+', ' ', $text)));
+			
+		} else {
+			$text = preg_replace("/[^[:alnum:]]/u", ' ', mb_convert_case($text, MB_CASE_LOWER));
+			
+			// Sort unique words w/ condensed spaces
+			$words = array_flip(explode(' ', preg_replace("/\\s+/", ' ', trim($text))));
+		}		
 
 		// Toss words that are too common
 	    $words = self::_removeCommonWords($words);
