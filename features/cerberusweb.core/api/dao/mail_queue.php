@@ -140,9 +140,9 @@ class DAO_MailQueue extends DevblocksORMHelper {
 		$fields = SearchFields_MailQueue::getFields();
 		
 		// Sanitize
-		if('*'==substr($sortBy,0,1) || !isset($fields[$sortBy]) || !in_array($sortBy,$columns))
+		if('*'==substr($sortBy,0,1) || !isset($fields[$sortBy]) || (!empty($columns) && !in_array($sortBy, $columns)))
 			$sortBy=null;
-
+		
         list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
