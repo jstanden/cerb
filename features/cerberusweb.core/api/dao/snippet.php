@@ -479,6 +479,10 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals {
 			$pass = false;
 			
 			switch($field_key) {
+				case SearchFields_Snippet::CONTEXT:
+					$pass = true;
+					break;
+				
 				// Valid custom fields
 				default:
 					if('cf_' == substr($field_key,0,3))
@@ -501,6 +505,17 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals {
 			return array();
 		
 		switch($column) {
+			case SearchFields_Snippet::CONTEXT:
+				$label_map = array();
+				$contexts = Extension_DevblocksContext::getAll(false);
+				
+				foreach($contexts as $k => $mft) {
+					$label_map[$k] = $mft->name;
+				}
+				
+				$counts = $this->_getSubtotalCountForStringColumn('DAO_Snippet', $column, $label_map, 'in', 'contexts[]');
+				break;
+			
 			default:
 				// Custom fields
 				if('cf_' == substr($column,0,3)) {
