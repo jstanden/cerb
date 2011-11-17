@@ -12,11 +12,11 @@
 	
 	<b>Show:</b> 
 	<label>
-		<input name="filter" type="radio" checked="checked" onclick="$ul=$(this).closest('fieldset').find('ul:first');$ul.find('> li').fadeIn();">
+		<input name="filter" type="radio" onclick="$ul=$(this).closest('fieldset').find('ul:first');$ul.find('> li').fadeIn();">
 		All
 	</label>
 	<label>
-		<input name="filter" type="radio" onclick="$ul=$(this).closest('fieldset').find('ul:first');$ul.find('> li').show(); $ul.find('> li:not(.mine)').fadeOut();">
+		<input name="filter" type="radio" checked="checked" onclick="$ul=$(this).closest('fieldset').find('ul:first');$ul.find('> li').show(); $ul.find('> li:not(.mine)').fadeOut();">
 		Mine Only
 	</label>
 	<label>
@@ -33,7 +33,7 @@
 	<ul style="list-style:none;margin:0px;margin-top:5px;padding-left:0px;">
 	{foreach from=$workspaces item=workspace}
 	{if $workspace->isReadableByWorker($active_worker)}
-		<li class="drag {if $workspace->owner_context==CerberusContexts::CONTEXT_WORKER && $workspace->owner_context_id==$active_worker->id}mine{/if}">
+		<li class="drag {if $workspace->owner_context==CerberusContexts::CONTEXT_WORKER && $workspace->owner_context_id==$active_worker->id}mine{/if}" style="{if $workspace->owner_context==CerberusContexts::CONTEXT_WORKER && $workspace->owner_context_id==$active_worker->id}{else}display:none;{/if}">
 			<span class="ui-icon ui-icon-arrow-4" style="display:inline-block;vertical-align:middle;cursor:move;"></span>
 			<label>
 				<input type="checkbox" name="workspace_ids[]" value="{$workspace->id}" {if $enabled_workspaces.{$workspace->id}}checked="checked"{/if}>
