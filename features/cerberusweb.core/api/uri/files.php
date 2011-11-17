@@ -43,6 +43,9 @@ class ChFilesController extends DevblocksControllerExtension {
 		
 		$link = DAO_AttachmentLink::getByGUID($file_guid);
 		
+		if(empty($link))
+			die("Error reading link.");
+		
 		if(null == ($context = $link->getContext()))
 			die($translate->_('common.access_denied'));
 		

@@ -151,7 +151,8 @@ class DAO_Attachment extends DevblocksORMHelper {
 		if(empty($ids))
 			return;
 
-		Storage_Attachments::delete($ids);
+		if(false === Storage_Attachments::delete($ids))
+			return FALSE;
 		
 		// Delete links
 		foreach($ids as $id)
@@ -443,8 +444,10 @@ class Storage_Attachments extends Extension_DevblocksStorageSchema {
 		
 		while($row = mysql_fetch_assoc($rs)) {
 			$profile = !empty($row['storage_profile_id']) ? $row['storage_profile_id'] : $row['storage_extension'];
+			
 			if(null != ($storage = DevblocksPlatform::getStorageService($profile)))
-				$storage->delete('attachments', $row['storage_key']);
+				if(false === $storage->delete('attachments', $row['storage_key']))
+					return FALSE;
 		}
 		
 		mysql_free_result($rs);
