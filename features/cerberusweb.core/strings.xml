@@ -1745,6 +1745,17 @@ For example: *receipt*</seg></tuv>
 			<tuv xml:lang="en_US"><seg>Another administrator is currently running an update.  Please wait...</seg></tuv>
 		</tu>
 
+		<!-- Virtual Attendants -->
+		
+		<tu tuid='va.actions.ticket.relay.default_content'>
+			<tuv xml:lang="en_US"><seg>## Relayed from {{ticket_url}}
+## Your reply to this message will be broadcast to the requesters. 
+## Instructions: http://wiki.cerb5.com/wiki/Email_Relay
+##
+{{%s}}
+</seg></tuv>
+		</tu>
+
 		<!-- Views -->
 
 		<tu tuid='views.new_list'>

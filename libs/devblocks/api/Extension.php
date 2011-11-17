@@ -1078,6 +1078,7 @@ class DevblocksEventHelper {
 	
 	function renderActionRelayEmail($filter_to_worker_ids=array(), $show=array('owner','watchers','workers'), $content_token='content') {
 		$tpl = DevblocksPlatform::getTemplateService();
+		$translate = DevblocksPlatform::getTranslationService();
 		
 		$tpl->assign('show', $show);
 		
@@ -1095,15 +1096,7 @@ class DevblocksEventHelper {
 		}
 		$tpl->assign('addresses', $addresses);
 		
-		$tpl->assign('default_content',
-<<< EOL
-## Relayed from {{ticket_url}}
-## Your reply to this message will be broadcast to the requesters. 
-## Instructions: http://wiki.cerb5.com/wiki/Email_Relay
-##
-{{{$content_token}}}
-EOL
-		);
+		$tpl->assign('default_content', vsprintf($translate->_('va.actions.ticket.relay.default_content'), $content_token));
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_relay_email.tpl');
 	}
