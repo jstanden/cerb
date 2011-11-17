@@ -915,6 +915,7 @@ class ChDisplayPage extends CerberusPageExtension {
 			DAO_Ticket::MASK => $new_ticket_mask,
 			DAO_Ticket::SUBJECT => (isset($orig_headers['subject']) ? $orig_headers['subject'] : $orig_ticket->subject),
 			DAO_Ticket::GROUP_ID => $orig_ticket->group_id,
+			DAO_Ticket::ORG_ID => $orig_ticket->org_id,
 		));
 
 		// Copy all the original tickets requesters
