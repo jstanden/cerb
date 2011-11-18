@@ -31,16 +31,25 @@ class PageSection_SetupMailFiltering extends Extension_PageSection {
 			
 		$tpl->assign('context', $context);
 		$tpl->assign('context_id', $context_id);
-			
+		
 		// Events
-		$events = array(
-			Event_MailReceivedByApp::ID => DevblocksPlatform::getExtension(Event_MailReceivedByApp::ID, false),
-		);
+		$events = Extension_DevblocksEvent::getByContext($context, false);
 		$tpl->assign('events', $events);
 		
 		// Triggers
 		$triggers = DAO_TriggerEvent::getByOwner($context, $context_id, null, true);
 		$tpl->assign('triggers', $triggers);
+
+		$triggers_by_event = array();
+		
+		foreach($triggers as $trigger) {
+			if(!isset($triggers_by_event[$trigger->event_point]))
+				$triggers_by_event[$trigger->event_point] = array();
+			
+			$triggers_by_event[$trigger->event_point][$trigger->id] = $trigger;
+		}
+		
+		$tpl->assign('triggers_by_event', $triggers_by_event);
 		
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/mail_filtering/index.tpl');
 	}
