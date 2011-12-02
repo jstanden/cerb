@@ -55,6 +55,9 @@ class _DevblocksClassLoadManager {
 		$this->registerClasses(DEVBLOCKS_PATH . 'libs/markdown/markdown.php', array(
 			'markdown'
 		));
+		$this->registerClasses(DEVBLOCKS_PATH . 'libs/pclzip/pclzip.lib.php', array(
+			'PclZip'
+		));
 		$this->registerClasses(DEVBLOCKS_PATH . 'libs/s3/S3.php', array(
 			'S3'
 		));
