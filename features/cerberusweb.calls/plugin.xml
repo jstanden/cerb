@@ -4,9 +4,15 @@
 	<name>[Cerb5] Call Logging</name>
 	<description>Track phone calls in the helpdesk</description>
 	<author>WebGroup Media, LLC.</author>
-	<revision>0</revision>
+	<version>5.6.3</version>
 	<link>http://www.cerberusweb.com/</link>
 	<image>plugin.png</image>
+	
+	<!-- Requirements -->
+
+	<requires>
+		<app_version min="5.6" max="5.6.3" />
+	</requires>
 	
 	<!-- Plugin Dependencies -->
 	

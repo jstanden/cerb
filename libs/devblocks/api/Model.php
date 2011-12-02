@@ -391,6 +391,8 @@ class DevblocksPluginManifest {
 	var $uri_routing = array();
 	var $extensions = array();
 	
+	var $_requirements_errors = array();
+	
 	function setEnabled($bool) {
 		$this->enabled = ($bool) ? 1 : 0;
 		
@@ -428,6 +430,69 @@ class DevblocksPluginManifest {
 		}
 		
 		return $patches;
+	}
+	
+	function checkRequirements() {
+		$this->_requirements_errors = array();
+		
+		switch($this->id) {
+			case 'devblocks.core':
+			case 'cerberusweb.core':
+				return true;
+				break;
+		}
+		
+		// Check version information
+		if(
+			null != (@$plugin_app_version = $this->manifest_cache['requires']['app_version'])
+			&& isset($plugin_app_version['min'])
+			&& isset($plugin_app_version['max'])
+		) {
+			// If APP_VERSION is below the min or above the max
+			if(version_compare(APP_VERSION, $plugin_app_version['min']) < 0)
+				$this->_requirements_errors[] = 'This plugin require a version of at least ' . $plugin_app_version['min'] . ' and you are using ' . APP_VERSION;
+			
+			if(version_compare(APP_VERSION, $plugin_app_version['max']) > 0)
+				$this->_requirements_errors[] = 'This plugin was tested through version ' . $plugin_app_version['max'] . ' and you are using ' . APP_VERSION;
+			
+		// If no version information is available, fail.
+		} else {
+			$this->_requirements_errors[] = 'This plugin is missing requirements information in its manifest';
+		}
+		
+		// Check PHP extensions
+		if(isset($this->manifest_cache['requires']['php_extensions'])) 
+		foreach($this->manifest_cache['requires']['php_extensions'] as $php_extension => $data) {
+			if(!extension_loaded($php_extension))
+				$this->_requirements_errors[] = sprintf("The '%s' PHP extension is required", $php_extension);
+		}
+		
+		// Check dependencies
+		if(isset($this->manifest_cache['dependencies'])) {
+			$plugins = DevblocksPlatform::getPluginRegistry();
+			foreach($this->manifest_cache['dependencies'] as $dependency) {
+				if(!isset($plugins[$dependency])) {
+					$this->_requirements_errors[] = sprintf("The '%s' plugin is required", $dependency);
+				} else if(!$plugins[$dependency]->enabled) {
+					$dependency_name = isset($plugins[$dependency]) ? $plugins[$dependency]->name : $dependency; 
+					$this->_requirements_errors[] = sprintf("The '%s' (%s) plugin must be enabled first", $dependency_name, $dependency);
+				}
+			}
+		}
+		
+		// Status
+		
+		if(!empty($this->_requirements_errors))
+			return false;
+		
+		return true;
+	}
+	
+	function getRequirementsErrors() {
+		if(empty($this->_requirements_errors))
+			$this->checkRequirements();
+		
+		return $this->_requirements_errors;
 	}
 	
 	function purge() {

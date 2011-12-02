@@ -7,7 +7,7 @@
     			<xs:element name="name" type="xs:string" />
     			<xs:element name="description" type="xs:string" />
     			<xs:element name="author" type="xs:string" />
-    			<xs:element name="revision" type="xs:string" />
+    			<xs:element name="version" type="xs:string" />
     			<xs:element name="link" type="xs:string" />
     			<xs:element name="image" type="xs:string" minOccurs="0" />
     			
@@ -25,6 +25,24 @@
     			</xs:element>
 
     			<xs:element name="uri_routing" minOccurs="0">
+    			</xs:element>
+    			
+    			<xs:element name="requires" minOccurs="0">
+    				<xs:complexType>
+    					<xs:sequence>
+    						<xs:element name="app_version" minOccurs="0" maxOccurs="1">
+    							<xs:complexType>
+    								<xs:attribute name="min" type="xs:string" use="required" />
+    								<xs:attribute name="max" type="xs:string" use="required" />
+    							</xs:complexType>
+    						</xs:element>
+    						<xs:element name="php_extension" minOccurs="0" maxOccurs="unbounded">
+    							<xs:complexType>
+    								<xs:attribute name="name" type="xs:string" use="required" />
+    							</xs:complexType>
+    						</xs:element>
+    					</xs:sequence>
+    				</xs:complexType>
     			</xs:element>
     			
     			<xs:element name="dependencies" minOccurs="0">

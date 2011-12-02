@@ -4,7 +4,7 @@
 	<name>[Examples] Example Cron</name>
 	<description>This example plugin adds an example cron</description>
 	<author>WebGroup Media, LLC.</author>
-	<revision>0</revision>
+	<version>0.0.0</version>
 	<link>http://wiki.cerberusweb.com/wiki/5.x/Extension:cerberusweb.cron</link>
 	
     <!-- Plugin Dependencies -->

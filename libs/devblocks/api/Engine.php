@@ -59,6 +59,25 @@ abstract class DevblocksEngine {
 		$manifest->link = (string) $plugin->link;
 		$manifest->name = (string) $plugin->name;
 		
+		// Requirements
+		if(isset($plugin->requires)) {
+			if(isset($plugin->requires->app_version)) {
+				$eAppVersion = $plugin->requires->app_version; /* @var $eAppVersion SimpleXMLElement */
+				$manifest->manifest_cache['requires']['app_version'] = array(
+					'min' => (string) $eAppVersion['min'],
+					'max' => (string) $eAppVersion['max'],
+				);
+			}
+			
+			if(isset($plugin->requires->php_extension))
+			foreach($plugin->requires->php_extension as $ePhpExtension) {
+				$name = (string) $ePhpExtension['name'];
+				$manifest->manifest_cache['requires']['php_extensions'][$name] = array(
+					'name' => $name,
+				);
+			}
+		}
+		
 		// Dependencies
 		if(isset($plugin->dependencies)) {
 			if(isset($plugin->dependencies->require))

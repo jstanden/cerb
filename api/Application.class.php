@@ -317,10 +317,17 @@ class CerberusApplication extends DevblocksApplication {
 		foreach($plugins as $p) { /* @var $p DevblocksPluginManifest */
 			if('devblocks.core'==$p->id)
 				continue;
-			
+
 			// Don't patch disabled plugins
-			if($p->enabled)
+			if($p->enabled) {
+				// Ensure that the plugin requirements match, or disable
+				if(!$p->checkRequirements()) {
+					$p->setEnabled(false);
+					continue;
+				}
+				
 				$plugin_patches[$p->id] = $p->getPatches();
+			}
 		}
 		
 		$core_patches = $plugin_patches['cerberusweb.core'];

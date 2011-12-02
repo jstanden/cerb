@@ -4,9 +4,15 @@
 	<name>[Cerb5] Gravatar Profile Pictures</name>
 	<description>Displays profile pictures for contacts using gravatar.com</description>
 	<author>WebGroup Media, LLC.</author>
-	<revision>0</revision>
+	<version>5.6.3</version>
 	<link>http://wiki.cerb5.com/wiki/Features:Gravatar_Profile_Pictures</link>
 	<image>images/plugin.jpg</image>
+	
+	<!-- Requirements -->
+
+	<requires>
+		<app_version min="5.6" max="5.6.3" />
+	</requires>
 	
 	<!-- Plugin Dependencies -->
 	

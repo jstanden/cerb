@@ -4,7 +4,7 @@
 	<name>[Examples] Example Ticket Toolbar Button</name>
 	<description>This plugin adds an example button to the ticket toolbar</description>
 	<author>WebGroup Media, LLC.</author>
-	<revision>0</revision>
+	<version>0.0.0</version>
 	<link>http://wiki.cerb5.com/wiki/Extension_Point:cerberusweb.ticket.toolbaritem</link>
 	
 	<!-- Plugin Dependencies -->

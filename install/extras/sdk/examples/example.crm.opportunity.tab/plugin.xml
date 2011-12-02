@@ -4,7 +4,7 @@
 	<name>[Examples] Example Opportunity Tab</name>
 	<description>This example plugin adds an example tab to opportunity records</description>
 	<author>WebGroup Media, LLC.</author>
-	<revision>0</revision>
+	<version>0.0.0</version>
 	<link>http://wiki.cerberusweb.com/wiki/5.x/Extension:cerberusweb.crm.opportunity.tab</link>
 	
     <!-- Plugin Dependencies -->

@@ -6,9 +6,15 @@
 		It adds a new 'Spam Analysis' tab when displaying tickets.
 	</description>
 	<author>WebGroup Media, LLC.</author>
-	<revision>0</revision>
+	<version>5.6.3</version>
 	<link>http://wiki.cerb5.com/wiki/Features:Spam_Analysis</link>
 	<image>plugin.png</image>
+	
+	<!-- Requirements -->
+
+	<requires>
+		<app_version min="5.6" max="5.6.3" />
+	</requires>
 	
 	<!-- Plugin Dependencies -->
 	

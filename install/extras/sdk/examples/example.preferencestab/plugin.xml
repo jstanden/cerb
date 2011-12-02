@@ -4,7 +4,7 @@
 	<name>[Examples] Example Preferences Tab</name>
 	<description>This example plugin adds an example tab to the worker preferences page (my account)</description>
 	<author>WebGroup Media, LLC.</author>
-	<revision>0</revision>
+	<version>0.0.0</version>
 	<link>http://wiki.cerberusweb.com/wiki/5.x/Extension_Point:cerberusweb.preferences.tab</link>
 	
     <!-- Plugin Dependencies -->
