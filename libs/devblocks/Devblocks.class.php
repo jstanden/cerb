@@ -144,6 +144,37 @@ class DevblocksPlatform extends DevblocksEngine {
 		return $parts;
 	}
 	
+	static function intVersionToStr($version, $sections=3) {
+		$version = str_pad($version, $sections*2, '0', STR_PAD_LEFT);
+		$parts = str_split($version, 2);
+		
+		foreach($parts as $k => $v)
+			$parts[$k] = intval($v);
+		
+		return implode('.', $parts);
+	}
+	
+    static function strVersionToInt($version, $sections=3) {
+    	$parts = explode('.', $version);
+    	
+    	// Trim versions with too many significant places
+    	if(count($parts) > $sections)
+    		$parts = array_slice($parts, 0, $sections);
+    	
+    	// Pad versions with too few significant places
+    	for($ctr=count($parts); $ctr < $sections; $ctr++)
+    		$parts[] = '0';
+    	
+    	$v = 0;
+    	$multiplier = 1;
+    	foreach(array_reverse($parts) as $part) {
+    		$v += intval($part)*$multiplier;
+    		$multiplier *= 100;
+    	}
+    	
+    	return intval($v);
+    }
+	
 	/**
 	 * Return a string as a regular expression, parsing * into a non-greedy 
 	 * wildcard, etc.
