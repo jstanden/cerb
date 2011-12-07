@@ -5,7 +5,7 @@ include_once(DEVBLOCKS_PATH . "api/services/bootstrap/cache.php");
 include_once(DEVBLOCKS_PATH . "api/services/bootstrap/database.php");
 include_once(DEVBLOCKS_PATH . "api/services/bootstrap/classloader.php");
 
-define('PLATFORM_BUILD',2011072001);
+define('PLATFORM_BUILD',2011120601);
 
 /**
  * A platform container for plugin/extension registries.
@@ -1018,7 +1018,7 @@ class DevblocksPlatform extends DevblocksEngine {
 		    @$plugin->name = $row['name'];
 		    @$plugin->description = $row['description'];
 		    @$plugin->author = $row['author'];
-		    @$plugin->revision = intval($row['revision']);
+		    @$plugin->version = intval($row['version']);
 		    @$plugin->link = $row['link'];
 		    @$plugin->dir = $row['dir'];
 

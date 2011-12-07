@@ -4,7 +4,7 @@
 	<name>[Devblocks] Core</name>
 	<description>Devblocks: PHP5 Application Framework</description>
 	<author>WebGroup Media, LLC.</author>
-	<version>2.1.0</version>
+	<version>2.1.1</version>
 	<link>http://wiki.devblocks.com/</link>
 	
 	<!-- Patches -->
@@ -15,6 +15,7 @@
 		<patch version="1.1.0" revision="290" file="patches/1.1.0.php" />
 		<patch version="2.0.0" revision="305" file="patches/2.0.0.php" />
 		<patch version="2.1.0" revision="306" file="patches/2.1.0.php" />
+		<patch version="2.1.1" revision="307" file="patches/2.1.1.php" />
 	</patches>
 	
 	<!-- Exported Classes -->

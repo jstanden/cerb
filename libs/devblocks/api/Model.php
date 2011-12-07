@@ -379,7 +379,7 @@ class DevblocksPluginManifest {
 	var $name = '';
 	var $description = '';
 	var $author = '';
-	var $revision = 0;
+	var $version = 0;
 	var $link = '';
 	var $dir = '';
 	var $manifest_cache = array();
@@ -450,10 +450,10 @@ class DevblocksPluginManifest {
 		) {
 			// If APP_VERSION is below the min or above the max
 			if(version_compare(APP_VERSION, $plugin_app_version['min']) < 0)
-				$this->_requirements_errors[] = 'This plugin require a version of at least ' . $plugin_app_version['min'] . ' and you are using ' . APP_VERSION;
+				$this->_requirements_errors[] = 'This plugin requires a Cerb5 version of at least ' . $plugin_app_version['min'] . ' and you are using ' . APP_VERSION;
 			
 			if(version_compare(APP_VERSION, $plugin_app_version['max']) > 0)
-				$this->_requirements_errors[] = 'This plugin was tested through version ' . $plugin_app_version['max'] . ' and you are using ' . APP_VERSION;
+				$this->_requirements_errors[] = 'This plugin was tested through Cerb5 version ' . $plugin_app_version['max'] . ' and you are using ' . APP_VERSION;
 			
 		// If no version information is available, fail.
 		} else {

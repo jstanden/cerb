@@ -55,7 +55,7 @@ abstract class DevblocksEngine {
 		$manifest->dir = $rel_dir;
 		$manifest->description = (string) $plugin->description;
 		$manifest->author = (string) $plugin->author;
-		$manifest->revision = (integer) $plugin->revision;
+		$manifest->version = (integer) DevblocksPlatform::strVersionToInt($plugin->version);
 		$manifest->link = (string) $plugin->link;
 		$manifest->name = (string) $plugin->name;
 		
@@ -152,12 +152,12 @@ abstract class DevblocksEngine {
 		if($db->GetOne(sprintf("SELECT id FROM ${prefix}plugin WHERE id = %s", $db->qstr($manifest->id)))) { // update
 			$db->Execute(sprintf(
 				"UPDATE ${prefix}plugin ".
-				"SET name=%s,description=%s,author=%s,revision=%s,link=%s,dir=%s,manifest_cache_json=%s ".
+				"SET name=%s,description=%s,author=%s,version=%s,link=%s,dir=%s,manifest_cache_json=%s ".
 				"WHERE id=%s",
 				$db->qstr($manifest->name),
 				$db->qstr($manifest->description),
 				$db->qstr($manifest->author),
-				$db->qstr($manifest->revision),
+				$db->qstr($manifest->version),
 				$db->qstr($manifest->link),
 				$db->qstr($manifest->dir),
 				$db->qstr(json_encode($manifest->manifest_cache)),
@@ -167,14 +167,14 @@ abstract class DevblocksEngine {
 		} else { // insert
 			$enabled = ('devblocks.core'==$manifest->id) ? 1 : 0;
 			$db->Execute(sprintf(
-				"INSERT INTO ${prefix}plugin (id,enabled,name,description,author,revision,link,dir,manifest_cache_json) ".
+				"INSERT INTO ${prefix}plugin (id,enabled,name,description,author,version,link,dir,manifest_cache_json) ".
 				"VALUES (%s,%d,%s,%s,%s,%s,%s,%s,%s)",
 				$db->qstr($manifest->id),
 				$enabled,
 				$db->qstr($manifest->name),
 				$db->qstr($manifest->description),
 				$db->qstr($manifest->author),
-				$db->qstr($manifest->revision),
+				$db->qstr($manifest->version),
 				$db->qstr($manifest->link),
 				$db->qstr($manifest->dir),
 				$db->qstr(json_encode($manifest->manifest_cache))
