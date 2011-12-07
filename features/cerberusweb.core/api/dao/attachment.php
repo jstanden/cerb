@@ -125,12 +125,13 @@ class DAO_Attachment extends DevblocksORMHelper {
 		$logger = DevblocksPlatform::getConsoleLog();
 		
 		// Delete attachments where links=0 and created > 1h
+		// This also cleans up temporary attachment uploads from the file chooser.
 		$rs = $db->Execute(sprintf("SELECT SQL_CALC_FOUND_ROWS attachment.id ".
 			"FROM attachment ".
 			"LEFT JOIN attachment_link ON (attachment.id = attachment_link.attachment_id) ".
 			"WHERE attachment_link.attachment_id IS NULL ".
 			"AND attachment.updated <= %d",
-			(time()-3600)
+			(time()-86400)
 		));
 		
 		$count = $db->GetOne("SELECT FOUND_ROWS();");
