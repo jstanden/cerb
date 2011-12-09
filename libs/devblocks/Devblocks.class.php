@@ -15,6 +15,91 @@ define('PLATFORM_BUILD',2011120601);
 class DevblocksPlatform extends DevblocksEngine {
     private function __construct() { return false; }
 
+    static function installPluginZip($zip_filename) {
+		// [TODO] Check write access in storage/plugins/
+		
+		// Unzip (Devblocks ZipArchive or pclzip)
+    	if(extension_loaded('zip')) {
+			$zip = new ZipArchive();
+			$result = $zip->open($zip_filename);
+			
+			// Read the plugin.xml file
+			for($i=0;$i<$zip->numFiles;$i++) {
+				$path = $zip->getNameIndex($i);
+				if(preg_match("#/plugin.xml$#", $path)) {
+					$manifest_fp = $zip->getStream($path);
+					$manifest_data = stream_get_contents($manifest_fp);
+					fclose($manifest_fp);
+					$xml = simplexml_load_string($manifest_data);
+					$plugin_id = (string) $xml->id;
+					//[TODO] Check version info
+				}
+			}
+			
+			$zip->extractTo(APP_STORAGE_PATH . '/plugins/');
+	
+		} else {
+			$zip = new PclZip($zip_filename);
+			
+			$contents = $zip->extract(PCLZIP_OPT_BY_PREG, "#/plugin.xml$#", PCLZIP_OPT_EXTRACT_AS_STRING);
+			$manifest_data = $contents[0]['content'];
+			
+			$xml = simplexml_load_string($manifest_data);
+			$plugin_id = (string) $xml->id;
+			
+			$list = $zip->extract(PCLZIP_OPT_PATH, APP_STORAGE_PATH . '/plugins/');
+    	}
+		
+    	if(empty($plugin_id))
+    		return false;
+    	
+		DevblocksPlatform::readPlugins();
+		$plugin = DevblocksPlatform::getPlugin($plugin_id);
+		$plugin->setEnabled(true);
+		
+		DevblocksPlatform::clearCache();
+		return true;
+    }
+    
+    static function installPluginZipFromUrl($url) {
+		if(!extension_loaded('curl'))
+			return;
+		
+		$fp = DevblocksPlatform::getTempFile();
+		$fp_filename = DevblocksPlatform::getTempFileInfo($fp);
+		
+		$ch = curl_init($url);
+		curl_setopt_array($ch, array(
+			CURLOPT_CUSTOMREQUEST => 'GET',
+			CURLOPT_RETURNTRANSFER => true,
+			CURLOPT_FOLLOWLOCATION => true,
+			//CURLOPT_FILE => $fp,
+		));
+		$data = curl_exec($ch);
+		
+		// [TODO] Check status
+		//$info = curl_getinfo($ch);
+		//var_dump($info); 
+		//$status = curl_getinfo($ch, CURLINFO_HTTP_CODE); 
+		
+		// Write
+		fwrite($fp, $data, strlen($data));
+		fclose($fp);
+		curl_close($ch);
+		
+		return self::installPluginZip($fp_filename);
+    }
+    
+    static function uninstallPlugin($plugin_id) {
+		// [TODO] Verify the plugin from registry
+		// [TODO] Only uninstall from storage/plugins/
+		
+		$plugin = DevblocksPlatform::getPlugin($plugin_id);
+		$plugin->setEnabled(false);
+		$plugin->uninstall();
+		DevblocksPlatform::readPlugins();
+    }
+    
 	/**
 	 * @param mixed $value
 	 * @param string $type
@@ -664,7 +749,7 @@ class DevblocksPlatform extends DevblocksEngine {
 	}
 	
 	/**
-	 * @return resource $fp
+	 * @return string $filename
 	 */
 	public static function getTempFileInfo($fp) {
 		// If we're asking about a specific temporary file

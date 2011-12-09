@@ -4,7 +4,7 @@
 	<name>[Cerb5] Core</name>
 	<description>The core functionality of Cerberus Helpdesk.</description>
 	<author>WebGroup Media, LLC.</author>
-	<version>5.6.3</version>
+	<version>5.7.0</version>
 	<link>http://wiki.cerb4.com/wiki/New_Changes</link>
 	
 	<!-- Plugin Dependencies -->
@@ -43,6 +43,7 @@
 		<patch version="5.6.0" revision="957" file="patches/5.x/5.6.0.php" />
 		<patch version="5.6.1" revision="961" file="patches/5.x/5.6.1.php" />
 		<patch version="5.6.2" revision="965" file="patches/5.x/5.6.2.php" />
+		<patch version="5.7.0" revision="970" file="patches/5.x/5.7.0.php" />
 	</patches>
 
 	<!-- Declared Extension Points -->
@@ -236,6 +237,13 @@
 		<file path="api/dao/openid_to_contact_person.php">
 			<class name="DAO_OpenIdToContactPerson" />
 			<class name="Model_OpenIdToContactPerson" />
+		</file>
+		
+		<file path="api/dao/plugin_library.php">
+			<class name="DAO_PluginLibrary" />
+			<class name="Model_PluginLibrary" />
+			<class name="SearchFields_PluginLibrary" />
+			<class name="View_PluginLibrary" />
 		</file>
 		
 		<file path="api/dao/pop3_account.php">
@@ -1557,6 +1565,19 @@
 				<params>
 					<param key="page_id" value="core.page.configuration" />
 					<param key="uri" value="plugins" />
+				</params>
+			</extension>
+			
+			<extension point="cerberusweb.ui.page.section">
+				<id>core.page.setup.plugin_library</id>
+				<name>Plugin Library Section</name>
+				<class>
+					<file>api/uri/config/plugin_library.php</file>
+					<name>PageSection_SetupPluginLibrary</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.page.configuration" />
+					<param key="uri" value="plugin_library" />
 				</params>
 			</extension>
 		

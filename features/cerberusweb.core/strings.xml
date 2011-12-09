@@ -558,6 +558,27 @@
 			<tuv xml:lang="en_US"><seg>Trigger Id</seg></tuv>
 		</tu>
 		
+		<!-- Plugin Library -->
+		
+		<tu tuid='dao.plugin_library.plugin_id'>
+			<tuv xml:lang="en_US"><seg>Plugin ID</seg></tuv>
+		</tu>
+		<tu tuid='dao.plugin_library.author'>
+			<tuv xml:lang="en_US"><seg>Author</seg></tuv>
+		</tu>
+		<tu tuid='dao.plugin_library.description'>
+			<tuv xml:lang="en_US"><seg>Description</seg></tuv>
+		</tu>
+		<tu tuid='dao.plugin_library.latest_version'>
+			<tuv xml:lang="en_US"><seg>Latest Version</seg></tuv>
+		</tu>
+		<tu tuid='dao.plugin_library.icon_url'>
+			<tuv xml:lang="en_US"><seg>Icon URL</seg></tuv>
+		</tu>
+		<tu tuid='dao.plugin_library.requirements_json'>
+			<tuv xml:lang="en_US"><seg>Requirements</seg></tuv>
+		</tu>
+		
 		<!-- Snippets -->
 
 		<tu tuid='dao.snippet_usage.hits'>

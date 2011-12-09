@@ -449,10 +449,10 @@ class DevblocksPluginManifest {
 			&& isset($plugin_app_version['max'])
 		) {
 			// If APP_VERSION is below the min or above the max
-			if(version_compare(APP_VERSION, $plugin_app_version['min']) < 0)
+			if(DevblocksPlatform::strVersionToInt(APP_VERSION) < DevblocksPlatform::strVersionToInt($plugin_app_version['min']))
 				$this->_requirements_errors[] = 'This plugin requires a Cerb5 version of at least ' . $plugin_app_version['min'] . ' and you are using ' . APP_VERSION;
 			
-			if(version_compare(APP_VERSION, $plugin_app_version['max']) > 0)
+			if(DevblocksPlatform::strVersionToInt(APP_VERSION) > DevblocksPlatform::strVersionToInt($plugin_app_version['max']))
 				$this->_requirements_errors[] = 'This plugin was tested through Cerb5 version ' . $plugin_app_version['max'] . ' and you are using ' . APP_VERSION;
 			
 		// If no version information is available, fail.
@@ -512,6 +512,44 @@ class DevblocksPluginManifest {
         	"WHERE %1\$sextension.id IS NULL",
         	$prefix
         ));
+	}
+	
+	function uninstall() {
+		$plugin_path = APP_PATH . '/' . $this->dir;
+		$storage_path = APP_STORAGE_PATH . '/plugins/';
+		
+		// Only delete the files if the plugin is in the storage filesystem.
+		if(0 == substr_compare($plugin_path, $storage_path, 0, strlen($storage_path), true)) {
+			$this->_recursiveDelTree($plugin_path);
+			return true;
+		}
+		
+		return false;
+	}
+	
+	function _recursiveDelTree($dir) {
+		if(!file_exists($dir) || !is_dir($dir))
+			return false;
+		
+		$storage_path = APP_STORAGE_PATH . '/plugins/';
+		$dir = rtrim($dir,"/\\") . '/';
+		
+		if(0 != substr_compare($storage_path, $dir, 0, strlen($storage_path)))
+			return false;
+		
+		$files = glob($dir . '*', GLOB_MARK);
+		foreach($files as $file) {
+			if(is_dir($file)) {
+				$this->_recursiveDelTree($file);
+			} else {
+				unlink($file);
+			}
+		}
+		
+		if(file_exists($dir) && is_dir($dir))
+			rmdir($dir);
+		
+		return true;
 	}
 };
 
