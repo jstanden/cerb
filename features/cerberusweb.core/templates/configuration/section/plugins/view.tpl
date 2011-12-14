@@ -51,7 +51,9 @@
 	{* Column Data *}
 	{foreach from=$data item=result key=idx name=results}
 	{$plugin = $plugins.{$result.c_id}}
-	{$meets_requirements = $plugin->checkRequirements()}
+	{if !empty($plugin)}
+		{$meets_requirements = $plugin->checkRequirements()}
+	{/if}
 
 	{if $smarty.foreach.results.iteration % 2}
 		{assign var=tableRowClass value="even"}
@@ -131,7 +133,7 @@
 						<div class="badge badge-lightgray" style="padding:3px;"><a href="javascript:;" onclick="genericAjaxPopup('peek','c=config&a=handleSectionAction&section=plugins&action=showPopup&plugin_id={$result.c_id}&view_id={$view->id}',null,true,'550');" style="color:rgb(0,0,0);text-decoration:none;font-weight:bold;">Configure &#x25be;</a></div>
 					{/if}
 					
-					{if !$meets_requirements}
+					{if !$meets_requirements && !empty($plugin)}
 						{$errors = $plugin->getRequirementsErrors()}
 						{if !empty($errors)}
 						<div style="padding:5px;color:rgb(150,0,0);">
