@@ -353,7 +353,7 @@ class Model_PluginLibrary {
 	}	
 };
 
-class View_PluginLibrary extends C4_AbstractView {
+class View_PluginLibrary extends C4_AbstractView implements IAbstractView_Subtotals {
 	const DEFAULT_ID = 'plugin_library';
 
 	function __construct() {
@@ -403,6 +403,45 @@ class View_PluginLibrary extends C4_AbstractView {
 		return $this->_doGetDataSample('DAO_PluginLibrary', $size);
 	}
 
+	function getSubtotalFields() {
+		$all_fields = $this->getParamsAvailable();
+		
+		$fields = array();
+
+		if(is_array($all_fields))
+		foreach($all_fields as $field_key => $field_model) {
+			$pass = false;
+			
+			switch($field_key) {
+				// DAO
+				case SearchFields_PluginLibrary::AUTHOR:
+					$pass = true;
+					break;
+			}
+			
+			if($pass)
+				$fields[$field_key] = $field_model;
+		}
+		
+		return $fields;
+	}
+	
+	function getSubtotalCounts($column) {
+		$counts = array();
+		$fields = $this->getFields();
+
+		if(!isset($fields[$column]))
+			return array();
+		
+		switch($column) {
+			case SearchFields_PluginLibrary::AUTHOR:
+				$counts = $this->_getSubtotalCountForStringColumn('DAO_PluginLibrary', $column);
+				break;
+		}
+		
+		return $counts;
+	}	
+	
 	function render() {
 		$this->_sanitize();
 		
@@ -413,7 +452,8 @@ class View_PluginLibrary extends C4_AbstractView {
 		$plugins = DevblocksPlatform::getPluginRegistry();
 		$tpl->assign('plugins', $plugins);		
 		
-		$tpl->display('devblocks:cerberusweb.core::configuration/section/plugin_library/view.tpl');
+		$tpl->assign('view_template', 'devblocks:cerberusweb.core::configuration/section/plugin_library/view.tpl');
+		$tpl->display('devblocks:cerberusweb.core::internal/views/subtotals_and_view.tpl');
 	}
 
 	function renderCriteria($field) {

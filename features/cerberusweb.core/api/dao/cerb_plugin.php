@@ -260,7 +260,7 @@ class Model_CerbPlugin {
 	public $manifest_cache_json;
 };
 
-class View_CerbPlugin extends C4_AbstractView {
+class View_CerbPlugin extends C4_AbstractView implements IAbstractView_Subtotals {
 	const DEFAULT_ID = 'cerb5_plugins';
 
 	function __construct() {
@@ -308,6 +308,50 @@ class View_CerbPlugin extends C4_AbstractView {
 	function getDataSample($size) {
 		return $this->_doGetDataSample('DAO_CerbPlugin', $size);
 	}
+	
+	function getSubtotalFields() {
+		$all_fields = $this->getParamsAvailable();
+		
+		$fields = array();
+
+		if(is_array($all_fields))
+		foreach($all_fields as $field_key => $field_model) {
+			$pass = false;
+			
+			switch($field_key) {
+				// DAO
+				case SearchFields_CerbPlugin::AUTHOR:
+				case SearchFields_CerbPlugin::ENABLED:
+					$pass = true;
+					break;
+			}
+			
+			if($pass)
+				$fields[$field_key] = $field_model;
+		}
+		
+		return $fields;
+	}
+	
+	function getSubtotalCounts($column) {
+		$counts = array();
+		$fields = $this->getFields();
+
+		if(!isset($fields[$column]))
+			return array();
+		
+		switch($column) {
+			case SearchFields_CerbPlugin::AUTHOR:
+				$counts = $this->_getSubtotalCountForStringColumn('DAO_CerbPlugin', $column);
+				break;
+				
+			case SearchFields_CerbPlugin::ENABLED:
+				$counts = $this->_getSubtotalCountForBooleanColumn('DAO_CerbPlugin', $column);
+				break;
+		}
+		
+		return $counts;
+	}
 
 	function render() {
 		$this->_sanitize();
@@ -319,7 +363,8 @@ class View_CerbPlugin extends C4_AbstractView {
 		$plugins = DevblocksPlatform::getPluginRegistry();
 		$tpl->assign('plugins', $plugins);
 		
-		$tpl->display('devblocks:cerberusweb.core::configuration/section/plugins/view.tpl');
+		$tpl->assign('view_template', 'devblocks:cerberusweb.core::configuration/section/plugins/view.tpl');
+		$tpl->display('devblocks:cerberusweb.core::internal/views/subtotals_and_view.tpl');
 	}
 
 	function renderCriteria($field) {
@@ -351,7 +396,25 @@ class View_CerbPlugin extends C4_AbstractView {
 		$field = $param->field;
 		$values = !is_array($param->value) ? array($param->value) : $param->value;
 
+		$translate = DevblocksPlatform::getTranslationService();
+		
 		switch($field) {
+			case SearchFields_CerbPlugin::ENABLED:
+				$strings = array();
+
+				foreach($values as $val) {
+					switch($val) {
+						case '0':
+							$strings[] = $translate->_('common.no');
+							break;
+						case '1':
+							$strings[] = $translate->_('common.yes');
+							break;
+					}
+				}
+				echo implode(", ", $strings);
+				break;
+			
 			default:
 				parent::renderCriteriaParam($param);
 				break;
