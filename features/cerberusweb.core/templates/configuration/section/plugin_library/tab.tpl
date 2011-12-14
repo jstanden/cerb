@@ -1,8 +1,11 @@
-{*
 <div style="float:right;">
-	{include file="devblocks:wgm.cerb5_licensing::quick_search.tpl"}
+	<form action="#" method="post" id="frmPluginLibraryQuickSearch" onsubmit="return false;">
+	<b>{$translate->_('common.quick_search')}</b> <select name="type">
+		<option value="description">{$translate->_('dao.cerb_plugin.description')|capitalize}</option>
+		<option value="author">{$translate->_('dao.cerb_plugin.author')|capitalize}</option>
+	</select><input type="text" name="query" class="input_search" size="16"></button>
+	</form>
 </div>
-*}
 
 <form action="{devblocks_url}{/devblocks_url}" style="margin-bottom:5px;">
 <button type="button" id="btnPluginLibrarySync"><span class="cerb-sprite sprite-refresh"></span> Check for updates</button>
@@ -32,5 +35,21 @@ $('#btnPluginLibrarySync').click(function() {
 			$btn.show();
 		}
 	});
+});
+$('#frmPluginLibraryQuickSearch INPUT:text[name=query]').keyup(function(e) {
+	if(13 == e.keyCode || 10 == e.keyCode) {
+		$(this).select();
+		$frm = $(this).closest('form');
+		
+		switch($frm.find('select[name=type]').val()) {
+			case 'author':
+				ajax.viewAddFilter('{$view->id}','p_author','like',{ 'value':'*' + $(this).val() + '*' });
+				break;
+			default:	
+			case 'description':
+				ajax.viewAddFilter('{$view->id}','p_description','like',{ 'value':'*' + $(this).val() + '*' });
+				break;
+		}
+	}
 });
 </script>
