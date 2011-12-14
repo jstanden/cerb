@@ -274,10 +274,10 @@ class SearchFields_PluginLibrary implements IDevblocksSearchFields {
 			self::ID => new DevblocksSearchField(self::ID, 'plugin_library', 'id', $translate->_('common.id')),
 			self::PLUGIN_ID => new DevblocksSearchField(self::PLUGIN_ID, 'plugin_library', 'plugin_id', $translate->_('dao.plugin_library.plugin_id')),
 			self::NAME => new DevblocksSearchField(self::NAME, 'plugin_library', 'name', $translate->_('common.name')),
-			self::AUTHOR => new DevblocksSearchField(self::AUTHOR, 'plugin_library', 'author', $translate->_('dao.plugin_library.author')),
-			self::DESCRIPTION => new DevblocksSearchField(self::DESCRIPTION, 'plugin_library', 'description', $translate->_('dao.plugin_library.description')),
+			self::AUTHOR => new DevblocksSearchField(self::AUTHOR, 'plugin_library', 'author', $translate->_('dao.cerb_plugin.author')),
+			self::DESCRIPTION => new DevblocksSearchField(self::DESCRIPTION, 'plugin_library', 'description', $translate->_('dao.cerb_plugin.description')),
 			self::LINK => new DevblocksSearchField(self::LINK, 'plugin_library', 'link', $translate->_('common.url')),
-			self::LATEST_VERSION => new DevblocksSearchField(self::LATEST_VERSION, 'plugin_library', 'latest_version', $translate->_('dao.plugin_library.latest_version')),
+			self::LATEST_VERSION => new DevblocksSearchField(self::LATEST_VERSION, 'plugin_library', 'latest_version', $translate->_('dao.cerb_plugin.version')),
 			self::ICON_URL => new DevblocksSearchField(self::ICON_URL, 'plugin_library', 'icon_url', $translate->_('dao.plugin_library.icon_url')),
 			self::REQUIREMENTS_JSON => new DevblocksSearchField(self::REQUIREMENTS_JSON, 'plugin_library', 'requirements_json', $translate->_('dao.plugin_library.requirements_json')),
 			self::UPDATED => new DevblocksSearchField(self::UPDATED, 'plugin_library', 'updated', $translate->_('common.updated')),
@@ -420,9 +420,7 @@ class View_PluginLibrary extends C4_AbstractView {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('id', $this->id);
 
-		// [TODO] Move the fields into the proper data type
 		switch($field) {
-			case SearchFields_PluginLibrary::ID:
 			case SearchFields_PluginLibrary::PLUGIN_ID:
 			case SearchFields_PluginLibrary::NAME:
 			case SearchFields_PluginLibrary::AUTHOR:
@@ -430,18 +428,15 @@ class View_PluginLibrary extends C4_AbstractView {
 			case SearchFields_PluginLibrary::LINK:
 			case SearchFields_PluginLibrary::LATEST_VERSION:
 			case SearchFields_PluginLibrary::ICON_URL:
-			case SearchFields_PluginLibrary::REQUIREMENTS_JSON:
-			case SearchFields_PluginLibrary::UPDATED:
-			case 'placeholder_string':
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__string.tpl');
 				break;
-			case 'placeholder_number':
+			case SearchFields_PluginLibrary::ID:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__number.tpl');
 				break;
 			case 'placeholder_bool':
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__bool.tpl');
 				break;
-			case 'placeholder_date':
+			case SearchFields_PluginLibrary::UPDATED:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__date.tpl');
 				break;
 		}
@@ -465,9 +460,7 @@ class View_PluginLibrary extends C4_AbstractView {
 	function doSetCriteria($field, $oper, $value) {
 		$criteria = null;
 
-		// [TODO] Move fields into the right data type
 		switch($field) {
-			case SearchFields_PluginLibrary::ID:
 			case SearchFields_PluginLibrary::PLUGIN_ID:
 			case SearchFields_PluginLibrary::NAME:
 			case SearchFields_PluginLibrary::AUTHOR:
@@ -475,21 +468,18 @@ class View_PluginLibrary extends C4_AbstractView {
 			case SearchFields_PluginLibrary::LINK:
 			case SearchFields_PluginLibrary::LATEST_VERSION:
 			case SearchFields_PluginLibrary::ICON_URL:
-			case SearchFields_PluginLibrary::REQUIREMENTS_JSON:
-			case SearchFields_PluginLibrary::UPDATED:
-			case 'placeholder_string':
 				// force wildcards if none used on a LIKE
 				if(($oper == DevblocksSearchCriteria::OPER_LIKE || $oper == DevblocksSearchCriteria::OPER_NOT_LIKE)
 				&& false === (strpos($value,'*'))) {
-					$value = $value.'*';
+					$value = '*'.$value.'*';
 				}
 				$criteria = new DevblocksSearchCriteria($field, $oper, $value);
 				break;
-			case 'placeholder_number':
+			case SearchFields_PluginLibrary::ID:
 				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
 				break;
 				
-			case 'placeholder_date':
+			case SearchFields_PluginLibrary::UPDATED:
 				@$from = DevblocksPlatform::importGPC($_REQUEST['from'],'string','');
 				@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string','');
 

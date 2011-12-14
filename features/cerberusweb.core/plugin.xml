@@ -123,6 +123,13 @@
 			<class name="Model_Bucket" />
 		</file>
 		
+		<file path="api/dao/cerb_plugin.php">
+			<class name="DAO_CerbPlugin" />
+			<class name="Model_CerbPlugin" />
+			<class name="SearchFields_CerbPlugin" />
+			<class name="View_CerbPlugin" />
+		</file>
+		
 		<file path="api/dao/comment.php">
 			<class name="DAO_Comment" />
 			<class name="Model_Comment" />

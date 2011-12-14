@@ -54,9 +54,6 @@ class DevblocksPlatform extends DevblocksEngine {
     		return false;
     	
 		DevblocksPlatform::readPlugins();
-		$plugin = DevblocksPlatform::getPlugin($plugin_id);
-		$plugin->setEnabled(true);
-		
 		DevblocksPlatform::clearCache();
 		return true;
     }
@@ -95,7 +92,6 @@ class DevblocksPlatform extends DevblocksEngine {
 		// [TODO] Only uninstall from storage/plugins/
 		
 		$plugin = DevblocksPlatform::getPlugin($plugin_id);
-		$plugin->setEnabled(false);
 		$plugin->uninstall();
 		DevblocksPlatform::readPlugins();
     }

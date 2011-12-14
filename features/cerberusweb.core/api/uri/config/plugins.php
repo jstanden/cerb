@@ -16,67 +16,143 @@
 ***********************************************************************/
 
 class PageSection_SetupPlugins extends Extension_PageSection {
+	const VIEW_PLUGINS = 'plugins_installed';
+	
 	function render() {
-		$tpl = DevblocksPlatform::getTemplateService();
-		$visit = CerberusApplication::getVisit();
-		
-		$visit->set(ChConfigurationPage::ID, 'plugins');
-		
 		// Auto synchronize when viewing Config->Extensions
         DevblocksPlatform::readPlugins();
 
         if(DEVELOPMENT_MODE)
         	DAO_Platform::cleanupPluginTables();
 		
-		$plugins = DevblocksPlatform::getPluginRegistry();
-		unset($plugins['devblocks.core']);
-		unset($plugins['cerberusweb.core']);
-		$tpl->assign('plugins', $plugins);
+		$tpl = DevblocksPlatform::getTemplateService();
+		$visit = CerberusApplication::getVisit();
+		
+		$visit->set(ChConfigurationPage::ID, 'plugins');
 		
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/plugins/index.tpl');
 	}
+
+	function showTabAction() {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$visit = CerberusApplication::getVisit();
+		
+		$defaults = new C4_AbstractViewModel();
+		$defaults->class_name = 'View_CerbPlugin';
+		$defaults->id = self::VIEW_PLUGINS;
+		$defaults->renderLimit = 10;
+		$defaults->renderSortBy = SearchFields_CerbPlugin::NAME;
+		$defaults->renderSortAsc = true;
+		
+		$view = C4_AbstractViewLoader::getView(self::VIEW_PLUGINS, $defaults);
+		$view->name = "Installed Plugins";
+		
+		// Exclude devblocks.core, cerberusweb.core
+		$view->addParamsRequired(array(
+			SearchFields_CerbPlugin::ID => new DevblocksSearchCriteria(SearchFields_CerbPlugin::ID, DevblocksSearchCriteria::OPER_NIN, array('devblocks.core','cerberusweb.core')),
+		));
+		
+		C4_AbstractViewLoader::setView($view->id, $view);
+
+// 		$quick_search_type = $visit->get('wgm_cerb5licenses.quick_search_type');
+// 		$tpl->assign('quick_search_type', $quick_search_type);
+		
+		$tpl->assign('view', $view);
+		
+		$tpl->display('devblocks:cerberusweb.core::configuration/section/plugins/tab.tpl');
+		
+		exit;        
+		
+// 		$tpl->display('devblocks:cerberusweb.core::configuration/section/plugins/tab.tpl');
+	}
 	
-	function saveAction() {
-		$translate = DevblocksPlatform::getTranslationService();
-		$worker = CerberusApplication::getActiveWorker();
+	function showPopupAction() {
+		@$plugin_id = DevblocksPlatform::importGPC($_REQUEST['plugin_id'],'string','');
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
+		
+		@$worker = CerberusApplication::getActiveWorker();
 		
 		if(!$worker || !$worker->is_superuser) {
 			echo $translate->_('common.access_denied');
 			return;
 		}
 		
-		$pluginStack = DevblocksPlatform::getPluginRegistry();
-		@$plugins_enabled = DevblocksPlatform::importGPC($_REQUEST['plugins_enabled']);
-		
-		if(is_array($pluginStack))
-		foreach($pluginStack as $plugin) { /* @var $plugin DevblocksPluginManifest */
-			switch($plugin->id) {
-				case 'devblocks.core':
-				case 'cerberusweb.core':
-					$plugin->setEnabled(true);
-					break;
-					
-				default:
-					if(null !== $plugins_enabled && false !== array_search($plugin->id, $plugins_enabled)) {
-						$plugin->setEnabled(true);
-					} else {
-						$plugin->setEnabled(false);
-					}
-					break;
-			}
-		}
-		
-		try {
-			CerberusApplication::update();
-		} catch (Exception $e) {
-			// [TODO] ...
-		}
+		$tpl = DevblocksPlatform::getTemplateService();
 
-		DevblocksPlatform::clearCache();
+		if(empty($plugin_id))
+			return;
 		
-        // Reload plugin translations
-		DAO_Translation::reloadPluginStrings();
+		$plugin = DevblocksPlatform::getPlugin($plugin_id);
+		$tpl->assign('plugin', $plugin);
+
+		$is_uninstallable = (preg_match("#^storage/plugins/#", $plugin->dir) > 0);
+		$tpl->assign('is_uninstallable', $is_uninstallable);
 		
-		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('config','plugins')));		
+		// Check requirements
+		//$requirements = Model_PluginLibrary::testRequirements($plugin->requirements);
+		//$tpl->assign('requirements', $requirements);
+		
+		$tpl->assign('view_id', $view_id);
+		
+		$tpl->display('devblocks:cerberusweb.core::configuration/section/plugins/popup.tpl');
+	}
+	
+	function savePopupAction() {
+		@$plugin_id = DevblocksPlatform::importGPC($_REQUEST['plugin_id'],'string','');
+		@$enabled = DevblocksPlatform::importGPC($_REQUEST['enabled'],'integer',0);
+		@$uninstall = DevblocksPlatform::importGPC($_REQUEST['uninstall'],'integer',0);
+
+		@$worker = CerberusApplication::getActiveWorker();
+		
+		if(!$worker || !$worker->is_superuser) {
+			echo $translate->_('common.access_denied');
+			return;
+		}
+		
+		switch($plugin_id) {
+			case 'devblocks.core':
+			case 'cerberusweb.core':
+				throw new Exception("This plugin is not editable.");
+				break;
+		}
+		
+		try {		
+			$plugin = DevblocksPlatform::getPlugin($plugin_id);
+			
+			if($uninstall) {
+				$plugin->uninstall();
+				DAO_Platform::cleanupPluginTables();
+				DAO_Platform::maint();
+				
+			} else {
+				$plugin->setEnabled((true == $enabled));
+	
+				switch($enabled) {
+					case 0: // disable
+						break;
+						
+					case 1: // enable
+						try {
+							CerberusApplication::update();
+						} catch (Exception $e) {
+						}
+						
+				        // Reload plugin translations
+						DAO_Translation::reloadPluginStrings();
+						break;
+				}
+			}
+			
+			DevblocksPlatform::clearCache();
+			
+			echo json_encode(array(
+				'status' => true,
+			));
+			
+		} catch(Exception $e) {
+			echo json_encode(array(
+				'status' => false,
+			));
+		}
 	}
 };

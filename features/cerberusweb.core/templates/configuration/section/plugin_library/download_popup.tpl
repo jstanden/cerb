@@ -48,6 +48,8 @@
 				// [TODO] Errors, or success?
 				
 				genericAjaxPopupClose('peek');
+				genericAjaxPopup('peek','c=config&a=handleSectionAction&section=plugins&action=showPopup&plugin_id={$plugin->plugin_id}',null,true,'550');				
+
 				// Reload view
 	 			{if !empty($view_id)}
 				genericAjaxGet('view{$view_id}','c=internal&a=viewRefresh&id={$view_id}');

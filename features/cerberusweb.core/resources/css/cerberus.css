@@ -984,6 +984,16 @@ button span.cerb-sprite2 { display:inline-block; }
 .sprite-tick-circle-frame{ background-position: 0 -660px; width: 16px; height: 16px; } 
 .sprite-user-silhouette{ background-position: 0 -726px; width: 16px; height: 16px; } 
 
+span.plugin_icon_overlay_disabled {
+	background:url(plugin_overlay_disabled.png?v=2011051203);
+	background-repeat:no-repeat;
+	background-position:top left;
+	width:100px;
+	height:100px;
+	position:absolute;
+	left:3px;
+}
+
 /* -------------------------------------------------------------------
 // markItUp! Universal MarkUp Engine, JQuery plugin
 // By Jay Salvat - http://markitup.jaysalvat.com/

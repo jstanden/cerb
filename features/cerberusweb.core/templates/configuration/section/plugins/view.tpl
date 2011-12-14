@@ -50,7 +50,8 @@
 
 	{* Column Data *}
 	{foreach from=$data item=result key=idx name=results}
-	{$plugin = $plugins.{$result.p_plugin_id}}
+	{$plugin = $plugins.{$result.c_id}}
+	{$meets_requirements = $plugin->checkRequirements()}
 
 	{if $smarty.foreach.results.iteration % 2}
 		{assign var=tableRowClass value="even"}
@@ -60,13 +61,14 @@
 	<tbody style="cursor:pointer;">
 		<tr class="{$tableRowClass}">
 			<td rowspan="4" align="center">
-				<div style="margin:0px 5px 5px 5px;">
+				<div style="margin:0px 5px 5px 5px;position:relative;">
 					{if !empty($plugin) && isset($plugin->manifest_cache.plugin_image) && !empty($plugin->manifest_cache.plugin_image)}
 						<img src="{devblocks_url}c=resource&p={$plugin->id}&f={$plugin->manifest_cache.plugin_image}{/devblocks_url}" width="100" height="100" style="border:1px solid rgb(200,200,200);">
-					{elseif !empty($result.p_icon_url)}
-						<img src="{$result.p_icon_url}" width="100" height="100" style="border:1px solid rgb(200,200,200);">
 					{else}
 						<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/wgm/plugin_code_gray.gif{/devblocks_url}" width="100" height="100" style="border:1px solid rgb(200,200,200);">
+					{/if}
+					{if !$result.c_enabled}
+						<span class="plugin_icon_overlay_disabled"></span>
 					{/if}
 				</div>
 			</td>
@@ -74,8 +76,8 @@
 		<tr class="{$tableRowClass}">
 			<td colspan="{$smarty.foreach.headers.total}">
 				<div style="padding-bottom:2px;">
-					<input type="checkbox" name="row_id[]" value="{$result.p_id}" style="display:none;">
-					<b class="subject">{$result.p_name}</b>
+					<input type="checkbox" name="row_id[]" value="{$result.c_id}" style="display:none;">
+					<b class="subject">{$result.c_name}</b>
 				</div>
 			</td>
 		</tr>
@@ -84,24 +86,32 @@
 		
 			{if substr($column,0,3)=="cf_"}
 				{include file="devblocks:cerberusweb.core::internal/custom_fields/view/cell_renderer.tpl"}
-			{elseif $column=="p_updated"}
-				<td><abbr title="{$result.$column|devblocks_date}">{$result.p_updated|devblocks_prettytime}</abbr>&nbsp;</td>
-			{elseif $column=="p_latest_version"}
+			{elseif $column=="c_updated"}
+				<td><abbr title="{$result.$column|devblocks_date}">{$result.c_updated|devblocks_prettytime}</abbr>&nbsp;</td>
+			{elseif $column=="c_version"}
 				<td>
-					{if isset($plugin->version) && $plugin->version < $result.p_latest_version}
+					{if isset($plugin->version) && $plugin->version < $result.c_version}
 						<div class="badge" style="font-weight:bold;">{DevblocksPlatform::intVersionToStr($result.$column)}</div>
 					{else}
 						{DevblocksPlatform::intVersionToStr($result.$column)}
 					{/if}
 				</td>
-			{elseif $column=="p_link"}
+			{elseif $column=="c_link"}
 				<td>
 					<a href="{$result.$column}" target="_blank">{$result.$column}</a>
 				</td>
-			{elseif $column=="p_author"}
+			{elseif $column=="c_enabled"}
 				<td>
-					{if !empty($column.p_link)}
-						<a href="{$result.p_link}" target="_blank">{$result.$column}</a>
+					{if !$result.c_enabled}
+						<a href="javascript:;" onclick="" style="color:rgb(120,0,0);text-decoration:none;font-weight:bold;">{'common.no'|devblocks_translate}</a>
+					{else}
+						<a href="javascript:;" onclick="" style="color:rgb(0,0,0);text-decoration:none;font-weight:normal;">{'common.yes'|devblocks_translate}</a>
+					{/if}
+				</td>
+			{elseif $column=="c_author"}
+				<td>
+					{if !empty($column.c_link)}
+						<a href="{$result.c_link}" target="_blank">{$result.$column}</a>
 					{else}
 						{$result.$column}
 					{/if}
@@ -114,29 +124,25 @@
 		<tr class="{$tableRowClass}">
 			<td colspan="{$smarty.foreach.headers.total}" valign="top">
 				<div style="padding:5px;">
-					{$result.p_description}
+					{$result.c_description}
 				</div>
 				<div style="margin:5px;">
 					{if !empty($plugin)}
-						{if $plugin->version < $result.p_latest_version}
-							<div class="badge badge-lightgray" style="padding:3px;"><a href="javascript:;" onclick="genericAjaxPopup('peek','c=config&a=handleSectionAction&section=plugin_library&action=showDownloadPopup&plugin_id={$result.p_id}&view_id={$view->id}',null,true,'550');" style="color:rgb(0,150,0);text-decoration:none;font-weight:bold;">Installed; Upgrade to {DevblocksPlatform::intVersionToStr($result.p_latest_version)} &#x25be;</a></div>
-						{else}
-							<div class="badge badge-lightgray" style="padding:3px;"><a href="javascript:;" style="color:rgb(0,0,0);text-decoration:none;font-weight:bold;">Installed</a></div>
+						<div class="badge badge-lightgray" style="padding:3px;"><a href="javascript:;" onclick="genericAjaxPopup('peek','c=config&a=handleSectionAction&section=plugins&action=showPopup&plugin_id={$result.c_id}&view_id={$view->id}',null,true,'550');" style="color:rgb(0,0,0);text-decoration:none;font-weight:bold;">Configure &#x25be;</a></div>
+					{/if}
+					
+					{if !$meets_requirements}
+						{$errors = $plugin->getRequirementsErrors()}
+						{if !empty($errors)}
+						<div style="padding:5px;color:rgb(150,0,0);">
+							<b>Missing requirements:</b>
+							<ul style="margin:0;">
+							{foreach from=$errors item=error name=errors}
+								<li>{$error}</li>
+							{/foreach}
+							</ul>
+						</div>
 						{/if}
-						
-					{else}
-						{*
-						{$requirements = json_decode($result.p_requirements_json, true)}
-						{$result.p_requirements_json}
-						{if isset($requirements.app_version.min) && $app_version < $requirements.app_version.min}
-							<div class="badge badge-lightgray" style="padding:3px;"><a href="javascript:;" style="color:rgb(120,0,0);font-weight:bold;text-decoration:none;">This plugin requires at least Cerb5 ({DevblocksPlatform::intVersionToStr($requirements.app_version.min)}) and you are running ({$smarty.const.APP_VERSION})</a></div>
-						{elseif isset($requirements.app_version.max) && $app_version > $requirements.app_version.max}
-							<div class="badge badge-lightgray" style="padding:3px;"><a href="javascript:;" style="color:rgb(120,0,0);font-weight:bold;text-decoration:none;">This plugin was only tested through Cerb5 ({DevblocksPlatform::intVersionToStr($requirements.app_version.max)}) and you are running ({$smarty.const.APP_VERSION})</a></div>
-						{else}
-							<div class="badge badge-lightgray" style="padding:3px;"><a href="javascript:;" onclick="genericAjaxPopup('peek','c=config&a=handleSectionAction&section=plugin_library&action=showDownloadPopup&plugin_id={$result.p_id}&view_id={$view->id}',null,true,'550');" style="color:rgb(0,150,0);text-decoration:none;font-weight:bold;">Download and install &#x25be;</a></div>
-						{/if}
-						*}
-						<div class="badge badge-lightgray" style="padding:3px;"><a href="javascript:;" onclick="genericAjaxPopup('peek','c=config&a=handleSectionAction&section=plugin_library&action=showDownloadPopup&plugin_id={$result.p_id}&view_id={$view->id}',null,true,'550');" style="color:rgb(0,150,0);text-decoration:none;font-weight:bold;">Download and install &#x25be;</a></div>
 					{/if}
 				</div>
 			</td>

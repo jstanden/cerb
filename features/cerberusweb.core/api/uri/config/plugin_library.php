@@ -19,10 +19,15 @@ class PageSection_SetupPluginLibrary extends Extension_PageSection {
 	const VIEW_PLUGIN_LIBRARY = 'plugin_library';
 	
 	function render() {
+		$visit = CerberusApplication::getVisit();
+		$visit->set(ChConfigurationPage::ID, 'plugin_library');
+	}
+	
+	function showTabAction() {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$visit = CerberusApplication::getVisit();
 		
-		$visit->set(ChConfigurationPage::ID, 'plugin_library');
+		//$visit->set(ChConfigurationPage::ID, 'plugin_library');
 		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$visit = CerberusApplication::getVisit();
@@ -34,7 +39,7 @@ class PageSection_SetupPluginLibrary extends Extension_PageSection {
 		$defaults->renderSortAsc = 0;
 		
 		$view = C4_AbstractViewLoader::getView(self::VIEW_PLUGIN_LIBRARY, $defaults);
-		$view->name = "Compatible Cerb5 Plugins";
+		$view->name = "Compatible Plugins";
 		
 		C4_AbstractViewLoader::setView($view->id, $view);
 
@@ -43,7 +48,7 @@ class PageSection_SetupPluginLibrary extends Extension_PageSection {
 		
 		$tpl->assign('view', $view);
 		
-		$tpl->display('devblocks:cerberusweb.core::configuration/section/plugin_library/index.tpl');
+		$tpl->display('devblocks:cerberusweb.core::configuration/section/plugin_library/tab.tpl');
 	}
 	
 	function syncAction() {
