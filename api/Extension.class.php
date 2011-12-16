@@ -67,6 +67,26 @@ abstract class CerberusPageExtension extends DevblocksExtension {
 	}
 };
 
+abstract class Extension_PluginSetup extends DevblocksExtension {
+	const POINT = 'cerberusweb.plugin.setup';
+
+	static function getByPlugin($plugin_id, $as_instances=true) {
+		$results = array();
+
+		// Include disabled extensions
+		$all_extensions = DevblocksPlatform::getExtensionRegistry(true, true, true);
+		foreach($all_extensions as $k => $ext) { /* @var $ext DevblocksExtensionManifest */
+			if($ext->plugin_id == $plugin_id && $ext->point == Extension_PluginSetup::POINT)
+				$results[$k] = ($as_instances) ? $ext->createInstance() : $ext;
+		}
+		
+		return $results;
+	}
+	
+	abstract function render();
+	abstract function save(&$errors);
+}
+
 abstract class Extension_PageSection extends DevblocksExtension {
 	const POINT = 'cerberusweb.ui.page.section';
 	

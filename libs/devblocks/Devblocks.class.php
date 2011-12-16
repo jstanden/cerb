@@ -891,23 +891,33 @@ class DevblocksPlatform extends DevblocksEngine {
 	 * @static 
 	 * @return DevblocksExtensionManifest[]
 	 */
-	static function getExtensionRegistry($ignore_acl=false) {
+	static function getExtensionRegistry($ignore_acl=false, $nocache=false, $with_disabled=false) {
 	    $cache = self::getCacheService();
 	    static $acl_extensions = null;
 	    
-	    if(null === ($extensions = $cache->load(self::CACHE_EXTENSIONS))) {
+	    // Forced
+	    if($with_disabled)
+	    	$nocache = true;
+	    
+	    // Retrieve and cache
+	    if($nocache || null === ($extensions = $cache->load(self::CACHE_EXTENSIONS))) {
 		    $db = DevblocksPlatform::getDatabaseService();
-		    if(is_null($db)) return;
+		    if(is_null($db))
+		    	return;
+		    
+			$extensions = array();
 	
 		    $prefix = (APP_DB_PREFIX != '') ? APP_DB_PREFIX.'_' : ''; // [TODO] Cleanup
 	
 		    $sql = sprintf("SELECT e.id , e.plugin_id, e.point, e.pos, e.name , e.file , e.class, e.params ".
 				"FROM %sextension e ".
 				"INNER JOIN %splugin p ON (e.plugin_id=p.id) ".
-				"WHERE p.enabled = 1 ".
+				"WHERE 1 ".
+				"%s ".
 				"ORDER BY e.plugin_id ASC, e.pos ASC",
 					$prefix,
-					$prefix
+					$prefix,
+					($with_disabled ? '' : 'AND p.enabled = 1')
 				);
 			$results = $db->GetArray($sql); 
 				
@@ -926,7 +936,9 @@ class DevblocksPlatform extends DevblocksEngine {
 				$extensions[$extension->id] = $extension;
 			}
 
-			$cache->save($extensions, self::CACHE_EXTENSIONS);
+			if(!$nocache)
+				$cache->save($extensions, self::CACHE_EXTENSIONS);
+			
 			$acl_extensions = null;
 		}
 		

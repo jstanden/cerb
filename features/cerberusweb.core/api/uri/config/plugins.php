@@ -54,16 +54,9 @@ class PageSection_SetupPlugins extends Extension_PageSection {
 		
 		C4_AbstractViewLoader::setView($view->id, $view);
 
-// 		$quick_search_type = $visit->get('wgm_cerb5licenses.quick_search_type');
-// 		$tpl->assign('quick_search_type', $quick_search_type);
-		
 		$tpl->assign('view', $view);
 		
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/plugins/tab.tpl');
-		
-		exit;        
-		
-// 		$tpl->display('devblocks:cerberusweb.core::configuration/section/plugins/tab.tpl');
 	}
 	
 	function showPopupAction() {
@@ -89,11 +82,15 @@ class PageSection_SetupPlugins extends Extension_PageSection {
 		$tpl->assign('is_uninstallable', $is_uninstallable);
 		
 		// Check requirements
-		//$requirements = Model_PluginLibrary::testRequirements($plugin->requirements);
-		//$tpl->assign('requirements', $requirements);
+		$requirements = $plugin->getRequirementsErrors();
+		$tpl->assign('requirements', $requirements);
 		
 		$tpl->assign('view_id', $view_id);
-		
+
+		// Setup extensions
+		$config_exts = Extension_PluginSetup::getByPlugin($plugin->id, true);
+		$tpl->assign('config_exts', $config_exts);
+
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/plugins/popup.tpl');
 	}
 	
@@ -104,10 +101,14 @@ class PageSection_SetupPlugins extends Extension_PageSection {
 
 		@$worker = CerberusApplication::getActiveWorker();
 		
+		header("Content-Type: application/json");
+		
 		if(!$worker || !$worker->is_superuser) {
 			echo $translate->_('common.access_denied');
 			return;
 		}
+		
+		$errors = array();
 		
 		switch($plugin_id) {
 			case 'devblocks.core':
@@ -125,6 +126,27 @@ class PageSection_SetupPlugins extends Extension_PageSection {
 				DAO_Platform::maint();
 				
 			} else {
+				// Save and test params params
+				$pass = true;
+				
+				if($enabled) {
+					// Check requirements pre-enable
+					$reqs = $plugin->getRequirementsErrors();
+					if(!empty($reqs)) {
+						$errors = array_merge($errors, $reqs);
+						throw new Exception("Requirements failed.");
+					}
+					
+					// Save configuration
+					$config_exts = Extension_PluginSetup::getByPlugin($plugin->id, true);
+					foreach($config_exts as $config_ext) {
+						$pass = $config_ext->save($errors);
+					}
+				}
+				
+				if(!$pass)
+					throw new Exception("Failed to save parameters");
+				
 				$plugin->setEnabled((true == $enabled));
 	
 				switch($enabled) {
@@ -132,11 +154,21 @@ class PageSection_SetupPlugins extends Extension_PageSection {
 						break;
 						
 					case 1: // enable
-						try {
-							CerberusApplication::update();
-						} catch (Exception $e) {
+
+						// Run all the outdated plugin patches to the current app version
+						// [TODO] This really should come from Devblocks
+						$patches = $plugin->getPatches();
+						foreach($patches as $k => $plugin_patch) {
+							// Recursive patch up to _version_
+							if(version_compare($plugin_patch->getVersion(), APP_VERSION, "<=")) {
+								if(!$plugin_patch->run()) {
+									$plugin->setEnabled(false);
+									$errors[] = "Failed to run the plugin's database patch.";
+									throw new Exception("Failed to patch plugin");
+								}
+							}
 						}
-						
+							
 				        // Reload plugin translations
 						DAO_Translation::reloadPluginStrings();
 						break;
@@ -152,6 +184,7 @@ class PageSection_SetupPlugins extends Extension_PageSection {
 		} catch(Exception $e) {
 			echo json_encode(array(
 				'status' => false,
+				'errors' => $errors,
 			));
 		}
 	}
