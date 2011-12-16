@@ -8,9 +8,10 @@
 </div>
 
 <form action="{devblocks_url}{/devblocks_url}" style="margin-bottom:5px;">
-<button type="button" id="btnPluginLibrarySync"><span class="cerb-sprite sprite-refresh"></span> Check for updates</button>
-<div id="divPluginLibrarySync" style="display:none;font-size:18pt;text-align:center;padding:20px;margin:20px;background-color:rgb(232,242,255);"></div>
+	<button type="button" id="btnPluginLibrarySync"><span class="cerb-sprite sprite-refresh"></span> Check for updates</button>
 </form>
+
+<div id="divPluginLibrarySync" style="clear:both;display:none;font-size:18pt;text-align:center;padding:20px;margin:20px;background-color:rgb(232,242,255);"></div>
 
 {include file="devblocks:cerberusweb.core::internal/views/search_and_view.tpl" view=$view}
 
@@ -20,7 +21,7 @@
 $('#btnPluginLibrarySync').click(function() {
 	$out = $('#divPluginLibrarySync');
 	$btn = $(this);
-	$(this).hide();
+	$btn.hide();
 	$out.html("Synchronizing... please wait").fadeIn();
 	genericAjaxGet('','c=config&a=handleSectionAction&section=plugin_library&action=sync', function(json) {
 		if(json.status == true) {
@@ -32,7 +33,7 @@ $('#btnPluginLibrarySync').click(function() {
 			}, 2500);
 		} else {
 			$out.html("Error! " + json.message);
-			$btn.show();
+			$btn.fadeIn();
 		}
 	});
 });
