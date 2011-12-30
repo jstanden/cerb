@@ -302,7 +302,7 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 		return $pass;
 	}	
 	
-	function getActionExtensions() { // $id
+	function getActionExtensions() {
 		$actions = array(
 			'add_watchers' => array('label' =>'Add watchers'),
 			//'set_spam_training' => array('label' => 'Set spam training'),

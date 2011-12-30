@@ -142,7 +142,7 @@ class Event_NotificationReceivedByWorker extends Extension_DevblocksEvent {
 		return $pass;
 	}
 	
-	function getActionExtensions($trigger) { // $id
+	function getActionExtensions() {
 		$actions = array(
 			'send_email_owner' => array('label' => 'Send email to me'),
 			'create_task' => array('label' =>'Create a task'),

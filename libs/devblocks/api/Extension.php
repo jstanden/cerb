@@ -547,6 +547,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 		$actions = $this->getActionExtensions();
 		
 		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('trigger', $trigger);
 		$tpl->assign('params', $params);
 
 		if(!is_null($seq))
@@ -576,6 +577,9 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 								break;
 							case Model_CustomField::TYPE_SINGLE_LINE:
 								return DevblocksEventHelper::renderActionSetVariableString($this->getLabels());
+								break;
+							case Model_CustomField::TYPE_WORKER:
+								return DevblocksEventHelper::renderActionSetVariableWorker();
 								break;
 						}
 					} else {
@@ -733,6 +737,11 @@ class DevblocksEventHelper {
 			case Model_CustomField::TYPE_WORKER:
 				@$worker_id = $params['worker_id'];
 				
+				// Variable?
+				if(substr($worker_id,0,4) == 'var_') {
+					@$worker_id = intval($values[$worker_id]);
+				}
+				
 				DAO_CustomFieldValue::setFieldValue($context, $context_id, $field_id, $worker_id);
 				
 				if(!empty($value_key)) {
@@ -755,6 +764,12 @@ class DevblocksEventHelper {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('token_labels', $labels);
 		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_var_string.tpl');
+	}
+	
+	static function renderActionSetVariableWorker() {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('workers', DAO_Worker::getAll());
+		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_var_worker.tpl');
 	}
 	
 	static function runActionSetVariable($token, $trigger, $params, &$values) {
@@ -788,6 +803,20 @@ class DevblocksEventHelper {
 				
 				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
 				$value = $tpl_builder->build($params['value'], $values);
+				break;
+				
+			case Model_CustomField::TYPE_WORKER:
+				@$worker_ids = $params['worker_id'];
+				
+				if(empty($worker_ids)) {
+					$value = null;
+					break; 
+				}
+				
+				// Randomize
+				shuffle($worker_ids);
+				
+				$value = intval(array_shift($worker_ids));
 				break;
 		}
 

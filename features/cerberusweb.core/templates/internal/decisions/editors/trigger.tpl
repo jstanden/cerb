@@ -47,6 +47,8 @@
 	Date
 	{elseif $var.type == 'C'}
 	True/False
+	{elseif $var.type == 'W'}
+	Worker
 	{/if}
 </div>
 {/foreach}
@@ -60,6 +62,7 @@
 		<option value="N">Number</option>
 		<option value="E">Date</option>
 		<option value="C">True/False</option>
+		<option value="W">Worker</option>
 	</select>
 </div>
 
