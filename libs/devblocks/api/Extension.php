@@ -641,13 +641,10 @@ class DevblocksEventHelper {
 		$tpl = DevblocksPlatform::getTemplateService();
 		
 		switch($custom_field->type) {
+			case Model_CustomField::TYPE_MULTI_LINE:
 			case Model_CustomField::TYPE_SINGLE_LINE:
 			case Model_CustomField::TYPE_URL:
-				$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_string.tpl');
-				break;
-				
-			case Model_CustomField::TYPE_MULTI_LINE:
-				$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_clob.tpl');
+				$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_var_string.tpl');
 				break;
 				
 			case Model_CustomField::TYPE_NUMBER:
