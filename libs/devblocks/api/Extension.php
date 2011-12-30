@@ -690,11 +690,11 @@ class DevblocksEventHelper {
 			return;
 		
 		switch($custom_field->type) {
+			case Model_CustomField::TYPE_SINGLE_LINE:
+			case Model_CustomField::TYPE_MULTI_LINE:
 			case Model_CustomField::TYPE_CHECKBOX:
 			case Model_CustomField::TYPE_DROPDOWN:
-			case Model_CustomField::TYPE_MULTI_LINE:
 			case Model_CustomField::TYPE_NUMBER:
-			case Model_CustomField::TYPE_SINGLE_LINE:
 			case Model_CustomField::TYPE_URL:
 				@$value = $params['value'];
 				
@@ -786,11 +786,11 @@ class DevblocksEventHelper {
 				
 			case Model_CustomField::TYPE_SINGLE_LINE:
 			case Model_CustomField::TYPE_MULTI_LINE:
-				if(!isset($params['content']))
+				if(!isset($params['value']))
 					break;
 				
 				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
-				$value = $tpl_builder->build($params['content'], $values);
+				$value = $tpl_builder->build($params['value'], $values);
 				break;
 		}
 
