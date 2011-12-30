@@ -119,7 +119,7 @@ class Event_NotificationReceivedByWorker extends Extension_DevblocksEvent {
 	}
 	
 	function renderConditionExtension($token, $trigger, $params=array(), $seq=null) {
-		$conditions = $this->getConditions();
+		$conditions = $this->getConditions($trigger);
 		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('params', $params);
@@ -142,7 +142,7 @@ class Event_NotificationReceivedByWorker extends Extension_DevblocksEvent {
 		return $pass;
 	}
 	
-	function getActionExtensions() { // $id
+	function getActionExtensions($trigger) { // $id
 		$actions = array(
 			'send_email_owner' => array('label' => 'Send email to me'),
 			'create_task' => array('label' =>'Create a task'),
@@ -158,7 +158,7 @@ class Event_NotificationReceivedByWorker extends Extension_DevblocksEvent {
 		if(!is_null($seq))
 			$tpl->assign('namePrefix','action'.$seq);
 
-		$labels = $this->getLabels();
+		$labels = $this->getLabels($trigger);
 		$tpl->assign('token_labels', $labels);
 			
 		switch($token) {

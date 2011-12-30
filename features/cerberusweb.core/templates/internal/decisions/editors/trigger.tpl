@@ -29,6 +29,45 @@
 <label><input type="radio" name="is_disabled" value="1" {if !empty($trigger->is_disabled)}checked="checked"{/if}> {'common.disabled'|devblocks_translate|capitalize}</label>
 <br>
 <br>
+
+<fieldset class="vars">
+<legend>Custom Variables</legend>
+
+{foreach from=$trigger->variables key=k item=var}
+<div>
+	<a href="javascript:;" onclick="$(this).closest('div').remove();"><span class="cerb-sprite2 sprite-minus-circle-frame" style="vertical-align:middle;"></span></a>
+	<input type="hidden" name="var_key[]" value="{$var.key}">
+	<input type="text" name="var_label[]" value="{$var.label}" size="45">
+	<input type="hidden" name="var_type[]" value="{$var.type}">
+	{if $var.type == 'S'}
+	Text
+	{elseif $var.type == 'N'}
+	Number
+	{elseif $var.type == 'E'}
+	Date
+	{elseif $var.type == 'C'}
+	True/False
+	{/if}
+</div>
+{/foreach}
+
+<div style="display:none;" class="template">
+	<a href="javascript:;" onclick="$(this).closest('div').remove();"><span class="cerb-sprite2 sprite-minus-circle-frame" style="vertical-align:middle;"></span></a>
+	<input type="hidden" name="var_key[]" value="">
+	<input type="text" name="var_label[]" value="" size="45">
+	<select name="var_type[]">
+		<option value="S">Text</option>
+		<option value="N">Number</option>
+		<option value="E">Date</option>
+		<option value="C">True/False</option>
+	</select>
+</div>
+
+<div style="margin-top:2px;">
+	<button type="button" class="add"><span class="cerb-sprite2 sprite-plus-circle-frame" style="verical-align:middle;"></span></button>
+</div>
+
+</fieldset>
 </form>
 
 {if isset($trigger->id)}
@@ -54,5 +93,11 @@
 	$popup.one('popup_open', function(event,ui) {
 		$(this).dialog('option','title',"{if empty($trigger->id)}New {/if}Behavior");
 		$(this).find('input:text').first().focus();
+		
+		$(this).find('fieldset.vars button.add').click(function() {
+			$template = $(this).closest('fieldset').find('div.template');
+			$div = $template.clone().removeClass('template').show();
+			$div.insertBefore($template);
+		});
 	});
 </script>

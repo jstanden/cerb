@@ -10,7 +10,7 @@
 
 	{if $node->node_type != 'action'}
 		<li><hr></li>
-		
+
 		{if $node->node_type == 'outcome' || empty($node)}
 		<li><a href="javascript:;" onclick="genericAjaxPopup('node_switch','c=internal&a=showDecisionPopup&parent_id={$node->id}&trigger_id={$trigger_id}&type=switch',null,false,'500');">Add Decision</a></li>
 		{/if}

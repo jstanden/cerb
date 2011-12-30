@@ -25,6 +25,7 @@ class DAO_TriggerEvent extends C4_ORMHelper {
 	const OWNER_CONTEXT_ID = 'owner_context_id';
 	const EVENT_POINT = 'event_point';
 	const POS = 'pos';
+	const VARIABLES_JSON = 'variables_json';
 
 	static function create($fields) {
 		$db = DevblocksPlatform::getDatabaseService();
@@ -132,7 +133,7 @@ class DAO_TriggerEvent extends C4_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, title, is_disabled, owner_context, owner_context_id, event_point, pos ".
+		$sql = "SELECT id, title, is_disabled, owner_context, owner_context_id, event_point, pos, variables_json ".
 			"FROM trigger_event ".
 			$where_sql.
 			$sort_sql.
@@ -162,6 +163,7 @@ class DAO_TriggerEvent extends C4_ORMHelper {
 			$object->owner_context_id = intval($row['owner_context_id']);
 			$object->event_point = $row['event_point'];
 			$object->pos = intval($row['pos']);
+			$object->variables = @json_decode($row['variables_json'], true);
 			$objects[$object->id] = $object;
 		}
 		
@@ -408,6 +410,7 @@ class Model_TriggerEvent {
 	public $owner_context_id;
 	public $event_point;
 	public $pos;
+	public $variables = array();
 	
 	private $_nodes = array();
 	

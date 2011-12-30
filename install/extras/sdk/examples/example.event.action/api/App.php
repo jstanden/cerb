@@ -9,7 +9,7 @@ class ExampleEventAction_ExampleAction extends Extension_DevblocksEventAction {
 		if(!is_null($seq))
 			$tpl->assign('namePrefix','action'.$seq);
 			
-		$tpl->assign('token_labels', $event->getLabels());
+		$tpl->assign('token_labels', $event->getLabels($trigger));
 		
 		$tpl->display('devblocks:example.event.action::config.tpl');
 	}

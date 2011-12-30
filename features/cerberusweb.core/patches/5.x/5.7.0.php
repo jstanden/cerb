@@ -30,4 +30,18 @@ if(!isset($tables['plugin_library'])) {
 	$tables['plugin_library'] = 'plugin_library';
 }
 
+// ===========================================================================
+// Add variables to trigger_event
+
+if(!isset($tables['trigger_event'])) {
+	$logger->error("The 'trigger_event' table does not exist.");
+	return FALSE;
+}
+
+list($columns, $indexes) = $db->metaTable('trigger_event');
+
+if(!isset($columns['variables_json'])) {
+	$db->Execute("ALTER TABLE trigger_event ADD COLUMN variables_json TEXT");
+}
+
 return TRUE;

@@ -2188,14 +2188,14 @@ class ChInternalController extends DevblocksControllerExtension {
 				
 			case 'outcome':
 				if(null != ($ext = DevblocksPlatform::getExtension($trigger->event_point, true)))
-					$tpl->assign('conditions', $ext->getConditions());
+					$tpl->assign('conditions', $ext->getConditions($trigger));
 					
 				$tpl->display('devblocks:cerberusweb.core::internal/decisions/editors/outcome.tpl');
 				break;
 				
 			case 'action':
 				if(null != ($ext = DevblocksPlatform::getExtension($trigger->event_point, true)))
-					$tpl->assign('actions', $ext->getActions());
+					$tpl->assign('actions', $ext->getActions($trigger));
 					
 				// Workers
 				$tpl->assign('workers', DAO_Worker::getAll());
@@ -2318,6 +2318,24 @@ class ChInternalController extends DevblocksControllerExtension {
 			@$is_disabled = DevblocksPlatform::importGPC($_REQUEST['is_disabled'],'integer', 0);
 			@$json = DevblocksPlatform::importGPC($_REQUEST['json'],'integer', 0);
 
+			@$var_keys = DevblocksPlatform::importGPC($_REQUEST['var_key'],'array',array());
+			@$var_types = DevblocksPlatform::importGPC($_REQUEST['var_type'],'array',array());
+			@$var_labels = DevblocksPlatform::importGPC($_REQUEST['var_label'],'array',array());
+			
+			$variables = array();
+			
+			foreach($var_labels as $idx => $v) {
+				if(empty($var_labels[$idx]))
+					continue;
+				
+				$key = strtolower(!empty($var_keys[$idx]) ? $var_keys[$idx] : ('var_' . DevblocksPlatform::strToPermalink($v)));
+				$variables[$key] = array(
+					'key' => $key,
+					'label' => $v,
+					'type' => $var_types[$idx],
+				);
+			}
+			
 			// Create trigger
 			if(empty($trigger_id)) {
 				@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string', '');
@@ -2335,6 +2353,7 @@ class ChInternalController extends DevblocksControllerExtension {
 					DAO_TriggerEvent::TITLE => $title,
 					DAO_TriggerEvent::IS_DISABLED => !empty($is_disabled) ? 1 : 0,
 					DAO_TriggerEvent::POS => $pos,
+					DAO_TriggerEvent::VARIABLES_JSON => json_encode($variables),
 				));
 				
 				if($json) {
@@ -2356,9 +2375,17 @@ class ChInternalController extends DevblocksControllerExtension {
 							$title = $ext->name;
 					}
 					
+					// Handle deletes
+					foreach($trigger->variables as $var => $data) {
+						if(!isset($variables[$var])) {
+							DAO_DecisionNode::deleteTriggerVar($trigger->id, $var);
+						}
+					}
+					
 					DAO_TriggerEvent::update($trigger->id, array(
 						DAO_TriggerEvent::TITLE => $title,
 						DAO_TriggerEvent::IS_DISABLED => !empty($is_disabled) ? 1 : 0,
+						DAO_TriggerEvent::VARIABLES_JSON => json_encode($variables),
 					));
 				}
 			}

@@ -330,7 +330,7 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 		if(!is_null($seq))
 			$tpl->assign('namePrefix','action'.$seq);
 
-		$labels = $this->getLabels();
+		$labels = $this->getLabels($trigger);
 		$tpl->assign('token_labels', $labels);
 			
 		switch($token) {
@@ -354,7 +354,7 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 				
 			case 'schedule_behavior':
 				$dates = array();
-				$conditions = $this->getConditions();
+				$conditions = $this->getConditions($trigger);
 				foreach($conditions as $key => $data) {
 					if($data['type'] == Model_CustomField::TYPE_DATE)
 					$dates[$key] = $data['label'];

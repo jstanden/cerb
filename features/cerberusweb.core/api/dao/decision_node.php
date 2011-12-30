@@ -181,6 +181,50 @@ class DAO_DecisionNode extends C4_ORMHelper {
 		return true;
 	}
 	
+	public static function deleteTriggerVar($trigger_id, $var) {
+		// Nuke any deleted variables from criteria/actions
+		$nodes = DAO_DecisionNode::getByTriggerParent($trigger_id);
+		
+		foreach($nodes as $node_id => $node) {
+			$changed = false;
+			$params = $node->params;
+			
+			switch($node->node_type) {
+				case 'outcome':
+					if(isset($params['groups']))
+					foreach($params['groups'] as $group_idx => $group) {
+						if(isset($group['conditions']))
+						foreach($group['conditions'] as $cond_idx => $cond) {
+							if(isset($cond['condition']) && $cond['condition'] == $var) {
+								unset($params['groups'][$group_idx]['conditions'][$cond_idx]);
+								$changed = true;
+							}
+						}
+					}
+					break;
+					
+				case 'action':
+					if(isset($params['actions']))
+					foreach($params['actions'] as $idx => $action) {
+						if(isset($action['action']) && $action['action'] == $var) {
+							unset($params['actions'][$idx]);
+							$changed = true;
+						}
+					}
+					break;
+			}
+			
+			if($changed) {
+				DAO_DecisionNode::update($node_id, array(
+					DAO_DecisionNode::PARAMS_JSON => json_encode($params),
+				));
+			}
+		}
+
+		self::clearCache();
+		return true;
+	}
+	
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_DecisionNode::getFields();
 		

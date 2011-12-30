@@ -378,7 +378,7 @@ class Event_MailBeforeSentByGroup extends Extension_DevblocksEvent {
 		if(!is_null($seq))
 			$tpl->assign('namePrefix','action'.$seq);
 
-		$labels = $this->getLabels();
+		$labels = $this->getLabels($trigger);
 		$tpl->assign('token_labels', $labels);
 			
 		switch($token) {

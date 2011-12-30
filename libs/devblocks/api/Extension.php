@@ -172,11 +172,17 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 		$this->_values = $values;
 	}
 	
-	function getLabels() {
+	function getLabels($trigger = null) {
 		// Lazy load
 		if(empty($this->_labels))
 			$this->setEvent(null);
 			
+		if(null != $trigger && !empty($trigger->variables)) {
+			foreach($trigger->variables as $k => $var) {
+				$this->_labels[$k] = '(variable) ' . $var['label'];
+			}
+		}
+		
 		return $this->_labels;
 	}
 	
@@ -185,7 +191,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 	}
 	
 	// [TODO] Cache results for this request
-	function getConditions() {
+	function getConditions($trigger) {
 		$conditions = array(
 			'_month_of_year' => array('label' => 'Month of year', 'type' => ''),
 			'_day_of_week' => array('label' => 'Day of week', 'type' => ''),
@@ -195,6 +201,12 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 		
 		if(!empty($custom) && is_array($custom))
 			$conditions = array_merge($conditions, $custom);
+		
+		// Trigger variables
+		if(is_array($trigger->variables))
+		foreach($trigger->variables as $key => $var) {
+			$conditions[$key] = array('label' => '(variable) ' . $var['label'], 'type' => $var['type']);
+		}
 		
 		// Plugins
 		// [TODO] Work in progress
@@ -214,9 +226,9 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 	abstract function renderConditionExtension($token, $trigger, $params=array(), $seq=null);
 	abstract function runConditionExtension($token, $trigger, $params, $values);
 	
-	// [TODO] These templates should move to Devblocks
 	function renderCondition($token, $trigger, $params=array(), $seq=null) {
-		$conditions = $this->getConditionExtensions();
+		$conditions = $this->getConditions($trigger);
+		$extensions = $this->getConditionExtensions();
 		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('params', $params);
@@ -224,261 +236,271 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 		if(!is_null($seq))
 			$tpl->assign('namePrefix','condition'.$seq);
 		
-		// Is this an event-provided condition?
-		if(null != (@$condition = $conditions[$token])) {
-			// Automatic types
-			switch($condition['type']) {
-				case Model_CustomField::TYPE_CHECKBOX:
-					$tpl->display('devblocks:cerberusweb.core::internal/decisions/conditions/_bool.tpl');
-					break;
-				case Model_CustomField::TYPE_DATE:
-					$tpl->display('devblocks:cerberusweb.core::internal/decisions/conditions/_date.tpl');
-					break;
-				case Model_CustomField::TYPE_MULTI_LINE:
-				case Model_CustomField::TYPE_SINGLE_LINE:
-				case Model_CustomField::TYPE_URL:
-					$tpl->display('devblocks:cerberusweb.core::internal/decisions/conditions/_string.tpl');
-					break;
-				case Model_CustomField::TYPE_NUMBER:
-					$tpl->display('devblocks:cerberusweb.core::internal/decisions/conditions/_number.tpl');
-					break;
-				case Model_CustomField::TYPE_DROPDOWN:
-				case Model_CustomField::TYPE_MULTI_CHECKBOX:
-					$tpl->assign('condition', $condition);
-					$tpl->display('devblocks:cerberusweb.core::internal/decisions/conditions/_dropdown.tpl');
-					break;
-				case Model_CustomField::TYPE_WORKER:
-					$tpl->assign('workers', DAO_Worker::getAll());
-					$tpl->display('devblocks:cerberusweb.core::internal/decisions/conditions/_worker.tpl');
-					break;
-				default:
-					$this->renderConditionExtension($token, $trigger, $params, $seq);
-					break;
-			}
+		switch($token) {
+			case '_month_of_year':
+				return $tpl->display('devblocks:cerberusweb.core::internal/decisions/conditions/_month_of_year.tpl');
+				break;
+
+			case '_day_of_week':
+				return $tpl->display('devblocks:cerberusweb.core::internal/decisions/conditions/_day_of_week.tpl');
+				break;
+
+			case '_time_of_day':
+				return $tpl->display('devblocks:cerberusweb.core::internal/decisions/conditions/_time_of_day.tpl');
+				break;
 			
-		// Nope, it's a global condition
-		} else {
-			switch($token) {
-				case '_month_of_year':
-					$tpl->display('devblocks:cerberusweb.core::internal/decisions/conditions/_month_of_year.tpl');
-					break;
-	
-				case '_day_of_week':
-					$tpl->display('devblocks:cerberusweb.core::internal/decisions/conditions/_day_of_week.tpl');
-					break;
-	
-				case '_time_of_day':
-					$tpl->display('devblocks:cerberusweb.core::internal/decisions/conditions/_time_of_day.tpl');
-					break;
-					
-				default:
-					// Plugins
-					if(null != ($ext = DevblocksPlatform::getExtension($token, true))
-						&& $ext instanceof Extension_DevblocksEventCondition) { /* @var $ext Extension_DevblocksEventCondition */ 
-						$ext->render($this, $trigger, $params, $seq);
+			default:
+				if(null != (@$condition = $conditions[$token])) {
+					// Automatic types
+					switch($condition['type']) {
+						case Model_CustomField::TYPE_CHECKBOX:
+							return $tpl->display('devblocks:cerberusweb.core::internal/decisions/conditions/_bool.tpl');
+							break;
+						case Model_CustomField::TYPE_DATE:
+							return $tpl->display('devblocks:cerberusweb.core::internal/decisions/conditions/_date.tpl');
+							break;
+						case Model_CustomField::TYPE_MULTI_LINE:
+						case Model_CustomField::TYPE_SINGLE_LINE:
+						case Model_CustomField::TYPE_URL:
+							return $tpl->display('devblocks:cerberusweb.core::internal/decisions/conditions/_string.tpl');
+							break;
+						case Model_CustomField::TYPE_NUMBER:
+							return $tpl->display('devblocks:cerberusweb.core::internal/decisions/conditions/_number.tpl');
+							break;
+						case Model_CustomField::TYPE_DROPDOWN:
+						case Model_CustomField::TYPE_MULTI_CHECKBOX:
+							$tpl->assign('condition', $condition);
+							return $tpl->display('devblocks:cerberusweb.core::internal/decisions/conditions/_dropdown.tpl');
+							break;
+						case Model_CustomField::TYPE_WORKER:
+							$tpl->assign('workers', DAO_Worker::getAll());
+							return $tpl->display('devblocks:cerberusweb.core::internal/decisions/conditions/_worker.tpl');
+							break;
+						default:
+							// Custom
+							if(isset($condition_extensions[$token])) {
+								return $this->renderConditionExtension($token, $trigger, $params, $seq);
+							
+							} else {
+								// Plugins
+								if(null != ($ext = DevblocksPlatform::getExtension($token, true))
+									&& $ext instanceof Extension_DevblocksEventCondition) { /* @var $ext Extension_DevblocksEventCondition */ 
+									return $ext->render($this, $trigger, $params, $seq);
+								}
+							}
+							break;
 					}
-					break;
-			}
+				}
+				break;
 		}
 	}
 	
 	function runCondition($token, $trigger, $params, $values) {
 		$logger = DevblocksPlatform::getConsoleLog('Assistant');
-		$conditions = $this->getConditionExtensions();
+		$conditions = $this->getConditions($trigger);
+		$extensions = $this->getConditionExtensions();
 		$not = false;
 		$pass = true;
 		
-		// Operators
-		if(null != (@$condition = $conditions[$token])) {
-			if(null == (@$value = $values[$token])) {
-				$value = '';
-			}
-			
-			// Automatic types
-			switch($condition['type']) {
-				case Model_CustomField::TYPE_CHECKBOX:
-					$bool = intval($params['bool']);
-					$pass = !empty($value) == $bool;
-					break;
-				case Model_CustomField::TYPE_DATE:
-					$not = (substr($params['oper'],0,1) == '!');
-					$oper = ltrim($params['oper'],'!');
-					switch($oper) {
-						case 'is':
-						case 'between':
-							$from = strtotime($params['from']);
-							$to = strtotime($params['to']);
-							if($to < $from)
-								$to += 86400; // +1 day
-							$pass = ($value >= $from && $value <= $to) ? true : false;
-							break;
-					}
-					break;
-				case Model_CustomField::TYPE_MULTI_LINE:
-				case Model_CustomField::TYPE_SINGLE_LINE:
-				case Model_CustomField::TYPE_URL:
-					$not = (substr($params['oper'],0,1) == '!');
-					$oper = ltrim($params['oper'],'!');
-					switch($oper) {
-						case 'is':
-							$pass = (0==strcasecmp($value,$params['value']));
-							break;
-						case 'like':
-							$regexp = DevblocksPlatform::strToRegExp($params['value']);
-							$pass = @preg_match($regexp, $value);
-							break;
-						case 'contains':
-							$pass = (false !== stripos($value, $params['value'])) ? true : false;
-							break;
-						case 'regexp':
-							$pass = @preg_match($params['value'], $value);
-							break;
-						//case 'words_all':
-						//	break;
-						//case 'words_any':
-						//	break;
-					}
-					
-					// Handle operator negation
-					break;
-				case Model_CustomField::TYPE_NUMBER:
-					$not = (substr($params['oper'],0,1) == '!');
-					$oper = ltrim($params['oper'],'!');
-					switch($oper) {
-						case 'is':
-							$pass = intval($value)==intval($params['value']);
-							break;
-						case 'gt':
-							$pass = intval($value) > intval($params['value']);
-							break;
-						case 'lt':
-							$pass = intval($value) < intval($params['value']);
-							break;
-					}
-					break;
-				case Model_CustomField::TYPE_DROPDOWN:
-					$not = (substr($params['oper'],0,1) == '!');
-					$oper = ltrim($params['oper'],'!');
-					
-					if(!isset($params['values']) || !is_array($params['values'])) {
-						$pass = false;
+		switch($token) {
+			case '_month_of_year':
+				$not = (substr($params['oper'],0,1) == '!');
+				$oper = ltrim($params['oper'],'!');
+				switch($oper) {
+					case 'is':
+						$month = date('n');
+						$pass = in_array($month, $params['month']);
 						break;
+				}
+				break;
+			case '_day_of_week':
+				$not = (substr($params['oper'],0,1) == '!');
+				$oper = ltrim($params['oper'],'!');
+				switch($oper) {
+					case 'is':
+						$today = date('N');
+						$pass = in_array($today, $params['day']);
+						break;
+				}
+				break;
+			case '_time_of_day':
+				$not = (substr($params['oper'],0,1) == '!');
+				$oper = ltrim($params['oper'],'!');
+				switch($oper) {
+					case 'between':
+						$now = strtotime('now');
+						$from = strtotime($params['from']);
+						$to = strtotime($params['to']);
+						if($to < $from)
+							$to += 86400; // +1 day
+						$pass = ($now >= $from && $now <= $to) ? true : false;
+						break;
+				}
+				break;
+		
+			default:
+				// Operators
+				if(null != (@$condition = $conditions[$token])) {
+					if(null == (@$value = $values[$token])) {
+						$value = '';
 					}
 					
-					switch($oper) {
-						case 'in':
-							$pass = false;
-							if(in_array($value, $params['values'])) {
-								$pass = true;
+					// Automatic types
+					switch($condition['type']) {
+						case Model_CustomField::TYPE_CHECKBOX:
+							$bool = intval($params['bool']);
+							$pass = !empty($value) == $bool;
+							break;
+							
+						case Model_CustomField::TYPE_DATE:
+							$not = (substr($params['oper'],0,1) == '!');
+							$oper = ltrim($params['oper'],'!');
+							switch($oper) {
+								case 'is':
+								case 'between':
+									$from = strtotime($params['from']);
+									$to = strtotime($params['to']);
+									if($to < $from)
+										$to += 86400; // +1 day
+									$pass = ($value >= $from && $value <= $to) ? true : false;
+									break;
 							}
 							break;
-					}
-					break;
-				case Model_CustomField::TYPE_MULTI_CHECKBOX:
-					$not = (substr($params['oper'],0,1) == '!');
-					$oper = ltrim($params['oper'],'!');
-					
-					if(preg_match("#(.*?_custom)_(\d+)#", $token, $matches) && 3 == count($matches)) {
-						@$value = $values[$matches[1]][$matches[2]]; 
-					}
-					
-					if(!is_array($value) || !isset($params['values']) || !is_array($params['values'])) {
-						$pass = false;
-						break;
-					}
-					
-					switch($oper) {
-						case 'is':
-							$pass = true;
-							foreach($params['values'] as $v) {
-								if(!isset($value[$v])) {
+							
+						case Model_CustomField::TYPE_MULTI_LINE:
+						case Model_CustomField::TYPE_SINGLE_LINE:
+						case Model_CustomField::TYPE_URL:
+							$not = (substr($params['oper'],0,1) == '!');
+							$oper = ltrim($params['oper'],'!');
+							switch($oper) {
+								case 'is':
+									$pass = (0==strcasecmp($value,$params['value']));
+									break;
+								case 'like':
+									$regexp = DevblocksPlatform::strToRegExp($params['value']);
+									$pass = @preg_match($regexp, $value);
+									break;
+								case 'contains':
+									$pass = (false !== stripos($value, $params['value'])) ? true : false;
+									break;
+								case 'regexp':
+									$pass = @preg_match($params['value'], $value);
+									break;
+								//case 'words_all':
+								//	break;
+								//case 'words_any':
+								//	break;
+							}
+							
+							// Handle operator negation
+							break;
+							
+						case Model_CustomField::TYPE_NUMBER:
+							$not = (substr($params['oper'],0,1) == '!');
+							$oper = ltrim($params['oper'],'!');
+							switch($oper) {
+								case 'is':
+									$pass = intval($value)==intval($params['value']);
+									break;
+								case 'gt':
+									$pass = intval($value) > intval($params['value']);
+									break;
+								case 'lt':
+									$pass = intval($value) < intval($params['value']);
+									break;
+							}
+							break;
+							
+						case Model_CustomField::TYPE_DROPDOWN:
+							$not = (substr($params['oper'],0,1) == '!');
+							$oper = ltrim($params['oper'],'!');
+							
+							if(!isset($params['values']) || !is_array($params['values'])) {
+								$pass = false;
+								break;
+							}
+							
+							switch($oper) {
+								case 'in':
 									$pass = false;
+									if(in_array($value, $params['values'])) {
+										$pass = true;
+									}
 									break;
-								}
 							}
 							break;
-						case 'in':
-							$pass = false;
-							foreach($params['values'] as $v) {
-								if(isset($value[$v])) {
+							
+						case Model_CustomField::TYPE_MULTI_CHECKBOX:
+							$not = (substr($params['oper'],0,1) == '!');
+							$oper = ltrim($params['oper'],'!');
+							
+							if(preg_match("#(.*?_custom)_(\d+)#", $token, $matches) && 3 == count($matches)) {
+								@$value = $values[$matches[1]][$matches[2]]; 
+							}
+							
+							if(!is_array($value) || !isset($params['values']) || !is_array($params['values'])) {
+								$pass = false;
+								break;
+							}
+							
+							switch($oper) {
+								case 'is':
 									$pass = true;
+									foreach($params['values'] as $v) {
+										if(!isset($value[$v])) {
+											$pass = false;
+											break;
+										}
+									}
 									break;
+								case 'in':
+									$pass = false;
+									foreach($params['values'] as $v) {
+										if(isset($value[$v])) {
+											$pass = true;
+											break;
+										}
+									}
+									break;
+							}
+							break;
+							
+						case Model_CustomField::TYPE_WORKER:
+							$not = (substr($params['oper'],0,1) == '!');
+							$oper = ltrim($params['oper'],'!');
+							
+							if(!is_array($value))
+								$value = empty($value) ? array() : array($value);
+							
+							if(!is_array($params['worker_id']))
+								return false;
+							
+							switch($oper) {
+								case 'in':
+									$pass = false;
+									foreach($params['worker_id'] as $v) {
+										if(in_array($v, $value)) {
+											$pass = true;
+											break;
+										}
+									}
+									break;
+							}
+							break;
+							
+						default:
+							if(isset($extensions[$token])) {
+								$pass = $this->runConditionExtension($token, $trigger, $params, $values);
+							} else {
+								if(null != ($ext = DevblocksPlatform::getExtension($token, true))
+									&& $ext instanceof Extension_DevblocksEventCondition) { /* @var $ext Extension_DevblocksEventCondition */ 
+									$pass = $ext->run($token, $trigger, $params, $values);
 								}
 							}
 							break;
 					}
-					break;
-				case Model_CustomField::TYPE_WORKER:
-					$not = (substr($params['oper'],0,1) == '!');
-					$oper = ltrim($params['oper'],'!');
-					
-					if(!is_array($value))
-						$value = empty($value) ? array() : array($value);
-					
-					if(!is_array($params['worker_id']))
-						return false;
-					
-					switch($oper) {
-						case 'in':
-							$pass = false;
-							foreach($params['worker_id'] as $v) {
-								if(in_array($v, $value)) {
-									$pass = true;
-									break;
-								}
-							}
-							break;
-					}
-					break;
-				default:
-					$pass = $this->runConditionExtension($token, $trigger, $params, $values);
-					break;
 			}
-			
-		} else {
-			switch($token) {
-				case '_month_of_year':
-					$not = (substr($params['oper'],0,1) == '!');
-					$oper = ltrim($params['oper'],'!');
-					switch($oper) {
-						case 'is':
-							$month = date('n');
-							$pass = in_array($month, $params['month']);
-							break;
-					}
-					break;
-				case '_day_of_week':
-					$not = (substr($params['oper'],0,1) == '!');
-					$oper = ltrim($params['oper'],'!');
-					switch($oper) {
-						case 'is':
-							$today = date('N');
-							$pass = in_array($today, $params['day']);
-							break;
-					}
-					break;
-				case '_time_of_day':
-					$not = (substr($params['oper'],0,1) == '!');
-					$oper = ltrim($params['oper'],'!');
-					switch($oper) {
-						case 'between':
-							$now = strtotime('now');
-							$from = strtotime($params['from']);
-							$to = strtotime($params['to']);
-							if($to < $from)
-								$to += 86400; // +1 day
-							$pass = ($now >= $from && $now <= $to) ? true : false;
-							break;
-					}
-					break;
-				default:
-					// Plugins
-					if(null != ($ext = DevblocksPlatform::getExtension($token, true))
-						&& $ext instanceof Extension_DevblocksEventCondition) { /* @var $ext Extension_DevblocksEventCondition */ 
-						$pass = $ext->run($token, $trigger, $params, $values);
-					}
-					break;
-			}
+			break;			
 		}
 		
 		// Inverse operator?
@@ -491,12 +513,18 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 	}
 	
 	// [TODO] Cache results for this request
-	function getActions() {
+	function getActions($trigger) {
 		$actions = array();
 		$custom = $this->getActionExtensions();
 		
 		if(!empty($custom) && is_array($custom))
 			$actions = array_merge($actions, $custom);
+		
+		// Trigger variables
+		if(is_array($trigger->variables))
+		foreach($trigger->variables as $key => $var) {
+			$actions[$key] = array('label' => 'Set (variable) ' . $var['label']);
+		}
 		
 		// Add plugin extensions
 		// [TODO] This should be filtered by event type?
@@ -532,10 +560,30 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 		} else {
 			switch($token) {
 				default:
-					// Plugins
-					if(null != ($ext = DevblocksPlatform::getExtension($token, true))
-						&& $ext instanceof Extension_DevblocksEventAction) { /* @var $ext Extension_DevblocksEventAction */ 
-						$ext->render($this, $trigger, $params, $seq);
+					// Variables
+					if(substr($token,0,4) == 'var_') {
+						@$var = $trigger->variables[$token];
+						
+						switch(@$var['type']) {
+							case Model_CustomField::TYPE_CHECKBOX:
+								return $tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_bool.tpl');
+								break;
+							case Model_CustomField::TYPE_DATE:
+								return $tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_date.tpl');
+								break;
+							case Model_CustomField::TYPE_NUMBER:
+								return $tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_number.tpl');
+								break;
+							case Model_CustomField::TYPE_SINGLE_LINE:
+								return DevblocksEventHelper::renderActionSetVariableString($this->getLabels());
+								break;
+						}
+					} else {
+						// Plugins
+						if(null != ($ext = DevblocksPlatform::getExtension($token, true))
+							&& $ext instanceof Extension_DevblocksEventAction) { /* @var $ext Extension_DevblocksEventAction */ 
+							$ext->render($this, $trigger, $params, $seq);
+						}
 					}
 					break;
 			}
@@ -551,10 +599,16 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 		} else {
 			switch($token) {
 				default:
-					// Plugins
-					if(null != ($ext = DevblocksPlatform::getExtension($token, true))
-						&& $ext instanceof Extension_DevblocksEventAction) { /* @var $ext Extension_DevblocksEventAction */ 
-						$ext->run($token, $trigger, $params, $values);
+					// Variables
+					if(substr($token,0,4) == 'var_') {
+						return DevblocksEventHelper::runActionSetVariable($token, $trigger, $params, $values);
+					
+					} else {
+						// Plugins
+						if(null != ($ext = DevblocksPlatform::getExtension($token, true))
+							&& $ext instanceof Extension_DevblocksEventAction) { /* @var $ext Extension_DevblocksEventAction */ 
+							return $ext->run($token, $trigger, $params, $values);
+						}
 					}
 					break;
 			}
@@ -694,6 +748,53 @@ class DevblocksEventHelper {
 				$this->runActionExtension($token, $trigger, $params, $values);
 				break;	
 		}		
+	}
+	
+	/*
+	 * Action: Set variable (string)
+	 */
+	
+	static function renderActionSetVariableString($labels) {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('token_labels', $labels);
+		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_var_string.tpl');
+	}
+	
+	static function runActionSetVariable($token, $trigger, $params, &$values) {
+		@$var = $trigger->variables[$token];
+		
+		$value = null;
+		
+		if(empty($var) || !is_array($var))
+			return;
+		
+		switch($var['type']) {
+			case Model_CustomField::TYPE_CHECKBOX:
+				$value = (isset($params['value']) && !empty($params['value'])) ? true : false;
+				break;
+				
+			case Model_CustomField::TYPE_DATE:
+				if(!isset($params['value']))
+					break;
+				
+				$value = is_numeric($params['value']) ? $params['value'] : @strtotime($params['value']);
+				break;
+				
+			case Model_CustomField::TYPE_NUMBER:
+				$value = intval($params['value']);
+				break;
+				
+			case Model_CustomField::TYPE_SINGLE_LINE:
+			case Model_CustomField::TYPE_MULTI_LINE:
+				if(!isset($params['content']))
+					break;
+				
+				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+				$value = $tpl_builder->build($params['content'], $values);
+				break;
+		}
+
+		$values[$token] = $value; 
 	}
 	
 	/*
