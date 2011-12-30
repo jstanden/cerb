@@ -806,17 +806,30 @@ class DevblocksEventHelper {
 				break;
 				
 			case Model_CustomField::TYPE_WORKER:
+				@$mode = $params['mode'];
 				@$worker_ids = $params['worker_id'];
 				
+				// [TODO] Everyone
 				if(empty($worker_ids)) {
 					$value = null;
 					break; 
 				}
 				
-				// Randomize
-				shuffle($worker_ids);
+				switch($mode) {
+					// [TODO] Sequentially
+					case 'seq':
+						//DAO_DevblocksSetting::
+						//$trigger->id
+						break;
+						
+					// Randomize
+					default:
+					case 'random':
+						shuffle($worker_ids);
+						$value = intval(array_shift($worker_ids));
+						break;
+				}
 				
-				$value = intval(array_shift($worker_ids));
 				break;
 		}
 
@@ -977,12 +990,46 @@ class DevblocksEventHelper {
 		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_worker.tpl');
 	}
 	
-	static function runActionSetTicketOwner($params, $values, $ticket_id) {
-		@$owner_id = intval($params['worker_id']);
+	static function runActionSetTicketOwner($params, &$values, $ticket_id, $values_prefix) {
+		@$owner_id = $params['worker_id'];
+		
+		// Variable?
+		if(substr($owner_id,0,4) == 'var_') {
+			@$owner_id = intval($values[$owner_id]);
+		}
+		
 		$fields = array(
 			DAO_Ticket::OWNER_ID => $owner_id,
 		);
 		DAO_Ticket::update($ticket_id, $fields);
+		
+		/**
+		 * Re-update owner values
+		 * // [TODO] This should be more easily reusable
+		 */
+		$worker_labels = array();
+		$worker_values = array();
+		$labels = array();
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $owner_id, $worker_labels, $worker_values, NULL, true);
+				
+			// Clear dupe content
+			CerberusContexts::scrubTokensWithRegexp(
+				$worker_labels,
+				$worker_values,
+				array(
+					"#^address_org_#",
+				)
+			);
+		
+			// Merge
+			CerberusContexts::merge(
+				$values_prefix,
+				'',
+				$worker_labels,
+				$worker_values,
+				$labels,
+				$values
+			);
 	}
 	
 	static function renderActionAddWatchers() {

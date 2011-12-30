@@ -701,7 +701,7 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 		
 		switch($token) {
 			case 'set_owner':
-				DevblocksEventHelper::runActionSetTicketOwner($params, $values, $ticket_id);
+				DevblocksEventHelper::runActionSetTicketOwner($params, $values, $ticket_id, 'ticket_owner_');
 				break;
 			
 			case 'add_watchers':

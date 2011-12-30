@@ -1,4 +1,11 @@
-Randomly select one of these:<br>
+{*
+<select name="{$namePrefix}[mode]">
+	<option value="random" {if $params.mode=='random'}selected='selected'{/if}>Randomly</option>
+	<option value="seq" {if $params.mode=='seq'}selected='selected'{/if}>Sequentially</option>
+</select>
+*}
+<input type="hidden" name="{$namePrefix}[mode]" value="random">
+Randomly pick one of these workers:<br>
 
 <button type="button" class="chooser_worker unbound"><span class="cerb-sprite sprite-view"></span></button>
 <ul class="chooser-container bubbles" style="display:block;">
