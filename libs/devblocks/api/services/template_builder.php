@@ -144,9 +144,23 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 	
 	public function getFilters() {
 		return array(
+			'regexp' => new Twig_Filter_Method($this, 'filter_regexp'),
 			'truncate' => new Twig_Filter_Method($this, 'filter_truncate'),
 		);
 	}
+	
+	function filter_regexp($string, $pattern, $group = 0) {
+		$matches = array();
+		@preg_match($pattern, $string, $matches);
+		
+		$string = '';
+		
+		if(is_array($matches) && isset($matches[$group])) {
+			$string = $matches[$group];
+		}		
+		
+		return $string;
+	}	
 	
 	/**
 	 * https://github.com/fabpot/Twig-extensions/blob/master/lib/Twig/Extensions/Extension/Text.php
