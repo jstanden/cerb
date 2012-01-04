@@ -1045,6 +1045,9 @@ class CerberusContexts {
 		}
 		
 		// Include the 'also notify' list
+		if(!is_array($also_notify_worker_ids))
+			$also_notify_worker_ids = array();
+		
 		$watchers = array_merge(
 			$watchers,
 			$also_notify_worker_ids

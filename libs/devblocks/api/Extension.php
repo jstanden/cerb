@@ -1200,6 +1200,7 @@ class DevblocksEventHelper {
 	
 	static function runActionCreateTask($params, $values, $context=null, $context_id=null) {
 		$due_date = intval(@strtotime($params['due_date']));
+		$notify_worker_ids = isset($params['notify_worker_id']) ? $params['notify_worker_id'] : array();
 	
 		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
 		$title = $tpl_builder->build($params['title'], $values);
@@ -1226,8 +1227,6 @@ class DevblocksEventHelper {
 				DAO_Comment::CREATED => time(),
 			);
 			
-			// Notify
-			@$notify_worker_ids = $params['notify_worker_id'];
 			DAO_Comment::create($fields, $notify_worker_ids);
 		}
 		
