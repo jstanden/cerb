@@ -69,6 +69,12 @@
 		$(this).dialog('option','title',"{if empty($id)}New {/if}Actions");
 		$(this).find('input:text').first().focus();
 
+		$popup.find('BUTTON.chooser_group.unbound').each(function() {
+			seq = $(this).closest('fieldset').find('input:hidden[name="actions[]"]').val();
+			ajax.chooser(this,'cerberusweb.contexts.group','action'+seq+'[group_id]', { autocomplete:true });
+			$(this).removeClass('unbound');
+		});
+		
 		$popup.find('BUTTON.chooser_worker.unbound').each(function() {
 			seq = $(this).closest('fieldset').find('input:hidden[name="actions[]"]').val();
 			ajax.chooser(this,'cerberusweb.contexts.worker','action'+seq+'[worker_id]', { autocomplete:true });
@@ -107,6 +113,11 @@
 	
 				$html = $('<div>' + html + '</div>');
 				$container.append($html);
+				
+				$html.find('BUTTON.chooser_group.unbound').each(function() {
+					ajax.chooser(this,'cerberusweb.contexts.group','action'+seq+'[group_id]', { autocomplete:true });
+					$(this).removeClass('unbound');
+				});
 				
 				$html.find('BUTTON.chooser_worker.unbound').each(function() {
 					ajax.chooser(this,'cerberusweb.contexts.worker','action'+seq+'[worker_id]', { autocomplete:true });
