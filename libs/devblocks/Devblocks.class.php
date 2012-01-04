@@ -1330,6 +1330,13 @@ class DevblocksPlatform extends DevblocksEngine {
 	}
 	
 	/**
+	 * @return _DevblocksRegistryManager
+	 */
+	static function getRegistryService() {
+		return _DevblocksRegistryManager::getInstance();
+	}
+	
+	/**
 	 * @return DevblocksProxy
 	 */
 	static function getProxyService() {
@@ -1616,6 +1623,10 @@ class DevblocksPlatform extends DevblocksEngine {
 		while(null != ($tmpfile = array_pop(self::$_tmp_files))) {
 			@unlink($tmpfile);
 		}
+		
+		// Persist the registry
+		$registry = DevblocksPlatform::getRegistryService();
+		$registry->save();
 	}
 
 	static function setExtensionDelegate($class) {

@@ -90,6 +90,12 @@ class _DevblocksClassLoadManager {
 			'_DevblocksProxy_Curl',
 			'_DevblocksProxy_Socket',
 		));
+		$this->registerClasses(DEVBLOCKS_PATH . 'api/services/registry.php', array(
+			'_DevblocksRegistryManager',
+			'DevblocksRegistryEntry',
+			'DAO_DevblocksRegistry',
+			'Model_DevblocksRegistry',
+		));
 		$this->registerClasses(DEVBLOCKS_PATH . 'api/services/sanitization.php', array(
 			'_DevblocksSanitizationManager',
 		));
