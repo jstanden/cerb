@@ -228,7 +228,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 	
 	function renderCondition($token, $trigger, $params=array(), $seq=null) {
 		$conditions = $this->getConditions($trigger);
-		$extensions = $this->getConditionExtensions();
+		$condition_extensions = $this->getConditionExtensions();
 		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('params', $params);
@@ -466,19 +466,25 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 							break;
 							
 						case Model_CustomField::TYPE_WORKER:
+							@$worker_ids = $params['worker_id'];
 							$not = (substr($params['oper'],0,1) == '!');
 							$oper = ltrim($params['oper'],'!');
 							
 							if(!is_array($value))
 								$value = empty($value) ? array() : array($value);
 							
-							if(!is_array($params['worker_id']))
-								return false;
+							if(is_null($worker_ids))
+								$worker_ids = array();
+							
+							if(empty($worker_ids) && empty($value)) {
+								$pass = true;
+								break;
+							}
 							
 							switch($oper) {
 								case 'in':
 									$pass = false;
-									foreach($params['worker_id'] as $v) {
+									foreach($worker_ids as $v) {
 										if(in_array($v, $value)) {
 											$pass = true;
 											break;
@@ -768,7 +774,13 @@ class DevblocksEventHelper {
 	
 	static function renderActionSetVariableWorker() {
 		$tpl = DevblocksPlatform::getTemplateService();
+		
+		// Workers
 		$tpl->assign('workers', DAO_Worker::getAll());
+		
+		// Groups
+		$tpl->assign('groups', DAO_Group::getAll());
+		
 		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_var_worker.tpl');
 	}
 	
@@ -806,29 +818,108 @@ class DevblocksEventHelper {
 				break;
 				
 			case Model_CustomField::TYPE_WORKER:
-				@$mode = $params['mode'];
 				@$worker_ids = $params['worker_id'];
+				@$group_ids = $params['group_id'];
+				@$mode = $params['mode'];
+				@$opt_logged_in = $params['opt_logged_in'];
 				
-				// [TODO] Everyone
-				if(empty($worker_ids)) {
-					$value = null;
-					break; 
+				$possible_workers = array();
+				
+				// Add workers
+				if(!empty($worker_ids)) {
+					foreach($worker_ids as $id)
+						$possible_workers[$id] = true;
 				}
 				
+				// Add groups
+				if(!empty($group_ids)) {
+					foreach($group_ids as $group_id)
+					$members = DAO_Group::getGroupMembers($group_id);
+					foreach($members as $member) {
+						$possible_workers[$member->id] = true;
+					}
+				}
+				
+				// Filter
+				$workers = DAO_Worker::getAll();
+				
+				if(!empty($opt_logged_in))
+					$workers_online = DAO_Worker::getAllOnline();
+				
+				foreach($possible_workers as $k => $worker) {
+					// Remove non-existent workers
+					if(!isset($workers[$k])) {
+						unset($possible_workers[$k]);
+						continue;
+					}
+		
+					// Filter to online workers
+					if(!empty($opt_logged_in) && !isset($workers_online[$k])) {
+						unset($possible_workers[$k]);
+						continue;
+					}
+				}
+		
+				// We require at least one worker 
+				if(empty($possible_workers)) {
+					$values[$var] = 0;
+					return;
+				}
+				
+				$chosen_worker_id = 0;
+				
+				// Mode
 				switch($mode) {
-					// [TODO] Sequentially
-					case 'seq':
-						//DAO_DevblocksSetting::
-						//$trigger->id
-						break;
-						
-					// Randomize
+					// Random
 					default:
 					case 'random':
-						shuffle($worker_ids);
-						$value = intval(array_shift($worker_ids));
+						$ids = array_keys($possible_workers);
+						shuffle($ids);
+						$chosen_worker_id = reset($ids);
+						break;
+						
+					// Sequential
+					case 'seq':
+						$key = sprintf("trigger.%d.counter", $trigger->id);
+						
+						$registry = DevblocksPlatform::getRegistryService();
+						$count = intval($registry->get($key));
+						
+						$idx = $count % count($possible_workers);
+						
+						$ids = array_keys($possible_workers);
+						$chosen_worker_id = $ids[$idx];
+						break;
+						
+					// Fewest open assignments
+					case 'load_balance':
+						$worker_loads = array();
+						
+						// Initialize
+						foreach(array_keys($possible_workers) as $id) {
+							$worker_loads[$id] = 0;
+						}
+						
+						// Consult database
+						$db = DevblocksPlatform::getDatabaseService();
+						$sql = sprintf("SELECT COUNT(id) AS hits, owner_id FROM ticket WHERE is_closed = 0 AND is_deleted = 0 AND is_waiting = 0 AND owner_id != 0 AND owner_id IN (%s) GROUP BY owner_id",
+							implode(',', array_keys($possible_workers))
+						);
+						$results = $db->GetArray($sql);
+						
+						if(!empty($results))
+						foreach($results as $row) {
+							$worker_loads[$row['owner_id']] = intval($row['hits']);
+						}
+						
+						asort($worker_loads);
+						reset($worker_loads);
+						
+						$chosen_worker_id = key($worker_loads);
 						break;
 				}
+				
+				$value = $chosen_worker_id;
 				
 				break;
 		}
