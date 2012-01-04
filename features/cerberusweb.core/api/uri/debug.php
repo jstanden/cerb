@@ -233,20 +233,27 @@ class ChDebugController extends DevblocksControllerExtension  {
    	    		$eAttendants =& $doc->createElement('attendants');
    	    		$doc->appendChild($eAttendants);   	    		
 
-	    		foreach($event_mfts as $event_id => $event_mft) {
+   	    		$workers = DAO_Worker::getAll();
+   	    		
+	    		foreach($event_mfts as $event_id => $event_mft) { /* @var $event_mft DevblocksExtensionManifest */
 	    			$triggers = DAO_TriggerEvent::getByEvent($event_id);
 	    			
 	    			if(empty($triggers))
 	    				continue;
-	    			
+
 	    			// New event element
 	    			$eEvent =& $doc->createElement("event");
 	    			$eEvent->setAttribute("point", $event_id);
 	    			$eEvent->setAttribute("label", $event_mft->name);
 	    			$eAttendants->appendChild($eEvent);
+
+	    			$event = $event_mft->createInstance(); /* @var $event Extension_DevblocksEvent */
 	    			
 	    			// Behaviors
 		    		foreach($triggers as $trigger) { /* @var $trigger Model_TriggerEvent */
+	    				$event_conditions = $event->getConditions($trigger);
+	    				$event_actions = $event->getActions($trigger);
+	    			
 		    			$eBehavior =& $doc->createElement("behavior");
 		    			$eBehavior->setAttribute("label", $trigger->title);
 		    			$eEvent->appendChild($eBehavior);
@@ -257,6 +264,20 @@ class ChDebugController extends DevblocksControllerExtension  {
 		    			$eBehaviorOwner->setAttribute("context_id", $trigger->owner_context_id);
 		    			$eBehavior->appendChild($eBehaviorOwner);
 
+		    			// Variables
+		    			if(!empty($trigger->variables)) {
+		    				$eBehaviorVariables =& $doc->createElement("variables");
+		    				$eBehavior->appendChild($eBehaviorVariables);
+		    				
+			    			foreach($trigger->variables as $var) {
+			    				$eVariable =& $doc->createElement("variable");
+			    				$eVariable->setAttribute("key", $var['key']);
+			    				$eVariable->setAttribute("label", $var['label']);
+			    				$eVariable->setAttribute("type", $var['type']);
+			    				$eBehaviorVariables->appendChild($eVariable);
+			    			}
+		    			}
+		    			
 		    			$context = Extension_DevblocksContext::get($trigger->owner_context); /* @var $context Extension_DevblocksContext */
 		    			if(!empty($context)) {
 			    			$meta = $context->getMeta($trigger->owner_context_id);
@@ -307,14 +328,18 @@ class ChDebugController extends DevblocksControllerExtension  {
 	    								$conditions = $group['conditions'];
 	    								
 		    							foreach($conditions as $values) {
+		    								if(!isset($values['condition']))
+		    									continue;
+		    								
 		    								$eCondition =& $doc->createElement("condition");
 		    								$eConditions->appendChild($eCondition);
 		    								
-		    								if(isset($values['condition'])) {
-		    									$condition_key = $values['condition'];
-		    									unset($values['condition']);
-		    									$eCondition->setAttribute("key", $condition_key);
-		    								}
+	    									$condition_key = $values['condition'];
+	    									unset($values['condition']);
+	    									$eCondition->setAttribute("key", $condition_key);
+	    									
+		    								if(isset($event_conditions[$condition_key]))
+		    									$eCondition->setAttribute('label', $event_conditions[$condition_key]['label']);
 		    								
 			    							foreach($values as $k => $v) {
 			    								$eParam =& $doc->createElement("param");
@@ -324,6 +349,21 @@ class ChDebugController extends DevblocksControllerExtension  {
 			    									$v = array($v);
 			    								
 		    									foreach($v as $iter_v) {
+													switch($k) {
+			    										case 'day':
+			    											$days = array(
+			    												0 => 'Sun',
+			    												1 => 'Mon',
+			    												2 => 'Tue',
+			    												3 => 'Wed',
+			    												4 => 'Thu',
+			    												5 => 'Fri',
+			    												6 => 'Sat',
+			    											);
+			    											$eParam->appendChild($doc->createComment($days[$iter_v]));
+			    											break;
+			    									}
+		    										
 		    										$eValue =& $doc->createElement("value");
 			    									$eValue->appendChild($doc->createTextNode($iter_v));
 			    									$eParam->appendChild($eValue);
@@ -338,14 +378,18 @@ class ChDebugController extends DevblocksControllerExtension  {
 		    					case 'action':
 		    						if(isset($params['actions'])) {
 			    						foreach($params['actions'] as $values) {
+			    							if(!isset($values['action']))
+			    								continue;
+			    							
 		    								$eAction =& $doc->createElement("action");
 		    								$eNode->appendChild($eAction);
 		    								
-			    							if(isset($values['action'])) {
-		    									$action_key = $values['action'];
-		    									unset($values['action']);
-		    									$eAction->setAttribute("key", $action_key);
-		    								}
+	    									$action_key = $values['action'];
+	    									unset($values['action']);
+	    									$eAction->setAttribute("key", $action_key);
+	    									
+		    								if(isset($event_actions[$action_key]))
+		    									$eAction->setAttribute('label', $event_actions[$action_key]['label']);
 		    								
 			    							foreach($values as $k => $v) {
 			    								$eParam =& $doc->createElement("param");
@@ -355,9 +399,18 @@ class ChDebugController extends DevblocksControllerExtension  {
 			    									$v = array($v);
 			    								
 		    									foreach($v as $iter_v) {
+			    									switch($k) {
+			    										case 'worker_id':
+				    										if(isset($workers[$iter_v])) {
+				    											$eParam->appendChild($doc->createComment($workers[$iter_v]->getName()));
+				    										}
+				    										break;
+			    									}
+			    									
 		    										$eValue =& $doc->createElement("value");
 			    									$eValue->appendChild($doc->createTextNode($iter_v));
 			    									$eParam->appendChild($eValue);
+			    									
 		    									}
 			    								
 			    								$eAction->appendChild($eParam);
