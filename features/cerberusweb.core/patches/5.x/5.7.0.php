@@ -44,4 +44,19 @@ if(!isset($columns['variables_json'])) {
 	$db->Execute("ALTER TABLE trigger_event ADD COLUMN variables_json TEXT");
 }
 
+// ===========================================================================
+// Context scheduled behavior w/ params
+
+if(!isset($tables['context_scheduled_behavior'])) {
+	$logger->error("The 'context_scheduled_behavior' table does not exist");
+	return FALSE;
+}
+
+list($columns, $indexes) = $db->metaTable('context_scheduled_behavior');
+
+if(!isset($columns['variables_json'])) {
+	$db->Execute("ALTER TABLE context_scheduled_behavior ADD COLUMN variables_json TEXT");
+}
+
+
 return TRUE;

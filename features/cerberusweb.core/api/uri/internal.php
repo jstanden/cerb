@@ -1808,17 +1808,24 @@ class ChInternalController extends DevblocksControllerExtension {
 
 			$run_timestamp = @strtotime($run_date) or time();
 
+			// Variables
+			@$var_keys = DevblocksPlatform::importGPC($_REQUEST['var_keys'],'array',array());
+			@$var_vals = DevblocksPlatform::importGPC($_REQUEST['var_vals'],'array',array());
+
+			$vars = DAO_ContextScheduledBehavior::buildVariables($var_keys, $var_vals, $macro);			
+			
 			if($run_timestamp > time()) {
 				DAO_ContextScheduledBehavior::create(array(
 					DAO_ContextScheduledBehavior::BEHAVIOR_ID => $macro->id,
 					DAO_ContextScheduledBehavior::CONTEXT => $context,
 					DAO_ContextScheduledBehavior::CONTEXT_ID => $context_id,
 					DAO_ContextScheduledBehavior::RUN_DATE => $run_timestamp,
+					DAO_ContextScheduledBehavior::VARIABLES_JSON => json_encode($vars),
 				));
 				
 			} else {
 				// Execute now
-				call_user_func(array($ext->class, 'trigger'), $macro->id, $context_id);
+				call_user_func(array($ext->class, 'trigger'), $macro->id, $context_id, $vars);
 				
 			}
 			
@@ -1885,7 +1892,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		} else { // Update
 			$job = DAO_ContextScheduledBehavior::get($job_id);
 			$tpl->assign('job', $job);
-
+			
 			// Verify permission
 			
 			if(null == ($ctx = DevblocksPlatform::getExtension($job->context, true))) /* @var $ctx Extension_DevblocksContext */
@@ -1907,10 +1914,13 @@ class ChInternalController extends DevblocksControllerExtension {
 		@$job_id = DevblocksPlatform::importGPC($_REQUEST['job_id'],'integer',0);
 		@$run_date = DevblocksPlatform::importGPC($_REQUEST['run_date'],'string','');
 		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'],'integer',0);
-		
+
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		if(null == ($job = DAO_ContextScheduledBehavior::get($job_id)))
+			return;
+		
+		if(null == ($trigger = DAO_TriggerEvent::get($job->behavior_id)))
 			return;
 		
 		if(null == ($ctx = DevblocksPlatform::getExtension($job->context, true))) /* @var $ctx Extension_DevblocksContext */
@@ -1926,8 +1936,15 @@ class ChInternalController extends DevblocksControllerExtension {
 		} else {
 			$run_timestamp = @strtotime($run_date) or time();
 			
+			// Variables
+			@$var_keys = DevblocksPlatform::importGPC($_REQUEST['var_keys'],'array',array());
+			@$var_vals = DevblocksPlatform::importGPC($_REQUEST['var_vals'],'array',array());
+			
+			$vars = DAO_ContextScheduledBehavior::buildVariables($var_keys, $var_vals, $trigger);			
+			
 			DAO_ContextScheduledBehavior::update($job->id, array(
-				DAO_ContextScheduledBehavior::RUN_DATE => $run_timestamp, 
+				DAO_ContextScheduledBehavior::RUN_DATE => $run_timestamp,
+				DAO_ContextScheduledBehavior::VARIABLES_JSON => json_encode($vars), 
 			));
 			
 		}

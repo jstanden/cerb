@@ -1337,7 +1337,7 @@ class Cron_VirtualAttendantScheduledBehavior extends CerberusCronPageExtension {
 							throw new Exception("Invalid event.");
 					
 						// Execute
-						call_user_func(array($ext->class, 'trigger'), $macro->id, $behavior->context_id);
+						call_user_func(array($ext->class, 'trigger'), $macro->id, $behavior->context_id, $behavior->variables);
 							
 						$logger->info(sprintf("Executed behavior %d", $behavior->id));
 						

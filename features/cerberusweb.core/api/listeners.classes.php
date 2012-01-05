@@ -633,7 +633,7 @@ class EventListener_Triggers extends DevblocksEventListenerExtension {
 				}
 			}
 		}
-			
+		
 		// [TODO] This could be cached in a runtime registry too
 		if(null == ($mft = DevblocksPlatform::getExtension($event->id, false))) 
 			return;
@@ -645,6 +645,13 @@ class EventListener_Triggers extends DevblocksEventListenerExtension {
 		// Load the intermediate data ONCE!
 		$event_ext->setEvent($event);
 		$values = $event_ext->getValues();
+
+		// We're preloading some variable values
+		if(isset($event->params['_variables']) && is_array($event->params['_variables'])) {
+			foreach($event->params['_variables'] as $var_key => $var_val) {
+				$values[$var_key] = $var_val;
+			}
+		}	
 		
 		// Registry (trigger variables, etc)
 		$registry = DevblocksPlatform::getRegistryService();

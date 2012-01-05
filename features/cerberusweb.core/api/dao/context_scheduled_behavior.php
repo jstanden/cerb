@@ -21,6 +21,7 @@ class DAO_ContextScheduledBehavior extends C4_ORMHelper {
 	const CONTEXT_ID = 'context_id';
 	const BEHAVIOR_ID = 'behavior_id';
 	const RUN_DATE = 'run_date';
+	const VARIABLES_JSON = 'variables_json';
 
 	static function create($fields) {
 		$db = DevblocksPlatform::getDatabaseService();
@@ -55,7 +56,7 @@ class DAO_ContextScheduledBehavior extends C4_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 
 		// SQL
-		$sql = "SELECT id, context, context_id, behavior_id, run_date ".
+		$sql = "SELECT id, context, context_id, behavior_id, run_date, variables_json ".
 			"FROM context_scheduled_behavior ".
 			$where_sql.
 			$sort_sql.
@@ -117,6 +118,8 @@ class DAO_ContextScheduledBehavior extends C4_ORMHelper {
 			$object->context_id = $row['context_id'];
 			$object->behavior_id = $row['behavior_id'];
 			$object->run_date = $row['run_date'];
+			if(!empty($row['variables_json']))
+				$object->variables = @json_decode($row['variables_json'], true);
 			$objects[$object->id] = $object;
 		}
 
@@ -167,12 +170,14 @@ class DAO_ContextScheduledBehavior extends C4_ORMHelper {
 			"context_scheduled_behavior.context as %s, ".
 			"context_scheduled_behavior.context_id as %s, ".
 			"context_scheduled_behavior.behavior_id as %s, ".
-			"context_scheduled_behavior.run_date as %s ",
+			"context_scheduled_behavior.run_date as %s, ".
+			"context_scheduled_behavior.variables_json as %s ",
 				SearchFields_ContextScheduledBehavior::ID,
 				SearchFields_ContextScheduledBehavior::CONTEXT,
 				SearchFields_ContextScheduledBehavior::CONTEXT_ID,
 				SearchFields_ContextScheduledBehavior::BEHAVIOR_ID,
-				SearchFields_ContextScheduledBehavior::RUN_DATE
+				SearchFields_ContextScheduledBehavior::RUN_DATE,
+				SearchFields_ContextScheduledBehavior::VARIABLES_JSON
 		);
 			
 		$join_sql = "FROM context_scheduled_behavior ";
@@ -267,6 +272,27 @@ class DAO_ContextScheduledBehavior extends C4_ORMHelper {
 		return array($results,$total);
 	}
 
+	static function buildVariables($var_keys, $var_vals, $trigger) {
+		$vars = array();
+		foreach($var_keys as $idx => $var) {
+			if(isset($var_vals[$idx])) {
+				@$var_mft = $trigger->variables[$var];
+				$val = $var_vals[$idx];
+				
+				if(!empty($var_mft)) {
+					switch($var_mft['type']) {
+						case Model_CustomField::TYPE_DATE:
+							@$val = strtotime($val);				
+							break;
+					}
+				}
+				
+				// Parse dates
+				$vars[$var] = $val;
+			}
+		}
+		return $vars;
+	}
 };
 
 class SearchFields_ContextScheduledBehavior implements IDevblocksSearchFields {
@@ -275,6 +301,7 @@ class SearchFields_ContextScheduledBehavior implements IDevblocksSearchFields {
 	const CONTEXT_ID = 'c_context_id';
 	const BEHAVIOR_ID = 'c_behavior_id';
 	const RUN_DATE = 'c_run_date';
+	const VARIABLES_JSON = 'c_variables_json';
 
 	/**
 	 * @return DevblocksSearchField[]
@@ -288,6 +315,7 @@ class SearchFields_ContextScheduledBehavior implements IDevblocksSearchFields {
 			self::CONTEXT_ID => new DevblocksSearchField(self::CONTEXT_ID, 'context_scheduled_behavior', 'context_id', $translate->_('common.context_id')),
 			self::BEHAVIOR_ID => new DevblocksSearchField(self::BEHAVIOR_ID, 'context_scheduled_behavior', 'behavior_id', $translate->_('common.behavior')),
 			self::RUN_DATE => new DevblocksSearchField(self::RUN_DATE, 'context_scheduled_behavior', 'run_date', $translate->_('dao.context_scheduled_behavior.run_date')),
+			self::VARIABLES_JSON => new DevblocksSearchField(self::VARIABLES_JSON, 'context_scheduled_behavior', 'variables_json', $translate->_('dao.context_scheduled_behavior.variables_json')),
 		);
 
 		// Custom Fields
@@ -312,6 +340,7 @@ class Model_ContextScheduledBehavior {
 	public $context_id;
 	public $behavior_id;
 	public $run_date;
+	public $variables = array();
 };
 
 class View_ContextScheduledBehavior extends C4_AbstractView {
@@ -388,6 +417,7 @@ class View_ContextScheduledBehavior extends C4_AbstractView {
 			case SearchFields_ContextScheduledBehavior::CONTEXT_ID:
 			case SearchFields_ContextScheduledBehavior::BEHAVIOR_ID:
 			case SearchFields_ContextScheduledBehavior::RUN_DATE:
+			case SearchFields_ContextScheduledBehavior::VARIABLES_JSON:
 			case 'placeholder_string':
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__string.tpl');
 				break;
@@ -438,6 +468,7 @@ class View_ContextScheduledBehavior extends C4_AbstractView {
 			case SearchFields_ContextScheduledBehavior::CONTEXT_ID:
 			case SearchFields_ContextScheduledBehavior::BEHAVIOR_ID:
 			case SearchFields_ContextScheduledBehavior::RUN_DATE:
+			case SearchFields_ContextScheduledBehavior::VARIABLES_JSON:
 			case 'placeholder_string':
 				// force wildcards if none used on a LIKE
 				if(($oper == DevblocksSearchCriteria::OPER_LIKE || $oper == DevblocksSearchCriteria::OPER_NOT_LIKE)
