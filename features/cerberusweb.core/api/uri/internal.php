@@ -2211,12 +2211,17 @@ class ChInternalController extends DevblocksControllerExtension {
 				break;
 				
 			case 'action':
-				if(null != ($ext = DevblocksPlatform::getExtension($trigger->event_point, true)))
-					$tpl->assign('actions', $ext->getActions($trigger));
+				if(null != ($evt = $trigger->getEvent()))
+					$tpl->assign('actions', $evt->getActions($trigger));
 					
 				// Workers
 				$tpl->assign('workers', DAO_Worker::getAll());
-					
+				
+				// Action labels
+				$labels = $evt->getLabels($trigger);
+				$tpl->assign('labels', $labels);
+
+				// Template
 				$tpl->display('devblocks:cerberusweb.core::internal/decisions/editors/action.tpl');
 				break;
 				

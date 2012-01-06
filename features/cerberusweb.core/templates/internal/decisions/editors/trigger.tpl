@@ -31,7 +31,7 @@
 <br>
 
 <fieldset class="vars">
-<legend>Custom Variables</legend>
+<legend>Variables</legend>
 
 {foreach from=$trigger->variables key=k item=var}
 <div>

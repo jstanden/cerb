@@ -31,6 +31,20 @@
 
 </div>
 
+<div id="divDecisionActionToolbar" style="display:none;">
+	<button type="button" class="cerb-popupmenu-trigger" onclick="">Insert &#x25be;</button>
+	<ul class="cerb-popupmenu cerb-float" style="margin-top:-5px;">
+		<li style="background:none;">
+			<input type="text" size="18" class="input_search filter">
+		</li>
+		{foreach from=$labels key=k item=v}
+		<li><a href="javascript:;" token="{$k}">{$v}</a></li>
+		{/foreach}
+	</ul>
+	<button type="button" class="tester">{'common.test'|devblocks_translate|capitalize}</button>
+	<div class="tester"></div>
+</div>
+
 </form>
 
 <form id="frmDecisionActionAdd{$id}">
@@ -89,6 +103,13 @@
 		$popup.find('#frmDecisionAction{$id}Action DIV.actions')
 			.sortable({ 'items':'FIELDSET', 'placeholder':'ui-state-highlight' })
 		;
+
+		$popup.delegate(':text.placeholders, textarea.placeholders', 'focus', function(e) {
+			toolbar = $('#divDecisionActionToolbar');
+			src = e.srcElement;
+			toolbar.find('div.tester').html('');
+			toolbar.show().insertAfter(src);
+		});
 		
 		$popup.find('#frmDecisionActionAdd{$id} SELECT').first().change(function() {
 			$select = $(this);
@@ -134,5 +155,100 @@
 			});
 		});
 
+		// Menu
+		
+		$divPlaceholderMenu = $('#divDecisionActionToolbar');
+		
+		$menu_trigger = $divPlaceholderMenu.find('button.cerb-popupmenu-trigger');
+		$menu = $divPlaceholderMenu.find('ul.cerb-popupmenu').appendTo('body');
+		$menu_trigger.data('menu', $menu);
+		
+		$divPlaceholderMenu.find('button.tester').click(function(e) {
+			var divTester = $(this).nextAll('div.tester').first();
+			
+			$toolbar = $('DIV#divDecisionActionToolbar');
+			$field = $toolbar.prev(':text, textarea');			
+			
+			if(null == $field)
+				return;
+			
+			regexpName = /^(.*?)\[(.*?)\]$/;
+			hits = regexpName.exec($field.attr('name'));
+			
+			if(hits.length < 3)
+				return;
+			
+			strNamespace = hits[1];
+			strName = hits[2];
+			
+			genericAjaxPost($(this).closest('form').attr('id'), divTester, 'c=internal&a=testDecisionEventSnippets&prefix=' + strNamespace + '&field=' + strName);			
+		});
+		
+		$menu_trigger
+			.click(
+				function(e) {
+					$menu = $(this).data('menu');
+					$menu
+						.css('position','absolute')
+						.css('top',($(this).offset().top+20)+'px')
+						.css('left',$(this).offset().left+'px')
+						.show()
+						.find('> li input:text')
+						.focus()
+						.select()
+						;
+				}
+			)
+			.bind('remove',
+				function(e) {
+					$menu = $(this).data('menu');
+					$menu.remove();
+				}
+			)
+		;
+		
+		$menu.find('> li > input.filter').keyup(
+			function(e) {
+				term = $(this).val().toLowerCase();
+				$menu = $(this).closest('ul.cerb-popupmenu');
+				$menu.find('> li a').each(function(e) {
+					if(-1 != $(this).html().toLowerCase().indexOf(term)) {
+						$(this).parent().show();
+					} else {
+						$(this).parent().hide();
+					}
+				});
+			}
+		);
+		
+		$menu.hover(
+			function(e) {
+			},
+			function(e) {
+				$(this).hide();
+			}
+		);
+		
+		$menu.find('> li').click(function(e) {
+			e.stopPropagation();
+			if(!$(e.target).is('li'))
+				return;
+		
+			$(this).find('a').trigger('click');
+		});
+		
+		$menu.find('> li > a').click(function() {
+			$toolbar = $('DIV#divDecisionActionToolbar');
+			$field = $toolbar.prev(':text, textarea');
+			
+			if(null == $field)
+				return;
+			
+			strtoken = $(this).attr('token');
+			
+			$field.focus().insertAtCursor('{literal}{{{/literal}' + strtoken + '{literal}}}{/literal}');
+			$(this).closest('ul.cerb-popupmenu').hide();
+		});		
+		
 	}); // popup_open
 </script>

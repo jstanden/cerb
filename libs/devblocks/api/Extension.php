@@ -1199,13 +1199,14 @@ class DevblocksEventHelper {
 	}
 	
 	static function runActionCreateTask($params, $values, $context=null, $context_id=null) {
-		$due_date = intval(@strtotime($params['due_date']));
+		$due_date = $params['due_date'];
 		$notify_worker_ids = isset($params['notify_worker_id']) ? $params['notify_worker_id'] : array();
 	
 		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
 		$title = $tpl_builder->build($params['title'], $values);
+		$due_date = intval(@strtotime($tpl_builder->build($params['due_date'], $values)));
 		$comment = $tpl_builder->build($params['comment'], $values);
-		
+
 		$fields = array(
 			DAO_Task::TITLE => $title,
 			DAO_Task::UPDATED_DATE => time(),

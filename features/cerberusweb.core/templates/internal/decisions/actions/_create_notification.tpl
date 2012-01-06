@@ -1,22 +1,13 @@
-<b>{'common.content'|devblocks_translate|capitalize}:</b><br>
-<textarea name="{$namePrefix}[content]" rows="5" cols="45" style="width:100%;">{$params.content}</textarea><br>
+<b>{'common.content'|devblocks_translate|capitalize}:</b>
+<div style="margin-left:10px;">
+	<textarea name="{$namePrefix}[content]" rows="3" cols="45" style="width:100%;" class="placeholders">{$params.content}</textarea>
+</div>
 
-<button type="button" onclick="genericAjaxPost($(this).closest('form').attr('id'),$(this).nextAll('div.tester').first(),'c=internal&a=testDecisionEventSnippets&prefix={$namePrefix}&field=content');">{'common.test'|devblocks_translate|capitalize}</button>
-<select onchange="$field=$(this).siblings('textarea');$field.focus().insertAtCursor($(this).val());$(this).val('');">
-	<option value="">-- insert at cursor --</option>
-	{foreach from=$token_labels key=k item=v}
-	<option value="{literal}{{{/literal}{$k}{literal}}}{/literal}">{$v}</option>
-	{/foreach}
-</select>
-<div class="tester"></div>
-<br>
-
-<b>Notify:</b>  
-<label><input type="checkbox" name="{$namePrefix}[notify_watchers]" value="1" {if $params.notify_watchers}checked="checked"{/if}> Watchers</label>
-<br>
+<b>{'common.notify_workers'|devblocks_translate|capitalize}:</b>  
 <div style="margin-left:10px;">
 	<button type="button" class="chooser_notify_workers unbound"><span class="cerb-sprite sprite-view"></span></button>
 	<ul class="chooser-container bubbles" style="display:block;">
+		<li><label><input type="checkbox" name="{$namePrefix}[notify_watchers]" value="1" {if $params.notify_watchers}checked="checked"{/if}> Watchers</label></li>
 		{if isset($params.notify_worker_id)}
 		{foreach from=$params.notify_worker_id item=worker_id}
 			{$context_worker = $workers.$worker_id}
@@ -27,3 +18,8 @@
 		{/if}
 	</ul>
 </div>
+
+<script type="text/javascript">
+$action = $('fieldset#{$namePrefix}');
+$action.find('textarea').elastic();
+</script>
