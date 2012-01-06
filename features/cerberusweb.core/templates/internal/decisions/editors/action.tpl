@@ -31,7 +31,7 @@
 
 </div>
 
-<div id="divDecisionActionToolbar" style="display:none;">
+<div id="divDecisionActionToolbar{$id}" style="display:none;">
 	<button type="button" class="cerb-popupmenu-trigger" onclick="">Insert &#x25be;</button>
 	<ul class="cerb-popupmenu cerb-float" style="margin-top:-5px;">
 		<li style="background:none;">
@@ -105,7 +105,7 @@
 		;
 
 		$popup.delegate(':text.placeholders, textarea.placeholders', 'focus', function(e) {
-			toolbar = $('#divDecisionActionToolbar');
+			toolbar = $('#divDecisionActionToolbar{$id}');
 			src = e.srcElement;
 			toolbar.find('div.tester').html('');
 			toolbar.show().insertAfter(src);
@@ -157,7 +157,7 @@
 
 		// Menu
 		
-		$divPlaceholderMenu = $('#divDecisionActionToolbar');
+		$divPlaceholderMenu = $('#divDecisionActionToolbar{$id}');
 		
 		$menu_trigger = $divPlaceholderMenu.find('button.cerb-popupmenu-trigger');
 		$menu = $divPlaceholderMenu.find('ul.cerb-popupmenu').appendTo('body');
@@ -166,7 +166,7 @@
 		$divPlaceholderMenu.find('button.tester').click(function(e) {
 			var divTester = $(this).nextAll('div.tester').first();
 			
-			$toolbar = $('DIV#divDecisionActionToolbar');
+			$toolbar = $('DIV#divDecisionActionToolbar{$id}');
 			$field = $toolbar.prev(':text, textarea');			
 			
 			if(null == $field)
@@ -238,7 +238,7 @@
 		});
 		
 		$menu.find('> li > a').click(function() {
-			$toolbar = $('DIV#divDecisionActionToolbar');
+			$toolbar = $('DIV#divDecisionActionToolbar{$id}');
 			$field = $toolbar.prev(':text, textarea');
 			
 			if(null == $field)

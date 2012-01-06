@@ -934,6 +934,7 @@ class DevblocksEventHelper {
 	static function renderActionScheduleBehavior($context, $context_id, $event_point) {
 		$tpl = DevblocksPlatform::getTemplateService();
 		
+		// Macros
 		$macros = DAO_TriggerEvent::getByOwner($context, $context_id, $event_point);
 		$tpl->assign('macros', $macros);
 		
@@ -945,7 +946,6 @@ class DevblocksEventHelper {
 		@$run_date = $params['run_date'];
 		@$on_dupe = $params['on_dupe'];
 		
-		// [TODO] Relative dates
 		@$run_timestamp = strtotime($run_date);
 		
 		if(empty($behavior_id))
@@ -984,11 +984,21 @@ class DevblocksEventHelper {
 				break;
 		}
 		
+		// Variables as parameters
+		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+		$vars = array();
+		foreach($params as $k => $v) {
+			if(substr($k,0,4) == 'var_') {
+				$vars[$k] = $tpl_builder->build($v, $values);
+			}
+		}
+		
 		$fields = array(
 			DAO_ContextScheduledBehavior::CONTEXT => $context,
 			DAO_ContextScheduledBehavior::CONTEXT_ID => $context_id,
 			DAO_ContextScheduledBehavior::BEHAVIOR_ID => $behavior_id,
 			DAO_ContextScheduledBehavior::RUN_DATE => intval($run_timestamp),
+			DAO_ContextScheduledBehavior::VARIABLES_JSON => json_encode($vars),
 		);
 		return DAO_ContextScheduledBehavior::create($fields);
 	}

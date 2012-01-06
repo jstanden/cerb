@@ -1891,6 +1891,10 @@ class ChInternalController extends DevblocksControllerExtension {
 			
 		} else { // Update
 			$job = DAO_ContextScheduledBehavior::get($job_id);
+
+			if(null == $job)
+				return;
+			
 			$tpl->assign('job', $job);
 			
 			// Verify permission
@@ -2247,6 +2251,20 @@ class ChInternalController extends DevblocksControllerExtension {
 		$tpl->clearAssign('type');
 	}
 
+	function showScheduleBehaviorParamsAction() {
+		@$name_prefix = DevblocksPlatform::importGPC($_REQUEST['name_prefix'],'string', '');
+		@$trigger_id = DevblocksPlatform::importGPC($_REQUEST['trigger_id'],'integer', 0);
+
+		$tpl = DevblocksPlatform::getTemplateService();
+		
+		$tpl->assign('namePrefix', $name_prefix);
+		
+		$trigger = DAO_TriggerEvent::get($trigger_id);
+		$tpl->assign('macro_params', $trigger->variables);
+		
+		$tpl->display('devblocks:cerberusweb.core::events/action_schedule_behavior_params.tpl');
+	}
+	
 	function doDecisionAddConditionAction() {
 		@$condition = DevblocksPlatform::importGPC($_REQUEST['condition'],'string', '');
 		@$trigger_id = DevblocksPlatform::importGPC($_REQUEST['trigger_id'],'integer', 0);
