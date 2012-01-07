@@ -200,12 +200,16 @@
 <script type="text/javascript">
 {if $pref_keyboard_shortcuts}
 $(document).keypress(function(event) {
-	if(event.altKey || event.ctrlKey || event.shiftKey || event.metaKey)
+	if(event.altKey || event.ctrlKey || event.metaKey)
 		return;
 	
 	if($(event.target).is(':input'))
 		return;
 
+	// We only want shift on the Shift+R shortcut right now
+	if(event.shiftKey && event.which != 82)
+		return;
+	
 	hotkey_activated = true;
 	
 	switch(event.which) {
@@ -260,9 +264,15 @@ $(document).keypress(function(event) {
 				$('#btnPrint').click();
 			} catch(ex) { } 
 			break;
+		case 82:   // (r)
 		case 114:  // (R) reply to first message
 			try {
-				{if $expand_all}$('BUTTON.reply').last().next('BUTTON.split-right').click();{else}$('BUTTON.reply').first().next('BUTTON.split-right').click();{/if}
+				{if $expand_all}$btn = $('BUTTON.reply').last();{else}$btn = $('BUTTON.reply').first();{/if}
+				if(event.shiftKey) {
+					$btn.next('BUTTON.split-right').click();
+				} else {
+					$btn.click();
+				}
 			} catch(ex) { } 
 			break;
 		case 115:  // (S) spam
