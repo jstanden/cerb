@@ -7,7 +7,10 @@
 <div style="margin-left:10px;">
 	<button type="button" class="chooser_notify_workers unbound"><span class="cerb-sprite sprite-view"></span></button>
 	<ul class="chooser-container bubbles" style="display:block;">
-		<li><label><input type="checkbox" name="{$namePrefix}[notify_watchers]" value="1" {if $params.notify_watchers}checked="checked"{/if}> Watchers</label></li>
+		<li><label><input type="checkbox" name="{$namePrefix}[notify_watchers]" value="1" {if $params.notify_watchers}checked="checked"{/if}> {'common.watchers'|devblocks_translate|capitalize}</label></li>
+		{foreach from=$notify_map item=v key=k}
+		<li><label><input type="checkbox" name="{$namePrefix}[notify_{$k}]" value="1" {if $params.{'notify_'|cat:$k}}checked="checked"{/if}> {$v}</label></li>
+		{/foreach}
 		{if isset($params.notify_worker_id)}
 		{foreach from=$params.notify_worker_id item=worker_id}
 			{$context_worker = $workers.$worker_id}

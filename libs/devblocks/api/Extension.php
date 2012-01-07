@@ -1155,14 +1155,16 @@ class DevblocksEventHelper {
 	 * Action: Create Notification
 	 */
 	
-	static function renderActionCreateNotification() {
+	static function renderActionCreateNotification($notify_map=array()) {
 		$tpl = DevblocksPlatform::getTemplateService();
+		
 		$tpl->assign('workers', DAO_Worker::getAll());
+		$tpl->assign('notify_map', $notify_map);
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_create_notification.tpl');
 	}
 	
-	static function runActionCreateNotification($params, $values, $context, $context_id) {
+	static function runActionCreateNotification($params, $values, $context, $context_id, $notify_map=array()) {
 		$notify_worker_ids = isset($params['notify_worker_id']) ? $params['notify_worker_id'] : array();
 
 		// Watchers?
@@ -1172,6 +1174,22 @@ class DevblocksEventHelper {
 			$notify_worker_ids = array_merge($notify_worker_ids, array_keys($watchers));
 		}
 
+		// If we're notifying contexual worker IDs, add them
+		if(is_array($notify_map) && !empty($notify_map))
+		foreach($notify_map as $key) {
+			// If the value doesn't exist, bail out
+			if(!isset($values[$key]))
+				continue;
+			
+			$id = intval($values[$key]);
+			
+			// If the value is empty, bail out
+			if(empty($id))
+				continue;
+			
+			$notify_worker_ids = array_merge($notify_worker_ids, array($id));
+		}
+		
 		if(!is_array($notify_worker_ids) || empty($notify_worker_ids))
 			return;
 		
