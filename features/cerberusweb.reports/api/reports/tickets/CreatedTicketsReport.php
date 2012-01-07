@@ -31,7 +31,8 @@ class ChReportNewTickets extends Extension_Report {
 		
 		// DAO
 		$groups = DAO_Group::getAll();
-		$tpl->assign('groups', $groups);
+		$tpl->assign('groups', $groups);		
+		
 		$group_buckets = DAO_Bucket::getGroups();
 		$tpl->assign('group_buckets', $group_buckets);
 

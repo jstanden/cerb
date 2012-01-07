@@ -75,7 +75,7 @@ line{$group_id} = [{foreach from=$plots key=plot item=freq name=plots}
 {/foreach}
 
 chartData = [
-{foreach from=$data item=null key=group_id name=groups}line{$group_id}{if !$smarty.foreach.groups.last},{/if}{/foreach}
+{foreach from=$data item=null key=k name=series}line{$k}{if !$smarty.foreach.series.last},{/if}{/foreach}
 ]; 
 
 var cerbChartStyle = {
@@ -141,7 +141,7 @@ chartOptions = {
 		}
 	},
     series:[
-		{foreach from=$data key=group_id item=group name=groups}{ label:'{$groups.$group_id->name}' }{if !$smarty.foreach.groups.last},{/if}{/foreach}
+		{foreach from=$data key=k item=v name=series}{ label:'{$groups.{$k}->name}' }{if !$smarty.foreach.series.last},{/if}{/foreach}
     ],
     axes:{
         xaxis:{
@@ -245,7 +245,7 @@ plot1 = $.jqplot('reportChart', chartData, chartOptions);
 {/if}
 
 {if !empty($data)}
-	{foreach from=$data key=group_id item=plots name=groups}
+	{foreach from=$data key=group_id item=plots}
 		<div class="block" style="display:inline-block;">
 		{$sum = 0}
 		<h2>{$groups.{$group_id}->name}</h2>

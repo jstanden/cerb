@@ -1924,13 +1924,9 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals {
 				break;
 		}
 		
-		$tpl->clearAssign('buckets');
-		$tpl->clearAssign('custom_fields');
-		$tpl->clearAssign('id');
 		$tpl->clearAssign('last_action');
 		$tpl->clearAssign('last_action_count');
 		$tpl->clearAssign('results');
-		$tpl->clearAssign('groups');
 		$tpl->clearAssign('group_buckets');
 		$tpl->clearAssign('timestamp_now');
 	}
