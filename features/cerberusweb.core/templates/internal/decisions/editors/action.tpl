@@ -16,11 +16,11 @@
 {if isset($model->params.actions) && is_array($model->params.actions)}
 {foreach from=$model->params.actions item=params key=seq}
 <fieldset id="action{$seq}">
-	<legend>
+	<legend style="cursor:move;">
 		<a href="javascript:;" onclick="$(this).closest('fieldset').remove();"><span class="cerb-sprite2 sprite-minus-circle-frame"></span></a>
 		{$actions.{$params.action}.label}
 	</legend>
-
+	
 	<input type="hidden" name="actions[]" value="{$seq}">
 	<input type="hidden" name="action{$seq}[action]" value="{$params.action}">
 	
@@ -101,7 +101,7 @@
 		});
 
 		$popup.find('#frmDecisionAction{$id}Action DIV.actions')
-			.sortable({ 'items':'FIELDSET', 'placeholder':'ui-state-highlight' })
+			.sortable({ 'items':'FIELDSET', 'placeholder':'ui-state-highlight', 'handle':'legend' })
 		;
 
 		$popup.delegate(':text.placeholders, textarea.placeholders', 'focus', function(e) {
@@ -127,7 +127,7 @@
 					seq = 0;
 	
 				$container = $('<fieldset id="action' + seq + '"></fieldset>');
-				$container.prepend('<legend><a href="javascript:;" onclick="$(this).closest(\'fieldset\').remove();"><span class="cerb-sprite2 sprite-minus-circle-frame"></span></a> ' + $select.find('option:selected').text() + '</legend>');
+				$container.prepend('<legend style="cursor:move;"><a href="javascript:;" onclick="$(this).closest(\'fieldset\').remove();"><span class="cerb-sprite2 sprite-minus-circle-frame"></span></a> ' + $select.find('option:selected').text() + '</legend>');
 				$container.append('<input type="hidden" name="actions[]" value="' + seq + '">');
 				$container.append('<input type="hidden" name="action'+seq+'[action]" value="' + $select.val() + '">');
 				$ul.append($container);

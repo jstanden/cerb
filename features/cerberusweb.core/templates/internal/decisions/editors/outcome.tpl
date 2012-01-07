@@ -13,7 +13,7 @@
 {$seq = 0}
 
 {if empty($model->params.groups)}
-	<fieldset style="cursor:pointer;">
+	<fieldset>
 		<legend>
 			If <a href="javascript:;">all&#x25be;</a> of these conditions are satisfied
 			<a href="javascript:;" onclick="$(this).closest('fieldset').remove();"><span class="cerb-sprite2 sprite-minus-circle-frame"></span></a>
@@ -25,7 +25,7 @@
 
 {else}
 	{foreach from=$model->params.groups item=group_data}
-	<fieldset style="cursor:pointer;">
+	<fieldset>
 		<legend>
 			If <a href="javascript:;">{if !empty($group_data.any)}any{else}all{/if}&#x25be;</a> of these conditions are satisfied
 			<a href="javascript:;" onclick="$(this).closest('fieldset').remove();"><span class="cerb-sprite2 sprite-minus-circle-frame"></span></a>
@@ -39,7 +39,7 @@
 					<input type="hidden" name="nodes[]" value="{$seq}">
 					<input type="hidden" name="condition{$seq}[condition]" value="{$params.condition}">
 					<a href="javascript:;" onclick="$(this).closest('li').remove();"><span class="cerb-sprite2 sprite-minus-circle-frame"></span></a>
-					<b>{$conditions.{$params.condition}.label}</b>&nbsp;
+					<b style="cursor:move;">{$conditions.{$params.condition}.label}</b>&nbsp;
 					<div style="margin-left:20px;">
 						{$event->renderCondition({$params.condition},$trigger,$params,$seq)}
 					</div>
@@ -99,9 +99,8 @@
 		var $legend = $popup.find('fieldset legend');
 		var $menu = $popup.find('fieldset ul.cerb-popupmenu:first'); 
 
-
 		$frm.find('fieldset UL.rules')
-			.sortable({ 'items':'li', 'placeholder':'ui-state-highlight', 'connectWith':'#frmDecisionOutcome{$id} fieldset ul.rules' })
+			.sortable({ 'items':'li', 'placeholder':'ui-state-highlight', 'handle':'> b', 'connectWith':'#frmDecisionOutcome{$id} fieldset ul.rules' })
 			;
 
 		var $funcGroupAnyToggle = function(e) {
@@ -128,7 +127,7 @@
 
 		$frmAdd.find('button.group')
 			.click(function(e) {
-				$group = $('<fieldset style="cursor:pointer;"></fieldset>');
+				$group = $('<fieldset></fieldset>');
 				$group.append('<legend>If <a href="javascript:;">all&#x25be;</a> of these conditions are satisfied <a href="javascript:;" onclick="$(this).closest(\'fieldset\').remove();"><span class="cerb-sprite2 sprite-minus-circle-frame"></span></a></legend>');
 				$group.append('<input type="hidden" name="nodes[]" value="all">');
 				$group.append('<ul class="rules" style="margin:0px;list-style:none;padding:0px;padding-bottom:5px;"></ul>');
@@ -136,7 +135,7 @@
 				$frm.append($group);
 
 				$frm.find('fieldset UL.rules')
-					.sortable({ 'items':'li', 'placeholder':'ui-state-highlight', 'connectWith':'#frmDecisionOutcome{$id} fieldset ul.rules' })
+					.sortable({ 'items':'li', 'placeholder':'ui-state-highlight', 'handle':'> b', 'connectWith':'#frmDecisionOutcome{$id} fieldset ul.rules' })
 					;
 			})
 			;
@@ -208,7 +207,7 @@
 				$container.append('<input type="hidden" name="nodes[]" value="' + seq + '">');
 				$container.append('<input type="hidden" name="condition'+seq+'[condition]" value="' + token + '">');
 				$container.append('<a href="javascript:;" onclick="$(this).closest(\'li\').remove();"><span class="cerb-sprite2 sprite-minus-circle-frame"></span></a> ');
-				$container.append('<b>' + $this.text() + '</b>&nbsp;');
+				$container.append('<b style="cursor:move;">' + $this.text() + '</b>&nbsp;');
 
 				$ul.append($container);
 				$container.append($html);
