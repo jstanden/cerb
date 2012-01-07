@@ -85,7 +85,7 @@
 		<input type="hidden" name="deleted" value="{if $ticket->is_deleted}1{else}0{/if}">
 		<input type="hidden" name="spam" value="0">
 		
-		<span>
+		<span id="spanWatcherToolbar">
 		{$object_watchers = DAO_ContextLink::getContextLinks($page_context, array($page_context_id), CerberusContexts::CONTEXT_WORKER)}
 		{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$page_context context_id=$page_context_id full=true}
 		</span>
@@ -135,6 +135,7 @@
 		{$translate->_('common.keyboard')|lower}:
 		(<b>e</b>) {'common.edit'|devblocks_translate|lower} 
 		(<b>i</b>) {'ticket.requesters'|devblocks_translate|lower} 
+		(<b>w</b>) {$translate->_('common.watch')|lower}  
 		{if $active_worker->hasPriv('core.display.actions.comment')}(<b>o</b>) {$translate->_('common.comment')} {/if}
 		{if !empty($macros)}(<b>m</b>) {'common.macros'|devblocks_translate|lower} {/if}
 		{if !$ticket->is_closed && $active_worker->hasPriv('core.ticket.actions.close')}(<b>c</b>) {$translate->_('common.close')|lower} {/if}
@@ -267,6 +268,11 @@ $(document).keypress(function(event) {
 		case 115:  // (S) spam
 			try {
 				$('#btnSpam').click();
+			} catch(ex) { } 
+			break;
+		case 119:  // (W) watch
+			try {
+				$('#spanWatcherToolbar button:first').click();
 			} catch(ex) { } 
 			break;
 		case 120:  // (X) delete
