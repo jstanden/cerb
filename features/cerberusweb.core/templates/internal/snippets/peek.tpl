@@ -19,7 +19,7 @@
 		</tr>
 		<tr>
 			<td width="1%" nowrap="nowrap" valign="top">
-				<b>Type:</b><br>
+				<b>{'common.type'|devblocks_translate|capitalize}:</b><br>
 			</td>
 			<td width="99%">
 				<select name="context">
