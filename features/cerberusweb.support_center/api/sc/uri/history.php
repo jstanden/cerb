@@ -237,7 +237,9 @@ class UmSc_TicketHistoryView extends C4_AbstractView {
 
 	function getData() {
 		$objects = DAO_Ticket::search(
-			array(),
+			array(
+				$this->renderSortBy
+			),
 			$this->getParams(),
 			$this->renderLimit,
 			$this->renderPage,
