@@ -7,10 +7,18 @@
 	<tr>
 		<td width="0%" nowrap="nowrap" align="right">From:</td>
 		<td width="100%">
-			<select name="group_id" style="border:1px solid rgb(180,180,180);padding:2px;">
-				{foreach from=$active_worker_memberships item=membership key=group_id}
-				<option value="{$group_id}" {if $defaults.group_id==$group_id}selected="selected"{/if}>{$groups.$group_id->name}</option>
-				{/foreach}
+			<input type="hidden" name="group_id" value="{$defaults.group_id}">
+			<input type="hidden" name="bucket_id" value="{$defaults.bucket_id}">
+			<select name="group_or_bucket_id" id="group_or_bucket_id" class="required" style="border:1px solid rgb(180,180,180);padding:2px;">
+	      		{foreach from=$group_buckets item=buckets key=groupId}
+					{if !empty($active_worker_memberships.$groupId)}
+		      			{assign var=group value=$groups.$groupId}
+		      			<option value="{$group->id}_0" {if $defaults.group_id==$group->id && empty($defaults.bucket_id)}selected="selected"{/if}>{$group->name}</option>
+		      			{foreach from=$buckets item=bucket}
+		    				<option value="{$group->id}_{$bucket->id}" {if $defaults.group_id==$group->id && $defaults.bucket_id==$bucket->id}selected="selected"{/if}>{$group->name}: {$bucket->name}</option>
+		    			{/foreach}
+					{/if}
+	     		{/foreach}
 			</select>
 		</td>
 	</tr>
@@ -40,7 +48,7 @@
 			<textarea id="divComposeContent" name="content" style="width:98%;height:150px;border:1px solid rgb(180,180,180);padding:2px;"></textarea>
 			<div>
 				<button type="button" onclick="ajax.chooserSnippet('snippets',$('#divComposeContent'), { '{CerberusContexts::CONTEXT_WORKER}':'{$active_worker->id}' });">{'common.snippets'|devblocks_translate|capitalize}</button>
-				<button type="button" onclick="genericAjaxGet('','c=tickets&a=getComposeSignature&group_id='+selectValue(this.form.group_id),function(text) { insertAtCursor(document.getElementById('divComposeContent'), text); } );"><span class="cerb-sprite sprite-document_edit"></span> Insert Signature</button>
+				<button type="button" onclick="genericAjaxGet('','c=tickets&a=getComposeSignature&group_id='+$(this.form.group_id).val()+'&bucket_id='+$(this.form.bucket_id).val(),function(text) { insertAtCursor(document.getElementById('divComposeContent'), text); } );"><span class="cerb-sprite sprite-document_edit"></span> Insert Signature</button>
 			</div>
 		</td>
 	</tr>
@@ -80,7 +88,27 @@
 	$popup.one('popup_open',function(event,ui) {
 		$(this).dialog('option','title','Compose');
 		ajax.emailAutoComplete('#emailinput', { multiple: true } );
-		$('#formComposePeek :input:text:first').focus().select();
+		
+		$frm = $('#formComposePeek');
+		
+		$frm.find(':input:text:first').focus().select();
+		
+		$frm.find('select[name=group_or_bucket_id]').change(function(e) {
+			$frm = $(this).closest('form');
+			
+			// Regexp the group_bucket pattern
+			sep = /(\d)_(\d)/;
+			hits = sep.exec($(this).val());
+			
+			if(hits < 3)
+				return;
+			
+			group_id = hits[1];
+			bucket_id = hits[2];
+			
+			$frm.find('input:hidden[name=group_id]').val(group_id);
+			$frm.find('input:hidden[name=bucket_id]').val(bucket_id);
+		});
 	});
 	$('#formComposePeek button.chooser_worker').each(function() {
 		ajax.chooser(this,'cerberusweb.contexts.worker','worker_id', { autocomplete:true });

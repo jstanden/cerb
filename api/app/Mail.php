@@ -142,6 +142,7 @@ class CerberusMail {
 		$worker = CerberusApplication::getActiveWorker();
 		
 		@$group_id = $properties['group_id'];
+		@$bucket_id = intval($properties['bucket_id']);
 		$properties['worker_id'] = $worker->id;
 	
 		if(null == ($group = DAO_Group::get($group_id)))
@@ -159,13 +160,12 @@ class CerberusMail {
 		@$files = $properties['files'];
 
 		@$closed = $properties['closed'];
-		@$move_bucket = $properties['move_bucket'];
 		@$ticket_reopen = $properties['ticket_reopen'];
 		
 		@$dont_send = $properties['dont_send'];
 		
-		$from_replyto = $group->getReplyTo();
-		$personal = $group->getReplyPersonal(0, $worker);
+		$from_replyto = $group->getReplyTo($bucket_id);
+		$personal = $group->getReplyPersonal($bucket_id, $worker);
 		
 		$mask = CerberusApplication::generateTicketMask();
 
@@ -274,6 +274,7 @@ class CerberusMail {
 				$params = array(
 					'to' => $toStr,
 					'group_id' => $group_id,
+					'bucket_id' => $bucket_id,
 				);
 				
 				if(!empty($cc))
@@ -394,13 +395,8 @@ class CerberusMail {
 		
 		// Move last, so the event triggers properly
 	    $fields[DAO_Ticket::GROUP_ID] = $group_id;
+	    $fields[DAO_Ticket::BUCKET_ID] = $bucket_id;
 	    
-		if(!empty($move_bucket)) {
-	        list($group_id, $bucket_id) = CerberusApplication::translateGroupBucketCode($move_bucket);
-		    $fields[DAO_Ticket::GROUP_ID] = $group_id;
-		    $fields[DAO_Ticket::BUCKET_ID] = $bucket_id;
-		}
-			
 		DAO_Ticket::update($ticket_id, $fields);
 		
 		// Train as not spam

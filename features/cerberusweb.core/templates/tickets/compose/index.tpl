@@ -26,10 +26,18 @@
 				<tr>
 					<td width="0%" nowrap="nowrap" valign="top" align="right"><b>From:</b>&nbsp;</td>
 					<td width="100%">
-						<select name="group_id" id="group_id" class="required" style="border:1px solid rgb(180,180,180);padding:2px;">
-							{foreach from=$active_worker_memberships item=membership key=group_id}
-							<option value="{$group_id}" {if (!empty($draft) && $group_id==$draft->params.group_id) || ($defaults.group_id == $group_id)}selected{/if}>{$groups.$group_id->name}</option>
-							{/foreach}
+						<input type="hidden" name="group_id" value="{$defaults.group_id}">
+						<input type="hidden" name="bucket_id" value="{$defaults.bucket_id}">
+						<select name="group_or_bucket_id" id="group_or_bucket_id" class="required" style="border:1px solid rgb(180,180,180);padding:2px;">
+				      		{foreach from=$group_buckets item=buckets key=groupId}
+								{if !empty($active_worker_memberships.$groupId)}
+					      			{assign var=group value=$groups.$groupId}
+					      			<option value="{$group->id}_0" {if $defaults.group_id==$group->id && empty($defaults.bucket_id)}selected="selected"{/if}>{$group->name}</option>
+					      			{foreach from=$buckets item=bucket}
+					    				<option value="{$group->id}_{$bucket->id}" {if $defaults.group_id==$group->id && $defaults.bucket_id==$bucket->id}selected="selected"{/if}>{$group->name}: {$bucket->name}</option>
+					    			{/foreach}
+								{/if}
+				     		{/foreach}
 						</select>
 					</td>
 				</tr>
@@ -93,7 +101,7 @@
 				<fieldset style="display:inline-block;">
 					<legend>Actions</legend>
 					<button id="btnSaveDraft" type="button" onclick="genericAjaxPost('frmCompose',null,'c=tickets&a=saveDraft&type=compose',function(json) { var obj = $.parseJSON(json); if(!obj || !obj.html || !obj.draft_id) return; $('#divDraftStatus').html(obj.html); $('#frmCompose input[name=draft_id]').val(obj.draft_id); } );"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> Save Draft</button>
-					<button type="button" id="btnInsertSig" title="(Ctrl+Shift+G)" onclick="genericAjaxGet('','c=tickets&a=getComposeSignature&group_id='+selectValue(this.form.group_id),function(text) { insertAtCursor(document.getElementById('content'),text); } );"><span class="cerb-sprite sprite-document_edit"></span> Insert Signature</button>
+					<button type="button" id="btnInsertSig" title="(Ctrl+Shift+G)" onclick="genericAjaxGet('','c=tickets&a=getComposeSignature&group_id='+$(this.form.group_id).val()+'&bucket_id='+$(this.form.bucket_id).val(),function(text) { insertAtCursor(document.getElementById('content'),text); } );"><span class="cerb-sprite sprite-document_edit"></span> Insert Signature</button>
 					{* Plugin Toolbar *}
 					{if !empty($sendmail_toolbaritems)}
 						{foreach from=$sendmail_toolbaritems item=renderer}
@@ -186,31 +194,6 @@
 								<input type="text" name="ticket_reopen" size="55" value=""><br>
 								{$translate->_('display.reply.next.resume_blank')}<br>
 								</div>
-		
-								{if $active_worker->hasPriv('core.ticket.actions.move')}
-								<b>{$translate->_('display.reply.next.move')}</b>
-								<div style="margin-left:10px;">
-							      	<select name="bucket_id">
-							      		<option value="">-- {$translate->_('display.reply.next.move.no_thanks')|lower} --</option>
-							      		<optgroup label="{$translate->_('common.inboxes')|capitalize}">
-							      		{foreach from=$groups item=group}
-							      			<option value="t{$group->id}">{$group->name}</option>
-							      		{/foreach}
-							      		</optgroup>
-							      		{foreach from=$group_buckets item=buckets key=groupId}
-											{if !empty($active_worker_memberships.$groupId)}
-								      			{assign var=group value=$groups.$groupId}
-								      			<optgroup label="-- {$group->name} --">
-								      			{foreach from=$buckets item=bucket}
-								    				<option value="c{$bucket->id}">{$bucket->name}</option>
-								    			{/foreach}
-								    			</optgroup>
-											{/if}
-							     		{/foreach}
-							      	</select>
-							    </div>
-						      	<br>
-								{/if}
 							</td>
 						</tr>
 					</table>
@@ -268,10 +251,26 @@
 
 		ajax.orgAutoComplete('#frmCompose input:text[name=org_name]');
 		
-		$frm.find('select[name=group_id]').change(function(e) {
+		$frm.find('select[name=group_or_bucket_id]').change(function(e) {
 			$div = $('#compose_cfields');
 			$div.find('div.group').html('');
-			genericAjaxGet($div, 'c=tickets&a=getCustomFieldEntry&group_id=' + $(this).val(), function(html) {
+			
+			$frm = $(this).closest('form');
+			
+			// Regexp the group_bucket pattern
+			sep = /(\d)_(\d)/;
+			hits = sep.exec($(this).val());
+			
+			if(hits < 3)
+				return;
+			
+			group_id = hits[1];
+			bucket_id = hits[2];
+			
+			$frm.find('input:hidden[name=group_id]').val(group_id);
+			$frm.find('input:hidden[name=bucket_id]').val(bucket_id);
+			
+			genericAjaxGet($div, 'c=tickets&a=getCustomFieldEntry&group_id=' + group_id, function(html) {
 				$cfields = $('#compose_cfields');
 				if(html.length > 0) {
 					$cfields.show().find('div.group').html(html);

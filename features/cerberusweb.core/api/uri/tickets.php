@@ -73,9 +73,9 @@ class ChTicketsPage extends CerberusPageExtension {
 				// Preferences
 				$defaults = array(
 					'group_id' => DAO_WorkerPref::get($active_worker->id,'compose.group_id',0),
+					'bucket_id' => DAO_WorkerPref::get($active_worker->id,'compose.bucket_id',0),
 					'status' => DAO_WorkerPref::get($active_worker->id,'compose.status','waiting'),
 				);
-				$tpl->assign('defaults', $defaults);
 				
 				// Continue a draft?
 				// [TODO] We could also display "you have xxx unsent drafts, would you like to continue one?"
@@ -89,9 +89,20 @@ class ChTicketsPage extends CerberusPageExtension {
 						C4_ORMHelper::qstr(Model_MailQueue::TYPE_COMPOSE)
 					));
 					
-					if(isset($drafts[$draft_id]))
-						$tpl->assign('draft', $drafts[$draft_id]);
+					@$draft = $drafts[$draft_id];
+					
+					if(!empty($drafts)) {
+						$tpl->assign('draft', $draft);
+						
+						// Overload the defaults of the form
+						if(isset($draft->params['group_id']))
+							$defaults['group_id'] = $draft->params['group_id']; 
+						if(isset($draft->params['bucket_id']))
+							$defaults['bucket_id'] = $draft->params['bucket_id']; 
+					}
 				}
+				
+				$tpl->assign('defaults', $defaults);
 				
 				// Custom fields
 				$custom_fields = DAO_CustomField::getByContextAndGroupId(CerberusContexts::CONTEXT_TICKET, 0);
@@ -395,6 +406,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		switch($type) {
 			case 'compose':
 				@$org_name = DevblocksPlatform::importGPC($_REQUEST['org_name'],'string','');
+				@$bucket_id = DevblocksPlatform::importGPC($_REQUEST['bucket_id'],'integer',0); 
 				
 				if(!empty($cc))
 					$params['cc'] = $cc;
@@ -402,6 +414,8 @@ class ChTicketsPage extends CerberusPageExtension {
 					$params['bcc'] = $bcc;
 				if(!empty($group_id))
 					$params['group_id'] = $group_id;
+				if(!empty($bucket_id))
+					$params['bucket_id'] = $bucket_id;
 				if(!is_null($org_name))
 					$params['org_name'] = $org_name;
 					
@@ -912,9 +926,15 @@ class ChTicketsPage extends CerberusPageExtension {
 		$tpl->assign('view_id', $view_id);
 		$tpl->assign('to', $to);
 		
+		// Groups
 		$groups = DAO_Group::getAll();
 		$tpl->assign('groups', $groups);
 		
+		// Groups+Buckets
+		$group_buckets = DAO_Bucket::getGroups();
+		$tpl->assign('group_buckets', $group_buckets);
+
+		// Workers
 		$workers = DAO_Worker::getAll();
 		$tpl->assign('workers', $workers);
 		
@@ -925,6 +945,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		// Preferences
 		$defaults = array(
 			'group_id' => DAO_WorkerPref::get($active_worker->id,'compose.group_id',0),
+			'bucket_id' => DAO_WorkerPref::get($active_worker->id,'compose.bucket_id',0),
 			'status' => DAO_WorkerPref::get($active_worker->id,'compose.status','waiting'),
 		);
 		$tpl->assign('defaults', $defaults);
@@ -934,7 +955,8 @@ class ChTicketsPage extends CerberusPageExtension {
 	
 	function saveComposePeekAction() {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
-		@$group_id = DevblocksPlatform::importGPC($_POST['group_id'],'integer'); 
+		@$group_id = DevblocksPlatform::importGPC($_POST['group_id'],'integer',0); 
+		@$bucket_id = DevblocksPlatform::importGPC($_POST['bucket_id'],'integer',0); 
 		@$to = DevblocksPlatform::importGPC($_POST['to'],'string');
 		@$cc = DevblocksPlatform::importGPC($_POST['cc'],'string','');
 		@$bcc = DevblocksPlatform::importGPC($_POST['bcc'],'string','');
@@ -954,6 +976,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		// Send
 		$properties = array(
 			'group_id' => $group_id,
+			'bucket_id' => $bucket_id,
 			'to' => $to,
 //			'cc' => $cc,
 //			'bcc' => $bcc,
@@ -1217,7 +1240,8 @@ class ChTicketsPage extends CerberusPageExtension {
 		
 		@$draft_id = DevblocksPlatform::importGPC($_POST['draft_id'],'integer');
 		 
-		@$group_id = DevblocksPlatform::importGPC($_POST['group_id'],'integer'); 
+		@$group_id = DevblocksPlatform::importGPC($_POST['group_id'],'integer', 0); 
+		@$bucket_id = DevblocksPlatform::importGPC($_POST['bucket_id'],'integer', 0); 
 		@$org_name = DevblocksPlatform::importGPC($_POST['org_name'],'string');
 		@$to = rtrim(DevblocksPlatform::importGPC($_POST['to'],'string'),' ,');
 		@$cc = rtrim(DevblocksPlatform::importGPC($_POST['cc'],'string',''),' ,;');
@@ -1256,6 +1280,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		$properties = array(
 			'draft_id' => $draft_id,
 			'group_id' => $group_id,
+			'bucket_id' => $bucket_id,
 			'org_id' => $org_id,
 			'to' => $to,
 			'cc' => $cc,
@@ -1264,7 +1289,6 @@ class ChTicketsPage extends CerberusPageExtension {
 			'content' => $content,
 			'files' => $files,
 			'closed' => $closed,
-			'move_bucket' => $move_bucket,
 			'ticket_reopen' => $ticket_reopen,
 		);
 		
@@ -1288,6 +1312,7 @@ class ChTicketsPage extends CerberusPageExtension {
 			// Preferences
 			
 			DAO_WorkerPref::set($active_worker->id, 'compose.group_id', $group_id);
+			DAO_WorkerPref::set($active_worker->id, 'compose.bucket_id', $bucket_id);
 		
 			// Redirect 
 			
