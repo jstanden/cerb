@@ -23,21 +23,16 @@ class ChTasksActivityTab extends Extension_ActivityTab {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$translate = DevblocksPlatform::getTranslationService();
 		
-		// [TODO] Convert to $defaults
+		$defaults = new C4_AbstractViewModel();
+		$defaults->class_name = 'View_Task';
+		$defaults->id = self::VIEW_ACTIVITY_TASKS;
+		$defaults->name = $translate->_('activity.tab.tasks');
+		$defaults->renderSortBy = SearchFields_Task::DUE_DATE;
+		$defaults->renderSortAsc = true;
 		
-		if(null == ($view = C4_AbstractViewLoader::getView(self::VIEW_ACTIVITY_TASKS))) {
-			$view = new View_Task();
-			$view->id = self::VIEW_ACTIVITY_TASKS;
-			$view->renderSortBy = SearchFields_Task::DUE_DATE;
-			$view->renderSortAsc = 1;
-			
-			$view->name = $translate->_('activity.tab.tasks');
-			
-			C4_AbstractViewLoader::setView($view->id, $view);
-		}
-
+		$view = C4_AbstractViewLoader::getView(self::VIEW_ACTIVITY_TASKS, $defaults);
 		$tpl->assign('view', $view);
-		
+
 		$tpl->display('devblocks:cerberusweb.core::tasks/activity_tab/index.tpl');		
 	}
 }
@@ -403,6 +398,37 @@ class ChTasksPage extends CerberusPageExtension {
 		
 		exit;
 	}
+	
+	function doQuickSearchAction() {
+		@$type = DevblocksPlatform::importGPC($_POST['type'],'string');
+		@$query = DevblocksPlatform::importGPC($_POST['query'],'string');
+	
+		$query = trim($query);
+	
+		$defaults = new C4_AbstractViewModel();
+		$defaults->class_name = 'View_Task';
+		$defaults->id = ChTasksActivityTab::VIEW_ACTIVITY_TASKS;
+		$view = C4_AbstractViewLoader::getView($defaults->id, $defaults);
+	
+		$params = array();
+		if(!is_numeric($query))
+			if($query && false===strpos($query,'*'))
+				$query = '*' . $query . '*';
+	
+		switch($type) {
+			case "title":
+				$params[SearchFields_Task::TITLE] = new DevblocksSearchCriteria(SearchFields_Task::TITLE, DevblocksSearchCriteria::OPER_LIKE, strtolower($query));
+				break;
+		}
+	
+		$view->addParams($params, false); // Add, don't replace
+		$view->renderPage = 0;
+		$view->renderSortBy = null;
+	
+		C4_AbstractViewLoader::setView($defaults->id,$view);
+	
+		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('activity','tasks')));
+	}	
 	
 	function viewTasksExploreAction() {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
