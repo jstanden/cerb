@@ -28,7 +28,7 @@
 					<td width="100%">
 						<select name="group_id" id="group_id" class="required" style="border:1px solid rgb(180,180,180);padding:2px;">
 							{foreach from=$active_worker_memberships item=membership key=group_id}
-							<option value="{$group_id}" {if $group_id==$draft->params.group_id}selected{/if}>{$groups.$group_id->name}</option>
+							<option value="{$group_id}" {if (!empty($draft) && $group_id==$draft->params.group_id) || ($defaults.group_id == $group_id)}selected{/if}>{$groups.$group_id->name}</option>
 							{/foreach}
 						</select>
 					</td>
@@ -175,13 +175,13 @@
 									<br>
 								</div>
 								
-								<label><input type="radio" name="closed" value="0" onclick="toggleDiv('ticketClosed','none');" {if 'open'==$mail_status_compose}checked="checked"{/if}>{$translate->_('status.open')|capitalize}</label>
-								<label><input type="radio" name="closed" value="2" onclick="toggleDiv('ticketClosed','block');" {if 'waiting'==$mail_status_compose}checked="checked"{/if}>{$translate->_('status.waiting')|capitalize}</label>
-								{if $active_worker->hasPriv('core.ticket.actions.close')}<label><input type="radio" name="closed" value="1" onclick="toggleDiv('ticketClosed','block');" {if 'closed'==$mail_status_compose}checked="checked"{/if}>{$translate->_('status.closed')|capitalize}</label>{/if}
+								<label><input type="radio" name="closed" value="0" onclick="toggleDiv('ticketClosed','none');" {if 'open'==$defaults.status}checked="checked"{/if}>{$translate->_('status.open')|capitalize}</label>
+								<label><input type="radio" name="closed" value="2" onclick="toggleDiv('ticketClosed','block');" {if 'waiting'==$defaults.status}checked="checked"{/if}>{$translate->_('status.waiting')|capitalize}</label>
+								{if $active_worker->hasPriv('core.ticket.actions.close')}<label><input type="radio" name="closed" value="1" onclick="toggleDiv('ticketClosed','block');" {if 'closed'==$defaults.status}checked="checked"{/if}>{$translate->_('status.closed')|capitalize}</label>{/if}
 								<br>
 								<br>
 
-								<div id="ticketClosed" style="display:{if 'open'==$mail_status_compose}none{else}block{/if};margin-left:10px;margin-bottom:10px;">
+								<div id="ticketClosed" style="display:{if 'open'==$defaults.status}none{else}block{/if};margin-left:10px;margin-bottom:10px;">
 								<b>{$translate->_('display.reply.next.resume')}</b> {$translate->_('display.reply.next.resume_eg')}<br> 
 								<input type="text" name="ticket_reopen" size="55" value=""><br>
 								{$translate->_('display.reply.next.resume_blank')}<br>

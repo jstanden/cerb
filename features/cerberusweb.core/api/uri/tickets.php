@@ -71,7 +71,11 @@ class ChTicketsPage extends CerberusPageExtension {
 				$tpl->assign('upload_max_filesize', ini_get('upload_max_filesize'));
 
 				// Preferences
-				$tpl->assign('mail_status_compose', DAO_WorkerPref::get($active_worker->id,'mail_status_compose','waiting'));
+				$defaults = array(
+					'group_id' => DAO_WorkerPref::get($active_worker->id,'compose.group_id',0),
+					'status' => DAO_WorkerPref::get($active_worker->id,'compose.status','waiting'),
+				);
+				$tpl->assign('defaults', $defaults);
 				
 				// Continue a draft?
 				// [TODO] We could also display "you have xxx unsent drafts, would you like to continue one?"
@@ -915,14 +919,15 @@ class ChTicketsPage extends CerberusPageExtension {
 		$tpl->assign('workers', $workers);
 		
 		// Load Defaults
-		$group_id = intval($visit->get('compose.defaults.from', ''));
-		$tpl->assign('default_group_id', $group_id);
-		
 		$subject = $visit->get('compose.defaults.subject', '');
 		$tpl->assign('default_subject', $subject);
 		
 		// Preferences
-		$tpl->assign('mail_status_compose', DAO_WorkerPref::get($active_worker->id,'mail_status_compose','waiting'));
+		$defaults = array(
+			'group_id' => DAO_WorkerPref::get($active_worker->id,'compose.group_id',0),
+			'status' => DAO_WorkerPref::get($active_worker->id,'compose.status','waiting'),
+		);
+		$tpl->assign('defaults', $defaults);
 		
 		$tpl->display('devblocks:cerberusweb.core::tickets/compose/peek.tpl');
 	}
@@ -1227,6 +1232,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		@$add_me_as_watcher = DevblocksPlatform::importGPC($_POST['add_me_as_watcher'],'integer',0);
 		@$options_dont_send = DevblocksPlatform::importGPC($_POST['options_dont_send'],'integer',0);
 		
+		// No destination?
 		if(empty($to)) {
 			DevblocksPlatform::redirect(new DevblocksHttpResponse(array('tickets','compose')));
 			return;
@@ -1279,6 +1285,10 @@ class ChTicketsPage extends CerberusPageExtension {
 			@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', array());
 			DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_TICKET, $ticket_id, $field_ids);
 			
+			// Preferences
+			
+			DAO_WorkerPref::set($active_worker->id, 'compose.group_id', $group_id);
+		
 			// Redirect 
 			
 			$ticket = DAO_Ticket::get($ticket_id);

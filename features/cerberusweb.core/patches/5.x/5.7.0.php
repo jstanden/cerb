@@ -58,5 +58,10 @@ if(!isset($columns['variables_json'])) {
 	$db->Execute("ALTER TABLE context_scheduled_behavior ADD COLUMN variables_json TEXT");
 }
 
+// ===========================================================================
+// Fix worker preference change
+
+$db->Execute("UPDATE worker_pref SET setting='compose.status' WHERE setting = 'mail_status_compose'");
+$db->Execute("DELETE FROM worker_pref WHERE setting = 'compose.defaults.from'");
 
 return TRUE;
