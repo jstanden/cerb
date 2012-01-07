@@ -1035,6 +1035,8 @@ class DevblocksEventHelper {
 	}
 	
 	static function runActionCreateComment($params, $values, $context, $context_id) {
+		$notify_worker_ids = isset($params['notify_worker_id']) ? $params['notify_worker_id'] : array();
+		
 		// Translate message tokens
 		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
 		$content = $tpl_builder->build($params['content'], $values);
@@ -1046,7 +1048,7 @@ class DevblocksEventHelper {
 			DAO_Comment::CREATED => time(),
 			DAO_Comment::COMMENT => $content,
 		);
-		$comment_id = DAO_Comment::create($fields);
+		$comment_id = DAO_Comment::create($fields, $notify_worker_ids);
 		
 		return $comment_id;
 	}
