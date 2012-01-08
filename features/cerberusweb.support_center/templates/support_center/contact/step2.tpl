@@ -139,10 +139,11 @@
 <script type="text/javascript">
   $(document).ready(function(){
 	$frm = $("#openTicketForm");
-	$frm.submit(function(e) {
-		$(this).find('div.buttons').hide();
-	});
     $frm.validate({
+    	submitHandler: function(form) {
+    		$(form).find('div.buttons').hide();
+    		form.submit();
+    	},
 		rules: {
 			captcha: {
 				required: true,
