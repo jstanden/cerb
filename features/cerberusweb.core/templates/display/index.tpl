@@ -60,6 +60,9 @@
 					{$owner = $workers.{$ticket->owner_id}}
 					<b>{$translate->_('common.owner')|capitalize}:</b>
 					<a href="{devblocks_url}c=profiles&p=worker&id={$owner->id}-{$owner->getName()|devblocks_permalink}{/devblocks_url}" target="_blank">{$owner->getName()}</a>
+				{else}
+					<b>{$translate->_('common.owner')|capitalize}:</b>
+					{'common.nobody'|devblocks_translate|lower}
 				{/if}
 			{else}
 				{include file="devblocks:cerberusweb.core::internal/custom_fields/profile_cell_renderer.tpl"}

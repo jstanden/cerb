@@ -58,6 +58,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		
 		$properties = array(
 			'status' => null,
+			'owner' => null,
 			'mask' => null,
 			'bucket' => null,
 			'org' => null,
@@ -79,9 +80,6 @@ class ChDisplayPage extends CerberusPageExtension {
 			),
 		);
 		
-		if(!empty($ticket->owner_id))
-			$properties['owner'] = null;
-
 		@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_TICKET, $ticket->id)) or array();
 
 		foreach($custom_fields as $cf_id => $cfield) {
