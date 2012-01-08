@@ -141,6 +141,8 @@
 		{if !$ticket->is_closed && $active_worker->hasPriv('core.ticket.actions.close')}(<b>c</b>) {$translate->_('common.close')|lower} {/if}
 		{if !$ticket->spam_trained && $active_worker->hasPriv('core.ticket.actions.spam')}(<b>s</b>) {$translate->_('common.spam')|lower} {/if}
 		{if !$ticket->is_deleted && $active_worker->hasPriv('core.ticket.actions.delete')}(<b>x</b>) {$translate->_('common.delete')|lower} {/if}
+		{if empty($ticket->owner_id)}(<b>t</b>) {$translate->_('common.assign')|lower} {/if}
+		{if !empty($ticket->owner_id)}(<b>u</b>) {$translate->_('common.unassign')|lower} {/if}
 		{if !$expand_all}(<b>a</b>) {$translate->_('display.button.read_all')|lower} {/if} 
 		{if $active_worker->hasPriv('core.display.actions.reply')}(<b>r</b>) {$translate->_('display.ui.reply')|lower} {/if}  
 		(<b>p</b>) {$translate->_('common.print')|lower} 
@@ -280,6 +282,23 @@ $(document).keypress(function(event) {
 				$('#btnSpam').click();
 			} catch(ex) { } 
 			break;
+		{if empty($ticket->owner_id)}
+		case 116:  // (T) take
+			try {
+				genericAjaxGet('','c=display&a=doTake&ticket_id={$ticket->id}',function(e) {
+					document.location.href = '{devblocks_url}c=display&mask={$ticket->mask}{/devblocks_url}';
+				});
+			} catch(ex) { } 
+			break;
+		{else}
+		case 117:  // (U) unassign
+			try {
+				genericAjaxGet('','c=display&a=doSurrender&ticket_id={$ticket->id}',function(e) {
+					document.location.href = '{devblocks_url}c=display&mask={$ticket->mask}{/devblocks_url}';
+				});
+			} catch(ex) { } 
+			break;
+		{/if}
 		case 119:  // (W) watch
 			try {
 				$('#spanWatcherToolbar button:first').click();

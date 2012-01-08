@@ -1059,6 +1059,50 @@ class ChDisplayPage extends CerberusPageExtension {
 		$tpl->display('devblocks:cerberusweb.core::display/modules/history/index.tpl');
 	}
 
+	// Display actions
+	
+	function doTakeAction() {
+		@$ticket_id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer',0);
+		
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(empty($ticket_id))
+			return;
+
+		// Check context for worker auth
+		$ticket_context = DevblocksPlatform::getExtension(CerberusContexts::CONTEXT_TICKET, true, true); /* @var $ticket_context Extension_DevblocksContext */
+
+		if(!$ticket_context->authorize($ticket_id, $active_worker))
+			return;
+
+		if(null == ($ticket = DAO_Ticket::get($ticket_id)))
+			return;
+		
+		if(empty($ticket->owner_id)) {
+			DAO_Ticket::update($ticket_id, array(
+				DAO_Ticket::OWNER_ID => $active_worker->id,
+			));
+		}
+	}
+	
+	function doSurrenderAction() {
+		@$ticket_id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer');
+		
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(empty($ticket_id))
+			return;
+
+		if(null == ($ticket = DAO_Ticket::get($ticket_id)))
+			return;
+		
+		if($ticket->owner_id == $active_worker->id) {
+			DAO_Ticket::update($ticket_id, array(
+				DAO_Ticket::OWNER_ID => 0,
+			));
+		}
+	}
+	
 	// Requesters
 	
 	function showRequestersPanelAction() {
