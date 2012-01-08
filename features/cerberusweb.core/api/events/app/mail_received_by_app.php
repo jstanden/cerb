@@ -485,7 +485,31 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 				if(empty($to) || empty($subject) || empty($body))
 					break;
 				
-				CerberusMail::quickSend($to, $subject, $body);
+				// Handle crude reply-as functionality
+				$replyto_addresses = DAO_AddressOutgoing::getAll();
+				$replyto_address = null;
+				@$recipients = $values['recipients'];
+				
+				if(!empty($recipients))
+				foreach($recipients as $recipient) {
+					if(!is_null($replyto_address))
+						continue;
+					
+					foreach($replyto_addresses as $reply_to) { /* @var $reply_to Model_AddressOutgoing */
+						if(!is_null($replyto_address))
+							continue;
+						
+						if($reply_to->email == $recipient) {
+							$replyto_address = $reply_to;
+							break;
+						}
+					}
+				}
+				
+				if(is_null($replyto_address))
+					$replyto_address = DAO_AddressOutgoing::getDefault();
+   				
+				CerberusMail::quickSend($to, $subject, $body, $replyto_address->email, $replyto_address->getReplyPersonal());
 				break;
 				
 			case 'set_header':

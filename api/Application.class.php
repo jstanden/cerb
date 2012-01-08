@@ -64,6 +64,7 @@ DevblocksPlatform::registerClasses($path . 'Mail.php', array(
 DevblocksPlatform::registerClasses($path . 'Parser.php', array(
 	'CerberusParser',
 	'CerberusParserMessage',
+	'CerberusParserModel',
 	'ParserFile',
 	'ParserFileBuffer',
 ));
