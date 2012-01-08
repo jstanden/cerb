@@ -2690,6 +2690,7 @@ class Context_Ticket extends Extension_DevblocksContext {
 			$token_values['spam_training'] = $ticket[SearchFields_Ticket::TICKET_SPAM_TRAINING];
 			$token_values['subject'] = $ticket[SearchFields_Ticket::TICKET_SUBJECT];
 			$token_values['updated'] = $ticket[SearchFields_Ticket::TICKET_UPDATED_DATE];
+			$token_values['org_id'] = $ticket[SearchFields_Ticket::TICKET_ORG_ID];
 			
 			// Status
 			@$is_closed = intval($ticket[SearchFields_Ticket::TICKET_CLOSED]);
