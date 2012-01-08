@@ -303,7 +303,7 @@ abstract class AbstractEvent_Task extends Extension_DevblocksEvent {
 				break;
 				
 			case 'set_due_date':
-				@$to_date = strtotime($params['value']) or 0;
+				@$to_date = intval(strtotime($params['value']));
 				
 				DAO_Task::update($task_id, array(
 					DAO_Task::DUE_DATE => $to_date,
