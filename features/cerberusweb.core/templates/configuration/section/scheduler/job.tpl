@@ -1,4 +1,4 @@
-{$jobdiv = $job_id|replace:'.':'_'}
+{$jobdiv = $job->id|replace:'.':'_'}
 {assign var=enabled value=$job->getParam('enabled',0)}
 {assign var=locked value=$job->getParam('locked',0)}
 {assign var=lastrun value=$job->getParam('lastrun',0)}
@@ -29,7 +29,7 @@
 	
 	Last run: {if $lastrun}{$lastrun|devblocks_date}{else}Never{/if}
 	{if $enabled && !$locked}
-	 - <a href="{devblocks_url}c=cron&id={$job_id}{/devblocks_url}?ignore_wait=1&loglevel=6" target="_blank">run now</a>
+	 - <a href="{devblocks_url}c=cron&id={$job->id}{/devblocks_url}?ignore_wait=1&loglevel=6" target="_blank">run now</a>
 	{/if}
 	<br>
 	
