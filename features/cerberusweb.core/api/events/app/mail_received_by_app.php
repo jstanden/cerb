@@ -46,25 +46,19 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 	function generateSampleEventModel($parser_model=null) { //, Model_Message $message=null, Model_Ticket $ticket=null, Model_Group $group=null
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		$parser_message = array(
-			'to' => 'customer@example.com',
-			'cc' => 'boss@example.com',
-			'bcc' => 'secret@example.com',
-			'subject' => 'This is the subject',
-			'ticket_reopen' => "+2 hours",
-			'closed' => 2,
-			'content' => "This is the message body\r\nOn more than one line.\r\n",
-			'worker_id' => $active_worker->id,
-		);
+		$replyto = DAO_AddressOutgoing::getDefault();
 		
-		$values['content'] =& $parser_message['content'];
-		$values['to'] =& $parser_message['to'];
-		$values['cc'] =& $parser_message['cc'];
-		$values['bcc'] =& $parser_message['bcc'];
-		$values['subject'] =& $parser_message['subject'];
-		$values['waiting_until'] =& $parser_message['ticket_reopen'];
-		$values['closed'] =& $parser_message['closed'];
-		$values['worker_id'] =& $parser_message['worker_id'];
+		$parser_message = new CerberusParserMessage();
+		$parser_message->headers['to'] = 'customer@example.com';
+		$parser_message->headers['from'] = $replyto->email;
+		$parser_message->headers['cc'] = 'boss@example.com';
+		$parser_message->headers['bcc'] = 'secret@example.com';
+		$parser_message->headers['subject'] = 'This is the subject';
+		$parser_message->body = "This is the message body\r\nOn more than one line.\r\n";
+		
+		if(empty($parser_model)) {
+			$parser_model = new CerberusParserModel($parser_message);
+		}
 		
 		return new Model_DevblocksEvent(
 			self::ID,
@@ -95,7 +89,7 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 		
 		$labels['encoding'] = $prefix.'encoding';
 		$values['encoding'] = '';
-
+		
 		if(!is_null($parser_model)) {
 			$values['_parser_model'] = $parser_model;
 			$values['body'] =& $parser_model->getMessage()->body;
@@ -465,7 +459,8 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 				break;
 			
 			case 'redirect_email':
-   				@$to = $params['to'];
+				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+   				@$to = $tpl_builder->build($params['to'], $values);
 
    				@$parser_model = $values['_parser_model'];
    				if(empty($parser_model) || !is_a($parser_model,'CerberusParserModel'))
