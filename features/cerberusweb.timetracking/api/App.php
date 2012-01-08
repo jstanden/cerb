@@ -381,8 +381,12 @@ class ChTimeTrackingPage extends CerberusPageExtension {
 		if(false == (@$log_date = strtotime($log_date)))
 			$log_date = time();
 		
+		// Context
 		@$context = DevblocksPlatform::importGPC($_POST['context'],'string','');		
 		@$context_id = DevblocksPlatform::importGPC($_POST['context_id'],'integer',0);
+		
+		// Comment
+		@$comment = DevblocksPlatform::importGPC($_POST['comment'],'string','');
 		
 		// Delete entries
 		if(!empty($id) && !empty($do_delete)) {
@@ -432,12 +436,12 @@ class ChTimeTrackingPage extends CerberusPageExtension {
 						}
 						
 						// [TODO] This comment could be added to anything context now using DAO_Comment + Context_*
-						$comment = sprintf(
+						$context_comment = sprintf(
 							"== %s ==\n".
 							"%s %s\n".
 							"%s %d\n".
 							"%s %s (%s)\n".
-							(!empty($notes) ? sprintf("%s %s\n", $translate->_('timetracking.ui.comment.notes'), $notes) : '').
+							(!empty($comment) ? sprintf("%s: %s\n", $translate->_('common.comment'), $comment) : '').
 							"\n".
 							"%s\n",
 							$translate->_('timetracking.ui.timetracking'),
@@ -452,7 +456,7 @@ class ChTimeTrackingPage extends CerberusPageExtension {
 						);
 						$fields = array(
 							DAO_Comment::ADDRESS_ID => intval($worker_address->id),
-							DAO_Comment::COMMENT => $comment,
+							DAO_Comment::COMMENT => $context_comment,
 							DAO_Comment::CREATED => time(),
 							DAO_Comment::CONTEXT => $context,
 							DAO_Comment::CONTEXT_ID => intval($context_id),
@@ -509,7 +513,6 @@ class ChTimeTrackingPage extends CerberusPageExtension {
 		DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_TIMETRACKING, $id, $field_ids);
 		
 		// Comments
-		@$comment = DevblocksPlatform::importGPC($_POST['comment'],'string','');
 		if(!empty($comment)) {
 			@$also_notify_worker_ids = DevblocksPlatform::importGPC($_REQUEST['notify_worker_ids'],'array',array());
 			
