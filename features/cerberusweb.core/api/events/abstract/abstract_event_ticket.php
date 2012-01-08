@@ -138,6 +138,7 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 		$labels['ticket_link'] = 'Ticket is linked';
 		
 		$types = array(
+			// First wrote
 			'ticket_initial_message_content' => Model_CustomField::TYPE_MULTI_LINE,
 			'ticket_initial_message_created|date' => Model_CustomField::TYPE_DATE,
 			'ticket_initial_message_is_outgoing' => Model_CustomField::TYPE_CHECKBOX,
@@ -159,6 +160,7 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 			'ticket_initial_message_sender_org_website' => Model_CustomField::TYPE_SINGLE_LINE,
 			'ticket_initial_message_storage_size' => Model_CustomField::TYPE_NUMBER,
 		
+			// Last wrote
 			'ticket_latest_message_content' => Model_CustomField::TYPE_MULTI_LINE,
 			'ticket_latest_message_created|date' => Model_CustomField::TYPE_DATE,
 			'ticket_latest_message_is_outgoing' => Model_CustomField::TYPE_CHECKBOX,
@@ -180,16 +182,30 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 			'ticket_latest_message_sender_org_website' => Model_CustomField::TYPE_SINGLE_LINE,
 			'ticket_latest_message_storage_size' => Model_CustomField::TYPE_NUMBER,
 		
+			// Group
 			'group_id' => null,
 			"group_name" => Model_CustomField::TYPE_SINGLE_LINE,
 			'group_and_bucket' => null,
 		
+			// Owner
 			'ticket_owner_address_address' => Model_CustomField::TYPE_SINGLE_LINE,
 			'ticket_owner_first_name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'ticket_owner_full_name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'ticket_owner_last_name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'ticket_owner_title' => Model_CustomField::TYPE_SINGLE_LINE,
 		
+			// Org
+			'ticket_org_city' => Model_CustomField::TYPE_SINGLE_LINE,
+			'ticket_org_country' => Model_CustomField::TYPE_SINGLE_LINE,
+			'ticket_org_created' => Model_CustomField::TYPE_DATE,
+			'ticket_org_name' => Model_CustomField::TYPE_SINGLE_LINE,
+			'ticket_org_phone' => Model_CustomField::TYPE_SINGLE_LINE,
+			'ticket_org_postal' => Model_CustomField::TYPE_SINGLE_LINE,
+			'ticket_org_province' => Model_CustomField::TYPE_SINGLE_LINE,
+			'ticket_org_street' => Model_CustomField::TYPE_SINGLE_LINE,
+			'ticket_org_website' => Model_CustomField::TYPE_SINGLE_LINE,
+
+			// Ticket
 			"ticket_bucket_name|default('Inbox')" => Model_CustomField::TYPE_SINGLE_LINE,
 			'ticket_created|date' => Model_CustomField::TYPE_DATE,
 			'ticket_mask' => Model_CustomField::TYPE_SINGLE_LINE,
@@ -200,6 +216,7 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 			'ticket_updated|date' => Model_CustomField::TYPE_DATE,
 			'ticket_url' => Model_CustomField::TYPE_URL,
 		
+			// Virtual
 			'ticket_has_owner' => null,
 			'ticket_initial_message_header' => null,
 			'ticket_latest_message_header' => null,
@@ -207,6 +224,7 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 			'ticket_latest_outgoing_activity' => null,
 			'ticket_watcher_count' => null,
 			
+			// Links
 			'group_link' => null,
 			'owner_link' => null,
 			'ticket_initial_message_sender_link' => null,

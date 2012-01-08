@@ -104,7 +104,7 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 				$labels,
 				$values
 			);
-
+			
 		/**
 		 * Group
 		 */
@@ -200,16 +200,30 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 			'sender_worker_full_name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'storage_size' => Model_CustomField::TYPE_NUMBER,
 		
+			// Group
 			'group_id' => null,
 			"group_name" => Model_CustomField::TYPE_SINGLE_LINE,
 			'group_and_bucket' => null,
-		
+
+			// Org
+			'ticket_org_city' => Model_CustomField::TYPE_SINGLE_LINE,
+			'ticket_org_country' => Model_CustomField::TYPE_SINGLE_LINE,
+			'ticket_org_created' => Model_CustomField::TYPE_DATE,
+			'ticket_org_name' => Model_CustomField::TYPE_SINGLE_LINE,
+			'ticket_org_phone' => Model_CustomField::TYPE_SINGLE_LINE,
+			'ticket_org_postal' => Model_CustomField::TYPE_SINGLE_LINE,
+			'ticket_org_province' => Model_CustomField::TYPE_SINGLE_LINE,
+			'ticket_org_street' => Model_CustomField::TYPE_SINGLE_LINE,
+			'ticket_org_website' => Model_CustomField::TYPE_SINGLE_LINE,
+			
+			// Owner
 			'ticket_owner_address_address' => Model_CustomField::TYPE_SINGLE_LINE,
 			'ticket_owner_first_name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'ticket_owner_full_name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'ticket_owner_last_name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'ticket_owner_title' => Model_CustomField::TYPE_SINGLE_LINE,
-		
+			
+			// Ticket
 			"ticket_bucket_name|default('Inbox')" => Model_CustomField::TYPE_SINGLE_LINE,
 			'ticket_created|date' => Model_CustomField::TYPE_DATE,
 			'ticket_mask' => Model_CustomField::TYPE_SINGLE_LINE,
