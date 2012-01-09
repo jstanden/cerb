@@ -2,7 +2,7 @@
 /***********************************************************************
 | Cerberus Helpdesk(tm) developed by WebGroup Media, LLC.
 |-----------------------------------------------------------------------
-| All source code & content (c) Copyright 2011, WebGroup Media LLC
+| All source code & content (c) Copyright 2012, WebGroup Media LLC
 |   unless specifically noted otherwise.
 |
 | This source code is released under the Devblocks Public License.
@@ -1262,7 +1262,7 @@ class CerberusLicense {
 	}
 	
 	public static function getReleases() {
-		/*																																																																																																																														*/return array('5.0.0'=>1271894400,'5.1.0'=>1281830400,'5.2.0'=>1288569600,'5.3.0'=>1295049600,'5.4.0'=>1303862400,'5.5.0'=>1312416000,'5.6.0'=>1317686400);/*
+		/*																																																																																																																														*/return array('5.0.0'=>1271894400,'5.1.0'=>1281830400,'5.2.0'=>1288569600,'5.3.0'=>1295049600,'5.4.0'=>1303862400,'5.5.0'=>1312416000,'5.6.0'=>1317686400,'5.7.0'=>1326067200);/*
 		 * Major versions by release date in GMT
 		 */
 		return array(
@@ -1273,6 +1273,7 @@ class CerberusLicense {
 			'5.4.0' => gmmktime(0,0,0,4,27,2011),
 			'5.5.0' => gmmktime(0,0,0,8,4,2011),
 			'5.6.0' => gmmktime(0,0,0,10,4,2011),
+			'5.7.0' => gmmktime(0,0,0,1,9,2012),
 		);
 	}
 	

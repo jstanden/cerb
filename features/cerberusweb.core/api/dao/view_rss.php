@@ -2,7 +2,7 @@
 /***********************************************************************
  | Cerberus Helpdesk(tm) developed by WebGroup Media, LLC.
  |-----------------------------------------------------------------------
- | All source code & content (c) Copyright 2011, WebGroup Media LLC
+ | All source code & content (c) Copyright 2012, WebGroup Media LLC
  |   unless specifically noted otherwise.
  |
  | This source code is released under the Devblocks Public License.
