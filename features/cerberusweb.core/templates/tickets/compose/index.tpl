@@ -298,7 +298,7 @@
 				
 				for(i in json) {
 					label = '';
-					if(json[i].name.length > 0) {
+					if(null != json[i].name && json[i].name.length > 0) {
 						label += json[i].name + " ";
 						label += "&lt;" + json[i].email + '&gt;';
 					} else {
