@@ -106,7 +106,7 @@
 
 		$popup.delegate(':text.placeholders, textarea.placeholders', 'focus', function(e) {
 			toolbar = $('#divDecisionActionToolbar{$id}');
-			src = e.srcElement;
+			src = (null==e.srcElement) ? e.target : e.srcElement;
 			toolbar.find('div.tester').html('');
 			toolbar.show().insertAfter(src);
 		});
@@ -175,7 +175,7 @@
 			regexpName = /^(.*?)\[(.*?)\]$/;
 			hits = regexpName.exec($field.attr('name'));
 			
-			if(hits.length < 3)
+			if(null == hits || hits.length < 3)
 				return;
 			
 			strNamespace = hits[1];
