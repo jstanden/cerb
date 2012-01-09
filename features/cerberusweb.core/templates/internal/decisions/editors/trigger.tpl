@@ -36,8 +36,12 @@
 {foreach from=$trigger->variables key=k item=var}
 <div>
 	<a href="javascript:;" onclick="$(this).closest('div').remove();"><span class="cerb-sprite2 sprite-minus-circle-frame" style="vertical-align:middle;"></span></a>
-	<input type="hidden" name="var_key[]" value="{$var.key}">
-	<input type="text" name="var_label[]" value="{$var.label}" size="45">
+	<select name="var_is_private[]">
+		<option value="0" {if empty($var.is_private)}selected="selected"{/if}>public</option>
+		<option value="1" {if $var.is_private}selected="selected"{/if}>private</option>
+	</select><!--  
+	--><input type="hidden" name="var_key[]" value="{$var.key}"><!--  
+	--><input type="text" name="var_label[]" value="{$var.label}" size="45">
 	<input type="hidden" name="var_type[]" value="{$var.type}">
 	{if $var.type == 'S'}
 	Text
@@ -55,6 +59,10 @@
 
 <div style="display:none;" class="template">
 	<a href="javascript:;" onclick="$(this).closest('div').remove();"><span class="cerb-sprite2 sprite-minus-circle-frame" style="vertical-align:middle;"></span></a>
+	<select name="var_private[]">
+		<option value="0">public</option>
+		<option value="1">private</option>
+	</select>	
 	<input type="hidden" name="var_key[]" value="">
 	<input type="text" name="var_label[]" value="" size="45">
 	<select name="var_type[]">

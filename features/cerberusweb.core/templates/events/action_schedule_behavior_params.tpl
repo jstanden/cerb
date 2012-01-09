@@ -1,6 +1,12 @@
-{if !empty($macro_params)}
+{$has_variables = false}
+{foreach from=$macro_params item=var}
+	{if empty($var.is_private)}{$has_variables = true}{/if}
+{/foreach}
+
+{if $has_variables}
 <div class="block" style="margin-left:10px;margin-bottom:0.5em;">
 	{foreach from=$macro_params item=var key=var_key}
+		{if empty($var.is_private)}
 		<div>
 			<b>{$var.label}:</b><br>
 			{if $var.type == 'S'}
@@ -22,6 +28,7 @@
 			</select>
 			{/if}
 		</div>
+		{/if}
 	{/foreach}
 </div>
 {/if}

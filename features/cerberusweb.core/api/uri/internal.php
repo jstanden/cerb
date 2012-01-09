@@ -2369,6 +2369,7 @@ class ChInternalController extends DevblocksControllerExtension {
 			@$var_keys = DevblocksPlatform::importGPC($_REQUEST['var_key'],'array',array());
 			@$var_types = DevblocksPlatform::importGPC($_REQUEST['var_type'],'array',array());
 			@$var_labels = DevblocksPlatform::importGPC($_REQUEST['var_label'],'array',array());
+			@$var_is_private = DevblocksPlatform::importGPC($_REQUEST['var_is_private'],'array',array());
 			
 			$variables = array();
 			
@@ -2381,6 +2382,7 @@ class ChInternalController extends DevblocksControllerExtension {
 					'key' => $key,
 					'label' => $v,
 					'type' => $var_types[$idx],
+					'is_private' => $var_is_private[$idx],
 				);
 			}
 			

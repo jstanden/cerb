@@ -38,10 +38,16 @@
 <br>
 
 {* Custom variables *}
-{if !empty($macro->variables)}
+{$has_variables = false}
+{foreach from=$macro->variables item=var}
+	{if empty($var.is_private)}{$has_variables = true}{/if}
+{/foreach}
+
+{if $has_variables}
 <fieldset>
 	<legend>Parameters</legend>
 	{foreach from=$macro->variables key=var_key item=var}
+		{if empty($var.is_private)}
 		<div>
 			<input type="hidden" name="var_keys[]" value="{$var.key}">
 			<b>{$var.label}:</b><br>
@@ -64,6 +70,7 @@
 			</select>
 			{/if}
 		</div>
+		{/if}
 	{/foreach}
 </fieldset>
 {/if}
