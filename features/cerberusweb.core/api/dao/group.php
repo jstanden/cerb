@@ -983,6 +983,22 @@ class View_Group extends C4_AbstractView implements IAbstractView_Subtotals {
 class Context_Group extends Extension_DevblocksContext {
 	const ID = 'cerberusweb.contexts.group';
 	
+	function authorize($context_id, Model_Worker $worker) {
+		// Security
+		try {
+			if(empty($worker))
+				throw new Exception();
+			
+			if($worker->isGroupMember($context_id))
+				return TRUE;
+				
+		} catch (Exception $e) {
+			// Fail
+		}
+		
+		return FALSE;
+	}
+	
 	function getRandom() {
 		return DAO_Group::random();
 	}

@@ -133,8 +133,16 @@ class ChDisplayPage extends CerberusPageExtension {
 		
 		$tpl->assign('ticket', $ticket);
 
+		$groups = DAO_Group::getAll();
+
 		// Macros
-		$macros = DAO_TriggerEvent::getByOwner(CerberusContexts::CONTEXT_WORKER, $active_worker->id, 'event.macro.ticket');
+		$macros = DAO_TriggerEvent::getByOwners(
+			array(
+				array(CerberusContexts::CONTEXT_WORKER, $active_worker->id, null),
+				array(CerberusContexts::CONTEXT_GROUP, $ticket->group_id, $groups[$ticket->group_id]->name),
+			),
+			'event.macro.ticket'
+		);
 		$tpl->assign('macros', $macros);
 		
 		// TicketToolbarItem Extensions
@@ -154,7 +162,6 @@ class ChDisplayPage extends CerberusPageExtension {
 		$context_watchers = CerberusContexts::getWatchers(CerberusContexts::CONTEXT_TICKET, $ticket->id);
 		$tpl->assign('context_watchers', $context_watchers);
 		
-		$groups = DAO_Group::getAll();
 		$tpl->assign('groups', $groups);
 		
 		$group_buckets = DAO_Bucket::getGroups();
