@@ -896,6 +896,7 @@ class View_TimeTracking extends C4_AbstractView implements IAbstractView_Subtota
 			if(isset($do['behavior']) && is_array($do['behavior'])) {
 				$behavior_id = $do['behavior']['id'];
 				@$behavior_when = strtotime($do['behavior']['when']) or time();
+				@$behavior_params = isset($do['behavior']['params']) ? $do['behavior']['params'] : array();
 				
 				if(!empty($batch_ids) && !empty($behavior_id))
 				foreach($batch_ids as $batch_id) {
@@ -904,6 +905,7 @@ class View_TimeTracking extends C4_AbstractView implements IAbstractView_Subtota
 						DAO_ContextScheduledBehavior::CONTEXT => CerberusContexts::CONTEXT_TIMETRACKING,
 						DAO_ContextScheduledBehavior::CONTEXT_ID => $batch_id,
 						DAO_ContextScheduledBehavior::RUN_DATE => $behavior_when,
+						DAO_ContextScheduledBehavior::VARIABLES_JSON => json_encode($behavior_params),
 					));
 				}
 			}

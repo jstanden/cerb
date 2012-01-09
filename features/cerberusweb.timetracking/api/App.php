@@ -650,6 +650,7 @@ class ChTimeTrackingPage extends CerberusPageExtension {
 		// Scheduled behavior
 		@$behavior_id = DevblocksPlatform::importGPC($_POST['behavior_id'],'string','');
 		@$behavior_when = DevblocksPlatform::importGPC($_POST['behavior_when'],'string','');
+		@$behavior_params = DevblocksPlatform::importGPC($_POST['behavior_params'],'array',array());
 		
 		$do = array();
 		
@@ -662,6 +663,7 @@ class ChTimeTrackingPage extends CerberusPageExtension {
 			$do['behavior'] = array(
 				'id' => $behavior_id,
 				'when' => $behavior_when,
+				'params' => $behavior_params,
 			);
 		}
 		
