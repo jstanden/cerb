@@ -46,7 +46,7 @@ class DevblocksPlatform extends DevblocksEngine {
 			
 			$xml = simplexml_load_string($manifest_data);
 			$plugin_id = (string) $xml->id;
-			
+
 			$list = $zip->extract(PCLZIP_OPT_PATH, APP_STORAGE_PATH . '/plugins/');
     	}
 		
@@ -70,9 +70,16 @@ class DevblocksPlatform extends DevblocksEngine {
 			CURLOPT_CUSTOMREQUEST => 'GET',
 			CURLOPT_RETURNTRANSFER => true,
 			CURLOPT_FOLLOWLOCATION => true,
+			CURLOPT_SSL_VERIFYPEER => false,
 			//CURLOPT_FILE => $fp,
 		));
 		$data = curl_exec($ch);
+		
+		if(curl_errno($ch)) {
+			//curl_error($ch);
+			fclose($fp);
+			return false;
+		}
 		
 		// [TODO] Check status
 		//$info = curl_getinfo($ch);
@@ -394,8 +401,9 @@ class DevblocksPlatform extends DevblocksEngine {
 		if(extension_loaded("curl")) {
 			$ch = curl_init();
 			curl_setopt($ch, CURLOPT_URL, $url);
-			curl_setopt($ch, CURLOPT_HEADER, 0);
-			curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+			curl_setopt($ch, CURLOPT_HEADER, false);
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+			curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 			
 			$user_agent = 'Cerberus Helpdesk ' . APP_VERSION . ' (Build ' . APP_BUILD . ')';
 			curl_setopt($ch, CURLOPT_USERAGENT, $user_agent);

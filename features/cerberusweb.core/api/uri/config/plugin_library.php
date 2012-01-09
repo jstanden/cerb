@@ -154,6 +154,7 @@ class PageSection_SetupPluginLibrary extends Extension_PageSection {
 			curl_setopt_array($ch, array(
 				CURLOPT_RETURNTRANSFER => true,
 				CURLOPT_FOLLOWLOCATION => true,
+				CURLOPT_SSL_VERIFYPEER => false,
 			));
 			$json_data = curl_exec($ch);
 			
