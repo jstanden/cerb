@@ -258,7 +258,7 @@
 			$frm = $(this).closest('form');
 			
 			// Regexp the group_bucket pattern
-			sep = /(\d)_(\d)/;
+			sep = /(\d+)_(\d+)/;
 			hits = sep.exec($(this).val());
 			
 			if(hits < 3)
