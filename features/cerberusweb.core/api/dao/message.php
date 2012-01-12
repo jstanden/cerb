@@ -176,6 +176,7 @@ class DAO_Message extends C4_ORMHelper {
     static function maint() {
     	$db = DevblocksPlatform::getDatabaseService();
     	$logger = DevblocksPlatform::getConsoleLog();
+    	$tables = $db->metaTables();
     	
 		// Purge message content (storage) 
 		$sql = "SELECT message.id FROM message LEFT JOIN ticket ON message.ticket_id = ticket.id WHERE ticket.id IS NULL";
@@ -219,9 +220,11 @@ class DAO_Message extends C4_ORMHelper {
 		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' message attachment_links.');
 		
 		// Search indexes
-		$sql = "DELETE QUICK fulltext_message_content FROM fulltext_message_content LEFT JOIN message ON fulltext_message_content.id = message.id WHERE message.id IS NULL";
-		$db->Execute($sql);
-		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' fulltext_message_content records.');
+		if(isset($tables['fulltext_message_content'])) {
+			$sql = "DELETE QUICK fulltext_message_content FROM fulltext_message_content LEFT JOIN message ON fulltext_message_content.id = message.id WHERE message.id IS NULL";
+			$db->Execute($sql);
+			$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' fulltext_message_content records.');
+		}
 		
 		// Fire event
 	    $eventMgr = DevblocksPlatform::getEventService();
