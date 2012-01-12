@@ -801,8 +801,9 @@ We also set up a 'Spam' bucket inside each group to start quarantining junk mail
 
 If you have any questions about your new helpdesk, simply reply to this message.  Our response will show up on this page as a new message.
 
-Subscribe to the Cerb5 blog for project news, sneak peeks of development progress, tips & tricks, and more:
-http://www.cerb4.com/blog/
+Follow us on Facebook or Twitter for project news, sneak peeks of development progress, tips & tricks, and more:
+http://www.facebook.com/cerb5
+http://twitter.com/cerb5
 
 Thanks for your interest!
 ---
