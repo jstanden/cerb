@@ -471,72 +471,44 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 		return $do;
 	}
 	
-	public static function handleFormPost($context, $context_id, $field_ids) {
+	public static function parseFormPost($context, $field_ids) {
 		$fields = DAO_CustomField::getByContext($context);
+		$results = array();
 		
 		if(is_array($field_ids))
 		foreach($field_ids as $field_id) {
 			if(!isset($fields[$field_id]))
 				continue;
+		
+			$field_value = null;
 			
 			switch($fields[$field_id]->type) {
-				case Model_CustomField::TYPE_MULTI_LINE:
-				case Model_CustomField::TYPE_SINGLE_LINE:
-				case Model_CustomField::TYPE_URL:
-					@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id],'string','');
-					if(0 != strlen($field_value)) {
-						DAO_CustomFieldValue::setFieldValue($context, $context_id, $field_id, $field_value);
-					} else {
-						DAO_CustomFieldValue::unsetFieldValue($context, $context_id, $field_id);
-					}
-					break;
-					
-				case Model_CustomField::TYPE_DROPDOWN:
-					@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id],'string','');
-					if(0 != strlen($field_value)) {
-						DAO_CustomFieldValue::setFieldValue($context, $context_id, $field_id, $field_value);
-					} else {
-						DAO_CustomFieldValue::unsetFieldValue($context, $context_id, $field_id);
-					}
+				case Model_CustomField::TYPE_MULTI_CHECKBOX:
+					@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id],'array',array());
 					break;
 					
 				case Model_CustomField::TYPE_CHECKBOX:
-					@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id],'integer',0);
-					$set = !empty($field_value) ? 1 : 0;
-					DAO_CustomFieldValue::setFieldValue($context, $context_id, $field_id, $set);
-					break;
-
-				case Model_CustomField::TYPE_MULTI_CHECKBOX:
-					@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id],'array',array());
-					if(!empty($field_value)) {
-						DAO_CustomFieldValue::setFieldValue($context, $context_id, $field_id, $field_value);
-					} else {
-						DAO_CustomFieldValue::unsetFieldValue($context, $context_id, $field_id);
-					}
-					break;
-				
 				case Model_CustomField::TYPE_DATE:
-					@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id],'string','');
-					@$date = strtotime($field_value);
-					if(!empty($date)) {
-						DAO_CustomFieldValue::setFieldValue($context, $context_id, $field_id, $date);
-					} else {
-						DAO_CustomFieldValue::unsetFieldValue($context, $context_id, $field_id);
-					}
-					break;
-
+				case Model_CustomField::TYPE_DROPDOWN:
+				case Model_CustomField::TYPE_MULTI_LINE:
 				case Model_CustomField::TYPE_NUMBER:
+				case Model_CustomField::TYPE_SINGLE_LINE:
+				case Model_CustomField::TYPE_URL:
 				case Model_CustomField::TYPE_WORKER:
+				default:
 					@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id],'string','');
-					if(0 != strlen($field_value)) {
-						DAO_CustomFieldValue::setFieldValue($context, $context_id, $field_id, intval($field_value));
-					} else {
-						DAO_CustomFieldValue::unsetFieldValue($context, $context_id, $field_id);
-					}
 					break;
 			}
+					
+			$results[$field_id] = $field_value;
 		}
 		
+		return $results;
+	}
+	
+	public static function handleFormPost($context, $context_id, $field_ids) {
+		$field_values = self::parseFormPost($context, $field_ids);
+		self::formatAndSetFieldValues($context, $context_id, $field_values);		
 		return true;
 	}
 	

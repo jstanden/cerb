@@ -1292,6 +1292,14 @@ class ChTicketsPage extends CerberusPageExtension {
 			'ticket_reopen' => $ticket_reopen,
 		);
 		
+		// Custom fields
+		@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', array());
+		$field_values = DAO_CustomFieldValue::parseFormPost(CerberusContexts::CONTEXT_TICKET, $field_ids);
+		if(!empty($field_values)) {
+			$properties['custom_fields'] = $field_values;
+		}
+		
+		// Options
 		if(!empty($options_dont_send))
 			$properties['dont_send'] = 1;
 		
@@ -1304,11 +1312,6 @@ class ChTicketsPage extends CerberusPageExtension {
 			if($add_me_as_watcher)
 				CerberusContexts::addWatchers(CerberusContexts::CONTEXT_TICKET, $ticket_id, $active_worker->id);
 				
-			// Custom fields
-			
-			@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', array());
-			DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_TICKET, $ticket_id, $field_ids);
-			
 			// Preferences
 			
 			DAO_WorkerPref::set($active_worker->id, 'compose.group_id', $group_id);

@@ -602,13 +602,17 @@ class ChDisplayPage extends CerberusPageExtension {
 		    'worker_id' => @$worker->id,
 		    'forward_files' => DevblocksPlatform::importGPC(@$_REQUEST['forward_files'],'array',array()),
 		);
-		
-		if('save' == $reply_mode)
-			$properties['dont_send'] = true;
 
 		// Custom fields
 		@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', array());
-		DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_TICKET, $ticket_id, $field_ids);
+		$field_values = DAO_CustomFieldValue::parseFormPost(CerberusContexts::CONTEXT_TICKET, $field_ids);
+		if(!empty($field_values)) {
+			$properties['custom_fields'] = $field_values;
+		}		
+		
+		// Options
+		if('save' == $reply_mode)
+			$properties['dont_send'] = true;
 
 		// Send
 		if(CerberusMail::sendTicketMessage($properties)) {

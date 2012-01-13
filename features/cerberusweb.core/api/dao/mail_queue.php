@@ -460,6 +460,8 @@ class Model_MailQueue {
 
 //	    'forward_files' => DevblocksPlatform::importGPC(@$_REQUEST['forward_files'],'array',array()),
 		
+		// [TODO] Custom fields
+		
 		// Send message
 		return CerberusMail::sendTicketMessage($properties);
 	}
