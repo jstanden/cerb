@@ -12,8 +12,8 @@
 				
 				<ul style="list-style:none;margin:0px;padding-left:0px;">
 				{if !empty($groups)}
-					{foreach from=$groups item=group key=group_id}
-					<li style="padding:2px;"><a href="javascript:;" onclick="genericAjaxGet('configGroup','c=config&a=handleSectionAction&section=groups&action=getGroup&id={$group->id}');">{$group->name}</a></li>
+					{foreach from=$groups item=model key=group_id}
+					<li style="padding:2px;"><a href="javascript:;" onclick="genericAjaxGet('configGroup','c=config&a=handleSectionAction&section=groups&action=getGroup&id={$model->id}');">{$model->name}</a></li>
 					{/foreach}
 				{/if}
 				</ul>
