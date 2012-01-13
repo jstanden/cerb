@@ -108,7 +108,7 @@ class ChTicketsPage extends CerberusPageExtension {
 				$custom_fields = DAO_CustomField::getByContextAndGroupId(CerberusContexts::CONTEXT_TICKET, 0);
 				$tpl->assign('custom_fields', $custom_fields);
 
-				$default_group_id = (!empty($draft_id) && isset($drafts[$draft_id]) && isset($drafts[$draft_id]->params['group_id'])) ? $drafts[$draft_id]->params['group_id']: key($groups);
+				$default_group_id = isset($defaults['group_id']) ? $defaults['group_id'] : key($groups);
 				$group_fields = DAO_CustomField::getByContextAndGroupId(CerberusContexts::CONTEXT_TICKET, $default_group_id);
 				$tpl->assign('group_fields', $group_fields);
 				
