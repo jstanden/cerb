@@ -677,7 +677,7 @@ class View_AttachmentLink extends C4_AbstractView implements IAbstractView_Subto
 	}
 	
 	function getDataSample($size) {
-		return $this->_doGetDataSample('DAO_AttachmentLink', $size);
+		return $this->_doGetDataSample('DAO_AttachmentLink', $size, 'guid');
 	}
 
 	function getSubtotalFields() {
