@@ -42,7 +42,7 @@ abstract class C4_AbstractView {
 	abstract function getData();
 	function getDataSample($size) {}
 	
-	protected function _doGetDataSample($dao_class, $size) {
+	protected function _doGetDataSample($dao_class, $size, $id_col = 'id') {
 		$db = DevblocksPlatform::getDatabaseService();
 
 		if(!method_exists($dao_class,'getSearchQueryComponents'))
@@ -58,7 +58,10 @@ abstract class C4_AbstractView {
 			)
 		);
 		
-		$select_sql = sprintf("SELECT %s.guid ", $query_parts['primary_table']);
+		$select_sql = sprintf("SELECT %s.%s ", 
+			$query_parts['primary_table'],
+			$id_col
+		);
 		$join_sql = $query_parts['join'];
 		$where_sql = $query_parts['where'];
 		$has_multiple_values = $query_parts['has_multiple_values'];
@@ -70,7 +73,7 @@ abstract class C4_AbstractView {
 			$where_sql.
 			($has_multiple_values ? sprintf("GROUP BY %s.id ", $query_parts['primary_table']) : '').
 			$sort_sql;
-			
+
 		$rs = $db->Execute($sql);
 		
 		$objects = array();
