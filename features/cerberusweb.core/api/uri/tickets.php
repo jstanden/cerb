@@ -1239,9 +1239,12 @@ class ChTicketsPage extends CerberusPageExtension {
 			return;
 		
 		@$draft_id = DevblocksPlatform::importGPC($_POST['draft_id'],'integer');
-		 
-		@$group_id = DevblocksPlatform::importGPC($_POST['group_id'],'integer', 0); 
-		@$bucket_id = DevblocksPlatform::importGPC($_POST['bucket_id'],'integer', 0); 
+
+		@$group_or_bucket_id = DevblocksPlatform::importGPC($_POST['group_or_bucket_id'],'string', '');
+		@list($group_id, $bucket_id) = explode('_', $group_or_bucket_id, 2);
+		$group_id = intval($group_id);
+		$bucket_id = intval($bucket_id);
+		
 		@$org_name = DevblocksPlatform::importGPC($_POST['org_name'],'string');
 		@$to = rtrim(DevblocksPlatform::importGPC($_POST['to'],'string'),' ,');
 		@$cc = rtrim(DevblocksPlatform::importGPC($_POST['cc'],'string',''),' ,;');

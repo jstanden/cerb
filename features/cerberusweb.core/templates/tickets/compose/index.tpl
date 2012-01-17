@@ -280,6 +280,8 @@
 			});
 		});
 		
+		$frm.find('select[name=group_or_bucket_id]').trigger('change');
+		
 		$frm.find('input:text[name=to], input:text[name=cc], input:text[name=bcc]').focus(function(event) {
 			$('#compose_suggested').appendTo($(this).closest('td'));
 		});
