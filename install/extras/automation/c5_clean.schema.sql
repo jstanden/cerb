@@ -1,4 +1,4 @@
--- MySQL dump 10.13  Distrib 5.1.37, for apple-darwin8.11.1 (i386)
+-- MySQL dump 10.13  Distrib 5.1.37
 --
 -- Host: localhost    Database: c5_clean
 -- ------------------------------------------------------
@@ -283,7 +283,7 @@ CREATE TABLE `cerb_plugin` (
   `name` varchar(255) NOT NULL DEFAULT '',
   `description` varchar(255) NOT NULL DEFAULT '',
   `author` varchar(64) NOT NULL DEFAULT '',
-  `revision` int(10) unsigned NOT NULL DEFAULT '0',
+  `version` smallint(5) unsigned NOT NULL DEFAULT '0',
   `dir` varchar(255) NOT NULL DEFAULT '',
   `link` varchar(128) NOT NULL DEFAULT '',
   `manifest_cache_json` mediumtext,
@@ -524,6 +524,7 @@ CREATE TABLE `context_scheduled_behavior` (
   `context_id` int(10) unsigned NOT NULL DEFAULT '0',
   `behavior_id` int(10) unsigned NOT NULL DEFAULT '0',
   `run_date` int(10) unsigned NOT NULL DEFAULT '0',
+  `variables_json` text,
   PRIMARY KEY (`id`),
   KEY `context` (`context`),
   KEY `behavior_id` (`behavior_id`),
@@ -652,6 +653,21 @@ CREATE TABLE `decision_node` (
   KEY `parent_id` (`parent_id`),
   KEY `trigger_id` (`trigger_id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `devblocks_registry`
+--
+
+DROP TABLE IF EXISTS `devblocks_registry`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `devblocks_registry` (
+  `entry_key` varchar(255) NOT NULL DEFAULT '',
+  `entry_type` varchar(32) NOT NULL DEFAULT '',
+  `entry_value` text,
+  PRIMARY KEY (`entry_key`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1001,6 +1017,31 @@ CREATE TABLE `openid_to_contact_person` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `plugin_library`
+--
+
+DROP TABLE IF EXISTS `plugin_library`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `plugin_library` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `plugin_id` varchar(255) NOT NULL DEFAULT '0',
+  `name` varchar(255) NOT NULL DEFAULT '',
+  `author` varchar(255) NOT NULL DEFAULT '',
+  `description` text,
+  `link` varchar(255) NOT NULL DEFAULT '',
+  `latest_version` smallint(5) unsigned NOT NULL DEFAULT '0',
+  `icon_url` varchar(255) NOT NULL DEFAULT '',
+  `requirements_json` text,
+  `updated` int(10) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`),
+  KEY `plugin_id` (`plugin_id`),
+  KEY `latest_version` (`latest_version`),
+  KEY `updated` (`updated`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `pop3_account`
 --
 
@@ -1270,6 +1311,7 @@ CREATE TABLE `trigger_event` (
   `owner_context_id` int(10) unsigned NOT NULL DEFAULT '0',
   `event_point` varchar(255) NOT NULL DEFAULT '',
   `pos` smallint(5) unsigned NOT NULL DEFAULT '0',
+  `variables_json` text,
   PRIMARY KEY (`id`),
   KEY `event_point` (`event_point`)
 ) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
@@ -1515,4 +1557,4 @@ CREATE TABLE `workspace_to_endpoint` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2011-11-11 11:26:49
+-- Dump completed on 2012-01-16 17:44:27
