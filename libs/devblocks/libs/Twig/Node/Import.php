@@ -13,7 +13,7 @@
  * Represents an import node.
  *
  * @package    twig
- * @author     Fabien Potencier <fabien.potencier@symfony-project.com>
+ * @author     Fabien Potencier <fabien@symfony.com>
  */
 class Twig_Node_Import extends Twig_Node
 {
@@ -42,7 +42,7 @@ class Twig_Node_Import extends Twig_Node
             $compiler
                 ->raw('$this->env->loadTemplate(')
                 ->subcompile($this->getNode('expr'))
-                ->raw(", true)")
+                ->raw(")")
             ;
         }
 

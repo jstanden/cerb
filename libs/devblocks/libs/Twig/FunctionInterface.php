@@ -27,5 +27,11 @@ interface Twig_FunctionInterface
 
     function needsEnvironment();
 
+    function needsContext();
+
     function getSafe(Twig_Node $filterArgs);
+
+    function setArguments($arguments);
+
+    function getArguments();
 }

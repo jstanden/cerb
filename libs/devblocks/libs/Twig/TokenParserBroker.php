@@ -25,24 +25,24 @@ class Twig_TokenParserBroker implements Twig_TokenParserBrokerInterface
     /**
      * Constructor.
      *
-     * @param array|Iterable $parsers An Iterable of Twig_TokenParserInterface instances
-     * @param array|Iterable $brokers An Iterable of Twig_TokenParserBrokerInterface instances
+     * @param array|Traversable $parsers A Traversable of Twig_TokenParserInterface instances
+     * @param array|Traversable $brokers A Traversable of Twig_TokenParserBrokerInterface instances
      */
     public function __construct($parsers = array(), $brokers = array())
     {
-        foreach($parsers as $parser) {
+        foreach ($parsers as $parser) {
             if (!$parser instanceof Twig_TokenParserInterface) {
                 throw new Twig_Error('$parsers must a an array of Twig_TokenParserInterface');
             }
             $this->parsers[$parser->getTag()] = $parser;
         }
-        foreach($brokers as $broker) {
+        foreach ($brokers as $broker) {
             if (!$broker instanceof Twig_TokenParserBrokerInterface) {
                 throw new Twig_Error('$brokers must a an array of Twig_TokenParserBrokerInterface');
             }
             $this->brokers[] = $broker;
         }
-	}
+    }
 
     /**
      * Adds a TokenParser.
@@ -89,6 +89,11 @@ class Twig_TokenParserBroker implements Twig_TokenParserBrokerInterface
         return null;
     }
 
+    public function getParsers()
+    {
+        return $this->parsers;
+    }
+
     public function getParser()
     {
         return $this->parser;
@@ -97,10 +102,10 @@ class Twig_TokenParserBroker implements Twig_TokenParserBrokerInterface
     public function setParser(Twig_ParserInterface $parser)
     {
         $this->parser = $parser;
-        foreach($this->parsers as $tokenParser) {
+        foreach ($this->parsers as $tokenParser) {
             $tokenParser->setParser($parser);
         }
-        foreach($this->brokers as $broker) {
+        foreach ($this->brokers as $broker) {
             $broker->setParser($parser);
         }
     }
