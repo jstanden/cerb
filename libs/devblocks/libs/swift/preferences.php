@@ -14,13 +14,15 @@ Swift_Preferences::getInstance()->setCharset('utf-8');
 // If possible, use a disk cache to enable attaching large attachments etc
 
 // [CHD-1440] Errors while forwarding or creating messages with attachments (Randy Syring)
-if (file_exists(APP_TEMP_PATH)) { 
-   Swift_Preferences::getInstance() 
-    -> setTempDir(APP_TEMP_PATH) 
+if (file_exists(APP_TEMP_PATH)) {
+  Swift_Preferences::getInstance()
+    -> setTempDir(APP_TEMP_PATH)
     -> setCacheType('disk');
-// Default Swiftmailer 
-} elseif (function_exists('sys_get_temp_dir') && is_writable(sys_get_temp_dir())) { 
-  Swift_Preferences::getInstance() 
-    -> setTempDir(sys_get_temp_dir()) 
-    -> setCacheType('disk'); 
-} 
+// Default SwiftMailer
+} elseif (function_exists('sys_get_temp_dir') && is_writable(sys_get_temp_dir())) {
+  Swift_Preferences::getInstance()
+    -> setTempDir(sys_get_temp_dir())
+    -> setCacheType('disk');
+}
+
+Swift_Preferences::getInstance()->setQPDotEscape(false);
