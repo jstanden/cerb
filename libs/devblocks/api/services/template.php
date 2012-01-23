@@ -73,7 +73,10 @@ class _DevblocksTemplateManager {
 		return $translated;
 	}
 	
-	static function block_devblocks_url($params, $content, $smarty, $repeat) {
+	static function block_devblocks_url($params, $content, $smarty, &$repeat, $template) {
+		if($repeat)
+			return;
+		
 		$url = DevblocksPlatform::getUrlService();
 		
 		$contents = $url->write($content, !empty($params['full']) ? true : false);
