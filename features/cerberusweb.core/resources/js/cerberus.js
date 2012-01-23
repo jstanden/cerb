@@ -409,9 +409,9 @@ var cAjaxCalls = function() {
 				var value = $(this).val();
 				var pos = value.lastIndexOf(',');
 				if(-1 != pos) {
-					$(this).val(value.substring(0,pos)+', '+$(ui.item).val()+', ');
+					$(this).val(value.substring(0,pos)+', '+ui.item.value+', ');
 				} else {
-					$(this).val($(ui.item).val()+', ');
+					$(this).val(ui.item.value+', ');
 				}
 				return false;
 			}
