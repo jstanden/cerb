@@ -29,13 +29,12 @@
 						<input type="hidden" name="group_id" value="{$defaults.group_id}">
 						<input type="hidden" name="bucket_id" value="{$defaults.bucket_id}">
 						<select name="group_or_bucket_id" id="group_or_bucket_id" class="required" style="border:1px solid rgb(180,180,180);padding:2px;">
-				      		{foreach from=$group_buckets item=buckets key=groupId}
+				      		{foreach from=$groups item=group key=groupId}
 								{if !empty($active_worker_memberships.$groupId)}
-					      			{assign var=group value=$groups.$groupId}
-					      			<option value="{$group->id}_0" {if $defaults.group_id==$group->id && empty($defaults.bucket_id)}selected="selected"{/if}>{$group->name}</option>
-					      			{foreach from=$buckets item=bucket}
-					    				<option value="{$group->id}_{$bucket->id}" {if $defaults.group_id==$group->id && $defaults.bucket_id==$bucket->id}selected="selected"{/if}>{$group->name}: {$bucket->name}</option>
-					    			{/foreach}
+				      			<option value="{$group->id}_0" {if $defaults.group_id==$group->id && empty($defaults.bucket_id)}selected="selected"{/if}>{$group->name}</option>
+					      		{foreach from=$group_buckets.$groupId item=bucket}
+				    				<option value="{$group->id}_{$bucket->id}" {if $defaults.group_id==$group->id && $defaults.bucket_id==$bucket->id}selected="selected"{/if}>{$group->name}: {$bucket->name}</option>
+					     		{/foreach}
 								{/if}
 				     		{/foreach}
 						</select>

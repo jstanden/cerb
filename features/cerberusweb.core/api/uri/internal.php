@@ -2437,6 +2437,7 @@ class ChInternalController extends DevblocksControllerExtension {
 					}
 					
 					// Handle deletes
+					if(is_array($trigger->variables))
 					foreach($trigger->variables as $var => $data) {
 						if(!isset($variables[$var])) {
 							DAO_DecisionNode::deleteTriggerVar($trigger->id, $var);

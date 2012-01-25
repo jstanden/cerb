@@ -402,6 +402,12 @@ class CerberusMail {
 		// Train as not spam
 		CerberusBayes::markTicketAsNotSpam($ticket_id);
 		
+		// Custom fields
+		@$custom_fields = isset($properties['custom_fields']) ? $properties['custom_fields'] : array();
+		if(is_array($custom_fields) && !empty($custom_fields)) {
+			DAO_CustomFieldValue::formatAndSetFieldValues(CerberusContexts::CONTEXT_TICKET, $ticket_id, $custom_fields);
+		}
+		
         // Events
         if(!empty($message_id) && !empty($group_id)) {
 			// After message sent in group
@@ -434,6 +440,7 @@ class CerberusMail {
 	    'owner_id'
 	    'worker_id',
 		'is_autoreply',
+		'custom_fields',
 		'dont_send',
 		'dont_keep_copy'
 		*/
@@ -820,6 +827,12 @@ class CerberusMail {
 		    DAO_Ticket::update($ticket_id, $change_fields);
 		}
 
+		// Custom fields
+		@$custom_fields = isset($properties['custom_fields']) ? $properties['custom_fields'] : array();
+		if(is_array($custom_fields) && !empty($custom_fields)) {
+			DAO_CustomFieldValue::formatAndSetFieldValues(CerberusContexts::CONTEXT_TICKET, $ticket_id, $custom_fields);
+		}
+		
 		// Events
 		if(!empty($message_id) && empty($no_events)) {
 			// After message sent in group
