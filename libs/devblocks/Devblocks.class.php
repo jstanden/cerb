@@ -807,16 +807,7 @@ class DevblocksPlatform extends DevblocksEngine {
 			$cache = DevblocksPlatform::getCacheService(); /* @var $cache _DevblocksCacheManager */
 			$cache->clean();
 			
-			// Re-read manifests
-			DevblocksPlatform::readPlugins();
-			
-			if(self::_needsToPatch()) {
-				return false; // the update script will handle new caches
-			} else {
-				$cache->save(APP_BUILD, "devblocks_app_build");
-				DAO_Translation::reloadPluginStrings(); // reload strings even without DB changes
-				return true;
-			}
+			return false;
 		}
 		
 		return true;
