@@ -4,14 +4,14 @@
 	<name>[Cerb5] Knowledgebase</name>
 	<description>Create and categorize articles to share knowledge between workers or your community.</description>
 	<author>WebGroup Media, LLC.</author>
-	<version>5.7.2</version>
+	<version>5.8.0</version>
 	<link>http://wiki.cerb5.com/wiki/Features:Knowledgebase</link>
 	<image>plugin.png</image>
 	
 	<!-- Requirements -->
 
 	<requires>
-		<app_version min="5.6" max="5.7.99" />
+		<app_version min="5.6" max="5.8.99" />
 	</requires>
 	
 	<!-- Plugin Dependencies -->

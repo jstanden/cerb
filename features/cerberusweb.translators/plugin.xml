@@ -4,14 +4,14 @@
 	<name>[Cerb5] Translation Editor</name>
 	<description>A GUI for translating the Cerberus Helpdesk interface into other languages.  This adds a 'Translations' tab to Configuration.</description>
 	<author>WebGroup Media, LLC.</author>
-	<version>5.7.2</version>
+	<version>5.8.0</version>
 	<link>http://wiki.cerb5.com/wiki/Features:Translation_Editor</link>
 	<image>plugin.png</image>
 	
 	<!-- Requirements -->
 
 	<requires>
-		<app_version min="5.6" max="5.7.99" />
+		<app_version min="5.6" max="5.8.99" />
 		<php_extension name="mbstring" />
 	</requires>
 	
