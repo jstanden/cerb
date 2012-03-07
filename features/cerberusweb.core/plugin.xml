@@ -1757,8 +1757,7 @@
 				<file>api/cron.classes.php</file>
 				<name>Pop3Cron</name>
 			</class>
-			<params>
-			</params>
+			<params />
 		</extension>		
 		
 		<extension point="cerberusweb.cron">
@@ -1768,8 +1767,7 @@
 				<file>api/cron.classes.php</file>
 				<name>ParseCron</name>
 			</class>
-			<params>
-			</params>
+			<params />
 		</extension>		
 		
 		<extension point="cerberusweb.cron">
@@ -1779,8 +1777,7 @@
 				<file>api/cron.classes.php</file>
 				<name>MaintCron</name>
 			</class>
-			<params>
-			</params>
+			<params />
 		</extension>		
 		
 		<extension point="cerberusweb.cron">
@@ -1790,8 +1787,7 @@
 				<file>api/cron.classes.php</file>
 				<name>HeartbeatCron</name>
 			</class>
-			<params>
-			</params>
+			<params />
 		</extension>
 		
 		<extension point="cerberusweb.cron">
@@ -1801,8 +1797,7 @@
 				<file>api/cron.classes.php</file>
 				<name>ImportCron</name>
 			</class>
-			<params>
-			</params>
+			<params />
 		</extension>
 		
 		<extension point="cerberusweb.cron">
@@ -1812,8 +1807,7 @@
 				<file>api/cron.classes.php</file>
 				<name>StorageCron</name>
 			</class>
-			<params>
-			</params>
+			<params />
 		</extension>
 		
 		<extension point="cerberusweb.cron">
@@ -1823,8 +1817,7 @@
 				<file>api/cron.classes.php</file>
 				<name>SearchCron</name>
 			</class>
-			<params>
-			</params>
+			<params />
 		</extension>
 		
 		<extension point="cerberusweb.cron">
@@ -1834,8 +1827,7 @@
 				<file>api/cron.classes.php</file>
 				<name>MailQueueCron</name>
 			</class>
-			<params>
-			</params>
+			<params />
 		</extension>
 		
 		<extension point="cerberusweb.cron">
