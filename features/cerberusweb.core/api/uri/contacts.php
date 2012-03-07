@@ -578,10 +578,13 @@ class ChContactsPage extends CerberusPageExtension {
 			exit;
 		}
 		
+		// Match org, ignore banned
 		$results = DAO_Address::getWhere(
-			sprintf("%s = %d",
+			sprintf("%s = %d AND %s = %d",
 				DAO_Address::CONTACT_ORG_ID,
-				$org_id
+				$org_id,
+				DAO_Address::IS_BANNED,
+				0
 			),
 			DAO_Address::NUM_NONSPAM,
 			true,
