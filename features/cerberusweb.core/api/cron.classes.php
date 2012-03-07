@@ -1355,8 +1355,6 @@ class Cron_VirtualAttendantScheduledBehavior extends CerberusCronPageExtension {
 	}
 
 	function configure($instance) {
-		//$tpl = DevblocksPlatform::getTemplateService();
-		//$tpl->display('devblocks:cerberusweb.core::cron/scheduled_behavior/config.tpl');
 	}
 };
 
@@ -1382,18 +1380,29 @@ class SearchCron extends CerberusCronPageExtension {
 	}
 	
 	function configure($instance) {
-		$tpl = DevblocksPlatform::getTemplateService();
-		
-//		$timeout = ini_get('max_execution_time');
-//		$tpl->assign('max_messages', $this->getParam('max_messages', (($timeout) ? 20 : 50)));
+	}
+};
 
-		//$tpl->display('devblocks:cerberusweb.core::cron/storage/config.tpl');
+class Cron_CalendarRecurringEventScheduler extends CerberusCronPageExtension {
+	function run() {
+		$logger = DevblocksPlatform::getConsoleLog();
+		$runtime = microtime(true);
+		
+		$logger->info("[Calendar Recurring] Starting...");
+
+		// [TODO] Cache
+		$recurring_events = DAO_CalendarRecurringProfile::getWhere();
+
+		// Run through every calendar recurring profile
+		foreach($recurring_events as $recurring) { /* @var $recurring Model_CalendarRecurringProfile */
+			//var_dump($recurring->date_start);
+			// [TODO] We need to stop when the limit is reached too (not end date)
+			$recurring->createRecurringEvents($recurring->date_start);
+		}
+		
+		$logger->info("[Calendar Recurring] Total Runtime: ".number_format((microtime(true)-$runtime)*1000,2)." ms");
 	}
 	
-	function saveConfigurationAction() {
-//		@$max_messages = DevblocksPlatform::importGPC($_POST['max_messages'],'integer');
-//		$this->setParam('max_messages', $max_messages);
-		
-		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','jobs')));
+	function configure($instance) {
 	}
 };

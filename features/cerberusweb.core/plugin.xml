@@ -123,6 +123,18 @@
 			<class name="Model_Bucket" />
 		</file>
 		
+		<file path="api/dao/calendar_event.php">
+			<class name="DAO_CalendarEvent" />
+			<class name="Model_CalendarEvent" />
+			<class name="SearchFields_CalendarEvent" />
+		</file>
+		
+		<file path="api/dao/calendar_recurring_profile.php">
+			<class name="DAO_CalendarRecurringProfile" />
+			<class name="Model_CalendarRecurringProfile" />
+			<class name="SearchFields_CalendarRecurringProfile" />
+		</file>
+		
 		<file path="api/dao/cerb_plugin.php">
 			<class name="DAO_CerbPlugin" />
 			<class name="Model_CerbPlugin" />
@@ -1850,8 +1862,17 @@
 				<file>api/cron.classes.php</file>
 				<name>Cron_VirtualAttendantScheduledBehavior</name>
 			</class>
-			<params>
-			</params>
+			<params />
+		</extension>
+		
+		<extension point="cerberusweb.cron">
+			<id>cron.calendar_recurring</id>
+			<name>Calendar Recurring Event Schedule</name>
+			<class>
+				<file>api/cron.classes.php</file>
+				<name>Cron_CalendarRecurringEventScheduler</name>
+			</class>
+			<params />
 		</extension>
 		
 		<!-- RSS Sources -->

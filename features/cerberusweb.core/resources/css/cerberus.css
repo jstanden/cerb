@@ -465,6 +465,94 @@ table.worklistBody tr.even.selected.hover, table.worklistBody tr.odd.selected.ho
 	background-color: rgb(255,255,200);
 }
 
+/* Calendar */
+
+TABLE.calendar {
+	width:98%;
+	border:0px;
+}
+TABLE.calendar TR.heading {
+	height:1.5em;
+}
+TABLE.calendar TR.heading TH {
+	width:14%;
+	font-weight:normal;
+	text-align:left;
+}
+TABLE.calendar TR.week {
+	height:125px;
+}
+TABLE.calendar TR.week TD {
+	width:14%;
+	border-top:1px solid rgb(200,200,200);
+	border-left:1px solid rgb(200,200,200);
+	vertical-align:top;
+}
+TABLE.calendar TR.week TD.cellborder_r {
+	border-right:1px solid rgb(200,200,200);
+}
+TABLE.calendar TR.week TD.cellborder_b {
+	border-bottom:1px solid rgb(200,200,200);
+}
+TABLE.calendar TR.week TD.inactive {
+	background-color:rgb(240,240,240);
+}
+TABLE.calendar TR.week TD DIV.day_header {
+	padding-left:5px;
+}
+TABLE.calendar TR.week TD DIV.day_header A {
+	text-decoration:none;
+}
+TABLE.calendar TR.week TD.today {
+	border:2px solid rgb(74,110,158);
+}
+TABLE.calendar TR.week TD.today DIV.day_header A {
+	font-weight:bold;
+	color:rgb(74,110,158);
+}
+TABLE.calendar TR.week TD DIV.day_header A:hover {
+	text-decoration:underline;
+}
+TABLE.calendar TR.week TD DIV.day_contents {
+	overflow:hidden;
+	padding:5px;
+}
+TABLE.calendar TR.week TD DIV.day_contents DIV {
+	padding:3px 0 3px 3px;
+	background-color:rgb(200,200,200);
+	margin-top:2px;
+	height:1em;
+	overflow:hidden;
+	border-radius:5px;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	word-wrap:break-word;
+	word-break:break-all;
+}
+TABLE.calendar TR.week TD DIV.day_contents DIV.available {
+	background-color:rgb(180,220,110);
+}
+
+FORM.calendar_popup TABLE.toggle_grid TR TD {
+	text-align:center;
+	cursor:pointer;
+	border:1px solid rgb(240,240,240);
+	background-color:rgb(240,240,240);
+	color:rgb(150,150,150);
+}
+
+FORM.calendar_popup TABLE.toggle_grid TR TD.selected {
+	border:1px solid rgb(121,183,231);
+	background-color:rgb(240,250,255);
+	color:rgb(74,110,158);
+	font-weight:bold;
+}
+
+FORM.calendar_popup TABLE.toggle_grid TR TD INPUT[type=checkbox] {
+	display:none;
+	visibility:hidden;
+}
+
 /* Tour */
 
 DIV#tourDiv {
