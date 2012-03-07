@@ -528,36 +528,14 @@ class Search_MessageContent {
 				));
 				
 				if(false !== ($content = Storage_MessageContent::get($message))) {
-					$start = 0;
-					$chunklen = 50000; //[TODO] Configurable?
-					$replace = true;
-					$len = mb_strlen($content);
-
-					// 25K character chunks
-					do {
-						$end = $start + $chunklen;
-						
-						// If our offset is past EOS, use the last pos
-						if($end > $len) {
-							$next_ws = $len;
-							
-						} else {
-							if(false === ($next_ws = mb_strpos($content, ' ', $end)))
-								if(false === ($next_ws = mb_strpos($content, "\n", $end)))
-									$next_ws = $end;
-							
-						}							
-							
-						$chunk = mb_substr($content, $start, $next_ws-$start);
-						
-						if(!empty($chunk)) {
-							$start += mb_strlen($chunk);
-							
-							$search->index($ns, $id, $chunk, $replace);
-							$replace = false;
-						}
-						
-					} while(0 != mb_strlen($chunk));
+					// Strip reply quotes
+					$content = preg_replace("/(^\>(.*)\$)/m", "", $content);
+					$content = preg_replace("/[\r\n]+/", "\n", $content);
+					
+					// Truncate to 10KB
+					$content = $search->truncateOnWhitespace($content, 10000);
+					
+					$search->index($ns, $id, $content, true);
 				}
 
 				// Record our progress every 10th index

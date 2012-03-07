@@ -428,39 +428,12 @@ class Search_CommentContent {
 					$ns,
 					$id
 				));
-				
-				if(!empty($comment->comment)) {
-					$content = $comment->comment;
-					$start = 0;
-					$chunklen = 50000;
-					$replace = true;
-					$len = mb_strlen($content);
 
-					// 25K character chunks
-					do {
-						$end = $start + $chunklen;
-						
-						// If our offset is past EOS, use the last pos
-						if($end > $len) {
-							$next_ws = $len;
-							
-						} else {
-							if(false === ($next_ws = mb_strpos($content, ' ', $end)))
-								if(false === ($next_ws = mb_strpos($content, "\n", $end)))
-									$next_ws = $end;
-							
-						}							
-							
-						$chunk = mb_substr($content, $start, $next_ws-$start);
-						
-						if(!empty($chunk)) {
-							$start += mb_strlen($chunk);
-							
-							$search->index($ns, $id, $chunk, $replace);
-							$replace = false;
-						}
-						
-					} while(0 != mb_strlen($chunk));
+				$content = $comment->comment;
+				
+				if(!empty($content)) {
+					$content = $search->truncateOnWhitespace($content, 10000);
+					$search->index($ns, $id, $content, true);
 				}
 
 				// Record our progress every 10th index

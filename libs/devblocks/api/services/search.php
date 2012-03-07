@@ -160,6 +160,25 @@ class _DevblocksSearchEngineMysqlFulltext {
 	    return $words;
 	}
 	
+	public function truncateOnWhitespace($content, $length) {
+		$start = 0;
+		$len = mb_strlen($content);
+		$end = $start + $length;
+		$next_ws = $end;
+		
+		// If our offset is past EOS, use the last pos
+		if($end > $len) {
+			$next_ws = $len;
+			
+		} else {
+			if(false === ($next_ws = mb_strpos($content, ' ', $end)))
+				if(false === ($next_ws = mb_strpos($content, "\n", $end)))
+					$next_ws = $end;
+		}							
+			
+		return mb_substr($content, $start, $next_ws-$start);
+	}
+	
 	public function prepareText($text) {
 		$text = DevblocksPlatform::strUnidecode($text);
 
