@@ -503,8 +503,6 @@ class CerberusParser {
 		$attachments_max_size = $settings->get('cerberusweb.core',CerberusSettings::ATTACHMENTS_MAX_SIZE,CerberusSettingsDefaults::ATTACHMENTS_MAX_SIZE);
 		
 		foreach($struct as $st) {
-//		    echo "PART $st...<br>\r\n";
-
 		    $section = mailparse_msg_get_part($mime, $st);
 		    $info = mailparse_msg_get_part_data($section);
 		    
@@ -515,69 +513,85 @@ class CerberusParser {
 					break;
 			}
 		    
+			// See if we have a content filename
+			
+			$content_filename = isset($info['content-name']) ? $info['content-name'] : '';
+			
+			if(empty($content_filename))
+				$content_filename = isset($info['disposition-filename']) ? $info['disposition-filename'] : '';
+			
+			// Content type
+			
+			$content_type = isset($info['content-type']) ? $info['content-type'] : '';
+			
 		    // handle parts that shouldn't have a content-name, don't handle twice
-		    $handled = 0;
-		    if(empty($info['content-name'])) {
-		        if($info['content-type'] == 'text/plain') {
-					$text = mailparse_msg_extract_part_file($section, $full_filename, NULL);
-					
-					if(isset($info['charset']) && !empty($info['charset'])) {
-						$message->body_encoding = $info['charset'];
+		    $handled = false;
+		    
+		    if(empty($content_filename)) {
+		    	switch(strtolower($content_type)) {
+		    		case 'text/plain':
+						$text = mailparse_msg_extract_part_file($section, $full_filename, NULL);
 						
-						if(@mb_check_encoding($text, $info['charset'])) {
-							$text = mb_convert_encoding($text, LANG_CHARSET_CODE, $info['charset']);
-						} else {
-							$text = mb_convert_encoding($text, LANG_CHARSET_CODE);
+						if(isset($info['charset']) && !empty($info['charset'])) {
+							$message->body_encoding = $info['charset'];
+							
+							if(@mb_check_encoding($text, $info['charset'])) {
+								$text = mb_convert_encoding($text, LANG_CHARSET_CODE, $info['charset']);
+							} else {
+								$text = mb_convert_encoding($text, LANG_CHARSET_CODE);
+							}
 						}
-					}
-					
-	            	@$message->body .= $text;
-	            	
-	            	unset($text);
-	            	$handled = 1;
-		            
-		        } elseif($info['content-type'] == 'text/html') {
-	        		@$text = mailparse_msg_extract_part_file($section, $full_filename, NULL);
-
-					if(isset($info['charset']) && !empty($info['charset'])) {
-						if(@mb_check_encoding($text, $info['charset'])) {
-							$text = mb_convert_encoding($text, LANG_CHARSET_CODE, $info['charset']);
-						} else {
-							$text = mb_convert_encoding($text, LANG_CHARSET_CODE);
+						
+		            	@$message->body .= $text;
+		            	
+		            	unset($text);
+		            	$handled = true;
+		    			break;
+		    			
+		    		case 'text/html':
+		        		@$text = mailparse_msg_extract_part_file($section, $full_filename, NULL);
+	
+						if(isset($info['charset']) && !empty($info['charset'])) {
+							if(@mb_check_encoding($text, $info['charset'])) {
+								$text = mb_convert_encoding($text, LANG_CHARSET_CODE, $info['charset']);
+							} else {
+								$text = mb_convert_encoding($text, LANG_CHARSET_CODE);
+							}
 						}
-					}
-	        		
-					$message->htmlbody .= $text;
-					unset($text);
-					
-		            // Add the html part as an attachment
-		            // [TODO] Make attaching the HTML part an optional config option (off by default)
-	                $tmpname = ParserFile::makeTempFilename();
-	                $html_attach = new ParserFile();
-	                $html_attach->setTempFile($tmpname,'text/html');
-	                @file_put_contents($tmpname,$message->htmlbody);
-	                $html_attach->file_size = filesize($tmpname);
-	                $message->files["original_message.html"] = $html_attach;
-	                unset($html_attach);
-		            $handled = 1;
-		            
-		        } elseif($info['content-type'] == 'message/rfc822') {
-					@$message_content = mailparse_msg_extract_part_file($section, $full_filename, NULL);
-					
-		        	$message_counter = empty($message_counter) ? 1 : $message_counter + 1;
-	                $tmpname = ParserFile::makeTempFilename();
-	                $html_attach = new ParserFile();
-	                $html_attach->setTempFile($tmpname,'message/rfc822');
-	                @file_put_contents($tmpname,$message_content);
-	                $html_attach->file_size = filesize($tmpname);
-	                $message->files['inline'.$message_counter.'.msg'] = $html_attach;
-	                unset($html_attach);		        	 
-		            $handled = 1;
-		        }
+		        		
+						$message->htmlbody .= $text;
+						unset($text);
+						
+			            // Add the html part as an attachment
+			            // [TODO] Make attaching the HTML part an optional config option (off by default)
+		                $tmpname = ParserFile::makeTempFilename();
+		                $html_attach = new ParserFile();
+		                $html_attach->setTempFile($tmpname,'text/html');
+		                @file_put_contents($tmpname,$message->htmlbody);
+		                $html_attach->file_size = filesize($tmpname);
+		                $message->files["original_message.html"] = $html_attach;
+		                unset($html_attach);
+			            $handled = true;
+		    			break;
+		    			
+		    		case 'message/rfc822':
+						@$message_content = mailparse_msg_extract_part_file($section, $full_filename, NULL);
+						
+			        	$message_counter = empty($message_counter) ? 1 : $message_counter + 1;
+		                $tmpname = ParserFile::makeTempFilename();
+		                $html_attach = new ParserFile();
+		                $html_attach->setTempFile($tmpname,'message/rfc822');
+		                @file_put_contents($tmpname,$message_content);
+		                $html_attach->file_size = filesize($tmpname);
+		                $message->files['inline'.$message_counter.'.msg'] = $html_attach;
+		                unset($html_attach);		        	 
+			            $handled = true;
+		    			break;
+		    	}
 		    }
 		    
 		    // whether or not it has a content-name, we need to add it as an attachment (if not already handled)
-		    if ($handled == 0) {
+		    if(!$handled) {
 		    	if (false === strpos(strtolower($info['content-type']),'multipart')) {
 	                if(!$is_attachments_enabled) {
 	                    break; // skip attachment
