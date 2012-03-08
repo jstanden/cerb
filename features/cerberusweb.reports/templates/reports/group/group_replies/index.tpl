@@ -223,10 +223,12 @@ $('#reportChart').bind('jqplotDataHighlight',function(event, seriesIndex, pointI
 		return;
 	
 	if(plot1.series[seriesIndex].label)
-		str += plot1.series[seriesIndex].label;
-	
+		str += plot1.series[seriesIndex].label + " - " + data[1] + " hits<br>";
+	else
+		str += data[1] + " hits<br>";
+		
 	if(plot1.axes.xaxis.ticks[pointIndex])
-		str += "<br>(" + plot1.axes.xaxis.ticks[pointIndex] + ")";
+		str += "(" + plot1.axes.xaxis.ticks[pointIndex] + ")";
 	
 	tooltip.updateContent(str, true);
 });
