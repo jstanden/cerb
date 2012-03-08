@@ -1988,6 +1988,19 @@ class ChTicketsPage extends CerberusPageExtension {
 			);
 		}
 		
+		// Org
+		@$org_name = DevblocksPlatform::importGPC($_REQUEST['do_org'],'string', null);
+		if(0 != strlen($org_name)) {
+			$org_id = DAO_ContactOrg::lookup($org_name, true);
+
+			if(!empty($org_id)) {
+				$do['org'] = array(
+					'org_id' => $org_id,
+					'org_name' => $org_name,
+				);
+			}
+		}
+		
 		// Set status
 		@$status = DevblocksPlatform::importGPC($_REQUEST['do_status'],'string',null);
 		if(0 != strlen($status)) {

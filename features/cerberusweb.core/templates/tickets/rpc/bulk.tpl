@@ -117,6 +117,15 @@
 		</tr>
 		{/if}
 		
+		{if 1}
+		<tr>
+			<td width="0%" nowrap="nowrap" valign="top">{'contact_org.name'|devblocks_translate|capitalize}:</td>
+			<td width="100%">
+				<input type="text" name="do_org" value="" style="width:98%;">
+			</td>
+		</tr>
+		{/if}
+		
 		{if $active_worker->hasPriv('core.watchers.assign') || $active_worker->hasPriv('core.watchers.unassign')}
 		<tr>
 			<td width="0%" nowrap="nowrap" valign="top">{'common.watchers'|devblocks_translate|capitalize}:</td>
@@ -177,9 +186,13 @@
 <script type="text/javascript">
 	$popup = genericAjaxPopupFetch('peek');
 	$popup.one('popup_open', function(event,ui) {
+		$frm = $('#formBatchUpdate');
+		
 		$(this).dialog('option','title',"{$translate->_('common.bulk_update')|capitalize}");
 		
-		$('#formBatchUpdate button.chooser-worker').each(function() {
+		ajax.orgAutoComplete('#formBatchUpdate input:text[name=do_org]');
+		
+		$frm.find('button.chooser-worker').each(function() {
 			$button = $(this);
 			context = 'cerberusweb.contexts.worker';
 			
