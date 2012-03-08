@@ -502,10 +502,23 @@ class CerberusParser {
 		$is_attachments_enabled = $settings->get('cerberusweb.core',CerberusSettings::ATTACHMENTS_ENABLED,CerberusSettingsDefaults::ATTACHMENTS_ENABLED);
 		$attachments_max_size = $settings->get('cerberusweb.core',CerberusSettings::ATTACHMENTS_MAX_SIZE,CerberusSettingsDefaults::ATTACHMENTS_MAX_SIZE);
 		
+		$ignore_mime_prefixes = array();
+		
 		foreach($struct as $st) {
+			// Are we ignoring specific nested mime parts?
+			$skip = false;
+			foreach($ignore_mime_prefixes as $ignore) {
+				if(0 == strcmp(substr($st, 0, strlen($ignore)), $ignore)) {
+					$skip = true;
+				}
+			}
+			
+			if($skip)
+				continue;
+			
 		    $section = mailparse_msg_get_part($mime, $st);
 		    $info = mailparse_msg_get_part_data($section);
-		    
+
 			// Overrides
 			switch(strtolower($info['charset'])) {
 				case 'gb2312':
@@ -577,15 +590,22 @@ class CerberusParser {
 		    		case 'message/rfc822':
 						@$message_content = mailparse_msg_extract_part_file($section, $full_filename, NULL);
 						
-			        	$message_counter = empty($message_counter) ? 1 : $message_counter + 1;
+			        	$message_counter = empty($message_counter) ? 1 : $message_counter++;
 		                $tmpname = ParserFile::makeTempFilename();
-		                $html_attach = new ParserFile();
-		                $html_attach->setTempFile($tmpname,'message/rfc822');
+		                $rfc_attach = new ParserFile();
+		                $rfc_attach->setTempFile($tmpname,'message/rfc822');
 		                @file_put_contents($tmpname,$message_content);
-		                $html_attach->file_size = filesize($tmpname);
-		                $message->files['inline'.$message_counter.'.msg'] = $html_attach;
-		                unset($html_attach);		        	 
+		                $rfc_attach->file_size = filesize($tmpname);
+		                $rfc_attach->mime_type = 'text/plain';
+		                $rfc_attach_filename = sprintf("attached_message%s.txt",
+		                	(($message_counter > 1) ? ('_'.$message_counter) : '')
+		                );
+		                $message->files[$rfc_attach_filename] = $rfc_attach;
+		                unset($rfc_attach);
 			            $handled = true;
+			            
+			            // Skip any nested parts in this message/rfc822 parent
+			            $ignore_mime_prefixes[] = $st . '.';
 		    			break;
 		    	}
 		    }
@@ -950,11 +970,6 @@ class CerberusParser {
 		
 		// [mdf] Loop through files to insert attachment records in the db, and move temporary files
 		foreach ($message->files as $filename => $file) { /* @var $file ParserFile */
-			//[mdf] skip rfc822 messages since we extracted their content above
-			if($file->mime_type == 'message/rfc822') {
-				continue;
-			}
-			
 		    $fields = array(
 		        DAO_Attachment::DISPLAY_NAME => $filename,
 		        DAO_Attachment::MIME_TYPE => $file->mime_type,
