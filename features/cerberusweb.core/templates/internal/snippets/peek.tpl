@@ -89,8 +89,18 @@
 </fieldset>
 {/if}
 
+{if isset($snippet->id)}
+<fieldset class="delete" style="display:none;">
+	<legend>Delete this snippet?</legend>
+	<p>Are you sure you want to permanently delete this snippet?</p>
+	<button type="button" class="green" onclick="$(this).closest('form').find('input:hidden[name=do_delete]').val('1');genericAjaxPopupClose('peek');genericAjaxPost('formSnippetsPeek', 'view{$view_id}')"> {'common.yes'|devblocks_translate|capitalize}</button>
+	<button type="button" class="red" onclick="$(this).closest('fieldset').hide().next('div.buttons').show();"> {'common.no'|devblocks_translate|capitalize}</button>
+</fieldset>
+{/if}
+
+<div class="buttons">
 {if $active_worker->hasPriv('core.snippets.actions.create')}
-	<button type="button" onclick="genericAjaxPopupClose('peek');genericAjaxPost('formSnippetsPeek', 'view{$view_id}')"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {$translate->_('common.save_changes')}</button>
+	<button type="button" onclick="genericAjaxPopupClose('peek');genericAjaxPost('formSnippetsPeek', 'view{$view_id}');"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {$translate->_('common.save_changes')}</button>
 {else}
 	<fieldset class="delete" style="font-weight:bold;">
 		{'error.core.no_acl.edit'|devblocks_translate}
@@ -98,10 +108,11 @@
 {/if}
 {if !empty($snippet->id)}
 	{if $snippet->isWriteableByWorker($active_worker)}
-	<button type="button" onclick="if(confirm('Are you sure you want to permanently delete this snippet?')) { this.form.do_delete.value='1';genericAjaxPopupClose('peek');genericAjaxPost('formSnippetsPeek', 'view{$view_id}'); } "><span class="cerb-sprite2 sprite-cross-circle-frame"></span> {$translate->_('common.delete')|capitalize}</button>
+	<button type="button" onclick="$(this).closest('div.buttons').hide().prev('fieldset.delete').show();"><span class="cerb-sprite2 sprite-cross-circle-frame"></span> {$translate->_('common.delete')|capitalize}</button>
 	{/if}
 {/if}
-<br>
+</div>
+
 </form>
 
 <script type="text/javascript">
