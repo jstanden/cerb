@@ -193,25 +193,33 @@
 			
 			{if $active_worker->hasPriv('core.ticket.actions.move')}
 			{assign var=show_more value=1}
-			<input type="hidden" name="move_to" value="">
-			<select name="move_to_select" onchange="this.form.move_to.value=this.form.move_to_select[this.selectedIndex].value;ajax.viewMoveTickets('{$view->id}');">
-				<option value="">-- {$translate->_('common.move_to')} --</option>
-				<optgroup label="{$translate->_('common.inboxes')|capitalize}" style="">
-					{foreach from=$groups item=group}
-						<option value="t{$group->id}">{$group->name}</option>
-					{/foreach}
-				</optgroup>
-				{foreach from=$group_buckets item=group_bucket_list key=groupId}
-					{assign var=group value=$groups.$groupId}
-					{if !empty($active_worker_memberships.$groupId)}
-						<optgroup label="-- {$group->name} --">
-						{foreach from=$group_bucket_list item=bucket}
-							<option value="c{$bucket->id}">{$bucket->name}</option>
-						{/foreach}
-						</optgroup>
-					{/if}
+			<button type="button" id="btn{$view->id}Move"><span class="cerb-sprite2 sprite"></span> {'common.move'|devblocks_translate|lower} &#x25be;</button>
+			<ul class="cerb-popupmenu cerb-float" style="">
+				<li style="background:none;">
+					<input type="text" size="16" class="input_search filter">
+				</li>
+				
+				{foreach from=$groups item=group name=groups}
+				<li group_id="{$group->id}" bucket_id="0">
+					<div class="item">
+						<b>{$group->name}</b><br>
+						<div style="margin-left:10px;"><a href="javascript:;" style="font-weight:normal;">{'common.inbox'|devblocks_translate|capitalize}</a></div>
+					</div>
+				</li>
+				
+				{if isset($active_worker_memberships.{$group->id})}
+				{foreach from=$group_buckets.{$group->id} item=bucket}
+					<li group_id="{$group->id}" bucket_id="{$bucket->id}">
+						<div class="item">
+							<b>{$group->name}</b><br>
+							<div style="margin-left:10px;"><a href="javascript:;" style="font-weight:normal;">{$bucket->name}</a></div>
+						</div>
+					</li>
 				{/foreach}
-			</select>
+				{/if}
+				
+				{/foreach}
+			</ul>
 			{/if}
 			
 			{if $show_more}
@@ -234,6 +242,7 @@
 					{if $active_worker->hasPriv('core.ticket.actions.close')}(<b>c</b>) {$translate->_('common.close')|lower}{/if} 
 					{if $active_worker->hasPriv('core.ticket.actions.spam')}(<b>s</b>) {$translate->_('common.spam')|lower}{/if} 
 					{if $active_worker->hasPriv('core.ticket.actions.delete')}(<b>x</b>) {$translate->_('common.delete')|lower}{/if}
+					{if $active_worker->hasPriv('core.ticket.actions.move')}(<b>m</b>) {'common.move'|devblocks_translate|lower}{/if}
 					<div style="margin-left:25px;">
 						workflow: 
 						(<b>-</b>) undo last filter 
@@ -275,3 +284,84 @@
 </form>
 
 {include file="devblocks:cerberusweb.core::internal/views/view_common_jquery_ui.tpl"}
+
+<script type="text/javascript">
+// Quick move menu
+$menu_trigger = $('#btn{$view->id}Move');
+$menu = $menu_trigger.next('ul.cerb-popupmenu');
+$menu_trigger.data('menu', $menu);
+
+$menu_trigger
+	.click(
+		function(e) {
+			$menu = $(this).data('menu');
+
+			if($menu.is(':visible')) {
+				$menu.hide();
+				return;
+			}
+
+			$menu
+				.css('position','absolute')
+				//.css('top',($(this).offset().top+20)+'px')
+				.css('left',$(this).offset().left+'px')
+				.show()
+				.find('> li input:text')
+				.focus()
+				.select()
+				;
+		}
+	)
+;
+
+$menu.find('> li > input.filter').keypress(
+	function(e) {
+		code = (e.keyCode ? e.keyCode : e.which);
+		if(code == 13) {
+			e.preventDefault();
+			e.stopPropagation();
+			$(this).select().focus();
+			return false;
+		}
+	}
+);
+	
+$menu.find('> li > input.filter').keyup(
+	function(e) {
+		term = $(this).val().toLowerCase();
+		$menu = $(this).closest('ul.cerb-popupmenu');
+		$menu.find('> li > div.item').each(function(e) {
+			if(-1 != $(this).html().toLowerCase().indexOf(term)) {
+				$(this).parent().show();
+			} else {
+				$(this).parent().hide();
+			}
+		});
+	}
+);
+
+$menu.find('> li').click(function(e) {
+	e.stopPropagation();
+	if($(e.target).is('a'))
+		return;
+
+	$(this).find('a').trigger('click');
+});
+
+$menu.find('> li > div.item a').click(function() {
+	$li = $(this).closest('li');
+	$frm = $(this).closest('form');
+	
+	group_id = $li.attr('group_id');
+	bucket_id = $li.attr('bucket_id');
+
+	console.log(group_id);
+	console.log(bucket_id);
+	
+	if(group_id.length > 0) {
+		genericAjaxPost('viewForm{$view->id}', 'view{$view->id}', 'c=tickets&a=viewMoveTickets&view_id={$view->id}&group_id=' + group_id + '&bucket_id=' + bucket_id);
+	}
+	
+	$menu.hide();
+});	
+</script>

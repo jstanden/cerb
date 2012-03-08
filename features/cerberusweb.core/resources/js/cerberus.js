@@ -226,15 +226,6 @@ var cAjaxCalls = function() {
 		);
 	}
 
-	this.viewMoveTickets = function(view_id) {
-		var divName = 'view'+view_id;
-		var formName = 'viewForm'+view_id;
-
-		genericAjaxPost(formName, divName, 'c=tickets&a=viewMoveTickets&view_id='+view_id, function(html) {
-			$('#'+divName).html(html);
-		});
-	}
-
 	this.viewTicketsAction = function(view_id,action) {
 		var divName = 'view'+view_id;
 		var formName = 'viewForm'+view_id;
