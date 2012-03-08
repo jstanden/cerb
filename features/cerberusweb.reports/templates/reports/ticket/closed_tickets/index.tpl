@@ -14,6 +14,7 @@
 	<option value="year" {if 'year'==$report_date_grouping}selected="selected"{/if}>Years</option>
 	<option value="month" {if 'month'==$report_date_grouping}selected="selected"{/if}>Months</option>
 	<option value="day" {if 'day'==$report_date_grouping}selected="selected"{/if}>Days</option>
+	<option value="hour" {if 'hour'==$report_date_grouping}selected="selected"{/if}>Hours</option>
 </select>
 <div id="divCal"></div>
 
