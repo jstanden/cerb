@@ -4,7 +4,7 @@
 	<name>[Cerb5] Reports</name>
 	<description>Pluggable reporting area with default reports on various metrics.  This adds a Reports menu and several plugin hooks for creating new reports.</description>
 	<author>WebGroup Media, LLC.</author>
-	<version>5.6.3</version>
+	<version>5.7.2</version>
 	<link>http://wiki.cerb5.com/wiki/Features:Reports</link>
 	<image>plugin.png</image>
 
