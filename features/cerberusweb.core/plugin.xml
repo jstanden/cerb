@@ -1433,6 +1433,19 @@
 			</extension>
 			
 			<extension point="cerberusweb.ui.page.section">
+				<id>core.page.setup.snippets</id>
+				<name>Snippets Section</name>
+				<class>
+					<file>api/uri/config/snippets.php</file>
+					<name>PageSection_SetupSnippets</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.page.configuration" />
+					<param key="uri" value="snippets" />
+				</params>
+			</extension>
+			
+			<extension point="cerberusweb.ui.page.section">
 				<id>core.page.setup.groups</id>
 				<name>Groups Section</name>
 				<class>
