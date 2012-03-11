@@ -650,6 +650,9 @@ class ChInternalController extends DevblocksControllerExtension {
 		$tpl->assign('types', $types);
 		
 		// Owners
+		$roles = DAO_WorkerRole::getAll();
+		$tpl->assign('roles', $roles);
+		
 		$workers = DAO_Worker::getAll();
 		$tpl->assign('workers', $workers);
 		
@@ -662,6 +665,13 @@ class ChInternalController extends DevblocksControllerExtension {
 				$owner_groups[$k] = $v;
 		}
 		$tpl->assign('owner_groups', $owner_groups);
+		
+		$owner_roles = array();
+		foreach($roles as $k => $v) { /* @var $v Model_WorkerRole */
+			if($active_worker->is_superuser)
+				$owner_roles[$k] = $v;
+		}
+		$tpl->assign('owner_roles', $owner_roles);
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/snippets/peek.tpl');
 	}
@@ -712,6 +722,11 @@ class ChInternalController extends DevblocksControllerExtension {
 			@list($owner_type, $owner_id) = explode('_', DevblocksPlatform::importGPC($_REQUEST['owner'],'string',''));
 		
 			switch($owner_type) {
+				// Role
+				case 'r':
+					$owner_context = CerberusContexts::CONTEXT_ROLE;
+					$owner_context_id = $owner_id;
+					break;
 				// Group
 				case 'g':
 					$owner_context = CerberusContexts::CONTEXT_GROUP;

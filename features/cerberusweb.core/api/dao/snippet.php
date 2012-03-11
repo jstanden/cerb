@@ -807,6 +807,9 @@ class Context_Snippet extends Extension_DevblocksContext {
 		
 		$params_required = array();
 		
+		$worker_group_ids = array_keys($active_worker->getMemberships());
+		$worker_role_ids = array_keys(DAO_WorkerRole::getRolesByWorker($active_worker->id));
+		
 		// Restrict owners
 		$param_ownership = array(
 			DevblocksSearchCriteria::GROUP_OR,
@@ -818,7 +821,12 @@ class Context_Snippet extends Extension_DevblocksContext {
 			array(
 				DevblocksSearchCriteria::GROUP_AND,
 				SearchFields_Snippet::OWNER_CONTEXT => new DevblocksSearchCriteria(SearchFields_Snippet::OWNER_CONTEXT,DevblocksSearchCriteria::OPER_EQ,CerberusContexts::CONTEXT_GROUP),
-				SearchFields_Snippet::OWNER_CONTEXT_ID => new DevblocksSearchCriteria(SearchFields_Snippet::OWNER_CONTEXT_ID,DevblocksSearchCriteria::OPER_IN,array_keys($active_worker->getMemberships())),
+				SearchFields_Snippet::OWNER_CONTEXT_ID => new DevblocksSearchCriteria(SearchFields_Snippet::OWNER_CONTEXT_ID,DevblocksSearchCriteria::OPER_IN,$worker_group_ids),
+			),
+			array(
+				DevblocksSearchCriteria::GROUP_AND,
+				SearchFields_Snippet::OWNER_CONTEXT => new DevblocksSearchCriteria(SearchFields_Snippet::OWNER_CONTEXT,DevblocksSearchCriteria::OPER_EQ,CerberusContexts::CONTEXT_ROLE),
+				SearchFields_Snippet::OWNER_CONTEXT_ID => new DevblocksSearchCriteria(SearchFields_Snippet::OWNER_CONTEXT_ID,DevblocksSearchCriteria::OPER_IN,$worker_role_ids),
 			),
 		);
 		$params_required['_ownership'] = $param_ownership;
