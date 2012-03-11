@@ -71,6 +71,17 @@
 					{$result.$column}
 				{/if}
 			</td>
+			{elseif $column=="*_owner"}
+				{$owner_context = $result.s_owner_context}
+				{$owner_context_id = $result.s_owner_context_id}
+				{$owner_context_ext = Extension_DevblocksContext::get($owner_context)}
+				<td>
+					{if !is_null($owner_context_ext)}
+						{$meta = $owner_context_ext->getMeta($owner_context_id)}
+						{$meta.name} 
+						({$owner_context_ext->manifest->name})
+					{/if}
+				</td>
 			{else}
 			<td>{$result.$column}</td>
 			{/if}

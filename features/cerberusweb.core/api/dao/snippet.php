@@ -308,6 +308,8 @@ class SearchFields_Snippet implements IDevblocksSearchFields {
 	
 	const USAGE_HITS = 'su_hits';
 	
+	const VIRTUAL_OWNER = '*_owner';
+	
 	/**
 	 * @return DevblocksSearchField[]
 	 */
@@ -323,6 +325,8 @@ class SearchFields_Snippet implements IDevblocksSearchFields {
 			self::CONTENT => new DevblocksSearchField(self::CONTENT, 'snippet', 'content', $translate->_('common.content')),
 			
 			self::USAGE_HITS => new DevblocksSearchField(self::USAGE_HITS, 'snippet_usage', 'hits', $translate->_('dao.snippet_usage.hits')),
+			
+			self::VIRTUAL_OWNER => new DevblocksSearchField(self::VIRTUAL_OWNER, '*', 'owner', $translate->_('common.owner')),
 		);
 		
 		// Custom Fields
@@ -438,6 +442,7 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals {
 		$this->view_columns = array(
 			SearchFields_Snippet::TITLE,
 			SearchFields_Snippet::CONTEXT,
+			SearchFields_Snippet::VIRTUAL_OWNER,
 		);
 		$this->addColumnsHidden(array(
 			SearchFields_Snippet::ID,
@@ -738,7 +743,7 @@ class Context_Snippet extends Extension_DevblocksContext {
 
 		// Polymorph
 		if(is_numeric($snippet)) {
-			$snippet = DAO_Task::get($snippet);
+			$snippet = DAO_Snippet::get($snippet);
 		} elseif($snippet instanceof Model_Snippet) {
 			// It's what we want already.
 		} else {
@@ -802,6 +807,7 @@ class Context_Snippet extends Extension_DevblocksContext {
 		$view->view_columns = array(
 			SearchFields_Snippet::TITLE,
 			SearchFields_Snippet::CONTEXT,
+			SearchFields_Snippet::VIRTUAL_OWNER,
 			SearchFields_Snippet::USAGE_HITS,
 		);
 		
