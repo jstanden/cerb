@@ -332,8 +332,12 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 						$pass = (0==strcasecmp($value,$param_value));
 						break;
 					case 'like':
-						$regexp = DevblocksPlatform::strToRegExp($param_value);
-						$pass = @preg_match($regexp, $value);
+						if(isset($values['headers'][$header])) {
+							$regexp = DevblocksPlatform::strToRegExp($param_value);
+							$pass = @preg_match($regexp, $value);
+						} else {
+							$pass = false;
+						}
 						break;
 					case 'contains':
 						$pass = (false !== stripos($value, $param_value)) ? true : false;
