@@ -545,7 +545,9 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals {
 		
 		switch($column) {
 			case SearchFields_Snippet::CONTEXT:
-				$label_map = array();
+				$label_map = array(
+					'' => 'Plaintext'
+				);
 				$contexts = Extension_DevblocksContext::getAll(false);
 				
 				foreach($contexts as $k => $mft) {
