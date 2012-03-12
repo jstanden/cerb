@@ -768,11 +768,20 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals {
 		if(is_array($do))
 		foreach($do as $k => $v) {
 			switch($k) {
-				// [TODO] Implement actions
-				case 'example':
-					//$change_fields[DAO_Snippet::EXAMPLE] = 'some value';
+				case 'owner':
+					@list($context, $context_id) = explode(':', $v);
+					
+					if(empty($context))
+						break;
+					
+					$change_fields[DAO_Snippet::OWNER_CONTEXT] = $context;
+					$change_fields[DAO_Snippet::OWNER_CONTEXT_ID] = $context_id;
 					break;
 				default:
+					// Custom fields
+					if(substr($k,0,3)=="cf_") {
+						$custom_fields[substr($k,3)] = $v;
+					}
 					break;
 			}
 		}
@@ -798,7 +807,8 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals {
 		for($x=0;$x<=$batch_total;$x+=100) {
 			$batch_ids = array_slice($ids,$x,100);
 			
-			DAO_Snippet::update($batch_ids, $change_fields);
+			if(!empty($change_fields))
+				DAO_Snippet::update($batch_ids, $change_fields);
 
 			// Custom Fields
 			self::_doBulkSetCustomFields(CerberusContexts::CONTEXT_SNIPPET, $custom_fields, $batch_ids);
