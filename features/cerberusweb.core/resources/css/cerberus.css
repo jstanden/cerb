@@ -767,7 +767,7 @@ UL.cerb-popupmenu > LI:hover {
 	color:rgb(255,255,255);
 }
 
-UL.cerb-popupmenu > LI:hover > A {
+UL.cerb-popupmenu > LI:hover A {
 	color:rgb(255,255,255);
 }
 

@@ -2355,6 +2355,9 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals {
 				case 'owner':
 					$change_fields[DAO_Ticket::OWNER_ID] = $v['worker_id'];
 					break;
+				case 'org':
+					$change_fields[DAO_Ticket::ORG_ID] = intval($v['org_id']);
+					break;
 				case 'status':
 					$change_fields[DAO_Ticket::IS_WAITING] = !empty($v['is_waiting']) ? 1 : 0;
 					$change_fields[DAO_Ticket::IS_CLOSED] = !empty($v['is_closed']) ? 1 : 0;

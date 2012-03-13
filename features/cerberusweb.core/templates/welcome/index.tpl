@@ -29,8 +29,10 @@
 	handy tips &amp; tricks, best practices, and highlights from community discussion: 
 
 	<ul style="list-style:none;margin:10px;">
-		{* Manual *}
-	
+		<li>
+			<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/_development/information.png{/devblocks_url}" align="middle">
+			<a href="http://www.cerberusweb.com/book" target="_blank">Read the user's guide</a>
+		</li>
 		<li>
 			<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/komodomedia/facebook_32.png{/devblocks_url}" align="middle">
 			<a href="http://www.facebook.com/cerb5" target="_blank">Become a fan on Facebook</a>

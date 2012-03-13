@@ -1536,7 +1536,8 @@ class ChTicketsPage extends CerberusPageExtension {
 	function viewMoveTicketsAction() {
 	    @$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
 	    @$ticket_ids = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'array');
-	    @$move_to = DevblocksPlatform::importGPC($_REQUEST['move_to'],'string');
+	    @$group_id = DevblocksPlatform::importGPC($_REQUEST['group_id'],'integer',0);
+	    @$bucket_id = DevblocksPlatform::importGPC($_REQUEST['bucket_id'],'integer',0);
 	    
 	    if(empty($ticket_ids)) {
 		    $view = C4_AbstractViewLoader::getView($view_id);
@@ -1545,8 +1546,6 @@ class ChTicketsPage extends CerberusPageExtension {
 	    }
 	    
         $visit = CerberusApplication::getVisit(); /* @var $visit CerberusVisit */
-	    
-	    list($group_id, $bucket_id) = CerberusApplication::translateGroupBucketCode($move_to);
 
         $fields = array(
             DAO_Ticket::GROUP_ID => $group_id,
@@ -1986,6 +1985,19 @@ class ChTicketsPage extends CerberusPageExtension {
 			$do['owner'] = array(
 				'worker_id' => intval($owner_id),
 			);
+		}
+		
+		// Org
+		@$org_name = DevblocksPlatform::importGPC($_REQUEST['do_org'],'string', null);
+		if(0 != strlen($org_name)) {
+			$org_id = DAO_ContactOrg::lookup($org_name, true);
+
+			if(!empty($org_id)) {
+				$do['org'] = array(
+					'org_id' => $org_id,
+					'org_name' => $org_name,
+				);
+			}
 		}
 		
 		// Set status

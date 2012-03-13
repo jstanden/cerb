@@ -71,6 +71,17 @@
 					{$result.$column}
 				{/if}
 			</td>
+			{elseif $column=="*_owner"}
+				{$owner_context = $result.s_owner_context}
+				{$owner_context_id = $result.s_owner_context_id}
+				{$owner_context_ext = Extension_DevblocksContext::get($owner_context)}
+				<td>
+					{if !is_null($owner_context_ext)}
+						{$meta = $owner_context_ext->getMeta($owner_context_id)}
+						{$meta.name} 
+						({$owner_context_ext->manifest->name})
+					{/if}
+				</td>
 			{else}
 			<td>{$result.$column}</td>
 			{/if}
@@ -81,17 +92,15 @@
 	
 </table>
 <table cellpadding="2" cellspacing="0" border="0" width="100%" id="{$view->id}_actions">
-	{*
 	{if $total}
 	<tr>
 		<td>
 			{if $active_worker && $active_worker->is_superuser}
-				<button type="button" onclick="genericAjaxPopup('peek','c=tickets&a=showSnippetBulkPanel&view_id={$view->id}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','row_id[]'),null,false,'500');"><span class="cerb-sprite2 sprite-folder-gear"></span> bulk update</button>
+				<button type="button" onclick="genericAjaxPopup('peek','c=internal&a=showSnippetBulkPanel&view_id={$view->id}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','row_id[]'),null,false,'500');"><span class="cerb-sprite2 sprite-folder-gear"></span> {'common.bulk_update'|devblocks_translate|lower}</button>
 			{/if}
 		</td>
 	</tr>
 	{/if}
-	*}
 	<tr>
 		<td align="right" valign="top" nowrap="nowrap">
 			{math assign=fromRow equation="(x*y)+1" x=$view->renderPage y=$view->renderLimit}

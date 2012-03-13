@@ -1,6 +1,7 @@
 <div style="float:right;">
 	<form action="#" method="post" id="frmPluginQuickSearch" onsubmit="return false;">
 	<b>{$translate->_('common.quick_search')}</b> <select name="type">
+		<option value="title">{$translate->_('common.name')|capitalize}</option>
 		<option value="description">{$translate->_('dao.cerb_plugin.description')|capitalize}</option>
 		<option value="author">{$translate->_('dao.cerb_plugin.author')|capitalize}</option>
 	</select><input type="text" name="query" class="input_search" size="16"></button>
@@ -21,6 +22,9 @@ $('#frmPluginQuickSearch INPUT:text[name=query]').keyup(function(e) {
 		$frm = $(this).closest('form');
 		
 		switch($frm.find('select[name=type]').val()) {
+			case 'title':
+				ajax.viewAddFilter('{$view->id}','c_name','like',{ 'value':'*' + $(this).val() + '*' });
+				break;
 			case 'author':
 				ajax.viewAddFilter('{$view->id}','c_author','like',{ 'value':'*' + $(this).val() + '*' });
 				break;

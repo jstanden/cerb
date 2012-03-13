@@ -318,6 +318,9 @@
 		<tu tuid='common.more'>
 			<tuv xml:lang="en_US"><seg>More</seg></tuv>
 		</tu>
+		<tu tuid='common.move'>
+			<tuv xml:lang="en_US"><seg>move</seg></tuv>
+		</tu>
 		<tu tuid='common.move_to'>
 			<tuv xml:lang="en_US"><seg>move to</seg></tuv>
 		</tu>

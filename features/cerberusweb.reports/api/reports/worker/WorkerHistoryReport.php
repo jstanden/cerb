@@ -74,6 +74,10 @@ class ChReportWorkerHistory extends Extension_Report {
 				$date_group = '%Y-%m-%d';
 				$date_increment = 'day';
 				break;
+			case 'hour':
+				$date_group='%Y-%m-%d %H';
+				$date_increment = 'hour';
+				break;				
 		}
 		
 		// Fallback to automatic grouping

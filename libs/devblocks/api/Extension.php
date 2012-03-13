@@ -862,7 +862,7 @@ class DevblocksEventHelper {
 		
 				// We require at least one worker 
 				if(empty($possible_workers)) {
-					$values[$var] = 0;
+					$values[$var['key']] = 0;
 					return;
 				}
 				

@@ -29,7 +29,15 @@ class ChRssController extends DevblocksControllerExtension {
 		$hash = array_shift($stack);
 
 		$feed = DAO_ViewRss::getByHash($hash);
-        if(empty($feed)) {
+		
+		// Grab the worker
+		if(null == ($worker = DAO_Worker::get($feed->worker_id))) {
+			die($translate->_('rss.bad_feed'));
+		}
+		
+		// Make sure the feed is valid
+		// and the worker isn't disabled
+        if(empty($feed) || $worker->is_disabled) {
             die($translate->_('rss.bad_feed'));
         }
 

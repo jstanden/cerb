@@ -165,9 +165,10 @@
 					$('#btnmail_workflowFollow').click();
 				} catch(e) { } 
 				break;
-			case 109:  // (M) my tickets
+			case 109:  // (M) move
 				try {
-					$('#btnMyTickets').click();
+					event.preventDefault();
+					$('#btnmail_workflowMove').click();
 				} catch(e) { } 
 				break;
 			case 115:  // (S) spam
@@ -247,6 +248,12 @@
 			case 102:  // (f) follow
 				try {
 					$('#btnsearchFollow').click();
+				} catch(e) { } 
+				break;
+			case 109:  // (m) move
+				try {
+					event.preventDefault();
+					$('#btnsearchMove').click();
 				} catch(e) { } 
 				break;
 			case 115:  // (S) spam

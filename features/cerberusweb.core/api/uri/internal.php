@@ -600,10 +600,14 @@ class ChInternalController extends DevblocksControllerExtension {
 			$view->name = 'Snippets';
 		}
 		
-		$view->addParamsRequired(array(
-			SearchFields_Snippet::OWNER_CONTEXT => new DevblocksSearchCriteria(SearchFields_Snippet::OWNER_CONTEXT, DevblocksSearchCriteria::OPER_EQ, $context),
-			SearchFields_Snippet::OWNER_CONTEXT_ID => new DevblocksSearchCriteria(SearchFields_Snippet::OWNER_CONTEXT_ID, DevblocksSearchCriteria::OPER_EQ, $context_id),
-		), true);
+		if($active_worker->is_superuser && 0 == strcasecmp($context, 'all')) {
+			$view->addParamsRequired(array(), true);
+		} else {
+			$view->addParamsRequired(array(
+				SearchFields_Snippet::OWNER_CONTEXT => new DevblocksSearchCriteria(SearchFields_Snippet::OWNER_CONTEXT, DevblocksSearchCriteria::OPER_EQ, $context),
+				SearchFields_Snippet::OWNER_CONTEXT_ID => new DevblocksSearchCriteria(SearchFields_Snippet::OWNER_CONTEXT_ID, DevblocksSearchCriteria::OPER_EQ, $context_id),
+			), true);
+		}
 		
 		C4_AbstractViewLoader::setView($view->id,$view);
 		$tpl->assign('view', $view);
@@ -650,6 +654,9 @@ class ChInternalController extends DevblocksControllerExtension {
 		$tpl->assign('types', $types);
 		
 		// Owners
+		$roles = DAO_WorkerRole::getAll();
+		$tpl->assign('roles', $roles);
+		
 		$workers = DAO_Worker::getAll();
 		$tpl->assign('workers', $workers);
 		
@@ -662,6 +669,13 @@ class ChInternalController extends DevblocksControllerExtension {
 				$owner_groups[$k] = $v;
 		}
 		$tpl->assign('owner_groups', $owner_groups);
+		
+		$owner_roles = array();
+		foreach($roles as $k => $v) { /* @var $v Model_WorkerRole */
+			if($active_worker->is_superuser)
+				$owner_roles[$k] = $v;
+		}
+		$tpl->assign('owner_roles', $owner_roles);
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/snippets/peek.tpl');
 	}
@@ -712,6 +726,11 @@ class ChInternalController extends DevblocksControllerExtension {
 			@list($owner_type, $owner_id) = explode('_', DevblocksPlatform::importGPC($_REQUEST['owner'],'string',''));
 		
 			switch($owner_type) {
+				// Role
+				case 'r':
+					$owner_context = CerberusContexts::CONTEXT_ROLE;
+					$owner_context_id = $owner_id;
+					break;
 				// Group
 				case 'g':
 					$owner_context = CerberusContexts::CONTEXT_GROUP;
@@ -856,6 +875,82 @@ class ChInternalController extends DevblocksControllerExtension {
 		$tpl->display('devblocks:cerberusweb.core::internal/renderers/test_results.tpl');
 	}
 
+	function showSnippetBulkPanelAction() {
+		@$ids = DevblocksPlatform::importGPC($_REQUEST['ids']);
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id']);
+
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!$active_worker->is_superuser)
+			return;
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('view_id', $view_id);
+
+	    if(!empty($ids)) {
+	        $id_list = DevblocksPlatform::parseCsvString($ids);
+	        $tpl->assign('ids', implode(',', $id_list));
+	    }
+		
+	    $workers = DAO_Worker::getAllActive();
+	    $tpl->assign('workers', $workers);
+	    
+	    $roles = DAO_WorkerRole::getAll();
+	    $tpl->assign('roles', $roles);
+	    
+	    $groups = DAO_Group::getAll();
+	    $tpl->assign('groups', $groups);
+	    
+		// Custom Fields
+		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_SNIPPET);
+		$tpl->assign('custom_fields', $custom_fields);
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/snippets/bulk.tpl');
+	}
+	
+	function doSnippetBulkUpdateAction() {
+		// Filter: whole list or check
+	    @$filter = DevblocksPlatform::importGPC($_REQUEST['filter'],'string','');
+		$ids = array();
+	    
+	    // View
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
+		$view = C4_AbstractViewLoader::getView($view_id);
+		
+		// Snippet fields
+		@$owner = trim(DevblocksPlatform::importGPC($_POST['owner'],'string',''));
+
+		$do = array();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		// Do: Due
+		if(0 != strlen($owner))
+			$do['owner'] = $owner;
+			
+		// Do: Custom fields
+		$do = DAO_CustomFieldValue::handleBulkPost($do);
+
+		switch($filter) {
+			// Checked rows
+			case 'checks':
+			    @$ids_str = DevblocksPlatform::importGPC($_REQUEST['ids'],'string');
+				$ids = DevblocksPlatform::parseCsvString($ids_str);
+				break;
+			case 'sample':
+				@$sample_size = min(DevblocksPlatform::importGPC($_REQUEST['filter_sample_size'],'integer',0),9999);
+				$filter = 'checks';
+				$ids = $view->getDataSample($sample_size);
+				break;
+			default:
+				break;
+		}
+		
+		$view->doBulkUpdate($filter, $do, $ids);
+		
+		$view->render();
+		return;
+	}	
+	
 	// Views
 
 	function viewRefreshAction() {
