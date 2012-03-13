@@ -1372,6 +1372,7 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 			self::ORG_NAME => new DevblocksSearchField(self::ORG_NAME, 'o', 'name', $translate->_('contact_org.name')),
 			self::REQUESTER_ADDRESS => new DevblocksSearchField(self::REQUESTER_ADDRESS, 'ra', 'email',$translate->_('ticket.requester')),
 			
+			self::TICKET_ORG_ID => new DevblocksSearchField(self::TICKET_ORG_ID, 't','org_id',$translate->_('contact_org.id')),
 			self::TICKET_OWNER_ID => new DevblocksSearchField(self::TICKET_OWNER_ID,'t','owner_id',$translate->_('common.owner')),
 			self::TICKET_GROUP_ID => new DevblocksSearchField(self::TICKET_GROUP_ID,'t','group_id',$translate->_('common.group')),
 			self::TICKET_BUCKET_ID => new DevblocksSearchField(self::TICKET_BUCKET_ID, 't', 'bucket_id',$translate->_('common.bucket')),
@@ -1514,12 +1515,13 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals {
 			SearchFields_Ticket::CONTEXT_LINK_ID,
 			SearchFields_Ticket::FULLTEXT_COMMENT_CONTENT,
 			SearchFields_Ticket::FULLTEXT_MESSAGE_CONTENT,
-			SearchFields_Ticket::REQUESTER_ID,
 			SearchFields_Ticket::REQUESTER_ADDRESS,
+			SearchFields_Ticket::REQUESTER_ID,
 			SearchFields_Ticket::TICKET_CLOSED,
 			SearchFields_Ticket::TICKET_DELETED,
-			SearchFields_Ticket::TICKET_WAITING,
 			SearchFields_Ticket::TICKET_INTERESTING_WORDS,
+			SearchFields_Ticket::TICKET_ORG_ID,
+			SearchFields_Ticket::TICKET_WAITING,
 			SearchFields_Ticket::VIRTUAL_ASSIGNABLE,
 			SearchFields_Ticket::VIRTUAL_GROUPS_OF_WORKER,
 			SearchFields_Ticket::VIRTUAL_STATUS,
@@ -1527,13 +1529,14 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals {
 		));
 		
 		$this->addParamsHidden(array(
-			SearchFields_Ticket::REQUESTER_ID,
-			SearchFields_Ticket::TICKET_CLOSED,
-			SearchFields_Ticket::TICKET_DELETED,
-			SearchFields_Ticket::TICKET_WAITING,
-			SearchFields_Ticket::TICKET_BUCKET_ID,
 			SearchFields_Ticket::CONTEXT_LINK,
 			SearchFields_Ticket::CONTEXT_LINK_ID,
+			SearchFields_Ticket::REQUESTER_ID,
+			SearchFields_Ticket::TICKET_BUCKET_ID,
+			SearchFields_Ticket::TICKET_CLOSED,
+			SearchFields_Ticket::TICKET_DELETED,
+			SearchFields_Ticket::TICKET_ORG_ID,
+			SearchFields_Ticket::TICKET_WAITING,
 		));
 		
 		$this->doResetCriteria();
