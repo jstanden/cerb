@@ -41,8 +41,6 @@
 		$('#btnPluginDownload').click(function() {
 			$(this).hide();
 			genericAjaxGet('', 'c=config&a=handleSectionAction&section=plugin_library&action=saveDownloadPopup&plugin_id={$plugin->id}', function(json) {
-				console.log(json);
-				
 				$('#divCerb5PluginOutput').show();
 				
 				// [TODO] Errors, or success?

@@ -85,7 +85,6 @@
 			
 			$action.val('saveJson');
 			$this.show();
-			console.log(o);
 		});
 	})
 	;	

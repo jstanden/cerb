@@ -355,9 +355,6 @@ $menu.find('> li > div.item a').click(function() {
 	group_id = $li.attr('group_id');
 	bucket_id = $li.attr('bucket_id');
 
-	console.log(group_id);
-	console.log(bucket_id);
-	
 	if(group_id.length > 0) {
 		genericAjaxPost('viewForm{$view->id}', 'view{$view->id}', 'c=tickets&a=viewMoveTickets&view_id={$view->id}&group_id=' + group_id + '&bucket_id=' + bucket_id);
 	}
