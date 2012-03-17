@@ -45,7 +45,7 @@ $('#frmPluginLibraryQuickSearch INPUT:text[name=query]').keyup(function(e) {
 		
 		switch($frm.find('select[name=type]').val()) {
 			case 'title':
-				ajax.viewAddFilter('{$view->id}','c_name','like',{ 'value':'*' + $(this).val() + '*' });
+				ajax.viewAddFilter('{$view->id}','p_name','like',{ 'value':'*' + $(this).val() + '*' });
 				break;
 			case 'author':
 				ajax.viewAddFilter('{$view->id}','p_author','like',{ 'value':'*' + $(this).val() + '*' });
