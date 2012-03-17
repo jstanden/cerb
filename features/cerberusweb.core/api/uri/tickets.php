@@ -1917,6 +1917,12 @@ class ChTicketsPage extends CerberusPageExtension {
 		
 		// Broadcast
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_TICKET, null, $token_labels, $token_values);
+		
+		// Signature
+		$translate = DevblocksPlatform::getTranslationService();
+		$token_labels['signature'] = mb_convert_case($translate->_('common.signature'), MB_CASE_TITLE);
+		asort($token_labels);
+		
 		$tpl->assign('token_labels', $token_labels);
 		
 		$tpl->display('devblocks:cerberusweb.core::tickets/rpc/bulk.tpl');
@@ -2114,6 +2120,19 @@ class ChTicketsPage extends CerberusPageExtension {
 			} else {
 				// Try to build the template
 				CerberusContexts::getContext(CerberusContexts::CONTEXT_TICKET, current($results), $token_labels, $token_values);
+				
+				// Add the signature to the token_values
+				// [TODO] This shouldn't be redundant with ::doBulkUpdateAction()
+				if(in_array('signature', $tpl_builder->tokenize($broadcast_message))) {
+					if(isset($token_values['group_id']) && null != ($sig_group = DAO_Group::get($token_values['group_id']))) {
+						 $sig_template = $sig_group->getReplySignature(@intval($token_values['bucket_id']));
+						 CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $active_worker->id, $worker_labels, $worker_values);
+						 if(false !== ($out = $tpl_builder->build($sig_template, $worker_values))) {
+						 	$token_values['signature'] = $out;
+						 }
+					}
+				}
+				
 				if(false === ($out = $tpl_builder->build($broadcast_message, $token_values))) {
 					// If we failed, show the compile errors
 					$errors = $tpl_builder->getErrors();

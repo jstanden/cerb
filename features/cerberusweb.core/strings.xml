@@ -444,6 +444,9 @@
 		<tu tuid='common.settings'>
 			<tuv xml:lang="en_US"><seg>settings</seg></tuv>
 		</tu>
+		<tu tuid='common.signature'>
+			<tuv xml:lang="en_US"><seg>signature</seg></tuv>
+		</tu>
 		<tu tuid='common.snippets'>
 			<tuv xml:lang="en_US"><seg>snippets</seg></tuv>
 		</tu>

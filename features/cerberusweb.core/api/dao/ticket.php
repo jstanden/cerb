@@ -2340,6 +2340,8 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals {
 		$change_fields = array();
 		$custom_fields = array();
 
+		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+		
 		// Make sure we have actions
 		if(empty($do))
 			return;
@@ -2369,6 +2371,11 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals {
 				case 'reopen':
 					@$date = strtotime($v['date']);
 					$change_fields[DAO_Ticket::DUE_DATE] = intval($date);
+					break;
+				case 'broadcast':
+					if(isset($v['worker_id'])) {
+						CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $v['worker_id'], $worker_labels, $worker_values);
+					}
 					break;
 				default:
 					// Custom fields
@@ -2507,11 +2514,24 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals {
 					);
 					$is_queued = (isset($broadcast_params['is_queued']) && $broadcast_params['is_queued']) ? true : false; 
 					
-					$tpl_builder = DevblocksPlatform::getTemplateBuilder();
-					
 					if(is_array($tickets))
 					foreach($tickets as $ticket_id => $row) {
 						CerberusContexts::getContext(CerberusContexts::CONTEXT_TICKET, $row, $tpl_labels, $tpl_tokens);
+						
+						// Add the signature to the token_values
+						// [TODO] This shouldn't be redundant with ::doBulkUpdateBroadcastTestAction()
+						if(in_array('signature', $tpl_builder->tokenize($broadcast_params['message']))) {
+							if(isset($tpl_tokens['group_id']) && null != ($sig_group = DAO_Group::get($tpl_tokens['group_id']))) {
+								 $sig_template = $sig_group->getReplySignature(@intval($tpl_tokens['bucket_id']));
+
+								 if(isset($worker_values)) {
+									 if(false !== ($out = $tpl_builder->build($sig_template, $worker_values))) {
+									 	$tpl_tokens['signature'] = $out;
+									 }
+								 }
+							}
+						}
+						
 						$body = $tpl_builder->build($broadcast_params['message'], $tpl_tokens);
 						
 						$fields = array(
