@@ -57,7 +57,7 @@
 				<name>Context_Feedback</name>
 			</class>
 			<params>
-				<param key="view_class" value="View_FeedbackEntry" />
+				<param key="view_class" value="C4_FeedbackEntryView" />
 				<param key="options">
 					<value>
 						<!--<data key="create" />-->
