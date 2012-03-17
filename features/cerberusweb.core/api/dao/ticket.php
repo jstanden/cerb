@@ -2673,6 +2673,7 @@ class Context_Ticket extends Extension_DevblocksContext {
 			'created|date' => $prefix.$translate->_('ticket.created'),
 			'id' => $prefix.$translate->_('ticket.id'),
 			'mask' => $prefix.$translate->_('ticket.mask'),
+			'reopen_date|date' => $prefix.$translate->_('ticket.reopen_date'),
 			'spam_score' => $prefix.$translate->_('ticket.spam_score'),
 			'spam_training' => $prefix.$translate->_('ticket.spam_training'),
 			'status' => $prefix.$translate->_('common.status'),
@@ -2694,6 +2695,7 @@ class Context_Ticket extends Extension_DevblocksContext {
 			$token_values['created'] = $ticket[SearchFields_Ticket::TICKET_CREATED_DATE];
 			$token_values['id'] = $ticket[SearchFields_Ticket::TICKET_ID];
 			$token_values['mask'] = $ticket[SearchFields_Ticket::TICKET_MASK];
+			$token_values['reopen_date'] = $ticket[SearchFields_Ticket::TICKET_DUE_DATE];
 			$token_values['spam_score'] = $ticket[SearchFields_Ticket::TICKET_SPAM_SCORE];
 			$token_values['spam_training'] = $ticket[SearchFields_Ticket::TICKET_SPAM_TRAINING];
 			$token_values['subject'] = $ticket[SearchFields_Ticket::TICKET_SUBJECT];

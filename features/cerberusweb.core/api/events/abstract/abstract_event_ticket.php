@@ -209,6 +209,7 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 			"ticket_bucket_name|default('Inbox')" => Model_CustomField::TYPE_SINGLE_LINE,
 			'ticket_created|date' => Model_CustomField::TYPE_DATE,
 			'ticket_mask' => Model_CustomField::TYPE_SINGLE_LINE,
+			'ticket_reopen_date|date' => Model_CustomField::TYPE_DATE,
 			'ticket_spam_score' => null,
 			'ticket_spam_training' => null,
 			'ticket_status' => null,
