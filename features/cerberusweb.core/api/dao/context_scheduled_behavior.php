@@ -142,16 +142,40 @@ class DAO_ContextScheduledBehavior extends C4_ORMHelper {
 		return true;
 	}
 	
-	static function deleteByBehavior($behavior_ids) {
+	static function deleteByBehavior($behavior_ids, $only_context=null, $only_context_id=null) {
 		if(!is_array($behavior_ids)) $behavior_ids = array($behavior_ids);
 		$db = DevblocksPlatform::getDatabaseService();
 		
 		if(empty($behavior_ids))
 			return;
 
+		DevblocksPlatform::sanitizeArray($behavior_ids, 'integer');
 		$ids_list = implode(',', $behavior_ids);
 		
-		$db->Execute(sprintf("DELETE FROM context_scheduled_behavior WHERE behavior_id IN (%s)", $ids_list));
+		$wheres = array();
+		
+		$wheres[] = sprintf("behavior_id IN (%s)",
+			$ids_list
+		);
+		
+		// Are we limiting this delete to a single context or object?
+		if(!empty($only_context)) {
+			$wheres[] = sprintf("context = %s",
+				$db->qstr($only_context)
+			);
+			
+			if(!empty($only_context_id)) {
+				$wheres[] = sprintf("context_id = %d",
+					$only_context_id
+				);
+			}
+		}
+		
+		// Join where clauses
+		$where = implode(' AND ', $wheres);
+		
+		// Query
+		$db->Execute(sprintf("DELETE FROM context_scheduled_behavior WHERE %s", $where));
 		
 		return true;
 	}

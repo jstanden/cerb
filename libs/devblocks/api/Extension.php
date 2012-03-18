@@ -975,7 +975,7 @@ class DevblocksEventHelper {
 			// Only keep latest
 			case 'last':
 				// Delete everything prior so we only have the new one below
-				DAO_ContextScheduledBehavior::deleteByBehavior($behavior_id);
+				DAO_ContextScheduledBehavior::deleteByBehavior($behavior_id, $context, $context_id);
 				break;
 			
 			// Allow dupes
@@ -1022,7 +1022,7 @@ class DevblocksEventHelper {
 		if(empty($behavior_id))
 			return FALSE;
 		
-		return DAO_ContextScheduledBehavior::deleteByBehavior($behavior_id);
+		return DAO_ContextScheduledBehavior::deleteByBehavior($behavior_id, $context, $context_id);
 	}
 	
 	/*
