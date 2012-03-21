@@ -148,10 +148,10 @@ abstract class C4_AbstractView {
 	function addParams($params, $replace=false) {
 		if($replace)
 			$this->removeAllParams();
-			
+		
 		if(is_array($params))
 		foreach($params as $key => $param) {
-			$key = !is_string($key) ? $param->field : $key;
+			$key = (!is_string($key) && is_object($param)) ? $param->field : $key;
 			$this->addParam($param, $key);	
 		}	
 	}
