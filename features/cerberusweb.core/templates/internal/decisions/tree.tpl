@@ -10,13 +10,13 @@
 	<div class="node trigger" style="margin-left:10px;">
 		<input type="hidden" name="node_id" value="0">
 		<div class="badge badge-lightgray">
-			<a href="javascript:;" onclick="decisionNodeMenu(this,'0','{$trigger->id}');" style="font-weight:bold;color:rgb(0,0,0);text-decoration:none;">
+			<a href="javascript:;" onclick="decisionNodeMenu(this);" node_id="0" trigger_id="{$trigger->id}" style="font-weight:bold;color:rgb(0,0,0);text-decoration:none;">
 				{$event->name} &#x25be;
 			</a>
 		</div>
 		<div class="branch trigger" style="margin-left:10px;">
 			{foreach from=$tree_hier[0] item=child_id}
-				{include file="devblocks:cerberusweb.core::internal/decisions/branch.tpl" node_id=$child_id trigger_id=$trigger->id data=$tree_data nodes=$tree_nodes tree=$tree_hier depths=$tree_depths}
+				{include file="devblocks:cerberusweb.core::internal/decisions/branch.tpl" node_id=$child_id trigger_id=$trigger->id nodes=$tree_nodes tree=$tree_hier depths=$tree_depths}
 			{/foreach}
 		</div>
 	</div>
