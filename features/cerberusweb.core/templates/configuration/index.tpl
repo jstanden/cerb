@@ -10,6 +10,7 @@
 					<li><a href="{devblocks_url}c=config&a=license{/devblocks_url}">License</a></li>
 					{if !$smarty.const.ONDEMAND_MODE}<li><a href="{devblocks_url}c=config&a=scheduler{/devblocks_url}">Scheduler</a></li>{/if}
 					<li><a href="{devblocks_url}c=config&a=snippets{/devblocks_url}">Snippets</a></li>
+					<li><a href="{devblocks_url}c=config&a=portals{/devblocks_url}">Community Portals</a></li>
 					<li><a href="{devblocks_url}c=config&a=attendants{/devblocks_url}">Virtual Attendants</a></li>
 					
 					{$exts = Extension_PageMenuItem::getExtensions(true, 'core.page.configuration','core.setup.menu.settings')}
@@ -80,20 +81,6 @@
 							{if method_exists($menu_item,'render')}<li>{$menu_item->render()}</li>{/if}
 						{/foreach}
 					{/if}
-				</ul>
-			</div>
-		</li>
-		<li>
-			<div>
-				<a href="javascript:;" class="menu">Community Portals <span>&#x25be;</span></a>
-				<ul class="cerb-popupmenu cerb-float">
-					<li><a href="{devblocks_url}c=config&a=portals{/devblocks_url}">Configure</a></li>
-					
-					{$exts = Extension_PageMenuItem::getExtensions(true, 'core.page.configuration','core.setup.menu.portals')}
-					{if !empty($exts)}<li><hr></li>{/if}
-					{foreach from=$exts item=menu_item}
-						{if method_exists($menu_item,'render')}<li>{$menu_item->render()}</li>{/if}
-					{/foreach}
 				</ul>
 			</div>
 		</li>
