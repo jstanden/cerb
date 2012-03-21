@@ -302,13 +302,21 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 		$not = false;
 		$pass = true;
 		
+		$now = time();
+		
+		// Overload the current time? (simulate)
+		if(isset($values['_current_time'])) {
+			$now = $values['_current_time'];
+		}
+		
+		// Built-in actions
 		switch($token) {
 			case '_month_of_year':
 				$not = (substr($params['oper'],0,1) == '!');
 				$oper = ltrim($params['oper'],'!');
 				switch($oper) {
 					case 'is':
-						$month = date('n');
+						$month = date('n', $now);
 						$pass = in_array($month, $params['month']);
 						break;
 				}
@@ -318,7 +326,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 				$oper = ltrim($params['oper'],'!');
 				switch($oper) {
 					case 'is':
-						$today = date('N');
+						$today = date('N', $now);
 						$pass = in_array($today, $params['day']);
 						break;
 				}
@@ -328,9 +336,8 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 				$oper = ltrim($params['oper'],'!');
 				switch($oper) {
 					case 'between':
-						$now = strtotime('now');
-						$from = strtotime($params['from']);
-						$to = strtotime($params['to']);
+						$from = strtotime($params['from'], $now);
+						$to = strtotime($params['to'], $now);
 						if($to < $from)
 							$to += 86400; // +1 day
 						$pass = ($now >= $from && $now <= $to) ? true : false;

@@ -1,6 +1,7 @@
 <ul class="cerb-popupmenu cerb-float" style="display:block;">
 	{if empty($node)}
 		<li><a href="javascript:;" onclick="genericAjaxPopup('node_trigger{$trigger_id}','c=internal&a=showDecisionPopup&trigger_id={$trigger_id}',null,false,'500');">Edit Behavior</a></li>
+		<li><a href="javascript:;" onclick="genericAjaxPopup('simulate_behavior{$trigger_id}','c=internal&a=showBehaviorSimulatorPopup&trigger_id={$trigger_id}',null,false,'500');">Simulate Behavior</a></li>
 		<li><a href="javascript:;" onclick="genericAjaxPopup('peek','c=internal&a=showDecisionReorderPopup&trigger_id={$trigger_id}',null,false,'500');">Reorder</a></li>
 	{else}
 		<li><a href="javascript:;" onclick="genericAjaxPopup('node_{$node->node_type}{$node->id}','c=internal&a=showDecisionPopup&id={$node->id}',null,false,'500');">Edit</a></li>

@@ -2354,6 +2354,84 @@ class ChInternalController extends DevblocksControllerExtension {
 		$tpl->clearAssign('type');
 	}
 
+	function showBehaviorSimulatorPopupAction() {
+		@$trigger_id = DevblocksPlatform::importGPC($_REQUEST['trigger_id'],'integer', 0);
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+
+		if(null == ($trigger = DAO_TriggerEvent::get($trigger_id)))
+			return;
+		
+		$tpl->assign('trigger', $trigger);
+
+		if(null == ($ext_event = DevblocksPlatform::getExtension($trigger->event_point, true))) /* @var $ext_event Extension_DevblocksEvent */
+			return;
+		
+		$event_model = $ext_event->generateSampleEventModel();
+		
+		$ext_event->setEvent($event_model);
+		
+		$labels = $ext_event->getLabels($trigger);
+		$values = $ext_event->getValues();
+
+		$conditions = $ext_event->getConditions($trigger);
+		
+		$dictionary = array();
+		
+		foreach($conditions as $k => $v) {
+			if(isset($values[$k])) {
+				$dictionary[$k] = array(
+					'label' => $v['label'],
+					'type' => $v['type'],
+					'value' => $values[$k],
+				);
+			}
+		}
+		
+		$tpl->assign('dictionary', $dictionary);
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/decisions/editors/simulate.tpl');
+	}
+	
+	function runBehaviorSimulatorAction() {
+		@$trigger_id = DevblocksPlatform::importGPC($_POST['trigger_id'],'integer', 0);
+		@$values = DevblocksPlatform::importGPC($_POST['values'],'array', array());
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		
+		$tpl->assign('trigger_id', $trigger_id);
+		
+		if(null == ($trigger = DAO_TriggerEvent::get($trigger_id)))
+			return;
+		
+		$tpl->assign('trigger', $trigger);
+		
+ 		if(null == ($ext_event = DevblocksPlatform::getExtension($trigger->event_point, true))) /* @var $ext_event Extension_DevblocksEvent */
+ 			return;
+
+ 		$conditions = $ext_event->getConditions($trigger);
+ 		
+ 		// Sanitize values
+ 		
+ 		foreach($values as $k => $v) {
+ 			if(
+ 				(isset($conditions[$k]) && $conditions[$k]['type'] == Model_CustomField::TYPE_DATE)
+ 				|| $k == '_current_time'
+ 			)
+ 				$values[$k] = strtotime($v);
+ 		} 		
+ 		
+ 		// Behavior data
+ 		
+		$behavior_data = $trigger->getDecisionTreeData();
+		$tpl->assign('behavior_data', $behavior_data);
+		
+		$behavior_path = $trigger->runDecisionTree($values, true);
+		$tpl->assign('behavior_path', $behavior_path);
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/decisions/simulator/results.tpl');
+	}
+	
 	function showScheduleBehaviorParamsAction() {
 		@$name_prefix = DevblocksPlatform::importGPC($_REQUEST['name_prefix'],'string', '');
 		@$trigger_id = DevblocksPlatform::importGPC($_REQUEST['trigger_id'],'integer', 0);
