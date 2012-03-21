@@ -2,7 +2,7 @@
 	<ul>
 		<li>
 			<div>
-				<a href="javascript:;" class="menu">Settings <span>&#x25be;</span></a>
+				<a href="javascript:;" class="menu">Configure <span>&#x25be;</span></a>
 				<ul class="cerb-popupmenu cerb-float">
 					<li><a href="{devblocks_url}c=config&a=branding{/devblocks_url}">Logo &amp; Title</a></li>
 					{if !$smarty.const.ONDEMAND_MODE}<li><a href="{devblocks_url}c=config&a=security{/devblocks_url}">Security</a></li>{/if}
@@ -10,6 +10,7 @@
 					<li><a href="{devblocks_url}c=config&a=license{/devblocks_url}">License</a></li>
 					{if !$smarty.const.ONDEMAND_MODE}<li><a href="{devblocks_url}c=config&a=scheduler{/devblocks_url}">Scheduler</a></li>{/if}
 					<li><a href="{devblocks_url}c=config&a=snippets{/devblocks_url}">Snippets</a></li>
+					<li><a href="{devblocks_url}c=config&a=attendants{/devblocks_url}">Virtual Attendants</a></li>
 					
 					{$exts = Extension_PageMenuItem::getExtensions(true, 'core.page.configuration','core.setup.menu.settings')}
 					{if !empty($exts)}<li><hr></li>{/if}
