@@ -56,9 +56,24 @@ class ParseCron extends CerberusCronPageExtension {
 		if ($subdirs === false) $subdirs = array();
 		$subdirs[] = $mailDir; // Add our root directory last
 
+		$archivePath = sprintf("%sarchive/%04d/%02d/%02d/",
+			APP_MAIL_PATH,
+			date('Y'),
+			date('m'),
+			date('d')
+		);
+		
+		if(defined('DEVELOPMENT_ARCHIVE_PARSER_MSGSOURCE') && DEVELOPMENT_ARCHIVE_PARSER_MSGSOURCE) {
+			if(!file_exists($archivePath) && is_writable(APP_MAIL_PATH)) {
+				if(false === mkdir($archivePath, 0755, true)) {
+					$logger->error("[Parser] Can't write to the archive path: ". $archivePath. " ...skipping copy");
+				}
+			}
+		}
+		
 		foreach($subdirs as $subdir) {
 			if(!is_writable($subdir)) {
-				$logger->error('[Parser] Write permission error, unable parse messages inside: '. $subdir. "...skipping");
+				$logger->error('[Parser] Write permission error, unable parse messages inside: '. $subdir. " ...skipping");
 				continue;
 			}
 
@@ -66,10 +81,21 @@ class ParseCron extends CerberusCronPageExtension {
 			 
 			foreach($files as $file) {
 				$filePart = basename($file);
-				$parseFile = APP_MAIL_PATH . 'fail' . DIRECTORY_SEPARATOR . $filePart;
+
+				if(defined('DEVELOPMENT_ARCHIVE_PARSER_MSGSOURCE') && DEVELOPMENT_ARCHIVE_PARSER_MSGSOURCE) {
+					if(!copy($file, $archivePath.$filePart)) {
+						//...
+					}
+				}
+				
+				$parseFile = sprintf("%s/fail/%s",
+					APP_MAIL_PATH,
+					$filePart
+				);
 				rename($file, $parseFile);
+				
 				$this->_parseFile($parseFile);
-				//				flush();
+
 				if(--$total <= 0) break;
 			}
 			if($total <= 0) break;
