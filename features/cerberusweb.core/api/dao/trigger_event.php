@@ -492,7 +492,7 @@ class Model_TriggerEvent {
 		}
 	}
 	
-	public function runDecisionTree(&$dictionary) {
+	public function runDecisionTree(&$dictionary, $dry_run=false) {
 		$nodes = $this->_getNodes();
 		$tree = $this->_getTree();
 		$path = array();
@@ -501,14 +501,14 @@ class Model_TriggerEvent {
 		$event = DevblocksPlatform::getExtension($this->event_point, true); /* @var $event Extension_DevblocksEvent */
 		//var_dump($event);
 		
-		$this->_recurseRunTree($event, $nodes, $tree, 0, $dictionary, $path);
+		$this->_recurseRunTree($event, $nodes, $tree, 0, $dictionary, $path, $dry_run);
 		
 		// [TODO] Run actions in bulk, or run inline?
 		
 		return $path;
 	}
 	
-	private function _recurseRunTree($event, $nodes, $tree, $node_id, &$dictionary, &$path) {
+	private function _recurseRunTree($event, $nodes, $tree, $node_id, &$dictionary, &$path, $dry_run=false) {
 		$logger = DevblocksPlatform::getConsoleLog("Assistant");
 		// Does our current node pass?
 		$pass = true;
@@ -574,6 +574,11 @@ class Model_TriggerEvent {
 					foreach($nodes[$node_id]->params['actions'] as $params) {
 						if(!isset($params['action']))
 							continue;
+						
+						// Is this a dry run?  If so, don't actually change anything
+						// [TODO] It would be cool to see what the action *would* have done (snippet output, etc)
+						if($dry_run)
+							continue;
 
 						$action = $params['action'];
 						$event->runAction($action, $this, $params, $dictionary);
@@ -600,20 +605,20 @@ class Model_TriggerEvent {
 				// Always run all actions
 				case 'action':
 					if($pass)
-						$this->_recurseRunTree($event, $nodes, $tree, $child_id, $dictionary, $path);
+						$this->_recurseRunTree($event, $nodes, $tree, $child_id, $dictionary, $path, $dry_run);
 					break;
 					
 				default:
 					switch($parent_type) {
 						case 'outcome':
 							if($pass)
-								$this->_recurseRunTree($event, $nodes, $tree, $child_id, $dictionary, $path);
+								$this->_recurseRunTree($event, $nodes, $tree, $child_id, $dictionary, $path, $dry_run);
 							break;
 							
 						case 'switch':
 							// Only run the first successful child outcome
 							if($pass && !$switch)
-								if($this->_recurseRunTree($event, $nodes, $tree, $child_id, $dictionary, $path))
+								if($this->_recurseRunTree($event, $nodes, $tree, $child_id, $dictionary, $path, $dry_run))
 									$switch = true;
 							break;
 							
