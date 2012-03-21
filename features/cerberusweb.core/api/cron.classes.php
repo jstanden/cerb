@@ -1372,6 +1372,8 @@ class Cron_VirtualAttendantScheduledBehavior extends CerberusCronPageExtension {
 						
 					} catch (Exception $e) {
 						$logger->error(sprintf("Failed executing behavior %d: %s", $behavior->id, $e->getMessage()));
+
+						DAO_ContextScheduledBehavior::delete($behavior->id);
 					}
 				}
 			}
