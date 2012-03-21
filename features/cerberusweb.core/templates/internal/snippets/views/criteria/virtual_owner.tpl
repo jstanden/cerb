@@ -48,7 +48,6 @@
 <br>
 
 <script type="text/javascript">
-// Quick move menu
 $menu = $('#{$menu_divid}');
 $input = $menu.prevAll('input.filter');
 $input.focus();

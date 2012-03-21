@@ -59,7 +59,7 @@ abstract class AbstractEvent_Org extends Extension_DevblocksEvent {
 		$values = array();
 
 		/**
-		 * Task
+		 * Org
 		 */
 		
 		@$org_id = $event_model->params['org_id']; 

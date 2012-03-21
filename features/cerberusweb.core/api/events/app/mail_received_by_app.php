@@ -164,7 +164,7 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 			'attachment_size' => null,
 			'attachment_count' => Model_CustomField::TYPE_NUMBER,
 			'header' => null,
-			'is_new' => null,
+			'is_new' => Model_CustomField::TYPE_CHECKBOX,
 			'recipients' => null,
 		);
 
@@ -181,9 +181,6 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 			$tpl->assign('namePrefix','condition'.$seq);
 		
 		switch($token) {
-			case 'is_new':
-				$tpl->display('devblocks:cerberusweb.core::internal/decisions/conditions/_bool.tpl');
-				break;
 			case 'attachment_mimetype':
 			case 'attachment_name':
 				$tpl->display('devblocks:cerberusweb.core::internal/decisions/conditions/_string.tpl');
@@ -208,12 +205,6 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 		$pass = true;
 		
 		switch($token) {
-			case 'is_new':
-				$bool = $params['bool'];
-				@$value = $values['is_new'];
-				$pass = ($bool == !empty($value));
-				break;
-				
 			case 'attachment_name':
 			case 'attachment_mimetype':
 				$not = (substr($params['oper'],0,1) == '!');
