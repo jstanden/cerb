@@ -429,6 +429,12 @@
 		<tu tuid='common.save'>
 			<tuv xml:lang="en_US"><seg>Save</seg></tuv>
 		</tu>
+		<tu tuid='common.save_and_continue'>
+			<tuv xml:lang="en_US"><seg>Save &amp; Continue</seg></tuv>
+		</tu>
+		<tu tuid='common.save_and_close'>
+			<tuv xml:lang="en_US"><seg>Save &amp; Close</seg></tuv>
+		</tu>
 		<tu tuid='common.save_changes'>
 			<tuv xml:lang="en_US"><seg>Save Changes</seg></tuv>
 		</tu>
