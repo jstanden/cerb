@@ -41,6 +41,10 @@ class DevblocksExtension {
 };
 
 abstract class Extension_DevblocksContext extends DevblocksExtension {
+	/**
+	 * @param unknown_type $as_instances
+	 * @return Extension_DevblocksContext[]
+	 */
 	public static function getAll($as_instances=false) {
 		$contexts = DevblocksPlatform::getExtensions('devblocks.context', $as_instances);
 		if($as_instances)
@@ -50,8 +54,10 @@ abstract class Extension_DevblocksContext extends DevblocksExtension {
 		return $contexts;
 	}
 	
-	/*
+	/**
 	 * Lazy loader + cache
+	 * @param unknown_type $context
+	 * @return Extension_DevblocksContext
 	 */
 	public static function get($context) {
 		static $contexts = null;
@@ -138,7 +144,6 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 			if(false !== ($pos = strpos($token,'|')))
 				$token = substr($token,0,$pos);
 				
-				
 			$conditions[$token] = array('label' => $label, 'type' => $type);
 		}
 		
@@ -212,7 +217,6 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 		// [TODO] Work in progress
 		// [TODO] This should filter by event type
 		$manifests = Extension_DevblocksEventCondition::getAll(false);
-		//var_dump($manifests);
 		foreach($manifests as $manifest) {
 			$conditions[$manifest->id] = array('label' => $manifest->params['label']);
 		}
@@ -542,7 +546,6 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 		// Add plugin extensions
 		// [TODO] This should be filtered by event type?
 		$manifests = Extension_DevblocksEventAction::getAll(false);
-		//var_dump($manifests);
 		foreach($manifests as $manifest) {
 			$actions[$manifest->id] = array('label' => $manifest->params['label']);
 		}
@@ -793,8 +796,6 @@ class DevblocksEventHelper {
 	
 	static function runActionSetVariable($token, $trigger, $params, &$values) {
 		@$var = $trigger->variables[$token];
-		
-		$value = null;
 		
 		if(empty($var) || !is_array($var))
 			return;
@@ -1154,7 +1155,7 @@ class DevblocksEventHelper {
 		
 		if(!is_array($worker_ids) || empty($worker_ids))
 			return;
-
+		
 		CerberusContexts::addWatchers($context, $context_id, $worker_ids);
 	}
 	

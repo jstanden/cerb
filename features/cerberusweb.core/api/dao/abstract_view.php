@@ -511,6 +511,7 @@ abstract class C4_AbstractView {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		// Presets
+		// [TODO] Cache?
 		return DAO_ViewFiltersPreset::getWhere(
 			sprintf("%s = %s AND %s = %d",
 				DAO_ViewFiltersPreset::VIEW_CLASS,

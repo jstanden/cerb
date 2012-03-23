@@ -2422,7 +2422,7 @@ class ChInternalController extends DevblocksControllerExtension {
  		} 		
  		
  		// Behavior data
- 		
+
 		$behavior_data = $trigger->getDecisionTreeData();
 		$tpl->assign('behavior_data', $behavior_data);
 		
@@ -2895,7 +2895,6 @@ class ChInternalController extends DevblocksControllerExtension {
 		
 		foreach($results as $row) {
 			$day_range = range(strtotime('midnight', $row['date_start']), strtotime('midnight', $row['date_end']), 86400);
-			//var_dump($day_range);
 			
 			foreach($day_range as $epoch) {
 				if(!isset($calendar_events[$epoch]))

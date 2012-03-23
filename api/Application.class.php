@@ -720,7 +720,6 @@ class CerberusContexts {
 			}
 		}
 		
-		
 		// Rename labels
 		foreach($labels as $idx => $label) {
 			// [TODO] mb_*

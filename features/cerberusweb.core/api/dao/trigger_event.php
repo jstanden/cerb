@@ -499,7 +499,6 @@ class Model_TriggerEvent {
 		
 		// [TODO] This could be more efficient
 		$event = DevblocksPlatform::getExtension($this->event_point, true); /* @var $event Extension_DevblocksEvent */
-		//var_dump($event);
 		
 		$this->_recurseRunTree($event, $nodes, $tree, 0, $dictionary, $path, $dry_run);
 		
@@ -516,8 +515,6 @@ class Model_TriggerEvent {
 		// If these conditions match...
 		if(!empty($node_id)) {
 			$logger->info($nodes[$node_id]->node_type . ' :: ' . $nodes[$node_id]->title . ' (' . $node_id . ')');
-//			var_dump($nodes[$node_id]->node_type);
-//			var_dump($nodes[$node_id]->params);
 			
 			// Handle the node type
 			switch($nodes[$node_id]->node_type) {
