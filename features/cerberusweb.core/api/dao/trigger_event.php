@@ -572,13 +572,30 @@ class Model_TriggerEvent {
 						if(!isset($params['action']))
 							continue;
 						
-						// Is this a dry run?  If so, don't actually change anything
-						// [TODO] It would be cool to see what the action *would* have done (snippet output, etc)
-						if($dry_run)
-							continue;
-
 						$action = $params['action'];
-						$event->runAction($action, $this, $params, $dictionary);
+						
+						// Is this a dry run?  If so, don't actually change anything
+						if($dry_run) {
+							$out = $event->simulateAction($action, $this, $params, $dictionary);
+							
+							// Append to simulator output
+							// [TODO] We could do VA logging like this in simulator
+							if(!empty($out)) {
+								if(!isset($dictionary['_simulator_output']) || !is_array($dictionary['_simulator_output']))
+									$dictionary['_simulator_output'] = array();
+								
+								$output = array(
+									'title' => '(' . ucfirst($nodes[$node_id]->node_type) . ') ' . $nodes[$node_id]->title,
+									'content' => $out,
+								);
+								
+								$dictionary['_simulator_output'][] = $output;
+								unset($out);
+							}
+						} else {
+							$event->runAction($action, $this, $params, $dictionary);
+						}
+						
 					}
 					break;
 			}

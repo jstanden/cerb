@@ -3,6 +3,7 @@
 <input type="hidden" name="a" value="runBehaviorSimulator">
 {if isset($node)}<input type="hidden" name="id" value="{$node->id}">{/if}
 {if isset($trigger)}<input type="hidden" name="trigger_id" value="{$trigger->id}">{/if}
+<input type="hidden" name="event_params_json" value="{$event_params_json}">
 
 <fieldset>
 	<legend>{'common.properties'|devblocks_translate}</legend>

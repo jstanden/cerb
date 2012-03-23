@@ -568,6 +568,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 	abstract function getActionExtensions();
 	abstract function renderActionExtension($token, $trigger, $params=array(), $seq=null);
 	abstract function runActionExtension($token, $trigger, $params, &$values);
+	protected function simulateActionExtension($token, $trigger, $params, &$values) {}
 	
 	function renderAction($token, $trigger, $params=array(), $seq=null) {
 		$actions = $this->getActionExtensions();
@@ -613,6 +614,33 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 						if(null != ($ext = DevblocksPlatform::getExtension($token, true))
 							&& $ext instanceof Extension_DevblocksEventAction) { /* @var $ext Extension_DevblocksEventAction */ 
 							$ext->render($this, $trigger, $params, $seq);
+						}
+					}
+					break;
+			}
+		}		
+	}
+	
+	// Are we doing a dry run?
+	function simulateAction($token, $trigger, $params, &$values) {
+		$actions = $this->getActionExtensions();
+
+		if(null != (@$action = $actions[$token])) {
+			if(method_exists($this, 'simulateActionExtension'))
+				return $this->simulateActionExtension($token, $trigger, $params, $values);
+			
+		} else {
+			switch($token) {
+				default:
+					// Variables
+					if(substr($token,0,4) == 'var_') {
+						return DevblocksEventHelper::runActionSetVariable($token, $trigger, $params, $values);
+					
+					} else {
+						// Plugins
+						if(null != ($ext = DevblocksPlatform::getExtension($token, true))
+							&& $ext instanceof Extension_DevblocksEventAction) { /* @var $ext Extension_DevblocksEventAction */ 
+							//return $ext->simulate($token, $trigger, $params, $values);
 						}
 					}
 					break;
@@ -813,6 +841,7 @@ class DevblocksEventHelper {
 		switch($var['type']) {
 			case Model_CustomField::TYPE_CHECKBOX:
 				$value = (isset($params['value']) && !empty($params['value'])) ? true : false;
+				$values[$token] = $value;
 				break;
 				
 			case Model_CustomField::TYPE_DATE:
@@ -820,10 +849,12 @@ class DevblocksEventHelper {
 					break;
 				
 				$value = is_numeric($params['value']) ? $params['value'] : @strtotime($params['value']);
+				$values[$token] = $value;
 				break;
 				
 			case Model_CustomField::TYPE_NUMBER:
 				$value = intval($params['value']);
+				$values[$token] = $value;
 				break;
 				
 			case Model_CustomField::TYPE_SINGLE_LINE:
@@ -833,6 +864,7 @@ class DevblocksEventHelper {
 				
 				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
 				$value = $tpl_builder->build($params['value'], $values);
+				$values[$token] = $value;
 				break;
 				
 			case Model_CustomField::TYPE_WORKER:
@@ -937,12 +969,11 @@ class DevblocksEventHelper {
 						break;
 				}
 				
-				$value = $chosen_worker_id;
+				$values[$token] = $chosen_worker_id;
+				break;
 				
 				break;
 		}
-
-		$values[$token] = $value; 
 	}
 	
 	/*
