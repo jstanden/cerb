@@ -523,20 +523,53 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 			
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$results = array();
+		// Only check the custom fields of this context
+		$fields = DAO_CustomField::getByContext($context);
 		
-		$fields = DAO_CustomField::getAll();
-			
-		// [TODO] This is inefficient (and redundant)
-			
-		// STRINGS
-		$sql = sprintf("SELECT context_id, field_id, field_value ".
-			"FROM custom_field_stringvalue ".
-			"WHERE context = '%s' AND context_id IN (%s)",
-			$context,
-			implode(',', $context_ids)
-		);
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+		$results = array();
+		$tables = array();
+		$sqls = array();
+		
+		if(empty($fields))
+			return array();
+		
+		/*
+		 * Only scan the tables where this context has custom fields.  For example,
+		 * if we only have a string custom field defined on tickets, we only need to 
+		 * check one table out of the three.
+		 */
+
+		if(is_array($fields))
+		foreach($fields as $cfield_id => $cfield) { /* @var $cfield Model_CustomField */
+			$tables[] = DAO_CustomFieldValue::getValueTableName($cfield_id);
+		}
+		
+		if(empty($tables))
+			return array();
+		
+		$tables = array_unique($tables);
+
+		if(is_array($tables))
+		foreach($tables as $table) {
+			$sqls[] = sprintf("SELECT context_id, field_id, field_value ".
+				"FROM %s ".
+				"WHERE context = '%s' AND context_id IN (%s)",
+				$table,
+				$context,
+				implode(',', $context_ids)
+			);
+		}
+		
+		if(empty($sqls))
+			return array();
+		
+		/*
+		 * UNION the custom field queries into a single statement so we don't have to 
+		 * merge them in PHP from different resultsets.
+		 */
+		
+		$sql = implode(' UNION ALL ', $sqls);
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		
 		while($row = mysql_fetch_assoc($rs)) {
 			$context_id = intval($row['context_id']);
@@ -559,54 +592,7 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 				$ptr[$field_id] = $field_value;
 				
 			}
-		}
-		
-		mysql_free_result($rs);
-		
-		// CLOBS
-		$sql = sprintf("SELECT context_id, field_id, field_value ".
-			"FROM custom_field_clobvalue ".
-			"WHERE context = '%s' AND context_id IN (%s)",
-			$context,
-			implode(',', $context_ids)
-		);
-		
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
-
-		while($row = mysql_fetch_assoc($rs)) {
-			$context_id = intval($row['context_id']);
-			$field_id = intval($row['field_id']);
-			$field_value = $row['field_value'];
-			
-			if(!isset($results[$context_id]))
-				$results[$context_id] = array();
-				
-			$ptr =& $results[$context_id];
-			$ptr[$field_id] = $field_value;
-		}
-		
-		mysql_free_result($rs);
-
-		// NUMBERS
-		$sql = sprintf("SELECT context_id, field_id, field_value ".
-			"FROM custom_field_numbervalue ".
-			"WHERE context = '%s' AND context_id IN (%s)",
-			$context,
-			implode(',', $context_ids)
-		);
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
-
-		while($row = mysql_fetch_assoc($rs)) {
-			$context_id = intval($row['context_id']);
-			$field_id = intval($row['field_id']);
-			$field_value = $row['field_value'];
-			
-			if(!isset($results[$context_id]))
-				$results[$context_id] = array();
-				
-			$ptr =& $results[$context_id];
-			$ptr[$field_id] = $field_value;
-		}
+		}		
 		
 		mysql_free_result($rs);
 		
