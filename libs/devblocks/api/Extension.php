@@ -318,30 +318,40 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 			case '_month_of_year':
 				$not = (substr($params['oper'],0,1) == '!');
 				$oper = ltrim($params['oper'],'!');
+				
+				@$months = DevblocksPlatform::importVar($params['months'],'array',array());
+				
 				switch($oper) {
 					case 'is':
 						$month = date('n', $now);
-						$pass = in_array($month, $params['month']);
+						$pass = in_array($month, $months);
 						break;
 				}
 				break;
 			case '_day_of_week':
 				$not = (substr($params['oper'],0,1) == '!');
 				$oper = ltrim($params['oper'],'!');
+				
+				@$days = DevblocksPlatform::importVar($params['day'],'array',array());
+				
 				switch($oper) {
 					case 'is':
 						$today = date('N', $now);
-						$pass = in_array($today, $params['day']);
+						$pass = in_array($today, $days);
 						break;
 				}
 				break;
 			case '_time_of_day':
 				$not = (substr($params['oper'],0,1) == '!');
 				$oper = ltrim($params['oper'],'!');
+				
+				@$from = DevblocksPlatform::importVar($params['from'],'string','now');
+				@$to = DevblocksPlatform::importVar($params['to'],'string','now');
+				
 				switch($oper) {
 					case 'between':
-						$from = strtotime($params['from'], $now);
-						$to = strtotime($params['to'], $now);
+						@$from = strtotime($from, $now);
+						@$to = strtotime($to, $now);
 						if($to < $from)
 							$to += 86400; // +1 day
 						$pass = ($now >= $from && $now <= $to) ? true : false;
