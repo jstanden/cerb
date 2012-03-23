@@ -112,8 +112,10 @@
 		$popup.delegate(':text.placeholders, textarea.placeholders', 'focus', function(e) {
 			toolbar = $('#divDecisionActionToolbar{$id}');
 			src = (null==e.srcElement) ? e.target : e.srcElement;
-			toolbar.find('div.tester').html('');
-			toolbar.show().insertAfter(src);
+			if(0 == $(src).nextAll('#divDecisionActionToolbar{$id}').length) {
+				toolbar.find('div.tester').html('');
+				toolbar.show().insertAfter(src);
+			}
 		});
 		
 		$popup.find('#frmDecisionActionAdd{$id} SELECT').first().change(function() {
