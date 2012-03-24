@@ -17,6 +17,7 @@
 <div style="margin-left:10px;">
 	<button type="button" class="chooser_worker unbound"><span class="cerb-sprite sprite-view"></span></button>
 	<ul class="chooser-container bubbles" style="display:block;">
+	{include file="devblocks:cerberusweb.core::internal/decisions/actions/_shared_var_worker_bubbles.tpl" checkbox_name="[worker_id][]" param_value=$params.worker_id trigger=$trigger}
 	{if isset($params.worker_id)}
 	{foreach from=$params.worker_id item=worker_id}
 		{$context_worker = $workers.$worker_id}
@@ -32,6 +33,7 @@
 <div style="margin-left:10px;">
 	<button type="button" class="chooser_notify_workers unbound"><span class="cerb-sprite sprite-view"></span></button>
 	<ul class="chooser-container bubbles" style="display:block;">
+	{include file="devblocks:cerberusweb.core::internal/decisions/actions/_shared_var_worker_bubbles.tpl" checkbox_name="[notify_worker_id][]" param_value=$params.notify_worker_id trigger=$trigger}
 	{if isset($params.notify_worker_id)}
 	{foreach from=$params.notify_worker_id item=worker_id}
 		{$context_worker = $workers.$worker_id}

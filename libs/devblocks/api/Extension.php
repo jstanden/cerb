@@ -1591,10 +1591,79 @@ class DevblocksEventHelper {
 		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_create_task.tpl');
 	}
 	
+	static function simulateActionCreateTask($params, $values, $context=null, $context_id=null) {
+		$due_date = $params['due_date'];
+
+		@$watcher_worker_ids = DevblocksPlatform::importVar($params['worker_id'],'array',array());
+		$watcher_worker_ids = DevblocksEventHelper::mergeWorkerVars($watcher_worker_ids, $values);
+		
+		@$notify_worker_ids = DevblocksPlatform::importVar($params['notify_worker_id'],'array',array());
+		$notify_worker_ids = DevblocksEventHelper::mergeWorkerVars($notify_worker_ids, $values);
+				
+		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+		$title = $tpl_builder->build($params['title'], $values);
+		$due_date = intval(@strtotime($tpl_builder->build($params['due_date'], $values)));
+		$comment = $tpl_builder->build($params['comment'], $values);
+
+		$out = sprintf(">>> Creating task\n".
+			"Title: %s\n".
+			"Due Date: %s (%s)\n".
+			"\n".
+			"",
+			$title,
+			date("Y-m-d h:ia", $due_date),
+			$params['due_date']
+		);
+		
+		// Watchers
+		if(is_array($watcher_worker_ids) && !empty($watcher_worker_ids)) {
+			$out .= ">>> Adding watchers to task:\n";
+			foreach($watcher_worker_ids as $worker_id) {
+				if(null != ($worker = DAO_Worker::get($worker_id))) {
+					$out .= ' * ' . $worker->getName() . "\n";
+				}
+			}
+			$out .= "\n";
+		}
+		
+		// Comment content
+		if(!empty($comment)) {
+			$out .= sprintf(">>> Writing comment on task\n\n".
+				"%s\n\n",
+				$comment
+			);
+			
+			if(!empty($notify_worker_ids) && is_array($notify_worker_ids)) {
+				$out .= ">>> Notifying\n";
+				foreach($notify_worker_ids as $worker_id) {
+					if(null != ($worker = DAO_Worker::get($worker_id))) {
+						$out .= ' * ' . $worker->getName() . "\n";
+					}
+				}
+				$out .= "\n";
+			}
+		}
+		
+		// Connection
+		if(!empty($context) && !empty($context_id)) {
+			if(null != ($ctx = Extension_DevblocksContext::get($context, true))) {
+				$meta = $ctx->getMeta($context_id);
+				$out .= ">>> Linking new task to:\n";
+				$out .= ' * (' . $ctx->manifest->name . ') ' . $meta['name'] . "\n";
+				$out .= "\n";
+			}
+		}
+
+		return $out;
+	}
+	
 	static function runActionCreateTask($params, $values, $context=null, $context_id=null) {
 		$due_date = $params['due_date'];
-		$notify_worker_ids = isset($params['notify_worker_id']) ? $params['notify_worker_id'] : array();
-	
+
+		@$watcher_worker_ids = DevblocksPlatform::importVar($params['worker_id'],'array',array());
+		$watcher_worker_ids = DevblocksEventHelper::mergeWorkerVars($watcher_worker_ids, $values);
+		
+		@$notify_worker_ids = DevblocksPlatform::importVar($params['notify_worker_id'],'array',array());
 		$notify_worker_ids = DevblocksEventHelper::mergeWorkerVars($notify_worker_ids, $values);
 				
 		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
@@ -1610,8 +1679,9 @@ class DevblocksEventHelper {
 		$task_id = DAO_Task::create($fields);
 
 		// Watchers
-		if(isset($params['worker_id']) && !empty($params['worker_id']))
-			CerberusContexts::addWatchers(CerberusContexts::CONTEXT_TASK, $task_id, $params['worker_id']);
+		if(is_array($watcher_worker_ids) && !empty($watcher_worker_ids)) {
+			CerberusContexts::addWatchers(CerberusContexts::CONTEXT_TASK, $task_id, $watcher_worker_ids);
+		}
 		
 		// Comment content
 		if(!empty($comment)) {
