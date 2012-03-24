@@ -43,14 +43,34 @@ class DevblocksExtension {
 abstract class Extension_DevblocksContext extends DevblocksExtension {
 	/**
 	 * @param unknown_type $as_instances
+	 * @param unknown_type $with_options
 	 * @return Extension_DevblocksContext[]
 	 */
-	public static function getAll($as_instances=false) {
+	public static function getAll($as_instances=false, $with_options=null) {
 		$contexts = DevblocksPlatform::getExtensions('devblocks.context', $as_instances);
+		
 		if($as_instances)
 			uasort($contexts, create_function('$a, $b', "return strcasecmp(\$a->manifest->name,\$b->manifest->name);\n"));
 		else
 			uasort($contexts, create_function('$a, $b', "return strcasecmp(\$a->name,\$b->name);\n"));
+
+		if(!empty($with_options)) {
+			if(!is_array($with_options))
+				$with_options = array($with_options);
+			
+			foreach($contexts as $k => $context) {
+				@$options = $context->params['options'][0];
+				
+				if(!is_array($options) || empty($options)) {
+					unset($contexts[$k]);
+					continue;
+				}
+				
+				if(count(array_intersect(array_keys($options), $with_options)) != count($with_options))
+					unset($contexts[$k]);
+			}
+		}
+		
 		return $contexts;
 	}
 	
