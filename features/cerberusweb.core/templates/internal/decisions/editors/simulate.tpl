@@ -32,12 +32,11 @@
 	</div>
 </fieldset>
 
-
 <div>
 	<button type="button" onclick="genericAjaxPost('frmBehaviorSimulator{$trigger->id}','divBehaviorSimulatorResults{$trigger->id}','');">Simulate</button>
 </div>
 
-<div id="divBehaviorSimulatorResults{$trigger->id}" style="margin-top:10px;padding:5px;"></div>
+<div id="divBehaviorSimulatorResults{$trigger->id}" style="padding:5px;"></div>
 
 </form>
 

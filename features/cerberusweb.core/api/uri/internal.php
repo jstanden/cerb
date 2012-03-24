@@ -2426,6 +2426,8 @@ class ChInternalController extends DevblocksControllerExtension {
  		$event_model->params = is_array($event_model_params) ? $event_model_params : array();
  		$ext_event->setEvent($event_model);
 
+ 		$tpl->assign('event', $ext_event);
+ 		
  		// Merge baseline values with user overrides
  		
  		$values = $ext_event->getValues();

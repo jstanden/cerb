@@ -703,30 +703,69 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 		}		
 	}
 	
-	function runAction($token, $trigger, $params, &$values) {
+	function runAction($token, $trigger, $params, &$values, $dry_run=false) {
 		$actions = $this->getActionExtensions();
 		
+		$out = '';
+		
 		if(null != (@$action = $actions[$token])) {
-			$this->runActionExtension($token, $trigger, $params, $values);
+			// Is this a dry run?  If so, don't actually change anything
+			if($dry_run) {
+				$out = $this->simulateAction($token, $trigger, $params, $values);
+			} else {
+				$this->runActionExtension($token, $trigger, $params, $values);
+			}
 			
 		} else {
 			switch($token) {
 				default:
 					// Variables
 					if(substr($token,0,4) == 'var_') {
-						return DevblocksEventHelper::runActionSetVariable($token, $trigger, $params, $values);
+						// Always set the action vars, even in simulation.
+						DevblocksEventHelper::runActionSetVariable($token, $trigger, $params, $values);
+						
+						if($dry_run) {
+							$out = DevblocksEventHelper::simulateActionSetVariable($token, $trigger, $params, $values);
+						} else {
+							return;
+						}
 					
 					} else {
 						// Plugins
 						if(null != ($ext = DevblocksPlatform::getExtension($token, true))
-							&& $ext instanceof Extension_DevblocksEventAction) { /* @var $ext Extension_DevblocksEventAction */ 
-							return $ext->run($token, $trigger, $params, $values);
+							&& $ext instanceof Extension_DevblocksEventAction) { /* @var $ext Extension_DevblocksEventAction */
+							if($dry_run) {
+								if(method_exists($ext, 'simulate'))
+									$out = $ext->simulate($token, $trigger, $params, $values);
+							} else {
+								return $ext->run($token, $trigger, $params, $values);
+							}
 						}
 					}
 					break;
 			}
 		}
+		
+		// Append to simulator output
+		if(!empty($out)) {
+			/* @var $trigger Model_TriggerEvent */
+			$all_actions = $this->getActions($trigger);
+			$log = EventListener_Triggers::getNodeLog();
+			$nodes = $trigger->getNodes();
 			
+			if(!isset($values['_simulator_output']) || !is_array($values['_simulator_output']))
+				$values['_simulator_output'] = array();
+			
+			$output = array(
+				'action' => $nodes[array_pop($log)]->title,
+				'title' => $all_actions[$token]['label'],
+				'content' => $out,
+			);
+			
+			$values['_simulator_output'][] = $output;
+			unset($out);
+		}
+		
 	}
 	
 };
@@ -1345,13 +1384,17 @@ class DevblocksEventHelper {
 		@$worker_ids = DevblocksPlatform::importVar($params['worker_id'],'array',array());
 		$worker_ids = DevblocksEventHelper::mergeWorkerVars($worker_ids, $values);
 
-		if(!is_array($worker_ids) || empty($worker_ids))
-			return;
-		
 		// Watchers
 		
 		$out = ">>> Adding watchers:\n";
 		
+		if(!is_array($worker_ids) || empty($worker_ids)) {
+			$out .= " * [ERROR] No watchers are being set. Skipping...";
+			return $out;
+		}
+			
+		// Iterate workers
+			
 		foreach($worker_ids as $worker_id) {
 			if(null != ($worker = DAO_Worker::get($worker_id))) {
 				$out .= " * " . $worker->getName() . "\n";
@@ -2177,6 +2220,7 @@ abstract class Extension_DevblocksEventAction extends DevblocksExtension {
 	}
 	
 	abstract function render(Extension_DevblocksEvent $event, Model_TriggerEvent $trigger, $params=array(), $seq=null);
+	function simulate($token, Model_TriggerEvent $trigger, $params, &$values) {}
 	abstract function run($token, Model_TriggerEvent $trigger, $params, &$values);
 }
 

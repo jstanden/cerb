@@ -458,6 +458,10 @@ class Model_TriggerEvent {
 		return $this->_nodes;
 	}
 	
+	public function getNodes() {
+		return $this->_getNodes();
+	}
+	
 	public function getDecisionTreeData() {
 		$nodes = $this->_getNodes();
 		$tree = $this->_getTree();
@@ -577,28 +581,7 @@ class Model_TriggerEvent {
 						
 						$action = $params['action'];
 						
-						// Is this a dry run?  If so, don't actually change anything
-						if($dry_run) {
-							$out = $event->simulateAction($action, $this, $params, $dictionary);
-							
-							// Append to simulator output
-							// [TODO] We could do VA logging like this in simulator
-							if(!empty($out)) {
-								if(!isset($dictionary['_simulator_output']) || !is_array($dictionary['_simulator_output']))
-									$dictionary['_simulator_output'] = array();
-								
-								$output = array(
-									'title' => '(' . ucfirst($nodes[$node_id]->node_type) . ') ' . $nodes[$node_id]->title,
-									'content' => $out,
-								);
-								
-								$dictionary['_simulator_output'][] = $output;
-								unset($out);
-							}
-						} else {
-							$event->runAction($action, $this, $params, $dictionary);
-						}
-						
+						$event->runAction($action, $this, $params, $dictionary, $dry_run);
 					}
 					break;
 			}
