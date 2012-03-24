@@ -1703,6 +1703,50 @@ class DevblocksEventHelper {
 		}
 	}
 	
+	static function onContextsVar($on, $values) {
+		$result = array();
+		
+		if(!empty($on) && isset($values[$on]) && is_array($values[$on])) {
+			@$trigger = $values['_trigger'];
+			
+			if($trigger instanceof Model_TriggerEvent && $trigger->variables[$on]) {
+				@$var = $trigger->variables[$on];
+				if(substr($var['type'],0,4) == 'ctx_') {
+					$ctx_ext = substr($var['type'],4);
+					if(null != ($ctx = Extension_DevblocksContext::get($ctx_ext))) {
+						$result['context'] = $ctx;
+						$result['objects'] = array();
+						foreach($values[$on] as $ctx_id) {
+							$result['objects'][$ctx_id] = $ctx->getMeta($ctx_id);
+						}
+					}
+				}
+			}
+		}
+		
+		return $result;
+	}
+	
+	static function mergeWorkerVars($worker_ids, $values) {
+		if(is_array($worker_ids))
+		foreach($worker_ids as $k => $worker_id) {
+			if(!is_numeric($worker_id)) {
+				@$val = $values[$worker_id];
+				unset($worker_ids[$k]);
+				
+				if(!empty($val)) {
+					if(is_array($val)) {
+						$worker_ids = array_merge($worker_ids, $val);
+					} else {
+						$worker_ids[] = $val;
+					}
+				}
+			}
+		}
+		
+		return array_unique($worker_ids);
+	}
+	
 	static function getCollectionsView($token, $context) {
 		$view_id = '_collection_' . $token;
 		
