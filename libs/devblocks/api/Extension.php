@@ -1264,14 +1264,73 @@ class DevblocksEventHelper {
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_add_watchers.tpl');
 	}
-	
-	static function runActionAddWatchers($params, $values, $context, $context_id) {
-		@$worker_ids = $params['worker_id'];
-		
+
+	static function simulateActionAddWatchers($params, $values, $context, $context_id) {
+		@$worker_ids = DevblocksPlatform::importVar($params['worker_id'],'array',array());
+		$worker_ids = DevblocksEventHelper::mergeWorkerVars($worker_ids, $values);
+
 		if(!is_array($worker_ids) || empty($worker_ids))
 			return;
 		
-		CerberusContexts::addWatchers($context, $context_id, $worker_ids);
+		// Watchers
+		
+		$out = ">>> Adding watchers:\n";
+		
+		foreach($worker_ids as $worker_id) {
+			if(null != ($worker = DAO_Worker::get($worker_id))) {
+				$out .= " * " . $worker->getName() . "\n";
+			}
+		}
+		
+		$out .= "\n";
+		
+		// On
+		
+		@$on = DevblocksPlatform::importVar($params['on'],'string','');
+		
+		if(!empty($on)) {
+			$on_result = DevblocksEventHelper::onContextsVar($on, $values);
+			@$on_context = $on_result['context'];
+			@$on_objects = $on_result['objects'];
+			
+			if(!empty($on_context) && is_array($on_objects)) {
+				$out .= ">>> On:\n";
+				
+				foreach($on_objects as $on_object) {
+					$out .= ' * (' . $on_context->manifest->name . ') ' . $on_object['name'] . "\n";  
+				}
+				$out .= "\n";
+			}
+		}		
+		
+		return $out;
+	}
+	
+	static function runActionAddWatchers($params, $values, $context, $context_id) {
+		@$worker_ids = DevblocksPlatform::importVar($params['worker_id'],'array',array());
+		$worker_ids = DevblocksEventHelper::mergeWorkerVars($worker_ids, $values);
+	
+		if(!is_array($worker_ids) || empty($worker_ids))
+			return;
+		
+		// On: Are we watching something else?
+		
+		@$on = DevblocksPlatform::importVar($params['on'],'string','');
+		
+		if(!empty($on)) {
+			$on_result = DevblocksEventHelper::onContextsVar($on, $values);
+			@$on_context = $on_result['context'];
+			@$on_objects = $on_result['objects'];
+			
+			if(!empty($on_context) && is_array($on_objects)) {
+				foreach($on_objects as $on_object) {
+					CerberusContexts::addWatchers($on_context->id, $on_object['id'], $worker_ids);
+				}
+			}
+			
+		} else {
+			CerberusContexts::addWatchers($context, $context_id, $worker_ids);
+		}
 	}
 	
 	/*
