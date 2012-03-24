@@ -1420,9 +1420,89 @@ class DevblocksEventHelper {
 		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_create_notification.tpl');
 	}
 	
-	static function runActionCreateNotification($params, $values, $context, $context_id, $notify_map=array()) {
-		$notify_worker_ids = isset($params['notify_worker_id']) ? $params['notify_worker_id'] : array();
+	static function simulateActionCreateNotification($params, $values, $context, $context_id, $notify_map=array()) {
+		// Translate message tokens
+		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+		$content = $tpl_builder->build($params['content'], $values);
 
+		$out = sprintf(">>> Sending a notification:\n".
+			"\n".
+			"%s\n".
+			"\n".
+			""
+			,
+			rtrim($content)
+		);
+		
+		// On
+		
+		@$on = DevblocksPlatform::importVar($params['on'],'string','');
+		
+		if(!empty($on)) {
+			$on_result = DevblocksEventHelper::onContextsVar($on, $values);
+			@$on_context = $on_result['context'];
+			@$on_objects = $on_result['objects'];
+			
+			if(!empty($on_context) && is_array($on_objects)) {
+				$out .= ">>> On:\n";
+				
+				foreach($on_objects as $on_object) {
+					$out .= ' * (' . $on_context->manifest->name . ') ' . $on_object['name'] . "\n";  
+				}
+				$out .= "\n";
+			}
+		}		
+		
+		// Notify
+		
+		$notify_worker_ids = isset($params['notify_worker_id']) ? $params['notify_worker_id'] : array();
+		$notify_worker_ids = DevblocksEventHelper::mergeWorkerVars($notify_worker_ids, $values);
+
+		// Watchers?
+		if(isset($params['notify_watchers']) && !empty($params['notify_watchers'])) {
+			// [TODO] Lazy load from values (and set back to)
+			$watchers = CerberusContexts::getWatchers($context, $context_id);
+			$notify_worker_ids = array_merge($notify_worker_ids, array_keys($watchers));
+		}
+		
+		// If we're notifying contexual worker IDs, add them
+		if(is_array($notify_map) && !empty($notify_map))
+		foreach($notify_map as $key) {
+			// If the value doesn't exist, bail out
+			if(!isset($values[$key]))
+				continue;
+			
+			$id = intval($values[$key]);
+			
+			// If the value is empty, bail out
+			if(empty($id))
+				continue;
+			
+			$notify_worker_ids = array_merge($notify_worker_ids, array($id));
+		}		
+		
+		if(!empty($notify_worker_ids)) {
+			$out .= ">>> Notifying:\n";
+			
+			foreach($notify_worker_ids as $worker_id) {
+				if(null != ($worker = DAO_Worker::get($worker_id))) {
+					$out .= " * " . $worker->getName() . "\n";
+				}
+			}
+		}
+		
+		return $out;		
+	}
+	
+	static function runActionCreateNotification($params, $values, $context, $context_id, $notify_map=array()) {
+		if(empty($context))
+			return;
+
+		// Notifications
+		
+		$notify_worker_ids = isset($params['notify_worker_id']) ? $params['notify_worker_id'] : array();
+		$notify_worker_ids = DevblocksEventHelper::mergeWorkerVars($notify_worker_ids, $values);
+				
 		// Watchers?
 		if(isset($params['notify_watchers']) && !empty($params['notify_watchers'])) {
 			// [TODO] Lazy load from values (and set back to)
@@ -1431,6 +1511,7 @@ class DevblocksEventHelper {
 		}
 
 		// If we're notifying contexual worker IDs, add them
+		// [TODO] Revamp this
 		if(is_array($notify_map) && !empty($notify_map))
 		foreach($notify_map as $key) {
 			// If the value doesn't exist, bail out
@@ -1446,26 +1527,52 @@ class DevblocksEventHelper {
 			$notify_worker_ids = array_merge($notify_worker_ids, array($id));
 		}
 		
+		// Only notify an individual worker once
+		$notify_worker_ids = array_unique($notify_worker_ids);
+		
 		if(!is_array($notify_worker_ids) || empty($notify_worker_ids))
 			return;
 		
-		if(empty($context))
-			return;
+		// Template
 		
-		// Translate message tokens
 		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
 		$content = $tpl_builder->build($params['content'], $values);
 		
+		$notify_contexts = array();
+		
+		// On: Are we notifying about something else?
+		
+		@$on = DevblocksPlatform::importVar($params['on'],'string','');
+		
+		if(!empty($on)) {
+			$on_result = DevblocksEventHelper::onContextsVar($on, $values);
+			@$on_context = $on_result['context'];
+			@$on_objects = $on_result['objects'];
+			
+			if(!empty($on_context) && is_array($on_objects)) {
+				foreach($on_objects as $on_object) {
+					$notify_contexts[] = array($on_context->id, $on_object['id']);
+				}
+			}
+			
+		} else {
+			$notify_contexts[] = array($context, $context_id);
+		}
+
+		// Send notifications
+		
 		foreach($notify_worker_ids as $notify_worker_id) {
-			$fields = array(
-				DAO_Notification::CONTEXT => $context,
-				DAO_Notification::CONTEXT_ID => $context_id,
-				DAO_Notification::WORKER_ID => $notify_worker_id,
-				DAO_Notification::CREATED_DATE => time(),
-				DAO_Notification::MESSAGE => $content,
-				DAO_Notification::URL => '',
-			);
-			$notification_id = DAO_Notification::create($fields);
+			foreach($notify_contexts as $notify_context_data) {
+				$fields = array(
+					DAO_Notification::CONTEXT => $notify_context_data[0],
+					DAO_Notification::CONTEXT_ID => $notify_context_data[1],
+					DAO_Notification::WORKER_ID => $notify_worker_id,
+					DAO_Notification::CREATED_DATE => time(),
+					DAO_Notification::MESSAGE => $content,
+					DAO_Notification::URL => '',
+				);
+				$notification_id = DAO_Notification::create($fields);
+			}
 			
 			DAO_Notification::clearCountCache($notify_worker_id);
 		}
@@ -1488,6 +1595,8 @@ class DevblocksEventHelper {
 		$due_date = $params['due_date'];
 		$notify_worker_ids = isset($params['notify_worker_id']) ? $params['notify_worker_id'] : array();
 	
+		$notify_worker_ids = DevblocksEventHelper::mergeWorkerVars($notify_worker_ids, $values);
+				
 		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
 		$title = $tpl_builder->build($params['title'], $values);
 		$due_date = intval(@strtotime($tpl_builder->build($params['due_date'], $values)));
