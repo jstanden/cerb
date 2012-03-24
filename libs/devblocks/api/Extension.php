@@ -940,6 +940,42 @@ class DevblocksEventHelper {
 		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_var_collection.tpl');
 	}
 	
+	static function simulateActionSetVariable($token, $trigger, $params, &$values) {
+		@$var = $trigger->variables[$token];
+		
+		if(empty($var) || !is_array($var))
+			return;
+
+		@$var_type = $var['type'];
+	 
+		if(substr($var_type,0,4) == 'ctx_') {
+			$list_context = substr($var_type,4);
+			$list_context_ext = Extension_DevblocksContext::get($list_context);
+			@$value = $values[$token];
+			
+			$out = sprintf(">>> Setting %s list to:\n",
+				$token
+			);
+			
+			foreach($value as $v) {
+				$meta = $list_context_ext->getMeta($v);
+				$out .= sprintf(" * %s\n",
+					$meta['name']
+				);
+			}
+			
+		} else {
+			@$value = is_array($values[$token]) ? implode(',', $values[$token]) : $values[$token];
+			
+			$out = sprintf(">>> Setting %s to:\n%s",
+				$token,
+				$value
+			);
+		}
+		
+		return $out;
+	}
+	
 	static function runActionSetVariable($token, $trigger, $params, &$values) {
 		@$var = $trigger->variables[$token];
 		
