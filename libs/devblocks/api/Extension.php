@@ -1715,7 +1715,62 @@ class DevblocksEventHelper {
 		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_create_ticket.tpl');
 	}
 	
-	static function runActionCreateTicket($params, $values) {
+	static function simulateActionCreateTicket($params, $values, $context=null, $context_id=null) {
+		@$group_id = $params['group_id'];
+		
+		if(null == ($group = DAO_Group::get($group_id)))
+			return;
+		
+		$group_replyto = $group->getReplyTo();
+
+		@$watcher_worker_ids = DevblocksPlatform::importVar($params['worker_id'],'array',array());
+		$watcher_worker_ids = DevblocksEventHelper::mergeWorkerVars($watcher_worker_ids, $values);
+		
+		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+		$requesters = $tpl_builder->build($params['requesters'], $values);
+		$subject = $tpl_builder->build($params['subject'], $values);
+		$content = $tpl_builder->build($params['content'], $values);
+		
+		$out = sprintf(">>> Creating ticket\n".
+			"Group: %s <%s>\n".
+			"Requesters: %s\n".
+			"Subject: %s\n".
+			"\n".
+			"%s\n".
+			"\n".
+			"",
+			$group->name,
+			$group_replyto->email,
+			$requesters,
+			$subject,
+			$content
+		);
+		
+		// Watchers
+		if(is_array($watcher_worker_ids) && !empty($watcher_worker_ids)) {
+			$out .= ">>> Adding watchers to ticket:\n";
+			foreach($watcher_worker_ids as $worker_id) {
+				if(null != ($worker = DAO_Worker::get($worker_id))) {
+					$out .= ' * ' . $worker->getName() . "\n";
+				}
+			}
+			$out .= "\n";
+		}
+		
+		// Connection
+		if(!empty($context) && !empty($context_id)) {
+			if(null != ($ctx = Extension_DevblocksContext::get($context, true))) {
+				$meta = $ctx->getMeta($context_id);
+				$out .= ">>> Linking new ticket to:\n";
+				$out .= ' * (' . $ctx->manifest->name . ') ' . $meta['name'] . "\n";
+				$out .= "\n";
+			}
+		}
+		
+		return $out;
+	}
+	
+	static function runActionCreateTicket($params, $values, $context=null, $context_id=null) {
 		@$group_id = $params['group_id'];
 		
 		if(null == ($group = DAO_Group::get($group_id)))
@@ -1723,6 +1778,9 @@ class DevblocksEventHelper {
 		
 		$group_replyto = $group->getReplyTo();
 			
+		@$watcher_worker_ids = DevblocksPlatform::importVar($params['worker_id'],'array',array());
+		$watcher_worker_ids = DevblocksEventHelper::mergeWorkerVars($watcher_worker_ids, $values);
+		
 		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
 		$requesters = $tpl_builder->build($params['requesters'], $values);
 		$subject = $tpl_builder->build($params['subject'], $values);
@@ -1745,7 +1803,7 @@ class DevblocksEventHelper {
 		$message->headers['from'] = $from_address;
 
 		$message->body = sprintf(
-			"(... This message was manually created by a virtual assistant on behalf of the requesters ...)\r\n"
+			"(... This message was manually created by a virtual attendant on behalf of the requesters ...)\r\n"
 		);
 
 		// [TODO] Custom fields
@@ -1772,7 +1830,16 @@ class DevblocksEventHelper {
 		    'worker_id' => 0, //$active_worker->id,
 		);
 		
+		// Watchers
+		if(is_array($watcher_worker_ids) && !empty($watcher_worker_ids)) {
+			CerberusContexts::addWatchers(CerberusContexts::CONTEXT_TICKET, $ticket_id, $watcher_worker_ids);
+		}
+		
 		CerberusMail::sendTicketMessage($properties);
+		
+		// Connection
+		if(!empty($context) && !empty($context_id))
+			DAO_ContextLink::setLink(CerberusContexts::CONTEXT_TICKET, $ticket_id, $context, $context_id);
 		
 		return $ticket_id;
 	}
