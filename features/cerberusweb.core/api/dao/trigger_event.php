@@ -500,6 +500,9 @@ class Model_TriggerEvent {
 		// [TODO] This could be more efficient
 		$event = DevblocksPlatform::getExtension($this->event_point, true); /* @var $event Extension_DevblocksEvent */
 		
+		// Add a convenience pointer
+		$dictionary['_trigger'] = $this;
+		
 		$this->_recurseRunTree($event, $nodes, $tree, 0, $dictionary, $path, $dry_run);
 		
 		// [TODO] Run actions in bulk, or run inline?
@@ -536,7 +539,7 @@ class Model_TriggerEvent {
 								
 							if(!isset($condition_data['condition']))
 								continue;
-								
+							
 							$condition = $condition_data['condition'];
 							
 							$group_pass = $event->runCondition($condition, $this, $condition_data, $dictionary);
