@@ -281,17 +281,23 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 							return $tpl->display('devblocks:cerberusweb.core::internal/decisions/conditions/_worker.tpl');
 							break;
 						default:
-							// Custom
-							if(isset($condition_extensions[$token])) {
-								return $this->renderConditionExtension($token, $trigger, $params, $seq);
+							if(substr($condition['type'],0,4) == 'ctx_') {
+								return $tpl->display('devblocks:cerberusweb.core::internal/decisions/conditions/_number.tpl');
 							
 							} else {
-								// Plugins
-								if(null != ($ext = DevblocksPlatform::getExtension($token, true))
-									&& $ext instanceof Extension_DevblocksEventCondition) { /* @var $ext Extension_DevblocksEventCondition */ 
-									return $ext->render($this, $trigger, $params, $seq);
+								// Custom
+								if(isset($condition_extensions[$token])) {
+									return $this->renderConditionExtension($token, $trigger, $params, $seq);
+								
+								} else {
+									// Plugins
+									if(null != ($ext = DevblocksPlatform::getExtension($token, true))
+										&& $ext instanceof Extension_DevblocksEventCondition) { /* @var $ext Extension_DevblocksEventCondition */ 
+										return $ext->render($this, $trigger, $params, $seq);
+									}
 								}
 							}
+							
 							break;
 					}
 				}
@@ -514,16 +520,35 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 									break;
 							}
 							break;
-							
+
 						default:
-							if(isset($extensions[$token])) {
-								$pass = $this->runConditionExtension($token, $trigger, $params, $values);
-							} else {
-								if(null != ($ext = DevblocksPlatform::getExtension($token, true))
-									&& $ext instanceof Extension_DevblocksEventCondition) { /* @var $ext Extension_DevblocksEventCondition */ 
-									$pass = $ext->run($token, $trigger, $params, $values);
+							if(substr($condition['type'],0,4) == 'ctx_') {
+								$count = (isset($values[$token]) && is_array($values[$token])) ? count($values[$token]) : 0;
+								
+								$not = (substr($params['oper'],0,1) == '!');
+								$oper = ltrim($params['oper'],'!');
+								switch($oper) {
+									case 'is':
+										$pass = $count==intval($params['value']);
+										break;
+									case 'gt':
+										$pass = $count > intval($params['value']);
+										break;
+									case 'lt':
+										$pass = $count < intval($params['value']);
+										break;
 								}
-							}
+							
+							} else {
+								if(isset($extensions[$token])) {
+									$pass = $this->runConditionExtension($token, $trigger, $params, $values);
+								} else {
+									if(null != ($ext = DevblocksPlatform::getExtension($token, true))
+										&& $ext instanceof Extension_DevblocksEventCondition) { /* @var $ext Extension_DevblocksEventCondition */ 
+										$pass = $ext->run($token, $trigger, $params, $values);
+									}
+								}
+							}	
 							break;
 					}
 			}
@@ -607,6 +632,14 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 								break;
 							case Model_CustomField::TYPE_WORKER:
 								return DevblocksEventHelper::renderActionSetVariableWorker();
+								break;
+							default:
+								if(substr(@$var['type'],0,4) == 'ctx_') {
+									@$list_context = substr($var['type'],4);
+									if(!empty($list_context))
+										return DevblocksEventHelper::renderActionSetVariableCollection($token, $list_context);
+								}
+								return;
 								break;
 						}
 					} else {
@@ -832,6 +865,20 @@ class DevblocksEventHelper {
 		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_var_worker.tpl');
 	}
 	
+	static function renderActionSetVariableCollection($token, $context) {
+		$tpl = DevblocksPlatform::getTemplateService();
+
+		$view = DevblocksEventHelper::getCollectionsView($token, $context);
+		
+		$presets = $view->getPresets();
+		$tpl->assign('presets', $presets);
+		
+		$sort_fields = $view->getParamsAvailable();
+		$tpl->assign('sort_fields', $sort_fields);
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_var_collection.tpl');
+	}
+	
 	static function runActionSetVariable($token, $trigger, $params, &$values) {
 		@$var = $trigger->variables[$token];
 		
@@ -972,6 +1019,13 @@ class DevblocksEventHelper {
 				$values[$token] = $chosen_worker_id;
 				break;
 				
+			default:
+				@$var_type = $var['type'];
+			 
+				if(substr($var_type,0,4) == 'ctx_') {
+					$list_context = substr($var_type,4);
+					DevblocksEventHelper::runFilterCollectionsView($token, $list_context, $params, $values);
+				}
 				break;
 		}
 	}
@@ -1568,6 +1622,88 @@ class DevblocksEventHelper {
 				
 			}
 		}
+	}
+	
+	static function getCollectionsView($token, $context) {
+		$view_id = '_collection_' . $token;
+		
+		$ctx = Extension_DevblocksContext::get($context);
+		
+		$defaults = new C4_AbstractViewModel();
+		$defaults->id = $view_id;
+		$defaults->is_ephemeral = true;
+		$defaults->class_name = $ctx->getViewClass();
+						
+		$view = C4_AbstractViewLoader::getView($defaults->id, $defaults);
+		
+		return $view;
+	}
+	
+	static function runFilterCollectionsView($token, $context, $params, &$values) {
+		$view = DevblocksEventHelper::getCollectionsView($token, $context);
+		
+		$view->removeAllParams();
+		
+		$presets = $view->getPresets();
+		
+		$preset_filters = array();
+		
+		if(!isset($params['collections']) || !is_array($params['collections']) || empty($params['collections']))
+			return;
+		
+		foreach($params['collections'] as $preset_id) {
+			if(!isset($presets[$preset_id]))
+				continue;
+					
+			$preset = $presets[$preset_id];
+			
+			if(is_array($preset->params))
+			foreach($preset->params as $k => $v) {
+				$preset_filters[] = $v;
+			}
+		}
+		
+		if(empty($preset_filters))
+			return;
+		
+		array_unshift($preset_filters, DevblocksSearchCriteria::GROUP_AND);
+		
+		$view->addParam($preset_filters, '_collections');
+		
+		if(isset($params['sort_by'])) {
+			$view->renderSortBy = $params['sort_by'];
+			 
+			if(isset($params['sort_asc'])) {
+				$view->renderSortAsc = !empty($params['sort_asc']) ? true : false;
+			}
+		}
+		
+		// [TODO] Iterate through pages if over a certain list length?
+		$view->renderLimit = (isset($params['limit']) && is_numeric($params['limit'])) ? intval($params['limit']) : 100;
+		$view->renderPage = 0;
+		$view->renderTotal = false;
+		
+		list($results) = $view->getData();
+		
+		if(!isset($values[$token]) || !is_array($values[$token]))
+			$values[$token] = array();
+		
+		$new_ids = array_keys($results);
+
+		switch(@$params['mode']) {
+			default:
+			case 'add':
+				$values[$token] = array_merge($values[$token], $new_ids);
+				break;
+			case 'subtract':
+				$values[$token] = array_diff($values[$token], $new_ids);
+				break;
+			case 'replace':
+				$values[$token] = $new_ids;
+				break;
+		}
+		
+		return;
 	}
 };
 

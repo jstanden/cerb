@@ -2337,6 +2337,11 @@ class ChInternalController extends DevblocksControllerExtension {
 					$ext = DevblocksPlatform::getExtension($trigger->event_point, false);
 					$tpl->assign('ext', $ext);
 				}
+				
+				// Contexts that can show up in VA vars
+				$list_contexts = Extension_DevblocksContext::getAll(false, 'va_variable');
+				$tpl->assign('list_contexts', $list_contexts);
+				
 				$tpl->display('devblocks:cerberusweb.core::internal/decisions/editors/trigger.tpl');
 				break;
 		}

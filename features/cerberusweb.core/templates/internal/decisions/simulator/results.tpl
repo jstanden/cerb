@@ -17,7 +17,7 @@
 	{if is_array($output)}
 	<fieldset><!--
 		-->{if $output.title}<legend>{$output.title}</legend>{/if}<!-- 
-		--><pre style="margin:0;">{$output.content}</pre><!--
+		--><pre class="emailbody" style="margin:0;">{$output.content}</pre><!--
 	--></fieldset>
 	{/if}
 {/foreach}
