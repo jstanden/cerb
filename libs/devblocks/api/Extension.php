@@ -20,8 +20,10 @@ class DevblocksExtension {
 	 * @param DevblocksExtensionManifest $manifest
 	 * @return DevblocksExtension
 	 */
-	function DevblocksExtension($manifest) { /* @var $manifest DevblocksExtensionManifest */
-        if(empty($manifest)) return;
+	
+	function __construct($manifest=null) {
+        if(empty($manifest))	
+        	return;
         
 		$this->manifest = $manifest;
 		$this->id = $manifest->id;

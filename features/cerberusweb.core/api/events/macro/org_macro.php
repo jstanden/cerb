@@ -18,7 +18,8 @@
 class Event_OrgMacro extends AbstractEvent_Org {
 	const ID = 'event.macro.org';
 	
-	function __construct() {
+	function __construct($manifest) {
+		parent::__construct($manifest);
 		$this->_event_id = self::ID;
 	}
 	

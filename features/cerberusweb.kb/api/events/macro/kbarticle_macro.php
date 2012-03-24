@@ -2,7 +2,8 @@
 class Event_KbArticleMacro extends AbstractEvent_KbArticle {
 	const ID = 'event.macro.kb_article';
 	
-	function __construct() {
+	function __construct($manifest) {
+		parent::__construct($manifest);
 		$this->_event_id = self::ID;
 	}
 	

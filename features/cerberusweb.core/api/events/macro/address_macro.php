@@ -18,7 +18,8 @@
 class Event_AddressMacro extends AbstractEvent_Address {
 	const ID = 'event.macro.address';
 	
-	function __construct() {
+	function __construct($manifest) {
+		parent::__construct($manifest);
 		$this->_event_id = self::ID;
 	}
 	

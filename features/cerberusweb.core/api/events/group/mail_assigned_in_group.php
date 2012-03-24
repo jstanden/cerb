@@ -18,7 +18,8 @@
 class Event_MailAssignedInGroup extends AbstractEvent_Ticket {
 	const ID = 'event.mail.assigned.group';
 	
-	function __construct() {
+	function __construct($manifest) {
+		parent::__construct($manifest);
 		$this->_event_id = self::ID;
 	}
 	
