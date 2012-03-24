@@ -1157,21 +1157,95 @@ class DevblocksEventHelper {
 		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_create_comment.tpl');
 	}
 	
-	static function runActionCreateComment($params, $values, $context, $context_id) {
+	static function simulateActionCreateComment($params, $values, $context, $context_id, $trigger=null) {
 		$notify_worker_ids = isset($params['notify_worker_id']) ? $params['notify_worker_id'] : array();
+		$notify_worker_ids = DevblocksEventHelper::mergeWorkerVars($notify_worker_ids, $values);
 		
 		// Translate message tokens
 		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
 		$content = $tpl_builder->build($params['content'], $values);
+
+		$out = sprintf(">>> Writing a comment:\n".
+			"\n".
+			"%s\n".
+			"\n".
+			""
+			,
+			rtrim($content)
+		);
+		
+		// On
+		
+		@$on = DevblocksPlatform::importVar($params['on'],'string','');
+		
+		if(!empty($on)) {
+			$on_result = DevblocksEventHelper::onContextsVar($on, $values);
+			@$on_context = $on_result['context'];
+			@$on_objects = $on_result['objects'];
+			
+			if(!empty($on_context) && is_array($on_objects)) {
+				$out .= ">>> On:\n";
+				
+				foreach($on_objects as $on_object) {
+					$out .= ' * (' . $on_context->manifest->name . ') ' . $on_object['name'] . "\n";  
+				}
+				$out .= "\n";
+			}
+		}
+
+		// Notify
+		
+		if(!empty($notify_worker_ids)) {
+			$out .= ">>> Notifying:\n";
+			foreach($notify_worker_ids as $worker_id) {
+				if(null != ($worker = DAO_Worker::get($worker_id))) {
+					$out .= " * " . $worker->getName() . "\n";
+				}
+			}
+			$out .= "\n";
+		}
+		
+		return rtrim($out);
+	}
+	
+	static function runActionCreateComment($params, $values, $context, $context_id, $trigger=null) {
+		$notify_worker_ids = isset($params['notify_worker_id']) ? $params['notify_worker_id'] : array();
+		$notify_worker_ids = DevblocksEventHelper::mergeWorkerVars($notify_worker_ids, $values);
+		
+		// Translate message tokens
+		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+		$content = $tpl_builder->build($params['content'], $values);
+
+		// Fields
 		
 		$fields = array(
 			DAO_Comment::ADDRESS_ID => 0,
-			DAO_Comment::CONTEXT => $context,
-			DAO_Comment::CONTEXT_ID => $context_id,
 			DAO_Comment::CREATED => time(),
 			DAO_Comment::COMMENT => $content,
 		);
-		$comment_id = DAO_Comment::create($fields, $notify_worker_ids);
+		
+		// On: Are we linking these comments to something else?
+		
+		@$on = DevblocksPlatform::importVar($params['on'],'string','');
+		
+		if(!empty($on)) {
+			$on_result = DevblocksEventHelper::onContextsVar($on, $values);
+			@$on_context = $on_result['context'];
+			@$on_objects = $on_result['objects'];
+			
+			if(!empty($on_context) && is_array($on_objects)) {
+				foreach($on_objects as $on_object) {
+					$fields[DAO_Comment::CONTEXT] = $on_context->id;
+					$fields[DAO_Comment::CONTEXT_ID] = $on_object['id'];
+					$comment_id = DAO_Comment::create($fields, $notify_worker_ids);
+				}
+			}
+			
+		} else {
+			$fields[DAO_Comment::CONTEXT] = $context;
+			$fields[DAO_Comment::CONTEXT_ID] = $context_id;
+			$comment_id = DAO_Comment::create($fields, $notify_worker_ids);
+		}
 		
 		return $comment_id;
 	}
