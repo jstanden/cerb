@@ -1934,15 +1934,114 @@ class DevblocksEventHelper {
 		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_send_email.tpl');
 	}
 	
-	function runActionSendEmail($params, $values) {
+	function simulateActionSendEmail($params, $values) {
 		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
 
-		$to = $params['to'];
+		@$trigger = $values['_trigger'];
+		@$to_vars = @$params['to_var'];
+		$to = array();
+		
+		if(isset($params['to']) && !empty($params['to'])) {
+			if(false == ($to_string = $tpl_builder->build($params['to'], $values)))
+				return "[ERROR] The 'to' field has invalid placeholders.";
+			
+			$to = DevblocksPlatform::parseCsvString($to_string);
+		}
+		
+		if(is_array($to_vars))
+		foreach($to_vars as $to_var) {
+			if(!isset($values[$to_var]))
+				continue;
+			
+			// Security check
+			if(substr($to_var,0,4) != 'var_')
+				continue;
+			
+			$address_ids = $values[$to_var];
+			
+			$addresses = DAO_Address::getWhere(sprintf("%s IN (%s)",
+				DAO_Address::ID,
+				implode(",", $address_ids)
+			));
+			
+			if(is_array($addresses))
+			foreach($addresses as $addy) { /* @var $addy Model_Address */
+				$to[] = $addy->email;
+			}
+		}
+		
+		if(empty($to)) {
+			return "[ERROR] The 'to' field has no recipients.";
+		}
+		
+		$to = array_unique($to);
+		
+		if(false == ($subject = $tpl_builder->build($params['subject'], $values))) {
+			return "[ERROR] The 'subject' field has invalid placeholders.";
+		}
+		
+		if(false == ($content = $tpl_builder->build($params['content'], $values))) {
+			return "[ERROR] The 'content' field has invalid placeholders.";
+		}
+		
+		// [TODO] Simulate 'From:'
+		
+		$out = sprintf(">>> Sending email\n".
+			"To: %s\n".
+			"Subject: %s\n".
+			"\n".
+			"%s\n",
+			implode(",\n  ", $to),
+			$subject,
+			$content
+		);
+		
+		return $out;
+	}
+	
+	function runActionSendEmail($params, $values) {
+		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+		
+		@$trigger = $values['_trigger'];
+		@$to_vars = @$params['to_var'];
+		$to = array();
+		
+		// To
+		
+		if(isset($params['to']) && !empty($params['to'])) {
+			if(false !== ($to_string = $tpl_builder->build($params['to'], $values)))
+				$to = DevblocksPlatform::parseCsvString($to_string);
+		}
+		
+		if(is_array($to_vars))
+		foreach($to_vars as $to_var) {
+			if(!isset($values[$to_var]))
+				continue;
+			
+			// Security check
+			if(substr($to_var,0,4) != 'var_')
+				continue;
+			
+			$address_ids = $values[$to_var];
+			
+			$addresses = DAO_Address::getWhere(sprintf("%s IN (%s)",
+				DAO_Address::ID,
+				implode(",", $address_ids)
+			));
+			
+			if(is_array($addresses))
+			foreach($addresses as $addy) { /* @var $addy Model_Address */
+				$to[] = $addy->email;
+			}
+		}
+
+		// Properties 
+		
 		$subject = $tpl_builder->build($params['subject'], $values);
 		$content = $tpl_builder->build($params['content'], $values);
 
 		CerberusMail::quickSend(
-			$to,
+			implode(', ', $to),
 			$subject,
 			$content
 		);
