@@ -1141,6 +1141,45 @@ class DevblocksEventHelper {
 		$tpl->display('devblocks:cerberusweb.core::events/action_schedule_behavior.tpl');
 	}
 	
+	static function simulateActionScheduleBehavior($params, $values, $context, $context_id) {
+		@$behavior_id = $params['behavior_id'];
+		@$run_date = $params['run_date'];
+		@$on_dupe = $params['on_dupe'];
+
+		if(empty($behavior_id)) {
+			return "[ERROR] No behavior is selected. Skipping...";
+		}
+		
+		@$run_timestamp = strtotime($run_date);
+		
+		if(null == ($behavior = DAO_TriggerEvent::get($behavior_id)))
+			return "[ERROR} Behavior does not exist. Skipping...";
+		
+		// [TODO] Show params
+		
+		$out = sprintf(">>> Scheduling behavior\n".
+			"Behavior: %s\n".
+			"When: %s (%s)\n",
+			$behavior->title,
+			date('Y-m-d h:ip', $run_timestamp),
+			$run_date
+		);
+		
+		switch($on_dupe) {
+			case 'first':
+				$out .= "Dupes: Only earliest\n";
+				break;
+			case 'last':
+				$out .= "Dupes: Only latest\n";
+				break;
+			default:
+				$out .= "Dupes: Allow multiple\n";
+				break;
+		}
+		
+		return $out;
+	}
+	
 	static function runActionScheduleBehavior($params, $values, $context, $context_id) {
 		@$behavior_id = $params['behavior_id'];
 		@$run_date = $params['run_date'];
@@ -1214,6 +1253,21 @@ class DevblocksEventHelper {
 		$tpl->assign('macros', $macros);
 		
 		$tpl->display('devblocks:cerberusweb.core::events/action_unschedule_behavior.tpl');
+	}
+	
+	static function simulateActionUnscheduleBehavior($params, $values, $context, $context_id) {
+		@$behavior_id = $params['behavior_id'];
+
+		if(empty($behavior_id) || null == ($behavior = DAO_TriggerEvent::get($behavior_id))) {
+			return "[ERROR] No behavior is selected. Skipping...";
+		}
+		
+		$out = sprintf(">>> Unscheduling behavior\n".
+			"Behavior: %s\n",
+			$behavior->title
+		);
+		
+		return $out;
 	}
 	
 	static function runActionUnscheduleBehavior($params, $values, $context, $context_id) {
