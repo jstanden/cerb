@@ -147,6 +147,7 @@
 				<name>Event_CrmOpportunityMacro</name>
 			</class>
 			<params>
+				<param key="macro_context" value="cerberusweb.contexts.opportunity" />
 				<param key="contexts">
 					<value>
 						<data key="cerberusweb.contexts.worker" />

@@ -976,6 +976,7 @@
 				<name>Event_AddressMacro</name>
 			</class>
 			<params>
+				<param key="macro_context" value="cerberusweb.contexts.address" />
 				<param key="contexts">
 					<value>
 						<data key="cerberusweb.contexts.worker" />
@@ -992,6 +993,7 @@
 				<name>Event_OrgMacro</name>
 			</class>
 			<params>
+				<param key="macro_context" value="cerberusweb.contexts.org" />
 				<param key="contexts">
 					<value>
 						<data key="cerberusweb.contexts.worker" />
@@ -1008,6 +1010,7 @@
 				<name>Event_TaskMacro</name>
 			</class>
 			<params>
+				<param key="macro_context" value="cerberusweb.contexts.task" />
 				<param key="contexts">
 					<value>
 						<data key="cerberusweb.contexts.worker" />
@@ -1024,6 +1027,7 @@
 				<name>Event_TicketMacro</name>
 			</class>
 			<params>
+				<param key="macro_context" value="cerberusweb.contexts.ticket" />
 				<param key="contexts">
 					<value>
 						<data key="cerberusweb.contexts.group" />

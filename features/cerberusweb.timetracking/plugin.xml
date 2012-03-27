@@ -88,6 +88,7 @@
 				<name>Event_TimeTrackingMacro</name>
 			</class>
 			<params>
+				<param key="macro_context" value="cerberusweb.contexts.timetracking" />
 				<param key="contexts">
 					<value>
 						<data key="cerberusweb.contexts.worker" />

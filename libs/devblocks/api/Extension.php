@@ -217,6 +217,47 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 		return $this->_values;
 	}
 	
+	function getValuesContexts($trigger) {
+		$contexts_to_macros = DevblocksEventHelper::getContextToMacroMap();
+		$macros_to_contexts = array_flip($contexts_to_macros);
+
+		$cfields = array();
+		$custom_fields = DAO_CustomField::getAll();
+		$vars = array();
+		
+		// cfields
+		$labels = $this->getLabels($trigger);
+		if(is_array($labels))
+		foreach($labels as $token => $label) {
+			if(preg_match("#.*?_{0,1}custom_(\d+)#", $token, $matches)) {
+				@$cfield_id = $matches[1];
+				
+				if(empty($cfield_id))
+					continue;
+				
+				if(!isset($custom_fields[$cfield_id]))
+					continue;
+				
+				switch($custom_fields[$cfield_id]->type) {
+					case Model_CustomField::TYPE_WORKER:
+						$cfields[$token] = array(
+							'label' => $label,
+							'context' => CerberusContexts::CONTEXT_WORKER,
+						);
+						break;
+					default:
+						continue;
+						break;
+				}
+			}
+		}
+		
+		// behavior vars
+		$vars = DevblocksEventHelper::getVarValueToContextMap($trigger);
+		
+		return array_merge($cfields, $vars);		
+	}
+	
 	// [TODO] Cache results for this request
 	function getConditions($trigger) {
 		$conditions = array(
@@ -771,6 +812,39 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 };
 
 class DevblocksEventHelper {
+	public static function getVarValueToContextMap($trigger) {
+		$values_to_contexts = array();
+		
+		if(is_array($trigger->variables))
+		foreach($trigger->variables as $var_key => $var) {
+			if(substr($var_key,0,4) == 'var_') {
+				if(substr($var['type'],0,4) == 'ctx_') {
+					$ctx_id = substr($var['type'],4);
+					$values_to_contexts[$var_key] = array(
+						'label' => '(variable) ' . $var['label'],
+						'context' => $ctx_id,
+					);
+				}
+			}
+		}
+		
+		return $values_to_contexts;
+	}
+	
+	public static function getContextToMacroMap() {
+		$exts_event = Extension_DevblocksEvent::getAll(false);
+		$context_to_macros = array();
+		
+		foreach($exts_event as $ext_event_id => $ext_event) {
+			if(!isset($ext_event->params['macro_context']))
+				continue;
+			
+			$context_to_macros[$ext_event->params['macro_context']] = $ext_event_id;
+		}
+		
+		return $context_to_macros;
+	}
+	
 	/*
 	 * Action: Custom Fields
 	 */
@@ -830,6 +904,109 @@ class DevblocksEventHelper {
 				break;
 		}		
 	}	
+	
+	static function simulateActionSetCustomField(Model_CustomField $custom_field, $value_key, $params, &$values, $context, $context_id) {
+		@$field_id = $custom_field->id;
+		
+		if(empty($field_id) || empty($context) || empty($context_id))
+			return;
+		
+		$out = '';
+		
+		$out .= sprintf(">>> Setting %s to:\n",
+			$custom_field->name
+		);
+		
+		switch($custom_field->type) {
+			case Model_CustomField::TYPE_CHECKBOX:
+				@$value = $params['value'];
+				$out .= sprintf("%s\n",
+					!empty($value) ? 'yes' : 'no'
+				);
+				break;
+				
+			case Model_CustomField::TYPE_SINGLE_LINE:
+			case Model_CustomField::TYPE_MULTI_LINE:
+			case Model_CustomField::TYPE_DROPDOWN:
+			case Model_CustomField::TYPE_NUMBER:
+			case Model_CustomField::TYPE_URL:
+				@$value = $params['value'];
+				
+				$builder = DevblocksPlatform::getTemplateBuilder();
+				$value = $builder->build($value, $values);
+				
+				$out .= sprintf("%s\n",
+					$value
+				);
+				 
+				if(!empty($value_key)) {
+					$values[$value_key.'_'.$field_id] = $value;
+					$values[$value_key][$field_id] = $value;
+				}
+				break;
+			
+			case Model_CustomField::TYPE_DATE:
+				$value = $params['value'];
+				$value = strtotime($value);
+
+				$out .= sprintf("%s (%s)\n",
+					date('Y-m-d h:ip', $value),
+					$params['value']
+				);
+				
+				if(!empty($value_key)) {
+					$values[$value_key.'_'.$field_id] = $value;
+					$values[$value_key][$field_id] = $value;
+				}
+				break;
+				
+			case Model_CustomField::TYPE_MULTI_CHECKBOX:
+				@$opts = $params['values'];
+
+				$out .= sprintf("%s\n",
+					implode(', ', $opts)
+				);
+				
+				if(!empty($value_key)) {
+					$values[$value_key.'_'.$field_id] = implode(',',$opts);
+					$values[$value_key][$field_id] = $opts;
+				}
+				
+				break;
+				
+			case Model_CustomField::TYPE_WORKER:
+				@$worker_id = $params['worker_id'];
+				
+				// Variable?
+				if(substr($worker_id,0,4) == 'var_') {
+					@$worker_id = intval($values[$worker_id]);
+				}
+				
+				if(empty($worker_id)) {
+					$out .= "nobody\n";
+					
+				} else {
+					if(null != ($worker = DAO_Worker::get($worker_id))) {
+						$out .= sprintf("%s\n",
+							$worker->getName()
+						);
+					}
+				}
+				
+				if(!empty($value_key)) {
+					$values[$value_key.'_'.$field_id] = $worker_id;
+					$values[$value_key][$field_id] = $worker_id;
+				}
+				break;
+				
+			default:
+				//$this->runActionExtension($token, $trigger, $params, $values);
+				//$this->simulateActionExtension($token, $trigger, $params, $values);
+				break;
+		}
+		
+		return $out;
+	}
 	
 	static function runActionSetCustomField(Model_CustomField $custom_field, $value_key, $params, &$values, $context, $context_id) {
 		@$field_id = $custom_field->id;
@@ -957,6 +1134,7 @@ class DevblocksEventHelper {
 				$token
 			);
 			
+			if(is_array($value))
 			foreach($value as $v) {
 				$meta = $list_context_ext->getMeta($v);
 				$out .= sprintf(" * %s\n",
@@ -1274,30 +1452,72 @@ class DevblocksEventHelper {
 			}
 		}
 		
-		$fields = array(
-			DAO_ContextScheduledBehavior::CONTEXT => $context,
-			DAO_ContextScheduledBehavior::CONTEXT_ID => $context_id,
-			DAO_ContextScheduledBehavior::BEHAVIOR_ID => $behavior_id,
-			DAO_ContextScheduledBehavior::RUN_DATE => intval($run_timestamp),
-			DAO_ContextScheduledBehavior::VARIABLES_JSON => json_encode($vars),
-		);
-		return DAO_ContextScheduledBehavior::create($fields);
+		// On
+		
+		@$on = DevblocksPlatform::importVar($params['on'],'string','');
+		
+		if(!empty($on)) {
+			$trigger = $values['_trigger'];
+			$event = $trigger->getEvent();
+			
+			$on_result = DevblocksEventHelper::onContexts($on, $event->getValuesContexts($trigger), $values);
+			
+			@$on_objects = $on_result['objects'];
+			
+			if(is_array($on_objects)) {
+				foreach($on_objects as $on_object) {
+					if(!isset($on_object['id']) && empty($on_object['id']))
+						continue;
+					
+					$fields = array(
+						DAO_ContextScheduledBehavior::CONTEXT => $on_object['context']->id,
+						DAO_ContextScheduledBehavior::CONTEXT_ID => $on_object['id'],
+						DAO_ContextScheduledBehavior::BEHAVIOR_ID => $behavior_id,
+						DAO_ContextScheduledBehavior::RUN_DATE => intval($run_timestamp),
+						DAO_ContextScheduledBehavior::VARIABLES_JSON => json_encode($vars),
+					);
+					DAO_ContextScheduledBehavior::create($fields);
+				}
+			}
+		}
+
+		return;
 	}
 	
 	/*
 	 * Action: Unschedule Behavior
 	 */
 	
-	static function renderActionUnscheduleBehavior($context, $context_id, $event_point) {
+	static function renderActionUnscheduleBehavior($trigger) {
 		$tpl = DevblocksPlatform::getTemplateService();
 		
-		$macros = DAO_TriggerEvent::getByOwner($context, $context_id, $event_point);
+		// Macros
+		
+		$event = $trigger->getEvent();
+		
+		$values_to_contexts = $event->getValuesContexts($trigger);
+		$tpl->assign('values_to_contexts', $values_to_contexts);
+
+		$context_to_macros = DevblocksEventHelper::getContextToMacroMap();
+		$tpl->assign('context_to_macros', $context_to_macros);
+		$tpl->assign('events_to_contexts', array_flip($context_to_macros));
+
+		// Macros
+		
+		$macros = DAO_TriggerEvent::getByOwner($trigger->owner_context, $trigger->owner_context_id);
+		
+		foreach($macros as $k => $macro) {
+			if(!in_array($macro->event_point, $context_to_macros)) {
+				unset($macros[$k]);
+			}
+		}
+		
 		$tpl->assign('macros', $macros);
 		
 		$tpl->display('devblocks:cerberusweb.core::events/action_unschedule_behavior.tpl');
 	}
 	
-	static function simulateActionUnscheduleBehavior($params, $values, $context, $context_id) {
+	static function simulateActionUnscheduleBehavior($params, $values) {
 		@$behavior_id = $params['behavior_id'];
 
 		if(empty($behavior_id) || null == ($behavior = DAO_TriggerEvent::get($behavior_id))) {
@@ -1308,31 +1528,77 @@ class DevblocksEventHelper {
 			"Behavior: %s\n",
 			$behavior->title
 		);
+
+		// On
+		
+		@$on = DevblocksPlatform::importVar($params['on'],'string','');
+		
+		if(!empty($on)) {
+			$trigger = $values['_trigger'];
+			$event = $trigger->getEvent();
+			
+			$on_result = DevblocksEventHelper::onContexts($on, $event->getValuesContexts($trigger), $values);
+			@$on_objects = $on_result['objects'];
+			
+			if(is_array($on_objects)) {
+				$out .= "\n>>> On:\n";
+				
+				foreach($on_objects as $on_object) {
+					$out .= ' * (' . $on_object['context']->manifest->name . ') ' . $on_object['name'] . "\n";  
+				}
+				$out .= "\n";
+			}
+		}		
 		
 		return $out;
 	}
 	
-	static function runActionUnscheduleBehavior($params, $values, $context, $context_id) {
+	static function runActionUnscheduleBehavior($params, $values) {
 		@$behavior_id = $params['behavior_id'];
 		
 		if(empty($behavior_id))
 			return FALSE;
 		
-		return DAO_ContextScheduledBehavior::deleteByBehavior($behavior_id, $context, $context_id);
+			// On
+		
+		@$on = DevblocksPlatform::importVar($params['on'],'string','');
+		
+		if(!empty($on)) {
+			$trigger = $values['_trigger'];
+			$event = $trigger->getEvent();
+			
+			$on_result = DevblocksEventHelper::onContexts($on, $event->getValuesContexts($trigger), $values);
+			@$on_objects = $on_result['objects'];
+			
+			if(is_array($on_objects)) {
+				foreach($on_objects as $on_object) {
+					DAO_ContextScheduledBehavior::deleteByBehavior($behavior_id, $on_object['context']->id, $on_object['id']);
+				}
+			}
+		}		
 	}
 	
 	/*
 	 * Action: Create Comment
 	 */
 	
-	static function renderActionCreateComment() {
+	static function renderActionCreateComment($trigger) {
 		$tpl = DevblocksPlatform::getTemplateService();
+		
+		$event = $trigger->getEvent();
+		
+		$values_to_contexts = $event->getValuesContexts($trigger);
+		$tpl->assign('values_to_contexts', $values_to_contexts);
+		
 		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_create_comment.tpl');
 	}
 	
-	static function simulateActionCreateComment($params, $values, $context, $context_id, $trigger=null) {
+	static function simulateActionCreateComment($params, $values, $on_default) {
 		$notify_worker_ids = isset($params['notify_worker_id']) ? $params['notify_worker_id'] : array();
 		$notify_worker_ids = DevblocksEventHelper::mergeWorkerVars($notify_worker_ids, $values);
+
+		$trigger = $values['_trigger'];
+		$event = $trigger->getEvent();
 		
 		// Translate message tokens
 		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
@@ -1349,21 +1615,22 @@ class DevblocksEventHelper {
 		
 		// On
 		
-		@$on = DevblocksPlatform::importVar($params['on'],'string','');
+		@$on = DevblocksPlatform::importVar($params['on'],'string',$on_default);
 		
-		if(!empty($on)) {
-			$on_result = DevblocksEventHelper::onContextsVar($on, $values);
-			@$on_context = $on_result['context'];
-			@$on_objects = $on_result['objects'];
+		if(empty($on)) {
+			return "[ERROR] The 'on' field is not set.";
+		}
+		
+		$on_result = DevblocksEventHelper::onContexts($on, $event->getValuesContexts($trigger), $values);
+		@$on_objects = $on_result['objects'];
+		
+		if(is_array($on_objects)) {
+			$out .= ">>> On:\n";
 			
-			if(!empty($on_context) && is_array($on_objects)) {
-				$out .= ">>> On:\n";
-				
-				foreach($on_objects as $on_object) {
-					$out .= ' * (' . $on_context->manifest->name . ') ' . $on_object['name'] . "\n";  
-				}
-				$out .= "\n";
+			foreach($on_objects as $on_object) {
+				$out .= ' * (' . $on_object['context']->manifest->name . ') ' . $on_object['name'] . "\n";  
 			}
+			$out .= "\n";
 		}
 
 		// Notify
@@ -1381,9 +1648,13 @@ class DevblocksEventHelper {
 		return rtrim($out);
 	}
 	
-	static function runActionCreateComment($params, $values, $context, $context_id, $trigger=null) {
+	static function runActionCreateComment($params, $values, $default_on) {
 		$notify_worker_ids = isset($params['notify_worker_id']) ? $params['notify_worker_id'] : array();
 		$notify_worker_ids = DevblocksEventHelper::mergeWorkerVars($notify_worker_ids, $values);
+
+		// Event
+		$trigger = $values['_trigger'];
+		$event = $trigger->getEvent();
 		
 		// Translate message tokens
 		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
@@ -1399,27 +1670,19 @@ class DevblocksEventHelper {
 		
 		// On: Are we linking these comments to something else?
 		
-		@$on = DevblocksPlatform::importVar($params['on'],'string','');
+		@$on = DevblocksPlatform::importVar($params['on'],'string',$default_on);
 		
-		if(!empty($on)) {
-			$on_result = DevblocksEventHelper::onContextsVar($on, $values);
-			@$on_context = $on_result['context'];
-			@$on_objects = $on_result['objects'];
-			
-			if(!empty($on_context) && is_array($on_objects)) {
-				foreach($on_objects as $on_object) {
-					$fields[DAO_Comment::CONTEXT] = $on_context->id;
-					$fields[DAO_Comment::CONTEXT_ID] = $on_object['id'];
-					$comment_id = DAO_Comment::create($fields, $notify_worker_ids);
-				}
+		$on_result = DevblocksEventHelper::onContexts($on, $event->getValuesContexts($trigger), $values);
+		@$on_objects = $on_result['objects'];
+		
+		if(is_array($on_objects)) {
+			foreach($on_objects as $on_object) {
+				$fields[DAO_Comment::CONTEXT] = $on_object['context']->id;
+				$fields[DAO_Comment::CONTEXT_ID] = $on_object['id'];
+				$comment_id = DAO_Comment::create($fields, $notify_worker_ids);
 			}
-			
-		} else {
-			$fields[DAO_Comment::CONTEXT] = $context;
-			$fields[DAO_Comment::CONTEXT_ID] = $context_id;
-			$comment_id = DAO_Comment::create($fields, $notify_worker_ids);
 		}
-		
+			
 		return $comment_id;
 	}
 	
@@ -1505,17 +1768,25 @@ class DevblocksEventHelper {
 			);
 	}
 	
-	static function renderActionAddWatchers() {
+	static function renderActionAddWatchers($trigger) {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('workers', DAO_Worker::getAll());
+		
+		$event = $trigger->getEvent();
+		$tpl->assign('values_to_contexts', $event->getValuesContexts($trigger));
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_add_watchers.tpl');
 	}
 
-	static function simulateActionAddWatchers($params, $values, $context, $context_id) {
+	static function simulateActionAddWatchers($params, $values, $default_on) {
 		@$worker_ids = DevblocksPlatform::importVar($params['worker_id'],'array',array());
 		$worker_ids = DevblocksEventHelper::mergeWorkerVars($worker_ids, $values);
 
+		// Event
+		
+		$trigger = $values['_trigger'];
+		$event = $trigger->getEvent();
+		
 		// Watchers
 		
 		$out = ">>> Adding watchers:\n";
@@ -1537,50 +1808,46 @@ class DevblocksEventHelper {
 		
 		// On
 		
-		@$on = DevblocksPlatform::importVar($params['on'],'string','');
+		@$on = DevblocksPlatform::importVar($params['on'],'string', $default_on);
 		
-		if(!empty($on)) {
-			$on_result = DevblocksEventHelper::onContextsVar($on, $values);
-			@$on_context = $on_result['context'];
-			@$on_objects = $on_result['objects'];
+		$on_result = DevblocksEventHelper::onContexts($on, $event->getValuesContexts($trigger), $values);
+		@$on_objects = $on_result['objects'];
+		
+		if(is_array($on_objects)) {
+			$out .= ">>> On:\n";
 			
-			if(!empty($on_context) && is_array($on_objects)) {
-				$out .= ">>> On:\n";
-				
-				foreach($on_objects as $on_object) {
-					$out .= ' * (' . $on_context->manifest->name . ') ' . $on_object['name'] . "\n";  
-				}
-				$out .= "\n";
+			foreach($on_objects as $on_object) {
+				$out .= ' * (' . $on_object['context']->manifest->name . ') ' . $on_object['name'] . "\n";  
 			}
-		}		
+			$out .= "\n";
+		}
 		
 		return $out;
 	}
 	
-	static function runActionAddWatchers($params, $values, $context, $context_id) {
+	static function runActionAddWatchers($params, $values, $default_on) {
 		@$worker_ids = DevblocksPlatform::importVar($params['worker_id'],'array',array());
 		$worker_ids = DevblocksEventHelper::mergeWorkerVars($worker_ids, $values);
 	
 		if(!is_array($worker_ids) || empty($worker_ids))
 			return;
+
+		// Event
+		
+		$trigger = $values['_trigger'];
+		$event = $trigger->getEvent();
 		
 		// On: Are we watching something else?
 		
-		@$on = DevblocksPlatform::importVar($params['on'],'string','');
+		@$on = DevblocksPlatform::importVar($params['on'],'string',$default_on);
 		
-		if(!empty($on)) {
-			$on_result = DevblocksEventHelper::onContextsVar($on, $values);
-			@$on_context = $on_result['context'];
-			@$on_objects = $on_result['objects'];
-			
-			if(!empty($on_context) && is_array($on_objects)) {
-				foreach($on_objects as $on_object) {
-					CerberusContexts::addWatchers($on_context->id, $on_object['id'], $worker_ids);
-				}
+		$on_result = DevblocksEventHelper::onContexts($on, $event->getValuesContexts($trigger), $values);
+		@$on_objects = $on_result['objects'];
+		
+		if(is_array($on_objects)) {
+			foreach($on_objects as $on_object) {
+				CerberusContexts::addWatchers($on_object['context']->id, $on_object['id'], $worker_ids);
 			}
-			
-		} else {
-			CerberusContexts::addWatchers($context, $context_id, $worker_ids);
 		}
 	}
 	
@@ -1588,20 +1855,27 @@ class DevblocksEventHelper {
 	 * Action: Create Notification
 	 */
 	
-	static function renderActionCreateNotification($notify_map=array()) {
+	static function renderActionCreateNotification($trigger, $notify_map=array()) {
 		$tpl = DevblocksPlatform::getTemplateService();
 		
 		$tpl->assign('workers', DAO_Worker::getAll());
 		$tpl->assign('notify_map', $notify_map);
+
+		$event = $trigger->getEvent();
+		$values_to_contexts = $event->getValuesContexts($trigger);
+		$tpl->assign('values_to_contexts', $values_to_contexts);
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_create_notification.tpl');
 	}
 	
-	static function simulateActionCreateNotification($params, $values, $context, $context_id, $notify_map=array()) {
+	static function simulateActionCreateNotification($params, $values, $default_on, $notify_map=array()) {
 		// Translate message tokens
 		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
 		$content = $tpl_builder->build($params['content'], $values);
 
+		$trigger = $values['_trigger'];
+		$event = $trigger->getEvent();
+		
 		$out = sprintf(">>> Sending a notification:\n".
 			"\n".
 			"%s\n".
@@ -1613,18 +1887,17 @@ class DevblocksEventHelper {
 		
 		// On
 		
-		@$on = DevblocksPlatform::importVar($params['on'],'string','');
+		@$on = DevblocksPlatform::importVar($params['on'],'string',$default_on);
 		
 		if(!empty($on)) {
-			$on_result = DevblocksEventHelper::onContextsVar($on, $values);
-			@$on_context = $on_result['context'];
+			$on_result = DevblocksEventHelper::onContexts($on, $event->getValuesContexts($trigger), $values);
 			@$on_objects = $on_result['objects'];
 			
-			if(!empty($on_context) && is_array($on_objects)) {
+			if(is_array($on_objects)) {
 				$out .= ">>> On:\n";
 				
 				foreach($on_objects as $on_object) {
-					$out .= ' * (' . $on_context->manifest->name . ') ' . $on_object['name'] . "\n";  
+					$out .= ' * (' . $on_object['context']->manifest->name . ') ' . $on_object['name'] . "\n";  
 				}
 				$out .= "\n";
 			}
@@ -1671,10 +1944,10 @@ class DevblocksEventHelper {
 		return $out;		
 	}
 	
-	static function runActionCreateNotification($params, $values, $context, $context_id, $notify_map=array()) {
-		if(empty($context))
-			return;
-
+	static function runActionCreateNotification($params, $values, $default_on, $notify_map=array()) {
+		$trigger = $values['_trigger'];
+		$event = $trigger->getEvent();
+		
 		// Notifications
 		
 		$notify_worker_ids = isset($params['notify_worker_id']) ? $params['notify_worker_id'] : array();
@@ -1719,23 +1992,17 @@ class DevblocksEventHelper {
 		
 		// On: Are we notifying about something else?
 		
-		@$on = DevblocksPlatform::importVar($params['on'],'string','');
+		@$on = DevblocksPlatform::importVar($params['on'],'string',$default_on);
 		
-		if(!empty($on)) {
-			$on_result = DevblocksEventHelper::onContextsVar($on, $values);
-			@$on_context = $on_result['context'];
-			@$on_objects = $on_result['objects'];
-			
-			if(!empty($on_context) && is_array($on_objects)) {
-				foreach($on_objects as $on_object) {
-					$notify_contexts[] = array($on_context->id, $on_object['id']);
-				}
+		$on_result = DevblocksEventHelper::onContexts($on, $event->getValuesContexts($trigger), $values);
+		@$on_objects = $on_result['objects'];
+		
+		if(is_array($on_objects)) {
+			foreach($on_objects as $on_object) {
+				$notify_contexts[] = array($on_object['context']->id, $on_object['id']);
 			}
-			
-		} else {
-			$notify_contexts[] = array($context, $context_id);
 		}
-
+			
 		// Send notifications
 		
 		foreach($notify_worker_ids as $notify_worker_id) {
@@ -1761,14 +2028,18 @@ class DevblocksEventHelper {
 	 * Action: Create Task
 	 */
 	
-	static function renderActionCreateTask() {
+	static function renderActionCreateTask($trigger) {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('workers', DAO_Worker::getAll());
+		
+		$event = $trigger->getEvent();
+		$values_to_contexts = $event->getValuesContexts($trigger);
+		$tpl->assign('values_to_contexts', $values_to_contexts);
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_create_task.tpl');
 	}
 	
-	static function simulateActionCreateTask($params, $values, $context=null, $context_id=null) {
+	static function simulateActionCreateTask($params, $values, $default_on) {
 		$due_date = $params['due_date'];
 
 		@$watcher_worker_ids = DevblocksPlatform::importVar($params['worker_id'],'array',array());
@@ -1791,6 +2062,27 @@ class DevblocksEventHelper {
 			date("Y-m-d h:ia", $due_date),
 			$params['due_date']
 		);
+		
+		// On
+
+		$trigger = $values['_trigger'];
+		$event = $trigger->getEvent();
+		
+		@$on = DevblocksPlatform::importVar($params['on'],'string',$default_on);
+		
+		if(!empty($on)) {
+			$on_result = DevblocksEventHelper::onContexts($on, $event->getValuesContexts($trigger), $values);
+			@$on_objects = $on_result['objects'];
+			
+			if(is_array($on_objects)) {
+				$out .= ">>> On:\n";
+				
+				foreach($on_objects as $on_object) {
+					$out .= ' * (' . $on_object['context']->manifest->name . ') ' . $on_object['name'] . "\n";  
+				}
+				$out .= "\n";
+			}
+		}		
 		
 		// Watchers
 		if(is_array($watcher_worker_ids) && !empty($watcher_worker_ids)) {
@@ -1834,7 +2126,7 @@ class DevblocksEventHelper {
 		return $out;
 	}
 	
-	static function runActionCreateTask($params, $values, $context=null, $context_id=null) {
+	static function runActionCreateTask($params, $values, $default_on) {
 		$due_date = $params['due_date'];
 
 		@$watcher_worker_ids = DevblocksPlatform::importVar($params['worker_id'],'array',array());
@@ -1848,34 +2140,48 @@ class DevblocksEventHelper {
 		$due_date = intval(@strtotime($tpl_builder->build($params['due_date'], $values)));
 		$comment = $tpl_builder->build($params['comment'], $values);
 
-		$fields = array(
-			DAO_Task::TITLE => $title,
-			DAO_Task::UPDATED_DATE => time(),
-			DAO_Task::DUE_DATE => $due_date,
-		);
-		$task_id = DAO_Task::create($fields);
+		// On
 
-		// Watchers
-		if(is_array($watcher_worker_ids) && !empty($watcher_worker_ids)) {
-			CerberusContexts::addWatchers(CerberusContexts::CONTEXT_TASK, $task_id, $watcher_worker_ids);
-		}
+		$trigger = $values['_trigger'];
+		$event = $trigger->getEvent();
 		
-		// Comment content
-		if(!empty($comment)) {
-			$fields = array(
-				DAO_Comment::ADDRESS_ID => 0,
-				DAO_Comment::COMMENT => $comment,
-				DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_TASK,
-				DAO_Comment::CONTEXT_ID => $task_id,
-				DAO_Comment::CREATED => time(),
-			);
+		@$on = DevblocksPlatform::importVar($params['on'],'string',$default_on);
+		
+		if(!empty($on)) {
+			$on_result = DevblocksEventHelper::onContexts($on, $event->getValuesContexts($trigger), $values);
+			@$on_objects = $on_result['objects'];
 			
-			DAO_Comment::create($fields, $notify_worker_ids);
+			if(is_array($on_objects)) {
+				foreach($on_objects as $on_object) {
+					$fields = array(
+						DAO_Task::TITLE => $title,
+						DAO_Task::UPDATED_DATE => time(),
+						DAO_Task::DUE_DATE => $due_date,
+					);
+					$task_id = DAO_Task::create($fields);
+			
+					// Watchers
+					if(is_array($watcher_worker_ids) && !empty($watcher_worker_ids)) {
+						CerberusContexts::addWatchers(CerberusContexts::CONTEXT_TASK, $task_id, $watcher_worker_ids);
+					}
+					
+					// Comment content
+					if(!empty($comment)) {
+						$fields = array(
+							DAO_Comment::ADDRESS_ID => 0,
+							DAO_Comment::COMMENT => $comment,
+							DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_TASK,
+							DAO_Comment::CONTEXT_ID => $task_id,
+							DAO_Comment::CREATED => time(),
+						);
+						DAO_Comment::create($fields, $notify_worker_ids);
+					}
+					
+					// Connection
+					DAO_ContextLink::setLink(CerberusContexts::CONTEXT_TASK, $task_id, $on_object['context']->manifest->id, $on_object['id']);
+				}
+			}
 		}
-		
-		// Connection
-		if(!empty($context) && !empty($context_id))
-			DAO_ContextLink::setLink(CerberusContexts::CONTEXT_TASK, $task_id, $context, $context_id);
 
 		return $task_id;
 	}
@@ -1884,15 +2190,19 @@ class DevblocksEventHelper {
 	 * Action: Create Ticket
 	 */
 	
-	static function renderActionCreateTicket() {
+	static function renderActionCreateTicket($trigger) {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('groups', DAO_Group::getAll());
 		$tpl->assign('workers', DAO_Worker::getAll());
 		
+		$event = $trigger->getEvent();
+		$values_to_contexts = $event->getValuesContexts($trigger);
+		$tpl->assign('values_to_contexts', $values_to_contexts);
+		
 		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_create_ticket.tpl');
 	}
 	
-	static function simulateActionCreateTicket($params, $values, $context=null, $context_id=null) {
+	static function simulateActionCreateTicket($params, $values) {
 		@$group_id = $params['group_id'];
 		
 		if(null == ($group = DAO_Group::get($group_id)))
@@ -1935,19 +2245,30 @@ class DevblocksEventHelper {
 		}
 		
 		// Connection
-		if(!empty($context) && !empty($context_id)) {
-			if(null != ($ctx = Extension_DevblocksContext::get($context, true))) {
-				$meta = $ctx->getMeta($context_id);
+		@$link_to = DevblocksPlatform::importVar($params['link_to'],'array',array());
+		
+		if(!empty($link_to)) {
+			$trigger = $values['_trigger'];
+			$event = $trigger->getEvent();
+			
+			$on_result = DevblocksEventHelper::onContexts($link_to, $event->getValuesContexts($trigger), $values);
+			@$on_objects = $on_result['objects'];
+			
+			if(is_array($on_objects)) {
 				$out .= ">>> Linking new ticket to:\n";
-				$out .= ' * (' . $ctx->manifest->name . ') ' . $meta['name'] . "\n";
-				$out .= "\n";
+				
+				foreach($on_objects as $on_object) {
+					$out .= ' * (' . $on_object['context']->manifest->name . ') ' . $on_object['name'] . "\n";
+				}
 			}
+			
+			$out .= "\n";
 		}
 		
 		return $out;
 	}
 	
-	static function runActionCreateTicket($params, $values, $context=null, $context_id=null) {
+	static function runActionCreateTicket($params, $values) {
 		@$group_id = $params['group_id'];
 		
 		if(null == ($group = DAO_Group::get($group_id)))
@@ -2015,8 +2336,22 @@ class DevblocksEventHelper {
 		CerberusMail::sendTicketMessage($properties);
 		
 		// Connection
-		if(!empty($context) && !empty($context_id))
-			DAO_ContextLink::setLink(CerberusContexts::CONTEXT_TICKET, $ticket_id, $context, $context_id);
+		
+		@$link_to = DevblocksPlatform::importVar($params['link_to'],'array',array());
+		
+		if(!empty($link_to)) {
+			$trigger = $values['_trigger'];
+			$event = $trigger->getEvent();
+			
+			$on_result = DevblocksEventHelper::onContexts($link_to, $event->getValuesContexts($trigger), $values);
+			@$on_objects = $on_result['objects'];
+			
+			if(is_array($on_objects)) {
+				foreach($on_objects as $on_object) {
+					DAO_ContextLink::setLink(CerberusContexts::CONTEXT_TICKET, $ticket_id, $on_object['context']->id, $on_object['id']);
+				}
+			}
+		}
 		
 		return $ticket_id;
 	}
@@ -2025,8 +2360,13 @@ class DevblocksEventHelper {
 	 * Action: Send Email
 	 */
 	
-	function renderActionSendEmail() {
+	function renderActionSendEmail($trigger) {
 		$tpl = DevblocksPlatform::getTemplateService();
+		
+		$event = $trigger->getEvent();
+		$values_to_contexts = $event->getValuesContexts($trigger);
+		$tpl->assign('values_to_contexts', $values_to_contexts);
+		
 		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_send_email.tpl');
 	}
 	
@@ -2299,22 +2639,21 @@ class DevblocksEventHelper {
 		}
 	}
 	
-	static function onContextsVar($on, $values) {
+	static function onContexts($on_keys, $values_to_contexts, $values) {
 		$result = array();
 		
-		if(!empty($on) && isset($values[$on]) && is_array($values[$on])) {
-			@$trigger = $values['_trigger'];
-			
-			if($trigger instanceof Model_TriggerEvent && $trigger->variables[$on]) {
-				@$var = $trigger->variables[$on];
-				if(substr($var['type'],0,4) == 'ctx_') {
-					$ctx_ext = substr($var['type'],4);
-					if(null != ($ctx = Extension_DevblocksContext::get($ctx_ext))) {
-						$result['context'] = $ctx;
-						$result['objects'] = array();
-						foreach($values[$on] as $ctx_id) {
-							$result['objects'][$ctx_id] = $ctx->getMeta($ctx_id);
-						}
+		if(!empty($on_keys)) {
+			if(!is_array($on_keys))
+				$on_keys = array($on_keys);
+
+			foreach($on_keys as $on) {
+				$vals = is_array($values[$on]) ? $values[$on] : array($values[$on]);
+	
+				@$ctx_ext = $values_to_contexts[$on]['context'];
+				if(!empty($ctx_ext) && null != ($ctx = Extension_DevblocksContext::get($ctx_ext))) {
+					foreach($vals as $ctx_id) {
+						$result['objects'][$ctx_id] = $ctx->getMeta($ctx_id);
+						$result['objects'][$ctx_id]['context'] = $ctx;
 					}
 				}
 			}

@@ -150,6 +150,7 @@
 				<name>Event_KbArticleMacro</name>
 			</class>
 			<params>
+				<param key="macro_context" value="cerberusweb.contexts.kb_article" />
 				<param key="contexts">
 					<value>
 						<data key="cerberusweb.contexts.worker" />
