@@ -1159,73 +1159,17 @@ class DAO_Ticket extends C4_ORMHelper {
 			
 		$sort_sql = (!empty($sortBy) ? sprintf("ORDER BY %s %s ",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : " ");
 
-		// Virtuals
-		foreach($params as $param) {
-			if(!is_a($param,'DevblocksSearchCriteria'))
-				continue;
-			
-			$param_key = $param->field;
-			settype($param_key, 'string');
-
-			switch($param_key) {
-				case SearchFields_Ticket::VIRTUAL_WATCHERS:
-					$has_multiple_values = true;
-					$from_context = 'cerberusweb.contexts.ticket';
-					$from_index = 't.id';
-					
-					self::_searchComponentsVirtualWatchers($param, $from_context, $from_index, $join_sql, $where_sql);
-					break;
-					
-				case SearchFields_Ticket::VIRTUAL_ASSIGNABLE:
-					$assignable_buckets = DAO_Bucket::getAssignableBuckets();
-					$assignable_bucket_ids = array_keys($assignable_buckets);
-					array_unshift($assignable_bucket_ids, 0);
-					if($param->value) { // true
-						$where_sql .= sprintf("AND t.bucket_id IN (%s) ", implode(',', $assignable_bucket_ids));	
-					} else { // false
-						$where_sql .= sprintf("AND t.bucket_id NOT IN (%s) ", implode(',', $assignable_bucket_ids));	
-					}
-					break;
-					
-				case SearchFields_Ticket::VIRTUAL_GROUPS_OF_WORKER:
-					$member = DAO_Worker::get($param->value);
-					$roster = $member->getMemberships();
-					if(empty($roster))
-						break;
-					$where_sql .= sprintf("AND t.group_id IN (%s) ", implode(',', array_keys($roster)));
-					break;
-					
-				case SearchFields_Ticket::VIRTUAL_STATUS:
-					$values = $param->value;
-					if(!is_array($values))
-						$values = array($values);
-						
-					$status_sql = array();
-					
-					foreach($values as $value) {
-						switch($value) {
-							case 'open':
-								$status_sql[] = "(t.is_waiting = 0 AND t.is_closed = 0)";
-								break;
-							case 'waiting':
-								$status_sql[] = "(t.is_waiting = 1 AND t.is_closed = 0)";
-								break;
-							case 'closed':
-								$status_sql[] = "(t.is_closed = 1 AND t.is_deleted=0)";
-								break;
-							case 'deleted':
-								$status_sql[] = "(t.is_closed = 1 AND t.is_deleted=1)";
-								break;
-						}
-					}
-					
-					if(empty($status_sql))
-						break;
-					
-					$where_sql .= 'AND (' . implode(' OR ', $status_sql) . ') ';
-					break;
-			}
-		}
+		// Translate virtual fields
+		
+		array_walk_recursive(
+			$params,
+			array('DAO_Ticket', '_translateVirtualParameters'),
+			array(
+				'join_sql' => &$join_sql,
+				'where_sql' => &$where_sql,
+				'has_multiple_values' => &$has_multiple_values
+			)
+		);
 
 		// Fulltext has multiple values
 		if(isset($tables['ftmc']))
@@ -1241,6 +1185,77 @@ class DAO_Ticket extends C4_ORMHelper {
 		);
 		
 		return $result;
+	}
+	
+	private static function _translateVirtualParameters($param, $key, &$args) {
+		$join_sql =& $args['join_sql'];
+		$where_sql =& $args['where_sql']; 
+		$has_multiple_values =& $args['has_multiple_values'];
+		
+		if(!is_a($param, 'DevblocksSearchCriteria'))
+			return;
+		
+		$param_key = $param->field;
+		settype($param_key, 'string');
+
+		switch($param_key) {
+			case SearchFields_Ticket::VIRTUAL_WATCHERS:
+				$has_multiple_values = true;
+				$from_context = 'cerberusweb.contexts.ticket';
+				$from_index = 't.id';
+				
+				self::_searchComponentsVirtualWatchers($param, $from_context, $from_index, $join_sql, $where_sql);
+				break;
+				
+			case SearchFields_Ticket::VIRTUAL_ASSIGNABLE:
+				$assignable_buckets = DAO_Bucket::getAssignableBuckets();
+				$assignable_bucket_ids = array_keys($assignable_buckets);
+				array_unshift($assignable_bucket_ids, 0);
+				if($param->value) { // true
+					$where_sql .= sprintf("AND t.bucket_id IN (%s) ", implode(',', $assignable_bucket_ids));	
+				} else { // false
+					$where_sql .= sprintf("AND t.bucket_id NOT IN (%s) ", implode(',', $assignable_bucket_ids));	
+				}
+				break;
+				
+			case SearchFields_Ticket::VIRTUAL_GROUPS_OF_WORKER:
+				$member = DAO_Worker::get($param->value);
+				$roster = $member->getMemberships();
+				if(empty($roster))
+					break;
+				$where_sql .= sprintf("AND t.group_id IN (%s) ", implode(',', array_keys($roster)));
+				break;
+				
+			case SearchFields_Ticket::VIRTUAL_STATUS:
+				$values = $param->value;
+				if(!is_array($values))
+					$values = array($values);
+					
+				$status_sql = array();
+				
+				foreach($values as $value) {
+					switch($value) {
+						case 'open':
+							$status_sql[] = "(t.is_waiting = 0 AND t.is_closed = 0)";
+							break;
+						case 'waiting':
+							$status_sql[] = "(t.is_waiting = 1 AND t.is_closed = 0)";
+							break;
+						case 'closed':
+							$status_sql[] = "(t.is_closed = 1 AND t.is_deleted=0)";
+							break;
+						case 'deleted':
+							$status_sql[] = "(t.is_closed = 1 AND t.is_deleted=1)";
+							break;
+					}
+				}
+				
+				if(empty($status_sql))
+					break;
+				
+				$where_sql .= 'AND (' . implode(' OR ', $status_sql) . ') ';
+				break;
+		}		
 	}
 	
     static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {

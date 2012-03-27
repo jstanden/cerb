@@ -806,12 +806,14 @@
 				<name>Context_Ticket</name>
 			</class>
 			<params>
+				<param key="alias" value="ticket" />
 				<param key="view_class" value="View_Ticket" />
 				<param key="options">
 					<value>
 					<!--<data key="create" />-->
 						<data key="find" />
 						<data key="snippets" />
+						<data key="va_variable" />
 						<data key="workspace" />
 					</value>
 				</param>
