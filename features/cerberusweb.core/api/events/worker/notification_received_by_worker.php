@@ -85,6 +85,31 @@ class Event_NotificationReceivedByWorker extends Extension_DevblocksEvent {
 		$this->setValues($values);
 	}
 	
+	function getValuesContexts($trigger) {
+		$vals = array(
+			'id' => array(
+				'label' => 'Notification',
+				'context' => CerberusContexts::CONTEXT_NOTIFICATION,
+			),
+			'assignee_id' => array(
+				'label' => 'Assignee',
+				'context' => CerberusContexts::CONTEXT_WORKER,
+			),
+			'assignee_address_id' => array(
+				'label' => 'Assignee email',
+				'context' => CerberusContexts::CONTEXT_ADDRESS,
+			),
+			'assignee_id' => array(
+				'label' => 'Assignee org',
+				'context' => CerberusContexts::CONTEXT_ORG,
+			),
+		);
+		
+		$vars = parent::getValuesContexts($trigger);
+		
+		return array_merge($vals, $vars);
+	}
+	
 	function getConditionExtensions() {
 		$labels = $this->getLabels();
 		
@@ -162,6 +187,14 @@ class Event_NotificationReceivedByWorker extends Extension_DevblocksEvent {
 		$tpl->assign('token_labels', $labels);
 			
 		switch($token) {
+			case 'create_task':
+				DevblocksEventHelper::renderActionCreateTask($trigger);
+				break;
+				
+			case 'mark_read':
+				echo "The notification will be marked as read.";
+				break;
+				
 			case 'send_email_owner':
 				$workers = DAO_Worker::getAll();
 				$tpl->assign('workers', $workers);
@@ -171,12 +204,25 @@ class Event_NotificationReceivedByWorker extends Extension_DevblocksEvent {
 				
 				$tpl->display('devblocks:cerberusweb.core::events/notification_received_by_owner/action_send_email_owner.tpl');
 				break;
-				
-			case 'create_task':
-				DevblocksEventHelper::renderActionCreateTask();
+		}
+	}
+	
+	function simulateActionExtension($token, $trigger, $params, &$values) {
+		@$notification_id = $values['id'];
+
+		if(empty($notification_id))
+			return;
+		
+		switch($token) {
+			case 'send_email_owner':
 				break;
 				
 			case 'mark_read':
+				return ">>> Marking notification as read\n";
+				break;
+				
+			case 'create_task':
+				return DevblocksEventHelper::simulateActionCreateTask($params, $values, 'id');
 				break;
 		}
 	}
@@ -188,6 +234,17 @@ class Event_NotificationReceivedByWorker extends Extension_DevblocksEvent {
 			return;
 		
 		switch($token) {
+			case 'create_task':
+				DevblocksEventHelper::runActionCreateTask($params, $values, 'id');
+				break;
+								
+			case 'mark_read':
+				DAO_Notification::update($notification_id, array(
+					DAO_Notification::IS_READ => 1,
+				));
+				$values['is_read'] = 1;
+				break;
+			
 			case 'send_email_owner':
 				$to = array();
 				
@@ -220,17 +277,6 @@ class Event_NotificationReceivedByWorker extends Extension_DevblocksEvent {
 					);
 				}
 				break;
-				
-			case 'mark_read':
-				DAO_Notification::update($notification_id, array(
-					DAO_Notification::IS_READ => 1,
-				));
-				$values['is_read'] = 1;
-				break;
-				
-			case 'create_task':
-				DevblocksEventHelper::runActionCreateTask($params, $values); //, CerberusContexts::CONTEXT_NOTIFICATION, $values['id']
-				break;				
 		}
 	}
 	
