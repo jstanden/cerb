@@ -149,7 +149,7 @@ class CerberusMail {
 			return;
 		
 	    // Changing the outgoing message through a VA
-	    Event_MailBeforeSentByGroup::trigger($properties, null, null, $group);
+	    Event_MailBeforeSentByGroup::trigger($properties, null, null, $group_id);
 		
 		@$org_id = $properties['org_id'];
 		@$toStr = $properties['to'];
@@ -465,7 +465,7 @@ class CerberusMail {
 				return;
 		    
 		    // Changing the outgoing message through a VA
-		    Event_MailBeforeSentByGroup::trigger($properties, $message, $ticket, $group);
+		    Event_MailBeforeSentByGroup::trigger($properties, $message->id, $ticket->id, $group->id);
 		    
 		    // Re-read properties
 		    @$content = $properties['content'];
