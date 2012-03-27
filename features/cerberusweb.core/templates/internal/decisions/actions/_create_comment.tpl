@@ -1,12 +1,9 @@
-{if is_array($trigger->variables)}
+{if !empty($values_to_contexts)}
 <b>On:</b>
 <div style="margin-left:10px;">
 <select name="{$namePrefix}[on]">
-	<option value="">this object</option>
-	{foreach from=$trigger->variables item=var_data key=var_key}
-	{if substr($var_data.type,0,4) == 'ctx_'}
-	<option value="{$var_key}">(variable) {$var_data.label}</option>
-	{/if}
+	{foreach from=$values_to_contexts item=context_data key=val_key}
+	<option value="{$val_key}" context="{$context_data.context}">{$context_data.label}</option>
 	{/foreach}
 </select>
 </div>
