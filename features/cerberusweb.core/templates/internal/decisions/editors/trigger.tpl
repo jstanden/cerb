@@ -39,8 +39,8 @@
 	<td valign="top" nowrap="nowrap" width="1%">
 		<a href="javascript:;" onclick="$(this).closest('tr').remove();"><span class="cerb-sprite2 sprite-minus-circle-frame" style="vertical-align:middle;"></span></a>
 		<select name="var_is_private[]">
-			<option value="0" {if empty($var.is_private)}selected="selected"{/if}>public</option>
 			<option value="1" {if $var.is_private}selected="selected"{/if}>private</option>
+			<option value="0" {if empty($var.is_private)}selected="selected"{/if}>public</option>
 		</select>  
 		<input type="hidden" name="var_key[]" value="{$var.key}">
 		<input type="hidden" name="var_type[]" value="{$var.type}">
@@ -76,9 +76,9 @@
 <tr class="template" style="display:none;">
 	<td valign="top" width="1%" nowrap="nowrap">
 		<a href="javascript:;" onclick="$(this).closest('tr').remove();"><span class="cerb-sprite2 sprite-minus-circle-frame" style="vertical-align:middle;"></span></a>
-		<select name="var_private[]">
+		<select name="var_is_private[]">
+			<option value="1" selected="selected">private</option>
 			<option value="0">public</option>
-			<option value="1">private</option>
 		</select>	
 		<input type="hidden" name="var_key[]" value="">
 	</td>
