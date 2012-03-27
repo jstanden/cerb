@@ -351,24 +351,18 @@ class DAO_ContactOrg extends C4_ORMHelper {
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
 			
 		$sort_sql = (!empty($sortBy)) ? sprintf("ORDER BY %s %s ",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : " ";
+
+		// Translate virtual fields
 		
-		// Virtuals
-		foreach($params as $param) {
-			if(!is_a($param, 'DevblocksSearchCriteria'))
-				continue;
-			
-			$param_key = $param->field;
-			settype($param_key, 'string');
-			switch($param_key) {
-				case SearchFields_Task::VIRTUAL_WATCHERS:
-					$has_multiple_values = true;
-					$from_context = 'cerberusweb.contexts.org';
-					$from_index = 'c.id';
-					
-					self::_searchComponentsVirtualWatchers($param, $from_context, $from_index, $join_sql, $where_sql);
-					break;
-			}
-		}
+		array_walk_recursive(
+			$params,
+			array('DAO_ContactOrg', '_translateVirtualParameters'),
+			array(
+				'join_sql' => &$join_sql,
+				'where_sql' => &$where_sql,
+				'has_multiple_values' => &$has_multiple_values
+			)
+		);
 		
 		$result = array(
 			'primary_table' => 'c',
@@ -380,7 +374,28 @@ class DAO_ContactOrg extends C4_ORMHelper {
 		);
 		
 		return $result;
-	}	
+	}
+	
+	private static function _translateVirtualParameters($param, $key, &$args) {
+		$join_sql =& $args['join_sql'];
+		$where_sql =& $args['where_sql']; 
+		$has_multiple_values =& $args['has_multiple_values'];
+		
+		if(!is_a($param, 'DevblocksSearchCriteria'))
+			return;
+		
+		$param_key = $param->field;
+		settype($param_key, 'string');
+		switch($param_key) {
+			case SearchFields_Task::VIRTUAL_WATCHERS:
+				$has_multiple_values = true;
+				$from_context = 'cerberusweb.contexts.org';
+				$from_index = 'c.id';
+				
+				self::_searchComponentsVirtualWatchers($param, $from_context, $from_index, $join_sql, $where_sql);
+				break;
+		}
+	}
 	
     /**
      * Enter description here...

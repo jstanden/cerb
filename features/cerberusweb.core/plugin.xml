@@ -742,12 +742,14 @@
 				<name>Context_Org</name>
 			</class>
 			<params>
+				<param key="alias" value="org" />
 				<param key="view_class" value="View_ContactOrg" />
 				<param key="options">
 					<value>
 						<data key="create" />
 						<data key="find" />
 						<data key="snippets" />
+						<data key="va_variable" />
 						<data key="workspace" />
 					</value>
 				</param>
