@@ -627,6 +627,7 @@
 				<name>Context_ContactPerson</name>
 			</class>
 			<params>
+				<param key="alias" value="person" />
 				<param key="view_class" value="View_ContactPerson" />
 				<param key="options">
 					<value>
@@ -647,8 +648,8 @@
 				<name>Context_Address</name>
 			</class>
 			<params>
-				<param key="view_class" value="View_Address" />
 				<param key="alias" value="address" />
+				<param key="view_class" value="View_Address" />
 				<param key="options">
 					<value>
 						<data key="create" />
@@ -669,6 +670,7 @@
 				<name>Context_Comment</name>
 			</class>
 			<params>
+				<param key="alias" value="comment" />
 				<param key="view_class" value="View_Comment" />
 				<!--
 				<param key="options">
@@ -687,6 +689,7 @@
 				<name>Context_Group</name>
 			</class>
 			<params>
+				<param key="alias" value="group" />
 				<param key="view_class" value="View_Group" />
 				<param key="options">
 					<value>
@@ -706,6 +709,7 @@
 				<name>Context_Message</name>
 			</class>
 			<params>
+				<param key="alias" value="message" />
 				<param key="view_class" value="View_Message" />
 				<param key="options">
 					<value>
@@ -724,6 +728,7 @@
 				<name>Context_Notification</name>
 			</class>
 			<params>
+				<param key="alias" value="notification" />
 				<param key="view_class" value="View_Notification" />
 				<param key="options">
 					<value>
@@ -764,6 +769,7 @@
 				<name>Context_Snippet</name>
 			</class>
 			<params>
+				<param key="alias" value="snippet" />
 				<param key="view_class" value="View_Snippet" />
 				<param key="options">
 					<value>
@@ -784,8 +790,8 @@
 				<name>Context_Task</name>
 			</class>
 			<params>
-				<param key="view_class" value="View_Task" />
 				<param key="alias" value="task" />
+				<param key="view_class" value="View_Task" />
 				<param key="options">
 					<value>
 						<data key="create" />
@@ -828,12 +834,14 @@
 				<name>Context_Worker</name>
 			</class>
 			<params>
+				<param key="alias" value="worker" />
 				<param key="view_class" value="View_Worker" />
 				<param key="options">
 					<value>
 						<!--<data key="create" />-->
 						<!--<data key="find" />-->
 						<data key="snippets" />
+						<data key="va_variable" />
 						<data key="workspace" />
 					</value>
 				</param>

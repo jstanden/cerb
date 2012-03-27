@@ -949,10 +949,12 @@ class DevblocksEventHelper {
 				$value = $params['value'];
 				$value = strtotime($value);
 
-				$out .= sprintf("%s (%s)\n",
-					date('Y-m-d h:ip', $value),
-					$params['value']
-				);
+				if(!empty($value)) {
+					$out .= sprintf("%s (%s)\n",
+						date('Y-m-d h:ip', $value),
+						$params['value']
+					);
+				}
 				
 				if(!empty($value_key)) {
 					$values[$value_key.'_'.$field_id] = $value;
@@ -1899,6 +1901,7 @@ class DevblocksEventHelper {
 				foreach($on_objects as $on_object) {
 					$out .= ' * (' . $on_object['context']->manifest->name . ') ' . $on_object['name'] . "\n";  
 				}
+				
 				$out .= "\n";
 			}
 		}		
@@ -1910,9 +1913,8 @@ class DevblocksEventHelper {
 
 		// Watchers?
 		if(isset($params['notify_watchers']) && !empty($params['notify_watchers'])) {
-			// [TODO] Lazy load from values (and set back to)
-			$watchers = CerberusContexts::getWatchers($context, $context_id);
-			$notify_worker_ids = array_merge($notify_worker_ids, array_keys($watchers));
+			//$watchers = CerberusContexts::getWatchers($context, $context_id);
+			//$notify_worker_ids = array_merge($notify_worker_ids, array_keys($watchers));
 		}
 		
 		// If we're notifying contexual worker IDs, add them
@@ -2059,7 +2061,7 @@ class DevblocksEventHelper {
 			"\n".
 			"",
 			$title,
-			date("Y-m-d h:ia", $due_date),
+			(!empty($due_date) ? date("Y-m-d h:ia", $due_date) : 'none'),
 			$params['due_date']
 		);
 		

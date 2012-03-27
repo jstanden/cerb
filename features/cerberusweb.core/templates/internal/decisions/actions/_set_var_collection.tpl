@@ -16,7 +16,9 @@
 	<select name="{$namePrefix}[sort_by]">
 		<option value=""></option>
 		{foreach from=$sort_fields item=sort_field key=sort_field_key}
+		{if !empty($sort_field->db_label)}
 		<option value="{$sort_field_key}" {if $params.sort_by==$sort_field_key}selected="selected"{/if}>{$sort_field->db_label|capitalize}</option>
+		{/if}
 		{/foreach}
 	</select>
 	
