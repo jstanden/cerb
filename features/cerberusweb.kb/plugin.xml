@@ -106,12 +106,14 @@
 				<name>Context_KbArticle</name>
 			</class>
 			<params>
+				<param key="alias" value="kb_article" />
 				<param key="view_class" value="View_KbArticle" />
 				<param key="options">
 					<value>
 						<!--<data key="create" />-->
 						<data key="find" />
 						<data key="snippets" />
+						<data key="va_variable" />
 						<data key="workspace" />
 					</value>
 				</param>
@@ -126,6 +128,7 @@
 				<name>Context_KbCategory</name>
 			</class>
 			<params>
+				<param key="alias" value="kb_category" />
 				<param key="view_class" value="View_KbCategory" />
 				<param key="options">
 					<!--
