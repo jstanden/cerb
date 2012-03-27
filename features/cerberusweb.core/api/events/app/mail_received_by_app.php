@@ -89,8 +89,8 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 		
 		$labels['encoding'] = $prefix.'encoding';
 		$values['encoding'] = '';
-		
-		if(!is_null($parser_model)) {
+
+		if(!empty($parser_model)) {
 			$values['_parser_model'] = $parser_model;
 			$values['body'] =& $parser_model->getMessage()->body;
 			$values['encoding'] =& $parser_model->getMessage()->encoding;
@@ -107,7 +107,7 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 		 * Sender Address
 		 */
 		
-		$sender = !is_null($parser_model) ? $parser_model->getSenderAddressModel() : null;
+		$sender = !empty($parser_model) ? $parser_model->getSenderAddressModel() : null;
 		$sender_labels = array();
 		$sender_values = array();
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_ADDRESS, $sender, $sender_labels, $sender_values, null, true);
@@ -131,6 +131,23 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 
 		$this->setLabels($labels);
 		$this->setValues($values);		
+	}
+	
+	function getValuesContexts($trigger) {
+		$vals = array(
+			'sender_id' => array(
+				'label' => 'Sender email',
+				'context' => CerberusContexts::CONTEXT_ADDRESS,
+			),
+			'sender_org_id' => array(
+				'label' => 'Sender org',
+				'context' => CerberusContexts::CONTEXT_ORG,
+			),
+		);
+		
+		$vars = parent::getValuesContexts($trigger);
+		
+		return array_merge($vals, $vars);
 	}
 	
 	function getConditionExtensions() {
@@ -420,8 +437,95 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 		$tpl->clearAssign('token_labels');		
 	}
 	
+	function simulateActionExtension($token, $trigger, $params, &$values) {
+		switch($token) {
+			case 'append_to_content':
+				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+				$values['body'] .= "\r\n" . $tpl_builder->build($params['content'], $values);
+				break;
+				
+			case 'prepend_to_content':
+				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+				$values['body'] = $tpl_builder->build($params['content'], $values) . "\r\n" . $values['body'];
+				break;
+				
+			case 'replace_content':
+				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+				$replace = $tpl_builder->build($params['replace'], $values);
+				$with = $tpl_builder->build($params['with'], $values);
+				
+				if(isset($params['is_regexp']) && !empty($params['is_regexp'])) {
+					@$value = preg_replace($replace, $with, $values['body']);
+				} else {
+					$value = str_replace($replace, $with, $values['body']);
+				}
+				
+				if(!empty($value)) {
+					$values['body'] = trim($value,"\r\n");
+				}
+				break;
+				
+			case 'reject':
+				$values['pre_actions']['reject'] = true;
+				break;
+			
+			case 'redirect_email':
+				break;
+				
+			case 'send_email_sender':
+				break;
+				
+			case 'set_header':
+				@$header = strtolower($params['header']);
+				
+				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+				$value = $tpl_builder->build($params['value'], $values);
+				
+   				@$parser_model = $values['_parser_model'];
+   				if(empty($parser_model) || !is_a($parser_model,'CerberusParserModel'))
+   					break;
+				
+   				$headers =& $parser_model->getHeaders();
+
+   				if(empty($value)) {
+   					if(isset($headers[$header]))
+   						unset($headers[$header]);
+   					
+   				} else {
+	   				$headers[$header] = $value;
+   				}
+   					
+				break;
+				
+			default:
+				if('set_cf_' == substr($token,0,7)) {
+					@$parser_model = $values['_parser_model'];
+					
+					$field_id = substr($token,7);
+					$custom_field = DAO_CustomField::get($field_id);
+					$context = null;
+					$context_id = null;
+					
+					switch($custom_field->type) {
+						case Model_CustomField::TYPE_MULTI_CHECKBOX:
+							$value = $params['values'];
+							break;
+						case Model_CustomField::TYPE_WORKER:
+							$value = $params['worker_id'];
+							break;
+						default:
+							$value = $params['value'];
+							break;
+					}
+					
+					if(!empty($parser_model))
+						$parser_model->getMessage()->custom_fields[$field_id] = $value; 
+				}
+				break;				
+		}
+	}
+	
 	function runActionExtension($token, $trigger, $params, &$values) {
-		
 		switch($token) {
 			case 'append_to_content':
 				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
