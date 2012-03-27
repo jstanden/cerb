@@ -26,7 +26,6 @@
 <div style="margin-left:10px;">
 	<button type="button" class="chooser_worker unbound"><span class="cerb-sprite sprite-view"></span></button>
 	<ul class="chooser-container bubbles" style="display:block;">
-	{include file="devblocks:cerberusweb.core::internal/decisions/actions/_shared_var_worker_bubbles.tpl" checkbox_name="[worker_id][]" param_value=$params.worker_id trigger=$trigger}
 	{if isset($params.worker_id)}
 	{foreach from=$params.worker_id item=worker_id}
 		{$context_worker = $workers.$worker_id}
@@ -38,6 +37,16 @@
 	</ul>
 </div>
 
+{if !empty($values_to_contexts)}
+<b>Link to:</b>
+<div style="margin-left:10px;">
+<ul class="chooser-container bubbles" style="display:block;">
+	{foreach from=$values_to_contexts item=context_data key=val_key}
+	<li><label><input type="checkbox" name="{$namePrefix}[link_to][]" value="{$val_key}" {if in_array($val_key, $params.link_to)}checked="checked"{/if}> {$context_data.label}</label></li>
+	{/foreach}
+</ul>
+</div>
+{/if}
 
 <script type="text/javascript">
 $action = $('fieldset#{$namePrefix}');
