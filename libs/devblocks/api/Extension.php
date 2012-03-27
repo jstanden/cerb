@@ -1131,21 +1131,47 @@ class DevblocksEventHelper {
 	 * Action: Schedule Behavior
 	 */
 	
-	static function renderActionScheduleBehavior($context, $context_id, $event_point) {
+	static function renderActionScheduleBehavior($trigger) {
 		$tpl = DevblocksPlatform::getTemplateService();
 		
 		// Macros
-		$macros = DAO_TriggerEvent::getByOwner($context, $context_id, $event_point);
+		
+		$event = $trigger->getEvent();
+		
+		$values_to_contexts = $event->getValuesContexts($trigger);
+		$tpl->assign('values_to_contexts', $values_to_contexts);
+
+		$context_to_macros = DevblocksEventHelper::getContextToMacroMap();
+		$tpl->assign('context_to_macros', $context_to_macros);
+		$tpl->assign('events_to_contexts', array_flip($context_to_macros));
+
+		// Macros
+		
+		$macros = DAO_TriggerEvent::getByOwner($trigger->owner_context, $trigger->owner_context_id);
+		
+		foreach($macros as $k => $macro) {
+			if(!in_array($macro->event_point, $context_to_macros)) {
+				unset($macros[$k]);
+			}
+		}
+		
 		$tpl->assign('macros', $macros);
+		
+		// Template
 		
 		$tpl->display('devblocks:cerberusweb.core::events/action_schedule_behavior.tpl');
 	}
 	
-	static function simulateActionScheduleBehavior($params, $values, $context, $context_id) {
+	static function simulateActionScheduleBehavior($params, $values) {
 		@$behavior_id = $params['behavior_id'];
 		@$run_date = $params['run_date'];
 		@$on_dupe = $params['on_dupe'];
 
+		$trigger = $values['_trigger'];
+
+		$event = $trigger->getEvent();
+		$values_to_contexts = $event->getValuesContexts($trigger);
+		
 		if(empty($behavior_id)) {
 			return "[ERROR] No behavior is selected. Skipping...";
 		}
@@ -1153,9 +1179,7 @@ class DevblocksEventHelper {
 		@$run_timestamp = strtotime($run_date);
 		
 		if(null == ($behavior = DAO_TriggerEvent::get($behavior_id)))
-			return "[ERROR} Behavior does not exist. Skipping...";
-		
-		// [TODO] Show params
+			return "[ERROR] Behavior does not exist. Skipping...";
 		
 		$out = sprintf(">>> Scheduling behavior\n".
 			"Behavior: %s\n".
@@ -1177,10 +1201,28 @@ class DevblocksEventHelper {
 				break;
 		}
 		
+		// On
+		
+		@$on = DevblocksPlatform::importVar($params['on'],'string','');
+		
+		if(!empty($on)) {
+			$on_result = DevblocksEventHelper::onContexts($on, $values_to_contexts, $values);
+			@$on_objects = $on_result['objects'];
+			
+			if(is_array($on_objects)) {
+				$out .= "\n>>> On:\n";
+				
+				foreach($on_objects as $on_object) {
+					$out .= ' * (' . $on_object['context']->manifest->name . ') ' . $on_object['name'] . "\n";  
+				}
+				$out .= "\n";
+			}
+		}		
+		
 		return $out;
 	}
 	
-	static function runActionScheduleBehavior($params, $values, $context, $context_id) {
+	static function runActionScheduleBehavior($params, $values) {
 		@$behavior_id = $params['behavior_id'];
 		@$run_date = $params['run_date'];
 		@$on_dupe = $params['on_dupe'];
