@@ -1,12 +1,9 @@
-{if is_array($trigger->variables)}
+{if !empty($values_to_contexts)}
 <b>On:</b>
 <div style="margin-left:10px;">
 <select name="{$namePrefix}[on]">
-	<option value="">this object</option>
-	{foreach from=$trigger->variables item=var_data key=var_key}
-	{if substr($var_data.type,0,4) == 'ctx_'}
-	<option value="{$var_key}">(variable) {$var_data.label}</option>
-	{/if}
+	{foreach from=$values_to_contexts item=context_data key=val_key}
+	<option value="{$val_key}" context="{$context_data.context}">{$context_data.label}</option>
 	{/foreach}
 </select>
 </div>
@@ -24,7 +21,7 @@
 		<ul class="chooser-container bubbles" style="display:block;">
 			<li><label><input type="checkbox" name="{$namePrefix}[notify_watchers]" value="1" {if $params.notify_watchers}checked="checked"{/if}> {'common.watchers'|devblocks_translate|capitalize}</label></li>
 			
-			{include file="devblocks:cerberusweb.core::internal/decisions/actions/_shared_var_worker_bubbles.tpl" checkbox_name="[notify_worker_id][]" param_value=$params.notify_worker_id trigger=$trigger}
+			{include file="devblocks:cerberusweb.core::internal/decisions/actions/_shared_var_worker_bubbles.tpl" checkbox_name="[notify_worker_id][]" param_value=$params.notify_worker_id values_to_contexts=$values_to_contexts}
 			
 			{foreach from=$notify_map item=v key=k}
 			<li><label><input type="checkbox" name="{$namePrefix}[notify_{$k}]" value="1" {if $params.{'notify_'|cat:$k}}checked="checked"{/if}> {$v}</label></li>
