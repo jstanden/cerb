@@ -33,7 +33,7 @@
 </fieldset>
 
 <div>
-	<button type="button" onclick="genericAjaxPost('frmBehaviorSimulator{$trigger->id}','divBehaviorSimulatorResults{$trigger->id}','');">Simulate</button>
+	<button type="button" onclick="genericAjaxPost('frmBehaviorSimulator{$trigger->id}','divBehaviorSimulatorResults{$trigger->id}','');"><span class="cerb-sprite sprite-gear"></span> Simulate</button>
 </div>
 
 <div id="divBehaviorSimulatorResults{$trigger->id}" style="padding:5px;"></div>
@@ -41,7 +41,7 @@
 </form>
 
 <script type="text/javascript">
-	$popup = genericAjaxPopupFetch('simulate_behavior{$trigger->id}');
+	$popup = genericAjaxPopupFetch('simulate_behavior');
 	$popup.one('popup_open', function(event,ui) {
 		$(this).dialog('option','title',"Simulate: {$trigger->title}");
 	});
