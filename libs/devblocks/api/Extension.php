@@ -700,7 +700,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 								if(substr(@$var['type'],0,4) == 'ctx_') {
 									@$list_context = substr($var['type'],4);
 									if(!empty($list_context))
-										return DevblocksEventHelper::renderActionSetVariableCollection($token, $list_context);
+										return DevblocksEventHelper::renderActionSetListVariable($token, $trigger, $params, $list_context);
 								}
 								return;
 								break;
@@ -1105,18 +1105,22 @@ class DevblocksEventHelper {
 		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_var_worker.tpl');
 	}
 	
-	static function renderActionSetVariableCollection($token, $context) {
+	static function renderActionSetListVariable($token, $trigger, $params, $context) {
 		$tpl = DevblocksPlatform::getTemplateService();
 
-		$view = DevblocksEventHelper::getCollectionsView($token, $context);
+		if(null == ($view_model = DevblocksEventHelper::getParamsViewModel($token, $params, $trigger, $context)))
+			return;
+
+		if(null == ($view = C4_AbstractViewLoader::getView($view_model->id, $view_model)))
+			return;
+
+		$params['view_model'] = base64_encode(serialize($view_model));
 		
-		$presets = $view->getPresets();
-		$tpl->assign('presets', $presets);
+		$tpl->assign('context', $context);
+		$tpl->assign('params', $params);
+		$tpl->assign('view', $view);
 		
-		$sort_fields = $view->getParamsAvailable();
-		$tpl->assign('sort_fields', $sort_fields);
-		
-		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_var_collection.tpl');
+		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_var_list.tpl');
 	}
 	
 	static function simulateActionSetVariable($token, $trigger, $params, &$values) {
@@ -1301,7 +1305,7 @@ class DevblocksEventHelper {
 			 
 				if(substr($var_type,0,4) == 'ctx_') {
 					$list_context = substr($var_type,4);
-					DevblocksEventHelper::runFilterCollectionsView($token, $list_context, $params, $values);
+					DevblocksEventHelper::runActionSetListVariable($token, $list_context, $params, $values);
 				}
 				break;
 		}
@@ -2684,62 +2688,44 @@ class DevblocksEventHelper {
 		return array_unique($worker_ids);
 	}
 	
-	static function getCollectionsView($token, $context) {
-		$view_id = '_collection_' . $token;
+	static function getParamsViewModel($token, $params, $trigger, $context) {
+		$view_model = null;
 		
-		$ctx = Extension_DevblocksContext::get($context);
+		if(isset($params['view_model'])) {
+			$view_model_encoded = $params['view_model'];
+			$view_model = unserialize(base64_decode($view_model_encoded));
+		}
 		
-		$defaults = new C4_AbstractViewModel();
-		$defaults->id = $view_id;
-		$defaults->is_ephemeral = true;
-		$defaults->class_name = $ctx->getViewClass();
-						
-		$view = C4_AbstractViewLoader::getView($defaults->id, $defaults);
+		if(empty($view_model)) {
+			$view_id = sprintf("_trigger_%d_%s_%s",
+				$trigger->id,
+				$token,
+				uniqid()
+			);
+			
+			$ctx = Extension_DevblocksContext::get($context);
+			$view_model = new C4_AbstractViewModel();
+			$view_model->id = $view_id;
+			$view_model->is_ephemeral = true;
+			$view_model->renderFilters = true;
+			$view_model->class_name = $ctx->getViewClass();
+		}
 		
-		return $view;
+		return $view_model;
 	}
 	
-	static function runFilterCollectionsView($token, $context, $params, &$values) {
-		$view = DevblocksEventHelper::getCollectionsView($token, $context);
+	static function runActionSetListVariable($token, $context, $params, &$values) {
+		$trigger = $values['_trigger'];
 		
-		$view->removeAllParams();
-		
-		$presets = $view->getPresets();
-		
-		$preset_filters = array();
-		
-		if(!isset($params['collections']) || !is_array($params['collections']) || empty($params['collections']))
+		if(null == ($view_model = DevblocksEventHelper::getParamsViewModel($token, $params, $trigger, $context)))
 			return;
 		
-		foreach($params['collections'] as $preset_id) {
-			if(!isset($presets[$preset_id]))
-				continue;
-					
-			$preset = $presets[$preset_id];
-			
-			if(is_array($preset->params))
-			foreach($preset->params as $k => $v) {
-				$preset_filters[] = $v;
-			}
-		}
-		
-		if(empty($preset_filters))
+		if(false == ($view = C4_AbstractViewLoader::getView($view_model->id, $view_model)))
 			return;
-		
-		array_unshift($preset_filters, DevblocksSearchCriteria::GROUP_AND);
-		
-		$view->addParam($preset_filters, '_collections');
-		
-		if(isset($params['sort_by'])) {
-			$view->renderSortBy = $params['sort_by'];
-			 
-			if(isset($params['sort_asc'])) {
-				$view->renderSortAsc = !empty($params['sort_asc']) ? true : false;
-			}
-		}
 		
 		// [TODO] Iterate through pages if over a certain list length?
-		$view->renderLimit = (isset($params['limit']) && is_numeric($params['limit'])) ? intval($params['limit']) : 100;
+		//$view->renderLimit = (isset($params['limit']) && is_numeric($params['limit'])) ? intval($params['limit']) : 100;
+		$view->renderLimit = 100;
 		$view->renderPage = 0;
 		$view->renderTotal = false;
 		

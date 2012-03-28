@@ -186,6 +186,35 @@ class ChInternalController extends DevblocksControllerExtension {
 		}
 	}
 
+	function chooserOpenParamsAction() {
+		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string');
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
+		@$layer = DevblocksPlatform::importGPC($_REQUEST['layer'],'string');
+
+		if(null != ($view = C4_AbstractViewLoader::getView($view_id))) {
+			$tpl = DevblocksPlatform::getTemplateService();
+			$tpl->assign('context', $context);
+			$tpl->assign('layer', $layer);
+			$tpl->assign('view', $view);
+			$tpl->display('devblocks:cerberusweb.core::internal/choosers/__worklist.tpl');
+		}
+	}
+	
+	function serializeViewAction() {
+		header("Content-type: application/json");
+		
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
+		
+		if(null != ($view = C4_AbstractViewLoader::getView($view_id))) {
+			echo json_encode(array(
+				'view_name' => $view->name,
+				'view_model' => base64_encode(serialize(C4_AbstractViewLoader::serializeAbstractView($view))),
+			));
+		}
+		
+		exit;
+	}
+	
 	function chooserOpenFileAction() {
 		@$layer = DevblocksPlatform::importGPC($_REQUEST['layer'],'string');
 
@@ -1395,8 +1424,16 @@ class ChInternalController extends DevblocksControllerExtension {
 		$view = C4_AbstractViewLoader::getView($id);
 		$view->doCustomize($columns, $num_rows);
 
+		$is_custom = substr($id,0,5)=='cust_';
+		$is_trigger = substr($id,0,9)=='_trigger_';
+		
+		if($is_custom || $is_trigger) {
+			@$title = DevblocksPlatform::importGPC($_REQUEST['title'],'string', $translate->_('views.new_list'));
+			$view->name = $title;
+		}
+		
 		// Handle worklists specially
-		if(substr($id,0,5)=="cust_") { // custom workspace
+		if($is_custom) { // custom workspace
 			// Check the custom workspace
 
 			try {
@@ -1421,10 +1458,6 @@ class ChInternalController extends DevblocksControllerExtension {
 				return;
 			}
 			
-			// Special custom view fields
-			@$title = DevblocksPlatform::importGPC($_REQUEST['title'],'string', $translate->_('views.new_list'));
-			$view->name = $title;
-
 			// Persist Object
 			$list_view = new Model_WorkspaceListView();
 			$list_view->title = $title;

@@ -11,7 +11,14 @@
 	{assign var=is_custom value=false}
 {/if}
 
-{if $is_custom}
+{* Trigger Views *}
+{if substr($view->id,0,9)=="_trigger_"}
+	{assign var=is_trigger value=true}
+{else}
+	{assign var=is_trigger value=false}
+{/if}
+
+{if $is_custom || $is_trigger}
 <b>List Title:</b><br>
 <input type="text" name="title" value="{$view->name}" size="64" autocomplete="off"><br>
 <br>
