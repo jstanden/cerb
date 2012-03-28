@@ -276,9 +276,6 @@ function genericAjaxPopupRegister($layer, $popup) {
 }
 
 function genericAjaxPopup($layer,request,target,modal,width,cb) {
-	// Reset (if exists)
-	genericAjaxPopupDestroy($layer);
-	
 	// Default options
 	var options = {
 		bgiframe : true,
@@ -292,6 +289,23 @@ function genericAjaxPopup($layer,request,target,modal,width,cb) {
 			$(this).unbind().find(':focus').blur();
 		}
 	};
+
+	// Restore position from previous dialog?
+	if(target == 'reuse') {
+		$popup = genericAjaxPopupFetch($layer);
+		if(null != $popup) {
+			try {
+				var offset = $popup.closest('div.ui-dialog').offset();
+				var left = offset.left - $(document).scrollLeft();
+				var top = offset.top - $(document).scrollTop();
+				options.position = [ left, top ];
+			} catch(e) { }
+		}
+		target = null;
+	}
+	
+	// Reset (if exists)
+	genericAjaxPopupDestroy($layer);
 	
 	if(null != width) options.width = width + 'px'; // [TODO] Fixed the forced 'px' later
 	if(null != modal) options.modal = modal;
@@ -312,13 +326,15 @@ function genericAjaxPopup($layer,request,target,modal,width,cb) {
 			// Target
 			if(null != target) {
 				var offset = $(target).offset();
-				var left = offset.left - $(document).scrollLeft();
-				var top = offset.top - $(document).scrollTop();
-				options.position = [left, top];
-				
-			} else {
-				options.position = [ 'center', 'top' ];
+				if(null != offset) {
+					var left = offset.left - $(document).scrollLeft();
+					var top = offset.top - $(document).scrollTop();
+					options.position = [left, top];
+				}
 			}
+			
+			if(null == options.position)
+				options.position = [ 'center', 'top' ];
 
 			// Render
 			$popup.dialog(options);
