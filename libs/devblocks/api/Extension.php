@@ -1111,9 +1111,12 @@ class DevblocksEventHelper {
 		if(null == ($view_model = DevblocksEventHelper::getParamsViewModel($token, $params, $trigger, $context)))
 			return;
 
-		if(null == ($view = C4_AbstractViewLoader::getView($view_model->id, $view_model)))
+		// Force reload parameters (we can't trust the session)
+		if(false == ($view = C4_AbstractViewLoader::unserializeAbstractView($view_model)))
 			return;
-
+		
+		C4_AbstractViewLoader::setView($view->id, $view);
+		
 		$params['view_model'] = base64_encode(serialize($view_model));
 		
 		$tpl->assign('context', $context);
@@ -2723,7 +2726,8 @@ class DevblocksEventHelper {
 		if(null == ($view_model = DevblocksEventHelper::getParamsViewModel($token, $params, $trigger, $context)))
 			return;
 		
-		if(false == ($view = C4_AbstractViewLoader::getView($view_model->id, $view_model)))
+		// Force reload parameters (we can't trust the session)
+		if(false == ($view = C4_AbstractViewLoader::unserializeAbstractView($view_model)))
 			return;
 		
 		// [TODO] Iterate through pages if over a certain list length?

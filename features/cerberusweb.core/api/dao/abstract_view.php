@@ -508,7 +508,8 @@ abstract class C4_AbstractView {
 	}
 	
 	function getPresets() {
-		$active_worker = CerberusApplication::getActiveWorker();
+		if(null == ($active_worker = CerberusApplication::getActiveWorker()))
+			return;
 		
 		// Presets
 		// [TODO] Cache?
@@ -1141,10 +1142,13 @@ class C4_AbstractViewLoader {
 	 * @return C4_AbstractView or null
 	 */
 	static function getView($view_id, C4_AbstractViewModel $defaults=null) {
-		$active_worker = CerberusApplication::getActiveWorker();
+		$worker_id = 0;
+		
+		if(null !== ($active_worker = CerberusApplication::getActiveWorker()))
+			$worker_id = $active_worker->id; 
 
 		// Check if we've ever persisted this view
-		if(false !== ($model = DAO_WorkerViewModel::getView($active_worker->id, $view_id))) {
+		if(false !== ($model = DAO_WorkerViewModel::getView($worker_id, $view_id))) {
 			return self::unserializeAbstractView($model);
 			
 		} elseif(!empty($defaults) && $defaults instanceof C4_AbstractViewModel) {
@@ -1166,14 +1170,22 @@ class C4_AbstractViewLoader {
 	 * @param C4_AbstractView $view
 	 */
 	static function setView($view_id, C4_AbstractView $view) {
-		$active_worker = CerberusApplication::getActiveWorker();
+		$worker_id = 0;
+		
+		if(null !== ($active_worker = CerberusApplication::getActiveWorker()))
+			$worker_id = $active_worker->id; 
+
 		$model = self::serializeAbstractView($view);
-		DAO_WorkerViewModel::setView($active_worker->id, $view_id, $model);
+		DAO_WorkerViewModel::setView($worker_id, $view_id, $model);
 	}
 
-	static function deleteView($view_id) {
-		$active_worker = CerberusApplication::getActiveWorker();
-		DAO_WorkerViewModel::deleteView($active_worker->id, $view_id);
+	static function deleteView($view_id, $worker_id=null) {
+		$worker_id = 0;
+		
+		if(null !== ($active_worker = CerberusApplication::getActiveWorker()))
+			$worker_id = $active_worker->id; 
+
+		DAO_WorkerViewModel::deleteView($worker_id, $view_id);
 	}
 	
 	static function serializeAbstractView($view) {
