@@ -1916,6 +1916,7 @@ class DevblocksEventHelper {
 		$notify_worker_ids = DevblocksEventHelper::mergeWorkerVars($notify_worker_ids, $values);
 
 		// Watchers?
+		// [TODO] Fix (context+context_id should relate to 'on')
 		if(isset($params['notify_watchers']) && !empty($params['notify_watchers'])) {
 			//$watchers = CerberusContexts::getWatchers($context, $context_id);
 			//$notify_worker_ids = array_merge($notify_worker_ids, array_keys($watchers));
@@ -2658,8 +2659,10 @@ class DevblocksEventHelper {
 				@$ctx_ext = $values_to_contexts[$on]['context'];
 				if(!empty($ctx_ext) && null != ($ctx = Extension_DevblocksContext::get($ctx_ext))) {
 					foreach($vals as $ctx_id) {
-						$result['objects'][$ctx_id] = $ctx->getMeta($ctx_id);
-						$result['objects'][$ctx_id]['context'] = $ctx;
+						if(!empty($ctx_id) && null != ($meta = $ctx->getMeta($ctx_id))) {
+							$result['objects'][$ctx_id] = $meta;
+							$result['objects'][$ctx_id]['context'] = $ctx;
+						}
 					}
 				}
 			}

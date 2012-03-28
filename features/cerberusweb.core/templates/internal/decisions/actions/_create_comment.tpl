@@ -3,7 +3,7 @@
 <div style="margin-left:10px;">
 <select name="{$namePrefix}[on]">
 	{foreach from=$values_to_contexts item=context_data key=val_key}
-	<option value="{$val_key}" context="{$context_data.context}">{$context_data.label}</option>
+	<option value="{$val_key}" context="{$context_data.context}" {if $params.on == $val_key}selected="selected"{/if}>{$context_data.label}</option>
 	{/foreach}
 </select>
 </div>
