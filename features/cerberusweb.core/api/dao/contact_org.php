@@ -674,8 +674,6 @@ class View_ContactOrg extends C4_AbstractView implements IAbstractView_Subtotals
 		
 		switch($this->renderTemplate) {
 			case 'contextlinks_chooser':
-				$tpl->display('devblocks:cerberusweb.core::contacts/orgs/view_contextlinks_chooser.tpl');
-				break;
 			default:
 				$tpl->assign('view_template', 'devblocks:cerberusweb.core::contacts/orgs/contact_view.tpl');
 				$tpl->display('devblocks:cerberusweb.core::internal/views/subtotals_and_view.tpl');
@@ -1020,6 +1018,7 @@ class Context_Org extends Extension_DevblocksContext {
 		$view->renderSortBy = SearchFields_ContactOrg::NAME;
 		$view->renderSortAsc = true;
 		$view->renderLimit = 10;
+		$view->renderFilters = true;
 		$view->renderTemplate = 'contextlinks_chooser';
 		
 		C4_AbstractViewLoader::setView($view_id, $view);
