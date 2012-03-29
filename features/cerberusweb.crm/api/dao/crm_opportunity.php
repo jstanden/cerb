@@ -695,8 +695,6 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 		
 		switch($this->renderTemplate) {
 			case 'contextlinks_chooser':
-				$tpl->display('devblocks:cerberusweb.crm::crm/opps/view_contextlinks_chooser.tpl');
-				break;
 			default:
 				$tpl->assign('view_template', 'devblocks:cerberusweb.crm::crm/opps/view.tpl');
 				$tpl->display('devblocks:cerberusweb.core::internal/views/subtotals_and_view.tpl');
@@ -1177,6 +1175,7 @@ class Context_Opportunity extends Extension_DevblocksContext {
 		$view->renderSortBy = SearchFields_CrmOpportunity::UPDATED_DATE;
 		$view->renderSortAsc = false;
 		$view->renderLimit = 10;
+		$view->renderFilters = true;
 		$view->renderTemplate = 'contextlinks_chooser';
 		
 		C4_AbstractViewLoader::setView($view_id, $view);
