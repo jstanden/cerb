@@ -380,6 +380,7 @@ table.worklist td {
 table.worklist td a {
 	color: rgb(255, 255, 255);
 	font-weight: normal;
+	padding-right:3px;
 }
 
 table.worklist td span.title {

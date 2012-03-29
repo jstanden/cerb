@@ -18,27 +18,58 @@
 		event.stopPropagation();
 		$(this).dialog('option','title','{$context->manifest->name} Chooser');
 
-		$('#view{$view->id}').delegate('button.devblocks-chooser-add-selected', 'click', function(event) {
-			event.stopPropagation();
+		// Progressive de-enhancement
+		
+		var on_refresh = function() {
+			$worklist = $('#view{$view->id}').find('TABLE.worklist');
+			
+			$header = $worklist.find('> tbody > tr:first > td:first > span.title');
+			$header.css('font-size', '14px');
+			$header_links = $worklist.find('> tbody > tr:first td:nth(1)');
+			$header_links.children().each(function(e) {
+				if(!$(this).is('a.minimal, input:checkbox'))
+					$(this).remove();
+			});
+			$header_links.find('a').css('font-size','11px');
+
+			$worklist_body = $('#view{$view->id}').find('TABLE.worklistBody');
+			$worklist_body.find('a.subject').each(function() {
+				$txt = $('<b class="subject">' + $(this).text() + '</b>');
+				$txt.insertBefore($(this));
+				$(this).remove();
+			});
+			
+			$actions = $('#{$view->id}_actions').find('> tbody > tr:first td');
+			$actions.html('');
+		}
+		
+		on_refresh();
+
+		$(this).delegate('DIV[id^=view]','view_refresh', on_refresh);		
+		
+		$('#view{$view->id}').delegate(' TABLE.worklistBody input:checkbox', 'check', function(event) {
+			checked = $(this).is(':checked');
+
 			$view = $('#viewForm{$view->id}');
 			$buffer = $('form#chooser{$view->id} UL.buffer');
-			
-			$view.find('input:checkbox:checked').each(function(index) {
-				$label = $(this).attr('title');
-				$value = $(this).val();
 
+			$tbody = $(this).closest('tbody');
+
+			$label = $tbody.find('b.subject').text();
+			$value = $(this).val();
+		
+			if(checked) {
 				if($label.length > 0 && $value.length > 0) {
 					if(0==$buffer.find('input:hidden[value="'+$value+'"]').length) {
 						$li = $('<li>'+$label+'<input type="hidden" name="to_context_id[]" title="'+$label+'" value="'+$value+'"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></li>');
 						$buffer.append($li);
 					}
 				}
-			});
-
-			// Clear checkboxes
-			checkAll('view{$view->id}',false);
-			$rows=$('#viewForm{$view->id}').find('table.worklistBody').find('tbody > tr');
-			$rows.removeClass('selected');			
+				
+			} else {
+				$buffer.find('input:hidden[value="'+$value+'"]').closest('li').remove();
+			}
+			
 		});
 		
 		$("form#chooser{$view->id} button.submit").click(function(event) {
