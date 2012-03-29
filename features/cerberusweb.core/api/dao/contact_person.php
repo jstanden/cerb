@@ -551,8 +551,6 @@ class View_ContactPerson extends C4_AbstractView implements IAbstractView_Subtot
 
 		switch($this->renderTemplate) {
 			case 'contextlinks_chooser':
-				$tpl->display('devblocks:cerberusweb.core::contacts/people/view_contextlinks_chooser.tpl');
-				break;
 			default:
 				$tpl->assign('view_template', 'devblocks:cerberusweb.core::contacts/people/view.tpl');
 				$tpl->display('devblocks:cerberusweb.core::internal/views/subtotals_and_view.tpl');
@@ -904,14 +902,10 @@ class Context_ContactPerson extends Extension_DevblocksContext {
 			SearchFields_ContactPerson::ADDRESS_EMAIL,
 		);
 		
-//		$view->addParamsDefault(array(
-//			SearchFields_Address::IS_BANNED => new DevblocksSearchCriteria(SearchFields_Address::IS_BANNED,'=',0),
-//		), true);
-//		$view->addParams($view->getParamsDefault(), true);
-		
 		$view->renderSortBy = SearchFields_ContactPerson::LAST_LOGIN;
 		$view->renderSortAsc = false;
 		$view->renderLimit = 10;
+		$view->renderFilters = true;
 		$view->renderTemplate = 'contextlinks_chooser';
 		
 		C4_AbstractViewLoader::setView($view_id, $view);
