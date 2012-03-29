@@ -38,6 +38,8 @@ $view_frm.find('TABLE.worklistBody TBODY')
 			} else {
 				$this.find('tr').removeClass('selected');
 			}
+			
+			$chk.trigger('check');
 		}
 	})
 	.hover(

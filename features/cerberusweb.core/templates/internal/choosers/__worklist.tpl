@@ -11,15 +11,32 @@
 		event.stopPropagation();
 		$(this).dialog('option','title','{$context->manifest->name} Worklist');
 		
-		$('#{$view->id}_actions').find('tr:first td').html('');
+		var on_refresh = function() {
+			$worklist = $('#view{$view->id}').find('TABLE.worklist');
+			
+			$header = $worklist.find('> tbody > tr:first > td:first > span.title');
+			$header.css('font-size', '14px');
+			$header_links = $worklist.find('> tbody > tr:first td:nth(1)');
+			$header_links.children().each(function(e) {
+				if(!$(this).is('a.minimal'))
+					$(this).remove();
+			});
+			$header_links.find('a').css('font-size','11px');
 
-		$(this).delegate('DIV[id^=view]','view_refresh',function() {
-			id = $(this).attr('id').replace('view','');
-			$('#' + id + '_actions')
-				.find(' > TBODY > TR:first > TD:first')
-				.html('')
-				;
-		});
+			$worklist_body = $('#view{$view->id}').find('TABLE.worklistBody');
+			$worklist_body.find('a.subject').each(function() {
+				$txt = $('<b class="subject">' + $(this).text() + '</b>');
+				$txt.insertBefore($(this));
+				$(this).remove();
+			});
+			
+			$actions = $('#{$view->id}_actions').find('> tbody > tr:first td');
+			$actions.html('');
+		}
+		
+		on_refresh();
+
+		$(this).delegate('DIV[id^=view]','view_refresh', on_refresh);
 		
 		$("form#chooser{$view->id} button.submit").click(function(event) {
 			event.stopPropagation();
