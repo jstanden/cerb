@@ -808,8 +808,6 @@ class View_Group extends C4_AbstractView implements IAbstractView_Subtotals {
 
 		switch($this->renderTemplate) {
 			case 'contextlinks_chooser':
-				$tpl->display('devblocks:cerberusweb.core::groups/view_contextlinks_chooser.tpl');
-				break;
 			default:
 				$tpl->assign('view_template', 'devblocks:cerberusweb.core::groups/view.tpl');
 				$tpl->display('devblocks:cerberusweb.core::internal/views/subtotals_and_view.tpl');
@@ -1122,6 +1120,7 @@ class Context_Group extends Extension_DevblocksContext {
 //		$view->renderSortBy = SearchFields_Group::NAME;
 //		$view->renderSortAsc = true;
 		$view->renderLimit = 10;
+		$view->renderFilters = true;
 		$view->renderTemplate = 'contextlinks_chooser';
 		C4_AbstractViewLoader::setView($view_id, $view);
 
