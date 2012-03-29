@@ -7,7 +7,7 @@
 <fieldset>
 	<div style="float:left;">
 	{*
-	<img src="{if $is_ssl}https://secure.{else}http://www.{/if}gravatar.com/avatar/{$worker->email|trim|lower|md5}?s=64&d=mm" border="0" style="margin:0px 5px 5px 0px;">
+	<img src="{if $is_ssl}https://secure.{else}http://www.{/if}gravatar.com/avatar/{$worker->email|trim|lower|md5}?s=64&d={devblocks_url full=true}c=resource&p=cerberusweb.core&f=images/wgm/gravatar_nouser.jpg{/devblocks_url}" border="0" height="64" width="64" style="margin:0px 5px 5px 0px;">
 	*}
 	<h1 style="color:rgb(0,120,0);font-weight:bold;font-size:150%;">{$group->name}</h1>
 	{*[[ charts for open vs waiting vs closed tickets ]]<br>*}
