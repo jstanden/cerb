@@ -66,12 +66,14 @@
 				<name>Context_TimeTracking</name>
 			</class>
 			<params>
+				<param key="alias" value="time_entry" />
 				<param key="view_class" value="View_TimeTracking" />
 				<param key="options">
 					<value>
 						<!--<data key="create" />-->
 						<data key="find" />
 						<data key="snippets" />
+						<data key="va_variable" />
 						<data key="workspace" />
 					</value>
 				</param>
