@@ -581,8 +581,6 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals {
 		
 		switch($this->renderTemplate) {
 			case 'contextlinks_chooser':
-				$tpl->display('devblocks:cerberusweb.core::internal/snippets/views/view_chooser.tpl');
-				break;
 			default:
 				$tpl->assign('view_template', 'devblocks:cerberusweb.core::internal/snippets/views/default.tpl');
 				$tpl->display('devblocks:cerberusweb.core::internal/views/subtotals_and_view.tpl');
@@ -956,6 +954,7 @@ class Context_Snippet extends Extension_DevblocksContext {
 		$view->renderSortAsc = false;
 		$view->renderLimit = 10;
 		$view->renderTemplate = 'contextlinks_chooser';
+		$view->renderFilters = true;
 		C4_AbstractViewLoader::setView($view_id, $view);
 		return $view;		
 	}
