@@ -692,8 +692,6 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals {
 		
 		switch($this->renderTemplate) {
 			case 'contextlinks_chooser':
-				$tpl->display('devblocks:cerberusweb.core::contacts/addresses/view_contextlinks_chooser.tpl');
-				break;
 			default:
 				$tpl->assign('view_template', 'devblocks:cerberusweb.core::contacts/addresses/address_view.tpl');
 				$tpl->display('devblocks:cerberusweb.core::internal/views/subtotals_and_view.tpl');
@@ -1097,7 +1095,7 @@ class Context_Address extends Extension_DevblocksContext {
 		$defaults->class_name = $this->getViewClass();
 		
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
-		$view->name = 'Organizations';
+		$view->name = 'Addresses';
 		
 		$view->view_columns = array(
 			SearchFields_Address::FIRST_NAME,
@@ -1113,6 +1111,7 @@ class Context_Address extends Extension_DevblocksContext {
 		$view->renderSortBy = SearchFields_Address::EMAIL;
 		$view->renderSortAsc = true;
 		$view->renderLimit = 10;
+		$view->renderFilters = true;
 		$view->renderTemplate = 'contextlinks_chooser';
 		
 		C4_AbstractViewLoader::setView($view_id, $view);
