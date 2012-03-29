@@ -898,8 +898,6 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals {
 
 		switch($this->renderTemplate) {
 			case 'contextlinks_chooser':
-				$tpl->display('devblocks:cerberusweb.core::workers/view_contextlinks_chooser.tpl');
-				break;
 			default:
 				$tpl->assign('view_template', 'devblocks:cerberusweb.core::workers/view.tpl');
 				$tpl->display('devblocks:cerberusweb.core::internal/views/subtotals_and_view.tpl');
@@ -1327,6 +1325,7 @@ class Context_Worker extends Extension_DevblocksContext {
 			SearchFields_Worker::IS_DISABLED => new DevblocksSearchCriteria(SearchFields_Worker::IS_DISABLED,'=',0),
 		), true);
 		$view->renderLimit = 10;
+		$view->renderFilters = true;
 		$view->renderTemplate = 'contextlinks_chooser';
 		C4_AbstractViewLoader::setView($view_id, $view);
 		
