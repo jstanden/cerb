@@ -746,6 +746,7 @@ class Context_KbArticle extends Extension_DevblocksContext {
 		$view->renderSortBy = SearchFields_KbArticle::UPDATED;
 		$view->renderSortAsc = false;
 		$view->renderLimit = 10;
+		$view->renderFilters = true;
 		$view->renderTemplate = 'contextlinks_chooser';
 		
 		C4_AbstractViewLoader::setView($view_id, $view);
@@ -911,8 +912,6 @@ class View_KbArticle extends C4_AbstractView implements IAbstractView_Subtotals 
 
 		switch($this->renderTemplate) {
 			case 'chooser':
-				$tpl->display('devblocks:cerberusweb.kb::view/chooser.tpl');
-				break;
 			default:
 				$tpl->assign('view_template', 'devblocks:cerberusweb.kb::view/view.tpl');
 				$tpl->display('devblocks:cerberusweb.core::internal/views/subtotals_and_view.tpl');
