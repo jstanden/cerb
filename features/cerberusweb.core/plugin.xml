@@ -422,6 +422,10 @@
 			<class name="Event_NotificationReceivedByWorker" />
 		</file>
 		
+		<file path="api/uri/internal/virtual_attendants.php">
+			<class name="Subcontroller_Internal_VirtualAttendants" />
+		</file>
+		
 		<file path="api/uri/portal.php">
 			<class name="ChPortalHelper" />
 		</file>
@@ -1683,6 +1687,19 @@
 				<params>
 					<param key="page_id" value="core.page.configuration" />
 					<param key="uri" value="scheduler" />
+				</params>
+			</extension>
+		
+			<extension point="cerberusweb.ui.page.section">
+				<id>core.page.setup.scheduled_behavior</id>
+				<name>Scheduled Behavior Section</name>
+				<class>
+					<file>api/uri/config/scheduled_behavior.php</file>
+					<name>PageSection_SetupScheduledBehavior</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.page.configuration" />
+					<param key="uri" value="scheduled_behavior" />
 				</params>
 			</extension>
 		

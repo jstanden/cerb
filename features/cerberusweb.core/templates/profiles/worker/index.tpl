@@ -52,6 +52,11 @@
 		{$tabs[] = 'attendant'}
 		<li><a href="{devblocks_url}ajax.php?c=internal&a=showAttendantTab&point={$point}&context={CerberusContexts::CONTEXT_WORKER}&context_id={$worker->id}{/devblocks_url}">Virtual Attendant</a></li>
 		{/if}
+		
+		{if $active_worker->is_superuser || $worker->id == $active_worker->id}
+		{$tabs[] = 'behavior'}
+		<li><a href="{devblocks_url}ajax.php?c=internal&a=showScheduledBehaviorTab&point={$point}&context={CerberusContexts::CONTEXT_WORKER}&context_id={$worker->id}{/devblocks_url}">Scheduled Behavior</a></li>
+		{/if}
 
 		{$tabs[] = 'links'}
 		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextLinks&context=cerberusweb.contexts.worker&point={$point}&id={$worker->id}{/devblocks_url}">Watchlist ({$watching_total})</a></li>

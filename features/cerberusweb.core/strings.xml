@@ -474,6 +474,9 @@
 		<tu tuid='common.tag'>
 			<tuv xml:lang="en_US"><seg>Tag</seg></tuv>
 		</tu>
+		<tu tuid='common.target'>
+			<tuv xml:lang="en_US"><seg>Target</seg></tuv>
+		</tu>
 		<tu tuid='common.task'>
 			<tuv xml:lang="en_US"><seg>Task</seg></tuv>
 		</tu>

@@ -2834,6 +2834,12 @@ class ChInternalController extends DevblocksControllerExtension {
 		$tpl->display('devblocks:cerberusweb.core::internal/renderers/test_results.tpl');
 	}
 	
+	// Scheduled Behavior
+	
+	function showScheduledBehaviorTabAction() {
+		Subcontroller_Internal_VirtualAttendants::showScheduledBehaviorAction();
+	}	
+	
 	// Calendars
 	
 	function showCalendarTabAction() {
