@@ -984,38 +984,40 @@ class ChInternalController extends DevblocksControllerExtension {
 
 	function viewRefreshAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
-		$view = C4_AbstractViewLoader::getView($id);
-		$view->render();
+		if(null != ($view = C4_AbstractViewLoader::getView($id))) {
+			$view->render();
+		}
 	}
 
 	function viewSortByAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
 		@$sortBy = DevblocksPlatform::importGPC($_REQUEST['sortBy']);
 
-		$view = C4_AbstractViewLoader::getView($id);
-		$view->doSortBy($sortBy);
-		C4_AbstractViewLoader::setView($id, $view);
-
-		$view->render();
+		if(null != ($view = C4_AbstractViewLoader::getView($id))) {
+			$view->doSortBy($sortBy);
+			C4_AbstractViewLoader::setView($id, $view);
+			$view->render();
+		}
 	}
 
 	function viewPageAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
 		@$page = DevblocksPlatform::importGPC(DevblocksPlatform::importGPC($_REQUEST['page']));
 
-		$view = C4_AbstractViewLoader::getView($id);
-		$view->doPage($page);
-		C4_AbstractViewLoader::setView($id, $view);
-
-		$view->render();
+		if(null != ($view = C4_AbstractViewLoader::getView($id))) {
+			$view->doPage($page);
+			C4_AbstractViewLoader::setView($id, $view);
+			$view->render();
+		}
 	}
 
 	function viewGetCriteriaAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
 		@$field = DevblocksPlatform::importGPC($_REQUEST['field']);
 
-		$view = C4_AbstractViewLoader::getView($id);
-		$view->renderCriteria($field);
+		if(null != ($view = C4_AbstractViewLoader::getView($id))) {
+			$view->renderCriteria($field);
+		}
 	}
 
 	private function _viewRenderInlineFilters($view, $is_custom=false) {
@@ -1034,9 +1036,10 @@ class ChInternalController extends DevblocksControllerExtension {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'string','');
 		@$show = DevblocksPlatform::importGPC($_REQUEST['show'],'integer',0);
 		
-		$view = C4_AbstractViewLoader::getView($id);
-		$view->renderFilters = !empty($show) ? 1 : 0;
-		C4_AbstractViewLoader::setView($view->id, $view);
+		if(null != ($view = C4_AbstractViewLoader::getView($id))) {
+			$view->renderFilters = !empty($show) ? 1 : 0;
+			C4_AbstractViewLoader::setView($view->id, $view);
+		}
 	}
 	
 	function viewAddFilterAction() {
@@ -1048,7 +1051,8 @@ class ChInternalController extends DevblocksControllerExtension {
 		@$value = DevblocksPlatform::importGPC($_REQUEST['value']);
 		@$field_deletes = DevblocksPlatform::importGPC($_REQUEST['field_deletes'],'array',array());
 
-		$view = C4_AbstractViewLoader::getView($id);
+		if(null == ($view = C4_AbstractViewLoader::getView($id)))
+			return;
 
 		if($is_custom && 0 != strcasecmp('cust_',substr($id,0,5)))
 			$is_custom = 0;
@@ -1085,7 +1089,8 @@ class ChInternalController extends DevblocksControllerExtension {
 	function viewResetFiltersAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
 
-		$view = C4_AbstractViewLoader::getView($id);
+		if(null == ($view = C4_AbstractViewLoader::getView($id)))
+			return;
 
 		$view->doResetCriteria();
 
@@ -1098,7 +1103,8 @@ class ChInternalController extends DevblocksControllerExtension {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
 		@$preset_id = DevblocksPlatform::importGPC($_REQUEST['_preset'],'integer',0);
 
-		$view = C4_AbstractViewLoader::getView($id);
+		if(null == ($view = C4_AbstractViewLoader::getView($id)))
+			return;
 
 		$view->removeAllParams();
 
@@ -1122,7 +1128,9 @@ class ChInternalController extends DevblocksControllerExtension {
 
 		$active_worker = CerberusApplication::getActiveWorker();
 
-		$view = C4_AbstractViewLoader::getView($id);
+		if(null == ($view = C4_AbstractViewLoader::getView($id)))
+			return;
+		
 		$params_json = json_encode($view->getEditableParams());
 
 		if(!empty($preset_replace_id)) {
@@ -1159,11 +1167,10 @@ class ChInternalController extends DevblocksControllerExtension {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
 		@$preset_dels = DevblocksPlatform::importGPC($_REQUEST['_preset_del'],'array',array());
 
-		$view = C4_AbstractViewLoader::getView($id);
-
-		DAO_ViewFiltersPreset::delete($preset_dels);
-
-		$this->_viewRenderInlineFilters($view);
+		if(null != ($view = C4_AbstractViewLoader::getView($id))) {
+			DAO_ViewFiltersPreset::delete($preset_dels);
+			$this->_viewRenderInlineFilters($view);
+		}
 	}
 
 	function viewCustomizeAction() {
@@ -1174,7 +1181,8 @@ class ChInternalController extends DevblocksControllerExtension {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('id', $id);
 
-		$view = C4_AbstractViewLoader::getView($id);
+		if(null == ($view = C4_AbstractViewLoader::getView($id)))
+			return;
 		
 		// Custom worklists
 		if('cust_' == substr($view->id,0,5)) {
@@ -1215,7 +1223,8 @@ class ChInternalController extends DevblocksControllerExtension {
 		$active_worker = CerberusApplication::getActiveWorker();
 		$tpl = DevblocksPlatform::getTemplateService();
 
-        $view = C4_AbstractViewLoader::getView($view_id);
+        if(null == ($view = C4_AbstractViewLoader::getView($view_id)))
+        	return;
 
 		$workspaces = DAO_Workspace::getByOwner(CerberusContexts::CONTEXT_WORKER, $active_worker->id);
 		$tpl->assign('workspaces', $workspaces);
@@ -1232,7 +1241,9 @@ class ChInternalController extends DevblocksControllerExtension {
 		$active_worker = CerberusApplication::getActiveWorker();
 
 	    @$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
-		$view = C4_AbstractViewLoader::getView($view_id);
+	    
+		if(null == ($view = C4_AbstractViewLoader::getView($view_id)))
+			return;
 
 		@$list_title = DevblocksPlatform::importGPC($_POST['list_title'],'string', '');
 		@$workspace_id = DevblocksPlatform::importGPC($_POST['workspace_id'],'integer', 0);
@@ -1293,7 +1304,8 @@ class ChInternalController extends DevblocksControllerExtension {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('view_id', $view_id);
 
-		$view = C4_AbstractViewLoader::getView($view_id);
+		if(null == ($view = C4_AbstractViewLoader::getView($view_id)))
+			return;
 		$tpl->assign('view', $view);
 
 		$model_columns = $view->getColumnsAvailable();
@@ -1317,7 +1329,9 @@ class ChInternalController extends DevblocksControllerExtension {
 				unset($columns[$idx]);
 		}
 
-		$view = C4_AbstractViewLoader::getView($view_id);
+		if(null == ($view = C4_AbstractViewLoader::getView($view_id)))
+			return;
+		
 		$column_manifests = $view->getColumnsAvailable();
 
 		// Override display
@@ -1421,7 +1435,9 @@ class ChInternalController extends DevblocksControllerExtension {
 			}
 		}
 
-		$view = C4_AbstractViewLoader::getView($id);
+		if(null == ($view = C4_AbstractViewLoader::getView($id)))
+			return;
+		
 		$view->doCustomize($columns, $num_rows);
 
 		$is_custom = substr($id,0,5)=='cust_';

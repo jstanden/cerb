@@ -10,7 +10,7 @@ if(!isset($tables['calendar_recurring_profile'])) {
 	$sql = sprintf("CREATE TABLE IF NOT EXISTS calendar_recurring_profile (
 		id INT UNSIGNED NOT NULL AUTO_INCREMENT,
 		event_name VARCHAR(255) NOT NULL DEFAULT '',
-		owner_context VARCHAR(255) NOT NULL DEFAULT 0,
+		owner_context VARCHAR(255) NOT NULL DEFAULT '',
 		owner_context_id INT UNSIGNED NOT NULL DEFAULT 0,
 		is_available TINYINT UNSIGNED NOT NULL DEFAULT 0,
 		date_start INT UNSIGNED NOT NULL DEFAULT 0,
@@ -32,7 +32,7 @@ if(!isset($tables['calendar_recurring_profile'])) {
 if(!isset($tables['calendar_event'])) {
 	$sql = sprintf("CREATE TABLE IF NOT EXISTS calendar_event (
 		id INT UNSIGNED NOT NULL AUTO_INCREMENT,
-		owner_context VARCHAR(255) NOT NULL DEFAULT 0,
+		owner_context VARCHAR(255) NOT NULL DEFAULT '',
 		owner_context_id INT UNSIGNED NOT NULL DEFAULT 0,
 		name VARCHAR(255) NOT NULL DEFAULT '',
 		recurring_id INT UNSIGNED NOT NULL DEFAULT 0,
