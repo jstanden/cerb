@@ -1112,9 +1112,6 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals {
 //		$tpl->assign('custom_fields', $custom_fields);
 
 		switch($this->renderTemplate) {
-//			case 'contextlinks_chooser':
-//				$tpl->display('devblocks:cerberusweb.core::workers/view_contextlinks_chooser.tpl');
-//				break;
 			default:
 				$tpl->assign('view_template', 'devblocks:cerberusweb.core::messages/view.tpl');
 				$tpl->display('devblocks:cerberusweb.core::internal/views/subtotals_and_view.tpl');

@@ -279,7 +279,7 @@ abstract class AbstractEvent_Address extends Extension_DevblocksEvent {
 				break;
 
 			case 'send_email':
-				DevblocksEventHelper::renderActionSendEmail();
+				DevblocksEventHelper::renderActionSendEmail($trigger);
 				break;
 
 			case 'set_email_links':

@@ -1,5 +1,5 @@
 {if !empty($values_to_contexts)}
-<b>On:</b>
+<b>Comment on:</b>
 <div style="margin-left:10px;">
 <select name="{$namePrefix}[on]">
 	{foreach from=$values_to_contexts item=context_data key=val_key}

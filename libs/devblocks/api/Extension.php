@@ -1419,39 +1419,6 @@ class DevblocksEventHelper {
 		if(empty($behavior_id))
 			return FALSE;
 		
-		switch($on_dupe) {
-			// Only keep first
-			case 'first':
-				// Keep the first, delete everything else, and don't add a new one
-				$behaviors = DAO_ContextScheduledBehavior::getByContext($context, $context_id);
-				$found_first = false;
-				foreach($behaviors as $k => $behavior) { /* @var $behavior Model_ContextScheduledBehavior */
-					if($behavior->behavior_id == $behavior_id) {
-						if($found_first) {
-							DAO_ContextScheduledBehavior::delete($k);
-						}
-						$found_first = $k;
-					}
-				}
-				
-				// If we already have one, don't make a new one.
-				if($found_first)
-					return $found_first;
-				
-				break;
-
-			// Only keep latest
-			case 'last':
-				// Delete everything prior so we only have the new one below
-				DAO_ContextScheduledBehavior::deleteByBehavior($behavior_id, $context, $context_id);
-				break;
-			
-			// Allow dupes
-			default:
-				// Do nothing
-				break;
-		}
-		
 		// Variables as parameters
 		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
 		$vars = array();
@@ -1477,6 +1444,40 @@ class DevblocksEventHelper {
 				foreach($on_objects as $on_object) {
 					if(!isset($on_object['id']) && empty($on_object['id']))
 						continue;
+					
+					switch($on_dupe) {
+						// Only keep first
+						case 'first':
+							// Keep the first, delete everything else, and don't add a new one
+							$behaviors = DAO_ContextScheduledBehavior::getByContext($on_object['context']->id, $on_object['id']);
+							$found_first = false;
+							foreach($behaviors as $k => $behavior) { /* @var $behavior Model_ContextScheduledBehavior */
+								if($behavior->behavior_id == $behavior_id) {
+									if($found_first) {
+										DAO_ContextScheduledBehavior::delete($k);
+									}
+									$found_first = $k;
+								}
+							}
+							
+							// If we already have one, don't make a new one.
+							if($found_first)
+								return $found_first;
+							
+							break;
+			
+						// Only keep latest
+						case 'last':
+							// Delete everything prior so we only have the new one below
+							DAO_ContextScheduledBehavior::deleteByBehavior($behavior_id, $on_object['context']->id, $on_object['id']);
+							break;
+						
+						// Allow dupes
+						default:
+							// Do nothing
+							break;
+					}
+					
 					
 					$fields = array(
 						DAO_ContextScheduledBehavior::CONTEXT => $on_object['context']->id,
