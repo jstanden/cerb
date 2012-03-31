@@ -26,7 +26,6 @@
 
 	{* Column Headers *}
 	<tr>
-		<th></th>
 		{foreach from=$view->view_columns item=header name=headers}
 			{* start table header, insert column title and link *}
 			<th nowrap="nowrap">
@@ -54,14 +53,15 @@
 	{/if}
 	<tbody style="cursor:pointer;">
 		<tr class="{$tableRowClass}">
-			<td align="center"><input type="checkbox" name="row_id[]" value="{$result.w_id}" style="display:none;"></td>
+			<td colspan="{$smarty.foreach.headers.total}">
+				<input type="checkbox" name="row_id[]" value="{$result.w_id}" style="display:none;">
+				<a href="javascript:;" onclick="genericAjaxPopup('peek','c=config&a=handleSectionAction&section=workers&action=showWorkerPeek&id={$result.w_id}&view_id={$view->id|escape:'url'}',null,false,'550');" class="subject" style="{if $result.w_is_disabled}color:rgb(120,0,0);font-style:italic;{/if}">{$result.w_first_name}{if !empty($result.w_last_name)} {$result.w_last_name}{/if}</a>&nbsp;
+			</td>
+		</tr>
+		<tr class="{$tableRowClass}">
 		{foreach from=$view->view_columns item=column name=columns}
 			{if substr($column,0,3)=="cf_"}
 				{include file="devblocks:cerberusweb.core::internal/custom_fields/view/cell_renderer.tpl"}
-			{elseif $column=="w_id"}
-			<td>{$result.w_id}&nbsp;</td>
-			{elseif $column=="w_first_name" || $column=="w_last_name"}
-			<td><a href="javascript:;" onclick="genericAjaxPopup('peek','c=config&a=handleSectionAction&section=workers&action=showWorkerPeek&id={$result.w_id}&view_id={$view->id|escape:'url'}',null,false,'550');" class="subject" style="{if $result.w_is_disabled}color:rgb(120,0,0);font-style:italic;{/if}">{$result.$column}</a>&nbsp;</td>
 			{elseif $column=="w_is_disabled"}
 				<td>{if $result.w_is_disabled}{'common.yes'|devblocks_translate|capitalize}{else}{'common.no'|devblocks_translate|capitalize}{/if}</td>
 			{elseif $column=="w_is_superuser"}
