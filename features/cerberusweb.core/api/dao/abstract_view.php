@@ -241,6 +241,59 @@ abstract class C4_AbstractView {
 		}
 	}
 	
+	protected function _renderCriteriaParamBoolean($param) {
+		$translate = DevblocksPlatform::getTranslationService();
+		
+		$strings = array();
+		
+		$values = is_array($param->value) ? $param->value : array($param->value);
+		
+		foreach($values as $v) {
+			$strings[] = sprintf("<b>%s</b>",
+				(!empty($v) ? $translate->_('common.yes') : $translate->_('common.no')) 
+			);
+		}
+		
+		echo implode(' or ', $strings);
+	}
+	
+	protected function _renderCriteriaParamWorker($param) {
+		$workers = DAO_Worker::getAll();
+		$strings = array();
+		
+		foreach($param->value as $worker_id) {
+			if(isset($workers[$worker_id]))
+				$strings[] = '<b>'.$workers[$worker_id]->getName().'</b>';
+			else {
+				$strings[] = '<b>'.$worker_id.'</b>';
+			}
+		}
+		
+		if(empty($param->value)) {
+			switch($param->operator) {
+				case DevblocksSearchCriteria::OPER_IN:
+				case DevblocksSearchCriteria::OPER_IN_OR_NULL:
+				case DevblocksSearchCriteria::OPER_NIN_OR_NULL:
+					$param->operator = DevblocksSearchCriteria::OPER_IS_NULL;
+					break;
+				case DevblocksSearchCriteria::OPER_NIN:
+					$param->operator = DevblocksSearchCriteria::OPER_IS_NOT_NULL;
+					break;
+			}
+		}
+		
+		$list_of_strings = implode(' or ', $strings);
+		
+		if(count($strings) > 2) {
+			$list_of_strings = sprintf("any of <abbr style='font-weight:bold;' title='%s'>(%d people)</abbr>",
+				htmlentities(strip_tags($list_of_strings)),
+				count($strings)
+			);
+		}
+		
+		echo sprintf("%s", $list_of_strings);
+	}	
+	
 	protected function _renderVirtualWatchers($param) {
 		$workers = DAO_Worker::getAll();
 		$strings = array();
@@ -309,6 +362,59 @@ abstract class C4_AbstractView {
 		// Expect Override
 	}
 
+	protected function _doSetCriteriaString($field, $oper, $value) {
+		// force wildcards if none used on a LIKE
+		if(($oper == DevblocksSearchCriteria::OPER_LIKE || $oper == DevblocksSearchCriteria::OPER_NOT_LIKE)
+		&& false === (strpos($value,'*'))) {
+			$value = $value.'*';
+		}
+		return new DevblocksSearchCriteria($field, $oper, $value);
+	}
+	
+	protected function _doSetCriteriaDate($field, $oper) {
+		@$from = DevblocksPlatform::importGPC($_REQUEST['from'],'string','big bang');
+		@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string','now');
+
+		if(is_null($from) || (!is_numeric($from) && @false === strtotime(str_replace('.','-',$from))))
+			$from = 'big bang';
+			
+		if(is_null($to) || (!is_numeric($to) && @false === strtotime(str_replace('.','-',$to))))
+			$to = 'now';
+		
+		return new DevblocksSearchCriteria($field,$oper,array($from,$to));
+	}
+	
+	protected function _doSetCriteriaWorker($field, $oper) {
+		@$worker_ids = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',array());
+		
+		switch($oper) {
+			case DevblocksSearchCriteria::OPER_IN:
+				if(empty($worker_ids)) {
+					$oper = DevblocksSearchCriteria::OPER_EQ;
+					$worker_ids = 0;
+				}
+				break;
+			case DevblocksSearchCriteria::OPER_IN_OR_NULL:
+				$oper = DevblocksSearchCriteria::OPER_IN;
+				if(!in_array('0', $worker_ids))
+					$worker_ids[] = '0';
+				break;
+			case DevblocksSearchCriteria::OPER_NIN:
+				if(empty($worker_ids)) {
+					$oper = DevblocksSearchCriteria::OPER_NEQ;
+					$worker_ids = 0;
+				}
+				break;
+			case 'not in and not null':
+				$oper = DevblocksSearchCriteria::OPER_NIN;
+				if(!in_array('0', $worker_ids))
+					$worker_ids[] = '0';
+				break;
+		}
+		
+		return new DevblocksSearchCriteria($field, $oper, $worker_ids);
+	}
+	
 	protected function _doSetCriteriaCustomField($token, $field_id) {
 		$field = DAO_CustomField::get($field_id);
 		@$oper = DevblocksPlatform::importGPC($_POST['oper'],'string','');
@@ -448,7 +554,15 @@ abstract class C4_AbstractView {
 			$field_id = intval(substr($field,3));
 			$custom_fields = DAO_CustomField::getAll();
 			
+			$translate = DevblocksPlatform::getTranslationService(); 
+			
 			switch($custom_fields[$field_id]->type) {
+				case Model_CustomField::TYPE_CHECKBOX:
+					foreach($vals as $idx => $val) {
+						$vals[$idx] = !empty($val) ? $translate->_('common.yes') : $translate->_('common.no');
+					}
+					break;
+					
 				case Model_CustomField::TYPE_WORKER:
 					$workers = DAO_worker::getAll();
 					foreach($vals as $idx => $worker_id) {
@@ -465,7 +579,7 @@ abstract class C4_AbstractView {
 			$vals[$k] = htmlspecialchars($v, ENT_QUOTES, LANG_CHARSET_CODE);
 		}
 		
-		echo implode(', ', $vals);
+		echo implode(' or ', $vals);
 	}
 
 	/**
@@ -773,8 +887,6 @@ abstract class C4_AbstractView {
 		;
 		
 		$results = $db->GetArray($sql);
-//		$total = count($results);
-//		$total = ($total < 20) ? $total : $db->GetOne("SELECT FOUND_ROWS()");
 
 		return $results;
 	}	
@@ -1291,8 +1403,6 @@ class C4_AbstractViewLoader {
 };
 
 class DAO_WorkerViewModel {
-	// [TODO] Add an 'ephemeral' bit to clear record on login
-
 	/**
 	 * 
 	 * @param string $where
