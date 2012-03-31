@@ -416,6 +416,7 @@ class C4_FeedbackEntryView extends C4_AbstractView implements IAbstractView_Subt
 			SearchFields_FeedbackEntry::ADDRESS_EMAIL,
 			SearchFields_FeedbackEntry::SOURCE_URL,
 		);
+		
 		$this->addColumnsHidden(array(
 			SearchFields_FeedbackEntry::ID,
 			SearchFields_FeedbackEntry::QUOTE_ADDRESS_ID,
@@ -449,7 +450,6 @@ class C4_FeedbackEntryView extends C4_AbstractView implements IAbstractView_Subt
 	function getDataSample($size) {
 		return $this->_doGetDataSample('DAO_FeedbackEntry', $size);
 	}
-	
 
 	function getSubtotalFields() {
 		$all_fields = $this->getParamsAvailable();
@@ -503,19 +503,17 @@ class C4_FeedbackEntryView extends C4_AbstractView implements IAbstractView_Subt
 				break;
 				
 			case SearchFields_FeedbackEntry::QUOTE_MOOD:
-				// [TODO] Translate
+				$translate = DevblocksPlatform::getTranslationService();
+				
 				$label_map = array(
-					'0' => 'Neutral',
-					'1' => 'Praise',
-					'2' => 'Criticism',
+					'1' => $translate->_('feedback.mood.praise'),
+					'0' => $translate->_('feedback.mood.neutral'),
+					'2' => $translate->_('feedback.mood.criticism'),
 				);
+				
 				$counts = $this->_getSubtotalCountForStringColumn('DAO_FeedbackEntry', $column, $label_map, 'in', 'moods[]');
 				break;
 
-//			case SearchFields_FeedbackEntry::EXAMPLE:
-//				$counts = $this->_getSubtotalCountForBooleanColumn('DAO_FeedbackEntry', $column);
-//				break;
-				
 			default:
 				// Custom fields
 				if('cf_' == substr($column,0,3)) {
@@ -557,22 +555,36 @@ class C4_FeedbackEntryView extends C4_AbstractView implements IAbstractView_Subt
 			case SearchFields_FeedbackEntry::ADDRESS_EMAIL:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__string.tpl');
 				break;
+				
 			case SearchFields_FeedbackEntry::ID:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__number.tpl');
 				break;
+				
 			case SearchFields_FeedbackEntry::LOG_DATE:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__date.tpl');
 				break;
+				
 			case SearchFields_FeedbackEntry::WORKER_ID:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context_worker.tpl');
 				break;
+				
 			case SearchFields_FeedbackEntry::QUOTE_MOOD:
-				// [TODO] Translations
-				$tpl->display('devblocks:cerberusweb.feedback::feedback/criteria/quote_mood.tpl');
+				$translate = DevblocksPlatform::getTranslationService();
+				
+				$options = array(
+					'1' => $translate->_('feedback.mood.praise'),
+					'0' => $translate->_('feedback.mood.neutral'),
+					'2' => $translate->_('feedback.mood.criticism'),
+				);
+				
+				$tpl->assign('options', $options);
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__list.tpl');
 				break;
+				
 			case SearchFields_FeedbackEntry::VIRTUAL_WATCHERS:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context_worker.tpl');
 				break;
+				
 			default:
 				// Custom Fields
 				if('cf_' == substr($field,0,3)) {
@@ -600,39 +612,24 @@ class C4_FeedbackEntryView extends C4_AbstractView implements IAbstractView_Subt
 
 		switch($field) {
 			case SearchFields_FeedbackEntry::WORKER_ID:
-				$workers = DAO_Worker::getAll();
-				$strings = array();
-
-				foreach($values as $val) {
-					if(0==$val) {
-						$strings[] = "Nobody";
-					} else {
-						if(!isset($workers[$val]))
-							continue;
-						$strings[] = $workers[$val]->getName();
-					}
-				}
-				echo implode(", ", $strings);
+				$this->_renderCriteriaParamWorker($param);
 				break;
 
 			case SearchFields_FeedbackEntry::QUOTE_MOOD:
+				$translate = DevblocksPlatform::getTranslationService();
 				$strings = array();
-
-				// [TODO] Translations
+				
+				$options = array(
+					'1' => $translate->_('feedback.mood.praise'),
+					'0' => $translate->_('feedback.mood.neutral'),
+					'2' => $translate->_('feedback.mood.criticism'),
+				);
+				
 				foreach($values as $val) {
-					switch($val) {
-						case 0:
-							$strings[] = "Neutral";
-							break;
-						case 1:
-							$strings[] = "Praise";
-							break;
-						case 2:
-							$strings[] = "Criticism";
-							break;
-					}
+					if(isset($options[$val]))
+						$strings[] = $options[$val];
 				}
-				echo implode(", ", $strings);
+				echo implode(" or ", $strings);
 				break;
 				
 			default:
@@ -652,38 +649,32 @@ class C4_FeedbackEntryView extends C4_AbstractView implements IAbstractView_Subt
 			case SearchFields_FeedbackEntry::QUOTE_TEXT:
 			case SearchFields_FeedbackEntry::SOURCE_URL:
 			case SearchFields_FeedbackEntry::ADDRESS_EMAIL:
-				// force wildcards if none used on a LIKE
-				if(($oper == DevblocksSearchCriteria::OPER_LIKE || $oper == DevblocksSearchCriteria::OPER_NOT_LIKE)
-				&& false === (strpos($value,'*'))) {
-					$value = $value.'*';
-				}
-				$criteria = new DevblocksSearchCriteria($field, $oper, $value);
+				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
 				break;
+				
 			case SearchFields_FeedbackEntry::ID:
 				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
 				break;
 				
 			case SearchFields_FeedbackEntry::LOG_DATE:
-				@$from = DevblocksPlatform::importGPC($_REQUEST['from'],'string','');
-				@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string','');
-
-				if(empty($from)) $from = 0;
-				if(empty($to)) $to = 'today';
-
-				$criteria = new DevblocksSearchCriteria($field,$oper,array($from,$to));
+				$criteria = $this->_doSetCriteriaDate($field, $oper);
 				break;
+				
 			case SearchFields_FeedbackEntry::WORKER_ID:
 				@$worker_id = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',array());
 				$criteria = new DevblocksSearchCriteria($field,$oper,$worker_id);
 				break;
+				
 			case SearchFields_FeedbackEntry::QUOTE_MOOD:
-				@$moods = DevblocksPlatform::importGPC($_REQUEST['moods'],'array',array());
-				$criteria = new DevblocksSearchCriteria($field,$oper,$moods);
+				@$options = DevblocksPlatform::importGPC($_REQUEST['options'],'array',array());
+				$criteria = new DevblocksSearchCriteria($field,$oper,$options);
 				break;
+				
 			case SearchFields_FeedbackEntry::VIRTUAL_WATCHERS:
 				@$worker_ids = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',array());
 				$criteria = new DevblocksSearchCriteria($field,$oper,$worker_ids);
 				break;
+				
 			default:
 				// Custom Fields
 				if(substr($field,0,3)=='cf_') {

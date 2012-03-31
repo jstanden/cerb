@@ -724,6 +724,7 @@ class View_Group extends C4_AbstractView implements IAbstractView_Subtotals {
 		$this->addColumnsHidden(array(
 			SearchFields_Group::ID,
 		));
+		
 		$this->addParamsHidden(array(
 			SearchFields_Group::ID,
 		));
@@ -753,11 +754,6 @@ class View_Group extends C4_AbstractView implements IAbstractView_Subtotals {
 			$pass = false;
 			
 			switch($field_key) {
-				// Booleans
-//				case SearchFields_Group::IS_COMPLETED:
-//					$pass = true;
-//					break;
-					
 				// Valid custom fields
 				default:
 					if('cf_' == substr($field_key,0,3))
@@ -780,10 +776,6 @@ class View_Group extends C4_AbstractView implements IAbstractView_Subtotals {
 			return array();
 		
 		switch($column) {
-//			case SearchFields_Group::EXAMPLE:
-//				$counts = $this->_getSubtotalCountForStringColumn('DAO_Group', $column);
-//				break;
-
 			default:
 				// Custom fields
 				if('cf_' == substr($column,0,3)) {
@@ -848,20 +840,6 @@ class View_Group extends C4_AbstractView implements IAbstractView_Subtotals {
 		$values = !is_array($param->value) ? array($param->value) : $param->value;
 
 		switch($field) {
-//			case SearchFields_Notification::WORKER_ID:
-//				$workers = DAO_Worker::getAll();
-//				$strings = array();
-//
-//				foreach($values as $val) {
-//					if(empty($val))
-//					$strings[] = "Nobody";
-//					elseif(!isset($workers[$val]))
-//					continue;
-//					else
-//					$strings[] = $workers[$val]->getName();
-//				}
-//				echo implode(", ", $strings);
-//				break;
 			default:
 				parent::renderCriteriaParam($param);
 				break;
@@ -877,22 +855,11 @@ class View_Group extends C4_AbstractView implements IAbstractView_Subtotals {
 
 		switch($field) {
 			case SearchFields_Group::NAME:
-				// force wildcards if none used on a LIKE
-				if(($oper == DevblocksSearchCriteria::OPER_LIKE || $oper == DevblocksSearchCriteria::OPER_NOT_LIKE)
-				&& false === (strpos($value,'*'))) {
-					$value = $value.'*';
-				}
-				$criteria = new DevblocksSearchCriteria($field, $oper, $value);
+				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
 				break;
 				
 			case 'placeholder_date':
-				@$from = DevblocksPlatform::importGPC($_REQUEST['from'],'string','');
-				@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string','');
-
-				if(empty($from)) $from = 0;
-				if(empty($to)) $to = 'today';
-
-				$criteria = new DevblocksSearchCriteria($field,$oper,array($from,$to));
+				$criteria = $this->_doSetCriteriaDate($field, $oper);
 				break;
 				
 			case 'placeholder_bool':

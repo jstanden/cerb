@@ -493,8 +493,7 @@ class View_Comment extends C4_AbstractView {
 		$translate = DevblocksPlatform::getTranslationService();
 	
 		$this->id = self::DEFAULT_ID;
-		// [TODO] Name the worklist view
-		$this->name = $translate->_('Comment');
+		$this->name = $translate->_('Comments');
 		$this->renderLimit = 25;
 		$this->renderSortBy = SearchFields_Comment::ID;
 		$this->renderSortAsc = true;

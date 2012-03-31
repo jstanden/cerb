@@ -478,6 +478,7 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals {
 			SearchFields_Snippet::CONTEXT,
 			SearchFields_Snippet::VIRTUAL_OWNER,
 		);
+		
 		$this->addColumnsHidden(array(
 			SearchFields_Snippet::ID,
 			SearchFields_Snippet::CONTENT,
@@ -600,9 +601,11 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals {
 			case SearchFields_Snippet::CONTENT:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__string.tpl');
 				break;
+				
 			case 'placeholder_number':
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__number.tpl');
 				break;
+				
 			case SearchFields_Snippet::CONTEXT:
 				$contexts = Extension_DevblocksContext::getAll(false);
 				
@@ -615,6 +618,7 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals {
 				
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context.tpl');
 				break;
+				
 			case SearchFields_Snippet::VIRTUAL_OWNER:
 				$groups = DAO_Group::getAll();
 				$tpl->assign('groups', $groups);
@@ -627,6 +631,7 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals {
 				
 				$tpl->display('devblocks:cerberusweb.core::internal/snippets/views/criteria/virtual_owner.tpl');
 				break;
+				
 			default:
 				// Custom Fields
 				if('cf_' == substr($field,0,3)) {
@@ -696,7 +701,7 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals {
 					}
 				}
 				
-				echo implode(', ', $strings);
+				echo implode(' or ', $strings);
 				break;
 				
 			default:
@@ -716,13 +721,9 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals {
 			case SearchFields_Snippet::ID:
 			case SearchFields_Snippet::TITLE:
 			case SearchFields_Snippet::CONTENT:
-				// force wildcards if none used on a LIKE
-				if(($oper == DevblocksSearchCriteria::OPER_LIKE || $oper == DevblocksSearchCriteria::OPER_NOT_LIKE)
-				&& false === (strpos($value,'*'))) {
-					$value = '*'.$value.'*';
-				}
-				$criteria = new DevblocksSearchCriteria($field, $oper, $value);
+				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
 				break;
+				
 			case 'placeholder_number':
 				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
 				break;

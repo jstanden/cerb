@@ -400,19 +400,7 @@ class View_CerbPlugin extends C4_AbstractView implements IAbstractView_Subtotals
 		
 		switch($field) {
 			case SearchFields_CerbPlugin::ENABLED:
-				$strings = array();
-
-				foreach($values as $val) {
-					switch($val) {
-						case '0':
-							$strings[] = $translate->_('common.no');
-							break;
-						case '1':
-							$strings[] = $translate->_('common.yes');
-							break;
-					}
-				}
-				echo implode(", ", $strings);
+				$this->_renderCriteriaParamBoolean($param);
 				break;
 			
 			default:
@@ -435,25 +423,15 @@ class View_CerbPlugin extends C4_AbstractView implements IAbstractView_Subtotals
 			case SearchFields_CerbPlugin::AUTHOR:
 			case SearchFields_CerbPlugin::VERSION:
 			case SearchFields_CerbPlugin::LINK:
-				// force wildcards if none used on a LIKE
-				if(($oper == DevblocksSearchCriteria::OPER_LIKE || $oper == DevblocksSearchCriteria::OPER_NOT_LIKE)
-				&& false === (strpos($value,'*'))) {
-					$value = '*'.$value.'*';
-				}
-				$criteria = new DevblocksSearchCriteria($field, $oper, $value);
+				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
 				break;
+				
 			case 'placeholder_number':
 				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
 				break;
 				
 			case 'placeholder_date':
-				@$from = DevblocksPlatform::importGPC($_REQUEST['from'],'string','');
-				@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string','');
-
-				if(empty($from)) $from = 0;
-				if(empty($to)) $to = 'today';
-
-				$criteria = new DevblocksSearchCriteria($field,$oper,array($from,$to));
+				$criteria = $this->_doSetCriteriaDate($field, $oper);
 				break;
 				
 			case SearchFields_CerbPlugin::ENABLED:

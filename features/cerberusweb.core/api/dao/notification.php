@@ -368,8 +368,8 @@ class SearchFields_Notification implements IDevblocksSearchFields {
 		
 		$columns = array(
 			self::ID => new DevblocksSearchField(self::ID, 'we', 'id', $translate->_('notification.id')),
-			self::CONTEXT => new DevblocksSearchField(self::CONTEXT, 'we', 'context', $translate->_('common.context')),
-			self::CONTEXT_ID => new DevblocksSearchField(self::CONTEXT_ID, 'we', 'context_id', $translate->_('common.context_id')),
+			self::CONTEXT => new DevblocksSearchField(self::CONTEXT, 'we', 'context', null),
+			self::CONTEXT_ID => new DevblocksSearchField(self::CONTEXT_ID, 'we', 'context_id', null),
 			self::CREATED_DATE => new DevblocksSearchField(self::CREATED_DATE, 'we', 'created_date', $translate->_('notification.created_date')),
 			self::WORKER_ID => new DevblocksSearchField(self::WORKER_ID, 'we', 'worker_id', $translate->_('notification.worker_id')),
 			self::MESSAGE => new DevblocksSearchField(self::MESSAGE, 'we', 'message', $translate->_('notification.message')),
@@ -422,6 +422,7 @@ class View_Notification extends C4_AbstractView implements IAbstractView_Subtota
 			SearchFields_Notification::CREATED_DATE,
 			SearchFields_Notification::MESSAGE,
 		);
+		
 		$this->addColumnsHidden(array(
 			SearchFields_Notification::CONTEXT,
 			SearchFields_Notification::CONTEXT_ID,
@@ -539,11 +540,6 @@ class View_Notification extends C4_AbstractView implements IAbstractView_Subtota
 			case SearchFields_Notification::URL:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__string.tpl');
 				break;
-//			case SearchFields_Notification::ID:
-//			case SearchFields_Notification::MESSAGE_ID:
-//			case SearchFields_Notification::TICKET_ID:
-//				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__number.tpl');
-//				break;
 			case SearchFields_Notification::IS_READ:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__bool.tpl');
 				break;
@@ -564,20 +560,14 @@ class View_Notification extends C4_AbstractView implements IAbstractView_Subtota
 		$values = !is_array($param->value) ? array($param->value) : $param->value;
 
 		switch($field) {
-			case SearchFields_Notification::WORKER_ID:
-				$workers = DAO_Worker::getAll();
-				$strings = array();
-
-				foreach($values as $val) {
-					if(empty($val))
-					$strings[] = "Nobody";
-					elseif(!isset($workers[$val]))
-					continue;
-					else
-					$strings[] = $workers[$val]->getName();
-				}
-				echo implode(", ", $strings);
+			case SearchFields_Notification::IS_READ:
+				$this->_renderCriteriaParamBoolean($param);
 				break;
+				
+			case SearchFields_Notification::WORKER_ID:
+				$this->_renderCriteriaParamWorker($param);
+				break;
+				
 			default:
 				parent::renderCriteriaParam($param);
 				break;
@@ -594,26 +584,15 @@ class View_Notification extends C4_AbstractView implements IAbstractView_Subtota
 		switch($field) {
 			case SearchFields_Notification::MESSAGE:
 			case SearchFields_Notification::URL:
-				// force wildcards if none used on a LIKE
-				if(($oper == DevblocksSearchCriteria::OPER_LIKE || $oper == DevblocksSearchCriteria::OPER_NOT_LIKE)
-				&& false === (strpos($value,'*'))) {
-					$value = $value.'*';
-				}
-				$criteria = new DevblocksSearchCriteria($field, $oper, $value);
-				break;
+				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
+				
 			case SearchFields_Notification::WORKER_ID:
 				@$worker_ids = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',array());
 				$criteria = new DevblocksSearchCriteria($field,$oper,$worker_ids);
 				break;
 				
 			case SearchFields_Notification::CREATED_DATE:
-				@$from = DevblocksPlatform::importGPC($_REQUEST['from'],'string','');
-				@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string','');
-
-				if(empty($from)) $from = 0;
-				if(empty($to)) $to = 'today';
-
-				$criteria = new DevblocksSearchCriteria($field,$oper,array($from,$to));
+				$criteria = $this->_doSetCriteriaDate($field, $oper);
 				break;
 				
 			case SearchFields_Notification::IS_READ:

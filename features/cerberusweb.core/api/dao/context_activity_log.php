@@ -170,14 +170,6 @@ class DAO_ContextActivityLog extends C4_ORMHelper {
 			
 		$join_sql = "FROM context_activity_log ";
 		
-		// Custom field joins
-		//list($select_sql, $join_sql, $has_multiple_values) = self::_appendSelectJoinSqlForCustomFieldTables(
-		//	$tables,
-		//	$params,
-		//	'context_activity_log.id',
-		//	$select_sql,
-		//	$join_sql
-		//);
 		$has_multiple_values = false; // [TODO] Temporary when custom fields disabled
 				
 		$where_sql = "".
@@ -288,15 +280,6 @@ class SearchFields_ContextActivityLog implements IDevblocksSearchFields {
 			self::ENTRY_JSON => new DevblocksSearchField(self::ENTRY_JSON, 'context_activity_log', 'entry_json', $translate->_('dao.context_activity_log.entry')),
 		);
 		
-		// Custom Fields
-		//$fields = DAO_CustomField::getByContext(CerberusContexts::XXX);
-
-		//if(is_array($fields))
-		//foreach($fields as $field_id => $field) {
-		//	$key = 'cf_'.$field_id;
-		//	$columns[$key] = new DevblocksSearchField($key,$key,'field_value',$field->name);
-		//}
-
 		// Sort by label (translation-conscious)
 		uasort($columns, create_function('$a, $b', "return strcasecmp(\$a->db_label,\$b->db_label);\n"));
 
@@ -322,7 +305,6 @@ class View_ContextActivityLog extends C4_AbstractView implements IAbstractView_S
 		$translate = DevblocksPlatform::getTranslationService();
 	
 		$this->id = self::DEFAULT_ID;
-		// [TODO] Name the worklist view
 		$this->name = 'Activity Log'; //$translate->_('ContextActivityLog');
 		$this->renderLimit = 10;
 		$this->renderSortBy = SearchFields_ContextActivityLog::CREATED;
@@ -430,10 +412,6 @@ class View_ContextActivityLog extends C4_AbstractView implements IAbstractView_S
 				$counts = $this->_getSubtotalCountForStringColumn('DAO_ContextActivityLog', $column, $label_map);
 				break;
 
-//			case SearchFields_ContextActivityLog::IS_COMPLETED:
-//				$counts = $this->_getSubtotalCountForBooleanColumn('DAO_Task', $column);
-//				break;
-			
 			default:
 				// Custom fields
 				if('cf_' == substr($column,0,3)) {
@@ -452,10 +430,6 @@ class View_ContextActivityLog extends C4_AbstractView implements IAbstractView_S
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
-
-		// Custom fields
-		//$custom_fields = DAO_CustomField::getByContext(CerberusContexts::XXX);
-		//$tpl->assign('custom_fields', $custom_fields);
 
 		$tpl->assign('view_template', 'devblocks:cerberusweb.core::internal/activity_log/view.tpl');
 		$tpl->display('devblocks:cerberusweb.core::internal/views/subtotals_and_view.tpl');
@@ -483,16 +457,6 @@ class View_ContextActivityLog extends C4_AbstractView implements IAbstractView_S
 			case SearchFields_ContextActivityLog::CREATED:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__date.tpl');
 				break;
-			/*
-			default:
-				// Custom Fields
-				if('cf_' == substr($field,0,3)) {
-					$this->_renderCriteriaCustomField($tpl, substr($field,3));
-				} else {
-					echo ' ';
-				}
-				break;
-			*/
 		}
 	}
 
@@ -559,12 +523,7 @@ class View_ContextActivityLog extends C4_AbstractView implements IAbstractView_S
 			case SearchFields_ContextActivityLog::ACTOR_CONTEXT:
 			case SearchFields_ContextActivityLog::TARGET_CONTEXT:
 			case SearchFields_ContextActivityLog::ENTRY_JSON:
-				// force wildcards if none used on a LIKE
-				if(($oper == DevblocksSearchCriteria::OPER_LIKE || $oper == DevblocksSearchCriteria::OPER_NOT_LIKE)
-				&& false === (strpos($value,'*'))) {
-					$value = $value.'*';
-				}
-				$criteria = new DevblocksSearchCriteria($field, $oper, $value);
+				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
 				break;
 				
 			case SearchFields_ContextActivityLog::ID:
@@ -574,28 +533,13 @@ class View_ContextActivityLog extends C4_AbstractView implements IAbstractView_S
 				break;
 				
 			case SearchFields_ContextActivityLog::CREATED:
-				@$from = DevblocksPlatform::importGPC($_REQUEST['from'],'string','');
-				@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string','');
-
-				if(empty($from)) $from = 0;
-				if(empty($to)) $to = 'today';
-
-				$criteria = new DevblocksSearchCriteria($field,$oper,array($from,$to));
+				$criteria = $this->_doSetCriteriaDate($field, $oper);
 				break;
 				
 			case 'placeholder_bool':
 				@$bool = DevblocksPlatform::importGPC($_REQUEST['bool'],'integer',1);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
 				break;
-				
-			/*
-			default:
-				// Custom Fields
-				if(substr($field,0,3)=='cf_') {
-					$criteria = $this->_doSetCriteriaCustomField($field, substr($field,3));
-				}
-				break;
-			*/
 		}
 
 		if(!empty($criteria)) {
@@ -621,18 +565,9 @@ class View_ContextActivityLog extends C4_AbstractView implements IAbstractView_S
 		if(is_array($do))
 		foreach($do as $k => $v) {
 			switch($k) {
-				// [TODO] Implement actions
 				case 'example':
 					//$change_fields[DAO_ContextActivityLog::EXAMPLE] = 'some value';
 					break;
-				/*
-				default:
-					// Custom fields
-					if(substr($k,0,3)=="cf_") {
-						$custom_fields[substr($k,3)] = $v;
-					}
-					break;
-				*/
 			}
 		}
 
@@ -659,9 +594,6 @@ class View_ContextActivityLog extends C4_AbstractView implements IAbstractView_S
 			
 			DAO_ContextActivityLog::update($batch_ids, $change_fields);
 
-			// Custom Fields
-			//self::_doBulkSetCustomFields(ChCustomFieldSource_ContextActivityLog::ID, $custom_fields, $batch_ids);
-			
 			unset($batch_ids);
 		}
 

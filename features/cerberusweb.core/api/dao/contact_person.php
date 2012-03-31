@@ -438,6 +438,7 @@ class View_ContactPerson extends C4_AbstractView implements IAbstractView_Subtot
 			SearchFields_ContactPerson::CREATED,
 			SearchFields_ContactPerson::LAST_LOGIN,
 		);
+		
 		// Filter fields
 		$this->addColumnsHidden(array(
 			SearchFields_ContactPerson::EMAIL_ID,
@@ -577,7 +578,8 @@ class View_ContactPerson extends C4_AbstractView implements IAbstractView_Subtot
 			case 'placeholder_bool':
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__bool.tpl');
 				break;
-			case 'placeholder_date':
+			case SearchFields_ContactPerson::CREATED:
+			case SearchFields_ContactPerson::LAST_LOGIN:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__date.tpl');
 				break;
 			case SearchFields_ContactPerson::VIRTUAL_WATCHERS:
@@ -630,25 +632,16 @@ class View_ContactPerson extends C4_AbstractView implements IAbstractView_Subtot
 			case SearchFields_ContactPerson::ADDRESS_LAST_NAME:
 			case SearchFields_ContactPerson::AUTH_SALT:
 			case SearchFields_ContactPerson::AUTH_PASSWORD:
-				// force wildcards if none used on a LIKE
-				if(($oper == DevblocksSearchCriteria::OPER_LIKE || $oper == DevblocksSearchCriteria::OPER_NOT_LIKE)
-				&& false === (strpos($value,'*'))) {
-					$value = $value.'*';
-				}
-				$criteria = new DevblocksSearchCriteria($field, $oper, $value);
+				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
 				break;
+				
 			case SearchFields_ContactPerson::ID:
 				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
 				break;
 				
-			case 'placeholder_date':
-				@$from = DevblocksPlatform::importGPC($_REQUEST['from'],'string','');
-				@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string','');
-
-				if(empty($from)) $from = 0;
-				if(empty($to)) $to = 'today';
-
-				$criteria = new DevblocksSearchCriteria($field,$oper,array($from,$to));
+			case SearchFields_ContactPerson::CREATED:
+			case SearchFields_ContactPerson::LAST_LOGIN:
+				$criteria = $this->_doSetCriteriaDate($field, $oper);
 				break;
 				
 			case 'placeholder_bool':

@@ -1123,22 +1123,6 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals {
 		$key = $param->field;
 		
 		switch($key) {
-//			case SearchFields_Worker::VIRTUAL_GROUPS:
-//				if(empty($param->value)) {
-//					echo "<b>Not</b> a member of any groups";
-//					
-//				} elseif(is_array($param->value)) {
-//					$groups = DAO_Group::getAll();
-//					$strings = array();
-//					
-//					foreach($param->value as $group_id) {
-//						if(isset($groups[$group_id]))
-//							$strings[] = '<b>'.$groups[$group_id]->name.'</b>';
-//					}
-//					
-//					echo sprintf("Group member of %s", implode(' or ', $strings));
-//				}
-//				break;
 		}
 	}	
 	
@@ -1190,6 +1174,10 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals {
 		$values = !is_array($param->value) ? array($param->value) : $param->value;
 
 		switch($field) {
+			case SearchFields_Message::IS_OUTGOING:
+				$this->_renderCriteriaParamBoolean($param);
+				break;
+				
 			case SearchFields_Message::TICKET_GROUP_ID:
 				$groups = DAO_Group::getAll();
 				$strings = array();
@@ -1204,19 +1192,9 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals {
 				break;
 				
 			case SearchFields_Message::WORKER_ID:
-				$workers = DAO_Worker::getAll();
-				$strings = array();
-
-				foreach($values as $val) {
-					if(empty($val))
-					$strings[] = "Nobody";
-					elseif(!isset($workers[$val]))
-					continue;
-					else
-					$strings[] = $workers[$val]->getName();
-				}
-				echo implode(" or ", $strings);
+				$this->_renderCriteriaParamWorker($param);
 				break;
+				
 			default:
 				parent::renderCriteriaParam($param);
 				break;
@@ -1234,22 +1212,11 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals {
 			case SearchFields_Message::ADDRESS_EMAIL:
 			case SearchFields_Message::TICKET_MASK:
 			case SearchFields_Message::TICKET_SUBJECT:
-				// force wildcards if none used on a LIKE
-				if(($oper == DevblocksSearchCriteria::OPER_LIKE || $oper == DevblocksSearchCriteria::OPER_NOT_LIKE)
-				&& false === (strpos($value,'*'))) {
-					$value = $value.'*';
-				}
-				$criteria = new DevblocksSearchCriteria($field, $oper, $value);
+				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
 				break;
 				
 			case SearchFields_Message::CREATED_DATE:
-				@$from = DevblocksPlatform::importGPC($_REQUEST['from'],'string','');
-				@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string','');
-
-				if(empty($from)) $from = 0;
-				if(empty($to)) $to = 'today';
-
-				$criteria = new DevblocksSearchCriteria($field,$oper,array($from,$to));
+				$criteria = $this->_doSetCriteriaDate($field, $oper);
 				break;
 				
 			case SearchFields_Message::IS_OUTGOING:

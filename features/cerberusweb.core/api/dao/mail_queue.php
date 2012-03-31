@@ -474,7 +474,6 @@ class View_MailQueue extends C4_AbstractView implements IAbstractView_Subtotals 
 		$translate = DevblocksPlatform::getTranslationService();
 	
 		$this->id = self::DEFAULT_ID;
-		// [TODO] (translations)
 		$this->name = $translate->_('Mail Queue');
 		$this->renderLimit = 25;
 		$this->renderSortBy = SearchFields_MailQueue::UPDATED;
@@ -484,6 +483,7 @@ class View_MailQueue extends C4_AbstractView implements IAbstractView_Subtotals 
 			SearchFields_MailQueue::HINT_TO,
 			SearchFields_MailQueue::UPDATED,
 		);
+		
 		$this->addColumnsHidden(array(
 			SearchFields_MailQueue::TICKET_ID,
 		));
@@ -628,19 +628,12 @@ class View_MailQueue extends C4_AbstractView implements IAbstractView_Subtotals 
 		$values = !is_array($param->value) ? array($param->value) : $param->value;
 
 		switch($field) {
+			case SearchFields_MailQueue::IS_QUEUED:
+				$this->_renderCriteriaParamBoolean($param);
+				break;
+			
 			case SearchFields_MailQueue::WORKER_ID:
-				$workers = DAO_Worker::getAll();
-				$strings = array();
-
-				foreach($values as $val) {
-					if(empty($val))
-						$strings[] = "Nobody";
-					elseif(!isset($workers[$val]))
-						continue;
-					else
-						$strings[] = $workers[$val]->getName();
-				}
-				echo implode(", ", $strings);
+				$this->_renderCriteriaParamWorker($param);
 				break;
 				
 			default:
@@ -660,13 +653,9 @@ class View_MailQueue extends C4_AbstractView implements IAbstractView_Subtotals 
 			case SearchFields_MailQueue::TYPE:
 			case SearchFields_MailQueue::HINT_TO:
 			case SearchFields_MailQueue::SUBJECT:
-				// force wildcards if none used on a LIKE
-				if(($oper == DevblocksSearchCriteria::OPER_LIKE || $oper == DevblocksSearchCriteria::OPER_NOT_LIKE)
-				&& false === (strpos($value,'*'))) {
-					$value = $value.'*';
-				}
-				$criteria = new DevblocksSearchCriteria($field, $oper, $value);
+				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
 				break;
+				
 			case SearchFields_MailQueue::ID:
 			case SearchFields_MailQueue::TICKET_ID:
 			case SearchFields_MailQueue::QUEUE_FAILS:
@@ -675,13 +664,7 @@ class View_MailQueue extends C4_AbstractView implements IAbstractView_Subtotals 
 				
 			case SearchFields_MailQueue::QUEUE_DELIVERY_DATE:
 			case SearchFields_MailQueue::UPDATED:
-				@$from = DevblocksPlatform::importGPC($_REQUEST['from'],'string','');
-				@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string','');
-
-				if(empty($from)) $from = 0;
-				if(empty($to)) $to = 'today';
-
-				$criteria = new DevblocksSearchCriteria($field,$oper,array($from,$to));
+				$criteria = $this->_doSetCriteriaDate($field, $oper);
 				break;
 				
 			case SearchFields_MailQueue::IS_QUEUED:

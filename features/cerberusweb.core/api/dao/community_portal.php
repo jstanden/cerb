@@ -544,6 +544,7 @@ class View_CommunityPortal extends C4_AbstractView {
 			SearchFields_CommunityTool::CODE,
 			SearchFields_CommunityTool::EXTENSION_ID,
 		);
+		
 		$this->addColumnsHidden(array(
 			SearchFields_CommunityTool::ID,
 		));
@@ -608,14 +609,16 @@ class View_CommunityPortal extends C4_AbstractView {
 				break;
 				
 			case SearchFields_CommunityTool::EXTENSION_ID:
-//				$source_renderers = DevblocksPlatform::getExtensions('cerberusweb.task.source', true);
-//				$tpl->assign('sources', $source_renderers);
-//				$tpl->display('devblocks:cerberusweb.core::tasks/criteria/source.tpl');
-				break;
+				$options = array();
+				$portals = DevblocksPlatform::getExtensions('usermeet.tool', false);
+
+				foreach($portals as $ext_id => $ext) {
+					$options[$ext_id] = $ext->name;
+				}
 				
-//			case SearchFields_CommunityTool::IS_COMPLETED:
-//				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__bool.tpl');
-//				break;
+				$tpl->assign('options', $options);
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__list.tpl');
+				break;
 				
 			default:
 				// Custom Fields
@@ -634,18 +637,18 @@ class View_CommunityPortal extends C4_AbstractView {
 		$values = !is_array($param->value) ? array($param->value) : $param->value;
 
 		switch($field) {
-//			case SearchFields_CommunityTool::EXTENSION_ID:
-//				$sources = $ext = DevblocksPlatform::getExtensions('cerberusweb.task.source', true);			
-//				$strings = array();
-//				
-//				foreach($values as $val) {
-//					if(!isset($sources[$val]))
-//						continue;
-//					else
-//						$strings[] = $sources[$val]->getSourceName();
-//				}
-//				echo implode(", ", $strings);
-//				break;
+			case SearchFields_CommunityTool::EXTENSION_ID:
+				$portals = DevblocksPlatform::getExtensions('usermeet.tool', false);
+				$strings = array();
+				
+				foreach($values as $val) {
+					if(!isset($portals[$val]))
+						continue;
+					else
+						$strings[] = $portals[$val]->name;
+				}
+				echo implode(", ", $strings);
+				break;
 			
 			default:
 				parent::renderCriteriaParam($param);
@@ -663,23 +666,13 @@ class View_CommunityPortal extends C4_AbstractView {
 		switch($field) {
 			case SearchFields_CommunityTool::NAME:
 			case SearchFields_CommunityTool::CODE:
-				// force wildcards if none used on a LIKE
-				if(($oper == DevblocksSearchCriteria::OPER_LIKE || $oper == DevblocksSearchCriteria::OPER_NOT_LIKE)
-				&& false === (strpos($value,'*'))) {
-					$value = $value.'*';
-				}
-				$criteria = new DevblocksSearchCriteria($field, $oper, $value);
+				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
 				break;
 				
 			case SearchFields_CommunityTool::EXTENSION_ID:
-//				@$sources = DevblocksPlatform::importGPC($_REQUEST['sources'],'array',array());
-//				$criteria = new DevblocksSearchCriteria($field,$oper,$sources);
+				@$options = DevblocksPlatform::importGPC($_REQUEST['options'],'array',array());
+				$criteria = new DevblocksSearchCriteria($field,$oper,$options);
 				break;
-				
-//			case SearchFields_Task::IS_COMPLETED:
-//				@$bool = DevblocksPlatform::importGPC($_REQUEST['bool'],'integer',1);
-//				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
-//				break;
 				
 			default:
 				// Custom Fields
