@@ -466,7 +466,7 @@ var cAjaxCalls = function() {
 		$button = $(button);
 
 		// The <ul> buffer
-		$ul = $button.next('ul.chooser-container');
+		$ul = $button.siblings('ul.chooser-container');
 		
 		// Add the container if it doesn't exist
 		if(0==$ul.length) {
@@ -477,7 +477,7 @@ var cAjaxCalls = function() {
 		// The chooser search button
 		$button.click(function(event) {
 			$button = $(this);
-			$ul = $(this).nextAll('ul.chooser-container:first');
+			$ul = $(this).siblings('ul.chooser-container:first');
 			$chooser=genericAjaxPopup('chooser','c=internal&a=chooserOpen&context=' + context,null,true,'750');
 			$chooser.one('chooser_save', function(event) {
 				// Add the labels
@@ -514,7 +514,7 @@ var cAjaxCalls = function() {
 					$labelEscaped = $label.replace("<","&lt;");
 					$labelEscaped = $labelEscaped.replace(">","&gt;");
 					$value = ui.item.value;
-					$ul = $(this).nextAll('button:first').nextAll('ul.chooser-container:first');
+					$ul = $(this).siblings('button:first').siblings('ul.chooser-container:first');
 					
 					if($label.length > 0 && $value.length > 0) {
 						if(0==$ul.find('input:hidden[value='+$value+']').length) {
