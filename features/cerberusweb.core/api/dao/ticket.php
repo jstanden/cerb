@@ -1953,7 +1953,6 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals {
 		$tpl->assign('view', $this);
 
 		switch($field) {
-			case SearchFields_Ticket::TICKET_ID:
 			case SearchFields_Ticket::TICKET_MASK:
 			case SearchFields_Ticket::TICKET_SUBJECT:
 			case SearchFields_Ticket::TICKET_FIRST_WROTE:
@@ -1966,6 +1965,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals {
 
 			case SearchFields_Ticket::TICKET_FIRST_WROTE_SPAM:
 			case SearchFields_Ticket::TICKET_FIRST_WROTE_NONSPAM:
+			case SearchFields_Ticket::TICKET_ID:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__number.tpl');
 				break;
 					
@@ -1983,7 +1983,14 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals {
 				break;
 					
 			case SearchFields_Ticket::TICKET_SPAM_TRAINING:
-				$tpl->display('devblocks:cerberusweb.core::tickets/search/criteria/ticket_spam_training.tpl');
+				$options = array(
+					'N' => 'Not Spam',
+					'S' => 'Spam',
+					'' => 'Not Trained',
+				);
+				
+				$tpl->assign('options', $options);
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__list.tpl');
 				break;
 				
 			case SearchFields_Ticket::TICKET_SPAM_SCORE:
@@ -1991,7 +1998,14 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals {
 				break;
 
 			case SearchFields_Ticket::TICKET_LAST_ACTION_CODE:
-				$tpl->display('devblocks:cerberusweb.core::tickets/search/criteria/ticket_last_action.tpl');
+				$options = array(
+					'O' => 'New Ticket',
+					'R' => 'Customer Reply',
+					'W' => 'Worker Reply',
+				);
+				
+				$tpl->assign('options', $options);
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__list.tpl');
 				break;
 
 			case SearchFields_Ticket::TICKET_GROUP_ID:
@@ -2029,7 +2043,17 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals {
 				break;
 				
 			case SearchFields_Ticket::VIRTUAL_STATUS:
-				$tpl->display('devblocks:cerberusweb.core::tickets/search/criteria/ticket_status.tpl');
+				$translate = DevblocksPlatform::getTranslationService();
+				
+				$options = array(
+					'open' => $translate->_('status.open'),
+					'waiting' => $translate->_('status.waiting'),
+					'closed' => $translate->_('status.closed'),
+					'deleted' => $translate->_('status.deleted'),
+				);
+				
+				$tpl->assign('options', $options);
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__list.tpl');
 				break;
 				
 			default:
@@ -2198,7 +2222,6 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals {
 		$criteria = null;
 
 		switch($field) {
-			case SearchFields_Ticket::TICKET_ID:
 			case SearchFields_Ticket::TICKET_MASK:
 			case SearchFields_Ticket::TICKET_SUBJECT:
 			case SearchFields_Ticket::TICKET_FIRST_WROTE:
@@ -2224,6 +2247,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals {
 				
 			case SearchFields_Ticket::TICKET_FIRST_WROTE_SPAM:
 			case SearchFields_Ticket::TICKET_FIRST_WROTE_NONSPAM:
+			case SearchFields_Ticket::TICKET_ID:
 				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
 				break;
 
@@ -2249,13 +2273,11 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals {
 				}
 				break;
 
-			case SearchFields_Ticket::TICKET_SPAM_TRAINING:
-				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
-				break;
-
 			case SearchFields_Ticket::TICKET_LAST_ACTION_CODE:
-				@$last_action_code = DevblocksPlatform::importGPC($_REQUEST['last_action'],'array',array());
-				$criteria = new DevblocksSearchCriteria($field,$oper,$last_action_code);
+			case SearchFields_Ticket::TICKET_SPAM_TRAINING:
+			case SearchFields_Ticket::VIRTUAL_STATUS:
+				@$options = DevblocksPlatform::importGPC($_REQUEST['options'],'array',array());
+				$criteria = new DevblocksSearchCriteria($field,$oper,$options);
 				break;
 
 			case SearchFields_Ticket::TICKET_GROUP_ID:
@@ -2321,11 +2343,6 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals {
 			case SearchFields_Ticket::VIRTUAL_GROUPS_OF_WORKER:
 				@$worker_id = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'integer',0);
 				$criteria = new DevblocksSearchCriteria($field, '=', $worker_id);
-				break;
-				
-			case SearchFields_Ticket::VIRTUAL_STATUS:
-				@$statuses = DevblocksPlatform::importGPC($_REQUEST['value'],'array',array());
-				$criteria = new DevblocksSearchCriteria($field, null, $statuses);
 				break;
 				
 			default:
