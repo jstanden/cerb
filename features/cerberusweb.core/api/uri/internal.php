@@ -1015,7 +1015,18 @@ class ChInternalController extends DevblocksControllerExtension {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
 		@$field = DevblocksPlatform::importGPC($_REQUEST['field']);
 
+		$tpl = DevblocksPlatform::getTemplateService();
+		
 		if(null != ($view = C4_AbstractViewLoader::getView($id))) {
+			$tpl->assign('view', $view);
+			
+			// Do we already have this filter to re-edit?
+			$params = $view->getEditableParams();
+			if(isset($params[$field])) {
+				$tpl->assign('param', $params[$field]);
+			}
+			
+			// Render from the View_* implementation.
 			$view->renderCriteria($field);
 		}
 	}
