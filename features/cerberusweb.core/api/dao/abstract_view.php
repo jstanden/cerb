@@ -42,6 +42,9 @@ abstract class C4_AbstractView {
 	abstract function getData();
 	function getDataSample($size) {}
 	
+	private $_placeholderLabels = array();
+	private $_placeholderValues = array();
+	
 	protected function _doGetDataSample($dao_class, $size, $id_col = 'id') {
 		$db = DevblocksPlatform::getDatabaseService();
 
@@ -123,13 +126,24 @@ abstract class C4_AbstractView {
 		return $params;
 	}
 	
-	function getParams() {
+	function getParams($parse_placeholders=true) {
 		$params = $this->_paramsEditable;
 		
 		// Required should supersede editable
 		if(is_array($this->_paramsRequired))
 		foreach($this->_paramsRequired as $key => $param)
 			$params['req_'.$key] = $param;
+		
+		if($parse_placeholders) {
+			// Translate snippets in filters
+			array_walk_recursive(
+				$params,
+				array('C4_AbstractView', '_translatePlaceholders'),
+				array(
+					'placeholder_values' => $this->getPlaceholderValues(),
+				)
+			);
+		}
 		
 		return $params;
 	}
@@ -203,6 +217,52 @@ abstract class C4_AbstractView {
 	function getParamsHidden() {
 		return $this->_paramsHidden;
 	}
+	
+	// Placeholders
+	
+	function setPlaceholderLabels($labels) {
+		if(is_array($labels))
+			$this->_placeholderLabels = $labels;
+	}
+	
+	function getPlaceholderLabels() {
+		return $this->_placeholderLabels;
+	}
+	
+	function setPlaceholderValues($values) {
+		if(is_array($values))
+			$this->_placeholderValues = $values;
+	}
+	
+	function getPlaceholderValues() {
+		return $this->_placeholderValues;
+	}
+	
+	protected static function _translatePlaceholders(&$param, $key, $args) {
+		if(!is_a($param, 'DevblocksSearchCriteria'))
+			return;
+
+		$param_key = $param->field;
+		settype($param_key, 'string');
+
+		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+
+		if(is_string($param->value)) {
+			if(false !== ($value = $tpl_builder->build($param->value, $args['placeholder_values']))) {
+				$param->value = $value;
+			}
+			
+		} elseif(is_array($param->value)) {
+			foreach($param->value as $k => $v) {
+				if(!is_string($v))
+					continue;
+				
+				if(false !== ($value = $tpl_builder->build($v, $args['placeholder_values']))) {
+					$param->value[$k] = $value;
+				}
+			}			
+		}
+	}		
 	
 	// Render
 	
@@ -1252,6 +1312,9 @@ class C4_AbstractViewModel {
 	public $renderSubtotals = null;
 	
 	public $renderTemplate = null;
+	
+	public $placeholderLabels = array();
+	public $placeholderValues = array();
 };
 
 /**
@@ -1343,6 +1406,9 @@ class C4_AbstractViewLoader {
 		
 		$model->renderTemplate = $view->renderTemplate;
 		
+		$model->placeholderLabels = $view->getPlaceholderLabels();
+		$model->placeholderValues = $view->getPlaceholderValues();
+		
 		return $model;
 	}
 
@@ -1392,6 +1458,11 @@ class C4_AbstractViewLoader {
 			
 		$inst->renderTemplate = $model->renderTemplate;
 		
+		if(is_array($model->placeholderLabels))
+			$inst->setPlaceholderLabels($model->placeholderLabels);
+		if(is_array($model->placeholderValues))
+			$inst->setPlaceholderValues($model->placeholderValues);
+		
 		// Enforce class restrictions
 		$parent = new $model->class_name;
 		$inst->addColumnsHidden($parent->getColumnsHidden());
@@ -1433,6 +1504,8 @@ class DAO_WorkerViewModel {
 			'render_filters',
 			'render_subtotals',
 			'render_template',
+			'placeholder_labels_json',
+			'placeholder_values_json',
 		);
 		
 		$rs = $db->Execute(sprintf("SELECT %s FROM worker_view_model %s",
@@ -1464,6 +1537,9 @@ class DAO_WorkerViewModel {
 			$model->paramsRequired = self::decodeParamsJson($row['params_required_json']);
 			$model->paramsDefault = self::decodeParamsJson($row['params_default_json']);
 			$model->paramsHidden = json_decode($row['params_hidden_json'], true);
+			
+			$model->placeholderLabels = json_decode($row['placeholder_labels_json'], true);
+			$model->placeholderValues = json_decode($row['placeholder_values_json'], true);
 			
 			// Make sure it's a well-formed view
 			if(empty($model->class_name) || !class_exists($model->class_name, true))
@@ -1557,6 +1633,8 @@ class DAO_WorkerViewModel {
 			'render_filters' => !empty($model->renderFilters) ? 1 : 0,
 			'render_subtotals' => $db->qstr($model->renderSubtotals),
 			'render_template' => $db->qstr($model->renderTemplate),
+			'placeholder_labels_json' => $db->qstr(json_encode($model->placeholderLabels)),
+			'placeholder_values_json' => $db->qstr(json_encode($model->placeholderValues)),
 		);
 		
 		$db->Execute(sprintf("REPLACE INTO worker_view_model (%s)".

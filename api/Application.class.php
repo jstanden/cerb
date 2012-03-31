@@ -1538,6 +1538,8 @@ class C4_ORMHelper extends DevblocksORMHelper {
 	}
 	
 	static function _searchComponentsVirtualWatchers(&$param, $from_context, $from_index, &$join_sql, &$where_sql) {
+		$param->value = DevblocksPlatform::sanitizeArray($param->value, 'integer', array('nonzero','unique'));
+		
 		// Join and return anything
 		if(DevblocksSearchCriteria::OPER_TRUE == $param->operator) {
 			$join_sql .= sprintf("LEFT JOIN context_link AS context_watcher ON (context_watcher.from_context = '%s' AND context_watcher.from_context_id = %s AND context_watcher.to_context = 'cerberusweb.contexts.worker') ", $from_context, $from_index);

@@ -16,7 +16,7 @@
 
 <script type="text/javascript">
 	$('#popup{$div_popup_worklist}').click(function(e) {
-		$chooser=genericAjaxPopup('chooser','c=internal&a=chooserOpenParams&context={$context}&view_id={$view->id}',null,true,'750');
+		$chooser=genericAjaxPopup('chooser','c=internal&a=chooserOpenParams&context={$context}&view_id={$view->id}&trigger_id={$trigger->id}',null,true,'750');
 		$chooser.bind('chooser_save',function(event) {
 			if(null != event.view_model) {
 				$('#popup{$div_popup_worklist}').find('span.name').html(event.view_name);

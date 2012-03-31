@@ -2683,6 +2683,8 @@ class DevblocksEventHelper {
 		if(false == ($view = C4_AbstractViewLoader::unserializeAbstractView($view_model)))
 			return;
 		
+		$view->setPlaceholderValues($values);
+		
 		// [TODO] Iterate through pages if over a certain list length?
 		//$view->renderLimit = (isset($params['limit']) && is_numeric($params['limit'])) ? intval($params['limit']) : 100;
 		$view->renderLimit = 100;

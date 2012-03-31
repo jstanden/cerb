@@ -53,4 +53,22 @@ if(!isset($tables['calendar_event'])) {
 	$tables['calendar_event'] = 'calendar_event';
 }
 
+// ===========================================================================
+// Add placeholder columns to worker_view_model
+
+if(!isset($tables['worker_view_model'])) {
+	$logger->error("The 'worker_view_model' table does not exist.");
+	return FALSE;
+}
+
+list($columns, $indexes) = $db->metaTable('worker_view_model');
+
+if(!isset($columns['placeholder_labels_json'])) {
+	$db->Execute("ALTER TABLE worker_view_model ADD COLUMN placeholder_labels_json TEXT");
+}
+
+if(!isset($columns['placeholder_values_json'])) {
+	$db->Execute("ALTER TABLE worker_view_model ADD COLUMN placeholder_values_json TEXT");
+}
+
 return TRUE;
