@@ -94,7 +94,7 @@ $menu.find('> li.item > a').click(function() {
 	
 	$key = $li.attr('key');
 	
-	if($bubbles.find('li input:hidden[value=' + $key + ']').length > 0)
+	if($bubbles.find('li input:hidden[value="' + $key + '"]').length > 0)
 		return;
 	
 	$bubble = $('<li></li>');
