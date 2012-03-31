@@ -800,6 +800,7 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals {
 			SearchFields_Worker::CONTEXT_LINK_ID,
 			SearchFields_Worker::VIRTUAL_GROUPS,
 		));
+		
 		$this->addParamsHidden(array(
 			SearchFields_Worker::ID,
 			SearchFields_Worker::LAST_ACTIVITY,
@@ -969,20 +970,10 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals {
 		$values = !is_array($param->value) ? array($param->value) : $param->value;
 
 		switch($field) {
-//			case SearchFields_Notification::WORKER_ID:
-//				$workers = DAO_Worker::getAll();
-//				$strings = array();
-//
-//				foreach($values as $val) {
-//					if(empty($val))
-//					$strings[] = "Nobody";
-//					elseif(!isset($workers[$val]))
-//					continue;
-//					else
-//					$strings[] = $workers[$val]->getName();
-//				}
-//				echo implode(", ", $strings);
-//				break;
+			case SearchFields_Worker::IS_DISABLED:
+			case SearchFields_Worker::IS_SUPERUSER:
+				$this->_renderCriteriaParamBoolean($param);
+				break;
 			default:
 				parent::renderCriteriaParam($param);
 				break;
@@ -1001,22 +992,11 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals {
 			case SearchFields_Worker::FIRST_NAME:
 			case SearchFields_Worker::LAST_NAME:
 			case SearchFields_Worker::TITLE:
-				// force wildcards if none used on a LIKE
-				if(($oper == DevblocksSearchCriteria::OPER_LIKE || $oper == DevblocksSearchCriteria::OPER_NOT_LIKE)
-				&& false === (strpos($value,'*'))) {
-					$value = $value.'*';
-				}
-				$criteria = new DevblocksSearchCriteria($field, $oper, $value);
+				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
 				break;
 				
 			case SearchFields_Worker::LAST_ACTIVITY_DATE:
-				@$from = DevblocksPlatform::importGPC($_REQUEST['from'],'string','');
-				@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string','');
-
-				if(empty($from)) $from = 0;
-				if(empty($to)) $to = 'today';
-
-				$criteria = new DevblocksSearchCriteria($field,$oper,array($from,$to));
+				$criteria = $this->_doSetCriteriaDate($field, $oper);
 				break;
 				
 			case SearchFields_Worker::IS_DISABLED:
