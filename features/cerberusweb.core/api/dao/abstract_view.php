@@ -248,6 +248,9 @@ abstract class C4_AbstractView {
 		foreach($param->value as $worker_id) {
 			if(isset($workers[$worker_id]))
 				$strings[] = '<b>'.$workers[$worker_id]->getName().'</b>';
+			else {
+				$strings[] = '<b>'.$worker_id.'</b>';
+			}
 		}
 		
 		if(empty($param->value)) {
@@ -263,6 +266,15 @@ abstract class C4_AbstractView {
 			}
 		}
 		
+		$list_of_strings = implode(' or ', $strings);
+		
+		if(count($strings) > 2) {
+			$list_of_strings = sprintf("any of <abbr style='font-weight:bold;' title='%s'>(%d people)</abbr>",
+				htmlentities(strip_tags($list_of_strings)),
+				count($strings)
+			);
+		}
+		
 		switch($param->operator) {
 			case DevblocksSearchCriteria::OPER_IS_NULL:
 				echo "There are no <b>watchers</b>";
@@ -271,16 +283,16 @@ abstract class C4_AbstractView {
 				echo "There are <b>watchers</b>";
 				break;
 			case DevblocksSearchCriteria::OPER_IN:
-				echo sprintf("Watcher is %s", implode(' or ', $strings));
+				echo sprintf("Watcher is %s", $list_of_strings);
 				break;
 			case DevblocksSearchCriteria::OPER_IN_OR_NULL:
-				echo sprintf("Watcher is blank or %s", implode(' or ', $strings));
+				echo sprintf("Watcher is blank or %s", $list_of_strings);
 				break;
 			case DevblocksSearchCriteria::OPER_NIN:
-				echo sprintf("Watcher is not %s", implode(' or ', $strings));
+				echo sprintf("Watcher is not %s", $list_of_strings);
 				break;
 			case DevblocksSearchCriteria::OPER_NIN_OR_NULL:
-				echo sprintf("Watcher is blank or not %s", implode(' or ', $strings));
+				echo sprintf("Watcher is blank or not %s", $list_of_strings);
 				break;
 		}		
 	}
