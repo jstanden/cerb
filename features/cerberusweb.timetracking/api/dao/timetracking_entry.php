@@ -541,6 +541,7 @@ class View_TimeTracking extends C4_AbstractView implements IAbstractView_Subtota
 		$this->view_columns = array(
 			SearchFields_TimeTrackingEntry::LOG_DATE,
 		);
+		
 		$this->addColumnsHidden(array(
 			SearchFields_TimeTrackingEntry::ID,
 			SearchFields_TimeTrackingEntry::CONTEXT_LINK,
@@ -554,6 +555,7 @@ class View_TimeTracking extends C4_AbstractView implements IAbstractView_Subtota
 			SearchFields_TimeTrackingEntry::CONTEXT_LINK,
 			SearchFields_TimeTrackingEntry::CONTEXT_LINK_ID,
 		));
+		
 		$this->addParamsDefault(array(
 			SearchFields_TimeTrackingEntry::IS_CLOSED => new DevblocksSearchCriteria(SearchFields_TimeTrackingEntry::IS_CLOSED,DevblocksSearchCriteria::OPER_EQ,0),
 		));
@@ -620,10 +622,6 @@ class View_TimeTracking extends C4_AbstractView implements IAbstractView_Subtota
 			return array();
 		
 		switch($column) {
-//			case SearchFields_TimeTrackingEntry::EXAMPLE:
-//				$counts = $this->_getSubtotalCountForStringColumn('DAO_Task', $column);
-//				break;
-
 			case SearchFields_TimeTrackingEntry::IS_CLOSED:
 				$counts = $this->_getSubtotalCountForBooleanColumn('DAO_TimeTrackingEntry', $column);
 				break;
@@ -710,13 +708,17 @@ class View_TimeTracking extends C4_AbstractView implements IAbstractView_Subtota
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__fulltext.tpl');
 				break;
 			case SearchFields_TimeTrackingEntry::ACTIVITY_ID:
-				$billable_activities = DAO_TimeTrackingActivity::getWhere(sprintf("%s!=0",DAO_TimeTrackingActivity::RATE));
-				$tpl->assign('billable_activities', $billable_activities);
-				
-				$nonbillable_activities = DAO_TimeTrackingActivity::getWhere(sprintf("%s=0",DAO_TimeTrackingActivity::RATE));
-				$tpl->assign('nonbillable_activities', $nonbillable_activities);
+				$options = array(
+					'0' => '(None)',
+				);
+				$activities = DAO_TimeTrackingActivity::getWhere();
 
-				$tpl->display('devblocks:cerberusweb.timetracking::timetracking/criteria/activity.tpl');
+				foreach($activities as $activity_id => $activity) { /* @var $activity Model_TimeTrackingActivity */
+					$options[$activity_id] = $activity->name;
+				}
+				
+				$tpl->assign('options', $options);
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__list.tpl');
 			default:
 				// Custom Fields
 				if('cf_' == substr($field,0,3)) {
@@ -733,36 +735,33 @@ class View_TimeTracking extends C4_AbstractView implements IAbstractView_Subtota
 		$values = !is_array($param->value) ? array($param->value) : $param->value;
 
 		switch($field) {
+			case SearchFields_TimeTrackingEntry::IS_CLOSED:
+				$this->_renderCriteriaParamBoolean($param);
+				break;
+				
 			case SearchFields_TimeTrackingEntry::WORKER_ID:
-				$workers = DAO_Worker::getAll();
-				$strings = array();
-
-				foreach($values as $val) {
-					if(0==$val) {
-						$strings[] = "Nobody";
-					} else {
-						if(!isset($workers[$val]))
-							continue;
-						$strings[] = $workers[$val]->getName();
-					}
-				}
-				echo implode(", ", $strings);
+				$this->_renderCriteriaParamWorker($param);
 				break;
 
 			case SearchFields_TimeTrackingEntry::ACTIVITY_ID:
 				$activities = DAO_TimeTrackingActivity::getWhere(); // [TODO] getAll cache
 				$strings = array();
 
-				foreach($values as $val) {
-					if(0==$val) {
-						$strings[] = "None";
-					} else {
-						if(!isset($activities[$val]))
-							continue;
-						$strings[] = $activities[$val]->name . ($activities[$val]->rate>0 ? ' ($)':'');
+				if(empty($values)) {
+					
+				} else {
+					foreach($values as $val) {
+						if(empty($val)) {
+							$strings[] = "(none)";
+						} else {
+							if(!isset($activities[$val]))
+								continue;
+							$strings[] = $activities[$val]->name . ($activities[$val]->rate>0 ? ' ($)':'');
+						}
 					}
+					echo implode(", ", $strings);
 				}
-				echo implode(", ", $strings);
+				
 				break;
 
 			default:
@@ -780,12 +779,7 @@ class View_TimeTracking extends C4_AbstractView implements IAbstractView_Subtota
 
 		switch($field) {
 			case 'placeholder_string':
-				// force wildcards if none used on a LIKE
-				if(($oper == DevblocksSearchCriteria::OPER_LIKE || $oper == DevblocksSearchCriteria::OPER_NOT_LIKE)
-				&& false === (strpos($value,'*'))) {
-					$value = $value.'*';
-				}
-				$criteria = new DevblocksSearchCriteria($field, $oper, $value);
+				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
 				break;
 			case SearchFields_TimeTrackingEntry::ID:
 			case SearchFields_TimeTrackingEntry::TIME_ACTUAL_MINS:
@@ -798,13 +792,7 @@ class View_TimeTracking extends C4_AbstractView implements IAbstractView_Subtota
 				break;
 				
 			case SearchFields_TimeTrackingEntry::LOG_DATE:
-				@$from = DevblocksPlatform::importGPC($_REQUEST['from'],'string','');
-				@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string','');
-
-				if(empty($from)) $from = 0;
-				if(empty($to)) $to = 'today';
-
-				$criteria = new DevblocksSearchCriteria($field,$oper,array($from,$to));
+				$criteria = $this->_doSetCriteriaDate($field, $oper);
 				break;
 				@$worker_id = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',array());
 				$criteria = new DevblocksSearchCriteria($field,$oper,$worker_id);
@@ -818,8 +806,8 @@ class View_TimeTracking extends C4_AbstractView implements IAbstractView_Subtota
 				$criteria = new DevblocksSearchCriteria($field,$oper,$worker_ids);
 				break;
 			case SearchFields_TimeTrackingEntry::ACTIVITY_ID:
-				@$activity_ids = DevblocksPlatform::importGPC($_REQUEST['activity_ids'],'array',array());
-				$criteria = new DevblocksSearchCriteria($field,$oper,$activity_ids);
+				@$options = DevblocksPlatform::importGPC($_REQUEST['options'],'array',array());
+				$criteria = new DevblocksSearchCriteria($field,$oper,$options);
 				break;
 			case SearchFields_TimeTrackingEntry::FULLTEXT_COMMENT_CONTENT:
 				@$scope = DevblocksPlatform::importGPC($_REQUEST['scope'],'string','expert');
