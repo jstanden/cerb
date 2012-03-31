@@ -574,6 +574,7 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals {
 			SearchFields_Address::NUM_NONSPAM,
 			SearchFields_Address::NUM_SPAM,
 		);
+		
 		$this->addColumnsHidden(array(
 			SearchFields_Address::CONTACT_PERSON_ID,
 			SearchFields_Address::CONTACT_ORG_ID,
@@ -752,6 +753,10 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals {
 		$values = !is_array($param->value) ? array($param->value) : $param->value;
 
 		switch($field) {
+			case SearchFields_Address::IS_BANNED:
+				$this->_renderCriteriaParamBoolean($param);
+				break;
+			
 			default:
 				parent::renderCriteriaParam($param);
 				break;
@@ -770,13 +775,9 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals {
 			case SearchFields_Address::FIRST_NAME:
 			case SearchFields_Address::LAST_NAME:
 			case SearchFields_Address::ORG_NAME:
-				// force wildcards if none used on a LIKE
-				if(($oper == DevblocksSearchCriteria::OPER_LIKE || $oper == DevblocksSearchCriteria::OPER_NOT_LIKE)
-				&& false === (strpos($value,'*'))) {
-					$value = $value.'*';
-				}
-				$criteria = new DevblocksSearchCriteria($field, $oper, $value);
+				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
 				break;
+				
 			case SearchFields_Address::NUM_SPAM:
 			case SearchFields_Address::NUM_NONSPAM:
 				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
@@ -786,14 +787,17 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals {
 				@$bool = DevblocksPlatform::importGPC($_REQUEST['bool'],'integer',1);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
 				break;
+				
 			case SearchFields_Address::VIRTUAL_WATCHERS:
 				@$worker_ids = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',array());
 				$criteria = new DevblocksSearchCriteria($field,$oper,$worker_ids);
 				break;
+				
 			case SearchFields_Address::FULLTEXT_COMMENT_CONTENT:
 				@$scope = DevblocksPlatform::importGPC($_REQUEST['scope'],'string','expert');
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_FULLTEXT,array($value,$scope));
 				break;
+				
 			default:
 				// Custom Fields
 				if(substr($field,0,3)=='cf_') {
