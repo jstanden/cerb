@@ -482,6 +482,7 @@ class View_Task extends C4_AbstractView implements IAbstractView_Subtotals {
 			SearchFields_Task::UPDATED_DATE,
 			SearchFields_Task::DUE_DATE,
 		);
+		
 		$this->addColumnsHidden(array(
 			SearchFields_Task::ID,
 			SearchFields_Task::CONTEXT_LINK,
@@ -495,6 +496,7 @@ class View_Task extends C4_AbstractView implements IAbstractView_Subtotals {
 			SearchFields_Task::CONTEXT_LINK,
 			SearchFields_Task::CONTEXT_LINK_ID,
 		));
+		
 		$this->addParamsDefault(array(
 			SearchFields_Task::IS_COMPLETED => new DevblocksSearchCriteria(SearchFields_Task::IS_COMPLETED,'=',0),
 		));
@@ -560,10 +562,6 @@ class View_Task extends C4_AbstractView implements IAbstractView_Subtotals {
 			return array();
 		
 		switch($column) {
-//			case SearchFields_Task::EXAMPLE:
-//				$counts = $this->_getSubtotalCountForStringColumn('DAO_Task', $column);
-//				break;
-
 			case SearchFields_Task::IS_COMPLETED:
 				$counts = $this->_getSubtotalCountForBooleanColumn('DAO_Task', $column);
 				break;
@@ -672,6 +670,10 @@ class View_Task extends C4_AbstractView implements IAbstractView_Subtotals {
 		$values = !is_array($param->value) ? array($param->value) : $param->value;
 
 		switch($field) {
+			case SearchFields_Task::IS_COMPLETED:
+				$this->_renderCriteriaParamBoolean($param);
+				break;
+				
 			default:
 				parent::renderCriteriaParam($param);
 				break;
@@ -687,24 +689,13 @@ class View_Task extends C4_AbstractView implements IAbstractView_Subtotals {
 
 		switch($field) {
 			case SearchFields_Task::TITLE:
-				// force wildcards if none used on a LIKE
-				if(($oper == DevblocksSearchCriteria::OPER_LIKE || $oper == DevblocksSearchCriteria::OPER_NOT_LIKE)
-				&& false === (strpos($value,'*'))) {
-					$value = $value.'*';
-				}
-				$criteria = new DevblocksSearchCriteria($field, $oper, $value);
+				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
 				break;
 				
 			case SearchFields_Task::UPDATED_DATE:
 			case SearchFields_Task::COMPLETED_DATE:
 			case SearchFields_Task::DUE_DATE:
-				@$from = DevblocksPlatform::importGPC($_REQUEST['from'],'string','');
-				@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string','');
-
-				if(empty($from)) $from = 0;
-				if(empty($to)) $to = 'today';
-
-				$criteria = new DevblocksSearchCriteria($field,$oper,array($from,$to));
+				$criteria = $this->_doSetCriteriaDate($field, $oper);
 				break;
 
 			case SearchFields_Task::IS_COMPLETED:
@@ -919,8 +910,11 @@ class Context_Task extends Extension_DevblocksContext {
 			}
 			
 			// URL
+			
 			$url_writer = DevblocksPlatform::getUrlService();
 			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=tasks&action=display&id=%d-%s",$task->id, DevblocksPlatform::strToPermalink($task->title)), true);
+
+			// Custom fields
 			
 			$token_values['custom'] = array();
 			
