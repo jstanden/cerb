@@ -767,6 +767,11 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 		$values = !is_array($param->value) ? array($param->value) : $param->value;
 
 		switch($field) {
+			case SearchFields_CrmOpportunity::IS_CLOSED:
+			case SearchFields_CrmOpportunity::IS_WON:
+				$this->_renderCriteriaParamBoolean($param);
+				break;
+				
 			default:
 				parent::renderCriteriaParam($param);
 				break;
@@ -786,12 +791,7 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 			case SearchFields_CrmOpportunity::EMAIL_ADDRESS:
 			case SearchFields_CrmOpportunity::EMAIL_FIRST_NAME:
 			case SearchFields_CrmOpportunity::EMAIL_LAST_NAME:
-				// force wildcards if none used on a LIKE
-				if(($oper == DevblocksSearchCriteria::OPER_LIKE || $oper == DevblocksSearchCriteria::OPER_NOT_LIKE)
-				&& false === (strpos($value,'*'))) {
-					$value = $value.'*';
-				}
-				$criteria = new DevblocksSearchCriteria($field, $oper, $value);
+				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
 				break;
 				
 			case SearchFields_CrmOpportunity::AMOUNT:
@@ -808,14 +808,8 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 				
 			case SearchFields_CrmOpportunity::CREATED_DATE:
 			case SearchFields_CrmOpportunity::UPDATED_DATE:
-			case SearchFields_CrmOpportunity::CLOSED_DATE:		
-				@$from = DevblocksPlatform::importGPC($_REQUEST['from'],'string','');
-				@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string','');
-
-				if(empty($from)) $from = 0;
-				if(empty($to)) $to = 'today';
-
-				$criteria = new DevblocksSearchCriteria($field,$oper,array($from,$to));
+			case SearchFields_CrmOpportunity::CLOSED_DATE:
+				$criteria = $this->_doSetCriteriaDate($field, $oper);
 				break;
 				
 			case SearchFields_CrmOpportunity::VIRTUAL_WATCHERS:
