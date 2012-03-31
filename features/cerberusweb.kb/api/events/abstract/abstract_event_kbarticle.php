@@ -75,6 +75,10 @@ abstract class AbstractEvent_KbArticle extends Extension_DevblocksEvent {
 				'label' => 'Article',
 				'context' => CerberusContexts::CONTEXT_KB_ARTICLE,
 			),
+			'article_watchers' => array(
+				'label' => 'Article watchers',
+				'context' => CerberusContexts::CONTEXT_WORKER,
+			),
 		);
 		
 		$vars = parent::getValuesContexts($trigger);

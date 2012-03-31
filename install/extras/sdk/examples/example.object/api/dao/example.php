@@ -694,6 +694,10 @@ class Context_ExampleObject extends Extension_DevblocksContext {
 					}
 				}
 			}
+			
+			// Watchers
+			$watchers = CerberusContexts::getWatchers(Context_ExampleObject::ID, $object->id, true);
+			$token_values['watchers'] = $watchers;
 		}
 
 		// Example link

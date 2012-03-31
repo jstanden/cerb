@@ -1107,6 +1107,10 @@ class Context_Opportunity extends Extension_DevblocksContext {
 					}
 				}
 			}
+			
+			// Watchers
+			$watchers = CerberusContexts::getWatchers(CerberusContexts::CONTEXT_OPPORTUNITY, $opp->id, true);
+			$token_values['watchers'] = $watchers;
 		}
 		
 		// Person

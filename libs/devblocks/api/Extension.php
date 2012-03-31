@@ -1356,9 +1356,6 @@ class DevblocksEventHelper {
 
 		$trigger = $values['_trigger'];
 
-		$event = $trigger->getEvent();
-		$values_to_contexts = $event->getValuesContexts($trigger);
-		
 		if(empty($behavior_id)) {
 			return "[ERROR] No behavior is selected. Skipping...";
 		}
@@ -1393,7 +1390,9 @@ class DevblocksEventHelper {
 		@$on = DevblocksPlatform::importVar($params['on'],'string','');
 		
 		if(!empty($on)) {
-			$on_result = DevblocksEventHelper::onContexts($on, $values_to_contexts, $values);
+			$event = $trigger->getEvent();
+			
+			$on_result = DevblocksEventHelper::onContexts($on, $event->getValuesContexts($trigger), $values);
 			@$on_objects = $on_result['objects'];
 			
 			if(is_array($on_objects)) {
@@ -2609,9 +2608,18 @@ class DevblocksEventHelper {
 			if(!is_array($on_keys))
 				$on_keys = array($on_keys);
 
+			$vals = array();
+			
 			foreach($on_keys as $on) {
-				$vals = is_array($values[$on]) ? $values[$on] : array($values[$on]);
-	
+				if(preg_match("#(.*)_watchers#", $on)) {
+					if(isset($values[$on]) && is_array($values[$on]))
+						$vals = array_keys($values[$on]);
+					
+				} else {
+					if(isset($values[$on]))
+						$vals = is_array($values[$on]) ? $values[$on] : array($values[$on]);
+				}
+				
 				@$ctx_ext = $values_to_contexts[$on]['context'];
 				if(!empty($ctx_ext) && null != ($ctx = Extension_DevblocksContext::get($ctx_ext))) {
 					foreach($vals as $ctx_id) {
@@ -2631,11 +2639,14 @@ class DevblocksEventHelper {
 		if(is_array($worker_ids))
 		foreach($worker_ids as $k => $worker_id) {
 			if(!is_numeric($worker_id)) {
-				@$val = $values[$worker_id];
+				$key = $worker_id;
+				@$val = $values[$key];
 				unset($worker_ids[$k]);
 				
 				if(!empty($val)) {
-					if(is_array($val)) {
+					if(preg_match("#(.*)_watchers#", $key)) {
+						$worker_ids = array_merge($worker_ids, array_keys($val));
+					} elseif(is_array($val)) {
 						$worker_ids = array_merge($worker_ids, $val);
 					} else {
 						$worker_ids[] = $val;

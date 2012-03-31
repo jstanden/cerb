@@ -979,6 +979,10 @@ class Context_Org extends Extension_DevblocksContext {
 					}
 				}
 			}
+			
+			// Watchers
+			$watchers = CerberusContexts::getWatchers(CerberusContexts::CONTEXT_ORG, $org->id, true);
+			$token_values['watchers'] = $watchers;
 		}
 
 		return true;		

@@ -92,8 +92,12 @@ abstract class AbstractEvent_Address extends Extension_DevblocksEvent {
 				'context' => CerberusContexts::CONTEXT_ADDRESS,
 			),
 			'email_org_id' => array(
-				'label' => 'Organization',
+				'label' => 'Email org',
 				'context' => CerberusContexts::CONTEXT_ORG,
+			),
+			'email_watchers' => array(
+				'label' => 'Email address watchers',
+				'context' => CerberusContexts::CONTEXT_WORKER,
 			),
 		);
 		

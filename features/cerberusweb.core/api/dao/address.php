@@ -1064,6 +1064,10 @@ class Context_Address extends Extension_DevblocksContext {
 					}
 				}
 			}
+			
+			// Watchers
+			$watchers = CerberusContexts::getWatchers(CerberusContexts::CONTEXT_ADDRESS, $address->id, true);
+			$token_values['watchers'] = $watchers;
 		}
 		
 		// Email Org

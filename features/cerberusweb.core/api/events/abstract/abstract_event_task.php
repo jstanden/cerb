@@ -74,6 +74,10 @@ abstract class AbstractEvent_Task extends Extension_DevblocksEvent {
 				'label' => 'Task',
 				'context' => CerberusContexts::CONTEXT_TASK,
 			),
+			'task_watchers' => array(
+				'label' => 'Task watchers',
+				'context' => CerberusContexts::CONTEXT_WORKER,
+			),
 		);
 		
 		$vars = parent::getValuesContexts($trigger);

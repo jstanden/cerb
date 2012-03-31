@@ -715,6 +715,10 @@ class Context_KbArticle extends Extension_DevblocksContext {
 					}
 				}
 			}
+			
+			// Watchers
+			$watchers = CerberusContexts::getWatchers(CerberusContexts::CONTEXT_KB_ARTICLE, $article->id, true);
+			$token_values['watchers'] = $watchers;
 		}
 		
 		return TRUE;

@@ -1000,6 +1000,10 @@ class Context_TimeTracking extends Extension_DevblocksContext {
 					}
 				}
 			}
+			
+			// Watchers
+			$watchers = CerberusContexts::getWatchers(CerberusContexts::CONTEXT_TIMETRACKING, $timeentry->id, true);
+			$token_values['watchers'] = $watchers;
 		}
 		
 		// Worker

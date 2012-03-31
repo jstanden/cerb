@@ -2737,6 +2737,10 @@ class Context_Ticket extends Extension_DevblocksContext {
 					}
 				}
 			}
+			
+			// Watchers
+			$watchers = CerberusContexts::getWatchers(CerberusContexts::CONTEXT_TICKET, $ticket[SearchFields_Ticket::TICKET_ID], true);
+			$token_values['watchers'] = $watchers;
 		}
 		
 		// Requesters

@@ -122,6 +122,10 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 				'label' => 'Ticket',
 				'context' => CerberusContexts::CONTEXT_TICKET,
 			),
+			'ticket_watchers' => array(
+				'label' => 'Ticket watchers',
+				'context' => CerberusContexts::CONTEXT_WORKER,
+			),
 			/*
 			'group_id' => array(
 				'label' => 'Group',

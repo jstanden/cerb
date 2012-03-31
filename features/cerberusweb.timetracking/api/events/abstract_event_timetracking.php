@@ -75,6 +75,10 @@ abstract class AbstractEvent_TimeTracking extends Extension_DevblocksEvent {
 				'label' => 'Time entry',
 				'context' => CerberusContexts::CONTEXT_TIMETRACKING,
 			),
+			'time_watchers' => array(
+				'label' => 'Time entry watchers',
+				'context' => CerberusContexts::CONTEXT_WORKER,
+			),
 		);
 		
 		$vars = parent::getValuesContexts($trigger);

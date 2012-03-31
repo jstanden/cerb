@@ -934,6 +934,11 @@ class Context_Task extends Extension_DevblocksContext {
 					}
 				}
 			}
+			
+			// Watchers
+			
+			$watchers = CerberusContexts::getWatchers(CerberusContexts::CONTEXT_TASK, $task->id, true);
+			$token_values['watchers'] = $watchers;
 		}
 
 		return true;

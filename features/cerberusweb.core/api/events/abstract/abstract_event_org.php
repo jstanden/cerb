@@ -91,6 +91,10 @@ abstract class AbstractEvent_Org extends Extension_DevblocksEvent {
 				'label' => 'Organization',
 				'context' => CerberusContexts::CONTEXT_ORG,
 			),
+			'org_watchers' => array(
+				'label' => 'Organization watchers',
+				'context' => CerberusContexts::CONTEXT_WORKER,
+			),
 		);
 		
 		$vars = parent::getValuesContexts($trigger);

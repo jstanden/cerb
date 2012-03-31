@@ -112,9 +112,21 @@ class Event_CrmOpportunityMacro extends Extension_DevblocksEvent {
 				'label' => 'Opportunity lead email',
 				'context' => CerberusContexts::CONTEXT_ADDRESS,
 			),
+			'opp_email_watchers' => array(
+				'label' => 'Opportunity lead email watchers',
+				'context' => CerberusContexts::CONTEXT_WORKER,
+			),
 			'opp_email_org_id' => array(
 				'label' => 'Opportunity lead org',
 				'context' => CerberusContexts::CONTEXT_ORG,
+			),
+			'opp_email_org_watchers' => array(
+				'label' => 'Opportunity watchers',
+				'context' => CerberusContexts::CONTEXT_WORKER,
+			),
+			'opp_watchers' => array(
+				'label' => 'Opportunity watchers',
+				'context' => CerberusContexts::CONTEXT_WORKER,
 			),
 		);
 		
