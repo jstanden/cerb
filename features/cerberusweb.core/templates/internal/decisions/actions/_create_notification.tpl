@@ -18,11 +18,6 @@
 	<b>{'common.notify_workers'|devblocks_translate|capitalize}:</b>  
 	<div style="margin-left:10px;">
 		{include file="devblocks:cerberusweb.core::internal/decisions/actions/_shared_var_worker_picker.tpl" param_name="notify_worker_id" values_to_contexts=$values_to_contexts}
-		
-		{*
-		<li><label><input type="checkbox" name="{$namePrefix}[notify_watchers]" value="1" {if $params.notify_watchers}checked="checked"{/if}> {'common.watchers'|devblocks_translate|capitalize}</label></li>
-		<li><label><input type="checkbox" name="{$namePrefix}[notify_{$k}]" value="1" {if $params.{'notify_'|cat:$k}}checked="checked"{/if}> {$v}</label></li>
-		*}
 	</div>
 </div>
 

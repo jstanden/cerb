@@ -647,10 +647,7 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 				
 			case 'create_notification':
 				$translate = DevblocksPlatform::getTranslationService();
-				$notify_map = array(
-					'ticket_owner_id' => mb_convert_case($translate->_('common.owner'), MB_CASE_TITLE),
-				);
-				DevblocksEventHelper::renderActionCreateNotification($trigger, $notify_map);
+				DevblocksEventHelper::renderActionCreateNotification($trigger);
 				break;
 				
 			case 'create_task':
@@ -781,10 +778,7 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 				break;
 				
 			case 'create_notification':
-				$notify_map = array(
-					'ticket_owner_id' => 'ticket_owner_id',
-				);
-				return DevblocksEventHelper::simulateActionCreateNotification($params, $values, 'ticket_id', $notify_map);
+				return DevblocksEventHelper::simulateActionCreateNotification($params, $values, 'ticket_id');
 				break;
 				
 			case 'create_task':
@@ -893,10 +887,7 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 				break;
 				
 			case 'create_notification':
-				$notify_map = array(
-					'ticket_owner_id' => 'ticket_owner_id',
-				);
-				DevblocksEventHelper::runActionCreateNotification($params, $values, 'ticket_id', $notify_map);
+				DevblocksEventHelper::runActionCreateNotification($params, $values, 'ticket_id');
 				break;
 				
 			case 'create_task':
