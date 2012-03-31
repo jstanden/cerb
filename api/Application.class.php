@@ -774,7 +774,7 @@ class CerberusContexts {
 		return true;
 	}
 	
-	static public function getWatchers($context, $context_id) {
+	static public function getWatchers($context, $context_id, $as_contexts=false) {
 		list($results, $null) = DAO_Worker::search(
 			array(
 				SearchFields_Worker::ID,
@@ -792,11 +792,26 @@ class CerberusContexts {
 		
 		$workers = array();
 		
-		if(!empty($results)) {
-			$workers = DAO_Worker::getWhere(sprintf("%s IN (%s)",
-				DAO_Worker::ID,
-				implode(',', array_keys($results))
-			));
+		// Does the caller want the watchers as context objects?
+		if($as_contexts) {
+			foreach(array_keys($results) as $watcher_id) {
+				$null_labels = array();
+				$watcher_values = array();
+
+				CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $watcher_id, $null_labels, $watcher_values, null, true);
+				
+				$workers[$watcher_id] = $watcher_values;
+			}
+			
+		// Or as Model_* objects?
+		} else {
+			if(!empty($results)) {
+				$workers = DAO_Worker::getWhere(sprintf("%s IN (%s)",
+					DAO_Worker::ID,
+					implode(',', array_keys($results))
+				));
+			}
+			
 		}
 		
 		return $workers;
