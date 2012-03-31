@@ -1188,10 +1188,6 @@ class DAO_Ticket extends C4_ORMHelper {
 	}
 	
 	private static function _translateVirtualParameters($param, $key, &$args) {
-		$join_sql =& $args['join_sql'];
-		$where_sql =& $args['where_sql']; 
-		$has_multiple_values =& $args['has_multiple_values'];
-		
 		if(!is_a($param, 'DevblocksSearchCriteria'))
 			return;
 		
@@ -1200,11 +1196,11 @@ class DAO_Ticket extends C4_ORMHelper {
 
 		switch($param_key) {
 			case SearchFields_Ticket::VIRTUAL_WATCHERS:
-				$has_multiple_values = true;
+				$args['has_multiple_values'] = true;
 				$from_context = 'cerberusweb.contexts.ticket';
 				$from_index = 't.id';
 				
-				self::_searchComponentsVirtualWatchers($param, $from_context, $from_index, $join_sql, $where_sql);
+				self::_searchComponentsVirtualWatchers($param, $from_context, $from_index, $args['join_sql'], $args['where_sql']);
 				break;
 				
 			case SearchFields_Ticket::VIRTUAL_ASSIGNABLE:
@@ -1212,9 +1208,9 @@ class DAO_Ticket extends C4_ORMHelper {
 				$assignable_bucket_ids = array_keys($assignable_buckets);
 				array_unshift($assignable_bucket_ids, 0);
 				if($param->value) { // true
-					$where_sql .= sprintf("AND t.bucket_id IN (%s) ", implode(',', $assignable_bucket_ids));	
+					$args['where_sql'] .= sprintf("AND t.bucket_id IN (%s) ", implode(',', $assignable_bucket_ids));	
 				} else { // false
-					$where_sql .= sprintf("AND t.bucket_id NOT IN (%s) ", implode(',', $assignable_bucket_ids));	
+					$args['where_sql'] .= sprintf("AND t.bucket_id NOT IN (%s) ", implode(',', $assignable_bucket_ids));	
 				}
 				break;
 				
@@ -1223,7 +1219,7 @@ class DAO_Ticket extends C4_ORMHelper {
 				$roster = $member->getMemberships();
 				if(empty($roster))
 					break;
-				$where_sql .= sprintf("AND t.group_id IN (%s) ", implode(',', array_keys($roster)));
+				$args['where_sql'] .= sprintf("AND t.group_id IN (%s) ", implode(',', array_keys($roster)));
 				break;
 				
 			case SearchFields_Ticket::VIRTUAL_STATUS:
@@ -1253,7 +1249,7 @@ class DAO_Ticket extends C4_ORMHelper {
 				if(empty($status_sql))
 					break;
 				
-				$where_sql .= 'AND (' . implode(' OR ', $status_sql) . ') ';
+				$args['where_sql'] .= 'AND (' . implode(' OR ', $status_sql) . ') ';
 				break;
 		}		
 	}

@@ -244,10 +244,6 @@ class DAO_ContextScheduledBehavior extends C4_ORMHelper {
 	}
 
 	private static function _translateVirtualParameters($param, $key, &$args) {
-		$join_sql =& $args['join_sql'];
-		$where_sql =& $args['where_sql']; 
-		$has_multiple_values =& $args['has_multiple_values'];
-		
 		if(!is_a($param, 'DevblocksSearchCriteria'))
 			return;
 			
@@ -255,7 +251,7 @@ class DAO_ContextScheduledBehavior extends C4_ORMHelper {
 		settype($param_key, 'string');
 		switch($param_key) {
 			case SearchFields_ContextScheduledBehavior::VIRTUAL_OWNER:
-				//self::_searchComponentsVirtualWatchers($param, $from_context, $from_index, $join_sql, $where_sql);
+				//self::_searchComponentsVirtualWatchers($param, $from_context, $from_index, $args['join_sql'], $args['where_sql']);
 				break;
 			case SearchFields_ContextScheduledBehavior::VIRTUAL_TARGET:
 				break;
