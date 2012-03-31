@@ -18,7 +18,10 @@ class Subcontroller_Internal_VirtualAttendants {
 		// Admins can see all owners at once
 		if(empty($context) && !$active_worker->is_superuser)
 			return;
-			
+		
+		$tpl->assign('context', $context);
+		$tpl->assign('context_id', $context_id);
+		
 		/*
 		 * Secure looking at other worker tabs (check superuser, worker_id)
 		 */
@@ -55,6 +58,13 @@ class Subcontroller_Internal_VirtualAttendants {
 		
 		C4_AbstractViewLoader::setView($view->id, $view);
 
+		// Macros
+		
+		$macros = DAO_TriggerEvent::getByOwner($context, $context_id, 'event.macro.worker');
+		$tpl->assign('macros', $macros);
+		
+		// Template
+		
 		$tpl->display('devblocks:cerberusweb.core::internal/va/scheduled_behavior/tab.tpl');
 	}
 	
