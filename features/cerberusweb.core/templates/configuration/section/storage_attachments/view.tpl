@@ -64,6 +64,12 @@
 			<td>{$result.al_attachment_id}&nbsp;</td>
 			{elseif $column=="a_storage_size"}
 			<td>{$result.a_storage_size|devblocks_prettybytes}&nbsp;</td>
+			{elseif $column=="a_storage_extension"}
+			<td>
+				{if isset($storage_extensions.{$result.$column})}
+					{$storage_extensions.{$result.$column}->name}
+				{/if}
+			</td>
 			{elseif $column=="a_updated"}
 			<td title="{$result.a_updated|devblocks_date}">{$result.a_updated|devblocks_prettytime}&nbsp;</td>
 			{elseif $column=="al_context"}
