@@ -927,24 +927,36 @@ class View_KbArticle extends C4_AbstractView implements IAbstractView_Subtotals 
 			case SearchFields_KbArticle::TITLE:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__string.tpl');
 				break;
+				
 			case SearchFields_KbArticle::UPDATED:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__date.tpl');
 				break;
+				
 //			case SearchFields_KbArticle::FORMAT:
 //				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__number.tpl');
 //				break;
+
 			case SearchFields_KbArticle::VIEWS:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__number.tpl');
 				break;
+				
 			case SearchFields_KbArticle::TOP_CATEGORY_ID:
 				$topics = DAO_KbCategory::getWhere(sprintf("%s = %d",
 					DAO_KbCategory::PARENT_ID,
 					0
 				));
-				$tpl->assign('topics', $topics);
 
-				$tpl->display('devblocks:cerberusweb.kb::search/criteria/kb_topic.tpl');
+				$options = array();
+				
+				if(is_array($topics))
+				foreach($topics as $cat_id => $cat) { /* @var $cat Model_KbCategory */
+					$options[$cat_id] = $cat->name;
+				}
+				
+				$tpl->assign('options', $options);
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__list.tpl');
 				break;
+				
 			case SearchFields_KbArticle::FULLTEXT_ARTICLE_CONTENT:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__fulltext.tpl');
 				break;
@@ -994,7 +1006,7 @@ class View_KbArticle extends C4_AbstractView implements IAbstractView_Subtotals 
 						$strings[] = $topics[$val]->name;
 					}
 				}
-				echo implode(", ", $strings);
+				echo implode(" or ", $strings);
 				break;
 				
 			case SearchFields_KbArticle::FORMAT:
@@ -1013,7 +1025,7 @@ class View_KbArticle extends C4_AbstractView implements IAbstractView_Subtotals 
 							break;
 					}
 				}
-				echo implode(", ", $strings);
+				echo implode(" or ", $strings);
 				break;
 
 			default:
@@ -1031,22 +1043,11 @@ class View_KbArticle extends C4_AbstractView implements IAbstractView_Subtotals 
 
 		switch($field) {
 			case SearchFields_KbArticle::TITLE:
-				// force wildcards if none used on a LIKE
-				if(($oper == DevblocksSearchCriteria::OPER_LIKE || $oper == DevblocksSearchCriteria::OPER_NOT_LIKE)
-				&& false === (strpos($value,'*'))) {
-					$value = $value.'*';
-				}
-				$criteria = new DevblocksSearchCriteria($field, $oper, $value);
+				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
 				break;
 				
 			case SearchFields_KbArticle::UPDATED:
-				@$from = DevblocksPlatform::importGPC($_REQUEST['from'],'string','');
-				@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string','');
-
-				if(empty($from)) $from = 0;
-				if(empty($to)) $to = 'today';
-
-				$criteria = new DevblocksSearchCriteria($field,$oper,array($from,$to));
+				$criteria = $this->_doSetCriteriaDate($field, $oper);
 				break;
 				
 			case SearchFields_KbArticle::FORMAT:
@@ -1058,8 +1059,8 @@ class View_KbArticle extends C4_AbstractView implements IAbstractView_Subtotals 
 				break;
 				
 			case SearchFields_KbArticle::TOP_CATEGORY_ID:
-				@$topic_ids = DevblocksPlatform::importGPC($_REQUEST['topic_id'], 'array', array());
-				$criteria = new DevblocksSearchCriteria($field, $oper, $topic_ids);
+				@$options = DevblocksPlatform::importGPC($_REQUEST['options'], 'array', array());
+				$criteria = new DevblocksSearchCriteria($field, $oper, $options);
 				break;
 				
 			case SearchFields_KbArticle::FULLTEXT_ARTICLE_CONTENT:
