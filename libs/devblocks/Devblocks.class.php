@@ -1363,11 +1363,25 @@ class DevblocksPlatform extends DevblocksEngine {
 		return _DevblocksOpenIDManager::getInstance();
 	}
 	
-	static function sanitizeArray($array, $type) {
+	static function sanitizeArray($array, $type, $options=array()) {
 		switch($type) {
 			case 'integer':
-				return _DevblocksSanitizationManager::arrayAs($array, 'integer');
+				$array = _DevblocksSanitizationManager::arrayAs($array, 'integer');
+				
+				if(in_array('nonzero', $options)) {
+					foreach($array as $k => $v) {
+						if(empty($v))
+							unset($array[$k]);
+					}
+				}
+				
+				if(in_array('unique', $options)) {
+					$array = array_unique($array);
+				}
+				
+				return $array;
 				break;
+				
 			default:
 				break;
 		}
