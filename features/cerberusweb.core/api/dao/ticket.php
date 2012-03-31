@@ -1525,6 +1525,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals {
 			SearchFields_Ticket::TICKET_SPAM_SCORE,
 			SearchFields_Ticket::TICKET_OWNER_ID,
 		);
+		
 		$this->addColumnsHidden(array(
 			SearchFields_Ticket::CONTEXT_LINK,
 			SearchFields_Ticket::CONTEXT_LINK_ID,
@@ -1717,9 +1718,6 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals {
 		;
 		
 		$results = $db->GetArray($sql);
-//		$total = count($results);
-//		$total = ($total < 20) ? $total : $db->GetOne("SELECT FOUND_ROWS()");
-//		var_dump($total);
 
 		return $results;
 	}	
@@ -1820,9 +1818,6 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals {
 		;
 		
 		$results = $db->GetArray($sql);
-//		$total = count($results);
-//		$total = ($total < 20) ? $total : $db->GetOne("SELECT FOUND_ROWS()");
-//		var_dump($total);
 
 		return $results;
 	}	
@@ -1950,7 +1945,6 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals {
 	function renderCriteria($field) {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('id', $this->id);
-		$tpl->assign('view', $this);
 
 		switch($field) {
 			case SearchFields_Ticket::TICKET_MASK:
@@ -2125,20 +2119,15 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals {
 		$values = !is_array($param->value) ? array($param->value) : $param->value;
 
 		switch($field) {
+			case SearchFields_Ticket::TICKET_WAITING:
+			case SearchFields_Ticket::TICKET_DELETED:
+			case SearchFields_Ticket::TICKET_CLOSED:
+			case SearchFields_Ticket::VIRTUAL_ASSIGNABLE:
+				$this->_renderCriteriaParamBoolean($param);
+				break;
+			
 			case SearchFields_Ticket::TICKET_OWNER_ID:
-				$workers = DAO_Worker::getAll();
-				$strings = array();
-
-				foreach($values as $val) {
-					if(empty($val)) {
-						$strings[] = 'nobody';
-					} elseif(!isset($workers[$val])) {
-						continue;
-					} else {
-						$strings[] = $workers[$val]->getName();
-					}
-				}
-				echo implode(", ", $strings);
+				$this->_renderCriteriaParamWorker($param);
 				break;
 				
 			case SearchFields_Ticket::TICKET_GROUP_ID:
@@ -2229,12 +2218,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals {
 			case SearchFields_Ticket::REQUESTER_ADDRESS:
 			case SearchFields_Ticket::TICKET_INTERESTING_WORDS:
 			case SearchFields_Ticket::ORG_NAME:
-				// force wildcards if none used on a LIKE
-				if(($oper == DevblocksSearchCriteria::OPER_LIKE || $oper == DevblocksSearchCriteria::OPER_NOT_LIKE)
-				&& false === (strpos($value,'*'))) {
-					$value = $value.'*';
-				}
-				$criteria = new DevblocksSearchCriteria($field, $oper, $value);
+				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
 				break;
 
 			case SearchFields_Ticket::TICKET_WAITING:
@@ -2254,16 +2238,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals {
 			case SearchFields_Ticket::TICKET_CREATED_DATE:
 			case SearchFields_Ticket::TICKET_UPDATED_DATE:
 			case SearchFields_Ticket::TICKET_DUE_DATE:
-				@$from = DevblocksPlatform::importGPC($_REQUEST['from'],'string','');
-				@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string','');
-
-				if(empty($from) || (!is_numeric($from) && @false === strtotime(str_replace('.','-',$from))))
-					$from = 0;
-					
-				if(empty($to) || (!is_numeric($to) && @false === strtotime(str_replace('.','-',$to))))
-					$to = 'now';
-
-				$criteria = new DevblocksSearchCriteria($field,$oper,array($from,$to));
+				$criteria = $this->_doSetCriteriaDate($field, $oper);
 				break;
 
 			case SearchFields_Ticket::TICKET_SPAM_SCORE:
@@ -2305,34 +2280,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals {
 				break;
 				
 			case SearchFields_Ticket::TICKET_OWNER_ID:
-				@$worker_ids = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',array());
-				
-				switch($oper) {
-					case DevblocksSearchCriteria::OPER_IN:
-						if(empty($worker_ids)) {
-							$oper = DevblocksSearchCriteria::OPER_EQ;
-							$worker_ids = 0;
-						}
-						break;
-					case DevblocksSearchCriteria::OPER_IN_OR_NULL:
-						$oper = DevblocksSearchCriteria::OPER_IN;
-						if(!in_array('0', $worker_ids))
-							$worker_ids[] = '0';
-						break;
-					case DevblocksSearchCriteria::OPER_NIN:
-						if(empty($worker_ids)) {
-							$oper = DevblocksSearchCriteria::OPER_NEQ;
-							$worker_ids = 0;
-						}
-						break;
-					case 'not in and not null':
-						$oper = DevblocksSearchCriteria::OPER_NIN;
-						if(!in_array('0', $worker_ids))
-							$worker_ids[] = '0';
-						break;
-				}
-				
-				$criteria = new DevblocksSearchCriteria($field, $oper, $worker_ids);
+				$criteria = $this->_doSetCriteriaWorker($field, $oper);
 				break;
 				
 			case SearchFields_Ticket::VIRTUAL_WATCHERS:
