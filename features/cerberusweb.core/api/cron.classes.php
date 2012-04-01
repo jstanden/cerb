@@ -939,7 +939,7 @@ class ImportCron extends CerberusCronPageExtension {
 		}
 		
 		if(!empty($sPassword)) {
-			if(null != ($contact = DAO_ContactPerson::getWhere(sprintf("%s = %d", self::EMAIL_ID, $address_id)))) {
+			if(null == ($contact = DAO_ContactPerson::getWhere(sprintf("%s = %d", DAO_ContactPerson::EMAIL_ID, $address_id)))) {
 				$salt = CerberusApplication::generatePassword(8);
 				$fields = array(
 					DAO_ContactPerson::EMAIL_ID => $address_id,
