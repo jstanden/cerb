@@ -367,6 +367,7 @@ class DevblocksTemplate {
 	var $set = '';
 	var $plugin_id = '';
 	var $path = '';
+	var $sort_key = '';
 };
 
 /**

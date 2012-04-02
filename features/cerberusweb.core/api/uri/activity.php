@@ -45,7 +45,7 @@ class ChActivityPage extends CerberusPageExtension {
 		array_shift($stack); // activity
 		
 		$tab_manifests = DevblocksPlatform::getExtensions(Extension_ActivityTab::POINT, false);
-		uasort($tab_manifests, create_function('$a, $b', "return strcasecmp(\$a->name,\$b->name);\n"));
+		DevblocksPlatform::sortObjects($tab_manifests, 'name');
 		$tpl->assign('tab_manifests', $tab_manifests);
 		
 		$tpl->display('devblocks:cerberusweb.core::activity/index.tpl');

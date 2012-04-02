@@ -31,7 +31,7 @@ class PageSection_SetupPortal extends Extension_PageSection {
 			$tpl->assign('tool_manifests', DevblocksPlatform::getExtensions('usermeet.tool', false));
 
 //			$tab_manifests = DevblocksPlatform::getExtensions(Extension_ActivityTab::POINT, false);
-//			uasort($tab_manifests, create_function('$a, $b', "return strcasecmp(\$a->name,\$b->name);\n"));
+//			DevblocksPlatform::sortObjects($tab_manifests, 'name');
 //			$tpl->assign('tab_manifests', $tab_manifests);
 
 			@$tab_selected = array_shift($stack);
@@ -259,7 +259,7 @@ class PageSection_SetupPortal extends Extension_PageSection {
 		));
 		
 		// Sort templates
-		uasort($templates, create_function('$a, $b', "return strcasecmp(\$a->plugin_id.' '.\$a->path,\$b->plugin_id.' '.\$b->path);\n"));
+		DevblocksPlatform::sortObjects($templates, 'sort_key');
 		
 		// Filter out templates implemented by this portal already
 		if(is_array($templates))

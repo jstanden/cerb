@@ -52,9 +52,9 @@ abstract class Extension_DevblocksContext extends DevblocksExtension {
 		$contexts = DevblocksPlatform::getExtensions('devblocks.context', $as_instances);
 		
 		if($as_instances)
-			uasort($contexts, create_function('$a, $b', "return strcasecmp(\$a->manifest->name,\$b->manifest->name);\n"));
+			DevblocksPlatform::sortObjects($contexts, 'manifest->name');
 		else
-			uasort($contexts, create_function('$a, $b', "return strcasecmp(\$a->name,\$b->name);\n"));
+			DevblocksPlatform::sortObjects($contexts, 'name');
 
 		if(!empty($with_options)) {
 			if(!is_array($with_options))
@@ -123,9 +123,9 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 	public static function getAll($as_instances=false) {
 		$events = DevblocksPlatform::getExtensions('devblocks.event', $as_instances);
 		if($as_instances)
-			uasort($events, create_function('$a, $b', "return strcasecmp(\$a->manifest->name,\$b->manifest->name);\n"));
+			DevblocksPlatform::sortObjects($events, 'manifest->name');
 		else
-			uasort($events, create_function('$a, $b', "return strcasecmp(\$a->name,\$b->name);\n"));
+			DevblocksPlatform::sortObjects($events, 'name');
 		return $events;
 	}
 	
@@ -146,11 +146,6 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 		}
 			
 		return $events;
-	}
-	
-	private function _importLabels($labels) {
-		uasort($labels, create_function('$a, $b', "return strcasecmp(\$a,\$b);\n"));
-		return $labels;
 	}
 	
 	protected function _importLabelsTypesAsConditions($labels, $types) {
@@ -192,7 +187,8 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 	abstract function setEvent(Model_DevblocksEvent $event_model=null);
 	
 	function setLabels($labels) {
-		$this->_labels = $this->_importLabels($labels);
+		asort($labels);
+		$this->_labels = $labels;
 	}
 	
 	function setValues($values) {
@@ -283,8 +279,8 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 		foreach($manifests as $manifest) {
 			$conditions[$manifest->id] = array('label' => $manifest->params['label']);
 		}
-			
-		uasort($conditions, create_function('$a, $b', "return strcasecmp(\$a['label'],\$b['label']);\n"));
+		
+		DevblocksPlatform::sortObjects($conditions, '[label]');
 			
 		return $conditions;
 	}
@@ -647,9 +643,9 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 		foreach($manifests as $manifest) {
 			$actions[$manifest->id] = array('label' => $manifest->params['label']);
 		}
-			
-		uasort($actions, create_function('$a, $b', "return strcasecmp(\$a['label'],\$b['label']);\n"));
-			
+		
+		DevblocksPlatform::sortObjects($actions, '[label]');
+		
 		return $actions;
 	}
 	
@@ -2730,9 +2726,9 @@ abstract class Extension_DevblocksEventCondition extends DevblocksExtension {
 	public static function getAll($as_instances=false) {
 		$extensions = DevblocksPlatform::getExtensions('devblocks.event.condition', $as_instances);
 		if($as_instances)
-			uasort($extensions, create_function('$a, $b', "return strcasecmp(\$a->manifest->params['label'],\$b->manifest->params['label']);\n"));
+			DevblocksPlatform::sortObjects($extensions, 'manifest->params->[label]');
 		else
-			uasort($extensions, create_function('$a, $b', "return strcasecmp(\$a->params['label'],\$b->params['label']);\n"));
+			DevblocksPlatform::sortObjects($extensions, 'params->[label]');
 		return $extensions;
 	}
 	
@@ -2744,9 +2740,9 @@ abstract class Extension_DevblocksEventAction extends DevblocksExtension {
 	public static function getAll($as_instances=false) {
 		$extensions = DevblocksPlatform::getExtensions('devblocks.event.action', $as_instances);
 		if($as_instances)
-			uasort($extensions, create_function('$a, $b', "return strcasecmp(\$a->manifest->params['label'],\$b->manifest->params['label']);\n"));
+			DevblocksPlatform::sortObjects($extensions, 'manifest->params->[label]');
 		else
-			uasort($extensions, create_function('$a, $b', "return strcasecmp(\$a->params['label'],\$b->params['label']);\n"));
+			DevblocksPlatform::sortObjects($extensions, 'params->[label]');
 		return $extensions;
 	}
 	
@@ -2836,7 +2832,7 @@ interface DevblocksHttpRequestHandler {
 	 */
 	public function handleRequest(DevblocksHttpRequest $request);
 	public function writeResponse(DevblocksHttpResponse $response);
-}
+};
 
 class DevblocksHttpRequest extends DevblocksHttpIO {
 	/**
@@ -2845,7 +2841,7 @@ class DevblocksHttpRequest extends DevblocksHttpIO {
 	function __construct($path, $query=array()) {
 		parent::__construct($path, $query);
 	}
-}
+};
 
 class DevblocksHttpResponse extends DevblocksHttpIO {
 	/**
@@ -2854,7 +2850,7 @@ class DevblocksHttpResponse extends DevblocksHttpIO {
 	function __construct($path, $query=array()) {
 		parent::__construct($path, $query);
 	}
-}
+};
 
 abstract class DevblocksHttpIO {
 	public $path = array();

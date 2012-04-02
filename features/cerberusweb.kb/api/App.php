@@ -150,7 +150,7 @@ class ChKbPage extends CerberusPageExtension {
 			case 'category':
 			default:
 				$tab_manifests = DevblocksPlatform::getExtensions(Extension_KnowledgebaseTab::POINT, false);
-				uasort($tab_manifests, create_function('$a, $b', "return strcasecmp(\$a->name,\$b->name);\n"));
+				DevblocksPlatform::sortObjects($tab_manifests, 'name');
 				$tpl->assign('tab_manifests', $tab_manifests);
 				
 				// Remember the last tab/URL
@@ -1219,7 +1219,7 @@ class SearchFields_KbCategory implements IDevblocksSearchFields {
 		}
 		
 		// Sort by label (translation-conscious)
-		uasort($columns, create_function('$a, $b', "return strcasecmp(\$a->db_label,\$b->db_label);\n"));
+		DevblocksPlatform::sortObjects($columns, 'db_label');
 
 		return $columns;		
 	}

@@ -164,7 +164,7 @@ class DevblocksPlatform extends DevblocksEngine {
 	            $var = $magic_quotes ? stripslashes($var) : $var;
 	        } elseif(is_array($var)) {
 	        	if($magic_quotes)
-	        		array_walk_recursive($var, create_function('&$item, $key','if(!is_array($item)) $item = stripslashes($item);'));
+	        		array_walk_recursive($var, array('DevblocksPlatform','_stripMagicQuotes'));
 	        }
 	        
 	    } elseif (is_null($var) && !is_null($default)) {
@@ -177,6 +177,11 @@ class DevblocksPlatform extends DevblocksEngine {
 	    return $var;
 	}
 
+	static private function _stripMagicQuotes(&$item, $key) {
+		if(is_string($item))
+			$item = stripslashes($item);
+	}
+	
 	/**
 	 * Returns a string as a regexp. 
 	 * "*bob" returns "/(.*?)bob/".
@@ -1456,6 +1461,7 @@ class DevblocksPlatform extends DevblocksEngine {
 					$template->plugin_id = $tpl['plugin_id'];
 					$template->set = $tpl['set'];
 					$template->path = $tpl['path'];
+					$template->sort_key = $tpl['plugin_id'] . ' ' . $tpl['path'];
 					$templates[] = $template;
 				}
 			}

@@ -94,8 +94,7 @@ class DAO_Worker extends C4_ORMHelper {
 		}
 		
 		// Sort workers by idle time (newest first)
-		$sort_func = create_function('$a, $b', "return \$a->last_activity_date > \$b->last_activity_date;");
-		uasort($session_workers, $sort_func);
+		DevblocksPlatform::sortObjects($session_workers, 'last_activity_date');
 		
 		// Find active workers from sessions (idle but not logged out)
 		foreach($session_workers as $worker_id => $worker) {
@@ -657,7 +656,7 @@ class SearchFields_Worker implements IDevblocksSearchFields {
 		}
 		
 		// Sort by label (translation-conscious)
-		uasort($columns, create_function('$a, $b', "return strcasecmp(\$a->db_label,\$b->db_label);\n"));
+		DevblocksPlatform::sortObjects($columns, 'db_label');
 
 		return $columns;		
 	}

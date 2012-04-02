@@ -317,7 +317,7 @@ class ChContactsPage extends CerberusPageExtension {
 		} // switch (tab)
 		
 		$tab_manifests = DevblocksPlatform::getExtensions(Extension_AddressBookTab::POINT, false);
-		uasort($tab_manifests, create_function('$a, $b', "return strcasecmp(\$a->name,\$b->name);\n"));
+		DevblocksPlatform::sortObjects($tab_manifests, 'name');
 		$tpl->assign('tab_manifests', $tab_manifests);
 		
 		$tpl->display('devblocks:cerberusweb.core::contacts/index.tpl');

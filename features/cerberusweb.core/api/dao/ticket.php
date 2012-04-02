@@ -313,7 +313,7 @@ class DAO_Ticket extends C4_ORMHelper {
 			// Sort merge tickets by updated date ascending to find the latest touched
 			$tickets = $merged_tickets;
 			array_unshift($tickets, $oldest_ticket);
-			uasort($tickets, create_function('$a, $b', "return strcmp(\$a[SearchFields_Ticket::TICKET_UPDATED_DATE],\$b[SearchFields_Ticket::TICKET_UPDATED_DATE]);\n"));
+			DevblocksPlatform::sortObjects($tickets, '[' . SearchFields_Ticket::TICKET_UPDATED_DATE . ']');
 			$most_recent_updated_ticket = end($tickets);
 
 			// Set our destination ticket to the latest touched details
@@ -1439,7 +1439,7 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 		}
 		
 		// Sort by label (translation-conscious)
-		uasort($columns, create_function('$a, $b', "return strcasecmp(\$a->db_label,\$b->db_label);\n"));
+		DevblocksPlatform::sortObjects($columns, 'db_label');
 		
 		return $columns;
 	}

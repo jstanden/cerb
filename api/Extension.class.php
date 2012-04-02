@@ -147,9 +147,9 @@ abstract class Extension_PageMenu extends DevblocksExtension {
 		
 		// Sorting
 		if($as_instances)
-			uasort($results, create_function('$a, $b', "return strcasecmp(\$a->manifest->name,\$b->manifest->name);\n"));
+			DevblocksPlatform::sortObjects($results, 'manifest->name');
 		else
-			uasort($results, create_function('$a, $b', "return strcasecmp(\$a->name,\$b->name);\n"));
+			DevblocksPlatform::sortObjects($results, 'name');
 		
 		return $results;
 	}
@@ -178,9 +178,9 @@ abstract class Extension_PageMenuItem extends DevblocksExtension {
 		
 		// Sorting
 		if($as_instances)
-			uasort($results, create_function('$a, $b', "return strcasecmp(\$a->manifest->name,\$b->manifest->name);\n"));
+			DevblocksPlatform::sortObjects($results, 'manifest->name');
 		else
-			uasort($results, create_function('$a, $b', "return strcasecmp(\$a->name,\$b->name);\n"));
+			DevblocksPlatform::sortObjects($results, 'name');
 		
 		return $results;
 	}
