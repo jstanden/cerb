@@ -2677,7 +2677,8 @@ class ChInternalController extends DevblocksControllerExtension {
 				if(empty($var_labels[$idx]))
 					continue;
 				
-				$key = strtolower(!empty($var_keys[$idx]) ? $var_keys[$idx] : ('var_' . DevblocksPlatform::strToPermalink($v)));
+				$var_name = 'var_' . DevblocksPlatform::strAlphaNum(DevblocksPlatform::strToPermalink($v),'_');
+				$key = strtolower(!empty($var_keys[$idx]) ? $var_keys[$idx] : $var_name);
 				$variables[$key] = array(
 					'key' => $key,
 					'label' => $v,
