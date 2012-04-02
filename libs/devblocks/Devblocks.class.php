@@ -1389,6 +1389,10 @@ class DevblocksPlatform extends DevblocksEngine {
 		return false;
 	}
 	
+	static function sortObjects(&$array, $on, $ascending=true) {
+		_DevblocksSortHelper::sortObjects($array, $on, $ascending);
+	}
+	
 	/**
 	 * @return _DevblocksSearchEngineMysqlFulltext
 	 */

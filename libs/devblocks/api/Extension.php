@@ -2869,4 +2869,62 @@ abstract class DevblocksHttpIO {
 		$this->path = $path;
 		$this->query = $query;
 	}
-}
+};
+
+class _DevblocksSortHelper {
+	private static $_sortOn = ''; 
+	
+	static function sortByNestedMember($a, $b) {
+		$props = explode('->', self::$_sortOn);
+		
+		$a_test = $a;
+		$b_test = $b;
+		
+		foreach($props as $prop) {
+			$is_index = false;
+			
+			if(@preg_match("#\[(.*?)\]#", $prop, $matches)) {
+				$is_index = true;
+				$prop = $matches[1];
+			}
+			
+			if($is_index) {
+				if(!isset($a_test[$prop]) || !isset($b_test[$prop]))
+					return 0;
+				
+				$a_test = $a_test[$prop];
+				$b_test = $b_test[$prop];
+				
+			} else {
+				if(!isset($a_test->$prop) || !isset($b_test->$prop))
+					return 0;
+				
+				$a_test = $a_test->$prop;
+				$b_test = $b_test->$prop;
+			}
+		}
+		
+		if(is_numeric($a_test) && is_numeric($b_test)) {
+			settype($a_test, 'integer');
+			settype($b_test, 'integer');
+			if($a_test==$b_test)
+				return 0;
+			return ($a_test > $b_test) ? 1 : -1;
+			
+		} else {
+			if(!is_string($a_test) || !is_string($b_test))
+				return 0;
+			
+			return strcasecmp($a_test, $b_test);
+		}
+	}
+	
+	static function sortObjects(&$array, $on, $ascending=true) {
+		self::$_sortOn = $on;
+		
+		uasort($array, array('_DevblocksSortHelper', 'sortByNestedMember'));
+		
+		if(!$ascending)
+			$array = array_reverse($array, true);
+	}	
+};
