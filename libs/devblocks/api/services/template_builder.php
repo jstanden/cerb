@@ -245,9 +245,19 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 	
 	public function getFilters() {
 		return array(
+			'bytes_pretty' => new Twig_Filter_Method($this, 'filter_bytes_pretty'),
+			'date_pretty' => new Twig_Filter_Method($this, 'filter_date_pretty'),
 			'regexp' => new Twig_Filter_Method($this, 'filter_regexp'),
 			'truncate' => new Twig_Filter_Method($this, 'filter_truncate'),
 		);
+	}
+	
+	function filter_bytes_pretty($string, $precision='0') {
+		return DevblocksPlatform::strPrettyBytes($string, $precision);
+	}
+	
+	function filter_date_pretty($string, $is_delta=false) {
+		return DevblocksPlatform::strPrettyTime($string, $is_delta);
 	}
 	
 	function filter_regexp($string, $pattern, $group = 0) {
