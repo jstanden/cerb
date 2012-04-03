@@ -57,6 +57,8 @@ class Twig_Node_Module extends Twig_Node
 
         $this->compileIsTraitable($compiler);
 
+        $this->compileDebugInfo($compiler);
+
         $this->compileClassFooter($compiler);
     }
 
@@ -94,7 +96,12 @@ class Twig_Node_Module extends Twig_Node
         $compiler->subcompile($this->getNode('body'));
 
         if (null !== $this->getNode('parent')) {
-            $compiler->write("\$this->getParent(\$context)->display(\$context, array_merge(\$this->blocks, \$blocks));\n");
+            if ($this->getNode('parent') instanceof Twig_Node_Expression_Constant) {
+                $compiler->write("\$this->parent");
+            } else {
+                $compiler->write("\$this->getParent(\$context)");
+            }
+            $compiler->raw("->display(\$context, array_merge(\$this->blocks, \$blocks));\n");
         }
     }
 
@@ -118,6 +125,17 @@ class Twig_Node_Module extends Twig_Node
             ->indent()
             ->write("parent::__construct(\$env);\n\n")
         ;
+
+        // parent
+        if (null === $this->getNode('parent')) {
+            $compiler->write("\$this->parent = false;\n\n");
+        } elseif ($this->getNode('parent') instanceof Twig_Node_Expression_Constant) {
+            $compiler
+                ->write("\$this->parent = \$this->env->loadTemplate(")
+                ->subcompile($this->getNode('parent'))
+                ->raw(");\n\n")
+            ;
+        }
 
         $countTraits = count($this->getNode('traits'));
         if ($countTraits) {
@@ -150,21 +168,27 @@ class Twig_Node_Module extends Twig_Node
                 }
             }
 
-            $compiler
-                ->write("\$this->traits = array_merge(\n")
-                ->indent()
-            ;
-
-            for ($i = 0; $i < $countTraits; $i++) {
+            if ($countTraits > 1) {
                 $compiler
-                    ->write(sprintf("\$_trait_%s_blocks".($i == $countTraits - 1 ? '' : ',')."\n", $i))
+                    ->write("\$this->traits = array_merge(\n")
+                    ->indent()
+                ;
+
+                for ($i = 0; $i < $countTraits; $i++) {
+                    $compiler
+                        ->write(sprintf("\$_trait_%s_blocks".($i == $countTraits - 1 ? '' : ',')."\n", $i))
+                    ;
+                }
+
+                $compiler
+                    ->outdent()
+                    ->write(");\n\n")
+                ;
+            } else {
+                $compiler
+                    ->write("\$this->traits = \$_trait_0_blocks;\n\n")
                 ;
             }
-
-            $compiler
-                ->outdent()
-                ->write(");\n\n")
-            ;
 
             $compiler
                 ->write("\$this->blocks = array_merge(\n")
@@ -294,11 +318,22 @@ class Twig_Node_Module extends Twig_Node
             ->indent()
             ->write(sprintf("return %s;\n", $traitable ? 'true' : 'false'))
             ->outdent()
+            ->write("}\n\n")
+        ;
+    }
+
+    protected function compileDebugInfo(Twig_Compiler $compiler)
+    {
+        $compiler
+            ->write("public function getDebugInfo()\n", "{\n")
+            ->indent()
+            ->write(sprintf("return %s;\n", str_replace("\n", '', var_export(array_reverse($compiler->getDebugInfo(), true), true))))
+            ->outdent()
             ->write("}\n")
         ;
     }
 
-    public function compileLoadTemplate(Twig_Compiler $compiler, $node, $var)
+    protected function compileLoadTemplate(Twig_Compiler $compiler, $node, $var)
     {
         if ($node instanceof Twig_Node_Expression_Constant) {
             $compiler

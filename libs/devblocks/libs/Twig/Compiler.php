@@ -22,6 +22,9 @@ class Twig_Compiler implements Twig_CompilerInterface
     protected $source;
     protected $indentation;
     protected $env;
+    protected $debugInfo;
+    protected $sourceOffset;
+    protected $sourceLine;
 
     /**
      * Constructor.
@@ -31,6 +34,7 @@ class Twig_Compiler implements Twig_CompilerInterface
     public function __construct(Twig_Environment $env)
     {
         $this->env = $env;
+        $this->debugInfo = array();
     }
 
     /**
@@ -56,8 +60,8 @@ class Twig_Compiler implements Twig_CompilerInterface
     /**
      * Compiles a node.
      *
-     * @param Twig_NodeInterface $node   The node to compile
-     * @param integer            $indent The current indentation
+     * @param Twig_NodeInterface $node        The node to compile
+     * @param integer            $indentation The current indentation
      *
      * @return Twig_Compiler The current compiler instance
      */
@@ -65,6 +69,8 @@ class Twig_Compiler implements Twig_CompilerInterface
     {
         $this->lastLine = null;
         $this->source = '';
+        $this->sourceOffset = 0;
+        $this->sourceLine = 0;
         $this->indentation = $indentation;
 
         $node->compile($this);
@@ -123,7 +129,7 @@ class Twig_Compiler implements Twig_CompilerInterface
     /**
      * Adds a quoted string to the compiled code.
      *
-     * @param  string $string The string
+     * @param  string $value The string
      *
      * @return Twig_Compiler The current compiler instance
      */
@@ -144,12 +150,20 @@ class Twig_Compiler implements Twig_CompilerInterface
     public function repr($value)
     {
         if (is_int($value) || is_float($value)) {
+            if (false !== $locale = setlocale(LC_NUMERIC, 0)) {
+                setlocale(LC_NUMERIC, 'C');
+            }
+
             $this->raw($value);
-        } else if (null === $value) {
+
+            if (false !== $locale) {
+                setlocale(LC_NUMERIC, $locale);
+            }
+        } elseif (null === $value) {
             $this->raw('null');
-        } else if (is_bool($value)) {
+        } elseif (is_bool($value)) {
             $this->raw($value ? 'true' : 'false');
-        } else if (is_array($value)) {
+        } elseif (is_array($value)) {
             $this->raw('array(');
             $i = 0;
             foreach ($value as $key => $value) {
@@ -178,6 +192,10 @@ class Twig_Compiler implements Twig_CompilerInterface
     public function addDebugInfo(Twig_NodeInterface $node)
     {
         if ($node->getLine() != $this->lastLine) {
+            $this->sourceLine += substr_count($this->source, "\n", $this->sourceOffset);
+            $this->sourceOffset = strlen($this->source);
+            $this->debugInfo[$this->sourceLine] = $node->getLine();
+
             $this->lastLine = $node->getLine();
             $this->write("// line {$node->getLine()}\n");
         }
@@ -185,10 +203,15 @@ class Twig_Compiler implements Twig_CompilerInterface
         return $this;
     }
 
+    public function getDebugInfo()
+    {
+        return $this->debugInfo;
+    }
+
     /**
      * Indents the generated code.
      *
-     * @param integer $indent The number of indentation to add
+     * @param integer $step The number of indentation to add
      *
      * @return Twig_Compiler The current compiler instance
      */
@@ -202,7 +225,7 @@ class Twig_Compiler implements Twig_CompilerInterface
     /**
      * Outdents the generated code.
      *
-     * @param integer $indent The number of indentation to remove
+     * @param integer $step The number of indentation to remove
      *
      * @return Twig_Compiler The current compiler instance
      */

@@ -34,7 +34,7 @@ class Twig_NodeVisitor_Escaper implements Twig_NodeVisitorInterface
      * @param Twig_NodeInterface $node The node to visit
      * @param Twig_Environment   $env  The Twig environment instance
      *
-     * @param Twig_NodeInterface The modified node
+     * @return Twig_NodeInterface The modified node
      */
     public function enterNode(Twig_NodeInterface $node, Twig_Environment $env)
     {
@@ -53,7 +53,7 @@ class Twig_NodeVisitor_Escaper implements Twig_NodeVisitorInterface
      * @param Twig_NodeInterface $node The node to visit
      * @param Twig_Environment   $env  The Twig environment instance
      *
-     * @param Twig_NodeInterface The modified node
+     * @return Twig_NodeInterface The modified node
      */
     public function leaveNode(Twig_NodeInterface $node, Twig_Environment $env)
     {
@@ -148,6 +148,7 @@ class Twig_NodeVisitor_Escaper implements Twig_NodeVisitorInterface
         $line = $node->getLine();
         $name = new Twig_Node_Expression_Constant('escape', $line);
         $args = new Twig_Node(array(new Twig_Node_Expression_Constant((string) $type, $line), new Twig_Node_Expression_Constant(null, $line), new Twig_Node_Expression_Constant(true, $line)));
+
         return new Twig_Node_Expression_Filter($node, $name, $args, $line);
     }
 
