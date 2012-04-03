@@ -29,7 +29,9 @@ class Twig_Node_SetTemp extends Twig_Node
             ->repr($name)
             ->raw(']; } else { $_')
             ->raw($name)
-            ->raw("_ = null; }\n")
+            ->raw("_ = \$this->env->getUndefinedVariable('")
+            ->raw($name)
+            ->raw("'); }\n")
         ;
     }
 }

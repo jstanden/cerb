@@ -43,6 +43,7 @@ class Twig_Environment
     protected $templateClassPrefix = '__TwigTemplate_';
     protected $functionCallbacks;
     protected $filterCallbacks;
+    protected $variableCallbacks;
     protected $staging;
 
     /**
@@ -109,6 +110,7 @@ class Twig_Environment
         $this->setCache($options['cache']);
         $this->functionCallbacks = array();
         $this->filterCallbacks = array();
+        $this->variableCallbacks = array();
     }
 
     /**
@@ -834,6 +836,35 @@ class Twig_Environment
         return $this->filters;
     }
 
+    /**
+     * Registers an undefined variable callback.
+     * 
+     * @param string $callable
+     */
+    public function registerUndefinedVariableCallback($callable, $replace=false)
+    {
+		if($replace) {
+	    	$this->variableCallbacks = array($callable);
+		} else {
+			$this->variableCallbacks[] = $callable;
+		}
+    }
+    
+    /**
+     * Attempts to get a value for an undefined variable from a callback.
+     * 
+     * @param string 			$name	The callback
+     * @return mixed
+     */
+    public function getUndefinedVariable($name)
+	{
+		foreach ($this->variableCallbacks as $callback) {
+            if (false !== $value = call_user_func($callback, $name)) {
+                return $value;
+            }
+        }
+    }
+    
     /**
      * Registers a Test.
      *
