@@ -822,8 +822,11 @@ class Context_ContactPerson extends Extension_DevblocksContext {
 		// Token values
 		$token_values = array();
 		
+		$token_values['_context'] = CerberusContexts::CONTEXT_CONTACT_PERSON;
+		
 		// Address token values
 		if(null != $person) {
+			$token_values['_loaded'] = true;
 			$token_values['id'] = $person->id;
 			if(!empty($person->created))
 				$token_values['created'] = $person->created;
@@ -834,35 +837,15 @@ class Context_ContactPerson extends Extension_DevblocksContext {
 			$url_writer = DevblocksPlatform::getUrlService();
 			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=contacts&tab=people&id=%d",$person->id), true);
 			
-			$token_values['custom'] = array();
-			
-			$field_values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_CONTACT_PERSON, $person->id));
-			if(is_array($field_values) && !empty($field_values)) {
-				foreach($field_values as $cf_id => $cf_val) {
-					if(!isset($fields[$cf_id]))
-						continue;
-					
-					// The literal value
-					if(null != $person)
-						$token_values['custom'][$cf_id] = $cf_val;
-					
-					// Stringify
-					if(is_array($cf_val))
-						$cf_val = implode(', ', $cf_val);
-						
-					if(is_string($cf_val)) {
-						if(null != $person)
-							$token_values['custom_'.$cf_id] = $cf_val;
-					}
-				}
-			}
+			// Primary Email
+			$email_id = (null != $person && !empty($person->email_id)) ? $person->email_id : null;
+			$token_values['email_id'] = $email_id;
 		}
 		
 		// Primary Email
-		$email_id = (null != $person && !empty($person->email_id)) ? $person->email_id : null;
 		$merge_token_labels = array();
 		$merge_token_values = array();
-		CerberusContexts::getContext(CerberusContexts::CONTEXT_ADDRESS, $email_id, $merge_token_labels, $merge_token_values, null, true);
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_ADDRESS, null, $merge_token_labels, $merge_token_values, null, true);
 
 		CerberusContexts::merge(
 			'email_',
@@ -876,6 +859,40 @@ class Context_ContactPerson extends Extension_DevblocksContext {
 		return true;		
 	}
 
+	function lazyLoadContextValues($token, $dictionary) {
+		if(!isset($dictionary['id']))
+			return;
+		
+		$context = CerberusContexts::CONTEXT_CONTACT_PERSON;
+		$context_id = $dictionary['id'];
+		
+		@$is_loaded = $dictionary['_loaded'];
+		$values = array();
+		
+		if(!$is_loaded) {
+			$labels = array();
+			CerberusContexts::getContext($context, $context_id, $labels, $values);
+		}
+		
+		switch($token) {
+			case 'watchers':
+				$watchers = array(
+					$token => CerberusContexts::getWatchers($context, $context_id, true),
+				);
+				$values = array_merge($values, $watchers);
+				break;
+				
+			default:
+				if(substr($token,0,7) == 'custom_') {
+					$fields = $this->_lazyLoadCustomFields($context, $context_id);
+					$values = array_merge($values, $fields);
+				}
+				break;
+		}
+		
+		return $values;
+	}	
+	
 	function getChooserView() {
 		$translate = DevblocksPlatform::getTranslationService();
 		

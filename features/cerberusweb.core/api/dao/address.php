@@ -1005,7 +1005,7 @@ class Context_Address extends Extension_DevblocksContext {
 		} else {
 			$address = null;
 		}
-			
+		
 		// Token labels
 		$token_labels = array(
 			'address' => $prefix.$translate->_('address.address'),
@@ -1026,8 +1026,11 @@ class Context_Address extends Extension_DevblocksContext {
 		// Token values
 		$token_values = array();
 		
+		$token_values['_context'] = CerberusContexts::CONTEXT_ADDRESS;
+
 		// Address token values
 		if(null != $address) {
+			$token_values['_loaded'] = true;
 			$token_values['id'] = $address->id;
 			$token_values['full_name'] = $address->getName();
 			if(!empty($address->email))
@@ -1042,39 +1045,15 @@ class Context_Address extends Extension_DevblocksContext {
 			$url_writer = DevblocksPlatform::getUrlService();
 			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=contacts&tab=addresses&page=display&id=%d-%s",$address->id, DevblocksPlatform::strToPermalink($address->email)), true);
 			
-			$token_values['custom'] = array();
-			
-			$field_values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_ADDRESS, $address->id));
-			if(is_array($field_values) && !empty($field_values)) {
-				foreach($field_values as $cf_id => $cf_val) {
-					if(!isset($fields[$cf_id]))
-						continue;
-					
-					// The literal value
-					if(null != $address)
-						$token_values['custom'][$cf_id] = $cf_val;
-					
-					// Stringify
-					if(is_array($cf_val))
-						$cf_val = implode(', ', $cf_val);
-						
-					if(is_string($cf_val)) {
-						if(null != $address)
-							$token_values['custom_'.$cf_id] = $cf_val;
-					}
-				}
-			}
-			
-			// Watchers
-			$watchers = CerberusContexts::getWatchers(CerberusContexts::CONTEXT_ADDRESS, $address->id, true);
-			$token_values['watchers'] = $watchers;
+			// Org
+			$org_id = (null != $address && !empty($address->contact_org_id)) ? $address->contact_org_id : null;
+			$token_values['org_id'] = $org_id;
 		}
 		
 		// Email Org
-		$org_id = (null != $address && !empty($address->contact_org_id)) ? $address->contact_org_id : null;
 		$merge_token_labels = array();
 		$merge_token_values = array();
-		CerberusContexts::getContext(CerberusContexts::CONTEXT_ORG, $org_id, $merge_token_labels, $merge_token_values, null, true);
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_ORG, null, $merge_token_labels, $merge_token_values, null, true);
 
 		CerberusContexts::merge(
 			'org_',
@@ -1085,9 +1064,41 @@ class Context_Address extends Extension_DevblocksContext {
 			$token_values
 		);		
 		
-		// [TODO] Link contact
-		
 		return true;		
+	}
+	
+	function lazyLoadContextValues($token, $dictionary) {
+		if(!isset($dictionary['id']))
+			return;
+		
+		$context = CerberusContexts::CONTEXT_ADDRESS;
+		$context_id = $dictionary['id'];
+		
+		@$is_loaded = $dictionary['_loaded'];
+		$values = array();
+		
+		if(!$is_loaded) {
+			$labels = array();
+			CerberusContexts::getContext($context, $context_id, $labels, $values);
+		}
+		
+		switch($token) {
+			case 'watchers':
+				$watchers = array(
+					$token => CerberusContexts::getWatchers($context, $context_id, true),
+				);
+				$values = array_merge($values, $watchers);
+				break;
+				
+			default:
+				if(substr($token,0,7) == 'custom_') {
+					$fields = $this->_lazyLoadCustomFields($context, $context_id);
+					$values = array_merge($values, $fields);
+				}
+				break;
+		}
+		
+		return $values;
 	}
 
 	function getChooserView() {

@@ -112,6 +112,33 @@ abstract class Extension_DevblocksContext extends DevblocksExtension {
     	return @$this->manifest->params['view_class'];
     }
     abstract function getView($context=null, $context_id=null, $options=array());
+    function lazyLoadContextValues($token, $dictionary) { return array(); }
+    
+    protected function _lazyLoadCustomFields($context, $context_id) {
+		$fields = DAO_CustomField::getByContext($context);
+		$token_values['custom'] = array();
+
+		$field_values = array_shift(DAO_CustomFieldValue::getValuesByContextIds($context, $context_id));
+		
+		foreach(array_keys($fields) as $cf_id) {
+			$token_values['custom'][$cf_id] = '';
+			$token_values['custom_' . $cf_id] = '';
+			
+			if(isset($field_values[$cf_id])) {
+				// The literal value
+				$token_values['custom'][$cf_id] = $field_values[$cf_id];
+				
+				// Stringify
+				if(is_array($field_values[$cf_id])) {
+					$token_values['custom_'.$cf_id] = implode(', ', $field_values[$cf_id]);
+				} elseif(is_string($field_values[$cf_id])) {
+					$token_values['custom_'.$cf_id] = $field_values[$cf_id];
+				}
+			}
+		}
+		
+		return $token_values;
+    } 
 };
 
 abstract class Extension_DevblocksEvent extends DevblocksExtension {
@@ -1598,7 +1625,7 @@ class DevblocksEventHelper {
 		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_create_comment.tpl');
 	}
 	
-	static function simulateActionCreateComment($params, $values, $on_default) {
+	static function simulateActionCreateComment($params, &$values, $on_default) {
 		$notify_worker_ids = isset($params['notify_worker_id']) ? $params['notify_worker_id'] : array();
 		$notify_worker_ids = DevblocksEventHelper::mergeWorkerVars($notify_worker_ids, $values);
 
@@ -1653,7 +1680,7 @@ class DevblocksEventHelper {
 		return rtrim($out);
 	}
 	
-	static function runActionCreateComment($params, $values, $default_on) {
+	static function runActionCreateComment($params, &$values, $default_on) {
 		$notify_worker_ids = isset($params['notify_worker_id']) ? $params['notify_worker_id'] : array();
 		$notify_worker_ids = DevblocksEventHelper::mergeWorkerVars($notify_worker_ids, $values);
 
@@ -1872,7 +1899,7 @@ class DevblocksEventHelper {
 		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_create_notification.tpl');
 	}
 	
-	static function simulateActionCreateNotification($params, $values, $default_on) {
+	static function simulateActionCreateNotification($params, &$values, $default_on) {
 		// Translate message tokens
 		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
 		$content = $tpl_builder->build($params['content'], $values);
@@ -1926,7 +1953,7 @@ class DevblocksEventHelper {
 		return $out;		
 	}
 	
-	static function runActionCreateNotification($params, $values, $default_on) {
+	static function runActionCreateNotification($params, &$values, $default_on) {
 		$trigger = $values['_trigger'];
 		$event = $trigger->getEvent();
 		
@@ -1997,7 +2024,7 @@ class DevblocksEventHelper {
 		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_create_task.tpl');
 	}
 	
-	static function simulateActionCreateTask($params, $values, $default_on) {
+	static function simulateActionCreateTask($params, &$values, $default_on) {
 		$due_date = $params['due_date'];
 
 		@$watcher_worker_ids = DevblocksPlatform::importVar($params['worker_id'],'array',array());
@@ -2084,7 +2111,7 @@ class DevblocksEventHelper {
 		return $out;
 	}
 	
-	static function runActionCreateTask($params, $values, $default_on) {
+	static function runActionCreateTask($params, &$values, $default_on) {
 		$due_date = $params['due_date'];
 
 		@$watcher_worker_ids = DevblocksPlatform::importVar($params['worker_id'],'array',array());
@@ -2160,7 +2187,7 @@ class DevblocksEventHelper {
 		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_create_ticket.tpl');
 	}
 	
-	static function simulateActionCreateTicket($params, $values) {
+	static function simulateActionCreateTicket($params, &$values) {
 		@$group_id = $params['group_id'];
 		
 		if(null == ($group = DAO_Group::get($group_id)))
@@ -2226,7 +2253,7 @@ class DevblocksEventHelper {
 		return $out;
 	}
 	
-	static function runActionCreateTicket($params, $values) {
+	static function runActionCreateTicket($params, &$values) {
 		@$group_id = $params['group_id'];
 		
 		if(null == ($group = DAO_Group::get($group_id)))
@@ -2328,7 +2355,7 @@ class DevblocksEventHelper {
 		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_send_email.tpl');
 	}
 	
-	function simulateActionSendEmail($params, $values) {
+	function simulateActionSendEmail($params, &$values) {
 		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
 
 		@$trigger = $values['_trigger'];
@@ -2393,7 +2420,7 @@ class DevblocksEventHelper {
 		return $out;
 	}
 	
-	function runActionSendEmail($params, $values) {
+	function runActionSendEmail($params, &$values) {
 		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
 		
 		@$trigger = $values['_trigger'];

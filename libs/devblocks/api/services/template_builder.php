@@ -96,21 +96,122 @@ class _DevblocksTemplateBuilder {
 	 * @param array $vars
 	 * @return string
 	 */
-	function build($template, $vars) {
+	function build($template, &$vars) {
 		$this->_setUp();
+		
+		$dict = new DevblocksDictionaryDelegate($vars);
+		
 		try {
 			$template = $this->_twig->loadTemplate($template); /* @var $template Twig_Template */
-			$out = $template->render($vars);
+			$this->_twig->registerUndefinedVariableCallback(array($dict, 'delegateUndefinedVariable'), true);
+			$out = $template->render(array());
+			
 		} catch(Exception $e) {
 			$this->_errors[] = $e->getMessage();
 		}
 		$this->_tearDown();
 
+		$vars = $dict->getDictionary();
+		
 		if(!empty($this->_errors))
 			return false;
 		
 		return $out;
 	} 
+};
+
+class DevblocksDictionaryDelegate {
+	private $_dictionary = null;
+	private $_delegate = null;
+	
+	function __construct($dictionary, $delegate=null) {
+		$this->_dictionary = $dictionary;
+		$this->_delegate = $delegate;
+	}
+	
+	public function __get($name) {
+		if(isset($this->_dictionary[$name])) {
+			return $this->_dictionary[$name];
+		}
+		
+		// Lazy load
+		
+		$contexts = array();
+		
+		// Find the embedded contexts for each token
+		foreach(array_keys($this->_dictionary) as $key) {
+			if(preg_match('#(.*)__context#', $key, $matches)) {
+				if(0 == strcmp(substr($name,0,strlen($matches[1])),$matches[1])) {
+					$contexts[$matches[1]] = array(
+						'key' => $key,
+						'prefix' => $matches[1] . '_',
+						'token' => substr($name, strlen($matches[1])+1),
+						'len' => strlen($matches[1]),
+					);
+				}
+			}
+		}
+
+		if(empty($contexts))
+			return null;
+		
+		DevblocksPlatform::sortObjects($contexts, '[len]', true);
+		
+		while(null != ($context_data = array_shift($contexts))) {
+			$context_ext = $this->_dictionary[$context_data['key']];
+	
+			if(null == ($context = Extension_DevblocksContext::get($context_ext)))
+				continue;
+	
+			if(!method_exists($context, 'lazyLoadContextValues'))
+				continue;
+	
+			$local = $this->getDictionary($context_data['prefix']);
+			$loaded_values = $context->lazyLoadContextValues($context_data['token'], $local);
+	
+			if(empty($loaded_values))
+				continue;
+			
+			//echo "<LAZYLOAD>";
+			
+			if(is_array($loaded_values))
+			foreach($loaded_values as $k => $v) {
+				$this->_dictionary[$context_data['prefix'] . $k] = $v;
+			}
+		}
+		
+		if(isset($this->_dictionary[$name]))
+			return $this->_dictionary[$name];
+
+		return null;
+	}
+	
+	public function __isset($name) {
+		if(isset($this->_dictionary[$name]))
+			return true;
+	}
+	
+	public function delegateUndefinedVariable($name) {
+		return $this->$name;
+	}
+	
+	public function getDictionary($with_prefix=null) {
+		$dict = $this->_dictionary;
+		
+		if(empty($with_prefix))
+			return $dict;
+
+		$new_dict = array();
+		
+		foreach($dict as $k => $v) {
+			$len = strlen($with_prefix);
+			if(0 == strcasecmp($with_prefix, substr($k,0,$len))) {
+				$new_dict[substr($k,$len)] = $v;
+ 			}
+		}
+		
+		return $new_dict;
+	}
 };
 
 class _DevblocksTwigExpressionVisitor implements Twig_NodeVisitorInterface {

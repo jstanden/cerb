@@ -668,6 +668,8 @@ class Context_KbArticle extends Extension_DevblocksContext {
 		// Token values
 		$token_values = array();
 		
+		$token_values['_context'] = CerberusContexts::CONTEXT_KB_ARTICLE;
+		
 		// Token values
 		if(null != $article) {
 			$token_values['content'] = $article->getContent();
@@ -676,54 +678,63 @@ class Context_KbArticle extends Extension_DevblocksContext {
 			$token_values['updated'] = $article->updated;
 			$token_values['views'] = $article->views;
 			
-			// Categories
-			if(null != ($categories = $article->getCategories()) && is_array($categories)) {
-				$token_values['categories'] = array();
-				
-				foreach($categories as $category_id => $trail) {
-					foreach($trail as $step_id => $step) {
-						if(!isset($token_values['categories'][$category_id]))
-							$token_values['categories'][$category_id] = array();
-						$token_values['categories'][$category_id][$step_id] = $step->name;
-					}
-				}
-			}
-			
 			// URL
 			$url_writer = DevblocksPlatform::getUrlService();
 			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=kb&ar=article&id=%d-%s",$article->id, DevblocksPlatform::strToPermalink($article->title)), true);
-			
-			$token_values['custom'] = array();
-			
-			$field_values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_KB_ARTICLE, $article->id));
-			if(is_array($field_values) && !empty($field_values)) {
-				foreach($field_values as $cf_id => $cf_val) {
-					if(!isset($fields[$cf_id]))
-						continue;
-					
-					// The literal value
-					if(null != $article)
-						$token_values['custom'][$cf_id] = $cf_val;
-					
-					// Stringify
-					if(is_array($cf_val))
-						$cf_val = implode(', ', $cf_val);
-						
-					if(is_string($cf_val)) {
-						if(null != $article)
-							$token_values['custom_'.$cf_id] = $cf_val;
-					}
-				}
-			}
-			
-			// Watchers
-			$watchers = CerberusContexts::getWatchers(CerberusContexts::CONTEXT_KB_ARTICLE, $article->id, true);
-			$token_values['watchers'] = $watchers;
 		}
 		
 		return TRUE;
 	}
 
+	function lazyLoadContextValues($token, $dictionary) {
+		if(!isset($dictionary['id']))
+			return;
+		
+		$context = CerberusContexts::CONTEXT_KB_ARTICLE;
+		$context_id = $dictionary['id'];
+		
+		@$is_loaded = $dictionary['_loaded'];
+		$values = array();
+		
+		if(!$is_loaded) {
+			$labels = array();
+			CerberusContexts::getContext($context, $context_id, $labels, $values);
+		}
+		
+		switch($token) {
+			case 'categories':
+				// Categories
+				if(null != ($categories = $article->getCategories()) && is_array($categories)) {
+					$values['categories'] = array();
+					
+					foreach($categories as $category_id => $trail) {
+						foreach($trail as $step_id => $step) {
+							if(!isset($token_values['categories'][$category_id]))
+								$values['categories'][$category_id] = array();
+							$values['categories'][$category_id][$step_id] = $step->name;
+						}
+					}
+				}
+				break;
+			
+			case 'watchers':
+				$watchers = array(
+					$token => CerberusContexts::getWatchers($context, $context_id, true),
+				);
+				$values = array_merge($values, $watchers);
+				break;
+				
+			default:
+				if(substr($token,0,7) == 'custom_') {
+					$fields = $this->_lazyLoadCustomFields($context, $context_id);
+					$values = array_merge($values, $fields);
+				}
+				break;
+		}
+		
+		return $values;
+	}	
+	
 	function getChooserView() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		

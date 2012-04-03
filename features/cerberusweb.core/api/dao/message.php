@@ -1386,8 +1386,11 @@ class Context_Message extends Extension_DevblocksContext {
 		// Token values
 		$token_values = array();
 		
+		$token_values['_context'] = CerberusContexts::CONTEXT_MESSAGE;
+		
 		// Message token values
 		if($message) {
+			$token_values['_loaded'] = true;
 			$token_values['content'] = $message->getContent();
 			$token_values['created'] = $message->created_date;
 			$token_values['id'] = $message->id;
@@ -1395,13 +1398,16 @@ class Context_Message extends Extension_DevblocksContext {
 			$token_values['storage_size'] = $message->storage_size;
 			$token_values['ticket_id'] = $message->ticket_id;
 			$token_values['worker_id'] = $message->worker_id;
+			
+			// Sender
+			@$address_id = $message->address_id;
+			$token_values['sender_id'] = $address_id;
 		}
 
 		// Sender
-		@$address_id = $message->address_id;
 		$merge_token_labels = array();
 		$merge_token_values = array();
-		CerberusContexts::getContext(CerberusContexts::CONTEXT_ADDRESS, $address_id, $merge_token_labels, $merge_token_values, '', true);
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_ADDRESS, null, $merge_token_labels, $merge_token_values, '', true);
 
 		CerberusContexts::merge(
 			'sender_',
@@ -1414,6 +1420,33 @@ class Context_Message extends Extension_DevblocksContext {
 		
 		return true;
 	}
+	
+	function lazyLoadContextValues($token, $dictionary) {
+		if(!isset($dictionary['id']))
+			return;
+		
+		$context = CerberusContexts::CONTEXT_MESSAGE;
+		$context_id = $dictionary['id'];
+		
+		@$is_loaded = $dictionary['_loaded'];
+		$values = array();
+		
+		if(!$is_loaded) {
+			$labels = array();
+			CerberusContexts::getContext($context, $context_id, $labels, $values);
+		}
+		
+		switch($token) {
+			default:
+				if(substr($token,0,7) == 'custom_') {
+					$fields = $this->_lazyLoadCustomFields($context, $context_id);
+					$values = array_merge($values, $fields);
+				}
+				break;
+		}
+		
+		return $values;
+	}	
 
 	function getChooserView() {
 		$active_worker = CerberusApplication::getActiveWorker();

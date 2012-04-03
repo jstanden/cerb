@@ -2684,8 +2684,11 @@ class Context_Ticket extends Extension_DevblocksContext {
 		// Token values
 		$token_values = array();
 		
+		$token_values['_context'] = CerberusContexts::CONTEXT_TICKET;
+		
 		// Ticket token values
 		if(null != $ticket) {
+			$token_values['_loaded'] = true;
 			$token_values['created'] = $ticket[SearchFields_Ticket::TICKET_CREATED_DATE];
 			$token_values['id'] = $ticket[SearchFields_Ticket::TICKET_ID];
 			$token_values['mask'] = $ticket[SearchFields_Ticket::TICKET_MASK];
@@ -2715,52 +2718,30 @@ class Context_Ticket extends Extension_DevblocksContext {
 			// URL
 			$url_writer = DevblocksPlatform::getUrlService();
 			$token_values['url'] = $url_writer->writeNoProxy('c=display&mask='.$ticket[SearchFields_Ticket::TICKET_MASK],true);
+
+			// Group
+			$token_values['group_id'] = $ticket[SearchFields_Ticket::TICKET_GROUP_ID];
+
+			// Bucket
+			$token_values['bucket_id'] = $ticket[SearchFields_Ticket::TICKET_BUCKET_ID];
 			
-			// Custom fields
-			$field_values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_TICKET, $ticket[SearchFields_Ticket::TICKET_ID]));
-			if(is_array($field_values) && !empty($field_values)) {
-				foreach($field_values as $cf_id => $cf_val) {
-					if(!isset($fields[$cf_id]))
-						continue;
-					
-					// The literal value
-					if(null != $ticket)
-						$token_values['custom'][$cf_id] = $cf_val;
-					
-					// Stringify
-					if(is_array($cf_val))
-						$cf_val = implode(', ', $cf_val);
-						
-					if(is_string($cf_val)) {
-						if(null != $ticket)
-							$token_values['custom_'.$cf_id] = $cf_val;
-					}
-				}
-			}
+			// First message
+			$token_values['initial_message_id'] = $ticket[SearchFields_Ticket::TICKET_FIRST_MESSAGE_ID]; 
 			
-			// Watchers
-			$watchers = CerberusContexts::getWatchers(CerberusContexts::CONTEXT_TICKET, $ticket[SearchFields_Ticket::TICKET_ID], true);
-			$token_values['watchers'] = $watchers;
+			// Last message
+			$token_values['latest_message_id'] = $ticket[SearchFields_Ticket::TICKET_LAST_MESSAGE_ID];
+			
+			// Owner
+			$token_values['owner_id'] = $ticket[SearchFields_Ticket::TICKET_OWNER_ID];
+			
+			// Org
+			$token_values['org_id'] = $ticket[SearchFields_Ticket::TICKET_ORG_ID];
 		}
 		
-		// Requesters
-		$token_values['requesters'] = array();
-		$reqs = DAO_Ticket::getRequestersByTicket($ticket[SearchFields_Ticket::TICKET_ID]);
-		if(is_array($reqs))
-		foreach($reqs as $req) { /* @var $req Model_Address */
-			$token_values['requesters'][$req->id] = array(
-				'email' => $req->email,
-				'first_name' => $req->first_name,
-				'last_name' => $req->last_name,
-				'full_name' => $req->getName(),
-				'org_id' => $req->contact_org_id,
-			);
-		}
-
 		// Group
 		$merge_token_labels = array();
 		$merge_token_values = array();
-		CerberusContexts::getContext(CerberusContexts::CONTEXT_GROUP, $ticket[SearchFields_Ticket::TICKET_GROUP_ID], $merge_token_labels, $merge_token_values, '', true);
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_GROUP, null, $merge_token_labels, $merge_token_values, '', true);
 
 		CerberusContexts::merge(
 			'group_',
@@ -2774,7 +2755,7 @@ class Context_Ticket extends Extension_DevblocksContext {
 		// Bucket
 		$merge_token_labels = array();
 		$merge_token_values = array();
-		CerberusContexts::getContext(CerberusContexts::CONTEXT_BUCKET, $ticket[SearchFields_Ticket::TICKET_BUCKET_ID], $merge_token_labels, $merge_token_values, '', true);
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_BUCKET, null, $merge_token_labels, $merge_token_values, '', true);
 
 		CerberusContexts::merge(
 			'bucket_',
@@ -2786,10 +2767,9 @@ class Context_Ticket extends Extension_DevblocksContext {
 		);
 		
 		// First message
-		$first_message_id = $ticket[SearchFields_Ticket::TICKET_FIRST_MESSAGE_ID];
 		$merge_token_labels = array();
 		$merge_token_values = array();
-		CerberusContexts::getContext(CerberusContexts::CONTEXT_MESSAGE, $first_message_id, $merge_token_labels, $merge_token_values, 'Message:', true);
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_MESSAGE, null, $merge_token_labels, $merge_token_values, 'Message:', true);
 		
 		CerberusContexts::merge(
 			'initial_message_',
@@ -2802,10 +2782,9 @@ class Context_Ticket extends Extension_DevblocksContext {
 		);
 		
 		// Last message
-		$last_message_id = $ticket[SearchFields_Ticket::TICKET_LAST_MESSAGE_ID];
 		$merge_token_labels = array();
 		$merge_token_values = array();
-		CerberusContexts::getContext(CerberusContexts::CONTEXT_MESSAGE, $last_message_id, $merge_token_labels, $merge_token_values, 'Message:', true);
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_MESSAGE, null, $merge_token_labels, $merge_token_values, 'Message:', true);
 		
 		CerberusContexts::merge(
 			'latest_message_',
@@ -2817,10 +2796,9 @@ class Context_Ticket extends Extension_DevblocksContext {
 		);
 		
 		// Owner
-		$owner_id = $ticket[SearchFields_Ticket::TICKET_OWNER_ID];
 		$merge_token_labels = array();
 		$merge_token_values = array();
-		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $owner_id, $merge_token_labels, $merge_token_values, '', true);
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, null, $merge_token_labels, $merge_token_values, '', true);
 
 			// Clear dupe content
 			CerberusContexts::scrubTokensWithRegexp(
@@ -2844,10 +2822,9 @@ class Context_Ticket extends Extension_DevblocksContext {
 			);
 		
 		// Org
-		$org_id = $ticket[SearchFields_Ticket::TICKET_ORG_ID];
 		$merge_token_labels = array();
 		$merge_token_values = array();
-		CerberusContexts::getContext(CerberusContexts::CONTEXT_ORG, $org_id, $merge_token_labels, $merge_token_values, '', true);
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_ORG, null, $merge_token_labels, $merge_token_values, '', true);
 		
 			CerberusContexts::merge(
 				'org_',
@@ -2859,6 +2836,7 @@ class Context_Ticket extends Extension_DevblocksContext {
 			);
 			
 		// Plugin-provided tokens
+		// [TODO]
 		$token_extension_mfts = DevblocksPlatform::getExtensions('cerberusweb.template.token', false);
 		foreach($token_extension_mfts as $mft) { /* @var $mft DevblocksExtensionManifest */
 			@$token = $mft->params['token'];
@@ -2885,6 +2863,55 @@ class Context_Ticket extends Extension_DevblocksContext {
 		return true;
 	}
     
+	function lazyLoadContextValues($token, $dictionary) {
+		if(!isset($dictionary['id']))
+			return;
+		
+		$context = CerberusContexts::CONTEXT_TICKET;
+		$context_id = $dictionary['id'];
+		
+		@$is_loaded = $dictionary['_loaded'];
+		$values = array();
+		
+		if(!$is_loaded) {
+			$labels = array();
+			CerberusContexts::getContext($context, $context_id, $labels, $values);
+		}
+		
+		switch($token) {
+			case 'requesters':
+				$values['requesters'] = array();
+				$reqs = DAO_Ticket::getRequestersByTicket($context_id);
+				if(is_array($reqs))
+				foreach($reqs as $req) { /* @var $req Model_Address */
+					$values['requesters'][$req->id] = array(
+						'email' => $req->email,
+						'first_name' => $req->first_name,
+						'last_name' => $req->last_name,
+						'full_name' => $req->getName(),
+						'org_id' => $req->contact_org_id,
+					);
+				}
+				break;
+				
+			case 'watchers':
+				$watchers = array(
+					$token => CerberusContexts::getWatchers($context, $context_id, true),
+				);
+				$values = array_merge($values, $watchers);
+				break;
+				
+			default:
+				if(substr($token,0,7) == 'custom_') {
+					$fields = $this->_lazyLoadCustomFields($context, $context_id);
+					$values = array_merge($values, $fields);
+				}
+				break;
+		}
+		
+		return $values;
+	}	
+	
 	function getChooserView() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		

@@ -1229,8 +1229,12 @@ class Context_Worker extends Extension_DevblocksContext {
 		// Token values
 		$token_values = array();
 		
+		// Context for lazy-loading
+		$token_values['_context'] = CerberusContexts::CONTEXT_WORKER;
+		
 		// Worker token values
 		if(null != $worker) {
+			$token_values['_loaded'] = true;
 			$token_values['id'] = $worker->id;
 			$token_values['full_name'] = $worker->getName();
 			if(!empty($worker->first_name))
@@ -1239,40 +1243,20 @@ class Context_Worker extends Extension_DevblocksContext {
 				$token_values['last_name'] = $worker->last_name;
 			if(!empty($worker->title))
 				$token_values['title'] = $worker->title;
-			
+
 			// URL
 			$url_writer = DevblocksPlatform::getUrlService();
 			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=profiles&type=worker&id=%d-%s",$worker->id, DevblocksPlatform::strToPermalink($worker->getName())), true);
 			
-			$token_values['custom'] = array();
-			
-			$field_values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_WORKER, $worker->id));
-			if(is_array($field_values) && !empty($field_values)) {
-				foreach($field_values as $cf_id => $cf_val) {
-					if(!isset($fields[$cf_id]))
-						continue;
-					
-					// The literal value
-					if(null != $worker)
-						$token_values['custom'][$cf_id] = $cf_val;
-					
-					// Stringify
-					if(is_array($cf_val))
-						$cf_val = implode(', ', $cf_val);
-						
-					if(is_string($cf_val)) {
-						if(null != $worker)
-							$token_values['custom_'.$cf_id] = $cf_val;
-					}
-				}
-			}
+			// Email
+			$address = CerberusApplication::hashLookupAddress($worker->email, false);
+			$token_values['address_id'] = $address->id;
 		}
 		
 		// Worker email
-		@$worker_email = !is_null($worker) ? $worker->email : null;
 		$merge_token_labels = array();
 		$merge_token_values = array();
-		CerberusContexts::getContext(CerberusContexts::CONTEXT_ADDRESS, $worker_email, $merge_token_labels, $merge_token_values, null, true);
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_ADDRESS, null, $merge_token_labels, $merge_token_values, null, true);
 
 		CerberusContexts::merge(
 			'address_',
@@ -1281,10 +1265,37 @@ class Context_Worker extends Extension_DevblocksContext {
 			$merge_token_values,
 			$token_labels,
 			$token_values
-		);		
+		);
 		
 		return true;		
 	}
+	
+	function lazyLoadContextValues($token, $dictionary) {
+		if(!isset($dictionary['id']))
+			return;
+		
+		$context = CerberusContexts::CONTEXT_WORKER;
+		$context_id = $dictionary['id'];
+		
+		@$is_loaded = $dictionary['_loaded'];
+		$values = array();
+		
+		if(!$is_loaded) {
+			$labels = array();
+			CerberusContexts::getContext($context, $context_id, $labels, $values, null, true);
+		}
+		
+		switch($token) {
+			default:
+				if(substr($token,0,7) == 'custom_') {
+					$fields = $this->_lazyLoadCustomFields($context, $context_id);
+					$values = array_merge($values, $fields);
+				}
+				break;
+		}
+		
+		return $values;
+	}	
 	
 	function getChooserView() {
 		// View

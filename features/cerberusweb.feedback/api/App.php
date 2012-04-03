@@ -1088,7 +1088,10 @@ class Context_Feedback extends Extension_DevblocksContext {
 		// Token values
 		$token_values = array();
 		
+		$token_values['_context'] = CerberusContexts::CONTEXT_FEEDBACK;
+		
 		if($feedback) {
+			$token_values['_loaded'] = true;
 			$token_values['id'] = $feedback->id;
 			$token_values['created'] = $feedback->log_date;
 			$token_values['quote_text'] = $feedback->quote_text;
@@ -1098,35 +1101,19 @@ class Context_Feedback extends Extension_DevblocksContext {
 			$token_values['quote_mood_id'] = $mood;
 			$token_values['quote_mood'] = ($mood ? (2==$mood ? 'criticism' : 'praise' ) : 'neutral');
 			
-			$token_values['custom'] = array();
+			// Author
+			@$address_id = $feedback->quote_address_id;
+			$token_values['author_id'] = $address_id;
 			
-			$field_values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_FEEDBACK, $feedback->id));
-			if(is_array($field_values) && !empty($field_values)) {
-				foreach($field_values as $cf_id => $cf_val) {
-					if(!isset($fields[$cf_id]))
-						continue;
-					
-					// The literal value
-					if(null != $feedback)
-						$token_values['custom'][$cf_id] = $cf_val;
-					
-					// Stringify
-					if(is_array($cf_val))
-						$cf_val = implode(', ', $cf_val);
-						
-					if(is_string($cf_val)) {
-						if(null != $feedback)
-							$token_values['custom_'.$cf_id] = $cf_val;
-					}
-				}
-			}
+			// Created by worker
+			@$assignee_id = $feedback->worker_id;
+			$token_values['worker_id'] = $assignee_id;
 		}
 
 		// Author
-		@$address_id = $feedback->quote_address_id;
 		$merge_token_labels = array();
 		$merge_token_values = array();
-		CerberusContexts::getContext(CerberusContexts::CONTEXT_ADDRESS, $address_id, $merge_token_labels, $merge_token_values, '', true);
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_ADDRESS, null, $merge_token_labels, $merge_token_values, '', true);
 
 		CerberusContexts::merge(
 			'author_',
@@ -1138,10 +1125,9 @@ class Context_Feedback extends Extension_DevblocksContext {
 		);			
 		
 		// Created by (Worker)
-		@$assignee_id = $feedback->worker_id;
 		$merge_token_labels = array();
 		$merge_token_values = array();
-		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $assignee_id, $merge_token_labels, $merge_token_values, '', true);
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, null, $merge_token_labels, $merge_token_values, '', true);
 
 		CerberusContexts::merge(
 			'worker_',
@@ -1155,6 +1141,40 @@ class Context_Feedback extends Extension_DevblocksContext {
 		return true;		
 	}
 
+	function lazyLoadContextValues($token, $dictionary) {
+		if(!isset($dictionary['id']))
+			return;
+		
+		$context = CerberusContexts::CONTEXT_FEEDBACK;
+		$context_id = $dictionary['id'];
+		
+		@$is_loaded = $dictionary['_loaded'];
+		$values = array();
+		
+		if(!$is_loaded) {
+			$labels = array();
+			CerberusContexts::getContext($context, $context_id, $labels, $values);
+		}
+		
+		switch($token) {
+			case 'watchers':
+				$watchers = array(
+					$token => CerberusContexts::getWatchers($context, $context_id, true),
+				);
+				$values = array_merge($values, $watchers);
+				break;
+				
+			default:
+				if(substr($token,0,7) == 'custom_') {
+					$fields = $this->_lazyLoadCustomFields($context, $context_id);
+					$values = array_merge($values, $fields);
+				}
+				break;
+		}
+		
+		return $values;
+	}	
+	
 	function getChooserView() {
 		// View
 		$view_id = 'chooser_'.str_replace('.','_',$this->id).time().mt_rand(0,9999);

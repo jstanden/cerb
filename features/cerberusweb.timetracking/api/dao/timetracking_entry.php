@@ -967,7 +967,10 @@ class Context_TimeTracking extends Extension_DevblocksContext {
 		$token_values = array();
 		$blank = array();
 		
+		$token_values['_context'] = CerberusContexts::CONTEXT_TIMETRACKING;
+		
 		if(null != $timeentry) {
+			$token_values['_loaded'] = true;
 			$token_values['log_date'] = $timeentry->log_date;
 			$token_values['id'] = $timeentry->id;
 			$token_values['mins'] = $timeentry->time_actual_mins;
@@ -978,39 +981,15 @@ class Context_TimeTracking extends Extension_DevblocksContext {
 			$url_writer = DevblocksPlatform::getUrlService();
 			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=timetracking&tab=display&id=%d-%s",$timeentry->id, DevblocksPlatform::strToPermalink($timeentry->getSummary())), true);
 			
-			$token_values['custom'] = array();
-			
-			$field_values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_TIMETRACKING, $timeentry->id));
-			if(is_array($field_values) && !empty($field_values)) {
-				foreach($field_values as $cf_id => $cf_val) {
-					if(!isset($fields[$cf_id]))
-						continue;
-					
-					// The literal value
-					if(null != $timeentry)
-						$token_values['custom'][$cf_id] = $cf_val;
-					
-					// Stringify
-					if(is_array($cf_val))
-						$cf_val = implode(', ', $cf_val);
-						
-					if(is_string($cf_val)) {
-						if(null != $timeentry)
-							$token_values['custom_'.$cf_id] = $cf_val;
-					}
-				}
-			}
-			
-			// Watchers
-			$watchers = CerberusContexts::getWatchers(CerberusContexts::CONTEXT_TIMETRACKING, $timeentry->id, true);
-			$token_values['watchers'] = $watchers;
+			// Worker
+			@$worker_id = $timeentry->worker_id;
+			$token_values['worker_id'] = $worker_id;
 		}
 		
 		// Worker
-		@$worker_id = $timeentry->worker_id;
 		$merge_token_labels = array();
 		$merge_token_values = array();
-		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $worker_id, $merge_token_labels, $merge_token_values, null, true);
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, null, $merge_token_labels, $merge_token_values, null, true);
 
 			// Clear dupe labels
 			CerberusContexts::scrubTokensWithRegexp(
@@ -1034,6 +1013,40 @@ class Context_TimeTracking extends Extension_DevblocksContext {
 		
 		return true;    
     }
+    
+	function lazyLoadContextValues($token, $dictionary) {
+		if(!isset($dictionary['id']))
+			return;
+		
+		$context = CerberusContexts::CONTEXT_TIMETRACKING;
+		$context_id = $dictionary['id'];
+		
+		@$is_loaded = $dictionary['_loaded'];
+		$values = array();
+		
+		if(!$is_loaded) {
+			$labels = array();
+			CerberusContexts::getContext($context, $context_id, $labels, $values);
+		}
+		
+		switch($token) {
+			case 'watchers':
+				$watchers = array(
+					$token => CerberusContexts::getWatchers($context, $context_id, true),
+				);
+				$values = array_merge($values, $watchers);
+				break;
+				
+			default:
+				if(substr($token,0,7) == 'custom_') {
+					$fields = $this->_lazyLoadCustomFields($context, $context_id);
+					$values = array_merge($values, $fields);
+				}
+				break;
+		}
+		
+		return $values;
+	}    
     
 	function getChooserView() {
 		$active_worker = CerberusApplication::getActiveWorker();
