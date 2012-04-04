@@ -470,6 +470,10 @@ class View_ContactPerson extends C4_AbstractView implements IAbstractView_Subtot
 		return $objects;
 	}
 	
+	function getDataAsObjects($ids=null) {
+		return $this->_getDataAsObjects('DAO_ContactPerson', $ids);
+	}
+	
 	function getDataSample($size) {
 		return $this->_doGetDataSample('DAO_ContactPerson', $size);
 	}
@@ -827,6 +831,7 @@ class Context_ContactPerson extends Extension_DevblocksContext {
 		// Address token values
 		if(null != $person) {
 			$token_values['_loaded'] = true;
+			$token_values['_label'] = '(contact person)';
 			$token_values['id'] = $person->id;
 			if(!empty($person->created))
 				$token_values['created'] = $person->created;

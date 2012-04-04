@@ -512,6 +512,10 @@ class View_Task extends C4_AbstractView implements IAbstractView_Subtotals {
 		);
 	}
 	
+	function getDataAsObjects($ids=null) {
+		return $this->_getDataAsObjects('DAO_Task', $ids);
+	}
+	
 	function getDataSample($size) {
 		return $this->_doGetDataSample('DAO_Task', $size);
 	}
@@ -894,6 +898,7 @@ class Context_Task extends Extension_DevblocksContext {
 		
 		if($task) {
 			$token_values['_loaded'] = true;
+			$token_values['_label'] = $task->title;
 			$token_values['completed'] = $task->completed_date;
 			$token_values['due'] = $task->due_date;
 			$token_values['id'] = $task->id;

@@ -822,6 +822,14 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals {
 		);
 	}
 
+	function getDataAsObjects($ids=null) {
+		return $this->_getDataAsObjects('DAO_Worker', $ids);
+	}
+	
+	function getDataSample($size) {
+		return $this->_doGetDataSample('DAO_Worker', $size);
+	}
+	
 	function getSubtotalFields() {
 		$all_fields = $this->getParamsAvailable();
 		
@@ -1235,6 +1243,7 @@ class Context_Worker extends Extension_DevblocksContext {
 		// Worker token values
 		if(null != $worker) {
 			$token_values['_loaded'] = true;
+			$token_values['_label'] = $worker->getName();
 			$token_values['id'] = $worker->id;
 			$token_values['full_name'] = $worker->getName();
 			if(!empty($worker->first_name))

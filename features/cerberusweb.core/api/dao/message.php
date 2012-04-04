@@ -1025,6 +1025,10 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals {
 		);
 	}
 
+	function getDataAsObjects($ids=null) {
+		return $this->_getDataAsObjects('DAO_Message', $ids);
+	}
+	
 	function getSubtotalFields() {
 		$all_fields = $this->getParamsAvailable();
 		
@@ -1391,6 +1395,7 @@ class Context_Message extends Extension_DevblocksContext {
 		// Message token values
 		if($message) {
 			$token_values['_loaded'] = true;
+			$token_values['_label'] = '(message)';
 			$token_values['content'] = $message->getContent();
 			$token_values['created'] = $message->created_date;
 			$token_values['id'] = $message->id;

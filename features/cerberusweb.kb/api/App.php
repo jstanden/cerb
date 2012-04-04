@@ -1282,6 +1282,7 @@ class Context_KbCategory extends Extension_DevblocksContext {
 		// Token values
 		if(null != $category) {
 			$token_values['_loaded'] = true;
+			$token_values['_label'] = $category->name;
 			$token_values['id'] = $category->id;
 			$token_values['name'] = $category->name;
 			$token_values['parent_id'] = $category->parent_id;

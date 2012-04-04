@@ -572,6 +572,10 @@ class View_TimeTracking extends C4_AbstractView implements IAbstractView_Subtota
 		return $objects;
 	}
 	
+	function getDataAsObjects($ids=null) {
+		return $this->_getDataAsObjects('DAO_TimeTrackingEntry', $ids);
+	}
+	
 	function getDataSample($size) {
 		return $this->_doGetDataSample('DAO_TimeTrackingEntry', $size);
 	}
@@ -971,6 +975,7 @@ class Context_TimeTracking extends Extension_DevblocksContext {
 		
 		if(null != $timeentry) {
 			$token_values['_loaded'] = true;
+			$token_values['_label'] = $timeentry->getSummary();
 			$token_values['log_date'] = $timeentry->log_date;
 			$token_values['id'] = $timeentry->id;
 			$token_values['mins'] = $timeentry->time_actual_mins;

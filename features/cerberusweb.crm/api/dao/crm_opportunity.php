@@ -594,6 +594,10 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 		return $objects;
 	}
 	
+	function getDataAsObjects($ids=null) {
+		return $this->_getDataAsObjects('DAO_CrmOpportunity', $ids);
+	}
+	
 	function getDataSample($size) {
 		return $this->_doGetDataSample('DAO_CrmOpportunity', $size);
 	}
@@ -1069,6 +1073,7 @@ class Context_Opportunity extends Extension_DevblocksContext {
 		// Opp token values
 		if($opp) {
 			$token_values['_loaded'] = true;
+			$token_values['_label'] = $opp->name;
 			$token_values['id'] = $opp->id;
 			$token_values['amount'] = $opp->amount;
 			$token_values['created'] = $opp->created_date;

@@ -585,6 +585,10 @@ class View_ContactOrg extends C4_AbstractView implements IAbstractView_Subtotals
 		return $objects;
 	}
 
+	function getDataAsObjects($ids=null) {
+		return $this->_getDataAsObjects('DAO_ContactOrg', $ids);
+	}
+	
 	function getDataSample($size) {
 		return $this->_doGetDataSample('DAO_ContactOrg', $size);
 	}
@@ -938,6 +942,7 @@ class Context_Org extends Extension_DevblocksContext {
 		// Org token values
 		if($org) {
 			$token_values['_loaded'] = true;
+			$token_values['_label'] = $org->name;
 			$token_values['id'] = $org->id;
 			$token_values['name'] = $org->name;
 			$token_values['created'] = $org->created;

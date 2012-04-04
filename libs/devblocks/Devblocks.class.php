@@ -954,7 +954,7 @@ class DevblocksPlatform extends DevblocksEngine {
 					if(is_array($extensions))
 					foreach($extensions as $id => $extension) {
 						// Ask the delegate if we should load the extension
-						if(!call_user_func(array(self::$extensionDelegate,'shouldLoadExtension'),$extension))
+						if(!call_user_func(array(self::$extensionDelegate,'shouldLoadExtension'), $extension))
 							unset($extensions[$id]);
 					}
 				}

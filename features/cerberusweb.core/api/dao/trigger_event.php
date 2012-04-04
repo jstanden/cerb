@@ -509,8 +509,6 @@ class Model_TriggerEvent {
 		
 		$this->_recurseRunTree($event, $nodes, $tree, 0, $dictionary, $path, $dry_run);
 		
-		// [TODO] Run actions in bulk, or run inline?
-		
 		return $path;
 	}
 	

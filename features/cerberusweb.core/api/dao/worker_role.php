@@ -347,6 +347,7 @@ class Context_WorkerRole extends Extension_DevblocksContext {
 		// Worker token values
 		if(null != $role) {
 			$token_values['_loaded'] = true;
+			$token_values['_label'] = $role->name;
 			$token_values['id'] = $role->id;
 			$token_values['name'] = $role->name;
 			

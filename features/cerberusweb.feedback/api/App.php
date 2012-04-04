@@ -447,6 +447,10 @@ class C4_FeedbackEntryView extends C4_AbstractView implements IAbstractView_Subt
 		return $objects;
 	}
 
+	function getDataAsObjects($ids=null) {
+		return $this->_getDataAsObjects('DAO_FeedbackEntry', $ids);
+	}
+	
 	function getDataSample($size) {
 		return $this->_doGetDataSample('DAO_FeedbackEntry', $size);
 	}
@@ -1092,6 +1096,7 @@ class Context_Feedback extends Extension_DevblocksContext {
 		
 		if($feedback) {
 			$token_values['_loaded'] = true;
+			$token_values['_label'] = trim(strtr($feedback->quote_text,"\r\n",' '));
 			$token_values['id'] = $feedback->id;
 			$token_values['created'] = $feedback->log_date;
 			$token_values['quote_text'] = $feedback->quote_text;

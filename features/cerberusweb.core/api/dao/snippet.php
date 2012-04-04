@@ -509,6 +509,10 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals {
 		return $objects;
 	}
 
+	function getDataAsObjects($ids=null) {
+		return $this->_getDataAsObjects('DAO_Snippet', $ids);
+	}
+	
 	function getSubtotalFields() {
 		$all_fields = $this->getParamsAvailable();
 		
@@ -870,6 +874,7 @@ class Context_Snippet extends Extension_DevblocksContext {
 		
 		if($snippet) {
 			$token_values['_loaded'] = true;
+			$token_values['_snippet'] = $snippet->title;
 			
 //			$token_values['completed'] = $task->completed_date;
 			

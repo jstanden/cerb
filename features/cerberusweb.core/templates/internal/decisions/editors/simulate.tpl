@@ -8,7 +8,7 @@
 <fieldset>
 	<legend>{'common.properties'|devblocks_translate}</legend>
 	
-	<div class="" style="display:block;max-height:200px;overflow-y:scroll;padding:5px;">
+	<div class="" style="display:block;max-height:200px;overflow-y:auto;padding:5px;">
 	<b>Current time</b>:
 	<div style="margin-bottom:2px;">
 		<input type="text" name="values[_current_time]" value="now" size="45" style="width:98%;">

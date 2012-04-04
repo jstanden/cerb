@@ -602,6 +602,10 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals {
 		return $objects;
 	}
 	
+	function getDataAsObjects($ids=null) {
+		return $this->_getDataAsObjects('DAO_Address', $ids);
+	}
+	
 	function getDataSample($size) {
 		return $this->_doGetDataSample('DAO_Address', $size);
 	}
@@ -1030,7 +1034,10 @@ class Context_Address extends Extension_DevblocksContext {
 
 		// Address token values
 		if(null != $address) {
+			$full_name = $address->getName();
+			
 			$token_values['_loaded'] = true;
+			$token_values['_label'] = !empty($full_name) ? sprintf("%s <%s>", $full_name, $address->email) : sprintf("<%s>", $address->email);
 			$token_values['id'] = $address->id;
 			$token_values['full_name'] = $address->getName();
 			if(!empty($address->email))

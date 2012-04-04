@@ -358,6 +358,10 @@ class View_ExampleObject extends C4_AbstractView implements IAbstractView_Subtot
 		return $objects;
 	}
 	
+	function getDataAsObjects($ids=null) {
+		return $this->_getDataAsObjects('DAO_ExampleObject', $ids);
+	}
+	
 	function getDataSample($size) {
 		return $this->_doGetDataSample('DAO_ExampleObject', $size);
 	}
@@ -667,6 +671,7 @@ class Context_ExampleObject extends Extension_DevblocksContext {
 		
 		if($object) {
 			$token_values['_loaded'] = true;
+			$token_values['_label'] = $object->name;
 			$token_values['created'] = $object->created;
 			$token_values['id'] = $object->id;
 			$token_values['name'] = $object->name;

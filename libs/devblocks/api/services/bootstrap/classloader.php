@@ -119,6 +119,7 @@ class _DevblocksClassLoadManager {
 		$this->registerClasses(DEVBLOCKS_PATH . 'api/services/template_builder.php', array(
 			'_DevblocksTemplateBuilder',
 			'_DevblocksTwigExtensions',
+			'DevblocksDictionaryDelegate',
 		));
 		$this->registerClasses(DEVBLOCKS_PATH . 'api/services/template.php', array(
 			'_DevblocksTemplateManager',

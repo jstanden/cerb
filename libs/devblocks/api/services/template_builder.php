@@ -122,11 +122,9 @@ class _DevblocksTemplateBuilder {
 
 class DevblocksDictionaryDelegate {
 	private $_dictionary = null;
-	private $_delegate = null;
 	
-	function __construct($dictionary, $delegate=null) {
+	function __construct($dictionary) {
 		$this->_dictionary = $dictionary;
-		$this->_delegate = $delegate;
 	}
 	
 	public function __get($name) {

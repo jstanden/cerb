@@ -672,6 +672,7 @@ class Context_KbArticle extends Extension_DevblocksContext {
 		
 		// Token values
 		if(null != $article) {
+			$token_values['_label'] = $article->title;
 			$token_values['content'] = $article->getContent();
 			$token_values['id'] = $article->id;
 			$token_values['title'] = $article->title;
@@ -830,6 +831,10 @@ class View_KbArticle extends C4_AbstractView implements IAbstractView_Subtotals 
 			$this->renderTotal
 		);
 		return $objects;
+	}
+	
+	function getDataAsObjects($ids=null) {
+		return $this->_getDataAsObjects('DAO_KbArticle', $ids);
 	}
 	
 	function getDataSample($size) {

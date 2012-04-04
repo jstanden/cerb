@@ -448,50 +448,69 @@ class DAO_Ticket extends C4_ORMHelper {
 	 * @return Model_Ticket[]
 	 */
 	static function getTickets($ids=array()) {
-		if(!is_array($ids)) $ids = array($ids);
+		if(!is_array($ids))
+			$ids = array($ids);
+		
+		return self::getWhere(
+			(!empty($ids) ? sprintf("id IN (%s) ",implode(',',$ids)) : " ")
+		);
+	}
+	
+	static function getWhere($where=null, $sortBy='updated_date', $sortAsc=true, $limit=null) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$tickets = array();
-		if(empty($ids)) return array();
+		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
-		$sql = "SELECT t.id , t.mask, t.subject, t.is_waiting, t.is_closed, t.is_deleted, t.group_id, t.bucket_id, t.org_id, t.owner_id, t.first_message_id, t.last_message_id, ".
-			"t.first_wrote_address_id, t.last_wrote_address_id, t.created_date, t.updated_date, t.due_date, t.spam_training, ". 
-			"t.spam_score, t.interesting_words ".
-			"FROM ticket t ".
-			(!empty($ids) ? sprintf("WHERE t.id IN (%s) ",implode(',',$ids)) : " ").
-			"ORDER BY t.updated_date DESC"
+		$sql = "SELECT id , mask, subject, is_waiting, is_closed, is_deleted, group_id, bucket_id, org_id, owner_id, first_message_id, last_message_id, ".
+			"first_wrote_address_id, last_wrote_address_id, created_date, updated_date, due_date, spam_training, ". 
+			"spam_score, interesting_words ".
+			"FROM ticket ".
+			$where_sql.
+			$sort_sql.
+			$limit_sql
 		;
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+		$rs = $db->Execute($sql);
+		
+		return self::_createObjectsFromResultSet($rs);
+	}
+	
+	/**
+	 * Enter description here...
+	 *
+	 * @param resource $rs
+	 */
+	static private function _createObjectsFromResultSet($rs=null) {
+		$objects = array();
 		
 		while($row = mysql_fetch_assoc($rs)) {
-			$ticket = new Model_Ticket();
-			$ticket->id = intval($row['id']);
-			$ticket->mask = $row['mask'];
-			$ticket->subject = $row['subject'];
-			$ticket->first_message_id = intval($row['first_message_id']);
-			$ticket->last_message_id = intval($row['last_message_id']);
-			$ticket->group_id = intval($row['group_id']);
-			$ticket->bucket_id = intval($row['bucket_id']);
-			$ticket->org_id = intval($row['org_id']);
-			$ticket->owner_id = intval($row['owner_id']);
-			$ticket->is_waiting = intval($row['is_waiting']);
-			$ticket->is_closed = intval($row['is_closed']);
-			$ticket->is_deleted = intval($row['is_deleted']);
-			$ticket->last_wrote_address_id = intval($row['last_wrote_address_id']);
-			$ticket->first_wrote_address_id = intval($row['first_wrote_address_id']);
-			$ticket->created_date = intval($row['created_date']);
-			$ticket->updated_date = intval($row['updated_date']);
-			$ticket->due_date = intval($row['due_date']);
-			$ticket->spam_score = floatval($row['spam_score']);
-			$ticket->spam_training = $row['spam_training'];
-			$ticket->interesting_words = $row['interesting_words'];
-			$tickets[$ticket->id] = $ticket;
+			$object = new Model_Ticket();
+			$object->id = intval($row['id']);
+			$object->mask = $row['mask'];
+			$object->subject = $row['subject'];
+			$object->first_message_id = intval($row['first_message_id']);
+			$object->last_message_id = intval($row['last_message_id']);
+			$object->group_id = intval($row['group_id']);
+			$object->bucket_id = intval($row['bucket_id']);
+			$object->org_id = intval($row['org_id']);
+			$object->owner_id = intval($row['owner_id']);
+			$object->is_waiting = intval($row['is_waiting']);
+			$object->is_closed = intval($row['is_closed']);
+			$object->is_deleted = intval($row['is_deleted']);
+			$object->last_wrote_address_id = intval($row['last_wrote_address_id']);
+			$object->first_wrote_address_id = intval($row['first_wrote_address_id']);
+			$object->created_date = intval($row['created_date']);
+			$object->updated_date = intval($row['updated_date']);
+			$object->due_date = intval($row['due_date']);
+			$object->spam_score = floatval($row['spam_score']);
+			$object->spam_training = $row['spam_training'];
+			$object->interesting_words = $row['interesting_words'];
+			$objects[$object->id] = $object;
 		}
 		
 		mysql_free_result($rs);
 		
-		return $tickets;
-	}
+		return $objects;
+	}	
 	
 	static function updateWhere($fields, $where) {
 		parent::_updateWhere('ticket', $fields, $where);
@@ -1567,6 +1586,10 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals {
 		return $objects;
 	}
 
+	function getDataAsObjects($ids=null) {
+		return $this->_getDataAsObjects('DAO_Ticket', $ids);
+	}
+	
 	function getDataSample($size) {
 		return $this->_doGetDataSample('DAO_Ticket', $size);
 	}
@@ -2490,7 +2513,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals {
 					
 					if(is_array($tickets))
 					foreach($tickets as $ticket_id => $row) {
-						CerberusContexts::getContext(CerberusContexts::CONTEXT_TICKET, $row, $tpl_labels, $tpl_tokens);
+						CerberusContexts::getContext(CerberusContexts::CONTEXT_TICKET, $ticket_id, $tpl_labels, $tpl_tokens);
 						
 						// Add the signature to the token_values
 						// [TODO] This shouldn't be redundant with ::doBulkUpdateBroadcastTestAction()
@@ -2638,25 +2661,8 @@ class Context_Ticket extends Extension_DevblocksContext {
 		
 		// Polymorph
 		if(is_numeric($ticket)) {
-			list($results, $null) = DAO_Ticket::search(
-				array(),
-				array(
-					SearchFields_Ticket::TICKET_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_ID,'=',$ticket),
-					// [TODO] Enforce worker privs
-				),
-				1,
-				0,
-				null,
-				null,
-				false
-			);
-			
-			if(!empty($results))
-				$ticket = array_shift($results);
-			else
-				$ticket = null;
-				
-		} elseif(is_array($ticket)) {
+			$ticket = DAO_Ticket::get($ticket);
+		} elseif($ticket instanceof Model_Ticket) {
 			// It's what we want
 		} else {
 			$ticket = null;
@@ -2689,20 +2695,21 @@ class Context_Ticket extends Extension_DevblocksContext {
 		// Ticket token values
 		if(null != $ticket) {
 			$token_values['_loaded'] = true;
-			$token_values['created'] = $ticket[SearchFields_Ticket::TICKET_CREATED_DATE];
-			$token_values['id'] = $ticket[SearchFields_Ticket::TICKET_ID];
-			$token_values['mask'] = $ticket[SearchFields_Ticket::TICKET_MASK];
-			$token_values['reopen_date'] = $ticket[SearchFields_Ticket::TICKET_DUE_DATE];
-			$token_values['spam_score'] = $ticket[SearchFields_Ticket::TICKET_SPAM_SCORE];
-			$token_values['spam_training'] = $ticket[SearchFields_Ticket::TICKET_SPAM_TRAINING];
-			$token_values['subject'] = $ticket[SearchFields_Ticket::TICKET_SUBJECT];
-			$token_values['updated'] = $ticket[SearchFields_Ticket::TICKET_UPDATED_DATE];
-			$token_values['org_id'] = $ticket[SearchFields_Ticket::TICKET_ORG_ID];
+			$token_values['_label'] = sprintf("#%s %s", $ticket->mask, $ticket->subject);
+			$token_values['created'] = $ticket->created_date;
+			$token_values['id'] = $ticket->id;
+			$token_values['mask'] = $ticket->mask;
+			$token_values['reopen_date'] = $ticket->due_date;
+			$token_values['spam_score'] = $ticket->spam_score;
+			$token_values['spam_training'] = $ticket->spam_training;
+			$token_values['subject'] = $ticket->subject;
+			$token_values['updated'] = $ticket->updated_date;
+			$token_values['org_id'] = $ticket->org_id;
 			
 			// Status
-			@$is_closed = intval($ticket[SearchFields_Ticket::TICKET_CLOSED]);
-			@$is_waiting = intval($ticket[SearchFields_Ticket::TICKET_WAITING]);
-			@$is_deleted = intval($ticket[SearchFields_Ticket::TICKET_DELETED]);
+			@$is_closed = intval($ticket->is_closed);
+			@$is_waiting = intval($ticket->is_waiting);
+			@$is_deleted = intval($ticket->is_deleted);
 			if($is_deleted) {
 				$token_values['status'] = 'deleted';
 			} elseif($is_closed) {
@@ -2717,25 +2724,25 @@ class Context_Ticket extends Extension_DevblocksContext {
 			
 			// URL
 			$url_writer = DevblocksPlatform::getUrlService();
-			$token_values['url'] = $url_writer->writeNoProxy('c=display&mask='.$ticket[SearchFields_Ticket::TICKET_MASK],true);
+			$token_values['url'] = $url_writer->writeNoProxy('c=display&mask='.$ticket->mask,true);
 
 			// Group
-			$token_values['group_id'] = $ticket[SearchFields_Ticket::TICKET_GROUP_ID];
+			$token_values['group_id'] = $ticket->group_id;
 
 			// Bucket
-			$token_values['bucket_id'] = $ticket[SearchFields_Ticket::TICKET_BUCKET_ID];
+			$token_values['bucket_id'] = $ticket->bucket_id;
 			
 			// First message
-			$token_values['initial_message_id'] = $ticket[SearchFields_Ticket::TICKET_FIRST_MESSAGE_ID]; 
+			$token_values['initial_message_id'] = $ticket->first_message_id; 
 			
 			// Last message
-			$token_values['latest_message_id'] = $ticket[SearchFields_Ticket::TICKET_LAST_MESSAGE_ID];
+			$token_values['latest_message_id'] = $ticket->last_message_id;
 			
 			// Owner
-			$token_values['owner_id'] = $ticket[SearchFields_Ticket::TICKET_OWNER_ID];
+			$token_values['owner_id'] = $ticket->owner_id;
 			
 			// Org
-			$token_values['org_id'] = $ticket[SearchFields_Ticket::TICKET_ORG_ID];
+			$token_values['org_id'] = $ticket->org_id;
 		}
 		
 		// Group

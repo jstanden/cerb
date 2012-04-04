@@ -450,6 +450,10 @@ class View_Notification extends C4_AbstractView implements IAbstractView_Subtota
 		return $objects;
 	}
 
+	function getDataAsObjects($ids=null) {
+		return $this->_getDataAsObjects('DAO_Notification', $ids);
+	}
+	
 	function getDataSample($size) {
 		return $this->_doGetDataSample('DAO_Notification', $size);
 	}
@@ -768,6 +772,7 @@ class Context_Notification extends Extension_DevblocksContext {
 			$redirect_url = $url_writer->writeNoProxy(sprintf("c=preferences&a=redirectRead&id=%d", $notification->id), true);
 			
 			$token_values['_loaded'] = true;
+			$token_values['_label'] = trim(strtr($notification->message,"\r\n",' '));
 			$token_values['id'] = $notification->id;
 			$token_values['context'] = $notification->context;
 			$token_values['context_id'] = $notification->context_id;

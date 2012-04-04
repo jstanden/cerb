@@ -40,10 +40,51 @@ abstract class C4_AbstractView {
 	public $renderTemplate = null;
 
 	abstract function getData();
+	function getDataAsObjects($ids=null) { return array(); }
 	function getDataSample($size) {}
 	
 	private $_placeholderLabels = array();
 	private $_placeholderValues = array();
+	
+	protected function _getDataAsObjects($dao_class, $ids=null) {
+		if(is_null($ids)) {
+			if(!method_exists($dao_class,'search'))
+				return array();
+			
+			$results = call_user_func_array(
+				array($dao_class,'search'),
+				array(
+					$this->getParams(),
+					$this->renderLimit,
+					$this->renderPage,
+					$this->renderSortBy,
+					$this->renderSortAsc,
+					false
+				)
+			);
+		
+			$ids = array_keys($results);
+		}
+		
+		if(!is_array($ids) || empty($ids))
+			return array();
+		
+		$sql = sprintf("id IN (%s)",
+			implode(',', $ids)
+		);
+		
+		if(!method_exists($dao_class,'getWhere'))
+			return array();
+		
+		$results = call_user_func_array(
+			array($dao_class,'getWhere'),
+			array(
+				$sql,
+			)
+		);
+		
+		return $results;
+	}
 	
 	protected function _doGetDataSample($dao_class, $size, $id_col = 'id') {
 		$db = DevblocksPlatform::getDatabaseService();

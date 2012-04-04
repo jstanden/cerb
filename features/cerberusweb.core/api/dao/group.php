@@ -44,6 +44,32 @@ class DAO_Group extends C4_ORMHelper {
 	}
 	
 	/**
+	 * @param string $where
+	 * @param string $sortBy
+	 * @param bool $sortAsc
+	 * @param integer $limit
+	 * @return Model_ContactOrg[]
+	 */
+	static function getWhere($where=null, $sortBy=null, $sortAsc=true, $limit=null) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
+		
+		// SQL
+		$sql = "SELECT id, name, is_default, reply_address_id, reply_personal, reply_signature ".
+			"FROM worker_group ".
+			$where_sql.
+			$sort_sql.
+			$limit_sql
+		;
+		$rs = $db->Execute($sql);
+
+		$objects = self::_getObjectsFromResultSet($rs);
+
+		return $objects;
+	}
+	
+	/**
 	 * Enter description here...
 	 *
 	 * @param array $ids
@@ -61,21 +87,8 @@ class DAO_Group extends C4_ORMHelper {
 			"ORDER BY name ASC"
 		);
 		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
-		
-		while($row = mysql_fetch_assoc($rs)) {
-			$group = new Model_Group();
-			$group->id = intval($row['id']);
-			$group->name = $row['name'];
-			$group->is_default = intval($row['is_default']);
-			$group->reply_address_id = $row['reply_address_id'];
-			$group->reply_personal = $row['reply_personal'];
-			$group->reply_signature = $row['reply_signature'];
-			$groups[$group->id] = $group;
-		}
-		
-		mysql_free_result($rs);
-		
-		return $groups;
+
+		return self::_getObjectsFromResultSet($rs);
 	}
 	
 	static function getAll($nocache=false) {
@@ -86,6 +99,29 @@ class DAO_Group extends C4_ORMHelper {
 	    }
 	    
 	    return $groups;
+	}
+	
+	/**
+	 * @param resource $rs
+	 * @return Model_Notification[]
+	 */
+	static private function _getObjectsFromResultSet($rs) {
+		$objects = array();
+		
+		while($row = mysql_fetch_assoc($rs)) {
+			$object = new Model_Group();
+			$object->id = intval($row['id']);
+			$object->name = $row['name'];
+			$object->is_default = intval($row['is_default']);
+			$object->reply_address_id = $row['reply_address_id'];
+			$object->reply_personal = $row['reply_personal'];
+			$object->reply_signature = $row['reply_signature'];
+			$objects[$object->id] = $object;
+		}
+		
+		mysql_free_result($rs);
+		
+		return $objects;
 	}
 	
 	/**
@@ -744,6 +780,10 @@ class View_Group extends C4_AbstractView implements IAbstractView_Subtotals {
 		);
 	}
 
+	function getDataAsObjects($ids=null) {
+		return $this->_getDataAsObjects('DAO_Group', $ids);
+	}
+	
 	function getSubtotalFields() {
 		$all_fields = $this->getParamsAvailable();
 		
@@ -1021,6 +1061,7 @@ class Context_Group extends Extension_DevblocksContext {
 		// Group token values
 		if(null != $group) {
 			$token_values['_loaded'] = true;
+			$token_values['_label'] = $group->name;
 			$token_values['id'] = $group->id;
 			$token_values['name'] = $group->name;
 			
