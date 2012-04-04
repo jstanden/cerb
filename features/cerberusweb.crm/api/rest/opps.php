@@ -82,7 +82,7 @@ class ChRest_Opps extends Extension_RestController implements IExtensionRestCont
 		$values = array();
 		$context = CerberusContexts::getContext(CerberusContexts::CONTEXT_OPPORTUNITY, $id, $labels, $values, null, true);
 
-//		unset($values['initial_message_content']);
+//		unset($dict->initial_message_content);
 		
 		return $values;
 	}

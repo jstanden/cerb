@@ -2908,6 +2908,76 @@ class Context_Ticket extends Extension_DevblocksContext {
 				$values = array_merge($values, $watchers);
 				break;
 				
+			case '_messages':
+				$values['_messages'] = DAO_Message::getMessagesByTicket($context_id);
+				break;
+				
+			case 'latest_incoming_activity':
+			case 'latest_outgoing_activity':
+				// We have some hints about the latest message
+				// It'll either be incoming or outgoing
+				@$latest_created = $dictionary['latest_message_created'];
+				@$latest_is_outgoing = !empty($dictionary['latest_message_is_outgoing']);
+				
+				switch($token) {
+					case 'latest_incoming_activity':
+						// Can we just use the info we have already?
+						if(!$latest_is_outgoing && !empty($latest_created)) {
+							// Yes, cache it.
+							$values[$token] = $latest_created;
+							
+						} else {
+							if(!isset($dictionary['_messages'])) {
+								$result = $this->lazyLoadContextValues('_messages', $dictionary);
+								if(isset($result['_messages'])) {
+									$messages = $result['_messages'];
+									$values['_messages'] = $messages;
+								}
+								
+							} else {
+								$messages = $dictionary['_messages'];
+							}
+							
+							$value = null;
+							if(is_array($messages))
+							foreach($messages as $message) { /* @var $message Model_Message */
+								if(empty($message->is_outgoing))
+									$value = $message->created_date;
+							}
+							$values[$token] = intval($value);
+						}
+						break;
+						
+					case 'latest_outgoing_activity':
+						// Can we just use the info we have already?
+						if($latest_is_outgoing && !empty($latest_created)) {
+							// Yes, cache it.
+							$values[$token] = $latest_created;
+							
+						} else {
+							if(!isset($dictionary['_messages'])) {
+								$result = $this->lazyLoadContextValues('_messages', $dictionary);
+								if(isset($result['_messages'])) {
+									$messages = $result['_messages'];
+									$values['_messages'] = $messages;
+								}
+								
+							} else {
+								$messages = $dictionary['_messages'];
+							}
+							
+							$value = null;
+							if(is_array($messages))
+							foreach($messages as $message) { /* @var $message Model_Message */
+								if(!empty($message->is_outgoing))
+									$value = $message->created_date;
+							}
+							$values[$token] = intval($value);
+						}
+						break;
+				}
+				break;
+				
 			default:
 				if(substr($token,0,7) == 'custom_') {
 					$fields = $this->_lazyLoadCustomFields($context, $context_id);

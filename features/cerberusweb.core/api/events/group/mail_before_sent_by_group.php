@@ -81,7 +81,7 @@ class Event_MailBeforeSentByGroup extends Extension_DevblocksEvent {
 			'worker_id' => $active_worker->id,
 		);
 		
-		$values['content'] =& $properties['content'];
+		$dict->content =& $properties['content'];
 		$values['to'] =& $properties['to'];
 		$values['cc'] =& $properties['cc'];
 		$values['bcc'] =& $properties['bcc'];
@@ -113,7 +113,7 @@ class Event_MailBeforeSentByGroup extends Extension_DevblocksEvent {
 		$prefix = 'Sent message ';
 		
 		$labels['content'] = $prefix.'content';
-		$values['content'] =& $properties['content'];
+		$dict->content =& $properties['content'];
 		
 		$labels['to'] = $prefix.'to';
 		$values['to'] =& $properties['to'];
@@ -337,14 +337,14 @@ class Event_MailBeforeSentByGroup extends Extension_DevblocksEvent {
 		$tpl->clearAssign('params');
 	}
 	
-	function runConditionExtension($token, $trigger, $params, $values) {
+	function runConditionExtension($token, $trigger, $params, DevblocksDictionaryDelegate $dict) {
 		$pass = true;
 		
 		switch($token) {
 			case 'ticket_spam_score':
 				$not = (substr($params['oper'],0,1) == '!');
 				$oper = ltrim($params['oper'],'!');
-				@$value = intval($values[$token] * 100);
+				@$value = intval($dict->$token * 100);
 
 				switch($oper) {
 					case 'is':
@@ -365,7 +365,7 @@ class Event_MailBeforeSentByGroup extends Extension_DevblocksEvent {
 			case 'ticket_status':
 				$not = (substr($params['oper'],0,1) == '!');
 				$oper = ltrim($params['oper'],'!');
-				@$value = $values[$token];
+				@$value = $dict->$token;
 				
 				if(!isset($params['values']) || !is_array($params['values'])) {
 					$pass = false;
@@ -446,33 +446,33 @@ class Event_MailBeforeSentByGroup extends Extension_DevblocksEvent {
 		$tpl->clearAssign('token_labels');		
 	}
 	
-	function simulateActionExtension($token, $trigger, $params, &$values) {
-		@$ticket_id = $values['ticket_id'];
+	function simulateActionExtension($token, $trigger, $params, DevblocksDictionaryDelegate $dict) {
+		@$ticket_id = $dict->ticket_id;
 
 		switch($token) {
 			case 'append_to_content':
 				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
-				$values['content'] .= "\r\n" . $tpl_builder->build($params['content'], $values);
+				$dict->content .= "\r\n" . $tpl_builder->build($params['content'], $dict);
 				break;
 				
 			case 'prepend_to_content':
 				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
-				$values['content'] = $tpl_builder->build($params['content'], $values) . "\r\n" . $values['content'];
+				$dict->content = $tpl_builder->build($params['content'], $dict) . "\r\n" . $dict->content;
 				break;
 				
 			case 'replace_content':
 				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
-				$replace = $tpl_builder->build($params['replace'], $values);
-				$with = $tpl_builder->build($params['with'], $values);
+				$replace = $tpl_builder->build($params['replace'], $dict);
+				$with = $tpl_builder->build($params['with'], $dict);
 				
 				if(isset($params['is_regexp']) && !empty($params['is_regexp'])) {
-					@$value = preg_replace($replace, $with, $values['content']);
+					@$value = preg_replace($replace, $with, $dict->content);
 				} else {
-					$value = str_replace($replace, $with, $values['content']);
+					$value = str_replace($replace, $with, $dict->content);
 				}
 				
 				if(!empty($value)) {
-					$values['content'] = trim($value,"\r\n");
+					$dict->content = trim($value,"\r\n");
 				}
 				break;
 		}
@@ -482,7 +482,7 @@ class Event_MailBeforeSentByGroup extends Extension_DevblocksEvent {
 		
 		switch($token) {
 			case 'create_notification':
-				return DevblocksEventHelper::simulateActionCreateNotification($params, $values, 'ticket_id');
+				return DevblocksEventHelper::simulateActionCreateNotification($params, $dict, 'ticket_id');
 				break;
 
 			default:
@@ -501,39 +501,39 @@ class Event_MailBeforeSentByGroup extends Extension_DevblocksEvent {
 					}
 					
 					if(!empty($context) && !empty($context_id))
-						return DevblocksEventHelper::simulateActionSetCustomField($custom_field, 'ticket_custom', $params, $values, $context, $context_id);
+						return DevblocksEventHelper::simulateActionSetCustomField($custom_field, 'ticket_custom', $params, $dict, $context, $context_id);
 				}
 				break;				
 		}
 	}
 	
-	function runActionExtension($token, $trigger, $params, &$values) {
-		@$ticket_id = $values['ticket_id'];
+	function runActionExtension($token, $trigger, $params, DevblocksDictionaryDelegate $dict) {
+		@$ticket_id = $dict->ticket_id;
 
 		switch($token) {
 			case 'append_to_content':
 				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
-				$values['content'] .= "\r\n" . $tpl_builder->build($params['content'], $values);
+				$dict->content .= "\r\n" . $tpl_builder->build($params['content'], $dict);
 				break;
 				
 			case 'prepend_to_content':
 				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
-				$values['content'] = $tpl_builder->build($params['content'], $values) . "\r\n" . $values['content'];
+				$dict->content = $tpl_builder->build($params['content'], $dict) . "\r\n" . $dict->content;
 				break;
 				
 			case 'replace_content':
 				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
-				$replace = $tpl_builder->build($params['replace'], $values);
-				$with = $tpl_builder->build($params['with'], $values);
+				$replace = $tpl_builder->build($params['replace'], $dict);
+				$with = $tpl_builder->build($params['with'], $dict);
 				
 				if(isset($params['is_regexp']) && !empty($params['is_regexp'])) {
-					@$value = preg_replace($replace, $with, $values['content']);
+					@$value = preg_replace($replace, $with, $dict->content);
 				} else {
-					$value = str_replace($replace, $with, $values['content']);
+					$value = str_replace($replace, $with, $dict->content);
 				}
 				
 				if(!empty($value)) {
-					$values['content'] = trim($value,"\r\n");
+					$dict->content = trim($value,"\r\n");
 				}
 				break;
 		}
@@ -543,7 +543,7 @@ class Event_MailBeforeSentByGroup extends Extension_DevblocksEvent {
 		
 		switch($token) {
 			case 'create_notification':
-				DevblocksEventHelper::runActionCreateNotification($params, $values, 'ticket_id');
+				DevblocksEventHelper::runActionCreateNotification($params, $dict, 'ticket_id');
 				break;
 
 			default:
@@ -562,7 +562,7 @@ class Event_MailBeforeSentByGroup extends Extension_DevblocksEvent {
 					}
 					
 					if(!empty($context) && !empty($context_id))
-						DevblocksEventHelper::runActionSetCustomField($custom_field, 'ticket_custom', $params, $values, $context, $context_id);
+						DevblocksEventHelper::runActionSetCustomField($custom_field, 'ticket_custom', $params, $dict, $context, $context_id);
 				}
 				break;				
 		}

@@ -12,7 +12,7 @@ class ExampleEventCondition_ExampleCondition extends Extension_DevblocksEventCon
 		$tpl->display('devblocks:example.event.condition::config.tpl');
 	}
 	
-	function run($token, Model_TriggerEvent $trigger, $params, $values) {
+	function run($token, Model_TriggerEvent $trigger, $params, DevblocksDictionaryDelegate $dict) {
 		//var_dump($params['oper']);
 		//var_dump($params['value']);
 		// [TODO] Run a condition and return a boolean

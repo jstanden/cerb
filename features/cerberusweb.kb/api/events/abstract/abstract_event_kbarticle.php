@@ -124,7 +124,7 @@ abstract class AbstractEvent_KbArticle extends Extension_DevblocksEvent {
 		$tpl->clearAssign('params');
 	}
 	
-	function runConditionExtension($token, $trigger, $params, $values) {
+	function runConditionExtension($token, $trigger, $params, DevblocksDictionaryDelegate $dict) {
 		$pass = true;
 		
 		switch($token) {
@@ -138,7 +138,7 @@ abstract class AbstractEvent_KbArticle extends Extension_DevblocksEvent {
 				switch($token) {
 					case 'article_link':
 						$from_context = CerberusContexts::CONTEXT_KB_ARTICLE;
-						@$from_context_id = $values['article_id'];
+						@$from_context_id = $dict->article_id;
 						break;
 					default:
 						$pass = false;
@@ -264,39 +264,39 @@ abstract class AbstractEvent_KbArticle extends Extension_DevblocksEvent {
 		$tpl->clearAssign('token_labels');		
 	}
 	
-	function simulateActionExtension($token, $trigger, $params, &$values) {
-		@$article_id = $values['article_id'];
+	function simulateActionExtension($token, $trigger, $params, DevblocksDictionaryDelegate $dict) {
+		@$article_id = $dict->article_id;
 
 		if(empty($article_id))
 			return;
 		
 		switch($token) {
 			case 'add_watchers':
-				return DevblocksEventHelper::simulateActionAddWatchers($params, $values, 'article_id');
+				return DevblocksEventHelper::simulateActionAddWatchers($params, $dict, 'article_id');
 				break;
 			
 			case 'create_comment':
-				return DevblocksEventHelper::simulateActionCreateComment($params, $values, 'article_id');
+				return DevblocksEventHelper::simulateActionCreateComment($params, $dict, 'article_id');
 				break;
 				
 			case 'create_notification':
-				return DevblocksEventHelper::simulateActionCreateNotification($params, $values, 'article_id');
+				return DevblocksEventHelper::simulateActionCreateNotification($params, $dict, 'article_id');
 				break;
 				
 			case 'create_task':
-				return DevblocksEventHelper::simulateActionCreateTask($params, $values, 'article_id');
+				return DevblocksEventHelper::simulateActionCreateTask($params, $dict, 'article_id');
 				break;
 
 			case 'create_ticket':
-				return DevblocksEventHelper::simulateActionCreateTicket($params, $values, 'article_id');
+				return DevblocksEventHelper::simulateActionCreateTicket($params, $dict, 'article_id');
 				break;
 				
 			case 'schedule_behavior':
-				return DevblocksEventHelper::simulateActionScheduleBehavior($params, $values);
+				return DevblocksEventHelper::simulateActionScheduleBehavior($params, $dict);
 				break;
 				
 			case 'unschedule_behavior':
-				return DevblocksEventHelper::simulateActionUnscheduleBehavior($params, $values);
+				return DevblocksEventHelper::simulateActionUnscheduleBehavior($params, $dict);
 				break;
 				
 			case 'set_article_links':
@@ -318,45 +318,45 @@ abstract class AbstractEvent_KbArticle extends Extension_DevblocksEvent {
 					}
 					
 					if(!empty($context) && !empty($context_id))
-						return DevblocksEventHelper::simulateActionSetCustomField($custom_field, 'article_custom', $params, $values, $context, $context_id);
+						return DevblocksEventHelper::simulateActionSetCustomField($custom_field, 'article_custom', $params, $dict, $context, $context_id);
 				}
 				break;	
 		}
 	}
 	
-	function runActionExtension($token, $trigger, $params, &$values) {
-		@$article_id = $values['article_id'];
+	function runActionExtension($token, $trigger, $params, DevblocksDictionaryDelegate $dict) {
+		@$article_id = $dict->article_id;
 
 		if(empty($article_id))
 			return;
 		
 		switch($token) {
 			case 'add_watchers':
-				DevblocksEventHelper::runActionAddWatchers($params, $values, 'article_id');
+				DevblocksEventHelper::runActionAddWatchers($params, $dict, 'article_id');
 				break;
 			
 			case 'create_comment':
-				DevblocksEventHelper::runActionCreateComment($params, $values, 'article_id');
+				DevblocksEventHelper::runActionCreateComment($params, $dict, 'article_id');
 				break;
 				
 			case 'create_notification':
-				DevblocksEventHelper::runActionCreateNotification($params, $values, 'article_id');
+				DevblocksEventHelper::runActionCreateNotification($params, $dict, 'article_id');
 				break;
 				
 			case 'create_task':
-				DevblocksEventHelper::runActionCreateTask($params, $values, 'article_id');
+				DevblocksEventHelper::runActionCreateTask($params, $dict, 'article_id');
 				break;
 
 			case 'create_ticket':
-				DevblocksEventHelper::runActionCreateTicket($params, $values, 'article_id');
+				DevblocksEventHelper::runActionCreateTicket($params, $dict, 'article_id');
 				break;
 				
 			case 'schedule_behavior':
-				DevblocksEventHelper::runActionScheduleBehavior($params, $values);
+				DevblocksEventHelper::runActionScheduleBehavior($params, $dict);
 				break;
 				
 			case 'unschedule_behavior':
-				DevblocksEventHelper::runActionUnscheduleBehavior($params, $values);
+				DevblocksEventHelper::runActionUnscheduleBehavior($params, $dict);
 				break;
 				
 			case 'set_article_links':
@@ -371,7 +371,7 @@ abstract class AbstractEvent_KbArticle extends Extension_DevblocksEvent {
 				switch($token) {
 					case 'set_article_links':
 						$from_context = CerberusContexts::CONTEXT_KB_ARTICLE;
-						@$from_context_id = $values['set_article_links'];
+						@$from_context_id = $dict->set_article_links;
 						break;
 				}
 				
@@ -404,7 +404,7 @@ abstract class AbstractEvent_KbArticle extends Extension_DevblocksEvent {
 					}
 					
 					if(!empty($context) && !empty($context_id))
-						DevblocksEventHelper::runActionSetCustomField($custom_field, 'article_custom', $params, $values, $context, $context_id);
+						DevblocksEventHelper::runActionSetCustomField($custom_field, 'article_custom', $params, $dict, $context, $context_id);
 				}
 				break;	
 		}

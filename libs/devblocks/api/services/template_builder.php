@@ -96,10 +96,11 @@ class _DevblocksTemplateBuilder {
 	 * @param array $vars
 	 * @return string
 	 */
-	function build($template, &$vars) {
+	function build($template, $dict) {
 		$this->_setUp();
 		
-		$dict = new DevblocksDictionaryDelegate($vars);
+		if(is_array($dict))
+			$dict = new DevblocksDictionaryDelegate($dict);
 		
 		try {
 			$template = $this->_twig->loadTemplate($template); /* @var $template Twig_Template */
@@ -111,8 +112,6 @@ class _DevblocksTemplateBuilder {
 		}
 		$this->_tearDown();
 
-		$vars = $dict->getDictionary();
-		
 		if(!empty($this->_errors))
 			return false;
 		
@@ -125,6 +124,14 @@ class DevblocksDictionaryDelegate {
 	
 	function __construct($dictionary) {
 		$this->_dictionary = $dictionary;
+	}
+	
+	public function __set($name, $value) {
+		$this->_dictionary[$name] = $value;
+	}
+	
+	public function __unset($name) {
+		unset($this->_dictionary[$name]);
 	}
 	
 	public function __get($name) {

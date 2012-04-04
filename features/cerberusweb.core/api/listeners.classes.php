@@ -593,7 +593,7 @@ class EventListener_Triggers extends DevblocksEventListenerExtension {
 	 * @param Model_DevblocksEvent $event
 	 */
 	function handleEvent(Model_DevblocksEvent $event) {
-		$logger = DevblocksPlatform::getConsoleLog("Assistant");
+		$logger = DevblocksPlatform::getConsoleLog("Attendant");
 		
 		$logger->info(sprintf("EVENT: %s",
 			$event->id
@@ -643,13 +643,17 @@ class EventListener_Triggers extends DevblocksEventListenerExtension {
 				return;
 		
 		// Load the intermediate data ONCE!
+		
 		$event_ext->setEvent($event);
 		$values = $event_ext->getValues();
 
+		// Lazy-loader dictionary
+		$dict = new DevblocksDictionaryDelegate($values);
+		
 		// We're preloading some variable values
 		if(isset($event->params['_variables']) && is_array($event->params['_variables'])) {
 			foreach($event->params['_variables'] as $var_key => $var_val) {
-				$values[$var_key] = $var_val;
+				$dict->$var_key = $var_val;
 			}
 		}	
 		
@@ -686,7 +690,7 @@ class EventListener_Triggers extends DevblocksEventListenerExtension {
 				$trigger->owner_context_id
 			));
 			
-			$trigger->runDecisionTree($values);
+			$trigger->runDecisionTree($dict);
 			
 			// Increase the trigger run count
 			$registry->increment('trigger.'.$trigger->id.'.counter', 1);

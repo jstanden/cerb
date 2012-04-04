@@ -2534,16 +2534,21 @@ class ChInternalController extends DevblocksControllerExtension {
  				$values[$k] = strtotime($v);
  		} 		
  		
+ 		// Dictionary
+ 		
+ 		$dict = new DevblocksDictionaryDelegate($values);
+ 		
  		// Behavior data
 
 		$behavior_data = $trigger->getDecisionTreeData();
 		$tpl->assign('behavior_data', $behavior_data);
 
-		$behavior_path = $trigger->runDecisionTree($values, true);
+		$behavior_path = $trigger->runDecisionTree($dict, true);
 		$tpl->assign('behavior_path', $behavior_path);
 		
-		if(isset($values['_simulator_output']))
-			$tpl->assign('simulator_output', $values['_simulator_output']);
+		if(isset($dict->_simulator_output))
+			$tpl->assign('simulator_output', $dict->_simulator_output);
+		
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/decisions/simulator/results.tpl');
 	}

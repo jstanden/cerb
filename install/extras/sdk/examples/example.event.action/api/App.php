@@ -14,7 +14,7 @@ class ExampleEventAction_ExampleAction extends Extension_DevblocksEventAction {
 		$tpl->display('devblocks:example.event.action::config.tpl');
 	}
 	
-	function run($token, $trigger, $params, &$values) {
+	function run($token, $trigger, $params, DevblocksDictionaryDelegate $dict) {
 		// [TODO] Do something with the $params and $values
 
 		//$tpl_builder = DevblocksPlatform::getTemplateBuilder();

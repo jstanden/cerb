@@ -150,7 +150,7 @@ abstract class AbstractEvent_Worker extends Extension_DevblocksEvent {
 		$tpl->clearAssign('params');
 	}
 	
-	function runConditionExtension($token, $trigger, $params, $values) {
+	function runConditionExtension($token, $trigger, $params, DevblocksDictionaryDelegate $dict) {
 		$pass = true;
 		
 		switch($token) {
@@ -247,36 +247,36 @@ abstract class AbstractEvent_Worker extends Extension_DevblocksEvent {
 		$tpl->clearAssign('token_labels');		
 	}
 	
-	function simulateActionExtension($token, $trigger, $params, &$values) {
-		@$worker_id = $values['worker_id'];
+	function simulateActionExtension($token, $trigger, $params, DevblocksDictionaryDelegate $dict) {
+		@$worker_id = $dict->worker_id;
 
 		if(empty($worker_id))
 			return;
 		
 		switch($token) {
 			case 'add_watchers':
-				return DevblocksEventHelper::simulateActionAddWatchers($params, $values, 'worker_id');
+				return DevblocksEventHelper::simulateActionAddWatchers($params, $dict, 'worker_id');
 				break;
 			case 'create_comment':
-				return DevblocksEventHelper::simulateActionCreateComment($params, $values, 'worker_id');
+				return DevblocksEventHelper::simulateActionCreateComment($params, $dict, 'worker_id');
 				break;
 			case 'create_notification':
-				return DevblocksEventHelper::simulateActionCreateNotification($params, $values, 'worker_id');
+				return DevblocksEventHelper::simulateActionCreateNotification($params, $dict, 'worker_id');
 				break;
 			case 'create_task':
-				return DevblocksEventHelper::simulateActionCreateTask($params, $values, 'worker_id');
+				return DevblocksEventHelper::simulateActionCreateTask($params, $dict, 'worker_id');
 				break;
 			case 'create_ticket':
-				return DevblocksEventHelper::simulateActionCreateTicket($params, $values);
+				return DevblocksEventHelper::simulateActionCreateTicket($params, $dict);
 				break;
 			case 'schedule_behavior':
-				return DevblocksEventHelper::simulateActionScheduleBehavior($params, $values);
+				return DevblocksEventHelper::simulateActionScheduleBehavior($params, $dict);
 				break;
 			case 'send_email':
-				return DevblocksEventHelper::simulateActionSendEmail($params, $values);
+				return DevblocksEventHelper::simulateActionSendEmail($params, $dict);
 				break;
 			case 'unschedule_behavior':
-				return DevblocksEventHelper::simulateActionUnscheduleBehavior($params, $values);
+				return DevblocksEventHelper::simulateActionUnscheduleBehavior($params, $dict);
 				break;
 			default:
 				if('set_cf_' == substr($token,0,7)) {
@@ -294,49 +294,49 @@ abstract class AbstractEvent_Worker extends Extension_DevblocksEvent {
 					}
 					
 					if(!empty($context) && !empty($context_id))
-						return DevblocksEventHelper::simulateActionSetCustomField($custom_field, 'worker_custom', $params, $values, $context, $context_id);
+						return DevblocksEventHelper::simulateActionSetCustomField($custom_field, 'worker_custom', $params, $dict, $context, $context_id);
 				}
 				break;
 		}
 	}
 	
-	function runActionExtension($token, $trigger, $params, &$values) {
-		@$worker_id = $values['worker_id'];
+	function runActionExtension($token, $trigger, $params, DevblocksDictionaryDelegate $dict) {
+		@$worker_id = $dict->worker_id;
 
 		if(empty($worker_id))
 			return;
 		
 		switch($token) {
 			case 'add_watchers':
-				DevblocksEventHelper::runActionAddWatchers($params, $values, 'worker_id');
+				DevblocksEventHelper::runActionAddWatchers($params, $dict, 'worker_id');
 				break;
 			
 			case 'create_comment':
-				DevblocksEventHelper::runActionCreateComment($params, $values, 'worker_id');
+				DevblocksEventHelper::runActionCreateComment($params, $dict, 'worker_id');
 				break;
 				
 			case 'create_notification':
-				DevblocksEventHelper::runActionCreateNotification($params, $values, 'worker_id');
+				DevblocksEventHelper::runActionCreateNotification($params, $dict, 'worker_id');
 				break;
 				
 			case 'create_task':
-				DevblocksEventHelper::runActionCreateTask($params, $values, 'worker_id');
+				DevblocksEventHelper::runActionCreateTask($params, $dict, 'worker_id');
 				break;
 
 			case 'create_ticket':
-				DevblocksEventHelper::runActionCreateTicket($params, $values);
+				DevblocksEventHelper::runActionCreateTicket($params, $dict);
 				break;
 				
 			case 'schedule_behavior':
-				DevblocksEventHelper::runActionScheduleBehavior($params, $values);
+				DevblocksEventHelper::runActionScheduleBehavior($params, $dict);
 				break;
 
 			case 'send_email':
-				DevblocksEventHelper::runActionSendEmail($params, $values);
+				DevblocksEventHelper::runActionSendEmail($params, $dict);
 				break;
 				
 			case 'unschedule_behavior':
-				DevblocksEventHelper::runActionUnscheduleBehavior($params, $values);
+				DevblocksEventHelper::runActionUnscheduleBehavior($params, $dict);
 				break;
 				
 			default:
@@ -355,7 +355,7 @@ abstract class AbstractEvent_Worker extends Extension_DevblocksEvent {
 					}
 					
 					if(!empty($context) && !empty($context_id))
-						DevblocksEventHelper::runActionSetCustomField($custom_field, 'worker_custom', $params, $values, $context, $context_id);
+						DevblocksEventHelper::runActionSetCustomField($custom_field, 'worker_custom', $params, $dict, $context, $context_id);
 				}
 				break;	
 		}

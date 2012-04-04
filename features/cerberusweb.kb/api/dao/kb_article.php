@@ -706,13 +706,13 @@ class Context_KbArticle extends Extension_DevblocksContext {
 			case 'categories':
 				// Categories
 				if(null != ($categories = $article->getCategories()) && is_array($categories)) {
-					$values['categories'] = array();
+					$dict->categories = array();
 					
 					foreach($categories as $category_id => $trail) {
 						foreach($trail as $step_id => $step) {
 							if(!isset($token_values['categories'][$category_id]))
-								$values['categories'][$category_id] = array();
-							$values['categories'][$category_id][$step_id] = $step->name;
+								$dict->categories[$category_id] = array();
+							$dict->categories[$category_id][$step_id] = $step->name;
 						}
 					}
 				}

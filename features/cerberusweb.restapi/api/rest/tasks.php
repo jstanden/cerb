@@ -103,8 +103,6 @@ class ChRest_Tasks extends Extension_RestController implements IExtensionRestCon
 		$values = array();
 		$context = CerberusContexts::getContext(CerberusContexts::CONTEXT_TASK, $id, $labels, $values, null, true);
 
-//		unset($values['initial_message_content']);
-
 		return $values;
 	}
 	

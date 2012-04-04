@@ -97,7 +97,7 @@ class ChRest_Feedback extends Extension_RestController implements IExtensionRest
 		$values = array();
 		$context = CerberusContexts::getContext(CerberusContexts::CONTEXT_FEEDBACK, $id, $labels, $values, null, true);
 
-		unset($values['quote_mood_id']);
+		unset($dict->quote_mood_id);
 
 		return $values;
 	}
