@@ -779,7 +779,9 @@ class Context_Notification extends Extension_DevblocksContext {
 			$token_values['created'] = $notification->created_date;
 			$token_values['message'] = $notification->message;
 			$token_values['is_read'] = $notification->is_read;
-			$token_values['url'] = $notification->getURL();
+			$token_values['url'] = $notification->url; //$notification->getURL();
+			
+			$redirect_url = $url_writer->writeNoProxy(sprintf("c=preferences&a=redirectRead&id=%d", $notification->id), true);
 			$token_values['url_markread'] = $redirect_url;
 			
 			// Assignee
