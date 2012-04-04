@@ -414,7 +414,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 				$not = (substr($params['oper'],0,1) == '!');
 				$oper = ltrim($params['oper'],'!');
 				
-				@$months = DevblocksPlatform::importVar($params['months'],'array',array());
+				@$months = DevblocksPlatform::importVar($params['month'],'array',array());
 				
 				switch($oper) {
 					case 'is':
