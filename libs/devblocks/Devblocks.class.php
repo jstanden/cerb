@@ -346,10 +346,10 @@ class DevblocksPlatform extends DevblocksEngine {
 		
 		// Strip tags
 		$search = array(
+		    '@<![\s\S]*?--[ \t\n\r]*>@',
 			'@<script[^>]*?>.*?</script>@si',
 		    '@<style[^>]*?>.*?</style>@siU',
 		    '@<[\/\!]*?[^<>]*?>@si',
-		    '@<![\s\S]*?--[ \t\n\r]*>@',
 		);
 		$str = preg_replace($search, '', $str);
 		
