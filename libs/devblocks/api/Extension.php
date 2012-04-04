@@ -405,6 +405,9 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 			$now = $dict->_current_time;
 		}
 		
+		$logger->info('');
+		$logger->info(sprintf("Checking condition '%s'...", $token));
+		
 		// Built-in actions
 		switch($token) {
 			case '_month_of_year':
@@ -463,16 +466,30 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 						case Model_CustomField::TYPE_CHECKBOX:
 							$bool = intval($params['bool']);
 							$pass = !empty($value) == $bool;
+							$logger->info(sprintf("Checkbox: %s = %s",
+								(!empty($value) ? 'true' : 'false'),
+								(!empty($bool) ? 'true' : 'false')
+							));
 							break;
 							
 						case Model_CustomField::TYPE_DATE:
 							$not = (substr($params['oper'],0,1) == '!');
 							$oper = ltrim($params['oper'],'!');
+							$oper = 'between';
+							
+							$from = strtotime($params['from']);
+							$to = strtotime($params['to']);
+							
+							$logger->info(sprintf("Date: `%s` %s%s `%s` and `%s`",
+								DevblocksPlatform::strPrettyTime($value),
+								(!empty($not) ? 'not ' : ''),
+								$oper,
+								DevblocksPlatform::strPrettyTime($from),
+								DevblocksPlatform::strPrettyTime($to)
+							));
+							
 							switch($oper) {
-								case 'is':
 								case 'between':
-									$from = strtotime($params['from']);
-									$to = strtotime($params['to']);
 									if($to < $from)
 										$to += 86400; // +1 day
 									$pass = ($value >= $from && $value <= $to) ? true : false;
@@ -485,6 +502,14 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 						case Model_CustomField::TYPE_URL:
 							$not = (substr($params['oper'],0,1) == '!');
 							$oper = ltrim($params['oper'],'!');
+							
+							$logger->info(sprintf("Text: `%s` %s%s `%s`",
+								$value,
+								(!empty($not) ? 'not ' : ''),
+								$oper,
+								$params['value']
+							));
+							
 							switch($oper) {
 								case 'is':
 									$pass = (0==strcasecmp($value,$params['value']));
@@ -511,15 +536,24 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 						case Model_CustomField::TYPE_NUMBER:
 							$not = (substr($params['oper'],0,1) == '!');
 							$oper = ltrim($params['oper'],'!');
+							$desired_value = intval($params['value']); 
+							
+							$logger->info(sprintf("Number: %d %s%s %d",
+								$value,
+								(!empty($not) ? 'not ' : ''),
+								$oper,
+								$desired_value
+							));
+							
 							switch($oper) {
 								case 'is':
-									$pass = intval($value)==intval($params['value']);
+									$pass = intval($value)==$desired_value;
 									break;
 								case 'gt':
-									$pass = intval($value) > intval($params['value']);
+									$pass = intval($value) > $desired_value;
 									break;
 								case 'lt':
-									$pass = intval($value) < intval($params['value']);
+									$pass = intval($value) < $desired_value;
 									break;
 							}
 							break;
@@ -527,8 +561,16 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 						case Model_CustomField::TYPE_DROPDOWN:
 							$not = (substr($params['oper'],0,1) == '!');
 							$oper = ltrim($params['oper'],'!');
+							$desired_values = isset($params['values']) ? $params['values'] : array();
 							
-							if(!isset($params['values']) || !is_array($params['values'])) {
+							$logger->info(sprintf("`%s` %s%s `%s`",
+								$value,
+								(!empty($not) ? 'not ' : ''),
+								$oper,
+								implode('; ', $desired_values)
+							));
+							
+							if(!isset($desired_values) || !is_array($desired_values)) {
 								$pass = false;
 								break;
 							}
@@ -536,7 +578,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 							switch($oper) {
 								case 'in':
 									$pass = false;
-									if(in_array($value, $params['values'])) {
+									if(in_array($value, $desired_values)) {
 										$pass = true;
 									}
 									break;
@@ -548,13 +590,22 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 							$oper = ltrim($params['oper'],'!');
 							
 							if(preg_match("#(.*?_custom)_(\d+)#", $token, $matches) && 3 == count($matches)) {
-								@$value = $values[$matches[1]][$matches[2]]; 
+								$value_token = $matches[1];
+								$value_field = $dict->$value_token; 
+								@$value = $value_field[$matches[2]]; 
 							}
 							
 							if(!is_array($value) || !isset($params['values']) || !is_array($params['values'])) {
 								$pass = false;
 								break;
 							}
+							
+							$logger->info(sprintf("Multi-checkbox: `%s` %s%s `%s`",
+								implode('; ', $params['values']),
+								(!empty($not) ? 'not ' : ''),
+								$oper,
+								implode('; ', $value)
+							));
 							
 							switch($oper) {
 								case 'is':
@@ -613,15 +664,24 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 								
 								$not = (substr($params['oper'],0,1) == '!');
 								$oper = ltrim($params['oper'],'!');
+								$desired_count = intval($params['value']);
+
+								$logger->info(sprintf("Count: %d %s%s %d",
+									$count,
+									$not,
+									$oper,
+									$desired_count
+								));
+								
 								switch($oper) {
 									case 'is':
-										$pass = $count==intval($params['value']);
+										$pass = $count==$desired_count;
 										break;
 									case 'gt':
-										$pass = $count > intval($params['value']);
+										$pass = $count > $desired_count;
 										break;
 									case 'lt':
-										$pass = $count < intval($params['value']);
+										$pass = $count < $desired_count;
 										break;
 								}
 							
@@ -645,7 +705,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 		if($not)
 			$pass = !$pass;
 			
-		$logger->info(sprintf("Checking condition '%s'... %s", $token, ($pass ? 'PASS' : 'FAIL')));
+		$logger->info(sprintf("  ... %s", ($pass ? 'PASS' : 'FAIL')));
 		
 		return $pass;
 	}

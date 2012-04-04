@@ -2494,6 +2494,9 @@ class ChInternalController extends DevblocksControllerExtension {
 		@$custom_values = DevblocksPlatform::importGPC($_POST['values'],'array', array());
 		
 		$tpl = DevblocksPlatform::getTemplateService();
+		$logger = DevblocksPlatform::getConsoleLog('Attendant');
+		
+		$logger->setLogLevel(7);
 		
 		$tpl->assign('trigger_id', $trigger_id);
 		
@@ -2549,6 +2552,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		if(isset($dict->_simulator_output))
 			$tpl->assign('simulator_output', $dict->_simulator_output);
 		
+		$logger->setLogLevel(0);
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/decisions/simulator/results.tpl');
 	}
