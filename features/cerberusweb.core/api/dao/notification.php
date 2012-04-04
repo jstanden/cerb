@@ -413,7 +413,7 @@ class View_Notification extends C4_AbstractView implements IAbstractView_Subtota
 
 	function __construct() {
 		$this->id = self::DEFAULT_ID;
-		$this->name = 'Worker Events';
+		$this->name = 'Notifications';
 		$this->renderLimit = 100;
 		$this->renderSortBy = SearchFields_Notification::CREATED_DATE;
 		$this->renderSortAsc = false;
@@ -746,7 +746,6 @@ class Context_Notification extends Extension_DevblocksContext {
 		}
 		
 		// Token labels
-		// [TODO] Needs to also return META (data type code -- like custom fields)
 		$token_labels = array(
 			'id' => $prefix.$translate->_('common.id'),
 			'context' => $prefix.$translate->_('common.context'),
@@ -755,7 +754,6 @@ class Context_Notification extends Extension_DevblocksContext {
 			'message' => $prefix.'message',
 			'is_read' => $prefix.'is read',
 			'url' => $prefix.$translate->_('common.url'),
-			'url_markread' => $prefix.'URL (Mark read)', // [TODO] This isn't needed anymore
 		);
 		
 		if(is_array($fields))
@@ -769,8 +767,6 @@ class Context_Notification extends Extension_DevblocksContext {
 		$token_values['_context'] = CerberusContexts::CONTEXT_NOTIFICATION;
 		
 		if($notification) {
-			$redirect_url = $url_writer->writeNoProxy(sprintf("c=preferences&a=redirectRead&id=%d", $notification->id), true);
-			
 			$token_values['_loaded'] = true;
 			$token_values['_label'] = trim(strtr($notification->message,"\r\n",' '));
 			$token_values['id'] = $notification->id;
@@ -851,19 +847,21 @@ class Context_Notification extends Extension_DevblocksContext {
 		$defaults->class_name = $this->getViewClass();
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = 'Notifications';
-//		$view->view_columns = array(
-//			SearchFields_Message::UPDATED_DATE,
-//			SearchFields_Message::DUE_DATE,
-//		);
-		$view->addParamsRequired(array(
-			SearchFields_Notification::WORKER_ID => new DevblocksSearchCriteria(SearchFields_Notification::WORKER_ID,'=',$active_worker->id),
-		), true);
-		$view->addParams(array(
-//			SearchFields_Task::IS_COMPLETED => new DevblocksSearchCriteria(SearchFields_Task::IS_COMPLETED,'=',0),
-		), true);
+		
+		$params = array();
+				
+		if(!empty($active_worker)) {
+			$params[SearchFields_Notification::WORKER_ID] = new DevblocksSearchCriteria(SearchFields_Notification::WORKER_ID,'=',$active_worker->id);
+		}
+		
+		$view->addParams($params, true);
+		$view->addParamsDefault($params, true);
+		$view->addParamsRequired(array(), true);
+		
 		$view->renderSortBy = SearchFields_Notification::CREATED_DATE;
 		$view->renderSortAsc = false;
 		$view->renderLimit = 10;
+		$view->renderFilters = true;
 		$view->renderTemplate = 'contextlinks_chooser';
 		C4_AbstractViewLoader::setView($view_id, $view);
 		return $view;		

@@ -745,6 +745,7 @@
 				<param key="options">
 					<value>
 						<!--<data key="snippets" />-->
+						<data key="va_variable" />
 						<data key="workspace" />
 					</value>
 				</param>
