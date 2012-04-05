@@ -956,10 +956,10 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 			
 			case 'move_to':
 				@$to_group_id = intval($params['group_id']);
-				@$current_group_id = intval($dict->ticket_group_id]);
+				@$current_group_id = intval($dict->ticket_group_id);
 				
 				@$to_bucket_id = intval($params['bucket_id']);
-				@$current_bucket_id = intval($dict->ticket_bucket_id]);
+				@$current_bucket_id = intval($dict->ticket_bucket_id);
 
 				$groups = DAO_Group::getAll();
 				$buckets = DAO_Bucket::getAll();
@@ -1038,15 +1038,15 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 				switch($token) {
 					case 'set_sender_links':
 						$from_context = CerberusContexts::CONTEXT_ADDRESS;
-						@$from_context_id = $dict->sender_id];
+						@$from_context_id = $dict->sender_id;
 						break;
 					case 'set_sender_org_links':
 						$from_context = CerberusContexts::CONTEXT_ORG;
-						@$from_context_id = $dict->sender_org_id];
+						@$from_context_id = $dict->sender_org_id;
 						break;
 					case 'set_ticket_links':
 						$from_context = CerberusContexts::CONTEXT_TICKET;
-						@$from_context_id = $dict->ticket_id];
+						@$from_context_id = $dict->ticket_id;
 						break;
 				}
 				
