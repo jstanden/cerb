@@ -55,7 +55,7 @@
 	{/if}
 		
 	{if !$nested && !$readonly}</label><br>{/if}
-	{if !$nested && $readonly}<a href="javascript:;" class="delete" onclick="ajax.viewRemoveFilter('{$view->id}', ['{$param_key}']);" style="position:relative;margin-left:-18px;top:-8px;left:8px;display:none;"><span class="cerb-sprite2 sprite-cross-circle-frame"></span></a></li>{/if}
+	{if !$nested && $readonly}<a href="javascript:;" class="delete" onclick="ajax.viewRemoveFilter('{$view->id}', ['{$param_key}']);" style="margin-left:-18px;display:none;"><span class="cerb-sprite2 sprite-cross-circle-frame"></span></a></li>{/if}
 {/foreach}
 {if $readonly}</ul>{/if}
 {else}{*empty*}
