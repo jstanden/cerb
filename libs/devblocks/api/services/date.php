@@ -397,3 +397,244 @@ class _DevblocksDateManager {
 		);
 	}
 };
+
+class DevblocksCalendarHelper {
+	static function getDailyDates($start, $every_n=1, $until=null, $max_iter=null) {
+		$dates = array();
+		$counter = 0;
+		$every_n = max(intval($every_n), 1);
+
+		$date = $start;
+		$last_date = $date;
+		
+		$done = false;
+		$num_loops = 0;
+		
+		while(!$done && ++$num_loops < 1096) { // Runaway protection capped at 3 years worth of days
+			if($date >= $start)
+				$dates[] = $date; 
+			
+			$date = strtotime(sprintf("+%d days", $every_n), $date);
+			
+			// Stop if we have no end in sight
+			if(!$done && empty($max_iter) && empty($until))
+				$done = true;
+			// Stop if we hit the 32-bit Unix armageddon 
+			if(!$done && $last_date >= $date)
+				$done = true;
+			// Stop if we have a result cap and we passed it
+			if(!$done && !empty($max_iter) && count($dates) >= $max_iter)
+				$done = true;
+			// Stop if we have an end date and we passed it
+			if(!$done && !empty($until) && $date > $until)
+				$done = true;
+			
+			$last_date = $date;
+		}
+
+		return $dates;		
+	}
+	
+	static function getWeeklyDates($start, array $weekdays, $until=null, $max_iter=null) {
+		$dates = array();
+		
+		// If we're asked to make things starting at a date beyond the end date, stop.
+		if($start > $until)
+			return $dates;		
+
+		$name_weekdays = array('Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday');
+		$num_weekdays = count($weekdays);
+
+		$cur_dow = (integer) date('w', $start);
+		
+		$counter = null;
+
+		if(false !== ($pos = array_search($cur_dow, $weekdays))) {
+			$counter = $pos;
+			$cur_dow = $weekdays[$pos];
+			$date = strtotime('today', $start);
+			
+		} else {
+			$counter = 0;
+			$cur_dow = reset($weekdays);
+			$date = strtotime(sprintf("%s this week", $name_weekdays[$cur_dow]), $start);
+		}
+
+		$last_date = $date;
+		
+		$done = false;
+		$num_loops = 0;
+		
+		while(!$done && ++$num_loops < 1096) { // Runaway protection capped at 3 years worth of days
+			if($date >= $start)
+				$dates[] = $date; 
+			
+			$cur_dow = $weekdays[$counter % $num_weekdays];
+			$next_dow = $weekdays[++$counter % $num_weekdays];
+			
+			$date = strtotime(
+				sprintf("%s %s",
+					$name_weekdays[$next_dow],
+					($next_dow <= $cur_dow) ? 'next week' : 'this week' 
+				),
+				$date
+			);
+			
+			// Stop if we have no end in sight
+			if(!$done && empty($max_iter) && empty($until))
+				$done = true;
+			// Stop if we hit the 32-bit Unix armageddon 
+			if(!$done && $last_date >= $date)
+				$done = true;
+			// Stop if we have a result cap and we passed it
+			if(!$done && !empty($max_iter) && count($dates) >= $max_iter)
+				$done = true;
+			// Stop if we have an end date and we passed it
+			if(!$done && !empty($until) && $date > $until)
+				$done = true;
+			
+			$last_date = $date;
+		}
+
+		return $dates;
+	}
+	
+	static function getMonthlyDates($start, array $days, $until=null, $max_iter=null) {
+		$dates = array();
+		
+		$num_days = count($days);
+
+		$cur_dy = (integer) date('d', $start);
+		$cur_mo = (integer) date('m', $start);
+		$cur_yr = (integer) date('Y', $start);
+		
+		$counter = null;
+
+		if(false !== ($pos = array_search($cur_dy, $days))) {
+			$counter = $pos;
+			
+		} else {
+			$counter = 0;
+			$cur_dy = reset($days);
+		}
+		
+		$date = strtotime(sprintf("%d-%d-%d", $cur_yr, $cur_mo, $cur_dy));
+		$last_date = $date;
+		
+		$done = false;
+		$num_loops = 0;
+		
+		while(!$done && ++$num_loops < 250) {
+			if($date >= $start)
+				$dates[] = $date; 
+			
+			do {
+				$cur_dy = (integer) date('d', $date);
+				$cur_mo = (integer) date('m', $date);
+				$cur_yr = (integer) date('Y', $date);
+				
+				$next_dy = $days[++$counter % $num_days];
+				$next_mo = $cur_mo + ($next_dy <= $cur_dy ? 1 : 0);
+				$next_yr = $cur_yr;
+				
+				if($next_mo > 12) {
+					$next_mo = 1;
+					$next_yr++;
+				}
+				
+				$date = strtotime(sprintf("%d-%d-%d", $next_yr, $next_mo, $next_dy));
+				
+			} while(self::_getDaysInMonth($next_mo, $next_yr) < $next_dy);
+			
+			// Stop if we have no end in sight
+			if(!$done && empty($max_iter) && empty($until))
+				$done = true;
+			// Stop if we hit the 32-bit Unix armageddon 
+			if(!$done && $last_date >= $date)
+				$done = true;
+			// Stop if we have a result cap and we passed it
+			if(!$done && !empty($max_iter) && count($dates) >= $max_iter)
+				$done = true;
+			// Stop if we have an end date and we passed it
+			if(!$done && !empty($until) && $date > $until)
+				$done = true;
+			
+			$last_date = $date;
+		}
+
+		return $dates;		
+	}
+	
+	static function getYearlyDates($start, array $months, $until=null, $max_iter=null) {
+		$dates = array();
+		
+		$num_months = count($months);
+
+		$cur_dy = (integer) date('d', $start);
+		$cur_mo = (integer) date('m', $start);
+		$cur_yr = (integer) date('Y', $start);
+		
+		$counter = null;
+
+		if(false !== ($pos = array_search($cur_mo, $months))) {
+			$counter = $pos;
+			
+		} else {
+			$counter = 0;
+			$cur_mo = reset($months);
+		}
+		
+		$date = strtotime(sprintf("%d-%d-%d", $cur_yr, $cur_mo, $cur_dy));
+		$last_date = $date;
+		
+		$done = false;
+		$num_loops = 0;
+		
+		while(!$done && ++$num_loops < 250) {
+			if($date >= $start)
+				$dates[] = $date; 
+			
+			do {
+				$cur_mo = (integer) date('m', $date);
+				$cur_yr = (integer) date('Y', $date);
+				
+				$next_mo = $months[++$counter % $num_months];
+				$next_yr = $cur_yr + ($next_mo <= $cur_mo ? 1 : 0);
+				
+				$date = strtotime(sprintf("%d-%d-%d", $next_yr, $next_mo, $cur_dy));
+				
+			} while(self::_getDaysInMonth($next_mo, $next_yr) < $cur_dy);
+			
+			// Stop if we have no end in sight
+			if(!$done && empty($max_iter) && empty($until))
+				$done = true;
+			// Stop if we hit the 32-bit Unix armageddon 
+			if(!$done && $last_date >= $date)
+				$done = true;
+			// Stop if we have a result cap and we passed it
+			if(!$done && !empty($max_iter) && count($dates) >= $max_iter)
+				$done = true;
+			// Stop if we have an end date and we passed it
+			if(!$done && !empty($until) && $date > $until)
+				$done = true;
+			
+			$last_date = $date;
+		}
+
+		return $dates;
+	}
+	
+	// Days in month helper
+	private static function _getDaysInMonth($month, $year) {
+		$days_check = mktime(
+			0,
+			0,
+			0,
+			$month,
+			1,
+			$year
+		);
+			
+		return (integer) date('t', $days_check);
+	}
+};

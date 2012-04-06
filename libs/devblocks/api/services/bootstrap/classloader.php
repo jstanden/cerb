@@ -72,6 +72,7 @@ class _DevblocksClassLoadManager {
 		));
 		$this->registerClasses(DEVBLOCKS_PATH . 'api/services/date.php', array(
 			'_DevblocksDateManager',
+			'DevblocksCalendarHelper',
 		));
 		$this->registerClasses(DEVBLOCKS_PATH . 'api/services/email.php', array(
 			'_DevblocksEmailManager',
