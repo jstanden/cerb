@@ -15,8 +15,8 @@
 |	http://www.cerberusweb.com	  http://www.webgroupmedia.com/
 ***********************************************************************/
 
-if(version_compare(PHP_VERSION, "5.2", "<"))
-	die("Cerberus Helpdesk 5.x requires PHP 5.2 or later.");
+if(version_compare(PHP_VERSION, "5.3", "<"))
+	die("Cerberus Helpdesk 5.x requires PHP 5.3 or later.");
 
 @set_time_limit(3600); // 1hr
 require('../framework.config.php');
@@ -115,14 +115,13 @@ $tpl->caching = 0;
 $tpl->assign('step', $step);
 
 switch($step) {
-	// [TODO] Check server + php environment (extensions + php.ini)
 	default:
 	case STEP_ENVIRONMENT:
 		$results = array();
 		$fails = 0;
 		
 		// PHP Version
-		if(version_compare(PHP_VERSION,"5.2") >=0) {
+		if(version_compare(PHP_VERSION,"5.3") >=0) {
 			$results['php_version'] = PHP_VERSION;
 		} else {
 			$results['php_version'] = false;
