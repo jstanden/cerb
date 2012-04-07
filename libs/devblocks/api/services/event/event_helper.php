@@ -1974,17 +1974,24 @@ class DevblocksEventHelper {
 				break;
 		}
 		
+		$objects = array();
+		
 		// Preload these from DAO
-		$objects = $view->getDataAsObjects($new_ids);
+		if(is_array($new_ids))
+			$objects = $view->getDataAsObjects($new_ids);
 
 		if(is_array($objects))
-		foreach($objects as $object_id => $object) {
-			$obj_labels = array();
-			$obj_values = array();
-			CerberusContexts::getContext($context, $object, $obj_labels, $obj_values, null, true);
-			$array = $dict->$token;
-			$array[$object_id] = $obj_values;
-			$dict->$token = $array;
+		foreach($new_ids as $new_id) {
+			$object = isset($objects[$new_id]) ? $objects[$new_id] : null;
+			
+			if(!empty($object)) {
+				$obj_labels = array();
+				$obj_values = array();
+				CerberusContexts::getContext($context, $object, $obj_labels, $obj_values, null, true);
+				$array = $dict->$token;
+				$array[$new_id] = $obj_values;
+				$dict->$token = $array;
+			}
 		}
 	}
 };
