@@ -1921,11 +1921,16 @@ class DevblocksEventHelper {
 			);
 			
 			$ctx = Extension_DevblocksContext::get($context);
-			$view_model = new C4_AbstractViewModel();
-			$view_model->id = $view_id;
-			$view_model->is_ephemeral = true;
-			$view_model->renderFilters = true;
-			$view_model->class_name = $ctx->getViewClass();
+			
+			$view = $ctx->getChooserView(); /* @var $view C4_AbstractView */
+			
+			if($view instanceof C4_AbstractView) {
+				$view->id = $view_id;
+				$view->is_ephemeral = true;
+				$view->renderFilters = true;
+	
+				$view_model = C4_AbstractViewLoader::serializeAbstractView($view);
+			}
 		}
 		
 		return $view_model;
