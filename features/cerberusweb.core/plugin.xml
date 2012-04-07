@@ -125,9 +125,11 @@
 		</file>
 		
 		<file path="api/dao/calendar_event.php">
+			<class name="Context_CalendarEvent" />
 			<class name="DAO_CalendarEvent" />
 			<class name="Model_CalendarEvent" />
 			<class name="SearchFields_CalendarEvent" />
+			<class name="View_CalendarEvent" />
 		</file>
 		
 		<file path="api/dao/calendar_recurring_profile.php">
@@ -667,6 +669,28 @@
 						<data key="create" />
 						<data key="find" />
 						<data key="snippets" />
+						<data key="va_variable" />
+						<data key="workspace" />
+					</value>
+				</param>
+			</params>
+		</extension>
+		
+		<extension point="devblocks.context">
+			<id>cerberusweb.contexts.calendar_event</id>
+			<name>Calendar Event</name>
+			<class>
+				<file>api/dao/calendar_event.php</file>
+				<name>Context_CalendarEvent</name>
+			</class>
+			<params>
+				<param key="alias" value="calendar_event" />
+				<param key="view_class" value="View_CalendarEvent" />
+				<param key="options">
+					<value>
+						<!--<data key="create" />-->
+						<!--<data key="find" />-->
+						<!--<data key="snippets" />-->
 						<data key="va_variable" />
 						<data key="workspace" />
 					</value>
