@@ -3007,6 +3007,9 @@ class ChInternalController extends DevblocksControllerExtension {
 		unset($days);
 		unset($calendar_cells);
 		
+		$date_range_from = strtotime('00:00', $range_from['timestamp']);
+		$date_range_to = strtotime('23:59', $range_to['timestamp']);
+		
 		// [TODO] Convert to DAO
 		$db = DevblocksPlatform::getDatabaseService();
 		$sql = sprintf(
@@ -3014,12 +3017,14 @@ class ChInternalController extends DevblocksControllerExtension {
 			"FROM calendar_event ".
 			"WHERE owner_context = %s ".
 			"AND owner_context_id = %d ".
-			"AND date_start >= %d AND date_end <= %d ".
+			"AND ((date_start >= %d AND date_start <= %d) OR (date_end >= %d AND date_end <= %d)) ".
 			"ORDER BY is_available DESC, date_start ASC",
 			$db->qstr($context),
 			$context_id,
-			strtotime('00:00', $range_from['timestamp']),
-			strtotime('23:59', $range_to['timestamp'])
+			$date_range_from,
+			$date_range_to,
+			$date_range_from,
+			$date_range_to
 		);
 		$results = $db->GetArray($sql);
 
@@ -3288,7 +3293,7 @@ class ChInternalController extends DevblocksControllerExtension {
 
 			if($recurring_has_changed) {
 				if(null != ($recurring = DAO_CalendarRecurringProfile::get($recurring_id)))
-					$recurring->createRecurringEvents($timestamp_start);
+					$recurring->createRecurringEvents(strtotime("today", $timestamp_start));
 				
 				echo json_encode(array(
 					'action' => 'recurring',

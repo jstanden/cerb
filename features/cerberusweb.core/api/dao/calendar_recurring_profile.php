@@ -285,185 +285,89 @@ class Model_CalendarRecurringProfile {
 	
 	function createRecurringEvents($epoch=null) {
 		$params = $this->params;
-		@$timestamp_start = $this->date_start;
-		@$timestamp_end = $this->date_end;
 
-		$datetime = new DateTime('now');
-		$datetime->modify("last day of next month");
-		//$datetime->modify("+6 weeks");
-		$datetime->setTime(23,59,59);
-		//$datetime->modify("this day next year");
+		$until = strtotime("December 31 +1 month 23:59");
 		
-		$recur_until_date = $datetime->getTimestamp();
-		//var_dump(date("Y-m-d h:i a", $recur_until_date));
-		$until = $recur_until_date;
-		
+		$every_n = max(intval(@$params['options']['every_n']),1);
+		$after_n = null;
 		$end_params = isset($params['end']['options']) ? $params['end']['options'] : array();
 		
 		switch(@$params['end']['term']) {
 			case 'after_n':
+				if(isset($end_params['iterations'])) {
+					$after_n = $end_params['iterations'];
+				}
 				break;
+				
 			case 'date':
 				if(isset($end_params['on'])) {
-					// [TODO] This should contribute to the loop ending but not overload $until
-					$until = $end_params['on'];
+					$until_date = $end_params['on'];
+					$until = min($until_date, $until);
 				}
 				break;
 		}
 		
-		$counter = 0;
-		$done = false;
-		
-		$day_names = array('Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday');
-		
 		$on_dates = array();
-		//$on_dates[] = array($timestamp_start, $timestamp_end);
+		$date_start = strtotime("today", $this->date_start);
 		
-		$every_n = max(intval(@$params['options']['every_n']),1); 
-		
-		while(!$done) {
-			// [TODO] Advance start+end times
-			switch(@$params['freq']) {
-				case 'daily':
-					$timestamp_start = strtotime(sprintf("+%d day",$every_n),$timestamp_start);
-					$timestamp_end = strtotime(sprintf("+%d day",$every_n),$timestamp_end);
-					
-					if($timestamp_start >= $epoch && $timestamp_start <= $until)
-						$on_dates[] = array($timestamp_start, $timestamp_end);
-					break;
-					
-				case 'weekly':
-					$days = $params['options']['day'];
-					
-					$current_day = (integer)date('w', $timestamp_start);
-					$next_day = $days[$counter++ % count($days)];
-					$is_end_of_week = isset($last_day) && ($next_day <= $last_day);
-
-					if($is_end_of_week) {
-						$timestamp_start = strtotime(sprintf("now +%d weeks", $every_n), $timestamp_start);
-						$current_day = (integer)date('w', $timestamp_start);
-						$is_end_of_week = false;
-					}
-					
-					$when = sprintf("%s%s %s",
-						(!isset($last_day) || $next_day < $last_day) ? ('last ') : ($is_end_of_week ? 'next ' : ''),
-						$day_names[$next_day],
-						date("H:i", $timestamp_start)
-					);
-					$timestamp_start = strtotime($when, $timestamp_start);
-				
-					if($timestamp_start >= $epoch && $timestamp_start <= $until)
-						$on_dates[] = array($timestamp_start, $timestamp_end + ($timestamp_start - $this->date_start));
-					
-					$last_day = $next_day;
-					
-					break;
-					
-				case 'monthly':
-					$days = $params['options']['day'];
-					
-					$current_day = (integer)date('j', $timestamp_start);
-					$next_day = $days[$counter++ % count($days)];
-					$days_in_month = (integer)date('t', $timestamp_start);
-				
-					if($next_day > $days_in_month) {
-						while($next_day > $days_in_month) {
-							$next_day = $days[$counter++ % count($days)];
-						}
-					}
-				
-					$timestamp_start = mktime(
-						date('H', $timestamp_start),
-						date('i', $timestamp_start),
-						0,
-						date('m', $timestamp_start) + (isset($last_day) && ($next_day < $last_day) ? $every_n : 0),
-						$next_day,
-						date('Y', $timestamp_start)
-					);
-					
-					if($timestamp_start >= $epoch && $timestamp_start <= $until)
-						$on_dates[] = array($timestamp_start, $timestamp_end + ($timestamp_start - $this->date_start));
-				
-					$last_day = $next_day;
-					
-					break;
-					
-				case 'yearly':
-					$months = $params['options']['month'];
-					
-					$current_day = (integer)date('j', $timestamp_start);
-					
-					do {
-						$next_month = $months[$counter++ % count($months)];
-						
-						$timestamp_month = mktime(
-							date('H', $timestamp_start),
-							date('i', $timestamp_start),
-							0,
-							$next_month,
-							1,
-							date('Y', $timestamp_start) + ((isset($last_month) && $next_month < $last_month) ? $every_n : 0)
-						);
-						
-						$days_in_month = (integer)date('t', $timestamp_month);
-						$last_month = $next_month;
-						
-					} while($current_day > $days_in_month);
-				
-					$timestamp_start = mktime(
-						date('H', $timestamp_month),
-						date('i', $timestamp_month),
-						0,
-						$next_month,
-						$current_day,
-						date('Y', $timestamp_month)
-					);
-					
-					if($timestamp_start >= $epoch && $timestamp_start <= $until)
-						$on_dates[] = array($timestamp_start, $timestamp_end + ($timestamp_start - $this->date_start));
-					
-					break;
-			}
-			
-			// Have we passed the end of next year?  If so, finish
-			if(!$done) {
-				switch(@$params['end']['term']) {
-					case 'after_n':
-						$iters = isset($end_params['iterations']) ? intval($end_params['iterations']) : 1;
-						if(count($on_dates) >= $iters)
-							$done = true;
-						break;
-						
-					default:
-						if($timestamp_start >= $until)
-							$done = true;
-						break;
-				}
-			}
+		switch(@$params['freq']) {
+			case 'daily':
+				$on_dates = DevblocksCalendarHelper::getDailyDates($date_start, $every_n, $until, $after_n); 
+				break;
+			case 'weekly':
+				$on_dates = DevblocksCalendarHelper::getWeeklyDates($date_start, $params['options']['day'], $until, $after_n); 
+				break;	
+			case 'monthly':
+				$on_dates = DevblocksCalendarHelper::getMonthlyDates($date_start, $params['options']['day'], $until, $after_n); 
+				break;	
+			case 'yearly':
+				$on_dates = DevblocksCalendarHelper::getYearlyDates($date_start, $params['options']['month'], $until, $after_n); 
+				break;	
 		}
+
+		$time_start = date('H:i', $this->date_start);
+		$time_end = date('H:i', $this->date_end);
+		
+		$event_start = new DateTime();
+		$event_start->setTimestamp($this->date_start);
+		
+		$event_end = new DateTime();
+		$event_end->setTimestamp($this->date_end);
+		
+		$event_interval = $event_end->diff($event_start);
 		
 		if(!empty($on_dates)) {
-			foreach($on_dates as $v_pair) {
-				if(!is_array($v_pair) || 2 != count($v_pair))
+			if(is_array($on_dates))
+			foreach($on_dates as $k => $on_date) {
+				$date_start = strtotime($time_start, $on_date);
+				
+				if($date_start < $epoch) {
+					unset($on_dates[$k]);
 					continue;
+				}
+				
+				$date_end = strtotime($time_end, strtotime($event_interval->format('%R%a days'), $date_start));					
 				
 				$fields = array(
 					DAO_CalendarEvent::NAME => $this->event_name,
 					DAO_CalendarEvent::RECURRING_ID => $this->id,
-					DAO_CalendarEvent::DATE_START => $v_pair[0],
-					DAO_CalendarEvent::DATE_END => $v_pair[1],
+					DAO_CalendarEvent::DATE_START => $date_start,
+					DAO_CalendarEvent::DATE_END => $date_end,
 					DAO_CalendarEvent::IS_AVAILABLE => $this->is_available,
 					DAO_CalendarEvent::OWNER_CONTEXT => $this->owner_context,
 					DAO_CalendarEvent::OWNER_CONTEXT_ID => $this->owner_context_id,
 				);
 				DAO_CalendarEvent::create($fields);
 			}
-			
+
 			// Update the recurring profile with the last sched date
-			DAO_CalendarRecurringProfile::update($this->id, array(
-				DAO_CalendarRecurringProfile::DATE_START => $timestamp_start,
-				DAO_CalendarRecurringProfile::DATE_END => $timestamp_end + ($timestamp_start - $this->date_start),
-			));
+			
+			if(isset($date_start) && isset($date_end)) {
+				DAO_CalendarRecurringProfile::update($this->id, array(
+					DAO_CalendarRecurringProfile::DATE_START => $date_start,
+					DAO_CalendarRecurringProfile::DATE_END => $date_end,
+				));
+			}
 			
 			unset($on_dates);
 		}
@@ -471,4 +375,3 @@ class Model_CalendarRecurringProfile {
 		return true;
 	}	
 };
-

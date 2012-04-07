@@ -1425,7 +1425,7 @@ class Cron_CalendarRecurringEventScheduler extends CerberusCronPageExtension {
 		foreach($recurring_events as $recurring) { /* @var $recurring Model_CalendarRecurringProfile */
 			//var_dump($recurring->date_start);
 			// [TODO] We need to stop when the limit is reached too (not end date)
-			$recurring->createRecurringEvents($recurring->date_start);
+			$recurring->createRecurringEvents(strtotime("tomorrow", $recurring->date_start));
 		}
 		
 		$logger->info("[Calendar Recurring] Total Runtime: ".number_format((microtime(true)-$runtime)*1000,2)." ms");
