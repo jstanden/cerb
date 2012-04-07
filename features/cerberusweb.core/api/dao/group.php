@@ -784,6 +784,10 @@ class View_Group extends C4_AbstractView implements IAbstractView_Subtotals {
 		return $this->_getDataAsObjects('DAO_Group', $ids);
 	}
 	
+	function getDataSample($size) {
+		return $this->_doGetDataSample('DAO_Group', $size);
+	}
+	
 	function getSubtotalFields() {
 		$all_fields = $this->getParamsAvailable();
 		

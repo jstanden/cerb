@@ -1258,8 +1258,11 @@ class Context_Worker extends Extension_DevblocksContext {
 			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=profiles&type=worker&id=%d-%s",$worker->id, DevblocksPlatform::strToPermalink($worker->getName())), true);
 			
 			// Email
-			$address = CerberusApplication::hashLookupAddress($worker->email, false);
-			$token_values['address_id'] = $address->id;
+			if(!empty($worker->email)) {
+				$address = CerberusApplication::hashLookupAddress($worker->email, false);
+				if($address instanceof Model_Address)
+					$token_values['address_id'] = $address->id;
+			}
 		}
 		
 		// Worker email

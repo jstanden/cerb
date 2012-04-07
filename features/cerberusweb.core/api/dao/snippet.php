@@ -220,38 +220,15 @@ class DAO_Snippet extends C4_ORMHelper {
 		$sort_sql = (!empty($sortBy)) ? sprintf("ORDER BY %s %s ",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : " ";
 		
 		// Virtuals
-		foreach($params as $param) {
-			if(!is_a($param,'DevblocksSearchCriteria'))
-				continue;
-			
-			$param_key = $param->field;
-			settype($param_key, 'string');
-
-			switch($param_key) {
-				case SearchFields_Snippet::VIRTUAL_OWNER:
-					if(!is_array($param->value))
-						break;
-					
-					$wheres = array();
-						
-					foreach($param->value as $owner_context) {
-						@list($context, $context_id) = explode(':', $owner_context);
-						
-						if(empty($context))
-							continue;
-						
-						$wheres[] = sprintf("(snippet.owner_context = %s AND snippet.owner_context_id = %d)",
-							C4_ORMHelper::qstr($context),
-							$context_id
-						);
-					}
-					
-					if(!empty($wheres))
-						$where_sql .= 'AND ' . implode(' OR ', $wheres);
-					
-					break;
-			}
-		}
+		array_walk_recursive(
+			$params,
+			array('DAO_Snippet', '_translateVirtualParameters'),
+			array(
+				'join_sql' => &$join_sql,
+				'where_sql' => &$where_sql,
+				'has_multiple_values' => &$has_multiple_values
+			)
+		);
 		
 		$result = array(
 			'primary_table' => 'snippet',
@@ -264,6 +241,43 @@ class DAO_Snippet extends C4_ORMHelper {
 		
 		return $result;
 	}	
+	
+	private static function _translateVirtualParameters($param, $key, &$args) {
+		if(!is_a($param, 'DevblocksSearchCriteria'))
+			return;
+			
+		$from_context = CerberusContexts::CONTEXT_SNIPPET;
+		$from_index = 'snippet.id';
+		
+		$param_key = $param->field;
+		settype($param_key, 'string');
+		
+		switch($param_key) {
+			case SearchFields_Snippet::VIRTUAL_OWNER:
+				if(!is_array($param->value))
+					break;
+				
+				$wheres = array();
+				$args['has_multiple_values'] = true;
+					
+				foreach($param->value as $owner_context) {
+					@list($context, $context_id) = explode(':', $owner_context);
+					
+					if(empty($context))
+						continue;
+					
+					$wheres[] = sprintf("(snippet.owner_context = %s AND snippet.owner_context_id = %d)",
+						C4_ORMHelper::qstr($context),
+						$context_id
+					);
+				}
+				
+				if(!empty($wheres))
+					$args['where_sql'] .= 'AND ' . implode(' OR ', $wheres);
+				
+				break;
+		}
+	}
 	
     /**
      * Enter description here...

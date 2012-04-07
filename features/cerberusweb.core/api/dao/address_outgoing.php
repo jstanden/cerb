@@ -188,10 +188,6 @@ class Model_AddressOutgoing {
 	public $reply_signature = '';
 	
 	function getReplyPersonal($worker_model=null) {
-		if(empty($worker_model)) {
-			$worker_model = new Model_Worker();
-		}
-		
 		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
 		$token_labels = array();
 		$token_values = array();

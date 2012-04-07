@@ -1537,6 +1537,63 @@ class C4_ORMHelper extends DevblocksORMHelper {
 		
 		return array($select_sql, $join_sql, $return_multiple_values);
 	}
+
+	static function _searchComponentsVirtualOwner(&$param, &$join_sql, &$where_sql) {
+		$worker_ids = DevblocksPlatform::sanitizeArray($param->value, 'integer', array('nonzero','unique'));
+		
+		// Join and return anything
+		if(DevblocksSearchCriteria::OPER_TRUE == $param->operator) {
+			$param->operator = DevblocksSearchCriteria::OPER_IS_NOT_NULL;
+			
+		} else {
+			if(empty($param->value)) {
+				switch($param->operator) {
+					case DevblocksSearchCriteria::OPER_IN:
+						$param->operator = DevblocksSearchCriteria::OPER_IS_NULL;
+						break;
+					case DevblocksSearchCriteria::OPER_NIN:
+						$param->operator = DevblocksSearchCriteria::OPER_IS_NOT_NULL;
+						break;
+				}
+			}
+			
+			switch($param->operator) {
+				case DevblocksSearchCriteria::OPER_IN:
+					$where_sql .= sprintf("AND owner_context = %s AND owner_context_id IN (%s) ",
+						self::qstr(CerberusContexts::CONTEXT_WORKER),
+						implode(',', $worker_ids)
+					);
+					break;
+				case DevblocksSearchCriteria::OPER_IN_OR_NULL:
+				case DevblocksSearchCriteria::OPER_IS_NULL:
+					$worker_ids[] = 0;
+					$where_sql .= sprintf("AND owner_context = %s AND owner_context_id IN (%s) ",
+						self::qstr(CerberusContexts::CONTEXT_WORKER),
+						implode(',', $worker_ids)
+					);
+					break;
+				case DevblocksSearchCriteria::OPER_NIN:
+					$where_sql .= sprintf("AND owner_context = %s AND owner_context_id NOT IN (%s) ",
+						self::qstr(CerberusContexts::CONTEXT_WORKER),
+						implode(',', $worker_ids)
+					);
+					break;
+				case DevblocksSearchCriteria::OPER_IS_NOT_NULL:
+					$where_sql .= sprintf("AND owner_context = %s AND owner_context_id NOT = 0 ",
+						self::qstr(CerberusContexts::CONTEXT_WORKER),
+						implode(',', $worker_ids)
+					);
+					break;
+				case DevblocksSearchCriteria::OPER_NIN_OR_NULL:
+					$worker_ids[] = 0;
+					$where_sql .= sprintf("AND owner_context = %s AND owner_context_id NOT IN (%s) ",
+						self::qstr(CerberusContexts::CONTEXT_WORKER),
+						implode(',', $worker_ids)
+					);
+					break;
+			}
+		}
+	}
 	
 	static function _searchComponentsVirtualWatchers(&$param, $from_context, $from_index, &$join_sql, &$where_sql) {
 		$param->value = DevblocksPlatform::sanitizeArray($param->value, 'integer', array('nonzero','unique'));

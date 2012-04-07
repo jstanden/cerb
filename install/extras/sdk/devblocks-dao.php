@@ -205,6 +205,16 @@ foreach($fields as $field_name => $field_type) {
 			
 		$sort_sql = (!empty($sortBy)) ? sprintf("ORDER BY %s %s ",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : " ";
 	
+		array_walk_recursive(
+			$params,
+			array('DAO_<?php echo $class_name; ?>', '_translateVirtualParameters'),
+			array(
+				'join_sql' => &$join_sql,
+				'where_sql' => &$where_sql,
+				'has_multiple_values' => &$has_multiple_values
+			)
+		);
+	
 		return array(
 			'primary_table' => '<?php echo $table_name; ?>',
 			'select' => $select_sql,
@@ -213,6 +223,26 @@ foreach($fields as $field_name => $field_type) {
 			'has_multiple_values' => $has_multiple_values,
 			'sort' => $sort_sql,
 		);
+	}
+	
+	private static function _translateVirtualParameters($param, $key, &$args) {
+		if(!is_a($param, 'DevblocksSearchCriteria'))
+			return;
+			
+		//$from_context = CerberusContexts::CONTEXT_EXAMPLE;
+		//$from_index = 'example.id';
+		
+		$param_key = $param->field;
+		settype($param_key, 'string');
+		
+		switch($param_key) {
+			/*
+			case SearchFields_EXAMPLE::VIRTUAL_WATCHERS:
+				$args['has_multiple_values'] = true;
+				self::_searchComponentsVirtualWatchers($param, $from_context, $from_index, $args['join_sql'], $args['where_sql']);
+				break;
+			*/
+		}
 	}
 	
     /**
@@ -428,15 +458,19 @@ foreach($fields as $field_name => $field_type) {
 			case 'placeholder_string':
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__string.tpl');
 				break;
+				
 			case 'placeholder_number':
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__number.tpl');
 				break;
+				
 			case 'placeholder_bool':
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__bool.tpl');
 				break;
+				
 			case 'placeholder_date':
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__date.tpl');
 				break;
+				
 			/*
 			default:
 				// Custom Fields
@@ -458,6 +492,15 @@ foreach($fields as $field_name => $field_type) {
 			default:
 				parent::renderCriteriaParam($param);
 				break;
+		}
+	}
+
+	function renderVirtualCriteria($param) {
+		$key = $param->field;
+		
+		$translate = DevblocksPlatform::getTranslationService();
+		
+		switch($key) {
 		}
 	}
 
@@ -564,7 +607,9 @@ foreach($fields as $field_name => $field_type) {
 		for($x=0;$x<=$batch_total;$x+=100) {
 			$batch_ids = array_slice($ids,$x,100);
 			
-			DAO_<?php echo $class_name; ?>::update($batch_ids, $change_fields);
+			if(!empty($change_fields)) {
+				DAO_<?php echo $class_name; ?>::update($batch_ids, $change_fields);
+			}
 
 			// Custom Fields
 			//self::_doBulkSetCustomFields(ChCustomFieldSource_<?php echo $class_name; ?>::ID, $custom_fields, $batch_ids);

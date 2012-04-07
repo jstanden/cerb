@@ -396,24 +396,32 @@ abstract class C4_AbstractView {
 	}	
 	
 	protected function _renderVirtualWatchers($param) {
+		return $this->_renderVirtualWorkers($param, 'Watcher', 'Watchers');
+	}
+	
+	protected function _renderVirtualWorkers($param, $label_singular='Worker', $label_plural='Workers') {
 		$workers = DAO_Worker::getAll();
 		$strings = array();
 		
 		foreach($param->value as $worker_id) {
 			if(isset($workers[$worker_id]))
 				$strings[] = '<b>'.$workers[$worker_id]->getName().'</b>';
-			else {
+			elseif(empty($worker_id)) {
+				$strings[] = '<b>nobody</b>';
+			} else {
 				$strings[] = '<b>'.$worker_id.'</b>';
 			}
 		}
 		
 		if(empty($param->value)) {
 			switch($param->operator) {
+				case DevblocksSearchCriteria::OPER_EQ:
 				case DevblocksSearchCriteria::OPER_IN:
 				case DevblocksSearchCriteria::OPER_IN_OR_NULL:
 				case DevblocksSearchCriteria::OPER_NIN_OR_NULL:
 					$param->operator = DevblocksSearchCriteria::OPER_IS_NULL;
 					break;
+				case DevblocksSearchCriteria::OPER_NEQ:
 				case DevblocksSearchCriteria::OPER_NIN:
 					$param->operator = DevblocksSearchCriteria::OPER_IS_NOT_NULL;
 					break;
@@ -431,22 +439,26 @@ abstract class C4_AbstractView {
 		
 		switch($param->operator) {
 			case DevblocksSearchCriteria::OPER_IS_NULL:
-				echo "There are no <b>watchers</b>";
+				echo sprintf("There are no <b>%s</b>",
+					$label_plural
+				);
 				break;
 			case DevblocksSearchCriteria::OPER_IS_NOT_NULL:
-				echo "There are <b>watchers</b>";
+				echo sprintf("There are <b>%s</b>",
+					$label_plural
+				);
 				break;
 			case DevblocksSearchCriteria::OPER_IN:
-				echo sprintf("Watcher is %s", $list_of_strings);
+				echo sprintf("%s is %s", $label_singular, $list_of_strings);
 				break;
 			case DevblocksSearchCriteria::OPER_IN_OR_NULL:
-				echo sprintf("Watcher is blank or %s", $list_of_strings);
+				echo sprintf("%s is blank or %s", $label_singular, $list_of_strings);
 				break;
 			case DevblocksSearchCriteria::OPER_NIN:
-				echo sprintf("Watcher is not %s", $list_of_strings);
+				echo sprintf("%s is not %s", $label_singular, $list_of_strings);
 				break;
 			case DevblocksSearchCriteria::OPER_NIN_OR_NULL:
-				echo sprintf("Watcher is blank or not %s", $list_of_strings);
+				echo sprintf("%s is blank or not %s", $label_singular, $list_of_strings);
 				break;
 		}		
 	}

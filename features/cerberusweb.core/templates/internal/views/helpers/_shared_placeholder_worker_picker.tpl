@@ -8,6 +8,7 @@
 
 <ul class="chooser-container bubbles">
 {foreach from=$param->value item=v}
+	{if !empty($v)}
 	<li>
 		
 		{if is_numeric($v) && isset($workers.$v)}
@@ -20,6 +21,7 @@
 		<input type="hidden" name="{$param_name}[]" value="{$v}">
 		<a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a>
 	</li>
+	{/if}
 {/foreach}
 </ul>
 
