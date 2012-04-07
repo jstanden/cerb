@@ -182,6 +182,16 @@ class DAO_CalendarEvent extends C4_ORMHelper {
 			
 		$sort_sql = (!empty($sortBy)) ? sprintf("ORDER BY %s %s ",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : " ";
 	
+		array_walk_recursive(
+			$params,
+			array('DAO_CalendarEvent', '_translateVirtualParameters'),
+			array(
+				'join_sql' => &$join_sql,
+				'where_sql' => &$where_sql,
+				'has_multiple_values' => &$has_multiple_values
+			)
+		);
+		
 		return array(
 			'primary_table' => 'calendar_event',
 			'select' => $select_sql,
@@ -190,6 +200,23 @@ class DAO_CalendarEvent extends C4_ORMHelper {
 			'has_multiple_values' => $has_multiple_values,
 			'sort' => $sort_sql,
 		);
+	}
+	
+	private static function _translateVirtualParameters($param, $key, &$args) {
+		if(!is_a($param, 'DevblocksSearchCriteria'))
+			return;
+			
+		$from_context = CerberusContexts::CONTEXT_CALENDAR_EVENT;
+		$from_index = 'c.id';
+		
+		$param_key = $param->field;
+		settype($param_key, 'string');
+		
+		switch($param_key) {
+			case SearchFields_CalendarEvent::VIRTUAL_OWNER:
+				self::_searchComponentsVirtualOwner($param, $args['join_sql'], $args['where_sql']);
+				break;
+		}
 	}
 	
     /**
@@ -268,6 +295,8 @@ class SearchFields_CalendarEvent implements IDevblocksSearchFields {
 	const DATE_START = 'c_date_start';
 	const DATE_END = 'c_date_end';
 	
+	const VIRTUAL_OWNER = '*_owner';
+	
 	/**
 	 * @return DevblocksSearchField[]
 	 */
@@ -283,6 +312,8 @@ class SearchFields_CalendarEvent implements IDevblocksSearchFields {
 			self::IS_AVAILABLE => new DevblocksSearchField(self::IS_AVAILABLE, 'calendar_event', 'is_available', $translate->_('dao.calendar_event.is_available')),
 			self::DATE_START => new DevblocksSearchField(self::DATE_START, 'calendar_event', 'date_start', $translate->_('dao.calendar_event.date_start')),
 			self::DATE_END => new DevblocksSearchField(self::DATE_END, 'calendar_event', 'date_end', $translate->_('dao.calendar_event.date_end')),
+			
+			self::VIRTUAL_OWNER => new DevblocksSearchField(self::VIRTUAL_OWNER, '*', 'owner', $translate->_('common.owner')),
 		);
 		
 		// Custom Fields
@@ -312,7 +343,7 @@ class Model_CalendarEvent {
 	public $date_end;
 };
 
-class View_CalendarEvent extends C4_AbstractView {
+class View_CalendarEvent extends C4_AbstractView implements IAbstractView_Subtotals {
 	const DEFAULT_ID = 'calendar_events';
 
 	function __construct() {
@@ -325,11 +356,10 @@ class View_CalendarEvent extends C4_AbstractView {
 		$this->renderSortAsc = true;
 
 		$this->view_columns = array(
-			SearchFields_CalendarEvent::NAME,
+			SearchFields_CalendarEvent::VIRTUAL_OWNER,
 			SearchFields_CalendarEvent::DATE_START,
 			SearchFields_CalendarEvent::DATE_END,
 			SearchFields_CalendarEvent::IS_AVAILABLE,
-			//SearchFields_CalendarEvent::VIRTUAL_OWNER,
 		);
 		
 		$this->addColumnsHidden(array(
@@ -369,6 +399,75 @@ class View_CalendarEvent extends C4_AbstractView {
 	function getDataSample($size) {
 		return $this->_doGetDataSample('DAO_CalendarEvent', $size);
 	}
+	
+	function getSubtotalFields() {
+		$all_fields = $this->getParamsAvailable();
+		
+		$fields = array();
+
+		if(is_array($all_fields))
+		foreach($all_fields as $field_key => $field_model) {
+			$pass = false;
+			
+			switch($field_key) {
+				// Booleans
+				case SearchFields_CalendarEvent::IS_AVAILABLE:
+					$pass = true;
+					break;
+					
+				// Virtuals
+				case SearchFields_CalendarEvent::VIRTUAL_OWNER:
+					$pass = true;
+					break;
+					
+				// Valid custom fields
+				default:
+					if('cf_' == substr($field_key,0,3))
+						$pass = $this->_canSubtotalCustomField($field_key);
+					break;
+			}
+			
+			if($pass)
+				$fields[$field_key] = $field_model;
+		}
+		
+		return $fields;
+	}
+	
+	function getSubtotalCounts($column) {
+		$counts = array();
+		$fields = $this->getFields();
+
+		if(!isset($fields[$column]))
+			return array();
+		
+		switch($column) {
+			case SearchFields_CalendarEvent::IS_AVAILABLE:
+				$counts = $this->_getSubtotalCountForBooleanColumn('DAO_CalendarEvent', $column);
+				break;
+				
+			case SearchFields_CalendarEvent::VIRTUAL_OWNER:
+				$workers = DAO_Worker::getAll();
+				$label_map = array(
+					'0' => '(nobody)',
+				);
+				foreach($workers as $worker_id => $worker) {
+					$label_map[$worker_id] = $worker->getName();
+				}
+				$counts = $this->_getSubtotalCountForStringColumn('DAO_CalendarEvent', SearchFields_CalendarEvent::OWNER_CONTEXT_ID, $label_map, '=', 'worker_id[]');
+				break;
+			
+			default:
+				// Custom fields
+				if('cf_' == substr($column,0,3)) {
+					$counts = $this->_getSubtotalCountForCustomColumn('DAO_CalendarEvent', $column, 'calendar_event.id');
+				}
+				
+				break;
+		}
+		
+		return $counts;
+	}	
 
 	function render() {
 		$this->_sanitize();
@@ -381,7 +480,12 @@ class View_CalendarEvent extends C4_AbstractView {
 		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_CALENDAR_EVENT);
 		$tpl->assign('custom_fields', $custom_fields);
 
-		$tpl->display('devblocks:cerberusweb.core::internal/calendar/view.tpl');
+		switch($this->renderTemplate) {
+			default:
+				$tpl->assign('view_template', 'devblocks:cerberusweb.core::internal/calendar/view.tpl');
+				$tpl->display('devblocks:cerberusweb.core::internal/views/subtotals_and_view.tpl');
+				break;
+		}
 	}
 
 	function renderCriteria($field) {
@@ -405,6 +509,10 @@ class View_CalendarEvent extends C4_AbstractView {
 			case SearchFields_CalendarEvent::DATE_START:
 			case SearchFields_CalendarEvent::DATE_END:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__date.tpl');
+				break;
+				
+			case SearchFields_CalendarEvent::VIRTUAL_OWNER:
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context_worker.tpl');
 				break;
 				
 			default:
@@ -433,6 +541,18 @@ class View_CalendarEvent extends C4_AbstractView {
 		}
 	}
 
+	function renderVirtualCriteria($param) {
+		$key = $param->field;
+		
+		$translate = DevblocksPlatform::getTranslationService();
+		
+		switch($key) {
+			case SearchFields_CalendarEvent::VIRTUAL_OWNER:
+				$this->_renderVirtualWorkers($param, 'Owner', 'Owners');
+				break;
+		}
+	}	
+	
 	function getFields() {
 		return SearchFields_CalendarEvent::getFields();
 	}
@@ -458,6 +578,10 @@ class View_CalendarEvent extends C4_AbstractView {
 			case SearchFields_CalendarEvent::IS_AVAILABLE:
 				@$bool = DevblocksPlatform::importGPC($_REQUEST['bool'],'integer',1);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
+				break;
+				
+			case SearchFields_CalendarEvent::VIRTUAL_OWNER:
+				$criteria = $this->_doSetCriteriaWorker($field, $oper);
 				break;
 				
 			default:
@@ -660,9 +784,10 @@ class Context_CalendarEvent extends Extension_DevblocksContext {
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = 'Calendar Events';
 		$view->view_columns = array(
-			SearchFields_CalendarEvent::IS_AVAILABLE,
+			SearchFields_CalendarEvent::VIRTUAL_OWNER,
 			SearchFields_CalendarEvent::DATE_START,
 			SearchFields_CalendarEvent::DATE_END,
+			SearchFields_CalendarEvent::IS_AVAILABLE,
 		);
 		$view->addParams(array(
 			new DevblocksSearchCriteria(SearchFields_CalendarEvent::DATE_START,'between',array('now','+1 month')),

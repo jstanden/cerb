@@ -92,6 +92,14 @@
 				<td>
 					{if $result.$column}{'common.yes'|devblocks_translate}{else}{'common.no'|devblocks_translate}{/if}
 				</td>
+			{elseif $column=='*_owner'}
+				<td>
+					{if !isset($workers)}{$workers = DAO_Worker::getAll()}{/if}
+					{$worker_id = {$result.c_owner_context_id}}
+					{if isset($workers.$worker_id)}
+						{$workers.{$worker_id}->getName()}
+					{/if}
+				</td>
 			{else}
 				<td>{$result.$column}</td>
 			{/if}
