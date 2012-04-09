@@ -26,14 +26,14 @@ class Subcontroller_Internal_VirtualAttendants {
 		 * Secure looking at other worker tabs (check superuser, worker_id)
 		 */
 		
+		if(null == ($ctx = Extension_DevblocksContext::get($context)))
+			return;
+		
 		if(!$active_worker->is_superuser) {
-			if(null == ($ctx = Extension_DevblocksContext::get($context)))
-				return;
-			
 			if(!$ctx->authorize($context_id, $active_worker))
 				return;
 		}
-		
+
 		$defaults = new C4_AbstractViewModel();
 		$defaults->id = 'va_schedbeh_' . DevblocksPlatform::strAlphaNum($context . '_' . $context_id, '_');
 		$defaults->class_name = 'View_ContextScheduledBehavior';
@@ -59,6 +59,9 @@ class Subcontroller_Internal_VirtualAttendants {
 		C4_AbstractViewLoader::setView($view->id, $view);
 
 		// Macros
+
+		$meta = $ctx->getMeta($context_id);		
+		$tpl->assign('return_url', @$meta['permalink']);
 		
 		$macros = DAO_TriggerEvent::getByOwner($context, $context_id, 'event.macro.worker');
 		$tpl->assign('macros', $macros);
