@@ -470,27 +470,15 @@ class DAO_Worker extends C4_ORMHelper {
 			
 		$sort_sql = (!empty($sortBy)) ? sprintf("ORDER BY %s %s ",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : " ";
 		
-		// Virtuals
-		foreach($params as $param) {
-			if(!is_a($param, 'DevblocksSearchCriteria'))
-				continue;
-			
-			$param_key = $param->field;
-			settype($param_key, 'string');
-			switch($param_key) {
-				case SearchFields_Worker::VIRTUAL_GROUPS:
-					$has_multiple_values = true;
-					if(empty($param->value)) { // empty
-						$join_sql .= "LEFT JOIN worker_to_group ON (worker_to_group.worker_id = w.id) ";
-						$where_sql .= "AND worker_to_group.worker_id IS NULL ";
-					} else {
-						$join_sql .= sprintf("INNER JOIN worker_to_group ON (worker_to_group.worker_id = w.id AND worker_to_group.group_id IN (%s)) ",
-							implode(',', $param->value)
-						);
-					}
-					break;
-			}
-		}
+		array_walk_recursive(
+			$params,
+			array('DAO_Worker', '_translateVirtualParameters'),
+			array(
+				'join_sql' => &$join_sql,
+				'where_sql' => &$where_sql,
+				'has_multiple_values' => &$has_multiple_values
+			)
+		);
 		
 		$result = array(
 			'primary_table' => 'w',
@@ -502,6 +490,46 @@ class DAO_Worker extends C4_ORMHelper {
 		);
 		
 		return $result;
+	}
+	
+	private static function _translateVirtualParameters($param, $key, &$args) {
+		if(!is_a($param, 'DevblocksSearchCriteria'))
+			return;
+			
+		$from_context = CerberusContexts::CONTEXT_CALENDAR_EVENT;
+		$from_index = 'c.id';
+		
+		$param_key = $param->field;
+		settype($param_key, 'string');
+		
+		switch($param_key) {
+			case SearchFields_Worker::VIRTUAL_GROUPS:
+				$args['has_multiple_values'] = true;
+				if(empty($param->value)) { // empty
+					$args['join_sql'] .= "LEFT JOIN worker_to_group ON (worker_to_group.worker_id = w.id) ";
+					$args['where_sql'] .= "AND worker_to_group.worker_id IS NULL ";
+				} else {
+					$args['join_sql'] .= sprintf("INNER JOIN worker_to_group ON (worker_to_group.worker_id = w.id AND worker_to_group.group_id IN (%s)) ",
+						implode(',', $param->value)
+					);
+				}
+				break;
+				
+			case SearchFields_Worker::VIRTUAL_CALENDAR_AVAILABILITY:
+				if(!is_array($param->value) || count($param->value) != 3)
+					break;
+					
+				$args['where_sql'] .= sprintf("AND (SELECT IF(COUNT(id) = SUM(is_available) && COUNT(id) > 0,1,0) AS num_available ".
+					"FROM calendar_event ".
+					"WHERE date_start <= %d AND date_end >= %d ".
+					"AND owner_context = %s AND owner_context_id = w.id) %s 0 ",
+					strtotime($param->value[1]),
+					strtotime($param->value[0]),
+					C4_ORMHelper::qstr('cerberusweb.contexts.worker'),
+					(!empty($param->value[2]) ? '!=' : '=')
+				);
+				break;
+		}
 	}	
 	
 	static function autocomplete($term) {
@@ -619,6 +647,7 @@ class SearchFields_Worker implements IDevblocksSearchFields {
 	const IS_DISABLED = 'w_is_disabled';
 	
 	const VIRTUAL_GROUPS = '*_groups';
+	const VIRTUAL_CALENDAR_AVAILABILITY = '*_calendar_availability';
 	
 	const CONTEXT_LINK = 'cl_context_from';
 	const CONTEXT_LINK_ID = 'cl_context_from_id';
@@ -641,6 +670,7 @@ class SearchFields_Worker implements IDevblocksSearchFields {
 			self::IS_DISABLED => new DevblocksSearchField(self::IS_DISABLED, 'w', 'is_disabled', ucwords($translate->_('common.disabled'))),
 			
 			self::VIRTUAL_GROUPS => new DevblocksSearchField(self::VIRTUAL_GROUPS, '*', 'groups', $translate->_('common.groups')),
+			self::VIRTUAL_CALENDAR_AVAILABILITY => new DevblocksSearchField(self::VIRTUAL_CALENDAR_AVAILABILITY, '*', 'calendar_availability', 'Calendar Availability'),
 			
 			self::CONTEXT_LINK => new DevblocksSearchField(self::CONTEXT_LINK, 'context_link', 'from_context', null),
 			self::CONTEXT_LINK_ID => new DevblocksSearchField(self::CONTEXT_LINK_ID, 'context_link', 'from_context_id', null),
@@ -933,6 +963,17 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals {
 					echo sprintf("Group member of %s", implode(' or ', $strings));
 				}
 				break;
+				
+			case SearchFields_Worker::VIRTUAL_CALENDAR_AVAILABILITY:
+				if(!is_array($param->value) || count($param->value) != 3)
+					break;
+				
+				echo sprintf("Calendar is <b>%s</b> between <b>%s</b> and <b>%s</b>",
+					(!empty($param->value[2]) ? 'available' : 'busy'),
+					$param->value[0],
+					$param->value[1]
+				);
+				break;
 		}
 	}	
 	
@@ -959,6 +1000,10 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals {
 				
 			case SearchFields_Worker::VIRTUAL_GROUPS:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context_group.tpl');
+				break;
+				
+			case SearchFields_Worker::VIRTUAL_CALENDAR_AVAILABILITY:
+				$tpl->display('devblocks:cerberusweb.core::workers/criteria/calendar_availability.tpl');
 				break;
 				
 			default:
@@ -1015,6 +1060,13 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals {
 			case SearchFields_Worker::VIRTUAL_GROUPS:
 				@$group_ids = DevblocksPlatform::importGPC($_REQUEST['group_id'],'array',array());
 				$criteria = new DevblocksSearchCriteria($field,'in', $group_ids);
+				break;
+				
+			case SearchFields_Worker::VIRTUAL_CALENDAR_AVAILABILITY:
+				@$from = DevblocksPlatform::importGPC($_REQUEST['from'],'string','now');
+				@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string','now');
+				@$is_available = DevblocksPlatform::importGPC($_REQUEST['is_available'],'integer',0);
+				$criteria = new DevblocksSearchCriteria($field,null,array($from,$to,$is_available));
 				break;
 				
 			default:
