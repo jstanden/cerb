@@ -372,13 +372,24 @@ class DevblocksEventHelper {
 					$label ? $label : '(object)' 
 				);
 			}
+
+			$obj_name = strtolower($context_ext->name);
 			
-			$out .= "\nWith fields:\n";
+			$out .= "\nTo use the list as placeholders:\n";
+			
+			$out .= sprintf("{%% for %s in %s %%}\n * {{%s._label}}\n{%% endfor %%}\n",
+				$obj_name,
+				$token,
+				$obj_name
+			);
+			
+			$out .= "\nPlaceholders:\n";
 
 			foreach($fields as $k => $v) {
 				if(substr($k,0,1)=='_')
 					continue;
-				$out .= sprintf(" * %s\n     %s\n",
+				$out .= sprintf(" * %s.%s\n     %s\n",
+					$obj_name,
 					$k,
 					$v
 				);
@@ -1111,6 +1122,7 @@ class DevblocksEventHelper {
 
 		$event = $trigger->getEvent();
 		$values_to_contexts = $event->getValuesContexts($trigger);
+		
 		$tpl->assign('values_to_contexts', $values_to_contexts);
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_create_notification.tpl');
