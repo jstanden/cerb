@@ -30,7 +30,7 @@ class _DevblocksDateManager {
 		}
 		
 		if(empty($format))
-			$format = DateTime::RFC822; 
+			$format = 'D, d M y h:ia'; //DateTime::RFC822
 		
 		if(!$gmt)
 			$datetime->setTimezone(new DateTimeZone(date_default_timezone_get()));
