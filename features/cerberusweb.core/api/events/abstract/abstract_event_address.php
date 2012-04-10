@@ -103,7 +103,10 @@ abstract class AbstractEvent_Address extends Extension_DevblocksEvent {
 		
 		$vars = parent::getValuesContexts($trigger);
 		
-		return array_merge($vals, $vars);
+		$vals_to_ctx = array_merge($vals, $vars);
+		asort($vals_to_ctx);
+		
+		return $vals_to_ctx;
 	}
 	
 	function getConditionExtensions() {
