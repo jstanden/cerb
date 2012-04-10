@@ -26,8 +26,14 @@
 	{/if}
 	<fieldset><!--
 		-->{if $output.title}<legend>{$output.title}</legend>{/if}<!--
-		--><pre class="emailbody" style="margin:0;">{$output.content}</pre><!--
+		--><pre class="emailbody" style="margin:0;max-height:150px;overflow-y:auto;">{$output.content}</pre><!--
 	--></fieldset>
 	{/if}
 {/foreach}
 {/if}
+
+<h3 style="margin-top:10px;">Log</h3>
+
+<fieldset>
+<pre class="emailbody">{$conditions_output}</pre>
+</fieldset>

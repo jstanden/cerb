@@ -2551,6 +2551,8 @@ class ChInternalController extends DevblocksControllerExtension {
 		
 		$logger->setLogLevel(7);
 		
+		ob_start();
+		
 		$tpl->assign('trigger_id', $trigger_id);
 		
 		if(null == ($trigger = DAO_TriggerEvent::get($trigger_id)))
@@ -2606,6 +2608,13 @@ class ChInternalController extends DevblocksControllerExtension {
 			$tpl->assign('simulator_output', $dict->_simulator_output);
 		
 		$logger->setLogLevel(0);
+
+		$conditions_output = ob_get_contents();
+
+		ob_end_clean();
+
+		$conditions_output = preg_replace("/^\[INFO\] \[Attendant\] /m", '', strip_tags($conditions_output));
+		$tpl->assign('conditions_output', trim($conditions_output));
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/decisions/simulator/results.tpl');
 	}
