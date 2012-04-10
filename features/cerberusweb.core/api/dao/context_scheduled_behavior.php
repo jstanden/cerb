@@ -22,6 +22,7 @@ class DAO_ContextScheduledBehavior extends C4_ORMHelper {
 	const BEHAVIOR_ID = 'behavior_id';
 	const RUN_DATE = 'run_date';
 	const VARIABLES_JSON = 'variables_json';
+	const REPEAT_JSON = 'repeat_json';
 
 	static function create($fields) {
 		$db = DevblocksPlatform::getDatabaseService();
@@ -56,7 +57,7 @@ class DAO_ContextScheduledBehavior extends C4_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 
 		// SQL
-		$sql = "SELECT id, context, context_id, behavior_id, run_date, variables_json ".
+		$sql = "SELECT id, context, context_id, behavior_id, run_date, variables_json, repeat_json ".
 			"FROM context_scheduled_behavior ".
 			$where_sql.
 			$sort_sql.
@@ -120,6 +121,8 @@ class DAO_ContextScheduledBehavior extends C4_ORMHelper {
 			$object->run_date = $row['run_date'];
 			if(!empty($row['variables_json']))
 				$object->variables = @json_decode($row['variables_json'], true);
+			if(!empty($row['repeat_json']))
+				$object->repeat = @json_decode($row['repeat_json'], true);
 			$objects[$object->id] = $object;
 		}
 
@@ -196,6 +199,7 @@ class DAO_ContextScheduledBehavior extends C4_ORMHelper {
 			"context_scheduled_behavior.behavior_id as %s, ".
 			"context_scheduled_behavior.run_date as %s, ".
 			"context_scheduled_behavior.variables_json as %s, ".
+			"context_scheduled_behavior.repeat_json as %s, ".
 			"trigger_event.title as %s, ".
 			"trigger_event.owner_context as %s, ".
 			"trigger_event.owner_context_id as %s ",
@@ -205,6 +209,7 @@ class DAO_ContextScheduledBehavior extends C4_ORMHelper {
 				SearchFields_ContextScheduledBehavior::BEHAVIOR_ID,
 				SearchFields_ContextScheduledBehavior::RUN_DATE,
 				SearchFields_ContextScheduledBehavior::VARIABLES_JSON,
+				SearchFields_ContextScheduledBehavior::REPEAT_JSON,
 				SearchFields_ContextScheduledBehavior::BEHAVIOR_NAME,
 				SearchFields_ContextScheduledBehavior::BEHAVIOR_OWNER_CONTEXT,
 				SearchFields_ContextScheduledBehavior::BEHAVIOR_OWNER_CONTEXT_ID
@@ -353,6 +358,7 @@ class SearchFields_ContextScheduledBehavior implements IDevblocksSearchFields {
 	const BEHAVIOR_ID = 'c_behavior_id';
 	const RUN_DATE = 'c_run_date';
 	const VARIABLES_JSON = 'c_variables_json';
+	const REPEAT_JSON = 'c_repeat_json';
 	
 	const BEHAVIOR_NAME = 'b_behavior_name';
 	const BEHAVIOR_OWNER_CONTEXT = 'b_behavior_owner_context';
@@ -374,6 +380,7 @@ class SearchFields_ContextScheduledBehavior implements IDevblocksSearchFields {
 			self::BEHAVIOR_ID => new DevblocksSearchField(self::BEHAVIOR_ID, 'context_scheduled_behavior', 'behavior_id', $translate->_('common.behavior')),
 			self::RUN_DATE => new DevblocksSearchField(self::RUN_DATE, 'context_scheduled_behavior', 'run_date', $translate->_('dao.context_scheduled_behavior.run_date')),
 			self::VARIABLES_JSON => new DevblocksSearchField(self::VARIABLES_JSON, 'context_scheduled_behavior', 'variables_json', $translate->_('dao.context_scheduled_behavior.variables_json')),
+			self::REPEAT_JSON => new DevblocksSearchField(self::REPEAT_JSON, 'context_scheduled_behavior', 'repeat_json', $translate->_('dao.context_scheduled_behavior.repeat_json')),
 			
 			self::BEHAVIOR_NAME => new DevblocksSearchField(self::BEHAVIOR_NAME, 'trigger_event', 'title', $translate->_('common.name')),
 			self::BEHAVIOR_OWNER_CONTEXT => new DevblocksSearchField(self::BEHAVIOR_OWNER_CONTEXT, 'trigger_event', 'owner_context', $translate->_('dao.trigger_event.owner_context')),
@@ -397,6 +404,101 @@ class Model_ContextScheduledBehavior {
 	public $behavior_id;
 	public $run_date;
 	public $variables = array();
+	public $repeat = array();
+	
+	function run() {
+		try {
+			if(empty($this->context) || empty($this->context_id) || empty($this->behavior_id))
+				throw new Exception("Missing properties.");
+	
+			// Load macro
+			if(null == ($macro = DAO_TriggerEvent::get($this->behavior_id))) /* @var $macro Model_TriggerEvent */
+				throw new Exception("Invalid macro.");
+			
+			// Load event manifest
+			if(null == ($ext = DevblocksPlatform::getExtension($macro->event_point, false))) /* @var $ext DevblocksExtensionManifest */
+				throw new Exception("Invalid event.");
+			
+		} catch(Exception $e) {
+			DAO_ContextScheduledBehavior::delete($this->id);
+			return;
+		}
+		
+		// Are we going to be rescheduling this behavior?
+		$reschedule_date = $this->getNextOccurrence(); 
+	
+		if(!empty($reschedule_date)) {
+			DAO_ContextScheduledBehavior::update($this->id, array(
+				DAO_ContextScheduledBehavior::RUN_DATE => $reschedule_date,
+			));
+			
+		} else {
+			DAO_ContextScheduledBehavior::delete($this->id);
+		}
+		
+		// Execute
+		call_user_func(array($ext->class, 'trigger'), $macro->id, $this->context_id, $this->variables);
+	}
+	
+	function getNextOccurrence() {
+		if(empty($this->repeat) || !isset($this->repeat['freq']))
+			return null;
+		
+		// Do we have end conditions?
+		if(isset($this->repeat['end'])) {
+			$end = $this->repeat['end'];
+			switch($end['term']) {
+				// End after a specific date
+				case 'date':
+					// If we've passed the end date
+					$on = intval(@$end['options']['on']);
+					if($end['options']['on'] <= time()) {
+						// Don't repeat
+						return null;
+					}
+					break;
+			}
+		}
+		
+		$next_run_date = null;
+		$dates = array();
+		
+		switch($this->repeat['freq']) {
+			case 'interval':
+				$now = ($this->run_date <= time()) ? time() : $this->run_date;
+				@$next = strtotime($this->repeat['options']['every_n'], $now);
+				
+				if(!empty($next))
+					$next_run_date = $next;
+				
+				break;
+				
+			case 'weekly':
+				$days = isset($this->repeat['options']['day']) ? $this->repeat['options']['day'] : array();
+				$dates = DevblocksCalendarHelper::getWeeklyDates($this->run_date, $days, null, 1);
+				break;
+				
+			case 'monthly':
+				$days = isset($this->repeat['options']['day']) ? $this->repeat['options']['day'] : array();
+				$dates = DevblocksCalendarHelper::getMonthlyDates($this->run_date, $days, null, 2);
+				break;
+				
+			case 'yearly':
+				$months = isset($this->repeat['options']['month']) ? $this->repeat['options']['month'] : array();
+				$dates = DevblocksCalendarHelper::getYearlyDates($this->run_date, $months, null, 2);
+				break;
+		}
+		
+		if(!empty($dates)) {
+			$next_run_date = array_shift($dates);
+			$next_run_date = strtotime(date('H:i', $this->run_date), $next_run_date);
+		}
+
+		if(empty($next_run_date))
+			return false;
+		
+		return $next_run_date;
+	}
 };
 
 class View_ContextScheduledBehavior extends C4_AbstractView {
@@ -434,6 +536,7 @@ class View_ContextScheduledBehavior extends C4_AbstractView {
 			SearchFields_ContextScheduledBehavior::CONTEXT,
 			SearchFields_ContextScheduledBehavior::CONTEXT_ID,
 			SearchFields_ContextScheduledBehavior::ID,
+			SearchFields_ContextScheduledBehavior::REPEAT_JSON,
 			SearchFields_ContextScheduledBehavior::VARIABLES_JSON,
 			SearchFields_ContextScheduledBehavior::VIRTUAL_OWNER,
 			SearchFields_ContextScheduledBehavior::VIRTUAL_TARGET,

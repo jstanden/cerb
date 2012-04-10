@@ -24,6 +24,7 @@ class _DevblocksDateManager {
 			$time = explode(':',gmdate("H:i:s", $timestamp));
 			$datetime->setDate($date[0],$date[1],$date[2]);
 			$datetime->setTime($time[0],$time[1],$time[2]);
+			
 		} catch (Exception $e) {
 			$datetime = new DateTime();
 		}
@@ -439,7 +440,7 @@ class DevblocksCalendarHelper {
 		$dates = array();
 		
 		// If we're asked to make things starting at a date beyond the end date, stop.
-		if($start > $until)
+		if(!is_null($until) && $start > $until)
 			return $dates;		
 
 		$name_weekdays = array('Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday');
@@ -501,6 +502,10 @@ class DevblocksCalendarHelper {
 	
 	static function getMonthlyDates($start, array $days, $until=null, $max_iter=null) {
 		$dates = array();
+		
+		// If we're asked to make things starting at a date beyond the end date, stop.
+		if(!is_null($until) && $start > $until)
+			return $dates;		
 		
 		$num_days = count($days);
 
@@ -567,6 +572,10 @@ class DevblocksCalendarHelper {
 	
 	static function getYearlyDates($start, array $months, $until=null, $max_iter=null) {
 		$dates = array();
+		
+		// If we're asked to make things starting at a date beyond the end date, stop.
+		if(!is_null($until) && $start > $until)
+			return $dates;		
 		
 		$num_months = count($months);
 

@@ -1323,12 +1323,15 @@ class Cron_VirtualAttendantScheduledBehavior extends CerberusCronPageExtension {
 		$stop_time = time() + 20; // [TODO] Make configurable
 
 		$logger->info("Starting...");
+		$last_behavior_id = 0;
 
 		do {
 			$behaviors = DAO_ContextScheduledBehavior::getWhere(
-				sprintf("%s < %d",
+				sprintf("%s < %d AND %s > %d",
 					DAO_ContextScheduledBehavior::RUN_DATE,
-					time()
+					time(),
+					DAO_ContextScheduledBehavior::ID,
+					$last_behavior_id
 				),
 				array(DAO_ContextScheduledBehavior::RUN_DATE),
 				array(true),
@@ -1361,13 +1364,11 @@ class Cron_VirtualAttendantScheduledBehavior extends CerberusCronPageExtension {
 						// Load event manifest
 						if(null == ($ext = DevblocksPlatform::getExtension($macro->event_point, false))) /* @var $ext DevblocksExtensionManifest */
 							throw new Exception("Invalid event.");
-					
-						// We delete it first so it's not included in rescheduling behavior
-						DAO_ContextScheduledBehavior::delete($behavior->id);
-						
+
 						// Execute
-						call_user_func(array($ext->class, 'trigger'), $macro->id, $behavior->context_id, $behavior->variables);
-							
+						$behavior->run();
+
+						// Log
 						$logger->info(sprintf("Executed behavior %d", $behavior->id));
 						
 					} catch (Exception $e) {
@@ -1375,8 +1376,11 @@ class Cron_VirtualAttendantScheduledBehavior extends CerberusCronPageExtension {
 
 						DAO_ContextScheduledBehavior::delete($behavior->id);
 					}
+					
+					$last_behavior_id = $behavior->id;
 				}
 			}
+			
 		} while(!empty($behaviors) && $stop_time > time());
 
 		$logger->info("Total Runtime: ".number_format((microtime(true)-$runtime)*1000,2)." ms");

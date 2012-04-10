@@ -75,6 +75,105 @@
 </fieldset>
 {/if}
 
+<table>
+	<tbody class="repeat">
+	<tr>
+		<td width="0%" nowrap="nowrap" valign="top" align="right"> Repeat:</td>
+		<td width="100%">
+			<label><input type="radio" name="repeat_freq" value="" {if empty($job->repeat.freq)}checked="checked"{/if}> Never</label>
+			<label><input type="radio" name="repeat_freq" value="interval" {if $job->repeat.freq=='interval'}checked="checked"{/if}> Every</label>
+			<label><input type="radio" name="repeat_freq" value="weekly" {if $job->repeat.freq=='weekly'}checked="checked"{/if}> Weekly</label>
+			<label><input type="radio" name="repeat_freq" value="monthly" {if $job->repeat.freq=='monthly'}checked="checked"{/if}> Monthly</label>
+			<label><input type="radio" name="repeat_freq" value="yearly" {if $job->repeat.freq=='yearly'}checked="checked"{/if}> Yearly</label>
+			
+			<div class="terms" style="padding-top:5px;">
+				<div class="interval" style="display:{if $job->repeat.freq=='interval'}block{else}none{/if};">
+					<fieldset>
+						<input type="text" name="repeat_options[interval][every_n]" value="{if $job->repeat.freq == 'interval' && isset($job->repeat.options.every_n)}{$job->repeat.options.every_n}{else}2 hours{/if}" size="24"><br>
+						<i>(e.g. 5 minutes; 2 hours; 1 day)</i> 
+					</fieldset>
+				</div>
+				<div class="weekly" style="display:{if $job->repeat.freq=='weekly'}block{else}none{/if};">
+					<fieldset>
+						<table cellpadding="5" cellspacing="2" border="0" class="toggle_grid">
+							<tr>
+							{$day_time = strtotime("last Sunday")}
+							{section loop=7 start=0 name=days}
+								{$sel = $job->repeat.freq == 'weekly' && false !== in_array({$smarty.section.days.index}, $job->repeat.options.day)}
+								<td {if $sel}class="selected"{/if}>
+									<input type="checkbox" name="repeat_options[weekly][day][]" value="{$smarty.section.days.index}" {if $sel}checked="checked"{/if}>
+									{$day_time|devblocks_date:'D'}
+								</td>
+								{$day_time = strtotime("tomorrow", $day_time)}
+							{/section}
+							</tr>
+						</table>
+						
+					</fieldset>
+				</div>
+				<div class="monthly" style="display:{if $job->repeat.freq=='monthly'}block{else}none{/if};">
+					<fieldset>
+						<table cellpadding="5" cellspacing="2" border="0" class="toggle_grid">
+							{section loop=32 start=1 name=days}
+								{$sel = $job->repeat.freq == 'monthly' && false !== in_array({$smarty.section.days.index}, $job->repeat.options.day)}
+								{if $smarty.section.days.iteration % 7 == 1}
+									<tr>
+								{/if}
+									<td {if $sel}class="selected"{/if}>
+										<input type="checkbox" name="repeat_options[monthly][day][]" value="{$smarty.section.days.iteration}" {if $sel}checked="checked"{/if}>
+										{$smarty.section.days.iteration}
+									</td>
+								{if $smarty.section.days.last || $smarty.section.days.iteration % 7 == 0}
+									</tr>
+								{/if}
+							{/section}
+						</table>						 
+					</fieldset>
+				</div>
+				<div class="yearly" style="display:{if $job->repeat.freq=='yearly'}block{else}none{/if};">
+					<fieldset>
+						<table cellpadding="5" cellspacing="2" border="0" class="toggle_grid">
+							{section loop=13 start=1 name=months}
+								{$month_time = mktime(0,0,0,$smarty.section.months.iteration,1,0)}
+								{$sel = $job->repeat.freq == 'yearly' && false !== in_array({$smarty.section.months.index}, $job->repeat.options.month)}
+								{if $smarty.section.months.iteration % 4 == 1}
+									<tr>
+								{/if}
+								<td {if $sel}class="selected"{/if}>
+									<input type="checkbox" name="repeat_options[yearly][month][]" value="{$smarty.section.months.iteration}" {if $sel}checked="checked"{/if}>
+									{$month_time|devblocks_date:'M'}
+								</td>
+								{if $smarty.section.months.last || $smarty.section.months.iteration % 4 == 0}
+									</tr>
+								{/if}
+							{/section}
+						</table>
+					</fieldset>
+				</div>
+				
+			</div>
+		</td>
+	</tr>
+	</tbody>
+	<tbody class="end" style="{if empty($job) || !isset($job->repeat.freq)}display:none;{/if}">
+		<tr>
+			<td width="0%" nowrap="nowrap" valign="top" align="right"> End:</td>
+			<td width="100%">
+				<label><input type="radio" name="repeat_end" value="" {if empty($job->repeat.end.term)}checked="checked"{/if}> Never</label>
+				<label><input type="radio" name="repeat_end" value="date" {if $job->repeat.end.term=='date'}checked="checked"{/if}> On Date</label>
+				
+				<div class="ends">
+					<div class="end date" style="display:{if $job->repeat.end.term=='date'}block{else}none{/if};">
+						<fieldset>
+							<input type="text" name="repeat_ends[date][on]" value="{if $job->repeat.end.term=='date' && isset($job->repeat.end.options.on)}{$job->repeat.end.options.on|devblocks_date:'M d Y h:ia'}{/if}" style="width:98%;"> 
+						</fieldset>
+					</div>
+				</div>
+			</td>
+		</tr>
+	</tbody>
+</table>
+
 {if !empty($job) && $editable}
 <fieldset class="delete" style="display:none;">
 	<input type="hidden" name="do_delete" value="0">
@@ -103,7 +202,72 @@
 <script type="text/javascript">
 	$popup = genericAjaxPopupFetch('peek');
 	$popup.one('popup_open', function(event,ui) {
-		$(this).dialog('option','title',"Schedule Behavior");
-		$(this).find('input:text').first().select();
+		$this = $(this);
+		$frm = $this.find('form');
+		
+		$this.dialog('option','title',"Schedule Behavior");
+		$this.find('input:text').first().select();
+		
+		// Repeat freq
+		
+		$frm.find('input:radio[name=repeat_freq]').click(function(e) {
+			$td = $(this).closest('td');
+			$table = $td.closest('table');
+			$terms = $td.find('div.terms');
+			$val = $(this).val();
+			
+			$terms.find('> div').hide();
+
+			if($val.length > 0) {
+				$terms.find('div.'+$(this).val()).fadeIn();
+				$table.find('tbody.end').show();
+			} else {
+				$table.find('tbody.end').hide();
+			}
+		});
+		
+		// Repeat end
+		
+		$frm.find('input:radio[name=repeat_end]').click(function(e) {
+			$ends=$(this).closest('td').find('div.ends');
+			$val = $(this).val();
+			
+			$ends.find('> div').hide();
+
+			if($val.length > 0) {
+				$ends.find('div.'+$(this).val()).fadeIn();
+			}
+		});
+
+		// Modify recurring event
+		
+		$frm.find('DIV.buttons INPUT:radio[name=edit_scope]').change(function(e) {
+			$frm = $(this).closest('form');
+			$val = $(this).val();
+			
+			if($val == 'this') {
+				$frm.find('tbody.repeat, tbody.end').hide();
+			} else {
+				$frm.find('tbody.repeat, tbody.end').show();
+			}
+		});	
+		
+		// Toggle grids
+		
+		$frm.find('TABLE.toggle_grid TR TD').click(function(e) {
+			$td = $(this).closest('td');
+			$td.disableSelection();
+			
+			if($td.is('.selected')) {
+				$td.find('input:checkbox').removeAttr('checked');
+			} else {
+				$td.find('input:checkbox').attr('checked', 'checked');
+			}
+			
+			$td.toggleClass('selected');
+			
+			e.stopPropagation();
+		});
+		
 	});
 </script>

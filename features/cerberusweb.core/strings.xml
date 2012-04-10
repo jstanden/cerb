@@ -1055,6 +1055,9 @@ For example: http://www.cerberusweb.com/support/</seg></tuv>
 
 		<!-- ContextScheduledBehavior -->
 		
+		<tu tuid='dao.context_scheduled_behavior.repeat_json'>
+			<tuv xml:lang="en_US"><seg>Repeat</seg></tuv>
+		</tu>
 		<tu tuid='dao.context_scheduled_behavior.run_date'>
 			<tuv xml:lang="en_US"><seg>Run Date</seg></tuv>
 		</tu>

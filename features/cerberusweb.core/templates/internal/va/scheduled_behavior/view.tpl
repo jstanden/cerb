@@ -98,6 +98,18 @@
 				</span>
 				{/if}
 			</td>
+			{elseif $column=="c_repeat_json"}
+			<td>
+				{if !empty($result.$column)}
+					{$repeat = json_decode($result.$column, true)}
+					{if $repeat.freq == 'interval'}
+						every 
+						{$repeat.options.every_n}
+					{else}
+						{$repeat.freq}
+					{/if}
+				{/if}
+			</td>
 			{else}
 			<td>{$result.$column}</td>
 			{/if}

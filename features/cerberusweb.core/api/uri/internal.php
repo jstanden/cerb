@@ -1992,10 +1992,36 @@ class ChInternalController extends DevblocksControllerExtension {
 					break;
 			}
 			
-			// Load event manifest
-			if(null == ($ext = DevblocksPlatform::getExtension($macro->event_point, false))) /* @var $ext DevblocksExtensionManifest */
-				throw new Exception("Invalid event.");
-
+			// Recurring events
+			// [TODO] This is almost wholly redundant with saveMacroSchedulerPopup() 
+			@$repeat_freq = DevblocksPlatform::importGPC($_REQUEST['repeat_freq'],'string', '');
+			@$repeat_end = DevblocksPlatform::importGPC($_REQUEST['repeat_end'],'string', '');
+			
+			$repeat_params = array();
+			
+			if(!empty($repeat_freq)) {
+				@$repeat_options = DevblocksPlatform::importGPC($_REQUEST['repeat_options'][$repeat_freq], 'array', array());			
+				@$repeat_ends = DevblocksPlatform::importGPC($_REQUEST['repeat_ends'][$repeat_end], 'array', array());
+	
+				switch($repeat_end) {
+					case 'date':
+						if(isset($repeat_ends['on'])) {
+							$repeat_ends['on'] = @strtotime($repeat_ends['on']);
+						}
+						break;
+				}
+				
+				$repeat_params = array(
+					'freq' => $repeat_freq,
+					'options' => $repeat_options,
+					'end' => array(
+						'term' => $repeat_end,
+						'options' => $repeat_ends,
+					),
+				);
+			}
+			
+			// Time
 			$run_timestamp = @strtotime($run_date) or time();
 
 			// Variables
@@ -2003,22 +2029,22 @@ class ChInternalController extends DevblocksControllerExtension {
 			@$var_vals = DevblocksPlatform::importGPC($_REQUEST['var_vals'],'array',array());
 
 			$vars = DAO_ContextScheduledBehavior::buildVariables($var_keys, $var_vals, $macro);			
+
+			// Create
+			$behavior_id = DAO_ContextScheduledBehavior::create(array(
+				DAO_ContextScheduledBehavior::BEHAVIOR_ID => $macro->id,
+				DAO_ContextScheduledBehavior::CONTEXT => $context,
+				DAO_ContextScheduledBehavior::CONTEXT_ID => $context_id,
+				DAO_ContextScheduledBehavior::RUN_DATE => $run_timestamp,
+				DAO_ContextScheduledBehavior::VARIABLES_JSON => json_encode($vars),
+				DAO_ContextScheduledBehavior::REPEAT_JSON => json_encode($repeat_params),
+			));
 			
-			if($run_timestamp > time()) {
-				DAO_ContextScheduledBehavior::create(array(
-					DAO_ContextScheduledBehavior::BEHAVIOR_ID => $macro->id,
-					DAO_ContextScheduledBehavior::CONTEXT => $context,
-					DAO_ContextScheduledBehavior::CONTEXT_ID => $context_id,
-					DAO_ContextScheduledBehavior::RUN_DATE => $run_timestamp,
-					DAO_ContextScheduledBehavior::VARIABLES_JSON => json_encode($vars),
-				));
-				
-			} else {
-				// Execute now
-				call_user_func(array($ext->class, 'trigger'), $macro->id, $context_id, $vars);
-				
+			// Execute now if the start time is in the past
+			if($run_timestamp <= time()) {
+				$behavior = DAO_ContextScheduledBehavior::get($behavior_id);
+				$behavior->run();
 			}
-			
 			
 		} catch (Exception $e) {
 			// System log error?
@@ -2108,7 +2134,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		@$job_id = DevblocksPlatform::importGPC($_REQUEST['job_id'],'integer',0);
 		@$run_date = DevblocksPlatform::importGPC($_REQUEST['run_date'],'string','');
 		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'],'integer',0);
-
+		
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		if(null == ($job = DAO_ContextScheduledBehavior::get($job_id)))
@@ -2128,6 +2154,33 @@ class ChInternalController extends DevblocksControllerExtension {
 			DAO_ContextScheduledBehavior::delete($job->id);
 			
 		} else {
+			@$repeat_freq = DevblocksPlatform::importGPC($_REQUEST['repeat_freq'],'string', '');
+			@$repeat_end = DevblocksPlatform::importGPC($_REQUEST['repeat_end'],'string', '');
+			
+			$repeat_params = array();
+			
+			if(!empty($repeat_freq)) {
+				@$repeat_options = DevblocksPlatform::importGPC($_REQUEST['repeat_options'][$repeat_freq], 'array', array());			
+				@$repeat_ends = DevblocksPlatform::importGPC($_REQUEST['repeat_ends'][$repeat_end], 'array', array());
+	
+				switch($repeat_end) {
+					case 'date':
+						if(isset($repeat_ends['on'])) {
+							$repeat_ends['on'] = @strtotime($repeat_ends['on']);
+						}
+						break;
+				}
+				
+				$repeat_params = array(
+					'freq' => $repeat_freq,
+					'options' => $repeat_options,
+					'end' => array(
+						'term' => $repeat_end,
+						'options' => $repeat_ends,
+					),
+				);
+			}
+			
 			$run_timestamp = @strtotime($run_date) or time();
 			
 			// Variables
@@ -2139,8 +2192,8 @@ class ChInternalController extends DevblocksControllerExtension {
 			DAO_ContextScheduledBehavior::update($job->id, array(
 				DAO_ContextScheduledBehavior::RUN_DATE => $run_timestamp,
 				DAO_ContextScheduledBehavior::VARIABLES_JSON => json_encode($vars), 
+				DAO_ContextScheduledBehavior::REPEAT_JSON => json_encode($repeat_params), 
 			));
-			
 		}
 		
 		exit;
@@ -2975,7 +3028,6 @@ class ChInternalController extends DevblocksControllerExtension {
 					'timestamp' => $timestamp,
 				);
 				$calendar_cells[$timestamp] = $day;
-				//array_unshift($calendar_cells, $day);
 			}
 		}
 		
@@ -2990,7 +3042,6 @@ class ChInternalController extends DevblocksControllerExtension {
 					'timestamp' => $timestamp,
 				);
 				$calendar_cells[$timestamp] = $day;
-				//array_push($calendar_cells, $day);
 			}
 		}
 		

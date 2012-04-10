@@ -534,7 +534,7 @@ TABLE.calendar TR.week TD DIV.day_contents DIV.available {
 	background-color:rgb(180,220,110);
 }
 
-FORM.calendar_popup TABLE.toggle_grid TR TD {
+TABLE.toggle_grid TR TD {
 	text-align:center;
 	cursor:pointer;
 	border:1px solid rgb(240,240,240);
@@ -542,14 +542,14 @@ FORM.calendar_popup TABLE.toggle_grid TR TD {
 	color:rgb(150,150,150);
 }
 
-FORM.calendar_popup TABLE.toggle_grid TR TD.selected {
+TABLE.toggle_grid TR TD.selected {
 	border:1px solid rgb(121,183,231);
 	background-color:rgb(240,250,255);
 	color:rgb(74,110,158);
 	font-weight:bold;
 }
 
-FORM.calendar_popup TABLE.toggle_grid TR TD INPUT[type=checkbox] {
+TABLE.toggle_grid TR TD INPUT[type=checkbox] {
 	display:none;
 	visibility:hidden;
 }
