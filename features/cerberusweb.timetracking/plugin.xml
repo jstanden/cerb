@@ -93,6 +93,7 @@
 				<param key="macro_context" value="cerberusweb.contexts.timetracking" />
 				<param key="contexts">
 					<value>
+						<data key="cerberusweb.contexts.role" />
 						<data key="cerberusweb.contexts.worker" />
 					</value>
 				</param>
