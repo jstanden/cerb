@@ -101,17 +101,35 @@ class DAO_TriggerEvent extends C4_ORMHelper {
 		$behaviors = self::getAll();
 		$results = array();
 
+		// Include the current context in allowed owners
+		$owner_contexts = array();
+		$owner_contexts[$context . ':' . $context_id] = true;
+		
+		// If our context owner is a worker, include their roles as allowed owners
+		if($context == CerberusContexts::CONTEXT_WORKER) {
+			$roles = DAO_WorkerRole::getRolesByWorker($context_id);
+			
+			if(is_array($roles))
+			foreach($roles as $role) { /* @var $role Model_WorkerRole */
+				$owner_contexts[CerberusContexts::CONTEXT_ROLE . ':' . $role->id] = true;
+			}
+		}
+		
+		// Loop through behaviors and discover which ones we're allowed to see
 		foreach($behaviors as $behavior_id => $behavior) { /* @var $behavior Model_TriggerEvent */
 			if(!$with_disabled && $behavior->is_disabled)
 				continue;
-			
-			if($behavior->owner_context == $context
-				&& $behavior->owner_context_id == $context_id) {
-					if(is_null($event_point) || 0==strcasecmp($event_point,$behavior->event_point)) {
-						$results[$behavior_id] = $behavior;
-					}
+
+			// If we're allowed to see this behavior, include it
+			if(isset($owner_contexts[$behavior->owner_context . ':' . $behavior->owner_context_id])) {
+				// If including all events, or this particular one
+				if(is_null($event_point) || 0==strcasecmp($event_point, $behavior->event_point)) {
+					$results[$behavior_id] = $behavior;
 				}
+			}
 		}
+		
+		DevblocksPlatform::sortObjects($results, 'title', true);
 		
 		return $results;
 	}

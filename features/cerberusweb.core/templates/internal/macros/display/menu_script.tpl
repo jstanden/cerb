@@ -4,7 +4,7 @@ $menu.appendTo('body');
 $menu.find('> li')
 	.click(function(e) {
 		e.stopPropagation();
-		if(!$(e.target).is('li'))
+		if(!$(e.target).is('li,div'))
 			return;
 
 		$link = $(this).find('a:first').click();
@@ -23,11 +23,11 @@ $menu.find('> li > input.filter').keyup(
 		}
 		
 		term = $(this).val().toLowerCase();
-		$menu.find('> li a').each(function(e) {
+		$menu.find('> li.item').each(function(e) {
 			if(-1 != $(this).html().toLowerCase().indexOf(term)) {
-				$(this).parent().show();
+				$(this).show();
 			} else {
-				$(this).parent().hide();
+				$(this).hide();
 			}
 		});
 	})
