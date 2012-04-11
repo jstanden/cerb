@@ -1,11 +1,15 @@
 {if !empty($values_to_contexts)}
-<b>Link the notification to:</b>
+<b>When the notification is clicked, go to:</b>
 <div style="margin-left:10px;">
 <select name="{$namePrefix}[on]">
+	<option value="" {if empty($params.on)}selected="selected"{/if}> - a specific URL - </option>
 	{foreach from=$values_to_contexts item=context_data key=val_key}
 	<option value="{$val_key}" context="{$context_data.context}" {if $params.on == $val_key}selected="selected"{/if}>{$context_data.label}</option>
 	{/foreach}
 </select>
+<div style="{if !empty($params.on)}display:none;{/if}">
+	<input type="text" name="{$namePrefix}[url]" size="45" class="placeholders" value="{if empty($params.on)}{$params.url}{/if}" style="width:100%;">
+</div>
 </div>
 {/if}
 
@@ -24,4 +28,14 @@
 <script type="text/javascript">
 $action = $('fieldset#{$namePrefix}');
 $action.find('textarea').elastic();
+$action.find('select:first').change(function(e) {
+	$this = $(this);
+	$input = $this.next('div');
+
+	if($this.val().length == 0) {
+		$input.show();
+	} else {
+		$input.hide().find('input');
+	}
+});
 </script>
