@@ -69,7 +69,7 @@
 					<a href="{devblocks_url}c=preferences&a=redirectRead&id={$result.we_id}{/devblocks_url}" class="subject">{$result.we_message}</a>			
 				</td>
 			{elseif $column=="we_created_date"}
-				<td valign="top"><abbr title="{$result.we_created_date|devblocks_date}">{$result.we_created_date|devblocks_prettytime}</abbr>&nbsp;</td>
+				<td style="max-width:100px;width:100px;" valign="top"><abbr title="{$result.we_created_date|devblocks_date}">{$result.we_created_date|devblocks_prettytime}</abbr>&nbsp;</td>
 			{elseif $column=="we_worker_id"}
 				{assign var=worker_id value=$result.$column}
 				<td>
