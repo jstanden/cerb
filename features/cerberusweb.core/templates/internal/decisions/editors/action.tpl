@@ -33,7 +33,9 @@
 
 <div id="divDecisionActionToolbar{$id}" style="display:none;">
 	<button type="button" class="cerb-popupmenu-trigger" onclick="">Insert &#x25be;</button>
-	<ul class="cerb-popupmenu cerb-float" style="margin-top:-5px;">
+	<button type="button" class="tester">{'common.test'|devblocks_translate|capitalize}</button>
+	<div class="tester"></div>
+	<ul class="cerb-popupmenu" style="max-height:200px;overflow-y:auto;">
 		<li style="background:none;">
 			<input type="text" size="18" class="input_search filter">
 		</li>
@@ -41,8 +43,6 @@
 		<li><a href="javascript:;" token="{$k}">{$v}</a></li>
 		{/foreach}
 	</ul>
-	<button type="button" class="tester">{'common.test'|devblocks_translate|capitalize}</button>
-	<div class="tester"></div>
 </div>
 
 </form>
@@ -115,11 +115,12 @@
 		;
 
 		$popup.delegate(':text.placeholders, textarea.placeholders', 'focus', function(e) {
-			toolbar = $('#divDecisionActionToolbar{$id}');
+			$toolbar = $('#divDecisionActionToolbar{$id}');
 			src = (null==e.srcElement) ? e.target : e.srcElement;
 			if(0 == $(src).nextAll('#divDecisionActionToolbar{$id}').length) {
-				toolbar.find('div.tester').html('');
-				toolbar.show().insertAfter(src);
+				$toolbar.find('div.tester').html('');
+				$toolbar.find('ul.cerb-popupmenu').hide();
+				$toolbar.show().insertAfter(src);
 			}
 		});
 		
@@ -172,7 +173,7 @@
 		$divPlaceholderMenu = $('#divDecisionActionToolbar{$id}');
 		
 		$menu_trigger = $divPlaceholderMenu.find('button.cerb-popupmenu-trigger');
-		$menu = $divPlaceholderMenu.find('ul.cerb-popupmenu').appendTo('body');
+		$menu = $divPlaceholderMenu.find('ul.cerb-popupmenu');
 		$menu_trigger.data('menu', $menu);
 		
 		$divPlaceholderMenu.find('button.tester').click(function(e) {
@@ -200,15 +201,18 @@
 			.click(
 				function(e) {
 					$menu = $(this).data('menu');
-					$menu
-						.css('position','absolute')
-						.css('top',($(this).offset().top+20)+'px')
-						.css('left',$(this).offset().left+'px')
-						.show()
-						.find('> li input:text')
-						.focus()
-						.select()
-						;
+					
+					if($menu.is(':visible')) {
+						$menu.hide();
+						
+					} else {
+						$menu
+							.show()
+							.find('> li input:text')
+							.focus()
+							.select()
+							;
+					}
 				}
 			)
 			.bind('remove',
@@ -233,14 +237,6 @@
 			}
 		);
 		
-		$menu.hover(
-			function(e) {
-			},
-			function(e) {
-				$(this).hide();
-			}
-		);
-		
 		$menu.find('> li').click(function(e) {
 			e.stopPropagation();
 			if(!$(e.target).is('li'))
@@ -259,7 +255,6 @@
 			strtoken = $(this).attr('token');
 			
 			$field.focus().insertAtCursor('{literal}{{{/literal}' + strtoken + '{literal}}}{/literal}');
-			$(this).closest('ul.cerb-popupmenu').hide();
 		});		
 		
 	}); // popup_open
