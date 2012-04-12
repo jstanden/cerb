@@ -91,9 +91,12 @@ class DAO_Notification extends DevblocksORMHelper {
 	}
 	
 	static function getUnreadByContextAndWorker($context, $context_id, $worker_id=0, $mark_read=false) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$count = self::getUnreadCountByWorker($worker_id);		
 		
-		// [TODO] This could come from cache
+		if(empty($count))
+			return array();
+		
+		$db = DevblocksPlatform::getDatabaseService();
 		
 		$notifications = self::getWhere(
 			sprintf("%s = %s AND %s = %d AND %s = %d %s",
@@ -108,7 +111,7 @@ class DAO_Notification extends DevblocksORMHelper {
 		);
 		
 		// Auto mark-read?
-		if($mark_read && $worker_id) {
+		if($mark_read && $worker_id && !empty($notifications)) {
 			DAO_Notification::update(array_keys($notifications), array(
 				DAO_Notification::IS_READ => 1,
 			));
@@ -131,7 +134,7 @@ class DAO_Notification extends DevblocksORMHelper {
 				$worker_id
 			);
 			
-			$count = $db->GetOne($sql);
+			$count = intval($db->GetOne($sql));
 			$cache->save($count, self::CACHE_COUNT_PREFIX.$worker_id);
 	    }
 		
