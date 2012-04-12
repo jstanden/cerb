@@ -373,7 +373,7 @@ class DevblocksEventHelper {
 				);
 			}
 
-			$obj_name = strtolower($context_ext->name);
+			$obj_name = DevblocksPlatform::strToPermalink(strtolower($context_ext->name));
 			
 			$out .= "\nTo use the list as placeholders:\n";
 			
