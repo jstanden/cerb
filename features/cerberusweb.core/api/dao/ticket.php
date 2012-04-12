@@ -37,6 +37,7 @@ class DAO_Ticket extends C4_ORMHelper {
 	const SPAM_SCORE = 'spam_score';
 	const INTERESTING_WORDS = 'interesting_words';
 	const LAST_ACTION_CODE = 'last_action_code';
+	const NUM_MESSAGES = 'num_messages';
 	
 	private function DAO_Ticket() {}
 	
@@ -57,6 +58,7 @@ class DAO_Ticket extends C4_ORMHelper {
 			'spam_training' => $translate->_('ticket.spam_training'),
 			'spam_score' => $translate->_('ticket.spam_score'),
 			'interesting_words' => $translate->_('ticket.interesting_words'),
+			'num_messages' => $translate->_('ticket.num_messages'),
 		);
 	}
 	
@@ -308,6 +310,7 @@ class DAO_Ticket extends C4_ORMHelper {
 				DAO_Ticket::IS_CLOSED => 1,
 				DAO_Ticket::IS_DELETED => 1,
 				DAO_Ticket::DUE_DATE => 0,
+				DAO_Ticket::NUM_MESSAGES => 0,
 			));
 
 			// Sort merge tickets by updated date ascending to find the latest touched
@@ -327,6 +330,8 @@ class DAO_Ticket extends C4_ORMHelper {
 				DAO_Ticket::IS_DELETED => $most_recent_updated_ticket[SearchFields_Ticket::TICKET_DELETED],
 			));			
 
+			DAO_Ticket::updateMessageCount($oldest_id);
+			
 			// Set up forwarders for the old masks to their new mask
 			$new_mask = $oldest_ticket[SearchFields_Ticket::TICKET_MASK];
 			if(is_array($merged_tickets))
@@ -421,6 +426,8 @@ class DAO_Ticket extends C4_ORMHelper {
 			));
 		}
 		
+		DAO_Ticket::updateMessageCount($id);
+		
 		return TRUE;
 	}
 	
@@ -463,7 +470,7 @@ class DAO_Ticket extends C4_ORMHelper {
 		
 		$sql = "SELECT id , mask, subject, is_waiting, is_closed, is_deleted, group_id, bucket_id, org_id, owner_id, first_message_id, last_message_id, ".
 			"first_wrote_address_id, last_wrote_address_id, created_date, updated_date, due_date, spam_training, ". 
-			"spam_score, interesting_words ".
+			"spam_score, interesting_words, num_messages ".
 			"FROM ticket ".
 			$where_sql.
 			$sort_sql.
@@ -504,6 +511,7 @@ class DAO_Ticket extends C4_ORMHelper {
 			$object->spam_score = floatval($row['spam_score']);
 			$object->spam_training = $row['spam_training'];
 			$object->interesting_words = $row['interesting_words'];
+			$object->num_messages = $row['num_messages'];
 			$objects[$object->id] = $object;
 		}
 		
@@ -701,6 +709,15 @@ class DAO_Ticket extends C4_ORMHelper {
 				
 			} //foreach
     	}		
+	}
+	
+	static function updateMessageCount($id) {
+		$db = DevblocksPlatform::getDatabaseService();
+		$db->Execute(sprintf("UPDATE ticket ".
+			"SET num_messages = (SELECT count(id) FROM message WHERE message.ticket_id = ticket.id) ".
+			"WHERE ticket.id = %d",
+			$id
+		));
 	}
 	
 	/**
@@ -1105,6 +1122,7 @@ class DAO_Ticket extends C4_ORMHelper {
 			"t.spam_training as %s, ".
 			"t.spam_score as %s, ".
 			"t.last_action_code as %s, ".
+			"t.num_messages as %s, ".
 			"t.owner_id as %s, ".
 			"t.group_id as %s, ".
 			"t.bucket_id as %s, ".
@@ -1130,6 +1148,7 @@ class DAO_Ticket extends C4_ORMHelper {
 			    SearchFields_Ticket::TICKET_SPAM_TRAINING,
 			    SearchFields_Ticket::TICKET_SPAM_SCORE,
 			    SearchFields_Ticket::TICKET_LAST_ACTION_CODE,
+			    SearchFields_Ticket::TICKET_NUM_MESSAGES,
 			    SearchFields_Ticket::TICKET_OWNER_ID,
 			    SearchFields_Ticket::TICKET_GROUP_ID,
 			    SearchFields_Ticket::TICKET_BUCKET_ID,
@@ -1346,6 +1365,7 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 	const TICKET_SPAM_TRAINING = 't_spam_training';
 	const TICKET_INTERESTING_WORDS = 't_interesting_words';
 	const TICKET_LAST_ACTION_CODE = 't_last_action_code';
+	const TICKET_NUM_MESSAGES = 't_num_messages';
 	const TICKET_GROUP_ID = 't_group_id';
 	const TICKET_BUCKET_ID = 't_bucket_id';
 	const TICKET_ORG_ID = 't_org_id';
@@ -1413,6 +1433,7 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 			self::TICKET_DELETED => new DevblocksSearchField(self::TICKET_DELETED, 't', 'is_deleted',$translate->_('status.deleted')),
 
 			self::TICKET_LAST_ACTION_CODE => new DevblocksSearchField(self::TICKET_LAST_ACTION_CODE, 't', 'last_action_code',$translate->_('ticket.last_action')),
+			self::TICKET_NUM_MESSAGES => new DevblocksSearchField(self::TICKET_NUM_MESSAGES, 't', 'num_messages',$translate->_('ticket.num_messages')),
 			self::TICKET_SPAM_TRAINING => new DevblocksSearchField(self::TICKET_SPAM_TRAINING, 't', 'spam_training',$translate->_('ticket.spam_training')),
 			self::TICKET_SPAM_SCORE => new DevblocksSearchField(self::TICKET_SPAM_SCORE, 't', 'spam_score',$translate->_('ticket.spam_score')),
 			self::TICKET_FIRST_WROTE_SPAM => new DevblocksSearchField(self::TICKET_FIRST_WROTE_SPAM, 'a1', 'num_spam',$translate->_('address.num_spam')),
@@ -1486,6 +1507,7 @@ class Model_Ticket {
 	public $spam_training;
 	public $interesting_words;
 	public $last_action_code;
+	public $num_messages;
 	
 	private $_org = null;
 
@@ -1979,6 +2001,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals {
 			case SearchFields_Ticket::TICKET_FIRST_WROTE_SPAM:
 			case SearchFields_Ticket::TICKET_FIRST_WROTE_NONSPAM:
 			case SearchFields_Ticket::TICKET_ID:
+			case SearchFields_Ticket::TICKET_NUM_MESSAGES:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__number.tpl');
 				break;
 					
@@ -2215,7 +2238,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals {
 				}
 				echo implode(", ", $strings);
 				break;
-
+				
 			default:
 				parent::renderCriteriaParam($param);
 				break;
@@ -2251,6 +2274,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals {
 			case SearchFields_Ticket::TICKET_FIRST_WROTE_SPAM:
 			case SearchFields_Ticket::TICKET_FIRST_WROTE_NONSPAM:
 			case SearchFields_Ticket::TICKET_ID:
+			case SearchFields_Ticket::TICKET_NUM_MESSAGES:
 				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
 				break;
 
@@ -2673,6 +2697,7 @@ class Context_Ticket extends Extension_DevblocksContext {
 			'created|date' => $prefix.$translate->_('ticket.created'),
 			'id' => $prefix.$translate->_('ticket.id'),
 			'mask' => $prefix.$translate->_('ticket.mask'),
+			'num_messages' => $prefix.$translate->_('ticket.num_messages'),
 			'reopen_date|date' => $prefix.$translate->_('ticket.reopen_date'),
 			'spam_score' => $prefix.$translate->_('ticket.spam_score'),
 			'spam_training' => $prefix.$translate->_('ticket.spam_training'),
@@ -2699,6 +2724,7 @@ class Context_Ticket extends Extension_DevblocksContext {
 			$token_values['created'] = $ticket->created_date;
 			$token_values['id'] = $ticket->id;
 			$token_values['mask'] = $ticket->mask;
+			$token_values['num_messages'] = $ticket->num_messages;
 			$token_values['reopen_date'] = $ticket->due_date;
 			$token_values['spam_score'] = $ticket->spam_score;
 			$token_values['spam_training'] = $ticket->spam_training;

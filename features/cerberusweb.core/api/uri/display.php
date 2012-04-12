@@ -947,6 +947,9 @@ class ChDisplayPage extends CerberusPageExtension {
 			DAO_Ticket::LAST_MESSAGE_ID => $last_message->id,
 			DAO_Ticket::LAST_WROTE_ID => $last_message->address_id
 		));
+		
+		DAO_Ticket::updateMessageCount($new_ticket_id);
+		DAO_Ticket::updateMessageCount($orig_ticket->id);
 			
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('display',$new_ticket_mask)));
 	}

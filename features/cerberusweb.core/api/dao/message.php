@@ -36,6 +36,10 @@ class DAO_Message extends C4_ORMHelper {
 
 		self::update($id, $fields);
 		
+		if(isset($fields[self::TICKET_ID])) {
+			DAO_Ticket::updateMessageCount($fields[self::TICKET_ID]);
+		}
+		
 		return $id;
 	}
 

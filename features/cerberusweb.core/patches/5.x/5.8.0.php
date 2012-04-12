@@ -85,4 +85,21 @@ if(!isset($columns['repeat_json'])) {
 	$db->Execute("ALTER TABLE context_scheduled_behavior ADD COLUMN repeat_json TEXT");
 }
 
+// ===========================================================================
+// Add 'num_messages' to tickets
+
+if(!isset($tables['ticket'])) {
+	$logger->error("The 'ticket' table does not exist.");
+	return FALSE;
+}
+
+list($columns, $indexes) = $db->metaTable('ticket');
+
+if(!isset($columns['num_messages'])) {
+	$db->Execute("ALTER TABLE ticket ADD COLUMN num_messages INT UNSIGNED NOT NULL DEFAULT 0"); // ~13.5s
+	$db->Execute("CREATE TEMPORARY TABLE _tmp_ticket_msgcount SELECT ticket_id, count(id) AS hits FROM message GROUP BY ticket_id"); // ~0.94s
+	$db->Execute("UPDATE ticket INNER JOIN _tmp_ticket_msgcount ON (ticket.id=_tmp_ticket_msgcount.ticket_id) SET ticket.num_messages=_tmp_ticket_msgcount.hits"); // ~5.93s
+	$db->Execute("DROP TABLE _tmp_ticket_msgcount");
+}
+
 return TRUE;
