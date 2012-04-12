@@ -145,6 +145,10 @@ class Event_CrmOpportunityMacro extends Extension_DevblocksEvent {
 		$labels['opp_email_link'] = 'Lead is linked';
 		$labels['opp_email_org_link'] = 'Lead org is linked';
 		
+		$labels['opp_email_org_watcher_count'] = 'Lead org watcher count';
+		$labels['opp_email_watcher_count'] = 'Lead watcher count';
+		$labels['opp_watcher_count'] = 'Opportunity watcher count';
+		
 		$types = array(
 			'opp_email_num_nonspam' => Model_CustomField::TYPE_NUMBER,
 			'opp_email_num_spam' => Model_CustomField::TYPE_NUMBER,
@@ -173,6 +177,10 @@ class Event_CrmOpportunityMacro extends Extension_DevblocksEvent {
 			'opp_link' => null,
 			'opp_email_link' => null,
 			'opp_email_org_link' => null,
+			
+			'opp_email_org_watcher_count' => null,
+			'opp_email_watcher_count' => null,
+			'opp_watcher_count' => null,
 		);
 
 		$conditions = $this->_importLabelsTypesAsConditions($labels, $types);
@@ -194,6 +202,12 @@ class Event_CrmOpportunityMacro extends Extension_DevblocksEvent {
 				$contexts = Extension_DevblocksContext::getAll(false);
 				$tpl->assign('contexts', $contexts);
 				$tpl->display('devblocks:cerberusweb.core::events/condition_link.tpl');
+				break;
+				
+			case 'opp_email_org_watcher_count':
+			case 'opp_email_watcher_count':
+			case 'opp_watcher_count':
+				$tpl->display('devblocks:cerberusweb.core::internal/decisions/conditions/_number.tpl');
 				break;
 		}
 
@@ -257,7 +271,41 @@ class Event_CrmOpportunityMacro extends Extension_DevblocksEvent {
 					$pass = false;
 				}
 				break;
-							
+
+			case 'opp_email_org_watcher_count':
+			case 'opp_email_watcher_count':
+			case 'opp_watcher_count':
+				$not = (substr($params['oper'],0,1) == '!');
+				$oper = ltrim($params['oper'],'!');
+				
+				switch($token) {
+					case 'opp_email_org_watcher_count':
+						$value = count($dict->opp_email_org_watchers);
+						break;
+					case 'opp_email_watcher_count':
+						$value = count($dict->opp_email_watchers);
+						break;
+					case 'opp_watcher_count':
+					default:
+						$value = count($dict->opp_watchers);
+						break;
+				}
+				
+				switch($oper) {
+					case 'is':
+						$pass = intval($value)==intval($params['value']);
+						break;
+					case 'gt':
+						$pass = intval($value) > intval($params['value']);
+						break;
+					case 'lt':
+						$pass = intval($value) < intval($params['value']);
+						break;
+				}
+				
+				$pass = ($not) ? !$pass : $pass;
+				break;
+				
 			default:
 				$pass = false;
 				break;

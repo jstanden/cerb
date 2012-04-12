@@ -93,6 +93,7 @@ abstract class AbstractEvent_KbArticle extends Extension_DevblocksEvent {
 		$labels = $this->getLabels();
 		
 		$labels['article_link'] = 'Article is linked';
+		$labels['article_watcher_count'] = 'Article watcher count';
 		
 		$types = array(
 			'article_content' => Model_CustomField::TYPE_MULTI_LINE,
@@ -101,6 +102,8 @@ abstract class AbstractEvent_KbArticle extends Extension_DevblocksEvent {
 			'article_views' => Model_CustomField::TYPE_NUMBER,
 			
 			'article_link' => null,
+			
+			'article_watcher_count' => null,
 		);
 
 		$conditions = $this->_importLabelsTypesAsConditions($labels, $types);
@@ -120,6 +123,10 @@ abstract class AbstractEvent_KbArticle extends Extension_DevblocksEvent {
 				$contexts = Extension_DevblocksContext::getAll(false);
 				$tpl->assign('contexts', $contexts);
 				$tpl->display('devblocks:cerberusweb.core::events/condition_link.tpl');
+				break;
+				
+			case 'article_watcher_count':
+				$tpl->display('devblocks:cerberusweb.core::internal/decisions/conditions/_number.tpl');
 				break;
 		}
 
@@ -172,6 +179,26 @@ abstract class AbstractEvent_KbArticle extends Extension_DevblocksEvent {
 				} else {
 					$pass = false;
 				}
+				break;
+				
+			case 'article_watcher_count':
+				$not = (substr($params['oper'],0,1) == '!');
+				$oper = ltrim($params['oper'],'!');
+				$value = count($dict->article_watchers);
+				
+				switch($oper) {
+					case 'is':
+						$pass = intval($value)==intval($params['value']);
+						break;
+					case 'gt':
+						$pass = intval($value) > intval($params['value']);
+						break;
+					case 'lt':
+						$pass = intval($value) < intval($params['value']);
+						break;
+				}
+				
+				$pass = ($not) ? !$pass : $pass;
 				break;
 							
 			default:

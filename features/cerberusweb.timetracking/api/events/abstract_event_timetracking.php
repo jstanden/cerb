@@ -93,6 +93,7 @@ abstract class AbstractEvent_TimeTracking extends Extension_DevblocksEvent {
 		$labels = $this->getLabels();
 		
 		$labels['time_link'] = 'Time entry is linked';
+		$labels['time_watcher_count'] = 'Time entry watcher count';
 		
 		$types = array(
 			'time_log_date' => Model_CustomField::TYPE_DATE,
@@ -100,6 +101,7 @@ abstract class AbstractEvent_TimeTracking extends Extension_DevblocksEvent {
 			'time_summary' => Model_CustomField::TYPE_SINGLE_LINE,
 			
 			'time_link' => null,
+			'time_watcher_count' => null,
 		);
 
 		$conditions = $this->_importLabelsTypesAsConditions($labels, $types);
@@ -119,6 +121,10 @@ abstract class AbstractEvent_TimeTracking extends Extension_DevblocksEvent {
 				$contexts = Extension_DevblocksContext::getAll(false);
 				$tpl->assign('contexts', $contexts);
 				$tpl->display('devblocks:cerberusweb.core::events/condition_link.tpl');
+				break;
+				
+			case 'time_watcher_count':
+				$tpl->display('devblocks:cerberusweb.core::internal/decisions/conditions/_number.tpl');
 				break;
 		}
 
@@ -171,6 +177,26 @@ abstract class AbstractEvent_TimeTracking extends Extension_DevblocksEvent {
 				} else {
 					$pass = false;
 				}
+				break;
+				
+			case 'time_watcher_count':
+				$not = (substr($params['oper'],0,1) == '!');
+				$oper = ltrim($params['oper'],'!');
+				$value = count($dict->time_watchers);
+				
+				switch($oper) {
+					case 'is':
+						$pass = intval($value)==intval($params['value']);
+						break;
+					case 'gt':
+						$pass = intval($value) > intval($params['value']);
+						break;
+					case 'lt':
+						$pass = intval($value) < intval($params['value']);
+						break;
+				}
+				
+				$pass = ($not) ? !$pass : $pass;
 				break;
 				
 			default:

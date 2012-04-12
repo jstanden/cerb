@@ -170,17 +170,33 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 				'label' => 'Message sender email',
 				'context' => CerberusContexts::CONTEXT_ADDRESS,
 			),
+			'sender_watchers' => array(
+				'label' => 'Message sender watchers',
+				'context' => CerberusContexts::CONTEXT_WORKER,
+			),
 			'sender_org' => array(
 				'label' => 'Message sender org',
 				'context' => CerberusContexts::CONTEXT_ORG,
+			),
+			'sender_org_watchers' => array(
+				'label' => 'Message sender org watchers',
+				'context' => CerberusContexts::CONTEXT_WORKER,
 			),
 			'ticket_id' => array(
 				'label' => 'Ticket',
 				'context' => CerberusContexts::CONTEXT_TICKET,
 			),
+			'ticket_watchers' => array(
+				'label' => 'Ticket watchers',
+				'context' => CerberusContexts::CONTEXT_WORKER,
+			),
 			'ticket_org_id' => array(
 				'label' => 'Ticket org',
 				'context' => CerberusContexts::CONTEXT_ORG,
+			),
+			'ticket_org_watchers' => array(
+				'label' => 'Ticket org watchers',
+				'context' => CerberusContexts::CONTEXT_WORKER,
 			),
 			'ticket_owner_id' => array(
 				'label' => 'Ticket owner',
@@ -215,6 +231,11 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 		$labels['sender_link'] = 'Message sender is linked';
 		$labels['sender_org_link'] = 'Message sender org is linked';
 		$labels['ticket_link'] = 'Ticket is linked';
+		
+		$labels['ticket_org_watcher_count'] = 'Ticket org watcher count';
+		$labels['ticket_watcher_count'] = 'Ticket watcher count';
+		$labels['sender_org_watcher_count'] = 'Message sender org watcher count';
+		$labels['sender_watcher_count'] = 'Message sender watcher count';
 		
 		$types = array(
 			'content' => Model_CustomField::TYPE_MULTI_LINE,
@@ -284,6 +305,11 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 			'sender_org_link' => null,
 			'ticket_link' => null,
 			
+			'sender_org_watcher_count' => null,
+			'sender_watcher_count' => null,
+			'ticket_org_watcher_count' => null,
+			'ticket_watcher_count' => null,
+			
 			'header' => null,
 		);
 
@@ -341,6 +367,7 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 				
 				$tpl->display('devblocks:cerberusweb.core::events/model/ticket/condition_group_and_bucket.tpl');
 				break;
+				
 			case 'sender_link':
 			case 'sender_org_link':
 			case 'ticket_link':
@@ -348,6 +375,14 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 				$tpl->assign('contexts', $contexts);
 				$tpl->display('devblocks:cerberusweb.core::events/condition_link.tpl');
 				break;
+				
+			case 'sender_org_watcher_count':
+			case 'sender_watcher_count':
+			case 'ticket_org_watcher_count':
+			case 'ticket_watcher_count':
+				$tpl->display('devblocks:cerberusweb.core::internal/decisions/conditions/_number.tpl');
+				break;
+				
 			// [TODO] Internalize
 			case 'header':
 				$tpl->display('devblocks:cerberusweb.core::events/mail_received_by_group/condition_header.tpl');
@@ -542,6 +577,44 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 				} else {
 					$pass = false;
 				}				
+				
+				$pass = ($not) ? !$pass : $pass;
+				break;
+				
+			case 'sender_org_watcher_count':
+			case 'sender_watcher_count':
+			case 'ticket_org_watcher_count':
+			case 'ticket_watcher_count':
+				$not = (substr($params['oper'],0,1) == '!');
+				$oper = ltrim($params['oper'],'!');
+				
+				switch($token) {
+					case 'sender_org_watcher_count':
+						$value = count($dict->sender_org_watchers);
+						break;
+					case 'sender_watcher_count':
+						$value = count($dict->sender_watchers);
+						break;
+					case 'ticket_org_watcher_count':
+						$value = count($dict->ticket_org_watchers);
+						break;
+					case 'ticket_watcher_count':
+					default:
+						$value = count($dict->ticket_watchers);
+						break;
+				}
+				
+				switch($oper) {
+					case 'is':
+						$pass = intval($value)==intval($params['value']);
+						break;
+					case 'gt':
+						$pass = intval($value) > intval($params['value']);
+						break;
+					case 'lt':
+						$pass = intval($value) < intval($params['value']);
+						break;
+				}
 				
 				$pass = ($not) ? !$pass : $pass;
 				break;

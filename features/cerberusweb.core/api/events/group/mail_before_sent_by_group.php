@@ -252,8 +252,16 @@ class Event_MailBeforeSentByGroup extends Extension_DevblocksEvent {
 				'label' => 'Ticket org',
 				'context' => CerberusContexts::CONTEXT_ORG,
 			),
+			'ticket_org_watchers' => array(
+				'label' => 'Ticket org watchers',
+				'context' => CerberusContexts::CONTEXT_WORKER,
+			),
 			'ticket_owner_id' => array(
 				'label' => 'Ticket owner',
+				'context' => CerberusContexts::CONTEXT_WORKER,
+			),
+			'ticket_watchers' => array(
+				'label' => 'Ticket watchers',
 				'context' => CerberusContexts::CONTEXT_WORKER,
 			),
 			'worker_id' => array(
@@ -276,6 +284,9 @@ class Event_MailBeforeSentByGroup extends Extension_DevblocksEvent {
 	
 	function getConditionExtensions() {
 		$labels = $this->getLabels();
+		
+		$labels['ticket_org_watcher_count'] = 'Ticket org watcher count';
+		$labels['ticket_watcher_count'] = 'Ticket watcher count';
 		
 		$types = array(
 			'bcc' => Model_CustomField::TYPE_SINGLE_LINE,
@@ -310,6 +321,9 @@ class Event_MailBeforeSentByGroup extends Extension_DevblocksEvent {
 			'worker_full_name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'worker_last_name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'worker_title' => Model_CustomField::TYPE_SINGLE_LINE,
+			
+			'ticket_org_watcher_count' => null,
+			'ticket_watcher_count' => null,
 		);
 
 		$conditions = $this->_importLabelsTypesAsConditions($labels, $types);
@@ -333,6 +347,10 @@ class Event_MailBeforeSentByGroup extends Extension_DevblocksEvent {
 				break;
 			case 'ticket_status':
 				$tpl->display('devblocks:cerberusweb.core::events/mail_received_by_group/condition_status.tpl');
+				break;
+			case 'ticket_org_watcher_count':
+			case 'ticket_watcher_count':
+				$tpl->display('devblocks:cerberusweb.core::internal/decisions/conditions/_number.tpl');
 				break;
 		}
 
@@ -386,6 +404,36 @@ class Event_MailBeforeSentByGroup extends Extension_DevblocksEvent {
 						}
 						break;
 				}
+				$pass = ($not) ? !$pass : $pass;
+				break;
+				
+			case 'ticket_org_watcher_count':
+			case 'ticket_watcher_count':
+				$not = (substr($params['oper'],0,1) == '!');
+				$oper = ltrim($params['oper'],'!');
+				
+				switch($token) {
+					case 'ticket_org_watcher_count':
+						$value = count($dict->ticket_org_watchers);
+						break;
+					case 'ticket_watcher_count':
+					default:
+						$value = count($dict->ticket_watchers);
+						break;
+				}
+				
+				switch($oper) {
+					case 'is':
+						$pass = intval($value)==intval($params['value']);
+						break;
+					case 'gt':
+						$pass = intval($value) > intval($params['value']);
+						break;
+					case 'lt':
+						$pass = intval($value) < intval($params['value']);
+						break;
+				}
+				
 				$pass = ($not) ? !$pass : $pass;
 				break;
 				

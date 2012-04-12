@@ -130,6 +130,10 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 				'label' => 'Group',
 				'context' => CerberusContexts::CONTEXT_GROUP,
 			),
+			'group_watchers' => array(
+				'label' => 'Group watchers',
+				'context' => CerberusContexts::CONTEXT_WORKER,
+			),
 			/*
 			'bucket_id' => array(
 				'label' => 'Bucket',
@@ -160,6 +164,10 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 				'label' => 'Ticket org',
 				'context' => CerberusContexts::CONTEXT_ORG,
 			),
+			'ticket_org_watchers' => array(
+				'label' => 'Ticket org watchers',
+				'context' => CerberusContexts::CONTEXT_WORKER,
+			),
 		);
 		
 		$vars = parent::getValuesContexts($trigger);
@@ -178,7 +186,6 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 		$labels['ticket_latest_message_header'] = 'Ticket latest message email header';
 		$labels['ticket_latest_incoming_activity'] = 'Ticket latest incoming activity';
 		$labels['ticket_latest_outgoing_activity'] = 'Ticket latest outgoing activity';
-		$labels['ticket_watcher_count'] = 'Ticket watcher count';
 		
 		$labels['group_id'] = 'Group';
 		$labels['group_and_bucket'] = 'Group and bucket';
@@ -190,6 +197,10 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 		$labels['ticket_latest_message_sender_link'] = 'Ticket latest message sender is linked';
 		$labels['ticket_latest_message_sender_org_link'] = 'Ticket latest message sender org is linked';
 		$labels['ticket_link'] = 'Ticket is linked';
+		
+		$labels['group_watcher_count'] = 'Group watcher count';
+		$labels['ticket_org_watcher_count'] = 'Ticket org watcher count';
+		$labels['ticket_watcher_count'] = 'Ticket watcher count';
 		
 		$types = array(
 			// First wrote
@@ -277,7 +288,6 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 			'ticket_latest_message_header' => null,
 			'ticket_latest_incoming_activity' => null,
 			'ticket_latest_outgoing_activity' => null,
-			'ticket_watcher_count' => null,
 			
 			// Links
 			'group_link' => null,
@@ -287,6 +297,11 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 			'ticket_latest_message_sender_link' => null,
 			'ticket_latest_message_sender_org_link' => null,
 			'ticket_link' => null,
+			
+			// Watchers
+			'group_watcher_count' => null,
+			'ticket_org_watcher_count' => null,
+			'ticket_watcher_count' => null,
 		);
 		
 		$conditions = $this->_importLabelsTypesAsConditions($labels, $types);
@@ -304,32 +319,36 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 			case 'ticket_has_owner':
 				$tpl->display('devblocks:cerberusweb.core::internal/decisions/conditions/_bool.tpl');
 				break;
-			case 'ticket_watcher_count':
-				$tpl->display('devblocks:cerberusweb.core::internal/decisions/conditions/_number.tpl');
-				break;
+				
 			case 'ticket_spam_score':
 				$tpl->display('devblocks:cerberusweb.core::events/mail_received_by_group/condition_spam_score.tpl');
 				break;
+				
 			case 'ticket_spam_training':
 				$tpl->display('devblocks:cerberusweb.core::events/mail_received_by_group/condition_spam_training.tpl');
 				break;
+				
 			case 'ticket_status':
 				$tpl->display('devblocks:cerberusweb.core::events/mail_received_by_group/condition_status.tpl');
 				break;
+				
 			case 'ticket_initial_message_header':
 			case 'ticket_latest_message_header':
 				$tpl->display('devblocks:cerberusweb.core::events/mail_received_by_group/condition_header.tpl');
 				break;
+				
 			case 'ticket_latest_incoming_activity':
 			case 'ticket_latest_outgoing_activity':
 				$tpl->display('devblocks:cerberusweb.core::internal/decisions/conditions/_date.tpl');
 				break;
+				
 			case 'group_id':
 				$groups = DAO_Group::getAll();
 				$tpl->assign('groups', $groups);
 				
 				$tpl->display('devblocks:cerberusweb.core::events/model/ticket/condition_group.tpl');
 				break;
+				
 			case 'group_and_bucket':
 				$groups = DAO_Group::getAll();
 				
@@ -350,6 +369,7 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 				
 				$tpl->display('devblocks:cerberusweb.core::events/model/ticket/condition_group_and_bucket.tpl');
 				break;
+				
 			case 'group_link':
 			case 'owner_link':
 			case 'ticket_initial_message_sender_link':
@@ -360,6 +380,12 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 				$contexts = Extension_DevblocksContext::getAll(false);
 				$tpl->assign('contexts', $contexts);
 				$tpl->display('devblocks:cerberusweb.core::events/condition_link.tpl');
+				break;
+				
+			case 'group_watcher_count':
+			case 'ticket_org_watcher_count':
+			case 'ticket_watcher_count':
+				$tpl->display('devblocks:cerberusweb.core::internal/decisions/conditions/_number.tpl');
 				break;
 		}
 
@@ -377,26 +403,6 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 				$pass = ($bool == !empty($value));
 				break;
 				
-			case 'ticket_watcher_count':
-				$not = (substr($params['oper'],0,1) == '!');
-				$oper = ltrim($params['oper'],'!');
-				$value = count($dict->ticket_watchers);
-				
-				switch($oper) {
-					case 'is':
-						$pass = intval($value)==intval($params['value']);
-						break;
-					case 'gt':
-						$pass = intval($value) > intval($params['value']);
-						break;
-					case 'lt':
-						$pass = intval($value) < intval($params['value']);
-						break;
-				}
-				
-				$pass = ($not) ? !$pass : $pass;
-				break;
-							
 			case 'ticket_spam_score':
 				$not = (substr($params['oper'],0,1) == '!');
 				$oper = ltrim($params['oper'],'!');
@@ -584,6 +590,40 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 					
 				} else {
 					$pass = false;
+				}
+				
+				$pass = ($not) ? !$pass : $pass;
+				break;
+				
+			case 'group_watcher_count':
+			case 'ticket_org_watcher_count':
+			case 'ticket_watcher_count':
+				$not = (substr($params['oper'],0,1) == '!');
+				$oper = ltrim($params['oper'],'!');
+
+				switch($token) {
+					case 'group_watcher_count':
+						$value = count($dict->group_watchers);
+						break;
+					case 'ticket_org_watcher_count':
+						$value = count($dict->ticket_org_watchers);
+						break;
+					case 'ticket_watcher_count':
+					default:
+						$value = count($dict->ticket_watchers);
+						break;
+				}
+				
+				switch($oper) {
+					case 'is':
+						$pass = intval($value)==intval($params['value']);
+						break;
+					case 'gt':
+						$pass = intval($value) > intval($params['value']);
+						break;
+					case 'lt':
+						$pass = intval($value) < intval($params['value']);
+						break;
 				}
 				
 				$pass = ($not) ? !$pass : $pass;

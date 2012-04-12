@@ -88,15 +88,19 @@ abstract class AbstractEvent_Address extends Extension_DevblocksEvent {
 	function getValuesContexts($trigger) {
 		$vals = array(
 			'email_id' => array(
-				'label' => 'Email address',
+				'label' => 'Email',
 				'context' => CerberusContexts::CONTEXT_ADDRESS,
 			),
 			'email_org_id' => array(
-				'label' => 'Email org',
+				'label' => 'Org',
 				'context' => CerberusContexts::CONTEXT_ORG,
 			),
+			'email_org_watchers' => array(
+				'label' => 'Org watchers',
+				'context' => CerberusContexts::CONTEXT_WORKER,
+			),
 			'email_watchers' => array(
-				'label' => 'Email address watchers',
+				'label' => 'Email watchers',
 				'context' => CerberusContexts::CONTEXT_WORKER,
 			),
 		);
@@ -114,6 +118,8 @@ abstract class AbstractEvent_Address extends Extension_DevblocksEvent {
 		
 		$labels['email_link'] = 'Email is linked';
 		$labels['email_org_link'] = 'Org is linked';
+		$labels['email_org_watcher_count'] = 'Org watcher count';
+		$labels['email_watcher_count'] = 'Email watcher count';
 		
 		$types = array(
 			'email_address' => Model_CustomField::TYPE_SINGLE_LINE,
@@ -136,6 +142,9 @@ abstract class AbstractEvent_Address extends Extension_DevblocksEvent {
 			
 			'email_link' => null,
 			'email_org_link' => null,
+			
+			'email_org_watcher_count' => null,
+			'email_watcher_count' => null,
 		);
 
 		$conditions = $this->_importLabelsTypesAsConditions($labels, $types);
@@ -156,6 +165,11 @@ abstract class AbstractEvent_Address extends Extension_DevblocksEvent {
 				$contexts = Extension_DevblocksContext::getAll(false);
 				$tpl->assign('contexts', $contexts);
 				$tpl->display('devblocks:cerberusweb.core::events/condition_link.tpl');
+				break;
+				
+			case 'email_org_watcher_count':
+			case 'email_watcher_count':
+				$tpl->display('devblocks:cerberusweb.core::internal/decisions/conditions/_number.tpl');
 				break;
 		}
 
@@ -212,6 +226,35 @@ abstract class AbstractEvent_Address extends Extension_DevblocksEvent {
 				}
 				
 				$pass = ($not) ? !$pass : $pass;				
+				break;
+				
+			case 'email_org_watcher_count':
+			case 'email_watcher_count':
+				$not = (substr($params['oper'],0,1) == '!');
+				$oper = ltrim($params['oper'],'!');
+
+				switch($token) {
+					case 'email_org_watcher_count':
+						$value = count($dict->email_org_watchers);
+						break;
+					default:
+						$value = count($dict->email_watchers);
+						break;
+				}
+				
+				switch($oper) {
+					case 'is':
+						$pass = intval($value)==intval($params['value']);
+						break;
+					case 'gt':
+						$pass = intval($value) > intval($params['value']);
+						break;
+					case 'lt':
+						$pass = intval($value) < intval($params['value']);
+						break;
+				}
+				
+				$pass = ($not) ? !$pass : $pass;
 				break;
 				
 			default:

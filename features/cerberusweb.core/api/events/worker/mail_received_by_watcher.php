@@ -184,9 +184,17 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 				'label' => 'Sender email',
 				'context' => CerberusContexts::CONTEXT_ADDRESS,
 			),
+			'sender_watchers' => array(
+				'label' => 'Sender watchers',
+				'context' => CerberusContexts::CONTEXT_WORKER,
+			),
 			'sender_org_id' => array(
 				'label' => 'Sender org',
 				'context' => CerberusContexts::CONTEXT_ORG,
+			),
+			'sender_org_watchers' => array(
+				'label' => 'Sender org_watchers',
+				'context' => CerberusContexts::CONTEXT_WORKER,
 			),
 			'ticket_id' => array(
 				'label' => 'Ticket',
@@ -196,8 +204,16 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 				'label' => 'Ticket org',
 				'context' => CerberusContexts::CONTEXT_ORG,
 			),
+			'ticket_org_watchers' => array(
+				'label' => 'Ticket org watchers',
+				'context' => CerberusContexts::CONTEXT_WORKER,
+			),
 			'ticket_owner_id' => array(
 				'label' => 'Ticket owner',
+				'context' => CerberusContexts::CONTEXT_WORKER,
+			),
+			'ticket_watchers' => array(
+				'label' => 'Ticket watchers',
 				'context' => CerberusContexts::CONTEXT_WORKER,
 			),
 		);
@@ -221,6 +237,11 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 		
 		$labels['group_id'] = 'Group';
 		$labels['group_and_bucket'] = 'Group and bucket';
+		
+		$labels['sender_org_watcher_count'] = 'Message sender watcher count';
+		$labels['sender_watcher_count'] = 'Message sender org watcher count';
+		$labels['ticket_org_watcher_count'] = 'Ticket org watcher count';
+		$labels['ticket_watcher_count'] = 'Ticket watcher count';
 		
 		$types = array(
 			'content' => Model_CustomField::TYPE_MULTI_LINE,
@@ -280,7 +301,14 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 			'ticket_updated|date' => Model_CustomField::TYPE_DATE,
 			'ticket_url' => Model_CustomField::TYPE_URL,
 			
+			// Owner
 			'ticket_has_owner' => null,
+			
+			// Watchers
+			'sender_org_watcher_count' => null,
+			'sender_watcher_count' => null,
+			'ticket_org_watcher_count' => null,
+			'ticket_watcher_count' => null,
 		);
 
 		$conditions = $this->_importLabelsTypesAsConditions($labels, $types);
@@ -327,6 +355,14 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 				
 				$tpl->display('devblocks:cerberusweb.core::events/model/ticket/condition_group_and_bucket.tpl');
 				break;
+				
+			case 'sender_org_watcher_count':
+			case 'sender_watcher_count':
+			case 'ticket_org_watcher_count':
+			case 'ticket_watcher_count':
+				$tpl->display('devblocks:cerberusweb.core::internal/decisions/conditions/_number.tpl');
+				break;
+				
 		}
 		return;
 	}
@@ -366,6 +402,44 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 				$pass = ($not) ? !$pass : $pass;
 				break;
 			
+			case 'sender_org_watcher_count':
+			case 'sender_watcher_count':
+			case 'ticket_org_watcher_count':
+			case 'ticket_watcher_count':
+				$not = (substr($params['oper'],0,1) == '!');
+				$oper = ltrim($params['oper'],'!');
+				
+				switch($token) {
+					case 'sender_org_watcher_count':
+						$value = count($dict->sender_org_watchers);
+						break;
+					case 'sender_watcher_count':
+						$value = count($dict->sender_watchers);
+						break;
+					case 'ticket_org_watcher_count':
+						$value = count($dict->ticket_org_watchers);
+						break;
+					case 'ticket_watcher_count':
+					default:
+						$value = count($dict->ticket_watchers);
+						break;
+				}
+				
+				switch($oper) {
+					case 'is':
+						$pass = intval($value)==intval($params['value']);
+						break;
+					case 'gt':
+						$pass = intval($value) > intval($params['value']);
+						break;
+					case 'lt':
+						$pass = intval($value) < intval($params['value']);
+						break;
+				}
+				
+				$pass = ($not) ? !$pass : $pass;
+				break;
+				
 			default:
 				$pass = false;
 				break;

@@ -92,6 +92,7 @@ abstract class AbstractEvent_Task extends Extension_DevblocksEvent {
 		$labels = $this->getLabels();
 		
 		$labels['task_link'] = 'Task is linked';
+		$labels['task_watcher_count'] = 'Task watcher count';
 		
 		$types = array(
 			'task_is_completed' => Model_CustomField::TYPE_CHECKBOX,
@@ -102,6 +103,7 @@ abstract class AbstractEvent_Task extends Extension_DevblocksEvent {
 			'task_title' => Model_CustomField::TYPE_SINGLE_LINE,
 			
 			'task_link' => null,
+			'task_watcher_count' => null,
 		);
 
 		$conditions = $this->_importLabelsTypesAsConditions($labels, $types);
@@ -121,6 +123,10 @@ abstract class AbstractEvent_Task extends Extension_DevblocksEvent {
 				$contexts = Extension_DevblocksContext::getAll(false);
 				$tpl->assign('contexts', $contexts);
 				$tpl->display('devblocks:cerberusweb.core::events/condition_link.tpl');
+				break;
+				
+			case 'task_watcher_count':
+				$tpl->display('devblocks:cerberusweb.core::internal/decisions/conditions/_number.tpl');
 				break;
 		}
 
@@ -174,7 +180,27 @@ abstract class AbstractEvent_Task extends Extension_DevblocksEvent {
 					$pass = false;
 				}
 				break;
-							
+
+			case 'task_watcher_count':
+				$not = (substr($params['oper'],0,1) == '!');
+				$oper = ltrim($params['oper'],'!');
+				$value = count($dict->task_watchers);
+				
+				switch($oper) {
+					case 'is':
+						$pass = intval($value)==intval($params['value']);
+						break;
+					case 'gt':
+						$pass = intval($value) > intval($params['value']);
+						break;
+					case 'lt':
+						$pass = intval($value) < intval($params['value']);
+						break;
+				}
+				
+				$pass = ($not) ? !$pass : $pass;
+				break;
+				
 			default:
 				$pass = false;
 				break;

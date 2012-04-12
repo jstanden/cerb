@@ -110,6 +110,8 @@ abstract class AbstractEvent_Org extends Extension_DevblocksEvent {
 		
 		$labels['org_link'] = 'Org is linked';
 		
+		$labels['org_watcher_count'] = 'Org watcher count';
+		
 		$types = array(
 			'org_city' => Model_CustomField::TYPE_SINGLE_LINE,
 			'org_country' => Model_CustomField::TYPE_SINGLE_LINE,
@@ -122,6 +124,8 @@ abstract class AbstractEvent_Org extends Extension_DevblocksEvent {
 			'org_website' => Model_CustomField::TYPE_URL,
 			
 			'org_link' => null,
+			
+			'org_watcher_count' => null,
 		);
 
 		$conditions = $this->_importLabelsTypesAsConditions($labels, $types);
@@ -141,6 +145,10 @@ abstract class AbstractEvent_Org extends Extension_DevblocksEvent {
 				$contexts = Extension_DevblocksContext::getAll(false);
 				$tpl->assign('contexts', $contexts);
 				$tpl->display('devblocks:cerberusweb.core::events/condition_link.tpl');
+				break;
+				
+			case 'org_watcher_count':
+				$tpl->display('devblocks:cerberusweb.core::internal/decisions/conditions/_number.tpl');
 				break;
 		}
 
@@ -193,6 +201,27 @@ abstract class AbstractEvent_Org extends Extension_DevblocksEvent {
 				} else {
 					$pass = false;
 				}
+				break;
+				
+			case 'org_watcher_count':
+				$not = (substr($params['oper'],0,1) == '!');
+				$oper = ltrim($params['oper'],'!');
+				
+				$value = count($dict->org_watchers);
+				
+				switch($oper) {
+					case 'is':
+						$pass = intval($value)==intval($params['value']);
+						break;
+					case 'gt':
+						$pass = intval($value) > intval($params['value']);
+						break;
+					case 'lt':
+						$pass = intval($value) < intval($params['value']);
+						break;
+				}
+				
+				$pass = ($not) ? !$pass : $pass;
 				break;
 							
 			default:
