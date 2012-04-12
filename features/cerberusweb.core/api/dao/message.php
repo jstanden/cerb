@@ -632,7 +632,7 @@ class Storage_MessageContent extends Extension_DevblocksStorageSchema {
 		$contents = $storage->get('message_content', $key, $fp);
 		
 		// Convert the appropriate bytes
-		if(!mb_check_encoding($contents, LANG_CHARSET_CODE))
+		if(is_string($contents) && !mb_check_encoding($contents, LANG_CHARSET_CODE))
 			$contents = mb_convert_encoding($contents, LANG_CHARSET_CODE);
 			
 		return $contents;
@@ -653,21 +653,21 @@ class Storage_MessageContent extends Extension_DevblocksStorageSchema {
 		
 		$storage = DevblocksPlatform::getStorageService($profile);
 
-		// Store the appropriate bytes
-		if(!mb_check_encoding($contents, LANG_CHARSET_CODE))
-			$contents = mb_convert_encoding($contents, LANG_CHARSET_CODE);
+		if(is_resource($contents)) {
+			$stats = fstat($contents);
+			$storage_size = $stats['size'];
+			
+		} else {
+			// Store the appropriate bytes
+			if(!mb_check_encoding($contents, LANG_CHARSET_CODE))
+				$contents = mb_convert_encoding($contents, LANG_CHARSET_CODE);
+			
+			$storage_size = strlen($contents);
+		}
 		
 		// Save to storage
 		if(false === ($storage_key = $storage->put('message_content', $id, $contents)))
 			return false;
-	    
-		if(is_resource($contents)) {
-			$stats = fstat($contents);
-			$storage_size = $stats['size'];
-		} else {
-			$storage_size = strlen($contents);
-			unset($contents);
-		}
 			
 		// Update storage key
 	    DAO_Message::update($id, array(
@@ -800,7 +800,7 @@ class Storage_MessageContent extends Extension_DevblocksStorageSchema {
 		));
 
 		// Do as quicker strings if under 1MB?
-		$is_small = ($src_size < 1000000) ? true : false;  
+		$is_small = ($src_size < (1024 * 1000)) ? true : false;  
 		
 		// Allocate a temporary file for retrieving content
 		if($is_small) {
