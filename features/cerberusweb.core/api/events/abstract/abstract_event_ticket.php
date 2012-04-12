@@ -126,12 +126,10 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 				'label' => 'Ticket watchers',
 				'context' => CerberusContexts::CONTEXT_WORKER,
 			),
-			/*
 			'group_id' => array(
 				'label' => 'Group',
 				'context' => CerberusContexts::CONTEXT_GROUP,
 			),
-			*/
 			/*
 			'bucket_id' => array(
 				'label' => 'Bucket',
@@ -382,10 +380,7 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 			case 'ticket_watcher_count':
 				$not = (substr($params['oper'],0,1) == '!');
 				$oper = ltrim($params['oper'],'!');
-				@$ticket_id = $dict->ticket_id;
-
-				$watchers = CerberusContexts::getWatchers(CerberusContexts::CONTEXT_TICKET, $ticket_id);
-				$value = count($watchers);
+				$value = count($dict->ticket_watchers);
 				
 				switch($oper) {
 					case 'is':
