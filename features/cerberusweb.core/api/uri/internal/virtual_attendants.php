@@ -57,21 +57,6 @@ class Subcontroller_Internal_VirtualAttendants {
 		
 		C4_AbstractViewLoader::setView($view->id, $view);
 
-		// Macros
-
-		$meta = $ctx->getMeta($context_id);		
-		$tpl->assign('return_url', @$meta['permalink']);
-		
-		// If we're looking at a worker, but not ourselves...
-		if($context == CerberusContexts::CONTEXT_WORKER && $context_id != $active_worker->id) {
-			// ... and we're a superuser, then use our own macros instead
-			if($active_worker->is_superuser)
-				$context_id = $active_worker->id;
-		}
-		
-		$macros = DAO_TriggerEvent::getByOwner($context, $context_id, 'event.macro.worker');
-		$tpl->assign('macros', $macros);
-		
 		// Template
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/va/scheduled_behavior/tab.tpl');
