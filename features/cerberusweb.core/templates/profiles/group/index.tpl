@@ -23,14 +23,18 @@
 
 <div id="profileTabs">
 	<ul>
-		{$tabs = [links]}
+		{$tabs = []}
 		{$point = "cerberusweb.profiles.group.{$group->id}"}
-		
-		<li><a href="#members">Members</a></li>
 		
 		{*
 		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextLinks&context=cerberusweb.contexts.worker&point={$point}&id={$worker->id}{/devblocks_url}">{'Assignments'|devblocks_translate}</a></li>
 		*}
+
+		{$tabs[] = 'comments'}
+		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextComments&context={$page_context}&id={$page_context_id}{/devblocks_url}">{'common.comments'|devblocks_translate|capitalize}</a></li>
+		
+		{$tabs[] = 'members'}
+		<li><a href="#members">Members</a></li>
 
 		{*
 		{foreach from=$tab_manifests item=tab_manifest}
