@@ -351,6 +351,10 @@
 		<file path="api/events/abstract/abstract_event_address.php">
 			<class name="AbstractEvent_Address" />
 		</file>
+
+		<file path="api/events/abstract/abstract_event_group.php">
+			<class name="AbstractEvent_Group" />
+		</file>
 		
 		<file path="api/events/abstract/abstract_event_message.php">
 			<class name="AbstractEvent_Message" />
@@ -407,9 +411,13 @@
 		<file path="api/events/group/mail_before_sent_by_group.php">
 			<class name="Event_MailBeforeSentByGroup" />
 		</file>
-
+		
 		<file path="api/events/macro/address_macro.php">
 			<class name="Event_AddressMacro" />
+		</file>
+		
+		<file path="api/events/macro/group_macro.php">
+			<class name="Event_GroupMacro" />
 		</file>
 		
 		<file path="api/events/macro/message_macro.php">
@@ -1096,6 +1104,24 @@
 					<value>
 						<data key="cerberusweb.contexts.role" />
 						<data key="cerberusweb.contexts.worker" />
+					</value>
+				</param>
+			</params>
+		</extension>
+		
+		<extension point="devblocks.event">
+			<id>event.macro.group</id>
+			<name>Custom group behavior</name>
+			<class>
+				<file>api/events/macro/group_macro.php</file>
+				<name>Event_GroupMacro</name>
+			</class>
+			<params>
+				<param key="macro_context" value="cerberusweb.contexts.group" />
+				<param key="contexts">
+					<value>
+						<data key="cerberusweb.contexts.group" />
+						<data key="cerberusweb.contexts.role" />
 					</value>
 				</param>
 			</params>
