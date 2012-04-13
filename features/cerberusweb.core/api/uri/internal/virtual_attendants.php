@@ -26,11 +26,10 @@ class Subcontroller_Internal_VirtualAttendants {
 		 * Secure looking at other worker tabs (check superuser, worker_id)
 		 */
 		
-		if(null == ($ctx = Extension_DevblocksContext::get($context)))
-			return;
+		$ctx = Extension_DevblocksContext::get($context);
 		
 		if(!$active_worker->is_superuser) {
-			if(!$ctx->authorize($context_id, $active_worker))
+			if(is_null($ctx) || !$ctx->authorize($context_id, $active_worker))
 				return;
 		}
 

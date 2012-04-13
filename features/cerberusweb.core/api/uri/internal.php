@@ -2209,9 +2209,9 @@ class ChInternalController extends DevblocksControllerExtension {
 		$visit = CerberusApplication::getVisit();
 		$tpl = DevblocksPlatform::getTemplateService();
 
-		if(empty($context) || empty($context_id))
+		if(empty($context))
 			return;
-			
+		
 		/*
 		 * Secure looking at other worker tabs (check superuser, worker_id)
 		 */

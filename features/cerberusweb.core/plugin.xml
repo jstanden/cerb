@@ -634,6 +634,27 @@
 		<!-- Contexts -->
 		
 		<extension point="devblocks.context">
+			<id>cerberusweb.contexts.app</id>
+			<name>Application</name>
+			<class>
+				<file>api/Application.php</file>
+				<name>Context_Application</name>
+			</class>
+			<params>
+				<param key="alias" value="app" />
+				<param key="view_class" value="" />
+				<param key="options">
+					<value>
+						<!--<data key="create" />-->
+						<!--<data key="find" />-->
+						<!--<data key="snippets" />-->
+						<!--<data key="workspace" />-->
+					</value>
+				</param>
+			</params>
+		</extension>
+		
+		<extension point="devblocks.context">
 			<id>cerberusweb.contexts.contact_person</id>
 			<name>Contact Person</name>
 			<class>

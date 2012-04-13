@@ -9,6 +9,13 @@
 </div>
 
 <ul class="cerb-popupmenu" id="menuSetupVaOwnerPicker" style="display:block;margin-bottom:5px;max-height:200px;overflow-x:hidden;overflow-y:auto;">
+	<li context="cerberusweb.contexts.app" context_id="0" label="Application (Global)">
+		<div class="item">
+			<a href="javascript:;">Application</a><br>
+			<div style="margin-left:10px;">Global</div>
+		</div>
+	</li>
+
 	{foreach from=$roles item=role name=roles}
 	<li context="{CerberusContexts::CONTEXT_ROLE}" context_id="{$role->id}" label="{$role->name} (Role)">
 		<div class="item">
