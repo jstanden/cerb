@@ -4,11 +4,11 @@
 		{if empty($opers)}
 		<option value="in" {if $param && $param->operator=='in'}selected="selected"{/if}>is</option>
 		<option value="in or null" {if $param && $param->operator=='in or null'}selected="selected"{/if}>is blank or</option>
-		<option value="not in or null" {if $param && $param->operator=='not in or null'}selected="selected"{/if}>is blank or not</option>
 		<option value="not in" {if $param && $param->operator=='not in'}selected="selected"{/if}>is not</option>
+		<option value="not in or null" {if $param && $param->operator=='not in or null'}selected="selected"{/if}>is blank or not</option>
 		{else}
 			{foreach from=$opers item=oper key=k}
-				<option value="{$k}" {if $param && $param->oper==$k}selected="selected"{/if}>{$oper}</option>
+				<option value="{$k}" {if $param && $param->operator==$k}selected="selected"{/if}>{$oper}</option>
 			{/foreach}
 		{/if}
 	</select>
