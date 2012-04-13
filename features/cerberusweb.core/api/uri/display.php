@@ -49,6 +49,10 @@ class ChDisplayPage extends CerberusPageExtension {
 			return;
 		}
 
+		// Trigger ticket view event
+		
+		Event_TicketViewedByWorker::trigger($ticket->id, $active_worker->id);
+		
 		// Custom fields
 		
 		$custom_fields = DAO_CustomField::getAll();
