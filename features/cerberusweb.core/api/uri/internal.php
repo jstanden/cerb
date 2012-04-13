@@ -2244,7 +2244,7 @@ class ChInternalController extends DevblocksControllerExtension {
 			
 			$triggers_by_event[$trigger->event_point][$trigger->id] = $trigger;
 		}
-		
+
 		$tpl->assign('triggers_by_event', $triggers_by_event);
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/decisions/assistant/tab.tpl');
@@ -3441,11 +3441,27 @@ class ChInternalController extends DevblocksControllerExtension {
 		$tpl->assign('context', $context);
 		$tpl->assign('context_id', $context_id);
 
+		$notify_workers = array();
+		
 		// Automatically tell anybody associated with this context object
+		switch($context) {
+			case CerberusContexts::CONTEXT_WORKER:
+				$notify_workers[] = $context_id;
+				break;
+				
+			case CerberusContexts::CONTEXT_GROUP:
+				if(null != ($group = DAO_Group::get($context_id))) {
+					$members = $group->getMembers();
+					$notify_workers = array_keys($members);
+				}
+				break;
+		}
+		
 //		$workers = CerberusContexts::getWatchers($context, $context_id);
 //		if(isset($workers[$active_worker->id]))
 //			unset($workers[$active_worker->id]);
-//		$tpl->assign('notify_workers', $workers);
+
+		$tpl->assign('notify_workers', $notify_workers);
 
 		$tpl->display('devblocks:cerberusweb.core::internal/comments/peek.tpl');
 	}
