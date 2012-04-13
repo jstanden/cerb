@@ -88,6 +88,11 @@
 		<li><a href="{devblocks_url}ajax.php?c=internal&a=showScheduledBehaviorTab&point={$point}&context={$page_context}&context_id={$page_context_id}{/devblocks_url}">Scheduled Behavior</a></li>
 		{/if}
 
+		{if $active_worker->isGroupManager($group->id) || $active_worker->is_superuser}
+		{$tabs[] = 'snippets'}
+		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabSnippets&point={$point}&context={$page_context}&context_id={$page_context_id}{/devblocks_url}">{$translate->_('common.snippets')|capitalize}</a></li>
+		{/if}
+
 		{* [TODO] Group managers can add, any member can see 
 		{if $active_worker->hasPriv('core.home.workspaces')}
 			{$enabled_workspaces = DAO_Workspace::getByEndpoint($point, $active_worker)}
