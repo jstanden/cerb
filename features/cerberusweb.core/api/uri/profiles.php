@@ -88,6 +88,16 @@ class Page_Profiles extends CerberusPageExtension {
 				
 				$tpl->assign('properties', $properties);				
 				
+				// Macros
+				$macros = DAO_TriggerEvent::getByOwners(
+					array(
+						array(CerberusContexts::CONTEXT_WORKER, $active_worker->id, null),
+						array(CerberusContexts::CONTEXT_GROUP, $group->id, $group->name),
+					),
+					'event.macro.group'
+				);
+				$tpl->assign('macros', $macros);
+				
 				// Template
 				
 				$tpl->display('devblocks:cerberusweb.core::profiles/group/index.tpl');

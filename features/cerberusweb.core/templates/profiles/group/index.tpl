@@ -42,6 +42,19 @@
 	<br clear="all">
 	{/if}
 	
+	<div style="margin-top:5px;">
+		<!-- Macros -->
+		{if $active_worker->isGroupManager($group->id) || $active_worker->is_superuser}
+			{if !empty($page_context) && !empty($page_context_id) && !empty($macros)}
+				{devblocks_url assign=return_url full=true}c=profiles&tab=group&id={$page_context_id}-{$group->name|devblocks_permalink}{/devblocks_url}
+				{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context=$page_context context_id=$page_context_id macros=$macros return_url=$return_url}
+			{/if}
+		{/if}
+	
+		{if $active_worker->is_superuser}			
+			<button type="button" id="btnProfileGroupEdit"><span class="cerb-sprite sprite-document_edit"></span> {'common.edit'|devblocks_translate|capitalize}</button>
+		{/if}
+	</div>
 </fieldset>
 
 <div id="profileTabs">
@@ -114,5 +127,6 @@ $(function() {
 	});
 	{/if}
 	
+	{include file="devblocks:cerberusweb.core::internal/macros/display/menu_script.tpl"}
 });
 </script>
