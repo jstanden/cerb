@@ -5,35 +5,57 @@
 </ul>
 <div style="clear:both;"></div>
 
-<form>
-<fieldset style="">
-	<div style="float:left;">
-		<img src="{if $is_ssl}https://secure.{else}http://www.{/if}gravatar.com/avatar/{$worker->email|trim|lower|md5}?s=64&d={devblocks_url full=true}c=resource&p=cerberusweb.core&f=images/wgm/gravatar_nouser.jpg{/devblocks_url}" height="64" width="64" border="0" style="margin:0px 5px 5px 0px;">
-	</div>
-	<div style="float:left;">
-		<h1 style="color:rgb(0,120,0);font-weight:bold;font-size:150%;margin:0px;">{$worker->getName()}</h1>
-		{if !empty($worker->title)}{$worker->title}<br>{/if}
-		{if !empty($worker->email)}{$worker->email}<br>{/if}
-		
-		{$memberships = $worker->getMemberships()}
-		{if !empty($memberships)}
-		<ul class="bubbles">
-			{foreach from=$memberships item=member key=group_id name=groups}
-				{$group = $groups.{$group_id}}
-				<li><a href="{devblocks_url}c=profiles&k=group&id={$group->id}-{$group->name|devblocks_permalink}{/devblocks_url}" style="{if $member->is_manager}font-weight:bold;{/if}">{$group->name}</a></li>
-			{/foreach}
-		</ul>
-		{/if}
-		
-	</div>
-	{if $active_worker->is_superuser}
-	<div style="float:right;">
-		{if $worker->id != $active_worker->id}<button type="button" id="btnProfileWorkerPossess"><span class="cerb-sprite2 sprite-user-silhouette"></span> Impersonate</button>{/if}
-		<button type="button" id="btnProfileWorkerEdit"><span class="cerb-sprite sprite-document_edit"></span> {'common.edit'|devblocks_translate|capitalize}</button>
-	</div>
+<div style="margin-left:10px;">
+	<div style="float:left;"><img src="{if $is_ssl}https://secure.{else}http://www.{/if}gravatar.com/avatar/{$worker->email|trim|lower|md5}?s=64&d={devblocks_url full=true}c=resource&p=cerberusweb.core&f=images/wgm/gravatar_nouser.jpg{/devblocks_url}" height="64" width="64" border="0" style="margin:0px 5px 5px 0px;"></div>
+	<h1 style="color:rgb(0,120,0);font-weight:bold;font-size:150%;margin:0px;">{$worker->getName()}</h1>
+	{if !empty($worker->title)}{$worker->title}<br>{/if}
+	
+	{$memberships = $worker->getMemberships()}
+	{if !empty($memberships)}
+	<ul class="bubbles">
+		{foreach from=$memberships item=member key=group_id name=groups}
+			{$group = $groups.{$group_id}}
+			<li><a href="{devblocks_url}c=profiles&k=group&id={$group->id}-{$group->name|devblocks_permalink}{/devblocks_url}" style="{if $member->is_manager}font-weight:bold;{/if}">{$group->name}</a></li>
+		{/foreach}
+	</ul>
 	{/if}
-</fieldset>
+</div>
 
+<div style="clear:both;"></div>
+
+<form action="javascript:;">
+<fieldset class="properties">
+	{foreach from=$properties item=v key=k name=props}
+		<div class="property">
+			{if $k == '...'}
+				<b>{$translate->_('...')|capitalize}:</b>
+				...
+			{else}
+				{include file="devblocks:cerberusweb.core::internal/custom_fields/profile_cell_renderer.tpl"}
+			{/if}
+		</div>
+		{if $smarty.foreach.props.iteration % 3 == 0 && !$smarty.foreach.props.last}
+			<br clear="all">
+		{/if}
+	{/foreach}
+	<br clear="all">
+	
+	<div style="margin-top:5px;">
+		<!-- Macros -->
+		{if $worker->id == $active_worker->id || $active_worker->is_superuser}
+			{if !empty($page_context) && !empty($page_context_id) && !empty($macros)}
+				{devblocks_url assign=return_url full=true}c=profiles&tab=worker&id={$page_context_id}-{$worker->getName()|devblocks_permalink}{/devblocks_url}
+				{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context=$page_context context_id=$page_context_id macros=$macros return_url=$return_url}
+			{/if}
+		{/if}
+	
+		{if $active_worker->is_superuser}			
+			{if $worker->id != $active_worker->id}<button type="button" id="btnProfileWorkerPossess"><span class="cerb-sprite2 sprite-user-silhouette"></span> Impersonate</button>{/if}
+			<button type="button" id="btnProfileWorkerEdit"><span class="cerb-sprite sprite-document_edit"></span> {'common.edit'|devblocks_translate|capitalize}</button>
+		{/if}
+	</div>
+</fieldset>
+	
 <div>
 {include file="devblocks:cerberusweb.core::internal/notifications/context_profile.tpl" context=$page_context context_id=$page_context_id}
 </div>
@@ -125,4 +147,6 @@
 		});
 		{/if}
 	});
+	
+	{include file="devblocks:cerberusweb.core::internal/macros/display/menu_script.tpl"}
 </script>

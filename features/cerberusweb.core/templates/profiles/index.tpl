@@ -10,7 +10,6 @@
 	<div style="float:left;">
 		<a href="{devblocks_url}c=profiles&k=worker&id={$worker->id}-{$worker->getName()|devblocks_permalink}{/devblocks_url}" style="color:rgb(0,120,0);font-weight:bold;font-size:150%;margin:0px;">{$worker->getName()}</a><br>
 		{if !empty($worker->title)}{$worker->title}<br>{/if}
-		{if !empty($worker->email)}{$worker->email}<br>{/if}
 		
 		{$memberships = $worker->getMemberships()}
 		{if !empty($memberships)}
