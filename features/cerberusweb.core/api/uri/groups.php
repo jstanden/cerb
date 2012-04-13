@@ -385,33 +385,49 @@ class ChGroupsPage extends CerberusPageExtension  {
 			$tpl->assign('group', $group);
 		}
 		
+		// Custom fields
+		
+		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_GROUP); 
+		$tpl->assign('custom_fields', $custom_fields);
+
+		$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_GROUP, $group_id);
+		if(isset($custom_field_values[$group_id]))
+			$tpl->assign('custom_field_values', $custom_field_values[$group_id]);
+		
+		$types = Model_CustomField::getTypes();
+		$tpl->assign('types', $types);
+		
+		// Template
+		
 		$tpl->display('devblocks:cerberusweb.core::groups/rpc/peek.tpl');
 	}
 	
-	function saveGroupPanelAction() {
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
-		
+	function saveGroupsPanelAction() {
 		@$group_id = DevblocksPlatform::importGPC($_REQUEST['group_id'],'integer',0);
 		@$name = DevblocksPlatform::importGPC($_REQUEST['name'],'string','');
+
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
 
 		$fields = array(
 			DAO_Group::NAME => $name			
 		);
-		
-		// [TODO] Delete
 		
 		if(empty($group_id)) { // new
 			$group_id = DAO_Group::create($fields);
 			
 		} else { // update
 			DAO_Group::update($group_id, $fields);
-			
 		}
+
+		// Custom field saves
+		@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', array());
+		DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_GROUP, $group_id, $field_ids);
 		
 		// Reload view (if linked)
 		if(!empty($view_id) && null != ($view = C4_AbstractViewLoader::getView($view_id))) {
 			$view->render();
 		}
+		
 		exit;
 	}
 };

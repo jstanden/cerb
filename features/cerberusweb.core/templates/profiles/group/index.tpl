@@ -1,24 +1,47 @@
+{$page_context = CerberusContexts::CONTEXT_GROUP}
+{$page_context_id = $group->id}
+
 <ul class="submenu">
 </ul>
 <div style="clear:both;"></div>
 
 {$members = $group->getMembers()}
+{$reply_to = $group->getReplyTo()}
 
-<fieldset>
-	<div style="float:left;">
-	{*
-	<img src="{if $is_ssl}https://secure.{else}http://www.{/if}gravatar.com/avatar/{$worker->email|trim|lower|md5}?s=64&d={devblocks_url full=true}c=resource&p=cerberusweb.core&f=images/wgm/gravatar_nouser.jpg{/devblocks_url}" border="0" height="64" width="64" style="margin:0px 5px 5px 0px;">
-	*}
-	<h1 style="color:rgb(0,120,0);font-weight:bold;font-size:150%;">{$group->name}</h1>
-	{*[[ charts for open vs waiting vs closed tickets ]]<br>*}
-	</div>
-	{*
-	{if $active_worker->is_superuser}
-	<div style="float:right;">
-		<button type="button" id="btnProfileGroupEdit"><span class="cerb-sprite sprite-document_edit"></span> {'common.edit'|devblocks_translate|capitalize}</button>
-	</div>
+<div style="margin-left:10px;">
+	<div style="float:left;"><img src="{if $is_ssl}https://secure.{else}http://www.{/if}gravatar.com/avatar/{$reply_to->email|trim|lower|md5}?s=64&d={devblocks_url full=true}c=resource&p=cerberusweb.core&f=images/wgm/gravatar_nouser.jpg{/devblocks_url}" height="64" width="64" border="0" style="margin:0px 5px 5px 0px;"></div>
+	<h1 style="color:rgb(0,120,0);font-weight:bold;font-size:150%;margin:0px;">{$group->name}</h1>
+	{$reply_to->email}<br>
+	
+	{if !empty($members)}
+	<ul class="bubbles">
+		{$member_count = $members|count}
+		<li><span style="font-weight:bold;">{$member_count} {if $member_count==1}member{else}members{/if}</span></li>
+	</ul>
 	{/if}
-	*}
+</div>
+
+<div style="clear:both;"></div>
+
+<form action="javascript:;">
+<fieldset class="properties">
+	{if !empty($properties)}
+	{foreach from=$properties item=v key=k name=props}
+		<div class="property">
+			{if $k == '...'}
+				<b>{$translate->_('...')|capitalize}:</b>
+				...
+			{else}
+				{include file="devblocks:cerberusweb.core::internal/custom_fields/profile_cell_renderer.tpl"}
+			{/if}
+		</div>
+		{if $smarty.foreach.props.iteration % 3 == 0 && !$smarty.foreach.props.last}
+			<br clear="all">
+		{/if}
+	{/foreach}
+	<br clear="all">
+	{/if}
+	
 </fieldset>
 
 <div id="profileTabs">
@@ -26,23 +49,12 @@
 		{$tabs = []}
 		{$point = "cerberusweb.profiles.group.{$group->id}"}
 		
-		{*
-		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextLinks&context=cerberusweb.contexts.worker&point={$point}&id={$worker->id}{/devblocks_url}">{'Assignments'|devblocks_translate}</a></li>
-		*}
-
 		{$tabs[] = 'comments'}
 		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextComments&context={$page_context}&id={$page_context_id}{/devblocks_url}">{'common.comments'|devblocks_translate|capitalize}</a></li>
 		
 		{$tabs[] = 'members'}
 		<li><a href="#members">Members</a></li>
 
-		{*
-		{foreach from=$tab_manifests item=tab_manifest}
-			{$tabs[] = $tab_manifest->params.uri}
-			<li><a href="{devblocks_url}ajax.php?c=preferences&a=showTab&ext_id={$tab_manifest->id}{/devblocks_url}"><i>{$tab_manifest->params.title|devblocks_translate}</i></a></li>
-		{/foreach}
-		*}
-		
 		{* [TODO] Group managers can add, any member can see 
 		{if $active_worker->hasPriv('core.home.workspaces')}
 			{$enabled_workspaces = DAO_Workspace::getByEndpoint($point, $active_worker)}
@@ -63,12 +75,11 @@
 			{$worker = $workers.{$member->id}}
 			<fieldset>
 				<div style="float:left;">
-					<img src="{if $is_ssl}https://secure.{else}http://www.{/if}gravatar.com/avatar/{$worker->email|trim|lower|md5}?s=64&d=mm" border="0" style="margin:0px 5px 5px 0px;">
+					<img src="{if $is_ssl}https://secure.{else}http://www.{/if}gravatar.com/avatar/{$worker->email|trim|lower|md5}?s=64&d={devblocks_url full=true}c=resource&p=cerberusweb.core&f=images/wgm/gravatar_nouser.jpg{/devblocks_url}" height="64" width="64" border="0" style="margin:0px 5px 5px 0px;">
 				</div>
 				<div style="float:left;">
 					<a href="{devblocks_url}c=profiles&k=worker&id={$worker->id}-{$worker->getName()|devblocks_permalink}{/devblocks_url}" style="color:rgb(0,120,0);font-weight:bold;font-size:150%;margin:0px;">{$worker->getName()}</a><br>
 					{if !empty($worker->title)}{$worker->title}<br>{/if}
-					{if !empty($worker->email)}{$worker->email}<br>{/if}
 
 					{if $member->is_manager}
 					<ul class="bubbles">
@@ -76,18 +87,12 @@
 					</ul>
 					{/if}
 				</div>
-				{*
-				{if $active_worker->is_superuser}
-				<div style="float:right;">
-					<button type="button" id="btnProfileWorkerEdit"><span class="cerb-sprite sprite-document_edit"></span> Edit</button>
-				</div>
-				{/if}
-				*}
 			</fieldset>
 		{/if}
 		{/foreach}		
 	</div>
 </div> 
+
 <br>
 
 {$selected_tab_idx=0}
@@ -99,16 +104,15 @@
 $(function() {
 	var tabs = $("#profileTabs").tabs( { selected:{$selected_tab_idx} } );
 
-	{*
 	{if $active_worker->is_superuser}
 	$('#btnProfileGroupEdit').bind('click', function() {
-		$popup = genericAjaxPopup('peek','c=config&a=handleSectionAction&section=workers&action=showWorkerPeek&id={$worker->id}',null,false,'550');
+		$popup = genericAjaxPopup('peek','c=groups&a=showGroupPanel&id={$group->id}',null,false,'550');
 		$popup.one('group_save', function(event) {
 			event.stopPropagation();
-			document.location.href = '{devblocks_url}c=profiles&k=worker&id={$worker->id}-{$worker->getName()|devblocks_permalink}{/devblocks_url}';
+			document.location.href = '{devblocks_url}c=profiles&k=group&id={$group->id}-{$group->name|devblocks_permalink}{/devblocks_url}';
 		});
 	});
 	{/if}
-	*}
+	
 });
 </script>
