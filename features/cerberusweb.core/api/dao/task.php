@@ -45,6 +45,9 @@ class DAO_Task extends C4_ORMHelper {
                 )
             )
 	    );
+	    
+	    // Virtual Attendant events
+	    Event_TaskCreatedByWorker::trigger($id, null);
 		
 		return $id;
 	}

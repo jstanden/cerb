@@ -376,6 +376,10 @@
 			<class name="Event_MailReceivedByApp" />
 		</file>
 		
+		<file path="api/events/app/task_created_by_worker.php">
+			<class name="Event_TaskCreatedByWorker" />
+		</file>
+		
 		<file path="api/events/group/mail_assigned_in_group.php">
 			<class name="Event_MailAssignedInGroup" />
 		</file>
@@ -1038,6 +1042,22 @@
 				<param key="contexts">
 					<value>
 						<data key="cerberusweb.contexts.group" />
+					</value>
+				</param>
+			</params>
+		</extension>
+		
+		<extension point="devblocks.event">
+			<id>event.task.created.worker</id>
+			<name>Task created by worker</name>
+			<class>
+				<file>api/events/app/task_created_by_worker.php</file>
+				<name>Event_TaskCreatedByWorker</name>
+			</class>
+			<params>
+				<param key="contexts">
+					<value>
+						<data key="cerberusweb.contexts.app" />
 					</value>
 				</param>
 			</params>
