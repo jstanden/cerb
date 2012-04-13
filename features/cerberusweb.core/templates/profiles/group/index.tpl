@@ -57,6 +57,10 @@
 	</div>
 </fieldset>
 
+<div>
+{include file="devblocks:cerberusweb.core::internal/notifications/context_profile.tpl" context=$page_context context_id=$page_context_id}
+</div>
+
 <div id="profileTabs">
 	<ul>
 		{$tabs = []}
