@@ -61,6 +61,12 @@
 {include file="devblocks:cerberusweb.core::internal/notifications/context_profile.tpl" context=$page_context context_id=$page_context_id}
 </div>
 
+<div>
+{include file="devblocks:cerberusweb.core::internal/macros/behavior/scheduled_behavior_profile.tpl" context=$page_context context_id=$page_context_id}
+</div>
+
+</form>
+
 <div id="profileTabs">
 	<ul>
 		{$tabs = []}
@@ -71,6 +77,11 @@
 		
 		{$tabs[] = 'members'}
 		<li><a href="#members">Members</a></li>
+
+		{if $active_worker->isGroupManager($group->id) || $active_worker->is_superuser}
+		{$tabs[] = 'behavior'}
+		<li><a href="{devblocks_url}ajax.php?c=internal&a=showScheduledBehaviorTab&point={$point}&context={$page_context}&context_id={$page_context_id}{/devblocks_url}">Scheduled Behavior</a></li>
+		{/if}
 
 		{* [TODO] Group managers can add, any member can see 
 		{if $active_worker->hasPriv('core.home.workspaces')}
