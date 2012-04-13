@@ -933,7 +933,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.mail.received.app</id>
-			<name>New mail received</name>
+			<name>Before new mail is accepted</name>
 			<class>
 				<file>api/events/app/mail_received_by_app.php</file>
 				<name>Event_MailReceivedByApp</name>

@@ -477,7 +477,8 @@ var cAjaxCalls = function() {
 		// The chooser search button
 		$button.click(function(event) {
 			$button = $(this);
-			$ul = $(this).siblings('ul.chooser-container:first');
+			var $ul = $(this).siblings('ul.chooser-container:first');
+			
 			$chooser=genericAjaxPopup('chooser','c=internal&a=chooserOpen&context=' + context,null,true,'750');
 			$chooser.one('chooser_save', function(event) {
 				// Add the labels

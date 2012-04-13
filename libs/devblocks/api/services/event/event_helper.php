@@ -163,7 +163,7 @@ class DevblocksEventHelper {
 				
 				if(!empty($value_key)) {
 					$dict->$value_key.'_'.$field_id = implode(',',$opts);
-					
+
 					$array =& $dict->$value_key;
 					$array[$field_id] = $value;
 				}
@@ -2020,9 +2020,8 @@ class DevblocksEventHelper {
 				$obj_labels = array();
 				$obj_values = array();
 				CerberusContexts::getContext($context, $object, $obj_labels, $obj_values, null, true);
-				$array = $dict->$token;
+				$array =& $dict->$token;
 				$array[$new_id] = $obj_values;
-				$dict->$token = $array;
 			}
 		}
 	}

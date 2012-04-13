@@ -3,7 +3,8 @@
 
 {if !empty($scheduled_behavior)}
 <fieldset class="properties" style="color:rgb(100,100,100);">
-	<legend>Scheduled behavior</legend>
+	{$target_ext = DevblocksPlatform::getExtension($context, false)}
+	<legend>Upcoming scheduled behavior on this {$target_ext->name|lower}</legend>
 
 	<table cellpadding="3" cellspacing="2" border="0" width="100%">
 	{foreach from=$scheduled_behavior item=v key=k name=behaviors}
@@ -24,7 +25,8 @@
 				{$ext = Extension_DevblocksContext::get($behavior_context)}
 				{if !empty($ext)}
 					{$meta = $ext->getMeta($behavior_context_id)}
-					{$meta.name}
+					{$meta.name} 
+					({$ext->manifest->name|capitalize})
 				{/if}
 			</td>
 			<td valign="top" width="99%">

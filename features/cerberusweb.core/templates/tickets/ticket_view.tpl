@@ -115,12 +115,8 @@
 		<td><a href="javascript:;" onclick="genericAjaxPopup('peek','c=contacts&a=showAddressPeek&email={$result.t_last_wrote|escape:'url'}&view_id={$view->id}',null,false,'500');" title="{$result.t_last_wrote}">{$result.t_last_wrote|truncate:45:'...':true:true}</a></td>
 		{elseif $column=="t_first_wrote"}
 		<td><a href="javascript:;" onclick="genericAjaxPopup('peek','c=contacts&a=showAddressPeek&email={$result.t_first_wrote|escape:'url'}&view_id={$view->id}',null,false,'500');" title="{$result.t_first_wrote}">{$result.t_first_wrote|truncate:45:'...':true:true}</a></td>
-		{elseif $column=="t_created_date"}
-		<td title="{$result.t_created_date|devblocks_date}">{$result.t_created_date|devblocks_prettytime}</td>
-		{elseif $column=="t_updated_date"}
-		<td><abbr title="{$result.t_updated_date|devblocks_date}">{$result.t_updated_date|devblocks_prettytime}</abbr></td>
-		{elseif $column=="t_due_date"}
-		<td><abbr title="{if $result.t_due_date}{$result.t_due_date|devblocks_date}{/if}">{if $result.t_due_date}{$result.t_due_date|devblocks_prettytime}{/if}</abbr></td>
+		{elseif $column=="t_created_date" || $column=="t_updated_date" || $column=="t_due_date"}
+		<td><abbr title="{$result.$column|devblocks_date}">{$result.$column|devblocks_prettytime}</abbr></td>
 		{elseif $column=="t_owner_id"}
 		<td>
 			{if isset($workers.{$result.t_owner_id})}
