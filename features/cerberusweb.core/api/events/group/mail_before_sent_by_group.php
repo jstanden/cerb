@@ -29,7 +29,7 @@ class Event_MailBeforeSentByGroup extends Extension_DevblocksEvent {
                     'ticket_id' => $ticket_id,
                     'group_id' => $group_id,
                 	'_whisper' => array(
-                		CerberusContexts::CONTEXT_GROUP => array($group->id),
+                		CerberusContexts::CONTEXT_GROUP => array($group_id),
                 	),
                 )
             )
