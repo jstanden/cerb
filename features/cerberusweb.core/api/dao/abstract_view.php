@@ -363,23 +363,12 @@ abstract class C4_AbstractView {
 		$strings = array();
 		
 		foreach($param->value as $worker_id) {
-			if(isset($workers[$worker_id]))
+			if(isset($workers[$worker_id])) {
 				$strings[] = '<b>'.$workers[$worker_id]->getName().'</b>';
-			else {
+			} elseif (!empty($worker_id)) {
 				$strings[] = '<b>'.$worker_id.'</b>';
-			}
-		}
-		
-		if(empty($param->value)) {
-			switch($param->operator) {
-				case DevblocksSearchCriteria::OPER_IN:
-				case DevblocksSearchCriteria::OPER_IN_OR_NULL:
-				case DevblocksSearchCriteria::OPER_NIN_OR_NULL:
-					$param->operator = DevblocksSearchCriteria::OPER_IS_NULL;
-					break;
-				case DevblocksSearchCriteria::OPER_NIN:
-					$param->operator = DevblocksSearchCriteria::OPER_IS_NOT_NULL;
-					break;
+			} elseif (empty($worker_id)) {
+				$strings[] = '<b>nobody</b>';
 			}
 		}
 		
@@ -503,8 +492,7 @@ abstract class C4_AbstractView {
 		switch($oper) {
 			case DevblocksSearchCriteria::OPER_IN:
 				if(empty($worker_ids)) {
-					$oper = DevblocksSearchCriteria::OPER_EQ;
-					$worker_ids = 0;
+					$worker_ids[] = '0';
 				}
 				break;
 			case DevblocksSearchCriteria::OPER_IN_OR_NULL:
@@ -514,8 +502,7 @@ abstract class C4_AbstractView {
 				break;
 			case DevblocksSearchCriteria::OPER_NIN:
 				if(empty($worker_ids)) {
-					$oper = DevblocksSearchCriteria::OPER_NEQ;
-					$worker_ids = 0;
+					$worker_ids[] = '0';
 				}
 				break;
 			case 'not in and not null':
