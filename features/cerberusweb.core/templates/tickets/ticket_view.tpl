@@ -70,6 +70,13 @@
 		{assign var=tableRowClass value="odd"}
 	{/if}
 	
+	{* This is used in two places depending on if the row is one or two lines *}
+	{capture name="ticket_subject_content"}
+		{if $result.t_is_deleted}<span class="cerb-sprite2 sprite-cross-circle-frame-gray"></span> {elseif $result.t_is_closed}<span class="cerb-sprite2 sprite-tick-circle-frame-gray" title="{$translate->_('status.closed')}"></span> {elseif $result.t_is_waiting}<span class="cerb-sprite sprite-clock"></span>{/if}
+		<a href="{devblocks_url}c=display&id={$result.t_mask}{/devblocks_url}" class="subject">{$result.t_subject}</a> 
+		<button type="button" class="peek" style="visibility:hidden;padding:1px;margin:0px 5px;" onclick="genericAjaxPopup('peek','c=tickets&a=showPreview&view_id={$view->id}&tid={$result.t_id}', null, false, '650');"><span class="cerb-sprite2 sprite-document-search-result" style="margin-left:2px" title="{$translate->_('views.peek')}"></span></button>
+	{/capture}
+	
 	{assign var=ticket_group_id value=$result.t_group_id}
 	{if !isset($active_worker_memberships.$ticket_group_id)}{*censor*}
 	<tbody>
@@ -86,14 +93,14 @@
 	<tbody style="cursor:pointer;">
 	<tr class="{$tableRowClass}">
 		<td align="center" rowspan="2" nowrap="nowrap" style="padding:5px;">
+			<input type="checkbox" name="ticket_id[]" value="{$result.t_id}" style="display:none;">
 			{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=CerberusContexts::CONTEXT_TICKET context_id=$result.t_id}
 		</td>
+		{if !in_array('t_subject',$view->view_columns)}
 		<td colspan="{$smarty.foreach.headers.total}">
-			<input type="checkbox" name="ticket_id[]" value="{$result.t_id}" style="display:none;">
-			{if $result.t_is_deleted}<span class="cerb-sprite2 sprite-cross-circle-frame-gray"></span> {elseif $result.t_is_closed}<span class="cerb-sprite2 sprite-tick-circle-frame-gray" title="{$translate->_('status.closed')}"></span> {elseif $result.t_is_waiting}<span class="cerb-sprite sprite-clock"></span>{/if}
-			<a href="{devblocks_url}c=display&id={$result.t_mask}{/devblocks_url}" class="subject">{$result.t_subject}</a> 
-			<button type="button" class="peek" style="visibility:hidden;padding:1px;margin:0px 5px;" onclick="genericAjaxPopup('peek','c=tickets&a=showPreview&view_id={$view->id}&tid={$result.t_id}', null, false, '650');"><span class="cerb-sprite2 sprite-document-search-result" style="margin-left:2px" title="{$translate->_('views.peek')}"></span></button>
+			{$smarty.capture.ticket_subject_content nofilter}
 		</td>
+		{/if}
 	</tr>
 	<tr class="{$tableRowClass}">
 	{foreach from=$view->view_columns item=column name=columns}
@@ -104,7 +111,9 @@
 		{elseif $column=="t_mask"}
 		<td><a href="{devblocks_url}c=display&id={$result.t_mask}{/devblocks_url}">{$result.t_mask}</a></td>
 		{elseif $column=="t_subject"}
-		<td title="{$result.t_subject}">{$result.t_subject}</td>
+		<td title="{$result.t_subject}">
+			{$smarty.capture.ticket_subject_content nofilter}
+		</td>
 		{elseif $column=="t_is_waiting"}
 		<td>{if $result.t_is_waiting}<span class="cerb-sprite sprite-clock"></span>{else}{/if}</td>
 		{elseif $column=="t_is_closed"}
