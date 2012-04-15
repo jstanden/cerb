@@ -134,7 +134,7 @@ class DevblocksDictionaryDelegate {
 		unset($this->_dictionary[$name]);
 	}
 	
-	public function __get($name) {
+	public function &__get($name) {
 		if(isset($this->_dictionary[$name])) {
 			return $this->_dictionary[$name];
 		}
@@ -158,7 +158,7 @@ class DevblocksDictionaryDelegate {
 		}
 
 		if(empty($contexts))
-			return null;
+			return $this->_dictionary[$name];
 		
 		DevblocksPlatform::sortObjects($contexts, '[len]', true);
 		
@@ -185,10 +185,7 @@ class DevblocksDictionaryDelegate {
 			}
 		}
 		
-		if(isset($this->_dictionary[$name]))
-			return $this->_dictionary[$name];
-
-		return null;
+		return $this->_dictionary[$name];
 	}
 	
 	public function __isset($name) {
