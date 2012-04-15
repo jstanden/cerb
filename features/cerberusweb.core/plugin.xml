@@ -352,6 +352,10 @@
 			<class name="AbstractEvent_Address" />
 		</file>
 
+		<file path="api/events/abstract/abstract_event_calendar_event.php">
+			<class name="AbstractEvent_CalendarEvent" />
+		</file>
+		
 		<file path="api/events/abstract/abstract_event_group.php">
 			<class name="AbstractEvent_Group" />
 		</file>
@@ -414,6 +418,10 @@
 		
 		<file path="api/events/macro/address_macro.php">
 			<class name="Event_AddressMacro" />
+		</file>
+		
+		<file path="api/events/macro/calendar_event_macro.php">
+			<class name="Event_CalendarEventMacro" />
 		</file>
 		
 		<file path="api/events/macro/group_macro.php">
@@ -1100,6 +1108,24 @@
 			</class>
 			<params>
 				<param key="macro_context" value="cerberusweb.contexts.address" />
+				<param key="contexts">
+					<value>
+						<data key="cerberusweb.contexts.role" />
+						<data key="cerberusweb.contexts.worker" />
+					</value>
+				</param>
+			</params>
+		</extension>
+		
+		<extension point="devblocks.event">
+			<id>event.macro.calendar_event</id>
+			<name>Custom calendar event behavior</name>
+			<class>
+				<file>api/events/macro/calendar_event_macro.php</file>
+				<name>Event_CalendarEventMacro</name>
+			</class>
+			<params>
+				<param key="macro_context" value="cerberusweb.contexts.calendar_event" />
 				<param key="contexts">
 					<value>
 						<data key="cerberusweb.contexts.role" />
