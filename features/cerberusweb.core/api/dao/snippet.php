@@ -202,7 +202,8 @@ class DAO_Snippet extends C4_ORMHelper {
 		}
 		
 		$join_sql = " FROM snippet ".
-		((isset($tables['snippet_usage']) && !empty($active_worker)) ? sprintf("LEFT JOIN snippet_usage ON (snippet_usage.snippet_id=snippet.id AND snippet_usage.worker_id=%d) ",$active_worker->id) : " ")
+			(isset($tables['context_link']) ? "INNER JOIN context_link ON (context_link.to_context = 'cerberusweb.contexts.snippet' AND context_link.to_context_id = snippet.id) " : " ").
+			((isset($tables['snippet_usage']) && !empty($active_worker)) ? sprintf("LEFT JOIN snippet_usage ON (snippet_usage.snippet_id=snippet.id AND snippet_usage.worker_id=%d) ",$active_worker->id) : " ")
 		;
 		
 		// Custom field joins
@@ -356,6 +357,9 @@ class SearchFields_Snippet implements IDevblocksSearchFields {
 	
 	const USAGE_HITS = 'su_hits';
 	
+	const CONTEXT_LINK = 'cl_context_from';
+	const CONTEXT_LINK_ID = 'cl_context_from_id';
+	
 	const VIRTUAL_OWNER = '*_owner';
 	
 	/**
@@ -373,6 +377,9 @@ class SearchFields_Snippet implements IDevblocksSearchFields {
 			self::CONTENT => new DevblocksSearchField(self::CONTENT, 'snippet', 'content', $translate->_('common.content')),
 			
 			self::USAGE_HITS => new DevblocksSearchField(self::USAGE_HITS, 'snippet_usage', 'hits', $translate->_('dao.snippet_usage.hits')),
+			
+			self::CONTEXT_LINK => new DevblocksSearchField(self::CONTEXT_LINK, 'context_link', 'from_context', null),
+			self::CONTEXT_LINK_ID => new DevblocksSearchField(self::CONTEXT_LINK_ID, 'context_link', 'from_context_id', null),
 			
 			self::VIRTUAL_OWNER => new DevblocksSearchField(self::VIRTUAL_OWNER, '*', 'owner', $translate->_('common.owner')),
 		);
@@ -494,6 +501,8 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals {
 		);
 		
 		$this->addColumnsHidden(array(
+			SearchFields_Snippet::CONTEXT_LINK,
+			SearchFields_Snippet::CONTEXT_LINK_ID,
 			SearchFields_Snippet::ID,
 			SearchFields_Snippet::CONTENT,
 			SearchFields_Snippet::OWNER_CONTEXT,
@@ -501,6 +510,8 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals {
 		));
 		
 		$this->addParamsHidden(array(
+			SearchFields_Snippet::CONTEXT_LINK,
+			SearchFields_Snippet::CONTEXT_LINK_ID,
 			SearchFields_Snippet::ID,
 			SearchFields_Snippet::USAGE_HITS,
 			SearchFields_Snippet::OWNER_CONTEXT,
@@ -1023,8 +1034,8 @@ class Context_Snippet extends Extension_DevblocksContext {
 		
 		if(!empty($context) && !empty($context_id)) {
 			$params_req = array(
-				//new DevblocksSearchCriteria(SearchFields_Snippet::CONTEXT_LINK,'=',$context),
-				//new DevblocksSearchCriteria(SearchFields_Snippet::CONTEXT_LINK_ID,'=',$context_id),
+				new DevblocksSearchCriteria(SearchFields_Snippet::CONTEXT_LINK,'=',$context),
+				new DevblocksSearchCriteria(SearchFields_Snippet::CONTEXT_LINK_ID,'=',$context_id),
 			);
 		}
 		
