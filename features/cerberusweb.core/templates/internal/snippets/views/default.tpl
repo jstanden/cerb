@@ -79,7 +79,9 @@
 				<td>
 					{if !is_null($owner_context_ext)}
 						{$meta = $owner_context_ext->getMeta($owner_context_id)}
+						{if !empty($meta)}
 						{$meta.name} 
+						{/if}
 						({$owner_context_ext->manifest->name})
 					{/if}
 				</td>

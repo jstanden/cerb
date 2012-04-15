@@ -1013,8 +1013,10 @@ class Context_Group extends Extension_DevblocksContext {
 	}
 	
 	function getMeta($context_id) {
-		$group = DAO_Group::get($context_id);
 		$url_writer = DevblocksPlatform::getUrlService();
+		
+		if(null == ($group = DAO_Group::get($context_id)))
+			return false;
 		
 		$who = sprintf("%d-%s",
 			$group->id,

@@ -297,8 +297,10 @@ class Context_WorkerRole extends Extension_DevblocksContext {
 	}
 	
 	function getMeta($context_id) {
-		$worker_role = DAO_WorkerRole::get($context_id);
 		$url_writer = DevblocksPlatform::getUrlService();
+		
+		if(null == ($worker_role = DAO_WorkerRole::get($context_id)))
+			return false;
 		
 		$who = sprintf("%d-%s",
 			$worker_role->id,

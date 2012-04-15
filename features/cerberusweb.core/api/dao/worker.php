@@ -1239,8 +1239,10 @@ class Context_Worker extends Extension_DevblocksContext {
 	}
 	
 	function getMeta($context_id) {
-		$worker = DAO_Worker::get($context_id);
 		$url_writer = DevblocksPlatform::getUrlService();
+		
+		if(null == ($worker = DAO_Worker::get($context_id)))
+			return false;
 		
 		$worker_name = $worker->getName();
 		
