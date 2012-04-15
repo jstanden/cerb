@@ -370,6 +370,10 @@ table.worklist {
 	background: -moz-linear-gradient(top, rgb(134,169,227), rgb(98,132,221));
 	background: -o-linear-gradient(top, rgb(134,169,227), rgb(98,132,221));
 	background: -ms-linear-gradient(top, rgb(134,169,227), rgb(98,132,221));
+	border-radius: 5px 5px 0px 0px;	
+	-moz-border-radius: 5px 5px 0px 0px;
+	-webkit-border-radius: 5px 5px 0px 0px;
+	padding:2px;
 }
 
 table.worklist td {
@@ -384,10 +388,10 @@ table.worklist td a {
 }
 
 table.worklist td span.title {
-	padding:5px;
+	padding:5px 5px 5px 10px;
 	color: rgb(255, 255, 255);
 	font-weight:bold;
-	font-size:18px;
+	font-size:14px;
 }
 
 table.worklistBody th {
@@ -1377,16 +1381,28 @@ UL.ui-autocomplete.ui-menu .ui-menu-item a.ui-state-hover {
 	border-bottom:1px solid rgb(255,255,255);
 }
 
+.ui-dialog {
+	border: 2px solid rgb(220,220,220);
+	padding: 2px;
+	-moz-box-shadow: 0 0 10px 3px rgb(175,175,175);
+	-webkit-box-shadow: 0 0 10px 3px rgb(175,175,175);
+	box-shadow: 0 0 10px 3px rgb(175,175,175);
+}
+
 .ui-dialog .ui-dialog-titlebar { 
 	background-color:rgb(98,132,221);
+	/*
 	background: linear-gradient(top, rgb(134,169,227), rgb(98,132,221));
 	background: -webkit-gradient(linear, left top, left bottom, from(rgb(134,169,227)), to(rgb(98,132,221)));
 	background: -moz-linear-gradient(top, rgb(134,169,227), rgb(98,132,221));
 	background: -o-linear-gradient(top, rgb(134,169,227), rgb(98,132,221));
 	background: -ms-linear-gradient(top, rgb(134,169,227), rgb(98,132,221));
+	*/
 	border: 0px; 
-	font-size: 14px;
-	font-weight:bold; 
+	font-size: 15px;
+	font-weight:bold;
+	padding:5px 5px 5px 10px;
+	/*text-shadow:0.1em 0.1em rgb(50,105,175);*/
 }
 
 /* jQuery Validation */

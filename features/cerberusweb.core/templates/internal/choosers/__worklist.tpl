@@ -13,6 +13,8 @@
 		
 		var on_refresh = function() {
 			$worklist = $('#view{$view->id}').find('TABLE.worklist');
+			$worklist.css('background','none');
+			$worklist.css('background-color','rgb(100,100,100)');
 			
 			$header = $worklist.find('> tbody > tr:first > td:first > span.title');
 			$header.css('font-size', '14px');
