@@ -1604,6 +1604,9 @@ class C4_ORMHelper extends DevblocksORMHelper {
 	
 	static protected function paramExistsInSet($key, $params) {
 		foreach($params as $k => $param) {
+			if(!is_object($param))
+				continue;
+			
 			if(0==strcasecmp($param->field,$key))
 				return true;
 		}

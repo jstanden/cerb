@@ -59,7 +59,7 @@
 			ajax.chooserFile(this,'file_ids');
 		});
 		
-		// [TODO] This shouldn't catch an 'o'.
+		$frm.find('textarea').elastic();
 		$frm.find('textarea').focus();
 	});
 </script>

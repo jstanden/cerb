@@ -3109,7 +3109,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		// Template scope
 		$tpl->assign('context', $context);
 		$tpl->assign('context_id', $context_id);
-		$tpl->assign('today', mktime(0,0,0));
+		$tpl->assign('today', strtotime('today'));
 		$tpl->assign('prev_month', $prev_month);
 		$tpl->assign('prev_year', $prev_year);
 		$tpl->assign('next_month', $next_month);
