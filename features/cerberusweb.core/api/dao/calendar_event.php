@@ -674,8 +674,7 @@ class Context_CalendarEvent extends Extension_DevblocksContext {
 		return array(
 			'id' => $calendar_event->id,
 			'name' => $calendar_event->name,
-			//'permalink' => $url_writer->writeNoProxy(sprintf("c=tasks&action=display&id=%d-%s",$task->id, $friendly), true),
-			'permalink' => null,
+			'permalink' => $url_writer->writeNoProxy(sprintf("c=profiles&type=calendar_event&id=%d-%s", $calendar_event->id, $friendly), true),
 		);
 	}
 	
