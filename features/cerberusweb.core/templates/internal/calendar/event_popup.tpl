@@ -1,3 +1,6 @@
+{$page_context = CerberusContexts::CONTEXT_CALENDAR_EVENT}
+{$page_context_id = $event->id}
+
 <form action="#" method="POST" id="formCalEventPeek" name="formCalEventPeek" onsubmit="return false;" class="calendar_popup">
 <input type="hidden" name="c" value="internal">
 <input type="hidden" name="a" value="saveCalendarEventPopup">
@@ -150,6 +153,10 @@
 </table>
 <br>
 
+<div>
+{include file="devblocks:cerberusweb.core::internal/macros/behavior/scheduled_behavior_profile.tpl" context=$page_context context_id=$page_context_id}
+</div>
+
 {if !empty($event->id)}
 <fieldset style="display:none;" class="delete">
 	<legend>{'common.delete'|devblocks_translate|capitalize}</legend>
@@ -189,6 +196,9 @@
 		{if !empty($event->id)}
 		<button type="button" onclick="$(this).parent().siblings('fieldset.delete').fadeIn();$(this).closest('div').fadeOut();"><span class="cerb-sprite2 sprite-cross-circle-frame"></span> {'common.delete'|devblocks_translate|capitalize}</button>
 		{/if}
+		
+		<div style="float:right"><a href="{devblocks_url}c=profiles&type=calendar_event&id={$event->id}{/devblocks_url}-{$event->name|devblocks_permalink}">view full record</a></div>
+		<br clear="all">
 	</div>
 {/if}
 </form>

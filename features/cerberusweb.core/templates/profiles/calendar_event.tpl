@@ -82,7 +82,7 @@ $(function() {
 
 	{if $active_worker->is_superuser}
 	$('#btnProfileEventEdit').bind('click', function() {
-		$popup = genericAjaxPopup('peek','c=internal&a=showCalendarEventPopup&context={$event->owner_context}&context_id={$event->owner_context_id}&event_id={$event->id}',null,true,'600');
+		$popup = genericAjaxPopup('event','c=internal&a=showCalendarEventPopup&context={$event->owner_context}&context_id={$event->owner_context_id}&event_id={$event->id}',null,false,'600');
 		$popup.one('calendar_event_save', function(event) {
 			event.stopPropagation();
 			document.location.href.reload();
