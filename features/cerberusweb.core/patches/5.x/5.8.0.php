@@ -81,6 +81,14 @@ if(!isset($tables['context_scheduled_behavior'])) {
 
 list($columns, $indexes) = $db->metaTable('context_scheduled_behavior');
 
+if(!isset($columns['run_relative'])) {
+	$db->Execute("ALTER TABLE context_scheduled_behavior ADD COLUMN run_relative VARCHAR(255) NOT NULL DEFAULT ''");
+}
+
+if(!isset($columns['run_literal'])) {
+	$db->Execute("ALTER TABLE context_scheduled_behavior ADD COLUMN run_literal VARCHAR(255) NOT NULL DEFAULT ''");
+}
+
 if(!isset($columns['repeat_json'])) {
 	$db->Execute("ALTER TABLE context_scheduled_behavior ADD COLUMN repeat_json TEXT");
 }

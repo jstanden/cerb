@@ -24,17 +24,32 @@
 <br>
 
 <b>When should this behavior happen?</b><br>
-{if empty($job)}
-	<input type="text" name="run_date" size="32" value="now" style="width:98%;"><br>
-	<i>e.g. now; +2 days; Monday; tomorrow 8am; 5:30pm; May 26</i><br>
-{else}
-	{if $editable}
-		<input type="text" name="run_date" size="32" value="{$job->run_date|devblocks_date}" style="width:98%;"><br>
-		<i>e.g. now; +2 days; Monday; tomorrow 8am; 5:30pm; May 26</i><br>
-	{else}
-		{$job->run_date|devblocks_date}<br>
-	{/if}
-{/if}
+<table cellpadding="0" cellspacing="3" border="0" width="100%">
+	<tr>
+		{if !empty($dates)}
+		<td width="0%" nowrap="nowrap">
+			<select name="run_relative">
+				<option value="">- at this date &amp; time: -</option>
+				{foreach from=$dates item=date key=k}
+				<option value="{$k}" {if $job->run_relative==$k}selected="selected"{/if}>{$date.label}</option>
+				{/foreach}
+			</select>
+		</td>
+		{/if}
+		<td width="100%">
+		{if empty($job)}
+			<input type="text" name="run_date" size="32" value="now" style="width:100%;"><br>
+		{else}
+			{if $editable}
+				<input type="text" name="run_date" size="32" value="{if !empty($job->run_relative)}{$job->run_literal}{else}{$job->run_date|devblocks_date}{/if}" style="width:100%;"><br>
+			{else}
+				{$job->run_date|devblocks_date}<br>
+			{/if}
+		{/if}
+		</td>
+	</tr>
+</table>
+<i>e.g. now; +2 days; Monday; tomorrow 8am; 5:30pm; May 26</i><br>
 <br>
 
 {* Custom variables *}

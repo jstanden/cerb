@@ -21,6 +21,8 @@ class DAO_ContextScheduledBehavior extends C4_ORMHelper {
 	const CONTEXT_ID = 'context_id';
 	const BEHAVIOR_ID = 'behavior_id';
 	const RUN_DATE = 'run_date';
+	const RUN_RELATIVE = 'run_relative';
+	const RUN_LITERAL = 'run_literal';
 	const VARIABLES_JSON = 'variables_json';
 	const REPEAT_JSON = 'repeat_json';
 
@@ -100,7 +102,7 @@ class DAO_ContextScheduledBehavior extends C4_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 
 		// SQL
-		$sql = "SELECT id, context, context_id, behavior_id, run_date, variables_json, repeat_json ".
+		$sql = "SELECT id, context, context_id, behavior_id, run_date, run_relative, run_literal, variables_json, repeat_json ".
 			"FROM context_scheduled_behavior ".
 			$where_sql.
 			$sort_sql.
@@ -162,6 +164,8 @@ class DAO_ContextScheduledBehavior extends C4_ORMHelper {
 			$object->context_id = $row['context_id'];
 			$object->behavior_id = $row['behavior_id'];
 			$object->run_date = $row['run_date'];
+			$object->run_relative = $row['run_relative'];
+			$object->run_literal = $row['run_literal'];
 			if(!empty($row['variables_json']))
 				$object->variables = @json_decode($row['variables_json'], true);
 			if(!empty($row['repeat_json']))
@@ -241,6 +245,8 @@ class DAO_ContextScheduledBehavior extends C4_ORMHelper {
 			"context_scheduled_behavior.context_id as %s, ".
 			"context_scheduled_behavior.behavior_id as %s, ".
 			"context_scheduled_behavior.run_date as %s, ".
+			"context_scheduled_behavior.run_relative as %s, ".
+			"context_scheduled_behavior.run_literal as %s, ".
 			"context_scheduled_behavior.variables_json as %s, ".
 			"context_scheduled_behavior.repeat_json as %s, ".
 			"trigger_event.title as %s, ".
@@ -251,6 +257,8 @@ class DAO_ContextScheduledBehavior extends C4_ORMHelper {
 				SearchFields_ContextScheduledBehavior::CONTEXT_ID,
 				SearchFields_ContextScheduledBehavior::BEHAVIOR_ID,
 				SearchFields_ContextScheduledBehavior::RUN_DATE,
+				SearchFields_ContextScheduledBehavior::RUN_RELATIVE,
+				SearchFields_ContextScheduledBehavior::RUN_LITERAL,
 				SearchFields_ContextScheduledBehavior::VARIABLES_JSON,
 				SearchFields_ContextScheduledBehavior::REPEAT_JSON,
 				SearchFields_ContextScheduledBehavior::BEHAVIOR_NAME,
@@ -400,6 +408,8 @@ class SearchFields_ContextScheduledBehavior implements IDevblocksSearchFields {
 	const CONTEXT_ID = 'c_context_id';
 	const BEHAVIOR_ID = 'c_behavior_id';
 	const RUN_DATE = 'c_run_date';
+	const RUN_RELATIVE = 'c_run_relative';
+	const RUN_LITERAL = 'c_run_literal';
 	const VARIABLES_JSON = 'c_variables_json';
 	const REPEAT_JSON = 'c_repeat_json';
 	
@@ -422,6 +432,8 @@ class SearchFields_ContextScheduledBehavior implements IDevblocksSearchFields {
 			self::CONTEXT_ID => new DevblocksSearchField(self::CONTEXT_ID, 'context_scheduled_behavior', 'context_id', $translate->_('common.context_id')),
 			self::BEHAVIOR_ID => new DevblocksSearchField(self::BEHAVIOR_ID, 'context_scheduled_behavior', 'behavior_id', $translate->_('common.behavior')),
 			self::RUN_DATE => new DevblocksSearchField(self::RUN_DATE, 'context_scheduled_behavior', 'run_date', $translate->_('dao.context_scheduled_behavior.run_date')),
+			self::RUN_RELATIVE => new DevblocksSearchField(self::RUN_RELATIVE, 'context_scheduled_behavior', 'run_relative', $translate->_('dao.context_scheduled_behavior.run_relative')),
+			self::RUN_LITERAL => new DevblocksSearchField(self::RUN_LITERAL, 'context_scheduled_behavior', 'run_literal', $translate->_('dao.context_scheduled_behavior.run_literal')),
 			self::VARIABLES_JSON => new DevblocksSearchField(self::VARIABLES_JSON, 'context_scheduled_behavior', 'variables_json', $translate->_('dao.context_scheduled_behavior.variables_json')),
 			self::REPEAT_JSON => new DevblocksSearchField(self::REPEAT_JSON, 'context_scheduled_behavior', 'repeat_json', $translate->_('dao.context_scheduled_behavior.repeat_json')),
 			
@@ -446,6 +458,8 @@ class Model_ContextScheduledBehavior {
 	public $context_id;
 	public $behavior_id;
 	public $run_date;
+	public $run_relative;
+	public $run_literal;
 	public $variables = array();
 	public $repeat = array();
 	
@@ -569,6 +583,8 @@ class View_ContextScheduledBehavior extends C4_AbstractView {
 			SearchFields_ContextScheduledBehavior::CONTEXT,
 			SearchFields_ContextScheduledBehavior::CONTEXT_ID,
 			SearchFields_ContextScheduledBehavior::ID,
+			SearchFields_ContextScheduledBehavior::RUN_LITERAL,
+			SearchFields_ContextScheduledBehavior::RUN_RELATIVE,
 			SearchFields_ContextScheduledBehavior::VARIABLES_JSON,
 		));
 
@@ -580,6 +596,8 @@ class View_ContextScheduledBehavior extends C4_AbstractView {
 			SearchFields_ContextScheduledBehavior::CONTEXT_ID,
 			SearchFields_ContextScheduledBehavior::ID,
 			SearchFields_ContextScheduledBehavior::REPEAT_JSON,
+			SearchFields_ContextScheduledBehavior::RUN_LITERAL,
+			SearchFields_ContextScheduledBehavior::RUN_RELATIVE,
 			SearchFields_ContextScheduledBehavior::VARIABLES_JSON,
 			SearchFields_ContextScheduledBehavior::VIRTUAL_OWNER,
 			SearchFields_ContextScheduledBehavior::VIRTUAL_TARGET,

@@ -177,6 +177,8 @@ class ChInternalController extends DevblocksControllerExtension {
 		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string');
 		@$layer = DevblocksPlatform::importGPC($_REQUEST['layer'],'string');
 
+		// [TODO] Contexts
+		
 		if(null != ($context_extension = DevblocksPlatform::getExtension($context, true))) {
 			$tpl = DevblocksPlatform::getTemplateService();
 			$tpl->assign('context', $context_extension);
@@ -1956,6 +1958,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		@$macro_id = DevblocksPlatform::importGPC($_REQUEST['macro'],'integer',0);
 		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
 		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer',0);
+		@$run_relative = DevblocksPlatform::importGPC($_REQUEST['run_relative'],'string','');
 		@$run_date = DevblocksPlatform::importGPC($_REQUEST['run_date'],'string','');
 		@$return_url = DevblocksPlatform::importGPC($_REQUEST['return_url'],'string','');
 
@@ -1991,6 +1994,20 @@ class ChInternalController extends DevblocksControllerExtension {
 						throw new Exception("Access denied to macro.");
 					break;
 			}
+
+			// Relative scheduling
+			// [TODO] This is almost wholly redundant with saveMacroSchedulerPopup() 
+			
+			$event = $macro->getEvent();
+			$event_model = $event->generateSampleEventModel($context_id);
+			$event->setEvent($event_model);
+			$values = $event->getValues();
+			
+			$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+			@$run_relative_timestamp = strtotime($tpl_builder->build(sprintf("{{%s|date}}",$run_relative), $values));
+			
+			if(empty($run_relative_timestamp))
+				$run_relative_timestamp = time();
 			
 			// Recurring events
 			// [TODO] This is almost wholly redundant with saveMacroSchedulerPopup() 
@@ -2022,7 +2039,7 @@ class ChInternalController extends DevblocksControllerExtension {
 			}
 			
 			// Time
-			$run_timestamp = @strtotime($run_date) or time();
+			$run_timestamp = @strtotime($run_date, $run_relative_timestamp) or time();
 
 			// Variables
 			@$var_keys = DevblocksPlatform::importGPC($_REQUEST['var_keys'],'array',array());
@@ -2035,6 +2052,9 @@ class ChInternalController extends DevblocksControllerExtension {
 				DAO_ContextScheduledBehavior::BEHAVIOR_ID => $macro->id,
 				DAO_ContextScheduledBehavior::CONTEXT => $context,
 				DAO_ContextScheduledBehavior::CONTEXT_ID => $context_id,
+				DAO_ContextScheduledBehavior::RUN_DATE => $run_timestamp,
+				DAO_ContextScheduledBehavior::RUN_RELATIVE => $run_relative,
+				DAO_ContextScheduledBehavior::RUN_LITERAL => $run_date,
 				DAO_ContextScheduledBehavior::RUN_DATE => $run_timestamp,
 				DAO_ContextScheduledBehavior::VARIABLES_JSON => json_encode($vars),
 				DAO_ContextScheduledBehavior::REPEAT_JSON => json_encode($repeat_params),
@@ -2079,8 +2099,6 @@ class ChInternalController extends DevblocksControllerExtension {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		if(empty($job_id)) {
-			$tpl->assign('context', $context);
-			$tpl->assign('context_id', $context_id);
 			$tpl->assign('return_url', $return_url);
 			
 			try {
@@ -2088,17 +2106,6 @@ class ChInternalController extends DevblocksControllerExtension {
 					throw new Exception("Missing macro.");
 				
 				$tpl->assign('macro', $macro);
-				
-				// Verify permission
-				
-				if(null == ($ctx = DevblocksPlatform::getExtension($context, true))) /* @var $ctx Extension_DevblocksContext */
-					throw new Exception("Permission denied.");
-				
-				// Verify permission
-				if(!$ctx->authorize($context_id, $active_worker))
-					throw new Exception("Permission denied.");
-				
-				$tpl->assign('ctx', $ctx);
 				
 			} catch(Exception $e) {
 				DevblocksPlatform::redirectURL($return_url);
@@ -2113,25 +2120,47 @@ class ChInternalController extends DevblocksControllerExtension {
 			
 			$tpl->assign('job', $job);
 			
-			// Verify permission
+			$context = $job->context;
+			$context_id = $job->context_id;
+			$macro_id = $job->behavior_id;
 			
-			if(null == ($ctx = DevblocksPlatform::getExtension($job->context, true))) /* @var $ctx Extension_DevblocksContext */
-				return;
-			
-			// Verify permission
-			$editable = $ctx->authorize($job->context_id, $active_worker);
-			$tpl->assign('editable', $editable);
-			
-			$macro = DAO_TriggerEvent::get($job->behavior_id);
+			$macro = DAO_TriggerEvent::get($macro_id);
 			$tpl->assign('macro', $macro);
 			
 		}
+		
+		$tpl->assign('context', $context);
+		$tpl->assign('context_id', $context_id);
+		
+		if(null == ($ctx = DevblocksPlatform::getExtension($context, true))) /* @var $ctx Extension_DevblocksContext */
+			return;
+
+		$tpl->assign('ctx', $ctx);
+		
+		// Verify permission
+		$editable = $ctx->authorize($context_id, $active_worker);
+		$tpl->assign('editable', $editable);
+		
+		if(empty($job) && !$editable)
+			return;
+
+		$event = $macro->getEvent();
+		$conditions = $event->getConditions($macro);
+		$dates = array();
+		
+		foreach($conditions as $k => $cond) {
+			if($cond['type'] == Model_CustomField::TYPE_DATE)
+				$dates[$k] = $cond;
+		}
+		
+		$tpl->assign('dates', $dates);
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/macros/display/scheduler_popup.tpl');
 	}
 	
 	function saveMacroSchedulerPopupAction() {
 		@$job_id = DevblocksPlatform::importGPC($_REQUEST['job_id'],'integer',0);
+		@$run_relative = DevblocksPlatform::importGPC($_REQUEST['run_relative'],'string','');
 		@$run_date = DevblocksPlatform::importGPC($_REQUEST['run_date'],'string','');
 		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'],'integer',0);
 		
@@ -2149,6 +2178,20 @@ class ChInternalController extends DevblocksControllerExtension {
 		// Verify permission
 		if(!$ctx->authorize($job->context_id, $active_worker))
 			return;
+
+		// Load the event with this context
+		if(null == ($event = $trigger->getEvent()))
+			return;
+		
+		$event_model = $event->generateSampleEventModel($job->context_id);
+		$event->setEvent($event_model);
+		$values = $event->getValues();
+		
+		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+		@$run_relative_timestamp = strtotime($tpl_builder->build(sprintf("{{%s|date}}", $run_relative), $values));
+		
+		if(empty($run_relative_timestamp))
+			$run_relative_timestamp = time();
 		
 		if($do_delete) {
 			DAO_ContextScheduledBehavior::delete($job->id);
@@ -2181,7 +2224,7 @@ class ChInternalController extends DevblocksControllerExtension {
 				);
 			}
 			
-			$run_timestamp = @strtotime($run_date) or time();
+			$run_timestamp = @strtotime($run_date, $run_relative_timestamp) or time();
 			
 			// Variables
 			@$var_keys = DevblocksPlatform::importGPC($_REQUEST['var_keys'],'array',array());
@@ -2191,6 +2234,8 @@ class ChInternalController extends DevblocksControllerExtension {
 			
 			DAO_ContextScheduledBehavior::update($job->id, array(
 				DAO_ContextScheduledBehavior::RUN_DATE => $run_timestamp,
+				DAO_ContextScheduledBehavior::RUN_RELATIVE => $run_relative,
+				DAO_ContextScheduledBehavior::RUN_LITERAL => $run_date,
 				DAO_ContextScheduledBehavior::VARIABLES_JSON => json_encode($vars), 
 				DAO_ContextScheduledBehavior::REPEAT_JSON => json_encode($repeat_params), 
 			));
@@ -2232,13 +2277,16 @@ class ChInternalController extends DevblocksControllerExtension {
 		$events = Extension_DevblocksEvent::getByContext($context, false);
 		$tpl->assign('events', $events);
 		
-		// Triggers
 		$triggers = DAO_TriggerEvent::getByOwner($context, $context_id, null, true);
 		$tpl->assign('triggers', $triggers);
 
 		$triggers_by_event = array();
 		
-		foreach($triggers as $trigger) {
+		foreach($triggers as $trigger) { /* @var $trigger Model_TriggerEvent */
+			// We only want things owned by this explicit context (not inherited)
+			if($trigger->owner_context != $context || $trigger->owner_context_id != $context_id)
+				continue;
+			
 			if(!isset($triggers_by_event[$trigger->event_point]))
 				$triggers_by_event[$trigger->event_point] = array();
 			
