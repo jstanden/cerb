@@ -6,10 +6,10 @@
 <table cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-bottom:5px;">
 <tr>
 	<td valign="top" style="padding-right:5px;">
-		<h2>Task</h2>
+		<h1>{$task->title}</h1>
 		 
 		<fieldset class="properties">
-			<legend>{$task->title|truncate:128}</legend>
+			<legend>Task</legend>
 			
 			<form action="{devblocks_url}{/devblocks_url}" method="post" style="margin-bottom:5px;">
 				<input type="hidden" name="c" value="tasks">
@@ -78,16 +78,6 @@
 		
 	</td>
 	<td align="right" valign="top">
-		{*
-		<form action="{devblocks_url}{/devblocks_url}" method="post">
-		<input type="hidden" name="c" value="contacts">
-		<input type="hidden" name="a" value="doOrgQuickSearch">
-		<span><b>{$translate->_('common.quick_search')|capitalize}:</b></span> <select name="type">
-			<option value="name">{$translate->_('contact_org.name')|capitalize}</option>
-			<option value="phone">{$translate->_('contact_org.phone')|capitalize}</option>
-		</select><input type="text" name="query" class="input_search" size="24"><button type="submit">{$translate->_('common.search_go')|lower}</button>
-		</form>
-		*}
 	</td>
 </tr>
 </table>

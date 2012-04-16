@@ -7,7 +7,11 @@
 	{include file="devblocks:cerberusweb.core::tickets/quick_search_box.tpl"}
 </div>
 
-<h2>{'common.conversation'|devblocks_translate|capitalize}</h2>
+<div style="float:left">
+	<h1>{$ticket->subject}</h1>
+</div>
+
+<div style="clear:both;"></div>
 
 {assign var=ticket_group_id value=$ticket->group_id}
 {assign var=ticket_group value=$groups.$ticket_group_id}
@@ -16,7 +20,7 @@
 {assign var=ticket_bucket value=$ticket_group_bucket_set.$ticket_bucket_id}
 
 <fieldset class="properties">
-	<legend>{$ticket->subject|truncate:128}</legend>
+	<legend>{'common.conversation'|devblocks_translate|capitalize}</legend>
 
 	{foreach from=$properties item=v key=k name=props}
 		<div class="property">
