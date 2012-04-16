@@ -10,8 +10,10 @@
 	<option value="subject"{if $quick_search_type eq 'subject'}selected{/if}>{$translate->_('ticket.subject')|capitalize}</option>
 	<option value="comments_all"{if $quick_search_type eq 'comments_all'}selected{/if}>{$translate->_('mail.quick_search.comments_all')}</option>
 	<option value="comments_phrase"{if $quick_search_type eq 'comments_phrase'}selected{/if}>{$translate->_('mail.quick_search.comments_phrase')}</option>
+	<option value="comments_expert"{if $quick_search_type eq 'comments_expert'}selected{/if}>{$translate->_('mail.quick_search.comments_expert')}</option>
 	<option value="messages_all"{if $quick_search_type eq 'messages_all'}selected{/if}>{$translate->_('mail.quick_search.messages_all')}</option>
 	<option value="messages_phrase"{if $quick_search_type eq 'messages_phrase'}selected{/if}>{$translate->_('mail.quick_search.messages_phrase')}</option>
+	<option value="messages_expert"{if $quick_search_type eq 'messages_expert'}selected{/if}>{$translate->_('mail.quick_search.messages_expert')}</option>
 </select><input type="text" name="query" class="input_search" size="16" class="input_search"><button type="submit">{$translate->_('common.search_go')|lower}</button>
 </form>
 {/if}

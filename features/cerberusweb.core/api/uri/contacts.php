@@ -2026,6 +2026,10 @@ class ChContactsPage extends CerberusPageExtension {
             	$params[SearchFields_Address::FULLTEXT_COMMENT_CONTENT] = new DevblocksSearchCriteria(SearchFields_Address::FULLTEXT_COMMENT_CONTENT,DevblocksSearchCriteria::OPER_FULLTEXT,array($query,'all'));               
                 break;
                 
+            case "comments_expert":
+            	$params[SearchFields_Address::FULLTEXT_COMMENT_CONTENT] = new DevblocksSearchCriteria(SearchFields_Address::FULLTEXT_COMMENT_CONTENT,DevblocksSearchCriteria::OPER_FULLTEXT,array($query,'expert'));               
+                break;
+                
             case "comments_phrase":
             	$params[SearchFields_Address::FULLTEXT_COMMENT_CONTENT] = new DevblocksSearchCriteria(SearchFields_Address::FULLTEXT_COMMENT_CONTENT,DevblocksSearchCriteria::OPER_FULLTEXT,array($query,'phrase'));               
                 break;
@@ -2068,6 +2072,10 @@ class ChContactsPage extends CerberusPageExtension {
                 
             case "comments_all":
             	$params[SearchFields_ContactOrg::FULLTEXT_COMMENT_CONTENT] = new DevblocksSearchCriteria(SearchFields_ContactOrg::FULLTEXT_COMMENT_CONTENT,DevblocksSearchCriteria::OPER_FULLTEXT,array($query,'all'));               
+                break;
+                
+            case "comments_expert":
+            	$params[SearchFields_ContactOrg::FULLTEXT_COMMENT_CONTENT] = new DevblocksSearchCriteria(SearchFields_ContactOrg::FULLTEXT_COMMENT_CONTENT,DevblocksSearchCriteria::OPER_FULLTEXT,array($query,'expert'));               
                 break;
                 
             case "comments_phrase":

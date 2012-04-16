@@ -1426,11 +1426,17 @@ For example: http://www.cerberusweb.com/support/</seg></tuv>
 		<tu tuid='mail.quick_search.comments_all'>
 			<tuv xml:lang="en_US"><seg>Comments (all words)</seg></tuv>
 		</tu>
+		<tu tuid='mail.quick_search.comments_expert'>
+			<tuv xml:lang="en_US"><seg>Comments (expert)</seg></tuv>
+		</tu>
 		<tu tuid='mail.quick_search.comments_phrase'>
 			<tuv xml:lang="en_US"><seg>Comments (phrase)</seg></tuv>
 		</tu>
 		<tu tuid='mail.quick_search.messages_all'>
 			<tuv xml:lang="en_US"><seg>Messages (all words)</seg></tuv>
+		</tu>
+		<tu tuid='mail.quick_search.messages_expert'>
+			<tuv xml:lang="en_US"><seg>Messages (expert)</seg></tuv>
 		</tu>
 		<tu tuid='mail.quick_search.messages_phrase'>
 			<tuv xml:lang="en_US"><seg>Messages (phrase)</seg></tuv>
