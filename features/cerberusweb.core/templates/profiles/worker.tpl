@@ -1,10 +1,6 @@
 {$page_context = CerberusContexts::CONTEXT_WORKER}
 {$page_context_id = $worker->id}
 
-<ul class="submenu">
-</ul>
-<div style="clear:both;"></div>
-
 <div style="margin-left:10px;">
 	<div style="float:left;"><img src="{if $is_ssl}https://secure.{else}http://www.{/if}gravatar.com/avatar/{$worker->email|trim|lower|md5}?s=64&d={devblocks_url full=true}c=resource&p=cerberusweb.core&f=images/wgm/gravatar_nouser.jpg{/devblocks_url}" height="64" width="64" border="0" style="margin:0px 5px 5px 0px;"></div>
 	<h1 style="color:rgb(0,120,0);font-weight:bold;font-size:150%;margin:0px;">{$worker->getName()}</h1>
@@ -25,6 +21,7 @@
 
 <form action="javascript:;">
 <fieldset class="properties">
+	<legend>Worker</legend>
 	{foreach from=$properties item=v key=k name=props}
 		<div class="property">
 			{if $k == '...'}

@@ -16,10 +16,13 @@
 ***********************************************************************/
 
 class Page_Profiles extends CerberusPageExtension {
+	const ID = 'cerberusweb.page.profiles';
+	
 	function isVisible() {
 		// The current session must be a logged-in worker to use this page.
 		if(null == ($worker = CerberusApplication::getActiveWorker()))
 			return false;
+		
 		return true;
 	}
 	
@@ -30,161 +33,29 @@ class Page_Profiles extends CerberusPageExtension {
 		$response = DevblocksPlatform::getHttpResponse();
 		
 		$stack = $response->path;
-
 		@array_shift($stack); // profiles
-		@$type = array_shift($stack); // group | worker
+		@$section_uri = array_shift($stack);
 
-		$groups = DAO_Group::getAll();
-		$tpl->assign('groups', $groups);
-		
-		$workers = DAO_Worker::getAllActive();
-		$tpl->assign('workers', $workers);
-		
-		switch($type) {
-			case 'group':
-				@$group_id = intval(array_shift($stack));
-				$point = 'cerberusweb.profiles.group.' . $group_id;
+		if(empty($section_uri))
+			$section_uri = 'worker';
 
-				if(empty($group_id) || null == ($group = DAO_Group::get($group_id)))
-					throw new Exception();
-				
-				$tpl->assign('group', $group);
-				
-				// Remember the last tab/URL
-				if(null == ($selected_tab = @$response->path[3])) {
-					$selected_tab = $visit->get($point, '');
-				}
-				$tpl->assign('selected_tab', $selected_tab);
-				
-				// Custom fields
-				
-				$custom_fields = DAO_CustomField::getAll();
-				$tpl->assign('custom_fields', $custom_fields);
-				
-				// Properties
-				
-				$translate = DevblocksPlatform::getTranslationService();
-				
-				$properties = array();
-				
-// 				$properties['email'] = array(
-// 					'label' => ucfirst($translate->_('common.email')),
-// 					'type' => Model_CustomField::TYPE_SINGLE_LINE,
-// 					'value' => $worker->email,
-// 				);
-				
-				@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_GROUP, $group->id)) or array();
+		// Subpage
+		$subpage = Extension_PageSection::getExtensionByPageUri($this->manifest->id, $section_uri, true);
+		$tpl->assign('subpage', $subpage);
 		
-				foreach($custom_fields as $cf_id => $cfield) {
-					if(!isset($values[$cf_id]))
-						continue;
-						
-					$properties['cf_' . $cf_id] = array(
-						'label' => $cfield->name,
-						'type' => $cfield->type,
-						'value' => $values[$cf_id],
-					);
-				}
-				
-				$tpl->assign('properties', $properties);				
-				
-				// Macros
-				$macros = DAO_TriggerEvent::getByOwners(
-					array(
-						array(CerberusContexts::CONTEXT_WORKER, $active_worker->id, null),
-						array(CerberusContexts::CONTEXT_GROUP, $group->id, $group->name),
-					),
-					'event.macro.group'
-				);
-				$tpl->assign('macros', $macros);
-				
-				// Template
-				
-				$tpl->display('devblocks:cerberusweb.core::profiles/group/index.tpl');
-				break;
-				
-			case 'worker':
-				@$id = array_shift($stack);
-				
-				switch($id) {
-					case 'me':
-						$worker_id = $active_worker->id;
-						break;
-						
-					default:
-						@$worker_id = intval($id);
-						break;
-				}
+		$tpl->display('devblocks:cerberusweb.core::profiles/index.tpl');
+	}
+	
+	// [TODO] This could probably go internal
+	function handleSectionActionAction() {
+		@$section_uri = DevblocksPlatform::importGPC($_REQUEST['section'],'string','');
+		@$action = DevblocksPlatform::importGPC($_REQUEST['action'],'string','');
 
-				$point = 'cerberusweb.profiles.worker.' . $worker_id;
-				
-				if(empty($worker_id) || null == ($worker = DAO_Worker::get($worker_id)))
-					throw new Exception();
-					
-				$tpl->assign('worker', $worker);
-				
-				// Remember the last tab/URL
-				if(null == ($selected_tab = @$response->path[3])) {
-					$selected_tab = $visit->get($point, '');
-				}
-				$tpl->assign('selected_tab', $selected_tab);
-				
-				// Counts
-				$counts = DAO_ContextLink::getContextLinkCounts(CerberusContexts::CONTEXT_WORKER, $worker_id);
-				$watching_total = intval(array_sum($counts));
-				$tpl->assign('watching_total', $watching_total);
-				
-				// Custom fields
-				
-				$custom_fields = DAO_CustomField::getAll();
-				$tpl->assign('custom_fields', $custom_fields);
-				
-				// Properties
-				
-				$translate = DevblocksPlatform::getTranslationService();
-				
-				$properties = array();
-				
-				$properties['email'] = array(
-					'label' => ucfirst($translate->_('common.email')),
-					'type' => Model_CustomField::TYPE_SINGLE_LINE,
-					'value' => $worker->email,
-				);
-				
-				$properties['is_superuser'] = array(
-					'label' => ucfirst($translate->_('worker.is_superuser')),
-					'type' => Model_CustomField::TYPE_CHECKBOX,
-					'value' => $worker->is_superuser,
-				);
-				
-				@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_WORKER, $worker->id)) or array();
+		$inst = Extension_PageSection::getExtensionByPageUri($this->manifest->id, $section_uri, true);
 		
-				foreach($custom_fields as $cf_id => $cfield) {
-					if(!isset($values[$cf_id]))
-						continue;
-						
-					$properties['cf_' . $cf_id] = array(
-						'label' => $cfield->name,
-						'type' => $cfield->type,
-						'value' => $values[$cf_id],
-					);
-				}
-				
-				$tpl->assign('properties', $properties);				
-				
-				// Macros
-		
-				$macros = DAO_TriggerEvent::getByOwner(CerberusContexts::CONTEXT_WORKER, $active_worker->id, 'event.macro.worker');
-				$tpl->assign('macros', $macros);
-
-				// Template
-				
-				$tpl->display('devblocks:cerberusweb.core::profiles/worker/index.tpl');
-				break;
-				
-			default:
-				$tpl->display('devblocks:cerberusweb.core::profiles/index.tpl');
-				break;
+		if($inst instanceof Extension_PageSection && method_exists($inst, $action.'Action')) {
+			call_user_func(array($inst, $action.'Action'));
 		}
 	}
+	
 };

@@ -1964,6 +1964,33 @@
 			</params>
 		</extension>
 		
+		
+			<extension point="cerberusweb.ui.page.section">
+				<id>core.page.profiles.group</id>
+				<name>Group Section</name>
+				<class>
+					<file>api/uri/profiles/group.php</file>
+					<name>PageSection_ProfilesGroup</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.page.profiles" />
+					<param key="uri" value="group" />
+				</params>
+			</extension>
+			
+			<extension point="cerberusweb.ui.page.section">
+				<id>core.page.profiles.worker</id>
+				<name>Worker Section</name>
+				<class>
+					<file>api/uri/profiles/worker.php</file>
+					<name>PageSection_ProfilesWorker</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.page.profiles" />
+					<param key="uri" value="worker" />
+				</params>
+			</extension>
+		
 		<!-- Activity Tabs -->
 		
 		<extension point="cerberusweb.activity.tab">

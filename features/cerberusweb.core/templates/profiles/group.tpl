@@ -1,10 +1,6 @@
 {$page_context = CerberusContexts::CONTEXT_GROUP}
 {$page_context_id = $group->id}
 
-<ul class="submenu">
-</ul>
-<div style="clear:both;"></div>
-
 {$members = $group->getMembers()}
 {$reply_to = $group->getReplyTo()}
 
@@ -25,6 +21,8 @@
 
 <form action="javascript:;">
 <fieldset class="properties">
+	<legend>Group</legend>
+	
 	{if !empty($properties)}
 	{foreach from=$properties item=v key=k name=props}
 		<div class="property">
