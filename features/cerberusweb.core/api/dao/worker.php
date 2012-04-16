@@ -239,26 +239,10 @@ class DAO_Worker extends C4_ORMHelper {
 	}
 	
 	static function update($ids, $fields, $flush_cache=true) {
-		if(!is_array($ids)) $ids = array($ids);
-		
-		$db = DevblocksPlatform::getDatabaseService();
-		$sets = array();
-		
-		if(!is_array($fields) || empty($fields) || empty($ids))
-			return;
-		
-		foreach($fields as $k => $v) {
-			$sets[] = sprintf("%s = %s",
-				$k,
-				$db->qstr($v)
-			);
-		}
-			
-		$sql = sprintf("UPDATE worker SET %s WHERE id IN (%s)",
-			implode(', ', $sets),
-			implode(',', $ids)
-		);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+		parent::_update($ids, 'worker', $fields);		
+
+	    // Log the context update
+   		DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_WORKER, $ids);
 		
 		if($flush_cache) {
 			self::clearCache();

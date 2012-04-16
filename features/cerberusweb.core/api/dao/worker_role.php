@@ -41,6 +41,10 @@ class DAO_WorkerRole extends DevblocksORMHelper {
 	static function update($ids, $fields) {
 		parent::_update($ids, 'worker_role', $fields);
 		
+	    // Log the context update
+   		DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_ROLE, $ids);
+		
+		// Clear cache
 		self::clearCache();
 	}
 	

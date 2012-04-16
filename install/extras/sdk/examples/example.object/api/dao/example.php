@@ -21,6 +21,9 @@ class DAO_ExampleObject extends C4_ORMHelper {
 	
 	static function update($ids, $fields) {
 		parent::_update($ids, 'example_object', $fields);
+		
+	    // Log the context update
+   		//DevblocksPlatform::markContextChanged('example.context', $ids);
 	}
 	
 	static function updateWhere($fields, $where) {

@@ -336,6 +336,7 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 			}
 		}
 		
+		DevblocksPlatform::markContextChanged($context, $context_id);
 	}
 	
 	public static function setFieldValue($context, $context_id, $field_id, $value, $delta=false) {
@@ -386,6 +387,8 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 			$db->Execute($sql);
 		}
 		
+		DevblocksPlatform::markContextChanged($context, $context_id);
+		
 		return TRUE;
 	}
 	
@@ -412,6 +415,8 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 			);
 			$db->Execute($sql);
 		}
+		
+		DevblocksPlatform::markContextChanged($context, $context_id);
 		
 		return TRUE;
 	}

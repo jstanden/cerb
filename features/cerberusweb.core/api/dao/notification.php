@@ -53,6 +53,9 @@ class DAO_Notification extends DevblocksORMHelper {
 	
 	static function update($ids, $fields) {
 		parent::_update($ids, 'notification', $fields);
+		
+		// Log the context update
+	    DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_NOTIFICATION, $ids);
 	}
 	
 	static function updateWhere($fields, $where) {

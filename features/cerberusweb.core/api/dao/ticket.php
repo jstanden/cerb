@@ -558,13 +558,13 @@ class DAO_Ticket extends C4_ORMHelper {
 	    	
 	    	parent::_update($batch_ids, 'ticket', $fields);
 	    	
-	    	// Local events
-	    	self::_processUpdateEvents($object_changes);
-	    	
-	        /*
-	         * Trigger an event about the changes
-	         */
 	    	if(!empty($object_changes)) {
+		    	// Local events
+		    	self::_processUpdateEvents($object_changes);
+		    	
+		        /*
+		         * Trigger an event about the changes
+		         */
 			    $eventMgr = DevblocksPlatform::getEventService();
 			    $eventMgr->trigger(
 			        new Model_DevblocksEvent(
@@ -574,6 +574,9 @@ class DAO_Ticket extends C4_ORMHelper {
 		                )
 		            )
 			    );
+			    
+			    // Log the context update
+	    		DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_TICKET, $ids);
 	    	}
     	}
     	

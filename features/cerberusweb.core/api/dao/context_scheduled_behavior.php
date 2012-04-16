@@ -44,6 +44,49 @@ class DAO_ContextScheduledBehavior extends C4_ORMHelper {
 		parent::_updateWhere('context_scheduled_behavior', $fields, $where);
 	}
 
+	static function updateRelativeSchedules($context, $context_ids) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		if(empty($context_ids))
+			return;
+		
+		$sql = sprintf("%s = %s AND %s IN (%s) AND %s != ''",
+			self::CONTEXT,
+			$db->qstr($context),
+			self::CONTEXT_ID,
+			implode(',', $context_ids),
+			self::RUN_RELATIVE
+		);
+		
+		$objects = DAO_ContextScheduledBehavior::getWhere($sql);
+
+		if(is_array($objects))
+		foreach($objects as $object) { /* @var $object Model_ContextScheduledBehavior */
+			if(null == ($macro = DAO_TriggerEvent::get($object->behavior_id)))
+				continue;
+			
+			if(null == ($event = $macro->getEvent()))
+				continue;
+			
+			$event = $macro->getEvent();
+			$event_model = $event->generateSampleEventModel($object->context_id);
+			$event->setEvent($event_model);
+			$values = $event->getValues();
+			
+			$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+			@$run_relative_timestamp = strtotime($tpl_builder->build(sprintf("{{%s|date}}",$object->run_relative), $values));
+			
+			if(empty($run_relative_timestamp))
+				$run_relative_timestamp = time();
+			
+			$run_date = @strtotime($object->run_literal, $run_relative_timestamp);
+			
+			DAO_ContextScheduledBehavior::update($object->id, array(
+				DAO_ContextScheduledBehavior::RUN_DATE => $run_date,
+			));
+		}
+	}
+	
 	/**
 	 * @param string $where
 	 * @param mixed $sortBy

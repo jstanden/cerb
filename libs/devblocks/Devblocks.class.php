@@ -1645,6 +1645,9 @@ class DevblocksPlatform extends DevblocksEngine {
 	}
 	
 	static function shutdown() {
+		// Trigger changed context events
+		Extension_DevblocksContext::shutdownTriggerChangedContextsEvents();
+		
 		// Clean up any temporary files
 		while(null != ($tmpfile = array_pop(self::$_tmp_files))) {
 			@unlink($tmpfile);
@@ -1676,6 +1679,16 @@ class DevblocksPlatform extends DevblocksEngine {
 		session_write_close();
 		header('Location: '.$url);
 		exit;
+	}
+	
+	static function markContextChanged($context, $context_ids) {
+		if(empty($context_ids))
+			return;
+		
+		if(!is_array($context_ids))
+			$context_ids = array($context_ids);
+		
+		return Extension_DevblocksContext::markContextChanged($context, $context_ids);
 	}
 };
 

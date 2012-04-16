@@ -101,6 +101,9 @@ class DAO_FeedbackEntry extends C4_ORMHelper {
 	
 	static function update($ids, $fields) {
 		parent::_update($ids, 'feedback_entry', $fields);
+		
+	    // Log the context update
+   		DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_FEEDBACK, $ids);
 	}
 	
 	/**

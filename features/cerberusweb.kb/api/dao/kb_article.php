@@ -123,8 +123,10 @@ class DAO_KbArticle extends C4_ORMHelper {
 	}
 
 	static function update($ids, $fields) {
-		if(!is_array($ids)) $ids = array($ids);
 		parent::_update($ids, 'kb_article', $fields);
+		
+	    // Log the context update
+   		DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_KB_ARTICLE, $ids);
 	}
 	
 	static function delete($ids) {

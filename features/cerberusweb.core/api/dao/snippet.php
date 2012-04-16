@@ -39,6 +39,9 @@ class DAO_Snippet extends C4_ORMHelper {
 	
 	static function update($ids, $fields) {
 		parent::_update($ids, 'snippet', $fields);
+
+	    // Log the context update
+   		DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_SNIPPET, $ids);
 	}
 	
 	static function updateWhere($fields, $where) {

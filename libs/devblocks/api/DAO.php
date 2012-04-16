@@ -38,7 +38,9 @@ abstract class DevblocksORMHelper {
 	 * @param array $fields
 	 */
 	static protected function _update($ids=array(), $table, $fields, $idcol='id') {
-	    if(!is_array($ids)) $ids = array($ids);
+	    if(!is_array($ids))
+	    	$ids = array($ids);
+	    
 		$db = DevblocksPlatform::getDatabaseService();
 		$sets = array();
 		

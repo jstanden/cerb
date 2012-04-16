@@ -1272,6 +1272,7 @@
 				<param key="events">
 					<value>
 						<data key="comment.create" />
+						<data key="context.update" />
 						<data key="context.delete" />
 						<data key="context.maint" />
 						<data key="cron.heartbeat" />

@@ -43,6 +43,37 @@ class DevblocksExtension {
 };
 
 abstract class Extension_DevblocksContext extends DevblocksExtension {
+	static $_changed_contexts = array();
+	
+	static function markContextChanged($context, $context_ids) {
+		if(!is_array($context_ids))
+			$context_ids = array($context_ids);
+		
+		if(!isset(self::$_changed_contexts[$context]))
+			self::$_changed_contexts[$context] = array();
+		
+		self::$_changed_contexts[$context] = array_merge(self::$_changed_contexts[$context], $context_ids);
+	}
+	
+	static function shutdownTriggerChangedContextsEvents() {
+	    $eventMgr = DevblocksPlatform::getEventService();
+	    
+		if(is_array(self::$_changed_contexts))
+		foreach(self::$_changed_contexts as $context => $context_ids) {
+		    $eventMgr->trigger(
+		        new Model_DevblocksEvent(
+		            'context.update',
+	                array(
+	                	'context' => $context,
+	                    'context_ids' => $context_ids,
+	                )
+	            )
+		    );
+		}
+		
+		self::$_changed_contexts = array();
+	}
+	
 	/**
 	 * @param unknown_type $as_instances
 	 * @param unknown_type $with_options

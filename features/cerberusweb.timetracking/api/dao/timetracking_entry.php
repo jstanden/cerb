@@ -166,6 +166,9 @@ class DAO_TimeTrackingEntry extends C4_ORMHelper {
 	
 	static function update($ids, $fields) {
 		parent::_update($ids, 'timetracking_entry', $fields);
+		
+	    // Log the context update
+   		DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_TIMETRACKING, $ids);
 	}
 	
 	static function updateWhere($fields, $where) {

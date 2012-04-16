@@ -57,6 +57,9 @@ foreach($fields as $field_name => $field_type) {
 	
 	static function update($ids, $fields) {
 		parent::_update($ids, '<?php echo $table_name; ?>', $fields);
+		
+		// Log the context update
+	    //DevblocksPlatform::markContextChanged('example.context', $ids);
 	}
 	
 	static function updateWhere($fields, $where) {

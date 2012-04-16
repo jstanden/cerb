@@ -73,8 +73,10 @@ class DAO_ContactOrg extends C4_ORMHelper {
 	 * @return Model_ContactOrg
 	 */
 	static function update($ids, $fields) {
-		if(!is_array($ids)) $ids = array($ids);
 		parent::_update($ids, 'contact_org', $fields);
+		
+		// Log the context update
+		DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_ORG, $ids);
 	}
 	
 	static function mergeIds($from_ids, $to_id) {

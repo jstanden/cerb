@@ -96,6 +96,9 @@ class DAO_Address extends C4_ORMHelper {
 	
 	static function update($ids, $fields) {
 		parent::_update($ids, 'address', $fields);
+		
+		// Log the context update
+		DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_ADDRESS, $ids);
 	}
 	
 	static function updateWhere($fields, $where) {

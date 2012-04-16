@@ -742,6 +742,10 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 				$this->_handleCommentCreate($event);
 				break;
 				
+			case 'context.update':
+				$this->_handleContextUpdate($event);
+				break;
+				
 			case 'context.delete':
 				$this->_handleContextDelete($event);
 				break;
@@ -760,6 +764,13 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 		}
 	}
 
+	private function _handleContextUpdate($event) {
+		@$context = $event->params['context'];
+		@$context_ids = $event->params['context_ids'];
+
+		DAO_ContextScheduledBehavior::updateRelativeSchedules($context, $context_ids);
+	}
+	
 	private function _handleContextDelete($event) {
 		@$context = $event->params['context'];
 		@$context_ids = $event->params['context_ids'];

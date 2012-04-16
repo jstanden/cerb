@@ -23,6 +23,9 @@ class DAO_CalendarEvent extends C4_ORMHelper {
 	
 	static function update($ids, $fields) {
 		parent::_update($ids, 'calendar_event', $fields);
+		
+		// Log the context update
+		DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_CALENDAR_EVENT, $ids);
 	}
 	
 	static function updateWhere($fields, $where) {

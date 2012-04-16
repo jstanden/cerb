@@ -136,17 +136,8 @@ class ChTimeTrackingEventListener extends DevblocksEventListenerExtension {
             case 'ticket.action.merge':
             	$new_ticket_id = $event->params['new_ticket_id'];
             	$old_ticket_ids = $event->params['old_ticket_ids'];
-
-            	// [TODO] Change over to context links (and handle globally)
-//            	$fields = array(
-//            		DAO_TimeTrackingEntry::SOURCE_ID => $new_ticket_id,
-//            	);
-//            	 DAO_TimeTrackingEntry::updateWhere($fields,sprintf("%s = '%s' AND %s IN (%s)",
-//            		DAO_TimeTrackingEntry::SOURCE_EXTENSION_ID,
-//            		ChTimeTrackingTicketSource::ID,
-//            		DAO_TimeTrackingEntry::SOURCE_ID,
-//            		implode(',', $old_ticket_ids)
-//            	));
+            	
+            	// [TODO]
             	break;
         }
     }

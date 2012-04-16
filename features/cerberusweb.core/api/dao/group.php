@@ -172,29 +172,16 @@ class DAO_Group extends C4_ORMHelper {
 	/**
 	 * Enter description here...
 	 *
-	 * @param integer $id
+	 * @param array $ids
 	 * @param array $fields
 	 */
-	static function update($id, $fields) {
-		$db = DevblocksPlatform::getDatabaseService();
-		$sets = array();
-		
-		if(!is_array($fields) || empty($fields) || empty($id))
-			return;
-		
-		foreach($fields as $k => $v) {
-			$sets[] = sprintf("%s = %s",
-				$k,
-				$db->qstr($v)
-			);
-		}
-			
-		$sql = sprintf("UPDATE worker_group SET %s WHERE id = %d",
-			implode(', ', $sets),
-			$id
-		);
-		$db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+	static function update($ids, $fields) {
+		parent::_update($ids, 'worker_group', $fields);
 
+		// Log the context update
+		DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_GROUP, $id);
+
+   		// Clear cache
 		self::clearCache();
 	}
 	
