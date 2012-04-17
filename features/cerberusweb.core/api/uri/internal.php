@@ -1736,14 +1736,28 @@ class ChInternalController extends DevblocksControllerExtension {
 				$view->addParamsRequired($list_view->params_required, true);
 			$view->renderSortBy = $list_view->sort_by;
 			$view->renderSortAsc = $list_view->sort_asc;
-			C4_AbstractViewLoader::setView($view_id, $view);
-			
+
 			unset($ext);
 			unset($list_view);
 			unset($view_class);
 		}
 
 		if(!empty($view)) {
+			$labels = array();
+			$values = array();
+			
+			$labels['current_worker_id'] = array(
+				'label' => 'Current Worker',
+				'context' => CerberusContexts::CONTEXT_WORKER,
+			);
+			
+			$values['current_worker_id'] = $active_worker->id;
+
+			$view->setPlaceholderLabels($labels);
+			$view->setPlaceholderValues($values);
+			
+			C4_AbstractViewLoader::setView($view_id, $view);
+			
 			$tpl->assign('view', $view);
 			$tpl->display('devblocks:cerberusweb.core::internal/views/search_and_view.tpl');
 			$tpl->clearAssign('view');
