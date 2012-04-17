@@ -1,5 +1,10 @@
 <?php
 abstract class DevblocksORMHelper {
+	const OPT_GET_NO_CACHE = 1;
+	
+	const OPT_UPDATE_NO_FLUSH_CACHE = 1;
+	const OPT_UPDATE_NO_EVENTS = 2;
+	
 	static protected function _getWhereSQL($where=null, $sortBy=null, $sortAsc=true, $limit=null) {
 		// Where
 		$where_sql = !empty($where) ? sprintf("WHERE %s ", $where) : '';

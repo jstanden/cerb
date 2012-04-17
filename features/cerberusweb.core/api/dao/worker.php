@@ -238,13 +238,16 @@ class DAO_Worker extends C4_ORMHelper {
 		return null;		
 	}
 	
-	static function update($ids, $fields, $flush_cache=true) {
+	static function update($ids, $fields, $option_bits=0) {
 		parent::_update($ids, 'worker', $fields);		
 
 	    // Log the context update
-   		DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_WORKER, $ids);
+	    if(0 == ($option_bits & DevblocksORMHelper::OPT_UPDATE_NO_EVENTS)) {
+   			DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_WORKER, $ids);
+	    }
 		
-		if($flush_cache) {
+	    // Flush cache
+		if(0 == ($option_bits & DevblocksORMHelper::OPT_UPDATE_NO_FLUSH_CACHE)) {
 			self::clearCache();
 		}
 	}
@@ -394,11 +397,15 @@ class DAO_Worker extends C4_ORMHelper {
 
 		// Update activity once per 30 seconds
 		if($ignore_wait || $worker->last_activity_date < (time()-30)) {
-		    DAO_Worker::update($worker->id,array(
-		        DAO_Worker::LAST_ACTIVITY_DATE => time(),
-		        DAO_Worker::LAST_ACTIVITY => serialize($activity),
-		        DAO_Worker::LAST_ACTIVITY_IP => sprintf("%u",ip2long($ip)),
-		    ));
+		    DAO_Worker::update(
+		    	$worker->id,
+		    	array(
+		        	DAO_Worker::LAST_ACTIVITY_DATE => time(),
+		        	DAO_Worker::LAST_ACTIVITY => serialize($activity),
+		        	DAO_Worker::LAST_ACTIVITY_IP => sprintf("%u",ip2long($ip)),
+		        ),
+		        DevblocksORMHelper::OPT_UPDATE_NO_EVENTS
+		    );
 		}
 	}
 
