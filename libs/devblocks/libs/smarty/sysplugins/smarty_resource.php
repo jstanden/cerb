@@ -142,7 +142,10 @@ abstract class Smarty_Resource {
             $_basename = '.' . $_basename;
         }
 
-        $compiled->filepath = $_compile_dir . $_filepath . '.' . $compiled->source->type . $_basename . $_cache . '.php';
+        // [WGM]
+        $safe_basename = preg_replace("#[^A-Za-z0-9\_\.]#",'_',$_basename);
+        
+        $compiled->filepath = $_compile_dir . $_filepath . '.' . $compiled->source->type . $safe_basename . $_cache . '.php';
     }
 
     /**
