@@ -10,6 +10,10 @@
 		{/if}
 	{/foreach}
 	
+	<li style="border-right:0;">
+		<a href="javascript:;" style="font-weight:normal;text-decoration:none;">+</a>
+	</li>
+	
 	{if $active_worker->is_superuser}
 	<li class="{if $page->id=='core.page.configuration'}selected{/if}" style="float:right;">
 		<a href="{devblocks_url}c=config{/devblocks_url}">{$translate->_('header.config')|lower}</a>				
@@ -29,5 +33,5 @@
 	{/if}
 	
 </ul>
-<div style="clear:both;background-color:rgb(134,169,227);height:5px;"></div>
+<div style="clear:both;background-color:rgb(100,135,225);height:5px;"></div>
 {/if}

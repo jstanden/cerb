@@ -1,5 +1,4 @@
-<ul class="submenu">
-</ul>
+<ul class="submenu"></ul>
 <div style="clear:both;"></div>
 
 {if !empty($subpage) && $subpage instanceof Extension_PageSection}
