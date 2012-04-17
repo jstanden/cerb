@@ -100,7 +100,7 @@
 	&nbsp; 
 	{if $active_worker->hasPriv('core.mail.search')}<a href="{devblocks_url}c=contacts&a=findTickets{/devblocks_url}?email={$address.a_email}&closed=0">{'addy_book.peek.count.open_tickets'|devblocks_translate:$open_count}</a> &nbsp; {/if}
 	{if $active_worker->hasPriv('core.mail.search')}<a href="{devblocks_url}c=contacts&a=findTickets{/devblocks_url}?email={$address.a_email}&closed=1">{'addy_book.peek.count.closed_tickets'|devblocks_translate:$closed_count}</a> &nbsp; {/if}
-	{if $active_worker->hasPriv('core.mail.send')}<a href="javascript:;" onclick="genericAjaxPopup('peek','c=tickets&a=showComposePeek&view_id=&to={$address.a_email|escape:'url'}',null,false,'600');"> {$translate->_('addy_book.peek.compose')}</a> &nbsp; {/if}
+	{if $active_worker->hasPriv('core.mail.send')}<a href="javascript:;" onclick="genericAjaxPopup('peek','c=mail&a=handleSectionAction&section=compose&action=showComposePeek&view_id=&to={$address.a_email|escape:'url'}',null,false,'600');"> {$translate->_('addy_book.peek.compose')}</a> &nbsp; {/if}
 	<a href="{devblocks_url}c=contacts&a=addresses&page=display&id={$address.a_id}-{$address.a_email|devblocks_permalink}{/devblocks_url}">full record</a> &nbsp; 
 {/if}
 

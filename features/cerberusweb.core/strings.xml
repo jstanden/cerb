@@ -492,6 +492,9 @@
 		<tu tuid='common.ticket'>
 			<tuv xml:lang="en_US"><seg>ticket</seg></tuv>
 		</tu>
+		<tu tuid='common.tickets'>
+			<tuv xml:lang="en_US"><seg>tickets</seg></tuv>
+		</tu>
 		<tu tuid='common.time.mins.num'>
 			<tuv xml:lang="en_US"><seg>%s min</seg></tuv>
 		</tu>
@@ -1292,7 +1295,7 @@ For example: http://www.cerberusweb.com/support/</seg></tuv>
 			<tuv xml:lang="en_US"><seg>Insert Signature</seg></tuv>
 		</tu>
 		<tu tuid='display.reply.next_label'>
-			<tuv xml:lang="en_US"><seg>Next:</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Next</seg></tuv>
 		</tu>
 		<tu tuid='display.reply.next.move'>
 			<tuv xml:lang="en_US"><seg>Would you like to move this conversation?</seg></tuv>
@@ -1445,17 +1448,10 @@ For example: http://www.cerberusweb.com/support/</seg></tuv>
 			<tuv xml:lang="en_US"><seg>Received</seg></tuv>
 		</tu>
 		<tu tuid='mail.send_mail'>
-			<tuv xml:lang="en_US"><seg>Send Mail</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Compose</seg></tuv>
 		</tu>
 		<tu tuid='mail.sent'>
 			<tuv xml:lang="en_US"><seg>Sent</seg></tuv>
-		</tu>
-		
-		<tu tuid='mail.search.messages'>
-			<tuv xml:lang="en_US"><seg>Search Messages</seg></tuv>
-		</tu>
-		<tu tuid='mail.search.tickets'>
-			<tuv xml:lang="en_US"><seg>Search Tickets</seg></tuv>
 		</tu>
 		
 		<tu tuid='mail.view.add_filter'>

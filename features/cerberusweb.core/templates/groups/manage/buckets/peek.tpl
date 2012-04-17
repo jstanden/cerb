@@ -64,7 +64,7 @@
 	<b>Bucket email signature:</b> (leave blank for default)<br>
 	<textarea name="reply_signature" rows="10" cols="76" style="width:100%;" wrap="off">{$object->reply_signature}</textarea><br>
 	<button type="button" onclick="genericAjaxPost('frmAddyOutgoingPeek','divSnippetBucketSigTester','c=internal&a=snippetTest&snippet_context=cerberusweb.contexts.worker&snippet_field=reply_signature');">{'common.test'|devblocks_translate|capitalize}</button>
-	<button type="button" onclick="genericAjaxGet('','c=tickets&a=getComposeSignature&raw=1&group_id={$group_id}&bucket_id={$bucket_id}',function(txt) { $('#frmAddyOutgoingPeek textarea').text(txt); } );">{'common.default'|devblocks_translate|capitalize}</button>
+	<button type="button" onclick="genericAjaxGet('','c=mail&a=handleSectionAction&section=compose&action=getComposeSignature&raw=1&group_id={$group_id}&bucket_id={$bucket_id}',function(txt) { $('#frmAddyOutgoingPeek textarea').text(txt); } );">{'common.default'|devblocks_translate|capitalize}</button>
 	<select name="sig_token" onchange="insertAtCursor(this.form.reply_signature,this.options[this.selectedIndex].value);this.selectedIndex=0;this.form.reply_signature.focus();">
 		<option value="">-- insert at cursor --</option>
 		{foreach from=$worker_token_labels key=k item=v}

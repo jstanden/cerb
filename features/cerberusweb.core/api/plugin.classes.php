@@ -104,11 +104,7 @@ class ChPageController extends DevblocksControllerExtension {
 		// Default page [TODO] This is supposed to come from framework.config.php
 		if(empty($controller)) {
 			if(is_a($active_worker,'Model_Worker')) {
-				if($active_worker->hasPriv('core.mail')) { 
-					$controller = 'tickets';
-				} else {
-					$controller = 'profiles';
-				}
+				$controller = 'profiles';
 			}
 		}
 		

@@ -903,7 +903,7 @@
     </tu>
     <tu tuid="display.reply.next_label">
       <tuv xml:lang="it_IT">
-        <seg>Prossimo:</seg>
+        <seg>Prossimo</seg>
       </tuv>
     </tu>
     <tu tuid="display.reply.reply_banner">

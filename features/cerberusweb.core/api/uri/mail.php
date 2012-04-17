@@ -15,35 +15,20 @@
 |	http://www.cerberusweb.com	  http://www.webgroupmedia.com/
 ***********************************************************************/
 
-class Page_Profiles extends CerberusPageExtension {
-	const ID = 'cerberusweb.page.profiles';
-	
+class Page_Mail extends CerberusPageExtension {
 	function isVisible() {
 		// The current session must be a logged-in worker to use this page.
 		if(null == ($worker = CerberusApplication::getActiveWorker()))
 			return false;
 		
-		return true;
+		return $worker->hasPriv('core.mail');
 	}
 	
-	function render() {
-		$tpl = DevblocksPlatform::getTemplateService();
-		$active_worker = CerberusApplication::getActiveWorker();
-		$visit = CerberusApplication::getVisit();
-		$response = DevblocksPlatform::getHttpResponse();
-		
-		$stack = $response->path;
-		@array_shift($stack); // profiles
-		@$section_uri = array_shift($stack);
-
-		if(empty($section_uri))
-			$section_uri = 'worker';
-
-		// Subpage
-		$subpage = Extension_PageSection::getExtensionByPageUri($this->manifest->id, $section_uri, true);
-		$tpl->assign('subpage', $subpage);
-		
-		$tpl->display('devblocks:cerberusweb.core::profiles/index.tpl');
+	function getActivity() {
+		// [TODO] Rename to activity.mail
+		return new Model_Activity('activity.tickets',array(
+	    	""
+	    ));
 	}
 	
 	function handleSectionActionAction() {
@@ -55,6 +40,26 @@ class Page_Profiles extends CerberusPageExtension {
 		if($inst instanceof Extension_PageSection && method_exists($inst, $action.'Action')) {
 			call_user_func(array($inst, $action.'Action'));
 		}
+	}
+	
+	function render() {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$active_worker = CerberusApplication::getActiveWorker();
+		$visit = CerberusApplication::getVisit();
+		$response = DevblocksPlatform::getHttpResponse();
+		
+		$stack = $response->path;
+		@array_shift($stack); // mail
+		@$section_uri = array_shift($stack);
+
+		if(empty($section_uri))
+			$section_uri = 'workspaces';
+
+		// Subpage
+		$subpage = Extension_PageSection::getExtensionByPageUri($this->manifest->id, $section_uri, true);
+		$tpl->assign('subpage', $subpage);
+		
+		$tpl->display('devblocks:cerberusweb.core::mail/index.tpl');
 	}
 	
 };

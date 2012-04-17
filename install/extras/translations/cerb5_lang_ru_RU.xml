@@ -851,6 +851,11 @@
         <seg>я</seg>
       </tuv>
     </tu>
+    <tu tuid="common.messages">
+      <tuv xml:lang="ru_RU">
+        <seg>сообщения</seg>
+      </tuv>
+    </tu>
     <tu tuid="common.minimize">
       <tuv xml:lang="ru_RU">
         <seg>свернуть</seg>
@@ -1054,6 +1059,11 @@
     <tu tuid="common.ticket">
       <tuv xml:lang="ru_RU">
         <seg>заявка</seg>
+      </tuv>
+    </tu>
+    <tu tuid="common.tickets">
+      <tuv xml:lang="ru_RU">
+        <seg>заявок</seg>
       </tuv>
     </tu>
     <tu tuid="common.time.mins.num">
@@ -1523,7 +1533,7 @@
     </tu>
     <tu tuid="display.reply.next_label">
       <tuv xml:lang="ru_RU">
-        <seg>Далее:</seg>
+        <seg>Далее</seg>
       </tuv>
     </tu>
     <tu tuid="display.reply.reply_banner">
@@ -5158,16 +5168,6 @@ remote control of your helpdesk.</seg>
     <tu tuid="mail.quick_search.comments_phrase">
       <tuv xml:lang="ru_RU">
         <seg>Комментарии (фраза)</seg>
-      </tuv>
-    </tu>
-    <tu tuid="mail.search.messages">
-      <tuv xml:lang="ru_RU">
-        <seg>Искать сообщения</seg>
-      </tuv>
-    </tu>
-    <tu tuid="mail.search.tickets">
-      <tuv xml:lang="ru_RU">
-        <seg>Поиск заявок</seg>
       </tuv>
     </tu>
     <tu tuid="mail_queue.queue_delivery_date">

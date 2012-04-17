@@ -1573,7 +1573,7 @@
     </tu>
     <tu tuid="display.reply.next_label">
       <tuv xml:lang="es_ES">
-        <seg>Siguiente:</seg>
+        <seg>Siguiente</seg>
       </tuv>
     </tu>
     <tu tuid="display.reply.reply_banner">

@@ -1,4 +1,4 @@
-{include file="devblocks:cerberusweb.core::tickets/submenu.tpl"}
+<h2>{'mail.send_mail'|devblocks_translate|capitalize}</h2>
 
 {if !empty($last_ticket_mask)}
 <div class="ui-widget">
@@ -11,11 +11,11 @@
 </div>
 {/if}
 
-<div class="block">
-<h2>{'mail.send_mail'|devblocks_translate|capitalize}</h2>
 <form id="frmCompose" name="compose" enctype="multipart/form-data" method="POST" action="{devblocks_url}{/devblocks_url}">
-<input type="hidden" name="c" value="tickets">
-<input type="hidden" name="a" value="composeMail">
+<input type="hidden" name="c" value="mail">
+<input type="hidden" name="a" value="handleSectionAction">
+<input type="hidden" name="section" value="compose">
+<input type="hidden" name="action" value="send">
 <input type="hidden" name="draft_id" value="{$draft->id}">
 
 <table cellpadding="2" cellspacing="0" border="0" width="100%">
@@ -99,8 +99,8 @@
 			<div>
 				<fieldset style="display:inline-block;">
 					<legend>Actions</legend>
-					<button id="btnSaveDraft" type="button" onclick="genericAjaxPost('frmCompose',null,'c=tickets&a=saveDraft&type=compose',function(json) { var obj = $.parseJSON(json); if(!obj || !obj.html || !obj.draft_id) return; $('#divDraftStatus').html(obj.html); $('#frmCompose input[name=draft_id]').val(obj.draft_id); } );"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> Save Draft</button>
-					<button type="button" id="btnInsertSig" title="(Ctrl+Shift+G)" onclick="genericAjaxGet('','c=tickets&a=getComposeSignature&group_id='+$(this.form.group_id).val()+'&bucket_id='+$(this.form.bucket_id).val(),function(text) { insertAtCursor(document.getElementById('content'),text); } );"><span class="cerb-sprite sprite-document_edit"></span> Insert Signature</button>
+					<button id="btnSaveDraft" type="button" onclick="genericAjaxPost('frmCompose',null,'c=mail&a=handleSectionAction&section=drafts&action=saveDraft&type=compose',function(json) { var obj = $.parseJSON(json); if(!obj || !obj.html || !obj.draft_id) return; $('#divDraftStatus').html(obj.html); $('#frmCompose input[name=draft_id]').val(obj.draft_id); } );"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> Save Draft</button>
+					<button type="button" id="btnInsertSig" title="(Ctrl+Shift+G)" onclick="genericAjaxGet('','c=mail&a=handleSectionAction&section=compose&action=getComposeSignature&group_id='+$(this.form.group_id).val()+'&bucket_id='+$(this.form.bucket_id).val(),function(text) { insertAtCursor(document.getElementById('content'),text); } );"><span class="cerb-sprite sprite-document_edit"></span> Insert Signature</button>
 					{* Plugin Toolbar *}
 					{if !empty($sendmail_toolbaritems)}
 						{foreach from=$sendmail_toolbaritems item=renderer}
@@ -129,106 +129,92 @@
 
 	<tr>
 		<td>
-			<div id="replyAttachments{$message->id}" style="display:block;margin:5px;padding:5px;background-color:rgb(240,240,240);">
-			<table cellpadding="0" cellspacing="0" border="0" width="100%">
-			<tr>
-				<td style="background-color:rgb(0,184,4);width:10px;"></td>
-				<td style="padding-left:5px;">
-					<H2>{$translate->_('common.attachments')|capitalize}:</H2>
-					{'display.reply.attachments_limit'|devblocks_translate:$upload_max_filesize}<br>
-					
-					<b>{$translate->_('display.reply.attachments_add')}</b> 
-					(<a href="javascript:;" onclick="appendFileInput('displayReplyAttachments','attachment[]');">{$translate->_('display.reply.attachments_more')|lower}</a>)
-					(<a href="javascript:;" onclick="$('#displayReplyAttachments').html('');appendFileInput('displayReplyAttachments','attachment[]');">{$translate->_('common.clear')|lower}</a>)
-					<br>
-					<table cellpadding="2" cellspacing="0" border="0" width="100%">
-						<tr>
-							<td width="100%" valign="top">
-								<div id="displayReplyAttachments">
-									<input type="file" name="attachment[]" size="45"></input><br> 
-								</div>
-							</td>
-						</tr>
-					</table>
-				</td>
-			</tr>
-			</table>
-			</div>
+			<fieldset id="replyAttachments{$message->id}">
+				<legend>{$translate->_('common.attachments')|capitalize}</legend>
+				
+				{'display.reply.attachments_limit'|devblocks_translate:$upload_max_filesize}<br>
+				
+				<b>{$translate->_('display.reply.attachments_add')}</b> 
+				(<a href="javascript:;" onclick="appendFileInput('displayReplyAttachments','attachment[]');">{$translate->_('display.reply.attachments_more')|lower}</a>)
+				(<a href="javascript:;" onclick="$('#displayReplyAttachments').html('');appendFileInput('displayReplyAttachments','attachment[]');">{$translate->_('common.clear')|lower}</a>)
+				<br>
+				<table cellpadding="2" cellspacing="0" border="0" width="100%">
+					<tr>
+						<td width="100%" valign="top">
+							<div id="displayReplyAttachments">
+								<input type="file" name="attachment[]" size="45"></input><br> 
+							</div>
+						</td>
+					</tr>
+				</table>
+				
+			</fieldset>
 		</td>
 	</tr>
 				
 	<tr>
 		<td>
-		<div style="background-color:rgb(240,240,240);margin:5px;padding:5px;">
-			<table cellpadding="0" cellspacing="0" border="0" width="100%">
-			<tr>
-				<td style="background-color:rgb(18,147,195);width:10px;"></td>
-				<td style="padding-left:5px;">
-				<H2>{$translate->_('display.reply.next_label')|capitalize}</H2>
-					<table cellpadding="2" cellspacing="0" border="0">
-						<tr>
-							<td nowrap="nowrap" valign="top" colspan="2">
-								<div style="margin-bottom:10px;">
-									<label>
-									<input type="checkbox" name="add_me_as_watcher" value="1"> 
-									{'common.watchers.add_me'|devblocks_translate}
-									</label>
-									<br>
-									
-									<label>
-									<input type="checkbox" name="options_dont_send" value="1"> 
-									Start a new conversation without sending a copy of this message to the recipients
-									</label>
-									<br>
-								</div>
+			<fieldset style="{if empty($custom_fields) && empty($group_fields)}display:none;{/if}" id="compose_cfields">
+				<legend>{'common.custom_fields'|devblocks_translate|capitalize}</legend>
+				
+				{if !empty($custom_fields)}
+				<div class="global">
+					{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false}
+				</div>
+				{/if}
+				<div class="group">
+					{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" custom_fields=$group_fields bulk=false}
+				</div>
+			</fieldset>
+		
+			<fieldset>
+				<legend>{$translate->_('display.reply.next_label')|capitalize}</legend>
+				
+				<table cellpadding="2" cellspacing="0" border="0">
+					<tr>
+						<td nowrap="nowrap" valign="top" colspan="2">
+							<div style="margin-bottom:10px;">
+								<label>
+								<input type="checkbox" name="add_me_as_watcher" value="1"> 
+								{'common.watchers.add_me'|devblocks_translate}
+								</label>
+								<br>
 								
-								<label><input type="radio" name="closed" value="0" onclick="toggleDiv('ticketClosed','none');" {if 'open'==$defaults.status}checked="checked"{/if}>{$translate->_('status.open')|capitalize}</label>
-								<label><input type="radio" name="closed" value="2" onclick="toggleDiv('ticketClosed','block');" {if 'waiting'==$defaults.status}checked="checked"{/if}>{$translate->_('status.waiting')|capitalize}</label>
-								{if $active_worker->hasPriv('core.ticket.actions.close')}<label><input type="radio" name="closed" value="1" onclick="toggleDiv('ticketClosed','block');" {if 'closed'==$defaults.status}checked="checked"{/if}>{$translate->_('status.closed')|capitalize}</label>{/if}
+								<label>
+								<input type="checkbox" name="options_dont_send" value="1"> 
+								Start a new conversation without sending a copy of this message to the recipients
+								</label>
 								<br>
-								<br>
-
-								<div id="ticketClosed" style="display:{if 'open'==$defaults.status}none{else}block{/if};margin-left:10px;margin-bottom:10px;">
-								<b>{$translate->_('display.reply.next.resume')}</b> {$translate->_('display.reply.next.resume_eg')}<br> 
-								<input type="text" name="ticket_reopen" size="55" value=""><br>
-								{$translate->_('display.reply.next.resume_blank')}<br>
-								</div>
-							</td>
-						</tr>
-					</table>
-
-					<div style="{if empty($custom_fields) && empty($group_fields)}display:none;{/if}" id="compose_cfields">
-						<b>{'common.custom_fields'|devblocks_translate|capitalize}:</b>
-						<div style="margin:5px 0px 0px 10px;">
-							{if !empty($custom_fields)}
-							<div class="global">
-								{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false}
 							</div>
-							{/if}
-							<div class="group">
-								{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" custom_fields=$group_fields bulk=false}
+							
+							<label><input type="radio" name="closed" value="0" onclick="toggleDiv('ticketClosed','none');" {if 'open'==$defaults.status}checked="checked"{/if}>{$translate->_('status.open')|capitalize}</label>
+							<label><input type="radio" name="closed" value="2" onclick="toggleDiv('ticketClosed','block');" {if 'waiting'==$defaults.status}checked="checked"{/if}>{$translate->_('status.waiting')|capitalize}</label>
+							{if $active_worker->hasPriv('core.ticket.actions.close')}<label><input type="radio" name="closed" value="1" onclick="toggleDiv('ticketClosed','block');" {if 'closed'==$defaults.status}checked="checked"{/if}>{$translate->_('status.closed')|capitalize}</label>{/if}
+							<br>
+							<br>
+
+							<div id="ticketClosed" style="display:{if 'open'==$defaults.status}none{else}block{/if};margin-left:10px;margin-bottom:10px;">
+							<b>{$translate->_('display.reply.next.resume')}</b> {$translate->_('display.reply.next.resume_eg')}<br> 
+							<input type="text" name="ticket_reopen" size="55" value=""><br>
+							{$translate->_('display.reply.next.resume_blank')}<br>
 							</div>
-						</div>
-					</div>
-					
-				</td>
-			</tr>
-		</table>
-		</div>
+						</td>
+					</tr>
+				</table>
+			</fieldset>
 		</td>
 	</tr>
 		
 	<tr>
 		<td>
 			<button type="submit" onclick="$('#btnSaveDraft').click();"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> Send Message</button>
-			<button type="button" onclick="genericAjaxPost('frmCompose',null,'c=tickets&a=saveDraft&type=compose',function(o) { document.location='{devblocks_url}c=tickets{/devblocks_url}'; });"><span class="cerb-sprite sprite-media_pause"></span> {$translate->_('display.ui.continue_later')|capitalize}</button>
-			<button type="button" onclick="if(confirm('Are you sure you want to discard this message?')) { genericAjaxGet('', 'c=tickets&a=deleteDraft&draft_id='+escape(this.form.draft_id.value), function(o) { document.location='{devblocks_url}c=tickets{/devblocks_url}'; } ); } "><span class="cerb-sprite2 sprite-cross-circle-frame"></span> {$translate->_('display.ui.discard')|capitalize}</button>
+			<button type="button" onclick="genericAjaxPost('frmCompose',null,'c=mail&a=handleSectionAction&section=drafts&action=saveDraft&type=compose',function(o) { document.location='{devblocks_url}c=tickets{/devblocks_url}'; });"><span class="cerb-sprite sprite-media_pause"></span> {$translate->_('display.ui.continue_later')|capitalize}</button>
+			<button type="button" onclick="if(confirm('Are you sure you want to discard this message?')) { genericAjaxGet('', 'c=mail&a=handleSectionAction&section=drafts&action=deleteDraft&draft_id='+escape(this.form.draft_id.value), function(o) { document.location='{devblocks_url}c=tickets{/devblocks_url}'; } ); } "><span class="cerb-sprite2 sprite-cross-circle-frame"></span> {$translate->_('display.ui.discard')|capitalize}</button>
 		</td>
 	</tr>
   </tbody>
 </table>
 </form>
-</div>
 
 <script type="text/javascript">
 	$(function() {

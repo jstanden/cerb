@@ -1,8 +1,6 @@
 {$page_context = CerberusContexts::CONTEXT_TICKET}
 {$page_context_id = $ticket->id}
 
-{include file="devblocks:cerberusweb.core::tickets/submenu.tpl"}
-
 <div style="float:right">
 	{include file="devblocks:cerberusweb.core::tickets/quick_search_box.tpl"}
 </div>

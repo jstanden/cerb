@@ -1,6 +1,8 @@
 <form action="{devblocks_url}{/devblocks_url}" method="POST" id="formComposePeek" name="formComposePeek" onsubmit="return false;">
-<input type="hidden" name="c" value="tickets">
-<input type="hidden" name="a" value="saveComposePeek">
+<input type="hidden" name="c" value="mail">
+<input type="hidden" name="a" value="handleSectionAction">
+<input type="hidden" name="section" value="compose">
+<input type="hidden" name="action" value="saveComposePeek">
 <input type="hidden" name="view_id" value="{$view_id}">
 
 <table cellpadding="0" cellspacing="2" border="0" width="98%">
@@ -48,7 +50,7 @@
 			<textarea id="divComposeContent" name="content" style="width:98%;height:150px;border:1px solid rgb(180,180,180);padding:2px;"></textarea>
 			<div>
 				<button type="button" onclick="ajax.chooserSnippet('snippets',$('#divComposeContent'), { '{CerberusContexts::CONTEXT_WORKER}':'{$active_worker->id}' });">{'common.snippets'|devblocks_translate|capitalize}</button>
-				<button type="button" onclick="genericAjaxGet('','c=tickets&a=getComposeSignature&group_id='+$(this.form.group_id).val()+'&bucket_id='+$(this.form.bucket_id).val(),function(text) { insertAtCursor(document.getElementById('divComposeContent'), text); } );"><span class="cerb-sprite sprite-document_edit"></span> Insert Signature</button>
+				<button type="button" onclick="genericAjaxGet('','c=mail&=handleSectionAction&section=compose&action=getComposeSignature&group_id='+$(this.form.group_id).val()+'&bucket_id='+$(this.form.bucket_id).val(),function(text) { insertAtCursor(document.getElementById('divComposeContent'), text); } );"><span class="cerb-sprite sprite-document_edit"></span> Insert Signature</button>
 			</div>
 		</td>
 	</tr>

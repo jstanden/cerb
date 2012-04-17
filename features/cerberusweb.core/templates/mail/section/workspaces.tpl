@@ -1,13 +1,7 @@
-{include file="devblocks:cerberusweb.core::tickets/submenu.tpl"}
-
 <table cellspacing="0" cellpadding="0" border="0" width="100%" style="padding-bottom:5px;">
 <tr>
-	<td width="1%" nowrap="nowrap" valign="top" style="padding-right:5px;">
-		<form action="{devblocks_url}{/devblocks_url}" method="POST">
-			{if $active_worker->hasPriv('core.mail.send')}<button type="button" onclick="document.location.href='{devblocks_url}c=tickets&a=compose{/devblocks_url}';"><span class="cerb-sprite2 sprite-mail-send"></span> {$translate->_('mail.send_mail')|capitalize}</button>{/if}
-		</form>
-	</td>
-	<td width="98%" valign="middle">
+	<td width="99%" valign="middle">
+		<h2>{'common.workspaces'|devblocks_translate|capitalize}</h2>
 	</td>
 	<td width="1%" valign="middle" nowrap="nowrap">
 		{include file="devblocks:cerberusweb.core::tickets/quick_search_box.tpl"}
@@ -20,25 +14,12 @@
 		{$tabs = [workflow]}
 		{$point = Extension_MailTab::POINT}
 		
-		<li><a href="{devblocks_url}ajax.php?c=tickets&a=showWorkflowTab&request={$response_uri|escape:'url'}{/devblocks_url}">{$translate->_('mail.workflow')|capitalize}</a></li>
+		<li><a href="{devblocks_url}ajax.php?c=mail&a=handleSectionAction&section=workspaces&action=showWorkflowTab&request={$response_uri|escape:'url'}{/devblocks_url}">{$translate->_('mail.workflow')|capitalize}</a></li>
 		
-		{if $active_worker->hasPriv('core.mail.search')}
-			{$tabs[] = search}
-			<li><a href="{devblocks_url}ajax.php?c=tickets&a=showSearchTab&request={$response_uri|escape:'url'}{/devblocks_url}">{$translate->_('mail.search.tickets')|capitalize}</a></li>
-		{/if}
-
-		{if 1 || $active_worker->hasPriv('core.mail.messages')}
-			{$tabs[] = messages}
-			<li><a href="{devblocks_url}ajax.php?c=tickets&a=showMessagesTab&request={$response_uri|escape:'url'}{/devblocks_url}">{$translate->_('mail.search.messages')|capitalize}</a></li>
-		{/if}
-
-		{$tabs[] = drafts}
-		<li><a href="{devblocks_url}ajax.php?c=tickets&a=showDraftsTab&request={$response_uri|escape:'url'}{/devblocks_url}">{$translate->_('mail.drafts')|capitalize}</a></li>
-
 		{$tab_manifests = DevblocksPlatform::getExtensions($point, false)}
 		{foreach from=$tab_manifests item=tab_manifest}
 			{$tabs[] = $tab_manifest->params.uri}
-			<li><a href="{devblocks_url}ajax.php?c=tickets&a=showTab&point={$point}&ext_id={$tab_manifest->id}&request={$response_uri|escape:'url'}{/devblocks_url}"><i>{$tab_manifest->params.title|devblocks_translate}</i></a></li>
+			<li><a href="{devblocks_url}ajax.php?c=tickets&a=showTab&point={$point}&ext_id={$tab_manifest->id}&request={$response_uri|escape:'url'}{/devblocks_url}">{$tab_manifest->params.title|devblocks_translate}</a></li>
 		{/foreach}
 		
 		{if $active_worker->hasPriv('core.home.workspaces')}

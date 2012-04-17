@@ -18,8 +18,10 @@
 <form id="customize{$view->id}" name="customize{$view->id}" action="#" onsubmit="return false;" style="display:none;"></form>
 <form id="viewForm{$view->id}" name="viewForm{$view->id}" action="{devblocks_url}{/devblocks_url}" method="post">
 <input type="hidden" name="view_id" value="{$view->id}">
-<input type="hidden" name="c" value="tickets">
-<input type="hidden" name="a" value="">
+<input type="hidden" name="c" value="mail">
+<input type="hidden" name="a" value="handleSectionAction">
+<input type="hidden" name="section" value="drafts">
+<input type="hidden" name="action" value="">
 <input type="hidden" name="explore_from" value="0">
 <table cellpadding="1" cellspacing="0" border="0" width="100%" class="worklistBody">
 
@@ -57,7 +59,7 @@
 				
 				{if !$result.m_is_queued}
 					{if $result.m_type=="mail.compose"}
-						<a href="{devblocks_url}c=tickets&a=compose&id={$result.m_id}{/devblocks_url}" class="subject">{if empty($result.m_subject)}(no subject){else}{$result.m_subject}{/if}</a>
+						<a href="{devblocks_url}c=mail&a=compose&id={$result.m_id}{/devblocks_url}" class="subject">{if empty($result.m_subject)}(no subject){else}{$result.m_subject}{/if}</a>
 					{elseif $result.m_type=="ticket.reply"}
 						<a href="{devblocks_url}c=display&id={$result.m_ticket_id}{/devblocks_url}#draft{$result.m_id}" class="subject">{if empty($result.m_subject)}(no subject){else}{$result.m_subject}{/if}</a>
 					{elseif $result.m_type=="ticket.forward"}
@@ -66,7 +68,7 @@
 				{else}
 					<b class="subject">{if empty($result.m_subject)}(no subject){else}{$result.m_subject}{/if}</b>
 				{/if}
-				{if $active_worker->is_superuser||$result.m_worker_id==$active_worker->id}<button type="button" class="peek" style="visibility:hidden;padding:1px;margin:0px 5px;" onclick="genericAjaxPopup('peek','c=tickets&a=showDraftsPeek&view_id={$view->id}&id={$result.m_id}', null, false, '500');"><span class="cerb-sprite2 sprite-document-search-result" style="margin-left:2px" title="{$translate->_('views.peek')}"></span></button>{/if}
+				{if $active_worker->is_superuser||$result.m_worker_id==$active_worker->id}<button type="button" class="peek" style="visibility:hidden;padding:1px;margin:0px 5px;" onclick="genericAjaxPopup('peek','c=mail&a=handleSectionAction&section=drafts&action=showDraftsPeek&view_id={$view->id}&id={$result.m_id}', null, false, '500');"><span class="cerb-sprite2 sprite-document-search-result" style="margin-left:2px" title="{$translate->_('views.peek')}"></span></button>{/if}
 			</td>
 		</tr>
 		<tr class="{$tableRowClass}">
@@ -109,8 +111,8 @@
 	<tr>
 		<td>
 			{if $active_worker}
-				<button id="btnExplore{$view->id}" type="button" onclick="this.form.explore_from.value=$(this).closest('form').find('tbody input:checkbox:checked:first').val();this.form.a.value='viewDraftsExplore';this.form.submit();"><span class="cerb-sprite sprite-media_play_green"></span> {'common.explore'|devblocks_translate|lower}</button>
-				<button type="button" onclick="genericAjaxPopup('peek','c=tickets&a=showDraftsBulkPanel&view_id={$view->id}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','row_id[]'),null,false,'500');"><span class="cerb-sprite2 sprite-folder-gear"></span> bulk update</button>
+				<button id="btnExplore{$view->id}" type="button" onclick="this.form.explore_from.value=$(this).closest('form').find('tbody input:checkbox:checked:first').val();this.form.action.value='viewDraftsExplore';this.form.submit();"><span class="cerb-sprite sprite-media_play_green"></span> {'common.explore'|devblocks_translate|lower}</button>
+				<button type="button" onclick="genericAjaxPopup('peek','c=mail&a=handleSectionAction&section=drafts&action=showDraftsBulkPanel&view_id={$view->id}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','row_id[]'),null,false,'500');"><span class="cerb-sprite2 sprite-folder-gear"></span> bulk update</button>
 			{/if}
 		</td>
 	</tr>

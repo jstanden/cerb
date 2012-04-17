@@ -1191,6 +1191,11 @@
         <seg>Ticket</seg>
       </tuv>
     </tu>
+    <tu tuid="common.tickets">
+      <tuv xml:lang="de_DE">
+        <seg>Tickets</seg>
+      </tuv>
+    </tu>
     <tu tuid="common.time.mins.num">
       <tuv xml:lang="de_DE">
         <seg>%s Min.</seg>
@@ -1928,7 +1933,7 @@
     </tu>
     <tu tuid="display.reply.next_label">
       <tuv xml:lang="de_DE">
-        <seg>Weiter:</seg>
+        <seg>Weiter</seg>
       </tuv>
     </tu>
     <tu tuid="display.reply.reply_banner">
@@ -2519,16 +2524,6 @@
     <tu tuid="mail.received">
       <tuv xml:lang="de_DE">
         <seg>Empfangen</seg>
-      </tuv>
-    </tu>
-    <tu tuid="mail.search.messages">
-      <tuv xml:lang="de_DE">
-        <seg>Suche Nachrichten</seg>
-      </tuv>
-    </tu>
-    <tu tuid="mail.search.tickets">
-      <tuv xml:lang="de_DE">
-        <seg>Suche Tickets</seg>
       </tuv>
     </tu>
     <tu tuid="mail.send_mail">

@@ -1078,7 +1078,7 @@
     </tu>
     <tu tuid="display.reply.next_label">
       <tuv xml:lang="pt_PT">
-        <seg>Seguinte:</seg>
+        <seg>Seguinte</seg>
       </tuv>
     </tu>
     <tu tuid="display.reply.reply_banner">
