@@ -1105,29 +1105,35 @@ class _DevblocksSortHelper {
 			}
 			
 			if($is_index) {
-				if(!isset($a_test[$prop]) || !isset($b_test[$prop]))
+				if(!isset($a_test[$prop]) && !isset($b_test[$prop]))
 					return 0;
 				
-				$a_test = $a_test[$prop];
-				$b_test = $b_test[$prop];
+				@$a_test = $a_test[$prop];
+				@$b_test = $b_test[$prop];
 				
 			} else {
-				if(!isset($a_test->$prop) || !isset($b_test->$prop))
+				if(!isset($a_test->$prop) && !isset($b_test->$prop)) {
 					return 0;
+				}
 				
-				$a_test = $a_test->$prop;
-				$b_test = $b_test->$prop;
+				@$a_test = $a_test->$prop;
+				@$b_test = $b_test->$prop;
 			}
 		}
 		
 		if(is_numeric($a_test) && is_numeric($b_test)) {
 			settype($a_test, 'integer');
 			settype($b_test, 'integer');
+			
 			if($a_test==$b_test)
 				return 0;
+			
 			return ($a_test > $b_test) ? 1 : -1;
 			
 		} else {
+			$a_test = is_null($a_test) ? '' : $a_test;
+			$b_test = is_null($b_test) ? '' : $b_test;
+			
 			if(!is_string($a_test) || !is_string($b_test))
 				return 0;
 			
