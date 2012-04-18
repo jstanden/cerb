@@ -23,7 +23,7 @@
 		{elseif !empty($active_worker)}
 			<span id="badgeNotifications" style="display:none;padding:3px 5px 3px 5px;background-color:rgb(200,0,0);"><a href="{devblocks_url}c=profiles&w=worker&me=me&tab=notifications{/devblocks_url}" style="color:rgb(255,255,255);text-decoration:underline;font-weight:bold;"></a></span>
 			
-			{$worker_name =''|cat:'<b><a href="javascript:;" id="lnkSignedIn">'|cat:$active_worker->getName()|cat:' &#x25be;</a></b>'}
+			{$worker_name =''|cat:'<b><a href="javascript:;" id="lnkSignedIn">'|cat:$active_worker->getName()|cat:'</a></b><span class="cerb-sprite sprite-arrow-down-black"></span>'}
 			{'header.signed_in'|devblocks_translate:$worker_name nofilter}
 			{if $visit->isImposter()}
 				[ <a href="javascript:;" id="aImposter">{$visit->getImposter()->getName()}</a> ]

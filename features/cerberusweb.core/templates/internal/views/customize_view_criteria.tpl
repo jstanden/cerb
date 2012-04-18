@@ -11,7 +11,7 @@
 <tbody class="summary">
 <tr>
 	<td colspan="2">
-		<div class="badge badge-lightgray filters" style="font-weight:bold;color:rgb(80,80,80);cursor:pointer;">{'common.filters'|devblocks_translate|capitalize}: &#x25be;</div>
+		<div class="badge badge-lightgray filters" style="font-weight:bold;color:rgb(80,80,80);cursor:pointer;">{'common.filters'|devblocks_translate|capitalize}:<span class="cerb-sprite sprite-arrow-down-black"></span></div>
 		<ul class="cerb-popupmenu cerb-float" style="margin-top:-2px;">
 			<li><a href="javascript:;" onclick="$frm=$(this).closest('form');genericAjaxGet('','c=internal&a=viewToggleFilters&id={$view->id}&show=' + ($frm.find('tbody.full').toggle().is(':hidden')?'0':'1'));$(this).closest('ul.cerb-popupmenu').hide();">Toggle Advanced</a></li>
 			<li><a href="javascript:;" onclick="$('#{$parent_div}').find('select[name=_preset]').val('reset').trigger('change');">{'common.reset'|devblocks_translate|capitalize}</a></li>

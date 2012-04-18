@@ -2,7 +2,7 @@
 	<ul>
 		<li>
 			<div>
-				<a href="javascript:;" class="menu">Actions <span>&#x25be;</span></a>
+				<a href="javascript:;" class="menu">Actions <span class="cerb-sprite sprite-arrow-down-white"></span></a>
 				<ul class="cerb-popupmenu cerb-float">
 					{if $active_worker->hasPriv('core.mail.send')}<li><a href="{devblocks_url}c=mail&a=compose{/devblocks_url}">{$translate->_('mail.send_mail')|capitalize}</a></li>{/if}
 					<li><a href="{devblocks_url}c=mail&a=drafts{/devblocks_url}">{'mail.drafts'|devblocks_translate|capitalize}</a></li>
