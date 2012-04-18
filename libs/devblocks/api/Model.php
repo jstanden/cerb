@@ -335,12 +335,14 @@ class DevblocksSearchField {
 	public $db_table;
 	public $db_column;
 	public $db_label;
+	public $type;
 	
-	function __construct($token, $db_table, $db_column, $db_label=null) {
+	function __construct($token, $db_table, $db_column, $label=null, $type=null) {
 		$this->token = $token;
 		$this->db_table = $db_table;
 		$this->db_column = $db_column;
-		$this->db_label = $db_label;
+		$this->db_label = $label;
+		$this->type = $type;
 	}
 };
 

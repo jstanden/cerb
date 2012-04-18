@@ -668,12 +668,14 @@
 				<param key="alias" value="app" />
 				<param key="view_class" value="" />
 				<param key="options">
+					<!--
 					<value>
-						<!--<data key="create" />-->
-						<!--<data key="find" />-->
-						<!--<data key="snippets" />-->
-						<!--<data key="workspace" />-->
+						<data key="create" />
+						<data key="find" />
+						<data key="snippets" />
+						<data key="workspace" />
 					</value>
+					-->
 				</param>
 			</params>
 		</extension>

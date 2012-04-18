@@ -376,11 +376,11 @@ class SearchFields_Notification implements IDevblocksSearchFields {
 			self::ID => new DevblocksSearchField(self::ID, 'we', 'id', $translate->_('notification.id')),
 			self::CONTEXT => new DevblocksSearchField(self::CONTEXT, 'we', 'context', null),
 			self::CONTEXT_ID => new DevblocksSearchField(self::CONTEXT_ID, 'we', 'context_id', null),
-			self::CREATED_DATE => new DevblocksSearchField(self::CREATED_DATE, 'we', 'created_date', $translate->_('notification.created_date')),
-			self::WORKER_ID => new DevblocksSearchField(self::WORKER_ID, 'we', 'worker_id', $translate->_('notification.worker_id')),
-			self::MESSAGE => new DevblocksSearchField(self::MESSAGE, 'we', 'message', $translate->_('notification.message')),
-			self::IS_READ => new DevblocksSearchField(self::IS_READ, 'we', 'is_read', $translate->_('notification.is_read')),
-			self::URL => new DevblocksSearchField(self::URL, 'we', 'url', $translate->_('common.url')),
+			self::CREATED_DATE => new DevblocksSearchField(self::CREATED_DATE, 'we', 'created_date', $translate->_('notification.created_date'), Model_CustomField::TYPE_DATE),
+			self::WORKER_ID => new DevblocksSearchField(self::WORKER_ID, 'we', 'worker_id', $translate->_('notification.worker_id'), Model_CustomField::TYPE_WORKER),
+			self::MESSAGE => new DevblocksSearchField(self::MESSAGE, 'we', 'message', $translate->_('notification.message'), Model_CustomField::TYPE_SINGLE_LINE),
+			self::IS_READ => new DevblocksSearchField(self::IS_READ, 'we', 'is_read', $translate->_('notification.is_read'), Model_CustomField::TYPE_CHECKBOX),
+			self::URL => new DevblocksSearchField(self::URL, 'we', 'url', $translate->_('common.url'), Model_CustomField::TYPE_SINGLE_LINE),
 		);
 		
 		// Sort by label (translation-conscious)
@@ -854,10 +854,12 @@ class Context_Notification extends Extension_DevblocksContext {
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = 'Notifications';
 		
-		$params = array();
+		$params = array(
+			SearchFields_Notification::IS_READ => new DevblocksSearchCriteria(SearchFields_Notification::IS_READ, '=', 0),
+		);
 				
 		if(!empty($active_worker)) {
-			$params[SearchFields_Notification::WORKER_ID] = new DevblocksSearchCriteria(SearchFields_Notification::WORKER_ID,'=',$active_worker->id);
+			$params[SearchFields_Notification::WORKER_ID] = new DevblocksSearchCriteria(SearchFields_Notification::WORKER_ID,'in',array($active_worker->id));
 		}
 		
 		$view->addParams($params, true);

@@ -1410,39 +1410,39 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = array(
-			self::TICKET_ID => new DevblocksSearchField(self::TICKET_ID, 't', 'id', $translate->_('ticket.id')),
-			self::TICKET_MASK => new DevblocksSearchField(self::TICKET_MASK, 't', 'mask', $translate->_('ticket.mask')),
-			self::TICKET_SUBJECT => new DevblocksSearchField(self::TICKET_SUBJECT, 't', 'subject', $translate->_('ticket.subject')),
+			self::TICKET_ID => new DevblocksSearchField(self::TICKET_ID, 't', 'id', $translate->_('ticket.id'), Model_CustomField::TYPE_NUMBER),
+			self::TICKET_MASK => new DevblocksSearchField(self::TICKET_MASK, 't', 'mask', $translate->_('ticket.mask'), Model_CustomField::TYPE_SINGLE_LINE),
+			self::TICKET_SUBJECT => new DevblocksSearchField(self::TICKET_SUBJECT, 't', 'subject', $translate->_('ticket.subject'), Model_CustomField::TYPE_SINGLE_LINE),
 			
 			self::TICKET_FIRST_MESSAGE_ID => new DevblocksSearchField(self::TICKET_FIRST_MESSAGE_ID, 't', 'first_message_id'),
 			self::TICKET_LAST_MESSAGE_ID => new DevblocksSearchField(self::TICKET_LAST_MESSAGE_ID, 't', 'last_message_id'),
 			
 			self::TICKET_FIRST_WROTE_ID => new DevblocksSearchField(self::TICKET_FIRST_WROTE_ID, 't', 'first_wrote_address_id'),
-			self::TICKET_FIRST_WROTE => new DevblocksSearchField(self::TICKET_FIRST_WROTE, 'a1', 'email',$translate->_('ticket.first_wrote')),
+			self::TICKET_FIRST_WROTE => new DevblocksSearchField(self::TICKET_FIRST_WROTE, 'a1', 'email',$translate->_('ticket.first_wrote'), Model_CustomField::TYPE_SINGLE_LINE),
 			self::TICKET_LAST_WROTE_ID => new DevblocksSearchField(self::TICKET_LAST_WROTE_ID, 't', 'last_wrote_address_id'),
-			self::TICKET_LAST_WROTE => new DevblocksSearchField(self::TICKET_LAST_WROTE, 'a2', 'email',$translate->_('ticket.last_wrote')),
+			self::TICKET_LAST_WROTE => new DevblocksSearchField(self::TICKET_LAST_WROTE, 'a2', 'email',$translate->_('ticket.last_wrote'), Model_CustomField::TYPE_SINGLE_LINE),
 
-			self::ORG_NAME => new DevblocksSearchField(self::ORG_NAME, 'o', 'name', $translate->_('contact_org.name')),
-			self::REQUESTER_ADDRESS => new DevblocksSearchField(self::REQUESTER_ADDRESS, 'ra', 'email',$translate->_('ticket.requester')),
+			self::ORG_NAME => new DevblocksSearchField(self::ORG_NAME, 'o', 'name', $translate->_('contact_org.name'), Model_CustomField::TYPE_SINGLE_LINE),
+			self::REQUESTER_ADDRESS => new DevblocksSearchField(self::REQUESTER_ADDRESS, 'ra', 'email',$translate->_('ticket.requester'), Model_CustomField::TYPE_SINGLE_LINE),
 			
 			self::TICKET_ORG_ID => new DevblocksSearchField(self::TICKET_ORG_ID, 't','org_id',$translate->_('contact_org.id')),
-			self::TICKET_OWNER_ID => new DevblocksSearchField(self::TICKET_OWNER_ID,'t','owner_id',$translate->_('common.owner')),
+			self::TICKET_OWNER_ID => new DevblocksSearchField(self::TICKET_OWNER_ID,'t','owner_id',$translate->_('common.owner'), Model_CustomField::TYPE_WORKER),
 			self::TICKET_GROUP_ID => new DevblocksSearchField(self::TICKET_GROUP_ID,'t','group_id',$translate->_('common.group')),
 			self::TICKET_BUCKET_ID => new DevblocksSearchField(self::TICKET_BUCKET_ID, 't', 'bucket_id',$translate->_('common.bucket')),
-			self::TICKET_CREATED_DATE => new DevblocksSearchField(self::TICKET_CREATED_DATE, 't', 'created_date',$translate->_('ticket.created')),
-			self::TICKET_UPDATED_DATE => new DevblocksSearchField(self::TICKET_UPDATED_DATE, 't', 'updated_date',$translate->_('ticket.updated')),
-			self::TICKET_WAITING => new DevblocksSearchField(self::TICKET_WAITING, 't', 'is_waiting',$translate->_('status.waiting')),
-			self::TICKET_CLOSED => new DevblocksSearchField(self::TICKET_CLOSED, 't', 'is_closed',$translate->_('status.closed')),
-			self::TICKET_DELETED => new DevblocksSearchField(self::TICKET_DELETED, 't', 'is_deleted',$translate->_('status.deleted')),
+			self::TICKET_CREATED_DATE => new DevblocksSearchField(self::TICKET_CREATED_DATE, 't', 'created_date',$translate->_('ticket.created'), Model_CustomField::TYPE_DATE),
+			self::TICKET_UPDATED_DATE => new DevblocksSearchField(self::TICKET_UPDATED_DATE, 't', 'updated_date',$translate->_('ticket.updated'), Model_CustomField::TYPE_DATE),
+			self::TICKET_WAITING => new DevblocksSearchField(self::TICKET_WAITING, 't', 'is_waiting',$translate->_('status.waiting'), Model_CustomField::TYPE_CHECKBOX),
+			self::TICKET_CLOSED => new DevblocksSearchField(self::TICKET_CLOSED, 't', 'is_closed',$translate->_('status.closed'), Model_CustomField::TYPE_CHECKBOX),
+			self::TICKET_DELETED => new DevblocksSearchField(self::TICKET_DELETED, 't', 'is_deleted',$translate->_('status.deleted'), Model_CustomField::TYPE_CHECKBOX),
 
 			self::TICKET_LAST_ACTION_CODE => new DevblocksSearchField(self::TICKET_LAST_ACTION_CODE, 't', 'last_action_code',$translate->_('ticket.last_action')),
-			self::TICKET_NUM_MESSAGES => new DevblocksSearchField(self::TICKET_NUM_MESSAGES, 't', 'num_messages',$translate->_('ticket.num_messages')),
+			self::TICKET_NUM_MESSAGES => new DevblocksSearchField(self::TICKET_NUM_MESSAGES, 't', 'num_messages',$translate->_('ticket.num_messages'), Model_CustomField::TYPE_NUMBER),
 			self::TICKET_SPAM_TRAINING => new DevblocksSearchField(self::TICKET_SPAM_TRAINING, 't', 'spam_training',$translate->_('ticket.spam_training')),
-			self::TICKET_SPAM_SCORE => new DevblocksSearchField(self::TICKET_SPAM_SCORE, 't', 'spam_score',$translate->_('ticket.spam_score')),
-			self::TICKET_FIRST_WROTE_SPAM => new DevblocksSearchField(self::TICKET_FIRST_WROTE_SPAM, 'a1', 'num_spam',$translate->_('address.num_spam')),
-			self::TICKET_FIRST_WROTE_NONSPAM => new DevblocksSearchField(self::TICKET_FIRST_WROTE_NONSPAM, 'a1', 'num_nonspam',$translate->_('address.num_nonspam')),
+			self::TICKET_SPAM_SCORE => new DevblocksSearchField(self::TICKET_SPAM_SCORE, 't', 'spam_score',$translate->_('ticket.spam_score'), Model_CustomField::TYPE_NUMBER),
+			self::TICKET_FIRST_WROTE_SPAM => new DevblocksSearchField(self::TICKET_FIRST_WROTE_SPAM, 'a1', 'num_spam',$translate->_('address.num_spam'), Model_CustomField::TYPE_NUMBER),
+			self::TICKET_FIRST_WROTE_NONSPAM => new DevblocksSearchField(self::TICKET_FIRST_WROTE_NONSPAM, 'a1', 'num_nonspam',$translate->_('address.num_nonspam'), Model_CustomField::TYPE_NUMBER),
 			self::TICKET_INTERESTING_WORDS => new DevblocksSearchField(self::TICKET_INTERESTING_WORDS, 't', 'interesting_words',$translate->_('ticket.interesting_words')),
-			self::TICKET_DUE_DATE => new DevblocksSearchField(self::TICKET_DUE_DATE, 't', 'due_date',$translate->_('ticket.due')),
+			self::TICKET_DUE_DATE => new DevblocksSearchField(self::TICKET_DUE_DATE, 't', 'due_date',$translate->_('ticket.due'), Model_CustomField::TYPE_DATE),
 			self::TICKET_FIRST_CONTACT_ORG_ID => new DevblocksSearchField(self::TICKET_FIRST_CONTACT_ORG_ID, 'a1', 'contact_org_id'),
 			
 			self::REQUESTER_ID => new DevblocksSearchField(self::REQUESTER_ID, 'r', 'address_id', $translate->_('ticket.requester')),
@@ -1458,15 +1458,15 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 			self::VIRTUAL_ASSIGNABLE => new DevblocksSearchField(self::VIRTUAL_ASSIGNABLE, '*', 'assignable', $translate->_('ticket.assignable')),
 			self::VIRTUAL_GROUPS_OF_WORKER => new DevblocksSearchField(self::VIRTUAL_GROUPS_OF_WORKER, '*', 'groups_of_worker', $translate->_('ticket.groups_of_worker')),
 			self::VIRTUAL_STATUS => new DevblocksSearchField(self::VIRTUAL_STATUS, '*', 'status', $translate->_('ticket.status')),
-			self::VIRTUAL_WATCHERS => new DevblocksSearchField(self::VIRTUAL_WATCHERS, '*', 'workers', $translate->_('common.watchers')),
+			self::VIRTUAL_WATCHERS => new DevblocksSearchField(self::VIRTUAL_WATCHERS, '*', 'workers', $translate->_('common.watchers'), 'WS'),
 		);
 
 		$tables = DevblocksPlatform::getDatabaseTables();
 		if(isset($tables['fulltext_comment_content'])) {
-			$columns[self::FULLTEXT_COMMENT_CONTENT] = new DevblocksSearchField(self::FULLTEXT_COMMENT_CONTENT, 'ftcc', 'content', $translate->_('comment.filters.content'));
+			$columns[self::FULLTEXT_COMMENT_CONTENT] = new DevblocksSearchField(self::FULLTEXT_COMMENT_CONTENT, 'ftcc', 'content', $translate->_('comment.filters.content'), 'FT');
 		}
 		if(isset($tables['fulltext_message_content'])) {
-			$columns[self::FULLTEXT_MESSAGE_CONTENT] = new DevblocksSearchField(self::FULLTEXT_MESSAGE_CONTENT, 'ftmc', 'content', $translate->_('message.content'));
+			$columns[self::FULLTEXT_MESSAGE_CONTENT] = new DevblocksSearchField(self::FULLTEXT_MESSAGE_CONTENT, 'ftmc', 'content', $translate->_('message.content'), 'FT');
 		}
 		
 		// Custom Fields: ticket + org
@@ -1478,7 +1478,7 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 		if(is_array($fields))
 		foreach($fields as $field_id => $field) {
 			$key = 'cf_'.$field_id;
-			$columns[$key] = new DevblocksSearchField($key,$key,'field_value',$field->name);
+			$columns[$key] = new DevblocksSearchField($key,$key,'field_value',$field->name,$field->type);
 		}
 		
 		// Sort by label (translation-conscious)
@@ -3031,17 +3031,22 @@ class Context_Ticket extends Extension_DevblocksContext {
 		$view->name = 'Tickets';
 		$view->view_columns = array(
 			SearchFields_Ticket::TICKET_LAST_ACTION_CODE,
+			SearchFields_Ticket::TICKET_UPDATED_DATE,
 			SearchFields_Ticket::TICKET_GROUP_ID,
 			SearchFields_Ticket::TICKET_BUCKET_ID,
-			SearchFields_Ticket::TICKET_UPDATED_DATE,
+			SearchFields_Ticket::TICKET_OWNER_ID,
 		);
-		$view->addParams(array(
+		
+		$params = array(
 			SearchFields_Ticket::VIRTUAL_STATUS => new DevblocksSearchCriteria(SearchFields_Ticket::VIRTUAL_STATUS,'in',array('open','waiting')),
-			SearchFields_Ticket::VIRTUAL_WATCHERS => new DevblocksSearchCriteria(SearchFields_Ticket::VIRTUAL_WATCHERS,'in',array($active_worker->id)),
-		), true);
+		);
+		
+		$view->addParams($params, true);
+		$view->addParamsDefault($params, true);
 		$view->addParamsRequired(array(
 			SearchFields_Ticket::TICKET_GROUP_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_GROUP_ID,'in',array_keys($active_worker->getMemberships())),
 		), true);
+		
 		$view->renderSortBy = SearchFields_Ticket::TICKET_UPDATED_DATE;
 		$view->renderSortAsc = false;
 		$view->renderLimit = 10;
