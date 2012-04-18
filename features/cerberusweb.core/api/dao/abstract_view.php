@@ -649,6 +649,16 @@ abstract class C4_AbstractView {
 		if(!is_array($vals))
 			$vals = array($vals);
 		
+		$implode_token = ' or ';
+		
+		$fields = $this->getFields();
+		
+		if(isset($fields[$field]) && $fields[$field]->type == Model_CustomField::TYPE_DATE)
+			$implode_token = ' to ';
+
+		if($param->operator == DevblocksSearchCriteria::OPER_FULLTEXT)
+			unset($vals[1]);
+		
 		// Do we need to do anything special on custom fields?
 		if('cf_'==substr($field,0,3)) {
 			$field_id = intval(substr($field,3));
@@ -661,6 +671,10 @@ abstract class C4_AbstractView {
 					foreach($vals as $idx => $val) {
 						$vals[$idx] = !empty($val) ? $translate->_('common.yes') : $translate->_('common.no');
 					}
+					break;
+					
+				case Model_CustomField::TYPE_DATE:
+					$implode_token = ' to ';
 					break;
 					
 				case Model_CustomField::TYPE_WORKER:
@@ -679,7 +693,7 @@ abstract class C4_AbstractView {
 			$vals[$k] = htmlspecialchars($v, ENT_QUOTES, LANG_CHARSET_CODE);
 		}
 		
-		echo implode(' or ', $vals);
+		echo implode($implode_token, $vals);
 	}
 
 	/**
