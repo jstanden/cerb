@@ -136,7 +136,9 @@ class DevblocksEventHelper {
 				break;
 			
 			case Model_CustomField::TYPE_DATE:
-				$value = $params['value'];
+				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+				$value = $tpl_builder->build($params['value'], $dict);
+				
 				$value = strtotime($value);
 
 				if(!empty($value)) {
@@ -422,8 +424,11 @@ class DevblocksEventHelper {
 			case Model_CustomField::TYPE_DATE:
 				if(!isset($params['value']))
 					break;
+					
+				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+				$value = $tpl_builder->build($params['value'], $dict);
 				
-				$value = is_numeric($params['value']) ? $params['value'] : @strtotime($params['value']);
+				$value = is_numeric($value) ? $value : @strtotime($value);
 				$dict->$token = $value;
 				break;
 				
