@@ -3710,7 +3710,7 @@ login &lt;ftp&#13;
     </tu>
     <tu tuid="timetracking.ui.tracked_desc">
       <tuv xml:lang="ru_RU">
-        <seg>%s tracked %s mins on %s</seg>
+        <seg>%s tracked %s on %s</seg>
       </tuv>
     </tu>
     <tu tuid="timetracking.ui.trial.limit_exceeded">

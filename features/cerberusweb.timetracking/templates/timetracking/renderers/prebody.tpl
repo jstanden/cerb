@@ -72,7 +72,7 @@
 		
 		this.pause = function() {
 			this.enabled = false;
-			genericAjaxGet('','c=timetracking&a=pauseTimer');
+			genericAjaxGet('','c=timetracking&a=pauseTimerJson');
 	
 			var timerDiv = document.getElementById('divTimeTrackingBox');
 			if(null == timerDiv) return;
@@ -100,8 +100,10 @@
 			btn = document.getElementById('btnTimeTrackingStop');
 			if(null != btn) btn.style.display = 'none';
 
-			genericAjaxGet('','c=timetracking&a=pauseTimer', function() {
-				genericAjaxPopup('peek','c=timetracking&a=getStopTimerPanel',null,true,'500');
+			genericAjaxGet('','c=timetracking&a=pauseTimerJson', function(json) {
+				if(json.status) {
+					genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_TIMETRACKING}&context_id=0&mins=' + json.total_mins,null,false,'500');
+				}
 			} );
 		}
 		

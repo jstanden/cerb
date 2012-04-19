@@ -3714,7 +3714,7 @@ Por ejemplo: *recibo*</seg>
     </tu>
     <tu tuid="timetracking.ui.tracked_desc">
       <tuv xml:lang="es_ES">
-        <seg>%s controlados %s mins de %s</seg>
+        <seg>%s controlados %s de %s</seg>
       </tuv>
     </tu>
     <tu tuid="timetracking.ui.trial.limit_exceeded">

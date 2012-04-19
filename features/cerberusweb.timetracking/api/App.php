@@ -194,10 +194,10 @@ class ChTimeTrackingPage extends CerberusPageExtension {
 					'value' => $time_entry->log_date,
 				);
 				
-				$properties['time_actual_mins'] = array(
-					'label' => ucfirst($translate->_('timetracking_entry.time_actual_mins')),
-					'type' => Model_CustomField::TYPE_NUMBER,
-					'value' => $time_entry->time_actual_mins,
+				$properties['time_spent'] = array(
+					'label' => 'Time spent',
+					'type' => null,
+					'value' => $time_entry->time_actual_mins * 60,
 				);
 				
 				// [TODO] Worker?
@@ -276,76 +276,16 @@ class ChTimeTrackingPage extends CerberusPageExtension {
 		$this->_startTimer();
 	}
 	
-	function pauseTimerAction() {
-		$total = $this->_stopTimer();
-	}
-	
-	function getStopTimerPanelAction() {
+	function pauseTimerJsonAction() {
+		header("Content-Type: application/json");
+		
 		$total_secs = $this->_stopTimer();
-		$this->_stopTimer();
 		
-		$object = new Model_TimeTrackingEntry();
-		$object->id = 0;
-		$object->log_date = time();
-
-		// Time
-		$object->time_actual_mins = ceil($total_secs/60);
-		
-		// If we're linking a context during creation
-		@$context = strtolower($_SESSION['timetracking_context']);
-		@$context_id = intval($_SESSION['timetracking_context_id']);
-		$object->context = $context;
-		$object->context_id = $context_id;
-		
-		$this->showEntryAction($object);
-	}
-	
-	function showEntryAction($model=null) {
-		$tpl = DevblocksPlatform::getTemplateService();
-
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
-		
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
-		$tpl->assign('view_id', $view_id);
-		
-		/*
-		 * This treats procedurally created model objects
-		 * the same as existing objects
-		 */ 
-		if(!empty($id)) { // Were we given a model ID to load?
-			if(null != ($model = DAO_TimeTrackingEntry::get($id)))
-				$tpl->assign('model', $model);
-		} elseif (!empty($model)) { // Were we passed a model object without an ID?
-			$tpl->assign('model', $model);
-		}
-
-		/* @var $model Model_TimeTrackingEntry */
-		
-		// Activities
-		// [TODO] Cache
-		$billable_activities = DAO_TimeTrackingActivity::getWhere(sprintf("%s!=0",DAO_TimeTrackingActivity::RATE));
-		$tpl->assign('billable_activities', $billable_activities);
-		$nonbillable_activities = DAO_TimeTrackingActivity::getWhere(sprintf("%s=0",DAO_TimeTrackingActivity::RATE));
-		$tpl->assign('nonbillable_activities', $nonbillable_activities);
-
-		// Comments
-		$comments = DAO_Comment::getByContext(CerberusContexts::CONTEXT_TIMETRACKING, $id);
-		$last_comment = array_shift($comments);
-		unset($comments);
-		$tpl->assign('last_comment', $last_comment);
-		
-		// Custom fields
-		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TIMETRACKING); 
-		$tpl->assign('custom_fields', $custom_fields);
-
-		$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_TIMETRACKING, $id);
-		if(isset($custom_field_values[$id]))
-			$tpl->assign('custom_field_values', $custom_field_values[$id]);
-		
-		$types = Model_CustomField::getTypes();
-		$tpl->assign('types', $types);
-		
-		$tpl->display('devblocks:cerberusweb.timetracking::timetracking/rpc/time_entry_panel.tpl');
+		echo json_encode(array(
+			'status' => true,
+			'total_mins' => ceil($total_secs/60),
+		));
+		exit;
 	}
 	
 	function saveEntryAction() {

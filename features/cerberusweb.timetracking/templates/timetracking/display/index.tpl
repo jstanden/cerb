@@ -1,11 +1,10 @@
 {$page_context = CerberusContexts::CONTEXT_TIMETRACKING}
 {$page_context_id = $time_entry->id}
 
-
-<h2>{'timetracking.activity.tab'|devblocks_translate|capitalize}</h2>
+<h1>{$time_entry->getSummary()}</h1>
 
 <fieldset class="properties">
-	<legend>{$time_entry->getSummary()}</legend>
+	<legend>{'timetracking.activity.tab'|devblocks_translate|capitalize}</legend>
 	
 	<form action="{devblocks_url}{/devblocks_url}" method="post" style="margin-bottom:5px;">
 		{foreach from=$properties item=v key=k name=props}
@@ -13,6 +12,9 @@
 				{if $k == 'status'}
 					<b>{$v.label}:</b>
 					{$v.value}
+				{elseif $k == 'time_spent'}
+					<b>{$v.label}:</b>
+					{$time_entry->getTimeSpentAsString()}
 				{else}
 					{include file="devblocks:cerberusweb.core::internal/custom_fields/profile_cell_renderer.tpl"}
 				{/if}

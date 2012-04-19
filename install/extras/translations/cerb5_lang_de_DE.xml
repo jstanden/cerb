@@ -4629,7 +4629,7 @@ login</seg>
     </tu>
     <tu tuid="timetracking.ui.tracked_desc">
       <tuv xml:lang="de_DE">
-        <seg>%s erfasste %s Minute(n) in %s</seg>
+        <seg>%s erfasste %s in %s</seg>
       </tuv>
     </tu>
     <tu tuid="timetracking.ui.trial.limit_exceeded">

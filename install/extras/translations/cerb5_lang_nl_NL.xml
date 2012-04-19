@@ -3769,7 +3769,7 @@
     </tu>
     <tu tuid="timetracking.ui.tracked_desc">
       <tuv xml:lang="nl_NL">
-        <seg>%s heeft %s minuten bijgehouden op %s</seg>
+        <seg>%s heeft %s bijgehouden op %s</seg>
       </tuv>
     </tu>
     <tu tuid="timetracking.ui.trial.limit_exceeded">

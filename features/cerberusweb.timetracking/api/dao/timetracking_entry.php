@@ -442,6 +442,8 @@ class Model_TimeTrackingEntry {
 		$activity = '';
 		if(!empty($this->activity_id))
 			$activity = DAO_TimeTrackingActivity::get($this->activity_id); // [TODO] Cache?
+
+		$time_increment = $this->getTimeSpentAsString();
 		
 		$who = 'A worker';
 		if(null != ($worker = DAO_Worker::get($this->worker_id)))
@@ -450,19 +452,35 @@ class Model_TimeTrackingEntry {
 		if(!empty($activity)) {
 			$out = vsprintf($translate->_('timetracking.ui.tracked_desc'), array(
 				$who,
-				$this->time_actual_mins,
+				$time_increment,
 				$activity->name
 			));
 			
 		} else {
-			$out = vsprintf("%s tracked %s mins", array(
+			$out = vsprintf("%s tracked %s min%s", array(
 				$who,
-				$this->time_actual_mins
+				$time_increment,
+				($this->time_actual_mins != 1) ? 's' : ''
 			));
 			
 		}
 
 		return $out;
+	}
+	
+	function getTimeSpentAsString() {
+		$time_increment = sprintf("%d mins", $this->time_actual_mins);
+		
+		if($this->time_actual_mins >= 60) {
+			$hrs = ($this->time_actual_mins/60);
+			
+			$time_increment = sprintf("%0.2f hours",
+				$hrs,
+				($hrs != 1) ? 's' : ''
+			);
+		}
+		
+		return $time_increment;
 	}
 };
 
