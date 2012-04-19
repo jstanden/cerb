@@ -4,7 +4,7 @@
 <input type="hidden" name="point" value="{$point}">
 
 <div style="margin-bottom:5px;">
-	<button type="button" class="add"><span class="cerb-sprite2 sprite-plus-circle-frame"></span> Create Workspace</button>
+	<button type="button" class="add"><span class="cerb-sprite2 sprite-plus-circle-frame"></span> Create Tab</button>
 </div>
 
 <fieldset>

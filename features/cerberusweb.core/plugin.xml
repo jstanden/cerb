@@ -1494,7 +1494,73 @@
 		</extension>
 
 		<extension point="cerberusweb.page">
-			<id>core.page.tickets</id>
+			<id>core.page.workspaces</id>
+			<name>Workspaces Page</name>
+			<class>
+				<file>api/uri/workspaces.php</file>
+				<name>Page_Workspaces</name>
+			</class>
+			<params>
+				<param key="uri" value="workspaces" />
+				<param key="menutitle" value="common.workspaces" />
+				<!--<param key="acl" value="core.workspaces" />-->
+			</params>
+		</extension>
+		
+			<!-- Workspace Page Sections -->
+			
+			<extension point="cerberusweb.ui.page.section">
+				<id>core.page.workspaces.context</id>
+				<name>Context Section</name>
+				<class>
+					<file>api/uri/workspaces/context.php</file>
+					<name>PageSection_WorkspacesContext</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.page.workspaces" />
+					<param key="uri" value="context" />
+				</params>
+			</extension>
+			
+			<extension point="cerberusweb.ui.page.section">
+				<id>core.page.workspaces.me</id>
+				<name>Me Section</name>
+				<class>
+					<file>api/uri/workspaces/me.php</file>
+					<name>PageSection_WorkspacesMe</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.page.workspaces" />
+					<param key="uri" value="me" />
+				</params>
+			</extension>
+		
+			<extension point="cerberusweb.ui.page.section">
+				<id>core.page.workspaces.group</id>
+				<name>Group Section</name>
+				<class>
+					<file>api/uri/workspaces/group.php</file>
+					<name>PageSection_WorkspacesGroup</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.page.workspaces" />
+					<param key="uri" value="group" />
+				</params>
+			</extension>
+		
+			<extension point="cerberusweb.ui.page.section">
+				<id>core.page.workspaces.role</id>
+				<name>Role Section</name>
+				<class>
+					<file>api/uri/workspaces/role.php</file>
+					<name>PageSection_WorkspacesRole</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.page.workspaces" />
+					<param key="uri" value="role" />
+				</params>
+			</extension>
+		
 		<extension point="cerberusweb.page">
 			<id>core.page.mail</id>
 			<name>Mail Page</name>
