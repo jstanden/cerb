@@ -70,21 +70,6 @@
 			</params>
 		</extension>
 	
-		<!-- Activity Tabs -->
-		
-		<extension point="cerberusweb.activity.tab">
-			<id>feedback.activity.tab</id>
-			<name>Feedback Tab</name>
-			<class>
-				<file>api/App.php</file>
-				<name>ChFeedbackActivityTab</name>
-			</class>
-			<params>
-				<param key="uri" value="feedback" />
-				<param key="title" value="feedback.activity.tab" />
-			</params>
-		</extension>
-
 		<!-- Ticket Message Tabs -->
 			
 		<extension point="cerberusweb.message.toolbaritem">

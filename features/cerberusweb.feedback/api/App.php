@@ -47,35 +47,6 @@
  *	 WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
 
-if (class_exists('Extension_ActivityTab')):
-class ChFeedbackActivityTab extends Extension_ActivityTab {
-	const VIEW_ACTIVITY_FEEDBACK = 'activity_feedback';
-	
-	function showTab() {
-		$translate = DevblocksPlatform::getTranslationService();
-		$tpl = DevblocksPlatform::getTemplateService();
-		
-		$defaults = new C4_AbstractViewModel();
-		$defaults->class_name = 'C4_FeedbackEntryView';
-		$defaults->id = self::VIEW_ACTIVITY_FEEDBACK;
-		$defaults->name = $translate->_('feedback.activity.tab');
-		$defaults->view_columns = array(
-			SearchFields_FeedbackEntry::LOG_DATE,
-			SearchFields_FeedbackEntry::ADDRESS_EMAIL,
-			SearchFields_FeedbackEntry::SOURCE_URL,
-		);
-		$defaults->renderSortBy = SearchFields_FeedbackEntry::LOG_DATE;
-		$defaults->renderSortAsc = 0;
-		
-		$view = C4_AbstractViewLoader::getView(self::VIEW_ACTIVITY_FEEDBACK, $defaults);
-
-		$tpl->assign('view', $view);
-		
-		$tpl->display('devblocks:cerberusweb.feedback::activity_tab/index.tpl');		
-	}
-}
-endif;
-
 class DAO_FeedbackEntry extends C4_ORMHelper {
 	const ID = 'id';
 	const LOG_DATE = 'log_date';
@@ -784,79 +755,6 @@ class ChFeedbackController extends DevblocksControllerExtension {
 				}
 	            break;
 	    }
-	}
-	
-	function showEntryAction() {
-		@$active_worker = CerberusApplication::getActiveWorker(); 
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
-		
-		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('view_id', $view_id);
-
-		// Editing
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
-		
-		// Creating
-		@$msg_id = DevblocksPlatform::importGPC($_REQUEST['msg_id'],'integer',0);
-		@$quote = DevblocksPlatform::importGPC($_REQUEST['quote'],'string','');
-		@$url = DevblocksPlatform::importGPC($_REQUEST['url'],'string','');
-		@$source_ext_id = DevblocksPlatform::importGPC($_REQUEST['source_ext_id'],'string','');
-		@$source_id = DevblocksPlatform::importGPC($_REQUEST['source_id'],'integer',0);
-		
-		/*
-		 * This treats procedurally created model objects
-		 * the same as existing objects
-		 */ 
-		if(empty($id)) {
-			$model = new Model_FeedbackEntry();
-			
-			if(!empty($msg_id)) {
-				if(null != ($message = DAO_Message::get($msg_id))) {
-					$model->id = 0;
-					$model->log_date = time();
-					$model->quote_address_id = $message->address_id;
-					$model->quote_mood = 0;
-					$model->quote_text = $quote;
-					$model->worker_id = $active_worker->id;
-					$model->source_url = $url;
-				}
-			}
-		} elseif(!empty($id)) { // Were we given a model ID to load?
-			if(null == ($model = DAO_FeedbackEntry::get($id))) {
-				$id = null;
-				$model = new Model_Feedback();
-			}
-		}
-
-		// Author (if not anonymous)
-		if(!empty($model->quote_address_id)) {
-			if(null != ($address = DAO_Address::get($model->quote_address_id))) {
-				$tpl->assign('address', $address);
-			}
-		}
-
-		if(empty($model->source_url) && !empty($url))
-			$model->source_url = $url;
-		
-		if(!empty($source_ext_id)) {
-			$tpl->assign('source_extension_id', $source_ext_id);
-			$tpl->assign('source_id', $source_id);
-		}
-		
-		// Custom fields
-		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_FEEDBACK); 
-		$tpl->assign('custom_fields', $custom_fields);
-
-		$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_FEEDBACK, $id);
-		if(isset($custom_field_values[$id]))
-			$tpl->assign('custom_field_values', $custom_field_values[$id]);
-		
-		$types = Model_CustomField::getTypes();
-		$tpl->assign('types', $types);
-		
-		$tpl->assign('model', $model);
-		
-		$tpl->display('devblocks:cerberusweb.feedback::feedback/ajax/feedback_entry_panel.tpl');
 	}
 	
 	function saveEntryAction() {
