@@ -3,9 +3,9 @@
 <input type="hidden" name="a" value="saveTaskPeek">
 <input type="hidden" name="view_id" value="{$view_id}">
 <input type="hidden" name="id" value="{$task->id}">
-{if empty($id) && !empty($context)}
-<input type="hidden" name="context" value="{$context}">
-<input type="hidden" name="context_id" value="{$context_id}">
+{if !empty($link_context)}
+<input type="hidden" name="link_context" value="{$link_context}">
+<input type="hidden" name="link_context_id" value="{$link_context_id}">
 {/if}
 <input type="hidden" name="do_delete" value="0">
 

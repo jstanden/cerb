@@ -372,10 +372,6 @@ class ChTimeTrackingPage extends CerberusPageExtension {
 		if(false == (@$log_date = strtotime($log_date)))
 			$log_date = time();
 		
-		// Context
-		@$context = DevblocksPlatform::importGPC($_POST['context'],'string','');		
-		@$context_id = DevblocksPlatform::importGPC($_POST['context_id'],'integer',0);
-		
 		// Comment
 		@$comment = DevblocksPlatform::importGPC($_POST['comment'],'string','');
 		
@@ -414,9 +410,13 @@ class ChTimeTrackingPage extends CerberusPageExtension {
 			$translate = DevblocksPlatform::getTranslationService();
 			$url_writer = DevblocksPlatform::getUrlService();
 			
+			// Context Link (if given)
+			@$link_context = DevblocksPlatform::importGPC($_REQUEST['link_context'],'string','');
+			@$link_context_id = DevblocksPlatform::importGPC($_REQUEST['link_context_id'],'integer','');
+			
 			// Procedurally create a comment
-			// [TODO] Move this to a better event
-			switch($context) {
+			// [TODO] Check context for 'comment' option
+			switch($link_context) {
 				// If ticket, add a comment about the timeslip to the ticket
 				case CerberusContexts::CONTEXT_OPPORTUNITY:
 				case CerberusContexts::CONTEXT_TICKET:
@@ -449,61 +449,61 @@ class ChTimeTrackingPage extends CerberusPageExtension {
 							DAO_Comment::ADDRESS_ID => intval($worker_address->id),
 							DAO_Comment::COMMENT => $context_comment,
 							DAO_Comment::CREATED => time(),
-							DAO_Comment::CONTEXT => $context,
-							DAO_Comment::CONTEXT_ID => intval($context_id),
+							DAO_Comment::CONTEXT => $link_context,
+							DAO_Comment::CONTEXT_ID => intval($link_context_id),
 						);
 						DAO_Comment::create($fields);
 					}
 					break;
 			}
 			
-		} else { // modify
-			DAO_TimeTrackingEntry::update($id, $fields);
-		}
-
-		// Establishing a context link?
-		if(!empty($context) && !empty($context_id)) {
-			// Primary context
-			DAO_ContextLink::setLink(CerberusContexts::CONTEXT_TIMETRACKING, $id, $context, $context_id);
-			
-			// Associated contexts
-			switch($context) {
-				case CerberusContexts::CONTEXT_OPPORTUNITY:
-					if(!class_exists('DAO_CrmOpportunity', true))
+			// Establishing a context link?
+			if(isset($link_context) && isset($link_context_id)) {
+				// Primary context
+				DAO_ContextLink::setLink(CerberusContexts::CONTEXT_TIMETRACKING, $id, $link_context, $link_context_id);
+				
+				// Associated contexts
+				switch($link_context) {
+					case CerberusContexts::CONTEXT_OPPORTUNITY:
+						if(!class_exists('DAO_CrmOpportunity', true))
+							break;
+							
+						$labels = null;
+						$values = null;
+						CerberusContexts::getContext($link_context, $link_context_id, $labels, $values);
+						
+						if(is_array($values)) {
+							// Is there an org associated with this context?
+							if(isset($values['email_org_id']) && !empty($values['email_org_id'])) {
+								DAO_ContextLink::setLink(CerberusContexts::CONTEXT_TIMETRACKING, $id, CerberusContexts::CONTEXT_ORG, $values['email_org_id']);
+							}
+						}
 						break;
 						
-					$labels = null;
-					$values = null;
-					CerberusContexts::getContext($context, $context_id, $labels, $values);
-					
-					if(is_array($values)) {
-						// Is there an org associated with this context?
-						if(isset($values['email_org_id']) && !empty($values['email_org_id'])) {
-							DAO_ContextLink::setLink(CerberusContexts::CONTEXT_TIMETRACKING, $id, CerberusContexts::CONTEXT_ORG, $values['email_org_id']);
-						}
-					}
-					break;
-					
-				case CerberusContexts::CONTEXT_TICKET:
-					$labels = null;
-					$values = null;
-					CerberusContexts::getContext($context, $context_id, $labels, $values);
-					
-					if(is_array($values)) {
-						// Try the ticket's org
-						@$org_id = $values['org_id'];
+					case CerberusContexts::CONTEXT_TICKET:
+						$labels = null;
+						$values = null;
+						CerberusContexts::getContext($link_context, $link_context_id, $labels, $values);
 						
-						// Fallback to the initial sender's org
-						if(empty($org_id))
-							@$org_id = $values['initial_message_sender_org_id'];
-						
-						// Is there an org associated with this context?
-						if(!empty($org_id)) {
-							DAO_ContextLink::setLink(CerberusContexts::CONTEXT_TIMETRACKING, $id, CerberusContexts::CONTEXT_ORG, $org_id);
+						if(is_array($values)) {
+							// Try the ticket's org
+							@$org_id = $values['org_id'];
+							
+							// Fallback to the initial sender's org
+							if(empty($org_id))
+								@$org_id = $values['initial_message_sender_org_id'];
+							
+							// Is there an org associated with this context?
+							if(!empty($org_id)) {
+								DAO_ContextLink::setLink(CerberusContexts::CONTEXT_TIMETRACKING, $id, CerberusContexts::CONTEXT_ORG, $org_id);
+							}
 						}
-					}
-					break;
-			}
+						break;
+				}
+			}			
+			
+		} else { // modify
+			DAO_TimeTrackingEntry::update($id, $fields);
 		}
 		
 		// Custom field saves

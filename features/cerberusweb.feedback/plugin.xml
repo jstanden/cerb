@@ -57,10 +57,11 @@
 				<name>Context_Feedback</name>
 			</class>
 			<params>
+				<param key="alias" value="feedback" />
 				<param key="view_class" value="C4_FeedbackEntryView" />
 				<param key="options">
 					<value>
-						<!--<data key="create" />-->
+						<data key="create" />
 						<!--<data key="find" />-->
 						<data key="snippets" />
 						<data key="workspace" />

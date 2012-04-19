@@ -847,7 +847,7 @@ class View_Task extends C4_AbstractView implements IAbstractView_Subtotals {
 	}	
 };
 
-class Context_Task extends Extension_DevblocksContext {
+class Context_Task extends Extension_DevblocksContext implements IDevblocksContextPeek {
 	function getMeta($context_id) {
 		$task = DAO_Task::get($context_id);
 		$url_writer = DevblocksPlatform::getUrlService();
@@ -1013,5 +1013,36 @@ class Context_Task extends Extension_DevblocksContext {
 		$view->renderTemplate = 'context';
 		C4_AbstractViewLoader::setView($view_id, $view);
 		return $view;
+	}
+	
+	function renderPeekPopup($context_id=0, $view_id='') {
+		$tpl = DevblocksPlatform::getTemplateService();
+
+		if(!empty($context_id)) {
+			$task = DAO_Task::get($context_id);
+			$tpl->assign('task', $task);
+		}
+
+		// Custom fields
+		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TASK); 
+		$tpl->assign('custom_fields', $custom_fields);
+
+		$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_TASK, $context_id);
+		if(isset($custom_field_values[$context_id]))
+			$tpl->assign('custom_field_values', $custom_field_values[$context_id]);
+		
+		$types = Model_CustomField::getTypes();
+		$tpl->assign('types', $types);
+
+		// Comments
+		$comments = DAO_Comment::getByContext(CerberusContexts::CONTEXT_TASK, $context_id);
+		$last_comment = array_shift($comments);
+		unset($comments);
+		$tpl->assign('last_comment', $last_comment);
+
+		// View
+		$tpl->assign('id', $context_id);
+		$tpl->assign('view_id', $view_id);
+		$tpl->display('devblocks:cerberusweb.core::tasks/rpc/peek.tpl');		
 	}
 };

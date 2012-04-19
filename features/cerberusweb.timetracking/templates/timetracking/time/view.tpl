@@ -77,7 +77,7 @@
 				<input type="checkbox" name="row_id[]" value="{$result.tt_id}" style="display:none;">
 				{if $result.tt_is_closed}<span class="cerb-sprite2 sprite-tick-circle-frame-gray" title=""></span>{/if}
 				<a href="{devblocks_url}c=timetracking&a=display&id={$result.tt_id}{/devblocks_url}" class="subject">{if isset($activities.$activity_id->name)}{'timetracking.ui.tracked_desc'|devblocks_translate:$worker_name:$result.tt_time_actual_mins:$activities.$activity_id->name}{else}{'%s tracked %s mins'|devblocks_translate:$worker_name:$result.tt_time_actual_mins}{/if}</a>
-				<button type="button" class="peek" style="visibility:hidden;padding:1px;margin:0px 5px;" onclick="genericAjaxPopup('peek','c=timetracking&a=showEntry&id={$result.tt_id}&view_id={$view->id}',null,false,'500');"><span class="cerb-sprite2 sprite-document-search-result" style="margin-left:2px" title="{$translate->_('views.peek')}"></span></button>
+				<button type="button" class="peek" style="visibility:hidden;padding:1px;margin:0px 5px;" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_TIMETRACKING}&context_id={$result.tt_id}&view_id={$view->id}',null,false,'500');"><span class="cerb-sprite2 sprite-document-search-result" style="margin-left:2px" title="{$translate->_('views.peek')}"></span></button>
 			</td>
 		</tr>
 		<tr class="{$tableRowClass}">

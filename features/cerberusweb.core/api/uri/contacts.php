@@ -1094,12 +1094,6 @@ class ChContactsPage extends CerberusPageExtension {
 		
 		$tpl = DevblocksPlatform::getTemplateService();
 		
-		// Handle context links ([TODO] as an optional array)
-		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
-		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer','');
-		$tpl->assign('context', $context);
-		$tpl->assign('context_id', $context_id);
-		
 		if(!empty($address_id)) {
 			$email = '';
 			if(null != ($addy = DAO_Address::get($address_id))) {
@@ -1595,12 +1589,6 @@ class ChContactsPage extends CerberusPageExtension {
 		
 		$tpl = DevblocksPlatform::getTemplateService();
 				
-		// Handle context links ([TODO] as an optional array)
-		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
-		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer','');
-		$tpl->assign('context', $context);
-		$tpl->assign('context_id', $context_id);
-				
 		$contact = DAO_ContactOrg::get($id);
 		$tpl->assign('contact', $contact);
 
@@ -1671,10 +1659,10 @@ class ChContactsPage extends CerberusPageExtension {
 					CerberusContexts::addWatchers(CerberusContexts::CONTEXT_ADDRESS, $id, $active_worker->id);
 				
 				// Context Link (if given)
-				@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
-				@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer','');
-				if(!empty($id) && !empty($context) && !empty($context_id)) {
-					DAO_ContextLink::setLink(CerberusContexts::CONTEXT_ADDRESS, $id, $context, $context_id);
+				@$link_context = DevblocksPlatform::importGPC($_REQUEST['link_context'],'string','');
+				@$link_context_id = DevblocksPlatform::importGPC($_REQUEST['link_context_id'],'integer','');
+				if(!empty($id) && !empty($link_context) && !empty($link_context_id)) {
+					DAO_ContextLink::setLink(CerberusContexts::CONTEXT_ADDRESS, $id, $link_context, $link_context_id);
 				}
 				
 			} else {
@@ -1747,10 +1735,10 @@ class ChContactsPage extends CerberusPageExtension {
 						CerberusContexts::addWatchers(CerberusContexts::CONTEXT_ORG, $id, $active_worker->id);
 					
 					// Context Link (if given)
-					@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
-					@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer','');
-					if(!empty($id) && !empty($context) && !empty($context_id)) {
-						DAO_ContextLink::setLink(CerberusContexts::CONTEXT_ORG, $id, $context, $context_id);
+					@$link_context = DevblocksPlatform::importGPC($_REQUEST['link_context'],'string','');
+					@$link_context_id = DevblocksPlatform::importGPC($_REQUEST['link_context_id'],'integer','');
+					if(!empty($id) && !empty($link_context) && !empty($link_context_id)) {
+						DAO_ContextLink::setLink(CerberusContexts::CONTEXT_ORG, $id, $link_context, $link_context_id);
 					}
 				}
 				else {
@@ -2237,12 +2225,6 @@ class ChContactsPage extends CerberusPageExtension {
 		
 		$tpl = DevblocksPlatform::getTemplateService();
 				
-		// Handle context links ([TODO] as an optional array)
-		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
-		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer','');
-		$tpl->assign('context', $context);
-		$tpl->assign('context_id', $context_id);
-		
 		$contact = DAO_ContactPerson::get($id);
 		$tpl->assign('contact', $contact);
 
@@ -2302,10 +2284,10 @@ class ChContactsPage extends CerberusPageExtension {
 						CerberusContexts::addWatchers(CerberusContexts::CONTEXT_CONTACT_PERSON, $id, $active_worker->id);
 					
 					// Context Link (if given)
-					@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
-					@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer','');
-					if(!empty($id) && !empty($context) && !empty($context_id)) {
-						DAO_ContextLink::setLink(CerberusContexts::CONTEXT_CONTACT_PERSON, $id, $context, $context_id);
+					@$link_context = DevblocksPlatform::importGPC($_REQUEST['link_context'],'string','');
+					@$link_context_id = DevblocksPlatform::importGPC($_REQUEST['link_context_id'],'integer','');
+					if(!empty($id) && !empty($link_context) && !empty($link_context_id)) {
+						DAO_ContextLink::setLink(CerberusContexts::CONTEXT_CONTACT_PERSON, $id, $link_context, $link_context_id);
 					}
 				}
 				else {

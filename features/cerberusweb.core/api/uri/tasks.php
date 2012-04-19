@@ -136,46 +136,6 @@ class ChTasksPage extends CerberusPageExtension {
 		return true;
 	}
 	
-	function showTaskPeekAction() {
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer','');
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
-		
-		$tpl = DevblocksPlatform::getTemplateService();
-
-		// Handle context links ([TODO] as an optional array)
-		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
-		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer','');
-		$tpl->assign('context', $context);
-		$tpl->assign('context_id', $context_id);
-		
-		if(!empty($id)) {
-			$task = DAO_Task::get($id);
-			$tpl->assign('task', $task);
-		}
-
-		// Custom fields
-		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TASK); 
-		$tpl->assign('custom_fields', $custom_fields);
-
-		$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_TASK, $id);
-		if(isset($custom_field_values[$id]))
-			$tpl->assign('custom_field_values', $custom_field_values[$id]);
-		
-		$types = Model_CustomField::getTypes();
-		$tpl->assign('types', $types);
-
-		// Comments
-		$comments = DAO_Comment::getByContext(CerberusContexts::CONTEXT_TASK, $id);
-		$last_comment = array_shift($comments);
-		unset($comments);
-		$tpl->assign('last_comment', $last_comment);
-
-		// View
-		$tpl->assign('id', $id);
-		$tpl->assign('view_id', $view_id);
-		$tpl->display('devblocks:cerberusweb.core::tasks/rpc/peek.tpl');
-	}
-	
 	function saveTaskPeekAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer','');
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
@@ -230,10 +190,10 @@ class ChTasksPage extends CerberusPageExtension {
 					CerberusContexts::addWatchers(CerberusContexts::CONTEXT_TASK, $id, $active_worker->id);
 				
 				// Context Link (if given)
-				@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
-				@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer','');
-				if(!empty($id) && !empty($context) && !empty($context_id)) {
-					DAO_ContextLink::setLink(CerberusContexts::CONTEXT_TASK, $id, $context, $context_id);
+				@$link_context = DevblocksPlatform::importGPC($_REQUEST['link_context'],'string','');
+				@$link_context_id = DevblocksPlatform::importGPC($_REQUEST['link_context_id'],'integer','');
+				if(!empty($id) && !empty($link_context) && !empty($link_context_id)) {
+					DAO_ContextLink::setLink(CerberusContexts::CONTEXT_TASK, $id, $link_context, $link_context_id);
 				}
 			}
 

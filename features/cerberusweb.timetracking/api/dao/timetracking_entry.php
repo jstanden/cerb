@@ -921,7 +921,7 @@ class View_TimeTracking extends C4_AbstractView implements IAbstractView_Subtota
 	}	
 };
 
-class Context_TimeTracking extends Extension_DevblocksContext {
+class Context_TimeTracking extends Extension_DevblocksContext implements IDevblocksContextPeek {
 	function getRandom() {
 		return DAO_TimeTrackingEntry::random();
 	}
@@ -1106,5 +1106,70 @@ class Context_TimeTracking extends Extension_DevblocksContext {
 		$view->renderTemplate = 'context';
 		C4_AbstractViewLoader::setView($view_id, $view);
 		return $view;
-	}    
+	}
+	
+	function renderPeekPopup($context_id=0, $view_id='') {
+		$id = $context_id; // [TODO] Cleanup
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+
+		$tpl->assign('view_id', $view_id);
+		
+		/*
+		 * This treats procedurally created model objects
+		 * the same as existing objects
+		 */ 
+		if(!empty($id)) { // Were we given a model ID to load?
+			if(null != ($model = DAO_TimeTrackingEntry::get($id)))
+				$tpl->assign('model', $model);
+			
+		} else {
+			$model = new Model_TimeTrackingEntry();
+			$model->log_date = time();
+
+			// Initial time
+			
+			@$total_mins = DevblocksPlatform::importGPC($_REQUEST['mins'],'integer',0);
+			$model->time_actual_mins = $total_mins;
+			
+			// If we're linking a context during creation
+			
+			@$link_context = strtolower($_SESSION['timetracking_context']);
+			@$link_context_id = intval($_SESSION['timetracking_context_id']);
+			$tpl->assign('link_context', $link_context);
+			$tpl->assign('link_context_id', $link_context_id);
+			
+			// Template
+			
+			$tpl->assign('model', $model);
+		}
+
+		/* @var $model Model_TimeTrackingEntry */
+		
+		// Activities
+		// [TODO] Cache
+		$billable_activities = DAO_TimeTrackingActivity::getWhere(sprintf("%s!=0",DAO_TimeTrackingActivity::RATE));
+		$tpl->assign('billable_activities', $billable_activities);
+		$nonbillable_activities = DAO_TimeTrackingActivity::getWhere(sprintf("%s=0",DAO_TimeTrackingActivity::RATE));
+		$tpl->assign('nonbillable_activities', $nonbillable_activities);
+
+		// Comments
+		$comments = DAO_Comment::getByContext(CerberusContexts::CONTEXT_TIMETRACKING, $id);
+		$last_comment = array_shift($comments);
+		unset($comments);
+		$tpl->assign('last_comment', $last_comment);
+		
+		// Custom fields
+		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TIMETRACKING); 
+		$tpl->assign('custom_fields', $custom_fields);
+
+		$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_TIMETRACKING, $id);
+		if(isset($custom_field_values[$id]))
+			$tpl->assign('custom_field_values', $custom_field_values[$id]);
+		
+		$types = Model_CustomField::getTypes();
+		$tpl->assign('types', $types);
+		
+		$tpl->display('devblocks:cerberusweb.timetracking::timetracking/rpc/time_entry_panel.tpl');
+	}
 };

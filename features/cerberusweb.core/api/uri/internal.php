@@ -160,6 +160,39 @@ class ChInternalController extends DevblocksControllerExtension {
 		unset($ext_content);
 	}
 	
+	/*
+	 * Popups
+	 */
+	
+	function showPeekPopupAction() {
+		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
+		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer',0);
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
+		
+		if(null == ($context_ext = Extension_DevblocksContext::get($context)))
+			return;
+		
+		if(!($context_ext instanceof IDevblocksContextPeek))
+			return;
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+
+		// Handle context links
+		
+		@$link_context = DevblocksPlatform::importGPC($_REQUEST['link_context'],'string','');
+		@$link_context_id = DevblocksPlatform::importGPC($_REQUEST['link_context_id'],'integer','');
+		$tpl->assign('link_context', $link_context);
+		$tpl->assign('link_context_id', $link_context_id);
+
+		// Template
+		
+		$context_ext->renderPeekPopup($context_id, $view_id);
+	}
+	
+	/*
+	 * Choosers
+	 */
+	
 	function chooserOpenAction() {
 		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string');
 		@$layer = DevblocksPlatform::importGPC($_REQUEST['layer'],'string');

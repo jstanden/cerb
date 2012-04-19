@@ -42,6 +42,10 @@ class DevblocksExtension {
 	}
 };
 
+interface IDevblocksContextPeek {
+    function renderPeekPopup($context_id=0, $view_id='');
+}
+
 abstract class Extension_DevblocksContext extends DevblocksExtension {
 	static $_changed_contexts = array();
 	

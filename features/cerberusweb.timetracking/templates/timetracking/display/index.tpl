@@ -83,7 +83,7 @@
 		var tabs = $("#timeTabs").tabs( { selected:{$tab_selected_idx} } );
 		
 		$('#btnDisplayTimeEdit').bind('click', function() {
-			$popup = genericAjaxPopup('peek','c=timetracking&a=showEntry&id={$page_context_id}',null,false,'550');
+			$popup = genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={$page_context}&context_id={$page_context_id}',null,false,'550');
 			$popup.one('timetracking_save', function(event) {
 				event.stopPropagation();
 				document.location.href = '{devblocks_url}c=timetracking&a=display&id={$page_context_id}{/devblocks_url}';
