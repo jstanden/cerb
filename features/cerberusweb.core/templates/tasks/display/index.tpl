@@ -1,8 +1,6 @@
 {$page_context = CerberusContexts::CONTEXT_TASK}
 {$page_context_id = $task->id}
 
-{include file="devblocks:cerberusweb.core::tasks/display/submenu.tpl"}
-
 <table cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-bottom:5px;">
 <tr>
 	<td valign="top" style="padding-right:5px;">

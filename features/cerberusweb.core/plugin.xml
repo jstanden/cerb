@@ -2131,21 +2131,6 @@
 				</params>
 			</extension>
 		
-		<!-- Activity Tabs -->
-		
-		<extension point="cerberusweb.activity.tab">
-			<id>core.activity.tab.tasks</id>
-			<name>Tasks Tab</name>
-			<class>
-				<file>api/uri/tasks.php</file>
-				<name>ChTasksActivityTab</name>
-			</class>
-			<params>
-				<param key="uri" value="tasks" />
-				<param key="title" value="activity.tab.tasks" />
-			</params>
-		</extension>
-
 		<!--  Login Extensions -->
 
 		<extension point="cerberusweb.login">

@@ -15,29 +15,6 @@
 |	http://www.cerberusweb.com	  http://www.webgroupmedia.com/
 ***********************************************************************/
 
-if (class_exists('Extension_ActivityTab')):
-class ChTasksActivityTab extends Extension_ActivityTab {
-	const VIEW_ACTIVITY_TASKS = 'activity_tasks';
-	
-	function showTab() {
-		$tpl = DevblocksPlatform::getTemplateService();
-		$translate = DevblocksPlatform::getTranslationService();
-		
-		$defaults = new C4_AbstractViewModel();
-		$defaults->class_name = 'View_Task';
-		$defaults->id = self::VIEW_ACTIVITY_TASKS;
-		$defaults->name = $translate->_('activity.tab.tasks');
-		$defaults->renderSortBy = SearchFields_Task::DUE_DATE;
-		$defaults->renderSortAsc = true;
-		
-		$view = C4_AbstractViewLoader::getView(self::VIEW_ACTIVITY_TASKS, $defaults);
-		$tpl->assign('view', $view);
-
-		$tpl->display('devblocks:cerberusweb.core::tasks/activity_tab/index.tpl');		
-	}
-}
-endif;
-
 class ChTasksPage extends CerberusPageExtension {
 	function render() {
 		$tpl = DevblocksPlatform::getTemplateService();
@@ -360,37 +337,6 @@ class ChTasksPage extends CerberusPageExtension {
 		
 		exit;
 	}
-	
-	function doQuickSearchAction() {
-		@$type = DevblocksPlatform::importGPC($_POST['type'],'string');
-		@$query = DevblocksPlatform::importGPC($_POST['query'],'string');
-	
-		$query = trim($query);
-	
-		$defaults = new C4_AbstractViewModel();
-		$defaults->class_name = 'View_Task';
-		$defaults->id = ChTasksActivityTab::VIEW_ACTIVITY_TASKS;
-		$view = C4_AbstractViewLoader::getView($defaults->id, $defaults);
-	
-		$params = array();
-		if(!is_numeric($query))
-			if($query && false===strpos($query,'*'))
-				$query = '*' . $query . '*';
-	
-		switch($type) {
-			case "title":
-				$params[SearchFields_Task::TITLE] = new DevblocksSearchCriteria(SearchFields_Task::TITLE, DevblocksSearchCriteria::OPER_LIKE, strtolower($query));
-				break;
-		}
-	
-		$view->addParams($params, false); // Add, don't replace
-		$view->renderPage = 0;
-		$view->renderSortBy = null;
-	
-		C4_AbstractViewLoader::setView($defaults->id,$view);
-	
-		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('activity','tasks')));
-	}	
 	
 	function viewTasksExploreAction() {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
