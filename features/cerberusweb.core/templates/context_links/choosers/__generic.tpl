@@ -1,3 +1,9 @@
+<div style="float:left;">
+{include file="devblocks:cerberusweb.core::workspaces/quick_search.tpl" view=$view}
+</div>
+
+<div style="clear:both;"></div>
+
 {include file="devblocks:cerberusweb.core::internal/views/search_and_view.tpl" view=$view}
 
 <form action="#" method="POST" id="chooser{$view->id}">
@@ -17,6 +23,8 @@
 	$popup.one('popup_open',function(event,ui) {
 		event.stopPropagation();
 		$(this).dialog('option','title','{$context->manifest->name} Chooser');
+		
+		$popup.find('select:first').focus();
 
 		// Progressive de-enhancement
 		
