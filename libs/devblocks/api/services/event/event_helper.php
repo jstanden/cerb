@@ -143,8 +143,8 @@ class DevblocksEventHelper {
 
 				if(!empty($value)) {
 					$out .= sprintf("%s (%s)\n",
-						date('Y-m-d h:ip', $value),
-						$params['value']
+						date('D M d Y h:ia', $value),
+						$value
 					);
 				}
 				
@@ -399,6 +399,15 @@ class DevblocksEventHelper {
 			
 		} else {
 			@$value = is_array($dict->$token) ? implode(',', $dict->$token) : $dict->$token;
+			
+			switch($var_type) {
+				case Model_CustomField::TYPE_DATE:
+					$value = sprintf("%s (%s)\n",
+						@date('D M d Y h:ia', $value),
+						$value
+					);
+					break;
+			}
 			
 			$out = sprintf(">>> Setting '%s' to:\n%s",
 				$token,
