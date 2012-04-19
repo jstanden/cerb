@@ -793,6 +793,14 @@ DIV.cerb-properties > DIV > LABEL {
 	margin-right:1px;
 }
 
+FIELDSET.peek {
+	border-width:2px 0px 0px 0px;
+}
+
+FIELDSET.peek LEGEND {
+	color:rgb(50,50,50);
+}
+
 FIELDSET.properties {
 	margin:0px 10px 0px 10px;
 	border-width:2px 0px 0px 0px;
