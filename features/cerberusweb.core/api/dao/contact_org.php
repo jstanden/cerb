@@ -1027,7 +1027,7 @@ class Context_Org extends Extension_DevblocksContext {
 		$view->renderSortBy = SearchFields_ContactOrg::NAME;
 		$view->renderSortAsc = true;
 		$view->renderLimit = 10;
-		$view->renderFilters = true;
+		$view->renderFilters = false;
 		$view->renderTemplate = 'contextlinks_chooser';
 		
 		C4_AbstractViewLoader::setView($view_id, $view);

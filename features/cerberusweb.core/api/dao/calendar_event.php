@@ -814,7 +814,7 @@ class Context_CalendarEvent extends Extension_DevblocksContext {
 		$view->renderSortBy = SearchFields_CalendarEvent::DATE_START;
 		$view->renderSortAsc = true;
 		$view->renderLimit = 10;
-		$view->renderFilters = true;
+		$view->renderFilters = false;
 		$view->renderTemplate = 'contextlinks_chooser';
 		C4_AbstractViewLoader::setView($view_id, $view);
 		return $view;		

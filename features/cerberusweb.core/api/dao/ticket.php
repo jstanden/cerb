@@ -3050,7 +3050,7 @@ class Context_Ticket extends Extension_DevblocksContext {
 		$view->renderSortBy = SearchFields_Ticket::TICKET_UPDATED_DATE;
 		$view->renderSortAsc = false;
 		$view->renderLimit = 10;
-		$view->renderFilters = true;
+		$view->renderFilters = false;
 		$view->renderTemplate = 'contextlinks_chooser';
 		C4_AbstractViewLoader::setView($view_id, $view);
 		return $view;		

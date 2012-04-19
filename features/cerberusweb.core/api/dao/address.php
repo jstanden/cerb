@@ -1137,7 +1137,7 @@ class Context_Address extends Extension_DevblocksContext {
 		$view->renderSortBy = SearchFields_Address::EMAIL;
 		$view->renderSortAsc = true;
 		$view->renderLimit = 10;
-		$view->renderFilters = true;
+		$view->renderFilters = false;
 		$view->renderTemplate = 'contextlinks_chooser';
 		
 		C4_AbstractViewLoader::setView($view_id, $view);

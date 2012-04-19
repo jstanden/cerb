@@ -1076,7 +1076,7 @@ class Context_TimeTracking extends Extension_DevblocksContext {
 		$view->renderSortBy = SearchFields_TimeTrackingEntry::LOG_DATE;
 		$view->renderSortAsc = false;
 		$view->renderLimit = 10;
-		$view->renderFilters = true;
+		$view->renderFilters = false;
 		$view->renderTemplate = 'contextlinks_chooser';
 		
 		C4_AbstractViewLoader::setView($view_id, $view);

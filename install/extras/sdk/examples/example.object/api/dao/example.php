@@ -740,7 +740,7 @@ class Context_ExampleObject extends Extension_DevblocksContext {
 		$view->renderSortAsc = false;
 		$view->renderLimit = 10;
 		$view->renderTemplate = 'contextlinks_chooser';
-		$view->renderFilters = true;
+		$view->renderFilters = false;
 		C4_AbstractViewLoader::setView($view_id, $view);
 		return $view;
 	}
