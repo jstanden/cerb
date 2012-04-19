@@ -1,10 +1,52 @@
 {* begin time tracking *}
-<div id="divTimeTrackingBox" style="display:{if isset($session.timetracking)}block{else}none{/if};position:fixed;width:300px;height:30px;top:2px;right:320px;background-color:rgb(50,50,50);color:rgb(255,255,255);opacity:.9;filter:alpha(opacity=90);z-index:2;vertical-align:middle;text-align:center;padding:5px;">
-	{'timetracking.activity.tab'|devblocks_translate}: 
-	<span style="font-size:18pt;font-weight:bold;"><span id="divTimeTrackingCounter">--</span></span>
-	<button id="btnTimeTrackingPlay" type="button" onclick="timeTrackingTimer.play();" style="display:none;"><span class="cerb-sprite sprite-media_play_green"></span></button>
-	<button id="btnTimeTrackingPause" type="button" onclick="timeTrackingTimer.pause();" style="display:none;"><span class="cerb-sprite sprite-media_pause"></span></button>
-	<button id="btnTimeTrackingStop" type="button" onclick="timeTrackingTimer.stop();" style="display:none;"><span class="cerb-sprite sprite-media_stop_red"></span></button>
+<style type="text/css">
+#divTimeTrackingBox {
+	position:fixed;
+	top:5px;
+	right:5px;
+	opacity:.9;
+	filter:alpha(opacity=90);
+	z-index:2;
+	vertical-align:middle;
+	text-align:center;
+	font-size:16pt;
+	padding:8px;
+	
+	color:rgb(255,255,255);
+	background-color:rgb(50,50,50);
+	background: linear-gradient(top, rgb(100,100,100), rgb(50,50,50));
+	background: -webkit-gradient(linear, left top, left bottom, from(rgb(100,100,100)), to(rgb(50,50,50)));
+	background: -moz-linear-gradient(top, rgb(100,100,100), rgb(50,50,50));
+	background: -o-linear-gradient(top, rgb(100,100,100), rgb(50,50,50));
+	background: -ms-linear-gradient(top, rgb(100,100,100), rgb(50,50,50));
+	
+	-moz-box-shadow: 0 5px 15px 0px rgb(175,175,175);
+	-webkit-box-shadow: 0 5px 15px 0px rgb(175,175,175);
+	box-shadow: 0 5px 15px 0px rgb(175,175,175);
+	
+	border-radius:5px;
+	-moz-border-radius:5px;
+	-webkit-border-radius:5px;
+}
+#divTimeTrackingBox BUTTON {
+	border:0;	
+}
+#divTimeTrackingCounter {
+	font-size:16pt;
+	font-weight:bold;
+	margin-right:10px;
+}
+</style>
+<div id="divTimeTrackingBox" style="display:{if isset($session.timetracking)}block{else}none{/if};">
+	<div style="float:right;">
+		<button id="btnTimeTrackingPlay" type="button" onclick="timeTrackingTimer.play();" style="display:none;"><span class="cerb-sprite sprite-media_play_green"></span></button>
+		<button id="btnTimeTrackingPause" type="button" onclick="timeTrackingTimer.pause();" style="display:none;"><span class="cerb-sprite sprite-media_pause"></span></button>
+		<button id="btnTimeTrackingStop" type="button" onclick="timeTrackingTimer.stop();" style="display:none;"><span class="cerb-sprite sprite-media_stop_red"></span></button>
+	</div>
+	<div style="float:left;">
+		Time Spent: 
+		<span id="divTimeTrackingCounter">--</span>
+	</div>
 </div>
 <script type="text/javascript">
 	var timeTrackingTimerClass = function() {
