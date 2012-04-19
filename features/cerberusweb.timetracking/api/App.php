@@ -173,11 +173,6 @@ class ChTimeTrackingPage extends CerberusPageExtension {
 				}
 				$tpl->assign('time_entry', $time_entry);						
 
-//				if(null == (@$tab_selected = $stack[0])) {
-//					$tab_selected = $visit->get(self::SESSION_OPP_TAB, '');
-//				}
-//				$tpl->assign('tab_selected', $tab_selected);
-
 				// Custom fields
 				
 				$custom_fields = DAO_CustomField::getAll();
@@ -697,29 +692,6 @@ class ChTimeTrackingPage extends CerberusPageExtension {
 	}
 	
 };
-
-if (class_exists('Extension_ActivityTab')):
-class TimeTrackingActivityTab extends Extension_ActivityTab {
-	const VIEW_ACTIVITY_TIMETRACKING = 'activity_timetracking';
-	
-	function showTab() {
-		$tpl = DevblocksPlatform::getTemplateService();
-		
-		if(null == ($view = C4_AbstractViewLoader::getView(self::VIEW_ACTIVITY_TIMETRACKING))) {
-			$view = new View_TimeTracking();
-			$view->id = self::VIEW_ACTIVITY_TIMETRACKING;
-			$view->renderSortBy = SearchFields_TimeTrackingEntry::LOG_DATE;
-			$view->renderSortAsc = 0;
-			
-			C4_AbstractViewLoader::setView($view->id, $view);
-		}
-		
-		$tpl->assign('view', $view);
-		
-		$tpl->display('devblocks:cerberusweb.timetracking::activity_tab/index.tpl');		
-	}
-}
-endif;
 
 if(class_exists('Extension_PageSection')):
 class ChTimeTracking_SetupPageSection extends Extension_PageSection {

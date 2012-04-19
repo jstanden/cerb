@@ -1,7 +1,6 @@
 {$page_context = CerberusContexts::CONTEXT_TIMETRACKING}
 {$page_context_id = $time_entry->id}
 
-{include file="devblocks:cerberusweb.timetracking::timetracking/display/submenu.tpl"}
 
 <h2>{'timetracking.activity.tab'|devblocks_translate|capitalize}</h2>
 

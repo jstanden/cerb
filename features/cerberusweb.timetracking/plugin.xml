@@ -212,21 +212,6 @@
 			</params>
 		</extension>
 	 
-		<!-- Activity Tabs -->
-		
-		<extension point="cerberusweb.activity.tab">
-			<id>timetracking.activity.tab</id>
-			<name>TimeTracking Tab</name>
-			<class>
-				<file>api/App.php</file>
-				<name>TimeTrackingActivityTab</name>
-			</class>
-			<params>
-				<param key="uri" value="timetracking" />
-				<param key="title" value="timetracking.activity.tab" />
-			</params>
-		</extension>
-
 		<!-- Setup Page Sections -->
 		
 		<extension point="cerberusweb.ui.page.section">
