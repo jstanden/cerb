@@ -952,7 +952,7 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals {
 	}
 };
 
-class Context_Address extends Extension_DevblocksContext {
+class Context_Address extends Extension_DevblocksContext implements IDevblocksContextPeek, IDevblocksContextImport {
     static function searchInboundLinks($from_context, $from_context_id) {
     	list($results, $null) = DAO_Address::search(
     		array(
@@ -1168,4 +1168,95 @@ class Context_Address extends Extension_DevblocksContext {
 		C4_AbstractViewLoader::setView($view_id, $view);
 		return $view;
 	}
+	
+	function renderPeekPopup($context_id=0 , $view_id='') {
+		
+	}
+	
+	function importGetKeys() {
+		// [TODO] Translate
+	
+		$keys = array(
+			'contact_org_id' => array(
+				'label' => 'Org',
+				'type' => 'ctx_' . CerberusContexts::CONTEXT_ORG,
+				'param' => SearchFields_Address::CONTACT_ORG_ID,
+			),
+			'email' => array(
+				'label' => 'Email',
+				'type' => Model_CustomField::TYPE_SINGLE_LINE,
+				'param' => SearchFields_Address::EMAIL,
+				'required' => true,
+				'force_match' => true,
+			),
+			'first_name' => array(
+				'label' => 'First Name',
+				'type' => Model_CustomField::TYPE_SINGLE_LINE,
+				'param' => SearchFields_Address::FIRST_NAME,
+			),
+			'is_banned' => array(
+				'label' => 'Is Banned',
+				'type' => Model_CustomField::TYPE_CHECKBOX,
+				'param' => SearchFields_Address::IS_BANNED,
+			),
+			'last_name' => array(
+				'label' => 'Last Name',
+				'type' => Model_CustomField::TYPE_SINGLE_LINE,
+				'param' => SearchFields_Address::LAST_NAME,
+			),
+			'num_nonspam' => array(
+				'label' => '# Nonspam',
+				'type' => Model_CustomField::TYPE_NUMBER,
+				'param' => SearchFields_Address::NUM_NONSPAM,
+			),
+			'num_spam' => array(
+				'label' => '# Spam',
+				'type' => Model_CustomField::TYPE_NUMBER,
+				'param' => SearchFields_Address::NUM_SPAM,
+			),
+		);
+	
+		$cfields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ADDRESS);
+	
+		foreach($cfields as $cfield_id => $cfield) {
+			$keys['cf_' . $cfield_id] = array(
+					'label' => $cfield->name,
+					'type' => $cfield->type,
+					'param' => 'cf_' . $cfield_id,
+			);
+		}
+	
+		DevblocksPlatform::sortObjects($keys, '[label]', true);
+	
+		return $keys;
+	}
+	
+	function importKeyValue($key, $value) {
+		switch($key) {
+		}
+	
+		return $value;
+	}
+	
+	function importSaveObject(array $fields, array $custom_fields, array $meta) {
+		// If new...
+		if(!isset($meta['object_id']) || empty($meta['object_id'])) {
+			// Make sure we have a name
+			if(!isset($fields[DAO_Address::EMAIL])) {
+				return FALSE;
+			}
+	
+			// Create
+			$meta['object_id'] = DAO_Address::create($fields);
+	
+		} else {
+			// Update
+			DAO_Address::update($meta['object_id'], $fields);
+		}
+	
+		// Custom fields
+		if(!empty($custom_fields) && !empty($meta['object_id'])) {
+			DAO_CustomFieldValue::formatAndSetFieldValues($this->manifest->id, $meta['object_id'], $custom_fields, false, true, true); //$is_blank_unset (4th)
+		}
+	}	
 };
