@@ -327,32 +327,6 @@ class ChKbBrowseTab extends Extension_KnowledgebaseTab {
 }
 endif;
 
-if (class_exists('Extension_KnowledgebaseTab')):
-class ChKbSearchTab extends Extension_KnowledgebaseTab {
-	const VIEW_ID = 'kb_search';
-	
-	function showTab() {
-		$visit = CerberusApplication::getVisit();
-		$translate = DevblocksPlatform::getTranslationService();
-		
-		$tpl = DevblocksPlatform::getTemplateService();
-
-		// [TODO] Convert to $defaults
-		
-		if(null == ($view = C4_AbstractViewLoader::getView(self::VIEW_ID))) {
-			$view = new View_KbArticle();
-			$view->id = self::VIEW_ID;
-			$view->name = $translate->_('common.search_results');
-			C4_AbstractViewLoader::setView($view->id, $view);
-		}
-		
-		$tpl->assign('view', $view);
-		
-		$tpl->display('devblocks:cerberusweb.kb::kb/tabs/search/index.tpl');
-	}
-}
-endif;
-
 if (class_exists('Extension_ReplyToolbarItem',true)):
 	class ChKbReplyToolbarButton extends Extension_ReplyToolbarItem {
 		function render(Model_Message $message) { 
@@ -612,40 +586,6 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 		
 		// JSON
 		echo json_encode(array('id'=>$id));
-	}
-	
-	function doArticleQuickSearchAction() {
-        @$type = DevblocksPlatform::importGPC($_POST['type'],'string'); 
-        @$query = DevblocksPlatform::importGPC($_POST['query'],'string');
-
-        $visit = CerberusApplication::getVisit(); /* @var $visit CerberusVisit */
-        $translate = DevblocksPlatform::getTranslationService();
-		
-        if(null == ($searchView = C4_AbstractViewLoader::getView(ChKbSearchTab::VIEW_ID))) {
-        	$searchView = new View_KbArticle();
-        	$searchView->id = ChKbSearchTab::VIEW_ID;
-        	$searchView->name = $translate->_('common.search_results');
-        	C4_AbstractViewLoader::setView($searchView->id, $searchView);
-        }
-		
-        $params = array();
-        
-        switch($type) {
-            case "articles_all":
-				$params[SearchFields_KbArticle::FULLTEXT_ARTICLE_CONTENT] = new DevblocksSearchCriteria(SearchFields_KbArticle::FULLTEXT_ARTICLE_CONTENT,DevblocksSearchCriteria::OPER_FULLTEXT,array($query,'all'));
-                break;
-            case "articles_phrase":
-				$params[SearchFields_KbArticle::FULLTEXT_ARTICLE_CONTENT] = new DevblocksSearchCriteria(SearchFields_KbArticle::FULLTEXT_ARTICLE_CONTENT,DevblocksSearchCriteria::OPER_FULLTEXT,array($query,'phrase'));
-                break;
-        }
-        
-        $searchView->addParams($params, true);
-        $searchView->renderPage = 0;
-        $searchView->renderSortBy = null;
-        
-        C4_AbstractViewLoader::setView($searchView->id,$searchView);
-        
-        DevblocksPlatform::redirect(new DevblocksHttpResponse(array('kb','search')));
 	}
 	
 	function showKbCategoryEditPanelAction() {

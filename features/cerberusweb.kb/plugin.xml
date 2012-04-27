@@ -208,19 +208,6 @@
 			</params>
 		</extension>
 		
-		<extension point="cerberusweb.knowledgebase.tab">
-			<id>cerberusweb.kb.tab.search</id>
-			<name>KB Search Tab</name>
-			<class>
-				<file>api/App.php</file>
-				<name>ChKbSearchTab</name>
-			</class>
-			<params>
-				<param key="uri" value="search" />
-				<param key="title" value="Search" />
-			</params>
-		</extension>
-
 		<!-- Ticket Reply Toolbar -->
 			
 		<extension point="cerberusweb.reply.toolbaritem">
