@@ -86,145 +86,12 @@ class CrmOppsActivityTab extends Extension_ActivityTab {
 				} // import:switch
 				break;
 		}
-			
-		// Index
-		$defaults = new C4_AbstractViewModel();
-		$defaults->class_name = 'View_CrmOpportunity';
-		$defaults->id = self::VIEW_ACTIVITY_OPPS;
-		$defaults->name = $translate->_('crm.tab.title');
-		$defaults->renderSortBy = SearchFields_CrmOpportunity::UPDATED_DATE;
-		$defaults->renderSortAsc = 0;
-		
-		$view = C4_AbstractViewLoader::getView(self::VIEW_ACTIVITY_OPPS, $defaults);
-		
-		$quick_search_type = $visit->get('crm.opps.quick_search_type');
-		$tpl->assign('quick_search_type', $quick_search_type);
-		
-		$tpl->assign('view', $view);
-		
-		$tpl->display('devblocks:cerberusweb.crm::crm/opps/activity_tab/index.tpl');		
 	}
 }
 endif;
 
 class CrmPage extends CerberusPageExtension {
 	function render() {
-		$tpl = DevblocksPlatform::getTemplateService();
-
-		$visit = CerberusApplication::getVisit();
-		$translate = DevblocksPlatform::getTranslationService();
-		$active_worker = CerberusApplication::getActiveWorker();
-		
-		$response = DevblocksPlatform::getHttpResponse();
-		$stack = $response->path;
-		
-		array_shift($stack); // crm
-		
-		$module = array_shift($stack); // opps
-		
-		switch($module) {
-			default:
-			case 'opps':
-				@$opp_id = intval(array_shift($stack));
-				if(null == ($opp = DAO_CrmOpportunity::get($opp_id))) {
-					break;
-				}
-				$tpl->assign('opp', $opp);	/* @var $opp Model_CrmOpportunity */					
-
-				// Remember the last tab/URL
-				if(null == (@$selected_tab = $stack[0])) {
-					$selected_tab = $visit->get(Extension_CrmOpportunityTab::POINT, '');
-				}
-				$tpl->assign('selected_tab', $selected_tab);
-
-				// Custom fields
-				
-				$custom_fields = DAO_CustomField::getAll();
-				$tpl->assign('custom_fields', $custom_fields);
-				
-				// Properties
-				
-				$properties = array();
-				
-				$properties['status'] = array(
-					'label' => ucfirst($translate->_('common.status')),
-					'type' => null,
-					'is_closed' => $opp->is_closed,
-					'is_won' => $opp->is_won,
-				);
-				
-				if(!empty($opp->primary_email_id)) {
-					if(null != ($address = DAO_Address::get($opp->primary_email_id))) {
-						$properties['lead'] = array(
-							'label' => ucfirst($translate->_('common.email')),
-							'type' => null,
-							'address' => $address,
-						);
-					}
-					
-					if(!empty($address->contact_org_id) && null != ($org = DAO_ContactOrg::get($address->contact_org_id))) {
-						$properties['org'] = array(
-							'label' => ucfirst($translate->_('contact_org.name')),
-							'type' => null,
-							'org' => $org,
-						);
-					}
-				}
-				
-				if(!empty($opp->is_closed))
-					if(!empty($opp->closed_date))
-						$properties['closed_date'] = array(
-							'label' => ucfirst($translate->_('crm.opportunity.closed_date')),
-							'type' => Model_CustomField::TYPE_DATE,
-							'value' => $opp->closed_date,
-						);
-					
-				if(!empty($opp->amount))
-					$properties['amount'] = array(
-						'label' => ucfirst($translate->_('crm.opportunity.amount')),
-						'type' => Model_CustomField::TYPE_NUMBER,
-						'value' => $opp->amount,
-					);
-					
-				$properties['created_date'] = array(
-					'label' => ucfirst($translate->_('common.created')),
-					'type' => Model_CustomField::TYPE_DATE,
-					'value' => $opp->created_date,
-				);
-				
-				$properties['updated_date'] = array(
-					'label' => ucfirst($translate->_('common.updated')),
-					'type' => Model_CustomField::TYPE_DATE,
-					'value' => $opp->updated_date,
-				);
-				
-				@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_OPPORTUNITY, $opp->id)) or array();
-		
-				foreach($custom_fields as $cf_id => $cfield) {
-					if(!isset($values[$cf_id]))
-						continue;
-						
-					$properties['cf_' . $cf_id] = array(
-						'label' => $cfield->name,
-						'type' => $cfield->type,
-						'value' => $values[$cf_id],
-					);
-				}
-				
-				$tpl->assign('properties', $properties);
-
-				// Workers
-				
-				$workers = DAO_Worker::getAll();
-				$tpl->assign('workers', $workers);
-				
-				// Macros
-				$macros = DAO_TriggerEvent::getByOwner(CerberusContexts::CONTEXT_WORKER, $active_worker->id, 'event.macro.crm.opportunity');
-				$tpl->assign('macros', $macros);
-				
-				$tpl->display('devblocks:cerberusweb.crm::crm/opps/display/index.tpl');
-				break;
-		}
 	}
 	
 	// Ajax
@@ -239,42 +106,6 @@ class CrmPage extends CerberusPageExtension {
 				$visit->set(Extension_CrmOpportunityTab::POINT, $inst->manifest->params['uri']);
 				$inst->showTab();
 		}
-	}
-	
-	function showOppPanelAction() {
-		@$opp_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
-		@$email = DevblocksPlatform::importGPC($_REQUEST['email'],'string','');
-
-		$tpl = DevblocksPlatform::getTemplateService();
-		
-		$tpl->assign('view_id', $view_id);
-		$tpl->assign('email', $email);
-		
-		if(!empty($opp_id) && null != ($opp = DAO_CrmOpportunity::get($opp_id))) {
-			$tpl->assign('opp', $opp);
-			
-			if(null != ($address = DAO_Address::get($opp->primary_email_id))) {
-				$tpl->assign('address', $address);
-			}
-		}
-		
-		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_OPPORTUNITY);
-		$tpl->assign('custom_fields', $custom_fields);
-		
-		if(!empty($opp_id)) {
-			$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_OPPORTUNITY, $opp_id);
-			if(isset($custom_field_values[$opp->id]))
-				$tpl->assign('custom_field_values', $custom_field_values[$opp->id]);
-		}
-
-		// Comments
-		$comments = DAO_Comment::getByContext(CerberusContexts::CONTEXT_OPPORTUNITY, $opp_id);
-		$last_comment = array_shift($comments);
-		unset($comments);
-		$tpl->assign('last_comment', $last_comment);
-		
-		$tpl->display('devblocks:cerberusweb.crm::crm/opps/rpc/peek.tpl');
 	}
 	
 	function saveOppPanelAction() {
@@ -604,65 +435,6 @@ class CrmPage extends CerberusPageExtension {
 		}
 	}	
 	
-	function doQuickSearchAction() {
-        @$type = DevblocksPlatform::importGPC($_POST['type'],'string'); 
-        @$query = DevblocksPlatform::importGPC($_POST['query'],'string');
-
-        $query = trim($query);
-        
-        $visit = CerberusApplication::getVisit(); /* @var $visit CerberusVisit */
-        $translate = DevblocksPlatform::getTranslationService();
-		
-        if(null == ($searchView = C4_AbstractViewLoader::getView(CrmOppsActivityTab::VIEW_ACTIVITY_OPPS))) {
-        	$searchView = new View_CrmOpportunity();
-        	$searchView->id = CrmOppsActivityTab::VIEW_ACTIVITY_OPPS;
-        	$searchView->name = $translate->_('common.search_results');
-        	C4_AbstractViewLoader::setView($searchView->id, $searchView);
-        }
-		
-		$visit->set('crm.opps.quick_search_type', $type);
-		
-        $params = array();
-        
-        switch($type) {
-            case "title":
-		        if($query && false===strpos($query,'*'))
-		            $query = '*' . $query . '*';
-            	$params[SearchFields_CrmOpportunity::NAME] = new DevblocksSearchCriteria(SearchFields_CrmOpportunity::NAME,DevblocksSearchCriteria::OPER_LIKE,$query);               
-                break;
-            case "email":
-		        if($query && false===strpos($query,'*'))
-		            $query = '*' . $query . '*';
-            	$params[SearchFields_CrmOpportunity::EMAIL_ADDRESS] = new DevblocksSearchCriteria(SearchFields_CrmOpportunity::EMAIL_ADDRESS,DevblocksSearchCriteria::OPER_LIKE,$query);               
-                break;
-            case "org":
-		        if($query && false===strpos($query,'*'))
-		            $query = '*' . $query . '*';
-            	$params[SearchFields_CrmOpportunity::ORG_NAME] = new DevblocksSearchCriteria(SearchFields_CrmOpportunity::ORG_NAME,DevblocksSearchCriteria::OPER_LIKE,$query);      
-                break;
-                
-            case "comments_all":
-            	$params[SearchFields_CrmOpportunity::FULLTEXT_COMMENT_CONTENT] = new DevblocksSearchCriteria(SearchFields_CrmOpportunity::FULLTEXT_COMMENT_CONTENT,DevblocksSearchCriteria::OPER_FULLTEXT,array($query,'all'));               
-                break;
-                
-            case "comments_expert":
-            	$params[SearchFields_CrmOpportunity::FULLTEXT_COMMENT_CONTENT] = new DevblocksSearchCriteria(SearchFields_CrmOpportunity::FULLTEXT_COMMENT_CONTENT,DevblocksSearchCriteria::OPER_FULLTEXT,array($query,'expert'));               
-                break;
-                
-            case "comments_phrase":
-            	$params[SearchFields_CrmOpportunity::FULLTEXT_COMMENT_CONTENT] = new DevblocksSearchCriteria(SearchFields_CrmOpportunity::FULLTEXT_COMMENT_CONTENT,DevblocksSearchCriteria::OPER_FULLTEXT,array($query,'phrase'));               
-                break;
-        }
-        
-        $searchView->addParams($params, true);
-        $searchView->renderPage = 0;
-        $searchView->renderSortBy = null;
-        
-        C4_AbstractViewLoader::setView($searchView->id,$searchView);
-        
-        DevblocksPlatform::redirect(new DevblocksHttpResponse(array('activity','opps')));
-	}
-	
 	function viewOppsExploreAction() {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
 		
@@ -719,7 +491,7 @@ class CrmPage extends CerberusPageExtension {
 				$model->pos = $pos++;
 				$model->params = array(
 					'id' => $row[SearchFields_CrmOpportunity::ID],
-					'url' => $url_writer->writeNoProxy(sprintf("c=crm&tab=opps&id=%d", $row[SearchFields_CrmOpportunity::ID]), true),
+					'url' => $url_writer->writeNoProxy(sprintf("c=profiles&tab=opportunity&id=%d-%s", $row[SearchFields_CrmOpportunity::ID], DevblocksPlatform::strToPermalink($row[SearchFields_CrmOpportunity::NAME])), true),
 				);
 				$models[] = $model; 
 			}

@@ -124,21 +124,21 @@
 			</params>
 		</extension>
 
-		<!-- Activity Tabs -->
+		<!-- Profile Page Sections -->
 		
-		<extension point="cerberusweb.activity.tab">
-			<id>crm.activity.tab.opps</id>
-			<name>Opportunities Tab</name>
+		<extension point="cerberusweb.ui.page.section">
+			<id>crm.page.profiles.opportunity</id>
+			<name>Opp Section</name>
 			<class>
-				<file>api/App.php</file>
-				<name>CrmOppsActivityTab</name>
+				<file>api/uri/profiles/opp.php</file>
+				<name>PageSection_ProfilesOpportunity</name>
 			</class>
 			<params>
-				<param key="uri" value="opps" />
-				<param key="title" value="crm.tab.title" />
+				<param key="page_id" value="core.page.profiles" />
+				<param key="uri" value="opportunity" />
 			</params>
 		</extension>
-		
+
 		<!-- Event Triggers -->
 		
 		<extension point="devblocks.event">

@@ -1,20 +1,18 @@
 {$page_context = CerberusContexts::CONTEXT_OPPORTUNITY}
 {$page_context_id = $opp->id}
 
-{include file="devblocks:cerberusweb.crm::crm/submenu.tpl"}
-
-<div style="float:left;">
-	<h2>{'crm.common.opportunity'|devblocks_translate|capitalize}</h2>
+<div style="float:right;">
+	{include file="devblocks:cerberusweb.core::search/quick_search.tpl"}
 </div>
 
-<div style="float:right;">
-	{include file="devblocks:cerberusweb.crm::crm/quick_search.tpl"}
+<div style="float:left;">
+	<h2>{$opp->name}</h2>
 </div>
 
 <br clear="all">
 
 <fieldset class="properties">
-	<legend>{$opp->name|truncate:128}</legend>
+	<legend>{'crm.common.opportunity'|devblocks_translate|capitalize}</legend>
 	
 	<form action="{devblocks_url}{/devblocks_url}" onsubmit="return false;" style="margin-bottom:5px;">
 
@@ -120,10 +118,10 @@
 		var tabs = $("#oppTabs").tabs( { selected:{$selected_tab_idx} } );
 		
 		$('#btnDisplayOppEdit').bind('click', function() {
-			$popup = genericAjaxPopup('peek','c=crm&a=showOppPanel&id={$page_context_id}',null,false,'550');
+			$popup = genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_OPPORTUNITY}&context_id={$page_context_id}',null,false,'550');
 			$popup.one('opp_save', function(event) {
 				event.stopPropagation();
-				document.location.href = '{devblocks_url}c=crm&a=display&id={$page_context_id}{/devblocks_url}';
+				document.location.href = '{devblocks_url}c=profiles&a=opportunity&id={$page_context_id}-{$opp->name|devblocks_permalink}{/devblocks_url}';
 			});
 		})
 	});
