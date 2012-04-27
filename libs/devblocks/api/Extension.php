@@ -165,7 +165,26 @@ abstract class Extension_DevblocksContext extends DevblocksExtension {
 	abstract function getRandom();
     abstract function getMeta($context_id);
     abstract function getContext($object, &$token_labels, &$token_values, $prefix=null);
-    abstract function getChooserView();
+    function getSearchView($view_id=null) {
+    	if(empty($view_id)) {
+	    	$view_id = sprintf("search_%s",
+    			str_replace('.','_',DevblocksPlatform::strToPermalink($this->id))
+	    	);
+    	}
+    	
+    	if(null == ($view = C4_AbstractViewLoader::getView($view_id))) {
+    		$view = $this->getChooserView($view_id); /* @var $view C4_AbstractViewModel */
+    	}
+    	
+    	$view->name = 'Search Results';
+    	$view->renderFilters = false;
+    	$view->is_ephemeral = false;
+    	
+    	C4_AbstractViewLoader::setView($view_id, $view);
+    	
+    	return $view;
+    }
+    abstract function getChooserView($view_id=null);
     function getViewClass() {
     	return @$this->manifest->params['view_class'];
     }

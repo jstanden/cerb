@@ -4,7 +4,7 @@
 		<h2>{'common.workspaces'|devblocks_translate|capitalize}</h2>
 	</td>
 	<td width="1%" valign="middle" nowrap="nowrap">
-		{include file="devblocks:cerberusweb.core::tickets/quick_search_box.tpl"}
+		{*include file="devblocks:cerberusweb.core::search/quick_search.tpl"*}
 	</td>
 </tr>
 </table>

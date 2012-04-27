@@ -59,9 +59,7 @@ class Page_Search extends CerberusPageExtension {
 		
 		$tpl->assign('context_ext', $context_ext);
 		
-		$view = $context_ext->getChooserView(); /* @var $view C4_AbstractViewModel */
-		$view->name = 'Search Results';
-		$view->renderFilters = false;
+		$view = $context_ext->getSearchView();
 		
 		// Placeholders
 		
@@ -69,8 +67,8 @@ class Page_Search extends CerberusPageExtension {
 		$values = array();
 		
 		$labels['current_worker_id'] = array(
-				'label' => 'Current Worker',
-				'context' => CerberusContexts::CONTEXT_WORKER,
+			'label' => 'Current Worker',
+			'context' => CerberusContexts::CONTEXT_WORKER,
 		);
 		
 		$values['current_worker_id'] = $active_worker->id;
@@ -91,15 +89,19 @@ class Page_Search extends CerberusPageExtension {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
 		@$token = DevblocksPlatform::importGPC($_REQUEST['field'],'string','');
 		@$query = DevblocksPlatform::importGPC($_REQUEST['query'],'string','');
+		@$reset = DevblocksPlatform::importGPC($_REQUEST['reset'],'integer',0);
 		
 		header("Content-type: application/json");
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		if(null == ($view = C4_AbstractViewLoader::getView($view_id))) {
+		if(null == ($view = C4_AbstractViewLoader::getView($view_id))) { /* @var $view C4_AbstractView */
 			echo json_encode(null);
 			return;
 		}
+		
+		if(!empty($reset))
+			$view->doResetCriteria();
 		
 		$fields = $view->getParamsAvailable();
 		

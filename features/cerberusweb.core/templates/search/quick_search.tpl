@@ -13,6 +13,7 @@
 	<input type="hidden" name="c" value="search">
 	<input type="hidden" name="a" value="ajaxQuickSearch">
 	<input type="hidden" name="view_id" value="{$view->id}">
+	<input type="hidden" name="reset" value="{if !empty($reset)}1{else}0{/if}">
 	<select name="field">
 		{$smarty.capture.options nofilter}
 	</select><input type="text" name="query" class="input_search" size="32" class="input_search" autocomplete="off">
@@ -32,12 +33,16 @@ $frm.find('input:text').keydown(function(e) {
 		
 		genericAjaxPost('{$uniqid}','',null,function(json) {
 			if(json.status == true) {
-				$view_filters = $('#viewCustomFilters{$view->id}');
-				
-				if(0 != $view_filters.length) {
-					$view_filters.html(json.html);
-					$view_filters.trigger('view_refresh')
-				}
+				{if !empty($return_url)}
+					window.location.href = '{$return_url}';
+				{else}
+					$view_filters = $('#viewCustomFilters{$view->id}');
+					
+					if(0 != $view_filters.length) {
+						$view_filters.html(json.html);
+						$view_filters.trigger('view_refresh')
+					}
+				{/if}
 			}
 			
 			$txt.select().focus();

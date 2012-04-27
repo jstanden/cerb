@@ -1,5 +1,5 @@
 <div style="float:left;">
-{include file="devblocks:cerberusweb.core::search/quick_search.tpl" view=$view}
+{include file="devblocks:cerberusweb.core::search/quick_search.tpl" view=$view return_url=null reset=false}
 </div>
 
 <div style="clear:both;"></div>
