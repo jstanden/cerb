@@ -186,7 +186,11 @@ class ChPageController extends DevblocksControllerExtension {
 			$tpl->assign('render_memory', memory_get_usage() - DevblocksPlatform::getStartMemory());
 			$tpl->assign('render_peak_memory', memory_get_peak_usage() - DevblocksPlatform::getStartPeakMemory());
 		}
-		
+
+		// Contexts
+		$contexts = Extension_DevblocksContext::getAll(false);
+		$tpl->assign('contexts', $contexts);
+
 		$tpl->display('devblocks:cerberusweb.core::border.tpl');
 		
 		if(!empty($active_worker)) {

@@ -10,7 +10,7 @@
 
 {if !empty($smarty.capture.options)}
 	<form action="javascript:;" method="post" id="{$uniqid}">
-	<input type="hidden" name="c" value="workspaces">
+	<input type="hidden" name="c" value="search">
 	<input type="hidden" name="a" value="ajaxQuickSearch">
 	<input type="hidden" name="view_id" value="{$view->id}">
 	<select name="field">

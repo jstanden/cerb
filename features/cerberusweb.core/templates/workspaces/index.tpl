@@ -54,20 +54,6 @@
 			</div>
 		</li>
 		{/if}
-		
-		<li>
-			<div>
-				<a href="javascript:;" class="menu">{'common.search'|devblocks_translate|capitalize} <span class="cerb-sprite sprite-arrow-down-white"></span></a>
-				<ul class="cerb-popupmenu cerb-float">
-					{foreach from=$contexts item=context key=context_id}
-					{if isset($context->params.options.0.workspace)}
-					<li><a href="{devblocks_url}c=workspaces&a=context&context={if isset($context->params.alias)}{$context->params.alias}{else}{$context_id}{/if}{/devblocks_url}">{$context->name}</a></li>
-					{/if}
-					{/foreach}
-				</ul>
-			</div>
-		</li>
-		
 	</ul>
 </div>
 <br clear="all" style="clear:both;">

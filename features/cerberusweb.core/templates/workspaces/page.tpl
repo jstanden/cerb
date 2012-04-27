@@ -1,5 +1,5 @@
 <div style="float:right;">
-	{include file="devblocks:cerberusweb.core::workspaces/quick_search.tpl" view_id=$view->id}
+	{include file="devblocks:cerberusweb.core::search/quick_search.tpl" view=$view}
 </div>
 
 <div style="float:right;margin-right:10px;">

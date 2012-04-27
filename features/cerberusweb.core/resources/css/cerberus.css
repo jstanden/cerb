@@ -308,7 +308,7 @@ UL.navmenu {
 	color:rgb(80,80,80);
 }
 
-UL.navmenu LI {
+UL.navmenu > LI {
 	float:left;
 	background-color:rgb(240,240,240);
 	border-right:1px solid rgb(210,210,210);
@@ -316,21 +316,21 @@ UL.navmenu LI {
 	margin:0px;
 }
 
-UL.navmenu LI:hover {
+UL.navmenu > LI:hover {
 	background-color:rgb(220,220,220);
 }
 
-UL.navmenu LI A {
+UL.navmenu > LI > A {
 	color: rgb(80,80,80);
 	font-weight:normal;
 	text-decoration:none;
 }
 
-UL.navmenu LI.selected {
+UL.navmenu > LI.selected {
 	background-color: rgb(69,85,96);
 }
 
-UL.navmenu LI.selected A {
+UL.navmenu > LI.selected > A {
 	color:rgb(255,255,255);
 	text-decoration:none;
 	font-weight:normal;
@@ -798,7 +798,7 @@ FIELDSET.peek {
 }
 
 FIELDSET.peek LEGEND {
-	color:rgb(50,50,50);
+	color:rgb(0,120,0);
 }
 
 FIELDSET.properties {
