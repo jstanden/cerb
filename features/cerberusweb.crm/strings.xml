@@ -47,24 +47,6 @@
 			<tuv xml:lang="en_US"><seg>Add Opportunity</seg></tuv>
 		</tu>
 		
-		<tu tuid='crm.opp.import.find_dupes'>
-			<tuv xml:lang="en_US"><seg>Find dupes with same</seg></tuv>
-		</tu>
-		<tu tuid='crm.opp.import.from_file'>
-			<tuv xml:lang="en_US"><seg>Columns from your file</seg></tuv>
-		</tu>
-		<tu tuid='crm.opp.import.options.blank_fields'>
-			<tuv xml:lang="en_US"><seg>Blank values for custom fields should clear the field (if unchecked, blank values are skipped)</seg></tuv>
-		</tu>
-		<tu tuid='crm.opp.import.options.import_first_row'>
-			<tuv xml:lang="en_US"><seg>Import the first row (only check this if the dropdowns contain real data)</seg></tuv>
-		</tu>
-		<tu tuid='crm.opp.import.options.set_owner'>
-			<tuv xml:lang="en_US"><seg>Set the owner of imported opportunities to:</seg></tuv>
-		</tu>
-		<tu tuid='crm.opp.import.to_field'>
-			<tuv xml:lang="en_US"><seg>Set value in field</seg></tuv>
-		</tu>
 		<tu tuid='crm.opp.import.upload_csv'>
 			<tuv xml:lang="en_US"><seg>Upload .CSV File</seg></tuv>
 		</tu>

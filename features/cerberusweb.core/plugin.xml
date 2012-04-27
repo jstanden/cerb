@@ -592,7 +592,6 @@
 	
 		<!-- Addy Book -->
 		<priv id="core.addybook" label="acl.core.addybook" />
-		<priv id="core.addybook.actions.import" label="acl.core.addybook.actions.import" />
 		<priv id="core.addybook.addy.actions.update" label="acl.core.addybook.addy.actions.update" />
 		<priv id="core.addybook.addy.view.actions.broadcast" label="acl.core.addybook.addy.view.actions.broadcast" />
 		<priv id="core.addybook.addy.view.actions.export" label="acl.core.addybook.addy.view.actions.export" />

@@ -411,56 +411,6 @@
         <seg>Kontakt-Historie</seg>
       </tuv>
     </tu>
-    <tu tuid="addy_book.import.dupes.check">
-      <tuv xml:lang="de_DE">
-        <seg>Prüfe nach Duplikaten über</seg>
-      </tuv>
-    </tu>
-    <tu tuid="addy_book.import.dupes.dont_check">
-      <tuv xml:lang="de_DE">
-        <seg>nicht nach Duplikaten prüfen</seg>
-      </tuv>
-    </tu>
-    <tu tuid="addy_book.import.from_file">
-      <tuv xml:lang="de_DE">
-        <seg>Spalten aus Ihrer Datei</seg>
-      </tuv>
-    </tu>
-    <tu tuid="addy_book.import.options.blank_fields">
-      <tuv xml:lang="de_DE">
-        <seg>Leere Werte für benutzerdefinierte Felder sollten das Feld leeren (wenn nicht ausgewählt werden leere Werte übersprungen)</seg>
-      </tuv>
-    </tu>
-    <tu tuid="addy_book.import.options.import_first_row">
-      <tuv xml:lang="de_DE">
-        <seg>Import der ersten Zeile (dies nur auswählen, wenn die Dropdown-Listen richtige Werte enthalten)</seg>
-      </tuv>
-    </tu>
-    <tu tuid="addy_book.import.options.replace_passwords">
-      <tuv xml:lang="de_DE">
-        <seg>Ersetze alle Passwörter mit importierten Werten, auch wenn diese bereits existieren</seg>
-      </tuv>
-    </tu>
-    <tu tuid="addy_book.import.record_type">
-      <tuv xml:lang="de_DE">
-        <seg>Datensatztyp</seg>
-      </tuv>
-    </tu>
-    <tu tuid="addy_book.import.to_field">
-      <tuv xml:lang="de_DE">
-        <seg>Setze Wert im Feld</seg>
-      </tuv>
-    </tu>
-    <tu tuid="addy_book.import.upload_csv">
-      <tuv xml:lang="de_DE">
-        <seg>CSV-Datei hoch laden</seg>
-      </tuv>
-    </tu>
-    <tu tuid="addy_book.import.upload_csv.tip">
-      <tuv xml:lang="de_DE">
-        <seg>(jede Spaltenreihenfolge; im nächsten Schritt wird das Ziel der Daten festgelegt)</seg>
-      </tuv>
-    </tu>
     <tu tuid="addy_book.org.add">
       <tuv xml:lang="de_DE">
         <seg>Organisation hinzufügen</seg>
@@ -509,11 +459,6 @@
     <tu tuid="addy_book.tab.import">
       <tuv xml:lang="de_DE">
         <seg>Import</seg>
-      </tuv>
-    </tu>
-    <tu tuid="addy_book.tab.lists">
-      <tuv xml:lang="de_DE">
-        <seg>Kontaktlisten</seg>
       </tuv>
     </tu>
     <tu tuid="addy_book.tab.organizations">
@@ -1469,36 +1414,6 @@
     <tu tuid="crm.opp.add">
       <tuv xml:lang="de_DE">
         <seg>Absatzchance hinzufügen</seg>
-      </tuv>
-    </tu>
-    <tu tuid="crm.opp.import.find_dupes">
-      <tuv xml:lang="de_DE">
-        <seg>Finde Duplikate</seg>
-      </tuv>
-    </tu>
-    <tu tuid="crm.opp.import.from_file">
-      <tuv xml:lang="de_DE">
-        <seg>Spalten von Ihrer Datei</seg>
-      </tuv>
-    </tu>
-    <tu tuid="crm.opp.import.options.blank_fields">
-      <tuv xml:lang="de_DE">
-        <seg>Leere Werte für benutzerdefinierte Felder sollten das Feld leeren (wenn nicht ausgewählt werden leere Werte übersprungen)</seg>
-      </tuv>
-    </tu>
-    <tu tuid="crm.opp.import.options.import_first_row">
-      <tuv xml:lang="de_DE">
-        <seg>Import der ersten Zeile (dies nur auswählen, wenn die Dropdown-Listen richtige Werte enthalten)</seg>
-      </tuv>
-    </tu>
-    <tu tuid="crm.opp.import.options.set_owner">
-      <tuv xml:lang="de_DE">
-        <seg>Setze den Inhaber von importierten Absatzchancen auf:</seg>
-      </tuv>
-    </tu>
-    <tu tuid="crm.opp.import.to_field">
-      <tuv xml:lang="de_DE">
-        <seg>Setze Wert im Feld</seg>
       </tuv>
     </tu>
     <tu tuid="crm.opp.import.upload_csv">

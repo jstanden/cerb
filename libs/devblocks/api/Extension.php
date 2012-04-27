@@ -46,6 +46,12 @@ interface IDevblocksContextPeek {
     function renderPeekPopup($context_id=0, $view_id='');
 }
 
+interface IDevblocksContextImport {
+    function importGetKeys();
+    function importKeyValue($key, $value);
+    function importSaveObject(array $fields, array $custom_fields, array $meta);
+}
+
 abstract class Extension_DevblocksContext extends DevblocksExtension {
 	static $_changed_contexts = array();
 	

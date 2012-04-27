@@ -188,6 +188,351 @@ class ChInternalController extends DevblocksControllerExtension {
 		
 		$context_ext->renderPeekPopup($context_id, $view_id);
 	}
+
+	/*
+	 * Import
+	 */
+	
+	function showImportPopupAction() {
+		@$layer = DevblocksPlatform::importGPC($_REQUEST['layer'],'string');
+		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
+		
+		if(null == ($context_ext = Extension_DevblocksContext::get($context)))
+			return;
+
+		// [TODO] ACL
+// 		$active_worker = CerberusApplication::getActiveWorker();
+// 		if(!$active_worker->hasPriv('crm.opp.actions.import'))
+// 			return;
+
+		if(!($context_ext instanceof IDevblocksContextImport))
+			return;
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+
+		// Template
+		
+		$tpl->assign('layer', $layer);
+		$tpl->assign('context', $context_ext->id);
+		$tpl->assign('view_id', $view_id);
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/import/popup_upload.tpl');
+	}
+	
+	function parseImportFileAction() {
+		header("Content-Type: application/json");
+		
+		@$csv_file = $_FILES['csv_file'];
+		
+		// [TODO] Return false in JSON if file is empty, etc.
+		
+		if(!is_array($csv_file) || !isset($csv_file['tmp_name']) || empty($csv_file['tmp_name'])) {
+			echo json_encode(false);
+			exit;
+		}
+		
+		$filename = basename($csv_file['tmp_name']);
+		$newfilename = APP_TEMP_PATH . '/' . $filename;
+		
+		if(!rename($csv_file['tmp_name'], $newfilename)) {
+			echo json_encode(false);
+			exit;
+		}
+		
+		$visit = CerberusApplication::getVisit();
+		$visit->set('import.last.csv', $newfilename);
+		
+		echo json_encode(true);
+		exit;
+	}
+
+	function showImportMappingPopupAction() {
+		@$layer = DevblocksPlatform::importGPC($_REQUEST['layer'],'string');
+		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
+	
+		$tpl = DevblocksPlatform::getTemplateService();
+		$visit = CerberusApplication::getVisit();
+		
+		if(null == ($context_ext = Extension_DevblocksContext::get($context)))
+			return;
+	
+		// [TODO] ACL
+		// 		$active_worker = CerberusApplication::getActiveWorker();
+		// 		if(!$active_worker->hasPriv('crm.opp.actions.import'))
+		// 			return;
+	
+		if(!($context_ext instanceof IDevblocksContextImport))
+			return;
+
+		// Keys
+		$keys = $context_ext->importGetKeys();
+		$tpl->assign('keys', $keys);
+	
+		// Read the first line from the file
+		$csv_file = $visit->get('import.last.csv','');
+		$fp = fopen($csv_file, 'rt');
+		$columns = fgetcsv($fp);
+		fclose($fp);
+
+		$tpl->assign('columns', $columns);
+		
+		// Template
+	
+		$tpl->assign('layer', $layer);
+		$tpl->assign('context', $context_ext->id);
+		$tpl->assign('view_id', $view_id);
+	
+		$tpl->display('devblocks:cerberusweb.core::internal/import/popup_mapping.tpl');
+	}
+	
+	function doImportAction() {
+		//header("Content-Type: application/json");
+
+		@$layer = DevblocksPlatform::importGPC($_REQUEST['layer'],'string');
+		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
+		@$is_preview = DevblocksPlatform::importGPC($_REQUEST['is_preview'],'integer',0);
+		
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+// 		if(!$active_worker->hasPriv('crm.opp.actions.import'))
+// 			return;
+		
+		@$field = DevblocksPlatform::importGPC($_REQUEST['field'],'array',array());
+		@$column = DevblocksPlatform::importGPC($_REQUEST['column'],'array',array());
+		@$column_custom = DevblocksPlatform::importGPC($_REQUEST['column_custom'],'array',array());
+		@$sync_dupes = DevblocksPlatform::importGPC($_REQUEST['sync_dupes'],'array',array());
+		
+		$visit = CerberusApplication::getVisit();
+		$db = DevblocksPlatform::getDatabaseService();
+
+		if(null == ($context_ext = Extension_DevblocksContext::get($context)))
+			return;
+		
+		if(!($context_ext instanceof IDevblocksContextImport))
+			return;		
+
+		$view_class = $context_ext->getViewClass();
+		$view = new $view_class; /* @var $view C4_AbstractView */
+		
+		$keys = $context_ext->importGetKeys();
+
+		// Counters
+		$line_number = 0;
+		
+		// CSV
+		$csv_file = $visit->get('import.last.csv','');
+		
+		$fp = fopen($csv_file, "rt");
+		if(!$fp)
+			return;
+		
+		// Do we need to consume a first row of headings?
+		@fgetcsv($fp, 8192, ',', '"');
+		
+		while(!feof($fp)) {
+			$line_number++;
+			
+			$parts = fgetcsv($fp, 8192, ',', '"');
+
+			if($is_preview && $line_number > 25)
+				continue;
+			
+			if(empty($parts) || (1==count($parts) && is_null($parts[0])))
+				continue;
+
+			// Snippets dictionary
+			$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+			$dict = new DevblocksDictionaryDelegate(array());
+				
+			foreach($parts as $idx => $part) {
+				$col = 'column_' . ($idx + 1); // 0-based to 1-based
+				$dict->$col = $part;
+			}
+
+			// Meta
+			$meta = array(
+				'line' => $parts,
+				'fields' => $field,
+				'columns' => $column,
+			);
+			
+			$fields = array();
+			$custom_fields = array();
+			$sync_fields = array();
+			
+			foreach($field as $idx => $key) {
+				if(!isset($keys[$key]))
+					continue;
+				
+				$col = $column[$idx];
+
+				// Are we providing custom values?
+				if($col == 'custom') {
+					@$val = $tpl_builder->build($column_custom[$idx], $dict);
+					
+				// Are we referencing a column number from the CSV file?
+				} elseif(is_numeric($col)) {
+					$val = $parts[$col];
+				
+				// Otherwise, use a literal value.
+				} else {
+					$val = $col;
+				}
+
+				if(0 == strlen($val))
+					continue;
+				
+				// Are we setting a custom field?
+				$cf_id = null;
+				if('cf_' == substr($key,0,3)) {
+					$cf_id = substr($key,3);
+				}
+
+				// What type of field is this?
+				$type = $keys[$key]['type'];
+				$value = null;
+
+				// Can we automatically format the value?
+				
+				switch($type) {
+					case 'ctx_' . CerberusContexts::CONTEXT_ADDRESS:
+						if(null != ($addy = DAO_Address::lookupAddress($val, true))) {
+							$value = $addy->id;
+						}
+						break;
+						
+					case Model_CustomField::TYPE_CHECKBOX:
+						// Attempt to interpret bool values
+						if(
+							false !== stristr($val, 'yes')
+							|| false !== stristr($val, 'y')
+							|| false !== stristr($val, 'true')
+							|| false !== stristr($val, 't')
+							|| intval($val) > 0
+						) {
+							$value = 1;
+							
+						} else {
+							$value = 0;
+						}
+						break;
+						
+					case Model_CustomField::TYPE_DATE:
+						@$value = !is_numeric($val) ? strtotime($val) : $val;
+						break;
+						
+					case Model_CustomField::TYPE_DROPDOWN:
+						// [TODO] Add where missing
+						$value = $val;
+						break;
+						
+					case Model_CustomField::TYPE_MULTI_CHECKBOX:
+						// [TODO] Add where missing
+						$value = $val;
+						break;
+						
+					case Model_CustomField::TYPE_MULTI_LINE:
+						$value = $val;
+						break;
+						
+					case Model_CustomField::TYPE_NUMBER:
+						$value = intval($val);
+						break;
+						
+					case Model_CustomField::TYPE_SINGLE_LINE:
+						$value = $val;
+						break;
+						
+					case Model_CustomField::TYPE_URL:
+						$value = $val;
+						break;
+						
+					case Model_CustomField::TYPE_WORKER:
+					case 'ctx_' . CerberusContexts::CONTEXT_WORKER:
+						$workers = DAO_Worker::getAllActive();
+
+						$worker_names = array();
+						$val_worker_id = 0;
+						
+						if(0 == strcasecmp($val, 'me')) {
+							$val_worker_id = $active_worker->id;
+						}
+							
+						foreach($workers as $worker_id => $worker) {
+							if(!empty($val_worker_id))
+								break;
+							
+							$worker_name = $worker->getName();
+								
+							if(false !== stristr($worker_name, $val)) {
+								$val_worker_id = $worker_id;
+							}
+						}
+						
+						$value = $val_worker_id;
+						break;
+						
+					default:
+						$value = $val;
+						break;
+				}
+
+				/* @var $context_ext IDevblocksContextImport */
+				$value = $context_ext->importKeyValue($key, $value);
+				
+				if($is_preview) {
+					echo sprintf("%s => %s<br>", 
+						$keys[$key]['label'],
+						$value
+					);
+				}
+				
+				if(!is_null($value)) {
+					$val = $value;
+					
+					if(is_null($cf_id)) {
+						$fields[$key] = $value;
+					} else {
+						$custom_fields[$cf_id] = $value;						
+					}
+				}
+				
+				if(isset($keys[$key]['force_match']) || in_array($key, $sync_dupes)) {
+					$sync_fields[] = new DevblocksSearchCriteria($keys[$key]['param'], '=', $val);
+				}
+			}
+
+			if($is_preview) {
+				echo "<hr>";
+			}
+			
+			// Check for dupes
+			$meta['object_id'] = null;
+			
+			if(!empty($sync_fields)) {
+				$view->addParams($sync_fields, true);
+				$view->renderLimit = 1;
+				$view->renderPage = 0;
+				$view->renderTotal = false;
+				list($results) = $view->getData();
+			
+				if(!empty($results)) {
+					$meta['object_id'] = key($results);
+				}
+			}
+			
+			if(!$is_preview)
+				$context_ext->importSaveObject($fields, $custom_fields, $meta);
+		}
+		
+		if(!$is_preview) {
+			@unlink($csv_file); // nuke the imported file}
+			$visit->set('import.last.csv',null);
+		}
+	}
 	
 	/*
 	 * Choosers

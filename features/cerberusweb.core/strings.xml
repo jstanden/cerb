@@ -387,6 +387,9 @@
 		<tu tuid='common.permalink'>
 			<tuv xml:lang="en_US"><seg>permalink</seg></tuv>
 		</tu>
+		<tu tuid='common.preview'>
+			<tuv xml:lang="en_US"><seg>preview</seg></tuv>
+		</tu>
 		<tu tuid='common.previous_short'>
 			<tuv xml:lang="en_US"><seg>prev</seg></tuv>
 		</tu>
@@ -656,9 +659,6 @@
 		<tu tuid='acl.core.addybook'>
 			<tuv xml:lang="en_US"><seg>[Address Book] Can browse the address book</seg></tuv>
 		</tu>
-		<tu tuid='acl.core.addybook.actions.import'>
-			<tuv xml:lang="en_US"><seg>[Address Book] Can import/upload records into the address book</seg></tuv>
-		</tu>
 		<tu tuid='acl.core.addybook.addy.actions.update'>
 			<tuv xml:lang="en_US"><seg>[Address Book] Can modify email address contacts</seg></tuv>
 		</tu>
@@ -833,36 +833,6 @@
 		<tu tuid='addy_book.history.view.requester'>
 			<tuv xml:lang="en_US"><seg>Recipient History: %s contact(s)</seg></tuv>
 		</tu>
-		<tu tuid='addy_book.import.dupes.check'>
-			<tuv xml:lang="en_US"><seg>Check for duplicates using</seg></tuv>
-		</tu>
-		<tu tuid='addy_book.import.dupes.dont_check'>
-			<tuv xml:lang="en_US"><seg>don't check for duplicates</seg></tuv>
-		</tu>
-		<tu tuid='addy_book.import.from_file'>
-			<tuv xml:lang="en_US"><seg>Columns from your file</seg></tuv>
-		</tu>
-		<tu tuid='addy_book.import.options.blank_fields'>
-			<tuv xml:lang="en_US"><seg>Blank values for custom fields should clear the field (if unchecked, blank values are skipped)</seg></tuv>
-		</tu>
-		<tu tuid='addy_book.import.options.import_first_row'>
-			<tuv xml:lang="en_US"><seg>Import the first row (only check this if the dropdowns contain real data)</seg></tuv>
-		</tu>
-		<tu tuid='addy_book.import.options.replace_passwords'>
-			<tuv xml:lang="en_US"><seg>Replace all passwords with import values, even if they already exist</seg></tuv>
-		</tu>
-		<tu tuid='addy_book.import.record_type'>
-			<tuv xml:lang="en_US"><seg>Record Type</seg></tuv>
-		</tu>
-		<tu tuid='addy_book.import.to_field'>
-			<tuv xml:lang="en_US"><seg>Set value in field</seg></tuv>
-		</tu>
-		<tu tuid='addy_book.import.upload_csv'>
-			<tuv xml:lang="en_US"><seg>Upload .CSV File</seg></tuv>
-		</tu>
-		<tu tuid='addy_book.import.upload_csv.tip'>
-			<tuv xml:lang="en_US"><seg>(any column order; the next step will let you choose where the data goes)</seg></tuv>
-		</tu>
 		<tu tuid='addy_book.org.add'>
 			<tuv xml:lang="en_US"><seg>Add Org</seg></tuv>
 		</tu>
@@ -889,12 +859,6 @@
 		</tu>
 		<tu tuid='addy_book.tab.addresses'>
 			<tuv xml:lang="en_US"><seg>Addresses</seg></tuv>
-		</tu>
-		<tu tuid='addy_book.tab.import'>
-			<tuv xml:lang="en_US"><seg>Import</seg></tuv>
-		</tu>
-		<tu tuid='addy_book.tab.lists'>
-			<tuv xml:lang="en_US"><seg>Contact Lists</seg></tuv>
 		</tu>
 		<tu tuid='addy_book.tab.organizations'>
 			<tuv xml:lang="en_US"><seg>Organizations</seg></tuv>

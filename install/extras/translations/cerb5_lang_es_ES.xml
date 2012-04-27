@@ -381,56 +381,6 @@
         <seg>Historia del Contacto</seg>
       </tuv>
     </tu>
-    <tu tuid="addy_book.import.dupes.check">
-      <tuv xml:lang="es_ES">
-        <seg>Comprobar duplicados usando</seg>
-      </tuv>
-    </tu>
-    <tu tuid="addy_book.import.dupes.dont_check">
-      <tuv xml:lang="es_ES">
-        <seg>no comprobar duplicados</seg>
-      </tuv>
-    </tu>
-    <tu tuid="addy_book.import.from_file">
-      <tuv xml:lang="es_ES">
-        <seg>Columnas de su fichero</seg>
-      </tuv>
-    </tu>
-    <tu tuid="addy_book.import.options.blank_fields">
-      <tuv xml:lang="es_ES">
-        <seg>Valores en blanco para los campos personalizados limpiarán el campo (Si no está marcado, se saltarán los valores en blanco)</seg>
-      </tuv>
-    </tu>
-    <tu tuid="addy_book.import.options.import_first_row">
-      <tuv xml:lang="es_ES">
-        <seg>Importar la primera fila (marcar sólo si los desplegables contienen datos reales)</seg>
-      </tuv>
-    </tu>
-    <tu tuid="addy_book.import.options.replace_passwords">
-      <tuv xml:lang="es_ES">
-        <seg>Reemplazar todas las contraseñas con valores importados, incluso si ya existen</seg>
-      </tuv>
-    </tu>
-    <tu tuid="addy_book.import.record_type">
-      <tuv xml:lang="es_ES">
-        <seg>Tipo de Registro</seg>
-      </tuv>
-    </tu>
-    <tu tuid="addy_book.import.to_field">
-      <tuv xml:lang="es_ES">
-        <seg>Poner valor en el campo</seg>
-      </tuv>
-    </tu>
-    <tu tuid="addy_book.import.upload_csv">
-      <tuv xml:lang="es_ES">
-        <seg>Subir fichero .CSV</seg>
-      </tuv>
-    </tu>
-    <tu tuid="addy_book.import.upload_csv.tip">
-      <tuv xml:lang="es_ES">
-        <seg>(cualquier orden de columnas; el próximo paso le permitirá elegir donde irán los datos)</seg>
-      </tuv>
-    </tu>
     <tu tuid="addy_book.org.add">
       <tuv xml:lang="es_ES">
         <seg>Añadir Organización</seg>

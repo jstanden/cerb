@@ -421,56 +421,6 @@
         <seg>Contactpersoon-geschiedenis</seg>
       </tuv>
     </tu>
-    <tu tuid="addy_book.import.dupes.check">
-      <tuv xml:lang="nl_NL">
-        <seg>Controleer voor duplicaten</seg>
-      </tuv>
-    </tu>
-    <tu tuid="addy_book.import.dupes.dont_check">
-      <tuv xml:lang="nl_NL">
-        <seg>controleer niet op duplicaten</seg>
-      </tuv>
-    </tu>
-    <tu tuid="addy_book.import.from_file">
-      <tuv xml:lang="nl_NL">
-        <seg>Kolommen uit uw bestand</seg>
-      </tuv>
-    </tu>
-    <tu tuid="addy_book.import.options.blank_fields">
-      <tuv xml:lang="nl_NL">
-        <seg>Blanco waardes voor Custom Fields zal velden leegmaken(wanneer niet geselecteerd zullen blanco waardes genegeerd worden)</seg>
-      </tuv>
-    </tu>
-    <tu tuid="addy_book.import.options.import_first_row">
-      <tuv xml:lang="nl_NL">
-        <seg>Importeer alleen de eerste regel(gebruik dit alleen wanneer de uitklapmenu echte data bevat)</seg>
-      </tuv>
-    </tu>
-    <tu tuid="addy_book.import.options.replace_passwords">
-      <tuv xml:lang="nl_NL">
-        <seg>Vervang alle passwords met geïmporteerde waarden, zelfs wanneer ze bestaan</seg>
-      </tuv>
-    </tu>
-    <tu tuid="addy_book.import.record_type">
-      <tuv xml:lang="nl_NL">
-        <seg>Record type</seg>
-      </tuv>
-    </tu>
-    <tu tuid="addy_book.import.to_field">
-      <tuv xml:lang="nl_NL">
-        <seg>Zet waarde in veld</seg>
-      </tuv>
-    </tu>
-    <tu tuid="addy_book.import.upload_csv">
-      <tuv xml:lang="nl_NL">
-        <seg>Upload .CSV bestand</seg>
-      </tuv>
-    </tu>
-    <tu tuid="addy_book.import.upload_csv.tip">
-      <tuv xml:lang="nl_NL">
-        <seg>(willekeurige kolom orde; de volgende stap laat u kiezen waar de data naartoe geïmporteerd zal worden)</seg>
-      </tuv>
-    </tu>
     <tu tuid="addy_book.org.add">
       <tuv xml:lang="nl_NL">
         <seg>Organisatie toevoegen</seg>
@@ -519,11 +469,6 @@
     <tu tuid="addy_book.tab.import">
       <tuv xml:lang="nl_NL">
         <seg>Importeren</seg>
-      </tuv>
-    </tu>
-    <tu tuid="addy_book.tab.lists">
-      <tuv xml:lang="nl_NL">
-        <seg>Contactlijsten</seg>
       </tuv>
     </tu>
     <tu tuid="addy_book.tab.organizations">
@@ -1379,36 +1324,6 @@
     <tu tuid="crm.opp.add">
       <tuv xml:lang="nl_NL">
         <seg>Voeg Opportunity toe</seg>
-      </tuv>
-    </tu>
-    <tu tuid="crm.opp.import.find_dupes">
-      <tuv xml:lang="nl_NL">
-        <seg>Vind duplicaten met dezelfde</seg>
-      </tuv>
-    </tu>
-    <tu tuid="crm.opp.import.from_file">
-      <tuv xml:lang="nl_NL">
-        <seg>Kolommen van uw bestand</seg>
-      </tuv>
-    </tu>
-    <tu tuid="crm.opp.import.options.blank_fields">
-      <tuv xml:lang="nl_NL">
-        <seg>Blanco waardes voor Custom Fields zal velden leegmaken(wanneer niet geselecteerd zullen blanco waardes genegeerd worden)</seg>
-      </tuv>
-    </tu>
-    <tu tuid="crm.opp.import.options.import_first_row">
-      <tuv xml:lang="nl_NL">
-        <seg>Importeer de eerste regel (selecteer dit alleen wanneer de uitklapvensters echte data bevatten)</seg>
-      </tuv>
-    </tu>
-    <tu tuid="crm.opp.import.options.set_owner">
-      <tuv xml:lang="nl_NL">
-        <seg>Stel de eigenaar van geïmporteerde opportunities in als:</seg>
-      </tuv>
-    </tu>
-    <tu tuid="crm.opp.import.to_field">
-      <tuv xml:lang="nl_NL">
-        <seg>Stel de waarde in het veld</seg>
       </tuv>
     </tu>
     <tu tuid="crm.opp.import.upload_csv">
