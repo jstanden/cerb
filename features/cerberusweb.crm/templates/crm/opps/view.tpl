@@ -80,7 +80,7 @@
 			{elseif $column=="org_name"}
 				<td>
 					{if !empty($result.org_id)}
-						<a href="javascript:;" onclick="genericAjaxPopup('peek','c=contacts&a=showOrgPeek&id={$result.org_id}&view_id={$view->id}',null,false,'500');">{$result.org_name}</a>&nbsp;
+						<a href="javascript:;" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_ORG}&context_id={$result.org_id}&view_id={$view->id}',null,false,'500');">{$result.org_name}</a>&nbsp;
 					{/if}
 				</td>
 			{elseif $column=="o_amount"}

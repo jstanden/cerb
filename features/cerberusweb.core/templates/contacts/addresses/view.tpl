@@ -80,7 +80,7 @@
 			{elseif $column=="o_name"}
 			<td>
 				{if !empty($result.o_name)}
-				<a href="javascript:;" onclick="genericAjaxPopup('peek','c=contacts&a=showOrgPeek&id={$result.a_contact_org_id}&view_id={$view->id}',null,false,'600');">{$result.o_name}</a>
+				<a href="javascript:;" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_ORG}&context_id={$result.a_contact_org_id}&view_id={$view->id}',null,false,'600');">{$result.o_name}</a>
 				{/if}
 			</td>
 			{elseif $column=="a_is_banned"}

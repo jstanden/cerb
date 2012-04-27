@@ -6,7 +6,7 @@
 </div>
 
 <div style="float:right;">
-	{include file="devblocks:cerberusweb.core::contacts/orgs/quick_search.tpl"}
+	{* [TODO] Quick Search *}
 </div>
 
 <div style="clear:both;"></div>
@@ -94,7 +94,7 @@
 		var tabs = $("#contactTabs").tabs( { selected:{$tab_selected_idx} } );
 	
 		$('#btnDisplayOrgEdit').bind('click', function() {
-			$popup = genericAjaxPopup('peek','c=contacts&a=showOrgPeek&id={$page_context_id}',null,false,'550');
+			$popup = genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_ORG}&context_id={$page_context_id}',null,false,'550');
 			$popup.one('org_save', function(event) {
 				event.stopPropagation();
 				document.location.href = '{devblocks_url}c=contacts&a=orgs&m=display&id={$page_context_id}{/devblocks_url}';

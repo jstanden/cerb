@@ -677,7 +677,7 @@ class View_ContactOrg extends C4_AbstractView implements IAbstractView_Subtotals
 		switch($this->renderTemplate) {
 			case 'contextlinks_chooser':
 			default:
-				$tpl->assign('view_template', 'devblocks:cerberusweb.core::contacts/orgs/contact_view.tpl');
+				$tpl->assign('view_template', 'devblocks:cerberusweb.core::contacts/orgs/view.tpl');
 				$tpl->display('devblocks:cerberusweb.core::internal/views/subtotals_and_view.tpl');
 				break;
 		}
@@ -1060,7 +1060,38 @@ class Context_Org extends Extension_DevblocksContext implements IDevblocksContex
 	}
 	
 	function renderPeekPopup($context_id=0, $view_id='') {
+		$tpl = DevblocksPlatform::getTemplateService();
 		
+		$contact = DAO_ContactOrg::get($context_id);
+		$tpl->assign('contact', $contact);
+		
+		// Custom fields
+		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ORG);
+		$tpl->assign('custom_fields', $custom_fields);
+		
+		$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_ORG, $context_id);
+		if(isset($custom_field_values[$context_id]))
+			$tpl->assign('custom_field_values', $custom_field_values[$context_id]);
+		
+		$types = Model_CustomField::getTypes();
+		$tpl->assign('types', $types);
+		
+		// Comments
+		$comments = DAO_Comment::getByContext(CerberusContexts::CONTEXT_ORG, $context_id);
+		$last_comment = array_shift($comments);
+		unset($comments);
+		$tpl->assign('last_comment', $last_comment);
+		
+		// Counts
+		$counts = array(
+			'people' => DAO_Address::getCountByOrgId($context_id),
+		);
+		$tpl->assign('counts', $counts);
+		
+		// View
+		$tpl->assign('view_id', $view_id);
+		
+		$tpl->display('devblocks:cerberusweb.core::contacts/orgs/peek.tpl');
 	}
 	
 	function importGetKeys() {

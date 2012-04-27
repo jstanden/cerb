@@ -31,7 +31,7 @@
 			<div class="property">
 				{if $k == 'org'}
 					<b>{$v.label|capitalize}:</b>
-					<a href="javascript:;" onclick="genericAjaxPopup('peek','c=contacts&a=showOrgPeek&id={$v.org_id}',null,false,'600');">{$v.org->name}</a>
+					<a href="javascript:;" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_ORG}&context_id={$v.org_id}',null,false,'600');">{$v.org->name}</a>
 				{else}
 					{include file="devblocks:cerberusweb.core::internal/custom_fields/profile_cell_renderer.tpl"}
 				{/if}

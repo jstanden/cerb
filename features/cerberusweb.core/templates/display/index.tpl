@@ -47,7 +47,7 @@
 				{$ticket_org = $ticket->getOrg()}
 				<b>{'contact_org.name'|devblocks_translate|capitalize}:</b>
 				{if !empty($ticket_org)}
-				<a href="javascript:;" onclick="genericAjaxPopup('peek','c=contacts&a=showOrgPeek&id={$ticket->org_id}',null,false,'500');">{$ticket_org->name}</a>
+				<a href="javascript:;" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_ORG}&context_id={$ticket->org_id}',null,false,'500');">{$ticket_org->name}</a>
 				{/if}
 			{elseif $k == 'bucket'}
 				<b>{$translate->_('common.bucket')|capitalize}:</b>

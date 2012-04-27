@@ -2,9 +2,10 @@
 
 <ul>
 	<li><a href="#orgPeekProps">{'common.properties'|devblocks_translate|capitalize}</a></li>
-	<li><a href="{devblocks_url}ajax.php?c=contacts&a=showTabPeople&org={$contact->id}{/devblocks_url}">{'addy_book.org.tabs.people'|devblocks_translate:$counts.people}</a></li>
-	<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextComments&context={CerberusContexts::CONTEXT_ORG}&id={$contact->id}{/devblocks_url}">{'common.comments'|devblocks_translate|capitalize}</a></li>
-	{*<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextLinks&context={CerberusContexts::CONTEXT_ORG}&id={$contact->id}{/devblocks_url}">{'common.links'|devblocks_translate|capitalize}</a></li>*}
+	{if !empty($contact)}
+		<li><a href="{devblocks_url}ajax.php?c=contacts&a=showTabPeople&org={$contact->id}{/devblocks_url}">{'addy_book.org.tabs.people'|devblocks_translate:$counts.people}</a></li>
+		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextComments&context={CerberusContexts::CONTEXT_ORG}&id={$contact->id}{/devblocks_url}">{'common.comments'|devblocks_translate|capitalize}</a></li>
+	{/if}
 </ul>
 
 <div id="orgPeekProps">
@@ -101,9 +102,12 @@
 	{else}
 		<div class="error">{$translate->_('error.core.no_acl.edit')}</div>
 	{/if}
-	 &nbsp;
-	 {if !empty($contact->id)}<a href="{devblocks_url}&c=contacts&a=orgs&display=display&id={$contact->id}{/devblocks_url}">{$translate->_('addy_book.peek.view_full')}</a>{/if}
-	<br>
+	 
+	 {if !empty($contact->id)}
+	<div style="float:right;">
+		<a href="{devblocks_url}&c=contacts&a=orgs&display=display&id={$contact->id}{/devblocks_url}">{$translate->_('addy_book.peek.view_full')}</a>
+	</div>
+	{/if}
 	</form>
 </div><!-- props tab -->
 

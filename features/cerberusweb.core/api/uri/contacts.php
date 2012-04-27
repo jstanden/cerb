@@ -639,7 +639,7 @@ class ChContactsPage extends CerberusPageExtension {
 		);
 		
 		$view = C4_AbstractViewLoader::getView('org_contacts', $defaults);
-		$view->name = 'Contacts: ' . $contact->name;
+		$view->name = 'Contacts: ' . (!empty($contact) ? $contact->name : '');
 		$view->addParams(array(
 			new DevblocksSearchCriteria(SearchFields_Address::CONTACT_ORG_ID,'=',$org)
 		), true);
@@ -1182,45 +1182,6 @@ class ChContactsPage extends CerberusPageExtension {
 	    }
 	    
 	    exit;
-	}
-	
-	function showOrgPeekAction() {
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer','');
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
-		
-		$tpl = DevblocksPlatform::getTemplateService();
-				
-		$contact = DAO_ContactOrg::get($id);
-		$tpl->assign('contact', $contact);
-
-		// Custom fields
-		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ORG); 
-		$tpl->assign('custom_fields', $custom_fields);
-
-		$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_ORG, $id);
-		if(isset($custom_field_values[$id]))
-			$tpl->assign('custom_field_values', $custom_field_values[$id]);
-		
-		$types = Model_CustomField::getTypes();
-		$tpl->assign('types', $types);
-				
-		// Comments
-		$comments = DAO_Comment::getByContext(CerberusContexts::CONTEXT_ORG, $id);
-		$last_comment = array_shift($comments);
-		unset($comments);
-		$tpl->assign('last_comment', $last_comment);
-		
-		// Counts
-		$counts = array(
-			'people' => DAO_Address::getCountByOrgId($id),
-			//'links' => DAO_ContextLink::getContextLinkCounts(CerberusContexts::CONTEXT_ORG, $id),
-		);
-		$tpl->assign('counts', $counts);
-		
-		// View
-		$tpl->assign('view_id', $view_id);
-		
-		$tpl->display('devblocks:cerberusweb.core::contacts/orgs/peek.tpl');
 	}
 	
 	function saveAddressAction() {
