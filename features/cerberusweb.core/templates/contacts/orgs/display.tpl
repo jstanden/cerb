@@ -1,13 +1,8 @@
 {$page_context = CerberusContexts::CONTEXT_ORG}
 {$page_context_id = $contact->id}
 
-<ul class="submenu">
-	<li><a href="{devblocks_url}c=contacts&a=orgs{/devblocks_url}">{$translate->_('addy_book.tab.organizations')|lower}</a></li>
-</ul>
-<div style="clear:both;"></div>
-
 <div style="float:left;">
-	<h2>{'contact_org.name'|devblocks_translate|capitalize}</h2>
+	<h2>{$contact->name}</h2>
 </div>
 
 <div style="float:right;">
@@ -17,7 +12,7 @@
 <div style="clear:both;"></div>
 
 <fieldset class="properties">
-	<legend>{$contact->name|truncate:128}</legend>
+	<legend>{'contact_org.name'|devblocks_translate|capitalize}</legend>
 	
 	<form action="{devblocks_url}{/devblocks_url}" method="post" style="margin-bottom:5px;">
 

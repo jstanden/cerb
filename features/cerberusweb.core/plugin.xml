@@ -1678,7 +1678,7 @@
 			</class>
 			<params>
 				<param key="uri" value="contacts" />
-				<param key="menutitle" value="core.menu.address_book" />
+				<param key="menutitle" value="" />
 				<param key="acl" value="core.addybook" />
 			</params>
 		</extension>
