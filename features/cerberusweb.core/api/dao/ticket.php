@@ -1974,7 +1974,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals {
 		switch($this->renderTemplate) {
 			case 'contextlinks_chooser':
 			default:
-				$tpl->assign('view_template', 'devblocks:cerberusweb.core::tickets/ticket_view.tpl');
+				$tpl->assign('view_template', 'devblocks:cerberusweb.core::tickets/view.tpl');
 				$tpl->display('devblocks:cerberusweb.core::internal/views/subtotals_and_view.tpl');
 				break;
 		}

@@ -1,12 +1,12 @@
 {$page_context = CerberusContexts::CONTEXT_TICKET}
 {$page_context_id = $ticket->id}
 
-<div style="float:right">
-	{include file="devblocks:cerberusweb.core::tickets/quick_search_box.tpl"}
-</div>
-
 <div style="float:left">
 	<h1>{$ticket->subject}</h1>
+</div>
+
+<div style="float:right">
+	{* [TODO] Quick Search *}
 </div>
 
 <div style="clear:both;"></div>
