@@ -1017,7 +1017,7 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 	}	
 };
 
-class Context_Opportunity extends Extension_DevblocksContext {
+class Context_Opportunity extends Extension_DevblocksContext implements IDevblocksContextPeek, IDevblocksContextImport {
 	function getRandom() {
 		return DAO_CrmOpportunity::random();
 	}
@@ -1031,7 +1031,7 @@ class Context_Opportunity extends Extension_DevblocksContext {
 		return array(
 			'id' => $opp->id,
 			'name' => $opp->name,
-			'permalink' => $url_writer->write(sprintf("c=crm&tab=opps&id=%d-%s",$context_id,$friendly), true),
+			'permalink' => $url_writer->write(sprintf("c=profiles&a=opportunity&id=%d-%s",$context_id,$friendly), true),
 		);
 	}
     
@@ -1164,13 +1164,12 @@ class Context_Opportunity extends Extension_DevblocksContext {
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = 'Opportunities';
 		$view->view_columns = array(
-			SearchFields_CrmOpportunity::PRIMARY_EMAIL_ID,
+			SearchFields_CrmOpportunity::EMAIL_ADDRESS,
 			SearchFields_CrmOpportunity::ORG_NAME,
 			SearchFields_CrmOpportunity::UPDATED_DATE,
 		);
 		$view->addParams(array(
 			SearchFields_CrmOpportunity::IS_CLOSED => new DevblocksSearchCriteria(SearchFields_CrmOpportunity::IS_CLOSED,'=',0),
-			//SearchFields_CrmOpportunity::WORKER_ID => new DevblocksSearchCriteria(SearchFields_CrmOpportunity::WORKER_ID,'=',$active_worker->id),
 		), true);
 		$view->renderSortBy = SearchFields_CrmOpportunity::UPDATED_DATE;
 		$view->renderSortAsc = false;
@@ -1205,5 +1204,138 @@ class Context_Opportunity extends Extension_DevblocksContext {
 		$view->renderTemplate = 'context';
 		C4_AbstractViewLoader::setView($view_id, $view);
 		return $view;
+	}
+	
+	function renderPeekPopup($context_id=0, $view_id='') {
+		@$email = DevblocksPlatform::importGPC($_REQUEST['email'],'string','');
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		
+		$tpl->assign('view_id', $view_id);
+		$tpl->assign('email', $email);
+		
+		if(!empty($context_id) && null != ($opp = DAO_CrmOpportunity::get($context_id))) {
+			$tpl->assign('opp', $opp);
+				
+			if(null != ($address = DAO_Address::get($opp->primary_email_id))) {
+				$tpl->assign('address', $address);
+			}
+		}
+		
+		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_OPPORTUNITY);
+		$tpl->assign('custom_fields', $custom_fields);
+		
+		if(!empty($context_id)) {
+			$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_OPPORTUNITY, $context_id);
+			if(isset($custom_field_values[$opp->id]))
+				$tpl->assign('custom_field_values', $custom_field_values[$opp->id]);
+		}
+		
+		// Comments
+		$comments = DAO_Comment::getByContext(CerberusContexts::CONTEXT_OPPORTUNITY, $context_id);
+		$last_comment = array_shift($comments);
+		unset($comments);
+		$tpl->assign('last_comment', $last_comment);
+		
+		$tpl->display('devblocks:cerberusweb.crm::crm/opps/peek.tpl');
+	}
+	
+	function importGetKeys() {
+		// [TODO] Translate
+		
+		$keys = array(
+			'amount' => array(
+				'label' => 'Amount',
+				'type' => Model_CustomField::TYPE_NUMBER,
+				'param' => SearchFields_CrmOpportunity::AMOUNT,
+			),
+			'closed_date' => array(
+				'label' => 'Closed Date',
+				'type' => Model_CustomField::TYPE_DATE,
+				'param' => SearchFields_CrmOpportunity::CLOSED_DATE,
+			),
+			'created_date' => array(
+				'label' => 'Created Date',
+				'type' => Model_CustomField::TYPE_DATE,
+				'param' => SearchFields_CrmOpportunity::CREATED_DATE,
+			),
+			'is_closed' => array(
+				'label' => 'Is Closed',
+				'type' => Model_CustomField::TYPE_CHECKBOX,
+				'param' => SearchFields_CrmOpportunity::IS_CLOSED,
+			),
+			'is_won' => array(
+				'label' => 'Is Won',
+				'type' => Model_CustomField::TYPE_CHECKBOX,
+				'param' => SearchFields_CrmOpportunity::IS_WON,
+			),
+			'name' => array(
+				'label' => 'Name',
+				'type' => Model_CustomField::TYPE_SINGLE_LINE,
+				'param' => SearchFields_CrmOpportunity::NAME,
+			),
+			'primary_email_id' => array(
+				'label' => 'Email',
+				'type' => 'ctx_' . CerberusContexts::CONTEXT_ADDRESS,
+				'param' => SearchFields_CrmOpportunity::PRIMARY_EMAIL_ID,
+				'required' => true,
+			),
+			'updated_date' => array(
+				'label' => 'Updated Date',
+				'type' => Model_CustomField::TYPE_DATE,
+				'param' => SearchFields_CrmOpportunity::UPDATED_DATE,
+			),
+		);
+		
+		$cfields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_OPPORTUNITY);
+		
+		foreach($cfields as $cfield_id => $cfield) {
+			$keys['cf_' . $cfield_id] = array(
+				'label' => $cfield->name,
+				'type' => $cfield->type,
+				'param' => 'cf_' . $cfield_id, 
+			);
+		}
+		
+		DevblocksPlatform::sortObjects($keys, '[label]', true);
+		
+		return $keys;
+	}
+	
+	function importKeyValue($key, $value) {
+		switch($key) {
+		}
+
+		return $value;
+	}
+	
+	function importSaveObject(array $fields, array $custom_fields, array $meta) {
+		// Default these fields
+		if(!isset($fields[DAO_CrmOpportunity::UPDATED_DATE]))
+			$fields[DAO_CrmOpportunity::UPDATED_DATE] = time();
+
+		// If new...
+		if(!isset($meta['object_id']) || empty($meta['object_id'])) {
+			// Make sure we have an opp name
+			if(!isset($fields[DAO_CrmOpportunity::NAME])) {
+				$fields[DAO_CrmOpportunity::NAME] = 'New ' . $this->manifest->name;
+			}
+			
+			// Default the created date to now
+			if(!isset($fields[DAO_CrmOpportunity::CREATED_DATE]))
+				$fields[DAO_CrmOpportunity::CREATED_DATE] = time();
+			
+			// Create
+			$meta['object_id'] = DAO_CrmOpportunity::create($fields);
+			
+		} else {
+			// Update
+			DAO_CrmOpportunity::update($meta['object_id'], $fields);
+		}
+		
+		// Custom fields
+		if(!empty($custom_fields) && !empty($meta['object_id'])) {
+			DAO_CustomFieldValue::formatAndSetFieldValues($this->manifest->id, $meta['object_id'], $custom_fields, false, true, true); //$is_blank_unset (4th)
+		}
 	}
 };
