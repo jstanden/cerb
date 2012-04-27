@@ -847,7 +847,7 @@ class View_Task extends C4_AbstractView implements IAbstractView_Subtotals {
 	}	
 };
 
-class Context_Task extends Extension_DevblocksContext implements IDevblocksContextPeek {
+class Context_Task extends Extension_DevblocksContext implements IDevblocksContextPeek, IDevblocksContextImport {
 	function getMeta($context_id) {
 		$task = DAO_Task::get($context_id);
 		$url_writer = DevblocksPlatform::getUrlService();
@@ -1044,5 +1044,89 @@ class Context_Task extends Extension_DevblocksContext implements IDevblocksConte
 		$tpl->assign('id', $context_id);
 		$tpl->assign('view_id', $view_id);
 		$tpl->display('devblocks:cerberusweb.core::tasks/rpc/peek.tpl');		
+	}
+	
+	function importGetKeys() {
+		// [TODO] Translate
+	
+		$keys = array(
+			'completed_date' => array(
+				'label' => 'Completed Date',
+				'type' => Model_CustomField::TYPE_DATE,
+				'param' => SearchFields_Task::COMPLETED_DATE,
+			),
+			'due_date' => array(
+				'label' => 'Due Date',
+				'type' => Model_CustomField::TYPE_DATE,
+				'param' => SearchFields_Task::DUE_DATE,
+			),
+			'is_completed' => array(
+				'label' => 'Is Completed',
+				'type' => Model_CustomField::TYPE_CHECKBOX,
+				'param' => SearchFields_Task::IS_COMPLETED,
+			),
+			'title' => array(
+				'label' => 'Title',
+				'type' => Model_CustomField::TYPE_SINGLE_LINE,
+				'param' => SearchFields_Task::TITLE,
+				'required' => true,
+			),
+			'updated_date' => array(
+				'label' => 'Updated Date',
+				'type' => Model_CustomField::TYPE_DATE,
+				'param' => SearchFields_Task::UPDATED_DATE,
+			),
+		);
+	
+		$cfields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TASK);
+	
+		foreach($cfields as $cfield_id => $cfield) {
+			$keys['cf_' . $cfield_id] = array(
+				'label' => $cfield->name,
+				'type' => $cfield->type,
+				'param' => 'cf_' . $cfield_id,
+			);
+		}
+	
+		DevblocksPlatform::sortObjects($keys, '[label]', true);
+	
+		return $keys;
+	}
+	
+	function importKeyValue($key, $value) {
+		switch($key) {
+		}
+	
+		return $value;
+	}
+	
+	function importSaveObject(array $fields, array $custom_fields, array $meta) {
+		if(isset($fields[DAO_Task::IS_COMPLETED]) && !empty($fields[DAO_Task::IS_COMPLETED]) && !isset($fields[DAO_Task::COMPLETED_DATE])) {
+			$fields[DAO_Task::COMPLETED_DATE] = time();
+		}
+		
+		if(!isset($fields[DAO_Task::UPDATED_DATE])) {
+			$fields[DAO_Task::UPDATED_DATE] = time();
+		}
+		
+		// If new...
+		if(!isset($meta['object_id']) || empty($meta['object_id'])) {
+			// Make sure we have a name
+			if(!isset($fields[DAO_Task::TITLE])) {
+				$fields[DAO_Task::TITLE] = 'New ' . $this->manifest->name;
+			}
+	
+			// Create
+			$meta['object_id'] = DAO_Task::create($fields);
+	
+		} else {
+			// Update
+			DAO_Task::update($meta['object_id'], $fields);
+		}
+	
+		// Custom fields
+		if(!empty($custom_fields) && !empty($meta['object_id'])) {
+			DAO_CustomFieldValue::formatAndSetFieldValues($this->manifest->id, $meta['object_id'], $custom_fields, false, true, true); //$is_blank_unset (4th)
+		}
 	}
 };
