@@ -67,7 +67,7 @@
 			{elseif $column=="w_is_superuser"}
 				<td>{if $result.w_is_superuser}{'common.yes'|devblocks_translate|capitalize}{else}{'common.no'|devblocks_translate|capitalize}{/if}</td>
 			{elseif $column=="w_email"}
-				<td><a href="javascript:;" onclick="genericAjaxPopup('peek','c=contacts&a=showAddressPeek&email={$result.w_email|escape:'url'}&view_id={$view->id}',null,false,'500');" title="{$result.w_email}">{$result.w_email|truncate:64:'...':true:true}</a></td>
+				<td><a href="javascript:;" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_ADDRESS}&email={$result.w_email|escape:'url'}&view_id={$view->id}',null,false,'500');" title="{$result.w_email}">{$result.w_email|truncate:64:'...':true:true}</a></td>
 			{elseif $column=="w_last_activity_date"}
 				{if !empty($result.w_last_activity_date)}
 				<td title="{$result.w_last_activity_date|devblocks_date}">{$result.w_last_activity_date|devblocks_prettytime}</td>

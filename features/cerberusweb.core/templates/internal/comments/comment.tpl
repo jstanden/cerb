@@ -6,7 +6,7 @@
 			{if empty($comment_address)}
 				(system)
 			{else} 
-				<a href="javascript:;" onclick="genericAjaxPopup('peek','c=contacts&a=showAddressPeek&address_id={$comment_address->id}', null, false, '500');" title="{$comment_address->email}">{if empty($comment_address->first_name) && empty($comment_address->last_name)}&lt;{$comment_address->email}&gt;{else}{$comment_address->getName()}{/if}</a>
+				<a href="javascript:;" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_ADDRESS}&context_id={$comment_address->id}', null, false, '500');" title="{$comment_address->email}">{if empty($comment_address->first_name) && empty($comment_address->last_name)}&lt;{$comment_address->email}&gt;{else}{$comment_address->getName()}{/if}</a>
 			{/if}
 		</h3> &nbsp;
 		{if !$readonly && ($active_worker->is_superuser || $comment_address->email==$active_worker->email)}

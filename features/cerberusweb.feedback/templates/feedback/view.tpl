@@ -72,7 +72,7 @@
 				{elseif $column=="a_email"}
 					<td>
 						{if !empty($result.a_email)}
-							<a href="javascript:;" onclick="genericAjaxPopup('peek','c=contacts&a=showAddressPeek&address_id={$result.f_quote_address_id}&view_id={$view->id}',null,false,'500');">{$result.a_email}</a>
+							<a href="javascript:;" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_ADDRESS}&context_id={$result.f_quote_address_id}&view_id={$view->id}',null,false,'500');">{$result.a_email}</a>
 						{else}
 							<i>{'common.anonymous'|devblocks_translate|lower}</i>
 						{/if}

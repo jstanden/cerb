@@ -1,30 +1,26 @@
 {$page_context = CerberusContexts::CONTEXT_ADDRESS}
 {$page_context_id = $address->id}
 
-<ul class="submenu">
-	<li><a href="{devblocks_url}c=contacts&a=addresses{/devblocks_url}">{$translate->_('addy_book.tab.addresses')|lower}</a></li>
-</ul>
-<div style="clear:both;"></div>
 
 <div style="float:left;">
-	<h2>{'address.address'|devblocks_translate|capitalize}</h2>
+<h2>
+{$addy_name = $address->getName()} 
+{if !empty($addy_name)}
+	{$addy_name} &lt;{$address->email}&gt;
+{else}
+	{$address->email}
+{/if}
+</h2>
 </div>
 
 <div style="float:right;">
-	{include file="devblocks:cerberusweb.core::contacts/addresses/quick_search.tpl"}
+	{* [TODO] Quick search *}
 </div>
 
 <br clear="all">
 
 <fieldset class="properties">
-	{$addy_name = $address->getName()} 
-	<legend>
-		{if !empty($addy_name)}
-			{$addy_name} &lt;{$address->email}&gt;
-		{else}
-			{$address->email}
-		{/if}
-	</legend>
+	<legend>{'address.address'|devblocks_translate|capitalize}</legend>
 	
 	<form action="{devblocks_url}{/devblocks_url}" method="post" style="margin-bottom:5px;">
 	<input type="hidden" name="c" value="tasks">
@@ -100,7 +96,7 @@
 		var tabs = $("#contactTabs").tabs( { selected:{$tab_selected_idx} } );
 	
 		$('#btnDisplayAddyEdit').bind('click', function() {
-			$popup = genericAjaxPopup('peek','c=contacts&a=showAddressPeek&address_id={$page_context_id}',null,false,'550');
+			$popup = genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_ADDRESS}&context_id={$page_context_id}',null,false,'550');
 			$popup.one('address_save', function(event) {
 				event.stopPropagation();
 				document.location.href = '{devblocks_url}c=contacts&a=addresses&m=display&id={$page_context_id}-{$address->email|devblocks_permalink}{/devblocks_url}';

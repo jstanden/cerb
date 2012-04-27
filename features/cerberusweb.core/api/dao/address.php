@@ -698,7 +698,7 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals {
 		switch($this->renderTemplate) {
 			case 'contextlinks_chooser':
 			default:
-				$tpl->assign('view_template', 'devblocks:cerberusweb.core::contacts/addresses/address_view.tpl');
+				$tpl->assign('view_template', 'devblocks:cerberusweb.core::contacts/addresses/view.tpl');
 				$tpl->display('devblocks:cerberusweb.core::internal/views/subtotals_and_view.tpl');
 				break;
 		}
@@ -1170,7 +1170,81 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 	}
 	
 	function renderPeekPopup($context_id=0 , $view_id='') {
+		@$email = DevblocksPlatform::importGPC($_REQUEST['email'],'string','');
+		@$org_id = DevblocksPlatform::importGPC($_REQUEST['org_id'],'string','');
 		
+		$tpl = DevblocksPlatform::getTemplateService();
+		
+		if(!empty($context_id)) {
+			$email = '';
+			if(null != ($addy = DAO_Address::get($context_id))) {
+				@$email = $addy->email;
+			}
+		}
+		$tpl->assign('email', $email);
+		
+		if(!empty($email)) {
+			list($addresses,$null) = DAO_Address::search(
+				array(),
+				array(
+					new DevblocksSearchCriteria(SearchFields_Address::EMAIL,DevblocksSearchCriteria::OPER_EQ,$email)
+				),
+				1,
+				0,
+				null,
+				null,
+				false
+			);
+				
+			$address = array_shift($addresses);
+			$tpl->assign('address', $address);
+			
+			if(empty($context_id)) {
+				$context_id = $address[SearchFields_Address::ID];
+			}
+				
+			list($open_tickets, $open_count) = DAO_Ticket::search(
+				array(),
+				array(
+					new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',0),
+					new DevblocksSearchCriteria(SearchFields_Ticket::REQUESTER_ID,'=',$context_id),
+				),
+				1
+			);
+			$tpl->assign('open_count', $open_count);
+				
+			list($closed_tickets, $closed_count) = DAO_Ticket::search(
+				array(),
+				array(
+					new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',1),
+					new DevblocksSearchCriteria(SearchFields_Ticket::REQUESTER_ID,'=',$context_id),
+				),
+				1
+			);
+			$tpl->assign('closed_count', $closed_count);
+		}
+		
+		if (!empty($org_id)) {
+			$org = DAO_ContactOrg::get($org_id);
+			$tpl->assign('org_name',$org->name);
+			$tpl->assign('org_id',$org->id);
+		}
+		
+		// Custom fields
+		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ADDRESS);
+		$tpl->assign('custom_fields', $custom_fields);
+		
+		$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_ADDRESS, $context_id);
+		if(isset($custom_field_values[$context_id]))
+			$tpl->assign('custom_field_values', $custom_field_values[$context_id]);
+		
+		$types = Model_CustomField::getTypes();
+		$tpl->assign('types', $types);
+		
+		// Display
+		$tpl->assign('id', $context_id);
+		$tpl->assign('view_id', $view_id);
+		$tpl->display('devblocks:cerberusweb.core::contacts/addresses/peek.tpl');		
 	}
 	
 	function importGetKeys() {

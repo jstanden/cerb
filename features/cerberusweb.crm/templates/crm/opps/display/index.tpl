@@ -32,8 +32,8 @@
 				{elseif $k == 'lead'}
 					<b>{$v.label|capitalize}:</b>
 					{$v.address->getName()}
-					&lt;<a href="javascript:;" onclick="genericAjaxPopup('peek2','c=contacts&a=showAddressPeek&email={$v.address->email|escape:'url'}',null,false,'600');">{$v.address->email}</a>&gt;
-					<button id="btnOppAddyPeek" type="button" onclick="genericAjaxPopup('peek2','c=contacts&a=showAddressPeek&email={$v.address->email|escape:'url'}&view_id=',null,false,'600');" style="visibility:false;display:none;"></button>
+					&lt;<a href="javascript:;" onclick="genericAjaxPopup('peek2','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_ADDRESS}&email={$v.address->email|escape:'url'}',null,false,'600');">{$v.address->email}</a>&gt;
+					<button id="btnOppAddyPeek" type="button" onclick="genericAjaxPopup('peek2','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_ADDRESS}&email={$v.address->email|escape:'url'}&view_id=',null,false,'600');" style="visibility:false;display:none;"></button>
 				{elseif $k == 'org'}
 					<b>{$v.label|capitalize}:</b>
 					<a href="javascript:;" onclick="genericAjaxPopup('peek2','c=contacts&a=showOrgPeek&id={$v.org->id}',null,false,'600');">{$v.org->name}</a>
