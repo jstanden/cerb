@@ -1,15 +1,16 @@
 {$page_context = CerberusContexts::CONTEXT_OPPORTUNITY}
 {$page_context_id = $opp->id}
 
-<div style="float:right;">
-	{include file="devblocks:cerberusweb.core::search/quick_search.tpl"}
-</div>
-
 <div style="float:left;">
-	<h2>{$opp->name}</h2>
+	<h1>{$opp->name}</h1>
 </div>
 
-<br clear="all">
+<div style="float:right;">
+	{$ctx = Extension_DevblocksContext::get($page_context)}
+	{include file="devblocks:cerberusweb.core::search/quick_search.tpl" view=$ctx->getSearchView() return_url="{devblocks_url}c=search&context={$ctx->manifest->params.alias}{/devblocks_url}" reset=true}
+</div>
+
+<div style="clear:both;"></div>
 
 <fieldset class="properties">
 	<legend>{'crm.common.opportunity'|devblocks_translate|capitalize}</legend>

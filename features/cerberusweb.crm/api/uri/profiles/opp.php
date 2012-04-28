@@ -45,12 +45,6 @@ class PageSection_ProfilesOpportunity extends Extension_PageSection {
 		$custom_fields = DAO_CustomField::getAll();
 		$tpl->assign('custom_fields', $custom_fields);
 		
-		// Quick search
-		
-		$ctx = Extension_DevblocksContext::get(CerberusContexts::CONTEXT_OPPORTUNITY);
-		$view = $ctx->getChooserView();
-		$tpl->assign('view', $view);
-		
 		// Properties
 		
 		$properties = array();

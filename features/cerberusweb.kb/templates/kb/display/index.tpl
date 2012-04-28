@@ -1,20 +1,19 @@
 {$page_context = CerberusContexts::CONTEXT_KB_ARTICLE}
 {$page_context_id = $article->id}
 
-<ul class="submenu"></ul>
-<div style="clear:both;"></div>
-
 <div style="float:left;">
-	<h2>Knowledgebase Article</h2>
+	<h1>{$article->title}</h1>
 </div>
 
 <div style="float:right;">
+	{$ctx = Extension_DevblocksContext::get($page_context)}
+	{include file="devblocks:cerberusweb.core::search/quick_search.tpl" view=$ctx->getSearchView() return_url="{devblocks_url}c=search&context={$ctx->manifest->params.alias}{/devblocks_url}" reset=true}
 </div>
 
 <div style="clear:both;"></div>
 
 <fieldset class="properties">
-	<legend>{'common.properties'|devblocks_translate|capitalize}</legend>
+	<legend>Knowledgebase Article</legend>
 	
 	<form action="{devblocks_url}{/devblocks_url}" method="post" style="margin-bottom:5px;">
 		{foreach from=$properties item=v key=k name=props}
@@ -72,8 +71,6 @@
 </div>
 
 <div id="kbArticleContent">
-	<h1 class="title"><b>{$article->title}</b></h1>
-
 	{$article->getContent() nofilter}
 </div>
 

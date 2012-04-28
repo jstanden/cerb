@@ -1,18 +1,22 @@
 {$page_context = CerberusContexts::CONTEXT_CONTACT_PERSON}
 {$page_context_id = $person->id}
 
-<ul class="submenu">
-	<li><a href="{devblocks_url}c=contacts&a=people{/devblocks_url}">{$translate->_('addy_book.tab.people')|lower}</a></li>
-</ul>
-<div style="clear:both;"></div>
-
-<h2>Contact</h2>
-
 {$primary_email = $person->getPrimaryAddress()}
 {$person_addresses = $person->getAddresses()}
 
+<div style="float:left;">
+	<h1>{$primary_email->getName()} &lt;{$primary_email->email}&gt;</h1>
+</div>
+
+<div style="float:right;">
+	{$ctx = Extension_DevblocksContext::get($page_context)}
+	{include file="devblocks:cerberusweb.core::search/quick_search.tpl" view=$ctx->getSearchView() return_url="{devblocks_url}c=search&context={$ctx->manifest->params.alias}{/devblocks_url}" reset=true}
+</div>
+
+<div style="clear:both;"></div>
+
 <fieldset class="properties">
-	<legend>{$primary_email->getName()} &lt;{$primary_email->email}&gt;</legend>
+	<legend>Contact Person</legend>
 	
 	<form action="{devblocks_url}{/devblocks_url}" method="post" style="margin-bottom:5px;">
 

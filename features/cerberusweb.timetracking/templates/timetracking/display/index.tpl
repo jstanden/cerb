@@ -1,7 +1,16 @@
 {$page_context = CerberusContexts::CONTEXT_TIMETRACKING}
 {$page_context_id = $time_entry->id}
 
-<h1>{$time_entry->getSummary()}</h1>
+<div style="float:left;">
+	<h1>{$time_entry->getSummary()}</h1>
+</div>
+
+<div style="float:right;">
+	{$ctx = Extension_DevblocksContext::get($page_context)}
+	{include file="devblocks:cerberusweb.core::search/quick_search.tpl" view=$ctx->getSearchView() return_url="{devblocks_url}c=search&context={$ctx->manifest->params.alias}{/devblocks_url}" reset=true}
+</div>
+
+<div style="clear:both;"></div>
 
 <fieldset class="properties">
 	<legend>{'timetracking.activity.tab'|devblocks_translate|capitalize}</legend>

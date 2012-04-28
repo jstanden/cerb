@@ -121,11 +121,12 @@ class Page_Search extends CerberusPageExtension {
 				if(strlen($query) == 0)
 					break;
 					
-				$oper = DevblocksSearchCriteria::OPER_EQ;
+				$oper = DevblocksSearchCriteria::OPER_LIKE;
 				$value = $query;
 				
-				if(false !== strpos($value, '*'))
-					$oper = DevblocksSearchCriteria::OPER_LIKE;
+				if(false === strpos($value, '*')) {
+					$value .= '*';
+				}
 
 				// Parse operator hints
 				if(preg_match('#([\<\>\!\=]+)(.*)#', $value, $matches)) {

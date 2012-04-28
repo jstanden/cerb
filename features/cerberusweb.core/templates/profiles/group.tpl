@@ -4,18 +4,31 @@
 {$members = $group->getMembers()}
 {$reply_to = $group->getReplyTo()}
 
-<div style="margin-left:10px;">
-	<div style="float:left;"><img src="{if $is_ssl}https://secure.{else}http://www.{/if}gravatar.com/avatar/{$reply_to->email|trim|lower|md5}?s=64&d={devblocks_url full=true}c=resource&p=cerberusweb.core&f=images/wgm/gravatar_nouser.jpg{/devblocks_url}" height="64" width="64" border="0" style="margin:0px 5px 5px 0px;"></div>
-	<h1 style="color:rgb(0,120,0);font-weight:bold;font-size:150%;margin:0px;">{$group->name}</h1>
-	{$reply_to->email}<br>
-	
-	{if !empty($members)}
-	<ul class="bubbles">
-		{$member_count = $members|count}
-		<li><span style="font-weight:bold;">{$member_count} {if $member_count==1}member{else}members{/if}</span></li>
-	</ul>
-	{/if}
-</div>
+<table cellpadding="0" cellspacing="0" border="0" width="100%">
+	<tr>
+		<td width="1%" nowrap="nowrap" rowspan="2" valign="top" style="padding-left:10px;">
+			<img src="{if $is_ssl}https://secure.{else}http://www.{/if}gravatar.com/avatar/{$reply_to->email|trim|lower|md5}?s=64&d={devblocks_url full=true}c=resource&p=cerberusweb.core&f=images/wgm/gravatar_nouser.jpg{/devblocks_url}" height="64" width="64" border="0" style="margin:0px 5px 5px 0px;">
+		</td>
+		<td width="98%" valign="top">
+			<h1 style="color:rgb(0,120,0);font-weight:bold;font-size:150%;margin:0px;">{$group->name}</h1>
+			{$reply_to->email}<br>
+		</td>
+		<td width="1%" nowrap="nowrap" align="right">
+			{$ctx = Extension_DevblocksContext::get($page_context)}
+			{include file="devblocks:cerberusweb.core::search/quick_search.tpl" view=$ctx->getSearchView() return_url="{devblocks_url}c=search&context={$ctx->manifest->params.alias}{/devblocks_url}" reset=true}
+		</td>
+	</tr>
+	<tr>
+		<td colspan="2">
+			{if !empty($members)}
+			<ul class="bubbles">
+				{$member_count = $members|count}
+				<li><span style="font-weight:bold;">{$member_count} {if $member_count==1}member{else}members{/if}</span></li>
+			</ul>
+			{/if}
+		</td>
+	</tr>
+</table>
 
 <div style="clear:both;"></div>
 

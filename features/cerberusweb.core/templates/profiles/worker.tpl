@@ -1,21 +1,34 @@
 {$page_context = CerberusContexts::CONTEXT_WORKER}
 {$page_context_id = $worker->id}
 
-<div style="margin-left:10px;">
-	<div style="float:left;"><img src="{if $is_ssl}https://secure.{else}http://www.{/if}gravatar.com/avatar/{$worker->email|trim|lower|md5}?s=64&d={devblocks_url full=true}c=resource&p=cerberusweb.core&f=images/wgm/gravatar_nouser.jpg{/devblocks_url}" height="64" width="64" border="0" style="margin:0px 5px 5px 0px;"></div>
-	<h1 style="color:rgb(0,120,0);font-weight:bold;font-size:150%;margin:0px;">{$worker->getName()}</h1>
-	{if !empty($worker->title)}{$worker->title}<br>{/if}
-	
-	{$memberships = $worker->getMemberships()}
-	{if !empty($memberships)}
-	<ul class="bubbles">
-		{foreach from=$memberships item=member key=group_id name=groups}
-			{$group = $groups.{$group_id}}
-			<li><a href="{devblocks_url}c=profiles&k=group&id={$group->id}-{$group->name|devblocks_permalink}{/devblocks_url}" style="{if $member->is_manager}font-weight:bold;{/if}">{$group->name}</a></li>
-		{/foreach}
-	</ul>
-	{/if}
-</div>
+<table cellpadding="0" cellspacing="0" border="0" width="100%">
+	<tr>
+		<td width="1%" nowrap="nowrap" rowspan="2" valign="top" style="padding-left:10px;">
+			<img src="{if $is_ssl}https://secure.{else}http://www.{/if}gravatar.com/avatar/{$worker->email|trim|lower|md5}?s=64&d={devblocks_url full=true}c=resource&p=cerberusweb.core&f=images/wgm/gravatar_nouser.jpg{/devblocks_url}" height="64" width="64" border="0" style="margin:0px 5px 5px 0px;">
+		</td>
+		<td width="98%" valign="top">
+			<h1 style="color:rgb(0,120,0);font-weight:bold;font-size:150%;margin:0px;">{$worker->getName()}</h1>
+			{if !empty($worker->title)}<div>{$worker->title}</div>{/if}
+		</td>
+		<td width="1%" nowrap="nowrap" align="right">
+			{$ctx = Extension_DevblocksContext::get($page_context)}
+			{include file="devblocks:cerberusweb.core::search/quick_search.tpl" view=$ctx->getSearchView() return_url="{devblocks_url}c=search&context={$ctx->manifest->params.alias}{/devblocks_url}" reset=true}
+		</td>
+	</tr>
+	<tr>
+		<td colspan="2">
+			{$memberships = $worker->getMemberships()}
+			{if !empty($memberships)}
+			<ul class="bubbles">
+				{foreach from=$memberships item=member key=group_id name=groups}
+					{$group = $groups.{$group_id}}
+					<li><a href="{devblocks_url}c=profiles&k=group&id={$group->id}-{$group->name|devblocks_permalink}{/devblocks_url}" style="{if $member->is_manager}font-weight:bold;{/if}">{$group->name}</a></li>
+				{/foreach}
+			</ul>
+			{/if}
+		</td>
+	</tr>
+</table>
 
 <div style="clear:both;"></div>
 

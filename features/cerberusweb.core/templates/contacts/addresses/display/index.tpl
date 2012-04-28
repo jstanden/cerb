@@ -1,20 +1,20 @@
 {$page_context = CerberusContexts::CONTEXT_ADDRESS}
 {$page_context_id = $address->id}
 
-
 <div style="float:left;">
-<h2>
+<h1>
 {$addy_name = $address->getName()} 
 {if !empty($addy_name)}
 	{$addy_name} &lt;{$address->email}&gt;
 {else}
 	{$address->email}
 {/if}
-</h2>
+</h1>
 </div>
 
 <div style="float:right;">
-	{* [TODO] Quick search *}
+	{$ctx = Extension_DevblocksContext::get($page_context)}
+	{include file="devblocks:cerberusweb.core::search/quick_search.tpl" view=$ctx->getSearchView() return_url="{devblocks_url}c=search&context={$ctx->manifest->params.alias}{/devblocks_url}" reset=true}
 </div>
 
 <br clear="all">
