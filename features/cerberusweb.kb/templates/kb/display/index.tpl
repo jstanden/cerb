@@ -1,13 +1,13 @@
 {$page_context = CerberusContexts::CONTEXT_KB_ARTICLE}
 {$page_context_id = $article->id}
 
-<div style="float:left;">
-	<h1>{$article->title}</h1>
-</div>
-
 <div style="float:right;">
 	{$ctx = Extension_DevblocksContext::get($page_context)}
 	{include file="devblocks:cerberusweb.core::search/quick_search.tpl" view=$ctx->getSearchView() return_url="{devblocks_url}c=search&context={$ctx->manifest->params.alias}{/devblocks_url}" reset=true}
+</div>
+
+<div style="float:left;">
+	<h1>{$article->title}</h1>
 </div>
 
 <div style="clear:both;"></div>

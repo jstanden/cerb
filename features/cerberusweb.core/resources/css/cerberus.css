@@ -912,26 +912,25 @@ UL.cerb-popupmenu > LI > HR {
 
 #kbArticleContent h1, #kbArticleContent h2, #kbArticleContent h3, #kbArticleContent h4, #kbArticleContent h5, #kbArticleContent h6 { 
 	font-weight: bold;
-	color: rgb(0,120,0);
+	color: rgb(50,50,50);
 	margin:10px 0px;
 	line-height: normal;
 }
 
 #kbArticleContent h1 {
 	font-size: 190%;
-	color: rgb(0,120,0);
+	color: rgb(50,50,50);
 	border-bottom: 1px solid rgb(180,180,180);
 }
 
 #kbArticleContent h2 {
 	font-size: 170%;
-	color: rgb(50,50,50);
+	color: rgb(74,110,158);
 }
 
 #kbArticleContent h3 {
-	font-size: 145%;
-	color: rgb(74,110,158);
-	border-bottom: 1px solid rgb(180,180,180);
+	font-size: 150%;
+	color: rgb(50,50,50);
 }
 
 #kbArticleContent h4 {
@@ -940,14 +939,12 @@ UL.cerb-popupmenu > LI > HR {
 }
 
 #kbArticleContent h5 {
-	font-size: 110%;
-	font-style: italic;
+	font-size: 120%;
 	color: rgb(50,50,50);
 }
 
 #kbArticleContent h6 {
-	font-size: 100%;
-	font-style: italic;
+	font-size: 110%;
 	color: rgb(50,50,50);
 }
 
