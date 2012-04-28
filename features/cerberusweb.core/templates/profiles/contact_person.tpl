@@ -58,13 +58,12 @@
 
 <div style="clear:both;" id="contactPersonTabs">
 	<ul>
-		{$tabs = [activity,notes,links,addresses,mail]}
-		{$point = 'cerberusweb.contact_person.tab'}
+		{$tabs = [activity,comments,links,addresses,mail]}
 
 		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabActivityLog&scope=target&point={$point}&context={$page_context}&context_id={$person->id}{/devblocks_url}">{'common.activity_log'|devblocks_translate|capitalize}</a></li>		
-		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextComments&context=cerberusweb.contexts.contact_person&id={$person->id}{/devblocks_url}">{$translate->_('common.comments')|capitalize}</a></li>
-		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextLinks&context=cerberusweb.contexts.contact_person&id={$person->id}{/devblocks_url}">{$translate->_('common.links')}</a></li>
-		<li><a href="{devblocks_url}ajax.php?c=contacts&a=showTabPeopleAddresses&id={$person->id}{/devblocks_url}">{'Email Addresses'}</a></li>
+		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextComments&point={$point}&context=cerberusweb.contexts.contact_person&id={$person->id}{/devblocks_url}">{$translate->_('common.comments')|capitalize}</a></li>
+		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextLinks&point={$point}&context=cerberusweb.contexts.contact_person&id={$person->id}{/devblocks_url}">{$translate->_('common.links')}</a></li>
+		<li><a href="{devblocks_url}ajax.php?c=contacts&a=showTabPeopleAddresses&point={$point}&id={$person->id}{/devblocks_url}">{'Email Addresses'}</a></li>
 		<li><a href="{devblocks_url}ajax.php?c=contacts&a=showTabMailHistory&point={$point}&address_ids={foreach from=$person_addresses item=v key=k name=addys}{$v->id}{if !$smarty.foreach.addys.last},{/if}{/foreach}{/devblocks_url}">{$translate->_('addy_book.org.tabs.mail_history')}</a></li>
 
 		{foreach from=$tab_manifests item=tab_manifest}
@@ -88,7 +87,7 @@
 			$popup = genericAjaxPopup('peek','c=contacts&a=showContactPeek&id={$page_context_id}',null,false,'550');
 			$popup.one('contact_save', function(event) {
 				event.stopPropagation();
-				document.location.href = '{devblocks_url}c=contacts&a=people&id={$page_context_id}{/devblocks_url}';
+				document.location.href = '{devblocks_url}c=profiles&type=contact_person&id={$page_context_id}{/devblocks_url}';
 			});
 		});
 		

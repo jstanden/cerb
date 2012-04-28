@@ -8,7 +8,7 @@
 {/if}
 <input type="hidden" name="view_id" value="{$view_id}">
 
-<fieldset>
+<fieldset class="peek">
 	<legend>{'common.properties'|devblocks_translate}</legend>
 	
 	<table cellpadding="0" cellspacing="2" border="0" width="98%">
@@ -46,7 +46,7 @@
 </fieldset>
 
 {if !empty($custom_fields)}
-<fieldset>
+<fieldset class="peek">
 	<legend>{'common.custom_fields'|devblocks_translate}</legend>
 	{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false}
 </fieldset>

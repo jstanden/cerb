@@ -155,64 +155,6 @@ class ChContactsPage extends CerberusPageExtension {
 				} // switch (action)
 				break;
 				
-			case 'people':
-				@$id = array_shift($stack);
-				
-				if(!empty($id) && is_numeric($id)) {
-					$person = DAO_ContactPerson::get($id);
-					$tpl->assign('person', $person);
-					
-					// Custom fields
-					
-					$custom_fields = DAO_CustomField::getAll();
-					$tpl->assign('custom_fields', $custom_fields);
-					
-					// Properties
-					
-					$properties = array();
-					
-					if($person->email_id) {
-						if(null != ($address = $person->getPrimaryAddress())) {
-							$properties['primary_email'] = array(
-								'label' => ucfirst($translate->_('common.email')),
-								'type' => null,
-								'address' => $address,
-							);
-						}
-					}
-					
-					$properties['created'] = array(
-						'label' => ucfirst($translate->_('common.created')),
-						'type' => Model_CustomField::TYPE_DATE,
-						'value' => $person->created,
-					);
-					
-					$properties['last_login'] = array(
-						'label' => ucfirst($translate->_('dao.contact_person.last_login')),
-						'type' => Model_CustomField::TYPE_DATE,
-						'value' => $person->last_login,
-					);
-					
-					@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_CONTACT_PERSON, $person->id)) or array();
-			
-					foreach($custom_fields as $cf_id => $cfield) {
-						if(!isset($values[$cf_id]))
-							continue;
-							
-						$properties['cf_' . $cf_id] = array(
-							'label' => $cfield->name,
-							'type' => $cfield->type,
-							'value' => $values[$cf_id],
-						);
-					}
-					
-					$tpl->assign('properties', $properties);						
-					
-					$tpl->display('devblocks:cerberusweb.core::contacts/people/display/index.tpl');
-					return;
-				}
-				break;
-				
 		} // switch (tab)
 		
 		return;
@@ -503,7 +445,7 @@ class ChContactsPage extends CerberusPageExtension {
 					'created' => time(),
 					//'worker_id' => $active_worker->id,
 					'total' => $total,
-					'return_url' => isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : $url_writer->writeNoProxy('c=contacts&tab=people', true),
+					'return_url' => isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : $url_writer->writeNoProxy('c=search&tab=person', true),
 //					'toolbar_extension_id' => 'cerberusweb.explorer.toolbar.',
 				);
 				$models[] = $model; 
@@ -521,7 +463,7 @@ class ChContactsPage extends CerberusPageExtension {
 				$model->pos = $pos++;
 				$model->params = array(
 					'id' => $id,
-					'url' => $url_writer->writeNoProxy(sprintf("c=contacts&tab=people&id=%d", $id), true),
+					'url' => $url_writer->writeNoProxy(sprintf("c=profiles&type=contact_person&id=%d", $id), true),
 				);
 				$models[] = $model; 
 			}
@@ -583,6 +525,7 @@ class ChContactsPage extends CerberusPageExtension {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		@$contact_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
+		@$point = DevblocksPlatform::importGPC($_REQUEST['point'],'string','');		
 		
 		$tpl = DevblocksPlatform::getTemplateService();
 				
@@ -592,6 +535,10 @@ class ChContactsPage extends CerberusPageExtension {
 		$visit = CerberusApplication::getVisit(); /* @var $visit CerberusVisit */
 
 		$view = C4_AbstractViewLoader::getView('contact_person_addresses');
+		
+		// Point
+		if(!empty($point))
+			$visit->set($point, 'addresses');
 		
 		// All contact addresses
 		$contact_addresses = $person->getAddresses();

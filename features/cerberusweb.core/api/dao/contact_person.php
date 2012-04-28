@@ -793,7 +793,7 @@ class Context_ContactPerson extends Extension_DevblocksContext {
 		return array(
 			'id' => $contact->id,
 			'name' => $name,
-			'permalink' => $url_writer->writeNoProxy(sprintf("c=contacts&tab=people&id=%d-%s",$context_id, $friendly), true),
+			'permalink' => $url_writer->writeNoProxy(sprintf("c=profiles&type=contact_person&id=%d-%s",$context_id, $friendly), true),
 		);
 	}
     
@@ -843,7 +843,7 @@ class Context_ContactPerson extends Extension_DevblocksContext {
 			
 			// URL
 			$url_writer = DevblocksPlatform::getUrlService();
-			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=contacts&tab=people&id=%d",$person->id), true);
+			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=profiles&type=contact_person&id=%d",$person->id), true);
 			
 			// Primary Email
 			$email_id = (null != $person && !empty($person->email_id)) ? $person->email_id : null;

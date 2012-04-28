@@ -2116,6 +2116,19 @@
 					<param key="uri" value="calendar_event" />
 				</params>
 			</extension>
+
+			<extension point="cerberusweb.ui.page.section">
+				<id>core.page.profiles.contact_person</id>
+				<name>Contact Person Section</name>
+				<class>
+					<file>api/uri/profiles/contact_person.php</file>
+					<name>PageSection_ProfilesContactPerson</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.page.profiles" />
+					<param key="uri" value="contact_person" />
+				</params>
+			</extension>
 		
 			<extension point="cerberusweb.ui.page.section">
 				<id>core.page.profiles.group</id>
