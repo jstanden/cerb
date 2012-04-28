@@ -20,7 +20,7 @@
 <br clear="all">
 
 <fieldset class="properties">
-	<legend>{'address.address'|devblocks_translate|capitalize}</legend>
+	<legend>{'addy_book.peek.title'|devblocks_translate|capitalize}</legend>
 	
 	<form action="{devblocks_url}{/devblocks_url}" method="post" style="margin-bottom:5px;">
 	<input type="hidden" name="c" value="tasks">
@@ -75,12 +75,12 @@
 
 <div style="clear:both;" id="contactTabs">
 	<ul>
-		{$tabs = [activity,notes,links,mail]}
-		{$point = 'cerberusweb.address.tab'}
+		{$tabs = [activity,comments,links,mail]}
+		{$point = "{Extension_AddressBookTab::POINT}"}
 		
 		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabActivityLog&scope=target&point={$point}&context={$page_context}&context_id={$page_context_id}{/devblocks_url}">{'common.activity_log'|devblocks_translate|capitalize}</a></li>
-		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextComments&context={$page_context}&id={$page_context_id}{/devblocks_url}">{$translate->_('common.comments')|capitalize}</a></li>
-		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextLinks&context={$page_context}&id={$page_context_id}{/devblocks_url}">{$translate->_('common.links')}</a></li>
+		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextComments&point={$point}&context={$page_context}&id={$page_context_id}{/devblocks_url}">{$translate->_('common.comments')|capitalize}</a></li>
+		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextLinks&point={$point}&context={$page_context}&id={$page_context_id}{/devblocks_url}">{$translate->_('common.links')}</a></li>
 		<li><a href="{devblocks_url}ajax.php?c=contacts&a=showTabMailHistory&point={$point}&address_ids={$page_context_id}{/devblocks_url}">{$translate->_('addy_book.org.tabs.mail_history')}</a></li>
 	</ul>
 </div> 
@@ -99,7 +99,7 @@
 			$popup = genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_ADDRESS}&context_id={$page_context_id}',null,false,'550');
 			$popup.one('address_save', function(event) {
 				event.stopPropagation();
-				document.location.href = '{devblocks_url}c=contacts&a=addresses&m=display&id={$page_context_id}-{$address->email|devblocks_permalink}{/devblocks_url}';
+				document.location.href = '{devblocks_url}c=profiles&type=address&id={$page_context_id}-{$address->email|devblocks_permalink}{/devblocks_url}';
 			});
 		});
 		

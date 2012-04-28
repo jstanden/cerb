@@ -852,7 +852,7 @@
 			<tuv xml:lang="en_US"><seg>%s closed ticket(s)</seg></tuv>
 		</tu>
 		<tu tuid='addy_book.peek.title'>
-			<tuv xml:lang="en_US"><seg>Email Contact</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Email Address</seg></tuv>
 		</tu>
 		<tu tuid='addy_book.peek.view_full'>
 			<tuv xml:lang="en_US"><seg>view full record</seg></tuv>

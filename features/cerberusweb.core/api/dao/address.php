@@ -992,7 +992,7 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 		return array(
 			'id' => $address->id,
 			'name' => $addy_name,
-			'permalink' => $url_writer->writeNoProxy(sprintf("c=contacts&tab=addresses&page=display&id=%d-%s", $context_id, $friendly), true),
+			'permalink' => $url_writer->writeNoProxy(sprintf("c=profiles&type=address&id=%d-%s", $context_id, $friendly), true),
 		);
 	}
     
@@ -1054,7 +1054,7 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 
 			// URL
 			$url_writer = DevblocksPlatform::getUrlService();
-			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=contacts&tab=addresses&page=display&id=%d-%s",$address->id, DevblocksPlatform::strToPermalink($address->email)), true);
+			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=profiles&type=address&id=%d-%s",$address->id, DevblocksPlatform::strToPermalink($address->email)), true);
 			
 			// Org
 			$org_id = (null != $address && !empty($address->contact_org_id)) ? $address->contact_org_id : null;

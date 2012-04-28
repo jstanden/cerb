@@ -702,7 +702,7 @@
 		
 		<extension point="devblocks.context">
 			<id>cerberusweb.contexts.address</id>
-			<name>Address</name>
+			<name>Email Address</name>
 			<class>
 				<file>api/dao/address.php</file>
 				<name>Context_Address</name>
@@ -2091,6 +2091,19 @@
 		
 			<!-- Profile Page Sections -->
 			
+			<extension point="cerberusweb.ui.page.section">
+				<id>core.page.profiles.address</id>
+				<name>Address Section</name>
+				<class>
+					<file>api/uri/profiles/address.php</file>
+					<name>PageSection_ProfilesAddress</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.page.profiles" />
+					<param key="uri" value="address" />
+				</params>
+			</extension>
+		
 			<extension point="cerberusweb.ui.page.section">
 				<id>core.page.profiles.calendar_event</id>
 				<name>Calendar Event Section</name>
