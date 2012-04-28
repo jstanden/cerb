@@ -36,13 +36,6 @@
 		<a href="{devblocks_url}c=groups{/devblocks_url}">{$translate->_('common.groups')|lower}</a>				
 	</li>
 	{/if}
-	
-	{if !empty($active_worker_memberships)}
-	<li class="{if $page->id=='core.page.profiles'}selected{/if}" style="float:right;">
-		<a href="{devblocks_url}c=profiles{/devblocks_url}">{$translate->_('common.profiles')|lower}</a>				
-	</li>
-	{/if}
-	
 </ul>
 <div style="clear:both;background-color:rgb(100,135,225);height:5px;"></div>
 

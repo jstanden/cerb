@@ -22,28 +22,7 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 
 		if(isset($stack[2])) {
 			$this->_renderWorkerPage();
-		} else {
-			$this->_renderIndexPage();
 		}
-	}
-	
-	private function _renderIndexPage() {
-		$tpl = DevblocksPlatform::getTemplateService();
-		$visit = CerberusApplication::getVisit();
-		$request = DevblocksPlatform::getHttpRequest();
-
-		$stack = $request->path;
-		
-		@array_shift($stack); // profiles
-		@array_shift($stack); // worker
-		
-		$groups = DAO_Group::getAll();
-		$tpl->assign('groups', $groups);
-		
-		$workers = DAO_Worker::getAllActive();
-		$tpl->assign('workers', $workers);
-		
-		$tpl->display('devblocks:cerberusweb.core::profiles/workers.tpl');
 	}
 	
 	private function _renderWorkerPage() {
