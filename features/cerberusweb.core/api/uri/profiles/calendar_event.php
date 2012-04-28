@@ -35,6 +35,18 @@ class PageSection_ProfilesCalendarEvent extends Extension_PageSection {
 		
 		$tpl->assign('event', $event);
 
+		// Remember the last tab/URL
+		
+		$point = sprintf("cerberusweb.profiles.calendar_event.%d", $event->id);
+		$tpl->assign('point', $point);
+
+		@$selected_tab = array_shift($stack);
+		
+		if(null == $selected_tab) {
+			$selected_tab = $visit->get($point, '');
+		}
+		$tpl->assign('selected_tab', $selected_tab);
+		
 		// Properties
 		
 		$translate = DevblocksPlatform::getTranslationService();

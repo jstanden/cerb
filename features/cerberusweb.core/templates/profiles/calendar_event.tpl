@@ -61,21 +61,17 @@
 <div id="profileTabs">
 	<ul>
 		{$tabs = []}
-		{$point = "cerberusweb.profiles.calendar_event.{$event->id}"}
+		
+		{$tabs[] = 'activity'}
+		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabActivityLog&scope=target&point={$point}&context={$page_context}&context_id={$page_context_id}{/devblocks_url}">{'common.activity_log'|devblocks_translate|capitalize}</a></li>
 		
 		{$tabs[] = 'comments'}
-		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextComments&context={$page_context}&id={$page_context_id}{/devblocks_url}">{'common.comments'|devblocks_translate|capitalize}</a></li>
-		
-		{*
-		{$tabs[] = 'members'}
-		<li><a href="#members">Members</a></li>
-		*}
-	</ul>
+		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextComments&point={$point}&context={$page_context}&id={$page_context_id}{/devblocks_url}">{'common.comments'|devblocks_translate|capitalize}</a></li>
 
-	{*	
-	<div id="members">
-	</div>
-	*}
+		{$tabs[] = 'links'}
+		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextLinks&point={$point}&context={$page_context}&id={$page_context_id}{/devblocks_url}">{$translate->_('common.links')}</a></li>
+		
+	</ul>
 </div> 
 
 <br>
