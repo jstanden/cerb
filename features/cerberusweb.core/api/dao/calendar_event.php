@@ -169,7 +169,9 @@ class DAO_CalendarEvent extends C4_ORMHelper {
 				SearchFields_CalendarEvent::DATE_END
 			);
 			
-		$join_sql = "FROM calendar_event ";
+		$join_sql = "FROM calendar_event ".
+			(isset($tables['context_link']) ? "INNER JOIN context_link ON (context_link.to_context = 'cerberusweb.contexts.calendar_event' AND context_link.to_context_id = calendar_event.id) " : " ")
+			;		
 		
 		// Custom field joins
 		list($select_sql, $join_sql, $has_multiple_values) = self::_appendSelectJoinSqlForCustomFieldTables(
@@ -300,6 +302,10 @@ class SearchFields_CalendarEvent implements IDevblocksSearchFields {
 	
 	const VIRTUAL_OWNER = '*_owner';
 	
+	// Context Links
+	const CONTEXT_LINK = 'cl_context_from';
+	const CONTEXT_LINK_ID = 'cl_context_from_id';
+	
 	/**
 	 * @return DevblocksSearchField[]
 	 */
@@ -317,6 +323,9 @@ class SearchFields_CalendarEvent implements IDevblocksSearchFields {
 			self::DATE_END => new DevblocksSearchField(self::DATE_END, 'calendar_event', 'date_end', $translate->_('dao.calendar_event.date_end'), Model_CustomField::TYPE_DATE),
 			
 			self::VIRTUAL_OWNER => new DevblocksSearchField(self::VIRTUAL_OWNER, '*', 'owner', $translate->_('common.owner'), null),
+				
+			self::CONTEXT_LINK => new DevblocksSearchField(self::CONTEXT_LINK, 'context_link', 'from_context', null, null),
+			self::CONTEXT_LINK_ID => new DevblocksSearchField(self::CONTEXT_LINK_ID, 'context_link', 'from_context_id', null, null),
 		);
 		
 		// Custom Fields
@@ -370,6 +379,8 @@ class View_CalendarEvent extends C4_AbstractView implements IAbstractView_Subtot
 			SearchFields_CalendarEvent::RECURRING_ID,
 			SearchFields_CalendarEvent::OWNER_CONTEXT,
 			SearchFields_CalendarEvent::OWNER_CONTEXT_ID,
+			SearchFields_CalendarEvent::CONTEXT_LINK,
+			SearchFields_CalendarEvent::CONTEXT_LINK_ID,
 		));
 		
 		$this->addParamsHidden(array(
@@ -377,6 +388,8 @@ class View_CalendarEvent extends C4_AbstractView implements IAbstractView_Subtot
 			SearchFields_CalendarEvent::RECURRING_ID,
 			SearchFields_CalendarEvent::OWNER_CONTEXT,
 			SearchFields_CalendarEvent::OWNER_CONTEXT_ID,
+			SearchFields_CalendarEvent::CONTEXT_LINK,
+			SearchFields_CalendarEvent::CONTEXT_LINK_ID,
 		));
 		
 		$this->doResetCriteria();
@@ -800,17 +813,6 @@ class Context_CalendarEvent extends Extension_DevblocksContext {
 		$required_params = array();
 
 		// [TODO] This should still filter out on VAs 
-		/*
-		if(!empty($active_worker)) {
-			$required_params['_owner'] = array(
-				array(
-					DevblocksSearchCriteria::GROUP_AND,
-					new DevblocksSearchCriteria(SearchFields_CalendarEvent::OWNER_CONTEXT,'=',CerberusContexts::CONTEXT_WORKER),
-					new DevblocksSearchCriteria(SearchFields_CalendarEvent::OWNER_CONTEXT_ID,'=',$active_worker->id),
-				)
-			);
-		}
-		*/
 		
 		$view->addParamsRequired($required_params, true);
 		$view->renderSortBy = SearchFields_CalendarEvent::DATE_START;
