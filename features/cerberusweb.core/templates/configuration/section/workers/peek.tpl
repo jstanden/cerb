@@ -7,7 +7,7 @@
 <input type="hidden" name="view_id" value="{$view_id}">
 <input type="hidden" name="do_delete" value="0">
 
-<fieldset>
+<fieldset class="peek">
 	<legend>Contact Information</legend>
 	
 	<table cellpadding="0" cellspacing="2" border="0" width="98%">
@@ -30,7 +30,7 @@
 	</table>
 </fieldset>
 	
-<fieldset>
+<fieldset class="peek">
 	<legend>Authentication</legend>
 	
 	<table cellpadding="0" cellspacing="2" border="0" width="98%">
@@ -75,7 +75,7 @@
 	</table>
 </fieldset>
 
-<fieldset>
+<fieldset class="peek">
 	<legend>{'common.groups'|devblocks_translate|capitalize}</legend>
 	
 	{if $worker->id}{assign var=workerGroups value=$worker->getMemberships()}{/if}
@@ -92,7 +92,7 @@
 </fieldset>
 
 {if !empty($custom_fields)}
-<fieldset>
+<fieldset class="peek">
 	<legend>{'common.custom_fields'|devblocks_translate}</legend>
 	{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false}
 </fieldset>
