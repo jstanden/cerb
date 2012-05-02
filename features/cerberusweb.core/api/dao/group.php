@@ -976,7 +976,7 @@ class View_Group extends C4_AbstractView implements IAbstractView_Subtotals {
 	}
 };
 
-class Context_Group extends Extension_DevblocksContext {
+class Context_Group extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek {
 	const ID = 'cerberusweb.contexts.group';
 	
 	function authorize($context_id, Model_Worker $worker) {
@@ -999,21 +999,30 @@ class Context_Group extends Extension_DevblocksContext {
 		return DAO_Group::random();
 	}
 	
-	function getMeta($context_id) {
+	function profileGetUrl($context_id) {
+		if(empty($context_id))
+			return '';
+	
 		$url_writer = DevblocksPlatform::getUrlService();
-		
+		$url = $url_writer->writeNoProxy('c=profiles&type=group&id='.$context_id, true);
+		return $url;
+	}
+	
+	function getMeta($context_id) {
 		if(null == ($group = DAO_Group::get($context_id)))
 			return false;
 		
-		$who = sprintf("%d-%s",
-			$group->id,
-			DevblocksPlatform::strToPermalink($group->name)
-		);
+		$url = $this->profileGetUrl($context_id);
+		
+		$who = DevblocksPlatform::strToPermalink($group->name);
+		
+		if(!empty($who))
+			$url .= '-' . $who;
 		
 		return array(
 			'id' => $group->id,
 			'name' => $group->name,
-			'permalink' => $url_writer->writeNoProxy('c=profiles&type=group&who='.$who, true),
+			'permalink' => $url,
 		);
 	}
 	
@@ -1152,6 +1161,32 @@ class Context_Group extends Extension_DevblocksContext {
 		$view->renderTemplate = 'context';
 		C4_AbstractViewLoader::setView($view_id, $view);
 		return $view;
+	}
+	
+	function renderPeekPopup($context_id=0, $view_id='') {
+		$tpl = DevblocksPlatform::getTemplateService();
+		
+		$tpl->assign('view_id', $view_id);
+		
+		if(!empty($context_id) && null != ($group = DAO_Group::get($context_id))) {
+			$tpl->assign('group', $group);
+		}
+		
+		// Custom fields
+		
+		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_GROUP);
+		$tpl->assign('custom_fields', $custom_fields);
+		
+		$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_GROUP, $context_id);
+		if(isset($custom_field_values[$context_id]))
+			$tpl->assign('custom_field_values', $custom_field_values[$context_id]);
+		
+		$types = Model_CustomField::getTypes();
+		$tpl->assign('types', $types);
+		
+		// Template
+		
+		$tpl->display('devblocks:cerberusweb.core::groups/peek.tpl');
 	}
 };
 

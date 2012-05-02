@@ -373,35 +373,6 @@ class ChGroupsPage extends CerberusPageExtension  {
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('groups',$group_id,'fields')));
 	}
 	
-	function showGroupPanelAction() {
-		@$group_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
-		
-		$tpl = DevblocksPlatform::getTemplateService();
-		
-		$tpl->assign('view_id', $view_id);
-		
-		if(!empty($group_id) && null != ($group = DAO_Group::get($group_id))) {
-			$tpl->assign('group', $group);
-		}
-		
-		// Custom fields
-		
-		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_GROUP); 
-		$tpl->assign('custom_fields', $custom_fields);
-
-		$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_GROUP, $group_id);
-		if(isset($custom_field_values[$group_id]))
-			$tpl->assign('custom_field_values', $custom_field_values[$group_id]);
-		
-		$types = Model_CustomField::getTypes();
-		$tpl->assign('types', $types);
-		
-		// Template
-		
-		$tpl->display('devblocks:cerberusweb.core::groups/rpc/peek.tpl');
-	}
-	
 	function saveGroupsPanelAction() {
 		@$group_id = DevblocksPlatform::importGPC($_REQUEST['group_id'],'integer',0);
 		@$name = DevblocksPlatform::importGPC($_REQUEST['name'],'string','');

@@ -155,7 +155,7 @@ $(function() {
 
 	{if $active_worker->is_superuser}
 	$('#btnProfileGroupEdit').bind('click', function() {
-		$popup = genericAjaxPopup('peek','c=groups&a=showGroupPanel&id={$group->id}',null,false,'550');
+		$popup = genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={$page_context}&context_id={$page_context_id}',null,false,'550');
 		$popup.one('group_save', function(event) {
 			event.stopPropagation();
 			document.location.href = '{devblocks_url}c=profiles&k=group&id={$group->id}-{$group->name|devblocks_permalink}{/devblocks_url}';
