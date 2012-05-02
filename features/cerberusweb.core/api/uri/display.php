@@ -25,166 +25,6 @@ class ChDisplayPage extends CerberusPageExtension {
 	}
 	
 	function render() {
-		$tpl = DevblocksPlatform::getTemplateService();
-
-		$visit = CerberusApplication::getVisit(); /* @var $visit CerberusVisit */
-		$response = DevblocksPlatform::getHttpResponse();
-		$active_worker = CerberusApplication::getActiveWorker();
-		$translate = DevblocksPlatform::getTranslationService();
-		$url = DevblocksPlatform::getUrlService();
-		
-		$stack = $response->path;
-		@array_shift($stack); // display
-		
-		@$id = array_shift($stack);
-		
-		// [JAS]: Translate Masks
-		if(!is_numeric($id)) {
-			$id = DAO_Ticket::getTicketIdByMask($id);
-		}
-		$ticket = DAO_Ticket::get($id);
-	
-		if(empty($ticket)) {
-			echo "<H1>".$translate->_('display.invalid_ticket')."</H1>";
-			return;
-		}
-
-		// Trigger ticket view event
-		
-		Event_TicketViewedByWorker::trigger($ticket->id, $active_worker->id);
-		
-		// Custom fields
-		
-		$custom_fields = DAO_CustomField::getAll();
-		$tpl->assign('custom_fields', $custom_fields);
-		
-		// Properties
-		
-		$properties = array(
-			'status' => null,
-			'owner' => null,
-			'mask' => null,
-			'bucket' => null,
-			'org' => null,
-			'created' => array(
-				'label' => ucfirst($translate->_('common.created')),
-				'type' => Model_CustomField::TYPE_DATE,
-				'value' => $ticket->created_date,
-			),
-			'updated' => array(
-				'label' => ucfirst($translate->_('common.updated')),
-				'type' => Model_CustomField::TYPE_DATE,
-				'value' => $ticket->updated_date,
-			),
-			// [TODO] If trained or not
-			'spam_score' => array(
-				'label' => ucfirst($translate->_('ticket.spam_score')),
-				'type' => Model_CustomField::TYPE_SINGLE_LINE,
-				'value' => (100*$ticket->spam_score) . '%',
-			),
-		);
-		
-		@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_TICKET, $ticket->id)) or array();
-
-		foreach($custom_fields as $cf_id => $cfield) {
-			if(!isset($values[$cf_id]))
-				continue;
-				
-			if(!empty($cfield->group_id) && $cfield->group_id != $ticket->group_id)
-				continue;
-				
-			$properties['cf_' . $cf_id] = array(
-				'label' => $cfield->name,
-				'type' => $cfield->type,
-				'value' => $values[$cf_id],
-			);
-		}
-		
-		$tpl->assign('properties', $properties);
-		
-		// Tabs
-		
-		$tab_manifests = DevblocksPlatform::getExtensions('cerberusweb.ticket.tab', false);
-		$tpl->assign('tab_manifests', $tab_manifests);
-
-		@$tab_selected = array_shift($stack);
-		
-		if(empty($tab_selected))
-			$tab_selected = 'conversation';
-		
-		switch($tab_selected) {
-			case 'conversation':
-				@$mail_always_show_all = DAO_WorkerPref::get($active_worker->id,'mail_always_show_all',0);
-				@$tab_option = array_shift($stack);
-				
-				if($mail_always_show_all || 0==strcasecmp("read_all",$tab_option)) {
-					$tpl->assign('expand_all', true);
-				}
-				break;
-		}
-		
-		$tpl->assign('tab_selected', $tab_selected);
-		
-		// Permissions 
-		
-		$active_worker_memberships = $active_worker->getMemberships();
-		
-		// Check group membership ACL
-		if(!isset($active_worker_memberships[$ticket->group_id])) {
-			echo "<H1>".$translate->_('common.access_denied')."</H1>";
-			return;
-		}
-		
-		$tpl->assign('ticket', $ticket);
-
-		$groups = DAO_Group::getAll();
-
-		// Macros
-		$macros = DAO_TriggerEvent::getByOwners(
-			array(
-				array(CerberusContexts::CONTEXT_WORKER, $active_worker->id, null),
-				array(CerberusContexts::CONTEXT_GROUP, $ticket->group_id, $groups[$ticket->group_id]->name),
-			),
-			'event.macro.ticket'
-		);
-		$tpl->assign('macros', $macros);
-		
-		// TicketToolbarItem Extensions
-		$ticketToolbarItems = DevblocksPlatform::getExtensions('cerberusweb.ticket.toolbaritem', true);
-		if(!empty($ticketToolbarItems))
-			$tpl->assign('ticket_toolbaritems', $ticketToolbarItems);
-		
-		$quick_search_type = $visit->get('quick_search_type');
-		$tpl->assign('quick_search_type', $quick_search_type);
-				
-		$requesters = DAO_Ticket::getRequestersByTicket($ticket->id);
-		$tpl->assign('requesters', $requesters);
-		
-		// Workers
-		$tpl->assign('workers', DAO_Worker::getAll());
-		
-		$context_watchers = CerberusContexts::getWatchers(CerberusContexts::CONTEXT_TICKET, $ticket->id);
-		$tpl->assign('context_watchers', $context_watchers);
-		
-		$tpl->assign('groups', $groups);
-		
-		$group_buckets = DAO_Bucket::getGroups();
-		$tpl->assign('group_buckets', $group_buckets);
-		
-		// Log Activity
-		DAO_Worker::logActivity(
-			new Model_Activity('activity.display_ticket',array(
-				sprintf("<a href='%s' title='[%s] %s'>#%s</a>",
-		    		$url->write("c=display&id=".$ticket->mask),
-		    		htmlspecialchars(@$groups[$ticket->group_id]->name, ENT_QUOTES, LANG_CHARSET_CODE),
-		    		htmlspecialchars($ticket->subject, ENT_QUOTES, LANG_CHARSET_CODE),
-		    		$ticket->mask
-		    	)
-			)),
-			true
-		);
-		
-		$tpl->display('devblocks:cerberusweb.core::display/index.tpl');
 	}
 	
 	// Ajax
@@ -744,10 +584,15 @@ class ChDisplayPage extends CerberusPageExtension {
 	function showConversationAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer');
 		@$expand_all = DevblocksPlatform::importGPC($_REQUEST['expand_all'],'integer','0');
+		@$point = DevblocksPlatform::importGPC($_REQUEST['point'],'string','');
+
+		$tpl = DevblocksPlatform::getTemplateService();
+		$visit = CerberusApplication::getVisit();
 
 		@$active_worker = CerberusApplication::getActiveWorker();
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		if(!empty($point))
+			$visit->set($point, 'conversation');
 				
 		$tpl->assign('expand_all', $expand_all);
 		
@@ -973,11 +818,14 @@ class ChDisplayPage extends CerberusPageExtension {
 	function showContactHistoryAction() {
 		$visit = CerberusApplication::getVisit(); /* @var $visit CerberusVisit */
 		$translate = DevblocksPlatform::getTranslationService();
+		$tpl = DevblocksPlatform::getTemplateService();
 		
 		@$ticket_id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer');
-
-		$tpl = DevblocksPlatform::getTemplateService();
+		@$point = DevblocksPlatform::importGPC($_REQUEST['point'],'string','');
 				
+		if(!empty($point))
+			$visit->set($point, 'history');
+		
 		// Ticket
 		$ticket = DAO_Ticket::get($ticket_id);
 		$tpl->assign('ticket', $ticket);

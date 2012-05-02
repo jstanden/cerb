@@ -126,7 +126,7 @@ class ChTicketsPage extends CerberusPageExtension {
 				if($ticket_id==$explore_from)
 					$orig_pos = $pos;
 				
-				$url = $url_writer->writeNoProxy(sprintf("c=display&mask=%s", $row[SearchFields_Ticket::TICKET_MASK]), true);
+				$url = $url_writer->writeNoProxy(sprintf("c=profiles&type=ticket&id=%s", $row[SearchFields_Ticket::TICKET_MASK]), true);
 
 				$model = new Model_ExplorerSet();
 				$model->hash = $hash;
@@ -203,7 +203,7 @@ class ChTicketsPage extends CerberusPageExtension {
 				$model->pos = $pos++;
 				$model->params = array(
 					'id' => $id,
-					'url' => $url_writer->writeNoProxy(sprintf("c=display&id=%s", $row[SearchFields_Message::TICKET_MASK]), true),
+					'url' => $url_writer->writeNoProxy(sprintf("c=profiles&type=ticket&id=%s", $row[SearchFields_Message::TICKET_MASK]), true),
 				);
 				$models[] = $model; 
 			}

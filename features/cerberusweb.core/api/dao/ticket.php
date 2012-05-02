@@ -366,8 +366,8 @@ class DAO_Ticket extends C4_ORMHelper {
 						'target' => sprintf("[%s] %s", $oldest_ticket[SearchFields_Ticket::TICKET_MASK], $oldest_ticket[SearchFields_Ticket::TICKET_SUBJECT]),
 						),
 					'urls' => array(
-						'source' => 'c=display&mask='.$ticket[SearchFields_Ticket::TICKET_MASK],
-						'target' => 'c=display&mask='.$oldest_ticket[SearchFields_Ticket::TICKET_MASK],
+						'source' => sprintf("ctx://%s:%s", CerberusContexts::CONTEXT_TICKET, $ticket[SearchFields_Ticket::TICKET_MASK]),
+						'target' => sprintf("ctx://%s:%s", CerberusContexts::CONTEXT_TICKET, $oldest_ticket[SearchFields_Ticket::TICKET_MASK]),
 						)
 				);
 				CerberusContexts::logActivity('ticket.merge', CerberusContexts::CONTEXT_TICKET, $oldest_id, $entry);
@@ -615,7 +615,7 @@ class DAO_Ticket extends C4_ORMHelper {
 							'target' => sprintf("[%s] %s", $model[DAO_Ticket::MASK], $model[DAO_Ticket::SUBJECT]),
 							),
 						'urls' => array(
-							'target' => 'c=display&mask='.$model[DAO_Ticket::MASK],
+							'target' => sprintf("ctx://%s:%d/%s", CerberusContexts::CONTEXT_TICKET, $object_id, $model[DAO_Ticket::MASK]),
 							)
 					);
 					CerberusContexts::logActivity($activity_point, CerberusContexts::CONTEXT_TICKET, $object_id, $entry);
@@ -636,7 +636,7 @@ class DAO_Ticket extends C4_ORMHelper {
 							'worker' => (!empty($target_worker) && $target_worker instanceof Model_Worker) ? $target_worker->getName() : '',
 							),
 						'urls' => array(
-							'target' => 'c=display&mask='.$model[DAO_Ticket::MASK],
+							'target' => sprintf("ctx://%s:%d/%s", CerberusContexts::CONTEXT_TICKET, $object_id, $model[DAO_Ticket::MASK]),
 							)
 					);
 					CerberusContexts::logActivity($activity_point, CerberusContexts::CONTEXT_TICKET, $object_id, $entry);
@@ -704,7 +704,7 @@ class DAO_Ticket extends C4_ORMHelper {
 							'status' => $status_to,
 							),
 						'urls' => array(
-							'target' => 'c=display&mask='.$model[DAO_Ticket::MASK],
+							'target' => sprintf("ctx://%s:%d/%s", CerberusContexts::CONTEXT_TICKET, $object_id, $model[DAO_Ticket::MASK]),
 							)
 					);
 					CerberusContexts::logActivity($activity_point, CerberusContexts::CONTEXT_TICKET, $object_id, $entry);
@@ -2638,7 +2638,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals {
 	}
 };
 
-class Context_Ticket extends Extension_DevblocksContext {
+class Context_Ticket extends Extension_DevblocksContext implements IDevblocksContextProfile {
 	const ID = 'cerberusweb.contexts.ticket';
 	
 	function authorize($context_id, Model_Worker $worker) {
@@ -2665,15 +2665,34 @@ class Context_Ticket extends Extension_DevblocksContext {
 	function getRandom() {
 		return DAO_Ticket::random();
 	}
+
+	function profileGetUrl($context_id) {
+		if(empty($context_id))
+			return '';
 		
-	function getMeta($context_id) {
-		$ticket = DAO_Ticket::get($context_id);
 		$url_writer = DevblocksPlatform::getUrlService();
+		$url = $url_writer->writeNoProxy('c=profiles&type=ticket&id='.$context_id, true);
+		return $url;
+	}
+	
+	function getMeta($context_id) {
+		$url = $this->profileGetUrl($context_id);
+		$friendly = null;
+		
+		if(is_numeric($context_id)) {
+			$ticket = DAO_Ticket::get($context_id);
+			$friendly = DevblocksPlatform::strToPermalink($ticket->mask);
+		} else {
+			$ticket = DAO_Ticket::getTicketByMask($context_id);
+		}
+		
+		if(!empty($friendly))
+			$url .= ' - ' . $friendly;
 		
 		return array(
 			'id' => $ticket->id,
 			'name' => sprintf("[%s] %s", $ticket->mask, $ticket->subject),
-			'permalink' => $url_writer->writeNoProxy('c=display&mask='.$ticket->mask, true),
+			'permalink' => $url,
 			'owner_id' => $ticket->owner_id,
 		);
 	}
@@ -2753,7 +2772,7 @@ class Context_Ticket extends Extension_DevblocksContext {
 			
 			// URL
 			$url_writer = DevblocksPlatform::getUrlService();
-			$token_values['url'] = $url_writer->writeNoProxy('c=display&mask='.$ticket->mask,true);
+			$token_values['url'] = $url_writer->writeNoProxy('c=profiles&type=ticket&id='.$ticket->mask,true);
 
 			// Group
 			$token_values['group_id'] = $ticket->group_id;

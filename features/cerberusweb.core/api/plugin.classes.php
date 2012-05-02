@@ -308,7 +308,7 @@ XML;
 
             $eDesc = $eItem->addChild('description', $this->_getTicketLastAction($ticket));
             
-            $link = $url->write('c=display&id='.$ticket[SearchFields_Ticket::TICKET_MASK], true);
+            $link = $url->write('c=profiles&type=ticket&id='.$ticket[SearchFields_Ticket::TICKET_MASK], true);
             $eLink = $eItem->addChild('link', $link);
             	
             $eDate = $eItem->addChild('pubDate', gmdate('D, d M Y H:i:s T', $created));

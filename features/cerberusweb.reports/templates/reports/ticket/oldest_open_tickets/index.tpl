@@ -37,8 +37,8 @@
 			
 			{foreach from=$group_tickets item=ticket_entry}
 				<tr>
-					<td style="padding-left:10px;padding-right:20px;"><a href="{devblocks_url}c=display&id={$ticket_entry->mask}{/devblocks_url}">{$ticket_entry->mask}</a></td>
-					<td><a href="{devblocks_url}c=display&id={$ticket_entry->mask}{/devblocks_url}">{$ticket_entry->subject}</a></td>
+					<td style="padding-left:10px;padding-right:20px;"><a href="{devblocks_url}c=profiles&type=ticket&id={$ticket_entry->mask}{/devblocks_url}">{$ticket_entry->mask}</a></td>
+					<td><a href="{devblocks_url}c=profiles&type=ticket&id={$ticket_entry->mask}{/devblocks_url}">{$ticket_entry->subject}</a></td>
 					<td>{$ticket_entry->created_date|date_format:"%Y-%m-%d"}</td>
 				</tr>
 			{/foreach}

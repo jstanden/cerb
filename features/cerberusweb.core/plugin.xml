@@ -2170,6 +2170,19 @@
 			</extension>
 			
 			<extension point="cerberusweb.ui.page.section">
+				<id>core.page.profiles.ticket</id>
+				<name>Ticket Section</name>
+				<class>
+					<file>api/uri/profiles/ticket.php</file>
+					<name>PageSection_ProfilesTicket</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.page.profiles" />
+					<param key="uri" value="ticket" />
+				</params>
+			</extension>
+			
+			<extension point="cerberusweb.ui.page.section">
 				<id>core.page.profiles.worker</id>
 				<name>Worker Section</name>
 				<class>

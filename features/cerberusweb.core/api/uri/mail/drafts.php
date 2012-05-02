@@ -299,7 +299,7 @@ class PageSection_MailDrafts extends Extension_PageSection {
 				if($row[SearchFields_MailQueue::TYPE]==Model_MailQueue::TYPE_COMPOSE) {
 					$url = $url_writer->writeNoProxy(sprintf("c=mail&a=compose&id=%d", $draft_id), true);
 				} elseif($row[SearchFields_MailQueue::TYPE]==Model_MailQueue::TYPE_TICKET_REPLY) {
-					$url = $url_writer->writeNoProxy(sprintf("c=display&id=%d", $row[SearchFields_MailQueue::TICKET_ID]), true) . sprintf("#draft%d", $draft_id);
+					$url = $url_writer->writeNoProxy(sprintf("c=profiles&type=ticket&id=%d", $row[SearchFields_MailQueue::TICKET_ID]), true) . sprintf("#draft%d", $draft_id);
 				}
 
 				$model = new Model_ExplorerSet();

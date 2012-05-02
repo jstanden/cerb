@@ -125,8 +125,8 @@ plot1 = $.jqplot('reportChart', [series1], {
 	</tr>
 	{foreach from=$assigned_tickets item=ticket}
 	<tr>
-		<td style="padding-right:20px;"><a href="{devblocks_url}c=display&id={$ticket->mask}{/devblocks_url}">{$ticket->mask}</a></td>
-		<td align="left"><a href="{devblocks_url}c=display&id={$ticket->mask}{/devblocks_url}">{$ticket->subject}</a></td>
+		<td style="padding-right:20px;"><a href="{devblocks_url}c=profiles&type=ticket&id={$ticket->mask}{/devblocks_url}">{$ticket->mask}</a></td>
+		<td align="left"><a href="{devblocks_url}c=profiles&type=ticket&id={$ticket->mask}{/devblocks_url}">{$ticket->subject}</a></td>
 		<td>{$ticket->created_date|date_format:"%Y-%m-%d"}</td>
 	</tr>
 	{/foreach}

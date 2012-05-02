@@ -5,7 +5,7 @@
 	<div class="ui-state-highlight ui-corner-all" style="padding: 0 .7em; margin: 0.2em; "> 
 		<p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span> 
 		<strong>Message sent!</strong> 
-		(<a href="{devblocks_url}c=display&mask={$last_ticket_mask}{/devblocks_url}">view</a>)
+		(<a href="{devblocks_url}c=profiles&type=ticket&id={$last_ticket_mask}{/devblocks_url}">view</a>)
 		</p>
 	</div>
 </div>

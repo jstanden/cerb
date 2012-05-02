@@ -73,7 +73,7 @@
 	{* This is used in two places depending on if the row is one or two lines *}
 	{capture name="ticket_subject_content"}
 		{if $result.t_is_deleted}<span class="cerb-sprite2 sprite-cross-circle-frame-gray"></span> {elseif $result.t_is_closed}<span class="cerb-sprite2 sprite-tick-circle-frame-gray" title="{$translate->_('status.closed')}"></span> {elseif $result.t_is_waiting}<span class="cerb-sprite sprite-clock"></span>{/if}
-		<a href="{devblocks_url}c=display&id={$result.t_mask}{/devblocks_url}" class="subject">{$result.t_subject}</a> 
+		<a href="{devblocks_url}c=profiles&type=ticket&id={$result.t_mask}{/devblocks_url}" class="subject">{$result.t_subject}</a> 
 		<button type="button" class="peek" style="visibility:hidden;padding:1px;margin:0px 5px;" onclick="genericAjaxPopup('peek','c=tickets&a=showPreview&view_id={$view->id}&tid={$result.t_id}', null, false, '650');"><span class="cerb-sprite2 sprite-document-search-result" style="margin-left:2px" title="{$translate->_('views.peek')}"></span></button>
 	{/capture}
 	
@@ -107,9 +107,9 @@
 		{if substr($column,0,3)=="cf_"}
 			{include file="devblocks:cerberusweb.core::internal/custom_fields/view/cell_renderer.tpl"}
 		{elseif $column=="t_id"}
-		<td><a href="{devblocks_url}c=display&id={$result.t_id}{/devblocks_url}">{$result.t_id}</a></td>
+		<td><a href="{devblocks_url}c=profiles&type=ticket&id={$result.t_id}{/devblocks_url}">{$result.t_id}</a></td>
 		{elseif $column=="t_mask"}
-		<td><a href="{devblocks_url}c=display&id={$result.t_mask}{/devblocks_url}">{$result.t_mask}</a></td>
+		<td><a href="{devblocks_url}c=profiles&type=ticket&id={$result.t_mask}{/devblocks_url}">{$result.t_mask}</a></td>
 		{elseif $column=="t_subject"}
 		<td title="{$result.t_subject}">
 			{$smarty.capture.ticket_subject_content nofilter}

@@ -19,7 +19,7 @@
 			</div>
 			
 			<div style="float:left;">
-				<b>{'common.url'|devblocks_translate}:</b> <a href="{devblocks_url}c=display&id={$ticket->mask}{/devblocks_url}">{devblocks_url full=true}c=display&id={$ticket->mask}{/devblocks_url}</a>
+				<b>{'common.url'|devblocks_translate}:</b> <a href="{devblocks_url}c=profiles&type=ticket&id={$ticket->mask}{/devblocks_url}">{devblocks_url full=true}c=profiles&type=ticket&id={$ticket->mask}{/devblocks_url}</a>
 			</div>
 			
 			{if !is_null($p) && !is_null($p_count)}
@@ -37,7 +37,7 @@
 	{/if}
 	
     <div id="ticketPeekProps" style="display:none;">
-		<fieldset>
+		<fieldset class="peek">
 			<legend>{'common.properties'|devblocks_translate|capitalize}</legend>
 			
 			<table cellpadding="0" cellspacing="2" border="0" width="98%">
@@ -147,7 +147,7 @@
 		</fieldset>
 		
 		{if !empty($custom_fields)}
-		<fieldset>
+		<fieldset class="peek">
 			<legend>{'common.custom_fields'|devblocks_translate}</legend>
 			
 			<table cellpadding="2" cellspacing="1" border="0">
@@ -215,7 +215,7 @@
 			{include file="devblocks:cerberusweb.core::internal/comments/comment.tpl" readonly=true comment=$last_comment}
 		{/if}
 		
-		<fieldset>
+		<fieldset class="peek">
 			<legend>{'common.comment'|devblocks_translate|capitalize}</legend>
 			<textarea name="comment" rows="5" cols="60" style="width:98%;"></textarea>
 			<div class="notify" style="display:none;">
