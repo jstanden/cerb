@@ -394,7 +394,7 @@ XML;
 
             $eDesc = $eItem->addChild('description', '');
 
-            $link = $url->write('c=tasks&a=display&id='.$task[SearchFields_Task::ID], true);
+            $link = $url->write('c=profiles&type=task&id='.$task[SearchFields_Task::ID], true);
             $eLink = $eItem->addChild('link', $link);
             	
             $eDate = $eItem->addChild('pubDate', gmdate('D, d M Y H:i:s T', $created));

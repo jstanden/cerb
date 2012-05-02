@@ -46,7 +46,7 @@
 		</span>		
 
 		<!-- Macros -->
-		{devblocks_url assign=return_url full=true}c=tasks&tab=display&id={$page_context_id}-{$task->title|devblocks_permalink}{/devblocks_url}
+		{devblocks_url assign=return_url full=true}c=profiles&type=task&id={$page_context_id}-{$task->title|devblocks_permalink}{/devblocks_url}
 		{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context=$page_context context_id=$page_context_id macros=$macros return_url=$return_url}		
 
 		<!-- Edit -->
@@ -57,7 +57,7 @@
 			{$toolbar_extension->render($task)}
 		{/foreach}
 		
-		<button type="button" title="{$translate->_('display.shortcut.refresh')}" onclick="document.location='{devblocks_url}c=tasks&tab=display&id={$page_context_id}-{$task->title|devblocks_permalink}{/devblocks_url}';">&nbsp;<span class="cerb-sprite sprite-refresh"></span>&nbsp;</button>
+		<button type="button" title="{$translate->_('display.shortcut.refresh')}" onclick="document.location='{devblocks_url}c=profiles&type=task&id={$page_context_id}-{$task->title|devblocks_permalink}{/devblocks_url}';">&nbsp;<span class="cerb-sprite sprite-refresh"></span>&nbsp;</button>
 	
 	</form>
 	
@@ -82,30 +82,29 @@
 
 <div id="tasksTabs">
 	<ul>
-		{$tabs = [activity, comments, links]}
-		{$point = 'core.page.tasks'}
+		{$tabs = [activity,comments,links]}
 
 		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabActivityLog&scope=target&point={$point}&context={$page_context}&context_id={$page_context_id}{/devblocks_url}">{'common.activity_log'|devblocks_translate|capitalize}</a></li>
-		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextComments&context={$page_context}&id={$page_context_id}{/devblocks_url}">{'common.comments'|devblocks_translate|capitalize}</a></li>
-		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextLinks&context={$page_context}&id={$page_context_id}{/devblocks_url}">{'common.links'|devblocks_translate}</a></li>
+		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextComments&point={$point}&context={$page_context}&id={$page_context_id}{/devblocks_url}">{'common.comments'|devblocks_translate|capitalize}</a></li>
+		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextLinks&point={$point}&context={$page_context}&id={$page_context_id}{/devblocks_url}">{'common.links'|devblocks_translate}</a></li>
 	</ul>
 </div> 
 <br>
 
-{$tab_selected_idx=0}
+{$selected_tab_idx=0}
 {foreach from=$tabs item=tab_label name=tabs}
-	{if $tab_label==$tab_selected}{$tab_selected_idx = $smarty.foreach.tabs.index}{/if}
+	{if $tab_label==$selected_tab}{$selected_tab_idx = $smarty.foreach.tabs.index}{/if}
 {/foreach}
 
 <script type="text/javascript">
 $(function() {
-	var tabs = $("#tasksTabs").tabs( { selected:{$tab_selected_idx} } );
+	var tabs = $("#tasksTabs").tabs( { selected:{$selected_tab_idx} } );
 
 	$('#btnDisplayTaskEdit').bind('click', function() {
 		$popup = genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={$page_context}&context_id={$page_context_id}',null,false,'500');
 		$popup.one('task_save', function(event) {
 			event.stopPropagation();
-			document.location.href = '{devblocks_url}c=tasks&a=display&id={$page_context_id}{/devblocks_url}';
+			document.location.href = '{devblocks_url}c=profiles&type=task&id={$page_context_id}{/devblocks_url}';
 		});
 	});
 	

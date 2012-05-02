@@ -136,7 +136,7 @@ class DAO_Task extends C4_ORMHelper {
 						'target' => sprintf("%s", $model[DAO_Task::TITLE]),
 						),
 					'urls' => array(
-						'target' => 'c=tasks&d=display&id='.$model[DAO_Task::ID],
+						'target' => sprintf("ctx://%s:%d", CerberusContexts::CONTEXT_TASK, $object_id)
 						)
 				);
 				CerberusContexts::logActivity('task.status.completed', CerberusContexts::CONTEXT_TASK, $object_id, $entry);
@@ -847,17 +847,29 @@ class View_Task extends C4_AbstractView implements IAbstractView_Subtotals {
 	}	
 };
 
-class Context_Task extends Extension_DevblocksContext implements IDevblocksContextPeek, IDevblocksContextImport {
+class Context_Task extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextImport {
+	function profileGetUrl($context_id) {
+		if(empty($context_id))
+			return '';
+	
+		$url_writer = DevblocksPlatform::getUrlService();
+		$url = $url_writer->writeNoProxy('c=profiles&type=task&id='.$context_id, true);
+		return $url;
+	}
+	
 	function getMeta($context_id) {
 		$task = DAO_Task::get($context_id);
-		$url_writer = DevblocksPlatform::getUrlService();
-		
+
+		$url = $this->profileGetUrl($context_id);
 		$friendly = DevblocksPlatform::strToPermalink($task->title);
+		
+		if(!empty($friendly))
+			$url .= '-' . $friendly;
 		
 		return array(
 			'id' => $task->id,
 			'name' => $task->title,
-			'permalink' => $url_writer->writeNoProxy(sprintf("c=tasks&action=display&id=%d-%s",$task->id, $friendly), true),
+			'permalink' => $url,
 		);
 	}
 	
@@ -923,7 +935,7 @@ class Context_Task extends Extension_DevblocksContext implements IDevblocksConte
 			// URL
 			
 			$url_writer = DevblocksPlatform::getUrlService();
-			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=tasks&action=display&id=%d-%s",$task->id, DevblocksPlatform::strToPermalink($task->title)), true);
+			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=profiles&type=task&id=%d-%s",$task->id, DevblocksPlatform::strToPermalink($task->title)), true);
 		}
 
 		return true;

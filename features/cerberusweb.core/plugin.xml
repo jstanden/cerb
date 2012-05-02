@@ -2155,6 +2155,20 @@
 					<param key="uri" value="org" />
 				</params>
 			</extension>
+			
+			<extension point="cerberusweb.ui.page.section">
+				<id>core.page.profiles.task</id>
+				<name>Task Section</name>
+				<class>
+					<file>api/uri/profiles/task.php</file>
+					<name>PageSection_ProfilesTask</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.page.profiles" />
+					<param key="uri" value="task" />
+				</params>
+			</extension>
+			
 			<extension point="cerberusweb.ui.page.section">
 				<id>core.page.profiles.worker</id>
 				<name>Worker Section</name>

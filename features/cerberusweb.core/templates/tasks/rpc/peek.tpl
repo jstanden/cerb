@@ -80,7 +80,7 @@
 {/if}
 {if !empty($task)}
 <div style="float:right;">
-	<a href="{devblocks_url}c=tasks&a=display&id={$task->id}{/devblocks_url}">view full record</a>
+	<a href="{devblocks_url}c=profiles&type=task&id={$task->id}{/devblocks_url}">view full record</a>
 </div>
 <br clear="all">
 {/if}

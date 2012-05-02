@@ -17,93 +17,6 @@
 
 class ChTasksPage extends CerberusPageExtension {
 	function render() {
-		$tpl = DevblocksPlatform::getTemplateService();
-
-		$visit = CerberusApplication::getVisit();
-		$translate = DevblocksPlatform::getTranslationService();
-		$active_worker = CerberusApplication::getActiveWorker();
-		
-		$response = DevblocksPlatform::getHttpResponse();
-		$stack = $response->path;
-		
-		array_shift($stack); // tasks
-		
-		$module = array_shift($stack); // display
-		
-		switch($module) {
-			default:
-			case 'display':
-				@$task_id = intval(array_shift($stack));
-				if(null == ($task = DAO_Task::get($task_id))) {
-					break; // [TODO] Not found
-				}
-				$tpl->assign('task', $task);			
-
-				if(null == (@$tab_selected = $stack[0])) {
-//					$tab_selected = $visit->get(self::SESSION_OPP_TAB, '');
-				}
-				$tpl->assign('tab_selected', $tab_selected);
-
-				// Custom fields
-				
-				$custom_fields = DAO_CustomField::getAll();
-				$tpl->assign('custom_fields', $custom_fields);
-				
-				// Properties
-				
-				$properties = array();
-				
-				$properties['is_completed'] = array(
-					'label' => ucfirst($translate->_('task.is_completed')),
-					'type' => Model_CustomField::TYPE_CHECKBOX,
-					'value' => $task->is_completed,
-				);
-				
-				if(!$task->is_completed) {
-					$properties['due_date'] = array(
-						'label' => ucfirst($translate->_('task.due_date')),
-						'type' => Model_CustomField::TYPE_DATE,
-						'value' => $task->due_date,
-					);
-				} else {
-					$properties['completed_date'] = array(
-						'label' => ucfirst($translate->_('task.completed_date')),
-						'type' => Model_CustomField::TYPE_DATE,
-						'value' => $task->completed_date,
-					);
-				}
-				
-				$properties['updated_date'] = array(
-					'label' => ucfirst($translate->_('common.updated')),
-					'type' => Model_CustomField::TYPE_DATE,
-					'value' => $task->updated_date,
-				);
-				
-				@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_TASK, $task->id)) or array();
-		
-				foreach($custom_fields as $cf_id => $cfield) {
-					if(!isset($values[$cf_id]))
-						continue;
-						
-					$properties['cf_' . $cf_id] = array(
-						'label' => $cfield->name,
-						'type' => $cfield->type,
-						'value' => $values[$cf_id],
-					);
-				}
-				
-				$tpl->assign('properties', $properties);				
-				
-				$workers = DAO_Worker::getAll();
-				$tpl->assign('workers', $workers);
-				
-				// Macros
-				$macros = DAO_TriggerEvent::getByOwner(CerberusContexts::CONTEXT_WORKER, $active_worker->id, 'event.macro.task');
-				$tpl->assign('macros', $macros);
-				
-				$tpl->display('devblocks:cerberusweb.core::tasks/display/index.tpl');
-				break;
-		}
 	}
 
 	function isVisible() {
@@ -376,7 +289,7 @@ class ChTasksPage extends CerberusPageExtension {
 					'created' => time(),
 					//'worker_id' => $active_worker->id,
 					'total' => $total,
-					'return_url' => isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : $url_writer->writeNoProxy('c=activity&tab=tasks', true),
+					'return_url' => isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : $url_writer->writeNoProxy('c=search&type=task', true),
 //					'toolbar_extension_id' => 'cerberusweb.explorer.toolbar.',
 				);
 				$models[] = $model; 
@@ -394,7 +307,7 @@ class ChTasksPage extends CerberusPageExtension {
 				$model->pos = $pos++;
 				$model->params = array(
 					'id' => $row[SearchFields_Task::ID],
-					'url' => $url_writer->writeNoProxy(sprintf("c=tasks&tab=display&id=%d", $row[SearchFields_Task::ID]), true),
+					'url' => $url_writer->writeNoProxy(sprintf("c=profiles&type=task&id=%d", $row[SearchFields_Task::ID]), true),
 				);
 				$models[] = $model; 
 			}
