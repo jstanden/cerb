@@ -52,6 +52,10 @@ interface IDevblocksContextImport {
     function importSaveObject(array $fields, array $custom_fields, array $meta);
 }
 
+interface IDevblocksContextProfile {
+	function profileGetUrl($context_id);
+}
+
 abstract class Extension_DevblocksContext extends DevblocksExtension {
 	static $_changed_contexts = array();
 	
