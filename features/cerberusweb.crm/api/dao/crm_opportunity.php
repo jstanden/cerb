@@ -149,7 +149,7 @@ class DAO_CrmOpportunity extends C4_ORMHelper {
 						'status' => $status_to,
 						),
 					'urls' => array(
-						'target' => 'c=crm&p=opps&id='.$model[DAO_CrmOpportunity::ID],
+						'target' => sprintf("ctx://%s:%d/%s", CerberusContexts::CONTEXT_OPPORTUNITY, $object_id, $model[DAO_CrmOpportunity::NAME]),
 						)
 				);
 				CerberusContexts::logActivity($activity_point, CerberusContexts::CONTEXT_OPPORTUNITY, $object_id, $entry);
@@ -1017,21 +1017,35 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 	}	
 };
 
-class Context_Opportunity extends Extension_DevblocksContext implements IDevblocksContextPeek, IDevblocksContextImport {
+class Context_Opportunity extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextImport {
 	function getRandom() {
 		return DAO_CrmOpportunity::random();
+	}
+	
+	function profileGetUrl($context_id) {
+		if(empty($context_id))
+			return '';
+	
+		$url_writer = DevblocksPlatform::getUrlService();
+		$url = $url_writer->writeNoProxy('c=profiles&type=opportunity&id='.$context_id, true);
+		return $url;
 	}
 	
 	function getMeta($context_id) {
 		$opp = DAO_CrmOpportunity::get($context_id);
 		$url_writer = DevblocksPlatform::getUrlService();
 		
+		$url = $this->profileGetUrl($context_id);
+		
 		$friendly = DevblocksPlatform::strToPermalink($opp->name);
+		
+		if(!empty($friendly))
+			$url .= ' - ' . $friendly;
 		
 		return array(
 			'id' => $opp->id,
 			'name' => $opp->name,
-			'permalink' => $url_writer->write(sprintf("c=profiles&a=opportunity&id=%d-%s",$context_id,$friendly), true),
+			'permalink' => $url,
 		);
 	}
     

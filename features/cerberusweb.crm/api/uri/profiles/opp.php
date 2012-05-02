@@ -27,18 +27,24 @@ class PageSection_ProfilesOpportunity extends Extension_PageSection {
 		$stack = $request->path;
 		@array_shift($stack); // profiles
 		@array_shift($stack); // opportunity
-		
 		@$opp_id = intval(array_shift($stack));
+		
 		if(null == ($opp = DAO_CrmOpportunity::get($opp_id))) {
 			return;
 		}
 		$tpl->assign('opp', $opp);	/* @var $opp Model_CrmOpportunity */
 		
 		// Remember the last tab/URL
-// 		if(null == (@$selected_tab = $stack[0])) {
-// 			$selected_tab = $visit->get(Extension_CrmOpportunityTab::POINT, '');
-// 		}
-// 		$tpl->assign('selected_tab', $selected_tab);
+		
+		@$selected_tab = array_shift($stack);
+		
+		$point = Extension_CrmOpportunityTab::POINT;
+		$tpl->assign('point', $point);
+		
+		if(null == $selected_tab) {
+			$selected_tab = $visit->get($point, '');
+		}
+		$tpl->assign('selected_tab', $selected_tab);
 		
 		// Custom fields
 		
@@ -125,6 +131,6 @@ class PageSection_ProfilesOpportunity extends Extension_PageSection {
 		$macros = DAO_TriggerEvent::getByOwner(CerberusContexts::CONTEXT_WORKER, $active_worker->id, 'event.macro.crm.opportunity');
 		$tpl->assign('macros', $macros);
 		
-		$tpl->display('devblocks:cerberusweb.crm::crm/opps/display/index.tpl');
+		$tpl->display('devblocks:cerberusweb.crm::crm/opps/profile.tpl');
 	}
 };

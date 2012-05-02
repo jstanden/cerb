@@ -92,12 +92,11 @@
 
 <div id="oppTabs">
 	<ul>
-		{$point = Extension_CrmOpportunityTab::POINT}
-		{$tabs = [activity,notes,links,mail]}
+		{$tabs = [activity,comments,links,mail]}
 		
 		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabActivityLog&scope=target&point={$point}&context={$page_context}&context_id={$page_context_id}{/devblocks_url}">{'common.activity_log'|devblocks_translate|capitalize}</a></li>
-		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextComments&context={$page_context}&point={$point}&id={$page_context_id}{/devblocks_url}">{$translate->_('common.comments')|capitalize}</a></li>		
-		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextLinks&context={$page_context}&point={$point}&id={$page_context_id}{/devblocks_url}">{$translate->_('common.links')}</a></li>
+		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextComments&point={$point}&context={$page_context}&point={$point}&id={$page_context_id}{/devblocks_url}">{$translate->_('common.comments')|capitalize}</a></li>		
+		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextLinks&point={$point}&context={$page_context}&point={$point}&id={$page_context_id}{/devblocks_url}">{$translate->_('common.links')}</a></li>
 		<li><a href="{devblocks_url}ajax.php?c=contacts&a=showTabMailHistory&point={$point}&address_ids={$opp->primary_email_id}{/devblocks_url}">{$translate->_('addy_book.org.tabs.mail_history')}</a></li>
 
 		{$tab_manifests = DevblocksPlatform::getExtensions($point, false)}
