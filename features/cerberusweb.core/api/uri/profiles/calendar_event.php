@@ -26,9 +26,15 @@ class PageSection_ProfilesCalendarEvent extends Extension_PageSection {
 		$stack = $request->path;
 		@array_shift($stack); // profiles
 		@array_shift($stack); // calendar_event
-		@$id = array_shift($stack);
+		@$identifier = array_shift($stack);
 		
-		$id = intval($id);
+		if(is_numeric($identifier)) {
+			$id = intval($identifier);
+		} elseif(preg_match("#.*?\-(\d+)$#", $identifier, $matches)) {
+			@$id = intval($matches[1]);
+		} else {
+			@$id = intval($identifier);
+		}
 		
 		if(null == ($event = DAO_CalendarEvent::get($id)))
 			return;

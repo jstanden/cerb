@@ -197,7 +197,7 @@
 		<button type="button" onclick="$(this).parent().siblings('fieldset.delete').fadeIn();$(this).closest('div').fadeOut();"><span class="cerb-sprite2 sprite-cross-circle-frame"></span> {'common.delete'|devblocks_translate|capitalize}</button>
 		{/if}
 		
-		<div style="float:right"><a href="{devblocks_url}c=profiles&type=calendar_event&id={$event->id}{/devblocks_url}-{$event->name|devblocks_permalink}">view full record</a></div>
+		<div style="float:right"><a href="{devblocks_url}c=profiles&type=calendar_event&id={$event->name|devblocks_permalink}-{$event->id}{/devblocks_url}-{$event->name|devblocks_permalink}">view full record</a></div>
 		<br clear="all">
 	</div>
 {/if}

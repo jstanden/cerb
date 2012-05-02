@@ -680,17 +680,30 @@ class View_CalendarEvent extends C4_AbstractView implements IAbstractView_Subtot
 	}			
 };
 
-class Context_CalendarEvent extends Extension_DevblocksContext {
+class Context_CalendarEvent extends Extension_DevblocksContext implements IDevblocksContextProfile {
+	function profileGetUrl($context_id) {
+		if(empty($context_id))
+			return '';
+	
+		$url_writer = DevblocksPlatform::getUrlService();
+		$url = $url_writer->writeNoProxy('c=profiles&type=calendar_event&id='.$context_id, true);
+		return $url;
+	}
+	
 	function getMeta($context_id) {
 		$calendar_event = DAO_CalendarEvent::get($context_id);
 		$url_writer = DevblocksPlatform::getUrlService();
 		
+		$url = $this->profileGetUrl($context_id);
 		$friendly = DevblocksPlatform::strToPermalink($calendar_event->name);
+		
+		if(!empty($friendly))
+			$url .= '-' . $friendly;
 		
 		return array(
 			'id' => $calendar_event->id,
 			'name' => $calendar_event->name,
-			'permalink' => $url_writer->writeNoProxy(sprintf("c=profiles&type=calendar_event&id=%d-%s", $calendar_event->id, $friendly), true),
+			'permalink' => $url
 		);
 	}
 	
@@ -743,11 +756,6 @@ class Context_CalendarEvent extends Extension_DevblocksContext {
 			$token_values['id'] = $calendar_event->id;
 			$token_values['is_available'] = $calendar_event->is_available;
 			$token_values['name'] = $calendar_event->name;
-			
-			// URL
-			
-			//$url_writer = DevblocksPlatform::getUrlService();
-			//$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=tasks&action=display&id=%d-%s",$task->id, DevblocksPlatform::strToPermalink($task->title)), true);
 		}
 
 		return true;
