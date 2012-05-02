@@ -81,7 +81,15 @@
 					&nbsp;
 				</td>
 			{elseif $column=="we_url"}
-				<td valign="top"><a href="{devblocks_url}c=preferences&a=redirectRead&id={$result.we_id}{/devblocks_url}">{$result.$column}</a>&nbsp;</td>
+				<td valign="top">
+					<a href="{devblocks_url}c=preferences&a=redirectRead&id={$result.we_id}{/devblocks_url}">
+						{if substr($result.$column,0,6) == 'ctx://'}
+							{CerberusContexts::parseContextUrl($result.$column)}
+						{else}
+							{$result.$column}
+						{/if}
+					</a>
+				</td>
 			{elseif $column=="we_is_read"}
 				<td valign="top">{if $result.$column}<span class="cerb-sprite2 sprite-tick-circle-frame-gray"></span>{/if}&nbsp;</td>
 			{else}

@@ -401,16 +401,27 @@ class Model_Notification {
 	public $url;
 	
 	public function getURL() {
+		$url = $this->url;
+		
+		if(substr($this->url,0,6) == 'ctx://') {
+			$url = CerberusContexts::parseContextUrl($this->url);
+			
 		// Check if we have a context link, otherwise use raw URL
-		if(!empty($this->context)) {
+		} elseif(!empty($this->context)) {
 			// Invoke context class
 			if(null != ($ctx = Extension_DevblocksContext::get($this->context))) { /* @var $ctx Extension_DevblocksContext */
-				$meta = $ctx->getMeta($this->context_id);
-				if(isset($meta['permalink']) && !empty($meta['permalink']))
-					return $meta['permalink'];
+				if($ctx instanceof IDevblocksContextProfile) { /* @var $ctx IDevblocksContextProfile */
+					$url = $ctx->profileGetUrl($this->context_id);
+					
+				} else {
+					$meta = $ctx->getMeta($this->context_id);
+					if(isset($meta['permalink']) && !empty($meta['permalink']))
+						$url = $meta['permalink'];
+				}
 			}
-		} 
-		return $this->url;
+		}
+		
+		return $url;
 	}
 };
 

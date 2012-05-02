@@ -248,7 +248,7 @@ XML;
             if(isset($event[SearchFields_Notification::URL])) {
 	            $link = $url->write('c=preferences&a=redirectRead&id='.$event[SearchFields_Notification::ID], true);
             } else {
-	            $link = $url->write('c=activity&tab=events', true);
+	            $link = $url->write('c=profiles&type=worker&who=me', true);
             }
             
             $escapedSubject = htmlspecialchars($event[SearchFields_Notification::MESSAGE],null,LANG_CHARSET_CODE);

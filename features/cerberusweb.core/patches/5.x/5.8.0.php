@@ -111,7 +111,309 @@ if(!isset($columns['num_messages'])) {
 }
 
 // ===========================================================================
-// Update context_activity_log
+// Define a reusable function for converting to ctx:// URLs
+
+function upgrade_580_convert_to_ctx_url($url) {
+	if(empty($url))
+		return null;
+		
+	$url_parts = explode('/', $url);
+	$friendly = '';
+		
+	switch(@$url_parts[0]) {
+		case 'calls':
+			$id = intval(@$url_parts[1]);
+				
+			$url = sprintf("ctx://%s:%d",
+				'cerberusweb.contexts.call',
+				$id
+			);
+				
+			$friendly = substr(@$url_parts[1], strlen($id)+1);
+			break;
+	
+		case 'contacts':
+			switch(@$url_parts[1]) {
+				case 'addresses':
+					if(@$url_parts[2] == 'display') {
+						$id = intval(@$url_parts[3]);
+	
+						$url = sprintf("ctx://%s:%d",
+							'cerberusweb.contexts.address',
+							$id
+						);
+	
+						$friendly = substr(@$url_parts[3], strlen($id)+1);
+					}
+					break;
+						
+				case 'orgs':
+					if(@$url_parts[2] == 'display') {
+						$id = intval(@$url_parts[3]);
+	
+						$url = sprintf("ctx://%s:%d",
+							'cerberusweb.contexts.org',
+							$id
+						);
+	
+						$friendly = substr(@$url_parts[3], strlen($id)+1);
+					}
+					break;
+						
+				case 'people':
+					$id = intval(@$url_parts[2]);
+						
+					$url = sprintf("ctx://%s:%d",
+						'cerberusweb.contexts.contact_person',
+						$id
+					);
+						
+					$friendly = substr(@$url_parts[2], strlen($id)+1);
+					break;
+			}
+			break;
+				
+		case 'cerb5_licenses':
+			if(@$url_parts[1] == 'display') {
+				$id = intval(@$url_parts[2]);
+	
+				$url = sprintf("ctx://%s:%d",
+					'wgm.cerb5_licensing.contexts.license',
+					$id
+				);
+	
+				$friendly = substr(@$url_parts[2], strlen($id)+1);
+			}
+			break;
+				
+		case 'crm':
+			if(@$url_parts[1] == 'opps') {
+				$id = intval(@$url_parts[2]);
+	
+				$url = sprintf("ctx://%s:%d",
+					'cerberusweb.contexts.opportunity',
+					$id
+				);
+	
+				$friendly = substr(@$url_parts[2], strlen($id)+1);
+			}
+			break;
+				
+		case 'datacenter':
+			if(@$url_parts[1] == 'server') {
+				$id = intval(@$url_parts[2]);
+	
+				$url = sprintf("ctx://%s:%d",
+					'cerberusweb.contexts.datacenter.server',
+					$id
+				);
+	
+				$friendly = substr(@$url_parts[2], strlen($id)+1);
+	
+			} elseif(@$url_parts[1] == 'sensors') {
+				if(@$url_parts[2] == 'profile') {
+					$id = intval(@$url_parts[3]);
+	
+					$url = sprintf("ctx://%s:%d",
+						'cerberusweb.contexts.datacenter.sensor',
+						$id
+					);
+	
+					$friendly = substr(@$url_parts[3], strlen($id)+1);
+				}
+			}
+	
+			break;
+				
+		case 'datacenter.domains':
+			if(@$url_parts[1] == 'domain') {
+				$id = intval(@$url_parts[2]);
+	
+				$url = sprintf("ctx://%s:%d",
+					'cerberusweb.contexts.datacenter.domain',
+					$id
+				);
+	
+				$friendly = substr(@$url_parts[2], strlen($id)+1);
+			}
+			break;
+				
+		case 'display':
+			$id = 0;
+				
+			if(isset($url_parts[1])) {
+				if('orgs' == $url_parts[1]) {
+					$id = intval(@$url_parts[3]);
+						
+					$url = sprintf("ctx://%s:%d",
+						'cerberusweb.contexts.org',
+						$id
+					);
+						
+					$friendly = substr(@$url_parts[3], strlen($id)+1);
+						
+				} elseif(is_numeric($url_parts[1])) {
+					$id = intval($url_parts[1]);
+						
+				} else {
+					$id = $url_parts[1];
+				}
+			}
+				
+			if(empty($id)) {
+				$url = '';
+	
+			} else {
+				$url = sprintf("ctx://%s:%s",
+					'cerberusweb.contexts.ticket',
+					$id
+				);
+			}
+				
+			break;
+				
+		case 'feeds':
+			if(@$url_parts[1] == 'item') {
+				$id = intval(@$url_parts[2]);
+	
+				$url = sprintf("ctx://%s:%d",
+					'cerberusweb.contexts.feed.item',
+					$id
+				);
+	
+				$friendly = substr(@$url_parts[2], strlen($id)+1);
+			}
+			break;
+				
+		case 'profiles':
+			switch(@$url_parts[1]) {
+				case 'address':
+					$id = intval(@$url_parts[2]);
+	
+					$url = sprintf("ctx://%s:%d",
+						'cerberusweb.contexts.address',
+						$id
+					);
+	
+					$friendly = substr(@$url_parts[2], strlen($id)+1);
+					break;
+						
+				case 'calendar_event':
+					$id = intval(@$url_parts[2]);
+	
+					$url = sprintf("ctx://%s:%d",
+						'cerberusweb.contexts.calendar_event',
+						$id
+					);
+						
+					$friendly = substr(@$url_parts[2], strlen($id)+1);
+					break;
+	
+				case 'call':
+					$id = intval(@$url_parts[2]);
+	
+					$url = sprintf("ctx://%s:%d",
+						'cerberusweb.contexts.call',
+						$id
+					);
+						
+					$friendly = substr(@$url_parts[2], strlen($id)+1);
+					break;
+	
+				case 'cerb5_license':
+					$id = intval(@$url_parts[2]);
+	
+					$url = sprintf("ctx://%s:%d",
+						'wgm.cerb5_licensing.contexts.license',
+						$id
+					);
+						
+					$friendly = substr(@$url_parts[2], strlen($id)+1);
+					break;
+	
+				case 'domain':
+					$id = intval(@$url_parts[2]);
+	
+					$url = sprintf("ctx://%s:%d",
+						'cerberusweb.contexts.datacenter.domain',
+						$id
+					);
+	
+					$friendly = substr(@$url_parts[2], strlen($id)+1);
+					break;
+	
+				case 'feed':
+					$id = intval(@$url_parts[2]);
+	
+					$url = sprintf("ctx://%s:%d",
+						'cerberusweb.contexts.feed',
+						$id
+					);
+						
+					$friendly = substr(@$url_parts[2], strlen($id)+1);
+					break;
+	
+				case 'group':
+					$id = intval(@$url_parts[2]);
+	
+					$url = sprintf("ctx://%s:%d",
+						'cerberusweb.contexts.group',
+						$id
+					);
+	
+					$friendly = substr(@$url_parts[2], strlen($id)+1);
+					break;
+	
+				case 'worker':
+					$id = intval(@$url_parts[2]);
+	
+					if(!empty($id)) {
+						$url = sprintf("ctx://%s:%d",
+							'cerberusweb.contexts.worker',
+							$id
+						);
+		
+						$friendly = substr(@$url_parts[2], strlen($id)+1);
+					}
+					break;
+			}
+			break;
+				
+		case 'tasks':
+			if(@$url_parts[1] == 'display') {
+				$id = intval(@$url_parts[2]);
+	
+				$url = sprintf("ctx://%s:%d",
+					'cerberusweb.contexts.task',
+					$id
+				);
+	
+				$friendly = substr(@$url_parts[2], strlen($id)+1);
+			}
+			break;
+				
+		case 'timetracking':
+			if(@$url_parts[1] == 'display') {
+				$id = intval(@$url_parts[2]);
+	
+				$url = sprintf("ctx://%s:%d",
+					'cerberusweb.contexts.timetracking',
+					$id
+				);
+	
+				$friendly = substr(@$url_parts[2], strlen($id)+1);
+			}
+			break;
+	}
+		
+	if(!empty($friendly))
+		$url .= '/' . $friendly;
+
+	return $url;
+}
+
+// ===========================================================================
+// Update `context_activity_log` URLs to ctx:// format
 
 if(!isset($tables['context_activity_log'])) {
 	$logger->error("The 'context_activity_log' table does not exist.");
@@ -124,7 +426,7 @@ $url_prefix = $url_writer->write('', true, false);
 $sql = sprintf("SELECT id, activity_point, actor_context, actor_context_id, entry_json FROM context_activity_log");
 $rs = $db->Execute($sql);
 
-while($row = mysql_fetch_array($rs)) {
+while($row = mysql_fetch_assoc($rs)) {
 	$entry = json_decode($row['entry_json'], true);
 	
 	// Replace URLs
@@ -168,304 +470,10 @@ while($row = mysql_fetch_array($rs)) {
 				$url = $url_split[3];
 			}
 
-			if(empty($url))
-				continue;
-			
-			$url_parts = explode('/', $url);
-			$friendly = '';
-			
-			switch(@$url_parts[0]) {
-				case 'calls':
-					$id = intval(@$url_parts[1]);
-			
-					$url = sprintf("ctx://%s:%d",
-						'cerberusweb.contexts.call',
-						$id
-					);
-			
-					$friendly = substr(@$url_parts[1], strlen($id)+1);
-					break;
-				
-				case 'contacts':
-					switch(@$url_parts[1]) {
-						case 'addresses':
-							if(@$url_parts[2] == 'display') {
-								$id = intval(@$url_parts[3]);
-								
-								$url = sprintf("ctx://%s:%d",
-									'cerberusweb.contexts.address',
-									$id
-								);
-								
-								$friendly = substr(@$url_parts[3], strlen($id)+1);
-							}
-							break;
-							
-						case 'orgs':
-							if(@$url_parts[2] == 'display') {
-								$id = intval(@$url_parts[3]);
-								
-								$url = sprintf("ctx://%s:%d",
-									'cerberusweb.contexts.org',
-									$id
-								);
-								
-								$friendly = substr(@$url_parts[3], strlen($id)+1);
-							}
-							break;
-							
-						case 'people':
-							$id = intval(@$url_parts[2]);
-							
-							$url = sprintf("ctx://%s:%d",
-								'cerberusweb.contexts.contact_person',
-								$id
-							);
-							
-							$friendly = substr(@$url_parts[2], strlen($id)+1);
-							break;
-					}
-					break;
-					
-				case 'cerb5_licenses':
-					if(@$url_parts[1] == 'display') {
-						$id = intval(@$url_parts[2]);
-				
-						$url = sprintf("ctx://%s:%d",
-							'wgm.cerb5_licensing.contexts.license',
-							$id
-						);
-				
-						$friendly = substr(@$url_parts[2], strlen($id)+1);
-					}
-					break;
-					
-				case 'crm':
-					if(@$url_parts[1] == 'opps') {
-						$id = intval(@$url_parts[2]);
-				
-						$url = sprintf("ctx://%s:%d",
-							'cerberusweb.contexts.opportunity',
-							$id
-						);
-				
-						$friendly = substr(@$url_parts[2], strlen($id)+1);
-					}
-					break;
-					
-				case 'datacenter':
-					if(@$url_parts[1] == 'server') {
-						$id = intval(@$url_parts[2]);
-				
-						$url = sprintf("ctx://%s:%d",
-							'cerberusweb.contexts.datacenter.server',
-							$id
-						);
-				
-						$friendly = substr(@$url_parts[2], strlen($id)+1);
-						
-					} elseif(@$url_parts[1] == 'sensors') {
-						if(@$url_parts[2] == 'profile') {
-							$id = intval(@$url_parts[3]);
-								
-							$url = sprintf("ctx://%s:%d",
-								'cerberusweb.contexts.datacenter.sensor',
-								$id
-							);
-								
-							$friendly = substr(@$url_parts[3], strlen($id)+1);
-						}
-					}
-
-					break;
-					
-				case 'datacenter.domains':
-					if(@$url_parts[1] == 'domain') {
-						$id = intval(@$url_parts[2]);
-				
-						$url = sprintf("ctx://%s:%d",
-							'cerberusweb.contexts.datacenter.domain',
-							$id
-						);
-				
-						$friendly = substr(@$url_parts[2], strlen($id)+1);
-					}
-					break;
-					
-				case 'display':
-					$id = 0;
-					
-					if(isset($url_parts[1])) {
-						if('orgs' == $url_parts[1]) {
-							$id = intval(@$url_parts[3]);
-							
-							$url = sprintf("ctx://%s:%d",
-								'cerberusweb.contexts.org',
-								$id
-							);
-							
-							$friendly = substr(@$url_parts[3], strlen($id)+1);
-							
-						} elseif(is_numeric($url_parts[1])) {
-							$id = intval($url_parts[1]);
-							
-						} else {
-							//$friendly = $url_parts[1];
-							//$id = $db->GetOne(sprintf("SELECT id FROM ticket WHERE mask = %s", $db->qstr($friendly)));
-							$id = $url_parts[1];
-						}
-					}
-					
-					if(empty($id)) {
-						$url = '';
-						
-					} else {
-						$url = sprintf("ctx://%s:%s",
-							'cerberusweb.contexts.ticket',
-							$id
-						);
-					}
-					
-					break;
-					
-				case 'feeds':
-					if(@$url_parts[1] == 'item') {
-						$id = intval(@$url_parts[2]);
-				
-						$url = sprintf("ctx://%s:%d",
-							'cerberusweb.contexts.feed.item',
-							$id
-						);
-				
-						$friendly = substr(@$url_parts[2], strlen($id)+1);
-					}
-					break;
-					
-				case 'profiles':
-					switch(@$url_parts[1]) {
-						case 'address':
-							$id = intval(@$url_parts[2]);
-				
-							$url = sprintf("ctx://%s:%d",
-								'cerberusweb.contexts.address',
-								$id
-							);
-				
-							$friendly = substr(@$url_parts[2], strlen($id)+1);
-							break;
-							
-						case 'calendar_event':
-							$id = intval(@$url_parts[2]);
-				
-							$url = sprintf("ctx://%s:%d",
-								'cerberusweb.contexts.calendar_event',
-								$id
-							);
-							
-							$friendly = substr(@$url_parts[2], strlen($id)+1);
-							break;
-				
-						case 'call':
-							$id = intval(@$url_parts[2]);
-				
-							$url = sprintf("ctx://%s:%d",
-								'cerberusweb.contexts.call',
-								$id
-							);
-							
-							$friendly = substr(@$url_parts[2], strlen($id)+1);
-							break;
-				
-						case 'cerb5_license':
-							$id = intval(@$url_parts[2]);
-				
-							$url = sprintf("ctx://%s:%d",
-								'wgm.cerb5_licensing.contexts.license',
-								$id
-							);
-							
-							$friendly = substr(@$url_parts[2], strlen($id)+1);
-							break;
-				
-						case 'domain':
-							$id = intval(@$url_parts[2]);
-				
-							$url = sprintf("ctx://%s:%d",
-								'cerberusweb.contexts.datacenter.domain',
-								$id
-							);
-				
-							$friendly = substr(@$url_parts[2], strlen($id)+1);
-							break;
-								
-						case 'feed':
-							$id = intval(@$url_parts[2]);
-				
-							$url = sprintf("ctx://%s:%d",
-								'cerberusweb.contexts.feed',
-								$id
-							);
-							
-							$friendly = substr(@$url_parts[2], strlen($id)+1);
-							break;
-				
-						case 'group':
-							$id = intval(@$url_parts[2]);
-				
-							$url = sprintf("ctx://%s:%d",
-								'cerberusweb.contexts.group',
-								$id
-							);
-				
-							$friendly = substr(@$url_parts[2], strlen($id)+1);
-							break;
-								
-						case 'worker':
-							$id = intval(@$url_parts[2]);
-				
-							$url = sprintf("ctx://%s:%d",
-								'cerberusweb.contexts.worker',
-								$id
-							);
-				
-							$friendly = substr(@$url_parts[2], strlen($id)+1);
-							break;
-					}
-					break;
-					
-				case 'tasks':
-					if(@$url_parts[1] == 'display') {
-						$id = intval(@$url_parts[2]);
-						
-						$url = sprintf("ctx://%s:%d",
-							'cerberusweb.contexts.task',
-							$id
-						);
-						
-						$friendly = substr(@$url_parts[2], strlen($id)+1);
-					}
-					break;
-					
-				case 'timetracking':
-					if(@$url_parts[1] == 'display') {
-						$id = intval(@$url_parts[2]);
-				
-						$url = sprintf("ctx://%s:%d",
-							'cerberusweb.contexts.timetracking',
-							$id
-						);
-				
-						$friendly = substr(@$url_parts[2], strlen($id)+1);
-					}
-					break;
-			}
-			
-			if(!empty($friendly))
-				$url .= '/' . $friendly;
-			
-			$entry['urls'][$k] = $url;
+			$url = upgrade_580_convert_to_ctx_url($url);
 			
 			if(substr($url,0,6) == 'ctx://') {
+				$entry['urls'][$k] = $url;
 				$changed = true;
 			}
 		}
@@ -479,5 +487,57 @@ while($row = mysql_fetch_array($rs)) {
 		}
 	}
 }
+
+mysql_free_result($rs);
+
+// ===========================================================================
+// Update `notification` URLs to ctx:// format
+
+if(!isset($tables['notification'])) {
+	$logger->error("The 'notification' table does not exist.");
+	return FALSE;
+}
+
+$url_writer = DevblocksPlatform::getUrlService();
+$url_prefix = $url_writer->write('', true, false);
+
+$sql = sprintf("SELECT id, context, context_id, url FROM notification");
+$rs = $db->Execute($sql);
+
+while($row = mysql_fetch_assoc($rs)) {
+	$context = $row['context'];
+	$context_id = $row['context_id'];
+	$url = $row['url'];
+
+	if(substr($url,0,6) == 'ctx://')
+		continue;
+	
+	if(empty($url)) {
+		$url = sprintf("ctx://%s:%d",
+			$context,
+			$context_id
+		);
+	}
+		
+	if(0 == strcasecmp(substr($url,0,strlen($url_prefix)), $url_prefix)) {
+		$url = substr($url, strlen($url_prefix));
+	
+	} elseif(0 == strcasecmp(substr($url,0,4), 'http')) {
+		$url_split = explode('/', $url, 4);
+		$url = $url_split[3];
+	}
+	
+	$url = upgrade_580_convert_to_ctx_url($url);
+	
+	if(substr($url,0,6) == 'ctx://') {
+		$sql = sprintf("UPDATE notification SET url = %s WHERE id = %d",
+			$db->qstr($url),
+			$row['id']
+		);
+		$db->Execute($sql);
+	}
+}
+
+mysql_free_result($rs);
 
 return TRUE;

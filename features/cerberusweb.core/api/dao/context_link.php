@@ -104,7 +104,7 @@ class DAO_ContextLink {
 						'target' => $meta_src_context['name'],
 						),
 					'urls' => array(
-						'target' => sprintf("ctx://%s:%d", $src_context, $src_context_id),
+						'target' => sprintf("ctx://%s:%d/%s", $src_context, $src_context_id, DevblocksPlatform::strToPermalink($meta_src_context['name'])),
 						)
 				);
 				CerberusContexts::logActivity('watcher.follow', $src_context, $src_context_id, $entry);
@@ -120,7 +120,7 @@ class DAO_ContextLink {
 						'target' => $meta_src_context['name'],
 						),
 					'urls' => array(
-						'target' => sprintf("ctx://%s:%d", $src_context, $src_context_id),
+						'target' => sprintf("ctx://%s:%d/%s", $src_context, $src_context_id, DevblocksPlatform::strToPermalink($meta_src_context['name'])),
 						'watcher' => sprintf("ctx://%s:%d/%s", CerberusContexts::CONTEXT_WORKER, $watcher_worker->id, DevblocksPlatform::strToPermalink($watcher_worker->getName())),
 						)
 				);
@@ -139,8 +139,8 @@ class DAO_ContextLink {
 					'link' => $meta_dst_context['name'],
 					),
 				'urls' => array(
-					'target' => sprintf("ctx://%s:%d", $src_context, $src_context_id),
-					'link' => sprintf("ctx://%s:%d", $dst_context, $dst_context_id),
+					'target' => sprintf("ctx://%s:%d/%s", $src_context, $src_context_id, DevblocksPlatform::strToPermalink($meta_src_context['name'])),
+					'link' => sprintf("ctx://%s:%d/%s", $dst_context, $dst_context_id, DevblocksPlatform::strToPermalink($meta_dst_context['name'])),
 					)
 			);
 			CerberusContexts::logActivity('connection.link', $src_context, $src_context_id, $entry);
@@ -155,8 +155,8 @@ class DAO_ContextLink {
 					'link' => $meta_src_context['name'],
 					),
 				'urls' => array(
-					'target' => sprintf("ctx://%s:%d", $dst_context, $dst_context_id),
-					'link' => sprintf("ctx://%s:%d", $src_context, $src_context_id),
+					'target' => sprintf("ctx://%s:%d/%s", $dst_context, $dst_context_id, DevblocksPlatform::strToPermalink($meta_dst_context['name'])),
+					'link' => sprintf("ctx://%s:%d/%s", $src_context, $src_context_id, DevblocksPlatform::strToPermalink($meta_src_context['name'])),
 					)
 			);
 			CerberusContexts::logActivity('connection.link', $dst_context, $dst_context_id, $entry);			
