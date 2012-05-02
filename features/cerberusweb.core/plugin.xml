@@ -2144,6 +2144,18 @@
 			</extension>
 			
 			<extension point="cerberusweb.ui.page.section">
+				<id>core.page.profiles.organization</id>
+				<name>Organization Section</name>
+				<class>
+					<file>api/uri/profiles/organization.php</file>
+					<name>PageSection_ProfilesOrganization</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.page.profiles" />
+					<param key="uri" value="org" />
+				</params>
+			</extension>
+			<extension point="cerberusweb.ui.page.section">
 				<id>core.page.profiles.worker</id>
 				<name>Worker Section</name>
 				<class>

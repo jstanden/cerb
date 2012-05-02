@@ -881,19 +881,31 @@ class View_ContactOrg extends C4_AbstractView implements IAbstractView_Subtotals
 	}
 };
 
-class Context_Org extends Extension_DevblocksContext implements IDevblocksContextPeek, IDevblocksContextImport {
+class Context_Org extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextImport {
 	const ID = 'cerberusweb.contexts.org';
+	
+	function profileGetUrl($context_id) {
+		if(empty($context_id))
+			return '';
+	
+		$url_writer = DevblocksPlatform::getUrlService();
+		$url = $url_writer->writeNoProxy('c=profiles&type=org&id='.$context_id, true);
+		return $url;
+	}
 	
 	function getMeta($context_id) {
 		$org = DAO_ContactOrg::get($context_id);
-		$url_writer = DevblocksPlatform::getUrlService();
-		
+
+		$url = $this->profileGetUrl($context_id);
 		$friendly = DevblocksPlatform::strToPermalink($org->name);
+		
+		if(!empty($friendly))
+			$url .= '-' . $friendly;
 		
 		return array(
 			'id' => $context_id,
 			'name' => $org->name,
-			'permalink' => $url_writer->write(sprintf("c=contacts&tab=orgs&action=display&id=%d-%s", $context_id, $friendly), true),
+			'permalink' => $url
 		);
 	}
 	
@@ -965,7 +977,7 @@ class Context_Org extends Extension_DevblocksContext implements IDevblocksContex
 			
 			// URL
 			$url_writer = DevblocksPlatform::getUrlService();
-			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=contacts&tab=orgs&action=display&id=%d-%s",$org->id, DevblocksPlatform::strToPermalink($org->name)), true);
+			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=profiles&type=org&id=%d-%s",$org->id, DevblocksPlatform::strToPermalink($org->name)), true);
 		}
 
 		return true;		

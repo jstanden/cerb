@@ -6,7 +6,8 @@
 </div>
 
 <div style="float:right;">
-	{* [TODO] Quick Search *}
+	{$ctx = Extension_DevblocksContext::get($page_context)}
+	{include file="devblocks:cerberusweb.core::search/quick_search.tpl" view=$ctx->getSearchView() return_url="{devblocks_url}c=search&context={$ctx->manifest->params.alias}{/devblocks_url}" reset=true}
 </div>
 
 <div style="clear:both;"></div>
@@ -38,7 +39,7 @@
 		</span>
 		
 		<!-- Macros -->
-		{devblocks_url assign=return_url full=true}c=contacts&s=orgs&d=display&id={$page_context_id}-{$contact->name|devblocks_permalink}{/devblocks_url}
+		{devblocks_url assign=return_url full=true}c=profiles&type=org&id={$page_context_id}-{$contact->name|devblocks_permalink}{/devblocks_url}
 		{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context=$page_context context_id=$page_context_id macros=$macros return_url=$return_url}		
 		
 		<!-- Edit -->
@@ -67,14 +68,13 @@
 
 <div style="clear:both;" id="contactTabs">
 	<ul>
-		{$tabs = [activity,notes,links,history,people]}
-		{$point = 'cerberusweb.org.tab'}
+		{$tabs = [activity,comments,links,history,people]}
 		
 		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabActivityLog&scope=target&point={$point}&context={$page_context}&context_id={$page_context_id}{/devblocks_url}">{'common.activity_log'|devblocks_translate|capitalize}</a></li>
-		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextComments&context=cerberusweb.contexts.org&id={$page_context_id}{/devblocks_url}">{$translate->_('common.comments')|capitalize}</a></li>
-		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextLinks&context=cerberusweb.contexts.org&id={$page_context_id}{/devblocks_url}">{$translate->_('common.links')}</a></li>
+		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextComments&point={$point}&context=cerberusweb.contexts.org&id={$page_context_id}{/devblocks_url}">{$translate->_('common.comments')|capitalize}</a></li>
+		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextLinks&point={$point}&context=cerberusweb.contexts.org&id={$page_context_id}{/devblocks_url}">{$translate->_('common.links')}</a></li>
 		<li><a href="{devblocks_url}ajax.php?c=contacts&a=showTabMailHistory&point={$point}&org_id={$page_context_id}{/devblocks_url}">{$translate->_('addy_book.org.tabs.mail_history')}</a></li>
-		<li><a href="{devblocks_url}ajax.php?c=contacts&a=showTabPeople&org={$page_context_id}{/devblocks_url}">{'addy_book.org.tabs.people'|devblocks_translate:$people_total}</a></li>
+		<li><a href="{devblocks_url}ajax.php?c=contacts&a=showTabPeople&point={$point}&org={$page_context_id}{/devblocks_url}">{'addy_book.org.tabs.people'|devblocks_translate:$people_total}</a></li>
 
 		{foreach from=$tab_manifests item=tab_manifest}
 			{$tabs[] = $tab_manifest->params.uri}
@@ -94,10 +94,10 @@
 		var tabs = $("#contactTabs").tabs( { selected:{$tab_selected_idx} } );
 	
 		$('#btnDisplayOrgEdit').bind('click', function() {
-			$popup = genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_ORG}&context_id={$page_context_id}',null,false,'550');
+			$popup = genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={$page_context}&context_id={$page_context_id}',null,false,'550');
 			$popup.one('org_save', function(event) {
 				event.stopPropagation();
-				document.location.href = '{devblocks_url}c=contacts&a=orgs&m=display&id={$page_context_id}{/devblocks_url}';
+				document.location.href = '{devblocks_url}c=profiles&type=org&id={$page_context_id}{/devblocks_url}';
 			});
 		})
 	});

@@ -29,135 +29,6 @@ class ChContactsPage extends CerberusPageExtension {
 	}
 	
 	function render() {
-		$tpl = DevblocksPlatform::getTemplateService();
-		$translate = DevblocksPlatform::getTranslationService();
-		$visit = CerberusApplication::getVisit();		
-		$response = DevblocksPlatform::getHttpResponse();
-		$active_worker = CerberusApplication::getActiveWorker();
-		
-		$stack = $response->path;
-
-		@array_shift($stack); // contacts
-		@$selected_tab = array_shift($stack);
-		
-		// Remember the last tab/URL
-		$visit = CerberusApplication::getVisit();
-		if(null == $selected_tab) {
-			$selected_tab = $visit->get(Extension_AddressBookTab::POINT, '');
-		}
-		$tpl->assign('selected_tab', $selected_tab);
-		
-		// Allow a non-tab renderer
-		switch($selected_tab) {
-			case 'orgs':
-				switch(@array_shift($stack)) {
-					case 'display':
-						$tab_manifests = DevblocksPlatform::getExtensions('cerberusweb.org.tab', false);
-						$tpl->assign('tab_manifests', $tab_manifests);
-						
-						$id = intval(array_shift($stack));
-						
-						$contact = DAO_ContactOrg::get($id);
-						$tpl->assign('contact', $contact);
-						
-						// Custom fields
-						
-						$custom_fields = DAO_CustomField::getAll();
-						$tpl->assign('custom_fields', $custom_fields);
-						
-						// Properties
-						
-						$properties = array();
-						
-						if(!empty($contact->street))
-							$properties['street'] = array(
-								'label' => ucfirst($translate->_('contact_org.street')),
-								'type' => Model_CustomField::TYPE_SINGLE_LINE,
-								'value' => $contact->street,
-							);
-						
-						if(!empty($contact->city))
-							$properties['city'] = array(
-								'label' => ucfirst($translate->_('contact_org.city')),
-								'type' => Model_CustomField::TYPE_SINGLE_LINE,
-								'value' => $contact->city,
-							);
-						
-						if(!empty($contact->province))
-							$properties['province'] = array(
-								'label' => ucfirst($translate->_('contact_org.province')),
-								'type' => Model_CustomField::TYPE_SINGLE_LINE,
-								'value' => $contact->province,
-							);
-						
-						if(!empty($contact->postal))
-							$properties['postal'] = array(
-								'label' => ucfirst($translate->_('contact_org.postal')),
-								'type' => Model_CustomField::TYPE_SINGLE_LINE,
-								'value' => $contact->postal,
-							);
-						
-						if(!empty($contact->country))
-							$properties['country'] = array(
-								'label' => ucfirst($translate->_('contact_org.country')),
-								'type' => Model_CustomField::TYPE_SINGLE_LINE,
-								'value' => $contact->country,
-							);
-						
-						if(!empty($contact->phone))
-							$properties['phone'] = array(
-								'label' => ucfirst($translate->_('contact_org.phone')),
-								'type' => Model_CustomField::TYPE_SINGLE_LINE,
-								'value' => $contact->phone,
-							);
-						
-						if(!empty($contact->website))
-							$properties['website'] = array(
-								'label' => ucfirst($translate->_('contact_org.website')),
-								'type' => Model_CustomField::TYPE_URL,
-								'value' => $contact->website,
-							);
-						
-						$properties['created'] = array(
-							'label' => ucfirst($translate->_('common.created')),
-							'type' => Model_CustomField::TYPE_DATE,
-							'value' => $contact->created,
-						);
-						
-						@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_ORG, $contact->id)) or array();
-				
-						foreach($custom_fields as $cf_id => $cfield) {
-							if(!isset($values[$cf_id]))
-								continue;
-								
-							$properties['cf_' . $cf_id] = array(
-								'label' => $cfield->name,
-								'type' => $cfield->type,
-								'value' => $values[$cf_id],
-							);
-						}
-						
-						$tpl->assign('properties', $properties);
-						
-						// Tabs
-						
-						$people_count = DAO_Address::getCountByOrgId($contact->id);
-						$tpl->assign('people_total', $people_count);
-						
-						// Macros
-						$macros = DAO_TriggerEvent::getByOwner(CerberusContexts::CONTEXT_WORKER, $active_worker->id, 'event.macro.org');
-						$tpl->assign('macros', $macros);
-						
-						$tpl->display('devblocks:cerberusweb.core::contacts/orgs/display.tpl');
-						return;
-						break;
-						
-				} // switch (action)
-				break;
-				
-		} // switch (tab)
-		
-		return;
 	}
 	
 	function showPeopleBulkUpdateAction() {
@@ -375,7 +246,7 @@ class ChContactsPage extends CerberusPageExtension {
 					'created' => time(),
 					'worker_id' => $active_worker->id,
 					'total' => $total,
-					'return_url' => isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : $url_writer->writeNoProxy('c=contacts&tab=orgs', true),
+					'return_url' => isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : $url_writer->writeNoProxy('c=search&tab=org', true),
 //					'toolbar_extension_id' => '',
 				);
 				$models[] = $model; 
@@ -393,7 +264,7 @@ class ChContactsPage extends CerberusPageExtension {
 				$model->pos = $pos++;
 				$model->params = array(
 					'id' => $row[SearchFields_ContactOrg::ID],
-					'url' => $url_writer->writeNoProxy(sprintf("c=contacts&tab=orgs&mode=display&id=%d", $row[SearchFields_ContactOrg::ID]), true),
+					'url' => $url_writer->writeNoProxy(sprintf("c=profiles&type=org&id=%d", $row[SearchFields_ContactOrg::ID]), true),
 				);
 				$models[] = $model; 
 			}
@@ -1027,8 +898,8 @@ class ChContactsPage extends CerberusPageExtension {
 					'target' => sprintf("%s", $fields[DAO_ContactOrg::NAME]),
 					),
 				'urls' => array(
-					'source' => sprintf("c=contacts&tab=orgs&p=display&id=%d-%s",$from_org_id,DevblocksPlatform::strToPermalink($orgs[$from_org_id]->name)),
-					'target' => sprintf("c=display&tab=orgs&p=display&id=%d-%s",$merge_to_id,DevblocksPlatform::strToPermalink($fields[DAO_ContactOrg::NAME])),
+					'source' => sprintf("ctx://%s:%d/%s", CerberusContexts::CONTEXT_ORG, $from_org_id, DevblocksPlatform::strToPermalink($orgs[$from_org_id]->name)),
+					'target' => sprintf("ctx://%s:%d/%s", CerberusContexts::CONTEXT_ORG, $merge_to_id, DevblocksPlatform::strToPermalink($fields[DAO_ContactOrg::NAME])),
 					)
 			);
 			CerberusContexts::logActivity('org.merge', CerberusContexts::CONTEXT_ORG, $merge_to_id, $entry);
