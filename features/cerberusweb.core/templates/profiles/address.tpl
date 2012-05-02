@@ -48,7 +48,7 @@
 		</span>		
 	
 		<!-- Macros -->
-		{devblocks_url assign=return_url full=true}c=contacts&tab=addresses&m=display&id={$page_context_id}-{$address->email|devblocks_permalink}{/devblocks_url}
+		{devblocks_url assign=return_url full=true}c=profiles&type=address&id={$page_context_id}-{$address->email|devblocks_permalink}{/devblocks_url}
 		{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context=$page_context context_id=$page_context_id macros=$macros return_url=$return_url}		
 	
 		<!-- Toolbar -->
@@ -76,7 +76,6 @@
 <div style="clear:both;" id="contactTabs">
 	<ul>
 		{$tabs = [activity,comments,links,mail]}
-		{$point = "{Extension_AddressBookTab::POINT}"}
 		
 		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabActivityLog&scope=target&point={$point}&context={$page_context}&context_id={$page_context_id}{/devblocks_url}">{'common.activity_log'|devblocks_translate|capitalize}</a></li>
 		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextComments&point={$point}&context={$page_context}&id={$page_context_id}{/devblocks_url}">{$translate->_('common.comments')|capitalize}</a></li>

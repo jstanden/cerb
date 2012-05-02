@@ -26,24 +26,25 @@ class PageSection_ProfilesAddress extends Extension_PageSection {
 		$stack = $response->path;
 		@array_shift($stack); // profiles
 		@array_shift($stack); // address
-		@$id = array_shift($stack);
+		@$id = intval(array_shift($stack));
 		
-		$id = intval($id);
+		$address = DAO_Address::get($id);
+		$tpl->assign('address', $address);
+		
+		// Remember the last tab/URL
 		
 		@$selected_tab = array_shift($stack);
 		
-		// Remember the last tab/URL
-		$visit = CerberusApplication::getVisit();
+		$point = Extension_AddressBookTab::POINT;
+		$tpl->assign('point', $point);
+		
 		if(null == $selected_tab) {
-			$selected_tab = $visit->get(Extension_AddressBookTab::POINT, '');
+			$selected_tab = $visit->get($point, '');
 		}
 		$tpl->assign('selected_tab', $selected_tab);
 		
 		$tab_manifests = DevblocksPlatform::getExtensions('cerberusweb.address.tab', false);
 		$tpl->assign('tab_manifests', $tab_manifests);
-		
-		$address = DAO_Address::get($id);
-		$tpl->assign('address', $address);
 		
 		// Custom fields
 		

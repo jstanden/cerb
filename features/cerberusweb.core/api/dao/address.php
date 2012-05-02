@@ -952,7 +952,7 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals {
 	}
 };
 
-class Context_Address extends Extension_DevblocksContext implements IDevblocksContextPeek, IDevblocksContextImport {
+class Context_Address extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextImport {
     static function searchInboundLinks($from_context, $from_context_id) {
     	list($results, $null) = DAO_Address::search(
     		array(
@@ -976,6 +976,15 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
     	return DAO_Address::random();
     }
     
+    function profileGetUrl($context_id) {
+    	if(empty($context_id))
+    		return '';
+    
+    	$url_writer = DevblocksPlatform::getUrlService();
+    	$url = $url_writer->writeNoProxy('c=profiles&type=address&id='.$context_id, true);
+    	return $url;
+    }
+    
 	function getMeta($context_id) {
 		$address = DAO_Address::get($context_id);
 		$url_writer = DevblocksPlatform::getUrlService();
@@ -987,12 +996,16 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 			$addy_name = $address->email;
 		}
 		
+		$url = $this->profileGetUrl($context_id);
 		$friendly = DevblocksPlatform::strToPermalink($address->email);
+
+		if(!empty($friendly))
+			$url .= '-' . $friendly;
 		
 		return array(
 			'id' => $address->id,
 			'name' => $addy_name,
-			'permalink' => $url_writer->writeNoProxy(sprintf("c=profiles&type=address&id=%d-%s", $context_id, $friendly), true),
+			'permalink' => $url,
 		);
 	}
     

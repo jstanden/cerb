@@ -156,7 +156,7 @@ class ChContactsPage extends CerberusPageExtension {
 				$model->pos = $pos++;
 				$model->params = array(
 					'id' => $row[SearchFields_Address::ID],
-					'url' => $url_writer->writeNoProxy(sprintf("c=contacts&tab=addresses&mode=display&id=%d-%s", $row[SearchFields_Address::ID], $row[SearchFields_Address::EMAIL]), true),
+					'url' => $url_writer->writeNoProxy(sprintf("c=profiles&type=address&id=%d-%s", $row[SearchFields_Address::ID], $row[SearchFields_Address::EMAIL]), true),
 				);
 				$models[] = $model; 
 			}
