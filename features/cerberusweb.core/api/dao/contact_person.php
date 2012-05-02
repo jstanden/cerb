@@ -751,7 +751,7 @@ class View_ContactPerson extends C4_AbstractView implements IAbstractView_Subtot
 	}			
 };
 
-class Context_ContactPerson extends Extension_DevblocksContext {
+class Context_ContactPerson extends Extension_DevblocksContext implements IDevblocksContextProfile {
     static function searchInboundLinks($from_context, $from_context_id) {
     	list($results, $null) = DAO_ContactPerson::search(
     		array(
@@ -775,10 +775,18 @@ class Context_ContactPerson extends Extension_DevblocksContext {
     	return DAO_ContactPerson::random();
     }
     
+    function profileGetUrl($context_id) {
+    	if(empty($context_id))
+    		return '';
+    
+    	$url_writer = DevblocksPlatform::getUrlService();
+    	$url = $url_writer->writeNoProxy('c=profiles&type=contact_person&id='.$context_id, true);
+    	return $url;
+    }
+    
 	function getMeta($context_id) {
 		$contact = DAO_ContactPerson::get($context_id);
-		$url_writer = DevblocksPlatform::getUrlService();
-		
+
 		$address = $contact->getPrimaryAddress();
 
 		$name = $address->getName();
@@ -788,12 +796,16 @@ class Context_ContactPerson extends Extension_DevblocksContext {
 		else
 			$name = $address->email;
 		
+		$url = $this->profileGetUrl($context_id);
 		$friendly = DevblocksPlatform::strToPermalink($address->email);
+		
+		if(!empty($friendly))
+			$url .= '-' . $friendly;
 		
 		return array(
 			'id' => $contact->id,
 			'name' => $name,
-			'permalink' => $url_writer->writeNoProxy(sprintf("c=profiles&type=contact_person&id=%d-%s",$context_id, $friendly), true),
+			'permalink' => $url,
 		);
 	}
     
