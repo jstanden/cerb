@@ -1045,7 +1045,7 @@ class CerberusParser {
 				'target' => $model->getSubject(),
 				),
 			'urls' => array(
-				'target' => 'c=display&mask='.$model->getTicketId(),
+				'target' => sprintf("ctx://%s:%d", CerberusContexts::CONTEXT_TICKET, $model->getTicketId()),
 				)
 		);
 		CerberusContexts::logActivity('ticket.message.inbound', CerberusContexts::CONTEXT_TICKET, $model->getTicketId(), $entry, CerberusContexts::CONTEXT_ADDRESS, $model->getSenderAddressModel()->id);

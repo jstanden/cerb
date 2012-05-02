@@ -47,7 +47,7 @@ class DAO_Comment extends C4_ORMHelper {
 				'content' => $fields[self::COMMENT],
 				),
 			'urls' => array(
-				'target' => $meta['permalink'] . '/comments#'.$id,
+				'target' => sprintf("ctx://%s:%d", $fields[self::CONTEXT], $fields[self::CONTEXT_ID]),
 				)
 		);
 		CerberusContexts::logActivity('comment.create', $fields[self::CONTEXT], $fields[self::CONTEXT_ID], $entry, null, null, $also_notify_worker_ids);		

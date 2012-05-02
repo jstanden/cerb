@@ -104,7 +104,7 @@ class DAO_ContextLink {
 						'target' => $meta_src_context['name'],
 						),
 					'urls' => array(
-						'target' => $meta_src_context['permalink'],
+						'target' => sprintf("ctx://%s:%d", $src_context, $src_context_id),
 						)
 				);
 				CerberusContexts::logActivity('watcher.follow', $src_context, $src_context_id, $entry);
@@ -120,8 +120,8 @@ class DAO_ContextLink {
 						'target' => $meta_src_context['name'],
 						),
 					'urls' => array(
-						'target' => $meta_src_context['permalink'],
-						'watcher' => sprintf("c=profiles&type=worker&id=%d-%s", $watcher_worker->id, DevblocksPlatform::strToPermalink($watcher_worker->getName())),
+						'target' => sprintf("ctx://%s:%d", $src_context, $src_context_id),
+						'watcher' => sprintf("ctx://%s:%d/%s", CerberusContexts::CONTEXT_WORKER, $watcher_worker->id, DevblocksPlatform::strToPermalink($watcher_worker->getName())),
 						)
 				);
 				CerberusContexts::logActivity('watcher.assigned', $src_context, $src_context_id, $entry);
@@ -139,8 +139,8 @@ class DAO_ContextLink {
 					'link' => $meta_dst_context['name'],
 					),
 				'urls' => array(
-					'target' => $meta_src_context['permalink'],
-					'link' => $meta_dst_context['permalink'],
+					'target' => sprintf("ctx://%s:%d", $src_context, $src_context_id),
+					'link' => sprintf("ctx://%s:%d", $dst_context, $dst_context_id),
 					)
 			);
 			CerberusContexts::logActivity('connection.link', $src_context, $src_context_id, $entry);
@@ -155,8 +155,8 @@ class DAO_ContextLink {
 					'link' => $meta_src_context['name'],
 					),
 				'urls' => array(
-					'target' => $meta_dst_context['permalink'],
-					'link' => $meta_src_context['permalink'],
+					'target' => sprintf("ctx://%s:%d", $dst_context, $dst_context_id),
+					'link' => sprintf("ctx://%s:%d", $src_context, $src_context_id),
 					)
 			);
 			CerberusContexts::logActivity('connection.link', $dst_context, $dst_context_id, $entry);			
@@ -505,7 +505,7 @@ class DAO_ContextLink {
 						'target' => $meta_src_context['name'],
 						),
 					'urls' => array(
-						'target' => $meta_src_context['permalink'],
+						'target' => sprintf("ctx://%s:%d", $src_context, $src_context_id),
 						)
 				);
 				CerberusContexts::logActivity('watcher.unfollow', $src_context, $src_context_id, $entry);
@@ -521,8 +521,8 @@ class DAO_ContextLink {
 						'target' => $meta_src_context['name'],
 						),
 					'urls' => array(
-						'target' => $meta_src_context['permalink'],
-						'watcher' => sprintf("c=profiles&type=worker&id=%d-%s", $watcher_worker->id, DevblocksPlatform::strToPermalink($watcher_worker->getName())),
+						'target' => sprintf("ctx://%s:%d", $src_context, $src_context_id),
+						'watcher' => sprintf("ctx://%s:%d/%s", CerberusContexts::CONTEXT_WORKER, $watcher_worker->id, DevblocksPlatform::strToPermalink($watcher_worker->getName())),
 						)
 				);
 				CerberusContexts::logActivity('watcher.unassigned', $src_context, $src_context_id, $entry);
@@ -540,8 +540,8 @@ class DAO_ContextLink {
 					'link' => $meta_dst_context['name'],
 					),
 				'urls' => array(
-					'target' => $meta_src_context['permalink'],
-					'link' => $meta_dst_context['permalink'],
+					'target' => sprintf("ctx://%s:%d", $src_context, $src_context_id),
+					'link' => sprintf("ctx://%s:%d", $dst_context, $dst_context_id),
 					)
 			);
 			CerberusContexts::logActivity('connection.unlink', $src_context, $src_context_id, $entry);		
@@ -556,8 +556,8 @@ class DAO_ContextLink {
 					'link' => $meta_src_context['name'],
 					),
 				'urls' => array(
-					'target' => $meta_dst_context['permalink'],
-					'link' => $meta_src_context['permalink'],
+					'target' => sprintf("ctx://%s:%d", $dst_context, $dst_context_id),
+					'link' => sprintf("ctx://%s:%d", $src_context, $src_context_id),
 					)
 			);
 			CerberusContexts::logActivity('connection.unlink', $dst_context, $dst_context_id, $entry);

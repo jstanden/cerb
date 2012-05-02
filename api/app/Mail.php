@@ -859,7 +859,7 @@ class CerberusMail {
 				'target' => sprintf("[%s] %s", $ticket->mask, $ticket->subject),
 				),
 			'urls' => array(
-				'target' => ('c=display&mask=' . $ticket->mask),
+				'target' => sprintf("ctx://%s:%s", CerberusContexts::CONTEXT_TICKET, $ticket->mask),
 				)
 		);
 		CerberusContexts::logActivity('ticket.message.outbound', CerberusContexts::CONTEXT_TICKET, $ticket_id, $entry);		

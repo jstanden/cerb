@@ -887,8 +887,11 @@ class CerberusContexts {
 				
 				if(isset($entry['urls']))
 				foreach($entry['urls'] as $token => $url) {
-					if(0 != strcasecmp('http',substr($url,0,4)))
+					if(0 == strcasecmp('ctx://',substr($url,0,6))) {
+						$url = self::parseContextUrl($url);
+					} elseif(0 != strcasecmp('http',substr($url,0,4))) {
 						$url = $url_writer->writeNoProxy($url, true);
+					}
 					
 					$vars[$token] = '<a href="'.$url.'" style="font-weight:bold;">'.$vars[$token].'</a>';
 				}
@@ -897,8 +900,11 @@ class CerberusContexts {
 			case 'markdown':
 				if(isset($entry['urls']))
 				foreach($entry['urls'] as $token => $url) {
-					if(0 != strcasecmp('http',substr($url,0,4)))
+					if(0 == strcasecmp('ctx://',substr($url,0,6))) {
+						$url = self::parseContextUrl($url);
+					} elseif(0 != strcasecmp('http',substr($url,0,4))) {
 						$url = $url_writer->writeNoProxy($url, true);
+					}
 					
 					$vars[$token] = '['.$vars[$token].']('.$url.')';
 				}
@@ -910,8 +916,11 @@ class CerberusContexts {
 				if(empty($url))
 					break;
 					
-				if(0 != strcasecmp('http',substr($url,0,4)))
+				if(0 == strcasecmp('ctx://',substr($url,0,6))) {
+					$url = self::parseContextUrl($url);
+				} elseif(0 != strcasecmp('http',substr($url,0,4))) {
 					$url = $url_writer->writeNoProxy($url, true);
+				}
 					
 				$entry['message'] .= ' <' . $url . '>'; 
 				break;
@@ -924,6 +933,35 @@ class CerberusContexts {
 			$vars = array();
 		
 		return $tpl_builder->build($entry['message'], $vars);
+	}
+	
+	static function parseContextUrl($url) {
+		if(0 != strcasecmp('ctx://',substr($url,0,6))) {
+			return false;
+		}
+		
+		$context_parts = explode('/', substr($url,6));
+		$context_pair = explode(':', $context_parts[0], 2);
+		
+		if(count($context_pair) != 2)
+			return false;
+		
+		$context = $context_pair[0];
+		$context_id = $context_pair[1];
+		
+		$context_ext = Extension_DevblocksContext::get($context);
+		
+		if($context_ext instanceof IDevblocksContextProfile) {
+			$url = $context_ext->profileGetUrl($context_id);
+			
+		} else {
+			$meta = $context_ext->getMeta($context_id);
+			
+			if(is_array($meta) && isset($meta['permalink']))
+				$url = $meta['permalink'];
+		}
+		
+		return $url;
 	}
 	
 	static public function setActivityDefaultActor($context, $context_id=null) {
@@ -976,7 +1014,7 @@ class CerberusContexts {
 						$actor_name = $group->name . ' [' . $trigger->title . ']';
 						$actor_context = $trigger->owner_context;
 						$actor_context_id = $trigger->owner_context_id;
-						$actor_url = sprintf("c=profiles&type=group&who=%d", $actor_context_id);
+						$actor_url = sprintf("ctx://%s:%d", CerberusContexts::CONTEXT_GROUP, $actor_context_id);
 						break;
 						
 					case CerberusContexts::CONTEXT_WORKER:
@@ -984,7 +1022,7 @@ class CerberusContexts {
 						$actor_name = $worker->getName() . ' [' . $trigger->title . ']';
 						$actor_context = $trigger->owner_context;
 						$actor_context_id = $trigger->owner_context_id;
-						$actor_url = sprintf("c=profiles&type=worker&who=%d", $actor_context_id);
+						$actor_url = sprintf("ctx://%s:%d", CerberusContexts::CONTEXT_WORKER, $actor_context_id);
 						break;
 				}
 				
@@ -998,7 +1036,7 @@ class CerberusContexts {
 						&& $ctx instanceof Extension_DevblocksContext) {
 						$meta = $ctx->getMeta($actor_context_id);
 						$actor_name = $meta['name'];
-						$actor_url = $meta['permalink'];
+						$actor_url = sprintf("ctx://%s:%d", $actor_context, $actor_context_id);
 					}
 				}
 
@@ -1007,7 +1045,7 @@ class CerberusContexts {
 					$actor_name = $active_worker->getName();
 					$actor_context = CerberusContexts::CONTEXT_WORKER;
 					$actor_context_id = $active_worker->id;
-					$actor_url = sprintf("c=profiles&type=worker&who=%d", $actor_context_id);
+					$actor_url = sprintf("ctx://%s:%d", $actor_context, $actor_context_id);
 				}				
 				
 			} 
@@ -1080,8 +1118,11 @@ class CerberusContexts {
 			$message = CerberusContexts::formatActivityLogEntry($entry_array, 'plaintext');
 			@$url = reset($entry_array['urls']); 
 			
-			if(0 != strcasecmp('http',substr($url,0,4)))
+			if(0 == strcasecmp('ctx://',substr($url,0,6))) {
+				$url = self::parseContextUrl($url);
+			} elseif(0 != strcasecmp('http',substr($url,0,4))) {
 				$url = $url_writer->writeNoProxy($url, true);
+			}
 			
 			foreach($watcher_ids as $watcher_id) {
 				// If not inside a VA
