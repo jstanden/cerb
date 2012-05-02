@@ -41,7 +41,7 @@
 		</span>		
 		
 		<!-- Macros -->
-		{devblocks_url assign=return_url full=true}c=timetracking&d=display&id={$page_context_id}-{$time_entry->getSummary()|devblocks_permalink}{/devblocks_url}
+		{devblocks_url assign=return_url full=true}c=profiles&type=time_tracking&id={$page_context_id}-{$time_entry->getSummary()|devblocks_permalink}{/devblocks_url}
 		{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context=$page_context context_id=$page_context_id macros=$macros return_url=$return_url}		
 		
 		<!-- Edit -->
@@ -72,8 +72,8 @@
 		{$tabs = [activity,comments,links]}
 		
 		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabActivityLog&scope=target&point={$point}&context={$page_context}&context_id={$page_context_id}{/devblocks_url}">{'common.activity_log'|devblocks_translate|capitalize}</a></li>
-		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextComments&context=cerberusweb.contexts.timetracking&id={$page_context_id}{/devblocks_url}">{$translate->_('common.comments')|capitalize}</a></li>		
-		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextLinks&context=cerberusweb.contexts.timetracking&id={$page_context_id}{/devblocks_url}">{$translate->_('common.links')}</a></li>		
+		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextComments&point={$point}&context=cerberusweb.contexts.timetracking&id={$page_context_id}{/devblocks_url}">{$translate->_('common.comments')|capitalize}</a></li>		
+		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextLinks&point={$point}&context=cerberusweb.contexts.timetracking&id={$page_context_id}{/devblocks_url}">{$translate->_('common.links')}</a></li>		
 
 		{foreach from=$tab_manifests item=tab_manifest}
 			{$tabs[] = $tab_manifest->params.uri}
@@ -83,20 +83,20 @@
 </div> 
 <br>
 
-{$tab_selected_idx=0}
+{$selected_tab_idx=0}
 {foreach from=$tabs item=tab_label name=tabs}
-	{if $tab_label==$tab_selected}{$tab_selected_idx = $smarty.foreach.tabs.index}{/if}
+	{if $tab_label==$selected_tab}{$selected_tab_idx = $smarty.foreach.tabs.index}{/if}
 {/foreach}
 
 <script type="text/javascript">
 	$(function() {
-		var tabs = $("#timeTabs").tabs( { selected:{$tab_selected_idx} } );
+		var tabs = $("#timeTabs").tabs( { selected:{$selected_tab_idx} } );
 		
 		$('#btnDisplayTimeEdit').bind('click', function() {
 			$popup = genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={$page_context}&context_id={$page_context_id}',null,false,'550');
 			$popup.one('timetracking_save', function(event) {
 				event.stopPropagation();
-				document.location.href = '{devblocks_url}c=timetracking&a=display&id={$page_context_id}{/devblocks_url}';
+				document.location.href = '{devblocks_url}c=profiles&type=time_tracking&id={$page_context_id}{/devblocks_url}';
 			});
 			$popup.one('timetracking_delete', function(event) {
 				event.stopPropagation();

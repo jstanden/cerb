@@ -152,78 +152,6 @@ class ChTimeTrackingPage extends CerberusPageExtension {
 	}
 	
 	function render() {
-		$tpl = DevblocksPlatform::getTemplateService();
-		$visit = CerberusApplication::getVisit();
-		$translate = DevblocksPlatform::getTranslationService();
-		$active_worker = CerberusApplication::getActiveWorker();
-		
-		$response = DevblocksPlatform::getHttpResponse();
-		$stack = $response->path;
-		
-		array_shift($stack); // timetracking
-		
-		$module = array_shift($stack); // display
-		
-		switch($module) {
-			default:
-			case 'display':
-				@$time_id = intval(array_shift($stack));
-				if(null == ($time_entry = DAO_TimeTrackingEntry::get($time_id))) {
-					break; // [TODO] Not found
-				}
-				$tpl->assign('time_entry', $time_entry);						
-
-				// Custom fields
-				
-				$custom_fields = DAO_CustomField::getAll();
-				$tpl->assign('custom_fields', $custom_fields);
-				
-				// Properties
-				
-				$properties = array();
-				
-				$properties['status'] = array(
-					'label' => ucfirst($translate->_('common.status')),
-					'type' => Model_CustomField::TYPE_SINGLE_LINE,
-					'value' => ($time_entry->is_closed) ? $translate->_('status.closed') : $translate->_('status.open'),
-				);
-				
-				$properties['log_date'] = array(
-					'label' => ucfirst($translate->_('timetracking_entry.log_date')),
-					'type' => Model_CustomField::TYPE_DATE,
-					'value' => $time_entry->log_date,
-				);
-				
-				$properties['time_spent'] = array(
-					'label' => 'Time spent',
-					'type' => null,
-					'value' => $time_entry->time_actual_mins * 60,
-				);
-				
-				// [TODO] Worker?
-				
-				@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_TIMETRACKING, $time_entry->id)) or array();
-		
-				foreach($custom_fields as $cf_id => $cfield) {
-					if(!isset($values[$cf_id]))
-						continue;
-						
-					$properties['cf_' . $cf_id] = array(
-						'label' => $cfield->name,
-						'type' => $cfield->type,
-						'value' => $values[$cf_id],
-					);
-				}
-				
-				$tpl->assign('properties', $properties);
-				
-				// Macros
-				$macros = DAO_TriggerEvent::getByOwner(CerberusContexts::CONTEXT_WORKER, $active_worker->id, 'event.macro.timetracking');
-				$tpl->assign('macros', $macros);
-				
-				$tpl->display('devblocks:cerberusweb.timetracking::timetracking/display/index.tpl');
-				break;
-		}
 	}	
 	
 	/**
@@ -378,7 +306,7 @@ class ChTimeTrackingPage extends CerberusPageExtension {
 							$translate->_('timetracking.ui.comment.activity'),
 							(!empty($activity) ? $activity->name : ''),
 							((!empty($activity) && $activity->rate > 0.00) ? $translate->_('timetracking.ui.billable') : $translate->_('timetracking.ui.non_billable')),
-							$url_writer->writeNoProxy(sprintf("c=timetracking&a=display&id=%d", $id), true)
+							$url_writer->writeNoProxy(sprintf("c=profiles&type=time_tracking&id=%d", $id), true)
 						);
 						$fields = array(
 							DAO_Comment::ADDRESS_ID => intval($worker_address->id),
@@ -516,7 +444,7 @@ class ChTimeTrackingPage extends CerberusPageExtension {
 				$model->pos = $pos++;
 				$model->params = array(
 					'id' => $row[SearchFields_TimeTrackingEntry::ID],
-					'url' => $url_writer->writeNoProxy(sprintf("c=timetracking&a=display&id=%d", $row[SearchFields_TimeTrackingEntry::ID]), true),
+					'url' => $url_writer->writeNoProxy(sprintf("c=profiles&type=time_tracking&id=%d", $row[SearchFields_TimeTrackingEntry::ID]), true),
 				);
 				$models[] = $model; 
 			}
@@ -556,7 +484,7 @@ class ChTimeTrackingPage extends CerberusPageExtension {
 		$macros = DAO_TriggerEvent::getByOwner(CerberusContexts::CONTEXT_WORKER, $active_worker->id, 'event.macro.timetracking');
 		$tpl->assign('macros', $macros);
 		
-		$tpl->display('devblocks:cerberusweb.timetracking::timetracking/time/bulk.tpl');
+		$tpl->display('devblocks:cerberusweb.timetracking::timetracking/bulk.tpl');
 	}
 	
 	function doBulkUpdateAction() {

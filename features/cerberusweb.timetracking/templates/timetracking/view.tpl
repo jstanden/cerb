@@ -86,7 +86,7 @@
 						{$time_spent = $time_spent|cat:'s'}
 					{/if}
 				{/if}
-				<a href="{devblocks_url}c=timetracking&a=display&id={$result.tt_id}{/devblocks_url}" class="subject">{if isset($activities.$activity_id->name)}{'timetracking.ui.tracked_desc'|devblocks_translate:$worker_name:$time_spent:$activities.$activity_id->name}{else}{'%s tracked %s'|devblocks_translate:$worker_name:$time_spent}{/if}</a>
+				<a href="{devblocks_url}c=profiles&type=time_tracking&id={$result.tt_id}{/devblocks_url}" class="subject">{if isset($activities.$activity_id->name)}{'timetracking.ui.tracked_desc'|devblocks_translate:$worker_name:$time_spent:$activities.$activity_id->name}{else}{'%s tracked %s'|devblocks_translate:$worker_name:$time_spent}{/if}</a>
 				<button type="button" class="peek" style="visibility:hidden;padding:1px;margin:0px 5px;" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_TIMETRACKING}&context_id={$result.tt_id}&view_id={$view->id}',null,false,'500');"><span class="cerb-sprite2 sprite-document-search-result" style="margin-left:2px" title="{$translate->_('views.peek')}"></span></button>
 			</td>
 		</tr>

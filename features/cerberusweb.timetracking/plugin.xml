@@ -242,7 +242,7 @@
 			</params>
 		</extension>
 	
-		<!-- Controllers -->
+		<!-- Pages -->
 		
  		<extension point="cerberusweb.page">
 			<id>timetracking.page</id>
@@ -254,6 +254,21 @@
 			<params>
 				<param key="uri" value="timetracking" />
 				<param key="menutitle" value="" />
+			</params>
+		</extension>
+		 
+		<!-- Profile Page Sections -->
+		
+		<extension point="cerberusweb.ui.page.section">
+			<id>cerberusweb.profiles.time_tracking</id>
+			<name>Time Tracking Page Section</name>
+			<class>
+				<file>api/profiles/time_tracking.php</file>
+				<name>PageSection_ProfilesTimeTracking</name>
+			</class>
+			<params>
+				<param key="page_id" value="core.page.profiles" />
+				<param key="uri" value="time_tracking" />
 			</params>
 		</extension>
 		 

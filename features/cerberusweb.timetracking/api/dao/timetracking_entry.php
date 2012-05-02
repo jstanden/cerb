@@ -683,7 +683,7 @@ class View_TimeTracking extends C4_AbstractView implements IAbstractView_Subtota
 		switch($this->renderTemplate) {
 			case 'contextlinks_chooser':
 			default:
-				$tpl->assign('view_template', 'devblocks:cerberusweb.timetracking::timetracking/time/view.tpl');
+				$tpl->assign('view_template', 'devblocks:cerberusweb.timetracking::timetracking/view.tpl');
 				$tpl->display('devblocks:cerberusweb.core::internal/views/subtotals_and_view.tpl');
 				break;
 		}
@@ -939,23 +939,35 @@ class View_TimeTracking extends C4_AbstractView implements IAbstractView_Subtota
 	}	
 };
 
-class Context_TimeTracking extends Extension_DevblocksContext implements IDevblocksContextPeek {
+class Context_TimeTracking extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek {
 	function getRandom() {
 		return DAO_TimeTrackingEntry::random();
 	}
 	
+	function profileGetUrl($context_id) {
+		if(empty($context_id))
+			return '';
+	
+		$url_writer = DevblocksPlatform::getUrlService();
+		$url = $url_writer->writeNoProxy('c=profiles&type=time_tracking&id='.$context_id, true);
+		return $url;
+	}
+	
 	function getMeta($context_id) {
 		$time_entry = DAO_TimeTrackingEntry::get($context_id);
-		$url_writer = DevblocksPlatform::getUrlService();
+		
+		$url = $this->profileGetUrl($context_id);
 		
 		$summary = $time_entry->getSummary();
-		
 		$friendly = DevblocksPlatform::strToPermalink($summary);
+		
+		if(!empty($friendly))
+			$url .= '-' . $friendly;
 		
 		return array(
 			'id' => $time_entry->id,
 			'name' => $summary,
-			'permalink' => $url_writer->writeNoProxy(sprintf("c=timetracking&tab=display&id=%d-%s",$context_id,$friendly), true),
+			'permalink' => $url,
 		);
 	}
 	
@@ -1005,7 +1017,7 @@ class Context_TimeTracking extends Extension_DevblocksContext implements IDevblo
 			
 			// URL
 			$url_writer = DevblocksPlatform::getUrlService();
-			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=timetracking&tab=display&id=%d-%s",$timeentry->id, DevblocksPlatform::strToPermalink($timeentry->getSummary())), true);
+			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=profiles&type=time_tracking&id=%d-%s",$timeentry->id, DevblocksPlatform::strToPermalink($timeentry->getSummary())), true);
 			
 			// Worker
 			@$worker_id = $timeentry->worker_id;
@@ -1190,6 +1202,6 @@ class Context_TimeTracking extends Extension_DevblocksContext implements IDevblo
 		$types = Model_CustomField::getTypes();
 		$tpl->assign('types', $types);
 		
-		$tpl->display('devblocks:cerberusweb.timetracking::timetracking/rpc/time_entry_panel.tpl');
+		$tpl->display('devblocks:cerberusweb.timetracking::timetracking/peek.tpl');
 	}
 };
