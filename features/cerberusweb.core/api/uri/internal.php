@@ -3594,7 +3594,7 @@ class ChInternalController extends DevblocksControllerExtension {
 			$tpl->assign('event', $event);
 		}
 		
-		$tpl->display('devblocks:cerberusweb.core::internal/calendar/event_popup.tpl');
+		$tpl->display('devblocks:cerberusweb.core::internal/calendar/peek.tpl');
 	}
 	
 	function saveCalendarEventPopupJsonAction() {
