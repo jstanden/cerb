@@ -35,16 +35,13 @@ class PageSection_ProfilesAddress extends Extension_PageSection {
 		
 		@$selected_tab = array_shift($stack);
 		
-		$point = Extension_AddressBookTab::POINT;
+		$point = 'cerberusweb.profiles.address';
 		$tpl->assign('point', $point);
 		
 		if(null == $selected_tab) {
 			$selected_tab = $visit->get($point, '');
 		}
 		$tpl->assign('selected_tab', $selected_tab);
-		
-		$tab_manifests = DevblocksPlatform::getExtensions('cerberusweb.address.tab', false);
-		$tpl->assign('tab_manifests', $tab_manifests);
 		
 		// Custom fields
 		
@@ -103,6 +100,11 @@ class PageSection_ProfilesAddress extends Extension_PageSection {
 		$macros = DAO_TriggerEvent::getByOwner(CerberusContexts::CONTEXT_WORKER, $active_worker->id, 'event.macro.address');
 		$tpl->assign('macros', $macros);
 		
+		// Tabs
+		$tab_manifests = Extension_ContextProfileTab::getExtensions(false, CerberusContexts::CONTEXT_ADDRESS);
+		$tpl->assign('tab_manifests', $tab_manifests);
+
+		// Template
 		$tpl->display('devblocks:cerberusweb.core::profiles/address.tpl');		
 	}
 };
