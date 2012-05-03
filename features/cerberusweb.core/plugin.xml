@@ -1630,20 +1630,6 @@
 		</extension>
 		
 		<extension point="cerberusweb.page">
-			<id>core.page.activity</id>
-			<name>Activity Page</name>
-			<class>
-				<file>api/uri/activity.php</file>
-				<name>ChActivityPage</name>
-			</class>
-			<params>
-				<param key="uri" value="activity" />
-				<param key="menutitle" value="core.menu.activity" />
-				<param key="acl" value="core.activity" />
-			</params>
-		</extension>
-
-		<extension point="cerberusweb.page">
 			<id>core.page.tasks</id>
 			<name>Tasks Page</name>
 			<class>
