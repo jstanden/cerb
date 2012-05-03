@@ -27,28 +27,6 @@ class ChDisplayPage extends CerberusPageExtension {
 	function render() {
 	}
 	
-	// Ajax
-	function showTabAction() {
-		@$ext_id = DevblocksPlatform::importGPC($_REQUEST['ext_id'],'string','');
-		
-		if(null != ($tab_mft = DevblocksPlatform::getExtension($ext_id)) 
-			&& null != ($inst = $tab_mft->createInstance()) 
-			&& $inst instanceof Extension_TicketTab) {
-			$inst->showTab();
-		}
-	}
-	
-	// Post
-	function saveTabAction() {
-		@$ext_id = DevblocksPlatform::importGPC($_REQUEST['ext_id'],'string','');
-		
-		if(null != ($tab_mft = DevblocksPlatform::getExtension($ext_id)) 
-			&& null != ($inst = $tab_mft->createInstance()) 
-			&& $inst instanceof Extension_TicketTab) {
-			$inst->saveTab();
-		}
-	}
-	
 	/*
 	 * [TODO] Proxy any func requests to be handled by the tab directly, 
 	 * instead of forcing tabs to implement controllers.  This should check 

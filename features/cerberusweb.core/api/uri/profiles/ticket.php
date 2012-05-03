@@ -44,20 +44,33 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 		// Remember the last tab/URL
 		@$selected_tab = array_shift($stack);
 		
-		$point = 'cerberusweb.ticket.tab';
+		$point = 'cerberusweb.profiles.ticket';
 		$tpl->assign('point', $point);
 		
 		if(null == $selected_tab) {
 			$selected_tab = $visit->get($point, '');
 		}
+		
+		if(empty($selected_tab))
+			$selected_tab = 'conversation';
+		
 		$tpl->assign('selected_tab', $selected_tab);
 		
-		// Trigger ticket view event
+		switch($selected_tab) {
+			case 'conversation':
+				@$mail_always_show_all = DAO_WorkerPref::get($active_worker->id,'mail_always_show_all',0);
+				@$tab_option = array_shift($stack);
 		
+				if($mail_always_show_all || 0==strcasecmp("read_all",$tab_option)) {
+					$tpl->assign('expand_all', true);
+				}
+				break;
+		}
+		
+		// Trigger ticket view event
 		Event_TicketViewedByWorker::trigger($ticket->id, $active_worker->id);
 		
 		// Custom fields
-		
 		$custom_fields = DAO_CustomField::getAll();
 		$tpl->assign('custom_fields', $custom_fields);
 		
@@ -104,29 +117,6 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 		}
 		
 		$tpl->assign('properties', $properties);
-		
-		// Tabs
-		
-		$tab_manifests = DevblocksPlatform::getExtensions('cerberusweb.ticket.tab', false);
-		$tpl->assign('tab_manifests', $tab_manifests);
-		
-		@$tab_selected = array_shift($stack);
-		
-		if(empty($tab_selected))
-			$tab_selected = 'conversation';
-		
-		switch($tab_selected) {
-			case 'conversation':
-				@$mail_always_show_all = DAO_WorkerPref::get($active_worker->id,'mail_always_show_all',0);
-				@$tab_option = array_shift($stack);
-		
-				if($mail_always_show_all || 0==strcasecmp("read_all",$tab_option)) {
-					$tpl->assign('expand_all', true);
-				}
-				break;
-		}
-		
-		$tpl->assign('tab_selected', $tab_selected);
 		
 		// Permissions
 		
@@ -185,6 +175,11 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 			true
 		);
 		
+		// Tabs
+		$tab_manifests = Extension_ContextProfileTab::getExtensions(false, CerberusContexts::CONTEXT_TICKET);
+		$tpl->assign('tab_manifests', $tab_manifests);
+
+		// Template
 		$tpl->display('devblocks:cerberusweb.core::profiles/ticket.tpl');		
 	}
 };

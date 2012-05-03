@@ -202,13 +202,6 @@ abstract class Extension_MailTab extends DevblocksExtension {
 	function saveTab() {}
 };
 
-abstract class Extension_TicketTab extends DevblocksExtension {
-	const POINT = 'cerberusweb.ticket.tab';
-	
-	function showTab() {}
-	function saveTab() {}
-};
-
 abstract class Extension_LogMailToolbarItem extends DevblocksExtension {
 	function render() { }
 };
