@@ -24,15 +24,6 @@ class Page_Search extends CerberusPageExtension {
 		return true;
 	}
 	
-	/*
-	function getActivity() {
-		// [TODO] Rename to activity.workspaces
-		return new Model_Activity('activity.workspaces',array(
-	    	""
-	    ));
-	}
-	*/
-	
 	function handleSectionActionAction() {
 		@$section_uri = DevblocksPlatform::importGPC($_REQUEST['section'],'string','');
 		@$action = DevblocksPlatform::importGPC($_REQUEST['action'],'string','');
@@ -99,6 +90,8 @@ class Page_Search extends CerberusPageExtension {
 			echo json_encode(null);
 			return;
 		}
+		
+		DAO_WorkerPref::set($active_worker->id, 'quicksearch_' . $view_id, $token);
 		
 		if(!empty($reset))
 			$view->doResetCriteria();
@@ -350,7 +343,6 @@ class Page_Search extends CerberusPageExtension {
 		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('view', $view);
-		//$tpl->assign('is_custom', false);
 			
 		$html = $tpl->fetch('devblocks:cerberusweb.core::internal/views/customize_view_criteria.tpl');
 		

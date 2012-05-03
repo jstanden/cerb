@@ -1,7 +1,9 @@
+{$pref_token = DAO_WorkerPref::get($active_worker->id, "quicksearch_{$view->id}", "")}
+
 {capture "options"}
 {foreach from=$view->getParamsAvailable() item=field key=token}
 {if !empty($field->db_label) && !empty($field->type)}
-<option value="{$token}"{if $quick_search_type eq 'sender'}selected{/if}>{$field->db_label|capitalize}</option>
+<option value="{$token}"{if $pref_token eq $token}selected{/if}>{$field->db_label|capitalize}</option>
 {/if}
 {/foreach}
 {/capture}
@@ -16,7 +18,7 @@
 	<input type="hidden" name="reset" value="{if !empty($reset)}1{else}0{/if}">
 	<select name="field">
 		{$smarty.capture.options nofilter}
-	</select><input type="text" name="query" class="input_search" size="32" class="input_search" autocomplete="off">
+	</select><input type="text" name="query" class="input_search" size="32" value="" autocomplete="off">
 	</form>
 {/if}
 
