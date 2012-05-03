@@ -1,13 +1,13 @@
 {$page_context = CerberusContexts::CONTEXT_KB_ARTICLE}
 {$page_context_id = $article->id}
 
+<div style="float:left;">
+	<h1>{$article->title}</h1>
+</div>
+
 <div style="float:right;">
 	{$ctx = Extension_DevblocksContext::get($page_context)}
 	{include file="devblocks:cerberusweb.core::search/quick_search.tpl" view=$ctx->getSearchView() return_url="{devblocks_url}c=search&context={$ctx->manifest->params.alias}{/devblocks_url}" reset=true}
-</div>
-
-<div style="float:left;">
-	<h1>{$article->title}</h1>
 </div>
 
 <div style="clear:both;"></div>
@@ -45,11 +45,11 @@
 		
 		<div style="margin-top:5px;">
 			<!-- Macros -->
-			{devblocks_url assign=return_url full=true}c=kb&tab=article&id={$page_context_id}-{$article->title|devblocks_permalink}{/devblocks_url}
+			{devblocks_url assign=return_url full=true}c=profiles&type=kb&id={$page_context_id}-{$article->title|devblocks_permalink}{/devblocks_url}
 			{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context=$page_context context_id=$page_context_id macros=$macros return_url=$return_url}		
 
 			<!-- Edit -->					
-			{if $active_worker->hasPriv('core.kb.articles.modify')}<button id="btnDisplayKbEdit" type="button" onclick="genericAjaxPopup('peek','c=kb.ajax&a=showArticleEditPanel&id={$page_context_id}&return_uri={"kb/article/{$page_context_id}"}',null,false,'725');"><span class="cerb-sprite sprite-document_edit"></span> {$translate->_('common.edit')|capitalize}</button>{/if}
+			{if $active_worker->hasPriv('core.kb.articles.modify')}<button id="btnDisplayKbEdit" type="button"><span class="cerb-sprite sprite-document_edit"></span> {$translate->_('common.edit')|capitalize}</button>{/if}
 		</div>
 	</form>
 	
@@ -70,17 +70,51 @@
 {include file="devblocks:cerberusweb.core::internal/macros/behavior/scheduled_behavior_profile.tpl" context=$page_context context_id=$page_context_id}
 </div>
 
-<div id="kbArticleContent">
-	{$article->getContent() nofilter}
-</div>
+<div id="kbTabs">
+	<ul>
+		{$tabs = [article,activity,comments,links]}
 
-{include file="devblocks:cerberusweb.core::internal/attachments/list.tpl" context={$page_context} context_id={$page_context_id}}
+		<li><a href="#article">Article</a></li>		
+		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabActivityLog&scope=target&point={$point}&context={$page_context}&context_id={$page_context_id}{/devblocks_url}">{'common.activity_log'|devblocks_translate|capitalize}</a></li>
+		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextComments&point={$point}&context={$page_context}&point={$point}&id={$page_context_id}{/devblocks_url}">{$translate->_('common.comments')|capitalize}</a></li>		
+		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextLinks&point={$point}&context={$page_context}&point={$point}&id={$page_context_id}{/devblocks_url}">{$translate->_('common.links')}</a></li>
+
+		{foreach from=$tab_manifests item=tab_manifest}
+			{$tabs[] = $tab_manifest->params.uri}
+			<li><a href="{devblocks_url}ajax.php?c=profiles&a=showTab&ext_id={$tab_manifest->id}&point={$point}&context={$page_context}&context_id={$page_context_id}{/devblocks_url}"><i>{$tab_manifest->params.title|devblocks_translate}</i></a></li>
+		{/foreach}
+	</ul>
+	
+	<div id="article">
+		<div id="kbArticleContent">
+			{$article->getContent() nofilter}
+		</div>
+		
+		{include file="devblocks:cerberusweb.core::internal/attachments/list.tpl" context={$page_context} context_id={$page_context_id}}
+	</div>
+</div> 
+<br>
+
+{$selected_tab_idx=0}
+{foreach from=$tabs item=tab_label name=tabs}
+	{if $tab_label==$selected_tab}{$selected_tab_idx = $smarty.foreach.tabs.index}{/if}
+{/foreach}
 
 <script type="text/javascript">
-	{include file="devblocks:cerberusweb.core::internal/macros/display/menu_script.tpl"}
-</script>
+$(function() {
+	var tabs = $("#kbTabs").tabs({
+		selected:{$selected_tab_idx}
+	});
+	
+	$('#btnDisplayKbEdit').bind('click', function() {
+		$popup = genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_KB_ARTICLE}&context_id={$page_context_id}',null,false,'725');
+		$popup.one('article_save', function(event) {
+			event.stopPropagation();
+			document.location.href = '{devblocks_url}c=profiles&type=kb&id={$page_context_id}-{$article->title|devblocks_permalink}{/devblocks_url}';
+		});
+	})
+});
 
-<script type="text/javascript">
 {if $pref_keyboard_shortcuts}
 $(document).keypress(function(event) {
 	if(event.altKey || event.ctrlKey || event.shiftKey || event.metaKey)
@@ -114,4 +148,6 @@ $(document).keypress(function(event) {
 		event.preventDefault();
 });
 {/if}
+
+{include file="devblocks:cerberusweb.core::internal/macros/display/menu_script.tpl"}
 </script>

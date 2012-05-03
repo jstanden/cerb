@@ -613,7 +613,7 @@ class Model_KbArticle {
 	}
 };
 
-class Context_KbArticle extends Extension_DevblocksContext {
+class Context_KbArticle extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek {
 	function authorize($context_id, Model_Worker $worker) {
 		return TRUE;
 	}
@@ -621,17 +621,29 @@ class Context_KbArticle extends Extension_DevblocksContext {
 	function getRandom() {
 		return DAO_KbArticle::random();
 	}
+
+	function profileGetUrl($context_id) {
+		if(empty($context_id))
+			return '';
+		
+		$url_writer = DevblocksPlatform::getUrlService();
+		$url = $url_writer->writeNoProxy(sprintf("c=profiles&type=kb&id=%d", $context_id, true));
+		return $url;
+	}
 	
 	function getMeta($context_id) {
 		$article = DAO_KbArticle::get($context_id);
-		$url_writer = DevblocksPlatform::getUrlService();
 		
+		$url = $this->profileGetUrl($context_id);
 		$friendly = DevblocksPlatform::strToPermalink($article->title);
+		
+		if(!empty($friendly))
+			$url .= '-' . $friendly;
 		
 		return array(
 			'id' => $article->id,
 			'name' => $article->title,
-			'permalink' => $url_writer->writeNoProxy(sprintf("c=kb&ar=article&id=%d-%s", $article->id, $friendly, true)),
+			'permalink' => $url,
 		);
 	}
 	
@@ -683,7 +695,7 @@ class Context_KbArticle extends Extension_DevblocksContext {
 			
 			// URL
 			$url_writer = DevblocksPlatform::getUrlService();
-			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=kb&ar=article&id=%d-%s",$article->id, DevblocksPlatform::strToPermalink($article->title)), true);
+			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=profiles&type=kb&id=%d-%s",$article->id, DevblocksPlatform::strToPermalink($article->title)), true);
 		}
 		
 		return TRUE;
@@ -792,6 +804,24 @@ class Context_KbArticle extends Extension_DevblocksContext {
 		$view->renderTemplate = 'context';
 		C4_AbstractViewLoader::setView($view_id, $view);
 		return $view;
+	}
+	
+	function renderPeekPopup($context_id=0, $view_id='') {
+		$tpl = DevblocksPlatform::getTemplateService();
+		
+		if(!empty($context_id)) {
+			$article = DAO_KbArticle::get($context_id);
+			$tpl->assign('article', $article);
+		}
+		
+		if(!empty($view_id))
+			$tpl->assign('view_id', $view_id);
+			
+		@$return_uri = DevblocksPlatform::importGPC($_REQUEST['return_uri'],'string','');
+		if(!empty($return_uri))
+			$tpl->assign('return_uri', $return_uri);
+		
+		$tpl->display('devblocks:cerberusweb.kb::kb/peek_readonly.tpl');
 	}
 };
 
@@ -933,7 +963,7 @@ class View_KbArticle extends C4_AbstractView implements IAbstractView_Subtotals 
 		switch($this->renderTemplate) {
 			case 'chooser':
 			default:
-				$tpl->assign('view_template', 'devblocks:cerberusweb.kb::view/view.tpl');
+				$tpl->assign('view_template', 'devblocks:cerberusweb.kb::kb/view.tpl');
 				$tpl->display('devblocks:cerberusweb.core::internal/views/subtotals_and_view.tpl');
 				break;
 		}

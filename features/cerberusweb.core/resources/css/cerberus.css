@@ -920,12 +920,12 @@ UL.cerb-popupmenu > LI > HR {
 #kbArticleContent h1 {
 	font-size: 190%;
 	color: rgb(50,50,50);
-	border-bottom: 1px solid rgb(180,180,180);
 }
 
 #kbArticleContent h2 {
 	font-size: 170%;
 	color: rgb(74,110,158);
+	border-bottom: 1px solid rgb(220,230,240);
 }
 
 #kbArticleContent h3 {

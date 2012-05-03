@@ -33,7 +33,6 @@
 		<file path="api/App.php">
 			<class name="Context_KbCategory" />
 			<class name="DAO_KbCategory" />
-			<class name="Extension_KnowledgebaseTab" />
 			<class name="Model_KbCategory" />
 			<class name="SearchFields_KbCategory" />
 		</file>
@@ -178,6 +177,21 @@
 				<!--<param key="acl" value="core.kb" />-->
 			</params>
 		</extension>
+		
+		<!-- Profile Page Sections -->
+		
+		<extension point="cerberusweb.ui.page.section">
+			<id>cerberusweb.page.profiles.kb_article</id>
+			<name>KB Article Section</name>
+			<class>
+				<file>api/profiles/kb_article.php</file>
+				<name>PageSection_ProfilesKbArticle</name>
+			</class>
+			<params>
+				<param key="page_id" value="core.page.profiles" />
+				<param key="uri" value="kb" />
+			</params>
+		</extension>
 	
 		<!-- Controllers -->
 		
@@ -190,21 +204,6 @@
 			</class>
 			<params>
 				<param key="uri" value="kb.ajax" />
-			</params>
-		</extension>
-		
-		<!-- Knowledgebase Tabs -->
-		
-		<extension point="cerberusweb.knowledgebase.tab">
-			<id>cerberusweb.kb.tab.browse</id>
-			<name>KB Browse Tab</name>
-			<class>
-				<file>api/App.php</file>
-				<name>ChKbBrowseTab</name>
-			</class>
-			<params>
-				<param key="uri" value="browse" />
-				<param key="title" value="Browse" />
 			</params>
 		</extension>
 		
