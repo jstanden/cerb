@@ -132,18 +132,23 @@
 			</params>
 		</extension>
 	
-		<!-- Ticket Display Toolbar -->	
+		<!-- Profile Script -->
 		
-		<extension point="cerberusweb.ticket.toolbaritem">
-			<id>timetracking.ticket.toolbaritem.timer</id>
-			<name>Time Tracking Ticket Toolbar Timer</name>
+		<extension point="cerberusweb.ui.context.profile.script">
+			<id>timetracking.profile_script.timer</id>
+			<name>Time Tracking Profile Script</name>
 			<class>
 				<file>api/App.php</file>
-				<name>ChTimeTrackingTicketToolbarTimer</name>
+				<name>ChTimeTrackingProfileScript</name>
 			</class>
 			<params>
+				<param key="contexts">
+					<value>
+						<data key="*" />
+					</value>
+				</param>				
 			</params>
-		</extension>
+		</extension>		
 	
 		<!-- Ticket Reply Toolbar -->
 			
@@ -158,60 +163,6 @@
 			</params>
 		</extension>
 		
-		<!-- CRM Opportunity Toolbar -->
-		
-		<extension point="cerberusweb.crm.opp.toolbaritem">
-			<id>timetracking.crmopp.toolbaritem.timer</id>
-			<name>CRM Opportunity Toolbar Timer</name>
-			<class>
-				<file>api/App.php</file>
-				<name>ChCrmOppToolbarTimer</name>
-			</class>
-			<params>
-			</params>
-		</extension>
-		
-		<!-- Log Mail Toolbar -->
-		<!-- 
-		<extension point="cerberusweb.mail.log.toolbaritem">
-			<id>timetracking.logmail.toolbaritem.timer</id>
-			<name>Time Tracking Log Mail Toolbar Timer</name>
-			<class>
-				<file>api/App.php</file>
-				<name>ChTimeTrackingLogMailToolbarTimer</name>
-			</class>
-			<params>
-			</params>
-		</extension>
-		-->
-	
-		<!-- Send Mail Toolbar -->
-		<!-- 
-		<extension point="cerberusweb.mail.send.toolbaritem">
-			<id>timetracking.sendmail.toolbaritem.timer</id>
-			<name>Time Tracking Send Mail Toolbar Timer</name>
-			<class>
-				<file>api/App.php</file>
-				<name>ChTimeTrackingSendMailToolbarTimer</name>
-			</class>
-			<params>
-			</params>
-		</extension>
-	 	-->
-	 
-		<!-- Task Toolbar -->
-			
-		<extension point="cerberusweb.task.toolbaritem">
-			<id>timetracking.task.toolbaritem.timer</id>
-			<name>Task Toolbar Timer</name>
-			<class>
-				<file>api/App.php</file>
-				<name>ChTimeTrackingTaskToolbarTimer</name>
-			</class>
-			<params>
-			</params>
-		</extension>
-	 
 		<!-- Setup Page Sections -->
 		
 		<extension point="cerberusweb.ui.page.section">

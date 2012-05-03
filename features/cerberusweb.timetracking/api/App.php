@@ -57,34 +57,19 @@ if (class_exists('Extension_AppPreBodyRenderer',true)):
 	};
 endif;
 
-if (class_exists('Extension_CrmOpportunityToolbarItem',true)):
-	class ChCrmOppToolbarTimer extends Extension_CrmOpportunityToolbarItem {
-		function render(Model_CrmOpportunity $opp) {
-			$tpl = DevblocksPlatform::getTemplateService();
-			$tpl->assign('opp', $opp); /* @var $opp Model_CrmOpportunity */
-			$tpl->display('devblocks:cerberusweb.timetracking::timetracking/renderers/opps/opp_toolbar_timer.tpl');
-		}
-	};
-endif;
+if (class_exists('Extension_ContextProfileScript')):
+class ChTimeTrackingProfileScript extends Extension_ContextProfileScript {
+	const ID = 'timetracking.profile_script.timer';
+	
+	function renderScript($context, $context_id) {
+		$tpl = DevblocksPlatform::getTemplateService();
 
-if (class_exists('Extension_TaskToolbarItem',true)):
-	class ChTimeTrackingTaskToolbarTimer extends Extension_TaskToolbarItem {
-		function render(Model_Task $task) {
-			$tpl = DevblocksPlatform::getTemplateService();
-			$tpl->assign('task', $task); /* @var $task Model_Task */
-			$tpl->display('devblocks:cerberusweb.timetracking::timetracking/renderers/tasks/task_toolbar_timer.tpl');
-		}
-	};
-endif;
+		$tpl->assign('page_context', $context);
+		$tpl->assign('page_context_id', $context_id);
 
-if (class_exists('Extension_TicketToolbarItem',true)):
-	class ChTimeTrackingTicketToolbarTimer extends Extension_TicketToolbarItem {
-		function render(Model_Ticket $ticket) {
-			$tpl = DevblocksPlatform::getTemplateService();
-			$tpl->assign('ticket', $ticket); /* @var $ticket Model_Ticket */
-			$tpl->display('devblocks:cerberusweb.timetracking::timetracking/renderers/tickets/ticket_toolbar_timer.tpl');
-		}
-	};
+		$tpl->display('devblocks:cerberusweb.timetracking::timetracking/renderers/toolbar_timer.js.tpl');
+	}
+}
 endif;
 
 if (class_exists('Extension_ReplyToolbarItem',true)):
@@ -94,30 +79,7 @@ if (class_exists('Extension_ReplyToolbarItem',true)):
 			
 			$tpl->assign('message', $message); /* @var $message Model_Message */
 			
-//			if(null != ($first_wrote_address_id = $ticket->first_wrote_address_id)
-//				&& null != ($first_wrote_address = DAO_Address::get($first_wrote_address_id))) {
-//				$tpl->assign('tt_first_wrote', $first_wrote_address);
-//			}
-			
 			$tpl->display('devblocks:cerberusweb.timetracking::timetracking/renderers/tickets/reply_toolbar_timer.tpl');
-		}
-	};
-endif;
-
-if (class_exists('Extension_LogMailToolbarItem',true)):
-	class ChTimeTrackingLogMailToolbarTimer extends Extension_LogMailToolbarItem {
-		function render() { 
-			$tpl = DevblocksPlatform::getTemplateService();
-			$tpl->display('devblocks:cerberusweb.timetracking::timetracking/renderers/tickets/logmail_toolbar_timer.tpl');
-		}
-	};
-endif;
-
-if (class_exists('Extension_SendMailToolbarItem',true)):
-	class ChTimeTrackingSendMailToolbarTimer extends Extension_SendMailToolbarItem {
-		function render() { 
-			$tpl = DevblocksPlatform::getTemplateService();
-			$tpl->display('devblocks:cerberusweb.timetracking::timetracking/renderers/tickets/sendmail_toolbar_timer.tpl');
 		}
 	};
 endif;
