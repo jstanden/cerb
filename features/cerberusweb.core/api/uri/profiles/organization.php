@@ -31,7 +31,7 @@ class PageSection_ProfilesOrganization extends Extension_PageSection {
 		@$selected_tab = array_shift($stack);
 		
 		// Remember the last tab/URL
-		$point = 'cerberusweb.org.tab';
+		$point = 'cerberusweb.profiles.org';
 		$tpl->assign('point', $point);
 		
 		$visit = CerberusApplication::getVisit();
@@ -39,9 +39,6 @@ class PageSection_ProfilesOrganization extends Extension_PageSection {
 			$selected_tab = $visit->get($point, '');
 		}
 		$tpl->assign('selected_tab', $selected_tab);
-		
-		$tab_manifests = DevblocksPlatform::getExtensions('cerberusweb.org.tab', false);
-		$tpl->assign('tab_manifests', $tab_manifests);
 		
 		$contact = DAO_ContactOrg::get($id);
 		$tpl->assign('contact', $contact);
@@ -126,14 +123,17 @@ class PageSection_ProfilesOrganization extends Extension_PageSection {
 		$tpl->assign('properties', $properties);
 		
 		// Tabs
-		
 		$people_count = DAO_Address::getCountByOrgId($contact->id);
 		$tpl->assign('people_total', $people_count);
+		
+		$tab_manifests = Extension_ContextProfileTab::getExtensions(false, CerberusContexts::CONTEXT_ORG);
+		$tpl->assign('tab_manifests', $tab_manifests);
 		
 		// Macros
 		$macros = DAO_TriggerEvent::getByOwner(CerberusContexts::CONTEXT_WORKER, $active_worker->id, 'event.macro.org');
 		$tpl->assign('macros', $macros);
-		
+
+		// Template
 		$tpl->display('devblocks:cerberusweb.core::profiles/organization.tpl');		
 	}
 };

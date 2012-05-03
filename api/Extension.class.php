@@ -282,11 +282,6 @@ abstract class Extension_ContextProfileTab extends DevblocksExtension {
 	function saveTab() {}
 };
 
-abstract class Extension_OrgTab extends DevblocksExtension {
-	function showTab() {}
-	function saveTab() {}
-};
-
 abstract class Extension_RssSource extends DevblocksExtension {
 	const EXTENSION_POINT = 'cerberusweb.rss.source';
 	
