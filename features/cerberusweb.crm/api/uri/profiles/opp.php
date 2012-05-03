@@ -38,7 +38,7 @@ class PageSection_ProfilesOpportunity extends Extension_PageSection {
 		
 		@$selected_tab = array_shift($stack);
 		
-		$point = Extension_CrmOpportunityTab::POINT;
+		$point = 'cerberusweb.profiles.opportunity';
 		$tpl->assign('point', $point);
 		
 		if(null == $selected_tab) {
@@ -56,26 +56,26 @@ class PageSection_ProfilesOpportunity extends Extension_PageSection {
 		$properties = array();
 		
 		$properties['status'] = array(
-				'label' => ucfirst($translate->_('common.status')),
-				'type' => null,
-				'is_closed' => $opp->is_closed,
-				'is_won' => $opp->is_won,
+			'label' => ucfirst($translate->_('common.status')),
+			'type' => null,
+			'is_closed' => $opp->is_closed,
+			'is_won' => $opp->is_won,
 		);
 		
 		if(!empty($opp->primary_email_id)) {
 			if(null != ($address = DAO_Address::get($opp->primary_email_id))) {
 				$properties['lead'] = array(
-						'label' => ucfirst($translate->_('common.email')),
-						'type' => null,
-						'address' => $address,
+					'label' => ucfirst($translate->_('common.email')),
+					'type' => null,
+					'address' => $address,
 				);
 			}
 				
 			if(!empty($address->contact_org_id) && null != ($org = DAO_ContactOrg::get($address->contact_org_id))) {
 				$properties['org'] = array(
-						'label' => ucfirst($translate->_('contact_org.name')),
-						'type' => null,
-						'org' => $org,
+					'label' => ucfirst($translate->_('contact_org.name')),
+					'type' => null,
+					'org' => $org,
 				);
 			}
 		}
@@ -83,28 +83,28 @@ class PageSection_ProfilesOpportunity extends Extension_PageSection {
 		if(!empty($opp->is_closed))
 			if(!empty($opp->closed_date))
 			$properties['closed_date'] = array(
-					'label' => ucfirst($translate->_('crm.opportunity.closed_date')),
-					'type' => Model_CustomField::TYPE_DATE,
-					'value' => $opp->closed_date,
+				'label' => ucfirst($translate->_('crm.opportunity.closed_date')),
+				'type' => Model_CustomField::TYPE_DATE,
+				'value' => $opp->closed_date,
 			);
 			
 		if(!empty($opp->amount))
 			$properties['amount'] = array(
-					'label' => ucfirst($translate->_('crm.opportunity.amount')),
-					'type' => Model_CustomField::TYPE_NUMBER,
-					'value' => $opp->amount,
+				'label' => ucfirst($translate->_('crm.opportunity.amount')),
+				'type' => Model_CustomField::TYPE_NUMBER,
+				'value' => $opp->amount,
 			);
 			
 		$properties['created_date'] = array(
-				'label' => ucfirst($translate->_('common.created')),
-				'type' => Model_CustomField::TYPE_DATE,
-				'value' => $opp->created_date,
+			'label' => ucfirst($translate->_('common.created')),
+			'type' => Model_CustomField::TYPE_DATE,
+			'value' => $opp->created_date,
 		);
 		
 		$properties['updated_date'] = array(
-				'label' => ucfirst($translate->_('common.updated')),
-				'type' => Model_CustomField::TYPE_DATE,
-				'value' => $opp->updated_date,
+			'label' => ucfirst($translate->_('common.updated')),
+			'type' => Model_CustomField::TYPE_DATE,
+			'value' => $opp->updated_date,
 		);
 		
 		@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_OPPORTUNITY, $opp->id)) or array();
@@ -114,16 +114,15 @@ class PageSection_ProfilesOpportunity extends Extension_PageSection {
 				continue;
 		
 			$properties['cf_' . $cf_id] = array(
-					'label' => $cfield->name,
-					'type' => $cfield->type,
-					'value' => $values[$cf_id],
+				'label' => $cfield->name,
+				'type' => $cfield->type,
+				'value' => $values[$cf_id],
 			);
 		}
 		
 		$tpl->assign('properties', $properties);
 		
 		// Workers
-		
 		$workers = DAO_Worker::getAll();
 		$tpl->assign('workers', $workers);
 		
@@ -131,6 +130,11 @@ class PageSection_ProfilesOpportunity extends Extension_PageSection {
 		$macros = DAO_TriggerEvent::getByOwner(CerberusContexts::CONTEXT_WORKER, $active_worker->id, 'event.macro.crm.opportunity');
 		$tpl->assign('macros', $macros);
 		
+		// Tabs
+		$tab_manifests = Extension_ContextProfileTab::getExtensions(false, CerberusContexts::CONTEXT_OPPORTUNITY);
+		$tpl->assign('tab_manifests', $tab_manifests);
+		
+		// Template
 		$tpl->display('devblocks:cerberusweb.crm::crm/opps/profile.tpl');
 	}
 };

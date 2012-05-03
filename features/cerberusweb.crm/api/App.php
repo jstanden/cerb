@@ -19,93 +19,8 @@ abstract class Extension_CrmOpportunityToolbarItem extends DevblocksExtension {
 	function render(Model_CrmOpportunity $opp) { }
 };
 
-abstract class Extension_CrmOpportunityTab extends DevblocksExtension {
-	const POINT = 'cerberusweb.crm.opportunity.tab';
-	
-	function showTab() {}
-	function saveTab() {}
-};
-
-if (class_exists('Extension_ActivityTab')):
-class CrmOppsActivityTab extends Extension_ActivityTab {
-	const EXTENSION_ID = 'crm.activity.tab.opps';
-	const VIEW_ACTIVITY_OPPS = 'activity_opps';
-	
-	function showTab() {
-		$tpl = DevblocksPlatform::getTemplateService();
-		
-		$visit = CerberusApplication::getVisit();
-		$translate = DevblocksPlatform::getTranslationService();
-		$active_worker = CerberusApplication::getActiveWorker();
-
-		// Read original request
-		@$request_path = DevblocksPlatform::importGPC($_REQUEST['request'],'string','');
-		@$stack =  explode('/', $request_path);
-		@array_shift($stack); // activity
-		@array_shift($stack); // opps
-		
-		switch(@array_shift($stack)) {
-			case 'import':
-				if(!$active_worker->hasPriv('crm.opp.actions.import'))
-					break;
-
-				switch(@array_shift($stack)) {
-					case 'step2':
-						// Load first row headings
-						$csv_file = $visit->get('crm.import.last.csv','');
-						$fp = fopen($csv_file, "rt");
-						if($fp) {
-							$parts = fgetcsv($fp, 8192, ',', '"');
-							$tpl->assign('parts', $parts);
-						}
-						@fclose($fp);
-
-						$fields = array(
-							'name' => $translate->_('crm.opportunity.name'),
-							'email' => $translate->_('crm.opportunity.email_address'),
-							'created_date' => $translate->_('crm.opportunity.created_date'),
-							'updated_date' => $translate->_('crm.opportunity.updated_date'),
-							'closed_date' => $translate->_('crm.opportunity.closed_date'),
-							'is_won' => $translate->_('crm.opportunity.is_won'),
-							'is_closed' => $translate->_('crm.opportunity.is_closed'),
-//							'worker' => $translate->_('crm.opportunity.worker_id'),
-							'amount' => $translate->_('crm.opportunity.amount'),
-						);
-						$tpl->assign('fields',$fields);
-						
-						$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_OPPORTUNITY);
-						$tpl->assign('custom_fields', $custom_fields);
-						
-						$workers = DAO_Worker::getAllActive();
-						$tpl->assign('workers', $workers);
-						
-						$tpl->display('devblocks:cerberusweb.crm::crm/opps/activity_tab/import/mapping.tpl');
-						return;
-						break;
-						
-				} // import:switch
-				break;
-		}
-	}
-}
-endif;
-
 class CrmPage extends CerberusPageExtension {
 	function render() {
-	}
-	
-	// Ajax
-	function showOppTabAction() {
-		@$ext_id = DevblocksPlatform::importGPC($_REQUEST['ext_id'],'string','');
-		
-		$visit = CerberusApplication::getVisit();
-		
-		if(null != ($tab_mft = DevblocksPlatform::getExtension($ext_id)) 
-			&& null != ($inst = $tab_mft->createInstance()) 
-			&& $inst instanceof Extension_CrmOpportunityTab) {
-				$visit->set(Extension_CrmOpportunityTab::POINT, $inst->manifest->params['uri']);
-				$inst->showTab();
-		}
 	}
 	
 	function saveOppPanelAction() {
@@ -473,7 +388,7 @@ class CrmPage extends CerberusPageExtension {
 					'created' => time(),
 //					'worker_id' => $active_worker->id,
 					'total' => $total,
-					'return_url' => isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : $url_writer->writeNoProxy('c=activity&tab=opps', true),
+					'return_url' => isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : $url_writer->writeNoProxy('c=search&type=opportunity', true),
 //					'toolbar_extension_id' => 'cerberusweb.explorer.toolbar.',
 				);
 				$models[] = $model; 
@@ -506,8 +421,6 @@ class CrmPage extends CerberusPageExtension {
 	}
 };
 
-
-
 class CrmEventListener extends DevblocksEventListenerExtension {
     /**
      * @param Model_DevblocksEvent $event
@@ -521,9 +434,13 @@ class CrmEventListener extends DevblocksEventListenerExtension {
     }
 };
 
-class CrmOrgOppTab extends Extension_OrgTab {
-	function showTab() {
-		@$org_id = DevblocksPlatform::importGPC($_REQUEST['org_id'],'integer',0);
+if (class_exists('Extension_ContextProfileTab')):
+class CrmOrgOppTab extends Extension_ContextProfileTab {
+	function showTab($context, $context_id) {
+		if(0 != strcasecmp($context, CerberusContexts::CONTEXT_ORG))
+			return;
+
+		$org_id = $context_id;
 		
 		$tpl = DevblocksPlatform::getTemplateService();
 
@@ -553,14 +470,16 @@ class CrmOrgOppTab extends Extension_OrgTab {
 		
 		$tpl->display('devblocks:cerberusweb.crm::crm/opps/org/tab.tpl');
 	}
-	
-	function saveTab() {
-	}
 };
+endif;
 
-class CrmTicketOppTab extends Extension_TicketTab {
-	function showTab() {
-		@$ticket_id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer',0);
+if (class_exists('Extension_ContextProfileTab')):
+class CrmTicketOppTab extends Extension_ContextProfileTab {
+	function showTab($context, $context_id) {
+		if($context != CerberusContexts::CONTEXT_TICKET)
+			return;
+
+		$ticket_id = $context_id;
 		
 		$tpl = DevblocksPlatform::getTemplateService();
 
@@ -589,3 +508,4 @@ class CrmTicketOppTab extends Extension_TicketTab {
 	function saveTab() {
 	}
 };
+endif;
