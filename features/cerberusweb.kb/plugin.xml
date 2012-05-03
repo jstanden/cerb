@@ -173,8 +173,7 @@
 			</class>
 			<params>
 				<param key="uri" value="kb" />
-				<param key="menutitle" value="common.knowledgebase" />
-				<!--<param key="acl" value="core.kb" />-->
+				<param key="menutitle" value="" />
 			</params>
 		</extension>
 		
