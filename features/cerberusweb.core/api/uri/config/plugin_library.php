@@ -43,9 +43,6 @@ class PageSection_SetupPluginLibrary extends Extension_PageSection {
 		
 		C4_AbstractViewLoader::setView($view->id, $view);
 
-// 		$quick_search_type = $visit->get('wgm_cerb5licenses.quick_search_type');
-// 		$tpl->assign('quick_search_type', $quick_search_type);
-		
 		$tpl->assign('view', $view);
 		
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/plugin_library/tab.tpl');

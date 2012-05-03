@@ -1,1 +1,0 @@
-<button type="button" onclick="alert('This is an example button.');"><img src="{devblocks_url}c=resource&p=example.mail.log.toolbaritem&f=box_new.png{/devblocks_url}" align="absmiddle"> {$translate->_('example.mail.log.toolbaritem')}</button>

@@ -31,9 +31,6 @@
 	<!-- Exported Classes -->
 	
 	<class_loader>
-		<file path="api/App.php">
-			<class name="Extension_CrmOpportunityToolbarItem" />
-		</file>
 		<file path="api/dao/crm_opportunity.php">
 			<class name="Context_CrmOpportunity" />
 			<class name="DAO_CrmOpportunity" />

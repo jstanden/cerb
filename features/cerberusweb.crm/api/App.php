@@ -15,10 +15,6 @@
 |	http://www.cerberusweb.com	  http://www.webgroupmedia.com/
 ***********************************************************************/
 
-abstract class Extension_CrmOpportunityToolbarItem extends DevblocksExtension {
-	function render(Model_CrmOpportunity $opp) { }
-};
-
 class CrmPage extends CerberusPageExtension {
 	function render() {
 	}

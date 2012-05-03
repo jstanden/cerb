@@ -128,7 +128,9 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 			return;
 		}
 		
+		// Groups
 		$groups = DAO_Group::getAll();
+		$tpl->assign('groups', $groups);
 		
 		// Macros
 		$macros = DAO_TriggerEvent::getByOwners(
@@ -140,25 +142,18 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 		);
 		$tpl->assign('macros', $macros);
 		
-		// TicketToolbarItem Extensions
-		$ticketToolbarItems = DevblocksPlatform::getExtensions('cerberusweb.ticket.toolbaritem', true);
-		if(!empty($ticketToolbarItems))
-			$tpl->assign('ticket_toolbaritems', $ticketToolbarItems);
-		
-		$quick_search_type = $visit->get('quick_search_type');
-		$tpl->assign('quick_search_type', $quick_search_type);
-		
+		// Requesters
 		$requesters = DAO_Ticket::getRequestersByTicket($ticket->id);
 		$tpl->assign('requesters', $requesters);
 		
 		// Workers
 		$tpl->assign('workers', DAO_Worker::getAll());
 		
+		// Watchers
 		$context_watchers = CerberusContexts::getWatchers(CerberusContexts::CONTEXT_TICKET, $ticket->id);
 		$tpl->assign('context_watchers', $context_watchers);
 		
-		$tpl->assign('groups', $groups);
-		
+		// Buckets
 		$group_buckets = DAO_Bucket::getGroups();
 		$tpl->assign('group_buckets', $group_buckets);
 		

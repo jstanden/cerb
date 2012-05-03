@@ -253,18 +253,6 @@ if (class_exists('Extension_ReplyToolbarItem',true)):
 	};
 endif;
 
-if (class_exists('Extension_LogMailToolbarItem',true)):
-	class ChKbLogTicketToolbarButton extends Extension_LogMailToolbarItem {
-		function render() { 
-			$tpl = DevblocksPlatform::getTemplateService();
-
-			$tpl->assign('div', 'logTicketToolbarOptions');
-			
-			$tpl->display('devblocks:cerberusweb.kb::renderers/toolbar_kb_button.tpl');
-		}
-	};
-endif;
-
 if (class_exists('Extension_SendMailToolbarItem',true)):
 	class ChKbSendMailToolbarButton extends Extension_SendMailToolbarItem {
 		function render() { 
