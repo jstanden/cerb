@@ -57,4 +57,22 @@ class Page_Profiles extends CerberusPageExtension {
 		}
 	}
 	
+	function showTabAction() {
+		@$ext_id = DevblocksPlatform::importGPC($_REQUEST['ext_id'],'string','');
+		@$point = DevblocksPlatform::importGPC($_REQUEST['point'],'string','');
+		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
+		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer',0);
+		
+		$visit = CerberusApplication::getVisit();
+		
+		if(null != ($tab_mft = DevblocksPlatform::getExtension($ext_id))
+				&& null != ($inst = $tab_mft->createInstance())
+				&& $inst instanceof Extension_ContextProfileTab) {
+			
+			if(!empty($point))
+				$visit->set($point, $inst->manifest->params['uri']);
+			
+			$inst->showTab($context, $context_id);
+		}
+	}
 };

@@ -30,10 +30,6 @@ class PageSection_SetupPortal extends Extension_PageSection {
 			$tpl->assign('tool', $tool);
 			$tpl->assign('tool_manifests', DevblocksPlatform::getExtensions('usermeet.tool', false));
 
-//			$tab_manifests = DevblocksPlatform::getExtensions(Extension_ActivityTab::POINT, false);
-//			DevblocksPlatform::sortObjects($tab_manifests, 'name');
-//			$tpl->assign('tab_manifests', $tab_manifests);
-
 			@$tab_selected = array_shift($stack);
 			if(empty($tab_selected)) 
 				$tab_selected = 'settings';
