@@ -540,4 +540,18 @@ while($row = mysql_fetch_assoc($rs)) {
 
 mysql_free_result($rs);
 
+// ===========================================================================
+// Fix worker_pref.setting max length
+
+if(!isset($tables['worker_pref'])) {
+	$logger->error("The 'worker_pref' table does not exist.");
+	return FALSE;
+}
+
+list($columns, $indexes) = $db->metaTable('worker_pref');
+
+if(isset($columns['setting'])) {
+	$db->Execute("ALTER TABLE worker_pref MODIFY COLUMN setting VARCHAR(255) NOT NULL DEFAULT ''");
+}
+
 return TRUE;
