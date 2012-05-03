@@ -101,6 +101,11 @@ class PageSection_ProfilesTimeTracking extends Extension_PageSection {
 		$macros = DAO_TriggerEvent::getByOwner(CerberusContexts::CONTEXT_WORKER, $active_worker->id, 'event.macro.timetracking');
 		$tpl->assign('macros', $macros);
 		
+		// Tabs
+		$tab_manifests = Extension_ContextProfileTab::getExtensions(false, CerberusContexts::CONTEXT_TIMETRACKING);
+		$tpl->assign('tab_manifests', $tab_manifests);
+		
+		// Template
 		$tpl->display('devblocks:cerberusweb.timetracking::timetracking/profile.tpl');		
 	}
 };
