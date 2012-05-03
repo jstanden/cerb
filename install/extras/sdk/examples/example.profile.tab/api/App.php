@@ -7,7 +7,7 @@ class ExContextProfileTab extends Extension_ContextProfileTab {
 		$tpl->assign('context', $context);
 		$tpl->assign('context_id', $context_id);
 		
-		$tpl->display('devblocks:example.profile_tab::tab.tpl');
+		$tpl->display('devblocks:example.profile.tab::tab.tpl');
 	}
 }
 endif;
