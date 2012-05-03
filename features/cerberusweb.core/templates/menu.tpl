@@ -11,7 +11,7 @@
 	{/foreach}
 	
 	<li style="border-right:0;">
-		<a href="javascript:;" style="font-weight:normal;text-decoration:none;">+</a>
+		<a href="javascript:;" style="font-weight:normal;text-decoration:none;"><span class="cerb-sprite {if $page->id=='core.page.pages'}sprite-arrow-down-white{else}sprite-arrow-down-black{/if}" style="height:12px;width:12px;"></span></a>
 	</li>
 	
 	{if $active_worker->is_superuser}

@@ -604,6 +604,9 @@ DIV.block {
 	background-repeat: repeat-x;
 	background-color: rgb(255, 255, 255);
 	border: 1px solid rgb(230, 230, 230);
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	border-radius: 5px;
 }
 
 DIV.block H2 {
