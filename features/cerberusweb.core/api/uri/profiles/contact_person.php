@@ -89,7 +89,12 @@ class PageSection_ProfilesContactPerson extends Extension_PageSection {
 		}
 			
 		$tpl->assign('properties', $properties);
-			
+
+		// Tabs
+		$tab_manifests = Extension_ContextProfileTab::getExtensions(false, CerberusContexts::CONTEXT_CONTACT_PERSON);
+		$tpl->assign('tab_manifests', $tab_manifests);
+		
+		// Template
 		$tpl->display('devblocks:cerberusweb.core::profiles/contact_person.tpl');
 	}
 };
