@@ -88,9 +88,12 @@ class PageSection_ProfilesGroup extends Extension_PageSection {
 			'event.macro.group'
 		);
 		$tpl->assign('macros', $macros);
+
+		// Tabs
+		$tab_manifests = Extension_ContextProfileTab::getExtensions(false, CerberusContexts::CONTEXT_GROUP);
+		$tpl->assign('tab_manifests', $tab_manifests);
 		
 		// Template
-				
 		$tpl->display('devblocks:cerberusweb.core::profiles/group.tpl');
 	}
 };
