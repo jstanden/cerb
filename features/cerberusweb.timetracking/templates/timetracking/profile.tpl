@@ -15,25 +15,25 @@
 <fieldset class="properties">
 	<legend>{'timetracking.activity.tab'|devblocks_translate|capitalize}</legend>
 	
-	<form action="{devblocks_url}{/devblocks_url}" method="post" style="margin-bottom:5px;">
-		{foreach from=$properties item=v key=k name=props}
-			<div class="property">
-				{if $k == 'status'}
-					<b>{$v.label}:</b>
-					{$v.value}
-				{elseif $k == 'time_spent'}
-					<b>{$v.label}:</b>
-					{$time_entry->getTimeSpentAsString()}
-				{else}
-					{include file="devblocks:cerberusweb.core::internal/custom_fields/profile_cell_renderer.tpl"}
-				{/if}
-			</div>
-			{if $smarty.foreach.props.iteration % 3 == 0 && !$smarty.foreach.props.last}
-				<br clear="all">
+	{foreach from=$properties item=v key=k name=props}
+		<div class="property">
+			{if $k == 'status'}
+				<b>{$v.label}:</b>
+				{$v.value}
+			{elseif $k == 'time_spent'}
+				<b>{$v.label}:</b>
+				{$time_entry->getTimeSpentAsString()}
+			{else}
+				{include file="devblocks:cerberusweb.core::internal/custom_fields/profile_cell_renderer.tpl"}
 			{/if}
-		{/foreach}
-		<br clear="all">
-		
+		</div>
+		{if $smarty.foreach.props.iteration % 3 == 0 && !$smarty.foreach.props.last}
+			<br clear="all">
+		{/if}
+	{/foreach}
+	<br clear="all">
+	
+	<form class="toolbar" action="{devblocks_url}{/devblocks_url}" method="post" style="margin-bottom:5px;">
 		<!-- Toolbar -->
 		<span>
 		{$object_watchers = DAO_ContextLink::getContextLinks($page_context, array($page_context_id), CerberusContexts::CONTEXT_WORKER)}
@@ -46,7 +46,6 @@
 		
 		<!-- Edit -->
 		<button type="button" id="btnDisplayTimeEdit"><span class="cerb-sprite sprite-document_edit"></span> Edit</button>
-		
 	</form>
 	
 	{if $pref_keyboard_shortcuts}
@@ -157,3 +156,12 @@ $(document).keypress(function(event) {
 });
 {/if}
 </script>
+
+{$profile_scripts = Extension_ContextProfileScript::getExtensions(true, $page_context)}
+{if !empty($profile_scripts)}
+{foreach from=$profile_scripts item=renderer}
+	{if method_exists($renderer,'renderScript')}
+		{$renderer->renderScript($page_context, $page_context_id)}
+	{/if}
+{/foreach}
+{/if}

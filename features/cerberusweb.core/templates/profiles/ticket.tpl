@@ -83,7 +83,7 @@
 	</span>
 	<br clear="all">
 
-	<form action="{devblocks_url}{/devblocks_url}" method="post" style="margin-top:5px;margin-bottom:5px;">
+	<form class="toolbar" action="{devblocks_url}{/devblocks_url}" method="post" style="margin-top:5px;margin-bottom:5px;">
 		<input type="hidden" name="c" value="display">
 		<input type="hidden" name="a" value="updateProperties">
 		<input type="hidden" name="id" value="{$ticket->id}">
@@ -104,14 +104,7 @@
 		<button type="button" id="btnDisplayTicketEdit"><span class="cerb-sprite sprite-document_edit"></span> Edit</button>
 		
 		{if $active_worker->hasPriv('core.ticket.view.actions.merge')}<button id="btnMerge" type="button" onclick="genericAjaxPopup('peek','c=display&a=showMergePanel&ticket_id={$ticket->id}',null,false,'500');"><span class="cerb-sprite2 sprite-folder-gear"></span> {$translate->_('mail.merge')|capitalize}</button>{/if}
-		
-		{* Plugin Toolbar *}
-		{if !empty($ticket_toolbaritems)}
-			{foreach from=$ticket_toolbaritems item=renderer}
-				{if !empty($renderer)}{$renderer->render($ticket)}{/if}
-			{/foreach}
-		{/if}
-		
+
 		{if !$ticket->is_deleted}
 			{if $ticket->is_closed}
 				<button ="button" onclick="this.form.closed.value='0';this.form.submit();"><span class="cerb-sprite sprite-folder_out"></span> {$translate->_('common.reopen')|capitalize}</button>
@@ -132,8 +125,8 @@
 		
 	   	<button id="btnPrint" title="{$translate->_('display.shortcut.print')}" type="button" onclick="document.frmPrint.action='{devblocks_url}c=print&a=ticket&id={$ticket->mask}{/devblocks_url}';document.frmPrint.submit();">&nbsp;<span class="cerb-sprite sprite-printer"></span>&nbsp;</button>
 	   	<button type="button" title="{$translate->_('display.shortcut.refresh')}" onclick="document.location='{devblocks_url}c=profiles&type=ticket&id={$ticket->mask}{/devblocks_url}';">&nbsp;<span class="cerb-sprite sprite-refresh"></span>&nbsp;</button>
-		
 	</form>
+	
 	<form action="{devblocks_url}{/devblocks_url}" method="post" name="frmPrint" id="frmPrint" target="_blank" style="display:none;"></form>
 					
 	{if $pref_keyboard_shortcuts}
@@ -202,8 +195,16 @@
 	});
 
 	{include file="devblocks:cerberusweb.core::internal/macros/display/menu_script.tpl"}
-	
 </script>
+
+{$profile_scripts = Extension_ContextProfileScript::getExtensions(true, $page_context)}
+{if !empty($profile_scripts)}
+{foreach from=$profile_scripts item=renderer}
+	{if method_exists($renderer,'renderScript')}
+		{$renderer->renderScript($page_context, $page_context_id)}
+	{/if}
+{/foreach}
+{/if}
 
 <script type="text/javascript">
 {if $pref_keyboard_shortcuts}

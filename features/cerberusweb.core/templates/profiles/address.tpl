@@ -22,26 +22,22 @@
 <fieldset class="properties">
 	<legend>{'addy_book.peek.title'|devblocks_translate|capitalize}</legend>
 	
-	<form action="{devblocks_url}{/devblocks_url}" method="post" style="margin-bottom:5px;">
-	<input type="hidden" name="c" value="tasks">
-	<input type="hidden" name="a" value="">
-	<input type="hidden" name="id" value="{$task->id}">
-
-		{foreach from=$properties item=v key=k name=props}
-			<div class="property">
-				{if $k == 'org'}
-					<b>{$v.label|capitalize}:</b>
-					<a href="javascript:;" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_ORG}&context_id={$v.org_id}',null,false,'600');">{$v.org->name}</a>
-				{else}
-					{include file="devblocks:cerberusweb.core::internal/custom_fields/profile_cell_renderer.tpl"}
-				{/if}
-			</div>
-			{if $smarty.foreach.props.iteration % 3 == 0 && !$smarty.foreach.props.last}
-				<br clear="all">
+	{foreach from=$properties item=v key=k name=props}
+		<div class="property">
+			{if $k == 'org'}
+				<b>{$v.label|capitalize}:</b>
+				<a href="javascript:;" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_ORG}&context_id={$v.org_id}',null,false,'600');">{$v.org->name}</a>
+			{else}
+				{include file="devblocks:cerberusweb.core::internal/custom_fields/profile_cell_renderer.tpl"}
 			{/if}
-		{/foreach}
-		<br clear="all">
+		</div>
+		{if $smarty.foreach.props.iteration % 3 == 0 && !$smarty.foreach.props.last}
+			<br clear="all">
+		{/if}
+	{/foreach}
+	<br clear="all">
 	
+	<form class="toolbar" action="{devblocks_url}{/devblocks_url}" method="post" style="margin-bottom:5px;">
 		<span>
 		{$object_watchers = DAO_ContextLink::getContextLinks($page_context, array($page_context_id), CerberusContexts::CONTEXT_WORKER)}
 		{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$page_context context_id=$page_context_id full=true}
@@ -160,3 +156,12 @@ $(document).keypress(function(event) {
 });
 {/if}
 </script>
+
+{$profile_scripts = Extension_ContextProfileScript::getExtensions(true, $page_context)}
+{if !empty($profile_scripts)}
+{foreach from=$profile_scripts item=renderer}
+	{if method_exists($renderer,'renderScript')}
+		{$renderer->renderScript($page_context, $page_context_id)}
+	{/if}
+{/foreach}
+{/if}

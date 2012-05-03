@@ -18,31 +18,27 @@
 <fieldset class="properties">
 	<legend>Contact Person</legend>
 	
-	<form action="{devblocks_url}{/devblocks_url}" method="post" style="margin-bottom:5px;">
-
-		{foreach from=$properties item=v key=k name=props}
-			<div class="property">
-				{if $k == 'primary_email'}
-					<b>{$v.label|capitalize}:</b>
-					<a href="javascript:;" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_ADDRESS}&email={$v.address->email}',null,false,'500');">{$v.address->email}</a>
-				{else}
-					{include file="devblocks:cerberusweb.core::internal/custom_fields/profile_cell_renderer.tpl"}
-				{/if}
-			</div>
-			{if $smarty.foreach.props.iteration % 3 == 0 && !$smarty.foreach.props.last}
-				<br clear="all">
+	{foreach from=$properties item=v key=k name=props}
+		<div class="property">
+			{if $k == 'primary_email'}
+				<b>{$v.label|capitalize}:</b>
+				<a href="javascript:;" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_ADDRESS}&email={$v.address->email}',null,false,'500');">{$v.address->email}</a>
+			{else}
+				{include file="devblocks:cerberusweb.core::internal/custom_fields/profile_cell_renderer.tpl"}
 			{/if}
-		{/foreach}
-		<br clear="all">
-
-		<!-- Toolbar -->
-		<div style="margin-top:5px;">
-			{$object_watchers = DAO_ContextLink::getContextLinks($page_context, array($person->id), CerberusContexts::CONTEXT_WORKER)}
-			{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$page_context context_id=$person->id full=true}
-			
-			<button type="button" id="btnDisplayContactEdit"><span class="cerb-sprite sprite-document_edit"></span> Edit</button>
 		</div>
+		{if $smarty.foreach.props.iteration % 3 == 0 && !$smarty.foreach.props.last}
+			<br clear="all">
+		{/if}
+	{/foreach}
+	<br clear="all">
 
+	<form class="toolbar" action="{devblocks_url}{/devblocks_url}" method="post" style="margin:5px 0px 5px 0px;">
+		<!-- Toolbar -->
+		{$object_watchers = DAO_ContextLink::getContextLinks($page_context, array($person->id), CerberusContexts::CONTEXT_WORKER)}
+		{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$page_context context_id=$person->id full=true}
+		
+		<button type="button" id="btnDisplayContactEdit"><span class="cerb-sprite sprite-document_edit"></span> Edit</button>
 	</form>
 	
 	{if $pref_keyboard_shortcuts}
@@ -138,3 +134,12 @@ $(document).keypress(function(event) {
 });
 {/if}
 </script>
+
+{$profile_scripts = Extension_ContextProfileScript::getExtensions(true, $page_context)}
+{if !empty($profile_scripts)}
+{foreach from=$profile_scripts item=renderer}
+	{if method_exists($renderer,'renderScript')}
+		{$renderer->renderScript($page_context, $page_context_id)}
+	{/if}
+{/foreach}
+{/if}

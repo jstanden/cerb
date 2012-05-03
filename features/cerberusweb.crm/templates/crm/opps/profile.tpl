@@ -15,40 +15,39 @@
 <fieldset class="properties">
 	<legend>{'crm.common.opportunity'|devblocks_translate|capitalize}</legend>
 	
-	<form action="{devblocks_url}{/devblocks_url}" onsubmit="return false;" style="margin-bottom:5px;">
-
-		{foreach from=$properties item=v key=k name=props}
-			<div class="property">
-				{if $k == 'status'}
-					<b>{$v.label|capitalize}:</b>
-					{if $v.is_closed}
-						{if $v.is_won}
-							<img src="{devblocks_url}c=resource&p=cerberusweb.crm&f=images/up_plus_gray.gif{/devblocks_url}" align="top" title="Won"> {'crm.opp.status.closed.won'|devblocks_translate}
-						{else}
-							<img src="{devblocks_url}c=resource&p=cerberusweb.crm&f=images/down_minus_gray.gif{/devblocks_url}" align="top" title="Won"> {'crm.opp.status.closed.lost'|devblocks_translate}
-						{/if}
+	{foreach from=$properties item=v key=k name=props}
+		<div class="property">
+			{if $k == 'status'}
+				<b>{$v.label|capitalize}:</b>
+				{if $v.is_closed}
+					{if $v.is_won}
+						<img src="{devblocks_url}c=resource&p=cerberusweb.crm&f=images/up_plus_gray.gif{/devblocks_url}" align="top" title="Won"> {'crm.opp.status.closed.won'|devblocks_translate}
 					{else}
-						{'crm.opp.status.open'|devblocks_translate}
+						<img src="{devblocks_url}c=resource&p=cerberusweb.crm&f=images/down_minus_gray.gif{/devblocks_url}" align="top" title="Won"> {'crm.opp.status.closed.lost'|devblocks_translate}
 					{/if}
-				{elseif $k == 'lead'}
-					<b>{$v.label|capitalize}:</b>
-					{$v.address->getName()}
-					&lt;<a href="javascript:;" onclick="genericAjaxPopup('peek2','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_ADDRESS}&email={$v.address->email|escape:'url'}',null,false,'600');">{$v.address->email}</a>&gt;
-					<button id="btnOppAddyPeek" type="button" onclick="genericAjaxPopup('peek2','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_ADDRESS}&email={$v.address->email|escape:'url'}&view_id=',null,false,'600');" style="visibility:false;display:none;"></button>
-				{elseif $k == 'org'}
-					<b>{$v.label|capitalize}:</b>
-					<a href="javascript:;" onclick="genericAjaxPopup('peek2','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_ORG}&context_id={$v.org->id}',null,false,'600');">{$v.org->name}</a>
-					<button id="btnOppOrgPeek" type="button" onclick="genericAjaxPopup('peek2','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_ORG}&context_id={$v.org->id}&view_id=',null,false,'600');" style="visibility:false;display:none;"></button>
 				{else}
-					{include file="devblocks:cerberusweb.core::internal/custom_fields/profile_cell_renderer.tpl"}
+					{'crm.opp.status.open'|devblocks_translate}
 				{/if}
-			</div>
-			{if $smarty.foreach.props.iteration % 3 == 0 && !$smarty.foreach.props.last}
-				<br clear="all">
+			{elseif $k == 'lead'}
+				<b>{$v.label|capitalize}:</b>
+				{$v.address->getName()}
+				&lt;<a href="javascript:;" onclick="genericAjaxPopup('peek2','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_ADDRESS}&email={$v.address->email|escape:'url'}',null,false,'600');">{$v.address->email}</a>&gt;
+				<button id="btnOppAddyPeek" type="button" onclick="genericAjaxPopup('peek2','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_ADDRESS}&email={$v.address->email|escape:'url'}&view_id=',null,false,'600');" style="visibility:false;display:none;"></button>
+			{elseif $k == 'org'}
+				<b>{$v.label|capitalize}:</b>
+				<a href="javascript:;" onclick="genericAjaxPopup('peek2','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_ORG}&context_id={$v.org->id}',null,false,'600');">{$v.org->name}</a>
+				<button id="btnOppOrgPeek" type="button" onclick="genericAjaxPopup('peek2','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_ORG}&context_id={$v.org->id}&view_id=',null,false,'600');" style="visibility:false;display:none;"></button>
+			{else}
+				{include file="devblocks:cerberusweb.core::internal/custom_fields/profile_cell_renderer.tpl"}
 			{/if}
-		{/foreach}
-		<br clear="all">
+		</div>
+		{if $smarty.foreach.props.iteration % 3 == 0 && !$smarty.foreach.props.last}
+			<br clear="all">
+		{/if}
+	{/foreach}
+	<br clear="all">
 	
+	<form class="toolbar" action="{devblocks_url}{/devblocks_url}" onsubmit="return false;" style="margin-bottom:5px;">
 		<!-- Toolbar -->
 		<span>
 		{$object_watchers = DAO_ContextLink::getContextLinks($page_context, array($page_context_id), CerberusContexts::CONTEXT_WORKER)}
@@ -63,11 +62,6 @@
 		{if $active_worker->hasPriv('crm.opp.actions.update_all')}	
 		<button type="button" id="btnDisplayOppEdit"><span class="cerb-sprite sprite-document_edit"></span> Edit</button>
 		{/if}
-		
-		{$toolbar_exts = DevblocksPlatform::getExtensions('cerberusweb.crm.opp.toolbaritem', true)}
-		{foreach from=$toolbar_exts item=ext}
-			{$ext->render($opp)}
-		{/foreach}
 	</form>
 	
 	{if $pref_keyboard_shortcuts}
@@ -193,3 +187,12 @@ $(document).keypress(function(event) {
 });
 {/if}
 </script>
+
+{$profile_scripts = Extension_ContextProfileScript::getExtensions(true, $page_context)}
+{if !empty($profile_scripts)}
+{foreach from=$profile_scripts item=renderer}
+	{if method_exists($renderer,'renderScript')}
+		{$renderer->renderScript($page_context, $page_context_id)}
+	{/if}
+{/foreach}
+{/if}

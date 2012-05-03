@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.devblocks.com/schema/plugin.xsd">
+	<id>example.profile.script</id>
+	<name>[Example] Profile Script</name>
+	<description>Demonstrates an arbitrary script attached to a profile page.</description>
+	<author>WebGroup Media, LLC.</author>
+	<version>0.0.1</version>
+	<link>http://www.cerb5.com/</link>
+	<!--<image>plugin.png</image>-->
+ 
+ 	<!-- Requirements -->
+
+	<requires>
+		<app_version min="5.8" max="5.8.99" />
+	</requires>
+ 
+	<!-- Plugin Dependencies -->
+	
+	<dependencies>
+		<require plugin_id="cerberusweb.core" version="5.8.0" />
+	</dependencies>
+
+	<!-- Extensions -->
+ 
+	<extensions>
+
+		<!-- Profile Script -->
+		
+		<extension point="cerberusweb.ui.context.profile.script">
+			<id>example.profile_script.example_script</id>
+			<name>Example Profile Script</name>
+			<class>
+				<file>api/App.php</file>
+				<name>ExContextProfileScript</name>
+			</class>
+			<params>
+				<param key="contexts">
+					<value>
+						<data key="*" />
+					</value>
+				</param>				
+			</params>
+		</extension>		
+		
+    </extensions> 
+</plugin>

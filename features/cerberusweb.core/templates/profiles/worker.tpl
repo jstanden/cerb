@@ -32,7 +32,6 @@
 
 <div style="clear:both;"></div>
 
-<form action="javascript:;">
 <fieldset class="properties">
 	<legend>Worker</legend>
 	{foreach from=$properties item=v key=k name=props}
@@ -50,7 +49,7 @@
 	{/foreach}
 	<br clear="all">
 	
-	<div style="margin-top:5px;">
+	<form class="toolbar" action="javascript:;" method="POST" style="margin-top:5px;" onsubmit="return false;">
 		<!-- Macros -->
 		{if $worker->id == $active_worker->id || $active_worker->is_superuser}
 			{if !empty($page_context) && !empty($page_context_id) && !empty($macros)}
@@ -63,7 +62,7 @@
 			{if $worker->id != $active_worker->id}<button type="button" id="btnProfileWorkerPossess"><span class="cerb-sprite2 sprite-user-silhouette"></span> Impersonate</button>{/if}
 			<button type="button" id="btnProfileWorkerEdit"><span class="cerb-sprite sprite-document_edit"></span> {'common.edit'|devblocks_translate|capitalize}</button>
 		{/if}
-	</div>
+	</form>
 </fieldset>
 	
 <div>
@@ -73,8 +72,6 @@
 <div>
 {include file="devblocks:cerberusweb.core::internal/macros/behavior/scheduled_behavior_profile.tpl" context=$page_context context_id=$page_context_id}
 </div>
-
-</form>
 
 <div id="profileTabs">
 	<ul>
@@ -161,3 +158,12 @@
 	
 	{include file="devblocks:cerberusweb.core::internal/macros/display/menu_script.tpl"}
 </script>
+
+{$profile_scripts = Extension_ContextProfileScript::getExtensions(true, $page_context)}
+{if !empty($profile_scripts)}
+{foreach from=$profile_scripts item=renderer}
+	{if method_exists($renderer,'renderScript')}
+		{$renderer->renderScript($page_context, $page_context_id)}
+	{/if}
+{/foreach}
+{/if}

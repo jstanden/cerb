@@ -15,31 +15,30 @@
 <fieldset class="properties">
 	<legend>Task</legend>
 	
-	<form action="{devblocks_url}{/devblocks_url}" method="post" style="margin-bottom:5px;">
+	{foreach from=$properties item=v key=k name=props}
+		<div class="property">
+			{if $k == '...'}
+				<b>{$translate->_('...')|capitalize}:</b>
+				...
+			{elseif $k == 'due_date'}
+				<b>{$translate->_('task.due_date')|capitalize}:</b>
+				<abbr title="{$task->due_date|devblocks_date}" style="{if !$task->is_completed && $task->due_date < time()}font-weight:bold;color:rgb(150,0,0);{/if}">{$task->due_date|devblocks_prettytime}</abbr>
+			{else}
+				{include file="devblocks:cerberusweb.core::internal/custom_fields/profile_cell_renderer.tpl"}
+			{/if}
+		</div>
+		{if $smarty.foreach.props.iteration % 3 == 0 && !$smarty.foreach.props.last}
+			<br clear="all">
+		{/if}
+	{/foreach}
+	<br clear="all">
+	
+	<form class="toolbar" action="{devblocks_url}{/devblocks_url}" method="post" style="margin-bottom:5px;">
 		<input type="hidden" name="c" value="tasks">
 		<input type="hidden" name="a" value="">
 		<input type="hidden" name="id" value="{$page_context_id}">
-	
-		{foreach from=$properties item=v key=k name=props}
-			<div class="property">
-				{if $k == '...'}
-					<b>{$translate->_('...')|capitalize}:</b>
-					...
-				{elseif $k == 'due_date'}
-					<b>{$translate->_('task.due_date')|capitalize}:</b>
-					<abbr title="{$task->due_date|devblocks_date}" style="{if !$task->is_completed && $task->due_date < time()}font-weight:bold;color:rgb(150,0,0);{/if}">{$task->due_date|devblocks_prettytime}</abbr>
-				{else}
-					{include file="devblocks:cerberusweb.core::internal/custom_fields/profile_cell_renderer.tpl"}
-				{/if}
-			</div>
-			{if $smarty.foreach.props.iteration % 3 == 0 && !$smarty.foreach.props.last}
-				<br clear="all">
-			{/if}
-		{/foreach}
-		<br clear="all">
 		
 		<!-- Toolbar -->
-
 		<span>
 		{$object_watchers = DAO_ContextLink::getContextLinks($page_context, array($page_context_id), CerberusContexts::CONTEXT_WORKER)}
 		{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$page_context context_id=$page_context_id full=true}
@@ -52,13 +51,7 @@
 		<!-- Edit -->
 		<button type="button" id="btnDisplayTaskEdit"><span class="cerb-sprite sprite-document_edit"></span> Edit</button>
 
-		{$toolbar_extensions = DevblocksPlatform::getExtensions('cerberusweb.task.toolbaritem',true)}
-		{foreach from=$toolbar_extensions item=toolbar_extension}
-			{$toolbar_extension->render($task)}
-		{/foreach}
-		
 		<button type="button" title="{$translate->_('display.shortcut.refresh')}" onclick="document.location='{devblocks_url}c=profiles&type=task&id={$page_context_id}-{$task->title|devblocks_permalink}{/devblocks_url}';">&nbsp;<span class="cerb-sprite sprite-refresh"></span>&nbsp;</button>
-	
 	</form>
 	
 	{if $pref_keyboard_shortcuts}
@@ -167,3 +160,12 @@ $(document).keypress(function(event) {
 });
 {/if}
 </script>
+
+{$profile_scripts = Extension_ContextProfileScript::getExtensions(true, $page_context)}
+{if !empty($profile_scripts)}
+{foreach from=$profile_scripts item=renderer}
+	{if method_exists($renderer,'renderScript')}
+		{$renderer->renderScript($page_context, $page_context_id)}
+	{/if}
+{/foreach}
+{/if}
