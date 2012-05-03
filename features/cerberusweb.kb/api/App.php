@@ -726,15 +726,17 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 	function getArticleContentAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
 
+		$tpl = DevblocksPlatform::getTemplateService();
+		
 		// [TODO] ACL
 		// [TODO] Fetch article content from storage
 		
 		if(null == ($article = DAO_KbArticle::get($id)))
 			return;
 
-		echo "<style>BODY { font-family: Arial, Verdana, sans-serif, Helvetica; font-size: 11pt; } </style>";
-			
-		echo $article->getContent();
+		$tpl->assign('body', $article->getContent());
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/html_editor/preview.tpl');		
 	}
 };
 
