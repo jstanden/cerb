@@ -187,7 +187,8 @@ button {
 	cursor:pointer;
 	
 	color:rgb(50,50,50);
-	border:1px solid rgb(185,185,185);
+	border:0;
+	/*border:1px solid rgb(185,185,185);*/
 	
 	margin-right:1px;
 	vertical-align:middle;
@@ -195,11 +196,12 @@ button {
 	-webkit-border-radius: 5px;
 	border-radius: 5px;
 	
-	padding:3px 5px;
+	padding:5px;
 	margin:0px;
 }
 
 button:hover {
+	background:none;
 	background-color:rgb(160,198,254);
 	background: linear-gradient(top, rgb(238,242,245), rgb(160,198,254));
 	background: -webkit-gradient(linear, left top, left bottom, from(rgb(238,242,245)), to(rgb(160,198,254)));
@@ -207,8 +209,16 @@ button:hover {
 	background: -o-linear-gradient(top, rgb(238,242,245), rgb(160,198,254));
 	background: -ms-linear-gradient(top, rgb(238,242,245), rgb(160,198,254));
 	cursor:pointer;
-	
-	border:1px solid rgb(130,165,226);
+}
+
+button.toolbar-item {
+	background:none;
+	background-color:rgb(235,235,235);
+}
+
+button.toolbar-item:hover {
+	background:none;
+	background-color:rgb(212,222,234);
 }
 
 button.green {
@@ -221,7 +231,7 @@ button.green {
 	cursor:pointer;
 	
 	color:rgb(64,106,36);
-	border:1px solid rgb(140,179,50);
+	/*border:1px solid rgb(140,179,50);*/
 }
 
 button.green:hover {
@@ -235,7 +245,7 @@ button.green:hover {
 	background: -o-linear-gradient(top, rgb(238,242,245), rgb(160,198,254));
 	background: -ms-linear-gradient(top, rgb(238,242,245), rgb(160,198,254));
 	
-	border-color:rgb(130,165,226);
+	/*border-color:rgb(130,165,226);*/
 }
 
 button.red {
@@ -246,7 +256,7 @@ button.red {
 	background: -o-linear-gradient(top, rgb(250,125,125), rgb(195,45,45));
 	background: -ms-linear-gradient(top, rgb(250,125,125), rgb(195,45,45));
 	cursor:pointer;
-	border:1px solid rgb(170,0,0);
+	/*border:1px solid rgb(170,0,0);*/
 	
 	color:rgb(255,255,255);
 }
@@ -258,7 +268,7 @@ button.red:hover {
 	background: -moz-linear-gradient(top, rgb(250,125,125), rgb(145,15,15));
 	background: -o-linear-gradient(top, rgb(250,125,125), rgb(145,15,15));
 	background: -ms-linear-gradient(top, rgb(250,125,125), rgb(145,15,15));
-	border:1px solid rgb(100,5,5);
+	/*border:1px solid rgb(100,5,5);*/
 }
 
 button span {
@@ -278,11 +288,11 @@ button.split-right {
 	-webkit-border-radius: 0px 5px 5px 0px;
 	border-radius: 0px 5px 5px 0px;
 
-	padding:3px 2px;
+	padding:5px 2px;
 	
 	background:none;
 	border-color: rgb(150,150,150);
-	border-left:1px solid rgb(150,150,150);
+	/*border-left:1px solid rgb(150,150,150);*/
 	background-color:rgb(175,175,175);
 	background: linear-gradient(top, rgb(180,180,180), rgb(125,125,125));
 	background: -webkit-gradient(linear, left top, left bottom, from(rgb(180,180,180)), to(rgb(125,125,125)));
@@ -298,6 +308,26 @@ button.split-right:hover {
 }
 
 /* Menu */
+
+#badgeNotifications {
+	display:none;
+	padding:3px 5px 3px 5px;
+	background-color:rgb(200,0,0);
+	
+	border-radius: 5px;	
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+}
+
+#badgeNotifications A {
+	color:rgb(255,255,255);
+	text-decoration:none;
+	font-weight:bold;
+}
+
+#badgeNotifications A:hover {
+	text-decoration:underline;
+}
 
 UL.navmenu {
 	clear:both;
@@ -581,8 +611,9 @@ DIV.message_note {
 	background-image: url(bg_yellow.jpg?v=2011091501);
 	background-position: left top;
 	background-repeat: repeat-x;
-	background-color: rgb(252, 242, 191);
-	border: 2px dotted rgb(255, 193, 0);
+	background-color: rgb(252,242,191);
+	/*border: 1px solid rgb(255,193,0);*/
+	border:0;
 }
 
 DIV.message_note H3 {
@@ -590,12 +621,6 @@ DIV.message_note H3 {
 	font-size: 18px;
 	margin: 0px;
 	color: rgb(102, 102, 102);
-}
-
-DIV.ticket_comment {
-	padding: 5px;
-	background-color: rgb(233, 241, 255);
-	border: 2px dotted rgb(70, 150, 241);
 }
 
 DIV.block {
@@ -661,7 +686,18 @@ DIV.bubble {
 	display:inline-block;
 	color:rgb(50,115,185);
 	background-color:rgb(232,242,254);
-	border:1px solid rgb(197,219,236);	
+	border:1px solid rgb(197,219,236);
+	
+	border-radius: 5px;	
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	
+	background:rgb(255,255,255) none;
+	background: linear-gradient(top, rgb(255,255,255),  rgb(232,242,254));
+	background: -webkit-gradient(linear, left top, left bottom, from(rgb(255,255,255)), to(rgb(232,242,254)));
+	background: -moz-linear-gradient(top, rgb(255,255,255), rgb(232,242,254));
+	background: -o-linear-gradient(top, rgb(255,255,255),  rgb(232,242,254));
+	background: -ms-linear-gradient(top, rgb(255,255,255),  rgb(232,242,254));
 }
 
 DIV.bubble A {
@@ -778,6 +814,38 @@ DIV.badge-green {
 	
 	color:rgb(255,255,255);
 	border:1px solid rgb(0,100,0);
+}
+
+/* Tags */
+
+SPAN.tag {
+	padding:0px 5px;
+	font-weight:bold;
+	vertical-align:top;
+	
+	border-radius: 5px;	
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+}
+
+SPAN.tag.tag-blue {
+	background-color:rgb(71,133,210);
+	color:rgb(255,255,255);	
+}
+
+SPAN.tag.tag-green {
+	background-color:rgb(85,185,75);
+	color:rgb(255,255,255);
+}
+
+SPAN.tag.tag-red {
+	background-color:rgb(185,50,40);
+	color:rgb(255,255,255);
+}
+
+SPAN.tag.tag-orange {
+	background-color:rgb(255,138,0);
+	color:rgb(255,255,255);
 }
 
 /* Property List */
@@ -1076,7 +1144,7 @@ button span.cerb-sprite { display:inline-block; }
 .sprite-warning_gray{ background-position: -150px -583px; width: 16px; height: 16px; } 
 
 .cerb-sprite2 { 
-	background:url(cerb_sprites.png?v=2011092201);
+	background:url(cerb_sprites.png?v=2012050501);
 	background-repeat:no-repeat;
 	background-position:top left;
 	display:inline-block;
@@ -1085,17 +1153,19 @@ button span.cerb-sprite { display:inline-block; }
 button span.cerb-sprite2 { display:inline-block; }
 
 .sprite-cross-circle-frame-gray{ background-position: 0 0; width: 16px; height: 16px; } 
-.sprite-cross-circle-frame{ background-position: 0 -66px; width: 16px; height: 16px; } 
-.sprite-document-search-result{ background-position: 0 -132px; width: 16px; height: 16px; } 
-.sprite-folder-cross-circle{ background-position: 0 -198px; width: 16px; height: 16px; } 
-.sprite-folder-gear{ background-position: 0 -264px; width: 16px; height: 16px; } 
-.sprite-folder-tick-circle{ background-position: 0 -330px; width: 16px; height: 16px; } 
-.sprite-mail-send{ background-position: 0 -396px; width: 16px; height: 16px; } 
-.sprite-minus-circle-frame{ background-position: 0 -462px; width: 16px; height: 16px; } 
-.sprite-plus-circle-frame{ background-position: 0 -528px; width: 16px; height: 16px; } 
-.sprite-tick-circle-frame-gray{ background-position: 0 -594px; width: 16px; height: 16px; } 
-.sprite-tick-circle-frame{ background-position: 0 -660px; width: 16px; height: 16px; } 
-.sprite-user-silhouette{ background-position: 0 -726px; width: 16px; height: 16px; } 
+.sprite-cross-circle-frame{ background-position: 0 -41px; width: 16px; height: 16px; } 
+.sprite-document-search-result{ background-position: 0 -82px; width: 16px; height: 16px; } 
+.sprite-folder-cross-circle{ background-position: 0 -123px; width: 16px; height: 16px; } 
+.sprite-folder-gear{ background-position: 0 -164px; width: 16px; height: 16px; } 
+.sprite-folder-tick-circle{ background-position: 0 -205px; width: 16px; height: 16px; } 
+.sprite-mail-send{ background-position: 0 -246px; width: 16px; height: 16px; } 
+.sprite-minus-circle-frame{ background-position: 0 -287px; width: 16px; height: 16px; } 
+.sprite-plus-circle-frame{ background-position: 0 -328px; width: 16px; height: 16px; } 
+.sprite-tick-circle-frame-gray{ background-position: 0 -369px; width: 16px; height: 16px; } 
+.sprite-tick-circle-frame{ background-position: 0 -410px; width: 16px; height: 16px; } 
+.sprite-ui-tab-content-gear{ background-position: 0 -451px; width: 16px; height: 16px; } 
+.sprite-ui-tab-gear{ background-position: 0 -492px; width: 16px; height: 16px; } 
+.sprite-user-silhouette{ background-position: 0 -533px; width: 16px; height: 16px; } 
 
 span.plugin_icon_overlay_disabled {
 	background:url(plugin_overlay_disabled.png?v=2011051203);

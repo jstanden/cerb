@@ -361,7 +361,7 @@ function genericAjaxPopupPostCloseReloadView($layer, frm, view_id, has_output, $
 		has_output = false;
 
 	if(has_view)
-		$('#view'+view_id).fadeTo("normal", 0.2);
+		$('#view'+view_id).fadeTo("fast", 0.2);
 	
 	genericAjaxPost(frm,view_id,'',
 		function(html) {
@@ -373,7 +373,7 @@ function genericAjaxPopupPostCloseReloadView($layer, frm, view_id, has_output, $
 			}
 
 			if(has_view)
-				$('#view'+view_id).fadeTo("normal", 1.0);
+				$('#view'+view_id).fadeTo("fast", 1.0);
 
 			if(null == $layer) {
 				$popup = genericAjaxPopupFind('#'+frm);
@@ -402,12 +402,12 @@ function genericAjaxGet(divRef,args,cb,options) {
 	
 	if(null == cb) {
 		if(null != div)
-			div.fadeTo("normal", 0.2);
+			div.fadeTo("fast", 0.2);
 		
 		var cb = function(html) {
 			if(null != div) {
 				div.html(html);
-				div.fadeTo("normal", 1.0);
+				div.fadeTo("fast", 1.0);
 				div.trigger('view_refresh');
 			}
 		}
@@ -446,12 +446,12 @@ function genericAjaxPost(formRef,divRef,args,cb,options) {
 	
 	if(null == cb) {
 		if(null != div)
-			$(div).fadeTo("normal", 0.2);
+			$(div).fadeTo("fast", 0.2);
 		
 		var cb = function(html) {
 			if(null != div) {
 				$(div).html(html);
-				$(div).fadeTo("normal", 1.0);
+				$(div).fadeTo("fast", 1.0);
 				$(div).trigger('view_refresh');
 			}
 		};
