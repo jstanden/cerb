@@ -821,32 +821,17 @@ class CerberusContexts {
 		return $workers;
 	}
 	
-//	static public function setWatchers($context, $context_id, $worker_ids) {
-//		if(!is_array($worker_ids))
-//			$worker_ids = array($worker_ids);
-//		
-//		$current_workers = self::getWatchers($context, $context_id);
-//		
-//		// Remove
-//		if(is_array($current_workers))
-//		foreach($current_workers as $current_worker_id => $current_worker) {
-//			if(false === array_search($current_worker_id, $worker_ids))
-//				DAO_ContextLink::deleteLink($context, $context_id, CerberusContexts::CONTEXT_WORKER, $current_worker_id);
-//		}
-//		
-//		// Add
-//		if(is_array($worker_ids))
-//		foreach($worker_ids as $worker_id) {
-//			DAO_ContextLink::setLink($context, $context_id, CerberusContexts::CONTEXT_WORKER, $worker_id);
-//		}
-//	}
-
 	static public function addWatchers($context, $context_id, $worker_ids) {
+		$workers = DAO_Worker::getAll();
+		
 		if(!is_array($worker_ids))
 			$worker_ids = array($worker_ids);
 		
-		foreach($worker_ids as $worker_id)
-			DAO_ContextLink::setLink($context, $context_id, CerberusContexts::CONTEXT_WORKER, $worker_id);
+		foreach($worker_ids as $worker_id) {
+			if(null != ($worker = @$workers[$worker_id]) && $worker instanceof Model_Worker && !$worker->is_disabled) {
+				DAO_ContextLink::setLink($context, $context_id, CerberusContexts::CONTEXT_WORKER, $worker_id);
+			}
+		}
 	}
 	
 	static public function removeWatchers($context, $context_id, $worker_ids) {
