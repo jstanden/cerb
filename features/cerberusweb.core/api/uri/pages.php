@@ -110,9 +110,11 @@ class Page_Custom extends CerberusPageExtension {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		// [TODO] Cache
-		if(null == ($page = DAO_WorkspacePage::get($page_id))) {
+		if(null == ($page = DAO_WorkspacePage::get($page_id)))
 			return;
-		}
+		
+		if(!$page->isReadableByWorker($active_worker))
+			return;
 			
 		$tpl->assign('page', $page);
 		
@@ -125,6 +127,7 @@ class Page_Custom extends CerberusPageExtension {
 		$tabs = $page->getTabs($active_worker);
 		$tpl->assign('page_tabs', $tabs);
 		
+		// Template
 		$tpl->display('devblocks:cerberusweb.core::pages/tabs.tpl');
 	}
 	

@@ -40,6 +40,8 @@
 </div> 
 <br>
 
+{include file="devblocks:cerberusweb.core::internal/whos_online.tpl"}
+
 {$tab_selected_idx=0}
 {foreach from=$tabs item=tab_label name=tabs}
 	{if $tab_label==$selected_tab}{$tab_selected_idx = $smarty.foreach.tabs.index}{/if}
