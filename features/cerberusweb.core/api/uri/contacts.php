@@ -495,7 +495,7 @@ class ChContactsPage extends CerberusPageExtension {
 		$tpl->display('devblocks:cerberusweb.core::contacts/tab_mail_history.tpl');
 		exit;
 	}	
-	
+
 	function findTicketsAction() {
 		@$email = DevblocksPlatform::importGPC($_REQUEST['email'],'string','');
 		@$closed = DevblocksPlatform::importGPC($_REQUEST['closed'],'string','');
@@ -503,9 +503,11 @@ class ChContactsPage extends CerberusPageExtension {
 		if(null == ($address = DAO_Address::lookupAddress($email, false)))
 			return;
 		
-		if(null == ($search_view = C4_AbstractViewLoader::getView(CerberusApplication::VIEW_SEARCH))) {
-			$search_view = View_Ticket::createSearchView();
-		}
+		if(null == ($ticket_context = Extension_DevblocksContext::get(CerberusContexts::CONTEXT_TICKET)))
+			return;
+		
+		if(null == ($search_view = $ticket_context->getSearchView()))
+			return;
 		
 		$search_view->removeAllParams();
 		
@@ -517,9 +519,9 @@ class ChContactsPage extends CerberusPageExtension {
 			
 		$search_view->renderPage = 0;
 		
-		C4_AbstractViewLoader::setView(CerberusApplication::VIEW_SEARCH, $search_view);
+		C4_AbstractViewLoader::setView($search_view->id, $search_view);
 		
-		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','search')));
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('search','ticket')));
 	}
 	
 	function showAddressBatchPanelAction() {
