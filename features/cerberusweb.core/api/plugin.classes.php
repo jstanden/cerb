@@ -209,9 +209,6 @@ class ChPageController extends DevblocksControllerExtension {
 			$tpl->assign('active_worker_notify_count', $unread_notifications);
 			$tpl->display('devblocks:cerberusweb.core::badge_notifications_script.tpl');
 		}
-		
-//		$cache = DevblocksPlatform::getCacheService();
-//		$cache->printStatistics();
 	}
 };
 
