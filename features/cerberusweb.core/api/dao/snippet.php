@@ -661,7 +661,7 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals {
 				$workers = DAO_Worker::getAll();
 				$tpl->assign('workers', $workers);
 				
-				$tpl->display('devblocks:cerberusweb.core::internal/snippets/views/criteria/virtual_owner.tpl');
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context_owner.tpl');
 				break;
 				
 			default:
