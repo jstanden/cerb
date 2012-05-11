@@ -179,7 +179,7 @@ class DAO_Group extends C4_ORMHelper {
 		parent::_update($ids, 'worker_group', $fields);
 
 		// Log the context update
-		DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_GROUP, $id);
+		DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_GROUP, $ids);
 
    		// Clear cache
 		self::clearCache();
