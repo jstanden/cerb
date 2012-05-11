@@ -67,7 +67,7 @@
 	<tbody style="cursor:pointer;">
 		<tr class="{$tableRowClass}">
 			<td align="center" nowrap="nowrap" style="padding:5px;">
-				<button class="add" type="button" page_id="{$result.w_id}" page_label="{$result.w_name|lower}" page_url="{devblocks_url}c=pages&page={$result.w_id}-{$result.w_name|devblocks_permalink}{/devblocks_url}">{if $in_menu}<span class="cerb-sprite2 sprite-minus-circle-frame"></span>{else}<span class="cerb-sprite2 sprite-plus-circle-frame"></span>{/if}</button>				
+				<button class="add" type="button" page_id="{$result.w_id}" page_label="{$result.w_name|lower}" page_url="{devblocks_url}c=pages&page={$result.w_id}-{$result.w_name|devblocks_permalink}{/devblocks_url}">{if $in_menu}<span class="cerb-sprite2 sprite-minus-circle"></span>{else}<span class="cerb-sprite2 sprite-plus-circle"></span>{/if}</button>				
 				<input type="checkbox" name="row_id[]" value="{$result.w_id}" style="display:none;">
 			</td>
 		{foreach from=$view->view_columns item=column name=columns}

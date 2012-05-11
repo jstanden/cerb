@@ -3,7 +3,7 @@
 <input type="hidden" name="a" value="viewDoExport">
 <input type="hidden" name="view_id" value="{$view_id}">
 
-<H3>{$translate->_('common.export')|capitalize}</H3>
+<h1>{$translate->_('common.export')|capitalize}</h1>
 <br>
 
 <b>Columns:</b>

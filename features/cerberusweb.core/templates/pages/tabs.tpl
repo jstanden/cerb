@@ -12,7 +12,7 @@
 
 	<div style="float:right;">
 		{if $page->isReadableByWorker($active_worker)}
-			<button class="add toolbar-item" type="button" page_id="{$page->id}" page_label="{$page->name|lower}" page_url="{devblocks_url}c=pages&page={$page->id}-{$page->name|devblocks_permalink}{/devblocks_url}">{if $in_menu}<span class="cerb-sprite2 sprite-minus-circle-frame"></span>{else}<span class="cerb-sprite2 sprite-plus-circle-frame"></span>{/if} Menu</button>
+			<button class="add toolbar-item" type="button" page_id="{$page->id}" page_label="{$page->name|lower}" page_url="{devblocks_url}c=pages&page={$page->id}-{$page->name|devblocks_permalink}{/devblocks_url}">{if $in_menu}<span class="cerb-sprite2 sprite-minus-circle"></span>{else}<span class="cerb-sprite2 sprite-plus-circle"></span>{/if} Menu</button>
 		{/if}
 	
 		{if $page->isWriteableByWorker($active_worker)}
@@ -102,7 +102,7 @@
 						$(this).remove();
 					});
 					
-					$this.html('<span class="cerb-sprite2 sprite-plus-circle-frame"></span> Menu');
+					$this.html('<span class="cerb-sprite2 sprite-plus-circle"></span> Menu');
 				}
 				
 				genericAjaxGet('', 'c=pages&a=doToggleMenuPageJson&page_id=' + $this.attr('page_id') + '&toggle=0');
@@ -127,7 +127,7 @@
 					$li.css('visibility','visible');
 				});
 				
-				$this.html('<span class="cerb-sprite2 sprite-minus-circle-frame"></span> Menu');
+				$this.html('<span class="cerb-sprite2 sprite-minus-circle"></span> Menu');
 		
 				genericAjaxGet('', 'c=pages&a=doToggleMenuPageJson&page_id=' + $this.attr('page_id') + '&toggle=1');
 			}

@@ -3,9 +3,9 @@
 {$is_current_worker = isset($object_watchers.{$context_id}.{$active_worker->id})}
 <button type="button" class="{if $is_current_worker}{else}green{/if} {if $full}split-left{/if}" onclick="genericAjaxGet($(this).parent(),'c=internal&a=toggleContextWatcher&context={$context}&context_id={$context_id}&follow={if $is_current_worker}0{else}1{/if}&full={if empty($full)}0{else}1{/if}');">
 	{if $is_current_worker}
-	<span class="cerb-sprite2 sprite-minus-circle-frame"></span>
+	<span class="cerb-sprite2 sprite-minus-circle"></span>
 	{else}
-	<span class="cerb-sprite2 sprite-plus-circle-frame"></span>
+	<span class="cerb-sprite2 sprite-plus-circle"></span>
 	{/if}
 	{if $full}
 		{if $is_current_worker}Stop watching{else}Start watching{/if} 

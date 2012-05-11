@@ -4,7 +4,7 @@
 <input type="hidden" name="source" value="{$source}">
 <input type="hidden" name="view_id" value="{$view_id}">
 
-<H3>Create RSS Feed</H3>
+<H1>Create RSS Feed</H1>
 <br>
 
 <b>Feed Title:</b><br>
