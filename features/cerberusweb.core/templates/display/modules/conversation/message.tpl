@@ -65,7 +65,7 @@
       {if isset($headers.cc)}<b>{$translate->_('message.header.cc')|capitalize}:</b> {$headers.cc|escape|nl2br nofilter}<br>{/if}
       {if isset($headers.bcc)}<b>{$translate->_('message.header.bcc')|capitalize}:</b> {$headers.bcc|escape|nl2br nofilter}<br>{/if}      
       {if isset($headers.subject)}<b>{$translate->_('message.header.subject')|capitalize}:</b> {$headers.subject|escape|nl2br nofilter}<br>{/if}
-      {if isset($headers.date)}<b>{$translate->_('message.header.date')|capitalize}:</b> {$headers.date|escape|nl2br nofilter} (<abbr title="{$message->created_date|devblocks_date}">{$message->created_date|devblocks_prettytime}</abbr>)<br>{/if}
+      {if isset($headers.date)}<b>{$translate->_('message.header.date')|capitalize}:</b> {$message->created_date|devblocks_date} (<abbr title="{$headers.date}">{$message->created_date|devblocks_prettytime}</abbr>)<br>{/if}
       </div>
 
 	  <div id="{$message->id}h" style="display:none;">      
