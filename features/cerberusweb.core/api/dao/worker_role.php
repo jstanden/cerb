@@ -142,10 +142,7 @@ class DAO_WorkerRole extends DevblocksORMHelper {
 	 * @param integer $id
 	 * @return Model_WorkerRole	 */
 	static function get($id) {
-		$objects = self::getWhere(sprintf("%s = %d",
-			self::ID,
-			$id
-		));
+		$objects = DAO_WorkerRole::getAll();
 		
 		if(isset($objects[$id]))
 			return $objects[$id];
