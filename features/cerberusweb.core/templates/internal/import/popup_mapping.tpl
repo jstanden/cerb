@@ -6,13 +6,13 @@
 <input type="hidden" name="view_id" value="{$view_id}">
 
 <fieldset>
-	<legend>Map File to Fields</legend>
+	<legend>Associate Fields with Import Columns</legend>
 
 	<table cellpadding="2" cellspacing="0" border="0">
 	<tr>
 		<td><b>Match</b></td>
 		<td style="padding-left:10px;"><b>Field</b></td>
-		<td style="padding-left:10px;"><b>Set value</b></td>
+		<td style="padding-left:10px;"><b>Set value from file column</b></td>
 	</tr>
 	{foreach from=$keys item=key key=token}
 	<tr>

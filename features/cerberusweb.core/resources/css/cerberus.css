@@ -1148,7 +1148,7 @@ button span.cerb-sprite { display:inline-block; }
 .sprite-warning_gray{ background-position: -150px -583px; width: 16px; height: 16px; } 
 
 .cerb-sprite2 { 
-	background:url(cerb_sprites.png?v=2012050501);
+	background:url(cerb_sprites.png?v=2012051103);
 	background-repeat:no-repeat;
 	background-position:top left;
 	display:inline-block;
@@ -1156,20 +1156,33 @@ button span.cerb-sprite { display:inline-block; }
 }
 button span.cerb-sprite2 { display:inline-block; }
 
-.sprite-cross-circle-frame-gray{ background-position: 0 0; width: 16px; height: 16px; } 
-.sprite-cross-circle-frame{ background-position: 0 -41px; width: 16px; height: 16px; } 
-.sprite-document-search-result{ background-position: 0 -82px; width: 16px; height: 16px; } 
-.sprite-folder-cross-circle{ background-position: 0 -123px; width: 16px; height: 16px; } 
-.sprite-folder-gear{ background-position: 0 -164px; width: 16px; height: 16px; } 
-.sprite-folder-tick-circle{ background-position: 0 -205px; width: 16px; height: 16px; } 
-.sprite-mail-send{ background-position: 0 -246px; width: 16px; height: 16px; } 
-.sprite-minus-circle-frame{ background-position: 0 -287px; width: 16px; height: 16px; } 
-.sprite-plus-circle-frame{ background-position: 0 -328px; width: 16px; height: 16px; } 
-.sprite-tick-circle-frame-gray{ background-position: 0 -369px; width: 16px; height: 16px; } 
-.sprite-tick-circle-frame{ background-position: 0 -410px; width: 16px; height: 16px; } 
-.sprite-ui-tab-content-gear{ background-position: 0 -451px; width: 16px; height: 16px; } 
-.sprite-ui-tab-gear{ background-position: 0 -492px; width: 16px; height: 16px; } 
-.sprite-user-silhouette{ background-position: 0 -533px; width: 16px; height: 16px; } 
+.sprite-application-export{ background-position: 0 0; width: 16px; height: 16px; } 
+.sprite-application-import{ background-position: 0 -41px; width: 16px; height: 16px; } 
+.sprite-application-sidebar-list{ background-position: 0 -82px; width: 16px; height: 16px; } 
+.sprite-application-sidebar{ background-position: 0 -123px; width: 16px; height: 16px; } 
+.sprite-applications{ background-position: 0 -164px; width: 16px; height: 16px; } 
+.sprite-arrow-circle-135-left{ background-position: 0 -205px; width: 16px; height: 16px; } 
+.sprite-cross-circle-frame-gray{ background-position: 0 -246px; width: 16px; height: 16px; } 
+.sprite-cross-circle-frame{ background-position: 0 -287px; width: 16px; height: 16px; } 
+.sprite-cross-circle{ background-position: 0 -328px; width: 16px; height: 16px; } 
+.sprite-document-search-result{ background-position: 0 -369px; width: 16px; height: 16px; } 
+.sprite-folder-cross-circle{ background-position: 0 -410px; width: 16px; height: 16px; } 
+.sprite-folder-gear{ background-position: 0 -451px; width: 16px; height: 16px; } 
+.sprite-folder-tick-circle{ background-position: 0 -492px; width: 16px; height: 16px; } 
+.sprite-gear{ background-position: 0 -533px; width: 16px; height: 16px; } 
+.sprite-layout-select-sidebar{ background-position: 0 -574px; width: 16px; height: 16px; } 
+.sprite-mail-send{ background-position: 0 -615px; width: 16px; height: 16px; } 
+.sprite-minus-circle-frame{ background-position: 0 -656px; width: 16px; height: 16px; } 
+.sprite-minus-circle{ background-position: 0 -697px; width: 16px; height: 16px; } 
+.sprite-plus-circle-frame{ background-position: 0 -738px; width: 16px; height: 16px; } 
+.sprite-plus-circle{ background-position: 0 -779px; width: 16px; height: 16px; } 
+.sprite-sort-price{ background-position: 0 -820px; width: 16px; height: 16px; } 
+.sprite-tick-circle-frame-gray{ background-position: 0 -861px; width: 16px; height: 16px; } 
+.sprite-tick-circle-frame{ background-position: 0 -902px; width: 16px; height: 16px; } 
+.sprite-tick-circle{ background-position: 0 -943px; width: 16px; height: 16px; } 
+.sprite-ui-tab-content-gear{ background-position: 0 -984px; width: 16px; height: 16px; } 
+.sprite-ui-tab-gear{ background-position: 0 -1025px; width: 16px; height: 16px; } 
+.sprite-user-silhouette{ background-position: 0 -1066px; width: 16px; height: 16px; } 
 
 span.plugin_icon_overlay_disabled {
 	background:url(plugin_overlay_disabled.png?v=2011051203);
