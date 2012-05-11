@@ -783,7 +783,7 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 		DAO_CustomFieldValue::deleteByContextIds($context, $context_ids);
 		DAO_Notification::deleteByContext($context, $context_ids);
 		DAO_TriggerEvent::deleteByOwner($context, $context_ids);
-		DAO_Workspace::deleteByOwner($context, $context_ids);
+		DAO_WorkspacePage::deleteByOwner($context, $context_ids);
 	}
 	
 	private function _handleContextMaint($event) {
@@ -961,7 +961,8 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 		DAO_ContactPerson::maint();
 		DAO_OpenIdToContactPerson::maint();
 		DAO_Attachment::maint();
-		DAO_Workspace::maint();
+		DAO_WorkspacePage::maint();
+		DAO_WorkspaceTab::maint();
 	}
 	
 	private function _handleCronHeartbeat($event) {

@@ -86,9 +86,6 @@ class ChPageController extends DevblocksControllerExtension {
 	
 	public function writeResponse(DevblocksHttpResponse $response) {
 	    $path = $response->path;
-		// [JAS]: Ajax? // [TODO] Explore outputting whitespace here for Safari
-//	    if(empty($path))
-//			return;
 
 		$tpl = DevblocksPlatform::getTemplateService();
 		$session = DevblocksPlatform::getSessionService();
@@ -101,10 +98,23 @@ class ChPageController extends DevblocksControllerExtension {
 
 		$controller = array_shift($path);
 
-		// Default page [TODO] This is supposed to come from framework.config.php
+		// Default page
 		if(empty($controller)) {
-			if(is_a($active_worker,'Model_Worker')) {
-				$controller = 'profiles';
+			if(is_a($active_worker, 'Model_Worker')) {
+				$controller = 'pages';
+				$path = array('pages');				
+				
+				// Find the worker's first page
+				if(null != ($menu_json = DAO_WorkerPref::get($active_worker->id, 'menu_json', null))) {
+					@$menu = json_decode($menu_json);
+
+					if(is_array($menu))
+						$path[] = current($menu);
+				}
+				
+				$response = new DevblocksHttpResponse($path);
+				
+				DevblocksPlatform::setHttpResponse($response);
 			}
 		}
 		
@@ -168,6 +178,7 @@ class ChPageController extends DevblocksControllerExtension {
 		$tpl->assign('page_manifests',$page_manifests);		
 		$tpl->assign('page',$page);
 
+		$tpl->assign('response_path', $response->path);
 		$tpl->assign('response_uri', implode('/', $response->path));
 		
 		// Prebody Renderers

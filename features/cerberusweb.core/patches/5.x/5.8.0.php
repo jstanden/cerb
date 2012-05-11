@@ -554,4 +554,138 @@ if(isset($columns['setting'])) {
 	$db->Execute("ALTER TABLE worker_pref MODIFY COLUMN setting VARCHAR(255) NOT NULL DEFAULT ''");
 }
 
+// ===========================================================================
+// Create workspace_page
+
+if(!isset($tables['workspace_page'])) {
+	$sql = sprintf("CREATE TABLE IF NOT EXISTS workspace_page (
+		id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+		name VARCHAR(255) NOT NULL DEFAULT '',
+		owner_context VARCHAR(255) NOT NULL DEFAULT '',
+		owner_context_id INT UNSIGNED NOT NULL DEFAULT 0,
+		PRIMARY KEY (id),
+		INDEX owner (owner_context, owner_context_id)
+	) ENGINE=%s", APP_DB_ENGINE);
+
+	if(false === $db->Execute($sql))
+		return FALSE;
+
+	$tables['workspace_page'] = 'workspace_page';
+}
+
+// ===========================================================================
+// Change workspace to workspace_tab
+
+if(!isset($tables['workspace']) && !isset($tables['workspace_tab'])) {
+	$logger->error("The 'workspace' table does not exist.");
+	return FALSE;
+}
+
+if(isset($tables['workspace']) && !isset($tables['workspace_tab'])) {
+	$db->Execute("RENAME TABLE workspace TO workspace_tab");
+	
+	list($columns, $indexes) = $db->metaTable('workspace_tab');
+	
+	// workspace_tab.workspace_page_id
+	if(!isset($columns['workspace_page_id'])) {
+		$db->Execute("ALTER TABLE workspace_tab ADD COLUMN workspace_page_id INT UNSIGNED NOT NULL DEFAULT 0");
+	}
+	
+	// workspace_tab.pos
+	if(!isset($columns['pos'])) {
+		$db->Execute("ALTER TABLE workspace_tab ADD COLUMN pos TINYINT UNSIGNED NOT NULL DEFAULT 0");
+	}
+	
+	// migrate workspace_tab.owner_context to workspace_page.owner_context 
+	if(isset($columns['owner_context'])) {
+		// Roles
+		
+		$rs = $db->Execute("SELECT DISTINCT worker_role.name AS name, workspace_tab.owner_context, workspace_tab.owner_context_id FROM workspace_tab inner join worker_role ON (workspace_tab.owner_context = 'cerberusweb.contexts.role' and worker_role.id=workspace_tab.owner_context_id)");
+		
+		while($row = mysql_fetch_assoc($rs)) {
+			$db->Execute(sprintf("INSERT INTO workspace_page (name, owner_context, owner_context_id) VALUES (%s, %s, %d)",
+				$db->qstr($row['name']),
+				$db->qstr($row['owner_context']),
+				$row['owner_context_id']
+			));
+			$workspace_page_id = $db->LastInsertId();
+			
+			$db->Execute(sprintf("UPDATE workspace_tab SET workspace_page_id = %d WHERE owner_context = %s AND owner_context_id = %d",
+				$workspace_page_id,
+				$db->qstr($row['owner_context']),
+				$row['owner_context_id']
+			));
+		}
+		
+		mysql_free_result($rs);
+
+		// Groups
+		
+		$rs = $db->Execute("SELECT DISTINCT worker_group.name AS name, workspace_tab.owner_context, workspace_tab.owner_context_id FROM workspace_tab inner join worker_group ON (workspace_tab.owner_context = 'cerberusweb.contexts.group' and worker_group.id=workspace_tab.owner_context_id)");
+		
+		while($row = mysql_fetch_assoc($rs)) {
+			$db->Execute(sprintf("INSERT INTO workspace_page (name, owner_context, owner_context_id) VALUES (%s, %s, %d)",
+				$db->qstr($row['name']),
+				$db->qstr($row['owner_context']),
+				$row['owner_context_id']
+			));
+			$workspace_page_id = $db->LastInsertId();
+
+			$db->Execute(sprintf("UPDATE workspace_tab SET workspace_page_id = %d WHERE owner_context = %s AND owner_context_id = %d",
+				$workspace_page_id,
+				$db->qstr($row['owner_context']),
+				$row['owner_context_id']
+			));
+		}
+		
+		mysql_free_result($rs);
+		
+		// Workers
+		
+		$rs = $db->Execute("SELECT DISTINCT concat(worker.first_name,' ',worker.last_name) AS name, workspace_tab.owner_context, workspace_tab.owner_context_id FROM workspace_tab inner join worker ON (workspace_tab.owner_context = 'cerberusweb.contexts.worker' and worker.id=workspace_tab.owner_context_id)");
+		
+		while($row = mysql_fetch_assoc($rs)) {
+			$db->Execute(sprintf("INSERT INTO workspace_page (name, owner_context, owner_context_id) VALUES (%s, %s, %d)",
+				$db->qstr($row['name']),
+				$db->qstr($row['owner_context']),
+				$row['owner_context_id']
+			));
+			$workspace_page_id = $db->LastInsertId();
+			
+			$db->Execute(sprintf("UPDATE workspace_tab SET workspace_page_id = %d WHERE owner_context = %s AND owner_context_id = %d",
+				$workspace_page_id,
+				$db->qstr($row['owner_context']),
+				$row['owner_context_id']
+			));
+		}
+		
+		mysql_free_result($rs);
+		
+		// Drop owner cols
+		$db->Execute("ALTER TABLE workspace_tab DROP COLUMN owner_context, DROP COLUMN owner_context_id");
+	}
+}
+
+// ===========================================================================
+// Change workspace_list.workspace_id to workspace_list.workspace_tab_id
+
+if(!isset($tables['workspace_list'])) {
+	$logger->error("The 'workspace_list' table does not exist.");
+	return FALSE;
+}
+
+list($columns, $indexes) = $db->metaTable('workspace_list');
+
+if(isset($columns['workspace_id'])) {
+	$db->Execute("ALTER TABLE workspace_list CHANGE COLUMN workspace_id workspace_tab_id INT UNSIGNED NOT NULL DEFAULT 0");
+}
+
+// ===========================================================================
+// Drop workspace_to_endpoint
+
+if(isset($tables['workspace_to_endpoint'])) {
+	$db->Execute("DROP TABLE workspace_to_endpoint");
+	unset($tables['workspace_to_endpoint']);
+}
+
 return TRUE;

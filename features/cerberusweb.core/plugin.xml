@@ -44,7 +44,7 @@
 		<patch version="5.6.1" revision="961" file="patches/5.x/5.6.1.php" />
 		<patch version="5.6.2" revision="965" file="patches/5.x/5.6.2.php" />
 		<patch version="5.7.0" revision="973" file="patches/5.x/5.7.0.php" />
-		<patch version="5.8.0" revision="986" file="patches/5.x/5.8.0.php" />
+		<patch version="5.8.0" revision="987" file="patches/5.x/5.8.0.php" />
 	</patches>
 
 	<!-- Declared Extension Points -->
@@ -339,13 +339,16 @@
 		</file>
 		
 		<file path="api/dao/workspace.php">
-			<class name="DAO_Workspace" />
 			<class name="DAO_WorkspaceList" />
-			<class name="Model_Workspace" />
+			<class name="DAO_WorkspacePage" />
+			<class name="DAO_WorkspaceTab" />
 			<class name="Model_WorkspaceList" />
 			<class name="Model_WorkspaceListView" />
-			<class name="SearchFields_Workspace" />
-			<class name="View_Workspace" />
+			<class name="Model_WorkspacePage" />
+			<class name="Model_WorkspaceTab" />
+			<class name="SearchFields_WorkspacePage" />
+			<class name="SearchFields_WorkspaceTab" />
+			<class name="View_WorkspacePage" />
 		</file>
 		
 		<file path="api/events/abstract/abstract_event_address.php">
@@ -1491,10 +1494,17 @@
 				<param key="menutitle" value="" />
 			</params>
 		</extension>
+		
 		<extension point="cerberusweb.page">
+			<id>core.page.pages</id>
+			<name>Custom Pages</name>
 			<class>
+				<file>api/uri/pages.php</file>
+				<name>Page_Custom</name>
 			</class>
 			<params>
+				<param key="uri" value="pages" />
+				<param key="menutitle" value="" />
 			</params>
 		</extension>
 

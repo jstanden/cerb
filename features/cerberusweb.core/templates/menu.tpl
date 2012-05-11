@@ -2,16 +2,25 @@
 <div id="tourHeaderMenu"></div>
 
 <ul class="navmenu">
-	{foreach from=$page_manifests item=m}
-		{if !empty($m->params.menutitle)}
-			<li class="{if $page->id==$m->id || ($page->id=='core.page.display'&&$m->id=='core.page.tickets')}selected{/if}">
-				<a href="{devblocks_url}c={$m->params.uri}{/devblocks_url}">{$translate->_($m->params.menutitle)|lower}</a>				
-			</li>
+	{* [TODO] Cache!! *}
+	{$workspace_pages = DAO_WorkspacePage::getWhere()}
+
+	{$menu_json = DAO_WorkerPref::get($active_worker->id, 'menu_json','')}
+	{$menu = json_decode($menu_json, true)}
+	
+	{if is_array($menu) && !empty($menu)}
+	{foreach from=$menu item=workspace_page_id}
+		{$workspace_page = $workspace_pages.$workspace_page_id}
+		{if $workspace_page && $workspace_page->isReadableByWorker($active_worker)}
+		<li class="{if $page->id=='core.page.pages' && isset($response_path[1]) && intval($response_path[1])==$workspace_page->id}selected{/if} drag" page_id="{$workspace_page->id}">
+			<a href="{devblocks_url}c=pages&page={$workspace_page->id}-{$workspace_page->name|devblocks_permalink}{/devblocks_url}">{$workspace_page->name|lower}</a>
+		</li>
 		{/if}
 	{/foreach}
+	{/if}
 	
-	<li style="border-right:0;">
-		<a href="javascript:;" style="font-weight:normal;text-decoration:none;"><span class="cerb-sprite {if $page->id=='core.page.pages'}sprite-arrow-down-white{else}sprite-arrow-down-black{/if}" style="height:12px;width:12px;"></span></a>
+	<li style="border-right:0;" class="add {if $page->id=='core.page.pages' && count($response_path)==1}selected{/if}">
+		<a href="{devblocks_url}c=pages{/devblocks_url}" style="font-weight:normal;text-decoration:none;">{if $page->id=='core.page.pages' && count($response_path)==1}<span class="cerb-sprite sprite-arrow-down-white" style="height:12px;width:12px;"></span>{else}<span class="cerb-sprite sprite-arrow-down-black" style="height:12px;width:12px;"></span>{/if}</a>
 	</li>
 	
 	{if $active_worker->is_superuser}
@@ -40,7 +49,21 @@
 <div style="clear:both;background-color:rgb(100,135,225);height:5px;"></div>
 
 <script type="text/javascript">
-	$('UL.navmenu > LI A.submenu')
+	$menu = $('UL.navmenu');
+
+	$menu.sortable({
+		items:'> li.drag',
+		update:function(e) {
+			$pages = $(this).find('li.drag[page_id=*]');
+			page_ids = $pages.map(function(e) {
+				return $(this).attr('page_id');
+			}).get().join(',');
+
+			genericAjaxGet('', 'c=pages&a=setPageOrder&pages=' + page_ids);
+		}
+	});
+	
+	$menu.find('> LI A.submenu')
 		.closest('li')
 		.hoverIntent({
 			sensitivity:10,

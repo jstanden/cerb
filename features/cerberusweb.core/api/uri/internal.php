@@ -1613,10 +1613,13 @@ class ChInternalController extends DevblocksControllerExtension {
 				if(null == ($worklist = DAO_WorkspaceList::get($worklist_id)))
 					throw new Exception("Can't load worklist.");
 				
-				if(null == ($workspace = DAO_Workspace::get($worklist->workspace_id)))
-					throw new Exception("Can't load workspace.");
+				if(null == ($workspace_tab = DAO_WorkspaceTab::get($worklist->workspace_tab_id)))
+					throw new Exception("Can't load workspace tab.");
 				
-				if(!$workspace->isWriteableByWorker($active_worker)) {
+				if(null == ($workspace_page = DAO_WorkspacePage::get($workspace_tab->workspace_page_id)))
+					throw new Exception("Can't load workspace page.");
+				
+				if(!$workspace_page->isWriteableByWorker($active_worker)) {
 					$tpl->display('devblocks:cerberusweb.core::internal/workspaces/customize_no_acl.tpl');
 					return;
 				}
@@ -1879,10 +1882,13 @@ class ChInternalController extends DevblocksControllerExtension {
 				if(null == ($list_model = DAO_WorkspaceList::get($list_view_id)))
 					throw new Exception("Can't load worklist.");
 				
-				if(null == ($workspace = DAO_Workspace::get($list_model->workspace_id)))
-					throw new Exception("Can't load workspace.");
+				if(null == ($workspace_tab = DAO_WorkspaceTab::get($list_model->workspace_tab_id)))
+					throw new Exception("Can't load workspace tab.");
 				
-				if(!$workspace->isWriteableByWorker($active_worker)) {
+				if(null == ($workspace_page = DAO_WorkspacePage::get($workspace_tab->workspace_page_id)))
+					throw new Exception("Can't load workspace page.");
+				
+				if(!$workspace_page->isWriteableByWorker($active_worker)) {
 					throw new Exception("Permission denied to edit workspace.");
 				}
 				
@@ -1976,62 +1982,8 @@ class ChInternalController extends DevblocksControllerExtension {
 
 	// Workspace
 
-	function showAddTabAction() {
-		@$point = DevblocksPlatform::importGPC($_REQUEST['point'],'string', '');
-
-		$tpl = DevblocksPlatform::getTemplateService();
-		$active_worker = CerberusApplication::getActiveWorker();
-
-		// Groups
-		$tpl->assign('groups', DAO_Group::getAll());
-		
-		// Roles
-		$tpl->assign('roles', DAO_WorkerRole::getAll());
-		
-		// Workers
-		$tpl->assign('workers', DAO_Worker::getAll());
-		
-		// Endpoint
-		$tpl->assign('point', $point);
-
-		// Workspaces
-		$enabled_workspaces = DAO_Workspace::getByEndpoint($point, $active_worker);
-		$available_workspaces = DAO_Workspace::getByWorker($active_worker);
-		$workspaces = $enabled_workspaces + array_diff_key($available_workspaces, $enabled_workspaces);
-
-		$tpl->assign('enabled_workspaces', $enabled_workspaces);
-		$tpl->assign('workspaces', $workspaces);
-
-		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/tab.tpl');
-	}
-
-	function doAddTabAction() {
-		@$point = DevblocksPlatform::importGPC($_REQUEST['point'],'string', '');
-		@$workspace_ids = DevblocksPlatform::importGPC($_REQUEST['workspace_ids'],'array', array());
-		@$new_workspace = DevblocksPlatform::importGPC($_REQUEST['new_workspace'],'string', '');
-		@$point = DevblocksPlatform::importGPC($_REQUEST['point'],'string', '');
-
-		$active_worker = CerberusApplication::getActiveWorker();
-		$visit = CerberusApplication::getVisit();
-		$is_focused_tab = false;
-
-		// Are we adding any new workspaces?
-		foreach($workspace_ids as $idx => $workspace_id) {
-			// Only focus the first new tab we add
-			if(!empty($point) && !$is_focused_tab) {
-				$visit->set($point, 'w_' . $workspace_id);
-				$is_focused_tab = true;
-			}
-		}
-
-		// Replace links for this endpoint
-		DAO_Workspace::setEndpointWorkspaces($point, $active_worker->id, $workspace_ids);
-		
-		exit;
-	}
-
 	function showWorkspaceTabAction() {
-		@$workspace_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer', 0);
+		@$tab_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer', 0);
 		@$point = DevblocksPlatform::importGPC($_REQUEST['point'],'string', '');
 		@$request = DevblocksPlatform::importGPC($_REQUEST['request'],'string', '');
 
@@ -2039,17 +1991,21 @@ class ChInternalController extends DevblocksControllerExtension {
 		$active_worker = CerberusApplication::getActiveWorker();
 
 		$visit = CerberusApplication::getVisit();
-		$visit->set($point, 'w_'.$workspace_id);
+		$visit->set($point, 'w_'.$tab_id);
 
-		if(null == ($workspace = DAO_Workspace::get($workspace_id))
-			|| !$workspace->isReadableByWorker($active_worker)
+		if(null == ($tab = DAO_WorkspaceTab::get($tab_id)))
+			return;
+		
+		if(null == ($page = DAO_WorkspacePage::get($tab->workspace_page_id))
+			|| !$page->isReadableByWorker($active_worker)
 			)
 			return;
 
-		$tpl->assign('workspace', $workspace);
+		$tpl->assign('page', $page);
+		$tpl->assign('tab', $tab);
 		$tpl->assign('request', $request);
 		
-		$lists = $workspace->getWorklists();
+		$lists = $tab->getWorklists();
 		$list_ids = array_keys($lists);
 		unset($lists);
 		
@@ -2066,7 +2022,7 @@ class ChInternalController extends DevblocksControllerExtension {
 			new Model_Activity(
 				'activity.mail.workspaces',
 				array(
-					'<i>'.$workspace->name.'</i>'
+					'<i>'.$page->name.'</i>'
 				)
 			)
 		);
@@ -2084,8 +2040,11 @@ class ChInternalController extends DevblocksControllerExtension {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$active_worker = CerberusApplication::getActiveWorker();
 
-		if(null == ($workspace = DAO_Workspace::get($list->workspace_id))
-			|| !$workspace->isReadableByWorker($active_worker)
+		if(null == ($tab = DAO_WorkspaceTab::get($list->workspace_tab_id)))
+			return;
+		
+		if(null == ($page = DAO_WorkspacePage::get($tab->workspace_page_id))
+			|| !$page->isReadableByWorker($active_worker)
 			)
 			return;			
 		
@@ -2146,23 +2105,26 @@ class ChInternalController extends DevblocksControllerExtension {
 		unset($view_id);
 	}
 	
-	function showEditWorkspacePanelAction() {
+	function showEditWorkspacePageAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer', 0);
 
 		$tpl = DevblocksPlatform::getTemplateService();
 		$active_worker = CerberusApplication::getActiveWorker();
 
-		if(!empty($id)) { // Edit
-			// Workspace
-			if(null == ($workspace = DAO_Workspace::get($id)))
+		if(!empty($id)) {
+		
+			if(null == ($page = DAO_WorkspacePage::get($id)))
 				return;
 	
-			$tpl->assign('workspace', $workspace);
+			if(!$page->isWriteableByWorker($active_worker))
+				return;
 			
-			// Worklist
-			$worklists = $workspace->getWorklists();
-			$tpl->assign('worklists', $worklists);
+			$tpl->assign('workspace_page', $page);
 		}
+
+		// Owners
+		$roles = DAO_WorkerRole::getAll();
+		$tpl->assign('roles', $roles);
 		
 		$workers = DAO_Worker::getAll();
 		$tpl->assign('workers', $workers);
@@ -2170,100 +2132,160 @@ class ChInternalController extends DevblocksControllerExtension {
 		$groups = DAO_Group::getAll();
 		$tpl->assign('groups', $groups);
 
-		$roles = DAO_WorkerRole::getAll();
-		$tpl->assign('roles', $roles);
-		
-		$owner_groups = $groups;
+		$owner_groups = array();
 		foreach($groups as $k => $v) {
 			if($active_worker->is_superuser || $active_worker->isGroupManager($k))
 				$owner_groups[$k] = $v;
 		}
 		$tpl->assign('owner_groups', $owner_groups);
 		
-		if($active_worker->is_superuser) {
-			$tpl->assign('owner_roles', $roles);
+		$owner_roles = array();
+		foreach($roles as $k => $v) { /* @var $v Model_WorkerRole */
+			if($active_worker->is_superuser)
+				$owner_roles[$k] = $v;
 		}
-		
-		// Contexts
-		$contexts = Extension_DevblocksContext::getAll();
-		$tpl->assign('contexts', $contexts);
+		$tpl->assign('owner_roles', $owner_roles);
 
-		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/edit_workspace_panel.tpl');
+		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/edit_workspace_page.tpl');
+	}
+	
+	function showEditWorkspaceTabAction() {
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer', 0);
+
+		$tpl = DevblocksPlatform::getTemplateService();
+		$active_worker = CerberusApplication::getActiveWorker();
+
+		if(empty($id))
+			return;
+		
+		if(null == ($tab = DAO_WorkspaceTab::get($id)))
+			return;
+
+		if(null == ($page = DAO_WorkspacePage::get($tab->workspace_page_id)))
+			return;
+		
+		if(!$page->isWriteableByWorker($active_worker))
+			return;
+		
+		$tpl->assign('workspace_page', $page);
+		$tpl->assign('workspace_tab', $tab);
+			
+		$worklists = $tab->getWorklists();
+		$tpl->assign('worklists', $worklists);
+		
+		$contexts = Extension_DevblocksContext::getAll(false);
+		$tpl->assign('contexts', $contexts);
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/edit_workspace_tab.tpl');
 	}
 
-	function doEditWorkspaceAction() {
-		@$workspace_id = DevblocksPlatform::importGPC($_POST['id'],'integer', 0);
-		@$rename_workspace = DevblocksPlatform::importGPC($_POST['rename_workspace'],'string', '');
+	function doEditWorkspacePageAction() {
+		@$workspace_page_id = DevblocksPlatform::importGPC($_POST['id'],'integer', 0);
+		@$name = DevblocksPlatform::importGPC($_POST['name'],'string', '');
+		@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'],'integer', '0');
+		
+		$active_worker = CerberusApplication::getActiveWorker();
+
+		if(!empty($workspace_page_id)) {
+			if(null == ($workspace_page = DAO_WorkspacePage::get($workspace_page_id)))
+				return;
+			
+			if(!$workspace_page->isWriteableByWorker($active_worker))
+				return;
+		}
+		
+		if(!empty($workspace_page_id) && $do_delete) { // Delete
+			DAO_WorkspacePage::delete($workspace_page_id);
+		
+		} else { // Create/Edit
+			$fields = array(
+				DAO_WorkspacePage::NAME => $name,
+			);
+			
+			if(empty($workspace_page_id)) {
+				// Owner
+				@list($owner_type, $owner_id) = explode('_', DevblocksPlatform::importGPC($_REQUEST['owner'],'string',''));
+					
+				switch($owner_type) {
+					// Group
+					case 'g':
+						$owner_context = CerberusContexts::CONTEXT_GROUP;
+						$owner_context_id = $owner_id;
+						break;
+						// Role
+					case 'r':
+						$owner_context = CerberusContexts::CONTEXT_ROLE;
+						$owner_context_id = $owner_id;
+						break;
+						// Worker
+					case 'w':
+						$owner_context = CerberusContexts::CONTEXT_WORKER;
+						$owner_context_id = $owner_id;
+						break;
+						// Default
+					default:
+						$owner_context = null;
+						$owner_context_id = null;
+						break;
+				}
+				
+				if(!empty($owner_context)) {
+					$fields[DAO_WorkspacePage::OWNER_CONTEXT] = $owner_context;
+					$fields[DAO_WorkspacePage::OWNER_CONTEXT_ID] = $owner_context_id;
+				}
+				
+				$workspace_page_id = DAO_WorkspacePage::create($fields);
+				
+			} else {
+				DAO_WorkspacePage::update($workspace_page_id, $fields);
+				
+			}
+		}
+	}
+	
+	function doEditWorkspaceTabAction() {
+		@$workspace_tab_id = DevblocksPlatform::importGPC($_POST['id'],'integer', 0);
+		@$name = DevblocksPlatform::importGPC($_POST['name'],'string', '');
+		
 		@$ids = DevblocksPlatform::importGPC($_POST['ids'],'array', array());
 		@$names = DevblocksPlatform::importGPC($_POST['names'],'array', array());
 		@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'],'integer', '0');
 
 		$active_worker = CerberusApplication::getActiveWorker();
 
-		if(!empty($workspace_id) && 
-			(null == ($workspace = DAO_Workspace::get($workspace_id)) 
-			|| !$workspace->isWriteableByWorker($active_worker)
-			))
+		if(empty($workspace_tab_id))
 			return;
-
+		
+		if(null == ($workspace_tab = DAO_WorkspaceTab::get($workspace_tab_id)))
+			return;
+		
+		if(null == ($workspace_page = DAO_WorkspacePage::get($workspace_tab->workspace_page_id)))
+			return;
+		
+		if(!$workspace_page->isWriteableByWorker($active_worker))
+			return;
+		
 		if($do_delete) { // Delete
-			DAO_Workspace::delete($workspace_id);
+			DAO_WorkspaceTab::delete($workspace_tab_id);
 
 		} else { // Create/Edit
-			@list($owner_type, $owner_id) = explode('_', DevblocksPlatform::importGPC($_REQUEST['owner'],'string',''));
-			
-			switch($owner_type) {
-				// Group
-				case 'g':
-					$owner_context = CerberusContexts::CONTEXT_GROUP;
-					$owner_context_id = $owner_id;
-					break;
-				// Role
-				case 'r':
-					$owner_context = CerberusContexts::CONTEXT_ROLE;
-					$owner_context_id = $owner_id;
-					break;
-				// Worker
-				case 'w':
-					$owner_context = CerberusContexts::CONTEXT_WORKER;
-					$owner_context_id = $owner_id;
-					break;
-				// Default
-				default:
-					$owner_context = null;
-					$owner_context_id = null;
-					break;
-			}
-					
-			if(empty($workspace_id)) {
-				if(empty($owner_context) || empty($owner_context_id)) {
-					$owner_context = CerberusContexts::CONTEXT_WORKER;
-					$owner_context_id = $active_worker->id;
-				}
-				
+			if(empty($workspace_tab_id)) {
 				$fields = array(
-					DAO_Workspace::NAME => $rename_workspace,
-					DAO_Workspace::OWNER_CONTEXT => $owner_context, 
-					DAO_Workspace::OWNER_CONTEXT_ID => $owner_context_id,
+					DAO_WorkspaceTab::NAME => $name,
+					DAO_WorkspaceTab::WORKSPACE_PAGE_ID => 0,
 				);
-				$workspace_id = DAO_Workspace::create($fields);
-				$workspace = DAO_Workspace::get($workspace_id);
+				$workspace_tab_id = DAO_WorkspaceTab::create($fields);
 				
 			} else {
 				$fields = array();
 				
-				// Rename workspace
-				if(0 != strcmp($workspace->name, $rename_workspace)) {
-					$fields[DAO_Workspace::NAME] = $rename_workspace;
+				// Rename tab
+				if(0 != strcmp($workspace_tab->name, $name)) {
+					$fields[DAO_WorkspaceTab::NAME] = $name;
 				}
 				
-				if(!empty($owner_context)) {
-					$fields[DAO_Workspace::OWNER_CONTEXT] = $owner_context;
-					$fields[DAO_Workspace::OWNER_CONTEXT_ID] = $owner_context_id;
-				}
-
 				if(!empty($fields))
-					DAO_Workspace::update($workspace->id, $fields);
+					DAO_WorkspaceTab::update($workspace_tab_id, $fields);
 			}
 
 			// Create any new worklists
@@ -2300,14 +2322,14 @@ class ChInternalController extends DevblocksControllerExtension {
 					$fields = array(
 						DAO_WorkspaceList::LIST_POS => $idx,
 						DAO_WorkspaceList::LIST_VIEW => serialize($list),
-						DAO_WorkspaceList::WORKSPACE_ID => $workspace_id,
+						DAO_WorkspaceList::WORKSPACE_TAB_ID => $workspace_tab_id,
 						DAO_WorkspaceList::CONTEXT => $id,
 					);
 					$ids[$idx] = DAO_WorkspaceList::create($fields);
 				}
 			}
 
-			$worklists = $workspace->getWorklists();
+			$worklists = $workspace_tab->getWorklists();
 
 			// Deletes
 			$delete_ids = array_diff(array_keys($worklists), $ids);
@@ -2323,7 +2345,7 @@ class ChInternalController extends DevblocksControllerExtension {
 				$list_view = $worklists[$id]->list_view; /* @var $list_view Model_WorkspaceListView */
 
 				// If the name changed
-				if(isset($names[$idx]) && 0 != strcmp($list_view->title,$names[$idx])) {
+				if(isset($names[$idx]) && 0 != strcmp($list_view->title, $names[$idx])) {
 					$list_view->title = $names[$idx];
 
 					// Save the view in the session
@@ -2338,8 +2360,6 @@ class ChInternalController extends DevblocksControllerExtension {
 				));
 			}
 		}
-
-		exit;
 	}
 
 	/**

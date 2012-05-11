@@ -105,19 +105,6 @@
 			{$tabs[] = $tab_manifest->params.uri}
 			<li><a href="{devblocks_url}ajax.php?c=profiles&a=showTab&ext_id={$tab_manifest->id}&point={$point}&context={$page_context}&context_id={$page_context_id}{/devblocks_url}"><i>{$tab_manifest->params.title|devblocks_translate}</i></a></li>
 		{/foreach}
-
-		{* [TODO] Group managers can add, any member can see 
-		{if $active_worker->hasPriv('core.home.workspaces')}
-			{$enabled_workspaces = DAO_Workspace::getByEndpoint($point, $active_worker)}
-			{foreach from=$enabled_workspaces item=enabled_workspace}
-				{$tabs[] = 'w_'|cat:$enabled_workspace->id}
-				<li><a href="{devblocks_url}ajax.php?c=internal&a=showWorkspaceTab&id={$enabled_workspace->id}&point={$point}&request={$response_uri|escape:'url'}{/devblocks_url}"><i>{$enabled_workspace->name}</i></a></li>
-			{/foreach}
-			
-			{$tabs[] = "+"}
-			<li><a href="{devblocks_url}ajax.php?c=internal&a=showAddTab&point={$point}&request={$response_uri|escape:'url'}{/devblocks_url}"><i>+</i></a></li>
-		{/if}
-		*}
 	</ul>
 	
 	<div id="members">
