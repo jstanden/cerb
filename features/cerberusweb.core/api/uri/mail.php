@@ -53,7 +53,7 @@ class Page_Mail extends CerberusPageExtension {
 		@$section_uri = array_shift($stack);
 
 		if(empty($section_uri))
-			$section_uri = 'workspaces';
+			$section_uri = 'compose';
 
 		// Subpage
 		$subpage = Extension_PageSection::getExtensionByPageUri($this->manifest->id, $section_uri, true);
