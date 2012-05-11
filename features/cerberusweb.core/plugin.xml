@@ -617,7 +617,6 @@
 
 		<!-- Mail page -->
 		<priv id="core.mail" label="acl.core.mail" />
-		<priv id="core.mail.search" label="acl.core.mail.search" />
 		<priv id="core.mail.send" label="acl.core.mail.send" />
 
 		<!-- RSS -->
@@ -1563,19 +1562,6 @@
 				</params>
 			</extension>
 			
-			<extension point="cerberusweb.ui.page.section">
-				<id>core.page.mail.workspaces</id>
-				<name>Workspaces Section</name>
-				<class>
-					<file>api/uri/mail/workspaces.php</file>
-					<name>PageSection_MailWorkspaces</name>
-				</class>
-				<params>
-					<param key="page_id" value="core.page.mail" />
-					<param key="uri" value="workspaces" />
-				</params>
-			</extension>
-
 		<extension point="cerberusweb.page">
 			<id>core.page.tickets</id>
 			<name>Tickets Page</name>

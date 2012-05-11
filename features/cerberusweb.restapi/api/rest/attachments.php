@@ -181,8 +181,8 @@ class ChRest_Attachments extends Extension_RestController implements IExtensionR
 		$worker = $this->getActiveWorker();
 		
 		// ACL
-		if(!$worker->hasPriv('core.mail.search'))
-			$this->error(self::ERRNO_ACL, 'Access denied to search tickets.');
+// 		if(!$worker->hasPriv('core.mail.search'))
+// 			$this->error(self::ERRNO_ACL, 'Access denied to search tickets.');
 
 		$container = $this->_handlePostSearch();
 		

@@ -81,11 +81,6 @@
         <seg>[Mail] Pode usar o tab visão global na página de Mail</seg>
       </tuv>
     </tu>
-    <tu tuid="acl.core.mail.search">
-      <tuv xml:lang="pt_PT">
-        <seg>[Mail] Pode usar o tab de pesquisa na página de Mail</seg>
-      </tuv>
-    </tu>
     <tu tuid="acl.core.mail.send">
       <tuv xml:lang="pt_PT">
         <seg>[Mail] Pode criar novas mensagens a partir do helpdesk</seg>

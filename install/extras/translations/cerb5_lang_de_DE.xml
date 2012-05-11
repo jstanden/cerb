@@ -101,11 +101,6 @@
         <seg>[Email] Kann die Übersicht auf der email-Seite nutzen</seg>
       </tuv>
     </tu>
-    <tu tuid="acl.core.mail.search">
-      <tuv xml:lang="de_DE">
-        <seg>[Email] Kann die Suche auf der email-Seite nutzen</seg>
-      </tuv>
-    </tu>
     <tu tuid="acl.core.mail.send">
       <tuv xml:lang="de_DE">
         <seg>[Email] Kann neue Nachrichten aus dem Helpdesk verfassen</seg>

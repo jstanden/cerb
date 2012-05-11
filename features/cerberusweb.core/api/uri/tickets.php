@@ -1347,38 +1347,6 @@ class ChTicketsPage extends CerberusPageExtension {
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('preferences','rss')));
 	}
 	
-	function searchviewAction() {
-		$visit = CerberusApplication::getVisit();
-	    
-	    $response = DevblocksPlatform::getHttpRequest();
-	    $path = $response->path;
-	    array_shift($path); // tickets
-	    array_shift($path); // searchview
-	    $id = array_shift($path);
-
-	    $view = C4_AbstractViewLoader::getView($id);
-	    $view_params = $view->getParams();
-
-		if(!empty($view_params)) {
-		    $params = array();
-		    
-		    // Index by field name for search system
-		    if(is_array($view_params))
-		    foreach($view_params as $key => $criteria) { /* @var $criteria DevblocksSearchCriteria */
-                $params[$key] = $criteria;
-		    }
-		}
-		
-		if(null == ($search_view = C4_AbstractViewLoader::getView(CerberusApplication::VIEW_SEARCH))) {
-			$search_view = View_Ticket::createSearchView();
-		}
-		$search_view->addParams($params, true);
-		$search_view->renderPage = 0;
-		C4_AbstractViewLoader::setView($search_view->id,$search_view);
-
-		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('tickets','search')));
-	}
-	
 	function getCustomFieldEntryAction() {
 		@$group_id = DevblocksPlatform::importGPC($_REQUEST['group_id'],'integer',0);
 		

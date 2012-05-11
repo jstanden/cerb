@@ -143,8 +143,8 @@ class ChRest_Messages extends Extension_RestController implements IExtensionRest
 		$worker = $this->getActiveWorker();
 		
 		// ACL
-		if(!$worker->hasPriv('core.mail.search'))
-			$this->error(self::ERRNO_ACL, 'Access denied to search tickets.');
+// 		if(!$worker->hasPriv('core.mail.search'))
+// 			$this->error(self::ERRNO_ACL, 'Access denied to search tickets.');
 		
 		$container = $this->_handlePostSearch();
 		

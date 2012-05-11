@@ -91,11 +91,6 @@
         <seg>[Почта] Может использовать вкладку Обзор на странице Почта</seg>
       </tuv>
     </tu>
-    <tu tuid="acl.core.mail.search">
-      <tuv xml:lang="ru_RU">
-        <seg>[Почта] Может использовать вкладку Поиск на странице Почта</seg>
-      </tuv>
-    </tu>
     <tu tuid="acl.core.mail.send">
       <tuv xml:lang="ru_RU">
         <seg>[Почта] Может создавать новые сообщение из хелпдеска</seg>

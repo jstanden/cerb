@@ -2586,27 +2586,6 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals {
 		unset($ids);
 	}
 
-	static function createSearchView() {
-		$translate = DevblocksPlatform::getTranslationService();
-		
-		$view = new View_Ticket();
-		$view->id = CerberusApplication::VIEW_SEARCH;
-		$view->name = $translate->_('common.search_results');
-		$view->view_columns = array(
-			SearchFields_Ticket::TICKET_LAST_ACTION_CODE,
-			SearchFields_Ticket::TICKET_UPDATED_DATE,
-			SearchFields_Ticket::TICKET_GROUP_ID,
-			SearchFields_Ticket::TICKET_BUCKET_ID,
-			SearchFields_Ticket::TICKET_SPAM_SCORE,
-		);
-		$view->renderLimit = 100;
-		$view->renderPage = 0;
-		$view->renderSortBy = null; // SearchFields_Ticket::TICKET_UPDATED_DATE
-		$view->renderSortAsc = 0;
-
-		return $view;
-	}
-
 	static public function setLastAction($view_id, Model_TicketViewLastAction $last_action=null) {
 		$visit = CerberusApplication::getVisit(); /* @var $visit CerberusVisit */
 		$view_last_actions = $visit->get(CerberusVisit::KEY_VIEW_LAST_ACTION,array());

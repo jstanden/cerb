@@ -81,12 +81,6 @@ DevblocksPlatform::registerClasses($path . 'Utils.php', array(
  * Application-level Facade
  */
 class CerberusApplication extends DevblocksApplication {
-	const INDEX_TICKETS = 'tickets';
-		
-	const VIEW_SEARCH = 'search';
-	const VIEW_MAIL_WORKFLOW = 'mail_workflow';
-	const VIEW_MAIL_MESSAGES = 'mail_messages';
-	
 	/**
 	 * @return CerberusVisit
 	 */

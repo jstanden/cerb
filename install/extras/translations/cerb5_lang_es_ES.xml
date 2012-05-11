@@ -96,11 +96,6 @@
         <seg>[Correo] Puede usar la pestaña Descripción General en la página Correo</seg>
       </tuv>
     </tu>
-    <tu tuid="acl.core.mail.search">
-      <tuv xml:lang="es_ES">
-        <seg>[Correo] Puede usar la pestaña Buscar en la página Correo</seg>
-      </tuv>
-    </tu>
     <tu tuid="acl.core.mail.send">
       <tuv xml:lang="es_ES">
         <seg>[Correo] Puede redactar nuevos mensajes desde el Helpdesk</seg>

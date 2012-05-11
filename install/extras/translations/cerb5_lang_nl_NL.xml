@@ -121,11 +121,6 @@
         <seg>[Kennisdatabase] Kan top-level onderwerpen beheren</seg>
       </tuv>
     </tu>
-    <tu tuid="acl.core.mail.search">
-      <tuv xml:lang="nl_NL">
-        <seg>[Mail] Kan het tabblad Zoeken gebruiken op de Mail pagina</seg>
-      </tuv>
-    </tu>
     <tu tuid="acl.core.mail.send">
       <tuv xml:lang="nl_NL">
         <seg>[Mail] Kan nieuwe berichten opstellen vanuit de helpdesk</seg>
