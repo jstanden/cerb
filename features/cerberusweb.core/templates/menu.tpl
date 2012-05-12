@@ -2,8 +2,7 @@
 <div id="tourHeaderMenu"></div>
 
 <ul class="navmenu">
-	{* [TODO] Cache!! *}
-	{$workspace_pages = DAO_WorkspacePage::getWhere()}
+	{$workspace_pages = DAO_WorkspacePage::getAll()}
 
 	{$menu_json = DAO_WorkerPref::get($active_worker->id, 'menu_json','')}
 	{$menu = json_decode($menu_json, true)}

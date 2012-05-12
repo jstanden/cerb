@@ -61,8 +61,7 @@ class Page_Custom extends CerberusPageExtension {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		// [TODO] Cache
-		$pages = DAO_WorkspacePage::getWhere();
+		$pages = DAO_WorkspacePage::getAll();
 		$tpl->assign('pages', $pages);
 		
 		// View
@@ -137,7 +136,7 @@ class Page_Custom extends CerberusPageExtension {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		$menu = array();
-		$pages = DAO_WorkspacePage::getWhere();
+		$pages = DAO_WorkspacePage::getAll();
 		
 		$page_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::parseCsvString($page_ids_str), 'integer', array('nonzero','unique'));
 		

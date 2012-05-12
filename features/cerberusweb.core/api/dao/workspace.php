@@ -16,6 +16,8 @@
 ***********************************************************************/
 
 class DAO_WorkspacePage extends C4_ORMHelper {
+	const _CACHE_ALL = 'ch_workspace_pages';
+	
 	const ID = 'id';
 	const NAME = 'name';
 	const OWNER_CONTEXT = 'owner_context';
@@ -35,12 +37,25 @@ class DAO_WorkspacePage extends C4_ORMHelper {
 
 	static function update($ids, $fields) {
 		parent::_update($ids, 'workspace_page', $fields);
+		self::clearCache();
 	}
 
 	static function updateWhere($fields, $where) {
 		parent::_updateWhere('workspace_page', $fields, $where);
+		self::clearCache();
 	}
 
+	static function getAll($nocache=false) {
+	    $cache = DevblocksPlatform::getCacheService();
+	    
+	    if($nocache || null === ($pages = $cache->load(self::_CACHE_ALL))) {
+    	    $pages = DAO_WorkspacePage::getWhere();
+    	    $cache->save($pages, self::_CACHE_ALL);
+	    }
+	    
+	    return $pages;
+	}
+	
 	/**
 	 * @param string $where
 	 * @param mixed $sortBy
@@ -66,16 +81,18 @@ class DAO_WorkspacePage extends C4_ORMHelper {
 	}
 
 	static function getByOwner($context, $context_id, $sortBy=null, $sortAsc=true, $limit=null) {
-		return self::getWhere(sprintf("%s = %s AND %s = %d",
-				self::OWNER_CONTEXT,
-				C4_ORMHelper::qstr($context),
-				self::OWNER_CONTEXT_ID,
-				$context_id
-			),
-			$sortBy,
-			$sortAsc,
-			$limit
-		);
+		$pages = array();
+		
+		$all_pages = self::getAll();
+		foreach($all_pages as $page_id => $page) { /* @var $page Model_WorkspacePage */
+			if($page->owner_context == $context
+				&& $page->owner_context_id == $context_id) {
+				
+				$pages[$page_id] = $page;
+			}
+		}
+
+		return $pages;
 	}
 
 	static function getByWorker($worker) {
@@ -87,37 +104,32 @@ class DAO_WorkspacePage extends C4_ORMHelper {
 			return array();
 		}
 
-		$db = DevblocksPlatform::getDatabaseService();
-
-		$where_scope = sprintf("(workspace_page.owner_context = %s AND workspace_page.owner_context_id = %d) ",
-			$db->qstr(CerberusContexts::CONTEXT_WORKER),
-			$worker->id
-		);
-			
 		$memberships = $worker->getMemberships();
-		if(!empty($memberships))
-			$where_scope .= sprintf("OR (workspace_page.owner_context = %s AND workspace_page.owner_context_id IN (%s)) ",
-				$db->qstr(CerberusContexts::CONTEXT_GROUP),
-				implode(',', array_keys($memberships))
-			);
-			
 		$roles = $worker->getRoles();
-		if(!empty($roles))
-			$where_scope .= sprintf("OR (workspace_page.owner_context = %s AND workspace_page.owner_context_id IN (%s)) ",
-				$db->qstr(CerberusContexts::CONTEXT_ROLE),
-				implode(',', array_keys($worker->getRoles()))
-			);
+		
+		$pages = array();
+		$all_pages = self::getAll();
+		
+		foreach($all_pages as $page_id => $page) { /* @var $page Model_WorkspacePage */
+			switch($page->owner_context) {
+				case CerberusContexts::CONTEXT_ROLE:
+					if(isset($roles[$page->owner_context_id]))
+						$pages[$page_id] = $page;
+					break;
+					
+				case CerberusContexts::CONTEXT_GROUP:
+					if(isset($memberships[$page->owner_context_id]))
+						$pages[$page_id] = $page;
+					break;
+					
+				case CerberusContexts::CONTEXT_WORKER:
+					if($worker->id == $page->owner_context_id)
+						$pages[$page_id] = $page;
+					break;
+			}
+		}
 
-		$sql = sprintf("SELECT workspace_page.id, workspace_page.name, workspace_page.owner_context, workspace_page.owner_context_id ".
-			"FROM workspace_page ".
-			"WHERE %s ".
-			"ORDER BY workspace_page.name ASC ",
-			$where_scope
-		);
-
-		$rs = $db->Execute($sql);
-
-		return self::_getObjectsFromResult($rs);
+		return $pages;
 	}
 
 	/**
@@ -125,11 +137,8 @@ class DAO_WorkspacePage extends C4_ORMHelper {
 	 * @return Model_WorkspacePage
 	 */
 	static function get($id) {
-		$objects = self::getWhere(sprintf("%s = %d",
-			self::ID,
-			$id
-		));
-
+		$objects = self::getAll();
+		
 		if(isset($objects[$id]))
 			return $objects[$id];
 
@@ -182,6 +191,8 @@ class DAO_WorkspacePage extends C4_ORMHelper {
 		// Delete pages
 		$db->Execute(sprintf("DELETE FROM workspace_page WHERE id IN (%s)", $ids_list));
 
+		self::clearCache();
+		
 		return true;
 	}
 
@@ -340,9 +351,15 @@ class DAO_WorkspacePage extends C4_ORMHelper {
 		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' workspace_tab records.');
 	}
 
+	static function clearCache() {
+		$cache = DevblocksPlatform::getCacheService();
+		$cache->remove(self::_CACHE_ALL);
+	}
 };
 
 class DAO_WorkspaceTab extends C4_ORMHelper {
+	const _CACHE_ALL = 'ch_workspace_tabs';
+	
 	const ID = 'id';
 	const NAME = 'name';
 	const WORKSPACE_PAGE_ID = 'workspace_page_id';
@@ -362,10 +379,23 @@ class DAO_WorkspaceTab extends C4_ORMHelper {
 	
 	static function update($ids, $fields) {
 		parent::_update($ids, 'workspace_tab', $fields);
+		self::clearCache();
 	}
 	
 	static function updateWhere($fields, $where) {
 		parent::_updateWhere('workspace_tab', $fields, $where);
+		self::clearCache();
+	}
+	
+	static function getAll($nocache=false) {
+	    $cache = DevblocksPlatform::getCacheService();
+	    
+	    if($nocache || null === ($tabs = $cache->load(self::_CACHE_ALL))) {
+    	    $tabs = self::getWhere();
+    	    $cache->save($tabs, self::_CACHE_ALL);
+	    }
+	    
+	    return $tabs;
 	}
 	
 	/**
@@ -397,10 +427,7 @@ class DAO_WorkspaceTab extends C4_ORMHelper {
 	 * @return Model_WorkspaceTab
 	 */
 	static function get($id) {
-		$objects = self::getWhere(sprintf("%s = %d",
-			self::ID,
-			$id
-		));
+		$objects = self::getAll();
 		
 		if(isset($objects[$id]))
 			return $objects[$id];
@@ -409,10 +436,15 @@ class DAO_WorkspaceTab extends C4_ORMHelper {
 	}
 	
 	static function getByPage($page_id) {
-		return self::getWhere(sprintf("%s = %d",
-			C4_ORMHelper::qstr(self::WORKSPACE_PAGE_ID),
-			$page_id
-		));
+		$all_tabs = self::getAll();
+		$tabs = array();
+		
+		foreach($all_tabs as $tab_id => $tab) { /* @var $tab Model_WorkspaceTab */
+			if($tab->workspace_page_id == $page_id)
+				$tabs[$tab_id] = $tab;
+		}
+
+		return $tabs;
 	}
 	
 	/**
@@ -450,6 +482,8 @@ class DAO_WorkspaceTab extends C4_ORMHelper {
 		$db->Execute(sprintf("DELETE FROM workspace_list WHERE workspace_tab_id IN (%s)", $ids_list));
 		
 		$db->Execute(sprintf("DELETE FROM workspace_tab WHERE id IN (%s)", $ids_list));
+		
+		self::clearCache();
 		
 		return true;
 	}
@@ -586,6 +620,11 @@ class DAO_WorkspaceTab extends C4_ORMHelper {
 		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' workspace_list records.');
 	}
 
+	static function clearCache() {
+		$cache = DevblocksPlatform::getCacheService();
+		$cache->remove(self::_CACHE_ALL);
+	}
+	
 };
 
 class SearchFields_WorkspacePage implements IDevblocksSearchFields {
@@ -651,13 +690,7 @@ class Model_WorkspacePage {
 	public $owner_context_id;
 	
 	function getTabs(Model_Worker $as_worker=null) {
-		// [TODO] Cache
-		$tabs = DAO_WorkspaceTab::getWhere(
-			sprintf("%s = %d",
-				DAO_WorkspaceTab::WORKSPACE_PAGE_ID,
-				$this->id
-			)
-		);
+		$tabs = DAO_WorkspaceTab::getByPage($this->id);
 		
 		// Order by given worker prefs
 		if(!empty($as_worker)) {
