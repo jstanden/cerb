@@ -2,6 +2,10 @@
 <input type="hidden" name="c" value="tickets">
 <input type="hidden" name="a" value="savePreview">
 <input type="hidden" name="id" value="{$ticket->id}">
+{if !empty($link_context)}
+<input type="hidden" name="link_context" value="{$link_context}">
+<input type="hidden" name="link_context_id" value="{$link_context_id}">
+{/if}
 
 <div id="peekTabs">
 	<ul>
@@ -24,11 +28,11 @@
 			
 			{if !is_null($p) && !is_null($p_count)}
 			<div style="float:right;">
-				{if 0 != $p}<a href="javascript:;" onclick="genericAjaxPopup('peek','c=tickets&a=showPreview&view_id={$view_id}&tid={$ticket->id}&msgid={$ticket->first_message_id}', null, false, '650');">&lt;&lt;</a>{/if}
-				{if isset($p_prev) && $p_prev}<a href="javascript:;" onclick="genericAjaxPopup('peek','c=tickets&a=showPreview&view_id={$view_id}&tid={$ticket->id}&msgid={$p_prev}', null, false, '650');">&lt;{'common.previous_short'|devblocks_translate|capitalize}</a>{/if}
+				{if 0 != $p}<a href="javascript:;" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_TICKET}&context_id={$ticket->id}&view_id={$view_id}&msgid={$ticket->first_message_id}', null, false, '650');">&lt;&lt;</a>{/if}
+				{if isset($p_prev) && $p_prev}<a href="javascript:;" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_TICKET}&context_id={$ticket->id}&view_id={$view_id}&msgid={$p_prev}', null, false, '650');">&lt;{'common.previous_short'|devblocks_translate|capitalize}</a>{/if}
 				({$p+1} of {$p_count})
-				{if isset($p_next) && $p_next}<a href="javascript:;" onclick="genericAjaxPopup('peek','c=tickets&a=showPreview&view_id={$view_id}&tid={$ticket->id}&msgid={$p_next}', null, false, '650');">{'common.next'|devblocks_translate|capitalize}&gt;</a>{/if}
-				{if $p+1 != $p_count}<a href="javascript:;" onclick="genericAjaxPopup('peek','c=tickets&a=showPreview&view_id={$view_id}&tid={$ticket->id}&msgid={$ticket->last_message_id}', null, false, '650');">&gt;&gt;</a>{/if}
+				{if isset($p_next) && $p_next}<a href="javascript:;" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_TICKET}&context_id={$ticket->id}&view_id={$view_id}&msgid={$p_next}', null, false, '650');">{'common.next'|devblocks_translate|capitalize}&gt;</a>{/if}
+				{if $p+1 != $p_count}<a href="javascript:;" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_TICKET}&context_id={$ticket->id}&view_id={$view_id}&msgid={$ticket->last_message_id}', null, false, '650');">&gt;&gt;</a>{/if}
 			</div>
 			{/if}
 			
@@ -40,7 +44,14 @@
 		<fieldset class="peek">
 			<legend>{'common.properties'|devblocks_translate|capitalize}</legend>
 			
-			<table cellpadding="0" cellspacing="2" border="0" width="98%">
+			<table cellpadding="0" cellspacing="2" border="0" width="100%">
+				<tr>
+					<td width="0%" nowrap="nowrap" align="right">Subject: </td>
+					<td width="100%">
+						<input type="text" name="subject" size="45" maxlength="255" style="width:98%;" value="{$ticket->subject}">
+					</td>
+				</tr>
+				
 				<tr>
 					<td width="0%" nowrap="nowrap" valign="top" align="right">{$translate->_('ticket.status')|capitalize}: </td>
 					<td width="100%">
@@ -59,13 +70,6 @@
 				</tr>
 				
 				<tr>
-					<td width="0%" nowrap="nowrap" align="right">Subject: </td>
-					<td width="100%">
-						<input type="text" name="subject" size="45" maxlength="255" style="width:98%;" value="{$ticket->subject}">
-					</td>
-				</tr>
-				
-				<tr>
 					<td width="0%" nowrap="nowrap" align="right">{'contact_org.name'|devblocks_translate|capitalize}: </td>
 					<td width="100%">
 						<input type="hidden" name="org_id" value="{$ticket->org_id}">
@@ -79,14 +83,6 @@
 						<div style="display:{if !empty($ticket_org)}none{else}block{/if};">
 							<input type="text" name="org_name" size="45" maxlength="255" style="width:98%;" value="{if !empty($ticket)}{$ticket_org->name}{/if}">
 						</div>
-					</td>
-				</tr>
-				
-				{* Watchers *}
-				<tr>
-					<td width="0%" nowrap="nowrap" valign="middle" align="right">{$translate->_('common.watchers')|capitalize}: </td>
-					<td width="100%">
-						{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=CerberusContexts::CONTEXT_TICKET context_id=$ticket->id full=true}
 					</td>
 				</tr>
 				
@@ -143,6 +139,14 @@
 					</td>
 				</tr>
 				{/if}
+				
+				{* Watchers *}
+				<tr>
+					<td width="0%" nowrap="nowrap" valign="middle" align="right">{$translate->_('common.watchers')|capitalize}: </td>
+					<td width="100%">
+						{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=CerberusContexts::CONTEXT_TICKET context_id=$ticket->id full=true}
+					</td>
+				</tr>
 			</table>
 		</fieldset>
 		

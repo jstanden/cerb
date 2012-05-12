@@ -2617,7 +2617,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals {
 	}
 };
 
-class Context_Ticket extends Extension_DevblocksContext implements IDevblocksContextProfile {
+class Context_Ticket extends Extension_DevblocksContext implements IDevblocksContextPeek, IDevblocksContextProfile {
 	const ID = 'cerberusweb.contexts.ticket';
 	
 	function authorize($context_id, Model_Worker $worker) {
@@ -3079,6 +3079,87 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		$view->renderTemplate = 'context';
 		C4_AbstractViewLoader::setView($view_id, $view);
 		return $view;
+	}
+	
+	function renderPeekPopup($context_id=0, $view_id='') {
+	    @$msgid = DevblocksPlatform::importGPC($_REQUEST['msgid'],'integer',0);
+	    @$edit_mode = DevblocksPlatform::importGPC($_REQUEST['edit'],'integer',0);
+	    
+		$tpl = DevblocksPlatform::getTemplateService();
+
+		$tpl->assign('view_id', $view_id);
+		$tpl->assign('edit_mode', $edit_mode);
+
+		$messages = array();
+		
+		if(null != ($ticket = DAO_Ticket::get($context_id))) {
+			/* @var $ticket Model_Ticket */
+		    $tpl->assign('ticket', $ticket);
+		    
+			$messages = $ticket->getMessages();
+		}
+		
+		// Do we have a specific message to look at?
+		if(!empty($msgid) && null != (@$message = $messages[$msgid])) {
+			 // Good
+		} else {
+			$message = null;
+			$msgid = null;
+			
+			if(is_array($messages)) {
+				if(null != ($message = end($messages)))
+					$msgid = $message->id;
+			}
+		}
+
+		if(!empty($message)) {
+			$tpl->assign('message', $message);
+			$tpl->assign('content', $message->getContent());
+		}
+		
+		// Paging
+		$message_ids = array_keys($messages);
+		$tpl->assign('p_count', count($message_ids));
+		if(false !== ($pos = array_search($msgid, $message_ids))) {
+			$tpl->assign('p', $pos);
+			// Prev
+			if($pos > 0)
+				$tpl->assign('p_prev', $message_ids[$pos-1]);
+			// Next
+			if($pos+1 < count($message_ids))
+				$tpl->assign('p_next', $message_ids[$pos+1]);
+		}
+		
+		// Props
+		$workers = DAO_Worker::getAllActive();
+		$tpl->assign('workers', $workers);
+		
+		$groups = DAO_Group::getAll();
+		$tpl->assign('groups', $groups);
+		
+		$group_buckets = DAO_Bucket::getGroups();
+		$tpl->assign('group_buckets', $group_buckets);
+	    
+		// Watchers
+		$object_watchers = DAO_ContextLink::getContextLinks(CerberusContexts::CONTEXT_TICKET, array($ticket->id), CerberusContexts::CONTEXT_WORKER);
+		$tpl->assign('object_watchers', $object_watchers);
+		
+		// Custom fields
+		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TICKET, $ticket->group_id);
+		$tpl->assign('custom_fields', $custom_fields);
+		
+		$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_TICKET, $ticket->id);
+		if(isset($custom_field_values[$ticket->id]))
+			$tpl->assign('custom_field_values', $custom_field_values[$ticket->id]);
+		
+		// Comments
+		$comments = DAO_Comment::getByContext(CerberusContexts::CONTEXT_TICKET, $ticket->id);
+		$last_comment = array_shift($comments);
+		unset($comments);
+		$tpl->assign('last_comment', $last_comment);
+			
+		// Display
+		$tpl->display('devblocks:cerberusweb.core::tickets/peek.tpl');		
 	}
 };
 
