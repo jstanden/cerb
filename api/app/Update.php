@@ -181,8 +181,7 @@ class ChUpdateController extends DevblocksControllerExtension {
 						DAO_Translation::reloadPluginStrings();
 
 						// Set the build
-						$cache = DevblocksPlatform::getCacheService();
-						$cache->save(APP_BUILD, "devblocks_app_build");
+						file_put_contents(APP_STORAGE_PATH . '/_version', APP_BUILD);
 						
 						// Redirect
 				    	DevblocksPlatform::redirect(new DevblocksHttpResponse(array('login')));

@@ -1,5 +1,6 @@
+_version
+attachments
+message_content
 tmp/cache
 tmp/templates_c
 tmp/__Twig*
-attachments
-message_content
