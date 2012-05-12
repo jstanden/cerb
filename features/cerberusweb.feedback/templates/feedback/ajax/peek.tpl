@@ -8,7 +8,7 @@
 {/if}
 <input type="hidden" name="do_delete" value="0">
 
-<fieldset>
+<fieldset class="peek">
 	<legend>Properties</legend>
 	
 	<b>{'feedback_entry.quote_address'|devblocks_translate|capitalize}:</b> ({'feedback.peek.quote.tooltip'|devblocks_translate})<br>
@@ -20,9 +20,9 @@
 	<br>
 	
 	<b>{'feedback_entry.quote_mood'|devblocks_translate|capitalize}:</b> 
-	<label><input type="radio" name="mood" value="1" {if 1==$model->quote_mood}checked{/if}> <span style="background-color:rgb(235, 255, 235);color:rgb(0, 180, 0);font-weight:bold;">{'feedback.mood.praise'|devblocks_translate|capitalize}</span></label>
-	<label><input type="radio" name="mood" value="0" {if empty($model->quote_mood)}checked{/if}>{'feedback.mood.neutral'|devblocks_translate|capitalize}</label>
-	<label><input type="radio" name="mood" value="2" {if 2==$model->quote_mood}checked{/if}> <span style="background-color: rgb(255, 235, 235);color: rgb(180, 0, 0);font-weight:bold;">{'feedback.mood.criticism'|devblocks_translate|capitalize}</span></label>
+	<label><input type="radio" name="mood" value="1" {if 1==$model->quote_mood}checked{/if}> <span class="tag tag-green" style="vertical-align:middle;">{'feedback.mood.praise'|devblocks_translate|capitalize}</span></label>
+	<label><input type="radio" name="mood" value="0" {if empty($model->quote_mood)}checked{/if}> <span class="tag tag-gray" style="vertical-align:middle;">{'feedback.mood.neutral'|devblocks_translate|capitalize}</span></label>
+	<label><input type="radio" name="mood" value="2" {if 2==$model->quote_mood}checked{/if}> <span class="tag tag-red" style="vertical-align:middle;">{'feedback.mood.criticism'|devblocks_translate|capitalize}</span></label>
 	<br>
 	<br>
 	
@@ -31,7 +31,7 @@
 </fieldset>
 
 {if !empty($custom_fields)}
-<fieldset>
+<fieldset class="peek">
 	<legend>{'common.custom_fields'|devblocks_translate}</legend>
 	{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false}
 </fieldset>

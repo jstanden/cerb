@@ -842,6 +842,11 @@ SPAN.tag.tag-green {
 	color:rgb(255,255,255);
 }
 
+SPAN.tag.tag-gray {
+	background-color:rgb(100,100,100);
+	color:rgb(255,255,255);
+}
+
 SPAN.tag.tag-red {
 	background-color:rgb(185,50,40);
 	color:rgb(255,255,255);
