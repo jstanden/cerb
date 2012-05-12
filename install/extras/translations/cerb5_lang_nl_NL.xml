@@ -1991,11 +1991,6 @@
         <seg>Nieuw</seg>
       </tuv>
     </tu>
-    <tu tuid="home.workspaces.worklist.add.to_workspace">
-      <tuv xml:lang="nl_NL">
-        <seg>Voeg werklijst toe aan werkblad</seg>
-      </tuv>
-    </tu>
     <tu tuid="home.workspaces.worklist.name">
       <tuv xml:lang="nl_NL">
         <seg>Werklijst naam</seg>

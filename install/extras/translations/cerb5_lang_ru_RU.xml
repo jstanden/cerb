@@ -1706,11 +1706,6 @@
         <seg>Новая</seg>
       </tuv>
     </tu>
-    <tu tuid="home.workspaces.worklist.add.to_workspace">
-      <tuv xml:lang="ru_RU">
-        <seg>Добавить список в рабочую область</seg>
-      </tuv>
-    </tu>
     <tu tuid="home.workspaces.worklist.name">
       <tuv xml:lang="ru_RU">
         <seg>Имя списка</seg>

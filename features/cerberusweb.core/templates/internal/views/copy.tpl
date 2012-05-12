@@ -3,24 +3,32 @@
 
 <H2>Copy Worklist</H2>
 
-You can copy this worklist into your own workspaces, allowing you to put your favorite information in a single place.<br>
+You can copy this worklist to other pages in order to build your ideal workspace.<br>
 <br>
 
-<b>Worklist Name:</b><br>
+<b>Worklist title:</b><br>
 <input type="text" name="list_title" value="{$view->name}" size="45">
 <br>
 <br>
 
-<b>{'home.workspaces.worklist.add.to_workspace'|devblocks_translate}:</b><br>
-<select name="workspace_id">
-	<option value="">- new workspace: -</option>
-	{if !empty($workspaces)}
-	{foreach from=$workspaces item=workspace}
-	<option value="{$workspace->id}">{$workspace->name}</option>
-	{/foreach}
+<b>Copy to page:</b><br>
+{$pages = DAO_WorkspacePage::getByWorker($active_worker)}
+<select name="workspace_page_id">
+	<option value=""></option>
+	{foreach from=$pages item=page key=page_id}
+	{if $page->isWriteableByWorker($active_worker)}
+	<option value="{$page_id}">{$page->name}</option>
 	{/if}
+	{/foreach}
 </select>
-<input type="text" name="new_workspace" size="32" maxlength="32" value="">
+<select name="workspace_tab_id">
+</select>
+<select name="_workspace_tabs" style="display:none;visibility:hidden;">
+	{$tabs = DAO_WorkspaceTab::getAll()}
+	{foreach from=$tabs item=tab key=tab_id}
+	<option value="{$tab_id}" page_id="{$tab->workspace_page_id}">{$tab->name}</option>
+	{/foreach}
+</select>
 <br>
 <br>
 
@@ -30,11 +38,15 @@ You can copy this worklist into your own workspaces, allowing you to put your fa
 
 <script type="text/javascript">
 	$frm = $('#frmCopy{$view->id}');
-	$frm.find('SELECT[name=workspace_id]').change(function() {
-		if('' == $(this).val()) {
-			$(this).siblings('input:text[name=new_workspace]').show();
-		} else {
-			$(this).siblings('input:text[name=new_workspace]').val('').hide();
-		}
+	$frm.find('SELECT[name=workspace_page_id]').change(function() {
+		$frm = $('#frmCopy{$view->id}');
+		$options = $frm.find('select[name=_workspace_tabs]');
+		
+		$dest = $frm.find('select[name=workspace_tab_id]');
+		$dest.find('option').remove();
+		
+		page_id = $(this).val();
+		
+		$options.find('[page_id="' + page_id + '"]').clone().appendTo($dest);
 	});
 </script>

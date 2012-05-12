@@ -1647,9 +1647,6 @@ class ChInternalController extends DevblocksControllerExtension {
         if(null == ($view = C4_AbstractViewLoader::getView($view_id)))
         	return;
 
-		$workspaces = DAO_Workspace::getByOwner(CerberusContexts::CONTEXT_WORKER, $active_worker->id);
-		$tpl->assign('workspaces', $workspaces);
-
         $tpl->assign('view_id', $view_id);
 		$tpl->assign('view', $view);
 
@@ -1667,21 +1664,21 @@ class ChInternalController extends DevblocksControllerExtension {
 			return;
 
 		@$list_title = DevblocksPlatform::importGPC($_POST['list_title'],'string', '');
-		@$workspace_id = DevblocksPlatform::importGPC($_POST['workspace_id'],'integer', 0);
-		@$new_workspace = DevblocksPlatform::importGPC($_POST['new_workspace'],'string', '');
+		@$workspace_page_id = DevblocksPlatform::importGPC($_POST['workspace_page_id'],'integer', 0);
+		@$workspace_tab_id = DevblocksPlatform::importGPC($_POST['workspace_tab_id'],'integer', 0);
 
-		if(empty($workspace_id)) {
-			$fields = array(
-				DAO_Workspace::NAME => (!empty($new_workspace) ? $new_workspace : $translate->_('mail.workspaces.new')),
-				DAO_Workspace::OWNER_CONTEXT => CerberusContexts::CONTEXT_WORKER,
-				DAO_Workspace::OWNER_CONTEXT_ID => $active_worker->id,
-			);
-			$workspace_id = DAO_Workspace::create($fields);
-		}
-
-		if(null == ($workspace = DAO_Workspace::get($workspace_id)))
+		if(null == ($workspace_page = DAO_WorkspacePage::get($workspace_page_id)))
+			return;
+		
+		if(!$workspace_page->isWriteableByWorker($active_worker))
+			return;
+		
+		if(null == ($workspace_tab = DAO_WorkspaceTab::get($workspace_tab_id)))
 			return;
 
+		if($workspace_tab->workspace_page_id != $workspace_page->id)
+			return;
+		
 		if(empty($list_title))
 			$list_title = $translate->_('mail.workspaces.new_list');
 
@@ -1709,7 +1706,7 @@ class ChInternalController extends DevblocksControllerExtension {
 
 		// Save the new worklist
 		$fields = array(
-			DAO_WorkspaceList::WORKSPACE_ID => $workspace_id,
+			DAO_WorkspaceList::WORKSPACE_TAB_ID => $workspace_tab_id,
 			DAO_WorkspaceList::CONTEXT => $workspace_context,
 			DAO_WorkspaceList::LIST_VIEW => serialize($list_view),
 			DAO_WorkspaceList::LIST_POS => 99,

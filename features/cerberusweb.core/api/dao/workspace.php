@@ -49,7 +49,12 @@ class DAO_WorkspacePage extends C4_ORMHelper {
 	    $cache = DevblocksPlatform::getCacheService();
 	    
 	    if($nocache || null === ($pages = $cache->load(self::_CACHE_ALL))) {
-    	    $pages = DAO_WorkspacePage::getWhere();
+    	    $pages = self::getWhere(
+    	    	null,
+    	    	DAO_WorkspacePage::NAME,
+    	    	true
+			);
+    	    
     	    $cache->save($pages, self::_CACHE_ALL);
 	    }
 	    
@@ -391,7 +396,11 @@ class DAO_WorkspaceTab extends C4_ORMHelper {
 	    $cache = DevblocksPlatform::getCacheService();
 	    
 	    if($nocache || null === ($tabs = $cache->load(self::_CACHE_ALL))) {
-    	    $tabs = self::getWhere();
+    	    $tabs = self::getWhere(
+    	    	null,
+    	    	DAO_WorkspaceTab::NAME,
+    	    	true
+			);
     	    $cache->save($tabs, self::_CACHE_ALL);
 	    }
 	    

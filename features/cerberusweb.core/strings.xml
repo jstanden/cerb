@@ -1184,9 +1184,6 @@ For example: http://www.cerberusweb.com/support/</seg></tuv>
 		<tu tuid='home.workspaces.worklist.add.new'>
 			<tuv xml:lang="en_US"><seg>New</seg></tuv>
 		</tu>
-		<tu tuid='home.workspaces.worklist.add.to_workspace'>
-			<tuv xml:lang="en_US"><seg>Add Worklist to Workspace</seg></tuv>
-		</tu>
 		<tu tuid='home.workspaces.worklist.name'>
 			<tuv xml:lang="en_US"><seg>Worklist Name</seg></tuv>
 		</tu>

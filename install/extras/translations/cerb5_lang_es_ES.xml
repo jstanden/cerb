@@ -1751,11 +1751,6 @@
         <seg>Nuevo</seg>
       </tuv>
     </tu>
-    <tu tuid="home.workspaces.worklist.add.to_workspace">
-      <tuv xml:lang="es_ES">
-        <seg>Añadir lista de trabajo al área de trabajo</seg>
-      </tuv>
-    </tu>
     <tu tuid="home.workspaces.worklist.name">
       <tuv xml:lang="es_ES">
         <seg>Nombre de Lista de Trabajo</seg>
