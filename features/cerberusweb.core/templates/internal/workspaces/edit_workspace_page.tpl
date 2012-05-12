@@ -2,6 +2,7 @@
 <input type="hidden" name="c" value="internal">
 <input type="hidden" name="a" value="doEditWorkspacePage">
 <input type="hidden" name="id" value="{$workspace_page->id|default:0}">
+<input type="hidden" name="view_id" value="{$view_id}">
 {if !empty($workspace_page)}<input type="hidden" name="do_delete" value="0">{/if}
 
 <table cellpadding="2" cellspacing="0" border="0" width="100%" style="margin-bottom:5px;">
@@ -55,7 +56,7 @@
 	
 </table>
 
-<button type="button" onclick="genericAjaxPopupPostCloseReloadView(null,'frmEditWorkspacePage','',false,'workspace_save');"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {$translate->_('common.save_changes')}</button>
+<button type="button" onclick="genericAjaxPopupPostCloseReloadView(null,'frmEditWorkspacePage','{$view_id}',false,'workspace_save');"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {$translate->_('common.save_changes')}</button>
 {if !empty($workspace_page)}<button type="button" onclick="if(!confirm('Are you sure you want to delete this workspace?')) { return false; }; $('#frmEditWorkspacePage').find('input:hidden[name=do_delete]').val('1');genericAjaxPopupPostCloseReloadView(null,'frmEditWorkspacePage','',false,'workspace_delete');"><span class="cerb-sprite2 sprite-cross-circle-frame"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 </form>
 

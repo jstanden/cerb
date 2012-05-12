@@ -2104,12 +2104,14 @@ class ChInternalController extends DevblocksControllerExtension {
 	
 	function showEditWorkspacePageAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer', 0);
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string', '');
 
 		$tpl = DevblocksPlatform::getTemplateService();
 		$active_worker = CerberusApplication::getActiveWorker();
 
-		if(!empty($id)) {
+		$tpl->assign('view_id', $view_id);
 		
+		if(!empty($id)) {
 			if(null == ($page = DAO_WorkspacePage::get($id)))
 				return;
 	
