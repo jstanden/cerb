@@ -219,19 +219,6 @@
 			</params>
 		</extension>
 		
-		<!-- Send Mail Toolbar -->
-			
-		<extension point="cerberusweb.mail.send.toolbaritem">
-			<id>cerberusweb.kb.sendmail.toolbaritem.kb</id>
-			<name>KB Send Mail Toolbar</name>
-			<class>
-				<file>api/App.php</file>
-				<name>ChKbSendMailToolbarButton</name>
-			</class>
-			<params>
-			</params>
-		</extension>
-		
 		<!-- Support Center Module -->
 		
 		<extension point="usermeet.sc.controller">

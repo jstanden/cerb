@@ -1537,19 +1537,6 @@
 			<!-- Mail Page Sections -->
 			
 			<extension point="cerberusweb.ui.page.section">
-				<id>core.page.mail.compose</id>
-				<name>Mail Compose Section</name>
-				<class>
-					<file>api/uri/mail/compose.php</file>
-					<name>PageSection_MailCompose</name>
-				</class>
-				<params>
-					<param key="page_id" value="core.page.mail" />
-					<param key="uri" value="compose" />
-				</params>
-			</extension>
-			
-			<extension point="cerberusweb.ui.page.section">
 				<id>core.page.mail.drafts</id>
 				<name>Drafts Section</name>
 				<class>

@@ -146,7 +146,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		
 		DAO_Ticket::update($id, $properties);
 		
-		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('display',$ticket->mask)));
+		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('profiles','ticket',$ticket->mask)));
 		exit;
 	}
 
@@ -184,7 +184,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		
 		// ACL
 		if(!$active_worker->hasPriv('core.ticket.view.actions.merge')) {
-			DevblocksPlatform::redirect(new DevblocksHttpResponse(array('display',$refresh_id)));
+			DevblocksPlatform::redirect(new DevblocksHttpResponse(array('profiles','ticket',$refresh_id)));
 			exit;
 		}
 		
@@ -206,7 +206,7 @@ class ChDisplayPage extends CerberusPageExtension {
 
 		// Abort if we don't have a source and at least one target
 		if(count($merge_ids) < 2) {
-			DevblocksPlatform::redirect(new DevblocksHttpResponse(array('display',$refresh_id)));
+			DevblocksPlatform::redirect(new DevblocksHttpResponse(array('profiles','ticket',$refresh_id)));
 		}
 		
 		if(false != ($oldest_id = DAO_Ticket::merge($merge_ids))) {
@@ -217,7 +217,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		}
 		
 		// Redisplay
-		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('display', $refresh_id)));
+		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('profiles','ticket',$refresh_id)));
 	}
 	
 	/**
@@ -457,7 +457,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		
 		$ticket_uri = !empty($ticket_mask) ? $ticket_mask : $ticket_id;
 		
-        DevblocksPlatform::redirect(new DevblocksHttpResponse(array('display',$ticket_uri)));
+        DevblocksPlatform::redirect(new DevblocksHttpResponse(array('profiles','ticket',$ticket_uri)));
 	}
 	
 	function saveDraftReplyAction() {
@@ -555,7 +555,7 @@ class ChDisplayPage extends CerberusPageExtension {
 			// Response
 			echo json_encode(array('draft_id'=>$draft_id, 'html'=>$html));
 		} else {
-			DevblocksPlatform::redirect(new DevblocksHttpResponse(array('display',$ticket->mask)));
+			DevblocksPlatform::redirect(new DevblocksHttpResponse(array('profiles','ticket',$ticket->mask)));
 		}
 	}
 	
@@ -716,7 +716,7 @@ class ChDisplayPage extends CerberusPageExtension {
 			
 		DAO_Message::delete($id);
 		
-		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('display', $ticket->mask)));
+		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('profiles','ticket',$ticket->mask)));
 	}
 	
 	function doSplitMessageAction() {
@@ -778,7 +778,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		DAO_Ticket::updateMessageCount($new_ticket_id);
 		DAO_Ticket::updateMessageCount($orig_ticket->id);
 			
-		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('display',$new_ticket_mask)));
+		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('profiles','ticket',$new_ticket_mask)));
 	}
 	
 	function doTicketHistoryScopeAction() {
@@ -790,7 +790,7 @@ class ChDisplayPage extends CerberusPageExtension {
 
 		$ticket = DAO_Ticket::get($ticket_id);
 
-		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('display',$ticket->mask,'history')));
+		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('profiles','ticket',$ticket->mask,'history')));
 	}
 	
 	function showContactHistoryAction() {

@@ -253,18 +253,6 @@ if (class_exists('Extension_ReplyToolbarItem',true)):
 	};
 endif;
 
-if (class_exists('Extension_SendMailToolbarItem',true)):
-	class ChKbSendMailToolbarButton extends Extension_SendMailToolbarItem {
-		function render() { 
-			$tpl = DevblocksPlatform::getTemplateService();
-
-			$tpl->assign('div', 'sendMailToolbarOptions');
-			
-			$tpl->display('devblocks:cerberusweb.kb::renderers/toolbar_kb_button.tpl');
-		}
-	};
-endif;
-
 // [TODO] This should just be merged into KbPage
 class ChKbAjaxController extends DevblocksControllerExtension {
 	function isVisible() {

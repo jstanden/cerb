@@ -100,7 +100,7 @@
 	&nbsp; 
 	<a href="{devblocks_url}c=contacts&a=findTickets{/devblocks_url}?email={$address.a_email}&closed=0">{'addy_book.peek.count.open_tickets'|devblocks_translate:$open_count}</a> &nbsp; 
 	<a href="{devblocks_url}c=contacts&a=findTickets{/devblocks_url}?email={$address.a_email}&closed=1">{'addy_book.peek.count.closed_tickets'|devblocks_translate:$closed_count}</a> &nbsp; 
-	{if $active_worker->hasPriv('core.mail.send')}<a href="javascript:;" onclick="genericAjaxPopup('peek','c=mail&a=handleSectionAction&section=compose&action=showComposePeek&view_id=&to={$address.a_email|escape:'url'}',null,false,'600');"> {$translate->_('addy_book.peek.compose')}</a> &nbsp; {/if}
+	{if $active_worker->hasPriv('core.mail.send')}<a href="javascript:;" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_TICKET}&context_id=0&view_id=&to={$address.a_email|escape:'url'}',null,false,'650');"> {$translate->_('addy_book.peek.compose')}</a> &nbsp; {/if}
 	<a href="{devblocks_url}c=profiles&type=address&id={$address.a_id}-{$address.a_email|devblocks_permalink}{/devblocks_url}">full record</a> &nbsp; 
 {/if}
 

@@ -395,6 +395,149 @@ class ChTicketsPage extends CerberusPageExtension {
 		exit;
 	}
 		
+	function saveComposePeekAction() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!$active_worker->hasPriv('core.mail.send'))
+			return;
+		
+// 		@$draft_id = DevblocksPlatform::importGPC($_POST['draft_id'],'integer');
+
+		// Destination
+		
+		@$group_or_bucket_id = DevblocksPlatform::importGPC($_POST['group_or_bucket_id'],'string', '');
+		@list($group_id, $bucket_id) = explode('_', $group_or_bucket_id, 2);
+		$group_id = intval($group_id);
+		$bucket_id = intval($bucket_id);
+		
+		// Headers
+		
+		@$org_name = DevblocksPlatform::importGPC($_POST['org_name'],'string');
+		@$to = rtrim(DevblocksPlatform::importGPC($_POST['to'],'string'),' ,');
+		@$cc = rtrim(DevblocksPlatform::importGPC($_POST['cc'],'string',''),' ,;');
+		@$bcc = rtrim(DevblocksPlatform::importGPC($_POST['bcc'],'string',''),' ,;');
+		@$subject = DevblocksPlatform::importGPC($_POST['subject'],'string','(no subject)');
+		@$content = DevblocksPlatform::importGPC($_POST['content'],'string');
+
+		// Properties
+		
+		@$closed = DevblocksPlatform::importGPC($_POST['closed'],'integer',0);
+		@$move_bucket = DevblocksPlatform::importGPC($_POST['bucket_id'],'string','');
+		@$ticket_reopen = DevblocksPlatform::importGPC($_POST['ticket_reopen'],'string','');
+		
+		// Options
+		
+		@$add_me_as_watcher = DevblocksPlatform::importGPC($_POST['add_me_as_watcher'],'integer',0);
+		@$options_dont_send = DevblocksPlatform::importGPC($_POST['options_dont_send'],'integer',0);
+		
+		// Attachments
+		
+		@$file_ids = DevblocksPlatform::importGPC($_POST['file_ids'],'array',array());
+		$file_ids = DevblocksPlatform::sanitizeArray($file_ids, 'integer', array('unique', 'nonzero'));
+		
+		// No destination?
+		
+		if(empty($to)) {
+			return;
+		}
+		
+		// Org
+		
+		$org_id = 0;
+		if(!empty($org_name)) {
+			$org_id = DAO_ContactOrg::lookup($org_name, true);
+		} else {
+			// If we weren't given an organization, use the first recipient
+			$to_addys = CerberusMail::parseRfcAddresses($to);
+			if(is_array($to_addys) && !empty($to_addys)) {
+				if(null != ($to_addy = DAO_Address::lookupAddress(key($to_addys), true))) {
+					if(!empty($to_addy->contact_org_id))
+						$org_id = $to_addy->contact_org_id;
+				}
+			}
+		}
+
+		$properties = array(
+// 			'draft_id' => $draft_id,
+			'group_id' => $group_id,
+			'bucket_id' => $bucket_id,
+			'org_id' => $org_id,
+			'to' => $to,
+			'cc' => $cc,
+			'bcc' => $bcc,
+			'subject' => $subject,
+			'content' => $content,
+			'forward_files' => $file_ids,
+			'closed' => $closed,
+			'ticket_reopen' => $ticket_reopen,
+		);
+		
+		// Custom fields
+		
+		@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', array());
+		$field_values = DAO_CustomFieldValue::parseFormPost(CerberusContexts::CONTEXT_TICKET, $field_ids);
+		if(!empty($field_values)) {
+			$properties['custom_fields'] = $field_values;
+		}
+		
+		// Options
+		
+		if(!empty($options_dont_send))
+			$properties['dont_send'] = 1;
+		
+		$ticket_id = CerberusMail::compose($properties);
+		
+		if(!empty($ticket_id)) {
+// 			if(!empty($draft_id))
+// 				DAO_MailQueue::delete($draft_id);
+
+			// Watchers
+			
+			if($add_me_as_watcher)
+				CerberusContexts::addWatchers(CerberusContexts::CONTEXT_TICKET, $ticket_id, $active_worker->id);
+				
+			// Preferences
+			
+			DAO_WorkerPref::set($active_worker->id, 'compose.group_id', $group_id);
+			DAO_WorkerPref::set($active_worker->id, 'compose.bucket_id', $bucket_id);
+
+			// Context Link (if given)
+			
+			@$link_context = DevblocksPlatform::importGPC($_REQUEST['link_context'],'string','');
+			@$link_context_id = DevblocksPlatform::importGPC($_REQUEST['link_context_id'],'integer','');
+			if(!empty($ticket_id) && !empty($link_context) && !empty($link_context_id)) {
+				DAO_ContextLink::setLink(CerberusContexts::CONTEXT_TICKET, $ticket_id, $link_context, $link_context_id);
+			}
+			
+			// Attachments
+			
+			if(is_array($file_ids) && !empty($file_ids)) {
+				if(null != ($ticket = DAO_Ticket::get($ticket_id))) {
+					DAO_AttachmentLink::setLinks(CerberusContexts::CONTEXT_MESSAGE, $ticket->first_message_id, $file_ids);
+				}
+			}
+		}
+		
+		exit;
+	}
+	
+	function getComposeSignatureAction() {
+		@$group_id = DevblocksPlatform::importGPC($_REQUEST['group_id'],'integer',0);
+		@$bucket_id = DevblocksPlatform::importGPC($_REQUEST['bucket_id'],'integer',0);
+		@$raw = DevblocksPlatform::importGPC($_REQUEST['raw'],'integer',0);
+		
+		// Parsed or raw?
+		$active_worker = !empty($raw) ? null : CerberusApplication::getActiveWorker();
+		
+		if(empty($group_id) || null == ($group = DAO_Group::get($group_id))) {
+			$replyto_default = DAO_AddressOutgoing::getDefault();
+			echo $replyto_default->getReplySignature($active_worker);
+			
+		} else {
+			echo $group->getReplySignature($bucket_id, $active_worker);
+		}
+	}	
+	
 	function showViewAutoAssistAction() {
         @$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
         @$mode = DevblocksPlatform::importGPC($_REQUEST['mode'],'string','senders');

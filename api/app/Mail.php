@@ -158,7 +158,8 @@ class CerberusMail {
 		@$subject = $properties['subject'];
 		@$content = $properties['content'];
 		@$files = $properties['files'];
-
+		@$forward_files = $properties['forward_files'];
+		
 		@$closed = $properties['closed'];
 		@$ticket_reopen = $properties['ticket_reopen'];
 		
@@ -250,6 +251,21 @@ class CerberusMail {
 						continue;
 	
 					$email->attach(Swift_Attachment::fromPath($file)->setFilename($files['name'][$idx]));
+				}
+			}
+			
+			// Forward Attachments
+			if(!empty($forward_files) && is_array($forward_files)) {
+				foreach($forward_files as $file_id) {
+					$attachment = DAO_Attachment::get($file_id);
+					if(false !== ($fp = DevblocksPlatform::getTempFile())) {
+						if(false !== $attachment->getFileContents($fp)) {
+							$attach = Swift_Attachment::fromPath(DevblocksPlatform::getTempFileInfo($fp), $attachment->mime_type);
+							$attach->setFilename($attachment->display_name);
+							$email->attach($attach);
+							fclose($fp);
+						}
+					}
 				}
 			}
 			
