@@ -93,7 +93,7 @@
 		<textarea name="broadcast_message" style="width:100%;height:200px;"></textarea>
 		<br>
 		<button type="button" onclick="ajax.chooserSnippet('snippets',$('#bulkOppBroadcast textarea[name=broadcast_message]'), { '{CerberusContexts::CONTEXT_OPPORTUNITY}':'', '{CerberusContexts::CONTEXT_WORKER}':'{$active_worker->id}' });">{'common.snippets'|devblocks_translate|capitalize}</button>
-		<button type="button" onclick="genericAjaxPost('formBatchUpdate','bulkOppBroadcastTest','c=crm&a=doOppBulkUpdateBroadcastTest');"><span class="cerb-sprite sprite-gear"></span> Test</button><!--
+		<button type="button" onclick="genericAjaxPost('formBatchUpdate','bulkOppBroadcastTest','c=crm&a=doOppBulkUpdateBroadcastTest');"><span class="cerb-sprite2 sprite-gear"></span> Test</button><!--
 		--><select onchange="insertAtCursor(this.form.broadcast_message,this.options[this.selectedIndex].value);this.selectedIndex=0;this.form.broadcast_message.focus();">
 			<option value="">-- insert at cursor --</option>
 			{foreach from=$token_labels key=k item=v}

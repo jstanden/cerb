@@ -32,7 +32,7 @@
 	
 	<div class="status"></div>
 	
-	<button type="button" class="submit"><span class="cerb-sprite sprite-gear"></span> {$translate->_('simulator.ui.cfg.generate')}</button>
+	<button type="button" class="submit"><span class="cerb-sprite2 sprite-gear"></span> {$translate->_('simulator.ui.cfg.generate')}</button>
 	</form>
 </fieldset>
 
@@ -87,7 +87,7 @@
 	
 	<div class="status"></div>
 	
-	<button type="button" class="submit"><span class="cerb-sprite sprite-gear"></span> {$translate->_('simulator.ui.cfg.generate')}</button>
+	<button type="button" class="submit"><span class="cerb-sprite2 sprite-gear"></span> {$translate->_('simulator.ui.cfg.generate')}</button>
 	</form>
 </fieldset>
 
@@ -142,7 +142,7 @@
 	
 	<div class="status"></div>
 	
-	<button type="button" class="submit"><span class="cerb-sprite sprite-gear"></span> {$translate->_('simulator.ui.cfg.generate')}</button>
+	<button type="button" class="submit"><span class="cerb-sprite2 sprite-gear"></span> {$translate->_('simulator.ui.cfg.generate')}</button>
 	</form>
 </fieldset>
 

@@ -1125,7 +1125,6 @@ button span.cerb-sprite { display:inline-block; }
 .sprite-folder_ok{ background-position: 0 -990px; width: 16px; height: 16px; } 
 .sprite-folder_out{ background-position: 0 -1056px; width: 16px; height: 16px; } 
 .sprite-funnel{ background-position: 0 -1122px; width: 16px; height: 16px; } 
-.sprite-gear{ background-position: 0 -1188px; width: 16px; height: 16px; } 
 .sprite-hand_paper{ background-position: 0 -1254px; width: 16px; height: 16px; } 
 .sprite-help{ background-position: 0 -1320px; width: 16px; height: 16px; } 
 .sprite-import{ background-position: 0 -1386px; width: 16px; height: 16px; } 
@@ -1148,7 +1147,7 @@ button span.cerb-sprite { display:inline-block; }
 .sprite-warning_gray{ background-position: -150px -583px; width: 16px; height: 16px; } 
 
 .cerb-sprite2 { 
-	background:url(cerb_sprites.png?v=2012051103);
+	background:url(cerb_sprites.png?v=2012051104);
 	background-repeat:no-repeat;
 	background-position:top left;
 	display:inline-block;
@@ -1176,13 +1175,14 @@ button span.cerb-sprite2 { display:inline-block; }
 .sprite-minus-circle{ background-position: 0 -697px; width: 16px; height: 16px; } 
 .sprite-plus-circle-frame{ background-position: 0 -738px; width: 16px; height: 16px; } 
 .sprite-plus-circle{ background-position: 0 -779px; width: 16px; height: 16px; } 
-.sprite-sort-price{ background-position: 0 -820px; width: 16px; height: 16px; } 
-.sprite-tick-circle-frame-gray{ background-position: 0 -861px; width: 16px; height: 16px; } 
-.sprite-tick-circle-frame{ background-position: 0 -902px; width: 16px; height: 16px; } 
-.sprite-tick-circle{ background-position: 0 -943px; width: 16px; height: 16px; } 
-.sprite-ui-tab-content-gear{ background-position: 0 -984px; width: 16px; height: 16px; } 
-.sprite-ui-tab-gear{ background-position: 0 -1025px; width: 16px; height: 16px; } 
-.sprite-user-silhouette{ background-position: 0 -1066px; width: 16px; height: 16px; } 
+.sprite-robot{ background-position: 0 -820px; width: 16px; height: 16px; } 
+.sprite-sort-price{ background-position: 0 -861px; width: 16px; height: 16px; } 
+.sprite-tick-circle-frame-gray{ background-position: 0 -902px; width: 16px; height: 16px; } 
+.sprite-tick-circle-frame{ background-position: 0 -943px; width: 16px; height: 16px; } 
+.sprite-tick-circle{ background-position: 0 -984px; width: 16px; height: 16px; } 
+.sprite-ui-tab-content-gear{ background-position: 0 -1025px; width: 16px; height: 16px; } 
+.sprite-ui-tab-gear{ background-position: 0 -1066px; width: 16px; height: 16px; } 
+.sprite-user-silhouette{ background-position: 0 -1107px; width: 16px; height: 16px; } 
 
 span.plugin_icon_overlay_disabled {
 	background:url(plugin_overlay_disabled.png?v=2011051203);

@@ -60,7 +60,7 @@ Used by:<br>
 {else}
 	<div class="error">{$translate->_('error.core.no_acl.edit')}</div>	
 {/if}
-<button type="button" class="tester" value="testProfileJson"><span class="cerb-sprite sprite-gear"></span> Test</button>
+<button type="button" class="tester" value="testProfileJson"><span class="cerb-sprite2 sprite-gear"></span> Test</button>
 
 </form>
 

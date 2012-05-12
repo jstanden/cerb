@@ -45,7 +45,7 @@
 	<b>{TEXT}</b> - literal text
 	{/literal}
 	<br>
-	<button type="button" class="tester"><span class="cerb-sprite sprite-gear"></span> {'common.test'|devblocks_translate|capitalize}</button>
+	<button type="button" class="tester"><span class="cerb-sprite2 sprite-gear"></span> {'common.test'|devblocks_translate|capitalize}</button>
 </fieldset>
 
 <div class="status"></div>

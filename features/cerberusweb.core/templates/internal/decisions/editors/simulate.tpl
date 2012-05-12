@@ -33,7 +33,7 @@
 </fieldset>
 
 <div>
-	<button type="button" onclick="genericAjaxPost('frmBehaviorSimulator{$trigger->id}','divBehaviorSimulatorResults{$trigger->id}','');"><span class="cerb-sprite sprite-gear"></span> Simulate</button>
+	<button type="button" onclick="genericAjaxPost('frmBehaviorSimulator{$trigger->id}','divBehaviorSimulatorResults{$trigger->id}','');"><span class="cerb-sprite2 sprite-gear"></span> Simulate</button>
 </div>
 
 <div id="divBehaviorSimulatorResults{$trigger->id}" style="padding:5px;"></div>

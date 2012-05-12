@@ -60,7 +60,7 @@
 	<div class="status"></div>	
 
 	<button type="button" class="submit"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {$translate->_('common.save_changes')|capitalize}</button>
-	<button type="button" class="tester"><span class="cerb-sprite sprite-gear"></span> Test Mailbox</button>
+	<button type="button" class="tester"><span class="cerb-sprite2 sprite-gear"></span> Test Mailbox</button>
 </fieldset>
 
 <script type="text/javascript">

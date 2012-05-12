@@ -202,11 +202,11 @@
 <div class="toolbar">
 	{if empty($job)}
 		<button type="submit"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {'common.ok'|devblocks_translate}</button>
-		<button type="button" onclick="genericAjaxPopup('simulate_behavior','c=internal&a=showBehaviorSimulatorPopup&trigger_id={$macro->id}&context={$context}&context_id={$context_id}','reuse',false,'500');"> <span class="cerb-sprite sprite-gear"></span> Simulator</button>
+		<button type="button" onclick="genericAjaxPopup('simulate_behavior','c=internal&a=showBehaviorSimulatorPopup&trigger_id={$macro->id}&context={$context}&context_id={$context_id}','reuse',false,'500');"> <span class="cerb-sprite2 sprite-gear"></span> Simulator</button>
 	{else}
 		{if $editable}
 			<button type="button" class="save" onclick="genericAjaxPopupPostCloseReloadView(null,'frmScheduledBehaviorPeek', null, false, 'behavior_save');"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {'common.ok'|devblocks_translate}</button>
-			<button type="button" onclick="genericAjaxPopup('simulate_behavior','c=internal&a=showBehaviorSimulatorPopup&trigger_id={$job->behavior_id}&context={$job->context}&context_id={$job->context_id}','reuse',false,'500');"> <span class="cerb-sprite sprite-gear"></span> Simulator</button>
+			<button type="button" onclick="genericAjaxPopup('simulate_behavior','c=internal&a=showBehaviorSimulatorPopup&trigger_id={$job->behavior_id}&context={$job->context}&context_id={$job->context_id}','reuse',false,'500');"> <span class="cerb-sprite2 sprite-gear"></span> Simulator</button>
 			<button type="button" class="delete" onclick="$(this).closest('div').hide().prev('fieldset.delete').show();"><span class="cerb-sprite2 sprite-cross-circle-frame"></span> {'common.delete'|devblocks_translate|capitalize}</button>
 		{else}
 			<button type="button" onclick="genericAjaxPopupDestroy('peek');"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {'common.ok'|devblocks_translate}</button>
