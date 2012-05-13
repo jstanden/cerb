@@ -42,20 +42,20 @@ class PageSection_MailDrafts extends Extension_PageSection {
 		switch($type) {
 			case 'compose':
 				foreach($_POST as $k => $v) {
-					switch($k) {
-						case 'c':
-						case 'a':
-						case 'view_id':
-						case 'draft_id':
-						case 'group_or_bucket_id':
-							continue;
-					}
-					
 					if(substr($k,0,6) == 'field_')
 						continue;
 					
 					$params[$k] = $v;
 				}
+
+				// We don't need these fields
+				unset($params['c']);
+				unset($params['a']);
+				unset($params['view_id']);
+				unset($params['draft_id']);
+				unset($params['group_or_bucket_id']);
+				
+				// Custom fields
 				
 				@$field_ids = DevblocksPlatform::importGPC($_REQUEST['field_ids'],'array',array());
 				$field_ids = DevblocksPlatform::sanitizeArray($field_ids, 'integer', array('nonzero','unique'));

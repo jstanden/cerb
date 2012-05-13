@@ -647,7 +647,7 @@ class CerberusMail {
 			}
 	
 			// Forward Attachments
-			if($is_forward && !empty($forward_files) && is_array($forward_files)) {
+			if(!empty($forward_files) && is_array($forward_files)) {
 				foreach($forward_files as $file_id) {
 					$attachment = DAO_Attachment::get($file_id);
 					if(false !== ($fp = DevblocksPlatform::getTempFile())) {

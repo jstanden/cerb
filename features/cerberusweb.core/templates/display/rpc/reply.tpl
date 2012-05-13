@@ -64,7 +64,7 @@
 				<tr>
 					<td width="1%" nowrap="nowrap" valign="top">{$translate->_('message.header.subject')|capitalize}: </td>
 					<td width="99%" align="left">
-						<input type="text" size="45" name="subject" value="{if !empty($draft)}{$draft->subject}{else}{if $is_forward}Fwd: {/if}{$ticket->subject}{/if}" style="width:100%;border:1px solid rgb(180,180,180);padding:2px;" class="required">					
+						<input type="text" size="45" name="subject" value="{if !empty($draft)}{$draft->params.subject}{else}{if $is_forward}Fwd: {/if}{$ticket->subject}{/if}" style="width:100%;border:1px solid rgb(180,180,180);padding:2px;" class="required">					
 					</td>
 				</tr>
 				
@@ -122,7 +122,7 @@
 <input type="hidden" name="to" value="{if !empty($draft)}{$draft->params.to}{else}{if $is_forward}{else}{foreach from=$requesters item=req_addy name=reqs}{$req_addy->email}{if !$smarty.foreach.reqs.last}, {/if}{/foreach}{/if}{/if}">
 <input type="hidden" name="cc" value="{$draft->params.cc}">
 <input type="hidden" name="bcc" value="{$draft->params.bcc}">
-<input type="hidden" name="subject" value="{if !empty($draft)}{$draft->subject}{else}{if $is_forward}Fwd: {/if}{$ticket->subject}{/if}">
+<input type="hidden" name="subject" value="{if !empty($draft)}{$draft->params.subject}{else}{if $is_forward}Fwd: {/if}{$ticket->subject}{/if}">
 
 {if $is_forward}
 <textarea name="content" rows="20" cols="80" id="reply_{$message->id}" class="reply" style="width:98%;border:1px solid rgb(180,180,180);padding:5px;">
@@ -165,124 +165,111 @@
 	</tr>
 	<tr>
 		<td>
-			<div id="replyAttachments{$message->id}" style="display:block;margin:5px;padding:5px;background-color:rgb(240,240,240);">
-			<table cellpadding="0" cellspacing="0" border="0" width="100%">
-			<tr>
-				<td style="background-color:rgb(0,184,4);width:10px;"></td>
-				<td style="padding-left:5px;">
-					<H2>{$translate->_('common.attachments')|capitalize}:</H2>
-					{'display.reply.attachments_limit'|devblocks_translate:$upload_max_filesize}<br>
-					
-					{if $is_forward && !empty($forward_attachments)}
-						<br>
-						<b>{$translate->_('display.reply.attachments_forward')|capitalize}</b><br>
-						{foreach from=$forward_attachments item=attach key=attach_id}
-							<label><input type="checkbox" name="forward_files[]" value="{$attach->id}" checked> {$attach->display_name}</label><br>
-						{/foreach}
-						<br>
-					{/if}
-					
-					<b>{$translate->_('display.reply.attachments_add')}</b> 
-					(<a href="javascript:;" onclick="appendFileInput('displayReplyAttachments','attachment[]');">{$translate->_('display.reply.attachments_more')|lower}</a>)
-					(<a href="javascript:;" onclick="$('#displayReplyAttachments').html('');appendFileInput('displayReplyAttachments','attachment[]');">{$translate->_('common.clear')|lower}</a>)
-					<br>
-					<table cellpadding="2" cellspacing="0" border="0" width="100%">
-						<tr>
-							<td width="100%" valign="top">
-								<div id="displayReplyAttachments">
-									<input type="file" name="attachment[]" size="45"></input><br> 
-								</div>
-							</td>
-						</tr>
-					</table>
-				</td>
-			</tr>
-			</table>
-			</div>
+			<fieldset class="peek">
+				<legend>{$translate->_('common.attachments')|capitalize}</legend>
+
+				<button type="button" class="chooser_file"><span class="cerb-sprite2 sprite-plus-circle"></span></button>
+				<ul class="bubbles chooser-container">
+				{if $draft->params.file_ids}
+					{foreach from=$draft->params.file_ids item=file_id}
+						{$file = DAO_Attachment::get($file_id)}
+						{if !empty($file)}
+						<li><input type="hidden" name="file_ids[]" value="{$file_id}">{$file->display_name} ({$file->storage_size} bytes) <a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></li>
+						{/if} 
+					{/foreach}
+				{elseif $is_forward && !empty($forward_attachments)}
+					{foreach from=$forward_attachments item=attach}
+						<li><input type="hidden" name="file_ids[]" value="{$attach->id}">{$attach->display_name} ({$attach->storage_size} bytes) <a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></li>
+					{/foreach}
+				{/if}
+				</ul>
+				
+			</fieldset>
 		</td>
 	</tr>
 	<tr>
 		<td>
-		<div style="background-color:rgb(240,240,240);margin:5px;padding:5px;">
-			<table cellpadding="0" cellspacing="0" border="0" width="100%">
-			<tr>
-				<td style="background-color:rgb(18,147,195);width:10px;"></td>
-				<td style="padding-left:5px;">
-				<H2>{$translate->_('display.reply.next_label')|capitalize}</H2>
-					<table cellpadding="2" cellspacing="0" border="0">
-						<tr>
-							<td nowrap="nowrap" valign="top" colspan="2">
-								<div style="margin-bottom:10px;">
-									{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" object_watchers=$object_watchers context=CerberusContexts::CONTEXT_TICKET context_id=$ticket->id full=true}
-								</div>
+			<fieldset class="peek">
+				<legend>{'common.properties'|devblocks_translate|capitalize}</legend>
+				
+				<table cellpadding="2" cellspacing="0" border="0">
+					<tr>
+						<td nowrap="nowrap" valign="top" colspan="2">
+							<div style="margin-bottom:10px;">
+								{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" object_watchers=$object_watchers context=CerberusContexts::CONTEXT_TICKET context_id=$ticket->id full=true}
+							</div>
 
-								<label><input type="radio" name="closed" value="0" onclick="toggleDiv('replyOpen{$message->id}','block');toggleDiv('replyClosed{$message->id}','none');" {if 'open'==$mail_status_reply}checked="checked"{/if}>{$translate->_('status.open')|capitalize}</label>
-								<label><input type="radio" name="closed" value="2" onclick="toggleDiv('replyOpen{$message->id}','block');toggleDiv('replyClosed{$message->id}','block');" {if 'waiting'==$mail_status_reply}checked="checked"{/if}>{$translate->_('status.waiting')|capitalize}</label>
-								{if $active_worker->hasPriv('core.ticket.actions.close') || ($ticket->is_closed && !$ticket->is_deleted)}<label><input type="radio" name="closed" value="1" onclick="toggleDiv('replyOpen{$message->id}','none');toggleDiv('replyClosed{$message->id}','block');" {if 'closed'==$mail_status_reply}checked="checked"{/if}>{$translate->_('status.closed')|capitalize}</label>{/if}
-								<br>
-								<br>
-								
-						      	<div id="replyClosed{$message->id}" style="display:{if 'open'==$mail_status_reply}none{else}block{/if};margin-left:10px;margin-bottom:10px;">
-						      	<b>{$translate->_('display.reply.next.resume')}</b> {$translate->_('display.reply.next.resume_eg')}<br> 
-						      	<input type="text" name="ticket_reopen" size="55" value="{if !empty($ticket->due_date)}{$ticket->due_date|devblocks_date}{/if}"><br>
-						      	{$translate->_('display.reply.next.resume_blank')}<br>
-						      	</div>
-		
-								{if $active_worker->hasPriv('core.ticket.actions.move')}
-								<b>{$translate->_('display.reply.next.move')}</b><br>  
-						      	<select name="bucket_id">
-						      		<option value="">-- {$translate->_('display.reply.next.move.no_thanks')|lower} --</option>
-						      		{if empty($ticket->bucket_id)}{assign var=t_or_c value="t"}{else}{assign var=t_or_c value="c"}{/if}
-						      		<optgroup label="{$translate->_('common.inboxes')|capitalize}">
-						      		{foreach from=$groups item=group}
-						      			<option value="t{$group->id}">{$group->name}{if $t_or_c=='t' && $ticket->group_id==$group->id} {$translate->_('display.reply.next.move.current')}{/if}</option>
-						      		{/foreach}
-						      		</optgroup>
-						      		{foreach from=$group_buckets item=buckets key=groupId}
-						      			{assign var=group value=$groups.$groupId}
-						      			{if !empty($active_worker_memberships.$groupId)}
-							      			<optgroup label="-- {$group->name} --">
-							      			{foreach from=$buckets item=bucket}
-							    				<option value="c{$bucket->id}">{$bucket->name}{if $t_or_c=='c' && $ticket->bucket_id==$bucket->id} {$translate->_('display.reply.next.move.current')}{/if}</option>
-							    			{/foreach}
-							    			</optgroup>
-							    		{/if}
-						     		{/foreach}
-						      	</select><br>
-						      	<br>
-						      	{/if}
-						      	
-						      	<b>{'display.reply.next.owner'|devblocks_translate}</b><br>
-						      	<select name="owner_id">
-						      		<option value="">-- {'common.nobody'|devblocks_translate|lower} --</option>
-						      		{foreach from=$workers item=owner key=owner_id}
-						      		<option value="{$owner_id}" {if $ticket->owner_id==$owner_id}selected="selected"{/if}>{$owner->getName()}</option>
-						      		{/foreach}
-						      	</select>
-						      	<button type="button" onclick="$(this).prev('select[name=owner_id]').val('{$active_worker->id}');">{'common.me'|devblocks_translate|lower}</button>
-						      	<button type="button" onclick="$(this).prevAll('select[name=owner_id]').first().val('');">{'common.nobody'|devblocks_translate|lower}</button>
-						      	<br>
-						      	<br>
-							</td>
-						</tr>
-					</table>
-					
-					{if !empty($custom_fields) || !empty($group_fields)}
-					<b>{'common.custom_fields'|devblocks_translate|capitalize}:</b>
-					<div id="compose_cfields" style="margin:5px 0px 0px 10px;">
-						<div class="global">
-							{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false}
-						</div>
-						<div class="group">
-							{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" custom_fields=$group_fields bulk=false}
-						</div>
+							<label><input type="radio" name="closed" value="0" onclick="toggleDiv('replyOpen{$message->id}','block');toggleDiv('replyClosed{$message->id}','none');" {if (empty($draft) && 'open'==$mail_status_reply) || $draft->params.closed==0}checked="checked"{/if}>{$translate->_('status.open')|capitalize}</label>
+							<label><input type="radio" name="closed" value="2" onclick="toggleDiv('replyOpen{$message->id}','block');toggleDiv('replyClosed{$message->id}','block');" {if (empty($draft) && 'waiting'==$mail_status_reply) || $draft->params.closed==2}checked="checked"{/if}>{$translate->_('status.waiting')|capitalize}</label>
+							{if $active_worker->hasPriv('core.ticket.actions.close') || ($ticket->is_closed && !$ticket->is_deleted)}<label><input type="radio" name="closed" value="1" onclick="toggleDiv('replyOpen{$message->id}','none');toggleDiv('replyClosed{$message->id}','block');" {if (empty($draft) && 'closed'==$mail_status_reply) || $draft->params.closed==1}checked="checked"{/if}>{$translate->_('status.closed')|capitalize}</label>{/if}
+							<br>
+							<br>
+							
+					      	<div id="replyClosed{$message->id}" style="display:{if (empty($draft) && 'open'==$mail_status_reply) || $draft->params.closed==0}none{else}block{/if};margin-left:10px;margin-bottom:10px;">
+					      	<b>{$translate->_('display.reply.next.resume')}</b> {$translate->_('display.reply.next.resume_eg')}<br> 
+					      	<input type="text" name="ticket_reopen" size="55" value="{if !empty($draft)}{$draft->params.ticket_reopen}{elseif !empty($ticket->due_date)}{$ticket->due_date|devblocks_date}{/if}"><br>
+					      	{$translate->_('display.reply.next.resume_blank')}<br>
+					      	</div>
+	
+							{if $active_worker->hasPriv('core.ticket.actions.move')}
+							<b>{$translate->_('display.reply.next.move')}</b><br>  
+					      	<select name="bucket_id">
+					      		<option value="">-- {$translate->_('display.reply.next.move.no_thanks')|lower} --</option>
+					      		{if empty($ticket->bucket_id)}{assign var=t_or_c value="t"}{else}{assign var=t_or_c value="c"}{/if}
+					      		<optgroup label="{$translate->_('common.inboxes')|capitalize}">
+					      		{foreach from=$groups item=group}
+					      			<option value="t{$group->id}" {if $draft->params.bucket_id=="t{$group->id}"}selected="selected"{/if}>{$group->name}{if $t_or_c=='t' && $ticket->group_id==$group->id} {$translate->_('display.reply.next.move.current')}{/if}</option>
+					      		{/foreach}
+					      		</optgroup>
+					      		{foreach from=$group_buckets item=buckets key=groupId}
+					      			{assign var=group value=$groups.$groupId}
+					      			{if !empty($active_worker_memberships.$groupId)}
+						      			<optgroup label="-- {$group->name} --">
+						      			{foreach from=$buckets item=bucket}
+						    				<option value="c{$bucket->id}" {if $draft->params.bucket_id=="c{$bucket->id}"}selected="selected"{/if}>{$bucket->name}{if $t_or_c=='c' && $ticket->bucket_id==$bucket->id} {$translate->_('display.reply.next.move.current')}{/if}</option>
+						    			{/foreach}
+						    			</optgroup>
+						    		{/if}
+					     		{/foreach}
+					      	</select><br>
+					      	<br>
+					      	{/if}
+					      	
+					      	<b>{'display.reply.next.owner'|devblocks_translate}</b><br>
+					      	<select name="owner_id">
+					      		<option value="">-- {'common.nobody'|devblocks_translate|lower} --</option>
+					      		{foreach from=$workers item=owner key=owner_id}
+					      		<option value="{$owner_id}" {if !empty($draft) && $draft->params.owner_id==$owner_id}selected="selected"{elseif $ticket->owner_id==$owner_id}selected="selected"{/if}>{$owner->getName()}</option>
+					      		{/foreach}
+					      	</select>
+					      	<button type="button" onclick="$(this).prev('select[name=owner_id]').val('{$active_worker->id}');">{'common.me'|devblocks_translate|lower}</button>
+					      	<button type="button" onclick="$(this).prevAll('select[name=owner_id]').first().val('');">{'common.nobody'|devblocks_translate|lower}</button>
+					      	<br>
+					      	<br>
+						</td>
+					</tr>
+				</table>
+			</fieldset>
+			
+			<fieldset class="peek">
+				<legend>{'common.custom_fields'|devblocks_translate|capitalize}</legend>
+				
+				{if !empty($custom_fields) || !empty($group_fields)}
+				
+				{if !empty($draft) && !empty($draft->params.custom_fields)}
+					{$custom_field_values = $draft->params.custom_fields}
+				{/if}
+				
+				<div id="compose_cfields" style="margin:5px 0px 0px 10px;">
+					<div class="global">
+						{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false}
 					</div>
-					{/if}
-					
-				</td>
-			</tr>
-			</table>
-			</div>
+					<div class="group">
+						{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" custom_fields=$group_fields bulk=false}
+					</div>
+				</div>
+				{/if}
+			</fieldset>
 		</td>
 	</tr>
 	<tr>
@@ -307,22 +294,25 @@
 		var draftAutoSaveInterval = null;
 	
 	$(function() {
+		$frm = $('#reply{$message->id}_part1');
+		$frm2 = $('#reply{$message->id}_part2');
+		
 		// Autocompletes
 		ajax.emailAutoComplete('#reply{$message->id}_part1 input[name=to]', { multiple: true } );
 		ajax.emailAutoComplete('#reply{$message->id}_part1 input[name=cc]', { multiple: true } );
 		ajax.emailAutoComplete('#reply{$message->id}_part1 input[name=bcc]', { multiple: true } );
 		
-		$('#reply{$message->id}_part1 input:text').focus(function(event) {
+		$frm.find('input:text').focus(function(event) {
 			$(this).nextAll('div.instructions').fadeIn();
 		});
 		
-		$('#reply{$message->id}_part1 input:text').blur(function(event) {
+		$frm.find('input:text').blur(function(event) {
 			$(this).nextAll('div.instructions').fadeOut();
 			name = event.target.name;
 			$('#reply{$message->id}_part2 input:hidden[name='+name+']').val(event.target.value);
 		} );
 		
-		$('#reply{$message->id}_part1 input:text[name=to], #reply{$message->id}_part1 input:text[name=cc], #reply{$message->id}_part1 input:text[name=bcc]').focus(function(event) {
+		$frm.find('input:text[name=to], #reply{$message->id}_part1 input:text[name=cc], #reply{$message->id}_part1 input:text[name=bcc]').focus(function(event) {
 			$('#reply{$message->id}_suggested').appendTo($(this).closest('td'));
 		});
 		
@@ -352,16 +342,16 @@
 				$ul.closest('div').remove();
 		});
 		
-		$('#reply{$message->id}_part1').validate();
+		$frm.validate();
 		
-		$('#reply{$message->id}_part1 button[name=saveDraft]').click(); // save now
+		$frm.find('button[name=saveDraft]').click(); // save now
 		if(null != draftAutoSaveInterval) {
 			clearTimeout(draftAutoSaveInterval);
 			draftAutoSaveInterval = null;
 		}
 		draftAutoSaveInterval = setInterval("$('#reply{$message->id}_part1 button[name=saveDraft]').click();", 30000); // and every 30 sec
 
-		$('#reply{$message->id}_part1 input:text.context-snippet').autocomplete({
+		$frm.find('input:text.context-snippet').autocomplete({
 			source: DevblocksAppPath+'ajax.php?c=internal&a=autocomplete&context=cerberusweb.contexts.snippet&contexts[]=cerberusweb.contexts.ticket&contexts[]=cerberusweb.contexts.worker',
 			minLength: 1,
 			focus:function(event, ui) {
@@ -394,8 +384,13 @@
 			}
 		});
 
+		// Files
+		$frm2.find('button.chooser_file').each(function() {
+			ajax.chooserFile(this,'file_ids');
+		});
+		
 		// Menu
-		$('#reply{$message->id}_part2 button.send')
+		$frm2.find('button.send')
 			.siblings('ul.cerb-popupmenu')
 			.hover(
 				function(e) { }, 

@@ -1255,9 +1255,6 @@ For example: http://www.cerberusweb.com/support/</seg></tuv>
 		<tu tuid='display.reply.insert_sig'>
 			<tuv xml:lang="en_US"><seg>Insert Signature</seg></tuv>
 		</tu>
-		<tu tuid='display.reply.next_label'>
-			<tuv xml:lang="en_US"><seg>Next</seg></tuv>
-		</tu>
 		<tu tuid='display.reply.next.move'>
 			<tuv xml:lang="en_US"><seg>Would you like to move this conversation?</seg></tuv>
 		</tu>

@@ -1476,11 +1476,6 @@
         <seg>(т.е. "Friday", "7 days", "Tomorrow 11:15AM", "Dec 31")</seg>
       </tuv>
     </tu>
-    <tu tuid="display.reply.next_label">
-      <tuv xml:lang="ru_RU">
-        <seg>Далее</seg>
-      </tuv>
-    </tu>
     <tu tuid="display.reply.reply_banner">
       <tuv xml:lang="ru_RU">
         <seg>%s, %s написал:</seg>

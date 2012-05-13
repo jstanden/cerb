@@ -1841,11 +1841,6 @@
         <seg>z.B. "Freitag", "7 Tage", "Morgen 11:15", "31.12."</seg>
       </tuv>
     </tu>
-    <tu tuid="display.reply.next_label">
-      <tuv xml:lang="de_DE">
-        <seg>Weiter</seg>
-      </tuv>
-    </tu>
     <tu tuid="display.reply.reply_banner">
       <tuv xml:lang="de_DE">
         <seg>Am %s, %s schrieb:</seg>

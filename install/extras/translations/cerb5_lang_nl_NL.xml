@@ -1711,11 +1711,6 @@
         <seg>(bv. "Friday", "7 days", "Tomorrow 11:15AM", "Dec 31")</seg>
       </tuv>
     </tu>
-    <tu tuid="display.reply.next_label">
-      <tuv xml:lang="nl_NL">
-        <seg>Volgende</seg>
-      </tuv>
-    </tu>
     <tu tuid="display.reply.reply_banner">
       <tuv xml:lang="nl_NL">
         <seg>Op %s schreef %s:</seg>

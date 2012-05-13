@@ -1516,11 +1516,6 @@
         <seg>(e.g. "Viernes", "7 días", "Mañana 11:15AM", "Dic 31")</seg>
       </tuv>
     </tu>
-    <tu tuid="display.reply.next_label">
-      <tuv xml:lang="es_ES">
-        <seg>Siguiente</seg>
-      </tuv>
-    </tu>
     <tu tuid="display.reply.reply_banner">
       <tuv xml:lang="es_ES">
         <seg>El %s, %s escribió:</seg>

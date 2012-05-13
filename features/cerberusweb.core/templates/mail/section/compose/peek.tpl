@@ -141,13 +141,13 @@
 
 <fieldset class="peek">
 	<legend>{'common.attachments'|devblocks_translate|capitalize}</legend>
-	<button type="button" class="chooser_file"><span class="cerb-sprite sprite-view"></span></button>
+	<button type="button" class="chooser_file"><span class="cerb-sprite2 sprite-plus-circle"></span></button>
 	<ul class="bubbles chooser-container">
 	{if $draft->params.file_ids}
 	{foreach from=$draft->params.file_ids item=file_id}
 		{$file = DAO_Attachment::get($file_id)}
 		{if !empty($file)}
-			<li><input type="hidden" name="file_ids[]" value="{$file_id}">{$file->display_name} ({$file->storage_size} bytes)</li>
+			<li><input type="hidden" name="file_ids[]" value="{$file_id}">{$file->display_name} ({$file->storage_size} bytes) <a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></li>
 		{/if} 
 	{/foreach}
 	{/if}
