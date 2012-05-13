@@ -32,6 +32,7 @@
 				<li><a href="{devblocks_url}c=profiles&w=worker&me=me{/devblocks_url}">{'header.my_profile'|devblocks_translate|lower}</a></li>
 				<li><a href="{devblocks_url}c=preferences{/devblocks_url}">{'common.settings'|devblocks_translate|lower}</a></li>
 				<li><a href="{devblocks_url}c=profiles&w=worker&me=me&tab=notifications{/devblocks_url}">{'home.tab.my_notifications'|devblocks_translate|lower}</a></li>
+				<li><a href="{devblocks_url}c=profiles&w=worker&me=me&tab=calendar{/devblocks_url}">{'calendar'|devblocks_translate|lower}</a></li>
 				<li><a href="{devblocks_url}c=profiles&w=worker&me=me&tab=attendant{/devblocks_url}">{'virtual attendant'|devblocks_translate|lower}</a></li>
 				<li><a href="{devblocks_url}c=profiles&w=worker&me=me&tab=snippets{/devblocks_url}">{'common.snippets'|devblocks_translate|lower}</a></li>
 				<li><a href="{devblocks_url}c=profiles&w=worker&me=me&tab=links{/devblocks_url}">{'watchlist'|devblocks_translate|lower}</a></li>
