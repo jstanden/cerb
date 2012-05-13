@@ -15,104 +15,68 @@
 |	http://www.cerberusweb.com	  http://www.webgroupmedia.com/
 ***********************************************************************/
 
+// [TODO] This could just be a sub-controller
 class PageSection_MailDrafts extends Extension_PageSection {
-	function render() {
-		$active_worker = CerberusApplication::getActiveWorker();
-		$visit = CerberusApplication::getVisit();
-		$tpl = DevblocksPlatform::getTemplateService();
-
-		// Remember the tab
-		$visit->set(Extension_MailTab::POINT, 'drafts');
-		
-		$defaults = new C4_AbstractViewModel();
-		$defaults->class_name = 'View_MailQueue';
-		$defaults->id = 'mail_drafts';
-		
-		$view = C4_AbstractViewLoader::getView($defaults->id, $defaults);
-		$view->name = 'Drafts';
-		
-		$view->addColumnsHidden(array(
-			SearchFields_MailQueue::ID,
-			SearchFields_MailQueue::IS_QUEUED,
-			SearchFields_MailQueue::QUEUE_FAILS,
-			SearchFields_MailQueue::QUEUE_DELIVERY_DATE,
-			SearchFields_MailQueue::TICKET_ID,
-			SearchFields_MailQueue::WORKER_ID,
-		), true);
-		
-		$view->addParamsRequired(array(
-			SearchFields_MailQueue::WORKER_ID => new DevblocksSearchCriteria(SearchFields_MailQueue::WORKER_ID, DevblocksSearchCriteria::OPER_EQ, $active_worker->id),
-			SearchFields_MailQueue::IS_QUEUED => new DevblocksSearchCriteria(SearchFields_MailQueue::IS_QUEUED, DevblocksSearchCriteria::OPER_EQ, 0),
-		), true);
-		$view->addParamsHidden(array(
-			SearchFields_MailQueue::ID,
-			SearchFields_MailQueue::IS_QUEUED,
-			SearchFields_MailQueue::QUEUE_FAILS,
-			SearchFields_MailQueue::QUEUE_DELIVERY_DATE,
-			SearchFields_MailQueue::TICKET_ID,
-			SearchFields_MailQueue::WORKER_ID,
-		), true);
-		
-		C4_AbstractViewLoader::setView($view->id,$view);
-		$tpl->assign('view', $view);
-		
-		$tpl->display('devblocks:cerberusweb.core::mail/section/drafts.tpl');		
-	}
+	function render() {}
 	
 	function saveDraftAction() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		@$draft_id = DevblocksPlatform::importGPC($_REQUEST['draft_id'],'integer',0); 
 
-		// Common
 		@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string',''); 
 		@$subject = DevblocksPlatform::importGPC($_REQUEST['subject'],'string',''); 
 		@$content = DevblocksPlatform::importGPC($_REQUEST['content'],'string','');
 
-		// Compose
-		@$group_id = DevblocksPlatform::importGPC($_REQUEST['group_id'],'integer',0); 
-		@$cc = DevblocksPlatform::importGPC($_REQUEST['cc'],'string',''); 
-		@$bcc = DevblocksPlatform::importGPC($_REQUEST['bcc'],'string',''); 
-		
 		$params = array();
 		
 		$hint_to = null;
 		$type = null;
+			
+		if(empty($to) && empty($subject) && empty($content)) {
+			echo json_encode(array());
+			return;
+		}
 		
-		if(!empty($to))
-			$params['to'] = $to;
-			
-		if(empty($subject) && empty($content))
-			return json_encode(array());
-			
 		@$type = DevblocksPlatform::importGPC($_REQUEST['type'],'string','');
-		
+
 		switch($type) {
 			case 'compose':
-				@$org_name = DevblocksPlatform::importGPC($_REQUEST['org_name'],'string','');
-				@$bucket_id = DevblocksPlatform::importGPC($_REQUEST['bucket_id'],'integer',0); 
-				
-				if(!empty($cc))
-					$params['cc'] = $cc;
-				if(!empty($bcc))
-					$params['bcc'] = $bcc;
-				if(!empty($group_id))
-					$params['group_id'] = $group_id;
-				if(!empty($bucket_id))
-					$params['bucket_id'] = $bucket_id;
-				if(!is_null($org_name))
-					$params['org_name'] = $org_name;
+				foreach($_POST as $k => $v) {
+					switch($k) {
+						case 'c':
+						case 'a':
+						case 'view_id':
+						case 'draft_id':
+						case 'group_or_bucket_id':
+							continue;
+					}
 					
+					if(substr($k,0,6) == 'field_')
+						continue;
+					
+					$params[$k] = $v;
+				}
+				
+				@$field_ids = DevblocksPlatform::importGPC($_REQUEST['field_ids'],'array',array());
+				$field_ids = DevblocksPlatform::sanitizeArray($field_ids, 'integer', array('nonzero','unique'));
+
+				if(!empty($field_ids)) {
+					$field_values = DAO_CustomFieldValue::parseFormPost(CerberusContexts::CONTEXT_TICKET, $field_ids);
+					
+					if(!empty($field_values)) {
+						$params['custom_fields'] = DAO_CustomFieldValue::formatFieldValues($field_values);
+					}
+				}
+				
 				$type = 'mail.compose';
 				$hint_to = $to;
 				break;
 				
 			default:
-				// Bail out
 				echo json_encode(array());
 				return;
-				break;
 		}
-			
+		
 		$fields = array(
 			DAO_MailQueue::TYPE => $type,
 			DAO_MailQueue::TICKET_ID => 0,
@@ -193,14 +157,6 @@ class PageSection_MailDrafts extends Extension_PageSection {
 	        $tpl->assign('ids', implode(',', $ids));
 	    }
 		
-	    // Lists
-//	    $lists = DAO_FeedbackList::getWhere();
-//	    $tpl->assign('lists', $lists);
-	    
-		// Custom Fields
-//		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_FEEDBACK);
-//		$tpl->assign('custom_fields', $custom_fields);
-		
 		$tpl->display('devblocks:cerberusweb.core::mail/queue/bulk.tpl');		
 	}
 	
@@ -222,9 +178,6 @@ class PageSection_MailDrafts extends Extension_PageSection {
 		if(0 != strlen($status))
 			$do['status'] = $status;
 			
-		// Do: Custom fields
-//		$do = DAO_CustomFieldValue::handleBulkPost($do);
-
 		switch($filter) {
 			// Checked rows
 			case 'checks':
@@ -297,7 +250,10 @@ class PageSection_MailDrafts extends Extension_PageSection {
 					$orig_pos = $pos;
 				
 				if($row[SearchFields_MailQueue::TYPE]==Model_MailQueue::TYPE_COMPOSE) {
-					$url = $url_writer->writeNoProxy(sprintf("c=mail&a=compose&id=%d", $draft_id), true);
+					// [TODO] We can't explore through compose (draft profiles?)
+					//$url = $url_writer->writeNoProxy(sprintf("c=mail&a=compose&id=%d", $draft_id), true);
+					continue;
+					
 				} elseif($row[SearchFields_MailQueue::TYPE]==Model_MailQueue::TYPE_TICKET_REPLY) {
 					$url = $url_writer->writeNoProxy(sprintf("c=profiles&type=ticket&id=%d", $row[SearchFields_MailQueue::TICKET_ID]), true) . sprintf("#draft%d", $draft_id);
 				}

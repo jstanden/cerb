@@ -61,7 +61,7 @@
 				
 				{if !$result.m_is_queued}
 					{if $result.m_type=="mail.compose"}
-						<a href="{devblocks_url}c=mail&a=compose&id={$result.m_id}{/devblocks_url}" class="subject">{if empty($result.m_subject)}(no subject){else}{$result.m_subject}{/if}</a>
+						<a href="javascript:;" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_TICKET}&context_id=0&view_id={$view->id}&draft_id={$result.m_id}',null,false,'650');" class="subject">{if empty($result.m_subject)}(no subject){else}{$result.m_subject}{/if}</a>
 					{elseif $result.m_type=="ticket.reply"}
 						<a href="{devblocks_url}c=profiles&type=ticket&id={$result.m_ticket_id}{/devblocks_url}#draft{$result.m_id}" class="subject">{if empty($result.m_subject)}(no subject){else}{$result.m_subject}{/if}</a>
 					{elseif $result.m_type=="ticket.forward"}

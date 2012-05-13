@@ -401,7 +401,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		if(!$active_worker->hasPriv('core.mail.send'))
 			return;
 		
-// 		@$draft_id = DevblocksPlatform::importGPC($_POST['draft_id'],'integer');
+		@$draft_id = DevblocksPlatform::importGPC($_POST['draft_id'],'integer');
 
 		// Destination
 		
@@ -458,7 +458,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		}
 
 		$properties = array(
-// 			'draft_id' => $draft_id,
+			'draft_id' => $draft_id,
 			'group_id' => $group_id,
 			'bucket_id' => $bucket_id,
 			'org_id' => $org_id,
@@ -488,8 +488,8 @@ class ChTicketsPage extends CerberusPageExtension {
 		$ticket_id = CerberusMail::compose($properties);
 		
 		if(!empty($ticket_id)) {
-// 			if(!empty($draft_id))
-// 				DAO_MailQueue::delete($draft_id);
+			if(!empty($draft_id))
+				DAO_MailQueue::delete($draft_id);
 
 			// Watchers
 			

@@ -215,6 +215,79 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 		return $table;
 	}
 	
+	public static function formatFieldValues($values) {
+		if(!is_array($values))
+			return;
+
+		$fields = DAO_CustomField::getAll();
+		$output = array();
+
+		foreach($values as $field_id => $value) {
+			if(!isset($fields[$field_id]))
+				continue;
+
+			$field =& $fields[$field_id]; /* @var $field Model_CustomField */
+
+			switch($field->type) {
+				case Model_CustomField::TYPE_SINGLE_LINE:
+				case Model_CustomField::TYPE_URL:
+					$value = (strlen($value) > 255) ? substr($value,0,255) : $value;
+					break;
+
+				case Model_CustomField::TYPE_MULTI_LINE:
+					break;
+
+				case Model_CustomField::TYPE_DROPDOWN:
+					break;
+					
+				case Model_CustomField::TYPE_MULTI_CHECKBOX:
+					if(!is_array($value))
+						$value = array($value);
+
+					// Protect from injection in cases where it's not desireable (controlled above)
+					foreach($value as $idx => $v) {
+						if(!in_array($v, $field->options))
+							continue;
+
+						$is_unset = ('-'==substr($v,0,1)) ? true : false;
+						$v = ltrim($v,'+-');
+							
+						if($is_unset) {
+							$value = null;
+						} else {
+							$value = $v;
+						}
+					}
+
+					break;
+
+				case Model_CustomField::TYPE_CHECKBOX:
+					$value = !empty($value) ? 1 : 0;
+					break;
+
+				case Model_CustomField::TYPE_DATE:
+					if(is_numeric($value)) {
+						$value = intval($value);
+					} else {
+						@$value = strtotime($value);
+					}
+					break;
+
+				case Model_CustomField::TYPE_NUMBER:
+					$value = intval($value);
+					break;
+					
+				case Model_CustomField::TYPE_WORKER:
+					$value = intval($value);
+					break;
+			}
+			
+			$output[$field_id] = $value;
+		}
+		
+		return $output;
+	}
+	
 	/**
 	 * 
 	 * @param object $context
@@ -223,6 +296,8 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 	 * @return 
 	 */
 	public static function formatAndSetFieldValues($context, $context_id, $values, $is_blank_unset=true, $delta=false, $autoadd_options=false) {
+		// [TODO] This could probably be combined with ::formatFieldValues()		
+		
 		if(empty($context) || empty($context_id) || !is_array($values))
 			return;
 

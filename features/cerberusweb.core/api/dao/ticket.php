@@ -3091,6 +3091,7 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 	
 	function _renderPeekComposePopup($view_id) {
 		@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string','');
+		@$draft_id = DevblocksPlatform::importGPC($_REQUEST['draft_id'],'integer',0);
 	    
 		$visit = CerberusApplication::getVisit();
 		$active_worker = CerberusApplication::getActiveWorker();
@@ -3115,16 +3116,37 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		$workers = DAO_Worker::getAll();
 		$tpl->assign('workers', $workers);
 		
-		// Load Defaults
-		$subject = $visit->get('compose.defaults.subject', '');
-		$tpl->assign('default_subject', $subject);
-		
 		// Preferences
 		$defaults = array(
 			'group_id' => DAO_WorkerPref::get($active_worker->id,'compose.group_id',0),
 			'bucket_id' => DAO_WorkerPref::get($active_worker->id,'compose.bucket_id',0),
 			'status' => DAO_WorkerPref::get($active_worker->id,'compose.status','waiting'),
 		);
+		
+		// Continue a draft?
+		if(!empty($draft_id)) {
+			$drafts = DAO_MailQueue::getWhere(sprintf("%s = %d AND %s = %d AND %s = %s",
+				DAO_MailQueue::ID,
+				$draft_id,
+				DAO_MailQueue::WORKER_ID,
+				$active_worker->id,
+				DAO_MailQueue::TYPE,
+				C4_ORMHelper::qstr(Model_MailQueue::TYPE_COMPOSE)
+			));
+			
+			@$draft = $drafts[$draft_id];
+			
+			if(!empty($drafts)) {
+				$tpl->assign('draft', $draft);
+				
+				// Overload the defaults of the form
+				if(isset($draft->params['group_id']))
+					$defaults['group_id'] = $draft->params['group_id']; 
+				if(isset($draft->params['bucket_id']))
+					$defaults['bucket_id'] = $draft->params['bucket_id']; 
+			}
+		}
+		
 		$tpl->assign('defaults', $defaults);
 		
 		// Custom fields
