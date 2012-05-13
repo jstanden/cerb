@@ -170,15 +170,6 @@ class DAO_MailQueue extends DevblocksORMHelper {
 			
 		$join_sql = "FROM mail_queue ";
 		
-		// Custom field joins
-		//list($select_sql, $join_sql, $has_multiple_values) = self::_appendSelectJoinSqlForCustomFieldTables(
-		//	$tables,
-		//	$params,
-		//	'mail_queue.id',
-		//	$select_sql,
-		//	$join_sql
-		//);
-				
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
 			
@@ -296,15 +287,6 @@ class SearchFields_MailQueue implements IDevblocksSearchFields {
 //			self::BODY => new DevblocksSearchField(self::BODY, 'mail_queue', 'body', $translate->_('common.content')),
 //			self::PARAMS_JSON => new DevblocksSearchField(self::PARAMS_JSON, 'mail_queue', 'params_json', $translate->_('mail_queue.params_json')),
 		);
-		
-		// Custom Fields
-		//$fields = DAO_CustomField::getByContext(CerberusContexts::XXX);
-
-		//if(is_array($fields))
-		//foreach($fields as $field_id => $field) {
-		//	$key = 'cf_'.$field_id;
-		//	$columns[$key] = new DevblocksSearchField($key,$key,'field_value',$field->name,$field->type);
-		//}
 		
 		// Sort by label (translation-conscious)
 		DevblocksPlatform::sortObjects($columns, 'db_label');
@@ -507,6 +489,10 @@ class View_MailQueue extends C4_AbstractView implements IAbstractView_Subtotals 
 			$this->renderTotal
 		);
 		return $objects;
+	}
+	
+	function getDataAsObjects($ids=null) {
+		return $this->_getDataAsObjects('DAO_MailQueue', $ids);
 	}
 	
 	function getDataSample($size) {
@@ -746,9 +732,6 @@ class View_MailQueue extends C4_AbstractView implements IAbstractView_Subtotals 
 			
 			if(!$deleted) { 
 				DAO_MailQueue::update($batch_ids, $change_fields);
-				
-				// Custom Fields
-				//self::_doBulkSetCustomFields(ChCustomFieldSource_MailDraft::ID, $custom_fields, $batch_ids);
 			} else {
 				DAO_MailQueue::delete($batch_ids);
 			}
@@ -758,4 +741,172 @@ class View_MailQueue extends C4_AbstractView implements IAbstractView_Subtotals 
 
 		unset($ids);
 	}			
+};
+
+class Context_Draft extends Extension_DevblocksContext {
+	function getMeta($context_id) {
+		if(null == ($draft = DAO_MailQueue::get($context_id)))
+			return false;
+		
+		//$url = $this->profileGetUrl($context_id);
+		//$friendly = DevblocksPlatform::strToPermalink($task->title);
+		
+// 		if(!empty($friendly))
+// 			$url .= '-' . $friendly;
+		
+		return array(
+			'id' => $context_id,
+			'name' => $draft->subject,
+			'permalink' => '',
+		);
+	}
+	
+	function getRandom() {
+		//return DAO_MailQueue::random();
+	}
+	
+	function getContext($object, &$token_labels, &$token_values, $prefix=null) {
+		if(is_null($prefix))
+			$prefix = 'Draft:';
+		
+		$translate = DevblocksPlatform::getTranslationService();
+		$fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_DRAFT);
+
+		// Polymorph
+		if(is_numeric($object)) {
+			$object = DAO_MailQueue::get($object);
+		} elseif($object instanceof Model_MailQueue) {
+			// It's what we want already.
+		} else {
+			$object = null;
+		}
+		
+		// Token labels
+		$token_labels = array(
+			'content' => $prefix.$translate->_('common.content'),
+			'id' => $prefix.$translate->_('common.id'),
+			'subject' => $prefix.$translate->_('message.header.subject'),
+			'to' => $prefix.$translate->_('message.header.to'),
+			'updated|date' => $prefix.$translate->_('common.updated'),
+		);
+		
+		// Token values
+		$token_values = array();
+		
+		$token_values['_context'] = CerberusContexts::CONTEXT_DRAFT;
+		
+		if($object) {
+			$token_values['_loaded'] = true;
+			$token_values['_label'] = $object->subject;
+			$token_values['content'] = $object->body;
+			$token_values['id'] = $object->id;
+			$token_values['subject'] = $object->subject;
+			$token_values['to'] = $object->hint_to;
+			$token_values['updated'] = $object->updated;
+		}
+
+		return true;
+	}
+
+	function lazyLoadContextValues($token, $dictionary) {
+		if(!isset($dictionary['id']))
+			return;
+		
+		$context = CerberusContexts::CONTEXT_DRAFT;
+		$context_id = $dictionary['id'];
+		
+		@$is_loaded = $dictionary['_loaded'];
+		$values = array();
+		
+		if(!$is_loaded) {
+			$labels = array();
+			CerberusContexts::getContext($context, $context_id, $labels, $values);
+		}
+		
+		switch($token) {
+		}
+		
+		return $values;
+	}	
+	
+	function getChooserView($view_id=null) {
+		$active_worker = CerberusApplication::getActiveWorker();
+
+		if(empty($view_id))
+			$view_id = 'chooser_'.str_replace('.','_',$this->id).time().mt_rand(0,9999);
+		
+		// View
+		$defaults = new C4_AbstractViewModel();
+		$defaults->id = $view_id;
+		$defaults->is_ephemeral = true;
+		$defaults->class_name = $this->getViewClass();
+		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
+		$view->name = 'Drafts';
+		
+		$view->view_columns = array(
+			SearchFields_MailQueue::HINT_TO,
+			SearchFields_MailQueue::UPDATED,
+			SearchFields_MailQueue::TYPE,
+		);
+		
+		$view->addColumnsHidden(array(
+			SearchFields_MailQueue::ID,
+			SearchFields_MailQueue::IS_QUEUED,
+			SearchFields_MailQueue::QUEUE_FAILS,
+			SearchFields_MailQueue::QUEUE_DELIVERY_DATE,
+			SearchFields_MailQueue::TICKET_ID,
+		));
+		
+		$view->addParams(array(
+			SearchFields_MailQueue::WORKER_ID => new DevblocksSearchCriteria(SearchFields_MailQueue::WORKER_ID, DevblocksSearchCriteria::OPER_EQ, $active_worker->id),
+		), true);
+		
+		$view->addParamsRequired(array(
+			SearchFields_MailQueue::IS_QUEUED => new DevblocksSearchCriteria(SearchFields_MailQueue::IS_QUEUED,'=',0),
+		), true);
+		
+		$view->addParamsHidden(array(
+			SearchFields_MailQueue::ID,
+			SearchFields_MailQueue::IS_QUEUED,
+			SearchFields_MailQueue::QUEUE_DELIVERY_DATE,
+			SearchFields_MailQueue::QUEUE_FAILS,
+			SearchFields_MailQueue::TICKET_ID,
+		));
+		
+		$view->renderSortBy = SearchFields_MailQueue::UPDATED;
+		$view->renderSortAsc = false;
+		$view->renderLimit = 10;
+		$view->renderFilters = false;
+		$view->renderTemplate = 'contextlinks_chooser';
+		C4_AbstractViewLoader::setView($view_id, $view);
+		return $view;		
+	}
+	
+	function getView($context=null, $context_id=null, $options=array()) {
+		// [TODO]
+		return NULL;
+		
+		$view_id = str_replace('.','_',$this->id);
+		
+		$defaults = new C4_AbstractViewModel();
+		$defaults->id = $view_id; 
+		$defaults->class_name = $this->getViewClass();
+		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
+		$view->name = 'Drafts';
+		
+		$params_req = array();
+		
+		if(!empty($context) && !empty($context_id)) {
+			$params_req = array(
+// 				new DevblocksSearchCriteria(SearchFields_MailQueue::CONTEXT_LINK,'=',$context),
+// 				new DevblocksSearchCriteria(SearchFields_MailQueue::CONTEXT_LINK_ID,'=',$context_id),
+			);
+		}
+		
+		$view->addParamsRequired($params_req, true);
+		
+		$view->renderTemplate = 'context';
+		C4_AbstractViewLoader::setView($view_id, $view);
+		return $view;
+	}
 };

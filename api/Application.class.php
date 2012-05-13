@@ -625,6 +625,7 @@ class CerberusContexts {
 	const CONTEXT_COMMENT = 'cerberusweb.contexts.comment';
 	const CONTEXT_CONTACT_PERSON = 'cerberusweb.contexts.contact_person';
 	const CONTEXT_DOMAIN = 'cerberusweb.contexts.datacenter.domain';
+	const CONTEXT_DRAFT = 'cerberusweb.contexts.mail.draft';
 	const CONTEXT_FEEDBACK = 'cerberusweb.contexts.feedback';
 	const CONTEXT_GROUP = 'cerberusweb.contexts.group';
 	const CONTEXT_KB_ARTICLE = 'cerberusweb.contexts.kb_article';

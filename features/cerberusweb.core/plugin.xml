@@ -235,6 +235,7 @@
 		</file>
 		
 		<file path="api/dao/mail_queue.php">
+			<class name="Context_Draft" />
 			<class name="DAO_MailQueue" />
 			<class name="Model_MailQueue" />
 			<class name="SearchFields_MailQueue" />
@@ -762,6 +763,28 @@
 					</value>
 				</param>
 				-->
+			</params>
+		</extension>
+		
+		<extension point="devblocks.context">
+			<id>cerberusweb.contexts.mail.draft</id>
+			<name>Draft</name>
+			<class>
+				<file>api/dao/mail_queue.php</file>
+				<name>Context_Draft</name>
+			</class>
+			<params>
+				<param key="alias" value="draft" />
+				<param key="view_class" value="View_MailQueue" />
+				<param key="options">
+					<value>
+						<!--<data key="create" />-->
+						<!--<data key="find" />-->
+						<!--<data key="snippets" />-->
+						<data key="va_variable" />
+						<data key="workspace" />
+					</value>
+				</param>
 			</params>
 		</extension>
 		
