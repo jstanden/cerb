@@ -647,10 +647,6 @@
 		<!-- Watchers -->
 		<priv id="core.watchers.assign" label="acl.core.watchers.assign" />
 		<priv id="core.watchers.unassign" label="acl.core.watchers.unassign" />
-		
-		<!-- Workspaces -->
-		<priv id="core.home.workspaces" label="acl.core.home.workspaces" />
-		
 	</acl>
 
 	<!-- Extensions -->

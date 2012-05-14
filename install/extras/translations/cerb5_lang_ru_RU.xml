@@ -66,11 +66,6 @@
         <seg>[Показ заявки] Может делить заявки</seg>
       </tuv>
     </tu>
-    <tu tuid="acl.core.home.workspaces">
-      <tuv xml:lang="ru_RU">
-        <seg>[Дом] Может создавать частные рабочие пространства и рабочие списки</seg>
-      </tuv>
-    </tu>
     <tu tuid="acl.core.kb.articles.modify">
       <tuv xml:lang="ru_RU">
         <seg>[База знаний] Может управлять статьями</seg>
@@ -1279,11 +1274,6 @@
     <tu tuid="dashboard.delete.confirm">
       <tuv xml:lang="ru_RU">
         <seg>Вы уверены что хотите удалить эту рабочую область?</seg>
-      </tuv>
-    </tu>
-    <tu tuid="dashboard.edit">
-      <tuv xml:lang="ru_RU">
-        <seg>редактировать рабочую область</seg>
       </tuv>
     </tu>
     <tu tuid="dashboard.group_filters">

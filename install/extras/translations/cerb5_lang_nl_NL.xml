@@ -101,11 +101,6 @@
         <seg>[Toon ticket] Kan berichten in tickets permanent verwijderen</seg>
       </tuv>
     </tu>
-    <tu tuid="acl.core.home.workspaces">
-      <tuv xml:lang="nl_NL">
-        <seg>[Home] Kan privé werkbladen en lijsten maken</seg>
-      </tuv>
-    </tu>
     <tu tuid="acl.core.kb.articles.modify">
       <tuv xml:lang="nl_NL">
         <seg>[Kennisdatabase] Kan artikelen beheren</seg>
@@ -1544,11 +1539,6 @@
     <tu tuid="dashboard.delete.confirm">
       <tuv xml:lang="nl_NL">
         <seg>Weet u zeker dat u dit werkblad wilt verwijderen?</seg>
-      </tuv>
-    </tu>
-    <tu tuid="dashboard.edit">
-      <tuv xml:lang="nl_NL">
-        <seg>werkblad bewerken</seg>
       </tuv>
     </tu>
     <tu tuid="dashboard.group_filters">

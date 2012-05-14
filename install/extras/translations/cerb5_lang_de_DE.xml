@@ -76,11 +76,6 @@
         <seg>[Ticketansicht] Kann Tickets teilen</seg>
       </tuv>
     </tu>
-    <tu tuid="acl.core.home.workspaces">
-      <tuv xml:lang="de_DE">
-        <seg>[Übersicht] Kann private Arbeitsbereiche und -Listen erstellen</seg>
-      </tuv>
-    </tu>
     <tu tuid="acl.core.kb.articles.modify">
       <tuv xml:lang="de_DE">
         <seg>[Hilfedatenbank] Kann Artikel verfassen/bearbeiten</seg>
@@ -1649,11 +1644,6 @@
     <tu tuid="dashboard.delete.confirm">
       <tuv xml:lang="de_DE">
         <seg>Wollen Sie den Arbeitsbereich wirklich löschen?</seg>
-      </tuv>
-    </tu>
-    <tu tuid="dashboard.edit">
-      <tuv xml:lang="de_DE">
-        <seg>Arbeitsbereich editieren</seg>
       </tuv>
     </tu>
     <tu tuid="dashboard.group_filters">
