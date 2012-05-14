@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plugin xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.devblocks.com/schema/plugin.xsd">
 	<id>cerberusweb.crm</id>
-	<name>[Cerb5] Opportunity Tracking</name>
+	<name>Opportunity Tracking</name>
 	<description>Create opportunities (sales leads) linked to e-mail addresses. Opportunity records can be created from the Activity menu or while reading tickets.</description>
 	<author>WebGroup Media, LLC.</author>
-	<version>5.8.0</version>
+	<version>6.0.0</version>
 	<link>http://wiki.cerb5.com/wiki/Features:Opportunity_Tracking</link>
 	<image>plugin.png</image>
 	
 	<!-- Requirements -->
 
 	<requires>
-		<app_version min="5.6" max="5.8.99" />
+		<app_version min="6.0" max="6.0.99" />
 	</requires>
 	
 	<!-- Plugin Dependencies -->

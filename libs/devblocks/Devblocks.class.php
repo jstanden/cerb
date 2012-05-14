@@ -5,7 +5,7 @@ include_once(DEVBLOCKS_PATH . "api/services/bootstrap/cache.php");
 include_once(DEVBLOCKS_PATH . "api/services/bootstrap/database.php");
 include_once(DEVBLOCKS_PATH . "api/services/bootstrap/classloader.php");
 
-define('PLATFORM_BUILD',2011120601);
+define('PLATFORM_BUILD',2012051201);
 
 /**
  * A platform container for plugin/extension registries.
