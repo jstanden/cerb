@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plugin xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.devblocks.com/schema/plugin.xsd">
 	<id>cerberusweb.simulator</id>
-	<name>Ticket Simulator</name>
-	<description>A tool that makes it easy to create batches of realistic sample tickets; useful for evaluations, plugin development, and testing.  This adds a Simulator tab in Configuration.</description>
+	<name>Simulator</name>
+	<description>A tool that makes it easy to create batches of realistic sample tickets, tasks, and organizations; useful for evaluations, plugin development, and testing.  This adds a Simulator option to the Setup Plugins menu.</description>
 	<author>WebGroup Media, LLC.</author>
 	<version>6.0.0</version>
 	<link>http://wiki.cerb5.com/wiki/Features:Ticket_Simulator</link>
@@ -17,7 +17,7 @@
 	<!-- Plugin Dependencies -->
 	
 	<dependencies>
-		<require plugin_id="cerberusweb.core" version="5.0.0-beta" />
+		<require plugin_id="cerberusweb.core" version="6.0.0-beta" />
 	</dependencies>
 
 	<!-- Extensions -->

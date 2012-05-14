@@ -18,7 +18,7 @@
 	<!-- Plugin Dependencies -->
 	
 	<dependencies>
-		<require plugin_id="cerberusweb.core" version="5.6.0" />
+		<require plugin_id="cerberusweb.core" version="6.0.0" />
 	</dependencies>
 
 	<!-- Patches -->
