@@ -34,7 +34,7 @@
 	<b>Filed under:</b> 
 	{foreach from=$breadcrumbs item=trail name=trail}
 		{foreach from=$trail item=step key=cat_id name=cats}
-		<a href="{devblocks_url}c=kb&a=category&id={$cat_id}-{$categories.{$cat_id}->name|devblocks_permalink}{/devblocks_url}">{$categories.{$cat_id}->name}</a>
+		<span>{$categories.{$cat_id}->name}</span>
 		{if !$smarty.foreach.cats.last} &raquo; {/if}
 		{/foreach}
 		{if !$smarty.foreach.trail.last}; {/if}

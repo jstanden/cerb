@@ -86,11 +86,6 @@
         <seg>[Hilfedatenbank] Kann Kategorien verfassen/bearbeiten</seg>
       </tuv>
     </tu>
-    <tu tuid="acl.core.kb.topics.modify">
-      <tuv xml:lang="de_DE">
-        <seg>[Hilfedatenbank] Kann Top-Level Übberschriften verfassen/bearbeiten</seg>
-      </tuv>
-    </tu>
     <tu tuid="acl.core.mail.overview">
       <tuv xml:lang="de_DE">
         <seg>[Email] Kann die Übersicht auf der email-Seite nutzen</seg>

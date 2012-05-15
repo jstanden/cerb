@@ -922,7 +922,7 @@ class View_KbArticle extends C4_AbstractView implements IAbstractView_Subtotals 
 						continue;
 					$label_map[$topic_id] = $topic->name;
 				}
-				$counts = $this->_getSubtotalCountForStringColumn('DAO_KbArticle', $column, $label_map, 'in', 'topic_id[]');
+				$counts = $this->_getSubtotalCountForStringColumn('DAO_KbArticle', $column, $label_map, 'in', 'options[]');
 				break;
 				
 			case SearchFields_KbArticle::FORMAT:

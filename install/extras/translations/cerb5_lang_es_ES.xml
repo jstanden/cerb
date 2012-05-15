@@ -81,11 +81,6 @@
         <seg>[Base de conocimientos] Puede gestionar categorías</seg>
       </tuv>
     </tu>
-    <tu tuid="acl.core.kb.topics.modify">
-      <tuv xml:lang="es_ES">
-        <seg>[Base de conocimientos] Puede gestionar temas de nivel superior</seg>
-      </tuv>
-    </tu>
     <tu tuid="acl.core.mail.overview">
       <tuv xml:lang="es_ES">
         <seg>[Correo] Puede usar la pestaña Descripción General en la página Correo</seg>

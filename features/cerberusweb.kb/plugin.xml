@@ -71,7 +71,6 @@
 		<!-- KB -->
 		<priv id="core.kb.articles.modify" label="acl.core.kb.articles.modify" />
 		<priv id="core.kb.categories.modify" label="acl.core.kb.categories.modify" />
-		<priv id="core.kb.topics.modify" label="acl.core.kb.topics.modify" />
 		<priv id="kb.articles.actions.update_all" label="acl.kb.articles.actions.update_all" />
 	</acl>
 	
@@ -176,6 +175,20 @@
 				<param key="menutitle" value="" />
 			</params>
 		</extension>
+		
+		<!-- Workspace Tab -->
+		
+		<extension point="cerberusweb.ui.workspace.tab">
+			<id>cerberusweb.kb.tab.browse</id>
+			<name>Browse KB Tab</name>
+			<class>
+				<file>api/App.php</file>
+				<name>WorkspaceTab_KbBrowse</name>
+			</class>
+			<params>
+				<param key="label" value="kb.workspace.tab.browser" />
+			</params>
+		</extension>		
 		
 		<!-- Profile Page Sections -->
 		

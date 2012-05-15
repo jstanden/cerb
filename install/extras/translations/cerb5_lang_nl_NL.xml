@@ -111,11 +111,6 @@
         <seg>[Kennisdatabase] Kan categorieën beheren</seg>
       </tuv>
     </tu>
-    <tu tuid="acl.core.kb.topics.modify">
-      <tuv xml:lang="nl_NL">
-        <seg>[Kennisdatabase] Kan top-level onderwerpen beheren</seg>
-      </tuv>
-    </tu>
     <tu tuid="acl.core.mail.send">
       <tuv xml:lang="nl_NL">
         <seg>[Mail] Kan nieuwe berichten opstellen vanuit de helpdesk</seg>

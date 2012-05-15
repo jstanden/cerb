@@ -76,11 +76,6 @@
         <seg>[База знаний] Может управлять категориями</seg>
       </tuv>
     </tu>
-    <tu tuid="acl.core.kb.topics.modify">
-      <tuv xml:lang="ru_RU">
-        <seg>[База знаний] Может управлять темами верхнего уровня</seg>
-      </tuv>
-    </tu>
     <tu tuid="acl.core.mail.overview">
       <tuv xml:lang="ru_RU">
         <seg>[Почта] Может использовать вкладку Обзор на странице Почта</seg>
