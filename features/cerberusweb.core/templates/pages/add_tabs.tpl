@@ -70,7 +70,7 @@ $('#{$uniq_id}').find('button.add').click(function(e) {
 		$tabs.tabs('option', 'tabTemplate', '<li class="drag" tab_id="'+json.tab_id+'"><a href="#{literal}{href}{/literal}"><span>#{literal}{label}{/literal}</span></a></li>');
 		$tabs.tabs('add', json.tab_url, title, len);
 		
-		$input.val('');
+		$input.val('').focus();
 	});
 });
 </script>
