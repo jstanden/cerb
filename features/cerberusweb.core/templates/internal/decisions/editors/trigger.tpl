@@ -37,7 +37,7 @@
 {foreach from=$trigger->variables key=k item=var}
 <tr>
 	<td valign="top" nowrap="nowrap" width="1%">
-		<a href="javascript:;" onclick="$(this).closest('tr').remove();"><span class="cerb-sprite2 sprite-minus-circle-frame" style="vertical-align:middle;"></span></a>
+		<a href="javascript:;" onclick="$(this).closest('tr').remove();"><span class="cerb-sprite2 sprite-minus-circle" style="vertical-align:middle;"></span></a>
 		<select name="var_is_private[]">
 			<option value="1" {if $var.is_private}selected="selected"{/if}>private</option>
 			<option value="0" {if empty($var.is_private)}selected="selected"{/if}>public</option>
@@ -75,7 +75,7 @@
 
 <tr class="template" style="display:none;">
 	<td valign="top" width="1%" nowrap="nowrap">
-		<a href="javascript:;" onclick="$(this).closest('tr').remove();"><span class="cerb-sprite2 sprite-minus-circle-frame" style="vertical-align:middle;"></span></a>
+		<a href="javascript:;" onclick="$(this).closest('tr').remove();"><span class="cerb-sprite2 sprite-minus-circle" style="vertical-align:middle;"></span></a>
 		<select name="var_is_private[]">
 			<option value="1" selected="selected">private</option>
 			<option value="0">public</option>
@@ -107,7 +107,7 @@
 
 
 <div style="margin-top:2px;">
-	<button type="button" class="add"><span class="cerb-sprite2 sprite-plus-circle-frame" style="verical-align:middle;"></span></button>
+	<button type="button" class="add"><span class="cerb-sprite2 sprite-plus-circle" style="verical-align:middle;"></span></button>
 </div>
 
 </fieldset>
@@ -124,11 +124,11 @@
 
 <form class="toolbar">
 	{if !empty($trigger->id)}
-		<button type="button" onclick="genericAjaxPost('frmDecisionBehavior{$trigger->id}','','c=internal&a=saveDecisionPopup',function() { genericAjaxPopupDestroy('node_trigger{$trigger->id}'); genericAjaxGet('decisionTree{$trigger->id}','c=internal&a=showDecisionTree&id={$trigger->id}'); });"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+		<button type="button" onclick="genericAjaxPost('frmDecisionBehavior{$trigger->id}','','c=internal&a=saveDecisionPopup',function() { genericAjaxPopupDestroy('node_trigger{$trigger->id}'); genericAjaxGet('decisionTree{$trigger->id}','c=internal&a=showDecisionTree&id={$trigger->id}'); });"><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
 	{else}
-		<button type="button" onclick="genericAjaxPost('frmDecisionBehavior','','c=internal&a=saveDecisionPopup&json=1',function(json) { $popup = genericAjaxPopupFetch('node_trigger'); event = jQuery.Event('trigger_create'); event.trigger_id = json.trigger_id; event.event_point = json.event_point; $popup.trigger(event); genericAjaxPopupDestroy('node_trigger');  });"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+		<button type="button" onclick="genericAjaxPost('frmDecisionBehavior','','c=internal&a=saveDecisionPopup&json=1',function(json) { $popup = genericAjaxPopupFetch('node_trigger'); event = jQuery.Event('trigger_create'); event.trigger_id = json.trigger_id; event.event_point = json.event_point; $popup.trigger(event); genericAjaxPopupDestroy('node_trigger');  });"><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
 	{/if}
-	{if isset($trigger->id)}<button type="button" onclick="$(this).closest('form').hide().prev('fieldset.delete').show();"><span class="cerb-sprite2 sprite-cross-circle-frame"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+	{if isset($trigger->id)}<button type="button" onclick="$(this).closest('form').hide().prev('fieldset.delete').show();"><span class="cerb-sprite2 sprite-cross-circle"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 </form>
 
 <script type="text/javascript">

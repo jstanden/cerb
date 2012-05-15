@@ -4,7 +4,7 @@
 	<div style="float:left;">
 		<span style="font-weight:bold;font-size:150%;">{$calendar_date|devblocks_date:'F Y'}</span>
 		<span style="margin-left:10px;">
-			<button type="button" class="create_event"><span class="cerb-sprite2 sprite-plus-circle-frame"></span></button>
+			<button type="button" class="create_event"><span class="cerb-sprite2 sprite-plus-circle"></span></button>
 		</span>
 	</div>
 

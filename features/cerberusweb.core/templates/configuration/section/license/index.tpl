@@ -21,7 +21,7 @@
 			<b>Software Updates Expire:</b> {$we_trust_you->upgrades|devblocks_date:'F d, Y':true}<br>
 			
 			<div style="margin-top:5px;">
-				<button type="button" onclick="$(this).parent().fadeOut();$('#frmLicense').fadeIn().find('input:text:first').focus();"><span class="cerb-sprite2 sprite-plus-circle-frame"></span> Update License</button>
+				<button type="button" onclick="$(this).parent().fadeOut();$('#frmLicense').fadeIn().find('input:text:first').focus();"><span class="cerb-sprite2 sprite-plus-circle"></span> Update License</button>
 			</div>
 		{/if}
 	{/if}
@@ -54,14 +54,14 @@
 		<div class="ui-widget">
 			<div class="ui-state-highlight ui-corner-all" style="margin:10px;padding:5px;display:inline-block;">
 				Are you sure you want to remove your license?<br>
-				<button type="button" onclick="$frm=$(this.form);$frm.find('input:hidden[name=do_delete]').val('1');$frm.find('BUTTON.submit').click();"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> Yes</button>
-				<button type="button" onclick="$(this).closest('div.delete_confirm').hide();"><span class="cerb-sprite2 sprite-minus-circle-frame"></span> No</button>
+				<button type="button" onclick="$frm=$(this.form);$frm.find('input:hidden[name=do_delete]').val('1');$frm.find('BUTTON.submit').click();"><span class="cerb-sprite2 sprite-tick-circle"></span> Yes</button>
+				<button type="button" onclick="$(this).closest('div.delete_confirm').hide();"><span class="cerb-sprite2 sprite-minus-circle"></span> No</button>
 			</div>
 		</div>
 	</div>
 	
-	<button type="button" class="submit"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {$translate->_('common.save_changes')|capitalize}</button>
-	{if $we_trust_you->key}<button type="button" class="delete"><span class="cerb-sprite2 sprite-minus-circle-frame"></span> Remove License</button>{/if}
+	<button type="button" class="submit"><span class="cerb-sprite2 sprite-tick-circle"></span> {$translate->_('common.save_changes')|capitalize}</button>
+	{if $we_trust_you->key}<button type="button" class="delete"><span class="cerb-sprite2 sprite-minus-circle"></span> Remove License</button>{/if}
 
 </fieldset>
 </form>

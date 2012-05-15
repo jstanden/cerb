@@ -140,7 +140,7 @@
 	{if $total}
 	<tr>
 		<td colspan="2">
-			<button type="button" onclick="$frm=$(this.form);$frm.find('input:hidden[name=action]').val('saveView');$frm.submit();"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {$translate->_('common.save_changes')|capitalize}</button>
+			<button type="button" onclick="$frm=$(this.form);$frm.find('input:hidden[name=action]').val('saveView');$frm.submit();"><span class="cerb-sprite2 sprite-tick-circle"></span> {$translate->_('common.save_changes')|capitalize}</button>
 			<button type="button" onclick="document.location.href = '{$smarty.const.DEVBLOCKS_WEBPATH}ajax.php?c=config&a=handleSectionAction&section=translations&action=exportTmx';"><img src="{devblocks_url}c=resource&p=cerberusweb.translators&f=images/16x16/document_down.png{/devblocks_url}" align="top"> {$translate->_('common.export')|capitalize}</button>
 		</td>
 	</tr>

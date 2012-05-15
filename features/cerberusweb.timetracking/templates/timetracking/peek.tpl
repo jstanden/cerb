@@ -111,12 +111,12 @@
 {if ($active_worker->hasPriv('timetracking.actions.create') && (empty($model->id) || $active_worker->id==$model->worker_id))
 	|| $active_worker->hasPriv('timetracking.actions.update_all')}
 	{if empty($model->id)}
-		<button type="button" onclick="timeTrackingTimer.finish();genericAjaxPopupPostCloseReloadView(null,'frmTimeEntry','{$view_id}',false,'timetracking_save');"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {$translate->_('timetracking.ui.entry_panel.save_finish')}</button>
+		<button type="button" onclick="timeTrackingTimer.finish();genericAjaxPopupPostCloseReloadView(null,'frmTimeEntry','{$view_id}',false,'timetracking_save');"><span class="cerb-sprite2 sprite-tick-circle"></span> {$translate->_('timetracking.ui.entry_panel.save_finish')}</button>
 		<button type="button" onclick="timeTrackingTimer.play();genericAjaxPopupClose('peek');"><span class="cerb-sprite sprite-media_play_green"></span> {$translate->_('timetracking.ui.entry_panel.resume')}</button>
 		<button type="button" onclick="timeTrackingTimer.finish();"><span class="cerb-sprite sprite-media_stop_red"></span> {$translate->_('common.cancel')|capitalize}</button>
 	{else}
-		<button type="button" onclick="genericAjaxPopupPostCloseReloadView(null,'frmTimeEntry','{$view_id}',false,'timetracking_save');"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {$translate->_('common.save_changes')|capitalize}</button>
-		<button type="button" onclick="if(confirm('Permanently delete this time tracking entry?')) { this.form.do_delete.value='1'; genericAjaxPopupPostCloseReloadView(null,'frmTimeEntry','{$view_id}',true,'timetracking_delete'); } "><span class="cerb-sprite2 sprite-cross-circle-frame"></span> {$translate->_('common.delete')|capitalize}</button>
+		<button type="button" onclick="genericAjaxPopupPostCloseReloadView(null,'frmTimeEntry','{$view_id}',false,'timetracking_save');"><span class="cerb-sprite2 sprite-tick-circle"></span> {$translate->_('common.save_changes')|capitalize}</button>
+		<button type="button" onclick="if(confirm('Permanently delete this time tracking entry?')) { this.form.do_delete.value='1'; genericAjaxPopupPostCloseReloadView(null,'frmTimeEntry','{$view_id}',true,'timetracking_delete'); } "><span class="cerb-sprite2 sprite-cross-circle"></span> {$translate->_('common.delete')|capitalize}</button>
 	{/if}
 {else}
 	<div class="error">You do not have permission to modify this record.</div>

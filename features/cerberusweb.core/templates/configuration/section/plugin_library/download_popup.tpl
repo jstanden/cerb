@@ -24,9 +24,9 @@
 
 <div style="margin-top:10px;">
 	{if !empty($requirements)}
-	<button type="button" onclick="genericAjaxPopupClose('peek');"><span class="cerb-sprite2 sprite-cross-circle-frame"></span> {'common.cancel'|devblocks_translate|capitalize}</button>
+	<button type="button" onclick="genericAjaxPopupClose('peek');"><span class="cerb-sprite2 sprite-cross-circle"></span> {'common.cancel'|devblocks_translate|capitalize}</button>
 	{else}
-	<button type="button" id="btnPluginDownload"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> Download and install</button>
+	<button type="button" id="btnPluginDownload"><span class="cerb-sprite2 sprite-tick-circle"></span> Download and install</button>
 	{/if} 
 </div>
 </form>

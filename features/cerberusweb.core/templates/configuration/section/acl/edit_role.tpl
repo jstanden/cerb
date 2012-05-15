@@ -105,8 +105,8 @@
 		<tr>
 			<td colspan="2">
 				<br>
-				<button type="submit"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {$translate->_('common.save_changes')|capitalize}</button>
-				{if $active_worker->is_superuser}<button type="button" onclick="if(confirm('Are you sure you want to delete this role?')){literal}{{/literal}this.form.do_delete.value='1';this.form.submit();{literal}}{/literal}"><span class="cerb-sprite2 sprite-cross-circle-frame"></span> {$translate->_('common.delete')|capitalize}</button>{/if}
+				<button type="submit"><span class="cerb-sprite2 sprite-tick-circle"></span> {$translate->_('common.save_changes')|capitalize}</button>
+				{if $active_worker->is_superuser}<button type="button" onclick="if(confirm('Are you sure you want to delete this role?')){literal}{{/literal}this.form.do_delete.value='1';this.form.submit();{literal}}{/literal}"><span class="cerb-sprite2 sprite-cross-circle"></span> {$translate->_('common.delete')|capitalize}</button>{/if}
 			</td>
 		</tr>
 	</table>

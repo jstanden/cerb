@@ -73,7 +73,7 @@
 	
 	{* This is used in two places depending on if the row is one or two lines *}
 	{capture name="ticket_subject_content"}
-		{if $result.t_is_deleted}<span class="cerb-sprite2 sprite-cross-circle-frame-gray"></span> {elseif $result.t_is_closed}<span class="cerb-sprite2 sprite-tick-circle-frame-gray" title="{$translate->_('status.closed')}"></span> {elseif $result.t_is_waiting}<span class="cerb-sprite sprite-clock"></span>{/if}
+		{if $result.t_is_deleted}<span class="cerb-sprite2 sprite-cross-circle-gray"></span> {elseif $result.t_is_closed}<span class="cerb-sprite2 sprite-tick-circle-gray" title="{$translate->_('status.closed')}"></span> {elseif $result.t_is_waiting}<span class="cerb-sprite sprite-clock"></span>{/if}
 		<a href="{devblocks_url}c=profiles&type=ticket&id={$result.t_mask}{/devblocks_url}" class="subject">{$result.t_subject}</a> 
 		<button type="button" class="peek" style="visibility:hidden;padding:1px;margin:0px 5px;" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={$view_context}&context_id={$result.t_id}&view_id={$view->id}', null, false, '650');"><span class="cerb-sprite2 sprite-document-search-result" style="margin-left:2px" title="{$translate->_('views.peek')}"></span></button>
 	{/capture}
@@ -118,9 +118,9 @@
 		{elseif $column=="t_is_waiting"}
 		<td>{if $result.t_is_waiting}<span class="cerb-sprite sprite-clock"></span>{else}{/if}</td>
 		{elseif $column=="t_is_closed"}
-		<td>{if $result.t_is_closed}<span class="cerb-sprite2 sprite-tick-circle-frame-gray" title="{$translate->_('status.closed')}"></span>{else}{/if}</td>
+		<td>{if $result.t_is_closed}<span class="cerb-sprite2 sprite-tick-circle-gray" title="{$translate->_('status.closed')}"></span>{else}{/if}</td>
 		{elseif $column=="t_is_deleted"}
-		<td>{if $result.t_is_deleted}<span class="cerb-sprite2 sprite-cross-circle-frame-gray"></span>{else}{/if}</td>
+		<td>{if $result.t_is_deleted}<span class="cerb-sprite2 sprite-cross-circle-gray"></span>{else}{/if}</td>
 		{elseif $column=="t_last_wrote"}
 		<td><a href="javascript:;" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_ADDRESS}&email={$result.t_last_wrote|escape:'url'}&view_id={$view->id}',null,false,'500');" title="{$result.t_last_wrote}">{$result.t_last_wrote|truncate:45:'...':true:true}</a></td>
 		{elseif $column=="t_first_wrote"}

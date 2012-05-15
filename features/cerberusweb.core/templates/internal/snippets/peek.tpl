@@ -110,7 +110,7 @@
 
 <div class="buttons">
 {if $active_worker->hasPriv('core.snippets.actions.create')}
-	<button type="button" onclick="genericAjaxPopupClose('peek');genericAjaxPost('formSnippetsPeek', 'view{$view_id}');"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {$translate->_('common.save_changes')}</button>
+	<button type="button" onclick="genericAjaxPopupClose('peek');genericAjaxPost('formSnippetsPeek', 'view{$view_id}');"><span class="cerb-sprite2 sprite-tick-circle"></span> {$translate->_('common.save_changes')}</button>
 {else}
 	<fieldset class="delete" style="font-weight:bold;">
 		{'error.core.no_acl.edit'|devblocks_translate}
@@ -118,7 +118,7 @@
 {/if}
 {if !empty($snippet->id)}
 	{if $snippet->isWriteableByWorker($active_worker)}
-	<button type="button" onclick="$(this).closest('div.buttons').hide().prev('fieldset.delete').show();"><span class="cerb-sprite2 sprite-cross-circle-frame"></span> {$translate->_('common.delete')|capitalize}</button>
+	<button type="button" onclick="$(this).closest('div.buttons').hide().prev('fieldset.delete').show();"><span class="cerb-sprite2 sprite-cross-circle"></span> {$translate->_('common.delete')|capitalize}</button>
 	{/if}
 {/if}
 </div>

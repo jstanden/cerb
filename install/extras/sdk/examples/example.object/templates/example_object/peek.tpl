@@ -53,8 +53,8 @@
 	</div>
 </fieldset>
 
-<button type="button" onclick="genericAjaxPopupPostCloseReloadView(null,'frmExampleObject','{$view_id}',false,'example_object_save');"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {$translate->_('common.save_changes')|capitalize}</button>
-{if $model->id}<button type="button" onclick="if(confirm('Permanently delete this example object?')) { this.form.do_delete.value='1';genericAjaxPopupPostCloseReloadView(null,'frmExampleObject','{$view_id}'); } "><span class="cerb-sprite2 sprite-minus-circle-frame"></span> {$translate->_('common.delete')|capitalize}</button>{/if}
+<button type="button" onclick="genericAjaxPopupPostCloseReloadView(null,'frmExampleObject','{$view_id}',false,'example_object_save');"><span class="cerb-sprite2 sprite-tick-circle"></span> {$translate->_('common.save_changes')|capitalize}</button>
+{if $model->id}<button type="button" onclick="if(confirm('Permanently delete this example object?')) { this.form.do_delete.value='1';genericAjaxPopupPostCloseReloadView(null,'frmExampleObject','{$view_id}'); } "><span class="cerb-sprite2 sprite-minus-circle"></span> {$translate->_('common.delete')|capitalize}</button>{/if}
 </form>
 
 <script type="text/javascript">

@@ -77,7 +77,7 @@
 			</td>
 			<td colspan="{$smarty.foreach.headers.total}">
 				<input type="checkbox" name="row_id[]" value="{$result.tt_id}" style="display:none;">
-				{if $result.tt_is_closed}<span class="cerb-sprite2 sprite-tick-circle-frame-gray" title=""></span>{/if}
+				{if $result.tt_is_closed}<span class="cerb-sprite2 sprite-tick-circle-gray" title=""></span>{/if}
 				{if $result.tt_time_actual_mins >= 60}
 					{$hrs = {$result.tt_time_actual_mins/60}|number_format:2}
 					{$time_spent = $hrs|cat:' hours'}

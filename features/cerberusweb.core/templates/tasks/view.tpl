@@ -72,7 +72,7 @@
 			<td colspan="{$smarty.foreach.headers.total}">
 				<input type="checkbox" name="row_id[]" value="{$result.t_id}" style="display:none;">
 				{if $result.t_is_completed}
-					<span class="cerb-sprite2 sprite-tick-circle-frame-gray" title="{$result.t_completed_date|devblocks_date}"></span>
+					<span class="cerb-sprite2 sprite-tick-circle-gray" title="{$result.t_completed_date|devblocks_date}"></span>
 				{/if}
 				<a href="{devblocks_url}c=profiles&type=task&id={$result.t_id}-{$result.t_title|devblocks_permalink}{/devblocks_url}" class="subject">{if !empty($result.t_title)}{$result.t_title}{else}New Task{/if}</a> 
 				
@@ -106,7 +106,7 @@
 			{elseif $column=="t_is_completed"}
 				<td>
 					{if $result.t_is_completed}
-					<span class="cerb-sprite2 sprite-tick-circle-frame-gray"></span>
+					<span class="cerb-sprite2 sprite-tick-circle-gray"></span>
 					{/if}
 				</td>
 			{else}

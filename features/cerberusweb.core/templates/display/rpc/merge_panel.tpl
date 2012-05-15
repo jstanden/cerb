@@ -4,11 +4,11 @@
 <input type="hidden" name="src_ticket_id" value="{$ticket_id}">
 
 <b>Merge with tickets:</b><br>
-<button type="button" class="chooser_ticket"><span class="cerb-sprite2 sprite-plus-circle-frame"></span></button>
+<button type="button" class="chooser_ticket"><span class="cerb-sprite2 sprite-plus-circle"></span></button>
 <br>
 <br>
 
-<button type="submit"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {$translate->_('common.save_changes')|capitalize}</button>
+<button type="submit"><span class="cerb-sprite2 sprite-tick-circle"></span> {$translate->_('common.save_changes')|capitalize}</button>
 <br>
 </form>
 

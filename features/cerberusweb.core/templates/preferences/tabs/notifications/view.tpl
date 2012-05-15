@@ -65,7 +65,7 @@
 				<td valign="top">{$result.we_id}&nbsp;</td>
 			{elseif $column=="we_message"}
 				<td valign="top">
-					{if $result.we_is_read}<span class="cerb-sprite2 sprite-tick-circle-frame-gray"></span>{/if} 
+					{if $result.we_is_read}<span class="cerb-sprite2 sprite-tick-circle-gray"></span>{/if} 
 					<a href="{devblocks_url}c=preferences&a=redirectRead&id={$result.we_id}{/devblocks_url}" class="subject">{$result.we_message}</a>			
 				</td>
 			{elseif $column=="we_created_date"}
@@ -91,7 +91,7 @@
 					</a>
 				</td>
 			{elseif $column=="we_is_read"}
-				<td valign="top">{if $result.$column}<span class="cerb-sprite2 sprite-tick-circle-frame-gray"></span>{/if}&nbsp;</td>
+				<td valign="top">{if $result.$column}<span class="cerb-sprite2 sprite-tick-circle-gray"></span>{/if}&nbsp;</td>
 			{else}
 				<td valign="top">{$result.$column}&nbsp;</td>
 			{/if}

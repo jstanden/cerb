@@ -1,7 +1,7 @@
 <h2>Worker Roles</h2>
 
 <form>
-	<button type="button" onclick="genericAjaxGet('configRole','c=config&a=handleSectionAction&section=acl&action=getRole&id=0');"><span class="cerb-sprite2 sprite-plus-circle-frame"></span> {'common.add'|devblocks_translate|capitalize}</button>
+	<button type="button" onclick="genericAjaxGet('configRole','c=config&a=handleSectionAction&section=acl&action=getRole&id=0');"><span class="cerb-sprite2 sprite-plus-circle"></span> {'common.add'|devblocks_translate|capitalize}</button>
 </form>
 
 <table cellpadding="0" cellspacing="5" border="0" width="100%">

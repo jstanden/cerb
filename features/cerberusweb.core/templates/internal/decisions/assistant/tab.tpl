@@ -3,7 +3,7 @@
 <form action="javascript:;" id="frmTrigger" onsubmit="return false;">
 
 <div style="float:left;">
-	<button type="button" class="add"><span class="cerb-sprite2 sprite-plus-circle-frame"></span> Create Behavior</button>
+	<button type="button" class="add"><span class="cerb-sprite2 sprite-plus-circle"></span> Create Behavior</button>
 </div>
 
 </form>

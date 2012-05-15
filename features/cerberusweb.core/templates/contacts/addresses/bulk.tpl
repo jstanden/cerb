@@ -89,7 +89,7 @@
 {/if}
 
 {if $active_worker->hasPriv('core.addybook.addy.actions.update')}
-	<button type="button" onclick="ajax.saveAddressBatchPanel('{$view_id}');"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {$translate->_('common.save_changes')|capitalize}</button>
+	<button type="button" onclick="ajax.saveAddressBatchPanel('{$view_id}');"><span class="cerb-sprite2 sprite-tick-circle"></span> {$translate->_('common.save_changes')|capitalize}</button>
 {/if}
 <br>
 </form>

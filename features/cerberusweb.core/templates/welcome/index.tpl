@@ -58,5 +58,5 @@
 </fieldset>
 
 <form>
-	<button type="button" onclick="document.location.href='{devblocks_url}c=preferences{/devblocks_url}';"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> Let's set up your account!</button>
+	<button type="button" onclick="document.location.href='{devblocks_url}c=preferences{/devblocks_url}';"><span class="cerb-sprite2 sprite-tick-circle"></span> Let's set up your account!</button>
 </form>

@@ -174,8 +174,8 @@
 	</div>
 	{/if}
 	
-	<button type="button" class="delete"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> Confirm</button>
-	<button type="button" onclick="$(this).closest('form').find('div.buttons').fadeIn();$(this).closest('fieldset.delete').fadeOut();"><span class="cerb-sprite2 sprite-minus-circle-frame"></span> {'common.cancel'|devblocks_translate|capitalize}</button>
+	<button type="button" class="delete"><span class="cerb-sprite2 sprite-tick-circle"></span> Confirm</button>
+	<button type="button" onclick="$(this).closest('form').find('div.buttons').fadeIn();$(this).closest('fieldset.delete').fadeOut();"><span class="cerb-sprite2 sprite-minus-circle"></span> {'common.cancel'|devblocks_translate|capitalize}</button>
 </fieldset>
 {/if}
 
@@ -192,9 +192,9 @@
 			</fieldset>
 		{/if}
 		
-		<button type="button" class="save"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {$translate->_('common.save_changes')}</button>
+		<button type="button" class="save"><span class="cerb-sprite2 sprite-tick-circle"></span> {$translate->_('common.save_changes')}</button>
 		{if !empty($event->id)}
-		<button type="button" onclick="$(this).parent().siblings('fieldset.delete').fadeIn();$(this).closest('div').fadeOut();"><span class="cerb-sprite2 sprite-cross-circle-frame"></span> {'common.delete'|devblocks_translate|capitalize}</button>
+		<button type="button" onclick="$(this).parent().siblings('fieldset.delete').fadeIn();$(this).closest('div').fadeOut();"><span class="cerb-sprite2 sprite-cross-circle"></span> {'common.delete'|devblocks_translate|capitalize}</button>
 		{/if}
 		
 		{if !empty($event->id)}

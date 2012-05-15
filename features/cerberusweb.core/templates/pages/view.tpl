@@ -7,7 +7,7 @@
 	<tr>
 		<td nowrap="nowrap"><span class="title">{$view->name}</span> {if $view->id == 'search'}<a href="#{$view->id}_actions">{$translate->_('views.jump_to_actions')}</a>{/if}</td>
 		<td nowrap="nowrap" align="right">
-			<a href="javascript:;" title="{'common.add'|devblocks_translate|capitalize}" onclick="genericAjaxPopup('peek','c=pages&a=showEditWorkspacePage&id=0&view_id={$view->id}',null,true,'500');"><span class="cerb-sprite2 sprite-plus-circle-frame"></span></a>
+			<a href="javascript:;" title="{'common.add'|devblocks_translate|capitalize}" onclick="genericAjaxPopup('peek','c=pages&a=showEditWorkspacePage&id=0&view_id={$view->id}',null,true,'500');"><span class="cerb-sprite2 sprite-plus-circle"></span></a>
 			<a href="javascript:;" title="{'common.customize'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxGet('customize{$view->id}','c=internal&a=viewCustomize&id={$view->id}');toggleDiv('customize{$view->id}','block');"><span class="cerb-sprite2 sprite-gear"></span></a>
 			{*<a href="javascript:;" title="Subtotals" class="subtotals minimal"><span class="cerb-sprite2 sprite-application-sidebar-list"></span></a>*}
 			<a href="javascript:;" title="{$translate->_('common.copy')|capitalize}" onclick="genericAjaxGet('{$view->id}_tips','c=internal&a=viewShowCopy&view_id={$view->id}');toggleDiv('{$view->id}_tips','block');"><span class="cerb-sprite2 sprite-applications"></span></a>
@@ -151,7 +151,7 @@ $('#viewForm{$view->id}').find('button.add').click(function(e) {
 				$(this).remove();
 			});
 			
-			$this.html('<span class="cerb-sprite2 sprite-plus-circle-frame"></span>');
+			$this.html('<span class="cerb-sprite2 sprite-plus-circle"></span>');
 		}
 		
 		genericAjaxGet('', 'c=pages&a=doToggleMenuPageJson&page_id=' + $this.attr('page_id') + '&toggle=0');
@@ -176,7 +176,7 @@ $('#viewForm{$view->id}').find('button.add').click(function(e) {
 			$li.css('visibility','visible');
 		});
 		
-		$this.html('<span class="cerb-sprite2 sprite-minus-circle-frame"></span>');
+		$this.html('<span class="cerb-sprite2 sprite-minus-circle"></span>');
 
 		genericAjaxGet('', 'c=pages&a=doToggleMenuPageJson&page_id=' + $this.attr('page_id') + '&toggle=1');
 	}

@@ -16,7 +16,7 @@
 	<fieldset>
 		<legend>
 			If <a href="javascript:;">all&#x25be;</a> of these conditions are satisfied
-			<a href="javascript:;" onclick="$(this).closest('fieldset').remove();"><span class="cerb-sprite2 sprite-minus-circle-frame"></span></a>
+			<a href="javascript:;" onclick="$(this).closest('fieldset').remove();"><span class="cerb-sprite2 sprite-minus-circle"></span></a>
 		</legend>
 		<input type="hidden" name="nodes[]" value="all">
 		
@@ -28,7 +28,7 @@
 	<fieldset>
 		<legend>
 			If <a href="javascript:;">{if !empty($group_data.any)}any{else}all{/if}&#x25be;</a> of these conditions are satisfied
-			<a href="javascript:;" onclick="$(this).closest('fieldset').remove();"><span class="cerb-sprite2 sprite-minus-circle-frame"></span></a>
+			<a href="javascript:;" onclick="$(this).closest('fieldset').remove();"><span class="cerb-sprite2 sprite-minus-circle"></span></a>
 		</legend>
 		<input type="hidden" name="nodes[]" value="{if !empty($group_data.any)}any{else}all{/if}">
 		
@@ -38,7 +38,7 @@
 				<li style="padding-bottom:5px;" id="condition{$seq}">
 					<input type="hidden" name="nodes[]" value="{$seq}">
 					<input type="hidden" name="condition{$seq}[condition]" value="{$params.condition}">
-					<a href="javascript:;" onclick="$(this).closest('li').remove();"><span class="cerb-sprite2 sprite-minus-circle-frame"></span></a>
+					<a href="javascript:;" onclick="$(this).closest('li').remove();"><span class="cerb-sprite2 sprite-minus-circle"></span></a>
 					<b style="cursor:move;">{$conditions.{$params.condition}.label}</b>&nbsp;
 					<div style="margin-left:20px;">
 						{$event->renderCondition({$params.condition},$trigger,$params,$seq)}
@@ -61,7 +61,7 @@
 <fieldset>
 	<legend>Add Condition</legend>
 
-	<span class="cerb-sprite2 sprite-plus-circle-frame"></span>
+	<span class="cerb-sprite2 sprite-plus-circle"></span>
 	<button type="button" class="condition cerb-popupmenu-trigger">Add Condition &#x25be;</button>
 	<button type="button" class="group">Add Group</button>
 	<ul class="cerb-popupmenu" style="border:0;">
@@ -88,12 +88,12 @@
 
 <form class="toolbar">
 	{if !isset($id)}
-		<button type="button" onclick="genericAjaxPost('frmDecisionOutcome{$id}','','c=internal&a=saveDecisionPopup',function() { genericAjaxPopupDestroy('node_outcome{$id}'); genericAjaxGet('decisionTree{$trigger_id}','c=internal&a=showDecisionTree&id={$trigger_id}'); });"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+		<button type="button" onclick="genericAjaxPost('frmDecisionOutcome{$id}','','c=internal&a=saveDecisionPopup',function() { genericAjaxPopupDestroy('node_outcome{$id}'); genericAjaxGet('decisionTree{$trigger_id}','c=internal&a=showDecisionTree&id={$trigger_id}'); });"><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
 	{else}
 		<button type="button" onclick="genericAjaxPost('frmDecisionOutcome{$id}','','c=internal&a=saveDecisionPopup',function() { genericAjaxPopupDestroy('node_outcome{$id}'); genericAjaxGet('decisionTree{$trigger_id}','c=internal&a=showDecisionTree&id={$trigger_id}'); });"><span class="cerb-sprite2 sprite-folder-tick-circle"></span> {'common.save_and_close'|devblocks_translate|capitalize}</button>
-		<button type="button" onclick="genericAjaxPost('frmDecisionOutcome{$id}','','c=internal&a=saveDecisionPopup',function() { Devblocks.showSuccess('#{$status_div}', 'Saved!'); genericAjaxGet('decisionTree{$trigger_id}','c=internal&a=showDecisionTree&id={$trigger_id}'); });"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {'common.save_and_continue'|devblocks_translate|capitalize}</button>
+		<button type="button" onclick="genericAjaxPost('frmDecisionOutcome{$id}','','c=internal&a=saveDecisionPopup',function() { Devblocks.showSuccess('#{$status_div}', 'Saved!'); genericAjaxGet('decisionTree{$trigger_id}','c=internal&a=showDecisionTree&id={$trigger_id}'); });"><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.save_and_continue'|devblocks_translate|capitalize}</button>
 		<button type="button" onclick="genericAjaxPopup('simulate_behavior','c=internal&a=showBehaviorSimulatorPopup&trigger_id={$trigger_id}','reuse',false,'500');"> <span class="cerb-sprite2 sprite-gear"></span> Simulator</button>
-		<button type="button" onclick="$(this).closest('form').hide().prev('fieldset.delete').show();"><span class="cerb-sprite2 sprite-cross-circle-frame"></span> {'common.delete'|devblocks_translate|capitalize}</button>
+		<button type="button" onclick="$(this).closest('form').hide().prev('fieldset.delete').show();"><span class="cerb-sprite2 sprite-cross-circle"></span> {'common.delete'|devblocks_translate|capitalize}</button>
 	{/if}
 </form>
 
@@ -138,7 +138,7 @@
 		$frmAdd.find('button.group')
 			.click(function(e) {
 				$group = $('<fieldset></fieldset>');
-				$group.append('<legend>If <a href="javascript:;">all&#x25be;</a> of these conditions are satisfied <a href="javascript:;" onclick="$(this).closest(\'fieldset\').remove();"><span class="cerb-sprite2 sprite-minus-circle-frame"></span></a></legend>');
+				$group.append('<legend>If <a href="javascript:;">all&#x25be;</a> of these conditions are satisfied <a href="javascript:;" onclick="$(this).closest(\'fieldset\').remove();"><span class="cerb-sprite2 sprite-minus-circle"></span></a></legend>');
 				$group.append('<input type="hidden" name="nodes[]" value="all">');
 				$group.append('<ul class="rules" style="margin:0px;list-style:none;padding:0px;padding-bottom:5px;"></ul>');
 				$group.find('legend > a').click($funcGroupAnyToggle);
@@ -216,7 +216,7 @@
 				$container = $('<li style="padding-bottom:5px;" id="condition'+seq+'"></li>');
 				$container.append('<input type="hidden" name="nodes[]" value="' + seq + '">');
 				$container.append('<input type="hidden" name="condition'+seq+'[condition]" value="' + token + '">');
-				$container.append('<a href="javascript:;" onclick="$(this).closest(\'li\').remove();"><span class="cerb-sprite2 sprite-minus-circle-frame"></span></a> ');
+				$container.append('<a href="javascript:;" onclick="$(this).closest(\'li\').remove();"><span class="cerb-sprite2 sprite-minus-circle"></span></a> ');
 				$container.append('<b style="cursor:move;">' + $this.text() + '</b>&nbsp;');
 
 				$ul.append($container);

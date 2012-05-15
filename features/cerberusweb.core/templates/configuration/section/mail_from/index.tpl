@@ -7,7 +7,7 @@
 <input type="hidden" name="action" value="saveJson">
 
 <div style="margin-bottom:10px;">
-	<button type="button" onclick="genericAjaxPopup('peek','c=config&a=handleSectionAction&section=mail_from&action=peek&id=0',null,false,'550');"><span class="cerb-sprite2 sprite-plus-circle-frame"></span> {'common.add'|devblocks_translate|capitalize}</button>
+	<button type="button" onclick="genericAjaxPopup('peek','c=config&a=handleSectionAction&section=mail_from&action=peek&id=0',null,false,'550');"><span class="cerb-sprite2 sprite-plus-circle"></span> {'common.add'|devblocks_translate|capitalize}</button>
 </div>
 
 {foreach from=$addresses item=address key=address_id}

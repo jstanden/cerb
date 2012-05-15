@@ -81,7 +81,7 @@
 		<tr>
 			<td width="100%" colspan="2">
 				<div style="padding:2px;">
-					<button id="btnSaveDraft" class="toolbar-item" type="button" onclick="genericAjaxPost('frmComposePeek',null,'c=mail&a=handleSectionAction&section=drafts&action=saveDraft&type=compose',function(json) { var obj = $.parseJSON(json); if(!obj || !obj.html || !obj.draft_id) return; $('#divDraftStatus').html(obj.html); $('#frmComposePeek input[name=draft_id]').val(obj.draft_id); } );"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> Save Draft</button>
+					<button id="btnSaveDraft" class="toolbar-item" type="button" onclick="genericAjaxPost('frmComposePeek',null,'c=mail&a=handleSectionAction&section=drafts&action=saveDraft&type=compose',function(json) { var obj = $.parseJSON(json); if(!obj || !obj.html || !obj.draft_id) return; $('#divDraftStatus').html(obj.html); $('#frmComposePeek input[name=draft_id]').val(obj.draft_id); } );"><span class="cerb-sprite2 sprite-tick-circle"></span> Save Draft</button>
 					<button class="toolbar-item" type="button" onclick="ajax.chooserSnippet('snippets',$('#divComposeContent'), { '{CerberusContexts::CONTEXT_WORKER}':'{$active_worker->id}' });"><span class="cerb-sprite sprite-view"></span> {'common.snippets'|devblocks_translate|capitalize}</button>
 					<button class="toolbar-item" type="button" onclick="genericAjaxGet('','c=tickets&a=getComposeSignature&group_id='+$(this.form.group_id).val()+'&bucket_id='+$(this.form.bucket_id).val(),function(text) { insertAtCursor(document.getElementById('divComposeContent'), text); } );"><span class="cerb-sprite sprite-document_edit"></span> Insert Signature</button>
 				</div>
@@ -154,7 +154,7 @@
 	</ul>
 </fieldset>
 
-<button type="button" onclick="genericAjaxPopupPostCloseReloadView(null,'frmComposePeek','{$view_id}',false,'compose_save');"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {$translate->_('common.save_changes')}</button>
+<button type="button" onclick="genericAjaxPopupPostCloseReloadView(null,'frmComposePeek','{$view_id}',false,'compose_save');"><span class="cerb-sprite2 sprite-tick-circle"></span> {$translate->_('common.save_changes')}</button>
 </form>
 
 <script type="text/javascript">

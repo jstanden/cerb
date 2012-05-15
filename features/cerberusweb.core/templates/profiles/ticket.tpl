@@ -118,9 +118,9 @@
 		{/if}
 		
 		{if $ticket->is_deleted}
-			<button type="button" onclick="this.form.deleted.value='0';this.form.closed.value=0;this.form.submit();"><span class="cerb-sprite2 sprite-cross-circle-frame-gray"></span> {$translate->_('common.undelete')|capitalize}</button>
+			<button type="button" onclick="this.form.deleted.value='0';this.form.closed.value=0;this.form.submit();"><span class="cerb-sprite2 sprite-cross-circle-gray"></span> {$translate->_('common.undelete')|capitalize}</button>
 		{else}
-			{if $active_worker->hasPriv('core.ticket.actions.delete')}<button title="{$translate->_('display.shortcut.delete')}" id="btnDelete" type="button" onclick="this.form.deleted.value=1;this.form.closed.value=1;this.form.submit();">&nbsp;<span class="cerb-sprite2 sprite-cross-circle-frame"></span>&nbsp;</button>{/if}
+			{if $active_worker->hasPriv('core.ticket.actions.delete')}<button title="{$translate->_('display.shortcut.delete')}" id="btnDelete" type="button" onclick="this.form.deleted.value=1;this.form.closed.value=1;this.form.submit();">&nbsp;<span class="cerb-sprite2 sprite-cross-circle"></span>&nbsp;</button>{/if}
 		{/if}
 		
 	   	<button id="btnPrint" title="{$translate->_('display.shortcut.print')}" type="button" onclick="document.frmPrint.action='{devblocks_url}c=print&a=ticket&id={$ticket->mask}{/devblocks_url}';document.frmPrint.submit();">&nbsp;<span class="cerb-sprite sprite-printer"></span>&nbsp;</button>

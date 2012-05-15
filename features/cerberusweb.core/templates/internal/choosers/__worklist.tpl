@@ -1,7 +1,7 @@
 {include file="devblocks:cerberusweb.core::internal/views/search_and_view.tpl" view=$view}
 
 <form action="#" method="POST" id="chooser{$view->id}">
-<button type="button" class="submit"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> Save Worklist</button>
+<button type="button" class="submit"><span class="cerb-sprite2 sprite-tick-circle"></span> Save Worklist</button>
 </form>
 
 <script type="text/javascript">

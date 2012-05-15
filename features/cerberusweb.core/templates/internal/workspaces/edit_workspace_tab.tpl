@@ -55,13 +55,13 @@
 			{/if}
 			{/foreach}
 		</select>
-		<button type="button" class="add"><span class="cerb-sprite2 sprite-plus-circle-frame"></span></button>
+		<button type="button" class="add"><span class="cerb-sprite2 sprite-plus-circle"></span></button>
 	</div>
 </fieldset>
 {/if}
 
-<button type="button" onclick="genericAjaxPopupPostCloseReloadView(null,'frmEditWorkspaceTab','',false,'workspace_save');"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {$translate->_('common.save_changes')}</button>
-{if !empty($workspace_tab)}<button type="button" onclick="if(!confirm('Are you sure you want to delete this tab?')) { return false; }; $('#frmEditWorkspaceTab').find('input:hidden[name=do_delete]').val('1');genericAjaxPopupPostCloseReloadView(null,'frmEditWorkspaceTab','',false,'workspace_delete');"><span class="cerb-sprite2 sprite-cross-circle-frame"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+<button type="button" onclick="genericAjaxPopupPostCloseReloadView(null,'frmEditWorkspaceTab','',false,'workspace_save');"><span class="cerb-sprite2 sprite-tick-circle"></span> {$translate->_('common.save_changes')}</button>
+{if !empty($workspace_tab)}<button type="button" onclick="if(!confirm('Are you sure you want to delete this tab?')) { return false; }; $('#frmEditWorkspaceTab').find('input:hidden[name=do_delete]').val('1');genericAjaxPopupPostCloseReloadView(null,'frmEditWorkspaceTab','',false,'workspace_delete');"><span class="cerb-sprite2 sprite-cross-circle"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 </form>
 
 <script type="text/javascript">
