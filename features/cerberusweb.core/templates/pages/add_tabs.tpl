@@ -13,7 +13,6 @@
 			</td>
 		</tr>
 		
-		{if !empty($tab_extensions)}
 		<tr>
 			<td>
 				<b>{'common.type'|devblocks_translate|capitalize}:</b>
@@ -21,13 +20,14 @@
 			<td>
 				<select name="extension_id">
 					<option value="">Custom Worklists</option>
-					{foreach from=$tab_extensions item=tab_extension}
-						<option value="{$tab_extension->id}">{$tab_extension->params.label|devblocks_translate|capitalize}</option>
-					{/foreach}
+					{if !empty($tab_extensions)}
+						{foreach from=$tab_extensions item=tab_extension}
+							<option value="{$tab_extension->id}">{$tab_extension->params.label|devblocks_translate|capitalize}</option>
+						{/foreach}
+					{/if}
 				</select>
 			</td>
 		</tr>
-		{/if}
 		
 		<tr>
 			<td>
