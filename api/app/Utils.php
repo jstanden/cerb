@@ -60,9 +60,24 @@ class CerberusUtils {
 			$input = array($input);
 		
 		foreach($input as $string) {
-			$addys += imap_rfc822_parse_adrlist($string, '');
+			@$addy_rows = imap_rfc822_parse_adrlist($string, '');
+			
+			if(is_array($addy_rows))
+			foreach($addy_rows as $idx => $addy_row) {
+				if(empty($addy_row->host))
+					continue;
+			
+				if(strlen($addy_row->mailbox) == 1 && preg_match('/[^a-zA-Z0-9]/', $addy_row->mailbox))
+					continue;
+				
+				if($addy_row->host == '.SYNTAX-ERROR.')
+					continue;
+				
+				$addys[] = $addy_row;
+			}
+			
 		}
-		
+
 		return $addys;
 	}
 	

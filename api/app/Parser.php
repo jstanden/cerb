@@ -94,7 +94,7 @@ class CerberusParserModel {
 		// Is banned?
 		if($this->_sender_address_model->is_banned) {
 			$logger->info("Ignoring ticket from banned address: " . $this->_sender_address_model->email);
-			return FALSE;
+			return NULL;
 		}
 		
 		return TRUE;
@@ -742,8 +742,8 @@ class CerberusParser {
 		// Parse headers into $model
 		$model = new CerberusParserModel($message);		
 		
-		if(!$model->validate())
-			return NULL;
+		if(false == ($validated = $model->validate()))
+			return $validated; // false or null
 		
         // Pre-parse mail filters
 		// Changing the incoming message through a VA
@@ -863,7 +863,7 @@ class CerberusParser {
 				        			$properties['content'] = $body;
 	        						
 				        			$result = CerberusMail::sendTicketMessage($properties);
-				        			return;
+				        			return NULL;
 	        					}
 	        					break;
 	        			}
@@ -874,7 +874,7 @@ class CerberusParser {
         			} else { // failed worker auth
         				// [TODO] Bounce
         				$logger->error("[Worker Relay] Worker authentication failed. Ignoring.");
-        				return;
+        				return false;
         			}
         			
         		}
@@ -932,7 +932,7 @@ class CerberusParser {
 			$ticket_id = $model->getTicketId();
 			if(empty($ticket_id)) {
 				$logger->error("Problem saving ticket...");
-				return NULL;
+				return false;
 			}
 			
 			// [JAS]: Add requesters to the ticket
@@ -969,7 +969,7 @@ class CerberusParser {
 		$message_id = $model->getMessageId();
 		if(empty($message_id)) {
 			$logger->error("Problem saving message to database...");
-			return NULL;
+			return false;
 		}
 		
 		// Save message content

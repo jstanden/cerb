@@ -108,10 +108,10 @@ class ParseCron extends CerberusCronPageExtension {
 	}
 
 	function _parseFile($full_filename) {
-		$logger = DevblocksPlatform::getConsoleLog();
+		$logger = DevblocksPlatform::getConsoleLog('Parser');
 		
 		$fileparts = pathinfo($full_filename);
-		$logger->info("[Parser] Reading ".$fileparts['basename']."...");
+		$logger->info("Reading ".$fileparts['basename']."...");
 
 		$time = microtime(true);
 
@@ -119,7 +119,7 @@ class ParseCron extends CerberusCronPageExtension {
 		$message = CerberusParser::parseMime($mime, $full_filename);
 
 		$time = microtime(true) - $time;
-		$logger->info("[Parser] Decoded! (".sprintf("%d",($time*1000))." ms)");
+		$logger->info("Decoded! (".sprintf("%d",($time*1000))." ms)");
 
 		//	    echo "<b>Plaintext:</b> ", $message->body,"<BR>";
 		//	    echo "<BR>";
@@ -132,10 +132,20 @@ class ParseCron extends CerberusCronPageExtension {
 		$ticket_id = CerberusParser::parseMessage($message);
 		$time = microtime(true) - $time;
 		
-		$logger->info("[Parser] Parsed! (".sprintf("%d",($time*1000))." ms) " .
+		$logger->info("Parsed! (".sprintf("%d",($time*1000))." ms) " .
 			(!empty($ticket_id) ? ("(Ticket ID: ".$ticket_id.")") : ("(Local Delivery Rejected.)")));
 
-		@unlink($full_filename);
+		if(is_bool($ticket_id) && false === $ticket_id) {
+			// Leave the message in storage/mail/fail
+			$logger->error(sprintf("%s failed to parse and it has been saved to the storage/mail/fail/ directory.", $fileparts['basename']));
+			
+			// [TODO] Admin notification?
+			
+		} else {
+			@unlink($full_filename);
+			$logger->info("The message source has been removed.");
+		}
+		
 		mailparse_msg_free($mime);
 
 		//		flush();
