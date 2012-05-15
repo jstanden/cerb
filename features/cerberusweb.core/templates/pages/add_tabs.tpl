@@ -1,12 +1,45 @@
 {$uniq_id = uniqid()}
 <form id="{$uniq_id}" action="#" method="POST" onsubmit="return false;">
-<fieldset>
+<fieldset class="peek">
 	<legend>Add a new tab:</legend>
-	
-	<b>{'common.title'|devblocks_translate}:</b>
-	<input type="text" name="add_name" value="" size="32">
-	<button type="button" class="add"><span class="cerb-sprite2 sprite-plus-circle-frame"></span></button>
+
+	<table cellpadding="2" cellspacing="0" border="0">
+		<tr>
+			<td>
+				<b>{'common.title'|devblocks_translate|capitalize}:</b>
+			</td>
+			<td>
+				<input type="text" name="name" value="" size="32">
+			</td>
+		</tr>
+		
+		{if !empty($tab_extensions)}
+		<tr>
+			<td>
+				<b>{'common.type'|devblocks_translate|capitalize}:</b>
+			</td>
+			<td>
+				<select name="extension_id">
+					<option value="">Custom Worklists</option>
+					{foreach from=$tab_extensions item=tab_extension}
+						<option value="{$tab_extension->id}">{$tab_extension->params.label|devblocks_translate|capitalize}</option>
+					{/foreach}
+				</select>
+			</td>
+		</tr>
+		{/if}
+		
+		<tr>
+			<td>
+				<!-- blank -->
+			</td>
+			<td>
+				<button type="button" class="add"><span class="cerb-sprite2 sprite-plus-circle-frame"></span> {'common.add'|devblocks_translate|capitalize}</button>
+			</td>
+		</tr>
+	</table>
 </fieldset>
+
 </form>
 
 <script type="text/javascript">
@@ -15,10 +48,12 @@ $('#{$uniq_id}').find('button.add').click(function(e) {
 	$frm = $this.closest('form');
 	$tabs = $('#pageTabs');
 	
-	$input = $frm.find('input:text[name=add_name]'); 
+	$input = $frm.find('input:text[name=name]'); 
+	$type = $frm.find('select[name=extension_id]'); 
 	
 	len = $tabs.tabs('length');
 	title = $input.val();
+	type = $type.val();
 	
 	if(title.length == 0)
 		return;
@@ -28,7 +63,7 @@ $('#{$uniq_id}').find('button.add').click(function(e) {
 		len--;
 	
 	// Get Ajax/JSON response
-	genericAjaxGet('', 'c=pages&a=doAddCustomTabJson&title=' + encodeURIComponent(title) + '&page_id={$page->id}' + '&index=' + encodeURIComponent(len), function(json) {
+	genericAjaxGet('', 'c=pages&a=doAddCustomTabJson&title=' + encodeURIComponent(title) + '&type=' + encodeURIComponent(type) + '&page_id={$page->id}' + '&index=' + encodeURIComponent(len), function(json) {
 		if(!json || !json.success)
 			return;
 		

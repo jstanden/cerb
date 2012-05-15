@@ -35,6 +35,32 @@ class Page_Custom extends CerberusPageExtension {
 		}
 	}
 	
+	function handleTabActionAction() {
+		@$extension_id = DevblocksPlatform::importGPC($_REQUEST['tab'],'string','');
+		@$tab_id = DevblocksPlatform::importGPC($_REQUEST['tab_id'],'integer',0);
+		@$action = DevblocksPlatform::importGPC($_REQUEST['action'],'string','');
+
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(null == ($tab = DAO_WorkspaceTab::get($tab_id)))
+			return;
+		
+		if(null == ($page = DAO_WorkspacePage::get($tab->workspace_page_id))
+			|| !$page->isReadableByWorker($active_worker)
+			)
+			return;
+		
+		$inst = DevblocksPlatform::getExtension($extension_id, true);
+		
+		if($inst instanceof Extension_WorkspaceTab && method_exists($inst, $action.'Action')) {
+			$tpl = DevblocksPlatform::getTemplateService();
+			$tpl->assign('tab', $tab);
+			$tpl->assign('tab_extension', $inst);
+			
+			call_user_func(array($inst, $action.'Action'));
+		}
+	}
+	
 	function render() {
 		$response = DevblocksPlatform::getHttpResponse();
 		
@@ -187,6 +213,9 @@ class Page_Custom extends CerberusPageExtension {
 
 		$tpl->assign('page', $page);
 		
+		$tab_extensions = Extension_WorkspaceTab::getAll(false);
+		$tpl->assign('tab_extensions', $tab_extensions);
+		
 		$tpl->display('devblocks:cerberusweb.core::pages/add_tabs.tpl');
 	}
 	
@@ -229,6 +258,7 @@ class Page_Custom extends CerberusPageExtension {
 	function doAddCustomTabJsonAction() {
 		@$page_id = DevblocksPlatform::importGPC($_REQUEST['page_id'],'integer','0');
 		@$title = DevblocksPlatform::importGPC($_REQUEST['title'],'string','');
+		@$type = DevblocksPlatform::importGPC($_REQUEST['type'],'string','');
 		@$index = DevblocksPlatform::importGPC($_REQUEST['index'],'string',null);
 		
 		$active_worker = CerberusApplication::getActiveWorker();
@@ -247,6 +277,7 @@ class Page_Custom extends CerberusPageExtension {
 				DAO_WorkspaceTab::NAME => !empty($title) ? $title : 'New Tab',
 				DAO_WorkspaceTab::WORKSPACE_PAGE_ID => $page_id,
 				DAO_WorkspaceTab::POS => is_null($index) ? 99 : intval($index) + 1,
+				DAO_WorkspaceTab::EXTENSION_ID => $type,
 			);
 			$tab_id = DAO_WorkspaceTab::create($fields);
 			
@@ -257,7 +288,7 @@ class Page_Custom extends CerberusPageExtension {
 				'success' => true,
 				'page_id' => $page->id,
 				'tab_id' => $tab_id,
-				'tab_url' => $url_writer->write('ajax.php?c=internal&a=showWorkspaceTab&id=' . $tab_id),
+				'tab_url' => $url_writer->write('ajax.php?c=pages&a=showWorkspaceTab&id=' . $tab_id),
 			));
 			
 		} catch(Exception $e) {
@@ -268,5 +299,46 @@ class Page_Custom extends CerberusPageExtension {
 		
 		exit;
 	}
+	
+	function showWorkspaceTabAction() {
+		@$tab_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer', 0);
+		@$point = DevblocksPlatform::importGPC($_REQUEST['point'],'string', '');
+		@$request = DevblocksPlatform::importGPC($_REQUEST['request'],'string', '');
+
+		$tpl = DevblocksPlatform::getTemplateService();
+		$active_worker = CerberusApplication::getActiveWorker();
+
+		$visit = CerberusApplication::getVisit();
+		$visit->set($point, 'w_'.$tab_id);
+
+		if(null == ($tab = DAO_WorkspaceTab::get($tab_id)))
+			return;
+		
+		if(null == ($page = DAO_WorkspacePage::get($tab->workspace_page_id))
+			|| !$page->isReadableByWorker($active_worker)
+			)
+			return;
+
+		$tpl->assign('page', $page);
+		$tpl->assign('tab', $tab);
+		$tpl->assign('request', $request);
+		
+		if(empty($tab->extension_id)) {
+			$lists = $tab->getWorklists();
+			$list_ids = array_keys($lists);
+			unset($lists);
+			
+			$tpl->assign('list_ids', $list_ids);
+			
+			$tpl->display('devblocks:cerberusweb.core::pages/tab_worklists.tpl');
+			
+		} else {
+			// Load extension
+			$tab_extension = DevblocksPlatform::getExtension($tab->extension_id, true);
+			$tpl->assign('tab_extension', $tab_extension);
+			
+			$tpl->display('devblocks:cerberusweb.core::pages/tab_extension.tpl');
+		}
+	}	
 	
 };

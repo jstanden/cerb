@@ -688,4 +688,32 @@ if(isset($tables['workspace_to_endpoint'])) {
 	unset($tables['workspace_to_endpoint']);
 }
 
+// ===========================================================================
+// Add workspace_page.extension_id
+
+if(!isset($tables['workspace_page'])) {
+	$logger->error("The 'workspace_page' table does not exist.");
+	return FALSE;
+}
+
+list($columns, $indexes) = $db->metaTable('workspace_page');
+
+if(!isset($columns['extension_id'])) {
+	$db->Execute("ALTER TABLE workspace_page ADD COLUMN extension_id VARCHAR(255) NOT NULL DEFAULT ''");
+}
+
+// ===========================================================================
+// Add workspace_tab.extension_id
+
+if(!isset($tables['workspace_tab'])) {
+	$logger->error("The 'workspace_tab' table does not exist.");
+	return FALSE;
+}
+
+list($columns, $indexes) = $db->metaTable('workspace_tab');
+
+if(!isset($columns['extension_id'])) {
+	$db->Execute("ALTER TABLE workspace_tab ADD COLUMN extension_id VARCHAR(255) NOT NULL DEFAULT ''");
+}
+
 return TRUE;

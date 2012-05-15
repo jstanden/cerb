@@ -30,7 +30,7 @@
 		
 		{foreach from=$page_tabs item=tab}
 			{$tabs[] = 'w_'|cat:$tab->id}
-			<li class="drag" tab_id="{$tab->id}"><a href="{devblocks_url}ajax.php?c=internal&a=showWorkspaceTab&point={$point}&id={$tab->id}&request={$response_uri|escape:'url'}{/devblocks_url}">{$tab->name}</a></li>
+			<li class="drag" tab_id="{$tab->id}"><a href="{devblocks_url}ajax.php?c=pages&a=showWorkspaceTab&point={$point}&id={$tab->id}&request={$response_uri|escape:'url'}{/devblocks_url}">{$tab->name}</a></li>
 		{/foreach}
 
 		{if $page->isWriteableByWorker($active_worker)}		

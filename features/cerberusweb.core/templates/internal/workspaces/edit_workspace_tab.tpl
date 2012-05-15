@@ -14,8 +14,22 @@
 			<input type="text" name="name" value="{$workspace_tab->name}" size="35" style="width:100%;">
 		</td>
 	</tr>
+	
+	{if !empty($workspace_tab->extension_id)}
+	<tr>
+		<td>
+			<b>{'common.type'|devblocks_translate|capitalize}:</b>
+		</td>
+		<td>
+			{$tab_extension = DevblocksPlatform::getExtension($workspace_tab->extension_id, false)}
+			{$tab_extension->params.label|devblocks_translate|capitalize}
+		</td>
+	</tr>
+	{/if}
+	
 </table>
 
+{if empty($workspace_tab->extension_id)}
 <fieldset>
 	<legend>Worklists</legend>
 	
@@ -44,6 +58,7 @@
 		<button type="button" class="add"><span class="cerb-sprite2 sprite-plus-circle-frame"></span></button>
 	</div>
 </fieldset>
+{/if}
 
 <button type="button" onclick="genericAjaxPopupPostCloseReloadView(null,'frmEditWorkspaceTab','',false,'workspace_save');"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {$translate->_('common.save_changes')}</button>
 {if !empty($workspace_tab)}<button type="button" onclick="if(!confirm('Are you sure you want to delete this tab?')) { return false; }; $('#frmEditWorkspaceTab').find('input:hidden[name=do_delete]').val('1');genericAjaxPopupPostCloseReloadView(null,'frmEditWorkspaceTab','',false,'workspace_delete');"><span class="cerb-sprite2 sprite-cross-circle-frame"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
@@ -56,21 +71,24 @@
 		$('#frmEditWorkspaceTab').sortable({ items: 'DIV.column', placeholder:'ui-state-highlight' });
 		
 		$frm = $('#frmEditWorkspaceTab');
-		$frm.find('button.add').click(function() {
-			$this = $(this);
-			$columns = $(this.form).find('fieldset').first();
-			$new_column = $('<div class="column"></div>');
-			
-			$select = $(this).siblings('select[name=add_context]');
-			
-			$('<span class="ui-icon ui-icon-arrowthick-2-n-s" style="display:inline-block;vertical-align:middle;"></span>').appendTo($new_column);
-			$('<a href="javascript:;" onclick="if(confirm(\'Are you sure you want to delete this worklist?\')) { $(this).closest(\'div\').remove(); }"><span class="ui-icon ui-icon-trash" style="display:inline-block;vertical-align:middle;"></span></a>').appendTo($new_column);
-			$('<input type="hidden" name="ids[]" value="'+$select.val()+'">').appendTo($new_column);
-			$('<input type="text" name="names[]" value="'+$select.find(':selected').text()+'" size="45">').appendTo($new_column);
-			$('<span>'+$select.find(':selected').text()+'</span>').appendTo($new_column);
-			
-			$new_column.appendTo($columns);;
-		});
+		
+		{if empty($workspace_tab->extension_id)}
+			$frm.find('button.add').click(function() {
+				$this = $(this);
+				$columns = $(this.form).find('fieldset').first();
+				$new_column = $('<div class="column"></div>');
+				
+				$select = $(this).siblings('select[name=add_context]');
+				
+				$('<span class="ui-icon ui-icon-arrowthick-2-n-s" style="display:inline-block;vertical-align:middle;"></span>').appendTo($new_column);
+				$('<a href="javascript:;" onclick="if(confirm(\'Are you sure you want to delete this worklist?\')) { $(this).closest(\'div\').remove(); }"><span class="ui-icon ui-icon-trash" style="display:inline-block;vertical-align:middle;"></span></a>').appendTo($new_column);
+				$('<input type="hidden" name="ids[]" value="'+$select.val()+'">').appendTo($new_column);
+				$('<input type="text" name="names[]" value="'+$select.find(':selected').text()+'" size="45">').appendTo($new_column);
+				$('<span>'+$select.find(':selected').text()+'</span>').appendTo($new_column);
+				
+				$new_column.appendTo($columns);;
+			});
+		{/if}
 		
 		$frm.find('input:text:first').focus().select();
 	});

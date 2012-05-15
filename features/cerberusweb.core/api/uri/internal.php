@@ -1979,52 +1979,6 @@ class ChInternalController extends DevblocksControllerExtension {
 
 	// Workspace
 
-	function showWorkspaceTabAction() {
-		@$tab_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer', 0);
-		@$point = DevblocksPlatform::importGPC($_REQUEST['point'],'string', '');
-		@$request = DevblocksPlatform::importGPC($_REQUEST['request'],'string', '');
-
-		$tpl = DevblocksPlatform::getTemplateService();
-		$active_worker = CerberusApplication::getActiveWorker();
-
-		$visit = CerberusApplication::getVisit();
-		$visit->set($point, 'w_'.$tab_id);
-
-		if(null == ($tab = DAO_WorkspaceTab::get($tab_id)))
-			return;
-		
-		if(null == ($page = DAO_WorkspacePage::get($tab->workspace_page_id))
-			|| !$page->isReadableByWorker($active_worker)
-			)
-			return;
-
-		$tpl->assign('page', $page);
-		$tpl->assign('tab', $tab);
-		$tpl->assign('request', $request);
-		
-		$lists = $tab->getWorklists();
-		$list_ids = array_keys($lists);
-		unset($lists);
-		
-		$tpl->assign('list_ids', $list_ids);
-		
-		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/index.tpl');
-			
-		$tpl->clearAssign('request');
-		$tpl->clearAssign('workspace');
-		$tpl->clearAssign('view_ids');
-		
-		// Log activity
-		DAO_Worker::logActivity(
-			new Model_Activity(
-				'activity.mail.workspaces',
-				array(
-					'<i>'.$page->name.'</i>'
-				)
-			)
-		);
-	}
-
 	function initWorkspaceListAction() {
 		@$list_id = DevblocksPlatform::importGPC($_REQUEST['list_id'],'integer', 0);
 		
