@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.devblocks.com/schema/plugin.xsd">
+	<id>example.workspace.tab</id>
+	<name>[Example] Workspace Tab</name>
+	<description>This plugin demonstrates a custom workspace tab.</description>
+	<author>WebGroup Media, LLC.</author>
+	<version>6.0.0</version>
+	<link>http://www.cerb5.com/</link>
+	<!--<image>plugin.png</image>-->
+ 
+ 	<!-- Requirements -->
+
+	<requires>
+		<app_version min="6.0" max="6.0.99" />
+	</requires>
+ 
+	<!-- Plugin Dependencies -->
+	
+	<dependencies>
+		<require plugin_id="cerberusweb.core" version="6.0.0-dev" />
+	</dependencies>
+
+	<!-- Extensions -->
+ 
+	<extensions>
+
+		<!-- Workspace Tab -->
+		
+		<extension point="cerberusweb.ui.workspace.tab">
+			<id>example.workspace.tab.example_tab</id>
+			<name>Example Workspace Tab</name>
+			<class>
+				<file>api/App.php</file>
+				<name>ExWorkspaceTab</name>
+			</class>
+			<params>
+				<param key="label" value="example.workspace.tab.label" />
+			</params>
+		</extension>		
+		
+    </extensions> 
+</plugin>
