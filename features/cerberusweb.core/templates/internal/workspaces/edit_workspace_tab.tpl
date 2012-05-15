@@ -1,5 +1,5 @@
 <form action="#" method="post" id="frmEditWorkspaceTab" onsubmit="return false;">
-<input type="hidden" name="c" value="internal">
+<input type="hidden" name="c" value="pages">
 <input type="hidden" name="a" value="doEditWorkspaceTab">
 <input type="hidden" name="id" value="{$workspace_tab->id}">
 <input type="hidden" name="workspace_page_id" value="{$workspace_tab->workspace_page_id}">

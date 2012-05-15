@@ -16,7 +16,7 @@
 	// Edit workspace actions
 	$workspace = $('#frmWorkspaceTab{$tab->id}');
 	$workspace.find('button.edit').click(function(e) {
-		$popup = genericAjaxPopup('peek','c=internal&a=showEditWorkspaceTab&id={$tab->id}',null,true,'600');
+		$popup = genericAjaxPopup('peek','c=pages&a=showEditWorkspaceTab&id={$tab->id}',null,true,'600');
 		$popup.one('workspace_save',function(e) {
 			$tabs = $('#frmWorkspaceTab{$tab->id}').closest('div.ui-tabs');
 			if(0 != $tabs) {

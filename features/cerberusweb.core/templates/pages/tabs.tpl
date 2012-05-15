@@ -74,7 +74,7 @@
 		// Edit workspace actions
 		{if $page->isWriteableByWorker($active_worker)}
 		$workspace.find('button.edit').click(function(e) {
-			$popup = genericAjaxPopup('peek','c=internal&a=showEditWorkspacePage&id={$page->id}',null,true,'600');
+			$popup = genericAjaxPopup('peek','c=pages&a=showEditWorkspacePage&id={$page->id}',null,true,'600');
 			$popup.one('workspace_save',function(e) {
 				window.location.href = '{devblocks_url}c=pages&id={$page->id}-{$page->name|devblocks_permalink}{/devblocks_url}';
 			});

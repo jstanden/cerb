@@ -7,7 +7,7 @@
 	<tr>
 		<td nowrap="nowrap"><span class="title">{$view->name}</span> {if $view->id == 'search'}<a href="#{$view->id}_actions">{$translate->_('views.jump_to_actions')}</a>{/if}</td>
 		<td nowrap="nowrap" align="right">
-			<a href="javascript:;" title="{'common.add'|devblocks_translate|capitalize}" onclick="genericAjaxPopup('peek','c=internal&a=showEditWorkspacePage&id=0&view_id={$view->id}',null,true,'500');"><span class="cerb-sprite2 sprite-plus-circle-frame"></span></a>
+			<a href="javascript:;" title="{'common.add'|devblocks_translate|capitalize}" onclick="genericAjaxPopup('peek','c=pages&a=showEditWorkspacePage&id=0&view_id={$view->id}',null,true,'500');"><span class="cerb-sprite2 sprite-plus-circle-frame"></span></a>
 			<a href="javascript:;" title="{'common.customize'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxGet('customize{$view->id}','c=internal&a=viewCustomize&id={$view->id}');toggleDiv('customize{$view->id}','block');"><span class="cerb-sprite2 sprite-gear"></span></a>
 			{*<a href="javascript:;" title="Subtotals" class="subtotals minimal"><span class="cerb-sprite2 sprite-application-sidebar-list"></span></a>*}
 			<a href="javascript:;" title="{$translate->_('common.copy')|capitalize}" onclick="genericAjaxGet('{$view->id}_tips','c=internal&a=viewShowCopy&view_id={$view->id}');toggleDiv('{$view->id}_tips','block');"><span class="cerb-sprite2 sprite-applications"></span></a>
@@ -76,7 +76,7 @@
 			{elseif $column=="w_name"}
 			<td>
 				<a href="{devblocks_url}c=pages&page={$result.w_id}-{$result.w_name|devblocks_permalink}{/devblocks_url}" class="subject">{if !empty($result.w_name)}{$result.w_name}{else}New Page{/if}</a>
-				{*<button type="button" class="peek" style="visibility:hidden;padding:1px;margin:0px 5px;" onclick="$popup = genericAjaxPopup('peek','c=internal&a=showEditWorkspacePage&id={$result.w_id}',null,true,'550');"><span class="cerb-sprite2 sprite-document-search-result" style="margin-left:2px" title="{$translate->_('views.peek')}"></span></button>*}
+				{*<button type="button" class="peek" style="visibility:hidden;padding:1px;margin:0px 5px;" onclick="$popup = genericAjaxPopup('peek','c=pages&a=showEditWorkspacePage&id={$result.w_id}',null,true,'550');"><span class="cerb-sprite2 sprite-document-search-result" style="margin-left:2px" title="{$translate->_('views.peek')}"></span></button>*}
 			</td>
 			{elseif $column=="*_owner"}
 				{$owner_context = $result.w_owner_context}

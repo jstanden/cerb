@@ -341,4 +341,329 @@ class Page_Custom extends CerberusPageExtension {
 		}
 	}	
 	
+	function initWorkspaceListAction() {
+		@$list_id = DevblocksPlatform::importGPC($_REQUEST['list_id'],'integer', 0);
+	
+		if(empty($list_id))
+			return;
+			
+		if(null == ($list = DAO_WorkspaceList::get($list_id)))
+			return;
+			
+		$tpl = DevblocksPlatform::getTemplateService();
+		$active_worker = CerberusApplication::getActiveWorker();
+	
+		if(null == ($tab = DAO_WorkspaceTab::get($list->workspace_tab_id)))
+			return;
+	
+		if(null == ($page = DAO_WorkspacePage::get($tab->workspace_page_id))
+			|| !$page->isReadableByWorker($active_worker)
+		)
+			return;
+	
+		$view_id = 'cust_' . $list->id;
+	
+		if(null == ($view = C4_AbstractViewLoader::getView($view_id))) {
+			$list_view = $list->list_view; /* @var $list_view Model_WorkspaceListView */
+	
+			// Make sure our workspace source has a valid renderer class
+			if(null == ($ext = DevblocksPlatform::getExtension($list->context, true))) { /* @var $ext Extension_DevblocksContext */
+				continue;
+			}
+				
+			$view = $ext->getChooserView($view_id);  /* @var $view C4_AbstractView */
+				
+			if(empty($view))
+				continue;
+				
+			$view->name = $list_view->title;
+			$view->renderLimit = $list_view->num_rows;
+			$view->renderPage = 0;
+			$view->view_columns = $list_view->columns;
+			$view->addParams($list_view->params, true);
+			if(property_exists($list_view, 'params_required'))
+				$view->addParamsRequired($list_view->params_required, true);
+			$view->renderSortBy = $list_view->sort_by;
+			$view->renderSortAsc = $list_view->sort_asc;
+	
+			unset($ext);
+			unset($list_view);
+			unset($view_class);
+		}
+	
+		if(!empty($view)) {
+			$labels = array();
+			$values = array();
+				
+			$labels['current_worker_id'] = array(
+				'label' => 'Current Worker',
+				'context' => CerberusContexts::CONTEXT_WORKER,
+			);
+				
+			$values['current_worker_id'] = $active_worker->id;
+	
+			$view->setPlaceholderLabels($labels);
+			$view->setPlaceholderValues($values);
+				
+			C4_AbstractViewLoader::setView($view_id, $view);
+				
+			$tpl->assign('view', $view);
+			$tpl->display('devblocks:cerberusweb.core::internal/views/search_and_view.tpl');
+			$tpl->clearAssign('view');
+		}
+	
+		unset($list);
+		unset($list_id);
+		unset($view_id);
+	}
+	
+	function showEditWorkspacePageAction() {
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer', 0);
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string', '');
+	
+		$tpl = DevblocksPlatform::getTemplateService();
+		$active_worker = CerberusApplication::getActiveWorker();
+	
+		$tpl->assign('view_id', $view_id);
+	
+		if(!empty($id)) {
+			if(null == ($page = DAO_WorkspacePage::get($id)))
+				return;
+	
+			if(!$page->isWriteableByWorker($active_worker))
+				return;
+				
+			$tpl->assign('workspace_page', $page);
+		}
+	
+		// Owners
+		$roles = DAO_WorkerRole::getAll();
+		$tpl->assign('roles', $roles);
+	
+		$workers = DAO_Worker::getAll();
+		$tpl->assign('workers', $workers);
+	
+		$groups = DAO_Group::getAll();
+		$tpl->assign('groups', $groups);
+	
+		$owner_groups = array();
+		foreach($groups as $k => $v) {
+			if($active_worker->is_superuser || $active_worker->isGroupManager($k))
+				$owner_groups[$k] = $v;
+		}
+		$tpl->assign('owner_groups', $owner_groups);
+	
+		$owner_roles = array();
+		foreach($roles as $k => $v) { /* @var $v Model_WorkerRole */
+			if($active_worker->is_superuser)
+				$owner_roles[$k] = $v;
+		}
+		$tpl->assign('owner_roles', $owner_roles);
+	
+		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/edit_workspace_page.tpl');
+	}
+	
+	function doEditWorkspacePageAction() {
+		@$workspace_page_id = DevblocksPlatform::importGPC($_POST['id'],'integer', 0);
+		@$name = DevblocksPlatform::importGPC($_POST['name'],'string', '');
+		@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'],'integer', '0');
+	
+		$active_worker = CerberusApplication::getActiveWorker();
+	
+		if(!empty($workspace_page_id)) {
+			if(null == ($workspace_page = DAO_WorkspacePage::get($workspace_page_id)))
+				return;
+				
+			if(!$workspace_page->isWriteableByWorker($active_worker))
+				return;
+		}
+	
+		if(!empty($workspace_page_id) && $do_delete) { // Delete
+			DAO_WorkspacePage::delete($workspace_page_id);
+	
+		} else { // Create/Edit
+			$fields = array(
+				DAO_WorkspacePage::NAME => $name,
+			);
+				
+			if(empty($workspace_page_id)) {
+				// Owner
+				@list($owner_type, $owner_id) = explode('_', DevblocksPlatform::importGPC($_REQUEST['owner'],'string',''));
+					
+				switch($owner_type) {
+					// Group
+					case 'g':
+						$owner_context = CerberusContexts::CONTEXT_GROUP;
+						$owner_context_id = $owner_id;
+						break;
+						// Role
+					case 'r':
+						$owner_context = CerberusContexts::CONTEXT_ROLE;
+						$owner_context_id = $owner_id;
+						break;
+						// Worker
+					case 'w':
+						$owner_context = CerberusContexts::CONTEXT_WORKER;
+						$owner_context_id = $owner_id;
+						break;
+						// Default
+					default:
+						$owner_context = null;
+						$owner_context_id = null;
+						break;
+				}
+	
+				if(!empty($owner_context)) {
+					$fields[DAO_WorkspacePage::OWNER_CONTEXT] = $owner_context;
+					$fields[DAO_WorkspacePage::OWNER_CONTEXT_ID] = $owner_context_id;
+				}
+	
+				$workspace_page_id = DAO_WorkspacePage::create($fields);
+	
+			} else {
+				DAO_WorkspacePage::update($workspace_page_id, $fields);
+	
+			}
+		}
+	}
+	
+	function showEditWorkspaceTabAction() {
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer', 0);
+	
+		$tpl = DevblocksPlatform::getTemplateService();
+		$active_worker = CerberusApplication::getActiveWorker();
+	
+		if(empty($id))
+			return;
+	
+		if(null == ($tab = DAO_WorkspaceTab::get($id)))
+			return;
+	
+		if(null == ($page = DAO_WorkspacePage::get($tab->workspace_page_id)))
+			return;
+	
+		if(!$page->isWriteableByWorker($active_worker))
+			return;
+	
+		$tpl->assign('workspace_page', $page);
+		$tpl->assign('workspace_tab', $tab);
+			
+		$worklists = $tab->getWorklists();
+		$tpl->assign('worklists', $worklists);
+	
+		$contexts = Extension_DevblocksContext::getAll(false);
+		$tpl->assign('contexts', $contexts);
+	
+		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/edit_workspace_tab.tpl');
+	}
+	
+	function doEditWorkspaceTabAction() {
+		@$workspace_tab_id = DevblocksPlatform::importGPC($_POST['id'],'integer', 0);
+		@$name = DevblocksPlatform::importGPC($_POST['name'],'string', '');
+	
+		@$ids = DevblocksPlatform::importGPC($_POST['ids'],'array', array());
+		@$names = DevblocksPlatform::importGPC($_POST['names'],'array', array());
+		@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'],'integer', '0');
+	
+		$active_worker = CerberusApplication::getActiveWorker();
+	
+		if(empty($workspace_tab_id))
+			return;
+	
+		if(null == ($workspace_tab = DAO_WorkspaceTab::get($workspace_tab_id)))
+			return;
+	
+		if(null == ($workspace_page = DAO_WorkspacePage::get($workspace_tab->workspace_page_id)))
+			return;
+	
+		if(!$workspace_page->isWriteableByWorker($active_worker))
+			return;
+	
+		if($do_delete) { // Delete
+			DAO_WorkspaceTab::delete($workspace_tab_id);
+	
+		} else { // Create/Edit
+			if(empty($workspace_tab_id)) {
+				$fields = array(
+					DAO_WorkspaceTab::NAME => $name,
+					DAO_WorkspaceTab::WORKSPACE_PAGE_ID => 0,
+				);
+				$workspace_tab_id = DAO_WorkspaceTab::create($fields);
+	
+			} else {
+				$fields = array();
+	
+				// Rename tab
+				if(0 != strcmp($workspace_tab->name, $name)) {
+					$fields[DAO_WorkspaceTab::NAME] = $name;
+				}
+	
+				if(!empty($fields))
+					DAO_WorkspaceTab::update($workspace_tab_id, $fields);
+			}
+	
+			// Create any new worklists
+			if(is_array($ids) && !empty($ids))
+				foreach($ids as $idx => $id) {
+				if(!is_numeric($id)) { // Create
+					if(null == ($context_ext = DevblocksPlatform::getExtension($id, true))) /* @var $context_ext Extension_DevblocksContext */
+						continue;
+						
+					if(null == ($view = $context_ext->getChooserView()))  /* @var $view C4_AbstractView */
+						continue;
+	
+					// Build the list model
+					$list = new Model_WorkspaceListView();
+					$list->title = $names[$idx];
+					$list->columns = $view->view_columns;
+					$list->params = $view->getEditableParams();
+					$list->params_required = $view->getParamsRequired();
+					$list->num_rows = 5;
+					$list->sort_by = $view->renderSortBy;
+					$list->sort_asc = $view->renderSortAsc;
+	
+					// Add the worklist
+					$fields = array(
+						DAO_WorkspaceList::LIST_POS => $idx,
+						DAO_WorkspaceList::LIST_VIEW => serialize($list),
+						DAO_WorkspaceList::WORKSPACE_TAB_ID => $workspace_tab_id,
+						DAO_WorkspaceList::CONTEXT => $id,
+					);
+					$ids[$idx] = DAO_WorkspaceList::create($fields);
+				}
+			}
+	
+			$worklists = $workspace_tab->getWorklists();
+	
+			// Deletes
+			$delete_ids = array_diff(array_keys($worklists), $ids);
+			if(is_array($delete_ids) && !empty($delete_ids))
+				DAO_WorkspaceList::delete($delete_ids);
+	
+			// Reorder worklists, rename lists, on workspace
+			if(is_array($ids) && !empty($ids))
+				foreach($ids as $idx => $id) {
+				if(null == ($worklist = DAO_WorkspaceList::get($id)))
+					continue;
+	
+				$list_view = $worklists[$id]->list_view; /* @var $list_view Model_WorkspaceListView */
+	
+				// If the name changed
+				if(isset($names[$idx]) && 0 != strcmp($list_view->title, $names[$idx])) {
+					$list_view->title = $names[$idx];
+	
+					// Save the view in the session
+					$view = C4_AbstractViewLoader::getView('cust_'.$id);
+					$view->name = $list_view->title;
+					C4_AbstractViewLoader::setView('cust_'.$id, $view);
+				}
+	
+				DAO_WorkspaceList::update($id,array(
+					DAO_WorkspaceList::LIST_POS => intval($idx),
+					DAO_WorkspaceList::LIST_VIEW => serialize($list_view),
+				));
+			}
+		}
+	}
+	
 };
