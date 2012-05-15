@@ -584,6 +584,9 @@ if(!isset($tables['workspace']) && !isset($tables['workspace_tab'])) {
 if(isset($tables['workspace']) && !isset($tables['workspace_tab'])) {
 	$db->Execute("RENAME TABLE workspace TO workspace_tab");
 	
+	unset($tables['workspace']);
+	$tables['workspace_tab'] = 'workspace_tab';
+	
 	list($columns, $indexes) = $db->metaTable('workspace_tab');
 	
 	// workspace_tab.workspace_page_id
