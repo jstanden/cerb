@@ -61,6 +61,19 @@
 			genericAjaxGet('', 'c=pages&a=setPageOrder&pages=' + page_ids);
 		}
 	});
+
+	// Allow clicking anywhere in the menu item cell
+	$menu.find('> li').click(function(e) {
+		e.stopPropagation();
+		
+		if(!$(e.target).is('li'))
+			return;
+
+		$link = $(this).find('> a');
+
+		if($link.length > 0)
+			window.location.href = $link.attr('href');
+	});
 	
 	$menu.find('> LI A.submenu')
 		.closest('li')

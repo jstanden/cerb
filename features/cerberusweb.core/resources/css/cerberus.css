@@ -348,6 +348,7 @@ UL.navmenu > LI {
 	border-right:1px solid rgb(210,210,210);
 	padding:5px 8px;
 	margin:0px;
+	cursor:pointer;
 }
 
 UL.navmenu > LI:hover {
