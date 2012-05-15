@@ -2125,10 +2125,16 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals {
 				break;
 				
 			case SearchFields_Ticket::VIRTUAL_GROUPS_OF_WORKER:
-				if(null == ($worker = DAO_Worker::get($param->value)))
-					break;
+				$worker_name = $param->value;
+				
+				if(is_numeric($param->value)) {
+					if(null == ($worker = DAO_Worker::get($param->value)))
+						break;
 					
-				echo sprintf("In <b>%s</b>'s groups", $worker->getName());
+					$worker_name = $worker->getName();
+				}
+					
+				echo sprintf("In <b>%s</b>'s groups", $worker_name);
 				break;
 				
 			case SearchFields_Ticket::VIRTUAL_STATUS:
@@ -2335,7 +2341,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals {
 				break;
 				
 			case SearchFields_Ticket::VIRTUAL_GROUPS_OF_WORKER:
-				@$worker_id = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'integer',0);
+				@$worker_id = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'string','');
 				$criteria = new DevblocksSearchCriteria($field, '=', $worker_id);
 				break;
 				

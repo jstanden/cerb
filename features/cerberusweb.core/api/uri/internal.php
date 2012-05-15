@@ -1426,9 +1426,12 @@ class ChInternalController extends DevblocksControllerExtension {
 		
 		if(null != ($view = C4_AbstractViewLoader::getView($id))) {
 			$tpl->assign('view', $view);
+
+			// [TODO] Detect if we're customizing (swap Editable for Required)
 			
 			// Do we already have this filter to re-edit?
 			$params = $view->getEditableParams();
+			
 			if(isset($params[$field])) {
 				$tpl->assign('param', $params[$field]);
 			}

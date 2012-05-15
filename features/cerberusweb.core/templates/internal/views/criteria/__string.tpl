@@ -27,13 +27,11 @@
 	<li><b>Placeholders</b></li>
 
 	{foreach from=$placeholders item=var_data key=var_key}
-		{*{if $var_data.type == Model_CustomField::TYPE_WORKER || $var_data.context == CerberusContexts::CONTEXT_WORKER}*}
 		{if empty($var_data.context)}
 		<li class="item" key="{literal}{{{/literal}{$var_key}{literal}}}{/literal}" style="padding-left:20px;">
 			<a href="javascript:;">{$var_data.label}</a>
 		</li>
 		{/if}
-		{*{/if}*}
 	{/foreach}
 </ul>
 
