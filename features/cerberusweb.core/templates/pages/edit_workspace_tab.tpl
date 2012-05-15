@@ -22,7 +22,9 @@
 		</td>
 		<td>
 			{$tab_extension = DevblocksPlatform::getExtension($workspace_tab->extension_id, false)}
-			{$tab_extension->params.label|devblocks_translate|capitalize}
+			{if $tab_extension}
+				{$tab_extension->params.label|devblocks_translate|capitalize}
+			{/if}
 		</td>
 	</tr>
 	{/if}

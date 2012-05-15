@@ -334,9 +334,9 @@ class Page_Custom extends CerberusPageExtension {
 			
 		} else {
 			// Load extension
-			$tab_extension = DevblocksPlatform::getExtension($tab->extension_id, true);
-			$tpl->assign('tab_extension', $tab_extension);
-			
+			if(null != ($tab_extension = DevblocksPlatform::getExtension($tab->extension_id, true))) {
+				$tpl->assign('tab_extension', $tab_extension);
+			}
 			$tpl->display('devblocks:cerberusweb.core::pages/tab_extension.tpl');
 		}
 	}	
@@ -460,7 +460,7 @@ class Page_Custom extends CerberusPageExtension {
 		}
 		$tpl->assign('owner_roles', $owner_roles);
 	
-		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/edit_workspace_page.tpl');
+		$tpl->display('devblocks:cerberusweb.core::pages/edit_workspace_page.tpl');
 	}
 	
 	function doEditWorkspacePageAction() {
@@ -554,7 +554,7 @@ class Page_Custom extends CerberusPageExtension {
 		$contexts = Extension_DevblocksContext::getAll(false);
 		$tpl->assign('contexts', $contexts);
 	
-		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/edit_workspace_tab.tpl');
+		$tpl->display('devblocks:cerberusweb.core::pages/edit_workspace_tab.tpl');
 	}
 	
 	function doEditWorkspaceTabAction() {

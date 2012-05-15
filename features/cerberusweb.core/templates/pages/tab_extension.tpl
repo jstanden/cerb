@@ -9,7 +9,9 @@
 </form>
 
 <div style="margin-top:5px;" id="divWorkspaceTab{$tab->id}">
-	{$tab_extension->renderTab($page, $tab)}
+	{if $tab_extension instanceof Extension_WorkspaceTab}
+		{$tab_extension->renderTab($page, $tab)}
+	{/if}
 </div>
 
 <script type="text/javascript">
