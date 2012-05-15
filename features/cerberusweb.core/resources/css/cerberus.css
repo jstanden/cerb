@@ -74,6 +74,7 @@ fieldset.delete legend {
 
 .effects-transfer {
 	border:2px dotted rgb(175,175,175);
+	background-color:rgb(230,230,230);
 }
 
 abbr {
