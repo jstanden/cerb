@@ -384,6 +384,73 @@ abstract class C4_AbstractView {
 		echo sprintf("%s", $list_of_strings);
 	}	
 	
+	protected function _renderVirtualContextLinks($param) {
+		$label_singular = 'Link';
+		$label_plural = 'Links';
+		$strings = array();
+		
+		foreach($param->value as $context_data) {
+			@list($context, $context_id) = explode(':',$context_data);
+			
+			if(empty($context) || empty($context_id))
+				continue;
+			
+			$context_ext = Extension_DevblocksContext::get($context,true);
+			$meta = $context_ext->getMeta($context_id);
+			$strings[] = sprintf("<b>%s</b> (%s)", $meta['name'], $context_ext->manifest->name);
+		}
+		
+		if(empty($param->value)) {
+			switch($param->operator) {
+				case DevblocksSearchCriteria::OPER_EQ:
+				case DevblocksSearchCriteria::OPER_IN:
+				case DevblocksSearchCriteria::OPER_IN_OR_NULL:
+				case DevblocksSearchCriteria::OPER_NIN_OR_NULL:
+					$param->operator = DevblocksSearchCriteria::OPER_IS_NULL;
+					break;
+				case DevblocksSearchCriteria::OPER_NEQ:
+				case DevblocksSearchCriteria::OPER_NIN:
+					$param->operator = DevblocksSearchCriteria::OPER_IS_NOT_NULL;
+					break;
+			}
+		}
+		
+		$list_of_strings = implode(' or ', $strings);
+		
+		if(count($strings) > 2) {
+			$list_of_strings = sprintf("any of <abbr style='font-weight:bold;' title='%s'>(%d %s)</abbr>",
+				htmlentities(strip_tags($list_of_strings)),
+				count($strings),
+				strtolower($label_plural)
+			);
+		}
+		
+		switch($param->operator) {
+			case DevblocksSearchCriteria::OPER_IS_NULL:
+				echo sprintf("There are no <b>%s</b>",
+					strtolower($label_plural)
+				);
+				break;
+			case DevblocksSearchCriteria::OPER_IS_NOT_NULL:
+				echo sprintf("There are <b>%s</b>",
+					strtolower($label_plural)
+				);
+				break;
+			case DevblocksSearchCriteria::OPER_IN:
+				echo sprintf("Linked to %s", $list_of_strings);
+				break;
+			case DevblocksSearchCriteria::OPER_IN_OR_NULL:
+				echo sprintf("%s is blank or %s", $label_singular, $list_of_strings);
+				break;
+			case DevblocksSearchCriteria::OPER_NIN:
+				echo sprintf("%s is not %s", $label_singular, $list_of_strings);
+				break;
+			case DevblocksSearchCriteria::OPER_NIN_OR_NULL:
+				echo sprintf("%s is blank or not %s", $label_singular, $list_of_strings);
+				break;
+		}
+	}
+	
 	protected function _renderVirtualWatchers($param) {
 		return $this->_renderVirtualWorkers($param, 'Watcher', 'Watchers');
 	}

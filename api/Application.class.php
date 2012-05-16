@@ -1797,8 +1797,7 @@ class C4_ORMHelper extends DevblocksORMHelper {
 					break;
 				case DevblocksSearchCriteria::OPER_IS_NOT_NULL:
 					$join_sql .= sprintf("LEFT JOIN context_link AS context_watcher ON (context_watcher.from_context = '%s' AND context_watcher.from_context_id = %s AND context_watcher.to_context = 'cerberusweb.contexts.worker') ", $from_context, $from_index);
-					$where_sql .= sprintf("AND (context_watcher.to_context_id IS NOT NULL) "); //,%s
-						//(!empty($param->value) ? sprintf("OR context_watcher.to_context_id IN (%s)", implode(',',$param->value)) : '')
+					$where_sql .= sprintf("AND (context_watcher.to_context_id IS NOT NULL) ");
 					break;
 				case DevblocksSearchCriteria::OPER_NIN_OR_NULL:
 					$join_sql .= sprintf("LEFT JOIN context_link AS context_watcher ON (context_watcher.from_context = '%s' AND context_watcher.from_context_id = %s AND context_watcher.to_context = 'cerberusweb.contexts.worker') ", $from_context, $from_index);
@@ -1807,6 +1806,50 @@ class C4_ORMHelper extends DevblocksORMHelper {
 					);
 					break;
 			}
+		}
+	}
+	
+	static function _searchComponentsVirtualContextLinks(&$param, $from_context, $from_index, &$join_sql, &$where_sql) {
+		if(empty($param->value) || !is_array($param->value))
+			$param->operator = DevblocksSearchCriteria::OPER_IS_NULL;
+		
+		$where_contexts = array();
+		
+		if(is_array($param->value))
+		foreach($param->value as $context_data) {
+			@list($context, $context_id) = explode(':', $context_data, 2);
+			
+			if(empty($context) || empty($context_id))
+				return;
+
+			$where_contexts[] = sprintf("(context_links.to_context = %s AND context_links.to_context_id = %d)",
+				self::qstr($context),
+				$context_id
+			);
+		}
+		
+		switch($param->operator) {
+			case DevblocksSearchCriteria::OPER_TRUE:
+				$join_sql .= sprintf("INNER JOIN context_link AS context_links ON (context_links.from_context = '%s' AND context_links.from_context_id = %s ",
+					self::qstr($from_context),
+					$from_index
+				);
+				break;
+				
+			case DevblocksSearchCriteria::OPER_IS_NULL:
+				$where_sql .= sprintf("AND (SELECT count(*) FROM context_link WHERE context_link.from_context=%s AND context_link.from_context_id=%s) = 0 ",
+					self::qstr($from_context),
+					$from_index
+				);
+				break;
+				
+			case DevblocksSearchCriteria::OPER_IN:
+				$join_sql .= sprintf("INNER JOIN context_link AS context_links ON (context_links.from_context = %s AND context_links.from_context_id = %s AND (%s)) ",
+					self::qstr($from_context),
+					$from_index,
+					implode(' OR ', $where_contexts)
+				);
+				break;
 		}
 	}
 };
