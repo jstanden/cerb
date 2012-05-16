@@ -50,7 +50,6 @@
 class DAO_TimeTrackingActivity extends DevblocksORMHelper {
 	const ID = 'id';
 	const NAME = 'name';
-	const RATE = 'rate';
 
 	static function create($fields) {
 		$db = DevblocksPlatform::getDatabaseService();
@@ -77,7 +76,7 @@ class DAO_TimeTrackingActivity extends DevblocksORMHelper {
 	static function getWhere($where=null) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = "SELECT id, name, rate ".
+		$sql = "SELECT id, name ".
 			"FROM timetracking_activity ".
 			(!empty($where) ? sprintf("WHERE %s ",$where) : "").
 			"ORDER BY name ASC";
@@ -112,7 +111,6 @@ class DAO_TimeTrackingActivity extends DevblocksORMHelper {
 			$object = new Model_TimeTrackingActivity();
 			$object->id = $row['id'];
 			$object->name = $row['name'];
-			$object->rate = $row['rate'];
 			$objects[$object->id] = $object;
 		}
 		
@@ -139,7 +137,6 @@ class DAO_TimeTrackingActivity extends DevblocksORMHelper {
 class Model_TimeTrackingActivity {
 	public $id;
 	public $name;
-	public $rate;
 };
 
 class DAO_TimeTrackingEntry extends C4_ORMHelper {
@@ -777,7 +774,7 @@ class View_TimeTracking extends C4_AbstractView implements IAbstractView_Subtota
 						} else {
 							if(!isset($activities[$val]))
 								continue;
-							$strings[] = $activities[$val]->name . ($activities[$val]->rate>0 ? ' ($)':'');
+							$strings[] = $activities[$val]->name;
 						}
 					}
 					echo implode(", ", $strings);
@@ -1180,11 +1177,9 @@ class Context_TimeTracking extends Extension_DevblocksContext implements IDevblo
 		
 		// Activities
 		// [TODO] Cache
-		$billable_activities = DAO_TimeTrackingActivity::getWhere(sprintf("%s!=0",DAO_TimeTrackingActivity::RATE));
-		$tpl->assign('billable_activities', $billable_activities);
-		$nonbillable_activities = DAO_TimeTrackingActivity::getWhere(sprintf("%s=0",DAO_TimeTrackingActivity::RATE));
-		$tpl->assign('nonbillable_activities', $nonbillable_activities);
-
+		$activities = DAO_TimeTrackingActivity::getWhere();
+		$tpl->assign('activities', $activities);
+		
 		// Comments
 		$comments = DAO_Comment::getByContext(CerberusContexts::CONTEXT_TIMETRACKING, $id);
 		$last_comment = array_shift($comments);

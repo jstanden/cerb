@@ -21,11 +21,6 @@
 		</tr>
 		
 		<tr>
-			<td width="0%" nowrap="nowrap"><b>{$translate->_('timetracking.ui.cfg.rate')}</b></td>
-			<td width="100%">{$translate->_('timetracking.ui.cfg.currency')} <input type="text" id="activityForm_rate" name="rate" value="{$activity->rate}" size="10"> {$translate->_('timetracking.ui.cfg.per_hour')} {$translate->_('timetracking.ui.cfg.rate.hint')}</td>
-		</tr>
-		
-		<tr>
 			<td colspan="2">
 				<button type="submit"><span class="cerb-sprite2 sprite-tick-circle"></span> {$translate->_('common.save_changes')|capitalize}</button>
 				{if !empty($activity)}<button type="button" onclick="if(confirm('Are you sure you want to delete this activity?')){literal}{{/literal}this.form.do_delete.value=1;this.form.submit();{literal}}{/literal}"><span class="cerb-sprite2 sprite-cross-circle"></span> {$translate->_('common.delete')|capitalize}</button>{/if}

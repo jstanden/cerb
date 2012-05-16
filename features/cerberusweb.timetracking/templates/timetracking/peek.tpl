@@ -21,26 +21,15 @@
 			</td>
 		</tr>
 		{/if}
-		{if !empty($nonbillable_activities) || !empty($billable_activities)}
+		{if !empty($activities)}
 		<tr>
 			<td width="0%" nowrap="nowrap" valign="top" align="right"><b>{$translate->_('timetracking.ui.entry_panel.activity')}</b>:</td>
 			<td width="100%">
 				<select name="activity_id">
 					<option value=""></option>
-					{if !empty($nonbillable_activities)}
-					<optgroup label="{$translate->_('timetracking.ui.non_billable')}">
-						{foreach from=$nonbillable_activities item=activity}
-						<option value="{$activity->id}" {if $model->activity_id==$activity->id}selected{/if}>{$activity->name}</option>
-						{/foreach}
-					</optgroup>
-					{/if}
-					{if !empty($billable_activities)}
-					<optgroup label="{$translate->_('timetracking.ui.billable')}">
-						{foreach from=$billable_activities item=activity}
-						<option value="{$activity->id}" {if $model->activity_id==$activity->id}selected{/if}>{$activity->name}</option>
-						{/foreach}
-					</optgroup>
-					{/if}
+					{foreach from=$activities item=activity}
+					<option value="{$activity->id}" {if $model->activity_id==$activity->id}selected{/if}>{$activity->name}</option>
+					{/foreach}
 				</select>
 			</td>
 		</tr>

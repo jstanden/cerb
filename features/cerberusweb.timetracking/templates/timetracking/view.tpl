@@ -103,7 +103,7 @@
 			{elseif $column=="tt_worker_id"}
 				<td>{if isset($workers.$worker_id)}{$workers.$worker_id->getName()}{/if}&nbsp;</td>
 			{elseif $column=="tt_activity_id"}
-				<td>{if isset($activities.$activity_id)}{$activities.$activity_id->name}{if $activities.$activity_id->rate > 0} ($){/if}{/if}&nbsp;</td>
+				<td>{if isset($activities.$activity_id)}{$activities.$activity_id->name}{/if}&nbsp;</td>
 			{elseif $column=="tt_source_extension_id"}
 				{assign var=source_ext_id value=$result.tt_source_extension_id}
 				{assign var=source_id value=$result.tt_source_id}

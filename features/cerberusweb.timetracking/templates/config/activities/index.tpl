@@ -14,24 +14,9 @@
 				<table cellpadding="2" cellspacing="0" border="0">
 					<tr>
 						<td>
-							{if !empty($billable_activities)}
-							<b>{$translate->_('timetracking.ui.billable_label')}</b><br>
-							<div style="margin:0px;padding:3px;width:200px;">
-								{foreach from=$billable_activities item=activity}
-								<a href="javascript:;" onclick="genericAjaxGet('configActivity','c=config&a=handleSectionAction&section=timetracking&action=getActivity&id={$activity->id}');">{$activity->name}</a><br>
-								&nbsp; &nbsp; {$translate->_('timetracking.ui.cfg.currency')} {'timetracking.ui.cfg.n_per_hour'|devblocks_translate:$activity->rate}<br>
-								{/foreach}
-							</div>
-							{/if}
-							
-							{if !empty($nonbillable_activities)}
-							<b>{$translate->_('timetracking.ui.non_billable_label')}</b><br>
-							<div style="margin:0px;padding:3px;width:200px;">
-								{foreach from=$nonbillable_activities item=activity}
-								<a href="javascript:;" onclick="genericAjaxGet('configActivity','c=config&a=handleSectionAction&section=timetracking&action=getActivity&id={$activity->id}');">{$activity->name}</a><br>
-								{/foreach}	
-							</div>
-							{/if}
+							{foreach from=$activities item=activity}
+							<a href="javascript:;" onclick="genericAjaxGet('configActivity','c=config&a=handleSectionAction&section=timetracking&action=getActivity&id={$activity->id}');">{$activity->name}</a><br>
+							{/foreach}
 						</td>
 					</tr>
 				</table>

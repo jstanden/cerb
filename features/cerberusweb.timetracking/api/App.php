@@ -256,7 +256,7 @@ class ChTimeTrackingPage extends CerberusPageExtension {
 							"== %s ==\n".
 							"%s %s\n".
 							"%s %d\n".
-							"%s %s (%s)\n".
+							"%s %s\n".
 							(!empty($comment) ? sprintf("%s: %s\n", $translate->_('common.comment'), $comment) : '').
 							"\n".
 							"%s\n",
@@ -267,7 +267,6 @@ class ChTimeTrackingPage extends CerberusPageExtension {
 							$time_actual_mins,
 							$translate->_('timetracking.ui.comment.activity'),
 							(!empty($activity) ? $activity->name : ''),
-							((!empty($activity) && $activity->rate > 0.00) ? $translate->_('timetracking.ui.billable') : $translate->_('timetracking.ui.non_billable')),
 							$url_writer->writeNoProxy(sprintf("c=profiles&type=time_tracking&id=%d", $id), true)
 						);
 						$fields = array(
@@ -531,11 +530,8 @@ class ChTimeTracking_SetupPageSection extends Extension_PageSection {
 		$settings = DevblocksPlatform::getPluginSettingsService();
 		$tpl = DevblocksPlatform::getTemplateService();
 
-		$billable_activities = DAO_TimeTrackingActivity::getWhere(sprintf("%s!=0",DAO_TimeTrackingActivity::RATE));
-		$tpl->assign('billable_activities', $billable_activities);
-		
-		$nonbillable_activities = DAO_TimeTrackingActivity::getWhere(sprintf("%s=0",DAO_TimeTrackingActivity::RATE));
-		$tpl->assign('nonbillable_activities', $nonbillable_activities);
+		$activities = DAO_TimeTrackingActivity::getWhere();
+		$tpl->assign('activities', $activities);
 		
 		$tpl->display('devblocks:cerberusweb.timetracking::config/activities/index.tpl');
 	}
@@ -546,7 +542,6 @@ class ChTimeTracking_SetupPageSection extends Extension_PageSection {
 
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
 		@$name = DevblocksPlatform::importGPC($_REQUEST['name'],'string','');
-		@$rate = floatval(DevblocksPlatform::importGPC($_REQUEST['rate'],'string',''));
 		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'],'integer',0);
 
 		if(empty($name)) {
@@ -556,7 +551,6 @@ class ChTimeTracking_SetupPageSection extends Extension_PageSection {
 		if(empty($id)) { // Add
 			$fields = array(
 				DAO_TimeTrackingActivity::NAME => $name,
-				DAO_TimeTrackingActivity::RATE => $rate,
 			);
 			$activity_id = DAO_TimeTrackingActivity::create($fields);
 			
@@ -567,7 +561,6 @@ class ChTimeTracking_SetupPageSection extends Extension_PageSection {
 			} else { // Modify
 				$fields = array(
 					DAO_TimeTrackingActivity::NAME => $name,
-					DAO_TimeTrackingActivity::RATE => $rate,
 				);
 				DAO_TimeTrackingActivity::update($id, $fields);
 			}
