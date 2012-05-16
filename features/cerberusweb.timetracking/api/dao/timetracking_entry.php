@@ -608,7 +608,7 @@ class View_TimeTracking extends C4_AbstractView implements IAbstractView_Subtota
 			$pass = false;
 			
 			switch($field_key) {
-				// Booleans
+				case SearchFields_TimeTrackingEntry::ACTIVITY_ID:
 				case SearchFields_TimeTrackingEntry::IS_CLOSED:
 					$pass = true;
 					break;
@@ -640,6 +640,19 @@ class View_TimeTracking extends C4_AbstractView implements IAbstractView_Subtota
 			return array();
 		
 		switch($column) {
+			case SearchFields_TimeTrackingEntry::ACTIVITY_ID:
+				$activities = DAO_TimeTrackingActivity::getWhere();
+				$label_map = array(
+					'0' => '(none)',
+				);
+				
+				foreach($activities as $activity_id => $activity) {
+					$label_map[$activity_id] = $activity->name;
+				}
+				
+				$counts = $this->_getSubtotalCountForStringColumn('DAO_TimeTrackingEntry', $column, $label_map, DevblocksSearchCriteria::OPER_IN, 'options[]');
+				break;
+				
 			case SearchFields_TimeTrackingEntry::IS_CLOSED:
 				$counts = $this->_getSubtotalCountForBooleanColumn('DAO_TimeTrackingEntry', $column);
 				break;
