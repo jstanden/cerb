@@ -212,12 +212,17 @@ class DAO_CalendarEvent extends C4_ORMHelper {
 			return;
 			
 		$from_context = CerberusContexts::CONTEXT_CALENDAR_EVENT;
-		$from_index = 'c.id';
+		$from_index = 'calendar_event.id';
 		
 		$param_key = $param->field;
 		settype($param_key, 'string');
 		
 		switch($param_key) {
+			case SearchFields_CalendarEvent::VIRTUAL_CONTEXT_LINK:
+				$args['has_multiple_values'] = true;
+				self::_searchComponentsVirtualContextLinks($param, $from_context, $from_index, $args['join_sql'], $args['where_sql']);
+				break;
+			
 			case SearchFields_CalendarEvent::VIRTUAL_OWNER:
 				self::_searchComponentsVirtualOwner($param, $args['join_sql'], $args['where_sql']);
 				break;
@@ -300,6 +305,7 @@ class SearchFields_CalendarEvent implements IDevblocksSearchFields {
 	const DATE_START = 'c_date_start';
 	const DATE_END = 'c_date_end';
 	
+	const VIRTUAL_CONTEXT_LINK = '*_context_link';
 	const VIRTUAL_OWNER = '*_owner';
 	
 	// Context Links
@@ -321,7 +327,8 @@ class SearchFields_CalendarEvent implements IDevblocksSearchFields {
 			self::IS_AVAILABLE => new DevblocksSearchField(self::IS_AVAILABLE, 'calendar_event', 'is_available', $translate->_('dao.calendar_event.is_available'), Model_CustomField::TYPE_CHECKBOX),
 			self::DATE_START => new DevblocksSearchField(self::DATE_START, 'calendar_event', 'date_start', $translate->_('dao.calendar_event.date_start'), Model_CustomField::TYPE_DATE),
 			self::DATE_END => new DevblocksSearchField(self::DATE_END, 'calendar_event', 'date_end', $translate->_('dao.calendar_event.date_end'), Model_CustomField::TYPE_DATE),
-			
+
+			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null),
 			self::VIRTUAL_OWNER => new DevblocksSearchField(self::VIRTUAL_OWNER, '*', 'owner', $translate->_('common.owner'), null),
 				
 			self::CONTEXT_LINK => new DevblocksSearchField(self::CONTEXT_LINK, 'context_link', 'from_context', null, null),
@@ -381,6 +388,7 @@ class View_CalendarEvent extends C4_AbstractView implements IAbstractView_Subtot
 			SearchFields_CalendarEvent::OWNER_CONTEXT_ID,
 			SearchFields_CalendarEvent::CONTEXT_LINK,
 			SearchFields_CalendarEvent::CONTEXT_LINK_ID,
+			SearchFields_CalendarEvent::VIRTUAL_CONTEXT_LINK,
 		));
 		
 		$this->addParamsHidden(array(
@@ -531,6 +539,12 @@ class View_CalendarEvent extends C4_AbstractView implements IAbstractView_Subtot
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context_worker.tpl');
 				break;
 				
+			case SearchFields_CalendarEvent::VIRTUAL_CONTEXT_LINK:
+				$contexts = Extension_DevblocksContext::getAll(false);
+				$tpl->assign('contexts', $contexts);
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context_link.tpl');
+				break;
+				
 			default:
 				// Custom Fields
 				if('cf_' == substr($field,0,3)) {
@@ -563,6 +577,10 @@ class View_CalendarEvent extends C4_AbstractView implements IAbstractView_Subtot
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		switch($key) {
+			case SearchFields_CalendarEvent::VIRTUAL_CONTEXT_LINK:
+				$this->_renderVirtualContextLinks($param);
+				break;
+			
 			case SearchFields_CalendarEvent::VIRTUAL_OWNER:
 				$this->_renderVirtualWorkers($param, 'Owner', 'Owners');
 				break;
@@ -594,6 +612,11 @@ class View_CalendarEvent extends C4_AbstractView implements IAbstractView_Subtot
 			case SearchFields_CalendarEvent::IS_AVAILABLE:
 				@$bool = DevblocksPlatform::importGPC($_REQUEST['bool'],'integer',1);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
+				break;
+				
+			case SearchFields_CalendarEvent::VIRTUAL_CONTEXT_LINK:
+				@$context_links = DevblocksPlatform::importGPC($_REQUEST['context_link'],'array',array());
+				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$context_links);
 				break;
 				
 			case SearchFields_CalendarEvent::VIRTUAL_OWNER:

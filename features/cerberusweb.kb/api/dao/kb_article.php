@@ -346,14 +346,20 @@ class DAO_KbArticle extends C4_ORMHelper {
 		if(!is_a($param, 'DevblocksSearchCriteria'))
 			return;
 		
+		$from_context = CerberusContexts::CONTEXT_KB_ARTICLE;
+		$from_index = 'kb.id';
+		
 		$param_key = $param->field;
 		settype($param_key, 'string');
+		
 		switch($param_key) {
+			case SearchFields_KbArticle::VIRTUAL_CONTEXT_LINK:
+				$args['has_multiple_values'] = true;
+				self::_searchComponentsVirtualContextLinks($param, $from_context, $from_index, $args['join_sql'], $args['where_sql']);
+				break;
+			
 			case SearchFields_KbArticle::VIRTUAL_WATCHERS:
 				$args['has_multiple_values'] = true;
-				$from_context = CerberusContexts::CONTEXT_KB_ARTICLE;
-				$from_index = 'kb.id';
-				
 				self::_searchComponentsVirtualWatchers($param, $from_context, $from_index, $args['join_sql'], $args['where_sql']);
 				break;
 		}
@@ -421,6 +427,7 @@ class SearchFields_KbArticle implements IDevblocksSearchFields {
 	
 	const FULLTEXT_ARTICLE_CONTENT = 'ftkb_content';
 	
+	const VIRTUAL_CONTEXT_LINK = '*_context_link';
 	const VIRTUAL_WATCHERS = '*_workers';
 	
 	const CONTEXT_LINK = 'cl_context_from';
@@ -443,6 +450,7 @@ class SearchFields_KbArticle implements IDevblocksSearchFields {
 			self::CATEGORY_ID => new DevblocksSearchField(self::CATEGORY_ID, 'katc', 'kb_category_id'),
 			self::TOP_CATEGORY_ID => new DevblocksSearchField(self::TOP_CATEGORY_ID, 'katc', 'kb_top_category_id', $translate->_('kb_article.topic')),
 			
+			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null),
 			self::VIRTUAL_WATCHERS => new DevblocksSearchField(self::VIRTUAL_WATCHERS, '*', 'workers', $translate->_('common.watchers'), 'WS'),
 			
 			self::CONTEXT_LINK => new DevblocksSearchField(self::CONTEXT_LINK, 'context_link', 'from_context', null),
@@ -842,6 +850,7 @@ class View_KbArticle extends C4_AbstractView implements IAbstractView_Subtotals 
 		$this->addColumnsHidden(array(
 			SearchFields_KbArticle::CONTENT,
 			SearchFields_KbArticle::FULLTEXT_ARTICLE_CONTENT,
+			SearchFields_KbArticle::VIRTUAL_CONTEXT_LINK,
 			SearchFields_KbArticle::VIRTUAL_WATCHERS,
 		));
 		
@@ -1010,6 +1019,12 @@ class View_KbArticle extends C4_AbstractView implements IAbstractView_Subtotals 
 			case SearchFields_KbArticle::FULLTEXT_ARTICLE_CONTENT:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__fulltext.tpl');
 				break;
+
+			case SearchFields_KbArticle::VIRTUAL_CONTEXT_LINK:
+				$contexts = Extension_DevblocksContext::getAll(false);
+				$tpl->assign('contexts', $contexts);
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context_link.tpl');
+				break;
 				
 			case SearchFields_KbArticle::VIRTUAL_WATCHERS:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context_worker.tpl');
@@ -1029,6 +1044,10 @@ class View_KbArticle extends C4_AbstractView implements IAbstractView_Subtotals 
 		$key = $param->field;
 		
 		switch($key) {
+			case SearchFields_KbArticle::VIRTUAL_CONTEXT_LINK:
+				$this->_renderVirtualContextLinks($param);
+				break;
+			
 			case SearchFields_KbArticle::VIRTUAL_WATCHERS:
 				$this->_renderVirtualWatchers($param);
 				break;
@@ -1116,6 +1135,11 @@ class View_KbArticle extends C4_AbstractView implements IAbstractView_Subtotals 
 			case SearchFields_KbArticle::FULLTEXT_ARTICLE_CONTENT:
 				@$scope = DevblocksPlatform::importGPC($_REQUEST['scope'],'string','expert');
 				$criteria = new DevblocksSearchCriteria($field, $oper, array($value,$scope));
+				break;
+				
+			case SearchFields_KbArticle::VIRTUAL_CONTEXT_LINK:
+				@$context_links = DevblocksPlatform::importGPC($_REQUEST['context_link'],'array',array());
+				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$context_links);
 				break;
 				
 			case SearchFields_KbArticle::VIRTUAL_WATCHERS:

@@ -213,23 +213,17 @@ class DAO_ContactPerson extends C4_ORMHelper {
 			
 		$sort_sql = (!empty($sortBy)) ? sprintf("ORDER BY %s %s ",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : " ";
 	
-		// Virtuals
-		foreach($params as $param) {
-			if(!is_a($param, 'DevblocksSearchCriteria'))
-				continue;
-			
-			$param_key = $param->field;
-			settype($param_key, 'string');
-			switch($param_key) {
-				case SearchFields_Task::VIRTUAL_WATCHERS:
-					$has_multiple_values = true;
-					$from_context = CerberusContexts::CONTEXT_CONTACT_PERSON;
-					$from_index = 'contact_person.id';
-					
-					self::_searchComponentsVirtualWatchers($param, $from_context, $from_index, $join_sql, $where_sql);
-					break;
-			}
-		}
+		// Translate virtual fields
+		
+		array_walk_recursive(
+			$params,
+			array('DAO_ContactPerson', '_translateVirtualParameters'),
+			array(
+				'join_sql' => &$join_sql,
+				'where_sql' => &$where_sql,
+				'has_multiple_values' => &$has_multiple_values
+			)
+		);
 		
 		return array(
 			'primary_table' => 'contact_person',
@@ -239,6 +233,30 @@ class DAO_ContactPerson extends C4_ORMHelper {
 			'has_multiple_values' => $has_multiple_values,
 			'sort' => $sort_sql,
 		);
+	}
+
+	private static function _translateVirtualParameters($param, $key, &$args) {
+		if(!is_a($param, 'DevblocksSearchCriteria'))
+			return;
+		
+		$param_key = $param->field;
+		settype($param_key, 'string');
+		
+		$from_context = CerberusContexts::CONTEXT_CONTACT_PERSON;
+		$from_index = 'contact_person.id';
+		
+		switch($param_key) {
+			case SearchFields_ContactPerson::VIRTUAL_CONTEXT_LINK:
+				$args['has_multiple_values'] = true;
+				self::_searchComponentsVirtualContextLinks($param, $from_context, $from_index, $args['join_sql'], $args['where_sql']);
+				break;
+			
+			case SearchFields_ContactPerson::VIRTUAL_WATCHERS:
+				$args['has_multiple_values'] = true;
+				
+				self::_searchComponentsVirtualWatchers($param, $from_context, $from_index, $args['join_sql'], $args['where_sql']);
+				break;
+		}
 	}
 	
     /**
@@ -344,6 +362,7 @@ class SearchFields_ContactPerson implements IDevblocksSearchFields {
 	const ADDRESS_FIRST_NAME = 'a_first_name';
 	const ADDRESS_LAST_NAME = 'a_last_name';
 	
+	const VIRTUAL_CONTEXT_LINK = '*_context_link';
 	const VIRTUAL_WATCHERS = '*_workers';
 	
 	const CONTEXT_LINK = 'cl_context_from';
@@ -367,6 +386,7 @@ class SearchFields_ContactPerson implements IDevblocksSearchFields {
 			self::ADDRESS_FIRST_NAME => new DevblocksSearchField(self::ADDRESS_FIRST_NAME, 'address', 'first_name', $translate->_('address.first_name'), Model_CustomField::TYPE_SINGLE_LINE),
 			self::ADDRESS_LAST_NAME => new DevblocksSearchField(self::ADDRESS_LAST_NAME, 'address', 'last_name', $translate->_('address.last_name'), Model_CustomField::TYPE_SINGLE_LINE),
 			
+			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null),
 			self::VIRTUAL_WATCHERS => new DevblocksSearchField(self::VIRTUAL_WATCHERS, '*', 'workers', $translate->_('common.watchers'), 'WS'),
 			
 			self::CONTEXT_LINK => new DevblocksSearchField(self::CONTEXT_LINK, 'context_link', 'from_context', null),
@@ -447,6 +467,7 @@ class View_ContactPerson extends C4_AbstractView implements IAbstractView_Subtot
 			SearchFields_ContactPerson::EMAIL_ID,
 			SearchFields_ContactPerson::AUTH_PASSWORD,
 			SearchFields_ContactPerson::AUTH_SALT,
+			SearchFields_ContactPerson::VIRTUAL_CONTEXT_LINK,
 			SearchFields_ContactPerson::VIRTUAL_WATCHERS,
 		));
 		
@@ -579,19 +600,30 @@ class View_ContactPerson extends C4_AbstractView implements IAbstractView_Subtot
 			case SearchFields_ContactPerson::AUTH_PASSWORD:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__string.tpl');
 				break;
+				
 			case SearchFields_ContactPerson::ID:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__number.tpl');
 				break;
+				
 			case 'placeholder_bool':
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__bool.tpl');
 				break;
+				
 			case SearchFields_ContactPerson::CREATED:
 			case SearchFields_ContactPerson::LAST_LOGIN:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__date.tpl');
 				break;
+				
+			case SearchFields_ContactPerson::VIRTUAL_CONTEXT_LINK:
+				$contexts = Extension_DevblocksContext::getAll(false);
+				$tpl->assign('contexts', $contexts);
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context_link.tpl');
+				break;
+				
 			case SearchFields_ContactPerson::VIRTUAL_WATCHERS:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context_worker.tpl');
 				break;
+				
 			/*
 			default:
 				// Custom Fields
@@ -609,6 +641,10 @@ class View_ContactPerson extends C4_AbstractView implements IAbstractView_Subtot
 		$key = $param->field;
 		
 		switch($key) {
+			case SearchFields_ContactPerson::VIRTUAL_CONTEXT_LINK:
+				$this->_renderVirtualContextLinks($param);
+				break;
+
 			case SearchFields_ContactPerson::VIRTUAL_WATCHERS:
 				$this->_renderVirtualWatchers($param);				
 				break;
@@ -654,6 +690,11 @@ class View_ContactPerson extends C4_AbstractView implements IAbstractView_Subtot
 			case 'placeholder_bool':
 				@$bool = DevblocksPlatform::importGPC($_REQUEST['bool'],'integer',1);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
+				break;
+				
+			case SearchFields_ContactPerson::VIRTUAL_CONTEXT_LINK:
+				@$context_links = DevblocksPlatform::importGPC($_REQUEST['context_link'],'array',array());
+				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$context_links);
 				break;
 				
 			case SearchFields_ContactPerson::VIRTUAL_WATCHERS:
