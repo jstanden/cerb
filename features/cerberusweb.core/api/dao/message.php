@@ -397,6 +397,7 @@ class SearchFields_Message implements IDevblocksSearchFields {
 	
 	// Ticket
 	const TICKET_GROUP_ID = 't_group_id';
+	const TICKET_IS_DELETED = 't_is_deleted';
 	const TICKET_MASK = 't_mask';
 	const TICKET_SUBJECT = 't_subject';
 
@@ -425,6 +426,7 @@ class SearchFields_Message implements IDevblocksSearchFields {
 			SearchFields_Message::ADDRESS_EMAIL => new DevblocksSearchField(SearchFields_Message::ADDRESS_EMAIL, 'a', 'email', $translate->_('common.email'), Model_CustomField::TYPE_SINGLE_LINE),
 			
 			SearchFields_Message::TICKET_GROUP_ID => new DevblocksSearchField(SearchFields_Message::TICKET_GROUP_ID, 't', 'group_id', $translate->_('common.group')),
+			SearchFields_Message::TICKET_IS_DELETED => new DevblocksSearchField(SearchFields_Message::TICKET_IS_DELETED, 't', 'is_deleted', $translate->_('status.deleted'), Model_CustomField::TYPE_CHECKBOX),
 			SearchFields_Message::TICKET_MASK => new DevblocksSearchField(SearchFields_Message::TICKET_MASK, 't', 'mask', $translate->_('ticket.mask'), Model_CustomField::TYPE_SINGLE_LINE),
 			SearchFields_Message::TICKET_SUBJECT => new DevblocksSearchField(SearchFields_Message::TICKET_SUBJECT, 't', 'subject', $translate->_('ticket.subject'), Model_CustomField::TYPE_SINGLE_LINE),
 		);
@@ -1043,10 +1045,10 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals {
 			$pass = false;
 			
 			switch($field_key) {
-				// Booleans
 				case SearchFields_Message::ADDRESS_EMAIL:
 				case SearchFields_Message::IS_OUTGOING:
 				case SearchFields_Message::TICKET_GROUP_ID:
+				case SearchFields_Message::TICKET_IS_DELETED:
 				case SearchFields_Message::WORKER_ID:
 					$pass = true;
 					break;
@@ -1094,6 +1096,7 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals {
 				break;
 
 			case SearchFields_Message::IS_OUTGOING:
+			case SearchFields_Message::TICKET_IS_DELETED:
 				$counts = $this->_getSubtotalCountForBooleanColumn('DAO_Message', $column);
 				break;
 			
@@ -1147,6 +1150,7 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals {
 				break;
 				
 			case SearchFields_Message::IS_OUTGOING:
+			case SearchFields_Message::TICKET_IS_DELETED:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__bool.tpl');
 				break;
 				
@@ -1183,6 +1187,7 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals {
 
 		switch($field) {
 			case SearchFields_Message::IS_OUTGOING:
+			case SearchFields_Message::TICKET_IS_DELETED:
 				$this->_renderCriteriaParamBoolean($param);
 				break;
 				
@@ -1228,6 +1233,7 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals {
 				break;
 				
 			case SearchFields_Message::IS_OUTGOING:
+			case SearchFields_Message::TICKET_IS_DELETED:
 				@$bool = DevblocksPlatform::importGPC($_REQUEST['bool'],'integer',1);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
 				break;
