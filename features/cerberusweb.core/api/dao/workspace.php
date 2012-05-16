@@ -22,6 +22,7 @@ class DAO_WorkspacePage extends C4_ORMHelper {
 	const NAME = 'name';
 	const OWNER_CONTEXT = 'owner_context';
 	const OWNER_CONTEXT_ID = 'owner_context_id';
+	const EXTENSION_ID = 'extension_id';
 
 	static function create($fields) {
 		$db = DevblocksPlatform::getDatabaseService();
@@ -74,7 +75,7 @@ class DAO_WorkspacePage extends C4_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 
 		// SQL
-		$sql = "SELECT id, name, owner_context, owner_context_id ".
+		$sql = "SELECT id, name, owner_context, owner_context_id, extension_id ".
 			"FROM workspace_page ".
 			$where_sql.
 			$sort_sql.
@@ -163,6 +164,7 @@ class DAO_WorkspacePage extends C4_ORMHelper {
 			$object->name = $row['name'];
 			$object->owner_context = $row['owner_context'];
 			$object->owner_context_id = $row['owner_context_id'];
+			$object->extension_id = $row['extension_id'];
 			$objects[$object->id] = $object;
 		}
 
@@ -214,11 +216,13 @@ class DAO_WorkspacePage extends C4_ORMHelper {
 			"workspace_page.id as %s, ".
 			"workspace_page.name as %s, ".
 			"workspace_page.owner_context as %s, ".
-			"workspace_page.owner_context_id as %s ",
+			"workspace_page.owner_context_id as %s, ".
+			"workspace_page.extension_id as %s ",
 			SearchFields_WorkspacePage::ID,
 			SearchFields_WorkspacePage::NAME,
 			SearchFields_WorkspacePage::OWNER_CONTEXT,
-			SearchFields_WorkspacePage::OWNER_CONTEXT_ID
+			SearchFields_WorkspacePage::OWNER_CONTEXT_ID,
+			SearchFields_WorkspacePage::EXTENSION_ID
 		);
 			
 		$join_sql = "FROM workspace_page ";
@@ -645,6 +649,7 @@ class SearchFields_WorkspacePage implements IDevblocksSearchFields {
 	const NAME = 'w_name';
 	const OWNER_CONTEXT = 'w_owner_context';
 	const OWNER_CONTEXT_ID = 'w_owner_context_id';
+	const EXTENSION_ID = 'w_extension_id';
 	
 	const VIRTUAL_OWNER = '*_owner';
 	
@@ -659,6 +664,7 @@ class SearchFields_WorkspacePage implements IDevblocksSearchFields {
 			self::NAME => new DevblocksSearchField(self::NAME, 'workspace_page', 'name', $translate->_('common.name'), Model_CustomField::TYPE_SINGLE_LINE),
 			self::OWNER_CONTEXT => new DevblocksSearchField(self::OWNER_CONTEXT, 'workspace_page', 'owner_context', null),
 			self::OWNER_CONTEXT_ID => new DevblocksSearchField(self::OWNER_CONTEXT_ID, 'workspace_page', 'owner_context_id', null),
+			self::EXTENSION_ID => new DevblocksSearchField(self::EXTENSION_ID, 'workspace_page', 'extension_id', null),
 				
 			self::VIRTUAL_OWNER => new DevblocksSearchField(self::VIRTUAL_OWNER, '*', 'owner', $translate->_('common.owner'), null),
 		);
@@ -673,8 +679,9 @@ class SearchFields_WorkspacePage implements IDevblocksSearchFields {
 class SearchFields_WorkspaceTab implements IDevblocksSearchFields {
 	const ID = 'w_id';
 	const NAME = 'w_name';
-	const WORKSPACE_PAGE_ID = 'w_workspace_page_Id';
+	const WORKSPACE_PAGE_ID = 'w_workspace_page_id';
 	const POS = 'w_pos';
+	const EXTENSION_ID = 'w_extension_id';
 	
 	/**
 	 * @return DevblocksSearchField[]
@@ -702,6 +709,7 @@ class Model_WorkspacePage {
 	public $name;
 	public $owner_context;
 	public $owner_context_id;
+	public $extension_id;
 	
 	function getTabs(Model_Worker $as_worker=null) {
 		$tabs = DAO_WorkspaceTab::getByPage($this->id);

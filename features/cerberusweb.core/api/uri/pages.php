@@ -134,7 +134,6 @@ class Page_Custom extends CerberusPageExtension {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		// [TODO] Cache
 		if(null == ($page = DAO_WorkspacePage::get($page_id)))
 			return;
 		
@@ -148,12 +147,18 @@ class Page_Custom extends CerberusPageExtension {
 			$page_id
 		);
 		$tpl->assign('point', $point);
-		
-		$tabs = $page->getTabs($active_worker);
-		$tpl->assign('page_tabs', $tabs);
-		
+
 		// Template
-		$tpl->display('devblocks:cerberusweb.core::pages/tabs.tpl');
+		if(!empty($page->extension_id)) {
+			if(null != ($page_extension = DevblocksPlatform::getExtension($page->extension_id, true)))
+				$tpl->assign('page_extension', $page_extension);
+			
+		} else {
+			$tabs = $page->getTabs($active_worker);
+			$tpl->assign('page_tabs', $tabs);
+		}
+		
+		$tpl->display('devblocks:cerberusweb.core::pages/page.tpl');
 	}
 	
 	function setPageOrderAction() {
@@ -437,6 +442,7 @@ class Page_Custom extends CerberusPageExtension {
 		}
 	
 		// Owners
+		
 		$roles = DAO_WorkerRole::getAll();
 		$tpl->assign('roles', $roles);
 	
@@ -460,12 +466,20 @@ class Page_Custom extends CerberusPageExtension {
 		}
 		$tpl->assign('owner_roles', $owner_roles);
 	
+		// Extensions 
+		
+		$page_extensions = Extension_WorkspacePage::getAll(false);
+		$tpl->assign('page_extensions', $page_extensions);
+		
+		// Template
+		
 		$tpl->display('devblocks:cerberusweb.core::pages/edit_workspace_page.tpl');
 	}
 	
 	function doEditWorkspacePageAction() {
 		@$workspace_page_id = DevblocksPlatform::importGPC($_POST['id'],'integer', 0);
 		@$name = DevblocksPlatform::importGPC($_POST['name'],'string', '');
+		@$extension_id = DevblocksPlatform::importGPC($_POST['extension_id'],'string', '');
 		@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'],'integer', '0');
 	
 		$active_worker = CerberusApplication::getActiveWorker();
@@ -487,6 +501,9 @@ class Page_Custom extends CerberusPageExtension {
 			);
 				
 			if(empty($workspace_page_id)) {
+				// Extension
+				$fields[DAO_WorkspacePage::EXTENSION_ID] = $extension_id;
+				
 				// Owner
 				@list($owner_type, $owner_id) = explode('_', DevblocksPlatform::importGPC($_REQUEST['owner'],'string',''));
 					

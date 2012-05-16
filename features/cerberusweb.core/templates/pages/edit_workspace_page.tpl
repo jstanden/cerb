@@ -17,6 +17,33 @@
 
 	<tr>
 		<td width="1%" nowrap="nowrap" align="right" valign="top">
+			<b>{'common.type'|devblocks_translate|capitalize}:</b>
+		</td>
+		<td width="99%">
+			{if !empty($workspace_page)}
+				{if !empty($workspace_page->extension_id)}
+					{$page_extension = DevblocksPlatform::getExtension($workspace_page->extension_id, false)}
+					{if $page_extension}
+						{$page_extension->params.label|devblocks_translate|capitalize}
+					{/if}
+				{else}
+					
+				{/if}
+			{else}
+				<select name="extension_id">
+					<option value="">Workspace</option>
+					{if !empty($page_extensions)}
+						{foreach from=$page_extensions item=page_extension}
+							<option value="{$page_extension->id}">{$page_extension->params.label|devblocks_translate|capitalize}</option>
+						{/foreach}
+					{/if}
+				</select>
+			{/if}
+		</td>
+	</tr>
+
+	<tr>
+		<td width="1%" nowrap="nowrap" align="right" valign="top">
 			<b>{'common.owner'|devblocks_translate|capitalize}:</b>
 		</td>
 		<td width="99%">

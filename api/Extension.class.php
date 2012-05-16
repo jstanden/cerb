@@ -291,6 +291,27 @@ abstract class Extension_ContextProfileScript extends DevblocksExtension {
 	function renderScript($context, $context_id) {}
 };
 
+abstract class Extension_WorkspacePage extends DevblocksExtension {
+	const POINT = 'cerberusweb.ui.workspace.page';
+	
+	/**
+	 * @return DevblocksExtensionManifest[]|Extension_WorkspacePage[]
+	 */
+	static function getAll($as_instances=true) {
+		$exts = DevblocksPlatform::getExtensions(self::POINT, $as_instances);
+
+		// Sorting
+		if($as_instances)
+			DevblocksPlatform::sortObjects($exts, 'manifest->name');
+		else
+			DevblocksPlatform::sortObjects($exts, 'name');
+	
+		return $exts;
+	}
+	
+	abstract function renderPage(Model_WorkspacePage $page); 
+};
+
 abstract class Extension_WorkspaceTab extends DevblocksExtension {
 	const POINT = 'cerberusweb.ui.workspace.tab';
 	

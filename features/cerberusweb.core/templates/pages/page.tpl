@@ -24,51 +24,65 @@
 	<div style="clear:both;"></div>
 </form>
 
-<div id="pageTabs">
-	<ul>
-		{$tabs = []}
+{if empty($page->extension_id)}
+	<div id="pageTabs">
+		<ul>
+			{$tabs = []}
+			
+			{foreach from=$page_tabs item=tab}
+				{$tabs[] = 'w_'|cat:$tab->id}
+				<li class="drag" tab_id="{$tab->id}"><a href="{devblocks_url}ajax.php?c=pages&a=showWorkspaceTab&point={$point}&id={$tab->id}&request={$response_uri|escape:'url'}{/devblocks_url}">{$tab->name}</a></li>
+			{/foreach}
+	
+			{if $page->isWriteableByWorker($active_worker)}		
+				<li><a href="{devblocks_url}ajax.php?c=pages&a=showAddTabs&page_id={$page->id}{/devblocks_url}">+</a></li>
+			{/if}
+		</ul>
+	</div>
+	
+	<div style="margin-top:10px;">
+		{include file="devblocks:cerberusweb.core::internal/whos_online.tpl"}
+	</div>
+
+	{$tab_selected_idx=0}
+	{foreach from=$tabs item=tab_label name=tabs}
+		{if $tab_label==$selected_tab}{$tab_selected_idx = $smarty.foreach.tabs.index}{/if}
+	{/foreach}
+
+	<script type="text/javascript">
+		$(function() {
+			$tabs = $("#pageTabs");
+			
+			var tabs = $tabs.tabs( { 
+				selected: {$tab_selected_idx}
+			});
+			
+			$tabs.find('> ul').sortable({
+				items:'> li.drag',
+				forcePlaceholderWidth:true,
+				update:function(e) {
+					$tabs = $("#pageTabs");
+					$page_tabs = $tabs.find('ul.ui-tabs-nav > li.drag[tab_id=*]');
+					page_tab_ids = $page_tabs.map(function(e) {
+						return $(this).attr('tab_id');
+					}).get().join(',');
 		
-		{foreach from=$page_tabs item=tab}
-			{$tabs[] = 'w_'|cat:$tab->id}
-			<li class="drag" tab_id="{$tab->id}"><a href="{devblocks_url}ajax.php?c=pages&a=showWorkspaceTab&point={$point}&id={$tab->id}&request={$response_uri|escape:'url'}{/devblocks_url}">{$tab->name}</a></li>
-		{/foreach}
+					genericAjaxGet('', 'c=pages&a=setTabOrder&page_id={$page->id}&tabs=' + page_tab_ids);
+				}
+			});
+		});
+	</script>
 
-		{if $page->isWriteableByWorker($active_worker)}		
-			<li><a href="{devblocks_url}ajax.php?c=pages&a=showAddTabs&page_id={$page->id}{/devblocks_url}">+</a></li>
+{else}
+	<div style="margin-top:5px;">
+		{if $page_extension instanceof Extension_WorkspacePage}
+			{$page_extension->renderPage($page)}
 		{/if}
-	</ul>
-</div> 
-<br>
-
-{include file="devblocks:cerberusweb.core::internal/whos_online.tpl"}
-
-{$tab_selected_idx=0}
-{foreach from=$tabs item=tab_label name=tabs}
-	{if $tab_label==$selected_tab}{$tab_selected_idx = $smarty.foreach.tabs.index}{/if}
-{/foreach}
+	</div>
+{/if} 
 
 <script type="text/javascript">
 	$(function() {
-		$tabs = $("#pageTabs");
-		
-		var tabs = $tabs.tabs( { 
-			selected: {$tab_selected_idx}
-		});
-		
-		$tabs.find('> ul').sortable({
-			items:'> li.drag',
-			forcePlaceholderWidth:true,
-			update:function(e) {
-				$tabs = $("#pageTabs");
-				$page_tabs = $tabs.find('ul.ui-tabs-nav > li.drag[tab_id=*]');
-				page_tab_ids = $page_tabs.map(function(e) {
-					return $(this).attr('tab_id');
-				}).get().join(',');
-	
-				genericAjaxGet('', 'c=pages&a=setTabOrder&page_id={$page->id}&tabs=' + page_tab_ids);
-			}
-		});
-		
 		$workspace = $('#frmWorkspacePage{$page->id}');
 		
 		// Edit workspace actions
