@@ -24,7 +24,7 @@
 		event.stopPropagation();
 		$(this).dialog('option','title','{$context->manifest->name} Chooser');
 		
-		$popup.find('select:first').focus();
+		$popup.find('input:text:first').focus();
 
 		// Progressive de-enhancement
 		

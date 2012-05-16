@@ -91,7 +91,7 @@ class Page_Search extends CerberusPageExtension {
 			return;
 		}
 		
-		DAO_WorkerPref::set($active_worker->id, 'quicksearch_' . $view_id, $token);
+		DAO_WorkerPref::set($active_worker->id, 'quicksearch_' . strtolower(get_class($view)), $token);
 		
 		if(!empty($reset))
 			$view->doResetCriteria();

@@ -1,4 +1,4 @@
-{$pref_token = DAO_WorkerPref::get($active_worker->id, "quicksearch_{$view->id}", "")}
+{$pref_token = DAO_WorkerPref::get($active_worker->id, "quicksearch_{get_class($view)|lower}", "")}
 
 {capture "options"}
 {foreach from=$view->getParamsAvailable() item=field key=token}

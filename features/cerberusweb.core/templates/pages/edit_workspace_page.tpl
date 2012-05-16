@@ -27,7 +27,7 @@
 						{$page_extension->params.label|devblocks_translate|capitalize}
 					{/if}
 				{else}
-					
+					Workspace
 				{/if}
 			{else}
 				<select name="extension_id">
