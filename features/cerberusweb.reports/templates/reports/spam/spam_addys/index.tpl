@@ -1,9 +1,6 @@
-<ul class="submenu">
-</ul>
-<div style="clear:both;"></div>
+<fieldset class="peek">
 
-<h2>{$translate->_('reports.ui.spam.senders')}</h2>
-<br>
+<legend>{$translate->_('reports.ui.spam.senders')}</legend>
 
 <table cellpadding="2" cellspacing="0" border="0">
 	<tr>
@@ -48,3 +45,4 @@
 	</tr>
 </table>
 
+</fieldset>

@@ -104,14 +104,17 @@ class ChReportNewTickets extends Extension_Report {
 			$view->is_ephemeral = true;
 			$view->removeAllParams();
 
-			$view->addParam(new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CREATED_DATE,DevblocksSearchCriteria::OPER_BETWEEN, array($start_time, $end_time)));
-			$view->addParam(new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_DELETED,DevblocksSearchCriteria::OPER_EQ, 0));
-			$view->addParam(new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_SPAM_SCORE,DevblocksSearchCriteria::OPER_LT, 0.9));
-			$view->addParam(new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_SPAM_TRAINING,DevblocksSearchCriteria::OPER_NEQ, 'S'));
+			$params = array(
+				new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CREATED_DATE,DevblocksSearchCriteria::OPER_BETWEEN, array($start_time, $end_time)),
+				new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_DELETED,DevblocksSearchCriteria::OPER_EQ, 0),
+				new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_SPAM_TRAINING,DevblocksSearchCriteria::OPER_NEQ, 'S'),
+			);			
 			
 			if(!empty($filter_group_ids)) {
-				$view->addParam(new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_GROUP_ID,DevblocksSearchCriteria::OPER_IN, $filter_group_ids));
+				$params[] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_GROUP_ID,DevblocksSearchCriteria::OPER_IN, $filter_group_ids);
 			}
+			
+			$view->addParamsRequired($params, true);
 			
 			$view->renderPage = 0;
 			$view->renderSortBy = SearchFields_Ticket::TICKET_CREATED_DATE;
@@ -130,7 +133,6 @@ class ChReportNewTickets extends Extension_Report {
 			"AND t.created_date <= %d ".
 			"%s ".
 			"AND t.is_deleted = 0 ".
-			"AND t.spam_score < 0.9000 ".
 			"AND t.spam_training != 'S' ".
 			"GROUP BY group_id, date_plot ",
 			$date_group,

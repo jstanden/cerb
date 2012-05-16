@@ -108,13 +108,17 @@ class ChReportTimeSpentActivity extends Extension_Report {
 			$view->is_ephemeral = true;
 			$view->removeAllParams();
 
-			$view->addParam(new DevblocksSearchCriteria(SearchFields_TimeTrackingEntry::LOG_DATE,DevblocksSearchCriteria::OPER_BETWEEN, array($start_time, $end_time)));
+			$params = array(
+				new DevblocksSearchCriteria(SearchFields_TimeTrackingEntry::LOG_DATE,DevblocksSearchCriteria::OPER_BETWEEN, array($start_time, $end_time)),
+			);
 			
 			if(!empty($filter_worker_ids)) {
-				$view->addParam(new DevblocksSearchCriteria(SearchFields_TimeTrackingEntry::WORKER_ID,DevblocksSearchCriteria::OPER_IN, $filter_worker_ids));
+				$params[] = new DevblocksSearchCriteria(SearchFields_TimeTrackingEntry::WORKER_ID,DevblocksSearchCriteria::OPER_IN, $filter_worker_ids);
 			} else {
-				$view->addParam(new DevblocksSearchCriteria(SearchFields_TimeTrackingEntry::WORKER_ID,DevblocksSearchCriteria::OPER_NEQ, 0));
+				$params[] = new DevblocksSearchCriteria(SearchFields_TimeTrackingEntry::WORKER_ID,DevblocksSearchCriteria::OPER_NEQ, 0);
 			}
+			
+			$view->addParamsRequired($params, true);
 			
 			$view->renderPage = 0;
 			$view->renderSortBy = SearchFields_TimeTrackingEntry::LOG_DATE;

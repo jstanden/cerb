@@ -41,20 +41,19 @@
 		
 	<extensions>
 
-	<!-- Page Extensions -->
+	<!-- Workspace Page -->
 	
-	<extension point="cerberusweb.page">
-		<id>reports.page</id>
-		<name>Reports Page</name>
+	<extension point="cerberusweb.ui.workspace.page">
+		<id>reports.workspace.page</id>
+		<name>Reports Workspace Page</name>
 		<class>
 			<file>api/App.php</file>
-			<name>ChReportsPage</name>
+			<name>ChReportsWorkspacePage</name>
 		</class>
 		<params>
-			<param key="uri" value="reports" />
-			<param key="menutitle" value="reports.menu.reports" />
+			<param key="label" value="reports.menu.reports" />
 		</params>
-	</extension>
+	</extension>		
 	
 	<!-- Report Groups -->
 	
@@ -243,19 +242,6 @@
 	</extension>
 
 	<extension point="cerberusweb.report">
-		<id>report.tickets.open_tickets</id>
-		<name>Open Tickets Report</name>
-		<class>
-			<file>api/reports/tickets/OpenTicketsReport.php</file>
-			<name>ChReportOpenTickets</name>
-		</class>
-		<params>
-			<param key="report_name" value="reports.ui.ticket.open_tickets" />
-			<param key="report_group" value="report.group.tickets" />
-		</params>
-	</extension>		
-	
-	<extension point="cerberusweb.report">
 		<id>report.tickets.closed_tickets</id>
 		<name>Closed Tickets Report</name>
 		<class>
@@ -307,45 +293,6 @@
 			<param key="report_group" value="report.group.workers" />
 		</params>
 	</extension>		
-	
-	<extension point="cerberusweb.report">
-		<id>report.tickets.waiting_tickets</id>
-		<name>Waiting Tickets By Group Report</name>
-		<class>
-			<file>api/reports/tickets/WaitingTicketsReport.php</file>
-			<name>ChReportWaitingTickets</name>
-		</class>
-		<params>
-			<param key="report_name" value="reports.ui.ticket.waiting_tickets" />
-			<param key="report_group" value="report.group.tickets" />
-		</params>
-	</extension>
-	
-	<extension point="cerberusweb.report">
-		<id>report.tickets.oldest_open_tickets</id>
-		<name>Oldest Open Tickets By Group Report</name>
-		<class>
-			<file>api/reports/tickets/OldestOpenTicketsReport.php</file>
-			<name>ChReportOldestOpenTickets</name>
-		</class>
-		<params>
-			<param key="report_name" value="reports.ui.ticket.oldest_open" />
-			<param key="report_group" value="report.group.tickets" />
-		</params>
-	</extension>
-	
-	<extension point="cerberusweb.report">
-		<id>report.tickets.ticket_assignment</id>
-		<name>Ticket Assignment Report</name>
-		<class>
-			<file>api/reports/tickets/TicketsAssignmentReport.php</file>
-			<name>ChReportTicketAssignment</name>
-		</class>
-		<params>
-			<param key="report_name" value="reports.ui.ticket.assignment" />
-			<param key="report_group" value="report.group.tickets" />
-		</params>
-	</extension>
 	
 	</extensions>
 	

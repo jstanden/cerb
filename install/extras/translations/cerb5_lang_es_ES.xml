@@ -2923,16 +2923,6 @@ Si no pidió esto, no pinche en el enlace de arriba.  La petición expirará en 
         <seg>Tickets Creados por Grupo</seg>
       </tuv>
     </tu>
-    <tu tuid="reports.ui.ticket.oldest_open">
-      <tuv xml:lang="es_ES">
-        <seg>Tickets Abiertos más Antiguos por Grupo</seg>
-      </tuv>
-    </tu>
-    <tu tuid="reports.ui.ticket.open_tickets">
-      <tuv xml:lang="es_ES">
-        <seg>Tickets Abiertos por Grupo</seg>
-      </tuv>
-    </tu>
     <tu tuid="reports.ui.ticket.top_contacts">
       <tuv xml:lang="es_ES">
         <seg>Primeros Tickets Creados por Contacto</seg>
@@ -2946,11 +2936,6 @@ Si no pidió esto, no pinche en el enlace de arriba.  La petición expirará en 
     <tu tuid="reports.ui.ticket.top_contacts.by_org">
       <tuv xml:lang="es_ES">
         <seg>Por Organización</seg>
-      </tuv>
-    </tu>
-    <tu tuid="reports.ui.ticket.waiting_tickets">
-      <tuv xml:lang="es_ES">
-        <seg>Tickets Esperando por Grupo</seg>
       </tuv>
     </tu>
     <tu tuid="reports.ui.worker">

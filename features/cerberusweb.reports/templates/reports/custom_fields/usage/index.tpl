@@ -1,25 +1,25 @@
-<ul class="submenu">
-</ul>
-<div style="clear:both;"></div>
+<fieldset class="peek" style="margin-bottom:0;">
+<legend>{$translate->_('reports.ui.custom_fields.usage')}</legend>
 
-<h2>{$translate->_('reports.ui.custom_fields.usage')}</h2>
+<form action="{devblocks_url}c=pages&page={$page->id}-{$page->name|devblocks_permalink}&report=report.custom_fields.usage{/devblocks_url}" method="POST" id="frmRange" name="frmRange">
 
-<form action="{devblocks_url}c=reports&report=report.custom_fields.usage{/devblocks_url}" method="POST" id="frmRange" name="frmRange" style="margin-bottom:10px;">
-<input type="hidden" name="c" value="reports">
+<b>Custom Field:</b>
 
 <select name="field_id" onchange="this.form.btnSubmit.click();">
 	{foreach from=$context_manifests item=mft}
 		{foreach from=$custom_fields item=f key=field_idx}
 			{if 'T' != $f->type && 0==strcasecmp($mft->id,$f->context)}{* Ignore clobs *}
-			<option value="{$field_idx}" {if $field_id==$field_idx}selected="selected"{/if}>{$mft->name}:{$f->name}</option>
+			<option value="{$field_idx}" {if $field_id==$field_idx}selected="selected"{/if}>[{$mft->name}] {$f->name}</option>
 			{/if}
 		{/foreach}
 	{/foreach}
 </select>
 
-<button type="submit" id="btnSubmit">{$translate->_('reports.common.run_report')|capitalize}</button>
-<div id="divCal" style="display:none;position:absolute;z-index:1;"></div>
+<div style="margin-top:5px;">
+	<button type="submit" id="btnSubmit">{$translate->_('reports.common.run_report')|capitalize}</button>
+</div>
 </form>
+</fieldset>
 
 <!-- Chart -->
 
@@ -32,7 +32,7 @@
 <script language="javascript" type="text/javascript" src="{devblocks_url}c=resource&plugin=cerberusweb.reports&f=js/jqplot/plugins/jqplot.pointLabels.min.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>
 <link rel="stylesheet" type="text/css" href="{devblocks_url}c=resource&plugin=cerberusweb.reports&f=css/jqplot/jquery.jqplot.min.css{/devblocks_url}?v={$smarty.const.APP_BUILD}" />
 
-<div id="reportChart" style="width:98%;height:{25+(32*{count($data)})};"></div>
+<div id="reportChart" style="width:100%;height:{40 + count($data) * 16}px;"></div>
 
 <style type="text/css">
 	.jqplot-yaxis-tick {
@@ -88,20 +88,20 @@ plot1 = $.jqplot('reportChart', [series1], {
 		text: ''
 	},
 	grid:{
-		shadow: false,
+		shadow:false,
 		background:'rgb(255,255,255)',
 		borderWidth:0
 	},
 	seriesColors: cerbChartStyle.seriesColors,	
     seriesDefaults:{
-			renderer:$.jqplot.BarRenderer,
-	        rendererOptions:{ 
-				barDirection: 'horizontal',
-				barMargin:3,
-				varyBarColor:true,
-				highlightMouseOver: false
-			},
-			shadow: false
+		renderer:$.jqplot.BarRenderer,
+        rendererOptions:{ 
+			barDirection: 'horizontal',
+			barMargin:3,
+			varyBarColor:true,
+			highlightMouseOver: false
+		},
+		shadow: false
 	},
 	series:[{
 		pointLabels:{
@@ -135,25 +135,26 @@ plot1 = $.jqplot('reportChart', [series1], {
 
 {/if}
 
-<br>
-
 <!-- Table -->
 
 {if empty($value_counts)}
 	<h3>No data.</h3>
 {else}
-	{$manifest = $context_manifests.{$f->context}}
-	<h2>{$manifest->name}: {$field->name}</h2>
-	<table cellpadding="2" cellspacing="2" border="0">
+	{$manifest = $context_manifests.{$field->context}}
+
+	<h3>{$manifest->name}: {$field->name}</h3>
+		
+	<table>
 		<tr>
 			<td><b>Value</b></td>
 			<td><b>Uses</b></td>
 		</tr>
-	{foreach from=$value_counts item=count key=value}
+		
+		{foreach from=$value_counts item=count key=value}
 		<tr>
 			<td>{$value}</td>
 			<td align="center">{$count}</td>
 		</tr>
-	{/foreach}
+		{/foreach}
 	</table>
 {/if}

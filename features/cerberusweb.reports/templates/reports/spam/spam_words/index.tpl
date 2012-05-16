@@ -1,10 +1,7 @@
-<ul class="submenu">
-</ul>
-<div style="clear:both;"></div>
+<fieldset class="peek">
+<legend>{$translate->_('reports.ui.spam.words')}</legend>
 
-<h2>{$translate->_('reports.ui.spam.words')}</h2>
-
-<h3>{$translate->_('reports.ui.spam.words.spam_training')}</h3>
+<h3 style="margin:0;">{$translate->_('reports.ui.spam.words.spam_training')}</h3>
 {$translate->_('reports.ui.spam.words.num_nonspam_trained')} <span style="color:rgb(0,200,0);font-weight:bold;">{$num_nonspam}</span><br> 
 {$translate->_('reports.ui.spam.words.num_spam_trained')} <span style="color:rgb(200,0,0);font-weight:bold;">{$num_spam}</span><br>
 <br>
@@ -52,3 +49,4 @@
 	</tr>
 </table>
 
+</fieldset>

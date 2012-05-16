@@ -3012,11 +3012,6 @@
         <seg>Woord</seg>
       </tuv>
     </tu>
-    <tu tuid="reports.ui.ticket.assignment">
-      <tuv xml:lang="nl_NL">
-        <seg>Momenteel toegewezen tickets</seg>
-      </tuv>
-    </tu>
     <tu tuid="reports.ui.ticket.closed">
       <tuv xml:lang="nl_NL">
         <seg>Gesloten tickets per groep tussen bepaalde datums</seg>
@@ -3025,16 +3020,6 @@
     <tu tuid="reports.ui.ticket.new_tickets">
       <tuv xml:lang="nl_NL">
         <seg>Aangemaakte tickets per groep tussen bepaalde datums</seg>
-      </tuv>
-    </tu>
-    <tu tuid="reports.ui.ticket.oldest_open">
-      <tuv xml:lang="nl_NL">
-        <seg>Oudste open tickets per groep</seg>
-      </tuv>
-    </tu>
-    <tu tuid="reports.ui.ticket.open_tickets">
-      <tuv xml:lang="nl_NL">
-        <seg>Momenteel open tickets per groep</seg>
       </tuv>
     </tu>
     <tu tuid="reports.ui.ticket.top_contacts">
@@ -3050,11 +3035,6 @@
     <tu tuid="reports.ui.ticket.top_contacts.by_org">
       <tuv xml:lang="nl_NL">
         <seg>per organisatie</seg>
-      </tuv>
-    </tu>
-    <tu tuid="reports.ui.ticket.waiting_tickets">
-      <tuv xml:lang="nl_NL">
-        <seg>Momenteel wachtende tickets per groep</seg>
       </tuv>
     </tu>
     <tu tuid="reports.ui.worker.response_time">

@@ -2839,16 +2839,6 @@
         <seg>Создано заявок в группе</seg>
       </tuv>
     </tu>
-    <tu tuid="reports.ui.ticket.oldest_open">
-      <tuv xml:lang="ru_RU">
-        <seg>Старейшие открытые заявки по группам</seg>
-      </tuv>
-    </tu>
-    <tu tuid="reports.ui.ticket.open_tickets">
-      <tuv xml:lang="ru_RU">
-        <seg>Открытых заявок по группам</seg>
-      </tuv>
-    </tu>
     <tu tuid="reports.ui.ticket.top_contacts">
       <tuv xml:lang="ru_RU">
         <seg>Top Created Tickets By Contact</seg>
@@ -2862,11 +2852,6 @@
     <tu tuid="reports.ui.ticket.top_contacts.by_org">
       <tuv xml:lang="ru_RU">
         <seg>По Компании</seg>
-      </tuv>
-    </tu>
-    <tu tuid="reports.ui.ticket.waiting_tickets">
-      <tuv xml:lang="ru_RU">
-        <seg>Заявок в Ожидании по Группам</seg>
       </tuv>
     </tu>
     <tu tuid="reports.ui.worker">
@@ -5236,11 +5221,6 @@ remote control of your helpdesk.</seg>
       </tuv>
     </tu>
     <tu tuid="reports.ui.filters.worker">
-      <tuv xml:lang="ru_RU">
-        <seg></seg>
-      </tuv>
-    </tu>
-    <tu tuid="reports.ui.ticket.assignment">
       <tuv xml:lang="ru_RU">
         <seg></seg>
       </tuv>

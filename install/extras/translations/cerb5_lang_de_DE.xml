@@ -3661,11 +3661,6 @@ Wenn Sie dies nich angefordert haben, klicken Sie den o.g. Link nicht. Die Anfor
         <seg>Wort</seg>
       </tuv>
     </tu>
-    <tu tuid="reports.ui.ticket.assignment">
-      <tuv xml:lang="de_DE">
-        <seg>Aktuelle Ticketzuweisungen</seg>
-      </tuv>
-    </tu>
     <tu tuid="reports.ui.ticket.closed">
       <tuv xml:lang="de_DE">
         <seg>Geschlossene Tickets nach Gruppe</seg>
@@ -3681,16 +3676,6 @@ Wenn Sie dies nich angefordert haben, klicken Sie den o.g. Link nicht. Die Anfor
         <seg>Erstellte Tickets nach Gruppe</seg>
       </tuv>
     </tu>
-    <tu tuid="reports.ui.ticket.oldest_open">
-      <tuv xml:lang="de_DE">
-        <seg>Älteste offene Tickets nach Gruppe</seg>
-      </tuv>
-    </tu>
-    <tu tuid="reports.ui.ticket.open_tickets">
-      <tuv xml:lang="de_DE">
-        <seg>Offene Tickets nach Gruppe</seg>
-      </tuv>
-    </tu>
     <tu tuid="reports.ui.ticket.top_contacts">
       <tuv xml:lang="de_DE">
         <seg>Top Tickets (erstellt nach Kontakt)</seg>
@@ -3704,11 +3689,6 @@ Wenn Sie dies nich angefordert haben, klicken Sie den o.g. Link nicht. Die Anfor
     <tu tuid="reports.ui.ticket.top_contacts.by_org">
       <tuv xml:lang="de_DE">
         <seg>Nach Organisation</seg>
-      </tuv>
-    </tu>
-    <tu tuid="reports.ui.ticket.waiting_tickets">
-      <tuv xml:lang="de_DE">
-        <seg>Wartende Tickets nach Gruppe</seg>
       </tuv>
     </tu>
     <tu tuid="reports.ui.worker">

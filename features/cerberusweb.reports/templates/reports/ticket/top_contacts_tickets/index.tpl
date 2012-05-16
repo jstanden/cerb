@@ -1,12 +1,7 @@
-<ul class="submenu">
-</ul>
-<div style="clear:both;"></div>
+<fieldset class="peek">
+<legend>{$translate->_('reports.ui.ticket.top_contacts')}</legend>
 
-<div class="block">
-<h2>{$translate->_('reports.ui.ticket.top_contacts')}</h2>
-
-<form action="{devblocks_url}c=reports&report=report.tickets.top_contacts{/devblocks_url}" method="POST" id="frmRange" name="frmRange">
-<input type="hidden" name="c" value="reports">
+<form action="{devblocks_url}c=pages&page={$page->id}-{$page->name|devblocks_permalink}&report=report.tickets.top_contacts{/devblocks_url}" method="POST" id="frmRange" name="frmRange">
 {$translate->_('reports.ui.date_from')} <input type="text" name="start" id="start" size="24" value="{$start}"><button type="button" onclick="devblocksAjaxDateChooser('#start','#divCal');">&nbsp;<span class="cerb-sprite sprite-calendar"></span>&nbsp;</button>
 {$translate->_('reports.ui.date_to')} <input type="text" name="end" id="end" size="24" value="{$end}"><button type="button" onclick="devblocksAjaxDateChooser('#end','#divCal');">&nbsp;<span class="cerb-sprite sprite-calendar"></span>&nbsp;</button>
 <div id="divCal"></div>
@@ -26,14 +21,15 @@
 	<br>
 {/if}
 <br>
+
 <label><input type="radio" name="by_address" value="0" {if 0==$by_address}checked="checked"{/if} onclick="$('#btnSubmit').click();"></input>{$translate->_('reports.ui.ticket.top_contacts.by_org')}</label>
 <label><input type="radio" name="by_address" value="1" {if 1==$by_address}checked="checked"{/if} onclick="$('#btnSubmit').click();"></input>{$translate->_('reports.ui.ticket.top_contacts.by_address')}</label>
-<br>
-<br>
 
-<button type="submit" id="btnSubmit">{$translate->_('reports.common.run_report')|capitalize}</button>
-</form>
+<div>
+	<button type="submit" id="btnSubmit">{$translate->_('reports.common.run_report')|capitalize}</button>
 </div>
+</form>
+</fieldset>
 
 <!-- Chart -->
 

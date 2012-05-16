@@ -1,12 +1,7 @@
-<ul class="submenu">
-</ul>
-<div style="clear:both;"></div>
+<fieldset class="peek">
+<legend>{$translate->_('reports.ui.worker.worker_history')}</legend>
 
-<div class="block">
-<h2>{$translate->_('reports.ui.worker.worker_history')}</h2>
-
-<form action="{devblocks_url}c=reports&a=report.workers.worker_history{/devblocks_url}" method="POST" id="frmRange" name="frmRange">
-<input type="hidden" name="c" value="reports">
+<form action="{devblocks_url}c=pages&page={$page->id}-{$page->name|devblocks_permalink}&report=report.workers.worker_history{/devblocks_url}" method="POST" id="frmRange" name="frmRange">
 <b>{$translate->_('reports.ui.date_from')}</b> <input type="text" name="start" id="start" size="24" value="{$start}"><button type="button" onclick="devblocksAjaxDateChooser('#start','#divCal');">&nbsp;<span class="cerb-sprite sprite-calendar"></span>&nbsp;</button>
 <b>{$translate->_('reports.ui.date_to')}</b> <input type="text" name="end" id="end" size="24" value="{$end}"><button type="button" onclick="devblocksAjaxDateChooser('#end','#divCal');">&nbsp;<span class="cerb-sprite sprite-calendar"></span>&nbsp;</button>
 <b>Grouping:</b> <select name="report_date_grouping">
@@ -60,11 +55,10 @@
 </ul>
 {/if}
 <br>
-<br>
 
 <button type="submit" id="btnSubmit">{$translate->_('reports.common.run_report')|capitalize}</button>
 </form>
-</div>
+</fieldset>
 
 <!-- Chart -->
 
@@ -260,21 +254,56 @@ plot1 = $.jqplot('reportChart', chartData, chartOptions);
 {if $invalidDate}
 	<div><font color="red"><b>{$translate->_('reports.ui.invalid_date')}</b></font></div>
 {elseif !empty($data) || !empty($view)}
-	<div id="view{$view->id}">{$view->render()}</div>
-	<br>
+	{include file="devblocks:cerberusweb.core::internal/views/search_and_view.tpl" view=$view}
 
-	{foreach from=$data key=worker_id item=plots name=workers}
-		<div class="block" style="display:inline-block;">
-		{$sum = 0}
-		<h2>{$workers.{$worker_id}->getName()}</h2>
-		{foreach from=$plots key=plot item=data name=plots}
-			{$plot}: {$data}<br>
-			{$sum = $sum + $data}
+	{$sums = array()}
+	<div>
+		<table cellpadding="5" cellspacing="0" border="0">
+		<tr>
+			<td></td>
+			{foreach from=$data key=worker_id item=plots}
+				<td style="font-weight:bold;" nowrap="nowrap">{$workers.{$worker_id}->getName()}</td>
+			{/foreach}
+		</tr>
+		{foreach from=$xaxis_ticks item=tick}
+		<tr>
+			<td style="border-bottom:1px solid rgb(200,200,200);"><b>{$tick}</b></td>
+			{foreach from=$data item=plots key=worker_id}
+				<td align="center" style="border-bottom:1px solid rgb(200,200,200);">
+				{if isset($plots.$tick)}
+					{$plots.$tick}
+					{$sums[$worker_id] = intval($sums.$worker_id) + $plots.$tick}
+				{/if}
+				</td>
+			{/foreach}
+		</tr>
 		{/foreach}
-		<b>Sum: {$sum}</b><br>
-		<b>Mean: {($sum/count($plots))|string_format:"%0.2f"}</b><br>
-		</div>
-	{/foreach}
+		{if count($xaxis_ticks) > 10}
+		<tr>
+			<td></td>
+			{foreach from=$data key=worker_id item=plots}
+				<td style="font-weight:bold;" nowrap="nowrap">{$workers.{$worker_id}->getName()}</td>
+			{/foreach}
+		</tr>
+		{/if}
+		<tr>
+			<td align="right">Sum</td>
+			{foreach from=$sums item=sum}
+				<td align="center">
+					<b>{$sum}</b>
+				</td>
+			{/foreach}
+		</tr>
+		<tr>
+			<td align="right">Mean</td>
+			{foreach from=$sums item=sum}
+				<td align="center">
+					<b>{($sum/count($xaxis_ticks))|string_format:"%0.2f"}</b>
+				</td>
+			{/foreach}
+		</tr>
+		</table>
+	</div>
 {else}
 	<div><b>No data.</b></div>
 {/if}

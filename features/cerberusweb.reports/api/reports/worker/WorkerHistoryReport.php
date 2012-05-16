@@ -123,18 +123,23 @@ class ChReportWorkerHistory extends Extension_Report {
 				SearchFields_Message::WORKER_ID,
 			);
 			
-			$view->addParam(new DevblocksSearchCriteria(SearchFields_Message::CREATED_DATE,DevblocksSearchCriteria::OPER_BETWEEN, array($start_time, $end_time)));
-			$view->addParam(new DevblocksSearchCriteria(SearchFields_Message::IS_OUTGOING,DevblocksSearchCriteria::OPER_EQ, 1));
+			$params = array(
+				new DevblocksSearchCriteria(SearchFields_Message::CREATED_DATE,DevblocksSearchCriteria::OPER_BETWEEN, array($start_time, $end_time)),
+				new DevblocksSearchCriteria(SearchFields_Message::IS_OUTGOING,DevblocksSearchCriteria::OPER_EQ, 1),
+				new DevblocksSearchCriteria(SearchFields_Message::TICKET_IS_DELETED,DevblocksSearchCriteria::OPER_EQ, 0),
+			);
 			
 			if(!empty($filter_worker_ids)) {
-				$view->addParam(new DevblocksSearchCriteria(SearchFields_Message::WORKER_ID,DevblocksSearchCriteria::OPER_IN, $filter_worker_ids));
+				$params[] = new DevblocksSearchCriteria(SearchFields_Message::WORKER_ID,DevblocksSearchCriteria::OPER_IN, $filter_worker_ids);
 			} else {
-				$view->addParam(new DevblocksSearchCriteria(SearchFields_Message::WORKER_ID,DevblocksSearchCriteria::OPER_NEQ, 0));
+				$params[] = new DevblocksSearchCriteria(SearchFields_Message::WORKER_ID,DevblocksSearchCriteria::OPER_NEQ, 0);
 			}
 			
 			if(!empty($filter_group_ids)) {
-				$view->addParam(new DevblocksSearchCriteria(SearchFields_Message::TICKET_GROUP_ID,DevblocksSearchCriteria::OPER_IN, $filter_group_ids));
+				$params[] = new DevblocksSearchCriteria(SearchFields_Message::TICKET_GROUP_ID,DevblocksSearchCriteria::OPER_IN, $filter_group_ids);
 			}
+			
+			$view->addParamsRequired($params, true);
 			
 			$view->renderPage = 0;
 			$view->renderSortBy = SearchFields_Message::CREATED_DATE;
