@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE tmx>
+<tmx version="1.4">
+	<header datatype="winres" segtype="sentence" adminlang="en-us" srclang="en-us" o-tmf="abc" />
+	<body>
+
+	<!-- Common -->
+
+	<tu tuid='webapi.common.api_credentials'>
+		<tuv xml:lang="en_US"><seg>API Credentials</seg></tuv>
+	</tu>
+	
+	<!-- WebApiCredentials -->
+	
+	<tu tuid='dao.webapi_credentials.access_key'>
+		<tuv xml:lang="en_US"><seg>Access Key</seg></tuv>
+	</tu>
+	<tu tuid='dao.webapi_credentials.secret_key'>
+		<tuv xml:lang="en_US"><seg>Secret Key</seg></tuv>
+	</tu>
+	<tu tuid='dao.webapi_credentials.params'>
+		<tuv xml:lang="en_US"><seg>Params</seg></tuv>
+	</tu>
+		
+	</body>
+</tmx>

@@ -988,20 +988,13 @@ class Context_Org extends Extension_DevblocksContext implements IDevblocksContex
 			$token_values['id'] = $org->id;
 			$token_values['name'] = $org->name;
 			$token_values['created'] = $org->created;
-			if(!empty($org->city))
-				$token_values['city'] = $org->city;
-			if(!empty($org->country))
-				$token_values['country'] = $org->country;
-			if(!empty($org->phone))
-				$token_values['phone'] = $org->phone;
-			if(!empty($org->postal))
-				$token_values['postal'] = $org->postal;
-			if(!empty($org->province))
-				$token_values['province'] = $org->province;
-			if(!empty($org->street))
-				$token_values['street'] = $org->street;
-			if(!empty($org->website))
-				$token_values['website'] = $org->website;
+			$token_values['city'] = $org->city;
+			$token_values['country'] = $org->country;
+			$token_values['phone'] = $org->phone;
+			$token_values['postal'] = $org->postal;
+			$token_values['province'] = $org->province;
+			$token_values['street'] = $org->street;
+			$token_values['website'] = $org->website;
 			
 			// URL
 			$url_writer = DevblocksPlatform::getUrlService();

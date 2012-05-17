@@ -17,16 +17,14 @@
 	<!-- Plugin Dependencies -->
 	
 	<dependencies>
-		<require plugin_id="cerberusweb.core" version="5.0.0-rc1" />
+		<require plugin_id="cerberusweb.core" version="6.0.0-dev" />
 	</dependencies>
 
 	<!-- Patches -->
 	
-	<!--
 	<patches>
-		<patch version="5.0.0-rc1" revision="1" file="patches/5.0.0_rc1.php" />
+		<patch version="6.0.0-dev" revision="1" file="patches/6.0.0.php" />
 	</patches>
-	-->
 
 	<!-- Exported Classes -->
 	
@@ -34,6 +32,12 @@
 		<file path="api/App.php">
 			<class name="IExtensionRestController" />
 			<class name="Plugin_RestAPI" />
+		</file>
+		<file path="api/dao/webapi_credentials.php">
+			<class name="DAO_WebApiCredentials" />
+			<class name="Model_WebApiCredentials" />
+			<class name="SearchFields_WebApiCredentials" />
+			<class name="View_WebApiCredentials" />
 		</file>
 	</class_loader>
 
@@ -52,6 +56,19 @@
 			</class>
 			<params>
 				<param key="uri" value="rest" />
+			</params>
+		</extension>
+		
+		<extension point="cerberusweb.preferences.tab">
+			<id>rest.preferences.tab.api</id>
+			<name>API Preferences Tab</name>
+			<class>
+				<file>api/App.php</file>
+				<name>Ch_RestPreferencesTab</name>
+			</class>
+			<params>
+				<param key="uri" value="api" />
+    			<param key="title" value="webapi.common.api_credentials" />
 			</params>
 		</extension>
 
