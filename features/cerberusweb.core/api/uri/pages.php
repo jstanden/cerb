@@ -368,18 +368,18 @@ class Page_Custom extends CerberusPageExtension {
 	
 		$view_id = 'cust_' . $list->id;
 	
+		// Make sure our workspace source has a valid renderer class
+		if(null == ($ext = DevblocksPlatform::getExtension($list->context, true))) { /* @var $ext Extension_DevblocksContext */
+			return;
+		}
+		
 		if(null == ($view = C4_AbstractViewLoader::getView($view_id))) {
 			$list_view = $list->list_view; /* @var $list_view Model_WorkspaceListView */
-	
-			// Make sure our workspace source has a valid renderer class
-			if(null == ($ext = DevblocksPlatform::getExtension($list->context, true))) { /* @var $ext Extension_DevblocksContext */
-				continue;
-			}
 				
 			$view = $ext->getChooserView($view_id);  /* @var $view C4_AbstractView */
 				
 			if(empty($view))
-				continue;
+				return;
 				
 			$view->name = $list_view->title;
 			$view->renderLimit = $list_view->num_rows;
