@@ -8,7 +8,7 @@
 
 <table cellpadding="0" cellspacing="0" border="0" class="worklist" width="100%">
 	<tr>
-		<td nowrap="nowrap"><span class="title">{$view->name}</span> {if $view->id == 'search'}<a href="#{$view->id}_actions">{$translate->_('views.jump_to_actions')}</a>{/if}</td>
+		<td nowrap="nowrap"><span class="title">{$view->name}</span></td>
 		<td nowrap="nowrap" align="right">
 			<a href="javascript:;" title="{'common.add'|devblocks_translate|capitalize}" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={$view_context}&context_id=0&view_id={$view->id}',null,false,'650');"><span class="cerb-sprite2 sprite-plus-circle-frame"></span></a>
 			<a href="javascript:;" title="{'common.customize'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxGet('customize{$view->id}','c=internal&a=viewCustomize&id={$view->id}');toggleDiv('customize{$view->id}','block');"><span class="cerb-sprite2 sprite-gear"></span></a>
@@ -182,118 +182,191 @@
 	</tr>
 	</tbody>
 	{/if}{*!censor*}
-	
 {/foreach}
-	
 </table>
-<table cellpadding="2" cellspacing="0" border="0" width="100%" id="{$view->id}_actions">
-	{if $total}
-	<tr>
-		<td colspan="2">
-			{assign var=show_more value=0}
-			<button id="btnExplore{$view->id}" type="button" onclick="this.form.explore_from.value=$(this).closest('form').find('tbody input:checkbox:checked:first').val();this.form.a.value='viewTicketsExplore';this.form.submit();"><span class="cerb-sprite sprite-media_play_green"></span> {'common.explore'|devblocks_translate|lower}</button>
-			{if $active_worker->hasPriv('core.ticket.view.actions.bulk_update')}{assign var=show_more value=1}<button type="button"  id="btn{$view->id}BulkUpdate" onclick="ajax.showBatchPanel('{$view->id}',null);"><span class="cerb-sprite2 sprite-folder-gear"></span> {$translate->_('common.bulk_update')|lower}</button>{/if}
-			{if $active_worker->hasPriv('core.ticket.actions.close')}{assign var=show_more value=1}<button type="button" id="btn{$view->id}Close" onclick="ajax.viewCloseTickets('{$view->id}',0);"><span class="cerb-sprite2 sprite-folder-tick-circle"></span> {$translate->_('common.close')|lower}</button>{/if}
-			{if $active_worker->hasPriv('core.ticket.actions.spam')}{assign var=show_more value=1}<button type="button"  id="btn{$view->id}Spam" onclick="ajax.viewCloseTickets('{$view->id}',1);"><span class="cerb-sprite sprite-spam"></span> {$translate->_('common.spam')|lower}</button>{/if}
-			{if $active_worker->hasPriv('core.ticket.actions.delete')}{assign var=show_more value=1}<button type="button"  id="btn{$view->id}Delete" onclick="ajax.viewCloseTickets('{$view->id}',2);"><span class="cerb-sprite2 sprite-folder-cross-circle"></span> {$translate->_('common.delete')|lower}</button>{/if}
+
+{if $total}
+<div style="padding-top:5px;">
+	<div style="float:right;">
+		{math assign=fromRow equation="(x*y)+1" x=$view->renderPage y=$view->renderLimit}
+		{math assign=toRow equation="(x-1)+y" x=$fromRow y=$view->renderLimit}
+		{math assign=nextPage equation="x+1" x=$view->renderPage}
+		{math assign=prevPage equation="x-1" x=$view->renderPage}
+		{math assign=lastPage equation="ceil(x/y)-1" x=$total y=$view->renderLimit}
+		
+		{* Sanity checks *}
+		{if $toRow > $total}{assign var=toRow value=$total}{/if}
+		{if $fromRow > $toRow}{assign var=fromRow value=$toRow}{/if}
+		
+		{if $view->renderPage > 0}
+			<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewPage&id={$view->id}&page=0');">&lt;&lt;</a>
+			<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewPage&id={$view->id}&page={$prevPage}');">&lt;{$translate->_('common.previous_short')|capitalize}</a>
+		{/if}
+		({'views.showing_from_to'|devblocks_translate:$fromRow:$toRow:$total})
+		{if $toRow < $total}
+			<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewPage&id={$view->id}&page={$nextPage}');">{$translate->_('common.next')|capitalize}&gt;</a>
+			<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewPage&id={$view->id}&page={$lastPage}');">&gt;&gt;</a>
+		{/if}
+	</div>
+	
+	<div style="float:left;" id="{$view->id}_actions">
+		<button type="button" class="action-always-show action-explore" onclick="this.form.explore_from.value=$(this).closest('form').find('tbody input:checkbox:checked:first').val();this.form.a.value='viewTicketsExplore';this.form.submit();"><span class="cerb-sprite sprite-media_play_green"></span> {'common.explore'|devblocks_translate|lower}</button>
+		{if $active_worker->hasPriv('core.ticket.view.actions.bulk_update')}<button type="button" class="action-always-show action-bulkupdate" onclick="ajax.showBatchPanel('{$view->id}',null);"><span class="cerb-sprite2 sprite-folder-gear"></span> {$translate->_('common.bulk_update')|lower}</button>{/if}
+		{if $active_worker->hasPriv('core.ticket.actions.close')}<button type="button" class="action-close" onclick="ajax.viewCloseTickets('{$view->id}',0);"><span class="cerb-sprite2 sprite-folder-tick-circle"></span> {$translate->_('common.close')|lower}</button>{/if}
+		{if $active_worker->hasPriv('core.ticket.actions.spam')}<button type="button" class="action-spam" onclick="ajax.viewCloseTickets('{$view->id}',1);"><span class="cerb-sprite sprite-spam"></span> {$translate->_('common.spam')|lower}</button>{/if}
+		{if $active_worker->hasPriv('core.ticket.actions.delete')}<button type="button" class="action-delete" onclick="ajax.viewCloseTickets('{$view->id}',2);"><span class="cerb-sprite2 sprite-folder-cross-circle"></span> {$translate->_('common.delete')|lower}</button>{/if}
+		
+		{if $active_worker->hasPriv('core.ticket.actions.move')}
+		<button type="button" class="action-move"><span class="cerb-sprite2 sprite"></span> {'common.move'|devblocks_translate|lower} &#x25be;</button>
+		<ul class="cerb-popupmenu cerb-float">
+			<li style="background:none;">
+				<input type="text" size="16" class="input_search filter">
+			</li>
 			
-			{if $active_worker->hasPriv('core.ticket.actions.move')}
-			{assign var=show_more value=1}
-			<button type="button" id="btn{$view->id}Move"><span class="cerb-sprite2 sprite"></span> {'common.move'|devblocks_translate|lower} &#x25be;</button>
-			<ul class="cerb-popupmenu cerb-float" style="">
-				<li style="background:none;">
-					<input type="text" size="16" class="input_search filter">
-				</li>
-				
-				{foreach from=$groups item=group name=groups}
-				<li group_id="{$group->id}" bucket_id="0">
+			{foreach from=$groups item=group name=groups}
+			<li group_id="{$group->id}" bucket_id="0">
+				<div class="item">
+					<b>{$group->name}</b><br>
+					<div style="margin-left:10px;"><a href="javascript:;" style="font-weight:normal;">{'common.inbox'|devblocks_translate|capitalize}</a></div>
+				</div>
+			</li>
+			
+			{if isset($active_worker_memberships.{$group->id})}
+			{foreach from=$group_buckets.{$group->id} item=bucket}
+				<li group_id="{$group->id}" bucket_id="{$bucket->id}">
 					<div class="item">
 						<b>{$group->name}</b><br>
-						<div style="margin-left:10px;"><a href="javascript:;" style="font-weight:normal;">{'common.inbox'|devblocks_translate|capitalize}</a></div>
+						<div style="margin-left:10px;"><a href="javascript:;" style="font-weight:normal;">{$bucket->name}</a></div>
 					</div>
 				</li>
-				
-				{if isset($active_worker_memberships.{$group->id})}
-				{foreach from=$group_buckets.{$group->id} item=bucket}
-					<li group_id="{$group->id}" bucket_id="{$bucket->id}">
-						<div class="item">
-							<b>{$group->name}</b><br>
-							<div style="margin-left:10px;"><a href="javascript:;" style="font-weight:normal;">{$bucket->name}</a></div>
-						</div>
-					</li>
-				{/foreach}
-				{/if}
-				
-				{/foreach}
-			</ul>
+			{/foreach}
 			{/if}
 			
-			{if $show_more}
-			<button type="button" onclick="toggleDiv('view{$view->id}_more');">{$translate->_('common.more')|lower} &raquo;</button><br>
-			{/if}
-
-			<div id="view{$view->id}_more" style="display:{if $show_more}none{else}block{/if};padding-top:5px;padding-bottom:5px;">
-				<button type="button" onclick="ajax.viewTicketsAction('{$view->id}','not_spam');">{$translate->_('common.notspam')|lower}</button>
-				{if $active_worker->hasPriv('core.ticket.view.actions.merge')}<button type="button" onclick="ajax.viewTicketsAction('{$view->id}','merge');">{$translate->_('mail.merge')|lower}</button>{/if}
-				<button type="button" onclick="ajax.viewTicketsAction('{$view->id}','waiting');">{$translate->_('mail.waiting')|lower}</button>
-				<button type="button" onclick="ajax.viewTicketsAction('{$view->id}','not_waiting');">{$translate->_('mail.not_waiting')|lower}</button>
+			{/foreach}
+		</ul>
+		{/if}
+		
+		{if $active_worker->hasPriv('core.ticket.view.actions.merge')}<button type="button" onclick="ajax.viewTicketsAction('{$view->id}','merge');">{$translate->_('mail.merge')|lower}</button>{/if}
+		<button type="button" onclick="ajax.viewTicketsAction('{$view->id}','waiting');">{$translate->_('mail.waiting')|lower}</button>
+		<button type="button" onclick="ajax.viewTicketsAction('{$view->id}','not_waiting');">{$translate->_('mail.not_waiting')|lower}</button>
+		<button type="button" onclick="ajax.viewTicketsAction('{$view->id}','not_spam');">{$translate->_('common.notspam')|lower}</button>
+	
+		{if $pref_keyboard_shortcuts}
+		{if substr($view->id,0,5)=='cust_' || substr($view->id,0,6)=='search'}
+			<div class="action-on-select">
+			{$translate->_('common.keyboard')|lower}: 
+				(<b>a</b>) {$translate->_('common.all')|lower} 
+				(<b>e</b>) {$translate->_('common.explore')|lower} 
+				{if $active_worker->hasPriv('core.ticket.view.actions.bulk_update')}(<b>b</b>) {$translate->_('common.bulk_update')|lower}{/if} 
+				{if $active_worker->hasPriv('core.ticket.actions.close')}(<b>c</b>) {$translate->_('common.close')|lower}{/if} 
+				{if $active_worker->hasPriv('core.ticket.actions.spam')}(<b>s</b>) {$translate->_('common.spam')|lower}{/if} 
+				{if $active_worker->hasPriv('core.ticket.actions.delete')}(<b>x</b>) {$translate->_('common.delete')|lower}{/if}
+				{if $active_worker->hasPriv('core.ticket.actions.move')}(<b>m</b>) {'common.move'|devblocks_translate|lower}{/if}
+				(<b>-</b>) undo last filter 
+				(<b>*</b>) reset filters
+				(<b>~</b>) change subtotals
+				(<b>`</b>) focus subtotals
 			</div>
+		{/if}
+		{/if}
+	</div>
+</div>
 
-			{if $pref_keyboard_shortcuts}
-			{if $view->id=='mail_workflow' || $view->id=='search'}{*Only on Workflow/Search*}
-				{$translate->_('common.keyboard')|lower}: 
-					(<b>a</b>) {$translate->_('common.all')|lower} 
-					(<b>e</b>) {$translate->_('common.explore')|lower} 
-					{if $active_worker->hasPriv('core.ticket.view.actions.bulk_update')}(<b>b</b>) {$translate->_('common.bulk_update')|lower}{/if} 
-					{if $active_worker->hasPriv('core.ticket.actions.close')}(<b>c</b>) {$translate->_('common.close')|lower}{/if} 
-					{if $active_worker->hasPriv('core.ticket.actions.spam')}(<b>s</b>) {$translate->_('common.spam')|lower}{/if} 
-					{if $active_worker->hasPriv('core.ticket.actions.delete')}(<b>x</b>) {$translate->_('common.delete')|lower}{/if}
-					{if $active_worker->hasPriv('core.ticket.actions.move')}(<b>m</b>) {'common.move'|devblocks_translate|lower}{/if}
-					<div style="margin-left:25px;">
-						workflow: 
-						(<b>-</b>) undo last filter 
-						(<b>*</b>) reset filters
-						(<b>~</b>) change subtotals
-						(<b>`</b>) focus subtotals
-					</div>
-			{/if}
-			{/if}
-		</td>
-	</tr>
-	{/if}
-	<tr>
-		<td align="left" valign="top">
-		</td>
-		<td align="right" valign="top" nowrap="nowrap">
-			{math assign=fromRow equation="(x*y)+1" x=$view->renderPage y=$view->renderLimit}
-			{math assign=toRow equation="(x-1)+y" x=$fromRow y=$view->renderLimit}
-			{math assign=nextPage equation="x+1" x=$view->renderPage}
-			{math assign=prevPage equation="x-1" x=$view->renderPage}
-			{math assign=lastPage equation="ceil(x/y)-1" x=$total y=$view->renderLimit}
-			
-			{* Sanity checks *}
-			{if $toRow > $total}{assign var=toRow value=$total}{/if}
-			{if $fromRow > $toRow}{assign var=fromRow value=$toRow}{/if}
-			
-			{if $view->renderPage > 0}
-				<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewPage&id={$view->id}&page=0');">&lt;&lt;</a>
-				<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewPage&id={$view->id}&page={$prevPage}');">&lt;{$translate->_('common.previous_short')|capitalize}</a>
-			{/if}
-			({'views.showing_from_to'|devblocks_translate:$fromRow:$toRow:$total})
-			{if $toRow < $total}
-				<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewPage&id={$view->id}&page={$nextPage}');">{$translate->_('common.next')|capitalize}&gt;</a>
-				<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewPage&id={$view->id}&page={$lastPage}');">&gt;&gt;</a>
-			{/if}
-		</td>
-	</tr>
-</table>
+<div style="clear:both;"></div>
+{/if}
 </form>
 
 {include file="devblocks:cerberusweb.core::internal/views/view_common_jquery_ui.tpl"}
 
 <script type="text/javascript">
+$frm = $('#viewForm{$view->id}');
+
+{if $pref_keyboard_shortcuts}
+$frm.bind('keyboard_shortcut',function(event) {
+	//console.log("{$view->id} received " + (indirect ? 'indirect' : 'direct') + " keyboard event for: " + event.keypress_event.which);
+	
+	$view_actions = $('#{$view->id}_actions');
+	
+	hotkey_activated = true;
+
+	switch(event.keypress_event.which) {
+		case 43: // (+) bulk update
+			break;
+			
+		case 98: // (b) bulk update
+			$btn = $view_actions.find('button.action-bulkupdate');
+		
+			if(event.indirect) {
+				$btn.select().focus();
+				
+			} else {
+				$btn.click();
+			}
+			break;
+		
+		case 99: // (c) close
+			$btn = $view_actions.find('button.action-close');
+		
+			if(!event.indirect) {
+				$btn.click();
+			}
+			break;
+		
+		case 101: // (e) explore
+			$btn = $view_actions.find('button.action-explore');
+		
+			if(event.indirect) {
+				$btn.select().focus();
+				
+			} else {
+				$btn.click();
+			}
+			break;
+			
+		case 109: // (m) move
+			event.keypress_event.preventDefault();
+		
+			if(!event.indirect) {
+				$btn = $view_actions.find('button.action-move');
+				$btn.click();
+			}
+			break;
+		
+		case 115: // (s) spam
+			$btn = $view_actions.find('button.action-spam');
+		
+			if(!event.indirect) {
+				$btn.click();
+			}
+			break;
+			
+// 		case 116: // (t) take
+// 			break;
+			
+// 		case 117: // (u) surrender
+// 			break;
+		
+		case 120: // (x) delete
+			$btn = $view_actions.find('button.action-delete');
+		
+			if(!event.indirect) {
+				$btn.click();
+			}
+			break;	
+		
+		default:
+			hotkey_activated = false;
+			break;
+	}
+
+	if(hotkey_activated)
+		event.preventDefault();
+});
+{/if}
+
 // Quick move menu
-$menu_trigger = $('#btn{$view->id}Move');
+$view_actions = $('#{$view->id}_actions');
+$menu_trigger = $view_actions.find('button.action-move');
 $menu = $menu_trigger.next('ul.cerb-popupmenu');
 $menu_trigger.data('menu', $menu);
 

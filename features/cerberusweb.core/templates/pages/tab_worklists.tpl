@@ -11,8 +11,9 @@
 <div id="divWorkspaceTab{$tab->id}"></div>
 
 <script type="text/javascript">
-	// Edit workspace actions
 	$workspace = $('#frmWorkspaceTab{$tab->id}');
+	
+	// Edit workspace tab
 	$workspace.find('button.edit').click(function(e) {
 		$popup = genericAjaxPopup('peek','c=pages&a=showEditWorkspaceTab&id={$tab->id}',null,true,'600');
 		$popup.one('workspace_save',function(e) {

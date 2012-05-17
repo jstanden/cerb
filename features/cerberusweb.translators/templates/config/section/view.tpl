@@ -4,7 +4,7 @@
 {assign var=data value=$results[0]}
 <table cellpadding="0" cellspacing="0" border="0" class="worklist" width="100%">
 	<tr>
-		<td nowrap="nowrap"><span class="title">{$view->name}</span> {if $view->id == 'search'}<a href="#{$view->id}_actions">{$translate->_('views.jump_to_actions')}</a>{/if}</td>
+		<td nowrap="nowrap"><span class="title">{$view->name}</span></td>
 		<td nowrap="nowrap" align="right">
 			<a href="javascript:;" title="{'common.customize'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxGet('customize{$view->id}','c=internal&a=viewCustomize&id={$view->id}');toggleDiv('customize{$view->id}','block');"><span class="cerb-sprite2 sprite-gear"></span></a>
 			<a href="javascript:;" title="Subtotals" class="subtotals minimal"><span class="cerb-sprite2 sprite-application-sidebar-list"></span></a>
@@ -136,39 +136,63 @@
 	</tbody>
 	{/foreach}
 </table>
-<table cellpadding="2" cellspacing="0" border="0" width="100%" id="{$view->id}_actions">
-	{if $total}
-	<tr>
-		<td colspan="2">
-			<button type="button" onclick="$frm=$(this.form);$frm.find('input:hidden[name=action]').val('saveView');$frm.submit();"><span class="cerb-sprite2 sprite-tick-circle"></span> {$translate->_('common.save_changes')|capitalize}</button>
-			<button type="button" onclick="document.location.href = '{$smarty.const.DEVBLOCKS_WEBPATH}ajax.php?c=config&a=handleSectionAction&section=translations&action=exportTmx';"><img src="{devblocks_url}c=resource&p=cerberusweb.translators&f=images/16x16/document_down.png{/devblocks_url}" align="top"> {$translate->_('common.export')|capitalize}</button>
-		</td>
-	</tr>
-	{/if}
-	<tr>
-		<td align="right" valign="top" nowrap="nowrap">
-			{math assign=fromRow equation="(x*y)+1" x=$view->renderPage y=$view->renderLimit}
-			{math assign=toRow equation="(x-1)+y" x=$fromRow y=$view->renderLimit}
-			{math assign=nextPage equation="x+1" x=$view->renderPage}
-			{math assign=prevPage equation="x-1" x=$view->renderPage}
-			{math assign=lastPage equation="ceil(x/y)-1" x=$total y=$view->renderLimit}
-			
-			{* Sanity checks *}
-			{if $toRow > $total}{assign var=toRow value=$total}{/if}
-			{if $fromRow > $toRow}{assign var=fromRow value=$toRow}{/if}
-			
-			{if $view->renderPage > 0}
-				<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewPage&id={$view->id}&page=0');">&lt;&lt;</a>
-				<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewPage&id={$view->id}&page={$prevPage}');">&lt;{$translate->_('common.previous_short')|capitalize}</a>
-			{/if}
-			({'views.showing_from_to'|devblocks_translate:$fromRow:$toRow:$total})
-			{if $toRow < $total}
-				<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewPage&id={$view->id}&page={$nextPage}');">{$translate->_('common.next')|capitalize}&gt;</a>
-				<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewPage&id={$view->id}&page={$lastPage}');">&gt;&gt;</a>
-			{/if}
-		</td>
-	</tr>
-</table>
+
+{if $total}
+<div style="padding-top:5px;">
+	<div style="float:right;">
+		{math assign=fromRow equation="(x*y)+1" x=$view->renderPage y=$view->renderLimit}
+		{math assign=toRow equation="(x-1)+y" x=$fromRow y=$view->renderLimit}
+		{math assign=nextPage equation="x+1" x=$view->renderPage}
+		{math assign=prevPage equation="x-1" x=$view->renderPage}
+		{math assign=lastPage equation="ceil(x/y)-1" x=$total y=$view->renderLimit}
+		
+		{* Sanity checks *}
+		{if $toRow > $total}{assign var=toRow value=$total}{/if}
+		{if $fromRow > $toRow}{assign var=fromRow value=$toRow}{/if}
+		
+		{if $view->renderPage > 0}
+			<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewPage&id={$view->id}&page=0');">&lt;&lt;</a>
+			<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewPage&id={$view->id}&page={$prevPage}');">&lt;{$translate->_('common.previous_short')|capitalize}</a>
+		{/if}
+		({'views.showing_from_to'|devblocks_translate:$fromRow:$toRow:$total})
+		{if $toRow < $total}
+			<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewPage&id={$view->id}&page={$nextPage}');">{$translate->_('common.next')|capitalize}&gt;</a>
+			<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewPage&id={$view->id}&page={$lastPage}');">&gt;&gt;</a>
+		{/if}
+	</div>
+	
+	<div style="float:left;" id="{$view->id}_actions">
+		<button type="button" class="action-always-show" onclick="$frm=$(this.form);$frm.find('input:hidden[name=action]').val('saveView');$frm.submit();"><span class="cerb-sprite2 sprite-tick-circle"></span> {$translate->_('common.save_changes')|capitalize}</button>
+		<button type="button" class="action-always-show" onclick="document.location.href = '{$smarty.const.DEVBLOCKS_WEBPATH}ajax.php?c=config&a=handleSectionAction&section=translations&action=exportTmx';"><img src="{devblocks_url}c=resource&p=cerberusweb.translators&f=images/16x16/document_down.png{/devblocks_url}" align="top"> {$translate->_('common.export')|capitalize}</button>
+	</div>
+</div>
+
+<div style="clear:both;"></div>
+{/if}
+
 </form>
 
 {include file="devblocks:cerberusweb.core::internal/views/view_common_jquery_ui.tpl"}
+
+<script type="text/javascript">
+$frm = $('#viewForm{$view->id}');
+
+{if $pref_keyboard_shortcuts}
+$frm.bind('keyboard_shortcut',function(event) {
+	//console.log("{$view->id} received " + (indirect ? 'indirect' : 'direct') + " keyboard event for: " + event.keypress_event.which);
+	
+	$view_actions = $('#{$view->id}_actions');
+	
+	hotkey_activated = true;
+
+	switch(event.keypress_event.which) {
+		default:
+			hotkey_activated = false;
+			break;
+	}
+
+	if(hotkey_activated)
+		event.preventDefault();
+});
+{/if}
+</script>

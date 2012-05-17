@@ -10,8 +10,6 @@
 
 {include file="devblocks:cerberusweb.core::internal/views/search_and_view.tpl" view=$view}
 
-{include file="devblocks:cerberusweb.core::internal/views/view_workflow_keyboard_shortcuts.tpl" view=$view}
-
 <script type="text/javascript">
 $('#btnPluginLibrarySync').click(function() {
 	$out = $('#divPluginLibrarySync');
@@ -31,24 +29,5 @@ $('#btnPluginLibrarySync').click(function() {
 			$btn.fadeIn();
 		}
 	});
-});
-$('#frmPluginLibraryQuickSearch INPUT:text[name=query]').keyup(function(e) {
-	if(13 == e.keyCode || 10 == e.keyCode) {
-		$(this).select();
-		$frm = $(this).closest('form');
-		
-		switch($frm.find('select[name=type]').val()) {
-			case 'title':
-				ajax.viewAddFilter('{$view->id}','p_name','like',{ 'value':'*' + $(this).val() + '*' });
-				break;
-			case 'author':
-				ajax.viewAddFilter('{$view->id}','p_author','like',{ 'value':'*' + $(this).val() + '*' });
-				break;
-			default:	
-			case 'description':
-				ajax.viewAddFilter('{$view->id}','p_description','like',{ 'value':'*' + $(this).val() + '*' });
-				break;
-		}
-	}
 });
 </script>
