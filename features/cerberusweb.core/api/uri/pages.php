@@ -384,6 +384,7 @@ class Page_Custom extends CerberusPageExtension {
 			$view->name = $list_view->title;
 			$view->renderLimit = $list_view->num_rows;
 			$view->renderPage = 0;
+			$view->is_ephemeral = 0;
 			$view->view_columns = $list_view->columns;
 			$view->addParams($list_view->params, true);
 			if(property_exists($list_view, 'params_required'))
