@@ -137,8 +137,7 @@
 	{/foreach}
 </table>
 
-{if $total}
-<div style="padding-top:5px;">
+<div style="padding-top:5px;margin-bottom:10px;">
 	<div style="float:right;">
 		{math assign=fromRow equation="(x*y)+1" x=$view->renderPage y=$view->renderLimit}
 		{math assign=toRow equation="(x-1)+y" x=$fromRow y=$view->renderLimit}
@@ -161,14 +160,15 @@
 		{/if}
 	</div>
 	
+	{if $total}
 	<div style="float:left;" id="{$view->id}_actions">
 		<button type="button" class="action-always-show" onclick="$frm=$(this.form);$frm.find('input:hidden[name=action]').val('saveView');$frm.submit();"><span class="cerb-sprite2 sprite-tick-circle"></span> {$translate->_('common.save_changes')|capitalize}</button>
 		<button type="button" class="action-always-show" onclick="document.location.href = '{$smarty.const.DEVBLOCKS_WEBPATH}ajax.php?c=config&a=handleSectionAction&section=translations&action=exportTmx';"><img src="{devblocks_url}c=resource&p=cerberusweb.translators&f=images/16x16/document_down.png{/devblocks_url}" align="top"> {$translate->_('common.export')|capitalize}</button>
 	</div>
+	{/if}
 </div>
 
 <div style="clear:both;"></div>
-{/if}
 
 </form>
 

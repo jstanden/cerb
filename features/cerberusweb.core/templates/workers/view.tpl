@@ -88,8 +88,7 @@
 	{/foreach}
 </table>
 
-{if $total}
-<div style="padding-top:5px;">
+<div style="padding-top:5px;margin-bottom:10px;">
 	<div style="float:right;">
 		{math assign=fromRow equation="(x*y)+1" x=$view->renderPage y=$view->renderLimit}
 		{math assign=toRow equation="(x-1)+y" x=$fromRow y=$view->renderLimit}
@@ -112,15 +111,16 @@
 		{/if}
 	</div>
 	
+	{if $total}
 	<div style="float:left;" id="{$view->id}_actions">
 		{if $active_worker && $active_worker->is_superuser}
 			<button type="button" class="action-always-show action-bulkupdate" onclick="genericAjaxPopup('peek','c=config&a=handleSectionAction&section=workers&action=showWorkersBulkPanel&view_id={$view->id}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','row_id[]'),null,false,'500');"><span class="cerb-sprite2 sprite-folder-gear"></span> bulk update</button>
 		{/if}
 	</div>
+	{/if}
 </div>
 
 <div style="clear:both;"></div>
-{/if}
 
 </form>
 

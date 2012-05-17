@@ -120,8 +120,7 @@
 	{/foreach}
 </table>
 
-{if $total}
-<div style="padding-top:5px;">
+<div style="padding-top:5px;margin-bottom:10px;">
 	<div style="float:right;">
 		{math assign=fromRow equation="(x*y)+1" x=$view->renderPage y=$view->renderLimit}
 		{math assign=toRow equation="(x-1)+y" x=$fromRow y=$view->renderLimit}
@@ -144,14 +143,15 @@
 		{/if}
 	</div>
 	
+	{if $total}
 	<div style="float:left;" id="{$view->id}_actions">
 		<button type="button" class="action-always-show action-explore" onclick="this.form.explore_from.value=$(this).closest('form').find('tbody input:checkbox:checked:first').val();this.form.a.value='viewTimeExplore';this.form.submit();"><span class="cerb-sprite sprite-media_play_green"></span> {'common.explore'|devblocks_translate|lower}</button>
 		<button type="button" class="action-always-show action-bulkupdate" onclick="genericAjaxPopup('peek','c=timetracking&a=showBulkPanel&view_id={$view->id}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','row_id[]'),null,false,'500');"><span class="cerb-sprite2 sprite-folder-gear"></span> {'common.bulk_update'|devblocks_translate|lower}</button>
 	</div>
+	{/if}
 </div>
 
 <div style="clear:both;"></div>
-{/if}
 </form>
 
 {include file="devblocks:cerberusweb.core::internal/views/view_common_jquery_ui.tpl"}
