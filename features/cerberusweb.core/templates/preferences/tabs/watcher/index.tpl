@@ -2,7 +2,7 @@
 <input type="hidden" name="c" value="preferences">
 <input type="hidden" name="a" value="saveWatcherTab">
 
-<fieldset>
+<fieldset class="peek">
 <legend>If I'm watching something, send me a notification when these events happen:</legend>
 Select: 
 <a href="javascript:;" onclick="checkAll('frmWatcherPrefs',true);">{'common.all'|devblocks_translate|lower}</a>

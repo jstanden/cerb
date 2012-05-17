@@ -111,7 +111,7 @@ class ChPreferencesPage extends CerberusPageExtension {
 	}
 
 	/*
-	 * [TODO] Proxy any func requests to be handled by the tab directly,
+	 * Proxy any func requests to be handled by the tab directly,
 	 * instead of forcing tabs to implement controllers.  This should check
 	 * for the *Action() functions just as a handleRequest would
 	 */

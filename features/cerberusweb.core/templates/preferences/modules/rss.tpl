@@ -3,7 +3,7 @@
 <input type="hidden" name="a" value="saveRss">
 <input type="hidden" name="id" value="">
 
-<fieldset>
+<fieldset class="peek">
 	<legend>RSS Notifications</legend>
 	
 	{foreach from=$feeds item=feed name=feeds}

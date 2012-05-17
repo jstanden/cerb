@@ -2,7 +2,7 @@
 <input type="hidden" name="c" value="preferences">
 <input type="hidden" name="a" value="saveDefaults">
 
-<fieldset>
+<fieldset class="peek">
 	<legend>{$translate->_('preferences.account.settings')|capitalize}</legend>
 
 	<b>{$translate->_('preferences.account.timezone')|capitalize}</b> {if !empty($server_timezone)}({$translate->_('preferences.account.current')} {$server_timezone}){/if}<br>
@@ -30,7 +30,7 @@
 	
 </fieldset>
 
-<fieldset>
+<fieldset class="peek">
 	<legend>{'common.mail'|devblocks_translate|capitalize}</legend>
 	
 	<b>{$translate->_('common.options')|capitalize}:</b>
@@ -66,7 +66,7 @@
 	</div>
 </fieldset>
 
-<fieldset>
+<fieldset class="peek">
 	<legend>{$translate->_('preferences.account.email')|capitalize}</legend>
 
 	{$translate->_('preferences.account.email.associated')}<br>
@@ -102,7 +102,7 @@
 	</ul>
 </fieldset>
 
-<fieldset>
+<fieldset class="peek">
 	<legend>{$translate->_('preferences.account.password.change')|capitalize}</legend>
 
 	<table cellspacing="1" cellpadding="0" border="0">
