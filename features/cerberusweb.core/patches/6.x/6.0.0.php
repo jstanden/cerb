@@ -462,12 +462,15 @@ while($row = mysql_fetch_assoc($rs)) {
 				$v = $url_writer->write($v, true, false);
 			}
 			
+			if($url_writer->isSSL() && substr($url,0,7) == 'http://')
+				$url = str_replace('http://', 'https://', $url);
+			
 			if(0 == strcasecmp(substr($v,0,strlen($url_prefix)), $url_prefix)) {
 				$url = substr($v, strlen($url_prefix));
 				
 			} elseif(0 == strcasecmp(substr($v,0,4), 'http')) {
-				$url_split = explode('/', $v, 4);
-				$url = $url_split[3];
+				$url_split = explode('/', $v, 5);
+				$url = $url_split[4];
 			}
 
 			$url = upgrade_580_convert_to_ctx_url($url);
@@ -518,13 +521,16 @@ while($row = mysql_fetch_assoc($rs)) {
 			$context_id
 		);
 	}
-		
+
+	if($url_writer->isSSL() && substr($url,0,7) == 'http://')
+		$url = str_replace('http://', 'https://', $url);
+	
 	if(0 == strcasecmp(substr($url,0,strlen($url_prefix)), $url_prefix)) {
 		$url = substr($url, strlen($url_prefix));
 	
 	} elseif(0 == strcasecmp(substr($url,0,4), 'http')) {
-		$url_split = explode('/', $url, 4);
-		$url = $url_split[3];
+		$url_split = explode('/', $url, 5);
+		$url = $url_split[4];
 	}
 	
 	$url = upgrade_580_convert_to_ctx_url($url);
