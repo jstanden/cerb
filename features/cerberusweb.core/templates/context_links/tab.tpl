@@ -1,6 +1,5 @@
 {$link_contexts = Extension_DevblocksContext::getAll(false)}
 
-{if $context != CerberusContexts::CONTEXT_WORKER}
 <form action="{devblocks_url}{/devblocks_url}" method="POST" style="margin-bottom:10px;">
 	<select onchange="chooserOpen(this);">
 		<option value="">-- find &amp; link --</option>
@@ -20,12 +19,10 @@
 		{/foreach}
 	</select>
 </form>
-{/if}
 
 <div id="divConnections"></div>
 
 <script type="text/javascript">
-{if $context != CerberusContexts::CONTEXT_WORKER}
 function linkAddContext(ref) {
 	$select = $(ref);
 	$form = $select.closest('form');
@@ -144,10 +141,6 @@ $forms = $('#divConnections').delegate('DIV[id^=view]','view_refresh',function()
 		.prepend($('<button type="button" class="action-always-show" onclick="removeSelectedContextLinks(this);">Unlink</button>'))
 		;
 });
-
-{else}{* Is worker profile *}
-
-{/if}
 </script>
 
 <script type="text/javascript">
