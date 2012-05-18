@@ -101,15 +101,13 @@
 		{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context=$page_context context_id=$page_context_id macros=$macros return_url=$return_url}		
 		
 		<!-- Edit -->		
-		<button type="button" id="btnDisplayTicketEdit"><span class="cerb-sprite sprite-document_edit"></span> Edit</button>
+		<button type="button" id="btnDisplayTicketEdit" title="{'common.edit'|devblocks_translate|capitalize}">&nbsp;<span class="cerb-sprite2 sprite-gear"></span>&nbsp;</button>
 		
-		{if $active_worker->hasPriv('core.ticket.view.actions.merge')}<button id="btnMerge" type="button" onclick="genericAjaxPopup('peek','c=display&a=showMergePanel&ticket_id={$ticket->id}',null,false,'500');"><span class="cerb-sprite2 sprite-folder-gear"></span> {$translate->_('mail.merge')|capitalize}</button>{/if}
-
 		{if !$ticket->is_deleted}
 			{if $ticket->is_closed}
 				<button ="button" onclick="this.form.closed.value='0';this.form.submit();"><span class="cerb-sprite sprite-folder_out"></span> {$translate->_('common.reopen')|capitalize}</button>
 			{else}
-				{if $active_worker->hasPriv('core.ticket.actions.close')}<button title="{$translate->_('display.shortcut.close')}" id="btnClose" type="button" onclick="this.form.closed.value=1;this.form.submit();">&nbsp;<span class="cerb-sprite2 sprite-folder-tick-circle"></span>&nbsp;</button>{/if}
+				{if $active_worker->hasPriv('core.ticket.actions.close')}<button title="{$translate->_('display.shortcut.close')}" id="btnClose" type="button" onclick="this.form.closed.value=1;this.form.submit();">&nbsp;<span class="cerb-sprite2 sprite-tick-circle"></span>&nbsp;</button>{/if}
 			{/if}
 			
 			{if empty($ticket->spam_training)}
@@ -122,6 +120,8 @@
 		{else}
 			{if $active_worker->hasPriv('core.ticket.actions.delete')}<button title="{$translate->_('display.shortcut.delete')}" id="btnDelete" type="button" onclick="this.form.deleted.value=1;this.form.closed.value=1;this.form.submit();">&nbsp;<span class="cerb-sprite2 sprite-cross-circle"></span>&nbsp;</button>{/if}
 		{/if}
+		
+		{if $active_worker->hasPriv('core.ticket.view.actions.merge')}<button id="btnMerge" type="button" onclick="genericAjaxPopup('peek','c=display&a=showMergePanel&ticket_id={$ticket->id}',null,false,'500');" title="{$translate->_('mail.merge')|capitalize}">&nbsp;<span class="cerb-sprite2 sprite-arrow-merge-090-left"></span>&nbsp;</button>{/if}
 		
 	   	<button id="btnPrint" title="{$translate->_('display.shortcut.print')}" type="button" onclick="document.frmPrint.action='{devblocks_url}c=print&a=ticket&id={$ticket->mask}{/devblocks_url}';document.frmPrint.submit();">&nbsp;<span class="cerb-sprite sprite-printer"></span>&nbsp;</button>
 	   	<button type="button" title="{$translate->_('display.shortcut.refresh')}" onclick="document.location='{devblocks_url}c=profiles&type=ticket&id={$ticket->mask}{/devblocks_url}';">&nbsp;<span class="cerb-sprite sprite-refresh"></span>&nbsp;</button>

@@ -139,7 +139,7 @@ function removeSelectedContextLinks(view_id) {
 $forms = $('#divConnections').delegate('DIV[id^=view]','view_refresh',function() {
 	id = $(this).attr('id').replace('view','');
 	$(this)
-		.find('TABLE[id$=_actions] > TBODY > TR:first > TD:first')
+		.find('DIV[id$=_actions]')
 		.prepend($('<button type="button" onclick="removeSelectedContextLinks(\''+id+'\')">Unlink</button>'))
 		;
 });
@@ -155,7 +155,7 @@ $forms = $('#divConnections').delegate('DIV[id^=view]','view_refresh',function()
 
 	{foreach from=$contexts item=to_context}
 	$ajaxQueue.queue(function(next) {
-		$div = $('<div></div>');
+		$div = $('<div style="margin-bottom:10px;"></div>');
 		$div
 			.appendTo($connections)
 			.html($('<div class="lazy" style="font-size:18pt;text-align:center;padding:50px;margin:20px;background-color:rgb(232,242,255);">Loading...</div>'))

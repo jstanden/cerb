@@ -38,7 +38,7 @@
 		{$object_watchers = DAO_ContextLink::getContextLinks($page_context, array($person->id), CerberusContexts::CONTEXT_WORKER)}
 		{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$page_context context_id=$person->id full=true}
 		
-		<button type="button" id="btnDisplayContactEdit"><span class="cerb-sprite sprite-document_edit"></span> Edit</button>
+		<button type="button" id="btnDisplayContactEdit" title="{'common.edit'|devblocks_translate|capitalize}">&nbsp;<span class="cerb-sprite2 sprite-gear"></span>&nbsp;</button>
 	</form>
 	
 	{if $pref_keyboard_shortcuts}

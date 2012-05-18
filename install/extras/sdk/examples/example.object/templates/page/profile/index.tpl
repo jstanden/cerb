@@ -9,7 +9,7 @@
 
 <form>
 	<!-- Toolbar -->
-	<button type="button" id="btnExObProfileEdit"><span class="cerb-sprite sprite-document_edit"></span> Edit</button>
+	<button type="button" id="btnExObProfileEdit" title="{'common.edit'|devblocks_translate|capitalize}">&nbsp;<span class="cerb-sprite2 sprite-gear"></span>&nbsp;</button>
 </form>
 
 

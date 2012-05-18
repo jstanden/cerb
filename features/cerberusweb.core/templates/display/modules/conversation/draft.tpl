@@ -4,12 +4,12 @@
 		
 		{if $draft->is_queued}
 			{if !empty($draft->queue_delivery_date) && $draft->queue_delivery_date > time()}
-				<span class="tag tag-gray">{'message.queued.deliver_in'|devblocks_translate:{$draft->queue_delivery_date|devblocks_prettytime}|lower}</span>
+				<span class="tag" style="color:rgb(120,120,120);">{'message.queued.deliver_in'|devblocks_translate:{$draft->queue_delivery_date|devblocks_prettytime}|lower}</span>
 			{else}
-				<span class="tag tag-gray">{'message.queued.delivery_immediate'|devblocks_translate|lower}</span>
+				<span class="tag" style="color:rgb(120,120,120);">{'message.queued.delivery_immediate'|devblocks_translate|lower}</span>
 			{/if}
 		{else}
-			<span class="tag tag-gray">{$translate->_('draft')|lower}</span>
+			<span class="tag" style="color:rgb(120,120,120);">{$translate->_('draft')|lower}</span>
 		{/if}
 		
 		<h3 style="display:inline;">

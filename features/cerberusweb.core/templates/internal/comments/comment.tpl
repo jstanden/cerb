@@ -1,16 +1,16 @@
 {assign var=comment_address value=$comment->getAddress()}
 <div id="comment{$comment->id}">
 	<div class="block" style="overflow:auto;">
-		<span class="tag tag-blue">{$translate->_('common.comment')|lower}</span>
+		<span class="tag" style="color:rgb(71,133,210);">{$translate->_('common.comment')|lower}</span>
 		
-		<h3 style="display:inline;">
+		<b style="font-size:1.3em;">
 			{if empty($comment_address)}
 				(system)
 			{else} 
 				<a href="javascript:;" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_ADDRESS}&context_id={$comment_address->id}', null, false, '500');" title="{$comment_address->email}">{if empty($comment_address->first_name) && empty($comment_address->last_name)}&lt;{$comment_address->email}&gt;{else}{$comment_address->getName()}{/if}</a>
 			{/if}
-		</h3>
-		
+		</b>
+				
 		&nbsp;
 		
 		{if !$readonly && ($active_worker->is_superuser || $comment_address->email==$active_worker->email)}

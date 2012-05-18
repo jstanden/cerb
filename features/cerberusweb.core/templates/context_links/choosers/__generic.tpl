@@ -49,7 +49,7 @@
 				$(this).remove();
 			});
 			
-			$actions = $('#{$view->id}_actions').find('> tbody > tr:first td');
+			$actions = $('#{$view->id}_actions');
 			$actions.html('');
 		}
 		

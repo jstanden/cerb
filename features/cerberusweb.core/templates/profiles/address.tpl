@@ -48,7 +48,7 @@
 		{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context=$page_context context_id=$page_context_id macros=$macros return_url=$return_url}		
 	
 		<!-- Toolbar -->
-		<button type="button" id="btnDisplayAddyEdit"><span class="cerb-sprite sprite-document_edit"></span> Edit</button>
+		<button type="button" id="btnDisplayAddyEdit" title="{'common.edit'|devblocks_translate|capitalize}">&nbsp;<span class="cerb-sprite2 sprite-gear"></span>&nbsp;</button>
 	</form>
 	
 	{if $pref_keyboard_shortcuts}
