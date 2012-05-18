@@ -16,8 +16,8 @@
 		{/if}
 	
 		{if $page->isWriteableByWorker($active_worker)}
-			<button type="button" class="edit toolbar-item"><span class="cerb-sprite2 sprite-ui-tab-content-gear"></span> Edit Page</button>
-			&nbsp;
+			<button type="button" class="edit-page toolbar-item"><span class="cerb-sprite2 sprite-ui-tab-content-gear"></span> Edit Page</button>
+			<button type="button" class="edit-tab toolbar-item"><span class="cerb-sprite2 sprite-ui-tab-gear"></span> Edit Tab</button>
 		{/if}
 	</div>
 
@@ -213,15 +213,44 @@
 		
 		// Edit workspace actions
 		{if $page->isWriteableByWorker($active_worker)}
-		$workspace.find('button.edit').click(function(e) {
-			$popup = genericAjaxPopup('peek','c=pages&a=showEditWorkspacePage&id={$page->id}',null,true,'600');
-			$popup.one('workspace_save',function(e) {
-				window.location.href = '{devblocks_url}c=pages&id={$page->id}-{$page->name|devblocks_permalink}{/devblocks_url}';
+			// Edit page
+			$workspace.find('button.edit-page').click(function(e) {
+				$popup = genericAjaxPopup('peek','c=pages&a=showEditWorkspacePage&id={$page->id}',null,true,'600');
+				$popup.one('workspace_save',function(e) {
+					window.location.href = '{devblocks_url}c=pages&id={$page->id}-{$page->name|devblocks_permalink}{/devblocks_url}';
+				});
+				$popup.one('workspace_delete',function(e) {
+					window.location.href = '{devblocks_url}c=pages{/devblocks_url}';
+				});
 			});
-			$popup.one('workspace_delete',function(e) {
-				window.location.href = '{devblocks_url}c=pages{/devblocks_url}';
+			
+			// Edit tab
+			$workspace.find('button.edit-tab').click(function(e) {
+				$tabs = $("#pageTabs");
+				$selected_tab = $tabs.find('li.ui-tabs-selected').first();
+				
+				if(0 == $selected_tab.length)
+					return;
+				
+				tab_id = $selected_tab.attr('tab_id');
+				
+				if(null == tab_id)
+					return;
+				
+				$popup = genericAjaxPopup('peek','c=pages&a=showEditWorkspaceTab&id=' + tab_id,null,true,'600');
+				$popup.one('workspace_save',function(e) {
+					$tabs = $("#pageTabs");
+					if(0 != $tabs) {
+						$tabs.tabs('load', $tabs.tabs('option','selected'));
+					}
+				});
+				$popup.one('workspace_delete',function(e) {
+					$tabs = $("#pageTabs");
+					if(0 != $tabs) {
+						$tabs.tabs('remove', $tabs.tabs('option','selected'));
+					}
+				});
 			});
-		});
 		{/if}
 		
 		// Add/Remove in menu
