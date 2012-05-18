@@ -126,10 +126,6 @@ class ChInternalController extends DevblocksControllerExtension {
 		
 		$tpl->display('devblocks:cerberusweb.core::context_links/tab.tpl');
 		
-		$tpl->clearAssign('context');
-		$tpl->clearAssign('context_id');
-		$tpl->clearAssign('contexts');
-		
 		unset($contexts);
 	}
 
@@ -658,7 +654,9 @@ class ChInternalController extends DevblocksControllerExtension {
 		));
 	}
 
-	function contextAddLinksAction() {
+	function contextAddLinksJsonAction() {
+		header('Content-type: application/json');
+		
 		@$from_context = DevblocksPlatform::importGPC($_REQUEST['from_context'],'string','');
 		@$from_context_id = DevblocksPlatform::importGPC($_REQUEST['from_context_id'],'integer',0);
 		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
@@ -667,9 +665,15 @@ class ChInternalController extends DevblocksControllerExtension {
 		if(is_array($context_ids))
 		foreach($context_ids as $context_id)
 			DAO_ContextLink::setLink($context, $context_id, $from_context, $from_context_id);
+
+		echo json_encode(array(
+			'links_count' => DAO_ContextLink::count($from_context, $from_context_id), 
+		));
 	}
 
-	function contextDeleteLinksAction() {
+	function contextDeleteLinksJsonAction() {
+		header('Content-type: application/json');
+		
 		@$from_context = DevblocksPlatform::importGPC($_REQUEST['from_context'],'string','');
 		@$from_context_id = DevblocksPlatform::importGPC($_REQUEST['from_context_id'],'integer',0);
 		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
@@ -678,6 +682,10 @@ class ChInternalController extends DevblocksControllerExtension {
 		if(is_array($context_ids))
 		foreach($context_ids as $context_id)
 			DAO_ContextLink::deleteLink($context, $context_id, $from_context, $from_context_id);
+		
+		echo json_encode(array(
+			'links_count' => DAO_ContextLink::count($from_context, $from_context_id), 
+		));
 	}
 
 	// Context Activity Log

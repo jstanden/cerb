@@ -1485,6 +1485,25 @@ UL.ui-autocomplete.ui-menu .ui-menu-item a.ui-state-hover {
 	border-bottom:1px solid rgb(255,255,255);
 }
 
+.ui-tabs .ui-tabs-nav li a div.tab-badge {
+	padding:0px 5px;
+	font-weight:bold;
+	vertical-align:top;
+	display:inline;
+	
+	border-radius: 10px;	
+	-moz-border-radius: 10px;
+	-webkit-border-radius: 10px;
+	
+	background-color:rgb(110,110,110);
+	color:rgb(255,255,255);
+}
+
+.ui-tabs .ui-tabs-nav li.ui-tabs-selected a div.tab-badge {
+	background-color:rgb(71,133,210);
+	color:rgb(255,255,255);	
+}
+
 .ui-dialog {
 	border: 2px solid rgb(220,220,220);
 	padding: 2px;

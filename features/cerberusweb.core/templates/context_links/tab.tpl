@@ -71,7 +71,7 @@ function chooserOpen(ref) {
 		
 		$data = [ 
 			'c=internal',
-			'a=contextAddLinks',
+			'a=contextAddLinksJson',
 			'from_context={$context}',
 			'from_context_id={$context_id}', 
 			'context='+$context
@@ -87,6 +87,14 @@ function chooserOpen(ref) {
 		options.data = $data.join('&');
 		options.url = DevblocksAppPath+'ajax.php',
 		options.cache = false;
+		options.success = function(json) {
+			if(json.links_count) {
+				$connections = $('#divConnections');
+				$tabs = $connections.closest('div.ui-tabs');
+				$tab = $tabs.find('> ul.ui-tabs-nav > li.ui-tabs-selected');
+				$tab.find('> a > div.tab-badge').html(json.links_count);
+			}
+		};
 		$.ajax(options);
 
 		if(0==$view.length) {
@@ -112,7 +120,7 @@ function removeSelectedContextLinks(ref) {
 	
 	$data = [ 
 		'c=internal',
-		'a=contextDeleteLinks',
+		'a=contextDeleteLinksJson',
 		'from_context={$context}',
 		'from_context_id={$context_id}', 
 		'context='+context
@@ -130,6 +138,14 @@ function removeSelectedContextLinks(ref) {
 	options.data = $data.join('&');
 	options.url = DevblocksAppPath+'ajax.php',
 	options.cache = false;
+	options.success = function(json) {
+		if(json.links_count) {
+			$connections = $('#divConnections');
+			$tabs = $connections.closest('div.ui-tabs');
+			$tab = $tabs.find('> ul.ui-tabs-nav > li.ui-tabs-selected');
+			$tab.find('> a > div.tab-badge').html(json.links_count);
+		}
+	};
 	$.ajax(options);
 	
 	genericAjaxGet($view.attr('id'), 'c=internal&a=viewRefresh&id=' + view_id);
@@ -145,6 +161,7 @@ $forms = $('#divConnections').delegate('DIV[id^=view]','view_refresh',function()
 
 <script type="text/javascript">
 	$connections = $('#divConnections');
+	
 	$ajaxQueue = $({});
 
 	{foreach from=$contexts item=to_context}

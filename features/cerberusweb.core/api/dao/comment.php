@@ -155,6 +155,15 @@ class DAO_Comment extends C4_ORMHelper {
 		return $objects;
 	}
 	
+	static public function count($from_context, $from_context_id) {
+		$db = DevblocksPlatform::getDatabaseService();
+		return $db->GetOne(sprintf("SELECT count(*) FROM comment ".
+			"WHERE context = %s AND context_id = %d",
+			$db->qstr($from_context),
+			$from_context_id
+		));
+	}
+	
 	static function deleteByContext($context, $context_ids) {
 		if(!is_array($context_ids)) 
 			$context_ids = array($context_ids);

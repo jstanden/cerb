@@ -68,11 +68,6 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 		}
 		$tpl->assign('selected_tab', $selected_tab);
 		
-		// Counts
-		$counts = DAO_ContextLink::getContextLinkCounts(CerberusContexts::CONTEXT_WORKER, $worker_id);
-		$watching_total = intval(array_sum($counts));
-		$tpl->assign('watching_total', $watching_total);
-		
 		// Custom fields
 		
 		$custom_fields = DAO_CustomField::getAll();
