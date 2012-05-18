@@ -107,7 +107,9 @@ function chooserOpen(ref) {
 	$select.val('');
 }
 
-function removeSelectedContextLinks(view_id) {
+function removeSelectedContextLinks(ref) {
+	view_id = $(ref).closest('form').find('input:hidden[name=view_id]').val();
+	
 	$view = $('#view' + view_id);
 	context = $view.find('FORM input:hidden[name=context_id]').val();
 	
@@ -137,10 +139,9 @@ function removeSelectedContextLinks(view_id) {
 }
 
 $forms = $('#divConnections').delegate('DIV[id^=view]','view_refresh',function() {
-	id = $(this).attr('id').replace('view','');
 	$(this)
 		.find('DIV[id$=_actions]')
-		.prepend($('<button type="button" onclick="removeSelectedContextLinks(\''+id+'\')">Unlink</button>'))
+		.prepend($('<button type="button" class="action-always-show" onclick="removeSelectedContextLinks(this);">Unlink</button>'))
 		;
 });
 
@@ -175,7 +176,12 @@ $forms = $('#divConnections').delegate('DIV[id^=view]','view_refresh',function()
 							$this
 								.html(html)
 								;
-							//$this.find('DIV[id^=view]:first').trigger('view_refresh');
+							
+							$this
+								.find('DIV[id$=_actions]')
+								.prepend($('<button type="button" class="action-always-show" onclick="removeSelectedContextLinks(this);">Unlink</button>'))
+								;
+							
 							next();
 						}
 					);
@@ -191,7 +197,12 @@ $forms = $('#divConnections').delegate('DIV[id^=view]','view_refresh',function()
 					$div
 						.html(html)
 						;
-					//$div.find('DIV[id^=view]:first').trigger('view_refresh');
+					
+					$div
+						.find('DIV[id$=_actions]')
+						.prepend($('<button type="button" class="action-always-show" onclick="removeSelectedContextLinks(this);">Unlink</button>'))
+						;
+					
 					next();
 				}
 			);

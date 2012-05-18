@@ -56,7 +56,6 @@
 							$this
 								.html(html)
 								;
-							//$this.find('DIV[id^=view]:first').trigger('view_refresh');
 							next();
 						}
 					);
@@ -72,7 +71,6 @@
 					$div
 						.html(html)
 						;
-					//$div.find('DIV[id^=view]:first').trigger('view_refresh');
 					next();
 				}
 			);
