@@ -160,17 +160,13 @@
 								
 							case 97:  // (a) select all
 								try {
-									$('#view' + view_id + ' TABLE.worklist input:checkbox').each(function(e) {
-										is_checked = !this.checked;
-										checkAll('viewForm' + view_id,is_checked);
-										$rows=$('#viewForm' + view_id).find('table.worklistBody').find('tbody > tr');
-										if(is_checked) { 
-											$rows.addClass('selected'); 
-											$(this).attr('checked','checked');
-										} else { 
-											$rows.removeClass('selected');
-											$(this).removeAttr('checked');
-										}
+									$('#view' + view_id + ' TABLE.worklist input:checkbox').data('view_id',view_id).each(function(e) {
+										view_id = $(this).data('view_id');
+										// Trigger event
+										e = jQuery.Event('select_all');
+										e.view_id = view_id;
+										e.checked = !$(this).is(':checked')
+										$('div#view' + view_id).trigger(e);
 									});
 								} catch(e) { } 
 								break;

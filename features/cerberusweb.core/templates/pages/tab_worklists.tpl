@@ -36,7 +36,7 @@
 	
 	{foreach from=$list_ids item=list_id}
 	$ajaxQueue.queue(function(next) {
-		$div = $('<div></div>');
+		$div = $('<div style="margin-bottom:10px;"></div>');
 		$div
 			.appendTo($workspace)
 			.html($('<div class="lazy" style="font-size:18pt;text-align:center;padding:50px;margin:20px;background-color:rgb(232,242,255);">Loading...</div>'))

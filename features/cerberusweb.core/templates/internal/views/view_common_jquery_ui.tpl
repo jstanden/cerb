@@ -94,6 +94,37 @@ $view.find('table.worklist A.subtotals').click(function(event) {
 	}
 });
 
+// Select all
+
+$view.find('table.worklist input:checkbox.select-all').click(function(e) {
+	// Trigger event
+	e = jQuery.Event('select_all');
+	e.view_id = '{$view->id}';
+	e.checked = $(this).is(':checked');
+	$('div#view{$view->id}').trigger(e);
+});
+
+$view.bind('select_all', function(e) {
+	$view = $('div#view' + e.view_id);
+	$view_form = $view.find('#viewForm' + e.view_id);
+	$checkbox = $view.find('table.worklist input:checkbox.select-all');
+	checkAll('viewForm' + e.view_id, e.checked);
+	$rows = $view_form.find('table.worklistBody').find('tbody > tr');
+	$view_actions = $('#' + e.view_id + '_actions');
+	
+	if(e.checked) {
+		$checkbox.attr('checked', 'checked');
+		$rows.addClass('selected'); 
+		$(this).attr('checked','checked');
+		$view_actions.find('button,.action-on-select').not('.action-always-show').fadeIn('fast');	
+	} else {
+		$checkbox.removeAttr('checked');
+		$rows.removeClass('selected');
+		$(this).removeAttr('checked');
+		$view_actions.find('button,.action-on-select').not('.action-always-show').fadeOut('fast');
+	}
+});
+
 // View actions
 $view_actions.find('button,.action-on-select').not('.action-always-show').hide();
 </script>
