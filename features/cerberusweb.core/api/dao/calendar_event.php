@@ -113,18 +113,16 @@ class DAO_CalendarEvent extends C4_ORMHelper {
 		$db->Execute(sprintf("DELETE FROM calendar_event WHERE id IN (%s)", $ids_list));
 		
 		// Fire event
-		/*
 	    $eventMgr = DevblocksPlatform::getEventService();
 	    $eventMgr->trigger(
 	        new Model_DevblocksEvent(
 	            'context.delete',
                 array(
-                	'context' => 'cerberusweb.contexts.',
+                	'context' => 'cerberusweb.contexts.calendar_event',
                 	'context_ids' => $ids
                 )
             )
 	    );
-	    */
 		
 		return true;
 	}
