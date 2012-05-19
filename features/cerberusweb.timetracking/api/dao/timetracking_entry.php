@@ -622,6 +622,7 @@ class View_TimeTracking extends C4_AbstractView implements IAbstractView_Subtota
 					break;
 					
 				// Virtuals
+				case SearchFields_TimeTrackingEntry::VIRTUAL_CONTEXT_LINK:
 				case SearchFields_TimeTrackingEntry::VIRTUAL_WATCHERS:
 					$pass = true;
 					break;
@@ -663,6 +664,10 @@ class View_TimeTracking extends C4_AbstractView implements IAbstractView_Subtota
 				
 			case SearchFields_TimeTrackingEntry::IS_CLOSED:
 				$counts = $this->_getSubtotalCountForBooleanColumn('DAO_TimeTrackingEntry', $column);
+				break;
+				
+			case SearchFields_TimeTrackingEntry::VIRTUAL_CONTEXT_LINK:
+				$counts = $this->_getSubtotalCountForContextLinkColumn('DAO_TimeTrackingEntry', CerberusContexts::CONTEXT_TIMETRACKING, $column);
 				break;
 				
 			case SearchFields_TimeTrackingEntry::VIRTUAL_WATCHERS:

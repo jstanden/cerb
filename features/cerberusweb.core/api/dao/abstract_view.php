@@ -392,12 +392,17 @@ abstract class C4_AbstractView {
 		foreach($param->value as $context_data) {
 			@list($context, $context_id) = explode(':',$context_data);
 			
-			if(empty($context) || empty($context_id))
+			if(empty($context))
 				continue;
 			
 			$context_ext = Extension_DevblocksContext::get($context,true);
-			$meta = $context_ext->getMeta($context_id);
-			$strings[] = sprintf("<b>%s</b> (%s)", $meta['name'], $context_ext->manifest->name);
+			
+			if(!empty($context_id)) {
+				$meta = $context_ext->getMeta($context_id);
+				$strings[] = sprintf("<b>%s</b> (%s)", $meta['name'], $context_ext->manifest->name);
+			} else {
+				$strings[] = sprintf("(<b>%s</b>)", $context_ext->manifest->name);
+			}
 		}
 		
 		if(empty($param->value)) {
@@ -1091,6 +1096,141 @@ abstract class C4_AbstractView {
 				$label = '(nobody)';
 				$oper = DevblocksSearchCriteria::OPER_IS_NULL;
 				$values = array('');
+			}
+			
+			if(!isset($counts[$label]))
+				$counts[$label] = array(
+					'hits' => $hits,
+					'label' => $label,
+					'filter' => 
+						array(
+							'field' => $field_key,
+							'oper' => $oper,
+							'values' => $values,
+						),
+					'children' => array()
+				);
+		}
+		
+		return $counts;
+	}
+		
+	protected function _getSubtotalDataForContextLinkColumn($dao_class, $context, $field_key) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$fields = $this->getFields();
+		$columns = $this->view_columns;
+		$params = $this->getParams();
+		
+		$has_context_already = false;
+		
+		if(isset($params[$field_key])) {
+			if(is_array($params[$field_key]->value)) {
+				$context_pair = current($params[$field_key]->value);
+				@$context_data = explode(':', $context_pair);
+				
+				if(1 == count($context_data)) {
+					$has_context_already = $context_data;
+				} elseif(2 == count($context_data)) {
+					$has_context_already = $context_data[0];
+					
+					$new_params = array(
+						$field_key => new DevblocksSearchCriteria($field_key, DevblocksSearchCriteria::OPER_IN, array($has_context_already))
+					);
+					$params = array_merge($params, $new_params);
+				}
+			}
+		}
+		
+		if(!method_exists($dao_class, 'getSearchQueryComponents'))
+			return array();
+		
+		$query_parts = call_user_func_array(
+			array($dao_class,'getSearchQueryComponents'),
+			array(
+				$columns,
+				$params,
+				$this->renderSortBy,
+				$this->renderSortAsc
+			)
+		);
+		
+		$join_sql = $query_parts['join'];
+		$where_sql = $query_parts['where'];
+
+		if(empty($has_context_already)) {
+			$join_sql .= sprintf("INNER JOIN context_link as link_counts ON (link_counts.to_context=%s AND link_counts.to_context_id=%s.id) ",
+				$db->qstr($context),
+				$query_parts['primary_table']
+			);
+
+			// This intentionally isn't constrained with a LIMIT
+			$sql = "SELECT link_counts.from_context as link_from_context, count(*) as hits ". //SQL_CALC_FOUND_ROWS
+				$join_sql.
+				$where_sql. 
+				"GROUP BY link_from_context ".
+				"ORDER BY hits DESC "
+			;
+			
+		} else {
+			$sql = "SELECT context_links.to_context AS link_from_context, context_links.to_context_id as link_from_context_id, count(*) as hits ". //SQL_CALC_FOUND_ROWS
+				$join_sql.
+				$where_sql. 
+				"GROUP BY link_from_context_id ".
+				"ORDER BY hits DESC ".
+				"LIMIT 0,20 "
+			;
+			
+		}
+		
+		$results = $db->GetArray($sql);
+
+		return $results;
+	}	
+	
+	protected function _getSubtotalCountForContextLinkColumn($dao_class, $context, $field_key) {
+		$contexts = Extension_DevblocksContext::getAll(false);
+		$counts = array();
+		
+		$results = $this->_getSubtotalDataForContextLinkColumn($dao_class, $context, $field_key);
+		
+		if(is_array($results))
+		foreach($results as $result) {
+			$hits = $result['hits'];
+			$label = '';
+			
+			if(isset($result['link_from_context_id'])) {
+				$from_context = $result['link_from_context'];
+				$from_context_id = $result['link_from_context_id'];
+	
+				if(!isset($contexts[$from_context]))
+					continue;
+				
+				if(null == ($ext = Extension_DevblocksContext::get($from_context)))
+					continue;
+				
+				// [TODO] This could be loaded more efficiently (one pass)
+				$meta = $ext->getMeta($from_context_id);
+				
+				$label = $meta['name'];
+				$field_key = '*_context_link';
+				$oper = DevblocksSearchCriteria::OPER_IN;
+				$values = array('context_link[]' => $from_context . ':' . $from_context_id);
+				
+			} elseif(isset($result['link_from_context'])) {
+				$from_context = $result['link_from_context'];
+	
+				if(!isset($contexts[$from_context]))
+					continue;
+				
+				$label = $contexts[$from_context]->name;
+				$field_key = '*_context_link';
+				$oper = DevblocksSearchCriteria::OPER_IN;
+				$values = array('context_link[]' => $from_context);
+				
+			} else {
+				continue;
+				
 			}
 			
 			if(!isset($counts[$label]))

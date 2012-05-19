@@ -438,6 +438,7 @@ class View_CalendarEvent extends C4_AbstractView implements IAbstractView_Subtot
 					break;
 					
 				// Virtuals
+				case SearchFields_CalendarEvent::VIRTUAL_CONTEXT_LINK:
 				case SearchFields_CalendarEvent::VIRTUAL_OWNER:
 					$pass = true;
 					break;
@@ -466,6 +467,10 @@ class View_CalendarEvent extends C4_AbstractView implements IAbstractView_Subtot
 		switch($column) {
 			case SearchFields_CalendarEvent::IS_AVAILABLE:
 				$counts = $this->_getSubtotalCountForBooleanColumn('DAO_CalendarEvent', $column);
+				break;
+				
+			case SearchFields_CalendarEvent::VIRTUAL_CONTEXT_LINK:
+				$counts = $this->_getSubtotalCountForContextLinkColumn('DAO_CalendarEvent', CerberusContexts::CONTEXT_CALENDAR_EVENT, $column);
 				break;
 				
 			case SearchFields_CalendarEvent::VIRTUAL_OWNER:

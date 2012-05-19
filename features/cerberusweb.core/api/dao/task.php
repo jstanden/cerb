@@ -552,6 +552,7 @@ class View_Task extends C4_AbstractView implements IAbstractView_Subtotals {
 					break;
 					
 				// Virtuals
+				case SearchFields_Task::VIRTUAL_CONTEXT_LINK:
 				case SearchFields_Task::VIRTUAL_WATCHERS:
 					$pass = true;
 					break;
@@ -580,6 +581,10 @@ class View_Task extends C4_AbstractView implements IAbstractView_Subtotals {
 		switch($column) {
 			case SearchFields_Task::IS_COMPLETED:
 				$counts = $this->_getSubtotalCountForBooleanColumn('DAO_Task', $column);
+				break;
+				
+			case SearchFields_Task::VIRTUAL_CONTEXT_LINK:
+				$counts = $this->_getSubtotalCountForContextLinkColumn('DAO_Task', CerberusContexts::CONTEXT_TASK, $column);
 				break;
 				
 			case SearchFields_Task::VIRTUAL_WATCHERS:

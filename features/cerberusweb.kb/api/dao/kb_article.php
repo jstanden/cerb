@@ -897,6 +897,10 @@ class View_KbArticle extends C4_AbstractView implements IAbstractView_Subtotals 
 				// DAO
 				case SearchFields_KbArticle::TOP_CATEGORY_ID:
 				case SearchFields_KbArticle::FORMAT:
+					$pass = true;
+					break;
+					
+				case SearchFields_KbArticle::VIRTUAL_CONTEXT_LINK:
 				case SearchFields_KbArticle::VIRTUAL_WATCHERS:
 					$pass = true;
 					break;
@@ -943,6 +947,10 @@ class View_KbArticle extends C4_AbstractView implements IAbstractView_Subtotals 
 				$counts = $this->_getSubtotalCountForStringColumn('DAO_KbArticle', $column, $label_map, '=', 'value');
 				break;
 
+			case SearchFields_KbArticle::VIRTUAL_CONTEXT_LINK:
+				$counts = $this->_getSubtotalCountForContextLinkColumn('DAO_KbArticle', CerberusContexts::CONTEXT_KB_ARTICLE, $column);
+				break;
+				
 			case SearchFields_KbArticle::VIRTUAL_WATCHERS:
 				$counts = $this->_getSubtotalCountForWatcherColumn('DAO_KbArticle', $column);
 				break;

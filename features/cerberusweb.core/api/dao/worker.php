@@ -487,13 +487,18 @@ class DAO_Worker extends C4_ORMHelper {
 		if(!is_a($param, 'DevblocksSearchCriteria'))
 			return;
 			
-		$from_context = CerberusContexts::CONTEXT_CALENDAR_EVENT;
-		$from_index = 'c.id';
+		$from_context = CerberusContexts::CONTEXT_WORKER;
+		$from_index = 'w.id';
 		
 		$param_key = $param->field;
 		settype($param_key, 'string');
 		
 		switch($param_key) {
+			case SearchFields_Worker::VIRTUAL_CONTEXT_LINK:
+				$args['has_multiple_values'] = true;
+				self::_searchComponentsVirtualContextLinks($param, $from_context, $from_index, $args['join_sql'], $args['where_sql']);
+				break;
+			
 			case SearchFields_Worker::VIRTUAL_GROUPS:
 				$args['has_multiple_values'] = true;
 				if(empty($param->value)) { // empty
@@ -637,6 +642,7 @@ class SearchFields_Worker implements IDevblocksSearchFields {
 	const LAST_ACTIVITY_DATE = 'w_last_activity_date';
 	const IS_DISABLED = 'w_is_disabled';
 	
+	const VIRTUAL_CONTEXT_LINK = '*_context_link';
 	const VIRTUAL_GROUPS = '*_groups';
 	const VIRTUAL_CALENDAR_AVAILABILITY = '*_calendar_availability';
 	
@@ -660,11 +666,12 @@ class SearchFields_Worker implements IDevblocksSearchFields {
 			self::LAST_ACTIVITY_DATE => new DevblocksSearchField(self::LAST_ACTIVITY_DATE, 'w', 'last_activity_date', $translate->_('worker.last_activity_date'), Model_CustomField::TYPE_DATE),
 			self::IS_DISABLED => new DevblocksSearchField(self::IS_DISABLED, 'w', 'is_disabled', ucwords($translate->_('common.disabled')), Model_CustomField::TYPE_CHECKBOX),
 			
-			self::VIRTUAL_GROUPS => new DevblocksSearchField(self::VIRTUAL_GROUPS, '*', 'groups', $translate->_('common.groups')),
-			self::VIRTUAL_CALENDAR_AVAILABILITY => new DevblocksSearchField(self::VIRTUAL_CALENDAR_AVAILABILITY, '*', 'calendar_availability', 'Calendar Availability'),
-			
 			self::CONTEXT_LINK => new DevblocksSearchField(self::CONTEXT_LINK, 'context_link', 'from_context', null),
 			self::CONTEXT_LINK_ID => new DevblocksSearchField(self::CONTEXT_LINK_ID, 'context_link', 'from_context_id', null),
+
+			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null),
+			self::VIRTUAL_GROUPS => new DevblocksSearchField(self::VIRTUAL_GROUPS, '*', 'groups', $translate->_('common.groups')),
+			self::VIRTUAL_CALENDAR_AVAILABILITY => new DevblocksSearchField(self::VIRTUAL_CALENDAR_AVAILABILITY, '*', 'calendar_availability', 'Calendar Availability'),
 		);
 		
 		// Custom Fields
@@ -818,6 +825,7 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals {
 			SearchFields_Worker::LAST_ACTIVITY,
 			SearchFields_Worker::CONTEXT_LINK,
 			SearchFields_Worker::CONTEXT_LINK_ID,
+			SearchFields_Worker::VIRTUAL_CONTEXT_LINK,
 			SearchFields_Worker::VIRTUAL_GROUPS,
 		));
 		
@@ -870,6 +878,10 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals {
 					$pass = true;
 					break;
 					
+				case SearchFields_Worker::VIRTUAL_CONTEXT_LINK:
+					$pass = true;
+					break;
+					
 				// Valid custom fields
 				default:
 					if('cf_' == substr($field_key,0,3))
@@ -903,6 +915,10 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals {
 				$counts = $this->_getSubtotalCountForBooleanColumn('DAO_Worker', $column);
 				break;
 			
+			case SearchFields_Worker::VIRTUAL_CONTEXT_LINK:
+				$counts = $this->_getSubtotalCountForContextLinkColumn('DAO_Worker', CerberusContexts::CONTEXT_WORKER, $column);
+				break;
+				
 			default:
 				// Custom fields
 				if('cf_' == substr($column,0,3)) {
@@ -938,6 +954,10 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals {
 		$key = $param->field;
 		
 		switch($key) {
+			case SearchFields_Worker::VIRTUAL_CONTEXT_LINK:
+				$this->_renderVirtualContextLinks($param);
+				break;
+			
 			case SearchFields_Worker::VIRTUAL_GROUPS:
 				if(empty($param->value)) {
 					echo "<b>Not</b> a member of any groups";
@@ -987,6 +1007,12 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals {
 				
 			case SearchFields_Worker::LAST_ACTIVITY_DATE:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__date.tpl');
+				break;
+				
+			case SearchFields_Worker::VIRTUAL_CONTEXT_LINK:
+				$contexts = Extension_DevblocksContext::getAll(false);
+				$tpl->assign('contexts', $contexts);
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context_link.tpl');
 				break;
 				
 			case SearchFields_Worker::VIRTUAL_GROUPS:
@@ -1046,6 +1072,11 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals {
 			case SearchFields_Worker::IS_SUPERUSER:
 				@$bool = DevblocksPlatform::importGPC($_REQUEST['bool'],'integer',1);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
+				break;
+				
+			case SearchFields_Worker::VIRTUAL_CONTEXT_LINK:
+				@$context_links = DevblocksPlatform::importGPC($_REQUEST['context_link'],'array',array());
+				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$context_links);
 				break;
 				
 			case SearchFields_Worker::VIRTUAL_GROUPS:

@@ -1820,12 +1820,12 @@ class C4_ORMHelper extends DevblocksORMHelper {
 		foreach($param->value as $context_data) {
 			@list($context, $context_id) = explode(':', $context_data, 2);
 			
-			if(empty($context) || empty($context_id))
+			if(empty($context))
 				return;
 
-			$where_contexts[] = sprintf("(context_links.to_context = %s AND context_links.to_context_id = %d)",
+			$where_contexts[] = sprintf("(context_links.to_context = %s%s)",
 				self::qstr($context),
-				$context_id
+				(!empty($context_id) ? sprintf(" AND context_links.to_context_id = %d", $context_id) : '')
 			);
 		}
 		

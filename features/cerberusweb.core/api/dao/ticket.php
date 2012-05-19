@@ -1653,6 +1653,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals {
 					$pass = true;
 					break;
 					
+				case SearchFields_Ticket::VIRTUAL_CONTEXT_LINK:
 				case SearchFields_Ticket::VIRTUAL_WATCHERS:
 					$pass = true;
 					break;
@@ -1709,6 +1710,10 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals {
 				
 			case SearchFields_Ticket::VIRTUAL_STATUS:
 				$counts = $this->_getSubtotalCountForStatus();
+				break;
+				
+			case SearchFields_Ticket::VIRTUAL_CONTEXT_LINK:
+				$counts = $this->_getSubtotalCountForContextLinkColumn('DAO_Ticket', CerberusContexts::CONTEXT_TICKET, $column);
 				break;
 				
 			case SearchFields_Ticket::VIRTUAL_WATCHERS:

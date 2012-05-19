@@ -622,6 +622,7 @@ class View_ContactOrg extends C4_AbstractView implements IAbstractView_Subtotals
 					break;
 					
 				// Virtuals
+				case SearchFields_ContactOrg::VIRTUAL_CONTEXT_LINK:
 				case SearchFields_ContactOrg::VIRTUAL_WATCHERS:
 					$pass = true;
 					break;
@@ -652,6 +653,10 @@ class View_ContactOrg extends C4_AbstractView implements IAbstractView_Subtotals
 			case SearchFields_ContactOrg::PROVINCE:
 			case SearchFields_ContactOrg::POSTAL:
 				$counts = $this->_getSubtotalCountForStringColumn('DAO_ContactOrg', $column);
+				break;
+				
+			case SearchFields_ContactOrg::VIRTUAL_CONTEXT_LINK:
+				$counts = $this->_getSubtotalCountForContextLinkColumn('DAO_ContactOrg', CerberusContexts::CONTEXT_ORG, $column);
 				break;
 				
 			case SearchFields_ContactOrg::VIRTUAL_WATCHERS:

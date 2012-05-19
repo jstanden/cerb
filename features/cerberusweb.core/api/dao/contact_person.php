@@ -519,6 +519,7 @@ class View_ContactPerson extends C4_AbstractView implements IAbstractView_Subtot
 					$pass = true;
 					break;
 					
+				case SearchFields_ContactPerson::VIRTUAL_CONTEXT_LINK:
 				case SearchFields_ContactPerson::VIRTUAL_WATCHERS:
 					$pass = true;
 					break;
@@ -549,6 +550,10 @@ class View_ContactPerson extends C4_AbstractView implements IAbstractView_Subtot
 			case SearchFields_ContactPerson::ADDRESS_FIRST_NAME:
 			case SearchFields_ContactPerson::ADDRESS_LAST_NAME:
 				$counts = $this->_getSubtotalCountForStringColumn('DAO_ContactPerson', $column);
+				break;
+				
+			case SearchFields_ContactPerson::VIRTUAL_CONTEXT_LINK:
+				$counts = $this->_getSubtotalCountForContextLinkColumn('DAO_ContactPerson', CerberusContexts::CONTEXT_CONTACT_PERSON, $column);
 				break;
 				
 			case SearchFields_ContactPerson::VIRTUAL_WATCHERS:

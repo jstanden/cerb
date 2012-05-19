@@ -634,6 +634,7 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 					$pass = true;
 					break;
 					
+				case SearchFields_CrmOpportunity::VIRTUAL_CONTEXT_LINK:
 				case SearchFields_CrmOpportunity::VIRTUAL_WATCHERS:
 					$pass = true;
 					break;
@@ -672,6 +673,10 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 				$counts = $this->_getSubtotalCountForBooleanColumn('DAO_CrmOpportunity', $column);
 				break;
 			
+			case SearchFields_CrmOpportunity::VIRTUAL_CONTEXT_LINK:
+				$counts = $this->_getSubtotalCountForContextLinkColumn('DAO_CrmOpportunity', CerberusContexts::CONTEXT_OPPORTUNITY, $column);
+				break;
+				
 			case SearchFields_CrmOpportunity::VIRTUAL_WATCHERS:
 				$counts = $this->_getSubtotalCountForWatcherColumn('DAO_CrmOpportunity', $column);
 				break;

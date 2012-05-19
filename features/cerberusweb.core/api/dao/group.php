@@ -389,6 +389,16 @@ class DAO_Group extends C4_ORMHelper {
 			
 		$sort_sql = (!empty($sortBy)) ? sprintf("ORDER BY %s %s ",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : " ";
 
+		array_walk_recursive(
+			$params,
+			array('DAO_Group', '_translateVirtualParameters'),
+			array(
+				'join_sql' => &$join_sql,
+				'where_sql' => &$where_sql,
+				'has_multiple_values' => &$has_multiple_values
+			)
+		);
+		
 		$result = array(
 			'primary_table' => 'g',
 			'select' => $select_sql,
@@ -399,6 +409,24 @@ class DAO_Group extends C4_ORMHelper {
 		);
 		
 		return $result;
+	}
+	
+	private static function _translateVirtualParameters($param, $key, &$args) {
+		if(!is_a($param, 'DevblocksSearchCriteria'))
+			return;
+			
+		$from_context = CerberusContexts::CONTEXT_GROUP;
+		$from_index = 'g.id';
+		
+		$param_key = $param->field;
+		settype($param_key, 'string');
+		
+		switch($param_key) {
+			case SearchFields_Group::VIRTUAL_CONTEXT_LINK:
+				$args['has_multiple_values'] = true;
+				self::_searchComponentsVirtualContextLinks($param, $from_context, $from_index, $args['join_sql'], $args['where_sql']);
+				break;
+		}
 	}	
 	
     static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
@@ -462,6 +490,8 @@ class SearchFields_Group implements IDevblocksSearchFields {
 	const CONTEXT_LINK = 'cl_context_from';
 	const CONTEXT_LINK_ID = 'cl_context_from_id';
 	
+	const VIRTUAL_CONTEXT_LINK = '*_context_link';
+	
 	/**
 	 * @return DevblocksSearchField[]
 	 */
@@ -474,6 +504,8 @@ class SearchFields_Group implements IDevblocksSearchFields {
 			
 			self::CONTEXT_LINK => new DevblocksSearchField(self::CONTEXT_LINK, 'context_link', 'from_context', null),
 			self::CONTEXT_LINK_ID => new DevblocksSearchField(self::CONTEXT_LINK_ID, 'context_link', 'from_context_id', null),
+				
+			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null),
 		);
 		
 		// Custom Fields
@@ -746,6 +778,7 @@ class View_Group extends C4_AbstractView implements IAbstractView_Subtotals {
 		
 		$this->addColumnsHidden(array(
 			SearchFields_Group::ID,
+			SearchFields_Group::VIRTUAL_CONTEXT_LINK,
 		));
 		
 		$this->addParamsHidden(array(
@@ -785,6 +818,10 @@ class View_Group extends C4_AbstractView implements IAbstractView_Subtotals {
 			$pass = false;
 			
 			switch($field_key) {
+				case SearchFields_Group::VIRTUAL_CONTEXT_LINK:
+					$pass = true;
+					break;
+				
 				// Valid custom fields
 				default:
 					if('cf_' == substr($field_key,0,3))
@@ -807,6 +844,10 @@ class View_Group extends C4_AbstractView implements IAbstractView_Subtotals {
 			return array();
 		
 		switch($column) {
+			case SearchFields_Group::VIRTUAL_CONTEXT_LINK;
+				$counts = $this->_getSubtotalCountForContextLinkColumn('DAO_Group', CerberusContexts::CONTEXT_GROUP, $column);
+				break;
+			
 			default:
 				// Custom fields
 				if('cf_' == substr($column,0,3)) {
@@ -855,6 +896,12 @@ class View_Group extends C4_AbstractView implements IAbstractView_Subtotals {
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__date.tpl');
 				break;
 				
+			case SearchFields_Group::VIRTUAL_CONTEXT_LINK:
+				$contexts = Extension_DevblocksContext::getAll(false);
+				$tpl->assign('contexts', $contexts);
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context_link.tpl');
+				break;
+				
 			default:
 				// Custom Fields
 				if('cf_' == substr($field,0,3)) {
@@ -866,6 +913,18 @@ class View_Group extends C4_AbstractView implements IAbstractView_Subtotals {
 		}
 	}
 
+	function renderVirtualCriteria($param) {
+		$key = $param->field;
+		
+		$translate = DevblocksPlatform::getTranslationService();
+		
+		switch($key) {
+			case SearchFields_Group::VIRTUAL_CONTEXT_LINK:
+				$this->_renderVirtualContextLinks($param);
+				break;
+		}
+	}	
+	
 	function renderCriteriaParam($param) {
 		$field = $param->field;
 		$values = !is_array($param->value) ? array($param->value) : $param->value;
@@ -896,6 +955,11 @@ class View_Group extends C4_AbstractView implements IAbstractView_Subtotals {
 			case 'placeholder_bool':
 				@$bool = DevblocksPlatform::importGPC($_REQUEST['bool'],'integer',1);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
+				break;
+				
+			case SearchFields_Group::VIRTUAL_CONTEXT_LINK:
+				@$context_links = DevblocksPlatform::importGPC($_REQUEST['context_link'],'array',array());
+				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$context_links);
 				break;
 				
 			default:

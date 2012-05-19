@@ -640,6 +640,7 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals {
 					break;
 					
 				// Virtuals
+				case SearchFields_Address::VIRTUAL_CONTEXT_LINK:
 				case SearchFields_Address::VIRTUAL_WATCHERS:
 					$pass = true;
 					break;
@@ -673,6 +674,11 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals {
 				break;
 				
 			// Virtuals
+			
+			case SearchFields_Address::VIRTUAL_CONTEXT_LINK:
+				$counts = $this->_getSubtotalCountForContextLinkColumn('DAO_Address', CerberusContexts::CONTEXT_ADDRESS, $column);
+				break;
+				
 			case SearchFields_Address::VIRTUAL_WATCHERS:
 				$counts = $this->_getSubtotalCountForWatcherColumn('DAO_Address', $column);
 				break;
