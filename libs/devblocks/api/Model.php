@@ -453,10 +453,10 @@ class DevblocksPluginManifest {
 		) {
 			// If APP_VERSION is below the min or above the max
 			if(DevblocksPlatform::strVersionToInt(APP_VERSION) < DevblocksPlatform::strVersionToInt($plugin_app_version['min']))
-				$this->_requirements_errors[] = 'This plugin requires a Cerb5 version of at least ' . $plugin_app_version['min'] . ' and you are using ' . APP_VERSION;
+				$this->_requirements_errors[] = 'This plugin requires a Cerb version of at least ' . $plugin_app_version['min'] . ' and you are using ' . APP_VERSION;
 			
 			if(DevblocksPlatform::strVersionToInt(APP_VERSION) > DevblocksPlatform::strVersionToInt($plugin_app_version['max']))
-				$this->_requirements_errors[] = 'This plugin was tested through Cerb5 version ' . $plugin_app_version['max'] . ' and you are using ' . APP_VERSION;
+				$this->_requirements_errors[] = 'This plugin was tested through Cerb version ' . $plugin_app_version['max'] . ' and you are using ' . APP_VERSION;
 			
 		// If no version information is available, fail.
 		} else {

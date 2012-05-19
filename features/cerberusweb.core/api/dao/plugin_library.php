@@ -317,10 +317,10 @@ class Model_PluginLibrary {
 			
 			// If APP_VERSION is below the min or above the max
 			if($plugin_app_version['min'] > $app_version)
-				$requirements_errors[] = 'This plugin requires a Cerb5 version of at least ' . DevblocksPlatform::intVersionToStr($plugin_app_version['min']) . ' and you are using ' . APP_VERSION;
+				$requirements_errors[] = 'This plugin requires a Cerb version of at least ' . DevblocksPlatform::intVersionToStr($plugin_app_version['min']) . ' and you are using ' . APP_VERSION;
 			
 			if($plugin_app_version['max'] < $app_version)
-				$requirements_errors[] = 'This plugin was tested through Cerb5 version ' . DevblocksPlatform::intVersionToStr($plugin_app_version['max']) . ' and you are using ' . APP_VERSION;
+				$requirements_errors[] = 'This plugin was tested through Cerb version ' . DevblocksPlatform::intVersionToStr($plugin_app_version['max']) . ' and you are using ' . APP_VERSION;
 			
 		// If no version information is available, fail.
 		} else {
