@@ -41,50 +41,59 @@
 
 <script type="text/javascript">
 $legend = $('#view{$view_id}_sidebar fieldset:first legend');
-	$legend
-		.hoverIntent({
-			sensitivity:10,
-			interval:300,
-			over:function(e) {
-				$(this).next('ul:first').show();
-			},
-			timeout:0,
-			out:function(e){}
-		})
-		.closest('fieldset')
-			.hover(
-				function(e) {},
-				function(e) {
-					$(this).find('ul:first').hide();
-				}
-			)
-		.find('ul:first > li')
-			.click(function(e) {
-				e.stopPropagation();
-				if(!$(e.target).is('li'))
-					return;
 
-				$(this).find('a').trigger('click');
-			})
-		;
-	$legend
-		.closest('fieldset')
-		.find('TBODY > TR')
-		.css('cursor','pointer')
+$legend
+	.hoverIntent({
+		sensitivity:10,
+		interval:300,
+		over:function(e) {
+			$(this).next('ul:first').show();
+		},
+		timeout:0,
+		out:function(e){}
+	})
+	.closest('fieldset')
 		.hover(
+			function(e) {},
 			function(e) {
-				$(this).css('background-color','rgb(255,255,200)');
-			},
-			function(e) {
-				$(this).css('background','none');
+				$(this).find('ul:first').hide();
 			}
 		)
+	.find('> ul.cerb-popupmenu > li')
 		.click(function(e) {
 			e.stopPropagation();
-			if($(e.target).is('a'))
+			if(!$(e.target).is('li'))
 				return;
 
 			$(this).find('a').trigger('click');
 		})
-		;
+	;
+	
+$legend
+	.closest('fieldset')
+	.find('TBODY > TR')
+	.css('cursor','pointer')
+	.hover(
+		function(e) {
+			$(this).css('background-color','rgb(255,255,200)');
+		},
+		function(e) {
+			$(this).css('background','none');
+		}
+	)
+	.click(function(e) {
+		e.stopPropagation();
+		
+		if($(e.target).is('a')) {
+			return;
+		}
+
+		$(this).find('a').trigger('click');
+	})
+	// Intercept link clicks so the TR doesn't handle them (but onclick does)
+	.find('a')
+	.click(function(e) {
+		e.stopPropagation();
+	})
+	;
 </script>
