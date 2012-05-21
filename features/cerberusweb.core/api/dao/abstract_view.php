@@ -259,6 +259,28 @@ abstract class C4_AbstractView {
 		return $this->_paramsHidden;
 	}
 	
+	// Search params
+	
+	static function findParam($field_key, $params) {
+		$results = array();
+		
+		array_walk_recursive($params, function(&$v, $k, $field_key) use (&$results) {
+			if(!($v instanceof DevblocksSearchCriteria))
+				return;
+
+			if($v->field == $field_key) {
+				$results[] = $v;
+			} 
+			
+		}, $field_key);
+		
+		return $results;
+	}
+	
+	static function hasParam($field_key, $params) {
+		return count(self::findParam($field_key, $params)) > 0;
+	}
+	
 	// Placeholders
 	
 	function setPlaceholderLabels($labels) {
@@ -1120,26 +1142,45 @@ abstract class C4_AbstractView {
 		
 		$fields = $this->getFields();
 		$columns = $this->view_columns;
+
 		$params = $this->getParams();
+		$param_results = C4_AbstractView::findParam($field_key, $params);
 		
 		$has_context_already = false;
 		
-		if(isset($params[$field_key])) {
-			if(is_array($params[$field_key]->value)) {
-				$context_pair = current($params[$field_key]->value);
-				@$context_data = explode(':', $context_pair);
+		if(!empty($param_results)) {
+			// Did the worker add this filter?
+			$param_results = C4_AbstractView::findParam($field_key, $this->getEditableParams());
+			
+			if(count($param_results) > 0) {
+				$param_result = array_shift($param_results);
 				
-				if(1 == count($context_data)) {
-					$has_context_already = $context_data;
-				} elseif(2 == count($context_data)) {
-					$has_context_already = $context_data[0];
-					
-					$new_params = array(
-						$field_key => new DevblocksSearchCriteria($field_key, DevblocksSearchCriteria::OPER_IN, array($has_context_already))
-					);
-					$params = array_merge($params, $new_params);
+				if($param_result->operator == DevblocksSearchCriteria::OPER_IN)
+				if(is_array($param_result->value)) {
+					$context_pair = current($param_result->value);
+					@$context_data = explode(':', $context_pair);
+	
+					if(1 == count($context_data)) {
+						$has_context_already = $context_data[0];
+						
+					} elseif(2 == count($context_data)) {
+						$has_context_already = $context_data[0];
+	
+						$new_params = array(
+							$field_key => new DevblocksSearchCriteria($field_key, DevblocksSearchCriteria::OPER_IN, array($has_context_already))
+						);
+						
+						$params = array_merge($params, $new_params);
+					}
 				}
 			}
+			
+		} else {
+			$new_params = array(
+				$field_key => new DevblocksSearchCriteria($field_key, DevblocksSearchCriteria::OPER_TRUE),
+			);
+			
+			$params = array_merge($params, $new_params);
 		}
 		
 		if(!method_exists($dao_class, 'getSearchQueryComponents'))
@@ -1159,30 +1200,29 @@ abstract class C4_AbstractView {
 		$where_sql = $query_parts['where'];
 
 		if(empty($has_context_already)) {
-			$join_sql .= sprintf("INNER JOIN context_link as link_counts ON (link_counts.to_context=%s AND link_counts.to_context_id=%s.id) ",
-				$db->qstr($context),
-				$query_parts['primary_table']
-			);
-
 			// This intentionally isn't constrained with a LIMIT
-			$sql = "SELECT link_counts.from_context as link_from_context, count(*) as hits ". //SQL_CALC_FOUND_ROWS
-				$join_sql.
-				$where_sql. 
-				"GROUP BY link_from_context ".
-				"ORDER BY hits DESC "
-			;
+			$sql = sprintf("SELECT from_context AS link_from_context, count(*) AS hits FROM context_link WHERE to_context = %s AND to_context_id IN (%s) GROUP BY from_context ORDER BY hits DESC ",
+				$db->qstr($context),
+				(
+					sprintf("SELECT %s.id ", $query_parts['primary_table']).
+					$query_parts['join'] .
+					$query_parts['where']
+				)
+			);
 			
 		} else {
-			$sql = "SELECT context_links.to_context AS link_from_context, context_links.to_context_id as link_from_context_id, count(*) as hits ". //SQL_CALC_FOUND_ROWS
-				$join_sql.
-				$where_sql. 
-				"GROUP BY link_from_context_id ".
-				"ORDER BY hits DESC ".
-				"LIMIT 0,20 "
-			;
+			$sql = sprintf("SELECT from_context AS link_from_context, from_context_id AS link_from_context_id, count(*) AS hits FROM context_link WHERE to_context = %s AND to_context_id IN (%s) AND from_context = %s GROUP BY from_context_id ORDER BY hits DESC LIMIT 0,20 ",
+				$db->qstr($context),
+				(
+					sprintf("SELECT %s.id ", $query_parts['primary_table']).
+					$query_parts['join'] .
+					$query_parts['where']
+				),
+				$db->qstr($has_context_already)
+			);
 			
 		}
-		
+
 		$results = $db->GetArray($sql);
 
 		return $results;
