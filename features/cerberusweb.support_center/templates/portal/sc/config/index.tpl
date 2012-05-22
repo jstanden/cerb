@@ -11,7 +11,7 @@
 <br>
 <br>
 
-<fieldset id="setupPortalModules">
+<fieldset id="setupPortalModules" class="peek">
 	<legend>Modules</legend>
 	
 	<div>
@@ -47,7 +47,7 @@
 {foreach from=$modules item=module}
 	{assign var=module_id value=$module->manifest->id}
 	<div id="module{$module->manifest->id}" style="display:{if isset($visible_modules.$module_id)}block{else}none{/if};">
-		<fieldset>
+		<fieldset class="peek">
 			<legend>{$module->manifest->name}</legend>
 			{if method_exists($module,'configure')}
 			{$module->configure($instance)}

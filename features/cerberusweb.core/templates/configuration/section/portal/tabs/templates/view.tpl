@@ -6,8 +6,11 @@
 	<tr>
 		<td nowrap="nowrap"><span class="title">{$view->name}</span></td>
 		<td nowrap="nowrap" align="right">
+			<a href="javascript:;" title="{'common.add'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxPopup('peek','c=config&a=handleSectionAction&section=portal&action=showAddTemplatePeek&portal={$tool->code}&view_id={$view->id|escape:'url'}',null,false,'600');"><span class="cerb-sprite2 sprite-plus-circle-frame"></span></a>
 			<a href="javascript:;" title="{'common.customize'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxGet('customize{$view->id}','c=internal&a=viewCustomize&id={$view->id}');toggleDiv('customize{$view->id}','block');"><span class="cerb-sprite2 sprite-gear"></span></a>
+			<a href="javascript:;" title="{$translate->_('common.import')|capitalize}" onclick="genericAjaxPopup('peek','c=config&a=handleSectionAction&section=portal&action=showImportTemplatesPeek&portal={$tool->code}&view_id={$view->id|escape:'url'}',null,false,'500');"><span class="cerb-sprite2 sprite-application-import"></span></a>
 			<a href="javascript:;" title="{'common.refresh'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewRefresh&id={$view->id}');"><span class="cerb-sprite2 sprite-arrow-circle-135-left"></span></a>
+			<input type="checkbox" class="select-all">
 		</td>
 	</tr>
 </table>
@@ -22,7 +25,7 @@
 
 	{* Column Headers *}
 	<tr>
-		<th style="text-align:center"><input type="checkbox" onclick="checkAll('view{$view->id}',this.checked);this.blur();$rows=$(this).closest('table').find('tbody > tr');if($(this).is(':checked')) { $rows.addClass('selected'); } else { $rows.removeClass('selected'); }"></th>
+		<th style="text-align:center"></th>
 		{foreach from=$view->view_columns item=header name=headers}
 			{* start table header, insert column title and link *}
 			<th nowrap="nowrap">
@@ -50,7 +53,9 @@
 	{/if}
 	<tbody style="cursor:pointer;">
 		<tr class="{$tableRowClass}">
-			<td align="center" rowspan="2" nowrap="nowrap" style="padding:5px;"><input type="checkbox" name="row_id[]" value="{$result.d_id}"></td>
+			<td align="center" rowspan="2" nowrap="nowrap" style="padding:5px;">
+				<input type="checkbox" name="row_id[]" value="{$result.d_id}" style="display:none;">
+			</td>
 			<td colspan="{$smarty.foreach.headers.total}">
 				<a href="javascript:;" onclick="genericAjaxPopup('peek','c=config&a=handleSectionAction&section=portal&action=getTemplatePeek&portal={$tool->code}&view_id={$view->id}&id={$result.d_id}',null,false,'600');" class="subject">{$result.d_path}</a>
 			</td>

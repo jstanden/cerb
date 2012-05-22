@@ -14,9 +14,9 @@
 {$tool->configure($instance)}
 {/if}
 
-<br>
-
-<button type="submit"><span class="cerb-sprite2 sprite-tick-circle"></span> {$translate->_('common.save_changes')|capitalize}</button>
-{if !empty($instance)}<button type="button" class="red" onclick="if(confirm('{$translate->_('portal.cfg.confirm_delete')}')){literal}{this.form.do_delete.value='1';this.form.submit();}{/literal}"><span class="cerb-sprite2 sprite-cross-circle"></span> {$translate->_('common.delete')|capitalize}</button>{/if}
+<div>
+	<button type="submit"><span class="cerb-sprite2 sprite-tick-circle"></span> {$translate->_('common.save_changes')|capitalize}</button>
+	{if !empty($instance)}<button type="button" class="red" onclick="if(confirm('{$translate->_('portal.cfg.confirm_delete')}')){literal}{this.form.do_delete.value='1';this.form.submit();}{/literal}"><span class="cerb-sprite2 sprite-cross-circle"></span> {$translate->_('common.delete')|capitalize}</button>{/if}
+</div>
 
 </form>
