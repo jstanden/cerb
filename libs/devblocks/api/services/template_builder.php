@@ -189,8 +189,10 @@ class DevblocksDictionaryDelegate {
 	}
 	
 	public function __isset($name) {
-		if(isset($this->_dictionary[$name]))
+		if(null !== ($this->__get($name)))
 			return true;
+		
+		return false;
 	}
 	
 	public function delegateUndefinedVariable($name) {

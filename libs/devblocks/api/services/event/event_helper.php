@@ -367,7 +367,7 @@ class DevblocksEventHelper {
 			
 			$counter = 0;
 			foreach($objects as $object) {
-				@$label = $object['_label'];
+				@$label = $object->_label;
 				
 				$out .= sprintf(" [%d] %s\n",
 					++$counter,
@@ -390,11 +390,16 @@ class DevblocksEventHelper {
 			foreach($fields as $k => $v) {
 				if(substr($k,0,1)=='_')
 					continue;
-				$out .= sprintf(" * %s.%s\n     %s\n",
+				$out .= sprintf(" * {{%s.%s}}\n",
 					$obj_name,
-					$k,
-					$v
+					$k
 				);
+				
+				if(false !== stristr($k, 'custom_')) {
+					$out .= sprintf("     %s\n",
+						mb_convert_case($v, MB_CASE_TITLE)
+					);
+				}
 			}
 			
 		} else {
@@ -2035,7 +2040,7 @@ class DevblocksEventHelper {
 				$obj_values = array();
 				CerberusContexts::getContext($context, $object, $obj_labels, $obj_values, null, true);
 				$array =& $dict->$token;
-				$array[$new_id] = $obj_values;
+				$array[$new_id] = new DevblocksDictionaryDelegate($obj_values);
 			}
 		}
 	}
