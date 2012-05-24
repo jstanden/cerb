@@ -1,12 +1,8 @@
 <div style="margin-top:5px;"></div>
 
-{$menu_json = DAO_WorkerPref::get($active_worker->id, 'menu_json','')}
-{$menu = json_decode($menu_json, true)}
-
-{if empty($menu) || $tour_enabled}
 <form action="#" onsubmit="return false;">
 <div class="help-box" style="padding:5px;border:0;">
-	<h1 style="margin-bottom:5px;text-align:left;">Configuring your menu shortcuts</h1>
+	<h1 style="margin-bottom:5px;text-align:left;">Let's add some pages to your menu</h1>
 	
 	<p>
 		Pages allow you to build a completely personalized interface based on your needs.
@@ -23,7 +19,6 @@
 	</p>
 </div>
 </form>
-{/if}
 
 <div style="float:left;">
 	<h2>Pages</h2>

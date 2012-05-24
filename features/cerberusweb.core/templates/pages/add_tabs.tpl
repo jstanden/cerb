@@ -1,3 +1,27 @@
+{if $page->isWriteableByWorker($active_worker)}
+<form action="#" onsubmit="return false;">
+<div class="help-box" style="padding:5px;border:0;">
+	<h1 style="margin-bottom:5px;text-align:left;">Let's add some tabs to your page</h1>
+	
+	<p>
+		Once you've created a new workspace page you can add tabs to organize your content.
+	</p>
+
+	<p>
+		A <b>Label</b> gives your tab a short, descriptive name.
+	</p>
+	
+	<p>
+		Depending on the plugins you have installed, a tab can be one of several <b>Types</b>.  The default is <i>Custom Worklists</i>, which displays as many lists of specific information as you want.  The other tab types are specialized for specific purposes, such as browsing the knowledgebase by category.
+	</p>
+	
+	<p>
+		After you've configured your tab below, click the <button type="button"><span class="cerb-sprite2 sprite-plus-circle"></span> {'common.add'|devblocks_translate|capitalize}</button> button.  You can then click on the tab's label above to display it.
+	</p>
+</div>
+</form>
+{/if}
+
 {$uniq_id = uniqid()}
 <form id="{$uniq_id}" action="#" method="POST" onsubmit="return false;">
 <fieldset class="peek">
@@ -6,7 +30,7 @@
 	<table cellpadding="2" cellspacing="0" border="0">
 		<tr>
 			<td>
-				<b>{'common.title'|devblocks_translate|capitalize}:</b>
+				<b>{'common.label'|devblocks_translate|capitalize}:</b>
 			</td>
 			<td>
 				<input type="text" name="name" value="" size="32">
@@ -19,7 +43,7 @@
 			</td>
 			<td>
 				<select name="extension_id">
-					<option value="">Custom Worklists</option>
+					<option value="">Custom Worklists (default)</option>
 					{if !empty($tab_extensions)}
 						{foreach from=$tab_extensions item=tab_extension}
 							<option value="{$tab_extension->id}">{$tab_extension->params.label|devblocks_translate|capitalize}</option>
@@ -43,6 +67,10 @@
 </form>
 
 <script type="text/javascript">
+$frm = $('form#{$uniq_id}');
+$input = $frm.find('input:text[name=name]'); 
+$input.focus();
+
 $('#{$uniq_id}').find('button.add').click(function(e) {
 	$this = $(this);
 	$frm = $this.closest('form');
@@ -69,6 +97,9 @@ $('#{$uniq_id}').find('button.add').click(function(e) {
 		
 		$tabs.tabs('option', 'tabTemplate', '<li class="drag" tab_id="'+json.tab_id+'"><a href="#{literal}{href}{/literal}"><span>#{literal}{label}{/literal}</span></a></li>');
 		$tabs.tabs('add', json.tab_url, title, len);
+		
+		$this.effect('transfer', { to:$tabs.find('ul.ui-tabs-nav li:nth(' + len + ')'), className:'effects-transfer' }, 500, function() {
+		});
 		
 		$input.val('').focus();
 	});

@@ -35,6 +35,16 @@
 <fieldset>
 	<legend>Worklists</legend>
 	
+	<b>{'common.add'|devblocks_translate|capitalize}:</b> 
+	<select name="add_context">
+		<option value="">- {'common.choose'|devblocks_translate|lower} -</option>
+		{foreach from=$contexts item=mft key=mft_id}
+		{if isset($mft->params['options'][0]['workspace'])}
+		<option value="{$mft_id}">{$mft->name}</option>
+		{/if}
+		{/foreach}
+	</select>
+	
 	{foreach from=$worklists item=worklist name=worklists key=worklist_id}
 	{assign var=worklist_view value=$worklist->list_view}
 	<div class="column">
@@ -45,20 +55,7 @@
 		--><span>{if isset($contexts.{$worklist->context})}{$contexts.{$worklist->context}->name}{/if}</span>	
 	</div>
 	{/foreach}
-</fieldset>
-
-<fieldset>
-	<legend>Add Worklist</legend>
-	<div>
-		<select name="add_context">
-			{foreach from=$contexts item=mft key=mft_id}
-			{if isset($mft->params['options'][0]['workspace'])}
-			<option value="{$mft_id}">{$mft->name}</option>
-			{/if}
-			{/foreach}
-		</select>
-		<button type="button" class="add"><span class="cerb-sprite2 sprite-plus-circle"></span></button>
-	</div>
+	
 </fieldset>
 {/if}
 
@@ -75,12 +72,14 @@
 		$frm = $('#frmEditWorkspaceTab');
 		
 		{if empty($workspace_tab->extension_id)}
-			$frm.find('button.add').click(function() {
-				$this = $(this);
+			$frm.find('select[name=add_context]').change(function() {
+				$select = $(this);
+				
+				if($select.val() == '')
+					return;
+				
 				$columns = $(this.form).find('fieldset').first();
 				$new_column = $('<div class="column"></div>');
-				
-				$select = $(this).siblings('select[name=add_context]');
 				
 				$('<span class="ui-icon ui-icon-arrowthick-2-n-s" style="display:inline-block;vertical-align:middle;"></span>').appendTo($new_column);
 				$('<a href="javascript:;" onclick="if(confirm(\'Are you sure you want to delete this worklist?\')) { $(this).closest(\'div\').remove(); }"><span class="ui-icon ui-icon-trash" style="display:inline-block;vertical-align:middle;"></span></a>').appendTo($new_column);
@@ -88,7 +87,11 @@
 				$('<input type="text" name="names[]" value="'+$select.find(':selected').text()+'" size="45">').appendTo($new_column);
 				$('<span>'+$select.find(':selected').text()+'</span>').appendTo($new_column);
 				
-				$new_column.appendTo($columns);;
+				$select.val('');
+
+				$new_column.appendTo($columns);
+				
+				$new_column.find('input:text:first').select().focus();
 			});
 		{/if}
 		
