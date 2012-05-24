@@ -408,7 +408,9 @@ function genericAjaxGet(divRef,args,cb,options) {
 			if(null != div) {
 				div.html(html);
 				div.fadeTo("fast", 1.0);
-				div.trigger('view_refresh');
+				
+				if(div.is('DIV[id^=view]'))
+					div.trigger('view_refresh');
 			}
 		}
 	}
@@ -446,13 +448,15 @@ function genericAjaxPost(formRef,divRef,args,cb,options) {
 	
 	if(null == cb) {
 		if(null != div)
-			$(div).fadeTo("fast", 0.2);
+			div.fadeTo("fast", 0.2);
 		
 		var cb = function(html) {
 			if(null != div) {
-				$(div).html(html);
-				$(div).fadeTo("fast", 1.0);
-				$(div).trigger('view_refresh');
+				div.html(html);
+				div.fadeTo("fast", 1.0);
+				
+				if(div.is('DIV[id^=view]'))
+					div.trigger('view_refresh');
 			}
 		};
 	}

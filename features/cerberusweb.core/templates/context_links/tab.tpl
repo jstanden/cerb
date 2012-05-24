@@ -152,10 +152,11 @@ function removeSelectedContextLinks(ref) {
 }
 
 $forms = $('#divConnections').delegate('DIV[id^=view]','view_refresh',function() {
-	$(this)
-		.find('DIV[id$=_actions]')
-		.prepend($('<button type="button" class="action-always-show" onclick="removeSelectedContextLinks(this);">Unlink</button>'))
-		;
+	$actions = $(this).find('DIV[id$=_actions]');
+	
+	if(0 == $actions.find('button.unlink').length) {
+		$actions.prepend($('<button type="button" class="action-always-show unlink" onclick="removeSelectedContextLinks(this);">Unlink</button>&nbsp;'));
+	}
 });
 </script>
 
@@ -189,7 +190,7 @@ $forms = $('#divConnections').delegate('DIV[id^=view]','view_refresh',function()
 							
 							$this
 								.find('DIV[id$=_actions]')
-								.prepend($('<button type="button" class="action-always-show" onclick="removeSelectedContextLinks(this);">Unlink</button>'))
+								.prepend($('<button type="button" class="action-always-show unlink" onclick="removeSelectedContextLinks(this);">Unlink</button>'))
 								;
 							
 							next();
@@ -210,7 +211,7 @@ $forms = $('#divConnections').delegate('DIV[id^=view]','view_refresh',function()
 					
 					$div
 						.find('DIV[id$=_actions]')
-						.prepend($('<button type="button" class="action-always-show" onclick="removeSelectedContextLinks(this);">Unlink</button>'))
+						.prepend($('<button type="button" class="action-always-show unlink" onclick="removeSelectedContextLinks(this);">Unlink</button>'))
 						;
 					
 					next();
