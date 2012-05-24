@@ -1,4 +1,4 @@
-<form action="{devblocks_url}{/devblocks_url}" method="POST" id="frmCerb5PluginDownload">
+<form action="{devblocks_url}{/devblocks_url}" method="POST" id="frmCerb6PluginDownload">
 {*
 <input type="hidden" name="c" value="config">
 <input type="hidden" name="a" value="handleSectionAction">
@@ -19,7 +19,7 @@
 </ul>
 {/if}
 
-<div style="display:none;" id="divCerb5PluginOutput">
+<div style="display:none;" id="divCerb6PluginOutput">
 </div>
 
 <div style="margin-top:10px;">
@@ -36,12 +36,12 @@
 	$popup.one('popup_open',function(event,ui) {
 		$(this).dialog('option','title','Download Plugin');
 		
-		$frm = $('#frmCerb5PluginDownload');
+		$frm = $('#frmCerb6PluginDownload');
 		
 		$('#btnPluginDownload').click(function() {
 			$(this).hide();
 			genericAjaxGet('', 'c=config&a=handleSectionAction&section=plugin_library&action=saveDownloadPopup&plugin_id={$plugin->id}', function(json) {
-				$('#divCerb5PluginOutput').show();
+				$('#divCerb6PluginOutput').show();
 				
 				// [TODO] Errors, or success?
 				

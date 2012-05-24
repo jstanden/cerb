@@ -268,7 +268,7 @@ class View_CerbPlugin extends C4_AbstractView implements IAbstractView_Subtotals
 	
 		$this->id = self::DEFAULT_ID;
 
-		$this->name = $translate->_('Cerb5 Plugins');
+		$this->name = $translate->_('Cerb6 Plugins');
 		$this->renderLimit = 10;
 		$this->renderSortBy = SearchFields_CerbPlugin::ID;
 		$this->renderSortAsc = true;

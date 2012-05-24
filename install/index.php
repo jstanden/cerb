@@ -785,7 +785,7 @@ switch($step) {
 						$message->headers['date'] = date('r');
 						$message->headers['message-id'] = CerberusApplication::generateMessageId();
 						$message->body = <<< EOF
-Welcome to Cerberus Helpdesk 5.x (Cerb5)!
+Welcome to Cerb6!
 
 We automatically set up a few things for you during the installation process.
 
@@ -806,7 +806,7 @@ http://twitter.com/cerb5
 
 Thanks for your interest!
 ---
-The Cerb5 Team
+The Cerb6 Team
 WebGroup Media, LLC.
 http://www.cerberusweb.com/
 EOF;

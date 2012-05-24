@@ -129,9 +129,9 @@
 						{$requirements = json_decode($result.p_requirements_json, true)}
 						{$result.p_requirements_json}
 						{if isset($requirements.app_version.min) && $app_version < $requirements.app_version.min}
-							<div class="badge badge-lightgray" style="padding:3px;"><a href="javascript:;" style="color:rgb(120,0,0);font-weight:bold;text-decoration:none;">This plugin requires at least Cerb5 ({DevblocksPlatform::intVersionToStr($requirements.app_version.min)}) and you are running ({$smarty.const.APP_VERSION})</a></div>
+							<div class="badge badge-lightgray" style="padding:3px;"><a href="javascript:;" style="color:rgb(120,0,0);font-weight:bold;text-decoration:none;">This plugin requires at least Cerb ({DevblocksPlatform::intVersionToStr($requirements.app_version.min)}) and you are running ({$smarty.const.APP_VERSION})</a></div>
 						{elseif isset($requirements.app_version.max) && $app_version > $requirements.app_version.max}
-							<div class="badge badge-lightgray" style="padding:3px;"><a href="javascript:;" style="color:rgb(120,0,0);font-weight:bold;text-decoration:none;">This plugin was only tested through Cerb5 ({DevblocksPlatform::intVersionToStr($requirements.app_version.max)}) and you are running ({$smarty.const.APP_VERSION})</a></div>
+							<div class="badge badge-lightgray" style="padding:3px;"><a href="javascript:;" style="color:rgb(120,0,0);font-weight:bold;text-decoration:none;">This plugin was only tested through Cerb ({DevblocksPlatform::intVersionToStr($requirements.app_version.max)}) and you are running ({$smarty.const.APP_VERSION})</a></div>
 						{else}
 							<div class="badge badge-lightgray" style="padding:3px;"><a href="javascript:;" onclick="genericAjaxPopup('peek','c=config&a=handleSectionAction&section=plugin_library&action=showDownloadPopup&plugin_id={$result.p_id}&view_id={$view->id}',null,true,'550');" style="color:rgb(0,150,0);text-decoration:none;font-weight:bold;">Download and install &#x25be;</a></div>
 						{/if}

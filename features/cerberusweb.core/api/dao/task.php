@@ -270,7 +270,6 @@ class DAO_Task extends C4_ORMHelper {
 			"t.is_completed as %s, ".
 			"t.completed_date as %s, ".
 			"t.title as %s ",
-//			"o.name as %s ".
 			    SearchFields_Task::ID,
 			    SearchFields_Task::UPDATED_DATE,
 			    SearchFields_Task::DUE_DATE,

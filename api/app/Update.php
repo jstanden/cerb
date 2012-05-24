@@ -120,7 +120,7 @@ class ChUpdateController extends DevblocksControllerExtension {
 				@$u = $remuneration->upgrades;
 				
 			    if(!is_null($u) && $u < CerberusLicense::getReleaseDate(APP_VERSION)) {
-			    	$errors[] = sprintf("Your Cerb5 license coverage for major software updates expired on %s, and %s is not included.  Please <a href='%s' target='_blank'>renew your license</a>%s, <a href='%s'>remove your license</a> and enter Evaluation Mode (1 simultaneous worker), or <a href='%s' target='_blank'>download</a> an earlier version.",
+			    	$errors[] = sprintf("Your Cerb6 license coverage for major software updates expired on %s, and %s is not included.  Please <a href='%s' target='_blank'>renew your license</a>%s, <a href='%s'>remove your license</a> and enter Evaluation Mode (1 simultaneous worker), or <a href='%s' target='_blank'>download</a> an earlier version.",
 			    		gmdate("F d, Y",$u),
 			    		APP_VERSION,
 			    		'http://www.cerberusweb.com/buy',

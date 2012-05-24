@@ -23,7 +23,7 @@ class ChCoreTour extends DevblocksHttpResponseListenerExtension {
 			case 'welcome':
 				$tour = array(
 	                'title' => 'Welcome!',
-	                'body' => "This assistant will help you become familiar with the helpdesk by following along and providing information about the current page.  You may follow the 'Points of Interest' links highlighted below to read tips about nearby functionality.",
+	                'body' => "This assistant will help you become familiar with the application by following along and providing information about the current page.  You may follow the 'Points of Interest' links highlighted below to read tips about nearby functionality.",
 	                'callouts' => array(
 							new DevblocksTourCallout(
 								'body > ul.navmenu',
@@ -46,7 +46,7 @@ class ChCoreTour extends DevblocksHttpResponseListenerExtension {
 							new DevblocksTourCallout(
 								'body fieldset:nth(1)',
 								'Social',
-								'This resources will help you get the most out of Cerb5.',
+								'This resources will help you get the most out of Cerb6.',
 								'bottomLeft',
 								'topLeft',
 								20,
@@ -164,7 +164,7 @@ EOF
 					default:
 						$tour = array(
 	                        'title' => 'Setup',
-    	                    'body' => 'This page is where you configure and customize Cerb5.',
+    	                    'body' => 'This page is where you configure and customize Cerb6.',
 							'callouts' => array(
 								new DevblocksTourCallout(
 									'DIV.cerb-menu',
@@ -178,7 +178,7 @@ EOF
 								new DevblocksTourCallout(
 									'DIV.cerb-menu > UL > LI:nth(5)',
 									'Plugins',
-									'Use this menu to install and configure optional plugins that enhance Cerb5 functionality. You can also download third-party plugins from the community.',
+									'Use this menu to install and configure optional plugins that enhance Cerb6 functionality. You can also download third-party plugins from the community.',
 									'bottomLeft',
 									'topLeft',
 									20,
@@ -191,7 +191,7 @@ EOF
 					case 'branding':
 						$tour = array(
 	                        'title' => 'Logo & Title',
-    	                    'body' => 'This setup page provides options for personalizing your copy of Cerb5 with your own logo and browser title.',
+    	                    'body' => 'This setup page provides options for personalizing your copy of Cerb6 with your own logo and browser title.',
 						);
 						break;
 
@@ -212,7 +212,7 @@ EOF
 					case 'license':
 						$tour = array(
 	                        'title' => 'License',
-    	                    'body' => "This setup page manages your Cerb5 license.  If you don't have a license, one can be <a href='http://www.cerberusweb.com/buy' target='_blank'>purchased from the project website</a>.",
+    	                    'body' => "This setup page manages your Cerb6 license.  If you don't have a license, one can be <a href='http://www.cerberusweb.com/buy' target='_blank'>purchased from the project website</a>.",
 						);
 						break;
 						
@@ -254,7 +254,7 @@ EOF
 					case 'mail_pop3':
 						$tour = array(
 	                        'title' => 'POP3 Accounts',
-    	                    'body' => "Here is where you specify the mailboxes that should be checked for new mail to import into Cerb5.",
+    	                    'body' => "Here is where you specify the mailboxes that should be checked for new mail to import into Cerb6.",
 						);
 						break;
 						
@@ -282,7 +282,7 @@ EOF
 					case 'mail_from':
 						$tour = array(
 	                        'title' => 'Reply-To Addresses',
-    	                    'body' => "Each group or bucket can specify a reply-to address.  This is where you configure all the available reply-to email addresses.  It is <b>very important</b> that these addresses deliver to one of the mailboxes that Cerb5 checks for new mail, otherwise you won't receive correspondence from your audience.",
+    	                    'body' => "Each group or bucket can specify a reply-to address.  This is where you configure all the available reply-to email addresses.  It is <b>very important</b> that these addresses deliver to one of the mailboxes that Cerb6 checks for new mail, otherwise you won't receive correspondence from your audience.",
 						);
 						break;
 
@@ -324,7 +324,7 @@ EOF
 					case 'plugins':
 						$tour = array(
 	                        'title' => 'Manage Plugins',
-	                        'body' => "This is where you can extend Cerb5 by installing new functionality through plugins.",
+	                        'body' => "This is where you can extend Cerb6 by installing new functionality through plugins.",
 	                        'callouts' => array(
 							)
 						);
@@ -502,7 +502,7 @@ EOF
 			                'title' => 'My Profile',
 			                'body' =>
 <<< EOF
-Your profile is like your homepage within Cerb5.  It provides quick access to your notifications, activity history, virtual attendant, and watchlist.  You can also create your own custom workspaces.
+Your profile is like your homepage within Cerb6.  It provides quick access to your notifications, activity history, virtual attendant, and watchlist.  You can also create your own custom workspaces.
 EOF
 							,
 			                'callouts' => array(
@@ -517,7 +517,7 @@ EOF
 	                'title' => 'Reports',
 	                'body' =>
 <<< EOF
-This page helps you to run detailed reports about the metrics collected by Cerb5.
+This page helps you to run detailed reports about the metrics collected by Cerb6.
 EOF
 					,
 	                'callouts' => array(

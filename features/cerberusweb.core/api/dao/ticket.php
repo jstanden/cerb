@@ -2755,7 +2755,7 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		// Ticket token values
 		if(null != $ticket) {
 			$token_values['_loaded'] = true;
-			$token_values['_label'] = sprintf("#%s %s", $ticket->mask, $ticket->subject);
+			$token_values['_label'] = sprintf("[#%s] %s", $ticket->mask, $ticket->subject);
 			$token_values['created'] = $ticket->created_date;
 			$token_values['id'] = $ticket->id;
 			$token_values['mask'] = $ticket->mask;

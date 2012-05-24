@@ -134,7 +134,7 @@
 		
 		<extension point="usermeet.login.authenticator">
 			<id>sc.login.auth.default</id>
-			<name>Cerb5 (Default)</name>
+			<name>Cerb6 (Default)</name>
 			<class>
 				<file>api/UmScApp.php</file>
 				<name>UmScLoginAuthenticator</name>
