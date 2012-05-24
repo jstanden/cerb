@@ -251,10 +251,9 @@
 				</table>
 			</fieldset>
 			
+			{if !empty($custom_fields) || !empty($group_fields)}
 			<fieldset class="peek">
 				<legend>{'common.custom_fields'|devblocks_translate|capitalize}</legend>
-				
-				{if !empty($custom_fields) || !empty($group_fields)}
 				
 				{if !empty($draft) && !empty($draft->params.custom_fields)}
 					{$custom_field_values = $draft->params.custom_fields}
@@ -268,8 +267,8 @@
 						{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" custom_fields=$group_fields bulk=false}
 					</div>
 				</div>
-				{/if}
 			</fieldset>
+			{/if}
 		</td>
 	</tr>
 	<tr>
