@@ -403,7 +403,7 @@ class DAO_WorkspaceTab extends C4_ORMHelper {
 	    if($nocache || null === ($tabs = $cache->load(self::_CACHE_ALL))) {
     	    $tabs = self::getWhere(
     	    	null,
-    	    	DAO_WorkspaceTab::NAME,
+    	    	DAO_WorkspaceTab::POS,
     	    	true
 			);
     	    $cache->save($tabs, self::_CACHE_ALL);

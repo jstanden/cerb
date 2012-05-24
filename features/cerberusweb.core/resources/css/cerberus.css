@@ -590,7 +590,7 @@ TABLE.toggle_grid TR TD INPUT[type=checkbox] {
 
 /* Tour */
 
-DIV#tourDiv {
+DIV.help-box {
 	background-color:rgb(255,255,200);
 	background: linear-gradient(top, rgb(251,236,136), rgb(255,255,200));
 	background: -webkit-gradient(linear, left top, left bottom, from(rgb(251,236,136)), to(rgb(255,255,200)));
@@ -599,15 +599,33 @@ DIV#tourDiv {
 	background: -ms-linear-gradient(top, rgb(251,236,136), rgb(255,255,200));
 	border:1px solid rgb(215,115,15);
 	margin-bottom:10px;
+	
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	border-radius: 5px;
 }
 
-DIV#tourDiv H1 {
+DIV.help-box H1 {
 	color:rgb(215,115,15);
 }
 
-DIV#tourDiv A.callout {
+DIV.help-box P {
+	margin:0px 0px 5px 5px;
+}
+
+DIV.help-box A.callout {
 	font-weight:bold;
-	color:rgb(75,75,75);
+	color:rgb(50,50,50);
+}
+
+DIV.help-box SPAN.help.callout-worklist {
+	font-weight:bold;
+	color:white;
+	background-color:rgb(100,135,225);
+	padding:5px 10px;
+	border-radius:5px 5px 0px 0px;
+	-moz-border-radius:5px 5px 0px 0px;
+	-webkit-border-radius:5px 5px 0px 0px;
 }
 
 /* Divs */

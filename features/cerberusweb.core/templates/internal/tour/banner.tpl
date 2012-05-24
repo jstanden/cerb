@@ -1,5 +1,5 @@
 {if !empty($tour)}
-<div id="tourDiv">
+<div id="tourDiv" class="help-box">
 <table width="100%">
 	<tr>
 		<td align="left" width="10%" nowrap="nowrap"></td>
