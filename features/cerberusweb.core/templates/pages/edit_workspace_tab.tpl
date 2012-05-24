@@ -59,8 +59,17 @@
 </fieldset>
 {/if}
 
-<button type="button" onclick="genericAjaxPopupPostCloseReloadView(null,'frmEditWorkspaceTab','',false,'workspace_save');"><span class="cerb-sprite2 sprite-tick-circle"></span> {$translate->_('common.save_changes')}</button>
-{if !empty($workspace_tab)}<button type="button" onclick="if(!confirm('Are you sure you want to delete this tab?')) { return false; }; $('#frmEditWorkspaceTab').find('input:hidden[name=do_delete]').val('1');genericAjaxPopupPostCloseReloadView(null,'frmEditWorkspaceTab','',false,'workspace_delete');"><span class="cerb-sprite2 sprite-cross-circle"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+<fieldset class="delete" style="display:none;">
+	<legend>Are you sure you want to delete this workspace tab?</legend>
+	
+	<button type="button" class="red" onclick="$('#frmEditWorkspaceTab').find('input:hidden[name=do_delete]').val('1');genericAjaxPopupPostCloseReloadView(null,'frmEditWorkspaceTab','',false,'workspace_delete');">{'common.yes'|devblocks_translate|capitalize}</button>
+	<button type="button" onclick="$(this).closest('fieldset').fadeOut().siblings('div.toolbar').fadeIn();">{'common.no'|devblocks_translate|capitalize}</button>
+</fieldset>
+
+<div class="toolbar">
+	<button type="button" onclick="genericAjaxPopupPostCloseReloadView(null,'frmEditWorkspaceTab','',false,'workspace_save');"><span class="cerb-sprite2 sprite-tick-circle"></span> {$translate->_('common.save_changes')}</button>
+	{if !empty($workspace_tab)}<button type="button" onclick="$(this).closest('div.toolbar').fadeOut().siblings('fieldset.delete').fadeIn();"><span class="cerb-sprite2 sprite-cross-circle"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+</div>
 </form>
 
 <script type="text/javascript">
