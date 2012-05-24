@@ -1,3 +1,17 @@
+{if empty($list_ids)}
+<form action="#" onsubmit="return false;">
+<div class="help-box" style="padding:5px;border:0;">
+	<h1 style="margin-bottom:5px;text-align:left;">Let's put this space to good use</h1>
+	
+	<p>
+		You now have a blank tab.  You can click the  
+		<button type="button" onclick="$btn=$('#frmWorkspacePage{$page->id} button.edit-tab');$(this).effect('transfer', { to:$btn, className:'effects-transfer' }, 500, function() { $btn.effect('pulsate', {  times: 3 }); } );"><span class="cerb-sprite2 sprite-ui-tab-gear"></span> Edit Tab</button> 
+		button to display any number of worklists with the exact information you want. 
+	</p>
+</div>
+</form>
+{/if}
+
 <div id="divWorkspaceTab{$tab->id}"></div>
 
 <script type="text/javascript">
