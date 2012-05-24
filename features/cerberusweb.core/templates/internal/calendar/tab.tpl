@@ -64,7 +64,7 @@ $openEvtPopupEvent = function(e) {
 		event_id = $this.attr('event_id');
 	}
 
-	$popup = genericAjaxPopup('event','c=internal&a=showCalendarEventPopup&context={$context}&context_id={$context_id}&event_id=' + event_id,null,false,'600');
+	$popup = genericAjaxPopup('event','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_CALENDAR_EVENT}&context_id=' + event_id + '&owner_context={$context}&owner_context_id={$context_id}',null,false,'600');
 	
 	$popup.one('calendar_event_save', function(event) {
 		if(event.month && event.year) {

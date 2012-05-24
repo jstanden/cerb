@@ -706,7 +706,7 @@ class View_CalendarEvent extends C4_AbstractView implements IAbstractView_Subtot
 	}			
 };
 
-class Context_CalendarEvent extends Extension_DevblocksContext implements IDevblocksContextProfile {
+class Context_CalendarEvent extends Extension_DevblocksContext implements IDevblocksContextPeek, IDevblocksContextProfile {
 	function profileGetUrl($context_id) {
 		if(empty($context_id))
 			return '';
@@ -881,5 +881,41 @@ class Context_CalendarEvent extends Extension_DevblocksContext implements IDevbl
 		$view->renderTemplate = 'context';
 		C4_AbstractViewLoader::setView($view_id, $view);
 		return $view;
+	}
+
+	function renderPeekPopup($context_id=0, $view_id='') {
+		$tpl = DevblocksPlatform::getTemplateService();
+
+		// [TODO] Check calendar+event ownership
+		
+		if(!empty($context_id)) {
+			if(null != ($event = DAO_CalendarEvent::get($context_id))) {  /* @var $event Model_CalendarEvent */
+				$tpl->assign('event', $event);
+				
+				if(!empty($event->recurring_id)) {
+					if(null != ($recurring_profile = DAO_CalendarRecurringProfile::get($event->recurring_id))) {
+						$tpl->assign('recurring', $recurring_profile);
+					}
+				}
+			}
+		}
+		
+		if(empty($context_id) || is_null($event)) {
+			@$owner_context = DevblocksPlatform::importGPC($_REQUEST['owner_context'],'string');
+			@$owner_context_id = DevblocksPlatform::importGPC($_REQUEST['owner_context_id'],'integer');
+			
+			$tpl->assign('owner_context', $owner_context);
+			$tpl->assign('owner_context_id', $owner_context_id);
+			
+			$event = new Model_CalendarEvent();
+			$event->id = 0;
+			$event->owner_context = $owner_context;
+			$event->owner_context_id = $owner_context_id;
+			$event->is_available = 0;
+			$event->is_recurring = 0;
+			$tpl->assign('event', $event);
+		}
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/calendar/peek.tpl');
 	}
 };

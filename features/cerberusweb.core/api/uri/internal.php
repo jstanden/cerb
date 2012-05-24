@@ -3207,46 +3207,8 @@ class ChInternalController extends DevblocksControllerExtension {
 		$tpl->display('devblocks:cerberusweb.core::internal/calendar/tab.tpl');
 	}
 	
-	function showCalendarEventPopupAction() {
-		@$event_id = DevblocksPlatform::importGPC($_REQUEST['event_id'],'integer', 0);
-		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string');
-		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer');
-		
-		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('context', $context);
-		$tpl->assign('context_id', $context_id);
-
-		// [TODO] Check calendar+event ownership
-		
-		if(!empty($event_id)) {
-			if(null != ($event = DAO_CalendarEvent::get($event_id))) {  /* @var $event Model_CalendarEvent */
-				$tpl->assign('event', $event);
-				
-				if(!empty($event->recurring_id)) {
-					if(null != ($recurring_profile = DAO_CalendarRecurringProfile::get($event->recurring_id))) {
-						$tpl->assign('recurring', $recurring_profile);
-					}
-				}
-			}
-		}
-		
-		if(empty($event_id) || is_null($event)) {
-			$event = new Model_CalendarEvent();
-			$event->id = 0;
-			$event->owner_context = $context;
-			$event->owner_context_id = $context_id;
-			$event->is_available = 0;
-			$event->is_recurring = 0;
-			$tpl->assign('event', $event);
-		}
-		
-		$tpl->display('devblocks:cerberusweb.core::internal/calendar/peek.tpl');
-	}
-	
 	function saveCalendarEventPopupJsonAction() {
 		@$event_id = DevblocksPlatform::importGPC($_REQUEST['event_id'],'integer', 0);
-		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string');
-		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer');
 		@$name = DevblocksPlatform::importGPC($_REQUEST['name'],'string', '');
 		@$date_start = DevblocksPlatform::importGPC($_REQUEST['date_start'],'string', '');
 		@$date_end = DevblocksPlatform::importGPC($_REQUEST['date_end'],'string', '');
@@ -3255,6 +3217,11 @@ class ChInternalController extends DevblocksControllerExtension {
 		@$repeat_end = DevblocksPlatform::importGPC($_REQUEST['repeat_end'],'string', '');
 		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'],'integer', 0);
 
+		@$owner_context = DevblocksPlatform::importGPC($_REQUEST['owner_context'],'string');
+		@$owner_context_id = DevblocksPlatform::importGPC($_REQUEST['owner_context_id'],'integer');
+		
+		$active_worker = CerberusApplication::getActiveWorker();
+		
 		/*
 		 * [TODO] When deleting a recurring profile, ask about deleting its children (this/all)
 		 */
@@ -3285,6 +3252,11 @@ class ChInternalController extends DevblocksControllerExtension {
 		if(!empty($event_id)) {
 			if(null != ($event = DAO_CalendarEvent::get($event_id)))
 				$recurring_id = $event->recurring_id;
+		}
+		
+		if(empty($owner_context)) {
+			$owner_context = CerberusContexts::CONTEXT_WORKER;
+			$owner_context_id = $active_worker->id;
 		}
 		
 		// Delete
@@ -3362,8 +3334,8 @@ class ChInternalController extends DevblocksControllerExtension {
 					DAO_CalendarRecurringProfile::IS_AVAILABLE => (!empty($is_available)) ? 1 : 0,
 					DAO_CalendarRecurringProfile::DATE_START => $timestamp_start,
 					DAO_CalendarRecurringProfile::DATE_END => $timestamp_end,
-					DAO_CalendarRecurringProfile::OWNER_CONTEXT => $context,
-					DAO_CalendarRecurringProfile::OWNER_CONTEXT_ID => $context_id,
+					DAO_CalendarRecurringProfile::OWNER_CONTEXT => $owner_context,
+					DAO_CalendarRecurringProfile::OWNER_CONTEXT_ID => $owner_context_id,
 					DAO_CalendarRecurringProfile::PARAMS_JSON => json_encode($params),
 				);
 				$recurring_id = DAO_CalendarRecurringProfile::create($fields);
@@ -3418,8 +3390,8 @@ class ChInternalController extends DevblocksControllerExtension {
 							DAO_CalendarRecurringProfile::IS_AVAILABLE => (!empty($is_available)) ? 1 : 0,
 							DAO_CalendarRecurringProfile::DATE_START => $timestamp_start,
 							DAO_CalendarRecurringProfile::DATE_END => $timestamp_end,
-							DAO_CalendarRecurringProfile::OWNER_CONTEXT => $context,
-							DAO_CalendarRecurringProfile::OWNER_CONTEXT_ID => $context_id,
+							DAO_CalendarRecurringProfile::OWNER_CONTEXT => $owner_context,
+							DAO_CalendarRecurringProfile::OWNER_CONTEXT_ID => $owner_context_id,
 							DAO_CalendarRecurringProfile::PARAMS_JSON => json_encode($params),
 						);
 						$recurring_id = DAO_CalendarRecurringProfile::create($fields);
@@ -3462,8 +3434,8 @@ class ChInternalController extends DevblocksControllerExtension {
 		);
 		
 		if(empty($event_id)) {
-			$fields[DAO_CalendarEvent::OWNER_CONTEXT] = $context;
-			$fields[DAO_CalendarEvent::OWNER_CONTEXT_ID] = $context_id;
+			$fields[DAO_CalendarEvent::OWNER_CONTEXT] = $owner_context;
+			$fields[DAO_CalendarEvent::OWNER_CONTEXT_ID] = $owner_context_id;
 			$event_id = DAO_CalendarEvent::create($fields);
 		} else {
 			DAO_CalendarEvent::update($event_id, $fields);
