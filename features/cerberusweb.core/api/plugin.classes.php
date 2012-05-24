@@ -105,13 +105,16 @@ class ChPageController extends DevblocksControllerExtension {
 				$path = array('pages');				
 				
 				// Find the worker's first page
+				
 				if(null != ($menu_json = DAO_WorkerPref::get($active_worker->id, 'menu_json', null))) {
 					@$menu = json_decode($menu_json);
 
-					if(is_array($menu))
-						$path[] = current($menu);
+					if(is_array($menu) && !empty($menu)) {
+						$page_id = current($menu);
+						$path[] = $page_id;
+					}
 				}
-				
+
 				$response = new DevblocksHttpResponse($path);
 				
 				DevblocksPlatform::setHttpResponse($response);

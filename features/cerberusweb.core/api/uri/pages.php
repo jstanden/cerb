@@ -68,11 +68,17 @@ class Page_Custom extends CerberusPageExtension {
 		@array_shift($stack); // pages
 		@$page_uri = array_shift($stack);
 
+		$pages = DAO_WorkspacePage::getAll();
+		
+		$page_id = 0;
+		
 		if(intval($page_uri) > 0) {
 			$page_id = intval($page_uri);
 		}
 		
-		// [TODO] If empty, show the page selection link
+		if(!isset($pages[$page_id]))
+			$page_id = 0;
+		
 		if(empty($page_id)) {
 			$this->_renderIndex();
 			
@@ -445,6 +451,8 @@ class Page_Custom extends CerberusPageExtension {
 		
 		header('Content-type: application/json');
 
+		$pages = DAO_WorkspacePage::getAll();
+		
 		@$menu = json_decode(DAO_WorkerPref::get($active_worker->id, 'menu_json', json_encode(array())));
 		
 		if(!is_array($menu))
@@ -461,9 +469,16 @@ class Page_Custom extends CerberusPageExtension {
 					$menu[] = $page_id;
 				}
 				
-				DAO_WorkerPref::set($active_worker->id, 'menu_json', json_encode(array_values($menu)));
 			}
 		}
+		
+		// Remove dead links
+		foreach($menu as $idx => $page_id) {
+			if(!isset($pages[$page_id]))
+				unset($menu[$idx]);
+		}
+		
+		DAO_WorkerPref::set($active_worker->id, 'menu_json', json_encode(array_values($menu)));
 		
 		echo json_encode(array(
 			'success' => true,
