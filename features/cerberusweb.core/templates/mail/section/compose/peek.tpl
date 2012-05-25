@@ -111,11 +111,11 @@
 	</div>
 	
 	<div style="margin-top:10px;">
-		<label><input type="radio" name="closed" value="0" {if (empty($drafts) && 'open'==$defaults.status) || $draft->params.closed==0}checked="checked"{/if} onclick="toggleDiv('divComposeClosed','none');">{'status.open'|devblocks_translate}</label>
-		<label><input type="radio" name="closed" value="2" {if (empty($drafts) && 'waiting'==$defaults.status) || $draft->params.closed==2}checked="checked"{/if} onclick="toggleDiv('divComposeClosed','block');">{'status.waiting'|devblocks_translate}</label>
-		{if $active_worker->hasPriv('core.ticket.actions.close')}<label><input type="radio" name="closed" value="1" {if (empty($drafts) && 'closed'==$defaults.status) || $draft->params.closed==1}checked="checked"{/if} onclick="toggleDiv('divComposeClosed','block');">{'status.closed'|devblocks_translate}</label>{/if}
+		<label><input type="radio" name="closed" value="0" {if (empty($drafts) && 'open'==$defaults.status) || (!empty($draft) && $draft->params.closed==0)}checked="checked"{/if} onclick="toggleDiv('divComposeClosed','none');">{'status.open'|devblocks_translate}</label>
+		<label><input type="radio" name="closed" value="2" {if (empty($drafts) && 'waiting'==$defaults.status) || (!empty($draft) && $draft->params.closed==2)}checked="checked"{/if} onclick="toggleDiv('divComposeClosed','block');">{'status.waiting'|devblocks_translate}</label>
+		{if $active_worker->hasPriv('core.ticket.actions.close')}<label><input type="radio" name="closed" value="1" {if (empty($drafts) && 'closed'==$defaults.status) || (!empty($draft) && $draft->params.closed==1)}checked="checked"{/if} onclick="toggleDiv('divComposeClosed','block');">{'status.closed'|devblocks_translate}</label>{/if}
 		
-		<div id="divComposeClosed" style="display:{if (empty($drafts) && 'open'==$defaults.status) || $draft->params.closed==0}none{else}block{/if};margin-top:5px;margin-left:10px;">
+		<div id="divComposeClosed" style="display:{if (empty($drafts) && 'open'==$defaults.status) || (!empty($draft) && $draft->params.closed==0)}none{else}block{/if};margin-top:5px;margin-left:10px;">
 			<b>{$translate->_('display.reply.next.resume')}</b><br>
 			{$translate->_('display.reply.next.resume_eg')}<br> 
 			<input type="text" name="ticket_reopen" size="55" value="{$draft->params.ticket_reopen}"><br>
