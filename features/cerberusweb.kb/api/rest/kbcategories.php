@@ -49,7 +49,7 @@ class ChRest_KbCategories extends Extension_RestController implements IExtension
 	function deleteAction($stack) {
 		$worker = $this->getActiveWorker();
 
-		if(!$worker->hasPriv('core.kb.topics.modify'))
+		if(!$worker->hasPriv('core.kb.categories.modify'))
 			$this->error(self::ERRNO_ACL);
 
 		$id = array_shift($stack);

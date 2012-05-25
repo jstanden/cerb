@@ -3,7 +3,7 @@
 <input type="hidden" name="a" value="saveRss">
 <input type="hidden" name="id" value="">
 
-<fieldset>
+<fieldset class="peek">
 	<legend>RSS Notifications</legend>
 	
 	{foreach from=$feeds item=feed name=feeds}
@@ -18,6 +18,6 @@
 	{/foreach}
 </fieldset>
 
-<!-- <button type="submit"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {$translate->_('common.save_changes')}</button>  -->
+<!-- <button type="submit"><span class="cerb-sprite2 sprite-tick-circle"></span> {$translate->_('common.save_changes')}</button>  -->
 </form>
 

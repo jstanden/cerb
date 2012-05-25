@@ -5,7 +5,7 @@ include_once(DEVBLOCKS_PATH . "api/services/bootstrap/cache.php");
 include_once(DEVBLOCKS_PATH . "api/services/bootstrap/database.php");
 include_once(DEVBLOCKS_PATH . "api/services/bootstrap/classloader.php");
 
-define('PLATFORM_BUILD',2011120601);
+define('PLATFORM_BUILD',2012051201);
 
 /**
  * A platform container for plugin/extension registries.
@@ -102,7 +102,7 @@ class DevblocksPlatform extends DevblocksEngine {
 		$plugin->uninstall();
 		DevblocksPlatform::readPlugins();
     }
-    
+
 	/**
 	 * @param mixed $value
 	 * @param string $type
@@ -164,7 +164,7 @@ class DevblocksPlatform extends DevblocksEngine {
 	            $var = $magic_quotes ? stripslashes($var) : $var;
 	        } elseif(is_array($var)) {
 	        	if($magic_quotes)
-	        		array_walk_recursive($var, create_function('&$item, $key','if(!is_array($item)) $item = stripslashes($item);'));
+	        		array_walk_recursive($var, array('DevblocksPlatform','_stripMagicQuotes'));
 	        }
 	        
 	    } elseif (is_null($var) && !is_null($default)) {
@@ -177,6 +177,11 @@ class DevblocksPlatform extends DevblocksEngine {
 	    return $var;
 	}
 
+	static private function _stripMagicQuotes(&$item, $key) {
+		if(is_string($item))
+			$item = stripslashes($item);
+	}
+	
 	/**
 	 * Returns a string as a regexp. 
 	 * "*bob" returns "/(.*?)bob/".
@@ -341,10 +346,10 @@ class DevblocksPlatform extends DevblocksEngine {
 		
 		// Strip tags
 		$search = array(
+		    '@<![\s\S]*?--[ \t\n\r]*>@',
 			'@<script[^>]*?>.*?</script>@si',
 		    '@<style[^>]*?>.*?</style>@siU',
 		    '@<[\/\!]*?[^<>]*?>@si',
-		    '@<![\s\S]*?--[ \t\n\r]*>@',
 		);
 		$str = preg_replace($search, '', $str);
 		
@@ -797,20 +802,17 @@ class DevblocksPlatform extends DevblocksEngine {
 	 * @return boolean
 	 */
 	static function versionConsistencyCheck() {
-		$cache = DevblocksPlatform::getCacheService(); /* @var _DevblocksCacheManager $cache */ 
+		$cache = DevblocksPlatform::getCacheService(); /* @var _DevblocksCacheManager $cache */
 		
-		if(null === ($build_cache = $cache->load("devblocks_app_build"))
-			|| $build_cache != APP_BUILD) {
-				
-			// If build changed, clear cache regardless of patch status
-			// [TODO] We need to find a nicer way to not clear a shared memcached cluster when only one desk needs to
-			$cache = DevblocksPlatform::getCacheService(); /* @var $cache _DevblocksCacheManager */
-			$cache->clean();
-			
-			return false;
-		}
+		if(false !== ($build_version = @file_get_contents(APP_STORAGE_PATH . '/_version'))
+			&& $build_version == APP_BUILD)
+				return true;
+
+		// If build changed, clear cache regardless of patch status
+		$cache = DevblocksPlatform::getCacheService(); /* @var $cache _DevblocksCacheManager */
+		$cache->clean();
 		
-		return true;
+		return false;
 	}
 	
 	/**
@@ -949,7 +951,7 @@ class DevblocksPlatform extends DevblocksEngine {
 					if(is_array($extensions))
 					foreach($extensions as $id => $extension) {
 						// Ask the delegate if we should load the extension
-						if(!call_user_func(array(self::$extensionDelegate,'shouldLoadExtension'),$extension))
+						if(!call_user_func(array(self::$extensionDelegate,'shouldLoadExtension'), $extension))
 							unset($extensions[$id]);
 					}
 				}
@@ -1363,16 +1365,37 @@ class DevblocksPlatform extends DevblocksEngine {
 		return _DevblocksOpenIDManager::getInstance();
 	}
 	
-	static function sanitizeArray($array, $type) {
+	static function sanitizeArray($array, $type, $options=array()) {
+		if(!is_array($array))
+			return array();
+		
 		switch($type) {
 			case 'integer':
-				return _DevblocksSanitizationManager::arrayAs($array, 'integer');
+				$array = _DevblocksSanitizationManager::arrayAs($array, 'integer');
+				
+				if(is_array($options) && in_array('nonzero', $options)) {
+					foreach($array as $k => $v) {
+						if(empty($v))
+							unset($array[$k]);
+					}
+				}
+				
+				if(in_array('unique', $options)) {
+					$array = array_unique($array);
+				}
+				
+				return $array;
 				break;
+				
 			default:
 				break;
 		}
 		
 		return false;
+	}
+	
+	static function sortObjects(&$array, $on, $ascending=true) {
+		_DevblocksSortHelper::sortObjects($array, $on, $ascending);
 	}
 	
 	/**
@@ -1438,6 +1461,7 @@ class DevblocksPlatform extends DevblocksEngine {
 					$template->plugin_id = $tpl['plugin_id'];
 					$template->set = $tpl['set'];
 					$template->path = $tpl['path'];
+					$template->sort_key = $tpl['plugin_id'] . ' ' . $tpl['path'];
 					$templates[] = $template;
 				}
 			}
@@ -1618,6 +1642,9 @@ class DevblocksPlatform extends DevblocksEngine {
 	}
 	
 	static function shutdown() {
+		// Trigger changed context events
+		Extension_DevblocksContext::shutdownTriggerChangedContextsEvents();
+		
 		// Clean up any temporary files
 		while(null != ($tmpfile = array_pop(self::$_tmp_files))) {
 			@unlink($tmpfile);
@@ -1649,6 +1676,16 @@ class DevblocksPlatform extends DevblocksEngine {
 		session_write_close();
 		header('Location: '.$url);
 		exit;
+	}
+	
+	static function markContextChanged($context, $context_ids) {
+		if(empty($context_ids))
+			return;
+		
+		if(!is_array($context_ids))
+			$context_ids = array($context_ids);
+		
+		return Extension_DevblocksContext::markContextChanged($context, $context_ids);
 	}
 };
 

@@ -3,7 +3,8 @@
 
 {if !empty($scheduled_behavior)}
 <fieldset class="properties" style="color:rgb(100,100,100);">
-	<legend>Scheduled behavior</legend>
+	{$target_ext = DevblocksPlatform::getExtension($context, false)}
+	<legend>Upcoming scheduled behavior on this {$target_ext->name|lower}</legend>
 
 	<table cellpadding="3" cellspacing="2" border="0" width="100%">
 	{foreach from=$scheduled_behavior item=v key=k name=behaviors}
@@ -24,11 +25,12 @@
 				{$ext = Extension_DevblocksContext::get($behavior_context)}
 				{if !empty($ext)}
 					{$meta = $ext->getMeta($behavior_context_id)}
-					{$meta.name}
+					{$meta.name} 
+					({$ext->manifest->name|capitalize})
 				{/if}
 			</td>
 			<td valign="top" width="99%">
-				<a href="javascript:;" onclick="$popup=genericAjaxPopup('peek','c=internal&a=showMacroSchedulerPopup&job_id={$k}',this,true,'400');var $container=$(this).closest('fieldset').parent();$popup.one('behavior_save',function(e) { genericAjaxGet($container, 'c=internal&a=renderContextScheduledBehavior&context={$context}&context_id={$context_id}'); });">{$trigger_events.{$v->behavior_id}->title}</a>
+				<a href="javascript:;" onclick="$popup=genericAjaxPopup('peek','c=internal&a=showMacroSchedulerPopup&job_id={$k}',this,false,'500');var $container=$(this).closest('fieldset').parent();$popup.one('behavior_save',function(e) { genericAjaxGet($container, 'c=internal&a=renderContextScheduledBehavior&context={$context}&context_id={$context_id}'); });">{$trigger_events.{$v->behavior_id}->title}</a>
 			</td>
 		</tr>
 	{/foreach}

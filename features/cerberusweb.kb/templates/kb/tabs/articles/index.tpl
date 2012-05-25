@@ -1,41 +1,21 @@
-<table cellspacing="0" cellpadding="0" border="0" width="100%" style="padding-bottom:5px;">
-<tr>
-	<td width="1%" nowrap="nowrap" valign="top" style="padding-right:5px;">
-		<form name="compose" enctype="multipart/form-data" method="post" action="{devblocks_url}{/devblocks_url}">
-			<input type="hidden" name="c" value="kb.ajax">
-			<input type="hidden" name="a" value="">
+<form id="frmKbBrowseTab{$tab->id}" enctype="multipart/form-data" method="post" action="{devblocks_url}{/devblocks_url}">
+	<input type="hidden" name="c" value="kb.ajax">
+	<input type="hidden" name="a" value="">
 
-			{if $root_id}
-				{assign var=parent_id value=$categories.$root_id->parent_id}
-				{if $parent_id}
-					{if $active_worker->hasPriv('core.kb.categories.modify')}<button type="button" onclick="genericAjaxPopup('peek','c=kb.ajax&a=showKbCategoryEditPanel&id={$root_id}',null,false,'500');"><span class="cerb-sprite2 sprite-folder-gear"></span> Edit Category</button>{/if}
-				{else}
-					{if $active_worker->hasPriv('core.kb.topics.modify')}<button type="button" onclick="genericAjaxPopup('peek','c=kb.ajax&a=showTopicEditPanel&id={$root_id}',null,false,'500');"><span class="cerb-sprite2 sprite-folder-gear"></span> Edit Topic</button>{/if}
-				{/if}
-				{if $active_worker->hasPriv('core.kb.categories.modify')}<button type="button" onclick="genericAjaxPopup('peek','c=kb.ajax&a=showKbCategoryEditPanel&id=0&root_id={$root_id}',null,false,'500');"><span class="cerb-sprite sprite-folder_add"></span> Add Subcategory</button>{/if}
-			{else}
-				{if $active_worker->hasPriv('core.kb.topics.modify')}<button type="button" onclick="genericAjaxPopup('peek','c=kb.ajax&a=showTopicEditPanel&id=0',null,false,'500');"><span class="cerb-sprite sprite-folder_add"></span> Add Topic</button>{/if}
-			{/if}
+	{if $active_worker->hasPriv('core.kb.categories.modify')}
+		{$parent_id = 0}
+		{if $root_id}
+			{assign var=parent_id value=$categories.$root_id->parent_id}
+		{/if}
 			
-			{if $active_worker->hasPriv('core.kb.articles.modify')}<button type="button" onclick="genericAjaxPopup('peek','c=kb.ajax&a=showArticleEditPanel&id=0&root_id={$root_id}&view_id={$view->id}',null,false,'700');"><span class="cerb-sprite2 sprite-plus-circle-frame"></span> Add Article</button>{/if}
-		</form>
-	</td>
-	<td width="98%" valign="middle">
-	</td>
-	<td width="1%" nowrap="nowrap" valign="middle" align="right">
-		<form action="{devblocks_url}{/devblocks_url}" method="post">
-		<input type="hidden" name="c" value="kb.ajax">
-		<input type="hidden" name="a" value="doArticleQuickSearch">
-		<span><b>{$translate->_('common.search')|capitalize}:</b></span> <select name="type">
-			<option value="articles_all">Articles (all words)</option>
-			<option value="articles_phrase">Articles (phrase)</option>
-		</select><input type="text" name="query" class="input_search" size="24"><button type="submit">go!</button>
-		</form>
-	</td>
-</tr>
-</table>
+		{if !empty($root_id)}<button type="button" class="category_edit"><span class="cerb-sprite2 sprite-folder-gear"></span> Edit {if $parent_id}Category{else}Topic{/if}</button>{/if}
+		<button type="button" class="category_add"><span class="cerb-sprite sprite-folder_add"></span> Add {if empty($root_id)}Topic{else}Subcategory{/if}</button>
+			
+		<button type="button" onclick="genericAjaxPopup('peek','c=kb.ajax&a=showArticleEditPanel&id=0&root_id={$root_id}&view_id={$view->id}',null,false,'700');"><span class="cerb-sprite2 sprite-plus-circle"></span> Add Article</button>
+	{/if}
+</form>
 
-<fieldset>
+<fieldset style="margin-top:5px;">
 	<legend>
 		{if empty($root_id)}
 		Topics
@@ -45,10 +25,10 @@
 	</legend>
 	
 	<div style="padding-bottom:5px;">
-	<a href="{devblocks_url}c=kb{/devblocks_url}">Top</a> ::
+	<a href="javascript:;" onclick="genericAjaxGet('divWorkspaceTab{$tab->id}','c=pages&a=handleTabAction&tab={$tab_extension->id}&tab_id={$tab->id}&action=changeCategory&category_id=0');">Top</a> ::
 	{if !empty($breadcrumb)}
 		{foreach from=$breadcrumb item=bread_id}
-			<a href="{devblocks_url}c=kb&a=category&id={$bread_id}-{$categories.$bread_id->name|devblocks_permalink}{/devblocks_url}">{$categories.$bread_id->name}</a> :
+			<a href="javascript:;" onclick="genericAjaxGet('divWorkspaceTab{$tab->id}','c=pages&a=handleTabAction&tab={$tab_extension->id}&tab_id={$tab->id}&action=changeCategory&category_id={$bread_id}');">{$categories.$bread_id->name}</a> :
 		{/foreach} 
 	{/if}
 	</div>
@@ -60,12 +40,12 @@
 		<td width="50%" valign="top">
 		{foreach from=$tree.$root_id item=count key=cat_id name=kbcats}
 			<span class="cerb-sprite sprite-folder"></span>
-			<a href="{devblocks_url}c=kb&a=category&id={$cat_id}-{$categories.$cat_id->name|devblocks_permalink}{/devblocks_url}" style="font-weight:bold;">{$categories.$cat_id->name}</a> ({$count|string_format:"%d"})<br>
+			<a href="javascript:;" onclick="genericAjaxGet('divWorkspaceTab{$tab->id}','c=pages&a=handleTabAction&tab={$tab_extension->id}&tab_id={$tab->id}&action=changeCategory&category_id={$cat_id}');" style="font-weight:bold;">{$categories.$cat_id->name}</a> ({$count|string_format:"%d"})<br>
 		
 			{if !empty($tree.$cat_id)}
 				&nbsp; &nbsp; 
 				{foreach from=$tree.$cat_id item=count key=child_id name=subcats}
-					 <a href="{devblocks_url}c=kb&a=category&id={$child_id}-{$categories.$child_id->name|devblocks_permalink}{/devblocks_url}">{$categories.$child_id->name}</a>{if !$smarty.foreach.subcats.last}, {/if}
+					 <a href="javascript:;" onclick="genericAjaxGet('divWorkspaceTab{$tab->id}','c=pages&a=handleTabAction&tab={$tab_extension->id}&tab_id={$tab->id}&action=changeCategory&category_id={$child_id}');">{$categories.$child_id->name}</a>{if !$smarty.foreach.subcats.last}, {/if}
 				{/foreach}
 				<br>
 			{/if}
@@ -84,4 +64,34 @@
 
 {include file="devblocks:cerberusweb.core::internal/views/search_and_view.tpl" view=$view}
 
-{include file="devblocks:cerberusweb.core::internal/views/view_workflow_keyboard_shortcuts.tpl" view=$view}
+<script type="text/javascript">
+$frm = $('#frmKbBrowseTab{$tab->id}');
+
+$frm.find('button.category_add').click(function(e) {
+	$popup = genericAjaxPopup('peek','c=kb.ajax&a=showKbCategoryEditPanel&root_id={$root_id}',null,false,'500');
+	
+	$popup.one('kb_category_save', function(e) {
+		category_id = 0;
+		
+		if(null != e.id) {
+			category_id = e.id;
+		}
+		
+		genericAjaxGet('divWorkspaceTab{$tab->id}','c=pages&a=handleTabAction&tab={$tab_extension->id}&tab_id={$tab->id}&action=changeCategory&category_id=' + category_id);
+	});
+});
+
+$frm.find('button.category_edit').click(function(e) {
+	$popup = genericAjaxPopup('peek','c=kb.ajax&a=showKbCategoryEditPanel&id={$root_id}',null,false,'500');
+	
+	$popup.one('kb_category_save', function(e) {
+		category_id = 0;
+		
+		if(null != e.id) {
+			category_id = e.id;
+		}
+		
+		genericAjaxGet('divWorkspaceTab{$tab->id}','c=pages&a=handleTabAction&tab={$tab_extension->id}&tab_id={$tab->id}&action=changeCategory&category_id=' + category_id);
+	});
+});
+</script>

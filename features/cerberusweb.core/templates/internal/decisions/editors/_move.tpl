@@ -21,7 +21,7 @@
 	
 </fieldset>
 
-<button type="button" onclick="genericAjaxPost('frmDecisionNodeMove','','',function() { window.location.reload(); });"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+<button type="button" onclick="genericAjaxPost('frmDecisionNodeMove','','',function() { window.location.reload(); });"><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
 </form>
 
 <script type="text/javascript">

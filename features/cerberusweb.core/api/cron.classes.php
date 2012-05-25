@@ -56,9 +56,24 @@ class ParseCron extends CerberusCronPageExtension {
 		if ($subdirs === false) $subdirs = array();
 		$subdirs[] = $mailDir; // Add our root directory last
 
+		$archivePath = sprintf("%sarchive/%04d/%02d/%02d/",
+			APP_MAIL_PATH,
+			date('Y'),
+			date('m'),
+			date('d')
+		);
+		
+		if(defined('DEVELOPMENT_ARCHIVE_PARSER_MSGSOURCE') && DEVELOPMENT_ARCHIVE_PARSER_MSGSOURCE) {
+			if(!file_exists($archivePath) && is_writable(APP_MAIL_PATH)) {
+				if(false === mkdir($archivePath, 0755, true)) {
+					$logger->error("[Parser] Can't write to the archive path: ". $archivePath. " ...skipping copy");
+				}
+			}
+		}
+		
 		foreach($subdirs as $subdir) {
 			if(!is_writable($subdir)) {
-				$logger->error('[Parser] Write permission error, unable parse messages inside: '. $subdir. "...skipping");
+				$logger->error('[Parser] Write permission error, unable parse messages inside: '. $subdir. " ...skipping");
 				continue;
 			}
 
@@ -66,10 +81,21 @@ class ParseCron extends CerberusCronPageExtension {
 			 
 			foreach($files as $file) {
 				$filePart = basename($file);
-				$parseFile = APP_MAIL_PATH . 'fail' . DIRECTORY_SEPARATOR . $filePart;
+
+				if(defined('DEVELOPMENT_ARCHIVE_PARSER_MSGSOURCE') && DEVELOPMENT_ARCHIVE_PARSER_MSGSOURCE) {
+					if(!copy($file, $archivePath.$filePart)) {
+						//...
+					}
+				}
+				
+				$parseFile = sprintf("%s/fail/%s",
+					APP_MAIL_PATH,
+					$filePart
+				);
 				rename($file, $parseFile);
+				
 				$this->_parseFile($parseFile);
-				//				flush();
+
 				if(--$total <= 0) break;
 			}
 			if($total <= 0) break;
@@ -1297,12 +1323,15 @@ class Cron_VirtualAttendantScheduledBehavior extends CerberusCronPageExtension {
 		$stop_time = time() + 20; // [TODO] Make configurable
 
 		$logger->info("Starting...");
+		$last_behavior_id = 0;
 
 		do {
 			$behaviors = DAO_ContextScheduledBehavior::getWhere(
-				sprintf("%s < %d",
+				sprintf("%s < %d AND %s > %d",
 					DAO_ContextScheduledBehavior::RUN_DATE,
-					time()
+					time(),
+					DAO_ContextScheduledBehavior::ID,
+					$last_behavior_id
 				),
 				array(DAO_ContextScheduledBehavior::RUN_DATE),
 				array(true),
@@ -1335,28 +1364,29 @@ class Cron_VirtualAttendantScheduledBehavior extends CerberusCronPageExtension {
 						// Load event manifest
 						if(null == ($ext = DevblocksPlatform::getExtension($macro->event_point, false))) /* @var $ext DevblocksExtensionManifest */
 							throw new Exception("Invalid event.");
-					
-						// We delete it first so it's not included in rescheduling behavior
-						DAO_ContextScheduledBehavior::delete($behavior->id);
-						
+
 						// Execute
-						call_user_func(array($ext->class, 'trigger'), $macro->id, $behavior->context_id, $behavior->variables);
-							
+						$behavior->run();
+
+						// Log
 						$logger->info(sprintf("Executed behavior %d", $behavior->id));
 						
 					} catch (Exception $e) {
 						$logger->error(sprintf("Failed executing behavior %d: %s", $behavior->id, $e->getMessage()));
+
+						DAO_ContextScheduledBehavior::delete($behavior->id);
 					}
+					
+					$last_behavior_id = $behavior->id;
 				}
 			}
+			
 		} while(!empty($behaviors) && $stop_time > time());
 
 		$logger->info("Total Runtime: ".number_format((microtime(true)-$runtime)*1000,2)." ms");
 	}
 
 	function configure($instance) {
-		//$tpl = DevblocksPlatform::getTemplateService();
-		//$tpl->display('devblocks:cerberusweb.core::cron/scheduled_behavior/config.tpl');
 	}
 };
 
@@ -1382,18 +1412,29 @@ class SearchCron extends CerberusCronPageExtension {
 	}
 	
 	function configure($instance) {
-		$tpl = DevblocksPlatform::getTemplateService();
-		
-//		$timeout = ini_get('max_execution_time');
-//		$tpl->assign('max_messages', $this->getParam('max_messages', (($timeout) ? 20 : 50)));
+	}
+};
 
-		//$tpl->display('devblocks:cerberusweb.core::cron/storage/config.tpl');
+class Cron_CalendarRecurringEventScheduler extends CerberusCronPageExtension {
+	function run() {
+		$logger = DevblocksPlatform::getConsoleLog();
+		$runtime = microtime(true);
+		
+		$logger->info("[Calendar Recurring] Starting...");
+
+		// [TODO] Cache
+		$recurring_events = DAO_CalendarRecurringProfile::getWhere();
+
+		// Run through every calendar recurring profile
+		foreach($recurring_events as $recurring) { /* @var $recurring Model_CalendarRecurringProfile */
+			//var_dump($recurring->date_start);
+			// [TODO] We need to stop when the limit is reached too (not end date)
+			$recurring->createRecurringEvents(strtotime("tomorrow", $recurring->date_start));
+		}
+		
+		$logger->info("[Calendar Recurring] Total Runtime: ".number_format((microtime(true)-$runtime)*1000,2)." ms");
 	}
 	
-	function saveConfigurationAction() {
-//		@$max_messages = DevblocksPlatform::importGPC($_POST['max_messages'],'integer');
-//		$this->setParam('max_messages', $max_messages);
-		
-		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','jobs')));
+	function configure($instance) {
 	}
 };

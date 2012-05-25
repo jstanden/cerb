@@ -85,11 +85,41 @@ abstract class AbstractEvent_Address extends Extension_DevblocksEvent {
 		$this->setValues($values);		
 	}
 	
+	function getValuesContexts($trigger) {
+		$vals = array(
+			'email_id' => array(
+				'label' => 'Email',
+				'context' => CerberusContexts::CONTEXT_ADDRESS,
+			),
+			'email_org_id' => array(
+				'label' => 'Org',
+				'context' => CerberusContexts::CONTEXT_ORG,
+			),
+			'email_org_watchers' => array(
+				'label' => 'Org watchers',
+				'context' => CerberusContexts::CONTEXT_WORKER,
+			),
+			'email_watchers' => array(
+				'label' => 'Email watchers',
+				'context' => CerberusContexts::CONTEXT_WORKER,
+			),
+		);
+		
+		$vars = parent::getValuesContexts($trigger);
+		
+		$vals_to_ctx = array_merge($vals, $vars);
+		asort($vals_to_ctx);
+		
+		return $vals_to_ctx;
+	}
+	
 	function getConditionExtensions() {
 		$labels = $this->getLabels();
 		
 		$labels['email_link'] = 'Email is linked';
 		$labels['email_org_link'] = 'Org is linked';
+		$labels['email_org_watcher_count'] = 'Org watcher count';
+		$labels['email_watcher_count'] = 'Email watcher count';
 		
 		$types = array(
 			'email_address' => Model_CustomField::TYPE_SINGLE_LINE,
@@ -112,6 +142,9 @@ abstract class AbstractEvent_Address extends Extension_DevblocksEvent {
 			
 			'email_link' => null,
 			'email_org_link' => null,
+			
+			'email_org_watcher_count' => null,
+			'email_watcher_count' => null,
 		);
 
 		$conditions = $this->_importLabelsTypesAsConditions($labels, $types);
@@ -133,13 +166,18 @@ abstract class AbstractEvent_Address extends Extension_DevblocksEvent {
 				$tpl->assign('contexts', $contexts);
 				$tpl->display('devblocks:cerberusweb.core::events/condition_link.tpl');
 				break;
+				
+			case 'email_org_watcher_count':
+			case 'email_watcher_count':
+				$tpl->display('devblocks:cerberusweb.core::internal/decisions/conditions/_number.tpl');
+				break;
 		}
 
 		$tpl->clearAssign('namePrefix');
 		$tpl->clearAssign('params');
 	}
 	
-	function runConditionExtension($token, $trigger, $params, $values) {
+	function runConditionExtension($token, $trigger, $params, DevblocksDictionaryDelegate $dict) {
 		$pass = true;
 		
 		switch($token) {
@@ -154,11 +192,11 @@ abstract class AbstractEvent_Address extends Extension_DevblocksEvent {
 				switch($token) {
 					case 'email_link':
 						$from_context = CerberusContexts::CONTEXT_ADDRESS;
-						@$from_context_id = $values['email_id'];
+						@$from_context_id = $dict->email_id;
 						break;
 					case 'email_org_link':
 						$from_context = CerberusContexts::CONTEXT_ORG;
-						@$from_context_id = $values['email_org_id'];
+						@$from_context_id = $dict->email_org_id;
 						break;
 					default:
 						$pass = false;
@@ -188,6 +226,35 @@ abstract class AbstractEvent_Address extends Extension_DevblocksEvent {
 				}
 				
 				$pass = ($not) ? !$pass : $pass;				
+				break;
+				
+			case 'email_org_watcher_count':
+			case 'email_watcher_count':
+				$not = (substr($params['oper'],0,1) == '!');
+				$oper = ltrim($params['oper'],'!');
+
+				switch($token) {
+					case 'email_org_watcher_count':
+						$value = count($dict->email_org_watchers);
+						break;
+					default:
+						$value = count($dict->email_watchers);
+						break;
+				}
+				
+				switch($oper) {
+					case 'is':
+						$pass = intval($value)==intval($params['value']);
+						break;
+					case 'gt':
+						$pass = intval($value) > intval($params['value']);
+						break;
+					case 'lt':
+						$pass = intval($value) < intval($params['value']);
+						break;
+				}
+				
+				$pass = ($not) ? !$pass : $pass;
 				break;
 				
 			default:
@@ -230,27 +297,23 @@ abstract class AbstractEvent_Address extends Extension_DevblocksEvent {
 			
 		switch($token) {
 			case 'add_watchers':
-				DevblocksEventHelper::renderActionAddWatchers();
+				DevblocksEventHelper::renderActionAddWatchers($trigger);
 				break;
 			
-			case 'send_email':
-				DevblocksEventHelper::renderActionSendEmail();
-				break;
-				
 			case 'create_comment':
-				DevblocksEventHelper::renderActionCreateComment();
+				DevblocksEventHelper::renderActionCreateComment($trigger);
 				break;
 				
 			case 'create_notification':
-				DevblocksEventHelper::renderActionCreateNotification();
+				DevblocksEventHelper::renderActionCreateNotification($trigger);
 				break;
 				
 			case 'create_task':
-				DevblocksEventHelper::renderActionCreateTask();
+				DevblocksEventHelper::renderActionCreateTask($trigger);
 				break;
 				
 			case 'create_ticket':
-				DevblocksEventHelper::renderActionCreateTicket();
+				DevblocksEventHelper::renderActionCreateTicket($trigger);
 				break;
 				
 			case 'schedule_behavior':
@@ -262,18 +325,22 @@ abstract class AbstractEvent_Address extends Extension_DevblocksEvent {
 				}
 				$tpl->assign('dates', $dates);
 			
-				DevblocksEventHelper::renderActionScheduleBehavior($trigger->owner_context, $trigger->owner_context_id, $this->_event_id);
+				DevblocksEventHelper::renderActionScheduleBehavior($trigger);
 				break;
-				
-			case 'unschedule_behavior':
-				DevblocksEventHelper::renderActionUnscheduleBehavior($trigger->owner_context, $trigger->owner_context_id, $this->_event_id);
+
+			case 'send_email':
+				DevblocksEventHelper::renderActionSendEmail($trigger);
 				break;
-				
+
 			case 'set_email_links':
 			case 'set_email_org_links':
 				$contexts = Extension_DevblocksContext::getAll(false);
 				$tpl->assign('contexts', $contexts);
 				$tpl->display('devblocks:cerberusweb.core::events/action_set_links.tpl');
+				break;
+				
+			case 'unschedule_behavior':
+				DevblocksEventHelper::renderActionUnscheduleBehavior($trigger);
 				break;
 				
 			default:
@@ -290,43 +357,96 @@ abstract class AbstractEvent_Address extends Extension_DevblocksEvent {
 		$tpl->clearAssign('token_labels');		
 	}
 	
-	function runActionExtension($token, $trigger, $params, &$values) {
-		@$address_id = $values['email_id'];
+	function simulateActionExtension($token, $trigger, $params, DevblocksDictionaryDelegate $dict) {
+		@$address_id = $dict->email_id;
 
 		if(empty($address_id))
 			return;
 		
 		switch($token) {
 			case 'add_watchers':
-				DevblocksEventHelper::runActionAddWatchers($params, $values, CerberusContexts::CONTEXT_ADDRESS, $address_id);
+				return DevblocksEventHelper::simulateActionAddWatchers($params, $dict, 'email_id');
+				break;
+			case 'create_comment':
+				return DevblocksEventHelper::simulateActionCreateComment($params, $dict, 'email_id');
+				break;
+			case 'create_notification':
+				return DevblocksEventHelper::simulateActionCreateNotification($params, $dict, 'email_id');
+				break;
+			case 'create_task':
+				return DevblocksEventHelper::simulateActionCreateTask($params, $dict, 'email_id');
+				break;
+			case 'create_ticket':
+				return DevblocksEventHelper::simulateActionCreateTicket($params, $dict);
+				break;
+			case 'schedule_behavior':
+				return DevblocksEventHelper::simulateActionScheduleBehavior($params, $dict);
+				break;
+			case 'send_email':
+				return DevblocksEventHelper::simulateActionSendEmail($params, $dict);
+				break;
+			case 'unschedule_behavior':
+				return DevblocksEventHelper::simulateActionUnscheduleBehavior($params, $dict);
+				break;
+			default:
+				if('set_cf_' == substr($token,0,7)) {
+					$field_id = substr($token,7);
+					$custom_field = DAO_CustomField::get($field_id);
+					$context = null;
+					$context_id = null;
+					
+					// If different types of custom fields, need to find the proper context_id
+					switch($custom_field->context) {
+						case CerberusContexts::CONTEXT_ADDRESS:
+							$context = $custom_field->context;
+							$context_id = $address_id;
+							break;
+					}
+					
+					if(!empty($context) && !empty($context_id))
+						return DevblocksEventHelper::simulateActionSetCustomField($custom_field, 'email_custom', $params, $dict, $context, $context_id);
+				}
+				break;
+		}
+	}
+	
+	function runActionExtension($token, $trigger, $params, DevblocksDictionaryDelegate $dict) {
+		@$address_id = $dict->email_id;
+
+		if(empty($address_id))
+			return;
+		
+		switch($token) {
+			case 'add_watchers':
+				DevblocksEventHelper::runActionAddWatchers($params, $dict, 'email_id');
 				break;
 			
-			case 'send_email':
-				DevblocksEventHelper::runActionSendEmail($params, $values);
-				break;
-				
 			case 'create_comment':
-				DevblocksEventHelper::runActionCreateComment($params, $values, CerberusContexts::CONTEXT_ADDRESS, $address_id);
+				DevblocksEventHelper::runActionCreateComment($params, $dict, 'email_id');
 				break;
 				
 			case 'create_notification':
-				DevblocksEventHelper::runActionCreateNotification($params, $values, CerberusContexts::CONTEXT_ADDRESS, $address_id);
+				DevblocksEventHelper::runActionCreateNotification($params, $dict, 'email_id');
 				break;
 				
 			case 'create_task':
-				DevblocksEventHelper::runActionCreateTask($params, $values, CerberusContexts::CONTEXT_ADDRESS, $address_id);
+				DevblocksEventHelper::runActionCreateTask($params, $dict, 'email_id');
 				break;
 
 			case 'create_ticket':
-				DevblocksEventHelper::runActionCreateTicket($params, $values, CerberusContexts::CONTEXT_ADDRESS, $address_id);
+				DevblocksEventHelper::runActionCreateTicket($params, $dict);
 				break;
 				
 			case 'schedule_behavior':
-				DevblocksEventHelper::runActionScheduleBehavior($params, $values, CerberusContexts::CONTEXT_ADDRESS, $address_id);
+				DevblocksEventHelper::runActionScheduleBehavior($params, $dict);
+				break;
+
+			case 'send_email':
+				DevblocksEventHelper::runActionSendEmail($params, $dict);
 				break;
 				
 			case 'unschedule_behavior':
-				DevblocksEventHelper::runActionUnscheduleBehavior($params, $values, CerberusContexts::CONTEXT_ADDRESS, $address_id);
+				DevblocksEventHelper::runActionUnscheduleBehavior($params, $dict);
 				break;
 				
 			case 'set_email_links':
@@ -342,11 +462,11 @@ abstract class AbstractEvent_Address extends Extension_DevblocksEvent {
 				switch($token) {
 					case 'set_email_links':
 						$from_context = CerberusContexts::CONTEXT_ADDRESS;
-						@$from_context_id = $values['email_id'];
+						@$from_context_id = $dict->email_id;
 						break;
 					case 'set_email_org_links':
 						$from_context = CerberusContexts::CONTEXT_ORG;
-						@$from_context_id = $values['email_org_id'];
+						@$from_context_id = $dict->email_org_id;
 						break;
 				}
 				
@@ -379,7 +499,7 @@ abstract class AbstractEvent_Address extends Extension_DevblocksEvent {
 					}
 					
 					if(!empty($context) && !empty($context_id))
-						DevblocksEventHelper::runActionSetCustomField($custom_field, 'email_custom', $params, $values, $context, $context_id);
+						DevblocksEventHelper::runActionSetCustomField($custom_field, 'email_custom', $params, $dict, $context, $context_id);
 				}
 				break;	
 		}

@@ -8,10 +8,6 @@
  * file that was distributed with this source code.
  */
 
-//@require 'Swift/Mime/HeaderSet.php';
-//@require 'Swift/OutputByteStream.php';
-//@require 'Swift/Mime/ContentEncoder.php';
-//@require 'Swift/KeyCache.php';
 
 /**
  * A MIME entity, in a multipart message.
@@ -30,6 +26,9 @@ class Swift_Mime_SimpleMimeEntity implements Swift_Mime_MimeEntity
   
   /** The encoder that encodes the body into a streamable format */
   private $_encoder;
+
+  /** The grammar to use for id validation */
+  private $_grammar;
   
   /** A mime bounary, if any is used */
   private $_boundary;
@@ -79,13 +78,16 @@ class Swift_Mime_SimpleMimeEntity implements Swift_Mime_MimeEntity
    * @param Swift_Mime_HeaderSet $headers
    * @param Swift_Mime_ContentEncoder $encoder
    * @param Swift_KeyCache $cache
+   * @param Swift_Mime_Grammar $grammar
    */
   public function __construct(Swift_Mime_HeaderSet $headers,
-    Swift_Mime_ContentEncoder $encoder, Swift_KeyCache $cache)
+    Swift_Mime_ContentEncoder $encoder, Swift_KeyCache $cache,
+    Swift_Mime_Grammar $grammar)
   {
     $this->_cacheKey = uniqid();
     $this->_cache = $cache;
     $this->_headers = $headers;
+    $this->_grammar = $grammar;
     $this->setEncoder($encoder);
     $this->_headers->defineOrdering(
       array('Content-Type', 'Content-Transfer-Encoding')
@@ -157,6 +159,7 @@ class Swift_Mime_SimpleMimeEntity implements Swift_Mime_MimeEntity
   /**
    * Set the Content-type of this entity.
    * @param string $type
+   * @return Swift_Mime_SimpleMimeEntity
    */
   public function setContentType($type)
   {
@@ -182,6 +185,7 @@ class Swift_Mime_SimpleMimeEntity implements Swift_Mime_MimeEntity
   /**
    * Set the CID of this entity.
    * @param string $id
+   * @return Swift_Mime_SimpleMimeEntity
    */
   public function setId($id)
   {
@@ -207,6 +211,7 @@ class Swift_Mime_SimpleMimeEntity implements Swift_Mime_MimeEntity
    * Set the description of this entity.
    * This method sets a value in the Content-ID header.
    * @param string $description
+   * @return Swift_Mime_SimpleMimeEntity
    */
   public function setDescription($description)
   {
@@ -230,6 +235,7 @@ class Swift_Mime_SimpleMimeEntity implements Swift_Mime_MimeEntity
    * Set the maximum line length of lines in this body.
    * Though not enforced by the library, lines should not exceed 1000 chars.
    * @param int $length
+   * @return Swift_Mime_SimpleMimeEntity
    */
   public function setMaxLineLength($length)
   {
@@ -250,6 +256,7 @@ class Swift_Mime_SimpleMimeEntity implements Swift_Mime_MimeEntity
    * Set all children of this entity.
    * @param array $children Swiift_Mime_Entity instances
    * @param int $compoundLevel For internal use only
+   * @return Swift_Mime_SimpleMimeEntity
    */
   public function setChildren(array $children, $compoundLevel = null)
   {
@@ -343,6 +350,7 @@ class Swift_Mime_SimpleMimeEntity implements Swift_Mime_MimeEntity
    * {@link Swift_OutputByteStream}.
    * @param mixed $body
    * @param string $contentType optional
+   * @return Swift_Mime_SimpleMimeEntity
    */
   public function setBody($body, $contentType = null)
   {
@@ -371,6 +379,7 @@ class Swift_Mime_SimpleMimeEntity implements Swift_Mime_MimeEntity
   /**
    * Set the encoder used for the body of this entity.
    * @param Swift_Mime_ContentEncoder $encoder
+   * @return Swift_Mime_SimpleMimeEntity
    */
   public function setEncoder(Swift_Mime_ContentEncoder $encoder)
   {
@@ -402,6 +411,7 @@ class Swift_Mime_SimpleMimeEntity implements Swift_Mime_MimeEntity
    * Set the boundary used to separate children in this entity.
    * @param string $boundary
    * @throws Swift_RfcComplianceException
+   * @return Swift_Mime_SimpleMimeEntity
    */
   public function setBoundary($boundary)
   {
@@ -632,6 +642,15 @@ class Swift_Mime_SimpleMimeEntity implements Swift_Mime_MimeEntity
   }
   
   /**
+   * Get the grammar used for validation.
+   * @return Swift_Mime_Grammar
+   */
+  protected function _getGrammar()
+  {
+    return $this->_grammar;
+  }
+  
+  /**
    * Empty the KeyCache for this entity.
    */
   protected function _clearCache()
@@ -649,7 +668,18 @@ class Swift_Mime_SimpleMimeEntity implements Swift_Mime_MimeEntity
     $idRight = !empty($_SERVER['SERVER_NAME'])
       ? $_SERVER['SERVER_NAME']
       : 'swift.generated';
-    return $idLeft . '@' . $idRight;
+    $id = $idLeft . '@' . $idRight;
+
+    try
+    {
+      $this->_assertValidId($id);
+    }
+    catch (Swift_RfcComplianceException $e)
+    {
+      $id = $idLeft . '@swift.generated';
+    }
+
+    return $id;
   }
   
   // -- Private methods
@@ -733,7 +763,7 @@ class Swift_Mime_SimpleMimeEntity implements Swift_Mime_MimeEntity
   private function _createChild()
   {
     return new self($this->_headers->newInstance(),
-      $this->_encoder, $this->_cache);
+      $this->_encoder, $this->_cache, $this->_grammar);
   }
   
   private function _notifyEncoderChanged(Swift_Mime_ContentEncoder $encoder)
@@ -798,6 +828,25 @@ class Swift_Mime_SimpleMimeEntity implements Swift_Mime_MimeEntity
   public function __destruct()
   {
     $this->_cache->clearAll($this->_cacheKey);
+  }
+  
+  /**
+   * Throws an Exception if the id passed does not comply with RFC 2822.
+   * @param string $id
+   * @throws Swift_RfcComplianceException
+   */
+  private function _assertValidId($id)
+  {
+    if (!preg_match(
+      '/^' . $this->_grammar->getDefinition('id-left') . '@' .
+      $this->_grammar->getDefinition('id-right') . '$/D',
+      $id
+      ))
+    {
+      throw new Swift_RfcComplianceException(
+        'Invalid ID given <' . $id . '>'
+        );
+    }
   }
   
 }

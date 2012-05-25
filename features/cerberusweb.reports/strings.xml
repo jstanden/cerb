@@ -188,23 +188,12 @@
 			<tuv xml:lang="en_US"><seg>Ticket Reports</seg></tuv>
 		</tu>
 
-		<tu tuid='reports.ui.ticket.assignment'>
-			<tuv xml:lang="en_US"><seg>Current Ticket Assignments</seg></tuv>
-		</tu>
 		<tu tuid='reports.ui.ticket.closed'>
 			<tuv xml:lang="en_US"><seg>Closed Tickets by Group over Date Range</seg></tuv>
 		</tu>
 		
 		<tu tuid='reports.ui.ticket.new_tickets'>
 			<tuv xml:lang="en_US"><seg>Created Tickets by Group over Date Range</seg></tuv>
-		</tu>
-
-		<tu tuid='reports.ui.ticket.oldest_open'>
-			<tuv xml:lang="en_US"><seg>Oldest Open Tickets by Group</seg></tuv>
-		</tu>
-
-		<tu tuid='reports.ui.ticket.open_tickets'>
-			<tuv xml:lang="en_US"><seg>Currently Open Tickets by Group</seg></tuv>
 		</tu>
 
 		<tu tuid='reports.ui.ticket.top_contacts'>
@@ -215,10 +204,6 @@
 		</tu>
 		<tu tuid='reports.ui.ticket.top_contacts.by_address'>
 			<tuv xml:lang="en_US"><seg>by Address</seg></tuv>
-		</tu>
-		
-		<tu tuid='reports.ui.ticket.waiting_tickets'>
-			<tuv xml:lang="en_US"><seg>Currently Waiting Tickets By Group</seg></tuv>
 		</tu>
 		
 		<!-- Worker Reports -->

@@ -13,22 +13,39 @@
  * Represents a template function.
  *
  * @package    twig
- * @author     Fabien Potencier <fabien.potencier@symfony-project.com>
+ * @author     Fabien Potencier <fabien@symfony.com>
  */
 abstract class Twig_Function implements Twig_FunctionInterface
 {
     protected $options;
+    protected $arguments = array();
 
     public function __construct(array $options = array())
     {
         $this->options = array_merge(array(
             'needs_environment' => false,
+            'needs_context'     => false,
         ), $options);
+    }
+
+    public function setArguments($arguments)
+    {
+        $this->arguments = $arguments;
+    }
+
+    public function getArguments()
+    {
+        return $this->arguments;
     }
 
     public function needsEnvironment()
     {
         return $this->options['needs_environment'];
+    }
+
+    public function needsContext()
+    {
+        return $this->options['needs_context'];
     }
 
     public function getSafe(Twig_Node $functionArgs)

@@ -69,10 +69,31 @@ abstract class AbstractEvent_TimeTracking extends Extension_DevblocksEvent {
 		$this->setValues($values);		
 	}
 	
+	function getValuesContexts($trigger) {
+		$vals = array(
+			'time_id' => array(
+				'label' => 'Time entry',
+				'context' => CerberusContexts::CONTEXT_TIMETRACKING,
+			),
+			'time_watchers' => array(
+				'label' => 'Time entry watchers',
+				'context' => CerberusContexts::CONTEXT_WORKER,
+			),
+		);
+		
+		$vars = parent::getValuesContexts($trigger);
+		
+		$vals_to_ctx = array_merge($vals, $vars);
+		asort($vals_to_ctx);
+		
+		return $vals_to_ctx;
+	}
+	
 	function getConditionExtensions() {
 		$labels = $this->getLabels();
 		
 		$labels['time_link'] = 'Time entry is linked';
+		$labels['time_watcher_count'] = 'Time entry watcher count';
 		
 		$types = array(
 			'time_log_date' => Model_CustomField::TYPE_DATE,
@@ -80,6 +101,7 @@ abstract class AbstractEvent_TimeTracking extends Extension_DevblocksEvent {
 			'time_summary' => Model_CustomField::TYPE_SINGLE_LINE,
 			
 			'time_link' => null,
+			'time_watcher_count' => null,
 		);
 
 		$conditions = $this->_importLabelsTypesAsConditions($labels, $types);
@@ -100,13 +122,17 @@ abstract class AbstractEvent_TimeTracking extends Extension_DevblocksEvent {
 				$tpl->assign('contexts', $contexts);
 				$tpl->display('devblocks:cerberusweb.core::events/condition_link.tpl');
 				break;
+				
+			case 'time_watcher_count':
+				$tpl->display('devblocks:cerberusweb.core::internal/decisions/conditions/_number.tpl');
+				break;
 		}
 
 		$tpl->clearAssign('namePrefix');
 		$tpl->clearAssign('params');
 	}
 	
-	function runConditionExtension($token, $trigger, $params, $values) {
+	function runConditionExtension($token, $trigger, $params, DevblocksDictionaryDelegate $dict) {
 		$pass = true;
 		
 		switch($token) {
@@ -120,7 +146,7 @@ abstract class AbstractEvent_TimeTracking extends Extension_DevblocksEvent {
 				switch($token) {
 					case 'time_link':
 						$from_context = CerberusContexts::CONTEXT_TIMETRACKING;
-						@$from_context_id = $values['time_id'];
+						@$from_context_id = $dict->time_id;
 						break;
 					default:
 						$pass = false;
@@ -151,6 +177,26 @@ abstract class AbstractEvent_TimeTracking extends Extension_DevblocksEvent {
 				} else {
 					$pass = false;
 				}
+				break;
+				
+			case 'time_watcher_count':
+				$not = (substr($params['oper'],0,1) == '!');
+				$oper = ltrim($params['oper'],'!');
+				$value = count($dict->time_watchers);
+				
+				switch($oper) {
+					case 'is':
+						$pass = intval($value)==intval($params['value']);
+						break;
+					case 'gt':
+						$pass = intval($value) > intval($params['value']);
+						break;
+					case 'lt':
+						$pass = intval($value) < intval($params['value']);
+						break;
+				}
+				
+				$pass = ($not) ? !$pass : $pass;
 				break;
 				
 			default:
@@ -191,23 +237,23 @@ abstract class AbstractEvent_TimeTracking extends Extension_DevblocksEvent {
 			
 		switch($token) {
 			case 'add_watchers':
-				DevblocksEventHelper::renderActionAddWatchers();
+				DevblocksEventHelper::renderActionAddWatchers($trigger);
 				break;
 			
 			case 'create_comment':
-				DevblocksEventHelper::renderActionCreateComment();
+				DevblocksEventHelper::renderActionCreateComment($trigger);
 				break;
 				
 			case 'create_notification':
-				DevblocksEventHelper::renderActionCreateNotification();
+				DevblocksEventHelper::renderActionCreateNotification($trigger);
 				break;
 				
 			case 'create_task':
-				DevblocksEventHelper::renderActionCreateTask();
+				DevblocksEventHelper::renderActionCreateTask($trigger);
 				break;
 				
 			case 'create_ticket':
-				DevblocksEventHelper::renderActionCreateTicket();
+				DevblocksEventHelper::renderActionCreateTicket($trigger);
 				break;
 				
 			case 'schedule_behavior':
@@ -219,11 +265,11 @@ abstract class AbstractEvent_TimeTracking extends Extension_DevblocksEvent {
 				}
 				$tpl->assign('dates', $dates);
 			
-				DevblocksEventHelper::renderActionScheduleBehavior($trigger->owner_context, $trigger->owner_context_id, $this->_event_id);
+				DevblocksEventHelper::renderActionScheduleBehavior($trigger);
 				break;
 				
 			case 'unschedule_behavior':
-				DevblocksEventHelper::renderActionUnscheduleBehavior($trigger->owner_context, $trigger->owner_context_id, $this->_event_id);
+				DevblocksEventHelper::renderActionUnscheduleBehavior($trigger);
 				break;
 				
 			case 'set_time_links':
@@ -246,39 +292,99 @@ abstract class AbstractEvent_TimeTracking extends Extension_DevblocksEvent {
 		$tpl->clearAssign('token_labels');		
 	}
 	
-	function runActionExtension($token, $trigger, $params, &$values) {
-		@$time_id = $values['time_id'];
+	function simulateActionExtension($token, $trigger, $params, DevblocksDictionaryDelegate $dict) {
+		@$time_id = $dict->time_id;
 
 		if(empty($time_id))
 			return;
 		
 		switch($token) {
 			case 'add_watchers':
-				DevblocksEventHelper::runActionAddWatchers($params, $values, CerberusContexts::CONTEXT_TIMETRACKING, $time_id);
+				return DevblocksEventHelper::simulateActionAddWatchers($params, $dict, 'time_id');
 				break;
 			
 			case 'create_comment':
-				DevblocksEventHelper::runActionCreateComment($params, $values, CerberusContexts::CONTEXT_TIMETRACKING, $time_id);
+				return DevblocksEventHelper::simulateActionCreateComment($params, $dict, 'time_id');
 				break;
 				
 			case 'create_notification':
-				DevblocksEventHelper::runActionCreateNotification($params, $values, CerberusContexts::CONTEXT_TIMETRACKING, $time_id);
+				return DevblocksEventHelper::simulateActionCreateNotification($params, $dict, 'time_id');
 				break;
 				
 			case 'create_task':
-				DevblocksEventHelper::runActionCreateTask($params, $values, CerberusContexts::CONTEXT_TIMETRACKING, $time_id);
+				return DevblocksEventHelper::simulateActionCreateTask($params, $dict, 'time_id');
 				break;
 
 			case 'create_ticket':
-				DevblocksEventHelper::runActionCreateTicket($params, $values, CerberusContexts::CONTEXT_TIMETRACKING, $time_id);
+				return DevblocksEventHelper::simulateActionCreateTicket($params, $dict, 'time_id');
 				break;
 				
 			case 'schedule_behavior':
-				DevblocksEventHelper::runActionScheduleBehavior($params, $values, CerberusContexts::CONTEXT_TIMETRACKING, $time_id);
+				return DevblocksEventHelper::simulateActionScheduleBehavior($params, $dict);
 				break;
 				
 			case 'unschedule_behavior':
-				DevblocksEventHelper::runActionUnscheduleBehavior($params, $values, CerberusContexts::CONTEXT_TIMETRACKING, $time_id);
+				return DevblocksEventHelper::simulateActionUnscheduleBehavior($params, $dict);
+				break;
+				
+			case 'set_time_links':
+				break;
+				
+			default:
+				if('set_cf_' == substr($token,0,7)) {
+					$field_id = substr($token,7);
+					$custom_field = DAO_CustomField::get($field_id);
+					$context = null;
+					$context_id = null;
+					
+					// If different types of custom fields, need to find the proper context_id
+					switch($custom_field->context) {
+						case CerberusContexts::CONTEXT_TIMETRACKING:
+							$context = $custom_field->context;
+							$context_id = $time_id;
+							break;
+					}
+					
+					if(!empty($context) && !empty($context_id))
+						return DevblocksEventHelper::simulateActionSetCustomField($custom_field, 'time_custom', $params, $dict, $context, $context_id);
+				}
+				break;	
+		}
+	}
+	
+	function runActionExtension($token, $trigger, $params, DevblocksDictionaryDelegate $dict) {
+		@$time_id = $dict->time_id;
+
+		if(empty($time_id))
+			return;
+		
+		switch($token) {
+			case 'add_watchers':
+				DevblocksEventHelper::runActionAddWatchers($params, $dict, 'time_id');
+				break;
+			
+			case 'create_comment':
+				DevblocksEventHelper::runActionCreateComment($params, $dict, 'time_id');
+				break;
+				
+			case 'create_notification':
+				DevblocksEventHelper::runActionCreateNotification($params, $dict, 'time_id');
+				break;
+				
+			case 'create_task':
+				DevblocksEventHelper::runActionCreateTask($params, $dict, 'time_id');
+				break;
+
+			case 'create_ticket':
+				DevblocksEventHelper::runActionCreateTicket($params, $dict, 'time_id');
+				break;
+				
+			case 'schedule_behavior':
+				DevblocksEventHelper::runActionScheduleBehavior($params, $dict);
+				break;
+				
+			case 'unschedule_behavior':
+				DevblocksEventHelper::runActionUnscheduleBehavior($params, $dict);
 				break;
 				
 			case 'set_time_links':
@@ -293,7 +399,7 @@ abstract class AbstractEvent_TimeTracking extends Extension_DevblocksEvent {
 				switch($token) {
 					case 'set_time_links':
 						$from_context = CerberusContexts::CONTEXT_TIMETRACKING;
-						@$from_context_id = $values['time_id'];
+						@$from_context_id = $dict->time_id;
 						break;
 				}
 				
@@ -326,7 +432,7 @@ abstract class AbstractEvent_TimeTracking extends Extension_DevblocksEvent {
 					}
 					
 					if(!empty($context) && !empty($context_id))
-						DevblocksEventHelper::runActionSetCustomField($custom_field, 'time_custom', $params, $values, $context, $context_id);
+						DevblocksEventHelper::runActionSetCustomField($custom_field, 'time_custom', $params, $dict, $context, $context_id);
 				}
 				break;	
 		}

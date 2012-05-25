@@ -86,9 +86,6 @@ class ChPageController extends DevblocksControllerExtension {
 	
 	public function writeResponse(DevblocksHttpResponse $response) {
 	    $path = $response->path;
-		// [JAS]: Ajax? // [TODO] Explore outputting whitespace here for Safari
-//	    if(empty($path))
-//			return;
 
 		$tpl = DevblocksPlatform::getTemplateService();
 		$session = DevblocksPlatform::getSessionService();
@@ -101,14 +98,26 @@ class ChPageController extends DevblocksControllerExtension {
 
 		$controller = array_shift($path);
 
-		// Default page [TODO] This is supposed to come from framework.config.php
+		// Default page
 		if(empty($controller)) {
-			if(is_a($active_worker,'Model_Worker')) {
-				if($active_worker->hasPriv('core.mail')) { 
-					$controller = 'tickets';
-				} else {
-					$controller = 'profiles';
+			if(is_a($active_worker, 'Model_Worker')) {
+				$controller = 'pages';
+				$path = array('pages');				
+				
+				// Find the worker's first page
+				
+				if(null != ($menu_json = DAO_WorkerPref::get($active_worker->id, 'menu_json', null))) {
+					@$menu = json_decode($menu_json);
+
+					if(is_array($menu) && !empty($menu)) {
+						$page_id = current($menu);
+						$path[] = $page_id;
+					}
 				}
+
+				$response = new DevblocksHttpResponse($path);
+				
+				DevblocksPlatform::setHttpResponse($response);
 			}
 		}
 		
@@ -172,6 +181,7 @@ class ChPageController extends DevblocksControllerExtension {
 		$tpl->assign('page_manifests',$page_manifests);		
 		$tpl->assign('page',$page);
 
+		$tpl->assign('response_path', $response->path);
 		$tpl->assign('response_uri', implode('/', $response->path));
 		
 		// Prebody Renderers
@@ -190,7 +200,11 @@ class ChPageController extends DevblocksControllerExtension {
 			$tpl->assign('render_memory', memory_get_usage() - DevblocksPlatform::getStartMemory());
 			$tpl->assign('render_peak_memory', memory_get_peak_usage() - DevblocksPlatform::getStartPeakMemory());
 		}
-		
+
+		// Contexts
+		$contexts = Extension_DevblocksContext::getAll(false);
+		$tpl->assign('contexts', $contexts);
+
 		$tpl->display('devblocks:cerberusweb.core::border.tpl');
 		
 		if(!empty($active_worker)) {
@@ -198,9 +212,6 @@ class ChPageController extends DevblocksControllerExtension {
 			$tpl->assign('active_worker_notify_count', $unread_notifications);
 			$tpl->display('devblocks:cerberusweb.core::badge_notifications_script.tpl');
 		}
-		
-//		$cache = DevblocksPlatform::getCacheService();
-//		$cache->printStatistics();
 	}
 };
 
@@ -248,7 +259,7 @@ XML;
             if(isset($event[SearchFields_Notification::URL])) {
 	            $link = $url->write('c=preferences&a=redirectRead&id='.$event[SearchFields_Notification::ID], true);
             } else {
-	            $link = $url->write('c=activity&tab=events', true);
+	            $link = $url->write('c=profiles&type=worker&who=me', true);
             }
             
             $escapedSubject = htmlspecialchars($event[SearchFields_Notification::MESSAGE],null,LANG_CHARSET_CODE);
@@ -308,7 +319,7 @@ XML;
 
             $eDesc = $eItem->addChild('description', $this->_getTicketLastAction($ticket));
             
-            $link = $url->write('c=display&id='.$ticket[SearchFields_Ticket::TICKET_MASK], true);
+            $link = $url->write('c=profiles&type=ticket&id='.$ticket[SearchFields_Ticket::TICKET_MASK], true);
             $eLink = $eItem->addChild('link', $link);
             	
             $eDate = $eItem->addChild('pubDate', gmdate('D, d M Y H:i:s T', $created));
@@ -394,7 +405,7 @@ XML;
 
             $eDesc = $eItem->addChild('description', '');
 
-            $link = $url->write('c=tasks&a=display&id='.$task[SearchFields_Task::ID], true);
+            $link = $url->write('c=profiles&type=task&id='.$task[SearchFields_Task::ID], true);
             $eLink = $eItem->addChild('link', $link);
             	
             $eDate = $eItem->addChild('pubDate', gmdate('D, d M Y H:i:s T', $created));

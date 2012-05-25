@@ -29,8 +29,8 @@
 {/if}
 
 <form class="toolbar">
-	<button type="button" onclick="genericAjaxPost('frmDecisionSwitch{$id}','','c=internal&a=saveDecisionPopup',function() { genericAjaxPopupDestroy('node_switch{$id}'); genericAjaxGet('decisionTree{$trigger_id}','c=internal&a=showDecisionTree&id={$trigger_id}'); });"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
-	{if isset($id)}<button type="button" onclick="$(this).closest('form').hide().prev('fieldset.delete').show();"><span class="cerb-sprite2 sprite-cross-circle-frame"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+	<button type="button" onclick="genericAjaxPost('frmDecisionSwitch{$id}','','c=internal&a=saveDecisionPopup',function() { genericAjaxPopupDestroy('node_switch{$id}'); genericAjaxGet('decisionTree{$trigger_id}','c=internal&a=showDecisionTree&id={$trigger_id}'); });"><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+	{if isset($id)}<button type="button" onclick="$(this).closest('form').hide().prev('fieldset.delete').show();"><span class="cerb-sprite2 sprite-cross-circle"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 </form>
 
 <script type="text/javascript">

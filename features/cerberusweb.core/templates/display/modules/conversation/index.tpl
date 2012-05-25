@@ -1,6 +1,6 @@
 <form style="margin:5px;">
 	{if $active_worker->hasPriv('core.display.actions.comment')}<button type="button" id="btnComment"><span class="cerb-sprite sprite-document_edit"></span> Comment</button>{/if}
-	{if !$expand_all}<button id="btnReadAll" title="{$translate->_('display.shortcut.read_all')}" type="button" onclick="document.location='{devblocks_url}c=display&id={$ticket->mask}&tab=conversation&opt=read_all{/devblocks_url}';"><span class="cerb-sprite sprite-document"></span> {$translate->_('display.button.read_all')|capitalize}</button>{/if} 
+	{if !$expand_all}<button id="btnReadAll" title="{$translate->_('display.shortcut.read_all')}" type="button" onclick="document.location='{devblocks_url}c=profiles&type=ticket&id={$ticket->mask}&tab=conversation&opt=read_all{/devblocks_url}';"><span class="cerb-sprite sprite-document"></span> {$translate->_('display.button.read_all')|capitalize}</button>{/if} 
 </form>
 
 {if is_array($pending_drafts)}

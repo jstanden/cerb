@@ -11,7 +11,14 @@
 	{assign var=is_custom value=false}
 {/if}
 
-{if $is_custom}
+{* Trigger Views *}
+{if substr($view->id,0,9)=="_trigger_"}
+	{assign var=is_trigger value=true}
+{else}
+	{assign var=is_trigger value=false}
+{/if}
+
+{if $is_custom || $is_trigger}
 <b>List Title:</b><br>
 <input type="text" name="title" value="{$view->name}" size="64" autocomplete="off"><br>
 <br>
@@ -71,8 +78,8 @@
 <br>
 {/if}
 
-<button type="button" onclick="genericAjaxPost('customize{$view->id}','view{$view->id}','c=internal&a=viewSaveCustomize');"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {$translate->_('common.save_changes')|capitalize}</button>
-<button type="button" onclick="toggleDiv('customize{$view->id}','none');"><span class="cerb-sprite2 sprite-cross-circle-frame"></span> {$translate->_('common.cancel')|capitalize}</button>
+<button type="button" onclick="genericAjaxPost('customize{$view->id}','view{$view->id}','c=internal&a=viewSaveCustomize');"><span class="cerb-sprite2 sprite-tick-circle"></span> {$translate->_('common.save_changes')|capitalize}</button>
+<button type="button" onclick="toggleDiv('customize{$view->id}','none');"><span class="cerb-sprite2 sprite-cross-circle"></span> {$translate->_('common.cancel')|capitalize}</button>
 
 <br>
 <br>

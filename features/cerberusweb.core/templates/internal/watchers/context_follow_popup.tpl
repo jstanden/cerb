@@ -35,9 +35,9 @@
 <br>
 
 {if $active_worker->hasPriv('core.watchers.assign')}
-<button type="button" class="submit"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+<button type="button" class="submit"><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
 {else}
-<button type="button" onclick="genericAjaxPopupDestroy('watchers');"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {'common.ok'|devblocks_translate}</button>
+<button type="button" onclick="genericAjaxPopupDestroy('watchers');"><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.ok'|devblocks_translate}</button>
 {/if}
 
 </form>

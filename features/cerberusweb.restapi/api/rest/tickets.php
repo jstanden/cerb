@@ -275,7 +275,9 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 				'requester' => SearchFields_Ticket::REQUESTER_ADDRESS,			
 				'subject' => SearchFields_Ticket::TICKET_SUBJECT,
 				'updated' => SearchFields_Ticket::TICKET_UPDATED_DATE,
-				'group' => SearchFields_Ticket::TICKET_GROUP_ID
+				'group' => SearchFields_Ticket::TICKET_GROUP_ID,
+				'org_id' => SearchFields_Ticket::TICKET_ORG_ID,
+				'org_name' => SearchFields_Ticket::ORG_NAME
 			);
 		}
 		
@@ -339,8 +341,8 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 		$worker = $this->getActiveWorker();
 
 		// ACL
-		if(!$worker->hasPriv('core.mail.search'))
-			$this->error(self::ERRNO_ACL, 'Access denied to search tickets.');
+// 		if(!$worker->hasPriv('core.mail.search'))
+// 			$this->error(self::ERRNO_ACL, 'Access denied to search tickets.');
 
 		$container = $this->_handlePostSearch();
 		

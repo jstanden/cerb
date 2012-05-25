@@ -68,10 +68,31 @@ abstract class AbstractEvent_Task extends Extension_DevblocksEvent {
 		$this->setValues($values);		
 	}
 	
+	function getValuesContexts($trigger) {
+		$vals = array(
+			'task_id' => array(
+				'label' => 'Task',
+				'context' => CerberusContexts::CONTEXT_TASK,
+			),
+			'task_watchers' => array(
+				'label' => 'Task watchers',
+				'context' => CerberusContexts::CONTEXT_WORKER,
+			),
+		);
+		
+		$vars = parent::getValuesContexts($trigger);
+		
+		$vals_to_ctx = array_merge($vals, $vars);
+		asort($vals_to_ctx);
+		
+		return $vals_to_ctx;
+	}
+	
 	function getConditionExtensions() {
 		$labels = $this->getLabels();
 		
 		$labels['task_link'] = 'Task is linked';
+		$labels['task_watcher_count'] = 'Task watcher count';
 		
 		$types = array(
 			'task_is_completed' => Model_CustomField::TYPE_CHECKBOX,
@@ -82,6 +103,7 @@ abstract class AbstractEvent_Task extends Extension_DevblocksEvent {
 			'task_title' => Model_CustomField::TYPE_SINGLE_LINE,
 			
 			'task_link' => null,
+			'task_watcher_count' => null,
 		);
 
 		$conditions = $this->_importLabelsTypesAsConditions($labels, $types);
@@ -102,13 +124,17 @@ abstract class AbstractEvent_Task extends Extension_DevblocksEvent {
 				$tpl->assign('contexts', $contexts);
 				$tpl->display('devblocks:cerberusweb.core::events/condition_link.tpl');
 				break;
+				
+			case 'task_watcher_count':
+				$tpl->display('devblocks:cerberusweb.core::internal/decisions/conditions/_number.tpl');
+				break;
 		}
 
 		$tpl->clearAssign('namePrefix');
 		$tpl->clearAssign('params');
 	}
 	
-	function runConditionExtension($token, $trigger, $params, $values) {
+	function runConditionExtension($token, $trigger, $params, DevblocksDictionaryDelegate $dict) {
 		$pass = true;
 		
 		switch($token) {
@@ -122,7 +148,7 @@ abstract class AbstractEvent_Task extends Extension_DevblocksEvent {
 				switch($token) {
 					case 'task_link':
 						$from_context = CerberusContexts::CONTEXT_TASK;
-						@$from_context_id = $values['task_id'];
+						@$from_context_id = $dict->task_id;
 						break;
 					default:
 						$pass = false;
@@ -154,7 +180,27 @@ abstract class AbstractEvent_Task extends Extension_DevblocksEvent {
 					$pass = false;
 				}
 				break;
-							
+
+			case 'task_watcher_count':
+				$not = (substr($params['oper'],0,1) == '!');
+				$oper = ltrim($params['oper'],'!');
+				$value = count($dict->task_watchers);
+				
+				switch($oper) {
+					case 'is':
+						$pass = intval($value)==intval($params['value']);
+						break;
+					case 'gt':
+						$pass = intval($value) > intval($params['value']);
+						break;
+					case 'lt':
+						$pass = intval($value) < intval($params['value']);
+						break;
+				}
+				
+				$pass = ($not) ? !$pass : $pass;
+				break;
+				
 			default:
 				$pass = false;
 				break;
@@ -196,27 +242,23 @@ abstract class AbstractEvent_Task extends Extension_DevblocksEvent {
 			
 		switch($token) {
 			case 'add_watchers':
-				DevblocksEventHelper::renderActionAddWatchers();
+				DevblocksEventHelper::renderActionAddWatchers($trigger);
 				break;
 			
-			case 'send_email':
-				DevblocksEventHelper::renderActionSendEmail();
-				break;
-				
 			case 'create_comment':
-				DevblocksEventHelper::renderActionCreateComment();
+				DevblocksEventHelper::renderActionCreateComment($trigger);
 				break;
 				
 			case 'create_notification':
-				DevblocksEventHelper::renderActionCreateNotification();
+				DevblocksEventHelper::renderActionCreateNotification($trigger);
 				break;
 				
 			case 'create_task':
-				DevblocksEventHelper::renderActionCreateTask();
+				DevblocksEventHelper::renderActionCreateTask($trigger);
 				break;
 				
 			case 'create_ticket':
-				DevblocksEventHelper::renderActionCreateTicket();
+				DevblocksEventHelper::renderActionCreateTicket($trigger);
 				break;
 				
 			case 'schedule_behavior':
@@ -228,11 +270,15 @@ abstract class AbstractEvent_Task extends Extension_DevblocksEvent {
 				}
 				$tpl->assign('dates', $dates);
 			
-				DevblocksEventHelper::renderActionScheduleBehavior($trigger->owner_context, $trigger->owner_context_id, $this->_event_id);
+				DevblocksEventHelper::renderActionScheduleBehavior($trigger);
+				break;
+				
+			case 'send_email':
+				DevblocksEventHelper::renderActionSendEmail($trigger);
 				break;
 				
 			case 'unschedule_behavior':
-				DevblocksEventHelper::renderActionUnscheduleBehavior($trigger->owner_context, $trigger->owner_context_id, $this->_event_id);
+				DevblocksEventHelper::renderActionUnscheduleBehavior($trigger);
 				break;
 				
 			case 'set_due_date':
@@ -263,43 +309,104 @@ abstract class AbstractEvent_Task extends Extension_DevblocksEvent {
 		$tpl->clearAssign('token_labels');		
 	}
 	
-	function runActionExtension($token, $trigger, $params, &$values) {
-		@$task_id = $values['task_id'];
+	function simulateActionExtension($token, $trigger, $params, DevblocksDictionaryDelegate $dict) {
+		@$task_id = $dict->task_id;
+
+		if(empty($task_id))
+			return;
+
+		switch($token) {
+			case 'add_watchers':
+				return DevblocksEventHelper::simulateActionAddWatchers($params, $dict, 'task_id');
+				break;
+			
+			case 'create_comment':
+				return DevblocksEventHelper::simulateActionCreateComment($params, $dict, 'task_id');
+				break;
+				
+			case 'create_notification':
+				return DevblocksEventHelper::simulateActionCreateNotification($params, $dict, 'task_id');
+				break;
+				
+			case 'create_task':
+				return DevblocksEventHelper::simulateActionCreateTask($params, $dict, 'task_id');
+				break;
+
+			case 'create_ticket':
+				return DevblocksEventHelper::simulateActionCreateTicket($params, $dict, 'task_id');
+				break;
+				
+			case 'schedule_behavior':
+				return DevblocksEventHelper::simulateActionScheduleBehavior($params, $dict);
+				break;
+				
+			case 'send_email':
+				return DevblocksEventHelper::simulateActionSendEmail($params, $dict);
+				break;
+				
+			case 'unschedule_behavior':
+				return DevblocksEventHelper::simulateActionUnscheduleBehavior($params, $dict);
+				break;
+
+			default:
+				if('set_cf_' == substr($token,0,7)) {
+					$field_id = substr($token,7);
+					$custom_field = DAO_CustomField::get($field_id);
+					$context = null;
+					$context_id = null;
+					
+					// If different types of custom fields, need to find the proper context_id
+					switch($custom_field->context) {
+						case CerberusContexts::CONTEXT_TASK:
+							$context = $custom_field->context;
+							$context_id = $task_id;
+							break;
+					}
+					
+					if(!empty($context) && !empty($context_id))
+						return DevblocksEventHelper::simulateActionSetCustomField($custom_field, 'task_custom', $params, $dict, $context, $context_id);
+				}
+				break;				
+		}
+	}
+	
+	function runActionExtension($token, $trigger, $params, DevblocksDictionaryDelegate $dict) {
+		@$task_id = $dict->task_id;
 
 		if(empty($task_id))
 			return;
 		
 		switch($token) {
 			case 'add_watchers':
-				DevblocksEventHelper::runActionAddWatchers($params, $values, CerberusContexts::CONTEXT_TASK, $task_id);
+				DevblocksEventHelper::runActionAddWatchers($params, $dict, 'task_id');
 				break;
 			
-			case 'send_email':
-				DevblocksEventHelper::runActionSendEmail($params, $values);
-				break;
-				
 			case 'create_comment':
-				DevblocksEventHelper::runActionCreateComment($params, $values, CerberusContexts::CONTEXT_TASK, $task_id);
+				DevblocksEventHelper::runActionCreateComment($params, $dict, 'task_id');
 				break;
 				
 			case 'create_notification':
-				DevblocksEventHelper::runActionCreateNotification($params, $values, CerberusContexts::CONTEXT_TASK, $task_id);
+				DevblocksEventHelper::runActionCreateNotification($params, $dict, 'task_id');
 				break;
 				
 			case 'create_task':
-				DevblocksEventHelper::runActionCreateTask($params, $values, CerberusContexts::CONTEXT_TASK, $task_id);
+				DevblocksEventHelper::runActionCreateTask($params, $dict, 'task_id');
 				break;
 
 			case 'create_ticket':
-				DevblocksEventHelper::runActionCreateTicket($params, $values, CerberusContexts::CONTEXT_TASK, $task_id);
+				DevblocksEventHelper::runActionCreateTicket($params, $dict, 'task_id');
 				break;
 				
 			case 'schedule_behavior':
-				DevblocksEventHelper::runActionScheduleBehavior($params, $values, CerberusContexts::CONTEXT_TASK, $task_id);
+				DevblocksEventHelper::runActionScheduleBehavior($params, $dict);
+				break;
+				
+			case 'send_email':
+				DevblocksEventHelper::runActionSendEmail($params, $dict);
 				break;
 				
 			case 'unschedule_behavior':
-				DevblocksEventHelper::runActionUnscheduleBehavior($params, $values, CerberusContexts::CONTEXT_TASK, $task_id);
+				DevblocksEventHelper::runActionUnscheduleBehavior($params, $dict);
 				break;
 				
 			case 'set_due_date':
@@ -309,12 +416,12 @@ abstract class AbstractEvent_Task extends Extension_DevblocksEvent {
 					DAO_Task::DUE_DATE => $to_date,
 				));
 				
-				$values['task_due'] = $to_date;
+				$dict->task_due = $to_date;
 				break;
 				
 			case 'set_status':
 				@$to_status = $params['status'];
-				@$current_status = $values['task_status'];
+				@$current_status = $dict->task_status;
 				
 				if($to_status == $current_status)
 					break;
@@ -337,7 +444,7 @@ abstract class AbstractEvent_Task extends Extension_DevblocksEvent {
 				}
 				
 				if(!empty($fields)) {
-					$values['task_status'] = $to_status;
+					$dict->task_status = $to_status;
 					DAO_Task::update($task_id, $fields);
 				}
 				break;
@@ -354,7 +461,7 @@ abstract class AbstractEvent_Task extends Extension_DevblocksEvent {
 				switch($token) {
 					case 'set_task_links':
 						$from_context = CerberusContexts::CONTEXT_TASK;
-						@$from_context_id = $values['task_id'];
+						@$from_context_id = $dict->task_id;
 						break;
 				}
 				
@@ -387,7 +494,7 @@ abstract class AbstractEvent_Task extends Extension_DevblocksEvent {
 					}
 					
 					if(!empty($context) && !empty($context_id))
-						DevblocksEventHelper::runActionSetCustomField($custom_field, 'task_custom', $params, $values, $context, $context_id);
+						DevblocksEventHelper::runActionSetCustomField($custom_field, 'task_custom', $params, $dict, $context, $context_id);
 				}
 				break;	
 		}

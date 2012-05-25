@@ -2,7 +2,7 @@
 </ul>
 <div style="clear:both;"></div>
 
-<h2>Welcome to Cerberus Helpdesk (Cerb5)!</h2>
+<h2>Welcome to Cerb6!</h2>
 
 <fieldset>
 	<legend>The Basics in 60 Seconds</legend>
@@ -22,9 +22,9 @@
 </fieldset>
 
 <fieldset>
-	<legend>Become a Cerb5 master</legend>
+	<legend>Become a Cerb6 master</legend>
 	
-	Cerb5 is an incredibly flexible tool that you can use every day for several years and still find yourself coming across 
+	Cerb6 is an incredibly flexible tool that you can use every day for several years and still find yourself coming across 
 	new tricks to make you more efficient.  For a regular dose of project news, sneak peeks at new development, 
 	handy tips &amp; tricks, best practices, and highlights from community discussion: 
 
@@ -51,12 +51,12 @@
 		</li>
 		<li>
 			<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/komodomedia/rss_32.png{/devblocks_url}" align="middle">
-			<a href="http://blog.cerberusweb.com/" target="_blank">Subscribe to the Cerb5 blog</a>
+			<a href="http://blog.cerberusweb.com/" target="_blank">Subscribe to the Cerb6 blog</a>
 		</li>
 	</ul>
 	</div>
 </fieldset>
 
 <form>
-	<button type="button" onclick="document.location.href='{devblocks_url}c=preferences{/devblocks_url}';"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> Let's set up your account!</button>
+	<button type="button" onclick="document.location.href='{devblocks_url}c=preferences{/devblocks_url}';"><span class="cerb-sprite2 sprite-tick-circle"></span> Let's set up your account!</button>
 </form>

@@ -17,7 +17,7 @@
 {foreach from=$model->params.actions item=params key=seq}
 <fieldset id="action{$seq}">
 	<legend style="cursor:move;">
-		<a href="javascript:;" onclick="$(this).closest('fieldset').find('#divDecisionActionToolbar{$id}').hide().appendTo($('#frmDecisionAction{$id}Action'));$(this).closest('fieldset').remove();"><span class="cerb-sprite2 sprite-minus-circle-frame"></span></a>
+		<a href="javascript:;" onclick="$(this).closest('fieldset').find('#divDecisionActionToolbar{$id}').hide().appendTo($('#frmDecisionAction{$id}Action'));$(this).closest('fieldset').remove();"><span class="cerb-sprite2 sprite-minus-circle"></span></a>
 		{$actions.{$params.action}.label}
 	</legend>
 	
@@ -33,7 +33,9 @@
 
 <div id="divDecisionActionToolbar{$id}" style="display:none;">
 	<button type="button" class="cerb-popupmenu-trigger" onclick="">Insert &#x25be;</button>
-	<ul class="cerb-popupmenu cerb-float" style="margin-top:-5px;">
+	<button type="button" class="tester">{'common.test'|devblocks_translate|capitalize}</button>
+	<div class="tester"></div>
+	<ul class="cerb-popupmenu" style="max-height:200px;overflow-y:auto;">
 		<li style="background:none;">
 			<input type="text" size="18" class="input_search filter">
 		</li>
@@ -41,8 +43,6 @@
 		<li><a href="javascript:;" token="{$k}">{$v}</a></li>
 		{/foreach}
 	</ul>
-	<button type="button" class="tester">{'common.test'|devblocks_translate|capitalize}</button>
-	<div class="tester"></div>
 </div>
 
 </form>
@@ -53,7 +53,7 @@
 <fieldset>
 	<legend>Add Action</legend>
 
-	<span class="cerb-sprite2 sprite-plus-circle-frame"></span>
+	<span class="cerb-sprite2 sprite-plus-circle"></span>
 	<select name="action">
 		<option value=""></option>
 		{foreach from=$actions item=action key=token}
@@ -72,10 +72,20 @@
 </fieldset>
 {/if}
 
+{$status_div = "status_{uniqid()}"}
+
 <form class="toolbar">
-	<button type="button" onclick="genericAjaxPost('frmDecisionAction{$id}Action','','c=internal&a=saveDecisionPopup',function() { genericAjaxPopupDestroy('node_action{$id}'); genericAjaxGet('decisionTree{$trigger_id}','c=internal&a=showDecisionTree&id={$trigger_id}'); });"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
-	{if isset($id)}<button type="button" onclick="$(this).closest('form').hide().prev('fieldset.delete').show();"><span class="cerb-sprite2 sprite-cross-circle-frame"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+	{if !isset($id)}
+		<button type="button" onclick="genericAjaxPost('frmDecisionAction{$id}Action','','c=internal&a=saveDecisionPopup',function() { genericAjaxPopupDestroy('node_action{$id}'); genericAjaxGet('decisionTree{$trigger_id}','c=internal&a=showDecisionTree&id={$trigger_id}'); });"><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+	{else}
+		<button type="button" onclick="genericAjaxPost('frmDecisionAction{$id}Action','','c=internal&a=saveDecisionPopup',function() { genericAjaxPopupDestroy('node_action{$id}'); genericAjaxGet('decisionTree{$trigger_id}','c=internal&a=showDecisionTree&id={$trigger_id}'); });"><span class="cerb-sprite2 sprite-folder-tick-circle"></span> {'common.save_and_close'|devblocks_translate|capitalize}</button>
+		<button type="button" onclick="genericAjaxPost('frmDecisionAction{$id}Action','','c=internal&a=saveDecisionPopup',function() { Devblocks.showSuccess('#{$status_div}', 'Saved!'); genericAjaxGet('decisionTree{$trigger_id}','c=internal&a=showDecisionTree&id={$trigger_id}'); });"><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.save_and_continue'|devblocks_translate|capitalize}</button>
+		<button type="button" onclick="genericAjaxPopup('simulate_behavior','c=internal&a=showBehaviorSimulatorPopup&trigger_id={$trigger_id}','reuse',false,'500');"> <span class="cerb-sprite2 sprite-gear"></span> Simulator</button>
+		<button type="button" onclick="$(this).closest('form').hide().prev('fieldset.delete').show();"><span class="cerb-sprite2 sprite-cross-circle"></span> {'common.delete'|devblocks_translate|capitalize}</button>
+	{/if}
 </form>
+
+<div id="{$status_div}" style="display:none;"></div>	
 
 <script type="text/javascript">
 	$popup = genericAjaxPopupFetch('node_action{$id}');
@@ -105,10 +115,13 @@
 		;
 
 		$popup.delegate(':text.placeholders, textarea.placeholders', 'focus', function(e) {
-			toolbar = $('#divDecisionActionToolbar{$id}');
+			$toolbar = $('#divDecisionActionToolbar{$id}');
 			src = (null==e.srcElement) ? e.target : e.srcElement;
-			toolbar.find('div.tester').html('');
-			toolbar.show().insertAfter(src);
+			if(0 == $(src).nextAll('#divDecisionActionToolbar{$id}').length) {
+				$toolbar.find('div.tester').html('');
+				$toolbar.find('ul.cerb-popupmenu').hide();
+				$toolbar.show().insertAfter(src);
+			}
 		});
 		
 		$popup.find('#frmDecisionActionAdd{$id} SELECT').first().change(function() {
@@ -127,7 +140,7 @@
 					seq = 0;
 	
 				$container = $('<fieldset id="action' + seq + '"></fieldset>');
-				$container.prepend('<legend style="cursor:move;"><a href="javascript:;" onclick="$(this).closest(\'fieldset\').find(\'#divDecisionActionToolbar{$id}\').hide().appendTo($(\'#frmDecisionAction{$id}Action\'));$(this).closest(\'fieldset\').remove();"><span class="cerb-sprite2 sprite-minus-circle-frame"></span></a> ' + $select.find('option:selected').text() + '</legend>');
+				$container.prepend('<legend style="cursor:move;"><a href="javascript:;" onclick="$(this).closest(\'fieldset\').find(\'#divDecisionActionToolbar{$id}\').hide().appendTo($(\'#frmDecisionAction{$id}Action\'));$(this).closest(\'fieldset\').remove();"><span class="cerb-sprite2 sprite-minus-circle"></span></a> ' + $select.find('option:selected').text() + '</legend>');
 				$container.append('<input type="hidden" name="actions[]" value="' + seq + '">');
 				$container.append('<input type="hidden" name="action'+seq+'[action]" value="' + $select.val() + '">');
 				$ul.append($container);
@@ -160,7 +173,7 @@
 		$divPlaceholderMenu = $('#divDecisionActionToolbar{$id}');
 		
 		$menu_trigger = $divPlaceholderMenu.find('button.cerb-popupmenu-trigger');
-		$menu = $divPlaceholderMenu.find('ul.cerb-popupmenu').appendTo('body');
+		$menu = $divPlaceholderMenu.find('ul.cerb-popupmenu');
 		$menu_trigger.data('menu', $menu);
 		
 		$divPlaceholderMenu.find('button.tester').click(function(e) {
@@ -188,15 +201,18 @@
 			.click(
 				function(e) {
 					$menu = $(this).data('menu');
-					$menu
-						.css('position','absolute')
-						.css('top',($(this).offset().top+20)+'px')
-						.css('left',$(this).offset().left+'px')
-						.show()
-						.find('> li input:text')
-						.focus()
-						.select()
-						;
+					
+					if($menu.is(':visible')) {
+						$menu.hide();
+						
+					} else {
+						$menu
+							.show()
+							.find('> li input:text')
+							.focus()
+							.select()
+							;
+					}
 				}
 			)
 			.bind('remove',
@@ -221,14 +237,6 @@
 			}
 		);
 		
-		$menu.hover(
-			function(e) {
-			},
-			function(e) {
-				$(this).hide();
-			}
-		);
-		
 		$menu.find('> li').click(function(e) {
 			e.stopPropagation();
 			if(!$(e.target).is('li'))
@@ -247,7 +255,6 @@
 			strtoken = $(this).attr('token');
 			
 			$field.focus().insertAtCursor('{literal}{{{/literal}' + strtoken + '{literal}}}{/literal}');
-			$(this).closest('ul.cerb-popupmenu').hide();
 		});		
 		
 	}); // popup_open

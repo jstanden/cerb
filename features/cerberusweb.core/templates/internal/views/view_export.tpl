@@ -3,7 +3,7 @@
 <input type="hidden" name="a" value="viewDoExport">
 <input type="hidden" name="view_id" value="{$view_id}">
 
-<H3>{$translate->_('common.export')|capitalize}</H3>
+<h1>{$translate->_('common.export')|capitalize}</h1>
 <br>
 
 <b>Columns:</b>
@@ -52,7 +52,7 @@
 <br>
 
 <br>
-<button type="button" onclick="this.form.submit();" style=""><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {$translate->_('common.export')|capitalize}</button>
-<button type="button" onclick="toggleDiv('{$view_id}_tips','none');$('#{$view_id}_tips').html('');" style=""><span class="cerb-sprite2 sprite-cross-circle-frame"></span> Cancel</button>
+<button type="button" onclick="this.form.submit();" style=""><span class="cerb-sprite2 sprite-tick-circle"></span> {$translate->_('common.export')|capitalize}</button>
+<button type="button" onclick="toggleDiv('{$view_id}_tips','none');$('#{$view_id}_tips').html('');" style=""><span class="cerb-sprite2 sprite-cross-circle"></span> Cancel</button>
 
 </form>

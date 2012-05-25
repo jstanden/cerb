@@ -6,12 +6,14 @@
 	<tr>
 		<td nowrap="nowrap"><span class="title">{$view->name}</span></td>
 		<td nowrap="nowrap" align="right">
-			<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewRefresh&id={$view->id}');">{$translate->_('common.refresh')|lower}</a>
-			 | <a href="javascript:;" onclick="genericAjaxGet('customize{$view->id}','c=internal&a=viewCustomize&id={$view->id}');toggleDiv('customize{$view->id}','block');">{$translate->_('common.customize')|lower}</a>
+			<a href="javascript:;" title="{'common.customize'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxGet('customize{$view->id}','c=internal&a=viewCustomize&id={$view->id}');toggleDiv('customize{$view->id}','block');"><span class="cerb-sprite2 sprite-gear"></span></a>
+			<a href="javascript:;" title="{$translate->_('common.export')|capitalize}" onclick="genericAjaxGet('{$view->id}_tips','c=internal&a=viewShowExport&id={$view->id}');toggleDiv('{$view->id}_tips','block');"><span class="cerb-sprite2 sprite-application-export"></span></a>
+			<a href="javascript:;" title="{'common.refresh'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewRefresh&id={$view->id}');"><span class="cerb-sprite2 sprite-arrow-circle-135-left"></span></a>
 		</td>
 	</tr>
 </table>
 
+<div id="{$view->id}_tips" class="block" style="display:none;margin:10px;padding:5px;">Analyzing...</div>
 <form id="customize{$view->id}" name="customize{$view->id}" action="#" onsubmit="return false;" style="display:none;"></form>
 <form id="viewForm{$view->id}" name="viewForm{$view->id}" action="#">
 <input type="hidden" name="view_id" value="{$view->id}">
@@ -68,42 +70,62 @@
 		</tr>
 	</tbody>
 	{/foreach}
+</table>
+
+<div style="padding-top:5px;">
+	<div style="float:right;">
+		{math assign=fromRow equation="(x*y)+1" x=$view->renderPage y=$view->renderLimit}
+		{math assign=toRow equation="(x-1)+y" x=$fromRow y=$view->renderLimit}
+		{math assign=nextPage equation="x+1" x=$view->renderPage}
+		{math assign=prevPage equation="x-1" x=$view->renderPage}
+		{math assign=lastPage equation="ceil(x/y)-1" x=$total y=$view->renderLimit}
+		
+		{* Sanity checks *}
+		{if $toRow > $total}{assign var=toRow value=$total}{/if}
+		{if $fromRow > $toRow}{assign var=fromRow value=$toRow}{/if}
+		
+		{if $view->renderPage > 0}
+			<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewPage&id={$view->id}&page=0');">&lt;&lt;</a>
+			<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewPage&id={$view->id}&page={$prevPage}');">&lt;{$translate->_('common.previous_short')|capitalize}</a>
+		{/if}
+		({'views.showing_from_to'|devblocks_translate:$fromRow:$toRow:$total})
+		{if $toRow < $total}
+			<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewPage&id={$view->id}&page={$nextPage}');">{$translate->_('common.next')|capitalize}&gt;</a>
+			<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewPage&id={$view->id}&page={$lastPage}');">&gt;&gt;</a>
+		{/if}
+	</div>
 	
-</table>
-<table cellpadding="2" cellspacing="0" border="0" width="100%" id="{$view->id}_actions">
 	{if $total}
-	<tr>
-		<td colspan="2">
-			{if 0 && $active_worker && $active_worker->is_superuser}
-				<button type="button" onclick="genericAjaxPopup('peek','c=config&a=handleSectionAction&section=storage_profiles&action=showStorageProfileBulkPanel&view_id={$view->id}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','row_id[]'),null,false,'500');"><span class="cerb-sprite2 sprite-folder-gear"></span> bulk update</button>
-			{/if}
-		</td>
-	</tr>
+	<div style="float:left;" id="{$view->id}_actions">
+	</div>
 	{/if}
-	<tr>
-		<td align="right" valign="top" nowrap="nowrap">
-			{math assign=fromRow equation="(x*y)+1" x=$view->renderPage y=$view->renderLimit}
-			{math assign=toRow equation="(x-1)+y" x=$fromRow y=$view->renderLimit}
-			{math assign=nextPage equation="x+1" x=$view->renderPage}
-			{math assign=prevPage equation="x-1" x=$view->renderPage}
-			{math assign=lastPage equation="ceil(x/y)-1" x=$total y=$view->renderLimit}
-			
-			{* Sanity checks *}
-			{if $toRow > $total}{assign var=toRow value=$total}{/if}
-			{if $fromRow > $toRow}{assign var=fromRow value=$toRow}{/if}
-			
-			{if $view->renderPage > 0}
-				<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewPage&id={$view->id}&page=0');">&lt;&lt;</a>
-				<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewPage&id={$view->id}&page={$prevPage}');">&lt;{$translate->_('common.previous_short')|capitalize}</a>
-			{/if}
-			({'views.showing_from_to'|devblocks_translate:$fromRow:$toRow:$total})
-			{if $toRow < $total}
-				<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewPage&id={$view->id}&page={$nextPage}');">{$translate->_('common.next')|capitalize}&gt;</a>
-				<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewPage&id={$view->id}&page={$lastPage}');">&gt;&gt;</a>
-			{/if}
-		</td>
-	</tr>
-</table>
+</div>
+
+<div style="clear:both;"></div>
+
 </form>
 
 {include file="devblocks:cerberusweb.core::internal/views/view_common_jquery_ui.tpl"}
+
+<script type="text/javascript">
+$frm = $('#viewForm{$view->id}');
+
+{if $pref_keyboard_shortcuts}
+$frm.bind('keyboard_shortcut',function(event) {
+	//console.log("{$view->id} received " + (indirect ? 'indirect' : 'direct') + " keyboard event for: " + event.keypress_event.which);
+	
+	$view_actions = $('#{$view->id}_actions');
+	
+	hotkey_activated = true;
+
+	switch(event.keypress_event.which) {
+		default:
+			hotkey_activated = false;
+			break;
+	}
+
+	if(hotkey_activated)
+		event.preventDefault();
+});
+{/if}
+</script>

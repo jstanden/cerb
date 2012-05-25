@@ -1,6 +1,5 @@
 {$link_contexts = Extension_DevblocksContext::getAll(false)}
 
-{if $context != CerberusContexts::CONTEXT_WORKER}
 <form action="{devblocks_url}{/devblocks_url}" method="POST" style="margin-bottom:10px;">
 	<select onchange="chooserOpen(this);">
 		<option value="">-- find &amp; link --</option>
@@ -20,12 +19,10 @@
 		{/foreach}
 	</select>
 </form>
-{/if}
 
 <div id="divConnections"></div>
 
 <script type="text/javascript">
-{if $context != CerberusContexts::CONTEXT_WORKER}
 function linkAddContext(ref) {
 	$select = $(ref);
 	$form = $select.closest('form');
@@ -51,25 +48,8 @@ function linkAddContext(ref) {
 		}
 	}
 	
-	// [TODO] Make this generic
-	// [TODO] Move peek to context?
-
-	if($context == 'cerberusweb.contexts.task') {
-		$popup = genericAjaxPopup('peek','c=tasks&a=showTaskPeek&id=0&context={$context}&context_id={$context_id}',null,false,'500');
-		$popup.one('dialogclose', reload_action);
-	} else if($context == 'cerberusweb.contexts.address') {
-		$popup = genericAjaxPopup('peek','c=contacts&a=showAddressPeek&id=0&context={$context}&context_id={$context_id}',null,false,'500');
-		$popup.one('dialogclose', reload_action);
-	} else if($context == 'cerberusweb.contexts.org') {
-		$popup = genericAjaxPopup('peek','c=contacts&a=showOrgPeek&id=0&context={$context}&context_id={$context_id}',null,false,'500');
-		$popup.one('dialogclose', reload_action);
-	} else if($context == 'cerberusweb.contexts.opportunity') {
-		$popup = genericAjaxPopup('peek','c=crm&a=showOppPanel&id=0&context={$context}&context_id={$context_id}',null,false,'500');
-		$popup.one('dialogclose', reload_action);
-	} else if($context == 'cerberusweb.contexts.call') {
-		$popup = genericAjaxPopup('peek','c=calls&a=showEntry&id=0&context={$context}&context_id={$context_id}',null,false,'500');
-		$popup.one('dialogclose', reload_action);
-	}
+	$popup = genericAjaxPopup('peek','c=internal&a=showPeekPopup&context=' + $context + '&context_id=0&link_context={$context}&link_context_id={$context_id}',null,false,'500');
+	$popup.one('dialogclose', reload_action);
 	
 	$select.val('');
 }
@@ -91,7 +71,7 @@ function chooserOpen(ref) {
 		
 		$data = [ 
 			'c=internal',
-			'a=contextAddLinks',
+			'a=contextAddLinksJson',
 			'from_context={$context}',
 			'from_context_id={$context_id}', 
 			'context='+$context
@@ -107,6 +87,14 @@ function chooserOpen(ref) {
 		options.data = $data.join('&');
 		options.url = DevblocksAppPath+'ajax.php',
 		options.cache = false;
+		options.success = function(json) {
+			if(json.links_count) {
+				$connections = $('#divConnections');
+				$tabs = $connections.closest('div.ui-tabs');
+				$tab = $tabs.find('> ul.ui-tabs-nav > li.ui-tabs-selected');
+				$tab.find('> a > div.tab-badge').html(json.links_count);
+			}
+		};
 		$.ajax(options);
 
 		if(0==$view.length) {
@@ -124,13 +112,15 @@ function chooserOpen(ref) {
 	$select.val('');
 }
 
-function removeSelectedContextLinks(view_id) {
+function removeSelectedContextLinks(ref) {
+	view_id = $(ref).closest('form').find('input:hidden[name=view_id]').val();
+	
 	$view = $('#view' + view_id);
 	context = $view.find('FORM input:hidden[name=context_id]').val();
 	
 	$data = [ 
 		'c=internal',
-		'a=contextDeleteLinks',
+		'a=contextDeleteLinksJson',
 		'from_context={$context}',
 		'from_context_id={$context_id}', 
 		'context='+context
@@ -148,31 +138,36 @@ function removeSelectedContextLinks(view_id) {
 	options.data = $data.join('&');
 	options.url = DevblocksAppPath+'ajax.php',
 	options.cache = false;
+	options.success = function(json) {
+		if(json.links_count) {
+			$connections = $('#divConnections');
+			$tabs = $connections.closest('div.ui-tabs');
+			$tab = $tabs.find('> ul.ui-tabs-nav > li.ui-tabs-selected');
+			$tab.find('> a > div.tab-badge').html(json.links_count);
+		}
+	};
 	$.ajax(options);
 	
 	genericAjaxGet($view.attr('id'), 'c=internal&a=viewRefresh&id=' + view_id);
 }
 
 $forms = $('#divConnections').delegate('DIV[id^=view]','view_refresh',function() {
-	id = $(this).attr('id').replace('view','');
-	$(this)
-		.find('TABLE[id$=_actions] > TBODY > TR:first > TD:first')
-		.prepend($('<button type="button" onclick="removeSelectedContextLinks(\''+id+'\')">Unlink</button>'))
-		;
+	$actions = $(this).find('DIV[id$=_actions]');
+	
+	if(0 == $actions.find('button.unlink').length) {
+		$actions.prepend($('<button type="button" class="action-always-show unlink" onclick="removeSelectedContextLinks(this);">Unlink</button>&nbsp;'));
+	}
 });
-
-{else}{* Is worker profile *}
-
-{/if}
 </script>
 
 <script type="text/javascript">
 	$connections = $('#divConnections');
+	
 	$ajaxQueue = $({});
 
 	{foreach from=$contexts item=to_context}
 	$ajaxQueue.queue(function(next) {
-		$div = $('<div></div>');
+		$div = $('<div style="margin-bottom:10px;"></div>');
 		$div
 			.appendTo($connections)
 			.html($('<div class="lazy" style="font-size:18pt;text-align:center;padding:50px;margin:20px;background-color:rgb(232,242,255);">Loading...</div>'))
@@ -192,7 +187,12 @@ $forms = $('#divConnections').delegate('DIV[id^=view]','view_refresh',function()
 							$this
 								.html(html)
 								;
-							$this.find('DIV[id^=view]:first').trigger('view_refresh');
+							
+							$this
+								.find('DIV[id$=_actions]')
+								.prepend($('<button type="button" class="action-always-show unlink" onclick="removeSelectedContextLinks(this);">Unlink</button>'))
+								;
+							
 							next();
 						}
 					);
@@ -208,7 +208,12 @@ $forms = $('#divConnections').delegate('DIV[id^=view]','view_refresh',function()
 					$div
 						.html(html)
 						;
-					$div.find('DIV[id^=view]:first').trigger('view_refresh');
+					
+					$div
+						.find('DIV[id$=_actions]')
+						.prepend($('<button type="button" class="action-always-show unlink" onclick="removeSelectedContextLinks(this);">Unlink</button>'))
+						;
+					
 					next();
 				}
 			);

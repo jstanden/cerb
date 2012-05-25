@@ -215,6 +215,79 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 		return $table;
 	}
 	
+	public static function formatFieldValues($values) {
+		if(!is_array($values))
+			return;
+
+		$fields = DAO_CustomField::getAll();
+		$output = array();
+
+		foreach($values as $field_id => $value) {
+			if(!isset($fields[$field_id]))
+				continue;
+
+			$field =& $fields[$field_id]; /* @var $field Model_CustomField */
+
+			switch($field->type) {
+				case Model_CustomField::TYPE_SINGLE_LINE:
+				case Model_CustomField::TYPE_URL:
+					$value = (strlen($value) > 255) ? substr($value,0,255) : $value;
+					break;
+
+				case Model_CustomField::TYPE_MULTI_LINE:
+					break;
+
+				case Model_CustomField::TYPE_DROPDOWN:
+					break;
+					
+				case Model_CustomField::TYPE_MULTI_CHECKBOX:
+					if(!is_array($value))
+						$value = array($value);
+
+					// Protect from injection in cases where it's not desireable (controlled above)
+					foreach($value as $idx => $v) {
+						if(!in_array($v, $field->options))
+							continue;
+
+						$is_unset = ('-'==substr($v,0,1)) ? true : false;
+						$v = ltrim($v,'+-');
+							
+						if($is_unset) {
+							$value = null;
+						} else {
+							$value = $v;
+						}
+					}
+
+					break;
+
+				case Model_CustomField::TYPE_CHECKBOX:
+					$value = !empty($value) ? 1 : 0;
+					break;
+
+				case Model_CustomField::TYPE_DATE:
+					if(is_numeric($value)) {
+						$value = intval($value);
+					} else {
+						@$value = strtotime($value);
+					}
+					break;
+
+				case Model_CustomField::TYPE_NUMBER:
+					$value = intval($value);
+					break;
+					
+				case Model_CustomField::TYPE_WORKER:
+					$value = intval($value);
+					break;
+			}
+			
+			$output[$field_id] = $value;
+		}
+		
+		return $output;
+	}
+	
 	/**
 	 * 
 	 * @param object $context
@@ -223,6 +296,8 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 	 * @return 
 	 */
 	public static function formatAndSetFieldValues($context, $context_id, $values, $is_blank_unset=true, $delta=false, $autoadd_options=false) {
+		// [TODO] This could probably be combined with ::formatFieldValues()		
+		
 		if(empty($context) || empty($context_id) || !is_array($values))
 			return;
 
@@ -336,6 +411,7 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 			}
 		}
 		
+		DevblocksPlatform::markContextChanged($context, $context_id);
 	}
 	
 	public static function setFieldValue($context, $context_id, $field_id, $value, $delta=false) {
@@ -386,6 +462,8 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 			$db->Execute($sql);
 		}
 		
+		DevblocksPlatform::markContextChanged($context, $context_id);
+		
 		return TRUE;
 	}
 	
@@ -412,6 +490,8 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 			);
 			$db->Execute($sql);
 		}
+		
+		DevblocksPlatform::markContextChanged($context, $context_id);
 		
 		return TRUE;
 	}
@@ -523,20 +603,53 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 			
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$results = array();
+		// Only check the custom fields of this context
+		$fields = DAO_CustomField::getByContext($context);
 		
-		$fields = DAO_CustomField::getAll();
-			
-		// [TODO] This is inefficient (and redundant)
-			
-		// STRINGS
-		$sql = sprintf("SELECT context_id, field_id, field_value ".
-			"FROM custom_field_stringvalue ".
-			"WHERE context = '%s' AND context_id IN (%s)",
-			$context,
-			implode(',', $context_ids)
-		);
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+		$results = array();
+		$tables = array();
+		$sqls = array();
+		
+		if(empty($fields))
+			return array();
+		
+		/*
+		 * Only scan the tables where this context has custom fields.  For example,
+		 * if we only have a string custom field defined on tickets, we only need to 
+		 * check one table out of the three.
+		 */
+
+		if(is_array($fields))
+		foreach($fields as $cfield_id => $cfield) { /* @var $cfield Model_CustomField */
+			$tables[] = DAO_CustomFieldValue::getValueTableName($cfield_id);
+		}
+		
+		if(empty($tables))
+			return array();
+		
+		$tables = array_unique($tables);
+
+		if(is_array($tables))
+		foreach($tables as $table) {
+			$sqls[] = sprintf("SELECT context_id, field_id, field_value ".
+				"FROM %s ".
+				"WHERE context = '%s' AND context_id IN (%s)",
+				$table,
+				$context,
+				implode(',', $context_ids)
+			);
+		}
+		
+		if(empty($sqls))
+			return array();
+		
+		/*
+		 * UNION the custom field queries into a single statement so we don't have to 
+		 * merge them in PHP from different resultsets.
+		 */
+		
+		$sql = implode(' UNION ALL ', $sqls);
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 		
 		while($row = mysql_fetch_assoc($rs)) {
 			$context_id = intval($row['context_id']);
@@ -559,54 +672,7 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 				$ptr[$field_id] = $field_value;
 				
 			}
-		}
-		
-		mysql_free_result($rs);
-		
-		// CLOBS
-		$sql = sprintf("SELECT context_id, field_id, field_value ".
-			"FROM custom_field_clobvalue ".
-			"WHERE context = '%s' AND context_id IN (%s)",
-			$context,
-			implode(',', $context_ids)
-		);
-		
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
-
-		while($row = mysql_fetch_assoc($rs)) {
-			$context_id = intval($row['context_id']);
-			$field_id = intval($row['field_id']);
-			$field_value = $row['field_value'];
-			
-			if(!isset($results[$context_id]))
-				$results[$context_id] = array();
-				
-			$ptr =& $results[$context_id];
-			$ptr[$field_id] = $field_value;
-		}
-		
-		mysql_free_result($rs);
-
-		// NUMBERS
-		$sql = sprintf("SELECT context_id, field_id, field_value ".
-			"FROM custom_field_numbervalue ".
-			"WHERE context = '%s' AND context_id IN (%s)",
-			$context,
-			implode(',', $context_ids)
-		);
-		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
-
-		while($row = mysql_fetch_assoc($rs)) {
-			$context_id = intval($row['context_id']);
-			$field_id = intval($row['field_id']);
-			$field_value = $row['field_value'];
-			
-			if(!isset($results[$context_id]))
-				$results[$context_id] = array();
-				
-			$ptr =& $results[$context_id];
-			$ptr[$field_id] = $field_value;
-		}
+		}		
 		
 		mysql_free_result($rs);
 		

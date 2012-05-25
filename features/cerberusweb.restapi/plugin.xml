@@ -1,32 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plugin xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.devblocks.com/schema/plugin.xsd">
 	<id>cerberusweb.restapi</id>
-	<name>[Cerb5] Web Services API (JSON/XML) *EXPERIMENTAL*</name>
-	<description>A RESTful JSON/XML interface for integrating Cerb5 with other applications and tools.</description>
+	<name>Web Services API (JSON/XML) *EXPERIMENTAL*</name>
+	<description>A RESTful JSON/XML interface for integrating Cerb with other applications and tools.</description>
 	<author>WebGroup Media, LLC.</author>
-	<version>5.7.2</version>
+	<version>6.0.0</version>
 	<link>http://wiki.cerb5.com/wiki/Features:Web_Services_API</link>
 	<image>plugin.png</image>
 
 	<!-- Requirements -->
 
 	<requires>
-		<app_version min="5.6" max="5.7.99" />
+		<app_version min="6.0" max="6.0.99" />
 	</requires>
 
 	<!-- Plugin Dependencies -->
 	
 	<dependencies>
-		<require plugin_id="cerberusweb.core" version="5.0.0-rc1" />
+		<require plugin_id="cerberusweb.core" version="6.0.0-dev" />
 	</dependencies>
 
 	<!-- Patches -->
 	
-	<!--
 	<patches>
-		<patch version="5.0.0-rc1" revision="1" file="patches/5.0.0_rc1.php" />
+		<patch version="6.0.0-dev" revision="1" file="patches/6.0.0.php" />
 	</patches>
-	-->
 
 	<!-- Exported Classes -->
 	
@@ -34,6 +32,12 @@
 		<file path="api/App.php">
 			<class name="IExtensionRestController" />
 			<class name="Plugin_RestAPI" />
+		</file>
+		<file path="api/dao/webapi_credentials.php">
+			<class name="DAO_WebApiCredentials" />
+			<class name="Model_WebApiCredentials" />
+			<class name="SearchFields_WebApiCredentials" />
+			<class name="View_WebApiCredentials" />
 		</file>
 	</class_loader>
 
@@ -52,6 +56,19 @@
 			</class>
 			<params>
 				<param key="uri" value="rest" />
+			</params>
+		</extension>
+		
+		<extension point="cerberusweb.preferences.tab">
+			<id>rest.preferences.tab.api</id>
+			<name>API Preferences Tab</name>
+			<class>
+				<file>api/App.php</file>
+				<name>Ch_RestPreferencesTab</name>
+			</class>
+			<params>
+				<param key="uri" value="api" />
+    			<param key="title" value="webapi.common.api_credentials" />
 			</params>
 		</extension>
 

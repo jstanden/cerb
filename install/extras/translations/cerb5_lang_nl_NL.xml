@@ -101,11 +101,6 @@
         <seg>[Toon ticket] Kan berichten in tickets permanent verwijderen</seg>
       </tuv>
     </tu>
-    <tu tuid="acl.core.home.workspaces">
-      <tuv xml:lang="nl_NL">
-        <seg>[Home] Kan privé werkbladen en lijsten maken</seg>
-      </tuv>
-    </tu>
     <tu tuid="acl.core.kb.articles.modify">
       <tuv xml:lang="nl_NL">
         <seg>[Kennisdatabase] Kan artikelen beheren</seg>
@@ -114,16 +109,6 @@
     <tu tuid="acl.core.kb.categories.modify">
       <tuv xml:lang="nl_NL">
         <seg>[Kennisdatabase] Kan categorieën beheren</seg>
-      </tuv>
-    </tu>
-    <tu tuid="acl.core.kb.topics.modify">
-      <tuv xml:lang="nl_NL">
-        <seg>[Kennisdatabase] Kan top-level onderwerpen beheren</seg>
-      </tuv>
-    </tu>
-    <tu tuid="acl.core.mail.search">
-      <tuv xml:lang="nl_NL">
-        <seg>[Mail] Kan het tabblad Zoeken gebruiken op de Mail pagina</seg>
       </tuv>
     </tu>
     <tu tuid="acl.core.mail.send">
@@ -421,56 +406,6 @@
         <seg>Contactpersoon-geschiedenis</seg>
       </tuv>
     </tu>
-    <tu tuid="addy_book.import.dupes.check">
-      <tuv xml:lang="nl_NL">
-        <seg>Controleer voor duplicaten</seg>
-      </tuv>
-    </tu>
-    <tu tuid="addy_book.import.dupes.dont_check">
-      <tuv xml:lang="nl_NL">
-        <seg>controleer niet op duplicaten</seg>
-      </tuv>
-    </tu>
-    <tu tuid="addy_book.import.from_file">
-      <tuv xml:lang="nl_NL">
-        <seg>Kolommen uit uw bestand</seg>
-      </tuv>
-    </tu>
-    <tu tuid="addy_book.import.options.blank_fields">
-      <tuv xml:lang="nl_NL">
-        <seg>Blanco waardes voor Custom Fields zal velden leegmaken(wanneer niet geselecteerd zullen blanco waardes genegeerd worden)</seg>
-      </tuv>
-    </tu>
-    <tu tuid="addy_book.import.options.import_first_row">
-      <tuv xml:lang="nl_NL">
-        <seg>Importeer alleen de eerste regel(gebruik dit alleen wanneer de uitklapmenu echte data bevat)</seg>
-      </tuv>
-    </tu>
-    <tu tuid="addy_book.import.options.replace_passwords">
-      <tuv xml:lang="nl_NL">
-        <seg>Vervang alle passwords met geïmporteerde waarden, zelfs wanneer ze bestaan</seg>
-      </tuv>
-    </tu>
-    <tu tuid="addy_book.import.record_type">
-      <tuv xml:lang="nl_NL">
-        <seg>Record type</seg>
-      </tuv>
-    </tu>
-    <tu tuid="addy_book.import.to_field">
-      <tuv xml:lang="nl_NL">
-        <seg>Zet waarde in veld</seg>
-      </tuv>
-    </tu>
-    <tu tuid="addy_book.import.upload_csv">
-      <tuv xml:lang="nl_NL">
-        <seg>Upload .CSV bestand</seg>
-      </tuv>
-    </tu>
-    <tu tuid="addy_book.import.upload_csv.tip">
-      <tuv xml:lang="nl_NL">
-        <seg>(willekeurige kolom orde; de volgende stap laat u kiezen waar de data naartoe geïmporteerd zal worden)</seg>
-      </tuv>
-    </tu>
     <tu tuid="addy_book.org.add">
       <tuv xml:lang="nl_NL">
         <seg>Organisatie toevoegen</seg>
@@ -519,11 +454,6 @@
     <tu tuid="addy_book.tab.import">
       <tuv xml:lang="nl_NL">
         <seg>Importeren</seg>
-      </tuv>
-    </tu>
-    <tu tuid="addy_book.tab.lists">
-      <tuv xml:lang="nl_NL">
-        <seg>Contactlijsten</seg>
       </tuv>
     </tu>
     <tu tuid="addy_book.tab.organizations">
@@ -1186,6 +1116,11 @@
         <seg>ticket</seg>
       </tuv>
     </tu>
+    <tu tuid="common.tickets">
+      <tuv xml:lang="nl_NL">
+        <seg>tickets</seg>
+      </tuv>
+    </tu>
     <tu tuid="common.time.mins.num">
       <tuv xml:lang="nl_NL">
         <seg>%s minuten</seg>
@@ -1374,36 +1309,6 @@
     <tu tuid="crm.opp.add">
       <tuv xml:lang="nl_NL">
         <seg>Voeg Opportunity toe</seg>
-      </tuv>
-    </tu>
-    <tu tuid="crm.opp.import.find_dupes">
-      <tuv xml:lang="nl_NL">
-        <seg>Vind duplicaten met dezelfde</seg>
-      </tuv>
-    </tu>
-    <tu tuid="crm.opp.import.from_file">
-      <tuv xml:lang="nl_NL">
-        <seg>Kolommen van uw bestand</seg>
-      </tuv>
-    </tu>
-    <tu tuid="crm.opp.import.options.blank_fields">
-      <tuv xml:lang="nl_NL">
-        <seg>Blanco waardes voor Custom Fields zal velden leegmaken(wanneer niet geselecteerd zullen blanco waardes genegeerd worden)</seg>
-      </tuv>
-    </tu>
-    <tu tuid="crm.opp.import.options.import_first_row">
-      <tuv xml:lang="nl_NL">
-        <seg>Importeer de eerste regel (selecteer dit alleen wanneer de uitklapvensters echte data bevatten)</seg>
-      </tuv>
-    </tu>
-    <tu tuid="crm.opp.import.options.set_owner">
-      <tuv xml:lang="nl_NL">
-        <seg>Stel de eigenaar van geïmporteerde opportunities in als:</seg>
-      </tuv>
-    </tu>
-    <tu tuid="crm.opp.import.to_field">
-      <tuv xml:lang="nl_NL">
-        <seg>Stel de waarde in het veld</seg>
       </tuv>
     </tu>
     <tu tuid="crm.opp.import.upload_csv">
@@ -1631,11 +1536,6 @@
         <seg>Weet u zeker dat u dit werkblad wilt verwijderen?</seg>
       </tuv>
     </tu>
-    <tu tuid="dashboard.edit">
-      <tuv xml:lang="nl_NL">
-        <seg>werkblad bewerken</seg>
-      </tuv>
-    </tu>
     <tu tuid="dashboard.group_filters">
       <tuv xml:lang="nl_NL">
         <seg>Groepsfilters</seg>
@@ -1794,11 +1694,6 @@
     <tu tuid="display.reply.next.resume_eg">
       <tuv xml:lang="nl_NL">
         <seg>(bv. "Friday", "7 days", "Tomorrow 11:15AM", "Dec 31")</seg>
-      </tuv>
-    </tu>
-    <tu tuid="display.reply.next_label">
-      <tuv xml:lang="nl_NL">
-        <seg>Volgende:</seg>
       </tuv>
     </tu>
     <tu tuid="display.reply.reply_banner">
@@ -2076,11 +1971,6 @@
         <seg>Nieuw</seg>
       </tuv>
     </tu>
-    <tu tuid="home.workspaces.worklist.add.to_workspace">
-      <tuv xml:lang="nl_NL">
-        <seg>Voeg werklijst toe aan werkblad</seg>
-      </tuv>
-    </tu>
     <tu tuid="home.workspaces.worklist.name">
       <tuv xml:lang="nl_NL">
         <seg>Werklijst naam</seg>
@@ -2214,16 +2104,6 @@
     <tu tuid="mail.received">
       <tuv xml:lang="nl_NL">
         <seg>Ontvangen</seg>
-      </tuv>
-    </tu>
-    <tu tuid="mail.search.messages">
-      <tuv xml:lang="nl_NL">
-        <seg>Zoek berichten</seg>
-      </tuv>
-    </tu>
-    <tu tuid="mail.search.tickets">
-      <tuv xml:lang="nl_NL">
-        <seg>Zoek tickets</seg>
       </tuv>
     </tu>
     <tu tuid="mail.send_mail">
@@ -3132,11 +3012,6 @@
         <seg>Woord</seg>
       </tuv>
     </tu>
-    <tu tuid="reports.ui.ticket.assignment">
-      <tuv xml:lang="nl_NL">
-        <seg>Momenteel toegewezen tickets</seg>
-      </tuv>
-    </tu>
     <tu tuid="reports.ui.ticket.closed">
       <tuv xml:lang="nl_NL">
         <seg>Gesloten tickets per groep tussen bepaalde datums</seg>
@@ -3145,16 +3020,6 @@
     <tu tuid="reports.ui.ticket.new_tickets">
       <tuv xml:lang="nl_NL">
         <seg>Aangemaakte tickets per groep tussen bepaalde datums</seg>
-      </tuv>
-    </tu>
-    <tu tuid="reports.ui.ticket.oldest_open">
-      <tuv xml:lang="nl_NL">
-        <seg>Oudste open tickets per groep</seg>
-      </tuv>
-    </tu>
-    <tu tuid="reports.ui.ticket.open_tickets">
-      <tuv xml:lang="nl_NL">
-        <seg>Momenteel open tickets per groep</seg>
       </tuv>
     </tu>
     <tu tuid="reports.ui.ticket.top_contacts">
@@ -3170,11 +3035,6 @@
     <tu tuid="reports.ui.ticket.top_contacts.by_org">
       <tuv xml:lang="nl_NL">
         <seg>per organisatie</seg>
-      </tuv>
-    </tu>
-    <tu tuid="reports.ui.ticket.waiting_tickets">
-      <tuv xml:lang="nl_NL">
-        <seg>Momenteel wachtende tickets per groep</seg>
       </tuv>
     </tu>
     <tu tuid="reports.ui.worker.response_time">
@@ -3774,7 +3634,7 @@
     </tu>
     <tu tuid="timetracking.ui.tracked_desc">
       <tuv xml:lang="nl_NL">
-        <seg>%s heeft %s minuten bijgehouden op %s</seg>
+        <seg>%s heeft %s bijgehouden op %s</seg>
       </tuv>
     </tu>
     <tu tuid="timetracking.ui.trial.limit_exceeded">

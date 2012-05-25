@@ -306,7 +306,7 @@ class SearchFields_Attachment implements IDevblocksSearchFields {
 		);
 		
 		// Sort by label (translation-conscious)
-		uasort($columns, create_function('$a, $b', "return strcasecmp(\$a->db_label,\$b->db_label);\n"));
+		DevblocksPlatform::sortObjects($columns, 'db_label');
 
 		return $columns;		
 	}
@@ -651,6 +651,7 @@ class View_AttachmentLink extends C4_AbstractView implements IAbstractView_Subto
 			SearchFields_AttachmentLink::LINK_CONTEXT,
 			SearchFields_AttachmentLink::ATTACHMENT_UPDATED,
 		);
+		
 		$this->addColumnsHidden(array(
 			SearchFields_AttachmentLink::ID,
 			SearchFields_AttachmentLink::LINK_CONTEXT_ID,
@@ -694,7 +695,6 @@ class View_AttachmentLink extends C4_AbstractView implements IAbstractView_Subto
 				case SearchFields_AttachmentLink::ATTACHMENT_DISPLAY_NAME:
 				case SearchFields_AttachmentLink::ATTACHMENT_MIME_TYPE:
 				case SearchFields_AttachmentLink::ATTACHMENT_STORAGE_EXTENSION:
-//				case SearchFields_AttachmentLink::ATTACHMENT_STORAGE_PROFILE_ID:
 				case SearchFields_AttachmentLink::LINK_CONTEXT:
 					$pass = true;
 					break;
@@ -741,10 +741,6 @@ class View_AttachmentLink extends C4_AbstractView implements IAbstractView_Subto
 				
 				$counts = $this->_getSubtotalCountForStringColumn('DAO_AttachmentLink', $column, $label_map, 'in', 'contexts[]');
 				break;
-
-//			case SearchFields_AttachmentLink::ATTACHMENT_STORAGE_PROFILE_ID:
-//				$counts = $this->_getSubtotalCountForStringColumn('DAO_Attachment', $column);
-//				break;
 		}
 		
 		return $counts;
@@ -760,6 +756,10 @@ class View_AttachmentLink extends C4_AbstractView implements IAbstractView_Subto
 		// Contexts
 		$contexts = Extension_DevblocksContext::getAll();
 		$tpl->assign('contexts', $contexts);
+		
+		// Storage extensions
+		$storage_extensions = DevblocksPlatform::getExtensions('devblocks.storage.engine', false);
+		$tpl->assign('storage_extensions', $storage_extensions);
 		
 		// [TODO] Move
 		$tpl->assign('view_template', 'devblocks:cerberusweb.core::configuration/section/storage_attachments/view.tpl');
@@ -847,26 +847,16 @@ class View_AttachmentLink extends C4_AbstractView implements IAbstractView_Subto
 			case SearchFields_AttachmentLink::ATTACHMENT_MIME_TYPE:
 			case SearchFields_AttachmentLink::ATTACHMENT_STORAGE_EXTENSION:
 			case SearchFields_AttachmentLink::ATTACHMENT_STORAGE_KEY:
-				// force wildcards if none used on a LIKE
-				if(($oper == DevblocksSearchCriteria::OPER_LIKE || $oper == DevblocksSearchCriteria::OPER_NOT_LIKE)
-				&& false === (strpos($value,'*'))) {
-					$value = $value.'*';
-				}
-				$criteria = new DevblocksSearchCriteria($field, $oper, $value);
+				$criteria = $this->_doSetCriteriaString($field, $oper, $value);				
 				break;
+				
 			case SearchFields_AttachmentLink::ATTACHMENT_STORAGE_SIZE:
 			case SearchFields_AttachmentLink::ATTACHMENT_STORAGE_PROFILE_ID:
 				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
 				break;
 				
 			case SearchFields_AttachmentLink::ATTACHMENT_UPDATED:
-				@$from = DevblocksPlatform::importGPC($_REQUEST['from'],'string','');
-				@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string','');
-
-				if(empty($from)) $from = 0;
-				if(empty($to)) $to = 'today';
-
-				$criteria = new DevblocksSearchCriteria($field,$oper,array($from,$to));
+				$criteria = $this->_doSetCriteriaDate($field, $oper);
 				break;
 				
 			case 'placeholder_bool':
@@ -1315,7 +1305,7 @@ class SearchFields_AttachmentLink implements IDevblocksSearchFields {
 		);
 		
 		// Sort by label (translation-conscious)
-		uasort($columns, create_function('$a, $b', "return strcasecmp(\$a->db_label,\$b->db_label);\n"));
+		DevblocksPlatform::sortObjects($columns, 'db_label');
 
 		return $columns;		
 	}

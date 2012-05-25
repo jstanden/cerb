@@ -57,6 +57,9 @@ foreach($fields as $field_name => $field_type) {
 	
 	static function update($ids, $fields) {
 		parent::_update($ids, '<?php echo $table_name; ?>', $fields);
+		
+		// Log the context update
+	    //DevblocksPlatform::markContextChanged('example.context', $ids);
 	}
 	
 	static function updateWhere($fields, $where) {
@@ -205,6 +208,16 @@ foreach($fields as $field_name => $field_type) {
 			
 		$sort_sql = (!empty($sortBy)) ? sprintf("ORDER BY %s %s ",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : " ";
 	
+		array_walk_recursive(
+			$params,
+			array('DAO_<?php echo $class_name; ?>', '_translateVirtualParameters'),
+			array(
+				'join_sql' => &$join_sql,
+				'where_sql' => &$where_sql,
+				'has_multiple_values' => &$has_multiple_values
+			)
+		);
+	
 		return array(
 			'primary_table' => '<?php echo $table_name; ?>',
 			'select' => $select_sql,
@@ -213,6 +226,26 @@ foreach($fields as $field_name => $field_type) {
 			'has_multiple_values' => $has_multiple_values,
 			'sort' => $sort_sql,
 		);
+	}
+	
+	private static function _translateVirtualParameters($param, $key, &$args) {
+		if(!is_a($param, 'DevblocksSearchCriteria'))
+			return;
+			
+		//$from_context = CerberusContexts::CONTEXT_EXAMPLE;
+		//$from_index = 'example.id';
+		
+		$param_key = $param->field;
+		settype($param_key, 'string');
+		
+		switch($param_key) {
+			/*
+			case SearchFields_EXAMPLE::VIRTUAL_WATCHERS:
+				$args['has_multiple_values'] = true;
+				self::_searchComponentsVirtualWatchers($param, $from_context, $from_index, $args['join_sql'], $args['where_sql']);
+				break;
+			*/
+		}
 	}
 	
     /**
@@ -321,11 +354,11 @@ foreach($fields as $field_name => $field_type) {
 		//if(is_array($fields))
 		//foreach($fields as $field_id => $field) {
 		//	$key = 'cf_'.$field_id;
-		//	$columns[$key] = new DevblocksSearchField($key,$key,'field_value',$field->name);
+		//	$columns[$key] = new DevblocksSearchField($key,$key,'field_value',$field->name,$field->type);
 		//}
 		
 		// Sort by label (translation-conscious)
-		uasort($columns, create_function('$a, $b', "return strcasecmp(\$a->db_label,\$b->db_label);\n"));
+		DevblocksPlatform::sortObjects($columns, 'db_label');
 
 		return $columns;		
 	}
@@ -428,15 +461,19 @@ foreach($fields as $field_name => $field_type) {
 			case 'placeholder_string':
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__string.tpl');
 				break;
+				
 			case 'placeholder_number':
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__number.tpl');
 				break;
+				
 			case 'placeholder_bool':
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__bool.tpl');
 				break;
+				
 			case 'placeholder_date':
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__date.tpl');
 				break;
+				
 			/*
 			default:
 				// Custom Fields
@@ -461,6 +498,15 @@ foreach($fields as $field_name => $field_type) {
 		}
 	}
 
+	function renderVirtualCriteria($param) {
+		$key = $param->field;
+		
+		$translate = DevblocksPlatform::getTranslationService();
+		
+		switch($key) {
+		}
+	}
+
 	function getFields() {
 		return SearchFields_<?php echo $class_name; ?>::getFields();
 	}
@@ -479,25 +525,15 @@ foreach($fields as $field_name => $field_type) {
 }
 ?>
 			case 'placeholder_string':
-				// force wildcards if none used on a LIKE
-				if(($oper == DevblocksSearchCriteria::OPER_LIKE || $oper == DevblocksSearchCriteria::OPER_NOT_LIKE)
-				&& false === (strpos($value,'*'))) {
-					$value = $value.'*';
-				}
-				$criteria = new DevblocksSearchCriteria($field, $oper, $value);
+				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
 				break;
+				
 			case 'placeholder_number':
 				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
 				break;
 				
 			case 'placeholder_date':
-				@$from = DevblocksPlatform::importGPC($_REQUEST['from'],'string','');
-				@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string','');
-
-				if(empty($from)) $from = 0;
-				if(empty($to)) $to = 'today';
-
-				$criteria = new DevblocksSearchCriteria($field,$oper,array($from,$to));
+				$criteria = $this->_doSetCriteriaDate($field, $oper);
 				break;
 				
 			case 'placeholder_bool':
@@ -574,7 +610,9 @@ foreach($fields as $field_name => $field_type) {
 		for($x=0;$x<=$batch_total;$x+=100) {
 			$batch_ids = array_slice($ids,$x,100);
 			
-			DAO_<?php echo $class_name; ?>::update($batch_ids, $change_fields);
+			if(!empty($change_fields)) {
+				DAO_<?php echo $class_name; ?>::update($batch_ids, $change_fields);
+			}
 
 			// Custom Fields
 			//self::_doBulkSetCustomFields(ChCustomFieldSource_<?php echo $class_name; ?>::ID, $custom_fields, $batch_ids);

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.devblocks.com/schema/plugin.xsd">
+	<id>example.profile.tab</id>
+	<name>[Example] Profile Tab</name>
+	<description>This demonstrates a tab being added to a profile page.</description>
+	<author>WebGroup Media, LLC.</author>
+	<version>0.0.1</version>
+	<link>http://www.cerb5.com/</link>
+	<!--<image>plugin.png</image>-->
+ 
+ 	<!-- Requirements -->
+
+	<requires>
+		<app_version min="6.0" max="6.0.99" />
+		<!--<php_extension name="curl" />-->
+	</requires>
+ 
+	<!-- Plugin Dependencies -->
+	
+	<dependencies>
+		<require plugin_id="cerberusweb.core" version="5.8.0" />
+	</dependencies>
+
+	<!-- Extensions -->
+ 
+	<extensions>
+
+		<!-- Profile Tab -->
+		
+		<extension point="cerberusweb.ui.context.profile.tab">
+			<id>example.profile_tab.example_tab</id>
+			<name>Example Profile Tab</name>
+			<class>
+				<file>api/App.php</file>
+				<name>ExContextProfileTab</name>
+			</class>
+			<params>
+				<param key="uri" value="example_tab" />
+				<param key="contexts">
+					<value>
+						<data key="*" />
+					</value>
+				</param>				
+    			<param key="title" value="example.profile_tab.tab_title" />
+			</params>
+		</extension>
+		
+    </extensions> 
+</plugin>

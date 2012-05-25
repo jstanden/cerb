@@ -21,6 +21,9 @@ class DAO_ExampleObject extends C4_ORMHelper {
 	
 	static function update($ids, $fields) {
 		parent::_update($ids, 'example_object', $fields);
+		
+	    // Log the context update
+   		//DevblocksPlatform::markContextChanged('example.context', $ids);
 	}
 	
 	static function updateWhere($fields, $where) {
@@ -297,11 +300,11 @@ class SearchFields_ExampleObject implements IDevblocksSearchFields {
 		if(is_array($fields))
 		foreach($fields as $field_id => $field) {
 			$key = 'cf_'.$field_id;
-			$columns[$key] = new DevblocksSearchField($key,$key,'field_value',$field->name);
+			$columns[$key] = new DevblocksSearchField($key,$key,'field_value',$field->name,$field->type);
 		}
 		
 		// Sort by label (translation-conscious)
-		uasort($columns, create_function('$a, $b', "return strcasecmp(\$a->db_label,\$b->db_label);\n"));
+		DevblocksPlatform::sortObjects($columns, 'db_label');
 
 		return $columns;		
 	}
@@ -328,6 +331,7 @@ class View_ExampleObject extends C4_AbstractView implements IAbstractView_Subtot
 		$this->view_columns = array(
 			SearchFields_ExampleObject::CREATED,
 		);
+		
 		$this->addColumnsHidden(array(
 			SearchFields_ExampleObject::ID,
 			SearchFields_ExampleObject::CONTEXT_LINK,
@@ -355,6 +359,10 @@ class View_ExampleObject extends C4_AbstractView implements IAbstractView_Subtot
 			$this->renderTotal
 		);
 		return $objects;
+	}
+	
+	function getDataAsObjects($ids=null) {
+		return $this->_getDataAsObjects('DAO_ExampleObject', $ids);
 	}
 	
 	function getDataSample($size) {
@@ -402,10 +410,6 @@ class View_ExampleObject extends C4_AbstractView implements IAbstractView_Subtot
 				$counts = $this->_getSubtotalCountForStringColumn('DAO_ExampleObject', $column);
 				break;
 
-//			case SearchFields_ExampleObject::EXAMPLE:
-//				$counts = $this->_getSubtotalCountForBooleanColumn('DAO_ExampleObject', $column);
-//				break;
-				
 			case SearchFields_ExampleObject::VIRTUAL_WATCHERS:
 				$counts = $this->_getSubtotalCountForWatcherColumn('DAO_ExampleObject', $column);
 				break;
@@ -434,8 +438,6 @@ class View_ExampleObject extends C4_AbstractView implements IAbstractView_Subtot
 
 		switch($this->renderTemplate) {
 			case 'contextlinks_chooser':
-				$tpl->display('devblocks:example.object::example_object/view_contextlinks_chooser.tpl');
-				break;
 			default:
 				$tpl->assign('view_template', 'devblocks:example.object::example_object/view.tpl');
 				$tpl->display('devblocks:cerberusweb.core::internal/views/subtotals_and_view.tpl');
@@ -505,12 +507,7 @@ class View_ExampleObject extends C4_AbstractView implements IAbstractView_Subtot
 
 		switch($field) {
 			case SearchFields_ExampleObject::NAME:
-				// force wildcards if none used on a LIKE
-				if(($oper == DevblocksSearchCriteria::OPER_LIKE || $oper == DevblocksSearchCriteria::OPER_NOT_LIKE)
-				&& false === (strpos($value,'*'))) {
-					$value = $value.'*';
-				}
-				$criteria = new DevblocksSearchCriteria($field, $oper, $value);
+				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
 				break;
 				
 			case SearchFields_ExampleObject::ID:
@@ -518,13 +515,7 @@ class View_ExampleObject extends C4_AbstractView implements IAbstractView_Subtot
 				break;
 				
 			case SearchFields_ExampleObject::CREATED:
-				@$from = DevblocksPlatform::importGPC($_REQUEST['from'],'string','');
-				@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string','');
-
-				if(empty($from)) $from = 0;
-				if(empty($to)) $to = 'today';
-
-				$criteria = new DevblocksSearchCriteria($field,$oper,array($from,$to));
+				$criteria = $this->_doSetCriteriaDate($field, $oper);
 				break;
 				
 			case 'placeholder_bool':
@@ -679,7 +670,11 @@ class Context_ExampleObject extends Extension_DevblocksContext {
 		// Token values
 		$token_values = array();
 		
+		$token_values['_context'] = Context_ExampleObject::ID;
+		
 		if($object) {
+			$token_values['_loaded'] = true;
+			$token_values['_label'] = $object->name;
 			$token_values['created'] = $object->created;
 			$token_values['id'] = $object->id;
 			$token_values['name'] = $object->name;
@@ -687,55 +682,52 @@ class Context_ExampleObject extends Extension_DevblocksContext {
 			// URL
 			$url_writer = DevblocksPlatform::getUrlService();
 			//$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=example.object&id=%d-%s",$object->id, DevblocksPlatform::strToPermalink($object->name)), true);
-			
-			$token_values['custom'] = array();
-			
-			$field_values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(Context_ExampleObject::ID, $object->id));
-			if(is_array($field_values) && !empty($field_values)) {
-				foreach($field_values as $cf_id => $cf_val) {
-					if(!isset($fields[$cf_id]))
-						continue;
-					
-					// The literal value
-					if(null != $object)
-						$token_values['custom'][$cf_id] = $cf_val;
-					
-					// Stringify
-					if(is_array($cf_val))
-						$cf_val = implode(', ', $cf_val);
-						
-					if(is_string($cf_val)) {
-						if(null != $object)
-							$token_values['custom_'.$cf_id] = $cf_val;
-					}
-				}
-			}
 		}
 
-		// Example link
-		// [TODO] Use the following code if you want to link to another context
-//		@$assignee_id = $object->worker_id;
-//		$merge_token_labels = array();
-//		$merge_token_values = array();
-//		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $assignee_id, $merge_token_labels, $merge_token_values, '', true);
-//
-//		CerberusContexts::merge(
-//			'assignee_',
-//			'Assignee:',
-//			$merge_token_labels,
-//			$merge_token_values,
-//			$token_labels,
-//			$token_values
-//		);			
-		
 		return true;
 	}
 
-	function getChooserView() {
-		$active_worker = CerberusApplication::getActiveWorker();
+	function lazyLoadContextValues($token, $dictionary) {
+		if(!isset($dictionary['id']))
+			return;
 		
+		$context = Context_ExampleObject::ID;
+		$context_id = $dictionary['id'];
+		
+		@$is_loaded = $dictionary['_loaded'];
+		$values = array();
+		
+		if(!$is_loaded) {
+			$labels = array();
+			CerberusContexts::getContext($context, $context_id, $labels, $values);
+		}
+		
+		switch($token) {
+			case 'watchers':
+				$watchers = array(
+					$token => CerberusContexts::getWatchers($context, $context_id, true),
+				);
+				$values = array_merge($values, $watchers);
+				break;
+				
+			default:
+				if(substr($token,0,7) == 'custom_') {
+					$fields = $this->_lazyLoadCustomFields($context, $context_id);
+					$values = array_merge($values, $fields);
+				}
+				break;
+		}
+		
+		return $values;
+	}	
+	
+	function getChooserView($view_id=null) {
+		$active_worker = CerberusApplication::getActiveWorker();
+
+		if(empty($view_id))
+			$view_id = 'chooser_'.str_replace('.','_',$this->id).time().mt_rand(0,9999);
+	
 		// View
-		$view_id = 'chooser_'.str_replace('.','_',$this->id).time().mt_rand(0,9999);
 		$defaults = new C4_AbstractViewModel();
 		$defaults->id = $view_id;
 		$defaults->is_ephemeral = true;
@@ -750,6 +742,7 @@ class Context_ExampleObject extends Extension_DevblocksContext {
 		$view->renderSortAsc = false;
 		$view->renderLimit = 10;
 		$view->renderTemplate = 'contextlinks_chooser';
+		$view->renderFilters = false;
 		C4_AbstractViewLoader::setView($view_id, $view);
 		return $view;
 	}

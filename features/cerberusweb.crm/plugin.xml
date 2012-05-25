@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plugin xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.devblocks.com/schema/plugin.xsd">
 	<id>cerberusweb.crm</id>
-	<name>[Cerb5] Opportunity Tracking</name>
+	<name>Opportunity Tracking</name>
 	<description>Create opportunities (sales leads) linked to e-mail addresses. Opportunity records can be created from the Activity menu or while reading tickets.</description>
 	<author>WebGroup Media, LLC.</author>
-	<version>5.7.2</version>
+	<version>6.0.0</version>
 	<link>http://wiki.cerb5.com/wiki/Features:Opportunity_Tracking</link>
 	<image>plugin.png</image>
 	
 	<!-- Requirements -->
 
 	<requires>
-		<app_version min="5.6" max="5.7.99" />
+		<app_version min="6.0" max="6.0.99" />
 	</requires>
 	
 	<!-- Plugin Dependencies -->
@@ -31,10 +31,6 @@
 	<!-- Exported Classes -->
 	
 	<class_loader>
-		<file path="api/App.php">
-			<class name="Extension_CrmOpportunityTab" />
-			<class name="Extension_CrmOpportunityToolbarItem" />
-		</file>
 		<file path="api/dao/crm_opportunity.php">
 			<class name="Context_CrmOpportunity" />
 			<class name="DAO_CrmOpportunity" />
@@ -92,12 +88,14 @@
 				<name>Context_Opportunity</name>
 			</class>
 			<params>
+				<param key="alias" value="opportunity" />
 				<param key="view_class" value="View_CrmOpportunity" />
 				<param key="options">
 					<value>
 						<data key="create" />
 						<data key="find" />
 						<data key="snippets" />
+						<data key="va_variable" />
 						<data key="workspace" />
 					</value>
 				</param>
@@ -122,21 +120,21 @@
 			</params>
 		</extension>
 
-		<!-- Activity Tabs -->
+		<!-- Profile Page Sections -->
 		
-		<extension point="cerberusweb.activity.tab">
-			<id>crm.activity.tab.opps</id>
-			<name>Opportunities Tab</name>
+		<extension point="cerberusweb.ui.page.section">
+			<id>crm.page.profiles.opportunity</id>
+			<name>Opp Section</name>
 			<class>
-				<file>api/App.php</file>
-				<name>CrmOppsActivityTab</name>
+				<file>api/uri/profiles/opp.php</file>
+				<name>PageSection_ProfilesOpportunity</name>
 			</class>
 			<params>
-				<param key="uri" value="opps" />
-				<param key="title" value="crm.tab.title" />
+				<param key="page_id" value="core.page.profiles" />
+				<param key="uri" value="opportunity" />
 			</params>
 		</extension>
-		
+
 		<!-- Event Triggers -->
 		
 		<extension point="devblocks.event">
@@ -147,8 +145,10 @@
 				<name>Event_CrmOpportunityMacro</name>
 			</class>
 			<params>
+				<param key="macro_context" value="cerberusweb.contexts.opportunity" />
 				<param key="contexts">
 					<value>
+						<data key="cerberusweb.contexts.role" />
 						<data key="cerberusweb.contexts.worker" />
 					</value>
 				</param>
@@ -172,7 +172,7 @@
 
 		<!-- Org Tabs -->
 		
-		<extension point="cerberusweb.org.tab">
+		<extension point="cerberusweb.ui.context.profile.tab">
 			<id>crm.opp.tab.org</id>
 			<name>Opportunity Tab</name>
 			<class>
@@ -181,13 +181,18 @@
 			</class>
 			<params>
 				<param key="uri" value="opps" />
+				<param key="contexts">
+					<value>
+						<data key="cerberusweb.contexts.org" />
+					</value>
+				</param>
 				<param key="title" value="crm.tab.title" />
 			</params>
 		</extension>
 		
 		<!-- Ticket Tabs -->
 		
-		<extension point="cerberusweb.ticket.tab">
+		<extension point="cerberusweb.ui.context.profile.tab">
 			<id>crm.opp.tab.ticket</id>
 			<name>Opportunity Tab</name>
 			<class>
@@ -196,6 +201,11 @@
 			</class>
 			<params>
 				<param key="uri" value="opps" />
+				<param key="contexts">
+					<value>
+						<data key="cerberusweb.contexts.ticket" />
+					</value>
+				</param>
 				<param key="title" value="crm.tab.title" />
 			</params>
 		</extension>

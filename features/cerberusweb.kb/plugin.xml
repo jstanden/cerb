@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plugin xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.devblocks.com/schema/plugin.xsd">
 	<id>cerberusweb.kb</id>
-	<name>[Cerb5] Knowledgebase</name>
+	<name>Knowledgebase</name>
 	<description>Create and categorize articles to share knowledge between workers or your community.</description>
 	<author>WebGroup Media, LLC.</author>
-	<version>5.7.2</version>
+	<version>6.0.0</version>
 	<link>http://wiki.cerb5.com/wiki/Features:Knowledgebase</link>
 	<image>plugin.png</image>
 	
 	<!-- Requirements -->
 
 	<requires>
-		<app_version min="5.6" max="5.7.99" />
+		<app_version min="6.0" max="6.0.99" />
 	</requires>
 	
 	<!-- Plugin Dependencies -->
@@ -33,7 +33,6 @@
 		<file path="api/App.php">
 			<class name="Context_KbCategory" />
 			<class name="DAO_KbCategory" />
-			<class name="Extension_KnowledgebaseTab" />
 			<class name="Model_KbCategory" />
 			<class name="SearchFields_KbCategory" />
 		</file>
@@ -72,7 +71,6 @@
 		<!-- KB -->
 		<priv id="core.kb.articles.modify" label="acl.core.kb.articles.modify" />
 		<priv id="core.kb.categories.modify" label="acl.core.kb.categories.modify" />
-		<priv id="core.kb.topics.modify" label="acl.core.kb.topics.modify" />
 		<priv id="kb.articles.actions.update_all" label="acl.kb.articles.actions.update_all" />
 	</acl>
 	
@@ -106,12 +104,14 @@
 				<name>Context_KbArticle</name>
 			</class>
 			<params>
+				<param key="alias" value="kb_article" />
 				<param key="view_class" value="View_KbArticle" />
 				<param key="options">
 					<value>
-						<!--<data key="create" />-->
+						<data key="create" />
 						<data key="find" />
 						<data key="snippets" />
+						<data key="va_variable" />
 						<data key="workspace" />
 					</value>
 				</param>
@@ -126,14 +126,17 @@
 				<name>Context_KbCategory</name>
 			</class>
 			<params>
+				<param key="alias" value="kb_category" />
 				<param key="view_class" value="View_KbCategory" />
 				<param key="options">
+					<!--
 					<value>
-						<!--<data key="create" />-->
-						<!--<data key="find" />-->
-						<!--<data key="snippets" />-->
-						<!--<data key="workspace" />-->
+						<data key="create" />
+						<data key="find" />
+						<data key="snippets" />
+						<data key="workspace" />
 					</value>
+					-->
 				</param>
 			</params>
 		</extension>	
@@ -148,8 +151,10 @@
 				<name>Event_KbArticleMacro</name>
 			</class>
 			<params>
+				<param key="macro_context" value="cerberusweb.contexts.kb_article" />
 				<param key="contexts">
 					<value>
+						<data key="cerberusweb.contexts.role" />
 						<data key="cerberusweb.contexts.worker" />
 					</value>
 				</param>
@@ -167,8 +172,36 @@
 			</class>
 			<params>
 				<param key="uri" value="kb" />
-				<param key="menutitle" value="common.knowledgebase" />
-				<!--<param key="acl" value="core.kb" />-->
+				<param key="menutitle" value="" />
+			</params>
+		</extension>
+		
+		<!-- Workspace Tab -->
+		
+		<extension point="cerberusweb.ui.workspace.tab">
+			<id>cerberusweb.kb.tab.browse</id>
+			<name>Browse KB Tab</name>
+			<class>
+				<file>api/App.php</file>
+				<name>WorkspaceTab_KbBrowse</name>
+			</class>
+			<params>
+				<param key="label" value="kb.workspace.tab.browser" />
+			</params>
+		</extension>		
+		
+		<!-- Profile Page Sections -->
+		
+		<extension point="cerberusweb.ui.page.section">
+			<id>cerberusweb.page.profiles.kb_article</id>
+			<name>KB Article Section</name>
+			<class>
+				<file>api/profiles/kb_article.php</file>
+				<name>PageSection_ProfilesKbArticle</name>
+			</class>
+			<params>
+				<param key="page_id" value="core.page.profiles" />
+				<param key="uri" value="kb" />
 			</params>
 		</extension>
 	
@@ -186,34 +219,6 @@
 			</params>
 		</extension>
 		
-		<!-- Knowledgebase Tabs -->
-		
-		<extension point="cerberusweb.knowledgebase.tab">
-			<id>cerberusweb.kb.tab.browse</id>
-			<name>KB Browse Tab</name>
-			<class>
-				<file>api/App.php</file>
-				<name>ChKbBrowseTab</name>
-			</class>
-			<params>
-				<param key="uri" value="browse" />
-				<param key="title" value="Browse" />
-			</params>
-		</extension>
-		
-		<extension point="cerberusweb.knowledgebase.tab">
-			<id>cerberusweb.kb.tab.search</id>
-			<name>KB Search Tab</name>
-			<class>
-				<file>api/App.php</file>
-				<name>ChKbSearchTab</name>
-			</class>
-			<params>
-				<param key="uri" value="search" />
-				<param key="title" value="Search" />
-			</params>
-		</extension>
-
 		<!-- Ticket Reply Toolbar -->
 			
 		<extension point="cerberusweb.reply.toolbaritem">
@@ -222,32 +227,6 @@
 			<class>
 				<file>api/App.php</file>
 				<name>ChKbReplyToolbarButton</name>
-			</class>
-			<params>
-			</params>
-		</extension>
-		
-		<!-- Log Ticket Toolbar -->
-			
-		<extension point="cerberusweb.mail.log.toolbaritem">
-			<id>cerberusweb.kb.logticket.toolbaritem.kb</id>
-			<name>KB Log Ticket Toolbar</name>
-			<class>
-				<file>api/App.php</file>
-				<name>ChKbLogTicketToolbarButton</name>
-			</class>
-			<params>
-			</params>
-		</extension>
-		
-		<!-- Send Mail Toolbar -->
-			
-		<extension point="cerberusweb.mail.send.toolbaritem">
-			<id>cerberusweb.kb.sendmail.toolbaritem.kb</id>
-			<name>KB Send Mail Toolbar</name>
-			<class>
-				<file>api/App.php</file>
-				<name>ChKbSendMailToolbarButton</name>
 			</class>
 			<params>
 			</params>

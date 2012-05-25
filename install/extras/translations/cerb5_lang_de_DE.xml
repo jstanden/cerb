@@ -76,11 +76,6 @@
         <seg>[Ticketansicht] Kann Tickets teilen</seg>
       </tuv>
     </tu>
-    <tu tuid="acl.core.home.workspaces">
-      <tuv xml:lang="de_DE">
-        <seg>[Übersicht] Kann private Arbeitsbereiche und -Listen erstellen</seg>
-      </tuv>
-    </tu>
     <tu tuid="acl.core.kb.articles.modify">
       <tuv xml:lang="de_DE">
         <seg>[Hilfedatenbank] Kann Artikel verfassen/bearbeiten</seg>
@@ -91,19 +86,9 @@
         <seg>[Hilfedatenbank] Kann Kategorien verfassen/bearbeiten</seg>
       </tuv>
     </tu>
-    <tu tuid="acl.core.kb.topics.modify">
-      <tuv xml:lang="de_DE">
-        <seg>[Hilfedatenbank] Kann Top-Level Übberschriften verfassen/bearbeiten</seg>
-      </tuv>
-    </tu>
     <tu tuid="acl.core.mail.overview">
       <tuv xml:lang="de_DE">
         <seg>[Email] Kann die Übersicht auf der email-Seite nutzen</seg>
-      </tuv>
-    </tu>
-    <tu tuid="acl.core.mail.search">
-      <tuv xml:lang="de_DE">
-        <seg>[Email] Kann die Suche auf der email-Seite nutzen</seg>
       </tuv>
     </tu>
     <tu tuid="acl.core.mail.send">
@@ -411,56 +396,6 @@
         <seg>Kontakt-Historie</seg>
       </tuv>
     </tu>
-    <tu tuid="addy_book.import.dupes.check">
-      <tuv xml:lang="de_DE">
-        <seg>Prüfe nach Duplikaten über</seg>
-      </tuv>
-    </tu>
-    <tu tuid="addy_book.import.dupes.dont_check">
-      <tuv xml:lang="de_DE">
-        <seg>nicht nach Duplikaten prüfen</seg>
-      </tuv>
-    </tu>
-    <tu tuid="addy_book.import.from_file">
-      <tuv xml:lang="de_DE">
-        <seg>Spalten aus Ihrer Datei</seg>
-      </tuv>
-    </tu>
-    <tu tuid="addy_book.import.options.blank_fields">
-      <tuv xml:lang="de_DE">
-        <seg>Leere Werte für benutzerdefinierte Felder sollten das Feld leeren (wenn nicht ausgewählt werden leere Werte übersprungen)</seg>
-      </tuv>
-    </tu>
-    <tu tuid="addy_book.import.options.import_first_row">
-      <tuv xml:lang="de_DE">
-        <seg>Import der ersten Zeile (dies nur auswählen, wenn die Dropdown-Listen richtige Werte enthalten)</seg>
-      </tuv>
-    </tu>
-    <tu tuid="addy_book.import.options.replace_passwords">
-      <tuv xml:lang="de_DE">
-        <seg>Ersetze alle Passwörter mit importierten Werten, auch wenn diese bereits existieren</seg>
-      </tuv>
-    </tu>
-    <tu tuid="addy_book.import.record_type">
-      <tuv xml:lang="de_DE">
-        <seg>Datensatztyp</seg>
-      </tuv>
-    </tu>
-    <tu tuid="addy_book.import.to_field">
-      <tuv xml:lang="de_DE">
-        <seg>Setze Wert im Feld</seg>
-      </tuv>
-    </tu>
-    <tu tuid="addy_book.import.upload_csv">
-      <tuv xml:lang="de_DE">
-        <seg>CSV-Datei hoch laden</seg>
-      </tuv>
-    </tu>
-    <tu tuid="addy_book.import.upload_csv.tip">
-      <tuv xml:lang="de_DE">
-        <seg>(jede Spaltenreihenfolge; im nächsten Schritt wird das Ziel der Daten festgelegt)</seg>
-      </tuv>
-    </tu>
     <tu tuid="addy_book.org.add">
       <tuv xml:lang="de_DE">
         <seg>Organisation hinzufügen</seg>
@@ -509,11 +444,6 @@
     <tu tuid="addy_book.tab.import">
       <tuv xml:lang="de_DE">
         <seg>Import</seg>
-      </tuv>
-    </tu>
-    <tu tuid="addy_book.tab.lists">
-      <tuv xml:lang="de_DE">
-        <seg>Kontaktlisten</seg>
       </tuv>
     </tu>
     <tu tuid="addy_book.tab.organizations">
@@ -1191,6 +1121,11 @@
         <seg>Ticket</seg>
       </tuv>
     </tu>
+    <tu tuid="common.tickets">
+      <tuv xml:lang="de_DE">
+        <seg>Tickets</seg>
+      </tuv>
+    </tu>
     <tu tuid="common.time.mins.num">
       <tuv xml:lang="de_DE">
         <seg>%s Min.</seg>
@@ -1466,36 +1401,6 @@
         <seg>Absatzchance hinzufügen</seg>
       </tuv>
     </tu>
-    <tu tuid="crm.opp.import.find_dupes">
-      <tuv xml:lang="de_DE">
-        <seg>Finde Duplikate</seg>
-      </tuv>
-    </tu>
-    <tu tuid="crm.opp.import.from_file">
-      <tuv xml:lang="de_DE">
-        <seg>Spalten von Ihrer Datei</seg>
-      </tuv>
-    </tu>
-    <tu tuid="crm.opp.import.options.blank_fields">
-      <tuv xml:lang="de_DE">
-        <seg>Leere Werte für benutzerdefinierte Felder sollten das Feld leeren (wenn nicht ausgewählt werden leere Werte übersprungen)</seg>
-      </tuv>
-    </tu>
-    <tu tuid="crm.opp.import.options.import_first_row">
-      <tuv xml:lang="de_DE">
-        <seg>Import der ersten Zeile (dies nur auswählen, wenn die Dropdown-Listen richtige Werte enthalten)</seg>
-      </tuv>
-    </tu>
-    <tu tuid="crm.opp.import.options.set_owner">
-      <tuv xml:lang="de_DE">
-        <seg>Setze den Inhaber von importierten Absatzchancen auf:</seg>
-      </tuv>
-    </tu>
-    <tu tuid="crm.opp.import.to_field">
-      <tuv xml:lang="de_DE">
-        <seg>Setze Wert im Feld</seg>
-      </tuv>
-    </tu>
     <tu tuid="crm.opp.import.upload_csv">
       <tuv xml:lang="de_DE">
         <seg>CSV-Datei hoch laden</seg>
@@ -1736,11 +1641,6 @@
         <seg>Wollen Sie den Arbeitsbereich wirklich löschen?</seg>
       </tuv>
     </tu>
-    <tu tuid="dashboard.edit">
-      <tuv xml:lang="de_DE">
-        <seg>Arbeitsbereich editieren</seg>
-      </tuv>
-    </tu>
     <tu tuid="dashboard.group_filters">
       <tuv xml:lang="de_DE">
         <seg>Gruppen-Filter</seg>
@@ -1924,11 +1824,6 @@
     <tu tuid="display.reply.next.resume_eg">
       <tuv xml:lang="de_DE">
         <seg>z.B. "Freitag", "7 Tage", "Morgen 11:15", "31.12."</seg>
-      </tuv>
-    </tu>
-    <tu tuid="display.reply.next_label">
-      <tuv xml:lang="de_DE">
-        <seg>Weiter:</seg>
       </tuv>
     </tu>
     <tu tuid="display.reply.reply_banner">
@@ -2336,11 +2231,6 @@
         <seg>Neu</seg>
       </tuv>
     </tu>
-    <tu tuid="home.workspaces.worklist.add.to_workspace">
-      <tuv xml:lang="de_DE">
-        <seg>Füge Arbeitsliste zu Arbeitsbereich hinzu</seg>
-      </tuv>
-    </tu>
     <tu tuid="home.workspaces.worklist.name">
       <tuv xml:lang="de_DE">
         <seg>Arbeitslistenname</seg>
@@ -2519,16 +2409,6 @@
     <tu tuid="mail.received">
       <tuv xml:lang="de_DE">
         <seg>Empfangen</seg>
-      </tuv>
-    </tu>
-    <tu tuid="mail.search.messages">
-      <tuv xml:lang="de_DE">
-        <seg>Suche Nachrichten</seg>
-      </tuv>
-    </tu>
-    <tu tuid="mail.search.tickets">
-      <tuv xml:lang="de_DE">
-        <seg>Suche Tickets</seg>
       </tuv>
     </tu>
     <tu tuid="mail.send_mail">
@@ -3781,11 +3661,6 @@ Wenn Sie dies nich angefordert haben, klicken Sie den o.g. Link nicht. Die Anfor
         <seg>Wort</seg>
       </tuv>
     </tu>
-    <tu tuid="reports.ui.ticket.assignment">
-      <tuv xml:lang="de_DE">
-        <seg>Aktuelle Ticketzuweisungen</seg>
-      </tuv>
-    </tu>
     <tu tuid="reports.ui.ticket.closed">
       <tuv xml:lang="de_DE">
         <seg>Geschlossene Tickets nach Gruppe</seg>
@@ -3801,16 +3676,6 @@ Wenn Sie dies nich angefordert haben, klicken Sie den o.g. Link nicht. Die Anfor
         <seg>Erstellte Tickets nach Gruppe</seg>
       </tuv>
     </tu>
-    <tu tuid="reports.ui.ticket.oldest_open">
-      <tuv xml:lang="de_DE">
-        <seg>Älteste offene Tickets nach Gruppe</seg>
-      </tuv>
-    </tu>
-    <tu tuid="reports.ui.ticket.open_tickets">
-      <tuv xml:lang="de_DE">
-        <seg>Offene Tickets nach Gruppe</seg>
-      </tuv>
-    </tu>
     <tu tuid="reports.ui.ticket.top_contacts">
       <tuv xml:lang="de_DE">
         <seg>Top Tickets (erstellt nach Kontakt)</seg>
@@ -3824,11 +3689,6 @@ Wenn Sie dies nich angefordert haben, klicken Sie den o.g. Link nicht. Die Anfor
     <tu tuid="reports.ui.ticket.top_contacts.by_org">
       <tuv xml:lang="de_DE">
         <seg>Nach Organisation</seg>
-      </tuv>
-    </tu>
-    <tu tuid="reports.ui.ticket.waiting_tickets">
-      <tuv xml:lang="de_DE">
-        <seg>Wartende Tickets nach Gruppe</seg>
       </tuv>
     </tu>
     <tu tuid="reports.ui.worker">
@@ -4634,7 +4494,7 @@ login</seg>
     </tu>
     <tu tuid="timetracking.ui.tracked_desc">
       <tuv xml:lang="de_DE">
-        <seg>%s erfasste %s Minute(n) in %s</seg>
+        <seg>%s erfasste %s in %s</seg>
       </tuv>
     </tu>
     <tu tuid="timetracking.ui.trial.limit_exceeded">

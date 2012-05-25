@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plugin xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.devblocks.com/schema/plugin.xsd">
 	<id>cerberusweb.timetracking</id>
-	<name>[Cerb5] Time Tracking</name>
+	<name>Time Tracking</name>
 	<description>Track time spent on various helpdesk activities (replying to tickets, etc).  This adds a Track Time button to Display Ticket and Organizations, and a Time Tracking tab to the Activity page.</description>
 	<author>WebGroup Media, LLC.</author>
-	<version>5.7.2</version>
+	<version>6.0.0</version>
 	<link>http://wiki.cerb5.com/wiki/Features:Time_Tracking</link>
 	<image>plugin.png</image>
 	
 	<!-- Requirements -->
 
 	<requires>
-		<app_version min="5.6" max="5.7.99" />
+		<app_version min="6.0" max="6.0.99" />
 	</requires>
 	
 	<!-- Plugin Dependencies -->
@@ -66,12 +66,14 @@
 				<name>Context_TimeTracking</name>
 			</class>
 			<params>
+				<param key="alias" value="time_entry" />
 				<param key="view_class" value="View_TimeTracking" />
 				<param key="options">
 					<value>
-						<!--<data key="create" />-->
+						<data key="create" />
 						<data key="find" />
 						<data key="snippets" />
+						<data key="va_variable" />
 						<data key="workspace" />
 					</value>
 				</param>
@@ -88,8 +90,10 @@
 				<name>Event_TimeTrackingMacro</name>
 			</class>
 			<params>
+				<param key="macro_context" value="cerberusweb.contexts.timetracking" />
 				<param key="contexts">
 					<value>
+						<data key="cerberusweb.contexts.role" />
 						<data key="cerberusweb.contexts.worker" />
 					</value>
 				</param>
@@ -128,18 +132,23 @@
 			</params>
 		</extension>
 	
-		<!-- Ticket Display Toolbar -->	
+		<!-- Profile Script -->
 		
-		<extension point="cerberusweb.ticket.toolbaritem">
-			<id>timetracking.ticket.toolbaritem.timer</id>
-			<name>Time Tracking Ticket Toolbar Timer</name>
+		<extension point="cerberusweb.ui.context.profile.script">
+			<id>timetracking.profile_script.timer</id>
+			<name>Time Tracking Profile Script</name>
 			<class>
 				<file>api/App.php</file>
-				<name>ChTimeTrackingTicketToolbarTimer</name>
+				<name>ChTimeTrackingProfileScript</name>
 			</class>
 			<params>
+				<param key="contexts">
+					<value>
+						<data key="*" />
+					</value>
+				</param>				
 			</params>
-		</extension>
+		</extension>		
 	
 		<!-- Ticket Reply Toolbar -->
 			
@@ -154,75 +163,6 @@
 			</params>
 		</extension>
 		
-		<!-- CRM Opportunity Toolbar -->
-		
-		<extension point="cerberusweb.crm.opp.toolbaritem">
-			<id>timetracking.crmopp.toolbaritem.timer</id>
-			<name>CRM Opportunity Toolbar Timer</name>
-			<class>
-				<file>api/App.php</file>
-				<name>ChCrmOppToolbarTimer</name>
-			</class>
-			<params>
-			</params>
-		</extension>
-		
-		<!-- Log Mail Toolbar -->
-		<!-- 
-		<extension point="cerberusweb.mail.log.toolbaritem">
-			<id>timetracking.logmail.toolbaritem.timer</id>
-			<name>Time Tracking Log Mail Toolbar Timer</name>
-			<class>
-				<file>api/App.php</file>
-				<name>ChTimeTrackingLogMailToolbarTimer</name>
-			</class>
-			<params>
-			</params>
-		</extension>
-		-->
-	
-		<!-- Send Mail Toolbar -->
-		<!-- 
-		<extension point="cerberusweb.mail.send.toolbaritem">
-			<id>timetracking.sendmail.toolbaritem.timer</id>
-			<name>Time Tracking Send Mail Toolbar Timer</name>
-			<class>
-				<file>api/App.php</file>
-				<name>ChTimeTrackingSendMailToolbarTimer</name>
-			</class>
-			<params>
-			</params>
-		</extension>
-	 	-->
-	 
-		<!-- Task Toolbar -->
-			
-		<extension point="cerberusweb.task.toolbaritem">
-			<id>timetracking.task.toolbaritem.timer</id>
-			<name>Task Toolbar Timer</name>
-			<class>
-				<file>api/App.php</file>
-				<name>ChTimeTrackingTaskToolbarTimer</name>
-			</class>
-			<params>
-			</params>
-		</extension>
-	 
-		<!-- Activity Tabs -->
-		
-		<extension point="cerberusweb.activity.tab">
-			<id>timetracking.activity.tab</id>
-			<name>TimeTracking Tab</name>
-			<class>
-				<file>api/App.php</file>
-				<name>TimeTrackingActivityTab</name>
-			</class>
-			<params>
-				<param key="uri" value="timetracking" />
-				<param key="title" value="timetracking.activity.tab" />
-			</params>
-		</extension>
-
 		<!-- Setup Page Sections -->
 		
 		<extension point="cerberusweb.ui.page.section">
@@ -253,7 +193,7 @@
 			</params>
 		</extension>
 	
-		<!-- Controllers -->
+		<!-- Pages -->
 		
  		<extension point="cerberusweb.page">
 			<id>timetracking.page</id>
@@ -265,6 +205,21 @@
 			<params>
 				<param key="uri" value="timetracking" />
 				<param key="menutitle" value="" />
+			</params>
+		</extension>
+		 
+		<!-- Profile Page Sections -->
+		
+		<extension point="cerberusweb.ui.page.section">
+			<id>cerberusweb.profiles.time_tracking</id>
+			<name>Time Tracking Page Section</name>
+			<class>
+				<file>api/profiles/time_tracking.php</file>
+				<name>PageSection_ProfilesTimeTracking</name>
+			</class>
+			<params>
+				<param key="page_id" value="core.page.profiles" />
+				<param key="uri" value="time_tracking" />
 			</params>
 		</extension>
 		 

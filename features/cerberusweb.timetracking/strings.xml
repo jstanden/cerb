@@ -31,26 +31,14 @@
 		
 		<!-- Common  -->
 
-		<tu tuid='timetracking.ui.billable'>
-			<tuv xml:lang="en_US"><seg>Billable</seg></tuv>
-		</tu>
-		<tu tuid='timetracking.ui.billable_label'>
-			<tuv xml:lang="en_US"><seg>Billable:</seg></tuv>
-		</tu>
 		<tu tuid='timetracking.ui.generic_worker'>
 			<tuv xml:lang="en_US"><seg>A worker</seg></tuv>
-		</tu>
-		<tu tuid='timetracking.ui.non_billable'>
-			<tuv xml:lang="en_US"><seg>Non-Billable</seg></tuv>
-		</tu>
-		<tu tuid='timetracking.ui.non_billable_label'>
-			<tuv xml:lang="en_US"><seg>Non-Billable:</seg></tuv>
 		</tu>
 		<tu tuid='timetracking.ui.timetracking'>
 			<tuv xml:lang="en_US"><seg>Time Tracking</seg></tuv>
 		</tu>
 		<tu tuid='timetracking.ui.tracked_desc'>
-			<tuv xml:lang="en_US"><seg>%s tracked %s mins on %s</seg></tuv>
+			<tuv xml:lang="en_US"><seg>%s tracked %s on %s</seg></tuv>
 		</tu>
 		<tu tuid='timetracking.ui.worker'>
 			<tuv xml:lang="en_US"><seg>Worker:</seg></tuv>
@@ -62,18 +50,6 @@
 			<tuv xml:lang="en_US"><seg>Ticket #%s</seg></tuv>
 		</tu>
 
-		<!-- Criteria -->
-		
-		<tu tuid='timetracking.ui.criteria.billable'>
-			<tuv xml:lang="en_US"><seg>Billable Activities:</seg></tuv>
-		</tu>
-		<tu tuid='timetracking.ui.criteria.non_billable'>
-			<tuv xml:lang="en_US"><seg>Non-Billable Activities:</seg></tuv>
-		</tu>
-		<tu tuid='timetracking.ui.criteria.source'>
-			<tuv xml:lang="en_US"><seg>Source:</seg></tuv>
-		</tu>
-		
 		<!-- Time Entry Panel -->
 		
 		<tu tuid='timetracking.ui.entry_panel.activity'>
@@ -119,8 +95,6 @@
 			<tuv xml:lang="en_US"><seg>To continue using this plugin please support the project and purchase a license.</seg></tuv>
 		</tu>		
 		
-
-		
 		<!-- Entries -->
 
 		<tu tuid='timetracking_entry.activity_id'>
@@ -159,9 +133,6 @@
 		<tu tuid='timetracking.ui.cfg.modify'>
 			<tuv xml:lang="en_US"><seg>Modify '%s'</seg></tuv>
 		</tu>
-		<tu tuid='timetracking.ui.cfg.n_per_hour'>
-			<tuv xml:lang="en_US"><seg>%s per hour</seg></tuv>
-		</tu>
 		<tu tuid='timetracking.ui.cfg.name'>
 			<tuv xml:lang="en_US"><seg>Name:</seg></tuv>
 		</tu>
@@ -173,9 +144,6 @@
 		</tu>
 		<tu tuid='timetracking.ui.cfg.rate'>
 			<tuv xml:lang="en_US"><seg>Rate:</seg></tuv>
-		</tu>
-		<tu tuid='timetracking.ui.cfg.rate.hint'>
-			<tuv xml:lang="en_US"><seg>(e.g. 65.00)</seg></tuv>
 		</tu>
 		
 		<!--  Report Groups -->
@@ -249,6 +217,3 @@
 
 	</body>
 </tmx>
-<!-- 
-	
--->

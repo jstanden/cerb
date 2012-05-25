@@ -95,54 +95,23 @@ class ChReportGroupOrgs extends Extension_ReportGroup {
 class ChReportGroupSpam extends Extension_ReportGroup {
 };
 
-class ChReportsPage extends CerberusPageExtension {
-	function isVisible() {
-		// The current session must be a logged-in worker to use this page.
-		if(null == ($worker = CerberusApplication::getActiveWorker()))
-			return false;
-		return true;
-	}
-
-	function getActivity() {
-		return new Model_Activity('reports.activity');
-	}
-	
-	/**
-	 * Proxy page actions from an extension's render() to the extension's scope.
-	 *
-	 */
-	function actionAction() {
-		@$extid = DevblocksPlatform::importGPC($_REQUEST['extid']);
-		@$extid_a = DevblocksPlatform::strAlphaNum($_REQUEST['extid_a'], '\_');
-		
-		$action = $extid_a.'Action';
-		
-		$reportMft = DevblocksPlatform::getExtension($extid);
-		
-		// If it's a value report extension, proxy the action
-		if(null != ($reportInst = DevblocksPlatform::getExtension($extid, true)) 
-			&& $reportInst instanceof Extension_Report) {
-				
-			// If we asked for a value method on the extension, call it
-			if(method_exists($reportInst, $action)) {
-				call_user_func(array(&$reportInst, $action));
-			}
-		}
-		
-		return;
-	}
-	
-	function render() {
-		$active_worker = CerberusApplication::getActiveWorker();
-		
+if(class_exists('Extension_WorkspacePage')):
+class ChReportsWorkspacePage extends Extension_WorkspacePage {
+	function renderPage(Model_WorkspacePage $page) {
 		$tpl = DevblocksPlatform::getTemplateService();
+		
+		$active_worker = CerberusApplication::getActiveWorker();
 		
 		$response = DevblocksPlatform::getHttpResponse();
 		$stack = $response->path;
 
-		array_shift($stack); // reports
+		@array_shift($stack); // pages
+		@array_shift($stack); // reports
 		@$reportId = array_shift($stack);
+
 		$report = null;
+		
+		$tpl->assign('page', $page);
 
 		// We're given a specific report to display
 		if(!empty($reportId)) {
@@ -198,6 +167,7 @@ class ChReportsPage extends CerberusPageExtension {
 			$tpl->assign('report_groups', $report_groups);
 		}
 
-		$tpl->display('devblocks:cerberusweb.reports::reports/index.tpl');
+		$tpl->display('devblocks:cerberusweb.reports::reports/index.tpl');		
 	}
 };
+endif;

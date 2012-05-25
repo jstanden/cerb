@@ -1,8 +1,8 @@
-<div class="cerb-menu" style="margin-top:-5px;">
+<div class="cerb-menu">
 	<ul>
 		<li>
 			<div>
-				<a href="javascript:;" class="menu">Settings <span>&#x25be;</span></a>
+				<a href="javascript:;" class="menu">Configure <span class="cerb-sprite sprite-arrow-down-white"></span></a>
 				<ul class="cerb-popupmenu cerb-float">
 					<li><a href="{devblocks_url}c=config&a=branding{/devblocks_url}">Logo &amp; Title</a></li>
 					{if !$smarty.const.ONDEMAND_MODE}<li><a href="{devblocks_url}c=config&a=security{/devblocks_url}">Security</a></li>{/if}
@@ -10,6 +10,9 @@
 					<li><a href="{devblocks_url}c=config&a=license{/devblocks_url}">License</a></li>
 					{if !$smarty.const.ONDEMAND_MODE}<li><a href="{devblocks_url}c=config&a=scheduler{/devblocks_url}">Scheduler</a></li>{/if}
 					<li><a href="{devblocks_url}c=config&a=snippets{/devblocks_url}">Snippets</a></li>
+					<li><a href="{devblocks_url}c=config&a=portals{/devblocks_url}">Community Portals</a></li>
+					<li><a href="{devblocks_url}c=config&a=attendants{/devblocks_url}">Virtual Attendants</a></li>
+					<li><a href="{devblocks_url}c=config&a=scheduled_behavior{/devblocks_url}">Scheduled Behavior</a></li>
 					
 					{$exts = Extension_PageMenuItem::getExtensions(true, 'core.page.configuration','core.setup.menu.settings')}
 					{if !empty($exts)}<li><hr></li>{/if}
@@ -21,7 +24,7 @@
 		</li>
 		<li>
 			<div>
-				<a href="javascript:;" class="menu">{'common.workers'|devblocks_translate|capitalize} &amp; {'common.groups'|devblocks_translate|capitalize} <span>&#x25be;</span></a>
+				<a href="javascript:;" class="menu">{'common.workers'|devblocks_translate|capitalize} &amp; {'common.groups'|devblocks_translate|capitalize} <span class="cerb-sprite sprite-arrow-down-white"></span></a>
 				<ul class="cerb-popupmenu cerb-float">
 					<li><a href="{devblocks_url}c=config&a=groups{/devblocks_url}">{'common.groups'|devblocks_translate|capitalize}</a></li>
 					<li><a href="{devblocks_url}c=config&a=acl{/devblocks_url}">{'common.roles'|devblocks_translate|capitalize}</a></li>
@@ -37,7 +40,7 @@
 		</li>
 		<li>
 			<div>
-				<a href="javascript:;" class="menu">Mail <span>&#x25be;</span></a>
+				<a href="javascript:;" class="menu">Mail <span class="cerb-sprite sprite-arrow-down-white"></span></a>
 				<ul class="cerb-popupmenu cerb-float">
 					<li><b>Incoming Mail</b></li>
 					<li><a href="{devblocks_url}c=config&a=mail_incoming{/devblocks_url}">Settings</a></li>
@@ -64,7 +67,7 @@
 		</li>
 		<li>
 			<div>
-				<a href="javascript:;" class="menu">Storage <span>&#x25be;</span></a>
+				<a href="javascript:;" class="menu">Storage <span class="cerb-sprite sprite-arrow-down-white"></span></a>
 				<ul class="cerb-popupmenu cerb-float">
 					{if !$smarty.const.ONDEMAND_MODE}
 						<li><a href="{devblocks_url}c=config&a=storage_content{/devblocks_url}">Content</a></li>
@@ -84,21 +87,7 @@
 		</li>
 		<li>
 			<div>
-				<a href="javascript:;" class="menu">Community Portals <span>&#x25be;</span></a>
-				<ul class="cerb-popupmenu cerb-float">
-					<li><a href="{devblocks_url}c=config&a=portals{/devblocks_url}">Configure</a></li>
-					
-					{$exts = Extension_PageMenuItem::getExtensions(true, 'core.page.configuration','core.setup.menu.portals')}
-					{if !empty($exts)}<li><hr></li>{/if}
-					{foreach from=$exts item=menu_item}
-						{if method_exists($menu_item,'render')}<li>{$menu_item->render()}</li>{/if}
-					{/foreach}
-				</ul>
-			</div>
-		</li>
-		<li>
-			<div>
-				<a href="javascript:;" class="menu">Plugins <span>&#x25be;</span></a>
+				<a href="javascript:;" class="menu">Plugins <span class="cerb-sprite sprite-arrow-down-white"></span></a>
 				<ul class="cerb-popupmenu cerb-float">
 					<li><a href="{devblocks_url}c=config&a=plugins{/devblocks_url}">Manage Plugins</a></li>
 					
@@ -107,9 +96,6 @@
 					{foreach from=$exts item=menu_item}
 						{if method_exists($menu_item,'render')}<li>{$menu_item->render()}</li>{/if}
 					{/foreach}
-					{*
-					<li><a href="{devblocks_url}c=config&a=freshbooks{/devblocks_url}">Freshbooks</a></li>
-					*}
 				</ul>
 			</div>
 		</li>
@@ -142,19 +128,6 @@
 	{$subpage->render()}
 </div>
 {/if}
-
-{*
-	{if $active_worker->hasPriv('core.home.workspaces')}
-		{$enabled_workspaces = DAO_Workspace::getByEndpoint($point, $active_worker)}
-		{foreach from=$enabled_workspaces item=enabled_workspace}
-			{$tabs[] = 'w_'|cat:$enabled_workspace->id}
-			<li><a href="{devblocks_url}ajax.php?c=internal&a=showWorkspaceTab&point={$point}&id={$enabled_workspace->id}&request={$response_uri|escape:'url'}{/devblocks_url}"><i>{$enabled_workspace->name}</i></a></li>
-		{/foreach}
-		
-		{$tabs[] = "+"}
-		<li><a href="{devblocks_url}ajax.php?c=internal&a=showAddTab&point={$point}&request={$response_uri|escape:'url'}{/devblocks_url}"><i>+</i></a></li>
-	{/if}
-*}
 
 <script type="text/javascript">
 	$('DIV.cerb-menu DIV A.menu')

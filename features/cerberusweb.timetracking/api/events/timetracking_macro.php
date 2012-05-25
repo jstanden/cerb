@@ -2,7 +2,8 @@
 class Event_TimeTrackingMacro extends AbstractEvent_TimeTracking {
 	const ID = 'event.macro.timetracking';
 	
-	function __construct() {
+	function __construct($manifest) {
+		parent::__construct($manifest);
 		$this->_event_id = self::ID;
 	}
 	

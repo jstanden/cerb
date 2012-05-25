@@ -15,118 +15,8 @@
 |	http://www.cerberusweb.com	  http://www.webgroupmedia.com/
 ***********************************************************************/
 
-if (class_exists('Extension_ActivityTab')):
-class ChTasksActivityTab extends Extension_ActivityTab {
-	const VIEW_ACTIVITY_TASKS = 'activity_tasks';
-	
-	function showTab() {
-		$tpl = DevblocksPlatform::getTemplateService();
-		$translate = DevblocksPlatform::getTranslationService();
-		
-		$defaults = new C4_AbstractViewModel();
-		$defaults->class_name = 'View_Task';
-		$defaults->id = self::VIEW_ACTIVITY_TASKS;
-		$defaults->name = $translate->_('activity.tab.tasks');
-		$defaults->renderSortBy = SearchFields_Task::DUE_DATE;
-		$defaults->renderSortAsc = true;
-		
-		$view = C4_AbstractViewLoader::getView(self::VIEW_ACTIVITY_TASKS, $defaults);
-		$tpl->assign('view', $view);
-
-		$tpl->display('devblocks:cerberusweb.core::tasks/activity_tab/index.tpl');		
-	}
-}
-endif;
-
 class ChTasksPage extends CerberusPageExtension {
 	function render() {
-		$tpl = DevblocksPlatform::getTemplateService();
-
-		$visit = CerberusApplication::getVisit();
-		$translate = DevblocksPlatform::getTranslationService();
-		$active_worker = CerberusApplication::getActiveWorker();
-		
-		$response = DevblocksPlatform::getHttpResponse();
-		$stack = $response->path;
-		
-		array_shift($stack); // tasks
-		
-		$module = array_shift($stack); // display
-		
-		switch($module) {
-			default:
-			case 'display':
-				@$task_id = intval(array_shift($stack));
-				if(null == ($task = DAO_Task::get($task_id))) {
-					break; // [TODO] Not found
-				}
-				$tpl->assign('task', $task);			
-
-				if(null == (@$tab_selected = $stack[0])) {
-//					$tab_selected = $visit->get(self::SESSION_OPP_TAB, '');
-				}
-				$tpl->assign('tab_selected', $tab_selected);
-
-				// Custom fields
-				
-				$custom_fields = DAO_CustomField::getAll();
-				$tpl->assign('custom_fields', $custom_fields);
-				
-				// Properties
-				
-				$properties = array();
-				
-				$properties['is_completed'] = array(
-					'label' => ucfirst($translate->_('task.is_completed')),
-					'type' => Model_CustomField::TYPE_CHECKBOX,
-					'value' => $task->is_completed,
-				);
-				
-				if(!$task->is_completed) {
-					$properties['due_date'] = array(
-						'label' => ucfirst($translate->_('task.due_date')),
-						'type' => Model_CustomField::TYPE_DATE,
-						'value' => $task->due_date,
-					);
-				} else {
-					$properties['completed_date'] = array(
-						'label' => ucfirst($translate->_('task.completed_date')),
-						'type' => Model_CustomField::TYPE_DATE,
-						'value' => $task->completed_date,
-					);
-				}
-				
-				$properties['updated_date'] = array(
-					'label' => ucfirst($translate->_('common.updated')),
-					'type' => Model_CustomField::TYPE_DATE,
-					'value' => $task->updated_date,
-				);
-				
-				@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_TASK, $task->id)) or array();
-		
-				foreach($custom_fields as $cf_id => $cfield) {
-					if(!isset($values[$cf_id]))
-						continue;
-						
-					$properties['cf_' . $cf_id] = array(
-						'label' => $cfield->name,
-						'type' => $cfield->type,
-						'value' => $values[$cf_id],
-					);
-				}
-				
-				$tpl->assign('properties', $properties);				
-				
-				$workers = DAO_Worker::getAll();
-				$tpl->assign('workers', $workers);
-				
-				// Macros
-				$macros = DAO_TriggerEvent::getByOwner(CerberusContexts::CONTEXT_WORKER, $active_worker->id, 'event.macro.task');
-				$tpl->assign('macros', $macros);
-				
-				$tpl->display('devblocks:cerberusweb.core::tasks/display/index.tpl');
-				break;
-		}
 	}
 
 	function isVisible() {
@@ -134,46 +24,6 @@ class ChTasksPage extends CerberusPageExtension {
 		if(null == ($worker = CerberusApplication::getActiveWorker()))
 			return false;
 		return true;
-	}
-	
-	function showTaskPeekAction() {
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer','');
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
-		
-		$tpl = DevblocksPlatform::getTemplateService();
-
-		// Handle context links ([TODO] as an optional array)
-		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
-		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer','');
-		$tpl->assign('context', $context);
-		$tpl->assign('context_id', $context_id);
-		
-		if(!empty($id)) {
-			$task = DAO_Task::get($id);
-			$tpl->assign('task', $task);
-		}
-
-		// Custom fields
-		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TASK); 
-		$tpl->assign('custom_fields', $custom_fields);
-
-		$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_TASK, $id);
-		if(isset($custom_field_values[$id]))
-			$tpl->assign('custom_field_values', $custom_field_values[$id]);
-		
-		$types = Model_CustomField::getTypes();
-		$tpl->assign('types', $types);
-
-		// Comments
-		$comments = DAO_Comment::getByContext(CerberusContexts::CONTEXT_TASK, $id);
-		$last_comment = array_shift($comments);
-		unset($comments);
-		$tpl->assign('last_comment', $last_comment);
-
-		// View
-		$tpl->assign('id', $id);
-		$tpl->assign('view_id', $view_id);
-		$tpl->display('devblocks:cerberusweb.core::tasks/rpc/peek.tpl');
 	}
 	
 	function saveTaskPeekAction() {
@@ -230,10 +80,10 @@ class ChTasksPage extends CerberusPageExtension {
 					CerberusContexts::addWatchers(CerberusContexts::CONTEXT_TASK, $id, $active_worker->id);
 				
 				// Context Link (if given)
-				@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
-				@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer','');
-				if(!empty($id) && !empty($context) && !empty($context_id)) {
-					DAO_ContextLink::setLink(CerberusContexts::CONTEXT_TASK, $id, $context, $context_id);
+				@$link_context = DevblocksPlatform::importGPC($_REQUEST['link_context'],'string','');
+				@$link_context_id = DevblocksPlatform::importGPC($_REQUEST['link_context_id'],'integer','');
+				if(!empty($id) && !empty($link_context) && !empty($link_context_id)) {
+					DAO_ContextLink::setLink(CerberusContexts::CONTEXT_TASK, $id, $link_context, $link_context_id);
 				}
 			}
 
@@ -401,37 +251,6 @@ class ChTasksPage extends CerberusPageExtension {
 		exit;
 	}
 	
-	function doQuickSearchAction() {
-		@$type = DevblocksPlatform::importGPC($_POST['type'],'string');
-		@$query = DevblocksPlatform::importGPC($_POST['query'],'string');
-	
-		$query = trim($query);
-	
-		$defaults = new C4_AbstractViewModel();
-		$defaults->class_name = 'View_Task';
-		$defaults->id = ChTasksActivityTab::VIEW_ACTIVITY_TASKS;
-		$view = C4_AbstractViewLoader::getView($defaults->id, $defaults);
-	
-		$params = array();
-		if(!is_numeric($query))
-			if($query && false===strpos($query,'*'))
-				$query = '*' . $query . '*';
-	
-		switch($type) {
-			case "title":
-				$params[SearchFields_Task::TITLE] = new DevblocksSearchCriteria(SearchFields_Task::TITLE, DevblocksSearchCriteria::OPER_LIKE, strtolower($query));
-				break;
-		}
-	
-		$view->addParams($params, false); // Add, don't replace
-		$view->renderPage = 0;
-		$view->renderSortBy = null;
-	
-		C4_AbstractViewLoader::setView($defaults->id,$view);
-	
-		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('activity','tasks')));
-	}	
-	
 	function viewTasksExploreAction() {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
 		
@@ -470,7 +289,7 @@ class ChTasksPage extends CerberusPageExtension {
 					'created' => time(),
 					//'worker_id' => $active_worker->id,
 					'total' => $total,
-					'return_url' => isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : $url_writer->writeNoProxy('c=activity&tab=tasks', true),
+					'return_url' => isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : $url_writer->writeNoProxy('c=search&type=task', true),
 //					'toolbar_extension_id' => 'cerberusweb.explorer.toolbar.',
 				);
 				$models[] = $model; 
@@ -488,7 +307,7 @@ class ChTasksPage extends CerberusPageExtension {
 				$model->pos = $pos++;
 				$model->params = array(
 					'id' => $row[SearchFields_Task::ID],
-					'url' => $url_writer->writeNoProxy(sprintf("c=tasks&tab=display&id=%d", $row[SearchFields_Task::ID]), true),
+					'url' => $url_writer->writeNoProxy(sprintf("c=profiles&type=task&id=%d", $row[SearchFields_Task::ID]), true),
 				);
 				$models[] = $model; 
 			}

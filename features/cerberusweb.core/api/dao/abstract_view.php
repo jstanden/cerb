@@ -40,7 +40,51 @@ abstract class C4_AbstractView {
 	public $renderTemplate = null;
 
 	abstract function getData();
+	function getDataAsObjects($ids=null) { return array(); }
 	function getDataSample($size) {}
+	
+	private $_placeholderLabels = array();
+	private $_placeholderValues = array();
+	
+	protected function _getDataAsObjects($dao_class, $ids=null) {
+		if(is_null($ids)) {
+			if(!method_exists($dao_class,'search'))
+				return array();
+			
+			$results = call_user_func_array(
+				array($dao_class,'search'),
+				array(
+					$this->getParams(),
+					$this->renderLimit,
+					$this->renderPage,
+					$this->renderSortBy,
+					$this->renderSortAsc,
+					false
+				)
+			);
+		
+			$ids = array_keys($results);
+		}
+		
+		if(!is_array($ids) || empty($ids))
+			return array();
+		
+		$sql = sprintf("id IN (%s)",
+			implode(',', $ids)
+		);
+		
+		if(!method_exists($dao_class,'getWhere'))
+			return array();
+		
+		$results = call_user_func_array(
+			array($dao_class,'getWhere'),
+			array(
+				$sql,
+			)
+		);
+		
+		return $results;
+	}
 	
 	protected function _doGetDataSample($dao_class, $size, $id_col = 'id') {
 		$db = DevblocksPlatform::getDatabaseService();
@@ -123,13 +167,24 @@ abstract class C4_AbstractView {
 		return $params;
 	}
 	
-	function getParams() {
+	function getParams($parse_placeholders=true) {
 		$params = $this->_paramsEditable;
 		
 		// Required should supersede editable
 		if(is_array($this->_paramsRequired))
 		foreach($this->_paramsRequired as $key => $param)
 			$params['req_'.$key] = $param;
+		
+		if($parse_placeholders) {
+			// Translate snippets in filters
+			array_walk_recursive(
+				$params,
+				array('C4_AbstractView', '_translatePlaceholders'),
+				array(
+					'placeholder_values' => $this->getPlaceholderValues(),
+				)
+			);
+		}
 		
 		return $params;
 	}
@@ -148,10 +203,10 @@ abstract class C4_AbstractView {
 	function addParams($params, $replace=false) {
 		if($replace)
 			$this->removeAllParams();
-			
+		
 		if(is_array($params))
 		foreach($params as $key => $param) {
-			$key = !is_string($key) ? $param->field : $key;
+			$key = (!is_string($key) && is_object($param)) ? $param->field : $key;
 			$this->addParam($param, $key);	
 		}	
 	}
@@ -204,6 +259,74 @@ abstract class C4_AbstractView {
 		return $this->_paramsHidden;
 	}
 	
+	// Search params
+	
+	static function findParam($field_key, $params) {
+		$results = array();
+		
+		array_walk_recursive($params, function(&$v, $k, $field_key) use (&$results) {
+			if(!($v instanceof DevblocksSearchCriteria))
+				return;
+
+			if($v->field == $field_key) {
+				$results[] = $v;
+			} 
+			
+		}, $field_key);
+		
+		return $results;
+	}
+	
+	static function hasParam($field_key, $params) {
+		return count(self::findParam($field_key, $params)) > 0;
+	}
+	
+	// Placeholders
+	
+	function setPlaceholderLabels($labels) {
+		if(is_array($labels))
+			$this->_placeholderLabels = $labels;
+	}
+	
+	function getPlaceholderLabels() {
+		return $this->_placeholderLabels;
+	}
+	
+	function setPlaceholderValues($values) {
+		if(is_array($values))
+			$this->_placeholderValues = $values;
+	}
+	
+	function getPlaceholderValues() {
+		return $this->_placeholderValues;
+	}
+	
+	protected static function _translatePlaceholders(&$param, $key, $args) {
+		if(!is_a($param, 'DevblocksSearchCriteria'))
+			return;
+
+		$param_key = $param->field;
+		settype($param_key, 'string');
+
+		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+
+		if(is_string($param->value)) {
+			if(false !== ($value = $tpl_builder->build($param->value, $args['placeholder_values']))) {
+				$param->value = $value;
+			}
+			
+		} elseif(is_array($param->value)) {
+			foreach($param->value as $k => $v) {
+				if(!is_string($v))
+					continue;
+				
+				if(false !== ($value = $tpl_builder->build($v, $args['placeholder_values']))) {
+					$param->value[$k] = $value;
+				}
+			}			
+		}
+	}		
+	
 	// Render
 	
 	function render() {
@@ -241,46 +364,184 @@ abstract class C4_AbstractView {
 		}
 	}
 	
-	protected function _renderVirtualWatchers($param) {
+	protected function _renderCriteriaParamBoolean($param) {
+		$translate = DevblocksPlatform::getTranslationService();
+		
+		$strings = array();
+		
+		$values = is_array($param->value) ? $param->value : array($param->value);
+		
+		foreach($values as $v) {
+			$strings[] = sprintf("<b>%s</b>",
+				(!empty($v) ? $translate->_('common.yes') : $translate->_('common.no')) 
+			);
+		}
+		
+		echo implode(' or ', $strings);
+	}
+	
+	protected function _renderCriteriaParamWorker($param) {
 		$workers = DAO_Worker::getAll();
 		$strings = array();
 		
 		foreach($param->value as $worker_id) {
-			if(isset($workers[$worker_id]))
+			if(isset($workers[$worker_id])) {
 				$strings[] = '<b>'.$workers[$worker_id]->getName().'</b>';
+			} elseif (!empty($worker_id)) {
+				$strings[] = '<b>'.$worker_id.'</b>';
+			} elseif (empty($worker_id)) {
+				$strings[] = '<b>nobody</b>';
+			}
+		}
+		
+		$list_of_strings = implode(' or ', $strings);
+		
+		if(count($strings) > 2) {
+			$list_of_strings = sprintf("any of <abbr style='font-weight:bold;' title='%s'>(%d people)</abbr>",
+				htmlentities(strip_tags($list_of_strings)),
+				count($strings)
+			);
+		}
+		
+		echo sprintf("%s", $list_of_strings);
+	}	
+	
+	protected function _renderVirtualContextLinks($param) {
+		$label_singular = 'Link';
+		$label_plural = 'Links';
+		$strings = array();
+		
+		foreach($param->value as $context_data) {
+			@list($context, $context_id) = explode(':',$context_data);
+			
+			if(empty($context))
+				continue;
+			
+			$context_ext = Extension_DevblocksContext::get($context,true);
+			
+			if(!empty($context_id)) {
+				$meta = $context_ext->getMeta($context_id);
+				$strings[] = sprintf("<b>%s</b> (%s)", $meta['name'], $context_ext->manifest->name);
+			} else {
+				$strings[] = sprintf("(<b>%s</b>)", $context_ext->manifest->name);
+			}
 		}
 		
 		if(empty($param->value)) {
 			switch($param->operator) {
+				case DevblocksSearchCriteria::OPER_EQ:
 				case DevblocksSearchCriteria::OPER_IN:
 				case DevblocksSearchCriteria::OPER_IN_OR_NULL:
 				case DevblocksSearchCriteria::OPER_NIN_OR_NULL:
 					$param->operator = DevblocksSearchCriteria::OPER_IS_NULL;
 					break;
+				case DevblocksSearchCriteria::OPER_NEQ:
 				case DevblocksSearchCriteria::OPER_NIN:
 					$param->operator = DevblocksSearchCriteria::OPER_IS_NOT_NULL;
 					break;
 			}
 		}
 		
+		$list_of_strings = implode(' or ', $strings);
+		
+		if(count($strings) > 2) {
+			$list_of_strings = sprintf("any of <abbr style='font-weight:bold;' title='%s'>(%d %s)</abbr>",
+				htmlentities(strip_tags($list_of_strings)),
+				count($strings),
+				strtolower($label_plural)
+			);
+		}
+		
 		switch($param->operator) {
 			case DevblocksSearchCriteria::OPER_IS_NULL:
-				echo "There are no <b>watchers</b>";
+				echo sprintf("There are no <b>%s</b>",
+					strtolower($label_plural)
+				);
 				break;
 			case DevblocksSearchCriteria::OPER_IS_NOT_NULL:
-				echo "There are <b>watchers</b>";
+				echo sprintf("There are <b>%s</b>",
+					strtolower($label_plural)
+				);
 				break;
 			case DevblocksSearchCriteria::OPER_IN:
-				echo sprintf("Watcher is %s", implode(' or ', $strings));
+				echo sprintf("Linked to %s", $list_of_strings);
 				break;
 			case DevblocksSearchCriteria::OPER_IN_OR_NULL:
-				echo sprintf("Watcher is blank or %s", implode(' or ', $strings));
+				echo sprintf("%s is blank or %s", $label_singular, $list_of_strings);
 				break;
 			case DevblocksSearchCriteria::OPER_NIN:
-				echo sprintf("Watcher is not %s", implode(' or ', $strings));
+				echo sprintf("%s is not %s", $label_singular, $list_of_strings);
 				break;
 			case DevblocksSearchCriteria::OPER_NIN_OR_NULL:
-				echo sprintf("Watcher is blank or not %s", implode(' or ', $strings));
+				echo sprintf("%s is blank or not %s", $label_singular, $list_of_strings);
+				break;
+		}
+	}
+	
+	protected function _renderVirtualWatchers($param) {
+		return $this->_renderVirtualWorkers($param, 'Watcher', 'Watchers');
+	}
+	
+	protected function _renderVirtualWorkers($param, $label_singular='Worker', $label_plural='Workers') {
+		$workers = DAO_Worker::getAll();
+		$strings = array();
+		
+		foreach($param->value as $worker_id) {
+			if(isset($workers[$worker_id]))
+				$strings[] = '<b>'.$workers[$worker_id]->getName().'</b>';
+			elseif(empty($worker_id)) {
+				$strings[] = '<b>nobody</b>';
+			} else {
+				$strings[] = '<b>'.$worker_id.'</b>';
+			}
+		}
+		
+		if(empty($param->value)) {
+			switch($param->operator) {
+				case DevblocksSearchCriteria::OPER_EQ:
+				case DevblocksSearchCriteria::OPER_IN:
+				case DevblocksSearchCriteria::OPER_IN_OR_NULL:
+				case DevblocksSearchCriteria::OPER_NIN_OR_NULL:
+					$param->operator = DevblocksSearchCriteria::OPER_IS_NULL;
+					break;
+				case DevblocksSearchCriteria::OPER_NEQ:
+				case DevblocksSearchCriteria::OPER_NIN:
+					$param->operator = DevblocksSearchCriteria::OPER_IS_NOT_NULL;
+					break;
+			}
+		}
+		
+		$list_of_strings = implode(' or ', $strings);
+		
+		if(count($strings) > 2) {
+			$list_of_strings = sprintf("any of <abbr style='font-weight:bold;' title='%s'>(%d people)</abbr>",
+				htmlentities(strip_tags($list_of_strings)),
+				count($strings)
+			);
+		}
+		
+		switch($param->operator) {
+			case DevblocksSearchCriteria::OPER_IS_NULL:
+				echo sprintf("There are no <b>%s</b>",
+					$label_plural
+				);
+				break;
+			case DevblocksSearchCriteria::OPER_IS_NOT_NULL:
+				echo sprintf("There are <b>%s</b>",
+					$label_plural
+				);
+				break;
+			case DevblocksSearchCriteria::OPER_IN:
+				echo sprintf("%s is %s", $label_singular, $list_of_strings);
+				break;
+			case DevblocksSearchCriteria::OPER_IN_OR_NULL:
+				echo sprintf("%s is blank or %s", $label_singular, $list_of_strings);
+				break;
+			case DevblocksSearchCriteria::OPER_NIN:
+				echo sprintf("%s is not %s", $label_singular, $list_of_strings);
+				break;
+			case DevblocksSearchCriteria::OPER_NIN_OR_NULL:
+				echo sprintf("%s is blank or not %s", $label_singular, $list_of_strings);
 				break;
 		}		
 	}
@@ -297,6 +558,57 @@ abstract class C4_AbstractView {
 		// Expect Override
 	}
 
+	protected function _doSetCriteriaString($field, $oper, $value) {
+		// force wildcards if none used on a LIKE
+		if(($oper == DevblocksSearchCriteria::OPER_LIKE || $oper == DevblocksSearchCriteria::OPER_NOT_LIKE)
+		&& false === (strpos($value,'*'))) {
+			$value = '*'.$value.'*';
+		}
+		return new DevblocksSearchCriteria($field, $oper, $value);
+	}
+	
+	protected function _doSetCriteriaDate($field, $oper) {
+		@$from = DevblocksPlatform::importGPC($_REQUEST['from'],'string','big bang');
+		@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string','now');
+
+		if(is_null($from) || (!is_numeric($from) && @false === strtotime(str_replace('.','-',$from))))
+			$from = 'big bang';
+			
+		if(is_null($to) || (!is_numeric($to) && @false === strtotime(str_replace('.','-',$to))))
+			$to = 'now';
+		
+		return new DevblocksSearchCriteria($field,$oper,array($from,$to));
+	}
+	
+	protected function _doSetCriteriaWorker($field, $oper) {
+		@$worker_ids = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',array());
+		
+		switch($oper) {
+			case DevblocksSearchCriteria::OPER_IN:
+				if(empty($worker_ids)) {
+					$worker_ids[] = '0';
+				}
+				break;
+			case DevblocksSearchCriteria::OPER_IN_OR_NULL:
+				$oper = DevblocksSearchCriteria::OPER_IN;
+				if(!in_array('0', $worker_ids))
+					$worker_ids[] = '0';
+				break;
+			case DevblocksSearchCriteria::OPER_NIN:
+				if(empty($worker_ids)) {
+					$worker_ids[] = '0';
+				}
+				break;
+			case 'not in and not null':
+				$oper = DevblocksSearchCriteria::OPER_NIN;
+				if(!in_array('0', $worker_ids))
+					$worker_ids[] = '0';
+				break;
+		}
+		
+		return new DevblocksSearchCriteria($field, $oper, $worker_ids);
+	}
+	
 	protected function _doSetCriteriaCustomField($token, $field_id) {
 		$field = DAO_CustomField::get($field_id);
 		@$oper = DevblocksPlatform::importGPC($_POST['oper'],'string','');
@@ -431,12 +743,34 @@ abstract class C4_AbstractView {
 		if(!is_array($vals))
 			$vals = array($vals);
 		
+		$implode_token = ' or ';
+		
+		$fields = $this->getFields();
+		
+		if(isset($fields[$field]) && $fields[$field]->type == Model_CustomField::TYPE_DATE)
+			$implode_token = ' to ';
+
+		if($param->operator == DevblocksSearchCriteria::OPER_FULLTEXT)
+			unset($vals[1]);
+		
 		// Do we need to do anything special on custom fields?
 		if('cf_'==substr($field,0,3)) {
 			$field_id = intval(substr($field,3));
 			$custom_fields = DAO_CustomField::getAll();
 			
+			$translate = DevblocksPlatform::getTranslationService(); 
+			
 			switch($custom_fields[$field_id]->type) {
+				case Model_CustomField::TYPE_CHECKBOX:
+					foreach($vals as $idx => $val) {
+						$vals[$idx] = !empty($val) ? $translate->_('common.yes') : $translate->_('common.no');
+					}
+					break;
+					
+				case Model_CustomField::TYPE_DATE:
+					$implode_token = ' to ';
+					break;
+					
 				case Model_CustomField::TYPE_WORKER:
 					$workers = DAO_worker::getAll();
 					foreach($vals as $idx => $worker_id) {
@@ -453,7 +787,7 @@ abstract class C4_AbstractView {
 			$vals[$k] = htmlspecialchars($v, ENT_QUOTES, LANG_CHARSET_CODE);
 		}
 		
-		echo implode(', ', $vals);
+		echo implode($implode_token, $vals);
 	}
 
 	/**
@@ -508,9 +842,11 @@ abstract class C4_AbstractView {
 	}
 	
 	function getPresets() {
-		$active_worker = CerberusApplication::getActiveWorker();
+		if(null == ($active_worker = CerberusApplication::getActiveWorker()))
+			return;
 		
 		// Presets
+		// [TODO] Cache?
 		return DAO_ViewFiltersPreset::getWhere(
 			sprintf("%s = %s AND %s = %d",
 				DAO_ViewFiltersPreset::VIEW_CLASS,
@@ -759,8 +1095,6 @@ abstract class C4_AbstractView {
 		;
 		
 		$results = $db->GetArray($sql);
-//		$total = count($results);
-//		$total = ($total < 20) ? $total : $db->GetOne("SELECT FOUND_ROWS()");
 
 		return $results;
 	}	
@@ -784,6 +1118,159 @@ abstract class C4_AbstractView {
 				$label = '(nobody)';
 				$oper = DevblocksSearchCriteria::OPER_IS_NULL;
 				$values = array('');
+			}
+			
+			if(!isset($counts[$label]))
+				$counts[$label] = array(
+					'hits' => $hits,
+					'label' => $label,
+					'filter' => 
+						array(
+							'field' => $field_key,
+							'oper' => $oper,
+							'values' => $values,
+						),
+					'children' => array()
+				);
+		}
+		
+		return $counts;
+	}
+		
+	protected function _getSubtotalDataForContextLinkColumn($dao_class, $context, $field_key) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$fields = $this->getFields();
+		$columns = $this->view_columns;
+
+		$params = $this->getParams();
+		$param_results = C4_AbstractView::findParam($field_key, $params);
+		
+		$has_context_already = false;
+		
+		if(!empty($param_results)) {
+			// Did the worker add this filter?
+			$param_results = C4_AbstractView::findParam($field_key, $this->getEditableParams());
+			
+			if(count($param_results) > 0) {
+				$param_result = array_shift($param_results);
+				
+				if($param_result->operator == DevblocksSearchCriteria::OPER_IN)
+				if(is_array($param_result->value)) {
+					$context_pair = current($param_result->value);
+					@$context_data = explode(':', $context_pair);
+	
+					if(1 == count($context_data)) {
+						$has_context_already = $context_data[0];
+						
+					} elseif(2 == count($context_data)) {
+						$has_context_already = $context_data[0];
+	
+						$new_params = array(
+							$field_key => new DevblocksSearchCriteria($field_key, DevblocksSearchCriteria::OPER_IN, array($has_context_already))
+						);
+						
+						$params = array_merge($params, $new_params);
+					}
+				}
+			}
+			
+		} else {
+			$new_params = array(
+				$field_key => new DevblocksSearchCriteria($field_key, DevblocksSearchCriteria::OPER_TRUE),
+			);
+			
+			$params = array_merge($params, $new_params);
+		}
+		
+		if(!method_exists($dao_class, 'getSearchQueryComponents'))
+			return array();
+		
+		$query_parts = call_user_func_array(
+			array($dao_class,'getSearchQueryComponents'),
+			array(
+				$columns,
+				$params,
+				$this->renderSortBy,
+				$this->renderSortAsc
+			)
+		);
+		
+		$join_sql = $query_parts['join'];
+		$where_sql = $query_parts['where'];
+
+		if(empty($has_context_already)) {
+			// This intentionally isn't constrained with a LIMIT
+			$sql = sprintf("SELECT from_context AS link_from_context, count(*) AS hits FROM context_link WHERE to_context = %s AND to_context_id IN (%s) GROUP BY from_context ORDER BY hits DESC ",
+				$db->qstr($context),
+				(
+					sprintf("SELECT %s.id ", $query_parts['primary_table']).
+					$query_parts['join'] .
+					$query_parts['where']
+				)
+			);
+			
+		} else {
+			$sql = sprintf("SELECT from_context AS link_from_context, from_context_id AS link_from_context_id, count(*) AS hits FROM context_link WHERE to_context = %s AND to_context_id IN (%s) AND from_context = %s GROUP BY from_context_id ORDER BY hits DESC LIMIT 0,20 ",
+				$db->qstr($context),
+				(
+					sprintf("SELECT %s.id ", $query_parts['primary_table']).
+					$query_parts['join'] .
+					$query_parts['where']
+				),
+				$db->qstr($has_context_already)
+			);
+			
+		}
+
+		$results = $db->GetArray($sql);
+
+		return $results;
+	}	
+	
+	protected function _getSubtotalCountForContextLinkColumn($dao_class, $context, $field_key) {
+		$contexts = Extension_DevblocksContext::getAll(false);
+		$counts = array();
+		
+		$results = $this->_getSubtotalDataForContextLinkColumn($dao_class, $context, $field_key);
+		
+		if(is_array($results))
+		foreach($results as $result) {
+			$hits = $result['hits'];
+			$label = '';
+			
+			if(isset($result['link_from_context_id'])) {
+				$from_context = $result['link_from_context'];
+				$from_context_id = $result['link_from_context_id'];
+	
+				if(!isset($contexts[$from_context]))
+					continue;
+				
+				if(null == ($ext = Extension_DevblocksContext::get($from_context)))
+					continue;
+				
+				// [TODO] This could be loaded more efficiently (one pass)
+				$meta = $ext->getMeta($from_context_id);
+				
+				$label = $meta['name'];
+				$field_key = '*_context_link';
+				$oper = DevblocksSearchCriteria::OPER_IN;
+				$values = array('context_link[]' => $from_context . ':' . $from_context_id);
+				
+			} elseif(isset($result['link_from_context'])) {
+				$from_context = $result['link_from_context'];
+	
+				if(!isset($contexts[$from_context]))
+					continue;
+				
+				$label = $contexts[$from_context]->name;
+				$field_key = '*_context_link';
+				$oper = DevblocksSearchCriteria::OPER_IN;
+				$values = array('context_link[]' => $from_context);
+				
+			} else {
+				continue;
+				
 			}
 			
 			if(!isset($counts[$label]))
@@ -1126,6 +1613,9 @@ class C4_AbstractViewModel {
 	public $renderSubtotals = null;
 	
 	public $renderTemplate = null;
+	
+	public $placeholderLabels = array();
+	public $placeholderValues = array();
 };
 
 /**
@@ -1140,10 +1630,13 @@ class C4_AbstractViewLoader {
 	 * @return C4_AbstractView or null
 	 */
 	static function getView($view_id, C4_AbstractViewModel $defaults=null) {
-		$active_worker = CerberusApplication::getActiveWorker();
+		$worker_id = 0;
+		
+		if(null !== ($active_worker = CerberusApplication::getActiveWorker()))
+			$worker_id = $active_worker->id; 
 
 		// Check if we've ever persisted this view
-		if(false !== ($model = DAO_WorkerViewModel::getView($active_worker->id, $view_id))) {
+		if(false !== ($model = DAO_WorkerViewModel::getView($worker_id, $view_id))) {
 			return self::unserializeAbstractView($model);
 			
 		} elseif(!empty($defaults) && $defaults instanceof C4_AbstractViewModel) {
@@ -1165,14 +1658,22 @@ class C4_AbstractViewLoader {
 	 * @param C4_AbstractView $view
 	 */
 	static function setView($view_id, C4_AbstractView $view) {
-		$active_worker = CerberusApplication::getActiveWorker();
+		$worker_id = 0;
+		
+		if(null !== ($active_worker = CerberusApplication::getActiveWorker()))
+			$worker_id = $active_worker->id; 
+
 		$model = self::serializeAbstractView($view);
-		DAO_WorkerViewModel::setView($active_worker->id, $view_id, $model);
+		DAO_WorkerViewModel::setView($worker_id, $view_id, $model);
 	}
 
-	static function deleteView($view_id) {
-		$active_worker = CerberusApplication::getActiveWorker();
-		DAO_WorkerViewModel::deleteView($active_worker->id, $view_id);
+	static function deleteView($view_id, $worker_id=null) {
+		$worker_id = 0;
+		
+		if(null !== ($active_worker = CerberusApplication::getActiveWorker()))
+			$worker_id = $active_worker->id; 
+
+		DAO_WorkerViewModel::deleteView($worker_id, $view_id);
 	}
 	
 	static function serializeAbstractView($view) {
@@ -1205,6 +1706,9 @@ class C4_AbstractViewLoader {
 		$model->renderSubtotals = $view->renderSubtotals;
 		
 		$model->renderTemplate = $view->renderTemplate;
+		
+		$model->placeholderLabels = $view->getPlaceholderLabels();
+		$model->placeholderValues = $view->getPlaceholderValues();
 		
 		return $model;
 	}
@@ -1255,6 +1759,11 @@ class C4_AbstractViewLoader {
 			
 		$inst->renderTemplate = $model->renderTemplate;
 		
+		if(is_array($model->placeholderLabels))
+			$inst->setPlaceholderLabels($model->placeholderLabels);
+		if(is_array($model->placeholderValues))
+			$inst->setPlaceholderValues($model->placeholderValues);
+		
 		// Enforce class restrictions
 		$parent = new $model->class_name;
 		$inst->addColumnsHidden($parent->getColumnsHidden());
@@ -1266,8 +1775,6 @@ class C4_AbstractViewLoader {
 };
 
 class DAO_WorkerViewModel {
-	// [TODO] Add an 'ephemeral' bit to clear record on login
-
 	/**
 	 * 
 	 * @param string $where
@@ -1298,6 +1805,8 @@ class DAO_WorkerViewModel {
 			'render_filters',
 			'render_subtotals',
 			'render_template',
+			'placeholder_labels_json',
+			'placeholder_values_json',
 		);
 		
 		$rs = $db->Execute(sprintf("SELECT %s FROM worker_view_model %s",
@@ -1329,6 +1838,9 @@ class DAO_WorkerViewModel {
 			$model->paramsRequired = self::decodeParamsJson($row['params_required_json']);
 			$model->paramsDefault = self::decodeParamsJson($row['params_default_json']);
 			$model->paramsHidden = json_decode($row['params_hidden_json'], true);
+			
+			$model->placeholderLabels = json_decode($row['placeholder_labels_json'], true);
+			$model->placeholderValues = json_decode($row['placeholder_values_json'], true);
 			
 			// Make sure it's a well-formed view
 			if(empty($model->class_name) || !class_exists($model->class_name, true))
@@ -1422,6 +1934,8 @@ class DAO_WorkerViewModel {
 			'render_filters' => !empty($model->renderFilters) ? 1 : 0,
 			'render_subtotals' => $db->qstr($model->renderSubtotals),
 			'render_template' => $db->qstr($model->renderTemplate),
+			'placeholder_labels_json' => $db->qstr(json_encode($model->placeholderLabels)),
+			'placeholder_values_json' => $db->qstr(json_encode($model->placeholderValues)),
 		);
 		
 		$db->Execute(sprintf("REPLACE INTO worker_view_model (%s)".

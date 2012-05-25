@@ -12,7 +12,7 @@
 		<td align="left" valign="bottom">
 			{assign var=logo_url value=$settings->get('cerberusweb.core','helpdesk_logo_url','')}
 			{if empty($logo_url)}
-			<a href="{devblocks_url}{/devblocks_url}"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/wgm/cerb5_logo.png{/devblocks_url}?v={$smarty.const.APP_BUILD}" border="0"></a>
+			<a href="{devblocks_url}{/devblocks_url}"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/wgm/cerb6_logo.png{/devblocks_url}?v={$smarty.const.APP_BUILD}" border="0"></a>
 			{else}
 			<a href="{devblocks_url}{/devblocks_url}"><img src="{$logo_url}" border="0"></a>
 			{/if}
@@ -21,9 +21,9 @@
 		{if empty($visit)}
 			{$translate->_('header.not_signed_in')} <a href="{devblocks_url}c=login{/devblocks_url}">{$translate->_('header.signon')|lower}</a>
 		{elseif !empty($active_worker)}
-			<span id="badgeNotifications" style="display:none;padding:3px 5px 3px 5px;background-color:rgb(200,0,0);"><a href="{devblocks_url}c=profiles&w=worker&me=me&tab=notifications{/devblocks_url}" style="color:rgb(255,255,255);text-decoration:underline;font-weight:bold;"></a></span>
+			<span id="badgeNotifications"><a href="{devblocks_url}c=profiles&w=worker&me=me&tab=notifications{/devblocks_url}"></a></span>
 			
-			{$worker_name =''|cat:'<b><a href="javascript:;" id="lnkSignedIn">'|cat:$active_worker->getName()|cat:' &#x25be;</a></b>'}
+			{$worker_name =''|cat:'<b><a href="javascript:;" id="lnkSignedIn">'|cat:$active_worker->getName()|cat:'</a></b><span class="cerb-sprite sprite-arrow-down-black"></span>'}
 			{'header.signed_in'|devblocks_translate:$worker_name nofilter}
 			{if $visit->isImposter()}
 				[ <a href="javascript:;" id="aImposter">{$visit->getImposter()->getName()}</a> ]
@@ -32,6 +32,7 @@
 				<li><a href="{devblocks_url}c=profiles&w=worker&me=me{/devblocks_url}">{'header.my_profile'|devblocks_translate|lower}</a></li>
 				<li><a href="{devblocks_url}c=preferences{/devblocks_url}">{'common.settings'|devblocks_translate|lower}</a></li>
 				<li><a href="{devblocks_url}c=profiles&w=worker&me=me&tab=notifications{/devblocks_url}">{'home.tab.my_notifications'|devblocks_translate|lower}</a></li>
+				<li><a href="{devblocks_url}c=profiles&w=worker&me=me&tab=calendar{/devblocks_url}">{'calendar'|devblocks_translate|lower}</a></li>
 				<li><a href="{devblocks_url}c=profiles&w=worker&me=me&tab=attendant{/devblocks_url}">{'virtual attendant'|devblocks_translate|lower}</a></li>
 				<li><a href="{devblocks_url}c=profiles&w=worker&me=me&tab=snippets{/devblocks_url}">{'common.snippets'|devblocks_translate|lower}</a></li>
 				<li><a href="{devblocks_url}c=profiles&w=worker&me=me&tab=links{/devblocks_url}">{'watchlist'|devblocks_translate|lower}</a></li>

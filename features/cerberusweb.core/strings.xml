@@ -300,6 +300,9 @@
 		<tu tuid='common.members'>
 			<tuv xml:lang="en_US"><seg>Members</seg></tuv>
 		</tu>
+		<tu tuid='common.message'>
+			<tuv xml:lang="en_US"><seg>Message</seg></tuv>
+		</tu>
 		<tu tuid='common.messages'>
 			<tuv xml:lang="en_US"><seg>Messages</seg></tuv>
 		</tu>
@@ -360,6 +363,9 @@
 		<tu tuid='common.owner'>
 			<tuv xml:lang="en_US"><seg>owner</seg></tuv>
 		</tu>		
+		<tu tuid='common.label'>
+			<tuv xml:lang="en_US"><seg>Label</seg></tuv>
+		</tu>
 		<tu tuid='common.languages'>
 			<tuv xml:lang="en_US"><seg>Languages</seg></tuv>
 		</tu>
@@ -386,6 +392,9 @@
 		</tu>
 		<tu tuid='common.permalink'>
 			<tuv xml:lang="en_US"><seg>permalink</seg></tuv>
+		</tu>
+		<tu tuid='common.preview'>
+			<tuv xml:lang="en_US"><seg>preview</seg></tuv>
 		</tu>
 		<tu tuid='common.previous_short'>
 			<tuv xml:lang="en_US"><seg>prev</seg></tuv>
@@ -429,6 +438,12 @@
 		<tu tuid='common.save'>
 			<tuv xml:lang="en_US"><seg>Save</seg></tuv>
 		</tu>
+		<tu tuid='common.save_and_continue'>
+			<tuv xml:lang="en_US"><seg>Save &amp; Continue</seg></tuv>
+		</tu>
+		<tu tuid='common.save_and_close'>
+			<tuv xml:lang="en_US"><seg>Save &amp; Close</seg></tuv>
+		</tu>
 		<tu tuid='common.save_changes'>
 			<tuv xml:lang="en_US"><seg>Save Changes</seg></tuv>
 		</tu>
@@ -443,6 +458,9 @@
 		</tu>
 		<tu tuid='common.settings'>
 			<tuv xml:lang="en_US"><seg>settings</seg></tuv>
+		</tu>
+		<tu tuid='common.signature'>
+			<tuv xml:lang="en_US"><seg>signature</seg></tuv>
 		</tu>
 		<tu tuid='common.snippets'>
 			<tuv xml:lang="en_US"><seg>snippets</seg></tuv>
@@ -462,6 +480,12 @@
 		<tu tuid='common.synchronize'>
 			<tuv xml:lang="en_US"><seg>Synchronize</seg></tuv>
 		</tu>
+		<tu tuid='common.tag'>
+			<tuv xml:lang="en_US"><seg>Tag</seg></tuv>
+		</tu>
+		<tu tuid='common.target'>
+			<tuv xml:lang="en_US"><seg>Target</seg></tuv>
+		</tu>
 		<tu tuid='common.task'>
 			<tuv xml:lang="en_US"><seg>Task</seg></tuv>
 		</tu>
@@ -476,6 +500,9 @@
 		</tu>
 		<tu tuid='common.ticket'>
 			<tuv xml:lang="en_US"><seg>ticket</seg></tuv>
+		</tu>
+		<tu tuid='common.tickets'>
+			<tuv xml:lang="en_US"><seg>tickets</seg></tuv>
 		</tu>
 		<tu tuid='common.time.mins.num'>
 			<tuv xml:lang="en_US"><seg>%s min</seg></tuv>
@@ -551,6 +578,18 @@
 		</tu>
 
 		<!-- DAO -->
+
+		<!-- CalendarEvent -->
+		
+		<tu tuid='dao.calendar_event.is_available'>
+			<tuv xml:lang="en_US"><seg>Is Available</seg></tuv>
+		</tu>
+		<tu tuid='dao.calendar_event.date_start'>
+			<tuv xml:lang="en_US"><seg>Start Date</seg></tuv>
+		</tu>
+		<tu tuid='dao.calendar_event.date_end'>
+			<tuv xml:lang="en_US"><seg>End Date</seg></tuv>
+		</tu>
 		
 		<!-- CerbPlugin -->
 		
@@ -626,9 +665,6 @@
 		<tu tuid='acl.core.addybook'>
 			<tuv xml:lang="en_US"><seg>[Address Book] Can browse the address book</seg></tuv>
 		</tu>
-		<tu tuid='acl.core.addybook.actions.import'>
-			<tuv xml:lang="en_US"><seg>[Address Book] Can import/upload records into the address book</seg></tuv>
-		</tu>
 		<tu tuid='acl.core.addybook.addy.actions.update'>
 			<tuv xml:lang="en_US"><seg>[Address Book] Can modify email address contacts</seg></tuv>
 		</tu>
@@ -681,17 +717,9 @@
 			<tuv xml:lang="en_US"><seg>[Display Ticket] Can permanently delete messages on tickets</seg></tuv>
 		</tu>
 
-			<!-- Home -->
-		<tu tuid='acl.core.home.workspaces'>
-			<tuv xml:lang="en_US"><seg>[Home] Can build private workspaces and worklists</seg></tuv>
-		</tu>
-
 			<!-- Mail page -->
 		<tu tuid='acl.core.mail'>
 			<tuv xml:lang="en_US"><seg>[Mail] Can view the mail page</seg></tuv>
-		</tu>
-		<tu tuid='acl.core.mail.search'>
-			<tuv xml:lang="en_US"><seg>[Mail] Can use the Search tab on the mail page</seg></tuv>
 		</tu>
 		<tu tuid='acl.core.mail.send'>
 			<tuv xml:lang="en_US"><seg>[Mail] Can compose new messages from the helpdesk</seg></tuv>
@@ -803,36 +831,6 @@
 		<tu tuid='addy_book.history.view.requester'>
 			<tuv xml:lang="en_US"><seg>Recipient History: %s contact(s)</seg></tuv>
 		</tu>
-		<tu tuid='addy_book.import.dupes.check'>
-			<tuv xml:lang="en_US"><seg>Check for duplicates using</seg></tuv>
-		</tu>
-		<tu tuid='addy_book.import.dupes.dont_check'>
-			<tuv xml:lang="en_US"><seg>don't check for duplicates</seg></tuv>
-		</tu>
-		<tu tuid='addy_book.import.from_file'>
-			<tuv xml:lang="en_US"><seg>Columns from your file</seg></tuv>
-		</tu>
-		<tu tuid='addy_book.import.options.blank_fields'>
-			<tuv xml:lang="en_US"><seg>Blank values for custom fields should clear the field (if unchecked, blank values are skipped)</seg></tuv>
-		</tu>
-		<tu tuid='addy_book.import.options.import_first_row'>
-			<tuv xml:lang="en_US"><seg>Import the first row (only check this if the dropdowns contain real data)</seg></tuv>
-		</tu>
-		<tu tuid='addy_book.import.options.replace_passwords'>
-			<tuv xml:lang="en_US"><seg>Replace all passwords with import values, even if they already exist</seg></tuv>
-		</tu>
-		<tu tuid='addy_book.import.record_type'>
-			<tuv xml:lang="en_US"><seg>Record Type</seg></tuv>
-		</tu>
-		<tu tuid='addy_book.import.to_field'>
-			<tuv xml:lang="en_US"><seg>Set value in field</seg></tuv>
-		</tu>
-		<tu tuid='addy_book.import.upload_csv'>
-			<tuv xml:lang="en_US"><seg>Upload .CSV File</seg></tuv>
-		</tu>
-		<tu tuid='addy_book.import.upload_csv.tip'>
-			<tuv xml:lang="en_US"><seg>(any column order; the next step will let you choose where the data goes)</seg></tuv>
-		</tu>
 		<tu tuid='addy_book.org.add'>
 			<tuv xml:lang="en_US"><seg>Add Org</seg></tuv>
 		</tu>
@@ -852,19 +850,13 @@
 			<tuv xml:lang="en_US"><seg>%s closed ticket(s)</seg></tuv>
 		</tu>
 		<tu tuid='addy_book.peek.title'>
-			<tuv xml:lang="en_US"><seg>Email Contact</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Email Address</seg></tuv>
 		</tu>
 		<tu tuid='addy_book.peek.view_full'>
 			<tuv xml:lang="en_US"><seg>view full record</seg></tuv>
 		</tu>
 		<tu tuid='addy_book.tab.addresses'>
 			<tuv xml:lang="en_US"><seg>Addresses</seg></tuv>
-		</tu>
-		<tu tuid='addy_book.tab.import'>
-			<tuv xml:lang="en_US"><seg>Import</seg></tuv>
-		</tu>
-		<tu tuid='addy_book.tab.lists'>
-			<tuv xml:lang="en_US"><seg>Contact Lists</seg></tuv>
 		</tu>
 		<tu tuid='addy_book.tab.organizations'>
 			<tuv xml:lang="en_US"><seg>Organizations</seg></tuv>
@@ -1028,6 +1020,9 @@ For example: http://www.cerberusweb.com/support/</seg></tuv>
 
 		<!-- ContextScheduledBehavior -->
 		
+		<tu tuid='dao.context_scheduled_behavior.repeat_json'>
+			<tuv xml:lang="en_US"><seg>Repeat</seg></tuv>
+		</tu>
 		<tu tuid='dao.context_scheduled_behavior.run_date'>
 			<tuv xml:lang="en_US"><seg>Run Date</seg></tuv>
 		</tu>
@@ -1104,7 +1099,7 @@ For example: http://www.cerberusweb.com/support/</seg></tuv>
 			<tuv xml:lang="en_US"><seg>%s unread notification(s)</seg></tuv>
 		</tu>
 		<tu tuid='header.preferences'>
-			<tuv xml:lang="en_US"><seg>my settings</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Settings</seg></tuv>
 		</tu>
 		<tu tuid='header.signed_in'>
 			<tuv xml:lang="en_US"><seg>Signed on as %s</seg></tuv>
@@ -1157,9 +1152,6 @@ For example: http://www.cerberusweb.com/support/</seg></tuv>
 		<tu tuid='dashboard.delete.confirm'>
 			<tuv xml:lang="en_US"><seg>Are you sure you want to delete this entire workspace?</seg></tuv>
 		</tu>
-		<tu tuid='dashboard.edit'>
-			<tuv xml:lang="en_US"><seg>edit workspace</seg></tuv>
-		</tu>
 		<tu tuid='dashboard.modify'>
 			<tuv xml:lang="en_US"><seg>Modify Dashboard</seg></tuv>
 		</tu>
@@ -1189,9 +1181,6 @@ For example: http://www.cerberusweb.com/support/</seg></tuv>
 		</tu>
 		<tu tuid='home.workspaces.worklist.add.new'>
 			<tuv xml:lang="en_US"><seg>New</seg></tuv>
-		</tu>
-		<tu tuid='home.workspaces.worklist.add.to_workspace'>
-			<tuv xml:lang="en_US"><seg>Add Worklist to Workspace</seg></tuv>
 		</tu>
 		<tu tuid='home.workspaces.worklist.name'>
 			<tuv xml:lang="en_US"><seg>Worklist Name</seg></tuv>
@@ -1260,9 +1249,6 @@ For example: http://www.cerberusweb.com/support/</seg></tuv>
 		</tu>		
 		<tu tuid='display.reply.insert_sig'>
 			<tuv xml:lang="en_US"><seg>Insert Signature</seg></tuv>
-		</tu>
-		<tu tuid='display.reply.next_label'>
-			<tuv xml:lang="en_US"><seg>Next:</seg></tuv>
 		</tu>
 		<tu tuid='display.reply.next.move'>
 			<tuv xml:lang="en_US"><seg>Would you like to move this conversation?</seg></tuv>
@@ -1396,11 +1382,17 @@ For example: http://www.cerberusweb.com/support/</seg></tuv>
 		<tu tuid='mail.quick_search.comments_all'>
 			<tuv xml:lang="en_US"><seg>Comments (all words)</seg></tuv>
 		</tu>
+		<tu tuid='mail.quick_search.comments_expert'>
+			<tuv xml:lang="en_US"><seg>Comments (expert)</seg></tuv>
+		</tu>
 		<tu tuid='mail.quick_search.comments_phrase'>
 			<tuv xml:lang="en_US"><seg>Comments (phrase)</seg></tuv>
 		</tu>
 		<tu tuid='mail.quick_search.messages_all'>
 			<tuv xml:lang="en_US"><seg>Messages (all words)</seg></tuv>
+		</tu>
+		<tu tuid='mail.quick_search.messages_expert'>
+			<tuv xml:lang="en_US"><seg>Messages (expert)</seg></tuv>
 		</tu>
 		<tu tuid='mail.quick_search.messages_phrase'>
 			<tuv xml:lang="en_US"><seg>Messages (phrase)</seg></tuv>
@@ -1409,17 +1401,10 @@ For example: http://www.cerberusweb.com/support/</seg></tuv>
 			<tuv xml:lang="en_US"><seg>Received</seg></tuv>
 		</tu>
 		<tu tuid='mail.send_mail'>
-			<tuv xml:lang="en_US"><seg>Send Mail</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Compose</seg></tuv>
 		</tu>
 		<tu tuid='mail.sent'>
 			<tuv xml:lang="en_US"><seg>Sent</seg></tuv>
-		</tu>
-		
-		<tu tuid='mail.search.messages'>
-			<tuv xml:lang="en_US"><seg>Search Messages</seg></tuv>
-		</tu>
-		<tu tuid='mail.search.tickets'>
-			<tuv xml:lang="en_US"><seg>Search Tickets</seg></tuv>
 		</tu>
 		
 		<tu tuid='mail.view.add_filter'>
@@ -1732,8 +1717,14 @@ For example: *receipt*</seg></tuv>
 		<tu tuid='ticket.mask'>
 			<tuv xml:lang="en_US"><seg>Mask</seg></tuv>
 		</tu>
+		<tu tuid='ticket.num_messages'>
+			<tuv xml:lang="en_US"><seg># Messages</seg></tuv>
+		</tu>
 		<tu tuid='ticket.recipients.empty'>
 			<tuv xml:lang="en_US"><seg>This ticket has no recipients.</seg></tuv>
+		</tu>
+		<tu tuid='ticket.reopen_date'>
+			<tuv xml:lang="en_US"><seg>Reopen Date</seg></tuv>
 		</tu>
 		<tu tuid='ticket.requester'>
 			<tuv xml:lang="en_US"><seg>Recipient</seg></tuv>

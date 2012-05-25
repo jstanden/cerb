@@ -13,10 +13,13 @@
  * Base class for all token parsers.
  *
  * @package twig
- * @author  Fabien Potencier <fabien.potencier@symfony-project.com>
+ * @author  Fabien Potencier <fabien@symfony.com>
  */
 abstract class Twig_TokenParser implements Twig_TokenParserInterface
 {
+    /**
+     * @var Twig_Parser
+     */
     protected $parser;
 
     /**

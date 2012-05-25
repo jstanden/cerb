@@ -33,7 +33,7 @@
 			{include file="devblocks:cerberusweb.support_center::portal/sc/config/module/contact/situation_followups.tpl" field_id=$field_id uniq_id=$uniq_id}
 		{/foreach}
 	</div>
-	<button type="button" class="add"><span class="cerb-sprite2 sprite-plus-circle-frame"></span></button>
+	<button type="button" class="add"><span class="cerb-sprite2 sprite-plus-circle"></span></button>
 </div>
 </fieldset>
 

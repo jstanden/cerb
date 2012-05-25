@@ -66,11 +66,6 @@
         <seg>[Показ заявки] Может делить заявки</seg>
       </tuv>
     </tu>
-    <tu tuid="acl.core.home.workspaces">
-      <tuv xml:lang="ru_RU">
-        <seg>[Дом] Может создавать частные рабочие пространства и рабочие списки</seg>
-      </tuv>
-    </tu>
     <tu tuid="acl.core.kb.articles.modify">
       <tuv xml:lang="ru_RU">
         <seg>[База знаний] Может управлять статьями</seg>
@@ -81,19 +76,9 @@
         <seg>[База знаний] Может управлять категориями</seg>
       </tuv>
     </tu>
-    <tu tuid="acl.core.kb.topics.modify">
-      <tuv xml:lang="ru_RU">
-        <seg>[База знаний] Может управлять темами верхнего уровня</seg>
-      </tuv>
-    </tu>
     <tu tuid="acl.core.mail.overview">
       <tuv xml:lang="ru_RU">
         <seg>[Почта] Может использовать вкладку Обзор на странице Почта</seg>
-      </tuv>
-    </tu>
-    <tu tuid="acl.core.mail.search">
-      <tuv xml:lang="ru_RU">
-        <seg>[Почта] Может использовать вкладку Поиск на странице Почта</seg>
       </tuv>
     </tu>
     <tu tuid="acl.core.mail.send">
@@ -369,56 +354,6 @@
     <tu tuid="addy_book.history.view.title">
       <tuv xml:lang="ru_RU">
         <seg>История контакта</seg>
-      </tuv>
-    </tu>
-    <tu tuid="addy_book.import.dupes.check">
-      <tuv xml:lang="ru_RU">
-        <seg>Проверить на дубликаты используя</seg>
-      </tuv>
-    </tu>
-    <tu tuid="addy_book.import.dupes.dont_check">
-      <tuv xml:lang="ru_RU">
-        <seg>не проверять на дубликаты</seg>
-      </tuv>
-    </tu>
-    <tu tuid="addy_book.import.from_file">
-      <tuv xml:lang="ru_RU">
-        <seg>Колонки из вашего файла</seg>
-      </tuv>
-    </tu>
-    <tu tuid="addy_book.import.options.blank_fields">
-      <tuv xml:lang="ru_RU">
-        <seg>Пустые значения из кастомных полей должны очищать поле (если не выбрано - пустые значения пропускаются)</seg>
-      </tuv>
-    </tu>
-    <tu tuid="addy_book.import.options.import_first_row">
-      <tuv xml:lang="ru_RU">
-        <seg>Импортировать первую строку (выбирайте только в том случае если выпадающий список содержит корректные данные)</seg>
-      </tuv>
-    </tu>
-    <tu tuid="addy_book.import.options.replace_passwords">
-      <tuv xml:lang="ru_RU">
-        <seg>Заменяет все пароли импортированными значениями даже в том случае если они уже существуют</seg>
-      </tuv>
-    </tu>
-    <tu tuid="addy_book.import.record_type">
-      <tuv xml:lang="ru_RU">
-        <seg>Тип записи</seg>
-      </tuv>
-    </tu>
-    <tu tuid="addy_book.import.to_field">
-      <tuv xml:lang="ru_RU">
-        <seg>Установить значения поля</seg>
-      </tuv>
-    </tu>
-    <tu tuid="addy_book.import.upload_csv">
-      <tuv xml:lang="ru_RU">
-        <seg>Загрузить .CSV файл</seg>
-      </tuv>
-    </tu>
-    <tu tuid="addy_book.import.upload_csv.tip">
-      <tuv xml:lang="ru_RU">
-        <seg>(столбцы в любом порядке; на следующем шаге вы выберите куда пойдут данные)</seg>
       </tuv>
     </tu>
     <tu tuid="addy_book.org.add">
@@ -851,6 +786,11 @@
         <seg>я</seg>
       </tuv>
     </tu>
+    <tu tuid="common.messages">
+      <tuv xml:lang="ru_RU">
+        <seg>сообщения</seg>
+      </tuv>
+    </tu>
     <tu tuid="common.minimize">
       <tuv xml:lang="ru_RU">
         <seg>свернуть</seg>
@@ -1054,6 +994,11 @@
     <tu tuid="common.ticket">
       <tuv xml:lang="ru_RU">
         <seg>заявка</seg>
+      </tuv>
+    </tu>
+    <tu tuid="common.tickets">
+      <tuv xml:lang="ru_RU">
+        <seg>заявок</seg>
       </tuv>
     </tu>
     <tu tuid="common.time.mins.num">
@@ -1326,11 +1271,6 @@
         <seg>Вы уверены что хотите удалить эту рабочую область?</seg>
       </tuv>
     </tu>
-    <tu tuid="dashboard.edit">
-      <tuv xml:lang="ru_RU">
-        <seg>редактировать рабочую область</seg>
-      </tuv>
-    </tu>
     <tu tuid="dashboard.group_filters">
       <tuv xml:lang="ru_RU">
         <seg>Групповые фильтры</seg>
@@ -1519,11 +1459,6 @@
     <tu tuid="display.reply.next.resume_eg">
       <tuv xml:lang="ru_RU">
         <seg>(т.е. "Friday", "7 days", "Tomorrow 11:15AM", "Dec 31")</seg>
-      </tuv>
-    </tu>
-    <tu tuid="display.reply.next_label">
-      <tuv xml:lang="ru_RU">
-        <seg>Далее:</seg>
       </tuv>
     </tu>
     <tu tuid="display.reply.reply_banner">
@@ -1749,11 +1684,6 @@
     <tu tuid="home.workspaces.worklist.add.new">
       <tuv xml:lang="ru_RU">
         <seg>Новая</seg>
-      </tuv>
-    </tu>
-    <tu tuid="home.workspaces.worklist.add.to_workspace">
-      <tuv xml:lang="ru_RU">
-        <seg>Добавить список в рабочую область</seg>
       </tuv>
     </tu>
     <tu tuid="home.workspaces.worklist.name">
@@ -2909,16 +2839,6 @@
         <seg>Создано заявок в группе</seg>
       </tuv>
     </tu>
-    <tu tuid="reports.ui.ticket.oldest_open">
-      <tuv xml:lang="ru_RU">
-        <seg>Старейшие открытые заявки по группам</seg>
-      </tuv>
-    </tu>
-    <tu tuid="reports.ui.ticket.open_tickets">
-      <tuv xml:lang="ru_RU">
-        <seg>Открытых заявок по группам</seg>
-      </tuv>
-    </tu>
     <tu tuid="reports.ui.ticket.top_contacts">
       <tuv xml:lang="ru_RU">
         <seg>Top Created Tickets By Contact</seg>
@@ -2932,11 +2852,6 @@
     <tu tuid="reports.ui.ticket.top_contacts.by_org">
       <tuv xml:lang="ru_RU">
         <seg>По Компании</seg>
-      </tuv>
-    </tu>
-    <tu tuid="reports.ui.ticket.waiting_tickets">
-      <tuv xml:lang="ru_RU">
-        <seg>Заявок в Ожидании по Группам</seg>
       </tuv>
     </tu>
     <tu tuid="reports.ui.worker">
@@ -3700,7 +3615,7 @@ login &lt;ftp&#13;
     </tu>
     <tu tuid="timetracking.ui.tracked_desc">
       <tuv xml:lang="ru_RU">
-        <seg>%s tracked %s mins on %s</seg>
+        <seg>%s tracked %s on %s</seg>
       </tuv>
     </tu>
     <tu tuid="timetracking.ui.trial.limit_exceeded">
@@ -4550,11 +4465,6 @@ remote control of your helpdesk.</seg>
         <seg>Полное имя</seg>
       </tuv>
     </tu>
-    <tu tuid="addy_book.tab.lists">
-      <tuv xml:lang="ru_RU">
-        <seg>Списки контактов</seg>
-      </tuv>
-    </tu>
     <tu tuid="addy_book.tab.people">
       <tuv xml:lang="ru_RU">
         <seg>Зарегистрированные контакты</seg>
@@ -4781,36 +4691,6 @@ remote control of your helpdesk.</seg>
       </tuv>
     </tu>
     <tu tuid="crm.opp.add">
-      <tuv xml:lang="ru_RU">
-        <seg></seg>
-      </tuv>
-    </tu>
-    <tu tuid="crm.opp.import.find_dupes">
-      <tuv xml:lang="ru_RU">
-        <seg></seg>
-      </tuv>
-    </tu>
-    <tu tuid="crm.opp.import.from_file">
-      <tuv xml:lang="ru_RU">
-        <seg></seg>
-      </tuv>
-    </tu>
-    <tu tuid="crm.opp.import.options.blank_fields">
-      <tuv xml:lang="ru_RU">
-        <seg></seg>
-      </tuv>
-    </tu>
-    <tu tuid="crm.opp.import.options.import_first_row">
-      <tuv xml:lang="ru_RU">
-        <seg></seg>
-      </tuv>
-    </tu>
-    <tu tuid="crm.opp.import.options.set_owner">
-      <tuv xml:lang="ru_RU">
-        <seg></seg>
-      </tuv>
-    </tu>
-    <tu tuid="crm.opp.import.to_field">
       <tuv xml:lang="ru_RU">
         <seg></seg>
       </tuv>
@@ -5160,16 +5040,6 @@ remote control of your helpdesk.</seg>
         <seg>Комментарии (фраза)</seg>
       </tuv>
     </tu>
-    <tu tuid="mail.search.messages">
-      <tuv xml:lang="ru_RU">
-        <seg>Искать сообщения</seg>
-      </tuv>
-    </tu>
-    <tu tuid="mail.search.tickets">
-      <tuv xml:lang="ru_RU">
-        <seg>Поиск заявок</seg>
-      </tuv>
-    </tu>
     <tu tuid="mail_queue.queue_delivery_date">
       <tuv xml:lang="ru_RU">
         <seg></seg>
@@ -5351,11 +5221,6 @@ remote control of your helpdesk.</seg>
       </tuv>
     </tu>
     <tu tuid="reports.ui.filters.worker">
-      <tuv xml:lang="ru_RU">
-        <seg></seg>
-      </tuv>
-    </tu>
-    <tu tuid="reports.ui.ticket.assignment">
       <tuv xml:lang="ru_RU">
         <seg></seg>
       </tuv>

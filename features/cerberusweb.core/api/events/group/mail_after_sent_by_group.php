@@ -18,7 +18,8 @@
 class Event_MailAfterSentByGroup extends AbstractEvent_Message {
 	const ID = 'event.mail.after.sent.group';
 	
-	function __construct() {
+	function __construct($manifest) {
+		parent::__construct($manifest);
 		$this->_event_id = self::ID;
 	}
 	

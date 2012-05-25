@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.devblocks.com/schema/plugin.xsd">
+	<id>example.workspace.page</id>
+	<name>[Example] Workspace Page</name>
+	<description>This plugin demonstrates a custom workspace page.</description>
+	<author>WebGroup Media, LLC.</author>
+	<version>6.0.0</version>
+	<link>http://www.cerb5.com/</link>
+	<!--<image>plugin.png</image>-->
+ 
+ 	<!-- Requirements -->
+
+	<requires>
+		<app_version min="6.0" max="6.0.99" />
+	</requires>
+ 
+	<!-- Plugin Dependencies -->
+	
+	<dependencies>
+		<require plugin_id="cerberusweb.core" version="6.0.0-dev" />
+	</dependencies>
+
+	<!-- Extensions -->
+ 
+	<extensions>
+
+		<!-- Workspace Page -->
+		
+		<extension point="cerberusweb.ui.workspace.page">
+			<id>example.workspace.page.example_page</id>
+			<name>Example Workspace Page</name>
+			<class>
+				<file>api/App.php</file>
+				<name>ExWorkspacePage</name>
+			</class>
+			<params>
+				<param key="label" value="example.workspace.page.label" />
+			</params>
+		</extension>		
+		
+    </extensions> 
+</plugin>

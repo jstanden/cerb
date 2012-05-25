@@ -2,7 +2,7 @@
 <input type="hidden" name="c" value="preferences">
 <input type="hidden" name="a" value="saveDefaults">
 
-<fieldset>
+<fieldset class="peek">
 	<legend>{$translate->_('preferences.account.settings')|capitalize}</legend>
 
 	<b>{$translate->_('preferences.account.timezone')|capitalize}</b> {if !empty($server_timezone)}({$translate->_('preferences.account.current')} {$server_timezone}){/if}<br>
@@ -30,7 +30,7 @@
 	
 </fieldset>
 
-<fieldset>
+<fieldset class="peek">
 	<legend>{'common.mail'|devblocks_translate|capitalize}</legend>
 	
 	<b>{$translate->_('common.options')|capitalize}:</b>
@@ -66,7 +66,7 @@
 	</div>
 </fieldset>
 
-<fieldset>
+<fieldset class="peek">
 	<legend>{$translate->_('preferences.account.email')|capitalize}</legend>
 
 	{$translate->_('preferences.account.email.associated')}<br>
@@ -77,9 +77,9 @@
 			<input type="hidden" name="worker_emails[]" value="{$address->address}">
 
 			{if $address->address==$active_worker->email}
-			<button type="button"><span class="cerb-sprite2 sprite-tick-circle-frame-gray"></span></button>
+			<button type="button"><span class="cerb-sprite2 sprite-tick-circle-gray"></span></button>
 			{else}
-			<button type="button" onclick="if(confirm('Are you sure you want to delete this email address?')) { $(this).closest('li').remove(); }" class="delete"><span class="cerb-sprite2 sprite-minus-circle-frame"></span></button>
+			<button type="button" onclick="if(confirm('Are you sure you want to delete this email address?')) { $(this).closest('li').remove(); }" class="delete"><span class="cerb-sprite2 sprite-minus-circle"></span></button>
 			{/if}
 
 			<b>{$address->address}</b>
@@ -102,7 +102,7 @@
 	</ul>
 </fieldset>
 
-<fieldset>
+<fieldset class="peek">
 	<legend>{$translate->_('preferences.account.password.change')|capitalize}</legend>
 
 	<table cellspacing="1" cellpadding="0" border="0">
@@ -119,7 +119,7 @@
 	<div id="preferences_error" style="color:red;font-weight:bold;"></div>
 </fieldset>
 
-<button type="submit"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {$translate->_('common.save_changes')}</button>
+<button type="submit"><span class="cerb-sprite2 sprite-tick-circle"></span> {$translate->_('common.save_changes')}</button>
 </form>
 
 <form action="{devblocks_url}{/devblocks_url}" name="resendConfirmationForm" method="post">

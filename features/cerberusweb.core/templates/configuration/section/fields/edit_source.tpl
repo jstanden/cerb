@@ -68,5 +68,5 @@
 	</div>
 	<br>
 	
-	<button id="frmConfigFieldSourceSubmit" type="button" onclick="genericAjaxPost('frmConfigFieldSource','frmConfigFieldSource');"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {$translate->_('common.save_changes')|capitalize}</button>
+	<button id="frmConfigFieldSourceSubmit" type="button" onclick="genericAjaxPost('frmConfigFieldSource','frmConfigFieldSource');"><span class="cerb-sprite2 sprite-tick-circle"></span> {$translate->_('common.save_changes')|capitalize}</button>
 </fieldset>

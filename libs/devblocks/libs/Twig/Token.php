@@ -14,7 +14,7 @@
  * Represents a Token.
  *
  * @package twig
- * @author  Fabien Potencier <fabien.potencier@symfony-project.com>
+ * @author  Fabien Potencier <fabien@symfony.com>
  */
 class Twig_Token
 {
@@ -22,24 +22,26 @@ class Twig_Token
     protected $type;
     protected $lineno;
 
-    const EOF_TYPE         = -1;
-    const TEXT_TYPE        = 0;
-    const BLOCK_START_TYPE = 1;
-    const VAR_START_TYPE   = 2;
-    const BLOCK_END_TYPE   = 3;
-    const VAR_END_TYPE     = 4;
-    const NAME_TYPE        = 5;
-    const NUMBER_TYPE      = 6;
-    const STRING_TYPE      = 7;
-    const OPERATOR_TYPE    = 8;
-    const PUNCTUATION_TYPE = 9;
+    const EOF_TYPE                  = -1;
+    const TEXT_TYPE                 = 0;
+    const BLOCK_START_TYPE          = 1;
+    const VAR_START_TYPE            = 2;
+    const BLOCK_END_TYPE            = 3;
+    const VAR_END_TYPE              = 4;
+    const NAME_TYPE                 = 5;
+    const NUMBER_TYPE               = 6;
+    const STRING_TYPE               = 7;
+    const OPERATOR_TYPE             = 8;
+    const PUNCTUATION_TYPE          = 9;
+    const INTERPOLATION_START_TYPE  = 10;
+    const INTERPOLATION_END_TYPE    = 11;
 
     /**
      * Constructor.
      *
      * @param integer $type   The type of the token
      * @param string  $value  The token value
-     * @param integer $lineno The line positionl in the source
+     * @param integer $lineno The line position in the source
      */
     public function __construct($type, $value, $lineno)
     {
@@ -55,20 +57,18 @@ class Twig_Token
      */
     public function __toString()
     {
-        return sprintf('%s(%s)', self::typeToString($this->type, true), $this->value);
+        return sprintf('%s(%s)', self::typeToString($this->type, true, $this->lineno), $this->value);
     }
 
     /**
-     * Tests the current token for a type.
+     * Tests the current token for a type and/or a value.
      *
-     * The first argument is the type
-     * of the token (if not given Twig_Token::NAME_TYPE), the second the
-     * value of the token (if not given value is not checked).
+     * Parameters may be:
+     * * just type
+     * * type and value (or array of possible values)
+     * * just value (or array of possible values) (NAME_TYPE is used as type)
      *
-     * The token value can be an array if multiple checks should be
-     * performed.
-     *
-     * @param integer           $type   The type to test
+     * @param array|integer     $type   The type to test
      * @param array|string|null $values The token value
      *
      * @return Boolean
@@ -122,10 +122,11 @@ class Twig_Token
      *
      * @param integer $type  The type as an integer
      * @param Boolean $short Whether to return a short representation or not
+     * @param integer $line  The code line
      *
      * @return string The string representation
      */
-    static public function typeToString($type, $short = false)
+    static public function typeToString($type, $short = false, $line = -1)
     {
         switch ($type) {
             case self::EOF_TYPE:
@@ -161,8 +162,14 @@ class Twig_Token
             case self::PUNCTUATION_TYPE:
                 $name = 'PUNCTUATION_TYPE';
                 break;
+            case self::INTERPOLATION_START_TYPE:
+                $name = 'INTERPOLATION_START_TYPE';
+                break;
+            case self::INTERPOLATION_END_TYPE:
+                $name = 'INTERPOLATION_END_TYPE';
+                break;
             default:
-                throw new Twig_Error_Syntax(sprintf('Token of type "%s" does not exist.', $type));
+                throw new Twig_Error_Syntax(sprintf('Token of type "%s" does not exist.', $type), $line);
         }
 
         return $short ? $name : 'Twig_Token::'.$name;
@@ -171,12 +178,12 @@ class Twig_Token
     /**
      * Returns the english representation of a given type.
      *
-     * @param integer $type  The type as an integer
-     * @param Boolean $short Whether to return a short representation or not
+     * @param integer $type The type as an integer
+     * @param integer $line The code line
      *
      * @return string The string representation
      */
-    static public function typeToEnglish($type)
+    static public function typeToEnglish($type, $line = -1)
     {
         switch ($type) {
             case self::EOF_TYPE:
@@ -201,8 +208,12 @@ class Twig_Token
                 return 'operator';
             case self::PUNCTUATION_TYPE:
                 return 'punctuation';
+            case self::INTERPOLATION_START_TYPE:
+                return 'begin of string interpolation';
+            case self::INTERPOLATION_END_TYPE:
+                return 'end of string interpolation';
             default:
-                throw new Twig_Error_Syntax(sprintf('Token of type "%s" does not exist.', $type));
+                throw new Twig_Error_Syntax(sprintf('Token of type "%s" does not exist.', $type), $line);
         }
     }
 }

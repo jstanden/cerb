@@ -71,11 +71,6 @@
         <seg>[Mostrar Ticket] Puede dividir tickets</seg>
       </tuv>
     </tu>
-    <tu tuid="acl.core.home.workspaces">
-      <tuv xml:lang="es_ES">
-        <seg>[Inicio] Puede construir áreas de trabajo y listas de trabajo privadas</seg>
-      </tuv>
-    </tu>
     <tu tuid="acl.core.kb.articles.modify">
       <tuv xml:lang="es_ES">
         <seg>[Base de conocimientos] Puede gestionar artículos</seg>
@@ -86,19 +81,9 @@
         <seg>[Base de conocimientos] Puede gestionar categorías</seg>
       </tuv>
     </tu>
-    <tu tuid="acl.core.kb.topics.modify">
-      <tuv xml:lang="es_ES">
-        <seg>[Base de conocimientos] Puede gestionar temas de nivel superior</seg>
-      </tuv>
-    </tu>
     <tu tuid="acl.core.mail.overview">
       <tuv xml:lang="es_ES">
         <seg>[Correo] Puede usar la pestaña Descripción General en la página Correo</seg>
-      </tuv>
-    </tu>
-    <tu tuid="acl.core.mail.search">
-      <tuv xml:lang="es_ES">
-        <seg>[Correo] Puede usar la pestaña Buscar en la página Correo</seg>
       </tuv>
     </tu>
     <tu tuid="acl.core.mail.send">
@@ -379,56 +364,6 @@
     <tu tuid="addy_book.history.view.title">
       <tuv xml:lang="es_ES">
         <seg>Historia del Contacto</seg>
-      </tuv>
-    </tu>
-    <tu tuid="addy_book.import.dupes.check">
-      <tuv xml:lang="es_ES">
-        <seg>Comprobar duplicados usando</seg>
-      </tuv>
-    </tu>
-    <tu tuid="addy_book.import.dupes.dont_check">
-      <tuv xml:lang="es_ES">
-        <seg>no comprobar duplicados</seg>
-      </tuv>
-    </tu>
-    <tu tuid="addy_book.import.from_file">
-      <tuv xml:lang="es_ES">
-        <seg>Columnas de su fichero</seg>
-      </tuv>
-    </tu>
-    <tu tuid="addy_book.import.options.blank_fields">
-      <tuv xml:lang="es_ES">
-        <seg>Valores en blanco para los campos personalizados limpiarán el campo (Si no está marcado, se saltarán los valores en blanco)</seg>
-      </tuv>
-    </tu>
-    <tu tuid="addy_book.import.options.import_first_row">
-      <tuv xml:lang="es_ES">
-        <seg>Importar la primera fila (marcar sólo si los desplegables contienen datos reales)</seg>
-      </tuv>
-    </tu>
-    <tu tuid="addy_book.import.options.replace_passwords">
-      <tuv xml:lang="es_ES">
-        <seg>Reemplazar todas las contraseñas con valores importados, incluso si ya existen</seg>
-      </tuv>
-    </tu>
-    <tu tuid="addy_book.import.record_type">
-      <tuv xml:lang="es_ES">
-        <seg>Tipo de Registro</seg>
-      </tuv>
-    </tu>
-    <tu tuid="addy_book.import.to_field">
-      <tuv xml:lang="es_ES">
-        <seg>Poner valor en el campo</seg>
-      </tuv>
-    </tu>
-    <tu tuid="addy_book.import.upload_csv">
-      <tuv xml:lang="es_ES">
-        <seg>Subir fichero .CSV</seg>
-      </tuv>
-    </tu>
-    <tu tuid="addy_book.import.upload_csv.tip">
-      <tuv xml:lang="es_ES">
-        <seg>(cualquier orden de columnas; el próximo paso le permitirá elegir donde irán los datos)</seg>
       </tuv>
     </tu>
     <tu tuid="addy_book.org.add">
@@ -1376,11 +1311,6 @@
         <seg>Está seguro que quiere borrar este área de trabajo?</seg>
       </tuv>
     </tu>
-    <tu tuid="dashboard.edit">
-      <tuv xml:lang="es_ES">
-        <seg>editar área de trabajo</seg>
-      </tuv>
-    </tu>
     <tu tuid="dashboard.group_filters">
       <tuv xml:lang="es_ES">
         <seg>Filtros de Grupo</seg>
@@ -1569,11 +1499,6 @@
     <tu tuid="display.reply.next.resume_eg">
       <tuv xml:lang="es_ES">
         <seg>(e.g. "Viernes", "7 días", "Mañana 11:15AM", "Dic 31")</seg>
-      </tuv>
-    </tu>
-    <tu tuid="display.reply.next_label">
-      <tuv xml:lang="es_ES">
-        <seg>Siguiente:</seg>
       </tuv>
     </tu>
     <tu tuid="display.reply.reply_banner">
@@ -1804,11 +1729,6 @@
     <tu tuid="home.workspaces.worklist.add.new">
       <tuv xml:lang="es_ES">
         <seg>Nuevo</seg>
-      </tuv>
-    </tu>
-    <tu tuid="home.workspaces.worklist.add.to_workspace">
-      <tuv xml:lang="es_ES">
-        <seg>Añadir lista de trabajo al área de trabajo</seg>
       </tuv>
     </tu>
     <tu tuid="home.workspaces.worklist.name">
@@ -3003,16 +2923,6 @@ Si no pidió esto, no pinche en el enlace de arriba.  La petición expirará en 
         <seg>Tickets Creados por Grupo</seg>
       </tuv>
     </tu>
-    <tu tuid="reports.ui.ticket.oldest_open">
-      <tuv xml:lang="es_ES">
-        <seg>Tickets Abiertos más Antiguos por Grupo</seg>
-      </tuv>
-    </tu>
-    <tu tuid="reports.ui.ticket.open_tickets">
-      <tuv xml:lang="es_ES">
-        <seg>Tickets Abiertos por Grupo</seg>
-      </tuv>
-    </tu>
     <tu tuid="reports.ui.ticket.top_contacts">
       <tuv xml:lang="es_ES">
         <seg>Primeros Tickets Creados por Contacto</seg>
@@ -3026,11 +2936,6 @@ Si no pidió esto, no pinche en el enlace de arriba.  La petición expirará en 
     <tu tuid="reports.ui.ticket.top_contacts.by_org">
       <tuv xml:lang="es_ES">
         <seg>Por Organización</seg>
-      </tuv>
-    </tu>
-    <tu tuid="reports.ui.ticket.waiting_tickets">
-      <tuv xml:lang="es_ES">
-        <seg>Tickets Esperando por Grupo</seg>
       </tuv>
     </tu>
     <tu tuid="reports.ui.worker">
@@ -3714,7 +3619,7 @@ Por ejemplo: *recibo*</seg>
     </tu>
     <tu tuid="timetracking.ui.tracked_desc">
       <tuv xml:lang="es_ES">
-        <seg>%s controlados %s mins de %s</seg>
+        <seg>%s controlados %s de %s</seg>
       </tuv>
     </tu>
     <tu tuid="timetracking.ui.trial.limit_exceeded">

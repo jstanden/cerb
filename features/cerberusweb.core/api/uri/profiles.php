@@ -16,10 +16,13 @@
 ***********************************************************************/
 
 class Page_Profiles extends CerberusPageExtension {
+	const ID = 'cerberusweb.page.profiles';
+	
 	function isVisible() {
 		// The current session must be a logged-in worker to use this page.
 		if(null == ($worker = CerberusApplication::getActiveWorker()))
 			return false;
+		
 		return true;
 	}
 	
@@ -30,72 +33,46 @@ class Page_Profiles extends CerberusPageExtension {
 		$response = DevblocksPlatform::getHttpResponse();
 		
 		$stack = $response->path;
-
 		@array_shift($stack); // profiles
-		@$type = array_shift($stack); // group | worker
+		@$section_uri = array_shift($stack);
 
-		$groups = DAO_Group::getAll();
-		$tpl->assign('groups', $groups);
+		if(empty($section_uri))
+			$section_uri = 'worker';
+
+		// Subpage
+		$subpage = Extension_PageSection::getExtensionByPageUri($this->manifest->id, $section_uri, true);
+		$tpl->assign('subpage', $subpage);
 		
-		$workers = DAO_Worker::getAllActive();
-		$tpl->assign('workers', $workers);
+		$tpl->display('devblocks:cerberusweb.core::profiles/index.tpl');
+	}
+	
+	function handleSectionActionAction() {
+		@$section_uri = DevblocksPlatform::importGPC($_REQUEST['section'],'string','');
+		@$action = DevblocksPlatform::importGPC($_REQUEST['action'],'string','');
+
+		$inst = Extension_PageSection::getExtensionByPageUri($this->manifest->id, $section_uri, true);
 		
-		switch($type) {
-			case 'group':
-				@$group_id = intval(array_shift($stack));
-				$point = 'cerberusweb.profiles.group.' . $group_id;
-
-				if(empty($group_id) || null == ($group = DAO_Group::get($group_id)))
-					throw new Exception();
-				
-				$tpl->assign('group', $group);
-				
-				// Remember the last tab/URL
-				if(null == ($selected_tab = @$response->path[3])) {
-					$selected_tab = $visit->get($point, '');
-				}
-				$tpl->assign('selected_tab', $selected_tab);
-				
-				$tpl->display('devblocks:cerberusweb.core::profiles/group/index.tpl');
-				break;
-				
-			case 'worker':
-				@$id = array_shift($stack);
-				
-				switch($id) {
-					case 'me':
-						$worker_id = $active_worker->id;
-						break;
-						
-					default:
-						@$worker_id = intval($id);
-						break;
-				}
-
-				$point = 'cerberusweb.profiles.worker.' . $worker_id;
-				
-				if(empty($worker_id) || null == ($worker = DAO_Worker::get($worker_id)))
-					throw new Exception();
-					
-				$tpl->assign('worker', $worker);
-				
-				// Remember the last tab/URL
-				if(null == ($selected_tab = @$response->path[3])) {
-					$selected_tab = $visit->get($point, '');
-				}
-				$tpl->assign('selected_tab', $selected_tab);
-				
-				// Counts
-				$counts = DAO_ContextLink::getContextLinkCounts(CerberusContexts::CONTEXT_WORKER, $worker_id);
-				$watching_total = intval(array_sum($counts));
-				$tpl->assign('watching_total', $watching_total);
-				
-				$tpl->display('devblocks:cerberusweb.core::profiles/worker/index.tpl');
-				break;
-				
-			default:
-				$tpl->display('devblocks:cerberusweb.core::profiles/index.tpl');
-				break;
+		if($inst instanceof Extension_PageSection && method_exists($inst, $action.'Action')) {
+			call_user_func(array($inst, $action.'Action'));
+		}
+	}
+	
+	function showTabAction() {
+		@$ext_id = DevblocksPlatform::importGPC($_REQUEST['ext_id'],'string','');
+		@$point = DevblocksPlatform::importGPC($_REQUEST['point'],'string','');
+		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
+		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer',0);
+		
+		$visit = CerberusApplication::getVisit();
+		
+		if(null != ($tab_mft = DevblocksPlatform::getExtension($ext_id))
+				&& null != ($inst = $tab_mft->createInstance())
+				&& $inst instanceof Extension_ContextProfileTab) {
+			
+			if(!empty($point))
+				$visit->set($point, $inst->manifest->params['uri']);
+			
+			$inst->showTab($context, $context_id);
 		}
 	}
 };

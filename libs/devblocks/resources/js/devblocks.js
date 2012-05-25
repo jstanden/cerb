@@ -135,6 +135,7 @@ function checkAll(divName, state) {
 			boxes[x].checked = (state) ? true : false;
 			// This may not be needed when we convert to jQuery
 			$(boxes[x]).trigger('change');
+			$(boxes[x]).trigger('check');
 		}
 	}
 }
@@ -276,9 +277,6 @@ function genericAjaxPopupRegister($layer, $popup) {
 }
 
 function genericAjaxPopup($layer,request,target,modal,width,cb) {
-	// Reset (if exists)
-	genericAjaxPopupDestroy($layer);
-	
 	// Default options
 	var options = {
 		bgiframe : true,
@@ -292,6 +290,23 @@ function genericAjaxPopup($layer,request,target,modal,width,cb) {
 			$(this).unbind().find(':focus').blur();
 		}
 	};
+
+	// Restore position from previous dialog?
+	if(target == 'reuse') {
+		$popup = genericAjaxPopupFetch($layer);
+		if(null != $popup) {
+			try {
+				var offset = $popup.closest('div.ui-dialog').offset();
+				var left = offset.left - $(document).scrollLeft();
+				var top = offset.top - $(document).scrollTop();
+				options.position = [ left, top ];
+			} catch(e) { }
+		}
+		target = null;
+	}
+	
+	// Reset (if exists)
+	genericAjaxPopupDestroy($layer);
 	
 	if(null != width) options.width = width + 'px'; // [TODO] Fixed the forced 'px' later
 	if(null != modal) options.modal = modal;
@@ -312,13 +327,15 @@ function genericAjaxPopup($layer,request,target,modal,width,cb) {
 			// Target
 			if(null != target) {
 				var offset = $(target).offset();
-				var left = offset.left - $(document).scrollLeft();
-				var top = offset.top - $(document).scrollTop();
-				options.position = [left, top];
-				
-			} else {
-				options.position = [ 'center', 'top' ];
+				if(null != offset) {
+					var left = offset.left - $(document).scrollLeft();
+					var top = offset.top - $(document).scrollTop();
+					options.position = [left, top];
+				}
 			}
+			
+			if(null == options.position)
+				options.position = [ 'center', 'top' ];
 
 			// Render
 			$popup.dialog(options);
@@ -344,7 +361,7 @@ function genericAjaxPopupPostCloseReloadView($layer, frm, view_id, has_output, $
 		has_output = false;
 
 	if(has_view)
-		$('#view'+view_id).fadeTo("normal", 0.2);
+		$('#view'+view_id).fadeTo("fast", 0.2);
 	
 	genericAjaxPost(frm,view_id,'',
 		function(html) {
@@ -356,7 +373,7 @@ function genericAjaxPopupPostCloseReloadView($layer, frm, view_id, has_output, $
 			}
 
 			if(has_view)
-				$('#view'+view_id).fadeTo("normal", 1.0);
+				$('#view'+view_id).fadeTo("fast", 1.0);
 
 			if(null == $layer) {
 				$popup = genericAjaxPopupFind('#'+frm);
@@ -385,13 +402,15 @@ function genericAjaxGet(divRef,args,cb,options) {
 	
 	if(null == cb) {
 		if(null != div)
-			div.fadeTo("normal", 0.2);
+			div.fadeTo("fast", 0.2);
 		
 		var cb = function(html) {
 			if(null != div) {
 				div.html(html);
-				div.fadeTo("normal", 1.0);
-				div.trigger('view_refresh');
+				div.fadeTo("fast", 1.0);
+				
+				if(div.is('DIV[id^=view]'))
+					div.trigger('view_refresh');
 			}
 		}
 	}
@@ -429,13 +448,15 @@ function genericAjaxPost(formRef,divRef,args,cb,options) {
 	
 	if(null == cb) {
 		if(null != div)
-			$(div).fadeTo("normal", 0.2);
+			div.fadeTo("fast", 0.2);
 		
 		var cb = function(html) {
 			if(null != div) {
-				$(div).html(html);
-				$(div).fadeTo("normal", 1.0);
-				$(div).trigger('view_refresh');
+				div.html(html);
+				div.fadeTo("fast", 1.0);
+				
+				if(div.is('DIV[id^=view]'))
+					div.trigger('view_refresh');
 			}
 		};
 	}

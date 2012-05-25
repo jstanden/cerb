@@ -379,11 +379,11 @@ class SearchFields_DecisionNode implements IDevblocksSearchFields {
 		//if(is_array($fields))
 		//foreach($fields as $field_id => $field) {
 		//	$key = 'cf_'.$field_id;
-		//	$columns[$key] = new DevblocksSearchField($key,$key,'field_value',$field->name);
+		//	$columns[$key] = new DevblocksSearchField($key,$key,'field_value',$field->name,$field->type);
 		//}
 		
 		// Sort by label (translation-conscious)
-		uasort($columns, create_function('$a, $b', "return strcasecmp(\$a->db_label,\$b->db_label);\n"));
+		DevblocksPlatform::sortObjects($columns, 'db_label');
 
 		return $columns;		
 	}
@@ -407,7 +407,6 @@ class View_DecisionNode extends C4_AbstractView {
 		$translate = DevblocksPlatform::getTranslationService();
 	
 		$this->id = self::DEFAULT_ID;
-		// [TODO] Name the worklist view
 		$this->name = $translate->_('Decisions');
 		$this->renderLimit = 25;
 		$this->renderSortBy = SearchFields_DecisionNode::ID;
@@ -416,6 +415,7 @@ class View_DecisionNode extends C4_AbstractView {
 		$this->view_columns = array(
 			SearchFields_DecisionNode::TITLE,
 		);
+		
 		$this->addColumnsHidden(array(
 			SearchFields_DecisionNode::ID,
 			SearchFields_DecisionNode::PARENT_ID,
@@ -535,25 +535,15 @@ class View_DecisionNode extends C4_AbstractView {
 			case SearchFields_DecisionNode::POS:
 			case SearchFields_DecisionNode::PARAMS_JSON:
 			case 'placeholder_string':
-				// force wildcards if none used on a LIKE
-				if(($oper == DevblocksSearchCriteria::OPER_LIKE || $oper == DevblocksSearchCriteria::OPER_NOT_LIKE)
-				&& false === (strpos($value,'*'))) {
-					$value = $value.'*';
-				}
-				$criteria = new DevblocksSearchCriteria($field, $oper, $value);
+				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
 				break;
+				
 			case 'placeholder_number':
 				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
 				break;
 				
 			case 'placeholder_date':
-				@$from = DevblocksPlatform::importGPC($_REQUEST['from'],'string','');
-				@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string','');
-
-				if(empty($from)) $from = 0;
-				if(empty($to)) $to = 'today';
-
-				$criteria = new DevblocksSearchCriteria($field,$oper,array($from,$to));
+				$criteria = $this->_doSetCriteriaDate($field, $oper);
 				break;
 				
 			case 'placeholder_bool':

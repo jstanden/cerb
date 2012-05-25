@@ -1,5 +1,10 @@
 <?php
 abstract class DevblocksORMHelper {
+	const OPT_GET_NO_CACHE = 1;
+	
+	const OPT_UPDATE_NO_FLUSH_CACHE = 1;
+	const OPT_UPDATE_NO_EVENTS = 2;
+	
 	static protected function _getWhereSQL($where=null, $sortBy=null, $sortAsc=true, $limit=null) {
 		// Where
 		$where_sql = !empty($where) ? sprintf("WHERE %s ", $where) : '';
@@ -38,7 +43,9 @@ abstract class DevblocksORMHelper {
 	 * @param array $fields
 	 */
 	static protected function _update($ids=array(), $table, $fields, $idcol='id') {
-	    if(!is_array($ids)) $ids = array($ids);
+	    if(!is_array($ids))
+	    	$ids = array($ids);
+	    
 		$db = DevblocksPlatform::getDatabaseService();
 		$sets = array();
 		
@@ -125,7 +132,9 @@ abstract class DevblocksORMHelper {
 		if(is_array($params))
 		foreach($params as $param) {
 			// Skip virtuals
-			// [TODO] Handle this better (GROUP_OR/AND)
+			if(!is_array($param) && !is_object($param))
+				continue;
+			
 			if(!is_array($param) && '*_' == substr($param->field,0,2))
 				continue;
 			
@@ -164,6 +173,10 @@ abstract class DevblocksORMHelper {
 						$outer_wheres[] = self::_parseNestedSearchParams($p, $tables, $fields);
 						
 					} else {
+						// Skip virtuals
+						if('*_' == substr($p->field,0,2))
+							continue;
+						
 						// [JAS]: Filter allowed columns (ignore invalid/deprecated)
 						if(!isset($fields[$p->field]))
 							continue;
@@ -804,11 +817,11 @@ class SearchFields_DevblocksTemplate implements IDevblocksSearchFields {
 		//if(is_array($fields))
 		//foreach($fields as $field_id => $field) {
 		//	$key = 'cf_'.$field_id;
-		//	$columns[$key] = new DevblocksSearchField($key,$key,'field_value',$field->name);
+		//	$columns[$key] = new DevblocksSearchField($key,$key,'field_value',$field->name,$field->type);
 		//}
 		
 		// Sort by label (translation-conscious)
-		uasort($columns, create_function('$a, $b', "return strcasecmp(\$a->db_label,\$b->db_label);\n"));
+		DevblocksPlatform::sortObjects($columns, 'db_label');
 
 		return $columns;		
 	}
@@ -1461,11 +1474,11 @@ class SearchFields_DevblocksStorageProfile implements IDevblocksSearchFields {
 		//if(is_array($fields))
 		//foreach($fields as $field_id => $field) {
 		//	$key = 'cf_'.$field_id;
-		//	$columns[$key] = new DevblocksSearchField($key,$key,'field_value',$field->name);
+		//	$columns[$key] = new DevblocksSearchField($key,$key,'field_value',$field->name,$field->type);
 		//}
 		
 		// Sort by label (translation-conscious)
-		uasort($columns, create_function('$a, $b', "return strcasecmp(\$a->db_label,\$b->db_label);\n"));
+		DevblocksPlatform::sortObjects($columns, 'db_label');
 
 		return $columns;		
 	}

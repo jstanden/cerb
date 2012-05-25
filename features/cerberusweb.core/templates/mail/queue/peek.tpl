@@ -1,6 +1,8 @@
 <form action="{devblocks_url}{/devblocks_url}" method="POST" id="formDraftPeek" name="formDraftPeek" onsubmit="return false;">
-<input type="hidden" name="c" value="tickets">
-<input type="hidden" name="a" value="saveDraftsPeek">
+<input type="hidden" name="c" value="mail">
+<input type="hidden" name="a" value="handleSectionAction">
+<input type="hidden" name="section" value="drafts">
+<input type="hidden" name="action" value="saveDraftsPeek">
 <input type="hidden" name="id" value="{$draft->id}">
 <input type="hidden" name="view_id" value="{$view_id}">
 <input type="hidden" name="do_delete" value="0">
@@ -45,8 +47,8 @@
 <br>
 
 {if $active_worker->id==$draft->worker_id || $active_worker->is_superuser}
-	{*<button type="button" onclick="genericAjaxPopupClose('peek');genericAjaxPost('formDraftPeek', 'view{$view_id}');"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {$translate->_('common.save_changes')}</button>*}
-	{*{if !empty($task)}<button type="button" onclick="if(confirm('Are you sure you want to permanently delete this draft?')) { $('#formDraftPeek input[name=do_delete]').val('1'); genericAjaxPost('formDraftPeek', 'view{$view_id}'); genericAjaxPopupClose('peek'); } "><span class="cerb-sprite2 sprite-cross-circle-frame"></span> {$translate->_('common.delete')|capitalize}</button>{/if}*}
+	{*<button type="button" onclick="genericAjaxPopupClose('peek');genericAjaxPost('formDraftPeek', 'view{$view_id}');"><span class="cerb-sprite2 sprite-tick-circle"></span> {$translate->_('common.save_changes')}</button>*}
+	{*{if !empty($task)}<button type="button" onclick="if(confirm('Are you sure you want to permanently delete this draft?')) { $('#formDraftPeek input[name=do_delete]').val('1'); genericAjaxPost('formDraftPeek', 'view{$view_id}'); genericAjaxPopupClose('peek'); } "><span class="cerb-sprite2 sprite-cross-circle"></span> {$translate->_('common.delete')|capitalize}</button>{/if}*}
 {else}
 	<div class="error">{'error.core.no_acl.edit'|devblocks_translate}</div>
 {/if}

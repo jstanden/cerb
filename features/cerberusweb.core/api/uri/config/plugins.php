@@ -170,7 +170,11 @@ class PageSection_SetupPlugins extends Extension_PageSection {
 						}
 							
 				        // Reload plugin translations
-						DAO_Translation::reloadPluginStrings();
+						$strings_xml = APP_PATH . '/' . $plugin->dir . '/strings.xml';
+						if(file_exists($strings_xml)) {
+							DAO_Translation::importTmxFile($strings_xml);
+						}
+						
 						break;
 				}
 			}

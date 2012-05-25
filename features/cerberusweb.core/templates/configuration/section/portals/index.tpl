@@ -1,7 +1,11 @@
-<h2>Community Portals</h2>
+<div style="float:right;">
+	{include file="devblocks:cerberusweb.core::search/quick_search.tpl" view=$view return_url=null reset=false}
+</div>
 
-<form>
-	<button type="button" onclick="genericAjaxPopup('peek','c=config&a=handleSectionAction&section=portals&action=showAddPortalPeek&view_id={$view->id|escape:'url'}',null,false,'500');"><span class="cerb-sprite2 sprite-plus-circle-frame"></span> {'common.add'|devblocks_translate|capitalize}</button>	
-</form>
+<div style="float:left;">
+	<h2>Community Portals</h2>
+</div>
+
+<div style="clear:both;"></div>
 
 {include file="devblocks:cerberusweb.core::internal/views/search_and_view.tpl" view=$view}

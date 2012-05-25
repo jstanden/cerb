@@ -83,6 +83,108 @@ class Plugin_RestAPI {
 	}
 };
 
+if (class_exists('Extension_PreferenceTab')):
+class Ch_RestPreferencesTab extends Extension_PreferenceTab {
+	const ID = 'rest.preferences.tab.api';
+	
+	function showTab() {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		$defaults = new C4_AbstractViewModel();
+		$defaults->id = 'webapi_credentials';
+		$defaults->class_name = 'View_WebApiCredentials';
+		
+		if(null == ($view = C4_AbstractViewLoader::getView($defaults->id, $defaults)))
+			return;
+		
+		// Force filter the view to the current worker's API keys
+		$params = array(
+			new DevblocksSearchCriteria(SearchFields_WebApiCredentials::WORKER_ID,'=',$active_worker->id),
+		);
+		
+		$view->addParamsRequired($params, true);
+		
+		C4_AbstractViewLoader::setView($view->id, $view);
+		
+		$tpl->assign('view', $view);
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/views/search_and_view.tpl');		
+	}
+	
+	function showPeekPopupAction() {
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		$tpl->assign('view_id', $view_id);
+		
+		if(!empty($id) && null == ($model = DAO_WebApiCredentials::get($id)))
+			return;
+		
+		if(!$active_worker->is_superuser && $active_worker->id != $model->worker_id)
+			return;
+		
+		if(!empty($model))
+			$tpl->assign('model', $model);
+
+		$tpl->display('devblocks:cerberusweb.restapi::peek.tpl');		
+	}
+	
+	function savePeekPopupAction() {
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
+		@$label = DevblocksPlatform::importGPC($_REQUEST['label'],'string','');
+		@$params = DevblocksPlatform::importGPC($_REQUEST['params'],'array',array());
+		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'],'integer',0);
+		
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!empty($id)) {
+			if(null == ($model = DAO_WebApiCredentials::get($id)))
+				return;
+		}
+		
+		if(!empty($id) && !empty($do_delete)) {
+			if($active_worker->is_superuser || $active_worker->id == $model->worker_id) {
+				DAO_WebApiCredentials::delete($id);
+			}
+			return;
+		}
+		
+		$allowed_paths = DevblocksPlatform::importGPC($params['allowed_paths'],'string','');
+		
+		$params = array(
+			'allowed_paths' => DevblocksPlatform::parseCrlfString($allowed_paths)
+		);
+		
+		$fields = array(
+			DAO_WebApiCredentials::LABEL => (!empty($label) ? $label : 'New API credentials'),
+			DAO_WebApiCredentials::PARAMS_JSON => json_encode($params),
+		);
+
+		@$generate_new_keys = DevblocksPlatform::importGPC($_REQUEST['regenerate_keys'],'integer',0);
+		
+		if(empty($id) || $generate_new_keys) {
+			$fields[DAO_WebApiCredentials::ACCESS_KEY] = strtolower(CerberusApplication::generatePassword(12));
+			$fields[DAO_WebApiCredentials::SECRET_KEY] = strtolower(CerberusApplication::generatePassword(32));
+		}
+		
+		if(empty($id)) { // Create
+			$fields[DAO_WebApiCredentials::WORKER_ID] = $active_worker->id;
+			DAO_WebApiCredentials::create($fields);
+			
+		} else { // Edit
+			DAO_WebApiCredentials::update($id, $fields);
+			
+		}
+		
+		return;
+	}
+}
+endif;
+
 class Ch_RestFrontController implements DevblocksHttpRequestHandler {
 	protected $_payload = '';
 	
@@ -106,7 +208,18 @@ class Ch_RestFrontController implements DevblocksHttpRequestHandler {
 		// **** BEGIN AUTH
 		@$verb = $_SERVER['REQUEST_METHOD'];
 		@$header_date = $_SERVER['HTTP_DATE'];
-		@$header_signature = $_SERVER['HTTP_CERB5_AUTH'];
+		
+		@$header_signature = null;
+		
+		// Try new header first
+		if(isset($_SERVER['HTTP_CERB_AUTH'])) {
+			$header_signature = $_SERVER['HTTP_CERB_AUTH'];
+
+		// Fallback to older header
+		} elseif(isset($_SERVER['HTTP_CERB5_AUTH'])) {
+			$header_signature = $_SERVER['HTTP_CERB5_AUTH'];
+		}
+		
 		@$this->_payload = $this->_getRawPost();
 		@list($auth_access_key, $auth_signature) = explode(":", $header_signature, 2);
 		$url_parts = parse_url(DevblocksPlatform::getWebPath());
@@ -119,19 +232,17 @@ class Ch_RestFrontController implements DevblocksHttpRequestHandler {
 		}
 
 		// Worker-level auth
-		if(null == ($workers = DAO_Worker::getWhere(sprintf("%s = %s", DAO_Worker::EMAIL, $db->qstr($auth_access_key))))) {
+		if(null == ($credential = DAO_WebApiCredentials::getByAccessKey($auth_access_key))) {
 			Plugin_RestAPI::render(array('__status'=>'error', 'message'=>"Access denied! (Invalid credentials: access key)"));
 		}
 		
-		if(null == (@$worker = array_shift($workers))) {
-			Plugin_RestAPI::render(array('__status'=>'error', 'message'=>"Access denied! (Invalid credentials: no match)"));
+		if(null == (@$worker = DAO_Worker::get($credential->worker_id))) {
+			Plugin_RestAPI::render(array('__status'=>'error', 'message'=>"Access denied! (Invalid credentials: worker)"));
 		}
 
-		$secret = strtolower($worker->pass);
-		
+		$secret = strtolower(md5($credential->secret_key));
 		$string_to_sign = "$string_to_sign_prefix\n$secret\n";
-		
-		$compare_hash = md5($string_to_sign); //base64_encode(sha1(
+		$compare_hash = md5($string_to_sign);
 
 		if(0 != strcmp($auth_signature, $compare_hash)) {
 			Plugin_RestAPI::render(array('__status'=>'error', 'message'=>"Access denied! (Invalid credentials: checksum)"));
@@ -139,6 +250,29 @@ class Ch_RestFrontController implements DevblocksHttpRequestHandler {
 		
 		// REST extensions
 		@array_shift($stack); // rest
+		
+		// Check this API key's path restrictions
+		$requested_path = implode('/', $stack);
+		@$allowed_paths = $credential->params['allowed_paths'];		
+		
+		if(empty($allowed_paths)) {
+			Plugin_RestAPI::render(array('__status'=>'error', 'message'=>"Access denied! (This path is prohibited)"));
+		}
+		
+		$permitted = false;
+		
+		foreach($allowed_paths as $allowed_path) {
+			$pattern = DevblocksPlatform::strToRegExp($allowed_path);
+			if(preg_match($pattern, $requested_path)) {
+				$permitted = true;
+				break;
+			}
+		}
+		
+		if(!$permitted) {
+			Plugin_RestAPI::render(array('__status'=>'error', 'message'=>"Access denied! (You are not authorized to make this request)"));
+		}
+		
 		@$controller_uri = array_shift($stack); // e.g. tickets
 		
 		// Look up the subcontroller for this URI
@@ -272,9 +406,15 @@ abstract class Extension_RestController extends DevblocksExtension {
 			'__status' => 'success',
 			'__version' => APP_VERSION,
 			'__build' => APP_BUILD,
-		);
+		) + $array;
 		
-		return Plugin_RestAPI::render($out + $array, $this->_format);
+		// These keys aren't needed		
+		unset($out['_loaded']);
+		
+		// Sort by key
+		ksort($out);
+		
+		return Plugin_RestAPI::render($out, $this->_format);
 	} 
 	
 	/**

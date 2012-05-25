@@ -391,6 +391,7 @@ class C4_TranslationView extends C4_AbstractView implements IAbstractView_Subtot
 			SearchFields_Translation::STRING_OVERRIDE,
 			SearchFields_Translation::STRING_ID,
 		);
+		
 		$this->addColumnsHidden(array(
 			SearchFields_Translation::ID,
 		));
@@ -453,7 +454,7 @@ class C4_TranslationView extends C4_AbstractView implements IAbstractView_Subtot
 		switch($column) {
 			case SearchFields_Translation::LANG_CODE:
 				$codes = DAO_Translation::getDefinedLangCodes();
-				$counts = $this->_getSubtotalCountForStringColumn('DAO_Translation', $column, $codes, 'in', 'lang_ids[]');
+				$counts = $this->_getSubtotalCountForStringColumn('DAO_Translation', $column, $codes, 'in', 'options[]');
 				break;
 
 			default:
@@ -497,14 +498,24 @@ class C4_TranslationView extends C4_AbstractView implements IAbstractView_Subtot
 			case SearchFields_Translation::STRING_OVERRIDE:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__string.tpl');
 				break;
+				
 			case SearchFields_Translation::ID:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__number.tpl');
 				break;
+				
 			case SearchFields_Translation::LANG_CODE:
-				$langs = DAO_Translation::getDefinedLangCodes(); // [TODO] Cache!
-				$tpl->assign('langs', $langs);
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__language.tpl');
+				$options = array();
+				$langs = DAO_Translation::getDefinedLangCodes();
+
+				if(is_array($langs))
+				foreach($langs as $lang_id => $lang) {
+					$options[$lang_id] = $lang;
+				}
+				
+				$tpl->assign('options', $options);
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__list.tpl');
 				break;
+				
 			default:
 				echo '';
 				break;
@@ -517,7 +528,7 @@ class C4_TranslationView extends C4_AbstractView implements IAbstractView_Subtot
 
 		switch($field) {
 			case SearchFields_Translation::LANG_CODE:
-				$langs = DAO_Translation::getDefinedLangCodes(); // [TODO] Cache!
+				$langs = DAO_Translation::getDefinedLangCodes();
 				$strings = array();
 
 				foreach($values as $val) {
@@ -546,19 +557,16 @@ class C4_TranslationView extends C4_AbstractView implements IAbstractView_Subtot
 			case SearchFields_Translation::STRING_ID:
 			case SearchFields_Translation::STRING_DEFAULT:
 			case SearchFields_Translation::STRING_OVERRIDE:
-				// force wildcards if none used on a LIKE
-				if(($oper == DevblocksSearchCriteria::OPER_LIKE || $oper == DevblocksSearchCriteria::OPER_NOT_LIKE)
-				&& false === (strpos($value,'*'))) {
-					$value = $value.'*';
-				}
-				$criteria = new DevblocksSearchCriteria($field, $oper, $value);
+				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
 				break;
+				
 			case SearchFields_Translation::ID:
 				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
 				break;
+				
 			case SearchFields_Translation::LANG_CODE:
-				@$lang_ids = DevblocksPlatform::importGPC($_REQUEST['lang_ids'],'array',array());
-				$criteria = new DevblocksSearchCriteria($field,$oper,$lang_ids);
+				@$options = DevblocksPlatform::importGPC($_REQUEST['options'],'array',array());
+				$criteria = new DevblocksSearchCriteria($field,$oper,$options);
 				break;
 		}
 

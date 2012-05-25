@@ -101,17 +101,35 @@ class DAO_TriggerEvent extends C4_ORMHelper {
 		$behaviors = self::getAll();
 		$results = array();
 
+		// Include the current context in allowed owners
+		$owner_contexts = array();
+		$owner_contexts[$context . ':' . $context_id] = true;
+		
+		// If our context owner is a worker, include their roles as allowed owners
+		if($context == CerberusContexts::CONTEXT_WORKER) {
+			$roles = DAO_WorkerRole::getRolesByWorker($context_id);
+			
+			if(is_array($roles))
+			foreach($roles as $role) { /* @var $role Model_WorkerRole */
+				$owner_contexts[CerberusContexts::CONTEXT_ROLE . ':' . $role->id] = true;
+			}
+		}
+		
+		// Loop through behaviors and discover which ones we're allowed to see
 		foreach($behaviors as $behavior_id => $behavior) { /* @var $behavior Model_TriggerEvent */
 			if(!$with_disabled && $behavior->is_disabled)
 				continue;
-			
-			if($behavior->owner_context == $context
-				&& $behavior->owner_context_id == $context_id) {
-					if(is_null($event_point) || 0==strcasecmp($event_point,$behavior->event_point)) {
-						$results[$behavior_id] = $behavior;
-					}
+
+			// If we're allowed to see this behavior, include it
+			if(isset($owner_contexts[$behavior->owner_context . ':' . $behavior->owner_context_id])) {
+				// If including all events, or this particular one
+				if(is_null($event_point) || 0==strcasecmp($event_point, $behavior->event_point)) {
+					$results[$behavior_id] = $behavior;
 				}
+			}
 		}
+		
+		DevblocksPlatform::sortObjects($results, 'title', true);
 		
 		return $results;
 	}
@@ -216,12 +234,15 @@ class DAO_TriggerEvent extends C4_ORMHelper {
 		return true;
 	}
 	
-	static function deleteByOwner($context, $context_id) {
-		$results = self::getWhere(sprintf("%s = %s AND %s = %d",
+	static function deleteByOwner($context, $context_ids) {
+		if(!is_array($context_ids))
+			$context_ids = array($context_ids);
+		
+		$results = self::getWhere(sprintf("%s = %s AND %s IN (%s)",
 			self::OWNER_CONTEXT,
 			C4_ORMHelper::qstr($context),
 			self::OWNER_CONTEXT_ID,
-			$context_id
+			implode(',', $context_ids)
 		));
 		
 		if(is_array($results))
@@ -418,11 +439,11 @@ class SearchFields_TriggerEvent implements IDevblocksSearchFields {
 		//if(is_array($fields))
 		//foreach($fields as $field_id => $field) {
 		//	$key = 'cf_'.$field_id;
-		//	$columns[$key] = new DevblocksSearchField($key,$key,'field_value',$field->name);
+		//	$columns[$key] = new DevblocksSearchField($key,$key,'field_value',$field->name,$field->type);
 		//}
 		
 		// Sort by label (translation-conscious)
-		uasort($columns, create_function('$a, $b', "return strcasecmp(\$a->db_label,\$b->db_label);\n"));
+		DevblocksPlatform::sortObjects($columns, 'db_label');
 
 		return $columns;		
 	}
@@ -456,6 +477,10 @@ class Model_TriggerEvent {
 			$this->_nodes = DAO_DecisionNode::getByTriggerParent($this->id);
 		
 		return $this->_nodes;
+	}
+	
+	public function getNodes() {
+		return $this->_getNodes();
 	}
 	
 	public function getDecisionTreeData() {
@@ -492,32 +517,30 @@ class Model_TriggerEvent {
 		}
 	}
 	
-	public function runDecisionTree(&$dictionary) {
+	public function runDecisionTree(DevblocksDictionaryDelegate $dict, $dry_run=false) {
 		$nodes = $this->_getNodes();
 		$tree = $this->_getTree();
 		$path = array();
 		
 		// [TODO] This could be more efficient
 		$event = DevblocksPlatform::getExtension($this->event_point, true); /* @var $event Extension_DevblocksEvent */
-		//var_dump($event);
 		
-		$this->_recurseRunTree($event, $nodes, $tree, 0, $dictionary, $path);
+		// Add a convenience pointer
+		$dict->_trigger = $this;
 		
-		// [TODO] Run actions in bulk, or run inline?
+		$this->_recurseRunTree($event, $nodes, $tree, 0, $dict, $path, $dry_run);
 		
 		return $path;
 	}
 	
-	private function _recurseRunTree($event, $nodes, $tree, $node_id, &$dictionary, &$path) {
-		$logger = DevblocksPlatform::getConsoleLog("Assistant");
+	private function _recurseRunTree($event, $nodes, $tree, $node_id, DevblocksDictionaryDelegate $dict, &$path, $dry_run=false) {
+		$logger = DevblocksPlatform::getConsoleLog("Attendant");
 		// Does our current node pass?
 		$pass = true;
 		
 		// If these conditions match...
 		if(!empty($node_id)) {
 			$logger->info($nodes[$node_id]->node_type . ' :: ' . $nodes[$node_id]->title . ' (' . $node_id . ')');
-//			var_dump($nodes[$node_id]->node_type);
-//			var_dump($nodes[$node_id]->params);
 			
 			// Handle the node type
 			switch($nodes[$node_id]->node_type) {
@@ -539,10 +562,10 @@ class Model_TriggerEvent {
 								
 							if(!isset($condition_data['condition']))
 								continue;
-								
+							
 							$condition = $condition_data['condition'];
 							
-							$group_pass = $event->runCondition($condition, $this, $condition_data, $dictionary);
+							$group_pass = $event->runCondition($condition, $this, $condition_data, $dict);
 							
 							// Any
 							if($group_pass && !empty($any))
@@ -574,15 +597,17 @@ class Model_TriggerEvent {
 					foreach($nodes[$node_id]->params['actions'] as $params) {
 						if(!isset($params['action']))
 							continue;
-
+						
 						$action = $params['action'];
-						$event->runAction($action, $this, $params, $dictionary);
+						
+						$event->runAction($action, $this, $params, $dict, $dry_run);
 					}
 					break;
 			}
 			
 			if($nodes[$node_id]->node_type == 'outcome') {
-				$logger->info($pass ? '...PASS' : '...FAIL');
+				$logger->info('');
+				$logger->info($pass ? 'Using this outcome.' : 'Skipping this outcome.');
 			}
 			$logger->info('');
 		}
@@ -600,20 +625,20 @@ class Model_TriggerEvent {
 				// Always run all actions
 				case 'action':
 					if($pass)
-						$this->_recurseRunTree($event, $nodes, $tree, $child_id, $dictionary, $path);
+						$this->_recurseRunTree($event, $nodes, $tree, $child_id, $dict, $path, $dry_run);
 					break;
 					
 				default:
 					switch($parent_type) {
 						case 'outcome':
 							if($pass)
-								$this->_recurseRunTree($event, $nodes, $tree, $child_id, $dictionary, $path);
+								$this->_recurseRunTree($event, $nodes, $tree, $child_id, $dict, $path, $dry_run);
 							break;
 							
 						case 'switch':
 							// Only run the first successful child outcome
 							if($pass && !$switch)
-								if($this->_recurseRunTree($event, $nodes, $tree, $child_id, $dictionary, $path))
+								if($this->_recurseRunTree($event, $nodes, $tree, $child_id, $dict, $path, $dry_run))
 									$switch = true;
 							break;
 							
@@ -649,6 +674,7 @@ class View_TriggerEvent extends C4_AbstractView {
 			SearchFields_TriggerEvent::OWNER_CONTEXT_ID,
 			SearchFields_TriggerEvent::EVENT_POINT,
 		);
+		
 		$this->addColumnsHidden(array(
 		));
 		
@@ -753,26 +779,15 @@ class View_TriggerEvent extends C4_AbstractView {
 			case SearchFields_TriggerEvent::OWNER_CONTEXT:
 			case SearchFields_TriggerEvent::OWNER_CONTEXT_ID:
 			case SearchFields_TriggerEvent::EVENT_POINT:
-			case 'placeholder_string':
-				// force wildcards if none used on a LIKE
-				if(($oper == DevblocksSearchCriteria::OPER_LIKE || $oper == DevblocksSearchCriteria::OPER_NOT_LIKE)
-				&& false === (strpos($value,'*'))) {
-					$value = $value.'*';
-				}
-				$criteria = new DevblocksSearchCriteria($field, $oper, $value);
+				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
 				break;
+				
 			case 'placeholder_number':
 				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
 				break;
 				
 			case 'placeholder_date':
-				@$from = DevblocksPlatform::importGPC($_REQUEST['from'],'string','');
-				@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string','');
-
-				if(empty($from)) $from = 0;
-				if(empty($to)) $to = 'today';
-
-				$criteria = new DevblocksSearchCriteria($field,$oper,array($from,$to));
+				$criteria = $this->_doSetCriteriaDate($field, $oper);
 				break;
 				
 			case 'placeholder_bool':

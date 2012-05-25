@@ -1,6 +1,7 @@
 <script type="text/javascript">
 $view = $('div#view{$view->id}');
 $view_frm = $('form#viewForm{$view->id}');
+$view_actions = $view_frm.find('#{$view->id}_actions');
 
 // Row selection and hover effect
 $view_frm.find('TABLE.worklistBody TBODY')
@@ -38,6 +39,19 @@ $view_frm.find('TABLE.worklistBody TBODY')
 			} else {
 				$this.find('tr').removeClass('selected');
 			}
+
+			// Count how many selected rows we have left and adjust the toolbar actions
+			$frm = $this.closest('form');
+			$selected_rows = $frm.find('TR.selected').closest('tbody');
+			$view_actions = $frm.find('#{$view->id}_actions');
+			
+			if(0 == $selected_rows.length) {
+				$view_actions.find('button,.action-on-select').not('.action-always-show').fadeOut('fast');
+			} else if(1 == $selected_rows.length) {
+				$view_actions.find('button,.action-on-select').not('.action-always-show').fadeIn('fast');
+			}
+			
+			$chk.trigger('check');
 		}
 	})
 	.hover(
@@ -79,4 +93,38 @@ $view.find('table.worklist A.subtotals').click(function(event) {
 		$sidebar.css('padding-right','0px');
 	}
 });
+
+// Select all
+
+$view.find('table.worklist input:checkbox.select-all').click(function(e) {
+	// Trigger event
+	e = jQuery.Event('select_all');
+	e.view_id = '{$view->id}';
+	e.checked = $(this).is(':checked');
+	$('div#view{$view->id}').trigger(e);
+});
+
+$view.bind('select_all', function(e) {
+	$view = $('div#view' + e.view_id);
+	$view_form = $view.find('#viewForm' + e.view_id);
+	$checkbox = $view.find('table.worklist input:checkbox.select-all');
+	checkAll('viewForm' + e.view_id, e.checked);
+	$rows = $view_form.find('table.worklistBody').find('tbody > tr');
+	$view_actions = $('#' + e.view_id + '_actions');
+	
+	if(e.checked) {
+		$checkbox.attr('checked', 'checked');
+		$rows.addClass('selected'); 
+		$(this).attr('checked','checked');
+		$view_actions.find('button,.action-on-select').not('.action-always-show').fadeIn('fast');	
+	} else {
+		$checkbox.removeAttr('checked');
+		$rows.removeClass('selected');
+		$(this).removeAttr('checked');
+		$view_actions.find('button,.action-on-select').not('.action-always-show').fadeOut('fast');
+	}
+});
+
+// View actions
+$view_actions.find('button,.action-on-select').not('.action-always-show').hide();
 </script>

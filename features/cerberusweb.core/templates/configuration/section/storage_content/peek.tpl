@@ -7,7 +7,7 @@
 
 {$schema->renderConfig()}
 
-<button type="button" onclick="genericAjaxPost('frmStorageSchemaPeek','schema_{$schema->manifest->id|md5}');genericAjaxPopupClose('peek');"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {$translate->_('common.save_changes')}</button>
+<button type="button" onclick="genericAjaxPost('frmStorageSchemaPeek','schema_{$schema->manifest->id|md5}');genericAjaxPopupClose('peek');"><span class="cerb-sprite2 sprite-tick-circle"></span> {$translate->_('common.save_changes')}</button>
 
 </form>
 

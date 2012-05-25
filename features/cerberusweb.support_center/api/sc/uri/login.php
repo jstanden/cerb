@@ -89,7 +89,7 @@ class UmScLoginController extends Extension_UmScController {
 		// Login extensions
 		$login_extensions = DevblocksPlatform::getExtensions('usermeet.login.authenticator');
 		if(!empty($login_extensions)) {
-			uasort($login_extensions, create_function('$a, $b', "return strcasecmp(\$a->name,\$b->name);\n"));
+			DevblocksPlatform::sortObjects($login_extensions, 'name');
 			$tpl->assign('login_extensions', $login_extensions);
 		}
 

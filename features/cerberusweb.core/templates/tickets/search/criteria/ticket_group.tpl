@@ -1,8 +1,8 @@
 <b>{$translate->_('search.operator')|capitalize}:</b><br>
 <blockquote style="margin:5px;">
 	<select name="oper">
-		<option value="in">{$translate->_('search.oper.in_list')}</option>
-		<option value="not in">{$translate->_('search.oper.in_list.not')}</option>
+		<option value="in" {if $param && $param->operator=='in'}selected="selected"{/if}>{$translate->_('search.oper.in_list')}</option>
+		<option value="not in" {if $param && $param->operator=='not in'}selected="selected"{/if}>{$translate->_('search.oper.in_list.not')}</option>
 	</select>
 </blockquote>
 

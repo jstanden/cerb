@@ -1,7 +1,3 @@
-<ul class="submenu">
-</ul>
-<div style="clear:both;"></div>
-
 {counter assign=num_groups_displayed name=num_groups_displayed start=0}
 {if !empty($report_groups)}
 	{foreach from=$report_groups item=report_group key=group_extid}
@@ -9,13 +5,13 @@
 		
 		{if !isset($report_group_mft->params.acl) || $active_worker->hasPriv($report_group_mft->params.acl)}
 		{counter name=num_groups_displayed print=false}
-		<fieldset>
+		<fieldset class="peek">
 			<legend>{$translate->_($report_group_mft->params.group_name)}</legend>
 			
 			{if !empty($report_group.reports)}
 				<ul style="margin:0px;">
 				{foreach from=$report_group.reports item=reportMft}
-					<li><a href="{devblocks_url}c=reports&report={$reportMft->id}{/devblocks_url}">{$translate->_($reportMft->params.report_name)}</a></li>
+					<li><a href="{devblocks_url}c=pages&page={$page->id}-{$page->name|devblocks_permalink}&report={$reportMft->id}{/devblocks_url}">{$translate->_($reportMft->params.report_name)}</a></li>
 				{/foreach}
 				</ul>
 			{/if}
@@ -25,9 +21,9 @@
 {/if}
 
 {if empty($num_groups_displayed)}
-	<div class="block">
-		<h3>No Report Groups</h3>
+	<fieldset class="peek">
+		<legend>No Report Groups</legend>
 		You do not have access to any report groups.
-	</div>
+	</fieldset>
 {/if}
 

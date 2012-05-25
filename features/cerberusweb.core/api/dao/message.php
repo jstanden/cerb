@@ -36,6 +36,10 @@ class DAO_Message extends C4_ORMHelper {
 
 		self::update($id, $fields);
 		
+		if(isset($fields[self::TICKET_ID])) {
+			DAO_Ticket::updateMessageCount($fields[self::TICKET_ID]);
+		}
+		
 		return $id;
 	}
 
@@ -393,6 +397,7 @@ class SearchFields_Message implements IDevblocksSearchFields {
 	
 	// Ticket
 	const TICKET_GROUP_ID = 't_group_id';
+	const TICKET_IS_DELETED = 't_is_deleted';
 	const TICKET_MASK = 't_mask';
 	const TICKET_SUBJECT = 't_subject';
 
@@ -405,10 +410,10 @@ class SearchFields_Message implements IDevblocksSearchFields {
 		$columns = array(
 			SearchFields_Message::ID => new DevblocksSearchField(SearchFields_Message::ID, 'm', 'id', $translate->_('common.id')),
 			SearchFields_Message::ADDRESS_ID => new DevblocksSearchField(SearchFields_Message::ADDRESS_ID, 'm', 'address_id'),
-			SearchFields_Message::CREATED_DATE => new DevblocksSearchField(SearchFields_Message::CREATED_DATE, 'm', 'created_date', $translate->_('common.created')),
-			SearchFields_Message::IS_OUTGOING => new DevblocksSearchField(SearchFields_Message::IS_OUTGOING, 'm', 'is_outgoing', $translate->_('message.is_outgoing')),
+			SearchFields_Message::CREATED_DATE => new DevblocksSearchField(SearchFields_Message::CREATED_DATE, 'm', 'created_date', $translate->_('common.created'), Model_CustomField::TYPE_DATE),
+			SearchFields_Message::IS_OUTGOING => new DevblocksSearchField(SearchFields_Message::IS_OUTGOING, 'm', 'is_outgoing', $translate->_('message.is_outgoing'), Model_CustomField::TYPE_CHECKBOX),
 			SearchFields_Message::TICKET_ID => new DevblocksSearchField(SearchFields_Message::TICKET_ID, 'm', 'ticket_id'),
-			SearchFields_Message::WORKER_ID => new DevblocksSearchField(SearchFields_Message::WORKER_ID, 'm', 'worker_id', $translate->_('common.worker')),
+			SearchFields_Message::WORKER_ID => new DevblocksSearchField(SearchFields_Message::WORKER_ID, 'm', 'worker_id', $translate->_('common.worker'), Model_CustomField::TYPE_WORKER),
 			
 			SearchFields_Message::STORAGE_EXTENSION => new DevblocksSearchField(SearchFields_Message::STORAGE_EXTENSION, 'm', 'storage_extension'),
 			SearchFields_Message::STORAGE_KEY => new DevblocksSearchField(SearchFields_Message::STORAGE_KEY, 'm', 'storage_key'),
@@ -418,20 +423,21 @@ class SearchFields_Message implements IDevblocksSearchFields {
 			SearchFields_Message::MESSAGE_HEADER_NAME => new DevblocksSearchField(SearchFields_Message::MESSAGE_HEADER_NAME, 'mh', 'header_name'),
 			SearchFields_Message::MESSAGE_HEADER_VALUE => new DevblocksSearchField(SearchFields_Message::MESSAGE_HEADER_VALUE, 'mh', 'header_value'),
 			
-			SearchFields_Message::ADDRESS_EMAIL => new DevblocksSearchField(SearchFields_Message::ADDRESS_EMAIL, 'a', 'email', $translate->_('common.email')),
+			SearchFields_Message::ADDRESS_EMAIL => new DevblocksSearchField(SearchFields_Message::ADDRESS_EMAIL, 'a', 'email', $translate->_('common.email'), Model_CustomField::TYPE_SINGLE_LINE),
 			
 			SearchFields_Message::TICKET_GROUP_ID => new DevblocksSearchField(SearchFields_Message::TICKET_GROUP_ID, 't', 'group_id', $translate->_('common.group')),
-			SearchFields_Message::TICKET_MASK => new DevblocksSearchField(SearchFields_Message::TICKET_MASK, 't', 'mask', $translate->_('ticket.mask')),
-			SearchFields_Message::TICKET_SUBJECT => new DevblocksSearchField(SearchFields_Message::TICKET_SUBJECT, 't', 'subject', $translate->_('ticket.subject')),
+			SearchFields_Message::TICKET_IS_DELETED => new DevblocksSearchField(SearchFields_Message::TICKET_IS_DELETED, 't', 'is_deleted', $translate->_('status.deleted'), Model_CustomField::TYPE_CHECKBOX),
+			SearchFields_Message::TICKET_MASK => new DevblocksSearchField(SearchFields_Message::TICKET_MASK, 't', 'mask', $translate->_('ticket.mask'), Model_CustomField::TYPE_SINGLE_LINE),
+			SearchFields_Message::TICKET_SUBJECT => new DevblocksSearchField(SearchFields_Message::TICKET_SUBJECT, 't', 'subject', $translate->_('ticket.subject'), Model_CustomField::TYPE_SINGLE_LINE),
 		);
 	
 		$tables = DevblocksPlatform::getDatabaseTables();
 		if(isset($tables['fulltext_message_content'])) {
-			$columns[SearchFields_Message::MESSAGE_CONTENT] = new DevblocksSearchField(SearchFields_Message::MESSAGE_CONTENT, 'ftmc', 'content', $translate->_('common.content')); 
+			$columns[SearchFields_Message::MESSAGE_CONTENT] = new DevblocksSearchField(SearchFields_Message::MESSAGE_CONTENT, 'ftmc', 'content', $translate->_('common.content'), 'FT'); 
 		}
 		
 		// Sort by label (translation-conscious)
-		uasort($columns, create_function('$a, $b', "return strcasecmp(\$a->db_label,\$b->db_label);\n"));
+		DevblocksPlatform::sortObjects($columns, 'db_label');
 
 		return $columns;
 	}
@@ -632,7 +638,7 @@ class Storage_MessageContent extends Extension_DevblocksStorageSchema {
 		$contents = $storage->get('message_content', $key, $fp);
 		
 		// Convert the appropriate bytes
-		if(!mb_check_encoding($contents, LANG_CHARSET_CODE))
+		if(is_string($contents) && !mb_check_encoding($contents, LANG_CHARSET_CODE))
 			$contents = mb_convert_encoding($contents, LANG_CHARSET_CODE);
 			
 		return $contents;
@@ -653,21 +659,21 @@ class Storage_MessageContent extends Extension_DevblocksStorageSchema {
 		
 		$storage = DevblocksPlatform::getStorageService($profile);
 
-		// Store the appropriate bytes
-		if(!mb_check_encoding($contents, LANG_CHARSET_CODE))
-			$contents = mb_convert_encoding($contents, LANG_CHARSET_CODE);
+		if(is_resource($contents)) {
+			$stats = fstat($contents);
+			$storage_size = $stats['size'];
+			
+		} else {
+			// Store the appropriate bytes
+			if(!mb_check_encoding($contents, LANG_CHARSET_CODE))
+				$contents = mb_convert_encoding($contents, LANG_CHARSET_CODE);
+			
+			$storage_size = strlen($contents);
+		}
 		
 		// Save to storage
 		if(false === ($storage_key = $storage->put('message_content', $id, $contents)))
 			return false;
-	    
-		if(is_resource($contents)) {
-			$stats = fstat($contents);
-			$storage_size = $stats['size'];
-		} else {
-			$storage_size = strlen($contents);
-			unset($contents);
-		}
 			
 		// Update storage key
 	    DAO_Message::update($id, array(
@@ -800,7 +806,7 @@ class Storage_MessageContent extends Extension_DevblocksStorageSchema {
 		));
 
 		// Do as quicker strings if under 1MB?
-		$is_small = ($src_size < 1000000) ? true : false;  
+		$is_small = ($src_size < (1024 * 1000)) ? true : false;  
 		
 		// Allocate a temporary file for retrieving content
 		if($is_small) {
@@ -1025,6 +1031,10 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals {
 		);
 	}
 
+	function getDataAsObjects($ids=null) {
+		return $this->_getDataAsObjects('DAO_Message', $ids);
+	}
+	
 	function getSubtotalFields() {
 		$all_fields = $this->getParamsAvailable();
 		
@@ -1035,10 +1045,10 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals {
 			$pass = false;
 			
 			switch($field_key) {
-				// Booleans
 				case SearchFields_Message::ADDRESS_EMAIL:
 				case SearchFields_Message::IS_OUTGOING:
 				case SearchFields_Message::TICKET_GROUP_ID:
+				case SearchFields_Message::TICKET_IS_DELETED:
 				case SearchFields_Message::WORKER_ID:
 					$pass = true;
 					break;
@@ -1086,6 +1096,7 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals {
 				break;
 
 			case SearchFields_Message::IS_OUTGOING:
+			case SearchFields_Message::TICKET_IS_DELETED:
 				$counts = $this->_getSubtotalCountForBooleanColumn('DAO_Message', $column);
 				break;
 			
@@ -1112,9 +1123,6 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals {
 //		$tpl->assign('custom_fields', $custom_fields);
 
 		switch($this->renderTemplate) {
-//			case 'contextlinks_chooser':
-//				$tpl->display('devblocks:cerberusweb.core::workers/view_contextlinks_chooser.tpl');
-//				break;
 			default:
 				$tpl->assign('view_template', 'devblocks:cerberusweb.core::messages/view.tpl');
 				$tpl->display('devblocks:cerberusweb.core::internal/views/subtotals_and_view.tpl');
@@ -1126,22 +1134,6 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals {
 		$key = $param->field;
 		
 		switch($key) {
-//			case SearchFields_Worker::VIRTUAL_GROUPS:
-//				if(empty($param->value)) {
-//					echo "<b>Not</b> a member of any groups";
-//					
-//				} elseif(is_array($param->value)) {
-//					$groups = DAO_Group::getAll();
-//					$strings = array();
-//					
-//					foreach($param->value as $group_id) {
-//						if(isset($groups[$group_id]))
-//							$strings[] = '<b>'.$groups[$group_id]->name.'</b>';
-//					}
-//					
-//					echo sprintf("Group member of %s", implode(' or ', $strings));
-//				}
-//				break;
 		}
 	}	
 	
@@ -1158,6 +1150,7 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals {
 				break;
 				
 			case SearchFields_Message::IS_OUTGOING:
+			case SearchFields_Message::TICKET_IS_DELETED:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__bool.tpl');
 				break;
 				
@@ -1193,6 +1186,11 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals {
 		$values = !is_array($param->value) ? array($param->value) : $param->value;
 
 		switch($field) {
+			case SearchFields_Message::IS_OUTGOING:
+			case SearchFields_Message::TICKET_IS_DELETED:
+				$this->_renderCriteriaParamBoolean($param);
+				break;
+				
 			case SearchFields_Message::TICKET_GROUP_ID:
 				$groups = DAO_Group::getAll();
 				$strings = array();
@@ -1207,19 +1205,9 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals {
 				break;
 				
 			case SearchFields_Message::WORKER_ID:
-				$workers = DAO_Worker::getAll();
-				$strings = array();
-
-				foreach($values as $val) {
-					if(empty($val))
-					$strings[] = "Nobody";
-					elseif(!isset($workers[$val]))
-					continue;
-					else
-					$strings[] = $workers[$val]->getName();
-				}
-				echo implode(" or ", $strings);
+				$this->_renderCriteriaParamWorker($param);
 				break;
+				
 			default:
 				parent::renderCriteriaParam($param);
 				break;
@@ -1237,25 +1225,15 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals {
 			case SearchFields_Message::ADDRESS_EMAIL:
 			case SearchFields_Message::TICKET_MASK:
 			case SearchFields_Message::TICKET_SUBJECT:
-				// force wildcards if none used on a LIKE
-				if(($oper == DevblocksSearchCriteria::OPER_LIKE || $oper == DevblocksSearchCriteria::OPER_NOT_LIKE)
-				&& false === (strpos($value,'*'))) {
-					$value = $value.'*';
-				}
-				$criteria = new DevblocksSearchCriteria($field, $oper, $value);
+				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
 				break;
 				
 			case SearchFields_Message::CREATED_DATE:
-				@$from = DevblocksPlatform::importGPC($_REQUEST['from'],'string','');
-				@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string','');
-
-				if(empty($from)) $from = 0;
-				if(empty($to)) $to = 'today';
-
-				$criteria = new DevblocksSearchCriteria($field,$oper,array($from,$to));
+				$criteria = $this->_doSetCriteriaDate($field, $oper);
 				break;
 				
 			case SearchFields_Message::IS_OUTGOING:
+			case SearchFields_Message::TICKET_IS_DELETED:
 				@$bool = DevblocksPlatform::importGPC($_REQUEST['bool'],'integer',1);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
 				break;
@@ -1391,7 +1369,7 @@ class Context_Message extends Extension_DevblocksContext {
 		return array(
 			'id' => $context_id,
 			'name' => sprintf("[%s] %s", $ticket->mask, $ticket->subject),
-			'permalink' => $url_writer->writeNoProxy('c=display&mask='.$ticket->mask, true),
+			'permalink' => $url_writer->writeNoProxy('c=profiles&type=ticket&id='.$ticket->mask, true),
 		);
 	}
 	
@@ -1422,8 +1400,12 @@ class Context_Message extends Extension_DevblocksContext {
 		// Token values
 		$token_values = array();
 		
+		$token_values['_context'] = CerberusContexts::CONTEXT_MESSAGE;
+		
 		// Message token values
 		if($message) {
+			$token_values['_loaded'] = true;
+			$token_values['_label'] = '(message)';
 			$token_values['content'] = $message->getContent();
 			$token_values['created'] = $message->created_date;
 			$token_values['id'] = $message->id;
@@ -1431,13 +1413,16 @@ class Context_Message extends Extension_DevblocksContext {
 			$token_values['storage_size'] = $message->storage_size;
 			$token_values['ticket_id'] = $message->ticket_id;
 			$token_values['worker_id'] = $message->worker_id;
+			
+			// Sender
+			@$address_id = $message->address_id;
+			$token_values['sender_id'] = $address_id;
 		}
 
 		// Sender
-		@$address_id = $message->address_id;
 		$merge_token_labels = array();
 		$merge_token_values = array();
-		CerberusContexts::getContext(CerberusContexts::CONTEXT_ADDRESS, $address_id, $merge_token_labels, $merge_token_values, '', true);
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_ADDRESS, null, $merge_token_labels, $merge_token_values, '', true);
 
 		CerberusContexts::merge(
 			'sender_',
@@ -1450,12 +1435,41 @@ class Context_Message extends Extension_DevblocksContext {
 		
 		return true;
 	}
+	
+	function lazyLoadContextValues($token, $dictionary) {
+		if(!isset($dictionary['id']))
+			return;
+		
+		$context = CerberusContexts::CONTEXT_MESSAGE;
+		$context_id = $dictionary['id'];
+		
+		@$is_loaded = $dictionary['_loaded'];
+		$values = array();
+		
+		if(!$is_loaded) {
+			$labels = array();
+			CerberusContexts::getContext($context, $context_id, $labels, $values);
+		}
+		
+		switch($token) {
+			default:
+				if(substr($token,0,7) == 'custom_') {
+					$fields = $this->_lazyLoadCustomFields($context, $context_id);
+					$values = array_merge($values, $fields);
+				}
+				break;
+		}
+		
+		return $values;
+	}	
 
-	function getChooserView() {
+	function getChooserView($view_id=null) {
 		$active_worker = CerberusApplication::getActiveWorker();
+
+		if(empty($view_id))
+			$view_id = 'chooser_'.str_replace('.','_',$this->id).time().mt_rand(0,9999);
 		
 		// View
-		$view_id = 'chooser_'.str_replace('.','_',$this->id).time().mt_rand(0,9999);
 		$defaults = new C4_AbstractViewModel();
 		$defaults->id = $view_id;
 		$defaults->is_ephemeral = true;

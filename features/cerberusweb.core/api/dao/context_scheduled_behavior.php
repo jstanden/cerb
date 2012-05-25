@@ -21,7 +21,10 @@ class DAO_ContextScheduledBehavior extends C4_ORMHelper {
 	const CONTEXT_ID = 'context_id';
 	const BEHAVIOR_ID = 'behavior_id';
 	const RUN_DATE = 'run_date';
+	const RUN_RELATIVE = 'run_relative';
+	const RUN_LITERAL = 'run_literal';
 	const VARIABLES_JSON = 'variables_json';
+	const REPEAT_JSON = 'repeat_json';
 
 	static function create($fields) {
 		$db = DevblocksPlatform::getDatabaseService();
@@ -43,6 +46,49 @@ class DAO_ContextScheduledBehavior extends C4_ORMHelper {
 		parent::_updateWhere('context_scheduled_behavior', $fields, $where);
 	}
 
+	static function updateRelativeSchedules($context, $context_ids) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		if(empty($context_ids))
+			return;
+		
+		$sql = sprintf("%s = %s AND %s IN (%s) AND %s != ''",
+			self::CONTEXT,
+			$db->qstr($context),
+			self::CONTEXT_ID,
+			implode(',', $context_ids),
+			self::RUN_RELATIVE
+		);
+		
+		$objects = DAO_ContextScheduledBehavior::getWhere($sql);
+
+		if(is_array($objects))
+		foreach($objects as $object) { /* @var $object Model_ContextScheduledBehavior */
+			if(null == ($macro = DAO_TriggerEvent::get($object->behavior_id)))
+				continue;
+			
+			if(null == ($event = $macro->getEvent()))
+				continue;
+			
+			$event = $macro->getEvent();
+			$event_model = $event->generateSampleEventModel($object->context_id);
+			$event->setEvent($event_model);
+			$values = $event->getValues();
+			
+			$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+			@$run_relative_timestamp = strtotime($tpl_builder->build(sprintf("{{%s|date}}",$object->run_relative), $values));
+			
+			if(empty($run_relative_timestamp))
+				$run_relative_timestamp = time();
+			
+			$run_date = @strtotime($object->run_literal, $run_relative_timestamp);
+			
+			DAO_ContextScheduledBehavior::update($object->id, array(
+				DAO_ContextScheduledBehavior::RUN_DATE => $run_date,
+			));
+		}
+	}
+	
 	/**
 	 * @param string $where
 	 * @param mixed $sortBy
@@ -56,7 +102,7 @@ class DAO_ContextScheduledBehavior extends C4_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 
 		// SQL
-		$sql = "SELECT id, context, context_id, behavior_id, run_date, variables_json ".
+		$sql = "SELECT id, context, context_id, behavior_id, run_date, run_relative, run_literal, variables_json, repeat_json ".
 			"FROM context_scheduled_behavior ".
 			$where_sql.
 			$sort_sql.
@@ -118,8 +164,12 @@ class DAO_ContextScheduledBehavior extends C4_ORMHelper {
 			$object->context_id = $row['context_id'];
 			$object->behavior_id = $row['behavior_id'];
 			$object->run_date = $row['run_date'];
+			$object->run_relative = $row['run_relative'];
+			$object->run_literal = $row['run_literal'];
 			if(!empty($row['variables_json']))
 				$object->variables = @json_decode($row['variables_json'], true);
+			if(!empty($row['repeat_json']))
+				$object->repeat = @json_decode($row['repeat_json'], true);
 			$objects[$object->id] = $object;
 		}
 
@@ -142,16 +192,40 @@ class DAO_ContextScheduledBehavior extends C4_ORMHelper {
 		return true;
 	}
 	
-	static function deleteByBehavior($behavior_ids) {
+	static function deleteByBehavior($behavior_ids, $only_context=null, $only_context_id=null) {
 		if(!is_array($behavior_ids)) $behavior_ids = array($behavior_ids);
 		$db = DevblocksPlatform::getDatabaseService();
 		
 		if(empty($behavior_ids))
 			return;
 
+		DevblocksPlatform::sanitizeArray($behavior_ids, 'integer');
 		$ids_list = implode(',', $behavior_ids);
 		
-		$db->Execute(sprintf("DELETE FROM context_scheduled_behavior WHERE behavior_id IN (%s)", $ids_list));
+		$wheres = array();
+		
+		$wheres[] = sprintf("behavior_id IN (%s)",
+			$ids_list
+		);
+		
+		// Are we limiting this delete to a single context or object?
+		if(!empty($only_context)) {
+			$wheres[] = sprintf("context = %s",
+				$db->qstr($only_context)
+			);
+			
+			if(!empty($only_context_id)) {
+				$wheres[] = sprintf("context_id = %d",
+					$only_context_id
+				);
+			}
+		}
+		
+		// Join where clauses
+		$where = implode(' AND ', $wheres);
+		
+		// Query
+		$db->Execute(sprintf("DELETE FROM context_scheduled_behavior WHERE %s", $where));
 		
 		return true;
 	}
@@ -171,25 +245,31 @@ class DAO_ContextScheduledBehavior extends C4_ORMHelper {
 			"context_scheduled_behavior.context_id as %s, ".
 			"context_scheduled_behavior.behavior_id as %s, ".
 			"context_scheduled_behavior.run_date as %s, ".
-			"context_scheduled_behavior.variables_json as %s ",
+			"context_scheduled_behavior.run_relative as %s, ".
+			"context_scheduled_behavior.run_literal as %s, ".
+			"context_scheduled_behavior.variables_json as %s, ".
+			"context_scheduled_behavior.repeat_json as %s, ".
+			"trigger_event.title as %s, ".
+			"trigger_event.owner_context as %s, ".
+			"trigger_event.owner_context_id as %s ",
 				SearchFields_ContextScheduledBehavior::ID,
 				SearchFields_ContextScheduledBehavior::CONTEXT,
 				SearchFields_ContextScheduledBehavior::CONTEXT_ID,
 				SearchFields_ContextScheduledBehavior::BEHAVIOR_ID,
 				SearchFields_ContextScheduledBehavior::RUN_DATE,
-				SearchFields_ContextScheduledBehavior::VARIABLES_JSON
+				SearchFields_ContextScheduledBehavior::RUN_RELATIVE,
+				SearchFields_ContextScheduledBehavior::RUN_LITERAL,
+				SearchFields_ContextScheduledBehavior::VARIABLES_JSON,
+				SearchFields_ContextScheduledBehavior::REPEAT_JSON,
+				SearchFields_ContextScheduledBehavior::BEHAVIOR_NAME,
+				SearchFields_ContextScheduledBehavior::BEHAVIOR_OWNER_CONTEXT,
+				SearchFields_ContextScheduledBehavior::BEHAVIOR_OWNER_CONTEXT_ID
 		);
 			
-		$join_sql = "FROM context_scheduled_behavior ";
+		$join_sql = "FROM context_scheduled_behavior ".
+			"INNER JOIN trigger_event ON (context_scheduled_behavior.behavior_id=trigger_event.id) "
+			;
 
-		// Custom field joins
-		//list($select_sql, $join_sql, $has_multiple_values) = self::_appendSelectJoinSqlForCustomFieldTables(
-		//	$tables,
-		//	$params,
-		//	'context_scheduled_behavior.id',
-		//	$select_sql,
-		//	$join_sql
-		//);
 		$has_multiple_values = false; // [TODO] Temporary when custom fields disabled
 
 		$where_sql = "".
@@ -197,6 +277,18 @@ class DAO_ContextScheduledBehavior extends C4_ORMHelper {
 			
 		$sort_sql = (!empty($sortBy)) ? sprintf("ORDER BY %s %s ",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : " ";
 
+		// Translate virtual fields
+		
+		array_walk_recursive(
+			$params,
+			array('DAO_ContextScheduledBehavior', '_translateVirtualParameters'),
+			array(
+				'join_sql' => &$join_sql,
+				'where_sql' => &$where_sql,
+				'has_multiple_values' => &$has_multiple_values
+			)
+		);
+		
 		return array(
 			'primary_table' => 'context_scheduled_behavior',
 			'select' => $select_sql,
@@ -207,6 +299,21 @@ class DAO_ContextScheduledBehavior extends C4_ORMHelper {
 		);
 	}
 
+	private static function _translateVirtualParameters($param, $key, &$args) {
+		if(!is_a($param, 'DevblocksSearchCriteria'))
+			return;
+			
+		$param_key = $param->field;
+		settype($param_key, 'string');
+		switch($param_key) {
+			case SearchFields_ContextScheduledBehavior::VIRTUAL_OWNER:
+				//self::_searchComponentsVirtualWatchers($param, $from_context, $from_index, $args['join_sql'], $args['where_sql']);
+				break;
+			case SearchFields_ContextScheduledBehavior::VIRTUAL_TARGET:
+				break;
+		}
+	}
+	
 	/**
 	 * Enter description here...
 	 *
@@ -301,7 +408,17 @@ class SearchFields_ContextScheduledBehavior implements IDevblocksSearchFields {
 	const CONTEXT_ID = 'c_context_id';
 	const BEHAVIOR_ID = 'c_behavior_id';
 	const RUN_DATE = 'c_run_date';
+	const RUN_RELATIVE = 'c_run_relative';
+	const RUN_LITERAL = 'c_run_literal';
 	const VARIABLES_JSON = 'c_variables_json';
+	const REPEAT_JSON = 'c_repeat_json';
+	
+	const BEHAVIOR_NAME = 'b_behavior_name';
+	const BEHAVIOR_OWNER_CONTEXT = 'b_behavior_owner_context';
+	const BEHAVIOR_OWNER_CONTEXT_ID = 'b_behavior_owner_context_id';
+	
+	const VIRTUAL_OWNER = '*_owner';
+	const VIRTUAL_TARGET = '*_target';
 
 	/**
 	 * @return DevblocksSearchField[]
@@ -315,20 +432,21 @@ class SearchFields_ContextScheduledBehavior implements IDevblocksSearchFields {
 			self::CONTEXT_ID => new DevblocksSearchField(self::CONTEXT_ID, 'context_scheduled_behavior', 'context_id', $translate->_('common.context_id')),
 			self::BEHAVIOR_ID => new DevblocksSearchField(self::BEHAVIOR_ID, 'context_scheduled_behavior', 'behavior_id', $translate->_('common.behavior')),
 			self::RUN_DATE => new DevblocksSearchField(self::RUN_DATE, 'context_scheduled_behavior', 'run_date', $translate->_('dao.context_scheduled_behavior.run_date')),
+			self::RUN_RELATIVE => new DevblocksSearchField(self::RUN_RELATIVE, 'context_scheduled_behavior', 'run_relative', $translate->_('dao.context_scheduled_behavior.run_relative')),
+			self::RUN_LITERAL => new DevblocksSearchField(self::RUN_LITERAL, 'context_scheduled_behavior', 'run_literal', $translate->_('dao.context_scheduled_behavior.run_literal')),
 			self::VARIABLES_JSON => new DevblocksSearchField(self::VARIABLES_JSON, 'context_scheduled_behavior', 'variables_json', $translate->_('dao.context_scheduled_behavior.variables_json')),
+			self::REPEAT_JSON => new DevblocksSearchField(self::REPEAT_JSON, 'context_scheduled_behavior', 'repeat_json', $translate->_('dao.context_scheduled_behavior.repeat_json')),
+			
+			self::BEHAVIOR_NAME => new DevblocksSearchField(self::BEHAVIOR_NAME, 'trigger_event', 'title', $translate->_('common.name')),
+			self::BEHAVIOR_OWNER_CONTEXT => new DevblocksSearchField(self::BEHAVIOR_OWNER_CONTEXT, 'trigger_event', 'owner_context', $translate->_('dao.trigger_event.owner_context')),
+			self::BEHAVIOR_OWNER_CONTEXT_ID => new DevblocksSearchField(self::BEHAVIOR_OWNER_CONTEXT_ID, 'trigger_event', 'owner_context_id', $translate->_('dao.trigger_event.owner_context_id')),
+
+			self::VIRTUAL_OWNER => new DevblocksSearchField(self::VIRTUAL_OWNER, '*', 'owner', $translate->_('common.owner')),
+			self::VIRTUAL_TARGET => new DevblocksSearchField(self::VIRTUAL_TARGET, '*', 'target', $translate->_('common.target')),
 		);
 
-		// Custom Fields
-		//$fields = DAO_CustomField::getByContext(CerberusContexts::XXX);
-
-		//if(is_array($fields))
-		//foreach($fields as $field_id => $field) {
-		//	$key = 'cf_'.$field_id;
-		//	$columns[$key] = new DevblocksSearchField($key,$key,'field_value',$field->name);
-		//}
-
 		// Sort by label (translation-conscious)
-		uasort($columns, create_function('$a, $b', "return strcasecmp(\$a->db_label,\$b->db_label);\n"));
+		DevblocksPlatform::sortObjects($columns, 'db_label');
 
 		return $columns;
 	}
@@ -340,7 +458,104 @@ class Model_ContextScheduledBehavior {
 	public $context_id;
 	public $behavior_id;
 	public $run_date;
+	public $run_relative;
+	public $run_literal;
 	public $variables = array();
+	public $repeat = array();
+	
+	function run() {
+		try {
+			if(empty($this->context) || empty($this->context_id) || empty($this->behavior_id))
+				throw new Exception("Missing properties.");
+	
+			// Load macro
+			if(null == ($macro = DAO_TriggerEvent::get($this->behavior_id))) /* @var $macro Model_TriggerEvent */
+				throw new Exception("Invalid macro.");
+			
+			// Load event manifest
+			if(null == ($ext = DevblocksPlatform::getExtension($macro->event_point, false))) /* @var $ext DevblocksExtensionManifest */
+				throw new Exception("Invalid event.");
+			
+		} catch(Exception $e) {
+			DAO_ContextScheduledBehavior::delete($this->id);
+			return;
+		}
+		
+		// Are we going to be rescheduling this behavior?
+		$reschedule_date = $this->getNextOccurrence(); 
+	
+		if(!empty($reschedule_date)) {
+			DAO_ContextScheduledBehavior::update($this->id, array(
+				DAO_ContextScheduledBehavior::RUN_DATE => $reschedule_date,
+			));
+			
+		} else {
+			DAO_ContextScheduledBehavior::delete($this->id);
+		}
+		
+		// Execute
+		call_user_func(array($ext->class, 'trigger'), $macro->id, $this->context_id, $this->variables);
+	}
+	
+	function getNextOccurrence() {
+		if(empty($this->repeat) || !isset($this->repeat['freq']))
+			return null;
+		
+		// Do we have end conditions?
+		if(isset($this->repeat['end'])) {
+			$end = $this->repeat['end'];
+			switch($end['term']) {
+				// End after a specific date
+				case 'date':
+					// If we've passed the end date
+					$on = intval(@$end['options']['on']);
+					if($end['options']['on'] <= time()) {
+						// Don't repeat
+						return null;
+					}
+					break;
+			}
+		}
+		
+		$next_run_date = null;
+		$dates = array();
+		
+		switch($this->repeat['freq']) {
+			case 'interval':
+				$now = ($this->run_date <= time()) ? time() : $this->run_date;
+				@$next = strtotime($this->repeat['options']['every_n'], $now);
+				
+				if(!empty($next))
+					$next_run_date = $next;
+				
+				break;
+				
+			case 'weekly':
+				$days = isset($this->repeat['options']['day']) ? $this->repeat['options']['day'] : array();
+				$dates = DevblocksCalendarHelper::getWeeklyDates($this->run_date, $days, null, 1);
+				break;
+				
+			case 'monthly':
+				$days = isset($this->repeat['options']['day']) ? $this->repeat['options']['day'] : array();
+				$dates = DevblocksCalendarHelper::getMonthlyDates($this->run_date, $days, null, 2);
+				break;
+				
+			case 'yearly':
+				$months = isset($this->repeat['options']['month']) ? $this->repeat['options']['month'] : array();
+				$dates = DevblocksCalendarHelper::getYearlyDates($this->run_date, $months, null, 2);
+				break;
+		}
+		
+		if(!empty($dates)) {
+			$next_run_date = array_shift($dates);
+			$next_run_date = strtotime(date('H:i', $this->run_date), $next_run_date);
+		}
+
+		if(empty($next_run_date))
+			return false;
+		
+		return $next_run_date;
+	}
 };
 
 class View_ContextScheduledBehavior extends C4_AbstractView {
@@ -350,25 +565,42 @@ class View_ContextScheduledBehavior extends C4_AbstractView {
 		$translate = DevblocksPlatform::getTranslationService();
 
 		$this->id = self::DEFAULT_ID;
-		// [TODO] Name the worklist view
-		$this->name = $translate->_('ContextScheduledBehavior');
+		$this->name = $translate->_('Scheduled Behavior');
 		$this->renderLimit = 25;
-		$this->renderSortBy = SearchFields_ContextScheduledBehavior::ID;
+		$this->renderSortBy = SearchFields_ContextScheduledBehavior::RUN_DATE;
 		$this->renderSortAsc = true;
 
 		$this->view_columns = array(
-			SearchFields_ContextScheduledBehavior::ID,
+			SearchFields_ContextScheduledBehavior::RUN_DATE,
+			SearchFields_ContextScheduledBehavior::BEHAVIOR_NAME,
+			SearchFields_ContextScheduledBehavior::VIRTUAL_OWNER,
+			SearchFields_ContextScheduledBehavior::VIRTUAL_TARGET,
+		);
+		$this->addColumnsHidden(array(
+			SearchFields_ContextScheduledBehavior::BEHAVIOR_ID,
+			SearchFields_ContextScheduledBehavior::BEHAVIOR_OWNER_CONTEXT,
+			SearchFields_ContextScheduledBehavior::BEHAVIOR_OWNER_CONTEXT_ID,
 			SearchFields_ContextScheduledBehavior::CONTEXT,
 			SearchFields_ContextScheduledBehavior::CONTEXT_ID,
-			SearchFields_ContextScheduledBehavior::BEHAVIOR_ID,
-			SearchFields_ContextScheduledBehavior::RUN_DATE,
-		);
-		// [TODO] Filter fields
-		$this->addColumnsHidden(array(
+			SearchFields_ContextScheduledBehavior::ID,
+			SearchFields_ContextScheduledBehavior::RUN_LITERAL,
+			SearchFields_ContextScheduledBehavior::RUN_RELATIVE,
+			SearchFields_ContextScheduledBehavior::VARIABLES_JSON,
 		));
 
-		// [TODO] Filter fields
 		$this->addParamsHidden(array(
+			SearchFields_ContextScheduledBehavior::BEHAVIOR_ID,
+			SearchFields_ContextScheduledBehavior::BEHAVIOR_OWNER_CONTEXT,
+			SearchFields_ContextScheduledBehavior::BEHAVIOR_OWNER_CONTEXT_ID,
+			SearchFields_ContextScheduledBehavior::CONTEXT,
+			SearchFields_ContextScheduledBehavior::CONTEXT_ID,
+			SearchFields_ContextScheduledBehavior::ID,
+			SearchFields_ContextScheduledBehavior::REPEAT_JSON,
+			SearchFields_ContextScheduledBehavior::RUN_LITERAL,
+			SearchFields_ContextScheduledBehavior::RUN_RELATIVE,
+			SearchFields_ContextScheduledBehavior::VARIABLES_JSON,
+			SearchFields_ContextScheduledBehavior::VIRTUAL_OWNER,
+			SearchFields_ContextScheduledBehavior::VIRTUAL_TARGET,
 		));
 
 		$this->doResetCriteria();
@@ -397,28 +629,21 @@ class View_ContextScheduledBehavior extends C4_AbstractView {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
-
-		// Custom fields
-		//$custom_fields = DAO_CustomField::getByContext(CerberusContexts::XXX);
-		//$tpl->assign('custom_fields', $custom_fields);
-
-		// [TODO] Set your template path
-		$tpl->display('devblocks:example.plugin::path/to/view.tpl');
+		
+		switch($this->renderTemplate) {
+			default:
+				$tpl->assign('view_template', 'devblocks:cerberusweb.core::internal/va/scheduled_behavior/view.tpl');
+				$tpl->display('devblocks:cerberusweb.core::internal/views/subtotals_and_view.tpl');
+				break;
+		}
 	}
 
 	function renderCriteria($field) {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('id', $this->id);
 
-		// [TODO] Move the fields into the proper data type
 		switch($field) {
-			case SearchFields_ContextScheduledBehavior::ID:
-			case SearchFields_ContextScheduledBehavior::CONTEXT:
-			case SearchFields_ContextScheduledBehavior::CONTEXT_ID:
-			case SearchFields_ContextScheduledBehavior::BEHAVIOR_ID:
-			case SearchFields_ContextScheduledBehavior::RUN_DATE:
-			case SearchFields_ContextScheduledBehavior::VARIABLES_JSON:
-			case 'placeholder_string':
+			case SearchFields_ContextScheduledBehavior::BEHAVIOR_NAME:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__string.tpl');
 				break;
 			case 'placeholder_number':
@@ -427,19 +652,9 @@ class View_ContextScheduledBehavior extends C4_AbstractView {
 			case 'placeholder_bool':
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__bool.tpl');
 				break;
-			case 'placeholder_date':
+			case SearchFields_ContextScheduledBehavior::RUN_DATE:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__date.tpl');
 				break;
-				/*
-				 default:
-				// Custom Fields
-				if('cf_' == substr($field,0,3)) {
-				$this->_renderCriteriaCustomField($tpl, substr($field,3));
-				} else {
-				echo ' ';
-				}
-				break;
-				*/
 		}
 	}
 
@@ -461,49 +676,23 @@ class View_ContextScheduledBehavior extends C4_AbstractView {
 	function doSetCriteria($field, $oper, $value) {
 		$criteria = null;
 
-		// [TODO] Move fields into the right data type
 		switch($field) {
-			case SearchFields_ContextScheduledBehavior::ID:
-			case SearchFields_ContextScheduledBehavior::CONTEXT:
-			case SearchFields_ContextScheduledBehavior::CONTEXT_ID:
-			case SearchFields_ContextScheduledBehavior::BEHAVIOR_ID:
-			case SearchFields_ContextScheduledBehavior::RUN_DATE:
-			case SearchFields_ContextScheduledBehavior::VARIABLES_JSON:
-			case 'placeholder_string':
-				// force wildcards if none used on a LIKE
-				if(($oper == DevblocksSearchCriteria::OPER_LIKE || $oper == DevblocksSearchCriteria::OPER_NOT_LIKE)
-				&& false === (strpos($value,'*'))) {
-					$value = $value.'*';
-				}
-				$criteria = new DevblocksSearchCriteria($field, $oper, $value);
+			case SearchFields_ContextScheduledBehavior::BEHAVIOR_NAME:
+				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
 				break;
+				
 			case 'placeholder_number':
 				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
 				break;
 
-			case 'placeholder_date':
-				@$from = DevblocksPlatform::importGPC($_REQUEST['from'],'string','');
-				@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string','');
-
-				if(empty($from)) $from = 0;
-				if(empty($to)) $to = 'today';
-
-				$criteria = new DevblocksSearchCriteria($field,$oper,array($from,$to));
+			case SearchFields_ContextScheduledBehavior::RUN_DATE:
+				$criteria = $this->_doSetCriteriaDate($field, $oper);
 				break;
 
 			case 'placeholder_bool':
 				@$bool = DevblocksPlatform::importGPC($_REQUEST['bool'],'integer',1);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
 				break;
-
-				/*
-				 default:
-				// Custom Fields
-				if(substr($field,0,3)=='cf_') {
-				$criteria = $this->_doSetCriteriaCustomField($field, substr($field,3));
-				}
-				break;
-				*/
 		}
 
 		if(!empty($criteria)) {
@@ -533,14 +722,6 @@ class View_ContextScheduledBehavior extends C4_AbstractView {
 				case 'example':
 					//$change_fields[DAO_ContextScheduledBehavior::EXAMPLE] = 'some value';
 					break;
-					/*
-					 default:
-					// Custom fields
-					if(substr($k,0,3)=="cf_") {
-					$custom_fields[substr($k,3)] = $v;
-					}
-					break;
-					*/
 			}
 		}
 
@@ -567,9 +748,6 @@ class View_ContextScheduledBehavior extends C4_AbstractView {
 				
 			DAO_ContextScheduledBehavior::update($batch_ids, $change_fields);
 	
-			// Custom Fields
-			//self::_doBulkSetCustomFields(ChCustomFieldSource_ContextScheduledBehavior::ID, $custom_fields, $batch_ids);
-				
 			unset($batch_ids);
 		}
 

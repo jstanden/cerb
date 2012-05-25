@@ -82,17 +82,17 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 		$values['headers'] = array();
 		
 		$labels['body'] = $prefix.'body';
-		$values['body'] = '';
+		$dict->body = '';
 		
 		$labels['subject'] = $prefix.'subject';
 		$values['subject'] = '';
 		
 		$labels['encoding'] = $prefix.'encoding';
 		$values['encoding'] = '';
-		
-		if(!is_null($parser_model)) {
+
+		if(!empty($parser_model)) {
 			$values['_parser_model'] = $parser_model;
-			$values['body'] =& $parser_model->getMessage()->body;
+			$dict->body =& $parser_model->getMessage()->body;
 			$values['encoding'] =& $parser_model->getMessage()->encoding;
 			$values['headers'] =& $parser_model->getHeaders();
 			$values['subject'] =& $parser_model->getSubject();
@@ -107,7 +107,7 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 		 * Sender Address
 		 */
 		
-		$sender = !is_null($parser_model) ? $parser_model->getSenderAddressModel() : null;
+		$sender = !empty($parser_model) ? $parser_model->getSenderAddressModel() : null;
 		$sender_labels = array();
 		$sender_values = array();
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_ADDRESS, $sender, $sender_labels, $sender_values, null, true);
@@ -131,6 +131,26 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 
 		$this->setLabels($labels);
 		$this->setValues($values);		
+	}
+	
+	function getValuesContexts($trigger) {
+		$vals = array(
+			'sender_id' => array(
+				'label' => 'Sender email',
+				'context' => CerberusContexts::CONTEXT_ADDRESS,
+			),
+			'sender_org_id' => array(
+				'label' => 'Sender org',
+				'context' => CerberusContexts::CONTEXT_ORG,
+			),
+		);
+		
+		$vars = parent::getValuesContexts($trigger);
+		
+		$vals_to_ctx = array_merge($vals, $vars);
+		asort($vals_to_ctx);
+		
+		return $vals_to_ctx;
 	}
 	
 	function getConditionExtensions() {
@@ -164,7 +184,7 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 			'attachment_size' => null,
 			'attachment_count' => Model_CustomField::TYPE_NUMBER,
 			'header' => null,
-			'is_new' => null,
+			'is_new' => Model_CustomField::TYPE_CHECKBOX,
 			'recipients' => null,
 		);
 
@@ -181,9 +201,6 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 			$tpl->assign('namePrefix','condition'.$seq);
 		
 		switch($token) {
-			case 'is_new':
-				$tpl->display('devblocks:cerberusweb.core::internal/decisions/conditions/_bool.tpl');
-				break;
 			case 'attachment_mimetype':
 			case 'attachment_name':
 				$tpl->display('devblocks:cerberusweb.core::internal/decisions/conditions/_string.tpl');
@@ -204,21 +221,15 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 		$tpl->clearAssign('params');
 	}
 	
-	function runConditionExtension($token, $trigger, $params, $values) {
+	function runConditionExtension($token, $trigger, $params, DevblocksDictionaryDelegate $dict) {
 		$pass = true;
 		
 		switch($token) {
-			case 'is_new':
-				$bool = $params['bool'];
-				@$value = $values['is_new'];
-				$pass = ($bool == !empty($value));
-				break;
-				
 			case 'attachment_name':
 			case 'attachment_mimetype':
 				$not = (substr($params['oper'],0,1) == '!');
 				$oper = ltrim($params['oper'],'!');
-				$attachments = $values['attachments'];
+				$attachments = $dict->attachments;
 				@$param_value = $params['value'];
 				
 				$found = false;
@@ -263,7 +274,7 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 			case 'attachment_size':
 				$not = (substr($params['oper'],0,1) == '!');
 				$oper = ltrim($params['oper'],'!');
-				$attachments = $values['attachments'];
+				$attachments = $dict->attachments;
 				@$param_value = $params['value'];
 				
 				$found = false;
@@ -297,7 +308,7 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 			case 'recipients':
 				$not = (substr($params['oper'],0,1) == '!');
 				$oper = ltrim($params['oper'],'!');
-				@$recipients = $values['recipients'];
+				@$recipients = $dict->recipients;
 				@$param_value = $params['value'];
 
 				$pass = false;
@@ -320,10 +331,10 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 				@$header = strtolower($params['header']);
 				@$param_value = $params['value'];
 				
-				if(!isset($values['headers'][$header])) {
+				if(!isset($dict->headers[$header])) {
 					$value = '';
 				} else {
-					$value = $values['headers'][$header];
+					$value = $dict->headers[$header];
 				}
 				
 				// Operators
@@ -332,7 +343,7 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 						$pass = (0==strcasecmp($value,$param_value));
 						break;
 					case 'like':
-						if(isset($values['headers'][$header])) {
+						if(isset($dict->headers[$header])) {
 							$regexp = DevblocksPlatform::strToRegExp($param_value);
 							$pass = @preg_match($regexp, $value);
 						} else {
@@ -429,44 +440,131 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 		$tpl->clearAssign('token_labels');		
 	}
 	
-	function runActionExtension($token, $trigger, $params, &$values) {
-		
+	function simulateActionExtension($token, $trigger, $params, DevblocksDictionaryDelegate $dict) {
 		switch($token) {
 			case 'append_to_content':
 				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
-				$values['body'] .= "\r\n" . $tpl_builder->build($params['content'], $values);
+				$dict->body .= "\r\n" . $tpl_builder->build($params['content'], $dict);
 				break;
 				
 			case 'prepend_to_content':
 				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
-				$values['body'] = $tpl_builder->build($params['content'], $values) . "\r\n" . $values['body'];
+				$dict->body = $tpl_builder->build($params['content'], $dict) . "\r\n" . $dict->body;
 				break;
 				
 			case 'replace_content':
 				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
-				$replace = $tpl_builder->build($params['replace'], $values);
-				$with = $tpl_builder->build($params['with'], $values);
+				$replace = $tpl_builder->build($params['replace'], $dict);
+				$with = $tpl_builder->build($params['with'], $dict);
 				
 				if(isset($params['is_regexp']) && !empty($params['is_regexp'])) {
-					@$value = preg_replace($replace, $with, $values['body']);
+					@$value = preg_replace($replace, $with, $dict->body);
 				} else {
-					$value = str_replace($replace, $with, $values['body']);
+					$value = str_replace($replace, $with, $dict->body);
 				}
 				
 				if(!empty($value)) {
-					$values['body'] = trim($value,"\r\n");
+					$dict->body = trim($value,"\r\n");
 				}
 				break;
 				
 			case 'reject':
-				$values['pre_actions']['reject'] = true;
+				$dict->pre_actions['reject'] = true;
+				break;
+			
+			case 'redirect_email':
+				break;
+				
+			case 'send_email_sender':
+				break;
+				
+			case 'set_header':
+				@$header = strtolower($params['header']);
+				
+				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+				$value = $tpl_builder->build($params['value'], $dict);
+				
+   				@$parser_model = $dict->_parser_model;
+   				if(empty($parser_model) || !is_a($parser_model,'CerberusParserModel'))
+   					break;
+				
+   				$headers =& $parser_model->getHeaders();
+
+   				if(empty($value)) {
+   					if(isset($headers[$header]))
+   						unset($headers[$header]);
+   					
+   				} else {
+	   				$headers[$header] = $value;
+   				}
+   					
+				break;
+				
+			default:
+				if('set_cf_' == substr($token,0,7)) {
+					@$parser_model = $dict->_parser_model;
+					
+					$field_id = substr($token,7);
+					$custom_field = DAO_CustomField::get($field_id);
+					$context = null;
+					$context_id = null;
+					
+					switch($custom_field->type) {
+						case Model_CustomField::TYPE_MULTI_CHECKBOX:
+							$value = $params['values'];
+							break;
+						case Model_CustomField::TYPE_WORKER:
+							$value = $params['worker_id'];
+							break;
+						default:
+							$value = $params['value'];
+							break;
+					}
+					
+					if(!empty($parser_model))
+						$parser_model->getMessage()->custom_fields[$field_id] = $value; 
+				}
+				break;				
+		}
+	}
+	
+	function runActionExtension($token, $trigger, $params, DevblocksDictionaryDelegate $dict) {
+		switch($token) {
+			case 'append_to_content':
+				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+				$dict->body .= "\r\n" . $tpl_builder->build($params['content'], $dict);
+				break;
+				
+			case 'prepend_to_content':
+				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+				$dict->body = $tpl_builder->build($params['content'], $dict) . "\r\n" . $dict->body;
+				break;
+				
+			case 'replace_content':
+				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+				$replace = $tpl_builder->build($params['replace'], $dict);
+				$with = $tpl_builder->build($params['with'], $dict);
+				
+				if(isset($params['is_regexp']) && !empty($params['is_regexp'])) {
+					@$value = preg_replace($replace, $with, $dict->body);
+				} else {
+					$value = str_replace($replace, $with, $dict->body);
+				}
+				
+				if(!empty($value)) {
+					$dict->body = trim($value,"\r\n");
+				}
+				break;
+				
+			case 'reject':
+				$dict->pre_actions['reject'] = true;
 				break;
 			
 			case 'redirect_email':
 				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
-   				@$to = $tpl_builder->build($params['to'], $values);
+   				@$to = $tpl_builder->build($params['to'], $dict);
 
-   				@$parser_model = $values['_parser_model'];
+   				@$parser_model = $dict->_parser_model;
    				if(empty($parser_model) || !is_a($parser_model,'CerberusParserModel'))
    					break;
    					
@@ -476,10 +574,10 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 			case 'send_email_sender':
 				// Translate message tokens
 				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
-				$subject = $tpl_builder->build($params['subject'], $values);
-				$body = $tpl_builder->build($params['content'], $values);
+				$subject = $tpl_builder->build($params['subject'], $dict);
+				$body = $tpl_builder->build($params['content'], $dict);
 				
-				@$to = $values['sender_address'];
+				@$to = $dict->sender_address;
 				
 				if(empty($to) || empty($subject) || empty($body))
 					break;
@@ -487,7 +585,7 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 				// Handle crude reply-as functionality
 				$replyto_addresses = DAO_AddressOutgoing::getAll();
 				$replyto_address = null;
-				@$recipients = $values['recipients'];
+				@$recipients = $dict->recipients;
 				
 				if(!empty($recipients))
 				foreach($recipients as $recipient) {
@@ -515,9 +613,9 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 				@$header = strtolower($params['header']);
 				
 				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
-				$value = $tpl_builder->build($params['value'], $values);
+				$value = $tpl_builder->build($params['value'], $dict);
 				
-   				@$parser_model = $values['_parser_model'];
+   				@$parser_model = $dict->_parser_model;
    				if(empty($parser_model) || !is_a($parser_model,'CerberusParserModel'))
    					break;
 				
@@ -535,7 +633,7 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 				
 			default:
 				if('set_cf_' == substr($token,0,7)) {
-					@$parser_model = $values['_parser_model'];
+					@$parser_model = $dict->_parser_model;
 					
 					$field_id = substr($token,7);
 					$custom_field = DAO_CustomField::get($field_id);

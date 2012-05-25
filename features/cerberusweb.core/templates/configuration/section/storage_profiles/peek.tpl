@@ -55,12 +55,12 @@ Used by:<br>
 <div class="status"></div>
 
 {if $active_worker->is_superuser}
-	<button type="button" value="saveStorageProfilePeek" onclick="$(this.form).find('input:hidden[name=action]').val($(this).val());genericAjaxPopupPostCloseReloadView(null,'formStorageProfilePeek', '{$view_id}');"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {$translate->_('common.save_changes')}</button>
-	{if !empty($profile->id) && empty($storage_schema_stats)}<button type="button" onclick="if(confirm('Are you sure you want to delete this storage profile?')) { this.form.do_delete.value='1';genericAjaxPopupPostCloseReloadView(null,'formStorageProfilePeek', '{$view_id}'); } "><span class="cerb-sprite2 sprite-cross-circle-frame"></span> {$translate->_('common.delete')|capitalize}</button>{/if}
+	<button type="button" value="saveStorageProfilePeek" onclick="$(this.form).find('input:hidden[name=action]').val($(this).val());genericAjaxPopupPostCloseReloadView(null,'formStorageProfilePeek', '{$view_id}');"><span class="cerb-sprite2 sprite-tick-circle"></span> {$translate->_('common.save_changes')}</button>
+	{if !empty($profile->id) && empty($storage_schema_stats)}<button type="button" onclick="if(confirm('Are you sure you want to delete this storage profile?')) { this.form.do_delete.value='1';genericAjaxPopupPostCloseReloadView(null,'formStorageProfilePeek', '{$view_id}'); } "><span class="cerb-sprite2 sprite-cross-circle"></span> {$translate->_('common.delete')|capitalize}</button>{/if}
 {else}
 	<div class="error">{$translate->_('error.core.no_acl.edit')}</div>	
 {/if}
-<button type="button" class="tester" value="testProfileJson"><span class="cerb-sprite sprite-gear"></span> Test</button>
+<button type="button" class="tester" value="testProfileJson"><span class="cerb-sprite2 sprite-gear"></span> Test</button>
 
 </form>
 

@@ -39,6 +39,9 @@ class DAO_Snippet extends C4_ORMHelper {
 	
 	static function update($ids, $fields) {
 		parent::_update($ids, 'snippet', $fields);
+
+	    // Log the context update
+   		DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_SNIPPET, $ids);
 	}
 	
 	static function updateWhere($fields, $where) {
@@ -202,7 +205,8 @@ class DAO_Snippet extends C4_ORMHelper {
 		}
 		
 		$join_sql = " FROM snippet ".
-		((isset($tables['snippet_usage']) && !empty($active_worker)) ? sprintf("LEFT JOIN snippet_usage ON (snippet_usage.snippet_id=snippet.id AND snippet_usage.worker_id=%d) ",$active_worker->id) : " ")
+			(isset($tables['context_link']) ? "INNER JOIN context_link ON (context_link.to_context = 'cerberusweb.contexts.snippet' AND context_link.to_context_id = snippet.id) " : " ").
+			((isset($tables['snippet_usage']) && !empty($active_worker)) ? sprintf("LEFT JOIN snippet_usage ON (snippet_usage.snippet_id=snippet.id AND snippet_usage.worker_id=%d) ",$active_worker->id) : " ")
 		;
 		
 		// Custom field joins
@@ -220,38 +224,15 @@ class DAO_Snippet extends C4_ORMHelper {
 		$sort_sql = (!empty($sortBy)) ? sprintf("ORDER BY %s %s ",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : " ";
 		
 		// Virtuals
-		foreach($params as $param) {
-			if(!is_a($param,'DevblocksSearchCriteria'))
-				continue;
-			
-			$param_key = $param->field;
-			settype($param_key, 'string');
-
-			switch($param_key) {
-				case SearchFields_Snippet::VIRTUAL_OWNER:
-					if(!is_array($param->value))
-						break;
-					
-					$wheres = array();
-						
-					foreach($param->value as $owner_context) {
-						@list($context, $context_id) = explode(':', $owner_context);
-						
-						if(empty($context))
-							continue;
-						
-						$wheres[] = sprintf("(snippet.owner_context = %s AND snippet.owner_context_id = %d)",
-							C4_ORMHelper::qstr($context),
-							$context_id
-						);
-					}
-					
-					if(!empty($wheres))
-						$where_sql .= 'AND ' . implode(' OR ', $wheres);
-					
-					break;
-			}
-		}
+		array_walk_recursive(
+			$params,
+			array('DAO_Snippet', '_translateVirtualParameters'),
+			array(
+				'join_sql' => &$join_sql,
+				'where_sql' => &$where_sql,
+				'has_multiple_values' => &$has_multiple_values
+			)
+		);
 		
 		$result = array(
 			'primary_table' => 'snippet',
@@ -264,6 +245,49 @@ class DAO_Snippet extends C4_ORMHelper {
 		
 		return $result;
 	}	
+	
+	private static function _translateVirtualParameters($param, $key, &$args) {
+		if(!is_a($param, 'DevblocksSearchCriteria'))
+			return;
+			
+		$from_context = CerberusContexts::CONTEXT_SNIPPET;
+		$from_index = 'snippet.id';
+		
+		$param_key = $param->field;
+		settype($param_key, 'string');
+		
+		switch($param_key) {
+			case SearchFields_Snippet::VIRTUAL_CONTEXT_LINK:
+				$args['has_multiple_values'] = true;
+				self::_searchComponentsVirtualContextLinks($param, $from_context, $from_index, $args['join_sql'], $args['where_sql']);
+				break;
+			
+			
+			case SearchFields_Snippet::VIRTUAL_OWNER:
+				if(!is_array($param->value))
+					break;
+				
+				$wheres = array();
+				$args['has_multiple_values'] = true;
+					
+				foreach($param->value as $owner_context) {
+					@list($context, $context_id) = explode(':', $owner_context);
+					
+					if(empty($context))
+						continue;
+					
+					$wheres[] = sprintf("(snippet.owner_context = %s AND snippet.owner_context_id = %d)",
+						C4_ORMHelper::qstr($context),
+						$context_id
+					);
+				}
+				
+				if(!empty($wheres))
+					$args['where_sql'] .= 'AND ' . implode(' OR ', $wheres);
+				
+				break;
+		}
+	}
 	
     /**
      * Enter description here...
@@ -342,6 +366,10 @@ class SearchFields_Snippet implements IDevblocksSearchFields {
 	
 	const USAGE_HITS = 'su_hits';
 	
+	const CONTEXT_LINK = 'cl_context_from';
+	const CONTEXT_LINK_ID = 'cl_context_from_id';
+	
+	const VIRTUAL_CONTEXT_LINK = '*_context_link';
 	const VIRTUAL_OWNER = '*_owner';
 	
 	/**
@@ -352,14 +380,18 @@ class SearchFields_Snippet implements IDevblocksSearchFields {
 		
 		$columns = array(
 			self::ID => new DevblocksSearchField(self::ID, 'snippet', 'id', $translate->_('common.id')),
-			self::TITLE => new DevblocksSearchField(self::TITLE, 'snippet', 'title', $translate->_('common.title')),
+			self::TITLE => new DevblocksSearchField(self::TITLE, 'snippet', 'title', $translate->_('common.title'), Model_CustomField::TYPE_SINGLE_LINE),
 			self::CONTEXT => new DevblocksSearchField(self::CONTEXT, 'snippet', 'context', $translate->_('common.type')),
 			self::OWNER_CONTEXT => new DevblocksSearchField(self::OWNER_CONTEXT, 'snippet', 'owner_context', $translate->_('dao.snippet.owner_context')),
 			self::OWNER_CONTEXT_ID => new DevblocksSearchField(self::OWNER_CONTEXT_ID, 'snippet', 'owner_context_id', $translate->_('dao.snippet.owner_context_id')),
-			self::CONTENT => new DevblocksSearchField(self::CONTENT, 'snippet', 'content', $translate->_('common.content')),
+			self::CONTENT => new DevblocksSearchField(self::CONTENT, 'snippet', 'content', $translate->_('common.content'), Model_CustomField::TYPE_MULTI_LINE),
 			
-			self::USAGE_HITS => new DevblocksSearchField(self::USAGE_HITS, 'snippet_usage', 'hits', $translate->_('dao.snippet_usage.hits')),
+			self::USAGE_HITS => new DevblocksSearchField(self::USAGE_HITS, 'snippet_usage', 'hits', $translate->_('dao.snippet_usage.hits'), Model_CustomField::TYPE_NUMBER),
 			
+			self::CONTEXT_LINK => new DevblocksSearchField(self::CONTEXT_LINK, 'context_link', 'from_context', null),
+			self::CONTEXT_LINK_ID => new DevblocksSearchField(self::CONTEXT_LINK_ID, 'context_link', 'from_context_id', null),
+			
+			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null),				
 			self::VIRTUAL_OWNER => new DevblocksSearchField(self::VIRTUAL_OWNER, '*', 'owner', $translate->_('common.owner')),
 		);
 		
@@ -368,11 +400,11 @@ class SearchFields_Snippet implements IDevblocksSearchFields {
 		if(is_array($fields))
 		foreach($fields as $field_id => $field) {
 			$key = 'cf_'.$field_id;
-			$columns[$key] = new DevblocksSearchField($key,$key,'field_value',$field->name);
+			$columns[$key] = new DevblocksSearchField($key,$key,'field_value',$field->name,$field->type);
 		}
 		
 		// Sort by label (translation-conscious)
-		uasort($columns, create_function('$a, $b', "return strcasecmp(\$a->db_label,\$b->db_label);\n"));
+		DevblocksPlatform::sortObjects($columns, 'db_label');
 
 		return $columns;		
 	}
@@ -478,14 +510,20 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals {
 			SearchFields_Snippet::CONTEXT,
 			SearchFields_Snippet::VIRTUAL_OWNER,
 		);
+		
 		$this->addColumnsHidden(array(
+			SearchFields_Snippet::CONTEXT_LINK,
+			SearchFields_Snippet::CONTEXT_LINK_ID,
 			SearchFields_Snippet::ID,
 			SearchFields_Snippet::CONTENT,
 			SearchFields_Snippet::OWNER_CONTEXT,
 			SearchFields_Snippet::OWNER_CONTEXT_ID,
+			SearchFields_Snippet::VIRTUAL_CONTEXT_LINK,
 		));
 		
 		$this->addParamsHidden(array(
+			SearchFields_Snippet::CONTEXT_LINK,
+			SearchFields_Snippet::CONTEXT_LINK_ID,
 			SearchFields_Snippet::ID,
 			SearchFields_Snippet::USAGE_HITS,
 			SearchFields_Snippet::OWNER_CONTEXT,
@@ -508,6 +546,10 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals {
 		return $objects;
 	}
 
+	function getDataAsObjects($ids=null) {
+		return $this->_getDataAsObjects('DAO_Snippet', $ids);
+	}
+	
 	function getSubtotalFields() {
 		$all_fields = $this->getParamsAvailable();
 		
@@ -519,6 +561,10 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals {
 			
 			switch($field_key) {
 				case SearchFields_Snippet::CONTEXT:
+					$pass = true;
+					break;
+					
+				case SearchFields_Snippet::VIRTUAL_CONTEXT_LINK:
 					$pass = true;
 					break;
 				
@@ -544,6 +590,10 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals {
 			return array();
 		
 		switch($column) {
+			case SearchFields_Snippet::VIRTUAL_CONTEXT_LINK:
+				$counts = $this->_getSubtotalCountForContextLinkColumn('DAO_Snippet', CerberusContexts::CONTEXT_SNIPPET, $column);
+				break;
+			
 			case SearchFields_Snippet::CONTEXT:
 				$label_map = array(
 					'' => 'Plaintext'
@@ -581,8 +631,6 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals {
 		
 		switch($this->renderTemplate) {
 			case 'contextlinks_chooser':
-				$tpl->display('devblocks:cerberusweb.core::internal/snippets/views/view_chooser.tpl');
-				break;
 			default:
 				$tpl->assign('view_template', 'devblocks:cerberusweb.core::internal/snippets/views/default.tpl');
 				$tpl->display('devblocks:cerberusweb.core::internal/views/subtotals_and_view.tpl');
@@ -602,9 +650,11 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals {
 			case SearchFields_Snippet::CONTENT:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__string.tpl');
 				break;
+				
 			case 'placeholder_number':
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__number.tpl');
 				break;
+				
 			case SearchFields_Snippet::CONTEXT:
 				$contexts = Extension_DevblocksContext::getAll(false);
 				
@@ -617,6 +667,13 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals {
 				
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context.tpl');
 				break;
+				
+			case SearchFields_Snippet::VIRTUAL_CONTEXT_LINK:
+				$contexts = Extension_DevblocksContext::getAll(false);
+				$tpl->assign('contexts', $contexts);
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context_link.tpl');
+				break;
+				
 			case SearchFields_Snippet::VIRTUAL_OWNER:
 				$groups = DAO_Group::getAll();
 				$tpl->assign('groups', $groups);
@@ -627,8 +684,9 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals {
 				$workers = DAO_Worker::getAll();
 				$tpl->assign('workers', $workers);
 				
-				$tpl->display('devblocks:cerberusweb.core::internal/snippets/views/criteria/virtual_owner.tpl');
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context_owner.tpl');
 				break;
+				
 			default:
 				// Custom Fields
 				if('cf_' == substr($field,0,3)) {
@@ -646,6 +704,10 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		switch($key) {
+			case SearchFields_Snippet::VIRTUAL_CONTEXT_LINK:
+				$this->_renderVirtualContextLinks($param);
+				break;
+			
 			case SearchFields_Snippet::VIRTUAL_OWNER:
 				echo sprintf("%s %s ", 
 					mb_convert_case($translate->_('common.owner'), MB_CASE_TITLE),
@@ -698,7 +760,7 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals {
 					}
 				}
 				
-				echo implode(', ', $strings);
+				echo implode(' or ', $strings);
 				break;
 				
 			default:
@@ -718,13 +780,9 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals {
 			case SearchFields_Snippet::ID:
 			case SearchFields_Snippet::TITLE:
 			case SearchFields_Snippet::CONTENT:
-				// force wildcards if none used on a LIKE
-				if(($oper == DevblocksSearchCriteria::OPER_LIKE || $oper == DevblocksSearchCriteria::OPER_NOT_LIKE)
-				&& false === (strpos($value,'*'))) {
-					$value = '*'.$value.'*';
-				}
-				$criteria = new DevblocksSearchCriteria($field, $oper, $value);
+				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
 				break;
+				
 			case 'placeholder_number':
 				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
 				break;
@@ -732,6 +790,11 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals {
 			case SearchFields_Snippet::CONTEXT:
 				@$in_contexts = DevblocksPlatform::importGPC($_REQUEST['contexts'],'array',array());
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$in_contexts);
+				break;
+				
+			case SearchFields_Snippet::VIRTUAL_CONTEXT_LINK:
+				@$context_links = DevblocksPlatform::importGPC($_REQUEST['context_link'],'array',array());
+				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$context_links);
 				break;
 				
 			case SearchFields_Snippet::VIRTUAL_OWNER:
@@ -867,7 +930,12 @@ class Context_Snippet extends Extension_DevblocksContext {
 		// Token values
 		$token_values = array();
 		
+		$token_values['_context'] = CerberusContexts::CONTEXT_SNIPPET;
+		
 		if($snippet) {
+			$token_values['_loaded'] = true;
+			$token_values['_snippet'] = $snippet->title;
+			
 //			$token_values['completed'] = $task->completed_date;
 			
 //			$token_values['custom'] = array();
@@ -897,11 +965,40 @@ class Context_Snippet extends Extension_DevblocksContext {
 		return true;
 	}
 
-	function getChooserView() {
+	function lazyLoadContextValues($token, $dictionary) {
+		if(!isset($dictionary['id']))
+			return;
+		
+		$context = CerberusContexts::CONTEXT_SNIPPET;
+		$context_id = $dictionary['id'];
+		
+		@$is_loaded = $dictionary['_loaded'];
+		$values = array();
+		
+		if(!$is_loaded) {
+			$labels = array();
+			CerberusContexts::getContext($context, $context_id, $labels, $values);
+		}
+		
+		switch($token) {
+			default:
+				if(substr($token,0,7) == 'custom_') {
+					$fields = $this->_lazyLoadCustomFields($context, $context_id);
+					$values = array_merge($values, $fields);
+				}
+				break;
+		}
+		
+		return $values;
+	}	
+	
+	function getChooserView($view_id=null) {
 		$active_worker = CerberusApplication::getActiveWorker();
+
+		if(empty($view_id))
+			$view_id = 'chooser_'.str_replace('.','_',$this->id).time().mt_rand(0,9999);
 		
 		// View
-		$view_id = 'chooser_'.str_replace('.','_',$this->id).time().mt_rand(0,9999);
 		$defaults = new C4_AbstractViewModel();
 		$defaults->id = $view_id;
 		$defaults->is_ephemeral = true;
@@ -956,6 +1053,7 @@ class Context_Snippet extends Extension_DevblocksContext {
 		$view->renderSortAsc = false;
 		$view->renderLimit = 10;
 		$view->renderTemplate = 'contextlinks_chooser';
+		$view->renderFilters = false;
 		C4_AbstractViewLoader::setView($view_id, $view);
 		return $view;		
 	}
@@ -973,8 +1071,8 @@ class Context_Snippet extends Extension_DevblocksContext {
 		
 		if(!empty($context) && !empty($context_id)) {
 			$params_req = array(
-				//new DevblocksSearchCriteria(SearchFields_Snippet::CONTEXT_LINK,'=',$context),
-				//new DevblocksSearchCriteria(SearchFields_Snippet::CONTEXT_LINK_ID,'=',$context_id),
+				new DevblocksSearchCriteria(SearchFields_Snippet::CONTEXT_LINK,'=',$context),
+				new DevblocksSearchCriteria(SearchFields_Snippet::CONTEXT_LINK_ID,'=',$context_id),
 			);
 		}
 		

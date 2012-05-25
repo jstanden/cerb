@@ -4,7 +4,7 @@
 <input type="hidden" name="source" value="{$source}">
 <input type="hidden" name="view_id" value="{$view_id}">
 
-<H3>Create RSS Feed</H3>
+<H1>Create RSS Feed</H1>
 <br>
 
 <b>Feed Title:</b><br>
@@ -12,7 +12,7 @@
 <br>
 
 <br>
-<button type="button" onclick="this.form.submit();" style=""><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {$translate->_('common.save_changes')|capitalize}</button>
-<button type="button" onclick="toggleDiv('{$view_id}_tips','none');$('#{$view_id}_tips').html('');" style=""><span class="cerb-sprite2 sprite-cross-circle-frame"></span> Cancel</button>
+<button type="button" onclick="this.form.submit();" style=""><span class="cerb-sprite2 sprite-tick-circle"></span> {$translate->_('common.save_changes')|capitalize}</button>
+<button type="button" onclick="toggleDiv('{$view_id}_tips','none');$('#{$view_id}_tips').html('');" style=""><span class="cerb-sprite2 sprite-cross-circle"></span> Cancel</button>
 
 </form>

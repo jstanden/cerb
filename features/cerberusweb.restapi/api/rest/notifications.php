@@ -84,8 +84,6 @@ class ChRest_Notifications extends Extension_RestController implements IExtensio
 		$values = array();
 		$context = CerberusContexts::getContext(CerberusContexts::CONTEXT_NOTIFICATION, $id, $labels, $values, null, true);
 
-//		unset($values['latest_message_content']);
-
 		return $values;
 	} 
 	

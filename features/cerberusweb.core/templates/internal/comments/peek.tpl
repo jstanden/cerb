@@ -23,10 +23,19 @@
 <b>{'common.notify_watchers_and'|devblocks_translate}</b>:<br>
 <div style="margin-left:20px;margin-bottom:1em;">
 	<button type="button" class="chooser_worker"><span class="cerb-sprite sprite-view"></span></button>
-	<ul class="chooser-container bubbles" style="display:block;"></ul>
+	{if !empty($notify_workers)}<span>(<a href="javascript:;" onclick="$(this).closest('span').siblings('ul.bubbles').html('');$(this).closest('span').remove();">clear</a>)</span>{/if}
+	<ul class="chooser-container bubbles" style="display:block;">
+	{if !empty($notify_workers) && !isset($workers)}{$workers = DAO_Worker::getAll()}{/if}
+	{foreach from=$notify_workers item=notify_worker_id}
+		{$notify_worker = $workers.$notify_worker_id}
+		{if !empty($notify_worker)}
+		<li>{$notify_worker->getName()}<input type="hidden" name="notify_worker_ids[]" value="{$notify_worker_id}"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></li>
+		{/if}
+	{/foreach}
+	</ul>
 </div>
 
-<button type="button" class="submit"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {$translate->_('common.save_changes')|capitalize}</button>
+<button type="button" class="submit"><span class="cerb-sprite2 sprite-tick-circle"></span> {$translate->_('common.save_changes')|capitalize}</button>
 </form>
 
 <script type="text/javascript">
@@ -50,7 +59,7 @@
 			ajax.chooserFile(this,'file_ids');
 		});
 		
-		// [TODO] This shouldn't catch an 'o'.
+		$frm.find('textarea').elastic();
 		$frm.find('textarea').focus();
 	});
 </script>

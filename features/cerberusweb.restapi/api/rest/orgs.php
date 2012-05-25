@@ -132,8 +132,6 @@ class ChRest_Orgs extends Extension_RestController implements IExtensionRestCont
 		$values = array();
 		$context = CerberusContexts::getContext(CerberusContexts::CONTEXT_ORG, $id, $labels, $values, null, true);
 
-//		unset($values['initial_message_content']);
-
 		return $values;
 	}
 	

@@ -1,7 +1,9 @@
+{$menu_divid = "{uniqid()}"}
+
 <form action="javascript:;" id="frmTrigger" onsubmit="return false;">
 
 <div style="float:left;">
-	<button type="button" class="add"><span class="cerb-sprite2 sprite-plus-circle-frame"></span> Create Behavior</button>
+	<button type="button" class="add"><span class="cerb-sprite2 sprite-plus-circle"></span> Create Behavior</button>
 </div>
 
 </form>
@@ -21,10 +23,10 @@
 	{/foreach}
 </div>
 
-<div id="nodeMenu" style="display:none;position:absolute;z-index:5;"></div>
+<div id="nodeMenu{$menu_divid}" style="display:none;position:absolute;z-index:5;"></div>
 
 <script type="text/javascript">
-	$('#nodeMenu').appendTo('body');
+	$('#nodeMenu{$menu_divid}').appendTo('body');
 	
 	$('#frmTrigger BUTTON.add').click(function() {
 		$popup = genericAjaxPopup('node_trigger','c=internal&a=showDecisionPopup&trigger_id=0&context={$context}&context_id={$context_id}',null,false,'500');
@@ -42,13 +44,18 @@
 		});
 	});
 	
-	function decisionNodeMenu(element, node_id, trigger_id) {
-		if($(element).closest('div.node').hasClass('dragged'))
+	function decisionNodeMenu(element) {
+		$this = $(element);
+		
+		node_id = $this.attr('node_id');
+		trigger_id = $this.attr('trigger_id');
+		
+		if($this.closest('div.node').hasClass('dragged'))
 			return;
 		
 		genericAjaxGet('', 'c=internal&a=showDecisionNodeMenu&id='+node_id+'&trigger_id='+trigger_id, function(html) {
 			$position = $(element).offset();
-			$('#nodeMenu')
+			$('#nodeMenu{$menu_divid}')
 				.appendTo('body')
 				.unbind()
 				.hide()
@@ -59,17 +66,18 @@
 				.html(html)
 				.fadeIn('fast')
 				;
-			$('#nodeMenu')
+			$('#nodeMenu{$menu_divid}')
 				.hover(
-					function() {},
 					function() {
-						$(this).hide(); 
+					},
+					function() {
+						$(this).hide();
 					}
 				)
 				.click(function(e) {
 					$(this).hide();
 				})
-				.find('UL LI')
+				.find('ul li')
 				.click(function(e) {
 					$target = $(e.target);
 					if(!$target.is('li'))

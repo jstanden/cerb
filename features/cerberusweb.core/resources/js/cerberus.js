@@ -409,9 +409,9 @@ var cAjaxCalls = function() {
 				var value = $(this).val();
 				var pos = value.lastIndexOf(',');
 				if(-1 != pos) {
-					$(this).val(value.substring(0,pos)+', '+$(ui.item).val()+', ');
+					$(this).val(value.substring(0,pos)+', '+ui.item.value+', ');
 				} else {
-					$(this).val($(ui.item).val()+', ');
+					$(this).val(ui.item.value+', ');
 				}
 				return false;
 			}
@@ -466,7 +466,7 @@ var cAjaxCalls = function() {
 		$button = $(button);
 
 		// The <ul> buffer
-		$ul = $button.next('ul.chooser-container');
+		$ul = $button.siblings('ul.chooser-container');
 		
 		// Add the container if it doesn't exist
 		if(0==$ul.length) {
@@ -477,12 +477,13 @@ var cAjaxCalls = function() {
 		// The chooser search button
 		$button.click(function(event) {
 			$button = $(this);
-			$ul = $(this).nextAll('ul.chooser-container:first');
+			var $ul = $(this).siblings('ul.chooser-container:first');
+			
 			$chooser=genericAjaxPopup('chooser','c=internal&a=chooserOpen&context=' + context,null,true,'750');
 			$chooser.one('chooser_save', function(event) {
 				// Add the labels
 				for(var idx in event.labels)
-					if(0==$ul.find('input:hidden[value='+event.values[idx]+']').length) {
+					if(0==$ul.find('input:hidden[value="'+event.values[idx]+'"]').length) {
 						$li = $('<li>'+event.labels[idx]+'<input type="hidden" name="' + field_name + '[]" value="'+event.values[idx]+'"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></li>');
 						if(null != options.style)
 							$li.addClass(options.style);
@@ -514,10 +515,10 @@ var cAjaxCalls = function() {
 					$labelEscaped = $label.replace("<","&lt;");
 					$labelEscaped = $labelEscaped.replace(">","&gt;");
 					$value = ui.item.value;
-					$ul = $(this).nextAll('button:first').nextAll('ul.chooser-container:first');
+					$ul = $(this).siblings('button:first').siblings('ul.chooser-container:first');
 					
 					if($label.length > 0 && $value.length > 0) {
-						if(0==$ul.find('input:hidden[value='+$value+']').length) {
+						if(0==$ul.find('input:hidden[value="'+$value+'"]').length) {
 							$li = $('<li>'+$labelEscaped+'<input type="hidden" name="' + field_name + '[]" title="'+$labelEscaped+'" value="'+$value+'"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></li>');
 							$ul.append($li);
 						}
@@ -585,7 +586,7 @@ var cAjaxCalls = function() {
 			$chooser.one('chooser_save', function(event) {
 				// Add the labels
 				for(var idx in event.labels)
-					if(0==$ul.find('input:hidden[value='+event.values[idx]+']').length) {
+					if(0==$ul.find('input:hidden[value="'+event.values[idx]+'"]').length) {
 						$li = $('<li>'+event.labels[idx]+'<input type="hidden" name="' + field_name + '[]" value="'+event.values[idx]+'"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="ui-icon ui-icon-trash" style="display:inline-block;width:14px;height:14px;"></span></a></li>');
 						if(null != options.style)
 							$li.addClass(options.style);

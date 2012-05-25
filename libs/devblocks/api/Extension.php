@@ -20,8 +20,10 @@ class DevblocksExtension {
 	 * @param DevblocksExtensionManifest $manifest
 	 * @return DevblocksExtension
 	 */
-	function DevblocksExtension($manifest) { /* @var $manifest DevblocksExtensionManifest */
-        if(empty($manifest)) return;
+	
+	function __construct($manifest=null) {
+        if(empty($manifest))	
+        	return;
         
 		$this->manifest = $manifest;
 		$this->id = $manifest->id;
@@ -40,18 +42,106 @@ class DevblocksExtension {
 	}
 };
 
+interface IDevblocksContextPeek {
+    function renderPeekPopup($context_id=0, $view_id='');
+}
+
+interface IDevblocksContextImport {
+    function importGetKeys();
+    function importKeyValue($key, $value);
+    function importSaveObject(array $fields, array $custom_fields, array $meta);
+}
+
+interface IDevblocksContextProfile {
+	function profileGetUrl($context_id);
+}
+
 abstract class Extension_DevblocksContext extends DevblocksExtension {
-	public static function getAll($as_instances=false) {
+	static $_changed_contexts = array();
+	
+	static function markContextChanged($context, $context_ids) {
+		if(!is_array($context_ids))
+			$context_ids = array($context_ids);
+		
+		if(!isset(self::$_changed_contexts[$context]))
+			self::$_changed_contexts[$context] = array();
+		
+		self::$_changed_contexts[$context] = array_merge(self::$_changed_contexts[$context], $context_ids);
+	}
+	
+	static function shutdownTriggerChangedContextsEvents() {
+	    $eventMgr = DevblocksPlatform::getEventService();
+	    
+		if(is_array(self::$_changed_contexts))
+		foreach(self::$_changed_contexts as $context => $context_ids) {
+		    $eventMgr->trigger(
+		        new Model_DevblocksEvent(
+		            'context.update',
+	                array(
+	                	'context' => $context,
+	                    'context_ids' => $context_ids,
+	                )
+	            )
+		    );
+		}
+		
+		self::$_changed_contexts = array();
+	}
+	
+	/**
+	 * @param unknown_type $as_instances
+	 * @param unknown_type $with_options
+	 * @return Extension_DevblocksContext[]
+	 */
+	public static function getAll($as_instances=false, $with_options=null) {
 		$contexts = DevblocksPlatform::getExtensions('devblocks.context', $as_instances);
+		
 		if($as_instances)
-			uasort($contexts, create_function('$a, $b', "return strcasecmp(\$a->manifest->name,\$b->manifest->name);\n"));
+			DevblocksPlatform::sortObjects($contexts, 'manifest->name');
 		else
-			uasort($contexts, create_function('$a, $b', "return strcasecmp(\$a->name,\$b->name);\n"));
+			DevblocksPlatform::sortObjects($contexts, 'name');
+
+		if(!empty($with_options)) {
+			if(!is_array($with_options))
+				$with_options = array($with_options);
+			
+			foreach($contexts as $k => $context) {
+				@$options = $context->params['options'][0];
+				
+				if(!is_array($options) || empty($options)) {
+					unset($contexts[$k]);
+					continue;
+				}
+				
+				if(count(array_intersect(array_keys($options), $with_options)) != count($with_options))
+					unset($contexts[$k]);
+			}
+		}
+		
 		return $contexts;
 	}
 	
-	/*
+	public static function getByAlias($alias, $as_instance=false) {
+		$contexts = self::getAll(false);
+		
+		if(is_array($contexts))
+		foreach($contexts as $ctx_id => $ctx) { /* @var $ctx DevblocksExtensionManifest */
+			if(isset($ctx->params['alias']) && 0 == strcasecmp($ctx->params['alias'], $alias)) {
+				if($as_instance) {
+					return $ctx->createInstance();
+				} else {
+					return $ctx;
+				}
+			}
+		}
+		
+		return null;
+	}
+	
+	/**
 	 * Lazy loader + cache
+	 * @param unknown_type $context
+	 * @return Extension_DevblocksContext
 	 */
 	public static function get($context) {
 		static $contexts = null;
@@ -79,11 +169,57 @@ abstract class Extension_DevblocksContext extends DevblocksExtension {
 	abstract function getRandom();
     abstract function getMeta($context_id);
     abstract function getContext($object, &$token_labels, &$token_values, $prefix=null);
-    abstract function getChooserView();
+    function getSearchView($view_id=null) {
+    	if(empty($view_id)) {
+	    	$view_id = sprintf("search_%s",
+    			str_replace('.','_',DevblocksPlatform::strToPermalink($this->id))
+	    	);
+    	}
+    	
+    	if(null == ($view = C4_AbstractViewLoader::getView($view_id))) {
+    		$view = $this->getChooserView($view_id); /* @var $view C4_AbstractViewModel */
+    	}
+    	
+    	$view->name = 'Search Results';
+    	$view->renderFilters = false;
+    	$view->is_ephemeral = false;
+    	
+    	C4_AbstractViewLoader::setView($view_id, $view);
+    	
+    	return $view;
+    }
+    abstract function getChooserView($view_id=null);
     function getViewClass() {
     	return @$this->manifest->params['view_class'];
     }
     abstract function getView($context=null, $context_id=null, $options=array());
+    function lazyLoadContextValues($token, $dictionary) { return array(); }
+    
+    protected function _lazyLoadCustomFields($context, $context_id) {
+		$fields = DAO_CustomField::getByContext($context);
+		$token_values['custom'] = array();
+
+		$field_values = array_shift(DAO_CustomFieldValue::getValuesByContextIds($context, $context_id));
+		
+		foreach(array_keys($fields) as $cf_id) {
+			$token_values['custom'][$cf_id] = '';
+			$token_values['custom_' . $cf_id] = '';
+			
+			if(isset($field_values[$cf_id])) {
+				// The literal value
+				$token_values['custom'][$cf_id] = $field_values[$cf_id];
+				
+				// Stringify
+				if(is_array($field_values[$cf_id])) {
+					$token_values['custom_'.$cf_id] = implode(', ', $field_values[$cf_id]);
+				} elseif(is_string($field_values[$cf_id])) {
+					$token_values['custom_'.$cf_id] = $field_values[$cf_id];
+				}
+			}
+		}
+		
+		return $token_values;
+    } 
 };
 
 abstract class Extension_DevblocksEvent extends DevblocksExtension {
@@ -95,9 +231,9 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 	public static function getAll($as_instances=false) {
 		$events = DevblocksPlatform::getExtensions('devblocks.event', $as_instances);
 		if($as_instances)
-			uasort($events, create_function('$a, $b', "return strcasecmp(\$a->manifest->name,\$b->manifest->name);\n"));
+			DevblocksPlatform::sortObjects($events, 'manifest->name');
 		else
-			uasort($events, create_function('$a, $b', "return strcasecmp(\$a->name,\$b->name);\n"));
+			DevblocksPlatform::sortObjects($events, 'name');
 		return $events;
 	}
 	
@@ -120,11 +256,6 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 		return $events;
 	}
 	
-	private function _importLabels($labels) {
-		uasort($labels, create_function('$a, $b', "return strcasecmp(\$a,\$b);\n"));
-		return $labels;
-	}
-	
 	protected function _importLabelsTypesAsConditions($labels, $types) {
 		$conditions = array();
 		
@@ -137,7 +268,6 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 			// Strip any modifiers
 			if(false !== ($pos = strpos($token,'|')))
 				$token = substr($token,0,$pos);
-				
 				
 			$conditions[$token] = array('label' => $label, 'type' => $type);
 		}
@@ -165,7 +295,8 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 	abstract function setEvent(Model_DevblocksEvent $event_model=null);
 	
 	function setLabels($labels) {
-		$this->_labels = $this->_importLabels($labels);
+		asort($labels);
+		$this->_labels = $labels;
 	}
 	
 	function setValues($values) {
@@ -190,6 +321,47 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 		return $this->_values;
 	}
 	
+	function getValuesContexts($trigger) {
+		$contexts_to_macros = DevblocksEventHelper::getContextToMacroMap();
+		$macros_to_contexts = array_flip($contexts_to_macros);
+
+		$cfields = array();
+		$custom_fields = DAO_CustomField::getAll();
+		$vars = array();
+		
+		// cfields
+		$labels = $this->getLabels($trigger);
+		if(is_array($labels))
+		foreach($labels as $token => $label) {
+			if(preg_match("#.*?_{0,1}custom_(\d+)#", $token, $matches)) {
+				@$cfield_id = $matches[1];
+				
+				if(empty($cfield_id))
+					continue;
+				
+				if(!isset($custom_fields[$cfield_id]))
+					continue;
+				
+				switch($custom_fields[$cfield_id]->type) {
+					case Model_CustomField::TYPE_WORKER:
+						$cfields[$token] = array(
+							'label' => $label,
+							'context' => CerberusContexts::CONTEXT_WORKER,
+						);
+						break;
+					default:
+						continue;
+						break;
+				}
+			}
+		}
+		
+		// behavior vars
+		$vars = DevblocksEventHelper::getVarValueToContextMap($trigger);
+		
+		return array_merge($cfields, $vars);		
+	}
+	
 	// [TODO] Cache results for this request
 	function getConditions($trigger) {
 		$conditions = array(
@@ -212,19 +384,18 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 		// [TODO] Work in progress
 		// [TODO] This should filter by event type
 		$manifests = Extension_DevblocksEventCondition::getAll(false);
-		//var_dump($manifests);
 		foreach($manifests as $manifest) {
 			$conditions[$manifest->id] = array('label' => $manifest->params['label']);
 		}
-			
-		uasort($conditions, create_function('$a, $b', "return strcasecmp(\$a['label'],\$b['label']);\n"));
+		
+		DevblocksPlatform::sortObjects($conditions, '[label]');
 			
 		return $conditions;
 	}
 	
 	abstract function getConditionExtensions();
 	abstract function renderConditionExtension($token, $trigger, $params=array(), $seq=null);
-	abstract function runConditionExtension($token, $trigger, $params, $values);
+	abstract function runConditionExtension($token, $trigger, $params, DevblocksDictionaryDelegate $dict);
 	
 	function renderCondition($token, $trigger, $params=array(), $seq=null) {
 		$conditions = $this->getConditions($trigger);
@@ -277,17 +448,23 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 							return $tpl->display('devblocks:cerberusweb.core::internal/decisions/conditions/_worker.tpl');
 							break;
 						default:
-							// Custom
-							if(isset($condition_extensions[$token])) {
-								return $this->renderConditionExtension($token, $trigger, $params, $seq);
+							if(substr($condition['type'],0,4) == 'ctx_') {
+								return $tpl->display('devblocks:cerberusweb.core::internal/decisions/conditions/_number.tpl');
 							
 							} else {
-								// Plugins
-								if(null != ($ext = DevblocksPlatform::getExtension($token, true))
-									&& $ext instanceof Extension_DevblocksEventCondition) { /* @var $ext Extension_DevblocksEventCondition */ 
-									return $ext->render($this, $trigger, $params, $seq);
+								// Custom
+								if(isset($condition_extensions[$token])) {
+									return $this->renderConditionExtension($token, $trigger, $params, $seq);
+								
+								} else {
+									// Plugins
+									if(null != ($ext = DevblocksPlatform::getExtension($token, true))
+										&& $ext instanceof Extension_DevblocksEventCondition) { /* @var $ext Extension_DevblocksEventCondition */ 
+										return $ext->render($this, $trigger, $params, $seq);
+									}
 								}
 							}
+							
 							break;
 					}
 				}
@@ -295,42 +472,62 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 		}
 	}
 	
-	function runCondition($token, $trigger, $params, $values) {
-		$logger = DevblocksPlatform::getConsoleLog('Assistant');
+	function runCondition($token, $trigger, $params, DevblocksDictionaryDelegate $dict) {
+		$logger = DevblocksPlatform::getConsoleLog('Attendant');
 		$conditions = $this->getConditions($trigger);
 		$extensions = $this->getConditionExtensions();
 		$not = false;
 		$pass = true;
 		
+		$now = time();
+		
+		// Overload the current time? (simulate)
+		if(isset($dict->_current_time)) {
+			$now = $dict->_current_time;
+		}
+		
+		$logger->info('');
+		$logger->info(sprintf("Checking condition '%s'...", $token));
+		
+		// Built-in actions
 		switch($token) {
 			case '_month_of_year':
 				$not = (substr($params['oper'],0,1) == '!');
 				$oper = ltrim($params['oper'],'!');
+				
+				@$months = DevblocksPlatform::importVar($params['month'],'array',array());
+				
 				switch($oper) {
 					case 'is':
-						$month = date('n');
-						$pass = in_array($month, $params['month']);
+						$month = date('n', $now);
+						$pass = in_array($month, $months);
 						break;
 				}
 				break;
 			case '_day_of_week':
 				$not = (substr($params['oper'],0,1) == '!');
 				$oper = ltrim($params['oper'],'!');
+				
+				@$days = DevblocksPlatform::importVar($params['day'],'array',array());
+				
 				switch($oper) {
 					case 'is':
-						$today = date('N');
-						$pass = in_array($today, $params['day']);
+						$today = date('N', $now);
+						$pass = in_array($today, $days);
 						break;
 				}
 				break;
 			case '_time_of_day':
 				$not = (substr($params['oper'],0,1) == '!');
 				$oper = ltrim($params['oper'],'!');
+				
+				@$from = DevblocksPlatform::importVar($params['from'],'string','now');
+				@$to = DevblocksPlatform::importVar($params['to'],'string','now');
+				
 				switch($oper) {
 					case 'between':
-						$now = strtotime('now');
-						$from = strtotime($params['from']);
-						$to = strtotime($params['to']);
+						@$from = strtotime($from, $now);
+						@$to = strtotime($to, $now);
 						if($to < $from)
 							$to += 86400; // +1 day
 						$pass = ($now >= $from && $now <= $to) ? true : false;
@@ -341,7 +538,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 			default:
 				// Operators
 				if(null != (@$condition = $conditions[$token])) {
-					if(null == (@$value = $values[$token])) {
+					if(null == (@$value = $dict->$token)) {
 						$value = '';
 					}
 					
@@ -350,16 +547,30 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 						case Model_CustomField::TYPE_CHECKBOX:
 							$bool = intval($params['bool']);
 							$pass = !empty($value) == $bool;
+							$logger->info(sprintf("Checkbox: %s = %s",
+								(!empty($value) ? 'true' : 'false'),
+								(!empty($bool) ? 'true' : 'false')
+							));
 							break;
 							
 						case Model_CustomField::TYPE_DATE:
 							$not = (substr($params['oper'],0,1) == '!');
 							$oper = ltrim($params['oper'],'!');
+							$oper = 'between';
+							
+							$from = strtotime($params['from']);
+							$to = strtotime($params['to']);
+							
+							$logger->info(sprintf("Date: `%s` %s%s `%s` and `%s`",
+								DevblocksPlatform::strPrettyTime($value),
+								(!empty($not) ? 'not ' : ''),
+								$oper,
+								DevblocksPlatform::strPrettyTime($from),
+								DevblocksPlatform::strPrettyTime($to)
+							));
+							
 							switch($oper) {
-								case 'is':
 								case 'between':
-									$from = strtotime($params['from']);
-									$to = strtotime($params['to']);
 									if($to < $from)
 										$to += 86400; // +1 day
 									$pass = ($value >= $from && $value <= $to) ? true : false;
@@ -372,6 +583,14 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 						case Model_CustomField::TYPE_URL:
 							$not = (substr($params['oper'],0,1) == '!');
 							$oper = ltrim($params['oper'],'!');
+							
+							$logger->info(sprintf("Text: `%s` %s%s `%s`",
+								$value,
+								(!empty($not) ? 'not ' : ''),
+								$oper,
+								$params['value']
+							));
+							
 							switch($oper) {
 								case 'is':
 									$pass = (0==strcasecmp($value,$params['value']));
@@ -398,15 +617,24 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 						case Model_CustomField::TYPE_NUMBER:
 							$not = (substr($params['oper'],0,1) == '!');
 							$oper = ltrim($params['oper'],'!');
+							$desired_value = intval($params['value']); 
+							
+							$logger->info(sprintf("Number: %d %s%s %d",
+								$value,
+								(!empty($not) ? 'not ' : ''),
+								$oper,
+								$desired_value
+							));
+							
 							switch($oper) {
 								case 'is':
-									$pass = intval($value)==intval($params['value']);
+									$pass = intval($value)==$desired_value;
 									break;
 								case 'gt':
-									$pass = intval($value) > intval($params['value']);
+									$pass = intval($value) > $desired_value;
 									break;
 								case 'lt':
-									$pass = intval($value) < intval($params['value']);
+									$pass = intval($value) < $desired_value;
 									break;
 							}
 							break;
@@ -414,8 +642,16 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 						case Model_CustomField::TYPE_DROPDOWN:
 							$not = (substr($params['oper'],0,1) == '!');
 							$oper = ltrim($params['oper'],'!');
+							$desired_values = isset($params['values']) ? $params['values'] : array();
 							
-							if(!isset($params['values']) || !is_array($params['values'])) {
+							$logger->info(sprintf("`%s` %s%s `%s`",
+								$value,
+								(!empty($not) ? 'not ' : ''),
+								$oper,
+								implode('; ', $desired_values)
+							));
+							
+							if(!isset($desired_values) || !is_array($desired_values)) {
 								$pass = false;
 								break;
 							}
@@ -423,7 +659,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 							switch($oper) {
 								case 'in':
 									$pass = false;
-									if(in_array($value, $params['values'])) {
+									if(in_array($value, $desired_values)) {
 										$pass = true;
 									}
 									break;
@@ -435,13 +671,22 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 							$oper = ltrim($params['oper'],'!');
 							
 							if(preg_match("#(.*?_custom)_(\d+)#", $token, $matches) && 3 == count($matches)) {
-								@$value = $values[$matches[1]][$matches[2]]; 
+								$value_token = $matches[1];
+								$value_field = $dict->$value_token; 
+								@$value = $value_field[$matches[2]]; 
 							}
 							
 							if(!is_array($value) || !isset($params['values']) || !is_array($params['values'])) {
 								$pass = false;
 								break;
 							}
+							
+							$logger->info(sprintf("Multi-checkbox: `%s` %s%s `%s`",
+								implode('; ', $params['values']),
+								(!empty($not) ? 'not ' : ''),
+								$oper,
+								implode('; ', $value)
+							));
 							
 							switch($oper) {
 								case 'is':
@@ -493,16 +738,44 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 									break;
 							}
 							break;
-							
+
 						default:
-							if(isset($extensions[$token])) {
-								$pass = $this->runConditionExtension($token, $trigger, $params, $values);
-							} else {
-								if(null != ($ext = DevblocksPlatform::getExtension($token, true))
-									&& $ext instanceof Extension_DevblocksEventCondition) { /* @var $ext Extension_DevblocksEventCondition */ 
-									$pass = $ext->run($token, $trigger, $params, $values);
+							if(substr($condition['type'],0,4) == 'ctx_') {
+								$count = (isset($dict->$token) && is_array($dict->$token)) ? count($dict->$token) : 0;
+								
+								$not = (substr($params['oper'],0,1) == '!');
+								$oper = ltrim($params['oper'],'!');
+								$desired_count = intval($params['value']);
+
+								$logger->info(sprintf("Count: %d %s%s %d",
+									$count,
+									$not,
+									$oper,
+									$desired_count
+								));
+								
+								switch($oper) {
+									case 'is':
+										$pass = $count==$desired_count;
+										break;
+									case 'gt':
+										$pass = $count > $desired_count;
+										break;
+									case 'lt':
+										$pass = $count < $desired_count;
+										break;
 								}
-							}
+							
+							} else {
+								if(isset($extensions[$token])) {
+									$pass = $this->runConditionExtension($token, $trigger, $params, $dict);
+								} else {
+									if(null != ($ext = DevblocksPlatform::getExtension($token, true))
+										&& $ext instanceof Extension_DevblocksEventCondition) { /* @var $ext Extension_DevblocksEventCondition */ 
+										$pass = $ext->run($token, $trigger, $params, $dict);
+									}
+								}
+							}	
 							break;
 					}
 			}
@@ -513,7 +786,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 		if($not)
 			$pass = !$pass;
 			
-		$logger->info(sprintf("Checking condition '%s'... %s", $token, ($pass ? 'PASS' : 'FAIL')));
+		$logger->info(sprintf("  ... %s", ($pass ? 'PASS' : 'FAIL')));
 		
 		return $pass;
 	}
@@ -535,19 +808,19 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 		// Add plugin extensions
 		// [TODO] This should be filtered by event type?
 		$manifests = Extension_DevblocksEventAction::getAll(false);
-		//var_dump($manifests);
 		foreach($manifests as $manifest) {
 			$actions[$manifest->id] = array('label' => $manifest->params['label']);
 		}
-			
-		uasort($actions, create_function('$a, $b', "return strcasecmp(\$a['label'],\$b['label']);\n"));
-			
+		
+		DevblocksPlatform::sortObjects($actions, '[label]');
+		
 		return $actions;
 	}
 	
 	abstract function getActionExtensions();
 	abstract function renderActionExtension($token, $trigger, $params=array(), $seq=null);
-	abstract function runActionExtension($token, $trigger, $params, &$values);
+	abstract function runActionExtension($token, $trigger, $params, DevblocksDictionaryDelegate $dict);
+	protected function simulateActionExtension($token, $trigger, $params, DevblocksDictionaryDelegate $dict) {}
 	
 	function renderAction($token, $trigger, $params=array(), $seq=null) {
 		$actions = $this->getActionExtensions();
@@ -587,6 +860,14 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 							case Model_CustomField::TYPE_WORKER:
 								return DevblocksEventHelper::renderActionSetVariableWorker();
 								break;
+							default:
+								if(substr(@$var['type'],0,4) == 'ctx_') {
+									@$list_context = substr($var['type'],4);
+									if(!empty($list_context))
+										return DevblocksEventHelper::renderActionSetListVariable($token, $trigger, $params, $list_context);
+								}
+								return;
+								break;
 						}
 					} else {
 						// Plugins
@@ -600,924 +881,96 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 		}		
 	}
 	
-	function runAction($token, $trigger, $params, &$values) {
+	// Are we doing a dry run?
+	function simulateAction($token, $trigger, $params, DevblocksDictionaryDelegate $dict) {
 		$actions = $this->getActionExtensions();
-		
+
 		if(null != (@$action = $actions[$token])) {
-			$this->runActionExtension($token, $trigger, $params, $values);
+			if(method_exists($this, 'simulateActionExtension'))
+				return $this->simulateActionExtension($token, $trigger, $params, $dict);
 			
 		} else {
 			switch($token) {
 				default:
 					// Variables
 					if(substr($token,0,4) == 'var_') {
-						return DevblocksEventHelper::runActionSetVariable($token, $trigger, $params, $values);
+						return DevblocksEventHelper::runActionSetVariable($token, $trigger, $params, $dict);
 					
 					} else {
 						// Plugins
 						if(null != ($ext = DevblocksPlatform::getExtension($token, true))
 							&& $ext instanceof Extension_DevblocksEventAction) { /* @var $ext Extension_DevblocksEventAction */ 
-							return $ext->run($token, $trigger, $params, $values);
+							//return $ext->simulate($token, $trigger, $params, $dict);
 						}
 					}
 					break;
 			}
-		}
-			
-	}
-	
-};
-
-class DevblocksEventHelper {
-	/*
-	 * Action: Custom Fields
-	 */
-	static function getActionCustomFields($context) {
-		$actions = array();
-		
-		// Set custom fields
-		$custom_fields = DAO_CustomField::getByContext($context);
-		foreach($custom_fields as $field_id => $field) {
-			$actions['set_cf_' . $field_id] = array(
-				'label' => 'Set ' . mb_convert_case($field->name, MB_CASE_LOWER),
-				'type' => $field->type,
-			);
-		}
-		
-		return $actions;
-	}
-	
-	static function renderActionSetCustomField(Model_CustomField $custom_field) {
-		$tpl = DevblocksPlatform::getTemplateService();
-		
-		switch($custom_field->type) {
-			case Model_CustomField::TYPE_MULTI_LINE:
-			case Model_CustomField::TYPE_SINGLE_LINE:
-			case Model_CustomField::TYPE_URL:
-				$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_var_string.tpl');
-				break;
-				
-			case Model_CustomField::TYPE_NUMBER:
-				$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_number.tpl');
-				break;
-				
-			case Model_CustomField::TYPE_CHECKBOX:
-				$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_bool.tpl');
-				break;
-				
-			case Model_CustomField::TYPE_DATE:
-				$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_date.tpl');
-				break;
-				
-			case Model_CustomField::TYPE_DROPDOWN:
-				$tpl->assign('options', $custom_field->options);
-				$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_dropdown.tpl');
-				$tpl->clearAssign('options');
-				break;
-				
-			case Model_CustomField::TYPE_MULTI_CHECKBOX:
-				$tpl->assign('options', $custom_field->options);
-				$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_multi_checkbox.tpl');
-				$tpl->clearAssign('options');
-				break;
-				
-			case Model_CustomField::TYPE_WORKER:
-				$workers = DAO_Worker::getAllActive();
-				$tpl->assign('workers', $workers);
-				$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_worker.tpl');
-				break;
-		}		
-	}	
-	
-	static function runActionSetCustomField(Model_CustomField $custom_field, $value_key, $params, &$values, $context, $context_id) {
-		@$field_id = $custom_field->id;
-		
-		// [TODO] Log
-		if(empty($field_id) || empty($context) || empty($context_id))
-			return;
-		
-		switch($custom_field->type) {
-			case Model_CustomField::TYPE_SINGLE_LINE:
-			case Model_CustomField::TYPE_MULTI_LINE:
-			case Model_CustomField::TYPE_CHECKBOX:
-			case Model_CustomField::TYPE_DROPDOWN:
-			case Model_CustomField::TYPE_NUMBER:
-			case Model_CustomField::TYPE_URL:
-				@$value = $params['value'];
-				
-				$builder = DevblocksPlatform::getTemplateBuilder();
-				$value = $builder->build($value, $values);
-				
-				DAO_CustomFieldValue::setFieldValue($context, $context_id, $field_id, $value);
-
-				if(!empty($value_key)) {
-					$values[$value_key.'_'.$field_id] = $value;
-					$values[$value_key][$field_id] = $value;
-				}
-				break;
-			
-			case Model_CustomField::TYPE_DATE:
-				$value = $params['value'];
-				$value = strtotime($value);
-				
-				DAO_CustomFieldValue::setFieldValue($context, $context_id, $field_id, $value);
-				
-				if(!empty($value_key)) {
-					$values[$value_key.'_'.$field_id] = $value;
-					$values[$value_key][$field_id] = $value;
-				}
-				break;
-				
-			case Model_CustomField::TYPE_MULTI_CHECKBOX:
-				@$opts = $params['values'];
-				
-				DAO_CustomFieldValue::setFieldValue($context, $context_id, $field_id, $opts, true);
-
-				if(!empty($value_key)) {
-					$values[$value_key.'_'.$field_id] = implode(',',$opts);
-					$values[$value_key][$field_id] = $opts;
-				}
-				
-				break;
-				
-			case Model_CustomField::TYPE_WORKER:
-				@$worker_id = $params['worker_id'];
-				
-				// Variable?
-				if(substr($worker_id,0,4) == 'var_') {
-					@$worker_id = intval($values[$worker_id]);
-				}
-				
-				DAO_CustomFieldValue::setFieldValue($context, $context_id, $field_id, $worker_id);
-				
-				if(!empty($value_key)) {
-					$values[$value_key.'_'.$field_id] = $worker_id;
-					$values[$value_key][$field_id] = $worker_id;
-				}
-				break;
-				
-			default:
-				$this->runActionExtension($token, $trigger, $params, $values);
-				break;	
 		}		
 	}
 	
-	/*
-	 * Action: Set variable (string)
-	 */
-	
-	static function renderActionSetVariableString($labels) {
-		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('token_labels', $labels);
-		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_var_string.tpl');
-	}
-	
-	static function renderActionSetVariableWorker() {
-		$tpl = DevblocksPlatform::getTemplateService();
+	function runAction($token, $trigger, $params, DevblocksDictionaryDelegate $dict, $dry_run=false) {
+		$actions = $this->getActionExtensions();
 		
-		// Workers
-		$tpl->assign('workers', DAO_Worker::getAll());
+		$out = '';
 		
-		// Groups
-		$tpl->assign('groups', DAO_Group::getAll());
-		
-		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_var_worker.tpl');
-	}
-	
-	static function runActionSetVariable($token, $trigger, $params, &$values) {
-		@$var = $trigger->variables[$token];
-		
-		$value = null;
-		
-		if(empty($var) || !is_array($var))
-			return;
-		
-		switch($var['type']) {
-			case Model_CustomField::TYPE_CHECKBOX:
-				$value = (isset($params['value']) && !empty($params['value'])) ? true : false;
-				break;
-				
-			case Model_CustomField::TYPE_DATE:
-				if(!isset($params['value']))
-					break;
-				
-				$value = is_numeric($params['value']) ? $params['value'] : @strtotime($params['value']);
-				break;
-				
-			case Model_CustomField::TYPE_NUMBER:
-				$value = intval($params['value']);
-				break;
-				
-			case Model_CustomField::TYPE_SINGLE_LINE:
-			case Model_CustomField::TYPE_MULTI_LINE:
-				if(!isset($params['value']))
-					break;
-				
-				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
-				$value = $tpl_builder->build($params['value'], $values);
-				break;
-				
-			case Model_CustomField::TYPE_WORKER:
-				@$worker_ids = $params['worker_id'];
-				@$group_ids = $params['group_id'];
-				@$mode = $params['mode'];
-				@$opt_logged_in = $params['opt_logged_in'];
-				
-				$possible_workers = array();
-				
-				// Add workers
-				if(!empty($worker_ids)) {
-					foreach($worker_ids as $id)
-						$possible_workers[$id] = true;
-				}
-				
-				// Add groups
-				if(!empty($group_ids)) {
-					foreach($group_ids as $group_id)
-					$members = DAO_Group::getGroupMembers($group_id);
-					foreach($members as $member) {
-						$possible_workers[$member->id] = true;
-					}
-				}
-				
-				// Filter
-				$workers = DAO_Worker::getAll();
-				
-				if(!empty($opt_logged_in))
-					$workers_online = DAO_Worker::getAllOnline();
-				
-				foreach($possible_workers as $k => $worker) {
-					// Remove non-existent workers
-					if(!isset($workers[$k])) {
-						unset($possible_workers[$k]);
-						continue;
-					}
-		
-					// Filter to online workers
-					if(!empty($opt_logged_in) && !isset($workers_online[$k])) {
-						unset($possible_workers[$k]);
-						continue;
-					}
-				}
-		
-				// We require at least one worker 
-				if(empty($possible_workers)) {
-					$values[$var['key']] = 0;
-					return;
-				}
-				
-				$chosen_worker_id = 0;
-				
-				// Mode
-				switch($mode) {
-					// Random
-					default:
-					case 'random':
-						$ids = array_keys($possible_workers);
-						shuffle($ids);
-						$chosen_worker_id = reset($ids);
-						break;
+		if(null != (@$action = $actions[$token])) {
+			// Is this a dry run?  If so, don't actually change anything
+			if($dry_run) {
+				$out = $this->simulateAction($token, $trigger, $params, $dict);
+			} else {
+				$this->runActionExtension($token, $trigger, $params, $dict);
+			}
+			
+		} else {
+			switch($token) {
+				default:
+					// Variables
+					if(substr($token,0,4) == 'var_') {
+						// Always set the action vars, even in simulation.
+						DevblocksEventHelper::runActionSetVariable($token, $trigger, $params, $dict);
 						
-					// Sequential
-					case 'seq':
-						$key = sprintf("trigger.%d.counter", $trigger->id);
-						
-						$registry = DevblocksPlatform::getRegistryService();
-						$count = intval($registry->get($key));
-						
-						$idx = $count % count($possible_workers);
-						
-						$ids = array_keys($possible_workers);
-						$chosen_worker_id = $ids[$idx];
-						break;
-						
-					// Fewest open assignments
-					case 'load_balance':
-						$worker_loads = array();
-						
-						// Initialize
-						foreach(array_keys($possible_workers) as $id) {
-							$worker_loads[$id] = 0;
+						if($dry_run) {
+							$out = DevblocksEventHelper::simulateActionSetVariable($token, $trigger, $params, $dict);
+						} else {
+							return;
 						}
-						
-						// Consult database
-						$db = DevblocksPlatform::getDatabaseService();
-						$sql = sprintf("SELECT COUNT(id) AS hits, owner_id FROM ticket WHERE is_closed = 0 AND is_deleted = 0 AND is_waiting = 0 AND owner_id != 0 AND owner_id IN (%s) GROUP BY owner_id",
-							implode(',', array_keys($possible_workers))
-						);
-						$results = $db->GetArray($sql);
-						
-						if(!empty($results))
-						foreach($results as $row) {
-							$worker_loads[$row['owner_id']] = intval($row['hits']);
-						}
-						
-						asort($worker_loads);
-						reset($worker_loads);
-						
-						$chosen_worker_id = key($worker_loads);
-						break;
-				}
-				
-				$value = $chosen_worker_id;
-				
-				break;
-		}
-
-		$values[$token] = $value; 
-	}
-	
-	/*
-	 * Action: Schedule Behavior
-	 */
-	
-	static function renderActionScheduleBehavior($context, $context_id, $event_point) {
-		$tpl = DevblocksPlatform::getTemplateService();
-		
-		// Macros
-		$macros = DAO_TriggerEvent::getByOwner($context, $context_id, $event_point);
-		$tpl->assign('macros', $macros);
-		
-		$tpl->display('devblocks:cerberusweb.core::events/action_schedule_behavior.tpl');
-	}
-	
-	static function runActionScheduleBehavior($params, $values, $context, $context_id) {
-		@$behavior_id = $params['behavior_id'];
-		@$run_date = $params['run_date'];
-		@$on_dupe = $params['on_dupe'];
-		
-		@$run_timestamp = strtotime($run_date);
-		
-		if(empty($behavior_id))
-			return FALSE;
-		
-		switch($on_dupe) {
-			// Only keep first
-			case 'first':
-				// Keep the first, delete everything else, and don't add a new one
-				$behaviors = DAO_ContextScheduledBehavior::getByContext($context, $context_id);
-				$found_first = false;
-				foreach($behaviors as $k => $behavior) { /* @var $behavior Model_ContextScheduledBehavior */
-					if($behavior->behavior_id == $behavior_id) {
-						if($found_first) {
-							DAO_ContextScheduledBehavior::delete($k);
-						}
-						$found_first = $k;
-					}
-				}
-				
-				// If we already have one, don't make a new one.
-				if($found_first)
-					return $found_first;
-				
-				break;
-
-			// Only keep latest
-			case 'last':
-				// Delete everything prior so we only have the new one below
-				DAO_ContextScheduledBehavior::deleteByBehavior($behavior_id);
-				break;
-			
-			// Allow dupes
-			default:
-				// Do nothing
-				break;
-		}
-		
-		// Variables as parameters
-		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
-		$vars = array();
-		foreach($params as $k => $v) {
-			if(substr($k,0,4) == 'var_') {
-				$vars[$k] = $tpl_builder->build($v, $values);
-			}
-		}
-		
-		$fields = array(
-			DAO_ContextScheduledBehavior::CONTEXT => $context,
-			DAO_ContextScheduledBehavior::CONTEXT_ID => $context_id,
-			DAO_ContextScheduledBehavior::BEHAVIOR_ID => $behavior_id,
-			DAO_ContextScheduledBehavior::RUN_DATE => intval($run_timestamp),
-			DAO_ContextScheduledBehavior::VARIABLES_JSON => json_encode($vars),
-		);
-		return DAO_ContextScheduledBehavior::create($fields);
-	}
-	
-	/*
-	 * Action: Unschedule Behavior
-	 */
-	
-	static function renderActionUnscheduleBehavior($context, $context_id, $event_point) {
-		$tpl = DevblocksPlatform::getTemplateService();
-		
-		$macros = DAO_TriggerEvent::getByOwner($context, $context_id, $event_point);
-		$tpl->assign('macros', $macros);
-		
-		$tpl->display('devblocks:cerberusweb.core::events/action_unschedule_behavior.tpl');
-	}
-	
-	static function runActionUnscheduleBehavior($params, $values, $context, $context_id) {
-		@$behavior_id = $params['behavior_id'];
-		
-		if(empty($behavior_id))
-			return FALSE;
-		
-		return DAO_ContextScheduledBehavior::deleteByBehavior($behavior_id);
-	}
-	
-	/*
-	 * Action: Create Comment
-	 */
-	
-	static function renderActionCreateComment() {
-		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_create_comment.tpl');
-	}
-	
-	static function runActionCreateComment($params, $values, $context, $context_id) {
-		$notify_worker_ids = isset($params['notify_worker_id']) ? $params['notify_worker_id'] : array();
-		
-		// Translate message tokens
-		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
-		$content = $tpl_builder->build($params['content'], $values);
-		
-		$fields = array(
-			DAO_Comment::ADDRESS_ID => 0,
-			DAO_Comment::CONTEXT => $context,
-			DAO_Comment::CONTEXT_ID => $context_id,
-			DAO_Comment::CREATED => time(),
-			DAO_Comment::COMMENT => $content,
-		);
-		$comment_id = DAO_Comment::create($fields, $notify_worker_ids);
-		
-		return $comment_id;
-	}
-	
-	static function renderActionScheduleTicketReply() {
-		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->display('devblocks:cerberusweb.core::events/model/ticket/action_schedule_email_recipients.tpl');
-	}
-	
-	static function runActionScheduleTicketReply($params, $values, $ticket_id, $message_id) {
-		@$delivery_date_relative = $params['delivery_date'];
-		
-		if(false == ($delivery_date = strtotime($delivery_date_relative)))
-			$delivery_date = time();
-		
-		// Translate message tokens
-		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
-		$content = $tpl_builder->build($params['content'], $values);
-		
-		$fields = array(
-			DAO_MailQueue::TYPE => Model_MailQueue::TYPE_TICKET_REPLY,
-			DAO_MailQueue::IS_QUEUED => 1,
-			//DAO_MailQueue::HINT_TO => implode($values['recipients']),
-			DAO_MailQueue::HINT_TO => '(recipients)',
-			DAO_MailQueue::SUBJECT => $values['ticket_subject'],
-			DAO_MailQueue::BODY => $content,
-			DAO_MailQueue::PARAMS_JSON => json_encode(array(
-				'in_reply_message_id' => $message_id,				
-			)),
-			DAO_MailQueue::TICKET_ID => $ticket_id,
-			DAO_MailQueue::WORKER_ID => 0,
-			DAO_MailQueue::UPDATED => time(),
-			DAO_MailQueue::QUEUE_DELIVERY_DATE => $delivery_date,
-		);
-		$queue_id = DAO_MailQueue::create($fields);
-	}
-	
-	static function renderActionSetTicketOwner() {
-		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('workers', DAO_Worker::getAllActive());
-		
-		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_worker.tpl');
-	}
-	
-	static function runActionSetTicketOwner($params, &$values, $ticket_id, $values_prefix) {
-		@$owner_id = $params['worker_id'];
-		
-		// Variable?
-		if(substr($owner_id,0,4) == 'var_') {
-			@$owner_id = intval($values[$owner_id]);
-		}
-		
-		$fields = array(
-			DAO_Ticket::OWNER_ID => $owner_id,
-		);
-		DAO_Ticket::update($ticket_id, $fields);
-		
-		/**
-		 * Re-update owner values
-		 * // [TODO] This should be more easily reusable
-		 */
-		$worker_labels = array();
-		$worker_values = array();
-		$labels = array();
-		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $owner_id, $worker_labels, $worker_values, NULL, true);
-				
-			// Clear dupe content
-			CerberusContexts::scrubTokensWithRegexp(
-				$worker_labels,
-				$worker_values,
-				array(
-					"#^address_org_#",
-				)
-			);
-		
-			// Merge
-			CerberusContexts::merge(
-				$values_prefix,
-				'',
-				$worker_labels,
-				$worker_values,
-				$labels,
-				$values
-			);
-	}
-	
-	static function renderActionAddWatchers() {
-		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('workers', DAO_Worker::getAll());
-		
-		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_add_watchers.tpl');
-	}
-	
-	static function runActionAddWatchers($params, $values, $context, $context_id) {
-		@$worker_ids = $params['worker_id'];
-		
-		if(!is_array($worker_ids) || empty($worker_ids))
-			return;
-
-		CerberusContexts::addWatchers($context, $context_id, $worker_ids);
-	}
-	
-	/*
-	 * Action: Create Notification
-	 */
-	
-	static function renderActionCreateNotification($notify_map=array()) {
-		$tpl = DevblocksPlatform::getTemplateService();
-		
-		$tpl->assign('workers', DAO_Worker::getAll());
-		$tpl->assign('notify_map', $notify_map);
-		
-		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_create_notification.tpl');
-	}
-	
-	static function runActionCreateNotification($params, $values, $context, $context_id, $notify_map=array()) {
-		$notify_worker_ids = isset($params['notify_worker_id']) ? $params['notify_worker_id'] : array();
-
-		// Watchers?
-		if(isset($params['notify_watchers']) && !empty($params['notify_watchers'])) {
-			// [TODO] Lazy load from values (and set back to)
-			$watchers = CerberusContexts::getWatchers($context, $context_id);
-			$notify_worker_ids = array_merge($notify_worker_ids, array_keys($watchers));
-		}
-
-		// If we're notifying contexual worker IDs, add them
-		if(is_array($notify_map) && !empty($notify_map))
-		foreach($notify_map as $key) {
-			// If the value doesn't exist, bail out
-			if(!isset($values[$key]))
-				continue;
-			
-			$id = intval($values[$key]);
-			
-			// If the value is empty, bail out
-			if(empty($id))
-				continue;
-			
-			$notify_worker_ids = array_merge($notify_worker_ids, array($id));
-		}
-		
-		if(!is_array($notify_worker_ids) || empty($notify_worker_ids))
-			return;
-		
-		if(empty($context))
-			return;
-		
-		// Translate message tokens
-		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
-		$content = $tpl_builder->build($params['content'], $values);
-		
-		foreach($notify_worker_ids as $notify_worker_id) {
-			$fields = array(
-				DAO_Notification::CONTEXT => $context,
-				DAO_Notification::CONTEXT_ID => $context_id,
-				DAO_Notification::WORKER_ID => $notify_worker_id,
-				DAO_Notification::CREATED_DATE => time(),
-				DAO_Notification::MESSAGE => $content,
-				DAO_Notification::URL => '',
-			);
-			$notification_id = DAO_Notification::create($fields);
-			
-			DAO_Notification::clearCountCache($notify_worker_id);
-		}
-		
-		return $notification_id;
-	}
-	
-	/*
-	 * Action: Create Task
-	 */
-	
-	static function renderActionCreateTask() {
-		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('workers', DAO_Worker::getAll());
-		
-		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_create_task.tpl');
-	}
-	
-	static function runActionCreateTask($params, $values, $context=null, $context_id=null) {
-		$due_date = $params['due_date'];
-		$notify_worker_ids = isset($params['notify_worker_id']) ? $params['notify_worker_id'] : array();
-	
-		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
-		$title = $tpl_builder->build($params['title'], $values);
-		$due_date = intval(@strtotime($tpl_builder->build($params['due_date'], $values)));
-		$comment = $tpl_builder->build($params['comment'], $values);
-
-		$fields = array(
-			DAO_Task::TITLE => $title,
-			DAO_Task::UPDATED_DATE => time(),
-			DAO_Task::DUE_DATE => $due_date,
-		);
-		$task_id = DAO_Task::create($fields);
-
-		// Watchers
-		if(isset($params['worker_id']) && !empty($params['worker_id']))
-			CerberusContexts::addWatchers(CerberusContexts::CONTEXT_TASK, $task_id, $params['worker_id']);
-		
-		// Comment content
-		if(!empty($comment)) {
-			$fields = array(
-				DAO_Comment::ADDRESS_ID => 0,
-				DAO_Comment::COMMENT => $comment,
-				DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_TASK,
-				DAO_Comment::CONTEXT_ID => $task_id,
-				DAO_Comment::CREATED => time(),
-			);
-			
-			DAO_Comment::create($fields, $notify_worker_ids);
-		}
-		
-		// Connection
-		if(!empty($context) && !empty($context_id))
-			DAO_ContextLink::setLink(CerberusContexts::CONTEXT_TASK, $task_id, $context, $context_id);
-
-		return $task_id;
-	}
-	
-	/*
-	 * Action: Create Ticket
-	 */
-	
-	static function renderActionCreateTicket() {
-		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('groups', DAO_Group::getAll());
-		$tpl->assign('workers', DAO_Worker::getAll());
-		
-		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_create_ticket.tpl');
-	}
-	
-	static function runActionCreateTicket($params, $values) {
-		@$group_id = $params['group_id'];
-		
-		if(null == ($group = DAO_Group::get($group_id)))
-			return;
-		
-		$group_replyto = $group->getReplyTo();
-			
-		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
-		$requesters = $tpl_builder->build($params['requesters'], $values);
-		$subject = $tpl_builder->build($params['subject'], $values);
-		$content = $tpl_builder->build($params['content'], $values);
-				
-		$message = new CerberusParserMessage();
-		$message->headers['date'] = date('r'); 
-		$message->headers['to'] = $group_replyto->email;
-		$message->headers['subject'] = $subject;
-		$message->headers['message-id'] = CerberusApplication::generateMessageId();
-		
-		// Sender
-		$fromList = imap_rfc822_parse_adrlist(rtrim($requesters,', '),'');
-		
-		if(empty($fromList) || !is_array($fromList)) {
-			return; // abort with message
-		}
-		$from = array_shift($fromList);
-		$from_address = $from->mailbox . '@' . $from->host;
-		$message->headers['from'] = $from_address;
-
-		$message->body = sprintf(
-			"(... This message was manually created by a virtual assistant on behalf of the requesters ...)\r\n"
-		);
-
-		// [TODO] Custom fields
-		
-		// Parse
-		$ticket_id = CerberusParser::parseMessage($message);
-		$ticket = DAO_Ticket::get($ticket_id);
-		
-		// Add additional requesters to ticket
-		if(is_array($fromList) && !empty($fromList))
-		foreach($fromList as $requester) {
-			if(empty($requester))
-				continue;
-			$host = empty($requester->host) ? 'localhost' : $requester->host;
-			DAO_Ticket::createRequester($requester->mailbox . '@' . $host, $ticket_id);
-		}
-		
-		// Worker reply
-		$properties = array(
-		    'message_id' => $ticket->first_message_id,
-		    'ticket_id' => $ticket_id,
-		    'subject' => $subject,
-		    'content' => $content,
-		    'worker_id' => 0, //$active_worker->id,
-		);
-		
-		CerberusMail::sendTicketMessage($properties);
-		
-		return $ticket_id;
-	}
-	
-	/*
-	 * Action: Send Email
-	 */
-	
-	function renderActionSendEmail() {
-		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_send_email.tpl');
-	}
-	
-	function runActionSendEmail($params, $values) {
-		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
-
-		$to = $params['to'];
-		$subject = $tpl_builder->build($params['subject'], $values);
-		$content = $tpl_builder->build($params['content'], $values);
-
-		CerberusMail::quickSend(
-			$to,
-			$subject,
-			$content
-		);
-	}
-	
-	/*
-	 * Action: Relay Email
-	 */
-	
-	// [TODO] Move this to an event parent so we can presume values
-	
-	function renderActionRelayEmail($filter_to_worker_ids=array(), $show=array('owner','watchers','workers'), $content_token='content') {
-		$tpl = DevblocksPlatform::getTemplateService();
-		$translate = DevblocksPlatform::getTranslationService();
-		
-		$tpl->assign('show', $show);
-		
-		$workers = DAO_Worker::getAll();
-		$tpl->assign('workers', $workers);
-		
-		$addresses = DAO_AddressToWorker::getAll();
-
-		// Filter?
-		if(!empty($filter_to_worker_ids)) {
-			foreach($addresses as $k => $v) {
-				if(!in_array($v->worker_id, $filter_to_worker_ids))
-					unset($addresses[$k]);
-			}
-		}
-		$tpl->assign('addresses', $addresses);
-		
-		$tpl->assign('default_content', vsprintf($translate->_('va.actions.ticket.relay.default_content'), $content_token));
-		
-		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_relay_email.tpl');
-	}
-	
-	// [TODO] Move this to an event parent so we can presume values
-	
-	function runActionRelayEmail($params, $values, $context, $context_id, $group_id, $bucket_id, $message_id, $owner_id, $sender_email, $sender_name, $subject) {
-		$logger = DevblocksPlatform::getConsoleLog('Attendant');
-		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
-		$mail_service = DevblocksPlatform::getMailService();
-		$mailer = $mail_service->getMailer(CerberusMail::getMailerDefaults());
-		
-		if(empty($group_id) || null == ($group = DAO_Group::get($group_id))) {
-			$logger->error("Can't load the ticket's group. Aborting action.");
-			return;
-		}
-		
-		$replyto = $group->getReplyTo($bucket_id);
-		$relay_list = @$params['to'] or array();
-		
-		// Attachments
-		$attachment_data = array();
-		if(!empty($message_id)) {
-			if(isset($params['include_attachments']) && !empty($params['include_attachments'])) {
-				$attachment_data = DAO_AttachmentLink::getLinksAndAttachments(CerberusContexts::CONTEXT_MESSAGE, $message_id);
-			}
-		}
-
-		// Owner
-		if(isset($params['to_owner']) && !empty($params['to_owner'])) {
-			if(!empty($owner_id)) {
-				$relay_list[] = DAO_Worker::get($owner_id);
-			}
-		}
-		
-		// Watchers
-		if(isset($params['to_watchers']) && !empty($params['to_watchers'])) {
-			$watchers = CerberusContexts::getWatchers($context, $context_id);
-			foreach($watchers as $watcher) { /* @var $watcher Model_Worker */
-				$relay_list[] = $watcher;
-			}
-			unset($watchers);
-		}
-		
-		// [TODO] Remove dupes
-		
-		if(is_array($relay_list))
-		foreach($relay_list as $to) {
-			try {
-				if($to instanceof Model_Worker) {
-					$worker = $to;
-					$to_address = $worker->email;
 					
-				} else {
-					// [TODO] Cache
-					if(null == ($worker_address = DAO_AddressToWorker::getByAddress($to)))
-						continue;
-						
-					if(null == ($worker = DAO_Worker::get($worker_address->worker_id)))
-						continue;
-					
-					$to_address = $worker_address->address;
-				}
-				
-				$mail = $mail_service->createMessage();
-				
-				$mail->setTo(array($to_address));
-	
-				$headers = $mail->getHeaders(); /* @var $headers Swift_Mime_Header */
-
-				if(!empty($sender_name)) {
-					$mail->setFrom($sender_email, $sender_name);
-				} else {
-					$mail->setFrom($sender_email);
-				}
-				
-				$replyto_personal = $replyto->getReplyPersonal($worker);
-				if(!empty($replyto_personal)) {
-					$mail->setReplyTo($replyto->email, $replyto_personal);
-				} else {
-					$mail->setReplyTo($replyto->email);
-				}
-				
-				if(!isset($params['subject']) || empty($params['subject'])) {
-					$mail->setSubject($subject);
-				} else {
-					$subject = $tpl_builder->build($params['subject'], $values);
-					$mail->setSubject($subject);
-				}
-	
-				// Find the owner of this address and sign it.
-				$sign = substr(md5($context.$context_id.$worker->pass),8,8);
-				
-				$headers->removeAll('message-id');
-				$headers->addTextHeader('Message-Id', sprintf("<%s_%d_%d_%s@cerb5>", $context, $context_id, time(), $sign));
-				$headers->addTextHeader('X-CerberusRedirect','1');
-	
-				$content = $tpl_builder->build($params['content'], $values);
-				
-				$mail->setBody($content);
-				
-				// Files
-				if(!empty($attachment_data) && isset($attachment_data['attachments']) && !empty($attachment_data['attachments'])) {
-					foreach($attachment_data['attachments'] as $file_id => $file) { /* @var $file Model_Attachment */
-						if(false !== ($fp = DevblocksPlatform::getTempFile())) {
-							if(false !== $file->getFileContents($fp)) {
-								$attach = Swift_Attachment::fromPath(DevblocksPlatform::getTempFileInfo($fp), $file->mime_type);
-								$attach->setFilename($file->display_name);
-								$mail->attach($attach);
-								fclose($fp);
+					} else {
+						// Plugins
+						if(null != ($ext = DevblocksPlatform::getExtension($token, true))
+							&& $ext instanceof Extension_DevblocksEventAction) { /* @var $ext Extension_DevblocksEventAction */
+							if($dry_run) {
+								if(method_exists($ext, 'simulate'))
+									$out = $ext->simulate($token, $trigger, $params, $dict);
+							} else {
+								return $ext->run($token, $trigger, $params, $dict);
 							}
 						}
 					}
-					
-				}
-				
-				$result = $mailer->send($mail);
-				unset($mail);
-				
-				if(!$result) {
-					return false;
-				}			
-				
-			} catch (Exception $e) {
-				
+					break;
 			}
+		}
+		
+		// Append to simulator output
+		if(!empty($out)) {
+			/* @var $trigger Model_TriggerEvent */
+			$all_actions = $this->getActions($trigger);
+			$log = EventListener_Triggers::getNodeLog();
+			$nodes = $trigger->getNodes();
+			
+			if(!isset($dict->_simulator_output) || !is_array($dict->_simulator_output))
+				$dict->_simulator_output = array();
+			
+			$output = array(
+				'action' => $nodes[array_pop($log)]->title,
+				'title' => $all_actions[$token]['label'],
+				'content' => $out,
+			);
+			
+			$previous_output = $dict->_simulator_output;
+			$previous_output[] = $output;
+			$dict->_simulator_output = $previous_output;
+			unset($out);
 		}
 	}
 };
@@ -1526,28 +979,29 @@ abstract class Extension_DevblocksEventCondition extends DevblocksExtension {
 	public static function getAll($as_instances=false) {
 		$extensions = DevblocksPlatform::getExtensions('devblocks.event.condition', $as_instances);
 		if($as_instances)
-			uasort($extensions, create_function('$a, $b', "return strcasecmp(\$a->manifest->params['label'],\$b->manifest->params['label']);\n"));
+			DevblocksPlatform::sortObjects($extensions, 'manifest->params->[label]');
 		else
-			uasort($extensions, create_function('$a, $b', "return strcasecmp(\$a->params['label'],\$b->params['label']);\n"));
+			DevblocksPlatform::sortObjects($extensions, 'params->[label]');
 		return $extensions;
 	}
 	
 	abstract function render(Extension_DevblocksEvent $event, Model_TriggerEvent $trigger, $params=array(), $seq=null);
-	abstract function run($token, Model_TriggerEvent $trigger, $params, $values);
-}
+	abstract function run($token, Model_TriggerEvent $trigger, $params, DevblocksDictionaryDelegate $dict);
+};
 
 abstract class Extension_DevblocksEventAction extends DevblocksExtension {
 	public static function getAll($as_instances=false) {
 		$extensions = DevblocksPlatform::getExtensions('devblocks.event.action', $as_instances);
 		if($as_instances)
-			uasort($extensions, create_function('$a, $b', "return strcasecmp(\$a->manifest->params['label'],\$b->manifest->params['label']);\n"));
+			DevblocksPlatform::sortObjects($extensions, 'manifest->params->[label]');
 		else
-			uasort($extensions, create_function('$a, $b', "return strcasecmp(\$a->params['label'],\$b->params['label']);\n"));
+			DevblocksPlatform::sortObjects($extensions, 'params->[label]');
 		return $extensions;
 	}
 	
 	abstract function render(Extension_DevblocksEvent $event, Model_TriggerEvent $trigger, $params=array(), $seq=null);
-	abstract function run($token, Model_TriggerEvent $trigger, $params, &$values);
+	function simulate($token, Model_TriggerEvent $trigger, $params, DevblocksDictionaryDelegate $dict) {}
+	abstract function run($token, Model_TriggerEvent $trigger, $params, DevblocksDictionaryDelegate $dict);
 }
 
 abstract class DevblocksHttpResponseListenerExtension extends DevblocksExtension {
@@ -1631,7 +1085,7 @@ interface DevblocksHttpRequestHandler {
 	 */
 	public function handleRequest(DevblocksHttpRequest $request);
 	public function writeResponse(DevblocksHttpResponse $response);
-}
+};
 
 class DevblocksHttpRequest extends DevblocksHttpIO {
 	/**
@@ -1640,7 +1094,7 @@ class DevblocksHttpRequest extends DevblocksHttpIO {
 	function __construct($path, $query=array()) {
 		parent::__construct($path, $query);
 	}
-}
+};
 
 class DevblocksHttpResponse extends DevblocksHttpIO {
 	/**
@@ -1649,7 +1103,7 @@ class DevblocksHttpResponse extends DevblocksHttpIO {
 	function __construct($path, $query=array()) {
 		parent::__construct($path, $query);
 	}
-}
+};
 
 abstract class DevblocksHttpIO {
 	public $path = array();
@@ -1664,4 +1118,68 @@ abstract class DevblocksHttpIO {
 		$this->path = $path;
 		$this->query = $query;
 	}
-}
+};
+
+class _DevblocksSortHelper {
+	private static $_sortOn = ''; 
+	
+	static function sortByNestedMember($a, $b) {
+		$props = explode('->', self::$_sortOn);
+		
+		$a_test = $a;
+		$b_test = $b;
+		
+		foreach($props as $prop) {
+			$is_index = false;
+			
+			if(@preg_match("#\[(.*?)\]#", $prop, $matches)) {
+				$is_index = true;
+				$prop = $matches[1];
+			}
+			
+			if($is_index) {
+				if(!isset($a_test[$prop]) && !isset($b_test[$prop]))
+					return 0;
+				
+				@$a_test = $a_test[$prop];
+				@$b_test = $b_test[$prop];
+				
+			} else {
+				if(!isset($a_test->$prop) && !isset($b_test->$prop)) {
+					return 0;
+				}
+				
+				@$a_test = $a_test->$prop;
+				@$b_test = $b_test->$prop;
+			}
+		}
+		
+		if(is_numeric($a_test) && is_numeric($b_test)) {
+			settype($a_test, 'integer');
+			settype($b_test, 'integer');
+			
+			if($a_test==$b_test)
+				return 0;
+			
+			return ($a_test > $b_test) ? 1 : -1;
+			
+		} else {
+			$a_test = is_null($a_test) ? '' : $a_test;
+			$b_test = is_null($b_test) ? '' : $b_test;
+			
+			if(!is_string($a_test) || !is_string($b_test))
+				return 0;
+			
+			return strcasecmp($a_test, $b_test);
+		}
+	}
+	
+	static function sortObjects(&$array, $on, $ascending=true) {
+		self::$_sortOn = $on;
+		
+		uasort($array, array('_DevblocksSortHelper', 'sortByNestedMember'));
+		
+		if(!$ascending)
+			$array = array_reverse($array, true);
+	}	
+};

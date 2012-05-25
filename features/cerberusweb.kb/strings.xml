@@ -13,9 +13,6 @@
 		<tu tuid='acl.core.kb.categories.modify'>
 			<tuv xml:lang="en_US"><seg>[Knowledgebase] Can manage categories</seg></tuv>
 		</tu>
-		<tu tuid='acl.core.kb.topics.modify'>
-			<tuv xml:lang="en_US"><seg>[Knowledgebase] Can manage top-level topics</seg></tuv>
-		</tu>
 		<tu tuid='acl.kb.articles.actions.update_all'>
 			<tuv xml:lang="en_US"><seg>[Knowledgebase] Can bulk update articles</seg></tuv>
 		</tu>
@@ -35,6 +32,12 @@
 		</tu>
 		<tu tuid='display.reply.kb.search'>
 			<tuv xml:lang="en_US"><seg>Search Knowledgebase:</seg></tuv>
+		</tu>
+		
+		<!-- Tab -->
+		
+		<tu tuid='kb.workspace.tab.browser'>
+			<tuv xml:lang="en_US"><seg>Knowledgebase Browser</seg></tuv>
 		</tu>
 		
 		<!-- SC -->

@@ -67,6 +67,7 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		$tpl->display('devblocks:cerberusweb.core::configuration/index.tpl');
 	}
 
+	// [TODO] This could probably go internal
 	function handleSectionActionAction() {
 		@$section_uri = DevblocksPlatform::importGPC($_REQUEST['section'],'string','');
 		@$action = DevblocksPlatform::importGPC($_REQUEST['action'],'string','');

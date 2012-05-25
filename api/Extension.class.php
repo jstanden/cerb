@@ -147,9 +147,9 @@ abstract class Extension_PageMenu extends DevblocksExtension {
 		
 		// Sorting
 		if($as_instances)
-			uasort($results, create_function('$a, $b', "return strcasecmp(\$a->manifest->name,\$b->manifest->name);\n"));
+			DevblocksPlatform::sortObjects($results, 'manifest->name');
 		else
-			uasort($results, create_function('$a, $b', "return strcasecmp(\$a->name,\$b->name);\n"));
+			DevblocksPlatform::sortObjects($results, 'name');
 		
 		return $results;
 	}
@@ -178,9 +178,9 @@ abstract class Extension_PageMenuItem extends DevblocksExtension {
 		
 		// Sorting
 		if($as_instances)
-			uasort($results, create_function('$a, $b', "return strcasecmp(\$a->manifest->name,\$b->manifest->name);\n"));
+			DevblocksPlatform::sortObjects($results, 'manifest->name');
 		else
-			uasort($results, create_function('$a, $b', "return strcasecmp(\$a->name,\$b->name);\n"));
+			DevblocksPlatform::sortObjects($results, 'name');
 		
 		return $results;
 	}
@@ -195,44 +195,8 @@ abstract class Extension_PreferenceTab extends DevblocksExtension {
 	function saveTab() {}
 };
 
-abstract class Extension_ActivityTab extends DevblocksExtension {
-	const POINT = 'cerberusweb.activity.tab'; 
-	
-	function showTab() {}
-	function saveTab() {}
-};
-
-abstract class Extension_AddressBookTab extends DevblocksExtension {
-	const POINT = 'cerberusweb.contacts.tab'; 
-	
-	function showTab() {}
-	function saveTab() {}
-};
-
-abstract class Extension_MailTab extends DevblocksExtension {
-	const POINT = 'cerberusweb.mail.tab';
-	
-	function showTab() {}
-	function saveTab() {}
-};
-
-abstract class Extension_TicketTab extends DevblocksExtension {
-	const POINT = 'cerberusweb.ticket.tab';
-	
-	function showTab() {}
-	function saveTab() {}
-};
-
-abstract class Extension_LogMailToolbarItem extends DevblocksExtension {
-	function render() { }
-};
-
 abstract class Extension_SendMailToolbarItem extends DevblocksExtension {
 	function render() { }
-};
-
-abstract class Extension_TicketToolbarItem extends DevblocksExtension {
-	function render(Model_Ticket $ticket) { }
 };
 
 abstract class Extension_MessageToolbarItem extends DevblocksExtension {
@@ -241,10 +205,6 @@ abstract class Extension_MessageToolbarItem extends DevblocksExtension {
 
 abstract class Extension_ReplyToolbarItem extends DevblocksExtension {
 	function render(Model_Message $message) { }
-};
-
-abstract class Extension_TaskToolbarItem extends DevblocksExtension {
-	function render(Model_Task $task) { }
 };
 
 abstract class Extension_ExplorerToolbar extends DevblocksExtension {
@@ -259,9 +219,118 @@ abstract class Extension_MessageBadge extends DevblocksExtension {
 	function render(Model_Message $message) {}
 };
 
-abstract class Extension_OrgTab extends DevblocksExtension {
-	function showTab() {}
-	function saveTab() {}
+abstract class Extension_ContextProfileTab extends DevblocksExtension {
+	const POINT = 'cerberusweb.ui.context.profile.tab';
+	
+	/**
+	 * @return DevblocksExtensionManifest[]|Extension_ContextProfileTab[]
+	 */
+	static function getExtensions($as_instances=true, $context=null) {
+		if(empty($context))
+			return DevblocksPlatform::getExtensions(self::POINT, $as_instances);
+	
+		$results = array();
+	
+		$exts = DevblocksPlatform::getExtensions(self::POINT, false);
+		
+		foreach($exts as $ext_id => $ext) {
+			if(isset($ext->params['contexts'][0]))
+			foreach(array_keys($ext->params['contexts'][0]) as $ctx_pattern) {
+				$ctx_pattern = DevblocksPlatform::strToRegExp($ctx_pattern);
+				
+				if(preg_match($ctx_pattern, $context))
+					$results[$ext_id] = $as_instances ? $ext->createInstance() : $ext;
+			}
+		}
+	
+		// Sorting
+		if($as_instances)
+			DevblocksPlatform::sortObjects($results, 'manifest->name');
+		else
+			DevblocksPlatform::sortObjects($results, 'name');
+	
+		return $results;
+	}	
+	
+	function showTab($context, $context_id) {}
+};
+
+abstract class Extension_ContextProfileScript extends DevblocksExtension {
+	const POINT = 'cerberusweb.ui.context.profile.script';
+	
+	/**
+	 * @return DevblocksExtensionManifest[]|Extension_ContextProfileScript[]
+	 */
+	static function getExtensions($as_instances=true, $context=null) {
+		if(empty($context))
+			return DevblocksPlatform::getExtensions(self::POINT, $as_instances);
+	
+		$results = array();
+	
+		$exts = DevblocksPlatform::getExtensions(self::POINT, false);
+
+		foreach($exts as $ext_id => $ext) {
+			if(isset($ext->params['contexts'][0]))
+			foreach(array_keys($ext->params['contexts'][0]) as $ctx_pattern) {
+				$ctx_pattern = DevblocksPlatform::strToRegExp($ctx_pattern);
+				
+				if(preg_match($ctx_pattern, $context))
+					$results[$ext_id] = $as_instances ? $ext->createInstance() : $ext;
+			}
+		}
+
+		// Sorting
+		if($as_instances)
+			DevblocksPlatform::sortObjects($results, 'manifest->name');
+		else
+			DevblocksPlatform::sortObjects($results, 'name');
+	
+		return $results;
+	}	
+	
+	function renderScript($context, $context_id) {}
+};
+
+abstract class Extension_WorkspacePage extends DevblocksExtension {
+	const POINT = 'cerberusweb.ui.workspace.page';
+	
+	/**
+	 * @return DevblocksExtensionManifest[]|Extension_WorkspacePage[]
+	 */
+	static function getAll($as_instances=true) {
+		$exts = DevblocksPlatform::getExtensions(self::POINT, $as_instances);
+
+		// Sorting
+		if($as_instances)
+			DevblocksPlatform::sortObjects($exts, 'manifest->name');
+		else
+			DevblocksPlatform::sortObjects($exts, 'name');
+	
+		return $exts;
+	}
+	
+	abstract function renderPage(Model_WorkspacePage $page); 
+};
+
+abstract class Extension_WorkspaceTab extends DevblocksExtension {
+	const POINT = 'cerberusweb.ui.workspace.tab';
+	
+	/**
+	 * @return DevblocksExtensionManifest[]|Extension_WorkspaceTab[]
+	 */
+	static function getAll($as_instances=true) {
+		$exts = DevblocksPlatform::getExtensions(self::POINT, $as_instances);
+
+		// Sorting
+		if($as_instances)
+			DevblocksPlatform::sortObjects($exts, 'manifest->name');
+		else
+			DevblocksPlatform::sortObjects($exts, 'name');
+	
+		return $exts;
+	}
+
+	abstract function renderTab(Model_WorkspacePage $page, Model_WorkspaceTab $tab);
 };
 
 abstract class Extension_RssSource extends DevblocksExtension {

@@ -2,7 +2,7 @@
 <input type="hidden" name="c" value="preferences">
 <input type="hidden" name="a" value="saveWatcherTab">
 
-<fieldset>
+<fieldset class="peek">
 <legend>If I'm watching something, send me a notification when these events happen:</legend>
 Select: 
 <a href="javascript:;" onclick="checkAll('frmWatcherPrefs',true);">{'common.all'|devblocks_translate|lower}</a>
@@ -22,7 +22,7 @@ Select:
 {/foreach}
 </ul>
 	
-<button type="submit"><span class="cerb-sprite2 sprite-tick-circle-frame"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+<button type="submit"><span class="cerb-sprite2 sprite-tick-circle"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
 	
 </fieldset>
 </form>

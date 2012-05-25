@@ -149,7 +149,7 @@ class CerberusMail {
 			return;
 		
 	    // Changing the outgoing message through a VA
-	    Event_MailBeforeSentByGroup::trigger($properties, null, null, $group);
+	    Event_MailBeforeSentByGroup::trigger($properties, null, null, $group_id);
 		
 		@$org_id = $properties['org_id'];
 		@$toStr = $properties['to'];
@@ -158,7 +158,8 @@ class CerberusMail {
 		@$subject = $properties['subject'];
 		@$content = $properties['content'];
 		@$files = $properties['files'];
-
+		@$forward_files = $properties['forward_files'];
+		
 		@$closed = $properties['closed'];
 		@$ticket_reopen = $properties['ticket_reopen'];
 		
@@ -250,6 +251,21 @@ class CerberusMail {
 						continue;
 	
 					$email->attach(Swift_Attachment::fromPath($file)->setFilename($files['name'][$idx]));
+				}
+			}
+			
+			// Forward Attachments
+			if(!empty($forward_files) && is_array($forward_files)) {
+				foreach($forward_files as $file_id) {
+					$attachment = DAO_Attachment::get($file_id);
+					if(false !== ($fp = DevblocksPlatform::getTempFile())) {
+						if(false !== $attachment->getFileContents($fp)) {
+							$attach = Swift_Attachment::fromPath(DevblocksPlatform::getTempFileInfo($fp), $attachment->mime_type);
+							$attach->setFilename($attachment->display_name);
+							$email->attach($attach);
+							fclose($fp);
+						}
+					}
 				}
 			}
 			
@@ -465,7 +481,7 @@ class CerberusMail {
 				return;
 		    
 		    // Changing the outgoing message through a VA
-		    Event_MailBeforeSentByGroup::trigger($properties, $message, $ticket, $group);
+		    Event_MailBeforeSentByGroup::trigger($properties, $message->id, $ticket->id, $group->id);
 		    
 		    // Re-read properties
 		    @$content = $properties['content'];
@@ -631,7 +647,7 @@ class CerberusMail {
 			}
 	
 			// Forward Attachments
-			if($is_forward && !empty($forward_files) && is_array($forward_files)) {
+			if(!empty($forward_files) && is_array($forward_files)) {
 				foreach($forward_files as $file_id) {
 					$attachment = DAO_Attachment::get($file_id);
 					if(false !== ($fp = DevblocksPlatform::getTempFile())) {
@@ -859,7 +875,7 @@ class CerberusMail {
 				'target' => sprintf("[%s] %s", $ticket->mask, $ticket->subject),
 				),
 			'urls' => array(
-				'target' => ('c=display&mask=' . $ticket->mask),
+				'target' => sprintf("ctx://%s:%s", CerberusContexts::CONTEXT_TICKET, $ticket->mask),
 				)
 		);
 		CerberusContexts::logActivity('ticket.message.outbound', CerberusContexts::CONTEXT_TICKET, $ticket_id, $entry);		

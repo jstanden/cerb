@@ -46,6 +46,7 @@
 				<name>Context_ExampleObject</name>
 			</class>
 			<params>
+				<param key="alias" value="example" />
 				<param key="view_class" value="View_ExampleObject" />
 				<param key="options">
 					<value>
@@ -53,6 +54,7 @@
 						<data key="find" />
 						<data key="snippets" />
 						<data key="workspace" />
+						<data key="va_variable" />
 					</value>
 				</param>
 			</params>

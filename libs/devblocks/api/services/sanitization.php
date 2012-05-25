@@ -1,7 +1,8 @@
 <?php
 class _DevblocksSanitizationManager {
 	static function arrayAs($array, $type) {
-		array_walk($array, array('_DevblocksSanitizationManager', '_castArrayAs'), $type);
+		if(is_array($array))
+			array_walk($array, array('_DevblocksSanitizationManager', '_castArrayAs'), $type);
 		return $array;
 	}
 	

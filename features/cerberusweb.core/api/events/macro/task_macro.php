@@ -18,7 +18,8 @@
 class Event_TaskMacro extends AbstractEvent_Task {
 	const ID = 'event.macro.task';
 	
-	function __construct() {
+	function __construct($manifest) {
+		parent::__construct($manifest);
 		$this->_event_id = self::ID;
 	}
 	

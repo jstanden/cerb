@@ -41,6 +41,10 @@ class DAO_WorkerRole extends DevblocksORMHelper {
 	static function update($ids, $fields) {
 		parent::_update($ids, 'worker_role', $fields);
 		
+	    // Log the context update
+   		DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_ROLE, $ids);
+		
+		// Clear cache
 		self::clearCache();
 	}
 	
@@ -138,10 +142,7 @@ class DAO_WorkerRole extends DevblocksORMHelper {
 	 * @param integer $id
 	 * @return Model_WorkerRole	 */
 	static function get($id) {
-		$objects = self::getWhere(sprintf("%s = %d",
-			self::ID,
-			$id
-		));
+		$objects = DAO_WorkerRole::getAll();
 		
 		if(isset($objects[$id]))
 			return $objects[$id];
@@ -297,8 +298,10 @@ class Context_WorkerRole extends Extension_DevblocksContext {
 	}
 	
 	function getMeta($context_id) {
-		$worker_role = DAO_WorkerRole::get($context_id);
 		$url_writer = DevblocksPlatform::getUrlService();
+		
+		if(null == ($worker_role = DAO_WorkerRole::get($context_id)))
+			return false;
 		
 		$who = sprintf("%d-%s",
 			$worker_role->id,
@@ -342,45 +345,55 @@ class Context_WorkerRole extends Extension_DevblocksContext {
 		// Token values
 		$token_values = array();
 		
+		$token_values['_context'] = CerberusContexts::CONTEXT_ROLE;
+		
 		// Worker token values
 		if(null != $role) {
+			$token_values['_loaded'] = true;
+			$token_values['_label'] = $role->name;
 			$token_values['id'] = $role->id;
 			$token_values['name'] = $role->name;
 			
 			// URL
 // 			$url_writer = DevblocksPlatform::getUrlService();
 // 			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=profiles&type=worker&id=%d-%s",$worker->id, DevblocksPlatform::strToPermalink($worker->getName())), true);
-			
-			$token_values['custom'] = array();
-			
-			$field_values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_ROLE, $role->id));
-			if(is_array($field_values) && !empty($field_values)) {
-				foreach($field_values as $cf_id => $cf_val) {
-					if(!isset($fields[$cf_id]))
-						continue;
-					
-					// The literal value
-					if(null != $role)
-						$token_values['custom'][$cf_id] = $cf_val;
-					
-					// Stringify
-					if(is_array($cf_val))
-						$cf_val = implode(', ', $cf_val);
-						
-					if(is_string($cf_val)) {
-						if(null != $role)
-							$token_values['custom_'.$cf_id] = $cf_val;
-					}
-				}
-			}
 		}
 		
 		return true;		
 	}
+
+	function lazyLoadContextValues($token, $dictionary) {
+		if(!isset($dictionary['id']))
+			return;
+		
+		$context = CerberusContexts::CONTEXT_ROLE;
+		$context_id = $dictionary['id'];
+		
+		@$is_loaded = $dictionary['_loaded'];
+		$values = array();
+		
+		if(!$is_loaded) {
+			$labels = array();
+			CerberusContexts::getContext($context, $context_id, $labels, $values);
+		}
+		
+		switch($token) {
+			default:
+				if(substr($token,0,7) == 'custom_') {
+					$fields = $this->_lazyLoadCustomFields($context, $context_id);
+					$values = array_merge($values, $fields);
+				}
+				break;
+		}
+		
+		return $values;
+	}	
 	
-	function getChooserView() {
+	function getChooserView($view_id=null) {
+		if(empty($view_id))
+			$view_id = 'chooser_'.str_replace('.','_',$this->id).time().mt_rand(0,9999);
+	
 		// View
-		$view_id = 'chooser_'.str_replace('.','_',$this->id).time().mt_rand(0,9999);
 		$defaults = new C4_AbstractViewModel();
 		$defaults->id = $view_id;
 		$defaults->is_ephemeral = true;

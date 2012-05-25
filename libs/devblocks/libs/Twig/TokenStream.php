@@ -14,7 +14,7 @@
  * Represents a token stream.
  *
  * @package twig
- * @author  Fabien Potencier <fabien.potencier@symfony-project.com>
+ * @author  Fabien Potencier <fabien@symfony.com>
  */
 class Twig_TokenStream
 {
@@ -53,7 +53,7 @@ class Twig_TokenStream
     public function next()
     {
         if (!isset($this->tokens[++$this->current])) {
-            throw new Twig_Error_Syntax('Unexpected end of template');
+            throw new Twig_Error_Syntax('Unexpected end of template', -1, $this->filename);
         }
 
         return $this->tokens[$this->current - 1];
@@ -68,11 +68,13 @@ class Twig_TokenStream
     {
         $token = $this->tokens[$this->current];
         if (!$token->test($type, $value)) {
+            $line = $token->getLine();
             throw new Twig_Error_Syntax(sprintf('%sUnexpected token "%s" of value "%s" ("%s" expected%s)',
                 $message ? $message.'. ' : '',
-                Twig_Token::typeToEnglish($token->getType()), $token->getValue(),
-                Twig_Token::typeToEnglish($type), $value ? sprintf(' with value "%s"', $value) : ''),
-                $token->getLine()
+                Twig_Token::typeToEnglish($token->getType(), $line), $token->getValue(),
+                Twig_Token::typeToEnglish($type, $line), $value ? sprintf(' with value "%s"', $value) : ''),
+                $line,
+                $this->filename
             );
         }
         $this->next();
@@ -90,7 +92,7 @@ class Twig_TokenStream
     public function look($number = 1)
     {
         if (!isset($this->tokens[$this->current + $number])) {
-            throw new Twig_Error_Syntax('Unexpected end of template');
+            throw new Twig_Error_Syntax('Unexpected end of template', -1, $this->filename);
         }
 
         return $this->tokens[$this->current + $number];
