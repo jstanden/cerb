@@ -454,7 +454,7 @@ class C4_TranslationView extends C4_AbstractView implements IAbstractView_Subtot
 		switch($column) {
 			case SearchFields_Translation::LANG_CODE:
 				$codes = DAO_Translation::getDefinedLangCodes();
-				$counts = $this->_getSubtotalCountForStringColumn('DAO_Translation', $column, $codes, 'in', 'lang_ids[]');
+				$counts = $this->_getSubtotalCountForStringColumn('DAO_Translation', $column, $codes, 'in', 'options[]');
 				break;
 
 			default:
