@@ -16,7 +16,7 @@
 ***********************************************************************/
 
 if(version_compare(PHP_VERSION, "5.3", "<"))
-	die("Cerberus Helpdesk 5.x requires PHP 5.3 or later.");
+	die("Cerb6 requires PHP 5.3 or later.");
 
 @set_time_limit(3600); // 1hr
 require('../framework.config.php');
@@ -781,7 +781,7 @@ switch($step) {
 					$message = new CerberusParserMessage();
 						$message->headers['from'] = '"WebGroup Media, LLC." <support@webgroupmedia.com>';
 						$message->headers['to'] = $replyto_default->email;
-						$message->headers['subject'] = "Welcome to Cerberus Helpdesk 5.x!";
+						$message->headers['subject'] = "Welcome to Cerb6!";
 						$message->headers['date'] = date('r');
 						$message->headers['message-id'] = CerberusApplication::generateMessageId();
 						$message->body = <<< EOF

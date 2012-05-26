@@ -1,11 +1,11 @@
 <html>
 <head>
-<title>Cerberus Helpdesk - Web Installer</title>
+<title>Cerb6 - Browser-based Installation</title>
 <link rel="stylesheet" href="install.css" type="text/css">
 </head>
 
 <body>
-<H1>Installing Cerberus Helpdesk {$smarty.const.APP_VERSION}</H1>
+<H1>Installing Cerb {$smarty.const.APP_VERSION}</H1>
 <table cellpadding="2" cellspacing="2">
 	<tr>
 		<td>Progress: </td>

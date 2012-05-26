@@ -181,7 +181,7 @@ class CerberusApplication extends DevblocksApplication {
 		// PHP Version
 		if(version_compare(PHP_VERSION,"5.3") >=0) {
 		} else {
-			$errors[] = sprintf("Cerberus Helpdesk %s requires PHP 5.3 or later. Your server PHP version is %s",
+			$errors[] = sprintf("Cerb %s requires PHP 5.3 or later. Your server PHP version is %s",
 				APP_VERSION,
 				PHP_VERSION 
 			);
@@ -1483,7 +1483,7 @@ class CerberusSettings {
 };
 
 class CerberusSettingsDefaults {
-	const HELPDESK_TITLE = 'Cerberus Helpdesk :: Group-based Email Management'; // [TODO] Change 
+	const HELPDESK_TITLE = 'Cerb6 - a fast and flexible web-based platform for business collaboration and automation.'; 
 	const SMTP_HOST = 'localhost'; 
 	const SMTP_AUTH_ENABLED = 0; 
 	const SMTP_AUTH_USER = ''; 
