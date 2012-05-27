@@ -474,14 +474,7 @@ class View_CalendarEvent extends C4_AbstractView implements IAbstractView_Subtot
 				break;
 				
 			case SearchFields_CalendarEvent::VIRTUAL_OWNER:
-				$workers = DAO_Worker::getAll();
-				$label_map = array(
-					'0' => '(nobody)',
-				);
-				foreach($workers as $worker_id => $worker) {
-					$label_map[$worker_id] = $worker->getName();
-				}
-				$counts = $this->_getSubtotalCountForStringColumn('DAO_CalendarEvent', SearchFields_CalendarEvent::OWNER_CONTEXT_ID, $label_map, '=', 'worker_id[]');
+				$counts = $this->_getSubtotalCountForOwner();
 				break;
 			
 			default:
@@ -494,7 +487,107 @@ class View_CalendarEvent extends C4_AbstractView implements IAbstractView_Subtot
 		}
 		
 		return $counts;
+	}
+	
+	protected function _getSubtotalDataForOwner() {
+		$db = DevblocksPlatform::getDatabaseService();
+		$field_key = SearchFields_CalendarEvent::VIRTUAL_OWNER;
+		
+		$fields = $this->getFields();
+		$columns = $this->view_columns;
+		$params = $this->getParams();
+		
+		if(!isset($params[$field_key])) {
+			$new_params = array(
+				$field_key => new DevblocksSearchCriteria($field_key, DevblocksSearchCriteria::OPER_TRUE),
+			);
+			$params = array_merge($new_params, $params);
+		} else {
+			switch($params[$field_key]->operator) {
+				case DevblocksSearchCriteria::OPER_EQ:
+				case DevblocksSearchCriteria::OPER_IS_NULL:
+					$params[$field_key] = new DevblocksSearchCriteria($field_key, DevblocksSearchCriteria::OPER_TRUE);
+					break;
+				case DevblocksSearchCriteria::OPER_IN:
+					if(is_array($params[$field_key]->value) && count($params[$field_key]->value) < 2)
+						$params[$field_key] = new DevblocksSearchCriteria($field_key, DevblocksSearchCriteria::OPER_TRUE);
+					break;
+			}
+		}
+		
+		if(!method_exists('DAO_CalendarEvent','getSearchQueryComponents'))
+			return array();
+		
+		$query_parts = call_user_func_array(
+			array('DAO_CalendarEvent','getSearchQueryComponents'),
+			array(
+				$columns,
+				$params,
+				$this->renderSortBy,
+				$this->renderSortAsc
+			)
+		);
+		
+		$join_sql = $query_parts['join'];
+		$where_sql = $query_parts['where'];				
+		
+		$sql = "SELECT COUNT(*) AS hits, calendar_event.owner_context, calendar_event.owner_context_id ".
+			$join_sql.
+			$where_sql.
+			'GROUP BY calendar_event.owner_context, calendar_event.owner_context_id '.
+			'ORDER BY hits DESC '.
+			'LIMIT 0,20 '
+		;
+		
+		$results = $db->GetArray($sql);
+
+		return $results;
 	}	
+	
+	protected function _getSubtotalCountForOwner() {
+		$workers = DAO_Worker::getAll();
+		$translate = DevblocksPlatform::getTranslationService();
+		
+		$counts = array();
+		$results = $this->_getSubtotalDataForOwner();
+
+		$oper = DevblocksSearchCriteria::OPER_IN;
+		
+		foreach($results as $result) {
+			if(empty($result['owner_context']))
+				continue;
+			
+			if(null == ($context_ext = Extension_DevblocksContext::get($result['owner_context'])))
+				continue;
+			
+			if(false === ($meta = $context_ext->getMeta($result['owner_context_id'])))
+				continue;
+			
+			$hits = intval($result['hits']);
+			
+			$label = sprintf("%s",
+				$meta['name']
+				//$context_ext->manifest->name
+			);
+			
+			$values = array('worker_id[]' => $meta['id']);
+			
+			if(!isset($counts[$label]))
+				$counts[$label] = array(
+					'hits' => $hits,
+					'label' => $label,
+					'filter' => 
+						array(
+							'field' => SearchFields_CalendarEvent::VIRTUAL_OWNER,
+							'oper' => $oper,
+							'values' => $values,
+						),
+					'children' => array()
+				);
+		}
+		
+		return $counts;
+	}		
 
 	function render() {
 		$this->_sanitize();
