@@ -26,18 +26,18 @@ class ChCoreTour extends DevblocksHttpResponseListenerExtension {
 	                'body' => "This assistant will help you become familiar with the application by following along and providing information about the current page.  You may follow the 'Points of Interest' links highlighted below to read tips about nearby functionality.",
 	                'callouts' => array(
 							new DevblocksTourCallout(
-								'body > ul.navmenu',
-								'Navigation Menu',
-								'This global navigation menu divides the application by perspective.',
-								'topLeft',
+								'#tourHeaderMenu',
+								'Navigation Bar',
+								'The navigation bar is located at the top of your browser window. It displays a list of shortcuts to pages.',
 								'bottomLeft',
+								'topLeft',
 								10,
-								20
+								5
 							),
 							new DevblocksTourCallout(
-								'body > table:first td:nth(1) a',
-								'Quick Links',
-								'Hovering over your name provides a menu with useful shortcuts. Clicking on it takes you to your profile.',
+								'body > table:first td:nth(1) b',
+								'Worker Menu',
+								'Clicking your name provides a menu with useful shortcuts.',
 								'topRight',
 								'bottomLeft',
 								0,
@@ -56,95 +56,47 @@ class ChCoreTour extends DevblocksHttpResponseListenerExtension {
 					);
 				break;
 
-			case 'activity':
+			case 'pages':
 				$tour = array(
-	                'title' => 'Activity Workspaces',
-	                'body' =>
-<<< EOF
-This page provides a default workspace for each of the activity-driven record types: feedback, opportunities, tasks, time tracking, etc.
-EOF
-					,
-	                'callouts' => array(
-						new DevblocksTourCallout(
-							'#activityTabs',
-							'Tabs',
-							'Each tab provides a workspace for a different type of record.',
-							'bottomLeft',
-							'topLeft',
-							20,
-							10
-						),
-					),
-				);
-				break;
-				
-			case 'display':
-				$tour = array(
-	                'title' => 'Conversation Profile Page',
+	                'title' => 'Workspace Pages',
 	                'body' => 
 <<< EOF
-This is a detailed profile page for an email conversation.
+Pages give you the freedom to build a completely personalized interface based on how you use the software. You can add as many new pages as you want, and your favorites can be added to the navigation menu for quick access.
 EOF
 					,
 	                'callouts' => array(
 						new DevblocksTourCallout(
-							'#displayProperties DIV.cerb-properties:first > DIV:nth(3)',
-							'Mask',
-							'Each conversation is identified by a "mask" that may be used as a reference number in future conversations, or over the phone.',
-							'topRight',
-							'bottomLeft',
-							10,
-							0
-							),
-						new DevblocksTourCallout(
-							'#displayProperties DIV.cerb-properties:nth(1) SPAN#displayTicketRequesterBubbles',
-							'Recipients',
-							'Your replies to this conversation will automatically be sent to all these recipients.',
-							'topLeft',
-							'bottomLeft',
-							0,
-							0
-							),
-						new DevblocksTourCallout(
-							'#displayTabs',
-							'Conversation History',
-							'This is where all email replies will be displayed for this ticket. Your responses will be sent to all requesters.',
+							'#tourHeaderMenu',
+							'Navigation Bar',
+							'The navigation bar is located at the top of your browser window. It displays a list of shortcuts to pages.',
 							'bottomLeft',
 							'topLeft',
 							10,
-							10
+							5
 							),
 						new DevblocksTourCallout(
-							'#displayTabs DIV#ui-tabs-1 BUTTON#btnComment:first',
-							'Comments',
-							'Comments are a private way to leave messages for other workers regarding this conversation.  They are not visible to recipients.',
+							'UL.navmenu:first LI.add',
+							'Pages Menu',
+							'You can add pages by clicking on the downward-pointing arrow in the menu',
+							'topLeft',
 							'bottomLeft',
-							'topMiddle',
-							0,
-							0
-							),
-						new DevblocksTourCallout(
-							'#displayTabs > UL > li:nth(1)',
-							'Activity Log',
-							'This tab displays everything that has happened to this conversation: worker replies, customer replies, status changes, merges, and more.',
-							'bottomLeft',
-							'topMiddle',
-							0,
-							0
-							),
-						new DevblocksTourCallout(
-							'#displayTabs > UL > li:nth(2)',
-							'Links',
-							'You can connect this conversation to any other record in the system: tasks, organizations, opportunities, time tracking, servers, domains, etc.',
-							'bottomLeft',
-							'topMiddle',
-							0,
-							0
+							10,
+							-5
 							),
 					)
 				);
 				break;
-
+			
+				case 'search':
+					$tour = array(
+						'title' => 'Search',
+						'body' => 'The search menu provides quick access to a worklist of any kind of object from anywhere in the application. You can find the search menu at the top of the screen in the far right side of the navigation menu.',
+						'callouts' => array(
+							//$callouts['tourDashboardSearchCriteria']
+						)
+					);
+					break;
+				
 			case 'preferences':
 				$tour = array(
              	   'title' => 'Preferences',
@@ -333,7 +285,6 @@ EOF
 				}
 				break;
 
-			case NULL:
 			case 'tickets':
 				switch(array_shift($path)) {
 					default:
@@ -398,75 +349,6 @@ EOF
 							),					
 						);
 						break;
-						
-					case 'search':
-						$tour = array(
-	                        'title' => 'Searching Tickets',
-	                        'body' => '',
-	                        'callouts' => array(
-								//$callouts['tourDashboardSearchCriteria']
-							)
-						);
-						break;
-
-					case 'compose':
-						$tour = array(
-	                        'title' => 'Compose Mail',
-    	                    'body' => '',
-						);
-						break;
-						
-					case 'create':
-						$tour = array(
-	                        'title' => 'Log Ticket',
-    	                    'body' => '',
-						);
-						break;
-				}
-				break;
-				
-			case 'contacts':
-				switch(array_shift($path)) {
-					default:
-					case NULL:
-						$tour = array(
-			                'title' => 'Address Book',
-			                'body' =>
-<<< EOF
-The address book is a repository of information about your contacts and their organizations.
-EOF
-							,
-			                'callouts' => array(
-								new DevblocksTourCallout(
-									'#addyBookTabs > UL > LI:nth(0)',
-									'Organizations',
-									'This tab displays the default workspace for organizations.',
-									'bottomLeft',
-									'topMiddle',
-									0,
-									0
-								),
-								new DevblocksTourCallout(
-									'#addyBookTabs > UL > LI:nth(1)',
-									'Registered Contacts',
-									'This tab displays the default workspace for registered contacts -- addresses with logins who can use community portals and self-support functionality.',
-									'bottomLeft',
-									'topMiddle',
-									0,
-									0
-								),
-								new DevblocksTourCallout(
-									'#addyBookTabs > UL > LI:nth(2)',
-									'Addresses',
-									'This tab displays the default workspace for contact email addresses.',
-									'bottomLeft',
-									'topMiddle',
-									0,
-									0
-								),
-							),
-						);
-						break;
 				}
 				break;
 				
@@ -490,19 +372,97 @@ EOF
 			                'title' => 'Profiles',
 			                'body' =>
 <<< EOF
-Profiles make it easy to view the activity and watchlists of other workers.
+A profile displays all the information related to a particular record.
 EOF
 							,
 			                'callouts' => array(
 							),
 						);
 						break;
+						
+						
+					case 'ticket':
+						$tour = array(
+			                'title' => 'Ticket Profile',
+			                'body' => 
+<<< EOF
+This is a detailed profile page for an email conversation.
+EOF
+							,
+			                'callouts' => array(
+								new DevblocksTourCallout(
+									'SPAN#spanWatcherToolbar BUTTON:first',
+									'Watchers',
+									'A watcher will automatically receive notifications about new activity on this record.  Click this button to add or remove yourself as a watcher.',
+									'bottomLeft',
+									'topRight',
+									-10,
+									5
+									),
+								new DevblocksTourCallout(
+									'FIELDSET.properties > DIV.property:nth(2)',
+									'Mask',
+									'Each conversation is identified by a "mask" that may be used as a reference number in future conversations, or over the phone.',
+									'bottomRight',
+									'topLeft',
+									5,
+									0
+									),
+								new DevblocksTourCallout(
+									'FIELDSET.properties SPAN#displayTicketRequesterBubbles',
+									'Recipients',
+									'Your replies to this conversation will automatically be sent to all these recipients.',
+									'bottomLeft',
+									'topLeft',
+									10,
+									0
+									),
+								new DevblocksTourCallout(
+									'#displayTabs',
+									'Conversation Timeline',
+									'This is where all email replies will be displayed for this ticket. Your responses will be sent to all requesters.',
+									'bottomLeft',
+									'topLeft',
+									10,
+									10
+									),
+								new DevblocksTourCallout(
+									'#displayTabs DIV#ui-tabs-1 BUTTON#btnComment:first',
+									'Comments',
+									'Comments are a private way to leave messages for other workers regarding this conversation.  They are not visible to recipients.',
+									'topLeft',
+									'bottomMiddle',
+									0,
+									0
+									),
+								new DevblocksTourCallout(
+									'#displayTabs > UL > li:nth(1)',
+									'Activity Log',
+									'This tab displays everything that has happened to this conversation: worker replies, customer replies, status changes, merges, and more.',
+									'topLeft',
+									'bottomRight',
+									-20,
+									-10
+									),
+								new DevblocksTourCallout(
+									'#displayTabs > UL > li:nth(2)',
+									'Links',
+									'You can connect this conversation to any other record in the system: tasks, organizations, opportunities, time tracking, servers, domains, etc.',
+									'bottomLeft',
+									'topMiddle',
+									0,
+									10
+									),
+							)
+						);						
+						break;
+						
 					case 'worker':
 						$tour = array(
-			                'title' => 'My Profile',
+			                'title' => 'Worker Profiles',
 			                'body' =>
 <<< EOF
-Your profile is like your homepage within Cerb6.  It provides quick access to your notifications, activity history, virtual attendant, and watchlist.  You can also create your own custom workspaces.
+You can think of your profile as your homepage within Cerb6.  It provides quick access to your notifications, activity history, calendar, virtual attendant, and watchlist.
 EOF
 							,
 			                'callouts' => array(
