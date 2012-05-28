@@ -3,7 +3,7 @@
 <table width="100%">
 	<tr>
 		<td align="left" width="10%" nowrap="nowrap"></td>
-		<td align="center" width="80%"><h1>Tour Mode: {$tour.title}</h1></td>
+		<td align="center" width="80%"><h1>Tour: {$tour.title}</h1></td>
 		<td align="right" width="10%" nowrap="nowrap">
 			<form action="{devblocks_url}{/devblocks_url}" method="post" name="tourForm">
 				<input type="hidden" name="c" value="internal">

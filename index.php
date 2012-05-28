@@ -48,7 +48,7 @@
  */
 
 if(version_compare(PHP_VERSION, "5.3", "<"))
-	die("Cerberus Helpdesk 5.x requires PHP 5.3 or later.");
+	die("Cerb6 requires PHP 5.3 or later.");
 
 require(getcwd() . '/framework.config.php');
 require(DEVBLOCKS_PATH . 'Devblocks.class.php');

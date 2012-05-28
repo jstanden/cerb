@@ -12,10 +12,10 @@
 
 <H3>Your Account</H3>
 
-Next we need to create an account for you on your new helpdesk.<br>
+Next we need to create an account for you.<br>
 <br>
 
-<b>What is your personal e-mail address?</b> (this will be your login)<br>
+<b>What is your personal email address?</b> (this will be your login)<br>
 <input type="text" name="worker_email" value="{$worker_email}" size="64"><br>
 <br>
 

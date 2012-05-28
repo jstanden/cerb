@@ -722,7 +722,7 @@
 			<tuv xml:lang="en_US"><seg>[Mail] Can view the mail page</seg></tuv>
 		</tu>
 		<tu tuid='acl.core.mail.send'>
-			<tuv xml:lang="en_US"><seg>[Mail] Can compose new messages from the helpdesk</seg></tuv>
+			<tuv xml:lang="en_US"><seg>[Mail] Can compose new messages</seg></tuv>
 		</tu>
 
 			<!-- RSS -->
@@ -1030,7 +1030,7 @@ For example: http://www.cerberusweb.com/support/</seg></tuv>
 		<!-- Cron -->
 
 		<tu tuid='cron.ip_unauthorized'>
-			<tuv xml:lang="en_US"><seg>Your IP address (%s) is not authorized to run scheduler jobs. Your administrator needs to authorize your IP in Helpdesk Setup or in the framework.config.php file under AUTHORIZED_IPS_DEFAULTS.</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Your IP address (%s) is not authorized to run scheduler jobs. Your administrator needs to authorize your IP in the Security menu of Setup or in the framework.config.php file under AUTHORIZED_IPS_DEFAULTS.</seg></tuv>
 		</tu>
 		<tu tuid='cron.nothing_to_do'>
 			<tuv xml:lang="en_US"><seg>Nothing to do yet!  (Waiting %s seconds)</seg></tuv>
@@ -1039,7 +1039,7 @@ For example: http://www.cerberusweb.com/support/</seg></tuv>
 		<!-- Activities -->
 		
 		<tu tuid='activity.default'>
-			<tuv xml:lang="en_US"><seg>%s is browsing the helpdesk</seg></tuv>
+			<tuv xml:lang="en_US"><seg>%s is browsing</seg></tuv>
 		</tu>
 		<tu tuid='activity.activity'>
 			<tuv xml:lang="en_US"><seg>%s is browsing the activity logs</seg></tuv>
@@ -1048,7 +1048,7 @@ For example: http://www.cerberusweb.com/support/</seg></tuv>
 			<tuv xml:lang="en_US"><seg>%s is browsing the address book</seg></tuv>
 		</tu>
 		<tu tuid='activity.config'>
-			<tuv xml:lang="en_US"><seg>%s is configuring the helpdesk</seg></tuv>
+			<tuv xml:lang="en_US"><seg>%s is configuring the application</seg></tuv>
 		</tu>
 		<tu tuid='activity.display_ticket'>
 			<tuv xml:lang="en_US"><seg>%s is displaying ticket %s</seg></tuv>
@@ -1508,7 +1508,7 @@ For example: http://www.cerberusweb.com/support/</seg></tuv>
 			<tuv xml:lang="en_US"><seg>The confirmation code you provided is not valid.</seg></tuv>
 		</tu>
 		<tu tuid='prefs.address.confirm.mail.body'>
-			<tuv xml:lang="en_US"><seg>%s has just added this email address to their helpdesk account.
+			<tuv xml:lang="en_US"><seg>%s just added this email address to their Cerb6 account.
 
 To approve and continue, click the following link:
 %s
@@ -1535,10 +1535,10 @@ If you did not request this, do not click the link above.  The request will expi
 		<!-- Signin -->
 		
 		<tu tuid='signin.forgot.mail.subject'>
-			<tuv xml:lang="en_US"><seg>Confirm helpdesk password recovery.</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Confirm password recovery.</seg></tuv>
 		</tu>
 		<tu tuid='signin.forgot.mail.body'>
-			<tuv xml:lang="en_US"><seg>This confirmation code will allow you to reset your helpdesk login: %s</seg></tuv>
+			<tuv xml:lang="en_US"><seg>This confirmation code will allow you to reset your login: %s</seg></tuv>
 		</tu>
 
 		<!-- Search -->
@@ -1763,7 +1763,7 @@ For example: *receipt*</seg></tuv>
 			<tuv xml:lang="en_US"><seg>Please correct the following errors before upgrading:</seg></tuv>
 		</tu>
 		<tu tuid='update.ip_unauthorized'>
-			<tuv xml:lang="en_US"><seg>Your IP address (%s) is not authorized to update this helpdesk. Your administrator needs to authorize your IP in Helpdesk Setup or in the framework.config.php file under AUTHORIZED_IPS_DEFAULTS.</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Your IP address (%s) is not authorized to update this application. Your administrator needs to authorize your IP in the Security menu of Setup or in the framework.config.php file under AUTHORIZED_IPS_DEFAULTS.</seg></tuv>
 		</tu>
 		<tu tuid='update.locked_another'>
 			<tuv xml:lang="en_US"><seg>Another administrator is currently running an update.  Please wait...</seg></tuv>
@@ -1870,7 +1870,7 @@ For example: *receipt*</seg></tuv>
 			<tuv xml:lang="en_US"><seg>Email Addresses</seg></tuv>
 	    </tu>
 	    <tu tuid='preferences.account.email.associated'>
-			<tuv xml:lang="en_US"><seg>These addresses will be associated with your helpdesk account.</seg></tuv>
+			<tuv xml:lang="en_US"><seg>These addresses will be associated with your account.</seg></tuv>
 	    </tu>
 	    <tu tuid='preferences.account.email.address'>
 			<tuv xml:lang="en_US"><seg>Address</seg></tuv>

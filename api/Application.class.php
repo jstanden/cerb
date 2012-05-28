@@ -46,7 +46,7 @@
  * - Jeff Standen, Darren Sugita, Dan Hildebrandt, Scott Luther
  *	 WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
-define("APP_BUILD", 2012052401);
+define("APP_BUILD", 2012052701);
 define("APP_VERSION", '6.0.0-rc1');
 
 define("APP_MAIL_PATH", APP_STORAGE_PATH . '/mail/');
@@ -181,7 +181,7 @@ class CerberusApplication extends DevblocksApplication {
 		// PHP Version
 		if(version_compare(PHP_VERSION,"5.3") >=0) {
 		} else {
-			$errors[] = sprintf("Cerberus Helpdesk %s requires PHP 5.3 or later. Your server PHP version is %s",
+			$errors[] = sprintf("Cerb %s requires PHP 5.3 or later. Your server PHP version is %s",
 				APP_VERSION,
 				PHP_VERSION 
 			);
@@ -1483,7 +1483,7 @@ class CerberusSettings {
 };
 
 class CerberusSettingsDefaults {
-	const HELPDESK_TITLE = 'Cerberus Helpdesk :: Group-based Email Management'; // [TODO] Change 
+	const HELPDESK_TITLE = 'Cerb6 - a fast and flexible web-based platform for business collaboration and automation.'; 
 	const SMTP_HOST = 'localhost'; 
 	const SMTP_AUTH_ENABLED = 0; 
 	const SMTP_AUTH_USER = ''; 
