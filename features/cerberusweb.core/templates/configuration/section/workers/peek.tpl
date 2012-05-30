@@ -114,6 +114,7 @@
 	$popup = genericAjaxPopupFetch('peek');
 	$popup.one('popup_open', function(event,ui) {
 		$(this).dialog('option','title',"Worker");
+		
 		$("#formWorkerPeek").validate( {
 			rules: {
 				password2: {
@@ -125,7 +126,9 @@
 					equalTo: "The passwords don't match."
 				}
 			}		
-		} );
-	} );
+		});
+		
+		$(this).find('input:text:first').select().focus();
+	});
 </script>
 
