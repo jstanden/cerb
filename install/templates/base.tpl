@@ -1,6 +1,6 @@
 <html>
 <head>
-<title>Cerb6 - Browser-based Installation</title>
+<title>Cerb - Browser-based Installation</title>
 <link rel="stylesheet" href="install.css" type="text/css">
 </head>
 
