@@ -263,6 +263,7 @@ class Page_Custom extends CerberusPageExtension {
 			$view->addParamsRequired(array(
 				new DevblocksSearchCriteria(SearchFields_Ticket::VIRTUAL_STATUS, 'in', array('open')),
 				new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_OWNER_ID, 'in', array(0)),
+				SearchFields_Ticket::VIRTUAL_GROUPS_OF_WORKER => new DevblocksSearchCriteria(SearchFields_Ticket::VIRTUAL_GROUPS_OF_WORKER, '=', '{{current_worker_id}}'),
 			), true);
 			
 			$view_model = C4_AbstractViewLoader::serializeAbstractView($view);		

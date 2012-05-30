@@ -663,8 +663,8 @@ class DevblocksEventHelper {
 				$out .= "\n>>> On:\n";
 				
 				foreach($on_objects as $on_object) {
-					$on_object_context = Extension_DevblocksContext::get($on_object['_context']);
-					$out .= ' * (' . $on_object_context->manifest->name . ') ' . $on_object['_label'] . "\n";  
+					$on_object_context = Extension_DevblocksContext::get($on_object->_context);
+					$out .= ' * (' . $on_object_context->manifest->name . ') ' . $on_object->_label . "\n";  
 				}
 				$out .= "\n";
 			}
@@ -706,14 +706,14 @@ class DevblocksEventHelper {
 			
 			if(is_array($on_objects)) {
 				foreach($on_objects as $on_object) {
-					if(!isset($on_object['id']) && empty($on_object['id']))
+					if(!isset($on_object->id) && empty($on_object->id))
 						continue;
 					
 					switch($on_dupe) {
 						// Only keep first
 						case 'first':
 							// Keep the first, delete everything else, and don't add a new one
-							$behaviors = DAO_ContextScheduledBehavior::getByContext($on_object['_context'], $on_object['id']);
+							$behaviors = DAO_ContextScheduledBehavior::getByContext($on_object->_context, $on_object->id);
 							$found_first = false;
 							foreach($behaviors as $k => $behavior) { /* @var $behavior Model_ContextScheduledBehavior */
 								if($behavior->behavior_id == $behavior_id) {
@@ -733,7 +733,7 @@ class DevblocksEventHelper {
 						// Only keep latest
 						case 'last':
 							// Delete everything prior so we only have the new one below
-							DAO_ContextScheduledBehavior::deleteByBehavior($behavior_id, $on_object['_context'], $on_object['id']);
+							DAO_ContextScheduledBehavior::deleteByBehavior($behavior_id, $on_object->_context, $on_object->id);
 							break;
 						
 						// Allow dupes
@@ -744,8 +744,8 @@ class DevblocksEventHelper {
 					
 					
 					$fields = array(
-						DAO_ContextScheduledBehavior::CONTEXT => $on_object['_context'],
-						DAO_ContextScheduledBehavior::CONTEXT_ID => $on_object['id'],
+						DAO_ContextScheduledBehavior::CONTEXT => $on_object->_context,
+						DAO_ContextScheduledBehavior::CONTEXT_ID => $on_object->id,
 						DAO_ContextScheduledBehavior::BEHAVIOR_ID => $behavior_id,
 						DAO_ContextScheduledBehavior::RUN_DATE => intval($run_timestamp),
 						DAO_ContextScheduledBehavior::VARIABLES_JSON => json_encode($vars),
@@ -818,8 +818,8 @@ class DevblocksEventHelper {
 				$out .= "\n>>> On:\n";
 				
 				foreach($on_objects as $on_object) {
-					$on_object_context = Extension_DevblocksContext::get($on_object['_context']);
-					$out .= ' * (' . $on_object_context->manifest->name . ') ' . $on_object['_label'] . "\n";  
+					$on_object_context = Extension_DevblocksContext::get($on_object->_context);
+					$out .= ' * (' . $on_object_context->manifest->name . ') ' . $on_object->_label . "\n";  
 				}
 				$out .= "\n";
 			}
@@ -847,7 +847,7 @@ class DevblocksEventHelper {
 			
 			if(is_array($on_objects)) {
 				foreach($on_objects as $on_object) {
-					DAO_ContextScheduledBehavior::deleteByBehavior($behavior_id, $on_object['_context'], $on_object['id']);
+					DAO_ContextScheduledBehavior::deleteByBehavior($behavior_id, $on_object->_context, $on_object->id);
 				}
 			}
 		}		
@@ -903,8 +903,8 @@ class DevblocksEventHelper {
 			$out .= ">>> On:\n";
 			
 			foreach($on_objects as $on_object) {
-				$on_object_context = Extension_DevblocksContext::get($on_object['_context']);
-				$out .= ' * (' . $on_object_context->manifest->name . ') ' . @$on_object['_label'] . "\n";  
+				$on_object_context = Extension_DevblocksContext::get($on_object->_context);
+				$out .= ' * (' . $on_object_context->manifest->name . ') ' . @$on_object->_label . "\n";  
 			}
 			$out .= "\n";
 		}
@@ -953,8 +953,8 @@ class DevblocksEventHelper {
 		
 		if(is_array($on_objects)) {
 			foreach($on_objects as $on_object) {
-				$fields[DAO_Comment::CONTEXT] = $on_object['_context'];
-				$fields[DAO_Comment::CONTEXT_ID] = $on_object['id'];
+				$fields[DAO_Comment::CONTEXT] = $on_object->_context;
+				$fields[DAO_Comment::CONTEXT_ID] = $on_object->id;
 				$comment_id = DAO_Comment::create($fields, $notify_worker_ids);
 			}
 		}
@@ -1095,8 +1095,8 @@ class DevblocksEventHelper {
 			$out .= ">>> On:\n";
 			
 			foreach($on_objects as $on_object) {
-				$on_object_context = Extension_DevblocksContext::get($on_object['_context']);
-				$out .= ' * (' . $on_object_context->manifest->name . ') ' . @$on_object['_label'] . "\n";  
+				$on_object_context = Extension_DevblocksContext::get($on_object->_context);
+				$out .= ' * (' . $on_object_context->manifest->name . ') ' . @$on_object->_label . "\n";  
 			}
 			$out .= "\n";
 		}
@@ -1125,7 +1125,7 @@ class DevblocksEventHelper {
 		
 		if(is_array($on_objects)) {
 			foreach($on_objects as $on_object) {
-				CerberusContexts::addWatchers($on_object['_context'], $on_object['id'], $worker_ids);
+				CerberusContexts::addWatchers($on_object->_context, $on_object->id, $worker_ids);
 			}
 		}
 	}
@@ -1175,8 +1175,8 @@ class DevblocksEventHelper {
 				$out .= "\n>>> On:\n";
 				
 				foreach($on_objects as $on_object) {
-					$on_object_context = Extension_DevblocksContext::get($on_object['_context']);
-					$out .= ' * (' . $on_object_context->manifest->name . ') ' . $on_object['_label'] . "\n";  
+					$on_object_context = Extension_DevblocksContext::get($on_object->_context);
+					$out .= ' * (' . $on_object_context->manifest->name . ') ' . $on_object->_label . "\n";  
 				}
 			}
 			
@@ -1238,7 +1238,7 @@ class DevblocksEventHelper {
 			
 			if(is_array($on_objects)) {
 				foreach($on_objects as $on_object) {
-					$notify_contexts[] = array($on_object['_context'], $on_object['id']);
+					$notify_contexts[] = array($on_object->_context, $on_object->id);
 				}
 			}
 		}
@@ -1275,7 +1275,7 @@ class DevblocksEventHelper {
 			DAO_Notification::clearCountCache($notify_worker_id);
 		}
 		
-		return $notification_id;
+		return isset($notification_id) ? $notification_id : false;
 	}
 	
 	/*
@@ -1332,8 +1332,8 @@ class DevblocksEventHelper {
 				$out .= ">>> On:\n";
 				
 				foreach($on_objects as $on_object) {
-					$on_object_context = Extension_DevblocksContext::get($on_object['_context']);;
-					$out .= ' * (' . $on_object_context->manifest->name . ') ' . $on_object['_label'] . "\n";  
+					$on_object_context = Extension_DevblocksContext::get($on_object->_context);;
+					$out .= ' * (' . $on_object_context->manifest->name . ') ' . $on_object->_label . "\n";  
 				}
 				$out .= "\n";
 			}
@@ -1433,7 +1433,7 @@ class DevblocksEventHelper {
 					}
 					
 					// Connection
-					DAO_ContextLink::setLink(CerberusContexts::CONTEXT_TASK, $task_id, $on_object['_context'], $on_object['id']);
+					DAO_ContextLink::setLink(CerberusContexts::CONTEXT_TASK, $task_id, $on_object->_context, $on_object->id);
 				}
 			}
 		}
@@ -1513,8 +1513,8 @@ class DevblocksEventHelper {
 				$out .= ">>> Linking new ticket to:\n";
 				
 				foreach($on_objects as $on_object) {
-					$on_object_context = Extension_DevblocksContext::get($on_object['_context']);
-					$out .= ' * (' . $on_object_context->manifest->name . ') ' . $on_object['_label'] . "\n";
+					$on_object_context = Extension_DevblocksContext::get($on_object->_context);
+					$out .= ' * (' . $on_object_context->manifest->name . ') ' . $on_object->_label . "\n";
 				}
 			}
 			
@@ -1604,7 +1604,7 @@ class DevblocksEventHelper {
 			
 			if(is_array($on_objects)) {
 				foreach($on_objects as $on_object) {
-					DAO_ContextLink::setLink(CerberusContexts::CONTEXT_TICKET, $ticket_id, $on_object['_context'], $on_object['id']);
+					DAO_ContextLink::setLink(CerberusContexts::CONTEXT_TICKET, $ticket_id, $on_object->_context, $on_object->id);
 				}
 			}
 		}
@@ -1917,11 +1917,17 @@ class DevblocksEventHelper {
 				}
 				
 				@$ctx_ext = $values_to_contexts[$on]['context'];
+				
 				foreach($vals as $ctx_id => $ctx_object) {
+					/*
 					if(!is_array($ctx_object)) {
 						$ctx_id = $ctx_object;
 						CerberusContexts::getContext($ctx_ext, $ctx_id, $null, $ctx_object);
 					}
+					*/
+					
+					if(!isset($result['objects']))
+						$result['objects'] = array();
 					
 					$result['objects'][$ctx_id] = $ctx_object;
 				}
