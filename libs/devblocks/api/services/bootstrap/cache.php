@@ -252,7 +252,8 @@ class _DevblocksCacheManagerDisk extends _DevblocksCacheManagerAbstract {
 		if(is_array($files))
 		foreach($files as $file) {
 			if(0==strcmp('devblocks_cache',substr($file,0,15))) {
-				unlink($path . $file);
+				if(file_exists($path . $file))
+					unlink($path . $file);
 			}
 		}
 		
