@@ -348,6 +348,9 @@ class Model_CalendarRecurringProfile {
 				
 				$date_end = strtotime($time_end, strtotime($event_interval->format('%R%a days'), $date_start));					
 				
+				if($date_end < $date_start)
+					$date_end = strtotime("+1 day", $date_end);
+				
 				$fields = array(
 					DAO_CalendarEvent::NAME => $this->event_name,
 					DAO_CalendarEvent::RECURRING_ID => $this->id,
