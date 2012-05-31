@@ -80,7 +80,7 @@ REPLACE INTO cerb_property_store (extension_id, property, value) VALUES ('cron.v
 REPLACE INTO cerb_property_store (extension_id, property, value) VALUES ('cron.virtual_attendant.scheduled_behavior', 'lastrun', '0');
 
 # Default Organization
-INSERT INTO contact_org (id, name, street, city, province, postal, country, phone, website, created) VALUES (1, 'WebGroup Media, LLC.', '451 W. Lambert Rd. #201', 'Brea', 'California', '92821', 'USA', '+1 714-224-2254', 'http://www.cerberusweb.com/', UNIX_TIMESTAMP());
+INSERT INTO contact_org (id, name, street, city, province, postal, country, phone, website, created) VALUES (1, 'WebGroup Media, LLC.', 'PO BOX 1206', 'Brea', 'California', '92822', 'USA', '+1 714-224-2254', 'http://www.cerberusweb.com/', UNIX_TIMESTAMP());
 
 # Custom Fields
 # [TODO]

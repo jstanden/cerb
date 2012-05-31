@@ -301,7 +301,7 @@ switch($step) {
 		
 		$engines = array(
 			'myisam' => 'MyISAM (Default)',
-			'innodb' => 'InnoDB (Recommended)',
+			'innodb' => 'InnoDB (Advanced)',
 		);
 		
 		$tpl->assign('engines', $engines);
@@ -700,27 +700,15 @@ switch($step) {
 						DAO_Group::NAME => 'Dispatch',
 					));
 					
-					// Dispatch Spam Bucket
-					$dispatch_spam_bid = DAO_Bucket::create('Spam', $dispatch_gid);
-					// [TODO] Create spam quarantine behavior in Attendant
-					
 					// Support Group
 					$support_gid = DAO_Group::create(array(
 						DAO_Group::NAME => 'Support',
 					));
 
-					// Support Spam Bucket
-					$support_spam_bid = DAO_Bucket::create('Spam', $support_gid);
-					// [TODO] Create spam quarantine behavior in Attendant
-					
 					// Sales Group
 					$sales_gid = DAO_Group::create(array(
 						DAO_Group::NAME => 'Sales',
 					));
-					
-					// Sales Spam Bucket
-					$sales_spam_bid = DAO_Bucket::create('Spam', $sales_gid);
-					// [TODO] Create spam quarantine behavior in Attendant
 					
 					// Default catchall
 					DAO_Group::update($dispatch_gid, array(
@@ -794,21 +782,21 @@ You'll notice you have three groups:
 * Support: This is a group for holding tickets related to customer service.
 * Sales: This is a group for holding tickets relates to sales.
 
-If these default groups don't meet your needs, feel free to change them by clicking 'Helpdesk Setup' in the top-right and selecting the 'Groups' tab.
+If these default groups don't meet your needs, feel free to change them by clicking 'Setup' in the top-right and selecting the 'Groups' from the 'Workers and Groups' menu.
 
-We also set up a 'Spam' bucket inside each group to start quarantining junk mail.  Your helpdesk's spam training functionality is adaptive and will become increasingly accurate as you use your helpdesk.
+Simply reply to this message if you have any questions.  Our response will show up on this page as a new message.
 
-If you have any questions about your new helpdesk, simply reply to this message.  Our response will show up on this page as a new message.
-
-Follow us on Facebook or Twitter for project news, sneak peeks of development progress, tips & tricks, and more:
+For project news, training resources, sneak peeks of development progress, tips & tricks, and more:
 http://www.facebook.com/cerb5
-http://twitter.com/cerb5
+http://twitter.com/cerb6
+https://vimeo.com/channels/cerb
+http://cerberusweb.com/book/6.0/worker_guide/
 
-Thanks for your interest!
+Thanks!
 ---
 The Cerb6 Team
 WebGroup Media, LLC.
-http://www.cerberusweb.com/
+http://www.cerbweb.com/
 EOF;
 					CerberusParser::parseMessage($message);
 				}

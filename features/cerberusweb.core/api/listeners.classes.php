@@ -46,7 +46,7 @@ class ChCoreTour extends DevblocksHttpResponseListenerExtension {
 							new DevblocksTourCallout(
 								'body fieldset:nth(1)',
 								'Social',
-								'This resources will help you get the most out of Cerb6.',
+								'These resources will help you get the most out of Cerb6.',
 								'bottomLeft',
 								'topLeft',
 								20,
