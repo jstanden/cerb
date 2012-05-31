@@ -224,6 +224,12 @@ class CerberusApplication extends DevblocksApplication {
 			$errors[] = "The 'Session' PHP extension is required.  Please enable it.";
 		}
 		
+		// Extension: cURL
+		if(extension_loaded("curl")) {
+		} else {
+			$errors[] = "The 'cURL' PHP extension is required.  Please enable it.";
+		}
+		
 		// Extension: PCRE
 		if(extension_loaded("pcre")) {
 		} else {
@@ -251,7 +257,7 @@ class CerberusApplication extends DevblocksApplication {
 		// Extension: mbstring
 		if(extension_loaded("mbstring")) {
 		} else {
-			$errors[] = "The 'MbString' PHP extension is required.  Please	enable it.";
+			$errors[] = "The 'mbstring' PHP extension is required.  Please enable it.";
 		}
 		
 		// Extension: XML

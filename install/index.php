@@ -167,6 +167,14 @@ switch($step) {
 			$fails++;
 		}
 		
+		// Extension: cURL
+		if(extension_loaded("curl")) {
+			$results['ext_curl'] = true;
+		} else {
+			$results['ext_curl'] = false;
+			$fails++;
+		}
+		
 		// Extension: PCRE
 		if(extension_loaded("pcre")) {
 			$results['ext_pcre'] = true;
