@@ -311,7 +311,7 @@
 			$('#reply{$message->id}_part2 input:hidden[name='+name+']').val(event.target.value);
 		} );
 		
-		$frm.find('input:text[name=to], #reply{$message->id}_part1 input:text[name=cc], #reply{$message->id}_part1 input:text[name=bcc]').focus(function(event) {
+		$frm.find('input:text[name=to], input:text[name=cc], input:text[name=bcc]').focus(function(event) {
 			$('#reply{$message->id}_suggested').appendTo($(this).closest('td'));
 		});
 		

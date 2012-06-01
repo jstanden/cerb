@@ -100,6 +100,14 @@ if(extension_loaded("session")) {
 	$fails++;
 }
 
+// Extension: cURL
+if(extension_loaded("curl")) {
+	$results['ext_curl'] = true;
+} else {
+	$results['ext_curl'] = false;
+	$fails++;
+}
+
 // Extension: PCRE
 if(extension_loaded("pcre")) {
 	$results['ext_pcre'] = true;
@@ -201,6 +209,9 @@ if($fails) {
 	if(!$results['ext_session'])
 		echo "<li>The 'Session' PHP extension is required.  Please enable it.</li>";
 		
+	if(!$results['ext_curl'])
+		echo "<li>The 'cURL' PHP extension is required.  Please enable it.</li>";
+	
 	if(!$results['ext_pcre'])
 		echo "<li>The 'PCRE' PHP extension is required.  Please enable it.</li>";
 		

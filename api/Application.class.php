@@ -46,7 +46,7 @@
  * - Jeff Standen, Darren Sugita, Dan Hildebrandt, Scott Luther
  *	 WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
-define("APP_BUILD", 2012052901);
+define("APP_BUILD", 2012053101);
 define("APP_VERSION", '6.0.0');
 
 define("APP_MAIL_PATH", APP_STORAGE_PATH . '/mail/');
@@ -224,6 +224,12 @@ class CerberusApplication extends DevblocksApplication {
 			$errors[] = "The 'Session' PHP extension is required.  Please enable it.";
 		}
 		
+		// Extension: cURL
+		if(extension_loaded("curl")) {
+		} else {
+			$errors[] = "The 'cURL' PHP extension is required.  Please enable it.";
+		}
+		
 		// Extension: PCRE
 		if(extension_loaded("pcre")) {
 		} else {
@@ -251,7 +257,7 @@ class CerberusApplication extends DevblocksApplication {
 		// Extension: mbstring
 		if(extension_loaded("mbstring")) {
 		} else {
-			$errors[] = "The 'MbString' PHP extension is required.  Please	enable it.";
+			$errors[] = "The 'mbstring' PHP extension is required.  Please enable it.";
 		}
 		
 		// Extension: XML

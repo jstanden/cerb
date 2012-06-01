@@ -5,14 +5,14 @@
 <input type="hidden" name="form_submit" value="1">
 <input type="hidden" name="skip" value="0">
 
-<H3>You are now running the Evaluation Edition</H3>
+<H3>You are now running in Evaluation mode</H3>
 
-Each new Cerberus Helpdesk installation defaults to the Evaluation Edition,
-which provides full functionality for this version with no expiration. Without a license you are currently limited to 1
+Each new Cerb6 installation defaults to Evaluation mode,
+which provides full functionality for this version with no expiration. Without a license you are currently limited to one 
 simultaneous worker (a "seat").<br>
 <br>
 
-<b>If you answer a few questions below to introduce yourself, we'll send you a FREE license for 3 seats to help you get started.  
+<b>If you answer a few questions below to introduce yourself, we'll send you a free license for 3 seats to help you get started.  
 Your license will never expire for <u>this version</u> of the software.</b><br>
 <br>
 
@@ -28,7 +28,7 @@ options</a>.<br>
 	We respect the fact that you likely have
 	a pile of things to do, and we'd like to make a small part of your day
 	easier by helping you quickly find useful information during your
-	Cerberus Helpdesk evaluation.<br>
+	Cerb6 evaluation.<br>
 	<br>
 	If you can take a couple minutes to answer these quick
 	questions we'll be able to focus our conversation on your most important
@@ -47,11 +47,11 @@ options</a>.<br>
 <input size="64" name="contact_company"><br>
 <br>
 
-<b>Your e-mail address:</b> (this is where we'll send your free 3-seat license)<br>
+<b>Your email address:</b> (this is where we'll send your free 3-seat license)<br>
 <input size="64" name="contact_email"><br>
 <br>
 
-<b>How did you hear about Cerberus Helpdesk?</b><br>
+<b>How did you hear about Cerb6?</b><br>
 <input size="64" name="contact_refer"><br>
 <br>
 
@@ -73,10 +73,10 @@ options</a>.<br>
 	<label><input name="q3" value="Only Paid" type="radio"> No, only commercial solutions</label><br>
 </p>
 
-<h3>#4: What will be your first important milestone to measure the success of your new helpdesk implementation?</h3>
+<h3>#4: What will be your first important milestone to measure the success of your Cerb6 implementation?</h3>
 <textarea cols="65" rows="3" name="q4"></textarea><br>
 
-<h3>#5: How many workers do you expect to use the helpdesk simultaneously?</h3>
+<h3>#5: How many workers do you expect to use Cerb6 simultaneously?</h3>
 <label><input type="radio" name="q5" value="1-3" checked="checked"> 1-3</label><br>
 <label><input type="radio" name="q5" value="4-7"> 4-7</label><br>
 <label><input type="radio" name="q5" value="8-15"> 8-15</label><br>
@@ -170,9 +170,9 @@ options</a>.<br>
 <textarea cols="65" rows="3" name="comments"></textarea>
 <br>
 
-<i>Privacy Notice: Being in the e-mail business, we hate spam even more
+<i>Privacy Notice: Being in the email business, we hate spam even more
 than most people! We will use the information you provide to personally 
-contact you about Cerberus Helpdesk. We will not share or sell your 
+contact you about Cerb. We will not share or sell your 
 personal information, or otherwise abuse your trust.</i> <br>
 <br>
 

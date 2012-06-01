@@ -19,6 +19,15 @@
 <br>
 <br>
 
+<b>PHP Extension (cURL)... </b> 
+{if !$results.ext_curl}
+	<span class="bad">Error! PHP must have the 'cURL' extension enabled.</span>
+{else}
+	<span class="good">Passed!</span>
+{/if}
+<br>
+<br>
+
 <b>PHP Extension (PCRE)... </b> 
 {if !$results.ext_pcre}
 	<span class="bad">Error! PHP must have the 'PCRE' extension enabled.</span>
