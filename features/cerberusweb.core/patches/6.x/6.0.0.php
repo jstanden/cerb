@@ -54,6 +54,16 @@ if(!isset($tables['calendar_event'])) {
 }
 
 // ===========================================================================
+// Enable calendar cronjob
+
+if(null != ($cron = DevblocksPlatform::getExtension('cron.calendar_recurring', true, true))) {
+	$cron->setParam(CerberusCronPageExtension::PARAM_ENABLED, true);
+	$cron->setParam(CerberusCronPageExtension::PARAM_DURATION, '1');
+	$cron->setParam(CerberusCronPageExtension::PARAM_TERM, 'd');
+	$cron->setParam(CerberusCronPageExtension::PARAM_LASTRUN, strtotime('Yesterday 23:59'));
+}
+
+// ===========================================================================
 // Add placeholder columns to worker_view_model
 
 if(!isset($tables['worker_view_model'])) {
