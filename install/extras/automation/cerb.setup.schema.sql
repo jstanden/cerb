@@ -1,6 +1,6 @@
 -- MySQL dump 10.13  Distrib 5.1.37
 --
--- Host: localhost    Database: c5_clean
+-- Host: localhost    Database: cerb6
 -- ------------------------------------------------------
 -- Server version	5.1.37-log
 
@@ -176,6 +176,52 @@ CREATE TABLE `bucket` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `calendar_event`
+--
+
+DROP TABLE IF EXISTS `calendar_event`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `calendar_event` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `owner_context` varchar(255) NOT NULL DEFAULT '',
+  `owner_context_id` int(10) unsigned NOT NULL DEFAULT '0',
+  `name` varchar(255) NOT NULL DEFAULT '',
+  `recurring_id` int(10) unsigned NOT NULL DEFAULT '0',
+  `is_available` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `date_start` int(10) unsigned NOT NULL DEFAULT '0',
+  `date_end` int(10) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`),
+  KEY `owner` (`owner_context`,`owner_context_id`),
+  KEY `recurring_id` (`recurring_id`),
+  KEY `is_available` (`is_available`),
+  KEY `date_start` (`date_start`),
+  KEY `date_end` (`date_end`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `calendar_recurring_profile`
+--
+
+DROP TABLE IF EXISTS `calendar_recurring_profile`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `calendar_recurring_profile` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `event_name` varchar(255) NOT NULL DEFAULT '',
+  `owner_context` varchar(255) NOT NULL DEFAULT '',
+  `owner_context_id` int(10) unsigned NOT NULL DEFAULT '0',
+  `is_available` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `date_start` int(10) unsigned NOT NULL DEFAULT '0',
+  `date_end` int(10) unsigned NOT NULL DEFAULT '0',
+  `params_json` text,
+  PRIMARY KEY (`id`),
+  KEY `owner` (`owner_context`,`owner_context_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `cerb_acl`
 --
 
@@ -281,7 +327,7 @@ CREATE TABLE `cerb_plugin` (
   `id` varchar(255) NOT NULL DEFAULT '',
   `enabled` tinyint(1) unsigned NOT NULL DEFAULT '0',
   `name` varchar(255) NOT NULL DEFAULT '',
-  `description` varchar(255) NOT NULL DEFAULT '',
+  `description` text,
   `author` varchar(64) NOT NULL DEFAULT '',
   `version` smallint(5) unsigned NOT NULL DEFAULT '0',
   `dir` varchar(255) NOT NULL DEFAULT '',
@@ -525,6 +571,9 @@ CREATE TABLE `context_scheduled_behavior` (
   `behavior_id` int(10) unsigned NOT NULL DEFAULT '0',
   `run_date` int(10) unsigned NOT NULL DEFAULT '0',
   `variables_json` text,
+  `run_relative` varchar(255) NOT NULL DEFAULT '',
+  `run_literal` varchar(255) NOT NULL DEFAULT '',
+  `repeat_json` text,
   PRIMARY KEY (`id`),
   KEY `context` (`context`),
   KEY `behavior_id` (`behavior_id`),
@@ -577,7 +626,7 @@ CREATE TABLE `custom_field` (
   KEY `group_id` (`group_id`),
   KEY `pos` (`pos`),
   KEY `context` (`context`)
-) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -652,7 +701,7 @@ CREATE TABLE `decision_node` (
   PRIMARY KEY (`id`),
   KEY `parent_id` (`parent_id`),
   KEY `trigger_id` (`trigger_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1202,6 +1251,7 @@ CREATE TABLE `ticket` (
   `last_message_id` int(10) unsigned NOT NULL DEFAULT '0',
   `owner_id` int(10) unsigned NOT NULL DEFAULT '0',
   `org_id` int(10) unsigned NOT NULL DEFAULT '0',
+  `num_messages` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   UNIQUE KEY `id` (`id`),
   KEY `first_message_id` (`first_message_id`),
@@ -1293,7 +1343,7 @@ CREATE TABLE `translation` (
   PRIMARY KEY (`id`),
   KEY `string_id` (`string_id`),
   KEY `lang_code` (`lang_code`)
-) ENGINE=MyISAM AUTO_INCREMENT=861 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1314,7 +1364,7 @@ CREATE TABLE `trigger_event` (
   `variables_json` text,
   PRIMARY KEY (`id`),
   KEY `event_point` (`event_point`)
-) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1409,7 +1459,7 @@ DROP TABLE IF EXISTS `worker_pref`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `worker_pref` (
   `worker_id` int(10) unsigned NOT NULL DEFAULT '0',
-  `setting` varchar(32) NOT NULL DEFAULT '',
+  `setting` varchar(255) NOT NULL DEFAULT '',
   `value` mediumtext,
   PRIMARY KEY (`worker_id`,`setting`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
@@ -1486,27 +1536,11 @@ CREATE TABLE `worker_view_model` (
   `render_template` varchar(255) NOT NULL DEFAULT '',
   `render_subtotals` varchar(255) NOT NULL DEFAULT '',
   `render_filters` tinyint(1) NOT NULL DEFAULT '0',
+  `placeholder_labels_json` text,
+  `placeholder_values_json` text,
   UNIQUE KEY `worker_to_view_id` (`worker_id`,`view_id`),
   KEY `worker_id` (`worker_id`),
   KEY `view_id` (`view_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `workspace`
---
-
-DROP TABLE IF EXISTS `workspace`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `workspace` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `name` varchar(128) NOT NULL DEFAULT '',
-  `owner_context` varchar(255) NOT NULL DEFAULT '',
-  `owner_context_id` int(10) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`id`),
-  KEY `owner_context` (`owner_context`),
-  KEY `owner_context_id` (`owner_context_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1521,30 +1555,46 @@ CREATE TABLE `workspace_list` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `list_view` text,
   `list_pos` smallint(5) unsigned DEFAULT '0',
-  `workspace_id` int(10) unsigned NOT NULL DEFAULT '0',
+  `workspace_tab_id` int(10) unsigned NOT NULL DEFAULT '0',
   `context` varchar(255) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`),
-  KEY `workspace_id` (`workspace_id`),
+  KEY `workspace_id` (`workspace_tab_id`),
   KEY `context` (`context`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `workspace_to_endpoint`
+-- Table structure for table `workspace_page`
 --
 
-DROP TABLE IF EXISTS `workspace_to_endpoint`;
+DROP TABLE IF EXISTS `workspace_page`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `workspace_to_endpoint` (
-  `workspace_id` int(10) unsigned NOT NULL DEFAULT '0',
-  `endpoint` varchar(128) NOT NULL DEFAULT '',
+CREATE TABLE `workspace_page` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL DEFAULT '',
+  `owner_context` varchar(255) NOT NULL DEFAULT '',
+  `owner_context_id` int(10) unsigned NOT NULL DEFAULT '0',
+  `extension_id` varchar(255) NOT NULL DEFAULT '',
+  PRIMARY KEY (`id`),
+  KEY `owner` (`owner_context`,`owner_context_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `workspace_tab`
+--
+
+DROP TABLE IF EXISTS `workspace_tab`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `workspace_tab` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(128) NOT NULL DEFAULT '',
+  `workspace_page_id` int(10) unsigned NOT NULL DEFAULT '0',
   `pos` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `worker_id` int(10) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`workspace_id`,`worker_id`,`endpoint`),
-  KEY `workspace_id` (`workspace_id`),
-  KEY `endpoint` (`endpoint`),
-  KEY `worker_id` (`worker_id`)
+  `extension_id` varchar(255) NOT NULL DEFAULT '',
+  PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -1557,4 +1607,4 @@ CREATE TABLE `workspace_to_endpoint` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2012-01-16 17:44:27
+-- Dump completed on 2012-05-31 16:46:22

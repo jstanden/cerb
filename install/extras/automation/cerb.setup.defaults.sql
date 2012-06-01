@@ -21,28 +21,29 @@ INSERT INTO devblocks_setting (plugin_id, setting, value) VALUES ('cerberusweb.c
 INSERT INTO worker_role (id, name, params_json) VALUES (1, 'Default', '{"who":"all","what":"all"}');
 
 # Default Groups
-INSERT INTO worker_group (id, name, is_default) VALUES (1, 'Dispatch', 1);
-INSERT INTO worker_group (id, name, is_default) VALUES (2, 'Support', 0);
-INSERT INTO worker_group (id, name, is_default) VALUES (3, 'Sales', 0);
+INSERT INTO worker_group (id, name, is_default) VALUES (1, 'Support', 1);
+INSERT INTO worker_group (id, name, is_default) VALUES (2, 'Sales', 0);
 
 # Default Buckets
-INSERT INTO bucket (id, group_id, name, is_assignable) VALUES (1, 1, 'Spam', 1);
-INSERT INTO bucket (id, group_id, name, is_assignable) VALUES (2, 2, 'Spam', 1);
-INSERT INTO bucket (id, group_id, name, is_assignable) VALUES (3, 3, 'Spam', 1);
+#INSERT INTO bucket (id, group_id, name, is_assignable) VALUES (1, 1, 'Spam', 1);
+#INSERT INTO bucket (id, group_id, name, is_assignable) VALUES (2, 2, 'Spam', 1);
+#INSERT INTO bucket (id, group_id, name, is_assignable) VALUES (3, 3, 'Spam', 1);
 
 # Add Superuser
 INSERT INTO worker (id, title, email, pass, is_superuser, first_name, last_name) VALUES (1, 'Administrator', 'superuser@localhost', MD5('password'), 1, 'Super', 'User');
 INSERT INTO address (id,email) VALUES(2,'superuser@localhost');
 INSERT INTO address_to_worker (address, worker_id, is_confirmed) VALUES ('superuser@localhost', 1, 1);
+
 ## Preferences
 INSERT INTO worker_pref (worker_id, setting, value) VALUES (1, 'timezone', 'America/Los_Angeles');
 INSERT INTO worker_pref (worker_id, setting, value) VALUES (1, 'locale', 'en_US');
+
 ## Memberships
-INSERT INTO worker_to_group (worker_id, group_id, is_manager) VALUES (1, 1, 1); # Dispatch manager
-INSERT INTO worker_to_group (worker_id, group_id, is_manager) VALUES (1, 2, 1); # Support manager
-INSERT INTO worker_to_group (worker_id, group_id, is_manager) VALUES (1, 3, 1); # Sales manager
+INSERT INTO worker_to_group (worker_id, group_id, is_manager) VALUES (1, 1, 1); # Support manager
+INSERT INTO worker_to_group (worker_id, group_id, is_manager) VALUES (1, 2, 1); # Sales manager
 
 # Scheduler defaults
+
 ## cron.pop3
 REPLACE INTO cerb_property_store (extension_id, property, value) VALUES ('cron.pop3', 'enabled', '1');
 REPLACE INTO cerb_property_store (extension_id, property, value) VALUES ('cron.pop3', 'duration', '5');
@@ -63,6 +64,11 @@ REPLACE INTO cerb_property_store (extension_id, property, value) VALUES ('cron.h
 REPLACE INTO cerb_property_store (extension_id, property, value) VALUES ('cron.heartbeat', 'duration', '5');
 REPLACE INTO cerb_property_store (extension_id, property, value) VALUES ('cron.heartbeat', 'term', 'm');
 REPLACE INTO cerb_property_store (extension_id, property, value) VALUES ('cron.heartbeat', 'lastrun', '0');
+## cron.storage
+REPLACE INTO cerb_property_store (extension_id, property, value) VALUES ('cron.storage', 'enabled', '1');
+REPLACE INTO cerb_property_store (extension_id, property, value) VALUES ('cron.storage', 'duration', '1');
+REPLACE INTO cerb_property_store (extension_id, property, value) VALUES ('cron.storage', 'term', 'h');
+REPLACE INTO cerb_property_store (extension_id, property, value) VALUES ('cron.stoage', 'lastrun', '0');
 ## cron.search
 REPLACE INTO cerb_property_store (extension_id, property, value) VALUES ('cron.search', 'enabled', '1');
 REPLACE INTO cerb_property_store (extension_id, property, value) VALUES ('cron.search', 'duration', '15');
@@ -78,6 +84,11 @@ REPLACE INTO cerb_property_store (extension_id, property, value) VALUES ('cron.v
 REPLACE INTO cerb_property_store (extension_id, property, value) VALUES ('cron.virtual_attendant.scheduled_behavior', 'duration', '1');
 REPLACE INTO cerb_property_store (extension_id, property, value) VALUES ('cron.virtual_attendant.scheduled_behavior', 'term', 'm');
 REPLACE INTO cerb_property_store (extension_id, property, value) VALUES ('cron.virtual_attendant.scheduled_behavior', 'lastrun', '0');
+## cron.calendar_recurring
+REPLACE INTO cerb_property_store (extension_id, property, value) VALUES ('cron.calendar_recurring', 'enabled', '1');
+REPLACE INTO cerb_property_store (extension_id, property, value) VALUES ('cron.calendar_recurring', 'duration', '1');
+REPLACE INTO cerb_property_store (extension_id, property, value) VALUES ('cron.calendar_recurring', 'term', 'd');
+REPLACE INTO cerb_property_store (extension_id, property, value) VALUES ('cron.calendar_recurring', 'lastrun', '0');
 
 # Default Organization
 INSERT INTO contact_org (id, name, street, city, province, postal, country, phone, website, created) VALUES (1, 'WebGroup Media, LLC.', 'PO BOX 1206', 'Brea', 'California', '92822', 'USA', '+1 714-224-2254', 'http://www.cerberusweb.com/', UNIX_TIMESTAMP());
@@ -89,7 +100,4 @@ INSERT INTO contact_org (id, name, street, city, province, postal, country, phon
 # [TODO]
 
 # Support Center portal
-# [TODO]
-
-# Default Ticket
 # [TODO]
