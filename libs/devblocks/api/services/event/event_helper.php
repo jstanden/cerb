@@ -1234,8 +1234,9 @@ class DevblocksEventHelper {
 
 		if(!empty($on)) {
 			$on_result = DevblocksEventHelper::onContexts($on, $event->getValuesContexts($trigger), $dict);
-			@$on_objects = $on_result['objects'];
 			
+			@$on_objects = $on_result['objects'];
+
 			if(is_array($on_objects)) {
 				foreach($on_objects as $on_object) {
 					$notify_contexts[] = array($on_object->_context, $on_object->id);
@@ -1906,7 +1907,7 @@ class DevblocksEventHelper {
 			
 			foreach($on_keys as $on) {
 				@$on_value = $dict->$on;
-				
+
 				if(preg_match("#(.*)_watchers#", $on)) {
 					if(is_array($on_value))
 						$vals = $on_value;
@@ -1915,16 +1916,16 @@ class DevblocksEventHelper {
 					if(!is_null($on))
 						$vals = is_array($on_value) ? $on_value : array($on_value);
 				}
-				
+
 				@$ctx_ext = $values_to_contexts[$on]['context'];
 				
 				foreach($vals as $ctx_id => $ctx_object) {
-					/*
-					if(!is_array($ctx_object)) {
+					if(!is_object($ctx_object)) {
 						$ctx_id = $ctx_object;
-						CerberusContexts::getContext($ctx_ext, $ctx_id, $null, $ctx_object);
+						$ctx_values = array();
+						CerberusContexts::getContext($ctx_ext, $ctx_id, $null, $ctx_values);
+						$ctx_object = new DevblocksDictionaryDelegate($ctx_values);
 					}
-					*/
 					
 					if(!isset($result['objects']))
 						$result['objects'] = array();
