@@ -46,7 +46,7 @@
  * - Jeff Standen, Darren Sugita, Dan Hildebrandt, Scott Luther
  *	 WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
-define("APP_BUILD", 2012053101);
+define("APP_BUILD", 2012060201);
 define("APP_VERSION", '6.0.0');
 
 define("APP_MAIL_PATH", APP_STORAGE_PATH . '/mail/');
