@@ -241,11 +241,14 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 					break;
 					
 				case Model_CustomField::TYPE_MULTI_CHECKBOX:
-					if(!is_array($value))
-						$value = array($value);
+					$values = $value;
+					$value = array();
+					
+					if(!is_array($values))
+						$values = array($values);
 
 					// Protect from injection in cases where it's not desireable (controlled above)
-					foreach($value as $idx => $v) {
+					foreach($values as $idx => $v) {
 						if(!in_array($v, $field->options))
 							continue;
 
@@ -253,9 +256,8 @@ class DAO_CustomFieldValue extends DevblocksORMHelper {
 						$v = ltrim($v,'+-');
 							
 						if($is_unset) {
-							$value = null;
 						} else {
-							$value = $v;
+							$value[$v] = $v;
 						}
 					}
 
