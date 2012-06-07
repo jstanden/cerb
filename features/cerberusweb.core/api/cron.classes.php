@@ -73,7 +73,7 @@ class ParseCron extends CerberusCronPageExtension {
 		
 		foreach($subdirs as $subdir) {
 			if(!is_writable($subdir)) {
-				$logger->error('[Parser] Write permission error, unable parse messages inside: '. $subdir. " ...skipping");
+				$logger->error('[Parser] Write permission error, unable to parse messages inside: '. $subdir. " ...skipping");
 				continue;
 			}
 
@@ -86,6 +86,16 @@ class ParseCron extends CerberusCronPageExtension {
 					if(!copy($file, $archivePath.$filePart)) {
 						//...
 					}
+				}
+				
+				if(!is_readable($file)) {
+					$logger->error('[Parser] Read permission error, unable to parse ' . $file . " ...skipping");
+					continue;
+				}
+
+				if(!is_writable($file)) {
+					$logger->error('[Parser] Write permission error, unable to parse ' . $file . " ...skipping");
+					continue;
 				}
 				
 				$parseFile = sprintf("%s/fail/%s",
