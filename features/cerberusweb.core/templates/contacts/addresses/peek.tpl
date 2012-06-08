@@ -24,11 +24,11 @@
 					{/if}
 				{else}
 					<b>{$address.a_email}</b>
-	
-					{* Domain Shortcut *}
 					{$email_parts = explode('@',$address.a_email)}
 					{if is_array($email_parts) && 2==count($email_parts)}
-						<a href="http://www.{$email_parts.1}" target="_blank" title="www.{$email_parts.1}">({$translate->_('contact_org.website')|lower})</a>
+						{$domain = $email_parts.1}
+						(<a href="http://www.{$domain}" target="_blank" title="www.{$email_parts.1}">{$translate->_('contact_org.website')|lower}</a>) 
+						(<a href="{devblocks_url}c=contacts&a=findAddresses{/devblocks_url}?email={'*@'|cat:$domain}" target="_blank">similar</a>)
 					{/if}
 				{/if}
 			</td>

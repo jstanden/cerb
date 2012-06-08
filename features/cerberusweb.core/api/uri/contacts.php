@@ -524,6 +524,26 @@ class ChContactsPage extends CerberusPageExtension {
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('search','ticket')));
 	}
 	
+	function findAddressesAction() {
+		@$email = DevblocksPlatform::importGPC($_REQUEST['email'],'string','');
+		
+		if(null == ($address_context = Extension_DevblocksContext::get(CerberusContexts::CONTEXT_ADDRESS)))
+			return;
+		
+		if(null == ($search_view = $address_context->getSearchView()))
+			return;
+		
+		$search_view->removeAllParams();
+		
+		$search_view->addParam(new DevblocksSearchCriteria(SearchFields_Address::EMAIL,DevblocksSearchCriteria::OPER_LIKE,$email));
+
+		$search_view->renderPage = 0;
+		
+		C4_AbstractViewLoader::setView($search_view->id, $search_view);
+		
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('search','address')));
+	}
+	
 	function showAddressBatchPanelAction() {
 		@$ids = DevblocksPlatform::importGPC($_REQUEST['ids']);
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id']);
