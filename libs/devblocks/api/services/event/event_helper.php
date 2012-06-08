@@ -1048,7 +1048,7 @@ class DevblocksEventHelper {
 	
 	static function renderActionAddWatchers($trigger) {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('workers', DAO_Worker::getAll());
+		$tpl->assign('workers', DAO_Worker::getAllActive());
 		
 		$event = $trigger->getEvent();
 		$tpl->assign('values_to_contexts', $event->getValuesContexts($trigger));
