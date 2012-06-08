@@ -551,7 +551,13 @@ class CerberusParser {
 							if(@mb_check_encoding($text, $info['charset'])) {
 								$text = mb_convert_encoding($text, LANG_CHARSET_CODE, $info['charset']);
 							} else {
-								$text = mb_convert_encoding($text, LANG_CHARSET_CODE);
+								mb_detect_order('iso-2022-jp-ms, iso-2022-jp, utf-8, iso-8859-1');
+
+								if(false !== ($charset = mb_detect_encoding($text))) {
+									$text = mb_convert_encoding($text, LANG_CHARSET_CODE, $charset);
+								} else {
+									$text = mb_convert_encoding($text, LANG_CHARSET_CODE);
+								}
 							}
 						}
 						
