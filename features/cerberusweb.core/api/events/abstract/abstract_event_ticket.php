@@ -407,7 +407,12 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 			case 'ticket_spam_score':
 				$not = (substr($params['oper'],0,1) == '!');
 				$oper = ltrim($params['oper'],'!');
-				@$value = intval($dict->$token * 100);
+				
+				if(!is_numeric($dict->token)) {
+					@$dict->token = intval($dict->$token);
+				}
+				
+				$value = $dict->token * 100;
 
 				switch($oper) {
 					case 'is':

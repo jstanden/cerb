@@ -2319,7 +2319,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals {
 			case SearchFields_Ticket::TICKET_SPAM_SCORE:
 				@$score = DevblocksPlatform::importGPC($_REQUEST['score'],'integer',null);
 				if(!is_null($score) && is_numeric($score)) {
-					$criteria = new DevblocksSearchCriteria($field,$oper,intval($score)/100);
+					$criteria = new DevblocksSearchCriteria($field,$oper,$score/100);
 				}
 				break;
 
