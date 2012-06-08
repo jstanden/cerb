@@ -574,7 +574,13 @@ class CerberusParser {
 							if(@mb_check_encoding($text, $info['charset'])) {
 								$text = mb_convert_encoding($text, LANG_CHARSET_CODE, $info['charset']);
 							} else {
-								$text = mb_convert_encoding($text, LANG_CHARSET_CODE);
+								mb_detect_order('iso-2022-jp-ms, iso-2022-jp, utf-8, iso-8859-1');
+								
+								if(false !== ($charset = mb_detect_encoding($text))) {
+									$text = mb_convert_encoding($text, LANG_CHARSET_CODE, $charset);
+								} else {
+									$text = mb_convert_encoding($text, LANG_CHARSET_CODE);
+								}
 							}
 						}
 		        		
@@ -1088,15 +1094,29 @@ class CerberusParser {
 		if(is_array($input))
 		foreach($input as $str) {
 			$out .= !empty($out) ? ' ' : '';
-			
 			$parts = imap_mime_header_decode($str);
+			
 			if(is_array($parts))
 			foreach($parts as $part) {
 				try {
 					$charset = ($part->charset != 'default') ? $part->charset : $encoding;
+
 					if(empty($charset))
 						$charset = 'auto';
-					@$out .= mb_convert_encoding($part->text,LANG_CHARSET_CODE,$charset);
+
+					if(@mb_check_encoding($part->text, $charset)) {
+						@$out .= mb_convert_encoding($part->text, LANG_CHARSET_CODE, $charset);
+						
+					} else {
+						mb_detect_order('iso-2022-jp-ms, iso-2022-jp, utf-8, auto');
+						
+						if(false !== ($charset = mb_detect_encoding($part->text))) {
+							$out .= mb_convert_encoding($part->text, LANG_CHARSET_CODE, $charset);
+						} else {
+							$out .= mb_convert_encoding($part->text, LANG_CHARSET_CODE);
+						}
+					}
+					
 				} catch(Exception $e) {}
 			}
 		}
