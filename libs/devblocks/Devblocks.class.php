@@ -331,8 +331,8 @@ class DevblocksPlatform extends DevblocksEngine {
 		);
 		
 		// Handle XHTML variations
-		$str = str_ireplace(
-			array("<br />", "<br/>"),
+		$str = preg_replace(
+			'@<br[^>]*?>@si',
 			"<br>",
 			$str
 		);
