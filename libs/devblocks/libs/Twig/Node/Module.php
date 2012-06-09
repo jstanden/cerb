@@ -18,9 +18,15 @@
  */
 class Twig_Node_Module extends Twig_Node
 {
-    public function __construct(Twig_NodeInterface $body, Twig_Node_Expression $parent = null, Twig_NodeInterface $blocks, Twig_NodeInterface $macros, Twig_NodeInterface $traits, $filename)
+    public function __construct(Twig_NodeInterface $body, Twig_Node_Expression $parent = null, Twig_NodeInterface $blocks, Twig_NodeInterface $macros, Twig_NodeInterface $traits, $embeddedTemplates, $filename)
     {
-        parent::__construct(array('parent' => $parent, 'body' => $body, 'blocks' => $blocks, 'macros' => $macros, 'traits' => $traits), array('filename' => $filename), 1);
+        // embedded templates are set as attributes so that they are only visited once by the visitors
+        parent::__construct(array('parent' => $parent, 'body' => $body, 'blocks' => $blocks, 'macros' => $macros, 'traits' => $traits), array('filename' => $filename, 'index' => null, 'embedded_templates' => $embeddedTemplates), 1);
+    }
+
+    public function setIndex($index)
+    {
+        $this->setAttribute('index', $index);
     }
 
     /**
@@ -31,13 +37,21 @@ class Twig_Node_Module extends Twig_Node
     public function compile(Twig_Compiler $compiler)
     {
         $this->compileTemplate($compiler);
+
+        foreach ($this->getAttribute('embedded_templates') as $template) {
+            $compiler->subcompile($template);
+        }
     }
 
     protected function compileTemplate(Twig_Compiler $compiler)
     {
+        if (!$this->getAttribute('index')) {
+            $compiler->write('<?php');
+        }
+
         $this->compileClassHeader($compiler);
 
-        if (count($this->getNode('blocks')) || count($this->getNode('traits'))) {
+        if (count($this->getNode('blocks')) || count($this->getNode('traits')) || null === $this->getNode('parent') || $this->getNode('parent') instanceof Twig_Node_Expression_Constant) {
             $this->compileConstructor($compiler);
         }
 
@@ -108,10 +122,10 @@ class Twig_Node_Module extends Twig_Node
     protected function compileClassHeader(Twig_Compiler $compiler)
     {
         $compiler
-            ->write("<?php\n\n")
+            ->write("\n\n")
             // if the filename contains */, add a blank to avoid a PHP parse error
             ->write("/* ".str_replace('*/', '* /', $this->getAttribute('filename'))." */\n")
-            ->write('class '.$compiler->getEnvironment()->getTemplateClass($this->getAttribute('filename')))
+            ->write('class '.$compiler->getEnvironment()->getTemplateClass($this->getAttribute('filename'), $this->getAttribute('index')))
             ->raw(sprintf(" extends %s\n", $compiler->getEnvironment()->getBaseTemplateClass()))
             ->write("{\n")
             ->indent()
