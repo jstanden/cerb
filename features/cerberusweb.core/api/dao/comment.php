@@ -765,7 +765,13 @@ class Context_Comment extends Extension_DevblocksContext {
 		
 		if($comment) {
 			$token_values['_loaded'] = true;
-//			$token_values['completed'] = $task->completed_date;
+			$token_values['_label'] = $comment->comment;
+			$token_values['id'] = $comment->id;
+			$token_values['context'] = $comment->context;
+			$token_values['context_id'] = $comment->context_id;
+			$token_values['created'] = $comment->created;
+			$token_values['address_id'] = $comment->address_id;
+			$token_values['comment'] = $comment->comment;			
 		}
 		
 		return true;
