@@ -55,6 +55,9 @@ class PageSection_SetupPluginLibrary extends Extension_PageSection {
 		$url = 'http://plugins.cerb5.com/plugins/list?version=' . DevblocksPlatform::strVersionToInt(APP_VERSION);
 		
 		try {
+			if(!extension_loaded("curl"))
+				throw new Exception("The cURL PHP extension is not installed");
+			
 			$ch = curl_init($url);
 			curl_setopt_array($ch, array(
 				CURLOPT_RETURNTRANSFER => true,
@@ -65,7 +68,7 @@ class PageSection_SetupPluginLibrary extends Extension_PageSection {
 		} catch(Exception $e) {
 			echo json_encode(array(
 				'status' => false,
-				'message' => 'Failed to connect to plugin library.'
+				'message' => $e->getMessage()
 			));
 			exit;
 		}
@@ -146,6 +149,9 @@ class PageSection_SetupPluginLibrary extends Extension_PageSection {
 				$plugin->latest_version
 			);
 			
+			if(!extension_loaded("curl"))
+				throw new Exception("The cURL PHP extension is not installed");
+			
 			// Connect to portal for download URL
 			$ch = curl_init($url);
 			curl_setopt_array($ch, array(
@@ -184,6 +190,7 @@ class PageSection_SetupPluginLibrary extends Extension_PageSection {
 		} catch(Exception $e) {
 			echo json_encode(array(
 				'status' => false,
+				'message' => $e->getMessage()
 			));
 		}
 	}	
