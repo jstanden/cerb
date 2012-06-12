@@ -100,6 +100,10 @@ class UmScAccountController extends Extension_UmScController {
 						$tpl->assign('show_fields', @json_decode($show_fields, true));
 					}
 					
+					// SSL
+					$url_writer = DevblocksPlatform::getUrlService();
+					$tpl->assign('is_ssl', $url_writer->isSSL());
+					
 					$tpl->display("devblocks:cerberusweb.support_center:portal_".ChPortalHelper::getCode() . ":support_center/account/email/display.tpl");
 				}
 				

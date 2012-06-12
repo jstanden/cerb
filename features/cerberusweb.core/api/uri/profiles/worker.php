@@ -29,7 +29,7 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$visit = CerberusApplication::getVisit();
 		$request = DevblocksPlatform::getHttpRequest();
-
+		
 		$active_worker = CerberusApplication::getActiveWorker();		
 		
 		$stack = $request->path;
@@ -113,6 +113,10 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 		// Tabs
 		$tab_manifests = Extension_ContextProfileTab::getExtensions(false, CerberusContexts::CONTEXT_WORKER);
 		$tpl->assign('tab_manifests', $tab_manifests);
+		
+		// SSL
+		$url_writer = DevblocksPlatform::getUrlService();
+		$tpl->assign('is_ssl', $url_writer->isSSL());
 		
 		// Template
 		$tpl->display('devblocks:cerberusweb.core::profiles/worker.tpl');		
