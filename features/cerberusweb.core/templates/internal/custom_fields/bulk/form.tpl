@@ -60,6 +60,8 @@
 						<option value="{$worker->id}" {if $worker->id==$custom_field_values.$f_id}selected="selected"{/if}>{$worker->getName()}</option>
 						{/foreach}
 					</select>
+					<button type="button" onclick="$(this).siblings('select').val('{$active_worker->id}');">{'common.me'|devblocks_translate|lower}</button>
+					<button type="button" onclick="$(this).siblings('select').val('');">{'common.nobody'|devblocks_translate|lower}</button>
 				{elseif $f->type=='F'}
 					<input type="file" name="field_{$f_id}" size="45" maxlength="255" value="{$custom_field_values.$f_id}">
 				{elseif $f->type=='E'}
