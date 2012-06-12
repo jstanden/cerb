@@ -410,7 +410,9 @@ class DAO_Worker extends C4_ORMHelper {
 	}
 
 	public static function random() {
-		return self::_getRandom('worker');
+		$db = DevblocksPlatform::getDatabaseService();
+		$offset = $db->GetOne(sprintf("SELECT ROUND(RAND()*(SELECT COUNT(*)-1 FROM worker WHERE is_disabled=0))"));
+		return $db->GetOne(sprintf("SELECT id FROM worker LIMIT %d,1",$offset));
 	}
 	
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
