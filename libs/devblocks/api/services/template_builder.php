@@ -143,6 +143,16 @@ class DevblocksDictionaryDelegate {
 		
 		$contexts = array();
 		
+		// Match our root context
+		if(isset($this->_dictionary['_context'])) {
+			$contexts[] = array(
+				'key' => '_context',
+				'prefix' => '',
+				'token' => $name,
+				'len' => 0,
+			);
+		}
+		
 		// Find the embedded contexts for each token
 		foreach(array_keys($this->_dictionary) as $key) {
 			if(preg_match('#(.*)__context#', $key, $matches)) {
