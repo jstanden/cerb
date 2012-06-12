@@ -8,7 +8,7 @@
 		{/foreach}
 	</ul>
 
-	<table cellspacing="0" cellpadding="2" border="0">
+	<table cellspacing="0" cellpadding="2" border="0" width="100%">
 	{foreach from=$subtotal_counts item=category}
 		<tr>
 			<td style="padding-right:10px;" nowrap="nowrap" valign="top">

@@ -634,7 +634,7 @@ class Context_ExampleObject extends Extension_DevblocksContext {
 		return array(
 			'id' => $example->id,
 			'name' => $example->name,
-			'permalink' => $url_writer->writeNoProxy(sprintf("c=example.objects&action=profile&id=%d",$context_id), true),
+			'permalink' => $url_writer->writeNoProxy(sprintf("c=profiles&type=example_object&id=%d",$context_id), true),
 		);
 	}
 	
