@@ -1846,13 +1846,14 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals {
 		$columns = $this->view_columns;
 		$params = $this->getParams();
 		
-		if(!isset($params[$field_key])) {
-			$new_params = array(
-				$field_key => new DevblocksSearchCriteria($field_key, DevblocksSearchCriteria::OPER_TRUE),
-			);
-			$params = array_merge($new_params, $params);
-		}
-		
+		// We want counts for all statuses even though we're filtering
+		if(
+			isset($params[SearchFields_Ticket::VIRTUAL_STATUS])
+			&& is_array($params[SearchFields_Ticket::VIRTUAL_STATUS]->value)
+			&& count($params[SearchFields_Ticket::VIRTUAL_STATUS]->value) < 2
+			)
+			unset($params[SearchFields_Ticket::VIRTUAL_STATUS]);
+			
 		if(!method_exists($dao_class,'getSearchQueryComponents'))
 			return array();
 		
@@ -1896,19 +1897,19 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals {
 			switch($key) {
 				case 'open_hits':
 					$label = $translate->_('status.open');
-					$values = array('value[]' => 'open');
+					$values = array('options[]' => 'open');
 					break;
 				case 'waiting_hits':
 					$label = $translate->_('status.waiting');
-					$values = array('value[]' => 'waiting');
+					$values = array('options[]' => 'waiting');
 					break;
 				case 'closed_hits':
 					$label = $translate->_('status.closed');
-					$values = array('value[]' => 'closed');
+					$values = array('options[]' => 'closed');
 					break;
 				case 'deleted_hits':
 					$label = $translate->_('status.deleted');
-					$values = array('value[]' => 'deleted');
+					$values = array('options[]' => 'deleted');
 					break;
 				default:
 					$label = '';
