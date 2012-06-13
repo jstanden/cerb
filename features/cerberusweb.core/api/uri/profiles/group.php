@@ -93,6 +93,10 @@ class PageSection_ProfilesGroup extends Extension_PageSection {
 		$tab_manifests = Extension_ContextProfileTab::getExtensions(false, CerberusContexts::CONTEXT_GROUP);
 		$tpl->assign('tab_manifests', $tab_manifests);
 		
+		// SSL
+		$url_writer = DevblocksPlatform::getUrlService();
+		$tpl->assign('is_ssl', $url_writer->isSSL());
+		
 		// Template
 		$tpl->display('devblocks:cerberusweb.core::profiles/group.tpl');
 	}

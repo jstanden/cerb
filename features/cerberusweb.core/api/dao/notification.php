@@ -515,10 +515,19 @@ class View_Notification extends C4_AbstractView implements IAbstractView_Subtota
 		switch($column) {
 			case SearchFields_Notification::URL:
 				$url_writer = DevblocksPlatform::getUrlService();
-				$base_url = $url_writer->writeNoProxy('',true);
+				$base_url = $url_writer->writeNoProxy('', true);
+				
 				$counts = $this->_getSubtotalCountForStringColumn('DAO_Notification', $column);
-				foreach($counts as $k => $v)
-					$counts[$k]['label'] = str_replace($base_url, '', $v['label']);
+				
+				foreach($counts as $k => $v) {
+					@$counts[$k]['label'] = str_replace($base_url, '', $v['label']);
+					
+					if($k == '(none)') {
+						@$counts[$k]['filter']['values'] = array('value' => '');
+					} else {
+						@$counts[$k]['filter']['values'] = array('value' => $k);
+					}
+				}
 				break;
 
 			case SearchFields_Notification::IS_READ:
@@ -606,6 +615,7 @@ class View_Notification extends C4_AbstractView implements IAbstractView_Subtota
 			case SearchFields_Notification::MESSAGE:
 			case SearchFields_Notification::URL:
 				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
+				break;
 				
 			case SearchFields_Notification::WORKER_ID:
 				@$worker_ids = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',array());

@@ -1,4 +1,5 @@
-<form action="{devblocks_url}{/devblocks_url}" method="POST" id="formOrgMerge" name="formOrgMerge">
+{$uniq_id = uniqid()}
+<form action="{devblocks_url}{/devblocks_url}" method="POST" id="frm{$uniq_id}" name="frm{$uniq_id}">
 <input type="hidden" name="c" value="contacts">
 <input type="hidden" name="a" value="saveOrgMergePeek">
 <input type="hidden" name="view_id" value="{$view_id}">
@@ -53,7 +54,7 @@
 <br>
 
 {*if $active_worker->hasPriv('core.addybook.org.actions.update')*}
-	<button type="button" onclick="genericAjaxPopupPostCloseReloadView(null,'formOrgMerge','{$view_id}',false,'org_merge');"><span class="cerb-sprite2 sprite-tick-circle"></span> {$translate->_('common.continue')|capitalize}</button>
+	<button type="button" onclick="genericAjaxPopupPostCloseReloadView(null,'frm{$uniq_id}','{$view_id}',false,'org_merge');"><span class="cerb-sprite2 sprite-tick-circle"></span> {$translate->_('common.continue')|capitalize}</button>
 {*/if*}
 </form>
 
@@ -65,7 +66,7 @@
 		$(this).find("select:first").focus();
 	});
 	// Autocomplete
-	$('#formOrgMerge button.chooser_orgs').each(function() {
+	$('#frm{$uniq_id} button.chooser_orgs').each(function() {
 		ajax.chooser(this,'cerberusweb.contexts.org','org_id', { autocomplete:true });
 	});
 </script>

@@ -209,6 +209,7 @@ class DevblocksSearchCriteria {
 						break;
 					default:
 					case 'expert':
+						$value = $search->prepareText($value);
 						break;
 				}
 				

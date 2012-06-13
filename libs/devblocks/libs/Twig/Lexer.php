@@ -30,6 +30,8 @@ class Twig_Lexer implements Twig_LexerInterface
     protected $filename;
     protected $options;
     protected $regexes;
+    protected $position;
+    protected $positions;
 
     const STATE_DATA            = 0;
     const STATE_BLOCK           = 1;
@@ -73,8 +75,8 @@ class Twig_Lexer implements Twig_LexerInterface
     /**
      * Tokenizes a source code.
      *
-     * @param  string $code     The source code
-     * @param  string $filename A unique identifier for the source code
+     * @param string $code     The source code
+     * @param string $filename A unique identifier for the source code
      *
      * @return Twig_TokenStream A token stream instance
      */
@@ -223,7 +225,7 @@ class Twig_Lexer implements Twig_LexerInterface
             $this->moveCursor($match[0]);
 
             if ($this->cursor >= $this->end) {
-                throw new Twig_Error_Syntax(sprintf('Unexpected end of file: Unclosed "%s"', $this->state === self::STATE_BLOCK ? 'block' : 'variable'));
+                throw new Twig_Error_Syntax(sprintf('Unexpected end of file: Unclosed "%s"', $this->state === self::STATE_BLOCK ? 'block' : 'variable'), $this->lineno, $this->filename);
             }
         }
 
@@ -287,7 +289,7 @@ class Twig_Lexer implements Twig_LexerInterface
     protected function lexRawData()
     {
         if (!preg_match($this->regexes['lex_raw_data'], $this->code, $match, PREG_OFFSET_CAPTURE, $this->cursor)) {
-            throw new Twig_Error_Syntax(sprintf('Unexpected end of file: Unclosed "block"'));
+            throw new Twig_Error_Syntax(sprintf('Unexpected end of file: Unclosed "block"'), $this->lineno, $this->filename);
         }
 
         $text = substr($this->code, $this->cursor, $match[0][1] - $this->cursor);
@@ -330,8 +332,6 @@ class Twig_Lexer implements Twig_LexerInterface
 
             $this->popState();
             ++$this->cursor;
-
-            return;
         }
     }
 

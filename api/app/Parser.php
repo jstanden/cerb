@@ -94,7 +94,7 @@ class CerberusParserModel {
 		// Is banned?
 		if($this->_sender_address_model->is_banned) {
 			$logger->info("Ignoring ticket from banned address: " . $this->_sender_address_model->email);
-			return FALSE;
+			return NULL;
 		}
 		
 		return TRUE;
@@ -551,7 +551,13 @@ class CerberusParser {
 							if(@mb_check_encoding($text, $info['charset'])) {
 								$text = mb_convert_encoding($text, LANG_CHARSET_CODE, $info['charset']);
 							} else {
-								$text = mb_convert_encoding($text, LANG_CHARSET_CODE);
+								mb_detect_order('iso-2022-jp-ms, iso-2022-jp, utf-8, iso-8859-1');
+
+								if(false !== ($charset = mb_detect_encoding($text))) {
+									$text = mb_convert_encoding($text, LANG_CHARSET_CODE, $charset);
+								} else {
+									$text = mb_convert_encoding($text, LANG_CHARSET_CODE);
+								}
 							}
 						}
 						
@@ -568,7 +574,13 @@ class CerberusParser {
 							if(@mb_check_encoding($text, $info['charset'])) {
 								$text = mb_convert_encoding($text, LANG_CHARSET_CODE, $info['charset']);
 							} else {
-								$text = mb_convert_encoding($text, LANG_CHARSET_CODE);
+								mb_detect_order('iso-2022-jp-ms, iso-2022-jp, utf-8, iso-8859-1');
+								
+								if(false !== ($charset = mb_detect_encoding($text))) {
+									$text = mb_convert_encoding($text, LANG_CHARSET_CODE, $charset);
+								} else {
+									$text = mb_convert_encoding($text, LANG_CHARSET_CODE);
+								}
 							}
 						}
 		        		
@@ -730,8 +742,8 @@ class CerberusParser {
 		// Parse headers into $model
 		$model = new CerberusParserModel($message);		
 		
-		if(!$model->validate())
-			return NULL;
+		if(false == ($validated = $model->validate()))
+			return $validated; // false or null
 		
         // Pre-parse mail filters
 		// Changing the incoming message through a VA
@@ -851,7 +863,7 @@ class CerberusParser {
 				        			$properties['content'] = $body;
 	        						
 				        			$result = CerberusMail::sendTicketMessage($properties);
-				        			return;
+				        			return NULL;
 	        					}
 	        					break;
 	        			}
@@ -862,7 +874,7 @@ class CerberusParser {
         			} else { // failed worker auth
         				// [TODO] Bounce
         				$logger->error("[Worker Relay] Worker authentication failed. Ignoring.");
-        				return;
+        				return false;
         			}
         			
         		}
@@ -920,7 +932,7 @@ class CerberusParser {
 			$ticket_id = $model->getTicketId();
 			if(empty($ticket_id)) {
 				$logger->error("Problem saving ticket...");
-				return NULL;
+				return false;
 			}
 			
 			// [JAS]: Add requesters to the ticket
@@ -957,7 +969,7 @@ class CerberusParser {
 		$message_id = $model->getMessageId();
 		if(empty($message_id)) {
 			$logger->error("Problem saving message to database...");
-			return NULL;
+			return false;
 		}
 		
 		// Save message content
@@ -1082,15 +1094,29 @@ class CerberusParser {
 		if(is_array($input))
 		foreach($input as $str) {
 			$out .= !empty($out) ? ' ' : '';
-			
 			$parts = imap_mime_header_decode($str);
+			
 			if(is_array($parts))
 			foreach($parts as $part) {
 				try {
 					$charset = ($part->charset != 'default') ? $part->charset : $encoding;
+
 					if(empty($charset))
 						$charset = 'auto';
-					@$out .= mb_convert_encoding($part->text,LANG_CHARSET_CODE,$charset);
+
+					if(@mb_check_encoding($part->text, $charset)) {
+						@$out .= mb_convert_encoding($part->text, LANG_CHARSET_CODE, $charset);
+						
+					} else {
+						mb_detect_order('iso-2022-jp-ms, iso-2022-jp, utf-8, auto');
+						
+						if(false !== ($charset = mb_detect_encoding($part->text))) {
+							$out .= mb_convert_encoding($part->text, LANG_CHARSET_CODE, $charset);
+						} else {
+							$out .= mb_convert_encoding($part->text, LANG_CHARSET_CODE);
+						}
+					}
+					
 				} catch(Exception $e) {}
 			}
 		}

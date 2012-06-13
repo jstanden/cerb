@@ -684,7 +684,7 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 			default:
 				// Custom fields
 				if('cf_' == substr($column,0,3)) {
-					$counts = $this->_getSubtotalCountForCustomColumn('DAO_CrmOpportunity', $column, 'a.id');
+					$counts = $this->_getSubtotalCountForCustomColumn('DAO_CrmOpportunity', $column, 'o.id');
 				}
 				
 				break;

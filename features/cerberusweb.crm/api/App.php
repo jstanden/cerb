@@ -440,7 +440,9 @@ class CrmOrgOppTab extends Extension_ContextProfileTab {
 		
 		$tpl = DevblocksPlatform::getTemplateService();
 
-		$org = DAO_ContactOrg::get($org_id);
+		if(null == ($org = DAO_ContactOrg::get($org_id)))
+			return;
+			
 		$tpl->assign('org_id', $org_id);
 		
 		$defaults = new C4_AbstractViewModel();

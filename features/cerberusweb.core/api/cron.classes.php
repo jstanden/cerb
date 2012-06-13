@@ -73,7 +73,7 @@ class ParseCron extends CerberusCronPageExtension {
 		
 		foreach($subdirs as $subdir) {
 			if(!is_writable($subdir)) {
-				$logger->error('[Parser] Write permission error, unable parse messages inside: '. $subdir. " ...skipping");
+				$logger->error('[Parser] Write permission error, unable to parse messages inside: '. $subdir. " ...skipping");
 				continue;
 			}
 
@@ -86,6 +86,16 @@ class ParseCron extends CerberusCronPageExtension {
 					if(!copy($file, $archivePath.$filePart)) {
 						//...
 					}
+				}
+				
+				if(!is_readable($file)) {
+					$logger->error('[Parser] Read permission error, unable to parse ' . $file . " ...skipping");
+					continue;
+				}
+
+				if(!is_writable($file)) {
+					$logger->error('[Parser] Write permission error, unable to parse ' . $file . " ...skipping");
+					continue;
 				}
 				
 				$parseFile = sprintf("%s/fail/%s",
@@ -108,10 +118,10 @@ class ParseCron extends CerberusCronPageExtension {
 	}
 
 	function _parseFile($full_filename) {
-		$logger = DevblocksPlatform::getConsoleLog();
+		$logger = DevblocksPlatform::getConsoleLog('Parser');
 		
 		$fileparts = pathinfo($full_filename);
-		$logger->info("[Parser] Reading ".$fileparts['basename']."...");
+		$logger->info("Reading ".$fileparts['basename']."...");
 
 		$time = microtime(true);
 
@@ -119,7 +129,7 @@ class ParseCron extends CerberusCronPageExtension {
 		$message = CerberusParser::parseMime($mime, $full_filename);
 
 		$time = microtime(true) - $time;
-		$logger->info("[Parser] Decoded! (".sprintf("%d",($time*1000))." ms)");
+		$logger->info("Decoded! (".sprintf("%d",($time*1000))." ms)");
 
 		//	    echo "<b>Plaintext:</b> ", $message->body,"<BR>";
 		//	    echo "<BR>";
@@ -132,10 +142,20 @@ class ParseCron extends CerberusCronPageExtension {
 		$ticket_id = CerberusParser::parseMessage($message);
 		$time = microtime(true) - $time;
 		
-		$logger->info("[Parser] Parsed! (".sprintf("%d",($time*1000))." ms) " .
+		$logger->info("Parsed! (".sprintf("%d",($time*1000))." ms) " .
 			(!empty($ticket_id) ? ("(Ticket ID: ".$ticket_id.")") : ("(Local Delivery Rejected.)")));
 
-		@unlink($full_filename);
+		if(is_bool($ticket_id) && false === $ticket_id) {
+			// Leave the message in storage/mail/fail
+			$logger->error(sprintf("%s failed to parse and it has been saved to the storage/mail/fail/ directory.", $fileparts['basename']));
+			
+			// [TODO] Admin notification?
+			
+		} else {
+			@unlink($full_filename);
+			$logger->info("The message source has been removed.");
+		}
+		
 		mailparse_msg_free($mime);
 
 		//		flush();
@@ -929,7 +949,7 @@ class ImportCron extends CerberusCronPageExtension {
 		}
 		
 		if(!empty($sPassword)) {
-			if(null != ($contact = DAO_ContactPerson::getWhere(sprintf("%s = %d", self::EMAIL_ID, $address_id)))) {
+			if(null == ($contact = DAO_ContactPerson::getWhere(sprintf("%s = %d", DAO_ContactPerson::EMAIL_ID, $address_id)))) {
 				$salt = CerberusApplication::generatePassword(8);
 				$fields = array(
 					DAO_ContactPerson::EMAIL_ID => $address_id,

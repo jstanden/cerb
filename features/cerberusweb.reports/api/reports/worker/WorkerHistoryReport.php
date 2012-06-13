@@ -70,6 +70,10 @@ class ChReportWorkerHistory extends Extension_Report {
 				$date_group = '%Y-%m';
 				$date_increment = 'month';
 				break;
+			case 'week':
+				$date_group = '%Y-%V';
+				$date_increment = 'week';
+				break;
 			case 'day':
 				$date_group = '%Y-%m-%d';
 				$date_increment = 'day';
@@ -88,6 +92,9 @@ class ChReportWorkerHistory extends Extension_Report {
 			} elseif($range_days > 32) {
 				$date_group = '%Y-%m';
 				$date_increment = 'month';
+			} elseif($range_dates > 8) {
+				$date_group = '%Y-%V';
+				$date_increment = 'week';
 			} elseif($range_days > 1) {
 				$date_group = '%Y-%m-%d';
 				$date_increment = 'day';

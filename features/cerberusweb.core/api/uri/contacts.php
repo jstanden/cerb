@@ -524,6 +524,26 @@ class ChContactsPage extends CerberusPageExtension {
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('search','ticket')));
 	}
 	
+	function findAddressesAction() {
+		@$email = DevblocksPlatform::importGPC($_REQUEST['email'],'string','');
+		
+		if(null == ($address_context = Extension_DevblocksContext::get(CerberusContexts::CONTEXT_ADDRESS)))
+			return;
+		
+		if(null == ($search_view = $address_context->getSearchView()))
+			return;
+		
+		$search_view->removeAllParams();
+		
+		$search_view->addParam(new DevblocksSearchCriteria(SearchFields_Address::EMAIL,DevblocksSearchCriteria::OPER_LIKE,$email));
+
+		$search_view->renderPage = 0;
+		
+		C4_AbstractViewLoader::setView($search_view->id, $search_view);
+		
+		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('search','address')));
+	}
+	
 	function showAddressBatchPanelAction() {
 		@$ids = DevblocksPlatform::importGPC($_REQUEST['ids']);
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id']);
@@ -584,9 +604,23 @@ class ChContactsPage extends CerberusPageExtension {
 	
 	function showOrgMergePeekAction() {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
+		@$org_ids = DevblocksPlatform::importGPC($_REQUEST['org_ids'],'string','');
 		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('view_id', $view_id);
+
+		if(!empty($org_ids)) {
+			$org_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::parseCsvString($org_ids),'integer',array('nonzero','unique'));
+			
+			if(!empty($org_ids)) {
+				$orgs = DAO_ContactOrg::getWhere(sprintf("%s IN (%s)",
+					DAO_ContactOrg::ID,
+					implode(',', $org_ids)
+				));
+				
+				$tpl->assign('orgs', $orgs);
+			}
+		}
 		
 		$tpl->display('devblocks:cerberusweb.core::contacts/orgs/org_merge_peek.tpl');
 	}
@@ -889,7 +923,7 @@ class ChContactsPage extends CerberusPageExtension {
 					'target' => sprintf("%s", $fields[DAO_ContactOrg::NAME]),
 					),
 				'urls' => array(
-					'source' => sprintf("ctx://%s:%d/%s", CerberusContexts::CONTEXT_ORG, $from_org_id, DevblocksPlatform::strToPermalink($orgs[$from_org_id]->name)),
+					//'source' => sprintf("ctx://%s:%d/%s", CerberusContexts::CONTEXT_ORG, $from_org_id, DevblocksPlatform::strToPermalink($orgs[$from_org_id]->name)),
 					'target' => sprintf("ctx://%s:%d/%s", CerberusContexts::CONTEXT_ORG, $merge_to_id, DevblocksPlatform::strToPermalink($fields[DAO_ContactOrg::NAME])),
 					)
 			);

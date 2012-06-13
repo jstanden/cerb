@@ -8,7 +8,7 @@ class Twig_NodeVisitor_SafeAnalysis implements Twig_NodeVisitorInterface
     {
         $hash = spl_object_hash($node);
         if (isset($this->data[$hash])) {
-            foreach($this->data[$hash] as $bucket) {
+            foreach ($this->data[$hash] as $bucket) {
                 if ($bucket['key'] === $node) {
                     return $bucket['value'];
                 }
@@ -22,7 +22,7 @@ class Twig_NodeVisitor_SafeAnalysis implements Twig_NodeVisitorInterface
     {
         $hash = spl_object_hash($node);
         if (isset($this->data[$hash])) {
-            foreach($this->data[$hash] as &$bucket) {
+            foreach ($this->data[$hash] as &$bucket) {
                 if ($bucket['key'] === $node) {
                     $bucket['value'] = $safe;
 
@@ -61,7 +61,11 @@ class Twig_NodeVisitor_SafeAnalysis implements Twig_NodeVisitorInterface
             $name = $node->getNode('filter')->getAttribute('value');
             $args = $node->getNode('arguments');
             if (false !== $filter = $env->getFilter($name)) {
-                $this->setSafe($node, $filter->getSafe($args));
+                $safe = $filter->getSafe($args);
+                if (null === $safe) {
+                    $safe = $this->intersectSafe($this->getSafe($node->getNode('node')), $filter->getPreservesSafety());
+                }
+                $this->setSafe($node, $safe);
             } else {
                 $this->setSafe($node, array());
             }
