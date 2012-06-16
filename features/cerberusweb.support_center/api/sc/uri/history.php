@@ -207,6 +207,26 @@ class UmScHistoryController extends Extension_UmScController {
 			$content
 		);
    
+		// Attachments
+		if(is_array($_FILES) && !empty($_FILES))
+		foreach($_FILES as $name => $files) {
+			// field[]
+			if(is_array($files['name'])) {
+				foreach($files['name'] as $idx => $name) {
+			        $attach = new ParserFile();
+			        $attach->setTempFile($files['tmp_name'][$idx],'application/octet-stream');
+			        $attach->file_size = filesize($files['tmp_name'][$idx]);
+			        $message->files[$name] = $attach;
+				}
+				
+			} else {
+		        $attach = new ParserFile();
+		        $attach->setTempFile($files['tmp_name'],'application/octet-stream');
+		        $attach->file_size = filesize($files['tmp_name']);
+		        $message->files[$files['name']] = $attach;
+			}
+		}	
+		
 		CerberusParser::parseMessage($message,array('no_autoreply'=>true));
 		
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',ChPortalHelper::getCode(),'history',$ticket[SearchFields_Ticket::TICKET_MASK])));
