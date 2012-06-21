@@ -1664,7 +1664,6 @@ class ChInternalController extends DevblocksControllerExtension {
         $tpl->display('devblocks:cerberusweb.core::internal/views/copy.tpl');
 	}
 
-	// Ajax
 	function viewDoCopyAction() {
 		$translate = DevblocksPlatform::getTranslationService();
 		$active_worker = CerberusApplication::getActiveWorker();
@@ -1938,6 +1937,19 @@ class ChInternalController extends DevblocksControllerExtension {
 		$view->render();
 	}
 
+	function viewShowQuickSearchPopupAction() {
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
+
+		if(null == ($view = C4_AbstractViewLoader::getView($view_id)))
+			return;
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('view_id', $view_id);
+		$tpl->assign('view', $view);
+		
+		$tpl->display('devblocks:cerberusweb.core::search/quick_search_popup.tpl');
+	}
+	
 	function viewSubtotalAction() {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
 		@$toggle = DevblocksPlatform::importGPC($_REQUEST['toggle'],'integer',0);
