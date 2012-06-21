@@ -935,8 +935,9 @@ class CerberusContexts {
 		
 		$context = $context_pair[0];
 		$context_id = $context_pair[1];
-		
-		$context_ext = Extension_DevblocksContext::get($context);
+
+		if(null == ($context_ext = Extension_DevblocksContext::get($context)))
+			return null;
 		
 		if($context_ext instanceof IDevblocksContextProfile) {
 			$url = $context_ext->profileGetUrl($context_id);
