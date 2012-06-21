@@ -419,14 +419,14 @@ class ChContactsPage extends CerberusPageExtension {
 		}
 
 		@$view->name = 'Verified Email Addresses';
-		$view->addParams(array(
+		$view->addParamsRequired(array(
 			SearchFields_Address::ID => new DevblocksSearchCriteria(SearchFields_Address::ID,'in',array_keys($contact_addresses)),
 		), true);
 		$tpl->assign('view', $view);
 		
 		C4_AbstractViewLoader::setView($view->id, $view);
 		
-		$tpl->display('devblocks:cerberusweb.core::contacts/people/display/addresses_tab.tpl');
+		$tpl->display('devblocks:cerberusweb.core::internal/views/search_and_view.tpl');
 		exit;
 	}	
 	
