@@ -1,4 +1,4 @@
-<div align="right">
+<div align="left">
 	<form action="{devblocks_url}{/devblocks_url}" method="post" style="margin-bottom:5px;">
 	<input type="hidden" name="c" value="display">
 	<input type="hidden" name="a" value="">
@@ -11,4 +11,4 @@
 	</form>
 </div>
 
-<div id="viewcontact_history">{$view->render()}</div>
+{include file="devblocks:cerberusweb.core::internal/views/search_and_view.tpl" view=$view}
