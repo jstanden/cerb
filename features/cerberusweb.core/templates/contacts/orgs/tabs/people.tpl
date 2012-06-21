@@ -1,1 +1,0 @@
-<div id="vieworg_contacts">{$view->render()}</div>

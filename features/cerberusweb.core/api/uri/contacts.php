@@ -367,7 +367,7 @@ class ChContactsPage extends CerberusPageExtension {
 		
 		$view = C4_AbstractViewLoader::getView('org_contacts', $defaults);
 		$view->name = 'Contacts: ' . (!empty($contact) ? $contact->name : '');
-		$view->addParams(array(
+		$view->addParamsRequired(array(
 			new DevblocksSearchCriteria(SearchFields_Address::CONTACT_ORG_ID,'=',$org)
 		), true);
 		$tpl->assign('view', $view);
@@ -377,7 +377,7 @@ class ChContactsPage extends CerberusPageExtension {
 		$tpl->assign('contacts_page', 'orgs');
 		$tpl->assign('search_columns', SearchFields_Address::getFields());
 		
-		$tpl->display('devblocks:cerberusweb.core::contacts/orgs/tabs/people.tpl');
+		$tpl->display('devblocks:cerberusweb.core::internal/views/search_and_view.tpl');
 		exit;
 	}
 	

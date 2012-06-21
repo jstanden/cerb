@@ -743,6 +743,7 @@ $db->Execute("DELETE FROM worker_view_model where view_id LIKE 'datacenter_%'");
 $db->Execute("DELETE FROM worker_view_model where view_id = 'contact_history'");
 $db->Execute("DELETE FROM worker_view_model where view_id = 'display_kb_search'");
 $db->Execute("DELETE FROM worker_view_model where view_id = 'mail_workflow'");
+$db->Execute("DELETE FROM worker_view_model where view_id = 'org_contacts'");
 $db->Execute("DELETE FROM worker_view_model where view_id = 'org_opps'");
 $db->Execute("DELETE FROM worker_view_model where view_id = 'search'");
 $db->Execute("DELETE FROM worker_view_model where view_id = 'ticket_opps'");
