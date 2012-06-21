@@ -59,15 +59,15 @@ class View_DevblocksStorageProfile extends C4_AbstractView {
 			SearchFields_DevblocksStorageProfile::NAME,
 			SearchFields_DevblocksStorageProfile::EXTENSION_ID,
 		);
-		
-		$this->_columnsHidden = array(
+
+		$this->addColumnsHidden(array(
 			SearchFields_DevblocksStorageProfile::PARAMS_JSON,
-		);
+		), true);
 		
-		$this->_paramsHidden = array(
+		$this->addParamsHidden(array(
 			SearchFields_DevblocksStorageProfile::ID,
 			SearchFields_DevblocksStorageProfile::PARAMS_JSON,
-		);
+		), true);
 		
 		$this->renderLimit = 25;
 		$this->renderSortBy = SearchFields_DevblocksStorageProfile::ID;

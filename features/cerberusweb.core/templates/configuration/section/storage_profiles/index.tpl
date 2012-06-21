@@ -4,6 +4,4 @@
 	<button type="button" onclick="genericAjaxPopup('peek','c=config&a=handleSectionAction&section=storage_profiles&action=showStorageProfilePeek&id=0&view_id={$view->id|escape:'url'}',null,false,'500');"><span class="cerb-sprite2 sprite-plus-circle"></span> {'common.add'|devblocks_translate|capitalize}</button>
 </form>
 
-<div id="view{$view->id}">{$view->render()}</div>
-
-{*{include file="devblocks:cerberusweb.core::internal/views/search_and_view.tpl" view=$view}*}
+{include file="devblocks:cerberusweb.core::internal/views/search_and_view.tpl" view=$view}
