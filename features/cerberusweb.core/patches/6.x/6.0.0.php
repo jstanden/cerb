@@ -739,6 +739,7 @@ if(!isset($columns['extension_id'])) {
 // Clear view prefs
 
 $db->Execute("DELETE FROM worker_view_model where view_id LIKE 'activity_%'");
+$db->Execute("DELETE FROM worker_view_model where view_id LIKE 'cerberuswebprofiles%'");
 $db->Execute("DELETE FROM worker_view_model where view_id LIKE 'datacenter_%'");
 $db->Execute("DELETE FROM worker_view_model where view_id = 'contact_history'");
 $db->Execute("DELETE FROM worker_view_model where view_id = 'display_kb_search'");
