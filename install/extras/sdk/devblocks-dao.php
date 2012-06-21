@@ -2,7 +2,7 @@
 /**
  * Devblocks DAO
  * @author Jeff Standen, WebGroup Media LLC <jeff@webgroupmedia.com>
- * @version 2010-10-02 
+ * @version 2012-06-20 
  */
 
 $tables = array();
@@ -423,6 +423,10 @@ foreach($fields as $field_name => $field_type) {
 			$this->renderTotal
 		);
 		return $objects;
+	}
+	
+	function getDataAsObjects($ids=null) {
+		return $this->_getDataAsObjects('DAO_<?php echo $class_name; ?>', $ids);
 	}
 	
 	function getDataSample($size) {
