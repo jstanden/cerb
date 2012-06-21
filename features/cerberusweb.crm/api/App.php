@@ -466,7 +466,7 @@ class CrmOrgOppTab extends Extension_ContextProfileTab {
 		
 		$tpl->assign('view', $view);
 		
-		$tpl->display('devblocks:cerberusweb.crm::crm/opps/org/tab.tpl');
+		$tpl->display('devblocks:cerberusweb.core::internal/views/search_and_view.tpl');
 	}
 };
 endif;
@@ -500,7 +500,7 @@ class CrmTicketOppTab extends Extension_ContextProfileTab {
 		
 		$tpl->assign('view', $view);
 		
-		$tpl->display('devblocks:cerberusweb.crm::crm/opps/ticket/tab.tpl');
+		$tpl->display('devblocks:cerberusweb.core::internal/views/search_and_view.tpl');
 	}
 	
 	function saveTab() {
