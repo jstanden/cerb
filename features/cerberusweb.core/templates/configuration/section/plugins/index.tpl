@@ -1,8 +1,8 @@
-<h2>Manage Plugins</h2>
+<h2>Plugins</h2>
 
 <div id="pluginTabs">
 	<ul>
-		{$tabs = []}
+		{$tabs = [installed,library]}
 		{$point = 'setup.plugins.tab'}
 		
 		<li><a href="{devblocks_url}ajax.php?c=config&a=handleSectionAction&section=plugins&action=showTab&point={$point}&request={$response_uri|escape:'url'}{/devblocks_url}">Installed Plugins</a></li>
