@@ -873,6 +873,16 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 				break;
 				
 			case 'send_email_recipients':
+				// Translate message tokens
+				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+				$content = $tpl_builder->build($params['content'], $dict);
+
+				$out = sprintf(">>> Sending email to receipients\n".
+					"%s\n",
+					$content
+				);
+				
+				return $out;
 				break;
 				
 			case 'set_owner':

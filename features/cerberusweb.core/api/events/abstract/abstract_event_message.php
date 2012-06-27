@@ -843,6 +843,16 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 				break;
 				
 			case 'send_email_recipients':
+				// Translate message tokens
+				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+				$content = $tpl_builder->build($params['content'], $dict);
+
+				$out = sprintf(">>> Sending email to recipients\n".
+					"%s\n",
+					$content
+				);
+				
+				return $out;
 				break;
 				
 			case 'set_spam_training':
