@@ -583,27 +583,28 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 						case Model_CustomField::TYPE_URL:
 							$not = (substr($params['oper'],0,1) == '!');
 							$oper = ltrim($params['oper'],'!');
+							@$param_value = $params['value'];
 							
 							$logger->info(sprintf("Text: `%s` %s%s `%s`",
 								$value,
 								(!empty($not) ? 'not ' : ''),
 								$oper,
-								$params['value']
+								$param_value
 							));
 							
 							switch($oper) {
 								case 'is':
-									$pass = (0==strcasecmp($value,$params['value']));
+									$pass = (0==strcasecmp($value,$param_value));
 									break;
 								case 'like':
-									$regexp = DevblocksPlatform::strToRegExp($params['value']);
+									$regexp = DevblocksPlatform::strToRegExp($param_value);
 									$pass = @preg_match($regexp, $value);
 									break;
 								case 'contains':
-									$pass = (false !== stripos($value, $params['value'])) ? true : false;
+									$pass = (false !== stripos($value, $param_value)) ? true : false;
 									break;
 								case 'regexp':
-									$pass = @preg_match($params['value'], $value);
+									$pass = @preg_match($param_value, $value);
 									break;
 								//case 'words_all':
 								//	break;
@@ -617,7 +618,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 						case Model_CustomField::TYPE_NUMBER:
 							$not = (substr($params['oper'],0,1) == '!');
 							$oper = ltrim($params['oper'],'!');
-							$desired_value = intval($params['value']); 
+							@$desired_value = intval($params['value']); 
 							
 							$logger->info(sprintf("Number: %d %s%s %d",
 								$value,
@@ -745,7 +746,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 								
 								$not = (substr($params['oper'],0,1) == '!');
 								$oper = ltrim($params['oper'],'!');
-								$desired_count = intval($params['value']);
+								@$desired_count = intval($params['value']);
 
 								$logger->info(sprintf("Count: %d %s%s %d",
 									$count,
