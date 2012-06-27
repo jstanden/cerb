@@ -692,8 +692,8 @@ class ChTicketsPage extends CerberusPageExtension {
 	    $view->renderPage = 0; // Reset the paging since we may have reduced our list size
 	    $view->removeParam('tmpMemberships'); // Remove our filter
 	    C4_AbstractViewLoader::setView($view_id,$view);
-	    	    
-        DevblocksPlatform::redirect(new DevblocksHttpResponse(array('tickets')));
+
+	    $view->render();
 	}
 
 	function viewMoveTicketsAction() {
