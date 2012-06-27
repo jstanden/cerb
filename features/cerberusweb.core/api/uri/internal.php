@@ -1518,6 +1518,9 @@ class ChInternalController extends DevblocksControllerExtension {
 			$view->addParams($original_params, true);
 		}
 		
+		// Reset the paging when adding a filter
+		$view->renderPage = 0;
+		
 		C4_AbstractViewLoader::setView($view->id, $view);
 
 		$this->_viewRenderInlineFilters($view, $is_custom);
@@ -1883,6 +1886,9 @@ class ChInternalController extends DevblocksControllerExtension {
 			@$title = DevblocksPlatform::importGPC($_REQUEST['title'],'string', $translate->_('views.new_list'));
 			$view->name = $title;
 		}
+		
+		// Reset the paging
+		$view->renderPage = 0;
 		
 		// Handle worklists specially
 		if($is_custom) { // custom workspace
