@@ -836,6 +836,9 @@ class ChInternalController extends DevblocksControllerExtension {
 			case CerberusContexts::CONTEXT_SNIPPET:
 				$contexts = DevblocksPlatform::getExtensions('devblocks.context', false);
 				
+				$worker_groups = $active_worker->getMemberships();
+				$worker_roles = $active_worker->getRoles();
+				
 				// Restrict owners
 				$param_ownership = array(
 					DevblocksSearchCriteria::GROUP_OR,
@@ -847,7 +850,12 @@ class ChInternalController extends DevblocksControllerExtension {
 					array(
 						DevblocksSearchCriteria::GROUP_AND,
 						SearchFields_Snippet::OWNER_CONTEXT => new DevblocksSearchCriteria(SearchFields_Snippet::OWNER_CONTEXT,DevblocksSearchCriteria::OPER_EQ,CerberusContexts::CONTEXT_GROUP),
-						SearchFields_Snippet::OWNER_CONTEXT_ID => new DevblocksSearchCriteria(SearchFields_Snippet::OWNER_CONTEXT_ID,DevblocksSearchCriteria::OPER_IN,array_keys($active_worker->getMemberships())),
+						SearchFields_Snippet::OWNER_CONTEXT_ID => new DevblocksSearchCriteria(SearchFields_Snippet::OWNER_CONTEXT_ID,DevblocksSearchCriteria::OPER_IN,array_keys($worker_groups)),
+					),
+					array(
+						DevblocksSearchCriteria::GROUP_AND,
+						SearchFields_Snippet::OWNER_CONTEXT => new DevblocksSearchCriteria(SearchFields_Snippet::OWNER_CONTEXT,DevblocksSearchCriteria::OPER_EQ,CerberusContexts::CONTEXT_ROLE),
+						SearchFields_Snippet::OWNER_CONTEXT_ID => new DevblocksSearchCriteria(SearchFields_Snippet::OWNER_CONTEXT_ID,DevblocksSearchCriteria::OPER_IN,array_keys($worker_roles)),
 					),
 				);
 				
