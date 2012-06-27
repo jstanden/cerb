@@ -238,12 +238,20 @@
 					return;
 				
 				$popup = genericAjaxPopup('peek','c=pages&a=showEditWorkspaceTab&id=' + tab_id,null,true,'600');
-				$popup.one('workspace_save',function(e) {
+				
+				$popup.one('workspace_save',function(json) {
 					$tabs = $("#pageTabs");
 					if(0 != $tabs) {
-						$tabs.tabs('load', $tabs.tabs('option','selected'));
+						selected_idx = $tabs.tabs('option','selected');
+						$tabs.tabs('load', selected_idx);
+						
+						if(null != json.name) {
+							$selected_tab = $tabs.find('> ul > li.ui-tabs-selected');
+							$selected_tab.find('a').html(json.name);
+						}
 					}
 				});
+				
 				$popup.one('workspace_delete',function(e) {
 					$tabs = $("#pageTabs");
 					if(0 != $tabs) {

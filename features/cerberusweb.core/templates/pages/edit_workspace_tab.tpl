@@ -1,6 +1,6 @@
 <form action="#" method="post" id="frmEditWorkspaceTab" onsubmit="return false;">
 <input type="hidden" name="c" value="pages">
-<input type="hidden" name="a" value="doEditWorkspaceTab">
+<input type="hidden" name="a" value="doEditWorkspaceTabJson">
 <input type="hidden" name="id" value="{$workspace_tab->id}">
 <input type="hidden" name="workspace_page_id" value="{$workspace_tab->workspace_page_id}">
 {if !empty($workspace_tab)}<input type="hidden" name="do_delete" value="0">{/if}
@@ -67,7 +67,7 @@
 </fieldset>
 
 <div class="toolbar">
-	<button type="button" onclick="genericAjaxPopupPostCloseReloadView(null,'frmEditWorkspaceTab','',false,'workspace_save');"><span class="cerb-sprite2 sprite-tick-circle"></span> {$translate->_('common.save_changes')}</button>
+	<button type="button" class="submit"><span class="cerb-sprite2 sprite-tick-circle"></span> {$translate->_('common.save_changes')}</button>
 	{if !empty($workspace_tab)}<button type="button" onclick="$(this).closest('div.toolbar').fadeOut().siblings('fieldset.delete').fadeIn();"><span class="cerb-sprite2 sprite-cross-circle"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 </div>
 </form>
@@ -79,6 +79,17 @@
 		$('#frmEditWorkspaceTab').sortable({ items: 'DIV.column', placeholder:'ui-state-highlight' });
 		
 		$frm = $('#frmEditWorkspaceTab');
+		
+		$frm.find('button.submit').click(function(e) {
+			genericAjaxPost('frmEditWorkspaceTab', '', null, function(json) {
+				event = jQuery.Event('workspace_save');
+						
+				if(null != json.name)
+					event.name = json.name;
+
+				genericAjaxPopupClose('peek', event);
+			});
+		});
 		
 		{if empty($workspace_tab->extension_id)}
 			$frm.find('select[name=add_context]').change(function() {
