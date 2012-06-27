@@ -525,6 +525,7 @@ class DAO_DevblocksExtensionPropertyStore extends DevblocksORMHelper {
 		));
 
 		$cache = DevblocksPlatform::getCacheService();
+		// [TODO] [CHD-2955] This may be deleting the cache too quickly when doing multiple PUTs
 		$cache->remove(self::_CACHE_ALL);
 		return true;
 	}
