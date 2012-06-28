@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE tmx>
+<tmx version="1.4">
+	<header datatype="winres" segtype="sentence" adminlang="en-us" srclang="en-us" o-tmf="abc" />
+	<body>
+
+		<!-- Plugin Strings -->
+
+		<tu tuid='example.report'>
+			<tuv xml:lang="en_US"><seg>Example Report</seg></tuv>
+		</tu>
+		
+		<tu tuid='example.reports.group'>
+			<tuv xml:lang="en_US"><seg>Example Reports</seg></tuv>
+		</tu>
+		
+		<tu tuid='acl.example.reports.group'>
+			<tuv xml:lang="en_US"><seg>[Report Group] Can view the 'Example Reports' group</seg></tuv>
+		</tu>
+		
+	</body>
+</tmx>

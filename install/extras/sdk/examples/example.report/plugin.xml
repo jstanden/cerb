@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.devblocks.com/schema/plugin.xsd">
+	<id>example.report</id>
+	<name>[Example] Report</name>
+	<description>This plugin demonstrates how to add a custom report.</description>
+	<author>WebGroup Media, LLC.</author>
+	<version>0.0.1</version>
+	<link>http://www.cerbweb.com/</link>
+	<image>plugin.png</image>
+ 
+ 	<!-- Requirements -->
+
+	<requires>
+		<app_version min="6.0" max="6.0.99" />
+	</requires>
+ 
+	<!-- Plugin Dependencies -->
+	
+	<dependencies>
+		<require plugin_id="cerberusweb.core" version="6.0.0" />
+		<require plugin_id="cerberusweb.reports" version="6.0.0" />
+	</dependencies>
+
+	<!-- Permissions -->
+
+	<acl>
+		<priv id="example.reports.group" label="acl.example.report.group" />
+	</acl>
+
+	<!-- Extensions -->
+ 
+	<extensions>
+
+		<!-- Report Groups -->
+		
+		<extension point="cerberusweb.report.group">
+			<id>example.reports.group</id>
+			<name>Example Reports Group</name>
+			<class>
+				<file>api/App.php</file>
+				<name>ExReportsGroup</name>
+			</class>
+			<params>
+				<param key="group_name" value="example.reports.group" />
+				<param key="acl" value="example.reports.group" />
+			</params>
+		</extension>
+			
+		<!-- Reports -->
+	
+		<extension point="cerberusweb.report">
+			<id>example.report</id>
+			<name>Example Report</name>
+			<class>
+				<file>api/App.php</file>
+				<name>ExReport</name>
+			</class>
+			<params>
+				<param key="report_name" value="example.report" />
+				<param key="report_group" value="example.reports.group" />
+			</params>
+		</extension>
+		
+    </extensions> 
+</plugin>
