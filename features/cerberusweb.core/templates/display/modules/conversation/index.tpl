@@ -73,30 +73,35 @@
 	
 	function displayReply(msgid, is_forward, draft_id, is_quoted) {
 		msgid = parseInt(msgid);
-		var div = document.getElementById('reply' + msgid);
-		if(null == div)	
+		$div = $('#reply' + msgid);
+		
+		if(0 == $div.length)	
 			return;
+		
 		is_forward = (null == is_forward || 0 == is_forward) ? 0 : 1;
 		draft_id = (null == draft_id) ? 0 : parseInt(draft_id);
 		is_quoted = (null == is_quoted) ? 1 : parseInt(is_quoted);
 		
 		genericAjaxGet('', 'c=display&a=reply&forward='+is_forward+'&draft_id='+draft_id+'&is_quoted='+is_quoted+'&id=' + msgid,
 			function(html) {
-				var div = document.getElementById('reply' + msgid);
-				if(null == div) return;
+				$div = $('#reply' + msgid);
 				
-				$('#reply'+msgid).html(html);
+				if(0 == $div.length)
+					return;
+				
+				$div.html(html);
 				
 				document.location = '#reply' + msgid;
 	
-				var frm_reply = document.getElementById('reply' + msgid + '_part2');
+				$frm_reply = $('#reply' + msgid + '_part2');
 				
-				if(null != frm_reply.content) {
+				if(0 != $frm_reply.length) {
 					if(!is_forward) {
-						frm_reply.content.focus();
-						setElementSelRange(frm_reply.content, 0, 0);
+						$textarea = $div.find('textarea[name=content]');
+						$textarea.focus();
+						setElementSelRange($textarea.get(0), 0, 0);
 					} else {
-						frm_reply.to.focus();
+						$div.find('input:text[name=to]').focus();
 					}
 				}
 			}
@@ -109,16 +114,20 @@
 		
 		genericAjaxGet('','c=display&a=addNote&id=' + msgid,
 			function(html) {
-				var div = document.getElementById('reply' + msgid);
-				if(null == div) return;
+				$div = $('#reply' + msgid);
 				
-				$('#reply'+msgid).html(html);
+				if(0 == $div.length)
+					return;
+				
+				$div.html(html);
+				
 				document.location = '#reply' + msgid;
 				
-				var frm = document.getElementById('reply' + msgid + '_form');
-				if(null != frm && null != frm.content) {
-					frm.content.focus();
-					setElementSelRange(frm.content, 0, 0);
+				$frm = $('#reply' + msgid + '_form');
+				$textarea = $frm.find('textarea[name=content]');
+				
+				if(0 != $frm.length && 0 != $textarea) {
+					$textarea.focus();
 				}
 			}
 		);

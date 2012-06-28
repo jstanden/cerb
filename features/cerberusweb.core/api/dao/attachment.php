@@ -1291,17 +1291,17 @@ class SearchFields_AttachmentLink implements IDevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = array(
-			self::ID => new DevblocksSearchField(self::ID, 'al', 'attachment_id', $translate->_('attachment.id')),
-			self::LINK_CONTEXT => new DevblocksSearchField(self::LINK_CONTEXT, 'al', 'context', $translate->_('common.context')),
-			self::LINK_CONTEXT_ID => new DevblocksSearchField(self::LINK_CONTEXT_ID, 'al', 'context_id', $translate->_('common.context_id')),
-			self::GUID => new DevblocksSearchField(self::GUID, 'al', 'guid', $translate->_('common.guid')),
-			self::ATTACHMENT_DISPLAY_NAME => new DevblocksSearchField(self::ATTACHMENT_DISPLAY_NAME, 'a', 'display_name', $translate->_('attachment.display_name')),
-			self::ATTACHMENT_MIME_TYPE => new DevblocksSearchField(self::ATTACHMENT_MIME_TYPE, 'a', 'mime_type', $translate->_('attachment.mime_type')),
-			self::ATTACHMENT_STORAGE_SIZE => new DevblocksSearchField(self::ATTACHMENT_STORAGE_SIZE, 'a', 'storage_size', $translate->_('attachment.storage_size')),
-			self::ATTACHMENT_STORAGE_EXTENSION => new DevblocksSearchField(self::ATTACHMENT_STORAGE_EXTENSION, 'a', 'storage_extension', $translate->_('attachment.storage_extension')),
-			self::ATTACHMENT_STORAGE_KEY => new DevblocksSearchField(self::ATTACHMENT_STORAGE_KEY, 'a', 'storage_key', $translate->_('attachment.storage_key')),
-			self::ATTACHMENT_STORAGE_PROFILE_ID => new DevblocksSearchField(self::ATTACHMENT_STORAGE_PROFILE_ID, 'a', 'storage_profile_id', $translate->_('attachment.storage_profile_id')),
-			self::ATTACHMENT_UPDATED => new DevblocksSearchField(self::ATTACHMENT_UPDATED, 'a', 'updated', $translate->_('common.updated')),
+			self::ID => new DevblocksSearchField(self::ID, 'al', 'attachment_id', $translate->_('attachment.id'), null),
+			self::LINK_CONTEXT => new DevblocksSearchField(self::LINK_CONTEXT, 'al', 'context', $translate->_('common.context'), null),
+			self::LINK_CONTEXT_ID => new DevblocksSearchField(self::LINK_CONTEXT_ID, 'al', 'context_id', $translate->_('common.context_id'), null),
+			self::GUID => new DevblocksSearchField(self::GUID, 'al', 'guid', $translate->_('common.guid'), null),
+			self::ATTACHMENT_DISPLAY_NAME => new DevblocksSearchField(self::ATTACHMENT_DISPLAY_NAME, 'a', 'display_name', $translate->_('attachment.display_name'), Model_CustomField::TYPE_SINGLE_LINE),
+			self::ATTACHMENT_MIME_TYPE => new DevblocksSearchField(self::ATTACHMENT_MIME_TYPE, 'a', 'mime_type', $translate->_('attachment.mime_type'), Model_CustomField::TYPE_SINGLE_LINE),
+			self::ATTACHMENT_STORAGE_SIZE => new DevblocksSearchField(self::ATTACHMENT_STORAGE_SIZE, 'a', 'storage_size', $translate->_('attachment.storage_size'), Model_CustomField::TYPE_NUMBER),
+			self::ATTACHMENT_STORAGE_EXTENSION => new DevblocksSearchField(self::ATTACHMENT_STORAGE_EXTENSION, 'a', 'storage_extension', $translate->_('attachment.storage_extension'), null),
+			self::ATTACHMENT_STORAGE_KEY => new DevblocksSearchField(self::ATTACHMENT_STORAGE_KEY, 'a', 'storage_key', $translate->_('attachment.storage_key'), Model_CustomField::TYPE_SINGLE_LINE),
+			self::ATTACHMENT_STORAGE_PROFILE_ID => new DevblocksSearchField(self::ATTACHMENT_STORAGE_PROFILE_ID, 'a', 'storage_profile_id', $translate->_('attachment.storage_profile_id'), null),
+			self::ATTACHMENT_UPDATED => new DevblocksSearchField(self::ATTACHMENT_UPDATED, 'a', 'updated', $translate->_('common.updated'), Model_CustomField::TYPE_DATE),
 		);
 		
 		// Sort by label (translation-conscious)

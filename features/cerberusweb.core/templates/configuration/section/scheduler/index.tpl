@@ -6,10 +6,10 @@
 
 <div style="margin:10px;">
 {foreach from=$jobs item=job key=job_id name=jobs}
-	
+{if $job instanceof CerberusCronPageExtension}
 <div id="job_{$job_id|replace:'.':'_'}" style="margin-bottom:10px;">
 	{include file="devblocks:cerberusweb.core::configuration/section/scheduler/job.tpl"}
 </div>
-
+{/if}
 {/foreach}
 </div>

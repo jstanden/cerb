@@ -89,7 +89,8 @@
 			<div>
 				<a href="javascript:;" class="menu">Plugins <span class="cerb-sprite sprite-arrow-down-white"></span></a>
 				<ul class="cerb-popupmenu cerb-float">
-					<li><a href="{devblocks_url}c=config&a=plugins{/devblocks_url}">Manage Plugins</a></li>
+					<li><a href="{devblocks_url}c=config&a=plugins&tab=installed{/devblocks_url}">Installed Plugins</a></li>
+					<li><a href="{devblocks_url}c=config&a=plugins&tab=library{/devblocks_url}">Plugin Library</a></li>
 					
 					{$exts = Extension_PageMenuItem::getExtensions(true, 'core.page.configuration','core.setup.menu.plugins')}
 					{if !empty($exts)}<li><hr></li>{/if}

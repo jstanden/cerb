@@ -458,7 +458,7 @@ class CrmOrgOppTab extends Extension_ContextProfileTab {
 		$view = C4_AbstractViewLoader::getView('org_opps', $defaults);
 		
 		$view->name = "Org: " . $org->name;
-		$view->addParams(array(
+		$view->addParamsRequired(array(
 			SearchFields_CrmOpportunity::ORG_ID => new DevblocksSearchCriteria(SearchFields_CrmOpportunity::ORG_ID,'=',$org_id) 
 		), true);
 
@@ -466,7 +466,7 @@ class CrmOrgOppTab extends Extension_ContextProfileTab {
 		
 		$tpl->assign('view', $view);
 		
-		$tpl->display('devblocks:cerberusweb.crm::crm/opps/org/tab.tpl');
+		$tpl->display('devblocks:cerberusweb.core::internal/views/search_and_view.tpl');
 	}
 };
 endif;
@@ -492,7 +492,7 @@ class CrmTicketOppTab extends Extension_ContextProfileTab {
 		}
 
 		$view->name = sprintf("Opportunities: %s recipient(s)", count($requesters));
-		$view->addParams(array(
+		$view->addParamsRequired(array(
 			SearchFields_CrmOpportunity::PRIMARY_EMAIL_ID => new DevblocksSearchCriteria(SearchFields_CrmOpportunity::PRIMARY_EMAIL_ID,'in',array_keys($requesters)), 
 		), true);
 		
@@ -500,7 +500,7 @@ class CrmTicketOppTab extends Extension_ContextProfileTab {
 		
 		$tpl->assign('view', $view);
 		
-		$tpl->display('devblocks:cerberusweb.crm::crm/opps/ticket/tab.tpl');
+		$tpl->display('devblocks:cerberusweb.core::internal/views/search_and_view.tpl');
 	}
 	
 	function saveTab() {

@@ -643,6 +643,7 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 				'send_email' => array('label' => 'Send email'),
 				'send_email_recipients' => array('label' => 'Send email to recipients'),
 				'set_owner' => array('label' =>'Set owner'),
+				'set_reopen_date' => array('label' => 'Set reopen date'),
 				'set_spam_training' => array('label' => 'Set spam training'),
 				'set_status' => array('label' => 'Set status'),
 				'set_subject' => array('label' => 'Set subject'),
@@ -731,7 +732,11 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 			case 'set_owner':
 				DevblocksEventHelper::renderActionSetTicketOwner();
 				break;
-				
+			
+			case 'set_reopen_date':
+				$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_date.tpl');
+				break;
+			
 			case 'send_email':
 				DevblocksEventHelper::renderActionSendEmail($trigger);
 				break;
@@ -829,12 +834,25 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 				
 			case 'set_owner':
 				break;
-				
+			
+			case 'set_reopen_date':
+				break;
+			
 			case 'send_email':
 				return DevblocksEventHelper::simulateActionSendEmail($params, $dict);
 				break;
 				
 			case 'send_email_recipients':
+				// Translate message tokens
+				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+				$content = $tpl_builder->build($params['content'], $dict);
+
+				$out = sprintf(">>> Sending email to recipients\n".
+					"%s\n",
+					$content
+				);
+				
+				return $out;
 				break;
 				
 			case 'set_spam_training':
@@ -957,7 +975,17 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 				
 				CerberusMail::sendTicketMessage($properties);
 				break;
-				
+
+			case 'set_reopen_date':
+				@$reopen_date = intval(strtotime($params['value']));
+			
+				DAO_Ticket::update($task_id, array(
+					DAO_Ticket::DUE_DATE => $reopen_date,
+				));
+			
+				$dict->ticket_reopen_date = $reopen_date;
+				break;
+			
 			case 'set_spam_training':
 				@$to_training = $params['value'];
 				@$current_training = $dict->ticket_spam_training;

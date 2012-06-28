@@ -367,7 +367,7 @@ class ChContactsPage extends CerberusPageExtension {
 		
 		$view = C4_AbstractViewLoader::getView('org_contacts', $defaults);
 		$view->name = 'Contacts: ' . (!empty($contact) ? $contact->name : '');
-		$view->addParams(array(
+		$view->addParamsRequired(array(
 			new DevblocksSearchCriteria(SearchFields_Address::CONTACT_ORG_ID,'=',$org)
 		), true);
 		$tpl->assign('view', $view);
@@ -377,7 +377,7 @@ class ChContactsPage extends CerberusPageExtension {
 		$tpl->assign('contacts_page', 'orgs');
 		$tpl->assign('search_columns', SearchFields_Address::getFields());
 		
-		$tpl->display('devblocks:cerberusweb.core::contacts/orgs/tabs/people.tpl');
+		$tpl->display('devblocks:cerberusweb.core::internal/views/search_and_view.tpl');
 		exit;
 	}
 	
@@ -419,14 +419,14 @@ class ChContactsPage extends CerberusPageExtension {
 		}
 
 		@$view->name = 'Verified Email Addresses';
-		$view->addParams(array(
+		$view->addParamsRequired(array(
 			SearchFields_Address::ID => new DevblocksSearchCriteria(SearchFields_Address::ID,'in',array_keys($contact_addresses)),
 		), true);
 		$tpl->assign('view', $view);
 		
 		C4_AbstractViewLoader::setView($view->id, $view);
 		
-		$tpl->display('devblocks:cerberusweb.core::contacts/people/display/addresses_tab.tpl');
+		$tpl->display('devblocks:cerberusweb.core::internal/views/search_and_view.tpl');
 		exit;
 	}	
 	
@@ -484,7 +484,7 @@ class ChContactsPage extends CerberusPageExtension {
 	
 		@$view->name = $translate->_('ticket.requesters') . ": " . intval(count($ids)) . ' contact(s)';
 		
-		$view->addParams(array(
+		$view->addParamsRequired(array(
 			SearchFields_Ticket::REQUESTER_ID => new DevblocksSearchCriteria(SearchFields_Ticket::REQUESTER_ID,'in',$ids),
 			SearchFields_Ticket::TICKET_DELETED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_DELETED,DevblocksSearchCriteria::OPER_EQ,0)
 		), true);
@@ -492,7 +492,7 @@ class ChContactsPage extends CerberusPageExtension {
 	
 		C4_AbstractViewLoader::setView($view->id, $view);
 	
-		$tpl->display('devblocks:cerberusweb.core::contacts/tab_mail_history.tpl');
+		$tpl->display('devblocks:cerberusweb.core::internal/views/search_and_view.tpl');
 		exit;
 	}	
 

@@ -2,7 +2,7 @@
 /**
  * Devblocks DAO
  * @author Jeff Standen, WebGroup Media LLC <jeff@webgroupmedia.com>
- * @version 2010-10-02 
+ * @version 2012-06-20 
  */
 
 $tables = array();
@@ -378,7 +378,7 @@ foreach($fields as $field_name => $field_type) {
 </textarea>
 
 <textarea style="width:98%;height:200px;">
-class View_<?php echo $class_name; ?> extends C4_AbstractView {
+class View_<?php echo $class_name; ?> extends C4_AbstractView implements IAbstractView_Subtotals {
 	const DEFAULT_ID = '<?php echo strtolower($class_name); ?>';
 
 	function __construct() {
@@ -425,10 +425,85 @@ foreach($fields as $field_name => $field_type) {
 		return $objects;
 	}
 	
+	function getDataAsObjects($ids=null) {
+		return $this->_getDataAsObjects('DAO_<?php echo $class_name; ?>', $ids);
+	}
+	
 	function getDataSample($size) {
 		return $this->_doGetDataSample('DAO_<?php echo $class_name; ?>', $size);
 	}
 
+	function getSubtotalFields() {
+		$all_fields = $this->getParamsAvailable();
+		
+		$fields = array();
+
+		if(is_array($all_fields))
+		foreach($all_fields as $field_key => $field_model) {
+			$pass = false;
+			
+			switch($field_key) {
+				// Fields
+//				case SearchFields_<?php echo $class_name; ?>::EXAMPLE:
+//					$pass = true;
+//					break;
+					
+				// Virtuals
+//				case SearchFields_<?php echo $class_name; ?>::VIRTUAL_CONTEXT_LINK:
+//				case SearchFields_<?php echo $class_name; ?>::VIRTUAL_WATCHERS:
+//					$pass = true;
+//					break;
+					
+				// Valid custom fields
+				default:
+					if('cf_' == substr($field_key,0,3))
+						$pass = $this->_canSubtotalCustomField($field_key);
+					break;
+			}
+			
+			if($pass)
+				$fields[$field_key] = $field_model;
+		}
+		
+		return $fields;
+	}
+	
+	function getSubtotalCounts($column) {
+		$counts = array();
+		$fields = $this->getFields();
+
+		if(!isset($fields[$column]))
+			return array();
+		
+		switch($column) {
+//			case SearchFields_<?php echo $class_name; ?>::EXAMPLE_BOOL:
+//				$counts = $this->_getSubtotalCountForBooleanColumn('DAO_<?php echo $class_name; ?>', $column);
+//				break;
+
+//			case SearchFields_<?php echo $class_name; ?>::EXAMPLE_STRING:
+//				$counts = $this->_getSubtotalCountForStringColumn('DAO_<?php echo $class_name; ?>', $column);
+//				break;
+				
+//			case SearchFields_<?php echo $class_name; ?>::VIRTUAL_CONTEXT_LINK:
+//				$counts = $this->_getSubtotalCountForContextLinkColumn('DAO_<?php echo $class_name; ?>', 'example.context', $column);
+//				break;
+				
+//			case SearchFields_<?php echo $class_name; ?>::VIRTUAL_WATCHERS:
+//				$counts = $this->_getSubtotalCountForWatcherColumn('DAO_<?php echo $class_name; ?>', $column);
+//				break;
+			
+			default:
+				// Custom fields
+				if('cf_' == substr($column,0,3)) {
+					$counts = $this->_getSubtotalCountForCustomColumn('DAO_<?php echo $class_name; ?>', $column, '<?php echo $table_name; ?>.id');
+				}
+				
+				break;
+		}
+		
+		return $counts;
+	}	
+	
 	function render() {
 		$this->_sanitize();
 		
@@ -441,7 +516,8 @@ foreach($fields as $field_name => $field_type) {
 		//$tpl->assign('custom_fields', $custom_fields);
 
 		// [TODO] Set your template path
-		$tpl->display('devblocks:example.plugin::path/to/view.tpl');
+		$tpl->assign('view_template', 'devblocks:example.plugin::path/to/view.tpl');
+		$tpl->display('devblocks:cerberusweb.core::internal/views/subtotals_and_view.tpl');
 	}
 
 	function renderCriteria($field) {

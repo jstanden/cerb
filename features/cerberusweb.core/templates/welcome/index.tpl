@@ -54,7 +54,6 @@
 			<a href="http://blog.cerberusweb.com/" target="_blank">Subscribe to the Cerb6 blog</a>
 		</li>
 	</ul>
-	</div>
 </fieldset>
 
 <form>

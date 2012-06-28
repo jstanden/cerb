@@ -19,6 +19,9 @@ class PageSection_SetupPlugins extends Extension_PageSection {
 	const VIEW_PLUGINS = 'plugins_installed';
 	
 	function render() {
+		$response = DevblocksPlatform::getHttpResponse();
+		$path = $response->path;
+
 		// Auto synchronize when viewing Config->Extensions
         DevblocksPlatform::readPlugins();
 
@@ -29,6 +32,10 @@ class PageSection_SetupPlugins extends Extension_PageSection {
 		$visit = CerberusApplication::getVisit();
 		
 		$visit->set(ChConfigurationPage::ID, 'plugins');
+		
+		if(isset($path[2])) {
+			$tpl->assign('selected_tab', $path[2]);
+		}
 		
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/plugins/index.tpl');
 	}

@@ -896,7 +896,7 @@ class ChDisplayPage extends CerberusPageExtension {
 
 		switch($scope) {
 			case 'org':
-				$view->addParams(array(
+				$view->addParamsRequired(array(
 					SearchFields_Ticket::TICKET_FIRST_CONTACT_ORG_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_FIRST_CONTACT_ORG_ID,'=',$contact->contact_org_id),
 					SearchFields_Ticket::TICKET_DELETED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_DELETED,'=',0),
 				), true);
@@ -904,7 +904,7 @@ class ChDisplayPage extends CerberusPageExtension {
 				break;
 				
 			case 'domain':
-				$view->addParams(array(
+				$view->addParamsRequired(array(
 					SearchFields_Ticket::REQUESTER_ADDRESS => new DevblocksSearchCriteria(SearchFields_Ticket::REQUESTER_ADDRESS,'like','*@'.$email_parts[1]),
 					SearchFields_Ticket::TICKET_DELETED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_DELETED,'=',0),
 				), true);
@@ -914,7 +914,7 @@ class ChDisplayPage extends CerberusPageExtension {
 			default:
 			case 'email':
 				$scope = 'email';
-				$view->addParams(array(
+				$view->addParamsRequired(array(
 					SearchFields_Ticket::REQUESTER_ID => new DevblocksSearchCriteria(SearchFields_Ticket::REQUESTER_ID,'in',array_keys($requesters)),
 					SearchFields_Ticket::TICKET_DELETED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_DELETED,'=',0),
 				), true);

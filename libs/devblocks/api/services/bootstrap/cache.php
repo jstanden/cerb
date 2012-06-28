@@ -234,8 +234,8 @@ class _DevblocksCacheManagerDisk extends _DevblocksCacheManagerAbstract {
 	function remove($key) {
 		$key = $this->_options['key_prefix'] . $key;
 		$file = $this->_getPath() . $this->_getFilename($key);
-		if(file_exists($file))
-			unlink($file);
+		if(file_exists($file) && is_writeable($file))
+			@unlink($file);
 	}
 	
 	function test() {
@@ -252,8 +252,8 @@ class _DevblocksCacheManagerDisk extends _DevblocksCacheManagerAbstract {
 		if(is_array($files))
 		foreach($files as $file) {
 			if(0==strcmp('devblocks_cache',substr($file,0,15))) {
-				if(file_exists($path . $file))
-					unlink($path . $file);
+				if(file_exists($path . $file) && is_writeable($path . $file))
+					@unlink($path . $file);
 			}
 		}
 		

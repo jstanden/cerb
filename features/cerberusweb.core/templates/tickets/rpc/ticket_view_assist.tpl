@@ -127,7 +127,7 @@ Sort biggest piles by:
 <br>
 </div>
 
-<button type="button" onclick="showLoadingPanel();this.form.submit();" style="">Perform selected actions</button>
+<button type="button" onclick="genericAjaxPost('viewAssist{$view_id}','view{$view_id}',null);" style="">Perform selected actions</button>
 <button type="button" onclick="toggleDiv('{$view_id}_tips','none');$('#{$view_id}_tips').html('');" style="">Do nothing</button>
 
 {else}

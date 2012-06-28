@@ -525,6 +525,7 @@ class DAO_DevblocksExtensionPropertyStore extends DevblocksORMHelper {
 		));
 
 		$cache = DevblocksPlatform::getCacheService();
+		// [TODO] [CHD-2955] This may be deleting the cache too quickly when doing multiple PUTs
 		$cache->remove(self::_CACHE_ALL);
 		return true;
 	}
@@ -1196,10 +1197,10 @@ class SearchFields_Translation implements IDevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 		return array(
 			self::ID => new DevblocksSearchField(self::ID, 'tl', 'id', $translate->_('translate.id')),
-			self::STRING_ID => new DevblocksSearchField(self::STRING_ID, 'tl', 'string_id', $translate->_('translate.string_id')),
-			self::LANG_CODE => new DevblocksSearchField(self::LANG_CODE, 'tl', 'lang_code', $translate->_('translate.lang_code')),
-			self::STRING_DEFAULT => new DevblocksSearchField(self::STRING_DEFAULT, 'tl', 'string_default', $translate->_('translate.string_default')),
-			self::STRING_OVERRIDE => new DevblocksSearchField(self::STRING_OVERRIDE, 'tl', 'string_override', $translate->_('translate.string_override')),
+			self::STRING_ID => new DevblocksSearchField(self::STRING_ID, 'tl', 'string_id', $translate->_('translate.string_id'), Model_CustomField::TYPE_SINGLE_LINE),
+			self::LANG_CODE => new DevblocksSearchField(self::LANG_CODE, 'tl', 'lang_code', $translate->_('translate.lang_code'), Model_CustomField::TYPE_SINGLE_LINE),
+			self::STRING_DEFAULT => new DevblocksSearchField(self::STRING_DEFAULT, 'tl', 'string_default', $translate->_('translate.string_default'), Model_CustomField::TYPE_SINGLE_LINE),
+			self::STRING_OVERRIDE => new DevblocksSearchField(self::STRING_OVERRIDE, 'tl', 'string_override', $translate->_('translate.string_override'), Model_CustomField::TYPE_SINGLE_LINE),
 		);
 	}
 };
@@ -1462,10 +1463,10 @@ class SearchFields_DevblocksStorageProfile implements IDevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = array(
-			self::ID => new DevblocksSearchField(self::ID, 'devblocks_storage_profile', 'id', $translate->_('id')),
-			self::NAME => new DevblocksSearchField(self::NAME, 'devblocks_storage_profile', 'name', $translate->_('name')),
-			self::EXTENSION_ID => new DevblocksSearchField(self::EXTENSION_ID, 'devblocks_storage_profile', 'extension_id', $translate->_('extension_id')),
-			self::PARAMS_JSON => new DevblocksSearchField(self::PARAMS_JSON, 'devblocks_storage_profile', 'params_json', $translate->_('params_json')),
+			self::ID => new DevblocksSearchField(self::ID, 'devblocks_storage_profile', 'id', $translate->_('id'), null),
+			self::NAME => new DevblocksSearchField(self::NAME, 'devblocks_storage_profile', 'name', $translate->_('name'), Model_CustomField::TYPE_SINGLE_LINE),
+			self::EXTENSION_ID => new DevblocksSearchField(self::EXTENSION_ID, 'devblocks_storage_profile', 'extension_id', $translate->_('extension_id'), Model_CustomField::TYPE_SINGLE_LINE),
+			self::PARAMS_JSON => new DevblocksSearchField(self::PARAMS_JSON, 'devblocks_storage_profile', 'params_json', $translate->_('params_json'), null),
 		);
 		
 		// Custom Fields
