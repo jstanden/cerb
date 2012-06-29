@@ -921,11 +921,14 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals {
 			foreach($ids as $addy_id) {
 				try {
 					CerberusContexts::getContext(CerberusContexts::CONTEXT_ADDRESS, $addy_id, $tpl_labels, $tpl_tokens);
-					$subject = $tpl_builder->build($params['subject'], $tpl_tokens);
-					$body = $tpl_builder->build($params['message'], $tpl_tokens);
+					
+					$tpl_dict = new DevblocksDictionaryDelegate($tpl_tokens);
+
+					$subject = $tpl_builder->build($params['subject'], $tpl_dict);
+					$body = $tpl_builder->build($params['message'], $tpl_dict);
 					
 					$json_params = array(
-						'to' => $tpl_tokens['address'],
+						'to' => $tpl_dict->address,
 						'group_id' => $params['group_id'],
 						'next_is_closed' => $next_is_closed,
 					);
@@ -935,7 +938,7 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals {
 						DAO_MailQueue::TICKET_ID => 0,
 						DAO_MailQueue::WORKER_ID => $params['worker_id'],
 						DAO_MailQueue::UPDATED => time(),
-						DAO_MailQueue::HINT_TO => $tpl_tokens['address'],
+						DAO_MailQueue::HINT_TO => $tpl_dict->address,
 						DAO_MailQueue::SUBJECT => $subject,
 						DAO_MailQueue::BODY => $body,
 						DAO_MailQueue::PARAMS_JSON => json_encode($json_params),

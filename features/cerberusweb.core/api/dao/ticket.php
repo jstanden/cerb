@@ -2591,7 +2591,8 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals {
 							}
 						}
 						
-						$body = $tpl_builder->build($broadcast_params['message'], $tpl_tokens);
+						$tpl_dict = new DevblocksDictionaryDelegate($tpl_tokens);
+						$body = $tpl_builder->build($broadcast_params['message'], $tpl_dict);
 						
 						$fields = array(
 							DAO_MailQueue::TYPE => Model_MailQueue::TYPE_TICKET_REPLY,
