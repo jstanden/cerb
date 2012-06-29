@@ -59,9 +59,13 @@
 			</class>
 			<params>
 				<param key="label" value="Example event condition" />
+				<param key="events">
+					<value>
+						<data key="*" />
+					</value>
+				</param>				
 			</params>
 		</extension>
-		
 		
     </extensions> 
 </plugin>

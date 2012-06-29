@@ -2,7 +2,7 @@
 class ExampleEventAction_ExampleAction extends Extension_DevblocksEventAction {
 	const ID = 'exampleeventaction.action';
 	
-	function render(Extension_DevblocksEvent $event, $trigger, $params=array(), $seq=null) {
+	function render(Extension_DevblocksEvent $event, Model_TriggerEvent $trigger, $params=array(), $seq=null) {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('params', $params);
 
@@ -14,7 +14,11 @@ class ExampleEventAction_ExampleAction extends Extension_DevblocksEventAction {
 		$tpl->display('devblocks:example.event.action::config.tpl');
 	}
 	
-	function run($token, $trigger, $params, DevblocksDictionaryDelegate $dict) {
+	function simulate($token, Model_TriggerEvent $trigger, $params, DevblocksDictionaryDelegate $dict) {
+		
+	}
+	
+	function run($token, Model_TriggerEvent $trigger, $params, DevblocksDictionaryDelegate $dict) {
 		// [TODO] Do something with the $params and $values
 
 		//$tpl_builder = DevblocksPlatform::getTemplateBuilder();
