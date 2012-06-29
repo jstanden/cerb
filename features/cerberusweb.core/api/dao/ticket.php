@@ -732,7 +732,7 @@ class DAO_Ticket extends C4_ORMHelper {
 		$db = DevblocksPlatform::getDatabaseService();
 		$addresses = array();
 		
-		$sql = sprintf("SELECT a.id , a.email, a.first_name, a.last_name ".
+		$sql = sprintf("SELECT a.id , a.email, a.first_name, a.last_name, a.is_banned, a.is_defunct ".
 			"FROM address a ".
 			"INNER JOIN requester r ON (r.ticket_id = %d AND a.id=r.address_id) ".
 			"ORDER BY a.email ASC ",
@@ -746,6 +746,8 @@ class DAO_Ticket extends C4_ORMHelper {
 			$address->email = $row['email'];
 			$address->first_name = $row['first_name'];
 			$address->last_name = $row['last_name'];
+			$address->is_banned = intval($row['is_banned']);
+			$address->is_defunct = intval($row['is_defunct']);
 			$addresses[$address->id] = $address;
 		}
 		
