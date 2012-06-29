@@ -93,6 +93,113 @@ class DevblocksEventHelper {
 		}		
 	}	
 	
+	static function simulateActionSetAbstractField($field_name, $field_type, $value_key, $params, DevblocksDictionaryDelegate $dict) {
+		$field_types = Model_CustomField::getTypes();
+		
+		if(empty($field_type) || !isset($field_types[$field_type]))
+			return;
+		
+		$out = '';
+		
+		$out .= sprintf(">>> Setting %s to:\n",
+			$field_name
+		);
+		
+		switch($field_type) {
+			case Model_CustomField::TYPE_CHECKBOX:
+				@$value = $params['value'];
+				$out .= sprintf("%s\n",
+					!empty($value) ? 'yes' : 'no'
+				);
+				
+				if(!empty($value_key)) {
+					$dict->$value_key = $value;
+				}
+				break;
+				
+			case Model_CustomField::TYPE_SINGLE_LINE:
+			case Model_CustomField::TYPE_MULTI_LINE:
+			case Model_CustomField::TYPE_DROPDOWN:
+			case Model_CustomField::TYPE_NUMBER:
+			case Model_CustomField::TYPE_URL:
+				@$value = $params['value'];
+				
+				$builder = DevblocksPlatform::getTemplateBuilder();
+				$value = $builder->build($value, $dict);
+				
+				$out .= sprintf("%s\n",
+					$value
+				);
+				 
+				if(!empty($value_key)) {
+					$dict->$value_key = $value;
+				}
+				break;
+			
+			case Model_CustomField::TYPE_DATE:
+				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+				$value = $tpl_builder->build($params['value'], $dict);
+				
+				$value = strtotime($value);
+
+				if(!empty($value)) {
+					$out .= sprintf("%s (%s)\n",
+						date('D M d Y h:ia', $value),
+						$value
+					);
+				}
+				
+				if(!empty($value_key)) {
+					$dict->$value_key = $value;
+				}
+				break;
+				
+			case Model_CustomField::TYPE_MULTI_CHECKBOX:
+				@$opts = $params['values'];
+
+				$out .= sprintf("%s\n",
+					implode(', ', $opts)
+				);
+				
+				if(!empty($value_key)) {
+					$dict->$value_key = implode(',',$opts);
+				}
+				
+				break;
+				
+			case Model_CustomField::TYPE_WORKER:
+				@$worker_id = $params['worker_id'];
+				
+				// Variable?
+				if(substr($worker_id,0,4) == 'var_') {
+					@$worker_id = intval($dict->$worker_id);
+				}
+				
+				if(empty($worker_id)) {
+					$out .= "nobody\n";
+					
+				} else {
+					if(null != ($worker = DAO_Worker::get($worker_id))) {
+						$out .= sprintf("%s\n",
+							$worker->getName()
+						);
+					}
+				}
+				
+				if(!empty($value_key)) {
+					$dict->$value_key = $worker_id;
+				}
+				break;
+				
+			default:
+				//$this->runActionExtension($token, $trigger, $params, $dict);
+				//$this->simulateActionExtension($token, $trigger, $params, $dict);
+				break;
+		}
+		
+		return $out;
+	}
+	
 	static function simulateActionSetCustomField(Model_CustomField $custom_field, $value_key, $params, DevblocksDictionaryDelegate $dict, $context, $context_id) {
 		@$field_id = $custom_field->id;
 		
@@ -111,6 +218,13 @@ class DevblocksEventHelper {
 				$out .= sprintf("%s\n",
 					!empty($value) ? 'yes' : 'no'
 				);
+				
+				if(!empty($value_key)) {
+					$dict->$value_key.'_'.$field_id = $value;
+					
+					$array =& $dict->$value_key;
+					$array[$field_id] = $value;
+				}
 				break;
 				
 			case Model_CustomField::TYPE_SINGLE_LINE:
