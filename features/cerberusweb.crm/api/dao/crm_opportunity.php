@@ -964,11 +964,14 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 			foreach($ids as $opp_id) {
 				try {
 					CerberusContexts::getContext(CerberusContexts::CONTEXT_OPPORTUNITY, $opp_id, $tpl_labels, $tpl_tokens);
-					$subject = $tpl_builder->build($params['subject'], $tpl_tokens);
-					$body = $tpl_builder->build($params['message'], $tpl_tokens);
+					
+					$tpl_dict = new DevblocksDictionaryDelegate($tpl_tokens);
+					
+					$subject = $tpl_builder->build($params['subject'], $tpl_dict);
+					$body = $tpl_builder->build($params['message'], $tpl_dict);
 					
 					$json_params = array(
-						'to' => $tpl_tokens['email_address'],
+						'to' => $tpl_dict->email_address,
 						'group_id' => $params['group_id'],
 						'next_is_closed' => $next_is_closed,
 					);
@@ -978,7 +981,7 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 						DAO_MailQueue::TICKET_ID => 0,
 						DAO_MailQueue::WORKER_ID => $params['worker_id'],
 						DAO_MailQueue::UPDATED => time(),
-						DAO_MailQueue::HINT_TO => $tpl_tokens['email_address'],
+						DAO_MailQueue::HINT_TO => $tpl_dict->email_address,
 						DAO_MailQueue::SUBJECT => $subject,
 						DAO_MailQueue::BODY => $body,
 						DAO_MailQueue::PARAMS_JSON => json_encode($json_params),
