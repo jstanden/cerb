@@ -124,6 +124,7 @@ abstract class AbstractEvent_Address extends Extension_DevblocksEvent {
 		$types = array(
 			'email_address' => Model_CustomField::TYPE_SINGLE_LINE,
 			'email_is_banned' => Model_CustomField::TYPE_CHECKBOX,
+			'email_is_defunct' => Model_CustomField::TYPE_CHECKBOX,
 			'email_first_name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'email_full_name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'email_last_name' => Model_CustomField::TYPE_SINGLE_LINE,
@@ -275,6 +276,8 @@ abstract class AbstractEvent_Address extends Extension_DevblocksEvent {
 				'create_ticket' => array('label' =>'Create a ticket'),
 				'schedule_behavior' => array('label' => 'Schedule behavior'),
 				'send_email' => array('label' => 'Send email'),
+				'set_is_banned' => array('label' => 'Set is banned'),
+				'set_is_defunct' => array('label' => 'Set is defunct'),
 				'set_email_links' => array('label' => 'Set links on email'),
 				'set_email_org_links' => array('label' => 'Set links on organization'),
 				'unschedule_behavior' => array('label' => 'Unschedule behavior'),
@@ -332,6 +335,11 @@ abstract class AbstractEvent_Address extends Extension_DevblocksEvent {
 				DevblocksEventHelper::renderActionSendEmail($trigger);
 				break;
 
+			case 'set_is_banned':
+			case 'set_is_defunct':
+				$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_bool.tpl');
+				break;
+				
 			case 'set_email_links':
 			case 'set_email_org_links':
 				$contexts = Extension_DevblocksContext::getAll(false);
@@ -384,6 +392,12 @@ abstract class AbstractEvent_Address extends Extension_DevblocksEvent {
 				break;
 			case 'send_email':
 				return DevblocksEventHelper::simulateActionSendEmail($params, $dict);
+				break;
+			case 'set_is_banned':
+				return DevblocksEventHelper::simulateActionSetAbstractField('is banned', Model_CustomField::TYPE_CHECKBOX, 'email_is_banned', $params, $dict);
+				break;
+			case 'set_is_defunct':
+				return DevblocksEventHelper::simulateActionSetAbstractField('is defunct', Model_CustomField::TYPE_CHECKBOX, 'email_is_defunct', $params, $dict);
 				break;
 			case 'unschedule_behavior':
 				return DevblocksEventHelper::simulateActionUnscheduleBehavior($params, $dict);
@@ -447,6 +461,24 @@ abstract class AbstractEvent_Address extends Extension_DevblocksEvent {
 				
 			case 'unschedule_behavior':
 				DevblocksEventHelper::runActionUnscheduleBehavior($params, $dict);
+				break;
+				
+			case 'set_is_banned':
+				@$value = $params['value'];
+				
+				DAO_Address::update($address_id, array(
+					DAO_Address::IS_BANNED => $value,
+				));
+				$dict->is_banned = $value;
+				break;
+				
+			case 'set_is_defunct':
+				@$value = $params['value'];
+				
+				DAO_Address::update($address_id, array(
+					DAO_Address::IS_DEFUNCT => $value,
+				));
+				$dict->is_defunct = $value;
 				break;
 				
 			case 'set_email_links':

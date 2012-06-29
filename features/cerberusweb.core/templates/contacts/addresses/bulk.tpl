@@ -34,6 +34,14 @@
 				<option value="1">{$translate->_('common.yes')|capitalize}</option>
 	      	</select></td>
 		</tr>
+		<tr>
+			<td width="0%" nowrap="nowrap" align="right">{$translate->_('address.is_defunct')|capitalize}:</td>
+			<td width="100%"><select name="is_defunct">
+				<option value=""></option>
+				<option value="0">{$translate->_('common.no')|capitalize}</option>
+				<option value="1">{$translate->_('common.yes')|capitalize}</option>
+	      	</select></td>
+		</tr>
 	</table>
 </fieldset>
 

@@ -813,6 +813,9 @@
 		<tu tuid='address.is_banned'>
 			<tuv xml:lang="en_US"><seg>Is Banned</seg></tuv>
 		</tu>
+		<tu tuid='address.is_defunct'>
+			<tuv xml:lang="en_US"><seg>Is Defunct</seg></tuv>
+		</tu>
 		<tu tuid='address.last_name'>
 			<tuv xml:lang="en_US"><seg>Last Name</seg></tuv>
 		</tu>

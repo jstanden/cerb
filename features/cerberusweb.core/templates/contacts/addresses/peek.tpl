@@ -57,13 +57,10 @@
 			</td>
 		</tr>
 		<tr>
-			<td width="0%" nowrap="nowrap" valign="top" align="right">{$translate->_('address.is_banned')|capitalize}: </td>
+			<td width="0%" nowrap="nowrap" valign="top" align="right">{$translate->_('common.options')|capitalize}: </td>
 			<td width="100%">
-				<select name="is_banned">
-					<option value="0"></option>
-					<option value="0" {if !$address.a_is_banned}selected{/if}>{$translate->_('common.no')|capitalize}</option>
-					<option value="1" {if $address.a_is_banned}selected{/if}>{$translate->_('common.yes')|capitalize}</option>
-				</select>
+				<label><input type="checkbox" name="is_banned" value="1" {if $address.a_is_banned}checked="checked"{/if}> {'address.is_banned'|devblocks_translate|capitalize}</label>
+				<label><input type="checkbox" name="is_defunct" value="1" {if $address.a_is_defunct}checked="checked"{/if}> {'address.is_defunct'|devblocks_translate|capitalize}</label>
 			</td>
 		</tr>
 		

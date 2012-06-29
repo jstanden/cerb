@@ -71,7 +71,9 @@
 			</td>
 			<td colspan="{$smarty.foreach.headers.total}">
 				<input type="checkbox" name="row_id[]" value="{$result.a_id}" style="display:none;">
-				{if $result.a_is_banned}(banned) {/if}<a href="{devblocks_url}c=profiles&type=address&id={$result.a_id}-{$result.a_email|devblocks_permalink}{/devblocks_url}" class="subject">{$result.a_email}</a>
+				<a href="{devblocks_url}c=profiles&type=address&id={$result.a_id}-{$result.a_email|devblocks_permalink}{/devblocks_url}" class="subject">{$result.a_email}</a>
+				{if $result.a_is_banned}<span class="tag tag-red">banned</span> {/if}
+				{if $result.a_is_defunct}<span class="tag tag-gray">defunct</span> {/if}
 				<button type="button" class="peek" style="visibility:hidden;padding:1px;margin:0px 5px;" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_ADDRESS}&email={$result.a_email|escape:'url'}&view_id={$view->id}',null,false,'550');"><span class="cerb-sprite2 sprite-document-search-result" style="margin-left:2px" title="{$translate->_('views.peek')}"></span></button>
 			</td>
 		</tr>
@@ -87,9 +89,9 @@
 				<a href="javascript:;" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_ORG}&context_id={$result.a_contact_org_id}&view_id={$view->id}',null,false,'600');">{$result.o_name}</a>
 				{/if}
 			</td>
-			{elseif $column=="a_is_banned"}
+			{elseif $column=="a_is_banned" || $column == "a_is_defunct"}
 			<td>
-				{if $result.a_is_banned}Yes{/if}&nbsp;
+				{if $result.$column}Yes{/if}&nbsp;
 			</td>
 			{else}
 			<td>{$result.$column}</td>

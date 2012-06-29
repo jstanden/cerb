@@ -81,6 +81,12 @@ class PageSection_ProfilesAddress extends Extension_PageSection {
 			'value' => $address->is_banned,
 		);
 		
+		$properties['is_defunct'] = array(
+			'label' => ucfirst($translate->_('address.is_defunct')),
+			'type' => Model_CustomField::TYPE_CHECKBOX,
+			'value' => $address->is_defunct,
+		);
+		
 		@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_ADDRESS, $address->id)) or array();
 		
 		foreach($custom_fields as $cf_id => $cfield) {

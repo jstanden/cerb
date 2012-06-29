@@ -182,10 +182,12 @@ class ChContactsPage extends CerberusPageExtension {
 		
 		// Match org, ignore banned
 		$results = DAO_Address::getWhere(
-			sprintf("%s = %d AND %s = %d",
+			sprintf("%s = %d AND %s = %d AND %s = %d",
 				DAO_Address::CONTACT_ORG_ID,
 				$org_id,
 				DAO_Address::IS_BANNED,
+				0,
+				DAO_Address::IS_DEFUNCT,
 				0
 			),
 			DAO_Address::NUM_NONSPAM,
@@ -962,6 +964,7 @@ class ChContactsPage extends CerberusPageExtension {
 		@$last_name = trim(DevblocksPlatform::importGPC($_REQUEST['last_name'],'string',''));
 		@$contact_org = trim(DevblocksPlatform::importGPC($_REQUEST['contact_org'],'string',''));
 		@$is_banned = DevblocksPlatform::importGPC($_REQUEST['is_banned'],'integer',0);
+		@$is_defunct = DevblocksPlatform::importGPC($_REQUEST['is_defunct'],'integer',0);
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string', '');
 		
 		if($active_worker->hasPriv('core.addybook.addy.actions.update')) {
@@ -978,6 +981,7 @@ class ChContactsPage extends CerberusPageExtension {
 				DAO_Address::LAST_NAME => $last_name,
 				DAO_Address::CONTACT_ORG_ID => $contact_org_id,
 				DAO_Address::IS_BANNED => $is_banned,
+				DAO_Address::IS_DEFUNCT => $is_defunct,
 			);
 			
 			if($id==0) {
@@ -1110,6 +1114,7 @@ class ChContactsPage extends CerberusPageExtension {
 		@$org_name = trim(DevblocksPlatform::importGPC($_POST['contact_org'],'string',''));
 		@$sla = DevblocksPlatform::importGPC($_POST['sla'],'string','');
 		@$is_banned = DevblocksPlatform::importGPC($_POST['is_banned'],'integer',0);
+		@$is_defunct = DevblocksPlatform::importGPC($_POST['is_defunct'],'integer',0);
 
 		// Scheduled behavior
 		@$behavior_id = DevblocksPlatform::importGPC($_POST['behavior_id'],'string','');
@@ -1131,6 +1136,10 @@ class ChContactsPage extends CerberusPageExtension {
 		// Do: Banned
 		if(0 != strlen($is_banned))
 			$do['banned'] = $is_banned;
+		
+		// Do: Defunct
+		if(0 != strlen($is_defunct))
+			$do['defunct'] = $is_defunct;
 		
 		// Do: Scheduled Behavior
 		if(0 != strlen($behavior_id)) {
@@ -1354,6 +1363,7 @@ class ChContactsPage extends CerberusPageExtension {
 			$sql = sprintf("SELECT first_name, last_name, email, num_nonspam ".
 				"FROM address ".
 				"WHERE is_banned = 0 ".
+				"AND is_defunct = 0 ".
 				"AND email LIKE %s ".
 				"ORDER BY num_nonspam DESC ".
 				"LIMIT 0,25",
@@ -1363,6 +1373,7 @@ class ChContactsPage extends CerberusPageExtension {
 			$sql = sprintf("SELECT first_name, last_name, email, num_nonspam ".
 				"FROM address ".
 				"WHERE is_banned = 0 ".
+				"AND is_defunct = 0 ".
 				"AND concat(first_name,' ',last_name) LIKE %s ".
 				"ORDER BY num_nonspam DESC ".
 				"LIMIT 0,25",
@@ -1372,6 +1383,7 @@ class ChContactsPage extends CerberusPageExtension {
 			$sql = sprintf("SELECT first_name, last_name, email, num_nonspam ".
 				"FROM address ".
 				"WHERE is_banned = 0 ".
+				"AND is_defunct = 0 ".
 				"AND (email LIKE %s ".
 				"OR first_name LIKE %s ".
 				"OR last_name LIKE %s) ".
