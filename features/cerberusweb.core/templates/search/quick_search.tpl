@@ -26,7 +26,7 @@
 $frm = $('#{$uniqid}');
 
 $frm.find('select:first').change(function(e) {
-	$(this).next('input:text[name=query]').val('').focus();
+	$(this).next('input:text[name=query]').focus();
 });
 
 $frm.find('input:text').keydown(function(e) {
