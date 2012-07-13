@@ -442,6 +442,10 @@ class ChTimeTrackingPage extends CerberusPageExtension {
 	        $tpl->assign('ids', implode(',', $ids));
 	    }
 		
+	    // Activities
+	    $activities = DAO_TimeTrackingActivity::getWhere();
+	    $tpl->assign('activities', $activities);
+	    
 		// Custom Fields
 		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TIMETRACKING);
 		$tpl->assign('custom_fields', $custom_fields);
@@ -465,6 +469,7 @@ class ChTimeTrackingPage extends CerberusPageExtension {
 		$view = C4_AbstractViewLoader::getView($view_id);
 		
 		// Time Tracking fields
+		@$activity = DevblocksPlatform::importGPC($_POST['activity_id'], 'string', '');
 		@$is_closed = DevblocksPlatform::importGPC($_POST['is_closed'],'string','');
 
 		// Scheduled behavior
@@ -486,6 +491,8 @@ class ChTimeTrackingPage extends CerberusPageExtension {
 				'params' => $behavior_params,
 			);
 		}
+		
+		$do['activity_id'] = $activity;
 		
 		// Watchers
 		$watcher_params = array();
