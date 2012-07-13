@@ -279,6 +279,11 @@ class ChTimeTrackingPage extends CerberusPageExtension {
 						DAO_Comment::create($fields);
 					}
 					break;
+					
+				case '':
+					unset($link_context);
+					unset($link_context);
+					break;
 			}
 			
 			// Establishing a context link?
