@@ -217,14 +217,11 @@ class ChInternalController extends DevblocksControllerExtension {
 	}
 	
 	function parseImportFileAction() {
-		header("Content-Type: application/json");
-		
 		@$csv_file = $_FILES['csv_file'];
 		
 		// [TODO] Return false in JSON if file is empty, etc.
 		
 		if(!is_array($csv_file) || !isset($csv_file['tmp_name']) || empty($csv_file['tmp_name'])) {
-			echo json_encode(false);
 			exit;
 		}
 		
@@ -232,14 +229,12 @@ class ChInternalController extends DevblocksControllerExtension {
 		$newfilename = APP_TEMP_PATH . '/' . $filename;
 		
 		if(!rename($csv_file['tmp_name'], $newfilename)) {
-			echo json_encode(false);
 			exit;
 		}
 		
 		$visit = CerberusApplication::getVisit();
 		$visit->set('import.last.csv', $newfilename);
 		
-		echo json_encode(true);
 		exit;
 	}
 
