@@ -1273,21 +1273,37 @@ class DAO_Ticket extends C4_ORMHelper {
 				if(!is_array($values))
 					$values = array($values);
 					
+				$oper_sql = array();
 				$status_sql = array();
+				
+				switch($param->operator) {
+					case DevblocksSearchCriteria::OPER_IN:
+						$oper = '=';
+						break;
+					case DevblocksSearchCriteria::OPER_IN_OR_NULL:
+						$oper = '=';
+						break;
+					case DevblocksSearchCriteria::OPER_NIN:
+						$oper = '!=';
+						break;
+					case DevblocksSearchCriteria::OPER_NIN_OR_NULL:
+						$oper = '!=';
+						break;
+				}
 				
 				foreach($values as $value) {
 					switch($value) {
 						case 'open':
-							$status_sql[] = "(t.is_waiting = 0 AND t.is_closed = 0)";
+							$status_sql[] = sprintf('(t.is_waiting %s 0 AND t.is_closed %s 0)', $oper, $oper);
 							break;
 						case 'waiting':
-							$status_sql[] = "(t.is_waiting = 1 AND t.is_closed = 0)";
+							$status_sql[] = sprintf('(t.is_waiting %s 1 AND t.is_closed %s 0)', $oper, $oper);
 							break;
 						case 'closed':
-							$status_sql[] = "(t.is_closed = 1 AND t.is_deleted=0)";
+							$status_sql[] = sprintf('(t.is_closed %s 1 AND t.is_deleted %s 0)', $oper, $oper);
 							break;
 						case 'deleted':
-							$status_sql[] = "(t.is_closed = 1 AND t.is_deleted=1)";
+							$status_sql[] = sprintf('(t.is_closed %s 1 AND t.is_deleted %s 1)', $oper, $oper);
 							break;
 					}
 				}
@@ -2184,7 +2200,21 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals {
 					}
 				}
 				
-				echo sprintf("Status is %s", implode(' or ', $strings));
+				switch($param->operator) {
+					case DevblocksSearchCriteria::OPER_IN:
+						$oper = 'is';
+						break;
+					case DevblocksSearchCriteria::OPER_IN_OR_NULL:
+						$oper = 'is blank or';
+						break;
+					case DevblocksSearchCriteria::OPER_NIN:
+						$oper = 'is not';
+						break;
+					case DevblocksSearchCriteria::OPER_NIN_OR_NULL:
+						$oper = 'is blank or not';
+						break;
+				}
+				echo sprintf("Status %s %s", $oper, implode(' or ', $strings));
 				break;
 		}
 	}	
