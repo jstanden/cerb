@@ -343,6 +343,8 @@ class Page_Search extends CerberusPageExtension {
 			$view->removeParam($token);
 		}
 		
+		$view->renderPage = 0;
+		
 		C4_AbstractViewLoader::setView($view->id, $view);
 		
 		$tpl = DevblocksPlatform::getTemplateService();
