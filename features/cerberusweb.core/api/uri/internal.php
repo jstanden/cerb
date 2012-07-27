@@ -44,6 +44,17 @@ class ChInternalController extends DevblocksControllerExtension {
 	    }
 	}
 
+	function handleSectionActionAction() {
+		@$section_uri = DevblocksPlatform::importGPC($_REQUEST['section'],'string','');
+		@$action = DevblocksPlatform::importGPC($_REQUEST['action'],'string','');
+
+		$inst = Extension_PageSection::getExtensionByPageUri($this->manifest->id, $section_uri, true);
+		
+		if($inst instanceof Extension_PageSection && method_exists($inst, $action.'Action')) {
+			call_user_func(array($inst, $action.'Action'));
+		}
+	}
+	
 	// Post
 	function doStopTourAction() {
 		$worker = CerberusApplication::getActiveWorker();
