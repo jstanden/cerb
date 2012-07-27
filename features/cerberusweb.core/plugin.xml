@@ -666,6 +666,7 @@
 			</class>
 			<params>
 				<param key="alias" value="app" />
+				<param key="dao_class" value="" />
 				<param key="view_class" value="" />
 				<param key="options">
 					<!--
@@ -689,6 +690,7 @@
 			</class>
 			<params>
 				<param key="alias" value="person" />
+				<param key="dao_class" value="DAO_ContactPerson" />
 				<param key="view_class" value="View_ContactPerson" />
 				<param key="options">
 					<value>
@@ -710,6 +712,7 @@
 			</class>
 			<params>
 				<param key="alias" value="address" />
+				<param key="dao_class" value="DAO_Address" />
 				<param key="view_class" value="View_Address" />
 				<param key="options">
 					<value>
@@ -732,6 +735,7 @@
 			</class>
 			<params>
 				<param key="alias" value="calendar_event" />
+				<param key="dao_class" value="DAO_CalendarEvent" />
 				<param key="view_class" value="View_CalendarEvent" />
 				<param key="options">
 					<value>
@@ -754,6 +758,7 @@
 			</class>
 			<params>
 				<param key="alias" value="comment" />
+				<param key="dao_class" value="DAO_Comment" />
 				<param key="view_class" value="View_Comment" />
 				<!--
 				<param key="options">
@@ -773,6 +778,7 @@
 			</class>
 			<params>
 				<param key="alias" value="draft" />
+				<param key="dao_class" value="DAO_MailQueue" />
 				<param key="view_class" value="View_MailQueue" />
 				<param key="options">
 					<value>
@@ -795,6 +801,7 @@
 			</class>
 			<params>
 				<param key="alias" value="group" />
+				<param key="dao_class" value="DAO_Group" />
 				<param key="view_class" value="View_Group" />
 				<param key="options">
 					<value>
@@ -816,6 +823,7 @@
 			</class>
 			<params>
 				<param key="alias" value="message" />
+				<param key="dao_class" value="DAO_Message" />
 				<param key="view_class" value="View_Message" />
 				<param key="options">
 					<value>
@@ -835,6 +843,7 @@
 			</class>
 			<params>
 				<param key="alias" value="notification" />
+				<param key="dao_class" value="DAO_Notification" />
 				<param key="view_class" value="View_Notification" />
 				<param key="options">
 					<value>
@@ -855,6 +864,7 @@
 			</class>
 			<params>
 				<param key="alias" value="org" />
+				<param key="dao_class" value="DAO_ContactOrg" />
 				<param key="view_class" value="View_ContactOrg" />
 				<param key="options">
 					<value>
@@ -877,6 +887,7 @@
 			</class>
 			<params>
 				<param key="alias" value="snippet" />
+				<param key="dao_class" value="DAO_Snippet" />
 				<param key="view_class" value="View_Snippet" />
 				<param key="options">
 					<value>
@@ -898,6 +909,7 @@
 			</class>
 			<params>
 				<param key="alias" value="task" />
+				<param key="dao_class" value="DAO_Task" />
 				<param key="view_class" value="View_Task" />
 				<param key="options">
 					<value>
@@ -920,6 +932,7 @@
 			</class>
 			<params>
 				<param key="alias" value="ticket" />
+				<param key="dao_class" value="DAO_Ticket" />
 				<param key="view_class" value="View_Ticket" />
 				<param key="options">
 					<value>
@@ -942,6 +955,7 @@
 			</class>
 			<params>
 				<param key="alias" value="worker" />
+				<param key="dao_class" value="DAO_Worker" />
 				<param key="view_class" value="View_Worker" />
 				<param key="options">
 					<value>
@@ -963,6 +977,8 @@
 				<name>Context_WorkerRole</name>
 			</class>
 			<params>
+				<param key="alias" value="role" />
+				<param key="dao_class" value="DAO_WorkerRole" />
 				<param key="view_class" value="View_WorkerRole" />
 				<param key="options">
 					<!--

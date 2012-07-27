@@ -105,6 +105,7 @@
 			</class>
 			<params>
 				<param key="alias" value="kb_article" />
+				<param key="dao_class" value="DAO_KbArticle" />
 				<param key="view_class" value="View_KbArticle" />
 				<param key="options">
 					<value>
@@ -127,6 +128,7 @@
 			</class>
 			<params>
 				<param key="alias" value="kb_category" />
+				<param key="dao_class" value="DAO_KbCategory" />
 				<param key="view_class" value="View_KbCategory" />
 				<param key="options">
 					<!--

@@ -89,6 +89,7 @@
 			</class>
 			<params>
 				<param key="alias" value="opportunity" />
+				<param key="dao_class" value="DAO_CrmOpportunity" />
 				<param key="view_class" value="View_CrmOpportunity" />
 				<param key="options">
 					<value>

@@ -67,6 +67,7 @@
 			</class>
 			<params>
 				<param key="alias" value="time_entry" />
+				<param key="dao_class" value="DAO_TimeTrackingEntry" />
 				<param key="view_class" value="View_TimeTracking" />
 				<param key="options">
 					<value>
