@@ -655,9 +655,6 @@ class CerberusContexts {
 			case 'cerberusweb.contexts.attachment':
 				self::_getAttachmentContext($context_object, $labels, $values, $prefix);
 				break;
-			case 'cerberusweb.contexts.bucket':
-				self::_getBucketContext($context_object, $labels, $values, $prefix);
-				break;
 			default:
 				// Migrated
 				if(null != ($ctx = DevblocksPlatform::getExtension($context, true)) 
@@ -1180,74 +1177,6 @@ class CerberusContexts {
 			$token_values['updated'] = $attachment->updated;
 		}
 		
-		return true;
-	}
-	
-	/**
-	 * 
-	 * @param mixed $bucket
-	 * @param array $token_labels
-	 * @param array $token_values
-	 */
-	private static function _getBucketContext($bucket, &$token_labels, &$token_values, $prefix=null) {
-		if(is_null($prefix))
-			$prefix = 'Bucket:';
-		
-		$translate = DevblocksPlatform::getTranslationService();
-		//$fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ORG);
-
-		// Polymorph
-		if(is_numeric($bucket)) {
-			$bucket = DAO_Bucket::get($bucket); 
-		} elseif($bucket instanceof Model_Bucket) {
-			// It's what we want already.
-		} else {
-			$bucket = null;
-		}
-		/* @var $bucket Model_Bucket */
-		
-		// Token labels
-		$token_labels = array(
-			'id' => $prefix.$translate->_('common.id'),
-			'name|default(\'Inbox\')' => $prefix.$translate->_('common.name'),
-		);
-		
-//		if(is_array($fields))
-//		foreach($fields as $cf_id => $field) {
-//			$token_labels['custom_'.$cf_id] = $prefix.$field->name;
-//		}
-
-		// Token values
-		$token_values = array();
-		
-		// Bucket token values
-		if($bucket) {
-			$token_values['id'] = $bucket->id;
-			$token_values['name'] = $bucket->name;
-			//$token_values['custom'] = array();
-			
-//			$field_values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_ORG, $org->id));
-//			if(is_array($field_values) && !empty($field_values)) {
-//				foreach($field_values as $cf_id => $cf_val) {
-//					if(!isset($fields[$cf_id]))
-//						continue;
-//					
-//					// The literal value
-//					if(null != $org)
-//						$token_values['custom'][$cf_id] = $cf_val;
-//					
-//					// Stringify
-//					if(is_array($cf_val))
-//						$cf_val = implode(', ', $cf_val);
-//						
-//					if(is_string($cf_val)) {
-//						if(null != $org)
-//							$token_values['custom_'.$cf_id] = $cf_val;
-//					}
-//				}
-//			}
-		}
-
 		return true;
 	}
 };
