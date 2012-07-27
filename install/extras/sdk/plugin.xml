@@ -18,14 +18,14 @@
 	<!-- Plugin Dependencies -->
 	
 	<dependencies>
-		<require plugin_id="cerberusweb.core" version="6.0.0" />
+		<require plugin_id="cerberusweb.core" version="6.1.0" />
 	</dependencies>
 
 	<!-- Patches -->
 	
 	<patches>
 		<!--
-		<patch version="5.6.0" revision="1" file="patches/5.6.0.php" />
+		<patch version="6.1.0" revision="1" file="patches/6.1.0.php" />
 		-->
 	</patches>
 	
@@ -34,6 +34,7 @@
 	<class_loader>
 		<!--
 		<file path="api/dao/example.php">
+			<class name="Context_Example" />
 			<class name="DAO_Example" />
 			<class name="Model_Example" />
 			<class name="Plugin_Example" />
