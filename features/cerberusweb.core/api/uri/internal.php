@@ -579,39 +579,56 @@ class ChInternalController extends DevblocksControllerExtension {
 		@$layer = DevblocksPlatform::importGPC($_REQUEST['layer'],'string');
 		@$trigger_id = DevblocksPlatform::importGPC($_REQUEST['trigger_id'],'integer',0);
 		
-		if(null != ($view = C4_AbstractViewLoader::getView($view_id))) {
-			if(!empty($trigger_id) && null != ($trigger = DAO_TriggerEvent::get($trigger_id))) {
-				$event = $trigger->getEvent();
-				
-				if(method_exists($event,'generateSampleEventModel')) {
-					$event_model = $event->generateSampleEventModel();
-					$event->setEvent($event_model);
-					$values = $event->getValues();
-					$view->setPlaceholderValues($values);
-				}
-				
-				$conditions = $event->getConditions($trigger);
-				$valctx = $event->getValuesContexts($trigger);
-				foreach($valctx as $token => $vtx) {
-					$conditions[$token] = $vtx;
-				}
+		if(null == ($context_ext = Extension_DevblocksContext::get($context))) { /* @var $context_ext Extension_DevblocksContext */
+			return;
+		}
 
-				foreach($conditions as $cond_id => $cond) {
-					if(substr($cond_id,0,1) == '_')
-						unset($conditions[$cond_id]);
-				}
-				
-				$view->setPlaceholderLabels($conditions);
-				
-				C4_AbstractViewLoader::setView($view->id, $view);
+		if(!isset($context_ext->manifest->params['view_class']))
+			return;
+		
+		$view = C4_AbstractViewLoader::getView($view_id);
+		
+		if(!($view instanceof $context_ext->manifest->params['view_class'])) {
+			C4_AbstractViewLoader::deleteView($view_id);
+			$view = null;
+		}
+		
+		if(empty($view)) {
+			if(null == ($view = $context_ext->getChooserView($view_id)))
+				return;
+		}
+		
+		if(!empty($trigger_id) && null != ($trigger = DAO_TriggerEvent::get($trigger_id))) {
+			$event = $trigger->getEvent();
+			
+			if(method_exists($event,'generateSampleEventModel')) {
+				$event_model = $event->generateSampleEventModel();
+				$event->setEvent($event_model);
+				$values = $event->getValues();
+				$view->setPlaceholderValues($values);
 			}
 			
-			$tpl = DevblocksPlatform::getTemplateService();
-			$tpl->assign('context', $context);
-			$tpl->assign('layer', $layer);
-			$tpl->assign('view', $view);
-			$tpl->display('devblocks:cerberusweb.core::internal/choosers/__worklist.tpl');
+			$conditions = $event->getConditions($trigger);
+			$valctx = $event->getValuesContexts($trigger);
+			foreach($valctx as $token => $vtx) {
+				$conditions[$token] = $vtx;
+			}
+
+			foreach($conditions as $cond_id => $cond) {
+				if(substr($cond_id,0,1) == '_')
+					unset($conditions[$cond_id]);
+			}
+			
+			$view->setPlaceholderLabels($conditions);
 		}
+		
+		C4_AbstractViewLoader::setView($view->id, $view);
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('context', $context);
+		$tpl->assign('layer', $layer);
+		$tpl->assign('view', $view);
+		$tpl->display('devblocks:cerberusweb.core::internal/choosers/__worklist.tpl');
 	}
 	
 	function serializeViewAction() {

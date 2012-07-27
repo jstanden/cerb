@@ -21,4 +21,25 @@ if(!isset($indexes['is_defunct'])) {
 	$db->Execute("ALTER TABLE address ADD INDEX is_defunct (is_defunct)");
 }
 
+// ===========================================================================
+// workspace_widget
+
+if(!isset($tables['workspace_widget'])) {
+	$sql = sprintf("
+		CREATE TABLE IF NOT EXISTS workspace_widget (
+			id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+			extension_id VARCHAR(255) DEFAULT '' NOT NULL,
+			workspace_tab_id INT UNSIGNED DEFAULT 0 NOT NULL,
+			label VARCHAR(255) DEFAULT '' NOT NULL,
+			updated_at INT UNSIGNED DEFAULT 0 NOT NULL,
+			params_json TEXT,
+			pos CHAR(4) DEFAULT '' NOT NULL,
+			PRIMARY KEY (id)
+		) ENGINE=%s;
+	", APP_DB_ENGINE);
+	$db->Execute($sql);
+
+	$tables['workspace_widget'] = 'workspace_widget';
+}
+
 return TRUE;

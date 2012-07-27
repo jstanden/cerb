@@ -333,6 +333,72 @@ abstract class Extension_WorkspaceTab extends DevblocksExtension {
 	abstract function renderTab(Model_WorkspacePage $page, Model_WorkspaceTab $tab);
 };
 
+abstract class Extension_WorkspaceWidget extends DevblocksExtension {
+	static $_registry = array();
+	
+	static function getAll($as_instances=false) {
+		$extensions = DevblocksPlatform::getExtensions('cerberusweb.ui.workspace.widget', $as_instances);
+		
+		if($as_instances)
+			DevblocksPlatform::sortObjects($extensions, 'manifest->name');
+		else
+			DevblocksPlatform::sortObjects($extensions, 'name');
+		
+		return $extensions;
+	}
+
+	static function get($extension_id) {
+		if(isset(self::$_registry[$extension_id]))
+			return self::$_registry[$extension_id];
+		
+		if(null != ($extension = DevblocksPlatform::getExtension($extension_id, true))
+				&& $extension instanceof Extension_WorkspaceWidget) {
+
+			self::$_registry[$extension->id] = $extension;
+			return $extension;
+		}
+		
+		return null;
+	}
+	
+	abstract function render(Model_WorkspaceWidget $widget); 
+	abstract function renderConfig(Model_WorkspaceWidget $widget); 
+	abstract function saveConfig(Model_WorkspaceWidget $widget);
+
+	protected static function getParamsViewModel($widget, $params) {
+		$view_model = null;
+		
+		if(isset($params['view_model'])) {
+			$view_model_encoded = $params['view_model'];
+			$view_model = unserialize(base64_decode($view_model_encoded));
+		}
+		
+		if(empty($view_model)) {
+			@$view_id = $params['view_id'];
+			@$view_context = $params['view_context'];
+			
+			if(empty($view_context))
+				return;
+			
+			if(null == ($ctx = Extension_DevblocksContext::get($view_context)))
+				return;
+			
+			if(null == ($view = $ctx->getChooserView($view_id))) /* @var $view C4_AbstractView */
+				return;
+				
+			if($view instanceof C4_AbstractView) {
+				$view->id = $view_id;
+				$view->is_ephemeral = true;
+				$view->renderFilters = false;
+	
+				$view_model = C4_AbstractViewLoader::serializeAbstractView($view);
+			}
+		}
+		
+		return $view_model;
+	}	
+};
+
 abstract class Extension_RssSource extends DevblocksExtension {
 	const EXTENSION_POINT = 'cerberusweb.rss.source';
 	

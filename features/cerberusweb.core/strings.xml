@@ -1828,6 +1828,12 @@ For example: *receipt*</seg></tuv>
 			<tuv xml:lang="en_US"><seg>Title</seg></tuv>
 		</tu>
 
+		<!-- Workspaces -->
+		
+		<tu tuid='core.workspace.dashboard'>
+			<tuv xml:lang="en_US"><seg>Dashboard</seg></tuv>
+		</tu>
+
 		<!-- Worker Event -->
 
 		<tu tuid='notification.id'>
