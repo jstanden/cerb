@@ -191,6 +191,14 @@ switch($step) {
 			$fails++;
 		}
 
+		// Extension: ctype
+		if(extension_loaded("ctype")) {
+			$results['ext_ctype'] = true;
+		} else {
+			$results['ext_ctype'] = false;
+			$fails++;
+		}
+
 		// Extension: GD
 		if(extension_loaded("gd") && function_exists('imagettfbbox')) {
 			$results['ext_gd'] = true;

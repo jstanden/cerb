@@ -46,6 +46,15 @@
 <br>
 <br>
 
+<b>PHP Extension (ctype)... </b> 
+{if !$results.ext_ctype}
+	<span class="bad">Error! PHP must have the 'ctype' extension enabled.</span>
+{else}
+	<span class="good">Passed!</span>
+{/if}
+<br>
+<br>
+
 <b>PHP Extension (GD)... </b> 
 {if !$results.ext_gd}
 	<span class="bad">Error! PHP must have the 'GD' extension enabled (with FreeType library support).</span>

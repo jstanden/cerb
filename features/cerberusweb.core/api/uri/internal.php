@@ -228,14 +228,11 @@ class ChInternalController extends DevblocksControllerExtension {
 	}
 	
 	function parseImportFileAction() {
-		header("Content-Type: application/json");
-		
 		@$csv_file = $_FILES['csv_file'];
 		
 		// [TODO] Return false in JSON if file is empty, etc.
 		
 		if(!is_array($csv_file) || !isset($csv_file['tmp_name']) || empty($csv_file['tmp_name'])) {
-			echo json_encode(false);
 			exit;
 		}
 		
@@ -243,14 +240,12 @@ class ChInternalController extends DevblocksControllerExtension {
 		$newfilename = APP_TEMP_PATH . '/' . $filename;
 		
 		if(!rename($csv_file['tmp_name'], $newfilename)) {
-			echo json_encode(false);
 			exit;
 		}
 		
 		$visit = CerberusApplication::getVisit();
 		$visit->set('import.last.csv', $newfilename);
 		
-		echo json_encode(true);
 		exit;
 	}
 
@@ -2525,6 +2520,7 @@ class ChInternalController extends DevblocksControllerExtension {
 	function showDecisionPopupAction() {
 		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string', '');
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer', 0);
+		@$only_event_ids = DevblocksPlatform::importGPC($_REQUEST['only_event_ids'],'string', '');
 		
 		$tpl = DevblocksPlatform::getTemplateService();
 		
@@ -2562,6 +2558,18 @@ class ChInternalController extends DevblocksControllerExtension {
 				$tpl->assign('context_id', $context_id);
 				
 				$events = Extension_DevblocksEvent::getByContext($context, false);
+				
+				// Are we filtering the available events?
+				if(!empty($only_event_ids)) {
+					$only_event_ids = DevblocksPlatform::parseCsvString($only_event_ids,false,'string');
+					
+					if(is_array($events))
+					foreach($events as $event_id => $event) {
+						if(!in_array($event_id, $only_event_ids))
+							unset($events[$event_id]);
+					}
+				}
+				
 				$tpl->assign('events', $events);
 				
 			} else {
