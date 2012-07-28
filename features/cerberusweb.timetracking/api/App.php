@@ -354,6 +354,31 @@ class ChTimeTrackingPage extends CerberusPageExtension {
 		}
 	}
 	
+	function viewMarkClosedAction() {
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
+		
+		@$row_ids = DevblocksPlatform::importGPC($_REQUEST['row_id'],'array',array());
+
+		try {
+			if(is_array($row_ids))
+			foreach($row_ids as $row_id) {
+				$row_id = intval($row_id);
+				
+				if(!empty($row_id))
+					DAO_TimeTrackingEntry::update($row_id, array(
+						DAO_TimeTrackingEntry::IS_CLOSED => 1,
+					));
+			}
+		} catch (Exception $e) {
+			//
+		}
+		
+		$view = C4_AbstractViewLoader::getView($view_id);
+		$view->render();
+		
+		exit;		
+	}
+	
 	function viewTimeExploreAction() {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
 		
