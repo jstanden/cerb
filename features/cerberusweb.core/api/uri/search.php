@@ -292,40 +292,56 @@ class Page_Search extends CerberusPageExtension {
 						case '!':
 						case '!=':
 							$oper = DevblocksSearchCriteria::OPER_NIN_OR_NULL;
+							
+							if(empty($query)) {
+								$oper = DevblocksSearchCriteria::OPER_IS_NOT_NULL;
+								$value = true;
+							}
+							
 							break;
+							
 						default:
 							$oper = DevblocksSearchCriteria::OPER_IN;
+							
+							if(empty($query)) {
+								$oper = DevblocksSearchCriteria::OPER_IS_NULL;
+								$value = true;
+							}
+							
 							break;
 					}
 				}
+
+				if(!empty($query)) {
+					$workers = DAO_Worker::getAllActive();
+					$patterns = DevblocksPlatform::parseCsvString($query);
 					
-				$workers = DAO_Worker::getAllActive();
-				$patterns = DevblocksPlatform::parseCsvString($query);
-				
-				$worker_names = array();
-				$worker_ids = array();
-				
-				foreach($patterns as $pattern) {
-					if(0 == strcasecmp($pattern, 'me')) {
-						$worker_ids[$active_worker->id] = true;
-						continue;
-					}
+					$worker_names = array();
+					$worker_ids = array();
 					
-					foreach($workers as $worker_id => $worker) {
-						$worker_name = $worker->getName();
-					
-						if(isset($workers_ids[$worker_id]))
+					foreach($patterns as $pattern) {
+						if(0 == strcasecmp($pattern, 'me')) {
+							$worker_ids[$active_worker->id] = true;
 							continue;
+						}
 						
-						if(false !== stristr($worker_name, $pattern)) {
-							$worker_ids[$worker_id] = true;
+						foreach($workers as $worker_id => $worker) {
+							$worker_name = $worker->getName();
+						
+							if(isset($workers_ids[$worker_id]))
+								continue;
+							
+							if(false !== stristr($worker_name, $pattern)) {
+								$worker_ids[$worker_id] = true;
+							}
 						}
 					}
+					
+					if(!empty($worker_ids)) {
+						$value = array_keys($worker_ids);
+					}
 				}
 				
-				if(!empty($worker_ids)) {
-					$value = array_keys($worker_ids);
-				}
 				break;
 				
 			case 'FT':
