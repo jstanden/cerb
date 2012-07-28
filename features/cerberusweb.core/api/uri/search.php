@@ -95,6 +95,11 @@ class Page_Search extends CerberusPageExtension {
 			return;
 		}
 		
+		if(preg_match('/^\#reset(.*)/', $query, $matches)) {
+			$reset = 1;
+			$query = trim($matches[1]);
+		}
+		
 		DAO_WorkerPref::set($active_worker->id, 'quicksearch_' . strtolower(get_class($view)), $token);
 		
 		if(!empty($reset))
