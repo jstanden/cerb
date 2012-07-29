@@ -485,6 +485,10 @@ class WorkspaceWidget_Chart extends Extension_WorkspaceWidget {
 
 							reset($results);
 							
+							// Set the first histogram bucket to the beginning of its increment
+							//   e.g. 2012-July-09 10:20 -> 2012-July-09 00:00 
+							$current_tick = strtotime(strftime($date_format, $current_tick));
+							
 							do {
 								$histo = strftime($date_format, $current_tick);
 // 								var_dump($histo);
