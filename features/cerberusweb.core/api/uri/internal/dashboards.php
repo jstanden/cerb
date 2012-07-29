@@ -373,7 +373,7 @@ class WorkspaceWidget_Chart extends Extension_WorkspaceWidget {
 							
 							switch($xaxis_tick) {
 								case 'hour':
-									$date_format = '%Y-%m-%d %H';
+									$date_format = '%Y-%m-%d %H:00';
 									break;
 									
 								default:
