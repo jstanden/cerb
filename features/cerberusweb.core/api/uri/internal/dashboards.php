@@ -502,7 +502,7 @@ class WorkspaceWidget_Chart extends Extension_WorkspaceWidget {
 									next($results);
 								}
 								
-								$data[] = array($histo, $value);
+								$data[] = array($histo, (float)$value);
 								$current_tick = strtotime(sprintf('+1 %s', $xaxis_tick), $current_tick);
 								
 							} while($current_tick <= $last_tick);
@@ -600,7 +600,7 @@ class WorkspaceWidget_Chart extends Extension_WorkspaceWidget {
 // 							echo $sql,"<br>\n";
 							
 							foreach($results as $result) {
-								$data[] = array($result['xaxis'], $result['yaxis']);
+								$data[] = array((float)$result['xaxis'], (float)$result['yaxis']);
 							}
 
 							unset($results);
