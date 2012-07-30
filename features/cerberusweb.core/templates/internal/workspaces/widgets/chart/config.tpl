@@ -158,6 +158,9 @@
 							$select_xaxis = $select.siblings('select.xaxis_field').html('');
 							$select_yaxis = $select.siblings('select.yaxis_field').html('');
 							
+							$option = $('<option value="_id">(each record)</option>');
+							$select_xaxis.append($option);
+							
 							for(idx in json) {
 								field = json[idx];
 								

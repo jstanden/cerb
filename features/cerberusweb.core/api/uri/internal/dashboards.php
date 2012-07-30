@@ -360,10 +360,20 @@ class WorkspaceWidget_Chart extends Extension_WorkspaceWidget {
 					
 					$db = DevblocksPlatform::getDatabaseService();
 					
-					// [TODO] We need to know what date fields we have
+					// We need to know what date fields we have
 					$fields = $view->getFields();
-					//$field = $fields[$view->renderSortBy];
-					@$xaxis_field = $fields[$series['xaxis_field']];
+					$xaxis_field = null;
+					$xaxis_field_type = null;
+					
+					switch($series['xaxis_field']) {
+						case '_id':
+							$xaxis_field = new DevblocksSearchField('_id', $query_parts['primary_table'], 'id', null, Model_CustomField::TYPE_NUMBER);
+							break;
+							
+						default:
+							@$xaxis_field = $fields[$series['xaxis_field']];
+							break;
+					}
 					
 					if(!empty($xaxis_field))
 					switch($xaxis_field->type) {
@@ -530,15 +540,37 @@ class WorkspaceWidget_Chart extends Extension_WorkspaceWidget {
 							@$yaxis_func = $series['yaxis_func'];
 							@$yaxis_field = $fields[$series['yaxis_field']];
 							
-							if(empty($yaxis_field))
+							if(empty($yaxis_func))
 								$yaxis_func = 'count';
 							
-							$group_by = sprintf("GROUP BY %s.%s",
-								$xaxis_field->db_table,
-								$xaxis_field->db_column
-							);
+							switch($xaxis_field->token) {
+								case '_id':
+									$order_by = null;
+									$group_by = sprintf("GROUP BY %s.id ", $query_parts['primary_table']);
+									
+									if(isset($fields[$view->renderSortBy])) {
+										$order_by = sprintf("ORDER BY %s.%s %s",
+											$fields[$view->renderSortBy]->db_table,
+											$fields[$view->renderSortBy]->db_column,
+											($view->renderSortAsc) ? 'ASC' : 'DESC'
+										);
+									}
+									
+									if(empty($order_by))
+										$order_by = sprintf("ORDER BY %s.id ", $query_parts['primary_table']);
+									
+									break;
+								
+								default:
+									$group_by = sprintf("GROUP BY %s.%s",
+										$xaxis_field->db_table,
+										$xaxis_field->db_column
+									);
+									
+									$order_by = 'ORDER BY xaxis ASC';
+									break;
+							}
 							
-							$order_by = 'ORDER BY xaxis ASC';
 							
 							switch($yaxis_func) {
 								case 'sum':
@@ -574,9 +606,6 @@ class WorkspaceWidget_Chart extends Extension_WorkspaceWidget {
 										$yaxis_field->db_table,
 										$yaxis_field->db_column
 									);
-									
-									$group_by = '';
-									$order_by = '';
 									break;
 									
 								default:
