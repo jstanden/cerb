@@ -229,7 +229,8 @@ class WorkspaceWidget_Gauge extends Extension_WorkspaceWidget {
 				break;
 				
 			case 'sensor':
-				if(null != ($sensor_id = @$widget->params['sensor_id'])
+				if(class_exists('DAO_DatacenterSensor', true)
+					&& null != ($sensor_id = @$widget->params['sensor_id'])
 					&& null != ($sensor = DAO_DatacenterSensor::get($sensor_id))
 					) {
 						switch($sensor->metric_type) {
@@ -276,12 +277,14 @@ class WorkspaceWidget_Gauge extends Extension_WorkspaceWidget {
 		
 		// Sensors
 		
-		$sensors = DAO_DatacenterSensor::getWhere();
-		foreach($sensors as $sensor_id => $sensor) {
-			if(!in_array($sensor->metric_type, array('decimal','percent')))
-				unset($sensors[$sensor_id]);
+		if(class_exists('DAO_DatacenterSensor', true)) {
+			$sensors = DAO_DatacenterSensor::getWhere();
+			foreach($sensors as $sensor_id => $sensor) {
+				if(!in_array($sensor->metric_type, array('decimal','percent')))
+					unset($sensors[$sensor_id]);
+			}
+			$tpl->assign('sensors', $sensors);
 		}
-		$tpl->assign('sensors', $sensors);
 		
 		// Template
 		
@@ -652,15 +655,6 @@ class WorkspaceWidget_Chart extends Extension_WorkspaceWidget {
 		
 		$context_mfts = Extension_DevblocksContext::getAll(false, 'workspace');
 		$tpl->assign('context_mfts', $context_mfts);
-		
-		// Sensors
-		
-		$sensors = DAO_DatacenterSensor::getWhere();
-		foreach($sensors as $sensor_id => $sensor) {
-			if(!in_array($sensor->metric_type, array('decimal','percent')))
-				unset($sensors[$sensor_id]);
-		}
-		$tpl->assign('sensors', $sensors);
 		
 		// Template
 		
