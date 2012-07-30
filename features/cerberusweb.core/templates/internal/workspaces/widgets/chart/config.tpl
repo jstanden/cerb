@@ -23,7 +23,6 @@
 			
 			{if !empty($series_ctx_id)}
 				{$series_ctx = Extension_DevblocksContext::get($series_ctx_id)}
-				{*$series_ctx_view_id = "widget{$widget->id}_worklist{$series_idx}"*}
 				{$series_ctx_view = $series_ctx->getChooserView()} 
 				{$series_ctx_fields = $series_ctx_view->getParamsAvailable()}
 			{/if}
@@ -53,12 +52,17 @@
 			
 			<abbr title="horizontal axis" style="font-weight:bold;">X-axis</abbr> is   
 			
+			{$xaxis_field = $widget->params.series[{$series_idx}].xaxis_field}
+			{$xaxis_tick = $widget->params.series[{$series_idx}].xaxis_tick}
+			{$xaxis_field_type = $series_ctx_fields.{$xaxis_field}->type}
+			
 			<select name="params[series][{$series_idx}][xaxis_field]" class="xaxis_field">
+				<option value="_id" {if $xaxis_field=='_id'}selected="selected"{/if}>(each record)</option>
 				{if !empty($series_ctx_fields)}
 				{foreach from=$series_ctx_fields item=field}
 					{if !empty($field->db_label)}
 						{if $field->type == Model_CustomField::TYPE_DATE || $field->type == Model_CustomField::TYPE_NUMBER}
-						<option value="{$field->token}" {if $widget->params.series[{$series_idx}].xaxis_field==$field->token}selected="selected"{/if}>{$field->db_label|lower}</option>
+						<option value="{$field->token}" class="{if $field->type == Model_CustomField::TYPE_DATE}date{elseif $field->type == Model_CustomField::TYPE_NUMBER}number{else}{/if}" {if $xaxis_field==$field->token}selected="selected"{/if}>{$field->db_label|lower}</option>
 						{/if}
 					{/if}
 				{/foreach}
@@ -67,11 +71,9 @@
 			
 			{$xaxis_ticks = [hour,day,week,month,year]}
 			
-			 by 
-			
-			<select name="params[series][{$series_idx}][xaxis_tick]">
-				{foreach from=$xaxis_ticks item=xaxis_tick}
-				<option value="{$xaxis_tick}" {if $widget->params.series[{$series_idx}].xaxis_tick==$xaxis_tick}selected="selected"{/if}>{$xaxis_tick}</option>
+			<select name="params[series][{$series_idx}][xaxis_tick]" class="xaxis_tick" style="display:{if !empty($xaxis_field_type)}inline{else}none{/if};">
+				{foreach from=$xaxis_ticks item=v}
+				<option value="{$v}" {if $xaxis_tick==$v}selected="selected"{/if}>by {$v}</option>
 				{/foreach}
 			</select>
 			
@@ -79,25 +81,28 @@
 			
 			<abbr title="vertical axis" style="font-weight:bold;">Y-axis</abbr> is 
 			 
-			<select name="params[series][{$series_idx}][yaxis_field]" class="yaxis_field" style="display:{if empty($series_ctx_fields)}none{else}inline{/if};">
-				{if !empty($series_ctx_fields)}
-				{foreach from=$series_ctx_fields item=field}
-					{if !empty($field->db_label)}
-						{if $field->type == Model_CustomField::TYPE_NUMBER}
-						<option value="{$field->token}" {if $widget->params.series[{$series_idx}].yaxis_field==$field->token}selected="selected"{/if}>{$field->db_label|lower}</option>
-						{/if}
-					{/if}
-				{/foreach}
-				{/if}
-			</select>
+			{$yaxis_func = $widget->params.series[{$series_idx}].yaxis_func}
+			{$yaxis_field = $widget->params.series[{$series_idx}].yaxis_field}
 			
 			<select name="params[series][{$series_idx}][yaxis_func]" class="yaxis_func">
-				<option value="value" {if 'value'==$widget->params.series[{$series_idx}].yaxis_func}selected="selected"{/if}>value</option>
 				<option value="count" {if 'count'==$widget->params.series[{$series_idx}].yaxis_func}selected="selected"{/if}>count</option>
+				<option value="value" {if 'value'==$widget->params.series[{$series_idx}].yaxis_func}selected="selected"{/if}>value</option>
 				<option value="avg" class="number" {if 'avg'==$widget->params.series[{$series_idx}].yaxis_func}selected="selected"{/if}>average</option>
 				<option value="sum" class="number" {if 'sum'==$widget->params.series[{$series_idx}].yaxis_func}selected="selected"{/if}>sum</option>
 				<option value="min" class="number" {if 'min'==$widget->params.series[{$series_idx}].yaxis_func}selected="selected"{/if}>min</option>
 				<option value="max" class="number" {if 'max'==$widget->params.series[{$series_idx}].yaxis_func}selected="selected"{/if}>max</option>
+			</select>
+			
+			<select name="params[series][{$series_idx}][yaxis_field]" class="yaxis_field" style="display:{if empty($series_ctx_fields) || 'count'==$yaxis_func}none{else}inline{/if};">
+				{if !empty($series_ctx_fields)}
+				{foreach from=$series_ctx_fields item=field}
+					{if !empty($field->db_label)}
+						{if $field->type == Model_CustomField::TYPE_NUMBER}
+						<option value="{$field->token}" {if $yaxis_field==$field->token}selected="selected"{/if}>{$field->db_label|lower}</option>
+						{/if}
+					{/if}
+				{/foreach}
+				{/if}
 			</select>
 			
 			<br>
@@ -112,6 +117,18 @@
 				$fieldset.find('input:hidden.color-picker').miniColors({
 				});
 				
+				$fieldset.find('select.xaxis_field').change(function(e) {
+					$this = $(this);
+					
+					$xaxis_tick = $this.siblings('select.xaxis_tick');
+					
+					if($(this).find('option:selected').is('.date')) {
+						$xaxis_tick.show();
+					} else {
+						$xaxis_tick.hide();
+					}
+				});
+				
 				$fieldset.find('select.yaxis_func').change(function(e) {
 					val = $(this).val();
 					
@@ -121,6 +138,10 @@
 						$select_yaxis.hide();
 					else
 						$select_yaxis.show();
+				});
+				
+				$fieldset.find('select.yaxis_field').change(function(e) {
+					
 				});
 				
 				$fieldset.find('select.context').change(function(e) {
@@ -156,12 +177,6 @@
 					});
 				});
 				
-				$fieldset.find('select.xaxis_field').change(function(e) {
-				});
-				
-				$fieldset.find('select.yaxis_field').change(function(e) {
-				});
-			
 				$('#popup{$div_popup_worklist}').click(function(e) {
 					context = $(this).siblings('select.context').val();
 					$chooser=genericAjaxPopup('chooser','c=internal&a=chooserOpenParams&context='+context+'&view_id={"widget{$widget->id}_worklist{$series_idx}"}',null,true,'750');
