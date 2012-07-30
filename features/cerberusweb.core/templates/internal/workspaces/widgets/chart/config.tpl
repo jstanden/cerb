@@ -104,10 +104,13 @@
 			
 			<b>Color</b> it 
 			
-			<input type="color" name="params[series][{$series_idx}][line_color]" value="{$widget->params.series[{$series_idx}].line_color|default:'#058DC7'}" size="7">
+			<input type="hidden" name="params[series][{$series_idx}][line_color]" value="{$widget->params.series[{$series_idx}].line_color|default:'#058DC7'}" size="7" class="color-picker">
 			
 			<script type="text/javascript">
 				$fieldset = $('fieldset#widget{$widget->id}Datasource{$series_idx}');
+				
+				$fieldset.find('input:hidden.color-picker').miniColors({
+				});
 				
 				$fieldset.find('select.yaxis_func').change(function(e) {
 					val = $(this).val();

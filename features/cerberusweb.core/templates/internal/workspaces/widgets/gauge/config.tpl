@@ -20,13 +20,7 @@
     				<input type="text" name="params[threshold_values][]" value="{$widget->params.threshold_values.{$smarty.section.thresholds.index}}" style="width:100%;">
     			</td>
     			<td valign="top">
-    				<input type="color" name="params[threshold_colors][]" value="{$widget->params.threshold_colors.{$smarty.section.thresholds.index}}" style="width:100%;">
-    				{*
-    				<input type="text" name="params[threshold_colors][]" value="{$widget->params.threshold_colors.{$smarty.section.thresholds.index}}" style="width:100%;" onkeyup="$this=$(this);$this.next('div').css('background-color',$this.val());">
-    				<div style="cursor:pointer;background-color:{$widget->params.threshold_colors.{$smarty.section.thresholds.index}};">
-    					&nbsp;
-    				</div>
-    				*}
+    				<input type="hidden" name="params[threshold_colors][]" value="{$widget->params.threshold_colors.{$smarty.section.thresholds.index}}" style="width:100%;" class="color-picker">
     			</td>
     		</tr>
     		{/section}
@@ -106,7 +100,10 @@
 </div>
 
 <script type="text/javascript">
-	$('#widget{$widget->id}ConfigTabs').tabs();
+	$tabs = $('#widget{$widget->id}ConfigTabs').tabs();
+	
+	$tabs.find('input:hidden.color-picker').miniColors({
+	});
 	
 	$datasource_tab = $('#widget{$widget->id}ConfigTabDatasource');
 	$radios = $datasource_tab.find('> label input:radio');
