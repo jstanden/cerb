@@ -404,7 +404,7 @@ class WorkspaceWidget_Chart extends Extension_WorkspaceWidget {
 									break;
 									
 								case 'year':
-									$date_format = '%Y';
+									$date_format = '%Y-01-01';
 									break;
 							}
 							
