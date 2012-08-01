@@ -620,6 +620,13 @@ class WorkspaceWidget_Chart extends Extension_WorkspaceWidget {
 									break;
 							}							
 							
+							// Scatterplots ignore histograms
+							switch($widget->params['chart_type']) {
+								case 'scatterplot':
+									$group_by = null;
+									break;
+							}
+							
 							$sql = sprintf("SELECT %s AS yaxis, %s.%s AS xaxis " .
 								$query_parts['join'].
 								$query_parts['where'].
