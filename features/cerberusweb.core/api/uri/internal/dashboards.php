@@ -448,21 +448,21 @@ class WorkspaceWidget_Chart extends Extension_WorkspaceWidget {
 									break;
 							}
 							
-							$sql = sprintf("SELECT %s AS hits, DATE_FORMAT(FROM_UNIXTIME(%s.%s), '%s') AS histo " .
-								$query_parts['join'].
-								$query_parts['where'].
-								"GROUP BY DATE_FORMAT(FROM_UNIXTIME(%s.%s), '%s') ".
-								'ORDER BY histo ASC',
+							$sql = sprintf("SELECT %s AS hits, DATE_FORMAT(FROM_UNIXTIME(%s.%s), '%s') AS histo ", 
 									$select_func,
 									$xaxis_field->db_table,
 									$xaxis_field->db_column,
-									$date_format,
+									$date_format
+								).
+								$query_parts['join'].
+								$query_parts['where'].
+								sprintf("GROUP BY DATE_FORMAT(FROM_UNIXTIME(%s.%s), '%s') ",
 									$xaxis_field->db_table,
 									$xaxis_field->db_column,
 									$date_format
-								);
-							
-// 							echo $sql,"<br>\n";
+								).
+								'ORDER BY histo ASC'
+							;
 							
 							$results = $db->GetArray($sql);
 							$data = array();
