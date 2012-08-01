@@ -474,12 +474,14 @@ function drawScatterplot($canvas, options) {
 		'cursorAt': { 'top':0, 'left':0 },
 		'connectWith': 'table#dashboard{$workspace_tab->id} td.column',
 		'update':function(e) {
+			/*
 			if(typeof dragTimer =="number") {
 				window.clearTimeout(dragTimer);
 				delete dragTimer;
 			}
+			*/
 			
-			dragTimer = window.setTimeout(function(e) {
+			//dragTimer = window.setTimeout(function(e) {
 				// [TODO] Multiple dashboards in tabs
 				$dashboard = $('TABLE#dashboard{$workspace_tab->id}').first();
 				
@@ -492,7 +494,7 @@ function drawScatterplot($canvas, options) {
 
 				genericAjaxGet('', 'c=internal&a=handleSectionAction&section=dashboards&action=setWidgetPositions&workspace_tab_id={$workspace_tab->id}' + widget_positions)
 				
-			}, 1500);
+			//}, 500);
 		}
 	});
 
