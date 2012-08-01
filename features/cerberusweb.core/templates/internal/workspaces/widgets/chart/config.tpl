@@ -163,8 +163,9 @@
 							
 							for(idx in json) {
 								field = json[idx];
+								field_type = (field.type=='E') ? 'date' : ((field.type=='N') ? 'number' : '');
 								
-								$option = $('<option value="'+field.key+'">'+field.label+'</option>');
+								$option = $('<option value="'+field.key+'" class="'+field_type+'">'+field.label+'</option>');
 								
 								// X-Axis
 								// Number or date
