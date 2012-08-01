@@ -495,7 +495,14 @@ class WorkspaceWidget_Chart extends Extension_WorkspaceWidget {
 // 							var_dump($current_tick, $last_tick, $xaxis_tick);
 // 							var_dump($results);
 
-							reset($results);
+							$array = array();
+							
+							foreach($results as $k => $v) {
+								$array[$v['histo']] = $v['hits'];
+							}
+							
+							$results = $array;
+							unset($array);
 							
 							// Set the first histogram bucket to the beginning of its increment
 							//   e.g. 2012-July-09 10:20 -> 2012-July-09 00:00
@@ -506,20 +513,17 @@ class WorkspaceWidget_Chart extends Extension_WorkspaceWidget {
 								case 'year':
 									$current_tick = strtotime(strftime($date_format, $current_tick));
 									break;
+									
+								case 'week':
+									$current_tick = strtotime('Sunday', $current_tick);
+									break;
 							}
 							
 							do {
 								$histo = strftime($date_format, $current_tick);
 // 								var_dump($histo);
 								
-								$result = current($results);
-								
-								$value = 0;
-								
-								if($histo == $result['histo']) {
-									$value = intval($result['hits']);
-									next($results);
-								}
+								$value = (isset($results[$histo])) ? $results[$histo] : 0; 
 								
 								$data[] = array($histo, (float)$value);
 								$current_tick = strtotime(sprintf('+1 %s', $xaxis_tick), $current_tick);
