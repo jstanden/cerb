@@ -71,7 +71,7 @@
 			
 			{$xaxis_ticks = [hour,day,week,month,year]}
 			
-			<select name="params[series][{$series_idx}][xaxis_tick]" class="xaxis_tick" style="display:{if !empty($xaxis_field_type)}inline{else}none{/if};">
+			<select name="params[series][{$series_idx}][xaxis_tick]" class="xaxis_tick" style="display:{if $xaxis_field_type=='E'}inline{else}none{/if};">
 				{foreach from=$xaxis_ticks item=v}
 				<option value="{$v}" {if $xaxis_tick==$v}selected="selected"{/if}>by {$v}</option>
 				{/foreach}
