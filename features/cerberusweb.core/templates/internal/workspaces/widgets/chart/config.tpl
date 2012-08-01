@@ -166,16 +166,18 @@
 								field_type = (field.type=='E') ? 'date' : ((field.type=='N') ? 'number' : '');
 								
 								$option = $('<option value="'+field.key+'" class="'+field_type+'">'+field.label+'</option>');
-								
+
 								// X-Axis
 								// Number or date
-								if(field.type=='N' || field.type=='E')
-									$select_xaxis.append($option);
+								if(field_type == 'number' || field_type == 'date')
+									$select_xaxis.append($option.clone());
 								
 								// Y-Axis
 								// Number
-								if(field.type=='N')
-									$select_yaxis.append($option);
+								if(field_type == 'number')
+									$select_yaxis.append($option.clone());
+								
+								delete $option;
 							}
 						}
 					});
