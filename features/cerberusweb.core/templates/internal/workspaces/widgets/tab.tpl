@@ -455,17 +455,37 @@ function drawScatterplot($canvas, options) {
 			$new_widget = $('<div class="dashboard-widget" id="widget' + widget_id + '"></div>');
 			
 			// Append it to the first column
-			$('#dashboard{$workspace_tab->id} tr td:first').append($new_widget);
-
+			$dashboard = $('#dashboard{$workspace_tab->id}');
+			
+			$dashboard.find('tr td:first').prepend($new_widget);
+			
 			// Redraw
 			genericAjaxGet('widget' + widget_id,'c=internal&a=handleSectionAction&section=dashboards&action=renderWidget&widget_id=' + widget_id);
 			genericAjaxPopup('widget_edit','c=internal&a=handleSectionAction&section=dashboards&action=showWidgetPopup&widget_id=' + widget_id,null,false,'500');
+			
+			// Save new order
+			$dashboard.trigger('reorder');
 		});
 	});
 	
 	var dragTimer = null;
 	
-	$('table#dashboard{$workspace_tab->id} td.column').sortable({
+	$dashboard = $('table#dashboard{$workspace_tab->id}');
+	
+	$dashboard.bind('reorder', function(e) {
+		$dashboard = $(this);
+		
+		// [TODO] Number of columns
+		$col1 = $dashboard.find('TR > TD:nth(0)').find('input:hidden').map(function() { return $(this).val(); }).get().join(',');
+		$col2 = $dashboard.find('TR > TD:nth(1)').find('input:hidden').map(function() { return $(this).val(); }).get().join(',');
+		$col3 = $dashboard.find('TR > TD:nth(2)').find('input:hidden').map(function() { return $(this).val(); }).get().join(',');
+		
+		widget_positions = '&column[]=' + $col1 + '&column[]=' + $col2 + '&column[]=' + $col3;
+
+		genericAjaxGet('', 'c=internal&a=handleSectionAction&section=dashboards&action=setWidgetPositions&workspace_tab_id={$workspace_tab->id}' + widget_positions)
+	});
+	
+	$dashboard.find('td.column').sortable({
 		'items': 'div.dashboard-widget',
 		'handle': 'div.dashboard-widget-title',
 		'placeholder': 'ui-state-highlight',
@@ -474,27 +494,7 @@ function drawScatterplot($canvas, options) {
 		'cursorAt': { 'top':0, 'left':0 },
 		'connectWith': 'table#dashboard{$workspace_tab->id} td.column',
 		'update':function(e) {
-			/*
-			if(typeof dragTimer =="number") {
-				window.clearTimeout(dragTimer);
-				delete dragTimer;
-			}
-			*/
-			
-			//dragTimer = window.setTimeout(function(e) {
-				// [TODO] Multiple dashboards in tabs
-				$dashboard = $('TABLE#dashboard{$workspace_tab->id}').first();
-				
-				// [TODO] Number of columns
-				$col1 = $dashboard.find('TR > TD:nth(0)').find('input:hidden').map(function() { return $(this).val(); }).get().join(',');
-				$col2 = $dashboard.find('TR > TD:nth(1)').find('input:hidden').map(function() { return $(this).val(); }).get().join(',');
-				$col3 = $dashboard.find('TR > TD:nth(2)').find('input:hidden').map(function() { return $(this).val(); }).get().join(',');
-				
-				widget_positions = '&column[]=' + $col1 + '&column[]=' + $col2 + '&column[]=' + $col3;
-
-				genericAjaxGet('', 'c=internal&a=handleSectionAction&section=dashboards&action=setWidgetPositions&workspace_tab_id={$workspace_tab->id}' + widget_positions)
-				
-			//}, 500);
+			$('table#dashboard{$workspace_tab->id}').trigger('reorder');
 		}
 	});
 
