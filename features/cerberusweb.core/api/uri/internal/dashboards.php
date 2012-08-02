@@ -749,3 +749,60 @@ class WorkspaceWidget_Chart extends Extension_WorkspaceWidget {
 	}
 };
 
+class WorkspaceWidget_Subtotals extends Extension_WorkspaceWidget {
+	function render(Model_WorkspaceWidget $widget) {
+		if(null == ($view_id = @$widget->params['view_id']))
+			return;
+		
+		if(null == ($view = C4_AbstractViewLoader::getView($view_id)))
+			return;
+		
+		if(!($view instanceof IAbstractView_Subtotals))
+			return;
+
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('view_id', $view_id);
+		$tpl->assign('view', $view);
+
+		$fields = $view->getSubtotalFields();
+		$tpl->assign('subtotal_fields', $fields);
+
+		if(empty($view->renderSubtotals) || !isset($fields[$view->renderSubtotals])) {
+			echo "You need to enable subtotals on the worklist in this widget's configuration.";
+			return;
+		}
+		
+		$counts = $view->getSubtotalCounts($view->renderSubtotals);
+		$tpl->assign('subtotal_counts', $counts);
+
+		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/subtotals/subtotals.tpl');
+	}
+	
+	function renderConfig(Model_WorkspaceWidget $widget) {
+		if(empty($widget))
+			return;
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		
+		// Widget
+		
+		$tpl->assign('widget', $widget);
+		
+		// Worklists
+		
+		$context_mfts = Extension_DevblocksContext::getAll(false, 'workspace');
+		$tpl->assign('context_mfts', $context_mfts);
+		
+		// Template
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/subtotals/config.tpl');	
+	}
+	
+	function saveConfig(Model_WorkspaceWidget $widget) {
+		@$params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', array());		
+		
+		DAO_WorkspaceWidget::update($widget->id, array(
+			DAO_WorkspaceWidget::PARAMS_JSON => json_encode($params),
+		));
+	}
+};

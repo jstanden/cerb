@@ -2238,6 +2238,17 @@
 			</params>
 		</extension>
 		
+		<extension point="cerberusweb.ui.workspace.widget">
+			<id>core.workspace.widget.subtotals</id>
+			<name>Subtotals</name>
+			<class>
+				<file>api/uri/internal/dashboards.php</file>
+				<name>WorkspaceWidget_Subtotals</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+	
 		<!--  Login Extensions -->
 
 		<extension point="cerberusweb.login">
