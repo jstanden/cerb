@@ -723,6 +723,28 @@
 		</extension>
 		
 		<extension point="devblocks.context">
+			<id>cerberusweb.contexts.bucket</id>
+			<name>Bucket</name>
+			<class>
+				<file>api/dao/bucket.php</file>
+				<name>Context_Bucket</name>
+			</class>
+			<params>
+				<param key="alias" value="bucket" />
+				<param key="dao_class" value="DAO_Bucket" />
+				<param key="view_class" value="View_Bucket" />
+				<param key="options">
+					<value>
+						<!--<data key="find" />-->
+						<!--<data key="snippets" />-->
+						<!--<data key="va_variable" />-->
+						<!--<data key="workspace" />-->
+					</value>
+				</param>
+			</params>
+		</extension>
+		
+		<extension point="devblocks.context">
 			<id>cerberusweb.contexts.calendar_event</id>
 			<name>Calendar Event</name>
 			<class>

@@ -903,6 +903,8 @@ class View_TimeTracking extends C4_AbstractView implements IAbstractView_Subtota
 				case 'is_closed':
 					$change_fields[DAO_TimeTrackingEntry::IS_CLOSED] = $v;
 					break;
+				case 'activity_id':
+					$change_fields[DAO_TimeTrackingEntry::ACTIVITY_ID] = $v;
 				default:
 					// Custom fields
 					if(substr($k,0,3)=="cf_") {

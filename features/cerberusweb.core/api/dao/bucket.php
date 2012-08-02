@@ -378,3 +378,191 @@ class Model_Bucket {
 		return $signature;
 	}	
 };
+
+class Context_Bucket extends Extension_DevblocksContext {
+	const ID = 'cerberusweb.contexts.bucket';
+	
+	function authorize($context_id, Model_Worker $worker) {
+		// Security
+		try {
+			if(empty($worker))
+				throw new Exception();
+			
+			// [TODO] Check group
+			//if($worker->isGroupMember($context_id))
+				
+			return TRUE;
+				
+		} catch (Exception $e) {
+			// Fail
+		}
+		
+		return FALSE;
+	}
+	
+	function getRandom() {
+		// [TODO]
+		//return DAO_Bucket::random();
+		return null;
+	}
+	
+	function getMeta($context_id) {
+		if(empty($context_id))
+			return array(
+				'id' => 0,
+				'name' => 'Inbox',
+				'permalink' => '',
+			);
+			
+		$url = '';		
+		
+		if(null == ($bucket = DAO_Bucket::get($context_id)))
+			return false;
+		
+		//$who = DevblocksPlatform::strToPermalink($bucket->name);
+		
+		//if(!empty($who))
+		//	$url .= '-' . $who;
+		
+		return array(
+			'id' => $bucket->id,
+			'name' => $bucket->name,
+			'permalink' => $url,
+		);
+	}
+	
+	function getContext($bucket, &$token_labels, &$token_values, $prefix=null) {
+		if(is_null($prefix))
+			$prefix = 'Bucket:';
+			
+		$translate = DevblocksPlatform::getTranslationService();
+		$fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_BUCKET);
+		
+		// Polymorph
+		if(is_numeric($bucket)) {
+			$bucket = DAO_Bucket::get($bucket);
+		} elseif($bucket instanceof Model_Bucket) {
+			// It's what we want already.
+		} else {
+			$bucket = null;
+		}
+		
+		// Token labels
+		$token_labels = array(
+			'name|default(\'Inbox\')' => $prefix.$translate->_('common.name'),
+			//'record_url' => $prefix.$translate->_('common.url.record'),
+		);
+		
+		// Custom fields
+		
+		if(is_array($fields))
+		foreach($fields as $cf_id => $field) {
+			$token_labels['worker_custom_'.$cf_id] = $prefix.$field->name;
+		}
+
+		// Token values
+		$token_values = array();
+
+		$token_values['_context'] = CerberusContexts::CONTEXT_BUCKET;
+		
+		// Token values
+		if(null != $bucket) {
+			$token_values['_loaded'] = true;
+			$token_values['_label'] = $bucket->name;
+			$token_values['id'] = $bucket->id;
+			$token_values['name'] = $bucket->name;
+			
+			// URL
+			//$url_writer = DevblocksPlatform::getUrlService();
+			//$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=profiles&type=group&id=%d-%s",$group->id, DevblocksPlatform::strToPermalink($group->name)), true);
+		}
+		
+		return true;		
+	}
+	
+	function lazyLoadContextValues($token, $dictionary) {
+		if(!isset($dictionary['id']))
+			return;
+		
+		$context = CerberusContexts::CONTEXT_BUCKET;
+		$context_id = $dictionary['id'];
+		
+		@$is_loaded = $dictionary['_loaded'];
+		$values = array();
+		
+		if(!$is_loaded) {
+			$labels = array();
+			CerberusContexts::getContext($context, $context_id, $labels, $values);
+		}
+		
+		switch($token) {
+			case 'watchers':
+				$watchers = array(
+					$token => CerberusContexts::getWatchers($context, $context_id, true),
+				);
+				$values = array_merge($values, $watchers);
+				break;
+				
+			default:
+				if(substr($token,0,7) == 'custom_') {
+					$fields = $this->_lazyLoadCustomFields($context, $context_id);
+					$values = array_merge($values, $fields);
+				}
+				break;
+		}
+		
+		return $values;
+	}	
+	
+	function getChooserView($view_id=null) {
+		if(empty($view_id))
+			$view_id = 'chooser_'.str_replace('.','_',$this->id).time().mt_rand(0,9999);
+
+		// View
+		$defaults = new C4_AbstractViewModel();
+		$defaults->id = $view_id;
+		$defaults->is_ephemeral = true;
+		$defaults->class_name = $this->getViewClass();
+		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
+		$view->name = 'Buckets';
+		$view->view_columns = array(
+			SearchFields_Bucket::NAME,
+		);
+		$view->addParams(array(
+//			SearchFields_Bucket::IS_DISABLED => new DevblocksSearchCriteria(SearchFields_Bucket::IS_DISABLED,'=',0),
+		), true);
+//		$view->renderSortBy = SearchFields_Group::NAME;
+//		$view->renderSortAsc = true;
+		$view->renderLimit = 10;
+		$view->renderFilters = false;
+		$view->renderTemplate = 'contextlinks_chooser';
+		C4_AbstractViewLoader::setView($view_id, $view);
+
+		return $view;
+	}
+	
+	function getView($context=null, $context_id=null, $options=array()) {
+		$view_id = str_replace('.','_',$this->id);
+		
+		$defaults = new C4_AbstractViewModel();
+		$defaults->id = $view_id; 
+		$defaults->class_name = $this->getViewClass();
+		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
+		$view->name = 'Buckets';
+		
+		$params_req = array();
+		
+		if(!empty($context) && !empty($context_id)) {
+			$params_req = array(
+				//new DevblocksSearchCriteria(SearchFields_Bucket::CONTEXT_LINK,'=',$context),
+				//new DevblocksSearchCriteria(SearchFields_Bucket::CONTEXT_LINK_ID,'=',$context_id),
+			);
+		}
+		
+		$view->addParamsRequired($params_req, true);
+		
+		$view->renderTemplate = 'context';
+		C4_AbstractViewLoader::setView($view_id, $view);
+		return $view;
+	}
+};

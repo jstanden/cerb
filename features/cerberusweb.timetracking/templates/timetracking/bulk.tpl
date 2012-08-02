@@ -18,6 +18,17 @@
 	<legend>Set Fields</legend>
 	<table cellspacing="0" cellpadding="2" width="100%">
 		<tr>
+			<td width="0%" nowrap="nowrap" valign="top">{'timetracking_entry.activity_id'|devblocks_translate|capitalize}:</td>
+			<td width="100%"><select name="activity_id">
+					<option value=""></option>
+					{foreach $activities as $activity}
+					<option value="{$activity->id}">{$activity->name}</option>
+					{/foreach}
+					<option value="0">-- clear --</option>
+		      	</select>
+			</td>
+		</tr>
+		<tr>
 			<td width="0%" nowrap="nowrap" valign="top">{'common.status'|devblocks_translate|capitalize}:</td>
 			<td width="100%"><select name="is_closed">
 					<option value=""></option>

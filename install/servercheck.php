@@ -188,6 +188,14 @@ if(extension_loaded("spl")) {
 	$fails++;
 }
 
+// Extension: ctype
+if(extension_loaded("ctype")) {
+	$results['ext_ctype'] = true;
+} else {
+	$results['ext_ctype'] = false;
+	$fails++;
+}
+
 if($fails) {
 	echo "The following problems prevent you from running Cerb6:<span class='fail'><ul>";
 	
@@ -217,6 +225,9 @@ if($fails) {
 		
 	if(!$results['ext_spl'])
 		echo "<li>The 'SPL' PHP extension is required.  Please enable it.</li>";
+	
+	if(!$results['ext_ctype'])
+		echo "<li>The 'ctype' PHP extension is required.  Please enable it.</li>";
 		
 	if(!$results['ext_gd'])
 		echo "<li>The 'GD' PHP extension (with FreeType library support) is required.  Please enable them.</li>";
