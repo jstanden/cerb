@@ -35,7 +35,7 @@ class UmScHistoryController extends Extension_UmScController {
 				$history_view->renderLimit = 10;
 				
 				$history_view->addParams(array(
-					new DevblocksSearchCriteria(SearchFields_Ticket::VIRTUAL_STATUS,null,array('open','waiting')),
+					new DevblocksSearchCriteria(SearchFields_Ticket::VIRTUAL_STATUS,'in',array('open','waiting')),
 				), true);
 			}
 			
@@ -420,7 +420,7 @@ class UmSc_TicketHistoryView extends C4_AbstractView {
 				
 			case SearchFields_Ticket::VIRTUAL_STATUS:
 				@$statuses = DevblocksPlatform::importGPC($_REQUEST['value'],'array',array());
-				$criteria = new DevblocksSearchCriteria($field, null, $statuses);
+				$criteria = new DevblocksSearchCriteria($field, $oper, $statuses);
 				break;
 				
 			case SearchFields_Ticket::TICKET_CREATED_DATE:
