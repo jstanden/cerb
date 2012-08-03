@@ -1277,6 +1277,7 @@ class DAO_Ticket extends C4_ORMHelper {
 				$status_sql = array();
 				
 				switch($param->operator) {
+					default:
 					case DevblocksSearchCriteria::OPER_IN:
 						$oper = '=';
 						break;
