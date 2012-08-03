@@ -751,15 +751,14 @@ class WorkspaceWidget_Chart extends Extension_WorkspaceWidget {
 
 class WorkspaceWidget_Subtotals extends Extension_WorkspaceWidget {
 	function render(Model_WorkspaceWidget $widget) {
-		if(null == ($view_id = @$widget->params['view_id']))
-			return;
+		$view_id = sprintf("widget%d_worklist", $widget->id);
 		
 		if(null == ($view = C4_AbstractViewLoader::getView($view_id)))
 			return;
-		
+
 		if(!($view instanceof IAbstractView_Subtotals))
 			return;
-
+		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('view_id', $view_id);
 		$tpl->assign('view', $view);
@@ -788,7 +787,7 @@ class WorkspaceWidget_Subtotals extends Extension_WorkspaceWidget {
 		
 		$tpl->assign('widget', $widget);
 		
-		// Worklists
+		// Contexts
 		
 		$context_mfts = Extension_DevblocksContext::getAll(false, 'workspace');
 		$tpl->assign('context_mfts', $context_mfts);
@@ -800,6 +799,21 @@ class WorkspaceWidget_Subtotals extends Extension_WorkspaceWidget {
 	
 	function saveConfig(Model_WorkspaceWidget $widget) {
 		@$params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', array());		
+		
+		// Save the worklist
+		
+		if(
+			null != ($view_model = self::getParamsViewModel($widget, $params))
+			&& false != ($view = C4_AbstractViewLoader::unserializeAbstractView($view_model)) 
+		) {
+			// Set the usable worklist
+			$view->id = sprintf("widget%d_worklist", $widget->id);
+			$view->is_ephemeral = false;
+			
+			C4_AbstractViewLoader::setView($view->id, $view);
+		}
+		
+		// Save the widget
 		
 		DAO_WorkspaceWidget::update($widget->id, array(
 			DAO_WorkspaceWidget::PARAMS_JSON => json_encode($params),
