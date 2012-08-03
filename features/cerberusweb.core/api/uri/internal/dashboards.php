@@ -806,3 +806,71 @@ class WorkspaceWidget_Subtotals extends Extension_WorkspaceWidget {
 		));
 	}
 };
+
+class WorkspaceWidget_Worklist extends Extension_WorkspaceWidget {
+	function render(Model_WorkspaceWidget $widget) {
+		$view_id = sprintf("widget%d_worklist", $widget->id);
+		
+		if(null == ($view = C4_AbstractViewLoader::getView($view_id)))
+			return;
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('view_id', $view->id);
+		$tpl->assign('view', $view);
+
+		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/worklist/render.tpl');
+	}
+	
+	function renderConfig(Model_WorkspaceWidget $widget) {
+		if(empty($widget))
+			return;
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		
+		// Widget
+		
+		$tpl->assign('widget', $widget);
+		
+		// Contexts
+		
+		$context_mfts = Extension_DevblocksContext::getAll(false, 'workspace');
+		$tpl->assign('context_mfts', $context_mfts);
+		
+		// Worklist
+		
+		if(
+			null != ($view_model = self::getParamsViewModel($widget, $widget->params))
+			&& false != ($view = C4_AbstractViewLoader::unserializeAbstractView($view_model)) 
+		) {
+			// Mirror the worklist to the config worklist
+			$view->id = sprintf("widget%d_worklist_config", $widget->id);
+			$view->is_ephemeral = true;
+			
+			C4_AbstractViewLoader::setView($view->id, $view);
+		}		
+		
+		// Template
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/worklist/config.tpl');	
+	}
+	
+	function saveConfig(Model_WorkspaceWidget $widget) {
+		@$params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', array());		
+		
+		if(
+			null != ($view_model = self::getParamsViewModel($widget, $params))
+			&& false != ($view = C4_AbstractViewLoader::unserializeAbstractView($view_model)) 
+		) {
+			// Set the usable worklist
+			$view->id = sprintf("widget%d_worklist", $widget->id);
+			$view->is_ephemeral = false;
+			
+			C4_AbstractViewLoader::setView($view->id, $view);
+		}
+
+		// Save
+		DAO_WorkspaceWidget::update($widget->id, array(
+			DAO_WorkspaceWidget::PARAMS_JSON => json_encode($params),
+		));
+	}
+};
