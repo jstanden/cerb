@@ -476,9 +476,9 @@ function drawScatterplot($canvas, options) {
 		$dashboard = $(this);
 		
 		// [TODO] Number of columns
-		$col1 = $dashboard.find('TR > TD:nth(0)').find('input:hidden').map(function() { return $(this).val(); }).get().join(',');
-		$col2 = $dashboard.find('TR > TD:nth(1)').find('input:hidden').map(function() { return $(this).val(); }).get().join(',');
-		$col3 = $dashboard.find('TR > TD:nth(2)').find('input:hidden').map(function() { return $(this).val(); }).get().join(',');
+		$col1 = $dashboard.find('TR > TD:nth(0)').find('input:hidden[name="widget_pos[]"]').map(function() { return $(this).val(); }).get().join(',');
+		$col2 = $dashboard.find('TR > TD:nth(1)').find('input:hidden[name="widget_pos[]"]').map(function() { return $(this).val(); }).get().join(',');
+		$col3 = $dashboard.find('TR > TD:nth(2)').find('input:hidden[name="widget_pos[]"]').map(function() { return $(this).val(); }).get().join(',');
 		
 		widget_positions = '&column[]=' + $col1 + '&column[]=' + $col2 + '&column[]=' + $col3;
 
