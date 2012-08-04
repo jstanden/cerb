@@ -1595,6 +1595,22 @@ label.error { color: rgb(255,0,0); padding-left: .5em; vertical-align: top; }
 	cursor: crosshair;
 }
 
+.miniColors-colorFavorites {
+	position: absolute;
+	top: 160px;
+	left: 5px;
+	width: 170px;
+	height: 20px;
+}
+
+.miniColors-colorFavorite {
+	height:12px;
+	width:12px;
+	display:inline-block;
+	margin:0px 2px;
+	cursor: pointer;
+}
+
 .miniColors-colorPicker {
 	position: absolute;
 	width: 9px;

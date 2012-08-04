@@ -103,6 +103,7 @@
 	$tabs = $('#widget{$widget->id}ConfigTabs').tabs();
 	
 	$tabs.find('input:hidden.color-picker').miniColors({
+		color_favorites: ['#CF2C1D','#FEAF03','#34434E','#57970A']
 	});
 	
 	$datasource_tab = $('#widget{$widget->id}ConfigTabDatasource');

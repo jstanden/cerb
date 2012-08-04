@@ -115,6 +115,7 @@
 				$fieldset = $('fieldset#widget{$widget->id}Datasource{$series_idx}');
 				
 				$fieldset.find('input:hidden.color-picker').miniColors({
+					color_favorites: ['#CF2C1D','#FEAF03','#57970A','#007CBD','#7047BA','#D5D5D5','#ADADAD','#34434E']
 				});
 				
 				$fieldset.find('select.xaxis_field').change(function(e) {
