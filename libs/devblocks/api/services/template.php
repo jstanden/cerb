@@ -50,6 +50,7 @@ class _DevblocksTemplateManager {
 			$instance->registerPlugin('modifier','devblocks_permalink', array('_DevblocksTemplateManager', 'modifier_devblocks_permalink'));
 			$instance->registerPlugin('modifier','devblocks_prettytime', array('_DevblocksTemplateManager', 'modifier_devblocks_prettytime'));
 			$instance->registerPlugin('modifier','devblocks_prettybytes', array('_DevblocksTemplateManager', 'modifier_devblocks_prettybytes'));
+			$instance->registerPlugin('modifier','devblocks_prettysecs', array('_DevblocksTemplateManager', 'modifier_devblocks_prettysecs'));
 			$instance->registerPlugin('modifier','devblocks_translate', array('_DevblocksTemplateManager', 'modifier_devblocks_translate'));
 			$instance->registerResource('devblocks', array(
 				array('_DevblocksSmartyTemplateResource', 'get_template'),
@@ -102,6 +103,10 @@ class _DevblocksTemplateManager {
 	
 	static function modifier_devblocks_prettytime($string, $is_delta=false) {
 		return DevblocksPlatform::strPrettyTime($string, $is_delta);
+	}
+		
+	static function modifier_devblocks_prettysecs($string, $length=0) {
+		return DevblocksPlatform::strSecsToString($string, $length);
 	}	
 
 	static function modifier_devblocks_prettybytes($string, $precision='0') {

@@ -572,6 +572,39 @@ class DevblocksPlatform extends DevblocksEngine {
 		return preg_replace($regex,'<a href="$1" target="_blank">$1</a>$3',$string);
 	}
 	
+	static function strSecsToString($string, $length=0) {
+		if(empty($string) || !is_numeric($string))
+			return '0 secs';
+		
+		$blocks = array(
+			'week' => 7*24*60*60,
+			'day' => 24*60*60,
+			'hour' => 60*60,
+			'min' => 60,
+			'sec' => 1,
+		);
+		
+		$secs = intval($string);
+		$output = array();
+		
+	    foreach($blocks as $label => $increment) {
+	    	$n = floor($secs/$increment);
+	    	$secs -= ($n * $increment);
+	    	
+	    	if(!empty($n))
+	    		$output[] = sprintf("%d %s%s",
+	    			$n,
+	    			$label,
+	    			($n==1) ? '' : 's'
+	    		);
+	    }
+	    
+	    if(!empty($length))
+	    	$output = array_slice($output, 0, $length);
+	    
+	    return implode(', ', $output);
+	}
+	
 	static function strPrettyTime($string, $is_delta=false) {
 		if(empty($string) || !is_numeric($string))
 			return '';
