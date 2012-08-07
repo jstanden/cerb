@@ -744,12 +744,15 @@ class CerberusMail {
 		    	$change_fields[DAO_Ticket::SUBJECT] = $subject;
 		    }
 		    
+		    // Fields
+		    
 		    $fields = array(
 		        DAO_Message::TICKET_ID => $ticket_id,
 		        DAO_Message::CREATED_DATE => time(),
 		        DAO_Message::ADDRESS_ID => $fromAddressId,
 		        DAO_Message::IS_OUTGOING => 1,
 		        DAO_Message::WORKER_ID => (!empty($worker_id) ? $worker_id : 0),
+		    	DAO_Message::RESPONSE_TIME => (!empty($worker_id) ? (time() - $message->created_date) : 0),
 		    );
 			$message_id = DAO_Message::create($fields);
 		    

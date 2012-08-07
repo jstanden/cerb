@@ -26,6 +26,7 @@ class DAO_Message extends C4_ORMHelper {
     const STORAGE_KEY = 'storage_key';
     const STORAGE_PROFILE_ID = 'storage_profile_id';
     const STORAGE_SIZE = 'storage_size';
+    const RESPONSE_TIME = 'response_time';
 
 	static function create($fields) {
 		$db = DevblocksPlatform::getDatabaseService();
@@ -57,7 +58,7 @@ class DAO_Message extends C4_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, ticket_id, created_date, is_outgoing, worker_id, address_id, storage_extension, storage_key, storage_profile_id, storage_size ".
+		$sql = "SELECT id, ticket_id, created_date, is_outgoing, worker_id, address_id, storage_extension, storage_key, storage_profile_id, storage_size, response_time ".
 			"FROM message ".
 			$where_sql.
 			$sort_sql.
@@ -106,6 +107,7 @@ class DAO_Message extends C4_ORMHelper {
 			$object->storage_key = $row['storage_key'];
 			$object->storage_profile_id = $row['storage_profile_id'];
 			$object->storage_size = $row['storage_size'];
+			$object->response_time = $row['response_time'];
 			$objects[$object->id] = $object;
 		}
 		
@@ -268,6 +270,7 @@ class DAO_Message extends C4_ORMHelper {
 			"m.storage_key as %s, ".
 			"m.storage_profile_id as %s, ".
 			"m.storage_size as %s, ".
+			"m.response_time as %s, ".
 			"t.group_id as %s, ".
 			"t.mask as %s, ".
 			"t.subject as %s, ".
@@ -282,6 +285,7 @@ class DAO_Message extends C4_ORMHelper {
 			    SearchFields_Message::STORAGE_KEY,
 			    SearchFields_Message::STORAGE_PROFILE_ID,
 			    SearchFields_Message::STORAGE_SIZE,
+			    SearchFields_Message::RESPONSE_TIME,
 			    SearchFields_Message::TICKET_GROUP_ID,
 			    SearchFields_Message::TICKET_MASK,
 			    SearchFields_Message::TICKET_SUBJECT,
@@ -378,6 +382,7 @@ class SearchFields_Message implements IDevblocksSearchFields {
 	const IS_OUTGOING = 'm_is_outgoing';
 	const TICKET_ID = 'm_ticket_id';
 	const WORKER_ID = 'm_worker_id';
+	const RESPONSE_TIME = 'm_response_time';
 	
 	// Storage
 	const STORAGE_EXTENSION = 'm_storage_extension';
@@ -414,6 +419,7 @@ class SearchFields_Message implements IDevblocksSearchFields {
 			SearchFields_Message::IS_OUTGOING => new DevblocksSearchField(SearchFields_Message::IS_OUTGOING, 'm', 'is_outgoing', $translate->_('message.is_outgoing'), Model_CustomField::TYPE_CHECKBOX),
 			SearchFields_Message::TICKET_ID => new DevblocksSearchField(SearchFields_Message::TICKET_ID, 'm', 'ticket_id'),
 			SearchFields_Message::WORKER_ID => new DevblocksSearchField(SearchFields_Message::WORKER_ID, 'm', 'worker_id', $translate->_('common.worker'), Model_CustomField::TYPE_WORKER),
+			SearchFields_Message::RESPONSE_TIME => new DevblocksSearchField(SearchFields_Message::RESPONSE_TIME, 'm', 'response_time', $translate->_('Response Time'), Model_CustomField::TYPE_NUMBER),
 			
 			SearchFields_Message::STORAGE_EXTENSION => new DevblocksSearchField(SearchFields_Message::STORAGE_EXTENSION, 'm', 'storage_extension'),
 			SearchFields_Message::STORAGE_KEY => new DevblocksSearchField(SearchFields_Message::STORAGE_KEY, 'm', 'storage_key'),
@@ -454,6 +460,7 @@ class Model_Message {
 	public $storage_key;
 	public $storage_profile_id;
 	public $storage_size;
+	public $response_time;
 	
 	private $_sender_object = null;
 
