@@ -1072,7 +1072,7 @@ class Context_Opportunity extends Extension_DevblocksContext implements IDevbloc
 		$friendly = DevblocksPlatform::strToPermalink($opp->name);
 		
 		if(!empty($friendly))
-			$url .= ' - ' . $friendly;
+			$url .= '-' . $friendly;
 		
 		return array(
 			'id' => $opp->id,

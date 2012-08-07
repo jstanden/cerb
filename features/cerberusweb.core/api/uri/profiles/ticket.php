@@ -27,11 +27,17 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 		$stack = $response->path;
 		@array_shift($stack); // profiles
 		@array_shift($stack); // ticket
-		@$id = array_shift($stack);
+		@$id_string = array_shift($stack);
 		
 		// Translate masks to IDs
-		if(!is_numeric($id)) {
-			$id = DAO_Ticket::getTicketIdByMask($id);
+		if(!is_numeric($id_string)) {
+			$id = DAO_Ticket::getTicketIdByMask($id_string);
+			
+			if(empty($id))
+				$id = intval($id_string);
+			
+		} else {
+			$id = intval($id_string);
 		}
 		
 		if(null == ($ticket = DAO_Ticket::get($id))) {
