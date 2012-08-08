@@ -3243,11 +3243,6 @@ login &lt;ftp&#13;
         <seg>Задачи заявки</seg>
       </tuv>
     </tu>
-    <tu tuid="ticket.created">
-      <tuv xml:lang="ru_RU">
-        <seg>Создано</seg>
-      </tuv>
-    </tu>
     <tu tuid="ticket.due">
       <tuv xml:lang="ru_RU">
         <seg>Истекает</seg>
@@ -3331,11 +3326,6 @@ login &lt;ftp&#13;
     <tu tuid="ticket.unlock_date">
       <tuv xml:lang="ru_RU">
         <seg>Дата автоматического снятия назначения</seg>
-      </tuv>
-    </tu>
-    <tu tuid="ticket.updated">
-      <tuv xml:lang="ru_RU">
-        <seg>Обновлено</seg>
       </tuv>
     </tu>
     <tu tuid="timetracking.activity.tab">

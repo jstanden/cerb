@@ -1682,8 +1682,8 @@ For example: *receipt*</seg></tuv>
 		<tu tuid='ticket.assignable'>
 			<tuv xml:lang="en_US"><seg>Assignable</seg></tuv>
 		</tu>
-		<tu tuid='ticket.created'>
-			<tuv xml:lang="en_US"><seg>Created</seg></tuv>
+		<tu tuid='ticket.closed_at'>
+			<tuv xml:lang="en_US"><seg>Closed At</seg></tuv>
 		</tu>
 		<tu tuid='ticket.due'>
 			<tuv xml:lang="en_US"><seg>Due</seg></tuv>
@@ -1746,9 +1746,6 @@ For example: *receipt*</seg></tuv>
 		</tu>
 		<tu tuid='ticket.subject'>
 			<tuv xml:lang="en_US"><seg>Subject</seg></tuv>
-		</tu>
-		<tu tuid='ticket.updated'>
-			<tuv xml:lang="en_US"><seg>Updated</seg></tuv>
 		</tu>
 
 		<!-- Spam Training -->

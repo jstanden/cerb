@@ -8,7 +8,7 @@
 <input type="hidden" name="closed" value="{if $ticket.t_is_closed}1{else}0{/if}">
 	<b>{$translate->_('portal.sc.public.history.reference')}</b> {$ticket.t_mask}
 	 &nbsp; 
-	<b>{$translate->_('ticket.updated')|capitalize}:</b> <abbr title="{$ticket.t_updated_date|devblocks_date}">{$ticket.t_updated_date|devblocks_prettytime}</abbr>
+	<b>{$translate->_('common.updated')|capitalize}:</b> <abbr title="{$ticket.t_updated_date|devblocks_date}">{$ticket.t_updated_date|devblocks_prettytime}</abbr>
 	 &nbsp; 
 	<br>
 	

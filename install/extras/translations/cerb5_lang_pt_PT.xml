@@ -2256,11 +2256,6 @@ Se não solicitou esta operação, não clique no link em cima. O pedido expira 
         <seg>Tarefas do Ticket</seg>
       </tuv>
     </tu>
-    <tu tuid="ticket.created">
-      <tuv xml:lang="pt_PT">
-        <seg>Criado</seg>
-      </tuv>
-    </tu>
     <tu tuid="ticket.due">
       <tuv xml:lang="pt_PT">
         <seg>Data fim</seg>
@@ -2339,11 +2334,6 @@ Se não solicitou esta operação, não clique no link em cima. O pedido expira 
     <tu tuid="ticket.unlock_date">
       <tuv xml:lang="pt_PT">
         <seg>Data de libertação</seg>
-      </tuv>
-    </tu>
-    <tu tuid="ticket.updated">
-      <tuv xml:lang="pt_PT">
-        <seg>Actualizado</seg>
       </tuv>
     </tu>
     <tu tuid="training.not_spam">

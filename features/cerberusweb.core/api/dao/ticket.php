@@ -54,7 +54,7 @@ class DAO_Ticket extends C4_ORMHelper {
 			'group_id' => $translate->_('ticket.group'),
 			'bucket_id' => $translate->_('ticket.bucket'),
 			'owner_id' => $translate->_('common.owner'),
-			'updated_date' => $translate->_('ticket.updated'),
+			'updated_date' => $translate->_('common.updated'),
 			'spam_training' => $translate->_('ticket.spam_training'),
 			'spam_score' => $translate->_('ticket.spam_score'),
 			'interesting_words' => $translate->_('ticket.interesting_words'),
@@ -1454,8 +1454,8 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 			self::TICKET_OWNER_ID => new DevblocksSearchField(self::TICKET_OWNER_ID,'t','owner_id',$translate->_('common.owner'), Model_CustomField::TYPE_WORKER),
 			self::TICKET_GROUP_ID => new DevblocksSearchField(self::TICKET_GROUP_ID,'t','group_id',$translate->_('common.group')),
 			self::TICKET_BUCKET_ID => new DevblocksSearchField(self::TICKET_BUCKET_ID, 't', 'bucket_id',$translate->_('common.bucket')),
-			self::TICKET_CREATED_DATE => new DevblocksSearchField(self::TICKET_CREATED_DATE, 't', 'created_date',$translate->_('ticket.created'), Model_CustomField::TYPE_DATE),
-			self::TICKET_UPDATED_DATE => new DevblocksSearchField(self::TICKET_UPDATED_DATE, 't', 'updated_date',$translate->_('ticket.updated'), Model_CustomField::TYPE_DATE),
+			self::TICKET_CREATED_DATE => new DevblocksSearchField(self::TICKET_CREATED_DATE, 't', 'created_date',$translate->_('common.created'), Model_CustomField::TYPE_DATE),
+			self::TICKET_UPDATED_DATE => new DevblocksSearchField(self::TICKET_UPDATED_DATE, 't', 'updated_date',$translate->_('common.updated'), Model_CustomField::TYPE_DATE),
 			self::TICKET_WAITING => new DevblocksSearchField(self::TICKET_WAITING, 't', 'is_waiting',$translate->_('status.waiting'), Model_CustomField::TYPE_CHECKBOX),
 			self::TICKET_CLOSED => new DevblocksSearchField(self::TICKET_CLOSED, 't', 'is_closed',$translate->_('status.closed'), Model_CustomField::TYPE_CHECKBOX),
 			self::TICKET_DELETED => new DevblocksSearchField(self::TICKET_DELETED, 't', 'is_deleted',$translate->_('status.deleted'), Model_CustomField::TYPE_CHECKBOX),
@@ -2766,7 +2766,7 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 			
 		// Token labels
 		$token_labels = array(
-			'created|date' => $prefix.$translate->_('ticket.created'),
+			'created|date' => $prefix.$translate->_('common.created'),
 			'id' => $prefix.$translate->_('ticket.id'),
 			'mask' => $prefix.$translate->_('ticket.mask'),
 			'num_messages' => $prefix.$translate->_('ticket.num_messages'),
@@ -2775,7 +2775,7 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 			'spam_training' => $prefix.$translate->_('ticket.spam_training'),
 			'status' => $prefix.$translate->_('common.status'),
 			'subject' => $prefix.$translate->_('ticket.subject'),
-			'updated|date' => $prefix.$translate->_('ticket.updated'),
+			'updated|date' => $prefix.$translate->_('common.updated'),
 			'url' => $prefix.$translate->_('common.url'),
 		);
 		
