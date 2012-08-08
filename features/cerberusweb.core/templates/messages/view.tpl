@@ -88,7 +88,7 @@
 			{elseif $column=="m_created_date"}
 				<td><abbr title="{$result.$column|devblocks_date}">{$result.$column|devblocks_prettytime}</abbr>&nbsp;</td>
 			{elseif $column=="m_response_time"}
-				<td>{$result.$column|devblocks_prettysecs:2}</td>
+				<td>{if !empty($result.$column)}{$result.$column|devblocks_prettysecs:2}{/if}</td>
 			{else}
 				<td>{$result.$column}</td>
 			{/if}
