@@ -1485,7 +1485,6 @@ class Context_Message extends Extension_DevblocksContext {
 		$view->name = 'Messages';
 //		$view->view_columns = array(
 //			SearchFields_Message::UPDATED_DATE,
-//			SearchFields_Message::DUE_DATE,
 //		);
 		$view->addParams(array(
 //			SearchFields_Task::IS_COMPLETED => new DevblocksSearchCriteria(SearchFields_Task::IS_COMPLETED,'=',0),

@@ -32,7 +32,7 @@ class DAO_Ticket extends C4_ORMHelper {
 	const FIRST_WROTE_ID = 'first_wrote_address_id';
 	const CREATED_DATE = 'created_date';
 	const UPDATED_DATE = 'updated_date';
-	const DUE_DATE = 'due_date';
+	const REOPEN_AT = 'reopen_at';
 	const SPAM_TRAINING = 'spam_training';
 	const SPAM_SCORE = 'spam_score';
 	const INTERESTING_WORDS = 'interesting_words';
@@ -309,7 +309,7 @@ class DAO_Ticket extends C4_ORMHelper {
 			DAO_Ticket::update($merge_ticket_ids, array(
 				DAO_Ticket::IS_CLOSED => 1,
 				DAO_Ticket::IS_DELETED => 1,
-				DAO_Ticket::DUE_DATE => 0,
+				DAO_Ticket::REOPEN_AT => 0,
 				DAO_Ticket::NUM_MESSAGES => 0,
 			));
 
@@ -507,7 +507,7 @@ class DAO_Ticket extends C4_ORMHelper {
 			$object->first_wrote_address_id = intval($row['first_wrote_address_id']);
 			$object->created_date = intval($row['created_date']);
 			$object->updated_date = intval($row['updated_date']);
-			$object->due_date = intval($row['due_date']);
+			$object->reopen_at = intval($row['reopen_at']);
 			$object->spam_score = floatval($row['spam_score']);
 			$object->spam_training = $row['spam_training'];
 			$object->interesting_words = $row['interesting_words'];
@@ -1123,7 +1123,7 @@ class DAO_Ticket extends C4_ORMHelper {
 			"a1.contact_org_id as %s, ".
 			"t.created_date as %s, ".
 			"t.updated_date as %s, ".
-			"t.due_date as %s, ".
+			"t.reopen_at as %s, ".
 			"t.spam_training as %s, ".
 			"t.spam_score as %s, ".
 			"t.last_action_code as %s, ".
@@ -1149,7 +1149,7 @@ class DAO_Ticket extends C4_ORMHelper {
 			    SearchFields_Ticket::TICKET_FIRST_CONTACT_ORG_ID,
 			    SearchFields_Ticket::TICKET_CREATED_DATE,
 			    SearchFields_Ticket::TICKET_UPDATED_DATE,
-			    SearchFields_Ticket::TICKET_DUE_DATE,
+			    SearchFields_Ticket::TICKET_REOPEN_AT,
 			    SearchFields_Ticket::TICKET_SPAM_TRAINING,
 			    SearchFields_Ticket::TICKET_SPAM_SCORE,
 			    SearchFields_Ticket::TICKET_LAST_ACTION_CODE,
@@ -1387,7 +1387,7 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 	const TICKET_LAST_WROTE = 't_last_wrote';
 	const TICKET_CREATED_DATE = 't_created_date';
 	const TICKET_UPDATED_DATE = 't_updated_date';
-	const TICKET_DUE_DATE = 't_due_date';
+	const TICKET_REOPEN_AT = 't_reopen_at';
 	const TICKET_SPAM_SCORE = 't_spam_score';
 	const TICKET_SPAM_TRAINING = 't_spam_training';
 	const TICKET_INTERESTING_WORDS = 't_interesting_words';
@@ -1467,7 +1467,7 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 			self::TICKET_FIRST_WROTE_SPAM => new DevblocksSearchField(self::TICKET_FIRST_WROTE_SPAM, 'a1', 'num_spam',$translate->_('address.num_spam'), Model_CustomField::TYPE_NUMBER),
 			self::TICKET_FIRST_WROTE_NONSPAM => new DevblocksSearchField(self::TICKET_FIRST_WROTE_NONSPAM, 'a1', 'num_nonspam',$translate->_('address.num_nonspam'), Model_CustomField::TYPE_NUMBER),
 			self::TICKET_INTERESTING_WORDS => new DevblocksSearchField(self::TICKET_INTERESTING_WORDS, 't', 'interesting_words',$translate->_('ticket.interesting_words')),
-			self::TICKET_DUE_DATE => new DevblocksSearchField(self::TICKET_DUE_DATE, 't', 'due_date',$translate->_('ticket.due'), Model_CustomField::TYPE_DATE),
+			self::TICKET_REOPEN_AT => new DevblocksSearchField(self::TICKET_REOPEN_AT, 't', 'reopen_at',$translate->_('ticket.reopen_at'), Model_CustomField::TYPE_DATE),
 			self::TICKET_FIRST_CONTACT_ORG_ID => new DevblocksSearchField(self::TICKET_FIRST_CONTACT_ORG_ID, 'a1', 'contact_org_id'),
 			
 			self::REQUESTER_ID => new DevblocksSearchField(self::REQUESTER_ID, 'r', 'address_id', $translate->_('ticket.requester')),
@@ -1531,7 +1531,7 @@ class Model_Ticket {
 	public $last_wrote_address_id;
 	public $created_date;
 	public $updated_date;
-	public $due_date;
+	public $reopen_at;
 	public $spam_score;
 	public $spam_training;
 	public $interesting_words;
@@ -2050,7 +2050,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals {
 					
 			case SearchFields_Ticket::TICKET_CREATED_DATE:
 			case SearchFields_Ticket::TICKET_UPDATED_DATE:
-			case SearchFields_Ticket::TICKET_DUE_DATE:
+			case SearchFields_Ticket::TICKET_REOPEN_AT:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__date.tpl');
 				break;
 					
@@ -2346,7 +2346,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals {
 
 			case SearchFields_Ticket::TICKET_CREATED_DATE:
 			case SearchFields_Ticket::TICKET_UPDATED_DATE:
-			case SearchFields_Ticket::TICKET_DUE_DATE:
+			case SearchFields_Ticket::TICKET_REOPEN_AT:
 				$criteria = $this->_doSetCriteriaDate($field, $oper);
 				break;
 
@@ -2462,7 +2462,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals {
 					break;
 				case 'reopen':
 					@$date = strtotime($v['date']);
-					$change_fields[DAO_Ticket::DUE_DATE] = intval($date);
+					$change_fields[DAO_Ticket::REOPEN_AT] = intval($date);
 					break;
 				case 'broadcast':
 					if(isset($v['worker_id'])) {
@@ -2770,7 +2770,7 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 			'id' => $prefix.$translate->_('ticket.id'),
 			'mask' => $prefix.$translate->_('ticket.mask'),
 			'num_messages' => $prefix.$translate->_('ticket.num_messages'),
-			'reopen_date|date' => $prefix.$translate->_('ticket.reopen_date'),
+			'reopen_date|date' => $prefix.$translate->_('ticket.reopen_at'),
 			'spam_score' => $prefix.$translate->_('ticket.spam_score'),
 			'spam_training' => $prefix.$translate->_('ticket.spam_training'),
 			'status' => $prefix.$translate->_('common.status'),
@@ -2797,7 +2797,7 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 			$token_values['id'] = $ticket->id;
 			$token_values['mask'] = $ticket->mask;
 			$token_values['num_messages'] = $ticket->num_messages;
-			$token_values['reopen_date'] = $ticket->due_date;
+			$token_values['reopen_date'] = $ticket->reopen_at;
 			$token_values['spam_score'] = $ticket->spam_score;
 			$token_values['spam_training'] = $ticket->spam_training;
 			$token_values['subject'] = $ticket->subject;

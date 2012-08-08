@@ -871,8 +871,8 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 				SearchFields_Ticket::TICKET_DELETED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_DELETED,'=',0),
 				array(
 					DevblocksSearchCriteria::GROUP_AND,
-					new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_DUE_DATE,DevblocksSearchCriteria::OPER_GT,0),
-					new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_DUE_DATE,DevblocksSearchCriteria::OPER_LT,time()),
+					new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_REOPEN_AT,DevblocksSearchCriteria::OPER_GT,0),
+					new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_REOPEN_AT,DevblocksSearchCriteria::OPER_LT,time()),
 				),
 			),
 			100,
@@ -886,7 +886,7 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 			$fields = array(
 				DAO_Ticket::IS_CLOSED => 0,
 				DAO_Ticket::IS_WAITING => 0,
-				DAO_Ticket::DUE_DATE => 0
+				DAO_Ticket::REOPEN_AT => 0
 			);
 			DAO_Ticket::update(array_keys($results), $fields);
 		}

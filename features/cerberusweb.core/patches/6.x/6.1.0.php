@@ -83,4 +83,21 @@ if(!isset($columns['response_time'])) {
 	$db->Execute("DROP TABLE IF EXISTS _tmp_response_times");
 }
 
+// ===========================================================================
+// Ticket
+
+if(!isset($tables['ticket'])) {
+	$logger->error("The 'ticket' table does not exist.");
+	return FALSE;
+}
+
+list($columns, $indexes) = $db->metaTable('ticket');
+
+// ===========================================================================
+// Rename ticket.due_date -> ticket.reopen_at
+
+if(isset($columns['due_date'])) {
+	$db->Execute("ALTER TABLE ticket CHANGE COLUMN due_date reopen_at INT UNSIGNED NOT NULL DEFAULT 0");
+}
+
 return TRUE;

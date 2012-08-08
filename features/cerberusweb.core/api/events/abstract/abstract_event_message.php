@@ -980,7 +980,7 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 				@$reopen_date = intval(strtotime($params['value']));
 			
 				DAO_Ticket::update($ticket_id, array(
-					DAO_Ticket::DUE_DATE => $reopen_date,
+					DAO_Ticket::REOPEN_AT => $reopen_date,
 				));
 			
 				$dict->ticket_reopen_date = $reopen_date;

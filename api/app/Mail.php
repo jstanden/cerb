@@ -344,8 +344,8 @@ class CerberusMail {
 		// "Next:" [TODO] This is highly redundant with CerberusMail::reply
 		
 		if(isset($ticket_reopen) && !empty($ticket_reopen)) {
-			$due = strtotime($ticket_reopen);
-			if($due) $fields[DAO_Ticket::DUE_DATE] = $due;
+			if(false !== (@$reopen_at = strtotime($ticket_reopen)))
+				$fields[DAO_Ticket::REOPEN_AT] = $reopen_at;
 		}
 		// End "Next:"
 		
@@ -809,7 +809,7 @@ class CerberusMail {
 					$change_fields[DAO_Ticket::IS_WAITING] = 0;
 					$change_fields[DAO_Ticket::IS_CLOSED] = 0;
 					$change_fields[DAO_Ticket::IS_DELETED] = 0;
-					$change_fields[DAO_Ticket::DUE_DATE] = 0;
+					$change_fields[DAO_Ticket::REOPEN_AT] = 0;
 					break;
 				case 1: // closed
 					$change_fields[DAO_Ticket::IS_WAITING] = 0;
@@ -818,7 +818,7 @@ class CerberusMail {
 					
 					if(isset($properties['ticket_reopen'])) {
 						@$time = intval(strtotime($properties['ticket_reopen']));
-						$change_fields[DAO_Ticket::DUE_DATE] = $time;
+						$change_fields[DAO_Ticket::REOPEN_AT] = $time;
 					}
 					break;
 				case 2: // waiting
@@ -828,7 +828,7 @@ class CerberusMail {
 					
 					if(isset($properties['ticket_reopen'])) {
 						@$time = intval(strtotime($properties['ticket_reopen']));
-						$change_fields[DAO_Ticket::DUE_DATE] = $time;
+						$change_fields[DAO_Ticket::REOPEN_AT] = $time;
 					}
 					break;
 			}
