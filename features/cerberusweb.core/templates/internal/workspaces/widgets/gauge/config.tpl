@@ -73,11 +73,23 @@
     	<fieldset class="peek worklist" style="display:{if $widget->params.datasource=='worklist'}block{else}none{/if};">
     		{$div_popup_worklist = uniqid()}
 			
+			{$ctx_id = $widget->params.view_context}
+			
+			{$ctx = null}
+			{$ctx_view = null}
+			{$ctx_fields = []}
+			
+			{if !empty($ctx_id)}
+				{$ctx = Extension_DevblocksContext::get($ctx_id)}
+				{$ctx_view = $ctx->getChooserView()} 
+				{$ctx_fields = $ctx_view->getParamsAvailable()}
+			{/if}
+			
 			<b>Load </b>
 			
 			<select name="params[view_context]" class="context">
 				{foreach from=$context_mfts item=context_mft key=context_id}
-				<option value="{$context_id}" {if $widget->params.view_context==$context_id}selected="selected"{/if}>{$context_mft->name}</option>
+				<option value="{$context_id}" {if $ctx_id==$context_id}selected="selected"{/if}>{$context_mft->name}</option>
 				{/foreach}
 			</select>
 			
@@ -85,7 +97,47 @@
 			
 			<div id="popup{$div_popup_worklist}" class="badge badge-lightgray" style="font-weight:bold;color:rgb(80,80,80);cursor:pointer;display:inline;"><span class="name">Worklist</span> &#x25be;</div>
 			
-			<input type="hidden" name="params[view_model]" value="{$params.view_model}" class="model">
+			<input type="hidden" name="params[view_model]" value="{$widget->params.view_model}" class="model">
+			
+			<br>
+			
+			<b>Needle</b> is 
+			 
+			{$needle_func = $widget->params.needle_func}
+			{$needle_field = $widget->params.needle_field}
+			
+			<select name="params[needle_func]" class="needle_func">
+				<option value="count" {if 'count'==$widget->params.needle_func}selected="selected"{/if}>count</option>
+				<option value="avg" class="number" {if 'avg'==$widget->params.needle_func}selected="selected"{/if}>average</option>
+				<option value="sum" class="number" {if 'sum'==$widget->params.needle_func}selected="selected"{/if}>sum</option>
+				<option value="min" class="number" {if 'min'==$widget->params.needle_func}selected="selected"{/if}>min</option>
+				<option value="max" class="number" {if 'max'==$widget->params.needle_func}selected="selected"{/if}>max</option>
+			</select>
+			
+			<select name="params[needle_field]" class="needle_field" style="display:{if empty($ctx_fields) || 'count'==$needle_func}none{else}inline{/if};">
+				{if !empty($ctx_fields)}
+				{foreach from=$ctx_fields item=field}
+					{if !empty($field->db_label)}
+						{if $field->type == Model_CustomField::TYPE_NUMBER}
+						<option value="{$field->token}" {if $needle_field==$field->token}selected="selected"{/if}>{$field->db_label|lower}</option>
+						{/if}
+					{/if}
+				{/foreach}
+				{/if}
+			</select>
+			
+			<br>
+			
+			<b>Display</b> as
+			
+			{$needle_format = $widget->params.needle_format}
+			
+			<select name="params[needle_format]" class="needle_format">
+				<option value="number" {if 'count'==$widget->params.needle_format}selected="selected"{/if}>number</option>
+				<option value="decimal" {if 'decimal'==$widget->params.needle_format}selected="selected"{/if}>decimal</option>
+				<option value="seconds" {if 'seconds'==$widget->params.needle_format}selected="selected"{/if}>time elapsed (seconds)</option>
+			</select>
+			
     	</fieldset>
     	
     	<fieldset class="peek sensor" style="display:{if $widget->params.datasource=='sensor'}block{else}none{/if};">
@@ -121,6 +173,50 @@
 		
 		$datasource_tab.find('fieldset.' + val).show();
 	});
+	
+	$fieldsets.find('select.needle_func').change(function(e) {
+		val = $(this).val();
+		
+		var $select_needle_field = $(this).siblings('select.needle_field');
+		
+		if(val == 'count')
+			$select_needle_field.hide();
+		else
+			$select_needle_field.show();
+	});
+	
+	$fieldsets.find('select.needle_field').change(function(e) {
+		
+	});
+	
+	$fieldsets.find('select.context').change(function(e) {
+		ctx = $(this).val();
+		
+		// Hide options until we know the context
+		var $select = $(this);
+		
+		if(0 == ctx.length)
+			return;
+		
+		genericAjaxGet('','c=internal&a=handleSectionAction&section=dashboards&action=getContextFieldsJson&context=' + ctx, function(json) {
+			if('object' == typeof(json) && json.length > 0) {
+				$select_needle_field = $select.siblings('select.needle_field').html('');
+				
+				for(idx in json) {
+					field = json[idx];
+					field_type = (field.type=='E') ? 'date' : ((field.type=='N') ? 'number' : '');
+					
+					$option = $('<option value="'+field.key+'" class="'+field_type+'">'+field.label+'</option>');
+
+					// Number
+					if(field_type == 'number')
+						$select_needle_field.append($option.clone());
+					
+					delete $option;
+				}
+			}
+		});
+	});	
 	
 	$('#popup{$div_popup_worklist}').click(function(e) {
 		context = $(this).siblings('select.context').val();

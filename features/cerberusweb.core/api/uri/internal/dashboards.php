@@ -206,26 +206,88 @@ class WorkspaceWidget_Gauge extends Extension_WorkspaceWidget {
 				if(null == ($view_model = self::getParamsViewModel($widget, $widget->params)))
 					return;
 				
+				if(null == ($context_ext = Extension_DevblocksContext::get($widget->params['view_context'])))
+					return;
+	
+				if(null == ($dao_class = @$context_ext->manifest->params['dao_class']))
+					return;
+				
 				// Force reload parameters (we can't trust the session)
 				if(false == ($view = C4_AbstractViewLoader::unserializeAbstractView($view_model)))
 					return;
 				
 				C4_AbstractViewLoader::setView($view->id, $view);
 				
-				// [TODO] Do something with the view
-				
 				$view->renderPage = 0;
 				$view->renderLimit = 1;
 				
-				// [TODO] Just overload the query parts instead
+				$query_parts = $dao_class::getSearchQueryComponents(
+					$view->view_columns,
+					$view->getParams(),
+					$view->renderSortBy,
+					$view->renderSortAsc
+				);
 				
-				list($results, $count) = $view->getData();
+				$db = DevblocksPlatform::getDatabaseService();
 				
-				unset($results);
+				// We need to know what date fields we have
+				$fields = $view->getFields();
+				@$needle_func = $widget->params['needle_func'];
+				@$needle_field = $fields[$widget->params['needle_field']];
+						
+				if(empty($needle_func))
+					$needle_func = 'count';
 				
-				$widget->params['metric_value'] = $count;
-				$widget->params['metric_type'] = 'number';
+				switch($needle_func) {
+					case 'sum':
+						$select_func = sprintf("SUM(%s.%s)",
+							$needle_field->db_table,
+							$needle_field->db_column
+						);
+						break;
+						
+					case 'avg':
+						$select_func = sprintf("AVG(%s.%s)",
+							$needle_field->db_table,
+							$needle_field->db_column
+						);
+						break;
+						
+					case 'min':
+						$select_func = sprintf("MIN(%s.%s)",
+							$needle_field->db_table,
+							$needle_field->db_column
+						);
+						break;
+						
+					case 'max':
+						$select_func = sprintf("MAX(%s.%s)",
+							$needle_field->db_table,
+							$needle_field->db_column
+						);
+						break;
+						
+					default:
+					case 'count':
+						$select_func = 'COUNT(*)';
+						break;
+				}						
+					
+				$sql = sprintf("SELECT %s AS needle_value " .
+					$query_parts['join'].
+					$query_parts['where'],
+					$select_func
+				);
 				
+				$needle_value = $db->GetOne($sql);
+				
+				$needle_format = 'number';
+
+				if(isset($widget->params['needle_format']))
+					$needle_format = $widget->params['needle_format'];
+				
+				$widget->params['metric_value'] = $needle_value;
+				$widget->params['metric_type'] = $needle_format;
 				break;
 				
 			case 'sensor':
