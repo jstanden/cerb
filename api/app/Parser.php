@@ -528,10 +528,12 @@ class CerberusParser {
 		    
 			// See if we have a content filename
 			
-			$content_filename = isset($info['content-name']) ? $info['content-name'] : '';
+			$content_filename = isset($info['disposition-filename']) ? $info['disposition-filename'] : '';
 			
 			if(empty($content_filename))
-				$content_filename = isset($info['disposition-filename']) ? $info['disposition-filename'] : '';
+				$content_filename = isset($info['content-name']) ? $info['content-name'] : '';
+			
+			$content_filename = self::fixQuotePrintableString($content_filename, $info['charset']);
 			
 			// Content type
 			
@@ -637,30 +639,16 @@ class CerberusParser {
 				        break;
 				    }
 				    
-				    if(!isset($info['content-name']) || empty($info['content-name'])) {
-				    	if(isset($info['disposition-filename']))
-				    		$info['content-name'] = $info['disposition-filename'];
-				    	else
-				    		$info['content-name'] = '';
-				    }
-				    
-				    // if un-named, call it "unnamed message part"
-				    if (empty($info['content-name'])) { 
-				    	$info['content-name'] = 'unnamed_message_part';
-				    }
-				    
-				    // filenames can be quoted-printable strings, too...
-				    $info['content-name'] = self::fixQuotePrintableString($info['content-name'], $info['charset']);
-
 				    // content-name is not necessarily unique...
-					if (isset($message->files[$info['content-name']])) {
+					if (isset($message->files[$content_filename])) {
 						$j=1;
-						while (isset($message->files[$info['content-name'] . '(' . $j . ')'])) {
+						while (isset($message->files[$content_filename . '(' . $j . ')'])) {
 							$j++;
 						}
-						$info['content-name'] = $info['content-name'] . '(' . $j . ')';
+						$content_filename = $content_filename . '(' . $j . ')';
 					}
-					$message->files[$info['content-name']] = $attach;
+					
+					$message->files[$content_filename] = $attach;
 		        }
 		    }
 		}
