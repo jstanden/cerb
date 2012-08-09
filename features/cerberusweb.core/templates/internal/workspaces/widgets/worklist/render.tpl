@@ -9,14 +9,10 @@
 // [TODO] Hide the actions
 var on_refresh = function() {
 	$worklist = $('#view{$view->id}').find('TABLE.worklist');
-	//$worklist.css('background','none');
-	//$worklist.css('background-color','rgb(100,100,100)');
-	//$worklist.css('background-color','rgb(255,255,255)');
 	$worklist.hide();
 	
 	$header = $worklist.find('> tbody > tr:first > td:first > span.title');
 	$header.css('font-size', '14px');
-	//$header.hide();
 	
 	$header_links = $worklist.find('> tbody > tr:first td:nth(1)');
 	$header_links.children().each(function(e) {
@@ -27,17 +23,20 @@ var on_refresh = function() {
 
 	$worklist_body = $('#view{$view->id}').find('TABLE.worklistBody');
 	
-	//$worklist_body.find('tr:first th').css('background', 'rgb(245,245,245)');
 	$worklist_body.find('tr:first th')
 		.css('background', 'none')
 		.css('border', '0')
-		//.css('border-bottom', '1px solid rgb(230,230,230)')
 		;
 
+	$worklist_body.find('td')
+		.css('padding', '0px 3px 5px 0px')
+		;
+	
 	$worklist_body.find('tr:first th > a')
 		.css('text-decoration', 'underline')
-		.css('color', 'rgb(80,80,80)')
-		//.css('color', 'rgb(61,128,178)')
+		.css('color', 'rgb(51,92,142)')
+		.closest('th')
+			.css('padding-bottom', '5px')
 		;
 	
 	// Hide watchers column
@@ -49,8 +48,8 @@ var on_refresh = function() {
 	
 	$worklist_body.find('a.subject').each(function() {
 		$txt = $('<b class="subject">' + $(this).text() + '</b>');
-		$txt.css('font-weight', 'normal');
 		$txt.insertBefore($(this));
+		$txt.closest('td').css('padding-bottom', '0');
 		$(this).remove();
 	});
 	

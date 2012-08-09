@@ -143,7 +143,7 @@ if(isset($add_columns['first_outgoing_message_id'])) {
 	$db->Execute("CREATE TEMPORARY TABLE _tmp_initial_responses SELECT ticket_id, MIN(id) AS message_id FROM message WHERE is_outgoing = 1 GROUP BY ticket_id;");
 	
 	// Set the initial responses on tickets (2.74s)
-	$db->Execute("UPDATE ticket INNER JOIN _tmp_initial_responses ON (_tmp_initial_responses.ticket_id=ticket.id) SET ticket.first_outgoing_message_id=_tmp_initial_responses.message_id;");
+	$db->Execute("UPDATE ticket INNER JOIN _tmp_initial_responses ON (_tmp_initial_responses.ticket_id=ticket.id) SET ticket.first_outgoing_message_id=_tmp_initial_responses.message_id WHERE ticket.first_outgoing_message_id = 0;");
 	
 	// Cleanup
 	$db->Execute("DROP TABLE _tmp_initial_responses");
@@ -154,7 +154,7 @@ if(isset($add_columns['first_outgoing_message_id'])) {
 
 if(isset($add_columns['elapsed_response_first'])) {
 	// (3.46s)
-	$db->Execute("UPDATE ticket INNER JOIN message ON (ticket.first_outgoing_message_id=message.id) SET ticket.elapsed_response_first=message.response_time;");
+	$db->Execute("UPDATE ticket INNER JOIN message ON (ticket.first_outgoing_message_id=message.id) SET ticket.elapsed_response_first=message.response_time WHERE ticket.elapsed_response_first = 0;");
 }
 
 // ===========================================================================
