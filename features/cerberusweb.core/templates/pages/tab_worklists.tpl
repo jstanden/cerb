@@ -15,14 +15,13 @@
 <div id="divWorkspaceTab{$tab->id}"></div>
 
 <script type="text/javascript">
-	$workspace = $('#frmWorkspaceTab{$tab->id}');
 	// Lazy loading
 	$workspace = $('#divWorkspaceTab{$tab->id}');
 	$ajaxQueue = $({});
 	
 	{foreach from=$list_ids item=list_id}
 	$ajaxQueue.queue(function(next) {
-		$div = $('<div style="margin-bottom:10px;"></div>');
+		$div = $('<div style="margin-bottom:10px;" tab_id="{$tab->id}"></div>');
 		$div
 			.appendTo($workspace)
 			.html($('<div class="lazy" style="font-size:18pt;text-align:center;padding:50px;margin:20px;background-color:rgb(232,242,255);">Loading...</div>'))
@@ -39,6 +38,10 @@
 						$this,
 						'c=pages&a=initWorkspaceList&list_id={$list_id}',
 						function(html) {
+							if($this.attr('tab_id') != {$tab->id}) {
+								return;
+							}
+							
 							$this
 								.html(html)
 								;
@@ -53,7 +56,11 @@
 			genericAjaxGet(
 				$div,
 				'c=pages&a=initWorkspaceList&list_id={$list_id}',
-				function(html){
+				function(html) {
+					if($div.attr('tab_id') != {$tab->id}) {
+						return;
+					}
+					
 					$div
 						.html(html)
 						;

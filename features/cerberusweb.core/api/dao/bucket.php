@@ -525,9 +525,9 @@ class Context_Bucket extends Extension_DevblocksContext {
 		$defaults->class_name = $this->getViewClass();
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = 'Buckets';
-		$view->view_columns = array(
-			SearchFields_Bucket::NAME,
-		);
+		//$view->view_columns = array(
+			//SearchFields_Bucket::NAME,
+		//);
 		$view->addParams(array(
 //			SearchFields_Bucket::IS_DISABLED => new DevblocksSearchCriteria(SearchFields_Bucket::IS_DISABLED,'=',0),
 		), true);

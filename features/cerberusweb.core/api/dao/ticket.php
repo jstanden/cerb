@@ -2722,18 +2722,20 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 	}
 	
 	function getMeta($context_id) {
-		$url = $this->profileGetUrl($context_id);
-		$friendly = null;
-		
 		if(is_numeric($context_id)) {
 			$ticket = DAO_Ticket::get($context_id);
-			$friendly = DevblocksPlatform::strToPermalink($ticket->mask);
 		} else {
 			$ticket = DAO_Ticket::getTicketByMask($context_id);
 		}
+
+		$friendly = DevblocksPlatform::strToPermalink($ticket->mask);
 		
-		if(!empty($friendly))
-			$url .= ' - ' . $friendly;
+		if(!empty($friendly)) {
+			$url_writer = DevblocksPlatform::getUrlService();
+			$url = $url_writer->writeNoProxy('c=profiles&type=ticket&mask='.$ticket->mask, true);
+		} else {
+			$url = $this->profileGetUrl($context_id);			
+		}
 		
 		return array(
 			'id' => $ticket->id,

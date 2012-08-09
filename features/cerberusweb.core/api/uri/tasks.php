@@ -67,13 +67,18 @@ class ChTasksPage extends CerberusPageExtension {
 	
 			// Comment
 			@$comment = DevblocksPlatform::importGPC($_REQUEST['comment'],'string','');
+
+			// Custom Fields
+			@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', array());
 			
 			// Save
 			if(!empty($id)) {
 				DAO_Task::update($id, $fields);
+				DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_TASK, $id, $field_ids);
 				
 			} else {
-				$id = DAO_Task::create($fields);
+				$custom_fields = DAO_CustomFieldValue::parseFormPost(CerberusContexts::CONTEXT_TASK, $field_ids);
+				$id = DAO_Task::create($fields, $custom_fields);
 
 				@$is_watcher = DevblocksPlatform::importGPC($_REQUEST['is_watcher'],'integer',0);
 				if($is_watcher)
@@ -87,10 +92,6 @@ class ChTasksPage extends CerberusPageExtension {
 				}
 			}
 
-			// Custom field saves
-			@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', array());
-			DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_TASK, $id, $field_ids);
-			
 			// Comments				
 			if(!empty($comment) && !empty($id)) {
 				@$also_notify_worker_ids = DevblocksPlatform::importGPC($_REQUEST['notify_worker_ids'],'array',array());

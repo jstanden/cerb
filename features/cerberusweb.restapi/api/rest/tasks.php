@@ -286,13 +286,11 @@ class ChRest_Tasks extends Extension_RestController implements IExtensionRestCon
 		);
 		$this->_handleRequiredFields($reqfields, $fields);
 		
+		// Custom fields
+		$custom_fields = $this->_handleCustomFields($_POST);
+		
 		// Create
-		if(false != ($id = DAO_Task::create($fields))) {
-			// Handle custom fields
-			$customfields = $this->_handleCustomFields($_POST);
-			if(is_array($customfields))
-				DAO_CustomFieldValue::formatAndSetFieldValues(CerberusContexts::CONTEXT_TASK, $id, $customfields, true, true, true);
-			
+		if(false != ($id = DAO_Task::create($fields, $custom_fields))) {
 			$this->getId($id);
 		}
 	}
