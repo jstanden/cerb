@@ -743,6 +743,13 @@ class CerberusMail {
 		    if(!empty($subject) && !$is_forward) {
 		    	$change_fields[DAO_Ticket::SUBJECT] = $subject;
 		    }
+
+		    // Response time
+		    
+		    $response_epoch = ($ticket->created_date > $message->created_date) ? $ticket->created_date : $message->created_date;
+		    $response_time = (!empty($worker_id) ? (time() - $response_epoch) : 0);
+		    
+		    unset($response_epoch);
 		    
 		    // Fields
 		    
@@ -752,12 +759,18 @@ class CerberusMail {
 		        DAO_Message::ADDRESS_ID => $fromAddressId,
 		        DAO_Message::IS_OUTGOING => 1,
 		        DAO_Message::WORKER_ID => (!empty($worker_id) ? $worker_id : 0),
-		    	DAO_Message::RESPONSE_TIME => (!empty($worker_id) ? (time() - $message->created_date) : 0),
+		    	DAO_Message::RESPONSE_TIME => $response_time,
 		    );
 			$message_id = DAO_Message::create($fields);
 		    
 			// Store ticket.last_message_id
 			$change_fields[DAO_Ticket::LAST_MESSAGE_ID] = $message_id;
+			
+			// First outgoing message?
+			if(empty($ticket->first_outgoing_message_id) && !empty($worker_id)) {
+				$change_fields[DAO_Ticket::FIRST_OUTGOING_MESSAGE_ID] = $message_id;
+				$change_fields[DAO_Ticket::ELAPSED_RESPONSE_FIRST] = $response_time;
+			}
 			
 			// Content
 			Storage_MessageContent::put($message_id, $content);

@@ -1683,13 +1683,19 @@ For example: *receipt*</seg></tuv>
 			<tuv xml:lang="en_US"><seg>Assignable</seg></tuv>
 		</tu>
 		<tu tuid='ticket.closed_at'>
-			<tuv xml:lang="en_US"><seg>Closed At</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Closed</seg></tuv>
 		</tu>
 		<tu tuid='ticket.due'>
 			<tuv xml:lang="en_US"><seg>Due</seg></tuv>
 		</tu>
 		<tu tuid='ticket.id'>
 			<tuv xml:lang="en_US"><seg>Ticket ID</seg></tuv>
+		</tu>
+		<tu tuid='ticket.elapsed_response_first'>
+			<tuv xml:lang="en_US"><seg>First Response</seg></tuv>
+		</tu>
+		<tu tuid='ticket.elapsed_resolution_first'>
+			<tuv xml:lang="en_US"><seg>First Resolution</seg></tuv>
 		</tu>
 		<tu tuid='ticket.first_wrote'>
 			<tuv xml:lang="en_US"><seg>First Wrote</seg></tuv>

@@ -128,6 +128,10 @@
 		<td><a href="javascript:;" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_ADDRESS}&email={$result.t_first_wrote|escape:'url'}&view_id={$view->id}',null,false,'500');" title="{$result.t_first_wrote}">{$result.t_first_wrote|truncate:45:'...':true:true}</a></td>
 		{elseif $column=="t_created_date" || $column=="t_updated_date" || $column=="t_reopen_at" || $column=="t_closed_at"}
 		<td><abbr title="{$result.$column|devblocks_date}">{$result.$column|devblocks_prettytime}</abbr></td>
+		{elseif $column=="t_elapsed_response_first" || $column=="t_elapsed_resolution_first"}
+			<td>
+				{if !empty($result.$column)}{$result.$column|devblocks_prettysecs:2}{/if}
+			</td>
 		{elseif $column=="t_owner_id"}
 		<td>
 			{if isset($workers.{$result.t_owner_id})}

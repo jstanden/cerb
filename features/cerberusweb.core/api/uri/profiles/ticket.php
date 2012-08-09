@@ -101,12 +101,36 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 					'type' => Model_CustomField::TYPE_DATE,
 					'value' => $ticket->updated_date,
 				),
-				// [TODO] If trained or not
-				'spam_score' => array(
-					'label' => ucfirst($translate->_('ticket.spam_score')),
-					'type' => Model_CustomField::TYPE_SINGLE_LINE,
-					'value' => (100*$ticket->spam_score) . '%',
-				),
+		);
+		
+		if(!empty($ticket->closed_at)) {
+			$properties['updated'] = array(
+				'label' => ucfirst($translate->_('ticket.closed_at')),
+				'type' => Model_CustomField::TYPE_DATE,
+				'value' => $ticket->closed_at,
+			);
+		}
+		
+		if(!empty($ticket->elapsed_response_first)) {
+			$properties['elapsed_response_first'] = array(
+				'label' => ucfirst($translate->_('ticket.elapsed_response_first')),
+				'type' => null,
+				'value' => DevblocksPlatform::strSecsToString($ticket->elapsed_response_first, 2),
+			);
+		}
+		
+		if(!empty($ticket->elapsed_resolution_first)) {
+			$properties['elapsed_resolution_first'] = array(
+				'label' => ucfirst($translate->_('ticket.elapsed_resolution_first')),
+				'type' => null,
+				'value' => DevblocksPlatform::strSecsToString($ticket->elapsed_resolution_first, 2),
+			);
+		}
+		
+		$properties['spam_score'] = array(
+			'label' => ucfirst($translate->_('ticket.spam_score')),
+			'type' => Model_CustomField::TYPE_SINGLE_LINE,
+			'value' => (100*$ticket->spam_score) . '%',
 		);
 		
 		@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_TICKET, $ticket->id)) or array();

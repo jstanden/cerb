@@ -100,4 +100,68 @@ if(isset($columns['due_date'])) {
 	$db->Execute("ALTER TABLE ticket CHANGE COLUMN due_date reopen_at INT UNSIGNED NOT NULL DEFAULT 0");
 }
 
+// ===========================================================================
+// Add new ticket columns
+
+// (8.3s)
+$add_columns = array(
+	'closed_at' => 'ADD COLUMN closed_at INT UNSIGNED NOT NULL DEFAULT 0',
+	'first_outgoing_message_id' => 'ADD COLUMN first_outgoing_message_id INT UNSIGNED NOT NULL DEFAULT 0',
+	'elapsed_response_first' => 'ADD COLUMN elapsed_response_first INT UNSIGNED NOT NULL DEFAULT 0',
+	'elapsed_resolution_first' => 'ADD COLUMN elapsed_resolution_first INT UNSIGNED NOT NULL DEFAULT 0',
+);
+
+foreach($add_columns as $column => $alter_sql) {
+	if(isset($columns[$column]))
+		unset($add_columns[$column]);
+}
+
+// Alter the table
+if(!empty($add_columns))
+	$db->Execute("ALTER TABLE ticket " . implode(', ', $add_columns));
+
+
+// ===========================================================================
+// Populate ticket.closed_at
+
+if(isset($add_columns['closed_at'])) {
+	// Fix any wonky updated dates 
+	$db->Execute("UPDATE ticket SET updated_date = created_date WHERE updated_date < created_date");
+	
+	// If we know of any close events from the activity log, use them if the ticket is still closed (1.88s)
+	$db->Execute("UPDATE ticket INNER JOIN context_activity_log ON (context_activity_log.target_context_id=ticket.id) SET ticket.closed_at=context_activity_log.created WHERE context_activity_log.activity_point = 'ticket.status.closed' AND context_activity_log.target_context = 'cerberusweb.contexts.ticket' AND ticket.is_closed=1;");
+
+	// Default all closed_date to their last_updated date (1.84s)
+	$db->Execute("UPDATE ticket SET closed_at=updated_date WHERE is_closed=1 AND closed_at = 0");
+}
+
+// ===========================================================================
+// Populate ticket.first_outgoing_message_id
+
+if(isset($add_columns['first_outgoing_message_id'])) {
+	// Find the initial responses for each ticket (1.11s)
+	$db->Execute("CREATE TEMPORARY TABLE _tmp_initial_responses SELECT ticket_id, MIN(id) AS message_id FROM message WHERE is_outgoing = 1 GROUP BY ticket_id;");
+	
+	// Set the initial responses on tickets (2.74s)
+	$db->Execute("UPDATE ticket INNER JOIN _tmp_initial_responses ON (_tmp_initial_responses.ticket_id=ticket.id) SET ticket.first_outgoing_message_id=_tmp_initial_responses.message_id;");
+	
+	// Cleanup
+	$db->Execute("DROP TABLE _tmp_initial_responses");
+}
+
+// ===========================================================================
+// Populate ticket.elapsed_response_first
+
+if(isset($add_columns['elapsed_response_first'])) {
+	// (3.46s)
+	$db->Execute("UPDATE ticket INNER JOIN message ON (ticket.first_outgoing_message_id=message.id) SET ticket.elapsed_response_first=message.response_time;");
+}
+
+// ===========================================================================
+// Populate ticket.elapsed_resolution_first
+
+if(isset($add_columns['elapsed_resolution_first'])) {
+	$db->Execute("UPDATE ticket SET elapsed_resolution_first=GREATEST(closed_at-created_date,0) WHERE is_closed = 1 AND closed_at != 0");
+}
+
 return TRUE;
