@@ -577,6 +577,8 @@ class DevblocksPlatform extends DevblocksEngine {
 			return '0 secs';
 		
 		$blocks = array(
+			'year' => 52*7*24*60*60,
+			'month' => 30*24*60*60,
 			'week' => 7*24*60*60,
 			'day' => 24*60*60,
 			'hour' => 60*60,
