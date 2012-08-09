@@ -462,6 +462,7 @@ table.worklistBody th:hover a {
 	
 table.worklistBody td {
 	font-size:11px;
+	padding-right:5px;
 }
 
 table.worklistBody td b.subject {
