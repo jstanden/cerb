@@ -1547,7 +1547,6 @@ UL.ui-autocomplete.ui-menu .ui-menu-item a.ui-state-hover {
 .ui-tabs .ui-tabs-nav li a div.tab-badge {
 	padding:0px 5px;
 	font-weight:bold;
-	vertical-align:top;
 	display:inline;
 	
 	border-radius: 10px;	
