@@ -729,41 +729,41 @@ class Page_Custom extends CerberusPageExtension {
 			$fields = array(
 				DAO_WorkspacePage::NAME => $name,
 			);
+			
+			// Owner
+			@list($owner_type, $owner_id) = explode('_', DevblocksPlatform::importGPC($_REQUEST['owner'],'string',''));
+				
+			switch($owner_type) {
+				// Group
+				case 'g':
+					$owner_context = CerberusContexts::CONTEXT_GROUP;
+					$owner_context_id = $owner_id;
+					break;
+					// Role
+				case 'r':
+					$owner_context = CerberusContexts::CONTEXT_ROLE;
+					$owner_context_id = $owner_id;
+					break;
+					// Worker
+				case 'w':
+					$owner_context = CerberusContexts::CONTEXT_WORKER;
+					$owner_context_id = $owner_id;
+					break;
+					// Default
+				default:
+					$owner_context = null;
+					$owner_context_id = null;
+					break;
+			}
+
+			if(!empty($owner_context)) {
+				$fields[DAO_WorkspacePage::OWNER_CONTEXT] = $owner_context;
+				$fields[DAO_WorkspacePage::OWNER_CONTEXT_ID] = $owner_context_id;
+			}
 				
 			if(empty($workspace_page_id)) {
 				// Extension
 				$fields[DAO_WorkspacePage::EXTENSION_ID] = $extension_id;
-				
-				// Owner
-				@list($owner_type, $owner_id) = explode('_', DevblocksPlatform::importGPC($_REQUEST['owner'],'string',''));
-					
-				switch($owner_type) {
-					// Group
-					case 'g':
-						$owner_context = CerberusContexts::CONTEXT_GROUP;
-						$owner_context_id = $owner_id;
-						break;
-						// Role
-					case 'r':
-						$owner_context = CerberusContexts::CONTEXT_ROLE;
-						$owner_context_id = $owner_id;
-						break;
-						// Worker
-					case 'w':
-						$owner_context = CerberusContexts::CONTEXT_WORKER;
-						$owner_context_id = $owner_id;
-						break;
-						// Default
-					default:
-						$owner_context = null;
-						$owner_context_id = null;
-						break;
-				}
-	
-				if(!empty($owner_context)) {
-					$fields[DAO_WorkspacePage::OWNER_CONTEXT] = $owner_context;
-					$fields[DAO_WorkspacePage::OWNER_CONTEXT_ID] = $owner_context_id;
-				}
 	
 				$workspace_page_id = DAO_WorkspacePage::create($fields);
 	
