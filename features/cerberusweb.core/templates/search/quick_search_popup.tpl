@@ -1,4 +1,4 @@
-{include file="devblocks:cerberusweb.core::search/quick_search.tpl" view=$view}
+{include file="devblocks:cerberusweb.core::search/quick_search.tpl" view=$view is_popup=true}
 
 <script type="text/javascript">
 	$popup = genericAjaxPopupFetch('search');

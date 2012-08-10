@@ -1578,6 +1578,11 @@ abstract class C4_AbstractView {
 	}
 };
 
+interface IAbstractView_QuickSearch {
+	function isQuickSearchField($token);
+	function quickSearch($token, $query, &$oper, &$value);
+};
+
 interface IAbstractView_Subtotals {
 	function getSubtotalCounts($column);
 	function getSubtotalFields();

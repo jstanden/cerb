@@ -1654,7 +1654,7 @@ class Model_Ticket {
 	}
 };
 
-class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals {
+class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IAbstractView_QuickSearch {
 	const DEFAULT_ID = 'tickets_workspace';
 
 	function __construct() {
@@ -2033,6 +2033,68 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals {
 		return $counts;
 	}	
 	
+	function isQuickSearchField($token) {
+		switch($token) {
+			case SearchFields_Ticket::VIRTUAL_STATUS:
+				return true;
+			break;
+		}
+		
+		return false;
+	}
+	
+	function quickSearch($token, $query, &$oper, &$value) {
+		switch($token) {
+			case SearchFields_Ticket::VIRTUAL_STATUS:
+				$statuses = array();
+				$oper = DevblocksSearchCriteria::OPER_IN;
+				
+				if(preg_match('#([\!\=]+)(.*)#', $query, $matches)) {
+					$oper_hint = trim($matches[1]);
+					$query = trim($matches[2]);
+					
+					switch($oper_hint) {
+						case '!':
+						case '!=':
+							$oper = DevblocksSearchCriteria::OPER_NIN;
+							break;
+					}
+				}
+				
+				$inputs = DevblocksPlatform::parseCsvString($query);
+				
+				if(is_array($inputs))
+				foreach($inputs as $v) {
+					switch(strtolower(substr($v,0,1))) {
+						case 'o':
+							$statuses['open'] = true;
+							break;
+						case 'w':
+							$statuses['waiting'] = true;
+							break;
+						case 'c':
+							$statuses['closed'] = true;
+							break;
+						case 'd':
+							$statuses['deleted'] = true;
+							break;
+					}
+				}
+				
+				if(empty($statuses)) {
+					$value = null;
+					
+				} else {
+					$value = array_keys($statuses);
+				}
+				
+				return true;
+				break;
+		}
+		
+		return false;
+	}
+
 	private function _sortByLabel($a, $b) {
 		return strcmp($a['label'], $b['label']);
 	}
