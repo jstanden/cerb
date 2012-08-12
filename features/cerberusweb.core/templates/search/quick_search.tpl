@@ -51,7 +51,7 @@ $select.bind('load_hints', function(e) {
 {if $cf->type == 'D' || $cf->type == 'X'}
 	else if (token == '{$token}') { 
 		{foreach $cf->options as $opt}
-		$bubbles.append($('<li><tt>{$opt|lower}</tt></li>'));
+		$bubbles.append($('<li><tt>{$opt|lower|escape:'javascript'}</tt></li>'));
 		{/foreach}
 		$bubbles.append($('<li><i>option1,option2</i></li>'));
 		$bubbles.append($('<li><i>!option3</i></li>'));
@@ -68,6 +68,16 @@ $select.bind('load_hints', function(e) {
 		$bubbles.append($('<li><tt>!deleted</tt></li>'));
 		$bubbles.append($('<li><tt>o,w</tt></li>'));
 		$bubbles.append($('<li><tt>!c,d</tt></li>'));
+	}
+	
+	// [TODO] This should come from IAbstractView_QuickSearch
+	else if(token == 't_group_id') {
+		{$groups = DAO_Group::getAll()}
+		{foreach $groups as $group}
+		$bubbles.append($('<li><tt>{$group->name|lower|escape:'javascript'}</tt></li>'));
+		{/foreach}
+		$bubbles.append($('<li><i>group1, group2</i></li>'));
+		$bubbles.append($('<li><i>!group</i></li>'));
 	}
 	
 	{if !empty($smarty.capture.field_hints)}

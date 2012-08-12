@@ -2035,6 +2035,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 	
 	function isQuickSearchField($token) {
 		switch($token) {
+			case SearchFields_Ticket::TICKET_GROUP_ID:
 			case SearchFields_Ticket::VIRTUAL_STATUS:
 				return true;
 			break;
@@ -2090,6 +2091,43 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				
 				return true;
 				break;
+				
+			case SearchFields_Ticket::TICKET_GROUP_ID:
+				$search_ids = array();
+				$oper = DevblocksSearchCriteria::OPER_IN;
+				
+				if(preg_match('#([\!\=]+)(.*)#', $query, $matches)) {
+					$oper_hint = trim($matches[1]);
+					$query = trim($matches[2]);
+					
+					switch($oper_hint) {
+						case '!':
+						case '!=':
+							$oper = DevblocksSearchCriteria::OPER_NIN;
+							break;
+					}
+				}
+				
+				$groups = DAO_Group::getAll();
+				$inputs = DevblocksPlatform::parseCsvString($query);
+
+				if(is_array($inputs))
+				foreach($inputs as $input) {
+					foreach($groups as $group_id => $group) {
+						if(0 == strcasecmp($input, substr($group->name,0,strlen($input))))
+							$search_ids[$group_id] = true;
+					}
+				}
+				
+				if(!empty($search_ids)) {
+					$value = array_keys($search_ids);
+				} else {
+					$value = null;
+				}
+				
+				return true;
+				break;
+				
 		}
 		
 		return false;
