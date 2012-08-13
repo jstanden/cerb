@@ -436,17 +436,30 @@ class DevblocksCalendarHelper {
 		return $dates;		
 	}
 	
+	// Sun = 0
 	static function getWeeklyDates($start, array $weekdays, $until=null, $max_iter=null) {
 		$dates = array();
+		
+		// Change the start of week from Sun to Mon
+		// [TODO] This should be handled better globally
+		foreach($weekdays as $idx => $day) {
+			if(0 == $day) {
+				$weekdays[$idx] = 6;	
+			} else {
+				$weekdays[$idx]--;
+			}
+		}
+		
+		sort($weekdays);
 		
 		// If we're asked to make things starting at a date beyond the end date, stop.
 		if(!is_null($until) && $start > $until)
 			return $dates;		
 
-		$name_weekdays = array('Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday');
+		$name_weekdays = array('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday');
 		$num_weekdays = count($weekdays);
 
-		$cur_dow = (integer) date('w', $start);
+		$cur_dow = (integer) date('N', $start) - 1;
 		
 		$counter = null;
 
@@ -472,12 +485,14 @@ class DevblocksCalendarHelper {
 			
 			$cur_dow = $weekdays[$counter % $num_weekdays];
 			$next_dow = $weekdays[++$counter % $num_weekdays];
+
+			$increment_str = sprintf("%s %s",
+				$name_weekdays[$next_dow],
+				($next_dow == $cur_dow) ? '+1 week' : '' 
+			);
 			
 			$date = strtotime(
-				sprintf("%s %s",
-					$name_weekdays[$next_dow],
-					($next_dow <= $cur_dow) ? 'next week' : 'this week' 
-				),
+				$increment_str,
 				$date
 			);
 			
