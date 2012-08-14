@@ -1024,13 +1024,14 @@ FORM.quick-search DIV.hints {
 	-moz-border-radius: 5px;
 	-webkit-border-radius: 5px;
 	border-radius: 5px;
+	
+	display:none;
 }
 
 FORM.quick-search DIV.hints.hints-float {
 	position:absolute;
 	right:0;
 	z-index:9999;
-	display:none;
 }
 
 FORM.quick-search DIV.hints.hints-shadow {

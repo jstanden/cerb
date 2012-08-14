@@ -174,7 +174,6 @@ $input.keydown(function(e) {
 	}
 });
 
-{if !$is_popup}
 $input.focus(function(e) {
 	$('#{$uniqid} div.hints').fadeIn();
 });
@@ -182,5 +181,4 @@ $input.focus(function(e) {
 $input.blur(function(e) {
 	$('#{$uniqid} div.hints').fadeOut();
 });
-{/if}
 </script>
