@@ -323,6 +323,14 @@ class DevblocksPlatform extends DevblocksEngine {
 	}
 	
 	static function stripHTML($str) {
+		$str = preg_replace_callback(
+			'#<pre.*?/pre\>#s',
+			function($matches) {
+				return str_replace("\n","<br>",@$matches[0]);
+			},
+			$str
+		);		
+			
 		// Strip all CRLF and tabs, spacify </TD>
 		$str = str_ireplace(
 			array("\r","\n","\t","</td>"),
@@ -345,7 +353,7 @@ class DevblocksPlatform extends DevblocksEngine {
 				'</P>',
 				'</PRE>',
 				'<HR>',
-				'</TR>',
+				'<TR>',
 				'</H1>',
 				'</H2>',
 				'</H3>',
@@ -359,12 +367,14 @@ class DevblocksPlatform extends DevblocksEngine {
 				'</OL>',
 				'</LI>',
 				'</OPTION>',
+				'<TABLE>',
+				'</TABLE>',
 			),
 			"\n",
 			$str
 		);
 		
-		// Strip tags
+		// Strip non-content tags
 		$search = array(
             '@<head[^>]*?>.*?</head>@siu', 
             '@<style[^>]*?>.*?</style>@siu', 
