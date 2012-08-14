@@ -339,19 +339,46 @@ class DevblocksPlatform extends DevblocksEngine {
 		
 		// Turn block tags into a linefeed
 		$str = str_ireplace(
-			array('<BR>','<P>','</P>','<HR>','</TR>','</H1>','</H2>','</H3>','</H4>','</H5>','</H6>','</DIV>'),
+			array(
+				'<BR>',
+				'<P>',
+				'</P>',
+				'</PRE>',
+				'<HR>',
+				'</TR>',
+				'</H1>',
+				'</H2>',
+				'</H3>',
+				'</H4>',
+				'</H5>',
+				'</H6>',
+				'</DIV>',
+				'<BLOCKQUOTE>',
+				'</BLOCKQUOTE>',
+				'</UL>',
+				'</OL>',
+				'</LI>',
+				'</OPTION>',
+			),
 			"\n",
 			$str
-		);		
+		);
 		
 		// Strip tags
 		$search = array(
-		    '@<![\s\S]*?--[ \t\n\r]*>@',
-			'@<script[^>]*?>.*?</script>@si',
-		    '@<style[^>]*?>.*?</style>@siU',
-		    '@<[\/\!]*?[^<>]*?>@si',
+            '@<head[^>]*?>.*?</head>@siu', 
+            '@<style[^>]*?>.*?</style>@siu', 
+            '@<script[^>]*?.*?</script>@siu', 
+            '@<object[^>]*?.*?</object>@siu', 
+            '@<embed[^>]*?.*?</embed>@siu', 
+            '@<applet[^>]*?.*?</applet>@siu', 
+            '@<noframes[^>]*?.*?</noframes>@siu', 
+            '@<noscript[^>]*?.*?</noscript>@siu', 
+            '@<noembed[^>]*?.*?</noembed>@siu', 				
 		);
 		$str = preg_replace($search, '', $str);
+		
+		$str = strip_tags($str);
 		
 		// Flatten multiple spaces into a single
 		$str = preg_replace('# +#', ' ', $str);
