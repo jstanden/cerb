@@ -2134,6 +2134,30 @@ class DevblocksEventHelper {
 		$old_ids = array_keys($dict->$token);
 		$new_ids = array_keys($results);
 
+		// Are we reducing the list?
+		if(isset($params['limit']) && !empty($params['limit'])) {
+			@$limit_to = intval($params['limit_count']); 
+			
+			switch(@$params['limit']) {
+				case 'first':
+					if(count($new_ids) > $limit_to)
+						$new_ids = array_slice($new_ids, 0, $limit_to);
+					break;
+					
+				case 'last':
+					if(count($new_ids) > $limit_to)
+						$new_ids = array_slice($new_ids, -$limit_to);
+					break;
+					
+				case 'random':
+					if(count($new_ids) > $limit_to) {
+						shuffle($new_ids);
+						$new_ids = array_slice($new_ids, 0, $limit_to);
+					}
+					break;
+			}
+		}
+		
 		switch(@$params['mode']) {
 			default:
 			case 'add':
