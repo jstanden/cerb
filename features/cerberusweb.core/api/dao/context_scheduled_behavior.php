@@ -279,15 +279,21 @@ class DAO_ContextScheduledBehavior extends C4_ORMHelper {
 
 		// Translate virtual fields
 		
+		$args = array(
+			'join_sql' => $join_sql,
+			'where_sql' => $where_sql,
+			'has_multiple_values' => $has_multiple_values
+		);
+		
 		array_walk_recursive(
 			$params,
 			array('DAO_ContextScheduledBehavior', '_translateVirtualParameters'),
-			array(
-				'join_sql' => &$join_sql,
-				'where_sql' => &$where_sql,
-				'has_multiple_values' => &$has_multiple_values
-			)
+			&$args
 		);
+		
+		$join_sql = $args['join_sql'];
+		$where_sql = $args['where_sql'];
+		$has_multiple_values = $args['has_multiple_values'];
 		
 		return array(
 			'primary_table' => 'context_scheduled_behavior',

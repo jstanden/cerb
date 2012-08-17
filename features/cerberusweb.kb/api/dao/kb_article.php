@@ -320,15 +320,21 @@ class DAO_KbArticle extends C4_ORMHelper {
 
 		// Translate virtual fields
 		
+		$args = array(
+			'join_sql' => $join_sql,
+			'where_sql' => $where_sql,
+			'has_multiple_values' => $has_multiple_values
+		);
+		
 		array_walk_recursive(
 			$params,
 			array('DAO_KbArticle', '_translateVirtualParameters'),
-			array(
-				'join_sql' => &$join_sql,
-				'where_sql' => &$where_sql,
-				'has_multiple_values' => &$has_multiple_values
-			)
+			&$args
 		);
+		
+		$join_sql = $args['join_sql'];
+		$where_sql = $args['where_sql'];
+		$has_multiple_values = $args['has_multiple_values'];
 		
 		$result = array(
 			'primary_table' => 'kb',
