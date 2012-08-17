@@ -3,7 +3,7 @@
 <form id="reply{$message->id}_part1">
 <table cellpadding="2" cellspacing="0" border="0" width="100%">
 	<tr>
-		<td><h2>{if $is_forward}{$translate->_('display.ui.forward')|capitalize}{else}{$translate->_('display.ui.reply')|capitalize}{/if}</h2></td>
+		<td><h2 style="color:rgb(50,50,50);">{if $is_forward}{$translate->_('display.ui.forward')|capitalize}{else}{$translate->_('display.ui.reply')|capitalize}{/if}</h2></td>
 	</tr>
 	<tr>
 		<td width="100%">
