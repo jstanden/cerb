@@ -291,10 +291,90 @@ class ChDisplayPage extends CerberusPageExtension {
 		$this->_renderNotes($id);
 	}
 	
+	private function _checkRecentTicketActivity($ticket_id, $since_timestamp) {
+		$active_worker = CerberusApplication::getActiveWorker();
+		$workers = DAO_Worker::getAll();
+		$activities = array();
+		
+		// Check drafts
+		list($results, $null) = DAO_MailQueue::search(
+			array(),
+			array(
+				SearchFields_MailQueue::IS_QUEUED => new DevblocksSearchCriteria(SearchFields_MailQueue::IS_QUEUED, '=', 0),
+				SearchFields_MailQueue::TICKET_ID => new DevblocksSearchCriteria(SearchFields_MailQueue::TICKET_ID, '=', $ticket_id),
+				SearchFields_MailQueue::WORKER_ID => new DevblocksSearchCriteria(SearchFields_MailQueue::WORKER_ID, '!=', $active_worker->id),
+				SearchFields_MailQueue::UPDATED => new DevblocksSearchCriteria(SearchFields_MailQueue::UPDATED, DevblocksSearchCriteria::OPER_GTE, $since_timestamp),
+			),
+			1,
+			0,
+			SearchFields_MailQueue::UPDATED,
+			false,
+			false
+		);
+		
+		if(!empty($results))
+		foreach($results as $row) {
+			if(null == ($worker = @$workers[$row['m_worker_id']]))
+				continue;
+		
+			$activities[] = array(
+				'message' => sprintf("%s is currently replying",
+					$worker->getName()
+				),
+				'timestamp' => intval($row['m_updated']),
+			);
+		}
+		
+		unset($results);
+		
+		// Check activity log
+		$find_events = array(
+			'ticket.status.waiting',
+			'ticket.status.closed',
+			'ticket.status.deleted',
+			'ticket.message.outbound',
+		);
+		
+		list($results, $null) = DAO_ContextActivityLog::search(
+			array(),
+			array(
+				SearchFields_ContextActivityLog::TARGET_CONTEXT => new DevblocksSearchCriteria(SearchFields_ContextActivityLog::TARGET_CONTEXT, '=', CerberusContexts::CONTEXT_TICKET),
+				SearchFields_ContextActivityLog::TARGET_CONTEXT_ID => new DevblocksSearchCriteria(SearchFields_ContextActivityLog::TARGET_CONTEXT_ID, '=', $ticket_id),
+				SearchFields_ContextActivityLog::ACTIVITY_POINT => new DevblocksSearchCriteria(SearchFields_ContextActivityLog::ACTIVITY_POINT, 'in', $find_events),
+				SearchFields_ContextActivityLog::CREATED => new DevblocksSearchCriteria(SearchFields_ContextActivityLog::CREATED, DevblocksSearchCriteria::OPER_GTE, $since_timestamp),
+			),
+			10,
+			0,
+			SearchFields_ContextActivityLog::CREATED,
+			false,
+			false
+		);
+
+		if(!empty($results))
+		foreach($results as $row) {
+			if(false == ($json = json_decode($row['c_entry_json'], true)))
+				continue;
+			
+			$activities[] = array(
+				'message' => CerberusContexts::formatActivityLogEntry($json, array(), array('target')),
+				'timestamp' => intval($row['c_created']),
+			);
+		}
+		
+		unset($results);
+		
+		if(!empty($activities))
+			DevblocksPlatform::sortObjects($activities, '[timestamp]', false);
+		
+		return $activities;
+	}
+	
 	function replyAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
 		@$is_forward = DevblocksPlatform::importGPC($_REQUEST['forward'],'integer',0);
+		@$is_confirmed = DevblocksPlatform::importGPC($_REQUEST['is_confirmed'],'integer',0);
 		@$is_quoted = DevblocksPlatform::importGPC($_REQUEST['is_quoted'],'integer',1);
+		@$draft_id = DevblocksPlatform::importGPC($_REQUEST['draft_id'],'integer',0);
 
 		$settings = DevblocksPlatform::getPluginSettingsService();
 		$active_worker = CerberusApplication::getActiveWorker();  /* @var $active_worker Model_Worker */
@@ -306,16 +386,30 @@ class ChDisplayPage extends CerberusPageExtension {
 		
 		$message = DAO_Message::get($id);
 		$tpl->assign('message',$message);
+
+		// Check to see if other activity has happened on this ticket since the worker started looking
+		
+		if(!$draft_id && !$is_forward && !$is_confirmed) {
+			@$since_timestamp = DevblocksPlatform::importGPC($_REQUEST['timestamp'],'integer',0);
+			$recent_activity = $this->_checkRecentTicketActivity($message->ticket_id, $since_timestamp);
+			
+			if(!empty($recent_activity)) {
+				$tpl->assign('recent_activity', $recent_activity);
+				$tpl->display('devblocks:cerberusweb.core::display/rpc/reply_confirm.tpl');
+				return;
+			}
+		}
+		
+		// Continue
 		
 		$ticket = DAO_Ticket::get($message->ticket_id);
 		$tpl->assign('ticket',$ticket);
-
+		
 		// Workers
 		$object_watchers = DAO_ContextLink::getContextLinks(CerberusContexts::CONTEXT_TICKET, array($ticket->id), CerberusContexts::CONTEXT_WORKER);
 		$tpl->assign('object_watchers', $object_watchers);
 		
 		// Are we continuing a draft?
-		@$draft_id = DevblocksPlatform::importGPC($_REQUEST['draft_id'],'integer',0);
 		if(!empty($draft_id)) {
 			// Drafts
 			$drafts = DAO_MailQueue::getWhere(sprintf("%s = %d AND %s = %d AND (%s = %s OR %s = %s) AND %s = %d",

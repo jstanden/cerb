@@ -62,7 +62,7 @@
 
 <script type="text/javascript">
 	$('#btnComment').click(function(event) {
-		$popup = genericAjaxPopup('peek', 'c=internal&a=commentShowPopup&context=cerberusweb.contexts.ticket&context_id={$ticket->id}', null, false, '550');
+		$popup = genericAjaxPopup('peek', 'c=internal&a=commentShowPopup&context={CerberusContexts::CONTEXT_TICKET}&context_id={$ticket->id}', null, false, '550');
 		$popup.one('comment_save', function(event) {
 			$tabs = $('#btnComment').closest('div.ui-tabs');
 			if(0 != $tabs) {
@@ -71,7 +71,7 @@
 		});
 	});
 	
-	function displayReply(msgid, is_forward, draft_id, is_quoted) {
+	function displayReply(msgid, is_forward, draft_id, is_quoted, is_confirmed) {
 		msgid = parseInt(msgid);
 		$div = $('#reply' + msgid);
 		
@@ -81,8 +81,9 @@
 		is_forward = (null == is_forward || 0 == is_forward) ? 0 : 1;
 		draft_id = (null == draft_id) ? 0 : parseInt(draft_id);
 		is_quoted = (null == is_quoted) ? 1 : parseInt(is_quoted);
+		is_confirmed = (null == is_confirmed) ? 0 : parseInt(is_confirmed);
 		
-		genericAjaxGet('', 'c=display&a=reply&forward='+is_forward+'&draft_id='+draft_id+'&is_quoted='+is_quoted+'&id=' + msgid,
+		genericAjaxGet('', 'c=display&a=reply&forward='+is_forward+'&draft_id='+draft_id+'&is_quoted='+is_quoted+'&is_confirmed='+is_confirmed+'&timestamp={time()}&id=' + msgid,
 			function(html) {
 				$div = $('#reply' + msgid);
 				
