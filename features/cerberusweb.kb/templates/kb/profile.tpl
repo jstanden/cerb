@@ -105,7 +105,7 @@ $(function() {
 	});
 	
 	$('#btnDisplayKbEdit').bind('click', function() {
-		$popup = genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_KB_ARTICLE}&context_id={$page_context_id}',null,false,'725');
+		$popup = genericAjaxPopup('peek', 'c=kb.ajax&a=showArticleEditPanel&id={$page_context_id}&view_id={$view_id}',null,false,'700');
 		$popup.one('article_save', function(event) {
 			event.stopPropagation();
 			document.location.href = '{devblocks_url}c=profiles&type=kb&id={$page_context_id}-{$article->title|devblocks_permalink}{/devblocks_url}';

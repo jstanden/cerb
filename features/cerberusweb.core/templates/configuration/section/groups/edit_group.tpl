@@ -53,22 +53,26 @@
 	<tr>
 		<td colspan="2">
 			<input type="hidden" name="delete_box" value="0">
-			<div id="deleteGroup" style="display:none;">
-				<div style="background-color:rgb(255,220,220);border:1px solid rgb(200,50,50);margin:10px;padding:5px;">
-					<h3>Delete Group</h3>
-					<b>Move tickets to:</b><br>
+			
+			<fieldset class="delete" style="display:none;">
+				<legend>Where should this deleted group's tickets be moved to?</legend>
+				
+				<p>
 					<select name="delete_move_id">
 						{foreach from=$groups item=move_group key=move_group_id}
 							{if $move_group_id != $group->id}<option value="{$move_group_id}">{$move_group->name}</option>{/if}
 						{/foreach}
 					</select>
-					<button type="button" onclick="this.form.delete_box.value='1';this.form.submit();">Delete</button>
-					<button type="button" onclick="this.form.delete_box.value='0';toggleDiv('deleteGroup','none');">Cancel</button>
-				</div>
-				<br>
+				</p>
+				
+				<button type="button" class="red" onclick="this.form.delete_box.value='1';this.form.submit();">Delete</button>
+				<button type="button" class="" onclick="this.form.delete_box.value='0';$(this).closest('fieldset.delete').fadeOut().siblings('div.toolbar').fadeIn();">Cancel</button>
+			</fieldset>
+			
+			<div class="toolbar">
+				<button type="submit"><span class="cerb-sprite2 sprite-tick-circle"></span> {$translate->_('common.save_changes')|capitalize}</button>
+				{if !empty($group->id)}<button type="button" onclick="$(this).closest('div.toolbar').fadeOut().siblings('fieldset.delete').fadeIn();"><span class="cerb-sprite2 sprite-cross-circle"></span> {$translate->_('common.remove')|capitalize}</button>{/if}
 			</div>
-			<button type="submit"><span class="cerb-sprite2 sprite-tick-circle"></span> {$translate->_('common.save_changes')|capitalize}</button>
-			{if !empty($group->id)}<button type="button" onclick="toggleDiv('deleteGroup','block');"><span class="cerb-sprite2 sprite-cross-circle"></span> {$translate->_('common.remove')|capitalize}</button>{/if}
 		</td>
 	</tr>
 </table>
