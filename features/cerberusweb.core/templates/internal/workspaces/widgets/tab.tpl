@@ -154,9 +154,9 @@ function drawChart($canvas, params) {
 	canvas = $canvas.get(0);
 	context = canvas.getContext('2d');
 	
-	chart_top = 10;
+	chart_top = 15;
 	
-	chart_width = 325;
+	chart_width = canvas.width;
 	chart_height = canvas.height - chart_top;
 
 	max_value = 0;
@@ -170,11 +170,14 @@ function drawChart($canvas, params) {
 				max_value = value;
 		}
 	}
-	
+
 	// Loop through multiple series
 	
 	for(series_idx in params.series) {
 		series = params.series[series_idx];
+		
+		if(null == series.data)
+			continue;
 		
 		if(null == series.options.line_color)
 			params.series[series_idx].options.line_color = 'rgba(5,141,199,1)';
@@ -197,19 +200,17 @@ function drawChart($canvas, params) {
 	
 		// Fill
 		
-		//if(0 == series_idx) {
-			for(idx in series.data) {
-				value = series.data[idx][1];
-				x = tick;
-				y = chart_height - (ytick_height * value) + chart_top;
-				context.lineTo(x, y);
-				tick += xtick_width;
-			}
-			
-			context.lineTo(x, canvas.height);
-			
-			context.fill();
-		//}
+		for(idx in series.data) {
+			value = series.data[idx][1];
+			x = tick;
+			y = chart_height - (ytick_height * value) + chart_top;
+			context.lineTo(x, y);
+			tick += xtick_width;
+		}
+		
+		context.lineTo(x, canvas.height);
+		
+		context.fill();
 
 		// Stroke
 
@@ -230,32 +231,6 @@ function drawChart($canvas, params) {
 
 		context.stroke();
 		
-		// Dots
-		
-		if(count < 50) {
-			tick = 0;
-			
-			context.fillStyle = series.options.line_color;
-			context.strokeStyle = series.options.line_color;
-			
-			for(idx in series.data) {
-				context.beginPath();
-				
-				value = series.data[idx][1];
-				
-				if(value > 0) {
-					x = tick;
-					y = chart_height - (ytick_height * value) + chart_top - (context.lineWidth/2 + 1.25);
-					
-				 	context.arc(x, y, 2.5, 0, 2 * Math.PI, false);
-				 	context.fill();
-				 	context.stroke();
-				}
-				
-				tick += xtick_width;
-			}
-		}
-		
 	} // end series
 }
 
@@ -265,11 +240,15 @@ function drawBarGraph($canvas, options) {
 	
 	default_colors = ['#455460','#6BA81E','#F9BE28','#D23E2E','#DDDDDD','#F67A3A','#D9E14B','#BBBBBB','#5896C3','#55C022','#8FB933'];
 	
+	if(null == options.series[0].data)
+		return;
+	
 	// [TODO] This should make sure all series are the same length
 	count = options.series[0].data.length;
 
+	chart_top = 15;
 	chart_width = canvas.width;
-	chart_height = canvas.height;
+	chart_height = canvas.height - chart_top;
 	
 	series_heights = [];
 	stack_heights = [];
@@ -298,12 +277,11 @@ function drawBarGraph($canvas, options) {
 	ytick_height = chart_height / max_value;
 
 	context.lineWidth = 1;
-	half_width = context.lineWidth/2;
 	
 	for(series_idx in options.series) {
 		series = options.series[series_idx];
 
-		if(0 == series.data.length)
+		if(null == series.data || 0 == series.data.length)
 			continue;
 		
 		if(null != series.options.color)
@@ -321,23 +299,22 @@ function drawBarGraph($canvas, options) {
 			value = series.data[idx][1];
 
 			if(0 == value) {
-				x = Math.round(x + xtick_width);
+				x = Math.floor(x + xtick_width);
 				continue;
 			}
 			
 			bar_floor = Math.floor(ytick_height * stack_heights[idx]);
 			
-			//x = Math.round(idx * xtick_width);
-			y = Math.floor(chart_height - (ytick_height * value) - bar_floor);
+			y = Math.floor(chart_height - (ytick_height * value) + chart_top - bar_floor);
 			
 			context.beginPath();
-			context.moveTo(x, chart_height - bar_floor);
+			context.moveTo(x, chart_height + chart_top - bar_floor);
 			context.lineTo(x, y);
 			
 			x = Math.floor(x + xtick_width);
 			
 			context.lineTo(x-1, y);
-			context.lineTo(x-1, chart_height - bar_floor);
+			context.lineTo(x-1, chart_height + chart_top - bar_floor);
 			context.fill();
 			
 			stack_heights[idx] += value;
@@ -348,9 +325,6 @@ function drawBarGraph($canvas, options) {
 function drawScatterplot($canvas, options) {
 	canvas = $canvas.get(0);
 	context = canvas.getContext('2d');
-	
-	//default_colors = ['#455460','#6BA81E','#F9BE28','#D23E2E','#DDDDDD','#F67A3A','#D9E14B','#BBBBBB','#5896C3','#55C022','#8FB933'];
-	//default_colors = ['#D23E2E','#6BA81E'];
 	
 	margin = 5;
 	chart_width = canvas.width - (2 * margin);

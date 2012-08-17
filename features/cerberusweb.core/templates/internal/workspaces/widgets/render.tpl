@@ -16,10 +16,10 @@
 <script type="text/javascript">
 $('#widget{$widget->id}').unbind('hover').hover(
 	function(e) {
-		$(this).find('div.dashboard-widget-title > div.toolbar').show();
+		$(this).find('div.dashboard-widget-title > div.toolbar, canvas.overlay').show();
 	},
 	function(e) {
-		$(this).find('div.dashboard-widget-title > div.toolbar').hide();
+		$(this).find('div.dashboard-widget-title > div.toolbar, canvas.overlay').hide();
 	}
 );
 </script>
