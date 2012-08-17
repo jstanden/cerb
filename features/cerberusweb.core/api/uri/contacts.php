@@ -999,6 +999,11 @@ class ChContactsPage extends CerberusPageExtension {
 					DAO_ContextLink::setLink(CerberusContexts::CONTEXT_ADDRESS, $id, $link_context, $link_context_id);
 				}
 				
+				// View marquee
+				if(!empty($id) && !empty($view_id)) {
+					C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_ADDRESS, $id);
+				}
+				
 			} else {
 				DAO_Address::update($id, $fields);
 			}
@@ -1020,11 +1025,6 @@ class ChContactsPage extends CerberusPageExtension {
 	                )
 	            )
 		    );
-		}
-		
-		if(!empty($view_id)) {
-			$view = C4_AbstractViewLoader::getView($view_id);
-			$view->render();
 		}
 	}
 	
@@ -1074,6 +1074,12 @@ class ChContactsPage extends CerberusPageExtension {
 					if(!empty($id) && !empty($link_context) && !empty($link_context_id)) {
 						DAO_ContextLink::setLink(CerberusContexts::CONTEXT_ORG, $id, $link_context, $link_context_id);
 					}
+					
+					// View marquee
+					if(!empty($id) && !empty($view_id)) {
+						C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_ORG, $id);
+					}
+					
 				}
 				else {
 					DAO_ContactOrg::update($id, $fields);	
@@ -1097,9 +1103,6 @@ class ChContactsPage extends CerberusPageExtension {
 				}				
 			}
 		}
-		
-		$view = C4_AbstractViewLoader::getView($view_id);
-		$view->render();		
 	}
 	
 	function doAddressBatchUpdateAction() {

@@ -646,6 +646,10 @@ abstract class DevblocksVisit {
 	public function set($key, $object) {
 		$this->registry[$key] = $object;
 	}
+	
+	public function remove($key) {
+		unset($this->registry[$key]);
+	}
 };
 
 /**

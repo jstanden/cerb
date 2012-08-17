@@ -359,6 +359,7 @@ class ChTicketsPage extends CerberusPageExtension {
 			return;
 		
 		@$draft_id = DevblocksPlatform::importGPC($_POST['draft_id'],'integer');
+		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
 
 		// Destination
 		
@@ -472,6 +473,10 @@ class ChTicketsPage extends CerberusPageExtension {
 				if(null != ($ticket = DAO_Ticket::get($ticket_id))) {
 					DAO_AttachmentLink::setLinks(CerberusContexts::CONTEXT_MESSAGE, $ticket->first_message_id, $file_ids);
 				}
+			}
+
+			if(!empty($ticket_id) && !empty($view_id)) {
+				C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_TICKET, $ticket_id);
 			}
 		}
 		

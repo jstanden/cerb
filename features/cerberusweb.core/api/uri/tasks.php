@@ -90,6 +90,11 @@ class ChTasksPage extends CerberusPageExtension {
 				if(!empty($id) && !empty($link_context) && !empty($link_context_id)) {
 					DAO_ContextLink::setLink(CerberusContexts::CONTEXT_TASK, $id, $link_context, $link_context_id);
 				}
+				
+				// View marquee
+				if(!empty($id) && !empty($view_id)) {
+					C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_TASK, $id);
+				}
 			}
 
 			// Comments				
@@ -105,10 +110,6 @@ class ChTasksPage extends CerberusPageExtension {
 				);
 				$comment_id = DAO_Comment::create($fields, $also_notify_worker_ids);
 			}
-		}
-		
-		if(!empty($view_id) && null != ($view = C4_AbstractViewLoader::getView($view_id))) {
-			$view->render();
 		}
 		
 		exit;

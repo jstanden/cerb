@@ -140,6 +140,7 @@ class PageSection_SetupWorkers extends Extension_PageSection {
 						if(!$mailer->send($mail)) {
 							throw new Exception('Password notification email failed to send.');
 						}
+						
 					} catch (Exception $e) {
 						// [TODO] need to report to the admin when the password email doesn't send.  The try->catch
 						// will keep it from killing php, but the password will be empty and the user will never get an email.
@@ -147,11 +148,22 @@ class PageSection_SetupWorkers extends Extension_PageSection {
 			    }
 				
 			    $fields = array(
+					DAO_Worker::FIRST_NAME => $first_name,
+					DAO_Worker::LAST_NAME => $last_name,
+					DAO_Worker::TITLE => $title,
+					DAO_Worker::IS_SUPERUSER => $is_superuser,
+					DAO_Worker::IS_DISABLED => $disabled,
 			    	DAO_Worker::EMAIL => $email,
 			    	DAO_Worker::PASSWORD => md5($password),
 			    );
 			    
 				$id = DAO_Worker::create($fields);
+				
+				// View marquee
+				if(!empty($id) && !empty($view_id)) {
+					C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_WORKER, $id);
+				}
+				
 			} // end create worker
 		    
 		    // Update
@@ -201,13 +213,6 @@ class PageSection_SetupWorkers extends Extension_PageSection {
 			// Flush caches
 			DAO_WorkerRole::clearWorkerCache($id);
 		}
-		
-		if(!empty($view_id)) {
-			$view = C4_AbstractViewLoader::getView($view_id);
-			$view->render();
-		}
-		
-		//DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','workers')));		
 	}
 	
 	function showWorkersBulkPanelAction() {

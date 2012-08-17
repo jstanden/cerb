@@ -92,6 +92,11 @@ class CrmPage extends CerberusPageExtension {
 				DAO_ContextLink::setLink(CerberusContexts::CONTEXT_OPPORTUNITY, $opp_id, $link_context, $link_context_id);
 			}
 			
+			// View marquee
+			if(!empty($opp_id) && !empty($view_id)) {
+				C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_OPPORTUNITY, $opp_id);
+			}
+			
 		} else {
 			if(empty($opp_id))
 				return;
@@ -138,11 +143,6 @@ class CrmPage extends CerberusPageExtension {
 				);
 				$comment_id = DAO_Comment::create($fields, $also_notify_worker_ids);
 			}
-		}
-		
-		// Reload view (if linked)
-		if(!empty($view_id) && null != ($view = C4_AbstractViewLoader::getView($view_id))) {
-			$view->render();
 		}
 		
 		exit;

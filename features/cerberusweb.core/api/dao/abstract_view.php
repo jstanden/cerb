@@ -327,6 +327,54 @@ abstract class C4_AbstractView {
 		}
 	}		
 	
+	// Marquee
+	
+	static function setMarqueeContextCreated($view_id, $context, $context_id) {
+		$string = null;
+		
+		if(null != ($ctx = Extension_DevblocksContext::get($context))) {
+			if(null != ($meta = $ctx->getMeta($context_id))) {
+				if(!isset($meta['name']) || !isset($meta['permalink']))
+					return;
+				
+				if(empty($meta['permalink']))
+					$meta['permalink'] = '#';
+				
+				$string = sprintf("New %s created: <a href='%s'><b>%s</b></a>",
+					strtolower($ctx->manifest->name),
+					htmlspecialchars($meta['permalink'], ENT_QUOTES, LANG_CHARSET_CODE),
+					htmlspecialchars($meta['name'], ENT_QUOTES, LANG_CHARSET_CODE)
+				);
+			}
+		}
+		
+		if(empty($string))
+			self::unsetMarquee($view_id);
+		else
+			self::setMarquee($view_id, $string);
+	}
+	
+	static function setMarquee($view_id, $string) {
+		$visit = CerberusApplication::getVisit();
+		$visit->set($view_id . '_marquee', $string);
+	}
+	
+	static function unsetMarquee($view_id) {
+		$visit = CerberusApplication::getVisit();
+		$visit->remove($view_id . '_marquee');		
+	}
+	
+	static function getMarquee($view_id, $pop=true) {
+		$visit = CerberusApplication::getVisit();
+		
+		$string = $visit->get($view_id . '_marquee');
+		
+		if($pop)
+			self::unsetMarquee($view_id);
+		
+		return $string;
+	}
+	
 	// Render
 	
 	function render() {

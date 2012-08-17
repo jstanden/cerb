@@ -186,6 +186,7 @@ class ChTimeTrackingPage extends CerberusPageExtension {
 			return;
 		
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
 		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'],'integer',0);
 			
 		@$activity_id = DevblocksPlatform::importGPC($_POST['activity_id'],'integer',0);
@@ -329,7 +330,12 @@ class ChTimeTrackingPage extends CerberusPageExtension {
 						}
 						break;
 				}
-			}			
+			}
+
+			// View marquee
+			if(!empty($id) && !empty($view_id)) {
+				C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_TIMETRACKING, $id);
+			}
 			
 		} else { // modify
 			DAO_TimeTrackingEntry::update($id, $fields);
