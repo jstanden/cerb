@@ -376,7 +376,6 @@ function drawScatterplot($canvas, options) {
 			
 			context.beginPath();
 			context.arc(chart_x, chart_y, 2.5, 0, 2 * Math.PI, false);
-			//context.fill();
 			context.stroke();
 		}
 	}
@@ -387,7 +386,7 @@ function drawScatterplot($canvas, options) {
 <button type="button" class="add_widget"><span class="cerb-sprite2 sprite-plus-circle"></span> Add Widget</button>
 </form>
 
-<table cellpadding="0" cellspacing="0" border="0" width="100%" id="dashboard{$workspace_tab->id}">
+<table cellpadding="0" cellspacing="0" border="0" width="975" id="dashboard{$workspace_tab->id}">
 	<tr>
 		<td width="33%" valign="top" class="column">
 			{foreach from=$columns.0 item=widget key=widget_id}
