@@ -418,8 +418,6 @@ class WorkspaceWidget_Chart extends Extension_WorkspaceWidget {
 						$view->renderSortAsc
 					);
 					
-// 					var_dump($query_parts);
-					
 					$db = DevblocksPlatform::getDatabaseService();
 					
 					// We need to know what date fields we have
@@ -449,23 +447,28 @@ class WorkspaceWidget_Chart extends Extension_WorkspaceWidget {
 							switch($xaxis_tick) {
 								case 'hour':
 									$date_format = '%Y-%m-%d %H:00';
+									$date_label = $date_format;
 									break;
 									
 								default:
 								case 'day':
 									$date_format = '%Y-%m-%d';
+									$date_label = $date_format;
 									break;
 									
 								case 'week':
 									$date_format = '%YW%U';
+									$date_label = $date_format;
 									break;
 									
 								case 'month':
 									$date_format = '%Y-%m';
+									$date_label = '%b %Y';
 									break;
 									
 								case 'year':
 									$date_format = '%Y-01-01';
+									$date_label = '%Y';
 									break;
 							}
 							
@@ -587,7 +590,13 @@ class WorkspaceWidget_Chart extends Extension_WorkspaceWidget {
 								
 								$value = (isset($results[$histo])) ? $results[$histo] : 0; 
 								
-								$data[] = array($histo, (float)$value);
+								$data[] = array(
+									'x' => $histo,
+									'y' => (float)$value,
+									'x_label' => strftime($date_label, $current_tick),
+									'y_label' => (float)$value,
+								);
+								
 								$current_tick = strtotime(sprintf('+1 %s', $xaxis_tick), $current_tick);
 								
 							} while($current_tick <= $last_tick);
@@ -707,7 +716,12 @@ class WorkspaceWidget_Chart extends Extension_WorkspaceWidget {
 // 							echo $sql,"<br>\n";
 							
 							foreach($results as $result) {
-								$data[] = array((float)$result['xaxis'], (float)$result['yaxis']);
+								$data[] = array(
+									'x' => (float)$result['xaxis'],
+									'y' => (float)$result['yaxis'],
+									'x_label' => (float)$result['xaxis'],
+									'y_label' => (float)$result['yaxis'],
+								);
 							}
 
 							unset($results);

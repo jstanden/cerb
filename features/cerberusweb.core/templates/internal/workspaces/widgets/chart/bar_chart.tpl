@@ -134,7 +134,7 @@ try {
 			context.lineTo(chart_x, chart_height + chart_top);
 			context.fill();
 			
-			text = options.series[0].data[closest.plot.index][0] + ': '; // Label
+			text = options.series[0].data[closest.plot.index].x_label + ': '; // Label
 			bounds = context.measureText(text);
 			padding = 2;
 
@@ -159,7 +159,7 @@ try {
 				if(null == series || null == series.data)
 					continue;
 				
-				text = series.data[index][1]; // Label
+				text = series.data[index].y_label; // Label
 				bounds = context.measureText(text);
 				
 				context.beginPath();

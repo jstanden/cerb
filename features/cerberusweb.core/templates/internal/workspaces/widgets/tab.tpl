@@ -165,7 +165,7 @@ function drawChart($canvas, params) {
 
 	for(series_idx in params.series) {
 		for(idx in params.series[series_idx].data) {
-			value = params.series[series_idx].data[idx][1];
+			value = params.series[series_idx].data[idx].y;
 			if(value > max_value)
 				max_value = value;
 		}
@@ -201,7 +201,7 @@ function drawChart($canvas, params) {
 		// Fill
 		
 		for(idx in series.data) {
-			value = series.data[idx][1];
+			value = series.data[idx].y;
 			x = tick;
 			y = chart_height - (ytick_height * value) + chart_top;
 			context.lineTo(x, y);
@@ -222,7 +222,7 @@ function drawChart($canvas, params) {
 		tick = 0;
 		
 		for(idx in series.data) {
-			value = series.data[idx][1];
+			value = series.data[idx].y;
 			x = tick;
 			y = chart_height - (ytick_height * value) + chart_top - (context.lineWidth/2);
 			context.lineTo(tick, y);
@@ -265,7 +265,7 @@ function drawBarGraph($canvas, options) {
 			if(null == series.data || 0 == series.data.length)
 				continue;
 			
-			series_heights[idx] += series.data[idx][1];
+			series_heights[idx] += series.data[idx].y;
 		}
 		
 		// Find max height across all series
@@ -296,7 +296,7 @@ function drawBarGraph($canvas, options) {
 		for(idx in series.data) {
 			context.fillStyle = color;
 			
-			value = series.data[idx][1];
+			value = series.data[idx].y;
 
 			if(0 == value) {
 				x = Math.floor(x + xtick_width);
@@ -342,8 +342,8 @@ function drawScatterplot($canvas, options) {
 		
 		for(idx in series.data) {
 			data = series.data[idx];
-			x = data[0];
-			y = data[1];
+			x = data.x;
+			y = data.y;
 			
 			x_min = Math.min(x_min,x);
 			x_max = Math.max(x_max,x);
@@ -368,8 +368,8 @@ function drawScatterplot($canvas, options) {
 		
 		for(idx in series.data) {
 			data = series.data[idx];
-			x = data[0];
-			y = data[1];
+			x = data.x;
+			y = data.y;
 			
 			chart_x = (xaxis_tick * x) + margin;
 			chart_y = chart_height - (yaxis_tick * y) + margin;

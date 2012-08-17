@@ -65,8 +65,8 @@ try {
 				
 				for(idx in series.data) {
 					data = series.data[idx];
-					x = data[0];
-					y = data[1];
+					x = data.x;
+					y = data.y;
 					
 					x_min = Math.min(x_min,x);
 					x_max = Math.max(x_max,x);
@@ -96,8 +96,8 @@ try {
 				
 				for(idx in series.data) {
 					data = series.data[idx];
-					x = data[0];
-					y = data[1];
+					x = data.x;
+					y = data.y;
 					
 					chart_x = (xaxis_tick * x) + margin;
 					chart_y = chart_height - (yaxis_tick * y) + margin;
@@ -105,8 +105,7 @@ try {
 					plots[series_idx][idx] = {
 						'chart_x': chart_x,
 						'chart_y': chart_y,
-						'x': x,
-						'y': y
+						'data': data
 					};
 				}
 			}
@@ -156,7 +155,7 @@ try {
 					
 					if(dist < closest.dist) {
 						closest.dist = dist;
-						closest.data = plot;
+						closest.data = plot.data;
 						closest.chart_x = plot.chart_x;
 						closest.chart_y = plot.chart_y;
 						closest.series_idx = series_idx;

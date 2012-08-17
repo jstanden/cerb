@@ -55,7 +55,7 @@ try {
 		
 			for(series_idx in options.series) {
 				for(idx in options.series[series_idx].data) {
-					value = options.series[series_idx].data[idx][1];
+					value = options.series[series_idx].data[idx].y;
 					if(value > max_value)
 						max_value = value;
 				}
@@ -83,15 +83,14 @@ try {
 					point = series.data[idx];
 					
 					chart_x = idx * xtick_width;
-					chart_y = chart_height - (ytick_height * point[1]) + chart_top - (context.lineWidth/2 + 1.25);
+					chart_y = chart_height - (ytick_height * point.y) + chart_top - (context.lineWidth/2 + 1.25);
 					
 					len = plots[series_idx].length;
 					
 					plots[series_idx][len] = {
 						'chart_x': chart_x,
 						'chart_y': chart_y,
-						'x': point[0],
-						'y': point[1]
+						'data': point
 					};
 				}
 			}
@@ -142,7 +141,7 @@ try {
 					
 					if(dist < closest.dist) {
 						closest.dist = dist;
-						closest.data = plot;
+						closest.data = plot.data;
 						closest.chart_x = plot.chart_x;
 						closest.chart_y = plot.chart_y;
 						closest.series_idx = series_idx;
@@ -160,7 +159,7 @@ try {
 			context.arc(closest.chart_x, closest.chart_y, 5, 0, 2 * Math.PI, false);
 			context.fill();
 
-			text = closest.data.x + ': ' + closest.data.y;
+			text = closest.data.x_label + ': ' + closest.data.y_label;
 			bounds = context.measureText(text);
 			padding = 2;
 			
