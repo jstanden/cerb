@@ -537,8 +537,8 @@ class WorkspaceWidget_Chart extends Extension_WorkspaceWidget {
 							
 							if(!empty($xaxis_param)) {
 								if(2 == count($xaxis_param->value)) {
-									$current_tick = strtotime($xaxis_param->value[0] . ($xaxis_tick=='year'?'-1':''));
-									$last_tick = strtotime($xaxis_param->value[1] . ($xaxis_tick=='year'?'-1':''));
+									$current_tick = strtotime($xaxis_param->value[0]);
+									$last_tick = strtotime($xaxis_param->value[1]);
 								}
 							}
 							
@@ -548,8 +548,8 @@ class WorkspaceWidget_Chart extends Extension_WorkspaceWidget {
 							if(empty($current_tick) && empty($last_tick)) {
 								$last_result = end($results);
 								$first_result = reset($results);
-								$current_tick = strtotime($first_result['histo'] . ($xaxis_tick=='year'?'-1':''));
-								$last_tick = strtotime($last_result['histo'] . ($xaxis_tick=='year'?'-1':''));
+								$current_tick = strtotime($first_result['histo']);
+								$last_tick = strtotime($last_result['histo']);
 							}
 							
 							// Fill in time gaps from no data
