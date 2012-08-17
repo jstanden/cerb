@@ -796,7 +796,6 @@ class Context_KbArticle extends Extension_DevblocksContext implements IDevblocks
 		$defaults->id = $view_id; 
 		$defaults->class_name = $this->getViewClass();
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
-		//$view->name = 'Calls';
 		
 		$params_req = array();
 		
@@ -825,10 +824,6 @@ class Context_KbArticle extends Extension_DevblocksContext implements IDevblocks
 		if(!empty($view_id))
 			$tpl->assign('view_id', $view_id);
 			
-		@$return_uri = DevblocksPlatform::importGPC($_REQUEST['return_uri'],'string','');
-		if(!empty($return_uri))
-			$tpl->assign('return_uri', $return_uri);
-		
 		$tpl->display('devblocks:cerberusweb.kb::kb/peek_readonly.tpl');
 	}
 };

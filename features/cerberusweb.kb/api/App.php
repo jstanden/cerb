@@ -272,10 +272,6 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 		if(!empty($view_id))
 			$tpl->assign('view_id', $view_id);
 			
-		@$return_uri = DevblocksPlatform::importGPC($_REQUEST['return_uri'],'string','');
-		if(!empty($return_uri))
-			$tpl->assign('return_uri', $return_uri);
-		
 		if(!empty($id)) {
 			$article = DAO_KbArticle::get($id);
 			$tpl->assign('article', $article);

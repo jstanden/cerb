@@ -2,6 +2,7 @@
 <input type="hidden" name="c" value="kb.ajax">
 <input type="hidden" name="a" value="saveArticleEditPanel">
 <input type="hidden" name="id" value="{$article->id}">
+<input type="hidden" name="view_id" value="{$view_id}">
 <input type="hidden" name="do_delete" value="0">
 
 <div id="kbArticleTabs">
@@ -101,13 +102,11 @@
 		} );
 		
 		$('#btnKbArticleEditSave').bind('click', function() {
-			genericAjaxPopupClose('peek');
+			genericAjaxPopupClose('peek', 'article_save');
 			genericAjaxPost('frmKbEditPanel', '', '', function(json) {
-			{if !empty($view_id)}
-			genericAjaxGet('view{$view_id}','c=internal&a=viewRefresh&id={$view_id}');
-			{elseif !empty($return_uri)}
-			document.location = "{devblocks_url}{/devblocks_url}{$return_uri}";
-			{/if}
+				{if !empty($view_id)}
+				genericAjaxGet('view{$view_id}','c=internal&a=viewRefresh&id={$view_id}');
+				{/if}
 			} );
 		} );
 		
