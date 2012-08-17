@@ -94,7 +94,17 @@ try {
 
 			context.clearRect(0, 0, 325, 125);
 			
-			x = e.offsetX;
+			var x = 0;
+			
+			if(undefined != e.offsetX) {
+				x = e.offsetX;
+				
+			} else if(undefined != e.layerX) {
+				x = e.layerX;
+				
+			} else if(null != e.originalEvent && undefined != e.originalEvent.layerX) {
+				x = e.originalEvent.layerX;
+			}
 
 			closest = {
 				'dist': 1000,
@@ -124,17 +134,22 @@ try {
 			context.lineTo(chart_x, chart_height + chart_top);
 			context.fill();
 			
+			text = options.series[0].data[closest.plot.index][0] + ': '; // Label
+			bounds = context.measureText(text);
 			padding = 2;
+
 			text_x = padding;
 			
-			text = options.series[0].data[closest.plot.index][0] + ': '; // Label
+			context.beginPath();
+			context.fillStyle = '#FFF';
+			context.fillRect(0,0,chart_width,chart_top);
 			
 			context.beginPath();
-			context.fillStyle = '#000';
-			context.font = "bold 10pt Arial";
+			context.fillStyle = '#34434E';
+			context.font = "bold 12px Verdana";
 			context.fillText(text, text_x, 10+padding);
+			context.stroke();
 			
-			bounds = context.measureText(text);
 			text_x += bounds.width + padding;
 			
 			for(series_idx in options.series) {
@@ -145,12 +160,13 @@ try {
 					continue;
 				
 				text = series.data[index][1]; // Label
+				bounds = context.measureText(text);
 				
 				context.beginPath();
 				context.fillStyle = series.options.color;
 				context.fillText(text, text_x, 10+padding);
+				context.stroke();
 				
-				bounds = context.measureText(text);
 				text_x += bounds.width + 5;
 			}
 			

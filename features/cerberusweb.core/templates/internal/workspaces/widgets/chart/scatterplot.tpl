@@ -121,10 +121,22 @@ try {
 			plots = $(this).data('plots');
 
 			context.clearRect(0, 0, 325, 125);
-			
-			x = e.offsetX;
-			y = e.offsetY;
 
+			var x = 0, y = 0;
+			
+			if(undefined != e.offsetX) {
+				x = e.offsetX;
+				y = e.offsetY;
+				
+			} else if(undefined != e.layerX) {
+				x = e.layerX;
+				y = e.layerY;
+				
+			} else if(null != e.originalEvent && undefined != e.originalEvent.layerX) {
+				x = e.originalEvent.layerX;
+				y = e.originalEvent.layerY;
+			}
+			
 			closest = {
 				'dist': 1000,
 				'chart_x': 0,
@@ -172,7 +184,7 @@ try {
 			
 			context.beginPath();
 			context.fillStyle = series.options.color;
-			context.font = "bold 10pt Arial";
+			context.font = "bold 12px Verdana";
 			context.fillText(text, padding, 10+padding);
 			context.stroke();			
 		})
