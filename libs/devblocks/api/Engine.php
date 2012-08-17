@@ -251,27 +251,28 @@ abstract class DevblocksEngine {
 		}
 		
 		// Extensions
-		if(isset($plugin->extensions->extension)) {
-		    foreach($plugin->extensions->extension as $eExtension) {
-		        $sId = (string) $eExtension->id;
-		        $sName = (string) $eExtension->name;
-		        
-		        if(empty($sId) || empty($sName))
-		            continue;
-		        
-		        $extension = new DevblocksExtensionManifest();
-		        
-		        $extension->id = $sId;
-		        $extension->plugin_id = $manifest->id;
-		        $extension->point = (string) $eExtension['point'];
-		        $extension->name = $sName;
-		        $extension->file = (string) $eExtension->class->file;
-		        $extension->class = (string) $eExtension->class->name;
-		        
-		        if(isset($eExtension->params->param)) {
-		            foreach($eExtension->params->param as $eParam) {
+		if(isset($plugin->extensions->extension))
+	    foreach($plugin->extensions->extension as $eExtension) {
+	        $sId = (string) $eExtension->id;
+	        $sName = (string) $eExtension->name;
+	        
+	        if(empty($sId) || empty($sName))
+	            continue;
+	        
+	        $extension = new DevblocksExtensionManifest();
+	        
+	        $extension->id = $sId;
+	        $extension->plugin_id = $manifest->id;
+	        $extension->point = (string) $eExtension['point'];
+	        $extension->name = $sName;
+	        $extension->file = (string) $eExtension->class->file;
+	        $extension->class = (string) $eExtension->class->name;
+	        
+	        if(isset($eExtension->params->param))
+            foreach($eExtension->params->param as $eParam) {
 				$key = (string) $eParam['key'];
-		                if(isset($eParam->value)) {
+                
+                if(isset($eParam->value)) {
 					// [JSJ]: If there is a child of the param tag named value, then this 
 					//        param has multiple values and thus we need to grab them all.
 					foreach($eParam->value as $eValue) {
@@ -279,32 +280,34 @@ abstract class DevblocksEngine {
 						if(isset($eValue->data)) {
 							$value = array();
 							foreach($eValue->data as $eData) {
-								$key2 = (string) $eData['key'];
+								$data_key = (string) $eData['key'];
+								
 								if(isset($eData['value'])) {
-									$value[$key2] = (string) $eData['value'];
+									$value[$data_key] = trim((string) $eData['value']);
 								} else {
-									$value[$key2] = (string) $eData;
+									$value[$data_key] = trim((string) $eData);
 								}
 							}
-						}
-						else {
+							
+						} else {
 							// [JSJ]: Else, just grab the value and use it
-							$value = (string) $eValue;
+							$value = trim((string) $eValue);
 						}
-						$extension->params[$key][] = $value;
+						
+						if(!empty($value))
+							$extension->params[$key][] = $value;
+						
 						unset($value); // Just to be extra safe
 					}
-				}
-				else {
+					
+				} else {
 					// [JSJ]: Otherwise, we grab the single value from the params value attribute.
 					$extension->params[$key] = (string) $eParam['value'];
 				}
-		            }
-		        }
-		        
-		        $manifest->extensions[] = $extension;
-		    }
-		}
+            }
+	        
+	        $manifest->extensions[] = $extension;
+	    }
 
 		// [JAS]: Extension caching
 		$new_extensions = array();
