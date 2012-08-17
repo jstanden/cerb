@@ -52,6 +52,9 @@ class Page_Search extends CerberusPageExtension {
 				return;
 		}
 		
+		if(!isset($context_ext->manifest->params['options'][0]['workspace']))
+			return;
+		
 		$tpl->assign('context_ext', $context_ext);
 		
 		$view = $context_ext->getSearchView();
