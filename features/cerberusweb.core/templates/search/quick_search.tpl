@@ -104,7 +104,7 @@ $select.bind('load_hints', function(e) {
 			$bubbles.append($('<li><tt>"exact phrase"</tt></li>'));
 			$bubbles.append($('<li><tt>*substring*</tt></li>'));
 			$bubbles.append($('<li><tt>prefix*</tt></li>'));
-			$bubbles.append($('<li><tt>suffix*</tt></li>'));
+			$bubbles.append($('<li><tt>*suffix</tt></li>'));
 			$bubbles.append($('<li><tt>!text</tt></li>'));
 			
 		} else if (field_type == 'D' || field_type == 'X') {
