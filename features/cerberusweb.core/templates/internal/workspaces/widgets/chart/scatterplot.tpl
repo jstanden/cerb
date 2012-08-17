@@ -184,7 +184,7 @@ try {
 			
 			context.beginPath();
 			context.fillStyle = series.options.color;
-			context.font = "bold 12px Verdana";
+			context.font = "12px Verdana";
 			context.fillText(text, padding, 10+padding);
 			context.stroke();			
 		})

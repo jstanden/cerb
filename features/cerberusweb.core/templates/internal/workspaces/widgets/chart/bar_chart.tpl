@@ -146,7 +146,7 @@ try {
 			
 			context.beginPath();
 			context.fillStyle = '#34434E';
-			context.font = "bold 12px Verdana";
+			context.font = "12px Verdana";
 			context.fillText(text, text_x, 10+padding);
 			context.stroke();
 			
