@@ -501,6 +501,8 @@ class DAO_WorkspaceTab extends C4_ORMHelper {
 		
 		$ids_list = implode(',', $ids);
 		
+		DAO_WorkspaceWidget::deleteByTab($ids);
+		
 		$db->Execute(sprintf("DELETE FROM workspace_list WHERE workspace_tab_id IN (%s)", $ids_list));
 		
 		$db->Execute(sprintf("DELETE FROM workspace_tab WHERE id IN (%s)", $ids_list));
