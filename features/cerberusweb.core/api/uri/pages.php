@@ -708,6 +708,7 @@ class Page_Custom extends CerberusPageExtension {
 	
 	function doEditWorkspacePageAction() {
 		@$workspace_page_id = DevblocksPlatform::importGPC($_POST['id'],'integer', 0);
+		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string', '');
 		@$name = DevblocksPlatform::importGPC($_POST['name'],'string', '');
 		@$extension_id = DevblocksPlatform::importGPC($_POST['extension_id'],'string', '');
 		@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'],'integer', '0');
@@ -767,6 +768,18 @@ class Page_Custom extends CerberusPageExtension {
 	
 				$workspace_page_id = DAO_WorkspacePage::create($fields);
 	
+				// View marquee
+				if(!empty($workspace_page_id) && !empty($view_id)) {
+					$url_writer = DevblocksPlatform::getUrlService();
+					C4_AbstractView::setMarquee($view_id, sprintf("New page created: <a href='%s'><b>%s</b></a>",
+						$url_writer->write(sprintf("c=pages&a=%d-%s",
+							$workspace_page_id,
+							DevblocksPlatform::strToPermalink($name))
+						),
+						htmlspecialchars($name, ENT_QUOTES, LANG_CHARSET_CODE)
+					));
+				}
+				
 			} else {
 				DAO_WorkspacePage::update($workspace_page_id, $fields);
 	
