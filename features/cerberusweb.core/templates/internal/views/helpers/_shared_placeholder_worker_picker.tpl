@@ -30,6 +30,7 @@
 		<input type="text" class="input_search" size="24">
 	</li>
 
+	{if !empty($placeholders)}
 	<li><b>Placeholders</b></li>
 
 	{foreach from=$placeholders item=var_data key=var_key}
@@ -39,6 +40,7 @@
 		</li>
 		{/if}
 	{/foreach}
+	{/if}
 
 	<li><b>Workers</b></li>
 		

@@ -20,10 +20,10 @@
 	<select name="field">
 		{$smarty.capture.options nofilter}
 	</select><input type="text" name="query" class="input_search" size="32" value="" autocomplete="off">
-	<div class="hints{if !$is_popup} hints-float hints-shadow{/if}">
+	
+	<div class="hints{if !$is_popup} hints-float{/if} hints-shadow">
 		<b>examples:</b> 
-		<ul class="bubbles">
-		</ul>
+		<ul class="bubbles"></ul>
 	</div>
 </form>
 {/if}
@@ -86,10 +86,11 @@ $select.bind('load_hints', function(e) {
 	
 	else {
 		if (field_type == 'E') {
-			$bubbles.append($('<li><tt>now to +5 days</tt></li>'));
+			$bubbles.append($('<li><tt>today to +5 days</tt></li>'));
 			$bubbles.append($('<li><tt>big bang to now</tt></li>'));
 			$bubbles.append($('<li><tt>Jan 1 2010 to +1 year</tt></li>'));
 			$bubbles.append($('<li><tt>-2 weeks to now</tt></li>'));
+			$bubbles.append($('<li><tt>last Monday to next Monday</tt></li>'));
 			
 		} else if (field_type == 'W' || field_type == 'WS') {
 			$bubbles.append($('<li><tt>jeff</tt></li>'));
