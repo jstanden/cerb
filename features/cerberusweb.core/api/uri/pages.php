@@ -139,6 +139,7 @@ class Page_Custom extends CerberusPageExtension {
 	private function _renderPage($page_id) {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$active_worker = CerberusApplication::getActiveWorker();
+		$visit = CerberusApplication::getVisit();
 		
 		if(null == ($page = DAO_WorkspacePage::get($page_id)))
 			return;
@@ -154,6 +155,9 @@ class Page_Custom extends CerberusPageExtension {
 		);
 		$tpl->assign('point', $point);
 
+		if(null != ($selected_tab = $visit->get($point, null)))
+			$tpl->assign('selected_tab', $selected_tab);
+		
 		// Template
 		if(!empty($page->extension_id)) {
 			if(null != ($page_extension = DevblocksPlatform::getExtension($page->extension_id, true)))
