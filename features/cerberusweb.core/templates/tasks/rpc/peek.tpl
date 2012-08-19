@@ -14,29 +14,30 @@
 	
 	<table cellpadding="0" cellspacing="2" border="0" width="98%">
 		<tr>
-			<td width="0%" nowrap="nowrap" align="right">{'common.title'|devblocks_translate|capitalize}: </td>
-			<td width="100%">
+			<td width="1%" nowrap="nowrap" align="right">{'common.title'|devblocks_translate|capitalize}: </td>
+			<td width="99%">
 				<input type="text" name="title" style="width:98%;" value="{$task->title}">
 			</td>
 		</tr>
 		<tr>
-			<td width="0%" nowrap="nowrap" align="right" valign="top">{'task.due_date'|devblocks_translate|capitalize}: </td>
-			<td width="100%">
+			<td width="1%" nowrap="nowrap" align="right" valign="top">{'task.due_date'|devblocks_translate|capitalize}: </td>
+			<td width="99%">
 				<input type="text" name="due_date" size="45" value="{if !empty($task->due_date)}{$task->due_date|devblocks_date}{/if}"><button type="button" onclick="devblocksAjaxDateChooser(this.form.due_date,'#dateTaskDue');">&nbsp;<span class="cerb-sprite sprite-calendar"></span>&nbsp;</button>
 				<div id="dateTaskDue"></div>
 			</td>
 		</tr>
 		<tr>
-			<td width="0%" nowrap="nowrap" align="right" valign="top"><label for="checkTaskCompleted">{'task.is_completed'|devblocks_translate|capitalize}:</label> </td>
-			<td width="100%">
-				<input id="checkTaskCompleted" type="checkbox" name="completed" value="1" {if $task->is_completed}checked{/if}>
+			<td width="1%" nowrap="nowrap" align="right" valign="top">{'task.is_completed'|devblocks_translate|capitalize}: </td>
+			<td width="99%">
+				<label><input type="radio" name="completed" value="1" {if $task->is_completed}checked="checked"{/if}> {'common.yes'|devblocks_translate|capitalize}</label>
+				<label><input type="radio" name="completed" value="0" {if empty($task->is_completed)}checked="checked"{/if}> {'common.no'|devblocks_translate|capitalize}</label>
 			</td>
 		</tr>
 		
 		{* Watchers *}
 		<tr>
-			<td width="0%" nowrap="nowrap" valign="middle" align="right">{$translate->_('common.watchers')|capitalize}: </td>
-			<td width="100%">
+			<td width="1%" nowrap="nowrap" valign="top" align="right">{$translate->_('common.watchers')|capitalize}: </td>
+			<td width="99%">
 				{if empty($task->id)}
 					<label><input type="checkbox" name="is_watcher" value="1"> {'common.watchers.add_me'|devblocks_translate}</label>
 				{else}
