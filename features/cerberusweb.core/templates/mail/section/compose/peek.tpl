@@ -98,12 +98,6 @@
 	
 	<div>
 		<label>
-		<input type="checkbox" name="add_me_as_watcher" value="1" {if $draft->params.add_me_as_watcher}checked="checked"{/if}> 
-		{'common.watchers.add_me'|devblocks_translate}
-		</label>
-	</div>
-	<div>
-		<label>
 		<input type="checkbox" name="options_dont_send" value="1" {if $draft->params.options_dont_send}checked="checked"{/if}> 
 		Start a new conversation without sending a copy of this message to the recipients
 		</label>
@@ -121,6 +115,13 @@
 			{$translate->_('display.reply.next.resume_blank')}<br>
 		</div>
 	</div>
+</fieldset>
+
+<fieldset>
+	<legend>{'common.watchers'|devblocks_translate|capitalize}</legend>
+	
+	<button type="button" class="chooser_watcher"><span class="cerb-sprite sprite-view"></span></button>
+	<ul class="chooser-container bubbles" style="display:block;"></ul>
 </fieldset>
 
 <fieldset class="peek" style="{if empty($custom_fields) && empty($group_fields)}display:none;{/if}" id="compose_cfields">
@@ -171,6 +172,10 @@
 		
 		$frm.find('button.chooser_worker').each(function() {
 			ajax.chooser(this,'cerberusweb.contexts.worker','worker_id', { autocomplete:true });
+		});
+		
+		$frm.find('button.chooser_watcher').each(function() {
+			ajax.chooser(this,'cerberusweb.contexts.worker','add_watcher_ids', { autocomplete:true });
 		});
 		
 		$frm.find('button.chooser_file').each(function() {

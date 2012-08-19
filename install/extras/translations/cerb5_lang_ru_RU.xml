@@ -4660,11 +4660,6 @@ remote control of your helpdesk.</seg>
         <seg>наблюдатели</seg>
       </tuv>
     </tu>
-    <tu tuid="common.watchers.add_me">
-      <tuv xml:lang="ru_RU">
-        <seg>Уведомить меня о новых событиях</seg>
-      </tuv>
-    </tu>
     <tu tuid="common.workspace">
       <tuv xml:lang="ru_RU">
         <seg></seg>

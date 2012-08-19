@@ -549,9 +549,6 @@
 		<tu tuid='common.watchers'>
 			<tuv xml:lang="en_US"><seg>watchers</seg></tuv>
 		</tu>
-		<tu tuid='common.watchers.add_me'>
-			<tuv xml:lang="en_US"><seg>Notify me about new activity</seg></tuv>
-		</tu>
 		<tu tuid='common.week'>
 			<tuv xml:lang="en_US"><seg>week</seg></tuv>
 		</tu>

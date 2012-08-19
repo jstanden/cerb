@@ -39,7 +39,8 @@
 			<td width="1%" nowrap="nowrap" valign="top" align="right">{$translate->_('common.watchers')|capitalize}: </td>
 			<td width="99%">
 				{if empty($task->id)}
-					<label><input type="checkbox" name="is_watcher" value="1"> {'common.watchers.add_me'|devblocks_translate}</label>
+					<button type="button" class="chooser_watcher"><span class="cerb-sprite sprite-view"></span></button>
+					<ul class="chooser-container bubbles" style="display:block;"></ul>
 				{else}
 					{$object_watchers = DAO_ContextLink::getContextLinks(CerberusContexts::CONTEXT_TASK, array($task->id), CerberusContexts::CONTEXT_WORKER)}
 					{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=CerberusContexts::CONTEXT_TASK context_id=$task->id full=true}
@@ -98,6 +99,11 @@
 				$(this).next('DIV.notify').hide();
 			}
 		});
+		
+		$(this).find('button.chooser_watcher').each(function() {
+			ajax.chooser(this,'cerberusweb.contexts.worker','add_watcher_ids', { autocomplete:true });
+		});
+		
 		$('#formTaskPeek :input:text:first').focus().select();
 	});
 	$('#formTaskPeek button.chooser_notify_worker').each(function() {

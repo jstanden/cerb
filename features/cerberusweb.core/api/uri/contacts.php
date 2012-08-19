@@ -988,9 +988,9 @@ class ChContactsPage extends CerberusPageExtension {
 				$fields = $fields + array(DAO_Address::EMAIL => $email);
 				$id = DAO_Address::create($fields);
 				
-				@$is_watcher = DevblocksPlatform::importGPC($_REQUEST['is_watcher'],'integer',0);
-				if($is_watcher)
-					CerberusContexts::addWatchers(CerberusContexts::CONTEXT_ADDRESS, $id, $active_worker->id);
+				@$add_watcher_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_REQUEST['add_watcher_ids'],'array',array()),'integer',array('unique','nonzero'));
+				if(!empty($add_watcher_ids))
+					CerberusContexts::addWatchers(CerberusContexts::CONTEXT_ADDRESS, $id, $add_watcher_ids);
 				
 				// Context Link (if given)
 				@$link_context = DevblocksPlatform::importGPC($_REQUEST['link_context'],'string','');
@@ -1064,9 +1064,10 @@ class ChContactsPage extends CerberusPageExtension {
 				if($id==0) {
 					$id = DAO_ContactOrg::create($fields);
 					
-					@$is_watcher = DevblocksPlatform::importGPC($_REQUEST['is_watcher'],'integer',0);
-					if($is_watcher)
-						CerberusContexts::addWatchers(CerberusContexts::CONTEXT_ORG, $id, $active_worker->id);
+					// Watchers
+					@$add_watcher_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_REQUEST['add_watcher_ids'],'array',array()),'integer',array('unique','nonzero'));
+					if(!empty($add_watcher_ids))
+						CerberusContexts::addWatchers(CerberusContexts::CONTEXT_ORG, $id, $add_watcher_ids);
 					
 					// Context Link (if given)
 					@$link_context = DevblocksPlatform::importGPC($_REQUEST['link_context'],'string','');
@@ -1529,9 +1530,10 @@ class ChContactsPage extends CerberusPageExtension {
 				if($id==0) {
 					$id = DAO_ContactPerson::create($fields);
 					
-					@$is_watcher = DevblocksPlatform::importGPC($_REQUEST['is_watcher'],'integer',0);
-					if($is_watcher)
-						CerberusContexts::addWatchers(CerberusContexts::CONTEXT_CONTACT_PERSON, $id, $active_worker->id);
+					// Watchers
+					@$add_watcher_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_REQUEST['add_watcher_ids'],'array',array()),'integer',array('unique','nonzero'));
+					if(!empty($add_watcher_ids))
+						CerberusContexts::addWatchers(CerberusContexts::CONTEXT_CONTACT_PERSON, $id, $add_watcher_ids);
 					
 					// Context Link (if given)
 					@$link_context = DevblocksPlatform::importGPC($_REQUEST['link_context'],'string','');

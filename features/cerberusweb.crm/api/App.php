@@ -81,9 +81,10 @@ class CrmPage extends CerberusPageExtension {
 			);
 			$opp_id = DAO_CrmOpportunity::create($fields);
 			
-			@$is_watcher = DevblocksPlatform::importGPC($_REQUEST['is_watcher'],'integer',0);
-			if($is_watcher)
-				CerberusContexts::addWatchers(CerberusContexts::CONTEXT_OPPORTUNITY, $opp_id, $active_worker->id);
+			// Watchers
+			@$add_watcher_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_REQUEST['add_watcher_ids'],'array',array()),'integer',array('unique','nonzero'));
+			if(!empty($add_watcher_ids))
+				CerberusContexts::addWatchers(CerberusContexts::CONTEXT_OPPORTUNITY, $opp_id, $add_watcher_ids);
 			
 			// Context Link (if given)
 			@$link_context = DevblocksPlatform::importGPC($_REQUEST['link_context'],'string','');

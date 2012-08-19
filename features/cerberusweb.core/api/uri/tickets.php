@@ -385,7 +385,6 @@ class ChTicketsPage extends CerberusPageExtension {
 		
 		// Options
 		
-		@$add_me_as_watcher = DevblocksPlatform::importGPC($_POST['add_me_as_watcher'],'integer',0);
 		@$options_dont_send = DevblocksPlatform::importGPC($_POST['options_dont_send'],'integer',0);
 		
 		// Attachments
@@ -450,10 +449,10 @@ class ChTicketsPage extends CerberusPageExtension {
 				DAO_MailQueue::delete($draft_id);
 
 			// Watchers
+			@$add_watcher_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_REQUEST['add_watcher_ids'],'array',array()),'integer',array('unique','nonzero'));
+			if(!empty($add_watcher_ids))
+				CerberusContexts::addWatchers(CerberusContexts::CONTEXT_TICKET, $ticket_id, $add_watcher_ids);
 			
-			if($add_me_as_watcher)
-				CerberusContexts::addWatchers(CerberusContexts::CONTEXT_TICKET, $ticket_id, $active_worker->id);
-				
 			// Preferences
 			
 			DAO_WorkerPref::set($active_worker->id, 'compose.group_id', $group_id);
