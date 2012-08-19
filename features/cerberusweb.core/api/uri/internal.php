@@ -1834,6 +1834,29 @@ class ChInternalController extends DevblocksControllerExtension {
 				}
 			}
 
+		} elseif('json' == $export_as) {
+			header("Pragma: public");
+			header("Expires: 0");
+			header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+			header("Content-Type: text/plain; charset=".LANG_CHARSET_CODE);
+
+			$objects = array();
+			
+			// Get data
+			list($results, $null) = $view->getData();
+			if(is_array($results))
+			foreach($results as $row) {
+				$object = array();
+				if(is_array($columns))
+				foreach($columns as $col) {
+					$object[$col] = $row[$col];
+				}
+				
+				$objects[] = $object;
+			}
+			
+			echo json_encode($objects);
+			
 		} elseif('xml' == $export_as) {
 			header("Pragma: public");
 			header("Expires: 0");
