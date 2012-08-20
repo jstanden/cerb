@@ -1211,8 +1211,15 @@ class Context_TimeTracking extends Extension_DevblocksContext implements IDevblo
 			
 			@$link_context = strtolower($_SESSION['timetracking_context']);
 			@$link_context_id = intval($_SESSION['timetracking_context_id']);
-			$tpl->assign('link_context', $link_context);
-			$tpl->assign('link_context_id', $link_context_id);
+			
+			/* If the session was empty, don't set these since they may have been 
+			 * previously set by the abstract context peek code.
+			 */ 
+			
+			if(!empty($link_context)) {
+				$tpl->assign('link_context', $link_context);
+				$tpl->assign('link_context_id', $link_context_id);
+			}
 			
 			// Template
 			
