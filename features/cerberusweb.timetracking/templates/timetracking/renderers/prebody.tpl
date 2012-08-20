@@ -49,6 +49,7 @@
 	</div>
 </div>
 <script type="text/javascript">
+	{* [TODO] Convert this to jQuery *}
 	var timeTrackingTimerClass = function() {
 		this.counter = 0;
 		this.enabled = false;
@@ -156,7 +157,6 @@
 		
 			this.counter = 0;
 			genericAjaxGet('','c=timetracking&a=clearEntry');
-			genericAjaxPopupClose('peek');
 		}
 	};
 	
