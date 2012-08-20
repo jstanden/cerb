@@ -2748,8 +2748,8 @@ class ChInternalController extends DevblocksControllerExtension {
 		
 		$tpl->assign('namePrefix', $name_prefix);
 		
-		$trigger = DAO_TriggerEvent::get($trigger_id);
-		$tpl->assign('macro_params', $trigger->variables);
+		if(null != ($trigger = DAO_TriggerEvent::get($trigger_id)))
+			$tpl->assign('macro_params', $trigger->variables);
 		
 		$tpl->display('devblocks:cerberusweb.core::events/action_schedule_behavior_params.tpl');
 	}

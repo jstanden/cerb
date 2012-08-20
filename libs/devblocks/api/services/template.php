@@ -20,7 +20,7 @@ class _DevblocksTemplateManager {
 	static function getInstance() {
 		static $instance = null;
 		if(null == $instance) {
-			define('SMARTY_RESOURCE_CHAR_SET', LANG_CHARSET_CODE);
+			define('SMARTY_RESOURCE_CHAR_SET', strtoupper(LANG_CHARSET_CODE));
 			require(DEVBLOCKS_PATH . 'libs/smarty/Smarty.class.php');
 
 			$instance = new Smarty();

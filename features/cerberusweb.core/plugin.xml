@@ -733,14 +733,16 @@
 				<param key="alias" value="bucket" />
 				<param key="dao_class" value="DAO_Bucket" />
 				<param key="view_class" value="View_Bucket" />
+				<!--
 				<param key="options">
 					<value>
-						<!--<data key="find" />-->
-						<!--<data key="snippets" />-->
-						<!--<data key="va_variable" />-->
-						<!--<data key="workspace" />-->
+						<data key="find" />
+						<data key="snippets" />
+						<data key="va_variable" />
+						<data key="workspace" />
 					</value>
 				</param>
+				-->
 			</params>
 		</extension>
 		

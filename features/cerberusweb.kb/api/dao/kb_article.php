@@ -320,15 +320,21 @@ class DAO_KbArticle extends C4_ORMHelper {
 
 		// Translate virtual fields
 		
+		$args = array(
+			'join_sql' => $join_sql,
+			'where_sql' => $where_sql,
+			'has_multiple_values' => $has_multiple_values
+		);
+		
 		array_walk_recursive(
 			$params,
 			array('DAO_KbArticle', '_translateVirtualParameters'),
-			array(
-				'join_sql' => &$join_sql,
-				'where_sql' => &$where_sql,
-				'has_multiple_values' => &$has_multiple_values
-			)
+			&$args
 		);
+		
+		$join_sql = $args['join_sql'];
+		$where_sql = $args['where_sql'];
+		$has_multiple_values = $args['has_multiple_values'];
 		
 		$result = array(
 			'primary_table' => 'kb',
@@ -796,7 +802,6 @@ class Context_KbArticle extends Extension_DevblocksContext implements IDevblocks
 		$defaults->id = $view_id; 
 		$defaults->class_name = $this->getViewClass();
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
-		//$view->name = 'Calls';
 		
 		$params_req = array();
 		
@@ -825,10 +830,6 @@ class Context_KbArticle extends Extension_DevblocksContext implements IDevblocks
 		if(!empty($view_id))
 			$tpl->assign('view_id', $view_id);
 			
-		@$return_uri = DevblocksPlatform::importGPC($_REQUEST['return_uri'],'string','');
-		if(!empty($return_uri))
-			$tpl->assign('return_uri', $return_uri);
-		
 		$tpl->display('devblocks:cerberusweb.kb::kb/peek_readonly.tpl');
 	}
 };

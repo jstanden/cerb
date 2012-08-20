@@ -3,7 +3,7 @@
 <div style="margin-left:10px;margin-bottom:0.5em;">
 <select name="{$namePrefix}[on]" class="on">
 	{foreach from=$values_to_contexts item=context_data key=val_key}
-	<option value="{$val_key}" context="{$context_data.context}">{$context_data.label}</option>
+	<option value="{$val_key}" context="{$context_data.context}" {if $params.on==$val_key}selected="selected"{/if}>{$context_data.label}</option>
 	{/foreach}
 </select>
 </div>
@@ -48,10 +48,14 @@
 <script type="text/javascript">
 $action = $('fieldset#{$namePrefix}');
 $action.find('select.behavior').change(function(e) {
-	$div = $action.find('div.parameters');
+	$div = $(this).closest('fieldset').find('div.parameters');
 	genericAjaxGet($div,'c=internal&a=showScheduleBehaviorParams&name_prefix={$namePrefix}&trigger_id=' + $(this).val());
 });
+
 $action.find('select.on').change(function(e) {
+	$div = $(this).closest('fieldset').find('div.parameters');
+	$div.html('');
+	
 	ctx = $(this).find('option:selected').attr('context');
 
 	$sel_behavior = $(this).closest('fieldset').find('select.behavior');
@@ -64,6 +68,7 @@ $action.find('select.on').change(function(e) {
 			$sel_behavior.append($this.clone());
 		}
 	});
+	
+	$sel_behavior.trigger('change');
 });
-$action.find('select.on').trigger('change');
 </script>

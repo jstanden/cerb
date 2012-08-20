@@ -218,10 +218,17 @@ class Model_MailToGroupRule {
 						
 						if(is_array($to_list))
 						foreach($to_list as $addy) {
+							if(!isset($addy->mailbox) || !isset($addy->host))
+								continue;
+						
 							$tocc[] = $addy->mailbox . '@' . $addy->host;
 						}
+						
 						if(is_array($cc_list))
 						foreach($cc_list as $addy) {
+							if(!isset($addy->mailbox) || !isset($addy->host))
+								continue;
+							
 							$tocc[] = $addy->mailbox . '@' . $addy->host;
 						}
 						
