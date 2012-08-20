@@ -178,9 +178,11 @@ class PageSection_SetupPluginLibrary extends Extension_PageSection {
 			DevblocksPlatform::clearCache();
 			
 	        // Reload plugin translations
-			$strings_xml = APP_PATH . '/' . $plugin->dir . '/strings.xml';
-			if(file_exists($strings_xml)) {
-				DAO_Translation::importTmxFile($strings_xml);
+			if(null != ($plugin_manifest = DevblocksPlatform::getPlugin($plugin->id))) {
+				$strings_xml = APP_PATH . '/' . $plugin_manifest->dir . '/strings.xml';
+				if(file_exists($strings_xml)) {
+					DAO_Translation::importTmxFile($strings_xml);
+				}
 			}
 			
 			echo json_encode(array(
