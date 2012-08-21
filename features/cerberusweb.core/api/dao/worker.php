@@ -459,9 +459,9 @@ class DAO_Worker extends C4_ORMHelper {
 		$sort_sql = (!empty($sortBy)) ? sprintf("ORDER BY %s %s ",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : " ";
 		
 		$args = array(
-			'join_sql' => $join_sql,
-			'where_sql' => $where_sql,
-			'has_multiple_values' => $has_multiple_values
+			'join_sql' => &$join_sql,
+			'where_sql' => &$where_sql,
+			'has_multiple_values' => &$has_multiple_values
 		);
 		
 		array_walk_recursive(
@@ -469,10 +469,6 @@ class DAO_Worker extends C4_ORMHelper {
 			array('DAO_Worker', '_translateVirtualParameters'),
 			$args
 		);
-		
-		$join_sql = $args['join_sql'];
-		$where_sql = $args['where_sql'];
-		$has_multiple_values = $args['has_multiple_values'];
 		
 		$result = array(
 			'primary_table' => 'w',
