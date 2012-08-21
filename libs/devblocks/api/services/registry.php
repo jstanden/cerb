@@ -153,7 +153,7 @@ class DevblocksRegistryEntry {
 	}
 };
 
-class DAO_DevblocksRegistry extends C4_ORMHelper {
+class DAO_DevblocksRegistry {
 	const ENTRY_KEY = 'entry_key';
 	const ENTRY_TYPE = 'entry_type';
 	const ENTRY_VALUE = 'entry_value';

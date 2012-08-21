@@ -233,7 +233,7 @@ class DAO_Snippet extends C4_ORMHelper {
 		array_walk_recursive(
 			$params,
 			array('DAO_Snippet', '_translateVirtualParameters'),
-			&$args
+			$args
 		);
 		
 		$join_sql = $args['join_sql'];
