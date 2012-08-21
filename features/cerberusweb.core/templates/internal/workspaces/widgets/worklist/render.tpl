@@ -5,8 +5,6 @@
 </div>
 
 <script type="text/javascript">
-// [TODO] Hide the title bar
-// [TODO] Hide the actions
 var on_refresh = function() {
 	$worklist = $('#view{$view->id}').find('TABLE.worklist');
 	$worklist.hide();
@@ -22,36 +20,66 @@ var on_refresh = function() {
 	$header_links.find('a').css('font-size','11px');
 
 	$worklist_body = $('#view{$view->id}').find('TABLE.worklistBody');
+
+	$worklist_body
+		.attr('cellpadding', '1')
+		.attr('cellspacing', '0')
+		;
+	
+	// Hide watchers column (if exists)
+	if($worklist_body.find('tr:first th:first:contains(Watchers)').length > 0) {
+		$worklist_body.find('tr:first th:first').html('');
+		$worklist_body.find('tbody').find('> tr > td:first > button').remove();
+	}
 	
 	$worklist_body.find('tr:first th')
 		.css('background', 'none')
 		.css('border', '0')
 		;
 
-	$worklist_body.find('td')
-		.css('padding', '0px 3px 5px 0px')
+	$worklist_body.find('th, td')
+		.css('display', 'block')
+		.css('min-width', '')
+		.removeAttr('align', '')
+		.each(function(e) {
+			if(0==$.trim($(this).text()).length)
+				$(this).hide();
+		})
 		;
 	
-	$worklist_body.find('tr:first th > a')
-		.css('text-decoration', 'underline')
-		.css('color', 'rgb(51,92,142)')
-		.closest('th')
-			.css('padding-bottom', '5px')
+	$worklist_body.find('tbody')
+		.each(function(e) {
+			$cols = null;
+			
+			if($(this).find('tr').length > 1) {
+				$cols = $(this).find('tr:gt(0) td');
+				
+			} else {
+				$cols = $(this).find('td:gt(0)');
+			}
+
+			if(null != $cols) {
+				$cols.css('padding-left', '15px');
+			}
+		})
 		;
 	
-	// Hide watchers column
-	// [TODO] Config toggle
-	if($worklist_body.find('tr:first th:first:contains(Watchers)').length > 0) {
-		$worklist_body.find('tr:first th:first').hide();
-		$worklist_body.find('tbody').find('> tr > td:first').hide();
-	}
+	$sort_links = $('<div style="margin-bottom:5px;"></div>');
 	
-	$worklist_body.find('a.subject').each(function() {
-		$txt = $('<b class="subject">' + $(this).text() + '</b>');
-		$txt.insertBefore($(this));
-		$txt.closest('td').css('padding-bottom', '0');
+	$worklist_body.find('tr:first th').each(function(e) {
+		$(this).find('> a')
+			.css('font-weight', 'bold')
+			.css('text-decoration', 'underline')
+			.css('color', 'rgb(51,92,142)')
+		;
+
+		$span = $('<span style="margin-right:10px;"></span>');
+		$(this).children().appendTo($span);
+		$span.appendTo($sort_links);
 		$(this).remove();
 	});
+	
+	$sort_links.insertBefore($worklist_body);
 	
 	$actions = $('#{$view->id}_actions');
 	$actions.find('.action-always-show').hide();
