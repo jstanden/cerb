@@ -19,6 +19,10 @@
 
 <script type="text/javascript">
 try {
+	$widget = $('#widget{$widget->id}');
+	width = $widget.width();
+	$widget.find('canvas').attr('width', width);
+	
 	var options = {
 		series:[
 			{foreach from=$widget->params['series'] item=series key=series_idx name=series}
