@@ -219,7 +219,7 @@ foreach($fields as $field_name => $field_type) {
 		array_walk_recursive(
 			$params,
 			array('DAO_<?php echo $class_name; ?>', '_translateVirtualParameters'),
-			&$args
+			$args
 		);
 		
 		$join_sql = $args['join_sql'];

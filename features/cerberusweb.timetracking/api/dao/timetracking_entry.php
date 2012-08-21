@@ -335,7 +335,7 @@ class DAO_TimeTrackingEntry extends C4_ORMHelper {
 		array_walk_recursive(
 			$params,
 			array('DAO_TimeTrackingEntry', '_translateVirtualParameters'),
-			&$args
+			$args
 		);
 		
 		$join_sql = $args['join_sql'];
