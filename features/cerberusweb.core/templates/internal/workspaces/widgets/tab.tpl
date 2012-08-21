@@ -458,6 +458,7 @@ function drawScatterplot($canvas, options) {
 	$dashboard.find('td.column').sortable({
 		'items': 'div.dashboard-widget',
 		'handle': 'div.dashboard-widget-title',
+		'distance': 20,
 		'placeholder': 'ui-state-highlight',
 		'forcePlaceholderSize': true,
 		'tolerance': 'pointer',

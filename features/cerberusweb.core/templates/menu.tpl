@@ -62,6 +62,7 @@
 
 	$menu.sortable({
 		items:'> li.drag',
+		distance: 20,
 		update:function(e) {
 			$pages = $(this).find('li.drag[page_id=*]');
 			page_ids = $pages.map(function(e) {

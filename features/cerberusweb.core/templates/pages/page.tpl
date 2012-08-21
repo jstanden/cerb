@@ -59,6 +59,7 @@
 			
 			$tabs.find('> ul').sortable({
 				items:'> li.drag',
+				distance: 20,
 				forcePlaceholderWidth:true,
 				update:function(e) {
 					$tabs = $("#pageTabs");
