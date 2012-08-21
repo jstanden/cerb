@@ -119,7 +119,7 @@ try {
 			options = $(this).data('model');
 			plots = $(this).data('plots');
 
-			context.clearRect(0, 0, 325, 125);
+			context.clearRect(0, 0, canvas.width, canvas.height);
 
 			var x = 0, y = 0;
 			

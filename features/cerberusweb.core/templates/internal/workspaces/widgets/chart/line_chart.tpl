@@ -46,7 +46,7 @@ try {
 			
 			chart_top = 15;
 			
-			chart_width = 325;
+			chart_width = canvas.width;
 			chart_height = canvas.height - chart_top;
 
 			max_value = 0;
@@ -105,7 +105,7 @@ try {
 			plots = $(this).data('plots');
 			max_value = $(this).data('max_value');
 
-			context.clearRect(0, 0, 325, 125);
+			context.clearRect(0, 0, canvas.width, canvas.height);
 			
 			var x = 0, y = 0;
 			

@@ -1,4 +1,4 @@
-<table cellspacing="0" cellpadding="2" border="0" width="300" style="margin-left:25px;">
+<table cellspacing="0" cellpadding="2" border="0" width="100%" style="margin-left:25px;">
 {foreach from=$subtotal_counts item=category}
 	<tr>
 		<td style="padding-right:10px;" align="right" width="0%" nowrap="nowrap" valign="top">

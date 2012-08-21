@@ -92,7 +92,7 @@ try {
 			plots = $(this).data('plots');
 			xtick_width = $(this).data('xtick_width');
 
-			context.clearRect(0, 0, 325, 125);
+			context.clearRect(0, 0, canvas.width, canvas.height);
 			
 			var x = 0;
 			

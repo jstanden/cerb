@@ -1,4 +1,4 @@
-<table cellpadding="0" cellspacing="0" border="0" width="325">
+<table cellpadding="0" cellspacing="0" border="0" width="100%">
 	<tr>
 		<td width="1%" nowrap="nowrap">
 			<canvas id="widget{$widget->id}_canvas" width="200" height="125">
