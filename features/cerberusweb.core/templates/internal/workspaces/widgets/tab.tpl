@@ -391,7 +391,6 @@ function drawScatterplot($canvas, options) {
 		<td width="33%" valign="top" class="column">
 			{foreach from=$columns.0 item=widget key=widget_id}
 			<div class="dashboard-widget" id="widget{$widget_id}">
-				<input type="hidden" name="widget_pos[]" value="{$widget_id}">
 				{include file="devblocks:cerberusweb.core::internal/workspaces/widgets/render.tpl" widget=$widget}
 			</div>
 			{/foreach}
@@ -399,7 +398,6 @@ function drawScatterplot($canvas, options) {
 		<td width="34%" valign="top" class="column">
 			{foreach from=$columns.1 item=widget key=widget_id}
 			<div class="dashboard-widget" id="widget{$widget_id}">
-				<input type="hidden" name="widget_pos[]" value="{$widget_id}">
 				{include file="devblocks:cerberusweb.core::internal/workspaces/widgets/render.tpl" widget=$widget}
 			</div>
 			{/foreach}
@@ -407,7 +405,6 @@ function drawScatterplot($canvas, options) {
 		<td width="33%" valign="top" class="column">
 			{foreach from=$columns.2 item=widget key=widget_id}
 			<div class="dashboard-widget" id="widget{$widget_id}">
-				<input type="hidden" name="widget_pos[]" value="{$widget_id}">
 				{include file="devblocks:cerberusweb.core::internal/workspaces/widgets/render.tpl" widget=$widget}
 			</div>
 			{/foreach}

@@ -6,7 +6,9 @@
 	</div>
 </div>
 
-<div class="updated">Last updated: {$widget->updated_at|devblocks_date}</div>
+<input type="hidden" name="widget_pos[]" value="{$widget->id}">
+
+{*<div class="updated">Last updated: {$widget->updated_at|devblocks_date}</div>*}
 
 {$widget_extension = Extension_WorkspaceWidget::get($widget->extension_id)}
 {if $widget_extension instanceof Extension_WorkspaceWidget}
