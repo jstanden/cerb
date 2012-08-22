@@ -7,6 +7,7 @@ class _DevblocksTemplateBuilder {
 		$this->_twig = new Twig_Environment(new Twig_Loader_String(), array(
 			'cache' => false,
 			'debug' => false,
+			'strict_variables' => false,
 			'auto_reload' => true,
 			'trim_blocks' => true,
 			'autoescape' => false,
