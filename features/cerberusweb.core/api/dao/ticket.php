@@ -1281,32 +1281,28 @@ class DAO_Ticket extends C4_ORMHelper {
 				switch($param->operator) {
 					default:
 					case DevblocksSearchCriteria::OPER_IN:
-						$oper = '=';
-						break;
 					case DevblocksSearchCriteria::OPER_IN_OR_NULL:
-						$oper = '=';
+						$oper = '';
 						break;
 					case DevblocksSearchCriteria::OPER_NIN:
-						$oper = '!=';
-						break;
 					case DevblocksSearchCriteria::OPER_NIN_OR_NULL:
-						$oper = '!=';
+						$oper = 'NOT ';
 						break;
 				}
 				
 				foreach($values as $value) {
 					switch($value) {
 						case 'open':
-							$status_sql[] = sprintf('(t.is_waiting %s 0 AND t.is_closed %s 0)', $oper, $oper);
+							$status_sql[] = sprintf('%s(t.is_waiting = 0 AND t.is_closed = 0 AND t.is_deleted = 0)', $oper);
 							break;
 						case 'waiting':
-							$status_sql[] = sprintf('(t.is_waiting %s 1 AND t.is_closed %s 0)', $oper, $oper);
+							$status_sql[] = sprintf('%s(t.is_waiting = 1 AND t.is_closed = 0 AND t.is_deleted = 0)', $oper);
 							break;
 						case 'closed':
-							$status_sql[] = sprintf('(t.is_closed %s 1 AND t.is_deleted %s 0)', $oper, $oper);
+							$status_sql[] = sprintf('%s(t.is_closed = 1 AND t.is_deleted = 0)', $oper);
 							break;
 						case 'deleted':
-							$status_sql[] = sprintf('(t.is_closed %s 1 AND t.is_deleted %s 1)', $oper, $oper);
+							$status_sql[] = sprintf('%s(t.is_deleted = 1)', $oper);
 							break;
 					}
 				}
@@ -1889,7 +1885,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals {
 		$join_sql = $query_parts['join'];
 		$where_sql = $query_parts['where'];				
 		
-		$sql = "SELECT COUNT(IF(t.is_closed=0 AND t.is_waiting=0,1,NULL)) AS open_hits, COUNT(IF(t.is_waiting=1 AND t.is_deleted=0,1,NULL)) AS waiting_hits, COUNT(IF(t.is_closed=1 AND t.is_deleted=0,1,NULL)) AS closed_hits, COUNT(IF(t.is_deleted=1,1,NULL)) AS deleted_hits ".
+		$sql = "SELECT COUNT(IF(t.is_closed=0 AND t.is_waiting=0 AND t.is_deleted=0,1,NULL)) AS open_hits, COUNT(IF(t.is_waiting=1 AND t.is_closed=0 AND t.is_deleted=0,1,NULL)) AS waiting_hits, COUNT(IF(t.is_closed=1 AND t.is_deleted=0,1,NULL)) AS closed_hits, COUNT(IF(t.is_deleted=1,1,NULL)) AS deleted_hits ".
 			$join_sql.
 			$where_sql 
 		;
