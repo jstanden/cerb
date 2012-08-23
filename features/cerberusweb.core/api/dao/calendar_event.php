@@ -980,7 +980,8 @@ class Context_CalendarEvent extends Extension_DevblocksContext implements IDevbl
 
 	function renderPeekPopup($context_id=0, $view_id='') {
 		$tpl = DevblocksPlatform::getTemplateService();
-
+		$tpl->assign('view_id', $view_id);
+		
 		// [TODO] Check calendar+event ownership
 		
 		if(!empty($context_id)) {
