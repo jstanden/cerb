@@ -346,6 +346,10 @@ class CerberusMail {
 		
 		// "Next:" [TODO] This is highly redundant with CerberusMail::reply
 		
+		if(isset($properties['owner_id'])) {
+			$fields[DAO_Ticket::OWNER_ID] = intval($properties['owner_id']);
+		}
+		
 		if(isset($ticket_reopen) && !empty($ticket_reopen)) {
 			if(false !== (@$reopen_at = strtotime($ticket_reopen)))
 				$fields[DAO_Ticket::REOPEN_AT] = $reopen_at;

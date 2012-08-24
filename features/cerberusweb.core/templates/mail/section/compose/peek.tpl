@@ -117,11 +117,35 @@
 	</div>
 </fieldset>
 
-<fieldset>
-	<legend>{'common.watchers'|devblocks_translate|capitalize}</legend>
+<fieldset class="peek">
+	<legend>Assignments</legend>
 	
-	<button type="button" class="chooser_watcher"><span class="cerb-sprite sprite-view"></span></button>
-	<ul class="chooser-container bubbles" style="display:block;"></ul>
+	<table cellpadding="0" cellspacing="0" width="100%" border="0">
+		<tr>
+			<td width="1%" nowrap="nowrap" style="padding-right:10px;" valign="top">
+				{'common.owner'|devblocks_translate|capitalize}:
+			</td>
+			<td width="99%">
+				<select name="owner_id">
+					<option value=""></option>
+					{foreach from=$workers item=v key=k}
+					{if !$v->is_disabled}
+					<option value="{$k}">{$v->getName()}</option>
+					{/if}
+					{/foreach}
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td width="1%" nowrap="nowrap" style="padding-right:10px;" valign="top">
+				{'common.watchers'|devblocks_translate|capitalize}:
+			</td>
+			<td width="99%">
+				<button type="button" class="chooser_watcher"><span class="cerb-sprite sprite-view"></span></button>
+				<ul class="chooser-container bubbles" style="display:block;"></ul>
+			</td>
+		</tr>
+	</table>
 </fieldset>
 
 <fieldset class="peek" style="{if empty($custom_fields) && empty($group_fields)}display:none;{/if}" id="compose_cfields">

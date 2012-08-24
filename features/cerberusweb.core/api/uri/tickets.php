@@ -382,6 +382,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		@$closed = DevblocksPlatform::importGPC($_POST['closed'],'integer',0);
 		@$move_bucket = DevblocksPlatform::importGPC($_POST['bucket_id'],'string','');
 		@$ticket_reopen = DevblocksPlatform::importGPC($_POST['ticket_reopen'],'string','');
+		@$owner_id = DevblocksPlatform::importGPC($_POST['owner_id'],'integer',0);
 		
 		// Options
 		
@@ -438,6 +439,9 @@ class ChTicketsPage extends CerberusPageExtension {
 		}
 		
 		// Options
+		
+		if(!empty($owner_id))
+			$properties['owner_id'] = $owner_id;
 		
 		if(!empty($options_dont_send))
 			$properties['dont_send'] = 1;
