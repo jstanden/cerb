@@ -139,14 +139,15 @@ class CerberusMail {
 	}
 
 	static function compose($properties) {
-		$worker = CerberusApplication::getActiveWorker();
-		
 		@$group_id = $properties['group_id'];
 		@$bucket_id = intval($properties['bucket_id']);
 		
 		@$is_broadcast = intval($properties['is_broadcast']);
 		
-		$properties['worker_id'] = $worker->id;
+		@$worker_id = $properties['worker_id'];
+		
+		if(empty($worker_id) && null != ($worker = CerberusApplication::getActiveWorker()))
+			$worker_id = $worker->id;
 	
 		if(null == ($group = DAO_Group::get($group_id)))
 			return;
@@ -305,7 +306,7 @@ class CerberusMail {
 				$fields = array(
 					DAO_MailQueue::TYPE => Model_MailQueue::TYPE_COMPOSE,
 					DAO_MailQueue::TICKET_ID => 0,
-					DAO_MailQueue::WORKER_ID => !empty($worker) ? $worker->id : 0,
+					DAO_MailQueue::WORKER_ID => intval($worker_id),
 					DAO_MailQueue::UPDATED => time()+5, // small offset
 					DAO_MailQueue::HINT_TO => $toStr,
 					DAO_MailQueue::SUBJECT => $subject,
@@ -363,7 +364,7 @@ class CerberusMail {
 	        DAO_Message::CREATED_DATE => time(),
 	        DAO_Message::ADDRESS_ID => $fromAddressId,
 	        DAO_Message::IS_OUTGOING => 1,
-	        DAO_Message::WORKER_ID => (!empty($worker->id) ? $worker->id : 0),
+    		DAO_Message::WORKER_ID => intval($worker_id),
 	        DAO_Message::IS_BROADCAST => $is_broadcast ? 1 : 0,
 	    );
 		$message_id = DAO_Message::create($fields);

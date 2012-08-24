@@ -428,6 +428,7 @@ class ChTicketsPage extends CerberusPageExtension {
 			'forward_files' => $file_ids,
 			'closed' => $closed,
 			'ticket_reopen' => $ticket_reopen,
+			'worker_id' => $active_worker->id,
 		);
 		
 		// Custom fields

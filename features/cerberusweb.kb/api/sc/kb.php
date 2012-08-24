@@ -82,6 +82,7 @@ class UmScKbController extends Extension_UmScController {
 		        $params[SearchFields_KbArticle::TOP_CATEGORY_ID] = new DevblocksSearchCriteria(SearchFields_KbArticle::TOP_CATEGORY_ID,'in',array_keys($kb_roots));
 		        
 		        $view->addParams($params, true);
+		        $view->renderPage = 0;
 		        
 				UmScAbstractViewLoader::setView($view->id, $view);
 				$tpl->assign('view', $view);

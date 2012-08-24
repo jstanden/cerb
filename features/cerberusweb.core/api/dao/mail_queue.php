@@ -382,6 +382,9 @@ class Model_MailQueue {
 			$properties['org_id'] = intval($this->params['org_id']);
 		}
 		
+		// Worker
+		$properties['worker_id'] = empty($this->worker_id) ? $this->worker_id : 0;
+		
 		// Files + Next step
 		//'files' => $files,
 
