@@ -2336,7 +2336,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		$events = Extension_DevblocksEvent::getByContext($context, false);
 		$tpl->assign('events', $events);
 		
-		$triggers = DAO_TriggerEvent::getByOwner($context, $context_id, null, true);
+		$triggers = DAO_TriggerEvent::getByOwner($context, $context_id, null, true, 'pos');
 		$tpl->assign('triggers', $triggers);
 
 		$triggers_by_event = array();

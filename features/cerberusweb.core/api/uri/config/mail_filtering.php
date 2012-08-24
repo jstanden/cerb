@@ -37,7 +37,7 @@ class PageSection_SetupMailFiltering extends Extension_PageSection {
 		$tpl->assign('events', $events);
 		
 		// Triggers
-		$triggers = DAO_TriggerEvent::getByOwner($context, $context_id, 'event.mail.received.app', true);
+		$triggers = DAO_TriggerEvent::getByOwner($context, $context_id, 'event.mail.received.app', true, 'pos');
 		$tpl->assign('triggers', $triggers);
 
 		$triggers_by_event = array();
