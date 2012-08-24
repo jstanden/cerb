@@ -1099,7 +1099,8 @@ class DevblocksEventHelper {
 			DAO_MailQueue::SUBJECT => $dict->ticket_subject,
 			DAO_MailQueue::BODY => $content,
 			DAO_MailQueue::PARAMS_JSON => json_encode(array(
-				'in_reply_message_id' => $message_id,				
+				'in_reply_message_id' => $message_id,
+				'is_broadcast' => 1,
 			)),
 			DAO_MailQueue::TICKET_ID => $ticket_id,
 			DAO_MailQueue::WORKER_ID => 0,

@@ -953,6 +953,7 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals {
 						'to' => $tpl_dict->address,
 						'group_id' => $params['group_id'],
 						'next_is_closed' => $next_is_closed,
+						'is_broadcast' => 1,
 					);
 					
 					$fields = array(

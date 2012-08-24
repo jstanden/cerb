@@ -143,6 +143,9 @@ class CerberusMail {
 		
 		@$group_id = $properties['group_id'];
 		@$bucket_id = intval($properties['bucket_id']);
+		
+		@$is_broadcast = intval($properties['is_broadcast']);
+		
 		$properties['worker_id'] = $worker->id;
 	
 		if(null == ($group = DAO_Group::get($group_id)))
@@ -357,6 +360,7 @@ class CerberusMail {
 	        DAO_Message::ADDRESS_ID => $fromAddressId,
 	        DAO_Message::IS_OUTGOING => 1,
 	        DAO_Message::WORKER_ID => (!empty($worker->id) ? $worker->id : 0),
+	        DAO_Message::IS_BROADCAST => $is_broadcast ? 1 : 0,
 	    );
 		$message_id = DAO_Message::create($fields);
 	    
@@ -443,7 +447,7 @@ class CerberusMail {
 	    'draft_id'
 	    'message_id'
 	    'is_forward'
-	    -----'ticket_id'
+		'is_broadcast'
 		'subject'
 	    'to'
 	    'cc'
@@ -486,7 +490,8 @@ class CerberusMail {
 		    // Re-read properties
 		    @$content = $properties['content'];
 		    @$files = $properties['files'];
-		    @$is_forward = $properties['is_forward']; 
+		    @$is_forward = $properties['is_forward'];
+		    @$is_broadcast = $properties['is_broadcast'];
 		    @$forward_files = $properties['forward_files'];
 		    @$worker_id = $properties['worker_id'];
 		    @$subject = $properties['subject'];
@@ -760,6 +765,7 @@ class CerberusMail {
 		        DAO_Message::IS_OUTGOING => 1,
 		        DAO_Message::WORKER_ID => (!empty($worker_id) ? $worker_id : 0),
 		    	DAO_Message::RESPONSE_TIME => $response_time,
+		    	DAO_Message::IS_BROADCAST => $is_broadcast ? 1 : 0,
 		    );
 			$message_id = DAO_Message::create($fields);
 		    

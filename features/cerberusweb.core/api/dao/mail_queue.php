@@ -344,6 +344,10 @@ class Model_MailQueue {
 			'draft_id' => $this->id,
 		);
 
+		// Broadcast?
+		if(isset($this->params['is_broadcast']))
+			$properties['is_broadcast'] = intval($this->params['is_broadcast']);
+		
 		// From
 		if(!isset($this->params['group_id']))
 			return false;
@@ -408,7 +412,11 @@ class Model_MailQueue {
 		// Auto-reply
 		if(isset($this->params['is_autoreply']) && !empty($this->params['is_autoreply']))
 			$properties['is_autoreply'] = true;
-			
+
+		// Broadcast?
+		if(isset($this->params['is_broadcast']))
+			$properties['is_broadcast'] = intval($this->params['is_broadcast']);
+		
 		// To
 		if(isset($this->params['to']))
 			$properties['to'] = $this->params['to'];

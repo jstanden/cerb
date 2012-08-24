@@ -52,9 +52,21 @@ if(!isset($tables['message'])) {
 
 list($columns, $indexes) = $db->metaTable('message');
 
-if(!isset($columns['response_time'])) {
-	$db->Execute("ALTER TABLE message ADD COLUMN response_time INT UNSIGNED NOT NULL DEFAULT 0");
-	
+$add_columns = array(
+	'response_time' => 'ADD COLUMN response_time INT UNSIGNED NOT NULL DEFAULT 0',
+	'is_broadcast' => 'ADD COLUMN is_broadcast TINYINT UNSIGNED NOT NULL DEFAULT 0',
+);
+
+foreach($add_columns as $column => $alter_sql) {
+	if(isset($columns[$column]))
+		unset($add_columns[$column]);
+}
+
+// Alter the table
+if(!empty($add_columns))
+	$db->Execute("ALTER TABLE message " . implode(', ', $add_columns));
+
+if(isset($add_columns['response_time'])) {
 	// initialize variables
 	$db->Execute("DROP TABLE IF EXISTS _tmp_message_pairs");
 	$db->Execute("DROP TABLE IF EXISTS _tmp_response_times");
@@ -72,15 +84,16 @@ if(!isset($columns['response_time'])) {
 	// Clear rows with no response time (e.g. dupes and non-pairs)
 	$db->Execute("DELETE FROM _tmp_response_times WHERE response_time = 0;");
 	
-	// Clear impossible feats
-	//$db->Execute("DELETE FROM _tmp_response_times WHERE response_time < 5;");
-	
 	// Copy values to message table
 	$db->Execute("UPDATE message INNER JOIN _tmp_response_times ON (_tmp_response_times.id=message.id) SET message.response_time = _tmp_response_times.response_time;");
 
 	// Clean up
 	$db->Execute("DROP TABLE IF EXISTS _tmp_message_pairs");
 	$db->Execute("DROP TABLE IF EXISTS _tmp_response_times");
+}
+
+if(isset($add_columns['is_broadcast'])) {
+	$db->Execute("UPDATE message SET is_broadcast=1 WHERE is_outgoing=1 AND worker_id=0");
 }
 
 // ===========================================================================

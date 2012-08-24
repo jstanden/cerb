@@ -1489,6 +1489,9 @@ For example: http://www.cerberusweb.com/support/</seg></tuv>
 		<tu tuid='message.created_date'>
 			<tuv xml:lang="en_US"><seg>Created</seg></tuv>
 		</tu>
+		<tu tuid='message.is_broadcast'>
+			<tuv xml:lang="en_US"><seg>Is Broadcast</seg></tuv>
+		</tu>
 		<tu tuid='message.is_outgoing'>
 			<tuv xml:lang="en_US"><seg>Is Outgoing</seg></tuv>
 		</tu>

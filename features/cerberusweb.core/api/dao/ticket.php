@@ -2822,6 +2822,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 							DAO_MailQueue::BODY => $body,
 							DAO_MailQueue::PARAMS_JSON => json_encode(array(
 								'in_reply_message_id' => $row[SearchFields_Ticket::TICKET_FIRST_MESSAGE_ID],
+								'is_broadcast' => 1,
 							)),
 						);
 						

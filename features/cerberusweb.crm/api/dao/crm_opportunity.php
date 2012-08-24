@@ -976,6 +976,7 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 						'to' => $tpl_dict->email_address,
 						'group_id' => $params['group_id'],
 						'next_is_closed' => $next_is_closed,
+						'is_broadcast' => 1,
 					);
 					
 					$fields = array(
