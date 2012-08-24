@@ -144,7 +144,7 @@ class CerberusMail {
 		@$worker_id = $properties['worker_id'];
 		
 		if(empty($worker_id) && null != ($worker = CerberusApplication::getActiveWorker()))
-			$$worker_id = $worker->id;
+			$worker_id = $worker->id;
 	
 		if(null == ($group = DAO_Group::get($group_id)))
 			return;
