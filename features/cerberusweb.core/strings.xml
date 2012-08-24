@@ -1498,6 +1498,9 @@ For example: http://www.cerberusweb.com/support/</seg></tuv>
 		<tu tuid='message.storage_size'>
 			<tuv xml:lang="en_US"><seg>Size</seg></tuv>
 		</tu>
+		<tu tuid='message.response_time'>
+			<tuv xml:lang="en_US"><seg>Response Time</seg></tuv>
+		</tu>
 
 		<!-- Preferences -->
 
