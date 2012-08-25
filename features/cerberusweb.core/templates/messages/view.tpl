@@ -85,6 +85,10 @@
 					{$workers.{$worker_id}->getName()}
 				{/if}
 				</td>
+			{elseif $column=="m_is_outgoing" || $column=="m_is_broadcast"}
+				<td>
+					{if !empty($result.$column)}{'common.yes'|devblocks_translate|lower}{else}{'common.no'|devblocks_translate|lower}{/if}
+				</td>
 			{elseif $column=="m_created_date"}
 				<td><abbr title="{$result.$column|devblocks_date}">{$result.$column|devblocks_prettytime}</abbr>&nbsp;</td>
 			{elseif $column=="m_response_time"}
