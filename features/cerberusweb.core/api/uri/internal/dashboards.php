@@ -610,7 +610,7 @@ class WorkspaceWidget_Chart extends Extension_WorkspaceWidget {
 									'x' => $histo,
 									'y' => (float)$value,
 									'x_label' => strftime($date_label, $current_tick),
-									'y_label' => (float)$value,
+									'y_label' => ((int) $value != $value) ? sprintf("%0.2f", $value) : sprintf("%d", $value),
 								);
 								
 								$current_tick = strtotime(sprintf('+1 %s', $xaxis_tick), $current_tick);
