@@ -223,12 +223,40 @@ class _DevblocksCacheManagerDisk extends _DevblocksCacheManagerAbstract {
 	
 	function load($key) {
 		$key = $this->_options['key_prefix'] . $key;
-		return @unserialize(file_get_contents($this->_getPath() . $this->_getFilename($key)));
+		
+		$wrapper = @unserialize(file_get_contents($this->_getPath() . $this->_getFilename($key)));
+		
+		// If this is wrapped data, check the cache expiration
+		if(is_array($wrapper) && isset($wrapper['data'])) {
+			if(isset($wrapper['cache_until']) && !empty($wrapper['cache_until'])) {
+				// If expired, kill it
+				if(intval($wrapper['cache_until']) < time()) {
+					self::remove($key);
+					return NULL;
+				}
+			}
+			
+			// If not expired, return the data
+			return $wrapper['data'];
+		}
+		
+		// If this wasn't wrapped, return whatever it was
+		return $wrapper;
 	}
 	
 	function save($data, $key, $tags=array(), $lifetime=0) {
 		$key = $this->_options['key_prefix'] . $key;
-		return file_put_contents($this->_getPath() . $this->_getFilename($key), serialize($data));
+		
+		$wrapper = array(
+			'data' => $data,
+		);
+		
+		// Are we setting a lifetime?
+		if(!empty($lifetime)) {
+			$wrapper['cache_until'] = time() + $lifetime;
+		}
+		
+		return file_put_contents($this->_getPath() . $this->_getFilename($key), serialize($wrapper));
 	}
 	
 	function remove($key) {
