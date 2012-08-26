@@ -327,6 +327,105 @@ class WorkspaceWidget_Gauge extends Extension_WorkspaceWidget {
 			case 'manual':
 				break;
 				
+			case 'url':
+				$cache = DevblocksPlatform::getCacheService();
+
+				@$url = $widget->params['url'];
+
+				@$cache_mins = $widget->params['url_cache_mins'];
+				$cache_mins = max(1, intval($cache_mins));
+				
+				$cache_key = sprintf("widget%d_datasource", $widget->id);
+				
+				if(null === ($data = $cache->load($cache_key))) {
+					$ch = curl_init($url);
+					curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+					curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+					$raw_data = curl_exec($ch);
+					$info = curl_getinfo($ch);
+					
+					//@$status = $info['http_code'];
+					@$content_type = strtolower($info['content_type']);					
+					
+					$data = array(
+						'raw_data' => $raw_data,
+						'info' => $info,
+					);
+					
+					DAO_WorkspaceWidget::update($widget->id, array(
+						DAO_WorkspaceWidget::UPDATED_AT => time(), 
+					));
+					
+					$cache->save($data, $cache_key, array(), $cache_mins*60);
+					
+				}
+
+				$content_type = $data['info']['content_type'];
+				$raw_data = $data['raw_data'];
+				
+				if(empty($raw_data) || empty($content_type)) {
+					// [TODO] Die...
+				}
+				
+				$url_format = '';
+				
+				switch($content_type) {
+					case 'application/json':
+					case 'text/json':
+						$url_format = 'json';
+						break;
+						
+					case 'text/xml':
+						$url_format = 'xml';
+						break;
+						
+					default:
+					case 'text/plain':
+						$url_format = 'text';
+						break;
+				}
+
+				switch($url_format) {
+					case 'json':
+						if(false != (@$json = json_decode($raw_data, true))) {
+							if(isset($json['value']))
+								$widget->params['metric_value'] = floatval($json['value']);
+
+							if((isset($widget->params['metric_type']) && !empty($widget->params['metric_type'])) && isset($json['type']))
+								$widget->params['metric_type'] = $json['type'];
+
+							if((isset($widget->params['metric_prefix']) && !empty($widget->params['metric_prefix'])) && isset($json['prefix']))
+								$widget->params['metric_prefix'] = $json['prefix'];
+							
+							if((isset($widget->params['metric_suffix']) && !empty($widget->params['metric_suffix'])) && isset($json['suffix']))
+								$widget->params['metric_suffix'] = $json['suffix'];
+						}
+						break;
+						
+					case 'xml':
+						if(null != ($xml = simplexml_load_string($raw_data))) {
+							if(isset($xml->value))
+								$widget->params['metric_value'] = (float)$xml->value;
+
+							if((isset($widget->params['metric_type']) && !empty($widget->params['metric_type'])) && isset($xml->type))
+								$widget->params['metric_type'] = (string) $xml->type;
+
+							if((isset($widget->params['metric_prefix']) && !empty($widget->params['metric_prefix'])) && isset($xml->prefix))
+								$widget->params['metric_prefix'] = (string) $xml->prefix;
+							
+							if((isset($widget->params['metric_suffix']) && !empty($widget->params['metric_suffix'])) && isset($xml->suffix))
+								$widget->params['metric_suffix'] = (string) $xml->suffix;
+						}
+						break;
+						
+					default:
+					case 'text':
+						$widget->params['metric_value'] = floatval($raw_data);
+						break;
+				}
+				
+				break;
+				
 			default:
 				break;
 		}
@@ -397,6 +496,13 @@ class WorkspaceWidget_Gauge extends Extension_WorkspaceWidget {
 		DAO_WorkspaceWidget::update($widget->id, array(
 			DAO_WorkspaceWidget::PARAMS_JSON => json_encode($params),
 		));
+
+		// Clear caches
+		$cache = DevblocksPlatform::getCacheService();
+		$cache->remove(sprintf("widget%d_datasource", $widget->id));
+	}
+};
+
 	}
 };
 

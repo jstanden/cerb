@@ -31,6 +31,7 @@
     	<label><input type="radio" name="params[datasource]" value="" {if empty($widget->params.datasource)}checked="checked"{/if}> Manual</label>
     	<label><input type="radio" name="params[datasource]" value="worklist" {if $widget->params.datasource=='worklist'}checked="checked"{/if}> Worklist</label>
     	<label><input type="radio" name="params[datasource]" value="sensor" {if $widget->params.datasource=='sensor'}checked="checked"{/if}> Sensor</label>
+    	<label><input type="radio" name="params[datasource]" value="url" {if $widget->params.datasource=='url'}checked="checked"{/if}> URL</label>
     	
     	<fieldset class="peek manual" style="display:{if empty($widget->params.datasource)}block{else}none{/if};">
     	<table cellspacing="0" cellpadding="0" border="0">
@@ -147,6 +148,21 @@
     			<option value="{$sensor->id}" {if $widget->params.sensor_id==$sensor->id}selected="selected"{/if}>{$sensor->name}</option>
     			{/foreach}
     		</select>
+    	</fieldset>
+    	
+    	<fieldset class="peek url" style="display:{if $widget->params.datasource=='url'}block{else}none{/if};">
+    		<b>URL</b> is 
+    		<input type="text" name="params[url]" value="{$widget->params.url}" size="64">
+    		<br>
+    		
+    		<b>Cache</b> for 
+    		<input type="text" name="params[url_cache_mins]" value="{$widget->params.url_cache_mins|number_format}" size="3" maxlength="3"> 
+    		minute(s)
+    		<br>
+    		
+    		{* [TODO] HTTP security *}
+    		{* [TODO] Doc: API key, IP firewall, user:pass@host *}
+    		    		
     	</fieldset>
 	</div>
 </div>
