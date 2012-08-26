@@ -40,6 +40,10 @@ if(!isset($tables['workspace_widget'])) {
 	$db->Execute($sql);
 
 	$tables['workspace_widget'] = 'workspace_widget';
+	
+} else {
+	$db->Execute("UPDATE workspace_widget SET extension_id = 'core.workspace.widget.worklist' WHERE extension_id = 'core.workspace.widget.calendar.worklist'");
+	
 }
 
 // ===========================================================================
