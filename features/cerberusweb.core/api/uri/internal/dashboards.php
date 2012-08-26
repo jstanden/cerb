@@ -290,8 +290,8 @@ class WorkspaceWidget_Gauge extends Extension_WorkspaceWidget {
 				}						
 					
 				$sql = sprintf("SELECT %s AS needle_value " .
-					$query_parts['join'].
-					$query_parts['where'],
+					str_replace('%','%%',$query_parts['join']).
+					str_replace('%','%%',$query_parts['where']),
 					$select_func
 				);
 				
@@ -535,8 +535,8 @@ class WorkspaceWidget_Chart extends Extension_WorkspaceWidget {
 									$xaxis_field->db_column,
 									$date_format
 								).
-								$query_parts['join'].
-								$query_parts['where'].
+								str_replace('%','%%',$query_parts['join']).
+								str_replace('%','%%',$query_parts['where']).
 								sprintf("GROUP BY DATE_FORMAT(FROM_UNIXTIME(%s.%s), '%s') ",
 									$xaxis_field->db_table,
 									$xaxis_field->db_column,
@@ -639,7 +639,7 @@ class WorkspaceWidget_Chart extends Extension_WorkspaceWidget {
 							switch($xaxis_field->token) {
 								case '_id':
 									$order_by = null;
-									$group_by = sprintf("GROUP BY %s.id ", $query_parts['primary_table']);
+									$group_by = sprintf("GROUP BY %s.id ", str_replace('%','%%',$query_parts['primary_table']));
 									
 									if(isset($fields[$view->renderSortBy])) {
 										$order_by = sprintf("ORDER BY %s.%s %s",
@@ -650,7 +650,7 @@ class WorkspaceWidget_Chart extends Extension_WorkspaceWidget {
 									}
 									
 									if(empty($order_by))
-										$order_by = sprintf("ORDER BY %s.id ", $query_parts['primary_table']);
+										$order_by = sprintf("ORDER BY %s.id ", str_replace('%','%%',$query_parts['primary_table']));
 									
 									break;
 								
@@ -715,8 +715,8 @@ class WorkspaceWidget_Chart extends Extension_WorkspaceWidget {
 							}
 							
 							$sql = sprintf("SELECT %s AS yaxis, %s.%s AS xaxis " .
-								$query_parts['join'].
-								$query_parts['where'].
+								str_replace('%','%%',$query_parts['join']).
+								str_replace('%','%%',$query_parts['where']).
 								"%s ".
 								"%s ",
 									$select_func,
