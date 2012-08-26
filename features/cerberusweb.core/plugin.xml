@@ -2241,6 +2241,17 @@
 		</extension>
 		
 		<extension point="cerberusweb.ui.workspace.widget">
+			<id>core.workspace.widget.counter</id>
+			<name>Counter</name>
+			<class>
+				<file>api/uri/internal/dashboards.php</file>
+				<name>WorkspaceWidget_Counter</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+	
+		<extension point="cerberusweb.ui.workspace.widget">
 			<id>core.workspace.widget.subtotals</id>
 			<name>Subtotals</name>
 			<class>

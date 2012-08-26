@@ -503,6 +503,265 @@ class WorkspaceWidget_Gauge extends Extension_WorkspaceWidget {
 	}
 };
 
+class WorkspaceWidget_Counter extends Extension_WorkspaceWidget {
+	function render(Model_WorkspaceWidget $widget) {
+		$tpl = DevblocksPlatform::getTemplateService();
+
+		switch(@$widget->params['datasource']) {
+			case 'worklist':
+				if(null == ($view_model = self::getParamsViewModel($widget, $widget->params)))
+					return;
+				
+				if(null == ($context_ext = Extension_DevblocksContext::get($widget->params['view_context'])))
+					return;
+	
+				if(null == ($dao_class = @$context_ext->manifest->params['dao_class']))
+					return;
+				
+				// Force reload parameters (we can't trust the session)
+				if(false == ($view = C4_AbstractViewLoader::unserializeAbstractView($view_model)))
+					return;
+				
+				C4_AbstractViewLoader::setView($view->id, $view);
+				
+				$view->renderPage = 0;
+				$view->renderLimit = 1;
+				
+				$query_parts = $dao_class::getSearchQueryComponents(
+					$view->view_columns,
+					$view->getParams(),
+					$view->renderSortBy,
+					$view->renderSortAsc
+				);
+				
+				$db = DevblocksPlatform::getDatabaseService();
+				
+				// We need to know what date fields we have
+				$fields = $view->getFields();
+				@$counter_func = $widget->params['counter_func'];
+				@$counter_field = $fields[$widget->params['counter_field']];
+						
+				if(empty($counter_func))
+					$counter_func = 'count';
+				
+				switch($counter_func) {
+					case 'sum':
+						$select_func = sprintf("SUM(%s.%s)",
+							$counter_field->db_table,
+							$counter_field->db_column
+						);
+						break;
+						
+					case 'avg':
+						$select_func = sprintf("AVG(%s.%s)",
+							$counter_field->db_table,
+							$counter_field->db_column
+						);
+						break;
+						
+					case 'min':
+						$select_func = sprintf("MIN(%s.%s)",
+							$counter_field->db_table,
+							$counter_field->db_column
+						);
+						break;
+						
+					case 'max':
+						$select_func = sprintf("MAX(%s.%s)",
+							$counter_field->db_table,
+							$counter_field->db_column
+						);
+						break;
+						
+					default:
+					case 'count':
+						$select_func = 'COUNT(*)';
+						break;
+				}						
+					
+				$sql = sprintf("SELECT %s AS counter_value " .
+					str_replace('%','%%',$query_parts['join']).
+					str_replace('%','%%',$query_parts['where']),
+					$select_func
+				);
+				
+				$counter_value = $db->GetOne($sql);
+				
+				$widget->params['metric_value'] = $counter_value;
+				break;
+				
+			case 'sensor':
+				if(class_exists('DAO_DatacenterSensor', true)
+					&& null != ($sensor_id = @$widget->params['sensor_id'])
+					&& null != ($sensor = DAO_DatacenterSensor::get($sensor_id))
+					) {
+						switch($sensor->metric_type) {
+							case 'decimal':
+								$widget->params['metric_value'] = floatval($sensor->metric);
+								//$widget->params['metric_type'] = $sensor->metric_type;
+								break;
+							case 'percent':
+								$widget->params['metric_value'] = intval($sensor->metric);
+								//$widget->params['metric_type'] = $sensor->metric_type;
+								break;
+						}
+					}
+				break;
+				
+			case 'manual':
+				break;
+				
+			case 'url':
+				$cache = DevblocksPlatform::getCacheService();
+
+				@$url = $widget->params['url'];
+
+				@$cache_mins = $widget->params['url_cache_mins'];
+				$cache_mins = max(1, intval($cache_mins));
+				
+				$cache_key = sprintf("widget%d_datasource", $widget->id);
+				
+				if(null === ($data = $cache->load($cache_key))) {
+					$ch = curl_init($url);
+					curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+					curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+					$raw_data = curl_exec($ch);
+					$info = curl_getinfo($ch);
+					
+					//@$status = $info['http_code'];
+					@$content_type = strtolower($info['content_type']);					
+					
+					$data = array(
+						'raw_data' => $raw_data,
+						'info' => $info,
+					);
+					
+					DAO_WorkspaceWidget::update($widget->id, array(
+						DAO_WorkspaceWidget::UPDATED_AT => time(), 
+					));
+					
+					$cache->save($data, $cache_key, array(), $cache_mins*60);
+					
+				}
+
+				$content_type = $data['info']['content_type'];
+				$raw_data = $data['raw_data'];
+				
+				if(empty($raw_data) || empty($content_type)) {
+					// [TODO] Die...
+				}
+				
+				$url_format = '';
+				
+				switch($content_type) {
+					case 'application/json':
+					case 'text/json':
+						$url_format = 'json';
+						break;
+						
+					case 'text/xml':
+						$url_format = 'xml';
+						break;
+						
+					default:
+					case 'text/plain':
+						$url_format = 'text';
+						break;
+				}
+
+				switch($url_format) {
+					case 'json':
+						if(false != (@$json = json_decode($raw_data, true))) {
+							if(isset($json['value']))
+								$widget->params['metric_value'] = floatval($json['value']);
+
+							if((isset($widget->params['metric_type']) && !empty($widget->params['metric_type'])) && isset($json['type']))
+								$widget->params['metric_type'] = $json['type'];
+
+							if((isset($widget->params['metric_prefix']) && !empty($widget->params['metric_prefix'])) && isset($json['prefix']))
+								$widget->params['metric_prefix'] = $json['prefix'];
+							
+							if((isset($widget->params['metric_suffix']) && !empty($widget->params['metric_suffix'])) && isset($json['suffix']))
+								$widget->params['metric_suffix'] = $json['suffix'];
+						}
+						break;
+						
+					case 'xml':
+						if(null != ($xml = simplexml_load_string($raw_data))) {
+							if(isset($xml->value))
+								$widget->params['metric_value'] = (float)$xml->value;
+
+							if((isset($widget->params['metric_type']) && !empty($widget->params['metric_type'])) && isset($xml->type))
+								$widget->params['metric_type'] = (string) $xml->type;
+
+							if((isset($widget->params['metric_prefix']) && !empty($widget->params['metric_prefix'])) && isset($xml->prefix))
+								$widget->params['metric_prefix'] = (string) $xml->prefix;
+							
+							if((isset($widget->params['metric_suffix']) && !empty($widget->params['metric_suffix'])) && isset($xml->suffix))
+								$widget->params['metric_suffix'] = (string) $xml->suffix;
+						}
+						break;
+						
+					default:
+					case 'text':
+						$widget->params['metric_value'] = floatval($raw_data);
+						break;
+				}
+				
+				break;
+				
+			default:
+				break;
+		}
+		
+		$tpl->assign('widget', $widget);
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/counter/counter.tpl');
+	}
+	
+	// Config
+	
+	function renderConfig(Model_WorkspaceWidget $widget) {
+		if(empty($widget))
+			return;
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		
+		// Widget
+		
+		$tpl->assign('widget', $widget);
+		
+		// Worklists
+		
+		$context_mfts = Extension_DevblocksContext::getAll(false, 'workspace');
+		$tpl->assign('context_mfts', $context_mfts);
+		
+		// Sensors
+		
+		if(class_exists('DAO_DatacenterSensor', true)) {
+			$sensors = DAO_DatacenterSensor::getWhere();
+			foreach($sensors as $sensor_id => $sensor) {
+				if(!in_array($sensor->metric_type, array('decimal','percent')))
+					unset($sensors[$sensor_id]);
+			}
+			$tpl->assign('sensors', $sensors);
+		}
+		
+		// Template
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/counter/config.tpl');
+	}
+	
+	function saveConfig(Model_WorkspaceWidget $widget) {
+		@$params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', array());		
+		
+		DAO_WorkspaceWidget::update($widget->id, array(
+			DAO_WorkspaceWidget::PARAMS_JSON => json_encode($params),
+		));
+
+		// Clear caches
+		$cache = DevblocksPlatform::getCacheService();
+		$cache->remove(sprintf("widget%d_datasource", $widget->id));
 	}
 };
 
