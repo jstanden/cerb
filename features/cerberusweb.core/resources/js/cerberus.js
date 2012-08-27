@@ -235,25 +235,25 @@ var cAjaxCalls = function() {
 		switch(action) {
 			case 'merge':
 				genericAjaxPost(formName, '', 'c=tickets&a=viewMergeTickets&view_id='+view_id, function(html) {
-					$('#'+divName).html(html);
+					$('#'+divName).html(html).trigger('view_refresh');
 					hideLoadingPanel();
 				});
 				break;
 			case 'not_spam':
 				genericAjaxPost(formName, '', 'c=tickets&a=viewNotSpamTickets&view_id='+view_id, function(html) {
-					$('#'+divName).html(html);
+					$('#'+divName).html(html).trigger('view_refresh');
 					hideLoadingPanel();
 				});
 				break;
 			case 'waiting':
 				genericAjaxPost(formName, '', 'c=tickets&a=viewWaitingTickets&view_id='+view_id, function(html) {
-					$('#'+divName).html(html);
+					$('#'+divName).html(html).trigger('view_refresh');
 					hideLoadingPanel();
 				});
 				break;
 			case 'not_waiting':
 				genericAjaxPost(formName, '', 'c=tickets&a=viewNotWaitingTickets&view_id='+view_id, function(html) {
-					$('#'+divName).html(html);
+					$('#'+divName).html(html).trigger('view_refresh');
 					hideLoadingPanel();
 				});
 				break;
@@ -272,19 +272,19 @@ var cAjaxCalls = function() {
 		switch(mode) {
 			case 1: // spam
 				genericAjaxPost(formName, '', 'c=tickets&a=viewSpamTickets&view_id=' + view_id, function(html) {
-					$('#'+divName).html(html);
+					$('#'+divName).html(html).trigger('view_refresh');
 					hideLoadingPanel();
 				});
 				break;
 			case 2: // delete
 				genericAjaxPost(formName, '', 'c=tickets&a=viewDeleteTickets&view_id=' + view_id, function(html) {
-					$('#'+divName).html(html);
+					$('#'+divName).html(html).trigger('view_refresh');
 					hideLoadingPanel();
 				});
 				break;
 			default: // close
 				genericAjaxPost(formName, '', 'c=tickets&a=viewCloseTickets&view_id=' + view_id, function(html) {
-					$('#'+divName).html(html);
+					$('#'+divName).html(html).trigger('view_refresh');
 					hideLoadingPanel();
 				});
 				break;
@@ -369,7 +369,7 @@ var cAjaxCalls = function() {
 	this.viewUndo = function(view_id) {
 		genericAjaxGet('','c=tickets&a=viewUndo&view_id=' + view_id,
 			function(html) {
-				$('#view'+view_id).html(html);
+				$('#view'+view_id).html(html).trigger('view_refresh');
 			}
 		);		
 	}

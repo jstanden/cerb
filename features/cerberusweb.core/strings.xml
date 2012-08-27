@@ -549,9 +549,6 @@
 		<tu tuid='common.watchers'>
 			<tuv xml:lang="en_US"><seg>watchers</seg></tuv>
 		</tu>
-		<tu tuid='common.watchers.add_me'>
-			<tuv xml:lang="en_US"><seg>Notify me about new activity</seg></tuv>
-		</tu>
 		<tu tuid='common.week'>
 			<tuv xml:lang="en_US"><seg>week</seg></tuv>
 		</tu>
@@ -812,6 +809,9 @@
 		</tu>
 		<tu tuid='address.is_banned'>
 			<tuv xml:lang="en_US"><seg>Is Banned</seg></tuv>
+		</tu>
+		<tu tuid='address.is_defunct'>
+			<tuv xml:lang="en_US"><seg>Is Defunct</seg></tuv>
 		</tu>
 		<tu tuid='address.last_name'>
 			<tuv xml:lang="en_US"><seg>Last Name</seg></tuv>
@@ -1489,11 +1489,17 @@ For example: http://www.cerberusweb.com/support/</seg></tuv>
 		<tu tuid='message.created_date'>
 			<tuv xml:lang="en_US"><seg>Created</seg></tuv>
 		</tu>
+		<tu tuid='message.is_broadcast'>
+			<tuv xml:lang="en_US"><seg>Is Broadcast</seg></tuv>
+		</tu>
 		<tu tuid='message.is_outgoing'>
 			<tuv xml:lang="en_US"><seg>Is Outgoing</seg></tuv>
 		</tu>
 		<tu tuid='message.storage_size'>
 			<tuv xml:lang="en_US"><seg>Size</seg></tuv>
+		</tu>
+		<tu tuid='message.response_time'>
+			<tuv xml:lang="en_US"><seg>Response Time</seg></tuv>
 		</tu>
 
 		<!-- Preferences -->
@@ -1679,14 +1685,20 @@ For example: *receipt*</seg></tuv>
 		<tu tuid='ticket.assignable'>
 			<tuv xml:lang="en_US"><seg>Assignable</seg></tuv>
 		</tu>
-		<tu tuid='ticket.created'>
-			<tuv xml:lang="en_US"><seg>Created</seg></tuv>
+		<tu tuid='ticket.closed_at'>
+			<tuv xml:lang="en_US"><seg>Closed</seg></tuv>
 		</tu>
 		<tu tuid='ticket.due'>
 			<tuv xml:lang="en_US"><seg>Due</seg></tuv>
 		</tu>
 		<tu tuid='ticket.id'>
 			<tuv xml:lang="en_US"><seg>Ticket ID</seg></tuv>
+		</tu>
+		<tu tuid='ticket.elapsed_response_first'>
+			<tuv xml:lang="en_US"><seg>First Response</seg></tuv>
+		</tu>
+		<tu tuid='ticket.elapsed_resolution_first'>
+			<tuv xml:lang="en_US"><seg>First Resolution</seg></tuv>
 		</tu>
 		<tu tuid='ticket.first_wrote'>
 			<tuv xml:lang="en_US"><seg>First Wrote</seg></tuv>
@@ -1723,8 +1735,8 @@ For example: *receipt*</seg></tuv>
 		<tu tuid='ticket.recipients.empty'>
 			<tuv xml:lang="en_US"><seg>This ticket has no recipients.</seg></tuv>
 		</tu>
-		<tu tuid='ticket.reopen_date'>
-			<tuv xml:lang="en_US"><seg>Reopen Date</seg></tuv>
+		<tu tuid='ticket.reopen_at'>
+			<tuv xml:lang="en_US"><seg>Reopen At</seg></tuv>
 		</tu>
 		<tu tuid='ticket.requester'>
 			<tuv xml:lang="en_US"><seg>Recipient</seg></tuv>
@@ -1743,9 +1755,6 @@ For example: *receipt*</seg></tuv>
 		</tu>
 		<tu tuid='ticket.subject'>
 			<tuv xml:lang="en_US"><seg>Subject</seg></tuv>
-		</tu>
-		<tu tuid='ticket.updated'>
-			<tuv xml:lang="en_US"><seg>Updated</seg></tuv>
 		</tu>
 
 		<!-- Spam Training -->
@@ -1823,6 +1832,12 @@ For example: *receipt*</seg></tuv>
 		</tu>
 		<tu tuid='worker.title'>
 			<tuv xml:lang="en_US"><seg>Title</seg></tuv>
+		</tu>
+
+		<!-- Workspaces -->
+		
+		<tu tuid='core.workspace.dashboard'>
+			<tuv xml:lang="en_US"><seg>Dashboard</seg></tuv>
 		</tu>
 
 		<!-- Worker Event -->

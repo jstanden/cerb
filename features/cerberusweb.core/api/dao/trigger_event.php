@@ -1,6 +1,6 @@
 <?php
 /***********************************************************************
-| Cerberus Helpdesk(tm) developed by WebGroup Media, LLC.
+| Cerb(tm) developed by WebGroup Media, LLC.
 |-----------------------------------------------------------------------
 | All source code & content (c) Copyright 2012, WebGroup Media LLC
 |   unless specifically noted otherwise.
@@ -97,7 +97,7 @@ class DAO_TriggerEvent extends C4_ORMHelper {
 	 * @param string $event_point
 	 * @return Model_TriggerEvent[]
 	 */
-	static function getByOwner($context, $context_id, $event_point=null, $with_disabled=false) {
+	static function getByOwner($context, $context_id, $event_point=null, $with_disabled=false, $sort_by='title') {
 		$behaviors = self::getAll();
 		$results = array();
 
@@ -129,7 +129,17 @@ class DAO_TriggerEvent extends C4_ORMHelper {
 			}
 		}
 		
-		DevblocksPlatform::sortObjects($results, 'title', true);
+		switch($sort_by) {
+			case 'title':
+			case 'pos':
+				break;
+				
+			default:
+				$sort_by = 'title';
+				break;
+		}
+		
+		DevblocksPlatform::sortObjects($results, $sort_by, true);
 		
 		return $results;
 	}

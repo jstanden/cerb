@@ -1,6 +1,6 @@
 <?php
 /***********************************************************************
-| Cerberus Helpdesk(tm) developed by WebGroup Media, LLC.
+| Cerb(tm) developed by WebGroup Media, LLC.
 |-----------------------------------------------------------------------
 | All source code & content (c) Copyright 2012, WebGroup Media LLC
 |   unless specifically noted otherwise.
@@ -112,6 +112,8 @@ abstract class AbstractEvent_Worker extends Extension_DevblocksEvent {
 	function getConditionExtensions() {
 		$labels = $this->getLabels();
 		
+		$labels['worker_calendar'] = 'Worker calendar is...';
+		
 		$types = array(
 			'worker_first_name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'worker_full_name' => Model_CustomField::TYPE_SINGLE_LINE,
@@ -132,6 +134,8 @@ abstract class AbstractEvent_Worker extends Extension_DevblocksEvent {
 			'worker_address_org_province' => Model_CustomField::TYPE_SINGLE_LINE,
 			'worker_address_org_street' => Model_CustomField::TYPE_SINGLE_LINE,
 			'worker_address_org_website' => Model_CustomField::TYPE_URL,
+				
+			'worker_calendar' => null,
 		);
 
 		$conditions = $this->_importLabelsTypesAsConditions($labels, $types);
@@ -147,6 +151,9 @@ abstract class AbstractEvent_Worker extends Extension_DevblocksEvent {
 			$tpl->assign('namePrefix','condition'.$seq);
 		
 		switch($token) {
+			case 'worker_calendar':
+				$tpl->display('devblocks:cerberusweb.core::events/model/worker/condition_worker_calendar.tpl');
+				break;
 		}
 
 		$tpl->clearAssign('namePrefix');
@@ -157,6 +164,26 @@ abstract class AbstractEvent_Worker extends Extension_DevblocksEvent {
 		$pass = true;
 		
 		switch($token) {
+			case 'worker_calendar':
+				@$worker_id = $dict->worker_id;
+				
+				@$from = $params['from'];
+				@$to = $params['to'];
+				$is_available = !empty($params['is_available']) ? 1 : 0;
+				
+				list($results, $null) = DAO_Worker::search(
+					array(),
+					array(
+						SearchFields_Worker::VIRTUAL_CALENDAR_AVAILABILITY => new DevblocksSearchCriteria(SearchFields_Worker::VIRTUAL_CALENDAR_AVAILABILITY, null, array($from, $to, $is_available)),
+						SearchFields_Worker::ID => new DevblocksSearchCriteria(SearchFields_Worker::ID, '=', $worker_id),
+					),
+					1,
+					0
+				);
+
+				$pass = !empty($results) ? true : false;
+				break;
+			
 			default:
 				$pass = false;
 				break;

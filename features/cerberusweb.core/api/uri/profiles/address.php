@@ -1,6 +1,6 @@
 <?php
 /***********************************************************************
-| Cerberus Helpdesk(tm) developed by WebGroup Media, LLC.
+| Cerb(tm) developed by WebGroup Media, LLC.
 |-----------------------------------------------------------------------
 | All source code & content (c) Copyright 2012, WebGroup Media LLC
 |   unless specifically noted otherwise.
@@ -79,6 +79,12 @@ class PageSection_ProfilesAddress extends Extension_PageSection {
 			'label' => ucfirst($translate->_('address.is_banned')),
 			'type' => Model_CustomField::TYPE_CHECKBOX,
 			'value' => $address->is_banned,
+		);
+		
+		$properties['is_defunct'] = array(
+			'label' => ucfirst($translate->_('address.is_defunct')),
+			'type' => Model_CustomField::TYPE_CHECKBOX,
+			'value' => $address->is_defunct,
 		);
 		
 		@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_ADDRESS, $address->id)) or array();

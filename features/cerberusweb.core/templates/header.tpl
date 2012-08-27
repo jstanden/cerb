@@ -3,6 +3,9 @@
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset={$smarty.const.LANG_CHARSET_CODE}">
 	<meta http-equiv="Cache-Control" content="no-cache">
+	<!--[if gte IE 9]>
+	<meta http-equiv="X-UA-Compatible" content="IE=Edge"/>
+	<![endif]-->
 	
 	<title>{$settings->get('cerberusweb.core','helpdesk_title')}</title>
 	<link type="image/x-icon" rel="shortcut icon" href="{devblocks_url}favicon.ico{/devblocks_url}">

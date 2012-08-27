@@ -1,6 +1,6 @@
 <?php
 /***********************************************************************
-| Cerberus Helpdesk(tm) developed by WebGroup Media, LLC.
+| Cerb(tm) developed by WebGroup Media, LLC.
 |-----------------------------------------------------------------------
 | All source code & content (c) Copyright 2012, WebGroup Media LLC
 |   unless specifically noted otherwise.
@@ -119,6 +119,12 @@ class Page_Search extends CerberusPageExtension {
 		$oper = DevblocksSearchCriteria::OPER_EQ;
 		$value = null;
 		
+		if($view instanceof IAbstractView_QuickSearch) {
+			if(false == ($view->quickSearch($token, $query, $oper, $value)))
+				$value = null;
+		}
+		
+		if(null == $value)
 		switch($field->type) {
 			case Model_CustomField::TYPE_SINGLE_LINE:
 			case Model_CustomField::TYPE_MULTI_LINE:
@@ -129,12 +135,12 @@ class Page_Search extends CerberusPageExtension {
 				$oper = DevblocksSearchCriteria::OPER_LIKE;
 				$value = $query;
 				
-				if(false === strpos($value, '*')) {
-					$value .= '*';
-				}
-
 				// Parse operator hints
-				if(preg_match('#([\<\>\!\=]+)(.*)#', $value, $matches)) {
+				if(preg_match('#\"(.*)\"#', $value, $matches)) {
+					$oper = DevblocksSearchCriteria::OPER_EQ;
+					$value = trim($matches[1]);
+					
+				} elseif(preg_match('#([\<\>\!\=]+)(.*)#', $value, $matches)) {
 					$oper_hint = trim($matches[1]);
 					$value = trim($matches[2]);
 					
@@ -148,6 +154,14 @@ class Page_Search extends CerberusPageExtension {
 							}
 							break;
 					}
+				}
+				
+				switch($oper) {
+					case DevblocksSearchCriteria::OPER_LIKE:
+					case DevblocksSearchCriteria::OPER_NOT_LIKE:
+						if(false === strpos($value, '*'))
+							$value = '*' . $value . '*';
+						break;
 				}
 				
 				break;
@@ -290,6 +304,7 @@ class Page_Search extends CerberusPageExtension {
 			case Model_CustomField::TYPE_WORKER:
 			case 'WS': // Watchers
 				$oper = DevblocksSearchCriteria::OPER_IN;
+				$oper_hint = '';
 				
 				// Parse operator hints
 				if(preg_match('#([\<\>\!\=]+)(.*)#', $query, $matches)) {
@@ -321,33 +336,53 @@ class Page_Search extends CerberusPageExtension {
 				}
 
 				if(!empty($query)) {
-					$workers = DAO_Worker::getAllActive();
-					$patterns = DevblocksPlatform::parseCsvString($query);
-					
-					$worker_names = array();
-					$worker_ids = array();
-					
-					foreach($patterns as $pattern) {
-						if(0 == strcasecmp($pattern, 'me')) {
-							$worker_ids[$active_worker->id] = true;
-							continue;
-						}
-						
-						foreach($workers as $worker_id => $worker) {
-							$worker_name = $worker->getName();
-						
-							if(isset($workers_ids[$worker_id]))
-								continue;
+					switch(strtolower($query)) {
+						case 'any':
+						case 'anyone':
+						case 'anybody':
+							$oper = DevblocksSearchCriteria::OPER_NIN;
+							$value = array(0);
+							break;
 							
-							if(false !== stristr($worker_name, $pattern)) {
-								$worker_ids[$worker_id] = true;
+						case 'none':
+						case 'noone':
+						case 'nobody':
+							$oper = DevblocksSearchCriteria::OPER_IN_OR_NULL;
+							$value = array(0);
+							break;
+							
+						default:
+							$workers = DAO_Worker::getAllActive();
+							$patterns = DevblocksPlatform::parseCsvString($query);
+							
+							$worker_names = array();
+							$worker_ids = array();
+							
+							foreach($patterns as $pattern) {
+								if(0 == strcasecmp($pattern, 'me')) {
+									$worker_ids[$active_worker->id] = true;
+									continue;
+								}
+								
+								foreach($workers as $worker_id => $worker) {
+									$worker_name = $worker->getName();
+								
+									if(isset($workers_ids[$worker_id]))
+										continue;
+									
+									if(false !== stristr($worker_name, $pattern)) {
+										$worker_ids[$worker_id] = true;
+									}
+								}
 							}
-						}
-					}
-					
-					if(!empty($worker_ids)) {
-						$value = array_keys($worker_ids);
-					}
+							
+							if(!empty($worker_ids)) {
+								$value = array_keys($worker_ids);
+							}							
+							
+							break;
+					}						
+
 				}
 				
 				break;

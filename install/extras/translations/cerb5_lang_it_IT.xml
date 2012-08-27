@@ -1551,11 +1551,6 @@
         <seg></seg>
       </tuv>
     </tu>
-    <tu tuid="ticket.created">
-      <tuv xml:lang="it_IT">
-        <seg>Creati</seg>
-      </tuv>
-    </tu>
     <tu tuid="ticket.due">
       <tuv xml:lang="it_IT">
         <seg>Dovuti</seg>
@@ -1639,11 +1634,6 @@
     <tu tuid="ticket.subject">
       <tuv xml:lang="it_IT">
         <seg>Oggetto</seg>
-      </tuv>
-    </tu>
-    <tu tuid="ticket.updated">
-      <tuv xml:lang="it_IT">
-        <seg>Aggiornato</seg>
       </tuv>
     </tu>
     <tu tuid="time.menu.time">

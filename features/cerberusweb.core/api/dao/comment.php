@@ -1,6 +1,6 @@
 <?php
 /***********************************************************************
-| Cerberus Helpdesk(tm) developed by WebGroup Media, LLC.
+| Cerb(tm) developed by WebGroup Media, LLC.
 |-----------------------------------------------------------------------
 | All source code & content (c) Copyright 2012, WebGroup Media LLC
 |   unless specifically noted otherwise.
@@ -819,7 +819,6 @@ class Context_Comment extends Extension_DevblocksContext {
 		$view->name = 'Comments';
 //		$view->view_columns = array(
 //			SearchFields_Message::UPDATED_DATE,
-//			SearchFields_Message::DUE_DATE,
 //		);
 		$view->addParams(array(
 //			SearchFields_Task::IS_COMPLETED => new DevblocksSearchCriteria(SearchFields_Task::IS_COMPLETED,'=',0),

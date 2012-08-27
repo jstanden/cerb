@@ -4,14 +4,14 @@
 	<name>Knowledgebase</name>
 	<description>Create and categorize articles to share knowledge between workers or your community.</description>
 	<author>WebGroup Media, LLC.</author>
-	<version>6.0.0</version>
+	<version>6.1.0</version>
 	<link>http://wiki.cerb5.com/wiki/Features:Knowledgebase</link>
 	<image>plugin.png</image>
 	
 	<!-- Requirements -->
 
 	<requires>
-		<app_version min="6.0" max="6.0.99" />
+		<app_version min="6.1" max="6.1.99" />
 	</requires>
 	
 	<!-- Plugin Dependencies -->
@@ -105,6 +105,7 @@
 			</class>
 			<params>
 				<param key="alias" value="kb_article" />
+				<param key="dao_class" value="DAO_KbArticle" />
 				<param key="view_class" value="View_KbArticle" />
 				<param key="options">
 					<value>
@@ -127,6 +128,7 @@
 			</class>
 			<params>
 				<param key="alias" value="kb_category" />
+				<param key="dao_class" value="DAO_KbCategory" />
 				<param key="view_class" value="View_KbCategory" />
 				<param key="options">
 					<!--

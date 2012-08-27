@@ -3272,11 +3272,6 @@
         <seg>Toewijsbaar</seg>
       </tuv>
     </tu>
-    <tu tuid="ticket.created">
-      <tuv xml:lang="nl_NL">
-        <seg>Aangemaakt</seg>
-      </tuv>
-    </tu>
     <tu tuid="ticket.due">
       <tuv xml:lang="nl_NL">
         <seg>Vervalt</seg>
@@ -3360,11 +3355,6 @@
     <tu tuid="ticket.subject">
       <tuv xml:lang="nl_NL">
         <seg>Onderwerp</seg>
-      </tuv>
-    </tu>
-    <tu tuid="ticket.updated">
-      <tuv xml:lang="nl_NL">
-        <seg>Bijgewerkt</seg>
       </tuv>
     </tu>
     <tu tuid="timetracking.activity.tab">

@@ -1,6 +1,6 @@
 <?php
 /***********************************************************************
-| Cerberus Helpdesk(tm) developed by WebGroup Media, LLC.
+| Cerb(tm) developed by WebGroup Media, LLC.
 |-----------------------------------------------------------------------
 | All source code & content (c) Copyright 2012, WebGroup Media LLC
 |   unless specifically noted otherwise.
@@ -139,6 +139,7 @@ class Page_Custom extends CerberusPageExtension {
 	private function _renderPage($page_id) {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$active_worker = CerberusApplication::getActiveWorker();
+		$visit = CerberusApplication::getVisit();
 		
 		if(null == ($page = DAO_WorkspacePage::get($page_id)))
 			return;
@@ -154,6 +155,9 @@ class Page_Custom extends CerberusPageExtension {
 		);
 		$tpl->assign('point', $point);
 
+		if(null != ($selected_tab = $visit->get($point, null)))
+			$tpl->assign('selected_tab', $selected_tab);
+		
 		// Template
 		if(!empty($page->extension_id)) {
 			if(null != ($page_extension = DevblocksPlatform::getExtension($page->extension_id, true)))
@@ -708,6 +712,7 @@ class Page_Custom extends CerberusPageExtension {
 	
 	function doEditWorkspacePageAction() {
 		@$workspace_page_id = DevblocksPlatform::importGPC($_POST['id'],'integer', 0);
+		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string', '');
 		@$name = DevblocksPlatform::importGPC($_POST['name'],'string', '');
 		@$extension_id = DevblocksPlatform::importGPC($_POST['extension_id'],'string', '');
 		@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'],'integer', '0');
@@ -729,44 +734,56 @@ class Page_Custom extends CerberusPageExtension {
 			$fields = array(
 				DAO_WorkspacePage::NAME => $name,
 			);
+			
+			// Owner
+			@list($owner_type, $owner_id) = explode('_', DevblocksPlatform::importGPC($_REQUEST['owner'],'string',''));
+				
+			switch($owner_type) {
+				// Group
+				case 'g':
+					$owner_context = CerberusContexts::CONTEXT_GROUP;
+					$owner_context_id = $owner_id;
+					break;
+					// Role
+				case 'r':
+					$owner_context = CerberusContexts::CONTEXT_ROLE;
+					$owner_context_id = $owner_id;
+					break;
+					// Worker
+				case 'w':
+					$owner_context = CerberusContexts::CONTEXT_WORKER;
+					$owner_context_id = $owner_id;
+					break;
+					// Default
+				default:
+					$owner_context = null;
+					$owner_context_id = null;
+					break;
+			}
+
+			if(!empty($owner_context)) {
+				$fields[DAO_WorkspacePage::OWNER_CONTEXT] = $owner_context;
+				$fields[DAO_WorkspacePage::OWNER_CONTEXT_ID] = $owner_context_id;
+			}
 				
 			if(empty($workspace_page_id)) {
 				// Extension
 				$fields[DAO_WorkspacePage::EXTENSION_ID] = $extension_id;
-				
-				// Owner
-				@list($owner_type, $owner_id) = explode('_', DevblocksPlatform::importGPC($_REQUEST['owner'],'string',''));
-					
-				switch($owner_type) {
-					// Group
-					case 'g':
-						$owner_context = CerberusContexts::CONTEXT_GROUP;
-						$owner_context_id = $owner_id;
-						break;
-						// Role
-					case 'r':
-						$owner_context = CerberusContexts::CONTEXT_ROLE;
-						$owner_context_id = $owner_id;
-						break;
-						// Worker
-					case 'w':
-						$owner_context = CerberusContexts::CONTEXT_WORKER;
-						$owner_context_id = $owner_id;
-						break;
-						// Default
-					default:
-						$owner_context = null;
-						$owner_context_id = null;
-						break;
-				}
-	
-				if(!empty($owner_context)) {
-					$fields[DAO_WorkspacePage::OWNER_CONTEXT] = $owner_context;
-					$fields[DAO_WorkspacePage::OWNER_CONTEXT_ID] = $owner_context_id;
-				}
 	
 				$workspace_page_id = DAO_WorkspacePage::create($fields);
 	
+				// View marquee
+				if(!empty($workspace_page_id) && !empty($view_id)) {
+					$url_writer = DevblocksPlatform::getUrlService();
+					C4_AbstractView::setMarquee($view_id, sprintf("New page created: <a href='%s'><b>%s</b></a>",
+						$url_writer->write(sprintf("c=pages&a=%d-%s",
+							$workspace_page_id,
+							DevblocksPlatform::strToPermalink($name))
+						),
+						htmlspecialchars($name, ENT_QUOTES, LANG_CHARSET_CODE)
+					));
+				}
+				
 			} else {
 				DAO_WorkspacePage::update($workspace_page_id, $fields);
 	

@@ -4062,11 +4062,6 @@ login</seg>
         <seg>zuweisbar</seg>
       </tuv>
     </tu>
-    <tu tuid="ticket.created">
-      <tuv xml:lang="de_DE">
-        <seg>Erstellt</seg>
-      </tuv>
-    </tu>
     <tu tuid="ticket.due">
       <tuv xml:lang="de_DE">
         <seg>Fällig</seg>
@@ -4175,11 +4170,6 @@ login</seg>
     <tu tuid="ticket.unlock_date">
       <tuv xml:lang="de_DE">
         <seg>autom. Erinnerungs-Datum</seg>
-      </tuv>
-    </tu>
-    <tu tuid="ticket.updated">
-      <tuv xml:lang="de_DE">
-        <seg>Aktualisiert</seg>
       </tuv>
     </tu>
     <tu tuid="time.menu.time">

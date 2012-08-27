@@ -57,22 +57,20 @@
 			</td>
 		</tr>
 		<tr>
-			<td width="0%" nowrap="nowrap" valign="top" align="right">{$translate->_('address.is_banned')|capitalize}: </td>
+			<td width="0%" nowrap="nowrap" valign="top" align="right">{$translate->_('common.options')|capitalize}: </td>
 			<td width="100%">
-				<select name="is_banned">
-					<option value="0"></option>
-					<option value="0" {if !$address.a_is_banned}selected{/if}>{$translate->_('common.no')|capitalize}</option>
-					<option value="1" {if $address.a_is_banned}selected{/if}>{$translate->_('common.yes')|capitalize}</option>
-				</select>
+				<label><input type="checkbox" name="is_banned" value="1" {if $address.a_is_banned}checked="checked"{/if}> {'address.is_banned'|devblocks_translate|capitalize}</label>
+				<label><input type="checkbox" name="is_defunct" value="1" {if $address.a_is_defunct}checked="checked"{/if}> {'address.is_defunct'|devblocks_translate|capitalize}</label>
 			</td>
 		</tr>
 		
 		{* Watchers *}
 		<tr>
-			<td width="0%" nowrap="nowrap" valign="middle" align="right">{$translate->_('common.watchers')|capitalize}: </td>
+			<td width="0%" nowrap="nowrap" valign="top" align="right">{$translate->_('common.watchers')|capitalize}: </td>
 			<td width="100%">
 				{if empty($id)}
-					<label><input type="checkbox" name="is_watcher" value="1"> {'common.watchers.add_me'|devblocks_translate}</label>
+					<button type="button" class="chooser_watcher"><span class="cerb-sprite sprite-view"></span></button>
+					<ul class="chooser-container bubbles" style="display:block;"></ul>
 				{else}
 					{$object_watchers = DAO_ContextLink::getContextLinks(CerberusContexts::CONTEXT_ADDRESS, array($address.a_id), CerberusContexts::CONTEXT_WORKER)}
 					{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=CerberusContexts::CONTEXT_ADDRESS context_id=$address.a_id full=true}
@@ -112,6 +110,12 @@
 	$popup.one('popup_open',function(event,ui) {
 		// Title
 		$(this).dialog('option','title', '{'addy_book.peek.title'|devblocks_translate}');
+		
+		// Worker chooser
+		$(this).find('button.chooser_watcher').each(function() {
+			ajax.chooser(this,'cerberusweb.contexts.worker','add_watcher_ids', { autocomplete:true });
+		});
+
 		// Autocomplete
 		ajax.orgAutoComplete('#contactinput');
 		// Form validation

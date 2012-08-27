@@ -1,8 +1,22 @@
-{$div_popup_worklist = uniqid()}
+{$uniq_id = uniqid()}
 <b>Find objects using this worklist:</b>
 <div style="margin:0px 0px 5px 10px;">
-	<div id="popup{$div_popup_worklist}" class="badge badge-lightgray" style="font-weight:bold;color:rgb(80,80,80);cursor:pointer;"><span class="name">{if !empty($view->name)}{$view->name}{else}Worklist{/if}</span> &#x25be;</div>
+	<div id="popup{$uniq_id}" class="badge badge-lightgray" style="font-weight:bold;color:rgb(80,80,80);cursor:pointer;"><span class="name">{if !empty($view->name)}{$view->name}{else}Worklist{/if}</span> &#x25be;</div>
 	<input type="hidden" name="{$namePrefix}[view_model]" value="{$params.view_model}" class="model">
+</div>
+
+<b>Limit to:</b>
+<div style="margin:0px 0px 5px 10px;">
+	<select name="{$namePrefix}[limit]" id="select{$uniq_id}">
+		<option value="" {if empty($params.limit)}selected="selected"{/if}>All objects</option>
+		<option value="first" {if $params.limit=='first'}selected="selected"{/if}>First</option>
+		<option value="last" {if $params.limit=='last'}selected="selected"{/if}>Last</option>
+		<option value="random" {if $params.limit=='random'}selected="selected"{/if}>Random</option>
+	</select>
+	<span style="{if empty($params.limit)}display:none;{/if}">
+		<input type="text" name="{$namePrefix}[limit_count]" size="2" maxlength="2" value="{$params.limit_count|default:'10'}">
+	</span>
+	<br>
 </div>
 
 <b>Then:</b>
@@ -15,13 +29,26 @@
 </div>
 
 <script type="text/javascript">
-	$('#popup{$div_popup_worklist}').click(function(e) {
+	$div = $('#popup{$uniq_id}');
+	
+	$div.click(function(e) {
 		$chooser=genericAjaxPopup('chooser','c=internal&a=chooserOpenParams&context={$context}&view_id={$view->id}&trigger_id={$trigger->id}',null,true,'750');
 		$chooser.bind('chooser_save',function(event) {
 			if(null != event.view_model) {
-				$('#popup{$div_popup_worklist}').find('span.name').html(event.view_name);
-				$('#popup{$div_popup_worklist}').parent().find('input:hidden.model').val(event.view_model);
+				$('#popup{$uniq_id}').find('span.name').html(event.view_name);
+				$('#popup{$uniq_id}').parent().find('input:hidden.model').val(event.view_model);
 			}
 		});
+	});
+	
+	$select = $('#select{$uniq_id}');
+	
+	$select.change(function(e) {
+		val=$(this).val();
+		
+		if(val.length > 0)
+			$(this).next('span').show();
+		else
+			$(this).next('span').hide();
 	});
 </script>

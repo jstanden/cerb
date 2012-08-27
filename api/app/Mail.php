@@ -1,6 +1,6 @@
 <?php
 /***********************************************************************
-| Cerberus Helpdesk(tm) developed by WebGroup Media, LLC.
+| Cerb(tm) developed by WebGroup Media, LLC.
 |-----------------------------------------------------------------------
 | All source code & content (c) Copyright 2012, WebGroup Media LLC
 |   unless specifically noted otherwise.
@@ -139,11 +139,15 @@ class CerberusMail {
 	}
 
 	static function compose($properties) {
-		$worker = CerberusApplication::getActiveWorker();
-		
 		@$group_id = $properties['group_id'];
 		@$bucket_id = intval($properties['bucket_id']);
-		$properties['worker_id'] = $worker->id;
+		
+		@$is_broadcast = intval($properties['is_broadcast']);
+		
+		@$worker_id = $properties['worker_id'];
+		
+		if(empty($worker_id) && null != ($worker = CerberusApplication::getActiveWorker()))
+			$worker_id = $worker->id;
 	
 		if(null == ($group = DAO_Group::get($group_id)))
 			return;
@@ -302,7 +306,7 @@ class CerberusMail {
 				$fields = array(
 					DAO_MailQueue::TYPE => Model_MailQueue::TYPE_COMPOSE,
 					DAO_MailQueue::TICKET_ID => 0,
-					DAO_MailQueue::WORKER_ID => !empty($worker) ? $worker->id : 0,
+					DAO_MailQueue::WORKER_ID => intval($worker_id),
 					DAO_MailQueue::UPDATED => time()+5, // small offset
 					DAO_MailQueue::HINT_TO => $toStr,
 					DAO_MailQueue::SUBJECT => $subject,
@@ -343,9 +347,13 @@ class CerberusMail {
 		
 		// "Next:" [TODO] This is highly redundant with CerberusMail::reply
 		
+		if(isset($properties['owner_id'])) {
+			$fields[DAO_Ticket::OWNER_ID] = intval($properties['owner_id']);
+		}
+		
 		if(isset($ticket_reopen) && !empty($ticket_reopen)) {
-			$due = strtotime($ticket_reopen);
-			if($due) $fields[DAO_Ticket::DUE_DATE] = $due;
+			if(false !== (@$reopen_at = strtotime($ticket_reopen)))
+				$fields[DAO_Ticket::REOPEN_AT] = $reopen_at;
 		}
 		// End "Next:"
 		
@@ -356,7 +364,8 @@ class CerberusMail {
 	        DAO_Message::CREATED_DATE => time(),
 	        DAO_Message::ADDRESS_ID => $fromAddressId,
 	        DAO_Message::IS_OUTGOING => 1,
-	        DAO_Message::WORKER_ID => (!empty($worker->id) ? $worker->id : 0),
+    		DAO_Message::WORKER_ID => intval($worker_id),
+	        DAO_Message::IS_BROADCAST => $is_broadcast ? 1 : 0,
 	    );
 		$message_id = DAO_Message::create($fields);
 	    
@@ -443,7 +452,7 @@ class CerberusMail {
 	    'draft_id'
 	    'message_id'
 	    'is_forward'
-	    -----'ticket_id'
+		'is_broadcast'
 		'subject'
 	    'to'
 	    'cc'
@@ -486,7 +495,8 @@ class CerberusMail {
 		    // Re-read properties
 		    @$content = $properties['content'];
 		    @$files = $properties['files'];
-		    @$is_forward = $properties['is_forward']; 
+		    @$is_forward = $properties['is_forward'];
+		    @$is_broadcast = $properties['is_broadcast'];
 		    @$forward_files = $properties['forward_files'];
 		    @$worker_id = $properties['worker_id'];
 		    @$subject = $properties['subject'];
@@ -743,6 +753,15 @@ class CerberusMail {
 		    if(!empty($subject) && !$is_forward) {
 		    	$change_fields[DAO_Ticket::SUBJECT] = $subject;
 		    }
+
+		    // Response time
+		    
+		    $response_epoch = ($ticket->created_date > $message->created_date) ? $ticket->created_date : $message->created_date;
+		    $response_time = (!empty($worker_id) ? (time() - $response_epoch) : 0);
+		    
+		    unset($response_epoch);
+		    
+		    // Fields
 		    
 		    $fields = array(
 		        DAO_Message::TICKET_ID => $ticket_id,
@@ -750,11 +769,19 @@ class CerberusMail {
 		        DAO_Message::ADDRESS_ID => $fromAddressId,
 		        DAO_Message::IS_OUTGOING => 1,
 		        DAO_Message::WORKER_ID => (!empty($worker_id) ? $worker_id : 0),
+		    	DAO_Message::RESPONSE_TIME => $response_time,
+		    	DAO_Message::IS_BROADCAST => $is_broadcast ? 1 : 0,
 		    );
 			$message_id = DAO_Message::create($fields);
 		    
 			// Store ticket.last_message_id
 			$change_fields[DAO_Ticket::LAST_MESSAGE_ID] = $message_id;
+			
+			// First outgoing message?
+			if(empty($ticket->first_outgoing_message_id) && !empty($worker_id)) {
+				$change_fields[DAO_Ticket::FIRST_OUTGOING_MESSAGE_ID] = $message_id;
+				$change_fields[DAO_Ticket::ELAPSED_RESPONSE_FIRST] = $response_time;
+			}
 			
 			// Content
 			Storage_MessageContent::put($message_id, $content);
@@ -806,7 +833,7 @@ class CerberusMail {
 					$change_fields[DAO_Ticket::IS_WAITING] = 0;
 					$change_fields[DAO_Ticket::IS_CLOSED] = 0;
 					$change_fields[DAO_Ticket::IS_DELETED] = 0;
-					$change_fields[DAO_Ticket::DUE_DATE] = 0;
+					$change_fields[DAO_Ticket::REOPEN_AT] = 0;
 					break;
 				case 1: // closed
 					$change_fields[DAO_Ticket::IS_WAITING] = 0;
@@ -815,7 +842,7 @@ class CerberusMail {
 					
 					if(isset($properties['ticket_reopen'])) {
 						@$time = intval(strtotime($properties['ticket_reopen']));
-						$change_fields[DAO_Ticket::DUE_DATE] = $time;
+						$change_fields[DAO_Ticket::REOPEN_AT] = $time;
 					}
 					break;
 				case 2: // waiting
@@ -825,7 +852,7 @@ class CerberusMail {
 					
 					if(isset($properties['ticket_reopen'])) {
 						@$time = intval(strtotime($properties['ticket_reopen']));
-						$change_fields[DAO_Ticket::DUE_DATE] = $time;
+						$change_fields[DAO_Ticket::REOPEN_AT] = $time;
 					}
 					break;
 			}

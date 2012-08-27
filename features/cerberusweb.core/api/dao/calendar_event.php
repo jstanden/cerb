@@ -1,4 +1,20 @@
 <?php
+/***********************************************************************
+ | Cerb(tm) developed by WebGroup Media, LLC.
+ |-----------------------------------------------------------------------
+ | All source code & content (c) Copyright 2012, WebGroup Media LLC
+ |   unless specifically noted otherwise.
+ |
+ | This source code is released under the Devblocks Public License.
+ | The latest version of this license can be found here:
+ | http://cerberusweb.com/license
+ |
+ | By using this software, you acknowledge having read this license
+ | and agree to be bound thereby.
+ | ______________________________________________________________________
+ |	http://www.cerberusweb.com	  http://www.webgroupmedia.com/
+ ***********************************************************************/
+
 class DAO_CalendarEvent extends C4_ORMHelper {
 	const ID = 'id';
 	const NAME = 'name';
@@ -186,20 +202,16 @@ class DAO_CalendarEvent extends C4_ORMHelper {
 		$sort_sql = (!empty($sortBy)) ? sprintf("ORDER BY %s %s ",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : " ";
 	
 		$args = array(
-			'join_sql' => $join_sql,
-			'where_sql' => $where_sql,
-			'has_multiple_values' => $has_multiple_values
+			'join_sql' => &$join_sql,
+			'where_sql' => &$where_sql,
+			'has_multiple_values' => &$has_multiple_values
 		);
 		
 		array_walk_recursive(
 			$params,
 			array('DAO_CalendarEvent', '_translateVirtualParameters'),
-			&$args
+			$args
 		);
-		
-		$join_sql = $args['join_sql'];
-		$where_sql = $args['where_sql'];
-		$has_multiple_values = $args['has_multiple_values'];
 		
 		return array(
 			'primary_table' => 'calendar_event',
@@ -984,7 +996,8 @@ class Context_CalendarEvent extends Extension_DevblocksContext implements IDevbl
 
 	function renderPeekPopup($context_id=0, $view_id='') {
 		$tpl = DevblocksPlatform::getTemplateService();
-
+		$tpl->assign('view_id', $view_id);
+		
 		// [TODO] Check calendar+event ownership
 		
 		if(!empty($context_id)) {

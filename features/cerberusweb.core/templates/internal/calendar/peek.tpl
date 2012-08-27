@@ -299,6 +299,10 @@
 						$event.year = json.year;
 					
 					genericAjaxPopupClose($layer, $event);
+					
+					{if !empty($view_id)}
+					genericAjaxGet('view{$view_id}', 'c=internal&a=viewRefresh&id={$view_id}');
+					{/if}
 				}
 			});
 		});
@@ -314,6 +318,10 @@
 						$event.event_id = json.event_id;
 					
 					genericAjaxPopupClose($layer, $event);
+					
+					{if !empty($view_id)}
+					genericAjaxGet('view{$view_id}', 'c=internal&a=viewRefresh&id={$view_id}');
+					{/if}
 				}
 			});
 		});

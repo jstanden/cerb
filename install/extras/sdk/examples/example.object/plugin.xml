@@ -47,6 +47,7 @@
 			</class>
 			<params>
 				<param key="alias" value="example" />
+				<param key="dao_class" value="DAO_ExampleObject" />
 				<param key="view_class" value="View_ExampleObject" />
 				<param key="options">
 					<value>

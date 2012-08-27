@@ -323,6 +323,14 @@ class DevblocksPlatform extends DevblocksEngine {
 	}
 	
 	static function stripHTML($str) {
+		$str = preg_replace_callback(
+			'#<pre.*?/pre\>#s',
+			function($matches) {
+				return str_replace("\n","<br>",@$matches[0]);
+			},
+			$str
+		);		
+			
 		// Strip all CRLF and tabs, spacify </TD>
 		$str = str_ireplace(
 			array("\r","\n","\t","</td>"),
@@ -339,19 +347,48 @@ class DevblocksPlatform extends DevblocksEngine {
 		
 		// Turn block tags into a linefeed
 		$str = str_ireplace(
-			array('<BR>','<P>','</P>','<HR>','</TR>','</H1>','</H2>','</H3>','</H4>','</H5>','</H6>','</DIV>'),
+			array(
+				'<BR>',
+				'<P>',
+				'</P>',
+				'</PRE>',
+				'<HR>',
+				'<TR>',
+				'</H1>',
+				'</H2>',
+				'</H3>',
+				'</H4>',
+				'</H5>',
+				'</H6>',
+				'</DIV>',
+				'<BLOCKQUOTE>',
+				'</BLOCKQUOTE>',
+				'</UL>',
+				'</OL>',
+				'</LI>',
+				'</OPTION>',
+				'<TABLE>',
+				'</TABLE>',
+			),
 			"\n",
 			$str
-		);		
+		);
 		
-		// Strip tags
+		// Strip non-content tags
 		$search = array(
-		    '@<![\s\S]*?--[ \t\n\r]*>@',
-			'@<script[^>]*?>.*?</script>@si',
-		    '@<style[^>]*?>.*?</style>@siU',
-		    '@<[\/\!]*?[^<>]*?>@si',
+            '@<head[^>]*?>.*?</head>@siu', 
+            '@<style[^>]*?>.*?</style>@siu', 
+            '@<script[^>]*?.*?</script>@siu', 
+            '@<object[^>]*?.*?</object>@siu', 
+            '@<embed[^>]*?.*?</embed>@siu', 
+            '@<applet[^>]*?.*?</applet>@siu', 
+            '@<noframes[^>]*?.*?</noframes>@siu', 
+            '@<noscript[^>]*?.*?</noscript>@siu', 
+            '@<noembed[^>]*?.*?</noembed>@siu', 				
 		);
 		$str = preg_replace($search, '', $str);
+		
+		$str = strip_tags($str);
 		
 		// Flatten multiple spaces into a single
 		$str = preg_replace('# +#', ' ', $str);
@@ -570,6 +607,41 @@ class DevblocksPlatform extends DevblocksEngine {
 	static function strToHyperlinks($string) {
 		$regex = '@(https?://(.*?))(([>"\.\?,\)]{0,1}(\s|$))|(&(quot|gt);))@i';
 		return preg_replace($regex,'<a href="$1" target="_blank">$1</a>$3',$string);
+	}
+	
+	static function strSecsToString($string, $length=0) {
+		if(empty($string) || !is_numeric($string))
+			return '0 secs';
+		
+		$blocks = array(
+			'year' => 52*7*24*60*60,
+			'month' => 30*24*60*60,
+			'week' => 7*24*60*60,
+			'day' => 24*60*60,
+			'hour' => 60*60,
+			'min' => 60,
+			'sec' => 1,
+		);
+		
+		$secs = intval($string);
+		$output = array();
+		
+	    foreach($blocks as $label => $increment) {
+	    	$n = floor($secs/$increment);
+	    	$secs -= ($n * $increment);
+	    	
+	    	if(!empty($n))
+	    		$output[] = sprintf("%d %s%s",
+	    			$n,
+	    			$label,
+	    			($n==1) ? '' : 's'
+	    		);
+	    }
+	    
+	    if(!empty($length))
+	    	$output = array_slice($output, 0, $length);
+	    
+	    return implode(', ', $output);
 	}
 	
 	static function strPrettyTime($string, $is_delta=false) {

@@ -14,31 +14,33 @@
 	
 	<table cellpadding="0" cellspacing="2" border="0" width="98%">
 		<tr>
-			<td width="0%" nowrap="nowrap" align="right">{'common.title'|devblocks_translate|capitalize}: </td>
-			<td width="100%">
+			<td width="1%" nowrap="nowrap" align="right">{'common.title'|devblocks_translate|capitalize}: </td>
+			<td width="99%">
 				<input type="text" name="title" style="width:98%;" value="{$task->title}">
 			</td>
 		</tr>
 		<tr>
-			<td width="0%" nowrap="nowrap" align="right" valign="top">{'task.due_date'|devblocks_translate|capitalize}: </td>
-			<td width="100%">
+			<td width="1%" nowrap="nowrap" align="right" valign="top">{'task.due_date'|devblocks_translate|capitalize}: </td>
+			<td width="99%">
 				<input type="text" name="due_date" size="45" value="{if !empty($task->due_date)}{$task->due_date|devblocks_date}{/if}"><button type="button" onclick="devblocksAjaxDateChooser(this.form.due_date,'#dateTaskDue');">&nbsp;<span class="cerb-sprite sprite-calendar"></span>&nbsp;</button>
 				<div id="dateTaskDue"></div>
 			</td>
 		</tr>
 		<tr>
-			<td width="0%" nowrap="nowrap" align="right" valign="top"><label for="checkTaskCompleted">{'task.is_completed'|devblocks_translate|capitalize}:</label> </td>
-			<td width="100%">
-				<input id="checkTaskCompleted" type="checkbox" name="completed" value="1" {if $task->is_completed}checked{/if}>
+			<td width="1%" nowrap="nowrap" align="right" valign="top">{'task.is_completed'|devblocks_translate|capitalize}: </td>
+			<td width="99%">
+				<label><input type="radio" name="completed" value="1" {if $task->is_completed}checked="checked"{/if}> {'common.yes'|devblocks_translate|capitalize}</label>
+				<label><input type="radio" name="completed" value="0" {if empty($task->is_completed)}checked="checked"{/if}> {'common.no'|devblocks_translate|capitalize}</label>
 			</td>
 		</tr>
 		
 		{* Watchers *}
 		<tr>
-			<td width="0%" nowrap="nowrap" valign="middle" align="right">{$translate->_('common.watchers')|capitalize}: </td>
-			<td width="100%">
+			<td width="1%" nowrap="nowrap" valign="top" align="right">{$translate->_('common.watchers')|capitalize}: </td>
+			<td width="99%">
 				{if empty($task->id)}
-					<label><input type="checkbox" name="is_watcher" value="1"> {'common.watchers.add_me'|devblocks_translate}</label>
+					<button type="button" class="chooser_watcher"><span class="cerb-sprite sprite-view"></span></button>
+					<ul class="chooser-container bubbles" style="display:block;"></ul>
 				{else}
 					{$object_watchers = DAO_ContextLink::getContextLinks(CerberusContexts::CONTEXT_TASK, array($task->id), CerberusContexts::CONTEXT_WORKER)}
 					{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=CerberusContexts::CONTEXT_TASK context_id=$task->id full=true}
@@ -72,7 +74,7 @@
 
 {if $active_worker->hasPriv('core.tasks.actions.create')}
 	<button type="button" onclick="genericAjaxPopupPostCloseReloadView(null,'formTaskPeek','{$view_id}',false,'task_save');"><span class="cerb-sprite2 sprite-tick-circle"></span> {$translate->_('common.save_changes')}</button>
-	{if $active_worker->hasPriv('core.tasks.actions.delete') && !empty($task)}<button type="button" onclick="if(confirm('Are you sure you want to permanently delete this task?')) { $('#formTaskPeek input[name=do_delete]').val('1'); genericAjaxPost('formTaskPeek', 'view{$view_id}'); genericAjaxPopupClose('peek'); } "><span class="cerb-sprite2 sprite-cross-circle"></span> {$translate->_('common.delete')|capitalize}</button>{/if}
+	{if $active_worker->hasPriv('core.tasks.actions.delete') && !empty($task)}<button type="button" onclick="if(confirm('Are you sure you want to permanently delete this task?')) { $('#formTaskPeek input[name=do_delete]').val('1'); genericAjaxPopupPostCloseReloadView(null,'formTaskPeek','{$view_id}',false,'task_delete'); } "><span class="cerb-sprite2 sprite-cross-circle"></span> {$translate->_('common.delete')|capitalize}</button>{/if}
 {else}
 	<fieldset class="delete">
 		{'error.core.no_acl.edit'|devblocks_translate}
@@ -97,6 +99,11 @@
 				$(this).next('DIV.notify').hide();
 			}
 		});
+		
+		$(this).find('button.chooser_watcher').each(function() {
+			ajax.chooser(this,'cerberusweb.contexts.worker','add_watcher_ids', { autocomplete:true });
+		});
+		
 		$('#formTaskPeek :input:text:first').focus().select();
 	});
 	$('#formTaskPeek button.chooser_notify_worker').each(function() {

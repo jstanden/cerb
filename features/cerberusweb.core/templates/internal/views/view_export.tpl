@@ -47,7 +47,7 @@
 <select name="export_as">
 	<option value="csv" selected="selected">Comma-separated values (.csv)</option>
 	<option value="xml">XML (.xml)</option>
-	{*<option value="xls">Excel 2003 (.xls)</option>*}
+	<option value="json">JSON (.json)</option>
 </select>
 <br>
 

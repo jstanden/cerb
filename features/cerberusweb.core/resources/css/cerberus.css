@@ -462,6 +462,7 @@ table.worklistBody th:hover a {
 	
 table.worklistBody td {
 	font-size:11px;
+	padding-right:5px;
 }
 
 table.worklistBody td b.subject {
@@ -1002,6 +1003,41 @@ UL.cerb-popupmenu > LI > HR {
 	margin-bottom:5px;
 }
 
+/* Quick search */
+
+FORM.quick-search DIV.hints {
+	margin:5px 10px 10px 0px;
+	padding:5px;
+	width:350px;
+	
+	border:3px solid rgb(52,67,78);
+	background-color:rgb(245,245,245);
+	
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	border-radius: 5px;
+	
+	display:none;
+}
+
+FORM.quick-search DIV.hints.hints-float {
+	position:absolute;
+	background-color:rgba(245,245,245,0.9);
+	right:0;
+	margin-bottom: 0px;
+	z-index:9999;
+}
+
+FORM.quick-search DIV.hints.hints-shadow {
+	-moz-box-shadow: 0 4px 10px 2px rgb(120,120,120);
+	-webkit-box-shadow: 0 4px 10px 2px rgb(120,120,120);
+	box-shadow: 0 4px 10px 2px rgb(120,120,120);
+}
+
+FORM.quick-search DIV.hints UL.bubbles LI {
+	color:rgb(50,50,50);
+}
+
 /* KB */
 
 #kbArticleContent { 
@@ -1506,7 +1542,6 @@ UL.ui-autocomplete.ui-menu .ui-menu-item a.ui-state-hover {
 .ui-tabs .ui-tabs-nav li a div.tab-badge {
 	padding:0px 5px;
 	font-weight:bold;
-	vertical-align:top;
 	display:inline;
 	
 	border-radius: 10px;	
@@ -1541,3 +1576,103 @@ UL.ui-autocomplete.ui-menu .ui-menu-item a.ui-state-hover {
 /* jQuery Validation */
 
 label.error { color: rgb(255,0,0); padding-left: .5em; vertical-align: top; }
+
+/* jQuery miniColors */
+
+.miniColors-trigger {
+	height: 22px;
+	width: 22px;
+	background: url(jquery-minicolors/trigger.png) center no-repeat;
+	vertical-align: middle;
+	margin: 0 .25em;
+	display: inline-block;
+	outline: none;
+}
+
+.miniColors-selector {
+	position: absolute;
+	width: 175px;
+	height: 150px;
+	background: #FFF;
+	border: solid 1px #BBB;
+	-moz-box-shadow: 0 0 6px rgba(0, 0, 0, .25);
+	-webkit-box-shadow: 0 0 6px rgba(0, 0, 0, .25);
+	box-shadow: 0 0 6px rgba(0, 0, 0, .25);
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	border-radius: 5px;
+	padding: 5px;
+	z-index: 999999;
+}
+
+.miniColors-selector.black {
+	background: #000;
+	border-color: #000;
+}
+
+.miniColors-colors {
+	position: absolute;
+	top: 5px;
+	left: 5px;
+	width: 150px;
+	height: 150px;
+	background: url(jquery-minicolors/colors.png) right no-repeat;
+	cursor: crosshair;
+}
+
+.miniColors-hues {
+	position: absolute;
+	top: 5px;
+	left: 160px;
+	width: 20px;
+	height: 150px;
+	background: url(jquery-minicolors/colors.png) left no-repeat;
+	cursor: crosshair;
+}
+
+.miniColors-colorFavorites {
+	position: absolute;
+	top: 160px;
+	left: 5px;
+	width: 170px;
+	height: 20px;
+}
+
+.miniColors-colorFavorite {
+	height:12px;
+	width:12px;
+	display:inline-block;
+	margin:0px 2px;
+	cursor: pointer;
+}
+
+.miniColors-colorPicker {
+	position: absolute;
+	width: 9px;
+	height: 9px;
+	border: 1px solid #fff;
+	-moz-border-radius: 11px;
+	-webkit-border-radius: 11px;
+	border-radius: 11px;
+}
+.miniColors-colorPicker-inner {
+	position: absolute;
+	top: 0;
+	left: 0; 
+	width: 7px;
+	height: 7px;
+	border: 1px solid #000;
+	-moz-border-radius: 9px;
+	-webkit-border-radius: 9px;
+	border-radius: 9px;
+}
+
+.miniColors-huePicker {
+	position: absolute;
+	left: -3px;
+	width: 24px;
+	height: 1px;
+	border: 1px solid #fff;
+	border-radius: 2px;
+	background: #000;
+}

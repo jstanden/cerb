@@ -1,6 +1,6 @@
 <?php
 /***********************************************************************
-| Cerberus Helpdesk(tm) developed by WebGroup Media, LLC.
+| Cerb(tm) developed by WebGroup Media, LLC.
 |-----------------------------------------------------------------------
 | All source code & content (c) Copyright 2012, WebGroup Media LLC
 |   unless specifically noted otherwise.
@@ -82,7 +82,7 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 		$values['headers'] = array();
 		
 		$labels['body'] = $prefix.'body';
-		$dict->body = '';
+		$values['body'] = '';
 		
 		$labels['subject'] = $prefix.'subject';
 		$values['subject'] = '';
@@ -92,7 +92,7 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 
 		if(!empty($parser_model)) {
 			$values['_parser_model'] = $parser_model;
-			$dict->body =& $parser_model->getMessage()->body;
+			$values['body'] =& $parser_model->getMessage()->body;
 			$values['encoding'] =& $parser_model->getMessage()->encoding;
 			$values['headers'] =& $parser_model->getHeaders();
 			$values['subject'] =& $parser_model->getSubject();

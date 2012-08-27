@@ -1,6 +1,6 @@
 <?php
 /***********************************************************************
-| Cerberus Helpdesk(tm) developed by WebGroup Media, LLC.
+| Cerb(tm) developed by WebGroup Media, LLC.
 |-----------------------------------------------------------------------
 | All source code & content (c) Copyright 2012, WebGroup Media LLC
 |   unless specifically noted otherwise.
@@ -274,7 +274,7 @@ class ChTicketsPage extends CerberusPageExtension {
 					$fields[DAO_Ticket::IS_WAITING] = 0;
 					$fields[DAO_Ticket::IS_CLOSED] = 0;
 					$fields[DAO_Ticket::IS_DELETED] = 0;
-					$fields[DAO_Ticket::DUE_DATE] = 0;
+					$fields[DAO_Ticket::REOPEN_AT] = 0;
 					break;
 				case 1: // closed
 					$fields[DAO_Ticket::IS_WAITING] = 0;
@@ -290,15 +290,15 @@ class ChTicketsPage extends CerberusPageExtension {
 					$fields[DAO_Ticket::IS_WAITING] = 0;
 					$fields[DAO_Ticket::IS_CLOSED] = 1;
 					$fields[DAO_Ticket::IS_DELETED] = 1;
-					$fields[DAO_Ticket::DUE_DATE] = 0;
+					$fields[DAO_Ticket::REOPEN_AT] = 0;
 					break;
 			}
 			
 			if(1==$closed || 2==$closed) {
 				if(!empty($ticket_reopen) && false !== ($due = strtotime($ticket_reopen))) {
-					$fields[DAO_Ticket::DUE_DATE] = $due;
+					$fields[DAO_Ticket::REOPEN_AT] = $due;
 				} else {
-					$fields[DAO_Ticket::DUE_DATE] = 0;
+					$fields[DAO_Ticket::REOPEN_AT] = 0;
 				}
 			}
 		}
@@ -359,6 +359,7 @@ class ChTicketsPage extends CerberusPageExtension {
 			return;
 		
 		@$draft_id = DevblocksPlatform::importGPC($_POST['draft_id'],'integer');
+		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
 
 		// Destination
 		
@@ -381,10 +382,10 @@ class ChTicketsPage extends CerberusPageExtension {
 		@$closed = DevblocksPlatform::importGPC($_POST['closed'],'integer',0);
 		@$move_bucket = DevblocksPlatform::importGPC($_POST['bucket_id'],'string','');
 		@$ticket_reopen = DevblocksPlatform::importGPC($_POST['ticket_reopen'],'string','');
+		@$owner_id = DevblocksPlatform::importGPC($_POST['owner_id'],'integer',0);
 		
 		// Options
 		
-		@$add_me_as_watcher = DevblocksPlatform::importGPC($_POST['add_me_as_watcher'],'integer',0);
 		@$options_dont_send = DevblocksPlatform::importGPC($_POST['options_dont_send'],'integer',0);
 		
 		// Attachments
@@ -427,6 +428,7 @@ class ChTicketsPage extends CerberusPageExtension {
 			'forward_files' => $file_ids,
 			'closed' => $closed,
 			'ticket_reopen' => $ticket_reopen,
+			'worker_id' => $active_worker->id,
 		);
 		
 		// Custom fields
@@ -439,6 +441,9 @@ class ChTicketsPage extends CerberusPageExtension {
 		
 		// Options
 		
+		if(!empty($owner_id))
+			$properties['owner_id'] = $owner_id;
+		
 		if(!empty($options_dont_send))
 			$properties['dont_send'] = 1;
 		
@@ -449,10 +454,10 @@ class ChTicketsPage extends CerberusPageExtension {
 				DAO_MailQueue::delete($draft_id);
 
 			// Watchers
+			@$add_watcher_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_REQUEST['add_watcher_ids'],'array',array()),'integer',array('unique','nonzero'));
+			if(!empty($add_watcher_ids))
+				CerberusContexts::addWatchers(CerberusContexts::CONTEXT_TICKET, $ticket_id, $add_watcher_ids);
 			
-			if($add_me_as_watcher)
-				CerberusContexts::addWatchers(CerberusContexts::CONTEXT_TICKET, $ticket_id, $active_worker->id);
-				
 			// Preferences
 			
 			DAO_WorkerPref::set($active_worker->id, 'compose.group_id', $group_id);
@@ -472,6 +477,10 @@ class ChTicketsPage extends CerberusPageExtension {
 				if(null != ($ticket = DAO_Ticket::get($ticket_id))) {
 					DAO_AttachmentLink::setLinks(CerberusContexts::CONTEXT_MESSAGE, $ticket->first_message_id, $file_ids);
 				}
+			}
+
+			if(!empty($ticket_id) && !empty($view_id)) {
+				C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_TICKET, $ticket_id);
 			}
 		}
 		

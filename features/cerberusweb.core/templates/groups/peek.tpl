@@ -26,10 +26,6 @@
 
 <button type="button" onclick="genericAjaxPopupPostCloseReloadView(null,'formGroupsPeek','{$view_id}',false,'group_save');"><span class="cerb-sprite2 sprite-tick-circle"></span> {$translate->_('common.save_changes')}</button>
 
-{* &nbsp; 
-<a href="{devblocks_url}c=groups&a=config&id={$group->id}{/devblocks_url}">configuration</a>
-<br>
-*}
 </form>
 
 <script type="text/javascript">

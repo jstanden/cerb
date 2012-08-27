@@ -4,7 +4,7 @@
 	<name>Cerb6 Core</name>
 	<description>The core functionality of Cerb6.</description>
 	<author>WebGroup Media, LLC.</author>
-	<version>6.0.0</version>
+	<version>6.1.0</version>
 	<link>http://wiki.cerb4.com/wiki/New_Changes</link>
 	
 	<!-- Plugin Dependencies -->
@@ -45,7 +45,8 @@
 		<patch version="5.6.2" revision="965" file="patches/5.x/5.6.2.php" />
 		<patch version="5.7.0" revision="973" file="patches/5.x/5.7.0.php" />
 		
-		<patch version="6.0.0" revision="989" file="patches/6.x/6.0.0.php" />
+		<patch version="6.0.0"  revision="989" file="patches/6.x/6.0.0.php" />
+		<patch version="6.1.0" revision="1005" file="patches/6.x/6.1.0.php" />
 	</patches>
 
 	<!-- Declared Extension Points -->
@@ -351,6 +352,12 @@
 			<class name="SearchFields_WorkspacePage" />
 			<class name="SearchFields_WorkspaceTab" />
 			<class name="View_WorkspacePage" />
+		</file>
+		
+		<file path="api/dao/workspace_widget.php">
+			<class name="DAO_WorkspaceWidget" />
+			<class name="Model_WorkspaceWidget" />
+			<class name="SearchFields_WorkspaceWidget" />
 		</file>
 		
 		<file path="api/events/abstract/abstract_event_address.php">
@@ -665,6 +672,7 @@
 			</class>
 			<params>
 				<param key="alias" value="app" />
+				<param key="dao_class" value="" />
 				<param key="view_class" value="" />
 				<param key="options">
 					<!--
@@ -688,6 +696,7 @@
 			</class>
 			<params>
 				<param key="alias" value="person" />
+				<param key="dao_class" value="DAO_ContactPerson" />
 				<param key="view_class" value="View_ContactPerson" />
 				<param key="options">
 					<value>
@@ -709,6 +718,7 @@
 			</class>
 			<params>
 				<param key="alias" value="address" />
+				<param key="dao_class" value="DAO_Address" />
 				<param key="view_class" value="View_Address" />
 				<param key="options">
 					<value>
@@ -755,6 +765,7 @@
 			</class>
 			<params>
 				<param key="alias" value="calendar_event" />
+				<param key="dao_class" value="DAO_CalendarEvent" />
 				<param key="view_class" value="View_CalendarEvent" />
 				<param key="options">
 					<value>
@@ -777,6 +788,7 @@
 			</class>
 			<params>
 				<param key="alias" value="comment" />
+				<param key="dao_class" value="DAO_Comment" />
 				<param key="view_class" value="View_Comment" />
 				<!--
 				<param key="options">
@@ -796,6 +808,7 @@
 			</class>
 			<params>
 				<param key="alias" value="draft" />
+				<param key="dao_class" value="DAO_MailQueue" />
 				<param key="view_class" value="View_MailQueue" />
 				<param key="options">
 					<value>
@@ -818,6 +831,7 @@
 			</class>
 			<params>
 				<param key="alias" value="group" />
+				<param key="dao_class" value="DAO_Group" />
 				<param key="view_class" value="View_Group" />
 				<param key="options">
 					<value>
@@ -839,6 +853,7 @@
 			</class>
 			<params>
 				<param key="alias" value="message" />
+				<param key="dao_class" value="DAO_Message" />
 				<param key="view_class" value="View_Message" />
 				<param key="options">
 					<value>
@@ -858,6 +873,7 @@
 			</class>
 			<params>
 				<param key="alias" value="notification" />
+				<param key="dao_class" value="DAO_Notification" />
 				<param key="view_class" value="View_Notification" />
 				<param key="options">
 					<value>
@@ -878,6 +894,7 @@
 			</class>
 			<params>
 				<param key="alias" value="org" />
+				<param key="dao_class" value="DAO_ContactOrg" />
 				<param key="view_class" value="View_ContactOrg" />
 				<param key="options">
 					<value>
@@ -900,6 +917,7 @@
 			</class>
 			<params>
 				<param key="alias" value="snippet" />
+				<param key="dao_class" value="DAO_Snippet" />
 				<param key="view_class" value="View_Snippet" />
 				<param key="options">
 					<value>
@@ -921,6 +939,7 @@
 			</class>
 			<params>
 				<param key="alias" value="task" />
+				<param key="dao_class" value="DAO_Task" />
 				<param key="view_class" value="View_Task" />
 				<param key="options">
 					<value>
@@ -943,6 +962,7 @@
 			</class>
 			<params>
 				<param key="alias" value="ticket" />
+				<param key="dao_class" value="DAO_Ticket" />
 				<param key="view_class" value="View_Ticket" />
 				<param key="options">
 					<value>
@@ -965,6 +985,7 @@
 			</class>
 			<params>
 				<param key="alias" value="worker" />
+				<param key="dao_class" value="DAO_Worker" />
 				<param key="view_class" value="View_Worker" />
 				<param key="options">
 					<value>
@@ -986,6 +1007,8 @@
 				<name>Context_WorkerRole</name>
 			</class>
 			<params>
+				<param key="alias" value="role" />
+				<param key="dao_class" value="DAO_WorkerRole" />
 				<param key="view_class" value="View_WorkerRole" />
 				<param key="options">
 					<!--
@@ -1377,6 +1400,21 @@
 				<param key="uri" value="internal" />
 			</params>
 		</extension>
+
+			<!-- Internal Page Sections -->
+			
+			<extension point="cerberusweb.ui.page.section">
+				<id>core.internal.section.dashboards</id>
+				<name>Internal Section</name>
+				<class>
+					<file>api/uri/internal/dashboards.php</file>
+					<name>PageSection_InternalDashboards</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.controller.internal" />
+					<param key="uri" value="dashboards" />
+				</params>
+			</extension>
 
 		<extension point="devblocks.controller">
 			<id>core.controller.print</id>
@@ -2164,6 +2202,77 @@
 				</params>
 			</extension>
 		
+		<!-- Workspace Tabs -->
+		
+		<extension point="cerberusweb.ui.workspace.tab">
+			<id>core.workspace.tab</id>
+			<name>Dashboards Workspace Tab</name>
+			<class>
+				<file>api/uri/internal/dashboards.php</file>
+				<name>WorkspaceTab_Dashboards</name>
+			</class>
+			<params>
+				<param key="label" value="core.workspace.dashboard" />
+			</params>
+		</extension>		
+		
+		<!-- Workspace Widgets -->
+		
+		<extension point="cerberusweb.ui.workspace.widget">
+			<id>core.workspace.widget.gauge</id>
+			<name>Gauge</name>
+			<class>
+				<file>api/uri/internal/dashboards.php</file>
+				<name>WorkspaceWidget_Gauge</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+	
+		<extension point="cerberusweb.ui.workspace.widget">
+			<id>core.workspace.widget.chart</id>
+			<name>Chart</name>
+			<class>
+				<file>api/uri/internal/dashboards.php</file>
+				<name>WorkspaceWidget_Chart</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+		
+		<extension point="cerberusweb.ui.workspace.widget">
+			<id>core.workspace.widget.counter</id>
+			<name>Counter</name>
+			<class>
+				<file>api/uri/internal/dashboards.php</file>
+				<name>WorkspaceWidget_Counter</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+	
+		<extension point="cerberusweb.ui.workspace.widget">
+			<id>core.workspace.widget.subtotals</id>
+			<name>Subtotals</name>
+			<class>
+				<file>api/uri/internal/dashboards.php</file>
+				<name>WorkspaceWidget_Subtotals</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+
+		<extension point="cerberusweb.ui.workspace.widget">
+			<id>core.workspace.widget.worklist</id>
+			<name>Worklist</name>
+			<class>
+				<file>api/uri/internal/dashboards.php</file>
+				<name>WorkspaceWidget_Worklist</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+	
 		<!--  Login Extensions -->
 
 		<extension point="cerberusweb.login">

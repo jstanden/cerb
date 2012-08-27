@@ -4,14 +4,14 @@
 	<name>Opportunity Tracking</name>
 	<description>Create opportunities (sales leads) linked to e-mail addresses. Opportunity records can be created from the Activity menu or while reading tickets.</description>
 	<author>WebGroup Media, LLC.</author>
-	<version>6.0.0</version>
+	<version>6.1.0</version>
 	<link>http://wiki.cerb5.com/wiki/Features:Opportunity_Tracking</link>
 	<image>plugin.png</image>
 	
 	<!-- Requirements -->
 
 	<requires>
-		<app_version min="6.0" max="6.0.99" />
+		<app_version min="6.1" max="6.1.99" />
 	</requires>
 	
 	<!-- Plugin Dependencies -->
@@ -89,6 +89,7 @@
 			</class>
 			<params>
 				<param key="alias" value="opportunity" />
+				<param key="dao_class" value="DAO_CrmOpportunity" />
 				<param key="view_class" value="View_CrmOpportunity" />
 				<param key="options">
 					<value>

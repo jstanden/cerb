@@ -3,7 +3,7 @@
 <form id="reply{$message->id}_part1">
 <table cellpadding="2" cellspacing="0" border="0" width="100%">
 	<tr>
-		<td><h2>{if $is_forward}{$translate->_('display.ui.forward')|capitalize}{else}{$translate->_('display.ui.reply')|capitalize}{/if}</h2></td>
+		<td><h2 style="color:rgb(50,50,50);">{if $is_forward}{$translate->_('display.ui.forward')|capitalize}{else}{$translate->_('display.ui.reply')|capitalize}{/if}</h2></td>
 	</tr>
 	<tr>
 		<td width="100%">
@@ -211,7 +211,7 @@
 							
 					      	<div id="replyClosed{$message->id}" style="display:{if (empty($draft) && 'open'==$mail_status_reply) || (!empty($draft) && $draft->params.closed==0)}none{else}block{/if};margin-left:10px;margin-bottom:10px;">
 					      	<b>{$translate->_('display.reply.next.resume')}</b> {$translate->_('display.reply.next.resume_eg')}<br> 
-					      	<input type="text" name="ticket_reopen" size="55" value="{if !empty($draft)}{$draft->params.ticket_reopen}{elseif !empty($ticket->due_date)}{$ticket->due_date|devblocks_date}{/if}"><br>
+					      	<input type="text" name="ticket_reopen" size="55" value="{if !empty($draft)}{$draft->params.ticket_reopen}{elseif !empty($ticket->reopen_at)}{$ticket->reopen_at|devblocks_date}{/if}"><br>
 					      	{$translate->_('display.reply.next.resume_blank')}<br>
 					      	</div>
 	

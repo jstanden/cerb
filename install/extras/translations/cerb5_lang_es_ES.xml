@@ -3242,11 +3242,6 @@ Por ejemplo: *recibo*</seg>
         <seg>Tareas del Ticket</seg>
       </tuv>
     </tu>
-    <tu tuid="ticket.created">
-      <tuv xml:lang="es_ES">
-        <seg>Creado</seg>
-      </tuv>
-    </tu>
     <tu tuid="ticket.due">
       <tuv xml:lang="es_ES">
         <seg>Vencimiento</seg>
@@ -3335,11 +3330,6 @@ Por ejemplo: *recibo*</seg>
     <tu tuid="ticket.unlock_date">
       <tuv xml:lang="es_ES">
         <seg>Fecha Auto-Rebotar</seg>
-      </tuv>
-    </tu>
-    <tu tuid="ticket.updated">
-      <tuv xml:lang="es_ES">
-        <seg>Actualizado</seg>
       </tuv>
     </tu>
     <tu tuid="timetracking.activity.tab">

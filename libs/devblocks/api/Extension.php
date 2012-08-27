@@ -792,8 +792,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 		return $pass;
 	}
 	
-	// [TODO] Cache results for this request
-	function getActions($trigger) {
+	function getActions($trigger) { /* @var $trigger Model_TriggerEvent */
 		$actions = array();
 		$custom = $this->getActionExtensions();
 		
@@ -807,8 +806,10 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 		}
 		
 		// Add plugin extensions
-		// [TODO] This should be filtered by event type?
-		$manifests = Extension_DevblocksEventAction::getAll(false);
+		
+		$manifests = Extension_DevblocksEventAction::getAll(false, $trigger->event_point);
+		
+		if(is_array($manifests))
 		foreach($manifests as $manifest) {
 			$actions[$manifest->id] = array('label' => $manifest->params['label']);
 		}
@@ -870,6 +871,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 								return;
 								break;
 						}
+						
 					} else {
 						// Plugins
 						if(null != ($ext = DevblocksPlatform::getExtension($token, true))
@@ -977,13 +979,32 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 };
 
 abstract class Extension_DevblocksEventCondition extends DevblocksExtension {
-	public static function getAll($as_instances=false) {
-		$extensions = DevblocksPlatform::getExtensions('devblocks.event.condition', $as_instances);
+	public static function getAll($as_instances=false, $for_event=null) {
+		$extensions = DevblocksPlatform::getExtensions('devblocks.event.condition', false);
+		$results = array();
+		
+		foreach($extensions as $ext_id => $ext) {
+			// If the condition doesn't specify event filters, add to everything
+			if(!isset($ext->params['events'][0])) {
+				$results[$ext_id] = $as_instances ? $ext->createInstance() : $ext;
+				
+			} else {
+				// Loop through the patterns
+				foreach(array_keys($ext->params['events'][0]) as $evt_pattern) {
+					$evt_pattern = DevblocksPlatform::strToRegExp($evt_pattern);
+					
+					if(preg_match($evt_pattern, $for_event))
+						$results[$ext_id] = $as_instances ? $ext->createInstance() : $ext;
+				}
+			}
+		}
+		
 		if($as_instances)
-			DevblocksPlatform::sortObjects($extensions, 'manifest->params->[label]');
+			DevblocksPlatform::sortObjects($results, 'manifest->params->[label]');
 		else
-			DevblocksPlatform::sortObjects($extensions, 'params->[label]');
-		return $extensions;
+			DevblocksPlatform::sortObjects($results, 'params->[label]');
+		
+		return $results;
 	}
 	
 	abstract function render(Extension_DevblocksEvent $event, Model_TriggerEvent $trigger, $params=array(), $seq=null);
@@ -991,13 +1012,32 @@ abstract class Extension_DevblocksEventCondition extends DevblocksExtension {
 };
 
 abstract class Extension_DevblocksEventAction extends DevblocksExtension {
-	public static function getAll($as_instances=false) {
-		$extensions = DevblocksPlatform::getExtensions('devblocks.event.action', $as_instances);
+	public static function getAll($as_instances=false, $for_event=null) {
+		$extensions = DevblocksPlatform::getExtensions('devblocks.event.action', false);
+		$results = array();
+		
+		foreach($extensions as $ext_id => $ext) {
+			// If the action doesn't specify event filters, add to everything
+			if(!isset($ext->params['events'][0])) {
+				$results[$ext_id] = $as_instances ? $ext->createInstance() : $ext;
+				
+			} else {
+				// Loop through the patterns
+				foreach(array_keys($ext->params['events'][0]) as $evt_pattern) {
+					$evt_pattern = DevblocksPlatform::strToRegExp($evt_pattern);
+					
+					if(preg_match($evt_pattern, $for_event))
+						$results[$ext_id] = $as_instances ? $ext->createInstance() : $ext;
+				}
+			}
+		}
+			
 		if($as_instances)
-			DevblocksPlatform::sortObjects($extensions, 'manifest->params->[label]');
+			DevblocksPlatform::sortObjects($results, 'manifest->params->[label]');
 		else
-			DevblocksPlatform::sortObjects($extensions, 'params->[label]');
-		return $extensions;
+			DevblocksPlatform::sortObjects($results, 'params->[label]');
+		
+		return $results;
 	}
 	
 	abstract function render(Extension_DevblocksEvent $event, Model_TriggerEvent $trigger, $params=array(), $seq=null);

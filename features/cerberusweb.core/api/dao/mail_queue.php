@@ -1,6 +1,6 @@
 <?php
 /***********************************************************************
-| Cerberus Helpdesk(tm) developed by WebGroup Media, LLC.
+| Cerb(tm) developed by WebGroup Media, LLC.
 |-----------------------------------------------------------------------
 | All source code & content (c) Copyright 2012, WebGroup Media LLC
 |   unless specifically noted otherwise.
@@ -344,6 +344,10 @@ class Model_MailQueue {
 			'draft_id' => $this->id,
 		);
 
+		// Broadcast?
+		if(isset($this->params['is_broadcast']))
+			$properties['is_broadcast'] = intval($this->params['is_broadcast']);
+		
 		// From
 		if(!isset($this->params['group_id']))
 			return false;
@@ -378,6 +382,9 @@ class Model_MailQueue {
 			$properties['org_id'] = intval($this->params['org_id']);
 		}
 		
+		// Worker
+		$properties['worker_id'] = empty($this->worker_id) ? $this->worker_id : 0;
+		
 		// Files + Next step
 		//'files' => $files,
 
@@ -408,7 +415,11 @@ class Model_MailQueue {
 		// Auto-reply
 		if(isset($this->params['is_autoreply']) && !empty($this->params['is_autoreply']))
 			$properties['is_autoreply'] = true;
-			
+
+		// Broadcast?
+		if(isset($this->params['is_broadcast']))
+			$properties['is_broadcast'] = intval($this->params['is_broadcast']);
+		
 		// To
 		if(isset($this->params['to']))
 			$properties['to'] = $this->params['to'];

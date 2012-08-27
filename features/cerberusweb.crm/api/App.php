@@ -1,6 +1,6 @@
 <?php
 /***********************************************************************
-| Cerberus Helpdesk(tm) developed by WebGroup Media, LLC.
+| Cerb(tm) developed by WebGroup Media, LLC.
 |-----------------------------------------------------------------------
 | All source code & content (c) Copyright 2012, WebGroup Media LLC
 |   unless specifically noted otherwise.
@@ -81,15 +81,21 @@ class CrmPage extends CerberusPageExtension {
 			);
 			$opp_id = DAO_CrmOpportunity::create($fields);
 			
-			@$is_watcher = DevblocksPlatform::importGPC($_REQUEST['is_watcher'],'integer',0);
-			if($is_watcher)
-				CerberusContexts::addWatchers(CerberusContexts::CONTEXT_OPPORTUNITY, $opp_id, $active_worker->id);
+			// Watchers
+			@$add_watcher_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_REQUEST['add_watcher_ids'],'array',array()),'integer',array('unique','nonzero'));
+			if(!empty($add_watcher_ids))
+				CerberusContexts::addWatchers(CerberusContexts::CONTEXT_OPPORTUNITY, $opp_id, $add_watcher_ids);
 			
 			// Context Link (if given)
 			@$link_context = DevblocksPlatform::importGPC($_REQUEST['link_context'],'string','');
 			@$link_context_id = DevblocksPlatform::importGPC($_REQUEST['link_context_id'],'integer','');
 			if(!empty($opp_id) && !empty($link_context) && !empty($link_context_id)) {
 				DAO_ContextLink::setLink(CerberusContexts::CONTEXT_OPPORTUNITY, $opp_id, $link_context, $link_context_id);
+			}
+			
+			// View marquee
+			if(!empty($opp_id) && !empty($view_id)) {
+				C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_OPPORTUNITY, $opp_id);
 			}
 			
 		} else {
@@ -138,11 +144,6 @@ class CrmPage extends CerberusPageExtension {
 				);
 				$comment_id = DAO_Comment::create($fields, $also_notify_worker_ids);
 			}
-		}
-		
-		// Reload view (if linked)
-		if(!empty($view_id) && null != ($view = C4_AbstractViewLoader::getView($view_id))) {
-			$view->render();
 		}
 		
 		exit;

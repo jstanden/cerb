@@ -53,31 +53,33 @@
 					{$meta = $context->getMeta({$workspace_page->owner_context_id})}
 					<div class="bubble"><b>{$meta.name}</b> ({$context->manifest->name})</div>
 				{/if}
-			{else}
-				<select name="owner">
-					<option value="w_{$active_worker->id}">me</option>
-					
-					{if !empty($owner_groups)}
-					{foreach from=$owner_groups item=group key=group_id}
-						<option value="g_{$group_id}">Group: {$group->name}</option>
-					{/foreach}
-					{/if}
-					
-					{if !empty($owner_roles)}
-					{foreach from=$owner_roles item=role key=role_id}
-						<option value="r_{$role_id}">Role: {$role->name}</option>
-					{/foreach}
-					{/if}
-					
-					{if $active_worker->is_superuser}
-					{foreach from=$workers item=worker key=worker_id}
-						{if empty($worker->is_disabled)}
-						<option value="w_{$worker_id}">Worker: {$worker->getName()}</option>
-						{/if}
-					{/foreach}
-					{/if}
-				</select>
 			{/if}
+			
+			<select name="owner">
+				{if !empty($workspace_page)}<option value="">- change -</option>{/if}
+				
+				<option value="w_{$active_worker->id}">me</option>
+				
+				{if !empty($owner_groups)}
+				{foreach from=$owner_groups item=group key=group_id}
+					<option value="g_{$group_id}">Group: {$group->name}</option>
+				{/foreach}
+				{/if}
+				
+				{if !empty($owner_roles)}
+				{foreach from=$owner_roles item=role key=role_id}
+					<option value="r_{$role_id}">Role: {$role->name}</option>
+				{/foreach}
+				{/if}
+				
+				{if $active_worker->is_superuser}
+				{foreach from=$workers item=worker key=worker_id}
+					{if empty($worker->is_disabled)}
+					<option value="w_{$worker_id}">Worker: {$worker->getName()}</option>
+					{/if}
+				{/foreach}
+				{/if}
+			</select>
 		</td>
 	</tr>
 </table>

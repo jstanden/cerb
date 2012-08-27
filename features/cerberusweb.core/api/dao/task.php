@@ -1,6 +1,6 @@
 <?php
 /***********************************************************************
-| Cerberus Helpdesk(tm) developed by WebGroup Media, LLC.
+| Cerb(tm) developed by WebGroup Media, LLC.
 |-----------------------------------------------------------------------
 | All source code & content (c) Copyright 2012, WebGroup Media LLC
 |   unless specifically noted otherwise.
@@ -309,20 +309,16 @@ class DAO_Task extends C4_ORMHelper {
 		// Translate virtual fields
 		
 		$args = array(
-			'join_sql' => $join_sql,
-			'where_sql' => $where_sql,
-			'has_multiple_values' => $has_multiple_values
+			'join_sql' => &$join_sql,
+			'where_sql' => &$where_sql,
+			'has_multiple_values' => &$has_multiple_values
 		);
 		
 		array_walk_recursive(
 			$params,
 			array('DAO_Task', '_translateVirtualParameters'),
-			&$args
+			$args
 		);
-		
-		$join_sql = $args['join_sql'];
-		$where_sql = $args['where_sql'];
-		$has_multiple_values = $args['has_multiple_values'];
 		
 		$result = array(
 			'primary_table' => 't',

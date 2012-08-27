@@ -1,6 +1,6 @@
 <?php
 /***********************************************************************
-| Cerberus Helpdesk(tm) developed by WebGroup Media, LLC.
+| Cerb(tm) developed by WebGroup Media, LLC.
 |-----------------------------------------------------------------------
 | All source code & content (c) Copyright 2012, WebGroup Media LLC
 |   unless specifically noted otherwise.
@@ -386,6 +386,11 @@ class ChGroupsPage extends CerberusPageExtension  {
 		if(empty($group_id)) { // new
 			$group_id = DAO_Group::create($fields);
 			
+			// View marquee
+			if(!empty($group_id) && !empty($view_id)) {
+				C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_GROUP, $group_id);
+			}
+			
 		} else { // update
 			DAO_Group::update($group_id, $fields);
 		}
@@ -393,11 +398,6 @@ class ChGroupsPage extends CerberusPageExtension  {
 		// Custom field saves
 		@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', array());
 		DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_GROUP, $group_id, $field_ids);
-		
-		// Reload view (if linked)
-		if(!empty($view_id) && null != ($view = C4_AbstractViewLoader::getView($view_id))) {
-			$view->render();
-		}
 		
 		exit;
 	}
