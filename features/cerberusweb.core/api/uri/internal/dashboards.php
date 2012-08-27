@@ -1209,10 +1209,16 @@ class WorkspaceWidget_Chart extends Extension_WorkspaceWidget {
 class WorkspaceWidget_Subtotals extends Extension_WorkspaceWidget {
 	function render(Model_WorkspaceWidget $widget) {
 		$view_id = sprintf("widget%d_worklist", $widget->id);
-		
-		if(null == ($view = C4_AbstractViewLoader::getView($view_id)))
-			return;
 
+		if(null == ($view_model = self::getParamsViewModel($widget, $widget->params)))
+			return;
+		
+		// Force reload parameters (we can't trust the session)
+		if(false == ($view = C4_AbstractViewLoader::unserializeAbstractView($view_model)))
+			return;
+		
+		C4_AbstractViewLoader::setView($view->id, $view);
+		
 		if(!($view instanceof IAbstractView_Subtotals))
 			return;
 		
@@ -1249,6 +1255,19 @@ class WorkspaceWidget_Subtotals extends Extension_WorkspaceWidget {
 		$context_mfts = Extension_DevblocksContext::getAll(false, 'workspace');
 		$tpl->assign('context_mfts', $context_mfts);
 		
+		// Worklist
+		
+		if(
+			null != ($view_model = self::getParamsViewModel($widget, $widget->params))
+			&& false != ($view = C4_AbstractViewLoader::unserializeAbstractView($view_model)) 
+		) {
+			// Mirror the worklist to the config worklist
+			$view->id = sprintf("widget%d_worklist", $widget->id);
+			$view->is_ephemeral = false;
+			
+			C4_AbstractViewLoader::setView($view->id, $view);
+		}		
+		
 		// Template
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/subtotals/config.tpl');	
@@ -1256,19 +1275,6 @@ class WorkspaceWidget_Subtotals extends Extension_WorkspaceWidget {
 	
 	function saveConfig(Model_WorkspaceWidget $widget) {
 		@$params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', array());		
-		
-		// Save the worklist
-		
-		if(
-			null != ($view_model = self::getParamsViewModel($widget, $params))
-			&& false != ($view = C4_AbstractViewLoader::unserializeAbstractView($view_model)) 
-		) {
-			// Set the usable worklist
-			$view->id = sprintf("widget%d_worklist", $widget->id);
-			$view->is_ephemeral = false;
-			
-			C4_AbstractViewLoader::setView($view->id, $view);
-		}
 		
 		// Save the widget
 		
@@ -1282,8 +1288,14 @@ class WorkspaceWidget_Worklist extends Extension_WorkspaceWidget {
 	function render(Model_WorkspaceWidget $widget) {
 		$view_id = sprintf("widget%d_worklist", $widget->id);
 		
-		if(null == ($view = C4_AbstractViewLoader::getView($view_id)))
+		if(null == ($view_model = self::getParamsViewModel($widget, $widget->params)))
 			return;
+		
+		// Force reload parameters (we can't trust the session)
+		if(false == ($view = C4_AbstractViewLoader::unserializeAbstractView($view_model)))
+			return;
+		
+		C4_AbstractViewLoader::setView($view->id, $view);
 		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('view_id', $view->id);
