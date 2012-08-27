@@ -1165,6 +1165,10 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals {
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__string.tpl');
 				break;
 				
+			case SearchFields_Message::RESPONSE_TIME:
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__number.tpl');
+				break;
+				
 			case SearchFields_Message::IS_BROADCAST:
 			case SearchFields_Message::IS_OUTGOING:
 			case SearchFields_Message::TICKET_IS_DELETED:
@@ -1244,6 +1248,10 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals {
 			case SearchFields_Message::TICKET_MASK:
 			case SearchFields_Message::TICKET_SUBJECT:
 				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
+				break;
+				
+			case SearchFields_Message::RESPONSE_TIME:
+				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
 				break;
 				
 			case SearchFields_Message::CREATED_DATE:
@@ -1414,6 +1422,7 @@ class Context_Message extends Extension_DevblocksContext {
 			'created|date' => $prefix.$translate->_('common.created'),
 			'is_broadcast' => $prefix.$translate->_('message.is_broadcast'),
 			'is_outgoing' => $prefix.$translate->_('message.is_outgoing'),
+			'response_time' => $prefix.$translate->_('message.response_time'),
 			'storage_size' => $prefix.$translate->_('message.storage_size').' (bytes)',
 		);
 		
@@ -1431,6 +1440,7 @@ class Context_Message extends Extension_DevblocksContext {
 			$token_values['id'] = $message->id;
 			$token_values['is_broadcast'] = $message->is_broadcast;
 			$token_values['is_outgoing'] = $message->is_outgoing;
+			$token_values['response_time'] = $message->response_time;
 			$token_values['storage_size'] = $message->storage_size;
 			$token_values['ticket_id'] = $message->ticket_id;
 			$token_values['worker_id'] = $message->worker_id;
