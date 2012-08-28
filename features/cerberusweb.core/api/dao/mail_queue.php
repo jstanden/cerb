@@ -383,7 +383,7 @@ class Model_MailQueue {
 		}
 		
 		// Worker
-		$properties['worker_id'] = empty($this->worker_id) ? $this->worker_id : 0;
+		$properties['worker_id'] = !empty($this->worker_id) ? $this->worker_id : 0;
 		
 		// Files + Next step
 		//'files' => $files,
@@ -441,7 +441,7 @@ class Model_MailQueue {
 		$properties['content'] = $this->body;
 
 		// Worker
-		$properties['worker_id'] = empty($this->worker_id) ? $this->worker_id : 0;
+		$properties['worker_id'] = !empty($this->worker_id) ? $this->worker_id : 0;
 		
 		// Attachments
 		// 'files' => $attachment_files,
