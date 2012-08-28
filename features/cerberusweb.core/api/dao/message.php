@@ -1272,7 +1272,7 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals {
 				
 			case SearchFields_Message::WORKER_ID:
 				@$worker_ids = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',array());
-				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$worker_ids);
+				$criteria = new DevblocksSearchCriteria($field,$oper,$worker_ids);
 				break;
 				
 			case SearchFields_Message::MESSAGE_CONTENT:
