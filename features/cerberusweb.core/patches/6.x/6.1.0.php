@@ -114,6 +114,7 @@ list($columns, $indexes) = $db->metaTable('ticket');
 // Rename ticket.due_date -> ticket.reopen_at
 
 if(isset($columns['due_date'])) {
+	$db->Execute("UPDATE ticket SET due_date=0 WHERE due_date IS NULL");
 	$db->Execute("ALTER TABLE ticket CHANGE COLUMN due_date reopen_at INT UNSIGNED NOT NULL DEFAULT 0");
 }
 

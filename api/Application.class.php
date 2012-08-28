@@ -1209,7 +1209,9 @@ class Context_Application extends Extension_DevblocksContext {
 	}
 	
 	function getMeta($context_id) {
-		$worker_role = DAO_WorkerRole::get($context_id);
+		if(null == ($worker_role = DAO_WorkerRole::get($context_id)))
+			return null;
+			
 		$url_writer = DevblocksPlatform::getUrlService();
 		
 		$who = sprintf("%d-%s",
