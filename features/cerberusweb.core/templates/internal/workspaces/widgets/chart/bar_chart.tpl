@@ -69,7 +69,7 @@ try {
 			
 			$(this).data('xtick_width', xtick_width);
 			
-			chart_x = 0; //Math.floor((xtick_width-1) / 2);
+			chart_x = 0;
 			
 			for(idx in series.data) {
 				point = series.data[idx];
@@ -118,7 +118,7 @@ try {
 			for(idx in plots) {
 				plot = plots[idx];
 
-				dist = Math.abs(x-plot.chart_x);
+				dist = Math.abs(x-(plot.chart_x+(xtick_width/2)));
 				
 				if(dist < closest.dist) {
 					closest.dist = dist;
