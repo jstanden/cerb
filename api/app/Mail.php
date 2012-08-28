@@ -145,6 +145,7 @@ class CerberusMail {
 		@$is_broadcast = intval($properties['is_broadcast']);
 		
 		@$worker_id = $properties['worker_id'];
+		$worker = null;
 		
 		if(empty($worker_id) && null != ($worker = CerberusApplication::getActiveWorker()))
 			$worker_id = $worker->id;
