@@ -99,38 +99,65 @@ class DevblocksSearchCriteria {
 				break;
 			
 			case "in":
-				if(!is_array($this->value)) break;
-				$value = (!empty($this->value)) ? $this->value : array(-1);
+				if(!is_array($this->value) && !is_string($this->value))
+					break;
+				
+				if(!is_array($this->value) && preg_match('#^\[.*\]$#', $this->value)) {
+					$values = json_decode($this->value, true);
+					
+				} elseif(is_array($this->value)) {
+					$values = $this->value;
+					
+				} else {
+					$values = array($this->value);
+					
+				}
+				
 				$vals = array();
 				
 				// Escape quotes
-				foreach($this->value as $idx=>$val) {
-					$vals[$idx] = addslashes($val);
+				foreach($values as $idx=>$val) {
+					$vals[$idx] = $db->qstr((string)$val);
 				}
 				
-				$where = sprintf("%s IN ('%s')",
+				if(empty($vals))
+					$vals = array(-1);
+				
+				$where = sprintf("%s IN (%s)",
 					$db_field_name,
-					implode("','",$vals)
+					implode(",", $vals)
 				);
 				break;
 				
 			case DevblocksSearchCriteria::OPER_IN_OR_NULL:
-				if(!is_array($this->value)) break;
-				$value = (!empty($this->value)) ? $this->value : array(-1);
+				if(!is_array($this->value) && !is_string($this->value))
+					break;
+				
+				if(!is_array($this->value) && preg_match('#^\[.*\]$#', $this->value)) {
+					$values = json_decode($this->value, true);
+					
+				} elseif(is_array($this->value)) {
+					$values = $this->value;
+					
+				} else {
+					$values = array($this->value);
+					
+				}
+				
 				$vals = array();
 				
 				// Escape quotes
-				foreach($this->value as $idx=>$val) {
-					$vals[$idx] = addslashes($val);
+				foreach($values as $idx=>$val) {
+					$vals[$idx] = $db->qstr((string)$val);
 				}
 				
 				if(empty($vals)) {
 					$where_in = '';
 					
-				} else {
-					$where_in = sprintf("%s IN ('%s') OR ",
+				} elseif(is_string($this->value)) {
+					$where_in = sprintf("%s IN (%s) OR ",
 						$db_field_name,
-						implode("','",$vals)
+						implode(",",$vals)
 					);
 				}
 				
@@ -141,38 +168,65 @@ class DevblocksSearchCriteria {
 				break;
 
 			case DevblocksSearchCriteria::OPER_NIN: // 'not in'
-				if(!is_array($this->value)) break;
-				$value = (!empty($this->value)) ? $this->value : array(-1);
+				if(!is_array($this->value) && !is_string($this->value))
+					break;
+				
+				if(!is_array($this->value) && preg_match('#^\[.*\]$#', $this->value)) {
+					$values = json_decode($this->value, true);
+					
+				} elseif(is_array($this->value)) {
+					$values = $this->value;
+					
+				} else {
+					$values = array($this->value);
+					
+				}
+				
 				$vals = array();
 				
 				// Escape quotes
-				foreach($this->value as $idx=>$val) {
-					$vals[$idx] = addslashes($val);
+				foreach($values as $idx=>$val) {
+					$vals[$idx] = $db->qstr((string)$val);
 				}
+
+				if(empty($vals))
+					$vals = array(-1);
 				
-				$where = sprintf("%s NOT IN ('%s')",
+				$where = sprintf("%s NOT IN (%s)",
 					$db_field_name,
-					implode("','",$vals)
+					implode(",",$vals)
 				);
 				break;
 				
 			case DevblocksSearchCriteria::OPER_NIN_OR_NULL:
-				if(!is_array($this->value)) break;
-				$value = (!empty($this->value)) ? $this->value : array(-1);
+				if(!is_array($this->value) && !is_string($this->value))
+					break;
+				
+				if(!is_array($this->value) && preg_match('#^\[.*\]$#', $this->value)) {
+					$values = json_decode($this->value, true);
+					
+				} elseif(is_array($this->value)) {
+					$values = $this->value;
+					
+				} else {
+					$values = array($this->value);
+					
+				}
+				
 				$vals = array();
 				
 				// Escape quotes
-				foreach($this->value as $idx=>$val) {
-					$vals[$idx] = addslashes($val);
+				foreach($values as $idx=>$val) {
+					$vals[$idx] = $db->qstr((string)$val);
 				}
 				
 				if(empty($vals)) {
 					$where_in = '';
 					
 				} else {
-					$where_in = sprintf("%s NOT IN ('%s') OR ",
+					$where_in = sprintf("%s NOT IN (%s) OR ",
 						$db_field_name,
-						implode("','",$vals)
+						implode(",",$vals)
 					);
 				}
 				
