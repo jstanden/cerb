@@ -224,7 +224,20 @@ class CerberusParserModel {
 			foreach(array_keys($aReferences) as $ref) {
 				if(empty($ref))
 					continue;
+				
+				if(preg_match('#\<(.*)\_(\d*)\_(\d*)\_([a-f0-9]{8})\@cerb5\>#', $ref, $hits)) {
+					$ticket_id = $hits[2];
 					
+					if(null != ($ticket = DAO_Ticket::get($ticket_id))) {
+						$this->_is_new = false;
+						$this->_ticket_id = $ticket_id;
+						$this->_ticket_model = $ticket;
+						$this->_message_id = $ticket->last_message_id;
+						return;
+					}
+				}
+				
+				// Otherwise, look up the normal header
 				if(null != ($ids = DAO_Ticket::getTicketByMessageId($ref))) {
 					$this->_is_new = false;
 					$this->_ticket_id = $ids['ticket_id'];
