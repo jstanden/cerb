@@ -820,10 +820,37 @@ class CerberusParser {
 
 				if(!empty($proxy_ticket)) {
 					$parser_message = $model->getMessage();
+					$attachment_file_ids = array();
+					
+					foreach($parser_message->files as $filename => $file) {
+						if(0 == strcasecmp($filename, 'original_message.html'))
+							continue;
+						
+					    $fields = array(
+					        DAO_Attachment::DISPLAY_NAME => $filename,
+					        DAO_Attachment::MIME_TYPE => $file->mime_type,
+					    );
+					    
+					    if(null == ($file_id = DAO_Attachment::create($fields))) {
+					        @unlink($file->tmpname); // remove our temp file
+						    continue;
+					    }
+						
+					    $attachment_file_ids[] = $file_id;
+			
+						if(null !== ($fp = fopen($file->getTempFile(), 'rb'))) {
+							Storage_Attachments::put($file_id, $fp);
+							fclose($fp);
+							unlink($file->getTempFile());
+						}
+					}
+					
 					// Properties
 					$properties = array(
 						'ticket_id' => $proxy_ticket->id,
 						'message_id' => $proxy_ticket->last_message_id,
+						'forward_files' => $attachment_file_ids,
+						'link_forward_files' => true,
 						'worker_id' => $proxy_worker->id,
 					);
 					 
