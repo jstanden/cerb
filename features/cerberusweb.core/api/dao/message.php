@@ -1218,8 +1218,12 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__string.tpl');
 				break;
 				
-			case SearchFields_Message::RESPONSE_TIME:
+			case '_placeholder_number':
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__number.tpl');
+				break;
+				
+			case SearchFields_Message::RESPONSE_TIME:
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__time_elapsed.tpl');
 				break;
 				
 			case SearchFields_Message::IS_BROADCAST:
@@ -1283,6 +1287,11 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 				$this->_renderCriteriaParamWorker($param);
 				break;
 				
+			case SearchFields_Message::RESPONSE_TIME:
+				$value = array_shift($values);
+				echo DevblocksPlatform::strSecsToString($value);
+				break;
+				
 			default:
 				parent::renderCriteriaParam($param);
 				break;
@@ -1304,6 +1313,10 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 				break;
 				
 			case SearchFields_Message::RESPONSE_TIME:
+				$now = time();
+				@$then = intval(strtotime($value, $now));
+				$value = $then - $now;
+				
 				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
 				break;
 				
