@@ -782,126 +782,132 @@ class CerberusParser {
 		// Overloadable
 		$enumSpamTraining = '';
 
-        	// Is it a worker reply from an external client?  If so, proxy
-        	if(null != ($worker_address = DAO_AddressToWorker::getByAddress($model->getSenderAddressModel()->email))) {
-        		$logger->info("[Worker Relay] Handling an external worker relay for " . $model->getSenderAddressModel()->email);
-        		
-        		@$in_reply_to = $message->headers['in-reply-to'];
-        		@$subject = $message->headers['subject'];
-        		$proxy_worker = DAO_Worker::get($worker_address->worker_id);
-        		
-        		// If it's a watcher reply
-        		if(preg_match('#\<(.*)\_(\d*)\_(\d*)\_([a-f0-9]{8})\@cerb5\>#', $in_reply_to, $hits)) {
-        			$context = $hits[1];
-        			$context_id = $hits[2];
-        			$signed = $hits[4];
-        			
-        			$signed_compare = substr(md5($context.$context_id.$proxy_worker->pass),8,8);        			
-
-        			// Compare worker signature, then auth
-        			if($signed_compare == $signed) {
-        				$logger->info("[Worker Relay] Worker authentication successful. Proceeding.");
-        				
-	        			CerberusContexts::setActivityDefaultActor(CerberusContexts::CONTEXT_WORKER, $proxy_worker->id);
-	
-	        			// [TODO] Expand contexts
-	        			// [TODO] Plugify contexts
-	        			switch($context) {
-	        				case CerberusContexts::CONTEXT_TICKET:
-	        					if(null != ($ticket = DAO_Ticket::get($context_id))) {
-	        						// Properties
-	        						$properties = array(
-										'ticket_id' => $ticket->id,
-										'message_id' => $ticket->last_message_id,
-										//'files' => $attachment_files,
-										'worker_id' => $proxy_worker->id,
-									);
-	        						
-				        			// Clean the reply body
-				        			$body = '';
-				        			$lines = DevblocksPlatform::parseCrlfString($message->body, true);
-				        			$is_cut = false;
-				        			
-				        			foreach($lines as $line) {
-				        				if(preg_match('/[\s\>]*\s*##/', $line))
-				        					continue;
+		// Is it a worker reply from an external client?  If so, proxy
+		
+		if(null != ($proxy_ticket = $model->getTicketModel()) 
+			&& null != ($worker_address = DAO_AddressToWorker::getByAddress($model->getSenderAddressModel()->email))) {
 			
-			        					// Insert worker sig for this bucket
-				        				if(preg_match('/^#sig/', $line, $matches)) {
-				        					$group = DAO_Group::get($ticket->group_id);
-				        					$sig = $group->getReplySignature($ticket->bucket_id, $proxy_worker);
-				        					$body .= $sig . PHP_EOL;
-				        					
-				        				} elseif(preg_match('/^#cut/', $line, $matches)) {
-				        					$is_cut = true;
-				        					
-				        				} elseif(preg_match('/^#watch/', $line, $matches)) {
-				        					CerberusContexts::addWatchers($context, $context_id, $proxy_worker->id);
-				        					
-				        				} elseif(preg_match('/^#unwatch/', $line, $matches)) {
-				        					CerberusContexts::removeWatchers($context, $context_id, $proxy_worker->id);
-				        					
-				        				} elseif(preg_match('/^#noreply/', $line, $matches)) {
-				        					$properties['dont_send'] = 1;
-				        					$properties['dont_keep_copy'] = 1;
-				        					
-				        				} elseif(preg_match('/^#status (.*)/', $line, $matches)) {
-				        					switch(strtolower($matches[1])) {
-				        						case 'o':
-				        						case 'open':
-				        							$properties['closed'] = 0;
-				        							break;
-				        						case 'w':
-				        						case 'waiting':
-				        							$properties['closed'] = 2;
-				        							break;
-				        						case 'c':
-				        						case 'closed':
-				        							$properties['closed'] = 1;
-				        							break;
-				        					}
-				        					
-				        				} elseif(preg_match('/^#reopen (.*)/', $line, $matches)) {
-				        					$properties['ticket_reopen'] = $matches[1];
-				        					
-				        				} elseif(preg_match('/^#comment (.*)/', $line, $matches)) {
-				        					if(!isset($matches[1]) || empty($matches[1]))
-				        						continue;
-				        						
-				        					DAO_Comment::create(array(
-				        						DAO_Comment::CREATED => time(),
-				        						DAO_Comment::ADDRESS_ID => $model->getSenderAddressModel()->id,
-				        						DAO_Comment::COMMENT => $matches[1],
-				        						DAO_Comment::CONTEXT => $context,
-				        						DAO_Comment::CONTEXT_ID => $context_id,
-				        					));
-				        					
-				        				} else {
-				        					if(!$is_cut)
-					        					$body .= $line . PHP_EOL;
-				        				}
-				        			}
-				        			
-				        			$properties['content'] = $body;
-	        						
-				        			$result = CerberusMail::sendTicketMessage($properties);
-				        			return NULL;
-	        					}
-	        					break;
-	        			}
-	
-	        			// Clear temporary worker session
-	        			CerberusContexts::setActivityDefaultActor(null);
-        				
-        			} else { // failed worker auth
-        				// [TODO] Bounce
-        				$logger->error("[Worker Relay] Worker authentication failed. Ignoring.");
-        				return false;
-        			}
-        			
-        		}
-        		
-        	}
+			$logger->info("[Worker Relay] Handling an external worker relay for " . $model->getSenderAddressModel()->email);
+
+			$proxy_worker = DAO_Worker::get($worker_address->worker_id);
+			$is_authenticated = false;
+
+			// If it's a watcher reply
+			
+			@$in_reply_to = $message->headers['in-reply-to'];
+			
+			if(preg_match('#\<(.*)\_(\d*)\_(\d*)\_([a-f0-9]{8})\@cerb5\>#', $in_reply_to, $hits)) {
+				$proxy_context = $hits[1];
+				$proxy_context_id = $hits[2];
+				$signed = $hits[4];
+				 
+				$signed_compare = substr(md5($proxy_context.$proxy_context_id.$proxy_worker->pass),8,8);
+				 
+				$is_authenticated = ($signed_compare == $signed);
+				
+				unset($hits);
+				unset($proxy_context);
+				unset($proxy_context_id);
+				unset($signed);
+				unset($signed_compare);
+			}
+
+			// Compare worker signature, then auth
+			if($is_authenticated) {
+				$logger->info("[Worker Relay] Worker authentication successful. Proceeding.");
+
+				CerberusContexts::setActivityDefaultActor(CerberusContexts::CONTEXT_WORKER, $proxy_worker->id);
+
+				if(!empty($proxy_ticket)) {
+					$parser_message = $model->getMessage();
+					// Properties
+					$properties = array(
+						'ticket_id' => $proxy_ticket->id,
+						'message_id' => $proxy_ticket->last_message_id,
+						'worker_id' => $proxy_worker->id,
+					);
+					 
+					// Clean the reply body
+					$body = '';
+					$lines = DevblocksPlatform::parseCrlfString($message->body, true);
+					$is_cut = false;
+					 
+					foreach($lines as $line) {
+						if(preg_match('/[\s\>]*\s*##/', $line))
+							continue;
+
+						// Insert worker sig for this bucket
+						if(preg_match('/^#sig/', $line, $matches)) {
+							$group = DAO_Group::get($proxy_ticket->group_id);
+							$sig = $group->getReplySignature($proxy_ticket->bucket_id, $proxy_worker);
+							$body .= $sig . PHP_EOL;
+								
+						} elseif(preg_match('/^#cut/', $line, $matches)) {
+							$is_cut = true;
+								
+						} elseif(preg_match('/^#watch/', $line, $matches)) {
+							CerberusContexts::addWatchers(CerberusContexts::CONTEXT_TICKET, $proxy_ticket->id, $proxy_worker->id);
+								
+						} elseif(preg_match('/^#unwatch/', $line, $matches)) {
+							CerberusContexts::removeWatchers(CerberusContexts::CONTEXT_TICKET, $proxy_ticket->id, $proxy_worker->id);
+								
+						} elseif(preg_match('/^#noreply/', $line, $matches)) {
+							$properties['dont_send'] = 1;
+							$properties['dont_keep_copy'] = 1;
+								
+						} elseif(preg_match('/^#status (.*)/', $line, $matches)) {
+							switch(strtolower($matches[1])) {
+								case 'o':
+								case 'open':
+									$properties['closed'] = 0;
+									break;
+								case 'w':
+								case 'waiting':
+									$properties['closed'] = 2;
+									break;
+								case 'c':
+								case 'closed':
+									$properties['closed'] = 1;
+									break;
+							}
+								
+						} elseif(preg_match('/^#reopen (.*)/', $line, $matches)) {
+							$properties['ticket_reopen'] = $matches[1];
+								
+						} elseif(preg_match('/^#comment (.*)/', $line, $matches)) {
+							if(!isset($matches[1]) || empty($matches[1]))
+								continue;
+
+							DAO_Comment::create(array(
+								DAO_Comment::CREATED => time(),
+								DAO_Comment::ADDRESS_ID => $model->getSenderAddressModel()->id,
+								DAO_Comment::COMMENT => $matches[1],
+								DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_TICKET,
+								DAO_Comment::CONTEXT_ID => $proxy_ticket->id,
+							));
+								
+						} else {
+							if(!$is_cut)
+								$body .= $line . PHP_EOL;
+						}
+					}
+					 
+					$properties['content'] = $body;
+					 
+					$result = CerberusMail::sendTicketMessage($properties);
+					return NULL;
+				}
+
+				// Clear temporary worker session
+				CerberusContexts::setActivityDefaultActor(null);
+
+			} else { // failed worker auth
+				// [TODO] Bounce
+				$logger->error("[Worker Relay] Worker authentication failed. Ignoring.");
+				return false;
+			}
+
+		}
 
 		// New Ticket
 		if($model->getIsNew()) {
