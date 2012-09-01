@@ -3,7 +3,7 @@
 <div style="margin-left:10px;margin-bottom:0.5em;">
 <select name="{$namePrefix}[on]" class="on">
 	{foreach from=$values_to_contexts item=context_data key=val_key}
-	<option value="{$val_key}" context="{$context_data.context}">{$context_data.label}</option>
+	<option value="{$val_key}" context="{$context_data.context}" {if $params.on==$val_key}selected="selected"{/if}>{$context_data.label}</option>
 	{/foreach}
 </select>
 </div>
@@ -39,5 +39,4 @@ $action.find('select.on').change(function(e) {
 		}
 	});
 });
-$action.find('select.on').trigger('change');
 </script>
