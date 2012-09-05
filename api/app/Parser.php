@@ -793,23 +793,30 @@ class CerberusParser {
 			$is_authenticated = false;
 
 			// If it's a watcher reply
+			$relay_auth_disabled = DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::RELAY_DISABLE_AUTH, CerberusSettingsDefaults::RELAY_DISABLE_AUTH);
 			
-			@$in_reply_to = $message->headers['in-reply-to'];
-			
-			if(preg_match('#\<(.*)\_(\d*)\_(\d*)\_([a-f0-9]{8})\@cerb5\>#', $in_reply_to, $hits)) {
-				$proxy_context = $hits[1];
-				$proxy_context_id = $hits[2];
-				$signed = $hits[4];
-				 
-				$signed_compare = substr(md5($proxy_context.$proxy_context_id.$proxy_worker->pass),8,8);
-				 
-				$is_authenticated = ($signed_compare == $signed);
+			if($relay_auth_disabled) {
+				$is_authenticated = true;
 				
-				unset($hits);
-				unset($proxy_context);
-				unset($proxy_context_id);
-				unset($signed);
-				unset($signed_compare);
+			} else {
+				@$in_reply_to = $message->headers['in-reply-to'];
+				
+				if(preg_match('#\<(.*)\_(\d*)\_(\d*)\_([a-f0-9]{8})\@cerb5\>#', $in_reply_to, $hits)) {
+					$proxy_context = $hits[1];
+					$proxy_context_id = $hits[2];
+					$signed = $hits[4];
+					 
+					$signed_compare = substr(md5($proxy_context.$proxy_context_id.$proxy_worker->pass),8,8);
+					 
+					$is_authenticated = ($signed_compare == $signed);
+					
+					unset($hits);
+					unset($proxy_context);
+					unset($proxy_context_id);
+					unset($signed);
+					unset($signed_compare);
+					unset($in_reply_to);
+				}
 			}
 
 			// Compare worker signature, then auth

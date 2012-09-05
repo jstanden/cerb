@@ -1410,6 +1410,7 @@ class CerberusSettings {
 	const TICKET_MASK_FORMAT = 'ticket_mask_format';
 	const AUTHORIZED_IPS = 'authorized_ips';
 	const LICENSE = 'license_json';
+	const RELAY_DISABLE_AUTH = 'relay_disable_auth';
 };
 
 class CerberusSettingsDefaults {
@@ -1428,6 +1429,7 @@ class CerberusSettingsDefaults {
 	const PARSER_AUTO_REQ_EXCLUDE = ''; 
 	const TICKET_MASK_FORMAT = 'LLL-NNNNN-NNN';
 	const AUTHORIZED_IPS = "127.0.0.1\n::1\n";
+	const RELAY_DISABLE_AUTH = 0;
 };
 
 class C4_DevblocksExtensionDelegate implements DevblocksExtensionDelegate {
