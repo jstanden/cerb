@@ -82,9 +82,9 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 				));
 			
 			$sample_mask = CerberusApplication::generateTicketMask($ticket_mask_format);
-			$output = sprintf("<b>%s</b> &nbsp; There are %0.0f possible ticket mask combinations.",
+			$output = sprintf("<b>%s</b> &nbsp; There are %s possible ticket mask combinations.",
 				$sample_mask,
-				$cardinality
+				number_format($cardinality, 0)
 			);
 			echo json_encode(array('status'=>true,'message'=>$output));
 			

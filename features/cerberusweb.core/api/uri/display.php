@@ -520,6 +520,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		    'ticket_reopen' => DevblocksPlatform::importGPC(@$_REQUEST['ticket_reopen'],'string',''),
 		    'worker_id' => @$worker->id,
 			'forward_files' => $file_ids,
+			'link_forward_files' => true,
 		);
 		
 		// Custom fields
@@ -537,14 +538,6 @@ class ChDisplayPage extends CerberusPageExtension {
 		if(CerberusMail::sendTicketMessage($properties)) {
 			if(!empty($draft_id))
 				DAO_MailQueue::delete($draft_id);
-			
-			// Attachments
-			// [TODO] This could happen inside ::sendTicketMessage()
-			if(is_array($file_ids) && !empty($file_ids)) {
-				if(null != ($ticket = DAO_Ticket::get($ticket_id))) {
-					DAO_AttachmentLink::setLinks(CerberusContexts::CONTEXT_MESSAGE, $ticket->last_message_id, $file_ids);
-				}
-			}
 		}
 
 		// Automatically add new 'To:' recipients?

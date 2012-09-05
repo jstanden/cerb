@@ -177,7 +177,7 @@ try {
 			context.arc(closest.chart_x, closest.chart_y, 5, 0, 2 * Math.PI, false);
 			context.fill();
 
-			text = closest.data.x + ', ' + closest.data.y;
+			text = closest.data.x_label + ', ' + closest.data.y_label;
 			bounds = context.measureText(text);
 			padding = 2;
 			

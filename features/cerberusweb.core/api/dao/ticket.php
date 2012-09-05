@@ -2217,9 +2217,12 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			case SearchFields_Ticket::TICKET_FIRST_WROTE_NONSPAM:
 			case SearchFields_Ticket::TICKET_ID:
 			case SearchFields_Ticket::TICKET_NUM_MESSAGES:
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__number.tpl');
+				break;
+
 			case SearchFields_Ticket::TICKET_ELAPSED_RESPONSE_FIRST:
 			case SearchFields_Ticket::TICKET_ELAPSED_RESOLUTION_FIRST:
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__number.tpl');
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__time_elapsed.tpl');
 				break;
 					
 			case SearchFields_Ticket::TICKET_WAITING:
@@ -2487,6 +2490,12 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				echo implode(", ", $strings);
 				break;
 				
+			case SearchFields_Ticket::TICKET_ELAPSED_RESOLUTION_FIRST:
+			case SearchFields_Ticket::TICKET_ELAPSED_RESPONSE_FIRST:
+				$value = array_shift($values);
+				echo DevblocksPlatform::strSecsToString($value);
+				break;
+				
 			default:
 				parent::renderCriteriaParam($param);
 				break;
@@ -2523,8 +2532,15 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			case SearchFields_Ticket::TICKET_FIRST_WROTE_NONSPAM:
 			case SearchFields_Ticket::TICKET_ID:
 			case SearchFields_Ticket::TICKET_NUM_MESSAGES:
+				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
+				break;
+				
 			case SearchFields_Ticket::TICKET_ELAPSED_RESPONSE_FIRST:
 			case SearchFields_Ticket::TICKET_ELAPSED_RESOLUTION_FIRST:
+				$now = time();
+				@$then = intval(strtotime($value, $now));
+				$value = $then - $now;
+				
 				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
 				break;
 

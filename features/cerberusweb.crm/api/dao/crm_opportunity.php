@@ -467,6 +467,7 @@ class SearchFields_CrmOpportunity implements IDevblocksSearchFields {
 
 	const EMAIL_ADDRESS = 'a_email';
 	const EMAIL_FIRST_NAME = 'a_first_name';
+	const EMAIL_IS_DEFUNCT = 'a_is_defunct';
 	const EMAIL_LAST_NAME = 'a_last_name';
 	const EMAIL_NUM_SPAM = 'a_num_spam';
 	const EMAIL_NUM_NONSPAM = 'a_num_nonspam';
@@ -493,6 +494,7 @@ class SearchFields_CrmOpportunity implements IDevblocksSearchFields {
 			
 			self::PRIMARY_EMAIL_ID => new DevblocksSearchField(self::PRIMARY_EMAIL_ID, 'o', 'primary_email_id', $translate->_('crm.opportunity.primary_email_id')),
 			self::EMAIL_ADDRESS => new DevblocksSearchField(self::EMAIL_ADDRESS, 'a', 'email', $translate->_('crm.opportunity.email_address'), Model_CustomField::TYPE_SINGLE_LINE),
+			self::EMAIL_IS_DEFUNCT => new DevblocksSearchField(self::EMAIL_IS_DEFUNCT, 'a', 'is_defunct', $translate->_('address.is_defunct'), Model_CustomField::TYPE_CHECKBOX),
 			self::EMAIL_FIRST_NAME => new DevblocksSearchField(self::EMAIL_FIRST_NAME, 'a', 'first_name', $translate->_('address.first_name'), Model_CustomField::TYPE_SINGLE_LINE),
 			self::EMAIL_LAST_NAME => new DevblocksSearchField(self::EMAIL_LAST_NAME, 'a', 'last_name', $translate->_('address.last_name'), Model_CustomField::TYPE_SINGLE_LINE),
 			self::EMAIL_NUM_SPAM => new DevblocksSearchField(self::EMAIL_NUM_SPAM, 'a', 'num_spam', $translate->_('address.num_spam'), Model_CustomField::TYPE_NUMBER),
@@ -628,6 +630,7 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 			switch($field_key) {
 				// Strings
 				case SearchFields_CrmOpportunity::EMAIL_ADDRESS:
+				case SearchFields_CrmOpportunity::EMAIL_IS_DEFUNCT:
 				case SearchFields_CrmOpportunity::EMAIL_FIRST_NAME:
 				case SearchFields_CrmOpportunity::EMAIL_LAST_NAME:
 				case SearchFields_CrmOpportunity::IS_CLOSED:
@@ -671,6 +674,7 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 				break;
 				
 			case SearchFields_CrmOpportunity::IS_CLOSED:
+			case SearchFields_CrmOpportunity::EMAIL_IS_DEFUNCT:
 			case SearchFields_CrmOpportunity::IS_WON:
 				$counts = $this->_getSubtotalCountForBooleanColumn('DAO_CrmOpportunity', $column);
 				break;
@@ -755,6 +759,7 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__number.tpl');
 				break;
 				
+			case SearchFields_CrmOpportunity::EMAIL_IS_DEFUNCT:
 			case SearchFields_CrmOpportunity::IS_CLOSED:
 			case SearchFields_CrmOpportunity::IS_WON:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__bool.tpl');
@@ -796,6 +801,7 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 		$values = !is_array($param->value) ? array($param->value) : $param->value;
 
 		switch($field) {
+			case SearchFields_CrmOpportunity::EMAIL_IS_DEFUNCT:
 			case SearchFields_CrmOpportunity::IS_CLOSED:
 			case SearchFields_CrmOpportunity::IS_WON:
 				$this->_renderCriteriaParamBoolean($param);
@@ -829,6 +835,7 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
 				break;
 				
+			case SearchFields_CrmOpportunity::EMAIL_IS_DEFUNCT:
 			case SearchFields_CrmOpportunity::IS_CLOSED:
 			case SearchFields_CrmOpportunity::IS_WON:
 				@$bool = DevblocksPlatform::importGPC($_REQUEST['bool'],'integer',1);

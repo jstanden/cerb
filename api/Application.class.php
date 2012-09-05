@@ -46,8 +46,8 @@
  * - Jeff Standen, Darren Sugita, Dan Hildebrandt, Scott Luther
  *	 WEBGROUP MEDIA LLC. - Developers of Cerberus Helpdesk
  */
-define("APP_BUILD", 2012082801);
-define("APP_VERSION", '6.1.0');
+define("APP_BUILD", 2012090401);
+define("APP_VERSION", '6.1.1');
 
 define("APP_MAIL_PATH", APP_STORAGE_PATH . '/mail/');
 
@@ -1410,6 +1410,7 @@ class CerberusSettings {
 	const TICKET_MASK_FORMAT = 'ticket_mask_format';
 	const AUTHORIZED_IPS = 'authorized_ips';
 	const LICENSE = 'license_json';
+	const RELAY_DISABLE_AUTH = 'relay_disable_auth';
 };
 
 class CerberusSettingsDefaults {
@@ -1428,6 +1429,7 @@ class CerberusSettingsDefaults {
 	const PARSER_AUTO_REQ_EXCLUDE = ''; 
 	const TICKET_MASK_FORMAT = 'LLL-NNNNN-NNN';
 	const AUTHORIZED_IPS = "127.0.0.1\n::1\n";
+	const RELAY_DISABLE_AUTH = 0;
 };
 
 class C4_DevblocksExtensionDelegate implements DevblocksExtensionDelegate {

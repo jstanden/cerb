@@ -330,18 +330,22 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 				$oper = ltrim($params['oper'],'!');
 				@$header = strtolower($params['header']);
 				@$param_value = $params['value'];
-				
+
 				if(!isset($dict->headers[$header])) {
 					$value = '';
 				} else {
 					$value = $dict->headers[$header];
 				}
 				
+				if(is_array($value))
+					$value = implode("\n", $value);
+				
 				// Operators
 				switch($oper) {
 					case 'is':
-						$pass = (0==strcasecmp($value,$param_value));
+						$pass = (0==strcasecmp($value, $param_value));
 						break;
+						
 					case 'like':
 						if(isset($dict->headers[$header])) {
 							$regexp = DevblocksPlatform::strToRegExp($param_value);
@@ -350,12 +354,15 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 							$pass = false;
 						}
 						break;
+						
 					case 'contains':
 						$pass = (false !== stripos($value, $param_value)) ? true : false;
 						break;
+						
 					case 'regexp':
 						$pass = @preg_match($param_value, $value);
 						break;
+						
 					default:
 						$pass = false;
 						break;

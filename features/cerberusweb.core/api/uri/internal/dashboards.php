@@ -1096,9 +1096,13 @@ class WorkspaceWidget_Chart extends Extension_WorkspaceWidget {
 
 // 							echo $sql,"<br>\n";
 							
+							$counter = 0;
+							
 							foreach($results as $result) {
+								$x = ($series['xaxis_field'] == '_id') ? $counter++ : (float)$result['xaxis'];
+								
 								$data[] = array(
-									'x' => (float)$result['xaxis'],
+									'x' => $x,
 									'y' => (float)$result['yaxis'],
 									'x_label' => (float)$result['xaxis'],
 									'y_label' => (float)$result['yaxis'],
