@@ -1290,14 +1290,14 @@ class WorkspaceWidget_Subtotals extends Extension_WorkspaceWidget {
 
 class WorkspaceWidget_Worklist extends Extension_WorkspaceWidget {
 	function render(Model_WorkspaceWidget $widget) {
-		$view_id = sprintf("widget%d_worklist", $widget->id);
-		
 		if(null == ($view_model = self::getParamsViewModel($widget, $widget->params)))
 			return;
 		
 		// Force reload parameters (we can't trust the session)
 		if(false == ($view = C4_AbstractViewLoader::unserializeAbstractView($view_model)))
 			return;
+		
+		$view->id = sprintf("widget%d_worklist", $widget->id);
 		
 		C4_AbstractViewLoader::setView($view->id, $view);
 		
@@ -1334,7 +1334,7 @@ class WorkspaceWidget_Worklist extends Extension_WorkspaceWidget {
 			$view->is_ephemeral = true;
 			
 			C4_AbstractViewLoader::setView($view->id, $view);
-		}		
+		}
 		
 		// Template
 		
@@ -1354,7 +1354,7 @@ class WorkspaceWidget_Worklist extends Extension_WorkspaceWidget {
 			
 			C4_AbstractViewLoader::setView($view->id, $view);
 		}
-
+		
 		// Save
 		DAO_WorkspaceWidget::update($widget->id, array(
 			DAO_WorkspaceWidget::PARAMS_JSON => json_encode($params),
