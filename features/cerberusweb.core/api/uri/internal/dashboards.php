@@ -1239,9 +1239,64 @@ class WorkspaceWidget_Subtotals extends Extension_WorkspaceWidget {
 		}
 		
 		$counts = $view->getSubtotalCounts($view->renderSubtotals);
-		$tpl->assign('subtotal_counts', $counts);
 
-		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/subtotals/subtotals.tpl');
+		if(null != ($limit_to = $widget->params['limit_to'])) {
+			$counts = array_slice($counts, 0, $limit_to, true);
+		}
+		
+		switch(@$widget->params['style']) {
+			case 'pie':
+				$wedge_colors = array(
+					'#57970A',
+					'#007CBD',
+					'#7047BA',
+					'#8B0F98',
+					'#CF2C1D',
+					'#E97514',
+					'#FFA100',
+					'#3E6D07',
+					'#345C05',
+					'#005988',
+					'#004B73',
+					'#503386',
+					'#442B71',
+					'#640A6D',
+					'#55085C',
+					'#951F14',
+					'#7E1A11',
+					'#A8540E',
+					'#8E470B',
+					'#B87400',
+					'#9C6200',
+					'#CCCCCC',
+				);
+				$widget->params['wedge_colors'] = $wedge_colors;
+
+				$wedge_labels = array();
+				$wedge_values = array();
+				
+				DevblocksPlatform::sortObjects($counts, '[hits]', false);
+				
+				foreach($counts as $data) {
+					$wedge_labels[] = $data['label'];
+					$wedge_values[] = intval($data['hits']);
+				}
+
+				$widget->params['wedge_labels'] = $wedge_labels;
+				$widget->params['wedge_values'] = $wedge_values;
+				
+				$tpl->assign('widget', $widget);
+				
+				$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/chart/pie_chart.tpl');
+				break;
+				
+			default:
+			case 'list':
+				$tpl->assign('subtotal_counts', $counts);
+				$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/subtotals/subtotals.tpl');
+				break;
+		}
+		
 	}
 	
 	function renderConfig(Model_WorkspaceWidget $widget) {

@@ -1,6 +1,7 @@
 <div id="widget{$widget->id}ConfigTabs">
 	<ul>
 		<li><a href="#widget{$widget->id}ConfigTabDatasource">Data Source</a></li>
+		<li><a href="#widget{$widget->id}ConfigTabStyle">Style</a></li>
 	</ul>
 	
     <div id="widget{$widget->id}ConfigTabDatasource">
@@ -38,6 +39,19 @@
 			<input type="hidden" name="params[view_model]" value="{$widget->params.view_model}" class="model">
 			
 			<br>
+			
+			<b>Limit </b> to the top 
+			
+			<select name="params[limit_to]">
+				{$limit_to = $widget->params.limit_to|default:20}
+				{section start=3 loop=21 step=1 name=increments}
+				<option value="{$smarty.section.increments.index}" {if $smarty.section.increments.index==$limit_to}selected="selected"{/if}>{$smarty.section.increments.index}</option>
+				{/section}
+			</select>
+			
+			subtotals
+			
+			<br>
 
 			<script type="text/javascript">
 				$fieldset = $('fieldset#widget{$widget->id}Datasource');
@@ -69,6 +83,11 @@
 			</script>			
     	</fieldset>
 
+	</div>
+	
+	<div id="widget{$widget->id}ConfigTabStyle">
+		<label><input type="radio" name="params[style]" value="list" {if empty($widget->params.style) || $widget->params.style == 'list'}checked="checked"{/if}> List</label>
+		<label><input type="radio" name="params[style]" value="pie" {if $widget->params.style == 'pie'}checked="checked"{/if}> Pie chart</label>
 	</div>
     
 </div>

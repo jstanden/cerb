@@ -150,6 +150,75 @@ function drawGauge($canvas, options) {
  	context.fillText(options.metric_label, piecenter_x-(measure.width/2), piecenter_y+10);		
 }
 
+function drawPieChart($canvas, options) {
+	canvas = $canvas.get(0);
+	context = canvas.getContext('2d');
+	
+	chart_top = 15;
+	
+	chart_width = canvas.width;
+	chart_height = canvas.height - chart_top;
+
+	if(null == options.wedge_colors)
+		options.wedge_colors = [
+			'#57970A',
+			'#007CBD',
+			'#7047BA',
+			'#8B0F98',
+			'#CF2C1D',
+			'#E97514',
+			'#FFA100',
+			'#3E6D07',
+			'#345C05',
+			'#005988',
+			'#004B73',
+			'#503386',
+			'#442B71',
+			'#640A6D',
+			'#55085C',
+			'#951F14',
+			'#7E1A11',
+			'#A8540E',
+			'#8E470B',
+			'#B87400',
+			'#9C6200',
+			'#CCCCCC',
+		];
+
+	if(null == options.radius)
+		options.radius = 90;
+	
+	// Wedges
+	
+	arclen = 2 * Math.PI;
+	piecenter_x = Math.floor(chart_width/2);
+	piecenter_y = Math.floor(chart_height/2);
+
+	area_sum = 0;
+	area_used = 0;
+	
+	for(idx in options.wedge_values) {
+		area_sum += options.wedge_values[idx];
+	}
+	
+	for(idx in options.wedge_values) {
+		context.beginPath();
+		context.moveTo(piecenter_x, piecenter_y);
+		context.fillStyle = options.wedge_colors[idx];
+		context.strokeStyle = options.wedge_colors[idx];
+		context.lineWidth = 1;
+		context.lineCap = 'square';
+		partlen = 2 * Math.PI * (options.wedge_values[idx]/area_sum);
+		area_used += options.wedge_values[idx];
+		context.arc(piecenter_x, piecenter_y, options.radius, arclen, arclen + partlen, false);
+		context.lineTo(piecenter_x, piecenter_y);
+		context.fill();
+		context.stroke();
+		arclen += partlen;
+	} 	
+ 	
+}
+
 function drawChart($canvas, params) {
 	canvas = $canvas.get(0);
 	context = canvas.getContext('2d');
