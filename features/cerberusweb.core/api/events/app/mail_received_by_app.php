@@ -26,18 +26,18 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 	static function trigger(&$parser_model) { //, Model_Message $message, Model_Ticket $ticket, Model_Group $group
 		$events = DevblocksPlatform::getEventService();
 		$events->trigger(
-	        new Model_DevblocksEvent(
-	            self::ID,
-                array(
-                    'parser_model' => &$parser_model,
-                	'_whisper' => array(
-                		'cerberusweb.contexts.app' => array(0),
-                	),
-                )
-            )
+			new Model_DevblocksEvent(
+				self::ID,
+				array(
+					'parser_model' => &$parser_model,
+					'_whisper' => array(
+					'cerberusweb.contexts.app' => array(0),
+					),
+				)
+			)
 		);
-	} 
-	
+	}
+
 	/**
 	 * 
 	 * @param CerberusParserModel $parser_model
@@ -101,6 +101,7 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 			$values['recipients'] = $parser_model->getRecipients();
 			$values['attachments'] = $parser_model->getMessage()->files;
 			$values['attachment_count'] = count($values['attachments']);
+			$values['sender_is_worker'] = $parser_model->isSenderWorker();
 		}
 		
 		/**
@@ -163,6 +164,7 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 		$labels['header'] = 'Message header';
 		$labels['is_new'] = 'Message is new';
 		$labels['recipients'] = 'Message recipients';
+		$labels['sender_is_worker'] = 'Sender is worker';
 		
 		$types = array(
 			'subject' => Model_CustomField::TYPE_SINGLE_LINE,
@@ -186,6 +188,7 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 			'header' => null,
 			'is_new' => Model_CustomField::TYPE_CHECKBOX,
 			'recipients' => null,
+			'sender_is_worker' => Model_CustomField::TYPE_CHECKBOX,
 		);
 
 		$conditions = $this->_importLabelsTypesAsConditions($labels, $types);

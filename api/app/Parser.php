@@ -64,6 +64,7 @@ class CerberusParserModel {
 	
 	private $_is_new = true;
 	private $_sender_address_model = null;
+	private $_sender_worker_model = null;
 	private $_subject = '';
 	private $_date = 0;
 	private $_ticket_id = 0;
@@ -132,12 +133,19 @@ class CerberusParserModel {
 				
 				if(null != ($fromInst = CerberusApplication::hashLookupAddress($fromAddress, true))) {
 					$this->_sender_address_model = $fromInst;
+					
+					if(null != ($fromWorkerAuth = DAO_AddressToWorker::getByAddress($fromAddress))) {
+						if($fromWorkerAuth->is_confirmed && null != ($fromWorker = DAO_Worker::get($fromWorkerAuth->worker_id)))
+							$this->setSenderWorkerModel($fromWorker);
+					}
+					
 					return;
 				}
 			}
 			
 		} catch (Exception $e) {
 			$this->_sender_address_model = null;
+			$this->_sender_worker_model = null;
 			return false;
 			
 		}
@@ -351,6 +359,18 @@ class CerberusParserModel {
 	
 	public function setSenderAddressModel($model) {
 		$this->_sender_address_model = $model;
+	}
+	
+	public function &getSenderWorkerModel() {
+		return $this->_sender_worker_model;
+	}
+	
+	public function setSenderWorkerModel($model) {
+		$this->_sender_worker_model = $model;
+	}
+	
+	public function isSenderWorker() {
+		return $this->_sender_worker_model instanceof Model_Worker;
 	}
 	
 	public function &getSubject() {
@@ -785,11 +805,11 @@ class CerberusParser {
 		// Is it a worker reply from an external client?  If so, proxy
 		
 		if(null != ($proxy_ticket = $model->getTicketModel()) 
-			&& null != ($worker_address = DAO_AddressToWorker::getByAddress($model->getSenderAddressModel()->email))) {
+			&& $model->isSenderWorker() 
+			&& null != ($proxy_worker = $model->getSenderWorkerModel())) { /* @var $proxy_worker Model_Worker */	
 			
 			$logger->info("[Worker Relay] Handling an external worker relay for " . $model->getSenderAddressModel()->email);
 
-			$proxy_worker = DAO_Worker::get($worker_address->worker_id);
 			$is_authenticated = false;
 
 			// If it's a watcher reply
