@@ -48,11 +48,11 @@ class PageSection_SetupPortal extends Extension_PageSection {
 		
 		$groups = DAO_Group::getAll();
 		$tpl->assign('groups', $groups);
-        
+		
 		// Contact: Fields
 		$ticket_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TICKET);
 		$tpl->assign('ticket_fields', $ticket_fields);
-        
+		
 		// Custom field types
 		$types = Model_CustomField::getTypes();
 		$tpl->assign('field_types', $types);		
@@ -81,9 +81,9 @@ class PageSection_SetupPortal extends Extension_PageSection {
 	function saveTabSettingsAction() {
 		@$code = DevblocksPlatform::importGPC($_POST['portal'],'string');
 		@$name = DevblocksPlatform::importGPC($_POST['portal_name'],'string','');
-        @$iDelete = DevblocksPlatform::importGPC($_POST['do_delete'],'integer',0);
+		@$iDelete = DevblocksPlatform::importGPC($_POST['do_delete'],'integer',0);
 		
-        if(null != ($instance = DAO_CommunityTool::getByCode($code))) {
+		if(null != ($instance = DAO_CommunityTool::getByCode($code))) {
 			// Deleting?
 			if(!empty($iDelete)) {
 				$tool = DAO_CommunityTool::getByCode($code); /* @var $tool Model_CommunityTool */
@@ -93,7 +93,7 @@ class PageSection_SetupPortal extends Extension_PageSection {
 				
 			} else {
 				$manifest = DevblocksPlatform::getExtension($instance->extension_id, false, true);
-	            $tool = $manifest->createInstance(); /* @var $tool Extension_UsermeetTool */
+				$tool = $manifest->createInstance(); /* @var $tool Extension_UsermeetTool */
 				
 				// Update the tool name if it has changed
 				if(0 != strcmp($instance->name,$name))
@@ -152,11 +152,11 @@ class PageSection_SetupPortal extends Extension_PageSection {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('view_id', $view_id);
 
-	    if(!empty($id_csv)) {
-	        $ids = DevblocksPlatform::parseCsvString($id_csv);
-	        $tpl->assign('ids', implode(',', $ids));
-	    }
-		
+		if(!empty($id_csv)) {
+			$ids = DevblocksPlatform::parseCsvString($id_csv);
+			$tpl->assign('ids', implode(',', $ids));
+		}
+
 		// Custom Fields
 //		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_FEEDBACK);
 //		$tpl->assign('custom_fields', $custom_fields);
@@ -166,10 +166,10 @@ class PageSection_SetupPortal extends Extension_PageSection {
 	
 	function doTemplatesBulkUpdateAction() {
 		// Filter: whole list or check
-	    @$filter = DevblocksPlatform::importGPC($_REQUEST['filter'],'string','');
-	    $ids = array();
-	    
-	    // View
+		@$filter = DevblocksPlatform::importGPC($_REQUEST['filter'],'string','');
+		$ids = array();
+		
+		// View
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
 		$view = C4_AbstractViewLoader::getView($view_id);
 		

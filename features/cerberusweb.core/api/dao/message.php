@@ -16,18 +16,18 @@
 ***********************************************************************/
 
 class DAO_Message extends C4_ORMHelper {
-    const ID = 'id';
-    const TICKET_ID = 'ticket_id';
-    const CREATED_DATE = 'created_date';
-    const ADDRESS_ID = 'address_id';
-    const IS_BROADCAST = 'is_broadcast';
-    const IS_OUTGOING = 'is_outgoing';
-    const WORKER_ID = 'worker_id';
-    const STORAGE_EXTENSION = 'storage_extension';
-    const STORAGE_KEY = 'storage_key';
-    const STORAGE_PROFILE_ID = 'storage_profile_id';
-    const STORAGE_SIZE = 'storage_size';
-    const RESPONSE_TIME = 'response_time';
+	const ID = 'id';
+	const TICKET_ID = 'ticket_id';
+	const CREATED_DATE = 'created_date';
+	const ADDRESS_ID = 'address_id';
+	const IS_BROADCAST = 'is_broadcast';
+	const IS_OUTGOING = 'is_outgoing';
+	const WORKER_ID = 'worker_id';
+	const STORAGE_EXTENSION = 'storage_extension';
+	const STORAGE_KEY = 'storage_key';
+	const STORAGE_PROFILE_ID = 'storage_profile_id';
+	const STORAGE_SIZE = 'storage_size';
+	const RESPONSE_TIME = 'response_time';
 
 	static function create($fields) {
 		$db = DevblocksPlatform::getDatabaseService();
@@ -45,9 +45,9 @@ class DAO_Message extends C4_ORMHelper {
 		return $id;
 	}
 
-    static function update($id, $fields) {
-        parent::_update($id, 'message', $fields);
-    }
+	static function update($id, $fields) {
+		parent::_update($id, 'message', $fields);
+	}
 
 	/**
 	 * @param string $where
@@ -133,60 +133,60 @@ class DAO_Message extends C4_ORMHelper {
 	}
 
 	static function delete($ids) {
-    	$db = DevblocksPlatform::getDatabaseService();
-    	
+		$db = DevblocksPlatform::getDatabaseService();
+		
 		if(!is_array($ids))
 			$ids = array($ids);
 		
 		if(empty($ids))
 			return array();
-			
+		
 		$ids_list = implode(',', $ids);
+
+		$messages = DAO_Message::getWhere(sprintf("%s IN (%s)",
+			DAO_Message::ID,
+			$ids_list
+		));
+
+		// Message Headers
+		DAO_MessageHeader::deleteById($ids);
 		
-    	$messages = DAO_Message::getWhere(sprintf("%s IN (%s)",
-    		DAO_Message::ID,
-    		$ids_list
-    	));
+		// Message Content
+		Storage_MessageContent::delete($ids);
 		
-    	// Message Headers
-    	DAO_MessageHeader::deleteById($ids);
-    	
-    	// Message Content
-    	Storage_MessageContent::delete($ids);
-    	
-    	// Search indexes
-    	Search_MessageContent::delete($ids);
-    	
-    	// Messages
-    	$sql = sprintf("DELETE FROM message WHERE id IN (%s)",
-    		$ids_list
-    	);
-    	$db->Execute($sql);
-    	
-    	// Remap first/last on ticket
-    	foreach($messages as $message_id => $message) {
-    		DAO_Ticket::rebuild($message->ticket_id);
-    	}
-    	
+		// Search indexes
+		Search_MessageContent::delete($ids);
+		
+		// Messages
+		$sql = sprintf("DELETE FROM message WHERE id IN (%s)",
+				$ids_list
+		);
+		$db->Execute($sql);
+		
+		// Remap first/last on ticket
+		foreach($messages as $message_id => $message) {
+			DAO_Ticket::rebuild($message->ticket_id);
+		}
+		
 		// Fire event
-	    $eventMgr = DevblocksPlatform::getEventService();
-	    $eventMgr->trigger(
-	        new Model_DevblocksEvent(
-	            'context.delete',
-                array(
-                	'context' => CerberusContexts::CONTEXT_MESSAGE,
-                	'context_ids' => $ids
-                )
-            )
-	    );
+		$eventMgr = DevblocksPlatform::getEventService();
+		$eventMgr->trigger(
+			new Model_DevblocksEvent(
+				'context.delete',
+				array(
+					'context' => CerberusContexts::CONTEXT_MESSAGE,
+					'context_ids' => $ids
+				)
+			)
+		);
 	}
-	
-    static function maint() {
-    	$db = DevblocksPlatform::getDatabaseService();
-    	$logger = DevblocksPlatform::getConsoleLog();
-    	$tables = $db->metaTables();
-    	
-		// Purge message content (storage) 
+
+	static function maint() {
+		$db = DevblocksPlatform::getDatabaseService();
+		$logger = DevblocksPlatform::getConsoleLog();
+		$tables = $db->metaTables();
+		
+		// Purge message content (storage)
 		$sql = "SELECT message.id FROM message LEFT JOIN ticket ON message.ticket_id = ticket.id WHERE ticket.id IS NULL";
 		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 
@@ -235,23 +235,23 @@ class DAO_Message extends C4_ORMHelper {
 		}
 		
 		// Fire event
-	    $eventMgr = DevblocksPlatform::getEventService();
-	    $eventMgr->trigger(
-	        new Model_DevblocksEvent(
-	            'context.maint',
-                array(
-                	'context' => CerberusContexts::CONTEXT_MESSAGE,
-                	'context_table' => 'message',
-                	'context_key' => 'id',
-                )
-            )
-	    );
-    }
-    
+		$eventMgr = DevblocksPlatform::getEventService();
+		$eventMgr->trigger(
+			new Model_DevblocksEvent(
+				'context.maint',
+				array(
+					'context' => CerberusContexts::CONTEXT_MESSAGE,
+					'context_table' => 'message',
+					'context_key' => 'id',
+				)
+			)
+		);
+	}
+
 	public static function random() {
 		return self::_getRandom('message');
 	}
-    
+
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_Message::getFields();
 		
@@ -259,7 +259,7 @@ class DAO_Message extends C4_ORMHelper {
 		if('*'==substr($sortBy,0,1) || !isset($fields[$sortBy]))
 			$sortBy=null;
 
-        list($tables,$wheres,$selects) = parent::_parseSearchParams($params, array(),$fields,$sortBy);
+		list($tables,$wheres,$selects) = parent::_parseSearchParams($params, array(),$fields,$sortBy);
 
 		$select_sql = sprintf("SELECT ".
 			"m.id as %s, ".
@@ -278,22 +278,22 @@ class DAO_Message extends C4_ORMHelper {
 			"t.mask as %s, ".
 			"t.subject as %s, ".
 			"a.email as %s ",
-			    SearchFields_Message::ID,
-			    SearchFields_Message::ADDRESS_ID,
-			    SearchFields_Message::CREATED_DATE,
-			    SearchFields_Message::IS_OUTGOING,
-			    SearchFields_Message::TICKET_ID,
-			    SearchFields_Message::WORKER_ID,
-			    SearchFields_Message::STORAGE_EXTENSION,
-			    SearchFields_Message::STORAGE_KEY,
-			    SearchFields_Message::STORAGE_PROFILE_ID,
-			    SearchFields_Message::STORAGE_SIZE,
-			    SearchFields_Message::RESPONSE_TIME,
-			    SearchFields_Message::IS_BROADCAST,
-			    SearchFields_Message::TICKET_GROUP_ID,
-			    SearchFields_Message::TICKET_MASK,
-			    SearchFields_Message::TICKET_SUBJECT,
-			    SearchFields_Message::ADDRESS_EMAIL
+			SearchFields_Message::ID,
+			SearchFields_Message::ADDRESS_ID,
+			SearchFields_Message::CREATED_DATE,
+			SearchFields_Message::IS_OUTGOING,
+			SearchFields_Message::TICKET_ID,
+			SearchFields_Message::WORKER_ID,
+			SearchFields_Message::STORAGE_EXTENSION,
+			SearchFields_Message::STORAGE_KEY,
+			SearchFields_Message::STORAGE_PROFILE_ID,
+			SearchFields_Message::STORAGE_SIZE,
+			SearchFields_Message::RESPONSE_TIME,
+			SearchFields_Message::IS_BROADCAST,
+			SearchFields_Message::TICKET_GROUP_ID,
+			SearchFields_Message::TICKET_MASK,
+			SearchFields_Message::TICKET_SUBJECT,
+			SearchFields_Message::ADDRESS_EMAIL
 		);
 		
 		$join_sql = "FROM message m ".
@@ -317,20 +317,20 @@ class DAO_Message extends C4_ORMHelper {
 		);
 		
 		return $result;
-	}	
-    
-    /**
-     * Enter description here...
-     *
-     * @param DevblocksSearchCriteria[] $params
-     * @param integer $limit
-     * @param integer $page
-     * @param string $sortBy
-     * @param boolean $sortAsc
-     * @param boolean $withCounts
-     * @return array
-     */
-    static function search($params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
+	}
+
+	/**
+	 * Enter description here...
+	 *
+	 * @param DevblocksSearchCriteria[] $params
+	 * @param integer $limit
+	 * @param integer $page
+	 * @param string $sortBy
+	 * @param boolean $sortAsc
+	 * @param boolean $withCounts
+	 * @return array
+	 */
+	static function search($params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
 		$db = DevblocksPlatform::getDatabaseService();
 
 		// Build search queries
@@ -375,7 +375,7 @@ class DAO_Message extends C4_ORMHelper {
 		mysql_free_result($rs);
 		
 		return array($results,$total);
-    }
+	}
 };
 
 class SearchFields_Message implements IDevblocksSearchFields {
@@ -690,16 +690,16 @@ class Storage_MessageContent extends Extension_DevblocksStorageSchema {
 			return false;
 			
 		// Update storage key
-	    DAO_Message::update($id, array(
-	        DAO_Message::STORAGE_EXTENSION => $storage->manifest->id,
-	        DAO_Message::STORAGE_KEY => $storage_key,
-	        DAO_Message::STORAGE_PROFILE_ID => $profile_id,
-	        DAO_Message::STORAGE_SIZE => $storage_size,
-	    ));
-	    
-	    return $storage_key;
-	}
+		DAO_Message::update($id, array(
+			DAO_Message::STORAGE_EXTENSION => $storage->manifest->id,
+			DAO_Message::STORAGE_KEY => $storage_key,
+			DAO_Message::STORAGE_PROFILE_ID => $profile_id,
+			DAO_Message::STORAGE_SIZE => $storage_size,
+		));
 	
+		return $storage_key;
+	}
+
 	public static function delete($ids) {
 		if(!is_array($ids)) $ids = array($ids);
 		
@@ -905,98 +905,98 @@ class Storage_MessageContent extends Extension_DevblocksStorageSchema {
 };
 
 class DAO_MessageHeader {
-    const MESSAGE_ID = 'message_id';
-    const HEADER_NAME = 'header_name';
-    const HEADER_VALUE = 'header_value';
-    
-    static function create($message_id, $header, $value) {
-    	$db = DevblocksPlatform::getDatabaseService();
-    	
-        if(empty($header) || empty($value) || empty($message_id))
-            return;
-    	
-        $header = strtolower($header);
+	const MESSAGE_ID = 'message_id';
+	const HEADER_NAME = 'header_name';
+	const HEADER_VALUE = 'header_value';
 
-        // Handle stacked headers
-        if(is_array($value)) {
-        	$value = implode("\r\n",$value);
-        }
-        
+	static function create($message_id, $header, $value) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		if(empty($header) || empty($value) || empty($message_id))
+			return;
+		
+		$header = strtolower($header);
+
+		// Handle stacked headers
+		if(is_array($value)) {
+			$value = implode("\r\n",$value);
+		}
+
 		$db->Execute(sprintf("INSERT INTO message_header (message_id, header_name, header_value) ".
-			"VALUES (%d, %s, %s)",
-			$message_id,
-			$db->qstr($header),
-			$db->qstr($value)
+				"VALUES (%d, %s, %s)",
+				$message_id,
+				$db->qstr($header),
+				$db->qstr($value)
 		));
-    }
-    
-    static function getAll($message_id) {
-        $db = DevblocksPlatform::getDatabaseService();
-        
-        $sql = sprintf("SELECT header_name, header_value ".
-            "FROM message_header ".
-            "WHERE message_id = %d",
-        	$message_id
-        );
-            
-        $rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+	}
 
-        $headers = array();
-            
-        while($row = mysql_fetch_assoc($rs)) {
-            $headers[$row['header_name']] = $row['header_value'];
-        }
-        
-        mysql_free_result($rs);
-        
-        return $headers;
-    }
-    
-    static function getOne($message_id, $header_name) {
-        $db = DevblocksPlatform::getDatabaseService();
-        
-        $sql = sprintf("SELECT header_value ".
-            "FROM message_header ".
-            "WHERE message_id = %d ".
-            "AND header_name = %s ",
-        	$message_id,
-        	$db->qstr($header_name)
-        );
-        return $db->GetOne($sql); 
-    }
-    
-    static function getUnique() {
-        $db = DevblocksPlatform::getDatabaseService();
-        $headers = array();
-        
-        $sql = "SELECT header_name FROM message_header GROUP BY header_name";
-        $rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
-        
-        while($row = mysql_fetch_assoc($rs)) {
-            $headers[] = $row['header_name'];
-        }
-        
-        mysql_free_result($rs);
-        
-        sort($headers);
-        
-        return $headers;
-    }
-    
-    static function deleteById($ids) {
-    	if(!is_array($ids))
-    		$ids = array($ids);
-    	
-    	if(empty($ids))
-    		return;
-    		
-        $db = DevblocksPlatform::getDatabaseService();
-    	
-        $sql = sprintf("DELETE FROM message_header WHERE message_id IN (%s)",
-        	implode(',', $ids)
-        );
-        $db->Execute($sql);
-    }
+	static function getAll($message_id) {
+		$db = DevblocksPlatform::getDatabaseService();
+
+		$sql = sprintf("SELECT header_name, header_value ".
+			"FROM message_header ".
+			"WHERE message_id = %d",
+			$message_id
+		);
+
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+
+		$headers = array();
+
+		while($row = mysql_fetch_assoc($rs)) {
+			$headers[$row['header_name']] = $row['header_value'];
+		}
+
+		mysql_free_result($rs);
+
+		return $headers;
+	}
+
+	static function getOne($message_id, $header_name) {
+		$db = DevblocksPlatform::getDatabaseService();
+
+		$sql = sprintf("SELECT header_value ".
+			"FROM message_header ".
+			"WHERE message_id = %d ".
+			"AND header_name = %s ",
+			$message_id,
+			$db->qstr($header_name)
+		);
+		return $db->GetOne($sql);
+	}
+
+	static function getUnique() {
+		$db = DevblocksPlatform::getDatabaseService();
+		$headers = array();
+
+		$sql = "SELECT header_name FROM message_header GROUP BY header_name";
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+
+		while($row = mysql_fetch_assoc($rs)) {
+			$headers[] = $row['header_name'];
+		}
+
+		mysql_free_result($rs);
+
+		sort($headers);
+
+		return $headers;
+	}
+
+	static function deleteById($ids) {
+		if(!is_array($ids))
+			$ids = array($ids);
+		
+		if(empty($ids))
+			return;
+
+		$db = DevblocksPlatform::getDatabaseService();
+		 
+		$sql = sprintf("DELETE FROM message_header WHERE message_id IN (%s)",
+			implode(',', $ids)
+		);
+		$db->Execute($sql);
+	}
 };
 
 class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, IAbstractView_QuickSearch {
