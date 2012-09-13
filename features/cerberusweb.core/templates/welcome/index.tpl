@@ -35,7 +35,7 @@
 		</li>
 		<li>
 			<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/komodomedia/facebook_32.png{/devblocks_url}" align="middle">
-			<a href="http://www.facebook.com/cerb5" target="_blank">Become a fan on Facebook</a>
+			<a href="http://www.facebook.com/cerbapp" target="_blank">Become a fan on Facebook</a>
 		</li>
 		<li>
 			<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/komodomedia/twitter_32.png{/devblocks_url}" align="middle">
