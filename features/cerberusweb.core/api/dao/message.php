@@ -307,18 +307,90 @@ class DAO_Message extends C4_ORMHelper {
 			
 		$sort_sql = (!empty($sortBy) ? sprintf("ORDER BY %s %s ",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : " ");
 		
+		$has_multiple_values = false;
+		
+		// Translate virtual fields
+		
+		$args = array(
+			'join_sql' => &$join_sql,
+			'where_sql' => &$where_sql,
+			'has_multiple_values' => &$has_multiple_values
+		);
+		
+		array_walk_recursive(
+			$params,
+			array('DAO_Message', '_translateVirtualParameters'),
+			$args
+		);
+		
 		$result = array(
 			'primary_table' => 'm',
 			'select' => $select_sql,
 			'join' => $join_sql,
 			'where' => $where_sql,
-			'has_multiple_values' => false,
+			'has_multiple_values' => $has_multiple_values,
 			'sort' => $sort_sql,
 		);
 		
 		return $result;
 	}
 
+	private static function _translateVirtualParameters($param, $key, &$args) {
+		if(!is_a($param, 'DevblocksSearchCriteria'))
+			return;
+		
+		$from_context = 'cerberusweb.contexts.message';
+		$from_index = 'm.id';
+		
+		$param_key = $param->field;
+		settype($param_key, 'string');
+
+		switch($param_key) {
+			case SearchFields_Message::VIRTUAL_TICKET_STATUS:
+				$values = $param->value;
+				if(!is_array($values))
+					$values = array($values);
+					
+				$oper_sql = array();
+				$status_sql = array();
+				
+				switch($param->operator) {
+					default:
+					case DevblocksSearchCriteria::OPER_IN:
+					case DevblocksSearchCriteria::OPER_IN_OR_NULL:
+						$oper = '';
+						break;
+					case DevblocksSearchCriteria::OPER_NIN:
+					case DevblocksSearchCriteria::OPER_NIN_OR_NULL:
+						$oper = 'NOT ';
+						break;
+				}
+				
+				foreach($values as $value) {
+					switch($value) {
+						case 'open':
+							$status_sql[] = sprintf('%s(t.is_waiting = 0 AND t.is_closed = 0 AND t.is_deleted = 0)', $oper);
+							break;
+						case 'waiting':
+							$status_sql[] = sprintf('%s(t.is_waiting = 1 AND t.is_closed = 0 AND t.is_deleted = 0)', $oper);
+							break;
+						case 'closed':
+							$status_sql[] = sprintf('%s(t.is_closed = 1 AND t.is_deleted = 0)', $oper);
+							break;
+						case 'deleted':
+							$status_sql[] = sprintf('%s(t.is_deleted = 1)', $oper);
+							break;
+					}
+				}
+				
+				if(empty($status_sql))
+					break;
+				
+				$args['where_sql'] .= 'AND (' . implode(' OR ', $status_sql) . ') ';
+				break;
+		}		
+	}	
+	
 	/**
 	 * Enter description here...
 	 *
@@ -410,6 +482,9 @@ class SearchFields_Message implements IDevblocksSearchFields {
 	const TICKET_IS_DELETED = 't_is_deleted';
 	const TICKET_MASK = 't_mask';
 	const TICKET_SUBJECT = 't_subject';
+	
+	// Virtuals
+	const VIRTUAL_TICKET_STATUS = '*_ticket_status';
 
 	/**
 	 * @return DevblocksSearchField[]
@@ -441,6 +516,8 @@ class SearchFields_Message implements IDevblocksSearchFields {
 			SearchFields_Message::TICKET_IS_DELETED => new DevblocksSearchField(SearchFields_Message::TICKET_IS_DELETED, 't', 'is_deleted', $translate->_('status.deleted'), Model_CustomField::TYPE_CHECKBOX),
 			SearchFields_Message::TICKET_MASK => new DevblocksSearchField(SearchFields_Message::TICKET_MASK, 't', 'mask', $translate->_('ticket.mask'), Model_CustomField::TYPE_SINGLE_LINE),
 			SearchFields_Message::TICKET_SUBJECT => new DevblocksSearchField(SearchFields_Message::TICKET_SUBJECT, 't', 'subject', $translate->_('ticket.subject'), Model_CustomField::TYPE_SINGLE_LINE),
+			
+			SearchFields_Message::VIRTUAL_TICKET_STATUS => new DevblocksSearchField(SearchFields_Message::VIRTUAL_TICKET_STATUS, '*', 'ticket_status', $translate->_('ticket.status')),
 		);
 	
 		$tables = DevblocksPlatform::getDatabaseTables();
@@ -1025,6 +1102,7 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 			SearchFields_Message::STORAGE_KEY,
 			SearchFields_Message::STORAGE_PROFILE_ID,
 			SearchFields_Message::STORAGE_SIZE,
+			SearchFields_Message::VIRTUAL_TICKET_STATUS,
 		));
 		$this->addParamsHidden(array(
 			SearchFields_Message::ID,
@@ -1065,6 +1143,7 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 				case SearchFields_Message::TICKET_GROUP_ID:
 				case SearchFields_Message::TICKET_IS_DELETED:
 				case SearchFields_Message::WORKER_ID:
+				case SearchFields_Message::VIRTUAL_TICKET_STATUS:
 					$pass = true;
 					break;
 					
@@ -1116,6 +1195,10 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 				$counts = $this->_getSubtotalCountForBooleanColumn('DAO_Message', $column);
 				break;
 			
+			case SearchFields_Message::VIRTUAL_TICKET_STATUS:
+				$counts = $this->_getSubtotalCountForStatus();
+				break;
+			
 			default:
 				// Custom fields
 				if('cf_' == substr($column,0,3)) {
@@ -1128,9 +1211,104 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 		return $counts;
 	}
 	
+	protected function _getSubtotalDataForStatus($dao_class, $field_key) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$fields = $this->getFields();
+		$columns = $this->view_columns;
+		$params = $this->getParams();
+		
+		// We want counts for all statuses even though we're filtering
+		if(
+			isset($params[SearchFields_Message::VIRTUAL_TICKET_STATUS])
+			&& is_array($params[SearchFields_Message::VIRTUAL_TICKET_STATUS]->value)
+			&& count($params[SearchFields_Message::VIRTUAL_TICKET_STATUS]->value) < 2
+			)
+			unset($params[SearchFields_Message::VIRTUAL_TICKET_STATUS]);
+			
+		if(!method_exists($dao_class,'getSearchQueryComponents'))
+			return array();
+		
+		$query_parts = call_user_func_array(
+			array($dao_class,'getSearchQueryComponents'),
+			array(
+				$columns,
+				$params,
+				$this->renderSortBy,
+				$this->renderSortAsc
+			)
+		);
+		
+		$join_sql = $query_parts['join'];
+		$where_sql = $query_parts['where'];
+		
+		$sql = "SELECT COUNT(IF(t.is_closed=0 AND t.is_waiting=0 AND t.is_deleted=0,1,NULL)) AS open_hits, COUNT(IF(t.is_waiting=1 AND t.is_closed=0 AND t.is_deleted=0,1,NULL)) AS waiting_hits, COUNT(IF(t.is_closed=1 AND t.is_deleted=0,1,NULL)) AS closed_hits, COUNT(IF(t.is_deleted=1,1,NULL)) AS deleted_hits ".
+			$join_sql.
+			$where_sql 
+		;
+		
+		$results = $db->GetArray($sql);
+
+		return $results;
+	}
+	
+	protected function _getSubtotalCountForStatus() {
+		$workers = DAO_Worker::getAll();
+		$translate = DevblocksPlatform::getTranslationService();
+		
+		$counts = array();
+		$results = $this->_getSubtotalDataForStatus('DAO_Message', SearchFields_Message::VIRTUAL_TICKET_STATUS);
+
+		$result = array_shift($results);
+		$oper = DevblocksSearchCriteria::OPER_IN;
+		
+		foreach($result as $key => $hits) {
+			if(empty($hits))
+				continue;
+			
+			switch($key) {
+				case 'open_hits':
+					$label = $translate->_('status.open');
+					$values = array('options[]' => 'open');
+					break;
+				case 'waiting_hits':
+					$label = $translate->_('status.waiting');
+					$values = array('options[]' => 'waiting');
+					break;
+				case 'closed_hits':
+					$label = $translate->_('status.closed');
+					$values = array('options[]' => 'closed');
+					break;
+				case 'deleted_hits':
+					$label = $translate->_('status.deleted');
+					$values = array('options[]' => 'deleted');
+					break;
+				default:
+					$label = '';
+					break;
+			}
+			
+			if(!isset($counts[$label]))
+				$counts[$label] = array(
+					'hits' => $hits,
+					'label' => $label,
+					'filter' => 
+						array(
+							'field' => SearchFields_Message::VIRTUAL_TICKET_STATUS,
+							'oper' => $oper,
+							'values' => $values,
+						),
+					'children' => array()
+				);
+		}
+		
+		return $counts;
+	}		
+	
 	function isQuickSearchField($token) {
 		switch($token) {
 			case SearchFields_Message::TICKET_GROUP_ID:
+			case SearchFields_Message::VIRTUAL_TICKET_STATUS:
 				return true;
 			break;
 		}
@@ -1176,6 +1354,52 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 				return true;
 				break;
 				
+			case SearchFields_Message::VIRTUAL_TICKET_STATUS:
+				$statuses = array();
+				$oper = DevblocksSearchCriteria::OPER_IN;
+				
+				if(preg_match('#([\!\=]+)(.*)#', $query, $matches)) {
+					$oper_hint = trim($matches[1]);
+					$query = trim($matches[2]);
+					
+					switch($oper_hint) {
+						case '!':
+						case '!=':
+							$oper = DevblocksSearchCriteria::OPER_NIN;
+							break;
+					}
+				}
+				
+				$inputs = DevblocksPlatform::parseCsvString($query);
+				
+				if(is_array($inputs))
+				foreach($inputs as $v) {
+					switch(strtolower(substr($v,0,1))) {
+						case 'o':
+							$statuses['open'] = true;
+							break;
+						case 'w':
+							$statuses['waiting'] = true;
+							break;
+						case 'c':
+							$statuses['closed'] = true;
+							break;
+						case 'd':
+							$statuses['deleted'] = true;
+							break;
+					}
+				}
+				
+				if(empty($statuses)) {
+					$value = null;
+					
+				} else {
+					$value = array_keys($statuses);
+				}
+				
+				return true;
+				break;
+				
 		}
 		
 		return false;
@@ -1201,8 +1425,48 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 
 	function renderVirtualCriteria($param) {
 		$key = $param->field;
+		$translate = DevblocksPlatform::getTranslationService();
 		
 		switch($key) {
+			case SearchFields_Message::VIRTUAL_TICKET_STATUS:
+				if(!is_array($param->value))
+					$param->value = array($param->value);
+					
+				$strings = array();
+				
+				foreach($param->value as $value) {
+					switch($value) {
+						case 'open':
+							$strings[] = '<b>' . $translate->_('status.open') . '</b>';
+							break;
+						case 'waiting':
+							$strings[] = '<b>' . $translate->_('status.waiting') . '</b>';
+							break;
+						case 'closed':
+							$strings[] = '<b>' . $translate->_('status.closed') . '</b>';
+							break;
+						case 'deleted':
+							$strings[] = '<b>' . $translate->_('status.deleted') . '</b>';
+							break;
+					}
+				}
+				
+				switch($param->operator) {
+					case DevblocksSearchCriteria::OPER_IN:
+						$oper = 'is';
+						break;
+					case DevblocksSearchCriteria::OPER_IN_OR_NULL:
+						$oper = 'is blank or';
+						break;
+					case DevblocksSearchCriteria::OPER_NIN:
+						$oper = 'is not';
+						break;
+					case DevblocksSearchCriteria::OPER_NIN_OR_NULL:
+						$oper = 'is blank or not';
+						break;
+				}
+				echo sprintf("Status %s %s", $oper, implode(' or ', $strings));
+				break;
 		}
 	}	
 	
@@ -1246,6 +1510,20 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 				
 			case SearchFields_Message::MESSAGE_CONTENT:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__fulltext.tpl');
+				break;
+				
+			case SearchFields_Message::VIRTUAL_TICKET_STATUS:
+				$translate = DevblocksPlatform::getTranslationService();
+				
+				$options = array(
+					'open' => $translate->_('status.open'),
+					'waiting' => $translate->_('status.waiting'),
+					'closed' => $translate->_('status.closed'),
+					'deleted' => $translate->_('status.deleted'),
+				);
+				
+				$tpl->assign('options', $options);
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__list.tpl');
 				break;
 				
 			default:
@@ -1344,6 +1622,11 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 			case SearchFields_Message::MESSAGE_CONTENT:
 				@$scope = DevblocksPlatform::importGPC($_REQUEST['scope'],'string','expert');
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_FULLTEXT,array($value,$scope));
+				break;
+				
+			case SearchFields_Message::VIRTUAL_TICKET_STATUS:
+				@$options = DevblocksPlatform::importGPC($_REQUEST['options'],'array',array());
+				$criteria = new DevblocksSearchCriteria($field,$oper,$options);
 				break;
 				
 			default:
