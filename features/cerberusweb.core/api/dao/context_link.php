@@ -301,6 +301,8 @@ class DAO_ContextLink {
 		
 		$db = DevblocksPlatform::getDatabaseService();
 		
+		$from_context_ids = DevblocksPlatform::sanitizeArray($from_context_ids, 'integer', array('nonzero','unique'));
+		
 		if(empty($from_context_ids))
 			return array();
 		
