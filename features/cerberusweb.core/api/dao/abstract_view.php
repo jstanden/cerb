@@ -950,7 +950,9 @@ abstract class C4_AbstractView {
 			case Model_CustomField::TYPE_CHECKBOX:
 			case Model_CustomField::TYPE_DROPDOWN:
 			case Model_CustomField::TYPE_MULTI_CHECKBOX:
+			case Model_CustomField::TYPE_NUMBER:
 			case Model_CustomField::TYPE_SINGLE_LINE:
+			case Model_CustomField::TYPE_URL:
 			case Model_CustomField::TYPE_WORKER:
 				$pass = true;
 				break;
@@ -1460,7 +1462,9 @@ abstract class C4_AbstractView {
 				
 			case Model_CustomField::TYPE_DROPDOWN:
 			case Model_CustomField::TYPE_MULTI_CHECKBOX:
+			case Model_CustomField::TYPE_NUMBER:
 			case Model_CustomField::TYPE_SINGLE_LINE:
+			case Model_CustomField::TYPE_URL:
 				$select = sprintf(
 					"SELECT COUNT(*) AS hits, %s.field_value AS %s ", //SQL_CALC_FOUND_ROWS
 					$field_key,
@@ -1491,14 +1495,14 @@ abstract class C4_AbstractView {
 					if(!empty($result[$field_key])) {
 						$label = $result[$field_key];
 						switch($cfield->type) {
-							case Model_CustomField::TYPE_SINGLE_LINE:
-								$oper = DevblocksSearchCriteria::OPER_EQ;
-								$values = array('value' => $label);
-								break;
 							case Model_CustomField::TYPE_DROPDOWN:
 							case Model_CustomField::TYPE_MULTI_CHECKBOX:
 								$oper = DevblocksSearchCriteria::OPER_IN;
 								$values = array('options[]' => $label);
+								break;
+							default:
+								$oper = DevblocksSearchCriteria::OPER_EQ;
+								$values = array('value' => $label);
 								break;
 						}
 					}
