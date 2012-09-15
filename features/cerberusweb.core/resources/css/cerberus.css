@@ -1250,13 +1250,14 @@ button span.cerb-sprite2 { display:inline-block; }
 .sprite-user-silhouette{ background-position: 0 -1271px; width: 16px; height: 16px; } 
 
 span.plugin_icon_overlay_disabled {
-	background:url(plugin_overlay_disabled.png?v=2011051203);
+	background:url(plugin_overlay_disabled.png?v=2012091301);
 	background-repeat:no-repeat;
 	background-position:top left;
 	width:100px;
 	height:100px;
 	position:absolute;
-	left:3px;
+	left:1px;
+	top:0px;
 }
 
 /* -------------------------------------------------------------------

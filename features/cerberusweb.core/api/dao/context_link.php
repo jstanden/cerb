@@ -232,41 +232,6 @@ class DAO_ContextLink {
 		}
 	}	
 	
-//	static public function getContextOutboundLinks($from_context, $from_context_id, $to_context, $to_context_ids) {
-//		$db = DevblocksPlatform::getDatabaseService();
-//		
-//		if(!is_array($to_context_ids))
-//			$to_context_ids = array($to_context_ids);
-//		
-//		if(empty($from_context) || empty($from_context_id) || empty($to_context) || empty($to_context_ids))
-//			return array();
-//		
-//		$sql = sprintf("SELECT from_context, from_context_id, to_context, to_context_id ".
-//			"FROM context_link ".
-//			"WHERE 1 ".
-//			"AND (%s = %s AND %s = %d) ",
-//			"AND (%s = %s AND %s IN (%s)) ",
-//			self::FROM_CONTEXT,
-//			$db->qstr($from_context),
-//			self::FROM_CONTEXT_ID,
-//			$from_context_id,
-//			self::TO_CONTEXT,
-//			$db->qstr($to_context),
-//			self::TO_CONTEXT_ID,
-//			implode(',', $to_context_ids)
-//		);
-//		$rs = $db->Execute($sql);
-//		
-//		$objects = array();
-//		
-//		if(is_resource($rs))
-//		while($row = mysql_fetch_assoc($rs)) {
-//			$objects[$row['to_context_id']] = new Model_ContextLink($row['to_context'], $row['to_context_id']);
-//		}
-//		
-//		return $objects;
-//	}
-	
 	static public function getAllContextLinks($from_context, $from_context_id) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
@@ -300,6 +265,8 @@ class DAO_ContextLink {
 			$from_context_ids = array($from_context_ids);
 		
 		$db = DevblocksPlatform::getDatabaseService();
+		
+		$from_context_ids = DevblocksPlatform::sanitizeArray($from_context_ids, 'integer', array('nonzero','unique'));
 		
 		if(empty($from_context_ids))
 			return array();

@@ -49,7 +49,7 @@
 	{/foreach}
 	{/if}
 
-	{if $is_manager}
+	{if $active_worker->is_superuser || $is_manager}
 	<li class="{if $page->id=='core.page.groups'}selected{/if}" style="float:right;">
 		<a href="{devblocks_url}c=groups{/devblocks_url}">{$translate->_('common.groups')|lower}</a>				
 	</li>

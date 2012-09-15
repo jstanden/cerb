@@ -62,7 +62,7 @@ $select.bind('load_hints', function(e) {
 {/capture}
 
 	// [TODO] This should come from IAbstractView_QuickSearch
-	if(token == '*_status') {
+	if(token == '*_status' || token == '*_ticket_status') {
 		$bubbles.append($('<li><tt>open,waiting</tt></li>'));
 		$bubbles.append($('<li><tt>closed</tt></li>'));
 		$bubbles.append($('<li><tt>!deleted</tt></li>'));

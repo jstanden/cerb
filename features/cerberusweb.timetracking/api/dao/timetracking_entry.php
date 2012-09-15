@@ -244,33 +244,33 @@ class DAO_TimeTrackingEntry extends C4_ORMHelper {
 		$db->Execute(sprintf("DELETE FROM timetracking_entry WHERE id IN (%s)", $ids_list));
 		
 		// Fire event
-	    $eventMgr = DevblocksPlatform::getEventService();
-	    $eventMgr->trigger(
-	        new Model_DevblocksEvent(
-	            'context.delete',
-                array(
-                	'context' => CerberusContexts::CONTEXT_TIMETRACKING,
-                	'context_ids' => $ids
-                )
-            )
-	    );
-		
+		$eventMgr = DevblocksPlatform::getEventService();
+		$eventMgr->trigger(
+			new Model_DevblocksEvent(
+				'context.delete',
+				array(
+					'context' => CerberusContexts::CONTEXT_TIMETRACKING,
+					'context_ids' => $ids
+				)
+			)
+		);
+
 		return true;
 	}
 
 	static function maint() {
 		// Fire event
-	    $eventMgr = DevblocksPlatform::getEventService();
-	    $eventMgr->trigger(
-	        new Model_DevblocksEvent(
-	            'context.maint',
-                array(
-                	'context' => CerberusContexts::CONTEXT_TIMETRACKING,
-                	'context_table' => 'timetracking_entry',
-                	'context_key' => 'id',
-                )
-            )
-	    );
+		$eventMgr = DevblocksPlatform::getEventService();
+		$eventMgr->trigger(
+			new Model_DevblocksEvent(
+				'context.maint',
+				array(
+					'context' => CerberusContexts::CONTEXT_TIMETRACKING,
+					'context_table' => 'timetracking_entry',
+					'context_key' => 'id',
+				)
+			)
+		);
 	}
 	
 	public static function random() {
@@ -284,8 +284,8 @@ class DAO_TimeTrackingEntry extends C4_ORMHelper {
 		if('*'==substr($sortBy,0,1) || !isset($fields[$sortBy]) || !in_array($sortBy,$columns))
 			$sortBy=null;
 
-        list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields,$sortBy);
-		
+		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields,$sortBy);
+
 		$select_sql = sprintf("SELECT ".
 			"tt.id as %s, ".
 			"tt.time_actual_mins as %s, ".
@@ -293,13 +293,13 @@ class DAO_TimeTrackingEntry extends C4_ORMHelper {
 			"tt.worker_id as %s, ".
 			"tt.activity_id as %s, ".
 			"tt.is_closed as %s ",
-			    SearchFields_TimeTrackingEntry::ID,
-			    SearchFields_TimeTrackingEntry::TIME_ACTUAL_MINS,
-			    SearchFields_TimeTrackingEntry::LOG_DATE,
-			    SearchFields_TimeTrackingEntry::WORKER_ID,
-			    SearchFields_TimeTrackingEntry::ACTIVITY_ID,
-			    SearchFields_TimeTrackingEntry::IS_CLOSED
-			 );
+			SearchFields_TimeTrackingEntry::ID,
+			SearchFields_TimeTrackingEntry::TIME_ACTUAL_MINS,
+			SearchFields_TimeTrackingEntry::LOG_DATE,
+			SearchFields_TimeTrackingEntry::WORKER_ID,
+			SearchFields_TimeTrackingEntry::ACTIVITY_ID,
+			SearchFields_TimeTrackingEntry::IS_CLOSED
+		);
 		
 		$join_sql = 
 			"FROM timetracking_entry tt ".
@@ -631,8 +631,9 @@ class View_TimeTracking extends C4_AbstractView implements IAbstractView_Subtota
 					
 				// Valid custom fields
 				default:
-					if('cf_' == substr($field_key,0,3))
+					if('cf_' == substr($field_key,0,3)) {
 						$pass = $this->_canSubtotalCustomField($field_key);
+					}
 					break;
 			}
 			

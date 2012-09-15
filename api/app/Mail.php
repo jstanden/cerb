@@ -149,12 +149,15 @@ class CerberusMail {
 		
 		if(empty($worker_id) && null != ($worker = CerberusApplication::getActiveWorker()))
 			$worker_id = $worker->id;
-	
+
+		if(!empty($worker_id))
+			$worker = DAO_Worker::get($worker_id);
+		
 		if(null == ($group = DAO_Group::get($group_id)))
 			return;
 		
-	    // Changing the outgoing message through a VA
-	    Event_MailBeforeSentByGroup::trigger($properties, null, null, $group_id);
+		// Changing the outgoing message through a VA
+		Event_MailBeforeSentByGroup::trigger($properties, null, null, $group_id);
 		
 		@$org_id = $properties['org_id'];
 		@$toStr = $properties['to'];

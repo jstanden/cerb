@@ -803,7 +803,7 @@ If these default groups don't meet your needs, feel free to change them by click
 Simply reply to this message if you have any questions.  Our response will show up on this page as a new message.
 
 For project news, training resources, sneak peeks of development progress, tips & tricks, and more:
-http://www.facebook.com/cerb5
+http://www.facebook.com/cerbapp
 http://twitter.com/cerb6
 https://vimeo.com/channels/cerb
 http://cerberusweb.com/book/6.0/worker_guide/

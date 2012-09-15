@@ -16,18 +16,18 @@
 ***********************************************************************/
 
 class DAO_Message extends C4_ORMHelper {
-    const ID = 'id';
-    const TICKET_ID = 'ticket_id';
-    const CREATED_DATE = 'created_date';
-    const ADDRESS_ID = 'address_id';
-    const IS_BROADCAST = 'is_broadcast';
-    const IS_OUTGOING = 'is_outgoing';
-    const WORKER_ID = 'worker_id';
-    const STORAGE_EXTENSION = 'storage_extension';
-    const STORAGE_KEY = 'storage_key';
-    const STORAGE_PROFILE_ID = 'storage_profile_id';
-    const STORAGE_SIZE = 'storage_size';
-    const RESPONSE_TIME = 'response_time';
+	const ID = 'id';
+	const TICKET_ID = 'ticket_id';
+	const CREATED_DATE = 'created_date';
+	const ADDRESS_ID = 'address_id';
+	const IS_BROADCAST = 'is_broadcast';
+	const IS_OUTGOING = 'is_outgoing';
+	const WORKER_ID = 'worker_id';
+	const STORAGE_EXTENSION = 'storage_extension';
+	const STORAGE_KEY = 'storage_key';
+	const STORAGE_PROFILE_ID = 'storage_profile_id';
+	const STORAGE_SIZE = 'storage_size';
+	const RESPONSE_TIME = 'response_time';
 
 	static function create($fields) {
 		$db = DevblocksPlatform::getDatabaseService();
@@ -45,9 +45,9 @@ class DAO_Message extends C4_ORMHelper {
 		return $id;
 	}
 
-    static function update($id, $fields) {
-        parent::_update($id, 'message', $fields);
-    }
+	static function update($id, $fields) {
+		parent::_update($id, 'message', $fields);
+	}
 
 	/**
 	 * @param string $where
@@ -133,60 +133,60 @@ class DAO_Message extends C4_ORMHelper {
 	}
 
 	static function delete($ids) {
-    	$db = DevblocksPlatform::getDatabaseService();
-    	
+		$db = DevblocksPlatform::getDatabaseService();
+		
 		if(!is_array($ids))
 			$ids = array($ids);
 		
 		if(empty($ids))
 			return array();
-			
+		
 		$ids_list = implode(',', $ids);
+
+		$messages = DAO_Message::getWhere(sprintf("%s IN (%s)",
+			DAO_Message::ID,
+			$ids_list
+		));
+
+		// Message Headers
+		DAO_MessageHeader::deleteById($ids);
 		
-    	$messages = DAO_Message::getWhere(sprintf("%s IN (%s)",
-    		DAO_Message::ID,
-    		$ids_list
-    	));
+		// Message Content
+		Storage_MessageContent::delete($ids);
 		
-    	// Message Headers
-    	DAO_MessageHeader::deleteById($ids);
-    	
-    	// Message Content
-    	Storage_MessageContent::delete($ids);
-    	
-    	// Search indexes
-    	Search_MessageContent::delete($ids);
-    	
-    	// Messages
-    	$sql = sprintf("DELETE FROM message WHERE id IN (%s)",
-    		$ids_list
-    	);
-    	$db->Execute($sql);
-    	
-    	// Remap first/last on ticket
-    	foreach($messages as $message_id => $message) {
-    		DAO_Ticket::rebuild($message->ticket_id);
-    	}
-    	
+		// Search indexes
+		Search_MessageContent::delete($ids);
+		
+		// Messages
+		$sql = sprintf("DELETE FROM message WHERE id IN (%s)",
+				$ids_list
+		);
+		$db->Execute($sql);
+		
+		// Remap first/last on ticket
+		foreach($messages as $message_id => $message) {
+			DAO_Ticket::rebuild($message->ticket_id);
+		}
+		
 		// Fire event
-	    $eventMgr = DevblocksPlatform::getEventService();
-	    $eventMgr->trigger(
-	        new Model_DevblocksEvent(
-	            'context.delete',
-                array(
-                	'context' => CerberusContexts::CONTEXT_MESSAGE,
-                	'context_ids' => $ids
-                )
-            )
-	    );
+		$eventMgr = DevblocksPlatform::getEventService();
+		$eventMgr->trigger(
+			new Model_DevblocksEvent(
+				'context.delete',
+				array(
+					'context' => CerberusContexts::CONTEXT_MESSAGE,
+					'context_ids' => $ids
+				)
+			)
+		);
 	}
-	
-    static function maint() {
-    	$db = DevblocksPlatform::getDatabaseService();
-    	$logger = DevblocksPlatform::getConsoleLog();
-    	$tables = $db->metaTables();
-    	
-		// Purge message content (storage) 
+
+	static function maint() {
+		$db = DevblocksPlatform::getDatabaseService();
+		$logger = DevblocksPlatform::getConsoleLog();
+		$tables = $db->metaTables();
+		
+		// Purge message content (storage)
 		$sql = "SELECT message.id FROM message LEFT JOIN ticket ON message.ticket_id = ticket.id WHERE ticket.id IS NULL";
 		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 
@@ -235,23 +235,23 @@ class DAO_Message extends C4_ORMHelper {
 		}
 		
 		// Fire event
-	    $eventMgr = DevblocksPlatform::getEventService();
-	    $eventMgr->trigger(
-	        new Model_DevblocksEvent(
-	            'context.maint',
-                array(
-                	'context' => CerberusContexts::CONTEXT_MESSAGE,
-                	'context_table' => 'message',
-                	'context_key' => 'id',
-                )
-            )
-	    );
-    }
-    
+		$eventMgr = DevblocksPlatform::getEventService();
+		$eventMgr->trigger(
+			new Model_DevblocksEvent(
+				'context.maint',
+				array(
+					'context' => CerberusContexts::CONTEXT_MESSAGE,
+					'context_table' => 'message',
+					'context_key' => 'id',
+				)
+			)
+		);
+	}
+
 	public static function random() {
 		return self::_getRandom('message');
 	}
-    
+
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_Message::getFields();
 		
@@ -259,7 +259,7 @@ class DAO_Message extends C4_ORMHelper {
 		if('*'==substr($sortBy,0,1) || !isset($fields[$sortBy]))
 			$sortBy=null;
 
-        list($tables,$wheres,$selects) = parent::_parseSearchParams($params, array(),$fields,$sortBy);
+		list($tables,$wheres,$selects) = parent::_parseSearchParams($params, array(),$fields,$sortBy);
 
 		$select_sql = sprintf("SELECT ".
 			"m.id as %s, ".
@@ -278,22 +278,22 @@ class DAO_Message extends C4_ORMHelper {
 			"t.mask as %s, ".
 			"t.subject as %s, ".
 			"a.email as %s ",
-			    SearchFields_Message::ID,
-			    SearchFields_Message::ADDRESS_ID,
-			    SearchFields_Message::CREATED_DATE,
-			    SearchFields_Message::IS_OUTGOING,
-			    SearchFields_Message::TICKET_ID,
-			    SearchFields_Message::WORKER_ID,
-			    SearchFields_Message::STORAGE_EXTENSION,
-			    SearchFields_Message::STORAGE_KEY,
-			    SearchFields_Message::STORAGE_PROFILE_ID,
-			    SearchFields_Message::STORAGE_SIZE,
-			    SearchFields_Message::RESPONSE_TIME,
-			    SearchFields_Message::IS_BROADCAST,
-			    SearchFields_Message::TICKET_GROUP_ID,
-			    SearchFields_Message::TICKET_MASK,
-			    SearchFields_Message::TICKET_SUBJECT,
-			    SearchFields_Message::ADDRESS_EMAIL
+			SearchFields_Message::ID,
+			SearchFields_Message::ADDRESS_ID,
+			SearchFields_Message::CREATED_DATE,
+			SearchFields_Message::IS_OUTGOING,
+			SearchFields_Message::TICKET_ID,
+			SearchFields_Message::WORKER_ID,
+			SearchFields_Message::STORAGE_EXTENSION,
+			SearchFields_Message::STORAGE_KEY,
+			SearchFields_Message::STORAGE_PROFILE_ID,
+			SearchFields_Message::STORAGE_SIZE,
+			SearchFields_Message::RESPONSE_TIME,
+			SearchFields_Message::IS_BROADCAST,
+			SearchFields_Message::TICKET_GROUP_ID,
+			SearchFields_Message::TICKET_MASK,
+			SearchFields_Message::TICKET_SUBJECT,
+			SearchFields_Message::ADDRESS_EMAIL
 		);
 		
 		$join_sql = "FROM message m ".
@@ -307,30 +307,102 @@ class DAO_Message extends C4_ORMHelper {
 			
 		$sort_sql = (!empty($sortBy) ? sprintf("ORDER BY %s %s ",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : " ");
 		
+		$has_multiple_values = false;
+		
+		// Translate virtual fields
+		
+		$args = array(
+			'join_sql' => &$join_sql,
+			'where_sql' => &$where_sql,
+			'has_multiple_values' => &$has_multiple_values
+		);
+		
+		array_walk_recursive(
+			$params,
+			array('DAO_Message', '_translateVirtualParameters'),
+			$args
+		);
+		
 		$result = array(
 			'primary_table' => 'm',
 			'select' => $select_sql,
 			'join' => $join_sql,
 			'where' => $where_sql,
-			'has_multiple_values' => false,
+			'has_multiple_values' => $has_multiple_values,
 			'sort' => $sort_sql,
 		);
 		
 		return $result;
+	}
+
+	private static function _translateVirtualParameters($param, $key, &$args) {
+		if(!is_a($param, 'DevblocksSearchCriteria'))
+			return;
+		
+		$from_context = 'cerberusweb.contexts.message';
+		$from_index = 'm.id';
+		
+		$param_key = $param->field;
+		settype($param_key, 'string');
+
+		switch($param_key) {
+			case SearchFields_Message::VIRTUAL_TICKET_STATUS:
+				$values = $param->value;
+				if(!is_array($values))
+					$values = array($values);
+					
+				$oper_sql = array();
+				$status_sql = array();
+				
+				switch($param->operator) {
+					default:
+					case DevblocksSearchCriteria::OPER_IN:
+					case DevblocksSearchCriteria::OPER_IN_OR_NULL:
+						$oper = '';
+						break;
+					case DevblocksSearchCriteria::OPER_NIN:
+					case DevblocksSearchCriteria::OPER_NIN_OR_NULL:
+						$oper = 'NOT ';
+						break;
+				}
+				
+				foreach($values as $value) {
+					switch($value) {
+						case 'open':
+							$status_sql[] = sprintf('%s(t.is_waiting = 0 AND t.is_closed = 0 AND t.is_deleted = 0)', $oper);
+							break;
+						case 'waiting':
+							$status_sql[] = sprintf('%s(t.is_waiting = 1 AND t.is_closed = 0 AND t.is_deleted = 0)', $oper);
+							break;
+						case 'closed':
+							$status_sql[] = sprintf('%s(t.is_closed = 1 AND t.is_deleted = 0)', $oper);
+							break;
+						case 'deleted':
+							$status_sql[] = sprintf('%s(t.is_deleted = 1)', $oper);
+							break;
+					}
+				}
+				
+				if(empty($status_sql))
+					break;
+				
+				$args['where_sql'] .= 'AND (' . implode(' OR ', $status_sql) . ') ';
+				break;
+		}		
 	}	
-    
-    /**
-     * Enter description here...
-     *
-     * @param DevblocksSearchCriteria[] $params
-     * @param integer $limit
-     * @param integer $page
-     * @param string $sortBy
-     * @param boolean $sortAsc
-     * @param boolean $withCounts
-     * @return array
-     */
-    static function search($params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
+	
+	/**
+	 * Enter description here...
+	 *
+	 * @param DevblocksSearchCriteria[] $params
+	 * @param integer $limit
+	 * @param integer $page
+	 * @param string $sortBy
+	 * @param boolean $sortAsc
+	 * @param boolean $withCounts
+	 * @return array
+	 */
+	static function search($params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
 		$db = DevblocksPlatform::getDatabaseService();
 
 		// Build search queries
@@ -375,7 +447,7 @@ class DAO_Message extends C4_ORMHelper {
 		mysql_free_result($rs);
 		
 		return array($results,$total);
-    }
+	}
 };
 
 class SearchFields_Message implements IDevblocksSearchFields {
@@ -410,6 +482,9 @@ class SearchFields_Message implements IDevblocksSearchFields {
 	const TICKET_IS_DELETED = 't_is_deleted';
 	const TICKET_MASK = 't_mask';
 	const TICKET_SUBJECT = 't_subject';
+	
+	// Virtuals
+	const VIRTUAL_TICKET_STATUS = '*_ticket_status';
 
 	/**
 	 * @return DevblocksSearchField[]
@@ -441,6 +516,8 @@ class SearchFields_Message implements IDevblocksSearchFields {
 			SearchFields_Message::TICKET_IS_DELETED => new DevblocksSearchField(SearchFields_Message::TICKET_IS_DELETED, 't', 'is_deleted', $translate->_('status.deleted'), Model_CustomField::TYPE_CHECKBOX),
 			SearchFields_Message::TICKET_MASK => new DevblocksSearchField(SearchFields_Message::TICKET_MASK, 't', 'mask', $translate->_('ticket.mask'), Model_CustomField::TYPE_SINGLE_LINE),
 			SearchFields_Message::TICKET_SUBJECT => new DevblocksSearchField(SearchFields_Message::TICKET_SUBJECT, 't', 'subject', $translate->_('ticket.subject'), Model_CustomField::TYPE_SINGLE_LINE),
+			
+			SearchFields_Message::VIRTUAL_TICKET_STATUS => new DevblocksSearchField(SearchFields_Message::VIRTUAL_TICKET_STATUS, '*', 'ticket_status', $translate->_('ticket.status')),
 		);
 	
 		$tables = DevblocksPlatform::getDatabaseTables();
@@ -690,16 +767,16 @@ class Storage_MessageContent extends Extension_DevblocksStorageSchema {
 			return false;
 			
 		// Update storage key
-	    DAO_Message::update($id, array(
-	        DAO_Message::STORAGE_EXTENSION => $storage->manifest->id,
-	        DAO_Message::STORAGE_KEY => $storage_key,
-	        DAO_Message::STORAGE_PROFILE_ID => $profile_id,
-	        DAO_Message::STORAGE_SIZE => $storage_size,
-	    ));
-	    
-	    return $storage_key;
-	}
+		DAO_Message::update($id, array(
+			DAO_Message::STORAGE_EXTENSION => $storage->manifest->id,
+			DAO_Message::STORAGE_KEY => $storage_key,
+			DAO_Message::STORAGE_PROFILE_ID => $profile_id,
+			DAO_Message::STORAGE_SIZE => $storage_size,
+		));
 	
+		return $storage_key;
+	}
+
 	public static function delete($ids) {
 		if(!is_array($ids)) $ids = array($ids);
 		
@@ -905,98 +982,98 @@ class Storage_MessageContent extends Extension_DevblocksStorageSchema {
 };
 
 class DAO_MessageHeader {
-    const MESSAGE_ID = 'message_id';
-    const HEADER_NAME = 'header_name';
-    const HEADER_VALUE = 'header_value';
-    
-    static function create($message_id, $header, $value) {
-    	$db = DevblocksPlatform::getDatabaseService();
-    	
-        if(empty($header) || empty($value) || empty($message_id))
-            return;
-    	
-        $header = strtolower($header);
+	const MESSAGE_ID = 'message_id';
+	const HEADER_NAME = 'header_name';
+	const HEADER_VALUE = 'header_value';
 
-        // Handle stacked headers
-        if(is_array($value)) {
-        	$value = implode("\r\n",$value);
-        }
-        
+	static function create($message_id, $header, $value) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		if(empty($header) || empty($value) || empty($message_id))
+			return;
+		
+		$header = strtolower($header);
+
+		// Handle stacked headers
+		if(is_array($value)) {
+			$value = implode("\r\n",$value);
+		}
+
 		$db->Execute(sprintf("INSERT INTO message_header (message_id, header_name, header_value) ".
-			"VALUES (%d, %s, %s)",
-			$message_id,
-			$db->qstr($header),
-			$db->qstr($value)
+				"VALUES (%d, %s, %s)",
+				$message_id,
+				$db->qstr($header),
+				$db->qstr($value)
 		));
-    }
-    
-    static function getAll($message_id) {
-        $db = DevblocksPlatform::getDatabaseService();
-        
-        $sql = sprintf("SELECT header_name, header_value ".
-            "FROM message_header ".
-            "WHERE message_id = %d",
-        	$message_id
-        );
-            
-        $rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
+	}
 
-        $headers = array();
-            
-        while($row = mysql_fetch_assoc($rs)) {
-            $headers[$row['header_name']] = $row['header_value'];
-        }
-        
-        mysql_free_result($rs);
-        
-        return $headers;
-    }
-    
-    static function getOne($message_id, $header_name) {
-        $db = DevblocksPlatform::getDatabaseService();
-        
-        $sql = sprintf("SELECT header_value ".
-            "FROM message_header ".
-            "WHERE message_id = %d ".
-            "AND header_name = %s ",
-        	$message_id,
-        	$db->qstr($header_name)
-        );
-        return $db->GetOne($sql); 
-    }
-    
-    static function getUnique() {
-        $db = DevblocksPlatform::getDatabaseService();
-        $headers = array();
-        
-        $sql = "SELECT header_name FROM message_header GROUP BY header_name";
-        $rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); 
-        
-        while($row = mysql_fetch_assoc($rs)) {
-            $headers[] = $row['header_name'];
-        }
-        
-        mysql_free_result($rs);
-        
-        sort($headers);
-        
-        return $headers;
-    }
-    
-    static function deleteById($ids) {
-    	if(!is_array($ids))
-    		$ids = array($ids);
-    	
-    	if(empty($ids))
-    		return;
-    		
-        $db = DevblocksPlatform::getDatabaseService();
-    	
-        $sql = sprintf("DELETE FROM message_header WHERE message_id IN (%s)",
-        	implode(',', $ids)
-        );
-        $db->Execute($sql);
-    }
+	static function getAll($message_id) {
+		$db = DevblocksPlatform::getDatabaseService();
+
+		$sql = sprintf("SELECT header_name, header_value ".
+			"FROM message_header ".
+			"WHERE message_id = %d",
+			$message_id
+		);
+
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+
+		$headers = array();
+
+		while($row = mysql_fetch_assoc($rs)) {
+			$headers[$row['header_name']] = $row['header_value'];
+		}
+
+		mysql_free_result($rs);
+
+		return $headers;
+	}
+
+	static function getOne($message_id, $header_name) {
+		$db = DevblocksPlatform::getDatabaseService();
+
+		$sql = sprintf("SELECT header_value ".
+			"FROM message_header ".
+			"WHERE message_id = %d ".
+			"AND header_name = %s ",
+			$message_id,
+			$db->qstr($header_name)
+		);
+		return $db->GetOne($sql);
+	}
+
+	static function getUnique() {
+		$db = DevblocksPlatform::getDatabaseService();
+		$headers = array();
+
+		$sql = "SELECT header_name FROM message_header GROUP BY header_name";
+		$rs = $db->Execute($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+
+		while($row = mysql_fetch_assoc($rs)) {
+			$headers[] = $row['header_name'];
+		}
+
+		mysql_free_result($rs);
+
+		sort($headers);
+
+		return $headers;
+	}
+
+	static function deleteById($ids) {
+		if(!is_array($ids))
+			$ids = array($ids);
+		
+		if(empty($ids))
+			return;
+
+		$db = DevblocksPlatform::getDatabaseService();
+		 
+		$sql = sprintf("DELETE FROM message_header WHERE message_id IN (%s)",
+			implode(',', $ids)
+		);
+		$db->Execute($sql);
+	}
 };
 
 class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, IAbstractView_QuickSearch {
@@ -1025,6 +1102,7 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 			SearchFields_Message::STORAGE_KEY,
 			SearchFields_Message::STORAGE_PROFILE_ID,
 			SearchFields_Message::STORAGE_SIZE,
+			SearchFields_Message::VIRTUAL_TICKET_STATUS,
 		));
 		$this->addParamsHidden(array(
 			SearchFields_Message::ID,
@@ -1065,6 +1143,7 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 				case SearchFields_Message::TICKET_GROUP_ID:
 				case SearchFields_Message::TICKET_IS_DELETED:
 				case SearchFields_Message::WORKER_ID:
+				case SearchFields_Message::VIRTUAL_TICKET_STATUS:
 					$pass = true;
 					break;
 					
@@ -1116,6 +1195,10 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 				$counts = $this->_getSubtotalCountForBooleanColumn('DAO_Message', $column);
 				break;
 			
+			case SearchFields_Message::VIRTUAL_TICKET_STATUS:
+				$counts = $this->_getSubtotalCountForStatus();
+				break;
+			
 			default:
 				// Custom fields
 				if('cf_' == substr($column,0,3)) {
@@ -1128,9 +1211,104 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 		return $counts;
 	}
 	
+	protected function _getSubtotalDataForStatus($dao_class, $field_key) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$fields = $this->getFields();
+		$columns = $this->view_columns;
+		$params = $this->getParams();
+		
+		// We want counts for all statuses even though we're filtering
+		if(
+			isset($params[SearchFields_Message::VIRTUAL_TICKET_STATUS])
+			&& is_array($params[SearchFields_Message::VIRTUAL_TICKET_STATUS]->value)
+			&& count($params[SearchFields_Message::VIRTUAL_TICKET_STATUS]->value) < 2
+			)
+			unset($params[SearchFields_Message::VIRTUAL_TICKET_STATUS]);
+			
+		if(!method_exists($dao_class,'getSearchQueryComponents'))
+			return array();
+		
+		$query_parts = call_user_func_array(
+			array($dao_class,'getSearchQueryComponents'),
+			array(
+				$columns,
+				$params,
+				$this->renderSortBy,
+				$this->renderSortAsc
+			)
+		);
+		
+		$join_sql = $query_parts['join'];
+		$where_sql = $query_parts['where'];
+		
+		$sql = "SELECT COUNT(IF(t.is_closed=0 AND t.is_waiting=0 AND t.is_deleted=0,1,NULL)) AS open_hits, COUNT(IF(t.is_waiting=1 AND t.is_closed=0 AND t.is_deleted=0,1,NULL)) AS waiting_hits, COUNT(IF(t.is_closed=1 AND t.is_deleted=0,1,NULL)) AS closed_hits, COUNT(IF(t.is_deleted=1,1,NULL)) AS deleted_hits ".
+			$join_sql.
+			$where_sql 
+		;
+		
+		$results = $db->GetArray($sql);
+
+		return $results;
+	}
+	
+	protected function _getSubtotalCountForStatus() {
+		$workers = DAO_Worker::getAll();
+		$translate = DevblocksPlatform::getTranslationService();
+		
+		$counts = array();
+		$results = $this->_getSubtotalDataForStatus('DAO_Message', SearchFields_Message::VIRTUAL_TICKET_STATUS);
+
+		$result = array_shift($results);
+		$oper = DevblocksSearchCriteria::OPER_IN;
+		
+		foreach($result as $key => $hits) {
+			if(empty($hits))
+				continue;
+			
+			switch($key) {
+				case 'open_hits':
+					$label = $translate->_('status.open');
+					$values = array('options[]' => 'open');
+					break;
+				case 'waiting_hits':
+					$label = $translate->_('status.waiting');
+					$values = array('options[]' => 'waiting');
+					break;
+				case 'closed_hits':
+					$label = $translate->_('status.closed');
+					$values = array('options[]' => 'closed');
+					break;
+				case 'deleted_hits':
+					$label = $translate->_('status.deleted');
+					$values = array('options[]' => 'deleted');
+					break;
+				default:
+					$label = '';
+					break;
+			}
+			
+			if(!isset($counts[$label]))
+				$counts[$label] = array(
+					'hits' => $hits,
+					'label' => $label,
+					'filter' => 
+						array(
+							'field' => SearchFields_Message::VIRTUAL_TICKET_STATUS,
+							'oper' => $oper,
+							'values' => $values,
+						),
+					'children' => array()
+				);
+		}
+		
+		return $counts;
+	}		
+	
 	function isQuickSearchField($token) {
 		switch($token) {
 			case SearchFields_Message::TICKET_GROUP_ID:
+			case SearchFields_Message::VIRTUAL_TICKET_STATUS:
 				return true;
 			break;
 		}
@@ -1176,6 +1354,52 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 				return true;
 				break;
 				
+			case SearchFields_Message::VIRTUAL_TICKET_STATUS:
+				$statuses = array();
+				$oper = DevblocksSearchCriteria::OPER_IN;
+				
+				if(preg_match('#([\!\=]+)(.*)#', $query, $matches)) {
+					$oper_hint = trim($matches[1]);
+					$query = trim($matches[2]);
+					
+					switch($oper_hint) {
+						case '!':
+						case '!=':
+							$oper = DevblocksSearchCriteria::OPER_NIN;
+							break;
+					}
+				}
+				
+				$inputs = DevblocksPlatform::parseCsvString($query);
+				
+				if(is_array($inputs))
+				foreach($inputs as $v) {
+					switch(strtolower(substr($v,0,1))) {
+						case 'o':
+							$statuses['open'] = true;
+							break;
+						case 'w':
+							$statuses['waiting'] = true;
+							break;
+						case 'c':
+							$statuses['closed'] = true;
+							break;
+						case 'd':
+							$statuses['deleted'] = true;
+							break;
+					}
+				}
+				
+				if(empty($statuses)) {
+					$value = null;
+					
+				} else {
+					$value = array_keys($statuses);
+				}
+				
+				return true;
+				break;
+				
 		}
 		
 		return false;
@@ -1201,8 +1425,48 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 
 	function renderVirtualCriteria($param) {
 		$key = $param->field;
+		$translate = DevblocksPlatform::getTranslationService();
 		
 		switch($key) {
+			case SearchFields_Message::VIRTUAL_TICKET_STATUS:
+				if(!is_array($param->value))
+					$param->value = array($param->value);
+					
+				$strings = array();
+				
+				foreach($param->value as $value) {
+					switch($value) {
+						case 'open':
+							$strings[] = '<b>' . $translate->_('status.open') . '</b>';
+							break;
+						case 'waiting':
+							$strings[] = '<b>' . $translate->_('status.waiting') . '</b>';
+							break;
+						case 'closed':
+							$strings[] = '<b>' . $translate->_('status.closed') . '</b>';
+							break;
+						case 'deleted':
+							$strings[] = '<b>' . $translate->_('status.deleted') . '</b>';
+							break;
+					}
+				}
+				
+				switch($param->operator) {
+					case DevblocksSearchCriteria::OPER_IN:
+						$oper = 'is';
+						break;
+					case DevblocksSearchCriteria::OPER_IN_OR_NULL:
+						$oper = 'is blank or';
+						break;
+					case DevblocksSearchCriteria::OPER_NIN:
+						$oper = 'is not';
+						break;
+					case DevblocksSearchCriteria::OPER_NIN_OR_NULL:
+						$oper = 'is blank or not';
+						break;
+				}
+				echo sprintf("Status %s %s", $oper, implode(' or ', $strings));
+				break;
 		}
 	}	
 	
@@ -1246,6 +1510,20 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 				
 			case SearchFields_Message::MESSAGE_CONTENT:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__fulltext.tpl');
+				break;
+				
+			case SearchFields_Message::VIRTUAL_TICKET_STATUS:
+				$translate = DevblocksPlatform::getTranslationService();
+				
+				$options = array(
+					'open' => $translate->_('status.open'),
+					'waiting' => $translate->_('status.waiting'),
+					'closed' => $translate->_('status.closed'),
+					'deleted' => $translate->_('status.deleted'),
+				);
+				
+				$tpl->assign('options', $options);
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__list.tpl');
 				break;
 				
 			default:
@@ -1344,6 +1622,11 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 			case SearchFields_Message::MESSAGE_CONTENT:
 				@$scope = DevblocksPlatform::importGPC($_REQUEST['scope'],'string','expert');
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_FULLTEXT,array($value,$scope));
+				break;
+				
+			case SearchFields_Message::VIRTUAL_TICKET_STATUS:
+				@$options = DevblocksPlatform::importGPC($_REQUEST['options'],'array',array());
+				$criteria = new DevblocksSearchCriteria($field,$oper,$options);
 				break;
 				
 			default:

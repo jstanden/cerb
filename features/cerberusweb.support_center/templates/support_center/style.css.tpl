@@ -201,6 +201,15 @@ TABLE.sidebar TD INPUT {
 #history DIV.reply TEXTAREA {
 }
 
+#history PRE.email {
+	white-space:pre-wrap;
+	white-space:-moz-pre-wrap;
+	white-space:-pre-wrap;
+	white-space:-o-pre-wrap;
+	word-wrap:break-word;
+	_white-space:pre;
+}
+
 /* KB */
 
 #kb h1.title {

@@ -24,7 +24,7 @@
 		<li><a href="{devblocks_url}ajax.php?c=config&a=handleSectionAction&section=portal&action=showTabSettings&id={$tool->id}{/devblocks_url}">{'Settings'|devblocks_translate}</a></li>
 		<li><a href="{devblocks_url}ajax.php?c=config&a=handleSectionAction&section=portal&action=showTabTemplates&id={$tool->id}{/devblocks_url}">{'Custom Templates'|devblocks_translate}</a></li>
 		<li><a href="{devblocks_url}ajax.php?c=config&a=handleSectionAction&section=portal&action=showTabInstallation&id={$tool->id}{/devblocks_url}">{'portal.cfg.installation'|devblocks_translate}</a></li>
-
+		
 		{$tabs = [settings,templates,installation]}
 	</ul>
 </div> 
