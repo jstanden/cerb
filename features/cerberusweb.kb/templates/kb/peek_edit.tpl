@@ -102,8 +102,8 @@
 		} );
 		
 		$('#btnKbArticleEditSave').bind('click', function() {
-			genericAjaxPopupClose('peek', 'article_save');
 			genericAjaxPost('frmKbEditPanel', '', '', function(json) {
+				genericAjaxPopupClose('peek', 'article_save');
 				{if !empty($view_id)}
 				genericAjaxGet('view{$view_id}','c=internal&a=viewRefresh&id={$view_id}');
 				{/if}

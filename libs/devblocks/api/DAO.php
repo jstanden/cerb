@@ -806,10 +806,10 @@ class SearchFields_DevblocksTemplate implements IDevblocksSearchFields {
 		
 		$columns = array(
 			self::ID => new DevblocksSearchField(self::ID, 'devblocks_template', 'id', $translate->_('common.id')),
-			self::PLUGIN_ID => new DevblocksSearchField(self::PLUGIN_ID, 'devblocks_template', 'plugin_id', $translate->_('plugin_id')),
+			self::PLUGIN_ID => new DevblocksSearchField(self::PLUGIN_ID, 'devblocks_template', 'plugin_id', $translate->_('Plugin')),
 			self::PATH => new DevblocksSearchField(self::PATH, 'devblocks_template', 'path', $translate->_('path')),
 			self::TAG => new DevblocksSearchField(self::TAG, 'devblocks_template', 'tag', $translate->_('tag')),
-			self::LAST_UPDATED => new DevblocksSearchField(self::LAST_UPDATED, 'devblocks_template', 'last_updated', $translate->_('last_updated')),
+			self::LAST_UPDATED => new DevblocksSearchField(self::LAST_UPDATED, 'devblocks_template', 'last_updated', $translate->_('common.updated')),
 		);
 		
 		// Custom Fields

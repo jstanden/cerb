@@ -68,7 +68,7 @@
 	<br>
 	
 	<div style="clear:both;">
-	<pre>{$message->getContent()|trim|escape|devblocks_hyperlinks|devblocks_hideemailquotes nofilter}</pre>
+	<pre class="email">{$message->getContent()|trim|escape|devblocks_hyperlinks|devblocks_hideemailquotes nofilter}</pre>
 	</div>
 	
 	{if isset($attachments.$message_id)}

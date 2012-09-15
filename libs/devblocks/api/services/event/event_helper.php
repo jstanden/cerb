@@ -1900,7 +1900,7 @@ class DevblocksEventHelper {
 		}
 		
 		$replyto = $group->getReplyTo($bucket_id);
-		$relay_list = @$params['to'] or array();
+		$relay_list = isset($params['to']) ? $params['to'] : array();
 		
 		// Attachments
 		$attachment_data = array();
@@ -1909,7 +1909,7 @@ class DevblocksEventHelper {
 				$attachment_data = DAO_AttachmentLink::getLinksAndAttachments(CerberusContexts::CONTEXT_MESSAGE, $message_id);
 			}
 		}
-
+		
 		// Owner
 		if(isset($params['to_owner']) && !empty($params['to_owner'])) {
 			if(!empty($owner_id)) {
@@ -1921,6 +1921,7 @@ class DevblocksEventHelper {
 		if(isset($params['to_watchers']) && !empty($params['to_watchers'])) {
 			$watchers = CerberusContexts::getWatchers($context, $context_id);
 			foreach($watchers as $watcher) { /* @var $watcher Model_Worker */
+				if(!in_array($watcher, $relay_list))
 				$relay_list[] = $watcher;
 			}
 			unset($watchers);

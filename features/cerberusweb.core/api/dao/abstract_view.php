@@ -432,7 +432,12 @@ abstract class C4_AbstractView {
 		$workers = DAO_Worker::getAll();
 		$strings = array();
 		
-		foreach($param->value as $worker_id) {
+		$values = $param->value;
+		
+		if(!is_array($values))
+			$values = array($values);
+		
+		foreach($values as $worker_id) {
 			if(isset($workers[$worker_id])) {
 				$strings[] = '<b>'.$workers[$worker_id]->getName().'</b>';
 			} elseif (!empty($worker_id)) {
@@ -651,6 +656,10 @@ abstract class C4_AbstractView {
 				$oper = DevblocksSearchCriteria::OPER_NIN;
 				if(!in_array('0', $worker_ids))
 					$worker_ids[] = '0';
+				break;
+			case DevblocksSearchCriteria::OPER_EQ:
+			case DevblocksSearchCriteria::OPER_NEQ:
+				@$worker_ids = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'integer',0);
 				break;
 		}
 		
@@ -941,7 +950,9 @@ abstract class C4_AbstractView {
 			case Model_CustomField::TYPE_CHECKBOX:
 			case Model_CustomField::TYPE_DROPDOWN:
 			case Model_CustomField::TYPE_MULTI_CHECKBOX:
+			case Model_CustomField::TYPE_NUMBER:
 			case Model_CustomField::TYPE_SINGLE_LINE:
+			case Model_CustomField::TYPE_URL:
 			case Model_CustomField::TYPE_WORKER:
 				$pass = true;
 				break;
@@ -1451,7 +1462,9 @@ abstract class C4_AbstractView {
 				
 			case Model_CustomField::TYPE_DROPDOWN:
 			case Model_CustomField::TYPE_MULTI_CHECKBOX:
+			case Model_CustomField::TYPE_NUMBER:
 			case Model_CustomField::TYPE_SINGLE_LINE:
+			case Model_CustomField::TYPE_URL:
 				$select = sprintf(
 					"SELECT COUNT(*) AS hits, %s.field_value AS %s ", //SQL_CALC_FOUND_ROWS
 					$field_key,
@@ -1482,14 +1495,14 @@ abstract class C4_AbstractView {
 					if(!empty($result[$field_key])) {
 						$label = $result[$field_key];
 						switch($cfield->type) {
-							case Model_CustomField::TYPE_SINGLE_LINE:
-								$oper = DevblocksSearchCriteria::OPER_EQ;
-								$values = array('value' => $label);
-								break;
 							case Model_CustomField::TYPE_DROPDOWN:
 							case Model_CustomField::TYPE_MULTI_CHECKBOX:
 								$oper = DevblocksSearchCriteria::OPER_IN;
 								$values = array('options[]' => $label);
+								break;
+							default:
+								$oper = DevblocksSearchCriteria::OPER_EQ;
+								$values = array('value' => $label);
 								break;
 						}
 					}
