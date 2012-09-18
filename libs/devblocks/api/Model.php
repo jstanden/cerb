@@ -150,6 +150,8 @@ class DevblocksSearchCriteria {
 				foreach($values as $idx=>$val) {
 					$vals[$idx] = $db->qstr((string)$val);
 				}
+
+				$where_in = '';
 				
 				if(empty($vals)) {
 					$where_in = '';

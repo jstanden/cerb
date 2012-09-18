@@ -831,8 +831,11 @@ abstract class C4_AbstractView {
 				case Model_CustomField::TYPE_WORKER:
 					$workers = DAO_worker::getAll();
 					foreach($vals as $idx => $worker_id) {
-						if(isset($workers[$worker_id]))
-							$vals[$idx] = $workers[$worker_id]->getName(); 
+						if(empty($worker_id)) {
+							$vals[$idx] = 'nobody';
+						} elseif(isset($workers[$worker_id])) {
+							$vals[$idx] = $workers[$worker_id]->getName();
+						}
 					}
 					break;
 			}
