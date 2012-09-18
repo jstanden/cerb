@@ -36,8 +36,8 @@
 
 	<li><b>Workers</b></li>
 		
-	{if !isset($workers)}{$workers = DAO_Worker::getAllActive()}{/if}
-	{foreach from=$workers item=worker key=worker_id}
+	{$active_workers = DAO_Worker::getAllActive()}
+	{foreach from=$active_workers item=worker key=worker_id}
 		<li class="item" key="{$worker_id}" style="padding-left:20px;">
 			<a href="javascript:;">{$worker->getName()}</a>
 		</li>
