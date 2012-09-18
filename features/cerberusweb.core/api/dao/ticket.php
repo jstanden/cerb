@@ -124,10 +124,9 @@ class DAO_Ticket extends C4_ORMHelper {
 	static function getTicketByMessageId($message_id) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = sprintf("SELECT t.id AS ticket_id, mh.message_id AS message_id ".
+		$sql = sprintf("SELECT m.ticket_id AS ticket_id, mh.message_id AS message_id ".
 			"FROM message_header mh ".
 			"INNER JOIN message m ON (m.id=mh.message_id) ".
-			"INNER JOIN ticket t ON (t.id=m.ticket_id) ".
 			"WHERE mh.header_name = 'message-id' AND mh.header_value = %s",
 			$db->qstr($message_id)
 		);
