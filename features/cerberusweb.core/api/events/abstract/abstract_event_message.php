@@ -30,7 +30,7 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 			list($results) = DAO_Ticket::search(
 				array(),
 				array(
-					new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',0),
+					new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_DELETED,'=',0),
 				),
 				10,
 				0,

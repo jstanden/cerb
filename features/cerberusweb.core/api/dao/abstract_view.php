@@ -442,6 +442,8 @@ abstract class C4_AbstractView {
 				$strings[] = '<b>'.$workers[$worker_id]->getName().'</b>';
 			} elseif (!empty($worker_id)) {
 				$strings[] = '<b>'.$worker_id.'</b>';
+			} elseif (0 == strlen($worker_id)) {
+				$strings[] = '<b>blank</b>';
 			} elseif (empty($worker_id)) {
 				$strings[] = '<b>nobody</b>';
 			}
@@ -831,8 +833,11 @@ abstract class C4_AbstractView {
 				case Model_CustomField::TYPE_WORKER:
 					$workers = DAO_worker::getAll();
 					foreach($vals as $idx => $worker_id) {
-						if(isset($workers[$worker_id]))
-							$vals[$idx] = $workers[$worker_id]->getName(); 
+						if(empty($worker_id)) {
+							$vals[$idx] = 'nobody';
+						} elseif(isset($workers[$worker_id])) {
+							$vals[$idx] = $workers[$worker_id]->getName();
+						}
 					}
 					break;
 			}
@@ -983,6 +988,10 @@ abstract class C4_AbstractView {
 					if(is_array($params[$field_key]->value) && count($params[$field_key]->value) < 2)
 						$params[$field_key] = new DevblocksSearchCriteria($field_key, DevblocksSearchCriteria::OPER_TRUE);
 					break;
+				case DevblocksSearchCriteria::OPER_IN_OR_NULL:
+					if(!is_array($params[$field_key]->value))
+						$params[$field_key] = new DevblocksSearchCriteria($field_key, DevblocksSearchCriteria::OPER_TRUE);
+					break;
 			}
 		}
 		
@@ -1041,8 +1050,57 @@ abstract class C4_AbstractView {
 						'filter' => 
 							array(
 								'field' => $field_key,
+								'oper' => DevblocksSearchCriteria::OPER_IN_OR_NULL,
+								'values' => array($value_key => ''),
+							),
+						'children' => array()
+					);
+				
+			// Anything else
+			} else {
+				if(!isset($counts[$label]))
+					$counts[$label] = array(
+						'hits' => $hits,
+						'label' => $label,
+						'filter' => 
+							array(
+								'field' => $field_key,
+								'oper' => $value_oper,
+								'values' => array($value_key => $result['label']),
+							),
+						'children' => array()
+					);
+				
+			}
+			
+		}
+		
+		return $counts;
+	}
+	
+	protected function _getSubtotalCountForNumberColumn($dao_class, $field_key, $label_map=array(), $value_oper='=', $value_key='value') {
+		$counts = array();
+		$results = $this->_getSubtotalDataForColumn($dao_class, $field_key);
+		
+		foreach($results as $result) {
+			$label = $result['label'];
+			$hits = $result['hits'];
+
+			if(isset($label_map[$result['label']]))
+				$label = $label_map[$result['label']];
+			
+			// Null strings
+			if(empty($label)) {
+				$label = '(none)';
+				if(!isset($counts[$label]))
+					$counts[$label] = array(
+						'hits' => $hits,
+						'label' => $label,
+						'filter' => 
+							array(
+								'field' => $field_key,
 								'oper' => DevblocksSearchCriteria::OPER_EQ,
-								'values' => '',
+								'values' => array($value_key => ''),
 							),
 						'children' => array()
 					);
