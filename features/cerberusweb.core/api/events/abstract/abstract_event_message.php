@@ -1053,10 +1053,16 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 				break;
 				
 			case 'set_subject':
+				// Translate message tokens
+				@$value = $params['value'];
+				
+				$builder = DevblocksPlatform::getTemplateBuilder();
+				$value = $builder->build($value, $dict);
+				
 				DAO_Ticket::update($ticket_id,array(
-					DAO_Ticket::SUBJECT => $params['value'],
+					DAO_Ticket::SUBJECT => $value,
 				));
-				$dict->ticket_subject = $params['value'];
+				$dict->ticket_subject = $value;
 				break;
 			
 			case 'move_to':
