@@ -190,6 +190,10 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 				'label' => 'Ticket watchers',
 				'context' => CerberusContexts::CONTEXT_WORKER,
 			),
+			'group_watchers' => array(
+				'label' => 'Group watchers',
+				'context' => CerberusContexts::CONTEXT_WORKER,
+			),
 			'ticket_org_id' => array(
 				'label' => 'Ticket org',
 				'context' => CerberusContexts::CONTEXT_ORG,
