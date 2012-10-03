@@ -85,11 +85,12 @@ class Plugin_RestAPI {
 		if(is_array($object))
 		foreach($object as $k => $v) {
 			if(is_array($v)) {
-				$e =& $xml->addChild("array", '');
+				$e = $xml->addChild("array", '');
 				$e->addAttribute("key", $k);
 				self::xml_encode($v, $e);
+				
 			} else {
-				$e =& $xml->addChild("string", htmlspecialchars($v, ENT_QUOTES, LANG_CHARSET_CODE));
+				$e = $xml->addChild("string", htmlspecialchars($v, ENT_QUOTES, LANG_CHARSET_CODE));
 				$e->addAttribute("key", (string)$k);
 			}
 		}
