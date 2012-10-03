@@ -280,7 +280,8 @@ class DevblocksSearchCriteria {
 						break;
 					default:
 					case 'expert':
-						$value = $search->prepareText($value);
+						$value = DevblocksPlatform::strUnidecode($value);
+						// We don't want to strip punctuation in expert mode
 						break;
 				}
 				
